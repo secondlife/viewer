@@ -200,7 +200,6 @@ BOOL LLIMFloater::postBuild()
 	childSetCommitCallback("chat_editor", onSendMsg, this);
 	
 	mHistoryEditor = getChild<LLViewerTextEditor>("im_text");
-	mHistoryEditor->setParseHTML(TRUE);
 		
 	setTitle(LLIMModel::instance().getName(mSessionID));
 	setDocked(true);
@@ -361,19 +360,21 @@ void LLIMFloater::updateMessages()
 			if (mLastFromName != from)
 			{
 				message << from << " ----- " << msg["time"].asString();
-				mHistoryEditor->appendColoredText(message.str(), false,
-					prepend_newline, divider_color);
+				mHistoryEditor->appendText(message.str(),
+					prepend_newline, LLStyle::Params().color(divider_color) );
 				message.str("");
 				mLastFromName = from;
 			}
 
 			message << msg["message"].asString(); 
-			mHistoryEditor->appendColoredText(message.str(), false,
-				prepend_newline, chat_color);
+			mHistoryEditor->appendText(message.str(),
+				prepend_newline, 
+				LLStyle::Params().color(chat_color) );
 			message.str("");
 
 			mLastMessageIndex = msg["index"].asInteger();
 		}
+		mHistoryEditor->blockUndo();
 
 		mHistoryEditor->setCursorAndScrollToEnd();
 	}

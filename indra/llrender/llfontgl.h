@@ -72,11 +72,10 @@ public:
 	enum StyleFlags
 	{
 		// text style to render.  May be combined (these are bit flags)
-		// TODO:: Maybe change the value to  0x01 << 0 for 1   0x01 << 1 for 2,  0x01 << 2 for 4
-		NORMAL = 0,	
-		BOLD = 1,
-		ITALIC = 2,
-		UNDERLINE = 4
+		NORMAL    = 0x00,	
+		BOLD      = 0x01,
+		ITALIC    = 0x02,
+		UNDERLINE = 0x04
 	};
 
 	enum ShadowType

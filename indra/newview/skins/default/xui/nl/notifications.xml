@@ -576,7 +576,7 @@ Verplaats alstublieft alle objecten die u wilt verwerven naar dezelfde regio.
 	<notification name="PromptGoToCurrencyPage">
 		[EXTRA]
 
-Naar [URL] gaan voor informatie over de aankoop valuta?
+Naar [_URL] gaan voor informatie over de aankoop L$?
 		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
 	</notification>
 	<notification name="UnableToLinkObjects">
@@ -805,7 +805,6 @@ Geen groep geselecteerd.
 	<notification name="CannotDeedLandNoRegion">
 		Kan land niet toekennen:
 Kan de regio niet vinden waar dit land zich bevind.
-Gebruik alstublieft Gereedschappen -&gt; Report Bug om het te rapporteren.
 	</notification>
 	<notification name="CannotDeedLandMultipleSelected">
 		Kan land niet toekennen:
@@ -852,8 +851,6 @@ Percelen in uw eigendom verschijnen in groen.
 	<notification name="CannotReleaseLandRegionNotFound">
 		Kan land niet afstaan:
 Kan de regio niet vinden waar dit land zich bevind.
-
-Gebruik alstublieft Gereedschappen &gt; Report Bug om het te rapporteren.
 	</notification>
 	<notification name="CannotReleaseLandNoTransfer">
 		Kan land niet afstaan:
@@ -892,14 +889,10 @@ Land opdelen?
 	<notification name="CannotDivideLandNoRegion">
 		Kan het land niet opdelen:
 Kan de regio niet vinden waar dit land zich bevind.
-
-Gebruik alstublieft Gereedschappen &gt; Report Bug om het te rapporteren.
 	</notification>
 	<notification name="CannotJoinLandNoRegion">
 		Kan land niet verbinden:
 Kan de regio niet vinden waar dit land zich bevind.
-
-Gebruik alstublieft Gereedschappen &gt; Report Bug om het te rapporteren.
 	</notification>
 	<notification name="CannotJoinLandNothingSelected">
 		Kan land niet verbinden:
@@ -959,8 +952,6 @@ Grijs = Openbaar
 		Kon [NAME] niet opslaan in centrale (asset) opslag.
 Meestal is dit een tijdelijk probleem.
 Wijzig en sla het draagbaar item over een paar minuten opnieuw op.
-
-Indien dit probleem aanhoudt, klik dan alstublieft op &apos;Gereedschap &gt; Rapporteer Bug&apos; in het menu en voeg informatie toe over uw netwerk instellingen.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
 		U bent uitgelogd uit [SECOND_LIFE]:
@@ -1301,10 +1292,6 @@ Downloaden naar uw Applicatie Data map?
 	<notification name="WebLaunchJoinNow">
 		Naar www.secondlife.com gaan om uw account te beheren?
 		<usetemplate ignoretext="Bij openen van webbrowser om uw account te beheren" name="okcancelignore" notext="Annuleren" yestext="OK"/>
-	</notification>
-	<notification name="WebLaunchBugReport101">
-		Bezoek de [SECOND_LIFE] Wiki en leer hoe Bugs correct gerapporteerd kunnen worden.
-		<usetemplate ignoretext="Bij openen webbrowser om de Bug Reporting 101 Wiki te bekijken" name="okcancelignore" notext="Annuleren" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchSecurityIssues">
 		Bezoek de [SECOND_LIFE] Wiki voor details over hoe een Veiligheids Probleem (Security Issue) te rapporteren.
@@ -2044,25 +2031,10 @@ De regio eigenaar zal de rapporten afhandelen op basis van de regels geldend voo
 De afhandeling van dit rapport is alleen van toepassing op deze regio.
 Toegang van Inwoners tot andere gebieden van [SECOND_LIFE] zullen niet beïnvloed worden door de uitkomst van dit rapport. Alleen Linden Lab kan de toegang tot geheel [SECOND_LIFE] beperken.
 	</notification>
-	<notification name="HelpReportBug">
-		Gebruik dit gereedschap *alleen* voor het rapporteren van technische opties die niet functioneren als verwacht. Geef alstublieft zoveel mogelijk technische details als mogelijk. U kunt de automatische-antwoord email gebruiken om op te reageren om aanvullende gegevens toe te voegen aan uw rapport.
-
-Alle bug rapporten worden onderzocht en ingeschat. Er zal geen antwoord per email worden verzonden.
-
-Als u technische problemen heeft, neem dan contact op met Support op:
-http://secondlife.com/community/support.php
-
-Opmerking: Onvolledige rapporten zullen niet worden onderzocht.
-	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Selecteer alstublieft een categorie voor dit misbruik rapport.
 
 Het selecteren van een categorie helpt ons met het archiveren en verwerken van misbruik rapporten.
-	</notification>
-	<notification name="HelpReportBugSelectCategory">
-		Selecteer alstublieft een categorie voor dit bug rapport.
-
-Het selecteren van een categorie helpt ons met het archiveren en verwerken van bug rapporten.
 	</notification>
 	<notification name="HelpReportAbuseAbuserNameEmpty">
 		Geef alstublieft een naam op van de misbruiker.
@@ -2079,22 +2051,10 @@ Een accurate waarde opgeven helpt ons met het archiveren en verwerken van misbru
 
 Een accurate waarde opgeven helpt ons met het archiveren en verwerken van misbruik rapporten.
 	</notification>
-	<notification name="HelpReportBugSummaryEmpty">
-		Geef alstublieft een korte samenvatting van de bug.
-
-Een accurate samenvatting opgeven helpt ons met het archiveren en verwerken van bug rapporten.
-	</notification>
 	<notification name="HelpReportAbuseDetailsEmpty">
 		Geef alstublieft een gedetailleerde omschrijving van het misbruik dat plaats vond.
 
 Wees zo specifiek als mogelijk, inclusief namen en details van het incident waarover u rapporteert.
-
-Het opgeven van een accurate omschrijving helpt ons met het archiveren en verwerken van misbruik rapporten.
-	</notification>
-	<notification name="HelpReportBugDetailsEmpty">
-		Geef alstublieft een gedetailleerde omschrijving van de bug.
-
-Wees zo specifiek als mogelijk, inclusief stappen om de bug te reproduceren, indien mogelijk.
 
 Het opgeven van een accurate omschrijving helpt ons met het archiveren en verwerken van misbruik rapporten.
 	</notification>

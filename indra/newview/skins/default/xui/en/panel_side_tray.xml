@@ -21,7 +21,6 @@
         filename="panel_sidetray_home_tab.xml"
         label="home"
         border="true"
-        font="SansSerifBold"
       />
   </sidetray_tab>
 
@@ -44,14 +43,12 @@
         name="panel_people"
         filename="panel_people.xml"
         border="true"
-        font="SansSerifBold"
       />
       <panel
         class="panel_profile_view"
         name="panel_profile_view"
         filename="panel_profile_view.xml"
         border="true"
-        font="SansSerifBold"
       />
       <panel
         class="panel_group_info_sidetray"
@@ -107,7 +104,6 @@
         filename="panel_me_profile.xml"
         label="Me"
         border="true"
-        font="SansSerifBold"
       />
   </sidetray_tab>
 

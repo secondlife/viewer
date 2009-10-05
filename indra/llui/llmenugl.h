@@ -268,15 +268,18 @@ public:
 	{
 		Optional<EnableCallbackParam > on_enable;
 		Optional<CommitCallbackParam > on_click;
+		Optional<VisibleCallbackParam > on_visible;
 		Params()
 			: on_enable("on_enable"),
-			  on_click("on_click")
+			  on_click("on_click"),
+			  on_visible("on_visible")
 		{}
 	};
 protected:
 	LLMenuItemCallGL(const Params&);
 	friend class LLUICtrlFactory;
 	void updateEnabled( void );
+	void updateVisible( void );
 
 public:
 	void initFromParams(const Params& p);
@@ -300,10 +303,15 @@ public:
 	{
 		return mEnableSignal.connect(cb);
 	}
-
+	
+	boost::signals2::connection setVisibleCallback( const visible_signal_t::slot_type& cb )
+	{
+		return mVisibleSignal.connect(cb);
+	}
 	
 private:
 	enable_signal_t mEnableSignal;
+	visible_signal_t mVisibleSignal;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

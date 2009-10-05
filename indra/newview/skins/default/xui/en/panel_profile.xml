@@ -17,6 +17,10 @@
         http://www.secondlife.com/account/billing.php?lang=en
     </string>
     <string
+     name="partner_edit_link_url">
+        http://www.secondlife.com/account/partners.php?lang=en
+    </string>
+    <string
      name="my_account_link_url"
      value="http://secondlife.com/account" />
     <string

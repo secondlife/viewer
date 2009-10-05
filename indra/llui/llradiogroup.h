@@ -47,18 +47,7 @@ class LLRadioCtrl : public LLCheckBoxCtrl
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLCheckBoxCtrl::Params>
-	{
-		Ignored		length;
-		Ignored		type;
-
-		Params() 
-		:	length("length"),
-			type("type")
-		{
-			// radio items are not tabbable until they are selected
-			tab_stop = false;
-		}
-	};
+	{};
 
 	/*virtual*/ ~LLRadioCtrl();
 	/*virtual*/ void setValue(const LLSD& value);

@@ -39,7 +39,7 @@
 				Fator cobrança:
 			</text>
 			<text name="land cost text">
-				L$ por metros quadrados
+				L$ por m²:
 			</text>
 			<button label="Atualizar" label_selected="Atualizar" name="Refresh" tool_tip="Clique aqui para atualizar a informação acima."/>
 			<button label="Aplicar" label_selected="Aplicar" name="Apply" tool_tip="Clique aqui para aplicar qualquer mudança acima"/>
@@ -73,17 +73,17 @@
 				Destino:
 			</text>
 			<combo_box name="destination">
-				<combo_box.item name="Selection" label="Seleção" />
-				<combo_box.item name="AgentRegion" label="Região do Agente" />
+				<combo_box.item name="item1" label="Seleção" />
+				<combo_box.item name="item2" label="Região do Agente" />
 			</combo_box>
 			<text name="Request:">
 				Requisição:
 			</text>
 			<combo_box name="request">
-				<combo_box.item name="colliders&lt;steps&gt;" label="Passos de Colisão" />
-				<combo_box.item name="scripts&lt;count&gt;,&lt;optionalpattern&gt;" label="Contagem de scripts, padrão opcional" />
-				<combo_box.item name="objects&lt;pattern&gt;" label="Padrão de Objetos" />
-				<combo_box.item name="rez&lt;asset_id&gt;" label="rez &lt;asset_id&gt;" />
+				<combo_box.item name="item1" label="Passos de Colisão" />
+				<combo_box.item name="item2" label="Contagem de scripts, padrão opcional" />
+				<combo_box.item name="item3" label="Padrão de Objetos" />
+				<combo_box.item name="item4" label="rez &lt;asset_id&gt;" />
 			</combo_box>
 			<text name="Parameter:">
 				Parametro:

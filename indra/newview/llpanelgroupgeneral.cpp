@@ -721,15 +721,18 @@ void LLPanelGroupGeneral::updateMembers()
 		row["id"] = member->getID();
 
 		row["columns"][0]["column"] = "name";
+		row["columns"][0]["font"]["name"] = "SANSSERIF_SMALL";
 		row["columns"][0]["font"]["style"] = style;
 		// value is filled in by name list control
 
 		row["columns"][1]["column"] = "title";
 		row["columns"][1]["value"] = member->getTitle();
+		row["columns"][1]["font"]["name"] = "SANSSERIF_SMALL";
 		row["columns"][1]["font"]["style"] = style;
 		
 		row["columns"][2]["column"] = "online";
 		row["columns"][2]["value"] = member->getOnlineStatus();
+		row["columns"][2]["font"]["name"] = "SANSSERIF_SMALL";
 		row["columns"][2]["font"]["style"] = style;
 
 		sSDTime += sd_timer.getElapsedTimeF32();

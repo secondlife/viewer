@@ -155,6 +155,7 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 						match_entry->getLabel(url, cb),
 						match_entry->getTooltip(),
 						match_entry->getIcon(),
+						match_entry->getColor(),
 						match_entry->getMenuName(),
 						match_entry->getLocation(url));
 		return true;
@@ -183,9 +184,10 @@ bool LLUrlRegistry::findUrl(const LLWString &text, LLUrlMatch &match, const LLUr
 		}
 		S32 end = start + wurl.size() - 1;
 
-		match.setValues(start, end, match.getUrl(), match.getLabel(),
-						match.getTooltip(), match.getIcon(),
-						match.getMenuName(), match.getLocation());
+		match.setValues(start, end, match.getUrl(), 
+			match.getLabel(), match.getTooltip(),
+			match.getIcon(), match.getColor(),
+			match.getMenuName(), match.getLocation());
 		return true;
 	}
 	return false;

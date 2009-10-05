@@ -819,15 +819,6 @@ void LLPanel::childSetPrevalidate(const std::string& id, BOOL (*func)(const LLWS
 	}
 }
 
-void LLPanel::childSetWrappedText(const std::string& id, const std::string& text, bool visible)
-{
-	LLTextBox* child = findChild<LLTextBox>(id);
-	if (child)
-	{
-		child->setVisible(visible);
-		child->setWrappedText(text);
-	}
-}
 
 void LLPanel::childSetAction(const std::string& id, boost::function<void(void*)> function, void* value)
 {

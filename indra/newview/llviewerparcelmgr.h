@@ -71,6 +71,9 @@ const F32 PARCEL_POST_HEIGHT = 0.666f;
 
 // Base class for people who want to "observe" changes in the viewer
 // parcel selection.
+
+//FIXME: this should be done by grabbing a floating parcel selection and observing changes on it, not the parcel mgr
+//--RN
 class LLParcelObserver
 {
 public:

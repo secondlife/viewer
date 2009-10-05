@@ -73,6 +73,9 @@ public:
 	 */
 	static std::string buildSLURL(const std::string& regionname, S32 x, S32 y, S32 z);
 
+	/// Build a SLURL like secondlife:///app/agent/<uuid>/inspect
+	static std::string buildCommand(const char* noun, const LLUUID& id, const char* verb);
+
 	/**
 	 * builds: http://slurl.com/secondlife/Region Name/x/y/z/ without escaping result url.
 	 */

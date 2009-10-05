@@ -40,7 +40,7 @@
 
 LLStyle::Params::Params()
 :	visible("visible", true),
-	drop_shadow("drop_shadow", false),
+	drop_shadow("drop_shadow", LLFontGL::NO_SHADOW),
 	color("color", LLColor4::black),
 	font("font", LLFontGL::getFontMonospace()),
 	image("image"),

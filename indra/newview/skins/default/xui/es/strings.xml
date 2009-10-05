@@ -527,4 +527,110 @@ Si sigue recibiendo este mensaje, contacte con el [SUPPORT_SITE].
 	<string name="GraphicsQualityHigh">
 		Alto
 	</string>
+	
+	<!-- PARCEL_CATEGORY_UI_STRING  -->
+	<string name="Linden Location">Localización Linden</string>
+	<string name="Adult">&apos;Adult&apos;</string>
+	<string name="Arts&amp;Culture">Arte y Cultura</string>
+	<string name="Business">Negocios</string>
+	<string name="Educational">Educativo</string>
+	<string name="Gaming">Juegos de azar</string>
+	<string name="Hangout">Entretenimiento</string>
+	<string name="Newcomer Friendly">Para recién llegados</string>
+	<string name="Parks&amp;Nature">Parques y Naturaleza</string>
+	<string name="Residential">Residencial</string>
+	<string name="Shopping">Compras</string>
+	<string name="Other">Otra</string>
+	
+	<string name="ringing">
+		Conectando al chat de voz...
+	</string>
+	<string name="connected">
+		Conectado
+	</string>
+	<string name="unavailable">
+		La voz no está disponible en su localización actual
+	</string>
+	<string name="hang_up">
+		Desconectado del chat de voz
+	</string>
+  <string name="ScriptQuestionCautionChatGranted">
+	&apos;[OBJECTNAME]&apos;, un objeto propiedad de &apos;[OWNERNAME]&apos;, localizado en [REGIONNAME] con la posición [REGIONPOS], ha recibido permiso para: [PERMISSIONS].
+  </string>
+  <string name="ScriptQuestionCautionChatDenied">
+	A &apos;[OBJECTNAME]&apos;, un objeto propiedad de &apos;[OWNERNAME]&apos;, localizado en [REGIONNAME] con la posición [REGIONPOS], se le ha denegado el permiso para: [PERMISSIONS].
+  </string>
+  <string name="ScriptTakeMoney">
+	Cogerle a usted dólares Linden (L$)
+  </string>
+  <string name="ActOnControlInputs">
+	Actuar en sus controles de entrada
+  </string>
+  <string name="RemapControlInputs">
+	Reconfigurar sus controles de entrada
+  </string>
+  <string name="AnimateYourAvatar">
+	Ejecutar animaciones en su avatar
+  </string>
+  <string name="AttachToYourAvatar">
+	Anexarse a su avatar
+  </string>
+  <string name="ReleaseOwnership">
+	Anular la propiedad y que pase a ser público
+  </string>
+  <string name="LinkAndDelink">
+	Enlazar y desenlazar de otros objetos
+  </string>
+  <string name="AddAndRemoveJoints">
+	Añadir y quitar uniones con otros objetos
+  </string>
+  <string name="ChangePermissions">
+	Cambiar sus permisos
+  </string>
+  <string name="TrackYourCamera">
+	Seguir su cámara
+  </string>
+  <string name="ControlYourCamera">
+	Controlar su cámara
+  </string>
+	
+	<string name="only_user_message">
+		Usted es el único usuario en esta sesión.
+	</string>
+	<string name="offline_message">
+		[FIRST] [LAST] no está conectado.
+	</string>
+	<string name="invite_message">
+		Pulse el botón [BUTTON NAME] para aceptar/conectar este chat de voz.
+	</string>
+	<string name="generic_request_error">
+		Error al hacer lo solicitado; por favor, inténtelo más tarde.
+	</string>
+	<string name="insufficient_perms_error">
+		Usted no tiene permisos suficientes.
+	</string>
+	<string name="session_does_not_exist_error">
+		La sesión ya acabó
+	</string>
+	<string name="no_ability_error">
+		Usted no tiene esa capacidad.
+	</string>
+	<string name="not_a_mod_error">
+		Usted no es un moderador de la sesión.
+	</string>
+	<string name="muted_error">
+		Un moderador del grupo le ha desactivado el chat de texto.
+	</string>
+	<string name="add_session_event">
+		No se ha podido añadir usuarios a la sesión de chat con [RECIPIENT].
+	</string>
+	<string name="message_session_event">
+		No se ha podido enviar su mensaje a la sesión de chat con [RECIPIENT].
+	</string>
+	<string name="removed_from_group">
+		Ha sido eliminado del grupo.
+	</string>
+	<string name="close_on_no_ability">
+		Usted ya no tendrá más la capacidad de estar en la sesión de chat.
+	</string>
 </strings>

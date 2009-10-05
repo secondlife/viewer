@@ -64,17 +64,17 @@ protected:
 		 */
 		/*virtual*/ void draw();
 
-		/**
-		 * Draws simple text(no urls) line by line, will show or hide "More" link
-		 * if needed.
-		 */
-		/*virtual*/ void drawText( S32 x, S32 y, const LLWString &text, const LLColor4& color );
-
-		/**
-		 * Draws segmented text(with urls) line by line. Will show or hide "More" link 
-		 * if needed
-		 */
-		void drawTextSegments(S32 x, S32 y, const LLWString &text);
+//		/**
+//		 * Draws simple text(no urls) line by line, will show or hide "More" link
+//		 * if needed.
+//		 */
+//		/*virtual*/ void drawText( S32 x, S32 y, const LLWString &text, const LLColor4& color );
+//
+//		/**
+//		 * Draws segmented text(with urls) line by line. Will show or hide "More" link 
+//		 * if needed
+//		 */
+//		void drawTextSegments(S32 x, S32 y, const LLWString &text);
 
 		/**
 		 * Returns difference between text box height and text height.

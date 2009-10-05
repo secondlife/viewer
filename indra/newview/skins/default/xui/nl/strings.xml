@@ -516,4 +516,110 @@
 	<string name="GraphicsQualityHigh">
 		Hoog
 	</string>
+	
+	<!-- PARCEL_CATEGORY_UI_STRING -->
+	<string name="Linden Location">Linden locatie</string>
+	<string name="Adult">Adult</string>
+	<string name="Arts&amp;Culture">Kunst &amp; Cultuur</string>
+	<string name="Business">Zakelijk</string>
+	<string name="Educational">Educatief</string>
+	<string name="Gaming">Spelen</string>
+	<string name="Hangout">Ontmoetingsplaats</string>
+	<string name="Newcomer Friendly">Nieuwkomervriendelijk</string>
+	<string name="Parks&amp;Nature">Parken &amp; natuur</string>
+	<string name="Residential">Woongebied</string>
+	<string name="Shopping">Winkelen</string>
+	<string name="Other">Anders</string>
+	
+	<string name="ringing">
+		Verbinden met in-wereld voice chat...
+	</string>
+	<string name="connected">
+		Verbonden
+	</string>
+	<string name="unavailable">
+		Voice is niet beschikbaar op uw huidige locatie
+	</string>
+	<string name="hang_up">
+		Verbinding met in-wereld voicechat verbroken
+	</string>
+  <string name="ScriptQuestionCautionChatGranted">
+	&apos;[OBJECTNAME]&apos;, een object van &apos;[OWNERNAME]&apos;, gevestigd in [REGIONNAME] op [REGIONPOS], is toestemming verleend om te: [PERMISSIONS].
+  </string>
+  <string name="ScriptQuestionCautionChatDenied">
+	&apos;[OBJECTNAME]&apos;, een object van &apos;[OWNERNAME]&apos;, gevestigd in [REGIONNAME] op [REGIONPOS], is toestemming geweigerd om te: [PERMISSIONS].
+  </string>
+  <string name="ScriptTakeMoney">
+	Linden dollars (L$) van u wegnemen
+  </string>
+  <string name="ActOnControlInputs">
+	Acteren op uw bedieningsinvoer
+  </string>
+  <string name="RemapControlInputs">
+	Uw bedieningsinvoer herdefiniëren
+  </string>
+  <string name="AnimateYourAvatar">
+	Animeer uw avatar
+  </string>
+  <string name="AttachToYourAvatar">
+	Bevestig aan uw avatar
+  </string>
+  <string name="ReleaseOwnership">
+	Eigendom vrijgeven en openbaar worden
+  </string>
+  <string name="LinkAndDelink">
+	Koppelen met en ontkoppelen van andere objecten
+  </string>
+  <string name="AddAndRemoveJoints">
+	Toevoegen en verwijderen koppelingen met andere objecten
+  </string>
+  <string name="ChangePermissions">
+	Wijzig zijn permissies
+  </string>
+  <string name="TrackYourCamera">
+	Volg uw camera
+  </string>
+  <string name="ControlYourCamera">
+	Bedien uw camera
+  </string>
+	
+	<string name="only_user_message">
+		U bent de enige gebruiker in deze sessie.
+	</string>
+	<string name="offline_message">
+		[FIRST] [LAST] is offline.
+	</string>
+	<string name="invite_message">
+		Klik de [BUTTON NAME] knop om deze voicechat te accepteren/verbinden.
+	</string>
+	<string name="generic_request_error">
+		Fout tijdens het maken van het verzoek, probeer het later nog een keer.
+	</string>
+	<string name="insufficient_perms_error">
+		U heeft niet voldoende permissies.
+	</string>
+	<string name="session_does_not_exist_error">
+		De sessie bestaat niet meer
+	</string>
+	<string name="no_ability_error">
+		U beschikt niet over die mogelijkheid.
+	</string>
+	<string name="not_a_mod_error">
+		U bent geen sessie moderateur
+	</string>
+	<string name="muted_error">
+		Een groepsmoderator heeft uw textchat uitgeschakeld.
+	</string>
+	<string name="add_session_event">
+		Kan geen gebruikers toevoegen aan chatsessie met [RECIPIENT].
+	</string>
+	<string name="message_session_event">
+		Kan uw bericht niet versturen naar de chatsessie met [RECIPIENT].
+	</string>
+	<string name="removed_from_group">
+		U bent verwijderd uit de groep.
+	</string>
+	<string name="close_on_no_ability">
+		U heeft niet langer de mogelijkheid om in deze chatsessie te zijn.
+	</string>
 </strings>

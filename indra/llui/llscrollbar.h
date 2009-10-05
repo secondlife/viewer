@@ -164,9 +164,6 @@ private:
 	LLUIImagePtr		mTrackImageH;
 
 	S32					mThickness;
-
-	void			(*mOnScrollEndCallback)(void*);
-	void			*mOnScrollEndData;
 };
 
 

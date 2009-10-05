@@ -82,7 +82,8 @@
                      name="progress_text"
                      text_color="LoginProgressBoxTextColor"
                      top_pad="5"
-                     width="593" />
+                     width="593"
+                     word_wrap="true"/>
                     <progress_bar
                      bottom="115"
                      color_bar="1 1 1 0.96"
@@ -100,11 +101,12 @@
                      height="100"
                      layout="topleft"
                      left="45"
-                     line_spacing="2"
+                     line_spacing.pixels="2"
                      name="message_text"
                      text_color="LoginProgressBoxTextColor"
                      top="145"
-                     width="550" />
+                     width="550"
+                     word_wrap="true"/>
                 </layout_panel>
                 <layout_panel
                  height="200"

@@ -33,8 +33,10 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llstylemap.h"
+
 #include "llstring.h"
 #include "llui.h"
+#include "llslurl.h"
 #include "llviewercontrol.h"
 #include "llagent.h"
 
@@ -47,7 +49,8 @@ const LLStyle::Params &LLStyleMap::lookupAgent(const LLUUID &source)
 		if (source != LLUUID::null && source != gAgent.getID() )
 		{
 			style_params.color.control = "HTMLLinkColor";
-			style_params.link_href = llformat("secondlife:///app/agent/%s/about",source.asString().c_str());
+			style_params.link_href = 
+					LLSLURL::buildCommand("agent", source, "inspect");
 		}
 		else
 		{
@@ -55,7 +58,7 @@ const LLStyle::Params &LLStyleMap::lookupAgent(const LLUUID &source)
 			style_params.color = LLColor4::white;
 		}
 
-		mMap[source] = LLStyle::Params();
+		mMap[source] = style_params;
 	}
 	return mMap[source];
 }

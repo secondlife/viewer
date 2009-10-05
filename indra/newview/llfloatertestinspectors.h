@@ -50,6 +50,7 @@ private:
 
 	// Button callback to show
 	void showAvatarInspector(LLUICtrl*, const LLSD& avatar_id);
+	void showObjectInspector(LLUICtrl*, const LLSD& avatar_id);
 	
 	// Debug function hookups for buttons
 	void onClickAvatar2D();

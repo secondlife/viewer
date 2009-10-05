@@ -42,12 +42,6 @@
 // Panel for permissions of an object.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLCheckBoxCtrl;
-class LLTextBox;
-class LLButton;
-class LLLineEditor;
-class LLRadioGroup;
-class LLComboBox;
 class LLNameBox;
 
 class LLPanelPermissions : public LLPanel
@@ -56,31 +50,24 @@ public:
 	LLPanelPermissions();
 	virtual ~LLPanelPermissions();
 
-	virtual	BOOL	postBuild();
+	/*virtual*/	BOOL	postBuild();
 
-	// MANIPULATORS
 	void refresh();							// refresh all labels as needed
 
 protected:
 	// statics
 	static void onClickClaim(void*);
 	static void onClickRelease(void*);
-	static void onClickCreator(void*);
-	static void onClickOwner(void*);
 		   void onClickGroup();
 		   void cbGroupID(LLUUID group_id);
 	static void onClickDeedToGroup(void*);
 
 	static void onCommitPerm(LLUICtrl *ctrl, void *data, U8 field, U32 perm);
 
-//	static void onCommitGroupMove(LLUICtrl *ctrl, void *data);
-//	static void onCommitGroupCopy(LLUICtrl *ctrl, void *data);
-//	static void onCommitGroupModify(LLUICtrl *ctrl, void *data);
 	static void onCommitGroupShare(LLUICtrl *ctrl, void *data);
 
 	static void onCommitEveryoneMove(LLUICtrl *ctrl, void *data);
 	static void onCommitEveryoneCopy(LLUICtrl *ctrl, void *data);
-	//static void onCommitEveryoneModify(LLUICtrl *ctrl, void *data);
 
 	static void onCommitNextOwnerModify(LLUICtrl* ctrl, void* data);
 	static void onCommitNextOwnerCopy(LLUICtrl* ctrl, void* data);

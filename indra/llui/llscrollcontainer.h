@@ -68,7 +68,8 @@ public:
 	{
 		Optional<bool>		is_opaque,
 							reserve_scroll_corner,
-							border_visible;
+							border_visible,
+							hide_scrollbar;
 		Optional<F32>		min_auto_scroll_rate,
 							max_auto_scroll_rate;
 		Optional<LLUIColor>	bg_color;
@@ -139,6 +140,7 @@ private:
 	F32			mAutoScrollRate;
 	F32			mMinAutoScrollRate;
 	F32			mMaxAutoScrollRate;
+	bool		mHideScrollbar;
 };
 
 

@@ -55,6 +55,8 @@ LLRadioGroup::Params::Params()
 	name = "radio_group";
 	mouse_opaque = true;
 	follows.flags = FOLLOWS_LEFT | FOLLOWS_TOP;
+	// radio items are not tabbable until they are selected
+	tab_stop = false;
 }
 
 LLRadioGroup::LLRadioGroup(const LLRadioGroup::Params& p)

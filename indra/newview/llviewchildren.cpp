@@ -74,17 +74,6 @@ void LLViewChildren::setText(
 	}
 }
 
-void LLViewChildren::setWrappedText(
-	const std::string& id, const std::string& text, bool visible)
-{
-	LLTextBox* child = mParent.getChild<LLTextBox>(id);
-	if (child)
-	{
-		child->setVisible(visible);
-		child->setWrappedText(text);
-	}
-}
-
 void LLViewChildren::setBadge(const std::string& id, Badge badge, bool visible)
 {
 	LLIconCtrl* child = mParent.getChild<LLIconCtrl>(id);

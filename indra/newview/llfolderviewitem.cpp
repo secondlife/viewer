@@ -51,7 +51,7 @@
 ///----------------------------------------------------------------------------
 
 // statics 
-const LLFontGL* LLFolderViewItem::sFont = NULL;
+std::map<U8, LLFontGL*> LLFolderViewItem::sFonts; // map of styles to fonts
 const LLFontGL* LLFolderViewItem::sSmallFont = NULL;
 LLUIImagePtr LLFolderViewItem::sArrowImage;
 LLUIImagePtr LLFolderViewItem::sBoxImage;
@@ -63,9 +63,21 @@ const F32 LLFolderViewItem::FOLDER_OPEN_TIME_CONSTANT = 0.03f;
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
 
 //static
+LLFontGL* LLFolderViewItem::getLabelFontForStyle(U8 style)
+{
+	LLFontGL* rtn = sFonts[style];
+	if (!rtn) // grab label font with this style, lazily
+	{
+		LLFontDescriptor labelfontdesc("SansSerif", "Small", style);
+		rtn = LLFontGL::getFont(labelfontdesc);
+		sFonts[style] = rtn;
+	}
+	return rtn;
+}
+
+//static
 void LLFolderViewItem::initClass()
 {
-	sFont = LLFontGL::getFontSansSerifSmall();
 	sSmallFont = LLFontGL::getFontMonospace();
 	sArrowImage = LLUI::getUIImage("folder_arrow.tga"); 
 	sBoxImage = LLUI::getUIImage("rounded_square.tga");
@@ -74,6 +86,7 @@ void LLFolderViewItem::initClass()
 //static
 void LLFolderViewItem::cleanupClass()
 {
+	sFonts.clear();
 	sArrowImage = NULL;
 	sBoxImage = NULL;
 }
@@ -365,7 +378,7 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
 	mIndentation = mParentFolder ? mParentFolder->getIndentation() + LEFT_INDENTATION : 0;
 	if (mLabelWidthDirty)
 	{
-		mLabelWidth = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + sFont->getWidth(mSearchableLabel); 
+		mLabelWidth = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + getLabelFontForStyle(mLabelStyle)->getWidth(mSearchableLabel); 
 		mLabelWidthDirty = false;
 	}
 
@@ -377,7 +390,7 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
 S32 LLFolderViewItem::getItemHeight()
 {
 	S32 icon_height = mIcon->getHeight();
-	S32 label_height = llround(sFont->getLineHeight());
+	S32 label_height = llround(getLabelFontForStyle(mLabelStyle)->getLineHeight());
 	return llmax( icon_height, label_height ) + ICON_PAD;
 }
 
@@ -563,7 +576,7 @@ const std::string& LLFolderViewItem::getSearchableLabel() const
 	return mSearchableLabel;
 }
 
-const std::string& LLFolderViewItem::getName( void ) const
+std::string LLFolderViewItem::getName( void ) const
 {
 	if(mListener)
 	{
@@ -795,6 +808,8 @@ void LLFolderViewItem::draw()
 
 	F32 text_left = (F32)(ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mIndentation);
 
+	LLFontGL* font = getLabelFontForStyle(mLabelStyle);
+
 	// If we have keyboard focus, draw selection filled
 	BOOL show_context = getRoot()->getShowSelectionContext();
 	BOOL filled = show_context || (getRoot()->getParentPanel()->hasFocus());
@@ -826,7 +841,7 @@ void LLFolderViewItem::draw()
 			0, 
 			getRect().getHeight(), 
 			getRect().getWidth() - 2,
-			llfloor(getRect().getHeight() - sFont->getLineHeight() - ICON_PAD),
+			llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD),
 			bg_color, filled);
 		if (mIsCurSelection)
 		{
@@ -834,14 +849,14 @@ void LLFolderViewItem::draw()
 				0, 
 				getRect().getHeight(), 
 				getRect().getWidth() - 2,
-				llfloor(getRect().getHeight() - sFont->getLineHeight() - ICON_PAD),
+				llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD),
 				sHighlightFgColor, FALSE);
 		}
-		if (getRect().getHeight() > llround(sFont->getLineHeight()) + ICON_PAD + 2)
+		if (getRect().getHeight() > llround(font->getLineHeight()) + ICON_PAD + 2)
 		{
 			gl_rect_2d(
 				0, 
-				llfloor(getRect().getHeight() - sFont->getLineHeight() - ICON_PAD) - 2, 
+				llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD) - 2, 
 				getRect().getWidth() - 2,
 				2,
 				sHighlightFgColor, FALSE);
@@ -849,7 +864,7 @@ void LLFolderViewItem::draw()
 			{
 				gl_rect_2d(
 					0, 
-					llfloor(getRect().getHeight() - sFont->getLineHeight() - ICON_PAD) - 2, 
+					llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD) - 2, 
 					getRect().getWidth() - 2,
 					2,
 					sHighlightBgColor, TRUE);
@@ -863,14 +878,14 @@ void LLFolderViewItem::draw()
 			0, 
 			getRect().getHeight(), 
 			getRect().getWidth() - 2,
-			llfloor(getRect().getHeight() - sFont->getLineHeight() - ICON_PAD),
+			llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD),
 			sHighlightBgColor, FALSE);
 
-		if (getRect().getHeight() > llround(sFont->getLineHeight()) + ICON_PAD + 2)
+		if (getRect().getHeight() > llround(font->getLineHeight()) + ICON_PAD + 2)
 		{
 			gl_rect_2d(
 				0, 
-				llfloor(getRect().getHeight() - sFont->getLineHeight() - ICON_PAD) - 2, 
+				llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD) - 2, 
 				getRect().getWidth() - 2,
 				2,
 				sHighlightBgColor, FALSE);
@@ -890,7 +905,7 @@ void LLFolderViewItem::draw()
 		BOOL debug_filters = getRoot()->getDebugFilters();
 		LLColor4 color = ( (mIsSelected && filled) ? sHighlightFgColor : sFgColor );
 		F32 right_x;
-		F32 y = (F32)getRect().getHeight() - sFont->getLineHeight() - (F32)TEXT_PAD;
+		F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD;
 
 		if (debug_filters)
 		{
@@ -910,18 +925,18 @@ void LLFolderViewItem::draw()
 		if ( mIsLoading 
 			&& mTimeSinceRequestStart.getElapsedTimeF32() >= gSavedSettings.getF32("FolderLoadingMessageWaitTime") )
 		{
-			sFont->renderUTF8(LLTrans::getString("LoadingData"), 0, text_left, y, sSearchStatusColor,
-				LLFontGL::LEFT, LLFontGL::BOTTOM, mLabelStyle, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, &right_x, FALSE);
+			font->renderUTF8(LLTrans::getString("LoadingData"), 0, text_left, y, sSearchStatusColor,
+					  LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, &right_x, FALSE);
 			text_left = right_x;
 		}
 
-		sFont->renderUTF8( mLabel, 0, text_left, y, color,
-			LLFontGL::LEFT, LLFontGL::BOTTOM, mLabelStyle, LLFontGL::NO_SHADOW,
+		font->renderUTF8( mLabel, 0, text_left, y, color,
+				   LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
 			S32_MAX, S32_MAX, &right_x, FALSE );
 		if (!mLabelSuffix.empty())
 		{
-			sFont->renderUTF8( mLabelSuffix, 0, right_x, y, sSuffixColor,
-				LLFontGL::LEFT, LLFontGL::BOTTOM, mLabelStyle, LLFontGL::NO_SHADOW,
+			font->renderUTF8( mLabelSuffix, 0, right_x, y, sSuffixColor,
+					   LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
 				S32_MAX, S32_MAX, &right_x, FALSE );
 		}
 
@@ -932,33 +947,21 @@ void LLFolderViewItem::draw()
 			if (filter_string_length > 0)
 			{
 				std::string combined_string = mLabel + mLabelSuffix;
-				S32 left = llround(text_left) + sFont->getWidth(combined_string, 0, mStringMatchOffset) - 1;
-				S32 right = left + sFont->getWidth(combined_string, mStringMatchOffset, filter_string_length) + 2;
-				S32 bottom = llfloor(getRect().getHeight() - sFont->getLineHeight() - 3);
+				S32 left = llround(text_left) + font->getWidth(combined_string, 0, mStringMatchOffset) - 1;
+				S32 right = left + font->getWidth(combined_string, mStringMatchOffset, filter_string_length) + 2;
+				S32 bottom = llfloor(getRect().getHeight() - font->getLineHeight() - 3);
 				S32 top = getRect().getHeight();
 
 				LLRect box_rect(left, top, right, bottom);
 				sBoxImage->draw(box_rect, sFilterBGColor);
-				F32 match_string_left = text_left + sFont->getWidthF32(combined_string, 0, mStringMatchOffset);
-				F32 y = (F32)getRect().getHeight() - sFont->getLineHeight() - (F32)TEXT_PAD;
-				sFont->renderUTF8( combined_string, mStringMatchOffset, match_string_left, y,
-					sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, mLabelStyle, LLFontGL::NO_SHADOW,
+				F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mStringMatchOffset);
+				F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD;
+				font->renderUTF8( combined_string, mStringMatchOffset, match_string_left, y,
+						   sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
 					filter_string_length, S32_MAX, &right_x, FALSE );
 			}
 		}
 	}
-
-	if( sDebugRects )
-	{
-		drawDebugRect();
-	}
-
-	//// *HACK: also draw debug rectangles around currently-being-edited LLView, and any elements that are being highlighted by GUI preview code (see LLFloaterUIPreview)
-	//std::set<LLView*>::iterator iter = std::find(sPreviewHighlightedElements.begin(), sPreviewHighlightedElements.end(), this);
-	//if ((sEditingUI && this == sEditingUIView) || (iter != sPreviewHighlightedElements.end() && sDrawPreviewHighlights))
-	//{
-	//	drawDebugRect();
-	//}
 }
 
 

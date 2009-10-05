@@ -80,6 +80,12 @@ public:
 	static std::string getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args);
 	static bool findString(std::string &result, const std::string &xml_desc, const LLStringUtil::format_map_t& args);
 
+	// Returns translated string with [COUNT] replaced with a number, following
+	// special per-language logic for plural nouns.  For example, some languages
+	// may have different plurals for 0, 1, 2 and > 2.
+	// See "AgeWeeksA", "AgeWeeksB", etc. in strings.xml for examples.
+	static std::string getCountString(const std::string& language, const std::string& xml_desc, S32 count);
+
 	/**
 	 * @brief Returns a translated string
 	 * @param xml_desc String's description

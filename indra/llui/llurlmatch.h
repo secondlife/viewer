@@ -38,6 +38,7 @@
 
 #include <string>
 #include <vector>
+#include "lluicolor.h"
 
 ///
 /// LLUrlMatch describes a single Url that was matched within a string by 
@@ -62,27 +63,31 @@ public:
 	U32 getEnd() const { return mEnd; }
 
 	/// return the Url that has been matched in the input string
-	const std::string &getUrl() const { return mUrl; }
+	std::string getUrl() const { return mUrl; }
 
 	/// return a label that can be used for the display of this Url
-	const std::string &getLabel() const { return mLabel; }
+	std::string getLabel() const { return mLabel; }
 
 	/// return a message that could be displayed in a tooltip or status bar
-	const std::string &getTooltip() const { return mTooltip; }
+	std::string getTooltip() const { return mTooltip; }
 
 	/// return the filename for an icon that can be displayed next to this Url
-	const std::string &getIcon() const { return mIcon; }
+	std::string getIcon() const { return mIcon; }
+
+	/// Return the color to render the displayed text
+	LLUIColor getColor() const { return mColor; }
 
 	/// Return the name of a XUI file containing the context menu items
-	const std::string getMenuName() const { return mMenuName; }
+	std::string getMenuName() const { return mMenuName; }
 
 	/// return the SL location that this Url describes, or "" if none.
-	const std::string &getLocation() const { return mLocation; }
+	std::string getLocation() const { return mLocation; }
 
 	/// Change the contents of this match object (used by LLUrlRegistry)
 	void setValues(U32 start, U32 end, const std::string &url, const std::string &label,
 	               const std::string &tooltip, const std::string &icon,
-				   const std::string &menu, const std::string &location);
+				   const LLUIColor& color, const std::string &menu, 
+				   const std::string &location);
 
 private:
 	U32         mStart;
@@ -93,6 +98,7 @@ private:
 	std::string mIcon;
 	std::string mMenuName;
 	std::string mLocation;
+	LLUIColor	mColor;
 };
 
 #endif

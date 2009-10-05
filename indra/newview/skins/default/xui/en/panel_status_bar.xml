@@ -58,7 +58,7 @@
     <text
      type="string"
      length="1"
-     disabled_color="TimeTextColor"
+     text_readonly_color="TimeTextColor"
      follows="right|bottom"
      halign="right"
      height="16"
@@ -100,9 +100,8 @@
      visible="false"
      width="16" />
     <text
-     type="string"
-     length="1"
-     disabled_color="HealthTextColor"
+      bg_visible="false"
+     text_readonly_color="HealthTextColor"
      follows="rsight|bottom"
      font_shadow="hard"
      height="16"

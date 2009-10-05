@@ -73,6 +73,8 @@ BOOL LLFloaterBuy::postBuild()
 	// This also avoids problems where the user resizes the application window
 	// mid-session and the saved rect is off-center.
 	center();
+
+	mCloseSignal.connect(boost::bind(&LLFloaterBuy::onClose, this));
 	
 	return TRUE;
 }
@@ -306,4 +308,9 @@ void LLFloaterBuy::onClickBuy()
 void LLFloaterBuy::onClickCancel()
 {
 	closeFloater();
+}
+
+void LLFloaterBuy::onClose()
+{
+	mObjectSelection.clear();
 }

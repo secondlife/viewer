@@ -39,10 +39,44 @@
 
 static LLDefaultChildRegistry::Register<LLChatMsgBox> r("text_chat");
 
+class ChatSeparator : public LLTextSegment
+{
+public:
+	ChatSeparator(S32 start, S32 end)
+	:	LLTextSegment(start, end),
+		mEditor(NULL)
+	{}
+
+	/*virtual*/ void linkToDocument(class LLTextBase* editor)
+	{
+		mEditor = editor;
+	}
+
+	/*virtual*/ void unlinkFromDocument(class LLTextBase* editor)
+	{
+		mEditor = NULL;
+	}
+
+	/*virtual*/ S32 getWidth(S32 first_char, S32 num_chars) const
+	{
+		return mEditor->getDocumentPanel()->getRect().getWidth();
+	}
+
+	/*virtual*/ F32	draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
+	{
+		gl_line_2d(draw_rect.mLeft + 5, draw_rect.getCenterY(), draw_rect.mRight - 5, draw_rect.getCenterY(), LLColor4::grey);
+		return draw_rect.getWidth();
+	}
+
+private:
+	LLTextBase* mEditor;
+};
+
+
 LLChatMsgBox::Params::Params() :
 	block_spacing("block_spacing", 10)
 {
-	line_spacing = 4;
+	line_spacing.pixels = 4;
 }
 
 LLChatMsgBox::LLChatMsgBox(const Params& p) :
@@ -52,75 +86,13 @@ LLChatMsgBox::LLChatMsgBox(const Params& p) :
 
 void LLChatMsgBox::addText( const LLStringExplicit& text )
 {
-	LLWString t = mText.getWString();
-	if (! t.empty())
+	S32 length = getLength();
+	// if there is existing text, add a separator
+	if (length > 0)
 	{
-		t += '\n';
+		// chat separator exists right before the null terminator
+		insertSegment(new ChatSeparator(length - 1, length - 1));
 	}
-	t += getWrappedText(text);
-	LLTextBox::setText(wstring_to_utf8str(t));
-	mSeparatorOffset.push_back(getLength());
-}
-
-void LLChatMsgBox::setText(const LLStringExplicit& text)
-{
-	mSeparatorOffset.clear();
-	mText.clear();
-	addText(text);
-}
-
-void LLChatMsgBox::setValue(const LLSD& value )
-{ 
-	setText(value.asString());
-}
-
-S32 LLChatMsgBox::getTextPixelHeight()
-{
-	S32 num_blocks = mSeparatorOffset.size();
-	S32 num_lines = getTextLinesNum();
-	return (S32)(num_lines * mDefaultFont->getLineHeight() + \
-				 (num_lines-1) * mLineSpacing + \
-				 (num_blocks-1) * mBlockSpacing + \
-				 2 * mLineSpacing);
-}
-
-S32 LLChatMsgBox::getTextLinesNum()
-{
-	S32 num_lines = getLineCount();
-	if (num_lines < 1)
-	{
-		num_lines = 1;
-	}
-	
-	return num_lines;
-}
-
-void LLChatMsgBox::drawText(S32 x, S32 y, const LLWString &text, const LLColor4 &color)
-{
-	S32 start = 0;
-	S32 width = getRect().getWidth()-10;
-
-	// iterate through each block of text that has been added
-	y -= mLineSpacing;
-	for (std::vector<S32>::iterator it = mSeparatorOffset.begin(); it != mSeparatorOffset.end() ;)
-	{
-		// display the text for this block
-		S32 num_chars = *it - start;
-		LLWString text = mDisplayText.substr(start, num_chars);
-		LLTextBox::drawText(x, y, text, color);
-		
-		// exit the loop if this is the last text block
-		start += num_chars + 1;  // skip the newline
-		if (++it == mSeparatorOffset.end())
-		{
-			break;
-		}
-
-		// output a separator line between blocks
-		S32 num_lines = std::count(text.begin(), text.end(), '\n') + 1;
-		y -= num_lines * (llfloor(mDefaultFont->getLineHeight()) + mLineSpacing);
-		S32 sep_y = y - mBlockSpacing/2 + mLineSpacing/2;
-		gl_line_2d(5, sep_y, width, sep_y, LLColor4::grey);
-		y -= mBlockSpacing;
-	}
+	// prepend newline only if there is some existing text
+	appendText(text, length > 0);
 }

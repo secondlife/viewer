@@ -36,8 +36,10 @@
 #include "lluri.h"
 #include "llcachename.h"
 #include "lltrans.h"
+#include "lluicolortable.h"
 
 LLUrlEntryBase::LLUrlEntryBase()
+: mColor(LLUIColorTable::instance().getColor("HTMLLinkColor"))
 {
 }
 
@@ -260,10 +262,11 @@ std::string LLUrlEntrySLURL::getLocation(const std::string &url) const
 //
 LLUrlEntryAgent::LLUrlEntryAgent()
 {
-	mPattern = boost::regex("secondlife:///app/agent/[\\da-f-]+/about",
+	mPattern = boost::regex("secondlife:///app/agent/[\\da-f-]+/\\w+",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_agent.xml";
-	mTooltip = LLTrans::getString("TooltipAgentUrl");
+	mIcon = "Generic_Person";
+	mColor = LLUIColorTable::instance().getColor("AgentLinkColor");
 }
 
 void LLUrlEntryAgent::onAgentNameReceived(const LLUUID& id,
@@ -293,7 +296,7 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 		}
 	}
 
-	return unescapeUrl(url);
+	return LLTrans::getString("LoadingData");//unescapeUrl(url);
 }
 
 //
@@ -305,6 +308,7 @@ LLUrlEntryGroup::LLUrlEntryGroup()
 	mPattern = boost::regex("secondlife:///app/group/[\\da-f-]+/about",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_group.xml";
+	mIcon = "Generic_Group";
 	mTooltip = LLTrans::getString("TooltipGroupUrl");
 }
 

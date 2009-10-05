@@ -290,10 +290,10 @@ void LLLocationInputCtrl::hideList()
 		focusTextEntry();
 }
 
-BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
+BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	// Let the buttons show their tooltips.
-	if (LLUICtrl::handleToolTip(x, y, msg, sticky_rect_screen) && !msg.empty())
+	if (LLUICtrl::handleToolTip(x, y, mask))
 	{
 		if (mList->getRect().pointInRect(x, y)) 
 		{

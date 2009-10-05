@@ -105,10 +105,7 @@ public:
 		Optional<S32>					text_pad_left,
 										text_pad_right;
 
-		Ignored							is_unicode,
-										drop_shadow_visible,	
-										border_drop_shadow_visible,
-										bg_visible;
+		Ignored							bg_visible;
 		
 		Params();
 	};
@@ -280,6 +277,7 @@ private:
 	virtual void	getPreeditRange(S32 *position, S32 *length) const;
 	virtual BOOL	getPreeditLocation(S32 query_position, LLCoordGL *coord, LLRect *bounds, LLRect *control) const;
 	virtual S32		getPreeditFontSize() const;
+	virtual LLWString getPreeditString() const { return getWText(); }
 
 protected:
 	LLUIString		mText;					// The string being edited.

@@ -1568,11 +1568,11 @@ namespace LLInitParam
 		public Param
 	{
 	public:
-		typedef BlockValue<T>																self_t;
-		typedef Block<TypedParam<T, TypeValues<T>, false> >									block_t;
-		typedef const T&															value_const_ref_t;
-		typedef value_const_ref_t															value_assignment_t;
-		typedef typename TypeValues<T>::KeyCache											key_cache_t;
+		typedef BlockValue<T>										self_t;
+		typedef Block<TypedParam<T, TypeValues<T>, false> >			block_t;
+		typedef const T&											value_const_ref_t;
+		typedef value_const_ref_t									value_assignment_t;
+		typedef typename TypeValues<T>::KeyCache					key_cache_t;
 
 		BlockValue(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
 		:	Param(block_descriptor.mCurrentBlockPtr),
@@ -1754,11 +1754,16 @@ namespace LLInitParam
 	protected:
 		value_assignment_t get() const
 		{
-			if (mData.mLastParamVersion < BaseBlock::getLastChangeVersion() && block_t::validateBlock(true))
+			// if some parameters were provided, issue warnings on invalid blocks
+			if (Param::getProvided() && (mData.mLastParamVersion < BaseBlock::getLastChangeVersion()))
 			{
-				mData.mValue = static_cast<const DERIVED*>(this)->getValueFromBlock();
-				mData.clearKey();
-				mData.mLastParamVersion = BaseBlock::getLastChangeVersion();
+				// go ahead and issue warnings at this point if any param is invalid
+				if(block_t::validateBlock(false))
+				{
+					mData.mValue = static_cast<const DERIVED*>(this)->getValueFromBlock();
+					mData.clearKey();
+					mData.mLastParamVersion = BaseBlock::getLastChangeVersion();
+				}
 			}
 
 			return mData.mValue;

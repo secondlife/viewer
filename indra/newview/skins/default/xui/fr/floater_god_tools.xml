@@ -78,17 +78,17 @@
 				Destination :
 			</text>
 			<combo_box name="destination">
-				<combo_box.item name="Selection" label="Sélection" />
-				<combo_box.item name="AgentRegion" label="Région de l&apos;avatar" />
+				<combo_box.item name="item1" label="Sélection" />
+				<combo_box.item name="item2" label="Région de l&apos;avatar" />
 			</combo_box>
 			<text name="Request:">
 				Requête :
 			</text>
 			<combo_box name="request">
-				<combo_box.item name="colliders&lt;steps&gt;" label="Objets responsables de collisions : étapes" />
-				<combo_box.item name="scripts&lt;count&gt;,&lt;optionalpattern&gt;" label="Nombre de scripts et schéma optionnel" />
-				<combo_box.item name="objects&lt;pattern&gt;" label="Schéma des objets" />
-				<combo_box.item name="rez&lt;asset_id&gt;" label="rezzer &lt;asset_id&gt;" />
+				<combo_box.item name="item1" label="Objets responsables de collisions : étapes" />
+				<combo_box.item name="item2" label="Nombre de scripts et schéma optionnel" />
+				<combo_box.item name="item3" label="Schéma des objets" />
+				<combo_box.item name="item4" label="rezzer &lt;asset_id&gt;" />
 			</combo_box>
 			<text name="Parameter:">
 				Paramètre :

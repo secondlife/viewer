@@ -46,7 +46,7 @@
 			</text>
 			<spinner name="land cost"/>
 			<text name="land cost text">
-				L$/m:
+				L$/m²:
 			</text>
 			<button label="Odśwież" label_selected="Odśwież" name="Refresh" />
 			<button label="Zastosuj" label_selected="Zastosuj" name="Apply" />
@@ -80,17 +80,17 @@
 				Cel:
 			</text>
 			<combo_box name="destination">
-				<combo_box.item name="Selection" label="Selekcja" />
-				<combo_box.item name="AgentRegion" label="Agent Regionu" />
+				<combo_box.item name="item1" label="Selekcja" />
+				<combo_box.item name="item2" label="Agent Regionu" />
 			</combo_box>
 			<text name="Request:">
 				Żądanie:
 			</text>
 			<combo_box name="request">
-				<combo_box.item name="colliders&lt;steps&gt;" label="kolidery &lt;kroki&gt;" />
-				<combo_box.item name="scripts&lt;count&gt;,&lt;optionalpattern&gt;" label="skrypty &lt;policz&gt;,&lt;opcjonalnie powtórzenie&gt;" />
-				<combo_box.item name="objects&lt;pattern&gt;" label="obiekty &lt;powtórzenia&gt;" />
-				<combo_box.item name="rez&lt;asset_id&gt;" label="rez &lt;asset_id&gt;" />
+				<combo_box.item name="item1" label="kolidery &lt;kroki&gt;" />
+				<combo_box.item name="item2" label="skrypty &lt;policz&gt;,&lt;opcjonalnie powtórzenie&gt;" />
+				<combo_box.item name="item3" label="obiekty &lt;powtórzenia&gt;" />
+				<combo_box.item name="item4" label="rez &lt;asset_id&gt;" />
 			</combo_box>
 			<text name="Parameter:">
 				Parameter:

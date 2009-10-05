@@ -447,7 +447,7 @@ Your default permissions may not work in older regions.
     icon="alertmodal.tga"
     name="ClickUnimplemented"
     type="alertmodal">
-This feature is yet to be implemented. 
+Sorry, not implemented yet.
   </notification>
 
   <notification
@@ -761,7 +761,7 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
 	name="url"
 	openexternally = "1">
 
-			http://secondlife.com/registration/
+			http://join/secondlife.com/
     </url>
     <usetemplate
      name="okcancelbuttons"

@@ -42,11 +42,12 @@
      height="20"
      layout="topleft"
      left_pad="5"
+     use_ellipsis="true"
      name="region"
      text_color="white"
      top="4"
      value="Unknown"
-     width="380" />
+     width="330" />
     <button
      follows="right"
      height="18"

@@ -98,7 +98,7 @@ LLMultiSliderCtrl::LLMultiSliderCtrl(const LLMultiSliderCtrl::Params& p)
 		LLTextBox::Params params;
 		params.name("MultiSliderCtrl Label");
 		params.rect(label_rect);
-		params.text(p.label);
+		params.initial_value(p.label());
 		params.font(p.font);
 		mLabelBox = LLUICtrlFactory::create<LLTextBox> (params);
 		addChild(mLabelBox);

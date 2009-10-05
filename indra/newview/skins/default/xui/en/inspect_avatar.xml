@@ -1,102 +1,142 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<!-- All our XML is utf-8 encoded. -->
-
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <!--
   Not can_close / no title to avoid window chrome
   Single instance - only have one at a time, recycle it each spawn
 -->
 <floater
-  background_opaque="false"
-  background_visible="true"
-  bevel_style="in"
-  bg_alpha_color="PanelDefaultBackgroundColor"
-  can_close="false" 
-  can_minimize="false" 
-	name="inspect_avatar"
-	help_topic="inspect_avatar"
-  single_instance="true" 
-  sound_flags="0" 
-	title=""
-  visible="true"
-	width="300"
-	height="200"
-  left="0"
-  top="200"
-  >
+ bevel_style="in"
+ bg_alpha_color="PanelDefaultBackgroundColor"
+ can_close="false"
+ can_minimize="false"
+ height="190"
+ layout="topleft"
+ name="inspect_avatar"
+ single_instance="true"
+ sound_flags="0"
+ visible="true"
+ width="300">
   <!-- Allowed fields include:
 	[BORN_ON] ("12/3/2008")
 	[SL_PROFILE] (Second Life profile),
-    [RW_PROFILE] (real world profile),
+  [RW_PROFILE] (real world profile),
 	[ACCTTYPE] ("Resident"),
 	[PAYMENTINFO] ("Payment Info on File"),
-	[AGE] ("1 year 2 months") -->
-  <string name="Subtitle">
+	[AGE] ("1 year 2 months")
+   -->
+  <string
+   name="Subtitle">
 [AGE]
   </string>
-  <string name="Details">
-[ACCTTYPE], [PAYMENTINFO]
-Profile: [SL_PROFILE]
+  <string
+     name="Details">
+[ACCTTYPE][COMMA] [PAYMENTINFO]
+    </string>
+  <string
+     name="Partner">
+    Partner: [PARTNER]
   </string>
   <text
-      top="180" left="10" width="280" height="70" follows="left|top|right|bottom"
-      use_ellipses="true"  word_wrap="true"
-      font="SansSerifHugeBold" text_color="white"
-      mouse_opaque="true" name="user_name" >
-    Test Name
-  </text>
-  <!-- General purpose subtitle area, not sure yet what goes here -->
-  <text
-    top="155" left="10" width="150" height="20" follows="left|top|right|bottom"
-    font="SansSerifBig"
-    text_color="white"
-    mouse_opaque="true"
-    name="user_subtitle" />
-  <!-- Leave text fields blank so it doesn't flash when data arrives off the network -->
-  <text
-      top="115" left="10" width="290" height="50" follows="left|top|right|bottom"
-      font="SansSerifSmall" text_color="white" word_wrap="true"
-      mouse_opaque="true" name="user_details" />
-  <avatar_icon
-      top="185" left="230" width="60" height="60" follows="left|top|right|bottom"
-      color="1 1 1 1" enabled="true" mouse_opaque="true" name="avatar_icon"
-  />
-  <slider 
-    bottom="35" left="45" width="250" height="30" follows="top|left"
-    name="volume_slider"
-    tool_tip="Voice Volume" 
-    increment="0.05" initial_value="0.75" max_val="1" min_val="0"
-    show_text="false"
-  />
-  <button
-    bottom="40" left="10" width="32" height="16" follows="left|top|right|bottom"
-    name="mute_btn"
-    label=""
-    image_unselected="icn_speaker_dark.tga"
-    image_disabled="icn_speaker_dark.tga"
-    image_selected="icn_speaker-muted_dark.tga"
-    image_hover_selected="icn_speaker-muted_dark.tga"
-    image_disabled_selected="icn_speaker-muted_dark.tga"
-    halign="center"
-    toggle="true"
-  />
-  <button
-		bottom="10" left="10" width="110" height="20" follows="top|left"		
-    name="add_friend_btn"
-    label="Add Friend"
-		font="SansSerif"
-	/>
-  <button
-		bottom="10" left="120" width="110" height="20" follows="top|left"
-    name="view_profile_btn"
-    label="View Profile"
-		font="SansSerif"
-	/>
-  <button
-		bottom="10" left="230" width="60" height="20" follows="top|left" 
-    name="gear_btn"
-    label=""
-    image_overlay="Icon_Gear_Foreground"
-    image_overlay_alignment="center"
-    scale_image="true"
-	/>
-</floater> 
+     follows="left|top|right|bottom"
+     font="SansSerifHugeBold"
+     height="70"
+     left="10"
+     name="user_name"
+     text_color="white"
+     top="20"
+     use_ellipses="true"
+     value="Test Name"
+     width="280"
+     word_wrap="true" />
+    <text
+     follows="left|top|right|bottom"
+     font="SansSerifBig"
+     height="20"
+     left="10"
+     name="user_subtitle"
+     text_color="white"
+     top="45"
+     width="150" />
+    <!-- Leave text fields blank so it doesn't flash when data arrives off the network -->
+    <text
+     follows="left|top|right|bottom"
+     height="20"
+     left="10"
+     name="user_details"
+     text_color="white"
+     top="85"
+     width="290"
+     word_wrap="true" />
+    <text
+     follows="left|top|right|bottom"
+     height="20"
+     left="10"
+     name="user_partner"
+     text_color="white"
+     top="105"
+     width="290"
+     word_wrap="true" />
+    <avatar_icon
+     follows="left|top|right|bottom"
+     height="60"
+     left="230"
+     mouse_opaque="true"
+     name="avatar_icon" 
+     top="15"
+     width="60" />
+    <slider
+     follows="top|left"
+     height="30"
+     increment="0.05"
+     left="20"
+     max_val="0.95"
+     min_val="0.05"
+     name="volume_slider"
+     show_text="false"
+     tool_tip="Voice Volume"
+     top="125"
+     value="0.5"
+     width="240" />
+    <button
+     follows="left|top|right|bottom"
+     height="16"
+     image_disabled="icn_speaker_dark.tga"
+     image_disabled_selected="icn_speaker-muted_dark.tga"
+     image_hover_selected="icn_speaker-muted_dark.tga"
+     image_selected="icn_speaker-muted_dark.tga"
+     image_unselected="icn_speaker_dark.tga"
+     is_toggle="true"
+     left="265"
+     name="mute_btn"
+     picture_style="true"
+     top="132"
+     width="32" />
+    <button
+     follows="top|left"
+     font="SansSerif"
+     height="20"
+     label="Add Friend"
+     left="10"
+     name="add_friend_btn"
+     top_pad="10"
+     width="105" />
+    <button
+     follows="top|left"
+     font="SansSerif"
+     height="20"
+     label="View Profile"
+     left_delta="110"
+     name="view_profile_btn"
+     top_delta="0"
+     width="105" />
+    <menu_button
+     follows="top|left"
+     height="20"
+     image_overlay="windows\Icon_Gear_Foreground.png"
+     image_overlay_alignment="center"
+     menu_filename="menu_inspect_avatar_gear.xml"
+     name="gear_btn"
+     picture_style="true"
+     top_delta="0"
+     left_delta="110"
+     width="60"/>
+</floater>

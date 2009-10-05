@@ -56,6 +56,8 @@ public:
 	virtual ~LLViewerJoystick();
 	
 	void init(bool autoenable);
+	void terminate();
+
 	void updateStatus();
 	void scanJoystick();
 	void moveObjects(bool reset = false);
@@ -76,7 +78,6 @@ public:
 	
 protected:
 	void updateEnabled(bool autoenable);
-	void terminate();
 	void handleRun(F32 inc);
 	void agentSlide(F32 inc);
 	void agentPush(F32 inc);

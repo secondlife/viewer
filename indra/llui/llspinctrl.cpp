@@ -90,7 +90,7 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 		LLTextBox::Params params;
 		params.name("SpinCtrl Label");
 		params.rect(label_rect);
-		params.text(p.label);
+		params.initial_value(p.label());
 		if (p.font.isProvided())
 		{
 			params.font(p.font);

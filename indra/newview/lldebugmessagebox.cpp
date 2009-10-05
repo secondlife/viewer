@@ -131,7 +131,7 @@ LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarTy
 
 	LLTextBox::Params params;
 	params.name("value");
-	params.text(params.name);
+	params.initial_value(params.name());
 	params.rect(LLRect(20,20,190,0));
 	mText = LLUICtrlFactory::create<LLTextBox> (params);
 	addChild(mText);

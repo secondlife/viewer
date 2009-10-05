@@ -32,16 +32,18 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include <boost/tokenizer.hpp>
-
 #include "llnamelistctrl.h"
 
+#include <boost/tokenizer.hpp>
+
 #include "llcachename.h"
+#include "llfloaterreg.h"
 #include "llinventory.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"
 #include "llscrolllistcolumn.h"
 #include "llsdparam.h"
+#include "lltooltip.h"
 
 static LLDefaultChildRegistry::Register<LLNameListCtrl> r("name_list");
 
@@ -125,6 +127,60 @@ BOOL LLNameListCtrl::handleDragAndDrop(
 	handled = TRUE;
 	lldebugst(LLERR_USER_INPUT) << "dragAndDrop handled by LLNameListCtrl " << getName() << llendl;
 
+	return handled;
+}
+
+void LLNameListCtrl::showAvatarInspector(const LLUUID& avatar_id)
+{
+	LLSD key;
+	key["avatar_id"] = avatar_id;
+	LLFloaterReg::showInstance("inspect_avatar", key);
+}
+
+//virtual
+BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = FALSE;
+	S32 column_index = getColumnIndexFromOffset(x);
+	LLScrollListItem* hit_item = hitItem(x, y);
+	if (hit_item)
+	{
+		if (column_index == mNameColumnIndex)
+		{
+			// ...this is the column with the avatar name
+			LLScrollListCell* hit_cell = hit_item->getColumn(column_index);
+			if (hit_cell)
+			{
+				S32 row_index = getItemIndex(hit_item);
+				LLRect cell_rect = getCellRect(row_index, column_index);
+				// Convert rect local to screen coordinates
+				LLRect sticky_rect;
+				localRectToScreen(cell_rect, &sticky_rect);
+
+				// Spawn at right side of cell
+				LLCoordGL pos( sticky_rect.mRight - 16, sticky_rect.mTop );
+				LLPointer<LLUIImage> icon = LLUI::getUIImage("Info_Small");
+				LLUUID avatar_id = hit_item->getValue().asUUID();
+
+				LLToolTip::Params params;
+				params.background_visible( false );
+				params.click_callback( boost::bind(&LLNameListCtrl::showAvatarInspector, this, avatar_id) );
+				params.delay_time(0.0f);		// spawn instantly on hover
+				params.image( icon );
+				params.message("");
+				params.padding(0);
+				params.pos(pos);
+				params.sticky_rect(sticky_rect);
+
+				LLToolTipMgr::getInstance()->show(params);
+				handled = TRUE;
+			}
+		}
+	}
+	if (!handled)
+	{
+		handled = LLScrollListCtrl::handleToolTip(x, y, mask);
+	}
 	return handled;
 }
 

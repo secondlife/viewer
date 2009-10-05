@@ -272,12 +272,12 @@ void LLFace::setTexture(LLViewerTexture* tex)
 		removeAtlas() ;
 	}	
 	
-	mTexture = tex ;
-
-	if(mTexture.notNull())
+	if(tex)
 	{
-		mTexture->addFace(this) ;
-	} 
+		tex->addFace(this) ;
+	}
+
+	mTexture = tex ;
 }
 
 void LLFace::switchTexture(LLViewerTexture* new_texture)

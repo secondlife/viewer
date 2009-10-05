@@ -37,7 +37,6 @@
 #include <algorithm>
 #include <functional>
 
-#include "llcachename.h"
 #include "lldir.h"
 #include "lldispatcher.h"
 #include "llglheaders.h"
@@ -67,6 +66,7 @@
 #include "llnamelistctrl.h"
 #include "llscrolllistitem.h"
 #include "llsliderctrl.h"
+#include "llslurl.h"
 #include "llspinctrl.h"
 #include "lltabcontainer.h"
 #include "lltextbox.h"
@@ -2560,30 +2560,6 @@ void LLPanelEstateInfo::setAccessAllowedEnabled(bool enable_agent,
 	}
 }
 
-// static
-void LLPanelEstateInfo::callbackCacheName(
-	const LLUUID& id,
-	const std::string& first,
-	const std::string& last,
-	BOOL is_group)
-{
-	LLPanelEstateInfo* self = LLFloaterRegionInfo::getPanelEstate();
-	if (!self) return;
-
-	std::string name;
-	
-	if (id.isNull())
-	{
-		name = "(none)";
-	}
-	else
-	{
-		name = first + " " + last;
-	}
-
-	self->setOwnerName(name);
-}
-
 void LLPanelEstateInfo::clearAccessLists() 
 {
 	LLNameListCtrl* name_list = getChild<LLNameListCtrl>("allowed_avatar_name_list");
@@ -2960,7 +2936,7 @@ BOOL LLPanelEstateCovenant::sendUpdate()
 	return TRUE;
 }
 
-const std::string& LLPanelEstateCovenant::getEstateName() const
+std::string LLPanelEstateCovenant::getEstateName() const
 {
 	return mEstateNameText->getText();
 }
@@ -3011,7 +2987,7 @@ void LLPanelEstateCovenant::updateEstateOwnerName(const std::string& name)
 	}
 }
 
-const std::string& LLPanelEstateCovenant::getOwnerName() const
+std::string LLPanelEstateCovenant::getOwnerName() const
 {
 	return mEstateOwnerText->getText();
 }
@@ -3069,8 +3045,9 @@ bool LLDispatchEstateUpdateInfo::operator()(
 	LLUUID owner_id(strings[1]);
 	regionp->setOwner(owner_id);
 	// Update estate owner name in UI
-	const BOOL is_group = FALSE;
-	gCacheName->get(owner_id, is_group, &LLPanelEstateInfo::callbackCacheName);
+	std::string owner_name =
+		LLSLURL::buildCommand("agent", owner_id, "inspect");
+	panel->setOwnerName(owner_name);
 
 	U32 estate_id = strtoul(strings[2].c_str(), NULL, 10);
 	panel->setEstateID(estate_id);

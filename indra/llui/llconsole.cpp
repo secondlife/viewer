@@ -61,7 +61,7 @@ const F32 FADE_DURATION = 2.f;
 const S32 MIN_CONSOLE_WIDTH = 200;
  
 LLConsole::LLConsole(const LLConsole::Params& p) 
-:	LLView(p),
+:	LLUICtrl(p),
 	LLFixedBuffer(p.max_lines),
 	mLinePersistTime(p.persist_time), // seconds
 	mFont(p.font)
@@ -94,7 +94,7 @@ void LLConsole::reshape(S32 width, S32 height, BOOL called_from_parent)
 	mConsoleWidth = new_width;
 	mConsoleHeight= new_height;
 	
-	LLView::reshape(new_width, new_height, called_from_parent);
+	LLUICtrl::reshape(new_width, new_height, called_from_parent);
 	
 	for(paragraph_t::iterator paragraph_it = mParagraphs.begin(); paragraph_it != mParagraphs.end(); paragraph_it++)
 	{

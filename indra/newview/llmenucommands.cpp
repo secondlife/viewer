@@ -49,7 +49,6 @@
 #include "llfloaterchat.h"
 #include "llfloaterdirectory.h"
 #include "llfloaterworldmap.h"
-#include "llgivemoney.h"
 #include "lllineeditor.h"
 #include "llnotify.h"
 #include "llstatusbar.h"
@@ -68,11 +67,6 @@
 #include "llfocusmgr.h"
 #include "llnearbychatbar.h"
 
-void handle_pay_by_id(const LLUUID& agent_id)
-{
-	const BOOL is_group = FALSE;
-	LLFloaterPay::payDirectly(&give_money, agent_id, is_group);
-}
 
 void handle_mouselook(void*)
 {

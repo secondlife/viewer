@@ -560,7 +560,7 @@ Veuillez mettre tous les objets que vous souhaitez acquérir dans la même régi
 	<notification name="PromptGoToCurrencyPage">
 		[EXTRA]
 
-Aller sur [URL] pour obtenir des informations sur l&apos;achat de devises ?
+Aller sur [_URL] pour obtenir des informations sur l&apos;achat de L$ ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="UnableToLinkObjects">
@@ -788,7 +788,6 @@ aucun groupe sélectionné.
 	<notification name="CannotDeedLandNoRegion">
 		Cession du terrain impossible :
 la région dans laquelle il est situé est introuvable.
-Veuillez utiliser Aide &gt; Signaler des bugs pour signaler le problème.
 	</notification>
 	<notification name="CannotDeedLandMultipleSelected">
 		Cession du terrain impossible :
@@ -834,8 +833,6 @@ Les parcelles qui vous appartiennent sont en vert.
 	<notification name="CannotReleaseLandRegionNotFound">
 		Impossible d&apos;abandonner le terrain :
 la région dans laquelle il est situé est introuvable.
-
-Veuillez utiliser Aide &gt; Signaler un bug pour signaler le problème.
 	</notification>
 	<notification name="CannotReleaseLandNoTransfer">
 		Impossible d&apos;abandonner le terrain :
@@ -874,14 +871,10 @@ Diviser le terrain ?
 	<notification name="CannotDivideLandNoRegion">
 		Division du terrain impossible :
 la région dans laquelle il est situé est introuvable.
-
-Veuillez utiliser Aide &gt; Signaler un bug pour signaler le problème.
 	</notification>
 	<notification name="CannotJoinLandNoRegion">
 		Impossible de fusionner le terrain :
 la région dans laquelle il est situé est introuvable.
-
-Veuillez utiliser Aide &gt; Signaler un bug pour signaler le problème.
 	</notification>
 	<notification name="CannotJoinLandNothingSelected">
 		Impossible de fusionner le terrain :
@@ -940,8 +933,6 @@ Gris = public
 	<notification name="CannotSaveToAssetStore">
 		Impossible de sauvegarder le fichier [NAME] dans la base de données centrale.
 Cette erreur est généralement temporaire. Veuillez éditer et sauvegarder l&apos;élément endossable à nouveau d&apos;ici quelques minutes.
-
-Si le problème persiste, veuillez cliquer sur Aide | Signaler un bug dans le menu déroulant en indiquant les détails de votre connexion.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
 		Vous avez été déconnecté(e) de [SECOND_LIFE] :
@@ -1273,10 +1264,6 @@ Télécharger vers le dossier Applications ?
 	<notification name="WebLaunchJoinNow">
 		Aller sur www.secondlife.com pour gérer votre compte ?
 		<usetemplate ignoretext="Lors de l&apos;ouverture du navigateur web pour gérer votre compte" name="okcancelignore" notext="Annuler" yestext="OK"/>
-	</notification>
-	<notification name="WebLaunchBugReport101">
-		Pour apprendre à signaler correctement des bugs, consultez le Wiki de [SECOND_LIFE].
-		<usetemplate ignoretext="Lors de l&apos;ouverture du navigateur web pour consulter le Wiki et apprendre à signaler des bugs" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchSecurityIssues">
 		Pour apprendre à signaler un problème de sécurité, consultez le Wiki de [SECOND_LIFE].
@@ -1966,25 +1953,9 @@ Le propriétaire de la région traitera les rapports en fonction des règles de 
 
 La résolution de ce rapport ne s&apos;applique qu&apos;à cette région ; L&apos;accès aux autres endroits de [SECOND_LIFE] ne sera pas affecté par les résultats de cette enquête. Seul Linden Lab peut interdire l&apos;accès à l&apos;ensemble de [SECOND_LIFE].
 	</notification>
-	<notification name="HelpReportBug">
-		N&apos;utilisez cet outil que pour signaler des problèmes techniques et soyez aussi précis que possible.
-Vous pouvez répondre à l&apos;e-mail automatique pour ajouter des détails à votre rapport.
-
-Tous les bugs signalés sont reproduits et évalués. Aucune réponse ne sera envoyée par e-mail.
-
-Si vous avez un problème technique, veuillez contacter le service clientèle à :
-
-http://secondlife.com/community/support.php
-
-Remarque : les rapports incomplets ne feront pas l&apos;objet d&apos;une enquête.
-	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Veuillez choisir une catégorie pour ce rapport d&apos;infraction.
 Le choix d&apos;une catégorie nous permet de traiter les rapports d&apos;infraction plus rapidement.
-	</notification>
-	<notification name="HelpReportBugSelectCategory">
-		Veuillez choisir une catégorie pour ce bug.
-Le choix d&apos;une catégorie nous permet de traiter les bugs plus rapidement.
 	</notification>
 	<notification name="HelpReportAbuseAbuserNameEmpty">
 		Veuillez saisir le nom du contrevenant.
@@ -1998,19 +1969,10 @@ Les informations précises et exactes nous permettent de traiter les rapports pl
 		Veuillez saisir un récapitulatif de l&apos;infraction.
 Les récapitulatifs précis nous permettent de traiter les rapports plus rapidement.
 	</notification>
-	<notification name="HelpReportBugSummaryEmpty">
-		Veuillez saisir un récapitulatif du bug.
-Les récapitulatifs précis nous permettent de résoudre les bugs plus rapidement.
-	</notification>
 	<notification name="HelpReportAbuseDetailsEmpty">
 		Veuillez saisir une description détaillée de l&apos;infraction.
 Soyez aussi précis que possible et essayez de fournir des noms ainsi que des détails sur l&apos;incident que vous signalez.
 Les descriptions précises nous permettent de traiter les rapports plus rapidement.
-	</notification>
-	<notification name="HelpReportBugDetailsEmpty">
-		Veuillez saisir une description détaillée du bug.
-Soyez aussi spécifique que possible et essayez d&apos;indiquer les étapes à suivre pour reproduire le bug.
-Les descriptions précises nous permettent de résoudre les bugs plus rapidement.
 	</notification>
 	<notification name="HelpReportAbuseContainsCopyright">
 		Cher résident,

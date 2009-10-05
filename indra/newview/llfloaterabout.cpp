@@ -115,9 +115,6 @@ BOOL LLFloaterAbout::postBuild()
 	getChild<LLUICtrl>("copy_btn")->setCommitCallback(
 		boost::bind(&LLFloaterAbout::onClickCopyToClipboard, this));
 
-	// make sure that we handle hyperlinks in the About text
-	support_widget->setParseHTML(TRUE);
-
 	// Version string
 	std::string version = LLTrans::getString("APP_NAME")
 		+ llformat(" %d.%d.%d (%d) %s %s (%s)\n",
@@ -241,7 +238,11 @@ BOOL LLFloaterAbout::postBuild()
 		support.append(getString ("PacketsLost", args) + "\n");
 	}
 
-	support_widget->appendColoredText(support, FALSE, FALSE, LLUIColorTable::instance().getColor("TextFgReadOnlyColor"));
+	support_widget->appendText(support, 
+								FALSE, 
+								LLStyle::Params()
+									.color(LLUIColorTable::instance().getColor("TextFgReadOnlyColor")));
+	support_widget->blockUndo();
 
 	// Fix views
 	support_widget->setCursorPos(0);

@@ -35,6 +35,7 @@
 
 #include "llagent.h"
 #include "llavataractions.h"
+#include "llfloaterreg.h"
 #include "llcommandhandler.h"
 #include "llpanelpicks.h"
 #include "lltabcontainer.h"
@@ -52,15 +53,21 @@ public:
 		LLMediaCtrl* web)
 	{
 		if (params.size() < 2) return false;
-		LLUUID agent_id;
-		if (!agent_id.set(params[0], FALSE))
+		LLUUID avatar_id;
+		if (!avatar_id.set(params[0], FALSE))
 		{
 			return false;
 		}
 
 		if (params[1].asString() == "about")
 		{
-			LLAvatarActions::showProfile(agent_id);
+			LLAvatarActions::showProfile(avatar_id);
+			return true;
+		}
+
+		if (params[1].asString() == "inspect")
+		{
+			LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", avatar_id));
 			return true;
 		}
 		return false;

@@ -33,7 +33,7 @@
     <text_editor
      font="SansSerif"
      height="64"
-     hide_border="true"
+     border_visible="false"
      hide_scrollbar="true"
      layout="topleft"
      left="77"

@@ -36,7 +36,6 @@
 #include "llscrolllistitem.h"
 
 #include "llrect.h"
-#include "llresmgr.h"		// LLFONT_SANSSERIF_SMALL
 #include "llui.h"
 
 

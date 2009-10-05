@@ -47,7 +47,6 @@
 #include "llframetimer.h"
 #include "llinventory.h"
 #include "llmaterialtable.h"
-#include "llmediadataresponder.h"
 #include "llmutelist.h"
 #include "llnamevalue.h"
 #include "llprimitive.h"

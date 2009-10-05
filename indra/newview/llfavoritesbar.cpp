@@ -123,7 +123,7 @@ class LLFavoriteLandmarkButton : public LLButton
 {
 public:
 
-	BOOL handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect)
+	BOOL handleToolTip(S32 x, S32 y, MASK mask)
 	{
 		LLToolTipMgr::instance().show(mUrlGetter.getSLURL());
 		return TRUE;
@@ -201,7 +201,7 @@ private:
 class LLFavoriteLandmarkMenuItem : public LLMenuItemCallGL
 {
 public:
-	BOOL handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect)
+	BOOL handleToolTip(S32 x, S32 y, MASK mask)
 	{
 		LLToolTipMgr::instance().show(mUrlGetter.getSLURL());
 		return TRUE;

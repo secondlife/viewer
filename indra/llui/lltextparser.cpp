@@ -103,7 +103,7 @@ S32 LLTextParser::findPattern(const std::string &text, LLSD highlight)
 	return found;
 }
 
-LLSD LLTextParser::parsePartialLineHighlights(const std::string &text, const LLColor4 &color, S32 part, S32 index)
+LLSD LLTextParser::parsePartialLineHighlights(const std::string &text, const LLColor4 &color, EHighlightPosition part, S32 index)
 {
 	//evil recursive string atomizer.
 	LLSD ret_llsd, start_llsd, middle_llsd, end_llsd;
@@ -122,7 +122,7 @@ LLSD LLTextParser::parsePartialLineHighlights(const std::string &text, const LLC
 				{
 					S32 end =  std::string(mHighlights[i]["pattern"]).length();
 					S32 len = text.length();
-					S32 newpart;
+					EHighlightPosition newpart;
 					if (start==0)
 					{
 						start_llsd[0]["text"] =text.substr(0,end);

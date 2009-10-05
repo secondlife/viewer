@@ -44,6 +44,8 @@ LLFloaterTestInspectors::LLFloaterTestInspectors(const LLSD& seed)
 {
 	mCommitCallbackRegistrar.add("ShowAvatarInspector",
 		boost::bind(&LLFloaterTestInspectors::showAvatarInspector, this, _1, _2));
+	mCommitCallbackRegistrar.add("ShowObjectInspector",
+		boost::bind(&LLFloaterTestInspectors::showObjectInspector, this, _1, _2));
 }
 
 LLFloaterTestInspectors::~LLFloaterTestInspectors()
@@ -77,7 +79,12 @@ void LLFloaterTestInspectors::showAvatarInspector(LLUICtrl*, const LLSD& avatar_
 		id = avatar_id.asUUID();
 	}
 	// spawns off mouse position automatically
-	LLFloaterReg::showInstance("inspect_avatar", id);
+	LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", id));
+}
+
+void LLFloaterTestInspectors::showObjectInspector(LLUICtrl*, const LLSD& object_id)
+{
+	LLFloaterReg::showInstance("inspect_object", LLSD().insert("object_id", object_id));
 }
 
 void LLFloaterTestInspectors::onClickAvatar2D()

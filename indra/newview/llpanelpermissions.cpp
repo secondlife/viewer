@@ -85,9 +85,6 @@ BOOL LLPanelPermissions::postBuild()
 	childSetPrevalidate("Object Description",LLLineEditor::prevalidatePrintableNotPipe);
 
 	
-	childSetAction("button owner profile",LLPanelPermissions::onClickOwner,this);
-	childSetAction("button creator profile",LLPanelPermissions::onClickCreator,this);
-
 	getChild<LLUICtrl>("button set group")->setCommitCallback(boost::bind(&LLPanelPermissions::onClickGroup,this));
 
 	childSetCommitCallback("checkbox share with group",LLPanelPermissions::onCommitGroupShare,this);
@@ -162,12 +159,10 @@ void LLPanelPermissions::refresh()
 		childSetEnabled("Creator:",false);
 		childSetText("Creator Name",LLStringUtil::null);
 		childSetEnabled("Creator Name",false);
-		childSetEnabled("button creator profile",false);
 
 		childSetEnabled("Owner:",false);
 		childSetText("Owner Name",LLStringUtil::null);
 		childSetEnabled("Owner Name",false);
-		childSetEnabled("button owner profile",false);
 
 		childSetEnabled("Group:",false);
 		childSetText("Group Name",LLStringUtil::null);
@@ -275,7 +270,6 @@ void LLPanelPermissions::refresh()
 
 	childSetText("Creator Name",creator_name);
 	childSetEnabled("Creator Name",TRUE);
-	childSetEnabled("button creator profile", creators_identical && mCreatorID.notNull() );
 
 	// Update owner text field
 	childSetEnabled("Owner:",true);
@@ -310,7 +304,6 @@ void LLPanelPermissions::refresh()
 
 	childSetText("Owner Name",owner_name);
 	childSetEnabled("Owner Name",TRUE);
-	childSetEnabled("button owner profile",owners_identical && (mOwnerID.notNull() || LLSelectMgr::getInstance()->selectIsGroupOwned()));
 
 	// update group text field
 	childSetEnabled("Group:",true);
@@ -801,31 +794,6 @@ void LLPanelPermissions::onClickRelease(void*)
 {
 	// try to release ownership
 	LLSelectMgr::getInstance()->sendOwner(LLUUID::null, LLUUID::null);
-}
-
-// static
-void LLPanelPermissions::onClickCreator(void *data)
-{
-	LLPanelPermissions *self = (LLPanelPermissions *)data;
-
-	LLAvatarActions::showProfile(self->mCreatorID);
-}
-
-// static
-void LLPanelPermissions::onClickOwner(void *data)
-{
-	LLPanelPermissions *self = (LLPanelPermissions *)data;
-
-	if (LLSelectMgr::getInstance()->selectIsGroupOwned())
-	{
-		LLUUID group_id;
-		LLSelectMgr::getInstance()->selectGetGroup(group_id);
-		LLGroupActions::show(group_id);
-	}
-	else
-	{
-		LLAvatarActions::showProfile(self->mOwnerID);
-	}
 }
 
 void LLPanelPermissions::onClickGroup()

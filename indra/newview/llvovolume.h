@@ -45,6 +45,8 @@
 class LLViewerTextureAnim;
 class LLDrawPool;
 class LLSelectNode;
+class LLObjectMediaDataClient;
+class LLObjectMediaNavigateClient;
 
 typedef std::vector<viewer_media_t> media_list_t;
 
@@ -238,7 +240,7 @@ public:
 	void syncMediaData(S32 te, const LLSD &media_data, bool merge, bool ignore_agent);
 	
 	// Send media data update to the simulator.
-	void sendMediaDataUpdate() const;
+	void sendMediaDataUpdate();
 
 	viewer_media_t getMediaImpl(U8 face_id) const;
 	S32 getFaceIndexWithMediaImpl(const LLViewerMediaImpl* media_impl, S32 start_face_id);
@@ -283,6 +285,9 @@ public:
 	static F32 sLODFactor;				// LOD scale factor
 	static F32 sDistanceFactor;			// LOD distance factor
 		
+	static LLPointer<LLObjectMediaDataClient> sObjectMediaClient;
+	static LLPointer<LLObjectMediaNavigateClient> sObjectMediaNavigateClient;
+
 protected:
 	static S32 sNumLODChanges;
 	

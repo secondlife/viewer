@@ -55,7 +55,7 @@ public:
 	virtual BOOL		handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL		handleDoubleClick(S32 x, S32 y, MASK mask);
 	virtual BOOL		handleScrollWheel(S32 x, S32 y, S32 clicks);
-	virtual BOOL		handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen);
+	virtual BOOL		handleToolTip(S32 x, S32 y, MASK mask);
 
 	virtual void		render();
 
@@ -76,7 +76,8 @@ public:
 
 	static void			selectionPropertiesReceived();
 
-	static void			showAvatarInspector(const LLUUID& id);
+	static void			showAvatarInspector(const LLUUID& avatar_id);
+	static void			showObjectInspector(const LLUUID& object_id);
 private:
 	BOOL outsideSlop		(S32 x, S32 y, S32 start_x, S32 start_y);
 	BOOL pickLeftMouseDownCallback();

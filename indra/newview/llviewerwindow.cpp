@@ -835,9 +835,13 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 	// Save mouse point for access during idle() and display()
 
 	LLCoordGL mouse_point(x, y);
-	saveLastMouse(mouse_point);
 
-	LLUI::resetMouseIdleTimer();
+	if (mouse_point != mCurrentMousePoint)
+	{
+		LLUI::resetMouseIdleTimer();
+	}
+
+	saveLastMouse(mouse_point);
 
 	mWindow->showCursorFromMouseMove();
 
@@ -1866,7 +1870,6 @@ void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
     if(gStatusBar)
     {
         gStatusBar->setBackgroundColor( new_bg_color );
-		gStatusBar->getChild<LLTextBox>("HealthText")->setBackgroundColor(new_bg_color);
     }
 }
 
@@ -2022,7 +2025,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 
 	// hide tooltips on keypress
-	LLToolTipMgr::instance().hideToolTips();
+	LLToolTipMgr::instance().blockToolTips();
 	
 	// Explicit hack for debug menu.
 	if ((MASK_ALT & mask) &&
@@ -2609,16 +2612,16 @@ void LLViewerWindow::updateUI()
 			append_xui_tooltip(tooltip_view, tool_tip_msg);
 			screen_sticky_rect.intersectWith(tooltip_view->calcScreenRect());
 			
-			LLToolTipMgr::instance().show(LLToolTipParams()
+			LLToolTipMgr::instance().show(LLToolTip::Params()
 				.message(tool_tip_msg)
 				.sticky_rect(screen_sticky_rect)
-				.width(400));
+				.max_width(400));
 		}
 		// if there is a mouse captor, nothing else gets a tooltip
 		else if (mouse_captor)
 		{
 			mouse_captor->screenPointToLocal(x, y, &local_x, &local_y);
-			tool_tip_handled = mouse_captor->handleToolTip(local_x, local_y, tool_tip_msg, screen_sticky_rect );
+			tool_tip_handled = mouse_captor->handleToolTip(local_x, local_y, mask);
 		}
 		else 
 		{
@@ -2626,20 +2629,20 @@ void LLViewerWindow::updateUI()
 			if (!tool_tip_handled && top_ctrl)
 			{
 				top_ctrl->screenPointToLocal(x, y, &local_x, &local_y);
-				tool_tip_handled = top_ctrl->handleToolTip(local_x, local_y, tool_tip_msg, screen_sticky_rect );
+				tool_tip_handled = top_ctrl->handleToolTip(local_x, local_y, mask );
 			}
 			
 			if (!tool_tip_handled)
 			{
 				local_x = x; local_y = y;
-				tool_tip_handled = mRootView->handleToolTip(local_x, local_y, tool_tip_msg, screen_sticky_rect );
+				tool_tip_handled = mRootView->handleToolTip(local_x, local_y, mask );
 			}
 
 			LLTool* current_tool = LLToolMgr::getInstance()->getCurrentTool();
 			if (!tool_tip_handled && current_tool)
 			{
 				current_tool->screenPointToLocal(x, y, &local_x, &local_y);
-				tool_tip_handled = current_tool->handleToolTip(local_x, local_y, tool_tip_msg, screen_sticky_rect );
+				tool_tip_handled = current_tool->handleToolTip(local_x, local_y, mask );
 			}
 		}
 	}		
@@ -2687,7 +2690,7 @@ void LLViewerWindow::updateLayout()
 				&& !suppress_toolbox									// not override in third person
 				&& LLToolMgr::getInstance()->getCurrentToolset() != gFaceEditToolset	// not special mode
 				&& LLToolMgr::getInstance()->getCurrentToolset() != gMouselookToolset
-				&& (!captor || captor->isView())))						// not dragging
+				&& (!captor || dynamic_cast<LLView*>(captor) != NULL)))						// not dragging
 		{
 			// Force floater tools to be visible (unless minimized)
 			if (!gFloaterTools->getVisible())
@@ -2786,6 +2789,14 @@ void LLViewerWindow::updateKeyboardFocus()
 					break;
 				}
 				parent = parent->getParentUICtrl();
+			}
+
+			// if we didn't find a better place to put focus, just release it
+			// hasFocus() will return true if and only if we didn't touch focus since we
+			// are only moving focus higher in the hierarchy
+			if (cur_focus->hasFocus())
+			{
+				cur_focus->setFocus(FALSE);
 			}
 		}
 		else if (cur_focus->isFocusRoot())

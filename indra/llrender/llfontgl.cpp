@@ -484,7 +484,8 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 	S32 start_of_last_word = 0;
 	BOOL in_word = FALSE;
 
-	F32 scaled_max_pixels =	(F32)llceil(max_pixels * sScaleX);
+	// avoid S32 overflow when max_pixels == S32_MAX by staying in floating point
+	F32 scaled_max_pixels =	ceil(max_pixels * sScaleX);
 
 	S32 i;
 	for (i=0; (i < max_chars); i++)

@@ -110,6 +110,7 @@
 #include "llfloaterwindlight.h"
 #include "llfloaterworldmap.h"
 #include "llinspectavatar.h"
+#include "llinspectobject.h"
 #include "llmediaremotectrl.h"
 #include "llmoveview.h"
 #include "llnearbychat.h"
@@ -172,8 +173,8 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("impanel", "floater_im_session.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIMFloater>);
 	LLFloaterReg::add("inventory", "floater_inventory.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterInventory>);
 	LLFloaterReg::add("inspect", "floater_inspect.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterInspect>);
-	LLFloaterReg::add("inspect_avatar", "inspect_avatar.xml",
-		&LLFloaterReg::build<LLInspectAvatar>);
+	LLInspectAvatarUtil::registerFloater();
+	LLInspectObjectUtil::registerFloater();
 	
 	LLFloaterReg::add("lagmeter", "floater_lagmeter.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLagMeter>);
 	LLFloaterReg::add("land_holdings", "floater_land_holdings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLandHoldings>);

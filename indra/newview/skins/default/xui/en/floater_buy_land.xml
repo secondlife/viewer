@@ -483,7 +483,8 @@ sold with objects
      name="error_message"
      right="435"
      top="208"
-     width="215">
+     width="215"
+     word_wrap="true">
         Something ain&apos;t right.
     </text>
     <button
@@ -583,7 +584,8 @@ sold with objects
      left="72"
      name="land_use_reason"
      right="435"
-     width="215">
+     width="215"
+     word_wrap="true">
         You hold 1309 m² of land.
     This parcel is 512 m² of land.
     </text>

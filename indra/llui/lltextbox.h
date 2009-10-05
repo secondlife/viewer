@@ -33,47 +33,21 @@
 #ifndef LL_LLTEXTBOX_H
 #define LL_LLTEXTBOX_H
 
-#include "lluictrl.h"
 #include "v4color.h"
 #include "llstring.h"
 #include "lluistring.h"
 #include "lltextbase.h"
 
 class LLTextBox :
-	public LLTextBase,
-	public LLUICtrl
+	public LLTextBase
 {
 public:
 	
 	// *TODO: Add callback to Params
 	typedef boost::function<void (void)> callback_t;
 	
-	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
-	{
-		Optional<std::string> text;
-
-		Optional<bool>		border_visible,
-							border_drop_shadow_visible,
-							bg_visible,
-							use_ellipses,
-							word_wrap;
-
-		Optional<LLFontGL::ShadowType>	font_shadow;
-
-		Ignored				drop_shadow_visible,
-							type,
-							length;
-
-		Optional<LLUIColor>	text_color,
-							disabled_color,
-							background_color;
-
-		Optional<S32>		v_pad,
-							h_pad,
-							line_spacing;
-
-		Params();
-	};
+	struct Params : public LLInitParam::Block<Params, LLTextBase::Params>
+	{};
 
 protected:
 	LLTextBox(const Params&);
@@ -82,84 +56,33 @@ protected:
 public:
 	virtual ~LLTextBox() {}
 
-	virtual void	draw();
-	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen);
 
-	void			setColor( const LLColor4& c )			{ mTextColor = c; }
-	void			setDisabledColor( const LLColor4& c)	{ mDisabledColor = c; }
-	void			setBackgroundColor( const LLColor4& c)	{ mBackgroundColor = c; }	
-
-	void			setText( const LLStringExplicit& text );
-	void			setWrappedText(const LLStringExplicit& text, F32 max_width = -1.f); // -1 means use existing control width
-	void			setUseEllipses( BOOL use_ellipses )		{ mUseEllipses = use_ellipses; }
+	/*virtual*/ void			setText( const LLStringExplicit& text );
 	
-	void			setBackgroundVisible(BOOL visible)		{ mBackgroundVisible = visible; }
-	void			setBorderVisible(BOOL visible)			{ mBorderVisible = visible; }
-	void			setBorderDropshadowVisible(BOOL visible){ mBorderDropShadowVisible = visible; }
-	void			setHPad(S32 pixels)						{ mHPad = pixels; }
-	void			setVPad(S32 pixels)						{ mVPad = pixels; }
 	void			setRightAlign()							{ mHAlign = LLFontGL::RIGHT; }
 	void			setHAlign( LLFontGL::HAlign align )		{ mHAlign = align; }
 	void			setClickedCallback( boost::function<void (void*)> cb, void* userdata = NULL ){ mClickedCallback = boost::bind(cb, userdata); }		// mouse down and up within button
 
-	const LLFontGL* getFont() const							{ return mDefaultFont; }
-	void			setFont(const LLFontGL* font)			{ mDefaultFont = font; }
+	//const LLFontGL* getFont() const							{ return mDefaultFont; }
+	//void			setFont(const LLFontGL* font)			{ mDefaultFont = font; }
 
 	void			reshapeToFitText();
 
-	const std::string&	getText() const							{ return mText.getString(); }
-	LLWString		getWText() const { return mDisplayText; }
+	//const std::string&	getText() const							{ return mText.getString(); }
 	S32				getTextPixelWidth();
 	S32				getTextPixelHeight();
-	S32				getLength() const { return mDisplayText.length(); }
 
-	virtual void	setValue(const LLSD& value );		
 	virtual LLSD	getValue() const						{ return LLSD(getText()); }
 	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
 
 protected:
-	S32 			getLineCount() const { return mLineLengthList.size(); }
-	S32 			getLineStart( S32 line ) const;
-	S32             getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const;
-	LLWString       getWrappedText(const LLStringExplicit& in_text, F32 max_width = -1.f);
-	void			setLineLengths();
-	void			updateDisplayTextAndSegments();
-	virtual void	drawText(S32 x, S32 y, const LLWString &text, const LLColor4& color );
 	void            onUrlLabelUpdated(const std::string &url, const std::string &label);
 	bool            isClickable() const;
-	LLWString       wrapText(const LLWString &wtext, S32 &hoffset, S32 &line_num, F32 max_width);
-	void            drawTextSegments(S32 x, S32 y, const LLWString &text);
 
-	LLUIString		mText;
-	LLWString		mDisplayText;
-	LLUIColor		mTextColor;
-	LLUIColor		mDisabledColor;
-	LLUIColor		mBackgroundColor;
-	LLUIColor		mBorderColor;
-
-	BOOL			mBackgroundVisible;
-	BOOL			mBorderVisible;
-	BOOL            mDidWordWrap;
-	
-	LLFontGL::ShadowType mShadowType;
-	BOOL			mBorderDropShadowVisible;
-	BOOL			mUseEllipses;
-
-	S32				mLineSpacing;
-
-	S32				mHPad;
-	S32				mVPad;
-	LLFontGL::HAlign mHAlign;
-	LLFontGL::VAlign mVAlign;
-
-	std::vector<S32> mLineLengthList;
-	callback_t		mClickedCallback;
+	LLUIString			mText;
+	callback_t			mClickedCallback;
 };
 
 #endif

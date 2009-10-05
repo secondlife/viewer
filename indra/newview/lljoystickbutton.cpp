@@ -537,18 +537,6 @@ void LLJoystickCameraRotate::draw()
 	{
 		drawRotatedImage( getImageSelected()->getImage(), 3 );
 	}
-
-	if (sDebugRects)
-	{
-		drawDebugRect();
-	}
-
-	//// *HACK: also draw debug rectangles around currently-being-edited LLView, and any elements that are being highlighted by GUI preview code (see LLFloaterUIPreview)
-	//std::set<LLView*>::iterator iter = std::find(sPreviewHighlightedElements.begin(), sPreviewHighlightedElements.end(), this);
-	//if ((sEditingUI && this == sEditingUIView) || (iter != sPreviewHighlightedElements.end() && sDrawPreviewHighlights))
-	//{
-	//	drawDebugRect();
-	//}
 }
 
 // Draws image rotated by multiples of 90 degrees
@@ -723,18 +711,6 @@ void LLJoystickCameraZoom::draw()
 	{
 		getImageUnselected()->draw( 0, 0 );
 	}
-
-	if (sDebugRects)
-	{
-		drawDebugRect();
-	}
-
-	//// *HACK: also draw debug rectangles around currently-being-edited LLView, and any elements that are being highlighted by GUI preview code (see LLFloaterUIPreview)
-	//std::set<LLView*>::iterator iter = std::find(sPreviewHighlightedElements.begin(), sPreviewHighlightedElements.end(), this);
-	//if ((sEditingUI && this == sEditingUIView) || (iter != sPreviewHighlightedElements.end() && sDrawPreviewHighlights))
-	//{
-	//	drawDebugRect();
-	//}
 }
 
 void LLJoystickCameraZoom::updateSlop()

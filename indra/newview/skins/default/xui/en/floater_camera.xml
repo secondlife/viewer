@@ -5,7 +5,7 @@
  can_close="false" 
  center_horiz="true"
  follows="top"
- height="95"
+ height="110"
  layout="topleft"
  name="camera_floater"
  help_topic="camera_floater"
@@ -26,7 +26,7 @@
     </floater.string>
     <panel
      border="true"
-     height="64"
+     height="79"
      layout="topleft"
      left="0"
      top="0"
@@ -46,7 +46,7 @@
          scale_image="false"
          sound_flags="3"
          tool_tip="Orbit Camera Around Focus"
-         top="0"
+         top="15"
          width="64" />
         <joystick_track
          follows="top|left"
@@ -61,7 +61,7 @@
          scale_image="false"
          sound_flags="3"
          tool_tip="Move Camera Up and Down, Left and Right"
-         top="0"
+         top="15"
          visible="false"
          width="64" />
         <joystick_zoom
