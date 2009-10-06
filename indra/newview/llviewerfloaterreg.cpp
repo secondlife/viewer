@@ -83,7 +83,7 @@
 #include "llfloaternamedesc.h"
 #include "llfloaternotificationsconsole.h"
 #include "llfloateropenobject.h"
-#include "llgivemoney.h"
+#include "llfloaterpay.h"
 #include "llfloaterparcel.h"
 #include "llfloaterperms.h"
 #include "llfloaterpostcard.h"
