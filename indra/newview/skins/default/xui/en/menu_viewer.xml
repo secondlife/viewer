@@ -361,18 +361,6 @@
             </menu_item_call>
         </menu>
         <menu_item_check
-         label="Search"
-         layout="topleft"
-         name="Search"
-         shortcut="control|F">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="search" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="search" />
-        </menu_item_check>
-        <menu_item_check
          label="World Map"
          layout="topleft"
          name="World Map"
@@ -1072,6 +1060,18 @@
          name="Shortcuts"
          tear_off="true"
          visible="false">
+            <menu_item_check
+               label="Search"
+               layout="topleft"
+               name="Search"
+               shortcut="control|F">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="search" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="search" />
+            </menu_item_check>
             <menu_item_call
              enabled="false"
              label="Release Keys"
