@@ -37,7 +37,6 @@
 #include <boost/lexical_cast.hpp>
 
 #include "llhttpstatuscodes.h"
-#include "llnotifications.h"
 #include "llsdutil.h"
 #include "llmediaentry.h"
 #include "lltextureentry.h"
@@ -216,10 +215,7 @@ void LLMediaDataClient::Responder::error(U32 status, const std::string& reason)
 	}
 	else {
 		std::string msg = boost::lexical_cast<std::string>(status) + ": " + reason;
-		LL_INFOS("LLMediaDataClient") << *mRequest << " error(" << msg << ")" << LL_ENDL;
-		LLSD args;
-		args["ERROR"] = msg;
-		LLNotifications::instance().add("ObjectMediaFailure", args);
+		LL_WARNS("LLMediaDataClient") << *mRequest << " http error(" << msg << ")" << LL_ENDL;
 	}
 }
 
