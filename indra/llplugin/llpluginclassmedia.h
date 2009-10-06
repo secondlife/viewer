@@ -135,6 +135,7 @@ public:
 	
 	// Inherited from LLPluginProcessParentOwner
 	/* virtual */ void receivePluginMessage(const LLPluginMessage &message);
+	/* virtual */ void pluginLaunchFailed();
 	/* virtual */ void pluginDied();
 	
 	

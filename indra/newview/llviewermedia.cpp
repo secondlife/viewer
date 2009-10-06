@@ -1381,6 +1381,18 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 {
 	switch(event)
 	{
+		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
+		{
+			// The plugin failed to load properly.  Make sure the timer doesn't retry.
+			mMediaSourceFailedInit = true;
+			
+			// TODO: may want a different message for this case?
+			LLSD args;
+			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
+			LLNotifications::instance().add("MediaPluginFailed", args);
+		}
+		break;
+
 		case MEDIA_EVENT_PLUGIN_FAILED:
 		{
 			LLSD args;

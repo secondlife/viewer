@@ -56,7 +56,8 @@ public:
 		MEDIA_EVENT_CLICK_LINK_HREF,		// I'm not entirely sure what the semantics of these two are
 		MEDIA_EVENT_CLICK_LINK_NOFOLLOW,
 		
-		MEDIA_EVENT_PLUGIN_FAILED			// The plugin failed to launch or died unexpectedly
+		MEDIA_EVENT_PLUGIN_FAILED_LAUNCH,	// The plugin failed to launch 
+		MEDIA_EVENT_PLUGIN_FAILED			// The plugin died unexpectedly
 		
 	} EMediaEvent;
 	

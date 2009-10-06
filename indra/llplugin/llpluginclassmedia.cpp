@@ -884,6 +884,12 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 }
 
 /* virtual */ 
+void LLPluginClassMedia::pluginLaunchFailed()
+{
+	mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_PLUGIN_FAILED_LAUNCH);
+}
+
+/* virtual */ 
 void LLPluginClassMedia::pluginDied()
 {
 	mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_PLUGIN_FAILED);
