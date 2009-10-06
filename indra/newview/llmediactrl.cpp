@@ -68,7 +68,9 @@ LLMediaCtrl::Params::Params()
 	texture_width("texture_width", 1024),
 	texture_height("texture_height", 1024),
 	caret_color("caret_color")
-{}
+{
+	tab_stop(false);
+}
 
 LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	LLPanel( p ),
