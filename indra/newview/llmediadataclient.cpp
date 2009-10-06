@@ -618,6 +618,6 @@ void LLObjectMediaNavigateClient::Responder::bounceBack()
     
     if (mep && impl)
     {
-        impl->navigateTo(mep->getCurrentURL(), "", false, true);
+//        impl->navigateTo(mep->getCurrentURL(), "", false, true);
     }
 }
