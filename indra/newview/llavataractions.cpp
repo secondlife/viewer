@@ -306,7 +306,7 @@ bool LLAvatarActions::handlePay(const LLSD& notification, const LLSD& response, 
 		gAgent.clearBusy();
 	}
 
-	LLFloaterPay::payDirectly(&give_money, avatar_id, /*is_group=*/FALSE);
+	LLFloaterPayUtil::payDirectly(&give_money, avatar_id, /*is_group=*/false);
 	return false;
 }
 

@@ -32,72 +32,30 @@
 #ifndef LLFLOATERPAY_H
 #define LLFLOATERPAY_H
 
-#include "lluuid.h"
-#include "llfloater.h"
-#include "lllslconstants.h"
+#include "llsafehandle.h"
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLFloaterPay
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class LLViewerRegion;
-class LLLineEditor;
-class LLTextBox;
-class LLButton;
 class LLObjectSelection;
-struct LLGiveMoneyInfo;
+class LLUUID;
+class LLViewerRegion;
 
 typedef void (*money_callback)(const LLUUID&, LLViewerRegion*,S32,BOOL,S32,const std::string&);
 
-class LLFloaterPay : public LLFloater
+namespace LLFloaterPayUtil
 {
-public:
-	LLFloaterPay(const LLSD& key);
-	virtual ~LLFloaterPay();
-	/*virtual*/	BOOL	postBuild();
+	/// Register with LLFloaterReg
+	void registerFloater();
+
+	/// Pay into an in-world object, which will trigger scripts and eventually
+	/// transfer the L$ to the resident or group that owns the object.
+	/// Objects must be selected.  Recipient (primary) object may be a child.
+	void payViaObject(money_callback callback,
+					  LLSafeHandle<LLObjectSelection> selection);
 	
-	void setCallback(money_callback callback) { mCallback = callback; }
-	
-	void onClose();
-
-	// Pay into an in-world object, which will trigger scripts and eventually
-	// transfer the L$ to the resident or group that owns the object.
-	// Object must be selected.  It may be a child.
-	static void payViaObject(money_callback callback, LLSafeHandle<LLObjectSelection> selection);
-	
-	// Pay an avatar or group directly, not via an object in the world.
-	// Scripts are not notified, L$ can be direcly transferred.
-	static void payDirectly(money_callback callback,
-							const LLUUID& target_id,
-							BOOL is_group);
-
-private:
-	static void onCancel(void* data);
-	static void onKeystroke(LLLineEditor* editor, void* data);
-	static void onGive(void* data);
-	void give(S32 amount);
-	static void processPayPriceReply(LLMessageSystem* msg, void **userdata);
-	void onCacheOwnerName(const LLUUID& owner_id,
-						  const std::string& firstname,
-						  const std::string& lastname,
-						  BOOL is_group);
-	void finishPayUI(const LLUUID& target_id, BOOL is_group);
-
-protected:
-	std::vector<LLGiveMoneyInfo*> mCallbackData;
-	money_callback mCallback;
-	LLTextBox* mObjectNameText;
-	LLUUID mTargetUUID;
-	BOOL mTargetIsGroup;
-	BOOL mHaveName;
-
-	LLButton* mQuickPayButton[MAX_PAY_BUTTONS];
-	LLGiveMoneyInfo* mQuickPayInfo[MAX_PAY_BUTTONS];
-
-	LLSafeHandle<LLObjectSelection> mObjectSelection;
-
-	static S32 sLastAmount;
-};
-
+	/// Pay an avatar or group directly, not via an object in the world.
+	/// Scripts are not notified, L$ can be direcly transferred.
+	void payDirectly(money_callback callback,
+					 const LLUUID& target_id,
+					 bool is_group);
+}
 
 #endif // LLFLOATERPAY_H

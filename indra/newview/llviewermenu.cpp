@@ -5437,14 +5437,14 @@ bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjec
 	{
 		if (objectp->isAvatar())
 		{
-			const BOOL is_group = FALSE;
-			LLFloaterPay::payDirectly(&give_money,
+			const bool is_group = false;
+			LLFloaterPayUtil::payDirectly(&give_money,
 									  objectp->getID(),
 									  is_group);
 		}
 		else
 		{
-			LLFloaterPay::payViaObject(&give_money, selection);
+			LLFloaterPayUtil::payViaObject(&give_money, selection);
 		}
 	}
 	return false;

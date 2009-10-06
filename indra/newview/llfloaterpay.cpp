@@ -36,6 +36,9 @@
 #include "llfloaterpay.h"
 
 #include "message.h"
+#include "llfloater.h"
+#include "lllslconstants.h"		// MAX_PAY_BUTTONS
+#include "lluuid.h"
 
 #include "llagent.h"
 #include "llfloaterreg.h"
@@ -62,6 +65,7 @@
 //
 // A small class used to track callback information
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLFloaterPay;
 
 struct LLGiveMoneyInfo
 {
@@ -74,6 +78,52 @@ struct LLGiveMoneyInfo
 ///----------------------------------------------------------------------------
 /// Class LLFloaterPay
 ///----------------------------------------------------------------------------
+
+class LLFloaterPay : public LLFloater
+{
+public:
+	LLFloaterPay(const LLSD& key);
+	virtual ~LLFloaterPay();
+	/*virtual*/	BOOL	postBuild();
+	
+	void setCallback(money_callback callback) { mCallback = callback; }
+	
+	void onClose();
+
+	static void payViaObject(money_callback callback, LLSafeHandle<LLObjectSelection> selection);
+	
+	static void payDirectly(money_callback callback,
+							const LLUUID& target_id,
+							bool is_group);
+
+private:
+	static void onCancel(void* data);
+	static void onKeystroke(LLLineEditor* editor, void* data);
+	static void onGive(void* data);
+	void give(S32 amount);
+	static void processPayPriceReply(LLMessageSystem* msg, void **userdata);
+	void onCacheOwnerName(const LLUUID& owner_id,
+						  const std::string& firstname,
+						  const std::string& lastname,
+						  BOOL is_group);
+	void finishPayUI(const LLUUID& target_id, BOOL is_group);
+
+protected:
+	std::vector<LLGiveMoneyInfo*> mCallbackData;
+	money_callback mCallback;
+	LLTextBox* mObjectNameText;
+	LLUUID mTargetUUID;
+	BOOL mTargetIsGroup;
+	BOOL mHaveName;
+
+	LLButton* mQuickPayButton[MAX_PAY_BUTTONS];
+	LLGiveMoneyInfo* mQuickPayInfo[MAX_PAY_BUTTONS];
+
+	LLSafeHandle<LLObjectSelection> mObjectSelection;
+
+	static S32 sLastAmount;
+};
+
 
 S32 LLFloaterPay::sLastAmount = 0;
 const S32 MAX_AMOUNT_LENGTH = 10;
@@ -352,7 +402,7 @@ void LLFloaterPay::payViaObject(money_callback callback, LLSafeHandle<LLObjectSe
 
 void LLFloaterPay::payDirectly(money_callback callback, 
 							   const LLUUID& target_id,
-							   BOOL is_group)
+							   bool is_group)
 {
 	LLFloaterPay *floater = LLFloaterReg::showTypedInstance<LLFloaterPay>("pay_resident", LLSD(target_id));
 	if (!floater)
@@ -495,4 +545,29 @@ void LLFloaterPay::give(S32 amount)
 			LLMuteList::getInstance()->autoRemove(mTargetUUID, LLMuteList::AR_MONEY);
 		}
 	}
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Namespace LLFloaterPayUtil
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+void LLFloaterPayUtil::registerFloater()
+{
+	// Sneaky, use same code but different XML for dialogs
+	LLFloaterReg::add("pay_resident", "floater_pay.xml", 
+		&LLFloaterReg::build<LLFloaterPay>);
+	LLFloaterReg::add("pay_object", "floater_pay_object.xml", 
+		&LLFloaterReg::build<LLFloaterPay>);
+}
+
+void LLFloaterPayUtil::payViaObject(money_callback callback,
+									LLSafeHandle<LLObjectSelection> selection)
+{
+	LLFloaterPay::payViaObject(callback, selection);
+}
+
+void LLFloaterPayUtil::payDirectly(money_callback callback,
+								   const LLUUID& target_id,
+								   bool is_group)
+{
+	LLFloaterPay::payDirectly(callback, target_id, is_group);
 }
