@@ -807,6 +807,9 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 			++cur_seg_iter;
 		}
 	}
+
+	// layout potentially changed
+	needsReflow();
 }
 
 BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)

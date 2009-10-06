@@ -54,6 +54,8 @@ protected:
 	public:
 		struct Params :	public LLInitParam::Block<Params, LLTextBox::Params>
 		{
+			Mandatory<std::string> more_label;
+			Params();
 		};
 
 		// adds or removes "More" link as needed
@@ -76,11 +78,6 @@ protected:
 		 */
 		virtual S32 getHPad() { return mHPad; }
 
-	protected:
-
-		LLTextBoxEx(const Params& p);
-		friend class LLUICtrlFactory;
-
 		/**
 		 * Shows "More" link
 		 */
@@ -91,9 +88,15 @@ protected:
 		 */
 		void hideExpandText();
 
-	private:
+	protected:
 
-		bool mExpanded;
+		LLTextBoxEx(const Params& p);
+		friend class LLUICtrlFactory;
+
+	private:
+		std::string mExpanderLabel;
+
+		bool mExpanderVisible;
 	};
 
 public:
