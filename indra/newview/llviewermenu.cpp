@@ -5414,7 +5414,7 @@ class LLAvatarAddContact : public view_listener_t
 	}
 };
 
-bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle handle)
+bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle selection)
 {
 	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option == 0)
@@ -5422,7 +5422,7 @@ bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjec
 		gAgent.clearBusy();
 	}
 
-	LLViewerObject* objectp = handle->getPrimaryObject();
+	LLViewerObject* objectp = selection->getPrimaryObject();
 
 	// Show avatar's name if paying attachment
 	if (objectp && objectp->isAttachment())
@@ -5444,7 +5444,7 @@ bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjec
 		}
 		else
 		{
-			LLFloaterPay::payViaObject(&give_money, objectp->getID());
+			LLFloaterPay::payViaObject(&give_money, selection);
 		}
 	}
 	return false;
