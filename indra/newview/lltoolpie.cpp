@@ -70,6 +70,7 @@
 #include "llworld.h"
 #include "llui.h"
 #include "llweb.h"
+#include "pipeline.h"	// setHighlightObject
 
 extern BOOL gDebugClicks;
 
@@ -472,7 +473,9 @@ void LLToolPie::selectionPropertiesReceived()
 BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 {
 	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE);
-	
+
+	// Show screen-space highlight glow effect
+	bool show_highlight = false;
 	LLViewerObject *parent = NULL;
 	LLViewerObject *object = mHoverPick.getObject();
 
@@ -483,24 +486,28 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 
 	if (object && useClickAction(mask, object, parent))
 	{
+		show_highlight = true;
 		ECursorType cursor = cursor_from_object(object);
 		gViewerWindow->setCursor(cursor);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
 	else if (handleMediaHover(mHoverPick))
 	{
+		show_highlight = true;
 		// cursor set by media object
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
 	else if ((object && !object->isAvatar() && object->usePhysics()) 
 			 || (parent && !parent->isAvatar() && parent->usePhysics()))
 	{
+		show_highlight = true;
 		gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
 	else if ( (object && object->flagHandleTouch()) 
 			  || (parent && parent->flagHandleTouch()))
 	{
+		show_highlight = true;
 		gViewerWindow->setCursor(UI_CURSOR_HAND);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
@@ -518,6 +525,15 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 			}
 		}
 	}
+
+	static LLCachedControl<bool> enable_highlight(
+		gSavedSettings, "RenderHighlightEnable", false);
+	LLDrawable* drawable = NULL;
+	if (enable_highlight && show_highlight && object)
+	{
+		drawable = object->mDrawable;
+	}
+	gPipeline.setHighlightObject(drawable);
 
 	return TRUE;
 }

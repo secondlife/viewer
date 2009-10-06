@@ -2503,7 +2503,6 @@
          tear_off="true">
             <menu_item_check
              label="Axes"
-             layout="topleft"
              name="Axes">
                 <menu_item_check.on_check
                  function="CheckControl"
@@ -2514,7 +2513,6 @@
             </menu_item_check>
             <menu_item_check
              label="Tangent Basis"
-             layout="topleft"
              name="Tangent Basis">
                 <menu_item_check.on_check
                  function="CheckControl"
@@ -2525,7 +2523,6 @@
             </menu_item_check>
             <menu_item_call
              label="Selected Texture Info Basis"
-             layout="topleft"
              name="Selected Texture Info Basis"
              shortcut="control|alt|shift|T">
                 <menu_item_call.on_click
@@ -2533,7 +2530,6 @@
             </menu_item_call>
             <menu_item_check
              label="Wireframe"
-             layout="topleft"
              name="Wireframe"
              shortcut="control|shift|R">
                 <menu_item_check.on_check
@@ -2544,7 +2540,6 @@
             </menu_item_check>
             <menu_item_check
              label="Object-Object Occlusion"
-             layout="topleft"
              name="Object-Object Occlusion"
              shortcut="control|shift|O">
                 <menu_item_check.on_check
@@ -2558,7 +2553,6 @@
             </menu_item_check>
           <menu_item_check
              label="Framebuffer Objects"
-             layout="topleft"
              name="Framebuffer Objects">
             <menu_item_check.on_check
              function="CheckControl"
@@ -2571,7 +2565,6 @@
            </menu_item_check>
           <menu_item_check
                        label="Deferred Rendering"
-                       layout="topleft"
                        name="Deferred Rendering">
             <menu_item_check.on_check
              function="CheckControl"
@@ -2584,7 +2577,6 @@
           </menu_item_check>
           <menu_item_check
                    label="Global Illumintation"
-                   layout="topleft"
                    name="Global Illumination">
             <menu_item_check.on_check
              function="CheckControl"
@@ -2595,10 +2587,11 @@
             <menu_item_check.on_enable
                  function="Advanced.EnableRenderDeferredGI" />
           </menu_item_check>
-
+          
+          <menu_item_separator />
+          
           <menu_item_check
              label="Debug GL"
-             layout="topleft"
              name="Debug GL">
                 <menu_item_check.on_check
                  function="CheckControl"
@@ -2609,7 +2602,6 @@
             </menu_item_check>
             <menu_item_check
              label="Debug Pipeline"
-             layout="topleft"
              name="Debug Pipeline">
                 <menu_item_check.on_check
                  function="CheckControl"
@@ -2620,7 +2612,6 @@
             </menu_item_check>
             <menu_item_check
              label="Fast Alpha"
-             layout="topleft"
              name="Fast Alpha">
                 <menu_item_check.on_check
                  function="CheckControl"
@@ -2631,7 +2622,6 @@
             </menu_item_check>
             <menu_item_check
              label="Animation Textures"
-             layout="topleft"
              name="Animation Textures">
                 <menu_item_check.on_check
                  function="CheckControl"
@@ -2642,7 +2632,6 @@
             </menu_item_check>
             <menu_item_check
              label="Disable Textures"
-             layout="topleft"
              name="Disable Textures">
                 <menu_item_check.on_check
                  function="Advanced.CheckDisableTextures"
@@ -2652,7 +2641,6 @@
             </menu_item_check>
             <menu_item_check
              label="Texture Atlas"
-             layout="topleft"
              name="Texture Atlas">
               <menu_item_check.on_check
                function="Advanced.CheckTextureAtlas"
@@ -2662,7 +2650,6 @@
             </menu_item_check>
               <menu_item_check
              label="Render Attached Lights"
-             layout="topleft"
              name="Render Attached Lights">
                 <menu_item_check.on_check
                  function="CheckControl"
@@ -2673,7 +2660,6 @@
             </menu_item_check>
             <menu_item_check
              label="Render Attached Particles"
-             layout="topleft"
              name="Render Attached Particles">
                 <menu_item_check.on_check
                  function="CheckControl"
@@ -2681,6 +2667,16 @@
                 <menu_item_check.on_click
                  function="Advanced.HandleAttchedLightParticles"
                  parameter="RenderAttachedParticles" />
+            </menu_item_check>
+            <menu_item_check
+             label="Hover Highlight Objects"
+             name="Hover Highlight Objects">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="RenderHighlightEnable" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="RenderHighlightEnable" />
             </menu_item_check>
         </menu>
         <menu
