@@ -319,13 +319,23 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 			}
 		}
 	}
-	if (retval & (MEDIA_URL_REMOVED | MEDIA_URL_ADDED | MEDIA_URL_UPDATED | MEDIA_FLAGS_CHANGED)) {
-		// If the media changed at all, request new media data
-		if(mMedia)
+	if (retval & (MEDIA_URL_REMOVED | MEDIA_URL_ADDED | MEDIA_URL_UPDATED | MEDIA_FLAGS_CHANGED)) 
+	{
+		// If only the media URL changed, and it isn't a media version URL,
+		// ignore it
+		if ( ! ( retval & (MEDIA_URL_ADDED | MEDIA_URL_UPDATED) &&
+				 mMedia && ! mMedia->mMediaURL.empty() &&
+				 ! LLTextureEntry::isMediaVersionString(mMedia->mMediaURL) ) )
 		{
-			llinfos << "Media URL: " << mMedia->mMediaURL << llendl;
+			// If the media changed at all, request new media data
+			LL_DEBUGS("MediaOnAPrim") << "Media update: " << getID() << ": retval=" << retval << " Media URL: " <<
+                ((mMedia) ?  mMedia->mMediaURL : std::string("")) << LL_ENDL;
+			requestMediaDataUpdate();
 		}
-		requestMediaDataUpdate();
+        else {
+            LL_INFOS("MediaOnAPrim") << "Ignoring media update for: " << getID() << " Media URL: " <<
+                ((mMedia) ?  mMedia->mMediaURL : std::string("")) << LL_ENDL;
+        }
 	}
 	// ...and clean up any media impls
 	cleanUpMediaImpls();
