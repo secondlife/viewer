@@ -38,6 +38,7 @@
 // Library includes
 #include "lltextbox.h"
 #include "lliconctrl.h"
+#include "llmenugl.h"       // hideMenus()
 #include "llui.h"			// positionViewNearMouse()
 #include "llwindow.h"
 
@@ -94,7 +95,16 @@ BOOL LLToolTipView::handleHover(S32 x, S32 y, MASK mask)
 BOOL LLToolTipView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLToolTipMgr::instance().blockToolTips();
-	return LLView::handleMouseDown(x, y, mask);
+
+	if (LLView::handleMouseDown(x, y, mask))
+	{
+		// If we are handling the mouse event menu holder 
+		// won't get a chance to close menus so do this here 
+		LLMenuGL::sMenuContainer->hideMenus();
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 BOOL LLToolTipView::handleMiddleMouseDown(S32 x, S32 y, MASK mask)

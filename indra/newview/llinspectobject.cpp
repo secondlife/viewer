@@ -46,6 +46,7 @@
 #include "llcontrol.h"			// LLCachedControl
 #include "llfloater.h"
 #include "llfloaterreg.h"
+#include "llmenubutton.h"
 #include "llresmgr.h"			// getMonetaryString
 #include "llsafehandle.h"
 #include "lltextbox.h"			// for description truncation
@@ -254,6 +255,8 @@ void LLInspectObject::onClose()
 {
 	// Release selection to deselect
 	mObjectSelection = NULL;
+
+	getChild<LLMenuButton>("gear_btn")->hideMenu();
 }
 
 //virtual
