@@ -295,8 +295,8 @@ fail:
 
 		if (parent)
 		{
-			S32 tab_group = params.tab_group.isProvided() ? params.tab_group() : parent->getLastTabGroup();
-			parent->addChild(widget, tab_group);
+			S32 tab_group = params.tab_group.isProvided() ? params.tab_group() : -1;
+			setCtrlParent(widget, parent, tab_group);
 		}
 		
 		typedef typename T::child_registry_t registry_t;
@@ -321,6 +321,9 @@ fail:
 	static void loadWidgetTemplate(const std::string& widget_tag, LLInitParam::BaseBlock& block);
 
 private:
+	// this exists to get around dependency on llview
+	static void setCtrlParent(LLView* view, LLView* parent, S32 tab_group);
+
 	// Avoid directly using LLUI and LLDir in the template code
 	static std::string findSkinnedFilename(const std::string& filename);
 
