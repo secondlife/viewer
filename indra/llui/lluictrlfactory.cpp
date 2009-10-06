@@ -379,14 +379,6 @@ BOOL LLUICtrlFactory::getAttributeColor(LLXMLNodePtr node, const std::string& na
 	return res;
 }
 
-//static
-void LLUICtrlFactory::setCtrlParent(LLView* view, LLView* parent, S32 tab_group)
-{
-	if (tab_group < 0) tab_group = parent->getLastTabGroup();
-	parent->addChild(view, tab_group);
-}
-
-
 // Avoid directly using LLUI and LLDir in the template code
 //static
 std::string LLUICtrlFactory::findSkinnedFilename(const std::string& filename)
