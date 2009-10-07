@@ -1103,14 +1103,10 @@ if (WINDOWS)
         res/ll_icon.BMP
         res/ll_icon.ico
         res/resource.h
-        res/toolbuy.cur
-        res/toolopen.cur
-        res/toolpay.cur
         res/toolpickobject.cur
         res/toolpickobject2.cur
         res/toolpickobject3.cur
         res/toolpipette.cur
-        res/toolsit.cur
         )
 
     set_source_files_properties(${viewer_RESOURCE_FILES}

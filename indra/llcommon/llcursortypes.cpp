@@ -30,6 +30,8 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "llcursortypes.h"
 
 ECursorType getCursorFromString(const std::string& cursor_string)
@@ -66,10 +68,6 @@ ECursorType getCursorFromString(const std::string& cursor_string)
 		cursor_string_table["UI_CURSOR_TOOLPAN"] = UI_CURSOR_TOOLPAN;
 		cursor_string_table["UI_CURSOR_TOOLZOOMIN"] = UI_CURSOR_TOOLZOOMIN;
 		cursor_string_table["UI_CURSOR_TOOLPICKOBJECT3"] = UI_CURSOR_TOOLPICKOBJECT3;
-		cursor_string_table["UI_CURSOR_TOOLSIT"] = UI_CURSOR_TOOLSIT;
-		cursor_string_table["UI_CURSOR_TOOLBUY"] = UI_CURSOR_TOOLBUY;
-		cursor_string_table["UI_CURSOR_TOOLPAY"] = UI_CURSOR_TOOLPAY;
-		cursor_string_table["UI_CURSOR_TOOLOPEN"] = UI_CURSOR_TOOLOPEN;
 		cursor_string_table["UI_CURSOR_TOOLPLAY"] = UI_CURSOR_TOOLPLAY;
 		cursor_string_table["UI_CURSOR_TOOLPAUSE"] = UI_CURSOR_TOOLPAUSE;
 		cursor_string_table["UI_CURSOR_TOOLMEDIAOPEN"] = UI_CURSOR_TOOLMEDIAOPEN;
