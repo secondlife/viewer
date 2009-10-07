@@ -47,7 +47,7 @@ class LLFloaterHelpBrowser :
 	LLFloaterHelpBrowser(const LLSD& key);
 
 	/*virtual*/ BOOL postBuild();
-	void onClose();
+	/*virtual*/ void onClose(bool app_quitting);
 
 	// inherited from LLViewerMediaObserver
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);

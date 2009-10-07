@@ -89,8 +89,6 @@ LLFloaterMediaSettings::~LLFloaterMediaSettings()
 //
 BOOL LLFloaterMediaSettings::postBuild()
 {
-	mCloseSignal.connect(boost::bind(&LLFloaterMediaSettings::onClose, this));
-
 	mApplyBtn = getChild<LLButton>("Apply");
 	mApplyBtn->setClickedCallback(onBtnApply, this);
 		
@@ -156,11 +154,11 @@ void LLFloaterMediaSettings::apply()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void LLFloaterMediaSettings::onClose()
+void LLFloaterMediaSettings::onClose(bool app_quitting)
 {
 	if(mPanelMediaSettingsGeneral)
 	{
-		mPanelMediaSettingsGeneral->onClose();
+		mPanelMediaSettingsGeneral->onClose(app_quitting);
 	}
 	LLFloaterReg::hideInstance("whitelist_entry");
 }

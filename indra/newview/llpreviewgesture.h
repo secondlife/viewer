@@ -70,10 +70,9 @@ public:
 
 	// LLFloater
 	/*virtual*/ BOOL canClose();
+	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void onUpdateSucceeded();
 	/*virtual*/ void refresh();
-
-	
 
 protected:
 	// Populate various comboboxes
@@ -108,7 +107,6 @@ protected:
 	// "Sound", "Chat", or "Wait"
 	LLScrollListItem* addStep(const enum EStepType step_type);
 	
-	void onClose();
 	void onVisibilityChange ( const LLSD& new_visibility );
 	
 	static std::string getLabel(std::vector<std::string> labels);

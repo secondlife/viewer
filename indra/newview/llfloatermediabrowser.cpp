@@ -156,6 +156,8 @@ std::string LLFloaterMediaBrowser::getSupportURL()
 {
 	return getString("support_page_url");
 }
+
+//virtual
 void LLFloaterMediaBrowser::onClose(bool app_quitting)
 {
 	//setVisible(FALSE);

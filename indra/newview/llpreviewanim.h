@@ -46,10 +46,10 @@ public:
 	static void auditionAnim( void* userdata );
 	static void endAnimCallback( void *userdata );
 	/*virtual*/	BOOL postBuild();
+	/*virtual*/ void onClose(bool app_quitting);
 	void activate(e_activation_type type);
 	
 protected:
-	void onClose();
 	
 	LLAnimPauseRequest	mPauseRequest;
 	LLUUID		mItemID;

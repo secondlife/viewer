@@ -47,7 +47,9 @@ public:
 	LLFloaterMediaSettings(const LLSD& key);
 	~LLFloaterMediaSettings();
 
-	virtual BOOL postBuild();
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onClose(bool app_quitting);
+
 	static LLFloaterMediaSettings* getInstance();
 	static void apply();
 	static void initValues( const LLSD& media_settings , bool editable);
@@ -70,7 +72,6 @@ protected:
 	LLPanelMediaSettingsPermissions* mPanelMediaSettingsPermissions;
 
 
-	void		onClose();
 	static void onBtnOK(void*);
 	static void onBtnCancel(void*);
 	static void onBtnApply(void*);

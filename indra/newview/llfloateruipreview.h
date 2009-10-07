@@ -96,7 +96,9 @@ public:
 	std::string getLocStr(S32 ID);							// fetches the localization string based on what is selected in the drop-down menu
 	void displayFloater(BOOL click, S32 ID, bool save = false);			// needs to be public so live file can call it when it finds an update
 
-	BOOL postBuild();										// post-build setup (called by superclass' constructor)
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onClose(bool app_quitting);
+
 	void refreshList();										// refresh list (empty it out and fill it up from scratch)
 	void addFloaterEntry(const std::string& path);			// add a single file's entry to the list of floaters
 	
@@ -115,9 +117,6 @@ public:
 	typedef boost::shared_ptr<StringList> StringListPtr;
 	typedef std::map<std::string, std::pair<StringListPtr,StringListPtr> > DiffMap;
 	DiffMap mDiffsMap;							// map, of filename to pair of list of changed element paths and list of errors
-
-protected:
-	void onClose(const LLSD& app_quitting);
 
 private:
 	// XUI elements for this floater

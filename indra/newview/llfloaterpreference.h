@@ -70,8 +70,9 @@ public:
 	void apply();
 	void cancel();
 	/*virtual*/ void draw();
-	virtual BOOL postBuild();
-	virtual void onOpen(const LLSD& key);
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/	void onClose(bool app_quitting);
 
 	// static data update, called from message handler
 	static void updateUserInfo(const std::string& visibility, bool im_via_email, const std::string& email);
@@ -79,10 +80,7 @@ public:
 	// refresh all the graphics preferences menus
 	static void refreshEnabledGraphics();
 	
-protected:
-	
-	void		onClose();
-	
+protected:	
 	void		onBtnOK();
 	void		onBtnCancel();
 	void		onBtnApply();

@@ -522,7 +522,7 @@ LLSysWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID&
 	contactName->setValue(name);
 
 	mCloseBtn = getChild<LLButton>("hide_btn");
-	mCloseBtn->setCommitCallback(boost::bind(&LLSysWellWindow::RowPanel::onClose, this));
+	mCloseBtn->setCommitCallback(boost::bind(&LLSysWellWindow::RowPanel::onClosePanel, this));
 }
 
 //---------------------------------------------------------------------------------
@@ -531,7 +531,7 @@ LLSysWellWindow::RowPanel::~RowPanel()
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellWindow::RowPanel::onClose()
+void LLSysWellWindow::RowPanel::onClosePanel()
 {
 	gIMMgr->removeSession(mChiclet->getSessionId());
 	// This row panel will be removed from the list in LLSysWellWindow::sessionRemoved().

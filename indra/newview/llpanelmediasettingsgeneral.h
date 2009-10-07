@@ -48,7 +48,9 @@ class LLPanelMediaSettingsGeneral : public LLPanel
 {
 public:
 	BOOL postBuild();
-	virtual void draw();
+	/*virtual*/ void draw();
+	/*virtual*/ void onClose(bool app_quitting);
+
 	static void apply(void*);
     void getValues(LLSD &fill_me_in);
 
@@ -62,8 +64,6 @@ public:
 	void updateMediaPreview();
 	void updateCurrentURL();
 	
-	void onClose();
-
 protected:
 	LLFloaterMediaSettings* mParent;
 

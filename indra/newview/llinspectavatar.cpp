@@ -83,7 +83,7 @@ public:
 	/*virtual*/ void onOpen(const LLSD& avatar_id);
 
 	// When closing they should close their gear menu 
-	/*virtual*/ void onClose();
+	/*virtual*/ void onClose(bool app_quitting);
 	
 	// Inspectors close themselves when they lose focus
 	/*virtual*/ void onFocusLost();
@@ -228,8 +228,6 @@ BOOL LLInspectAvatar::postBuild(void)
 	getChild<LLUICtrl>("volume_slider")->setCommitCallback(
 		boost::bind(&LLInspectAvatar::onVolumeChange, this, _2));
 
-	mCloseSignal.connect(boost::bind(&LLInspectAvatar::onClose, this));
-
 	return TRUE;
 }
 
@@ -294,7 +292,8 @@ void LLInspectAvatar::onOpen(const LLSD& data)
 	updateVolumeSlider();
 }
 
-void LLInspectAvatar::onClose()
+// virtual
+void LLInspectAvatar::onClose(bool app_quitting)
 {  
   getChild<LLMenuButton>("gear_btn")->hideMenu();
 }	

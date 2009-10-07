@@ -336,7 +336,8 @@ void LLPanelMediaSettingsGeneral::updateCurrentURL()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LLPanelMediaSettingsGeneral::onClose()
+// virtual
+void LLPanelMediaSettingsGeneral::onClose(bool app_quitting)
 {
 	if(mPreviewMedia)
 	{

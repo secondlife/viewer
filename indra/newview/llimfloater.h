@@ -56,6 +56,7 @@ public:
 	/*virtual*/ void setVisible(BOOL visible);
 
 	// LLFloater overrides
+	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
 	// override LLFloater's minimization according to EXT-1216
 	/*virtual*/ void setMinimized(BOOL minimize);
@@ -78,10 +79,6 @@ public:
 
 	// called when docked floater's position has been set by chiclet
 	void setPositioned(bool b) { mPositioned = b; };
-
-	// handler for a CLOSE signal
-	void onClose();
-
 
 private:
 	

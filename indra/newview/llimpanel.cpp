@@ -1052,8 +1052,6 @@ LLFloaterIMPanel::~LLFloaterIMPanel()
 
 BOOL LLFloaterIMPanel::postBuild() 
 {
-	mCloseSignal.connect(boost::bind(&LLFloaterIMPanel::onClose, this));
-	
 	mVisibleSignal.connect(boost::bind(&LLFloaterIMPanel::onVisibilityChange, this, _2));
 	
 	mInputEditor = getChild<LLLineEditor>("chat_editor");
@@ -1610,7 +1608,8 @@ void LLFloaterIMPanel::onInputEditorKeystroke(LLLineEditor* caller, void* userda
 	}
 }
 
-void LLFloaterIMPanel::onClose()
+// virtual
+void LLFloaterIMPanel::onClose(bool app_quitting)
 {
 	setTyping(FALSE);
 

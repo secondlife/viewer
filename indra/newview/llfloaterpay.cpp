@@ -85,10 +85,10 @@ public:
 	LLFloaterPay(const LLSD& key);
 	virtual ~LLFloaterPay();
 	/*virtual*/	BOOL	postBuild();
+	/*virtual*/ void onClose(bool app_quitting);
 	
 	void setCallback(money_callback callback) { mCallback = callback; }
 	
-	void onClose();
 
 	static void payViaObject(money_callback callback, LLSafeHandle<LLObjectSelection> selection);
 	
@@ -137,7 +137,6 @@ LLFloaterPay::LLFloaterPay(const LLSD& key)
 	  mTargetUUID(key.asUUID()),
 	  mTargetIsGroup(FALSE)
 {
-	mCloseSignal.connect(boost::bind(&LLFloaterPay::onClose, this));
 }
 
 // Destroys the object
@@ -219,7 +218,8 @@ BOOL LLFloaterPay::postBuild()
 	return TRUE;
 }
 
-void LLFloaterPay::onClose()
+// virtual
+void LLFloaterPay::onClose(bool app_quitting)
 {
 	// Deselect the objects
 	mObjectSelection = NULL;

@@ -200,9 +200,7 @@ LLPCode toolData[]={
 	LL_PCODE_LEGACY_GRASS};
 
 BOOL	LLFloaterTools::postBuild()
-{
-	mCloseSignal.connect(boost::bind(&LLFloaterTools::onClose, this));
-	
+{	
 	// Hide until tool selected
 	setVisible(FALSE);
 
@@ -726,7 +724,8 @@ void LLFloaterTools::onOpen(const LLSD& key)
 	//gMenuBarView->setItemVisible("BuildTools", TRUE);
 }
 
-void LLFloaterTools::onClose()
+// virtual
+void LLFloaterTools::onClose(bool app_quitting)
 {
 	mTab->setVisible(FALSE);
 

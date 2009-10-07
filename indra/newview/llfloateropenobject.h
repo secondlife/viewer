@@ -63,7 +63,6 @@ protected:
 	void refresh();
 	void draw();
 	virtual void onOpen(const LLSD& key);
-//	virtual void onClose();
 
 	void moveToInventory(bool wear);
 
