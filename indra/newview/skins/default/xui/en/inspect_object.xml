@@ -17,8 +17,8 @@
  width="300">
   <string name="Creator">By [CREATOR]</string>
   <string name="CreatorAndOwner">
-By [CREATOR]
-Owned by [OWNER]
+by [CREATOR]
+owner [OWNER]
   </string>
   <!-- *TODO: Might need to change to [AMOUNT] if icon contains "L$" -->
   <string name="Price">L$[AMOUNT]</string>
@@ -28,56 +28,58 @@ Owned by [OWNER]
   <text
      follows="all"
      font="SansSerifLargeBold"
-     height="20"
+     height="16"
      left="8"
      name="object_name"
-     text_color="white"
-     top="8"
+     text_color="White"
+     top="5"
      use_ellipses="true"
      value="Test Object Name That Is Really Long"
-     width="268" />
+     width="291" />
   <text
    follows="all"
    font="SansSerif"
    height="30"
-   left="10"
+   left="8"
    name="object_creator"
    top_pad="0"
-   width="280">
-By Longavatarname Johnsonlongstonnammer
-Owned by James Linden
-  </text>
-  <text
-   follows="all"
-   height="45"
-   left="100"
-   name="object_description"
-   top_pad="4"
-   width="200"
-   word_wrap="true">
-This is a really long description for an object being as how it is at least 80 characters in length and maybe more like 120 at this point. Who knows, really?
+   use_ellipses="true"
+   width="275">
+by Longavatarname Johnsonlongstonnammer
+owner James Linden
   </text>
   <!-- *TODO: Replace this icon -->
   <icon
   name="price_icon"
-  image_name="Favorite_Star_Active"
-  left="5"
+  image_name="Icon_For_Sale"
+  left="7"
   width="16"
   height="16"
-  top="79"
+  top="52"
   follows="left|top"
   />
   <text
    follows="all"
    font="SansSerifSmallBold"
-   height="45"
-   left="22"
+   height="16"
+   left_pad="5"
    name="price_text"
    text_color="white"
-   top="80"
+   top="54"
    font_shadow="none"
-   width="80">
+   width="150">
 L$300,000
+  </text>
+    <text
+   follows="all"
+   height="30"
+   left="8"
+   name="object_description"
+   top_pad="0"
+   width="291"
+   use_ellipses="true"
+   word_wrap="true">
+This is a really long description for an object being as how it is at least 80 characters in length and maybe more like 120 at this point. Who knows, really?
   </text>
   <!-- Overlapping buttons for all default actions.  Show "Buy" if
   for sale, "Sit" if can sit, etc. -->
@@ -88,7 +90,7 @@ L$300,000
      label="Buy"
      left="10"
      name="buy_btn"
-     top="116"
+     top="114"
      width="100" />
   <button
    follows="top|left"
@@ -136,27 +138,30 @@ L$300,000
    top_delta="0"
    width="100" />
   <!-- non-overlapping buttons here -->
-  <menu_button
+    <menu_button
      follows="top|left"
-     height="23"
-     image_overlay="Icon_Gear_Foreground"
-     image_overlay_alignment="center"
-   right="-8"
-     menu_filename="menu_inspect_object_gear.xml" 
+     height="18"
+     image_disabled="OptionsMenu_Disabled"
+     image_selected="OptionsMenu_Press"
+     image_unselected="OptionsMenu_Off"
+     menu_filename="menu_inspect_avatar_gear.xml"
      name="gear_btn"
      picture_style="true"
-   top_delta="0"
-     width="30" />
-    <button
+     right="-10"
+     top_delta="5"
+     width="18" />
+   <button
      follows="top|left"
-     height="22"
-     image_overlay="TabIcon_Close_Off"
+     height="18"
+     image_disabled="ForwardArrow_Disabled"
+     image_selected="ForwardArrow_Press"
+     image_unselected="ForwardArrow_Off"
      layout="topleft"
      name="more_info_btn"
      picture_style="true"
-     right="-8"
-     top="7"
+     right="-5"
+     top="20"
      left_delta="110"
      tab_stop="false"
-     width="20" />
+     width="18" />
 </floater>

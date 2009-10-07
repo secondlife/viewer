@@ -5,16 +5,16 @@
 -->
 <floater
  bevel_style="in"
- bg_alpha_color="PanelDefaultBackgroundColor"
+ bg_opaque_color="MouseGray"
  can_close="false"
  can_minimize="false"
- height="190"
+ height="138"
  layout="topleft"
  name="inspect_avatar"
  single_instance="true"
  sound_flags="0"
  visible="true"
- width="300">
+ width="245">
   <!-- Allowed fields include:
 	[BORN_ON] ("12/3/2008")
 	[SL_PROFILE] (Second Life profile),
@@ -36,107 +36,116 @@
     Partner: [PARTNER]
   </string>
   <text
-     follows="left|top|right|bottom"
-     font="SansSerifHugeBold"
-     height="70"
-     left="10"
+     follows="all"
+     font="SansSerifLargeBold"
+     height="18"
+     left="8"
      name="user_name"
+     top="5"
      text_color="white"
-     top="20"
      use_ellipses="true"
-     value="Test Name"
-     width="280"
-     word_wrap="true" />
-    <text
-     follows="left|top|right|bottom"
-     font="SansSerifBig"
-     height="20"
-     left="10"
-     name="user_subtitle"
-     text_color="white"
-     top="45"
-     width="150" />
+     value="Grumpity ProductEngine"
+     width="240"
+     word_wrap="false" />
     <!-- Leave text fields blank so it doesn't flash when data arrives off the network -->
     <text
-     follows="left|top|right|bottom"
-     height="20"
-     left="10"
+     follows="all"
+     height="16"
+     left="8"
+     value="Grumpity ProductEngine moose moose"
      name="user_details"
-     text_color="white"
-     top="85"
-     width="290"
-     word_wrap="true" />
+     top_pad="0"
+     width="170"
+     use_ellipses="true"
+     word_wrap="false" />
     <text
-     follows="left|top|right|bottom"
-     height="20"
-     left="10"
+     follows="all"
+   font="SansSerifSmallBold"
+   text_color="White"
+   height="18"
+   left="8"
+     name="user_subtitle"
+     use_ellipses="true"
+     top_pad="0"
+     width="170" />
+    <text
+     follows="all"
+     height="16"
+     left="8"
      name="user_partner"
-     text_color="white"
-     top="105"
-     width="290"
-     word_wrap="true" />
-    <avatar_icon
-     follows="left|top|right|bottom"
-     height="60"
-     left="230"
-     mouse_opaque="true"
-     name="avatar_icon" 
-     top="15"
-     width="60" />
+     top_pad="8"
+     width="240"
+     use_ellipses="true"
+     word_wrap="false" />
     <slider
      follows="top|left"
-     height="30"
+     height="23"
      increment="0.05"
-     left="20"
+     left="1"
      max_val="0.95"
      min_val="0.05"
      name="volume_slider"
      show_text="false"
      tool_tip="Voice Volume"
-     top="125"
+     top_pad="0"
      value="0.5"
-     width="240" />
+     width="150" />
     <button
-     follows="left|top|right|bottom"
+     follows="all"
      height="16"
-     image_disabled="icn_speaker_dark.tga"
-     image_disabled_selected="icn_speaker-muted_dark.tga"
-     image_hover_selected="icn_speaker-muted_dark.tga"
-     image_selected="icn_speaker-muted_dark.tga"
-     image_unselected="icn_speaker_dark.tga"
+     image_disabled="Inv_Sound"
+     image_disabled_selected="Inv_Sound"
+     image_hover_selected="Inv_Sound"
+     image_selected="Inv_Sound"
+     image_unselected="Inv_Sound"
      is_toggle="true"
-     left="265"
+     left_pad="0"
+     top_delta="4"
      name="mute_btn"
      picture_style="true"
-     top="132"
-     width="32" />
+     width="16" />
+    <avatar_icon
+     follows="all"
+     height="38"
+     right="-25"
+     bevel_style="in"
+     border_style="line"
+     mouse_opaque="true"
+     name="avatar_icon"
+     top="24"
+     width="38" />
     <button
      follows="top|left"
-     font="SansSerif"
-     height="20"
-     label="Add Friend"
-     left="10"
-     name="add_friend_btn"
-     top_pad="10"
-     width="105" />
-    <button
-     follows="top|left"
-     font="SansSerif"
-     height="20"
-     label="View Profile"
-     left_delta="110"
+     height="18"
+     image_disabled="ForwardArrow_Disabled"
+     image_selected="ForwardArrow_Press"
+     image_unselected="ForwardArrow_Off"
+     layout="topleft"
      name="view_profile_btn"
-     top_delta="0"
-     width="105" />
+     picture_style="true"
+     right="-8"
+     top="35"
+     left_delta="110"
+     tab_stop="false"
+     width="18" />
+    <button
+     follows="bottom|left"
+     height="23"
+     label="Add Friend"
+     left="8"
+     top="246"
+     name="add_friend_btn"
+     width="100" />
     <menu_button
      follows="top|left"
-     height="20"
-     image_overlay="windows\Icon_Gear_Foreground.png"
-     image_overlay_alignment="center"
+     height="18"
+     image_disabled="OptionsMenu_Disabled"
+     image_selected="OptionsMenu_Press"
+     image_unselected="OptionsMenu_Off"
      menu_filename="menu_inspect_avatar_gear.xml"
      name="gear_btn"
      picture_style="true"
-     top_delta="0"
-     left_delta="110"
-     width="60"/>
+     right="-10"
+     top="249"
+     width="18" />
 </floater>
