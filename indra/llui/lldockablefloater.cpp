@@ -91,6 +91,16 @@ void LLDockableFloater::setVisible(BOOL visible)
 	LLFloater::setVisible(visible);
 }
 
+void LLDockableFloater::onDockHidden()
+{
+	setCanDock(FALSE);
+}
+
+void LLDockableFloater::onDockShown()
+{
+	setCanDock(TRUE);
+}
+
 void LLDockableFloater::setDocked(bool docked, bool pop_on_undock)
 {
 	if (mDockControl.get() != NULL && mDockControl.get()->isDockVisible())

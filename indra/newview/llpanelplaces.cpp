@@ -40,16 +40,19 @@
 #include "lllandmark.h"
 #include "llparcel.h"
 
+#include "llcombobox.h"
+#include "llfiltereditor.h"
 #include "llfloaterreg.h"
 #include "llnotifications.h"
-#include "llfiltereditor.h"
 #include "lltabcontainer.h"
+#include "lltexteditor.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 
 #include "llagent.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llfloaterworldmap.h"
+#include "llinventorybridge.h"
 #include "llinventorymodel.h"
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
@@ -74,9 +77,6 @@ static const std::string TELEPORT_HISTORY_INFO_TYPE	= "teleport_history";
 
 // Helper functions
 static bool is_agent_in_selected_parcel(LLParcel* parcel);
-static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right);
-static std::string getFullFolderName(const LLViewerInventoryCategory* cat);
-static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats);
 static void onSLURLBuilt(std::string& slurl);
 static void setAllChildrenVisible(LLView* view, BOOL visible);
 
@@ -125,8 +125,8 @@ LLPanelPlaces::LLPanelPlaces()
 		mItem(NULL),
 		mPlaceMenu(NULL),
 		mLandmarkMenu(NULL),
-		mLandmarkFoldersMenuHandle(),
-		mPosGlobal()
+		mPosGlobal(),
+		isLandmarkEditModeOn(false)
 {
 	mParcelObserver = new LLPlacesParcelObserver(this);
 	mInventoryObserver = new LLPlacesInventoryObserver(this);
@@ -146,20 +146,12 @@ LLPanelPlaces::~LLPanelPlaces()
 
 	LLViewerParcelMgr::getInstance()->removeObserver(mParcelObserver);
 
-	LLView::deleteViewByHandle(mLandmarkFoldersMenuHandle);
-
 	delete mInventoryObserver;
 	delete mParcelObserver;
 }
 
 BOOL LLPanelPlaces::postBuild()
 {
-	mCreateLandmarkBtn = getChild<LLButton>("create_landmark_btn");
-	mCreateLandmarkBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onCreateLandmarkButtonClicked, this, LLUUID()));
-	
-	mFolderMenuBtn = getChild<LLButton>("folder_menu_btn");
-	mFolderMenuBtn->setClickedCallback(boost::bind(&LLPanelPlaces::showLandmarkFoldersMenu, this));
-
 	mTeleportBtn = getChild<LLButton>("teleport_btn");
 	mTeleportBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onTeleportButtonClicked, this));
 	
@@ -168,6 +160,18 @@ BOOL LLPanelPlaces::postBuild()
 	
 	mShareBtn = getChild<LLButton>("share_btn");
 	//mShareBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onShareButtonClicked, this));
+
+	mEditBtn = getChild<LLButton>("edit_btn");
+	mEditBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this));
+
+	mSaveBtn = getChild<LLButton>("save_btn");
+	mSaveBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onSaveButtonClicked, this));
+
+	mCancelBtn = getChild<LLButton>("cancel_btn");
+	mCancelBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onCancelButtonClicked, this));
+
+	mCloseBtn = getChild<LLButton>("close_btn");
+	mCloseBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
 	mOverflowBtn = getChild<LLButton>("overflow_btn");
 	mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onOverflowButtonClicked, this));
@@ -200,10 +204,18 @@ BOOL LLPanelPlaces::postBuild()
 	}
 
 	mPlaceInfo = getChild<LLPanelPlaceInfo>("panel_place_info");
-	
+
 	LLButton* back_btn = mPlaceInfo->getChild<LLButton>("back_btn");
 	back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
+	LLLineEditor* title_editor = mPlaceInfo->getChild<LLLineEditor>("title_editor");
+	title_editor->setKeystrokeCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this), NULL);
+
+	LLTextEditor* notes_editor = mPlaceInfo->getChild<LLTextEditor>("notes_editor");
+	notes_editor->setKeystrokeCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this));
+
+	LLComboBox* folder_combo = mPlaceInfo->getChild<LLComboBox>("folder_combo");
+	folder_combo->setSelectionCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this));
 	return TRUE;
 }
 
@@ -217,6 +229,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 	mPlaceInfoType = key["type"].asString();
 	mPosGlobal.setZero();
+	mItem = NULL;
 	togglePlaceInfoPanel(TRUE);
 	updateVerbs();
 
@@ -227,11 +240,25 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	else if (mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE)
 	{
 		mPlaceInfo->setInfoType(LLPanelPlaceInfo::CREATE_LANDMARK);
+
+		if (key.has("x") && key.has("y") && key.has("z"))
+		{
+			mPosGlobal = LLVector3d(key["x"].asReal(),
+									key["y"].asReal(),
+									key["z"].asReal());
+		}
+		else
+		{
+			mPosGlobal = gAgent.getPositionGlobal();
+		}
+
+		mPlaceInfo->displayParcelInfo(LLUUID(), mPosGlobal);
 	}
 	else if (mPlaceInfoType == LANDMARK_INFO_TYPE)
 	{
-		LLUUID item_uuid = key["id"].asUUID();
-		LLInventoryItem* item = gInventory.getItem(item_uuid);
+		mPlaceInfo->setInfoType(LLPanelPlaceInfo::LANDMARK);
+
+		LLInventoryItem* item = gInventory.getItem(key["id"].asUUID());
 		if (!item)
 			return;
 
@@ -272,8 +299,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	// Start using LLViewerParcelMgr for land selection if
 	// information about nearby land is requested.
 	// Otherwise stop using land selection and deselect land.
-	if (mPlaceInfoType == AGENT_INFO_TYPE ||
-		mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE)
+	if (mPlaceInfoType == AGENT_INFO_TYPE)
 	{
 		parcel_mgr->addObserver(mParcelObserver);
 		parcel_mgr->selectParcelAt(gAgent.getPositionGlobal());
@@ -291,7 +317,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 void LLPanelPlaces::setItem(LLInventoryItem* item)
 {
-	if (!mPlaceInfo)
+	if (!item)
 		return;
 
 	mItem = item;
@@ -304,7 +330,9 @@ void LLPanelPlaces::setItem(LLInventoryItem* item)
 			return;
 	}
 
-	mPlaceInfo->setInfoType(LLPanelPlaceInfo::LANDMARK);
+	if (!mPlaceInfo)
+		return;
+
 	mPlaceInfo->displayItemInfo(mItem);
 
 	LLLandmark* lm = gLandmarkList.getAsset(mItem->getAssetUUID(),
@@ -324,6 +352,12 @@ void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
 	landmark->getRegionID(region_id);
 	landmark->getGlobalPos(mPosGlobal);
 	mPlaceInfo->displayParcelInfo(region_id, mPosGlobal);
+
+	// Check if item is in agent's inventory and he has the permission to modify it.
+	BOOL is_landmark_editable = mItem.notNull() &&
+								gInventory.isObjectDescendentOf(mItem->getUUID(), gInventory.getRootFolderID()) &&
+								mItem->getPermissions().allowModifyBy(gAgent.getID());
+	mEditBtn->setEnabled(is_landmark_editable);
 }
 
 void LLPanelPlaces::onFilterEdit(const std::string& search_string)
@@ -436,6 +470,136 @@ void LLPanelPlaces::onShowOnMapButtonClicked()
 	}
 }
 
+void LLPanelPlaces::onEditButtonClicked()
+{
+	if (!mPlaceInfo || isLandmarkEditModeOn)
+		return;
+
+	isLandmarkEditModeOn = true;
+
+	mPlaceInfo->toggleLandmarkEditMode(TRUE);
+
+	updateVerbs();
+}
+
+void LLPanelPlaces::onSaveButtonClicked()
+{
+	if (!mPlaceInfo || mItem.isNull())
+		return;
+
+	LLAssetType::EType item_type = mItem->getType();
+	if (item_type == LLAssetType::AT_LANDMARK || item_type != LLAssetType::AT_LINK)
+	{
+		// If the item is a link get a linked item
+		if (item_type == LLAssetType::AT_LINK)
+		{
+			mItem = gInventory.getItem(mItem->getAssetUUID());
+			if (mItem.isNull())
+				return;
+		}
+	}
+	else
+	{
+		return;
+	}
+
+	std::string current_title_value = mPlaceInfo->getLandmarkTitle();
+	std::string item_title_value = mItem->getName();
+	std::string current_notes_value = mPlaceInfo->getLandmarkNotes();
+	std::string item_notes_value = mItem->getDescription();
+
+	LLStringUtil::trim(current_title_value);
+	LLStringUtil::trim(current_notes_value);
+
+	bool is_item_update_needed = false;
+
+	if (!current_title_value.empty() &&
+		(item_title_value != current_title_value || item_notes_value != current_notes_value))
+	{
+		is_item_update_needed = true;
+	}
+
+	LLUUID item_id = mItem->getUUID();
+	LLUUID folder_id = mPlaceInfo->getLandmarkFolder();
+
+	// Check if item is in agent's inventory and he has the permission to modify it.
+	if (!gInventory.isObjectDescendentOf(item_id, gInventory.getRootFolderID()) ||
+		!mItem->getPermissions().allowModifyBy(gAgent.getID()))
+		return;
+
+	if(folder_id != mItem->getParentUUID() || is_item_update_needed)
+	{
+		LLViewerInventoryItem* item = (LLViewerInventoryItem*)mItem.get();
+		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+
+		LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+
+		// If target is the favorites folder we create link to it.
+		if (favorites_id == folder_id)
+		{
+			if (is_item_update_needed)
+			{
+				new_item->rename(current_title_value);
+				new_item->setDescription(current_notes_value);
+				new_item->updateServer(FALSE);
+
+				gInventory.updateItem(new_item);
+				gInventory.notifyObservers();
+			}
+
+			link_inventory_item(gAgent.getID(),
+								item->getUUID(),
+								folder_id,
+								item->getName(),
+								LLAssetType::AT_LINK,
+								LLPointer<LLInventoryCallback>(NULL));
+		}
+		else
+		{
+			if (is_item_update_needed)
+			{
+				new_item->rename(current_title_value);
+				new_item->setDescription(current_notes_value);
+				new_item->updateServer(FALSE);
+			}
+
+			LLInventoryModel::update_list_t update;
+			LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
+			update.push_back(old_folder);
+			LLInventoryModel::LLCategoryUpdate new_folder(folder_id, 1);
+			update.push_back(new_folder);
+			gInventory.accountForUpdate(update);
+
+			new_item->setParent(folder_id);
+			new_item->updateParentOnServer(FALSE);
+
+			gInventory.updateItem(new_item);
+			gInventory.notifyObservers();
+		}
+	}
+
+	onCancelButtonClicked();
+}
+
+void LLPanelPlaces::onCancelButtonClicked()
+{
+	if (!mPlaceInfo)
+		return;
+
+	if (mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE)
+	{
+		onBackButtonClicked();
+	}
+	else
+	{
+		mPlaceInfo->toggleLandmarkEditMode(FALSE);
+		updateVerbs();
+
+		// Reload the landmark properties.
+		mPlaceInfo->displayItemInfo(mItem);
+	}
+}
+
 void LLPanelPlaces::onOverflowButtonClicked()
 {
 	LLToggleableMenu* menu;
@@ -487,7 +651,12 @@ void LLPanelPlaces::onOverflowMenuItemClicked(const LLSD& param)
 	std::string item = param.asString();
 	if (item == "landmark")
 	{
-		onOpen(LLSD().insert("type", CREATE_LANDMARK_INFO_TYPE));
+		LLSD key;
+		key["type"] = CREATE_LANDMARK_INFO_TYPE;
+		key["x"] = mPosGlobal.mdV[VX];
+		key["y"] = mPosGlobal.mdV[VY];
+		key["z"] = mPosGlobal.mdV[VZ];
+		onOpen(key);
 	}
 	else if (item == "copy")
 	{
@@ -521,20 +690,6 @@ void LLPanelPlaces::onOverflowMenuItemClicked(const LLSD& param)
 
 		mPlaceInfo->createPick(mPosGlobal, mPickPanel);
 	}
-}
-
-void LLPanelPlaces::onCreateLandmarkButtonClicked(const LLUUID& folder_id)
-{
-	if (!mPlaceInfo)
-		return;
-
-	// To prevent creating duplicate landmarks
-	// disable landmark creating buttons until
-	// the information on existing landmarks is reloaded.
-	mCreateLandmarkBtn->setEnabled(FALSE);
-	mFolderMenuBtn->setEnabled(FALSE);
-
-	mPlaceInfo->createLandmark(folder_id);
 }
 
 void LLPanelPlaces::onBackButtonClicked()
@@ -697,10 +852,14 @@ void LLPanelPlaces::updateVerbs()
 	bool is_create_landmark_visible = mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE;
 	bool is_media_panel_visible = mPlaceInfo->isMediaPanelVisible();
 
-	mTeleportBtn->setVisible(!is_create_landmark_visible);
-	mShareBtn->setVisible(!is_create_landmark_visible);
-	mCreateLandmarkBtn->setVisible(is_create_landmark_visible);
-	mFolderMenuBtn->setVisible(is_create_landmark_visible);
+	mTeleportBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
+	mShowOnMapBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
+	mShareBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
+	mOverflowBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
+	mEditBtn->setVisible(mPlaceInfoType == LANDMARK_INFO_TYPE && !isLandmarkEditModeOn);
+	mSaveBtn->setVisible(isLandmarkEditModeOn);
+	mCancelBtn->setVisible(isLandmarkEditModeOn);
+	mCloseBtn->setVisible(is_create_landmark_visible && !isLandmarkEditModeOn);
 
 	mOverflowBtn->setEnabled(is_place_info_visible && !is_media_panel_visible && !is_create_landmark_visible);
 
@@ -714,15 +873,6 @@ void LLPanelPlaces::updateVerbs()
 									 !mPosGlobal.isExactlyZero() &&
 									 !LLViewerParcelMgr::getInstance()->inAgentParcel(mPosGlobal));
 		}
-		else if (is_create_landmark_visible)
-		{
-			// Enable "Create Landmark" only if there is no landmark
-			// for the current parcel and agent is inside it.
-			bool enable = !LLLandmarkActions::landmarkAlreadyExists() &&
-						  is_agent_in_selected_parcel(mParcel->getParcel());
-			mCreateLandmarkBtn->setEnabled(enable);
-			mFolderMenuBtn->setEnabled(enable);
-		}
 		else if (mPlaceInfoType == LANDMARK_INFO_TYPE || mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
 		{
 			mTeleportBtn->setEnabled(TRUE);
@@ -735,131 +885,8 @@ void LLPanelPlaces::updateVerbs()
 		if (mActivePanel)
 			mActivePanel->updateVerbs();
 	}
-}
 
-void LLPanelPlaces::showLandmarkFoldersMenu()
-{
-	if (mLandmarkFoldersMenuHandle.isDead())
-	{
-		LLToggleableMenu::Params menu_p;
-		menu_p.name("landmarks_folders_menu");
-		menu_p.can_tear_off(false);
-		menu_p.visible(false);
-		menu_p.scrollable(true);
-		menu_p.max_scrollable_items = 10;
-
-		LLToggleableMenu* menu = LLUICtrlFactory::create<LLToggleableMenu>(menu_p);
-
-		mLandmarkFoldersMenuHandle = menu->getHandle();
-	}
-
-	LLToggleableMenu* menu = (LLToggleableMenu*)mLandmarkFoldersMenuHandle.get();
-	if(!menu)
-		return;
-
-	if (!menu->toggleVisibility())
-		return;
-
-	// Collect all folders that can contain landmarks.
-	LLInventoryModel::cat_array_t cats;
-	collectLandmarkFolders(cats);
-
-	// Sort the folders by their full name.
-	folder_vec_t folders;
-	S32 count = cats.count();
-	for (S32 i = 0; i < count; i++)
-	{
-		const LLViewerInventoryCategory* cat = cats.get(i);
-		std::string cat_full_name = getFullFolderName(cat);
-		folders.push_back(folder_pair_t(cat->getUUID(), cat_full_name));
-	}
-	sort(folders.begin(), folders.end(), cmp_folders);
-
-	LLRect btn_rect = mFolderMenuBtn->getRect();
-
-	LLRect root_rect = getRootView()->getRect();
-	
-	// Check it there are changed items or viewer dimensions 
-	// have changed since last call
-	if (mLandmarkFoldersCache.size() == count &&
-		mRootViewWidth == root_rect.getWidth() &&
-		mRootViewHeight == root_rect.getHeight())
-	{
-		S32 i;
-		for (i = 0; i < count; i++)
-		{
-			if (mLandmarkFoldersCache[i].second != folders[i].second)
-			{
-				break;
-			}
-		}
-
-		// Check passed, just show the menu
-		if (i == count)
-		{
-			menu->buildDrawLabels();
-			menu->updateParent(LLMenuGL::sMenuContainer);
-
-			menu->setButtonRect(btn_rect, this);
-			LLMenuGL::showPopup(this, menu, btn_rect.mRight, btn_rect.mTop);
-			return;
-		}
-	}
-
-	// If there are changes, store the new viewer dimensions
-	// and a list of folders
-	mRootViewWidth = root_rect.getWidth();
-	mRootViewHeight = root_rect.getHeight();
-	mLandmarkFoldersCache = folders;
-
-	menu->empty();
-
-	// Menu width must not exceed the root view limits,
-	// so we assume the space between the left edge of
-	// the root view and 
-	LLRect screen_btn_rect;
-	localRectToScreen(btn_rect, &screen_btn_rect);
-	S32 free_space = screen_btn_rect.mRight;
-	U32 max_width = llmin(LANDMARK_FOLDERS_MENU_WIDTH, free_space);
-
-	for(folder_vec_t::const_iterator it = mLandmarkFoldersCache.begin(); it != mLandmarkFoldersCache.end(); it++)
-	{
-		const std::string& item_name = it->second;
-
-		LLMenuItemCallGL::Params item_params;
-		item_params.name(item_name);
-		item_params.label(item_name);
-
-		item_params.on_click.function(boost::bind(&LLPanelPlaces::onCreateLandmarkButtonClicked, this, it->first));
-
-		LLMenuItemCallGL *menu_item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
-
-		// *TODO: Use a separate method for menu width calculation.
-		// Check whether item name wider than menu
-		if (menu_item->getNominalWidth() > max_width)
-		{
-			S32 chars_total = item_name.length();
-			S32 chars_fitted = 1;
-			menu_item->setLabel(LLStringExplicit(""));
-			S32 label_space = max_width - menu_item->getFont()->getWidth("...") -
-				menu_item->getNominalWidth(); // This returns width of menu item with empty label (pad pixels)
-
-			while (chars_fitted < chars_total && menu_item->getFont()->getWidth(item_name, 0, chars_fitted) < label_space)
-			{
-				chars_fitted++;
-			}
-			chars_fitted--; // Rolling back one char, that doesn't fit
-
-			menu_item->setLabel(item_name.substr(0, chars_fitted) + "...");
-		}
-
-		menu->addChild(menu_item);
-	}
-
-	menu->buildDrawLabels();
-	menu->updateParent(LLMenuGL::sMenuContainer);
-	menu->setButtonRect(btn_rect, this);
-	LLMenuGL::showPopup(this, menu, btn_rect.mRight, btn_rect.mTop);
+	isLandmarkEditModeOn = false;
 }
 
 static bool is_agent_in_selected_parcel(LLParcel* parcel)
@@ -872,70 +899,6 @@ static bool is_agent_in_selected_parcel(LLParcel* parcel)
 
 	return	region == gAgent.getRegion() &&
 			parcel->getLocalID() == parcel_mgr->getAgentParcel()->getLocalID();
-}
-
-static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right)
-{
-	return left.second < right.second;
-}
-
-static std::string getFullFolderName(const LLViewerInventoryCategory* cat)
-{
-	std::string name = cat->getName();
-	LLUUID parent_id;
-
-	// translate category name, if it's right below the root
-	// FIXME: it can throw notification about non existent string in strings.xml
-	if (cat->getParentUUID().notNull() && cat->getParentUUID() == gInventory.getRootFolderID())
-	{
-		LLTrans::findString(name, "InvFolder " + name);
-	}
-
-	// we don't want "My Inventory" to appear in the name
-	while ((parent_id = cat->getParentUUID()).notNull() && parent_id != gInventory.getRootFolderID())
-	{
-		cat = gInventory.getCategory(parent_id);
-		name = cat->getName() + "/" + name;
-	}
-
-	return name;
-}
-
-static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats)
-{
-	// Add the "Landmarks" category itself.
-	LLUUID landmarks_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
-	LLViewerInventoryCategory* landmarks_cat = gInventory.getCategory(landmarks_id);
-	if (!landmarks_cat)
-	{
-		llwarns << "Cannot find the landmarks folder" << llendl;
-	}
-	else
-	{
-		cats.put(landmarks_cat);
-	}
-
-	// Add descendent folders of the "Landmarks" category.
-	LLInventoryModel::item_array_t items; // unused
-	LLIsType is_category(LLAssetType::AT_CATEGORY);
-	gInventory.collectDescendentsIf(
-		landmarks_id,
-		cats,
-		items,
-		LLInventoryModel::EXCLUDE_TRASH,
-		is_category);
-
-	// Add the "My Favorites" category.
-	LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
-	LLViewerInventoryCategory* favorites_cat = gInventory.getCategory(favorites_id);
-	if (!favorites_cat)
-	{
-		llwarns << "Cannot find the favorites folder" << llendl;
-	}
-	else
-	{
-		cats.put(favorites_cat);
-	}
 }
 
 static void onSLURLBuilt(std::string& slurl)

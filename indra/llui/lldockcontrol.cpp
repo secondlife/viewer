@@ -33,6 +33,7 @@
 #include "linden_common.h"
 
 #include "lldockcontrol.h"
+#include "lldockablefloater.h"
 
 LLDockControl::LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
 		const LLUIImagePtr& dockTongue, DocAt dockAt, get_allowed_rect_callback_t get_allowed_rect_callback) :
@@ -91,8 +92,8 @@ void LLDockControl::repositionDockable()
 
 	// recalculate dockable position if dock position changed, dock visibility changed,
 	// root view rect changed or recalculation is forced
-	if (mEnabled && (mPrevDockRect != dockRect  || prev_visibility != mDockWidget->getVisible()
-			|| mRootRect != rootRect || mRecalculateDocablePosition))
+	if (mPrevDockRect != dockRect  || prev_visibility != mDockWidget->getVisible()
+			|| mRootRect != rootRect || mRecalculateDocablePosition)
 	{
 		// undock dockable and off() if dock not visible
 		if (!isDockVisible())
@@ -100,10 +101,25 @@ void LLDockControl::repositionDockable()
 			mDockableFloater->setDocked(false);
 			// force off() since dockable may not have dockControll at this time
 			off();
+			LLDockableFloater* dockable_floater =
+					dynamic_cast<LLDockableFloater*> (mDockableFloater);
+			if(dockable_floater != NULL)
+			{
+				dockable_floater->onDockHidden();
+			}
 		}
 		else
 		{
-			moveDockable();
+			if(mEnabled)
+			{
+				moveDockable();
+			}
+			LLDockableFloater* dockable_floater =
+					dynamic_cast<LLDockableFloater*> (mDockableFloater);
+			if(dockable_floater != NULL)
+			{
+				dockable_floater->onDockShown();
+			}
 		}
 
 		mPrevDockRect = dockRect;

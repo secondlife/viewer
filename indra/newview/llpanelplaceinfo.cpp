@@ -44,14 +44,16 @@
 #include "llqueryflags.h"
 
 #include "llbutton.h"
+#include "llcombobox.h"
 #include "lliconctrl.h"
-#include "lllineeditor.h"
 #include "llscrollcontainer.h"
 #include "lltextbox.h"
+#include "lltrans.h"
 
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llagent.h"
+#include "llagentui.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llfloaterworldmap.h"
 #include "llinventorymodel.h"
@@ -63,6 +65,16 @@
 #include "llviewerregion.h"
 #include "llviewertexteditor.h"
 #include "llworldmap.h"
+
+//----------------------------------------------------------------------------
+// Aux types and methods
+//----------------------------------------------------------------------------
+
+typedef std::pair<LLUUID, std::string> folder_pair_t;
+
+static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right);
+static std::string getFullFolderName(const LLViewerInventoryCategory* cat);
+static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats);
 
 static LLRegisterPanelClassWrapper<LLPanelPlaceInfo> t_place_info("panel_place_info");
 
@@ -141,11 +153,8 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mCreated = getChild<LLTextBox>("created");
 
 	mTitleEditor = getChild<LLLineEditor>("title_editor");
-	mTitleEditor->setCommitCallback(boost::bind(&LLPanelPlaceInfo::onCommitTitleOrNote, this, TITLE));
-
 	mNotesEditor = getChild<LLTextEditor>("notes_editor");
-	mNotesEditor->setCommitCallback(boost::bind(&LLPanelPlaceInfo::onCommitTitleOrNote, this, NOTE));
-	mNotesEditor->setCommitOnFocusLost(true);
+	mFolderCombo = getChild<LLComboBox>("folder_combo");
 
 	LLScrollContainer* scroll_container = getChild<LLScrollContainer>("scroll_container");
 	scroll_container->setBorderVisible(FALSE);
@@ -316,6 +325,7 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 	LLPanel* landmark_edit_panel = getChild<LLPanel>("landmark_edit_panel");
 
 	bool is_info_type_agent = type == AGENT;
+	bool is_info_type_create_landmark = type == CREATE_LANDMARK;
 	bool is_info_type_landmark = type == LANDMARK;
 	bool is_info_type_teleport_history = type == TELEPORT_HISTORY;
 
@@ -329,7 +339,10 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 	mLastVisited->setVisible(is_info_type_teleport_history);
 
 	landmark_info_panel->setVisible(is_info_type_landmark);
-	landmark_edit_panel->setVisible(is_info_type_landmark || type == CREATE_LANDMARK);
+	landmark_edit_panel->setVisible(is_info_type_landmark || is_info_type_create_landmark);
+
+	getChild<LLTextBox>("folder_lable")->setVisible(is_info_type_create_landmark);
+	mFolderCombo->setVisible(is_info_type_create_landmark);
 
 	getChild<LLAccordionCtrl>("advanced_info_accordion")->setVisible(is_info_type_agent);
 
@@ -337,6 +350,11 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 	{
 		case CREATE_LANDMARK:
 			mCurrentTitle = getString("title_create_landmark");
+
+			mTitleEditor->setEnabled(TRUE);
+			mNotesEditor->setEnabled(TRUE);
+
+			populateFoldersList();
 		break;
 
 		case AGENT:
@@ -351,6 +369,11 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 
 		case LANDMARK:
 			mCurrentTitle = getString("title_landmark");
+
+			mTitleEditor->setEnabled(FALSE);
+			mNotesEditor->setEnabled(FALSE);
+
+			populateFoldersList();
 		break;
 
 		case TELEPORT_HISTORY:
@@ -485,10 +508,9 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 						parcel_data.sim_name.c_str(), region_x, region_y, region_z);
 		mRegionName->setText(name);
 	}
-	
+
 	if (mInfoType == CREATE_LANDMARK)
 	{
-
 		if (parcel_data.name.empty())
 		{
 			mTitleEditor->setText(name);
@@ -498,7 +520,15 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 			mTitleEditor->setText(parcel_data.name);
 		}
 
-		mNotesEditor->setText(LLStringUtil::null);
+		// FIXME: Creating landmark works only for current agent location.
+		std::string desc;
+		LLAgentUI::buildLocationString(desc, LLAgentUI::LOCATION_FORMAT_FULL, gAgent.getPositionAgent());
+		mNotesEditor->setText(desc);
+
+		if (!LLLandmarkActions::landmarkAlreadyExists())
+		{
+			createLandmark(mFolderCombo->getValue().asUUID());
+		}
 	}
 }
 
@@ -694,7 +724,6 @@ void LLPanelPlaceInfo::displaySelectedParcelInfo(LLParcel* parcel,
 													 &rent_price,
 													 &for_sale,
 													 &dwell);
-
 	if (for_sale)
 	{
 		// Adding "For Sale" flag in remote parcel response format.
@@ -803,52 +832,42 @@ void LLPanelPlaceInfo::updateLastVisitedText(const LLDate &date)
 	}
 }
 
-void LLPanelPlaceInfo::onCommitTitleOrNote(LANDMARK_INFO_TYPE type)
+void LLPanelPlaceInfo::toggleLandmarkEditMode(BOOL enabled)
 {
-	LLInventoryItem* item = gInventory.getItem(mLandmarkID);
-	if (!item)
-		return;
-
-	std::string current_value;
-	std::string item_value;
-	if (type == TITLE)
+	// If switching to edit mode while creating landmark
+	// the "Create Landmark" title remains.
+	if (enabled && mInfoType != CREATE_LANDMARK)
 	{
-		if (mTitleEditor)
-		{
-			current_value = mTitleEditor->getText();
-			item_value = item->getName();
-		}
+		mTitle->setText(getString("title_edit_landmark"));
 	}
 	else
 	{
-		if (mNotesEditor)
-		{
-			current_value = mNotesEditor->getText();
-			item_value = item->getDescription();
-		}
+		mTitle->setText(mCurrentTitle);
 	}
 
-	LLStringUtil::trim(current_value);
+	mTitleEditor->setEnabled(enabled);
+	mNotesEditor->setReadOnly(!enabled);
+	mFolderCombo->setVisible(enabled);
+	getChild<LLTextBox>("folder_lable")->setVisible(enabled);
 
-	if (!current_value.empty() &&
-		item_value != current_value &&
-	    gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))
-	{
-		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+	// HACK: To change the text color in a text editor
+	// when it was enabled/disabled we set the text once again.
+	mNotesEditor->setText(mNotesEditor->getText());
+}
 
-		if (type == TITLE)
-		{
-			new_item->rename(current_value);
-		}
-		else
-		{
-			new_item->setDescription(current_value);
-		}
+const std::string& LLPanelPlaceInfo::getLandmarkTitle() const
+{
+	return mTitleEditor->getText();
+}
 
-		new_item->updateServer(FALSE);
-		gInventory.updateItem(new_item);
-		gInventory.notifyObservers();
-	}
+const std::string LLPanelPlaceInfo::getLandmarkNotes() const
+{
+	return mNotesEditor->getText();
+}
+
+const LLUUID LLPanelPlaceInfo::getLandmarkFolder() const
+{
+	return mFolderCombo->getValue().asUUID();
 }
 
 void LLPanelPlaceInfo::createLandmark(const LLUUID& folder_id)
@@ -919,5 +938,93 @@ void LLPanelPlaceInfo::handleVisibilityChange (BOOL new_visibility)
 		{
 			parcel_mgr->deselectLand();
 		}
+	}
+}
+
+void LLPanelPlaceInfo::populateFoldersList()
+{
+	// Collect all folders that can contain landmarks.
+	LLInventoryModel::cat_array_t cats;
+	collectLandmarkFolders(cats);
+
+	mFolderCombo->removeall();
+
+	// Put the "Landmarks" folder first in list.
+	LLUUID landmarks_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+	const LLViewerInventoryCategory* cat = gInventory.getCategory(landmarks_id);
+	if (!cat)
+	{
+		llwarns << "Cannot find the landmarks folder" << llendl;
+	}
+	std::string cat_full_name = getFullFolderName(cat);
+	mFolderCombo->add(cat_full_name, cat->getUUID());
+
+	typedef std::vector<folder_pair_t> folder_vec_t;
+	folder_vec_t folders;
+	// Sort the folders by their full name.
+	for (S32 i = 0; i < cats.count(); i++)
+	{
+		cat = cats.get(i);
+		cat_full_name = getFullFolderName(cat);
+		folders.push_back(folder_pair_t(cat->getUUID(), cat_full_name));
+	}
+	sort(folders.begin(), folders.end(), cmp_folders);
+
+	// Finally, populate the combobox.
+	for (folder_vec_t::const_iterator it = folders.begin(); it != folders.end(); it++)
+		mFolderCombo->add(it->second, LLSD(it->first));
+}
+
+static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right)
+{
+	return left.second < right.second;
+}
+
+static std::string getFullFolderName(const LLViewerInventoryCategory* cat)
+{
+	std::string name = cat->getName();
+	LLUUID parent_id;
+
+	// translate category name, if it's right below the root
+	// FIXME: it can throw notification about non existent string in strings.xml
+	if (cat->getParentUUID().notNull() && cat->getParentUUID() == gInventory.getRootFolderID())
+	{
+		LLTrans::findString(name, "InvFolder " + name);
+	}
+
+	// we don't want "My Inventory" to appear in the name
+	while ((parent_id = cat->getParentUUID()).notNull() && parent_id != gInventory.getRootFolderID())
+	{
+		cat = gInventory.getCategory(parent_id);
+		name = cat->getName() + "/" + name;
+	}
+
+	return name;
+}
+
+static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats)
+{
+	LLUUID landmarks_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+
+	// Add descendent folders of the "Landmarks" category.
+	LLInventoryModel::item_array_t items; // unused
+	LLIsType is_category(LLAssetType::AT_CATEGORY);
+	gInventory.collectDescendentsIf(
+		landmarks_id,
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		is_category);
+
+	// Add the "My Favorites" category.
+	LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+	LLViewerInventoryCategory* favorites_cat = gInventory.getCategory(favorites_id);
+	if (!favorites_cat)
+	{
+		llwarns << "Cannot find the favorites folder" << llendl;
+	}
+	else
+	{
+		cats.put(favorites_cat);
 	}
 }

@@ -98,6 +98,7 @@
 #include "llnotifications.h"
 #include "llnotify.h"
 #include "llpanelgrouplandmoney.h"
+#include "llpanelplaces.h"
 #include "llrecentpeople.h"
 #include "llselectmgr.h"
 #include "llsidetray.h"
@@ -138,7 +139,6 @@
 #include "llkeythrottle.h"
 #include "llgroupactions.h"
 #include "llagentui.h"
-#include "llsidetray.h"
 #include "llpanelblockedlist.h"
 #include "llpanelplaceinfo.h"
 
@@ -907,14 +907,15 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 					LLInventoryCategory* parent_folder = gInventory.getCategory(item->getParentUUID());
 					LLSD args;
 					args["LANDMARK_NAME"] = item->getName();
-					args["FOLDER_NAME"] = std::string(parent_folder ? parent_folder->getName() : "unnkown");
+					args["FOLDER_NAME"] = std::string(parent_folder ? parent_folder->getName() : "unknown");
 					LLNotifications::instance().add("LandmarkCreated", args);
-					
-					// Open new landmark for editing in Places panel.
-					LLSD key;
-					key["type"] = "landmark";
-					key["id"] = item->getUUID();
-					LLSideTray::getInstance()->showPanel("panel_places", key);
+
+					// Created landmark is passed to Places panel to allow its editing.
+					LLPanelPlaces *panel = dynamic_cast<LLPanelPlaces*>(LLSideTray::getInstance()->showPanel("panel_places", LLSD()));
+					if (panel)
+					{
+						panel->setItem(item);
+					}
 			  	}
 				break;
 			  case LLAssetType::AT_TEXTURE:
