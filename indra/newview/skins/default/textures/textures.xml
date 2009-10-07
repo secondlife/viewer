@@ -513,11 +513,6 @@
   <texture name="toggle_button_off" file_name="toggle_button_off.png" preload="true" />
   <texture name="toggle_button_selected" file_name="toggle_button_selected.png" preload="true" />
 
-<!--TODO: REPLACE CODE REFERENCE TO THIS ART WITH Icon_Minimize_Background above -->
-  <texture name="minimize_inactive.tga" preload="true" />
-  <texture name="minimize.tga" preload="true" />
-  <texture name="minimize_pressed.tga"	preload="true" />
-
   <texture name="sm_rounded_corners_simple.tga" scale.left="4" scale.top="4" scale.bottom="4" scale.right="4" />
 
   <texture name="rounded_square.tga"	file_name="rounded_square.j2c" preload="true" scale.left="16" scale.top="16" scale.right="112" scale.bottom="16" />
