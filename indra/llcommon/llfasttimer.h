@@ -215,6 +215,10 @@ public:
 	// call this once a frame to reset timers
 	static void nextFrame();
 
+	// dumps current cumulative frame stats to log
+	// call nextFrame() to reset timers
+	static void dumpCurTimes(); 
+
 	// call this to reset timer hierarchy, averages, etc.
 	static void reset();
 
