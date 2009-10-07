@@ -102,7 +102,7 @@ void LLPanelProfile::onOpen(const LLSD& key)
 {
 	if (key.has("open_tab_name"))
 	{
-		getTabContainer()[PANEL_PICKS]->onClose();
+		getTabContainer()[PANEL_PICKS]->onClosePanel();
 
 		// onOpen from selected panel will be called from onTabSelected callback
 		getTabCtrl()->selectTabByName(key["open_tab_name"]);

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <text allow_html="true"
       clip_to_rect="false"
+      mouse_opaque="false" 
       name="text_box" 
       font="SansSerifSmall"
       font_shadow="soft" 
@@ -17,4 +18,5 @@
       border_visible="false" 
       hover="false" 
       text_color="LabelTextColor"
-      v_pad="-1"/>
+      v_pad="-1"
+      max_length="4096"/>

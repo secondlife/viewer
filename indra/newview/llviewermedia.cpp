@@ -1397,7 +1397,8 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		{
 			LLSD args;
 			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
-			LLNotifications::instance().add("MediaPluginFailed", args);
+			// SJB: This is getting called every frame if the plugin fails to load, continuously respawining the alert!
+			//LLNotifications::instance().add("MediaPluginFailed", args);
 		}
 		break;
 		

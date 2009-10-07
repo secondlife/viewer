@@ -51,6 +51,7 @@
 #include "llcontrol.h"	// LLCachedControl
 #include "llfloater.h"
 #include "llfloaterreg.h"
+#include "llmenubutton.h"
 #include "lltooltip.h"	// positionViewNearMouse()
 #include "lluictrl.h"
 
@@ -80,6 +81,9 @@ public:
 	// Because floater is single instance, need to re-parse data on each spawn
 	// (for example, inspector about same avatar but in different position)
 	/*virtual*/ void onOpen(const LLSD& avatar_id);
+
+	// When closing they should close their gear menu 
+	/*virtual*/ void onClose(bool app_quitting);
 	
 	// Inspectors close themselves when they lose focus
 	/*virtual*/ void onFocusLost();
@@ -287,6 +291,12 @@ void LLInspectAvatar::onOpen(const LLSD& data)
 
 	updateVolumeSlider();
 }
+
+// virtual
+void LLInspectAvatar::onClose(bool app_quitting)
+{  
+  getChild<LLMenuButton>("gear_btn")->hideMenu();
+}	
 
 //virtual
 void LLInspectAvatar::onFocusLost()

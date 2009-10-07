@@ -37,7 +37,6 @@
 
 #include <vector>
 
-
 class LLFloaterAvatarPicker : public LLFloater
 {
 public:
@@ -57,7 +56,6 @@ public:
 	static void processAvatarPickerReply(class LLMessageSystem* msg, void**);
 
 private:
-
 	static void editKeystroke(class LLLineEditor* caller, void* user_data);
 
 	static void onBtnFind(void* userdata);
@@ -68,8 +66,6 @@ private:
 	static void onList(class LLUICtrl* ctrl, void* userdata);
 		   void onTabChanged();
 	
-		   void doCallingCardSelectionChange(const std::deque<class LLFolderViewItem*> &items, BOOL user_action);
-
 	void populateNearMe();
 	BOOL visibleItemsSelected() const; // Returns true if any items in the current tab are selected.
 
@@ -79,8 +75,6 @@ private:
 	virtual void draw();
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
-	std::vector<LLUUID>				mSelectedInventoryAvatarIDs;
-	std::vector<std::string>		mSelectedInventoryAvatarNames;
 	LLUUID				mQueryID;
 	BOOL				mResultsReturned;
 	BOOL				mNearMeListComplete;

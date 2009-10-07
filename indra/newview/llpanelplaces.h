@@ -72,6 +72,9 @@ private:
 	//void onShareButtonClicked();
 	void onTeleportButtonClicked();
 	void onShowOnMapButtonClicked();
+	void onEditButtonClicked();
+	void onSaveButtonClicked();
+	void onCancelButtonClicked();
 	void onOverflowButtonClicked();
 	void onOverflowMenuItemClicked(const LLSD& param);
 	void onCreateLandmarkButtonClicked(const LLUUID& folder_id);
@@ -84,8 +87,6 @@ private:
 	void onAgentParcelChange();
 	void updateVerbs();
 
-	void showLandmarkFoldersMenu();
-
 	LLFilterEditor*				mFilterEditor;
 	LLPanelPlacesTab*			mActivePanel;
 	LLTabContainer*				mTabContainer;
@@ -94,11 +95,13 @@ private:
 	LLToggleableMenu*			mPlaceMenu;
 	LLToggleableMenu*			mLandmarkMenu;
 
-	LLButton*					mCreateLandmarkBtn;
-	LLButton*					mFolderMenuBtn;
 	LLButton*					mTeleportBtn;
 	LLButton*					mShowOnMapBtn;
 	LLButton*					mShareBtn;
+	LLButton*					mEditBtn;
+	LLButton*					mSaveBtn;
+	LLButton*					mCancelBtn;
+	LLButton*					mCloseBtn;
 	LLButton*					mOverflowBtn;
 
 	LLPlacesInventoryObserver*	mInventoryObserver;
@@ -118,19 +121,7 @@ private:
 	// Information type currently shown in Place Information panel
 	std::string					mPlaceInfoType;
 
-	// Menu handle for pop-up menu to chose a landmark saving
-	// folder when creating a new landmark
-	LLHandle<LLView> 			mLandmarkFoldersMenuHandle;
-
-	typedef std::vector<folder_pair_t>	folder_vec_t;
-
-	// List of folders to choose from when creating a landmark
-	folder_vec_t				mLandmarkFoldersCache;
-
-	// If root view width or height is changed
-	// the pop-up menu must be updated
-	S32							mRootViewWidth;
-	S32							mRootViewHeight;
+	bool						isLandmarkEditModeOn;
 
 	LLSafeHandle<LLParcelSelection>	mParcel;
 };

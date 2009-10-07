@@ -293,11 +293,11 @@ LLFloaterVoiceDeviceSettings::LLFloaterVoiceDeviceSettings(const LLSD& seed)
 }
 BOOL LLFloaterVoiceDeviceSettings::postBuild()
 {
-	mCloseSignal.connect(boost::bind(&LLFloaterVoiceDeviceSettings::onClose, this));
-	
 	center();
 	return TRUE;
 }
+
+// virtual
 void LLFloaterVoiceDeviceSettings::onOpen(const LLSD& key)
 {
 	if(mDevicePanel)
@@ -306,7 +306,8 @@ void LLFloaterVoiceDeviceSettings::onOpen(const LLSD& key)
 	}
 }
 
-void LLFloaterVoiceDeviceSettings::onClose()
+// virtual
+void LLFloaterVoiceDeviceSettings::onClose(bool app_settings)
 {
 	if(mDevicePanel)
 	{

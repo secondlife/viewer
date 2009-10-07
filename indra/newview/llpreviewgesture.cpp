@@ -32,9 +32,9 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include <algorithm>
-
 #include "llpreviewgesture.h"
+
+#include <algorithm>
 
 // libraries
 #include "lldatapacker.h"
@@ -260,7 +260,8 @@ BOOL LLPreviewGesture::canClose()
 	}
 }
 
-void LLPreviewGesture::onClose()
+// virtual
+void LLPreviewGesture::onClose(bool app_quitting)
 {
 	LLGestureManager::instance().stopGesture(mPreviewGesture);
 }
@@ -354,7 +355,6 @@ LLPreviewGesture::~LLPreviewGesture()
 
 BOOL LLPreviewGesture::postBuild()
 {
-	mCloseSignal.connect(boost::bind(&LLPreviewGesture::onClose, this));
 	mVisibleSignal.connect(boost::bind(&LLPreviewGesture::onVisibilityChange, this, _2));
 	
 	LLLineEditor* edit;

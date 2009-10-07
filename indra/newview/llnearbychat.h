@@ -72,11 +72,9 @@ public:
 	void	onNearbyChatContextMenuItemClicked(const LLSD& userdata);
 	bool	onNearbyChatCheckContextMenuItem(const LLSD& userdata);
 
-	virtual void	onClose		(bool app_quitting) { if(app_quitting) destroy(); else setVisible(false); }
+	/*virtual*/ void	onOpen	(const LLSD& key);
 
-	virtual void	onOpen		(const LLSD& key);
-
-	virtual void	draw		();
+	/*virtual*/ void	draw	();
 
 private:
 	void	add_timestamped_line(const LLChat& chat, const LLColor4& color);

@@ -12,7 +12,7 @@
              draw_stripes="true"
              scroll_bar_bg_visible="false"
              scroll_bar_bg_color="black"
-             background_visible="false"
+             background_visible="true"
              heading_height="23"
              draw_border="false"
              draw_heading="false" />

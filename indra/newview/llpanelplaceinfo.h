@@ -42,6 +42,7 @@
 #include "llremoteparcelrequest.h"
 
 class LLButton;
+class LLComboBox;
 class LLInventoryItem;
 class LLLineEditor;
 class LLPanelPick;
@@ -117,18 +118,19 @@ public:
 							 const std::string& first,
 							 const std::string& last);
 
+	void toggleLandmarkEditMode(BOOL enabled);
+
+	const std::string& getLandmarkTitle() const;
+	const std::string getLandmarkNotes() const;
+	const LLUUID getLandmarkFolder() const;
+
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	/*virtual*/ void handleVisibilityChange (BOOL new_visibility);
 
 private:
-	enum LANDMARK_INFO_TYPE
-	{
-		TITLE,
-		NOTE
-	};
 
-	void onCommitTitleOrNote(LANDMARK_INFO_TYPE type);
+	void populateFoldersList();
 
 	LLUUID			mParcelID;
 	LLUUID			mRequestedID;
@@ -182,6 +184,7 @@ private:
 	LLTextBox*			mCreated;
 	LLLineEditor*		mTitleEditor;
 	LLTextEditor*		mNotesEditor;
+	LLComboBox*			mFolderCombo;
 	LLPanel*            mScrollingPanel;
 	LLPanel*			mInfoPanel;
 	LLMediaPanel*		mMediaPanel;

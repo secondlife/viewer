@@ -65,6 +65,7 @@ public:
 	BOOL postBuild();
 
 	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void onClose(bool app_quitting);
 
 	static void reloadIcons(void*);
 
@@ -111,9 +112,7 @@ public:
 	// teleport to the tracked item, if there is one
 	void			teleport();
 
-protected:
-	void			onClose();
-	
+protected:	
 	void			onGoHome();
 
 	void			onLandmarkComboPrearrange();

@@ -137,7 +137,7 @@ private:
 		void onMouseLeave(S32 x, S32 y, MASK mask);
 		BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	private:
-		void onClose();
+		void onClosePanel();
 	public:
 		LLIMChiclet* mChiclet;
 	private:

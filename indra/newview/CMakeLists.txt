@@ -187,6 +187,7 @@ set(viewer_SOURCE_FILES
     llfloaternotificationsconsole.cpp
     llfloateropenobject.cpp
     llfloaterparcel.cpp
+    llfloaterpay.cpp
     llfloaterperms.cpp
     llfloaterpostcard.cpp
     llfloaterpostprocess.cpp
@@ -218,7 +219,6 @@ set(viewer_SOURCE_FILES
     llfollowcam.cpp
     llfriendcard.cpp
     llgesturemgr.cpp
-    llgivemoney.cpp
     llglsandbox.cpp
     llgroupactions.cpp
     llgrouplist.cpp
@@ -658,6 +658,7 @@ set(viewer_HEADER_FILES
     llfloaternotificationsconsole.h
     llfloateropenobject.h
     llfloaterparcel.h
+    llfloaterpay.h
     llfloaterpostcard.h
     llfloaterpostprocess.h
     llfloaterpreference.h
@@ -690,7 +691,6 @@ set(viewer_HEADER_FILES
     llfollowcam.h
     llfriendcard.h
     llgesturemgr.h
-    llgivemoney.h
     llgroupactions.h
     llgrouplist.h
     llgroupmgr.h
@@ -1103,14 +1103,10 @@ if (WINDOWS)
         res/ll_icon.BMP
         res/ll_icon.ico
         res/resource.h
-        res/toolbuy.cur
-        res/toolopen.cur
-        res/toolpay.cur
         res/toolpickobject.cur
         res/toolpickobject2.cur
         res/toolpickobject3.cur
         res/toolpipette.cur
-        res/toolsit.cur
         )
 
     set_source_files_properties(${viewer_RESOURCE_FILES}

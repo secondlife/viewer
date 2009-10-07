@@ -56,6 +56,7 @@ public:
 	~LLFloaterBuy();
 	
 	/*virtual*/	BOOL postBuild();
+	/*virtual*/ void onClose(bool app_quitting);
 	
 	static void show(const LLSaleInfo& sale_info);
 
@@ -70,7 +71,6 @@ protected:
 
 	void onClickBuy();
 	void onClickCancel();
-	void onClose();
 
 private:
 	LLSafeHandle<LLObjectSelection>	mObjectSelection;

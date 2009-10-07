@@ -208,8 +208,8 @@ public:
 	virtual BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask);
 	virtual void	draw();
 	
-	// *TODO: Eliminate this in favor of mOpenSignal
 	virtual void	onOpen(const LLSD& key) {}
+	virtual void	onClose(bool app_quitting) {}
 
 	// This cannot be "const" until all derived floater canClose()
 	// methods are const as well.  JC
@@ -293,11 +293,18 @@ private:
 	void			addResizeCtrls();
 	void 			addDragHandle();
 
+public:
+	// Called when floater is opened, passes mKey
+	// Public so external views or floaters can watch for this floater opening
+	commit_signal_t mOpenSignal;
+
+	// Called when floater is closed, passes app_qitting as LLSD()
+	// Public so external views or floaters can watch for this floater closing
+	commit_signal_t mCloseSignal;		
+
 protected:
 	std::string		mRectControl;
 	std::string		mVisibilityControl;
-	commit_signal_t mOpenSignal;		// Called when floater is opened, passes mKey
-	commit_signal_t mCloseSignal;		// Called when floater is closed, passes app_qitting as LLSD()
 	LLSD			mKey;				// Key used for retrieving instances; set (for now) by LLFLoaterReg
 
 	LLDragHandle*	mDragHandle;

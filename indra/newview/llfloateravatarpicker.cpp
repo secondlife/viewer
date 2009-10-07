@@ -37,20 +37,15 @@
 #include "llagent.h"
 #include "llfocusmgr.h"
 #include "llfloaterreg.h"
-#include "llfloaterinventory.h"
-#include "llfoldervieweventlistener.h"
-#include "llinventorymodel.h"
 #include "llviewercontrol.h"
 #include "llworld.h"
 
 // Linden libraries
-#include "llbutton.h"
 #include "lllineeditor.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"
 #include "lltabcontainer.h"
-#include "lltextbox.h"
 #include "lluictrlfactory.h"
 #include "message.h"
 
@@ -117,13 +112,6 @@ BOOL LLFloaterAvatarPicker::postBuild()
 
 	getChild<LLScrollListCtrl>("SearchResults")->setCommentText(getString("no_results"));
 
-	LLInventoryPanel* inventory_panel = getChild<LLInventoryPanel>("InventoryPanel");
-	inventory_panel->setFilterTypes(0x1 << LLInventoryType::IT_CALLINGCARD);
-	inventory_panel->setFollowsAll();
-	inventory_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	inventory_panel->openDefaultFolderForType(LLAssetType::AT_CALLINGCARD);
-	inventory_panel->setSelectCallback(boost::bind(&LLFloaterAvatarPicker::doCallingCardSelectionChange, this, _1, _2));
-	
 	getChild<LLTabContainer>("ResidentChooserTabs")->setCommitCallback(
 		boost::bind(&LLFloaterAvatarPicker::onTabChanged, this));
 	
@@ -173,11 +161,7 @@ void LLFloaterAvatarPicker::onBtnSelect(void* userdata)
 	{
 		LLPanel* active_panel = self->childGetVisibleTab("ResidentChooserTabs");
 
-		if(active_panel == self->getChild<LLPanel>("CallingCardsPanel"))
-		{
-			self->mCallback(self->mSelectedInventoryAvatarNames, self->mSelectedInventoryAvatarIDs, self->mCallbackUserdata);
-		}
-		else if(active_panel == self->getChild<LLPanel>("SearchPanel"))
+		if(active_panel == self->getChild<LLPanel>("SearchPanel"))
 		{
 			std::vector<std::string>	avatar_names;
 			std::vector<LLUUID>			avatar_ids;
@@ -192,7 +176,6 @@ void LLFloaterAvatarPicker::onBtnSelect(void* userdata)
 			self->mCallback(avatar_names, avatar_ids, self->mCallbackUserdata);
 		}
 	}
-	self->getChild<LLInventoryPanel>("InventoryPanel")->setSelection(LLUUID::null, FALSE);
 	self->getChild<LLScrollListCtrl>("SearchResults")->deselectAllItems(TRUE);
 	self->getChild<LLScrollListCtrl>("NearMe")->deselectAllItems(TRUE);
 	if(self->mCloseOnSelect)
@@ -232,40 +215,6 @@ void LLFloaterAvatarPicker::onList(LLUICtrl* ctrl, void* userdata)
 	if (self)
 	{
 		self->childSetEnabled("Select", self->visibleItemsSelected());
-	}
-}
-
-// Callback for inventory picker (select from calling cards)
-void LLFloaterAvatarPicker::doCallingCardSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
-{
-	bool panel_active = (childGetVisibleTab("ResidentChooserTabs") == getChild<LLPanel>("CallingCardsPanel"));
-	
-	mSelectedInventoryAvatarIDs.clear();
-	mSelectedInventoryAvatarNames.clear();
-	
-	if (panel_active)
-	{
-		childSetEnabled("Select", FALSE);
-	}
-
-	std::deque<LLFolderViewItem*>::const_iterator item_it;
-	for (item_it = items.begin(); item_it != items.end(); ++item_it)
-	{
-		LLFolderViewEventListener* listenerp = (*item_it)->getListener();
-		if (listenerp->getInventoryType() == LLInventoryType::IT_CALLINGCARD)
-		{
-			LLInventoryItem* item = gInventory.getItem(listenerp->getUUID());
-			if (item)
-			{
-				mSelectedInventoryAvatarIDs.push_back(item->getCreatorUUID());
-				mSelectedInventoryAvatarNames.push_back(listenerp->getName());
-			}
-		}
-	}
-
-	if (panel_active)
-	{
-		childSetEnabled("Select", visibleItemsSelected());
 	}
 }
 
@@ -336,10 +285,6 @@ BOOL LLFloaterAvatarPicker::visibleItemsSelected() const
 	{
 		return getChild<LLScrollListCtrl>("SearchResults")->getFirstSelectedIndex() >= 0;
 	}
-	else if(active_panel == getChild<LLPanel>("CallingCardsPanel"))
-	{
-		return mSelectedInventoryAvatarIDs.size() > 0;
-	}
 	else if(active_panel == getChild<LLPanel>("NearMePanel"))
 	{
 		return getChild<LLScrollListCtrl>("NearMe")->getFirstSelectedIndex() >= 0;
@@ -349,7 +294,7 @@ BOOL LLFloaterAvatarPicker::visibleItemsSelected() const
 
 void LLFloaterAvatarPicker::find()
 {
-	const std::string& text = childGetValue("Edit").asString();
+	std::string text = childGetValue("Edit").asString();
 
 	mQueryID.generate();
 
@@ -375,7 +320,6 @@ void LLFloaterAvatarPicker::find()
 void LLFloaterAvatarPicker::setAllowMultiple(BOOL allow_multiple)
 {
 	getChild<LLScrollListCtrl>("SearchResults")->setAllowMultipleSelection(allow_multiple);
-	getChild<LLInventoryPanel>("InventoryPanel")->setAllowMultiSelect(allow_multiple);
 	getChild<LLScrollListCtrl>("NearMe")->setAllowMultipleSelection(allow_multiple);
 }
 

@@ -384,12 +384,12 @@
   <texture name="TaskPanel_BG" file_name="taskpanel/TaskPanel_BG.png" preload="false" scale.left="4" scale.top="146" scale.right="146" scale.bottom="4" />
   <texture name="TaskPanel_Tab_Unselected" file_name="taskpanel/TaskPanel_Tab_Over.png" preload="false" scale.left="5" scale.top="30" scale.right="36" scale.bottom="5" />
 
-  <texture name="TextField_Search_Disabled" file_name="widgets/TextField_Search_Disabled.png" preload="true" scale.left="4" scale.top="18" scale.right="252" scale.bottom="4" />
-  <texture name="TextField_Off" file_name="widgets/TextField_Off.png" preload="true" scale.left="4" scale.top="18" scale.right="252" scale.bottom="4" />
-  <texture name="TextField_Search_Active" file_name="widgets/TextField_Search_Active.png" preload="true" scale.left="4" scale.top="18" scale.right="252" scale.bottom="4" />
-  <texture name="TextField_Search_Off" file_name="widgets/TextField_Search_Off.png" preload="true" scale.left="4" scale.top="18" scale.right="252" scale.bottom="4" />
-  <texture name="TextField_Disabled" file_name="widgets/TextField_Disabled.png" preload="true" scale.left="4" scale.top="18" scale.right="252" scale.bottom="4" />
-  <texture name="TextField_Active" file_name="widgets/TextField_Active.png" preload="true" scale.left="4" scale.top="18" scale.right="252" scale.bottom="4" />
+  <texture name="TextField_Search_Disabled" file_name="widgets/TextField_Search_Disabled.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
+  <texture name="TextField_Off" file_name="widgets/TextField_Off.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
+  <texture name="TextField_Search_Active" file_name="widgets/TextField_Search_Active.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
+  <texture name="TextField_Search_Off" file_name="widgets/TextField_Search_Off.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
+  <texture name="TextField_Disabled" file_name="widgets/TextField_Disabled.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
+  <texture name="TextField_Active" file_name="widgets/TextField_Active.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
 
   <texture name="Toast_CloseBtn" file_name="windows/Toast_CloseBtn.png" preload="true" />
   <texture name="Toast" file_name="windows/Toast.png" preload="true" />
@@ -512,11 +512,6 @@
 
   <texture name="toggle_button_off" file_name="toggle_button_off.png" preload="true" />
   <texture name="toggle_button_selected" file_name="toggle_button_selected.png" preload="true" />
-
-<!--TODO: REPLACE CODE REFERENCE TO THIS ART WITH Icon_Minimize_Background above -->
-  <texture name="minimize_inactive.tga" preload="true" />
-  <texture name="minimize.tga" preload="true" />
-  <texture name="minimize_pressed.tga"	preload="true" />
 
   <texture name="sm_rounded_corners_simple.tga" scale.left="4" scale.top="4" scale.bottom="4" scale.right="4" />
 

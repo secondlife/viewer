@@ -48,7 +48,9 @@ class LLPanelMediaSettingsGeneral : public LLPanel
 {
 public:
 	BOOL postBuild();
-	virtual void draw();
+	/*virtual*/ void draw();
+	/*virtual*/ void onClose(bool app_quitting);
+
 	static void apply(void*);
     void getValues(LLSD &fill_me_in);
 
@@ -56,14 +58,12 @@ public:
 	~LLPanelMediaSettingsGeneral();
 
 	void setParent( LLFloaterMediaSettings* parent );
-	static void initValues( void* userdata, const LLSD& media_settings );
-	static void clearValues( void* userdata );
+	static void initValues( void* userdata, const LLSD& media_settings ,bool editable);
+	static void clearValues( void* userdata, bool editable);
 	
 	void updateMediaPreview();
 	void updateCurrentURL();
 	
-	void onClose();
-
 protected:
 	LLFloaterMediaSettings* mParent;
 
@@ -74,7 +74,7 @@ private:
 	LLComboBox* mControls;
 	LLCheckBoxCtrl* mAutoLoop;
 	LLCheckBoxCtrl* mFirstClick;
-	LLTextureCtrl* mMediaPreview;
+//	LLTextureCtrl* mMediaPreview;
 	LLCheckBoxCtrl* mAutoZoom;
 	LLCheckBoxCtrl* mAutoPlay;
 	LLCheckBoxCtrl* mAutoScale;

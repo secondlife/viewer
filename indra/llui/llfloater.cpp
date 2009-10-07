@@ -664,7 +664,8 @@ void LLFloater::closeFloater(bool app_quitting)
 
 		dirtyRect();
 
-		// Close callback
+		// Close callbacks
+		onClose(app_quitting);
 		mCloseSignal(this, LLSD(app_quitting));
 		
 		// Hide or Destroy

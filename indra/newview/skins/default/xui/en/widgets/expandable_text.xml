@@ -2,6 +2,7 @@
 <expandable_text
  max_height="300" >
  <textbox
+   more_label="More" 
   follows="left|top"
   name="text"
   use_ellipses="true"
@@ -9,16 +10,6 @@
   tab_stop="true"
   v_pad="2"
   h_pad="3" >
-  <expand_textbox 
-   name="expand"
-   follows="bottom|right"
-   visible="false"
-   bg_visible="false"
-   tab_stop="false"
-   v_pad="0"
-   h_pad="0"
-   text="[http://www.DUMMY.com More]" 
-   tool_tip="Click to expand text"/>
  </textbox>
  <scroll
   name="scroll"

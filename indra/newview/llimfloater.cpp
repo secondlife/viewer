@@ -78,12 +78,11 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 		}
 	}
 
-	mCloseSignal.connect(boost::bind(&LLIMFloater::onClose, this));
-
 	LLTransientFloaterMgr::getInstance()->registerTransientFloater(this);
 }
 
-void LLIMFloater::onClose()
+// virtual
+void LLIMFloater::onClose(bool app_quitting)
 {
 	LLIMModel::instance().sendLeaveSession(mSessionID, mOtherParticipantUUID);
 

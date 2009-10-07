@@ -114,8 +114,9 @@ public:
 		// recursive call to gather total time from children
 		static void accumulateTimings();
 
-		// called once per frame by LLFastTimer
-		static void processFrame();
+		// updates cumulative times and hierarchy, 
+		// can be called multiple times in a frame, at any point
+		static void processTimes();
 
 		static void buildHierarchy();
 		static void resetFrame();
@@ -178,8 +179,9 @@ public:
 	{
 #if FAST_TIMER_ON
 		NamedTimer::FrameState* frame_state = mFrameState;
-		frame_state->mLastStartTime = get_cpu_clock_count();
-		mStartSelfTime = frame_state->mLastStartTime;
+		U64 cur_time = get_cpu_clock_count();
+		frame_state->mLastStartTime = cur_time;
+		mStartSelfTime = cur_time;
 
 		frame_state->mActiveCount++;
 		frame_state->mCalls++;
@@ -214,6 +216,10 @@ public:
 
 	// call this once a frame to reset timers
 	static void nextFrame();
+
+	// dumps current cumulative frame stats to log
+	// call nextFrame() to reset timers
+	static void dumpCurTimes(); 
 
 	// call this to reset timer hierarchy, averages, etc.
 	static void reset();

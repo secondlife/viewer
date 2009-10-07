@@ -50,9 +50,6 @@
 LLFloaterHelpBrowser::LLFloaterHelpBrowser(const LLSD& key)
 	: LLFloater(key)
 {
-	// really really destroy the help browser when it's closed, it'll be recreated.
-	// *TODO: when onClose() is resurrected as a virtual, this bind can go away.
-	mCloseSignal.connect(boost::bind(&LLFloaterHelpBrowser::onClose, this));
 }
 
 BOOL LLFloaterHelpBrowser::postBuild()
@@ -79,8 +76,10 @@ void LLFloaterHelpBrowser::buildURLHistory()
 	}
 }
 
-void LLFloaterHelpBrowser::onClose()
+//virtual
+void LLFloaterHelpBrowser::onClose(bool app_quitting)
 {
+	// really really destroy the help browser when it's closed, it'll be recreated.
 	destroy(); // really destroy this dialog on closure, it's relatively heavyweight.
 }
 

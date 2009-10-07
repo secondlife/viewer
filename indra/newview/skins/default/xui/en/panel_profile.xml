@@ -43,7 +43,7 @@
 	    layout="topleft"
 	    top="0"
 	    left="0"
-	    width="284"
+	    width="300"
 	    height="700">
 	 <panel
 	    follows="left|top"
@@ -52,7 +52,7 @@
 	    left="10"
 	    name="second_life_image_panel"
 	    top="10"
-	    width="280">
+	    width="285">
             <texture_picker
              allow_no_texture="true"
              default_image_name="None"
@@ -94,7 +94,7 @@
 	 top_pad="10"
          left="10"
          name="first_life_image_panel"
-         width="280">
+         width="285">
             <texture_picker
              allow_no_texture="true"
              default_image_name="None"
@@ -122,7 +122,7 @@
              height="90"
              layout="topleft"
              name="fl_description_edit"
-             width="180"
+             width="170"
              expanded_bg_visible="true"
              expanded_bg_color="black">
                 Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.

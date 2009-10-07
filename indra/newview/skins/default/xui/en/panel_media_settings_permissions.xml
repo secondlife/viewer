@@ -1,49 +1,137 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel border="true" enabled="true" follows="left|top|right|bottom"
-    height="500" label="Controls" left="102" mouse_opaque="true"
-    name="Media settings for controls" width="365">
+<panel 
+ border="true" 
+ enabled="true" 
+ follows="left|top|right|bottom"
+ height="500" 
+ label="Controls" 
+ left="102" 
+ mouse_opaque="true"
+ name="Media settings for controls" 
+ width="365">
 
-  <text bottom_delta="-50" follows="top|left" height="15" left="10" name="" enabled="false">
+  <text 
+   bottom_delta="-50" 
+   follows="top|left" 
+   height="15" 
+   left="10" 
+   name="media_perms_label_owner" 
+   enabled="false">
     Owner
   </text>
-  <check_box bottom_delta="-22" enabled="true" follows="left|top" font="SansSerifSmall"
-         height="16" initial_value="false"
-         label="Disable Navigation &amp; Interactivity" left="30" mouse_opaque="true"
-         name="perms_owner_interact" radio_style="false" width="250" />
+  
+  <check_box 
+   bottom_delta="-22" 
+   enabled="true" 
+   follows="left|top" 
+   font="SansSerifSmall"
+   height="16" 
+   initial_value="false"
+   label="Disable Navigation &amp; Interactivity" 
+   left="30" 
+   mouse_opaque="true"
+   name="perms_owner_interact" 
+   radio_style="false" 
+   width="250" />
 
-  <check_box bottom_delta="-22" enabled="true" follows="left|top" font="SansSerifSmall"
-         height="16" initial_value="false"
-         label="Hide Control Bar" left="30" mouse_opaque="true"
-         name="perms_owner_control" radio_style="false" width="250" />
+  <check_box 
+   bottom_delta="-22" 
+   enabled="true" 
+   follows="left|top" 
+   font="SansSerifSmall"
+   height="16" 
+   initial_value="false"
+   label="Hide Control Bar" 
+   left="30" 
+   mouse_opaque="true"
+   name="perms_owner_control" 
+   radio_style="false" 
+   width="250" />
 
-  <text bottom_delta="-36" follows="top|left" height="15" left="10" name="perms_group_name_label" enabled="false">
+  <text 
+   bottom_delta="-36" 
+   follows="top|left" 
+   height="15" 
+   left="10" 
+   name="media_perms_label_group" 
+   enabled="false">
     Group
   </text>
-  <name_box bottom_delta="-5" enabled="false" follows="left|top" font="SansSerif"
-	     height="20" left="60" name="perms_group_name"
-       value ="" 
-	     width="200" />
-  <check_box bottom_delta="-22" enabled="true" follows="left|top" font="SansSerifSmall"
-         height="16" initial_value="false"
-         label="Disable Navigation &amp; Interactivity" left="30" mouse_opaque="true"
-         name="perms_group_interact" radio_style="false" width="250" />
+  
+  <name_box 
+   bottom_delta="-5" 
+   enabled="false" 
+   follows="left|top" 
+   font="SansSerif"
+   height="20" left="60" 
+   name="perms_group_name"
+   value ="" 
+   width="200" />
+   
+  <check_box 
+   bottom_delta="-22" 
+   enabled="true" 
+   follows="left|top" 
+   font="SansSerifSmall"
+   height="16" 
+   initial_value="false"
+   label="Disable Navigation &amp; Interactivity" 
+   left="30" 
+   mouse_opaque="true"
+   name="perms_group_interact" 
+   radio_style="false" 
+   width="250" />
 
-  <check_box bottom_delta="-22" enabled="true" follows="left|top" font="SansSerifSmall"
-         height="16" initial_value="false"
-         label="Hide Control Bar" left="30" mouse_opaque="true"
-         name="perms_group_control" radio_style="false" width="250" />
+  <check_box 
+   bottom_delta="-22" 
+   enabled="true" 
+   follows="left|top" 
+   font="SansSerifSmall"
+   height="16" 
+   initial_value="false"
+   label="Hide Control Bar" 
+   left="30" 
+   mouse_opaque="true"
+   name="perms_group_control" 
+   radio_style="false" 
+   width="250" />
 
-  <text bottom_delta="-36" follows="top|left" height="15" left="10" name="" enabled="false">
+  <text 
+   bottom_delta="-36" 
+   follows="top|left" 
+   height="15" 
+   left="10" 
+   name="media_perms_label_anyone" 
+   enabled="false">
     Anyone
   </text>
-  <check_box bottom_delta="-22" enabled="true" follows="left|top" font="SansSerifSmall"
-         height="16" initial_value="false"
-         label="Disable Navigation &amp; Interactivity" left="30" mouse_opaque="true"
-         name="perms_anyone_interact" radio_style="false" width="250" />
+  
+  <check_box 
+   bottom_delta="-22" 
+   enabled="true" 
+   follows="left|top" 
+   font="SansSerifSmall"
+   height="16" 
+   initial_value="false"
+   label="Disable Navigation &amp; Interactivity" 
+   left="30" 
+   mouse_opaque="true"
+   name="perms_anyone_interact" 
+   radio_style="false" 
+   width="250" />
 
-  <check_box bottom_delta="-22" enabled="true" follows="left|top" font="SansSerifSmall"
-         height="16" initial_value="false"
-         label="Hide Control Bar" left="30" mouse_opaque="true"
-         name="perms_anyone_control" radio_style="false" width="250" />
+  <check_box 
+   bottom_delta="-22" 
+   enabled="true" 
+   follows="left|top" 
+   font="SansSerifSmall"
+   height="16" 
+   initial_value="false"
+   label="Hide Control Bar" 
+   left="30" 
+   mouse_opaque="true"
+   name="perms_anyone_control" 
+   radio_style="false" 
+   width="250" />
 
 </panel>

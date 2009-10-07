@@ -183,8 +183,6 @@ void* LLFloaterWorldMap::createWorldMapView(void* data)
 
 BOOL LLFloaterWorldMap::postBuild()
 {
-	mCloseSignal.connect(boost::bind(&LLFloaterWorldMap::onClose, this));
-	
 	mTabs = getChild<LLTabContainer>("maptab");
 	if (!mTabs) return FALSE;
 
@@ -255,7 +253,8 @@ LLFloaterWorldMap* LLFloaterWorldMap::getInstance()
 	return LLFloaterReg::getTypedInstance<LLFloaterWorldMap>("world_map");
 }
 
-void LLFloaterWorldMap::onClose()
+// virtual
+void LLFloaterWorldMap::onClose(bool app_quitting)
 {
 	// While we're not visible, discard the overlay images we're using
 	LLWorldMap::getInstance()->clearImageRefs();

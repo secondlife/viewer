@@ -1,10 +1,9 @@
 /** 
- * @file llbutton.h
- * @brief Header for buttons
+ * @file llfloaterpay.h
  *
- * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
- * Copyright (c) 2001-2009, Linden Research, Inc.
+ * Copyright (c) 2002-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,40 +29,33 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMENUBUTTON_H
-#define LL_LLMENUBUTTON_H
+#ifndef LLFLOATERPAY_H
+#define LLFLOATERPAY_H
 
-#include "llbutton.h"
+#include "llsafehandle.h"
 
-class LLMenuGL;
+class LLObjectSelection;
+class LLUUID;
+class LLViewerRegion;
 
-class LLMenuButton
-: public LLButton
+typedef void (*money_callback)(const LLUUID&, LLViewerRegion*,S32,BOOL,S32,const std::string&);
+
+namespace LLFloaterPayUtil
 {
-public:
-	struct Params 
-	:	public LLInitParam::Block<Params, LLButton::Params>
-	{
-		// filename for it's toggleable menu
-		Optional<std::string>	menu_filename;
+	/// Register with LLFloaterReg
+	void registerFloater();
+
+	/// Pay into an in-world object, which will trigger scripts and eventually
+	/// transfer the L$ to the resident or group that owns the object.
+	/// Objects must be selected.  Recipient (primary) object may be a child.
+	void payViaObject(money_callback callback,
+					  LLSafeHandle<LLObjectSelection> selection);
 	
-		Params();
-	};	
-	
-	void toggleMenu();
-	/*virtual*/ void draw();
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask );
-	void hideMenu();
+	/// Pay an avatar or group directly, not via an object in the world.
+	/// Scripts are not notified, L$ can be direcly transferred.
+	void payDirectly(money_callback callback,
+					 const LLUUID& target_id,
+					 bool is_group);
+}
 
-protected:
-	friend class LLUICtrlFactory;
-	LLMenuButton(const Params&);
-
-private:
-	LLMenuGL*	mMenu;
-	bool mMenuVisibleLastFrame;
-};
-
-
-#endif  // LL_LLMENUBUTTON_H
+#endif // LLFLOATERPAY_H

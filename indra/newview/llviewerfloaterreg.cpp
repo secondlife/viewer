@@ -83,7 +83,7 @@
 #include "llfloaternamedesc.h"
 #include "llfloaternotificationsconsole.h"
 #include "llfloateropenobject.h"
-#include "llgivemoney.h"
+#include "llfloaterpay.h"
 #include "llfloaterparcel.h"
 #include "llfloaterperms.h"
 #include "llfloaterpostcard.h"
@@ -195,8 +195,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("openobject", "floater_openobject.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterOpenObject>);
 	
 	LLFloaterReg::add("parcel_info", "floater_preview_url.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterParcelInfo>);
-	LLFloaterReg::add("pay_resident", "floater_pay.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPay>);
-	LLFloaterReg::add("pay_object", "floater_pay_object.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPay>);
+	LLFloaterPayUtil::registerFloater();
 
 	LLFloaterReg::add("postcard", "floater_postcard.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPostcard>);
 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);

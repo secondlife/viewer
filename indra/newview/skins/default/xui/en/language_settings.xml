@@ -6,7 +6,13 @@
 	<string name="MicrosoftLocale">english</string>
 	<string name="DarwinLocale">C</string>
 	<string name="LinuxLocale">C</string>
-	
+  
+  <!-- Note: for plural nouns, see strings.xml.  For example:
+       AgeYearsA = singular,
+       AgeYearsB = plural,
+       AgeYearsC = plural for non-English languages like Russian
+       For example, LLTrans::getCountString("AgeYears", 3) is plural form B
+       in English and form C in Russian -->
 	<!-- 
 	datetimeToCodes["wkday"]	= "%a";		// Thu
 	datetimeToCodes["weekday"]	= "%A";		// Thursday

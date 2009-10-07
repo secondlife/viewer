@@ -308,7 +308,6 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	//gFloaterView->adjustToFitScreen(this, FALSE);
 	if (mLineEditor)
 	{
-		mLineEditor->setFocus(TRUE);
 		mLineEditor->selectAll();
 	}
 	if(mDefaultOption >= 0)

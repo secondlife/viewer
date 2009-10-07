@@ -46,6 +46,7 @@
 #include "llcontrol.h"			// LLCachedControl
 #include "llfloater.h"
 #include "llfloaterreg.h"
+#include "llmenubutton.h"
 #include "llresmgr.h"			// getMonetaryString
 #include "llsafehandle.h"
 #include "lltextbox.h"			// for description truncation
@@ -81,7 +82,7 @@ public:
 	/*virtual*/ void onOpen(const LLSD& avatar_id);
 	
 	// Release the selection and do other cleanup
-	void onClose();
+	/*virtual*/ void onClose(bool app_quitting);
 	
 	// Inspectors close themselves when they lose focus
 	/*virtual*/ void onFocusLost();
@@ -175,8 +176,6 @@ BOOL LLInspectObject::postBuild(void)
 	LLSelectMgr::getInstance()->mUpdateSignal.connect(
 		boost::bind(&LLInspectObject::update, this) );
 
-	mCloseSignal.connect( boost::bind(&LLInspectObject::onClose, this) );
-
 	return TRUE;
 }
 
@@ -250,10 +249,13 @@ void LLInspectObject::onOpen(const LLSD& data)
 	}
 }
 
-void LLInspectObject::onClose()
+// virtual
+void LLInspectObject::onClose(bool app_quitting)
 {
 	// Release selection to deselect
 	mObjectSelection = NULL;
+
+	getChild<LLMenuButton>("gear_btn")->hideMenu();
 }
 
 //virtual
