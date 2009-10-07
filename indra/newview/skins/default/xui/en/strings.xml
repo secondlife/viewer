@@ -44,23 +44,12 @@
 	
 	
 	<!-- Tooltip, lltooltipview.cpp -->
-	<!-- *TODO: Most of these are now unused, eliminate them -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
 	<string name="TooltipOwner">Owner:</string> <!-- Owner name follows -->
 	<string name="TooltipPublic">Public</string> <!-- Public permissions on an object -->
 	<string name="TooltipIsGroup">(Group)</string> <!-- The name before this text is that of a group -->
-	<string name="TooltipFlagScript">Script</string>
-	<string name="TooltipFlagPhysics">Physics</string>
-	<string name="TooltipFlagTouch">Touch</string>
-	<string name="TooltipFlagL$">L$</string>
-	<string name="TooltipFlagDropInventory">Drop Inventory</string>
-	<string name="TooltipFlagPhantom">Phantom</string>
-	<string name="TooltipFlagTemporary">Temporary</string>
-	<string name="TooltipFlagRightClickMenu">(Right-click for menu)</string>
-	<string name="TooltipFreeToCopy">Free to copy</string>
 	<string name="TooltipForSaleL$">For Sale: L$[AMOUNT]</string> <!-- L$ version -->
-	<string name="TooltipForSaleMsg">For Sale: [MESSAGE]</string> <!-- Message (RetrievingData) -->
 	<string name="TooltipFlagGroupBuild">Group Build</string>
 	<string name="TooltipFlagNoBuild">No Build</string>
 	<string name="TooltipFlagNoEdit">Group Build</string>
