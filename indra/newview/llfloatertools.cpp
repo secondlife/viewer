@@ -77,12 +77,14 @@
 #include "lltoolpipette.h"
 #include "lltoolplacer.h"
 #include "lltoolselectland.h"
+#include "lltrans.h"
 #include "llui.h"
+#include "llviewercontrol.h"
+#include "llviewerjoystick.h"
+#include "llviewerregion.h"
 #include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
-#include "llviewercontrol.h"
-#include "llviewerjoystick.h"
 #include "lluictrlfactory.h"
 
 // Globals
@@ -980,27 +982,86 @@ void LLFloaterTools::onFocusReceived()
 void LLFloaterTools::refreshMedia()
 {
 	getMediaState();	
-	LLFloaterMediaSettings::getInstance();
-	LLFloaterMediaSettings::initValues(mMediaSettings );
 }
 
-
+bool LLFloaterTools::selectedMediaEditable()
+{
+	U32 owner_mask_on;
+	U32 owner_mask_off;
+	U32 valid_owner_perms = LLSelectMgr::getInstance()->selectGetPerm( PERM_OWNER, 
+																	  &owner_mask_on, &owner_mask_off );
+	U32 group_mask_on;
+	U32 group_mask_off;
+	U32 valid_group_perms = LLSelectMgr::getInstance()->selectGetPerm( PERM_GROUP, 
+																	  &group_mask_on, &group_mask_off );
+	U32 everyone_mask_on;
+	U32 everyone_mask_off;
+	S32 valid_everyone_perms = LLSelectMgr::getInstance()->selectGetPerm( PERM_EVERYONE, 
+																		 &everyone_mask_on, &everyone_mask_off );
+	
+	bool selected_Media_editable = false;
+	
+	// if perms we got back are valid
+	if ( valid_owner_perms &&
+		valid_group_perms && 
+		valid_everyone_perms )
+	{
+		
+		if ( ( owner_mask_on & PERM_MODIFY ) ||
+			( group_mask_on & PERM_MODIFY ) || 
+			( group_mask_on & PERM_MODIFY ) )
+		{
+			selected_Media_editable = true;
+		}
+		else
+			// user is NOT allowed to press the RESET button
+		{
+			selected_Media_editable = false;
+		};
+	};
+	
+	return selected_Media_editable;
+}
 
 void LLFloaterTools::getMediaState()
 {
-	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+	LLObjectSelectionHandle selected_objects =LLSelectMgr::getInstance()->getSelection();
+	LLViewerObject* first_object = selected_objects->getFirstObject();
+	LLLineEditor* media_info = getChild<LLLineEditor>("media_info");
 	
-	if( !objectp )
+	if( !(first_object 
+		  && first_object->getPCode() == LL_PCODE_VOLUME
+		  &&first_object->permModify() 
+	      ))
 	{
 		childSetEnabled("media_tex", FALSE);
 		childSetEnabled("add_media", FALSE);
 		childSetEnabled("delete_media", FALSE);
 		childSetEnabled("edit_media", FALSE);
-		updateMediaSettings();
+		childSetEnabled("media_info", FALSE);
+		media_info->setEnabled(FALSE);
+		media_info->clear();
+		clearMediaSettings();
 		return;
 	}
 	
-	bool editable = gAgent.isGodlike() || (objectp->permModify() && objectp->getPCode() == LL_PCODE_VOLUME);
+	std::string url = first_object->getRegion()->getCapability("ObjectMedia");
+	bool has_media_capability = (!url.empty());
+	
+	if(!has_media_capability)
+	{
+		childSetEnabled("media_tex", FALSE);
+		childSetEnabled("add_media", FALSE);
+		childSetEnabled("delete_media", FALSE);
+		childSetEnabled("edit_media", FALSE);
+		childSetEnabled("media_info", FALSE);
+		media_info->setEnabled(FALSE);
+		media_info->clear();	
+		clearMediaSettings();
+		return;
+	}
+	
+	bool editable = (first_object->permModify());// && selectedMediaEditable());
 	
 	// Media settings
 	U8 has_media = (U8)0;
@@ -1011,24 +1072,104 @@ void LLFloaterTools::getMediaState()
 			return (object->getTE(face)->getMediaTexGen());
 		}
 	} func;
-	bool identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, has_media );
 	
+	// check if all faces have media(or, all dont have media)
+	LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo = selected_objects->getSelectedTEValue( &func, has_media );
+	bool bool_has_media = (has_media & LLTextureEntry::MF_HAS_MEDIA);
+
+	const LLMediaEntry default_media_data;
+	
+	struct functor_getter_media_data : public LLSelectedTEGetFunctor< LLMediaEntry>
+    {
+		functor_getter_media_data(const LLMediaEntry& entry): mMediaEntry(entry) {}	
+
+        LLMediaEntry get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return *(object->getTE(face)->getMediaData());
+			return mMediaEntry;
+        };
+		
+		const LLMediaEntry& mMediaEntry;
+		
+    } func_media_data(default_media_data);
+
+	LLMediaEntry media_data_get;
+    LLFloaterMediaSettings::getInstance()->mMultipleMedia = !(selected_objects->getSelectedTEValue( &func_media_data, media_data_get ));
+	
+	std::string multi_media_info_str = LLTrans::getString("Multiple Media");
+	std::string media_title = "";
 	// update UI depending on whether "object" (prim or face) has media
 	// and whether or not you are allowed to edit it.
-	bool bool_has_media = (has_media & LLTextureEntry::MF_HAS_MEDIA);
-	childSetEnabled("media_tex",  bool_has_media & editable);
-	childSetEnabled( "edit_media", bool_has_media & editable );
-	childSetEnabled( "delete_media", bool_has_media & editable );
-	childSetEnabled( "add_media", ( ! bool_has_media ) & editable );
+	
+	// IF all the faces have media (or all dont have media)
+	if ( LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo )
+	{
+		// TODO: get media title and set it.
+		media_info->clear();
+		// if identical is set, all faces are same (whether all empty or has the same media)
+		if(!(LLFloaterMediaSettings::getInstance()->mMultipleMedia) )
+		{
+			// Media data is valid
+			if(media_data_get!=default_media_data)
+			{
+				//TODO: get Meida title
+				//media_title =  media_data_get->getTile();
+				//LLFloaterMediaSettings::getInstance()->mIdenticalValidMedia = true;
+				media_title = media_data_get.getHomeURL();
+			}
+			// else all faces might be empty. 
+			
+			
+		}
+		else // there' re Different Medias' been set on on the faces.
+		{
+			media_title = multi_media_info_str;
+		}
+		
+		childSetEnabled("media_tex",  bool_has_media & editable);
+		childSetEnabled( "edit_media", bool_has_media & editable );
+		childSetEnabled( "delete_media", bool_has_media & editable );
+		childSetEnabled( "add_media", ( ! bool_has_media ) & editable );
+		media_info->setEnabled(bool_has_media & editable);
+			// TODO: display a list of all media on the face - use 'identical' flag
+	}
+	else // not all face has media but at least one does.
+	{
+		// seleted faces have not identical value
+		LLFloaterMediaSettings::getInstance()->mMultipleValidMedia = selected_objects->isMultipleTEValue(&func_media_data, default_media_data );
+	
+		if(LLFloaterMediaSettings::getInstance()->mMultipleValidMedia)
+		{
+			media_title = multi_media_info_str;
+		}
+		else
+		{
+			// Media data is valid
+			if(media_data_get!=default_media_data)
+			{
+				//TODO: get Meida title
+				//media_title =  media_data_get->getTile();
+				media_title = media_data_get.getHomeURL();
+			}
+			
+		}
+		
+		media_info->setEnabled(TRUE);
+		media_info->setTentative(true);
+		childSetEnabled("media_tex",  TRUE);
+		childSetEnabled( "edit_media", TRUE);
+		childSetEnabled( "delete_media", TRUE);
+		childSetEnabled( "add_media", FALSE );
+	}
+	media_info->setText(media_title);
 	
 	// load values for media settings
 	updateMediaSettings();
 	
-	// if identical is set, all faces are same
-	if ( identical )
-	{
-		// TODO: display a list of all media on the face - use 'identical' flag
-	};
+	LLFloaterMediaSettings::initValues(mMediaSettings, editable );
 }
 
 
@@ -1104,6 +1245,12 @@ bool LLFloaterTools::deleteMediaConfirm(const LLSD& notification, const LLSD& re
 	return false;
 }
 
+void LLFloaterTools::clearMediaSettings()
+{
+	LLFloaterMediaSettings::getInstance();
+	LLFloaterMediaSettings::clearValues(false);
+
+}
 //////////////////////////////////////////////////////////////////////////////
 //
 void LLFloaterTools::updateMediaSettings()
@@ -1116,23 +1263,26 @@ void LLFloaterTools::updateMediaSettings()
 	LLObjectSelectionHandle selected_objects =LLSelectMgr::getInstance()->getSelection();
     // TODO: (CP) refactor this using something clever or boost or both !!
 
-    LLMediaEntry default_media_data;
+    const LLMediaEntry default_media_data;
 
     // controls 
     U8 value_u8 = default_media_data.getControls();
     struct functor_getter_controls : public LLSelectedTEGetFunctor< U8 >
     {
+		functor_getter_controls(const LLMediaEntry &entry) : mMediaEntry(entry) {}
+		
         U8 get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getControls();
-            LLMediaEntry default_media_data;
-            return default_media_data.getControls();
+            return mMediaEntry.getControls();
         };
 		
-    } func_controls;
+		const LLMediaEntry & mMediaEntry;
+		
+    } func_controls(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_controls, value_u8 );
     base_key = std::string( LLMediaEntry::CONTROLS_KEY );
     mMediaSettings[ base_key ] = value_u8;
@@ -1142,17 +1292,20 @@ void LLFloaterTools::updateMediaSettings()
     value_bool = default_media_data.getFirstClickInteract();
     struct functor_getter_first_click : public LLSelectedTEGetFunctor< bool >
     {
+		functor_getter_first_click(const LLMediaEntry& entry): mMediaEntry(entry) {}		
+		
         bool get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getFirstClickInteract();
-            LLMediaEntry default_media_data;
-            return default_media_data.getFirstClickInteract();
+            return mMediaEntry.getFirstClickInteract();
         };
 		
-    } func_first_click;
+		const LLMediaEntry & mMediaEntry;
+		
+    } func_first_click(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_first_click, value_bool );
     base_key = std::string( LLMediaEntry::FIRST_CLICK_INTERACT_KEY );
     mMediaSettings[ base_key ] = value_bool;
@@ -1162,38 +1315,43 @@ void LLFloaterTools::updateMediaSettings()
     value_str = default_media_data.getHomeURL();
     struct functor_getter_home_url : public LLSelectedTEGetFunctor< std::string >
     {
+		functor_getter_home_url(const LLMediaEntry& entry): mMediaEntry(entry) {}		
+		
         std::string get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getHomeURL();
-            LLMediaEntry default_media_data;
-            return default_media_data.getHomeURL();
+            return mMediaEntry.getHomeURL();
         };
 		
-    } func_home_url;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_home_url(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_home_url, value_str );
     base_key = std::string( LLMediaEntry::HOME_URL_KEY );
     mMediaSettings[ base_key ] = value_str;
     mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
-	llwarns<<"Angela debug : home url string == "<<value_str<<llendl;
 	
     // Current URL
     value_str = default_media_data.getCurrentURL();
     struct functor_getter_current_url : public LLSelectedTEGetFunctor< std::string >
     {
-        std::string get( LLViewerObject* object, S32 face )
+		functor_getter_current_url(const LLMediaEntry& entry): mMediaEntry(entry) {}
+        
+		std::string get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getCurrentURL();
-            LLMediaEntry default_media_data;
-            return default_media_data.getCurrentURL();
+            return mMediaEntry.getCurrentURL();
         };
 		
-    } func_current_url;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_current_url(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_current_url, value_str );
     base_key = std::string( LLMediaEntry::CURRENT_URL_KEY );
     mMediaSettings[ base_key ] = value_str;
@@ -1203,17 +1361,21 @@ void LLFloaterTools::updateMediaSettings()
     value_bool = default_media_data.getAutoZoom();
     struct functor_getter_auto_zoom : public LLSelectedTEGetFunctor< bool >
     {
+		
+		functor_getter_auto_zoom(const LLMediaEntry& entry)	: mMediaEntry(entry) {}	
+		
         bool get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getAutoZoom();
-            LLMediaEntry default_media_data;
-            return default_media_data.getAutoZoom();
+            return mMediaEntry.getAutoZoom();
         };
 		
-    } func_auto_zoom;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_auto_zoom(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_auto_zoom, value_bool );
     base_key = std::string( LLMediaEntry::AUTO_ZOOM_KEY );
     mMediaSettings[ base_key ] = value_bool;
@@ -1223,37 +1385,44 @@ void LLFloaterTools::updateMediaSettings()
     value_bool = default_media_data.getAutoPlay();
     struct functor_getter_auto_play : public LLSelectedTEGetFunctor< bool >
     {
+		functor_getter_auto_play(const LLMediaEntry& entry)	: mMediaEntry(entry) {}	
+			
         bool get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getAutoPlay();
-			LLMediaEntry default_media_data;
-            return default_media_data.getAutoPlay();
+            return mMediaEntry.getAutoPlay();
         };
 		
-    } func_auto_play;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_auto_play(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_auto_play, value_bool );
     base_key = std::string( LLMediaEntry::AUTO_PLAY_KEY );
     mMediaSettings[ base_key ] = value_bool;
     mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
 	
+	
     // Auto scale
     value_bool = default_media_data.getAutoScale();
     struct functor_getter_auto_scale : public LLSelectedTEGetFunctor< bool >
     {
+		functor_getter_auto_scale(const LLMediaEntry& entry): mMediaEntry(entry) {}	
+
         bool get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getAutoScale();
-			LLMediaEntry default_media_data;
-            return default_media_data.getAutoScale();;
+            return mMediaEntry.getAutoScale();;
         };
 		
-    } func_auto_scale;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_auto_scale(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_auto_scale, value_bool );
     base_key = std::string( LLMediaEntry::AUTO_SCALE_KEY );
     mMediaSettings[ base_key ] = value_bool;
@@ -1263,17 +1432,20 @@ void LLFloaterTools::updateMediaSettings()
     value_bool = default_media_data.getAutoLoop();
     struct functor_getter_auto_loop : public LLSelectedTEGetFunctor< bool >
     {
+		functor_getter_auto_loop(const LLMediaEntry& entry)	: mMediaEntry(entry) {}	
+
         bool get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getAutoLoop();
-			LLMediaEntry default_media_data;
-            return default_media_data.getAutoLoop();
+            return mMediaEntry.getAutoLoop();
         };
 		
-    } func_auto_loop;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_auto_loop(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_auto_loop, value_bool );
     base_key = std::string( LLMediaEntry::AUTO_LOOP_KEY );
     mMediaSettings[ base_key ] = value_bool;
@@ -1283,17 +1455,20 @@ void LLFloaterTools::updateMediaSettings()
     value_int = default_media_data.getWidthPixels();
     struct functor_getter_width_pixels : public LLSelectedTEGetFunctor< int >
     {
+		functor_getter_width_pixels(const LLMediaEntry& entry): mMediaEntry(entry) {}		
+
         int get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getWidthPixels();
-			LLMediaEntry default_media_data;
-            return default_media_data.getWidthPixels();
+            return mMediaEntry.getWidthPixels();
         };
 		
-    } func_width_pixels;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_width_pixels(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_width_pixels, value_int );
     base_key = std::string( LLMediaEntry::WIDTH_PIXELS_KEY );
     mMediaSettings[ base_key ] = value_int;
@@ -1303,17 +1478,20 @@ void LLFloaterTools::updateMediaSettings()
     value_int = default_media_data.getHeightPixels();
     struct functor_getter_height_pixels : public LLSelectedTEGetFunctor< int >
     {
-        int get( LLViewerObject* object, S32 face )
+		functor_getter_height_pixels(const LLMediaEntry& entry)	: mMediaEntry(entry) {}
+        
+		int get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getHeightPixels();
-			LLMediaEntry default_media_data;
-            return default_media_data.getHeightPixels();
+            return mMediaEntry.getHeightPixels();
         };
 		
-    } func_height_pixels;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_height_pixels(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_height_pixels, value_int );
     base_key = std::string( LLMediaEntry::HEIGHT_PIXELS_KEY );
     mMediaSettings[ base_key ] = value_int;
@@ -1323,17 +1501,20 @@ void LLFloaterTools::updateMediaSettings()
     value_bool = default_media_data.getAltImageEnable();
     struct functor_getter_enable_alt_image : public LLSelectedTEGetFunctor< bool >
     {
-        bool get( LLViewerObject* object, S32 face )
+		functor_getter_enable_alt_image(const LLMediaEntry& entry): mMediaEntry(entry) {}
+        
+		bool get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getAltImageEnable();
-			LLMediaEntry default_media_data;
-            return default_media_data.getAltImageEnable();
+            return mMediaEntry.getAltImageEnable();
         };
 		
-    } func_enable_alt_image;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_enable_alt_image(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_enable_alt_image, value_bool );
     base_key = std::string( LLMediaEntry::ALT_IMAGE_ENABLE_KEY );
     mMediaSettings[ base_key ] = value_bool;
@@ -1343,17 +1524,20 @@ void LLFloaterTools::updateMediaSettings()
     value_bool = 0 != ( default_media_data.getPermsInteract() & LLMediaEntry::PERM_OWNER );
     struct functor_getter_perms_owner_interact : public LLSelectedTEGetFunctor< bool >
     {
-        bool get( LLViewerObject* object, S32 face )
+		functor_getter_perms_owner_interact(const LLMediaEntry& entry): mMediaEntry(entry) {}
+        
+		bool get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return (0 != (object->getTE(face)->getMediaData()->getPermsInteract() & LLMediaEntry::PERM_OWNER));
-			LLMediaEntry default_media_data;
-            return 0 != ( default_media_data.getPermsInteract() & LLMediaEntry::PERM_OWNER );
+            return 0 != ( mMediaEntry.getPermsInteract() & LLMediaEntry::PERM_OWNER );
         };
 		
-    } func_perms_owner_interact;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_perms_owner_interact(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_perms_owner_interact, value_bool );
     base_key = std::string( LLPanelContents::PERMS_OWNER_INTERACT_KEY );
     mMediaSettings[ base_key ] = value_bool;
@@ -1363,17 +1547,20 @@ void LLFloaterTools::updateMediaSettings()
     value_bool = 0 != ( default_media_data.getPermsControl() & LLMediaEntry::PERM_OWNER );
     struct functor_getter_perms_owner_control : public LLSelectedTEGetFunctor< bool >
     {
+		functor_getter_perms_owner_control(const LLMediaEntry& entry)	: mMediaEntry(entry) {}
+        
         bool get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return (0 != (object->getTE(face)->getMediaData()->getPermsControl() & LLMediaEntry::PERM_OWNER));
-			LLMediaEntry default_media_data;
-            return 0 != ( default_media_data.getPermsControl() & LLMediaEntry::PERM_OWNER );
+            return 0 != ( mMediaEntry.getPermsControl() & LLMediaEntry::PERM_OWNER );
         };
 		
-    } func_perms_owner_control;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_perms_owner_control(default_media_data);
     identical = selected_objects ->getSelectedTEValue( &func_perms_owner_control, value_bool );
     base_key = std::string( LLPanelContents::PERMS_OWNER_CONTROL_KEY );
     mMediaSettings[ base_key ] = value_bool;
@@ -1383,17 +1570,20 @@ void LLFloaterTools::updateMediaSettings()
     value_bool = 0 != ( default_media_data.getPermsInteract() & LLMediaEntry::PERM_GROUP );
     struct functor_getter_perms_group_interact : public LLSelectedTEGetFunctor< bool >
     {
+		functor_getter_perms_group_interact(const LLMediaEntry& entry): mMediaEntry(entry) {}
+        
         bool get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return (0 != (object->getTE(face)->getMediaData()->getPermsInteract() & LLMediaEntry::PERM_GROUP));
-			LLMediaEntry default_media_data;
-            return 0 != ( default_media_data.getPermsInteract() & LLMediaEntry::PERM_GROUP );
+            return 0 != ( mMediaEntry.getPermsInteract() & LLMediaEntry::PERM_GROUP );
         };
 		
-    } func_perms_group_interact;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_perms_group_interact(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_perms_group_interact, value_bool );
     base_key = std::string( LLPanelContents::PERMS_GROUP_INTERACT_KEY );
     mMediaSettings[ base_key ] = value_bool;
@@ -1403,17 +1593,20 @@ void LLFloaterTools::updateMediaSettings()
     value_bool = 0 != ( default_media_data.getPermsControl() & LLMediaEntry::PERM_GROUP );
     struct functor_getter_perms_group_control : public LLSelectedTEGetFunctor< bool >
     {
+		functor_getter_perms_group_control(const LLMediaEntry& entry): mMediaEntry(entry) {}
+        
         bool get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return (0 != (object->getTE(face)->getMediaData()->getPermsControl() & LLMediaEntry::PERM_GROUP));
-			LLMediaEntry default_media_data;
-            return 0 != ( default_media_data.getPermsControl() & LLMediaEntry::PERM_GROUP );
+            return 0 != ( mMediaEntry.getPermsControl() & LLMediaEntry::PERM_GROUP );
         };
 		
-    } func_perms_group_control;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_perms_group_control(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_perms_group_control, value_bool );
     base_key = std::string( LLPanelContents::PERMS_GROUP_CONTROL_KEY );
     mMediaSettings[ base_key ] = value_bool;
@@ -1423,17 +1616,20 @@ void LLFloaterTools::updateMediaSettings()
     value_bool = 0 != ( default_media_data.getPermsInteract() & LLMediaEntry::PERM_ANYONE );
     struct functor_getter_perms_anyone_interact : public LLSelectedTEGetFunctor< bool >
     {
+		functor_getter_perms_anyone_interact(const LLMediaEntry& entry): mMediaEntry(entry) {}
+        
         bool get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return (0 != (object->getTE(face)->getMediaData()->getPermsInteract() & LLMediaEntry::PERM_ANYONE));
-			LLMediaEntry default_media_data;
-            return 0 != ( default_media_data.getPermsInteract() & LLMediaEntry::PERM_ANYONE );
+            return 0 != ( mMediaEntry.getPermsInteract() & LLMediaEntry::PERM_ANYONE );
         };
 		
-    } func_perms_anyone_interact;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_perms_anyone_interact(default_media_data);
     identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func_perms_anyone_interact, value_bool );
     base_key = std::string( LLPanelContents::PERMS_ANYONE_INTERACT_KEY );
     mMediaSettings[ base_key ] = value_bool;
@@ -1443,17 +1639,20 @@ void LLFloaterTools::updateMediaSettings()
     value_bool = 0 != ( default_media_data.getPermsControl() & LLMediaEntry::PERM_ANYONE );
     struct functor_getter_perms_anyone_control : public LLSelectedTEGetFunctor< bool >
     {
+		functor_getter_perms_anyone_control(const LLMediaEntry& entry)	: mMediaEntry(entry) {}
+        
         bool get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return (0 != (object->getTE(face)->getMediaData()->getPermsControl() & LLMediaEntry::PERM_ANYONE));
-			LLMediaEntry default_media_data;
-            return 0 != ( default_media_data.getPermsControl() & LLMediaEntry::PERM_ANYONE );
+            return 0 != ( mMediaEntry.getPermsControl() & LLMediaEntry::PERM_ANYONE );
         };
 		
-    } func_perms_anyone_control;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_perms_anyone_control(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_perms_anyone_control, value_bool );
     base_key = std::string( LLPanelContents::PERMS_ANYONE_CONTROL_KEY );
     mMediaSettings[ base_key ] = value_bool;
@@ -1463,17 +1662,20 @@ void LLFloaterTools::updateMediaSettings()
     value_bool = default_media_data.getWhiteListEnable();
     struct functor_getter_whitelist_enable : public LLSelectedTEGetFunctor< bool >
     {
+		functor_getter_whitelist_enable(const LLMediaEntry& entry)	: mMediaEntry(entry) {}
+        
         bool get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getWhiteListEnable();
-			LLMediaEntry default_media_data;
-            return default_media_data.getWhiteListEnable();
+            return mMediaEntry.getWhiteListEnable();
         };
 		
-    } func_whitelist_enable;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_whitelist_enable(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_whitelist_enable, value_bool );
     base_key = std::string( LLMediaEntry::WHITELIST_ENABLE_KEY );
     mMediaSettings[ base_key ] = value_bool;
@@ -1483,17 +1685,20 @@ void LLFloaterTools::updateMediaSettings()
     std::vector<std::string> value_vector_str = default_media_data.getWhiteList();
     struct functor_getter_whitelist_urls : public LLSelectedTEGetFunctor< std::vector<std::string> >
     {
+		functor_getter_whitelist_urls(const LLMediaEntry& entry): mMediaEntry(entry) {}
+        
         std::vector<std::string> get( LLViewerObject* object, S32 face )
         {
             if ( object )
                 if ( object->getTE(face) )
                     if ( object->getTE(face)->getMediaData() )
                         return object->getTE(face)->getMediaData()->getWhiteList();
-            LLMediaEntry default_media_data;
-            return default_media_data.getWhiteList();
+            return mMediaEntry.getWhiteList();
         };
 		
-    } func_whitelist_urls;
+		const LLMediaEntry &  mMediaEntry;
+		
+    } func_whitelist_urls(default_media_data);
     identical = selected_objects->getSelectedTEValue( &func_whitelist_urls, value_vector_str );
     base_key = std::string( LLMediaEntry::WHITELIST_KEY );
 	mMediaSettings[ base_key ].clear();

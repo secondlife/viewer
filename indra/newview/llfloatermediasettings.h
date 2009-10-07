@@ -50,11 +50,15 @@ public:
 	virtual BOOL postBuild();
 	static LLFloaterMediaSettings* getInstance();
 	static void apply();
-	static void initValues( const LLSD& media_settings );
-	static void clearValues();
+	static void initValues( const LLSD& media_settings , bool editable);
+	static void clearValues( bool editable);
 	void enableOkApplyBtns( bool enable );
 	LLPanelMediaSettingsSecurity* getPanelSecurity(){return mPanelMediaSettingsSecurity;};
 
+	bool mIdenticalHasMediaInfo;
+	bool mMultipleMedia;
+	bool mMultipleValidMedia;
+	
 protected:
 	LLButton *mOKBtn;
 	LLButton *mCancelBtn;
@@ -64,6 +68,7 @@ protected:
 	LLPanelMediaSettingsGeneral* mPanelMediaSettingsGeneral;
 	LLPanelMediaSettingsSecurity* mPanelMediaSettingsSecurity;
 	LLPanelMediaSettingsPermissions* mPanelMediaSettingsPermissions;
+
 
 	void		onClose();
 	static void onBtnOK(void*);

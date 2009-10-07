@@ -2184,6 +2184,9 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="'">'</string>	
 	<string name="---">---</string>										
 
+	<!-- media -->
+	<string name="Multiple Media">Multiple Media</string>
+	
 	<!-- OSMessageBox messages -->
 	<string name="MBCmdLineError">
 		An error was found parsing the command line.

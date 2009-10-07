@@ -49,7 +49,8 @@
 #include "llselectmgr.h"
 #include "llmediaentry.h"
 #include "llnamebox.h"
-
+#include "lltrans.h"
+#include "llfloatermediasettings.h"
 ////////////////////////////////////////////////////////////////////////////////
 //
 LLPanelMediaSettingsPermissions::LLPanelMediaSettingsPermissions() :
@@ -119,7 +120,7 @@ void LLPanelMediaSettingsPermissions::draw()
 
 ////////////////////////////////////////////////////////////////////////////////
 // static 
-void LLPanelMediaSettingsPermissions::clearValues( void* userdata )
+void LLPanelMediaSettingsPermissions::clearValues( void* userdata, bool editable)
 {	
 	LLPanelMediaSettingsPermissions *self =(LLPanelMediaSettingsPermissions *)userdata;
 	self->mPermsOwnerInteract->clear();
@@ -128,16 +129,41 @@ void LLPanelMediaSettingsPermissions::clearValues( void* userdata )
 	self->mPermsGroupControl->clear();
 	self->mPermsWorldInteract ->clear();
 	self->mPermsWorldControl ->clear();
-//	mPermsGroupName ->setValue(0);
-
+	
+	self->mPermsOwnerInteract->setEnabled(editable);
+	self->mPermsOwnerControl ->setEnabled(editable);
+	self->mPermsGroupInteract->setEnabled(editable);
+	self->mPermsGroupControl ->setEnabled(editable);
+	self->mPermsWorldInteract->setEnabled(editable);
+	self->mPermsWorldControl ->setEnabled(editable);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // static 
-void LLPanelMediaSettingsPermissions::initValues( void* userdata, const LLSD& media_settings )
+void LLPanelMediaSettingsPermissions::initValues( void* userdata, const LLSD& media_settings ,  bool editable)
 {
     LLPanelMediaSettingsPermissions *self =(LLPanelMediaSettingsPermissions *)userdata;
 
+	if ( LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo )
+	{
+		if(LLFloaterMediaSettings::getInstance()->mMultipleMedia) 
+		{
+			self->clearValues(self, editable);
+			// only show multiple 
+			return;
+		}
+		
+	}
+	else
+	{
+		if(LLFloaterMediaSettings::getInstance()->mMultipleValidMedia) 
+		{
+			self->clearValues(self, editable);
+			// only show multiple 
+			return;
+		}			
+		
+	}
     std::string base_key( "" );
     std::string tentative_key( "" );
 
@@ -178,10 +204,17 @@ void LLPanelMediaSettingsPermissions::initValues( void* userdata, const LLSD& me
             if ( data_set[ i ].ctrl_type == "LLComboBox" )
                 static_cast< LLComboBox* >( data_set[ i ].ctrl_ptr )->
                     setCurrentByIndex( media_settings[ base_key ].asInteger() );
-
+			data_set[ i ].ctrl_ptr->setEnabled(editable);
             data_set[ i ].ctrl_ptr->setTentative( media_settings[ tentative_key ].asBoolean() );
         };
     };
+	self->childSetEnabled("media_perms_label_owner", editable );
+	self->childSetText("media_perms_label_owner",  LLTrans::getString("Media Perms Owner") );
+	self->childSetEnabled("media_perms_label_group", editable );
+	self->childSetText("media_perms_label_group",  LLTrans::getString("Media Perms Group") );
+	self->childSetEnabled("media_perms_label_anyone", editable );
+	self->childSetText("media_perms_label_anyone", LLTrans::getString("Media Perms Anyone") );
+	
 }
 
 ////////////////////////////////////////////////////////////////////////////////

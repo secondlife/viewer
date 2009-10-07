@@ -44,7 +44,7 @@
 #include "llselectmgr.h"
 #include "llmediaentry.h"
 #include "llfloaterwhitelistentry.h"
-
+#include "llfloatermediasettings.h"
 ////////////////////////////////////////////////////////////////////////////////
 //
 LLPanelMediaSettingsSecurity::LLPanelMediaSettingsSecurity()
@@ -110,10 +110,30 @@ void LLPanelMediaSettingsSecurity::draw()
 
 ////////////////////////////////////////////////////////////////////////////////
 // static 
-void LLPanelMediaSettingsSecurity::initValues( void* userdata, const LLSD& media_settings )
+void LLPanelMediaSettingsSecurity::initValues( void* userdata, const LLSD& media_settings , bool editable)
 {
 	LLPanelMediaSettingsSecurity *self =(LLPanelMediaSettingsSecurity *)userdata;
 
+	if ( LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo )
+	{
+		if(LLFloaterMediaSettings::getInstance()->mMultipleMedia) 
+		{
+			self->clearValues(self, editable);
+			// only show multiple 
+			return;
+		}
+		
+	}
+	else
+	{
+		if(LLFloaterMediaSettings::getInstance()->mMultipleValidMedia) 
+		{
+			self->clearValues(self, editable);
+			// only show multiple 
+			return;
+		}			
+		
+	}
 	std::string base_key( "" );
 	std::string tentative_key( "" );
 
@@ -163,7 +183,7 @@ void LLPanelMediaSettingsSecurity::initValues( void* userdata, const LLSD& media
 					++iter;
 				};
 			};
-
+			data_set[ i ].ctrl_ptr->setEnabled(editable);
 			data_set[ i ].ctrl_ptr->setTentative( media_settings[ tentative_key ].asBoolean() );
 		};
 	};
@@ -171,11 +191,13 @@ void LLPanelMediaSettingsSecurity::initValues( void* userdata, const LLSD& media
 
 ////////////////////////////////////////////////////////////////////////////////
 // static 
-void LLPanelMediaSettingsSecurity::clearValues( void* userdata )
+void LLPanelMediaSettingsSecurity::clearValues( void* userdata , bool editable)
 {
 	LLPanelMediaSettingsSecurity *self =(LLPanelMediaSettingsSecurity *)userdata;
 	self->mEnableWhiteList->clear();
 	self->mWhiteListList->deleteAllItems();
+	self->mEnableWhiteList->setEnabled(editable);
+	self->mWhiteListList->setEnabled(editable);
 }
 ////////////////////////////////////////////////////////////////////////////////
 // static

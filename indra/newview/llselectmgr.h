@@ -279,7 +279,8 @@ public:
 
 	// iterate through texture entries
 	template <typename T> bool getSelectedTEValue(LLSelectedTEGetFunctor<T>* func, T& res);
-		
+	template <typename T> bool isMultipleTEValue(LLSelectedTEGetFunctor<T>* func, const T& ignore_value);
+	
 	void addNode(LLSelectNode *nodep);
 	void addNodeAtEnd(LLSelectNode *nodep);
 	void moveNodeToFront(LLSelectNode *nodep);
@@ -783,6 +784,53 @@ template <typename T> bool LLObjectSelection::getSelectedTEValue(LLSelectedTEGet
 		res = selected_value;
 	}
 	return identical;
+}
+
+// Templates
+//-----------------------------------------------------------------------------
+// isMultipleTEValue iterate through all TEs and test for uniqueness 
+// with certain return value ignored when performing the test. 
+// e.g. when testing if the selection has a unique non-empty homeurl :
+// you can set ignore_value = "" and it will only compare among the non-empty  
+// homeUrls and ignore the empty ones.
+//-----------------------------------------------------------------------------
+template <typename T> bool LLObjectSelection::isMultipleTEValue(LLSelectedTEGetFunctor<T>* func, const T& ignore_value)
+{
+	bool have_first = false;
+	T selected_value = T();
+	
+	// Now iterate through all TEs to test for sameness
+	bool unique = TRUE;
+	for (iterator iter = begin(); iter != end(); iter++)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		for (S32 te = 0; te < object->getNumTEs(); ++te)
+		{
+			if (!node->isTESelected(te))
+			{
+				continue;
+			}
+			T value = func->get(object, te);
+			if(value == ignore_value)
+			{
+				continue;
+			}
+			if (!have_first)
+			{
+				have_first = true;
+			}
+			else
+			{
+				if (value !=selected_value  )
+				{
+					unique = false;
+					return !unique;
+				}
+			}
+		}
+	}
+	return !unique;
 }
 
 

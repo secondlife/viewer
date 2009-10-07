@@ -786,8 +786,8 @@ void LLPanelFace::getState()
 
 		childSetEnabled("button align",FALSE);
 		childSetEnabled("button apply",FALSE);
-		childSetEnabled("has media", FALSE);
-		childSetEnabled("media info set", FALSE);
+		//childSetEnabled("has media", FALSE);
+		//childSetEnabled("media info set", FALSE);
 		
 	}
 }

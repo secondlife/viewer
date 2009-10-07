@@ -105,7 +105,8 @@ public:
 	void onClickBtnDeleteMedia();
 	void onClickBtnAddMedia();
 	void onClickBtnEditMedia();
-	
+	void clearMediaSettings();
+	bool selectedMediaEditable();
 
 private:
 	void onClose();
