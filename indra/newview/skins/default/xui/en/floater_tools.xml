@@ -66,8 +66,8 @@
      follows="left|top"
      height="20"
      image_disabled="Tool_Zoom"
-     image_disabled_selected="tool_zoom_active.tga"
-     image_selected="tool_zoom_active.tga"
+     image_disabled_selected="Tool_Zoom"
+     image_selected="Tool_Zoom"
      image_unselected="Tool_Zoom"
      layout="topleft"
      left="10"
@@ -83,8 +83,8 @@
      follows="left|top"
      height="20"
      image_disabled="Tool_Grab"
-     image_disabled_selected="tool_grab_active.tga"
-     image_selected="tool_grab_active.tga"
+     image_disabled_selected="Tool_Grab"
+     image_selected="Tool_Grab"
      image_unselected="Tool_Grab"
      layout="topleft"
      left_pad="8"
@@ -100,8 +100,8 @@
      follows="left|top"
      height="20"
      image_disabled="Tool_Face"
-     image_disabled_selected="tool_face_active.tga"
-     image_selected="tool_face_active.tga"
+     image_disabled_selected="Tool_Face"
+     image_selected="Tool_Face"
      image_unselected="Tool_Face"
      layout="topleft"
      left_pad="8"
@@ -117,8 +117,8 @@
      follows="left|top"
      height="20"
      image_disabled="Tool_Create"
-     image_disabled_selected="tool_create_active.tga"
-     image_selected="tool_create_active.tga"
+     image_disabled_selected="Tool_Create"
+     image_selected="Tool_Create"
      image_unselected="Tool_Create"
      layout="topleft"
      left_pad="8"
@@ -134,8 +134,8 @@
      follows="left|top"
      height="20"
      image_disabled="Tool_Dozer"
-     image_disabled_selected="tool_dozer_active.tga"
-     image_selected="tool_dozer_active.tga"
+     image_disabled_selected="Tool_Dozer"
+     image_selected="Tool_Dozer"
      image_unselected="Tool_Dozer"
      layout="topleft"
      left_pad="8"
@@ -148,6 +148,9 @@
 	     parameter="Land" />
 	</button>
     <text
+     height="30"
+     word_wrap="true"
+     use_ellipses="true"
      type="string"
      text_color="LabelSelectedDisabledColor"
      length="1"
@@ -156,7 +159,7 @@
      left="8"
      name="text status"
      top_pad="3"
-     width="280">
+     width="275">
         Drag to move, shift-drag to copy
     </text>
    <radio_group
@@ -251,39 +254,17 @@
 	     function="BuildTool.commitRadioEdit"/>
     </radio_group>
     <check_box
-      left="10"
+     left="10"
      follows="left|top"
+     height="16"
       control_name="EditLinkedParts"
      label="Edit linked"
      layout="topleft"
      name="checkbox edit linked parts" >
 		  <check_box.commit_callback
 	     function="BuildTool.selectComponent"/>
-	</check_box>	 
-    <combo_box
-     height="19"
-     left="10"
-     layout="topleft"
-     follows="left|top"
-     top_pad="0"
-     name="combobox grid mode"
-     width="120">
-        <combo_box.item
-         label="World ruler"
-         name="World"
-         value="World" />
-        <combo_box.item
-         label="Local ruler"
-         name="Local"
-         value="Local" />
-        <combo_box.item
-         label="Reference ruler"
-         name="Reference"
-         value="Reference" />
-		 <combo_box.commit_callback
-	     function="BuildTool.gridMode"/>
-    </combo_box>
-    <check_box
+	</check_box>
+        <check_box
      control_name="ScaleUniform"
      height="19"
      label="Stretch Both Sides"
@@ -301,26 +282,51 @@
      name="checkbox stretch textures"
      top_pad="0"
      width="134" />
-    <check_box
+   <check_box
      control_name="SnapEnabled"
-     height="19"
+     height="20"
      initial_value="true"
-     label="Snap to Grid"
+     label="Snap to grid"
      layout="topleft"
+     top_pad="0"
      name="checkbox snap to grid"
-     top_pad="0"
      width="134" />
-    <button
-     left="163"
-     top_pad="0"
-     image_overlay="Arrow_Right_Off"
+    <combo_box
+     height="20"
+     layout="topleft"
+     follows="left|top"
+     top_pad="4"
+     name="combobox grid mode"
+     width="108">
+        <combo_box.item
+         label="World grid"
+         name="World"
+         value="World" />
+        <combo_box.item
+         label="Local grid"
+         name="Local"
+         value="Local" />
+        <combo_box.item
+         label="Reference grid"
+         name="Reference"
+         value="Reference" />
+		 <combo_box.commit_callback
+	     function="BuildTool.gridMode"/>
+    </combo_box>
+   <button
+     left_pad="0"
+     right="-12"
+     image_disabled="ForwardArrow_Disabled"
+     image_selected="ForwardArrow_Press"
+     image_unselected="ForwardArrow_Off"
      picture_style="true"
      label_selected="Options"
      layout="topleft"
      name="Options..."
-     tool_tip="Set the Grid Options"
-     width="26"
-     height="22" >
+     tool_tip="Grid Options"
+     top_delta="0"
+     width="18"
+     height="18" >
 	 <button.commit_callback
 	     function="BuildTool.gridOptions"/>
 	</button>
@@ -328,8 +334,8 @@
      follows="left|top"
      height="20"
      image_disabled="Object_Cube"
-     image_disabled_selected="object_cube_active.tga"
-     image_selected="object_cube_active.tga"
+     image_disabled_selected="Object_Cube"
+     image_selected="Object_Cube"
      image_unselected="Object_Cube"
      layout="topleft"
      left="4"
@@ -342,8 +348,8 @@
      follows="left|top"
      height="20"
      image_disabled="Object_Prism"
-     image_disabled_selected="object_prism_active.tga"
-     image_selected="object_prism_active.tga"
+     image_disabled_selected="Object_Prism"
+     image_selected="Object_Prism"
      image_unselected="Object_Prism"
      layout="topleft"
      left_delta="26"
@@ -384,8 +390,8 @@
      follows="left|top"
      height="20"
      image_disabled="Object_Cylinder"
-     image_disabled_selected="object_cylinder_active.tga"
-     image_selected="object_cylinder_active.tga"
+     image_disabled_selected="Object_Cylinder"
+     image_selected="Object_Cylinder"
      image_unselected="Object_Cylinder"
      layout="topleft"
      left_delta="26"
@@ -398,8 +404,8 @@
      follows="left|top"
      height="20"
      image_disabled="Object_Hemi_Cylinder"
-     image_disabled_selected="object_hemi_cylinder_active.tga"
-     image_selected="object_hemi_cylinder_active.tga"
+     image_disabled_selected="Object_Hemi_Cylinder"
+     image_selected="Object_Hemi_Cylinder"
      image_unselected="Object_Hemi_Cylinder"
      layout="topleft"
      left_delta="26"
@@ -412,8 +418,8 @@
      follows="left|top"
      height="20"
      image_disabled="Object_Cone"
-     image_disabled_selected="object_cone_active.tga"
-     image_selected="object_cone_active.tga"
+     image_disabled_selected="Object_Cone"
+     image_selected="Object_Cone"
      image_unselected="Object_Cone"
      layout="topleft"
      left_delta="26"
@@ -426,8 +432,8 @@
      follows="left|top"
      height="20"
      image_disabled="Object_Hemi_Cone"
-     image_disabled_selected="object_hemi_cone_active.tga"
-     image_selected="object_hemi_cone_active.tga"
+     image_disabled_selected="Object_Hemi_Cone"
+     image_selected="Object_Hemi_Cone"
      image_unselected="Object_Hemi_Cone"
      layout="topleft"
      left_delta="26"
@@ -440,8 +446,8 @@
      follows="left|top"
      height="20"
      image_disabled="Object_Sphere"
-     image_disabled_selected="object_sphere_active.tga"
-     image_selected="object_sphere_active.tga"
+     image_disabled_selected="Object_Sphere"
+     image_selected="Object_Sphere"
      image_unselected="Object_Sphere"
      layout="topleft"
      left_delta="26"
@@ -454,8 +460,8 @@
      follows="left|top"
      height="20"
      image_disabled="Object_Hemi_Sphere"
-     image_disabled_selected="object_hemi_sphere_active.tga"
-     image_selected="object_hemi_sphere_active.tga"
+     image_disabled_selected="Object_Hemi_Sphere"
+     image_selected="Object_Hemi_Sphere"
      image_unselected="Object_Hemi_Sphere"
      layout="topleft"
      left_delta="26"
@@ -468,8 +474,8 @@
      follows="left|top"
      height="20"
      image_disabled="Object_Torus"
-     image_disabled_selected="object_torus_active.tga"
-     image_selected="object_torus_active.tga"
+     image_disabled_selected="Object_Torus"
+     image_selected="Object_Torus"
      image_unselected="Object_Torus"
      layout="topleft"
      left="4"
@@ -482,8 +488,8 @@
      follows="left|top"
      height="20"
      image_disabled="Object_Tube"
-     image_disabled_selected="object_tube_active.tga"
-     image_selected="object_tube_active.tga"
+     image_disabled_selected="Object_Tube"
+     image_selected="Object_Tube"
      image_unselected="Object_Tube"
      layout="topleft"
      left_delta="26"
@@ -496,8 +502,8 @@
      follows="left|top"
      height="20"
      image_disabled="Object_Ring"
-     image_disabled_selected="object_ring_active.tga"
-     image_selected="object_ring_active.tga"
+     image_disabled_selected="Object_Ring"
+     image_selected="Object_Ring"
      image_unselected="Object_Ring"
      layout="topleft"
      left_delta="26"
@@ -510,8 +516,8 @@
      follows="left|top"
      height="20"
      image_disabled="Object_Tree"
-     image_disabled_selected="object_tree_active.tga"
-     image_selected="object_tree_active.tga"
+     image_disabled_selected="Object_Tree"
+     image_selected="Object_Tree"
      image_unselected="Object_Tree"
      layout="topleft"
      left_delta="26"
@@ -524,8 +530,8 @@
      follows="left|top"
      height="20"
      image_disabled="Object_Grass"
-     image_disabled_selected="object_grass_active.tga"
-     image_selected="object_grass_active.tga"
+     image_disabled_selected="Object_Grass"
+     image_selected="Object_Grass"
      image_unselected="Object_Grass"
      layout="topleft"
      left_delta="26"
@@ -718,13 +724,13 @@
      type="string"
      text_color="LabelSelectedDisabledColor"
      length="1"
-     top_pad="4"
      height="12"
      follows="left|top"
      halign="right"
      layout="topleft"
-     left="115"
+     right="-13"
      name="obj_count"
+     top_pad="8"
      width="143">
         Objects: [COUNT]
     </text>
@@ -735,6 +741,7 @@
      follows="left|top"
      halign="right"
      layout="topleft"
+     right="-13"
      name="prim_count"
      width="143">
         Prims: [COUNT]
@@ -784,7 +791,7 @@
             </panel.string>
             <panel.string
              name="text modify warning">
-                You must select entire object to set permissions
+                This object has linked parts
             </panel.string>
             <panel.string
              name="Cost Default">
@@ -827,7 +834,7 @@
              name="Object Name"
              select_on_focus="true"
              top_delta="0"
-             width="165" />
+             width="170" />
             <text
              type="string"
              length="1"
@@ -849,7 +856,7 @@
              name="Object Description"
              select_on_focus="true"
              top_delta="0"
-             width="165" />
+             width="170" />
             <text
              type="string"
              left="10"
@@ -884,7 +891,7 @@
              width="90">
                 Owner:
             </text>
-<!--TODO: add person inspector to creator name-->
+<!--TODO: add person inspector to owner name-->
             <text
              type="string"
              length="1"
@@ -902,41 +909,48 @@
              follows="left|top"
              layout="topleft"
              left="10"
-             height="19"
+             height="18"
              name="Group:"
-             width="70">
+             top_pad="5"
+             width="75">
                 Group:
             </text>
+           <button
+     follows="top|left"
+     height="10"
+     image_disabled="Activate_Checkmark"
+     image_selected="Activate_Checkmark"
+     image_unselected="Activate_Checkmark"
+     image_color="White_50"
+     layout="topleft"
+             left_pad="0"
+             top_delta="2"
+     name="button set group"
+     picture_style="true"
+     tab_stop="false"
+     tool_tip="Choose a group to share this object's permissions"
+     width="10" />
             <name_box
              follows="left|top"
-             height="19"
+             height="18"
              initial_value="Loading..."
              layout="topleft"
-             left_pad="0"
+             left_pad="4"
+             top_delta="-1"
              name="Group Name Proxy"
-             width="159" />
-             <button
-             follows="left|top"
-            left_pad="0"
-     image_overlay="Arrow_Right_Off"
-     picture_style="true"
-     layout="topleft"
-     name="button set group"
-     tool_tip="Choose a group to share this object's permissions"
-     width="26"
-     height="22" />
+             width="150" />
             <button
              follows="top|left"
              font="SansSerifSmall"
-             height="19"
+             height="20"
              label="Deed"
              label_selected="Deed"
              layout="topleft"
              name="button deed"
              top_pad="0"
-             left="80"
+             left="83"
              tool_tip="Deeding gives this item away with Next Owner permissions. Group shared objects can be deeded by a group officer."
-             width="90" />
+             width="100" />
             <check_box
              height="19"
              follows="left|top"
@@ -944,8 +958,8 @@
              layout="topleft"
              name="checkbox share with group"
              tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."
-             left_pad="5"
-             width="93" />
+             left_pad="3"
+             width="100" />
             <text
              type="string"
              length="1"
@@ -960,10 +974,10 @@
             </text>
             <combo_box
              follows="left|top"
-             height="22"
+             height="20"
              layout="topleft"
              name="clickaction"
-             width="155"
+             width="158"
              left_pad="0">
                 <combo_box.item
                  label="Touch  (default)"
@@ -1000,12 +1014,12 @@
             layout="topleft"
             follows="left|top"
             allow_text_entry="false"
-            height="22"
-            width="155"
+            height="20"
+            intial_value="2"
             max_chars="20"
             mouse_opaque="true"
             name="sale type"
-            intial_value="2">
+            width="158">
         <combo_box.item
            name="Copy"
            label="Copy"
@@ -1024,21 +1038,23 @@
         follows="left|top"
         decimal_digits="0"
         increment="1"
-        top_pad="10"
+        top_pad="8"
+        left="100"
         control_name="Edit Cost"
         name="Edit Cost"
         label="Price: L$"
-        label_width="60"
-        width="155"
+        label_width="70"
+        width="168"
         min_val="1"
-        height="19"
+        height="20"
         max_val="999999999" />
       <check_box
-             left="107"
              height="15"
              width="100"
+             top_pad="3"
              label="Show in search"
              layout="topleft"
+        left="100"
              name="search_check"
              tool_tip="Let people see this object in search results"
               />
@@ -1090,13 +1106,6 @@
              left_pad="0"
              name="checkbox allow everyone copy"
              width="90" />
- <!--           <check_box
-             height="19"
-             label="Use"
-             layout="topleft"
-             left_pad="0"
-             name="allow everyone to use"
-             width="90" /> -->
             <text
                type="string"
                follows="left|top"
@@ -1133,75 +1142,75 @@
              width="90" />
             <text
              type="string"
-             text_color="EmphasisColor_35"
+             text_color="EmphasisColor"
              length="1"
              top_pad="5"
              follows="left|top"
              layout="topleft"
-             left="18"
+             left="10"
              name="B:"
              height="10"
-             width="30">
+             width="45">
                 B:
             </text>
             <text
              type="string"
-             text_color="EmphasisColor_35"
+             text_color="White"
              length="1"
              follows="left|top"
              layout="topleft"
              left_pad="0"
              name="O:"
              height="10"
-             width="30">
+             width="44">
                 O:
             </text>
             <text
              type="string"
-             text_color="EmphasisColor_35"
+             text_color="EmphasisColor"
              length="1"
              follows="left|top"
              layout="topleft"
              left_pad="0"
              name="G:"
              height="10"
-             width="30">
+             width="43">
                 G:
             </text>
             <text
              type="string"
-             text_color="EmphasisColor_35"
+             text_color="White"
              length="1"
              follows="left|top"
              left_pad="0"
              layout="topleft"
              name="E:"
              height="10"
-             width="30">
+             width="43">
                 E:
             </text>
             <text
              type="string"
-             text_color="EmphasisColor_35"
+             text_color="EmphasisColor"
              length="1"
              follows="left|top"
              layout="topleft"
              left_pad="0"
              name="N:"
              height="10"
-             width="30">
+             width="48">
                 N:
             </text>
             <text
              type="string"
-             text_color="EmphasisColor_35"
+             text_color="White"
              length="1"
              follows="left|top"
              layout="topleft"
              left_pad="0"
              name="F:"
              height="10"
-             width="30">
+             width="50">
                 F:
             </text>
    </panel>
@@ -2169,18 +2178,18 @@
              name="colorswatch"
              tool_tip="Click to open Color Picker"
              width="40" />
-         <texture_picker 
-            allow_no_texture="true" 
-            top_delta="0" 
+         <texture_picker
+            allow_no_texture="true"
+            top_delta="0"
             can_apply_immediately="true"
-            default_image_name="Default" 
-            follows="left|top" 
-            height="48" 
+            default_image_name="Default"
+            follows="left|top"
+            height="48"
             label=""
-            left_delta="57" 
-            mouse_opaque="true" 
+            left_delta="57"
+            mouse_opaque="true"
             name="light texture control"
-            tool_tip="Click to choose a projection image (only has effect with deferred rendering enabled)" 
+            tool_tip="Click to choose a projection image (only has effect with deferred rendering enabled)"
             width="32" />
           <spinner
              follows="left|top"
@@ -2484,7 +2493,7 @@
                  name="weave"
                  value="weave" />
             </combo_box>
-          <!--          
+          <!--
             <line_editor
              bevel_style="in"
              border_style="line"
@@ -2517,7 +2526,7 @@
              name="media info set"
              top_delta="-4"
              width="120" />
--->             
+-->
             <text
              type="string"
              length="1"
@@ -2570,16 +2579,16 @@
              name="checkbox flip t"
              top_delta="0"
              width="70" />
-  
+
             <spinner
              decimal_digits="2"
              follows="left|top"
              height="19"
              increment="1"
              initial_value="0"
-			 label="Rotation (degrees)"
+	    label="Rotation (degrees)"
              layout="topleft"
-			 label_width="100"
+	    label_width="100"
              left="10"
              max_val="9999"
              min_val="-9999"
@@ -2682,7 +2691,7 @@
 			 name="media_tex"
 			 width="100">
 				Media:
-			</text> 
+			</text>
 			<line_editor
              follows="left|top|right"
              height="18"
@@ -2735,7 +2744,7 @@
              left_delta="190">
 				<button.commit_callback
 				function="BuildTool.EditMedia"/>
-			</button> 
+			</button>
         </panel>
        <panel
          border="false"
@@ -2822,7 +2831,7 @@
         </text>
         <button
          follows="left|top"
-         height="22"
+         height="20"
          label="Land profile"
          label_selected="Land profile"
          layout="topleft"
@@ -2840,14 +2849,15 @@
          tool_tip="Colorize the parcels according to the type of owner"
          top_pad="8"
          width="205" />
-        <button
+        <!--TODO: HOOK UP TO HELP VIEWER-->
+       <!-- <button
          image_overlay="Arrow_Right_Off"
          picture_style="true"
          left_pad="5"
          name="button show owners help"
          tool_tip="See an explanation of colors"
          width="26"
-         height="22" />
+         height="22" />-->
         <text
          type="string"
          length="1"
@@ -2863,7 +2873,7 @@
         </text>
         <button
          follows="left|top"
-         height="22"
+         height="20"
          label="Subdivide"
          label_selected="Subdivide"
          layout="topleft"
@@ -2873,7 +2883,7 @@
          width="112" />
         <button
          follows="left|top"
-         height="22"
+         height="20"
          label="Join"
          label_selected="Join"
          layout="topleft"
@@ -2896,7 +2906,7 @@
         </text>
         <button
          follows="left|top"
-         height="22"
+         height="20"
          label="Buy Land"
          label_selected="Buy Land"
          layout="topleft"
@@ -2906,7 +2916,7 @@
          width="112" />
         <button
          follows="left|top"
-         height="19"
+         height="20"
          label="Abandon Land"
          label_selected="Abandon Land"
          layout="topleft"
@@ -2914,5 +2924,5 @@
          name="button abandon land"
          top_pad="4"
          width="112" />
-    </panel>
+ </panel>
 </floater>
