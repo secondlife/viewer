@@ -1713,6 +1713,72 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
 	//	<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << llendl;
 }
 
+void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
+{
+	// Find the media entry for this navigate
+	const LLMediaEntry* mep = NULL;
+	viewer_media_t impl = getMediaImpl(texture_index);
+	LLTextureEntry *te = getTE(texture_index);
+	if(te)
+	{
+		mep = te->getMediaData();
+	}
+	
+	if (mep && impl)
+	{
+        std::string url = mep->getCurrentURL();
+        if (url.empty())
+        {
+            url = mep->getHomeURL();
+        }
+        if (! url.empty())
+        {
+            LL_INFOS("LLMediaDataClient") << "bouncing back to URL: " << url << LL_ENDL;
+            impl->navigateTo(url, "", false, true);
+        }
+    }
+}
+
+bool LLVOVolume::hasNavigatePermission(const LLMediaEntry* media_entry)
+{
+    // NOTE: This logic duplicates the logic in the server (in particular, in llmediaservice.cpp).
+    if (NULL == media_entry ) return false; // XXX should we assert here?
+    
+    // The agent has permissions to navigate if:
+    // - agent has edit permissions, or
+    // - world permissions are on, or
+    // - group permissions are on, and agent_id is in the group, or
+    // - agent permissions are on, and agent_id is the owner
+    
+    if (permModify()) 
+    {
+        return true;
+    }
+    
+    U8 media_perms = media_entry->getPermsInteract();
+    
+    // World permissions
+    if (0 != (media_perms & LLMediaEntry::PERM_ANYONE)) 
+    {
+        return true;
+    }
+    
+    // Group permissions
+    else if (0 != (media_perms & LLMediaEntry::PERM_GROUP) && permGroupOwner())
+    {
+        return true;
+    }
+    
+    // Owner permissions
+    else if (0 != (media_perms & LLMediaEntry::PERM_OWNER) && permYouOwner()) 
+    {
+        return true;
+    }
+    
+    return false;
+    
+}
+
 void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, LLViewerMediaObserver::EMediaEvent event)
 {
 	switch(event)
@@ -1746,6 +1812,10 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 						{
 							block_navigation = true;
 						}
+                        if (!block_navigation && !hasNavigatePermission(mep))
+                        {
+                            block_navigation = true;
+                        }
 					}
 					else
 					{
@@ -1757,8 +1827,7 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 						llinfos << "blocking navigate to URI " << new_location << llendl;
 
 						// "bounce back" to the current URL from the media entry
-						// NOTE: the only way block_navigation can be true is if we found the media entry, so we're guaranteed here that mep is not NULL.
-						impl->navigateTo(mep->getCurrentURL());
+						mediaNavigateBounceBack(face_index);
 					}
 					else
 					{

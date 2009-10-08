@@ -385,8 +385,7 @@ void LLPanelMediaSettingsGeneral::getValues( LLSD &fill_me_in )
     fill_me_in[LLMediaEntry::AUTO_SCALE_KEY] = mAutoScale->getValue();
     fill_me_in[LLMediaEntry::AUTO_ZOOM_KEY] = mAutoZoom->getValue();
     fill_me_in[LLMediaEntry::CONTROLS_KEY] = mControls->getCurrentIndex();
-    // XXX Don't send current URL!
-    //fill_me_in[LLMediaEntry::CURRENT_URL_KEY] = mCurrentURL->getValue();
+    fill_me_in[LLMediaEntry::CURRENT_URL_KEY] = mCurrentURL->getValue();
     fill_me_in[LLMediaEntry::HEIGHT_PIXELS_KEY] = mHeightPixels->getValue();
     fill_me_in[LLMediaEntry::HOME_URL_KEY] = mHomeURL->getValue();
     fill_me_in[LLMediaEntry::FIRST_CLICK_INTERACT_KEY] = mFirstClick->getValue();

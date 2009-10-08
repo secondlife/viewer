@@ -166,6 +166,7 @@ private:
 		static F64 getObjectScore(const ll_vo_volume_ptr_t &obj);
 	};
 	
+    // PriorityQueue
 	class PriorityQueue : public std::priority_queue<
 		request_ptr_t, 
 		std::vector<request_ptr_t>, 
@@ -254,7 +255,7 @@ protected:
 		virtual void error(U32 status, const std::string& reason);
         virtual void result(const LLSD &content);
     private:
-        void bounceBack();
+        void mediaNavigateBounceBack();
     };
 
 };

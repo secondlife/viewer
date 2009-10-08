@@ -568,8 +568,10 @@ void LLObjectMediaNavigateClient::Responder::error(U32 status, const std::string
 	}
 	else {
 		// bounce the face back
-		bounceBack();
 		LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Error navigating: http code=" << status << LL_ENDL;
+		const LLSD &payload = getRequest()->getPayload();
+		// bounce the face back
+		getRequest()->getObject()->mediaNavigateBounceBack((LLSD::Integer)payload[LLTextureEntry::TEXTURE_INDEX_KEY]);
 	}
 }
 
@@ -586,8 +588,9 @@ void LLObjectMediaNavigateClient::Responder::result(const LLSD& content)
 		if (ERROR_PERMISSION_DENIED_CODE == error_code)
 		{
 			LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Navigation denied: bounce back" << LL_ENDL;
+			const LLSD &payload = getRequest()->getPayload();
 			// bounce the face back
-			bounceBack();
+			getRequest()->getObject()->mediaNavigateBounceBack((LLSD::Integer)payload[LLTextureEntry::TEXTURE_INDEX_KEY]);
 		}
 		else {
 			LL_WARNS("LLMediaDataClient") << *(getRequest()) << " Error navigating: code=" << 
@@ -598,25 +601,5 @@ void LLObjectMediaNavigateClient::Responder::result(const LLSD& content)
 	else {
 		// just do what our superclass does
 		LLMediaDataClient::Responder::result(content);
-	}
-}
-
-
-void LLObjectMediaNavigateClient::Responder::bounceBack()
-{
-	const LLSD &payload = getRequest()->getPayload();
-	U8 texture_index = (U8)(LLSD::Integer)payload[LLTextureEntry::TEXTURE_INDEX_KEY];
-	viewer_media_t impl = getRequest()->getObject()->getMediaImpl(texture_index);
-	// Find the media entry for this navigate
-	LLMediaEntry* mep = NULL;
-	LLTextureEntry *te = getRequest()->getObject()->getTE(texture_index);
-	if(te)
-	{
-		mep = te->getMediaData();
-	}
-	
-	if (mep && impl)
-	{
-//		  impl->navigateTo(mep->getCurrentURL(), "", false, true);
 	}
 }
