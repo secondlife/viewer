@@ -1144,7 +1144,6 @@ if (WINDOWS)
         comdlg32
         ${DINPUT_LIBRARY}
         ${DXGUID_LIBRARY}
-        fmodvc
         kernel32
         odbc32
         odbccp32
@@ -1273,19 +1272,18 @@ if (FMOD)
   if (DARWIN)
     set(fmodwrapper_SOURCE_FILES fmodwrapper.cpp)
     add_library(fmodwrapper SHARED ${fmodwrapper_SOURCE_FILES})
-    set(fmodwrapper_needed_LIBRARIES ${FMOD_LIBRARY})
-      list(APPEND fmodwrapper_needed_LIBRARIES ${CARBON_LIBRARY})
-      set_target_properties(
-        fmodwrapper
-        PROPERTIES
-        BUILD_WITH_INSTALL_RPATH 1
-        INSTALL_NAME_DIR "@executable_path/../Resources"
-        LINK_FLAGS "-unexported_symbols_list ${CMAKE_CURRENT_SOURCE_DIR}/fmod_hidden_symbols.exp"
-        )
+    set(fmodwrapper_needed_LIBRARIES ${FMOD_LIBRARY} ${CARBON_LIBRARY})
+    set_target_properties(
+      fmodwrapper
+      PROPERTIES
+      BUILD_WITH_INSTALL_RPATH 1
+      INSTALL_NAME_DIR "@executable_path/../Resources"
+      LINK_FLAGS "-unexported_symbols_list ${CMAKE_CURRENT_SOURCE_DIR}/fmod_hidden_symbols.exp"
+      )
     set(FMODWRAPPER_LIBRARY fmodwrapper)
     target_link_libraries(fmodwrapper ${fmodwrapper_needed_LIBRARIES})
-  elseif (LINUX)
-    # no longer using fmodwrapper itself on linux
+  else (DARWIN)
+    # fmodwrapper unnecessary on linux or windows
     set(FMODWRAPPER_LIBRARY ${FMOD_LIBRARY})
   endif (DARWIN)
 endif (FMOD)
