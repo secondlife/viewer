@@ -8,7 +8,7 @@
  left="0"
  name="Debug"
  top="320"
- width="280">
+ width="480">
     <text
      follows="left|top"
      font="SansSerif"
@@ -28,7 +28,7 @@
      left_delta="50"
      name="region_text"
      top_delta="0"
-     width="220">
+     width="400">
         unknown
     </text>
     <check_box
@@ -91,15 +91,16 @@
     <button
      enabled="false"
      follows="left|top"
-     height="20"
      font="SansSerifSmall"
+     height="20"
      label="Apply"
      layout="topleft"
      left="60"
      name="apply_btn"
      top="100"
-     width="80" />
+     width="100" />
     <text
+
      follows="left|top"
      height="20"
      layout="topleft"
@@ -110,16 +111,18 @@
         Object Return
     </text>
     <text
+
      follows="left|top"
      height="20"
      layout="topleft"
-     left="20"
+     left="30"
      name="resident_text_lbl"
      top="175"
      width="60">
         Resident:
     </text>
     <line_editor
+
      border_style="line"
      border_thickness="1"
      enabled="false"
@@ -130,7 +133,7 @@
      mouse_opaque="false"
      name="target_avatar_name"
      top_delta="-2"
-     width="115">
+     width="180">
         (none)
     </line_editor>
     <button
@@ -143,17 +146,17 @@
      name="choose_avatar_btn"
      top_delta="0"
      width="70" />
-   <text
+    <text
      follows="left|top"
      height="20"
      layout="topleft"
-     left="20"
+     left="30"
      name="options_text_lbl"
      top="198"
      width="60">
         Options:
     </text>
-    <check_box
+     <check_box
      height="20"
      label="With scripts"
      layout="topleft"
@@ -192,15 +195,15 @@
      width="80" />
     <button
      follows="left|top"
-     height="20"
      font="SansSerifSmall"
+     height="20"
      label="Get Top Colliders..."
      layout="topleft"
      left="10"
      name="top_colliders_btn"
      tool_tip="List of objects experiencing the most potential collisions"
      top="313"
-     width="130" />
+     width="150" />
     <button
      follows="left|top"
      font="SansSerifSmall"
@@ -213,15 +216,15 @@
      width="18" />
     <button
      follows="left|top"
-     height="20"
      font="SansSerifSmall"
+     height="20"
      label="Get Top Scripts..."
      layout="topleft"
      left="10"
      name="top_scripts_btn"
      tool_tip="List of objects spending the most time running scripts"
      top_pad="5"
-     width="130" />
+     width="150" />
     <button
      follows="left|top"
      font="SansSerifSmall"
@@ -234,15 +237,15 @@
      width="18" />
     <button
      follows="left|top"
-     height="20"
      font="SansSerifSmall"
+     height="20"
      label="Restart Region"
      layout="topleft"
      left="10"
      name="restart_btn"
      tool_tip="Give 2 minute countdown and restart region"
      top_pad="5"
-     width="110" />
+     width="130" />
     <button
      follows="left|top"
      font="SansSerifSmall"
@@ -255,13 +258,13 @@
      width="18" />
     <button
      follows="left|top"
-     height="20"
      font="SansSerifSmall"
+     height="20"
      label="Delay Restart"
      layout="topleft"
      left="10"
      name="cancel_restart_btn"
      tool_tip="Delay region restart by one hour"
      top_pad="5"
-     width="110" />
+     width="130" />
 </panel>
