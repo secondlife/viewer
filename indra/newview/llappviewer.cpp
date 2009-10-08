@@ -195,6 +195,10 @@
 // define a self-registering event API object
 #include "llappviewerlistener.h"
 
+#if (LL_LINUX || LL_SOLARIS) && LL_GTK
+#include "glib.h"
+#endif // (LL_LINUX || LL_SOLARIS) && LL_GTK
+
 #if LL_MSVC
 // disable boost::lexical_cast warning
 #pragma warning (disable:4702)
