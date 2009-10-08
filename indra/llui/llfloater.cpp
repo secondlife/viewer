@@ -2564,10 +2564,10 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 
 LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");
 
-void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
+bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 {
 	Params params(LLUICtrlFactory::getDefaultParams<LLFloater>());
-	LLXUIParser::instance().readXUI(node, params);
+	LLXUIParser::instance().readXUI(node, params); // *TODO: Error checking
 
 	if (output_node)
 	{
@@ -2613,5 +2613,7 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 	gFloaterView->adjustToFitScreen(this, FALSE); // Floaters loaded from XML should all fit on screen	
 
 	moveResizeHandlesToFront();
+
+	return true; // *TODO: Error checking
 }
 

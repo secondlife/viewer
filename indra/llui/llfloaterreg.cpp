@@ -121,8 +121,13 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 
 				res = build_func(key);
 				
-				LLUICtrlFactory::getInstance()->buildFloater(res, xui_file, NULL);
-				
+				bool success = LLUICtrlFactory::getInstance()->buildFloater(res, xui_file, NULL);
+				if (!success)
+				{
+					llwarns << "Failed to buid floater type: '" << name << "'." << llendl;
+					return NULL;
+				}
+					
 				// Note: key should eventually be a non optional LLFloater arg; for now, set mKey to be safe
 				res->mKey = key;
 				res->setInstanceName(name);
