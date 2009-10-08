@@ -243,8 +243,9 @@ set(test_libs llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
 # Have to treat lllazy test as an integration test until this issue is resolved:
 # https://jira.lindenlab.com/jira/browse/DEV-29456
 LL_ADD_INTEGRATION_TEST(lllazy lllazy.cpp "${test_libs}")
-# Also puzzled as to why *CMake* barfs when this is a *unit* test. 
-LL_ADD_INTEGRATION_TEST(llstring llstring.cpp "${test_libs}")
+# Also puzzled as to why *CMake* barfs when these are *unit* tests. 
+LL_ADD_INTEGRATION_TEST(llstring "llstring.cpp" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(llrand "llrand.cpp" "${test_libs}")
 
 # *TODO - reenable these once tcmalloc libs no longer break the build.
 #ADD_BUILD_TEST(llallocator llcommon)
