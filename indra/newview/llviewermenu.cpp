@@ -277,7 +277,6 @@ void handle_compress_image(void*);
 // Edit menu
 void handle_dump_group_info(void *);
 void handle_dump_capabilities_info(void *);
-void handle_dump_focus(void*);
 
 // Advanced->Consoles menu
 void handle_region_dump_settings(void*);
@@ -324,7 +323,6 @@ BOOL check_show_xui_names(void *);
 
 // Debug UI
 
-void handle_web_browser_test(void*);
 void handle_buy_currency_test(void*);
 void handle_save_to_xml(void*);
 void handle_load_from_xml(void*);
@@ -1234,15 +1232,6 @@ class LLAdvancedDumpRegionObjectCache : public view_listener_t
 	}
 };
 
-class LLAdvancedWebBrowserTest : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_web_browser_test(NULL);
-		return true;
-	}
-};
-	
 class LLAdvancedBuyCurrencyTest : public view_listener_t
 	{
 	bool handleEvent(const LLSD& userdata)
@@ -1285,22 +1274,6 @@ class LLAdvancedDumpInventory : public view_listener_t
 
 
 
-///////////////////////
-// DUMP FOCUS HOLDER //
-///////////////////////
-	
-
-class LLAdvancedDumpFocusHolder : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_dump_focus(NULL);
-		return true;
-	}
-};
-
-
-	
 ////////////////////////////////
 // PRINT SELECTED OBJECT INFO //
 ////////////////////////////////
@@ -3464,7 +3437,7 @@ void handle_dump_region_object_cache(void*)
 	}
 }
 
-void handle_dump_focus(void *)
+void handle_dump_focus()
 {
 	LLUICtrl *ctrl = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
 
@@ -6835,6 +6808,11 @@ void handle_dump_avatar_local_textures(void*)
 	gAgent.getAvatarObject()->dumpLocalTextures();
 }
 
+void handle_dump_timers()
+{
+	LLFastTimer::dumpCurTimes();
+}
+
 void handle_debug_avatar_textures(void*)
 {
 	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
@@ -7100,9 +7078,14 @@ void handle_load_from_xml(void*)
 	}
 }
 
-void handle_web_browser_test(void*)
+void handle_web_browser_test(const LLSD& param)
 {
-	LLWeb::loadURL("http://secondlife.com/app/search/slurls.html");
+	std::string url = param.asString();
+	if (url.empty())
+	{
+		url = "about:blank";
+	}
+	LLWeb::loadURL(url);
 }
 
 void handle_buy_currency_test(void*)
@@ -7851,11 +7834,12 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedDumpRegionObjectCache(), "Advanced.DumpRegionObjectCache");
 
 	// Advanced > UI
-	view_listener_t::addMenu(new LLAdvancedWebBrowserTest(), "Advanced.WebBrowserTest");
+	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test, _2));
 	view_listener_t::addMenu(new LLAdvancedBuyCurrencyTest(), "Advanced.BuyCurrencyTest");
 	view_listener_t::addMenu(new LLAdvancedDumpSelectMgr(), "Advanced.DumpSelectMgr");
 	view_listener_t::addMenu(new LLAdvancedDumpInventory(), "Advanced.DumpInventory");
-	view_listener_t::addMenu(new LLAdvancedDumpFocusHolder(), "Advanced.DumpFocusHolder");
+	commit.add("Advanced.DumpTimers", boost::bind(&handle_dump_timers) );
+	commit.add("Advanced.DumpFocusHolder", boost::bind(&handle_dump_focus) );
 	view_listener_t::addMenu(new LLAdvancedPrintSelectedObjectInfo(), "Advanced.PrintSelectedObjectInfo");
 	view_listener_t::addMenu(new LLAdvancedPrintAgentInfo(), "Advanced.PrintAgentInfo");
 	view_listener_t::addMenu(new LLAdvancedPrintTextureMemoryStats(), "Advanced.PrintTextureMemoryStats");

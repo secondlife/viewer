@@ -2748,7 +2748,8 @@
              layout="topleft"
              name="Web Browser Test">
                 <menu_item_call.on_click
-                 function="Advanced.WebBrowserTest" />
+                 function="Advanced.WebBrowserTest" 
+                 parameter="http://secondlife.com/app/search/slurls.html"/>
             </menu_item_call>
             <menu_item_call
              label="UI/Color Settings"
@@ -2758,6 +2759,9 @@
                  function="Advanced.ShowDebugSettings"
                  parameter="skin" />
             </menu_item_call>
+          
+            <menu_item_separator />
+          
             <menu_item_call
              label="Dump SelectMgr"
              layout="topleft"
@@ -2771,6 +2775,12 @@
              name="Dump Inventory">
                 <menu_item_call.on_click
                  function="Advanced.DumpInventory" />
+            </menu_item_call>
+            <menu_item_call
+             label="Dump Timers"
+             name="Dump Timers">
+                <menu_item_call.on_click
+                 function="Advanced.DumpTimers" />
             </menu_item_call>
             <menu_item_call
              label="Dump Focus Holder"
@@ -2815,8 +2825,9 @@
                  function="ToggleControl"
                  parameter="DoubleClickAutoPilot" />
             </menu_item_check>
-            <menu_item_separator
-             layout="topleft" />
+          
+            <menu_item_separator />
+          
             <menu_item_check
              label="Debug SelectMgr"
              layout="topleft"

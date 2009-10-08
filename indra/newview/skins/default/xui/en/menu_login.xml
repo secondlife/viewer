@@ -239,5 +239,12 @@
              function="ShowFloater"
              parameter="message_critical" />
         </menu_item_call>
+        <menu_item_call
+         label="Web Browser Test"
+         name="Web Browser Test">
+          <menu_item_call.on_click
+           function="Advanced.WebBrowserTest"
+           parameter="http://join.secondlife.com/"/>
+        </menu_item_call>
     </menu>
 </menu_bar>
