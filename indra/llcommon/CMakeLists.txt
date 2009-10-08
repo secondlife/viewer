@@ -3,7 +3,6 @@
 project(llcommon)
 
 include(00-Common)
-include(LLAddBuildTest)
 include(LLCommon)
 include(Boost)
 
@@ -224,8 +223,7 @@ set_source_files_properties(${llcommon_HEADER_FILES}
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
 add_library (llcommon ${llcommon_SOURCE_FILES})
-target_link_libraries(
-    llcommon
+target_link_libraries(llcommon
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
@@ -234,7 +232,8 @@ target_link_libraries(
     ${BOOST_REGEX_LIBRARY}
     )
 
-include(LLAddBuildTest)
+#add unit tests
+INCLUDE(LLAddBuildTest)
 SET(llcommon_TEST_SOURCE_FILES
   )
 LL_ADD_PROJECT_UNIT_TESTS(llcommon "${llcommon_TEST_SOURCE_FILES}")
@@ -244,6 +243,8 @@ set(test_libs llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
 # Have to treat lllazy test as an integration test until this issue is resolved:
 # https://jira.lindenlab.com/jira/browse/DEV-29456
 LL_ADD_INTEGRATION_TEST(lllazy lllazy.cpp "${test_libs}")
+# Also puzzled as to why *CMake* barfs when this is a *unit* test. 
+LL_ADD_INTEGRATION_TEST(llstring llstring.cpp "${test_libs}")
 
 # *TODO - reenable these once tcmalloc libs no longer break the build.
 #ADD_BUILD_TEST(llallocator llcommon)
