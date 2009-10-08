@@ -1441,7 +1441,6 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		case LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_COMPLETE:
 		{
 			LL_DEBUGS("Media") << "MEDIA_EVENT_NAVIGATE_COMPLETE, uri is: " << plugin->getNavigateURI() << LL_ENDL;
-			setNavState(MEDIANAVSTATE_NONE);
 		}
 		break;
 		
