@@ -31,12 +31,13 @@
       		name="close_btn"/>
 	</panel>
             <text_editor
+             allow_html="true" 
              bg_readonly_color="ChatHistoryBgColor"
              bg_writeable_color="ChatHistoryBgColor"
              follows="left|top|right|bottom"
              font="SansSerif"
              layout="topleft"
-			 height="320"
+			       height="320"
              max_length="2147483647"
              name="Chat History Editor"
              parse_highlights="true" 
