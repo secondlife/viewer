@@ -82,7 +82,7 @@ list(APPEND llmath_SOURCE_FILES ${llmath_HEADER_FILES})
 
 add_library (llmath ${llmath_SOURCE_FILES})
 
-
+# Add tests
 include(LLAddBuildTest)
 SET(llmath_TEST_SOURCE_FILES
   # nat 2009-08-28: found this commented out and considered implementing it
@@ -91,3 +91,9 @@ SET(llmath_TEST_SOURCE_FILES
   )
 LL_ADD_PROJECT_UNIT_TESTS(llmath "${llmath_TEST_SOURCE_FILES}")
 
+set(test_libs llmath llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
+LL_ADD_INTEGRATION_TEST(v3color v3color.cpp "${test_libs}")
+LL_ADD_INTEGRATION_TEST(v3dmath v3dmath.cpp "${test_libs}")
+LL_ADD_INTEGRATION_TEST(v4color v4color.cpp "${test_libs}")
+LL_ADD_INTEGRATION_TEST(v4coloru v4coloru.cpp "${test_libs}")
+LL_ADD_INTEGRATION_TEST(v4math v4math.cpp "${test_libs}")
