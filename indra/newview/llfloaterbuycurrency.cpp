@@ -175,48 +175,54 @@ void LLFloaterBuyCurrencyUI::updateUI()
 	bool hasError = mManager.hasError();
 	mManager.updateUI(!hasError && !mManager.buying());
 
-	// section zero: title area
-	{
-		childSetVisible("info_buying", false);
-		childSetVisible("info_cannot_buy", false);
-		childSetVisible("info_need_more", false);
-		if (hasError)
-		{
-			childSetVisible("info_cannot_buy", true);
-		}
-		else if (mHasTarget)
-		{
-			childSetVisible("info_need_more", true);
-		}
-		else
-		{
-			childSetVisible("info_buying", true);
-		}
-	}
-	
-	// error section
+	// hide most widgets - we'll turn them on as needed next
+	childHide("info_buying");
+	childHide("info_cannot_buy");
+	childHide("info_need_more");	
+	childHide("purchase_warning_repurchase");
+	childHide("purchase_warning_notenough");
+	childHide("contacting");
+	childHide("buy_action");
+
 	if (hasError)
 	{
+		// display an error from the server
 		childHide("normal_background");
 		childShow("error_background");
+		childShow("info_cannot_buy");
 		childShow("cannot_buy_message");
-		childShow("error_web");
+		childHide("balance_label");
+		childHide("balance_amount");
+		childHide("buying_label");
+		childHide("buying_amount");
+		childHide("total_label");
+		childHide("total_amount");
+
+        LLTextBox* message = getChild<LLTextBox>("cannot_buy_message");
+        if (message)
+		{
+			message->setText(mManager.errorMessage());
+		}
+
+		childSetVisible("error_web", !mManager.errorURI().empty());
 	}
 	else
 	{
+		// display the main Buy L$ interface
 		childShow("normal_background");
 		childHide("error_background");
 		childHide("cannot_buy_message");
 		childHide("error_web");
-	}
 
-	//  currency
-	childSetVisible("contacting", false);
-	childSetVisible("buy_action", false);
-	childSetVisible("buy_action_unknown", false);
-	
-	if (!hasError)
-	{
+		if (mHasTarget)
+		{
+			childShow("info_need_more");
+		}
+		else
+		{
+			childShow("info_buying");
+		}
+
 		if (mManager.buying())
 		{
 			childSetVisible("contacting", true);
@@ -228,10 +234,6 @@ void LLFloaterBuyCurrencyUI::updateUI()
 				childSetVisible("buy_action", true);
 				childSetTextArg("buy_action", "[NAME]", mTargetName);
 				childSetTextArg("buy_action", "[PRICE]", llformat("%d",mTargetPrice));
-			}
-			else
-			{
-				childSetVisible("buy_action_unknown", true);
 			}
 		}
 		
@@ -250,8 +252,6 @@ void LLFloaterBuyCurrencyUI::updateUI()
 		childShow("total_amount");
 		childSetTextArg("total_amount", "[AMT]", llformat("%d", total));
 
-		childSetVisible("purchase_warning_repurchase", false);
-		childSetVisible("purchase_warning_notenough", false);
 		if (mHasTarget)
 		{
 			if (total >= mTargetPrice)
@@ -264,24 +264,8 @@ void LLFloaterBuyCurrencyUI::updateUI()
 			}
 		}
 	}
-	else
-	{
-		childHide("step_1");
-		childHide("balance_label");
-		childHide("balance_amount");
-		childHide("buying_label");
-		childHide("buying_amount");
-		childHide("total_label");
-		childHide("total_amount");
-		childHide("purchase_warning_repurchase");
-		childHide("purchase_warning_notenough");
-	}
-	
-	childHide("getting_data");
-	if (!mManager.canBuy() && !hasError)
-	{
-		childShow("getting_data");
-	}
+
+	childSetVisible("getting_data", !mManager.canBuy() && !hasError);
 }
 
 void LLFloaterBuyCurrencyUI::onClickBuy()
@@ -297,7 +281,7 @@ void LLFloaterBuyCurrencyUI::onClickCancel()
 
 void LLFloaterBuyCurrencyUI::onClickErrorWeb()
 {
-	LLWeb::loadURLExternal(getString("account_website"));
+	LLWeb::loadURLExternal(mManager.errorURI());
 	closeFloater();
 }
 
