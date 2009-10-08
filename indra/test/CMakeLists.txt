@@ -53,7 +53,6 @@ set(test_SOURCE_FILES
     llpermissions_tut.cpp
     llpipeutil.cpp
     llrandom_tut.cpp
-    llrect_tut.cpp
     llsaleinfo_tut.cpp
     llscriptresource_tut.cpp
     llsdmessagebuilder_tut.cpp
