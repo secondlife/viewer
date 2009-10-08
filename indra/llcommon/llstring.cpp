@@ -1018,7 +1018,11 @@ S32 LLStringUtil::format(std::string& s, const format_map_t& substitutions)
 		bool found_replacement = false;
 		std::string replacement;
 
-		if (tokens.size() == 1)
+		if (tokens.size() == 0)
+		{
+			found_replacement = false;
+		}
+		else if (tokens.size() == 1)
 		{
 			found_replacement = simpleReplacement (replacement, tokens[0], substitutions);
 		}
@@ -1054,9 +1058,9 @@ S32 LLStringUtil::format(std::string& s, const format_map_t& substitutions)
 		}
 		else
 		{
-			// we had no replacement, so leave the string we searched for so that it gets noticed by QA
-			// "hello [NAME_NOT_FOUND]" is output
-			output += std::string("[") + tokens[0] + std::string("]");
+			// we had no replacement, use the string as is
+			// e.g. "hello [MISSING_REPLACEMENT]" or "-=[Stylized Name]=-"
+			output += std::string(s, key_start, start-key_start);
 		}
 		tokens.clear();
 	}
@@ -1092,7 +1096,11 @@ S32 LLStringUtil::format(std::string& s, const LLSD& substitutions)
 		bool found_replacement = false;
 		std::string replacement;
 
-		if (tokens.size() == 1)
+		if (tokens.size() == 0)
+		{
+			found_replacement = false;
+		}
+		else if (tokens.size() == 1)
 		{
 			found_replacement = simpleReplacement (replacement, tokens[0], substitutions);
 		}
@@ -1120,9 +1128,9 @@ S32 LLStringUtil::format(std::string& s, const LLSD& substitutions)
 		}
 		else
 		{
-			// we had no replacement, so leave the string we searched for so that it gets noticed by QA
-			// "hello [NAME_NOT_FOUND]" is output
-			output += std::string("[") + tokens[0] + std::string("]");
+			// we had no replacement, use the string as is
+			// e.g. "hello [MISSING_REPLACEMENT]" or "-=[Stylized Name]=-"
+			output += std::string(s, key_start, start-key_start);
 		}
 		tokens.clear();
 	}
