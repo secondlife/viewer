@@ -32,9 +32,6 @@
  * $/LicenseInfo$
  */
 
-// win32 kludge-o-rama
-#define _CRT_SECURE_NO_WARNINGS
-
 #include "../test/lltut.h"
 
 #include "../llstring.h"
