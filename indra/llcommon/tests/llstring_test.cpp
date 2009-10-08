@@ -223,6 +223,10 @@ namespace tut
 		str_val = "\r\n\t\t";
 		LLStringUtil::stripNonprintable(str_val);
 		ensure_equals("stripNonprintable resulting in empty string failed", str_val, "");
+
+		str_val = "";
+		LLStringUtil::stripNonprintable(str_val);
+		ensure_equals("stripNonprintable of empty string resulting in empty string failed", str_val, "");
 	}
 
 	template<> template<>
