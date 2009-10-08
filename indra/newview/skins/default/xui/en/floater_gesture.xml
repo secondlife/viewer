@@ -2,13 +2,16 @@
 <floater
  can_resize="true"
  height="465"
- layout="topleft"
- min_height="200"
- min_width="280"
  name="gestures"
  help_topic="gestures"
- title="Active Gestures"
- width="280">
+ title="Gestures"
+ background_visible="true"
+ follows="all"
+ label="Places"
+ layout="topleft"
+ min_height="350"
+ min_width="240"
+ width="313">
     <floater.string
      name="loading">
         Loading...
@@ -17,31 +20,20 @@
      name="playing">
         (Playing)
     </floater.string>
-    <text
-     type="string"
-     length="1"
-     bottom="30"
-     follows="top|left"
-     layout="topleft"
-     left="15"
-     name="help_label">
-        Double-click a gesture to play.
-    </text>
     <scroll_list
-     bottom_delta="390"
+     bottom_delta="400"
      draw_heading="true"
-     follows="top|left|bottom|right"
-     height="380"
+     follows="all"
      layout="topleft"
-     left="15"
-     name="gesture_list"
-     right="-15">
+     left="0"
+     top="20"
+     name="gesture_list">
         <scroll_list.columns
          label="Name"
          name="name"
-         width="90" />
+         width="153" />
         <scroll_list.columns
-         label="Trigger"
+         label="Chat"
          name="trigger"
          width="80" />
        <scroll_list.columns
@@ -51,29 +43,74 @@
         <scroll_list.columns
          label="Key"
          name="shortcut"
-         width="50" />
+         width="80" />
     </scroll_list>
+              <panel
+             background_visible="true"
+             bevel_style="none"
+             top_pad="0"
+             follows="left|right|bottom"
+             height="30"
+             label="bottom_panel"
+             layout="topleft"
+             left="0"
+             name="bottom_panel"
+             width="313">
+               <button
+               follows="bottom|left"
+               font="SansSerifBigBold"
+               tool_tip="Change sort and view of Recent Residents list"
+               height="18"
+               image_disabled="OptionsMenu_Disabled"
+               image_selected="OptionsMenu_Press"
+               image_unselected="OptionsMenu_Off"
+               layout="topleft"
+               left="10"
+               name="recent_viewsort_btn"
+               picture_style="true"
+               top="5"
+               width="18" />
+              <button
+                 follows="bottom|left"
+                 font="SansSerifBigBold"
+                 height="18"
+                 image_selected="AddItem_Press"
+                 image_unselected="AddItem_Off"
+                 image_disabled="AddItem_Disabled"
+                 layout="topleft"
+                 left_pad="5"
+                 name="new_gesture_btn"
+                 picture_style="true"
+                 tool_tip="Make new Gesture"
+                 top_delta="0"
+                 width="18" />
+                <button
+                 follows="bottom|left"
+                 font="SansSerifBigBold"
+                 height="18"
+                 image_selected="TrashItem_Press"
+                 image_unselected="TrashItem_Off"
+                 image_disabled="TrashItem_Disabled"
+                 layout="topleft"
+                 left_pad="230"
+                 name="del_btn"
+                 picture_style="true"
+                 tool_tip="Delete this Gesture"
+                 top_delta="0"
+                 width="18" />
+            </panel>
     <button
      follows="bottom|right"
-     height="20"
-     label="New"
-     layout="topleft"
-     left_delta="0"
-     name="new_gesture_btn"
-     top_pad="10"
-     width="83" />
-    <button
-     follows="bottom|right"
-     height="20"
+     height="23"
      label="Edit"
      layout="topleft"
-     left_pad="6"
+     left="6"
      name="edit_btn"
-     top_delta="0"
+     top_pad="5"
      width="83" />
     <button
      follows="bottom|right"
-     height="20"
+     height="23"
      label="Play"
      layout="topleft"
      left_pad="6"
@@ -82,7 +119,7 @@
      width="83" />
     <button
      follows="bottom|right"
-     height="20"
+     height="23"
      label="Stop"
      layout="topleft"
      left_delta="0"
@@ -90,4 +127,3 @@
      top_delta="0"
      width="83" />
 </floater>
-
