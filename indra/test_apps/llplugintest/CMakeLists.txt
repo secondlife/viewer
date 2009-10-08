@@ -136,7 +136,7 @@ endif (DARWIN)
 #    ${media_simple_test_SOURCE_FILES}
 #)
 #
-#add_dependencies(media_simple_test copy_win_libs)
+#add_dependencies(media_simple_test stage_third_party_libs)
 #
 #set_target_properties(media_simple_test
 #    PROPERTIES
@@ -177,7 +177,7 @@ endif (DARWIN)
 #)
 #
 #add_dependencies(media_plugin_test
-#  copy_win_libs
+#  stage_third_party_libs
 #  SLPlugin
 #  demo_media_plugin
 #  ${LLPLUGIN_LIBRARIES}
@@ -281,7 +281,7 @@ target_link_libraries(llmediaplugintest
 )
 
 add_dependencies(llmediaplugintest
-  copy_win_libs
+  stage_third_party_libs
   SLPlugin
   media_plugin_quicktime
   media_plugin_webkit
@@ -339,4 +339,123 @@ if (DARWIN)
   )
 endif (DARWIN)
 
+if(WINDOWS)
+  #********************
+  # Plugin test library deploy
+  #
+  # Debug config runtime files required for the plugin test mule
+  set(plugintest_debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug")
+  set(plugintest_debug_files
+    libeay32.dll
+    libglib-2.0-0.dll
+    libgmodule-2.0-0.dll
+    libgobject-2.0-0.dll
+    libgthread-2.0-0.dll
+    qtcored4.dll
+    qtguid4.dll
+    qtnetworkd4.dll
+    qtopengld4.dll
+    qtwebkitd4.dll
+    ssleay32.dll
+    )
+  copy_if_different(
+    ${plugintest_debug_src_dir}
+    "${CMAKE_CURRENT_BINARY_DIR}/Debug"
+    out_targets
+    ${plugintest_debug_files}
+    )
+  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
+  
+  # Debug config runtime files required for the plugin test mule (Qt image format plugins)
+  set(plugintest_debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug/imageformats")
+  set(plugintest_debug_files
+    qgifd4.dll
+    qicod4.dll
+    qjpegd4.dll
+    qmngd4.dll
+    qsvgd4.dll
+    qtiffd4.dll
+    )
+  copy_if_different(
+    ${plugintest_debug_src_dir}
+    "${CMAKE_CURRENT_BINARY_DIR}/Debug/imageformats"
+    out_targets
+    ${plugintest_debug_files}
+    )
+  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
+  
+  # Release & ReleaseDebInfo config runtime files required for the plugin test mule
+  set(plugintest_release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release")
+  set(plugintest_release_files
+    libeay32.dll
+    libglib-2.0-0.dll
+    libgmodule-2.0-0.dll
+    libgobject-2.0-0.dll
+    libgthread-2.0-0.dll
+    qtcore4.dll
+    qtgui4.dll
+    qtnetwork4.dll
+    qtopengl4.dll
+    qtwebkit4.dll
+    ssleay32.dll
+    )
+  copy_if_different(
+    ${plugintest_release_src_dir}
+    "${CMAKE_CURRENT_BINARY_DIR}/Release"
+    out_targets
+    ${plugintest_release_files}
+    )
+  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
+
+  copy_if_different(
+    ${plugintest_release_src_dir}
+    "${CMAKE_CURRENT_BINARY_DIR}/RelWithDebInfo"
+    out_targets
+    ${plugintest_release_files}
+    )
+  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
+
+  # Release & ReleaseDebInfo config runtime files required for the plugin test mule (Qt image format plugins)
+  set(plugintest_release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release/imageformats")
+  set(plugintest_release_files
+    qgif4.dll
+    qico4.dll
+    qjpeg4.dll
+    qmng4.dll
+    qsvg4.dll
+    qtiff4.dll
+    )
+  copy_if_different(
+    ${plugintest_release_src_dir}
+    "${CMAKE_CURRENT_BINARY_DIR}/Release/imageformats"
+    out_targets
+    ${plugintest_release_files}
+    )
+  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
+
+  copy_if_different(
+    ${plugintest_release_src_dir}
+    "${CMAKE_CURRENT_BINARY_DIR}/RelWithDebInfo/imageformats"
+    out_targets
+    ${plugintest_release_files}
+    )
+  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
+
+  copy_if_different(
+    "${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}"
+    "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}"
+    out_targets
+    llcommon.dll libapr-1.dll libaprutil-1.dll libapriconv-1.dll
+    )
+  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
+
+  add_custom_target(copy_plugintest_libs ALL
+    DEPENDS 
+      ${plugin_test_targets}
+      llcommon
+    )
+
+  add_dependencies(llmediaplugintest copy_plugintest_libs)
+
+endif(WINDOWS)
 

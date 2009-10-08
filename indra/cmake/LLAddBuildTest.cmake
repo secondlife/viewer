@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include(LLTestCommand)
 
 MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   # Given a project name and a list of sourcefiles (with optional properties on each),
@@ -123,16 +124,20 @@ INCLUDE(GoogleMock)
     GET_TARGET_PROPERTY(TEST_EXE PROJECT_${project}_TEST_${name} LOCATION)
     SET(TEST_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/PROJECT_${project}_TEST_${name}_ok.txt)
     SET(TEST_CMD ${TEST_EXE} --touch=${TEST_OUTPUT} --sourcedir=${CMAKE_CURRENT_SOURCE_DIR})
-    # daveh - what configuration does this use? Debug? it's cmake-time, not build time. + poppy 2009-04-19
+
+	# daveh - what configuration does this use? Debug? it's cmake-time, not build time. + poppy 2009-04-19
     IF(LL_TEST_VERBOSE)
       MESSAGE(STATUS "LL_ADD_PROJECT_UNIT_TESTS ${name} test_cmd  = ${TEST_CMD}")
     ENDIF(LL_TEST_VERBOSE)
-    SET(TEST_SCRIPT_CMD 
-      ${CMAKE_COMMAND} 
-      -DLD_LIBRARY_PATH=${ARCH_PREBUILT_DIRS}:/usr/lib
-      -DTEST_CMD:STRING="${TEST_CMD}" 
-      -P ${CMAKE_SOURCE_DIR}/cmake/RunBuildTest.cmake
-      )
+    
+    IF(WINDOWS)
+      set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR})
+    ELSE(WINDOWS)
+      set(LD_LIBRARY_PATH ${ARCH_PREBUILT_DIRS}:${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}:/usr/lib)
+    ENDIF(WINDOWS)
+
+    LL_TEST_COMMAND("${LD_LIBRARY_PATH}" ${TEST_CMD})
+    SET(TEST_SCRIPT_CMD ${LL_TEST_COMMAND_value})
     IF(LL_TEST_VERBOSE)
       MESSAGE(STATUS "LL_ADD_PROJECT_UNIT_TESTS ${name} test_script  = ${TEST_SCRIPT_CMD}")
     ENDIF(LL_TEST_VERBOSE)
@@ -212,12 +217,14 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     LIST(INSERT test_command test_exe_pos "${TEST_EXE}")
   ENDIF (test_exe_pos LESS 0)
 
-  SET(TEST_SCRIPT_CMD 
-    ${CMAKE_COMMAND} 
-    -DLD_LIBRARY_PATH=${ARCH_PREBUILT_DIRS}:/usr/lib
-    -DTEST_CMD:STRING="${test_command}" 
-    -P ${CMAKE_SOURCE_DIR}/cmake/RunBuildTest.cmake
-    )
+  IF(WINDOWS)
+    set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR})
+  ELSE(WINDOWS)
+    set(LD_LIBRARY_PATH ${ARCH_PREBUILT_DIRS}:${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}:/usr/lib)
+  ENDIF(WINDOWS)
+
+  LL_TEST_COMMAND("${LD_LIBRARY_PATH}" ${test_command})
+  SET(TEST_SCRIPT_CMD ${LL_TEST_COMMAND_value})
 
   if(TEST_DEBUG)
     message(STATUS "TEST_SCRIPT_CMD: ${TEST_SCRIPT_CMD}")

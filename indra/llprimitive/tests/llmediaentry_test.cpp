@@ -157,7 +157,7 @@ namespace tut
 
     void ensure_llsd_equals(const std::string& msg, const LLSD& expected, const LLSD& actual)
     {
-        if (! llsd_equals(expected, actual))
+        if (!tut::llsd_equals(expected, actual))
         {
             std::string message = msg;
             message += ": actual: ";

@@ -35,7 +35,7 @@
 #include "lluuid.h"
 #include "llmediaentry.h"
 #include "lltextureentry.h"
-#include "llsdutil.h"
+#include "llsdutil_math.h"
 #include "v4color.h"
 
 const U8 DEFAULT_BUMP_CODE = 0;  // no bump or shininess

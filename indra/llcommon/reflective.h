@@ -36,7 +36,7 @@
 #define LL_REFLECTIVE_H
 
 class LLMetaClass;
-class LLReflective
+class LL_COMMON_API LLReflective
 {
 public:
 	LLReflective();

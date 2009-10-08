@@ -11,11 +11,13 @@ indra/lib/mono/1.0/*.dll
 indra/lib/mono/indra/*.dll
 indra/lib/mono/indra/*.exe
 indra/lib/mono/indra/*.pdb
+indra/lib/python/eventlet/
 indra/llwindow/glh/glh_linear.h
 indra/newview/app_settings/mozilla
 indra/newview/app_settings/mozilla-runtime-*
 indra/newview/app_settings/mozilla_debug
 indra/newview/app_settings/static_*.db2
+indra/newview/browser_profile
 indra/newview/character
 indra/newview/fmod.dll
 indra/newview/mozilla-theme
@@ -34,6 +36,7 @@ indra/web/doc/asset-upload/plugins/verify-texture
 installed.xml
 libraries
 tarfile_tmp
+^indra/lib/python/mulib.*
 ^web/locale.*
 ^web/secondlife.com.*
 ^web/config.*

@@ -61,6 +61,7 @@
 #include "lltrans.h"
 #include "llhelp.h"
 #include "llmultifloater.h"
+#include "llsdutil.h"
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
@@ -132,6 +133,16 @@ LLFloater::handle_map_t	LLFloater::sFloaterMap;
 
 LLFloaterView* gFloaterView = NULL;
 
+/*==========================================================================*|
+// DEV-38598: The fundamental problem with this operation is that it can only
+// support a subset of LLSD values. While it's plausible to compare two arrays
+// lexicographically, what strict ordering can you impose on maps?
+// (LLFloaterTOS's current key is an LLSD map.)
+
+// Of course something like this is necessary if you want to build a std::set
+// or std::map with LLSD keys. Fortunately we're getting by with other
+// container types for now.
+
 //static
 bool LLFloater::KeyCompare::compare(const LLSD& a, const LLSD& b)
 {
@@ -159,32 +170,11 @@ bool LLFloater::KeyCompare::compare(const LLSD& a, const LLSD& b)
 	else
 		return false; // no valid operation for Binary
 }
+|*==========================================================================*/
 
 bool LLFloater::KeyCompare::equate(const LLSD& a, const LLSD& b)
 {
-	if (a.type() != b.type())
-	{
-		//llerrs << "Mismatched LLSD types: (" << a << ") mismatches (" << b << ")" << llendl;
-		return false;
-	}
-	else if (a.isUndefined())
-		return true;
-	else if (a.isInteger())
-		return a.asInteger() == b.asInteger();
-	else if (a.isReal())
-		return a.asReal() == b.asReal();
-	else if (a.isString())
-		return a.asString() == b.asString();
-	else if (a.isUUID())
-		return a.asUUID() == b.asUUID();
-	else if (a.isDate())
-		return a.asDate() == b.asDate();
-	else if (a.isURI())
-		return a.asString() == b.asString(); // compare URIs as strings
-	else if (a.isBoolean())
-		return a.asBoolean() == b.asBoolean();
-	else
-		return false; // no valid operation for Binary
+	return llsd_equals(a, b);
 }
 
 //************************************
