@@ -5338,42 +5338,64 @@ class LLWorldCreateLandmark : public view_listener_t
 	}
 };
 
-class LLToolsLookAtSelection : public view_listener_t
+void handle_look_at_selection(const LLSD& param)
 {
-	bool handleEvent(const LLSD& userdata)
+	const F32 PADDING_FACTOR = 2.f;
+	BOOL zoom = (param.asString() == "zoom");
+	if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
 	{
-		const F32 PADDING_FACTOR = 2.f;
-		BOOL zoom = (userdata.asString() == "zoom");
-		if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
+		gAgent.setFocusOnAvatar(FALSE, ANIMATE);
+
+		LLBBox selection_bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
+		F32 angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getAspect() > 1.f ? LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect() : LLViewerCamera::getInstance()->getView());
+		F32 distance = selection_bbox.getExtentLocal().magVec() * PADDING_FACTOR / atan(angle_of_view);
+
+		LLVector3 obj_to_cam = LLViewerCamera::getInstance()->getOrigin() - selection_bbox.getCenterAgent();
+		obj_to_cam.normVec();
+
+		LLUUID object_id;
+		if (LLSelectMgr::getInstance()->getSelection()->getPrimaryObject())
 		{
-			gAgent.setFocusOnAvatar(FALSE, ANIMATE);
-
-			LLBBox selection_bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
-			F32 angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getAspect() > 1.f ? LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect() : LLViewerCamera::getInstance()->getView());
-			F32 distance = selection_bbox.getExtentLocal().magVec() * PADDING_FACTOR / atan(angle_of_view);
-
-			LLVector3 obj_to_cam = LLViewerCamera::getInstance()->getOrigin() - selection_bbox.getCenterAgent();
-			obj_to_cam.normVec();
-
-			LLUUID object_id;
-			if (LLSelectMgr::getInstance()->getSelection()->getPrimaryObject())
-			{
-				object_id = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->mID;
-			}
-			if (zoom)
-			{
-				gAgent.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance), 
-												LLSelectMgr::getInstance()->getSelectionCenterGlobal(), 
-												object_id );
-			}
-			else
-			{
-				gAgent.setFocusGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal(), object_id );
-			}
+			object_id = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->mID;
 		}
-		return true;
+		if (zoom)
+		{
+			gAgent.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance), 
+											LLSelectMgr::getInstance()->getSelectionCenterGlobal(), 
+											object_id );
+		}
+		else
+		{
+			gAgent.setFocusGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal(), object_id );
+		}
 	}
-};
+}
+
+void handle_zoom_to_object(LLUUID object_id)
+{
+	const F32 PADDING_FACTOR = 2.f;
+
+	LLViewerObject* object = gObjectList.findObject(object_id);
+
+	if (object)
+	{
+		gAgent.setFocusOnAvatar(FALSE, ANIMATE);
+
+		LLBBox bbox = object->getBoundingBoxAgent() ;
+		F32 angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getAspect() > 1.f ? LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect() : LLViewerCamera::getInstance()->getView());
+		F32 distance = bbox.getExtentLocal().magVec() * PADDING_FACTOR / atan(angle_of_view);
+
+		LLVector3 obj_to_cam = LLViewerCamera::getInstance()->getOrigin() - bbox.getCenterAgent();
+		obj_to_cam.normVec();
+
+
+			LLVector3d object_center_global = gAgent.getPosGlobalFromAgent(bbox.getCenterAgent());
+
+			gAgent.setCameraPosAndFocusGlobal(object_center_global + LLVector3d(obj_to_cam * distance), 
+											object_center_global, 
+											object_id );
+	}
+}
 
 class LLAvatarInviteToGroup : public view_listener_t
 {
@@ -7753,8 +7775,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToolsUnlink(), "Tools.Unlink");
 	view_listener_t::addMenu(new LLToolsStopAllAnimations(), "Tools.StopAllAnimations");
 	view_listener_t::addMenu(new LLToolsReleaseKeys(), "Tools.ReleaseKeys");
-	view_listener_t::addMenu(new LLToolsEnableReleaseKeys(), "Tools.EnableReleaseKeys");
-	view_listener_t::addMenu(new LLToolsLookAtSelection(), "Tools.LookAtSelection");
+	view_listener_t::addMenu(new LLToolsEnableReleaseKeys(), "Tools.EnableReleaseKeys");	
+	commit.add("Tools.LookAtSelection", boost::bind(&handle_look_at_selection, _2));
 	commit.add("Tools.BuyOrTake", boost::bind(&handle_buy_or_take));
 	commit.add("Tools.TakeCopy", boost::bind(&handle_take_copy));
 	view_listener_t::addMenu(new LLToolsSaveToInventory(), "Tools.SaveToInventory");

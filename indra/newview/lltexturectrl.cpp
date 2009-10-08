@@ -1066,15 +1066,17 @@ BOOL LLTextureCtrl::handleHover(S32 x, S32 y, MASK mask)
 BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = LLUICtrl::handleMouseDown( x, y , mask );
-	if( handled )
+
+	if( !handled )
 	{
 		showPicker(FALSE);
-
 		//grab textures first...
 		gInventory.startBackgroundFetch(gInventory.findCategoryUUIDForType(LLAssetType::AT_TEXTURE));
 		//...then start full inventory fetch.
 		gInventory.startBackgroundFetch();
+		handled = TRUE;
 	}
+
 	return handled;
 }
 

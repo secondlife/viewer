@@ -105,10 +105,11 @@
      function="Object.VisibleMute" />
   </menu_item_call>
   <menu_item_call
-    enabled="false" 
     label="Zoom In"
     layout="topleft"
    name="zoom_in">
+    <menu_item_call.on_click
+     function="InspectObject.ZoomIn" />
   </menu_item_call>    
   <menu_item_call
    label="Remove"

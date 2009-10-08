@@ -109,6 +109,7 @@ private:
 	void onClickSit();
 	void onClickOpen();
 	void onClickMoreInfo();
+	void onClickZoomIn();  
 	
 private:
 	LLUUID				mObjectID;
@@ -132,6 +133,7 @@ LLInspectObject::LLInspectObject(const LLSD& sd)
 	mCommitCallbackRegistrar.add("InspectObject.Sit",	boost::bind(&LLInspectObject::onClickSit, this));	
 	mCommitCallbackRegistrar.add("InspectObject.Open",	boost::bind(&LLInspectObject::onClickOpen, this));	
 	mCommitCallbackRegistrar.add("InspectObject.MoreInfo",	boost::bind(&LLInspectObject::onClickMoreInfo, this));	
+	mCommitCallbackRegistrar.add("InspectObject.ZoomIn", boost::bind(&LLInspectObject::onClickZoomIn, this));
 }
 
 
@@ -551,6 +553,12 @@ void LLInspectObject::onClickMoreInfo()
 {
 	// *TODO: Show object info side panel, once that is implemented.
 	LLNotifications::instance().add("ClickUnimplemented");
+	closeFloater();
+}
+
+void LLInspectObject::onClickZoomIn() 
+{
+	handle_look_at_selection("zoom");
 	closeFloater();
 }
 

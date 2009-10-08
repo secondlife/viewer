@@ -98,8 +98,9 @@ bool enable_object_open();
 
 // Buy either contents or object itself
 void handle_buy();
-
 void handle_take_copy();
+void handle_look_at_selection(const LLSD& param);
+void handle_zoom_to_object(LLUUID object_id);
 
 // Can anyone take a free copy of the object?
 // *TODO: Move to separate file

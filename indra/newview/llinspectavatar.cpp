@@ -109,10 +109,11 @@ private:
 	void onClickPay();
 	void onClickBlock();
 	void onClickReport();
+	void onClickZoomIn();  
+	void onClickFindOnMap();
 	bool onVisibleFindOnMap();
 	bool onVisibleGodMode();
 	void onClickMuteVolume();
-	void onFindOnMap();
 	void onVolumeChange(const LLSD& data);
 	
 	// Callback for gCacheName to look up avatar name
@@ -196,7 +197,8 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mCommitCallbackRegistrar.add("InspectAvatar.Pay",	boost::bind(&LLInspectAvatar::onClickPay, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Block",	boost::bind(&LLInspectAvatar::onClickBlock, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Report",	boost::bind(&LLInspectAvatar::onClickReport, this));	
-	mCommitCallbackRegistrar.add("InspectAvatar.FindOnMap",	boost::bind(&LLInspectAvatar::onFindOnMap, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.FindOnMap",	boost::bind(&LLInspectAvatar::onClickFindOnMap, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.ZoomIn", boost::bind(&LLInspectAvatar::onClickZoomIn, this));
 	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleFindOnMap",	boost::bind(&LLInspectAvatar::onVisibleFindOnMap, this));	
 	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleGodMode",	boost::bind(&LLInspectAvatar::onVisibleGodMode, this));	
 
@@ -476,7 +478,6 @@ void LLInspectAvatar::onClickViewProfile()
 	// hide inspector when showing profile
 	setFocus(FALSE);
 	LLAvatarActions::showProfile(mAvatarID);
-
 }
 
 bool LLInspectAvatar::onVisibleFindOnMap()
@@ -521,8 +522,13 @@ void LLInspectAvatar::onClickReport()
 	LLFloaterReporter::showFromObject(mAvatarID);
 }
 
+void LLInspectAvatar::onClickZoomIn() 
+{
+	handle_zoom_to_object(mAvatarID);
+	closeFloater();
+}
 
-void LLInspectAvatar::onFindOnMap()
+void LLInspectAvatar::onClickFindOnMap()
 {
 	gFloaterWorldMap->trackAvatar(mAvatarID, mAvatarName);
 	LLFloaterReg::showInstance("world_map");
