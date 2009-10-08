@@ -92,13 +92,15 @@ SET(llmath_TEST_SOURCE_FILES
 LL_ADD_PROJECT_UNIT_TESTS(llmath "${llmath_TEST_SOURCE_FILES}")
 
 set(test_libs llmath llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
-LL_ADD_INTEGRATION_TEST(v2math v2math.cpp "${test_libs}")
-LL_ADD_INTEGRATION_TEST(v3math v3math.cpp "${test_libs}")
-LL_ADD_INTEGRATION_TEST(xform xform.cpp "${test_libs}")
+# some of these are probably pretty decent *unit* tests rather than integration tests, but I have to work out a CMake whining puzzle.
 LL_ADD_INTEGRATION_TEST(llbbox llbbox.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(llbboxlocal llbboxlocal.cpp "${test_libs}")
+LL_ADD_INTEGRATION_TEST(llquaternion llquaternion.cpp "${test_libs}")
+LL_ADD_INTEGRATION_TEST(v2math v2math.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(v3color v3color.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(v3dmath v3dmath.cpp "${test_libs}")
+LL_ADD_INTEGRATION_TEST(v3math v3math.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(v4color v4color.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(v4coloru v4coloru.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(v4math v4math.cpp "${test_libs}")
+LL_ADD_INTEGRATION_TEST(xform xform.cpp "${test_libs}")
