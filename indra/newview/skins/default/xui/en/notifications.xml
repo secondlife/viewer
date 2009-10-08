@@ -5444,7 +5444,7 @@ The following Media Plugin has failed:
 Please re-install the plugin or contact the vendor if you continue to experience problems.
     <form name="form">
       <ignore name="ignore"
-       text="When a Media Plugin fails"/>
+       text="A Media Plugin fails to run"/>
     </form>
   </notification>
   <notification
