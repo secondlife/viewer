@@ -85,24 +85,21 @@ add_library (llmath ${llmath_SOURCE_FILES})
 # Add tests
 include(LLAddBuildTest)
 SET(llmath_TEST_SOURCE_FILES
-  # nat 2009-08-28: found this commented out and considered implementing it
-  # using LL_ADD_INTEGRATION_TEST, but there's no llvolume_test.cpp source?
-  # llvolume.cpp
+  llrect.cpp
+  v2math.cpp
+  v3color.cpp
+  v4coloru.cpp
   )
 LL_ADD_PROJECT_UNIT_TESTS(llmath "${llmath_TEST_SOURCE_FILES}")
 
 set(test_libs llmath llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
-# some of these are probably pretty decent *unit* tests rather than integration tests, but I have to work out a CMake whining puzzle.
+# TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
 LL_ADD_INTEGRATION_TEST(llbbox llbbox.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(llbboxlocal llbboxlocal.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(mathmisc "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(llrect "llrect.cpp" "${test_libs}")
 LL_ADD_INTEGRATION_TEST(llquaternion llquaternion.cpp "${test_libs}")
-LL_ADD_INTEGRATION_TEST(v2math v2math.cpp "${test_libs}")
-LL_ADD_INTEGRATION_TEST(v3color v3color.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(v3dmath v3dmath.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(v3math v3math.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(v4color v4color.cpp "${test_libs}")
-LL_ADD_INTEGRATION_TEST(v4coloru v4coloru.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(v4math v4math.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(xform xform.cpp "${test_libs}")
