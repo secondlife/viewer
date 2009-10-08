@@ -784,7 +784,7 @@
             </panel.string>
             <panel.string
              name="text modify warning">
-                This object has linked parts
+                You must select entire object to set permissions
             </panel.string>
             <panel.string
              name="Cost Default">
@@ -1090,13 +1090,13 @@
              left_pad="0"
              name="checkbox allow everyone copy"
              width="90" />
-           <check_box
+ <!--           <check_box
              height="19"
              label="Use"
              layout="topleft"
              left_pad="0"
              name="allow everyone to use"
-             width="90" />
+             width="90" /> -->
             <text
                type="string"
                follows="left|top"
