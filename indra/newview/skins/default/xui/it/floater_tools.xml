@@ -160,7 +160,7 @@
 			</combo_box>
 		<panel name="perms_build">
 			<text name="perm_modify">
-				Puoi modificare questo oggetto.
+				Puoi modificare questo oggetto
 			</text>
 			<text name="B:">
 				B:
@@ -188,28 +188,28 @@
 			<check_box name="checkbox next owner can transfer" left_delta="67"/>
 		</panel>
 			<string name="text modify info 1">
-				Puoi modificare questo oggetto.
+				Puoi modificare questo oggetto
 			</string>
 			<string name="text modify info 2">
-				Puoi modificare questi oggetti.
+				Puoi modificare questi oggetti
 			</string>
 			<string name="text modify info 3">
-				Non puoi modificare questo oggetto.
+				Non puoi modificare questo oggetto
 			</string>
 			<string name="text modify info 4">
-				Non puoi modificare questi oggetti.
+				Non puoi modificare questi oggetti
 			</string>
 			<string name="text modify warning">
-				Devi selezionare l&apos;intero oggetto per impostare i permessi.
+				Devi selezionare l&apos;intero oggetto per impostare i permessi
 			</string>
 			<string name="Cost Default">
-				Prezzo:         L$
+				Prezzo: L$
 			</string>
 			<string name="Cost Total">
-				Prezzo totale:  L$
+				Prezzo totale: L$
 			</string>
 			<string name="Cost Per Unit">
-				Prezzo per:     L$
+				Prezzo per: L$
 			</string>
 			<string name="Cost Mixed">
 				Prezzo misto
@@ -502,8 +502,8 @@
 			<button label="Allinea" label_selected="Allinea" name="button align" left="160"/>
 		</panel>
 		<panel label="Contenuto" name="Contents">
-			<button label="Nuovo Script" label_selected="Nuovo script..." name="button new script"/>
-			<button label="Permessi..." name="button permissions"/>
+			<button label="Nuovo Script" label_selected="Nuovo script" name="button new script"/>
+			<button label="Permessi" name="button permissions"/>
 			<panel name="ContentsInventory" width="272" />
 		</panel>
 	</tab_container>
@@ -523,13 +523,13 @@
 		<text name="label_parcel_modify">
 			Modifica il terreno
 		</text>
-		<button label="Suddividi..." label_selected="Suddividi..." name="button subdivide land" width="156"/>
-		<button label="Unisci..." label_selected="Unisci..." name="button join land" width="156"/>
+		<button label="Suddividi" label_selected="Suddividi" name="button subdivide land" width="156"/>
+		<button label="Unisci" label_selected="Unisci" name="button join land" width="156"/>
 		<text name="label_parcel_trans">
 			Transazioni del territorio
 		</text>
-		<button label="Acquista il terreno..." label_selected="Acquista il terreno..." name="button buy land" width="156"/>
-		<button label="Abbandona il terreno..." label_selected="Abbandona il terreno..." name="button abandon land" width="156"/>
+		<button label="Acquista il terreno" label_selected="Acquista il terreno" name="button buy land" width="156"/>
+		<button label="Abbandona il terreno" label_selected="Abbandona il terreno" name="button abandon land" width="156"/>
 	</panel>
 	<floater.string name="status_rotate">
 		Sposta le fasce colorate per ruotare l&apos;oggetto

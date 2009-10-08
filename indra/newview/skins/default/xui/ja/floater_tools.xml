@@ -192,13 +192,13 @@
 				権限を設定するには、オブジェクト全体を選択する必要があります。
 			</string>
 			<string name="Cost Default">
-				価格：        L$
+				価格： L$
 			</string>
 			<string name="Cost Total">
-				合計価格：  L$
+				合計価格： L$
 			</string>
 			<string name="Cost Per Unit">
-				単価：     L$
+				単価： L$
 			</string>
 			<string name="Cost Mixed">
 				混合価格
@@ -442,7 +442,7 @@
 		</panel>
 		<panel label="中身" name="Contents">
 			<button label="新しいスクリプト" label_selected="新しいスクリプト" name="button new script" width="120"/>
-			<button label="権限..." name="button permissions" left_delta="130" width="80"/>
+			<button label="権限" name="button permissions" left_delta="130" width="80"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
@@ -461,13 +461,13 @@
 		<text name="label_parcel_modify">
 			区画の編集
 		</text>
-		<button label="再分割..." label_selected="再分割..." name="button subdivide land"/>
-		<button label="統合する..." label_selected="統合する..." name="button join land"/>
+		<button label="再分割" label_selected="再分割" name="button subdivide land"/>
+		<button label="統合する" label_selected="統合する" name="button join land"/>
 		<text name="label_parcel_trans">
 			土地取引
 		</text>
-		<button label="土地を購入..." label_selected="土地を購入..." name="button buy land"/>
-		<button label="土地を放棄..." label_selected="土地を放棄..." name="button abandon land"/>
+		<button label="土地を購入" label_selected="土地を購入" name="button buy land"/>
+		<button label="土地を放棄" label_selected="土地を放棄" name="button abandon land"/>
 	</panel>
 	<floater.string name="status_rotate">
 		色の付いたバンドをドラッグしてオブジェクトを回転
