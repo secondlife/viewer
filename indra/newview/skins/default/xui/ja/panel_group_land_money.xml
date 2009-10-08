@@ -48,8 +48,11 @@
 	<string name="land_contrib_error">
 		土地の出資設定を行うことができませんでした。
 	</string>
+	<text name="your_contribution_units">
+		(平方メートル)
+	</text>
 	<text name="your_contribution_max_value">
-		平方メートル ([AMOUNT]最大)
+		([AMOUNT]最大)
 	</text>
 	<text name="group_over_limit_text">
 		使用中の土地をサポートするには、グループ・メンバーがさらに多

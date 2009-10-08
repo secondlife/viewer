@@ -47,8 +47,11 @@
 	<string name="land_contrib_error">
 		Non è possibile impostare i tuoi contributi in terra.
 	</string>
+	<text name="your_contribution_units">
+		( m² )
+	</text>
 	<text name="your_contribution_max_value">
-		m² ([AMOUNT] massimo)
+		([AMOUNT] massimo)
 	</text>
 	<text name="group_over_limit_text">
 		I membri del gruppo devono contribuire con più crediti per mantenere

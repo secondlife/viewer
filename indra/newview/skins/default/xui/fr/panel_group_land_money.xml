@@ -49,8 +49,11 @@ financières de ce groupe.
 	<string name="land_contrib_error">
 		Impossible de définir votre don de terre.
 	</string>
+	<text name="your_contribution_units">
+		( m² )
+	</text>
 	<text name="your_contribution_max_value">
-		m² ([AMOUNT] max.)
+		([AMOUNT] max.)
 	</text>
 	<text name="group_over_limit_text">
 		Une contribution supplémentaire du groupe est requise pour prendre en

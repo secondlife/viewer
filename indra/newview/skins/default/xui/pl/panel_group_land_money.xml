@@ -48,8 +48,11 @@
 	<string name="land_contrib_error">
 		Nie można ustalić Twoich kontrybucji.
 	</string>
+	<text name="your_contribution_units">
+		( m )
+	</text>
 	<text name="your_contribution_max_value">
-		metrów ([AMOUNT] maksimum)
+		([AMOUNT] maksimum)
 	</text>
 	<text name="group_over_limit_text">
 		Członkowie Grupy muszą zwiększyć kredyt na używanie Posiadłości.
