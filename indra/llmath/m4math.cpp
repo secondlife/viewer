@@ -678,32 +678,6 @@ LLVector4 operator*(const LLMatrix4 &a, const LLVector4 &b)
 }
 */
 
-// Operates "to the left" on row-vector a
-//
-// This used to be in the header file but was not actually inlined in practice.
-// When avatar vertex programs are off, this function is a hot spot in profiles
-// due to software skinning in LLViewerJointMesh::updateGeometry().  JC
-LLVector3 operator*(const LLVector3 &a, const LLMatrix4 &b)
-{
-	// This is better than making a temporary LLVector3.  This eliminates an
-	// unnecessary LLVector3() constructor and also helps the compiler to
-	// realize that the output floats do not alias the input floats, hence
-	// eliminating redundant loads of a.mV[0], etc.  JC
-	return LLVector3(a.mV[VX] * b.mMatrix[VX][VX] + 
-					 a.mV[VY] * b.mMatrix[VY][VX] + 
-					 a.mV[VZ] * b.mMatrix[VZ][VX] +
-					 b.mMatrix[VW][VX],
-					 
-					 a.mV[VX] * b.mMatrix[VX][VY] + 
-					 a.mV[VY] * b.mMatrix[VY][VY] + 
-					 a.mV[VZ] * b.mMatrix[VZ][VY] +
-					 b.mMatrix[VW][VY],
-					 
-					 a.mV[VX] * b.mMatrix[VX][VZ] + 
-					 a.mV[VY] * b.mMatrix[VY][VZ] + 
-					 a.mV[VZ] * b.mMatrix[VZ][VZ] +
-					 b.mMatrix[VW][VZ]);
-}
 
 LLVector4 operator*(const LLVector4 &a, const LLMatrix4 &b)
 {

@@ -556,4 +556,10 @@ inline BOOL are_parallel(const LLVector3 &a, const LLVector3 &b, F32 epsilon)
 	return FALSE;
 }
 
+inline std::ostream& operator<<(std::ostream& s, const LLVector3 &a) 
+{
+	s << "{ " << a.mV[VX] << ", " << a.mV[VY] << ", " << a.mV[VZ] << " }";
+	return s;
+}
+
 #endif

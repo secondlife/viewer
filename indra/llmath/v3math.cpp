@@ -185,14 +185,6 @@ void 	LLVector3::snap(S32 sig_digits)
 	mV[VZ] = snap_to_sig_figs(mV[VZ], sig_digits);
 }
 
-
-std::ostream& operator<<(std::ostream& s, const LLVector3 &a) 
-{
-	s << "{ " << a.mV[VX] << ", " << a.mV[VY] << ", " << a.mV[VZ] << " }";
-	return s;
-}
-
-
 const LLVector3&	LLVector3::rotVec(const LLMatrix3 &mat)
 {
 	*this = *this * mat;

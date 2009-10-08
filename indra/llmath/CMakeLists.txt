@@ -84,7 +84,9 @@ add_library (llmath ${llmath_SOURCE_FILES})
 
 # Add tests
 include(LLAddBuildTest)
+# UNIT TESTS
 SET(llmath_TEST_SOURCE_FILES
+  llbboxlocal.cpp
   llrect.cpp
   v2math.cpp
   v3color.cpp
@@ -92,10 +94,10 @@ SET(llmath_TEST_SOURCE_FILES
   )
 LL_ADD_PROJECT_UNIT_TESTS(llmath "${llmath_TEST_SOURCE_FILES}")
 
+# INTEGRATION TESTS
 set(test_libs llmath llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
 # TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
 LL_ADD_INTEGRATION_TEST(llbbox llbbox.cpp "${test_libs}")
-LL_ADD_INTEGRATION_TEST(llbboxlocal llbboxlocal.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(mathmisc "" "${test_libs}")
 LL_ADD_INTEGRATION_TEST(llquaternion llquaternion.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(v3dmath v3dmath.cpp "${test_libs}")
