@@ -1194,7 +1194,7 @@ LLIMMgr::LLIMMgr() :
 	static bool registered_dialog = false;
 	if (!registered_dialog)
 	{
-		LLFloaterReg::add("incoming_call", "floater_incoming_call.xml.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIncomingCallDialog>);
+		LLFloaterReg::add("incoming_call", "floater_incoming_call.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIncomingCallDialog>);
 		registered_dialog = true;
 	}
 		
@@ -1432,7 +1432,7 @@ LLUUID LLIMMgr::addP2PSession(const std::string& name,
 {
 	LLUUID session_id = addSession(name, IM_NOTHING_SPECIAL, other_participant_id);
 
-	LLVoiceChannelP2P* voice_channel = (LLVoiceChannelP2P*) LLIMModel::getInstance()->getSpeakerManager(session_id);
+	LLVoiceChannelP2P* voice_channel = dynamic_cast<LLVoiceChannelP2P*>(LLIMModel::getInstance()->getSpeakerManager(session_id));
 	if (voice_channel)
 	{
 		voice_channel->setSessionHandle(voice_session_handle, caller_uri);
