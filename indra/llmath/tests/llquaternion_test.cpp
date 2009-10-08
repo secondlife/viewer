@@ -32,8 +32,6 @@
  * $/LicenseInfo$
  */
 
-#include <cmath>
-
 #include "linden_common.h"
 #include "../test/lltut.h"
 

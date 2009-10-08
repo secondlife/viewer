@@ -72,7 +72,6 @@ set(test_SOURCE_FILES
     lluri_tut.cpp
     lluuidhashmap_tut.cpp
     llxfer_tut.cpp
-    math.cpp
     message_tut.cpp
     reflection_tut.cpp
     stringize_tut.cpp
