@@ -304,7 +304,11 @@ BOOL LLViewerMediaFocus::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	BOOL retval = FALSE;
 	if(mFocus.notNull() && mMediaImpl.notNull() && mMediaImpl->hasMedia())
 	{
-		mMediaImpl->getMediaPlugin()->scrollEvent(x, y, clicks);
+        // the scrollEvent() API's x and y are not the same as handleScrollWheel's x and y.
+        // The latter is the position of the mouse at the time of the event
+        // The former is the 'scroll amount' in x and y, respectively.
+        // All we have for 'scroll amount' here is 'clicks', and no mask.
+		mMediaImpl->getMediaPlugin()->scrollEvent(0, clicks, /*mask*/0);
 		retval = TRUE;
 	}
 	return retval;
