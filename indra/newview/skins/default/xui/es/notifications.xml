@@ -1993,9 +1993,9 @@ Dado que estos objetos tienen scripts, moverlos a su inventario puede provocar u
 		<usetemplate ignoretext="Cuando mueva objetos con script &apos;no copiables&apos; del inventario" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ClickActionNotPayable">
-		Atención: la acción Pagar al objeto al pulsar ha sido marcada, pero sólo funcionará si se añade un script con un evento money().
+		Atención: la acción &apos;Pagar al objeto&apos; al pulsar ha sido marcada, pero sólo funcionará si se añade un script con un evento money().
 		<form name="form">
-			<ignore name="ignore" text="Cuando configure &apos;Pagar&apos; en objetos sin el evento money()"/>
+			<ignore name="ignore" text="Cuando configure &apos;Pagar al objeto&apos; sin el evento money()"/>
 		</form>
 	</notification>
 	<notification name="OpenObjectCannotCopy">

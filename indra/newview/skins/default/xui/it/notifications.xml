@@ -1987,9 +1987,9 @@ Trasferisci gli elementi nell&apos;inventario?
 		<usetemplate ignoretext="Quando si trasferiscono oggetti scriptati non copiabili nell&apos;inventario." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="ClickActionNotPayable">
-		Attenzione: L&apos;azione di pagamento automatico al click è stata impostata, ma funzionerà solo se aggiungi uno script con un evento money().
+		Attenzione: L&apos;azione &apos;Paga l&apos;oggetto&apos; al click è stata impostata, ma funzionerà solo se aggiungi uno script con un evento money().
 		<form name="form">
-			<ignore name="ignore" text="Quando imposti il &apos;Pagamento&apos; di oggetti senza l&apos;evento money()"/>
+			<ignore name="ignore" text="Quando imposti il &apos;Paga l&apos;oggetto&apos; senza l&apos;evento money()"/>
 		</form>
 	</notification>
 	<notification name="OpenObjectCannotCopy">

@@ -1936,7 +1936,7 @@ Przenieść obiekty szafy?
 		<usetemplate ignoretext="Przenosząc szafę bez praw kopiowania ze skryptowanych obiektów" name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="ClickActionNotPayable">
-		Uwaga: Opcja Zapłać Obiektowi została wybrana, ale żeby ta opcja działała musi być dodany skrypt z funkcją money().
+		Uwaga: Opcja &apos;Zapłać Obiektowi&apos; została wybrana, ale żeby ta opcja działała musi być dodany skrypt z funkcją money().
 		<form name="form">
 			<ignore name="ignore" text="Wybierając opcję Zapłać Obiektowi dla obiektów bez funkcji money()"/>
 		</form>

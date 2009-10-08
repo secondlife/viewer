@@ -1954,7 +1954,7 @@ Mover para o inventário o(s) item(s)?
 		<usetemplate ignoretext="Quando movendo objetos com scripts não copiáveis ao inventário" name="okcancelignore" notext="Não mover" yestext="Mover"/>
 	</notification>
 	<notification name="ClickActionNotPayable">
-		Aviso: A ação de Pagar ao Objeto com clique foi definida, mas funcionará apenas se for adicionado um script com o evento money().
+		Aviso: A ação de &apos;Pagar Objeto&apos; com clique foi definida, mas funcionará apenas se for adicionado um script com o evento money().
 		<form name="form">
 			<ignore name="ignore" text="Quando Definindo &apos;Pagar&apos; em objetos sem eventos money()"/>
 		</form>

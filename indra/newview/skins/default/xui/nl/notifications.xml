@@ -1991,7 +1991,7 @@ inventaris item(s) verplaatsen?
 		<usetemplate ignoretext="Indien verplaatsen &apos;niet kopieerbare&apos; inventaris van gescripte objecten" name="okcancelignore" notext="Annuleren" yestext="OK"/>
 	</notification>
 	<notification name="ClickActionNotPayable">
-		Waarschuwing: Het Betaal Object aan klik actie is ingesteld, maar het zal alleen werken als er een script is toegevoegd met een money() event.
+		Waarschuwing: Het &apos;Betaal object&apos; aan klik actie is ingesteld, maar het zal alleen werken als er een script is toegevoegd met een money() event.
 		<form name="form">
 			<ignore name="ignore" text="Indien instellen &apos;Betaal&apos; op objecten zonder money() events"/>
 		</form>

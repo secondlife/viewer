@@ -1913,7 +1913,7 @@ Déplacer les objets de l&apos;inventaire ?
 		<usetemplate ignoretext="Lors du transfert d&apos;un inventaire non copiable depuis des objets scriptés" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="ClickActionNotPayable">
-		Avertissement : l&apos;action du clic Payer l&apos;objet a été défini mais ne fonctionnera que si un script est ajouté avec l&apos;event money().
+		Avertissement : l&apos;action du clic &apos;Payer l&apos;objet&apos; a été défini mais ne fonctionnera que si un script est ajouté avec l&apos;event money().
 		<form name="form">
 			<ignore name="ignore" text="Lors du paramétrage de la fonction Payer sur des objets sans événement monétaire"/>
 		</form>
@@ -2333,8 +2333,8 @@ Voulez-vous aller sur le site de [SECOND_LIFE] pour enregistrer ces informations
 		Vous ne pouvez pas devenir ami avec vous-même.
 	</notification>
 	<notification name="UploadingAuctionSnapshot">
-		Importation de photos SL et Web en cours
-(prend environ 5 minutes…)
+		Importation de photos SL et Web en cours...
+(prend environ 5 minutes.)
 	</notification>
 	<notification name="UploadPayment">
 		Le chargement a coûté [AMOUNT] L$.
