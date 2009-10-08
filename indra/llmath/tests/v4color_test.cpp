@@ -217,7 +217,7 @@ namespace tut
 		llcolor4a = llcolor3;
 		ensure("Operator=:Fail to initialize ", ((llcolor3.mV[0] == llcolor4a.mV[VX]) && (llcolor3.mV[1] == llcolor4a.mV[VY]) && (llcolor3.mV[2] == llcolor4a.mV[VZ])));
 		LLSD sd = llcolor4a.getValue();
-		llcolor4b = sd;
+		llcolor4b = LLColor4(sd);
 		ensure_equals("Operator= LLSD:Fail ", llcolor4a, llcolor4b);
 	}
 

@@ -90,6 +90,7 @@ SET(llmath_TEST_SOURCE_FILES
   llrect.cpp
   v2math.cpp
   v3color.cpp
+  v4color.cpp
   v4coloru.cpp
   )
 LL_ADD_PROJECT_UNIT_TESTS(llmath "${llmath_TEST_SOURCE_FILES}")
@@ -102,6 +103,5 @@ LL_ADD_INTEGRATION_TEST(mathmisc "" "${test_libs}")
 LL_ADD_INTEGRATION_TEST(llquaternion llquaternion.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(v3dmath v3dmath.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(v3math v3math.cpp "${test_libs}")
-LL_ADD_INTEGRATION_TEST(v4color v4color.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(v4math v4math.cpp "${test_libs}")
 LL_ADD_INTEGRATION_TEST(xform xform.cpp "${test_libs}")
