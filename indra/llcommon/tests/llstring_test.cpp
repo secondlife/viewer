@@ -554,6 +554,7 @@ namespace tut
 		fmt_map["[KEYSHORTER]"] = "Am I not a long string?";
 		fmt_map["?"] = "?";
 		fmt_map["[DELETE]"] = "";
+		fmt_map["[]"] = "[]"; // doesn't do a substitution, but shouldn't crash either
 
 		for (LLStringUtil::format_map_t::const_iterator iter = fmt_map.begin(); iter != fmt_map.end(); ++iter)
 		{
@@ -562,7 +563,7 @@ namespace tut
 			std::string s2 = (std::string)iter->second;
 			subcount = LLStringUtil::format(s1, fmt_map);
 			ensure_equals("LLStringUtil::format: Raw interpolation result", s1, s2);
-			if (s1 == "?")
+			if (s1 == "?" || s1 == "[]") // no interp expected
 			{
 				ensure_equals("LLStringUtil::format: Raw interpolation result count", 0, subcount);
 			}
@@ -580,7 +581,7 @@ namespace tut
 			s = s1 + s1 + s1 + s1;
 			subcount = LLStringUtil::format(s, fmt_map);
 			ensure_equals("LLStringUtil::format: Rawx4 interpolation result", s, s2 + s2 + s2 + s2);
-			if (s1 == "?")
+			if (s1 == "?" || s1 == "[]") // no interp expected
 			{
 				ensure_equals("LLStringUtil::format: Rawx4 interpolation result count", 0, subcount);
 			}
