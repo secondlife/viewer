@@ -32,8 +32,6 @@ set(test_SOURCE_FILES
     io.cpp
 #    llapp_tut.cpp						# Temporarily removed until thread issues can be solved
     llbase64_tut.cpp
-    llbbox_tut.cpp
-    llbboxlocal_tut.cpp
     llblowfish_tut.cpp
     llbuffer_tut.cpp
     lldate_tut.cpp
@@ -54,7 +52,6 @@ set(test_SOURCE_FILES
     llnamevalue_tut.cpp
     llpermissions_tut.cpp
     llpipeutil.cpp
-    llquaternion_tut.cpp
     llrandom_tut.cpp
     llrect_tut.cpp
     llsaleinfo_tut.cpp
@@ -66,7 +63,6 @@ set(test_SOURCE_FILES
     llsdutil_tut.cpp
     llservicebuilder_tut.cpp
     llstreamtools_tut.cpp
-    llstring_tut.cpp
     lltemplatemessagebuilder_tut.cpp
     lltimestampcache_tut.cpp
     lltiming_tut.cpp
@@ -81,13 +77,6 @@ set(test_SOURCE_FILES
     reflection_tut.cpp
     stringize_tut.cpp
     test.cpp
-    v2math_tut.cpp
-    v3color_tut.cpp
-    v3dmath_tut.cpp
-    v3math_tut.cpp
-    v4color_tut.cpp
-    v4coloru_tut.cpp
-    v4math_tut.cpp
     )
 
 set(test_HEADER_FILES
