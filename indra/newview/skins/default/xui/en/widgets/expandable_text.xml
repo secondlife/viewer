@@ -8,8 +8,8 @@
   use_ellipses="true"
   word_wrap="true"
   tab_stop="true"
-  v_pad="2"
-  h_pad="3" >
+  v_pad="3"
+  h_pad="4" >
  </textbox>
  <scroll
   name="scroll"

@@ -37,9 +37,9 @@
 #include "llsearcheditor.h"
 
 LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
-:	LLUICtrl(p)
-	, mSearchButton(NULL)
-	, mClearButton(NULL)
+:	LLUICtrl(p),
+	mSearchButton(NULL),
+	mClearButton(NULL)
 {
 	S32 srch_btn_top = p.search_button.top_pad + p.search_button.rect.height;
 	S32 srch_btn_right = p.search_button.rect.width + p.search_button.left_pad;

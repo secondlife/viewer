@@ -42,7 +42,7 @@
      height="20"
      layout="topleft"
      left_pad="5"
-     use_ellipsis="true"
+     use_ellipses="true"
      name="region"
      text_color="white"
      top="4"

@@ -34,7 +34,6 @@
      font="SansSerif"
      height="64"
      border_visible="false"
-     hide_scrollbar="true"
      layout="topleft"
      left="77"
      max_length="2147483647"

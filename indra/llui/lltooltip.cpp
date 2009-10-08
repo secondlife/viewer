@@ -147,6 +147,7 @@ static LLDefaultChildRegistry::Register<LLToolTip> r("tool_tip");
 LLToolTip::Params::Params()
 :	max_width("max_width", 200),
 	padding("padding", 4),
+	wrap("wrap", true),
 	pos("pos"),
 	message("message"),
 	delay_time("delay_time", LLUI::sSettingGroups["config"]->getF32( "ToolTipDelay" )),
@@ -181,6 +182,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	params.bg_visible = false;
 	params.font = p.font;
 	params.use_ellipses = true;
+	params.wrap = p.wrap;
 	mTextBox = LLUICtrlFactory::create<LLTextBox> (params);
 	addChild(mTextBox);
 

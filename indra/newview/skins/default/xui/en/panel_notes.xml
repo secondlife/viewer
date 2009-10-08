@@ -58,7 +58,6 @@
                 <text_editor
                  follows="left|top"
                  height="200"
-                 hide_scrollbar="true"
                  layout="topleft"
                  left="10"
                  max_length="1000"

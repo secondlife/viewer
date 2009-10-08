@@ -120,7 +120,6 @@
          follows="left|top|right"
          height="100"
          width="220"
-         hide_scrollbar="true"
          layout="topleft"
          left="10"
          top_pad="2"

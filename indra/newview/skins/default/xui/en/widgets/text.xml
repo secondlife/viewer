@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <text allow_html="true"
-      clip_to_rect="false"
       mouse_opaque="false" 
       name="text_box" 
       font="SansSerifSmall"
@@ -8,8 +7,8 @@
       tab_stop="false" 
       halign="left" 
       hover_color="LabelSelectedColor" 
-      h_pad="-1" 
-      hide_scrollbar="true"
+      h_pad="0" 
+      allow_scroll="false"
       text_readonly_color="LabelDisabledColor"
       bg_writeable_color="FloaterDefaultBackgroundColor" 
       border_color="DefaultHighlightLight"
@@ -18,5 +17,5 @@
       border_visible="false" 
       hover="false" 
       text_color="LabelTextColor"
-      v_pad="-1"
+      v_pad="0"
       max_length="4096"/>

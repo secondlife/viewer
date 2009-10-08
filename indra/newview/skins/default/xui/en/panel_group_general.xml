@@ -45,7 +45,6 @@ Hover your mouse over the options for more help.
      follows="left|top"
      left="5"
      height="75"
-     hide_scrollbar="true"
      layout="topleft"
      max_length="511"
      name="charter"

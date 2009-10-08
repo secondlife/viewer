@@ -83,6 +83,7 @@ public:
 		Optional<LLUIImage*>		image;
 		Optional<S32>				max_width;
 		Optional<S32>				padding;
+		Optional<bool>				wrap;
 
 		Params();
 	};

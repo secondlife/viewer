@@ -1465,6 +1465,7 @@ void LLViewerWindow::initBase()
 	LLToolTipView::Params hvp;
 	hvp.name("tooltip view");
 	hvp.rect(full_window);
+	hvp.follows.flags(FOLLOWS_ALL);
 	gToolTipView = LLUICtrlFactory::create<LLToolTipView>(hvp);
 	getRootView()->addChild(gToolTipView);
 

@@ -2916,3 +2916,10 @@ void LLTextEditor::onKeyStroke()
 {
 	mKeystrokeSignal(this);
 }
+
+//virtual
+void LLTextEditor::clear()
+{
+	getViewModel()->setDisplay(LLWStringUtil::null);
+	clearSegments();
+}

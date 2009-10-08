@@ -61,7 +61,6 @@
      font="SansSerifSmall" 
      read_only="true"
      bg_readonly_color="0 0 0 0"
-     hide_scrollbar="true"
      word_wrap="true"
      mouse_opaque="true" 
      name="msg_text" >

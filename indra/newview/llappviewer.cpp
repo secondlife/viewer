@@ -594,7 +594,8 @@ bool LLAppViewer::init()
 	// into the log files during normal startup until AFTER
 	// we run the "program crashed last time" error handler below.
 	//
-	
+	LLFastTimer::reset();
+
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
 	gDirUtilp->initAppDirs("SecondLife");
