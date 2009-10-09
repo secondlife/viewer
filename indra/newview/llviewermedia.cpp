@@ -588,6 +588,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mHasFocus(false),
 	mPriority(LLPluginClassMedia::PRIORITY_UNLOADED),
 	mDoNavigateOnLoad(false),
+	mDoNavigateOnLoadRediscoverType(false),
 	mDoNavigateOnLoadServerRequest(false),
 	mMediaSourceFailedInit(false),
 	mIsUpdated(false)
@@ -665,7 +666,7 @@ void LLViewerMediaImpl::createMediaSource()
 	{
 		if(! mMediaURL.empty())
 		{
-			navigateTo(mMediaURL, mMimeType, false, mDoNavigateOnLoadServerRequest);
+			navigateTo(mMediaURL, mMimeType, mDoNavigateOnLoadRediscoverType, mDoNavigateOnLoadServerRequest);
 		}
 		else if(! mMimeType.empty())
 		{
@@ -1010,14 +1011,7 @@ BOOL LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateHome()
 {
-	mMediaURL = mHomeURL;
-	mDoNavigateOnLoad = !mMediaURL.empty();
-	mDoNavigateOnLoadServerRequest = false;
-	
-	if(mMediaSource)
-	{
-		mMediaSource->loadURI( mHomeURL );
-	}
+	navigateTo(mHomeURL, "", true, false);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1032,12 +1026,16 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 		setNavState(MEDIANAVSTATE_NONE);
 	}
 	
-	// Always set the current URL.
+	// Always set the current URL and MIME type.
 	mMediaURL = url;
+	mMimeType = mime_type;
 	
 	// If the current URL is not null, make the instance do a navigate on load.
 	mDoNavigateOnLoad = !mMediaURL.empty();
 
+	// if mime type discovery was requested, we'll need to do it when the media loads
+	mDoNavigateOnLoadRediscoverType = rediscover_type;
+	
 	// and if this was a server request, the navigate on load will also need to be one.
 	mDoNavigateOnLoadServerRequest = server_request;
 
@@ -1047,6 +1045,21 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 		LL_DEBUGS("PluginPriority") << this << "Not loading (PRIORITY_UNLOADED)" << LL_ENDL;
 		
 		return;
+	}
+	
+	// If the caller has specified a non-empty MIME type, look that up in our MIME types list.
+	// If we have a plugin for that MIME type, use that instead of attempting auto-discovery.
+	// This helps in supporting legacy media content where the server the media resides on returns a bogus MIME type
+	// but the parcel owner has correctly set the MIME type in the parcel media settings.
+	
+	if(!mMimeType.empty() && (mMimeType != "none/none"))
+	{
+		std::string plugin_basename = LLMIMETypes::implType(mMimeType);
+		if(!plugin_basename.empty())
+		{
+			// We have a plugin for this mime type
+			rediscover_type = false;
+		}
 	}
 
 	if(rediscover_type)

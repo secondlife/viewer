@@ -278,6 +278,7 @@ public:
 	bool mHasFocus;
 	LLPluginClassMedia::EPriority mPriority;
 	bool mDoNavigateOnLoad;
+	bool mDoNavigateOnLoadRediscoverType;
 	bool mDoNavigateOnLoadServerRequest;
 	bool mMediaSourceFailedInit;
 
