@@ -1631,7 +1631,11 @@ void LLViewerWindow::shutdownViews()
 	{
 		gMorphView->setVisible(FALSE);
 	}
-	
+
+	// DEV-40930: Clear sModalStack. Otherwise, any LLModalDialog left open
+	// will crump with LL_ERRS.
+	LLModalDialog::shutdownModals();
+
 	// Delete all child views.
 	delete mRootView;
 	mRootView = NULL;
