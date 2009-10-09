@@ -1162,8 +1162,12 @@ void LLFloaterIMPanel::draw()
 	childSetEnabled("start_call_btn", enable_connect);
 	childSetEnabled("send_btn", !childGetValue("chat_editor").asString().empty());
 	
+	LLPointer<LLSpeaker> self_speaker;
 	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionUUID);
-	LLPointer<LLSpeaker> self_speaker = speaker_mgr->findSpeaker(gAgent.getID());
+	if (speaker_mgr)
+	{
+		self_speaker = speaker_mgr->findSpeaker(gAgent.getID());
+	}
 	if(!mTextIMPossible)
 	{
 		mInputEditor->setEnabled(FALSE);
@@ -1751,8 +1755,9 @@ void LLFloaterIMPanel::setTyping(BOOL typing)
 			// Will send typing state after a short delay.
 			mSentTypingState = FALSE;
 		}
-
-		speaker_mgr->setSpeakerTyping(gAgent.getID(), TRUE);
+		
+		if (speaker_mgr)
+			speaker_mgr->setSpeakerTyping(gAgent.getID(), TRUE);
 	}
 	else
 	{
@@ -1762,7 +1767,8 @@ void LLFloaterIMPanel::setTyping(BOOL typing)
 			sendTypingState(FALSE);
 			mSentTypingState = TRUE;
 		}
-		speaker_mgr->setSpeakerTyping(gAgent.getID(), FALSE);
+		if (speaker_mgr)
+			speaker_mgr->setSpeakerTyping(gAgent.getID(), FALSE);
 	}
 
 	mTyping = typing;
@@ -1822,7 +1828,11 @@ void LLFloaterIMPanel::removeTypingIndicator(const LLIMInfo* im_info)
 		mHistoryEditor->removeTextFromEnd(chars_to_remove);
 		if (im_info)
 		{
-			LLIMModel::getInstance()->getSpeakerManager(mSessionUUID)->setSpeakerTyping(im_info->mFromID, FALSE);
+			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionUUID);
+			if (speaker_mgr)
+			{
+				speaker_mgr->setSpeakerTyping(im_info->mFromID, FALSE);
+			}
 		}
 	}
 }

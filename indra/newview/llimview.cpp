@@ -1432,12 +1432,15 @@ LLUUID LLIMMgr::addP2PSession(const std::string& name,
 {
 	LLUUID session_id = addSession(name, IM_NOTHING_SPECIAL, other_participant_id);
 
-	LLVoiceChannelP2P* voice_channel = dynamic_cast<LLVoiceChannelP2P*>(LLIMModel::getInstance()->getSpeakerManager(session_id));
-	if (voice_channel)
+	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
+	if (speaker_mgr)
 	{
-		voice_channel->setSessionHandle(voice_session_handle, caller_uri);
+		LLVoiceChannelP2P* voice_channel = dynamic_cast<LLVoiceChannelP2P*>(speaker_mgr->getVoiceChannel());
+		if (voice_channel)
+		{
+			voice_channel->setSessionHandle(voice_session_handle, caller_uri);
+		}
 	}
-
 	return session_id;
 }
 
