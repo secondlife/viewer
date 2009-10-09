@@ -80,6 +80,10 @@ public:
     /// @a required prototype specified at add() time, die with LL_ERRS.
     void operator()(const LLSD& event) const;
 
+    /// Fetch the Callable for the specified name. If no such name was
+    /// registered, return an empty() Callable.
+    Callable get(const std::string& name) const;
+
 private:
     template <class CLASS, typename METHOD>
     void addMethod(const std::string& name, const METHOD& method, const LLSD& required)

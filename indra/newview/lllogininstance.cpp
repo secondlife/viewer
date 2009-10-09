@@ -68,10 +68,14 @@ LLLoginInstance::LLLoginInstance() :
 	mUserInteraction(true),
 	mSkipOptionalUpdate(false),
 	mAttemptComplete(false),
-	mTransferRate(0.0f)
+	mTransferRate(0.0f),
+	mDispatcher("LLLoginInstance", "change")
 {
 	mLoginModule->getEventPump().listen("lllogininstance", 
 		boost::bind(&LLLoginInstance::handleLoginEvent, this, _1));
+	mDispatcher.add("fail.login", boost::bind(&LLLoginInstance::handleLoginFailure, this, _1));
+	mDispatcher.add("connect",    boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
+	mDispatcher.add("disconnect", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
 }
 
 LLLoginInstance::~LLLoginInstance()
@@ -185,9 +189,9 @@ bool LLLoginInstance::handleLoginEvent(const LLSD& event)
 	std::cout << "LoginListener called!: \n";
 	std::cout << event << "\n";
 
-	if(!(event.has("state") && event.has("progress")))
+	if(!(event.has("state") && event.has("change") && event.has("progress")))
 	{
-		llerrs << "Unknown message from LLLogin!" << llendl;
+		llerrs << "Unknown message from LLLogin: " << event << llendl;
 	}
 
 	mLoginState = event["state"].asString();
@@ -198,19 +202,17 @@ bool LLLoginInstance::handleLoginEvent(const LLSD& event)
 		mTransferRate = event["transfer_rate"].asReal();
 	}
 
-	if(mLoginState == "offline")
+	// Call the method registered in constructor, if any, for more specific
+	// handling
+	LLEventDispatcher::Callable method(mDispatcher.get(event["change"]));
+	if (! method.empty())
 	{
-		handleLoginFailure(event);
+		method(event);
 	}
-	else if(mLoginState == "online")
-	{
-		handleLoginSuccess(event);
-	}
-
 	return false;
 }
 
-bool LLLoginInstance::handleLoginFailure(const LLSD& event)
+void LLLoginInstance::handleLoginFailure(const LLSD& event)
 {
 	// Login has failed. 
 	// Figure out why and respond...
@@ -264,11 +266,9 @@ bool LLLoginInstance::handleLoginFailure(const LLSD& event)
 	{
 		attemptComplete();
 	}
-
-	return false;
 }
 
-bool LLLoginInstance::handleLoginSuccess(const LLSD& event)
+void LLLoginInstance::handleLoginSuccess(const LLSD& event)
 {
 	if(gSavedSettings.getBOOL("ForceMandatoryUpdate"))
 	{
@@ -286,7 +286,11 @@ bool LLLoginInstance::handleLoginSuccess(const LLSD& event)
 	{
 		attemptComplete();
 	}
-	return false;
+}
+
+void LLLoginInstance::handleDisconnect(const LLSD& event)
+{
+    // placeholder
 }
 
 bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)

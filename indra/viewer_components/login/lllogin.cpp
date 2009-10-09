@@ -70,10 +70,12 @@ public:
 	LLEventPump& getEventPump() { return mPump; }
 
 private:
-	void sendProgressEvent(const std::string& desc, const LLSD& data = LLSD::emptyMap())
+	void sendProgressEvent(const std::string& state, const std::string& change,
+						   const LLSD& data = LLSD())
 	{
 		LLSD status_data;
-		status_data["state"] = desc;
+		status_data["state"] = state;
+		status_data["change"] = change;
 		status_data["progress"] = 0.0f;
 
 		if(mAuthResponse.has("transfer_rate"))
@@ -81,7 +83,7 @@ private:
 			status_data["transfer_rate"] = mAuthResponse["transfer_rate"];
 		}
 
-		if(data.size() != 0)
+		if(data.isDefined())
 		{
 			status_data["data"] = data;
 		}
@@ -133,7 +135,7 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
     LLSD rewrittenURIs;
     {
         LLEventTimeout filter(replyPump);
-        sendProgressEvent("srvrequest");
+        sendProgressEvent("offline", "srvrequest");
 
         // Request SRV record.
         LL_INFOS("LLLogin") << "Requesting SRV record from " << uri << LL_ENDL;
@@ -172,7 +174,7 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
             LLSD progress_data;
             progress_data["attempt"] = attempts;
             progress_data["request"] = request;
-            sendProgressEvent("authenticating", progress_data);
+            sendProgressEvent("offline", "authenticating", progress_data);
 
             // We expect zero or more "Downloading" status events, followed by
             // exactly one event with some other status. Use postAndWait() the
@@ -187,7 +189,7 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
                                      waitForEventOn(self, replyPump)))
             {
                 // Still Downloading -- send progress update.
-                sendProgressEvent("downloading");
+                sendProgressEvent("offline", "downloading");
             }
             status = mAuthResponse["status"].asString();
 
@@ -215,9 +217,14 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
             // StatusComplete does not imply auth success. Check the
             // actual outcome of the request. We've already handled the
             // "indeterminate" case in the loop above.
-            sendProgressEvent((mAuthResponse["responses"]["login"].asString() == "true")?
-                              "online" : "offline",
-                              mAuthResponse["responses"]);
+            if (mAuthResponse["responses"]["login"].asString() == "true")
+            {
+                sendProgressEvent("online", "connect", mAuthResponse["responses"]);
+            }
+            else
+            {
+                sendProgressEvent("offline", "fail.login", mAuthResponse["responses"]);
+            }
             return;             // Done!
         }
         // If we don't recognize status at all, trouble
@@ -236,12 +243,12 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
     // Here we got through all the rewrittenURIs without succeeding. Tell
     // caller this didn't work out so well. Of course, the only failure data
     // we can reasonably show are from the last of the rewrittenURIs.
-    sendProgressEvent("offline", mAuthResponse["responses"]);
+    sendProgressEvent("offline", "fail.login", mAuthResponse["responses"]);
 }
 
 void LLLogin::Impl::disconnect()
 {
-    sendProgressEvent("offline", mAuthResponse["responses"]);
+    sendProgressEvent("offline", "disconnect");
 }
 
 //*********************

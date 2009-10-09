@@ -265,12 +265,12 @@ namespace tut
 
 		login.connect("login.bar.com", credentials);
 
-		ensure_equals("SRV state", listener.lastEvent()["state"].asString(), "srvrequest"); 
+		ensure_equals("SRV state", listener.lastEvent()["change"].asString(), "srvrequest"); 
 
 		dummyLLAres.sendReply();
 
 		// Test Authenticating State prior to first response.
-		ensure_equals("Auth state 1", listener.lastEvent()["state"].asString(), "authenticating"); 
+		ensure_equals("Auth state 1", listener.lastEvent()["change"].asString(), "authenticating"); 
 		ensure_equals("Attempt 1", listener.lastEvent()["data"]["attempt"].asInteger(), 1); 
 		ensure_equals("URI 1", listener.lastEvent()["data"]["request"]["uri"].asString(), "login.foo.com"); 
 
@@ -285,7 +285,7 @@ namespace tut
 		dummyXMLRPC.setResponse(data);
 		dummyXMLRPC.sendReply();
 
-		ensure_equals("Fail back to authenticate 1", listener.lastEvent()["state"].asString(), "authenticating"); 
+		ensure_equals("Fail back to authenticate 1", listener.lastEvent()["change"].asString(), "authenticating"); 
 		ensure_equals("Attempt 2", listener.lastEvent()["data"]["attempt"].asInteger(), 2); 
 		ensure_equals("URI 2", listener.lastEvent()["data"]["request"]["uri"].asString(), "login.bar.com"); 
 
@@ -301,7 +301,7 @@ namespace tut
 		dummyXMLRPC.setResponse(data);
 		dummyXMLRPC.sendReply();
 
-		ensure_equals("Fail back to authenticate 2", listener.lastEvent()["state"].asString(), "authenticating"); 
+		ensure_equals("Fail back to authenticate 2", listener.lastEvent()["change"].asString(), "authenticating"); 
 		ensure_equals("Attempt 3", listener.lastEvent()["data"]["attempt"].asInteger(), 3); 
 		ensure_equals("URI 3", listener.lastEvent()["data"]["request"]["uri"].asString(), "login.indeterminate.com"); 
 
@@ -350,11 +350,11 @@ namespace tut
 
 		login.connect("login.bar.com", credentials);
 
-		ensure_equals("SRV state", listener.lastEvent()["state"].asString(), "srvrequest"); 
+		ensure_equals("SRV state", listener.lastEvent()["change"].asString(), "srvrequest"); 
 
 		dummyLLAres.sendReply();
 
-		ensure_equals("Auth state", listener.lastEvent()["state"].asString(), "authenticating"); 
+		ensure_equals("Auth state", listener.lastEvent()["change"].asString(), "authenticating"); 
 
 		// Send the failed auth request reponse
 		LLSD data;
@@ -397,11 +397,11 @@ namespace tut
 
 		login.connect("login.bar.com", credentials);
 
-		ensure_equals("SRV state", listener.lastEvent()["state"].asString(), "srvrequest"); 
+		ensure_equals("SRV state", listener.lastEvent()["change"].asString(), "srvrequest"); 
 
 		dummyLLAres.sendReply();
 
-		ensure_equals("Auth state", listener.lastEvent()["state"].asString(), "authenticating"); 
+		ensure_equals("Auth state", listener.lastEvent()["change"].asString(), "authenticating"); 
 
 		// Send the failed auth request reponse
 		LLSD data;

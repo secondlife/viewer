@@ -109,6 +109,16 @@ bool LLEventDispatcher::attemptCall(const std::string& name, const LLSD& event) 
     return true;                    // tell caller we were able to call
 }
 
+LLEventDispatcher::Callable LLEventDispatcher::get(const std::string& name) const
+{
+    DispatchMap::const_iterator found = mDispatch.find(name);
+    if (found == mDispatch.end())
+    {
+        return Callable();
+    }
+    return found->second.first;
+}
+
 LLDispatchListener::LLDispatchListener(const std::string& pumpname, const std::string& key):
     LLEventDispatcher(pumpname, key),
     mPump(pumpname, true),          // allow tweaking for uniqueness

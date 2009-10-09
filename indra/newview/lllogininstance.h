@@ -33,6 +33,7 @@
 #ifndef LL_LLLOGININSTANCE_H
 #define LL_LLLOGININSTANCE_H
 
+#include "lleventdispatcher.h"
 #include <boost/scoped_ptr.hpp>
 #include <boost/function.hpp>
 class LLLogin;
@@ -85,8 +86,9 @@ private:
 	bool updateDialogCallback(const LLSD& notification, const LLSD& response);
 
 	bool handleLoginEvent(const LLSD& event);
-	bool handleLoginFailure(const LLSD& event);
-	bool handleLoginSuccess(const LLSD& event);
+	void handleLoginFailure(const LLSD& event);
+	void handleLoginSuccess(const LLSD& event);
+	void handleDisconnect(const LLSD& event);
 
 	bool handleTOSResponse(bool v, const std::string& key);
 
@@ -106,6 +108,7 @@ private:
 	int mLastExecEvent;
 	UpdaterLauncherCallback mUpdaterLauncher;
 	boost::scoped_ptr<LLEventStream> mUpdateAppResponse;
+	LLEventDispatcher mDispatcher;
 };
 
 #endif

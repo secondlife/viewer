@@ -225,6 +225,7 @@ namespace tut
 		// Dummy success response.
 		LLSD response;
 		response["state"] = "online";
+		response["change"] = "connect";
 		response["progress"] = 1.0;
 		response["transfer_rate"] = 7;
 		response["data"] = "test_data";
@@ -240,6 +241,7 @@ namespace tut
 
 		response.clear();
 		response["state"] = "offline";
+		response["change"] = "disconnect";
 		response["progress"] = 0.0;
 		response["transfer_rate"] = 0;
 		response["data"] = "test_data";
@@ -267,6 +269,7 @@ namespace tut
 		// TOS failure response.
 		LLSD response;
 		response["state"] = "offline";
+		response["change"] = "fail.login";
 		response["progress"] = 0.0;
 		response["transfer_rate"] = 7;
 		response["data"]["reason"] = "tos";
@@ -326,6 +329,7 @@ namespace tut
 		// Update needed failure response.
 		LLSD response;
 		response["state"] = "offline";
+		response["change"] = "fail.login";
 		response["progress"] = 0.0;
 		response["transfer_rate"] = 7;
 		response["data"]["reason"] = "update";
@@ -351,6 +355,7 @@ namespace tut
 		// Update needed failure response.
 		LLSD response;
 		response["state"] = "offline";
+		response["change"] = "fail.login";
 		response["progress"] = 0.0;
 		response["transfer_rate"] = 7;
 		response["data"]["reason"] = "update";
@@ -376,6 +381,7 @@ namespace tut
 		// Update needed failure response.
 		LLSD response;
 		response["state"] = "offline";
+		response["change"] = "fail.login";
 		response["progress"] = 0.0;
 		response["transfer_rate"] = 7;
 		response["data"]["reason"] = "optional";
@@ -401,6 +407,7 @@ namespace tut
 		// Update needed failure response.
 		LLSD response;
 		response["state"] = "offline";
+		response["change"] = "fail.login";
 		response["progress"] = 0.0;
 		response["transfer_rate"] = 7;
 		response["data"]["reason"] = "optional";
