@@ -493,6 +493,9 @@ void LLPluginProcessParent::receiveMessage(const LLPluginMessage &message)
 			{
 				// Plugin has been loaded. 
 				
+				mPluginVersionString = message.getValue("plugin_version");
+				LL_INFOS("Plugin") << "plugin version string: " << mPluginVersionString << LL_ENDL;
+
 				// Check which message classes/versions the plugin supports.
 				// TODO: check against current versions
 				// TODO: kill plugin on major mismatches?
@@ -502,8 +505,6 @@ void LLPluginProcessParent::receiveMessage(const LLPluginMessage &message)
 				{
 					LL_INFOS("Plugin") << "message class: " << iter->first << " -> version: " << iter->second.asString() << LL_ENDL;
 				}
-				
-				mPluginVersionString = message.getValue("plugin_version");
 				
 				// Send initial sleep time
 				setSleepTime(mSleepTime, true);			
