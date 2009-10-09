@@ -60,7 +60,7 @@
          left="5"
          name="teleport_btn"
          top="0"
-         width="70" />
+         width="77" />
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"

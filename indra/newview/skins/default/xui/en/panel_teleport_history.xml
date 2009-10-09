@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="Teleport History" bottom="0" height="326" left="0" width="380"
      border="true" follows="left|top|right|bottom">     
+    <string
+     name="cant_create_lm_here"
+     value="Please teleport to selected location before creating Landmark. " />
+    <string
+     name="create_landmark"
+     value="Create Landmark" />
+    <string
+     name="open_landmark"
+     value="Open Landmark panel" />
     <accordion
      follows="left|top|right|bottom"
-     height="326"
+     height="300"
      layout="topleft"
      left="0"
      top="0"
      name="history_accordion"
      width="380">
-
-	<accordion_tab
+	    <accordion_tab
          can_resize="false"
          layout="topleft"
          name="today"
@@ -24,9 +32,8 @@
              name="today_items"
              top="0"
              width="380">
-	    </flat_list_view>
-	</accordion_tab>     
-
+	        </flat_list_view>
+	    </accordion_tab>
         <accordion_tab
          can_resize="false"
          layout="topleft"
@@ -41,9 +48,8 @@
              name="yesterday_items"
              top="0"
              width="380">
-	    </flat_list_view>
-	</accordion_tab>     
-
+	        </flat_list_view>
+	    </accordion_tab>
         <accordion_tab
          can_resize="false"
          layout="topleft"
@@ -58,9 +64,8 @@
              name="2_days_ago"
              top="0"
              width="380">
-	    </flat_list_view>
-	</accordion_tab>     
-
+	        </flat_list_view>
+	    </accordion_tab>
         <accordion_tab
          can_resize="false"
          layout="topleft"
@@ -75,9 +80,8 @@
              name="3_days_ago"
              top="0"
              width="380">
-	    </flat_list_view>
-	</accordion_tab>     
-     
+	        </flat_list_view>
+	    </accordion_tab>
         <accordion_tab
          can_resize="false"
          layout="topleft"
@@ -92,9 +96,8 @@
              name="4_days_ago"
              top="0"
              width="380">
-	    </flat_list_view>
-	</accordion_tab>     
-     
+	        </flat_list_view>
+	    </accordion_tab>
         <accordion_tab
          can_resize="false"
          layout="topleft"
@@ -109,9 +112,8 @@
              name="5_days_ago_items"
              top="0"
              width="380">
-	    </flat_list_view>
-	</accordion_tab>     
-          
+	        </flat_list_view>
+	    </accordion_tab>
         <accordion_tab
          can_resize="false"
          layout="topleft"
@@ -126,9 +128,8 @@
              name="6_days_and_older_items"
              top="0"
              width="380">
-	    </flat_list_view>
-	</accordion_tab>     
-
+	        </flat_list_view>
+	    </accordion_tab>
         <accordion_tab
          can_resize="false"
          layout="topleft"
@@ -143,9 +144,8 @@
              name="1_month_and_older_items"
              top="0"
              width="380">
-	    </flat_list_view>
-	</accordion_tab>     
-
+	        </flat_list_view>
+	    </accordion_tab>
         <accordion_tab
          can_resize="false"
          layout="topleft"
@@ -160,7 +160,47 @@
              name="6_months_and_older_items"
              top="0"
              width="380">
-	    </flat_list_view>
-	</accordion_tab>
+	        </flat_list_view>
+	    </accordion_tab>
     </accordion>
+    <panel
+     background_visible="true"
+     bevel_style="none"
+     top_pad="0"
+     follows="left|right|bottom"
+     height="30"
+     label="bottom_panel"
+     layout="topleft"
+     left="0"
+     name="bottom_panel"
+     width="380">
+        <button
+         follows="bottom|left"
+         font="SansSerifBigBold"
+         tool_tip=""
+         height="18"
+         image_disabled="OptionsMenu_Disabled"
+         image_selected="OptionsMenu_Press"
+         image_unselected="OptionsMenu_Off"
+         layout="topleft"
+         left="10"
+         name="gear_btn"
+         picture_style="true"
+         top="5"
+         width="18" />
+        <button
+         follows="bottom|left"
+         font="SansSerifBigBold"
+         height="18"
+         image_selected="Favorite_Star_Active"
+         image_disabled="Favorite_Star_Off"
+         image_unselected="Favorite_Star_Press"
+         layout="topleft"
+         left_pad="5"
+         name="star_btn"
+         picture_style="true"
+         tool_tip=""
+         top_delta="0"
+         width="18" />
+    </panel>
 </panel>

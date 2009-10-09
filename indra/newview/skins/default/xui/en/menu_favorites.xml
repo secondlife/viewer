@@ -55,6 +55,9 @@
         <menu_item_call.on_click
          function="Favorites.DoToSelected"
          parameter="paste" />
+        <menu_item_call.on_enable
+         function="Favorites.EnableSelected"
+         parameter="can_paste" />
     </menu_item_call>
 
     <menu_item_separator

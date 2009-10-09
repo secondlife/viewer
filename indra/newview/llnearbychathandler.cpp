@@ -75,6 +75,13 @@ public:
 	void onToastDestroyed	(LLToast* toast);
 	void onToastFade		(LLToast* toast);
 
+	void reshape			(S32 width, S32 height, BOOL called_from_parent);
+
+	void redrawToasts()
+	{
+		arrangeToasts();
+	}
+
 	// hide all toasts from screen, but not remove them from a channel
 	virtual void		hideToastsFromScreen() 
 	{
@@ -204,33 +211,44 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 
 void LLNearbyChatScreenChannel::showToastsBottom()
 {
-	LLRect rect = getRect();
-
 	LLRect	toast_rect;	
 	S32		bottom = getRect().mBottom;
+	S32		margin = gSavedSettings.getS32("ToastMargin");
 
 	for(std::vector<LLToast*>::iterator it = m_active_toasts.begin(); it != m_active_toasts.end(); ++it)
 	{
 		LLToast* toast = (*it);
-		toast_rect = toast->getRect();
-		toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastMargin"), toast_rect.getWidth() ,toast_rect.getHeight());
-		
-		toast->setRect(toast_rect);
+		S32 toast_top = bottom + toast->getRect().getHeight() + margin;
 
-		if(toast->getRect().mTop > getRect().getHeight())
+		if(toast_top > gFloaterView->getRect().getHeight())
 		{
 			while(it!=m_active_toasts.end())
 			{
-				(*it)->setVisible(FALSE);
-				(*it)->stopTimer();
-				m_toast_pool.push_back(*it);
+				toast->setVisible(FALSE);
+				toast->stopTimer();
+				m_toast_pool.push_back(toast);
 				it=m_active_toasts.erase(it);
 			}
 			break;
 		}
-		toast->setVisible(TRUE);
-		bottom = toast->getRect().mTop;
+		else
+		{
+			toast_rect = toast->getRect();
+			toast_rect.setLeftTopAndSize(getRect().mLeft , toast_top, toast_rect.getWidth() ,toast_rect.getHeight());
+		
+			toast->setRect(toast_rect);
+			
+			toast->setVisible(TRUE);
+			toast->stopTimer();
+			bottom = toast->getRect().mTop;
+		}		
 	}
+}
+
+void LLNearbyChatScreenChannel::reshape			(S32 width, S32 height, BOOL called_from_parent)
+{
+	LLScreenChannelBase::reshape(width, height, called_from_parent);
+	arrangeToasts();
 }
 
 

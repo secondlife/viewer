@@ -80,7 +80,8 @@
      use_ellipses="true"
      value="MESSAGE"
      width="330"
-     word_wrap="true" />
+     word_wrap="true"
+     max_length="350" />
     <button
      follows="bottom"
      font="SansSerifBigBold"

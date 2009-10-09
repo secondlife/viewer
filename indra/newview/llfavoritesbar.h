@@ -81,10 +81,12 @@ protected:
 	void onButtonRightClick(LLUUID id,LLView* button,S32 x,S32 y,MASK mask);
 	
 	void onButtonMouseDown(LLUUID id, LLUICtrl* button, S32 x, S32 y, MASK mask);
+	void onOverflowMenuItemMouseDown(LLUUID id, LLUICtrl* item, S32 x, S32 y, MASK mask);
 	void onButtonMouseUp(LLUUID id, LLUICtrl* button, S32 x, S32 y, MASK mask);
 
 	void onEndDrag();
 
+	bool enableSelected(const LLSD& userdata);
 	void doToSelected(const LLSD& userdata);
 	BOOL isClipboardPasteable() const;
 	void pastFromClipboard() const;
@@ -149,6 +151,7 @@ private:
 	LLUICtrl* mLastTab;
 
 	LLUUID mDragItemId;
+	BOOL mStartDrag;
 	LLInventoryModel::item_array_t mItems;
 
 	BOOL mTabsHighlightEnabled;

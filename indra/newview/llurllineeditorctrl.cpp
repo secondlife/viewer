@@ -38,6 +38,7 @@
 #include "llurllineeditorctrl.h"
 
 #include "llweb.h"
+#include "llslurl.h"
 
 //Constructor
 LLURLLineEditor::LLURLLineEditor(const LLLineEditor::Params& p)
@@ -87,8 +88,13 @@ void LLURLLineEditor::copyEscapedURLToClipboard()
 	S32 length = llabs( mSelectionStart - mSelectionEnd );
 
 	const std::string unescaped_text = wstring_to_utf8str(mText.getWString().substr(left_pos, length));
-	LLWString selected_escaped_text = utf8str_to_wstring(LLWeb::escapeURL(unescaped_text));
-	gClipboard.copyFromString( selected_escaped_text );
+	LLWString text_to_copy;
+	if (LLSLURL::isSLURL(unescaped_text))
+		text_to_copy = utf8str_to_wstring(LLWeb::escapeURL(unescaped_text));
+	else
+		text_to_copy = utf8str_to_wstring(unescaped_text);
+		
+	gClipboard.copyFromString( text_to_copy );
 }
 // Makes UISndBadKeystroke sound
 void LLURLLineEditor::reportBadKeystroke()

@@ -503,6 +503,12 @@ bool toggle_show_camera_button(const LLSD& newvalue)
 	return true;
 }
 
+bool toggle_show_snapshot_button(const LLSD& newvalue)
+{
+	LLBottomTray::getInstance()->showSnapshotButton(newvalue.asBoolean());
+	return true;
+}
+
 bool toggle_show_navigation_panel(const LLSD& newvalue)
 {
 	LLNavigationBar::getInstance()->showNavigationPanel(newvalue.asBoolean());
@@ -654,6 +660,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("ShowGestureButton")->getSignal()->connect(boost::bind(&toggle_show_gesture_button, _2));
 	gSavedSettings.getControl("ShowMoveButton")->getSignal()->connect(boost::bind(&toggle_show_move_button, _2));
 	gSavedSettings.getControl("ShowCameraButton")->getSignal()->connect(boost::bind(&toggle_show_camera_button, _2));
+	gSavedSettings.getControl("ShowSnapshotButton")->getSignal()->connect(boost::bind(&toggle_show_snapshot_button, _2));
 	gSavedSettings.getControl("ShowNavbarNavigationPanel")->getSignal()->connect(boost::bind(&toggle_show_navigation_panel, _2));
 	gSavedSettings.getControl("ShowNavbarFavoritesPanel")->getSignal()->connect(boost::bind(&toggle_show_favorites_panel, _2));
 }

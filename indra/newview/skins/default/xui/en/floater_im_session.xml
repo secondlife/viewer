@@ -62,7 +62,7 @@
        width="195"
        word_wrap="true">
       </text_editor>
-      <line_editor name="chat_editor" height="20" layout="topleft" width="190">
+      <line_editor follows="left|right" name="chat_editor" height="20" layout="topleft" width="190">
       </line_editor>
     </layout_panel>
   </layout_stack>

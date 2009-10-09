@@ -2887,6 +2887,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="no_ability_error">
     You do not have that ability.
   </string>
+  <string name="no_ability">
+    You do not have that ability.
+  </string>
   <string name="not_a_mod_error">
     You are not a session moderator.
   </string>

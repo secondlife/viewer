@@ -312,7 +312,7 @@
          name="teleport"
          left_pad="0"
          top="0"
-         width="75" />
+         width="77" />
     </panel>
     <panel
      follows="bottom|left"

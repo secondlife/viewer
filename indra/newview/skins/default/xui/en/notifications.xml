@@ -6523,6 +6523,17 @@ Server Error: Media update or get failed.
          yestext="OK"/>
     </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmClearTeleportHistory"
+   type="alertmodal">
+Are you sure you want to delete teleport history?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
   </global>

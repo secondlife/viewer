@@ -65,7 +65,6 @@ void LLToastPanel::snapToMessageHeight(LLTextBox* message, S32 maxLineCount)
 		//This needed to calculate lines count according to specified text
 		heightDelta = maxTextHeight - oldTextHeight;
 		reshape( getRect().getWidth(), getRect().getHeight() + heightDelta);
-		message->setValue(message->getText());
 
 		//Knowing the height is set to max allowed, getTextPixelHeight returns needed text height
 		//Perhaps we need to pass maxLineCount as parameter to getTextPixelHeight to avoid previous reshape.
@@ -77,7 +76,6 @@ void LLToastPanel::snapToMessageHeight(LLTextBox* message, S32 maxLineCount)
 
 		//reshape the panel with new height
 		reshape( getRect().getWidth(), getRect().getHeight() + heightDelta);
-		message->setValue(message->getText());
 	}
 
 }

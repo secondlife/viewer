@@ -870,6 +870,11 @@ const LLUUID LLPanelPlaceInfo::getLandmarkFolder() const
 	return mFolderCombo->getValue().asUUID();
 }
 
+BOOL LLPanelPlaceInfo::setLandmarkFolder(const LLUUID& id)
+{
+	return mFolderCombo->setCurrentByID(id);
+}
+
 void LLPanelPlaceInfo::createLandmark(const LLUUID& folder_id)
 {
 	std::string name = mTitleEditor->getText();
@@ -909,17 +914,6 @@ void LLPanelPlaceInfo::createPick(const LLVector3d& pos_global, LLPanelPick* pic
 							  mDescEditor->getText(),
 							  mSnapshotCtrl->getImageAssetID(),
 							  mParcelID);
-}
-
-// virtual
-void LLPanelPlaceInfo::reshape(S32 width, S32 height, BOOL called_from_parent)
-{
-	if (mMinHeight > 0 && mScrollingPanel != NULL)
-	{
-		mScrollingPanel->reshape(mScrollingPanel->getRect().getWidth(), mMinHeight);
-	}
-
-	LLView::reshape(width, height, called_from_parent);
 }
 
 // virtual

@@ -54,6 +54,7 @@
 
 #include "llsidetray.h"
 #include "llaccordionctrltab.h"
+#include "llaccordionctrl.h"
 
 static LLRegisterPanelClassWrapper<LLPanelGroup> t_panel_group("panel_group_info_sidetray");
 
@@ -375,16 +376,22 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 
 	getChild<LLUICtrl>("prepend_founded_by")->setVisible(!is_null_group_id);
 
+	LLAccordionCtrl* tab_ctrl = findChild<LLAccordionCtrl>("group_accordion");
+	if(tab_ctrl)
+		tab_ctrl->reset();
+
 	LLAccordionCtrlTab* tab_general = findChild<LLAccordionCtrlTab>("group_general_tab");
 	LLAccordionCtrlTab* tab_roles = findChild<LLAccordionCtrlTab>("group_roles_tab");
 	LLAccordionCtrlTab* tab_notices = findChild<LLAccordionCtrlTab>("group_notices_tab");
 	LLAccordionCtrlTab* tab_land = findChild<LLAccordionCtrlTab>("group_land_tab");
+
 
 	if(!tab_general || !tab_roles || !tab_notices || !tab_land)
 		return;
 	
 	if(button_join)
 		button_join->setVisible(false);
+
 
 	if(is_null_group_id)//creating new group
 	{

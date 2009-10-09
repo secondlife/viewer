@@ -52,16 +52,15 @@ public:
 	public:
 		ContextMenu();
 		void show(LLView* spawning_view, S32 index, S32 x, S32 y);
-		
+
 	private:
 		LLContextMenu* createMenu();
 		void onTeleport();
 		void onInfo();
 		void onCopy();
-		void onMakeLandmark();
 
 		static void gotSLURLCallback(const std::string& slurl);
-		
+
 		LLContextMenu* mMenu;
 		S32 mIndex;
 	};
@@ -82,12 +81,21 @@ private:
 	void onAccordionTabRightClick(LLView *view, S32 x, S32 y, MASK mask);
 	void onAccordionTabOpen(LLAccordionCtrlTab *tab);
 	void onAccordionTabClose(LLAccordionCtrlTab *tab);
+	void onExpandAllFolders();
+	void onCollapseAllFolders();
+	void onClearTeleportHistory();
+	bool onClearTeleportHistoryDialog(const LLSD& notification, const LLSD& response);
+
 	void showTeleportHistory();
 	void handleItemSelect(LLFlatListView* );
 	LLFlatListView* getFlatListViewFromTab(LLAccordionCtrlTab *);
+	void onGearButtonClicked();
+	void onStarButtonCommit();
 
 	LLTeleportHistoryStorage*	mTeleportHistory;
 	LLAccordionCtrl*		mHistoryAccordion;
+	LLButton *			mStarButton;
+
 	LLFlatListView*			mLastSelectedScrollList;
 	std::string				mFilterSubString;
 
@@ -96,6 +104,7 @@ private:
 
 	ContextMenu mContextMenu;
 	LLContextMenu*			mAccordionTabMenu;
+	LLHandle<LLView>		mGearMenuHandle;
 };
 
 #endif //LL_LLPANELTELEPORTHISTORY_H

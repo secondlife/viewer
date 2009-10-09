@@ -1467,6 +1467,7 @@ void LLViewerWindow::initBase()
 	hvp.rect(full_window);
 	hvp.follows.flags(FOLLOWS_ALL);
 	gToolTipView = LLUICtrlFactory::create<LLToolTipView>(hvp);
+	gToolTipView->setFollowsAll();
 	getRootView()->addChild(gToolTipView);
 
 	// Add the progress bar view (startup view), which overrides everything
@@ -1567,6 +1568,11 @@ void LLViewerWindow::initWorldUI()
 	if (!gSavedSettings.getBOOL("ShowCameraButton"))
 	{
 		LLBottomTray::getInstance()->showCameraButton(FALSE);
+	}
+
+	if (!gSavedSettings.getBOOL("ShowSnapshotButton"))
+	{
+		LLBottomTray::getInstance()->showSnapshotButton(FALSE);
 	}
 
 	if (!gSavedSettings.getBOOL("ShowMoveButton"))

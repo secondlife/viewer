@@ -31,8 +31,8 @@
     <scroll_container
      color="DkGray2"
      opaque="true"
-     follows="left|top|bottom"
-     height="490"
+     follows="all"
+     height="470"
      layout="topleft"
      left="10"
      top_pad="10"
@@ -41,14 +41,14 @@
      width="313">
     <panel
      name="scroll_content_panel"
-     follows="left|top|right|bottom"
+     follows="left|top"
      min_height="300"
      layout="topleft"
      top="0"
      background_visible="false"
-     height="488"
+     height="470"
      left="0"
-     width="311">
+     width="295">
         <texture_picker
          enabled="false"
          follows="left|top"
@@ -57,11 +57,11 @@
          left="10"
          name="pick_snapshot"
          top="20"
-         width="290" />
+         width="280" />
         <text
          follows="left|top|right"
          height="20"
-         width="291"
+         width="280"
          layout="topleft"
          font="SansSerifBig"
          font.style="BOLD"
@@ -77,16 +77,16 @@
          layout="topleft"
          left="10"
          name="pick_location"
-         width="291"
+         width="280"
          word_wrap="true"
          value="[loading...]" />
         <text
          follows="left|top|right"
-         height="400"
+         height="280"
          layout="topleft"
          left="10"
          name="pick_desc"
-         width="290"
+         width="280"
          value="[description]"
          word_wrap="true" />
     </panel>

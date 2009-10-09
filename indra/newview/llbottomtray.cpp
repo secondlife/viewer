@@ -87,6 +87,7 @@ BOOL LLBottomTray::postBuild()
 	mMovementPanel = getChild<LLPanel>("movement_panel");
 	mGestureCombo = getChild<LLComboBox>("Gesture");
 	mCamPanel = getChild<LLPanel>("cam_panel");
+	mSnapshotPanel = getChild<LLPanel>("snapshot_panel");
 	setRightMouseDownCallback(boost::bind(&LLBottomTray::showBottomTrayContextMenu,this, _2, _3,_4));
 
 	return TRUE;
@@ -212,7 +213,7 @@ void LLBottomTray::setVisible(BOOL visible)
 			LLView* viewp = *child_it;
 			std::string name = viewp->getName();
 			
-			if ("chat_bar" == name || "movement_panel" == name || "cam_panel" == name)
+			if ("chat_bar" == name || "movement_panel" == name || "cam_panel" == name || "snapshot_panel" == name)
 				continue;
 			else 
 			{
@@ -265,4 +266,9 @@ void LLBottomTray::showMoveButton(BOOL visible)
 void LLBottomTray::showCameraButton(BOOL visible)
 {
 	mCamPanel->setVisible(visible);
+}
+
+void LLBottomTray::showSnapshotButton(BOOL visible)
+{
+	mSnapshotPanel->setVisible(visible);
 }
