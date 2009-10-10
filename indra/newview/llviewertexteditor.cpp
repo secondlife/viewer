@@ -459,57 +459,26 @@ LLUIImagePtr LLEmbeddedItems::getItemImage(llwchar ext_char) const
 			case LLAssetType::AT_TEXTURE:
 				if(item->getInventoryType() == LLInventoryType::IT_SNAPSHOT)
 				{
-					img_name = "inv_item_snapshot.tga";
+					img_name = "Inv_Snapshot";
 				}
 				else
 				{
-					img_name = "inv_item_texture.tga";
+					img_name = "Inv_Texture";
 				}
 
 				break;
-			case LLAssetType::AT_SOUND:			img_name = "inv_item_sound.tga";	break;
-			case LLAssetType::AT_LANDMARK:		
-				if (item->getFlags() & LLInventoryItem::II_FLAGS_LANDMARK_VISITED)
-				{
-					img_name = "inv_item_landmark_visited.tga";	
-				}
-				else
-				{
-					img_name = "inv_item_landmark.tga";	
-				}
-				break;
-			case LLAssetType::AT_CALLINGCARD:
-			{
-				BOOL online;
-				online = LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID());				
-				if (online)
-				{
-					img_name = "inv_item_callingcard_online.tga"; break;
-				}
-				else
-				{
-					img_name = "inv_item_callingcard_offline.tga"; break;
-				}
-				break;
-			}
-			case LLAssetType::AT_CLOTHING:		img_name = "inv_item_clothing.tga";	break;
-			case LLAssetType::AT_OBJECT:			
-				if (item->getFlags() & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
-				{
-					img_name = "inv_item_object_multi.tga";	
-				}
-				else
-				{
-					img_name = "inv_item_object.tga";	
-				}
-				break;
-			case LLAssetType::AT_NOTECARD:		img_name = "inv_item_notecard.tga";	break;
-			case LLAssetType::AT_LSL_TEXT:		img_name = "inv_item_script.tga";	break;
-			case LLAssetType::AT_BODYPART:		img_name = "inv_item_skin.tga";	break;
-			case LLAssetType::AT_ANIMATION:		img_name = "inv_item_animation.tga";break;
-			case LLAssetType::AT_GESTURE:			img_name = "inv_item_gesture.tga";	break;
+			case LLAssetType::AT_SOUND:			img_name = "Inv_Sound";	break;
+			case LLAssetType::AT_CLOTHING:		img_name = "Inv_Clothing";	break;
+			case LLAssetType::AT_OBJECT:		img_name = "Inv_Object"; break;
+			case LLAssetType::AT_CALLINGCARD:	img_name = "Inv_CallingCard"; break;
+			case LLAssetType::AT_LANDMARK:		img_name = "Inv_Landmark"; break;
+			case LLAssetType::AT_NOTECARD:		img_name = "Inv_Notecard";	break;
+			case LLAssetType::AT_LSL_TEXT:		img_name = "Inv_Script";	break;
+			case LLAssetType::AT_BODYPART:		img_name = "Inv_Skin";	break;
+			case LLAssetType::AT_ANIMATION:		img_name = "Inv_Animation";break;
+			case LLAssetType::AT_GESTURE:			img_name = "Inv_Gesture";	break;
 				//TODO need img_name
-			case LLAssetType::AT_FAVORITE:		img_name = "inv_item_landmark.tga";	 break;
+			case LLAssetType::AT_FAVORITE:		img_name = "Inv_Landmark";	 break;
 			default: llassert(0); 
 		}
 

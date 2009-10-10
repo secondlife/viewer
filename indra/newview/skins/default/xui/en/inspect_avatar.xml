@@ -148,4 +148,17 @@
      right="-10"
      top="249"
      width="18" />
+  <menu_button
+     visible="false" 
+     follows="top|left"
+     height="18"
+     image_disabled="OptionsMenu_Disabled"
+     image_selected="OptionsMenu_Press"
+     image_unselected="OptionsMenu_Off"
+     menu_filename="menu_inspect_self_gear.xml"
+     name="gear_self_btn"
+     picture_style="true"
+     right="-10"
+     top="249"
+     width="18" />
 </floater>

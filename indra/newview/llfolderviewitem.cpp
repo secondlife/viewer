@@ -125,6 +125,8 @@ LLFolderViewItem::LLFolderViewItem(LLFolderViewItem::Params p)
 	mLabel(p.name),
 	mRoot(p.root),
 	mCreationDate(p.creation_date),
+	mIcon(p.icon),
+	mIconOpen(p.icon_open),
 	mListener(p.listener),
 	mArrowImage(p.folder_arrow_image),
 	mBoxImage(p.selection_image)
@@ -893,11 +895,15 @@ void LLFolderViewItem::draw()
 		mDragAndDropTarget = FALSE;
 	}
 
-
-	if(mIcon)
-	{
-		mIcon->draw(mIndentation + ARROW_SIZE + TEXT_PAD, getRect().getHeight() - mIcon->getHeight());
+	// First case is used for open folders
+	if (!mIconOpen.isNull() && (llabs(mControlLabelRotation) > 80))
+ 	{
+		mIconOpen->draw(mIndentation + ARROW_SIZE + TEXT_PAD, getRect().getHeight() - mIcon->getHeight());
 	}
+	else if(mIcon)
+	{
+ 		mIcon->draw(mIndentation + ARROW_SIZE + TEXT_PAD, getRect().getHeight() - mIcon->getHeight());
+ 	}
 
 	if (!mLabel.empty())
 	{

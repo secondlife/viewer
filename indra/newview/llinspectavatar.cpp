@@ -276,6 +276,11 @@ void LLInspectAvatar::onOpen(const LLSD& data)
 	mAvatarID = data["avatar_id"];
 	mPartnerID = LLUUID::null;
 
+	BOOL self = mAvatarID == gAgent.getID();
+	
+	getChild<LLUICtrl>("gear_self_btn")->setVisible(self);
+	getChild<LLUICtrl>("gear_btn")->setVisible(!self);
+	
 	// Position the inspector relative to the mouse cursor
 	// Similar to how tooltips are positioned
 	// See LLToolTipMgr::createToolTip

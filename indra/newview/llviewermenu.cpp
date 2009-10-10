@@ -3453,14 +3453,11 @@ class LLSelfStandUp : public view_listener_t
 	}
 };
 
-class LLSelfEnableStandUp : public view_listener_t
+bool enable_standup_self()
 {
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = gAgent.getAvatarObject() && gAgent.getAvatarObject()->isSitting();
-		return new_value;
-	}
-};
+	bool new_value = gAgent.getAvatarObject() && gAgent.getAvatarObject()->isSitting();
+	return new_value;
+}
 
 class LLSelfFriends : public view_listener_t
 {
@@ -7952,7 +7949,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLSelfStandUp(), "Self.StandUp");
 	view_listener_t::addMenu(new LLSelfRemoveAllAttachments(), "Self.RemoveAllAttachments");
 
-	view_listener_t::addMenu(new LLSelfEnableStandUp(), "Self.EnableStandUp");
+	visible.add("Self.VisibleStandUp", boost::bind(&enable_standup_self));
+	enable.add("Self.EnableStandUp", boost::bind(&enable_standup_self));
 	view_listener_t::addMenu(new LLSelfEnableRemoveAllAttachments(), "Self.EnableRemoveAllAttachments");
 
 	// we don't use boost::bind directly to delay side tray construction
