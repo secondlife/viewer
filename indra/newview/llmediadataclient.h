@@ -36,12 +36,36 @@
 #include "llhttpclient.h"
 #include <queue>
 #include "llrefcount.h"
+#include "llpointer.h"
 #include "lltimer.h"
 
-// Forward decls
-class LLVOVolume;
 
-typedef LLPointer<LLVOVolume> ll_vo_volume_ptr_t;
+// Link seam for LLVOVolume
+class LLMediaDataClientObject : public LLRefCount
+{
+public:
+	// Get the number of media data items
+	virtual U8 getMediaDataCount() const = 0;
+	// Get the media data at index, as an LLSD
+	virtual LLSD getMediaDataLLSD(U8 index) const = 0;
+	// Get this object's UUID
+	virtual LLUUID getID() const = 0;
+	// Navigate back to previous URL
+	virtual void mediaNavigateBounceBack(U8 index) = 0;
+	// Does this object have media?
+	virtual bool hasMedia() const = 0;
+	// Update the object's media data to the given array
+	virtual void updateObjectMediaData(LLSD const &media_data_array) = 0;
+	// Return the distance from the object to the avatar
+	virtual F64 getDistanceFromAvatar() const = 0;
+	// Return the total "interest" of the media (on-screen area)
+	virtual F64 getTotalMediaInterest() const = 0;
+	// Return the given cap url
+	virtual std::string getCapabilityUrl(const std::string &name) const = 0;
+
+	// smart pointer
+	typedef LLPointer<LLMediaDataClientObject> ptr_t;
+};
 
 // This object creates a priority queue for requests.
 // Abstracts the Cap URL, the request, and the responder
@@ -50,15 +74,23 @@ class LLMediaDataClient : public LLRefCount
 public:
     LOG_CLASS(LLMediaDataClient);
     
-    const static int QUEUE_TIMER_DELAY = 1; // seconds(s)
-	const static int MAX_RETRIES = 4;
+    const static F32 QUEUE_TIMER_DELAY;// = 1.0; // seconds(s)
+	const static F32 UNAVAILABLE_RETRY_TIMER_DELAY;// = 5.0; // secs
+	const static U32 MAX_RETRIES;// = 4;
 
 	// Constructor
-	LLMediaDataClient();
+	LLMediaDataClient(F32 queue_timer_delay = QUEUE_TIMER_DELAY,
+					  F32 retry_timer_delay = UNAVAILABLE_RETRY_TIMER_DELAY,
+		              U32 max_retries = MAX_RETRIES);
 	
 	// Make the request
-	void request(LLVOVolume *object, const LLSD &payload);
-    
+	void request(const LLMediaDataClientObject::ptr_t &object, const LLSD &payload);
+
+	F32 getRetryTimerDelay() const { return mRetryTimerDelay; }
+	
+	// Returns true iff the queue is empty
+	bool isEmpty() const; 
+	
 protected:
 	// Destructor
 	virtual ~LLMediaDataClient(); // use unref
@@ -73,10 +105,10 @@ protected:
             NAVIGATE
         };
         
-		Request(const std::string &cap_name, const LLSD& sd_payload, LLVOVolume *obj, LLMediaDataClient *mdc);
+		Request(const std::string &cap_name, const LLSD& sd_payload, LLMediaDataClientObject *obj, LLMediaDataClient *mdc);
 		const std::string &getCapName() const { return mCapName; }
 		const LLSD &getPayload() const { return mPayload; }
-		LLVOVolume *getObject() const { return mObject; }
+		LLMediaDataClientObject *getObject() const { return mObject; }
 
         U32 getNum() const { return mNum; }
 
@@ -92,6 +124,9 @@ protected:
 		// Re-enqueue thyself
 		void reEnqueue() const;
 		
+		F32 getRetryTimerDelay() const;
+		U32 getMaxNumRetries() const;
+		
 	public:
 		friend std::ostream& operator<<(std::ostream &s, const Request &q);
 		
@@ -101,7 +136,7 @@ protected:
 	private:
 		std::string mCapName;
 		LLSD mPayload;
-		ll_vo_volume_ptr_t mObject;
+		LLMediaDataClientObject::ptr_t mObject;
 		// Simple tracking
 		const U32 mNum;
 		static U32 sNum;
@@ -115,8 +150,6 @@ protected:
 	// Responder
 	class Responder : public LLHTTPClient::Responder
 	{
-		static const int UNAVAILABLE_RETRY_TIMER_DELAY = 5; // secs
-
 	public:
 		Responder(const request_ptr_t &request);
 		//If we get back an error (not found, etc...), handle it here
@@ -163,7 +196,7 @@ private:
 	public:
 		bool operator() (const request_ptr_t &o1, const request_ptr_t &o2) const;
 	private:
-		static F64 getObjectScore(const ll_vo_volume_ptr_t &obj);
+		static F64 getObjectScore(const LLMediaDataClientObject::ptr_t &obj);
 	};
 	
     // PriorityQueue
@@ -194,6 +227,10 @@ private:
 	void startQueueTimer();
 	void stopQueueTimer();
 	void setIsRunning(bool val) { mQueueTimerIsRunning = val; }
+
+	const F32 mQueueTimerDelay;
+	const F32 mRetryTimerDelay;
+	const U32 mMaxNumRetries;
 	
 	bool mQueueTimerIsRunning;
 	
@@ -205,11 +242,15 @@ private:
 class LLObjectMediaDataClient : public LLMediaDataClient
 {
 public:
-    LLObjectMediaDataClient() {}
+    LLObjectMediaDataClient(F32 queue_timer_delay = QUEUE_TIMER_DELAY,
+							F32 retry_timer_delay = UNAVAILABLE_RETRY_TIMER_DELAY,
+							U32 max_retries = MAX_RETRIES)
+		: LLMediaDataClient(queue_timer_delay, retry_timer_delay, max_retries)
+		{}
     ~LLObjectMediaDataClient() {}
     
-	void fetchMedia(LLVOVolume *object); 
-    void updateMedia(LLVOVolume *object);
+	void fetchMedia(LLMediaDataClientObject *object); 
+    void updateMedia(LLMediaDataClientObject *object);
     
 protected:
 	// Subclasses must override this factory method to return a new responder
@@ -231,14 +272,18 @@ protected:
 // MediaDataResponder specific for the ObjectMediaNavigate cap
 class LLObjectMediaNavigateClient : public LLMediaDataClient
 {
+public:
 	// NOTE: from llmediaservice.h
 	static const int ERROR_PERMISSION_DENIED_CODE = 8002;
 	
-public:
-    LLObjectMediaNavigateClient() {}
+    LLObjectMediaNavigateClient(F32 queue_timer_delay = QUEUE_TIMER_DELAY,
+								F32 retry_timer_delay = UNAVAILABLE_RETRY_TIMER_DELAY,
+								U32 max_retries = MAX_RETRIES)
+		: LLMediaDataClient(queue_timer_delay, retry_timer_delay, max_retries)
+		{}
     ~LLObjectMediaNavigateClient() {}
     
-    void navigate(LLVOVolume *object, U8 texture_index, const std::string &url);
+    void navigate(LLMediaDataClientObject *object, U8 texture_index, const std::string &url);
     
 protected:
 	// Subclasses must override this factory method to return a new responder

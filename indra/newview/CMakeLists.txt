@@ -1540,6 +1540,7 @@ include(LLAddBuildTest)
 SET(viewer_TEST_SOURCE_FILES
   llagentaccess.cpp
   lldateutil.cpp
+  llmediadataclient.cpp
   llviewerhelputil.cpp
   )
 set_source_files_properties(

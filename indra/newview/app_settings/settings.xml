@@ -5294,6 +5294,17 @@
       <key>Value</key>
 	  <integer>13</integer>
     </map>
+    <key>PrimMediaMaxRetries</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of retries for media queries.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>4</integer>
+    </map>
     <key>PrimMediaRequestQueueDelay</key>
     <map>
       <key>Comment</key>

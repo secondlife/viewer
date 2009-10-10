@@ -255,6 +255,7 @@ public:
 
 	viewer_media_t getMediaImpl(U8 face_id) const;
 	S32 getFaceIndexWithMediaImpl(const LLViewerMediaImpl* media_impl, S32 start_face_id);
+	F64 getTotalMediaInterest() const;
    
 	bool hasMedia() const;
 

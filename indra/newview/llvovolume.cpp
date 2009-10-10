@@ -91,6 +91,57 @@ LLPointer<LLObjectMediaNavigateClient> LLVOVolume::sObjectMediaNavigateClient = 
 static LLFastTimer::DeclareTimer FTM_GEN_TRIANGLES("Generate Triangles");
 static LLFastTimer::DeclareTimer FTM_GEN_VOLUME("Generate Volumes");
 
+// Implementation class of LLMediaDataClientObject.  See llmediadataclient.h
+class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
+{
+public:
+	LLMediaDataClientObjectImpl(LLVOVolume *obj) : mObject(obj) {}
+	LLMediaDataClientObjectImpl() { mObject = NULL; }
+	
+	virtual U8 getMediaDataCount() const 
+		{ return mObject->getNumTEs(); }
+
+	virtual LLSD getMediaDataLLSD(U8 index) const 
+		{
+			LLSD result;
+			LLTextureEntry *te = mObject->getTE(index); 
+			if (NULL != te)
+			{
+				llassert((te->getMediaData() != NULL) == te->hasMedia());
+				if (te->getMediaData() != NULL)
+				{
+					result = te->getMediaData()->asLLSD();
+				}
+			}
+			return result;
+		}
+
+	virtual LLUUID getID() const
+		{ return mObject->getID(); }
+
+	virtual void mediaNavigateBounceBack(U8 index)
+		{ mObject->mediaNavigateBounceBack(index); }
+	
+	virtual bool hasMedia() const
+		{ return mObject->hasMedia(); }
+	
+	virtual void updateObjectMediaData(LLSD const &data) 
+		{ mObject->updateObjectMediaData(data); }
+
+	virtual F64 getDistanceFromAvatar() const
+		{ return mObject->getRenderPosition().length(); }
+	
+	virtual F64 getTotalMediaInterest() const 
+		{ return mObject->getTotalMediaInterest(); }
+
+	virtual std::string getCapabilityUrl(const std::string &name) const
+		{ return mObject->getRegion()->getCapability(name); }
+	
+private:
+	LLPointer<LLVOVolume> mObject;
+};
+
+
 LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	: LLViewerObject(id, pcode, regionp),
 	  mVolumeImpl(NULL)
@@ -134,8 +185,12 @@ LLVOVolume::~LLVOVolume()
 // static
 void LLVOVolume::initClass()
 {
-    sObjectMediaClient = new LLObjectMediaDataClient();
-    sObjectMediaNavigateClient = new LLObjectMediaNavigateClient();
+	// gSavedSettings better be around
+	const F32 queue_timer_delay = gSavedSettings.getF32("PrimMediaRequestQueueDelay");
+	const F32 retry_timer_delay = gSavedSettings.getF32("PrimMediaRetryTimerDelay");
+	const U32 max_retries = gSavedSettings.getU32("PrimMediaMaxRetries");
+    sObjectMediaClient = new LLObjectMediaDataClient(queue_timer_delay, retry_timer_delay, max_retries);
+    sObjectMediaNavigateClient = new LLObjectMediaNavigateClient(queue_timer_delay, retry_timer_delay, max_retries);
 }
 
 // static
@@ -1634,7 +1689,7 @@ bool LLVOVolume::hasMedia() const
 
 void LLVOVolume::requestMediaDataUpdate()
 {
-    sObjectMediaClient->fetchMedia(this);
+    sObjectMediaClient->fetchMedia(new LLMediaDataClientObjectImpl(this));
 }
 
 void LLVOVolume::cleanUpMediaImpls()
@@ -1834,7 +1889,7 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 						
 						llinfos << "broadcasting navigate with URI " << new_location << llendl;
 
-						sObjectMediaNavigateClient->navigate(this, face_index, new_location);
+						sObjectMediaNavigateClient->navigate(new LLMediaDataClientObjectImpl(this), face_index, new_location);
 					}
 				}
 				break;
@@ -1860,7 +1915,7 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 
 void LLVOVolume::sendMediaDataUpdate()
 {
-    sObjectMediaClient->updateMedia(this);
+    sObjectMediaClient->updateMedia(new LLMediaDataClientObjectImpl(this));
 }
 
 void LLVOVolume::removeMediaImpl(S32 texture_index)
@@ -1951,6 +2006,22 @@ viewer_media_t LLVOVolume::getMediaImpl(U8 face_id) const
 		return mMediaImplList[face_id];
 	}
 	return NULL;
+}
+
+F64 LLVOVolume::getTotalMediaInterest() const
+{
+	F64 interest = (F64)0.0;
+    int i = 0;
+	const int end = getNumTEs();
+	for ( ; i < end; ++i)
+	{
+		const viewer_media_t &impl = getMediaImpl(i);
+		if (!impl.isNull())
+		{
+			interest += impl->getInterest();
+		}
+	}
+	return interest;
 }
 
 S32 LLVOVolume::getFaceIndexWithMediaImpl(const LLViewerMediaImpl* media_impl, S32 start_face_id)
