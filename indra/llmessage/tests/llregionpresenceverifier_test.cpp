@@ -29,6 +29,8 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "../test/lltut.h"
 #include "llregionpresenceverifier.h"
 #include "llcurl_stub.cpp"

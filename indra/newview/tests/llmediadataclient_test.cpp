@@ -29,11 +29,13 @@
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
-
+#include "../llviewerprecompiledheaders.h"
+ 
 #include <iostream>
 #include "../test/lltut.h"
 
 #include "llsdserialize.h"
+#include "llsdutil.h"
 #include "llerrorcontrol.h"
 #include "llhttpstatuscodes.h"
 

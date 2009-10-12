@@ -39,6 +39,8 @@
 #include "v4coloru.h"
 
 #include "llsdutil.h"
+#include "llsdutil_math.h"
+
 
 
 const S32 PS_PART_DATA_BLOCK_SIZE = 4 + 2 + 4 + 4 + 2 + 2; // 18

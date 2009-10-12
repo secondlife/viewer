@@ -38,7 +38,7 @@
 #include <vector>
 #include <string>
 
-bool ll_get_stack_trace(std::vector<std::string>& lines);
+LL_COMMON_API bool ll_get_stack_trace(std::vector<std::string>& lines);
 
 #endif
 

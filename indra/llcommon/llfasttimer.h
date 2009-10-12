@@ -37,7 +37,7 @@
 
 #define FAST_TIMER_ON 1
 
-U64 get_cpu_clock_count();
+LL_COMMON_API U64 get_cpu_clock_count();
 
 class LLMutex;
 
@@ -45,11 +45,11 @@ class LLMutex;
 #include "llsd.h"
 
 
-class LLFastTimer
+class LL_COMMON_API LLFastTimer
 {
 public:
 	// stores a "named" timer instance to be reused via multiple LLFastTimer stack instances
-	class NamedTimer 
+	class LL_COMMON_API NamedTimer 
 	:	public LLInstanceTracker<NamedTimer>
 	{
 	public:
@@ -151,7 +151,7 @@ public:
 	};
 
 	// used to statically declare a new named timer
-	class DeclareTimer
+	class LL_COMMON_API DeclareTimer
 	{
 	public:
 		DeclareTimer(const std::string& name, bool open);

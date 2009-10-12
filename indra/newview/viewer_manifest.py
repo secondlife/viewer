@@ -164,28 +164,103 @@ class WindowsManifest(ViewerManifest):
             return ''.join(self.channel().split()) + '.exe'
 
 
+    def test_msvcrt_and_copy_action(self, src, dst):
+        # This is used to test a dll manifest.
+        # It is used as a temporary override during the construct method
+        from test_win32_manifest import test_assembly_binding
+        if src and (os.path.exists(src) or os.path.islink(src)):
+            # ensure that destination path exists
+            self.cmakedirs(os.path.dirname(dst))
+            self.created_paths.append(dst)
+            if not os.path.isdir(src):
+                if(self.args['configuration'].lower() == 'debug'):
+                    test_assembly_binding(src, "Microsoft.VC80.DebugCRT", "8.0.50727.4053")
+                else:
+                    test_assembly_binding(src, "Microsoft.VC80.CRT", "8.0.50727.4053")
+                self.ccopy(src,dst)
+            else:
+                raise Exception("Directories are not supported by test_CRT_and_copy_action()")
+        else:
+            print "Doesn't exist:", src
+
+    def test_for_no_msvcrt_manifest_and_copy_action(self, src, dst):
+        # This is used to test that no manifest for the msvcrt exists.
+        # It is used as a temporary override during the construct method
+        from test_win32_manifest import test_assembly_binding
+        from test_win32_manifest import NoManifestException, NoMatchingAssemblyException
+        if src and (os.path.exists(src) or os.path.islink(src)):
+            # ensure that destination path exists
+            self.cmakedirs(os.path.dirname(dst))
+            self.created_paths.append(dst)
+            if not os.path.isdir(src):
+                try:
+                    if(self.args['configuration'].lower() == 'debug'):
+                        test_assembly_binding(src, "Microsoft.VC80.DebugCRT", "")
+                    else:
+                        test_assembly_binding(src, "Microsoft.VC80.CRT", "")
+                    raise Exception("Unknown condition")
+                except NoManifestException, err:
+                    pass
+                except NoMatchingAssemblyException, err:
+                    pass
+                    
+                self.ccopy(src,dst)
+            else:
+                raise Exception("Directories are not supported by test_CRT_and_copy_action()")
+        else:
+            print "Doesn't exist:", src
+        
+    def enable_crt_manifest_check(self):
+        WindowsManifest.copy_action = WindowsManifest.test_msvcrt_and_copy_action
+
+    def enable_no_crt_manifest_check(self):
+        WindowsManifest.copy_action = WindowsManifest.test_for_no_msvcrt_manifest_and_copy_action
+
+    def disable_manifest_check(self):
+        del WindowsManifest.copy_action
+
     def construct(self):
         super(WindowsManifest, self).construct()
-        # the final exe is complicated because we're not sure where it's coming from,
-        # nor do we have a fixed name for the executable
-        self.path(self.find_existing_file('debug/secondlife-bin.exe', 'release/secondlife-bin.exe', 'relwithdebinfo/secondlife-bin.exe'), dst=self.final_exe())
+        # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
+        self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
+
+        self.enable_crt_manifest_check()
 
         # Plugin host application
         self.path(os.path.join(os.pardir,
                                'llplugin', 'slplugin', self.args['configuration'], "slplugin.exe"),
                   "slplugin.exe")
- 
-        # need to get the kdu dll from any of the build directories as well
-        try:
-            self.path(self.find_existing_file('../llkdu/%s/llkdu.dll' % self.args['configuration'],
-                '../../libraries/i686-win32/lib/release/llkdu.dll'), 
-                  dst='llkdu.dll')
-            pass
-        except:
-            print "Skipping llkdu.dll"
-            pass
-        self.path(src="licenses-win32.txt", dst="licenses.txt")
+        
+        # need to get the llcommon.dll from the build directory as well
+        if self.prefix(src=self.args['configuration'], dst=""):
+            try:
+                self.path('llcommon.dll')
+                self.path('libapr-1.dll')
+                self.path('libaprutil-1.dll')
+                self.path('libapriconv-1.dll')
+            except RuntimeError, err:
+                print err.message
+                print "Skipping llcommon.dll (assuming llcommon was linked statically)"
 
+            self.end_prefix()
+
+        # need to get the kdu dll from the build directory as well
+        try:
+            self.path('%s/llkdu.dll' % self.args['configuration'], dst='llkdu.dll')
+        except RuntimeError:
+            print "Skipping llkdu.dll"
+
+        self.disable_manifest_check()
+
+        # For textures
+        if self.prefix(src=self.args['configuration'], dst=""):
+            if(self.args['configuration'].lower() == 'debug'):
+                self.path("openjpegd.dll")
+            else:
+                self.path("openjpeg.dll")
+            self.end_prefix()
+
+        self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
 
         # For use in crash reporting (generates minidumps)
@@ -194,11 +269,7 @@ class WindowsManifest(ViewerManifest):
         # For using FMOD for sound... DJS
         self.path("fmod.dll")
 
-        # For textures
-        if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
-            self.path("openjpeg.dll")
-            self.end_prefix()
-
+        self.enable_no_crt_manifest_check()
         # Media plugins - QuickTime
         if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_quicktime.dll")
@@ -209,7 +280,6 @@ class WindowsManifest(ViewerManifest):
             self.path("media_plugin_webkit.dll")
             self.end_prefix()
             
-        # For WebKit/Qt plugin runtimes
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst="llplugin"):
             self.path("libeay32.dll")
             self.path("qtcore4.dll")
@@ -230,6 +300,8 @@ class WindowsManifest(ViewerManifest):
             self.path("qtiff4.dll")
             self.end_prefix()
 
+        self.disable_manifest_check()
+
         # These need to be installed as a SxS assembly, currently a 'private' assembly.
         # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
         if self.prefix(src=self.args['configuration'], dst=""):
@@ -243,11 +315,8 @@ class WindowsManifest(ViewerManifest):
                 self.path("Microsoft.VC80.CRT.manifest")
             self.end_prefix()
 
-        # The config file name needs to match the exe's name.
-        self.path(src="%s/secondlife-bin.exe.config" % self.args['configuration'], dst=self.final_exe() + ".config")
-
         # Vivox runtimes
-        if self.prefix(src="vivox-runtime/i686-win32", dst=""):
+        if self.prefix(src=self.args['configuration'], dst=""):
             self.path("SLVoice.exe")
             self.path("alut.dll")
             self.path("vivoxsdk.dll")
@@ -256,22 +325,22 @@ class WindowsManifest(ViewerManifest):
             self.end_prefix()
 
         # pull in the crash logger and updater from other projects
-        self.path(src=self.find_existing_file( # tag:"crash-logger" here as a cue to the exporter
-                "../win_crash_logger/debug/windows-crash-logger.exe",
-                "../win_crash_logger/release/windows-crash-logger.exe",
-                "../win_crash_logger/relwithdebinfo/windows-crash-logger.exe"),
+        # tag:"crash-logger" here as a cue to the exporter
+        self.path(src='../win_crash_logger/%s/windows-crash-logger.exe' % self.args['configuration'],
                   dst="win_crash_logger.exe")
-        self.path(src=self.find_existing_file(
-                "../win_updater/debug/windows-updater.exe",
-                "../win_updater/release/windows-updater.exe",
-                "../win_updater/relwithdebinfo/windows-updater.exe"),
+        self.path(src='../win_updater/%s/windows-updater.exe' % self.args['configuration'],
                   dst="updater.exe")
 
         # For google-perftools tcmalloc allocator.
-        if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
-            self.path("libtcmalloc_minimal.dll")
+        if self.prefix(src=self.args['configuration'], dst=""):
+            try:
+                if self.args['configuration'] == 'Debug':
+                    self.path('libtcmalloc_minimal-debug.dll')
+                else:
+                    self.path('libtcmalloc_minimal.dll')
+            except:
+                print "Skipping libtcmalloc_minimal.dll"
             self.end_prefix()
-
 
     def nsi_file_commands(self, install=True):
         def wpath(path):
@@ -392,7 +461,9 @@ class WindowsManifest(ViewerManifest):
 
         # We use the Unicode version of NSIS, available from
         # http://www.scratchpaper.com/
-        NSIS_path = 'C:\\Program Files\\NSIS\\Unicode\\makensis.exe'
+        # Check two paths, one for Program Files, and one for Program Files (x86).
+        # Yay 64bit windows.
+        NSIS_path = os.path.expandvars('${ProgramFiles}\\NSIS\\Unicode\\makensis.exe')
         if not os.path.exists(NSIS_path):
             NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\Unicode\\makensis.exe')
         self.run_command('"' + proper_windows_path(NSIS_path) + '" ' + self.dst_path_of(tempfile))
@@ -470,16 +541,31 @@ class DarwinManifest(ViewerManifest):
                 self.path("vivox-runtime/universal-darwin/libvivoxsdk.dylib", "libvivoxsdk.dylib")
                 self.path("vivox-runtime/universal-darwin/SLVoice", "SLVoice")
 
+                libdir = "../../libraries/universal-darwin/lib_release"
+                dylibs = {}
+
                 # need to get the kdu dll from any of the build directories as well
-                try:
-                    self.path(self.find_existing_file('../llkdu/%s/libllkdu.dylib' % self.args['configuration'],
-                        "../../libraries/universal-darwin/lib_release/libllkdu.dylib"),
-                        dst='libllkdu.dylib')
-                    pass
-                except:
-                    print "Skipping libllkdu.dylib"
-                    pass
-                
+                for lib in "llkdu", "llcommon":
+                    libfile = "lib%s.dylib" % lib
+                    try:
+                        self.path(self.find_existing_file(os.path.join(os.pardir,
+                                                                       lib,
+                                                                       self.args['configuration'],
+                                                                       libfile),
+                                                          os.path.join(libdir, libfile)),
+                                  dst=libfile)
+                    except RuntimeError:
+                        print "Skipping %s" % libfile
+                        dylibs[lib] = False
+                    else:
+                        dylibs[lib] = True
+
+                if dylibs["llcommon"]:
+                    for libfile in ("libapr-1.0.3.7.dylib",
+                                    "libaprutil-1.0.3.8.dylib",
+                                    "libexpat.0.5.0.dylib"):
+                        self.path(os.path.join(libdir, libfile), libfile)
+
                 #libfmodwrapper.dylib
                 self.path(self.args['configuration'] + "/libfmodwrapper.dylib", "libfmodwrapper.dylib")
                 
@@ -669,15 +755,17 @@ class Linux_i686Manifest(LinuxManifest):
 
         # install either the libllkdu we just built, or a prebuilt one, in
         # decreasing order of preference.  for linux package, this goes to bin/
-        try:
-            self.path(self.find_existing_file('../llkdu/libllkdu.so',
-                '../../libraries/i686-linux/lib_release_client/libllkdu.so'), 
-                  dst='bin/libllkdu.so')
-            # keep this one to preserve syntax, open source mangling removes previous lines
-            pass
-        except:
-            print "Skipping libllkdu.so - not found"
-            pass
+        for lib, destdir in ("llkdu", "bin"), ("llcommon", "lib"):
+            libfile = "lib%s.so" % lib
+            try:
+                self.path(self.find_existing_file(os.path.join(os.pardir, lib, libfile),
+                    '../../libraries/i686-linux/lib_release_client/%s' % libfile), 
+                      dst=os.path.join(destdir, libfile))
+                # keep this one to preserve syntax, open source mangling removes previous lines
+                pass
+            except RuntimeError:
+                print "Skipping %s - not found" % libfile
+                pass
 
         self.path("secondlife-stripped","bin/do-not-directly-run-secondlife-bin")
         self.path("../linux_crash_logger/linux-crash-logger-stripped","bin/linux-crash-logger.bin")
@@ -706,7 +794,7 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libcrypto.so.0.9.7")
             self.path("libexpat.so.1")
             self.path("libssl.so.0.9.7")
-            self.path("libuuid.so", "libuuid.so.1")
+            self.path("libuuid.so.1", "libuuid.so.1")
             self.path("libSDL-1.2.so.0")
             self.path("libELFIO.so")
             self.path("libopenjpeg.so.1.3.0", "libopenjpeg.so.1.3")
