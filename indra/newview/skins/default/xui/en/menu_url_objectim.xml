@@ -21,14 +21,14 @@
     <menu_item_separator
      layout="topleft" />
     <menu_item_call
-     label="Copy Object Name To Clipboard"
+     label="Copy Object Name to clipboard"
      layout="topleft"
      name="url_copy_label">
         <menu_item_call.on_click
          function="Url.CopyLabel" />
     </menu_item_call>
     <menu_item_call
-     label="Copy SLurl To Clipboard"
+     label="Copy SLurl to clipboard"
      layout="topleft"
      name="url_copy">
         <menu_item_call.on_click

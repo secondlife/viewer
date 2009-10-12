@@ -3,7 +3,7 @@
  layout="topleft"
  name="Url Popup">
     <menu_item_call
-     label="Teleport To This Location"
+     label="Teleport to this Location"
      layout="topleft"
      name="teleport">
         <menu_item_call.on_click
@@ -12,7 +12,7 @@
     <menu_item_separator
      layout="topleft" />
     <menu_item_call
-     label="Copy SLurl To Clipboard"
+     label="Copy SLurl to clipboard"
      layout="topleft"
      name="url_copy">
         <menu_item_call.on_click
