@@ -600,6 +600,11 @@ BOOL LLFolderViewItem::handleRightMouseDown( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 {
+	if (LLView::childrenHandleMouseDown(x, y, mask))
+	{
+		return TRUE;
+	}
+	
 	// No handler needed for focus lost since this class has no
 	// state that depends on it.
 	gFocusMgr.setMouseCapture( this );
@@ -719,6 +724,11 @@ BOOL LLFolderViewItem::handleScrollWheel(S32 x, S32 y, S32 clicks)
 
 BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 {
+	if (LLView::childrenHandleMouseUp(x, y, mask))
+	{
+		return TRUE;
+	}
+	
 	// if mouse hasn't moved since mouse down...
 	if ( pointInView(x, y) && mSelectPending )
 	{
@@ -968,6 +978,7 @@ void LLFolderViewItem::draw()
 			}
 		}
 	}
+	LLView::draw();
 }
 
 

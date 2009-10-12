@@ -1411,6 +1411,7 @@ void LLScrollListCtrl::drawItems()
 				cur_y, 
 				mItemListRect.getWidth(),
 				mLineHeight );
+			item->setRect(item_rect);
 
 			//llinfos << item_rect.getWidth() << llendl;
 
@@ -1708,7 +1709,7 @@ BOOL LLScrollListCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 BOOL LLScrollListCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
-{
+{	
 	if (hasMouseCapture())
 	{
 		// release mouse capture immediately so 

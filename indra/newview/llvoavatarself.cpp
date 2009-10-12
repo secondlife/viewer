@@ -987,7 +987,9 @@ LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *viewer_obj
 	LLViewerInventoryItem *item = gInventory.getItem(attachment->getItemID());
 	if (item)
 	{
+		LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Adding attachment link:");
 		LLAppearanceManager::wearItem(item,false);  // Add COF link for item.
+
 	}
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, attachment->getItemID());
 	gInventory.notifyObservers();

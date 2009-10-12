@@ -75,20 +75,25 @@ public:
 	BOOL			areWearablesLoaded() const;
 	void			updateWearablesLoaded();
 	void			checkWearablesLoaded() const;
+	
+	// Note: False for shape, skin, eyes, and hair, unless you have MORE than 1.
+	bool			canWearableBeRemoved(const LLWearable* wearable) const;
 
 	
 	//--------------------------------------------------------------------
 	// Accessors
 	//--------------------------------------------------------------------
 public:
-	const LLUUID	getWearableItemID(EWearableType type, U32 index /*= 0*/) const;
-	const LLWearable*		getWearableFromWearableItem(const LLUUID& item_id) const;
-	LLInventoryItem* getWearableInventoryItem(EWearableType type, U32 index /*= 0*/);
+	const LLUUID		getWearableItemID(EWearableType type, U32 index /*= 0*/) const;
+	const LLUUID		getWearableAssetID(EWearableType type, U32 index /*= 0*/) const;
+	const LLWearable*	getWearableFromItemID(const LLUUID& item_id) const;
+	const LLWearable*	getWearableFromAssetID(const LLUUID& asset_id) const;
+	LLInventoryItem*	getWearableInventoryItem(EWearableType type, U32 index /*= 0*/);
 	// MULTI-WEARABLE: assuming one per type.
-	static BOOL		selfHasWearable(EWearableType type);
-	LLWearable*		getWearable(const EWearableType type, U32 index /*= 0*/); 
+	static BOOL			selfHasWearable(EWearableType type);
+	LLWearable*			getWearable(const EWearableType type, U32 index /*= 0*/); 
 	const LLWearable* 	getWearable(const EWearableType type, U32 index /*= 0*/) const;
-	U32				getWearableCount(const EWearableType type) const;
+	U32					getWearableCount(const EWearableType type) const;
 
 
 	//--------------------------------------------------------------------
@@ -159,9 +164,7 @@ public:
 	// Note:	wearables_to_include should be a list of EWearableType types
 	//			attachments_to_include should be a list of attachment points
 	LLUUID			makeNewOutfitLinks(const std::string& new_folder_name);
-	LLUUID			makeNewOutfitLinks(const std::string& new_folder_name,
-									   const LLDynamicArray<S32>& wearables_to_include,
-									   const LLDynamicArray<S32>& attachments_to_include);
+
 private:
 	void			makeNewOutfitDone(S32 type, U32 index); 
 

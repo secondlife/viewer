@@ -563,16 +563,32 @@ LLInventoryItem* LLAgentWearables::getWearableInventoryItem(EWearableType type, 
 	return item;
 }
 
-const LLWearable* LLAgentWearables::getWearableFromWearableItem(const LLUUID& item_id) const
+const LLWearable* LLAgentWearables::getWearableFromItemID(const LLUUID& item_id) const
 {
 	for (S32 i=0; i < WT_COUNT; i++)
 	{
 		for (U32 j=0; j < getWearableCount((EWearableType)i); j++)
 		{
-			LLUUID curr_item_id = getWearableItemID((EWearableType)i, j);
-			if (curr_item_id == item_id)
+			const LLWearable * curr_wearable = getWearable((EWearableType)i, j);
+			if (curr_wearable && (curr_wearable->getItemID() == item_id))
 			{
-				return getWearable((EWearableType)i, j);
+				return curr_wearable;
+			}
+		}
+	}
+	return NULL;
+}
+
+const LLWearable*	LLAgentWearables::getWearableFromAssetID(const LLUUID& asset_id) const
+{
+	for (S32 i=0; i < WT_COUNT; i++)
+	{
+		for (U32 j=0; j < getWearableCount((EWearableType)i); j++)
+		{
+			const LLWearable * curr_wearable = getWearable((EWearableType)i, j);
+			if (curr_wearable && (curr_wearable->getAssetID() == asset_id))
+			{
+				return curr_wearable;
 			}
 		}
 	}
@@ -683,10 +699,19 @@ const LLUUID LLAgentWearables::getWearableItemID(EWearableType type, U32 index) 
 		return LLUUID();
 }
 
+const LLUUID LLAgentWearables::getWearableAssetID(EWearableType type, U32 index) const
+{
+	const LLWearable *wearable = getWearable(type,index);
+	if (wearable)
+		return wearable->getAssetID();
+	else
+		return LLUUID();
+}
+
 // Warning: include_linked_items = TRUE makes this operation expensive.
 BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id, BOOL include_linked_items) const
 {
-	if (getWearableFromWearableItem(item_id) != NULL) return TRUE;
+	if (getWearableFromItemID(item_id) != NULL) return TRUE;
 	if (include_linked_items)
 	{
 		LLInventoryModel::item_array_t item_array;
@@ -696,8 +721,8 @@ BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id, BOOL include_linked_
 			 iter++)
 		{
 			LLViewerInventoryItem *linked_item = (*iter);
-			const LLUUID &item_id = linked_item->getUUID();
-			if (getWearableFromWearableItem(item_id) != NULL) return TRUE;
+			const LLUUID &linked_item_id = linked_item->getUUID();
+			if (getWearableFromItemID(linked_item_id) != NULL) return TRUE;
 		}
 	}
 	return FALSE;
@@ -1152,26 +1177,6 @@ LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
 		return LLUUID::null;
 	}
 
-	LLDynamicArray<S32> wearables_to_include;
-	getAllWearablesArray(wearables_to_include);
-	
-	LLDynamicArray<S32> attachments_to_include;
-	mAvatarObject->getAllAttachmentsArray(attachments_to_include);
-
-	return makeNewOutfitLinks(new_folder_name, wearables_to_include, attachments_to_include);
-}
-
-// Note:	wearables_to_include should be a list of EWearableType types
-//			attachments_to_include should be a list of attachment points
-LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name,
-											 const LLDynamicArray<S32>& wearables_to_include,
-											 const LLDynamicArray<S32>& attachments_to_include)
-{
-	if (mAvatarObject.isNull())
-	{
-		return LLUUID::null;
-	}
-
 	// First, make a folder in the My Outfits directory.
 	LLUUID parent_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_MY_OUTFITS);
 	LLUUID folder_id = gInventory.createNewCategory(
@@ -1180,8 +1185,8 @@ LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name,
 		new_folder_name);
 
 	LLAppearanceManager::shallowCopyCategory(LLAppearanceManager::getCOF(),folder_id, NULL);
-
-#if 0
+	
+#if 0  // BAP - fix to go into rename state automatically after outfit is created.
 	LLViewerInventoryCategory *parent_category = gInventory.getCategory(parent_id);
 	if (parent_category)
 	{
@@ -1839,7 +1844,7 @@ void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_arra
 			msg->nextBlockFast(_PREHASH_HeaderData);
 			msg->addUUIDFast(_PREHASH_CompoundMsgID, compound_msg_id );
 			msg->addU8Fast(_PREHASH_TotalObjects, obj_count );
-			msg->addBOOLFast(_PREHASH_FirstDetachAll, true ); // BAP changing this doesn't seem to matter?
+			msg->addBOOLFast(_PREHASH_FirstDetachAll, false );
 		}
 
 		const LLInventoryItem* item = obj_item_array.get(i).get();
@@ -1880,6 +1885,16 @@ BOOL LLAgentWearables::areWearablesLoaded() const
 void LLAgentWearables::updateWearablesLoaded()
 {
 	mWearablesLoaded = (itemUpdatePendingCount()==0);
+}
+
+bool LLAgentWearables::canWearableBeRemoved(const LLWearable* wearable) const
+{
+	if (!wearable) return false;
+	
+	EWearableType type = wearable->getType();
+	// Make sure the user always has at least one shape, skin, eyes, and hair type currently worn.
+	return !(((type == WT_SHAPE) || (type == WT_SKIN) || (type == WT_HAIR) || (type == WT_EYES))
+			 && (getWearableCount(type) <= 1) );		  
 }
 
 void LLAgentWearables::updateServer()

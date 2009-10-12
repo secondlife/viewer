@@ -62,6 +62,7 @@ public:
 	// Accessors
 	//--------------------------------------------------------------------
 public:
+	const LLUUID&				getItemID() const;
 	const LLAssetID&			getAssetID() const { return mAssetID; }
 	const LLTransactionID&		getTransactionID() const { return mTransactionID; }
 	EWearableType				getType() const	{ return mType; }
@@ -77,6 +78,7 @@ public:
 	const std::string&			getTypeLabel() const;
 	const std::string&			getTypeName() const;
 	LLAssetType::EType			getAssetType() const;
+	LLLocalTextureObject*		getLocalTextureObject(S32 index) const;
 
 public:
 	BOOL				isDirty() const;
@@ -102,8 +104,6 @@ public:
 
 	friend std::ostream& operator<<(std::ostream &s, const LLWearable &w);
 	void				setItemID(const LLUUID& item_id);
-	const LLUUID&		getItemID() const;
-	LLLocalTextureObject* getLocalTextureObject(S32 index) const;
 	void				setLocalTextureObject(S32 index, LLLocalTextureObject *lto);
 
 private:

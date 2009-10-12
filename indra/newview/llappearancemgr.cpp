@@ -165,6 +165,8 @@ void LLOutfitObserver::done()
 					cb);
 			}
 		}
+		// BAP fixes a lag in display of created dir.
+		gInventory.notifyObservers();
 	}
 	else
 	{
@@ -495,11 +497,16 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 		}
 		else if (item->getActualType() == LLAssetType::AT_LINK_FOLDER)
 		{
-			link_inventory_item(gAgent.getID(),
-								item->getLinkedUUID(),
-								dst_id,
-								item->getName(),
-								LLAssetType::AT_LINK_FOLDER, cb);
+			LLViewerInventoryCategory *catp = item->getLinkedCategory();
+			// Skip copying outfit links.
+			if (catp && catp->getPreferredType() != LLAssetType::AT_OUTFIT)
+			{
+				link_inventory_item(gAgent.getID(),
+									item->getLinkedUUID(),
+									dst_id,
+									item->getName(),
+									LLAssetType::AT_LINK_FOLDER, cb);
+			}
 		}
 		else
 		{
@@ -518,6 +525,9 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 /* static */ void LLAppearanceManager::rebuildCOFFromOutfit(const LLUUID& category)
 {
 	lldebugs << "rebuildCOFFromOutfit()" << llendl;
+
+	dumpCat(category,"start, source outfit");
+	dumpCat(getCOF(),"start, COF");
 
 	// Find all the wearables that are in the category's subtree.	
 	LLInventoryModel::item_array_t items;
@@ -538,6 +548,8 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 	gInventory.collectDescendents(current_outfit_id, cof_cats, cof_items,
 								  LLInventoryModel::EXCLUDE_TRASH);
 	
+	//dumpCat(current_outfit_id,"COF before remove:");
+
 	if (items.count() > 0)
 	{
 		for (S32 i = 0; i < cof_items.count(); ++i)
@@ -547,15 +559,19 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 		gInventory.notifyObservers();
 	}
 
+	//dumpCat(current_outfit_id,"COF after remove:");
+
 	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
 	LLAppearanceManager::shallowCopyCategory(category, current_outfit_id, link_waiter);
+
+	//dumpCat(current_outfit_id,"COF after shallow copy:");
 
 	// Create a link to the outfit that we wore.
 	LLViewerInventoryCategory* catp = gInventory.getCategory(category);
 	if (catp && catp->getPreferredType() == LLAssetType::AT_OUTFIT)
 	{
 		link_inventory_item(gAgent.getID(), category, current_outfit_id, catp->getName(),
-							LLAssetType::AT_LINK_FOLDER, LLPointer<LLInventoryCallback>(NULL));
+							LLAssetType::AT_LINK_FOLDER, link_waiter);
 	}
 }
 
@@ -628,6 +644,8 @@ void LLAppearanceManager::updateAgentWearables(LLWearableHoldingPattern* holder,
 
 /* static */ void LLAppearanceManager::updateAppearanceFromCOF()
 {
+	dumpCat(getCOF(),"COF, start");
+
 	bool follow_folder_links = true;
 	LLUUID current_outfit_id = getCOF();
 
@@ -921,3 +939,26 @@ void LLAppearanceManager::removeItemLinks(LLUUID& item_id, bool do_update)
 		LLAppearanceManager::updateAppearanceFromCOF();
 	}
 }
+
+/* static */
+void LLAppearanceManager::dumpCat(const LLUUID& cat_id, std::string str)
+{
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	gInventory.collectDescendents(cat_id, cats, items, LLInventoryModel::EXCLUDE_TRASH);
+
+#if 0
+	llinfos << llendl;
+	llinfos << str << llendl;
+	S32 hitcount = 0;
+	for(S32 i=0; i<items.count(); i++)
+	{
+		LLViewerInventoryItem *item = items.get(i);
+		if (item)
+			hitcount++;
+		llinfos << i <<" "<< item->getName() <<llendl;
+	}
+#endif
+	llinfos << str << " count " << items.count() << llendl;
+}
+

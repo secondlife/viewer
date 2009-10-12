@@ -4421,7 +4421,7 @@ void LLWearableBridge::onEditOnAvatar(void* user_data)
 
 void LLWearableBridge::editOnAvatar()
 {
-	const LLWearable* wearable = gAgentWearables.getWearableFromWearableItem(mUUID);
+	const LLWearable* wearable = gAgentWearables.getWearableFromItemID(mUUID);
 	if( wearable )
 	{
 		// Set the tab to the right wearable.

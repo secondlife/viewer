@@ -5501,7 +5501,9 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 				}
 				else
 				{
+					LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Removing attachment link:");
 					LLAppearanceManager::removeItemLinks(item_id, false);
+
 				}
 
 				// BAP - needs to change for label to track link.
