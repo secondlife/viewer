@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Generale" name="general_tab">
 	<string name="help_text">
-		Il pannello &apos;Generale&apos; contiene informazioni generali riguardanti il
-gruppo, un elenco dei proprietari e i membri visibili,
-le preferenze generali di gruppo e le opzioni dei membri.
+		Il pannello &apos;Generale&apos; contiene informazioni generali riguardanti il gruppo, un elenco dei proprietari e i membri visibili, le preferenze generali di gruppo e le opzioni dei membri.
 
 Passa il mouse sulle opzioni per un aiuto aggiuntivo.
 	</string>
@@ -47,7 +45,7 @@ Passa il mouse sulle opzioni per un aiuto aggiuntivo.
 	<panel name="preferences_container">
 		<check_box label="Mostra nella ricerca" name="show_in_group_list" tool_tip="Lascia che i residenti vedano questo gruppo nella ricerca."/>
 		<check_box label="Iscrizione libera" name="open_enrollement" tool_tip="Imposta se questo gruppo permette ai nuovi membri di unirsi senza essere invitati."/>
-		<check_box label="Tassa di iscrizione: L$" name="check_enrollment_fee" tool_tip="Imposta se richiedere una tassa di iscrizione per unirsi al gruppo."/>
+		<check_box label="Tassa di iscrizione:" name="check_enrollment_fee" tool_tip="Imposta se richiedere una tassa di iscrizione per unirsi al gruppo."/>
 		<spinner width="60" left_delta="136" name="spin_enrollment_fee" tool_tip="I nuovi membri devono pagare questa tassa per unirsi al gruppo. La tassa di iscrizione è selezionata."/>
 		<combo_box name="group_mature_check" tool_tip="Imposta se le informazioni sul tuo gruppo sono da considerarsi Mature.">
 			<combo_box.item name="select_mature" label="- Seleziona -"/>

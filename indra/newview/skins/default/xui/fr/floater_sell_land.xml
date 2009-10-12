@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="sell land" title="Vendre terrain">
+    <scroll_container name="profile_scroll">
+    <panel name="scroll_content_panel">
 	<text name="info_parcel_label">
 		Parcelle :
 	</text>
@@ -59,4 +61,6 @@ de propriétaire.
 	</text>
 	<button label="Mettre le terrain en vente" name="sell_btn" width="165"/>
 	<button label="Annuler" name="cancel_btn"/>
+    </panel>
+    </scroll_container>
 </floater>

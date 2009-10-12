@@ -43,7 +43,7 @@
 	<panel name="preferences_container">
 		<check_box label="Afficher dans la recherche" name="show_in_group_list" tool_tip="Afficher ce groupe dans les résultats de recherche."/>
 		<check_box label="Inscription libre" name="open_enrollement" tool_tip="Indique si une invitation est nécessaire pour devenir membre de ce groupe."/>
-		<check_box label="Frais d&apos;inscription : L$" name="check_enrollment_fee" tool_tip="Indique s&apos;il y a des frais d&apos;inscription pour devenir membre."/>
+		<check_box label="Frais d&apos;inscription :" name="check_enrollment_fee" tool_tip="Indique s&apos;il y a des frais d&apos;inscription pour devenir membre."/>
 		<spinner name="spin_enrollment_fee" tool_tip="Si la case Frais d&apos;inscription est cochée, cela signifie qu&apos;il faut payer des frais pour devenir membre."/>
 		<combo_box name="group_mature_check" tool_tip="Indique si les informations sur votre groupe sont classées Mature." width="195">
 			<combo_box.item name="select_mature" label="- Type de public -"/>
