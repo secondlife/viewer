@@ -205,39 +205,35 @@ list(APPEND llmessage_SOURCE_FILES ${llmessage_HEADER_FILES})
 
 add_library (llmessage ${llmessage_SOURCE_FILES})
 target_link_libraries(
-    llmessage
-    ${CURL_LIBRARIES}
-    ${CARES_LIBRARIES}
-    ${OPENSSL_LIBRARIES}
-    ${CRYPTO_LIBRARIES}
-    ${XMLRPCEPI_LIBRARIES}
-    )
+  llmessage
+  ${CURL_LIBRARIES}
+  ${CARES_LIBRARIES}
+  ${OPENSSL_LIBRARIES}
+  ${CRYPTO_LIBRARIES}
+  ${XMLRPCEPI_LIBRARIES}
+  )
 
-IF (NOT LINUX AND VIEWER)
-    # When building the viewer the tests links against the shared objects. 
-    # These can not be found when we try to run the tests, so we had to disable them, for the viewer build.
-    # TODO: Can someone with viewer knowledge figure out how to make these find the correct so.
-    SET(llmessage_TEST_SOURCE_FILES
-      # llhttpclientadapter.cpp
-      lltrustedmessageservice.cpp
-      lltemplatemessagedispatcher.cpp
-      )
+SET(llmessage_TEST_SOURCE_FILES
+  # llhttpclientadapter.cpp
+  llnamevalue.cpp
+  lltrustedmessageservice.cpp
+  lltemplatemessagedispatcher.cpp
+  )
 #    set(TEST_DEBUG on)
-    set(test_libs
-      ${LLMESSAGE_LIBRARIES}
-      ${WINDOWS_LIBRARIES}
-      ${LLVFS_LIBRARIES}
-      ${LLMATH_LIBRARIES}
-      ${LLCOMMON_LIBRARIES}
-      )
+set(test_libs
+  ${LLMESSAGE_LIBRARIES}
+  ${WINDOWS_LIBRARIES}
+  ${LLVFS_LIBRARIES}
+  ${LLMATH_LIBRARIES}
+  ${LLCOMMON_LIBRARIES}
+  )
 
-    LL_ADD_INTEGRATION_TEST(
-      llsdmessage
-      "llsdmessage.cpp"
-      "${test_libs}"
-      ${PYTHON_EXECUTABLE}
-      "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py"
-      )
+LL_ADD_INTEGRATION_TEST(
+  llsdmessage
+  "llsdmessage.cpp"
+  "${test_libs}"
+  ${PYTHON_EXECUTABLE}
+  "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py"
+  )
 
-    LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
-ENDIF (NOT LINUX AND VIEWER)
+LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")

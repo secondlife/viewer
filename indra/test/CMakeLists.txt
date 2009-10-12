@@ -49,7 +49,6 @@ set(test_SOURCE_FILES
     llmime_tut.cpp
     llmessageconfig_tut.cpp
     llmodularmath_tut.cpp
-    llnamevalue_tut.cpp
     llpermissions_tut.cpp
     llpipeutil.cpp
     llsaleinfo_tut.cpp
@@ -57,7 +56,6 @@ set(test_SOURCE_FILES
     llsdmessagebuilder_tut.cpp
     llsdmessagereader_tut.cpp
     llsd_new_tut.cpp
-    llsdserialize_tut.cpp
     llsdutil_tut.cpp
     llservicebuilder_tut.cpp
     llstreamtools_tut.cpp
