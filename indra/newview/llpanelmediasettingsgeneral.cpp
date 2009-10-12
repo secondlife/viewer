@@ -32,6 +32,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llagent.h"
 #include "llpanelmediasettingsgeneral.h"
 #include "llcombobox.h"
 #include "llcheckboxctrl.h"
@@ -47,6 +48,7 @@
 #include "llmediaentry.h"
 #include "llmediactrl.h"
 #include "llpanelcontents.h"
+#include "llpermissions.h"
 #include "llpluginclassmedia.h"
 #include "llfloatermediasettings.h"
 #include "llfloatertools.h"
@@ -159,8 +161,8 @@ void LLPanelMediaSettingsGeneral::draw()
 	// current URL can change over time.
 //	updateCurrentURL();
 
-	// enable/disable RESRET button depending on permissions
-	// since this is the same as a navigate action
+	LLPermissions perm;
+	BOOL valid = LLSelectMgr::getInstance()->selectGetPermissions(perm);
 	bool user_can_press_reset = gFloaterTools->selectedMediaEditable();
 
 	// several places modify this widget so we must collect states in one place
