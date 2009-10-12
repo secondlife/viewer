@@ -33,10 +33,10 @@
 	<combo_box name="maturity_desired_combobox">
 		<combo_box.item name="Desired_Adult" label="&apos;PG&apos;, &apos;Mature&apos; y &apos;Adult&apos;"/>
 		<combo_box.item name="Desired_Mature" label="&apos;PG&apos; y &apos;Mature&apos;"/>
-		<combo_box.item name="Desired_PG" label="sólo &apos;PG&apos;"/>
+		<combo_box.item name="Desired_PG" label="&apos;PG&apos;"/>
 	</combo_box>
 	<text name="maturity_desired_textbox">
-		sólo &apos;PG&apos;
+		&apos;PG&apos;
 	</text>
 	<text name="start_location_textbox">
 		Posición inicial:

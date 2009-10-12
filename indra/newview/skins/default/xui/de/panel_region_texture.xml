@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel name="TextureWrapper">
-  <scroll_container name="container1">
-   <panel label="Bodentexturen" name="Textures">
+<panel label="Bodentexturen" name="Textures">
 	<text name="region_text_lbl">
 		Region:
 	</text>
@@ -56,6 +54,4 @@
 		und der OBERE WERT die MINIMALE Höhe von Textur 4.
 	</text>
 	<button label="Übernehmen" name="apply_btn" />
-    </panel>
-  </scroll_container>
 </panel>

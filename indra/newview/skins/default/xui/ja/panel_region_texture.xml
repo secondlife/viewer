@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel name="TextureWrapper">
-  <scroll_container name="container1">
-   <panel label="地面テクスチャー" name="Textures">
+<panel label="地面テクスチャー" name="Textures">
 	<text name="region_text_lbl">
 		地域：
 	</text>
@@ -56,6 +54,4 @@
 		そして「高」の値はテクスチャー#4の高さの下限となります。
 	</text>
 	<button label="適用" name="apply_btn" />
-    </panel>
-  </scroll_container>
 </panel>

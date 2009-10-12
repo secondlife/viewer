@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel name="EstateWrapper">
-  <scroll_container name="container1">
-   <panel label="不動産" name="Estate">
+<panel label="不動産" name="Estate">
 	<text name="estate_help_text">
 		このタブの設定を変更するとこの不動産内
 の全ての地域に影響を与えます。
@@ -77,6 +75,4 @@
 	<button label="メッセージを不動産へ送信..." name="message_estate_btn" />
 	<button label="土地からユーザーを追い出す..."
 	     name="kick_user_from_estate_btn" />
-    </panel>
-  </scroll_container>
 </panel>

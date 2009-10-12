@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel name="TextureWrapper">
-  <scroll_container name="container1">
-   <panel label="Texturas de Chão" name="Textures">
+<panel label="Texturas de Chão" name="Textures">
 	<text name="region_text_lbl">
 		Região:
 	</text>
@@ -56,6 +54,4 @@
 		e o valor Alto é a altura Mínima da Textura #4.
 	</text>
 	<button label="Aplicar" name="apply_btn" />
-    </panel>
-  </scroll_container>
 </panel>

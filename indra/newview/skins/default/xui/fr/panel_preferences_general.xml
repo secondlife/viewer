@@ -34,10 +34,10 @@
 	<combo_box name="maturity_desired_combobox">
 		<combo_box.item name="Desired_Adult" label="PG, Mature et Adult"/>
 		<combo_box.item name="Desired_Mature" label="PG et Mature"/>
-		<combo_box.item name="Desired_PG" label="PG uniquement"/>
+		<combo_box.item name="Desired_PG" label="PG"/>
 	</combo_box>
 	<text name="maturity_desired_textbox">
-		PG uniquement
+		PG
 	</text>
 	<text name="start_location_textbox">
 		Lieu de départ :
