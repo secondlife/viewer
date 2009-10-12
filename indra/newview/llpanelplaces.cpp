@@ -200,7 +200,7 @@ BOOL LLPanelPlaces::postBuild()
 	mFilterEditor = getChild<LLFilterEditor>("Filter");
 	if (mFilterEditor)
 	{
-		mFilterEditor->setCommitCallback(boost::bind(&LLPanelPlaces::onFilterEdit, this, _2));
+		mFilterEditor->setCommitCallback(boost::bind(&LLPanelPlaces::onFilterEdit, this, _2, false));
 	}
 
 	mPlaceInfo = getChild<LLPanelPlaceInfo>("panel_place_info");
@@ -225,11 +225,12 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 		return;
 
 	mFilterEditor->clear();
-	onFilterEdit("");
+	onFilterEdit("", false);
 
 	mPlaceInfoType = key["type"].asString();
 	mPosGlobal.setZero();
 	mItem = NULL;
+	isLandmarkEditModeOn = false;
 	togglePlaceInfoPanel(TRUE);
 	updateVerbs();
 
@@ -371,9 +372,9 @@ void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
 	mPlaceInfo->displayParcelInfo(region_id, mPosGlobal);
 }
 
-void LLPanelPlaces::onFilterEdit(const std::string& search_string)
+void LLPanelPlaces::onFilterEdit(const std::string& search_string, bool force_filter)
 {
-	if (mFilterSubString != search_string)
+	if (force_filter || mFilterSubString != search_string)
 	{
 		mFilterSubString = search_string;
 
@@ -392,7 +393,7 @@ void LLPanelPlaces::onTabSelected()
 	if (!mActivePanel)
 		return;
 
-	onFilterEdit(mFilterSubString);	
+	onFilterEdit(mFilterSubString, true);
 	mActivePanel->updateVerbs();
 }
 
@@ -550,6 +551,8 @@ void LLPanelPlaces::onCancelButtonClicked()
 	else
 	{
 		mPlaceInfo->toggleLandmarkEditMode(FALSE);
+		isLandmarkEditModeOn = false;
+
 		updateVerbs();
 
 		// Reload the landmark properties.
@@ -664,6 +667,8 @@ void LLPanelPlaces::onBackButtonClicked()
 
 		// Resetting mPlaceInfoType when Place Info panel is closed.
 		mPlaceInfoType = LLStringUtil::null;
+
+		isLandmarkEditModeOn = false;
 	}
 
 	updateVerbs();
@@ -723,7 +728,8 @@ void LLPanelPlaces::changedParcelSelection()
 
 	// If agent is inside the selected parcel show agent's region<X, Y, Z>,
 	// otherwise show region<X, Y, Z> of agent's selection point.
-	if (is_agent_in_selected_parcel(parcel))
+	bool is_current_parcel = is_agent_in_selected_parcel(parcel);
+	if (is_current_parcel)
 	{
 		mPosGlobal = gAgent.getPositionGlobal();
 	}
@@ -737,7 +743,7 @@ void LLPanelPlaces::changedParcelSelection()
 	}
 
 	mPlaceInfo->resetLocation();
-	mPlaceInfo->displaySelectedParcelInfo(parcel, region, mPosGlobal);
+	mPlaceInfo->displaySelectedParcelInfo(parcel, region, mPosGlobal, is_current_parcel);
 
 	updateVerbs();
 }
@@ -842,8 +848,6 @@ void LLPanelPlaces::updateVerbs()
 		if (mActivePanel)
 			mActivePanel->updateVerbs();
 	}
-
-	isLandmarkEditModeOn = false;
 }
 
 static bool is_agent_in_selected_parcel(LLParcel* parcel)

@@ -243,6 +243,7 @@ BOOL LLTeleportHistoryPanel::postBuild()
 			{
 				LLAccordionCtrlTab* tab = (LLAccordionCtrlTab*)*iter;
 				tab->setRightMouseDownCallback(boost::bind(&LLTeleportHistoryPanel::onAccordionTabRightClick, this, _1, _2, _3, _4));
+				tab->setDisplayChildren(false);
 
 				mItemContainers.put(tab);
 
@@ -255,6 +256,13 @@ BOOL LLTeleportHistoryPanel::postBuild()
 				}
 			}
 		}
+
+		// Open first 2 accordion tabs
+		if (mItemContainers.size() > 1)
+			mItemContainers.get(mItemContainers.size() - 1)->setDisplayChildren(true);
+
+		if (mItemContainers.size() > 2)
+			mItemContainers.get(mItemContainers.size() - 2)->setDisplayChildren(true);
 	}
 
 	getChild<LLPanel>("bottom_panel")->childSetAction("gear_btn",boost::bind(&LLTeleportHistoryPanel::onGearButtonClicked, this));

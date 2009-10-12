@@ -59,6 +59,7 @@ static const F32 AUTO_SCROLL_RATE_ACCEL = 120.f;
 
 static const S32 msg_left_offset = 30;
 static const S32 msg_right_offset = 10;
+static const S32 msg_height_pad = 2;
 
 //static LLDefaultChildRegistry::Register<LLChatItemsContainerCtrl>	t2("chat_items_container");
 
@@ -178,14 +179,14 @@ void	LLNearbyChatToastPanel::setMessage	(const LLChat& chat_msg)
 void	LLNearbyChatToastPanel::snapToMessageHeight	()
 {
 	LLChatMsgBox* text_box = getChild<LLChatMsgBox>("msg_text", false);
-	S32 new_height = text_box->getTextPixelHeight();
+	S32 new_height = text_box->getTextPixelHeight() + msg_height_pad;
 	LLRect panel_rect = getRect();
 
 	S32 caption_height = 0;
 	LLPanel* caption = getChild<LLPanel>("msg_caption", false);
 	caption_height = caption->getRect().getHeight();
 
-	panel_rect.setLeftTopAndSize( panel_rect.mLeft, panel_rect.mTop, panel_rect.getWidth()	, caption_height + new_height);
+	panel_rect.setLeftTopAndSize( panel_rect.mLeft, panel_rect.mTop, panel_rect.getWidth(), caption_height + new_height);
 	
 	reshape( getRect().getWidth(), caption_height + new_height, 1);
 	

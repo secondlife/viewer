@@ -128,7 +128,18 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	pAttachLink->setVisible(hasInventory);
 	pAttachIcon->setVisible(hasInventory);
 	if (hasInventory) {
-		pAttachLink->setValue(payload["inventory_name"]);
+		std::string dis_name;
+		std::string inv_name = payload["inventory_name"];
+
+		if (LLViewerInventoryItem::extractSortFieldAndDisplayName(inv_name, NULL, &dis_name))
+		{
+			pAttachLink->setValue(dis_name);
+		}
+		else
+		{
+			pAttachLink->setValue(inv_name);
+		}
+
 		mInventoryOffer = new LLOfferInfo(payload["inventory_offer"]);
 		childSetActionTextbox("attachment", boost::bind(
 				&LLToastGroupNotifyPanel::onClickAttachment, this));

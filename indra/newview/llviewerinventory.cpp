@@ -121,41 +121,6 @@ LLViewerInventoryItem::~LLViewerInventoryItem()
 {
 }
 
-BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(S32* sortField, std::string* displayName) const
-{
-	using std::string;
-	using std::stringstream;
-
-	const char separator = getSeparator();
-	const string::size_type separatorPos = mName.find(separator, 0);
-
-	BOOL result = FALSE;
-
-	if (separatorPos < string::npos)
-	{
-		if (sortField)
-		{
-			/*
-			 * The conversion from string to S32 is made this way instead of old plain
-			 * atoi() to ensure portability. If on some other platform S32 will not be
-			 * defined to be signed int, this conversion will still work because of
-			 * operators overloading, but atoi() may fail.
-			 */
-			stringstream ss(mName.substr(0, separatorPos));
-			ss >> *sortField;
-		}
-
-		if (displayName)
-		{
-			*displayName = mName.substr(separatorPos + 1, string::npos);
-		}
-
-		result = TRUE;
-	}
-
-	return result;
-}
-
 void LLViewerInventoryItem::copyViewerItem(const LLViewerInventoryItem* other)
 {
 	LLInventoryItem::copyItem(other);
@@ -1312,6 +1277,41 @@ time_t LLViewerInventoryItem::getCreationDate() const
 U32 LLViewerInventoryItem::getCRC32() const
 {
 	return LLInventoryItem::getCRC32();	
+}
+
+BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& name, S32* sortField, std::string* displayName)
+{
+	using std::string;
+	using std::stringstream;
+
+	const char separator = getSeparator();
+	const string::size_type separatorPos = name.find(separator, 0);
+
+	BOOL result = FALSE;
+
+	if (separatorPos < string::npos)
+	{
+		if (sortField)
+		{
+			/*
+			 * The conversion from string to S32 is made this way instead of old plain
+			 * atoi() to ensure portability. If on some other platform S32 will not be
+			 * defined to be signed int, this conversion will still work because of
+			 * operators overloading, but atoi() may fail.
+			 */
+			stringstream ss(name.substr(0, separatorPos));
+			ss >> *sortField;
+		}
+
+		if (displayName)
+		{
+			*displayName = name.substr(separatorPos + 1, string::npos);
+		}
+
+		result = TRUE;
+	}
+
+	return result;
 }
 
 // This returns true if the item that this item points to 

@@ -105,9 +105,11 @@ public:
 
 	// Displays information about the currently selected parcel
 	// without sending a request to the server.
+	// If is_current_parcel true shows "You Are Here" banner.
 	void displaySelectedParcelInfo(LLParcel* parcel,
 								LLViewerRegion* region,
-								const LLVector3d& pos_global);
+								const LLVector3d& pos_global,
+								bool is_current_parcel);
 
 	void updateEstateName(const std::string& name);
 	void updateEstateOwnerName(const std::string& name);

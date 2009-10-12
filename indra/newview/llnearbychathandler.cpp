@@ -61,7 +61,7 @@ LLToastPanelBase* createToastPanel()
 class LLNearbyChatScreenChannel: public LLScreenChannelBase
 {
 public:
-	LLNearbyChatScreenChannel(const LLUUID& id):LLScreenChannelBase(id) { mActiveMessages = 0;};
+	LLNearbyChatScreenChannel(const LLUUID& id):LLScreenChannelBase(id) { mStopProcessing = false;};
 
 	void init				(S32 channel_left, S32 channel_right);
 
@@ -100,6 +100,13 @@ public:
 		m_active_toasts.clear();
 	};
 
+	virtual void deleteAllChildren()
+	{
+		m_toast_pool.clear();
+		m_active_toasts.clear();
+		LLScreenChannelBase::deleteAllChildren();
+	}
+
 protected:
 	void	createOverflowToast(S32 bottom, F32 timer);
 
@@ -110,7 +117,7 @@ protected:
 	std::vector<LLToast*> m_active_toasts;
 	std::list<LLToast*> m_toast_pool;
 
-	S32 mActiveMessages;
+	bool	mStopProcessing;
 };
 
 void LLNearbyChatScreenChannel::init(S32 channel_left, S32 channel_right)
@@ -129,6 +136,7 @@ void	LLNearbyChatScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 
 void LLNearbyChatScreenChannel::onToastDestroyed(LLToast* toast)
 {	
+	mStopProcessing = true;
 }
 
 void LLNearbyChatScreenChannel::onToastFade(LLToast* toast)
@@ -168,7 +176,8 @@ bool	LLNearbyChatScreenChannel::createPoolToast()
 void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 {
 	//look in pool. if there is any message
-
+	if(mStopProcessing)
+		return;
 	
 	if(m_toast_pool.empty())
 	{
@@ -211,6 +220,9 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 
 void LLNearbyChatScreenChannel::showToastsBottom()
 {
+	if(mStopProcessing)
+		return;
+
 	LLRect	toast_rect;	
 	S32		bottom = getRect().mBottom;
 	S32		margin = gSavedSettings.getS32("ToastMargin");
@@ -239,7 +251,6 @@ void LLNearbyChatScreenChannel::showToastsBottom()
 			toast->setRect(toast_rect);
 			
 			toast->setVisible(TRUE);
-			toast->stopTimer();
 			bottom = toast->getRect().mTop;
 		}		
 	}

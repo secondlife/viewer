@@ -567,7 +567,8 @@ void LLPanelPlaceInfo::displayParcelInfo(const LLUUID& region_id,
 
 void LLPanelPlaceInfo::displaySelectedParcelInfo(LLParcel* parcel,
 											  LLViewerRegion* region,
-											  const LLVector3d& pos_global)
+											  const LLVector3d& pos_global,
+											  bool is_current_parcel)
 {
 	if (!region || !parcel)
 		return;
@@ -798,6 +799,9 @@ void LLPanelPlaceInfo::displaySelectedParcelInfo(LLParcel* parcel,
 
 	processParcelInfo(parcel_data);
 
+	// TODO: If agent is in currently within the selected parcel
+	// show the "You Are Here" banner.
+
 	getChild<LLAccordionCtrlTab>("sales_tab")->setVisible(for_sale);
 }
 
@@ -845,14 +849,17 @@ void LLPanelPlaceInfo::toggleLandmarkEditMode(BOOL enabled)
 		mTitle->setText(mCurrentTitle);
 	}
 
-	mTitleEditor->setEnabled(enabled);
-	mNotesEditor->setReadOnly(!enabled);
-	mFolderCombo->setVisible(enabled);
-	getChild<LLTextBox>("folder_lable")->setVisible(enabled);
+	if (mNotesEditor->getReadOnly() ==  (enabled == TRUE))
+	{
+		mTitleEditor->setEnabled(enabled);
+		mNotesEditor->setReadOnly(!enabled);
+		mFolderCombo->setVisible(enabled);
+		getChild<LLTextBox>("folder_lable")->setVisible(enabled);
 
-	// HACK: To change the text color in a text editor
-	// when it was enabled/disabled we set the text once again.
-	mNotesEditor->setText(mNotesEditor->getText());
+		// HACK: To change the text color in a text editor
+		// when it was enabled/disabled we set the text once again.
+		mNotesEditor->setText(mNotesEditor->getText());
+	}
 }
 
 const std::string& LLPanelPlaceInfo::getLandmarkTitle() const
