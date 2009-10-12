@@ -280,6 +280,11 @@ void LLFace::setTexture(LLViewerTexture* tex)
 	mTexture = tex ;
 }
 
+void LLFace::dirtyTexture()
+{
+	gPipeline.markTextured(getDrawable());
+}
+
 void LLFace::switchTexture(LLViewerTexture* new_texture)
 {
 	if(mTexture == new_texture)
@@ -295,7 +300,7 @@ void LLFace::switchTexture(LLViewerTexture* new_texture)
 
 	getViewerObject()->changeTEImage(mTEOffset, new_texture) ;
 	setTexture(new_texture) ;	
-	gPipeline.markTextured(getDrawable());
+	dirtyTexture();
 }
 
 void LLFace::setTEOffset(const S32 te_offset)
