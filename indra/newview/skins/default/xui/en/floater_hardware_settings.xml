@@ -95,7 +95,7 @@
      name="(brightness, lower is brighter)"
      top_delta="2"
      width="315">
-        (brightness, lower = brighter, 0 = default)
+        (0 = default brightness, lower = brighter)
     </text>
     <text
      type="string"
