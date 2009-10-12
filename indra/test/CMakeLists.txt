@@ -32,7 +32,6 @@ set(test_SOURCE_FILES
     llbase64_tut.cpp
     llblowfish_tut.cpp
     llbuffer_tut.cpp
-    lldate_tut.cpp
     lldependencies_tut.cpp
     lldoubledispatch_tut.cpp
     llerror_tut.cpp
