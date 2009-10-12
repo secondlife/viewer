@@ -27,7 +27,6 @@ include_directories(
     )
 
 set(test_SOURCE_FILES
-    common.cpp
     inventory.cpp
     io.cpp
 #    llapp_tut.cpp						# Temporarily removed until thread issues can be solved
