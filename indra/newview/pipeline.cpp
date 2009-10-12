@@ -414,6 +414,9 @@ void LLPipeline::cleanup()
 {
 	assertInitialized();
 
+	mGroupQ1.clear() ;
+	mGroupQ2.clear() ;
+
 	for(pool_set_t::iterator iter = mPools.begin();
 		iter != mPools.end(); )
 	{
