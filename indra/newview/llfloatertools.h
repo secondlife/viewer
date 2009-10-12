@@ -74,6 +74,7 @@ public:
 
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ BOOL canClose();
+	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void draw();
 	/*virtual*/ void onFocusReceived();
 
@@ -105,10 +106,10 @@ public:
 	void onClickBtnDeleteMedia();
 	void onClickBtnAddMedia();
 	void onClickBtnEditMedia();
-	
+	void clearMediaSettings();
+	bool selectedMediaEditable();
 
 private:
-	void onClose();
 	void refresh();
 	void refreshMedia();
 	void getMediaState();

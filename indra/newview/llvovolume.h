@@ -45,6 +45,8 @@
 class LLViewerTextureAnim;
 class LLDrawPool;
 class LLSelectNode;
+class LLObjectMediaDataClient;
+class LLObjectMediaNavigateClient;
 
 typedef std::vector<viewer_media_t> media_list_t;
 
@@ -231,17 +233,29 @@ public:
 	BOOL canBeFlexible() const;
 	BOOL setIsFlexible(BOOL is_flexible);
 
-	void updateObjectMediaData(const LLSD &media_data_duples);
+    // Functions that deal with media, or media navigation
+    
+    // Update this object's media data with the given media data array
+    // (typically this is only called upon a response from a server request)
+	void updateObjectMediaData(const LLSD &media_data_array);
+    
+    // Bounce back media at the given index to its current URL (or home URL, if current URL is empty)
+	void mediaNavigateBounceBack(U8 texture_index);
+    
+    // Returns whether or not this object has permission to navigate the given media entry
+    bool hasNavigatePermission(const LLMediaEntry* media_entry);
+    
 	void mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, LLViewerMediaObserver::EMediaEvent event);
 
 	// Sync the given media data with the impl and the given te
 	void syncMediaData(S32 te, const LLSD &media_data, bool merge, bool ignore_agent);
 	
 	// Send media data update to the simulator.
-	void sendMediaDataUpdate() const;
+	void sendMediaDataUpdate();
 
 	viewer_media_t getMediaImpl(U8 face_id) const;
 	S32 getFaceIndexWithMediaImpl(const LLViewerMediaImpl* media_impl, S32 start_face_id);
+	F64 getTotalMediaInterest() const;
    
 	bool hasMedia() const;
 
@@ -283,6 +297,9 @@ public:
 	static F32 sLODFactor;				// LOD scale factor
 	static F32 sDistanceFactor;			// LOD distance factor
 		
+	static LLPointer<LLObjectMediaDataClient> sObjectMediaClient;
+	static LLPointer<LLObjectMediaNavigateClient> sObjectMediaNavigateClient;
+
 protected:
 	static S32 sNumLODChanges;
 	

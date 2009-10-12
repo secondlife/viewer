@@ -58,7 +58,7 @@ class LLFloaterSellLandUI
 public:
 	LLFloaterSellLandUI(const LLSD& key);
 	virtual ~LLFloaterSellLandUI();
-	void onClose();
+	/*virtual*/ void onClose(bool app_quitting);
 	
 private:
 	class SelectionObserver : public LLParcelObserver
@@ -131,7 +131,6 @@ LLFloaterSellLandUI::LLFloaterSellLandUI(const LLSD& key)
 	mRegion(0)
 {
 	LLViewerParcelMgr::getInstance()->addObserver(&mParcelSelectionObserver);
-	mCloseSignal.connect(boost::bind(&LLFloaterSellLandUI::onClose, this));
 }
 
 LLFloaterSellLandUI::~LLFloaterSellLandUI()
@@ -140,7 +139,7 @@ LLFloaterSellLandUI::~LLFloaterSellLandUI()
 }
 
 // Because we are single_instance, we are not destroyed on close.
-void LLFloaterSellLandUI::onClose()
+void LLFloaterSellLandUI::onClose(bool app_quitting)
 {
 	// Must release parcel selection to allow land to deselect, see EXT-803
 	mParcelSelection = NULL;

@@ -192,14 +192,23 @@ public:
 	// Use this constructor for pre-defined LLStatTime objects
 	LLPerfBlock(LLStatTime* stat);
 
-	// Use this constructor for dynamically created LLStatTime objects (not pre-defined) with a multi-part key
-	LLPerfBlock( const char* key1, const char* key2 = NULL);
+	// Use this constructor for normal, optional LLPerfBlock time slices
+	LLPerfBlock( const char* key );
 
+	// Use this constructor for dynamically created LLPerfBlock time slices
+	// that are only enabled by specific control flags
+	LLPerfBlock( const char* key1, const char* key2, S32 flags = LLSTATS_BASIC_STATS );
 
 	~LLPerfBlock();
 
-	static void setStatsEnabled( BOOL enable )		{ sStatsEnabled = enable;	};
-	static S32  getStatsEnabled()					{ return sStatsEnabled;		};
+	enum
+	{	// Stats bitfield flags
+		LLSTATS_NO_OPTIONAL_STATS	= 0x00,		// No optional stats gathering, just pre-defined LLStatTime objects
+		LLSTATS_BASIC_STATS			= 0x01,		// Gather basic optional runtime stats
+		LLSTATS_SCRIPT_FUNCTIONS	= 0x02,		// Include LSL function calls
+	};
+	static void setStatsFlags( S32 flags )	{ sStatsFlags = flags;	};
+	static S32  getStatsFlags()				{ return sStatsFlags;	};
 
 	static void clearDynamicStats();		// Reset maps to clear out dynamic objects
 	static void addStatsToLLSDandReset( LLSD & stats,		// Get current information and clear time bin
@@ -213,7 +222,7 @@ private:
 	LLStatTime * 			mPredefinedStat;		// LLStatTime object to get data
 	StatEntry *				mDynamicStat;   		// StatEntryobject to get data
 
-	static BOOL				sStatsEnabled;			// Normally FALSE
+	static S32				sStatsFlags;			// Control what is being recorded
     static stat_map_t		sStatMap;				// Map full path string to LLStatTime objects
 	static std::string		sCurrentStatPath;		// Something like "frame/physics/physics step"
 };
@@ -236,7 +245,7 @@ public:
     BOOL    frameStatsIsRunning()                                { return (mReportPerformanceStatEnd > 0.);        };
     F32     getReportPerformanceInterval() const                { return mReportPerformanceStatInterval;        };
     void    setReportPerformanceInterval( F32 interval )        { mReportPerformanceStatInterval = interval;    };
-    void    setReportPerformanceDuration( F32 seconds );
+    void    setReportPerformanceDuration( F32 seconds, S32 flags = LLPerfBlock::LLSTATS_NO_OPTIONAL_STATS );
     void    setProcessName(const std::string& process_name) { mProcessName = process_name; }
     void    setProcessPID(S32 process_pid) { mProcessPID = process_pid; }
 

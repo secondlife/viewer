@@ -84,6 +84,8 @@ public:
 	BOOL	dynamicAdjust();		// Shift bandwidth from idle channels to busy channels, TRUE if adjustment occurred
 	BOOL	setNominalBPS(F32* throttle_vec);				// TRUE if any value was different, resets adjustment system if was different
 
+	S32		getAvailable(S32 throttle_cat);					// Return bits available in the channel
+
 	void packThrottle(LLDataPacker &dp) const;
 	void unpackThrottle(LLDataPacker &dp);
 public:

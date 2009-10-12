@@ -111,6 +111,7 @@
 #include "llfloaterlandholdings.h"
 #include "llfloatermap.h"
 #include "llfloateropenobject.h"
+#include "llfloaterpay.h"
 #include "llfloaterperms.h"
 #include "llfloaterpostprocess.h"
 #include "llfloaterpreference.h"
@@ -129,7 +130,6 @@
 #include "llavataractions.h"
 #include "lllandmarkactions.h"
 #include "llmemoryview.h"
-#include "llgivemoney.h"
 #include "llgroupmgr.h"
 #include "lltooltip.h"
 #include "llhudeffecttrail.h"
@@ -566,6 +566,15 @@ void init_menus()
 	gBusyMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Busy", TRUE);
 	gAttachSubMenu = gMenuBarView->findChildMenuByName("Attach Object", TRUE);
 	gDetachSubMenu = gMenuBarView->findChildMenuByName("Detach Object", TRUE);
+
+#if !MEM_TRACK_MEM
+	// Don't display the Memory console menu if the feature is turned off
+	LLMenuItemCheckGL *memoryMenu = gMenuBarView->getChild<LLMenuItemCheckGL>("Memory", TRUE);
+	if (memoryMenu)
+	{
+		memoryMenu->setVisible(FALSE);
+	}
+#endif
 
 	gMenuBarView->createJumpKeys();
 
@@ -5405,7 +5414,7 @@ class LLAvatarAddContact : public view_listener_t
 	}
 };
 
-bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle handle)
+bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle selection)
 {
 	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option == 0)
@@ -5413,7 +5422,7 @@ bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjec
 		gAgent.clearBusy();
 	}
 
-	LLViewerObject* objectp = handle->getPrimaryObject();
+	LLViewerObject* objectp = selection->getPrimaryObject();
 
 	// Show avatar's name if paying attachment
 	if (objectp && objectp->isAttachment())
@@ -5428,14 +5437,14 @@ bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjec
 	{
 		if (objectp->isAvatar())
 		{
-			const BOOL is_group = FALSE;
-			LLFloaterPay::payDirectly(&give_money,
+			const bool is_group = false;
+			LLFloaterPayUtil::payDirectly(&give_money,
 									  objectp->getID(),
 									  is_group);
 		}
 		else
 		{
-			LLFloaterPay::payViaObject(&give_money, objectp->getID());
+			LLFloaterPayUtil::payViaObject(&give_money, selection);
 		}
 	}
 	return false;

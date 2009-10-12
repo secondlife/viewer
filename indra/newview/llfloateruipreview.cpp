@@ -283,8 +283,6 @@ LLFloaterUIPreview::~LLFloaterUIPreview()
 // Perform post-build setup (defined in superclass)
 BOOL LLFloaterUIPreview::postBuild()
 {
-	mCloseSignal.connect(boost::bind(&LLFloaterUIPreview::onClose, this, _2));
-	
 	LLPanel* main_panel_tmp = getChild<LLPanel>("main_panel");				// get a pointer to the main panel in order to...
 	mFileList = main_panel_tmp->getChild<LLScrollListCtrl>("name_list");	// save pointer to file list
 	// Double-click opens the floater, for convenience
@@ -442,9 +440,9 @@ void LLFloaterUIPreview::onClickExportSchema()
 
 
 // Close click handler -- delete my displayed floater if it exists
-void LLFloaterUIPreview::onClose(const LLSD& app_quitting)
+void LLFloaterUIPreview::onClose(bool app_quitting)
 {
-	if(!app_quitting.asBoolean() && mDisplayedFloater)
+	if(!app_quitting && mDisplayedFloater)
 	{
 		onClickCloseDisplayedFloater(PRIMARY_FLOATER);
 		onClickCloseDisplayedFloater(SECONDARY_FLOATER);

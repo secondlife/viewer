@@ -68,7 +68,9 @@ LLMediaCtrl::Params::Params()
 	texture_width("texture_width", 1024),
 	texture_height("texture_height", 1024),
 	caret_color("caret_color")
-{}
+{
+	tab_stop(false);
+}
 
 LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	LLPanel( p ),
@@ -901,6 +903,12 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 		case MEDIA_EVENT_PLUGIN_FAILED:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED" << LL_ENDL;
+		};
+		break;
+
+		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED_LAUNCH" << LL_ENDL;
 		};
 		break;
 	};

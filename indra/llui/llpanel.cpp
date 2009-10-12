@@ -522,7 +522,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 		// be built/added. JC
 		if (parent)
 		{
-			S32 tab_group = params.tab_group.isProvided() ? params.tab_group() : -1;
+			S32 tab_group = params.tab_group.isProvided() ? params.tab_group() : parent->getLastTabGroup();
 			parent->addChild(this, tab_group);
 		}
 

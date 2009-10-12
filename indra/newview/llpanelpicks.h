@@ -77,7 +77,7 @@ public:
 	/**
 	 * Closes LLPanelPick if it is visible.
 	 */
-	/*virtual*/ void onClose();
+	/*virtual*/ void onClosePanel();
 
 private:
 	void onClickDelete();

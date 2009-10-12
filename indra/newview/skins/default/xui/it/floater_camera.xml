@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="move floater" title="">
-	<string name="rotate_tooltip">
+<floater name="camera_floater" title="">
+	<floater.string name="rotate_tooltip">
 		Ruota la telecamera Intorno all&apos;Inquadratura
-	</string>
-	<string name="zoom_tooltip">
+	</floater.string>
+	<floater.string name="zoom_tooltip">
 		Avvicina la telecamera nell&apos;inquadratura
-	</string>
-	<string name="move_tooltip">
+	</floater.string>
+	<floater.string name="move_tooltip">
 		Muovi la telecamera su e giù e a sinistra e destra
-	</string>
+	</floater.string>
+	<panel name="controls">
+		<joystick_track name="cam_track_stick" tool_tip="Muovi la telecamera su e giù e a sinistra e destra"/>
+		<joystick_zoom name="zoom" tool_tip="Avvicina la telecamera nell&apos;inquadratura"/>
+	</panel>
 </floater>

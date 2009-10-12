@@ -60,7 +60,7 @@
          left="5"
          name="teleport_btn"
          top="0"
-         width="90" />
+         width="70" />
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
@@ -70,7 +70,7 @@
          left_pad="5"
          name="map_btn"
          top="0"
-         width="80" />
+         width="50" />
         <button
          enabled="false"
          follows="bottom|left"
@@ -83,40 +83,54 @@
          top="0"
          width="60" />
         <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Edit"
+         layout="topleft"
+         left_pad="5"
+         name="edit_btn"
+         top="0"
+         width="50" />
+        <button
          follows="bottom|right"
          font="SansSerifSmallBold"
          height="25"
          label="▼"
          layout="topleft"
-         left_pad="5"
          name="overflow_btn"
+         right="-10"
          top="0"
          width="30" />
         <button
-         follows="bottom|left"
+         follows="bottom|right"
          font="SansSerifSmallBold"
          height="25"
-         image_disabled="widgets/SegmentedBtn_Left_Disabled.png"
-         image_selected="widgets/SegmentedBtn_Left_Selected.png"
-         image_unselected="widgets/SegmentedBtn_Left_Off.png"
-         label="Create"
+         label="Close"
          layout="topleft"
-         left="5"
-         name="create_landmark_btn"
+         name="close_btn"
+         right="-10"
          top="0"
-         width="70" />
+         width="60" />
         <button
-         follows="bottom|left"
+         follows="bottom|right"
          font="SansSerifSmallBold"
          height="25"
-         image_disabled="widgets/ComboButton_Disabled.png"
-         image_selected="widgets/ComboButton_Selected.png"
-         image_unselected="widgets/ComboButton_Off.png"
-         label="▼"
+         label="Cancel"
          layout="topleft"
-         left_pad="0"
-         name="folder_menu_btn"
+         name="cancel_btn"
+         right="-10"
          top="0"
-         width="20" />
+         width="60" />
+        <button
+         follows="bottom|right"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Save"
+         layout="topleft"
+         name="save_btn"
+         right="-75"
+         top="0"
+         width="60" />
     </panel>
 </panel>

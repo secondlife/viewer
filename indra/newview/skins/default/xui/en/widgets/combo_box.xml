@@ -20,7 +20,9 @@
                               image_unselected="DropDown_Off"
                               image_selected="DropDown_Selected"
                               image_disabled="DropDown_Disabled" />
-  <combo_box.combo_list bg_writeable_color="MenuDefaultBgColor" />
+  <combo_box.combo_list bg_writeable_color="MenuDefaultBgColor"
+                        background_visible="true"
+                         />
   <combo_box.combo_editor name="Combo Text Entry"
                           select_on_focus="true"
                           font="SansSerifSmall" />

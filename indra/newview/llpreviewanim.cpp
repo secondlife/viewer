@@ -68,8 +68,6 @@ void LLPreviewAnim::endAnimCallback( void *userdata )
 // virtual
 BOOL LLPreviewAnim::postBuild()
 {
-	mCloseSignal.connect(boost::bind(&LLPreviewAnim::onClose, this));
-	
 	const LLInventoryItem* item = getItem();
 	if(item)
 	{
@@ -181,7 +179,8 @@ void LLPreviewAnim::auditionAnim( void *userdata )
 	}
 }
 
-void LLPreviewAnim::onClose()
+// virtual
+void LLPreviewAnim::onClose(bool app_quitting)
 {
 	const LLInventoryItem *item = getItem();
 

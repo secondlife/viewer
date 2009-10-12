@@ -5288,6 +5288,10 @@ version 2.0
 		{	AgentLegacyAccess		U8	}
 		{	AgentMaxAccess			U8	}
 	}
+	{
+		AgentInfo				Variable
+		{	Flags					U32	}
+	}
 }
 
 // ChildAgentAlive

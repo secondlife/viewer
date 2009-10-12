@@ -761,7 +761,7 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
 	name="url"
 	openexternally = "1">
 
-			http://join/secondlife.com/
+			http://join.secondlife.com/
     </url>
     <usetemplate
      name="okcancelbuttons"

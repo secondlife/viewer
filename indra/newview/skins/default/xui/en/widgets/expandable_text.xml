@@ -2,6 +2,7 @@
 <expandable_text
  max_height="300" >
  <textbox
+   more_label="More" 
   follows="left|top"
   name="text"
   use_ellipses="true"

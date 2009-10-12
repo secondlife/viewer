@@ -83,6 +83,12 @@ void LLMenuButton::toggleMenu()
 }
 
 
+void LLMenuButton::hideMenu() 
+{ 
+	mMenu->setVisible(FALSE); 
+}
+
+
 BOOL LLMenuButton::handleKeyHere(KEY key, MASK mask )
 {
 	if( KEY_RETURN == key && mask == MASK_NONE && !gKeyboard->getKeyRepeated(key))

@@ -2688,7 +2688,7 @@
              height="18"
              layout="topleft"
              left="20"
-             max_length="63"
+			 read_only="true"
              name="media_info"
              select_on_focus="true"
              top_delta="12"

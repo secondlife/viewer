@@ -55,14 +55,13 @@
              width="220">
                 Type part of a person&apos;s name:
             </text>
-            <text_editor
+            <line_editor
 	     bevel_style="none"
 	     border_style="line"
 	     border.border_thickness="0"
 	     commit_on_focus_lost="false"
              follows="left|top|right"
              height="23"
-             layout="topleft"
              left_delta="0"
              name="Edit"
              top_pad="0"
@@ -85,38 +84,7 @@
              top="52"
              width="132" />
         </panel>
-        <panel
-         border="true"
-         height="150"
-         label="Calling Cards"
-         layout="topleft"
-         left_delta="-1"
-         name="CallingCardsPanel"
-         top_delta="134"
-         width="135">
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             height="16"
-             layout="topleft"
-             left="10"
-             name="InstructSelectCallingCard"
-             top="8"
-             width="220">
-                Select a calling card:
-            </text>
-            <inventory_panel
-             allow_multi_select="false"
-             border="true"
-             follows="left|top|right|bottom"
-             height="110"
-             layout="topleft"
-             left_delta="0"
-             name="InventoryPanel"
-             top_pad="7"
-             width="115" />
-        </panel>
+
         <panel
          border="none"
          height="150"
@@ -188,8 +156,8 @@
     <button
      follows="right|bottom"
      height="23"
-     label="Ok"
-     label_selected="Ok"
+     label="OK"
+     label_selected="OK"
      name="Select"
      top_pad="3"
      left="46"

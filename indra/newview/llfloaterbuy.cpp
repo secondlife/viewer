@@ -74,8 +74,6 @@ BOOL LLFloaterBuy::postBuild()
 	// mid-session and the saved rect is off-center.
 	center();
 
-	mCloseSignal.connect(boost::bind(&LLFloaterBuy::onClose, this));
-	
 	return TRUE;
 }
 
@@ -310,7 +308,8 @@ void LLFloaterBuy::onClickCancel()
 	closeFloater();
 }
 
-void LLFloaterBuy::onClose()
+// virtual
+void LLFloaterBuy::onClose(bool app_quitting)
 {
 	mObjectSelection.clear();
 }

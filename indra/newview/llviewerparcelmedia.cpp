@@ -226,11 +226,13 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 				media_height, 
 				media_auto_scale,
 				media_loop);
-			sMediaImpl->navigateTo(media_url);
+			sMediaImpl->navigateTo(media_url, mime_type, true);
 		}
 	}
 	else
 	{
+		LL_DEBUGS("Media") << "new media impl with mime type " << mime_type << ", url " << media_url << LL_ENDL;
+
 		// There is no media impl, make a new one
 		sMediaImpl = LLViewerMedia::newMediaImpl(
 			placeholder_texture_id,
@@ -238,7 +240,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 			media_height, 
 			media_auto_scale,
 			media_loop);
-		sMediaImpl->navigateTo(media_url);
+		sMediaImpl->navigateTo(media_url, mime_type, true);
 	}
 
 	LLFirstUse::useMedia();
@@ -542,6 +544,12 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 		case MEDIA_EVENT_PLUGIN_FAILED:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED" << LL_ENDL;
+		};
+		break;
+		
+		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED_LAUNCH" << LL_ENDL;
 		};
 		break;
 	};

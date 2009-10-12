@@ -49,6 +49,8 @@
 #include "llpanelcontents.h"
 #include "llpluginclassmedia.h"
 #include "llfloatermediasettings.h"
+#include "llfloatertools.h"
+#include "lltrans.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -155,43 +157,11 @@ void LLPanelMediaSettingsGeneral::draw()
 	};
 
 	// current URL can change over time.
-	updateCurrentURL();
+//	updateCurrentURL();
 
 	// enable/disable RESRET button depending on permissions
 	// since this is the same as a navigate action
-	U32 owner_mask_on;
-	U32 owner_mask_off;
-	U32 valid_owner_perms = LLSelectMgr::getInstance()->selectGetPerm( PERM_OWNER, 
-												&owner_mask_on, &owner_mask_off );
-	U32 group_mask_on;
-	U32 group_mask_off;
-	U32 valid_group_perms = LLSelectMgr::getInstance()->selectGetPerm( PERM_GROUP, 
-												&group_mask_on, &group_mask_off );
-	U32 everyone_mask_on;
-	U32 everyone_mask_off;
-	S32 valid_everyone_perms = LLSelectMgr::getInstance()->selectGetPerm( PERM_EVERYONE, 
-												&everyone_mask_on, &everyone_mask_off );
-	
-	bool user_can_press_reset = false;
-
-	// if perms we got back are valid
-	if ( valid_owner_perms &&
-		 valid_group_perms && 
-		 valid_everyone_perms )
-	{
-		// if user is allowed to press the RESET button
-		if ( ( owner_mask_on & PERM_MODIFY ) ||
-			 ( group_mask_on & PERM_MODIFY ) || 
-			 ( group_mask_on & PERM_MODIFY ) )
-		{
-			user_can_press_reset = true;
-		}
-		else
-		// user is NOT allowed to press the RESET button
-		{
-			user_can_press_reset = false;
-		};
-	};
+	bool user_can_press_reset = gFloaterTools->selectedMediaEditable();
 
 	// several places modify this widget so we must collect states in one place
 	if ( reset_button_is_active )
@@ -216,7 +186,7 @@ void LLPanelMediaSettingsGeneral::draw()
 
 ////////////////////////////////////////////////////////////////////////////////
 // static 
-void LLPanelMediaSettingsGeneral::clearValues( void* userdata )
+void LLPanelMediaSettingsGeneral::clearValues( void* userdata, bool editable)
 {	
 	LLPanelMediaSettingsGeneral *self =(LLPanelMediaSettingsGeneral *)userdata;
 	self->mAltImageEnable ->clear();
@@ -230,12 +200,23 @@ void LLPanelMediaSettingsGeneral::clearValues( void* userdata )
 	self->mHeightPixels->clear();
 	self->mHomeURL->clear();
 	self->mWidthPixels->clear();
+	self->mAltImageEnable ->setEnabled(editable);
+	self->mAutoLoop ->setEnabled(editable);
+	self->mAutoPlay ->setEnabled(editable);
+	self->mAutoScale ->setEnabled(editable);
+	self->mAutoZoom  ->setEnabled(editable);
+	self->mControls ->setEnabled(editable);
+	self->mCurrentURL ->setEnabled(editable);
+	self->mFirstClick ->setEnabled(editable);
+	self->mHeightPixels ->setEnabled(editable);
+	self->mHomeURL ->setEnabled(editable);
+	self->mWidthPixels ->setEnabled(editable);
 	self->mPreviewMedia->unloadMediaSource(); 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // static 
-void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_settings )
+void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_settings ,bool editable)
 {
 	LLPanelMediaSettingsGeneral *self =(LLPanelMediaSettingsGeneral *)userdata;
 
@@ -243,6 +224,29 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_
 	//llinfos << ll_pretty_print_sd(media_settings) << llendl;
 	//llinfos << "---------------" << llendl;
 
+	// IF all the faces have media (or all dont have media)
+	if ( LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo )
+	{
+		if(LLFloaterMediaSettings::getInstance()->mMultipleMedia) 
+		{
+			self->clearValues(self, editable);
+			// only show multiple 
+			self->mHomeURL ->setText(LLTrans::getString("Multiple Media"));
+			return;
+		}
+		
+	}
+	else
+	{
+		if(LLFloaterMediaSettings::getInstance()->mMultipleValidMedia) 
+		{
+			self->clearValues(self, editable);
+			// only show multiple 
+			self->mHomeURL ->setText(LLTrans::getString("Multiple Media"));
+			return;
+		}			
+		
+	}
 	std::string base_key( "" );
 	std::string tentative_key( "" );
 
@@ -293,10 +297,11 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_
 				static_cast< LLSpinCtrl* >( data_set[ i ].ctrl_ptr )->
 					setValue( media_settings[ base_key ].asInteger() );
 
+			data_set[ i ].ctrl_ptr->setEnabled(editable);
 			data_set[ i ].ctrl_ptr->setTentative( media_settings[ tentative_key ].asBoolean() );
 		};
 	};
-
+	
 	// interrogates controls and updates widgets as required
 	self->updateMediaPreview();
 	self->updateCurrentURL();
@@ -322,30 +327,17 @@ void LLPanelMediaSettingsGeneral::updateMediaPreview()
 // Helper to set current URL
 void LLPanelMediaSettingsGeneral::updateCurrentURL()
 {
-	if( mPreviewMedia )
+	if( mCurrentURL->getText().empty() )
 	{
-		LLPluginClassMedia* media_plugin = mPreviewMedia->getMediaPlugin();
-		if( media_plugin )
-		{
-			// get current URL from plugin and display
-			std::string current_location = media_plugin->getLocation();
-			if ( current_location.length() )
-			{
-				childSetText( "current_url", current_location );
-			}
-			else
-			// current location may be empty so we need to clear it
-			{
-				const std::string empty_string( "" );
-				childSetText( "current_url", empty_string );
-			};
-		};
-	};
+		childSetText( "current_url", mHomeURL->getText() );
+	}
+	
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LLPanelMediaSettingsGeneral::onClose()
+// virtual
+void LLPanelMediaSettingsGeneral::onClose(bool app_quitting)
 {
 	if(mPreviewMedia)
 	{
@@ -374,7 +366,7 @@ void LLPanelMediaSettingsGeneral::onBtnResetCurrentUrl()
 void LLPanelMediaSettingsGeneral::apply( void* userdata )
 {
 	LLPanelMediaSettingsGeneral *self =(LLPanelMediaSettingsGeneral *)userdata;
-
+	self->mHomeURL->onCommit();
 	// build LLSD Fragment
 	LLSD media_data_general;
 	self->getValues(media_data_general);
@@ -393,8 +385,7 @@ void LLPanelMediaSettingsGeneral::getValues( LLSD &fill_me_in )
     fill_me_in[LLMediaEntry::AUTO_SCALE_KEY] = mAutoScale->getValue();
     fill_me_in[LLMediaEntry::AUTO_ZOOM_KEY] = mAutoZoom->getValue();
     fill_me_in[LLMediaEntry::CONTROLS_KEY] = mControls->getCurrentIndex();
-    // XXX Don't send current URL!
-    //fill_me_in[LLMediaEntry::CURRENT_URL_KEY] = mCurrentURL->getValue();
+    fill_me_in[LLMediaEntry::CURRENT_URL_KEY] = mCurrentURL->getValue();
     fill_me_in[LLMediaEntry::HEIGHT_PIXELS_KEY] = mHeightPixels->getValue();
     fill_me_in[LLMediaEntry::HOME_URL_KEY] = mHomeURL->getValue();
     fill_me_in[LLMediaEntry::FIRST_CLICK_INTERACT_KEY] = mFirstClick->getValue();

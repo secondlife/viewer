@@ -357,8 +357,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 
 BOOL LLFloaterPreference::postBuild()
 {
-	mCloseSignal.connect(boost::bind(&LLFloaterPreference::onClose, this));
-	
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
@@ -566,7 +564,8 @@ void LLFloaterPreference::setHardwareDefaults()
 	refreshEnabledGraphics();
 }
 
-void LLFloaterPreference::onClose()
+//virtual
+void LLFloaterPreference::onClose(bool app_quitting)
 {
 	gSavedSettings.setS32("LastPrefTab", getChild<LLTabContainer>("pref core")->getCurrentPanelIndex());
 	LLPanelLogin::setAlwaysRefresh(false);

@@ -123,10 +123,6 @@ TOOLPICKOBJECT3         CURSOR                  "toolpickobject3.cur"
 ARROWCOPY               CURSOR                  "arrowcop.cur"
 ARROWDRAGMULTI          CURSOR                  "llarrowdragmulti.cur"
 ARROWCOPYMULTI          CURSOR                  "arrowcopmulti.cur"
-TOOLSIT                 CURSOR                  "toolsit.cur"
-TOOLBUY                 CURSOR                  "toolbuy.cur"
-TOOLPAY                 CURSOR                  "toolpay.cur"
-TOOLOPEN                CURSOR                  "toolopen.cur"
 TOOLPIPETTE             CURSOR                  "toolpipette.cur"
 TOOLPLAY                CURSOR                  "toolplay.cur"
 TOOLPAUSE               CURSOR                  "toolpause.cur"
@@ -138,8 +134,8 @@ TOOLMEDIAOPEN           CURSOR                  "toolmediaopen.cur"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,0,0,0
- PRODUCTVERSION 2,0,0,0
+ FILEVERSION 2,0,0,2639
+ PRODUCTVERSION 2,0,0,2639
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -156,12 +152,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Linden Lab"
             VALUE "FileDescription", "Second Life"
-            VALUE "FileVersion", "2.0.0.0"
+            VALUE "FileVersion", "2.0.0.2639"
             VALUE "InternalName", "Second Life"
-            VALUE "LegalCopyright", "Copyright © 2001-2008, Linden Research, Inc."
+            VALUE "LegalCopyright", "Copyright ï¿½ 2001-2008, Linden Research, Inc."
             VALUE "OriginalFilename", "SecondLife.exe"
             VALUE "ProductName", "Second Life"
-            VALUE "ProductVersion", "2.0.0.0"
+            VALUE "ProductVersion", "2.0.0.2639"
         END
     END
     BLOCK "VarFileInfo"

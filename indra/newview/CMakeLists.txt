@@ -187,6 +187,7 @@ set(viewer_SOURCE_FILES
     llfloaternotificationsconsole.cpp
     llfloateropenobject.cpp
     llfloaterparcel.cpp
+    llfloaterpay.cpp
     llfloaterperms.cpp
     llfloaterpostcard.cpp
     llfloaterpostprocess.cpp
@@ -218,7 +219,6 @@ set(viewer_SOURCE_FILES
     llfollowcam.cpp
     llfriendcard.cpp
     llgesturemgr.cpp
-    llgivemoney.cpp
     llglsandbox.cpp
     llgroupactions.cpp
     llgrouplist.cpp
@@ -264,8 +264,7 @@ set(viewer_SOURCE_FILES
     llmaniptranslate.cpp
     llmapresponders.cpp
     llmediactrl.cpp
-    llmediadataresponder.cpp
-    llmediadatafetcher.cpp
+    llmediadataclient.cpp
     llmediaremotectrl.cpp
     llmemoryview.cpp
     llmenucommands.cpp
@@ -659,6 +658,7 @@ set(viewer_HEADER_FILES
     llfloaternotificationsconsole.h
     llfloateropenobject.h
     llfloaterparcel.h
+    llfloaterpay.h
     llfloaterpostcard.h
     llfloaterpostprocess.h
     llfloaterpreference.h
@@ -691,7 +691,6 @@ set(viewer_HEADER_FILES
     llfollowcam.h
     llfriendcard.h
     llgesturemgr.h
-    llgivemoney.h
     llgroupactions.h
     llgrouplist.h
     llgroupmgr.h
@@ -735,8 +734,7 @@ set(viewer_HEADER_FILES
     llmanipscale.h
     llmaniptranslate.h
     llmapresponders.h
-    llmediadataresponder.h
-    llmediadatafetcher.h
+    llmediadataclient.h
     llmediaremotectrl.h
     llmemoryview.h
     llmenucommands.h
@@ -1105,14 +1103,10 @@ if (WINDOWS)
         res/ll_icon.BMP
         res/ll_icon.ico
         res/resource.h
-        res/toolbuy.cur
-        res/toolopen.cur
-        res/toolpay.cur
         res/toolpickobject.cur
         res/toolpickobject2.cur
         res/toolpickobject3.cur
         res/toolpipette.cur
-        res/toolsit.cur
         )
 
     set_source_files_properties(${viewer_RESOURCE_FILES}
@@ -1546,6 +1540,7 @@ include(LLAddBuildTest)
 SET(viewer_TEST_SOURCE_FILES
   llagentaccess.cpp
   lldateutil.cpp
+  llmediadataclient.cpp
   llviewerhelputil.cpp
   )
 set_source_files_properties(
@@ -1563,6 +1558,7 @@ set(test_libs
   ${LLVFS_LIBRARIES}
   ${LLMATH_LIBRARIES}
   ${LLCOMMON_LIBRARIES} 
+  ${GOOGLEMOCK_LIBRARIES}
   )
 
 LL_ADD_INTEGRATION_TEST(llcapabilitylistener 

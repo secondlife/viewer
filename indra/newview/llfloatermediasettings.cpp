@@ -52,7 +52,10 @@ LLFloaterMediaSettings::LLFloaterMediaSettings(const LLSD& key)
 	mPanelMediaSettingsGeneral(NULL),
 	mPanelMediaSettingsSecurity(NULL),
 	mPanelMediaSettingsPermissions(NULL),
-	mWaitingToClose( false )
+	mWaitingToClose( false ),
+	mIdenticalHasMediaInfo( true ),
+	mMultipleMedia(false),
+	mMultipleValidMedia(false)
 {
 //	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_media_settings.xml");
 }
@@ -86,8 +89,6 @@ LLFloaterMediaSettings::~LLFloaterMediaSettings()
 //
 BOOL LLFloaterMediaSettings::postBuild()
 {
-	mCloseSignal.connect(boost::bind(&LLFloaterMediaSettings::onClose, this));
-
 	mApplyBtn = getChild<LLButton>("Apply");
 	mApplyBtn->setClickedCallback(onBtnApply, this);
 		
@@ -153,29 +154,29 @@ void LLFloaterMediaSettings::apply()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void LLFloaterMediaSettings::onClose()
+void LLFloaterMediaSettings::onClose(bool app_quitting)
 {
 	if(mPanelMediaSettingsGeneral)
 	{
-		mPanelMediaSettingsGeneral->onClose();
+		mPanelMediaSettingsGeneral->onClose(app_quitting);
 	}
 	LLFloaterReg::hideInstance("whitelist_entry");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //static 
-void LLFloaterMediaSettings::initValues( const LLSD& media_settings )
+void LLFloaterMediaSettings::initValues( const LLSD& media_settings, bool editable )
 {
-	sInstance->clearValues();
+	sInstance->clearValues(editable);
 	// update all panels with values from simulator
 	sInstance->mPanelMediaSettingsGeneral->
-		initValues( sInstance->mPanelMediaSettingsGeneral, media_settings );
+		initValues( sInstance->mPanelMediaSettingsGeneral, media_settings, editable );
 
 	sInstance->mPanelMediaSettingsSecurity->
-		initValues( sInstance->mPanelMediaSettingsSecurity, media_settings );
+		initValues( sInstance->mPanelMediaSettingsSecurity, media_settings, editable );
 
 	sInstance->mPanelMediaSettingsPermissions->
-		initValues( sInstance->mPanelMediaSettingsPermissions, media_settings );
+		initValues( sInstance->mPanelMediaSettingsPermissions, media_settings, editable );
 
 }
 
@@ -195,12 +196,12 @@ void LLFloaterMediaSettings::commitFields()
 
 ////////////////////////////////////////////////////////////////////////////////
 //static 
-void LLFloaterMediaSettings::clearValues()
+void LLFloaterMediaSettings::clearValues( bool editable)
 {
 	// clean up all panels before updating
-	sInstance->mPanelMediaSettingsGeneral->clearValues(sInstance->mPanelMediaSettingsGeneral);
-	sInstance->mPanelMediaSettingsSecurity->clearValues(sInstance->mPanelMediaSettingsSecurity);
-	sInstance->mPanelMediaSettingsPermissions->clearValues(sInstance->mPanelMediaSettingsPermissions);	
+	sInstance->mPanelMediaSettingsGeneral	 ->clearValues(sInstance->mPanelMediaSettingsGeneral,  editable);
+	sInstance->mPanelMediaSettingsSecurity	 ->clearValues(sInstance->mPanelMediaSettingsSecurity,  editable);
+	sInstance->mPanelMediaSettingsPermissions->clearValues(sInstance->mPanelMediaSettingsPermissions,  editable);	
 }
 
 

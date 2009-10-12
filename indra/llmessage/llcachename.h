@@ -100,7 +100,6 @@ public:
 	
 	// LEGACY
 	boost::signals2::connection get(const LLUUID& id, BOOL is_group, old_callback_t callback, void* user_data);
-
 	// This method needs to be called from time to time to send out
 	// requests.
 	void processPending();

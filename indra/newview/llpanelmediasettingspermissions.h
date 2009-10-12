@@ -55,8 +55,8 @@ class LLPanelMediaSettingsPermissions : public LLPanel
 		LLPanelMediaSettingsPermissions();
 		~LLPanelMediaSettingsPermissions();
 
-		static void initValues( void* userdata, const LLSD& media_settings );
-		static void clearValues( void* userdata );
+		static void initValues( void* userdata, const LLSD& media_settings, bool editable );
+		static void clearValues( void* userdata,  bool editable);
 
 	private:
         LLCheckBoxCtrl* mPermsOwnerInteract;

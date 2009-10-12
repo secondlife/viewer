@@ -321,7 +321,7 @@ fail:
 	static void loadWidgetTemplate(const std::string& widget_tag, LLInitParam::BaseBlock& block);
 
 private:
-	//static void setCtrlValue(LLView* view, LLXMLNodePtr node);
+	// this exists to get around dependency on llview
 	static void setCtrlParent(LLView* view, LLView* parent, S32 tab_group);
 
 	// Avoid directly using LLUI and LLDir in the template code

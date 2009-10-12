@@ -49,8 +49,8 @@ class LLPanelMediaSettingsSecurity : public LLPanel
 		LLPanelMediaSettingsSecurity();
 		~LLPanelMediaSettingsSecurity();
 
-		static void initValues( void* userdata, const LLSD& media_settings );
-		static void clearValues( void* userdata );
+		static void initValues( void* userdata, const LLSD& media_settings,bool editable );
+		static void clearValues( void* userdata, bool editable);
 		void addWhiteListItem(const std::string& url);
 
 	private:

@@ -265,7 +265,7 @@ std::string LLMail::buildSMTPTransaction(
 // static
 bool LLMail::send(
 	const std::string& header,
-	const std::string& message,
+	const std::string& raw_message,
 	const char* from_address,
 	const char* to_address)
 {
@@ -276,8 +276,20 @@ bool LLMail::send(
 		return false;
 	}
 
-	// *FIX: this translation doesn't deal with a single period on a
-	// line by itself.
+	// remove any "." SMTP commands to prevent injection (DEV-35777)
+	// we don't need to worry about "\r\n.\r\n" because of the 
+	// "\n" --> "\n\n" conversion going into rfc2822_msg below
+	std::string message = raw_message;
+	std::string bad_string = "\n.\n";
+	std::string good_string = "\n..\n";
+	while (1)
+	{
+		int index = message.find(bad_string);
+		if (index == std::string::npos) break;
+		message.replace(index, bad_string.size(), good_string);
+	}
+
+	// convert all "\n" into "\r\n"
 	std::ostringstream rfc2822_msg;
 	for(U32 i = 0; i < message.size(); ++i)
 	{

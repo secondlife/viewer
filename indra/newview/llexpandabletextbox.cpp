@@ -45,7 +45,7 @@ public:
 	:	LLTextSegment(start, end),
 		mEditor(editor),
 		mStyle(style),
-		mMoreText(more_text)
+		mExpanderLabel(more_text)
 	{}
 
 	/*virtual*/ S32		getWidth(S32 first_char, S32 num_chars) const 
@@ -61,7 +61,15 @@ public:
 	/*virtual*/ F32		draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
 	{
 		F32 right_x;
-		mStyle->getFont()->renderUTF8(mMoreText, start, draw_rect.mRight, draw_rect.mTop, mStyle->getColor(), LLFontGL::RIGHT, LLFontGL::TOP, 0, mStyle->getShadowType(), end - start, draw_rect.getWidth(), &right_x, mEditor.getUseEllipses());
+		mStyle->getFont()->renderUTF8(mExpanderLabel, start, 
+									draw_rect.mRight, draw_rect.mTop, 
+									mStyle->getColor(), 
+									LLFontGL::RIGHT, LLFontGL::TOP, 
+									0, 
+									mStyle->getShadowType(), 
+									end - start, draw_rect.getWidth(), 
+									&right_x, 
+									mEditor.getUseEllipses());
 		return right_x;
 	}
 	/*virtual*/ S32		getMaxHeight() const { return llceil(mStyle->getFont()->getLineHeight()); }
@@ -75,14 +83,17 @@ public:
 private:
 	LLTextBase& mEditor;
 	LLStyleSP	mStyle;
-	std::string	mMoreText;
+	std::string	mExpanderLabel;
 };
 
-
+LLExpandableTextBox::LLTextBoxEx::Params::Params()
+:	more_label("more_label")
+{}
 
 LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
 :	LLTextBox(p),
-	mExpanded(false)
+	mExpanderLabel(p.more_label),
+	mExpanderVisible(false)
 {
 	setIsChrome(TRUE);
 
@@ -106,6 +117,9 @@ void LLExpandableTextBox::LLTextBoxEx::setValue(const LLSD& value)
 {
 	LLTextBox::setValue(value);
 
+	// text contents have changed, segments are cleared out
+	// so hide the expander and determine if we need it
+	//mExpanderVisible = false;
 	if (getTextPixelHeight() > getRect().getHeight())
 	{
 		showExpandText();
@@ -119,7 +133,7 @@ void LLExpandableTextBox::LLTextBoxEx::setValue(const LLSD& value)
 
 void LLExpandableTextBox::LLTextBoxEx::showExpandText()
 {
-	if (!mExpanded)
+	if (!mExpanderVisible)
 	{
 		// get fully visible lines
 		std::pair<S32, S32> visible_lines = getVisibleLines(true);
@@ -129,9 +143,9 @@ void LLExpandableTextBox::LLTextBoxEx::showExpandText()
 		expander_style.font.name.setIfNotProvided(LLFontGL::nameFromFont(expander_style.font));
 		expander_style.font.style = "UNDERLINE";
 		expander_style.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-		LLExpanderSegment* expanderp = new LLExpanderSegment(new LLStyle(expander_style), getLineStart(last_line), getLength() + 1, "More", *this);
+		LLExpanderSegment* expanderp = new LLExpanderSegment(new LLStyle(expander_style), getLineStart(last_line), getLength() + 1, mExpanderLabel, *this);
 		insertSegment(expanderp);
-		mExpanded = true;
+		mExpanderVisible = true;
 	}
 
 }
@@ -139,14 +153,14 @@ void LLExpandableTextBox::LLTextBoxEx::showExpandText()
 //NOTE: obliterates existing styles (including hyperlinks)
 void LLExpandableTextBox::LLTextBoxEx::hideExpandText() 
 { 
-	if (mExpanded)
+	if (mExpanderVisible)
 	{
 		// this will overwrite the expander segment and all text styling with a single style
 		LLNormalTextSegment* segmentp = new LLNormalTextSegment(
 											new LLStyle(getDefaultStyle()), 0, getLength() + 1, *this);
 		insertSegment(segmentp);
 		
-		mExpanded = false;
+		mExpanderVisible = false;
 	}
 }
 
@@ -275,6 +289,9 @@ S32 LLExpandableTextBox::recalculateTextDelta(S32 text_delta)
 
 void LLExpandableTextBox::expandTextBox()
 {
+	// hide "more" link, and show full text contents
+	mTextBox->hideExpandText();
+
 	S32 text_delta = mTextBox->getVerticalTextDelta();
 	text_delta += mTextBox->getVPad() * 2 + mScroll->getBorderWidth() * 2;
 	// no need to expand

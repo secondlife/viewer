@@ -68,6 +68,9 @@ public:
 	 */
 	/*virtual*/ void setVisible(BOOL visible);
 
+	virtual void onDockHidden();
+	virtual void onDockShown();
+
 private:
 	/**
 	 * Provides unique of dockable floater.

@@ -18,4 +18,5 @@
       border_visible="false" 
       hover="false" 
       text_color="LabelTextColor"
-      v_pad="-1"/>
+      v_pad="-1"
+      max_length="4096"/>

@@ -102,15 +102,16 @@ public:
 	virtual ~LLFloaterTexturePicker();
 
 	// LLView overrides
-	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
+	/*virtual*/ BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
 						BOOL drop, EDragAndDropType cargo_type, void *cargo_data, 
 						EAcceptance *accept,
 						std::string& tooltip_msg);
-	virtual void	draw();
-	virtual BOOL	handleKeyHere(KEY key, MASK mask);
+	/*virtual*/ void	draw();
+	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
 
 	// LLFloater overrides
-	virtual BOOL    postBuild();
+	/*virtual*/ BOOL    postBuild();
+	/*virtual*/ void	onClose(bool app_settings);
 	
 	// New functions
 	void setImageID( const LLUUID& image_asset_id);
@@ -130,7 +131,6 @@ public:
 	void commitIfImmediateSet();
 	
 	void onFilterEdit(const std::string& search_string );
-	void onClose();
 	
 	static void		onBtnSetToDefault( void* userdata );
 	static void		onBtnSelect( void* userdata );
@@ -369,7 +369,7 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 	return LLFloater::handleKeyHere(key, mask);
 }
 
-void LLFloaterTexturePicker::onClose()
+void LLFloaterTexturePicker::onClose(bool app_quitting)
 {
 	if (mOwner)
 	{
@@ -381,8 +381,6 @@ void LLFloaterTexturePicker::onClose()
 // virtual
 BOOL LLFloaterTexturePicker::postBuild()
 {
-	mCloseSignal.connect(boost::bind(&LLFloaterTexturePicker::onClose, this));
-	
 	LLFloater::postBuild();
 
 	if (!mLabel.empty())

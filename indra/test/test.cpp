@@ -54,6 +54,11 @@
 #	include "ctype_workaround.h"
 #endif
 
+#ifndef LL_WINDOWS
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+#endif
+
 namespace tut
 {
 	std::string sSourceDir;
@@ -235,6 +240,11 @@ void wouldHaveCrashed(const std::string& message)
 
 int main(int argc, char **argv)
 {
+	// The following line must be executed to initialize Google Mock
+	// (and Google Test) before running the tests.
+#ifndef LL_WINDOWS
+	::testing::InitGoogleMock(&argc, argv);
+#endif
 	LLError::initForApplication(".");
 	LLError::setFatalFunction(wouldHaveCrashed);
 	LLError::setDefaultLevel(LLError::LEVEL_ERROR);

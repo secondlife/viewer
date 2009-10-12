@@ -269,8 +269,8 @@ class WindowsManifest(ViewerManifest):
 
         # For google-perftools tcmalloc allocator.
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
-                self.path("libtcmalloc_minimal.dll")
-                self.end_prefix()
+            self.path("libtcmalloc_minimal.dll")
+            self.end_prefix()
 
 
     def nsi_file_commands(self, install=True):
@@ -393,6 +393,8 @@ class WindowsManifest(ViewerManifest):
         # We use the Unicode version of NSIS, available from
         # http://www.scratchpaper.com/
         NSIS_path = 'C:\\Program Files\\NSIS\\Unicode\\makensis.exe'
+        if not os.path.exists(NSIS_path):
+            NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\Unicode\\makensis.exe')
         self.run_command('"' + proper_windows_path(NSIS_path) + '" ' + self.dst_path_of(tempfile))
         # self.remove(self.dst_path_of(tempfile))
         # If we're on a build machine, sign the code using our Authenticode certificate. JC
@@ -538,7 +540,7 @@ class DarwinManifest(ViewerManifest):
         # make sure we don't have stale files laying about
         self.remove(sparsename, finalname)
 
-        self.run_command('hdiutil create "%(sparse)s" -volname "%(vol)s" -fs HFS+ -type SPARSE -megabytes 400 -layout SPUD' % {
+        self.run_command('hdiutil create "%(sparse)s" -volname "%(vol)s" -fs HFS+ -type SPARSE -megabytes 500 -layout SPUD' % {
                 'sparse':sparsename,
                 'vol':volname})
 

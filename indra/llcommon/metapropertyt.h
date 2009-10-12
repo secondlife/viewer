@@ -94,6 +94,13 @@ inline const LLReflective* LLMetaPropertyT<LLUUID>::get(const LLReflective* obje
 }
 
 template <>
+inline const LLReflective* LLMetaPropertyT<bool>::get(const LLReflective* object) const
+{
+	checkObjectClass(object);
+	return NULL;
+}
+
+template <>
 inline LLSD LLMetaPropertyT<S32>::getLLSD(const LLReflective* object) const
 {
 	return *(getProperty(object));
@@ -107,6 +114,12 @@ inline LLSD LLMetaPropertyT<std::string>::getLLSD(const LLReflective* object) co
 
 template <>
 inline LLSD LLMetaPropertyT<LLUUID>::getLLSD(const LLReflective* object) const
+{
+	return *(getProperty(object));
+}
+
+template <>
+inline LLSD LLMetaPropertyT<bool>::getLLSD(const LLReflective* object) const
 {
 	return *(getProperty(object));
 }
