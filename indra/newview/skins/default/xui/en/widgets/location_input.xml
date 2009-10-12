@@ -21,7 +21,7 @@
                 >
   <info_button name="Place Information"
                           label=""
-                          tool_tip="About current location"
+                          tool_tip="See more info about the current location"
                           width="16"
                           height="16"
                           follows="left|top"
@@ -37,7 +37,7 @@
                           image_hover_unselected="Favorite_Star_Over"
                           width="16"
                           height="16"
-                          tool_tip="Add to My Landmarks"
+                          tool_tip="Add this to My Landmarks"
                           follows="right|top"
                           scale_image="false" />
   <combo_button name="Location History"

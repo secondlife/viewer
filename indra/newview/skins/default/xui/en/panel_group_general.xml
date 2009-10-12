@@ -12,9 +12,7 @@
  width="280">
     <panel.string
      name="help_text">
-        The General tab contains general information about
-this group, a list of Owners and visible Members, 
-general Group Preferences and member options.
+        The General tab contains general information about this group, a list of members, general Group Preferences and member options.
 
 Hover your mouse over the options for more help.
     </panel.string>
@@ -113,7 +111,7 @@ Hover your mouse over the options for more help.
          layout="topleft"
          left_delta="0"
          name="active_title"
-         tool_tip="Sets the title that appears in your avatar&apos;s name tag   when this group is active."
+         tool_tip="Sets the title that appears in your avatar&apos;s name tag when this group is active."
          top_pad="0"
          width="240" />
         <check_box
@@ -123,7 +121,7 @@ Hover your mouse over the options for more help.
          layout="topleft"
          left_delta="0"
          name="receive_notices"
-         tool_tip="Sets whether you want to receive Notices from this group.   Uncheck this box if this group is spamming you."
+         tool_tip="Sets whether you want to receive Notices from this group.  Uncheck this box if this group is spamming you."
          top_pad="5"
          width="240" />
         <check_box
@@ -179,7 +177,7 @@ Hover your mouse over the options for more help.
          max_val="99999"
          top_pad="5"
          name="spin_enrollment_fee"
-         tool_tip="New members must pay this fee to join the group when   Enrollment Fee is checked."
+         tool_tip="New members must pay this fee to join the group when Enrollment Fee is checked."
          top_delta="-2"
          width="75" />
         <check_box
@@ -201,7 +199,7 @@ Hover your mouse over the options for more help.
          top_pad="10"
          width="240">
             <combo_box.item
-             label="Select Mature -"
+             label="- Select Mature -"
              name="select_mature"
              value="Select" />
             <combo_box.item

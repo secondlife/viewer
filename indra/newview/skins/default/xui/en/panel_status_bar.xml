@@ -52,7 +52,7 @@
      left="-210"
      name="buycurrency"
      picture_style="true"
-     tool_tip="My Balance / Buy L$"
+     tool_tip="My Balance: Click here to buy more L$"
      top="0"
      width="117" />
     <text

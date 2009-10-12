@@ -212,7 +212,7 @@
          name="Anyone"
          value="anyone" />
         <combo_box.item
-         label="Specific user:"
+         label="Specific person:"
          name="Specificuser:"
          value="user" />
     </combo_box>
