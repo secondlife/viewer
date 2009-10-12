@@ -143,24 +143,24 @@ public:
 private:
 	void run_completed_(std::ostream &stream)
 	{
+		stream << "\tTotal Tests:\t" << mTotalTests << std::endl;
+		stream << "\tPassed Tests:\t" << mPassedTests;
+		if (mPassedTests == mTotalTests)
+		{
+			stream << "\t\\o/ yay!!";
+		}
 		stream << std::endl;
-		stream << "Total Tests:   " << mTotalTests << std::endl;
-		stream << "Passed Tests: " << mPassedTests << std::endl;
 
-		stream << std::endl;
-		stream << "Total Tests:   " << mTotalTests << std::endl;
-		stream << "Passed Tests: " << mPassedTests << std::endl;
-		
 		if (mSkippedTests > 0)
 		{
-			stream << "Skipped known failures: " << mSkippedTests
+			stream << "\tSkipped known failures:\t" << mSkippedTests
 				<< std::endl;
 		}
 
 		if(mFailedTests > 0)
 		{
 			stream << "*********************************" << std::endl;
-			stream << "Failed Tests:   " << mFailedTests << std::endl;
+			stream << "Failed Tests:\t" << mFailedTests << std::endl;
 			stream << "Please report or fix the problem." << std::endl;
 			stream << "*********************************" << std::endl;
 		}
