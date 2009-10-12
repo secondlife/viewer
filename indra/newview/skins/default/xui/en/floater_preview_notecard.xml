@@ -86,7 +86,7 @@
      follows="left|bottom"
      height="22"
      label="Save"
-     label_selected="Discard"
+     label_selected="Save"
      layout="topleft"
      left="288"
      name="Save"
