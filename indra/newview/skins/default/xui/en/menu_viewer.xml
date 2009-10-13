@@ -437,7 +437,7 @@
                  parameter="midnight" />
             </menu_item_call>
             <menu_item_call
-             label="Use Place Settings"
+             label="Use the Estate Time"
              layout="topleft"
              name="Revert to Region Default">
                 <menu_item_call.on_click
@@ -800,7 +800,7 @@
                  function="Tools.EnableToolNotPie" />
             </menu_item_check>
             <menu_item_call
-             label="Set Default Permissions"
+             label="Set Default Upload Permissions"
              layout="topleft"
              name="perm prefs">
                 <menu_item_call.on_click

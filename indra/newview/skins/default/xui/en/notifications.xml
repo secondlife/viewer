@@ -6529,7 +6529,7 @@ Server Error: Media update or get failed.
    icon="alertmodal.tga"
    name="ConfirmClearTeleportHistory"
    type="alertmodal">
-Are you sure you want to delete teleport history?
+Are you sure you want to delete your teleport history?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
