@@ -199,7 +199,7 @@
      bottom_delta="20"
      follows="left|top|right"
      font="SansSerif"
-     font_shadow="hard"
+     font_shadow="none"
      height="16"
      layout="topleft"
      left="16">

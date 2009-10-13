@@ -65,7 +65,7 @@
 	  follows="left|bottom|right" height="15" width="15"
 		layout="topleft" bottom="122" left="25" mouse_opaque="true" name="attachment_icon" visible="true"
 	/>
-	<text font="SansSerif" font.style="UNDERLINE" font_shadow="hard"
+	<text font="SansSerif" font.style="UNDERLINE" font_shadow="none"
 		type="string" length="1" follows="left|bottom|right" layout="topleft"
 		left="45" bottom="122" height="15" width="280" name="attachment"
 		text_color="GroupNotifyTextColor" visible="true">

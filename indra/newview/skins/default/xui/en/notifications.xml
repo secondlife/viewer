@@ -4418,7 +4418,7 @@ Are you sure you want to delete your travel, web, and search history?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
-     yestext="Yes"/>
+     yestext="OK"/>
   </notification>
 
   <notification
