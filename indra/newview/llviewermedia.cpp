@@ -1017,6 +1017,9 @@ void LLViewerMediaImpl::navigateHome()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mime_type,  bool rediscover_type, bool server_request)
 {
+	// Helpful to have media urls in log file. Shouldn't be spammy.
+	llinfos << "url=" << url << " mime_type=" << mime_type << llendl;
+	
 	if(server_request)
 	{
 		setNavState(MEDIANAVSTATE_SERVER_SENT);
