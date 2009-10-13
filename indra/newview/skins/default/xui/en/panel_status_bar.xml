@@ -41,7 +41,7 @@
     </panel.string>
     <button
      auto_resize="true"
-    halign="left"
+    halign="right"
      follows="right|bottom"
      font="SansSerifSmall"
      image_color="White_05"
@@ -49,10 +49,11 @@
      image_overlay="BuyArrow_Over"
      height="18"
      layout="topleft"
-     left="-210"
+     left="-225"
      name="buycurrency"
+     pad_right="23px"
      picture_style="true"
-     tool_tip="My Balance: Click here to buy more L$"
+     tool_tip="My Balance: Click to buy more L$"
      top="0"
      width="117" />
     <text
@@ -64,7 +65,7 @@
      height="16"
      top="3"
      layout="topleft"
-     left_pad="5"
+     left_pad="20"
      name="TimeText"
      text_color="TimeTextColor"
      tool_tip="Current Time (Pacific)"
