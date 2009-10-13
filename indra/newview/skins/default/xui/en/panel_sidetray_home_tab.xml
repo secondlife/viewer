@@ -39,7 +39,7 @@
          name="tab_icon"
          right="-10"
          top="10"
-         image_name="TabIcon_Home_Selected"
+         image_name="TabIcon_People_Off"
          width="20" />
         <text
          follows="left|right|bottom"
@@ -53,7 +53,7 @@
          text_color="white"
          top="40"
          word_wrap="true">
-            Find your friends, contacts and people nearby.
+            Find your friends, your groups, contacts and people nearby.
         </text>
     </panel>
     <panel
@@ -101,7 +101,7 @@
          text_color="white"
          top="40"
          word_wrap="true">
-            Find your friends, contacts and people nearby.
+            Find places to go and places you&apos;ve visited before.
         </text>
     </panel>
     <panel
@@ -149,7 +149,7 @@
          text_color="white"
          top="40"
          word_wrap="true">
-            Change your profile.
+            Edit your public profile.
         </text>
     </panel>
     <panel
@@ -184,7 +184,7 @@
          right="-10"
          top="10"
          width="20" 
-         image_name="TabIcon_Things_Selected"/>
+         image_name="TabIcon_Appearance_Off"/>
         <text
          follows="left|right|bottom|top"
          font="SansSerifBold"
@@ -197,7 +197,7 @@
          text_color="white"
          top="40"
          word_wrap="true">
-            Change your apperance and looks.
+            Change your appearance and current look.
         </text>
     </panel>
 </panel>
