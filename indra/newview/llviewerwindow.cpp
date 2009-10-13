@@ -2605,8 +2605,19 @@ void LLViewerWindow::updateUI()
 				{
 					it.skipDescendants();
 				}
-				else if (viewp->getMouseOpaque())
+				// only report xui names for LLUICtrls, not the various container LLViews
+				else if (dynamic_cast<LLUICtrl*>(viewp)) 
 				{
+					if (dynamic_cast<LLPanel*>(viewp))
+					{
+						// constrain search to descendants of this panel
+						// by resetting iterator
+						it = viewp->beginTreeDFS();
+					}
+
+					// if we are in a new part of the tree (not a descendent of current tooltip_view)
+					// then push the results for tooltip_view and start with a new potential view
+					// NOTE: this emulates visiting only the leaf nodes that meet our criteria
 					if (!viewp->hasAncestor(tooltip_view))
 					{
 						append_xui_tooltip(tooltip_view, tool_tip_msg);
