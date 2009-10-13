@@ -5315,16 +5315,18 @@ Your calling card was declined.
    icon="notifytip.tga"
    name="TeleportToLandmark"
    type="notifytip">
-You can teleport to locations like &apos;[NAME]&apos; by opening the Places panel on the right of the viewer, and then select the Landmarks folder.
-Click on the landmark to select it and click the &apos;Teleport&apos; button at the bottom of the panel. You can also double-click on the landmark, or right-click and select &apos;Teleport&apos; from the context menu.
+You can teleport to locations like &apos;[NAME]&apos; by opening the Places panel on the right side of your screen, and then select the Landmarks tab.
+Click on any landmark to select it, then click &apos;Teleport&apos; at the bottom of the panel.
+(You can also double-click on the landmark, or right-click it and choose &apos;Teleport&apos;.)
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="TeleportToPerson"
    type="notifytip">
-You can contact residents like &apos;[NAME]&apos; by opening the People panel on the right of the viewer.
-Select the resident from the list in the panel and click the &apos;IM&apos; button at the bottom of the panel. You can also double-click on the resident in the list, or right-click and select &apos;Send IM...&apos; from the context menu.
+You can contact residents like &apos;[NAME]&apos; by opening the People panel on the right side of your screen.
+Select the resident from the list, then click &apos;IM&apos; at the bottom of the panel.
+(You can also double-click on their name in the list, or right-click and choose &apos;IM&apos;).
   </notification>
 
   <notification
