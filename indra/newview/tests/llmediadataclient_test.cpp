@@ -46,7 +46,14 @@
 #include "../../llprimitive/lltextureentry.cpp"
 #include "../../llmessage/tests/llcurl_stub.cpp"
 
+#if LL_WINDOWS
+#pragma warning (push)
+#pragma warning (disable : 4702) // boost::lexical_cast generates this warning
+#endif
 #include <boost/lexical_cast.hpp>
+#if LL_WINDOWS
+#pragma warning (pop)
+#endif
 
 #define VALID_OBJECT_ID   "3607d5c4-644b-4a8a-871a-8b78471af2a2"
 #define VALID_OBJECT_ID_1 "11111111-1111-1111-1111-111111111111"
