@@ -104,7 +104,7 @@
       bg_visible="false"
      text_readonly_color="HealthTextColor"
      follows="rsight|bottom"
-     font_shadow="hard"
+     font_shadow="none"
      height="16"
      layout="topleft"
      left_pad="18"
