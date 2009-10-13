@@ -70,7 +70,7 @@
 	    <location_input
 	     follows="left|right|top"
 	     halign="right"
-	     height="22"
+	     height="23"
 	     label="Location"
 	     layout="topleft"
 	     left_pad="7"
