@@ -978,7 +978,6 @@ void LLFolderViewItem::draw()
 			}
 		}
 	}
-	LLView::draw();
 }
 
 
