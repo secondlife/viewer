@@ -231,6 +231,7 @@ public:
 	F64 getCurrentTime(void) const { return mCurrentTime; };
 	F64 getDuration(void) const { return mDuration; };
 	F64 getCurrentPlayRate(void) { return mCurrentRate; };
+	F64 getLoadedDuration(void) const { return mLoadedDuration; };
 	
 	// Initialize the URL history of the plugin by sending
 	// "init_history" message 
@@ -339,6 +340,7 @@ protected:
 	F64				mCurrentTime;
 	F64				mDuration;
 	F64				mCurrentRate;
+	F64				mLoadedDuration;
 	
 };
 

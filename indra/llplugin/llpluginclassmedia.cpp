@@ -133,6 +133,7 @@ void LLPluginClassMedia::reset()
 	mCurrentTime = 0.0f;
 	mDuration = 0.0f;
 	mCurrentRate = 0.0f;
+	mLoadedDuration = 0.0f;
 }
 
 void LLPluginClassMedia::idle(void)
@@ -705,6 +706,7 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			
 
 			bool time_duration_updated = false;
+			int previous_percent = mProgressPercent;
 
 			if(message.hasValue("current_time"))
 			{
@@ -722,11 +724,32 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 				mCurrentRate = message.getValueReal("current_rate");
 			}
 			
+			if(message.hasValue("loaded_duration"))
+			{
+				mLoadedDuration = message.getValueReal("loaded_duration");
+				time_duration_updated = true;
+			}
+			else
+			{
+				// If the message doesn't contain a loaded_duration param, assume it's equal to duration
+				mLoadedDuration = mDuration;
+			}
+			
+			// Calculate a percentage based on the loaded duration and total duration.
+			if(mDuration != 0.0f)	// Don't divide by zero.
+			{
+				mProgressPercent = (int)((mLoadedDuration * 100.0f)/mDuration);
+			}
+
 			if(time_duration_updated)
 			{
 				mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_TIME_DURATION_UPDATED);
 			}
 			
+			if(previous_percent != mProgressPercent)
+			{
+				mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_PROGRESS_UPDATED);
+			}
 		}
 		else if(message_name == "media_status")
 		{

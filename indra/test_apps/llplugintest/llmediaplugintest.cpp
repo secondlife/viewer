@@ -44,6 +44,7 @@
 
 #if __APPLE__
 	#include <GLUT/glut.h>
+	#include <CoreFoundation/CoreFoundation.h>
 #else
 	#define FREEGLUT_STATIC
 	#include "GL/freeglut.h"
@@ -2111,6 +2112,25 @@ void glutMouseButton( int button, int state, int x, int y )
 //
 int main( int argc, char* argv[] )
 {
+#if LL_DARWIN
+	// Set the current working directory to <application bundle>/Contents/Resources/
+	CFURLRef resources_url = CFBundleCopyResourcesDirectoryURL(CFBundleGetMainBundle());
+	if(resources_url != NULL)
+	{
+		CFStringRef resources_string = CFURLCopyFileSystemPath(resources_url, kCFURLPOSIXPathStyle);
+		CFRelease(resources_url);
+		if(resources_string != NULL)
+		{
+			char buffer[PATH_MAX] = "";
+			if(CFStringGetCString(resources_string, buffer, sizeof(buffer), kCFStringEncodingUTF8))
+			{
+				chdir(buffer);
+			}
+			CFRelease(resources_string);
+		}
+	}
+#endif
+
 	glutInit( &argc, argv );
 	glutInitDisplayMode( GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGB );
 
