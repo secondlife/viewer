@@ -61,14 +61,16 @@ public:
 	static void initValues( void* userdata, const LLSD& media_settings ,bool editable);
 	static void clearValues( void* userdata, bool editable);
 	
+	bool navigateHomeSelectedFace();
 	void updateMediaPreview();
 	void updateCurrentURL();
 	
 protected:
 	LLFloaterMediaSettings* mParent;
+	bool mMediaEditable;
 
 private:
-	void onBtnResetCurrentUrl();
+	static void onBtnResetCurrentUrl(LLUICtrl* ctrl, void *userdata);
 	static void onCommitHomeURL(LLUICtrl* ctrl, void *userdata );
 
 	LLComboBox* mControls;

@@ -38,6 +38,7 @@
 #include "llspinctrl.h"
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
+#include "llviewermedia.h"
 #include "llsdutil.h"
 #include "llselectmgr.h"
 #include "llbutton.h"
@@ -66,11 +67,12 @@ LLPanelMediaSettingsGeneral::LLPanelMediaSettingsGeneral() :
 	mHomeURL( NULL ),
 	mCurrentURL( NULL ),
 	mAltImageEnable( NULL ),
-	mParent( NULL )
+	mParent( NULL ),
+	mMediaEditable(false)
 {
 	// build dialog from XML
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_media_settings_general.xml");
-	mCommitCallbackRegistrar.add("Media.ResetCurrentUrl",		boost::bind(&LLPanelMediaSettingsGeneral::onBtnResetCurrentUrl, this));
+//	mCommitCallbackRegistrar.add("Media.ResetCurrentUrl",		boost::bind(&LLPanelMediaSettingsGeneral::onBtnResetCurrentUrl, this));
 //	mCommitCallbackRegistrar.add("Media.CommitHomeURL",			boost::bind(&LLPanelMediaSettingsGeneral::onCommitHomeURL, this));	
 
 }
@@ -95,7 +97,7 @@ BOOL LLPanelMediaSettingsGeneral::postBuild()
 
 	// watch commit action for HOME URL
 	childSetCommitCallback( LLMediaEntry::HOME_URL_KEY, onCommitHomeURL, this);
-
+	childSetCommitCallback( "current_url_reset_btn",onBtnResetCurrentUrl, this);
 	// interrogates controls and updates widgets as required
 	updateMediaPreview();
 	updateCurrentURL();
@@ -161,7 +163,7 @@ void LLPanelMediaSettingsGeneral::draw()
 
 	// enable/disable RESRET button depending on permissions
 	// since this is the same as a navigate action
-	bool user_can_press_reset = gFloaterTools->selectedMediaEditable();
+	bool user_can_press_reset = mMediaEditable;
 
 	// several places modify this widget so we must collect states in one place
 	if ( reset_button_is_active )
@@ -219,6 +221,7 @@ void LLPanelMediaSettingsGeneral::clearValues( void* userdata, bool editable)
 void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_settings ,bool editable)
 {
 	LLPanelMediaSettingsGeneral *self =(LLPanelMediaSettingsGeneral *)userdata;
+	self->mMediaEditable = editable;
 
 	//llinfos << "---------------" << llendl;
 	//llinfos << ll_pretty_print_sd(media_settings) << llendl;
@@ -229,7 +232,7 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_
 	{
 		if(LLFloaterMediaSettings::getInstance()->mMultipleMedia) 
 		{
-			self->clearValues(self, editable);
+			self->clearValues(self, self->mMediaEditable);
 			// only show multiple 
 			self->mHomeURL ->setText(LLTrans::getString("Multiple Media"));
 			return;
@@ -240,7 +243,7 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_
 	{
 		if(LLFloaterMediaSettings::getInstance()->mMultipleValidMedia) 
 		{
-			self->clearValues(self, editable);
+			self->clearValues(self, self->mMediaEditable);
 			// only show multiple 
 			self->mHomeURL ->setText(LLTrans::getString("Multiple Media"));
 			return;
@@ -297,7 +300,7 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_
 				static_cast< LLSpinCtrl* >( data_set[ i ].ctrl_ptr )->
 					setValue( media_settings[ base_key ].asInteger() );
 
-			data_set[ i ].ctrl_ptr->setEnabled(editable);
+			data_set[ i ].ctrl_ptr->setEnabled(self->mMediaEditable);
 			data_set[ i ].ctrl_ptr->setTentative( media_settings[ tentative_key ].asBoolean() );
 		};
 	};
@@ -353,12 +356,12 @@ void LLPanelMediaSettingsGeneral::onCommitHomeURL( LLUICtrl* ctrl, void *userdat
 	self->updateMediaPreview();
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
-void LLPanelMediaSettingsGeneral::onBtnResetCurrentUrl()
+// static
+void LLPanelMediaSettingsGeneral::onBtnResetCurrentUrl(LLUICtrl* ctrl, void *userdata)
 {
-	// TODO: reset home URL but need to consider permissions too
-	//LLPanelMediaSettingsGeneral* self =(LLPanelMediaSettingsGeneral *)userdata;
+	LLPanelMediaSettingsGeneral* self =(LLPanelMediaSettingsGeneral *)userdata;
+	self->navigateHomeSelectedFace();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -399,3 +402,39 @@ void LLPanelMediaSettingsGeneral::setParent( LLFloaterMediaSettings* parent )
 {
 	mParent = parent;
 };
+
+bool LLPanelMediaSettingsGeneral::navigateHomeSelectedFace()
+{
+	// HACK: This is directly referencing an impl name.  BAD!
+	// This can be removed when we have a truly generic media browser that only 
+	// builds an impl based on the type of url it is passed.
+	struct functor_navigate_media : public LLSelectedTEGetFunctor< bool>
+	{
+		bool get( LLViewerObject* object, S32 face )
+		{
+			if ( object )
+				if ( object->getTE(face) )
+					if ( object->getTE(face)->getMediaData() )
+					{
+						if(object->permModify())
+						{
+							viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(object->getTE(face)->getMediaData()->getMediaID());
+							if(media_impl)
+							{
+								media_impl->navigateHome();
+								return true;
+							}
+						}	
+					}
+		   return false;
+		 };
+				
+	} functor_navigate_media;
+	
+	bool all_face_media_navigated = false;
+	LLObjectSelectionHandle selected_objects =LLSelectMgr::getInstance()->getSelection();
+	selected_objects->getSelectedTEValue( &functor_navigate_media, all_face_media_navigated );
+	
+	return all_face_media_navigated;
+}
+
