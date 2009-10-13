@@ -464,7 +464,7 @@
 			Område: [AREA] m².
 		</text>
 		<button label="Om land..." label_selected="Om land..." name="button about land"/>
-		<check_box label="Vis ejere" name="checkbox show owners" tool_tip="Farver grunde afhængigt af ejerskab"/>
+		<check_box label="Vis ejere" name="checkbox show owners" tool_tip="Farver grunde afhængigt af ejerskab: &#10;&#10;Grøn = Dit land &#10;Turkis = Din gruppes land &#10;Rød = Ejet af andre &#10;Gul = Til salg &#10;Lilla = På auktion &#10;Grå = Offentligt ejet"/>
 		<button label="?" label_selected="?" name="button show owners help"/>
 		<text name="label_parcel_modify">
 			Redigere grund

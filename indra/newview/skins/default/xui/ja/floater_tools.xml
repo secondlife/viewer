@@ -456,7 +456,7 @@
 			面積：[AREA]平方メートル
 		</text>
 		<button label="土地情報..." label_selected="土地情報..." name="button about land"/>
-		<check_box label="オーナーを表示" name="checkbox show owners" tool_tip="所有権別に区画を色分けします"/>
+		<check_box label="オーナーを表示" name="checkbox show owners" tool_tip="所有権別に区画を色分けします： &#10;&#10;緑 = あなたの土地 &#10;アクア = あなたのグループ所有地 &#10;赤 = 他人が所有する土地 &#10;黄色 = 売り出し中 &#10;紫 = オークション &#10;グレー = パブリック"/>
 		<button label="?" label_selected="?" name="button show owners help" left_delta="114"/>
 		<text name="label_parcel_modify">
 			区画の編集

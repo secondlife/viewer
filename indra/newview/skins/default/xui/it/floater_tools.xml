@@ -518,7 +518,7 @@
 			Area: [AREA] m²
 		</text>
 		<button label="Informazioni sul terreno..." label_selected="Informazioni sul terreno..." name="button about land" width="156"/>
-		<check_box label="Mostra i proprietari" name="checkbox show owners" tool_tip="Colora i terreni in base ai loro proprietari"/>
+		<check_box label="Mostra i proprietari" name="checkbox show owners" tool_tip="Colora i terreni in base ai loro proprietari: &#10;&#10;Verde = il tuo terreno &#10;Acqua = la terra del tuo gruppo &#10;Rosso = posseduta da altri &#10;Giallo = in vendita &#10;Viola = in asta &#10;Grigia = pubblica"/>
 		<button label="?" label_selected="?" name="button show owners help" left_delta="120"/>
 		<text name="label_parcel_modify">
 			Modifica il terreno

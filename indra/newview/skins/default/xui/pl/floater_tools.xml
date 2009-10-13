@@ -526,7 +526,7 @@
 			Obszar: [AREA] m
 		</text>
 		<button label="O Posiadłości..." label_selected="O Posiadłości..." name="button about land"/>
-		<check_box label="Pokaż Właścicieli" name="checkbox show owners" tool_tip="Pokoloruj posiadłości zgodnie z przynależnością do właściciela"/>
+		<check_box label="Pokaż Właścicieli" name="checkbox show owners" tool_tip="Pokoloruj posiadłości zgodnie z przynależnością do właściciela: &#10;&#10;Zielony = Twoja Posiadłość &#10;Morski = Posiadłość Twojej Grupy &#10;Czerwony = Posiadłości Innych &#10;Żółty = Na Sprzedaż &#10;Fioletowy = Na Aukcję &#10;Szary = Publiczna"/>
 		<button label="?" label_selected="?" name="button show owners help" left_delta="120"/>
 		<text name="label_parcel_modify">
 			Modyfikuj Posiadłość

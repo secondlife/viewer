@@ -458,7 +458,7 @@
 			Surface : [AREA] m²
 		</text>
 		<button label="À propos du terrain..." label_selected="À propos du terrain..." name="button about land" width="142"/>
-		<check_box label="Afficher les propriétaires" name="checkbox show owners" tool_tip="Colorie les parcelles en fonction de leur propriétaire"/>
+		<check_box label="Afficher les propriétaires" name="checkbox show owners" tool_tip="Colorie les parcelles en fonction de leur propriétaire : &#10;&#10;Vert = votre terrain &#10;Turquoise = le terrain de votre groupe &#10;Rouge = appartenant à d&apos;autres &#10;Jaune = en vente &#10;Mauve = aux enchères &#10;Gris = public"/>
 		<button label="?" label_selected="?" name="button show owners help" left_delta="154"/>
 		<text name="label_parcel_modify">
 			Modifier la parcelle

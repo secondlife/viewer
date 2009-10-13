@@ -518,7 +518,7 @@ Primitiv" name="sculpt texture control" tool_tip="Klicken Sie hier, um ein Bild 
 			Fläche: [AREA] m²
 		</text>
 		<button label="Info zu Land..." label_selected="Info zu Land..." name="button about land"/>
-		<check_box label="Eigentümer anzeigen" name="checkbox show owners" tool_tip="Parzellen nach Eigentümer farbig kennzeichnen"/>
+		<check_box label="Eigentümer anzeigen" name="checkbox show owners" tool_tip="Parzellen nach Eigentümer farbig kennzeichnen: &#10;&#10;Grün = Ihr Land &#10;Blau = Das Land Ihrer Gruppe &#10;Rot = Im Eigentum anderer &#10;Geld = Zum Verkauf &#10;Lila = Zur Auktion &#10;Grau = Öffentlich"/>
 		<button label="?" label_selected="?" name="button show owners help"/>
 		<text name="label_parcel_modify">
 			Parzelle ändern

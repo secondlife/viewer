@@ -515,7 +515,7 @@
 			Gebied: [AREA] m².
 		</text>
 		<button label="Over land..." label_selected="Over land..." name="button about land"/>
-		<check_box label="Toon Eigenaren" name="checkbox show owners" tool_tip="Kleur percelen op basis van hun eigendom"/>
+		<check_box label="Toon Eigenaren" name="checkbox show owners" tool_tip="Kleur percelen op basis van hun eigendom:  &#10;&#10;Groen = Uw land &#10;Aqua = Land van uw groep &#10;Rood = Eigendom van anderen &#10;Geel = Te koop &#10;Paars = Ter veiling &#10;Grijs = Openbaar"/>
 		<button label="?" label_selected="?" name="button show owners help" left_delta="105"/>
 		<text name="label_parcel_modify">
 			Wijzig Perceel

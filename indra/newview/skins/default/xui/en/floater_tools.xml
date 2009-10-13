@@ -2846,7 +2846,7 @@
          layout="topleft"
          left_delta="0"
          name="checkbox show owners"
-         tool_tip="Colorize the parcels according to the type of owner"
+         tool_tip="Colorize the parcels according to the type of owner: &#10;&#10;Green = Your land &#10;Aqua = Your group&apos;s land &#10;Red = Owned by others &#10;Yellow = For sale &#10;Purple = For auction &#10;Grey = Public"
          top_pad="8"
          width="205" />
         <!--TODO: HOOK UP TO HELP VIEWER-->
