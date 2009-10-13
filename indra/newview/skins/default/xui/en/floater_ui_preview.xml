@@ -171,6 +171,15 @@
          name="export_schema"
          top_delta="0"
          width="120" />
+        <check_box
+          follows="left|top"
+          label="Show Rectangles"
+          name="show_rectangles"
+          left_pad="10"
+          top_delta="0"
+          height="25"
+          width="120" />
+      
         <scroll_list
          bottom="525"
          column_padding="0"
