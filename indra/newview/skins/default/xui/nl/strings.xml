@@ -625,4 +625,31 @@
 	<string name="close_on_no_ability">
 		U heeft niet langer de mogelijkheid om in deze chatsessie te zijn.
 	</string>
+			<string name="AcctTypeResident">
+				Inwoner
+			</string>
+			<string name="AcctTypeTrial">
+				Proef
+			</string>
+			<string name="AcctTypeCharterMember">
+				Charter lid
+			</string>
+			<string name="AcctTypeEmployee">
+				Linden Lab werknemer
+			</string>
+			<string name="PaymentInfoUsed">
+				Betalingsinformatie gebruikt
+			</string>
+			<string name="PaymentInfoOnFile">
+				Betalingsinformatie aanwezig
+			</string>
+			<string name="NoPaymentInfoOnFile">
+				Geen betalingsinfo aanwezig
+			</string>
+			<string name="AgeVerified">
+				Leeftijd geverifieerd
+			</string>
+			<string name="NotAgeVerified">
+				Leeftijd niet geverifieerd
+			</string>
 </strings>

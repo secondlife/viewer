@@ -624,4 +624,31 @@
 	<string name="close_on_no_ability">
 		Nie posiadasz praw by uczestniczyć w tej konferencji.
 	</string>
+			<string name="AcctTypeResident">
+				Rezydent
+			</string>
+			<string name="AcctTypeTrial">
+				Próbne
+			</string>
+			<string name="AcctTypeCharterMember">
+				Członek-zalożyciel
+			</string>
+			<string name="AcctTypeEmployee">
+				Pracownik Linden Lab
+			</string>
+			<string name="PaymentInfoUsed">
+				Dane Konta Używane
+			</string>
+			<string name="PaymentInfoOnFile">
+				Dane Konta Dostępne
+			</string>
+			<string name="NoPaymentInfoOnFile">
+				Brak Danych Konta
+			</string>
+			<string name="AgeVerified">
+				Wiek Zweryfikowany
+			</string>
+			<string name="NotAgeVerified">
+				Brak Weryfikacji Wieku
+			</string>
 </strings>

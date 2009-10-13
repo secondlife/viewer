@@ -624,4 +624,31 @@
 	<string name="close_on_no_ability">
 		Sie haben nicht mehr die Berechtigung an der Chat-Sitzung teilzunehmen.
 	</string>
+			<string name="AcctTypeResident">
+				Einwohner
+			</string>
+			<string name="AcctTypeTrial">
+				Test
+			</string>
+			<string name="AcctTypeCharterMember">
+				Charta-Mitglied
+			</string>
+			<string name="AcctTypeEmployee">
+				Linden Lab-Mitarbeiter
+			</string>
+			<string name="PaymentInfoUsed">
+				Zahlungsinfo verwendet
+			</string>
+			<string name="PaymentInfoOnFile">
+				Zahlungsinfo archiviert
+			</string>
+			<string name="NoPaymentInfoOnFile">
+				Keine Zahlungsinfo archiviert
+			</string>
+			<string name="AgeVerified">
+				Altersgeprüft
+			</string>
+			<string name="NotAgeVerified">
+				Nicht altersgeprüft
+			</string>
 </strings>

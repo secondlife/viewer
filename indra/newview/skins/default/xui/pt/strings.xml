@@ -620,4 +620,31 @@
 	<string name="close_on_no_ability">
 		Você não possui mais a habilidade de estar na sessão de bate-papo.
 	</string>
+			<string name="AcctTypeResident">
+				Residente
+			</string>
+			<string name="AcctTypeTrial">
+				Teste
+			</string>
+			<string name="AcctTypeCharterMember">
+				Estatuto do membro
+			</string>
+			<string name="AcctTypeEmployee">
+				Contratado da Linden Lab
+			</string>
+			<string name="PaymentInfoUsed">
+				Infor. de pagamento utilizadas
+			</string>
+			<string name="PaymentInfoOnFile">
+				Infor. de pagamento no arquivo
+			</string>
+			<string name="NoPaymentInfoOnFile">
+				Sem infor. de pagamento no arquivo
+			</string>
+			<string name="AgeVerified">
+				Idade Verificada
+			</string>
+			<string name="NotAgeVerified">
+				Idade não Verificada
+			</string>
 </strings>

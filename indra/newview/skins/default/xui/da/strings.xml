@@ -624,4 +624,31 @@
 	<string name="close_on_no_ability">
 		Du har ikke længere mulighed for at deltage i samtalen
 	</string>
+			<string name="AcctTypeResident">
+				Beboer
+			</string>
+			<string name="AcctTypeTrial">
+				På prøve
+			</string>
+			<string name="AcctTypeCharterMember">
+				æresmedlem
+			</string>
+			<string name="AcctTypeEmployee">
+				Linden Lab medarbejder
+			</string>
+			<string name="PaymentInfoUsed">
+				Betalende medlem
+			</string>
+			<string name="PaymentInfoOnFile">
+				Registreret betalende
+			</string>
+			<string name="NoPaymentInfoOnFile">
+				Ingen betalingsinfo
+			</string>
+			<string name="AgeVerified">
+				Alders-checket
+			</string>
+			<string name="NotAgeVerified">
+				Ikke alders-checket
+			</string>
 </strings>

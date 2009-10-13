@@ -625,4 +625,31 @@
 	<string name="close_on_no_ability">
 		Vous ne pouvez plus participer à la session de chat.
 	</string>
+			<string name="AcctTypeResident">
+				Résident
+			</string>
+			<string name="AcctTypeTrial">
+				Essai
+			</string>
+			<string name="AcctTypeCharterMember">
+				Membre originaire
+			</string>
+			<string name="AcctTypeEmployee">
+				Employé(e) de Linden Lab
+			</string>
+			<string name="PaymentInfoUsed">
+				Infos de paiement utilisées
+			</string>
+			<string name="PaymentInfoOnFile">
+				Infos de paiement enregistrées
+			</string>
+			<string name="NoPaymentInfoOnFile">
+				Aucune info de paiement
+			</string>
+			<string name="AgeVerified">
+				Âge vérifié
+			</string>
+			<string name="NotAgeVerified">
+				Âge non vérifié
+			</string>
 </strings>

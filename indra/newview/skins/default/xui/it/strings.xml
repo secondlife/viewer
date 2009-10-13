@@ -621,4 +621,31 @@
 	<string name="close_on_no_ability">
 		Non hai più le abilitazioni per rimanere nella sessione chat.
 	</string>
+			<string name="AcctTypeResident">
+				Residente
+			</string>
+			<string name="AcctTypeTrial">
+				Prova
+			</string>
+			<string name="AcctTypeCharterMember">
+				Membro privilegiato
+			</string>
+			<string name="AcctTypeEmployee">
+				Impiegato della Linden Lab
+			</string>
+			<string name="PaymentInfoUsed">
+				Info. di pagamento usate
+			</string>
+			<string name="PaymentInfoOnFile">
+				Info. di pagamento in archivio
+			</string>
+			<string name="NoPaymentInfoOnFile">
+				Nessuna info. di pagamento
+			</string>
+			<string name="AgeVerified">
+				Età verificata
+			</string>
+			<string name="NotAgeVerified">
+				Età non verificata
+			</string>
 </strings>
