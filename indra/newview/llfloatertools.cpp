@@ -1060,7 +1060,7 @@ void LLFloaterTools::getMediaState()
 		return;
 	}
 	
-	bool editable = (first_object->permModify());// && selectedMediaEditable());
+	bool editable = (first_object->permModify() || selectedMediaEditable());
 	
 	// Media settings
 	U8 has_media = (U8)0;
@@ -1114,7 +1114,7 @@ void LLFloaterTools::getMediaState()
 			// Media data is valid
 			if(media_data_get!=default_media_data)
 			{
-				//TODO: get Meida title
+				//TODO: get media title
 				//media_title =  media_data_get->getTile();
 				//LLFloaterMediaSettings::getInstance()->mIdenticalValidMedia = true;
 				media_title = media_data_get.getHomeURL();
@@ -1149,7 +1149,7 @@ void LLFloaterTools::getMediaState()
 			// Media data is valid
 			if(media_data_get!=default_media_data)
 			{
-				//TODO: get Meida title
+				//TODO: get media title
 				//media_title =  media_data_get->getTile();
 				media_title = media_data_get.getHomeURL();
 			}
