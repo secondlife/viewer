@@ -9981,7 +9981,7 @@
       <key>Comment</key>
       <string>Versioning Channel Name.</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
