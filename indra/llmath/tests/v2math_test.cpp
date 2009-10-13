@@ -379,7 +379,7 @@ namespace tut
 		x1 = 1.0f, y1 = 2.0f, x2 = 1.0f, y2 = 3.2234f;
 		vec2.setVec(x1, y1);
 		vec3.setVec(x2, y2);
-		ensure("2:operator < failed", (FALSE == vec3 < vec2));	
+		ensure("2:operator < failed", (FALSE == (vec3 < vec2)));	
 	}
 
 	template<> template<>

@@ -460,15 +460,15 @@ namespace tut
 	{
 		F32 x1 =-2.3f, y1 = 2.f,z1 = 1.2f, x2 = 1.3f, y2 = 1.11f, z2 = 1234.234f;
 		LLVector3 vec3(x1,y1,z1), vec3a(x2,y2,z2);
-		ensure("1:operator< failed", (TRUE == vec3 < vec3a));	
+		ensure("1:operator< failed", (TRUE == (vec3 < vec3a)));
 		x1 =-2.3f, y1 = 2.f,z1 = 1.2f, x2 = 1.3f, y2 = 2.f, z2 = 1234.234f;
 		vec3.setVec(x1,y1,z1);
 		vec3a.setVec(x2,y2,z2);
-		ensure("2:operator< failed ", (TRUE == vec3 < vec3a));	
+		ensure("2:operator< failed ", (TRUE == (vec3 < vec3a)));
 		x1 =2.3f, y1 = 2.f,z1 = 1.2f, x2 = 1.3f,
 		vec3.setVec(x1,y1,z1);
 		vec3a.setVec(x2,y2,z2);
-		ensure("3:operator< failed ", (FALSE == vec3 < vec3a));	
+		ensure("3:operator< failed ", (FALSE == (vec3 < vec3a)));
 	}
 
 	template<> template<>
