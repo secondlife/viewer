@@ -186,6 +186,15 @@ private:
 	int mNumBounceBacks;
 };
 
+// This special timer delay should ensure that the timer will fire on the very
+// next pump, no matter what (though this does make an assumption about the
+// implementation of LLEventTimer::updateClass()):
+const F32 NO_PERIOD = -1000.0f;
+
+static void pump_timers()
+{
+	LLEventTimer::updateClass();
+}
 
 namespace tut
 {
@@ -256,14 +265,13 @@ namespace tut
 		LLMediaDataClientObject::ptr_t o = new LLMediaDataClientObjectTest(DATA);
 		int num_refs_start = o->getNumRefs();
 		{
-			// queue time w/ no delay ensures that LLEventTimer::updateClass() will hit the tick()
-			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(0,0,4);  
+			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);
 			mdc->fetchMedia(o);
 
 			// Make sure no posts happened yet...
 			ensure("post records", gPostRecords->size(), 0);
 
-			LLEventTimer::updateClass();
+			::pump_timers();
 		
 			ensure("post records", gPostRecords->size(), 1);
 			ensure("post url", (*gPostRecords)[0]["url"], FAKE_OBJECT_MEDIA_CAP_URL);
@@ -288,11 +296,11 @@ namespace tut
 
 		LLMediaDataClientObject::ptr_t o = new LLMediaDataClientObjectTest(DATA);
 		{
-			// queue time w/ no delay ensures that LLEventTimer::updateClass() will hit the tick()
-			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(0,0,4);  
+			// queue time w/ no delay ensures that ::pump_timers() will hit the tick()
+			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);  
 			mdc->updateMedia(o);
 			ensure("post records", gPostRecords->size(), 0);
-			LLEventTimer::updateClass();
+			::pump_timers();
 		
 			ensure("post records", gPostRecords->size(), 1);
 			ensure("post url", (*gPostRecords)[0]["url"], FAKE_OBJECT_MEDIA_CAP_URL);
@@ -318,11 +326,11 @@ namespace tut
 
 		LLMediaDataClientObject::ptr_t o = new LLMediaDataClientObjectTest(DATA);
 		{		
-			LLPointer<LLObjectMediaNavigateClient> mdc = new LLObjectMediaNavigateClient(0,0,4);
+			LLPointer<LLObjectMediaNavigateClient> mdc = new LLObjectMediaNavigateClient(NO_PERIOD,NO_PERIOD);
 			const char *TEST_URL = "http://example.com";
 			mdc->navigate(o, 0, TEST_URL);
 			ensure("post records", gPostRecords->size(), 0);
-			LLEventTimer::updateClass();
+			::pump_timers();
 
 			// ensure no bounce back
 			ensure("bounce back", dynamic_cast<LLMediaDataClientObjectTest*>(static_cast<LLMediaDataClientObject*>(o))->getNumBounceBacks(), 0);
@@ -354,7 +362,7 @@ namespace tut
 		LLMediaDataClientObject::ptr_t o3 = new LLMediaDataClientObjectTest(
 			_DATA(VALID_OBJECT_ID_3,"2.0","1.0"));
 		{
-			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(0,0,4);  
+			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);  
 			const char *ORDERED_OBJECT_IDS[] = { VALID_OBJECT_ID_2, VALID_OBJECT_ID_3, VALID_OBJECT_ID_1 };
 			mdc->fetchMedia(o1);
 			mdc->fetchMedia(o2);
@@ -364,11 +372,11 @@ namespace tut
 			ensure("post records", gPostRecords->size(), 0);
 
 			// tick 3 times...
-			LLEventTimer::updateClass();
+			::pump_timers();
 			ensure("post records", gPostRecords->size(), 1);
-			LLEventTimer::updateClass();
+			::pump_timers();
 			ensure("post records", gPostRecords->size(), 2);
-			LLEventTimer::updateClass();
+			::pump_timers();
 			ensure("post records", gPostRecords->size(), 3);
 		
 			for( int i=0; i < 3; i++ )
@@ -405,7 +413,7 @@ namespace tut
 		int num_refs_start = o->getNumRefs();
 		{
 			const int NUM_RETRIES = 5;
-			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(0,0,NUM_RETRIES);
+			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD,NUM_RETRIES);
 
 			// This should generate a retry
 			mdc->fetchMedia(o);
@@ -418,15 +426,15 @@ namespace tut
 			// Third, fires queue timer again
 			for (int i=0; i<NUM_RETRIES; ++i)
 			{
-				LLEventTimer::updateClass();
+				::pump_timers();
 				ensure("post records " + STR(i), gPostRecords->size(), i+1);
-				LLEventTimer::updateClass();
+				::pump_timers();
 			}
 
 			// Do some extre pumps to make sure no other timer work occurs.
-			LLEventTimer::updateClass();
-			LLEventTimer::updateClass();
-			LLEventTimer::updateClass();
+			::pump_timers();
+			::pump_timers();
+			::pump_timers();
 			
 			// Make sure there were 2 posts
 			ensure("post records after", gPostRecords->size(), NUM_RETRIES);
@@ -458,11 +466,11 @@ namespace tut
 					   FAKE_OBJECT_MEDIA_CAP_URL,
 					   FAKE_OBJECT_MEDIA_NAVIGATE_CAP_URL_ERROR));
 		{		
-			LLPointer<LLObjectMediaNavigateClient> mdc = new LLObjectMediaNavigateClient(0,0,4);
+			LLPointer<LLObjectMediaNavigateClient> mdc = new LLObjectMediaNavigateClient(NO_PERIOD,NO_PERIOD);
 			const char *TEST_URL = "http://example.com";
 			mdc->navigate(o, 0, TEST_URL);
 			ensure("post records", gPostRecords->size(), 0);
-			LLEventTimer::updateClass();
+			::pump_timers();
 
 			// ensure bounce back
 			ensure("bounce back", 
