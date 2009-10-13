@@ -16,7 +16,7 @@
 		  />
     	<text
         	width="130" top="25" left="40" height="20" follows="left|right|top"
-        	font="SansSerifBigBold" text_color="white" word_wrap="true"
+        	font="SansSerifBigBold" text_color="white" word_wrap="false" use_ellipses="true"
         	mouse_opaque="true" name="sender_name" >
 	      Jerry Knight
     	</text>

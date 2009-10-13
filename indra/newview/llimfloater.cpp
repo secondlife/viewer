@@ -40,9 +40,11 @@
 #include "llbottomtray.h"
 #include "llchannelmanager.h"
 #include "llchiclet.h"
+#include "llfloaterchat.h"
 #include "llfloaterreg.h"
 #include "llimview.h"
 #include "lllineeditor.h"
+#include "lllogchat.h"
 #include "llpanelimcontrolpanel.h"
 #include "llscreenchannel.h"
 #include "lltrans.h"
@@ -88,16 +90,6 @@ void LLIMFloater::onClose(bool app_quitting)
 
 	//*TODO - move to the IMModel::sendLeaveSession() for the integrity (IB)
 	gIMMgr->removeSession(mSessionID);
-}
-
-void LLIMFloater::setMinimized(BOOL minimize)
-{
-	if(!isDocked())
-	{
-		setVisible(!minimize);
-	}	
-
-	LLFloater::setMinimized(minimize);
 }
 
 /* static */
@@ -203,6 +195,12 @@ BOOL LLIMFloater::postBuild()
 	setTitle(LLIMModel::instance().getName(mSessionID));
 	setDocked(true);
 	
+	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
+	{
+		LLLogChat::loadHistory(getTitle(), &chatFromLogFile, (void *)this);
+	}
+
+
 	return LLDockableFloater::postBuild();
 }
 
@@ -316,12 +314,18 @@ void LLIMFloater::setVisible(BOOL visible)
 bool LLIMFloater::toggle(const LLUUID& session_id)
 {
 	LLIMFloater* floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
-	if (floater && floater->getVisible())
+	if (floater && floater->getVisible() && floater->isDocked())
 	{
 		// clicking on chiclet to close floater just hides it to maintain existing
 		// scroll/text entry state
 		floater->setVisible(false);
 		return false;
+	}
+	else if(floater && !floater->isDocked())
+	{
+		floater->setVisible(TRUE);
+		floater->setFocus(TRUE);
+		return true;
 	}
 	else
 	{
@@ -419,3 +423,37 @@ void LLIMFloater::setTyping(BOOL typing)
 {
 }
 
+void LLIMFloater::chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata)
+{
+	if (!userdata) return;
+
+	LLIMFloater* self = (LLIMFloater*) userdata;
+	std::string message = line;
+	S32 im_log_option =  gSavedPerAccountSettings.getS32("IMLogOptions");
+	switch (type)
+	{
+	case LLLogChat::LOG_EMPTY:
+		// add warning log enabled message
+		if (im_log_option!=LOG_CHAT)
+		{
+			message = LLTrans::getString("IM_logging_string");
+		}
+		break;
+	case LLLogChat::LOG_END:
+		// add log end message
+		if (im_log_option!=LOG_CHAT)
+		{
+			message = LLTrans::getString("IM_logging_string");
+		}
+		break;
+	case LLLogChat::LOG_LINE:
+		// just add normal lines from file
+		break;
+	default:
+		// nothing
+		break;
+	}
+
+	self->mHistoryEditor->appendText(message, true, LLStyle::Params().color(LLUIColorTable::instance().getColor("ChatHistoryTextColor")));
+	self->mHistoryEditor->blockUndo();
+}

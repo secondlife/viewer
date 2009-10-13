@@ -40,6 +40,7 @@
 #include "llchiclet.h"
 #include "llvoiceclient.h"
 #include "lloutputmonitorctrl.h"
+#include "llfloateractivespeakers.h"
 
 class LLGestureComboBox
 	: public LLComboBox
@@ -84,6 +85,8 @@ public:
 
 	LLLineEditor* getChatBox() { return mChatBox; }
 
+	virtual void draw();
+
 	std::string getCurrentChat();
 	virtual BOOL handleKeyHere( KEY key, MASK mask );
 
@@ -110,12 +113,15 @@ protected:
 	static LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
 	EChatType processChatTypeTriggers(EChatType type, std::string &str);
 
+	void displaySpeakingIndicator();
+
 	// Which non-zero channel did we last chat on?
 	static S32 sLastSpecialChatChannel;
 
 	LLLineEditor*		mChatBox;
 	LLTalkButton*		mTalkBtn;
 	LLOutputMonitorCtrl* mOutputMonitor;
+	LLActiveSpeakerMgr  mSpeakerMgr;
 };
 
 #endif

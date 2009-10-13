@@ -52,6 +52,7 @@
 #include "llrender.h"
 #include "lluictrlfactory.h"
 #include "llhelp.h"
+#include "lldockablefloater.h"
 
 static LLDefaultChildRegistry::Register<LLButton> r("button");
 
@@ -1054,6 +1055,20 @@ void LLButton::setFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname)
 	button->setControlVariable(LLUI::sSettingGroups["floater"]->getControl(vis_control_name));
 	// Set the clicked callback to toggle the floater
 	button->setClickedCallback(boost::bind(&LLFloaterReg::toggleFloaterInstance, sdname));
+}
+
+// static
+void LLButton::setDockableFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname)
+{
+	LLButton* button = dynamic_cast<LLButton*>(ctrl);
+	if (!button)
+		return;
+	// Get the visibility control name for the floater
+	std::string vis_control_name = LLFloaterReg::declareVisibilityControl(sdname.asString());
+	// Set the button control value (toggle state) to the floater visibility control (Sets the value as well)
+	button->setControlVariable(LLUI::sSettingGroups["floater"]->getControl(vis_control_name));
+	// Set the clicked callback to toggle the floater
+	button->setClickedCallback(boost::bind(&LLDockableFloater::toggleInstance, sdname));
 }
 
 // static

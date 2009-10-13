@@ -232,6 +232,7 @@ public:
 	static void		onHeldDown(void *userdata);  // to be called by gIdleCallbacks
 	static void		toggleFloaterAndSetToggleState(LLUICtrl* ctrl, const LLSD& sdname);
 	static void		setFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname);
+	static void		setDockableFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname);
 	static void		showHelp(LLUICtrl* ctrl, const LLSD& sdname);
 
 	void		setForcePressedState(BOOL b) { mForcePressedState = b; }

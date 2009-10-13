@@ -201,7 +201,7 @@ public:
 			fb->handleHover(x, y, mask);
 		}
 
-		return LLMenuItemCallGL::handleHover(x, y, mask);
+		return TRUE;
 	}
 
 	void initFavoritesBarPointer(LLFavoritesBarCtrl* fb) { this->fb = fb; }
@@ -214,6 +214,35 @@ protected:
 private:
 	LLSLURLGetter mUrlGetter;
 	LLFavoritesBarCtrl* fb;
+};
+
+/**
+ * This class was introduced just for fixing the following issue:
+ * EXT-836 Nav bar: Favorites overflow menu passes left-mouse click through.
+ * We must explicitly handle drag and drop event by returning TRUE
+ * because otherwise LLToolDragAndDrop will initiate drag and drop operation
+ * with the world.
+ */
+class LLFavoriteLandmarkToggleableMenu : public LLToggleableMenu
+{
+public:
+	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+								   EDragAndDropType cargo_type,
+								   void* cargo_data,
+								   EAcceptance* accept,
+								   std::string& tooltip_msg)
+	{
+		*accept = ACCEPT_NO;
+		return TRUE;
+	}
+
+protected:
+	LLFavoriteLandmarkToggleableMenu(const LLToggleableMenu::Params& p):
+		LLToggleableMenu(p)
+	{
+	}
+
+	friend class LLUICtrlFactory;
 };
 
 /**
@@ -788,7 +817,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 		menu_p.max_scrollable_items = 10;
 		menu_p.preferred_width = DROP_DOWN_MENU_WIDTH;
 
-		LLToggleableMenu* menu = LLUICtrlFactory::create<LLToggleableMenu>(menu_p);
+		LLToggleableMenu* menu = LLUICtrlFactory::create<LLFavoriteLandmarkToggleableMenu>(menu_p);
 		mPopupMenuHandle = menu->getHandle();
 	}
 

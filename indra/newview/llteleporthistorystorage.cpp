@@ -100,6 +100,7 @@ void LLTeleportHistoryStorage::onTeleportHistoryChange()
 void LLTeleportHistoryStorage::purgeItems()
 {
 	mItems.clear();
+	mHistoryChangedSignal();
 }
 
 void LLTeleportHistoryStorage::addItem(const std::string title, const LLVector3d& global_pos)

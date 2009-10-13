@@ -44,6 +44,8 @@
 class LLDockableFloater : public LLFloater
 {
 	static const U32 UNDOCK_LEAP_HEIGHT = 12;
+
+	static void init(LLDockableFloater* thiz);
 public:
 	LOG_CLASS(LLDockableFloater);
 	LLDockableFloater(LLDockControl* dockControl, const LLSD& key,
@@ -53,6 +55,8 @@ public:
 	virtual ~LLDockableFloater();
 
 	static LLHandle<LLFloater> getInstanceHandle() { return sInstanceHandle; }
+
+	static void toggleInstance(const LLSD& sdname);
 
 	/**
 	 *  If descendant class overrides postBuild() in order to perform specific
@@ -67,6 +71,12 @@ public:
 	 *  superclass' implementation.
 	 */
 	/*virtual*/ void setVisible(BOOL visible);
+
+	/**
+	 *  If descendant class overrides setMinimized() then it must still invoke its
+	 *  superclass' implementation.
+	 */
+	/*virtual*/ void setMinimized(BOOL minimize);
 
 	virtual void onDockHidden();
 	virtual void onDockShown();

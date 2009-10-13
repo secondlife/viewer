@@ -136,7 +136,6 @@ set(viewer_SOURCE_FILES
     llfeaturemanager.cpp
     llfilepicker.cpp
     llfirstuse.cpp
-    llfirsttimetipmanager.cpp
     llflexibleobject.cpp
     llfloaterabout.cpp
     llfloateractivespeakers.cpp
@@ -161,7 +160,6 @@ set(viewer_SOURCE_FILES
     llfloaterdaycycle.cpp
     llfloaterdirectory.cpp
     llfloaterenvsettings.cpp
-    llfloaterfirsttimetip.cpp
     llfloaterfriends.cpp
     llfloaterfonttest.cpp
     llfloatergesture.cpp
@@ -325,7 +323,6 @@ set(viewer_SOURCE_FILES
     llpanelmedia.cpp
     llpanelmediahud.cpp
     llpanelmeprofile.cpp
-    llpanelmovetip.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingssecurity.cpp
     llpanelmediasettingspermissions.cpp
@@ -607,7 +604,6 @@ set(viewer_HEADER_FILES
     llfeaturemanager.h
     llfilepicker.h
     llfirstuse.h
-    llfirsttimetipmanager.h
     llflexibleobject.h
     llfloaterabout.h
     llfloateractivespeakers.h
@@ -632,7 +628,6 @@ set(viewer_HEADER_FILES
     llfloaterdaycycle.h
     llfloaterdirectory.h
     llfloaterenvsettings.h
-    llfloaterfirsttimetip.h
     llfloaterfonttest.h
     llfloaterfriends.h
     llfloatergesture.h
@@ -792,7 +787,6 @@ set(viewer_HEADER_FILES
     llpanelmedia.h
     llpanelmediahud.h
     llpanelmeprofile.h
-    llpanelmovetip.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingssecurity.h
     llpanelmediasettingspermissions.h

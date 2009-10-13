@@ -211,14 +211,31 @@ void LLPanelGroup::reposButton(const std::string& name)
 	button->setRect(btn_rect);
 }
 
-void LLPanelGroup::reshape(S32 width, S32 height, BOOL called_from_parent )
+void LLPanelGroup::reposButtons()
 {
-	LLPanel::reshape(width, height, called_from_parent );
+	LLButton* button_refresh = findChild<LLButton>("btn_refresh");
+	LLButton* button_cancel = findChild<LLButton>("btn_cancel");
+
+	if(button_refresh && button_cancel && button_refresh->getVisible() && button_cancel->getVisible())
+	{
+		LLRect btn_refresh_rect = button_refresh->getRect();
+		LLRect btn_cancel_rect = button_cancel->getRect();
+		btn_refresh_rect.setLeftTopAndSize( btn_cancel_rect.mLeft + btn_cancel_rect.getWidth() + 2, 
+			btn_refresh_rect.getHeight() + 2, btn_refresh_rect.getWidth(), btn_refresh_rect.getHeight());
+		button_refresh->setRect(btn_refresh_rect);
+	}
 
 	reposButton("btn_apply");
 	reposButton("btn_create");
 	reposButton("btn_refresh");
 	reposButton("btn_cancel");
+}
+
+void LLPanelGroup::reshape(S32 width, S32 height, BOOL called_from_parent )
+{
+	LLPanel::reshape(width, height, called_from_parent );
+
+	reposButtons();
 }
 
 void LLPanelGroup::onBackBtnClick()
@@ -411,7 +428,6 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 
 		getChild<LLUICtrl>("group_name")->setVisible(false);
 		getChild<LLUICtrl>("group_name_editor")->setVisible(true);
-
 	}
 	else
 	{
@@ -431,6 +447,8 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 		getChild<LLUICtrl>("group_name")->setVisible(true);
 		getChild<LLUICtrl>("group_name_editor")->setVisible(false);
 	}
+
+	reposButtons();
 }
 
 bool	LLPanelGroup::apply(LLPanelGroupTab* tab)

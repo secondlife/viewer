@@ -415,6 +415,9 @@ void LLTextBase::drawCursor()
 			return;
 		}
 
+		if (!mTextRect.contains(cursor_rect))
+			return;
+
 		// Draw the cursor
 		// (Flash the cursor every half second starting a fixed time after the last keystroke)
 		F32 elapsed = mCursorBlinkTimer.getElapsedTimeF32();

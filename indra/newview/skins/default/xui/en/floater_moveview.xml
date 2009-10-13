@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_dock="true"
- can_close="false"
- can_minimize="false"
+ can_close="true"
+ can_minimize="true"
  center_horiz="true"
  follows="bottom"
  height="110"

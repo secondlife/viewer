@@ -83,7 +83,7 @@
              top="6"
              width="70">
                 <button.init_callback
-                 function="Button.SetFloaterToggle"
+                 function="Button.SetDockableFloaterToggle"
                  parameter="moveview" />
             </button>
         </layout_panel>
@@ -121,7 +121,7 @@
              name="camera_btn"
              width="70">
                 <button.init_callback
-                 function="Button.SetFloaterToggle"
+                 function="Button.SetDockableFloaterToggle"
                  parameter="camera" />
             </button>
  			<button
@@ -136,7 +136,7 @@
          	 image_selected="toggle_button_selected"
              image_unselected="toggle_button_off">
              <button.init_callback
-             	function="Button.SetFloaterToggle"
+             	function="Button.SetDockableFloaterToggle"
              	parameter="camera_presets"
              	/>
             </button>

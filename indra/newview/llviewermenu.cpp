@@ -82,7 +82,6 @@
 #include "llface.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
-#include "llfirsttimetipmanager.h"
 #include "llfloater.h"
 #include "llfloaterabout.h"
 #include "llfloaterbuycurrency.h"
@@ -7603,24 +7602,6 @@ class LLWorldDayCycle : public view_listener_t
 	}
 };
 
-/// Show First Time Tips calbacks
-class LLHelpCheckShowFirstTimeTip : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		return LLFirstTimeTipsManager::tipsEnabled();
-	}
-};
-
-class LLHelpShowFirstTimeTip : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFirstTimeTipsManager::enabledTip(!userdata.asBoolean());
-		return true;
-	}
-};
-
 void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
 {
 	static LLMenuGL*	show_navbar_context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_navbar.xml",
@@ -7737,9 +7718,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldWaterSettings(), "World.WaterSettings");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
 	view_listener_t::addMenu(new LLWorldDayCycle(), "World.DayCycle");
-
-	view_listener_t::addMenu(new LLHelpCheckShowFirstTimeTip(), "Help.CheckShowFirstTimeTip");
-	view_listener_t::addMenu(new LLHelpShowFirstTimeTip(), "Help.ShowQuickTips");
 
 	// Tools menu
 	view_listener_t::addMenu(new LLToolsSelectTool(), "Tools.SelectTool");

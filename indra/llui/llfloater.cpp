@@ -926,6 +926,9 @@ void LLFloater::setMinimized(BOOL minimize)
 
 	if (minimize)
 	{
+		// minimized flag should be turned on before release focus
+		mMinimized = TRUE;
+
 		mExpandedRect = getRect();
 
 		// If the floater has been dragged while minimized in the
@@ -987,8 +990,6 @@ void LLFloater::setMinimized(BOOL minimize)
 			}
 		}
 		
-		mMinimized = TRUE;
-
 		// Reshape *after* setting mMinimized
 		reshape( minimized_width, floater_header_size, TRUE);
 	}

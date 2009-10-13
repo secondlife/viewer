@@ -33,24 +33,36 @@
 #include "linden_common.h"
 
 #include "lldockablefloater.h"
+#include "llfloaterreg.h"
 
 //static
 LLHandle<LLFloater> LLDockableFloater::sInstanceHandle;
+
+//static
+void LLDockableFloater::init(LLDockableFloater* thiz)
+{
+	thiz->setDocked(thiz->mDockControl.get() != NULL
+			&& thiz->mDockControl.get()->isDockVisible());
+	thiz->resetInstance();
+
+	// all dockable floaters should have close, dock and minimize buttons
+	thiz->setCanClose(TRUE);
+	thiz->setCanDock(true);
+	thiz->setCanMinimize(TRUE);
+}
 
 LLDockableFloater::LLDockableFloater(LLDockControl* dockControl,
 		const LLSD& key, const Params& params) :
 	LLFloater(key, params), mDockControl(dockControl), mUniqueDocking(true)
 {
-	setDocked(mDockControl.get() != NULL && mDockControl.get()->isDockVisible());
-	resetInstance();
+	init(this);
 }
 
 LLDockableFloater::LLDockableFloater(LLDockControl* dockControl, bool uniqueDocking,
 		const LLSD& key, const Params& params) :
 	LLFloater(key, params), mDockControl(dockControl), mUniqueDocking(uniqueDocking)
 {
-	setDocked(mDockControl.get() != NULL && mDockControl.get()->isDockVisible());
-	resetInstance();
+	init(this);
 }
 
 LLDockableFloater::~LLDockableFloater()
@@ -62,6 +74,33 @@ BOOL LLDockableFloater::postBuild()
 	mDockTongue = LLUI::getUIImage("windows/Flyout_Pointer.png");
 	LLFloater::setDocked(true);
 	return LLView::postBuild();
+}
+
+//static
+void LLDockableFloater::toggleInstance(const LLSD& sdname)
+{
+	LLSD key;
+	std::string name = sdname.asString();
+
+	LLDockableFloater* instance =
+			dynamic_cast<LLDockableFloater*> (LLFloaterReg::findInstance(name));
+	// if floater closed or docked
+	if (instance == NULL || instance != NULL && instance->isDocked())
+	{
+		LLFloaterReg::toggleInstance(name, key);
+		// restore button toggle state
+		if (instance != NULL)
+		{
+			instance->storeVisibilityControl();
+		}
+	}
+	// if floater undocked
+	else if (instance != NULL)
+	{
+		instance->setMinimized(FALSE);
+		instance->setVisible(TRUE);
+		instance->setFocus(TRUE);
+	}
 }
 
 void LLDockableFloater::resetInstance()
@@ -89,6 +128,17 @@ void LLDockableFloater::setVisible(BOOL visible)
 	}
 
 	LLFloater::setVisible(visible);
+}
+
+void LLDockableFloater::setMinimized(BOOL minimize)
+{
+	if(minimize && isDocked())
+	{
+		setVisible(FALSE);
+	}
+	setCanDock(!minimize);
+
+	LLFloater::setMinimized(minimize);
 }
 
 void LLDockableFloater::onDockHidden()

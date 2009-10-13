@@ -34,6 +34,7 @@
 #define LL_IMFLOATER_H
 
 #include "lldockablefloater.h"
+#include "lllogchat.h"
 
 class LLLineEditor;
 class LLPanelChatControlPanel;
@@ -59,7 +60,6 @@ public:
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
 	// override LLFloater's minimization according to EXT-1216
-	/*virtual*/ void setMinimized(BOOL minimize);
 
 	// Make IM conversion visible and update the message history
 	static LLIMFloater* show(const LLUUID& session_id);
@@ -91,7 +91,10 @@ private:
 	static void*	createPanelGroupControl(void* userdata);
 	// gets a rect that bounds possible positions for the LLIMFloater on a screen (EXT-1111)
 	void getAllowedRect(LLRect& rect);
-	
+
+	static void chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata);
+
+
 	LLPanelChatControlPanel* mControlPanel;
 	LLUUID mSessionID;
 	S32 mLastMessageIndex;

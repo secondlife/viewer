@@ -104,6 +104,7 @@ protected:
 	static bool joinDlgCB(const LLSD& notification, const LLSD& response);
 
 	void reposButton(const std::string& name);
+	void reposButtons();
 	
 
 protected:
