@@ -357,7 +357,7 @@ BOOL LLMediaDataClient::QueueTimer::tick()
 		return TRUE;
 	}
 
-	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() started, queue is:	  " << queue << LL_ENDL;
+	LL_INFOS("LLMediaDataClient") << "QueueTimer::tick() started, queue is:	  " << queue << LL_ENDL;
 
 	// Peel one off of the items from the queue, and execute request
 	request_ptr_t request = queue.top();
@@ -382,9 +382,13 @@ BOOL LLMediaDataClient::QueueTimer::tick()
 		}
 	}
 	else {
-		if (!object->hasMedia())
+		if (NULL == object) 
 		{
-			LL_INFOS("LLMediaDataClient") << "Not Sending request for " << *request << " hasMedia() is false!" << LL_ENDL;
+			LL_WARNS("LLMediaDataClient") << "Not Sending request for " << *request << " NULL object!" << LL_ENDL;
+		}
+		else if (!object->hasMedia())
+		{
+			LL_WARNS("LLMediaDataClient") << "Not Sending request for " << *request << " hasMedia() is false!" << LL_ENDL;
 		}
 	}
 	bool exceeded_retries = request->getRetryCount() > mMDC->mMaxNumRetries;
@@ -413,6 +417,9 @@ void LLMediaDataClient::startQueueTimer()
 		LL_INFOS("LLMediaDataClient") << "starting queue timer (delay=" << mQueueTimerDelay << " seconds)" << LL_ENDL;
 		// LLEventTimer automagically takes care of the lifetime of this object
 		new QueueTimer(mQueueTimerDelay, this);
+	}
+	else { 
+		LL_DEBUGS("LLMediaDataClient") << "not starting queue timer (it's already running, right???)" << LL_ENDL;
 	}
 }
 	
