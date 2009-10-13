@@ -604,6 +604,9 @@
 	<string name="no_ability_error">
 		U beschikt niet over die mogelijkheid.
 	</string>
+	<string name="no_ability">
+		U beschikt niet over die mogelijkheid.
+	</string>
 	<string name="not_a_mod_error">
 		U bent geen sessie moderateur
 	</string>

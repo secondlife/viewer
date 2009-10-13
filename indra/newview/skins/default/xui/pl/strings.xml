@@ -603,6 +603,9 @@
 	<string name="no_ability_error">
 		Nie posiadesz tego przywileju.
 	</string>
+	<string name="no_ability">
+		Nie posiadesz tego przywileju.
+	</string>
 	<string name="not_a_mod_error">
 		Nie jesteś moderatorem konferencji.
 	</string>

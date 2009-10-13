@@ -604,6 +604,9 @@
 	<string name="no_ability_error">
 		Vous n&apos;avez pas ce pouvoir.
 	</string>
+	<string name="no_ability">
+		Vous n&apos;avez pas ce pouvoir.
+	</string>
 	<string name="not_a_mod_error">
 		Vous n&apos;êtes pas modérateur de session.
 	</string>

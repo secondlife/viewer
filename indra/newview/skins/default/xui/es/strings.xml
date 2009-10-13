@@ -615,6 +615,9 @@ Si sigue recibiendo este mensaje, contacte con el [SUPPORT_SITE].
 	<string name="no_ability_error">
 		Usted no tiene esa capacidad.
 	</string>
+	<string name="no_ability">
+		Usted no tiene esa capacidad.
+	</string>
 	<string name="not_a_mod_error">
 		Usted no es un moderador de la sesión.
 	</string>

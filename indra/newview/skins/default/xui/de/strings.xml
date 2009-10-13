@@ -603,6 +603,9 @@
 	<string name="no_ability_error">
 		Sie besitzen diese Fähigkeit nicht.
 	</string>
+	<string name="no_ability">
+		Sie besitzen diese Fähigkeit nicht.
+	</string>
 	<string name="not_a_mod_error">
 		Sie sind kein Sitzungsmoderator.
 	</string>

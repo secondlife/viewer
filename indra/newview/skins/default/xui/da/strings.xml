@@ -603,6 +603,9 @@
 	<string name="no_ability_error">
 		Du har ikke den mulighed.
 	</string>
+	<string name="no_ability">
+		Du har ikke den mulighed.
+	</string>
 	<string name="not_a_mod_error">
 		Du er ikke moderator for denne samtale.
 	</string>

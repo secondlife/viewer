@@ -600,6 +600,9 @@
 	<string name="no_ability_error">
 		Non hai questa abilitazione.
 	</string>
+	<string name="no_ability">
+		Non hai questa abilitazione.
+	</string>
 	<string name="not_a_mod_error">
 		Non sei un moderatore.
 	</string>

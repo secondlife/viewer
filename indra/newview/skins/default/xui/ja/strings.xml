@@ -603,6 +603,9 @@
 	<string name="no_ability_error">
 		あなたにはその能力がありません。
 	</string>
+	<string name="no_ability">
+		あなたにはその能力がありません。
+	</string>
 	<string name="not_a_mod_error">
 		あなたはセッション・モデレータではありません。
 	</string>
