@@ -89,15 +89,6 @@ BOOL LLFloaterGroupPicker::postBuild()
 		list_ctrl->setContextMenu(LLScrollListCtrl::MENU_GROUP);
 	}
 	
-	// Remove group "none" from list. Group "none" is added in init_group_list(). 
-	// Some UI elements use group "none", we need to manually delete it here.
-	// Group "none" ID is LLUUID:null.
-	LLCtrlListInterface* group_list = list_ctrl->getListInterface();
-	if(group_list)
-	{
-		group_list->selectByValue(LLUUID::null);
-		group_list->operateOnSelection(LLCtrlListInterface::OP_DELETE);
-	}
 
 	childSetAction("OK", onBtnOK, this);
 
@@ -109,6 +100,20 @@ BOOL LLFloaterGroupPicker::postBuild()
 
 	return TRUE;
 }
+
+void LLFloaterGroupPicker::removeNoneOption()
+{
+	// Remove group "none" from list. Group "none" is added in init_group_list(). 
+	// Some UI elements use group "none", we need to manually delete it here.
+	// Group "none" ID is LLUUID:null.
+	LLCtrlListInterface* group_list = getChild<LLScrollListCtrl>("group list")->getListInterface();
+	if(group_list)
+	{
+		group_list->selectByValue(LLUUID::null);
+		group_list->operateOnSelection(LLCtrlListInterface::OP_DELETE);
+	}
+}
+
 
 void LLFloaterGroupPicker::onBtnOK(void* userdata)
 {

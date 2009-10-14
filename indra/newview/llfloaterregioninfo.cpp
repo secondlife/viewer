@@ -1522,6 +1522,7 @@ bool LLPanelEstateInfo::addAllowedGroup(const LLSD& notification, const LLSD& re
 	LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
 	if (widget)
 	{
+		widget->removeNoneOption();
 		widget->setSelectGroupCallback(boost::bind(&LLPanelEstateInfo::addAllowedGroup2, this, _1));
 		if (parent_floater)
 		{

@@ -72,6 +72,9 @@ public:
 	static LLFloaterGroupPicker* findInstance(const LLSD& seed);
 	static LLFloaterGroupPicker* createInstance(const LLSD& seed);
 
+	// for cases like inviting avatar to group we don't want the none option
+	void removeNoneOption();
+
 protected:
 	void ok();
 	static void onBtnOK(void* userdata);

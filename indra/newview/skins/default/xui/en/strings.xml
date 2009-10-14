@@ -2828,11 +2828,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Wild">Wild</string>
 <string name="Wrinkles">Wrinkles</string>
 	
-    <!-- Favorites Bar -->
-    <string name="location_ctrl_add_landmark">Add to My Landmarks</string>
-    <string name="location_ctrl_edit_landmark">Edit My Landmark</string>
-    <string name="favorite_landmark_loading_tooltip">(Loading...)</string>
-	
 	<!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
 	  [APP_NAME] Update

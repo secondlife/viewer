@@ -18,6 +18,8 @@
                 max_chars="20"
                 follows="left|top"
                 allow_new_values="true"
+                add_landmark_tool_tip="Add this to My Landmarks"
+                edit_landmark_tool_tip="Edit My Landmark"
                 >
   <info_button name="Place Information"
                           label=""
@@ -37,7 +39,6 @@
                           image_hover_unselected="Favorite_Star_Over"
                           width="18"
                           height="18"
-                          tool_tip="Add this to My Landmarks"
                           follows="right|top"
                           scale_image="false"
 			  top="19"
