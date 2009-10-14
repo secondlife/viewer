@@ -65,21 +65,30 @@
 
 static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
 
-const F32 MAP_SCALE_MIN = 64;
-const F32 MAP_SCALE_MID = 172;
-const F32 MAP_SCALE_MAX = 512;
 const F32 MAP_SCALE_INCREMENT = 16;
 const F32 MAP_MIN_PICK_DIST = 4;
 const F32 MAX_PRIM_RADIUS = 256.0f; // Don't try to draw giant mega-prims on the mini map
 
-LLNetMap::LLNetMap (const Params & p) :
-	LLUICtrl (p),
-	mScale(128.0f),
+LLNetMap::LLNetMap (const Params & p)
+:	LLUICtrl (p),
 	mBackgroundColor (p.bg_color()),
-	mRotateMap(FALSE)
+	mScale( MAP_SCALE_MID ),
+	mPixelsPerMeter( MAP_SCALE_MID / REGION_WIDTH_METERS ),
+	mObjectMapTPM(0.f),
+	mObjectMapPixels(0.f),
+	mTargetPanX(0.f),
+	mTargetPanY(0.f),
+	mCurPanX(0.f),
+	mCurPanY(0.f),
+	mUpdateNow(FALSE),
+	mObjectImageCenterGlobal( gAgent.getCameraPositionGlobal() ),
+	mObjectRawImagep(),
+	mObjectImagep(),
+	mClosestAgentToCursor(),
+	mClosestAgentAtLastRightClick(),
+	mRotateMap(FALSE),
+	mToolTipMsg()
 {
-	mObjectImageCenterGlobal = gAgent.getCameraPositionGlobal();
-	mPixelsPerMeter = mScale / REGION_WIDTH_METERS;
 }
 
 LLNetMap::~LLNetMap()

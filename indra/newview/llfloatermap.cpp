@@ -30,7 +30,6 @@
  * $/LicenseInfo$
  */
 
-#include <string>
 #include "llviewerprecompiledheaders.h"
 
 // self include
@@ -50,13 +49,6 @@
 #include "lldraghandle.h"
 #include "lltextbox.h"
 #include "llviewermenu.h"
-
-//
-// Constants
-//
-const F32 MAP_SCALE_MIN = 64;
-const F32 MAP_SCALE_MID = 172;
-const F32 MAP_SCALE_MAX = 512;
 
 //
 // Member functions
