@@ -228,7 +228,11 @@ public:
 	
 	// Default to no-op:
 	virtual void	onTabInto();
+
+	// Clear any user-provided input (text in a text editor, checked checkbox,
+	// selected radio button, etc.).  Defaults to no-op.
 	virtual void	clear();
+
 	virtual void	setColor(const LLColor4& color);
 
 	BOOL	focusNextItem(BOOL text_entry_only);
