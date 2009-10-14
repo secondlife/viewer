@@ -189,6 +189,7 @@
 #include "llwearable.h"
 #include "llinventorybridge.h"
 #include "llappearancemgr.h"
+#include "llavatariconctrl.h"
 
 #if LL_WINDOWS
 #include "llwindebug.h"
@@ -1020,6 +1021,9 @@ bool idle_startup()
 		LLURLHistory::loadFile("url_history.xml");
 		// Load location history 
 		LLLocationHistory::getInstance()->load();
+
+		// Load Avatars icons cache
+		LLAvatarIconIDCache::getInstance()->load();
 
 		//-------------------------------------------------
 		// Handle startup progress screen

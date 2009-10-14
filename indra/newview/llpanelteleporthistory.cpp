@@ -420,7 +420,7 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 	S32 index = hist_items.size() - 1;
 
 	for (LLTeleportHistoryStorage::slurl_list_t::const_reverse_iterator iter = hist_items.rbegin();
-	      iter != hist_items.rend(); ++iter)
+	      iter != hist_items.rend(); ++iter, --index)
 	{
 		std::string landmark_title = (*iter).mTitle;
 		LLStringUtil::toUpper(landmark_title);
@@ -496,8 +496,6 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 		{
 			curr_flat_view->addItem(new LLTeleportHistoryFlatItem(index, &mContextMenu, (*iter).mTitle));
 		}
-
-		index--;
 	}
 
 	// Hide empty tabs from current to bottom

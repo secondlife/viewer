@@ -37,6 +37,35 @@
 #include "llavatarpropertiesprocessor.h"
 #include "llviewermenu.h"
 
+class LLAvatarIconIDCache: public LLSingleton<LLAvatarIconIDCache>
+{
+public:
+	struct LLAvatarIconIDCacheItem
+	{
+		LLUUID icon_id;
+		LLDate cached_time;	
+
+		bool expired();
+	};
+
+	LLAvatarIconIDCache():mFilename("avatar_icons_cache.txt")
+	{
+	}
+
+	void				load	();
+	void				save	();
+
+	LLUUID*				get		(const LLUUID& id);
+	void				add		(const LLUUID& avatar_id,const LLUUID& icon_id);
+
+	void				remove	(const LLUUID& id);
+protected:
+	
+
+	std::string	mFilename;
+	std::map<LLUUID,LLAvatarIconIDCacheItem> mCache;//we cache only LLUID and time
+};
+
 class LLAvatarIconCtrl
 : public LLIconCtrl, public LLAvatarPropertiesObserver
 {
@@ -82,19 +111,8 @@ protected:
 	LLHandle<LLView>	mPopupMenuHandle;
 	bool				mDrawTooltip;
 
-	struct LLImagesCacheItem
-	{
-		LLUUID	image_id;
-		U32   	flags;
 
-		LLImagesCacheItem(LLUUID image_id_, U32 flags_) : image_id(image_id_), flags(flags_) {}
-	};
-
-	typedef std::map<LLUUID, LLAvatarIconCtrl::LLImagesCacheItem> avatar_image_map_t;
-	
-	static avatar_image_map_t sImagesCache;
-
-	void updateFromCache(LLAvatarIconCtrl::LLImagesCacheItem data);
+	bool updateFromCache();
 };
 
 #endif  // LL_LLAVATARICONCTRL_H

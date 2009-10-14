@@ -179,6 +179,7 @@
 #include "llimview.h"
 #include "llviewerthrottle.h"
 #include "llparcel.h"
+#include "llavatariconctrl.h"
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
@@ -1467,6 +1468,9 @@ bool LLAppViewer::cleanup()
     sImageDecodeThread = NULL;
 
 	LLLocationHistory::getInstance()->save();
+
+	LLAvatarIconIDCache::getInstance()->save();
+
 	delete mFastTimerLogThread;
 	mFastTimerLogThread = NULL;
 
