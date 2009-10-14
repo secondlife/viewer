@@ -29,6 +29,8 @@
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
+
+#include "linden_common.h"
 #include "../llviewerprecompiledheaders.h"
  
 #include <iostream>
@@ -210,9 +212,9 @@ namespace tut
 		mediadataclient() {
 			gPostRecords = &mLLSD;
 			
-// 			LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
-// 			LLError::setClassLevel("LLMediaDataClient", LLError::LEVEL_DEBUG);
-//			LLError::setTagLevel("MediaOnAPrim", LLError::LEVEL_DEBUG);
+ 			//LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+ 			//LLError::setClassLevel("LLMediaDataClient", LLError::LEVEL_DEBUG);
+			//LLError::setTagLevel("MediaOnAPrim", LLError::LEVEL_DEBUG);
 		}
 		LLSD mLLSD;
     };
@@ -433,12 +435,13 @@ namespace tut
 			// Third, fires queue timer again
 			for (int i=0; i<NUM_RETRIES; ++i)
 			{
-				::pump_timers();
-				ensure("post records " + STR(i), gPostRecords->size(), i+1);
-				::pump_timers();
+				::pump_timers();  // Should pump (fire) the queue timer, causing a retry timer to be scheduled
+				// XXX This ensure is not guaranteed, because scheduling a timer might actually get it pumped in the same loop
+				//ensure("post records " + STR(i), gPostRecords->size(), i+1);
+				::pump_timers();  // Should pump (fire) the retry timer, scheduling the queue timer
 			}
 
-			// Do some extre pumps to make sure no other timer work occurs.
+			// Do some extra pumps to make sure no other timer work occurs.
 			::pump_timers();
 			::pump_timers();
 			::pump_timers();
