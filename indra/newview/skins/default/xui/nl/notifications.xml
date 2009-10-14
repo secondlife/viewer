@@ -1756,7 +1756,7 @@ Indien deze optie is aan gevinkt, kunnen kopers hun land in deze regio verkopen.
 Standaard: Niet toestaan
 	</notification>
 	<notification label="Scripts Uitschakelen" name="HelpRegionDisableScripts">
-		Indien de sim prestaties slecht zijn, kan een script de oorzaak zijn. Open de Statistieken balk (Ctrl-Shift-1). Kijk naar de Simulator Fysieke FPS. Indien het lager is dan 45, open dan het Tijd paneel onderaan de Statistieken balk. Indien de Script Tijd 25 ms of hoger is, klik dan op de Top Scripts knop. U krijgt dan een naam en lokatie van scripts die mogelijk de slechte prestaties veroorzaken.
+		Indien de sim prestaties slecht zijn, kan een script de oorzaak zijn. Open de Statistieken balk (Ctrl+Shift+1). Kijk naar de Simulator Fysieke FPS. Indien het lager is dan 45, open dan het Tijd paneel onderaan de Statistieken balk. Indien de Script Tijd 25 ms of hoger is, klik dan op de Top Scripts knop. U krijgt dan een naam en lokatie van scripts die mogelijk de slechte prestaties veroorzaken.
 
 Het aan vinken van Scripts Uitschakelen en vervolgens op de Toepassen knop drukken, zal tijdelijk alle scripts in deze regio uitschakelen. U zult dit mogelijk moeten doen om naar de lokatie te gaan van het &apos;top script&apos;. Eenmaal aangekomen, onderzoek dan of het script het probleem veroorzaakt. U zult mogelijk de eigenaar willen contacteren of het object willen retourneren c.q. verwijderen.
 Verwijder het vinkje van Scripts Uitschakelen en klik op Toepassen om scripts weer te reactiveren in de regio.
@@ -1764,7 +1764,7 @@ Verwijder het vinkje van Scripts Uitschakelen en klik op Toepassen om scripts we
 Standaard: Uitgeschakeld
 	</notification>
 	<notification label="Botsingen Uitschakelen" name="HelpRegionDisableCollisions">
-		Indien de sim prestaties slecht zijn, kunnen fysieke objecten de oorzaak zijn. Open de Statistieken balk (Ctrl-Shift-1). Kijk naar de Simulator Fysieke FPS. Indien het lager is dan 45, open dan het Tijd paneel onderaan de Statistieken balk. Indien de Sim Tijd (Fysiek) 20 ms of hoger is, klik dan op de Toon Top Botsingen knop. U krijgt dan een naam en lokatie van de fysieke objecten die mogelijk de slecht prestaties veroorzaken.
+		Indien de sim prestaties slecht zijn, kunnen fysieke objecten de oorzaak zijn. Open de Statistieken balk (Ctrl+Shift+1). Kijk naar de Simulator Fysieke FPS. Indien het lager is dan 45, open dan het Tijd paneel onderaan de Statistieken balk. Indien de Sim Tijd (Fysiek) 20 ms of hoger is, klik dan op de Toon Top Botsingen knop. U krijgt dan een naam en lokatie van de fysieke objecten die mogelijk de slecht prestaties veroorzaken.
 
 Het aan vinken van de Botsingen Uitschakelen knop en vervolgens op de Toepassen knop drukken, zal tijdelijk object-object botsingen uitschakelen. U zult dit mogelijk moeten doen om naar de lokatie te gaan van de &apos;top botsingen&apos;. Eenmaal aangekomen, onderzoek dan het object. Botst het constant met andere objecten? U zult mogelijk de eigenaar willen contacteren of het object willen retourneren c.q. verwijderen.
 Verwijder het vinkje van Botsingen Uitschakelen en klik op Toepassen om botsingen weer te reactiveren in de regio.
@@ -2916,7 +2916,7 @@ Flexibele objecten mogen niet fysiek zijn en moeten fantoom zijn tot de &apos;fl
 	<notification name="FirstDebugMenus">
 		U heeft het menu Geavanceerd geactiveerd.
 Dit menu bevat opties die handig zijn voor ontwikkelaars tijdens het debuggen van [SECOND_LIFE].
-Om dit menu in en uit te schakelen drukt u binnen Windows Ctrl-Alt-D. Met een Mac drukt u &#8984;-Opt-D.
+Om dit menu in en uit te schakelen drukt u binnen Windows Ctrl+Alt+D. Met een Mac drukt u &#8997;&#8984;D.
 	</notification>
 	<notification name="FirstSculptedPrim">
 		U bent een sculpted prim aan het bewerken.

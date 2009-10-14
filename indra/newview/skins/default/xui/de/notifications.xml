@@ -1696,7 +1696,7 @@ Ist die Option aktiviert, können Käufer ihr Land in dieser Region weiterverkau
 Standard: deaktiviert
 	</notification>
 	<notification label="Skripts deaktivieren" name="HelpRegionDisableScripts">
-		Schlechte Sim-Performance ist oftmals auf ein Skript zurückzuführen. Öffnen Sie die Statistikleiste (Strg-Umschalt-1). Sehen Sie sich den Wert für „Simulator Physics FPS“ (Simulator Physik-FPS) an.
+		Schlechte Sim-Performance ist oftmals auf ein Skript zurückzuführen. Öffnen Sie die Statistikleiste (Strg+Umschalt+1). Sehen Sie sich den Wert für „Simulator Physics FPS“ (Simulator Physik-FPS) an.
 Wenn der Wert unter 45 liegt, öffnen Sie den Bereich „Time“ (Zeit) ganz unten in der Statistikleiste. Wenn der Wert für „Script Time“ (Skriptzeit) 25 ms oder höher ist, klicken Sie auf „Top-Skripts“. Der Name und die Position der Skripts, die für die schlechte Performance verantwortlich sind, werden angezeigt.
 Wenn Sie das Kontrollkästchen „Skripts deaktivieren“ aktivieren und auf „Übernehmen“ klicken, werden alle Skripts in der Region zeitweilig deaktiviert. Dieser Schritt ist eventuell notwendig, damit Sie an die Position des gemeldeten „Top-Skripts“ reisen können. Sobald Sie dort angekommen sind, sollten Sie das Skript auf die Ursache des Problems hin untersuchen. Möglicherweise müssen Sie sich an den Skript-Eigentümer wenden oder das Objekt löschen bzw. zurückgeben. Um die Skripte in der Region wieder zu aktivieren, deaktivieren Sie „Skript deaktivieren“ und klicken Sie auf „Übernehmen“.
 
@@ -1704,7 +1704,7 @@ Standard: deaktiviert
 	</notification>
 	<notification label="Kollisionen deaktivieren" name="HelpRegionDisableCollisions">
 		Schlechte Sim-Performance ist oftmals auf physische Objekte zurückzuführen.
-Öffnen Sie die Statistikleiste (Strg-Umschalt-1). Sehen Sie sich den Wert „Simulator Physics FPS“ an. Liegt dieser unter 45, öffnen Sie unten in der Statistikleiste den „Time“-Bereich. Liegt die „Sim Time (Physics)“ bei 20 ms oder darüber, klicken Sie auf „Top-Kollisionsobjekte“.
+Öffnen Sie die Statistikleiste (Strg+Umschalt+1). Sehen Sie sich den Wert „Simulator Physics FPS“ an. Liegt dieser unter 45, öffnen Sie unten in der Statistikleiste den „Time“-Bereich. Liegt die „Sim Time (Physics)“ bei 20 ms oder darüber, klicken Sie auf „Top-Kollisionsobjekte“.
 Der Name und der Standort der physischen Objekte, die das Problem verursachen, werden angezeigt.
 
 Wenn Sie das Kontrollkästchen „Kollisionen deaktivieren“ aktivieren und auf „Übernehmen“ klicken, werden alle Objekt-Objekt-Kollisionen in der Region zeitweilig deaktiviert. Dieser Schritt ist eventuell notwendig, damit Sie an die Position des gemeldeten „Top-Kollisionsobjekts“ reisen können. Überprüfen Sie das Objekt an der angegebenen Position.
@@ -2849,7 +2849,7 @@ Ein flexibles Objekt ist ein Phantom und nicht physisch, bis die Option „Flexi
 	<notification name="FirstDebugMenus">
 		Sie haben das Advanced-Menü aktiviert.
 Dieses Menü enthält nützliche Funktionen zum Debuggen von [SECOND_LIFE].
-Drücken Sie in Windows Strg-Alt-D (Mac: Befehl-Opt-Umschalt-D) zum Ein- und Ausschalten dieses Menüs.
+Drücken Sie in Windows Strg+Alt+D (Mac: &#8997;&#8984;D) zum Ein- und Ausschalten dieses Menüs.
 	</notification>
 	<notification name="FirstSculptedPrim">
 		Sie bearbeiten ein geformtes Primitiv.

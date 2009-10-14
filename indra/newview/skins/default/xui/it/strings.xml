@@ -484,16 +484,16 @@
 		Scegli la cartella
 	</string>
 	<string name="accel-mac-control">
-		Ctrl-
+		&#8963;
 	</string>
 	<string name="accel-mac-command">
-		Cmd-
+		&#8984;
 	</string>
 	<string name="accel-mac-option">
-		Opt-
+		&#8997;
 	</string>
 	<string name="accel-mac-shift">
-		Shift-
+		&#8679;
 	</string>
 	<string name="accel-win-control">
 		Ctrl+

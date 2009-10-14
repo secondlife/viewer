@@ -1682,7 +1682,7 @@ Si cette option est cochée, les propriétaires sont libres de revendre leur par
 Valeur par défaut : désactivé
 	</notification>
 	<notification label="Désactiver les scripts" name="HelpRegionDisableScripts">
-		Lorsque la performance d&apos;une région est faible, cela peut venir d&apos;un script. Ouvrez la section Statistiques (Ctrl-Maj-1) et vérifiez le FPS Physique (Physics FPS) de la section Simulateur.
+		Lorsque la performance d&apos;une région est faible, cela peut venir d&apos;un script. Ouvrez la section Statistiques (Ctrl+Maj+1) et vérifiez le FPS Physique (Physics FPS) de la section Simulateur.
 Si le FPS est en dessous de 45, ouvrez la section Time située en fin de liste. Si le Script Time est au dessus de 25ms, cliquez sur le bouton Afficher les objets scriptés les plus consommateurs. Vous verrez le nom et l&apos;emplacement des scripts éventuellement à l&apos;origine du problème.
 
 Si vous cochez la case Désactiver les scripts et que vous appuyez sur Appliquer, tous les scripts de cette région seront temporairement désactivés. Vous devrez peut-être faire cela le temps d&apos;arriver à l&apos;endroit su script en cause. Une fois sur place, assurez-vous que le script est bien à l&apos;origine du problème. Pour cela, vous devrez peut-être contacter le propriétaire du script ou bien supprimer ou renvoyer l&apos;objet.
@@ -1692,7 +1692,7 @@ Valeur par défaut : désactivé
 	</notification>
 	<notification label="Désactiver les collisions" name="HelpRegionDisableCollisions">
 		Des objets physiques peuvent fortement réduire les performances d&apos;une région.
-Ouvrez la barre de statistiques (Ctrl-Maj-1) et vérifiez le FPS Physique (Physics FPS) de la section Simulateur.
+Ouvrez la barre de statistiques (Ctrl+Maj+1) et vérifiez le FPS Physique (Physics FPS) de la section Simulateur.
 Si le FPS est en dessous de 45, ouvrez la section Time située en fin de liste. Si le Script Time est au dessus de 25ms, cliquez sur le bouton Afficher les collisions les plus consommatrices.
 Vous verrez le nom et l&apos;emplacement des objets physiques éventuellement à l&apos;origine du problème.
 
@@ -2842,7 +2842,7 @@ Les objets flexibles ne peuvent pas avoir de propriétés physiques et doivent r
 	<notification name="FirstDebugMenus">
 		Vous avez activé le menu Avancé.
 Ce menu contient des fonctionnalités utiles pour les développeurs qui travaillent sur [SECOND_LIFE].
-Pour activer/désactiver ce menu sous Windows, appuyez sur Ctrl-Alt-D. Sur un Mac, appuyez sur &#8984;-Opt-Maj-D
+Pour activer/désactiver ce menu sous Windows, appuyez sur Ctrl+Alt+D. Sur un Mac, appuyez sur &#8997;&#8984;D
 	</notification>
 	<notification name="FirstSculptedPrim">
 		Vous êtes en train d&apos;éditer un sculptie.

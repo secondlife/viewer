@@ -3756,7 +3756,7 @@ Default: Disallow
    label="Disable Scripts"
    name="HelpRegionDisableScripts"
    type="alertmodal">
-When sim performance is poor, a script may be to blame. Open the Statistics Bar (Ctrl-Shift-1). Look at the Simulator Physics FPS.
+When sim performance is poor, a script may be to blame. Open the Statistics Bar (Ctrl+Shift+1). Look at the Simulator Physics FPS.
 If it is lower than 45,  open the Time panel located at the bottom of the Stats Bar. If Script Time reads 25 ms or higher, click the Get Top Scripts button. You will be given the name and location of scripts that may be causing poor performance.
 
 Checking the Disable Scripts box and then pressing the Apply button will temporarily disable all scripts in this region. You may need to do this in order to travel to the location of a noted &apos;top script&apos;. Once you have arrived at the location, investigate the script to determine if it is causing the problem. You may want to contact the owner of the script or delete or return the object.
@@ -3771,7 +3771,7 @@ Default: off
    name="HelpRegionDisableCollisions"
    type="alertmodal">
 When sim performance is poor, physical objects may be to blame.
-Open the Statistics Bar (Ctrl-Shift-1). Look at the Simulator Physics FPS.  If it is lower than 45, open the Time panel located at the bottom of the Stats Bar. If Sim Time (Physics) reads 20 ms or higher, click the Get Top Colliders button.
+Open the Statistics Bar (Ctrl+Shift+1). Look at the Simulator Physics FPS.  If it is lower than 45, open the Time panel located at the bottom of the Stats Bar. If Sim Time (Physics) reads 20 ms or higher, click the Get Top Colliders button.
 You will be given the name and location of physical objects that may be causing poor performance.
 
 Checking the Disable Collisions box and then pressing the Apply button will temporarily disable object-object collisions. You may need to do this in order to travel to the location of a noted &apos;top collider&apos;. Once you have arrived at the location, investigate the object - is it constantly colliding with other objects? You may want to contact the owner of the object or delete or return the object.
@@ -6212,8 +6212,8 @@ This object is flexible. Flexis must be phantom and not physical.
 You opened the Advanced menu.
 
 To toggle this menu,
-  Windows: Ctrl-Alt-D
-  Mac: &#8984;-Opt-D
+  Windows: Ctrl+Alt+D
+  Mac: &#8997;&#8984;D
 
   </notification>
 

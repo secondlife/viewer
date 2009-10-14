@@ -1760,7 +1760,7 @@ Si se marca esta opción, los compradores podrán revender el terreno que compre
 Por defecto: Deshabilitado
 	</notification>
 	<notification label="Desactivar los scripts" name="HelpRegionDisableScripts">
-		Cuando el rendimiento de un sim es pobre, el culpable puede ser un script. Abra Estadísticas (Ctrl-May-1). Mire Simulator Physics FPS. Si es menor de 45, abre el panel Time, en la parte inferior de las Estadísticas. Si ve que Script Time está en 25 ms o más alto, pulse el botón Listar los scripts según su uso, y verá el nombre y la posición de los scripts que pueden estar causando el bajo rendimiento.
+		Cuando el rendimiento de un sim es pobre, el culpable puede ser un script. Abra Estadísticas (Ctrl+May+1). Mire Simulator Physics FPS. Si es menor de 45, abre el panel Time, en la parte inferior de las Estadísticas. Si ve que Script Time está en 25 ms o más alto, pulse el botón Listar los scripts según su uso, y verá el nombre y la posición de los scripts que pueden estar causando el bajo rendimiento.
 
 Marcando la casilla Desactivar los scripts y pulsando el botón Aplicar, se desactivarán temporalmente en esta región todos los scripts.
 Debe hacer esto para viajar a la posición que ha visto en la Lista de scripts según su uso. Cuando llegue, investigue el script para determinar si es él quien causa el problema. Deberá contactar con el propietario del script, o borrar o devolver el objeto.
@@ -1769,7 +1769,7 @@ Desmarque la casilla Desactivar los scripts y pulse Aplicar para reactivar los s
 Por defecto: off
 	</notification>
 	<notification label="Desactivar las colisiones" name="HelpRegionDisableCollisions">
-		Cuando el rendimiento de un sim es pobre, la culpa puede estar en los objetos físicos. Abra Estadísticas (Ctrl-May-1). Mire Simulator Physics FPS. Si es menor de 45, abre el panel Time, en la parte inferior de las Estadísticas. Si ve que Sim Time (Physics) está en 20 ms o más alto, pulse el botón Listar los objetos que colisionan, y verá el nombre y la posición de los objetos que pueden estar causando el bajo rendimiento.
+		Cuando el rendimiento de un sim es pobre, la culpa puede estar en los objetos físicos. Abra Estadísticas (Ctrl+May+1). Mire Simulator Physics FPS. Si es menor de 45, abre el panel Time, en la parte inferior de las Estadísticas. Si ve que Sim Time (Physics) está en 20 ms o más alto, pulse el botón Listar los objetos que colisionan, y verá el nombre y la posición de los objetos que pueden estar causando el bajo rendimiento.
 
 Marcando la casilla Desactivar las colisiones y pulsando el botón Aplicar, se desactivarán temporalmente las colisiones entre objetos.
 Debe hacer esto para viajar a la localización que se ha avisado en la Lista de objetos que colisionan. Cuando llegue, investigue el objeto:
@@ -2917,7 +2917,7 @@ Los objetos flexibles no pueden ser materiales, y serán inmateriales hasta que 
 	<notification name="FirstDebugMenus">
 		Ha activado el menú Avanzado.
 Contiene herramientas útiles para los desarrolladores que trabajan mejorando [SECOND_LIFE].
-Para pasar este menú a una ventana, pulse Ctrl-Alt-D. En un Mac, pulse &#8984;-Opt-D.
+Para pasar este menú a una ventana, pulse Ctrl+Alt+D. En un Mac, pulse &#8997;&#8984;D.
 	</notification>
 	<notification name="FirstSculptedPrim">
 		Está editando un prim &apos;sculpted&apos;.

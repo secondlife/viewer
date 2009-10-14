@@ -1079,7 +1079,7 @@ Fleksible genstande er ikke fysiske og man kan gå igennem dem, indtil fleksibel
 	<notification name="FirstDebugMenus">
 		Du har sat avanceret menu til.
 Denne menu indeholder funktioner brugbare for udviklere, der udbedrer fejl i [SECOND_LIFE].
-For at vise denne menu, skal man i Windows trykke Ctrl-Alt-D. På Mac tryk &#8984;-Opt-Shift-D.
+For at vise denne menu, skal man i Windows trykke Ctrl+Alt+D. På Mac tryk &#8997;&#8984;D.
 	</notification>
 	<notification name="FirstSculptedPrim">
 		Du retter en sculpted prim.

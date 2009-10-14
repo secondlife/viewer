@@ -488,16 +488,16 @@
 		Verzeichnis auswählen
 	</string>
 	<string name="accel-mac-control">
-		Strg-
+		&#8963;
 	</string>
 	<string name="accel-mac-command">
-		Cmd-
+		&#8984;
 	</string>
 	<string name="accel-mac-option">
-		Opt-
+		&#8997;
 	</string>
 	<string name="accel-mac-shift">
-		Umschalt-
+		&#8679;
 	</string>
 	<string name="accel-win-control">
 		Strg+
