@@ -1013,33 +1013,28 @@ LLFloaterIMPanel::LLFloaterIMPanel(const std::string& session_label,
 				       (void *)this);
 	}
 
-	if ( !mSessionInitialized )
+	//*TODO we probably need the same "awaiting message" thing in LLIMFloater
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(mSessionUUID);
+	if (!im_session)
 	{
-		if ( !LLIMModel::instance().sendStartSession(
-				 mSessionUUID,
-				 mOtherParticipantUUID,
-				 mSessionInitialTargetIDs,
-				 mDialog) )
-		{
-			//we don't need to need to wait for any responses
-			//so we're already initialized
-			mSessionInitialized = TRUE;
-			mSessionStartMsgPos = 0;
-		}
-		else
-		{
-			//locally echo a little "starting session" message
-			LLUIString session_start = sSessionStartString;
+		llerror("im session with id " + mSessionUUID.asString() + " does not exist!", 0);
+		return;
+	}
 
-			session_start.setArg("[NAME]", getTitle());
-			mSessionStartMsgPos = 
-				mHistoryEditor->getWText().length();
+	mSessionInitialized =  im_session->mSessionInitialized;
+	if (!mSessionInitialized)
+	{
+		//locally echo a little "starting session" message
+		LLUIString session_start = sSessionStartString;
 
-			addHistoryLine(
-				session_start,
-				LLUIColorTable::instance().getColor("SystemChatColor"),
-				false);
-		}
+		session_start.setArg("[NAME]", getTitle());
+		mSessionStartMsgPos = 
+			mHistoryEditor->getWText().length();
+
+		addHistoryLine(
+			session_start,
+			LLUIColorTable::instance().getColor("SystemChatColor"),
+			false);
 	}
 }
 
@@ -1345,25 +1340,6 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 	}
 	mHistoryEditor->appendText(utf8msg, prepend_newline, LLStyle::Params().color(color));
 	mHistoryEditor->blockUndo();
-
-	S32 im_log_option =  gSavedPerAccountSettings.getS32("IMLogOptions");
-	if (log_to_file && (im_log_option!=LOG_CHAT))
-	{
-		std::string histstr;
-		if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
-			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + name + separator_string + utf8msg;
-		else
-			histstr = name + separator_string + utf8msg;
-
-		if(im_log_option==LOG_BOTH_TOGETHER)
-		{
-			LLLogChat::saveHistory(std::string("chat"),histstr);
-		}
-		else
-		{
-			LLLogChat::saveHistory(getTitle(),histstr);
-		}
-	}
 
 	if (!isInVisibleChain())
 	{

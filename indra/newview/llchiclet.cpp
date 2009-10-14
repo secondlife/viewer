@@ -763,15 +763,14 @@ bool LLChicletPanel::addChiclet(LLChiclet* chiclet, S32 index)
 	if(mScrollArea->addChild(chiclet))
 	{
 		S32 offset = 0;
-		// Do not scroll chiclets if chiclets are scrolled right and new
-		// chiclet is added to the beginning of the list
-		if(canScrollLeft())
+
+		// if index == 0 and chickelt list isn't empty insert chiclet before first in the list
+		// without scrolling, so other visible chicklets aren't change screen position
+		if (0 == index && !mChicletList.empty())
 		{
-			offset = - (chiclet->getRequiredRect().getWidth() + getChicletPadding());
-			if(0 == index)
-			{
-				offset += getChiclet(0)->getRect().mLeft;
-			}
+			offset = getChiclet(0)->getRect().mLeft
+					- (chiclet->getRequiredRect().getWidth()
+							+ getChicletPadding());
 		}
 
 		mChicletList.insert(mChicletList.begin() + index, chiclet);
@@ -1126,6 +1125,25 @@ BOOL LLChicletPanel::handleScrollWheel(S32 x, S32 y, S32 clicks)
 		scrollLeft();
 	}
 	return TRUE;
+}
+
+bool LLChicletPanel::isAnyIMFloaterDoked()
+{
+	bool res = false;
+	for (chiclet_list_t::iterator it = mChicletList.begin(); it
+			!= mChicletList.end(); it++)
+	{
+		LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>(
+				"impanel", (*it)->getSessionId());
+		if (im_floater != NULL && im_floater->getVisible()
+				&& !im_floater->isMinimized() && im_floater->isDocked())
+		{
+			res = true;
+			break;
+		}
+	}
+
+	return res;
 }
 
 //////////////////////////////////////////////////////////////////////////

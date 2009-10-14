@@ -47,7 +47,7 @@
      top="4"
      use_ellipses="true" 
      value="Unknown"
-     width="180" />
+     width="162" />
     <text
      follows="right"
      font="SansSerif"
@@ -82,6 +82,21 @@
      layout="topleft"
      left_pad="2"
      name="info_btn"
+     picture_style="true"
+     top="2"
+     width="18" />
+    <button
+     follows="right"
+     font="SansSerifBigBold"
+     height="18"
+     image_disabled="profile_chevron_btn.tga"
+     image_disabled_selected="profile_chevron_btn.tga"
+     image_hover_selected="profile_chevron_btn_active.tga"
+     image_selected="profile_chevron_btn_active.tga"
+     image_unselected="profile_chevron_btn.tga"
+     layout="topleft"
+     left_pad="2"
+     name="profile_btn"
      picture_style="true"
      top="2"
      width="18" />

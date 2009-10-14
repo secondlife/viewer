@@ -66,6 +66,7 @@ public:
 	const std::string getAvatarName() const;
 
 	void onInfoBtnClick();
+	void onProfileBtnClick();
 
 	void showSpeakingIndicator(bool show) { mSpeakingIndicator->setVisible(show); }
 	void showInfoBtn(bool show_info_btn) {mInfoBtn->setVisible(show_info_btn); }
@@ -82,6 +83,7 @@ private:
 	
 	LLOutputMonitorCtrl* mSpeakingIndicator;
 	LLButton* mInfoBtn;
+	LLButton* mProfileBtn;
 	ContextMenu* mContextMenu;
 
 	LLUUID mAvatarId;

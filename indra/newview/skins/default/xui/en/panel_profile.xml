@@ -10,7 +10,8 @@
  width="313">
     <string
      name="CaptionTextAcctInfo">
-        [ACCTTYPE] [PAYMENTINFO] [AGEVERIFICATION]
+        [ACCTTYPE] 
+[PAYMENTINFO] [AGEVERIFICATION]
     </string>
     <string
      name="payment_update_link_url">
@@ -198,7 +199,7 @@
          width="100"/> -->
         <text
          follows="left|top"
-         height="15"
+         height="20"
          layout="topleft"
          left="10"
          name="acc_status_text"

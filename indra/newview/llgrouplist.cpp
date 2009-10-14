@@ -315,7 +315,7 @@ void LLGroupListItem::setActive(bool active)
 	// rebuild the text.  This will cause problems if the text contains
 	// hyperlinks, as their styles will be wrong.
 	std::string text = mGroupNameBox->getText();
-	mGroupNameBox->clear();
+	mGroupNameBox->setText(LLStringUtil::null);// *HACK: replace with clear() when it's fixed.
 	mGroupNameBox->appendText(text, false, style_params);
 }
 

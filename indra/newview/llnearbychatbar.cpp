@@ -192,7 +192,7 @@ BOOL LLNearbyChatBar::postBuild()
 	mChatBox->setKeystrokeCallback(&onChatBoxKeystroke, this);
 	mChatBox->setFocusLostCallback(boost::bind(&onChatBoxFocusLost, _1, this));
 
-	mChatBox->setIgnoreArrowKeys(TRUE);
+	mChatBox->setIgnoreArrowKeys( FALSE ); 
 	mChatBox->setCommitOnFocusLost( FALSE );
 	mChatBox->setRevertOnEsc( FALSE );
 	mChatBox->setIgnoreTab(TRUE);

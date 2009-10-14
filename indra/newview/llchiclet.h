@@ -752,6 +752,8 @@ protected:
 
 	S32 getScrollingOffset() { return mScrollingOffset; }
 
+	bool isAnyIMFloaterDoked();
+
 protected:
 
 	chiclet_list_t mChicletList;
@@ -818,7 +820,10 @@ T* LLChicletPanel::createChiclet(const LLUUID& session_id /*= LLUUID::null*/, S3
 		return NULL;
 	}
 
-	scrollToChiclet(chiclet);
+	if (!isAnyIMFloaterDoked())
+	{
+		scrollToChiclet(chiclet);
+	}
 
 	chiclet->setSessionId(session_id);
 

@@ -39,7 +39,6 @@
 #include "llavataractions.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
-#include "lldateutil.h"		// ageFromDate()
 #include "llfloaterreporter.h"
 #include "llfloaterworldmap.h"
 #include "llmutelist.h"
@@ -359,7 +358,7 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 {
 	LLStringUtil::format_map_t args;
 	args["[BORN_ON]"] = data->born_on;
-	args["[AGE]"] = LLDateUtil::ageFromDate(data->born_on);
+	args["[AGE]"] = data->born_on;
 	args["[SL_PROFILE]"] = data->about_text;
 	args["[RW_PROFILE"] = data->fl_about_text;
 	args["[ACCTTYPE]"] = LLAvatarPropertiesProcessor::accountType(data);
