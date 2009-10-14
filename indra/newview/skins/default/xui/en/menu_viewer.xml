@@ -1203,6 +1203,17 @@
                  function="Floater.Toggle"
                  parameter="stats" />
             </menu_item_check>
+      <menu_item_check
+        label="Show Avatar Rendering Cost"
+        layout="topleft"
+        name="Avatar Rendering Cost">
+           <menu_item_check.on_check
+            function="Advanced.CheckInfoDisplay"
+            parameter="shame" />
+           <menu_item_check.on_click
+            function="Advanced.ToggleInfoDisplay"
+            parameter="shame" />
+       </menu_item_check>
         </menu>
         <menu
          create_jump_keys="true"
@@ -1295,7 +1306,7 @@
                  function="View.CheckShowHoverTips" />
             </menu_item_check>
  <!--           <menu_item_check
-             label="Tips On All Objects"
+             label="Show Tips On All Objects"
              layout="topleft"
              name="Tips On All Objects">
                 <menu_item_check.on_check
@@ -1307,29 +1318,9 @@
                  function="View.CheckShowHoverTips" />
             </menu_item_check>
         </menu>-->
-      <menu_item_check
-        label="Show Avatar Rendering Cost"
-        layout="topleft"
-        name="Avatar Rendering Cost">
-           <menu_item_check.on_check
-            function="Advanced.CheckInfoDisplay"
-            parameter="shame" />
-           <menu_item_check.on_click
-            function="Advanced.ToggleInfoDisplay"
-            parameter="shame" />
-       </menu_item_check>
+
         </menu>
-        <menu_item_check
-         label="Run Multiple Threads"
-         layout="topleft"
-         name="Run Multiple Threads">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="RunMultipleThreads" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="RunMultipleThreads" />
-        </menu_item_check>
+
         <menu
          create_jump_keys="true"
          label="Rendering Types"
@@ -1596,6 +1587,17 @@
                  parameter="flexible" />
             </menu_item_check>
         </menu>
+        <menu_item_check
+         label="Run Multiple Threads"
+         layout="topleft"
+         name="Run Multiple Threads">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="RunMultipleThreads" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="RunMultipleThreads" />
+        </menu_item_check>
         <menu_item_call
          label="Clear Group Cache"
          layout="topleft"
@@ -2099,6 +2101,189 @@
       </menu>
         <menu
          create_jump_keys="true"
+         label="Rendering"
+         layout="topleft"
+         name="Rendering"
+         tear_off="true">
+            <menu_item_check
+             label="Axes"
+             name="Axes">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="ShowAxes" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="ShowAxes" />
+            </menu_item_check>
+            <menu_item_check
+             label="Tangent Basis"
+             name="Tangent Basis">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="ShowTangentBasis" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="ShowTangentBasis" />
+            </menu_item_check>
+            <menu_item_call
+             label="Selected Texture Info Basis"
+             name="Selected Texture Info Basis"
+             shortcut="control|alt|shift|T">
+                <menu_item_call.on_click
+                 function="Advanced.SelectedTextureInfo" />
+            </menu_item_call>
+            <menu_item_check
+             label="Wireframe"
+             name="Wireframe"
+             shortcut="control|shift|R">
+                <menu_item_check.on_check
+                 function="Advanced.CheckWireframe"
+                 parameter="Wireframe" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleWireframe" />
+            </menu_item_check>
+            <menu_item_check
+             label="Object-Object Occlusion"
+             name="Object-Object Occlusion"
+             shortcut="control|shift|O">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="UseOcclusion" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="UseOcclusion" />
+                <menu_item_check.on_enable
+                 function="Advanced.EnableObjectObjectOcclusion" />
+            </menu_item_check>
+          <menu_item_check
+             label="Framebuffer Objects"
+             name="Framebuffer Objects">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="RenderUseFBO" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="RenderUseFBO" />
+            <menu_item_check.on_enable
+                 function="Advanced.EnableRenderFBO" />
+           </menu_item_check>
+          <menu_item_check
+                       label="Deferred Rendering"
+                       name="Deferred Rendering">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="RenderDeferred" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="RenderDeferred" />
+            <menu_item_check.on_enable
+                 function="Advanced.EnableRenderDeferred" />
+          </menu_item_check>
+          <menu_item_check
+                   label="Global Illumintation"
+                   name="Global Illumination">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="RenderDeferredGI" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="RenderDeferredGI" />
+            <menu_item_check.on_enable
+                 function="Advanced.EnableRenderDeferredGI" />
+          </menu_item_check>
+          <menu_item_separator />
+          <menu_item_check
+             label="Debug GL"
+             name="Debug GL">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="RenderDebugGL" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="RenderDebugGL" />
+            </menu_item_check>
+            <menu_item_check
+             label="Debug Pipeline"
+             name="Debug Pipeline">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="RenderDebugGL" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="RenderDebugGL" />
+            </menu_item_check>
+            <menu_item_check
+             label="Fast Alpha"
+             name="Fast Alpha">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="RenderDebugGL" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="RenderDebugGL" />
+            </menu_item_check>
+            <menu_item_check
+             label="Animation Textures"
+             name="Animation Textures">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="RenderDebugGL" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="RenderDebugGL" />
+            </menu_item_check>
+            <menu_item_check
+             label="Disable Textures"
+             name="Disable Textures">
+                <menu_item_check.on_check
+                 function="Advanced.CheckDisableTextures"
+                 parameter="DisableTextures" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleDisableTextures" />
+            </menu_item_check>
+            <menu_item_check
+             label="Texture Atlas"
+             name="Texture Atlas">
+              <menu_item_check.on_check
+               function="Advanced.CheckTextureAtlas"
+               parameter="TextureAtlas" />
+              <menu_item_check.on_click
+               function="Advanced.ToggleTextureAtlas" />
+            </menu_item_check>
+              <menu_item_check
+             label="Render Attached Lights"
+             name="Render Attached Lights">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="RenderAttachedLights" />
+                <menu_item_check.on_click
+                 function="Advanced.HandleAttchedLightParticles"
+                 parameter="RenderAttachedLights" />
+            </menu_item_check>
+            <menu_item_check
+             label="Render Attached Particles"
+             name="Render Attached Particles">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="RenderAttachedParticles" />
+                <menu_item_check.on_click
+                 function="Advanced.HandleAttchedLightParticles"
+                 parameter="RenderAttachedParticles" />
+            </menu_item_check>
+            <menu_item_check
+             label="Hover Highlight Objects"
+             name="Hover Highlight Objects">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="RenderHighlightEnable" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="RenderHighlightEnable" />
+            </menu_item_check>
+        </menu>
+
+        <menu
+         create_jump_keys="true"
          label="Network"
          layout="topleft"
          name="Network"
@@ -2378,12 +2563,12 @@
              layout="topleft" />
             <menu
              create_jump_keys="true"
-             label="Select Tool"
+             label="Select Build Tool"
              layout="topleft"
              name="Select Tool"
              tear_off="true">
                 <menu_item_call
-                 label="Focus"
+                 label="Focus Tool"
                  layout="topleft"
                  name="Focus"
                  shortcut="control|1">
@@ -2392,7 +2577,7 @@
                      parameter="focus" />
                 </menu_item_call>
                 <menu_item_call
-                 label="Move"
+                 label="Move Tool"
                  layout="topleft"
                  name="Move"
                  shortcut="control|2">
@@ -2401,7 +2586,7 @@
                      parameter="move" />
                 </menu_item_call>
                 <menu_item_call
-                 label="Edit"
+                 label="Edit Tool"
                  layout="topleft"
                  name="Edit"
                  shortcut="control|3">
@@ -2410,7 +2595,7 @@
                      parameter="edit" />
                 </menu_item_call>
                 <menu_item_call
-                 label="Create"
+                 label="Create Tool"
                  layout="topleft"
                  name="Create"
                  shortcut="control|4">
@@ -2419,7 +2604,7 @@
                      parameter="create" />
                 </menu_item_call>
                 <menu_item_call
-                 label="Land"
+                 label="Land Tool"
                  layout="topleft"
                  name="Land"
                  shortcut="control|5">
@@ -2460,193 +2645,13 @@
              label="Toggle Fullscreen"
              layout="topleft"
              name="Toggle Fullscreen"
-             shortcut="alt|Enter">
+             >
+               <!-- Note: shortcut="alt|Enter" was deleted from the preceding node-->
                 <menu_item_call.on_click
                  function="View.Fullscreen" />
             </menu_item_call>
         </menu>
-        <menu
-         create_jump_keys="true"
-         label="Rendering"
-         layout="topleft"
-         name="Rendering"
-         tear_off="true">
-            <menu_item_check
-             label="Axes"
-             name="Axes">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="ShowAxes" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="ShowAxes" />
-            </menu_item_check>
-            <menu_item_check
-             label="Tangent Basis"
-             name="Tangent Basis">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="ShowTangentBasis" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="ShowTangentBasis" />
-            </menu_item_check>
-            <menu_item_call
-             label="Selected Texture Info Basis"
-             name="Selected Texture Info Basis"
-             shortcut="control|alt|shift|T">
-                <menu_item_call.on_click
-                 function="Advanced.SelectedTextureInfo" />
-            </menu_item_call>
-            <menu_item_check
-             label="Wireframe"
-             name="Wireframe"
-             shortcut="control|shift|R">
-                <menu_item_check.on_check
-                 function="Advanced.CheckWireframe"
-                 parameter="Wireframe" />
-                <menu_item_check.on_click
-                 function="Advanced.ToggleWireframe" />
-            </menu_item_check>
-            <menu_item_check
-             label="Object-Object Occlusion"
-             name="Object-Object Occlusion"
-             shortcut="control|shift|O">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="UseOcclusion" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="UseOcclusion" />
-                <menu_item_check.on_enable
-                 function="Advanced.EnableObjectObjectOcclusion" />
-            </menu_item_check>
-          <menu_item_check
-             label="Framebuffer Objects"
-             name="Framebuffer Objects">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="RenderUseFBO" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="RenderUseFBO" />
-            <menu_item_check.on_enable
-                 function="Advanced.EnableRenderFBO" />
-           </menu_item_check>
-          <menu_item_check
-                       label="Deferred Rendering"
-                       name="Deferred Rendering">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="RenderDeferred" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="RenderDeferred" />
-            <menu_item_check.on_enable
-                 function="Advanced.EnableRenderDeferred" />
-          </menu_item_check>
-          <menu_item_check
-                   label="Global Illumintation"
-                   name="Global Illumination">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="RenderDeferredGI" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="RenderDeferredGI" />
-            <menu_item_check.on_enable
-                 function="Advanced.EnableRenderDeferredGI" />
-          </menu_item_check>
-          <menu_item_separator />
-          <menu_item_check
-             label="Debug GL"
-             name="Debug GL">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="RenderDebugGL" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="RenderDebugGL" />
-            </menu_item_check>
-            <menu_item_check
-             label="Debug Pipeline"
-             name="Debug Pipeline">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="RenderDebugGL" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="RenderDebugGL" />
-            </menu_item_check>
-            <menu_item_check
-             label="Fast Alpha"
-             name="Fast Alpha">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="RenderDebugGL" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="RenderDebugGL" />
-            </menu_item_check>
-            <menu_item_check
-             label="Animation Textures"
-             name="Animation Textures">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="RenderDebugGL" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="RenderDebugGL" />
-            </menu_item_check>
-            <menu_item_check
-             label="Disable Textures"
-             name="Disable Textures">
-                <menu_item_check.on_check
-                 function="Advanced.CheckDisableTextures"
-                 parameter="DisableTextures" />
-                <menu_item_check.on_click
-                 function="Advanced.ToggleDisableTextures" />
-            </menu_item_check>
-            <menu_item_check
-             label="Texture Atlas"
-             name="Texture Atlas">
-              <menu_item_check.on_check
-               function="Advanced.CheckTextureAtlas"
-               parameter="TextureAtlas" />
-              <menu_item_check.on_click
-               function="Advanced.ToggleTextureAtlas" />
-            </menu_item_check>
-              <menu_item_check
-             label="Render Attached Lights"
-             name="Render Attached Lights">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="RenderAttachedLights" />
-                <menu_item_check.on_click
-                 function="Advanced.HandleAttchedLightParticles"
-                 parameter="RenderAttachedLights" />
-            </menu_item_check>
-            <menu_item_check
-             label="Render Attached Particles"
-             name="Render Attached Particles">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="RenderAttachedParticles" />
-                <menu_item_check.on_click
-                 function="Advanced.HandleAttchedLightParticles"
-                 parameter="RenderAttachedParticles" />
-            </menu_item_check>
-            <menu_item_check
-             label="Hover Highlight Objects"
-             name="Hover Highlight Objects">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="RenderHighlightEnable" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="RenderHighlightEnable" />
-            </menu_item_check>
-        </menu>
+
         <menu
          create_jump_keys="true"
          label="World"
@@ -3193,7 +3198,7 @@
              function="Advanced.CompressImage" />
         </menu_item_call>
         <menu_item_check
-         label="Console Window"
+         label="Debug Console in a Separate Window"
          layout="topleft"
          name="Console Window">
             <menu_item_check.on_check
@@ -3203,6 +3208,8 @@
              function="ToggleControl"
              parameter="ShowConsoleWindow" />
         </menu_item_check>
+        <menu_item_separator
+         layout="topleft" />
         <menu_item_check
          label="Show Admin Menu"
          layout="topleft"

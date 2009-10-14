@@ -178,7 +178,7 @@
       </menu>
       <menu_item_separator />
       <menu_item_call
-         label="Debug Settings editor"
+         label="Show Debug Settings"
          layout="topleft"
          name="Debug Settings">
             <menu_item_call.on_click
