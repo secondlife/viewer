@@ -2605,12 +2605,17 @@ void LLViewerWindow::updateUI()
 				{
 					it.skipDescendants();
 				}
-				// only report xui names for LLUICtrls, not the various container LLViews
-				else if (dynamic_cast<LLUICtrl*>(viewp)) 
+				// only report xui names for LLUICtrls, 
+				// and blacklist the various containers we don't care about
+				else if (dynamic_cast<LLUICtrl*>(viewp) 
+						&& viewp != gMenuHolder
+						&& viewp != gFloaterView
+						&& viewp != gNotifyBoxView
+						&& viewp != gConsole) 
 				{
-					if (dynamic_cast<LLPanel*>(viewp))
+					if (dynamic_cast<LLFloater*>(viewp))
 					{
-						// constrain search to descendants of this panel
+						// constrain search to descendants of this (frontmost) floater
 						// by resetting iterator
 						it = viewp->beginTreeDFS();
 					}
