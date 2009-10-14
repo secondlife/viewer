@@ -706,7 +706,6 @@ void LLParcel::packMessage(LLSD& msg)
 	msg["category"] = (U8)mCategory;
 	msg["auth_buyer_id"] = mAuthBuyerID;
 	msg["snapshot_id"] = mSnapshotID;
-	msg["snapshot_id"] = mSnapshotID;
 	msg["user_location"] = ll_sd_from_vector3(mUserLocation);
 	msg["user_look_at"] = ll_sd_from_vector3(mUserLookAt);
 	msg["landing_type"] = (U8)mLandingType;

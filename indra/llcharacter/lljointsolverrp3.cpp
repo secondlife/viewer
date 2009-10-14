@@ -211,7 +211,7 @@ void LLJointSolverRP3::solve()
 	//-------------------------------------------------------------------------
 	LLVector3 abacCompOrthoVec = abVec - acVec * ((abVec * acVec)/(acVec * acVec));
 
-//	llinfos << "abacCompOrthoVec : " << abacCompOrthoVec << llendl
+//	llinfos << "abacCompOrthoVec : " << abacCompOrthoVec << llendl;
 
 	//-------------------------------------------------------------------------
 	// compute the normal of the original ABC plane (and store for later)

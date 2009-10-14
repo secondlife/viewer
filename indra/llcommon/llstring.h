@@ -34,6 +34,7 @@
 #define LL_LLSTRING_H
 
 #include <string>
+#include <cstdio>
 #include <locale>
 #include <iomanip>
 #include "llsd.h"

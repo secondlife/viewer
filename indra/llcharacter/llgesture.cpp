@@ -304,7 +304,7 @@ BOOL LLGestureList::trigger(KEY key, MASK mask)
 		}
 		else
 		{
-			llwarns << "NULL gesture in gesture list (" << i << ")" << llendl
+			llwarns << "NULL gesture in gesture list (" << i << ")" << llendl;
 		}
 	}
 	return FALSE;

@@ -688,7 +688,7 @@ static LLCachedControl<std::string> test_BrowserHomePage("BrowserHomePage", "hah
 
 void test_cached_control()
 {
-#define TEST_LLCC(T, V) if((T)mySetting_##T != V) llerrs << "Fail "#T << llendl
+#define do { TEST_LLCC(T, V) if((T)mySetting_##T != V) llerrs << "Fail "#T << llendl; } while(0)
 	TEST_LLCC(U32, 666);
 	TEST_LLCC(S32, (S32)-666);
 	TEST_LLCC(F32, (F32)-666.666);

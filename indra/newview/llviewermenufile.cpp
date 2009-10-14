@@ -219,7 +219,7 @@ const std::string upload_pick(void* data)
 			args["EXTENSION"] = ext;
 			args["VALIDS"] = valid_extensions;
 			LLNotifications::instance().add("InvalidFileExtension", args);
-			return NULL;
+			return std::string();
 		}
 	}//end else (non-null extension)
 

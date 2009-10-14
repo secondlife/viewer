@@ -485,6 +485,20 @@ You do not have enough L$ to join this group.
 
   <notification
    icon="alertmodal.tga"
+   name="CreateGroupCost"
+   type="alertmodal">
+Creating this group will cost L$100.
+Groups need more than one member, or they are deleted forever.
+Please invite members within 48 hours.
+    <usetemplate
+     canceltext="Cancel"
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Create group for L$100"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="LandBuyPass"
    type="alertmodal">
 For L$[COST] you can enter this land (&apos;[PARCEL_NAME]&apos;) for [TIME] hours.  Buy a pass?
@@ -493,7 +507,7 @@ For L$[COST] you can enter this land (&apos;[PARCEL_NAME]&apos;) for [TIME] hour
      notext="Cancel"
      yestext="OK"/>
   </notification>
-
+  
   <notification
    icon="alertmodal.tga"
    name="SalePriceRestriction"
@@ -6486,20 +6500,6 @@ The SLurl you clicked on is not supported.
     <form name="form">
       <button index="0" name="respondbutton" text="Respond"/>
     </form>
-  </notification>
-  
-  <notification
-   icon="alertmodal.tga"
-   name="CreateGroupCost"
-   type="alertmodal">
-Creating this group will cost L$100.
-Groups need more than one member, or they are deleted forever.
-Please invite members within 48 hours.
-    <usetemplate
-     canceltext="Cancel"
-     name="okcancelbuttons"
-     notext="Cancel"
-     yestext="Create group for L$100"/>
   </notification>
 
   <notification icon="notifytip.tga"

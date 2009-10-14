@@ -230,8 +230,10 @@
 	<string name="anim_yes_happy">Yes (Happy)</string>
 	<string name="anim_yes_head">Yes</string>
 	
+	<!-- world map -->
 	<string name="texture_loading">Loading...</string>
 	<string name="worldmap_offline">Offline</string>
+	<string name="worldmap_results_none_found">None found.</string>
 	
 	<!-- animations uploading status codes -->
 	<string name="Ok">OK</string>
@@ -2110,6 +2112,15 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="AddLandmarkNavBarMenu">Add Landmark...</string>	 
 	<string name="EditLandmarkNavBarMenu">Edit Landmark...</string>
 	
+	<!-- menu accelerators -->
+	<string name="accel-mac-control">Ctrl-</string>
+	<string name="accel-mac-command">Cmd-</string>
+	<string name="accel-mac-option">Opt-</string>
+	<string name="accel-mac-shift">Shift-</string>
+	<string name="accel-win-control">Ctrl+</string>
+	<string name="accel-win-alt">Alt+</string>
+	<string name="accel-win-shift">Shift+</string>
+
 	<!-- Previews -->
 	<string name="FileSaved">File Saved</string>	
 	<string name="Receiving">Receiving</string>	
@@ -2225,9 +2236,8 @@ Running in window.
 	<string name="MBPixelFmtErr">Can't find suitable pixel format</string>
 	<string name="MBPixelFmtDescErr">Can't get pixel format description</string>
 	<string name="MBTrueColorWindow">
-		[APP_NAME] requires True Color (32-bit) to run in a window.
-Please go to Control Panels &gt; Display &gt; Settings and set the screen to 32-bit color.
-Alternately, if you choose to run fullscreen, [APP_NAME] will automatically adjust the screen each time it runs.
+		[APP_NAME] requires True Color (32-bit) to run.
+Please go to your computer's display settings and set the color mode to 32-bit.
 	</string>
 	<string name="MBAlpha">
 		[APP_NAME] is unable to run because it can't get an 8 bit alpha channel.  Usually this is due to video card driver issues.

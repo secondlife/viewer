@@ -977,6 +977,13 @@ bool idle_startup()
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
+		// chat history must be loaded AFTER chat directories are defined.
+		if (!gNoRender && gSavedPerAccountSettings.getBOOL("LogShowHistory"))
+		{
+			LLFloaterChat::loadHistory();
+		}
+		
+		
 		//good as place as any to create user windlight directories
 		std::string user_windlight_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", ""));
 		LLFile::mkdir(user_windlight_path_name.c_str());		

@@ -2316,6 +2316,8 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	LLUUID trash_id = model->findCategoryUUIDForType(LLAssetType::AT_TRASH);
 	LLUUID lost_and_found_id = model->findCategoryUUIDForType(LLAssetType::AT_LOST_AND_FOUND);
 
+	mItems.clear(); //adding code to clear out member Items (which means Items should not have other data here at this point)
+	mDisabledItems.clear(); //adding code to clear out disabled members from previous 
 	if (lost_and_found_id == mUUID)
 	  {
 		// This is the lost+found folder.

@@ -23,6 +23,7 @@ set(llvfs_HEADER_FILES
     CMakeLists.txt
 
     lldir.h
+    lldirguard.h
     lllfsthread.h
     llpidlock.h
     llvfile.h

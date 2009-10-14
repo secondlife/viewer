@@ -174,7 +174,6 @@ protected:
 	std::string				mCompletingRegionName;
 	std::string				mLastRegionName;
 	BOOL					mWaitingForTracker;
-	BOOL					mExactMatch;
 
 	BOOL					mIsClosing;
 	BOOL					mSetToUserPosition;

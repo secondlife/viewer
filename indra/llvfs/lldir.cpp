@@ -404,6 +404,12 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		prefix = getExecutableDir();
 		break;
 		
+	case LL_PATH_FONTS:
+		prefix = getAppRODataDir();
+		prefix += mDirDelimiter;
+		prefix += "fonts";
+		break;
+		
 	default:
 		llassert(0);
 	}
@@ -419,6 +425,11 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		filename = subdir1 + mDirDelimiter + filename;
 	}
 
+	if (prefix.empty())
+	{
+		llwarns << "prefix is empty, possible bad filename" << llendl;
+	}
+	
 	std::string expanded_filename;
 	if (!filename.empty())
 	{
@@ -673,11 +684,6 @@ void LLDir::dumpCurrentDirectories()
 	LL_DEBUGS2("AppInit","Directories") << "  CAFile:				 " << getCAFile() << LL_ENDL;
 	LL_DEBUGS2("AppInit","Directories") << "  SkinBaseDir:           " << getSkinBaseDir() << LL_ENDL;
 	LL_DEBUGS2("AppInit","Directories") << "  SkinDir:               " << getSkinDir() << LL_ENDL;
-
-#if LL_LIBXUL_ENABLED
- 	LL_DEBUGS2("AppInit","Directories") << "  HTML Path:             " << getExpandedFilename( LL_PATH_HTML, "" ) << llendl;
- 	LL_DEBUGS2("AppInit","Directories") << "  Mozilla Profile Path:  " << getExpandedFilename( LL_PATH_MOZILLA_PROFILE, "" ) << llendl;
-#endif
 }
 
 

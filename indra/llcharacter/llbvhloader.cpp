@@ -91,7 +91,9 @@ const char *LLBVHLoader::ST_NO_XLT_EASEIN		= "Can't get easeIn values.";
 const char *LLBVHLoader::ST_NO_XLT_EASEOUT	= "Can't get easeOut values.";
 const char *LLBVHLoader::ST_NO_XLT_HAND		= "Can't get hand morph value.";
 const char *LLBVHLoader::ST_NO_XLT_EMOTE		= "Can't read emote name.";
+const char *LLBVHLoader::ST_BAD_ROOT        = "Illegal ROOT joint.";
 */
+
 //------------------------------------------------------------------------
 // find_next_whitespace()
 //------------------------------------------------------------------------
@@ -777,6 +779,17 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 			return E_ST_NO_NAME;
 		}
 
+		//---------------------------------------------------------------
+		// we require the root joint be "hip" - DEV-26188
+		//---------------------------------------------------------------
+		const char* FORCED_ROOT_NAME = "hip";
+		if ( (mJoints.size() == 0 ) && ( !strstr(jointName, FORCED_ROOT_NAME) ) )
+		{
+			strncpy(error_text, line.c_str(), 127);	/* Flawfinder: ignore */
+			return E_ST_BAD_ROOT;
+		}
+
+		
 		//----------------------------------------------------------------
 		// add a set of keyframes for this joint
 		//----------------------------------------------------------------

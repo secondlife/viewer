@@ -53,8 +53,6 @@
 #   include "GL/glxext.h"
 //#   define  GLH_EXT_GET_PROC_ADDRESS(p) glXGetProcAddressARB((const GLubyte*)(p))
 #   define  GLH_EXT_GET_PROC_ADDRESS(p) glXGetProcAddress((const GLubyte*)(p))
-//  the X headers define 'Status'.  Undefine to avoid confusion.
-#undef Status
 
 // The __APPLE__ kludge is to make glh_extensions.h not symbol-clash horribly
 // This header is distributed with SL.  You'll find it in linden/libraries/include/GL/
@@ -277,8 +275,6 @@ extern PFNGLGENERATEMIPMAPEXTPROC glGenerateMipmapEXT;
 // Use glXGetProcAddressARB instead of glXGetProcAddress - the ARB symbol
 // is considered 'legacy' but works on more machines.
 # define GLH_EXT_GET_PROC_ADDRESS(p) glXGetProcAddressARB((const GLubyte*)(p))
-// Whee, the X headers define 'Status'.  Undefine to avoid confusion.
-#undef Status
 #endif // LL_LINUX && !LL_MESA_HEADLESS
 
 #if LL_LINUX && defined(WINGDIAPI)

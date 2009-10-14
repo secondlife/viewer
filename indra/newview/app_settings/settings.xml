@@ -1599,7 +1599,7 @@
     <key>Cursor3D</key>
     <map>
       <key>Comment</key>
-      <string>Tread Joystick values as absolute positions (not deltas).</string>
+      <string>Treat Joystick values as absolute positions (not deltas).</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3851,6 +3851,17 @@
       <key>Value</key>
       <string />
     </map>
+    <key>JoystickMouselookYaw</key>
+    <map>
+      <key>Comment</key>
+        <string>Pass joystick yaw to scripts in Mouselook.</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>Boolean</string>
+      <key>Value</key>
+         <integer>1</integer>
+    </map>
     <key>JoystickRunThreshold</key>
     <map>
       <key>Comment</key>
@@ -4158,7 +4169,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>LipSyncOoh</key>
     <map>

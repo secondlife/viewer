@@ -68,7 +68,8 @@ static void CFStringRefToLLString(CFStringRef stringRef, std::string &llString, 
 {
 	if (stringRef)
 	{
-		long	bufferSize = CFStringGetLength(stringRef) + 1;
+		long stringSize = CFStringGetLength(stringRef) + 1;
+		long bufferSize = CFStringGetMaximumSizeForEncoding(stringSize,kCFStringEncodingUTF8);
 		char* buffer = new char[bufferSize];
 		memset(buffer, 0, bufferSize);
 		if (CFStringGetCString(stringRef, buffer, bufferSize, kCFStringEncodingUTF8))

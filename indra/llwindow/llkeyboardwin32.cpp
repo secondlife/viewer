@@ -65,7 +65,7 @@ LLKeyboardWin32::LLKeyboardWin32()
 	// numpad number keys
 	for (cur_char = 0x60; cur_char <= 0x69; cur_char++)
 	{
-		mTranslateKeyMap[cur_char] = (KEY)('0' + (0x60 - cur_char));
+		mTranslateKeyMap[cur_char] = (KEY)('0' + (cur_char - 0x60));
 	}
 
 

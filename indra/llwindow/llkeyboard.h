@@ -47,7 +47,8 @@ enum EKeystate
 };
 
 typedef void (*LLKeyFunc)(EKeystate keystate);
-
+typedef std::string (LLKeyStringTranslatorFunc)(const char *label);
+	
 enum EKeyboardInsertMode
 {
 	LL_KIM_INSERT,
@@ -111,7 +112,7 @@ public:
 	static BOOL		maskFromString(const std::string& str, MASK *mask);		// False on failure
 	static BOOL		keyFromString(const std::string& str, KEY *key);			// False on failure
 	static std::string stringFromKey(KEY key);
-
+	static std::string stringFromAccelerator( MASK accel_mask, KEY key );
 	e_numpad_distinct getNumpadDistinct() { return mNumpadDistinct; }
 	void setNumpadDistinct(e_numpad_distinct val) { mNumpadDistinct = val; }
 
@@ -119,6 +120,8 @@ public:
 	F32				getKeyElapsedTime( KEY key );  // Returns time in seconds since key was pressed.
 	S32				getKeyElapsedFrameCount( KEY key );  // Returns time in frames since key was pressed.
 
+	static void		setStringTranslatorFunc( LLKeyStringTranslatorFunc *trans_func );
+	
 protected:
 	void 			addKeyName(KEY key, const std::string& name);
 
@@ -136,6 +139,8 @@ protected:
 	KEY				mCurTranslatedKey;
 	KEY				mCurScanKey;		// Used during the scanKeyboard()
 
+	static LLKeyStringTranslatorFunc*	mStringTranslator;	// Used for l10n + PC/Mac/Linux accelerator labeling
+	
 	e_numpad_distinct mNumpadDistinct;
 
 	EKeyboardInsertMode mInsertMode;

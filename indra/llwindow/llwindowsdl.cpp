@@ -70,7 +70,7 @@ extern BOOL gDebugWindowProc;
 const S32 MAX_NUM_RESOLUTIONS = 200;
 
 // static variable for ATI mouse cursor crash work-around:
-static bool ATIbug = false;
+static bool ATIbug = false; 
 
 //
 // LLWindowSDL
@@ -219,8 +219,7 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
 #endif // LL_X11
 
 #if LL_GTK
-	// We MUST be the first to initialize GTK, i.e. we have to beat
-	// our embedded Mozilla to the punch so that GTK doesn't get badly
+	// We MUST be the first to initialize GTK so that GTK doesn't get badly
 	// initialized with a non-C locale and cause lots of serious random
 	// weirdness.
 	ll_try_gtk_init();
@@ -674,12 +673,12 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 	glGetIntegerv(GL_DEPTH_BITS, &depthBits);
 	glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
 	
-	llinfos << "GL buffer:" << llendl
-        llinfos << "  Red Bits " << S32(redBits) << llendl
-        llinfos << "  Green Bits " << S32(greenBits) << llendl
-        llinfos << "  Blue Bits " << S32(blueBits) << llendl
-	llinfos	<< "  Alpha Bits " << S32(alphaBits) << llendl
-	llinfos	<< "  Depth Bits " << S32(depthBits) << llendl
+	llinfos << "GL buffer:" << llendl;
+        llinfos << "  Red Bits " << S32(redBits) << llendl;
+        llinfos << "  Green Bits " << S32(greenBits) << llendl;
+        llinfos << "  Blue Bits " << S32(blueBits) << llendl;
+	llinfos	<< "  Alpha Bits " << S32(alphaBits) << llendl;
+	llinfos	<< "  Depth Bits " << S32(depthBits) << llendl;
 	llinfos	<< "  Stencil Bits " << S32(stencilBits) << llendl;
 
 	GLint colorBits = redBits + greenBits + blueBits + alphaBits;
@@ -2252,6 +2251,7 @@ BOOL LLWindowSDL::dialogColorPicker( F32 *r, F32 *g, F32 *b)
 		GtkColorSelection *colorsel = GTK_COLOR_SELECTION (GTK_COLOR_SELECTION_DIALOG(win)->colorsel);
 
 		GdkColor color, orig_color;
+		orig_color.pixel = 0;
 		orig_color.red = guint16(65535 * *r);
 		orig_color.green= guint16(65535 * *g);
 		orig_color.blue = guint16(65535 * *b);

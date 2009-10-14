@@ -162,13 +162,13 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
 		  return(LLVORBISENC_PCM_FORMAT_ERR);
 	}
 	
-	if ((num_channels < 1) || (num_channels > 2))
+	if ((num_channels < 1) || (num_channels > LLVORBIS_CLIP_MAX_CHANNELS))
 	{	
 		error_msg = "SoundFileInvalidChannelCount";
 		return(LLVORBISENC_MULTICHANNEL_ERR);
 	}
 
-	if (sample_rate != 44100)
+	if (sample_rate != LLVORBIS_CLIP_SAMPLE_RATE)
 	{	
 		error_msg = "SoundFileInvalidSampleRate";
 		return(LLVORBISENC_UNSUPPORTED_SAMPLE_RATE);
@@ -188,7 +188,7 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
 
 	F32 clip_length = (F32)raw_data_length/(F32)bytes_per_sec;
 		
-	if (clip_length > 10.0f)
+	if (clip_length > LLVORBIS_CLIP_MAX_TIME)
 	{
 		error_msg = "SoundFileInvalidTooLong";
 		return(LLVORBISENC_CLIP_TOO_LONG);		 

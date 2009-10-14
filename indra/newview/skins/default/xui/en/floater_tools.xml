@@ -722,7 +722,6 @@
     </button>
     <text
      type="string"
-     text_color="LabelSelectedDisabledColor"
      length="1"
      height="12"
      follows="left|top"
@@ -736,7 +735,6 @@
     </text>
     <text
      type="string"
-     text_color="LabelSelectedDisabledColor"
      length="1"
      follows="left|top"
      halign="right"

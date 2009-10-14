@@ -45,6 +45,8 @@
 // Class which holds the functionality to start auctions.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLParcelSelection;
+class LLParcel;
+class LLViewerRegion;
 
 class LLFloaterAuction : public LLFloater
 {
@@ -62,16 +64,28 @@ private:
 	void initialize();
 
 	static void onClickSnapshot(void* data);
-	static void onClickOK(void* data);
+	static void onClickResetParcel(void* data);
+	static void onClickSellToAnyone(void* data);		// Sell to anyone clicked
+	bool onSellToAnyoneConfirmed(const LLSD& notification, const LLSD& response);	// Sell confirmation clicked
+	static void onClickStartAuction(void* data);
 
 	/*virtual*/ BOOL postBuild();
+
+	void doResetParcel();
+	void doSellToAnyone();
+	void clearParcelAccessLists( LLParcel* parcel, LLViewerRegion* region );
+	void cleanupAndClose();
+
 private:
+
 	LLTransactionID mTransactionID;
 	LLAssetID mImageID;
 	LLPointer<LLViewerTexture> mImage;
 	LLSafeHandle<LLParcelSelection> mParcelp;
 	S32 mParcelID;
 	LLHost mParcelHost;
+
+	std::string mParcelUpdateCapUrl;	// "ParcelPropertiesUpdate" capability
 };
 
 

@@ -38,7 +38,7 @@ list(APPEND linux_crash_logger_SOURCE_FILES
      ${linux_crash_logger_HEADER_FILES}
      )
 
-list(APPEND CMAKE_EXE_LINKER_FLAGS -Wl,--as-needed)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
 
 add_executable(linux-crash-logger ${linux_crash_logger_SOURCE_FILES})
 

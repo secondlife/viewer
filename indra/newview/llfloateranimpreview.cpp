@@ -426,8 +426,8 @@ void LLFloaterAnimPreview::resetMotion()
 	
 	LLUUID base_id = mIDList[childGetValue("preview_base_anim").asString()];
 	avatarp->deactivateAllMotions();
-	avatarp->startMotion(base_id, BASE_ANIM_TIME_OFFSET);
 	avatarp->startMotion(mMotionID, 0.0f);
+	avatarp->startMotion(base_id, BASE_ANIM_TIME_OFFSET);
 	childSetValue("playback_slider", 0.0f);
 
 	// Set pose
@@ -638,10 +638,10 @@ void LLFloaterAnimPreview::onCommitBaseAnim(LLUICtrl* ctrl, void* data)
 		BOOL paused = avatarp->areAnimationsPaused();
 
 		// stop all other possible base motions
-		avatarp->stopMotion(ANIM_AGENT_STAND, TRUE);
-		avatarp->stopMotion(ANIM_AGENT_WALK, TRUE);
-		avatarp->stopMotion(ANIM_AGENT_SIT, TRUE);
-		avatarp->stopMotion(ANIM_AGENT_HOVER, TRUE);
+		avatarp->stopMotion(previewp->mIDList["Standing"], TRUE);
+		avatarp->stopMotion(previewp->mIDList["Walking"], TRUE);
+		avatarp->stopMotion(previewp->mIDList["Sitting"], TRUE);
+		avatarp->stopMotion(previewp->mIDList["Flying"], TRUE);
 
 		previewp->resetMotion();
 

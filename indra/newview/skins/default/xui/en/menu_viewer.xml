@@ -355,7 +355,8 @@
          label="World Map"
          layout="topleft"
          name="World Map"
-         shortcut="control|M">
+         shortcut="control|M"
+         use_mac_ctrl="true">
             <menu_item_check.on_check
              function="Floater.Visible"
              parameter="world_map" />
@@ -981,6 +982,57 @@
                 </menu_item_check>
             </menu>
         </menu>
+        <menu
+         create_jump_keys="true"
+         label="Select Linked Parts"
+         layout="topleft"
+         name="Select Linked Parts"
+         tear_off="true">
+            <menu_item_call
+             label="Select Next Part"
+             layout="topleft"
+             name="Select Next Part"
+	     shortcut="control|.">
+                <menu_item_call.on_click
+                 function="Tools.SelectNextPart"
+                 parameter="next" />
+                <menu_item_call.on_enable
+                 function="Tools.EnableSelectNextPart" />
+            </menu_item_call>
+            <menu_item_call
+             label="Select Previous Part"
+             layout="topleft"
+             name="Select Previous Part"
+	     shortcut="control|,">
+                <menu_item_call.on_click
+                 function="Tools.SelectNextPart"
+                 parameter="previous" />
+                <menu_item_call.on_enable
+                 function="Tools.EnableSelectNextPart" />
+            </menu_item_call>
+            <menu_item_call
+             label="Include Next Part"
+             layout="topleft"
+             name="Include Next Part"
+	     shortcut="control|shift|.">
+                <menu_item_call.on_click
+                 function="Tools.SelectNextPart"
+                 parameter="includenext" />
+                <menu_item_call.on_enable
+                 function="Tools.EnableSelectNextPart" />
+            </menu_item_call>
+            <menu_item_call
+             label="Include Previous Part"
+             layout="topleft"
+             name="Include Previous Part"
+	     shortcut="control|shift|,">
+                <menu_item_call.on_click
+                 function="Tools.SelectNextPart"
+                 parameter="includeprevious" />
+                <menu_item_call.on_enable
+                 function="Tools.EnableSelectNextPart" />
+            </menu_item_call>
+        </menu>
     </menu>
     <menu
      label="Help"
@@ -1603,7 +1655,8 @@
              label="Texture Console"
              layout="topleft"
              name="Texture Console"
-             shortcut="control|shift|3">
+             shortcut="control|shift|3"
+             use_mac_ctrl="true">
                 <menu_item_check.on_check
                  function="Advanced.CheckConsole"
                  parameter="texture" />
@@ -1615,7 +1668,8 @@
              label="Debug Console"
              layout="topleft"
              name="Debug Console"
-             shortcut="control|shift|4">
+             shortcut="control|shift|4"
+             use_mac_ctrl="true">
                 <menu_item_check.on_check
                  function="Advanced.CheckConsole"
                  parameter="debug" />
@@ -1627,7 +1681,8 @@
              label="Fast Timers"
              layout="topleft"
              name="Fast Timers"
-             shortcut="control|shift|9">
+             shortcut="control|shift|9"
+             use_mac_ctrl="true">
                 <menu_item_check.on_check
                  function="Advanced.CheckConsole"
                  parameter="fast timers" />
@@ -1639,7 +1694,8 @@
              label="Memory"
              layout="topleft"
              name="Memory"
-             shortcut="control|shift|0">
+             shortcut="control|shift|0"
+             use_mac_ctrl="true">
                 <menu_item_check.on_check
                  function="Advanced.CheckConsole"
                  parameter="memory view" />
@@ -1651,7 +1707,8 @@
              label="Notifications Console"
              layout="topleft"
              name="Notifications"
-             shortcut="control|shift|5">
+             shortcut="control|shift|5"
+             use_mac_ctrl="true">
                 <menu_item_check.on_check
                  function="Advanced.CheckConsole"
                  parameter="notifications" />

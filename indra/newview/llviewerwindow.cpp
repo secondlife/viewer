@@ -1502,11 +1502,6 @@ void LLViewerWindow::initWorldUI()
 	//  currently needs to happen before initializing chat or IM
 	LLFloaterReg::getInstance("communicate");
 
-	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
-	{
-		LLFloaterChat::loadHistory();
-	}
-
 	LLRect morph_view_rect = full_window;
 	morph_view_rect.stretch( -STATUS_BAR_HEIGHT );
 	morph_view_rect.mTop = full_window.mTop - 32;

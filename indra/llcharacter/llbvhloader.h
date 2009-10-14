@@ -216,7 +216,8 @@ typedef enum e_load_status
 		E_ST_NO_XLT_EASEIN,
 		E_ST_NO_XLT_EASEOUT,
 		E_ST_NO_XLT_HAND,
-		E_ST_NO_XLT_EMOTE
+		E_ST_NO_XLT_EMOTE,
+		E_ST_BAD_ROOT
 	} ELoadStatus;
 
 //------------------------------------------------------------------------
@@ -235,7 +236,7 @@ public:
 
 /*	
 	// Status Codes
-	typedef const char *Status;
+	typedef const char *status_t;
 	static const char *ST_OK;
 	static const char *ST_EOF;
 	static const char *ST_NO_CONSTRAINT;
@@ -267,6 +268,7 @@ public:
 	static const char *ST_NO_XLT_EASEOUT;
 	static const char *ST_NO_XLT_HAND;
 	static const char *ST_NO_XLT_EMOTE;
+	static const char *ST_BAD_ROOT;
 */
 	// Loads the specified translation table.
 	ELoadStatus loadTranslationTable(const char *fileName);
@@ -325,6 +327,7 @@ protected:
 
 	BOOL				mInitialized;
 	ELoadStatus			mStatus;
+
 	// computed values
 	F32	mDuration;
 };

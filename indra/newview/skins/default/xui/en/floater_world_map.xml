@@ -417,7 +417,8 @@
      left_delta="0"
      name="search_results"
      top_pad="10"
-     width="222">
+     width="222"
+     sort_column="1">
         <scroll_list.columns
          label=""
          name="icon"

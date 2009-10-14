@@ -38,6 +38,7 @@
 #include "llframetimer.h"
 #include "llviewertexture.h"
 
+class LLComboBox;
 class LLImageRaw;
 
 class LLPreviewTexture : public LLPreview
@@ -71,7 +72,9 @@ public:
 protected:
 	void				init();
 	/* virtual */ BOOL	postBuild();
-
+	bool				setAspectRatio(const F32 width, const F32 height);
+	static void			onAspectRatioCommit(LLUICtrl*,void* userdata);
+	
 private:
 	void				updateDimensions();
 	LLUUID						mImageID;
@@ -88,6 +91,7 @@ private:
 
 	S32 mLastHeight;
 	S32 mLastWidth;
+	F32 mAspectRatio;
 	BOOL mUpdateDimensions;
 };
 

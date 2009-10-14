@@ -51,9 +51,9 @@
 // llinfos << mMessage.getString() << llendl; // outputs "Welcome Steve to Second Life"
 // mMessage.setArg("[USERNAME]", "Joe");
 // llinfos << mMessage.getString() << llendl; // outputs "Welcome Joe to Second Life"
-// mMessage = "Recepci￳n a la [SECONDLIFE] [USERNAME]"
+// mMessage = "Bienvenido a la [SECONDLIFE] [USERNAME]"
 // mMessage.setArg("[SECONDLIFE]", "Segunda Vida");
-// llinfos << mMessage.getString() << llendl; // outputs "Recepci￳n a la Segunda Vida Joe"
+// llinfos << mMessage.getString() << llendl; // outputs "Bienvenido a la Segunda Vida Joe"
 
 // Implementation Notes:
 // Attempting to have operator[](const std::string& s) return mArgs[s] fails because we have

@@ -53,26 +53,12 @@
         <string>lgpl</string>
         <key>packages</key>
         <map>
-          <key>darwin</key>
-          <map>
-            <key>md5sum</key>
-            <string>40b8a63b553d91304588fba6796d7cc1</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.5-darwin-20091006.tar.bz2</uri>
-          </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>298fd8a3351f6a8d757d205a1e9ad82f</string>
+            <string>fce0ff7d2cdf0f36c1647e6a3916e29e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.12-linux-20091006.tar.bz2</uri>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>md5sum</key>
-            <string>33bb17ecbef6cdadff533d97135f3a56</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.5-windows-20091006.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/SDL-1.2.12-linux-20090218.tar.bz2</uri>
           </map>
         </map>
       </map>

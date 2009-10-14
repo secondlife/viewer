@@ -38,6 +38,7 @@
 
 #include "llagent.h"
 #include "llbutton.h"
+#include "llcombobox.h"
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
 #include "llimagetga.h"
@@ -57,6 +58,10 @@ const S32 CLIENT_RECT_VPAD = 4;
 
 const F32 SECONDS_TO_SHOW_FILE_SAVED_MSG = 8.f;
 
+const F32 PREVIEW_TEXTURE_MAX_ASPECT = 200.f;
+const F32 PREVIEW_TEXTURE_MIN_ASPECT = 0.005f;
+
+
 LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 	: LLPreview( key ),
 	  mLoadingFullImage( FALSE ),
@@ -65,7 +70,8 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 	  mIsCopyable(FALSE),
 	  mUpdateDimensions(TRUE),
 	  mLastHeight(0),
-	  mLastWidth(0)
+	  mLastWidth(0),
+	  mAspectRatio(0.f)
 {
 	const LLInventoryItem *item = getItem();
 	if(item)
@@ -143,6 +149,10 @@ BOOL LLPreviewTexture::postBuild()
 			childSetPrevalidate("desc", &LLLineEditor::prevalidatePrintableNotPipe);
 		}
 	}
+	
+	childSetCommitCallback("combo_aspect_ratio", onAspectRatioCommit, this);
+	LLComboBox* combo = getChild<LLComboBox>("combo_aspect_ratio");
+	combo->setCurrentByIndex(0);
 	
 	return LLPreview::postBuild();
 }
@@ -369,8 +379,13 @@ void LLPreviewTexture::updateDimensions()
 	S32 max_client_width = gViewerWindow->getWindowWidth() - horiz_pad;
 	S32 max_client_height = gViewerWindow->getWindowHeight() - vert_pad;
 
+	if (mAspectRatio > 0.f)
+	{
+		client_height = llceil((F32)client_width / mAspectRatio);
+	}
+
 	while ((client_width > max_client_width) ||
-	       (client_height > max_client_height ) )
+	       (client_height > max_client_height ))
 	{
 		client_width /= 2;
 		client_height /= 2;
@@ -383,12 +398,12 @@ void LLPreviewTexture::updateDimensions()
 	childSetTextArg("dimensions", "[WIDTH]", llformat("%d", mImage->getFullWidth()));
 	childSetTextArg("dimensions", "[HEIGHT]", llformat("%d", mImage->getFullHeight()));
 	
-	// add space for dimensions
+	// add space for dimensions and aspect ratio
 	S32 info_height = 0;
-	LLRect dim_rect;
-	childGetRect("dimensions", dim_rect);
-	S32 dim_height = dim_rect.getHeight();
-	info_height += dim_height + CLIENT_RECT_VPAD;
+	LLRect aspect_rect;
+	childGetRect("combo_aspect_ratio", aspect_rect);
+	S32 aspect_height = aspect_rect.getHeight();
+	info_height += aspect_height + CLIENT_RECT_VPAD;
 	view_height += info_height;
 	
 	S32 button_height = 0;
@@ -445,23 +460,95 @@ void LLPreviewTexture::updateDimensions()
 	else
 	{
 		client_width = getRect().getWidth() - horiz_pad;
-		client_height = getRect().getHeight() - vert_pad;
+		if (mAspectRatio > 0)
+		{
+			client_height = llround(client_width / mAspectRatio);
+		}
+		else
+		{
+			client_height = getRect().getHeight() - vert_pad;
+		}
 	}
 
-	S32 max_height = getRect().getHeight() - PREVIEW_BORDER - button_height
+	S32 max_height = getRect().getHeight() - PREVIEW_BORDER - button_height 
 		- CLIENT_RECT_VPAD - info_height - CLIENT_RECT_VPAD - PREVIEW_HEADER_SIZE;
-	S32 max_width = getRect().getWidth() - horiz_pad;
 
-	client_height = llclamp(client_height, 1, max_height);
-	client_width = llclamp(client_width, 1, max_width);
+	if (mAspectRatio > 0.f)
+	{
+		max_height = llmax(max_height, 1);
+
+		if (client_height > max_height)
+		{
+			client_height = max_height;
+			client_width = llround(client_height * mAspectRatio);
+		}
+	}
+	else
+	{
+		S32 max_width = getRect().getWidth() - horiz_pad;
+
+		client_height = llclamp(client_height, 1, max_height);
+		client_width = llclamp(client_width, 1, max_width);
+	}
 	
 	LLRect window_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
 	window_rect.mTop -= (PREVIEW_HEADER_SIZE + CLIENT_RECT_VPAD);
 	window_rect.mBottom += PREVIEW_BORDER + button_height + CLIENT_RECT_VPAD + info_height + CLIENT_RECT_VPAD;
 
-	mClientRect.setLeftTopAndSize(window_rect.getCenterX() - (client_width / 2), window_rect.mTop, client_width, client_height);
+	mClientRect.setLeftTopAndSize(window_rect.getCenterX() - (client_width / 2), window_rect.mTop, client_width, client_height);	
+	
+	// Hide the aspect ratio label if the window is too narrow
+	// Assumes the label should be to the right of the dimensions
+	LLRect dim_rect, aspect_label_rect;
+	childGetRect("aspect_ratio", aspect_label_rect);
+	childGetRect("dimensions", dim_rect);
+	childSetVisible("aspect_ratio", dim_rect.mRight < aspect_label_rect.mLeft);
 }
 
+
+// Return true if everything went fine, false if we somewhat modified the ratio as we bumped on border values
+bool LLPreviewTexture::setAspectRatio(const F32 width, const F32 height)
+{
+	mUpdateDimensions = TRUE;
+
+	// We don't allow negative width or height. Also, if height is positive but too small, we reset to default
+	// A default 0.f value for mAspectRatio means "unconstrained" in the rest of the code
+	if ((width <= 0.f) || (height <= F_APPROXIMATELY_ZERO))
+	{
+		mAspectRatio = 0.f;
+		return false;
+	}
+	
+	// Compute and store the ratio
+	F32 ratio = width / height;
+	mAspectRatio = llclamp(ratio, PREVIEW_TEXTURE_MIN_ASPECT, PREVIEW_TEXTURE_MAX_ASPECT);
+	
+	// Return false if we clamped the value, true otherwise
+	return (ratio == mAspectRatio);
+}
+
+
+void LLPreviewTexture::onAspectRatioCommit(LLUICtrl* ctrl, void* userdata)
+{	
+	LLPreviewTexture* self = (LLPreviewTexture*) userdata;
+	
+	std::string ratio(ctrl->getValue().asString());
+	std::string::size_type separator(ratio.find_first_of(":/\\"));
+	
+	if (std::string::npos == separator) {
+		// If there's no separator assume we want an unconstrained ratio
+		self->setAspectRatio( 0.f, 0.f );
+		return;
+	}
+	
+	F32 width, height;
+	std::istringstream numerator(ratio.substr(0, separator));
+	std::istringstream denominator(ratio.substr(separator + 1));
+	numerator >> width;
+	denominator >> height;
+	
+	self->setAspectRatio( width, height );	
+}
 
 void LLPreviewTexture::loadAsset()
 {

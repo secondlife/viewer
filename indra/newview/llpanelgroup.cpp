@@ -101,14 +101,13 @@ void LLPanelGroupTab::handleClickHelp()
 }
 
 LLPanelGroup::LLPanelGroup()
-:	LLPanel()
-	,LLGroupMgrObserver( LLUUID() )
-	,mAllowEdit(TRUE)
+:	LLPanel(),
+	LLGroupMgrObserver( LLUUID() ),
+	mAllowEdit( TRUE )
 {
 	// Set up the factory callbacks.
 	// Roles sub tabs
 	LLGroupMgr::getInstance()->addObserver(this);
-
 }
 
 
@@ -246,6 +245,7 @@ void LLPanelGroup::onBackBtnClick()
 		parent->openPreviousPanel();
 	}
 }
+
 
 void LLPanelGroup::onBtnCreate()
 {

@@ -42,9 +42,6 @@
 #include "llvosky.h"
 #include "llvoground.h"
 
-const F32 NIGHTTIME_ELEVATION			= -8.0f;	// degrees
-const F32 NIGHTTIME_ELEVATION_COS		= (F32)sin(NIGHTTIME_ELEVATION*DEG_TO_RAD);
-
 class LLViewerCamera;
 
 class LLVOWLSky;
@@ -110,6 +107,9 @@ public:
 
 	// Legacy stuff
 	LLVector3 mSunDefaultPosition;
+
+	static const F32 NIGHTTIME_ELEVATION;	// degrees
+	static const F32 NIGHTTIME_ELEVATION_COS;
 
 protected:
 	BOOL			mOverrideSimSunPosition;

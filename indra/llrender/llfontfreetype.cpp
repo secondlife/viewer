@@ -364,7 +364,7 @@ BOOL LLFontFreetype::addChar(llwchar wch) const
 	glyph_index = FT_Get_Char_Index(mFTFace, wch);
 	if (glyph_index == 0)
 	{
-		//llinfos << "Trying to add glyph from fallback font!" << llendl
+		//llinfos << "Trying to add glyph from fallback font!" << llendl;
 		font_vector_t::const_iterator iter;
 		for(iter = mFallbackFonts.begin(); iter != mFallbackFonts.end(); iter++)
 		{
@@ -534,11 +534,10 @@ void LLFontFreetype::renderGlyph(U32 glyph_index) const
 void LLFontFreetype::reset(F32 vert_dpi, F32 horz_dpi)
 {
 	resetBitmapCache(); 
+	loadFace(mName, mPointSize, vert_dpi ,horz_dpi, mFontBitmapCachep->getNumComponents(), mIsFallback);
 	if (!mIsFallback)
 	{
 		// This is the head of the list - need to rebuild ourself and all fallbacks.
-		loadFace(mName, mPointSize, vert_dpi ,horz_dpi, mFontBitmapCachep->getNumComponents(), mIsFallback);
-
 		if (mFallbackFonts.empty())
 		{
 			llwarns << "LLFontGL::reset(), no fallback fonts present" << llendl;

@@ -186,7 +186,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 	}
 
 	mIncompleteMemberDataStr = getString("incomplete_member_data_str");
-	
+
 	// If the group_id is null, then we are creating a new group
 	if (mGroupID.isNull())
 	{

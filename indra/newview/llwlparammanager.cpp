@@ -317,7 +317,7 @@ void LLWLParamManager::propagateParameters(void)
 	{
 		mLightDir = sunDir;
 	}
-	else if(sunDir.mV[1] < 0 && sunDir.mV[1] > NIGHTTIME_ELEVATION_COS)
+	else if(sunDir.mV[1] < 0 && sunDir.mV[1] > LLSky::NIGHTTIME_ELEVATION_COS)
 	{
 		// clamp v1 to 0 so sun never points up and causes weirdness on some machines
 		LLVector3 vec(sunDir.mV[0], sunDir.mV[1], sunDir.mV[2]);

@@ -217,7 +217,7 @@ My Avatar:
      width="237"
      top_pad="0"/>
     <check_box
-     control_name="TapTapHoldtoRun"
+     control_name="AllowTapTapHoldRun"
      height="20"
      label="Tap-tap-hold to run"
      layout="topleft"
@@ -225,36 +225,15 @@ My Avatar:
      name="tap_tap_hold_to_run"
      width="237"
      top_pad="0"/>
-    <!--menu_item_check
-         label="Tap-Tap-Hold to Run"
-         layout="topleft"
-         name="Tap-Tap-Hold to Run">
-            <menu_item_check.on_check
-             function="Advanced.CheckAllowTapTapHoldRun"
-             parameter="TapTapHoldRun" />
-            <menu_item_check.on_click
-             function="Advanced.ToggleAllowTapTapHoldRun" />
-        </menu_item_check-->  
     <check_box
-     control_name="EnableLipSync"
+     control_name="LipSyncEnabled"
      height="20"
-     label="Move my avatar's lips when speaking"
+     label="Move avatar lips when speaking"
      layout="topleft"
      left_delta="0"
      name="enable_lip_sync"
      width="237"
      top_pad="0" />
-            <!--menu_item_check
-         label="Enable Lip Sync(Beta)"
-         layout="topleft"
-         name="Enable Lip Sync(Beta)">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="LipSyncEnabled" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="LipSyncEnabled" />
-        </menu_item_check-->
     <check_box
      control_name="test"
      height="20"

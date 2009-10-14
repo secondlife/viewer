@@ -417,6 +417,11 @@ void LLFloaterTools::refresh()
 	LLResMgr::getInstance()->getIntegerString(prim_count_string, LLSelectMgr::getInstance()->getSelection()->getObjectCount());
 	childSetTextArg("prim_count", "[COUNT]", prim_count_string);
 
+	// disable the object and prim counts if nothing selected
+	bool have_selection = ! LLSelectMgr::getInstance()->getSelection()->isEmpty();
+	childSetEnabled("obj_count", have_selection);
+	childSetEnabled("prim_count", have_selection);
+
 	// Refresh child tabs
 	mPanelPermissions->refresh();
 	mPanelObject->refresh();

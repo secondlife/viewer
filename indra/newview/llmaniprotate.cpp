@@ -1234,9 +1234,9 @@ LLVector3 LLManipRotate::getConstraintAxis()
 		else
 		{
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-			llerrs << "Got bogus hit part in LLManipRotate::getConstraintAxis():" << mManipPart << llendl
+			llerrs << "Got bogus hit part in LLManipRotate::getConstraintAxis():" << mManipPart << llendl;
 #else
-			llwarns << "Got bogus hit part in LLManipRotate::getConstraintAxis():" << mManipPart << llendl
+			llwarns << "Got bogus hit part in LLManipRotate::getConstraintAxis():" << mManipPart << llendl;
 #endif
 			axis.mV[0] = 1.f;
 		}
