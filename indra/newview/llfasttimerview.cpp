@@ -496,7 +496,7 @@ void LLFastTimerView::draw()
 	// Draw the history bars
 	if (LLFastTimer::getLastFrameIndex() >= 0)
 	{	
-		LLLocalClipRect clip(LLRect(xleft, ytop - margin, getRect().getWidth() - margin, margin));
+		LLLocalClipRect clip(LLRect(xleft, ytop, getRect().getWidth() - margin, margin));
 
 		U64 totalticks;
 		if (!LLFastTimer::sPauseHistory)
