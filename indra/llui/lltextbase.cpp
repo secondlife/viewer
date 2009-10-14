@@ -210,8 +210,6 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 		scroll_params.mouse_opaque = false;
 		scroll_params.min_auto_scroll_rate = 200;
 		scroll_params.max_auto_scroll_rate = 800;
-		// all text widgets only show scrollbar on demand
-		scroll_params.hide_scrollbar = true;
 		scroll_params.border_visible = p.border_visible;
 		mScroller = LLUICtrlFactory::create<LLScrollContainer>(scroll_params);
 		addChild(mScroller);
