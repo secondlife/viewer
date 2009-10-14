@@ -23,7 +23,11 @@
   <combo_box.combo_list bg_writeable_color="MenuDefaultBgColor"
                         background_visible="true"
                          />
+  <!-- Text is "tentative" if you have typed in a string that does not match
+    any item in the list, but we usually don't care, so use the same color
+    as normal text. -->
   <combo_box.combo_editor name="Combo Text Entry"
                           select_on_focus="true"
-                          font="SansSerifSmall" />
+                          font="SansSerifSmall" 
+                          text_tentative_color="TextFgColor" />
 </combo_box>
