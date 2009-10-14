@@ -102,7 +102,6 @@
          top_delta="0"
          width="85" />
         <button
-         enabled="false"
          follows="right|top"
          height="25"
          is_toggle="true"
@@ -356,14 +355,22 @@
     </panel>
     <scroll_container
      follows="top|right|bottom"
-     height="637"
+     height="600"
      layout="topleft"
-     left_delta="550"
+     left="750"
      name="overlap_scroll"
      reserve_scroll_corner="true"
-     top_delta="2"
+     top="20"
      width="300">
-        <panel
+      <panel
+        border="true"
+        name="overlap_dummy_panel"
+        top="0"
+        left="0"
+        width="300"
+        height="600"
+        >
+        <overlap_panel
          background_opaque="true"
          background_visible="true"
          bevel_style="in"
@@ -371,14 +378,14 @@
          bg_opaque_color="1 1 1 1"
          border="true"
          follows="top|right|bottom"
-         height="637"
+         height="600"
          label="Overlap Panel"
          layout="topleft"
-         left_delta="0"
+         left="0"
          min_width="300"
          name="overlap_panel"
          tool_tip="This panel displays the currently-selected element and all of the elements that overlap it, separated by horizontal lines"
-         top="-607"
+         top="0"
          visible="false"
          width="300" />
         <text
@@ -389,12 +396,11 @@
          height="30"
          layout="topleft"
          left="10"
-         left_delta="10"
          name="overlap_panel_label"
-         right="-50"
-         top="0"
+         top="10"
          width="150">
             Overlapping Elements:
         </text>
+      </panel>
     </scroll_container>
 </floater>
