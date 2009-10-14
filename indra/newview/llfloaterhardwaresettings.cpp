@@ -47,7 +47,7 @@
 #include "llradiogroup.h"
 #include "lluictrlfactory.h"
 #include "llwindow.h"
-#include "llslider.h"
+#include "llsliderctrl.h"
 
 LLFloaterHardwareSettings::LLFloaterHardwareSettings(const LLSD& key)
   : LLFloater(key)
@@ -91,8 +91,8 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 {
 	S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
 	S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting();
-	getChild<LLSlider>("GrapicsCardTextureMemory")->setMinValue(min_tex_mem);
-	getChild<LLSlider>("GrapicsCardTextureMemory")->setMinValue(max_tex_mem);
+	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem);
+	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem);
 
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
 		!gGLManager.mHasVertexBufferObject)
