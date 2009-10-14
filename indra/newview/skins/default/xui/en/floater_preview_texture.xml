@@ -45,22 +45,22 @@
     <button
      follows="left|bottom"
      height="22"
-     label="Delete"
+     label="OK"
      layout="topleft"
      left="80"
-     name="Discard"
-     top="283"
+     name="Keep"
+     top="302"
      width="100" />
     <button
      follows="left|bottom"
      height="22"
-     label="Save"
+     label="Cancel"
      layout="topleft"
      left_pad="5"
-     name="Keep"
+     name="Discard"
      top_delta="0"
      width="100" />
-    <text
+     <text
      type="string"
      length="1"
      follows="left|bottom"
@@ -72,62 +72,62 @@
      width="303">
         [WIDTH]px x [HEIGHT]px
     </text>
-	<text
-	 type="string"
-	 length="1"
-	 bg_visible="false"
-	 border_drop_shadow_visible="false"
-	 border_visible="false"
-	 top="309"
-	 drop_shadow_visible="true"
-	 enabled="true"
-	 follows="right|bottom"
-	 font="SansSerifSmall"
-	 h_pad="0"
-	 halign="right"
-	 height="14"
-	 left="54"
-	 mouse_opaque="true"
-	 name="aspect_ratio"
-	 v_pad="0"
-	 width="110">
-		Preview Aspect Ratio
-	</text>
-	<combo_box
-	 allow_text_entry="true" 
-	 top="306" 
-	 follows="right|bottom" 
-	 height="20"
-	 left="176"
-	 max_chars="20"
-	 mouse_opaque="true"
-	 enabled="true"
-	 width="108"
-	 name="combo_aspect_ratio"
-	 tool_tip="Preview at a fixed aspect ratio">
-		<combo_item name="Unconstrained" value="Unconstrained">
-			Unconstrained
-		</combo_item>
-		<combo_item name="1:1" value="1:1" tool_tip="Group Insignia or 1st Life Profile">
-			1:1
-		</combo_item>
-		<combo_item name="4:3" value="4:3" tool_tip="2nd Life Profile">
-			4:3
-		</combo_item>
-		<combo_item name="10:7" value="10:7" tool_tip="Classifieds and search listings, landmarks">
-			10:7
-		</combo_item>
-		<combo_item name="3:2" value="3:2" tool_tip="About land">
-			3:2
-		</combo_item>
-		<combo_item name="16:10" value="16:10">
-			16:10
-		</combo_item>
-		<combo_item name="16:9" value="16:9" tool_tip="Profile Picks">
-			16:9
-		</combo_item>
-		<combo_item name="2:1" value="2:1">
-			2:1
-		</combo_item>
+    <text
+     type="string"
+     length="1"
+     bg_visible="false"
+     border_drop_shadow_visible="false"
+     border_visible="false"
+     top="309"
+     drop_shadow_visible="true"
+     enabled="true"
+     follows="right|bottom"
+     font="SansSerifSmall"
+     h_pad="0"
+     halign="right"
+     height="14"
+     left="54"
+     mouse_opaque="true"
+     name="aspect_ratio"
+     v_pad="0"
+     width="110">
+    	Preview Aspect Ratio
+    </text>
+    <combo_box
+     allow_text_entry="true" 
+     top="306" 
+     follows="right|bottom" 
+     height="20"
+     left="176"
+     max_chars="20"
+     mouse_opaque="true"
+     enabled="true"
+     width="108"
+     name="combo_aspect_ratio"
+     tool_tip="Preview at a fixed aspect ratio">
+    	<combo_item name="Unconstrained" value="Unconstrained">
+    		Unconstrained
+    	</combo_item>
+   	<combo_item name="1:1" value="1:1" tool_tip="Group Insignia or 1st Life Profile">
+		1:1
+	</combo_item>
+	<combo_item name="4:3" value="4:3" tool_tip="2nd Life Profile">
+		4:3
+	</combo_item>
+	<combo_item name="10:7" value="10:7" tool_tip="Classifieds and search listings, landmarks">
+		10:7
+	</combo_item>
+	<combo_item name="3:2" value="3:2" tool_tip="About land">
+		3:2
+	</combo_item>
+	<combo_item name="16:10" value="16:10">
+		16:10
+	</combo_item>
+	<combo_item name="16:9" value="16:9" tool_tip="Profile Picks">
+		16:9
+	</combo_item>
+	<combo_item name="2:1" value="2:1">
+		2:1
+	</combo_item>
 	</combo_box>
 </floater>

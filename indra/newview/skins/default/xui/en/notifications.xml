@@ -5767,11 +5767,11 @@ An object named [OBJECTFROMNAME] owned by [FIRST] [LAST] has given you a [OBJECT
       <button
        index="0"
        name="Keep"
-       text="Keep"/>
+       text="OK"/>
       <button
        index="1"
        name="Discard"
-       text="Discard"/>
+       text="Cancel"/>
       <button
        index="2"
        name="Mute"
@@ -5788,11 +5788,11 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
       <button
        index="0"
        name="Keep"
-       text="Keep"/>
+       text="OK"/>
       <button
        index="1"
        name="Discard"
-       text="Discard"/>
+       text="Cancel"/>
       <button
        index="2"
        name="Mute"
@@ -5809,11 +5809,11 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
       <button
        index="0"
        name="Keep"
-       text="Keep"/>
+       text="OK"/>
       <button
        index="1"
        name="Discard"
-       text="Discard"/>
+       text="Cancel"/>
       <button
        index="2"
        name="Mute"
