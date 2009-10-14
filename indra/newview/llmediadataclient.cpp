@@ -182,15 +182,20 @@ LLMediaDataClient::Responder::RetryTimer::RetryTimer(F32 time, Responder *mdr)
 LLMediaDataClient::Responder::RetryTimer::~RetryTimer() 
 {
 	LL_DEBUGS("LLMediaDataClient") << "~RetryTimer" << *(mResponder->getRequest()) << LL_ENDL;
+
+	// XXX This is weird: Instead of doing the work in tick()  (which re-schedules
+	// a timer, which might be risky), do it here, in the destructor.  Yes, it is very odd.
+	// Instead of retrying, we just put the request back onto the queue
+	LL_INFOS("LLMediaDataClient") << "RetryTimer fired for: " << *(mResponder->getRequest()) << "retrying" << LL_ENDL;
+	mResponder->getRequest()->reEnqueue();
+
+	// Release the ref to the responder.
 	mResponder = NULL;
 }
 
 // virtual
 BOOL LLMediaDataClient::Responder::RetryTimer::tick()
 {
-	// Instead of retrying, we just put the request back onto the queue
-	LL_INFOS("LLMediaDataClient") << "RetryTimer fired for: " << *(mResponder->getRequest()) << "retrying" << LL_ENDL;
-	mResponder->getRequest()->reEnqueue();
 	// Don't fire again
 	return TRUE;
 }
