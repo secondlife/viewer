@@ -59,8 +59,8 @@
 	<string name="TooltipFlagNoScripts">No Scripts</string>
 	<string name="TooltipLand">Land:</string>
 	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>	
-	<string name="TooltipAltLeft">Alt-Left arrow for previous tab</string>	
-	<string name="TooltipAltRight">Alt-Right arrow for next tab</string>	
+	<string name="TooltipAltLeft">Alt+&#8592; for previous tab</string>	
+	<string name="TooltipAltRight">Alt+&#8594; for next tab</string>	
 
 	<!-- tooltips for Urls -->
 	<string name="TooltipHttpUrl">Click to view this web page</string>

@@ -18,7 +18,7 @@
      left_delta="7"
      left="0"
      name="chat_box"
-     tool_tip="Press Enter to say, Ctrl-Enter to shout."
+     tool_tip="Press Enter to say, Ctrl+Enter to shout."
      top="3"
      width="250" />
     <output_monitor

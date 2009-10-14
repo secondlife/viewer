@@ -32,7 +32,7 @@
     </floater.string>
     <floater.string
      name="status_grab">
-        Drag to move, Ctrl to lift, Ctrl-Shift to rotate
+        Drag to move, Ctrl to lift, Ctrl+Shift to rotate
     </floater.string>
     <floater.string
      name="status_place">
@@ -180,7 +180,7 @@
          name="radio orbit" />
         <radio_item
          top_pad="6"
-         label="Pan (Ctrl-Shift)"
+         label="Pan (Ctrl+Shift)"
          layout="topleft"
          name="radio pan" />
 		 <radio_group.commit_callback
@@ -218,7 +218,7 @@
          name="radio lift" />
         <radio_item
       top_pad="6"
-         label="Spin (Ctrl-Shift)"
+         label="Spin (Ctrl+Shift)"
          layout="topleft"
          name="radio spin" />
 		 <radio_group.commit_callback
@@ -242,7 +242,7 @@
          name="radio rotate" />
         <radio_item
       top_pad="6"
-         label="Stretch (Ctrl-Shift)"
+         label="Stretch (Ctrl+Shift)"
          layout="topleft"
          name="radio stretch" />
         <radio_item
