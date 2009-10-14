@@ -2246,14 +2246,14 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 
 	<!-- Avatar Shape Information -->
 <string name="5 O'Clock Shadow">5 O'Clock Shadow</string>
-<string name="5 O'Clock Shadow bump">5 O'Clock Shadow bump</string>
+
 <string name="All White">All White</string>
 <string name="Anime Eyes">Anime Eyes</string>
 <string name="Arced">Arced</string>
 <string name="Arm Length">Arm Length</string>
 <string name="Attached">Attached</string>
 <string name="Attached Earlobes">Attached Earlobes</string>
-<string name="BELLY">BELLY</string>
+
 <string name="Back Bangs">Back Bangs</string>
 <string name="Back Bangs Down">Back Bangs Down</string>
 <string name="Back Bangs Up">Back Bangs Up</string>
@@ -2291,7 +2291,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Bottom">Bottom</string>
 <string name="Bottom Left">Bottom Left</string>
 <string name="Bottom Right">Bottom Right</string>
-<string name="Bottom bump">Bottom bump</string>
+
 <string name="Bow Legged">Bow Legged</string>
 <string name="Breast Buoyancy">Breast Buoyancy</string>
 <string name="Breast Cleavage">Breast Cleavage</string>
@@ -2303,15 +2303,15 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Bugged Eyes">Bugged Eyes</string>
 <string name="Bulbous">Bulbous</string>
 <string name="Bulbous Nose">Bulbous Nose</string>
-<string name="Bump base">Bump base</string>
-<string name="Bump upperdef">Bump upperdef</string>
+
+
 <string name="Bushy Eyebrows">Bushy Eyebrows</string>
 <string name="Bushy Hair">Bushy Hair</string>
 <string name="Butt Size">Butt Size</string>
 <string name="bustle skirt">Bustle Skirt</string>
 <string name="no bustle">No Bustle</string>
 <string name="more bustle">More Bustle</string>
-<string name="CHEST">CHEST</string>
+
 <string name="Center">Center</string>
 <string name="Center 2">Center 2</string>
 <string name="Chaplin">Chaplin</string>
@@ -2322,7 +2322,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Chin Angle">Chin Angle</string>
 <string name="Chin Cleft">Chin Cleft</string>
 <string name="Chin Curtains">Chin Curtains</string>
-<string name="Chin Curtains bump">Chin Curtains bump</string>
+
 <string name="Chin Depth">Chin Depth</string>
 <string name="Chin Heavy">Chin Heavy</string>
 <string name="Chin In">Chin In</string>
@@ -2338,13 +2338,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Closed Right">Closed Right</string>
 <string name="Coin Purse">Coin Purse</string>
 <string name="Collar Back">Collar Back</string>
-<string name="Collar Back Height Cloth">Collar Back Height Cloth</string>
-<string name="Collar Back Shadow Height">Collar Back Shadow Height</string>
-<string name="Collar Back bump">Collar Back bump</string>
+
+
+
 <string name="Collar Front">Collar Front</string>
-<string name="Collar Front Height Cloth">Collar Front Height Cloth</string>
-<string name="Collar Front Shadow Height">Collar Front Shadow Height</string>
-<string name="Collar Front bump">Collar Front bump</string>
+
+
+
 <string name="Corner Down">Corner Down</string>
 <string name="Corner Normal">Corner Normal</string>
 <string name="Corner Up">Corner Up</string>
@@ -2378,11 +2378,11 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Eyeball Size">Eyeball Size</string>
 <string name="Eyebrow Arc">Eyebrow Arc</string>
 <string name="Eyebrow Density">Eyebrow Density</string>
-<string name="Eyebrow Density Bump">Eyebrow Density Bump</string>
+
 <string name="Eyebrow Height">Eyebrow Height</string>
 <string name="Eyebrow Points">Eyebrow Points</string>
 <string name="Eyebrow Size">Eyebrow Size</string>
-<string name="Eyebrow Size Bump">Eyebrow Size Bump</string>
+
 <string name="Eyelash Length">Eyelash Length</string>
 <string name="Eyeliner">Eyeliner</string>
 <string name="Eyeliner Color">Eyeliner Color</string>
@@ -2432,10 +2432,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Full Sides">Full Sides</string>
 <string name="Glossy">Glossy</string>
 <string name="Glove Fingers">Glove Fingers</string>
-<string name="Glove Fingers bump">Glove Fingers bump</string>
+
 <string name="Glove Length">Glove Length</string>
-<string name="Glove Length bump">Glove Length bump</string>
-<string name="HEAD">HEAD</string>
+
+
 <string name="Hair">Hair</string>
 <string name="Hair Back">Hair: Back</string>
 <string name="Hair Front">Hair: Front</string>
@@ -2470,10 +2470,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Inner Eye Corner">Inner Eye Corner</string>
 <string name="Inner Eye Shadow">Inner Eye Shadow</string>
 <string name="Inner Shadow">Inner Shadow</string>
-<string name="Jacket Collar Back bump">Jacket Collar Back bump</string>
-<string name="Jacket Collar Front bump">Jacket Collar Front bump</string>
+
+
 <string name="Jacket Length">Jacket Length</string>
-<string name="Jacket Sleeve Length bump">Jacket Sleeve Length bump</string>
+
 <string name="Jacket Wrinkles">Jacket Wrinkles</string>
 <string name="Jaw Angle">Jaw Angle</string>
 <string name="Jaw Jut">Jaw Jut</string>
@@ -2537,11 +2537,11 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Long Torso">Long Torso</string>
 <string name="Long arms">Long arms</string>
 <string name="Longcuffs">Longcuffs</string>
-<string name="Loose Lower Clothing">Loose Lower Clothing</string>
+
 <string name="Loose Pants">Loose Pants</string>
 <string name="Loose Shirt">Loose Shirt</string>
 <string name="Loose Sleeves">Loose Sleeves</string>
-<string name="Loose Upper Clothing">Loose Upper Clothing</string>
+
 <string name="Love Handles">Love Handles</string>
 <string name="Low">Low</string>
 <string name="Low Heels">Low Heels</string>
@@ -2551,7 +2551,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Lower">Lower</string>
 <string name="Lower Bridge">Lower Bridge</string>
 <string name="Lower Cheeks">Lower Cheeks</string>
-<string name="Lower Clothes Shading">Lower Clothes Shading</string>
+
 <string name="Male">Male</string>
 <string name="Middle Part">Middle Part</string>
 <string name="More">More</string>
@@ -2577,14 +2577,14 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="More Volume">More Volume</string>
 <string name="More soul">More soul</string>
 <string name="Moustache">Moustache</string>
-<string name="Moustache bump">Moustache bump</string>
+
 <string name="Mouth">Mouth</string>
 <string name="Mouth Corner">Mouth Corner</string>
 <string name="Mouth Position">Mouth Position</string>
 <string name="Mowhawk">Mowhawk</string>
 <string name="Muscular">Muscular</string>
 <string name="Mutton Chops">Mutton Chops</string>
-<string name="NECK">NECK</string>
+
 <string name="Nail Polish">Nail Polish</string>
 <string name="Nail Polish Color">Nail Polish Color</string>
 <string name="Narrow">Narrow</string>
@@ -2619,7 +2619,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Nose Width">Nose Width</string>
 <string name="Nostril Division">Nostril Division</string>
 <string name="Nostril Width">Nostril Width</string>
-<string name="NotHair">NotHair</string>
+
 <string name="Old">Old</string>
 <string name="Opaque">Opaque</string>
 <string name="Open">Open</string>
@@ -2635,15 +2635,15 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Outer Eye Shadow">Outer Eye Shadow</string>
 <string name="Outer Shadow">Outer Shadow</string>
 <string name="Overbite">Overbite</string>
-<string name="PELVIS">PELVIS</string>
+
 <string name="Package">Package</string>
 <string name="Painted Nails">Painted Nails</string>
 <string name="Pale">Pale</string>
 <string name="Pants Crotch">Pants Crotch</string>
 <string name="Pants Fit">Pants Fit</string>
 <string name="Pants Length">Pants Length</string>
-<string name="Pants Length Cloth">Pants Length Cloth</string>
-<string name="Pants Length Shadow">Pants Length Shadow</string>
+
+
 <string name="Pants Waist">Pants Waist</string>
 <string name="Pants Wrinkles">Pants Wrinkles</string>
 <string name="Part">Part</string>
@@ -2710,12 +2710,12 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Shift Mouth">Shift Mouth</string>
 <string name="Shift Right">Shift Right</string>
 <string name="Shirt Bottom">Shirt Bottom</string>
-<string name="Shirt Bottom Cloth">Shirt Bottom Cloth</string>
+
 <string name="Shirt Fit">Shirt Fit</string>
-<string name="Shirt Shadow Bottom">Shirt Shadow Bottom</string>
+
 <string name="Shirt Wrinkles">Shirt Wrinkles</string>
 <string name="Shoe Height">Shoe Height</string>
-<string name="Shoe Height bump">Shoe Height bump</string>
+
 <string name="Short">Short</string>
 <string name="Short Arms">Short Arms</string>
 <string name="Short Legs">Short Legs</string>
@@ -2731,7 +2731,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Side Bangs Up">Side Bangs Up</string>
 <string name="Side Fringe">Side Fringe</string>
 <string name="Sideburns">Sideburns</string>
-<string name="Sideburns bump">Sideburns bump</string>
+
 <string name="Sides Hair">Sides Hair</string>
 <string name="Sides Hair Down">Sides Hair Down</string>
 <string name="Sides Hair Up">Sides Hair Up</string>
@@ -2742,9 +2742,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Skull">Skull</string>
 <string name="Slanted Forehead">Slanted Forehead</string>
 <string name="Sleeve Length">Sleeve Length</string>
-<string name="Sleeve Length Cloth">Sleeve Length Cloth</string>
-<string name="Sleeve Length Shadow">Sleeve Length Shadow</string>
-<string name="Sleeve Length bump">Sleeve Length bump</string>
+
+
+
 <string name="Sleeve Looseness">Sleeve Looseness</string>
 <string name="Slit Back">Slit: Back</string>
 <string name="Slit Front">Slit: Front</string>
@@ -2756,10 +2756,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Smooth">Smooth</string>
 <string name="Smooth Hair">Smooth Hair</string>
 <string name="Socks Length">Socks Length</string>
-<string name="Socks Length bump">Socks Length bump</string>
+
 <string name="Some">Some</string>
 <string name="Soulpatch">Soulpatch</string>
-<string name="Soulpatch bump">Soulpatch bump</string>
+
 <string name="Sparse">Sparse</string>
 <string name="Spiked Hair">Spiked Hair</string>
 <string name="Spine">Spine</string>
@@ -2812,13 +2812,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Upper Bridge">Upper Bridge</string>
 <string name="Upper Cheeks">Upper Cheeks</string>
 <string name="Upper Chin Cleft">Upper Chin Cleft</string>
-<string name="Upper Clothes Shading">Upper Clothes Shading</string>
+
 <string name="Upper Eyelid Fold">Upper Eyelid Fold</string>
 <string name="Upturned">Upturned</string>
 <string name="Very Red">Very Red</string>
 <string name="Waist Height">Waist Height</string>
-<string name="Waist Height Cloth">Waist Height Cloth</string>
-<string name="Waist Height Shadow">Waist Height Shadow</string>
+
+
 <string name="Well-Fed">Well-Fed</string>
 <string name="White Hair">White Hair</string>
 <string name="Wide">Wide</string>
