@@ -57,7 +57,20 @@ public:
 	{ 
 		return start_offset;
 	}
-	/*virtual*/ S32		getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const { return getEnd() - getStart(); }
+	/*virtual*/ S32		getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const 
+	{ 
+		// require full line to ourselves
+		if (line_offset == 0) 
+		{
+			// print all our text
+			return getEnd() - getStart(); 
+		}
+		else
+		{
+			// wait for next line
+			return 0;
+		}
+	}
 	/*virtual*/ F32		draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
 	{
 		F32 right_x;

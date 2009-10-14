@@ -1106,11 +1106,16 @@ void LLTextBase::reflow(S32 start_index)
 
 			S32 segment_width = segment->getWidth(seg_offset, character_count);
 			remaining_pixels -= segment_width;
-			S32 text_left = getLeftOffset(text_width - remaining_pixels);
 
 			seg_offset += character_count;
 
 			S32 last_segment_char_on_line = segment->getStart() + seg_offset;
+
+			S32 text_left = getLeftOffset(text_width - remaining_pixels);
+			LLRect line_rect(text_left, 
+							cur_top, 
+							text_left + (text_width - remaining_pixels), 
+							cur_top - line_height);
 
 			// if we didn't finish the current segment...
 			if (last_segment_char_on_line < segment->getEnd())
@@ -1129,10 +1134,7 @@ void LLTextBase::reflow(S32 start_index)
 				mLineInfoList.push_back(line_info(
 											line_start_index, 
 											last_segment_char_on_line, 
-											LLRect(text_left, 
-													cur_top, 
-													text_left + (text_width - remaining_pixels),
-													cur_top - line_height), 
+											line_rect, 
 											line_count));
 
 				line_start_index = segment->getStart() + seg_offset;
@@ -1147,15 +1149,12 @@ void LLTextBase::reflow(S32 start_index)
 				mLineInfoList.push_back(line_info(
 											line_start_index, 
 											last_segment_char_on_line, 
-											LLRect(text_left, 
-													cur_top, 
-													text_left + (text_width - remaining_pixels),
-													cur_top - line_height), 
+											line_rect, 
 											line_count));
 				cur_top -= llround((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
 				break;
 			}
-			// finished a segment and there are segments remaining on this line
+			// ...or finished a segment and there are segments remaining on this line
 			else
 			{
 				// subtract pixels used and increment segment
