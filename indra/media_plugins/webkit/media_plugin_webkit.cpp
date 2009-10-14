@@ -48,6 +48,18 @@
 #include <stdlib.h>
 #endif
 
+#if LL_WINDOWS
+	// *NOTE:Mani - This captures the module handle fo rthe dll. This is used below
+	// to get the path to this dll for webkit initialization.
+	// I don't know how/if this can be done with apr...
+	namespace {	HMODULE gModuleHandle;};
+	BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+	{
+		gModuleHandle = (HMODULE) hinstDLL;
+		return TRUE;
+	}
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 class MediaPluginWebKit : 
@@ -126,7 +138,31 @@ private:
 			return false;
 		}
 		std::string application_dir = std::string( cwd );
+
+#if LL_WINDOWS
+		//*NOTE:Mani - On windows, at least, the component path is the
+		// location of this dll's image file. 
+		std::string component_dir;
+		char dll_path[_MAX_PATH];
+		DWORD len = GetModuleFileNameA(gModuleHandle, (LPCH)&dll_path, _MAX_PATH);
+		while(len && dll_path[ len ] != ('\\') )
+		{
+			len--;
+		}
+		if(len >= 0)
+		{
+			dll_path[len] = 0;
+			component_dir = dll_path;
+		}
+		else
+		{
+			// *NOTE:Mani - This case should be an rare exception. 
+			// GetModuleFileNameA should always give you a full path, no?
+			component_dir = application_dir;
+		}
+#else
 		std::string component_dir = application_dir;
+#endif
 		std::string profileDir = application_dir + "/" + "browser_profile";		// cross platform?
 
 		// window handle - needed on Windows and must be app window.

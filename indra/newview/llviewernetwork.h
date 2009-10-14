@@ -34,7 +34,10 @@
 #ifndef LL_LLVIEWERNETWORK_H
 #define LL_LLVIEWERNETWORK_H
 
+#include <boost/scoped_ptr.hpp>
+
 class LLHost;
+class LLLogin;
 
 enum EGridInfo
 {
@@ -74,6 +77,7 @@ class LLViewerLogin : public LLSingleton<LLViewerLogin>
 {
 public:
 	LLViewerLogin();
+	~LLViewerLogin();
 
 	void setGridChoice(EGridInfo grid);
 	void setGridChoice(const std::string& grid_name);

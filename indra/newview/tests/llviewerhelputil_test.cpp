@@ -30,6 +30,9 @@
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
+// Precompiled header
+#include "../llviewerprecompiledheaders.h"
+
 #include "../test/lltut.h"
 
 #include "../llviewerhelputil.h"

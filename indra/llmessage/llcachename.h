@@ -42,9 +42,9 @@ class LLUUID;
 
 
 typedef boost::signals2::signal<void (const LLUUID& id,
-							const std::string& first_name,
-							const std::string& last_name,
-							BOOL is_group)> LLCacheNameSignal;
+                                      const std::string& first_name,
+                                      const std::string& last_name,
+                                      BOOL is_group)> LLCacheNameSignal;
 typedef LLCacheNameSignal::slot_type LLCacheNameCallback;
 
 // Old callback with user data for compatability

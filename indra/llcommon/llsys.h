@@ -45,7 +45,7 @@
 #include <iosfwd>
 #include <string>
 
-class LLOSInfo
+class LL_COMMON_API LLOSInfo
 {
 public:
 	LLOSInfo();
@@ -70,7 +70,7 @@ private:
 };
 
 
-class LLCPUInfo
+class LL_COMMON_API LLCPUInfo
 {
 public:
 	LLCPUInfo();	
@@ -99,7 +99,7 @@ private:
 //
 //	CLASS		LLMemoryInfo
 
-class LLMemoryInfo
+class LL_COMMON_API LLMemoryInfo
 
 /*!	@brief		Class to query the memory subsystem
 
@@ -123,15 +123,15 @@ public:
 };
 
 
-std::ostream& operator<<(std::ostream& s, const LLOSInfo& info);
-std::ostream& operator<<(std::ostream& s, const LLCPUInfo& info);
-std::ostream& operator<<(std::ostream& s, const LLMemoryInfo& info);
+LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLOSInfo& info);
+LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLCPUInfo& info);
+LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLMemoryInfo& info);
 
 // gunzip srcfile into dstfile.  Returns FALSE on error.
-BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile);
+BOOL LL_COMMON_API gunzip_file(const std::string& srcfile, const std::string& dstfile);
 // gzip srcfile into dstfile.  Returns FALSE on error.
-BOOL gzip_file(const std::string& srcfile, const std::string& dstfile);
+BOOL LL_COMMON_API gzip_file(const std::string& srcfile, const std::string& dstfile);
 
-extern LLCPUInfo gSysCPU;
+extern LL_COMMON_API LLCPUInfo gSysCPU;
 
 #endif // LL_LLSYS_H

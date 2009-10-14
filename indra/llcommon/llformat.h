@@ -40,6 +40,6 @@
 // *NOTE: buffer limited to 1024, (but vsnprintf prevents overrun)
 // should perhaps be replaced with boost::format.
 
-std::string llformat(const char *fmt, ...);
+std::string LL_COMMON_API llformat(const char *fmt, ...);
 
 #endif // LL_LLFORMAT_H

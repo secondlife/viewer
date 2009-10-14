@@ -13,7 +13,7 @@ include(LLXML)
 include(LScript)
 include(Linking)
 include(Tut)
-include(Boost)
+
 include(GoogleMock)
 
 include_directories(
@@ -95,6 +95,7 @@ set(test_SOURCE_FILES
 set(test_HEADER_FILES
     CMakeLists.txt
 
+    debug.h
     llpipeutil.h
     llsdtraits.h
     lltut.h
@@ -128,6 +129,7 @@ target_link_libraries(test
     ${LLXML_LIBRARIES}
     ${LSCRIPT_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
+    ${EXPAT_LIBRARIES}
     ${GOOGLEMOCK_LIBRARIES}
     ${APRICONV_LIBRARIES}
     ${PTHREAD_LIBRARY}
@@ -148,22 +150,21 @@ endif (WINDOWS)
 
 get_target_property(TEST_EXE test LOCATION)
 
-SET(TEST_CMD ${TEST_EXE} --touch=${TEST_OUTPUT} --sourcedir=${CMAKE_CURRENT_SOURCE_DIR})
+IF(WINDOWS)
+  set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR})
+ELSE(WINDOWS)
+  set(LD_LIBRARY_PATH ${ARCH_PREBUILT_DIRS}:${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}:/usr/lib)
+ENDIF(WINDOWS)
 
-SET(TEST_LD_CMD 
-  ${CMAKE_COMMAND} 
-  -DLD_LIBRARY_PATH=${ARCH_PREBUILT_DIRS}:/usr/lib
-  -DTEST_CMD:STRING="${TEST_CMD}" 
-  -P ${CMAKE_SOURCE_DIR}/cmake/RunBuildTest.cmake
-  )
-
-add_custom_command(
+LL_TEST_COMMAND("${LD_LIBRARY_PATH}"
+  "${TEST_EXE}" "--output=${CMAKE_CURRENT_BINARY_DIR}/cpp_test_results.txt" "--touch=${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt")
+ADD_CUSTOM_COMMAND(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt
-  COMMAND ${TEST_LD_CMD}
+  COMMAND ${LL_TEST_COMMAND_value}
   DEPENDS test
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMENT "C++ unit tests"
-  )
+ )
 
 set(test_results ${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt)
 

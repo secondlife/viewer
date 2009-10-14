@@ -162,7 +162,6 @@ void LLPanelMediaSettingsGeneral::draw()
 //	updateCurrentURL();
 
 	LLPermissions perm;
-	BOOL valid = LLSelectMgr::getInstance()->selectGetPermissions(perm);
 	bool user_can_press_reset = gFloaterTools->selectedMediaEditable();
 
 	// several places modify this widget so we must collect states in one place
