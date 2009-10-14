@@ -539,7 +539,7 @@ void LLUpdateTaskInventoryResponder::uploadComplete(const LLSD& content)
 				  gVFS->removeFile(content["new_asset"].asUUID(),
 								   LLAssetType::AT_NOTECARD);
 			  }
-
+			  nc->setAssetId(content["new_asset"].asUUID());
 			  nc->refreshFromInventory();
 		  }
 		  break;
