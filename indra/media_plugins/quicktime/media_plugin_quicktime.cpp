@@ -103,6 +103,7 @@ private:
 			message.setValueReal("current_time", getCurrentTime());
 			message.setValueReal("duration", getDuration());
 			message.setValueReal("current_rate", Fix2X(GetMovieRate(mMovieHandle)));
+			message.setValueReal("loaded_duration", getLoadedDuration());
 		}
 			
 		sendMessage(message);
@@ -588,6 +589,19 @@ private:
 	F64 getDuration()
 	{
 		TimeValue duration = GetMovieDuration( mMovieHandle );
+		TimeValue scale = GetMovieTimeScale( mMovieHandle );
+
+		return (F64)duration / (F64)scale;
+	};
+
+	F64 getLoadedDuration()
+	{
+		TimeValue duration;
+		if(GetMaxLoadedTimeInMovie( mMovieHandle, &duration ) != noErr)
+		{
+			// If GetMaxLoadedTimeInMovie returns an error, return the full duration of the movie.
+			duration = GetMovieDuration( mMovieHandle );
+		}
 		TimeValue scale = GetMovieTimeScale( mMovieHandle );
 
 		return (F64)duration / (F64)scale;

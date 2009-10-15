@@ -182,15 +182,20 @@ LLMediaDataClient::Responder::RetryTimer::RetryTimer(F32 time, Responder *mdr)
 LLMediaDataClient::Responder::RetryTimer::~RetryTimer() 
 {
 	LL_DEBUGS("LLMediaDataClient") << "~RetryTimer" << *(mResponder->getRequest()) << LL_ENDL;
+
+	// XXX This is weird: Instead of doing the work in tick()  (which re-schedules
+	// a timer, which might be risky), do it here, in the destructor.  Yes, it is very odd.
+	// Instead of retrying, we just put the request back onto the queue
+	LL_INFOS("LLMediaDataClient") << "RetryTimer fired for: " << *(mResponder->getRequest()) << "retrying" << LL_ENDL;
+	mResponder->getRequest()->reEnqueue();
+
+	// Release the ref to the responder.
 	mResponder = NULL;
 }
 
 // virtual
 BOOL LLMediaDataClient::Responder::RetryTimer::tick()
 {
-	// Instead of retrying, we just put the request back onto the queue
-	LL_INFOS("LLMediaDataClient") << "RetryTimer fired for: " << *(mResponder->getRequest()) << "retrying" << LL_ENDL;
-	mResponder->getRequest()->reEnqueue();
 	// Don't fire again
 	return TRUE;
 }
@@ -357,7 +362,7 @@ BOOL LLMediaDataClient::QueueTimer::tick()
 		return TRUE;
 	}
 
-	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() started, queue is:	  " << queue << LL_ENDL;
+	LL_INFOS("LLMediaDataClient") << "QueueTimer::tick() started, queue is:	  " << queue << LL_ENDL;
 
 	// Peel one off of the items from the queue, and execute request
 	request_ptr_t request = queue.top();
@@ -382,9 +387,13 @@ BOOL LLMediaDataClient::QueueTimer::tick()
 		}
 	}
 	else {
-		if (!object->hasMedia())
+		if (NULL == object) 
 		{
-			LL_INFOS("LLMediaDataClient") << "Not Sending request for " << *request << " hasMedia() is false!" << LL_ENDL;
+			LL_WARNS("LLMediaDataClient") << "Not Sending request for " << *request << " NULL object!" << LL_ENDL;
+		}
+		else if (!object->hasMedia())
+		{
+			LL_WARNS("LLMediaDataClient") << "Not Sending request for " << *request << " hasMedia() is false!" << LL_ENDL;
 		}
 	}
 	bool exceeded_retries = request->getRetryCount() > mMDC->mMaxNumRetries;
@@ -413,6 +422,9 @@ void LLMediaDataClient::startQueueTimer()
 		LL_INFOS("LLMediaDataClient") << "starting queue timer (delay=" << mQueueTimerDelay << " seconds)" << LL_ENDL;
 		// LLEventTimer automagically takes care of the lifetime of this object
 		new QueueTimer(mQueueTimerDelay, this);
+	}
+	else { 
+		LL_DEBUGS("LLMediaDataClient") << "not starting queue timer (it's already running, right???)" << LL_ENDL;
 	}
 }
 	

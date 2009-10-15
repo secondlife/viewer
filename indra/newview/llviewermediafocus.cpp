@@ -290,6 +290,11 @@ BOOL LLViewerMediaFocus::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
 	if(mMediaImpl.notNull())
 		mMediaImpl->handleKeyHere(key, mask);
+
+	if (key == KEY_ESCAPE && mMediaHUD.get())
+	{
+		mMediaHUD.get()->close();
+	}
 	return true;
 }
 

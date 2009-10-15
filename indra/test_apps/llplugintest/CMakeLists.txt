@@ -28,7 +28,7 @@ include_directories(
 
 if (DARWIN)
     include(CMakeFindFrameworks)
-    find_library(CARBON_LIBRARY Carbon)
+    find_library(COREFOUNDATION_LIBRARY CoreFoundation)
 endif (DARWIN)
 
 ### demo_plugin
@@ -261,6 +261,7 @@ set(llmediaplugintest_SOURCE_FILES
 
 add_executable(llmediaplugintest
     WIN32
+    MACOSX_BUNDLE
     ${llmediaplugintest_SOURCE_FILES}
 )
 
@@ -279,6 +280,13 @@ target_link_libraries(llmediaplugintest
   ${LLCOMMON_LIBRARIES}
   ${PLUGIN_API_WINDOWS_LIBRARIES}
 )
+
+if (DARWIN)
+  # The testbed needs to use a couple of CoreFoundation calls now, to deal with being a bundled app.
+  target_link_libraries(llmediaplugintest
+    ${COREFOUNDATION_LIBRARY}
+  )
+endif (DARWIN)
 
 add_dependencies(llmediaplugintest
   stage_third_party_libs
@@ -300,22 +308,64 @@ endif (DARWIN OR LINUX)
 
 # Gather build products of the various dependencies into the build directory for the testbed.
 
+if (DARWIN)
+  # path inside the app bundle where we'll need to copy plugins and other related files
+  set(PLUGINS_DESTINATION_DIR
+    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llmediaplugintest.app/Contents/Resources
+  )
+  
+  # create the Contents/Resources directory
+  add_custom_command(
+    TARGET llmediaplugintest POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS
+      -E
+      make_directory
+      ${PLUGINS_DESTINATION_DIR}
+    COMMENT "Creating Resources directory in app bundle."
+  )
+
+  # copy the llcommon dylib and its dependencies to Contents/Resources.
+  get_target_property(BUILT_LLCOMMON llcommon LOCATION)
+  add_custom_command(TARGET llmediaplugintest POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_LLCOMMON}  ${PLUGINS_DESTINATION_DIR}
+    DEPENDS ${BUILT_LLCOMMON}
+  )
+  # FIXME: these paths should come from somewhere reliable.  The canonical list seems to be in indra/newview/viewer_manifest.py
+  add_custom_command(TARGET llmediaplugintest POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${ARCH_PREBUILT_DIRS_RELEASE}/libapr-1.0.3.7.dylib  ${PLUGINS_DESTINATION_DIR}
+    DEPENDS ${ARCH_PREBUILT_DIRS_RELEASE}/libapr-1.0.3.7.dylib
+  )
+  add_custom_command(TARGET llmediaplugintest POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${ARCH_PREBUILT_DIRS_RELEASE}/libaprutil-1.0.3.8.dylib  ${PLUGINS_DESTINATION_DIR}
+    DEPENDS ${ARCH_PREBUILT_DIRS_RELEASE}/libaprutil-1.0.3.8.dylib
+  )
+  add_custom_command(TARGET llmediaplugintest POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${ARCH_PREBUILT_DIRS_RELEASE}/libexpat.0.5.0.dylib  ${PLUGINS_DESTINATION_DIR}
+    DEPENDS ${ARCH_PREBUILT_DIRS_RELEASE}/libexpat.0.5.0.dylib
+  )
+else (DARWIN)
+  set(PLUGINS_DESTINATION_DIR
+    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
+  )
+endif (DARWIN)
+
 get_target_property(BUILT_SLPLUGIN SLPlugin LOCATION)
 add_custom_command(TARGET llmediaplugintest POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_SLPLUGIN}  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
+  COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_SLPLUGIN}  ${PLUGINS_DESTINATION_DIR}
   DEPENDS ${BUILT_SLPLUGIN}
 )
 
 if (DARWIN OR WINDOWS)
   get_target_property(BUILT_WEBKIT_PLUGIN media_plugin_webkit LOCATION)
   add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_WEBKIT_PLUGIN}  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
+    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_WEBKIT_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
     DEPENDS ${BUILT_WEBKIT_PLUGIN}
   )
 
   get_target_property(BUILT_QUICKTIME_PLUGIN media_plugin_quicktime LOCATION)
   add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_QUICKTIME_PLUGIN}  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
+    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_QUICKTIME_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
     DEPENDS ${BUILT_QUICKTIME_PLUGIN}
   )
   
@@ -325,16 +375,16 @@ if (DARWIN OR WINDOWS)
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${CMAKE_CURRENT_BINARY_DIR}/
     DEPENDS ${BUILT_LLMEDIAPLUGINTEST}
   )
-  # also copy it to the build configuration directory, which is what the mac wants...
+  # also copy it to the same place as SLPlugin, which is what the mac wants...
   add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bookmarks.txt ${PLUGINS_DESTINATION_DIR}
     DEPENDS ${BUILT_LLMEDIAPLUGINTEST}
   )
 endif (DARWIN OR WINDOWS)
 
 if (DARWIN)
   add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib ${PLUGINS_DESTINATION_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib
   )
 endif (DARWIN)
