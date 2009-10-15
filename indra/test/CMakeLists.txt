@@ -34,7 +34,6 @@ set(test_SOURCE_FILES
     llbuffer_tut.cpp
     lldependencies_tut.cpp
     lldoubledispatch_tut.cpp
-    llerror_tut.cpp
     llevents_tut.cpp
     llhost_tut.cpp
     llhttpdate_tut.cpp
