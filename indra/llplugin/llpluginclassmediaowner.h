@@ -52,6 +52,7 @@ public:
 		MEDIA_EVENT_NAVIGATE_COMPLETE,		// browser has finished navigation
 		MEDIA_EVENT_PROGRESS_UPDATED,		// browser has updated loading progress
 		MEDIA_EVENT_STATUS_TEXT_CHANGED,	// browser has updated the status text
+		MEDIA_EVENT_NAME_CHANGED,			// browser has updated the name of the media (typically <title> tag)
 		MEDIA_EVENT_LOCATION_CHANGED,		// browser location (URL) has changed (maybe due to internal navagation/frames/etc)
 		MEDIA_EVENT_CLICK_LINK_HREF,		// I'm not entirely sure what the semantics of these two are
 		MEDIA_EVENT_CLICK_LINK_NOFOLLOW,

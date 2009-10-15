@@ -138,6 +138,8 @@ LLMediaPluginTest::LLMediaPluginTest( int app_window, int window_width, int wind
 	mMediaBrowserControlBackButtonFlag( true ),
 	mMediaBrowserControlForwardButtonFlag( true ),
 	mHomeWebUrl( "http://www.google.com/" )
+	//mHomeWebUrl( "file:///C|/Program Files/QuickTime/Sample.mov" )
+	//mHomeWebUrl( "http://movies.apple.com/movies/wb/watchmen/watchmen-tlr2_480p.mov" )
 {
 	// debugging spam
 	std::cout << std::endl << "             GLUT version: " << "3.7.6" << std::endl;	// no way to get real version from GLUT
@@ -2006,6 +2008,11 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 
 		case MEDIA_EVENT_STATUS_TEXT_CHANGED:
 			std::cerr <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << self->getStatusText() << std::endl;
+		break;
+
+		case MEDIA_EVENT_NAME_CHANGED:
+			std::cerr <<  "Media event:  MEDIA_EVENT_NAME_CHANGED, new name is: " << self->getMediaName() << std::endl;
+			glutSetWindowTitle( self->getMediaName().c_str() );
 		break;
 
 		case MEDIA_EVENT_LOCATION_CHANGED:

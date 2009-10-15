@@ -835,6 +835,11 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 				mCanPaste = message.getValueBoolean("paste");
 			}
 		}
+		else if(message_name == "name_text")
+		{
+			mMediaName = message.getValue("name");
+			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_NAME_CHANGED);
+		}
 		else
 		{
 			LL_WARNS("Plugin") << "Unknown " << message_name << " class message: " << message_name << LL_ENDL;
