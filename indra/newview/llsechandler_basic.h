@@ -221,6 +221,8 @@ public:
 						 const std::string& legacy_password_path);
 	LLSecAPIBasicHandler();
 	
+	void init();
+	
 	virtual ~LLSecAPIBasicHandler();
 	
 	// instantiate a certificate from a pem string

@@ -1028,20 +1028,29 @@ LLSecAPIBasicHandler::LLSecAPIBasicHandler(const std::string& protected_data_fil
 	mProtectedDataFilename = protected_data_file;
 	mProtectedDataMap = LLSD::emptyMap();
 	mLegacyPasswordPath = legacy_password_path;
-	_readProtectedData();
+
 }
 
 LLSecAPIBasicHandler::LLSecAPIBasicHandler()
 {
-	mProtectedDataFilename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
-															"bin_conf.dat");
-	mLegacyPasswordPath = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "password.dat");
+}
 
+
+void LLSecAPIBasicHandler::init()
+{
+	if (mProtectedDataFilename.length() == 0)
+	{
+		mProtectedDataFilename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
+															"bin_conf.dat");
+	}
+	if (mLegacyPasswordPath.length() == 0)
+	{
+		mLegacyPasswordPath = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "password.dat");
+	}
 	mProtectedDataMap = LLSD::emptyMap();
 	
 	mProtectedDataFilename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
 															"bin_conf.dat");	
-	_readProtectedData();
 
 	std::string store_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
 															"CA.pem");
@@ -1051,8 +1060,6 @@ LLSecAPIBasicHandler::LLSecAPIBasicHandler()
 	// will reduce that risk.
 	// by using a user file, modifications will be limited to one user if
 	// we read-only the main file
-
-
 	if (!LLFile::isfile(store_file))
 	{
 
@@ -1071,8 +1078,9 @@ LLSecAPIBasicHandler::LLSecAPIBasicHandler()
 	}
 	LL_INFOS("SECAPI") << "Loading certificate store from " << store_file << LL_ENDL;
 	mStore = new LLBasicCertificateStore(store_file);
+	_readProtectedData(); // initialize mProtectedDataMap
+						  // may throw LLProtectedDataException if saved datamap is not decryptable
 }
-
 LLSecAPIBasicHandler::~LLSecAPIBasicHandler()
 {
 	_writeProtectedData();
@@ -1084,6 +1092,7 @@ void LLSecAPIBasicHandler::_readProtectedData()
 	LLPointer<LLSDParser> parser = new LLSDXMLParser();
 	llifstream protected_data_stream(mProtectedDataFilename.c_str(), 
 									llifstream::binary);
+
 	if (!protected_data_stream.fail()) {
 		int offset;
 		U8 salt[STORE_SALT_SIZE];
@@ -1099,7 +1108,7 @@ void LLSecAPIBasicHandler::_readProtectedData()
 		offset = 0;
 		if (protected_data_stream.gcount() < STORE_SALT_SIZE)
 		{
-			throw LLProtectedDataException("Corrupt Protected Data Store1");
+			throw LLProtectedDataException("Config file too short.");
 		}
 
 		cipher.decrypt(salt, STORE_SALT_SIZE);		
@@ -1139,7 +1148,7 @@ void LLSecAPIBasicHandler::_readProtectedData()
 		if (parser->parse(parse_stream, mProtectedDataMap, 
 						  LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
 		{
-			throw LLProtectedDataException("Corrupt Protected Data Store");
+			throw LLProtectedDataException("Config file cannot be decrypted.");
 		}
 	}
 }
@@ -1254,6 +1263,7 @@ LLPointer<LLCertificateStore> LLSecAPIBasicHandler::getCertificateStore(const st
 LLSD LLSecAPIBasicHandler::getProtectedData(const std::string& data_type,
 											const std::string& data_id)
 {
+
 	if (mProtectedDataMap.has(data_type) && 
 		mProtectedDataMap[data_type].isMap() && 
 		mProtectedDataMap[data_type].has(data_id))

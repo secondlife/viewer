@@ -1358,6 +1358,18 @@ Unable to encode file: [FILE]
 
   <notification
    icon="alertmodal.tga"
+   name="CorruptedProtectedDataStore"
+   type="alertmodal">
+  We are unable to read your protected data so it is being reset.
+   This may happen when you change network setup.
+
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
    name="CorruptResourceFile"
    type="alertmodal">
 Corrupt resource file: [FILE]

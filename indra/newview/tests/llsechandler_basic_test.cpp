@@ -340,6 +340,7 @@ namespace tut
 
 		LLPointer<LLSecAPIBasicHandler> handler = new LLSecAPIBasicHandler("sechandler_settings.tmp",
 																		   "test_password.dat");
+		handler.init();																		
 		// data retrieval for existing data
 		LLSD data = handler->getProtectedData("test_data_type", "test_data_id");
 
@@ -397,6 +398,7 @@ namespace tut
 		// cause a 'write' by using 'LLPointer' to delete then instantiate a handler
 		handler = NULL;
 		handler = new LLSecAPIBasicHandler("sechandler_settings.tmp", "test_password.dat");
+		handler.init();
 
 		data = handler->getProtectedData("test_data_type1", "test_data_id");
 		ensure_equals("verify datatype stored data3a", (std::string)data["store_data3"], "test_store_data3");
@@ -411,6 +413,7 @@ namespace tut
 		
 		// cause a 'write'
 		handler = new LLSecAPIBasicHandler("sechandler_settings.tmp", "test_password.dat");
+		handler.init();		
 		data = handler->getProtectedData("test_data_type1", "test_data_id");
 		ensure("not found", data.isUndefined());
 		
@@ -419,6 +422,7 @@ namespace tut
 		
 		LLFile::remove("sechandler_settings.tmp");
 		handler = new LLSecAPIBasicHandler("sechandler_settings.tmp", "test_password.dat");
+		handler.init();		
 		data = handler->getProtectedData("test_data_type1", "test_data_id");
 		ensure("not found", data.isUndefined());
 		handler = NULL;
@@ -431,6 +435,7 @@ namespace tut
 	void sechandler_basic_test_object::test<3>()
 	{
 		LLPointer<LLSecAPIBasicHandler> handler = new LLSecAPIBasicHandler("sechandler_settings.tmp", "test_password.dat");
+		handler.init();
 
 		LLSD my_id = LLSD::emptyMap();
 		LLSD my_authenticator = LLSD::emptyMap();

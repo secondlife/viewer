@@ -47,7 +47,7 @@
 #define CERT_ISSUER_NAME "issuer_name"
 #define CERT_NAME_CN "commonName"
 		
-#define  CERT_SUBJECT_NAME_STRING "subject_name_string"
+#define CERT_SUBJECT_NAME_STRING "subject_name_string"
 #define CERT_ISSUER_NAME_STRING "issuer_name_string"
 		
 #define CERT_SERIAL_NUMBER "serial_number"
@@ -118,9 +118,10 @@ class LLProtectedDataException
 public:
 	LLProtectedDataException(const char *msg) 
 	{
-		llerrs << "Certificate Error: " << msg << llendl;
-		mMsg = std::string(msg);
+		LL_WARNS("SECAPI") << "Protected Data Error: " << (std::string)msg << LL_ENDL;
+		mMsg = (std::string)msg;
 	}
+	std::string getMessage() { return mMsg; }
 protected:
 	std::string mMsg;
 };
@@ -421,11 +422,16 @@ class LLSecAPIHandler : public LLRefCount
 {
 public:
 	
+	
 	LLSecAPIHandler() {}
 	virtual ~LLSecAPIHandler() {}
 	
+	// initialize the SecAPIHandler
+	virtual void init() {};
+	
 	// instantiate a certificate from a pem string
 	virtual LLPointer<LLCertificate> getCertificate(const std::string& pem_cert)=0;
+	
 	
 	
 	// instiate a certificate from an openssl X509 structure

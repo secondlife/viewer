@@ -620,8 +620,6 @@ bool LLAppViewer::init()
     LLCurl::initClass();
 
     initThreads();
-    initializeSecHandler();
-	LLHTTPClient::setCertVerifyCallback(secapiSSLCertVerifyCallback);
     writeSystemInfo();
 
 	// Build a string representing the current version number.
@@ -862,6 +860,7 @@ bool LLAppViewer::init()
 		}
 	}
 
+
 	// save the graphics card
 	gDebugInfo["GraphicsCard"] = LLFeatureManager::getInstance()->getGPUString();
 
@@ -872,6 +871,17 @@ bool LLAppViewer::init()
 	gSimFrames = (F32)gFrameCount;
 
 	LLViewerJoystick::getInstance()->init(false);
+
+	try {
+		initializeSecHandler();
+	}
+	catch (LLProtectedDataException ex)
+	{
+	  LLNotificationsUtil::add("CorruptedProtectedDataStore");
+	}
+	LLHTTPClient::setCertVerifyCallback(secapiSSLCertVerifyCallback);
+
+
 	gGLActive = FALSE;
 	if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)
 	{
