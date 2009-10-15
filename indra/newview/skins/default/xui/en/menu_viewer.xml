@@ -2365,17 +2365,7 @@
                  function="Floater.Show"
                  parameter="bumps" />
             </menu_item_call>
-        <menu_item_check
-         label="Output Debug Minidump"
-         layout="topleft"
-         name="Output Debug Minidump">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="SaveMinidump" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="SaveMinidump" />
-        </menu_item_check>
+
         <menu
          create_jump_keys="true"
          label="Recorder"
@@ -3198,7 +3188,18 @@
              function="Advanced.CompressImage" />
         </menu_item_call>
         <menu_item_check
-         label="Debug Console in a Separate Window"
+         label="Output Debug Minidump"
+         layout="topleft"
+         name="Output Debug Minidump">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="SaveMinidump" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="SaveMinidump" />
+        </menu_item_check>
+        <menu_item_check
+         label="Console Window on next Run"
          layout="topleft"
          name="Console Window">
             <menu_item_check.on_check
