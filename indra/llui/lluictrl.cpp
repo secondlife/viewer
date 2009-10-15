@@ -849,24 +849,3 @@ BOOL LLUICtrl::getTentative() const
 // virtual
 void LLUICtrl::setColor(const LLColor4& color)							
 { }
-
-
-namespace LLInitParam
-{
-    template<> 
-	bool ParamCompare<LLUICtrl::commit_callback_t>::equals(
-		const LLUICtrl::commit_callback_t &a, 
-		const LLUICtrl::commit_callback_t &b)
-    {
-    	return false;
-    }
-    
-   
-    template<> 
-	bool ParamCompare<LLUICtrl::enable_callback_t>::equals(
-		const LLUICtrl::enable_callback_t &a, 
-		const LLUICtrl::enable_callback_t &b)
-    {
-    	return false;
-    }
-}

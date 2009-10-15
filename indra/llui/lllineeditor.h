@@ -391,15 +391,4 @@ private:
 }; // end class LLLineEditor
 
 
-namespace LLInitParam
-{
-    template<>
-	bool ParamCompare<LLLinePrevalidateFunc>::equals(
-		const LLLinePrevalidateFunc &a, const LLLinePrevalidateFunc &b); 
-
-    template<>
-	bool ParamCompare<boost::function<void (LLLineEditor *)> >::equals(
-		const boost::function<void (LLLineEditor *)> &a, const boost::function<void (LLLineEditor *)> &b); 
-}
-
 #endif  // LL_LINEEDITOR_

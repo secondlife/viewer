@@ -990,7 +990,7 @@ void LLTextEditor::removeChar()
 // Add a single character to the text
 S32 LLTextEditor::addChar(S32 pos, llwchar wc)
 {
-	if ( (wstring_utf8_length( getWText() ) + wchar_utf8_length( wc ))  >= mMaxTextByteLength)
+	if ( (wstring_utf8_length( getWText() ) + wchar_utf8_length( wc ))  > mMaxTextByteLength)
 	{
 		make_ui_sound("UISndBadKeystroke");
 		return 0;

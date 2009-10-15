@@ -108,8 +108,10 @@ namespace LLInitParam
 	// Need custom comparison function for our test app, which only loads
 	// LLUIImage* as NULL.
 	template<>
-	bool ParamCompare<LLUIImage*>::equals(
-		LLUIImage* const &a, LLUIImage* const &b);
+	struct ParamCompare<LLUIImage*, boost::false_type>
+	{
+		static bool equals(LLUIImage* const &a, LLUIImage* const &b);
+	};
 }
 
 typedef LLPointer<LLUIImage> LLUIImagePtr;

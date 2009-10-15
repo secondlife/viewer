@@ -640,15 +640,3 @@ void LLScrollbar::onLineDownBtnPressed( const LLSD& data )
 {
 	changeLine( mStepSize, TRUE );
 }
-
-
-namespace LLInitParam
-{
-    template<>
-	bool ParamCompare<boost::function<void (S32, LLScrollbar*)> >::equals(
-		const boost::function<void (S32, LLScrollbar*)> &a,
-		const boost::function<void (S32, LLScrollbar*)> &b) 
-	{
-		return false;
-	}
-}

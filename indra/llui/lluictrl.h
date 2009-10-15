@@ -327,21 +327,4 @@ private:
 	class DefaultTabGroupFirstSorter;
 };
 
-namespace LLInitParam
-{   
-    template<> 
-	bool ParamCompare<LLUICtrl::commit_callback_t>::equals(
-		const LLUICtrl::commit_callback_t &a, 
-		const LLUICtrl::commit_callback_t &b); 
-		
-    template<> 
-	bool ParamCompare<LLUICtrl::enable_callback_t>::equals(
-		const LLUICtrl::enable_callback_t &a, 
-		const LLUICtrl::enable_callback_t &b); 
-    
-    template<>
-	bool ParamCompare<LLLazyValue<LLColor4> >::equals(
-		const LLLazyValue<LLColor4> &a, const LLLazyValue<LLColor4> &b); 
-}
-
 #endif  // LL_LLUICTRL_H

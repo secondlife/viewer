@@ -2514,20 +2514,3 @@ LLWString LLLineEditor::getConvertedText() const
 	}
 	return text;
 }
-
-namespace LLInitParam
-{
-	template<>
-	bool ParamCompare<LLLinePrevalidateFunc>::equals(const LLLinePrevalidateFunc &a, const LLLinePrevalidateFunc &b)
-	{
-		return false;
-	}
-
-	template<>
-	bool ParamCompare<boost::function<void (LLLineEditor *)> >::equals(
-		const boost::function<void (LLLineEditor *)> &a,
-		const boost::function<void (LLLineEditor *)> &b)
-	{
-		return false;
-	}
-}

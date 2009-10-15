@@ -437,6 +437,13 @@ namespace LLInitParam
 	};
 
 	template<>
+	struct ParamCompare<const LLFontGL*, boost::false_type>
+	{
+		static bool equals(const LLFontGL* a, const LLFontGL* b);
+	};
+
+
+	template<>
 	class TypedParam<LLCoordGL>
 	:	public BlockValue<LLCoordGL>
 	{
