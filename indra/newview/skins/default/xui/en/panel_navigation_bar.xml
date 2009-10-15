@@ -4,7 +4,7 @@
  background_visible="true"
  bg_opaque_color="MouseGray"
  follows="left|top|right"
- height="60"
+ height="65"
  layout="topleft"
  name="navigation_bar"
  width="600">
@@ -133,7 +133,7 @@
      follows="left|right|top"
      height="25"
      layout="topleft"
-     left="5"
+     left="0"
      name="favorite"
      image_drag_indication="Arrow_Down"
      chevron_button_tool_tip="Show more of My Favorites"
