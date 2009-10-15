@@ -31,8 +31,16 @@
  * $/LicenseInfo$
  */
 
+#include <vector>
+
 #include "linden_common.h"
+
 #include "../llerror.h"
+
+#include "../llerrorcontrol.h"
+#include "../llsd.h"
+
+#include "../test/lltut.h"
 
 namespace
 {
@@ -41,13 +49,6 @@ namespace
 		llinfos << "!" << llendl;
 	}
 }
-
-#include "../test/lltut.h"
-
-#include <vector>
-
-#include "../llerrorcontrol.h"
-#include "../llsd.h"
 
 namespace
 {
