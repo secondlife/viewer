@@ -227,8 +227,27 @@ void LLViewerMediaFocus::setCameraZoom(F32 padding_factor)
 		distance += depth * 0.5;
 
 		// Finally animate the camera to this new position and focal point
-		gAgent.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(pick.mNormal * distance), 
-			LLSelectMgr::getInstance()->getSelectionCenterGlobal(), LLSelectMgr::getInstance()->getSelection()->getFirstObject()->mID );
+		LLVector3d camera_pos, target_pos;
+		// Target lookat position is the center of the selection (in global coords)
+		target_pos = LLSelectMgr::getInstance()->getSelectionCenterGlobal();
+		// Target look-from (camera) position is "distance" away from the target along the normal 
+		LLVector3d pickNormal = LLVector3d(pick.mNormal);
+		pickNormal.normalize();
+        camera_pos = target_pos + pickNormal * distance;
+        if (pickNormal == LLVector3d::z_axis || pickNormal == LLVector3d::z_axis_neg)
+        {
+			// If the normal points directly up, the camera will "flip" around.
+			// We try to avoid this by adjusting the target camera position a 
+			// smidge towards current camera position
+            LLVector3d cur_camera_pos = LLVector3d(gAgent.getCameraPositionGlobal());
+            LLVector3d delta = (cur_camera_pos - camera_pos);
+            F64 len = delta.length();
+            delta.normalize();
+            // Move 1% of the distance towards original camera location
+            camera_pos += 0.01 * len * delta;
+        }
+
+		gAgent.setCameraPosAndFocusGlobal(camera_pos, target_pos, LLSelectMgr::getInstance()->getSelection()->getFirstObject()->mID );
 	}
 }
 void LLViewerMediaFocus::onFocusReceived()
