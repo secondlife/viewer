@@ -243,11 +243,12 @@ LL_ADD_PROJECT_UNIT_TESTS(llcommon "${llcommon_TEST_SOURCE_FILES}")
 set(test_libs llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
 LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
 LL_ADD_INTEGRATION_TEST(lldate "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(llframetimer "" "${test_libs}")
 LL_ADD_INTEGRATION_TEST(lllazy "" "${test_libs}")
 LL_ADD_INTEGRATION_TEST(llrand "" "${test_libs}")
 LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}")
 LL_ADD_INTEGRATION_TEST(llstring "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(llframetimer "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(lltreeiterators "" "${test_libs}")
 
 # *TODO - reenable these once tcmalloc libs no longer break the build.
 #ADD_BUILD_TEST(llallocator llcommon)

@@ -58,7 +58,6 @@ set(test_SOURCE_FILES
     lltemplatemessagebuilder_tut.cpp
     lltimestampcache_tut.cpp
     lltranscode_tut.cpp
-    lltreeiterators_tut.cpp
     lltut.cpp
     lluri_tut.cpp
     lluuidhashmap_tut.cpp
