@@ -58,7 +58,6 @@ set(test_SOURCE_FILES
     lltimestampcache_tut.cpp
     lltranscode_tut.cpp
     lltut.cpp
-    lluri_tut.cpp
     lluuidhashmap_tut.cpp
     llxfer_tut.cpp
     message_tut.cpp
