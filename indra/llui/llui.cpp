@@ -1954,7 +1954,12 @@ namespace LLInitParam
 				return fontp;
 			}
 		}
-
+		
+		if (mData.mValue == NULL)
+		{
+			mData.mValue = LLFontGL::getFontDefault();
+		}
+		
 		// default to current value
 		return mData.mValue;
 	}
