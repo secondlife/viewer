@@ -35,7 +35,6 @@ set(test_SOURCE_FILES
     lldependencies_tut.cpp
     lldoubledispatch_tut.cpp
     llevents_tut.cpp
-    llhost_tut.cpp
     llhttpdate_tut.cpp
     llhttpclient_tut.cpp
     llhttpnode_tut.cpp

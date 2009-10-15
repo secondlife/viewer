@@ -213,6 +213,8 @@ target_link_libraries(
   ${XMLRPCEPI_LIBRARIES}
   )
 
+# tests
+
 SET(llmessage_TEST_SOURCE_FILES
   # llhttpclientadapter.cpp
   llmime.cpp
@@ -220,6 +222,8 @@ SET(llmessage_TEST_SOURCE_FILES
   lltrustedmessageservice.cpp
   lltemplatemessagedispatcher.cpp
   )
+LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
+
 #    set(TEST_DEBUG on)
 set(test_libs
   ${LLMESSAGE_LIBRARIES}
@@ -237,4 +241,5 @@ LL_ADD_INTEGRATION_TEST(
   "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py"
   )
 
-LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
+LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
+
