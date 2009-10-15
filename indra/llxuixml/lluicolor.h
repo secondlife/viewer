@@ -15,7 +15,7 @@
 
 namespace LLInitParam
 {
-	template<typename T, typename IS_BOOST_FUNCTION>
+	template<typename T, bool>
 	struct ParamCompare;
 }
 
@@ -37,7 +37,7 @@ public:
 	bool isReference() const;
 
 private:
-	friend struct LLInitParam::ParamCompare<LLUIColor, boost::false_type>;
+	friend struct LLInitParam::ParamCompare<LLUIColor, false>;
 
 	const LLColor4* mColorPtr;
 	LLColor4 mColor;
@@ -46,7 +46,7 @@ private:
 namespace LLInitParam
 {
 	template<>
-	struct ParamCompare<class LLUIColor, boost::false_type>
+	struct ParamCompare<LLUIColor, false>
 	{
 		static bool equals(const class LLUIColor& a, const class LLUIColor& b);
 	};

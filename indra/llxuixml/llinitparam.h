@@ -46,7 +46,7 @@
 
 namespace LLInitParam
 {
-	template <typename T, typename IS_BOOST_FUNCTION = boost::is_convertible<T, boost::function_base>::type >
+	template <typename T, bool IS_BOOST_FUNCTION = boost::is_convertible<T, boost::function_base>::value >
     struct ParamCompare 
 	{
     	static bool equals(const T &a, const T &b)
@@ -57,7 +57,7 @@ namespace LLInitParam
     
 	// boost function types are not comparable
 	template<typename T>
-	struct ParamCompare<T, boost::true_type>
+	struct ParamCompare<T, true>
 	{
 		static bool equals(const T&a, const T &b)
 		{
@@ -1818,7 +1818,7 @@ namespace LLInitParam
 	};
 
 	template<> 
-	struct ParamCompare<LLSD, boost::false_type>
+	struct ParamCompare<LLSD, false>
 	{
 		static bool equals(const LLSD &a, const LLSD &b);
 	};

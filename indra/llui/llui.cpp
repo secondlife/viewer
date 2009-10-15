@@ -1918,7 +1918,7 @@ namespace LLInitParam
 		declare("blue", LLColor4::blue);
 	}
 
-	bool ParamCompare<const LLFontGL*, boost::false_type>::equals(const LLFontGL* a, const LLFontGL* b)
+	bool ParamCompare<const LLFontGL*, false>::equals(const LLFontGL* a, const LLFontGL* b)
 	{
 		return !(a->getFontDesc() < b->getFontDesc())
 			&& !(b->getFontDesc() < a->getFontDesc());

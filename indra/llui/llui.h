@@ -437,7 +437,7 @@ namespace LLInitParam
 	};
 
 	template<>
-	struct ParamCompare<const LLFontGL*, boost::false_type>
+	struct ParamCompare<const LLFontGL*, false>
 	{
 		static bool equals(const LLFontGL* a, const LLFontGL* b);
 	};

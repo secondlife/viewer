@@ -500,7 +500,7 @@ namespace LLInitParam
 		return param_changed;
 	}
 
-	bool ParamCompare<LLSD, boost::false_type>::equals(const LLSD &a, const LLSD &b)
+	bool ParamCompare<LLSD, false>::equals(const LLSD &a, const LLSD &b)
 	{
 		return false;
 	}
