@@ -247,8 +247,10 @@ LL_ADD_INTEGRATION_TEST(lllazy "" "${test_libs}")
 LL_ADD_INTEGRATION_TEST(llrand "" "${test_libs}")
 LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}")
 LL_ADD_INTEGRATION_TEST(llstring "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(llframetimer "" "${test_libs}")
 
 # *TODO - reenable these once tcmalloc libs no longer break the build.
 #ADD_BUILD_TEST(llallocator llcommon)
 #ADD_BUILD_TEST(llallocator_heap_profile llcommon)
 #ADD_BUILD_TEST(llmemtype llcommon)
+
