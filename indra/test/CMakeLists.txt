@@ -41,7 +41,6 @@ set(test_SOURCE_FILES
     llhttpnode_tut.cpp
     llinventoryparcel_tut.cpp
     lliohttpserver_tut.cpp
-    llmime_tut.cpp
     llmessageconfig_tut.cpp
     llpermissions_tut.cpp
     llpipeutil.cpp

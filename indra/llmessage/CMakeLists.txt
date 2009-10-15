@@ -215,6 +215,7 @@ target_link_libraries(
 
 SET(llmessage_TEST_SOURCE_FILES
   # llhttpclientadapter.cpp
+  llmime.cpp
   llnamevalue.cpp
   lltrustedmessageservice.cpp
   lltemplatemessagedispatcher.cpp
