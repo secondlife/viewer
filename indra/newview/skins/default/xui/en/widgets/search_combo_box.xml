@@ -13,7 +13,7 @@
  <combo_editor
   name="child1"
   select_on_focus="true"
-  text_pad_left="20" 
+  text_pad_left="28" 
   tool_tip="Search"
   background_image="TextField_Search_Off"
   background_image_disabled="TextField_Search_Disabled"
@@ -24,9 +24,9 @@
   page_lines="10"
   scroll_bar_bg_visible="true" />
  <search_button label=""
+  top_pad="5"
+  left_pad="10"
   name="child3"
-  top_pad="4"
-  left_pad="4" 
   width="13"
   height="13" 
   tool_tip="Search"
