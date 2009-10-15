@@ -661,6 +661,19 @@ To place the media on only one face, choose Select Texture and click on the desi
 
   <notification
    icon="alertmodal.tga"
+   name="WhiteListInvalidatesHomeUrl"
+   type="alertmodal">
+Adding this entry to the whitelist will invalidate the home URL you
+specified for this instance of media. You are not allowed to do this
+so the entry cannot be added to the whitelist.
+    <usetemplate
+     name="okbutton"
+     yestext="Ok"/>
+  </notification>
+
+
+  <notification
+   icon="alertmodal.tga"
    name="MustBeInParcel"
    type="alertmodal">
 You must be standing inside the land parcel to set its Landing Point.
