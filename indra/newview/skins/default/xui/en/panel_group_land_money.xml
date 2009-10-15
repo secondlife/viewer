@@ -259,6 +259,7 @@
          label="Planning"
          layout="topleft"
          left="1"
+         help_topic="group_money_planning_tab"
          name="group_money_planning_tab"
          top="5"
          width="265">
@@ -284,6 +285,7 @@
          label="Details"
          layout="topleft"
          left_delta="0"
+         help_topic="group_money_details_tab"
          name="group_money_details_tab"
          top_delta="0"
          width="265">
@@ -329,6 +331,7 @@
          label="Sales"
          layout="topleft"
          left_delta="0"
+         help_topic="group_money_sales_tab"
          name="group_money_sales_tab"
          top_delta="-1"
          width="265">

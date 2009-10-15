@@ -63,18 +63,21 @@
          filename="panel_profile.xml"
          label="Profile"
          layout="topleft"
+         help_topic="profile_profile_tab"
          name="panel_profile" />
         <panel
          class="panel_picks"
          filename="panel_picks.xml"
          label="Picks"
          layout="topleft"
+         help_topic="profile_picks_tab"
          name="panel_picks" />
         <panel
          class="panel_notes"
          filename="panel_notes.xml"
          label="Notes &amp; Privacy"
          layout="topleft"
+         help_topic="profile_notes_tab"
          name="panel_notes" />
     </tab_container>
 </panel>

@@ -60,6 +60,7 @@ color="DkGray"
          label="Nearby"
          layout="topleft"
          left="0"
+         help_topic="people_nearby_tab"
          name="nearby_panel"
          top="0"
          width="313">
@@ -109,6 +110,7 @@ color="DkGray"
          top="0"
          label="Friends"
          layout="topleft"
+         help_topic="people_friends_tab"
          name="friends_panel"
          width="313">
             <accordion
@@ -214,6 +216,7 @@ color="DkGray"
          label="Groups"
          top="0"
          layout="topleft"
+         help_topic="people_groups_tab"
          name="groups_panel"
          width="313">
             <group_list
@@ -301,6 +304,7 @@ color="DkGray"
          height="390"
          label="Recent"
          layout="topleft"
+         help_topic="people_recent_tab"
          name="recent_panel"
          width="313">
             <avatar_list

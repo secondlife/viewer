@@ -40,6 +40,7 @@
          label="General"
          layout="topleft"
          left="1"
+         help_topic="land_general_tab"
          name="land_general_panel"
          top="-31"
          width="458">
@@ -535,6 +536,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
          label="Covenant"
          layout="topleft"
          left_delta="-1"
+         help_topic="land_covenant_tab"
          name="land_covenant_panel"
          top_delta="-47"
          width="458">
@@ -801,6 +803,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
          label="Objects"
          layout="topleft"
          left_delta="0"
+         help_topic="land_objects_tab"
          name="land_objects_panel"
          top_delta="-47"
          width="458">
@@ -1166,6 +1169,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
          label="Options"
          layout="topleft"
          left_delta="0"
+         help_topic="land_options_tab"
          name="land_options_panel"
          top_delta="31"
          width="458">
@@ -1603,6 +1607,7 @@ Only large parcels can be listed in search.
          label="Media"
          layout="topleft"
          left_delta="0"
+         help_topic="land_media_tab"
          name="land_media_panel"
          top_delta="1"
          width="458">
@@ -1865,6 +1870,7 @@ Texture:
          label="Audio"
          layout="topleft"
          left_delta="0"
+         help_topic="land_audio_tab"
          name="land_audio_panel"
          top_delta="1"
          width="458">
@@ -1968,6 +1974,7 @@ Texture:
          label="Access"
          layout="topleft"
          left_delta="0"
+         help_topic="land_access_tab"
          name="land_access_panel"
          top_delta="31"
          width="458">

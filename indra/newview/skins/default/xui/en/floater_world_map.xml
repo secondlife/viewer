@@ -30,6 +30,7 @@
          label="Objects"
          layout="topleft"
          left="1"
+         help_topic="worldmap_objects_tab"
          name="objects_mapview"
          top="19"
          width="540" />
@@ -40,6 +41,7 @@
          label="Terrain"
          layout="topleft"
          left_delta="0"
+         help_topic="worldmap_terrain_tab"
          name="terrain_mapview"
          top_delta="3"
          width="540" />

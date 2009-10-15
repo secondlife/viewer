@@ -1443,7 +1443,18 @@ void LLFloater::onClickHelp( LLFloater* self )
 {
 	if (self && LLUI::sHelpImpl)
 	{
-		LLUI::sHelpImpl->showTopic(self->getHelpTopic());
+		// get the help topic for this floater
+		std::string help_topic = self->getHelpTopic();
+
+		// but use a more specific help topic for the currently
+		// displayed tab inside of this floater, if present
+		LLPanel *curtab = self->childGetVisibleTabWithHelp();
+		if (curtab)
+		{
+			help_topic = curtab->getHelpTopic();
+		}
+
+		LLUI::sHelpImpl->showTopic(help_topic);
 	}
 }
 

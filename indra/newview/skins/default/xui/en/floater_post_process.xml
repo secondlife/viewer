@@ -23,6 +23,7 @@
          layout="topleft"
          left="1"
          mouse_opaque="false"
+         help_topic="post_process_color_filter_tab"
          name="wmiColorFilterPanel"
          top="0"
          width="398">
@@ -184,6 +185,7 @@
          layout="topleft"
          left_delta="0"
          mouse_opaque="false"
+         help_topic="post_process_night_vision_tab"
          name="wmiNightVisionPanel"
          top_delta="-236"
          width="398">
@@ -279,6 +281,7 @@
          label="Bloom"
          layout="topleft"
          left_delta="0"
+         help_topic="post_process_bloom_tab"
          name="wmiBloomPanel"
          top_delta="-236"
          width="398">
@@ -374,6 +377,7 @@
          layout="topleft"
          left_delta="0"
          mouse_opaque="false"
+         help_topic="post_process_extras_tab"
          name="Extras"
          top_delta="-236"
          width="398">

@@ -75,6 +75,7 @@
          layout="topleft"
          left="1"
          mouse_opaque="false"
+         help_topic="water_settings_tab"
          name="Settings"
          top="60"
          width="698">
@@ -465,6 +466,7 @@
          layout="topleft"
          left_delta="0"
          mouse_opaque="false"
+         help_topic="water_waves_tab"
          name="Waves"
          top_delta="44"
          width="698">

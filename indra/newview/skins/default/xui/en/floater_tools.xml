@@ -761,6 +761,7 @@
          label="General"
          layout="topleft"
          mouse_opaque="false"
+         help_topic="toolbox_general_tab"
          name="General"
          top="16">
             <panel.string
@@ -1211,7 +1212,7 @@
              width="50">
                 F:
             </text>
-   </panel>
+        </panel>
       </panel>
       <panel
          border="false"
@@ -1221,6 +1222,7 @@
          layout="topleft"
          left_delta="0"
          mouse_opaque="false"
+         help_topic="toolbox_object_tab"
          name="Object"
          top="16"
          width="280">
@@ -2009,6 +2011,7 @@
          layout="topleft"
          left_delta="0"
          mouse_opaque="false"
+         help_topic="toolbox_features_tab"
          name="Features"
          top_delta="0"
          width="280">
@@ -2246,6 +2249,7 @@
          layout="topleft"
          left_delta="0"
          mouse_opaque="false"
+         help_topic="toolbox_texture_tab"
          name="Texture"
          top_delta="0"
          width="280">
@@ -2751,6 +2755,7 @@
          layout="topleft"
          left_delta="0"
          mouse_opaque="false"
+         help_topic="toolbox_contents_tab"
          name="Contents"
          top_delta="0"
          width="280">
