@@ -7,7 +7,7 @@
                           label=""
                           hover_glow_amount="0.15"
                           font="SansSerifSmall"
-                          scale_image="true"
+                          scale_image="false"
                           image_unselected="ComboButton_Off"
                           image_selected="ComboButton_Selected"
                           image_disabled="ComboButton_Disabled" />
@@ -15,7 +15,7 @@
                               label=""
                               hover_glow_amount="0.15"
                               font="SansSerifSmall"
-                              scale_image="true"
+                              scale_image="false"
                               pad_right="24"
                               image_unselected="DropDown_Off"
                               image_selected="DropDown_Selected"
