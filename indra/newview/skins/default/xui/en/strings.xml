@@ -14,7 +14,10 @@
 	<!-- starting up -->
 	<string name="StartupDetectingHardware">Detecting hardware...</string>
 	<string name="StartupLoading">Loading</string>
+
+	<!-- Legacy strings, almost never used -->
 	<string name="Fullbright">Fullbright (Legacy)</string>	
+
 	<!-- Login -->
 	<string name="LoginInProgress">Logging in. [APP_NAME] may appear frozen.  Please wait.</string>
 	<string name="LoginInProgressNoFrozen">Logging in...</string>
