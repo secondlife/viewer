@@ -44,7 +44,6 @@ set(test_SOURCE_FILES
     lliohttpserver_tut.cpp
     llmime_tut.cpp
     llmessageconfig_tut.cpp
-    llmodularmath_tut.cpp
     llpermissions_tut.cpp
     llpipeutil.cpp
     llsaleinfo_tut.cpp

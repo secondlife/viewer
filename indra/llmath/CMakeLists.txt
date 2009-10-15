@@ -15,6 +15,7 @@ set(llmath_SOURCE_FILES
     llcamera.cpp
     llcoordframe.cpp
     llline.cpp
+    llmodularmath.cpp
     llperlin.cpp
     llquaternion.cpp
     llrect.cpp
@@ -48,6 +49,7 @@ set(llmath_HEADER_FILES
     llinterp.h
     llline.h
     llmath.h
+    llmodularmath.h
     lloctree.h
     llperlin.h
     llplane.h
@@ -87,6 +89,7 @@ include(LLAddBuildTest)
 # UNIT TESTS
 SET(llmath_TEST_SOURCE_FILES
   llbboxlocal.cpp
+  llmodularmath.cpp
   llrect.cpp
   v2math.cpp
   v3color.cpp

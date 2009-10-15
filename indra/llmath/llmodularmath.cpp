@@ -1,6 +1,6 @@
 /** 
- * @file llrect.cpp
- * @brief LLRect class implementation
+ * @file llmodularmath.cpp
+ * @brief LLModularMath class implementation
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -33,4 +33,4 @@
 #include "linden_common.h"
 
 // implementation is all in the header, this include dep ensures the unit test is rerun if the implementation changes.
-#include "llrect.h"
+#include "llmodularmath.h"

@@ -147,7 +147,7 @@ private:
 		stream << "\tPassed Tests:\t" << mPassedTests;
 		if (mPassedTests == mTotalTests)
 		{
-			stream << "\t\\o/ yay!!";
+			stream << "\tYAY!! \\o/";
 		}
 		stream << std::endl;
 
