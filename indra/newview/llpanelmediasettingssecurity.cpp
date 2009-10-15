@@ -236,16 +236,20 @@ void LLPanelMediaSettingsSecurity::getValues( LLSD &fill_me_in )
 // white list list box widget and build a list to test against. Can also
 const std::string LLPanelMediaSettingsSecurity::makeValidUrl( const std::string& src_url )
 {
-	// make sure the fragment has a scheme
-	const std::string default_scheme( "http://" );
-	if ( src_url.find( default_scheme ) == std::string::npos )
+	// use LLURI to determine if we have a valid scheme
+	LLURI candidate_url( src_url );
+	if ( candidate_url.scheme().empty() )
 	{
+		// build a URL comprised of default scheme and the original fragment 
+		const std::string default_scheme( "http://" );
 		return default_scheme + src_url;
 	};
 
-	// TODO: probably other checks and defaults we can do here.. 
+	// we *could* test the "default scheme" + "original fragment" URL again
+	// using LLURI to see if it's valid but I think the outcome is the same
+	// in either case - our only option is to return the original URL
 
-	// this is now a "valid" URL
+	// we *think* the original url passed in was valid
 	return src_url;
 }
 
