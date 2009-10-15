@@ -532,7 +532,8 @@ private:
 		// update state machine
 		processState();
 
-titleChanged( "" );
+		// see if title arrived and if so, update member variable with contents
+		checkTitle();
 
 		// special code for looping - need to rewind at the end of the movie
 		if ( mIsLooping )
@@ -594,6 +595,19 @@ titleChanged( "" );
 			MCDoAction( mMovieController, mcActionGoToTime, &when );
 		};
 	};
+
+	F64 getLoadedDuration() 	  	 
+	{ 	  	 
+		TimeValue duration; 	  	 
+		if(GetMaxLoadedTimeInMovie( mMovieHandle, &duration ) != noErr) 	  	 
+		{ 	  	 
+			// If GetMaxLoadedTimeInMovie returns an error, return the full duration of the movie. 	  	 
+			duration = GetMovieDuration( mMovieHandle ); 	  	 
+		} 	  	 
+		TimeValue scale = GetMovieTimeScale( mMovieHandle ); 	  	 
+
+		return (F64)duration / (F64)scale; 	  	 
+	}; 	  	 
 
 	F64 getDuration()
 	{
@@ -696,17 +710,23 @@ titleChanged( "" );
 		return true;
 	};
 
-	// called by this plugin when the title changes
-	// this creates the message and sends it back to the host app
-	void titleChanged( std::string title )
+	// called regularly to see if title changed
+	void checkTitle()
 	{
+		// we did already receive title so keep checking
 		if ( ! mReceivedTitle )
 		{
+			// grab title from movie meta data
 			if ( getMovieTitle() )
 			{
+				// pass back to host application
 				LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "name_text");
 				message.setValue("name", mMovieTitle );
 				sendMessage( message );
+
+				// stop looking once we find a title for this movie.
+				// TODO: this may to be reset if movie title changes
+				// during playback but this is okay for now
 				mReceivedTitle = true;
 			};
 		};
