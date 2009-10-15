@@ -910,6 +910,13 @@ LLFontGL* LLFontGL::getFontByName(const std::string& name)
 	}
 }
 
+//static
+LLFontGL* LLFontGL::getFontDefault()
+{
+	return getFontSansSerif(); // Fallback to sans serif as default font
+}
+
+
 // static 
 std::string LLFontGL::getFontPathSystem()
 {
