@@ -976,7 +976,7 @@ BOOL LLVOAvatarSelf::isWearingAttachment( const LLUUID& inv_item_id , BOOL inclu
 	{
 		attachment_map_t::const_iterator curiter = iter++;
 		const LLViewerJointAttachment* attachment = curiter->second;
-		if( attachment->getItemID() == inv_item_id )
+		if (attachment->getAttachedObject(inv_item_id))
 		{
 			return TRUE;
 		}
@@ -997,7 +997,7 @@ BOOL LLVOAvatarSelf::isWearingAttachment( const LLUUID& inv_item_id , BOOL inclu
 			{
 				attachment_map_t::const_iterator curiter = iter++;
 				const LLViewerJointAttachment* attachment = curiter->second;
-				if( attachment->getItemID() == item_id )
+				if (attachment->getAttachedObject(item_id))
 				{
 					return TRUE;
 				}
@@ -1011,16 +1011,16 @@ BOOL LLVOAvatarSelf::isWearingAttachment( const LLUUID& inv_item_id , BOOL inclu
 //-----------------------------------------------------------------------------
 // getWornAttachment()
 //-----------------------------------------------------------------------------
-LLViewerObject* LLVOAvatarSelf::getWornAttachment( const LLUUID& inv_item_id ) const
+LLViewerObject* LLVOAvatarSelf::getWornAttachment( const LLUUID& inv_item_id )
 {
-	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end(); )
 	{
-		attachment_map_t::const_iterator curiter = iter++;
-		const LLViewerJointAttachment* attachment = curiter->second;
-		if( attachment->getItemID() == inv_item_id )
+		attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
+ 		if (LLViewerObject *attached_object = attachment->getAttachedObject(inv_item_id))
 		{
-			return attachment->getObject();
+			return attached_object;
 		}
 	}
 	return NULL;
@@ -1033,7 +1033,7 @@ const std::string LLVOAvatarSelf::getAttachedPointName(const LLUUID& inv_item_id
 	{
 		attachment_map_t::const_iterator curiter = iter++;
 		const LLViewerJointAttachment* attachment = curiter->second;
-		if( attachment->getItemID() == inv_item_id )
+		if (attachment->getAttachedObject(inv_item_id))
 		{
 			return attachment->getName();
 		}
@@ -1043,9 +1043,9 @@ const std::string LLVOAvatarSelf::getAttachedPointName(const LLUUID& inv_item_id
 }
 
 //virtual
-LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *viewer_object)
+const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *viewer_object)
 {
-	LLViewerJointAttachment *attachment = LLVOAvatar::attachObject(viewer_object);
+	const LLViewerJointAttachment *attachment = LLVOAvatar::attachObject(viewer_object);
 	if (!attachment)
 	{
 		return 0;
@@ -1054,14 +1054,20 @@ LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *viewer_obj
 	updateAttachmentVisibility(gAgent.getCameraMode());
 	
 	// Then make sure the inventory is in sync with the avatar.
-	LLViewerInventoryItem *item = gInventory.getItem(attachment->getItemID());
-	if (item)
-	{
-		LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Adding attachment link:");
-		LLAppearanceManager::wearItem(item,false);  // Add COF link for item.
 
+	// Should just be the last object added
+	if (attachment->isObjectAttached(viewer_object))
+	{
+		const LLUUID& attachment_id = viewer_object->getItemID();
+		LLViewerInventoryItem *item = gInventory.getItem(attachment_id);
+		if (item)
+		{
+			LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Adding attachment link:");
+			LLAppearanceManager::wearItem(item,false);  // Add COF link for item.
+			gInventory.addChangedMask(LLInventoryObserver::LABEL, attachment_id);
+		}
 	}
-	gInventory.addChangedMask(LLInventoryObserver::LABEL, attachment->getItemID());
+
 	gInventory.notifyObservers();
 
 	return attachment;

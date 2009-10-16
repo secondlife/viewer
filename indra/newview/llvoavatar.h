@@ -648,7 +648,7 @@ public:
 	//--------------------------------------------------------------------
 public:
 	void 				clampAttachmentPositions();
-	virtual LLViewerJointAttachment* attachObject(LLViewerObject *viewer_object);
+	virtual const LLViewerJointAttachment* attachObject(LLViewerObject *viewer_object);
 	BOOL 				detachObject(LLViewerObject *viewer_object);
 	static LLVOAvatar*  findAvatarFromAttachment(LLViewerObject* obj);
 protected:
@@ -672,6 +672,9 @@ public:
 	LLBBox 				getHUDBBox() const;
 	void 				rebuildHUD();
 	void 				resetHUDAttachments();
+	BOOL				canAttachMoreObjects() const;
+protected:
+	U32					getNumAttachments() const; // O(N), not O(1)
 
 /**                    Wearables
  **                                                                            **

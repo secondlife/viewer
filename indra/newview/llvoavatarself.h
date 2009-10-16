@@ -276,9 +276,9 @@ public:
 public:
 	void 				updateAttachmentVisibility(U32 camera_mode);
 	BOOL 				isWearingAttachment(const LLUUID& inv_item_id, BOOL include_linked_items = FALSE) const;
-	LLViewerObject* 	getWornAttachment(const LLUUID& inv_item_id ) const;
+	LLViewerObject* 	getWornAttachment(const LLUUID& inv_item_id );
 	const std::string   getAttachedPointName(const LLUUID& inv_item_id) const;
-	/*virtual*/ LLViewerJointAttachment *attachObject(LLViewerObject *viewer_object);
+	/*virtual*/ const LLViewerJointAttachment *attachObject(LLViewerObject *viewer_object);
 	void				getAllAttachmentsArray(LLDynamicArray<S32>& attachments);
 
 	//--------------------------------------------------------------------

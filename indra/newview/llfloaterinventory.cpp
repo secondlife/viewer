@@ -1837,7 +1837,6 @@ bool LLInventoryPanel::attachObject(const LLSD& userdata)
 {
 	std::set<LLUUID> selected_items;
 	mFolders->getSelectionList(selected_items);
-	LLUUID id = *selected_items.begin();
 
 	std::string joint_name = userdata.asString();
 	LLVOAvatar *avatarp = static_cast<LLVOAvatar*>(gAgent.getAvatarObject());
@@ -1857,22 +1856,28 @@ bool LLInventoryPanel::attachObject(const LLSD& userdata)
 	{
 		return true;
 	}
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(id);
 
-	if(item && gInventory.isObjectDescendentOf(id, gInventory.getRootFolderID()))
+	for (std::set<LLUUID>::const_iterator set_iter = selected_items.begin(); 
+		 set_iter != selected_items.end(); 
+		 ++set_iter)
 	{
-		rez_attachment(item, attachmentp);
-	}
-	else if(item && item->isComplete())
-	{
-		// must be in library. copy it to our inventory and put it on.
-		LLPointer<LLInventoryCallback> cb = new RezAttachmentCallback(attachmentp);
-		copy_inventory_item(gAgent.getID(),
-							item->getPermissions().getOwner(),
-							item->getUUID(),
-							LLUUID::null,
-							std::string(),
-							cb);
+		const LLUUID &id = *set_iter;
+		LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(id);
+		if(item && gInventory.isObjectDescendentOf(id, gInventory.getRootFolderID()))
+		{
+			rez_attachment(item, attachmentp);
+		}
+		else if(item && item->isComplete())
+		{
+			// must be in library. copy it to our inventory and put it on.
+			LLPointer<LLInventoryCallback> cb = new RezAttachmentCallback(attachmentp);
+			copy_inventory_item(gAgent.getID(),
+								item->getPermissions().getOwner(),
+								item->getUUID(),
+								LLUUID::null,
+								std::string(),
+								cb);
+		}
 	}
 	gFocusMgr.setKeyboardFocus(NULL);
 

@@ -1203,25 +1203,30 @@ void LLAgentWearables::makeNewOutfit(const std::string& new_folder_name,
 			S32 attachment_pt = attachments_to_include[i];
 			LLViewerJointAttachment* attachment = get_if_there(mAvatarObject->mAttachmentPoints, attachment_pt, (LLViewerJointAttachment*)NULL);
 			if (!attachment) continue;
-			LLViewerObject* attached_object = attachment->getObject();
-			if (!attached_object) continue;
-			const LLUUID& item_id = attachment->getItemID();
-			if (item_id.isNull()) continue;
-			LLInventoryItem* item = gInventory.getItem(item_id);
-			if (!item) continue;
-			if (!msg_started)
+			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+				 attachment_iter != attachment->mAttachedObjects.end();
+				 ++attachment_iter)
 			{
-				msg_started = TRUE;
-				msg->newMessage("CreateNewOutfitAttachments");
-				msg->nextBlock("AgentData");
-				msg->addUUID("AgentID", gAgent.getID());
-				msg->addUUID("SessionID", gAgent.getSessionID());
-				msg->nextBlock("HeaderData");
-				msg->addUUID("NewFolderID", folder_id);
+				LLViewerObject *attached_object = (*attachment_iter);
+				if(!attached_object) continue;
+				const LLUUID& item_id = (*attachment_iter)->getItemID();
+				if(item_id.isNull()) continue;
+				LLInventoryItem* item = gInventory.getItem(item_id);
+				if(!item) continue;
+				if(!msg_started)
+				{
+					msg_started = TRUE;
+					msg->newMessage("CreateNewOutfitAttachments");
+					msg->nextBlock("AgentData");
+					msg->addUUID("AgentID", gAgent.getID());
+					msg->addUUID("SessionID", gAgent.getSessionID());
+					msg->nextBlock("HeaderData");
+					msg->addUUID("NewFolderID", folder_id);
+				}
+				msg->nextBlock("ObjectData");
+				msg->addUUID("OldItemID", item_id);
+				msg->addUUID("OldFolderID", item->getParentUUID());
 			}
-			msg->nextBlock("ObjectData");
-			msg->addUUID("OldItemID", item_id);
-			msg->addUUID("OldFolderID", item->getParentUUID());
 		}
 
 		if (msg_started)
@@ -1766,20 +1771,25 @@ void LLAgentWearables::userUpdateAttachments(LLInventoryModel::item_array_t& obj
 	{
 		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 		LLViewerJointAttachment* attachment = curiter->second;
-		LLViewerObject* objectp = attachment->getObject();
-		if (objectp)
+		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+			 attachment_iter != attachment->mAttachedObjects.end();
+			 ++attachment_iter)
 		{
-			LLUUID object_item_id = attachment->getItemID();
-			if (requested_item_ids.find(object_item_id) != requested_item_ids.end())
+			LLViewerObject *objectp = (*attachment_iter);
+			if (objectp)
 			{
-				// Object currently worn, was requested.
-				// Flag as currently worn so we won't have to add it again.
-				current_item_ids.insert(object_item_id);
-			}
-			else
-			{
-				// object currently worn, not requested.
-				objects_to_remove.push_back(objectp);
+				LLUUID object_item_id = objectp->getItemID();
+				if (requested_item_ids.find(object_item_id) != requested_item_ids.end())
+				{
+					// Object currently worn, was requested.
+					// Flag as currently worn so we won't have to add it again.
+					current_item_ids.insert(object_item_id);
+				}
+				else
+				{
+					// object currently worn, not requested.
+					objects_to_remove.push_back(objectp);
+				}
 			}
 		}
 	}
@@ -1855,9 +1865,16 @@ void LLAgentWearables::userRemoveAllAttachments()
 	{
 		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 		LLViewerJointAttachment* attachment = curiter->second;
-		LLViewerObject* objectp = attachment->getObject();
-		if (objectp)
-			objects_to_remove.push_back(objectp);
+		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+			 attachment_iter != attachment->mAttachedObjects.end();
+			 ++attachment_iter)
+		{
+			LLViewerObject *attached_object = (*attachment_iter);
+			if (attached_object)
+			{
+				objects_to_remove.push_back(attached_object);
+			}
+		}
 	}
 	userRemoveMultipleAttachments(objects_to_remove);
 }

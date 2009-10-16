@@ -3737,11 +3737,13 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 
 	payload["attachment_point"] = attach_pt;
 
-	if (attachment && attachment->getObject())
+#if !ENABLE_MULTIATTACHMENTS
+	if (attachment && attachment->getNumObjects() > 0)
 	{
 		LLNotifications::instance().add("ReplaceAttachment", LLSD(), payload, confirm_replace_attachment_rez);
 	}
 	else
+#endif
 	{
 		LLNotifications::instance().forceResponse(LLNotification::Params("ReplaceAttachment").payload(payload), 0/*YES*/);
 	}
@@ -3749,6 +3751,16 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 
 bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& response)
 {
+	LLVOAvatar *avatarp = gAgent.getAvatarObject();
+		
+	if (!avatarp->canAttachMoreObjects())
+	{
+		LLSD args;
+		args["MAX_ATTACHMENTS"] = llformat("%d", MAX_AGENT_ATTACHMENTS);
+		LLNotifications::instance().add("MaxAttachmentsOnOutfit", args);
+		return false;
+	}
+
 	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option == 0/*YES*/)
 	{
@@ -3764,7 +3776,11 @@ bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& respon
 			msg->nextBlockFast(_PREHASH_ObjectData);
 			msg->addUUIDFast(_PREHASH_ItemID, itemp->getUUID());
 			msg->addUUIDFast(_PREHASH_OwnerID, itemp->getPermissions().getOwner());
-			msg->addU8Fast(_PREHASH_AttachmentPt, notification["payload"]["attachment_point"].asInteger());
+			U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
+#if ENABLE_MULTIATTACHMENTS
+			attachment_pt |= ATTACHMENT_ADD;
+#endif
+			msg->addU8Fast(_PREHASH_AttachmentPt, attachment_pt);
 			pack_permissions_slam(msg, itemp->getFlags(), itemp->getPermissions());
 			msg->addStringFast(_PREHASH_Name, itemp->getName());
 			msg->addStringFast(_PREHASH_Description, itemp->getDescription());
@@ -3825,6 +3841,12 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				// commented out for DEV-32347
 				//items.push_back(std::string("Restore to Last Position"));
 
+				if (!avatarp->canAttachMoreObjects())
+				{
+					disabled_items.push_back(std::string("Object Wear"));
+					disabled_items.push_back(std::string("Attach To"));
+					disabled_items.push_back(std::string("Attach To HUD"));
+				}
 				LLMenuGL* attach_menu = menu.findChildMenuByName("Attach To", TRUE);
 				LLMenuGL* attach_hud_menu = menu.findChildMenuByName("Attach To HUD", TRUE);
 				LLVOAvatar *avatarp = gAgent.getAvatarObject();

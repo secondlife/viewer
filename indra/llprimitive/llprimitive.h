@@ -263,9 +263,9 @@ public:
 	bool fromLLSD(LLSD& sd);
 
 	void setSculptTexture(const LLUUID& id) { mSculptTexture = id; }
-	LLUUID getSculptTexture()               { return mSculptTexture; }
+	LLUUID getSculptTexture() const         { return mSculptTexture; }
 	void setSculptType(U8 type)             { mSculptType = type; }
-	U8 getSculptType()                      { return mSculptType; }
+	U8 getSculptType() const                { return mSculptType; }
 };
 
 class LLLightImageParams : public LLNetworkData

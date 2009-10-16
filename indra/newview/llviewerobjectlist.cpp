@@ -1216,21 +1216,25 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 				 iter != avatarp->mAttachmentPoints.end(); )
 			{
 				LLVOAvatar::attachment_map_t::iterator curiter = iter++;
-				LLViewerJointAttachment* attachmentp = curiter->second;
-				if (attachmentp->getIsHUDAttachment())
+				LLViewerJointAttachment* attachment = curiter->second;
+				if (attachment->getIsHUDAttachment())
 				{
-					LLViewerObject* objectp = attachmentp->getObject();
-					if (objectp)
+					for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+						 attachment_iter != attachment->mAttachedObjects.end();
+						 ++attachment_iter)
 					{
-						mSelectPickList.insert(objectp);		
-						LLViewerObject::const_child_list_t& child_list = objectp->getChildren();
-						for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-							 iter != child_list.end(); iter++)
+						if (LLViewerObject* attached_object = (*attachment_iter))
 						{
-							LLViewerObject* childp = *iter;
-							if (childp)
+							mSelectPickList.insert(attached_object);
+							LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
+							for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+								 iter != child_list.end(); iter++)
 							{
-								mSelectPickList.insert(childp);
+								LLViewerObject* childp = *iter;
+								if (childp)
+								{
+									mSelectPickList.insert(childp);
+								}
 							}
 						}
 					}

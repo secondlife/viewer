@@ -757,6 +757,14 @@ You can not wear clothes or body parts that are in the trash
 
   <notification
    icon="alertmodal.tga"
+   name="MaxAttachmentsOnOutfit"
+   type="alertmodal">
+Could not attach object.
+Exceeds the attachments limit of [MAX_ATTACHMENTS] objects. Please detach another object first.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CannotWearInfoNotComplete"
    type="alertmodal">
 You can not wear that item because it has not yet loaded. Please try again in a minute.
