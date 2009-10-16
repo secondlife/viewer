@@ -31,7 +31,6 @@ set(test_SOURCE_FILES
 #    llapp_tut.cpp						# Temporarily removed until thread issues can be solved
     llblowfish_tut.cpp
     llbuffer_tut.cpp
-    lldependencies_tut.cpp
     lldoubledispatch_tut.cpp
     llevents_tut.cpp
     llhttpdate_tut.cpp
