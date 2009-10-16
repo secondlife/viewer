@@ -459,8 +459,6 @@ static void get_random_bytes(void *buf, int nbytes)
 // This	code grabs the first hardware	address, rather	than the first interface.
 // Using a VPN can cause the first returned	interface	to be	changed.
 
-#define	MALLOC(x)HeapAlloc(GetProcessHeap(),0,(x))
-#define	FREE(x)	HeapFree(GetProcessHeap(),0,(x))
 const	S32	MAC_ADDRESS_BYTES=6;
 
 
@@ -478,7 +476,7 @@ S32	LLUUID::getNodeID(unsigned char	*node_id)
 	MIB_IFROW	*pIfRow;
 
 	// Allocate	memory for our pointers.
-	pIfTable = (MIB_IFTABLE	*) MALLOC(sizeof (MIB_IFTABLE));
+	pIfTable = (MIB_IFTABLE	*) malloc(sizeof (MIB_IFTABLE));
 	if (pIfTable ==	NULL)	
 	{
 			printf("Error allocating memory needed to call GetIfTable\n");
@@ -491,8 +489,8 @@ S32	LLUUID::getNodeID(unsigned char	*node_id)
 	// Make	an initial call	to GetIfTable	to get the
 	// necessary size	into dwSize
 	if (GetIfTable(pIfTable, &dwSize,	0) ==	ERROR_INSUFFICIENT_BUFFER) {
-			FREE(pIfTable);
-			pIfTable = (MIB_IFTABLE	*) MALLOC(dwSize);
+			free(pIfTable);
+			pIfTable = (MIB_IFTABLE	*) malloc(dwSize);
 			if (pIfTable ==	NULL)	
 			{
 					printf("Error	allocating memory\n");
@@ -505,13 +503,13 @@ S32	LLUUID::getNodeID(unsigned char	*node_id)
 	{
 		if (pIfTable->dwNumEntries > 0)	
 		{
-			pIfRow = (MIB_IFROW	*) MALLOC(sizeof (MIB_IFROW));
+			pIfRow = (MIB_IFROW	*) malloc(sizeof (MIB_IFROW));
 			if (pIfRow ==	NULL)	
 			{
 					printf("Error allocating memory\n");
 					if (pIfTable != NULL)	
 					{
-						FREE(pIfTable);
+						free(pIfTable);
 						pIfTable = NULL;
 					}
 					return 0;
@@ -532,7 +530,7 @@ S32	LLUUID::getNodeID(unsigned char	*node_id)
 							 if	(pIfRow->dwPhysAddrLen == 0)
 									 break;
 							 memcpy(node_id, (UCHAR *)&pIfRow->bPhysAddr[0], limit);		 //	just incase	the	PhysAddr is	not	the	expected MAC_Address size
-							 FREE(pIfTable);
+							 free(pIfTable);
 							 return 1;	//return first hardware	device found.	
 							break;
 
@@ -550,7 +548,7 @@ S32	LLUUID::getNodeID(unsigned char	*node_id)
 			}
 		}
 	}
-	FREE(pIfTable);
+	free(pIfTable);
 	return 0;
 }
 
