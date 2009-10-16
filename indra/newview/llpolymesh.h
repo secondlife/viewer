@@ -46,6 +46,7 @@
 
 class LLSkinJoint;
 class LLVOAvatar;
+class LLWearable;
 
 //#define USE_STRIPS	// Use tri-strips for rendering.
 
@@ -415,6 +416,8 @@ public:
 	LLPolySkeletalDistortionInfo*	getInfo() const { return (LLPolySkeletalDistortionInfo*)mInfo; }
 	//   This sets mInfo and calls initialization functions
 	BOOL							setInfo(LLPolySkeletalDistortionInfo *info);
+
+	/*virtual*/ LLViewerVisualParam * 	cloneParam(LLWearable* wearable) const;
 
 	// LLVisualParam Virtual functions
 	///*virtual*/ BOOL				parseData(LLXmlTreeNode* node);

@@ -40,6 +40,7 @@
 #include "llviewercontrol.h"
 #include "llxmltree.h"
 #include "llvoavatar.h"
+#include "llwearable.h"
 #include "lldir.h"
 #include "llvolume.h"
 #include "llendianswizzle.h"
@@ -1115,6 +1116,13 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 		}
 	}
 	return TRUE;
+}
+
+/*virtual*/ LLViewerVisualParam * 	LLPolySkeletalDistortion::cloneParam(LLWearable* wearable) const
+{
+	LLPolySkeletalDistortion *new_param = new LLPolySkeletalDistortion(mAvatar);
+	*new_param = *this;
+	return new_param;
 }
 
 //-----------------------------------------------------------------------------

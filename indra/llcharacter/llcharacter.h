@@ -203,9 +203,9 @@ public:
 	void addVisualParam(LLVisualParam *param);
 	void addSharedVisualParam(LLVisualParam *param);
 
-	BOOL setVisualParamWeight(LLVisualParam *which_param, F32 weight, BOOL set_by_user = FALSE );
-	BOOL setVisualParamWeight(const char* param_name, F32 weight, BOOL set_by_user = FALSE );
-	BOOL setVisualParamWeight(S32 index, F32 weight, BOOL set_by_user = FALSE );
+	virtual BOOL setVisualParamWeight(LLVisualParam *which_param, F32 weight, BOOL set_by_user = FALSE );
+	virtual BOOL setVisualParamWeight(const char* param_name, F32 weight, BOOL set_by_user = FALSE );
+	virtual BOOL setVisualParamWeight(S32 index, F32 weight, BOOL set_by_user = FALSE );
 
 	// get visual param weight by param or name
 	F32 getVisualParamWeight(LLVisualParam *distortion);

@@ -53,8 +53,7 @@ public:
 								 void(*asset_arrived_callback)(LLWearable*, void* userdata),
 								 void* userdata);
 
-	LLWearable*			createCopyFromAvatar(const LLWearable* old_wearable, const std::string& new_name = std::string());
-	LLWearable*			createCopy(const LLWearable* old_wearable);
+	LLWearable*			createCopy(const LLWearable* old_wearable, const std::string& new_name = std::string());
 	LLWearable*			createNewWearable(EWearableType type);
 	
 	// Callback

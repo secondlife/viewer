@@ -39,6 +39,7 @@
 #include "lluictrlfactory.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
+#include "llagentwearables.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -79,7 +80,18 @@ static void update_texture_ctrl(LLVOAvatar* avatarp,
 								 LLTextureCtrl* ctrl,
 								 ETextureIndex te)
 {
-	LLUUID id = avatarp->getTE(te)->getID();
+	LLUUID id = IMG_DEFAULT_AVATAR;
+	EWearableType wearable_type = LLVOAvatarDictionary::getInstance()->getTEWearableType(te);
+	LLWearable *wearable = gAgentWearables.getWearable(wearable_type, 0);
+	if (wearable)
+	{
+		LLLocalTextureObject *lto = wearable->getLocalTextureObject(te);
+		if (lto)
+		{
+			id = lto->getID();
+		}
+	}
+	//id = avatarp->getTE(te)->getID();
 	if (id == IMG_DEFAULT_AVATAR)
 	{
 		ctrl->setImageAssetID(LLUUID::null);
@@ -152,7 +164,32 @@ void LLFloaterAvatarTextures::onClickDump(void* data)
 		const LLTextureEntry* te = avatarp->getTE(i);
 		if (!te) continue;
 
-		llinfos << "Avatar TE " << i << " id " << te->getID() << llendl;
+		if (LLVOAvatar::isIndexLocalTexture((ETextureIndex)i))
+		{
+			LLUUID id = IMG_DEFAULT_AVATAR;
+			EWearableType wearable_type = LLVOAvatarDictionary::getInstance()->getTEWearableType((ETextureIndex)i);
+			LLWearable *wearable = gAgentWearables.getWearable(wearable_type, 0);
+			if (wearable)
+			{
+				LLLocalTextureObject *lto = wearable->getLocalTextureObject(i);
+				if (lto)
+				{
+					id = lto->getID();
+				}
+			}
+			if (id != IMG_DEFAULT_AVATAR)
+			{
+				llinfos << "Avatar TE " << i << " id " << id << llendl;
+			}
+			else
+			{
+				llinfos << "Avatar TE " << i << " id " << "<DEFAULT>" << llendl;
+			}
+		}
+		else
+		{
+			llinfos << "Avatar TE " << i << " id " << te->getID() << llendl;
+		}
 	}
 #endif
 }

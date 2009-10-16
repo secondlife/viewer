@@ -54,6 +54,7 @@
 #include "llviewerwindow.h"
 #include "lltrans.h"
 #include "llappearancemgr.h"
+#include "llfloatercustomize.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -729,6 +730,14 @@ void WearOnAvatarCallback::fire(const LLUUID& inv_item)
 void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 {
 	LLAppearanceManager::instance().updateAppearanceFromCOF();
+	if( CAMERA_MODE_CUSTOMIZE_AVATAR == gAgent.getCameraMode() )
+	{
+		// If we're in appearance editing mode, the current tab may need to be refreshed
+		if (gFloaterCustomize)
+		{
+			gFloaterCustomize->switchToDefaultSubpart();
+		}
+	}
 }
 
 RezAttachmentCallback::RezAttachmentCallback(LLViewerJointAttachment *attachmentp)

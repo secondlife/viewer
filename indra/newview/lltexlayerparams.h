@@ -36,15 +36,18 @@
 
 class LLTexLayer;
 class LLVOAvatar;
+class LLWearable;
 
 class LLTexLayerParam : public LLViewerVisualParam
 {
 public: 
-	LLTexLayerParam(LLTexLayer *layer);
+	LLTexLayerParam(LLTexLayerInterface *layer);
 	LLTexLayerParam(LLVOAvatar *avatar);
-	/* Virtual */ BOOL setInfo(LLViewerVisualParamInfo *info);
+	/* Virtual */ BOOL setInfo(LLViewerVisualParamInfo *info, BOOL add_to_avatar  );
+	/*virtual*/ LLViewerVisualParam * 	cloneParam(LLWearable* wearable) const = 0;
+
 protected:
-	LLTexLayer*				mTexLayer;
+	LLTexLayerInterface*	mTexLayer;
 	LLVOAvatar*             mAvatar;
 };
 
@@ -54,9 +57,11 @@ protected:
 class LLTexLayerParamAlpha : public LLTexLayerParam
 {
 public:
-	LLTexLayerParamAlpha( LLTexLayer* layer );
+	LLTexLayerParamAlpha( LLTexLayerInterface* layer );
 	LLTexLayerParamAlpha( LLVOAvatar* avatar );
 	/*virtual*/ ~LLTexLayerParamAlpha();
+
+	/*virtual*/ LLViewerVisualParam * 	cloneParam(LLWearable* wearable = NULL) const;
 
 	// LLVisualParam Virtual functions
 	///*virtual*/ BOOL		parseData(LLXmlTreeNode* node);
@@ -129,9 +134,11 @@ public:
 		OP_COUNT = 3 // Number of operations
 	};
 
-	LLTexLayerParamColor( LLTexLayer* layer );
+	LLTexLayerParamColor( LLTexLayerInterface* layer );
 	LLTexLayerParamColor( LLVOAvatar* avatar );
 	/* virtual */ ~LLTexLayerParamColor();
+
+	/*virtual*/ LLViewerVisualParam * 	cloneParam(LLWearable* wearable = NULL) const;
 
 	// LLVisualParam Virtual functions
 	///*virtual*/ BOOL			parseData(LLXmlTreeNode* node);

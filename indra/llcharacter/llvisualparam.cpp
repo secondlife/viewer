@@ -147,6 +147,21 @@ BOOL LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	return TRUE;
 }
 
+//virtual
+void LLVisualParamInfo::toStream(std::ostream &out)
+{
+	out <<  mID << "\t";
+	out << mName << "\t";
+	out <<  mDisplayName << "\t";
+	out <<  mMinName << "\t";
+	out <<  mMaxName << "\t";
+	out <<  mGroup << "\t";
+	out <<  mMinWeight << "\t";
+	out <<  mMaxWeight << "\t";
+	out <<  mDefaultWeight << "\t";
+	out <<  mSex << "\t";
+}
+
 //-----------------------------------------------------------------------------
 // LLVisualParam()
 //-----------------------------------------------------------------------------
@@ -288,3 +303,11 @@ void LLVisualParam::stopAnimating(BOOL set_by_user)
 		setWeight(mTargetWeight, set_by_user);
 	}
 }
+
+//virtual
+BOOL LLVisualParam::linkDrivenParams(visual_param_mapper mapper, bool only_cross_params)
+{
+	// nothing to do for non-driver parameters
+	return TRUE;
+}
+

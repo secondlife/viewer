@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+ <panel
+	 follows="all"
+	 height="400"
+	 layout="topleft"
+	 left="10"
+	 name="edit_alpha_panel"
+	 top_pad="10"
+	 width="313" >
+   <panel
+      border="true"
+      follows="left|top|right" 
+      height="180" 
+      left="10" 
+      layout="topleft" 
+      name="avatar_alpha_color_panel"
+      top="0"
+      width="293" >
+       <texture_picker
+        can_apply_immediately="true"
+        default_image_name="Default"
+        follows="left|top"
+        height="80"
+        label="Lower Alpha"
+        layout="topleft"
+        left="10"
+        name="Lower Alpha"
+        tool_tip="Click to choose a picture"
+        top="10"
+        width="64" />
+       <check_box
+        control_name="LowerAlphaTextureInvisible"
+        follows="left"
+        height="16"
+        layout="topleft"
+        left_pad="6"
+        name="lower alpha texture invisible"
+        top_delta="4"
+        width="16" />
+       <texture_picker
+        can_apply_immediately="true"
+        default_image_name="Default"
+        follows="left|top"
+        height="80"
+        label="Upper Alpha"
+        layout="topleft"
+        left_pad="10"
+        name="Upper Alpha"
+        tool_tip="Click to choose a picture"
+        top="10"
+        width="64" />
+       <check_box
+        control_name="UpperAlphaTextureInvisible"
+        follows="left"
+        height="16"
+        layout="topleft"
+        left_pad="6"
+        name="upper alpha texture invisible"
+        top_delta="4"
+        width="16" />
+       <texture_picker
+        can_apply_immediately="true"
+        default_image_name="Default"
+        follows="left|top"
+        height="80"
+        label="Head Alpha"
+        layout="topleft"
+        left_pad="10"
+        name="Head Alpha"
+        tool_tip="Click to choose a picture"
+        top="10"
+        width="64" />
+       <check_box
+        control_name="HeadAlphaTextureInvisible"
+        follows="left"
+        height="16"
+        layout="topleft"
+        left_pad="6"
+        name="head alpha texture invisible"
+        top_delta="4"
+        width="16" />
+       <texture_picker
+        can_apply_immediately="true"
+        default_image_name="Default"
+        follows="left|top"
+        height="80"
+        label="Eye Alpha"
+        layout="topleft"
+        left="10"
+        name="Eye Alpha"
+        tool_tip="Click to choose a picture"
+        top="100"
+        width="64" />
+       <check_box
+        control_name="Eye AlphaTextureInvisible"
+        follows="left"
+        height="16"
+        layout="topleft"
+        left_pad="6"
+        name="eye alpha texture invisible"
+        top_delta="4"
+        width="16" />
+       <texture_picker
+        can_apply_immediately="true"
+        default_image_name="Default"
+        follows="left|top"
+        height="80"
+        label="Hair Alpha"
+        layout="topleft"
+        left_pad="10"
+        name="Hair Alpha"
+        tool_tip="Click to choose a picture"
+        top_delta="-4"
+        width="64" />
+       <check_box
+        control_name="HairAlphaTextureInvisible"
+        follows="left"
+        height="16"
+        layout="topleft"
+        left_pad="6"
+        name="hair alpha texture invisible"
+        top_delta="4"
+        width="16" />
+	 </panel>
+</panel>
+

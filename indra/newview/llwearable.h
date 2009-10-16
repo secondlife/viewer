@@ -43,6 +43,9 @@
 #include "lllocaltextureobject.h"
 
 class LLViewerInventoryItem;
+class LLVisualParam;
+class LLTexGlobalColorInfo;
+class LLTexGlobalColor;
 
 class LLWearable
 {
@@ -66,7 +69,7 @@ public:
 	const LLAssetID&			getAssetID() const { return mAssetID; }
 	const LLTransactionID&		getTransactionID() const { return mTransactionID; }
 	EWearableType				getType() const	{ return mType; }
-	void						setType(EWearableType type)	{ mType = type; }
+	void						setType(EWearableType type);
 	const std::string&			getName() const	{ return mName; }
 	void						setName(const std::string& name) { mName = name; }
 	const std::string&			getDescription() const { return mDescription; }
@@ -81,11 +84,12 @@ public:
 	LLLocalTextureObject*		getLocalTextureObject(S32 index) const;
 
 public:
+	typedef std::vector<LLVisualParam*> visualParamCluster_t;
+
 	BOOL				isDirty() const;
 	BOOL				isOldVersion() const;
 
-	void				writeToAvatar( BOOL set_by_user );
-	void				readFromAvatar();
+	void				writeToAvatar( BOOL set_by_user, BOOL update_customize_floater = TRUE );
 	void				removeFromAvatar( BOOL set_by_user )	{ LLWearable::removeFromAvatar( mType, set_by_user ); }
 	static void			removeFromAvatar( EWearableType type, BOOL set_by_user ); 
 
@@ -104,9 +108,36 @@ public:
 
 	friend std::ostream& operator<<(std::ostream &s, const LLWearable &w);
 	void				setItemID(const LLUUID& item_id);
+
+	LLLocalTextureObject* getLocalTextureObject(S32 index);
+	const LLLocalTextureObject* getConstLocalTextureObject(S32 index) const;
+
 	void				setLocalTextureObject(S32 index, LLLocalTextureObject *lto);
+	void				addVisualParam(LLVisualParam *param);
+	void				setVisualParams();
+	void 				setVisualParamWeight(S32 index, F32 value, BOOL set_by_user);
+	F32					getVisualParamWeight(S32 index) const;
+	LLVisualParam*		getVisualParam(S32 index) const;
+	void				getVisualParams(visualParamCluster_t &list);
+
+	LLColor4			getClothesColor(S32 te);
+	void 				setClothesColor( S32 te, const LLColor4& new_color, BOOL set_by_user );
+
+	void				revertValues();
+
+	BOOL				isOnTop();
+
 
 private:
+	typedef std::map<S32, LLLocalTextureObject*> te_map_t;
+	typedef std::map<S32, LLVisualParam *>    VisualParamIndexMap_t;
+
+	void 				createLayers(S32 te);
+	void 				createVisualParams();
+	void				saveValues();
+	void				syncImages(te_map_t &src, te_map_t &dst);
+	void				destroyTextures();			
+
 	static S32			sCurrentDefinitionVersion;	// Depends on the current state of the avatar_lad.xml.
 	S32					mDefinitionVersion;			// Depends on the state of the avatar_lad.xml when this asset was created.
 	std::string			mName;
@@ -118,9 +149,12 @@ private:
 	EWearableType		mType;
 
 	typedef std::map<S32, F32> param_map_t;
-	param_map_t mVisualParamMap;	// maps visual param id to weight
-	typedef std::map<S32, LLLocalTextureObject> te_map_t;
+	param_map_t mSavedVisualParamMap; // last saved version of visual params
+
+	VisualParamIndexMap_t mVisualParamIndexMap;
+
 	te_map_t mTEMap;				// maps TE to LocalTextureObject
+	te_map_t mSavedTEMap;			// last saved version of TEMap
 	LLUUID				mItemID;  // ID of the inventory item in the agent's inventory
 };
 

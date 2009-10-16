@@ -45,6 +45,7 @@ class LLVOAvatarSelf;
 class LLWearable;
 class LLInitialWearablesFetch;
 class LLViewerObject;
+class LLTexLayerTemplate;
 
 class LLAgentWearables
 {
@@ -93,8 +94,9 @@ public:
 	static BOOL			selfHasWearable(EWearableType type);
 	LLWearable*			getWearable(const EWearableType type, U32 index /*= 0*/); 
 	const LLWearable* 	getWearable(const EWearableType type, U32 index /*= 0*/) const;
-	U32					getWearableCount(const EWearableType type) const;
-
+	LLWearable*		getTopWearable(const EWearableType type);
+	U32				getWearableCount(const EWearableType type) const;
+	U32				getWearableCount(const U32 tex_index) const;
 
 	//--------------------------------------------------------------------
 	// Setters
@@ -103,12 +105,16 @@ public:
 private:
 	// Low-level data structure setter - public access is via setWearableItem, etc.
 	void 			setWearable(const EWearableType type, U32 index, LLWearable *wearable);
+	U32 			pushWearable(const EWearableType type, LLWearable *wearable);
+	void 			popWearable(const EWearableType type, LLWearable *wearable);
+	void			popWearable(const EWearableType type, U32 index);
 	
 public:
 	void			setWearableItem(LLInventoryItem* new_item, LLWearable* wearable, bool do_append = false);
 	void			setWearableOutfit(const LLInventoryItem::item_array_t& items, const LLDynamicArray< LLWearable* >& wearables, BOOL remove);
 	void			setWearableName(const LLUUID& item_id, const std::string& new_name);
 	void			addLocalTextureObject(const EWearableType wearable_type, const LLVOAvatarDefines::ETextureIndex texture_type, U32 wearable_index);
+	U32				getWearableIndex(const EWearableType type, LLWearable *wearable);
 protected:
 	void			setWearableFinal(LLInventoryItem* new_item, LLWearable* new_wearable, bool do_append = false);
 	static bool		onSetWearableDialog(const LLSD& notification, const LLSD& response, LLWearable* wearable);
@@ -251,6 +257,8 @@ private:
 		U32 mTodo;
 		LLPointer<LLRefCount> mCB;
 	};
+
+	static const U32 MAX_ATTACHMENTS_PER_TYPE = 4; 
 
 }; // LLAgentWearables
 

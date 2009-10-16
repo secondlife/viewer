@@ -6320,8 +6320,8 @@ void LLAgent::sendAgentSetAppearance()
 			continue;
 		}
 
-		// IMG_DEFAULT_AVATAR means not baked
-		if (!mAvatarObject->isTextureDefined(texture_index))
+		// IMG_DEFAULT_AVATAR means not baked. 0 index should be ignored for baked textures
+		if (!mAvatarObject->isTextureDefined(texture_index, 0))
 		{
 			textures_current = FALSE;
 			break;

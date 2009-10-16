@@ -218,37 +218,18 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 }
 
 
-LLWearable* LLWearableList::createCopyFromAvatar(const LLWearable* old_wearable, const std::string& new_name)
-{
-	lldebugs << "LLWearableList::createCopyFromAvatar()" << llendl;
-
-	LLWearable *wearable = generateNewWearable();
-	wearable->copyDataFrom( old_wearable );
-
-	LLPermissions perm(old_wearable->getPermissions());
-	perm.setOwnerAndGroup(LLUUID::null, gAgent.getID(), LLUUID::null, true);
-	wearable->setPermissions(perm);
-	wearable->readFromAvatar();  // update from the avatar
-   
-	if (!new_name.empty()) wearable->setName(new_name);
-
-	// Send to the dataserver
-	wearable->saveNewAsset();
-
-	return wearable;
-}
-
-
-LLWearable* LLWearableList::createCopy(const LLWearable* old_wearable)
+LLWearable* LLWearableList::createCopy(const LLWearable* old_wearable, const std::string& new_name)
 {
 	lldebugs << "LLWearableList::createCopy()" << llendl;
 
 	LLWearable *wearable = generateNewWearable();
 	wearable->copyDataFrom(old_wearable);
-	
+
 	LLPermissions perm(old_wearable->getPermissions());
 	perm.setOwnerAndGroup(LLUUID::null, gAgent.getID(), LLUUID::null, true);
 	wearable->setPermissions(perm);
+
+	if (!new_name.empty()) wearable->setName(new_name);
 
 	// Send to the dataserver
 	wearable->saveNewAsset();
@@ -273,7 +254,6 @@ LLWearable* LLWearableList::createNewWearable( EWearableType type )
 	wearable->setPermissions(perm);
 
 	// Description and sale info have default values.
-	
 	wearable->setParamsToDefaults();
 	wearable->setTexturesToDefaults();
 

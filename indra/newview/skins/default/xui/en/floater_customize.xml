@@ -1156,21 +1156,6 @@ scratch and wear it.
              width="373">
                 Located in [PATH]
             </text>
-            <spinner
-             decimal_digits="0"
-             follows="left|top|right"
-             height="16"
-             increment="1"
-             initial_value="0"
-             label="Item"
-             label_width="30"
-             layout="topleft"
-             left_delta="2"
-             max_val="5"
-             name="index"
-             text_enabled_color="110, 15, 15, 255"
-             top_pad="6"
-             width="87" />
             <text
              type="string"
              length="1"
@@ -1377,21 +1362,6 @@ scratch and wear it.
              width="373">
                 Located in [PATH]
             </text>
-            <spinner
-             decimal_digits="0"
-             follows="left|top|right"
-             height="16"
-             increment="1"
-             initial_value="0"
-             label="Item"
-             label_width="30"
-             layout="topleft"
-             left_delta="2"
-             max_val="5"
-             name="index"
-             text_enabled_color="110, 15, 15, 255"
-             top_pad="6"
-             width="87" />
             <text
              type="string"
              length="1"
@@ -1524,21 +1494,6 @@ scratch and wear it.
              width="373">
                 Located in [PATH]
             </text>
-            <spinner
-             decimal_digits="0"
-             follows="left|top|right"
-             height="16"
-             increment="1"
-             initial_value="0"
-             label="Item"
-             label_width="30"
-             layout="topleft"
-             left_delta="2"
-             max_val="5"
-             name="index"
-             text_enabled_color="110, 15, 15, 255"
-             top_pad="6"
-             width="87" />
             <text
              type="string"
              length="1"
@@ -1745,21 +1700,6 @@ scratch and wear it.
              width="373">
                 Located in [PATH]
             </text>
-            <spinner
-             decimal_digits="0"
-             follows="left|top|right"
-             height="16"
-             increment="1"
-             initial_value="0"
-             label="Item"
-             label_width="30"
-             layout="topleft"
-             left_delta="2"
-             max_val="5"
-             name="index"
-             text_enabled_color="110, 15, 15, 255"
-             top_pad="6"
-             width="87" />
             <text
              type="string"
              length="1"
@@ -1966,21 +1906,6 @@ scratch and wear it.
              width="373">
                 Located in [PATH]
             </text>
-            <spinner
-             decimal_digits="0"
-             follows="left|top|right"
-             height="16"
-             increment="1"
-             initial_value="0"
-             label="Item"
-             label_width="30"
-             layout="topleft"
-             left_delta="2"
-             max_val="5"
-             name="index"
-             text_enabled_color="110, 15, 15, 255"
-             top_pad="6"
-             width="87" />
             <text
              type="string"
              length="1"
@@ -2199,21 +2124,6 @@ scratch and wear it.
              width="373">
                 Located in [PATH]
             </text>
-            <spinner
-             decimal_digits="0"
-             follows="left|top|right"
-             height="16"
-             increment="1"
-             initial_value="0"
-             label="Item"
-             label_width="30"
-             layout="topleft"
-             left_delta="2"
-             max_val="5"
-             name="index"
-             text_enabled_color="110, 15, 15, 255"
-             top_pad="6"
-             width="87" />
             <text
              type="string"
              length="1"
@@ -2420,21 +2330,6 @@ scratch and wear it.
              width="373">
                 Located in [PATH]
             </text>
-            <spinner
-             decimal_digits="0"
-             follows="left|top|right"
-             height="16"
-             increment="1"
-             initial_value="0"
-             label="Item"
-             label_width="30"
-             layout="topleft"
-             left_delta="2"
-             max_val="5"
-             name="index"
-             text_enabled_color="110, 15, 15, 255"
-             top_pad="6"
-             width="87" />
             <text
              type="string"
              length="1"
@@ -2641,21 +2536,6 @@ scratch and wear it.
              width="373">
                 Located in [PATH]
             </text>
-            <spinner
-             decimal_digits="0"
-             follows="left|top|right"
-             height="16"
-             increment="1"
-             initial_value="0"
-             label="Item"
-             label_width="30"
-             layout="topleft"
-             left_delta="2"
-             max_val="5"
-             name="index"
-             text_enabled_color="110, 15, 15, 255"
-             top_pad="6"
-             width="87" />
             <text
              type="string"
              length="1"
@@ -2862,21 +2742,6 @@ scratch and wear it.
              width="373">
                 Located in [PATH]
             </text>
-            <spinner
-             decimal_digits="0"
-             follows="left|top|right"
-             height="16"
-             increment="1"
-             initial_value="0"
-             label="Item"
-             label_width="30"
-             layout="topleft"
-             left_delta="2"
-             max_val="5"
-             name="index"
-             text_enabled_color="110, 15, 15, 255"
-             top_pad="6"
-             width="87" />
             <text
              type="string"
              length="1"
@@ -3083,21 +2948,6 @@ scratch and wear it.
              width="373">
                 Located in [PATH]
             </text>
-            <spinner
-             decimal_digits="0"
-             follows="left|top|right"
-             height="16"
-             increment="1"
-             initial_value="0"
-             label="Item"
-             label_width="30"
-             layout="topleft"
-             left_delta="2"
-             max_val="5"
-             name="index"
-             text_enabled_color="110, 15, 15, 255"
-             top_pad="6"
-             width="87" />
             <text
              type="string"
              length="1"
@@ -3385,21 +3235,6 @@ scratch and wear it.
              width="373">
                 Located in [PATH]
             </text>
-            <spinner
-             decimal_digits="0"
-             follows="left|top|right"
-             height="16"
-             increment="1"
-             initial_value="0"
-             label="Item"
-             label_width="30"
-             layout="topleft"
-             left_delta="2"
-             max_val="5"
-             name="index"
-             text_enabled_color="110, 15, 15, 255"
-             top_pad="6"
-             width="87" />
             <text
              type="string"
              length="1"

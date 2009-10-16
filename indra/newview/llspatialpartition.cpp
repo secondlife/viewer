@@ -659,8 +659,11 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 		return;
 	}
 
-	group->mLastUpdateDistance = group->mDistance;
-	group->mLastUpdateViewAngle = group->mViewAngle;
+	if (group->changeLOD())
+	{
+		group->mLastUpdateDistance = group->mDistance;
+		group->mLastUpdateViewAngle = group->mViewAngle;
+	}
 	
 	LLFastTimer ftm(FTM_REBUILD_VBO);	
 

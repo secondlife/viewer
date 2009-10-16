@@ -33,6 +33,7 @@
 #include "llagent.h"
 #include "lltexlayer.h"
 #include "llvoavatar.h"
+#include "llwearable.h"
 #include "lltexglobalcolor.h"
 
 //-----------------------------------------------------------------------------
@@ -64,7 +65,7 @@ BOOL LLTexGlobalColor::setInfo(LLTexGlobalColorInfo *info)
 		 iter++)
 	{
 		LLTexParamGlobalColor* param_color = new LLTexParamGlobalColor(this);
-		if (!param_color->setInfo(*iter))
+		if (!param_color->setInfo(*iter, TRUE))
 		{
 			mInfo = NULL;
 			return FALSE;
@@ -95,10 +96,16 @@ const std::string& LLTexGlobalColor::getName() const
 // LLTexParamGlobalColor
 //-----------------------------------------------------------------------------
 LLTexParamGlobalColor::LLTexParamGlobalColor(LLTexGlobalColor* tex_global_color) :
-	LLTexLayerParamColor((LLTexLayer*)NULL),
+	LLTexLayerParamColor(tex_global_color->getAvatar()),
 	mTexGlobalColor(tex_global_color)
 {
-	mAvatar = tex_global_color->getAvatar();
+}
+
+/*virtual*/ LLViewerVisualParam * 	LLTexParamGlobalColor::cloneParam(LLWearable* wearable) const
+{
+	LLTexParamGlobalColor *new_param = new LLTexParamGlobalColor(mTexGlobalColor);
+	*new_param = *this;
+	return new_param;
 }
 
 void LLTexParamGlobalColor::onGlobalColorChanged(bool set_by_user)

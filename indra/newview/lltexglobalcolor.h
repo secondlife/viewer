@@ -36,6 +36,7 @@
 #include "lltexlayerparams.h"
 
 class LLVOAvatar;
+class LLWearable;
 class LLTexGlobalColorInfo;
 
 class LLTexGlobalColor
@@ -67,7 +68,7 @@ public:
 	~LLTexGlobalColorInfo();
 
 	BOOL parseXml(LLXmlTreeNode* node);
-	
+
 private:
 	param_color_info_list_t		mParamColorInfoList;
 	std::string				mName;
@@ -77,6 +78,7 @@ class LLTexParamGlobalColor : public LLTexLayerParamColor
 {
 public:
 	LLTexParamGlobalColor(LLTexGlobalColor *tex_color);
+	/*virtual*/ LLViewerVisualParam * 	cloneParam(LLWearable* wearable) const;
 protected:
 	/*virtual*/ void onGlobalColorChanged(bool set_by_user);
 private:

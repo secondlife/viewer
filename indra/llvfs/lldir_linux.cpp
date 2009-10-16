@@ -99,7 +99,19 @@ LLDir_Linux::LLDir_Linux()
 #else
 	mAppRODataDir = tmp_str;
 #endif
-	mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
+    U32 indra_pos = mExecutableDir.find("/indra");
+    if (indra_pos != std::string::npos)
+    {
+		// ...we're in a dev checkout
+		mSkinBaseDir = mExecutableDir.substr(0, indra_pos) + "/indra/newview/skins";
+		llinfos << "Running in dev checkout with mSkinBaseDir "
+		 << mSkinBaseDir << llendl;
+    }
+    else
+    {
+		// ...normal installation running
+		mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
+    }	
 	mOSUserDir = getCurrentUserHome(tmp_str);
 	mOSUserAppDir = "";
 	mLindenUserDir = tmp_str;

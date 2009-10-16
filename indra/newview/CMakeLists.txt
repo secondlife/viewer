@@ -303,6 +303,7 @@ set(viewer_SOURCE_FILES
     llpaneldirland.cpp
     llpaneldirpeople.cpp
     llpaneldirplaces.cpp
+    llpaneleditwearable.cpp
     llpanelevent.cpp
     llpanelface.cpp
     llpanelgroup.cpp
@@ -358,6 +359,7 @@ set(viewer_SOURCE_FILES
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
     llscreenchannel.cpp
+    llscrollingpanelparam.cpp
     llsearchcombobox.cpp
     llsearchhistory.cpp
     llselectmgr.cpp
@@ -767,6 +769,7 @@ set(viewer_HEADER_FILES
     llpaneldirland.h
     llpaneldirpeople.h
     llpaneldirplaces.h
+    llpaneleditwearable.h
     llpanelevent.h
     llpanelface.h
     llpanelgroup.h
@@ -823,6 +826,7 @@ set(viewer_HEADER_FILES
     llresourcedata.h
     llrootview.h
     llscreenchannel.h
+    llscrollingpanelparam.h
     llsavedsettingsglue.h
     llsearchcombobox.h
     llsearchhistory.h

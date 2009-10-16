@@ -37,6 +37,7 @@
 #include "llviewertexture.h"
 #include "lltextureentry.h"
 #include "lluuid.h"
+#include "llwearable.h"
 
 
 LLLocalTextureObject::LLLocalTextureObject() :
@@ -46,31 +47,33 @@ LLLocalTextureObject::LLLocalTextureObject() :
 	mImage = NULL;
 }
 
-LLLocalTextureObject::LLLocalTextureObject(LLViewerFetchedTexture *image, LLTextureEntry *entry, LLTexLayer *layer, LLUUID id)
+LLLocalTextureObject::LLLocalTextureObject(LLViewerFetchedTexture *image, LLUUID id)
 {
-	if (entry)
-	{
-		LLTextureEntry * te = new LLTextureEntry(*entry);
-		mTexEntry = boost::shared_ptr<LLTextureEntry>(te);
-	}
-
-	if (layer)
-	{
-		LLTexLayer *texLayer = new LLTexLayer(*layer);
-		mTexLayer = boost::shared_ptr<LLTexLayer>(texLayer);
-	}
 	mImage = image;
+	gGL.getTexUnit(0)->bind(mImage);
 	mID = id;
 }
 
 LLLocalTextureObject::LLLocalTextureObject(const LLLocalTextureObject &lto) :
 mImage(lto.mImage),
-mTexEntry(lto.mTexEntry),
-mTexLayer(lto.mTexLayer),
 mID(lto.mID),
 mIsBakedReady(lto.mIsBakedReady),
 mDiscard(lto.mDiscard)
 {
+	U32 num_layers = lto.getNumTexLayers();
+	mTexLayers.reserve(num_layers);
+	for (U32 index = 0; index < num_layers; index++)
+	{
+		LLTexLayer* original_layer = lto.getTexLayer(index);
+		if (!original_layer)
+		{
+			llerrs << "could not clone Local Texture Object: unable to extract texlayer!" << llendl;
+		}
+
+		LLTexLayer* new_layer = new LLTexLayer(*original_layer);
+		new_layer->setLTO(this);
+		mTexLayers.push_back(new_layer);
+	}
 }
 
 LLLocalTextureObject::~LLLocalTextureObject()
@@ -82,14 +85,33 @@ LLViewerFetchedTexture* LLLocalTextureObject::getImage() const
 	return mImage;
 }
 
-LLTextureEntry* LLLocalTextureObject::getTexEntry() const
+LLTexLayer* LLLocalTextureObject::getTexLayer(U32 index) const
 {
-	return mTexEntry.get();
+	if (index >= getNumTexLayers())
+	{
+		return NULL;
+	}
+
+	return mTexLayers[index];
 }
 
-LLTexLayer* LLLocalTextureObject::getTexLayer() const
+LLTexLayer* LLLocalTextureObject::getTexLayer(const std::string &name)
 {
-	return mTexLayer.get();
+	for( tex_layer_p::iterator iter = mTexLayers.begin(); iter != mTexLayers.end(); iter++)
+	{
+		LLTexLayer *layer = *iter;
+		if (layer->getName().compare(name) == 0)
+		{
+			return layer;
+		}
+	}
+
+	return NULL;
+}
+
+U32 LLLocalTextureObject::getNumTexLayers() const
+{
+	return mTexLayers.size();
 }
 
 LLUUID LLLocalTextureObject::getID() const
@@ -112,24 +134,68 @@ void LLLocalTextureObject::setImage(LLViewerFetchedTexture* new_image)
 	mImage = new_image;
 }
 
-void LLLocalTextureObject::setTexEntry(LLTextureEntry *new_te)
+BOOL LLLocalTextureObject::setTexLayer(LLTexLayer *new_tex_layer, U32 index)
 {
-	LLTextureEntry *ptr = NULL;
-	if (new_te)
+	if (index >= getNumTexLayers() )
 	{
-		ptr = new LLTextureEntry(*new_te);
+		return FALSE;
 	}
-	mTexEntry = boost::shared_ptr<LLTextureEntry>(ptr);
+
+	if (new_tex_layer == NULL)
+	{
+		return removeTexLayer(index);
+	}
+
+	LLTexLayer *layer = new LLTexLayer(*new_tex_layer);
+	layer->setLTO(this);
+
+	if (mTexLayers[index])
+	{
+		delete mTexLayers[index];
+	}
+	mTexLayers[index] = layer;
+
+	return TRUE;
 }
 
-void LLLocalTextureObject::setTexLayer(LLTexLayer *new_tex_layer)
+BOOL LLLocalTextureObject::addTexLayer(LLTexLayer *new_tex_layer, LLWearable *wearable)
 {
-	LLTexLayer *ptr = NULL;
-	if (new_tex_layer)
+	if (new_tex_layer == NULL)
 	{
-		ptr = new LLTexLayer(*new_tex_layer);
+		return FALSE;
 	}
-	mTexLayer = boost::shared_ptr<LLTexLayer>(ptr);
+
+	LLTexLayer *layer = new LLTexLayer(*new_tex_layer, wearable);
+	layer->setLTO(this);
+	mTexLayers.push_back(layer);
+	return TRUE;
+}
+
+BOOL LLLocalTextureObject::addTexLayer(LLTexLayerTemplate *new_tex_layer, LLWearable *wearable)
+{
+	if (new_tex_layer == NULL)
+	{
+		return FALSE;
+	}
+
+	LLTexLayer *layer = new LLTexLayer(*new_tex_layer, this, wearable);
+	layer->setLTO(this);
+	mTexLayers.push_back(layer);
+	return TRUE;
+}
+
+BOOL LLLocalTextureObject::removeTexLayer(U32 index)
+{
+	if (index >= getNumTexLayers())
+	{
+		return FALSE;
+	}
+	tex_layer_p::iterator iter = mTexLayers.begin();
+	iter += index;
+
+	delete *iter;
+	mTexLayers.erase(iter);
+	return TRUE;
 }
 
 void LLLocalTextureObject::setID(LLUUID new_id)

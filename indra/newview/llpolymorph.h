@@ -42,6 +42,7 @@ class LLPolyMeshSharedData;
 class LLVOAvatar;
 class LLVector2;
 class LLViewerJointCollisionVolume;
+class LLWearable;
 
 //-----------------------------------------------------------------------------
 // LLPolyMorphData()
@@ -152,6 +153,8 @@ public:
 	LLPolyMorphTargetInfo*	getInfo() const { return (LLPolyMorphTargetInfo*)mInfo; }
 	//   This sets mInfo and calls initialization functions
 	BOOL					setInfo(LLPolyMorphTargetInfo *info);
+
+	/*virtual*/ LLViewerVisualParam * 	cloneParam(LLWearable* wearable) const;
 
 	// LLVisualParam Virtual functions
 	///*virtual*/ BOOL				parseData(LLXmlTreeNode* node);

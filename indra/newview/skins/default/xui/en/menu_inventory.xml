@@ -610,6 +610,14 @@
          function="Inventory.DoToSelected"
          parameter="wear" />
     </menu_item_call>
+	<menu_item_call
+    label="Add"
+    layout="topleft"
+    name="Wearable Add">
+       <menu_item_call.on_click
+        function="Inventory.DoToSelected"
+        parameter="wear_add" />
+   </menu_item_call> 
     <menu_item_call
      label="Take Off"
      layout="topleft"

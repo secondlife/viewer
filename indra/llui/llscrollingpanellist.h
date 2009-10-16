@@ -77,7 +77,7 @@ public:
 	virtual void		draw();
 
 	void				clearPanels();
-	void				addPanel( LLScrollingPanel* panel );
+	S32					addPanel( LLScrollingPanel* panel );
 	void				removePanel( LLScrollingPanel* panel );
 	void				removePanel( U32 panel_index );
 	void				updatePanels(BOOL allow_modify);

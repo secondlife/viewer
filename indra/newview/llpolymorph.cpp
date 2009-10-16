@@ -37,6 +37,7 @@
 
 #include "llpolymorph.h"
 #include "llvoavatar.h"
+#include "llwearable.h"
 #include "llxmltree.h"
 #include "llendianswizzle.h"
 
@@ -299,6 +300,13 @@ BOOL LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
 		return FALSE;  // Continue, ignoring this tag
 	}
 	return TRUE;
+}
+
+/*virtual*/ LLViewerVisualParam * 	LLPolyMorphTarget::cloneParam(LLWearable* wearable) const
+{
+	LLPolyMorphTarget *new_param = new LLPolyMorphTarget(mMesh);
+	*new_param = *this;
+	return new_param;
 }
 
 #if 0 // obsolete

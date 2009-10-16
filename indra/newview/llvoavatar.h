@@ -268,12 +268,14 @@ private:
 public:
 	void				updateHeadOffset();
 	F32					getPelvisToFoot() const { return mPelvisToFoot; }
+
 	LLVector3			mHeadOffset; // current head position
 	LLViewerJoint		mRoot;
 protected:
 	static BOOL			parseSkeletonFile(const std::string& filename);
 	void				buildCharacter();
 	BOOL				loadAvatar();
+
 	BOOL				setupBone(const LLVOAvatarBoneInfo* info, LLViewerJoint* parent, S32 &current_volume_num, S32 &current_joint_num);
 	BOOL				buildSkeleton(const LLVOAvatarSkeletonInfo *info);
 private:
@@ -495,13 +497,15 @@ protected:
 protected:
 	virtual void	setLocalTexture(LLVOAvatarDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index = 0);
 	virtual void	addLocalTextureStats(LLVOAvatarDefines::ETextureIndex type, LLViewerFetchedTexture* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked, U32 index = 0);
+	// MULTI-WEARABLE: make self-only?
+	virtual void	setBakedReady(LLVOAvatarDefines::ETextureIndex type, BOOL baked_version_exists, U32 index = 0);
 
 	//--------------------------------------------------------------------
 	// Texture accessors
 	//--------------------------------------------------------------------
 private:
-	virtual	void				setImage(const U8 te, LLViewerTexture *imagep); 
-	virtual LLViewerTexture*	getImage(const U8 te) const;
+	virtual	void				setImage(const U8 te, LLViewerTexture *imagep, const U32 index); 
+	virtual LLViewerTexture*	getImage(const U8 te, const U32 index) const;
 
 	virtual const LLTextureEntry* getTexEntry(const U8 te_num) const;
 	virtual void setTexEntry(const U8 index, const LLTextureEntry &te);
@@ -605,7 +609,7 @@ private:
 public:
 	void			setClothesColor(LLVOAvatarDefines::ETextureIndex te, const LLColor4& new_color, BOOL set_by_user);
 	LLColor4		getClothesColor(LLVOAvatarDefines::ETextureIndex te);
-	BOOL			teToColorParams(LLVOAvatarDefines::ETextureIndex te, const char* param_name[3]);
+	static BOOL			teToColorParams(LLVOAvatarDefines::ETextureIndex te, U32 *param_name);
 
 	//--------------------------------------------------------------------
 	// Global colors
@@ -637,7 +641,7 @@ public:
  **/
 
 public:
-	BOOL			isWearingWearableType(EWearableType type ) const;
+	virtual BOOL			isWearingWearableType(EWearableType type ) const;
 	
 	//--------------------------------------------------------------------
 	// Attachments

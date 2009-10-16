@@ -6910,11 +6910,12 @@ void handle_debug_avatar_textures(void*)
 
 void handle_grab_texture(void* data)
 {
-	ETextureIndex index = (ETextureIndex)((intptr_t)data);
+	ETextureIndex tex_index = (ETextureIndex)((intptr_t)data);
 	const LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 	if ( avatar )
 	{
-		const LLUUID& asset_id = avatar->grabLocalTexture(index);
+		// MULTI-WEARABLE: change to support an index
+		const LLUUID& asset_id = avatar->grabLocalTexture(tex_index, 0);
 		LL_INFOS("texture") << "Adding baked texture " << asset_id << " to inventory." << llendl;
 		LLAssetType::EType asset_type = LLAssetType::AT_TEXTURE;
 		LLInventoryType::EType inv_type = LLInventoryType::IT_TEXTURE;
@@ -6922,7 +6923,7 @@ void handle_grab_texture(void* data)
 		if(folder_id.notNull())
 		{
 			std::string name = "Unknown";
-			const LLVOAvatarDictionary::TextureEntry *texture_dict = LLVOAvatarDictionary::getInstance()->getTexture(index);
+			const LLVOAvatarDictionary::TextureEntry *texture_dict = LLVOAvatarDictionary::getInstance()->getTexture(tex_index);
 			if (texture_dict->mIsBakedTexture)
 			{
 				EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
@@ -6989,7 +6990,8 @@ BOOL enable_grab_texture(void* data)
 	const LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 	if ( avatar )
 	{
-		return avatar->canGrabLocalTexture(index);
+		// MULTI-WEARABLE:
+		return avatar->canGrabLocalTexture(index,0);
 	}
 	return FALSE;
 }

@@ -50,7 +50,7 @@ void LLScrollingPanelList::clearPanels()
 	reshape( 1, 1, FALSE );
 }
 
-void LLScrollingPanelList::addPanel( LLScrollingPanel* panel )
+S32 LLScrollingPanelList::addPanel( LLScrollingPanel* panel )
 {
 	addChildInBack( panel );
 	mPanelList.push_front( panel );
@@ -79,6 +79,8 @@ void LLScrollingPanelList::addPanel( LLScrollingPanel* panel )
 		childp->translate( -childp->getRect().mLeft, cur_y - childp->getRect().mBottom);
 		cur_y -= GAP_BETWEEN_PANELS;
 	}
+
+	return total_height;
 }
 
 void LLScrollingPanelList::removePanel(LLScrollingPanel* panel) 

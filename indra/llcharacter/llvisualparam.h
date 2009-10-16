@@ -36,6 +36,7 @@
 #include "v3math.h"
 #include "llstring.h"
 #include "llxmltree.h"
+#include <boost/function.hpp>
 
 class LLPolyMesh;
 class LLXmlTreeNode;
@@ -68,6 +69,10 @@ public:
 	virtual ~LLVisualParamInfo() {};
 
 	virtual BOOL parseXml(LLXmlTreeNode *node);
+
+	S32 getID() const { return mID; }
+
+	virtual void toStream(std::ostream &out);
 	
 protected:
 	S32					mID;				// ID associated with VisualParam
@@ -91,6 +96,9 @@ protected:
 //-----------------------------------------------------------------------------
 class LLVisualParam
 {
+protected:
+	typedef		boost::function<LLVisualParam*(S32)> visual_param_mapper;
+
 public:
 	LLVisualParam();
 	virtual ~LLVisualParam();
@@ -110,6 +118,8 @@ public:
 	virtual void			setAnimationTarget( F32 target_value, BOOL set_by_user );
 	virtual void			animate(F32 delta, BOOL set_by_user);
 	virtual void			stopAnimating(BOOL set_by_user);
+
+	virtual BOOL			linkDrivenParams(visual_param_mapper mapper, bool only_cross_params);
 
 	// Interface methods
 	S32						getID() const		{ return mID; }
@@ -150,6 +160,7 @@ protected:
 
 	S32					mID;				// id for storing weight/morphtarget compares compactly
 	LLVisualParamInfo	*mInfo;
+
 };
 
 #endif // LL_LLVisualParam_H
