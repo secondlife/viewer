@@ -452,6 +452,13 @@ BOOL LLScrollbar::handleMouseUp(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
+BOOL LLScrollbar::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	// just treat a double click as a second click
+	return handleMouseDown(x, y, mask);
+}
+
+
 void LLScrollbar::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	if (width == getRect().getWidth() && height == getRect().getHeight()) return;
