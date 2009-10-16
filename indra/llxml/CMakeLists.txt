@@ -44,3 +44,25 @@ target_link_libraries( llxml
     llmath
     ${EXPAT_LIBRARIES}
     )
+
+# tests
+
+# unit tests
+
+SET(llxml_TEST_SOURCE_FILES
+  # none yet!
+  )
+LL_ADD_PROJECT_UNIT_TESTS(llxml "${llxml_TEST_SOURCE_FILES}")
+
+# integration tests
+
+#    set(TEST_DEBUG on)
+set(test_libs
+  ${LLXML_LIBRARIES}
+  ${WINDOWS_LIBRARIES}
+  ${LLMATH_LIBRARIES}
+  ${LLCOMMON_LIBRARIES}
+  )
+
+LL_ADD_INTEGRATION_TEST(llcontrol "" "${test_libs}")
+
