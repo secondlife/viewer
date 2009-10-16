@@ -57,7 +57,6 @@ set(test_SOURCE_FILES
     lluuidhashmap_tut.cpp
     llxfer_tut.cpp
     message_tut.cpp
-    reflection_tut.cpp
     test.cpp
     )
 
