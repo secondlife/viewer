@@ -2291,6 +2291,17 @@ BOOL LLNormalTextSegment::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return FALSE;
 }
 
+BOOL LLNormalTextSegment::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	if (getStyle() && getStyle()->isLink())
+	{
+		// eat mouse down event on hyperlinks, so we get the mouse up
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 BOOL LLNormalTextSegment::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	if (getStyle() && getStyle()->isLink())
