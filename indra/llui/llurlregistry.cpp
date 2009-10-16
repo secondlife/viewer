@@ -192,3 +192,15 @@ bool LLUrlRegistry::findUrl(const LLWString &text, LLUrlMatch &match, const LLUr
 	}
 	return false;
 }
+
+bool LLUrlRegistry::hasUrl(const std::string &text)
+{
+	LLUrlMatch match;
+	return findUrl(text, match);
+}
+
+bool LLUrlRegistry::hasUrl(const LLWString &text)
+{
+	LLUrlMatch match;
+	return findUrl(text, match);
+}

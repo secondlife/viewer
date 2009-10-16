@@ -81,6 +81,10 @@ public:
 	bool findUrl(const LLWString &text, LLUrlMatch &match,
 				 const LLUrlLabelCallback &cb = &LLUrlRegistryNullCallback);
 
+	// return true if the given string contains a URL that findUrl would match
+	bool hasUrl(const std::string &text);
+	bool hasUrl(const LLWString &text);
+
 private:
 	LLUrlRegistry();
 	friend class LLSingleton<LLUrlRegistry>;
