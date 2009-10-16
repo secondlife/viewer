@@ -118,14 +118,15 @@ if (LINUX)
     endif (NOT ${GXX_VERSION} MATCHES " 4.1.*Red Hat")
   endif (${GXX_VERSION} STREQUAL ${CXX_VERSION})
 
-  # GCC 4.3 introduces a pile of obnoxious new warnings, which we
-  # treat as errors due to -Werror.  Quiet the most offensive and
-  # widespread of them.
+  # Let's actually get a numerical version of gxx's version
+  STRING(REGEX REPLACE ".* ([0-9])\\.([0-9])\\.([0-9]).*" "\\1\\2\\3" CXX_VERSION ${CXX_VERSION})
 
-  if (${CXX_VERSION} MATCHES "4.3")
+  # gcc 4.3 and above don't like the LL boost and also 
+  # cause warnings due to our use of deprecated headers
+  if(${CXX_VERSION} GREATER 429)
     add_definitions(-Wno-parentheses)
     set(CMAKE_CXX_FLAGS "-Wno-deprecated ${CMAKE_CXX_FLAGS}")
-  endif (${CXX_VERSION} MATCHES "4.3")
+  endif (${CXX_VERSION} GREATER 429)
 
   # End of hacks.
 
