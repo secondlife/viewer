@@ -58,7 +58,6 @@ set(test_SOURCE_FILES
     llxfer_tut.cpp
     message_tut.cpp
     reflection_tut.cpp
-    stringize_tut.cpp
     test.cpp
     )
 
