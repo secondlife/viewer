@@ -228,7 +228,7 @@ void LLViewerMediaFocus::setCameraZoom(F32 padding_factor)
 
 		// Finally animate the camera to this new position and focal point
 		LLVector3d camera_pos, target_pos;
-		// Target lookat position is the center of the selection (in global coords)
+		// The target lookat position is the center of the selection (in global coords)
 		target_pos = LLSelectMgr::getInstance()->getSelectionCenterGlobal();
 		// Target look-from (camera) position is "distance" away from the target along the normal 
 		LLVector3d pickNormal = LLVector3d(pick.mNormal);
@@ -239,6 +239,14 @@ void LLViewerMediaFocus::setCameraZoom(F32 padding_factor)
 			// If the normal points directly up, the camera will "flip" around.
 			// We try to avoid this by adjusting the target camera position a 
 			// smidge towards current camera position
+			// *NOTE: this solution is not perfect.  All it attempts to solve is the
+			// "looking down" problem where the camera flips around when it animates
+			// to that position.  You still are not guaranteed to be looking at the
+			// media in the correct orientation.  What this solution does is it will
+			// put the camera into position keeping as best it can the current 
+			// orientation with respect to the face.  In other words, if before zoom
+			// the media appears "upside down" from the camera, after zooming it will
+			// still be upside down, but at least it will not flip.
             LLVector3d cur_camera_pos = LLVector3d(gAgent.getCameraPositionGlobal());
             LLVector3d delta = (cur_camera_pos - camera_pos);
             F64 len = delta.length();
