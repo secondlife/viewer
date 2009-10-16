@@ -68,3 +68,5 @@ LL_ADD_PROJECT_UNIT_TESTS(llinventory "${llinventory_TEST_SOURCE_FILES}")
 #set(TEST_DEBUG on)
 set(test_libs llinventory ${LLMESSAGE_LIBRARIES} ${LLVFS_LIBRARIES} ${LLMATH_LIBRARIES} ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
 LL_ADD_INTEGRATION_TEST(inventorymisc "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(llparcel "" "${test_libs}")
+

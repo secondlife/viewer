@@ -37,7 +37,6 @@ set(test_SOURCE_FILES
     llhttpdate_tut.cpp
     llhttpclient_tut.cpp
     llhttpnode_tut.cpp
-    llinventoryparcel_tut.cpp
     lliohttpserver_tut.cpp
     llmessageconfig_tut.cpp
     llpermissions_tut.cpp
