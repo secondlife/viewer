@@ -71,13 +71,17 @@ private:
 
     static std::map<KEY, T*>& getMap()
     {
-		static std::map<KEY, T*>* sInstances = new std::map<KEY, T*>();
+        if (! sInstances)
+        {
+            sInstances = new std::map<KEY, T*>;
+        }
         return *sInstances;
     }
 
 private:
 
 	KEY mKey;
+	static std::map<KEY, T*>* sInstances;
 };
 
 // explicit specialization for default case where KEY is T*
@@ -101,10 +105,17 @@ protected:
 
     static std::set<T*>& getSet()   // called after getReady() but before go()
     {
-		static std::set<T*>* sInstances = new std::set<T*>();
+        if (! sInstances)
+        {
+            sInstances = new std::set<T*>;
+        }
         return *sInstances;
     }
+
+	static std::set<T*>* sInstances;
 };
 
+template <typename T, typename KEY> std::map<KEY, T*>* LLInstanceTracker<T, KEY>::sInstances = NULL;
+template <typename T> std::set<T*>* LLInstanceTracker<T, T*>::sInstances = NULL;
 
 #endif
