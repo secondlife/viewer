@@ -242,5 +242,6 @@ LL_ADD_INTEGRATION_TEST(
   )
 
 LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
 LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}")
 
