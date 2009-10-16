@@ -45,14 +45,14 @@
 #include "llvoavatarself.h"
 
 // Constants for LLPanelVisualParam
-const static F32 PARAM_STEP_TIME_THRESHOLD = 0.25f;
+const F32 LLScrollingPanelParam::PARAM_STEP_TIME_THRESHOLD = 0.25f;
 
-const static S32 BTN_BORDER = 2;
-const static S32 PARAM_HINT_WIDTH = 128;
-const static S32 PARAM_HINT_HEIGHT = 128;
-const static S32 PARAM_HINT_LABEL_HEIGHT = 16;
-const static S32 PARAM_PANEL_WIDTH = 2 * (3* BTN_BORDER + PARAM_HINT_WIDTH +  LLPANEL_BORDER_WIDTH);
-const static S32 PARAM_PANEL_HEIGHT = 2 * BTN_BORDER + PARAM_HINT_HEIGHT + PARAM_HINT_LABEL_HEIGHT + 4 * LLPANEL_BORDER_WIDTH; 
+const S32 LLScrollingPanelParam::BTN_BORDER = 2;
+const S32 LLScrollingPanelParam::PARAM_HINT_WIDTH = 128;
+const S32 LLScrollingPanelParam::PARAM_HINT_HEIGHT = 128;
+const S32 LLScrollingPanelParam::PARAM_HINT_LABEL_HEIGHT = 16;
+const S32 LLScrollingPanelParam::PARAM_PANEL_WIDTH = 2 * (3* BTN_BORDER + PARAM_HINT_WIDTH +  LLPANEL_BORDER_WIDTH);
+const S32 LLScrollingPanelParam::PARAM_PANEL_HEIGHT = 2 * BTN_BORDER + PARAM_HINT_HEIGHT + PARAM_HINT_LABEL_HEIGHT + 4 * LLPANEL_BORDER_WIDTH; 
 
 // LLScrollingPanelParam
 //static
