@@ -86,7 +86,6 @@ color="DkGray"
              width="313">
              <button
              follows="bottom|left"
-             font="SansSerifBigBold"
              tool_tip="Change sort and view of Residents list"
              height="18"
              image_disabled="OptionsMenu_Disabled"
@@ -166,7 +165,6 @@ color="DkGray"
              width="313">
                <button
                follows="bottom|left"
-               font="SansSerifBigBold"
                tool_tip="Change sort and view of Friends list"
                height="18"
                image_disabled="OptionsMenu_Disabled"
@@ -180,7 +178,6 @@ color="DkGray"
                width="18" />
                 <button
                  follows="bottom|left"
-                 font="SansSerifBigBold"
                  height="18"
                  image_selected="AddItem_Press"
                  image_unselected="AddItem_Off"
@@ -194,7 +191,6 @@ color="DkGray"
                  width="18" />
                 <button
                  follows="bottom|left"
-                 font="SansSerifBigBold"
                  height="18"
                  image_selected="TrashItem_Press"
                  image_unselected="TrashItem_Off"
@@ -211,7 +207,7 @@ color="DkGray"
         <panel
          background_visible="true"
          bevel_style="none"
-         follows="left|top|right|bottom"
+         follows="all"
          height="390"
          label="Groups"
          top="0"
@@ -220,7 +216,7 @@ color="DkGray"
          name="groups_panel"
          width="313">
             <group_list
-             follows="left|top|right|bottom"
+             follows="all"
              height="357"
              layout="topleft"
              color="DkGray2"
@@ -241,7 +237,6 @@ color="DkGray"
              width="313">
                <button
                follows="bottom|left"
-               font="SansSerifBigBold"
                tool_tip="Change sort and view of Groups list"
                height="18"
                image_disabled="OptionsMenu_Disabled"
@@ -255,7 +250,6 @@ color="DkGray"
                width="18" />
                 <button
                  follows="bottom|left"
-                 font="SansSerifBigBold"
                  height="18"
                  image_selected="AddItem_Press"
                  image_unselected="AddItem_Off"
@@ -269,11 +263,10 @@ color="DkGray"
                  width="18" />
                 <button
                  follows="bottom|left"
-                 font="SansSerifBigBold"
                  height="10"
-                 image_hover_selected="group_activate_btn.tga"
-                 image_selected="group_activate_btn.tga"
-                 image_unselected="group_activate_btn.tga"
+                 image_hover_selected="Activate_Checkmark"
+     image_selected="Activate_Checkmark"
+     image_unselected="Activate_Checkmark"
                  layout="topleft"
                  left_pad="24"
                  name="activate_btn"
@@ -283,7 +276,6 @@ color="DkGray"
                  width="10" />
                 <button
                  follows="bottom|left"
-                 font="SansSerifBigBold"
                  height="18"
                  image_selected="TrashItem_Press"
                  image_unselected="TrashItem_Off"
@@ -300,7 +292,7 @@ color="DkGray"
          background_visible="true"
          bevel_style="none"
          top="0"
-         follows="left|top|right|bottom"
+         follows="all"
          height="390"
          label="Recent"
          layout="topleft"
@@ -309,7 +301,7 @@ color="DkGray"
          width="313">
             <avatar_list
              color="DkGray2"
-             follows="left|top|right|bottom"
+             follows="all"
              height="357"
              layout="topleft"
              left="0"
