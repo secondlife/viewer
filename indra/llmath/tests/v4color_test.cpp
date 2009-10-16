@@ -1,5 +1,5 @@
 /**
- * @file v4color_tut.cpp
+ * @file v4color_test.cpp
  * @author Adroit
  * @date 2007-03
  * @brief v4color test cases.

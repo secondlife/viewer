@@ -1,5 +1,5 @@
 /** 
- * @file llquaternion_tut.cpp
+ * @file llquaternion_test.cpp
  * @author Adroit
  * @date 2007-03
  * @brief Test cases of llquaternion.h

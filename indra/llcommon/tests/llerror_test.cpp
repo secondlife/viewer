@@ -1,5 +1,5 @@
 /** 
- * @file llerror_tut.cpp
+ * @file llerror_test.cpp
  * @date   December 2006
  * @brief error unit tests
  *

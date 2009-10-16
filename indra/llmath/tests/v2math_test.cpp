@@ -1,5 +1,5 @@
 /**
- * @file v2math_tut.cpp
+ * @file v2math_test.cpp
  * @author Adroit
  * @date 2007-02
  * @brief v2math test cases.

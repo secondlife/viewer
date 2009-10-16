@@ -1,5 +1,5 @@
 /**
- * @file llhost_tut.cpp
+ * @file llhost_test.cpp
  * @author Adroit
  * @date 2007-02
  * @brief llhost test cases.

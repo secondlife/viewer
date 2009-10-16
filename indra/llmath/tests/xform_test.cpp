@@ -1,5 +1,5 @@
 /** 
- * @file xform_tut.cpp
+ * @file xform_test.cpp
  * @author Adroit
  * @date March 2007 
  * @brief Test cases for LLXform

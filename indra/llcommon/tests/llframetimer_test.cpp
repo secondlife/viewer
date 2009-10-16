@@ -1,5 +1,5 @@
 /** 
- * @file lltiming_tut.cpp
+ * @file lltiming_test.cpp
  * @date 2006-07-23
  * @brief Tests the timers.
  *

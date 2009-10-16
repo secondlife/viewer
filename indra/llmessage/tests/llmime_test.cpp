@@ -1,8 +1,8 @@
 /** 
- * @file llmime_tut.cpp
+ * @file llmime_test.cpp
  * @author Phoenix
  * @date 2006-12-24
- * @brief BRIEF_DESC of llmime_tut.cpp
+ * @brief BRIEF_DESC of llmime_test.cpp
  *
  * $LicenseInfo:firstyear=2006&license=viewergpl$
  * 

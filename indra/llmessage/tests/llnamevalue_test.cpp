@@ -1,5 +1,5 @@
 /** 
- * @file llnamevalue_tut.cpp
+ * @file llnamevalue_test.cpp
  * @author Adroit
  * @date 2007-02
  * @brief LLNameValue unit test

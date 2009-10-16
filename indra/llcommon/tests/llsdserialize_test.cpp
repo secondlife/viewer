@@ -1,5 +1,5 @@
 /** 
- * @file llsdserialize_tut.cpp
+ * @file llsdserialize_test.cpp
  * @date 2006-04
  * @brief LLSDSerialize unit tests
  *

@@ -1,5 +1,5 @@
 /** 
- * @file llrandom_tut.cpp
+ * @file llrandom_test.cpp
  * @author Phoenix
  * @date 2007-01-25
  *

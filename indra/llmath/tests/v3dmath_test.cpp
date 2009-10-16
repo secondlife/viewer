@@ -1,5 +1,5 @@
 /**
- * @file v3dmath_tut.cpp
+ * @file v3dmath_test.cpp
  * @author Adroit
  * @date 2007-03
  * @brief v3dmath test cases.

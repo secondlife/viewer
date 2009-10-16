@@ -1,5 +1,5 @@
 /**
- * @file   llrect_tut.cpp
+ * @file   llrect_test.cpp
  * @author Martin Reddy
  * @date   2009-06-25
  * @brief  Test for llrect.cpp.

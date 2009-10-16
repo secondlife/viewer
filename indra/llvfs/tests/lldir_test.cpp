@@ -1,5 +1,5 @@
 /**
- * @file lldir_tut.cpp
+ * @file lldir_test.cpp
  * @date 2008-05
  * @brief LLDir test cases.
  *

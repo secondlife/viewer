@@ -1,5 +1,5 @@
 /**
- * @file   lluri_tut.cpp
+ * @file   lluri_test.cpp
  * @brief  LLURI unit tests
  * @date   September 2006
  *

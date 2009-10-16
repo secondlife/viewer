@@ -1,5 +1,5 @@
 /**
- * @file v3color_tut.cpp
+ * @file v3color_test.cpp
  * @author Adroit
  * @date 2007-03
  * @brief v3color test cases.

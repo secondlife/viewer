@@ -1,5 +1,5 @@
 /**
- * @file modularmath_tut.cpp
+ * @file modularmath_test.cpp
  * @author babbage
  * @date 2008-09
  * @brief llmodularmath tests

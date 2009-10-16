@@ -1,5 +1,5 @@
 /**
- * @file lldate_tut.cpp
+ * @file lldate_test.cpp
  * @author Adroit
  * @date 2007-02
  * @brief LLDate test cases.

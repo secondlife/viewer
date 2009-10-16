@@ -1,5 +1,5 @@
 /** 
- * @file llbase64_tut.cpp
+ * @file llbase64_test.cpp
  * @author James Cook
  * @date 2007-02-04
  *

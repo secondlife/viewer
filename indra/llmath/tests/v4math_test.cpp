@@ -1,5 +1,5 @@
 /**
- * @file v4math_tut.cpp
+ * @file v4math_test.cpp
  * @author Adroit
  * @date 2007-03
  * @brief v4math test cases.

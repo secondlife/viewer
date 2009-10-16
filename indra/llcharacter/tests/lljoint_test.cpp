@@ -1,5 +1,5 @@
 /**
- * @file lljoint_tut.cpp
+ * @file lljoint_test.cpp
  * @author Adroit
  * @date 2007-03
  * @brief lljoint test cases.

@@ -1,5 +1,5 @@
 /**
- * @file   llsdmessage_tut.cpp
+ * @file   llsdmessage_test.cpp
  * @author Nat Goodspeed
  * @date   2008-12-22
  * @brief  Test of llsdmessage.h
