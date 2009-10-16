@@ -93,7 +93,9 @@
     top_pad="10"
     left_delta="0"
     height="20"
-    width="100"/>
+    width="100"
+ 	  commit_callback.function="ShowGroupInspector"
+	  commit_callback.parameter="" />
   <button
     name="place_btn"
     label="Place"
@@ -112,13 +114,35 @@
   follows="left|top"
   font="SansSerif"
   height="20"
-  layout="topleft"
   left="0"
   max_length="65536"
   name="slurl"
   top_pad="4"
-  width="100">
+  width="150">
     secondlife:///app/agent/00000000-0000-0000-0000-000000000000/inspect
+  </text>
+  <text
+  follows="left|top"
+  font="SansSerif"
+  height="20"
+  left="0"
+  max_length="65536"
+  name="slurl_group"
+  top_pad="4"
+  width="150">
+    secondlife:///app/group/00000000-0000-0000-0000-000000000000/inspect
+  </text>
+
+  <text
+  follows="left|top"
+  font="SansSerif"
+  height="20"
+  left="0"
+  max_length="65536"
+  name="slurl_group_about"
+  top_pad="4"
+  width="150">
+    secondlife:///app/group/00000000-0000-0000-0000-000000000000/about
   </text>
 
 </floater>

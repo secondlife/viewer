@@ -2460,8 +2460,7 @@ BOOL LLSelectMgr::selectGetOwner(LLUUID& result_id, std::string& name)
 		BOOL public_owner = (first_id.isNull() && !first_group_owned);
 		if (first_group_owned)
 		{
-			// *TODO: We don't have group inspectors yet
-			name = LLSLURL::buildCommand("group", first_id, "about");
+			name = LLSLURL::buildCommand("group", first_id, "inspect");
 		}
 		else if(!public_owner)
 		{

@@ -1325,11 +1325,16 @@ void LLGroupMgr::notifyObservers(LLGroupChange gc)
 {
 	for (group_map_t::iterator gi = mGroups.begin(); gi != mGroups.end(); ++gi)
 	{
+		LLUUID group_id = gi->first;
 		if (gi->second->mChanged)
 		{
+			// Copy the map because observers may remove themselves on update
+			observer_multimap_t observers = mObservers;
+
 			// find all observers for this group id
-			observer_multimap_t::iterator oi = mObservers.find(gi->first);
-			for (; oi != mObservers.end(); ++oi)
+			observer_multimap_t::iterator oi = observers.lower_bound(group_id);
+			observer_multimap_t::iterator end = observers.upper_bound(group_id);
+			for (; oi != end; ++oi)
 			{
 				oi->second->changed(gc);
 			}

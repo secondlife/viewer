@@ -47,6 +47,9 @@ public:
 	 */
 	static void search();
 
+	/// Join a group.  Assumes LLGroupMgr has data for that group already.
+	static void join(const LLUUID& group_id);
+
 	/**
 	 * Invokes "Leave Group" floater.
 	 */
@@ -87,6 +90,9 @@ public:
 	 */
 	static void startChat(const LLUUID& group_id);
 
+	/// Returns if the current user is a member of the group
+	static bool isInGroup(const LLUUID& group_id);
+
 	/**
 	 * Returns true if avatar is in group.
 	 *
@@ -97,6 +103,7 @@ public:
 	static bool isAvatarMemberOfGroup(const LLUUID& group_id, const LLUUID& avatar_id);
 	
 private:
+	static bool onJoinGroup(const LLSD& notification, const LLSD& response);
 	static bool onLeaveGroup(const LLSD& notification, const LLSD& response);
 };
 

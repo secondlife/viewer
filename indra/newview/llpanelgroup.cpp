@@ -33,19 +33,22 @@
 
 #include "llpanelgroup.h"
 
+// Library includes
 #include "llbutton.h"
 #include "lltabcontainer.h"
 #include "lltextbox.h"
-#include "llviewermessage.h"
 #include "lluictrlfactory.h"
+
+// Viewer includes
+#include "llviewermessage.h"
 #include "llviewerwindow.h"
 #include "llappviewer.h"
 #include "llnotifications.h"
 #include "llfloaterreg.h"
 #include "llfloater.h"
+#include "llgroupactions.h"
 
 #include "llagent.h" 
-#include "llstatusbar.h"	// can_afford_transaction()
 
 #include "llsidetraypanelcontainer.h"
 
@@ -274,46 +277,11 @@ void LLPanelGroup::onBtnApply(void* user_data)
 	LLPanelGroup* self = static_cast<LLPanelGroup*>(user_data);
 	self->apply();
 }
+
 void LLPanelGroup::onBtnJoin()
 {
 	lldebugs << "joining group: " << mID << llendl;
-
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mID);
-
-	if (gdatap)
-	{
-		S32 cost = gdatap->mMembershipFee;
-		LLSD args;
-		args["COST"] = llformat("%d", cost);
-		LLSD payload;
-		payload["group_id"] = mID;
-
-		if (can_afford_transaction(cost))
-		{
-			LLNotifications::instance().add("JoinGroupCanAfford", args, payload, LLPanelGroup::joinDlgCB);
-		}
-		else
-		{
-			LLNotifications::instance().add("JoinGroupCannotAfford", args, payload);
-		}
-	}
-	else
-	{
-		llwarns << "LLGroupMgr::getInstance()->getGroupData(" << mID	<< ") was NULL" << llendl;
-	}
-}
-bool LLPanelGroup::joinDlgCB(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-
-	if (option == 1)
-	{
-		// user clicked cancel
-		return false;
-	}
-
-	LLGroupMgr::getInstance()->sendGroupMemberJoin(notification["payload"]["group_id"].asUUID());
-	return false;
+	LLGroupActions::join(mID);
 }
 
 void LLPanelGroup::onBtnCancel()

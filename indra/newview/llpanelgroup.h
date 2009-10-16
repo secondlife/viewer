@@ -101,8 +101,6 @@ protected:
 	static void onBtnApply(void*);
 	static void onBtnRefresh(void*);
 
-	static bool joinDlgCB(const LLSD& notification, const LLSD& response);
-
 	void reposButton(const std::string& name);
 	void reposButtons();
 	

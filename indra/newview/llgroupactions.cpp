@@ -35,13 +35,14 @@
 
 #include "llgroupactions.h"
 
+// Viewer includes
 #include "llagent.h"
+#include "llcommandhandler.h"
 #include "llfloaterreg.h"
 #include "llgroupmgr.h"
 #include "llimview.h" // for gIMMgr
 #include "llsidetray.h"
-
-#include "llcommandhandler.h"
+#include "llstatusbar.h"	// can_afford_transaction()
 
 //
 // Globals
@@ -96,6 +97,13 @@ public:
 
 			return true;
 		}
+		if (tokens[1].asString() == "inspect")
+		{
+			LLSD key;
+			key["group_id"] = group_id;
+			LLFloaterReg::showInstance("inspect_group", key);
+			return true;
+		}
 		return false;
 	}
 };
@@ -105,6 +113,52 @@ LLGroupHandler gGroupHandler;
 void LLGroupActions::search()
 {
 	LLFloaterReg::showInstance("search", LLSD().insert("panel", "group"));
+}
+
+// static
+void LLGroupActions::join(const LLUUID& group_id)
+{
+	LLGroupMgrGroupData* gdatap = 
+		LLGroupMgr::getInstance()->getGroupData(group_id);
+
+	if (gdatap)
+	{
+		S32 cost = gdatap->mMembershipFee;
+		LLSD args;
+		args["COST"] = llformat("%d", cost);
+		LLSD payload;
+		payload["group_id"] = group_id;
+
+		if (can_afford_transaction(cost))
+		{
+			LLNotifications::instance().add("JoinGroupCanAfford", args, payload, onJoinGroup);
+		}
+		else
+		{
+			LLNotifications::instance().add("JoinGroupCannotAfford", args, payload);
+		}
+	}
+	else
+	{
+		llwarns << "LLGroupMgr::getInstance()->getGroupData(" << group_id 
+			<< ") was NULL" << llendl;
+	}
+}
+
+// static
+bool LLGroupActions::onJoinGroup(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+
+	if (option == 1)
+	{
+		// user clicked cancel
+		return false;
+	}
+
+	LLGroupMgr::getInstance()->
+		sendGroupMemberJoin(notification["payload"]["group_id"].asUUID());
+	return false;
 }
 
 // static
@@ -237,6 +291,14 @@ void LLGroupActions::startChat(const LLUUID& group_id)
 		// relies on you belonging to the group and hence having the group data
 		make_ui_sound("UISndInvalidOp");
 	}
+}
+
+// static
+bool LLGroupActions::isInGroup(const LLUUID& group_id)
+{
+	// *TODO: Move all the LLAgent group stuff into another class, such as
+	// this one.
+	return gAgent.isInGroup(group_id);
 }
 
 // static

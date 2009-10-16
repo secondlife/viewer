@@ -308,6 +308,10 @@ namespace tut
 				  "secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/about",
 				  "secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/about");
 
+		testRegex("Group Url ", r,
+				  "secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/inspect",
+				  "secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/inspect");
+
 		testRegex("Group Url in text", r,
 				  "XXX secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/about XXX",
 				  "secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/about");

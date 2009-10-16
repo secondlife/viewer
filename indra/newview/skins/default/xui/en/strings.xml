@@ -1951,6 +1951,10 @@ this texture in your inventory
   <string name="AgeDaysA">[COUNT] day</string>
   <string name="AgeDaysB">[COUNT] days</string>
   <string name="AgeDaysC">[COUNT] days</string>
+  <!-- Group member counts -->
+  <string name="GroupMembersA">[COUNT] member</string>
+  <string name="GroupMembersB">[COUNT] members</string>
+  <string name="GroupMembersC">[COUNT] members</string>
 
   <!-- Account types, see LLAvatarPropertiesProcessor -->
   <string name="AcctTypeResident">Resident</string>

@@ -302,10 +302,11 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 //
 // LLUrlEntryGroup Describes a Second Life group Url, e.g.,
 // secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/about
+// secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/inspect
 //
 LLUrlEntryGroup::LLUrlEntryGroup()
 {
-	mPattern = boost::regex("secondlife:///app/group/[\\da-f-]+/about",
+	mPattern = boost::regex("secondlife:///app/group/[\\da-f-]+/\\w+",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_group.xml";
 	mIcon = "Generic_Group";
