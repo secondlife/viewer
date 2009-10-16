@@ -141,7 +141,10 @@ public:
 	void mouseMove(const LLVector2& texture_coords);
 	void mouseLeftDoubleClick(S32 x,S32 y );
 	void mouseCapture();
-
+	
+	void navigateBack();
+	void navigateForward();
+	void navigateReload();
 	void navigateHome();
 	void navigateTo(const std::string& url, const std::string& mime_type = "", bool rediscover_type = false, bool server_request = false);
 	void navigateStop();

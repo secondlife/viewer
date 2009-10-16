@@ -1518,7 +1518,6 @@ bool LLAppViewer::cleanup()
 	//Note:
 	//LLViewerMedia::cleanupClass() has to be put before gTextureList.shutdown()
 	//because some new image might be generated during cleaning up media. --bao
-	LLViewerMediaFocus::cleanupClass();
 	LLViewerMedia::cleanupClass();
 	LLViewerParcelMedia::cleanupClass();
 	gTextureList.shutdown(); // shutdown again in case a callback added something
