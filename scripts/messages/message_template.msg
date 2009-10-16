@@ -8964,6 +8964,5 @@ version 2.0
 		{	InvType			S8	}
 		{	Name			Variable	1	}
 		{	Description		Variable	1	}
-
 	}
 }
