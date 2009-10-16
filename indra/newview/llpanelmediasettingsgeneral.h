@@ -63,6 +63,8 @@ public:
 	
 	void updateMediaPreview();
 	void updateCurrentURL();
+
+	const std::string getHomeUrl();
 	
 protected:
 	LLFloaterMediaSettings* mParent;
@@ -74,7 +76,6 @@ private:
 	LLComboBox* mControls;
 	LLCheckBoxCtrl* mAutoLoop;
 	LLCheckBoxCtrl* mFirstClick;
-//	LLTextureCtrl* mMediaPreview;
 	LLCheckBoxCtrl* mAutoZoom;
 	LLCheckBoxCtrl* mAutoPlay;
 	LLCheckBoxCtrl* mAutoScale;

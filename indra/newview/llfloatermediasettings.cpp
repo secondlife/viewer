@@ -118,6 +118,7 @@ BOOL LLFloaterMediaSettings::postBuild()
 	mTabContainer->addTabPanel( 
 			LLTabContainer::TabPanelParams().
 			panel(mPanelMediaSettingsSecurity));
+	mPanelMediaSettingsSecurity->setParent( this );
 		
 	// restore the last tab viewed from persistance variable storage
 	if (!mTabContainer->selectTab(gSavedSettings.getS32("LastMediaSettingsTab")))
@@ -247,4 +248,29 @@ void LLFloaterMediaSettings::enableOkApplyBtns( bool enable )
 	setCtrlsEnabled( enable );
 	childSetEnabled( "OK", enable );
 	childSetEnabled( "Apply", enable );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+const std::string LLFloaterMediaSettings::getHomeUrl()
+{
+	if ( mPanelMediaSettingsGeneral )
+		return mPanelMediaSettingsGeneral->getHomeUrl();
+	else
+		return std::string( "" );
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+bool LLFloaterMediaSettings::passesWhiteList( const std::string& test_url )
+{
+	// sanity check - don't think this can happen
+	if ( mPanelMediaSettingsSecurity )
+		// version in security dialog code is specialized so we pass in 
+		// empty string for first parameter since it's not used
+		return mPanelMediaSettingsSecurity->passesWhiteList( "", test_url );
+	else
+		// this is all we can do
+		return false;
 }

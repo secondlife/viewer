@@ -1114,8 +1114,8 @@ void LLFloaterTools::getMediaState()
 			// Media data is valid
 			if(media_data_get!=default_media_data)
 			{
-				//TODO: get Meida title
-				//media_title =  media_data_get->getTile();
+				//TODO: get media title
+				//media_title =  media_data_get->getTitle();
 				//LLFloaterMediaSettings::getInstance()->mIdenticalValidMedia = true;
 				media_title = media_data_get.getHomeURL();
 			}
@@ -1149,8 +1149,8 @@ void LLFloaterTools::getMediaState()
 			// Media data is valid
 			if(media_data_get!=default_media_data)
 			{
-				//TODO: get Meida title
-				//media_title =  media_data_get->getTile();
+				//TODO: get media title
+				//media_title =  media_data_get->getTitle();
 				media_title = media_data_get.getHomeURL();
 			}
 			
