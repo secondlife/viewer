@@ -51,12 +51,12 @@ public:
 	~LLViewerMediaFocus();
 	
 	// Set/clear the face that has media focus (takes keyboard input and has the full set of controls)
-	void setFocusFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal = LLVector3d::zero);
+	void setFocusFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal = LLVector3::zero);
 	void clearFocus();
 	
 	// Set/clear the face that has "media hover" (has the mimimal set of controls to zoom in or pop out into a media browser).
 	// If a media face has focus, the media hover will be ignored.
-	void setHoverFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal = LLVector3d::zero);
+	void setHoverFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal = LLVector3::zero);
 	void clearHover();
 	
 	/*virtual*/ bool	getFocus();
