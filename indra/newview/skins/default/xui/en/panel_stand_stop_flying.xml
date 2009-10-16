@@ -4,12 +4,12 @@
  height="25"
  layout="topleft"
  name="panel_stand_stop_flying"
- mouse_opaque="false" 
- visible="false" 
+ mouse_opaque="false"
+ visible="false"
  width="115">
     <button
      follows="left|bottom"
-     height="20"
+     height="19"
      label="Stand"
      layout="topleft"
      name="stand_btn"
@@ -19,7 +19,7 @@
      width="115" />
     <button
      follows="left|bottom"
-     height="20"
+     height="19"
      label="Stop Flying"
      layout="topleft"
      name="stop_fly_btn"

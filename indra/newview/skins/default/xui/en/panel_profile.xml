@@ -319,12 +319,13 @@
      follows="bottom|left"
      layout="topleft"
      left="0"
+     top_pad="-17"
      name="profile_me_buttons_panel"
-     top_pad="-3"
      visible="false"
      height="19">
         <button
          follows="bottom|right"
+         font="SansSerifSmall"
          height="19"
          left="10"
          label="Edit Profile"

@@ -161,7 +161,7 @@
     </scroll_container>
     <panel
      follows="left|right|bottom"
-     height="30"
+     height="25"
      label="bottom_panel"
      layout="topleft"
      left="10"
@@ -169,7 +169,7 @@
      top_pad="2">
         <button
          follows="bottom|left"
-         height="25"
+         height="19"
          label="Save [WHAT]"
          layout="topleft"
          name="save_changes_btn"
@@ -178,7 +178,7 @@
          width="130" />
         <button
          follows="bottom|left"
-         height="25"
+         height="19"
          label="Cancel"
          layout="topleft"
          name="cancel_btn"
