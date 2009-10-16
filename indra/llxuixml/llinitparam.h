@@ -491,23 +491,25 @@ namespace LLInitParam
 
 	// these templates allow us to distinguish between template parameters
 	// that derive from BaseBlock and those that don't
-	// this is supposedly faster than boost::is_convertible and the ilk
+	// this is supposedly faster than boost::is_convertible and its ilk
 	template<typename T, typename Void = void>
 	struct is_BaseBlock
-	: boost::false_type
-	{};
+	{
+		static const bool value = false;
+	};
 
 	template<typename T>
 	struct is_BaseBlock<T, typename T::baseblock_base_class_t>
-	:	boost::true_type
-	{};
+	{
+		static const bool value = true;
+	};
 
 	// specialize for custom parsing/decomposition of specific classes
 	// e.g. TypedParam<LLRect> has left, top, right, bottom, etc...
 	template<typename	T,
 			typename	NAME_VALUE_LOOKUP = TypeValues<T>,
 			bool		HAS_MULTIPLE_VALUES = false,
-			typename	VALUE_IS_BLOCK = typename is_BaseBlock<T>::type>
+			bool		VALUE_IS_BLOCK = is_BaseBlock<T>::value>
 	class TypedParam 
 	:	public Param
 	{
@@ -667,17 +669,17 @@ namespace LLInitParam
 
 	// parameter that is a block
 	template <typename T, typename NAME_VALUE_LOOKUP>
-	class TypedParam<T, NAME_VALUE_LOOKUP, false, boost::true_type> 
+	class TypedParam<T, NAME_VALUE_LOOKUP, false, true> 
 	:	public T,
 		public Param
 	{
 	public:
-		typedef const T																			value_const_t;
-		typedef T																				value_t;
-		typedef value_const_t&																	value_const_ref_t;
-		typedef value_const_ref_t																value_assignment_t;
-		typedef typename NAME_VALUE_LOOKUP::KeyCache											key_cache_t;
-		typedef TypedParam<T, NAME_VALUE_LOOKUP, false, boost::true_type>						self_t;
+		typedef const T											value_const_t;
+		typedef T												value_t;
+		typedef value_const_t&									value_const_ref_t;
+		typedef value_const_ref_t								value_assignment_t;
+		typedef typename NAME_VALUE_LOOKUP::KeyCache			key_cache_t;
+		typedef TypedParam<T, NAME_VALUE_LOOKUP, false, true>	self_t;
 
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
 		:	Param(block_descriptor.mCurrentBlockPtr),
@@ -853,19 +855,19 @@ namespace LLInitParam
 
 	// container of non-block parameters
 	template <typename VALUE_TYPE, typename NAME_VALUE_LOOKUP>
-	class TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, boost::false_type> 
+	class TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, false> 
 	:	public Param
 	{
 	public:
-		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, boost::false_type>				self_t;
-		typedef typename std::vector<VALUE_TYPE>												container_t;
-		typedef const container_t&																value_assignment_t;
+		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, false>		self_t;
+		typedef typename std::vector<VALUE_TYPE>							container_t;
+		typedef const container_t&											value_assignment_t;
 
-		typedef VALUE_TYPE																		value_t;
-		typedef value_t&																		value_ref_t;
-		typedef const value_t&																	value_const_ref_t;
+		typedef VALUE_TYPE													value_t;
+		typedef value_t&													value_ref_t;
+		typedef const value_t&												value_const_ref_t;
 		
-		typedef typename NAME_VALUE_LOOKUP::KeyCache											key_cache_t;
+		typedef typename NAME_VALUE_LOOKUP::KeyCache						key_cache_t;
 
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
 		:	Param(block_descriptor.mCurrentBlockPtr),
@@ -1004,9 +1006,9 @@ namespace LLInitParam
 		// explicit conversion
 		value_assignment_t operator()() const { return get(); } 
 
-		bool hasNValidElements(S32 n) const
+		U32 numValidElements() const
 		{
-			return mValues.size() >= n;
+			return mValues.size();
 		}
 
 	protected:
@@ -1035,19 +1037,19 @@ namespace LLInitParam
 
 	// container of block parameters
 	template <typename VALUE_TYPE, typename NAME_VALUE_LOOKUP>
-	class TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, boost::true_type> 
+	class TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, true> 
 	:	public Param
 	{
 	public:
-		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, boost::true_type>				self_t;
-		typedef typename std::vector<VALUE_TYPE>												container_t;
-		typedef const container_t&																value_assignment_t;
+		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, true>	self_t;
+		typedef typename std::vector<VALUE_TYPE>						container_t;
+		typedef const container_t&										value_assignment_t;
 
-		typedef VALUE_TYPE																		value_t;
-		typedef value_t&																		value_ref_t;
-		typedef const value_t&																	value_const_ref_t;
+		typedef VALUE_TYPE												value_t;
+		typedef value_t&												value_ref_t;
+		typedef const value_t&											value_const_ref_t;
 
-		typedef typename NAME_VALUE_LOOKUP::KeyCache											key_cache_t;
+		typedef typename NAME_VALUE_LOOKUP::KeyCache					key_cache_t;
 
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
 		:	Param(block_descriptor.mCurrentBlockPtr),
@@ -1287,9 +1289,9 @@ namespace LLInitParam
 		public:
 			friend class Choice<DERIVED_BLOCK>;
 
-			typedef Alternative<T, NAME_VALUE_LOOKUP>						self_t;
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false>				super_t;
-			typedef typename super_t::value_assignment_t				value_assignment_t;
+			typedef Alternative<T, NAME_VALUE_LOOKUP>									self_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, is_BaseBlock<T>::value>		super_t;
+			typedef typename super_t::value_assignment_t								value_assignment_t;
 
 			explicit Alternative(const char* name, value_assignment_t val = DefaultInitializer<T>::get())
 			:	super_t(DERIVED_BLOCK::sBlockDescriptor, name, val, NULL, 0, 1),
@@ -1432,8 +1434,8 @@ namespace LLInitParam
 		class Optional : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false>				super_t;
-			typedef typename super_t::value_assignment_t				value_assignment_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, is_BaseBlock<T>::value>		super_t;
+			typedef typename super_t::value_assignment_t								value_assignment_t;
 
 			explicit Optional(const char* name = "", value_assignment_t val = DefaultInitializer<T>::get())
 			:	super_t(DERIVED_BLOCK::sBlockDescriptor, name, val, NULL, 0, 1)
@@ -1459,9 +1461,9 @@ namespace LLInitParam
 		class Mandatory : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false>		super_t;
-			typedef Mandatory<T, NAME_VALUE_LOOKUP>				self_t;
-			typedef typename super_t::value_assignment_t		value_assignment_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, is_BaseBlock<T>::value>		super_t;
+			typedef Mandatory<T, NAME_VALUE_LOOKUP>										self_t;
+			typedef typename super_t::value_assignment_t								value_assignment_t;
 
 			// mandatory parameters require a name to be parseable
 			explicit Mandatory(const char* name = "", value_assignment_t val = DefaultInitializer<T>::get())
@@ -1493,12 +1495,12 @@ namespace LLInitParam
 		class Multiple : public TypedParam<T, NAME_VALUE_LOOKUP, true>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, true>	super_t;
-			typedef Multiple<T, RANGE, NAME_VALUE_LOOKUP>	self_t;
-			typedef typename super_t::container_t			container_t;
-			typedef typename super_t::value_assignment_t	value_assignment_t;
-			typedef typename container_t::iterator			iterator;
-			typedef typename container_t::const_iterator	const_iterator;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, true, is_BaseBlock<T>::value>	super_t;
+			typedef Multiple<T, RANGE, NAME_VALUE_LOOKUP>							self_t;
+			typedef typename super_t::container_t									container_t;
+			typedef typename super_t::value_assignment_t							value_assignment_t;
+			typedef typename container_t::iterator									iterator;
+			typedef typename container_t::const_iterator							const_iterator;
 
 			explicit Multiple(const char* name = "", value_assignment_t val = DefaultInitializer<container_t>::get())
 			:	super_t(DERIVED_BLOCK::sBlockDescriptor, name, val, &validate, RANGE::minCount(), RANGE::maxCount())

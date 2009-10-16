@@ -655,7 +655,7 @@ LLView* LLView::childrenHandleToolTip(S32 x, S32 y, MASK mask)
 		{
 			if (sDebugMouseHandling)
 			{
-				sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
+				sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
 			}
 
 			handled_view = viewp;
@@ -895,7 +895,7 @@ LLView* LLView::childrenHandleScrollWheel(S32 x, S32 y, S32 clicks)
 			{
 				if (sDebugMouseHandling)
 				{
-					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
+					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
 				}
 
 				handled_view = viewp;
@@ -933,7 +933,7 @@ LLView* LLView::childrenHandleHover(S32 x, S32 y, MASK mask)
 			{
 				if (sDebugMouseHandling)
 				{
-					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
+					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
 				}
 
 				handled_view = viewp;
@@ -1023,7 +1023,7 @@ LLView* LLView::childrenHandleMouseDown(S32 x, S32 y, MASK mask)
 		{
 			if (sDebugMouseHandling)
 			{
-				sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
+				sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
 			}
 			handled_view = viewp;
 			break;
@@ -1061,7 +1061,7 @@ LLView* LLView::childrenHandleRightMouseDown(S32 x, S32 y, MASK mask)
 			{
 				if (sDebugMouseHandling)
 				{
-					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
+					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
 				}
 
 				handled_view = viewp;
@@ -1100,7 +1100,7 @@ LLView* LLView::childrenHandleMiddleMouseDown(S32 x, S32 y, MASK mask)
 			{
 				if (sDebugMouseHandling)
 				{
-					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
+					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
 				}
 				handled_view = viewp;
 				break;
@@ -1139,7 +1139,7 @@ LLView* LLView::childrenHandleDoubleClick(S32 x, S32 y, MASK mask)
 			{
 				if (sDebugMouseHandling)
 				{
-					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
+					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
 				}
 				handled_view = viewp;
 				break;
@@ -1176,7 +1176,7 @@ LLView* LLView::childrenHandleMouseUp(S32 x, S32 y, MASK mask)
 			{
 				if (sDebugMouseHandling)
 				{
-					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
+					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
 				}
 				handled_view = viewp;
 				break;
@@ -1213,7 +1213,7 @@ LLView* LLView::childrenHandleRightMouseUp(S32 x, S32 y, MASK mask)
 			{
 				if (sDebugMouseHandling)
 				{
-					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
+					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
 				}
 				handled_view = viewp;
 				break;
@@ -1250,7 +1250,7 @@ LLView* LLView::childrenHandleMiddleMouseUp(S32 x, S32 y, MASK mask)
 			{
 				if (sDebugMouseHandling)
 				{
-					sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
+					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
 				}
 				handled_view = viewp;
 				break;

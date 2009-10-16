@@ -11,7 +11,6 @@
 #define LL_LLUICOLOR_H_
 
 #include "v4color.h"
-#include <boost/type_traits/integral_constant.hpp> // for boost::false_type
 
 namespace LLInitParam
 {
