@@ -93,6 +93,16 @@
          name="second_life_image_panel"
          top="0"
          width="285">
+          <text
+             follows="left|top|right"
+	     font.style="BOLD"
+             height="15"
+             layout="topleft"
+             left="0"
+            name="second_life_photo_title_text"
+             text_color="white"
+             value="[SECOND_LIFE]:"
+             width="170" />
             <texture_picker
              allow_no_texture="true"
              default_image_name="None"
@@ -102,39 +112,29 @@
              layout="topleft"
              left="0"
              name="2nd_life_pic"
-             top="10"
+             top_pad="0"
              width="102" />
-            <text
-             follows="left|top|right"
-	     font.style="BOLD"
-             height="15"
-             layout="topleft"
-             left_pad="10"
-               name="second_life_photo_title_text"
-             text_color="white"
-             top_delta="0"
-             value="[SECOND_LIFE]:"
-             width="170" />
           </panel>
-          <icon
-           height="16"
-           image_name="AddItem_Off"
+           <button
+           height="18"
+           image_overlay="AddItem_Off"
            layout="topleft"
-           left="90"
            name="2nd_life_edit_icon"
+           label=""
+           left="87"
            tool_tip="Click to select an image"
-           top="10"
-           width="16" />
+           top="25"
+           width="18" />
       </panel>
       <text_editor
        type="string"
        length="1"
        follows="left|top|right"
        font="SansSerifSmall"
-       height="90"
+       height="100"
        layout="topleft"
        left="120"
-       top="28"
+       top="18"
        name="sl_description_edit"
        width="173"
        word_wrap="true">
@@ -143,10 +143,20 @@
          follows="left|top"
          height="117"
          layout="topleft"
-	 top_pad="10"
+	 top_pad="5"
          left="10"
          name="first_life_image_panel"
          width="285">
+        <text
+             follows="left|top|right"
+	     font.style="BOLD"
+             height="15"
+             layout="topleft"
+             left="0"
+            name="real_world_photo_title_text"
+             text_color="white"
+             value="Real World:"
+             width="173" />
             <texture_picker
              allow_no_texture="true"
              default_image_name="None"
@@ -156,37 +166,28 @@
              layout="topleft"
              left="0"
              name="real_world_pic"
+             top_pad="0"
              width="102" />
-            <text
-             follows="left|top|right"
-	     font.style="BOLD"
-             height="15"
-             layout="topleft"
-             left_pad="10"
-            name="real_world_photo_title_text"
-             text_color="white"
-             top_delta="0"
-             value="Real World:"
-             width="173" />
           </panel>
-          <icon
-           height="16"
-           image_name="AddItem_Off"
+           <button
+           height="18"
+           image_overlay="AddItem_Off"
            layout="topleft"
-           left="90"
            name="real_world_edit_icon"
+           label=""
+           left="87"
            tool_tip="Click to select an image"
-           top="130"
-           width="16" />
+           top="148"
+           width="18" />
        <text_editor
        type="string"
        length="1"
        follows="left|top|right"
        font="SansSerifSmall"
-       height="90"
+       height="100"
        layout="topleft"
        left="120"
-       top="150"
+       top="142"
        name="fl_description_edit"
        width="173"
        word_wrap="true">
@@ -202,7 +203,7 @@
        left="10"
        name="title_homepage_text"
        text_color="white"
-       top_pad="5"
+       top_pad="10"
        width="285">
           Homepage:
       </text>
@@ -269,7 +270,7 @@
          left="10"
          name="title_partner_text"
          text_color="white"
-         top_pad="5"
+         top_pad="0"
          value="My Partner:"
          width="150" />
         <text
@@ -311,7 +312,7 @@
        left="10"
        name="title_afk_text"
        text_color="white"
-       top_pad="5"
+       top_pad="0"
        width="190">
           Away Timeout:
       </text>

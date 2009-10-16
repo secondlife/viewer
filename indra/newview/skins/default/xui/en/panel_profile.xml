@@ -36,10 +36,12 @@
      name="profile_scroll"
      reserve_scroll_corner="true"
      opaque="true"
-     top="0">
+     top="0"
+     width="313">
       <panel
          name="scroll_content_panel"
          follows="left|top|right"
+          height="485"
          layout="topleft"
          top="0"
          left="0"
@@ -51,7 +53,7 @@
          left="10"
          name="second_life_image_panel"
          top="0"
-         width="285">
+         width="290">
             <texture_picker
              allow_no_texture="true"
              default_image_name="None"
@@ -76,8 +78,9 @@
              width="170" />
             <expandable_text
              follows="left|top|right"
-             height="90"
+             height="95"
              layout="topleft"
+             left="107"
              name="sl_description_edit"
              width="173"
              expanded_bg_visible="true"
@@ -92,7 +95,7 @@
 	 top_pad="10"
          left="10"
          name="first_life_image_panel"
-         width="285">
+         width="290">
             <texture_picker
              allow_no_texture="true"
              default_image_name="None"
@@ -116,10 +119,11 @@
              width="173" />
             <expandable_text
              follows="left|top|right"
-             height="90"
+             height="95"
              layout="topleft"
+             left="107"
              name="fl_description_edit"
-             width="170"
+             width="173"
              expanded_bg_visible="true"
              expanded_bg_color="DkGray">
                 Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
@@ -265,7 +269,8 @@
      name="profile_buttons_panel"
      top_pad="2"
      bottom="10"
-     height="19">
+     height="19"
+     width="313">
         <button
          follows="bottom|left"
          height="19"
@@ -322,7 +327,8 @@
      top_pad="-17"
      name="profile_me_buttons_panel"
      visible="false"
-     height="19">
+     height="19"
+     width="313">
         <button
          follows="bottom|right"
          font="SansSerifSmall"
