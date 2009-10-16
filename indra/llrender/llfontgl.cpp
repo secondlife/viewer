@@ -44,6 +44,7 @@
 #include "llstl.h"
 #include "v4color.h"
 #include "lltexture.h"
+#include "lldir.h"
 
 // Third party library includes
 #include <boost/tokenizer.hpp>
@@ -251,11 +252,6 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	{
 		llwchar wch = wstr[i];
 
-		if (!mFontFreetype->hasGlyph(wch))
-		{
-			addChar(wch);
-		}
-
 		const LLFontGlyphInfo* fgi= mFontFreetype->getGlyphInfo(wch);
 		if (!fgi)
 		{
@@ -298,10 +294,6 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		if (next_char && (next_char < LAST_CHARACTER))
 		{
 			// Kern this puppy.
-			if (!mFontFreetype->hasGlyph(next_char))
-			{
-				addChar(next_char);
-			}
 			cur_x += mFontFreetype->getXKerning(wch, next_char);
 		}
 
@@ -441,15 +433,22 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars
 
 	F32 cur_x = 0;
 	const S32 max_index = begin_offset + max_chars;
-	for (S32 i = begin_offset; i < max_index; i++)
+
+	F32 width_padding = 0.f;
+	for (S32 i = begin_offset; i < max_index && wchars[i] != 0; i++)
 	{
 		llwchar wch = wchars[i];
-		if (wch == 0)
-		{
-			break; // done
-		}
 
-		cur_x += mFontFreetype->getXAdvance(wch);
+		const LLFontGlyphInfo* fgi= mFontFreetype->getGlyphInfo(wch);
+
+		F32 advance = mFontFreetype->getXAdvance(wch);
+
+		// for the last character we want to measure the greater of its width and xadvance values
+		// so keep track of the difference between these values for the each character we measure
+		// so we can fix things up at the end
+		width_padding = llmax(0.f, (F32)fgi->mWidth - advance);
+
+		cur_x += advance;
 		llwchar next_char = wchars[i+1];
 
 		if (((i + 1) < begin_offset + max_chars) 
@@ -462,6 +461,9 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars
 		// Round after kerning.
 		cur_x = (F32)llfloor(cur_x + 0.5f);
 	}
+
+	// add in extra pixels for last character's width past its xadvance
+	cur_x += width_padding;
 
 	return cur_x / sScaleX;
 }
@@ -660,25 +662,6 @@ S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 t
 	}
 
 	return llmin(max_chars, pos - begin_offset);
-}
-
-BOOL LLFontGL::addChar(llwchar wch) const
-{
-	if (!mFontFreetype->addChar(wch))
-	{
-		return FALSE;
-	}
-
-	stop_glerror();
-
-	LLFontGlyphInfo *glyph_info = mFontFreetype->getGlyphInfo(wch);
-	U32 bitmap_num = glyph_info->mBitmapNum;
-
-	const LLFontBitmapCache* font_bitmap_cache = mFontFreetype->getFontBitmapCache();
-	LLImageGL *image_gl = font_bitmap_cache->getImageGL(bitmap_num);
-	LLImageRaw *image_raw = font_bitmap_cache->getImageRaw(bitmap_num);
-	image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
-	return TRUE;
 }
 
 const LLFontDescriptor& LLFontGL::getFontDesc() const

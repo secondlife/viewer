@@ -239,7 +239,7 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 */
 
 #define lllog(level, broadTag, narrowTag, once) \
-	{ \
+	do { \
 		static LLError::CallSite _site( \
 			level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG), __FUNCTION__, broadTag, narrowTag, once);\
 		if (_site.shouldLog()) \
@@ -252,7 +252,7 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 			LLError::End(); \
 			LLError::Log::flush(_out, _site); \
 		} \
-	}
+	} while(0)
 
 // DEPRECATED: Use the new macros that allow tags and *look* like macros.
 #define lldebugs	lllog(LLError::LEVEL_DEBUG, NULL, NULL, false)

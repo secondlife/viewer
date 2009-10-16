@@ -64,6 +64,9 @@ public:
 	// Remove COF entries
 	static void removeItemLinks(LLUUID& item_id, bool do_update = true);
 
+	// For debugging - could be moved elsewhere.
+	static void dumpCat(const LLUUID& cat_id, std::string str);
+
 private:
 	static void getCOFValidDescendents(const LLUUID& category, 
 									   LLInventoryModel::item_array_t& items);

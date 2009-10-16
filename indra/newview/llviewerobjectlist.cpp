@@ -174,11 +174,28 @@ BOOL LLViewerObjectList::removeFromLocalIDTable(const LLViewerObject &object)
 		U32 port = region_host.getPort();
 		U64 ipport = (((U64)ip) << 32) | (U64)port;
 		U32 index = sIPAndPortToIndex[ipport];
-
+		
+		// llinfos << "Removing object from table, local ID " << local_id << ", ip " << ip << ":" << port << llendl;
+		
 		U64	indexid = (((U64)index) << 32) | (U64)local_id;
-		return sIndexAndLocalIDToUUID.erase(indexid) > 0 ? TRUE : FALSE;
+		
+		std::map<U64, LLUUID>::iterator iter = sIndexAndLocalIDToUUID.find(indexid);
+		if (iter == sIndexAndLocalIDToUUID.end())
+		{
+			return FALSE;
+		}
+		
+		// Found existing entry
+		if (iter->second == object.getID())
+		{   // Full UUIDs match, so remove the entry
+			sIndexAndLocalIDToUUID.erase(iter);
+			return TRUE;
+		}
+		// UUIDs did not match - this would zap a valid entry, so don't erase it
+		//llinfos << "Tried to erase entry where id in table (" 
+		//		<< iter->second	<< ") did not match object " << object.getID() << llendl;
 	}
-
+	
 	return FALSE ;
 }
 
@@ -200,6 +217,9 @@ void LLViewerObjectList::setUUIDAndLocal(const LLUUID &id,
 	U64	indexid = (((U64)index) << 32) | (U64)local_id;
 
 	sIndexAndLocalIDToUUID[indexid] = id;
+	
+	//llinfos << "Adding object to table, full ID " << id
+	//	<< ", local ID " << local_id << ", ip " << ip << ":" << port << llendl;
 }
 
 S32 gFullObjectUpdates = 0;
@@ -246,8 +266,8 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	{
 		if ( LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance() )
 		{
-			//llinfos << "DEBUG selecting " << objectp->mID << " " 
-			//		<< objectp->mLocalID << llendl;
+			// llinfos << "DEBUG selecting " << objectp->mID << " " 
+			// << objectp->mLocalID << llendl;
 			LLSelectMgr::getInstance()->selectObjectAndFamily(objectp);
 			dialog_refresh_all();
 		}
@@ -294,7 +314,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		{
 			size = mesgsys->getReceiveSize();
 		}
-//		llinfos << "Received terse " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
+		// llinfos << "Received terse " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
 	}
 	else
 	{
@@ -308,7 +328,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			size = mesgsys->getReceiveSize();
 		}
 
-//		llinfos << "Received " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
+		// llinfos << "Received " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
 		gFullObjectUpdates += num_objects;
 	}
 
@@ -318,7 +338,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 
 	if (!regionp)
 	{
-		llwarns << "Object update from unknown region!" << llendl;
+		llwarns << "Object update from unknown region! " << region_handle << llendl;
 		return;
 	}
 
@@ -357,7 +377,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			U8							compbuffer[2048];
 			S32							uncompressed_length = 2048;
 			S32							compressed_length;
-			
 			compressed_dp.reset();
 
 			U32 flags = 0;
@@ -398,7 +417,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 								 gMessageSystem->getSenderPort());
 				if (fullid.isNull())
 				{
-					//llwarns << "update for unknown localid " << local_id << " host " << gMessageSystem->getSender() << llendl;
+					// llwarns << "update for unknown localid " << local_id << " host " << gMessageSystem->getSender() << ":" << gMessageSystem->getSenderPort() << llendl;
 					mNumUnknownUpdates++;
 				}
 			}
@@ -412,7 +431,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 							gMessageSystem->getSenderPort());
 			if (fullid.isNull())
 			{
-				//llwarns << "update for unknown localid " << local_id << " host " << gMessageSystem->getSender() << llendl;
+				// llwarns << "update for unknown localid " << local_id << " host " << gMessageSystem->getSender() << llendl;
 				mNumUnknownUpdates++;
 			}
 		}
@@ -420,19 +439,43 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		{
 			mesgsys->getUUIDFast(_PREHASH_ObjectData, _PREHASH_FullID, fullid, i);
 			mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
-		//	llinfos << "Full Update, obj " << local_id << ", global ID" << fullid << "from " << mesgsys->getSender() << llendl;
+			// llinfos << "Full Update, obj " << local_id << ", global ID" << fullid << "from " << mesgsys->getSender() << llendl;
 		}
 		objectp = findObject(fullid);
 
 		// This looks like it will break if the local_id of the object doesn't change
 		// upon boundary crossing, but we check for region id matching later...
-		if (objectp && (objectp->mLocalID != local_id))
+		// Reset object local id and region pointer if things have changed
+		if (objectp && 
+			((objectp->mLocalID != local_id) ||
+			 (objectp->getRegion() != regionp)))
 		{
+			//if (objectp->getRegion())
+			//{
+			//	llinfos << "Local ID change: Removing object from table, local ID " << objectp->mLocalID 
+			//			<< ", id from message " << local_id << ", from " 
+			//			<< LLHost(objectp->getRegion()->getHost().getAddress(), objectp->getRegion()->getHost().getPort())
+			//			<< ", full id " << fullid 
+			//			<< ", objects id " << objectp->getID()
+			//			<< ", regionp " << (U32) regionp << ", object region " << (U32) objectp->getRegion()
+			//			<< llendl;
+			//}
 			removeFromLocalIDTable(*objectp);
 			setUUIDAndLocal(fullid,
 							local_id,
 							gMessageSystem->getSenderIP(),
 							gMessageSystem->getSenderPort());
+			
+			if (objectp->mLocalID != local_id)
+			{    // Update local ID in object with the one sent from the region
+				objectp->mLocalID = local_id;
+			}
+			
+			if (objectp->getRegion() != regionp)
+			{    // Object changed region, so update it
+				objectp->setRegion(regionp);
+				objectp->updateRegion(regionp); // for LLVOAvatar
+			}
 		}
 
 		if (!objectp)
@@ -441,7 +484,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			{
 				if (update_type == OUT_TERSE_IMPROVED)
 				{
-					//	llinfos << "terse update for an unknown object:" << fullid << llendl;
+					// llinfos << "terse update for an unknown object:" << fullid << llendl;
 					continue;
 				}
 			}
@@ -452,7 +495,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			{
 				if (update_type != OUT_FULL)
 				{
-// 					llinfos << "terse update for an unknown object:" << fullid << llendl;
+					// llinfos << "terse update for an unknown object:" << fullid << llendl;
 					continue;
 				}
 
@@ -462,7 +505,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			if (mDeadObjects.find(fullid) != mDeadObjects.end())
 			{
 				mNumDeadObjectUpdates++;
-				//llinfos << "update for a dead object:" << fullid << llendl;
+				// llinfos << "update for a dead object:" << fullid << llendl;
 				continue;
 			}
 #endif
@@ -474,20 +517,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			}
 			justCreated = TRUE;
 			mNumNewObjects++;
-		}
-		else
-		{
-			if (objectp->getRegion() != regionp)
-			{
-				// Object has changed region!  Update lookup tables, set region pointer.
-				removeFromLocalIDTable(*objectp);
-				setUUIDAndLocal(fullid,
-								local_id,
-								gMessageSystem->getSenderIP(),
-								gMessageSystem->getSenderPort());
-				objectp->setRegion(regionp);
-			}
-			objectp->updateRegion(regionp); // for LLVOAvatar
 		}
 
 
@@ -623,7 +652,7 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 		mCurLazyUpdateIndex = 0;
 	}
 
-	mCurBin = (++mCurBin) % NUM_BINS;
+	mCurBin = (mCurBin + 1) % NUM_BINS;
 
 	LLVOAvatar::cullAvatarsByPixelArea();
 }
@@ -808,6 +837,14 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 	// Remove from object map so noone can look it up.
 
 	mUUIDObjectMap.erase(objectp->mID);
+	
+	//if (objectp->getRegion())
+	//{
+	//	llinfos << "cleanupReferences removing object from table, local ID " << objectp->mLocalID << ", ip " 
+	//				<< objectp->getRegion()->getHost().getAddress() << ":" 
+	//				<< objectp->getRegion()->getHost().getPort() << llendl;
+	//}	
+	
 	removeFromLocalIDTable(*objectp);
 
 	if (objectp->onActiveList())

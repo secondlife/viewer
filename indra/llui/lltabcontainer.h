@@ -67,7 +67,9 @@ public:
 		Optional<TabPosition, TabPositions>	tab_position;
 		Optional<S32>						tab_width,
 											tab_min_width,
-											tab_max_width;
+											tab_max_width,
+											tab_height;
+
 		Optional<bool>						hide_tabs;
 		Optional<S32>						tab_padding_right;
 
@@ -246,6 +248,7 @@ private:
 
 	S32								mMaxTabWidth;
 	S32								mTotalTabWidth;
+	S32								mTabHeight;
 
 	LLFrameTimer					mDragAndDropDelayTimer;
 

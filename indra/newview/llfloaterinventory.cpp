@@ -1491,7 +1491,8 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 			{
 				LLFolderViewFolder::Params p;
 				p.name = new_listener->getDisplayName();
-				p.icon = new_listener->getIcon();
+				p.icon = LLUI::getUIImage("Inv_FolderClosed");
+				p.icon_open = LLUI::getUIImage("Inv_FolderOpen");
 				p.root = mFolders;
 				p.listener = new_listener;
 				LLFolderViewFolder* folderp = LLUICtrlFactory::create<LLFolderViewFolder>(p);

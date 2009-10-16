@@ -41,6 +41,7 @@
      height="326"
      layout="topleft"
      left="0"
+     help_topic="places_info_tab"
      name="panel_place_info"
      top="30"
      visible="false" />
@@ -48,6 +49,7 @@
      height="25"
      layout="topleft"
      left="0"
+     help_topic="places_button_tab"
      name="button_panel"
      top_pad="10"
      width="313">
@@ -60,7 +62,7 @@
          left="5"
          name="teleport_btn"
          top="0"
-         width="70" />
+         width="77" />
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"

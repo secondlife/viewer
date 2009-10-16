@@ -159,7 +159,7 @@
 			</combo_box>
 		<panel name="perms_build">
 			<text name="perm_modify">
-				Sie können dieses Objekt ändern.
+				Sie können dieses Objekt ändern
 			</text>
 			<text name="B:">
 				B:
@@ -187,28 +187,28 @@
 			<check_box name="checkbox next owner can transfer"/>
 		</panel>
 			<string name="text modify info 1">
-				Sie können dieses Objekt ändern.
+				Sie können dieses Objekt ändern
 			</string>
 			<string name="text modify info 2">
-				Sie können diese Objekte ändern.
+				Sie können diese Objekte ändern
 			</string>
 			<string name="text modify info 3">
-				Sie können dieses Objekt nicht ändern.
+				Sie können dieses Objekt nicht ändern
 			</string>
 			<string name="text modify info 4">
-				Sie können diese Objekte nicht ändern.
+				Sie können diese Objekte nicht ändern
 			</string>
 			<string name="text modify warning">
-				Gesamtes Objekt muss gewählt werden, um Berechtigungen festzulegen.
+				Gesamtes Objekt muss gewählt werden, um Berechtigungen festzulegen
 			</string>
 			<string name="Cost Default">
-				Preis:L$
+				Preis: L$
 			</string>
 			<string name="Cost Total">
-				Summe:L$
+				Summe: L$
 			</string>
 			<string name="Cost Per Unit">
-				Stückpreis:L$
+				Stückpreis: L$
 			</string>
 			<string name="Cost Mixed">
 				Mischpreis
@@ -503,8 +503,8 @@ Primitiv" name="sculpt texture control" tool_tip="Klicken Sie hier, um ein Bild 
 			<button label="Ausrichten" label_selected="Ausrichten" name="button align"/>
 		</panel>
 		<panel label="Inhalt" name="Contents">
-			<button label="Neues Skript" label_selected="Neues Skript..." name="button new script"/>
-			<button label="Berechtigungen..." name="button permissions"/>
+			<button label="Neues Skript" label_selected="Neues Skript" name="button new script"/>
+			<button label="Berechtigungen" name="button permissions"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
@@ -512,24 +512,24 @@ Primitiv" name="sculpt texture control" tool_tip="Klicken Sie hier, um ein Bild 
 			Parzelleninformation
 		</text>
 		<text name="label_area_price">
-			Preis: L$ [PRICE] für [AREA] m2.
+			Preis: L$ [PRICE] für [AREA] m²
 		</text>
 		<text name="label_area">
-			Fläche: [AREA] m2
+			Fläche: [AREA] m²
 		</text>
 		<button label="Info zu Land..." label_selected="Info zu Land..." name="button about land"/>
-		<check_box label="Eigentümer anzeigen" name="checkbox show owners" tool_tip="Parzellen nach Eigentümer farbig kennzeichnen"/>
+		<check_box label="Eigentümer anzeigen" name="checkbox show owners" tool_tip="Parzellen nach Eigentümer farbig kennzeichnen: &#10;&#10;Grün = Ihr Land &#10;Blau = Das Land Ihrer Gruppe &#10;Rot = Im Eigentum anderer &#10;Geld = Zum Verkauf &#10;Lila = Zur Auktion &#10;Grau = Öffentlich"/>
 		<button label="?" label_selected="?" name="button show owners help"/>
 		<text name="label_parcel_modify">
 			Parzelle ändern
 		</text>
-		<button label="Unterteilen..." label_selected="Unterteilen..." name="button subdivide land"/>
+		<button label="Unterteilen" label_selected="Unterteilen" name="button subdivide land"/>
 		<button label="Zusammenlegen" label_selected="Zusammenlegen" name="button join land"/>
 		<text name="label_parcel_trans">
 			Land-Transaktionen
 		</text>
-		<button label="Land kaufen..." label_selected="Land kaufen..." name="button buy land"/>
-		<button label="Land aufgeben..." label_selected="Land aufgeben..." name="button abandon land"/>
+		<button label="Land kaufen" label_selected="Land kaufen" name="button buy land"/>
+		<button label="Land aufgeben" label_selected="Land aufgeben" name="button abandon land"/>
 	</panel>
 	<floater.string name="status_rotate">
 		An den farbigen Bändern ziehen, um das Objekt zu drehen

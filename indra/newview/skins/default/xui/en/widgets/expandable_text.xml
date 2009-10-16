@@ -5,11 +5,12 @@
    more_label="More" 
   follows="left|top"
   name="text"
+   allow_scroll="true" 
   use_ellipses="true"
   word_wrap="true"
   tab_stop="true"
-  v_pad="2"
-  h_pad="3" >
+  v_pad="3"
+  h_pad="4" >
  </textbox>
  <scroll
   name="scroll"

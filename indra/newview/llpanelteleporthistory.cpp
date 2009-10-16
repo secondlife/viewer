@@ -163,11 +163,6 @@ void LLTeleportHistoryPanel::ContextMenu::show(LLView* spawning_view, S32 index,
 	mIndex = index;
 	mMenu = createMenu();
 
-	LLViewerInventoryItem *landmark = LLLandmarkActions::findLandmarkForGlobalPos(
-		LLTeleportHistoryStorage::getInstance()->getItems()[index].mGlobalPos);
-
-	mMenu->setItemEnabled("Make Landmark", !landmark || landmark->getUUID().isNull());
-
 	mMenu->show(x, y);
 	LLMenuGL::showPopup(spawning_view, mMenu, x, y);
 }
@@ -181,7 +176,6 @@ LLContextMenu* LLTeleportHistoryPanel::ContextMenu::createMenu()
 	registrar.add("TeleportHistory.Teleport",	boost::bind(&LLTeleportHistoryPanel::ContextMenu::onTeleport, this));
 	registrar.add("TeleportHistory.MoreInformation",boost::bind(&LLTeleportHistoryPanel::ContextMenu::onInfo, this));
 	registrar.add("TeleportHistory.Copy",		boost::bind(&LLTeleportHistoryPanel::ContextMenu::onCopy, this));
-	registrar.add("TeleportHistory.MakeLandmark",	boost::bind(&LLTeleportHistoryPanel::ContextMenu::onMakeLandmark, this));
 
 	// create the context menu from the XUI
 	return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
@@ -211,12 +205,6 @@ void LLTeleportHistoryPanel::ContextMenu::onCopy()
 		boost::bind(&LLTeleportHistoryPanel::ContextMenu::gotSLURLCallback, _1), false);
 }
 
-void LLTeleportHistoryPanel::ContextMenu::onMakeLandmark()
-{
-	//FIXME: it creates landmark for current agent positon, not for the global position of item of teleport history
-	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
-}
-
 // Not yet implemented; need to remove buildPanel() from constructor when we switch
 //static LLRegisterPanelClassWrapper<LLTeleportHistoryPanel> t_teleport_history("panel_teleport_history");
 
@@ -225,6 +213,7 @@ LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 		mFilterSubString(LLStringUtil::null),
 		mTeleportHistory(NULL),
 		mHistoryAccordion(NULL),
+		mStarButton(NULL),
 		mAccordionTabMenu(NULL),
 		mLastSelectedScrollList(NULL)
 {
@@ -233,6 +222,7 @@ LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 
 LLTeleportHistoryPanel::~LLTeleportHistoryPanel()
 {
+	LLView::deleteViewByHandle(mGearMenuHandle);
 }
 
 BOOL LLTeleportHistoryPanel::postBuild()
@@ -247,13 +237,13 @@ BOOL LLTeleportHistoryPanel::postBuild()
 
 	if (mHistoryAccordion)
 	{
-		
 		for (child_list_const_iter_t iter = mHistoryAccordion->beginChild(); iter != mHistoryAccordion->endChild(); iter++)
 		{
 			if (dynamic_cast<LLAccordionCtrlTab*>(*iter))
 			{
 				LLAccordionCtrlTab* tab = (LLAccordionCtrlTab*)*iter;
 				tab->setRightMouseDownCallback(boost::bind(&LLTeleportHistoryPanel::onAccordionTabRightClick, this, _1, _2, _3, _4));
+				tab->setDisplayChildren(false);
 
 				mItemContainers.put(tab);
 
@@ -266,7 +256,29 @@ BOOL LLTeleportHistoryPanel::postBuild()
 				}
 			}
 		}
+
+		// Open first 2 accordion tabs
+		if (mItemContainers.size() > 1)
+			mItemContainers.get(mItemContainers.size() - 1)->setDisplayChildren(true);
+
+		if (mItemContainers.size() > 2)
+			mItemContainers.get(mItemContainers.size() - 2)->setDisplayChildren(true);
 	}
+
+	getChild<LLPanel>("bottom_panel")->childSetAction("gear_btn",boost::bind(&LLTeleportHistoryPanel::onGearButtonClicked, this));
+
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+
+	registrar.add("TeleportHistory.ExpandAllFolders",  boost::bind(&LLTeleportHistoryPanel::onExpandAllFolders,  this));
+	registrar.add("TeleportHistory.CollapseAllFolders",  boost::bind(&LLTeleportHistoryPanel::onCollapseAllFolders,  this));
+	registrar.add("TeleportHistory.ClearTeleportHistory",  boost::bind(&LLTeleportHistoryPanel::onClearTeleportHistory,  this));
+
+	LLMenuGL* gear_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_teleport_history_gear.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	if(gear_menu)
+		mGearMenuHandle  = gear_menu->getHandle();
+
+	mStarButton = getChild<LLButton>("star_btn");
+	mStarButton->setCommitCallback(boost::bind(&LLTeleportHistoryPanel::onStarButtonCommit, this));
 
 	return TRUE;
 }
@@ -293,7 +305,7 @@ void LLTeleportHistoryPanel::onShowOnMap()
 		return;
 
 	LLVector3d global_pos = mTeleportHistory->getItems()[itemp->getIndex()].mGlobalPos;
-	
+
 	if (!global_pos.isExactlyZero())
 	{
 		LLFloaterWorldMap::getInstance()->trackLocation(global_pos);
@@ -342,20 +354,47 @@ void LLTeleportHistoryPanel::onCopySLURL()
 // virtual
 void LLTeleportHistoryPanel::updateVerbs()
 {
-	if (!isTabVisible()) 
+	if (!isTabVisible())
 		return;
 
 	if (!mLastSelectedScrollList)
 	{
 		mTeleportBtn->setEnabled(false);
 		mShowOnMapBtn->setEnabled(false);
+		mStarButton->setEnabled(false);
+		mStarButton->setToolTip(LLStringExplicit(""));
 		return;
 	}
 
 	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedScrollList->getSelectedItem());
 
-	mTeleportBtn->setEnabled(NULL != itemp && 0 < itemp->getIndex());
+	mTeleportBtn->setEnabled(NULL != itemp && itemp->getIndex() < (S32)mTeleportHistory->getItems().size() - 1);
 	mShowOnMapBtn->setEnabled(NULL != itemp);
+
+	if (NULL != itemp)
+	{
+		LLViewerInventoryItem *landmark = LLLandmarkActions::findLandmarkForGlobalPos(
+			mTeleportHistory->getItems()[itemp->getIndex()].mGlobalPos);
+
+		mStarButton->setEnabled(true);
+		if (!landmark || landmark->getUUID().isNull())
+		{
+			mStarButton->setToggleState(true);
+			// Landmark can be created only for current agent positon, which is most recent (last) item in teleport history.
+			// mTeleportBtn is disabled only for that item.
+			mStarButton->setToolTip(mTeleportBtn->getEnabled() ? getString("cant_create_lm_here") : getString("create_landmark"));
+		}
+		else
+		{
+			mStarButton->setToggleState(false);
+			mStarButton->setToolTip(getString("open_landmark"));
+		}
+	}
+	else
+	{
+		mStarButton->setEnabled(false);
+		mStarButton->setToolTip(LLStringExplicit(""));
+	}
 }
 
 void LLTeleportHistoryPanel::showTeleportHistory()
@@ -375,23 +414,23 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 	curr_date.split(&curr_year, &curr_month, &curr_day);
 	curr_date.fromYMDHMS(curr_year, curr_month, curr_day); // Set hour, min, and sec to 0
 	curr_date.secondsSinceEpoch(curr_date.secondsSinceEpoch() + seconds_in_day);
-	
+
 	LLFlatListView* curr_flat_view = NULL;
 
 	S32 index = hist_items.size() - 1;
 
 	for (LLTeleportHistoryStorage::slurl_list_t::const_reverse_iterator iter = hist_items.rbegin();
-	      iter != hist_items.rend(); ++iter)
+	      iter != hist_items.rend(); ++iter, --index)
 	{
 		std::string landmark_title = (*iter).mTitle;
 		LLStringUtil::toUpper(landmark_title);
 
 		std::string::size_type match_offset = mFilterSubString.size() ? landmark_title.find(mFilterSubString) : std::string::npos;
 		bool passed = mFilterSubString.size() == 0 || match_offset != std::string::npos;
-	
+
 		if (!passed)
 			continue;
-		
+
 		if (curr_tab < tabs_cnt - 1)
 		{
 			const LLDate &date = (*iter).mDate;
@@ -405,7 +444,7 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 
 					tab = mItemContainers.get(mItemContainers.size() - 1 - curr_tab);
 					tab->setVisible(false);
-					
+
 					if (curr_tab <= tabs_cnt - 4)
 					{
 						curr_date.secondsSinceEpoch(curr_date.secondsSinceEpoch() - seconds_in_day);
@@ -436,7 +475,6 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 							curr_year--;
 						}
 						curr_date.fromYMDHMS(curr_year, curr_month, curr_day);
-						
 					}
 					else // 6 months and older
 					{
@@ -455,11 +493,9 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 		}
 
 		if (curr_flat_view)
-		{			
+		{
 			curr_flat_view->addItem(new LLTeleportHistoryFlatItem(index, &mContextMenu, (*iter).mTitle));
 		}
-
-		index--;
 	}
 
 	// Hide empty tabs from current to bottom
@@ -553,6 +589,50 @@ void LLTeleportHistoryPanel::onAccordionTabClose(LLAccordionCtrlTab *tab)
 	mHistoryAccordion->arrange();
 }
 
+void LLTeleportHistoryPanel::onExpandAllFolders()
+{
+	S32 tabs_cnt = mItemContainers.size();
+
+	for (S32 n = 0; n < tabs_cnt; n++)
+	{
+		mItemContainers.get(n)->setDisplayChildren(true);
+	}
+	mHistoryAccordion->arrange();
+}
+
+void LLTeleportHistoryPanel::onCollapseAllFolders()
+{
+	S32 tabs_cnt = mItemContainers.size();
+
+	for (S32 n = 0; n < tabs_cnt; n++)
+	{
+		mItemContainers.get(n)->setDisplayChildren(false);
+	}
+	mHistoryAccordion->arrange();
+}
+
+void LLTeleportHistoryPanel::onClearTeleportHistory()
+{
+	LLNotifications::instance().add("ConfirmClearTeleportHistory", LLSD(), LLSD(), boost::bind(&LLTeleportHistoryPanel::onClearTeleportHistoryDialog, this, _1, _2));
+}
+
+bool LLTeleportHistoryPanel::onClearTeleportHistoryDialog(const LLSD& notification, const LLSD& response)
+{
+
+	S32 option = LLNotification::getSelectedOption(notification, response);
+
+	if (0 == option)
+	{
+		LLTeleportHistoryStorage *th = LLTeleportHistoryStorage::getInstance();
+		th->purgeItems();
+		th->save();
+
+		showTeleportHistory();
+	}
+
+	return false;
+}
+
 LLFlatListView* LLTeleportHistoryPanel::getFlatListViewFromTab(LLAccordionCtrlTab *tab)
 {
 	for (child_list_const_iter_t iter = tab->beginChild(); iter != tab->endChild(); iter++)
@@ -564,5 +644,51 @@ LLFlatListView* LLTeleportHistoryPanel::getFlatListViewFromTab(LLAccordionCtrlTa
 	}
 
 	return NULL;
+}
+
+void LLTeleportHistoryPanel::onGearButtonClicked()
+{
+	LLMenuGL* menu = (LLMenuGL*)mGearMenuHandle.get();
+	if (!menu)
+		return;
+
+	// Shows the menu at the top of the button bar.
+
+	// Calculate its coordinates.
+	LLPanel* bottom_panel = getChild<LLPanel>("bottom_panel");
+	menu->arrangeAndClear();
+	S32 menu_height = menu->getRect().getHeight();
+	S32 menu_x = -2; // *HACK: compensates HPAD in showPopup()
+	S32 menu_y = bottom_panel->getRect().mTop + menu_height;
+
+	// Actually show the menu.
+	menu->buildDrawLabels();
+	menu->updateParent(LLMenuGL::sMenuContainer);
+	LLMenuGL::showPopup(this, menu, menu_x, menu_y);
+}
+
+void LLTeleportHistoryPanel::onStarButtonCommit()
+{
+	if (!mLastSelectedScrollList)
+		return;
+
+	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedScrollList->getSelectedItem());
+	if(!itemp)
+		return;
+
+	if (itemp->getIndex() < (S32)mTeleportHistory->getItems().size() - 1)
+	{
+		LLTeleportHistoryFlatItem::showPlaceInfoPanel(itemp->getIndex());
+	}
+	else
+	{
+		LLViewerInventoryItem *landmark = LLLandmarkActions::findLandmarkForGlobalPos(
+			mTeleportHistory->getItems()[itemp->getIndex()].mGlobalPos);
+
+		if (!landmark || landmark->getUUID().isNull())
+			LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+		else
+			LLTeleportHistoryFlatItem::showPlaceInfoPanel(itemp->getIndex());
+	}
 }
 

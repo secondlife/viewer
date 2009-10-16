@@ -12,7 +12,7 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   #
   # More info and examples at: https://wiki.secondlife.com/wiki/How_to_add_unit_tests_to_indra_code
   #
-  # WARNING: do NOT modify this code without working with poppy or daveh -
+  # WARNING: do NOT modify this code without working with poppy -
   # there is another branch that will conflict heavily with any changes here.
 INCLUDE(GoogleMock)
 
@@ -26,11 +26,20 @@ INCLUDE(GoogleMock)
   # Setup includes, paths, etc
   SET(alltest_SOURCE_FILES
     ${CMAKE_SOURCE_DIR}/test/test.cpp
+    ${CMAKE_SOURCE_DIR}/test/lltut.cpp
     )
   SET(alltest_DEP_TARGETS
+    # needed by the test harness itself
+    ${APRUTIL_LIBRARIES}
+    ${APR_LIBRARIES}
     llcommon
-    llmath
     )
+  IF(NOT "${project}" STREQUAL "llmath")
+    # add llmath as a dep unless the tested module *is* llmath!
+    LIST(APPEND alltest_DEP_TARGETS
+      llmath
+      )
+  ENDIF(NOT "${project}" STREQUAL "llmath")
   SET(alltest_INCLUDE_DIRS
     ${LLMATH_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="TextureWrapper">
-  <scroll_container name="container1">
-   <panel label="Grond texturen" name="Textures">
+<panel label="Grond texturen" name="Textures">
 	<text name="region_text_lbl">
 		Regio:
 	</text>
@@ -56,6 +54,4 @@
 		en de HIGH waarde is de MINIMUM hoogte van textuur #4.
 	</text>
 	<button label="Toepassen" name="apply_btn"/>
-    </panel>
-  </scroll_container>
 </panel>

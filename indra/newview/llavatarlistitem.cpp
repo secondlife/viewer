@@ -33,6 +33,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llavataractions.h"
 #include "llavatarlistitem.h"
 
 #include "llfloaterreg.h"
@@ -49,6 +50,7 @@ LLAvatarListItem::LLAvatarListItem()
 	mStatus(NULL),
 	mSpeakingIndicator(NULL),
 	mInfoBtn(NULL),
+	mProfileBtn(NULL),
 	mContextMenu(NULL),
 	mAvatarId(LLUUID::null)
 {
@@ -63,9 +65,13 @@ BOOL  LLAvatarListItem::postBuild()
 
 	mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
 	mInfoBtn = getChild<LLButton>("info_btn");
+	mProfileBtn = getChild<LLButton>("profile_btn");
 
 	mInfoBtn->setVisible(false);
 	mInfoBtn->setClickedCallback(boost::bind(&LLAvatarListItem::onInfoBtnClick, this));
+
+	mProfileBtn->setVisible(false);
+	mProfileBtn->setClickedCallback(boost::bind(&LLAvatarListItem::onProfileBtnClick, this));
 
 /*
 	if(!p.buttons.profile)
@@ -104,6 +110,7 @@ void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
 	childSetVisible("hovered_icon", true);
 	mInfoBtn->setVisible(true);
+	mProfileBtn->setVisible(true);
 
 	LLPanel::onMouseEnter(x, y, mask);
 }
@@ -112,6 +119,7 @@ void LLAvatarListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	childSetVisible("hovered_icon", false);
 	mInfoBtn->setVisible(false);
+	mProfileBtn->setVisible(false);
 
 	LLPanel::onMouseLeave(x, y, mask);
 }
@@ -169,6 +177,11 @@ void LLAvatarListItem::onInfoBtnClick()
 	inspector->setFrontmost(true);
 	inspector->setVisible(true);
 	*/
+}
+
+void LLAvatarListItem::onProfileBtnClick()
+{
+	LLAvatarActions::showProfile(mAvatarId);
 }
 
 void LLAvatarListItem::showStatus(bool show_status)

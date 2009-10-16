@@ -34,6 +34,7 @@
 #define LL_LLSTRING_H
 
 #include <string>
+#include <cstdio>
 #include <locale>
 #include <iomanip>
 #include "llsd.h"
@@ -998,14 +999,15 @@ void LLStringUtilBase<T>::stripNonprintable(std::basic_string<T>& string)
 	{
 		return;
 	}
-	char* c_string = new char[string.size() + 1];
+	size_t src_size = string.size();
+	char* c_string = new char[src_size + 1];
 	if(c_string == NULL)
 	{
 		return;
 	}
-	strcpy(c_string, string.c_str());	/*Flawfinder: ignore*/
+	copy(c_string, string.c_str(), src_size+1);
 	char* write_head = &c_string[0];
-	for (size_type i = 0; i < string.size(); i++)
+	for (size_type i = 0; i < src_size; i++)
 	{
 		char* read_head = &string[i];
 		write_head = &c_string[j];

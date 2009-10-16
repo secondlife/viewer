@@ -1747,7 +1747,7 @@ Se questa opzione è selezionato i compratori possono rivendere i loro terreni i
 Impostazione base: Non consentire
 	</notification>
 	<notification label="Disabilita gli script" name="HelpRegionDisableScripts">
-		Se le prestazioni di una sim sono basse, probabilmente è colpa di uno script. Apri la &apos;Barra delle statistiche&apos; (Ctrl-Shift-1). Controlla il FPS della fisica del simulatore.
+		Se le prestazioni di una sim sono basse, probabilmente è colpa di uno script. Apri la &apos;Barra delle statistiche&apos; (Ctrl+Shift+1). Controlla il FPS della fisica del simulatore.
 Se è più basso di 45, apri il pannello &apos;Time&apos; (Tempi) collocato ln fondo alla &apos;Barra delle statistiche&apos; 
 Se il tempo per gli script è di 25 ms o più alto, clicca sul bottone &apos;Visualizza l&apos;elenco degli script più pesanti...&apos;. Ti verrà dato il nome e l&apos;ubicazione degli script che probabilmente causano una cattiva prestazione.
 
@@ -1758,7 +1758,7 @@ Impostazione base: spento
 	</notification>
 	<notification label="Disabilita le collisioni" name="HelpRegionDisableCollisions">
 		Quando le prestazioni della sim sono basse, può darsi che la colpa sia di oggetti fisici.
-Apri la &apos;Barra delle statistiche&apos; (Ctrl-Shift-1).
+Apri la &apos;Barra delle statistiche&apos; (Ctrl+Shift+1).
 Controlla il FPS della fisica del simulatore.
 Se è più basso di 45, apri il pannello &apos;Time&apos; (Tempi) collocato in fondo alla &apos;Barra delle statistiche&apos;.
 Se il tempo della sim (fisica) risulta 20 ms o più, clicca sul bottone &apos;mostra gli oggetti che collidono di più&apos;.
@@ -1987,9 +1987,9 @@ Trasferisci gli elementi nell&apos;inventario?
 		<usetemplate ignoretext="Quando si trasferiscono oggetti scriptati non copiabili nell&apos;inventario." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="ClickActionNotPayable">
-		Attenzione: L&apos;azione di pagamento automatico al click è stata impostata, ma funzionerà solo se aggiungi uno script con un evento money().
+		Attenzione: L&apos;azione &apos;Paga l&apos;oggetto&apos; al click è stata impostata, ma funzionerà solo se aggiungi uno script con un evento money().
 		<form name="form">
-			<ignore name="ignore" text="Quando imposti il &apos;Pagamento&apos; di oggetti senza l&apos;evento money()"/>
+			<ignore name="ignore" text="Quando imposti il &apos;Paga l&apos;oggetto&apos; senza l&apos;evento money()"/>
 		</form>
 	</notification>
 	<notification name="OpenObjectCannotCopy">
@@ -2923,7 +2923,7 @@ Gli oggetti flessibili non possono essere fisici e devano essere fantasma fino a
 	<notification name="FirstDebugMenus">
 		Hai attivato il menu Avanzato.
 Questo menu contiene funzioni utili per gli sviluppatori per il debug di [SECOND_LIFE].
-Per attivare o disattivare questo menu su Windows premere Ctrl-Alt-D. Su Mac premere &#8984;-Opt-D.
+Per attivare o disattivare questo menu su Windows premere Ctrl+Alt+D. Su Mac premere &#8997;&#8984;D.
 	</notification>
 	<notification name="FirstSculptedPrim">
 		Si sta modificando uno sculpted prim.

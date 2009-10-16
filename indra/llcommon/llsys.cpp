@@ -124,9 +124,42 @@ LLOSInfo::LLOSInfo() :
 			}
 			else if(osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0)
 			{
-				 if(osvi.wProductType == VER_NT_WORKSTATION)
-					mOSStringSimple = "Microsoft Windows Vista ";
-				 else mOSStringSimple = "Microsoft Windows Vista Server ";
+				///get native system info if available..
+				typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO); ///function pointer for loading GetNativeSystemInfo
+				SYSTEM_INFO si; //System Info object file contains architecture info
+				PGNSI pGNSI; //pointer object
+				ZeroMemory(&si, sizeof(SYSTEM_INFO)); //zero out the memory in information
+				pGNSI = (PGNSI) GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")),  "GetNativeSystemInfo"); //load kernel32 get function
+				if(NULL != pGNSI) //check if it has failed
+					pGNSI(&si); //success
+				else 
+					GetSystemInfo(&si); //if it fails get regular system info 
+				//(Warning: If GetSystemInfo it may result in incorrect information in a WOW64 machine, if the kernel fails to load)
+
+				//msdn microsoft finds 32 bit and 64 bit flavors this way..
+				//http://msdn.microsoft.com/en-us/library/ms724429(VS.85).aspx (example code that contains quite a few more flavors
+				//of windows than this code does (in case it is needed for the future)
+				if ( si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64 ) //check for 64 bit
+				{
+					 if(osvi.wProductType == VER_NT_WORKSTATION)
+						mOSStringSimple = "Microsoft Windows Vista 64-bit ";
+					 else 
+						mOSStringSimple = "Microsoft Windows Vista Server 64-bit ";
+				}
+				else if (si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_INTEL )
+				{
+					 if(osvi.wProductType == VER_NT_WORKSTATION)
+						mOSStringSimple = "Microsoft Windows Vista 32-bit ";
+					 else 
+						mOSStringSimple = "Microsoft Windows Vista Server 32-bit ";
+				}
+				else // PROCESSOR_ARCHITECTURE_IA64 || PROCESSOR_ARCHITECTURE_UNKNOWN not checked
+				{
+					 if(osvi.wProductType == VER_NT_WORKSTATION)
+						mOSStringSimple = "Microsoft Windows Vista ";
+					 else 
+						mOSStringSimple = "Microsoft Windows Vista Server ";
+				}
 			}
 			else if(osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 1)
 			{

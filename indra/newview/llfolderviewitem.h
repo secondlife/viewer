@@ -96,6 +96,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
 		Optional<LLUIImage*>					icon;
+		Optional<LLUIImage*>					icon_open;  // used for folders
 		Optional<LLFolderView*>					root;
 		Optional<LLFolderViewEventListener*>	listener;
 
@@ -143,6 +144,7 @@ protected:
 	std::string					mLabelSuffix;
 	LLUIImagePtr				mIcon;
 	std::string					mStatusText;
+	LLUIImagePtr				mIconOpen;
 	BOOL						mHasVisibleChildren;
 	S32							mIndentation;
 	S32							mNumDescendantsSelected;

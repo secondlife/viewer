@@ -38,7 +38,6 @@
 #include "llavatarconstants.h"	// AVATAR_ONLINE
 #include "llcallingcard.h"
 #include "llcombobox.h"
-#include "lldateutil.h"
 #include "llimview.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
@@ -448,7 +447,7 @@ void LLPanelAvatarProfile::processGroupProperties(const LLAvatarGroups* avatar_g
 
 void LLPanelAvatarProfile::fillCommonData(const LLAvatarData* avatar_data)
 {
-	childSetValue("register_date", LLDateUtil::ageFromDate(avatar_data->born_on));
+	childSetValue("register_date", avatar_data->born_on );
 	childSetValue("sl_description_edit", avatar_data->about_text);
 	childSetValue("fl_description_edit",avatar_data->fl_about_text);
 	childSetValue("2nd_life_pic", avatar_data->image_id);

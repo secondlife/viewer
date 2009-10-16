@@ -137,7 +137,6 @@ set(viewer_SOURCE_FILES
     llfeaturemanager.cpp
     llfilepicker.cpp
     llfirstuse.cpp
-    llfirsttimetipmanager.cpp
     llflexibleobject.cpp
     llfloaterabout.cpp
     llfloateractivespeakers.cpp
@@ -162,7 +161,6 @@ set(viewer_SOURCE_FILES
     llfloaterdaycycle.cpp
     llfloaterdirectory.cpp
     llfloaterenvsettings.cpp
-    llfloaterfirsttimetip.cpp
     llfloaterfriends.cpp
     llfloaterfonttest.cpp
     llfloatergesture.cpp
@@ -327,7 +325,6 @@ set(viewer_SOURCE_FILES
     llpanelmedia.cpp
     llpanelmediahud.cpp
     llpanelmeprofile.cpp
-    llpanelmovetip.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingssecurity.cpp
     llpanelmediasettingspermissions.cpp
@@ -614,7 +611,6 @@ set(viewer_HEADER_FILES
     llfeaturemanager.h
     llfilepicker.h
     llfirstuse.h
-    llfirsttimetipmanager.h
     llflexibleobject.h
     llfloaterabout.h
     llfloateractivespeakers.h
@@ -639,7 +635,6 @@ set(viewer_HEADER_FILES
     llfloaterdaycycle.h
     llfloaterdirectory.h
     llfloaterenvsettings.h
-    llfloaterfirsttimetip.h
     llfloaterfonttest.h
     llfloaterfriends.h
     llfloatergesture.h
@@ -800,7 +795,6 @@ set(viewer_HEADER_FILES
     llpanelmedia.h
     llpanelmediahud.h
     llpanelmeprofile.h
-    llpanelmovetip.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingssecurity.h
     llpanelmediasettingspermissions.h
@@ -1042,7 +1036,7 @@ endif (DARWIN)
 if (LINUX)
     LIST(APPEND viewer_SOURCE_FILES llappviewerlinux.cpp)
     LIST(APPEND viewer_SOURCE_FILES llappviewerlinux_api_dbus.cpp)
-    LIST(APPEND CMAKE_EXE_LINKER_FLAGS -Wl,--as-needed)
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
 
     set(viewer_LIBRARIES
         Xinerama
@@ -1130,7 +1124,9 @@ if (WINDOWS)
 
     SOURCE_GROUP("Resource Files" FILES ${viewer_RESOURCE_FILES})
 
-    list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
+    if (NOT STANDALONE)
+        list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
+    endif (NOT STANDALONE)	
 
     find_library(DINPUT_LIBRARY dinput8 ${DIRECTX_LIBRARY_DIR})
     find_library(DXGUID_LIBRARY dxguid ${DIRECTX_LIBRARY_DIR})
@@ -1248,8 +1244,9 @@ source_group("Character File" FILES ${viewer_CHARACTER_FILES})
 
 set_source_files_properties(${viewer_CHARACTER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
-
-list(APPEND viewer_SOURCE_FILES ${viewer_CHARACTER_FILES})
+if (NOT STANDALONE)
+    list(APPEND viewer_SOURCE_FILES ${viewer_CHARACTER_FILES})
+endif (NOT STANDALONE)
 
 if (WINDOWS)
   file(GLOB viewer_INSTALLER_FILES installers/windows/*.nsi)

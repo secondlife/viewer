@@ -69,7 +69,7 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(callback_t callback,
 // Default constructor
 LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
   : LLFloater(key),
-	mResultsReturned(FALSE),
+	mNumResultsReturned(0),
 	mCallback(NULL),
 	mCallbackUserdata(NULL),
 	mNearMeListComplete(FALSE),
@@ -314,7 +314,7 @@ void LLFloaterAvatarPicker::find()
 	getChild<LLScrollListCtrl>("SearchResults")->setCommentText(getString("searching"));
 	
 	childSetEnabled("Select", FALSE);
-	mResultsReturned = FALSE;
+	mNumResultsReturned = 0;
 }
 
 void LLFloaterAvatarPicker::setAllowMultiple(BOOL allow_multiple)
@@ -349,9 +349,10 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 	LLScrollListCtrl* search_results = floater->getChild<LLScrollListCtrl>("SearchResults");
 
 	// clear "Searching" label on first results
-	search_results->deleteAllItems();
-
-	floater->mResultsReturned = TRUE;
+	if (floater->mNumResultsReturned++ == 0)
+	{
+		search_results->deleteAllItems();
+	}
 
 	BOOL found_one = FALSE;
 	S32 num_new_rows = msg->getNumberOfBlocks("Data");

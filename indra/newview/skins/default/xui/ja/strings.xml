@@ -488,16 +488,16 @@
 		参照
 	</string>
 	<string name="accel-mac-control">
-		Ctrl-
+		&#8963;
 	</string>
 	<string name="accel-mac-command">
-		Cmd-
+		&#8984;
 	</string>
 	<string name="accel-mac-option">
-		Opt-
+		&#8997;
 	</string>
 	<string name="accel-mac-shift">
-		Shift-
+		&#8679;
 	</string>
 	<string name="accel-win-control">
 		Ctrl+
@@ -603,6 +603,9 @@
 	<string name="no_ability_error">
 		あなたにはその能力がありません。
 	</string>
+	<string name="no_ability">
+		あなたにはその能力がありません。
+	</string>
 	<string name="not_a_mod_error">
 		あなたはセッション・モデレータではありません。
 	</string>
@@ -621,4 +624,31 @@
 	<string name="close_on_no_ability">
 		このチャット・セッションを継続することはできません
 	</string>
+			<string name="AcctTypeResident">
+				住人
+			</string>
+			<string name="AcctTypeTrial">
+				トライアル
+			</string>
+			<string name="AcctTypeCharterMember">
+				特権メンバー
+			</string>
+			<string name="AcctTypeEmployee">
+				Linden Lab従業員
+			</string>
+			<string name="PaymentInfoUsed">
+				支払い情報登録済
+			</string>
+			<string name="PaymentInfoOnFile">
+				支払い情報登録済み
+			</string>
+			<string name="NoPaymentInfoOnFile">
+				支払い情報未登録
+			</string>
+			<string name="AgeVerified">
+				年齢確認済み
+			</string>
+			<string name="NotAgeVerified">
+				年齢未確認
+			</string>
 </strings>

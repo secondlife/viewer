@@ -180,6 +180,7 @@
 #include "llimview.h"
 #include "llviewerthrottle.h"
 #include "llparcel.h"
+#include "llavatariconctrl.h"
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
@@ -604,7 +605,8 @@ bool LLAppViewer::init()
 	// into the log files during normal startup until AFTER
 	// we run the "program crashed last time" error handler below.
 	//
-	
+	LLFastTimer::reset();
+
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
 	gDirUtilp->initAppDirs("SecondLife");
@@ -695,8 +697,12 @@ bool LLAppViewer::init()
 	LLUI::setupPaths();
 	LLTransUtil::parseStrings("strings.xml", default_trans_args);		
 	LLTransUtil::parseLanguageStrings("language_settings.xml");
-	LLWeb::initClass();			  // do this after LLUI
+	
+	// LLKeyboard relies on LLUI to know what some accelerator keys are called.
+	LLKeyboard::setStringTranslatorFunc( LLTrans::getKeyboardString );
 
+	LLWeb::initClass();			  // do this after LLUI
+	
 	// Provide the text fields with callbacks for opening Urls
 	LLUrlAction::setOpenURLCallback(&LLWeb::loadURL);
 	LLUrlAction::setOpenURLInternalCallback(&LLWeb::loadURLInternal);
@@ -1491,6 +1497,9 @@ bool LLAppViewer::cleanup()
     sImageDecodeThread = NULL;
 
 	LLLocationHistory::getInstance()->save();
+
+	LLAvatarIconIDCache::getInstance()->save();
+
 	delete mFastTimerLogThread;
 	mFastTimerLogThread = NULL;
 
@@ -1830,8 +1839,18 @@ bool LLAppViewer::initConfiguration()
 	gSavedSettings.setString("VersionChannelName", LL_CHANNEL);
 
 #ifndef	LL_RELEASE_FOR_DOWNLOAD
-        gSavedSettings.setBOOL("ShowConsoleWindow", TRUE);
-        gSavedSettings.setBOOL("AllowMultipleViewers", TRUE);
+	// provide developer build only overrides for these control variables that are not
+	// persisted to settings.xml
+	LLControlVariable* c = gSavedSettings.getControl("ShowConsoleWindow");
+	if (c)
+	{
+		c->setValue(true, false);
+	}
+	c = gSavedSettings.getControl("AllowMultipleViewers");
+	if (c)
+	{
+		c->setValue(true, false);
+	}
 #endif
 
 	//*FIX:Mani - Set default to disabling watchdog mainloop 

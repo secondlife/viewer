@@ -48,41 +48,36 @@
 	     length="1"
 	     enabled="true"
 	     name="640x480"
-	     value="640 x 480">
-		 640x480
-	    </combo_box.item>
+	     value="640 x 480"
+	     label="640x480"/>
 	    <combo_box.item
 	     type="string"
 	     length="1"
 	     enabled="true"
 	     name="800x600"
-	     value="800 x 600">
-		 800x600 
-	    </combo_box.item>
+	     value="800 x 600"
+	     label="800x600"/>
 	    <combo_box.item
 	     type="string"
 	     length="1"
 	     enabled="true"
 	     name="720x480"
-	     value="720 x 480">
-		 720x480 (NTSC)
-	    </combo_box.item>
+	     value="720 x 480"
+	     label="720x480 (NTSC)"/>
 	    <combo_box.item
 	     type="string"
 	     length="1"
 	     enabled="true"
 	     name="768x576"
-	     value="768 x 576">
-		  768x576 (PAL)
-	    </combo_box.item>
+	     value="768 x 576"
+	     label="768x576 (PAL)"/>
 	    <combo_box.item
 	     type="string"
 	     length="1"
 	     enabled="true"
 	     name="1024x768"
-	     value="1024 x 768">
-		  1024x768
-	    </combo_box.item>
+	     value="1024 x 768"
+	     label="1024x768"/>
 	    <combo_box.commit_callback
 	     function="Pref.setControlFalse"
 	     parameter="FullScreenAutoDetectAspectRatio" />

@@ -191,28 +191,28 @@
 			<check_box name="checkbox next owner can transfer"/>
 		</panel>
 			<string name="text modify info 1">
-				Możesz modyfikować ten obiekt.
+				Możesz modyfikować ten obiekt
 			</string>
 			<string name="text modify info 2">
-				Możesz modyfikować te obiekty.
+				Możesz modyfikować te obiekty
 			</string>
 			<string name="text modify info 3">
-				Nie możesz modyfikować tego obiektu.
+				Nie możesz modyfikować tego obiektu
 			</string>
 			<string name="text modify info 4">
-				Nie możesz modyfikować tych obieków.
+				Nie możesz modyfikować tych obieków
 			</string>
 			<string name="text modify warning">
-				Musisz zaznaczyć cały obiekt by ustawić prawa.
+				Musisz zaznaczyć cały obiekt by ustawić prawa
 			</string>
 			<string name="Cost Default">
-				Cena:           L$
+				Cena: L$
 			</string>
 			<string name="Cost Total">
-				Cena Całości:  L$
+				Cena Całości: L$
 			</string>
 			<string name="Cost Per Unit">
-				Cena Za:     L$
+				Cena Za: L$
 			</string>
 			<string name="Cost Mixed">
 				Cena Mieszana
@@ -511,8 +511,8 @@
 			<button label="Dopasuj" label_selected="Dopasuj" name="button align" left="160"/>
 		</panel>
 		<panel label="Treść" name="Contents">
-			<button label="Nowy Skrypt" label_selected="Nowy Skrypt..." name="button new script"/>
-			<button label="Prawa..." name="button permissions"/>
+			<button label="Nowy Skrypt" label_selected="Nowy Skrypt" name="button new script"/>
+			<button label="Prawa" name="button permissions"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
@@ -526,18 +526,18 @@
 			Obszar: [AREA] m
 		</text>
 		<button label="O Posiadłości..." label_selected="O Posiadłości..." name="button about land"/>
-		<check_box label="Pokaż Właścicieli" name="checkbox show owners" tool_tip="Pokoloruj posiadłości zgodnie z przynależnością do właściciela"/>
+		<check_box label="Pokaż Właścicieli" name="checkbox show owners" tool_tip="Pokoloruj posiadłości zgodnie z przynależnością do właściciela: &#10;&#10;Zielony = Twoja Posiadłość &#10;Morski = Posiadłość Twojej Grupy &#10;Czerwony = Posiadłości Innych &#10;Żółty = Na Sprzedaż &#10;Fioletowy = Na Aukcję &#10;Szary = Publiczna"/>
 		<button label="?" label_selected="?" name="button show owners help" left_delta="120"/>
 		<text name="label_parcel_modify">
 			Modyfikuj Posiadłość
 		</text>
-		<button label="Podziel..." label_selected="Podziel..." name="button subdivide land"/>
-		<button label="Złącz..." label_selected="Złącz..." name="button join land"/>
+		<button label="Podziel" label_selected="Podziel" name="button subdivide land"/>
+		<button label="Złącz" label_selected="Złącz" name="button join land"/>
 		<text name="label_parcel_trans">
 			Transakcje na posiadłości
 		</text>
-		<button label="Kup..." label_selected="Kup..." name="button buy land"/>
-		<button label="Anuluj..." label_selected="Anuluj..." name="button abandon land"/>
+		<button label="Kup" label_selected="Kup" name="button buy land"/>
+		<button label="Anuluj" label_selected="Anuluj" name="button abandon land"/>
 	</panel>
 	<floater.string name="status_rotate">
 		Przeciągaj kolorowe pierścienie żeby obracać obiekt

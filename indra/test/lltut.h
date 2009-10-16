@@ -74,7 +74,7 @@ namespace tut
 	inline void ensure_memory_matches(const char* msg,const void* actual, U32 actual_len, const void* expected,U32 expected_len)
 	{
 		if((expected_len != actual_len) || 
-			(memcmp(actual, expected, actual_len) != 0))
+			(std::memcmp(actual, expected, actual_len) != 0))
 		{
 			std::stringstream ss;
 			ss << (msg?msg:"") << (msg?": ":"") << "not equal";

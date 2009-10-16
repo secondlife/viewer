@@ -517,6 +517,8 @@ void LLPanelGroupSubTab::setGroupID(const LLUUID& id)
 
 void LLPanelGroupSubTab::setSearchFilter(const std::string& filter)
 {
+	if(mSearchFilter == filter)
+		return;
 	lldebugs << "LLPanelGroupSubTab::setSearchFilter() ==> '" << filter << "'" << llendl;
 	mSearchFilter = filter;
 	LLStringUtil::toLower(mSearchFilter);
@@ -1515,9 +1517,6 @@ void LLPanelGroupMembersSubTab::update(LLGroupChange gc)
 		return;
 	}
 
-	// Rebuild the members list.
-	mMembersList->deleteAllItems();
-
 	// Wait for both all data to be retrieved before displaying anything.
 	if (   gdatap->isMemberDataComplete() 
 		&& gdatap->isRoleDataComplete()
@@ -1556,6 +1555,9 @@ void LLPanelGroupMembersSubTab::update(LLGroupChange gc)
 void LLPanelGroupMembersSubTab::updateMembers()
 {
 	mPendingMemberUpdate = FALSE;
+
+	// Rebuild the members list.
+	mMembersList->deleteAllItems();
 
 	lldebugs << "LLPanelGroupMembersSubTab::updateMembers()" << llendl;
 

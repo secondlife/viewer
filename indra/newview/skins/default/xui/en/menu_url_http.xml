@@ -28,7 +28,7 @@
     <menu_item_separator
      layout="topleft" />
     <menu_item_call
-     label="Copy URL To Clipboard"
+     label="Copy URL to clipboard"
      layout="topleft"
      name="url_copy">
         <menu_item_call.on_click

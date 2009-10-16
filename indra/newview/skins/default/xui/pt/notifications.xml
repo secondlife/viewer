@@ -1730,10 +1730,10 @@ Se esta opção estiver marcada, compradores podem vender seus terrenos nesta re
 Padrão: Desabilitada.
 	</notification>
 	<notification label="Desabilitar Scripts" name="HelpRegionDisableScripts">
-		Quando a performance do simulador está ruim, um script pode ser o culpado. Abra a Barra de Estatísticas (Ctrl-Shift-1). Olhe no Simulador de Física FPS. Se estiver abaixo de 45, então abra o painel &apos;Tempo&apos; localizado na parte de baixo da Barra de Estatísticas. Se o Tempo de Script indicar 25 ms ou mais, clique no botão &apos;Get Top CScripts&apos;. Será dado o nome e a localização do script que pode estar causando uma performance ruim. Marque a caixa &apos;Desabilitar Scripts&apos; e aperte o botão &apos;Aplicar&apos;. Isto temporariamente desabilitará todos os scripts nesta região. Uma vez que você chegar ao local, investigue o script para determinar se ele está causando o problema. Você pode querer entrar em contato com o proprietário do script, excluir ou devolver o objeto. Desmarque a caixa &apos;Desabilitar Script&apos; e então clique em &apos;Aplicar&apos; para reativar os scripts na região. Padrão: desligado.
+		Quando a performance do simulador está ruim, um script pode ser o culpado. Abra a Barra de Estatísticas (Ctrl+Shift+1). Olhe no Simulador de Física FPS. Se estiver abaixo de 45, então abra o painel &apos;Tempo&apos; localizado na parte de baixo da Barra de Estatísticas. Se o Tempo de Script indicar 25 ms ou mais, clique no botão &apos;Get Top CScripts&apos;. Será dado o nome e a localização do script que pode estar causando uma performance ruim. Marque a caixa &apos;Desabilitar Scripts&apos; e aperte o botão &apos;Aplicar&apos;. Isto temporariamente desabilitará todos os scripts nesta região. Uma vez que você chegar ao local, investigue o script para determinar se ele está causando o problema. Você pode querer entrar em contato com o proprietário do script, excluir ou devolver o objeto. Desmarque a caixa &apos;Desabilitar Script&apos; e então clique em &apos;Aplicar&apos; para reativar os scripts na região. Padrão: desligado.
 	</notification>
 	<notification label="Desabilitar Colisões" name="HelpRegionDisableCollisions">
-		Quando a performance do simulador é pobre, os objetos físicos podem ser os culpados.Abra a a Barra de Estatísticas  (Ctrl-Shift-1).
+		Quando a performance do simulador é pobre, os objetos físicos podem ser os culpados.Abra a a Barra de Estatísticas  (Ctrl+Shift+1).
 Olhe a taxa de quadros por segundos (FPS) dos objetos físicos.
 
 Se ela estiver abaixo de 45, abra o painel de Tempo, localizado na parte inferior da Barra de Estatísticas. Se o Tempo (Físicos) do Simulador mostrar 20 ms ou mais, clique o botão &apos;Pegue os Maiores Colidentes&apos;. Será fornecido a você o nome e a localidade dos objetos físicos que podem estar causando uma performance pobre.
@@ -1954,7 +1954,7 @@ Mover para o inventário o(s) item(s)?
 		<usetemplate ignoretext="Quando movendo objetos com scripts não copiáveis ao inventário" name="okcancelignore" notext="Não mover" yestext="Mover"/>
 	</notification>
 	<notification name="ClickActionNotPayable">
-		Aviso: A ação de Pagar ao Objeto com clique foi definida, mas funcionará apenas se for adicionado um script com o evento money().
+		Aviso: A ação de &apos;Pagar Objeto&apos; com clique foi definida, mas funcionará apenas se for adicionado um script com o evento money().
 		<form name="form">
 			<ignore name="ignore" text="Quando Definindo &apos;Pagar&apos; em objetos sem eventos money()"/>
 		</form>
@@ -2875,7 +2875,7 @@ Objetos flexíveis não podem ser físicos e devem ser fantasmas até que a caix
 	<notification name="FirstDebugMenus">
 		Você ativou o menu Avançado.
 Este menu contém funcionalidades úteis para desenvolvedores debugarem o [SECOND_LIFE].
-Para mostrar esse menu no Windows pressione Ctrl-Alt-D. No Mac pressione &#8984;-Opt-D.
+Para mostrar esse menu no Windows pressione Ctrl+Alt+D. No Mac pressione &#8997;&#8984;D.
 	</notification>
 	<notification name="FirstSculptedPrim">
 		Você está editando uma primitiva esculpida.

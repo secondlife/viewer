@@ -1713,7 +1713,7 @@ Jeżeli ta opcja jest wybrana kupujący będą mogli odsprzedać posiadłości w
 Domyślinie: nie pozwalaj
 	</notification>
 	<notification label="Wyłącz Skrypty" name="HelpRegionDisableScripts">
-		Słaba wydajność / prędkość symulatora może być spowodowana przez skrypt. Otwórz panel Statystyki (Ctrl-Shift-1). Sprawdź ilość klatek na sekundę (FPS) w Fizyce Symulatora. Jeżeli jest mniej niż 45 wybierz panel Czas znajdujący się na dole panelu Statystyki. Jeżeli Czas Skryptów wynosi 25 ms lub więcej kliknij na Główne Skrypty. Zobaczysz listę nazw i lokacji skryptów które mogą być odpowiedzialne za pogorszenie wydajności.
+		Słaba wydajność / prędkość symulatora może być spowodowana przez skrypt. Otwórz panel Statystyki (Ctrl+Shift+1). Sprawdź ilość klatek na sekundę (FPS) w Fizyce Symulatora. Jeżeli jest mniej niż 45 wybierz panel Czas znajdujący się na dole panelu Statystyki. Jeżeli Czas Skryptów wynosi 25 ms lub więcej kliknij na Główne Skrypty. Zobaczysz listę nazw i lokacji skryptów które mogą być odpowiedzialne za pogorszenie wydajności.
 
 Wybranie opcji Wyłącz Skrypty i naciśnięcie Zastosuj tymczasowo wyłączy wszystkie skrypty w tym regionie. Wybranie tej opcji może być niezbędne w celu umożliwienia podróży do lokacji wymienionego Głównego Skryptu.
 Po przebyciu na miejsce zobacz skrypt i sprawdź czy jest on źródłem problemu. W razie potrzeby skontaktuj się z właścicielem skryptu albo usuń lub zwróć obiekt.
@@ -1722,7 +1722,7 @@ Wyłączenie opcji Wyłącz Skrypty i naciśnięcie Zastosuj ponownie włączy s
 Domyślnie: nie wybrana
 	</notification>
 	<notification label="Wyłącz Kolizje" name="HelpRegionDisableCollisions">
-		Słaba wydajność / prędkość symulatora może być spowodowana przez fizyczne obiekty. Otwórz panel Statystyki (Ctrl-Shift-1). Sprawdź ilość klatek na sekundę (FPS) w Fizyce Symulatora. Jeżeli jest mniej niż 45 wybierz panel Czas znajdujący się na dole panelu Statystyki. Jeżeli Czas Symulatora (Fizyka) wynosi 20 ms lub więcej kliknij na Główne Kolizje. Zobaczysz listę nazw i lokacji fizycznych obiektów które mogą być odpowiedzialne za pogorszenie wydajności.
+		Słaba wydajność / prędkość symulatora może być spowodowana przez fizyczne obiekty. Otwórz panel Statystyki (Ctrl+Shift+1). Sprawdź ilość klatek na sekundę (FPS) w Fizyce Symulatora. Jeżeli jest mniej niż 45 wybierz panel Czas znajdujący się na dole panelu Statystyki. Jeżeli Czas Symulatora (Fizyka) wynosi 20 ms lub więcej kliknij na Główne Kolizje. Zobaczysz listę nazw i lokacji fizycznych obiektów które mogą być odpowiedzialne za pogorszenie wydajności.
 
 Wybranie opcji Wyłącz Kolizje i naciśnięcie Zastosuj tymczasowo wyłączy kolizje obiektów. Wybranie tej opcji może być niezbędne w celu umożliwienia podróży do lokacji wymienionych Główneych Kolizji.
 Po przebyciu na miejsce zobacz obiekt i sprawdź czy jest on źródłem kolizji z innymi obiektami. W razie potrzeby skontaktuj się z właścicielem obiektu albo usuń lub zwróć obiekt.
@@ -1936,7 +1936,7 @@ Przenieść obiekty szafy?
 		<usetemplate ignoretext="Przenosząc szafę bez praw kopiowania ze skryptowanych obiektów" name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="ClickActionNotPayable">
-		Uwaga: Opcja Zapłać Obiektowi została wybrana, ale żeby ta opcja działała musi być dodany skrypt z funkcją money().
+		Uwaga: Opcja &apos;Zapłać Obiektowi&apos; została wybrana, ale żeby ta opcja działała musi być dodany skrypt z funkcją money().
 		<form name="form">
 			<ignore name="ignore" text="Wybierając opcję Zapłać Obiektowi dla obiektów bez funkcji money()"/>
 		</form>
@@ -2867,7 +2867,7 @@ Obiekty elastyczne nie mogą być fizyczne i muszą być typu fantom.
 	<notification name="FirstDebugMenus">
 		Zaawansowane menu zostało włączone.
 To menu zawiera funkcje użyteczne dla programistów analizujących [SECOND_LIFE].
-To menu jest aktywowane dzięki kombinacji klawiszy Ctrl-Alt-D (Windows) lub &#8984;-Opt-D (Mac).
+To menu jest aktywowane dzięki kombinacji klawiszy Ctrl+Alt+D (Windows) lub &#8997;&#8984;D (Mac).
 	</notification>
 	<notification name="FirstSculptedPrim">
 		Edytujesz sculpt.

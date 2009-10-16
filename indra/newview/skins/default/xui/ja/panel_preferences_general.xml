@@ -33,10 +33,10 @@
 	<combo_box name="maturity_desired_combobox">
 		<combo_box.item name="Desired_Adult" label="PG、Mature、Adult"/>
 		<combo_box.item name="Desired_Mature" label="PGとMature"/>
-		<combo_box.item name="Desired_PG" label="PG限定"/>
+		<combo_box.item name="Desired_PG" label="PG"/>
 	</combo_box>
 	<text name="maturity_desired_textbox">
-		PG限定
+		PG
 	</text>
 	<text name="start_location_textbox">
 		ログイン位置：

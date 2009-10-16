@@ -159,7 +159,7 @@
 			</combo_box>
 		<panel name="perms_build">
 			<text name="perm_modify">
-				U kunt dit object wijzigen.
+				U kunt dit object wijzigen
 			</text>
 			<text name="B:">
 				B:
@@ -187,28 +187,28 @@
 			<check_box name="checkbox next owner can transfer" left_delta="67"/>
 		</panel>
 			<string name="text modify info 1">
-				U kunt dit object wijzigen.
+				U kunt dit object wijzigen
 			</string>
 			<string name="text modify info 2">
-				U kunt deze objecten wijzigen.
+				U kunt deze objecten wijzigen
 			</string>
 			<string name="text modify info 3">
-				U kunt dit object niet wijzigen.
+				U kunt dit object niet wijzigen
 			</string>
 			<string name="text modify info 4">
-				U kunt deze objecten niet wijzigen.
+				U kunt deze objecten niet wijzigen
 			</string>
 			<string name="text modify warning">
-				U moet het hele object selecteren om permissies in te stellen.
+				U moet het hele object selecteren om permissies in te stellen
 			</string>
 			<string name="Cost Default">
-				Prijs:           L$
+				Prijs: L$
 			</string>
 			<string name="Cost Total">
-				Totale Prijs:  L$
+				Totale Prijs: L$
 			</string>
 			<string name="Cost Per Unit">
-				Prijs per:     L$
+				Prijs per: L$
 			</string>
 			<string name="Cost Mixed">
 				Gemengde prijs
@@ -499,8 +499,8 @@
 			<button label="Uitlijnen" label_selected="Uitlijnen" name="button align" left="155" />
 		</panel>
 		<panel label="Inhoud" name="Contents">
-			<button label="Nieuw script" label_selected="Nieuw script..." name="button new script"/>
-			<button label="Permissies..." name="button permissions"/>
+			<button label="Nieuw script" label_selected="Nieuw script" name="button new script"/>
+			<button label="Permissies" name="button permissions"/>
 		<panel name="ContentsInventory" width="272" />
 		</panel>
 	</tab_container>
@@ -515,18 +515,18 @@
 			Gebied: [AREA] m².
 		</text>
 		<button label="Over land..." label_selected="Over land..." name="button about land"/>
-		<check_box label="Toon Eigenaren" name="checkbox show owners" tool_tip="Kleur percelen op basis van hun eigendom"/>
+		<check_box label="Toon Eigenaren" name="checkbox show owners" tool_tip="Kleur percelen op basis van hun eigendom:  &#10;&#10;Groen = Uw land &#10;Aqua = Land van uw groep &#10;Rood = Eigendom van anderen &#10;Geel = Te koop &#10;Paars = Ter veiling &#10;Grijs = Openbaar"/>
 		<button label="?" label_selected="?" name="button show owners help" left_delta="105"/>
 		<text name="label_parcel_modify">
 			Wijzig Perceel
 		</text>
-		<button label="Opdelen..." label_selected="Opdelen..." name="button subdivide land"/>
-		<button label="Samenvoegen..." label_selected="Samenvoegen..." name="button join land"/>
+		<button label="Opdelen" label_selected="Opdelen" name="button subdivide land"/>
+		<button label="Samenvoegen" label_selected="Samenvoegen" name="button join land"/>
 		<text name="label_parcel_trans">
 			Landtransacties
 		</text>
-		<button label="Koop land..." label_selected="Koop land..." name="button buy land"/>
-		<button label="Land Afstaan..." label_selected="Land Afstaan..." name="button abandon land"/>
+		<button label="Koop land" label_selected="Koop land" name="button buy land"/>
+		<button label="Land Afstaan" label_selected="Land Afstaan" name="button abandon land"/>
 	</panel>
 	<floater.string name="status_rotate">
 		Sleep de gekleurde banden om het object te roteren

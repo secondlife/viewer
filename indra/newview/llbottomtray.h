@@ -76,6 +76,7 @@ public:
 	void showGestureButton(BOOL visible);
 	void showMoveButton(BOOL visible);
 	void showCameraButton(BOOL visible);
+	void showSnapshotButton(BOOL visible);
 
 private:
 
@@ -100,6 +101,7 @@ protected:
 	LLMenuGL*			mBottomTrayContextMenu;
 	LLPanel*			mMovementPanel;
 	LLPanel*			mCamPanel;
+	LLPanel*			mSnapshotPanel;
 	LLComboBox*			mGestureCombo;
 };
 

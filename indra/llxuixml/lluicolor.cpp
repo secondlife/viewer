@@ -60,14 +60,9 @@ bool LLUIColor::isReference() const
 namespace LLInitParam
 {
 	// used to detect equivalence with default values on export
-	template<>
-	class ParamCompare<LLUIColor>
+	bool ParamCompare<LLUIColor, false>::equals(const LLUIColor &a, const LLUIColor &b)
 	{
-	public:
-		static bool equals(const LLUIColor &a, const LLUIColor &b)
-		{
-			// do not detect value equivalence, treat pointers to colors as distinct from color values
-			return (a.mColorPtr == NULL && b.mColorPtr == NULL ? a.mColor == b.mColor : a.mColorPtr == b.mColorPtr);
-		}
-	};
+		// do not detect value equivalence, treat pointers to colors as distinct from color values
+		return (a.mColorPtr == NULL && b.mColorPtr == NULL ? a.mColor == b.mColor : a.mColorPtr == b.mColorPtr);
+	}
 }

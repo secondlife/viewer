@@ -45,6 +45,17 @@ const S32 LLVORBISENC_UNSUPPORTED_SAMPLE_RATE      = 8; // unsupported sample ra
 const S32 LLVORBISENC_UNSUPPORTED_WORD_SIZE        = 9; // unsupported word size
 const S32 LLVORBISENC_CLIP_TOO_LONG                = 10; // source file is too long
 
+const F32 LLVORBIS_CLIP_MAX_TIME                               = 10.0f;
+const U8  LLVORBIS_CLIP_MAX_CHANNELS                   = 2;
+const U32 LLVORBIS_CLIP_SAMPLE_RATE                            = 44100;
+const U32 LLVORBIS_CLIP_MAX_SAMPLES_PER_CHANNEL        = (U32)(LLVORBIS_CLIP_MAX_TIME * LLVORBIS_CLIP_SAMPLE_RATE);
+const U32 LLVORBIS_CLIP_MAX_SAMPLES                            = LLVORBIS_CLIP_MAX_SAMPLES_PER_CHANNEL * LLVORBIS_CLIP_MAX_CHANNELS;
+const size_t LLVORBIS_CLIP_MAX_SAMPLE_DATA             = LLVORBIS_CLIP_MAX_SAMPLES * 2; // 2 = 16-bit
+ 
+// Treat anything this long as a bad asset. A little fudge factor at the end:
+// Make that a lot of fudge factor. We're allowing 30 sec for now - 3x legal upload
+const size_t LLVORBIS_CLIP_REJECT_SAMPLES              = LLVORBIS_CLIP_MAX_SAMPLES * 3;
+const size_t LLVORBIS_CLIP_REJECT_SIZE                 = LLVORBIS_CLIP_MAX_SAMPLE_DATA * 3;
 
 S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& error_msg);
 S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname);

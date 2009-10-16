@@ -39,25 +39,31 @@
 #include <stddef.h>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include <boost/range/iterator_range.hpp>
+#include <boost/type_traits/is_convertible.hpp>
 #include "llregistry.h"
 #include "llmemory.h"
 
 
 namespace LLInitParam
 {
-    template <typename T> 
-    class ParamCompare {
-    public:
-    	static bool equals(const T &a, const T &b);
+	template <typename T, bool IS_BOOST_FUNCTION = boost::is_convertible<T, boost::function_base>::value >
+    struct ParamCompare 
+	{
+    	static bool equals(const T &a, const T &b)
+		{
+			return a == b;
+		}
     };
     
-    template<class T>
-    bool ParamCompare<T>::equals(const T &a, const T&b)
-    {
-    	return a == b;
-    }
-
+	// boost function types are not comparable
+	template<typename T>
+	struct ParamCompare<T, true>
+	{
+		static bool equals(const T&a, const T &b)
+		{
+			return false;
+		}
+	};
 
 	// default constructor adaptor for InitParam Values
 	// constructs default instances of the given type, returned by const reference
@@ -192,7 +198,7 @@ namespace LLInitParam
 		};
 
 		typedef std::vector<std::pair<std::string, S32> >			name_stack_t;
-		typedef boost::iterator_range<name_stack_t::const_iterator>	name_stack_range_t;
+		typedef std::pair<name_stack_t::const_iterator, name_stack_t::const_iterator>	name_stack_range_t;
 		typedef std::vector<std::string>							possible_values_t;
 
 		typedef boost::function<bool (void*)>															parser_read_func_t;
@@ -535,7 +541,7 @@ namespace LLInitParam
 		{ 
 			self_t& typed_param = static_cast<self_t&>(param);
 			// no further names in stack, attempt to parse value now
-			if (name_stack.empty())
+			if (name_stack.first == name_stack.second)
 			{
 				if (parser.readValue<T>(typed_param.mData.mValue))
 				{
@@ -886,7 +892,7 @@ namespace LLInitParam
 			self_t& typed_param = static_cast<self_t&>(param);
 			value_t value;
 			// no further names in stack, attempt to parse value now
-			if (name_stack.empty())
+			if (name_stack.first == name_stack.second)
 			{
 				// attempt to read value directly
 				if (parser.readValue<value_t>(value))
@@ -1541,7 +1547,7 @@ namespace LLInitParam
 			
 			static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack, S32 generation)
 			{
-				if (name_stack.empty())
+				if (name_stack.first == name_stack.second)
 				{
 					//std::string message = llformat("Deprecated value %s ignored", getName().c_str());
 					//parser.parserWarning(message);
@@ -1600,7 +1606,7 @@ namespace LLInitParam
 		{
 			self_t& typed_param = static_cast<self_t&>(param);
 			// type to apply parse direct value T
-			if (name_stack.empty())
+			if (name_stack.first == name_stack.second)
 			{
 				if(parser.readValue<T>(typed_param.mData.mValue))
 				{
@@ -1811,24 +1817,11 @@ namespace LLInitParam
 		}
 	};
 
-    template<>
-	bool ParamCompare<boost::function<void (const std::string &,void *)> >::equals(
-		const boost::function<void (const std::string &,void *)> &a,
-		const boost::function<void (const std::string &,void *)> &b);
-	
-	template<>
-	bool ParamCompare<boost::function<void (const LLSD &,const LLSD &)> >::equals(
-		const boost::function<void (const LLSD &,const LLSD &)> &a,
-		const boost::function<void (const LLSD &,const LLSD &)> &b);
-
-	template<>
-	bool ParamCompare<boost::function<void (void)> >::equals(
-		const boost::function<void (void)> &a,
-		const boost::function<void (void)> &b);
-
-
-	template<>
-	bool ParamCompare<LLSD>::equals(const LLSD &a, const LLSD &b);
+	template<> 
+	struct ParamCompare<LLSD, false>
+	{
+		static bool equals(const LLSD &a, const LLSD &b);
+	};
 }
 
 #endif // LL_LLPARAM_H

@@ -332,7 +332,7 @@ LLAgent::LLAgent() :
 	mLeftKey(0),
 	mUpKey(0),
 	mYawKey(0.f),
-	mPitchKey(0),
+	mPitchKey(0.f),
 
 	mOrbitLeftKey(0.f),
 	mOrbitRightKey(0.f),
@@ -727,15 +727,15 @@ void LLAgent::moveYaw(F32 mag, bool reset_view)
 //-----------------------------------------------------------------------------
 // movePitch()
 //-----------------------------------------------------------------------------
-void LLAgent::movePitch(S32 direction)
+void LLAgent::movePitch(F32 mag)
 {
-	setKey(direction, mPitchKey);
+	mPitchKey = mag;
 
-	if (direction > 0)
+	if (mag > 0)
 	{
-		setControlFlags(AGENT_CONTROL_PITCH_POS );
+		setControlFlags(AGENT_CONTROL_PITCH_POS);
 	}
-	else if (direction < 0)
+	else if (mag < 0)
 	{
 		setControlFlags(AGENT_CONTROL_PITCH_NEG);
 	}
@@ -2513,10 +2513,10 @@ void LLAgent::propagate(const F32 dt)
 
 	// handle rotation based on keyboard levels
 	const F32 YAW_RATE = 90.f * DEG_TO_RAD;				// radians per second
-	yaw( YAW_RATE * mYawKey * dt );
+	yaw(YAW_RATE * mYawKey * dt);
 
 	const F32 PITCH_RATE = 90.f * DEG_TO_RAD;			// radians per second
-	pitch(PITCH_RATE * (F32) mPitchKey * dt);
+	pitch(PITCH_RATE * mPitchKey * dt);
 	
 	// handle auto-land behavior
 	if (mAvatarObject.notNull())
@@ -2541,7 +2541,7 @@ void LLAgent::propagate(const F32 dt)
 	mLeftKey = 0;
 	mUpKey = 0;
 	mYawKey = 0.f;
-	mPitchKey = 0;
+	mPitchKey = 0.f;
 }
 
 //-----------------------------------------------------------------------------
@@ -3172,6 +3172,7 @@ void LLAgent::updateCamera()
 				mFollowCam.copyParams(*current_cam);
 				mFollowCam.setSubjectPositionAndRotation( mAvatarObject->getRenderPosition(), avatarRotationForFollowCam );
 				mFollowCam.update();
+				LLViewerJoystick::getInstance()->setCameraNeedsUpdate(true);
 			}
 			else
 			{
@@ -4249,7 +4250,7 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL camera_ani
 	{
 		if(avatar_animate)
 		{
-				// Remove any pitch from the avatar
+			// Remove any pitch from the avatar
 			LLVector3 at = mFrameAgent.getAtAxis();
 			at.mV[VZ] = 0.f;
 			at.normalize();

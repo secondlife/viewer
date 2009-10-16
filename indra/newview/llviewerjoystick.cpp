@@ -414,14 +414,41 @@ void LLViewerJoystick::agentFly(F32 inc)
 }
 
 // -----------------------------------------------------------------------------
-void LLViewerJoystick::agentRotate(F32 pitch_inc, F32 yaw_inc)
+void LLViewerJoystick::agentPitch(F32 pitch_inc)
 {
-	LLQuaternion new_rot;
-	pitch_inc = gAgent.clampPitchToLimits(-pitch_inc);
-	const LLQuaternion qx(pitch_inc, gAgent.getLeftAxis());
-	const LLQuaternion qy(-yaw_inc, gAgent.getReferenceUpVector());
-	new_rot.setQuat(qx * qy);
-	gAgent.rotate(new_rot);
+	if (pitch_inc < 0)
+	{
+		gAgent.setControlFlags(AGENT_CONTROL_PITCH_POS);
+	}
+	else if (pitch_inc > 0)
+	{
+		gAgent.setControlFlags(AGENT_CONTROL_PITCH_NEG);
+	}
+	
+	gAgent.pitch(-pitch_inc);
+}
+
+// -----------------------------------------------------------------------------
+void LLViewerJoystick::agentYaw(F32 yaw_inc)
+{	
+	// Cannot steer some vehicles in mouselook if the script grabs the controls
+	if (gAgent.cameraMouselook() && !gSavedSettings.getBOOL("JoystickMouselookYaw"))
+	{
+		gAgent.rotate(-yaw_inc, gAgent.getReferenceUpVector());
+	}
+	else
+	{
+		if (yaw_inc < 0)
+		{
+			gAgent.setControlFlags(AGENT_CONTROL_YAW_POS);
+		}
+		else if (yaw_inc > 0)
+		{
+			gAgent.setControlFlags(AGENT_CONTROL_YAW_NEG);
+		}
+
+		gAgent.yaw(-yaw_inc);
+	}
 }
 
 // -----------------------------------------------------------------------------
@@ -595,11 +622,37 @@ void LLViewerJoystick::moveAvatar(bool reset)
 	}
 
 	bool is_zero = true;
+	static bool button_held = false;
 
 	if (mBtn[1] == 1)
 	{
-		agentJump();
+		// If AutomaticFly is enabled, then button1 merely causes a
+		// jump (as the up/down axis already controls flying) if on the
+		// ground, or cease flight if already flying.
+		// If AutomaticFly is disabled, then button1 toggles flying.
+		if (gSavedSettings.getBOOL("AutomaticFly"))
+		{
+			if (!gAgent.getFlying())
+			{
+				gAgent.moveUp(1);
+			}
+			else if (!button_held)
+			{
+				button_held = true;
+				gAgent.setFlying(FALSE);
+			}
+		}
+		else if (!button_held)
+		{
+			button_held = true;
+			gAgent.setFlying(!gAgent.getFlying());
+		}
+
 		is_zero = false;
+	}
+	else
+	{
+		button_held = false;
 	}
 
 	F32 axis_scale[] =
@@ -758,11 +811,13 @@ void LLViewerJoystick::moveAvatar(bool reset)
 		{
 			if (gAgent.getFlying())
 			{
-				agentRotate(eff_rx, eff_ry);
+				agentPitch(eff_rx);
+				agentYaw(eff_ry);
 			}
 			else
 			{
-				agentRotate(eff_rx, 2.f * eff_ry);
+				agentPitch(eff_rx);
+				agentYaw(2.f * eff_ry);
 			}
 		}
 	}
@@ -771,7 +826,8 @@ void LLViewerJoystick::moveAvatar(bool reset)
 		agentSlide(sDelta[X_I]);		// move sideways
 		agentFly(sDelta[Y_I]);			// up/down & crouch
 		agentPush(sDelta[Z_I]);			// forward/back
-		agentRotate(sDelta[RX_I], sDelta[RY_I]);	// pitch & turn
+		agentPitch(sDelta[RX_I]);		// pitch
+		agentYaw(sDelta[RY_I]);			// turn
 	}
 }
 
@@ -963,15 +1019,10 @@ bool LLViewerJoystick::toggleFlycam()
 		moveFlycam(true);
 		
 	}
-	else if (!LLToolMgr::getInstance()->inBuildMode())
-	{
-		moveAvatar(true);
-	}
 	else 
 	{
-		// we are in build mode, exiting from the flycam mode: since we are 
-		// going to keep the flycam POV for the main camera until the avatar
-		// moves, we need to track this situation.
+		// Exiting from the flycam mode: since we are going to keep the flycam POV for
+		// the main camera until the avatar moves, we need to track this situation.
 		setCameraNeedsUpdate(false);
 		setNeedsReset(true);
 	}

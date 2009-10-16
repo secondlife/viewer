@@ -498,16 +498,16 @@ Si aun así persiste este mensaje, reinicie su ordenador.
 Si sigue recibiendo este mensaje, contacte con el [SUPPORT_SITE].
 	</string>
 	<string name="accel-mac-control">
-		Ctrl-
+		&#8963;
 	</string>
 	<string name="accel-mac-command">
-		Cmd-
+		&#8984;
 	</string>
 	<string name="accel-mac-option">
-		Alt-
+		&#8997;
 	</string>
 	<string name="accel-mac-shift">
-		Mayús-
+		&#8679;
 	</string>
 	<string name="accel-win-control">
 		Ctrl+
@@ -615,6 +615,9 @@ Si sigue recibiendo este mensaje, contacte con el [SUPPORT_SITE].
 	<string name="no_ability_error">
 		Usted no tiene esa capacidad.
 	</string>
+	<string name="no_ability">
+		Usted no tiene esa capacidad.
+	</string>
 	<string name="not_a_mod_error">
 		Usted no es un moderador de la sesión.
 	</string>
@@ -633,4 +636,31 @@ Si sigue recibiendo este mensaje, contacte con el [SUPPORT_SITE].
 	<string name="close_on_no_ability">
 		Usted ya no tendrá más la capacidad de estar en la sesión de chat.
 	</string>
+			<string name="AcctTypeResident">
+				Residente
+			</string>
+			<string name="AcctTypeTrial">
+				Prueba
+			</string>
+			<string name="AcctTypeCharterMember">
+				Miembro fundador
+			</string>
+			<string name="AcctTypeEmployee">
+				Empleado de Linden Lab
+			</string>
+			<string name="PaymentInfoUsed">
+				Ha usado una forma de pago
+			</string>
+			<string name="PaymentInfoOnFile">
+				Hay infor. de la forma de pago
+			</string>
+			<string name="NoPaymentInfoOnFile">
+				Sin infor. de la forma de pago
+			</string>
+			<string name="AgeVerified">
+				Edad verificada
+			</string>
+			<string name="NotAgeVerified">
+				Edad no verificada
+			</string>
 </strings>

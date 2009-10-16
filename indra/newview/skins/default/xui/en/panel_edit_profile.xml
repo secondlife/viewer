@@ -14,7 +14,8 @@
  width="255">
    <string
     name="CaptionTextAcctInfo">
-       [ACCTTYPE] [PAYMENTINFO] [AGEVERIFICATION]
+       [ACCTTYPE] 
+[PAYMENTINFO] [AGEVERIFICATION]
    </string>
    <string
     name="AcctTypeResident"
@@ -138,6 +139,7 @@
        layout="topleft"
        left="120"
        top="30"
+       max_length="511"
        name="sl_description_edit"
        width="115"
        word_wrap="true">
@@ -193,6 +195,7 @@
        layout="topleft"
        left="120"
        top="195"
+       max_length="254"
        name="fl_description_edit"
        width="115"
        word_wrap="true">
@@ -294,7 +297,7 @@
          width="100"/>
         <text
          follows="left|top|right"
-         height="15"
+         height="20"
          layout="topleft"
          left="10"
          name="acc_status_text"

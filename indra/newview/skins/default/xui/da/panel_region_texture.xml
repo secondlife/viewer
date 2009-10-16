@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel name="TextureWrapper">
-  <scroll_container name="container1">
-   <panel label="Terræn textures" name="Textures">
+<panel label="Terræn textures" name="Textures">
 	<text name="region_text_lbl">
 		Region:
 	</text>
@@ -56,6 +54,4 @@
 		og HØJ værdien er MIMIMUM højde for texture nummer 4.
 	</text>
 	<button label="Gem" name="apply_btn" />
-    </panel>
-  </scroll_container>
 </panel>

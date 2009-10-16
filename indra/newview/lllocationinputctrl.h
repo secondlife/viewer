@@ -66,6 +66,8 @@ public:
 		Optional<S32>						add_landmark_hpad;
 		Optional<LLButton::Params>			add_landmark_button,
 											info_button;
+		Optional<std::string>				add_landmark_tool_tip;
+		Optional<std::string>				edit_landmark_tool_tip;
 		Params();
 	};
 

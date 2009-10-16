@@ -786,20 +786,30 @@ class Linux_i686Manifest(LinuxManifest):
         #self.path("secondlife-i686.supp")
 
         if self.prefix("../../libraries/i686-linux/lib_release_client", dst="lib"):
-            #self.path("libkdu_v42R.so", "libkdu.so")
-            self.path("libfmod-3.75.so")
             self.path("libapr-1.so.0")
             self.path("libaprutil-1.so.0")
             self.path("libdb-4.2.so")
             self.path("libcrypto.so.0.9.7")
             self.path("libexpat.so.1")
             self.path("libssl.so.0.9.7")
-            self.path("libuuid.so.1", "libuuid.so.1")
+            self.path("libuuid.so.1")
             self.path("libSDL-1.2.so.0")
             self.path("libELFIO.so")
             self.path("libopenjpeg.so.1.3.0", "libopenjpeg.so.1.3")
             self.path("libalut.so")
             self.path("libopenal.so", "libopenal.so.1")
+            try:
+                    self.path("libkdu_v42R.so", "libkdu.so")
+                    pass
+            except:
+                    print "Skipping libkdu_v42R.so - not found"
+                    pass
+            try:
+                    self.path("libfmod-3.75.so")
+                    pass
+            except:
+                    print "Skipping libkdu_v42R.so - not found"
+                    pass
             self.end_prefix("lib")
 
             # Vivox runtimes

@@ -279,6 +279,14 @@ std::string LLResMgr::getMonetaryString( S32 input ) const
 
 void LLResMgr::getIntegerString( std::string& output, S32 input ) const
 {
+	// handle special case of input value being zero
+	if (input == 0)
+	{
+		output = "0";
+		return;
+	}
+	
+	// *NOTE: this method does not handle negative input integers correctly
 	S32 fraction = 0;
 	std::string fraction_string;
 	S32 remaining_count = input;

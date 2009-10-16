@@ -1471,7 +1471,9 @@ void LLViewerWindow::initBase()
 	LLToolTipView::Params hvp;
 	hvp.name("tooltip view");
 	hvp.rect(full_window);
+	hvp.follows.flags(FOLLOWS_ALL);
 	gToolTipView = LLUICtrlFactory::create<LLToolTipView>(hvp);
+	gToolTipView->setFollowsAll();
 	getRootView()->addChild(gToolTipView);
 
 	// Add the progress bar view (startup view), which overrides everything
@@ -1505,11 +1507,6 @@ void LLViewerWindow::initWorldUI()
 	// Pre initialize instance communicate instance;
 	//  currently needs to happen before initializing chat or IM
 	LLFloaterReg::getInstance("communicate");
-
-	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
-	{
-		LLFloaterChat::loadHistory();
-	}
 
 	LLRect morph_view_rect = full_window;
 	morph_view_rect.stretch( -STATUS_BAR_HEIGHT );
@@ -1572,6 +1569,11 @@ void LLViewerWindow::initWorldUI()
 	if (!gSavedSettings.getBOOL("ShowCameraButton"))
 	{
 		LLBottomTray::getInstance()->showCameraButton(FALSE);
+	}
+
+	if (!gSavedSettings.getBOOL("ShowSnapshotButton"))
+	{
+		LLBottomTray::getInstance()->showSnapshotButton(FALSE);
 	}
 
 	if (!gSavedSettings.getBOOL("ShowMoveButton"))
@@ -2608,8 +2610,24 @@ void LLViewerWindow::updateUI()
 				{
 					it.skipDescendants();
 				}
-				else if (viewp->getMouseOpaque())
+				// only report xui names for LLUICtrls, 
+				// and blacklist the various containers we don't care about
+				else if (dynamic_cast<LLUICtrl*>(viewp) 
+						&& viewp != gMenuHolder
+						&& viewp != gFloaterView
+						&& viewp != gNotifyBoxView
+						&& viewp != gConsole) 
 				{
+					if (dynamic_cast<LLFloater*>(viewp))
+					{
+						// constrain search to descendants of this (frontmost) floater
+						// by resetting iterator
+						it = viewp->beginTreeDFS();
+					}
+
+					// if we are in a new part of the tree (not a descendent of current tooltip_view)
+					// then push the results for tooltip_view and start with a new potential view
+					// NOTE: this emulates visiting only the leaf nodes that meet our criteria
 					if (!viewp->hasAncestor(tooltip_view))
 					{
 						append_xui_tooltip(tooltip_view, tool_tip_msg);

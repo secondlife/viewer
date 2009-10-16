@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel name="EstateWrapper">
-  <scroll_container name="container1">
-   <panel label="Estate" name="Estate">
+<panel label="Estate" name="Estate">
 	<text name="estate_help_text">
 		Ændringer i dette afsnit vil påvirke alle
 regioner i dette estate.
@@ -70,6 +68,4 @@ regioner i dette estate.
 	<button label="?" name="ban_resident_help" />
 	<button label="Fjern..." name="remove_banned_avatar_btn" />
 	<button label="Tilføj..." name="add_banned_avatar_btn" />
-    </panel>
-  </scroll_container>
 </panel>

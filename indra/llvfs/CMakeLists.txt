@@ -23,6 +23,7 @@ set(llvfs_HEADER_FILES
     CMakeLists.txt
 
     lldir.h
+    lldirguard.h
     lllfsthread.h
     llpidlock.h
     llvfile.h
@@ -64,3 +65,17 @@ if (DARWIN)
   find_library(CARBON_LIBRARY Carbon)
   target_link_libraries(llvfs ${CARBON_LIBRARY})
 endif (DARWIN)
+
+
+# Add tests
+include(LLAddBuildTest)
+# UNIT TESTS
+SET(llvfs_TEST_SOURCE_FILES
+  # none so far
+  )
+LL_ADD_PROJECT_UNIT_TESTS(llvfs "${llvfs_TEST_SOURCE_FILES}")
+
+# INTEGRATION TESTS
+set(test_libs llmath llcommon llvfs ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
+# TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
+LL_ADD_INTEGRATION_TEST(lldir "" "${test_libs}")

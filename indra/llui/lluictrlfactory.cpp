@@ -170,7 +170,7 @@ static LLFastTimer::DeclareTimer FTM_BUILD_FLOATERS("Build Floaters");
 //-----------------------------------------------------------------------------
 // buildFloater()
 //-----------------------------------------------------------------------------
-void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filename, LLXMLNodePtr output_node)
+bool LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filename, LLXMLNodePtr output_node)
 {
 	LLFastTimer timer(FTM_BUILD_FLOATERS);
 	LLXMLNodePtr root;
@@ -182,22 +182,24 @@ void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 		if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root))
 		{
 			llwarns << "Couldn't parse floater from: " << LLUI::getLocalizedSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
-			return;
+			return false;
 		}
 	}
 	else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
 	{
 		llwarns << "Couldn't parse floater from: " << LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
-		return;
+		return false;
 	}
 	
 	// root must be called floater
 	if( !(root->hasName("floater") || root->hasName("multi_floater")) )
 	{
 		llwarns << "Root node should be named floater in: " << filename << llendl;
-		return;
+		return false;
 	}
-
+	
+	bool res = true;
+	
 	lldebugs << "Building floater " << filename << llendl;
 	mFileNames.push_back(gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), filename));
 	{
@@ -210,7 +212,7 @@ void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 		floaterp->getCommitCallbackRegistrar().pushScope();
 		floaterp->getEnableCallbackRegistrar().pushScope();
 		
-		floaterp->initFloaterXML(root, floaterp->getParent(), output_node);
+		res = floaterp->initFloaterXML(root, floaterp->getParent(), output_node);
 
 		floaterp->setXMLFilename(filename);
 		
@@ -223,6 +225,8 @@ void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 		}
 	}
 	mFileNames.pop_back();
+	
+	return res;
 }
 
 //-----------------------------------------------------------------------------

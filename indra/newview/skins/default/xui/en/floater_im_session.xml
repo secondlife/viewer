@@ -11,10 +11,10 @@
  can_dock="true"
  can_minimize="true"
  visible="true" 
- width="315">
+ width="365">
   <layout_stack follows="left|top|right|bottom"
                 height="235"
-                width="315"
+                width="365"
                 layout="topleft"
                 orientation="horizontal"
                 name="im_panels"
@@ -25,13 +25,13 @@
       layout="topleft"
       top_delta="-3"
       min_width="96" 
-      width="96"
+      width="146"
       height="225"
       label="IM Control Panel"
       user_resize="false" />
     <layout_panel height="235"
                   width="200"
-                  left_delta="96" 
+                  left_delta="146" 
                   top="0"
                   user_resize="false">
       <button height="12"
@@ -62,7 +62,7 @@
        width="195"
        word_wrap="true">
       </text_editor>
-      <line_editor name="chat_editor" height="20" layout="topleft" width="190">
+      <line_editor follows="left|right" name="chat_editor" height="20" layout="topleft" width="190">
       </line_editor>
     </layout_panel>
   </layout_stack>

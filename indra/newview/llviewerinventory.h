@@ -57,7 +57,7 @@ public:
 	
 protected:
 	~LLViewerInventoryItem( void ); // ref counted
-	BOOL extractSortFieldAndDisplayName(S32* sortField, std::string* displayName) const;
+	BOOL extractSortFieldAndDisplayName(S32* sortField, std::string* displayName) const { return extractSortFieldAndDisplayName(mName, sortField, displayName); }
 	static char getSeparator() { return '@'; }
 	mutable std::string mDisplayName;
 	
@@ -77,6 +77,8 @@ public:
 	virtual U32 getFlags() const;
 	virtual time_t getCreationDate() const;
 	virtual U32 getCRC32() const; // really more of a checksum.
+
+	static BOOL extractSortFieldAndDisplayName(const std::string& name, S32* sortField, std::string* displayName);
 
 	// construct a complete viewer inventory item
 	LLViewerInventoryItem(const LLUUID& uuid, const LLUUID& parent_uuid,

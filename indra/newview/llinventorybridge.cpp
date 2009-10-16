@@ -120,38 +120,38 @@ bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& respon
 
 std::string ICON_NAME[ICON_NAME_COUNT] =
 {
-	"inv_item_texture.tga",
-	"inv_item_sound.tga",
-	"inv_item_callingcard_online.tga",
-	"inv_item_callingcard_offline.tga",
-	"inv_item_landmark.tga",
-	"inv_item_landmark_visited.tga",
-	"inv_item_script.tga",
-	"inv_item_clothing.tga",
-	"inv_item_object.tga",
-	"inv_item_object_multi.tga",
-	"inv_item_notecard.tga",
-	"inv_item_skin.tga",
-	"inv_item_snapshot.tga",
+	"Inv_Texture",
+	"Inv_Sound",
+	"Inv_CallingCard",
+	"Inv_CallingCard",
+	"Inv_Landmark",
+	"Inv_Landmark",
+	"Inv_Script",
+	"Inv_Clothing",
+	"Inv_Object",
+	"Inv_Object",
+	"Inv_Notecard",
+	"Inv_Skin",
+	"Inv_Snapshot",
 
-	"inv_item_shape.tga",
-	"inv_item_skin.tga",
-	"inv_item_hair.tga",
-	"inv_item_eyes.tga",
-	"inv_item_shirt.tga",
-	"inv_item_pants.tga",
-	"inv_item_shoes.tga",
-	"inv_item_socks.tga",
-	"inv_item_jacket.tga",
-	"inv_item_gloves.tga",
-	"inv_item_undershirt.tga",
-	"inv_item_underpants.tga",
-	"inv_item_skirt.tga",
+	"Inv_BodyShape",
+	"Inv_Skin",
+	"Inv_Hair",
+	"Inv_Eye",
+	"Inv_Shirt",
+	"Inv_Pants",
+	"Inv_Shoe",
+	"Inv_Socks",
+	"Inv_Jacket",
+	"Inv_Gloves",
+	"Inv_Undershirt",
+	"Inv_Underpants",
+	"Inv_Skirt",
 	"inv_item_alpha.tga",
 	"inv_item_tattoo.tga",
 
-	"inv_item_animation.tga",
-	"inv_item_gesture.tga",
+	"Inv_Animation",
+	"Inv_Gesture",
 
 	"inv_item_linkitem.tga",
 	"inv_item_linkfolder.tga"
@@ -2099,81 +2099,8 @@ LLUIImagePtr LLFolderBridge::getIcon() const
 
 LLUIImagePtr LLFolderBridge::getIcon(LLAssetType::EType preferred_type)
 {
-	if (preferred_type >= LLAssetType::AT_FOLDER_ENSEMBLE_START &&
-		preferred_type <= LLAssetType::AT_FOLDER_ENSEMBLE_END)
-	{
-		LLUIImage* icon = LLUI::getUIImage(LLFolderType::lookupIconName(preferred_type));
-		if (icon)
-			return icon;
-	}
-	
-	const char* control = NULL;
-	switch(preferred_type)
-	{
-		case LLAssetType::AT_TEXTURE:
-			control = "inv_folder_texture.tga";
-			break;
-		case LLAssetType::AT_SOUND:
-			control = "inv_folder_sound.tga";
-			break;
-		case LLAssetType::AT_CALLINGCARD:
-			control = "inv_folder_callingcard.tga";
-			break;
-		case LLAssetType::AT_LANDMARK:
-			control = "inv_folder_landmark.tga";
-			break;
-		case LLAssetType::AT_SCRIPT:
-		case LLAssetType::AT_LSL_TEXT:
-			control = "inv_folder_script.tga";
-			break;
-		case LLAssetType::AT_OBJECT:
-			control = "inv_folder_object.tga";
-			break;
-		case LLAssetType::AT_NOTECARD:
-			control = "inv_folder_notecard.tga";
-			break;
-		case LLAssetType::AT_CATEGORY:
-			control = "inv_folder_plain_closed.tga";
-			break;
-		case LLAssetType::AT_CLOTHING:
-			control = "inv_folder_clothing.tga";
-			break;
-		case LLAssetType::AT_BODYPART:
-			control = "inv_folder_bodypart.tga";
-			break;
-		case LLAssetType::AT_TRASH:
-			control = "inv_folder_trash.tga";
-			break;
-		case LLAssetType::AT_SNAPSHOT_CATEGORY:
-			control = "inv_folder_snapshot.tga";
-			break;
-		case LLAssetType::AT_LOST_AND_FOUND:
-			control = "inv_folder_lostandfound.tga";
-			break;
-		case LLAssetType::AT_ANIMATION:
-			control = "inv_folder_animation.tga";
-			break;
-		case LLAssetType::AT_GESTURE:
-			control = "inv_folder_gesture.tga";
-			break;
-		case LLAssetType::AT_FAVORITE:
-			//TODO - need icon
-			control = "inv_folder_plain_closed.tga";
-			break;
-		case LLAssetType::AT_OUTFIT:
-			control = "inv_folder_outfit.tga";
-			break;
-		case LLAssetType::AT_CURRENT_OUTFIT:
-			control = "inv_folder_current_outfit.tga";
-			break;
-		case LLAssetType::AT_MY_OUTFITS:
-			control = "inv_folder_my_outfits.tga";
-			break;
-		default:
-			control = "inv_folder_plain_closed.tga";
-			break;
-	}
-	return LLUI::getUIImage(control);
+	// we only have one folder image now
+	return LLUI::getUIImage("Inv_FolderClosed");
 }
 
 BOOL LLFolderBridge::renameItem(const std::string& new_name)
@@ -2389,6 +2316,8 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	LLUUID trash_id = model->findCategoryUUIDForType(LLAssetType::AT_TRASH);
 	LLUUID lost_and_found_id = model->findCategoryUUIDForType(LLAssetType::AT_LOST_AND_FOUND);
 
+	mItems.clear(); //adding code to clear out member Items (which means Items should not have other data here at this point)
+	mDisabledItems.clear(); //adding code to clear out disabled members from previous 
 	if (lost_and_found_id == mUUID)
 	  {
 		// This is the lost+found folder.
@@ -4494,7 +4423,7 @@ void LLWearableBridge::onEditOnAvatar(void* user_data)
 
 void LLWearableBridge::editOnAvatar()
 {
-	const LLWearable* wearable = gAgentWearables.getWearableFromWearableItem(mUUID);
+	const LLWearable* wearable = gAgentWearables.getWearableFromItemID(mUUID);
 	if( wearable )
 	{
 		// Set the tab to the right wearable.

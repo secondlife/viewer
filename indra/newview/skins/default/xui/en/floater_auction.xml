@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_resize="true"
- height="368"
+ height="412"
  layout="topleft"
- min_height="368"
+ min_height="412"
  min_width="420"
  name="floater_auction"
  help_topic="floater_auction"
@@ -49,21 +49,47 @@
      left_delta="0"
      name="snapshot_btn"
      top_pad="4"
-     width="96">
+     width="150">
       <button.commit_callback
          function="ClickSnapshot" />
     </button>
     <button
      follows="left|bottom"
      height="20"
-     label="OK"
-     label_selected="OK"
+     label="Sell to Anyone"
+     label_selected="Sell to Anyone"
+     layout="topleft"
+     left_delta="0"
+     name="sell_to_anyone_btn"
+     top_pad="4"
+     width="150">
+      <button.commit_callback
+         function="ClickSellToAnyone" />
+    </button>
+    <button
+     follows="left|bottom"
+     height="20"
+     label="Clear Settings"
+     label_selected="Clear Settings"
+     layout="topleft"
+     left_delta="0"
+     name="reset_parcel_btn"
+     top_pad="4"
+     width="150">
+      <button.commit_callback
+         function="ClickResetParcel" />
+    </button>
+    <button
+     follows="left|bottom"
+     height="20"
+     label="Start Auction"
+     label_selected="Start Auction"
      layout="topleft"
      left_pad="4"
-     name="ok_btn"
+     name="start_auction_btn"
      top_delta="0"
-     width="48">
+     width="150">
       <button.commit_callback
-          function="ClickOK" />
+          function="ClickStartAuction" />
     </button>
 </floater>

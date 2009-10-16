@@ -23,7 +23,6 @@
     <text_editor
      enabled="false"
      height="60"
-     hide_scrollbar="true"
      layout="topleft"
      left_delta="0"
      name="comment_text"

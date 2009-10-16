@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ogólne" name="general_tab">
 	<string name="help_text">
-		Zakładka Ogólne zawiera informacje na temat tej grupy, 
-listę właścicieli, widocznych członków,
-ustawienia grupy oraz opcje członkostwa.
+		Zakładka Ogólne zawiera informacje na temat tej grupy, listę właścicieli, widocznych członków, ustawienia grupy oraz opcje członkostwa.
 	</string>
 	<string name="group_info_unchanged">
 		Ogólne informacje na temat grupy uległy zmianie.
@@ -45,7 +43,7 @@ ustawienia grupy oraz opcje członkostwa.
 	<panel name="preferences_container">
 		<check_box label="Wyświetlaj w wyszukiwarce" name="show_in_group_list" tool_tip="Udostępnij info o grupie w wyszukiwarce"/>
 		<check_box label="Wolny Wstęp" name="open_enrollement" tool_tip="Sprawdź czy grupa oferuje wolny wstęp i nie wymaga zaproszenia."/>
-		<check_box label="Opłata Wstępu: L$" name="check_enrollment_fee" tool_tip="Ustaw opłatę za przyłączenie się do grupy."/>
+		<check_box label="Opłata Wstępu:" name="check_enrollment_fee" tool_tip="Ustaw opłatę za przyłączenie się do grupy."/>
 		<spinner name="spin_enrollment_fee" tool_tip="Nowi członkowie grupy muszą zapłacić wymaganą opłatę by dołączyć do grupy."/>
 		<combo_box name="group_mature_check" tool_tip="Wybierz jeżeli uważasz, iż Twoja grupa klasyfikowana jest jako &apos;Mature&apos;.">
 			<combo_box.item name="select_mature" label="- Wybierz Treść -"/>

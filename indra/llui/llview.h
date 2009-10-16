@@ -586,14 +586,20 @@ private:
 	default_widget_map_t& getDefaultWidgetMap() const;
 
 public:
-	static BOOL	sDebugRects;	// Draw debug rects behind everything.
-	static BOOL sDebugKeys;
+	// Depth in view hierarchy during rendering
 	static S32	sDepth;
-	static BOOL sDebugMouseHandling;
+
+	// Draw debug rectangles around widgets to help with alignment and spacing
+	static bool	sDebugRects;
+
+	// Draw widget names and sizes when drawing debug rectangles, turning this
+	// off is useful to make the rectangles themselves easier to see.
+	static bool sDebugRectsShowNames;
+
+	static bool sDebugKeys;
+	static bool sDebugMouseHandling;
 	static std::string sMouseHandlerMessage;
 	static S32	sSelectID;
-//	static BOOL sEditingUI;
-//	static LLView* sEditingUIView;
 	static std::set<LLView*> sPreviewHighlightedElements;	// DEV-16869
 	static BOOL sHighlightingDiffs;							// DEV-16869
 	static LLView* sPreviewClickedElement;					// DEV-16869

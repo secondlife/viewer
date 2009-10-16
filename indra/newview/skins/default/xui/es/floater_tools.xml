@@ -159,7 +159,7 @@
 			</combo_box>
 		<panel name="perms_build">
 			<text name="perm_modify">
-				Puede modificar este objeto.
+				Puede modificar este objeto
 			</text>
 			<text name="B:">
 				B:
@@ -187,28 +187,28 @@
 			<check_box name="checkbox next owner can transfer" left_delta="67"/>
 		</panel>
 			<string name="text modify info 1">
-				Puede modificar este objeto.
+				Puede modificar este objeto
 			</string>
 			<string name="text modify info 2">
-				Puede modificar estos objetos.
+				Puede modificar estos objetos
 			</string>
 			<string name="text modify info 3">
-				No puede modificar este objeto.
+				No puede modificar este objeto
 			</string>
 			<string name="text modify info 4">
-				No puede modificar estos objetos.
+				No puede modificar estos objetos
 			</string>
 			<string name="text modify warning">
-				Debe seleccionar todo el objeto para definir los permisos.
+				Debe seleccionar todo el objeto para definir los permisos
 			</string>
 			<string name="Cost Default">
-				Precio:         L$
+				Precio: L$
 			</string>
 			<string name="Cost Total">
-				Precio total:  L$
+				Precio total: L$
 			</string>
 			<string name="Cost Per Unit">
-				Precio por:     L$
+				Precio por: L$
 			</string>
 			<string name="Cost Mixed">
 				Precio variable
@@ -502,7 +502,7 @@
 		</panel>
 		<panel label="Contenido " name="Contents">
 			<button label="Script nuevo" label_selected="Script nuevo" name="button new script"/>
-			<button label="Permisos..." name="button permissions"/>
+			<button label="Permisos" name="button permissions"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
@@ -516,18 +516,18 @@
 			Superficie: [AREA] m²
 		</text>
 		<button label="Acerca del terreno..." label_selected="Acerca del terreno..." name="button about land" width="140"/>
-		<check_box label="Mostrar los propietarios" name="checkbox show owners" tool_tip="El color de las parcelas es según su propietario"/>
+		<check_box label="Mostrar los propietarios" name="checkbox show owners" tool_tip="El color de las parcelas es según su propietario: &#10;&#10;Verde = Su terreno &#10;Agua = Terreno de sus grupos &#10;Rojo = Propiedad de otros &#10;Amarillo = En venta &#10;Morado = Para subasta &#10;Gris = Público"/>
 		<button label="?" label_selected="?" name="button show owners help" left_delta="150"/>
 		<text name="label_parcel_modify">
 			Modificar la parcela
 		</text>
-		<button label="Subdividir..." label_selected="Subdividir..." name="button subdivide land" width="140"/>
-		<button label="Unir..." label_selected="Unir..." name="button join land" width="140"/>
+		<button label="Subdividir" label_selected="Subdividir" name="button subdivide land" width="140"/>
+		<button label="Unir" label_selected="Unir" name="button join land" width="140"/>
 		<text name="label_parcel_trans">
 			Transacciones de terreno
 		</text>
-		<button label="Comprar terreno..." label_selected="Comprar terreno..." name="button buy land" width="140"/>
-		<button label="Abandonar el terreno..." label_selected="Abandonar el terreno..." name="button abandon land" width="140"/>
+		<button label="Comprar terreno" label_selected="Comprar terreno" name="button buy land" width="140"/>
+		<button label="Abandonar el terreno" label_selected="Abandonar el terreno" name="button abandon land" width="140"/>
 	</panel>
 	<floater.string name="status_rotate">
 		Arrastre las bandas de color para girar el objeto

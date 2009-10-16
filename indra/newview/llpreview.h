@@ -77,6 +77,7 @@ public:
 	void setObjectID(const LLUUID& object_id);
 	void setItem( LLInventoryItem* item );
 	
+	void setAssetId(const LLUUID& asset_id);
 	const LLInventoryItem* getItem() const; // searches if not constructed with it
 
 	static void hide(const LLUUID& item_uuid, BOOL no_saving = FALSE );

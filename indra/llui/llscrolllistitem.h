@@ -97,6 +97,9 @@ public:
 
 	LLUUID	getUUID() const					{ return mItemValue.asUUID(); }
 	LLSD	getValue() const				{ return mItemValue; }
+	
+	void	setRect(LLRect rect)			{ mRectangle = rect; }
+	LLRect	getRect() const					{ return mRectangle; }
 
 	void	addColumn( const LLScrollListCell::Params& p );
 
@@ -122,6 +125,7 @@ private:
 	void*	mUserdata;
 	LLSD	mItemValue;
 	std::vector<LLScrollListCell *> mColumns;
+	LLRect  mRectangle;
 };
 
 #endif

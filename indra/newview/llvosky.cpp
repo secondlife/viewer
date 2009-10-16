@@ -965,7 +965,7 @@ void LLVOSky::calcAtmospherics(void)
 		
 		// and vary_sunlight will work properly with moon light
 		F32 lighty = unclamped_lightnorm[1];
-		if(lighty < NIGHTTIME_ELEVATION_COS)
+		if(lighty < LLSky::NIGHTTIME_ELEVATION_COS)
 		{
 			lighty = -lighty;
 		}

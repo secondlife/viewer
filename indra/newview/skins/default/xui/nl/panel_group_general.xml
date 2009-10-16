@@ -45,7 +45,7 @@ Laat uw muis boven de opties zweven voor meer help.
 	<panel name="preferences_container">
 		<check_box label="Toon in zoeken" name="show_in_group_list" tool_tip="Stelt in of deze groep zichtbaar is in de zoekresultaten."/>
 		<check_box label="Vrije toegang" name="open_enrollement" tool_tip="Stelt in of deze groep toestaat dat nieuwe leden lid kunnen worden zonder uitgenodigd te zijn."/>
-		<check_box label="Contributiebijdrage: L$" name="check_enrollment_fee" tool_tip="Stelt in of er een contributiebijdrage vereist is om lid te worden van de groep."/>
+		<check_box label="Contributiebijdrage:" name="check_enrollment_fee" tool_tip="Stelt in of er een contributiebijdrage vereist is om lid te worden van de groep."/>
 		<spinner name="spin_enrollment_fee" tool_tip="Nieuwe leden moeten deze bijdrage betalen om deel te nemen aan de groep wanneer &quot;Contributie bijdrage&quot; is aangevinkt." width="58" left_delta="142"/>
 		<combo_box name="group_mature_check" tool_tip="Stelt in of uw groepsinformatie als mature beschouwd wordt.">
 			<combo_box.item name="select_mature" label="- Selecteer -"/>

@@ -106,7 +106,7 @@ void LLCubeMap::initGL()
 	}
 	else
 	{
-		llwarns << "Using cube map without extension!" << llendl
+		llwarns << "Using cube map without extension!" << llendl;
 	}
 }
 

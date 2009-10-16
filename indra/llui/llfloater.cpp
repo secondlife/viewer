@@ -916,6 +916,9 @@ void LLFloater::setMinimized(BOOL minimize)
 
 	if (minimize)
 	{
+		// minimized flag should be turned on before release focus
+		mMinimized = TRUE;
+
 		mExpandedRect = getRect();
 
 		// If the floater has been dragged while minimized in the
@@ -977,8 +980,6 @@ void LLFloater::setMinimized(BOOL minimize)
 			}
 		}
 		
-		mMinimized = TRUE;
-
 		// Reshape *after* setting mMinimized
 		reshape( minimized_width, floater_header_size, TRUE);
 	}
@@ -1432,7 +1433,18 @@ void LLFloater::onClickHelp( LLFloater* self )
 {
 	if (self && LLUI::sHelpImpl)
 	{
-		LLUI::sHelpImpl->showTopic(self->getHelpTopic());
+		// get the help topic for this floater
+		std::string help_topic = self->getHelpTopic();
+
+		// but use a more specific help topic for the currently
+		// displayed tab inside of this floater, if present
+		LLPanel *curtab = self->childGetVisibleTabWithHelp();
+		if (curtab)
+		{
+			help_topic = curtab->getHelpTopic();
+		}
+
+		LLUI::sHelpImpl->showTopic(help_topic);
 	}
 }
 
@@ -2554,10 +2566,10 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 
 LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");
 
-void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
+bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 {
 	Params params(LLUICtrlFactory::getDefaultParams<LLFloater>());
-	LLXUIParser::instance().readXUI(node, params);
+	LLXUIParser::instance().readXUI(node, params); // *TODO: Error checking
 
 	if (output_node)
 	{
@@ -2603,5 +2615,7 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 	gFloaterView->adjustToFitScreen(this, FALSE); // Floaters loaded from XML should all fit on screen	
 
 	moveResizeHandlesToFront();
+
+	return true; // *TODO: Error checking
 }
 

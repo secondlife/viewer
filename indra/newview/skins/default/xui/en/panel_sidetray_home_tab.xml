@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  background_visible="true"
- bevel_style="in"
- follows="left|top|right|bottom"
- height="420"
+ bevel_style="out"
+ follows="all"
+ height="560"
  label="home_tab"
  layout="topleft"
  name="home_tab"
@@ -13,37 +13,36 @@
      bg_alpha_color="DkGray2"
      class="panel_sidetray_home_info"
      follows="left|top|right"
-     height="130"
+     height="120"
      layout="topleft"
-     left="10"
+     left="15"
+     top="17"
      name="sidebar_people"
-     width="313">
+     width="303">
         <text
          follows="left|right|top"
          font="SansSerifBigBold"
          height="30"
          layout="topleft"
-         left="5"
+         left="10"
          mouse_opaque="false"
          name="tab_name"
-         text_color="white"
+         text_color="EmphasisColor"
          top="10"
          value="People"
          width="200"
          word_wrap="true" />
         <icon
-         color="DkGray"
          follows="top|right"
          height="20"
          layout="topleft"
          name="tab_icon"
          right="-10"
          top="10"
-         image_name="TabIcon_Home_Selected"
+         image_name="TabIcon_People_Selected"
          width="20" />
         <text
          follows="left|right|bottom"
-         font="SansSerifBold"
          height="120"
          layout="topleft"
          left="10"
@@ -53,7 +52,7 @@
          text_color="white"
          top="40"
          word_wrap="true">
-            Find your friends, contacts and people nearby.
+            Find your friends, your groups, contacts and people nearby.
         </text>
     </panel>
     <panel
@@ -61,37 +60,36 @@
      bg_alpha_color="DkGray2"
      class="panel_sidetray_home_info"
      follows="left|top|right"
-     height="130"
+     height="120"
      layout="topleft"
-     left="10"
+     left="15"
+     top_pad="15"
      name="sidebar_places"
-     width="313">
+     width="303">
         <text
          follows="left|right|top"
          font="SansSerifBigBold"
          height="30"
          layout="topleft"
-         left="5"
+         left="10"
          mouse_opaque="false"
          name="tab_name"
-         text_color="white"
+         text_color="EmphasisColor"
          top="10"
          value="Places"
          width="200"
          word_wrap="true" />
         <icon
-         color="DkGray"
          follows="top|right"
          height="20"
          layout="topleft"
          name="tab_icon"
          right="-10"
          top="10"
-         width="20" 
+         width="20"
          image_name="TabIcon_Places_Selected"/>
         <text
-         follows="left|right|bottom|top"
-         font="SansSerifBold"
+         follows="all"
          height="120"
          layout="topleft"
          left="10"
@@ -101,7 +99,7 @@
          text_color="white"
          top="40"
          word_wrap="true">
-            Find your friends, contacts and people nearby.
+            Find places to go and places you&apos;ve visited before.
         </text>
     </panel>
     <panel
@@ -109,37 +107,36 @@
      bg_alpha_color="DkGray2"
      class="panel_sidetray_home_info"
      follows="left|top|right"
-     height="130"
+     height="120"
      layout="topleft"
-     left="10"
+     left="15"
+     top_pad="15"
      name="sidebar_me"
-     width="313">
+     width="303">
         <text
          follows="left|right|top"
          font="SansSerifBigBold"
          height="30"
          layout="topleft"
-         left="5"
+         left="10"
          mouse_opaque="false"
          name="tab_name"
-         text_color="white"
+         text_color="EmphasisColor"
          top="10"
          value="My Profile"
          width="200"
          word_wrap="true" />
         <icon
-         color="DkGray"
          follows="top|right"
          height="20"
          layout="topleft"
          name="tab_icon"
          right="-10"
          top="10"
-         width="20" 
+         width="20"
          image_name="TabIcon_Me_Selected"/>
         <text
-         follows="left|right|bottom|top"
-         font="SansSerifBold"
+         follows="all"
          height="120"
          layout="topleft"
          left="10"
@@ -149,7 +146,7 @@
          text_color="white"
          top="40"
          word_wrap="true">
-            Change your profile.
+            Edit your public profile.
         </text>
     </panel>
     <panel
@@ -157,37 +154,36 @@
      bg_alpha_color="DkGray2"
      class="panel_sidetray_home_info"
      follows="left|top|right"
-     height="130"
+     height="120"
      layout="topleft"
-     left="10"
+     left="15"
+     top_pad="15"
      name="sidebar_appearance"
-     width="313">
+     width="303">
         <text
          follows="left|right|top"
          font="SansSerifBigBold"
          height="30"
          layout="topleft"
-         left="5"
+         left="10"
          mouse_opaque="false"
          name="tab_name"
-         text_color="white"
+         text_color="EmphasisColor"
          top="10"
          value="My Appearance"
          width="200"
          word_wrap="true" />
         <icon
-         color="DkGray"
          follows="top|right"
          height="20"
          layout="topleft"
          name="tab_icon"
          right="-10"
          top="10"
-         width="20" 
-         image_name="TabIcon_Things_Selected"/>
+         width="20"
+         image_name="TabIcon_Appearance_Selected"/>
         <text
-         follows="left|right|bottom|top"
-         font="SansSerifBold"
+         follows="all"
          height="120"
          layout="topleft"
          left="10"
@@ -197,7 +193,7 @@
          text_color="white"
          top="40"
          word_wrap="true">
-            Change your apperance and looks.
+            Change your appearance and current look.
         </text>
     </panel>
 </panel>

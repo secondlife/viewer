@@ -56,9 +56,7 @@ LLColor3::LLColor3(const LLVector4 &a)
 
 LLColor3::LLColor3(const LLSD &sd)
 {
-	mV[0] = (F32) sd[0].asReal();
-	mV[1] = (F32) sd[1].asReal();
-	mV[2] = (F32) sd[2].asReal();
+	setValue(sd);
 }
 
 const LLColor3& LLColor3::operator=(const LLColor4 &a) 

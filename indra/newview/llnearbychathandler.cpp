@@ -61,7 +61,7 @@ LLToastPanelBase* createToastPanel()
 class LLNearbyChatScreenChannel: public LLScreenChannelBase
 {
 public:
-	LLNearbyChatScreenChannel(const LLUUID& id):LLScreenChannelBase(id) { mActiveMessages = 0;};
+	LLNearbyChatScreenChannel(const LLUUID& id):LLScreenChannelBase(id) { mStopProcessing = false;};
 
 	void init				(S32 channel_left, S32 channel_right);
 
@@ -74,6 +74,13 @@ public:
 
 	void onToastDestroyed	(LLToast* toast);
 	void onToastFade		(LLToast* toast);
+
+	void reshape			(S32 width, S32 height, BOOL called_from_parent);
+
+	void redrawToasts()
+	{
+		arrangeToasts();
+	}
 
 	// hide all toasts from screen, but not remove them from a channel
 	virtual void		hideToastsFromScreen() 
@@ -93,6 +100,13 @@ public:
 		m_active_toasts.clear();
 	};
 
+	virtual void deleteAllChildren()
+	{
+		m_toast_pool.clear();
+		m_active_toasts.clear();
+		LLScreenChannelBase::deleteAllChildren();
+	}
+
 protected:
 	void	createOverflowToast(S32 bottom, F32 timer);
 
@@ -103,7 +117,7 @@ protected:
 	std::vector<LLToast*> m_active_toasts;
 	std::list<LLToast*> m_toast_pool;
 
-	S32 mActiveMessages;
+	bool	mStopProcessing;
 };
 
 void LLNearbyChatScreenChannel::init(S32 channel_left, S32 channel_right)
@@ -122,6 +136,7 @@ void	LLNearbyChatScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 
 void LLNearbyChatScreenChannel::onToastDestroyed(LLToast* toast)
 {	
+	mStopProcessing = true;
 }
 
 void LLNearbyChatScreenChannel::onToastFade(LLToast* toast)
@@ -161,7 +176,8 @@ bool	LLNearbyChatScreenChannel::createPoolToast()
 void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 {
 	//look in pool. if there is any message
-
+	if(mStopProcessing)
+		return;
 	
 	if(m_toast_pool.empty())
 	{
@@ -204,33 +220,46 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 
 void LLNearbyChatScreenChannel::showToastsBottom()
 {
-	LLRect rect = getRect();
+	if(mStopProcessing)
+		return;
 
 	LLRect	toast_rect;	
 	S32		bottom = getRect().mBottom;
+	S32		margin = gSavedSettings.getS32("ToastMargin");
 
 	for(std::vector<LLToast*>::iterator it = m_active_toasts.begin(); it != m_active_toasts.end(); ++it)
 	{
 		LLToast* toast = (*it);
-		toast_rect = toast->getRect();
-		toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastMargin"), toast_rect.getWidth() ,toast_rect.getHeight());
-		
-		toast->setRect(toast_rect);
+		S32 toast_top = bottom + toast->getRect().getHeight() + margin;
 
-		if(toast->getRect().mTop > getRect().getHeight())
+		if(toast_top > gFloaterView->getRect().getHeight())
 		{
 			while(it!=m_active_toasts.end())
 			{
-				(*it)->setVisible(FALSE);
-				(*it)->stopTimer();
-				m_toast_pool.push_back(*it);
+				toast->setVisible(FALSE);
+				toast->stopTimer();
+				m_toast_pool.push_back(toast);
 				it=m_active_toasts.erase(it);
 			}
 			break;
 		}
-		toast->setVisible(TRUE);
-		bottom = toast->getRect().mTop;
+		else
+		{
+			toast_rect = toast->getRect();
+			toast_rect.setLeftTopAndSize(getRect().mLeft , toast_top, toast_rect.getWidth() ,toast_rect.getHeight());
+		
+			toast->setRect(toast_rect);
+			
+			toast->setVisible(TRUE);
+			bottom = toast->getRect().mTop;
+		}		
 	}
+}
+
+void LLNearbyChatScreenChannel::reshape			(S32 width, S32 height, BOOL called_from_parent)
+{
+	LLScreenChannelBase::reshape(width, height, called_from_parent);
+	arrangeToasts();
 }
 
 

@@ -286,8 +286,9 @@ protected:
 
 	// line history support:
 	BOOL		mHaveHistory;				// flag for enabled line history
-	std::vector<std::string> mLineHistory;		// line history storage
-	U32			mCurrentHistoryLine;		// currently browsed history line
+	typedef std::vector<std::string>	line_history_t;
+	line_history_t	mLineHistory;			// line history storage
+	line_history_t::iterator	mCurrentHistoryLine;	// currently browsed history line
 
 	LLViewBorder* mBorder;
 	const LLFontGL*	mGLFont;
@@ -389,16 +390,5 @@ private:
 
 }; // end class LLLineEditor
 
-
-namespace LLInitParam
-{
-    template<>
-	bool ParamCompare<LLLinePrevalidateFunc>::equals(
-		const LLLinePrevalidateFunc &a, const LLLinePrevalidateFunc &b); 
-
-    template<>
-	bool ParamCompare<boost::function<void (LLLineEditor *)> >::equals(
-		const boost::function<void (LLLineEditor *)> &a, const boost::function<void (LLLineEditor *)> &b); 
-}
 
 #endif  // LL_LINEEDITOR_

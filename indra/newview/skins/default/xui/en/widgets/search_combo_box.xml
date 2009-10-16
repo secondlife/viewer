@@ -5,11 +5,13 @@
  show_text_as_tentative="false"
  dropdown_button_visible="false"
  max_chars="256"
+ name="parent"
  allow_new_values="true"
  background_image="TextField_Search_Off"
  background_image_disabled="TextField_Search_Disabled"
  background_image_focused="TextField_Search_Active">
  <combo_editor
+  name="child1"
   select_on_focus="true"
   text_pad_left="20" 
   tool_tip="Search"
@@ -18,9 +20,11 @@
   background_image_focused="TextField_Search_Active"/>
  <combo_list
   multi_select="false"
+  name="child2"
   page_lines="10"
   scroll_bar_bg_visible="true" />
  <search_button label=""
+  name="child3"
   top_pad="4"
   left_pad="4" 
   width="13"

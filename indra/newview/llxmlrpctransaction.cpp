@@ -158,11 +158,11 @@ XMLRPC_VALUE LLXMLRPCValue::getValue() const
 class LLXMLRPCTransaction::Impl
 {
 public:
-	typedef LLXMLRPCTransaction::Status	Status;
+	typedef LLXMLRPCTransaction::EStatus	EStatus;
 
 	LLCurlEasyRequest* mCurlRequest;
 
-	Status		mStatus;
+	EStatus		mStatus;
 	CURLcode	mCurlCode;
 	std::string	mStatusMessage;
 	std::string	mStatusURI;
@@ -184,7 +184,7 @@ public:
 	
 	bool process();
 	
-	void setStatus(Status code,
+	void setStatus(EStatus code,
 				   const std::string& message = "", const std::string& uri = "");
 	void setCurlStatus(CURLcode);
 
@@ -398,7 +398,7 @@ bool LLXMLRPCTransaction::Impl::process()
 	return false;
 }
 
-void LLXMLRPCTransaction::Impl::setStatus(Status status,
+void LLXMLRPCTransaction::Impl::setStatus(EStatus status,
 	const std::string& message, const std::string& uri)
 {
 	mStatus = status;
@@ -522,7 +522,7 @@ bool LLXMLRPCTransaction::process()
 	return impl.process();
 }
 
-LLXMLRPCTransaction::Status LLXMLRPCTransaction::status(int* curlCode)
+LLXMLRPCTransaction::EStatus LLXMLRPCTransaction::status(int* curlCode)
 {
 	if (curlCode)
 	{

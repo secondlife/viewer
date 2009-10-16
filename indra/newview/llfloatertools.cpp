@@ -417,6 +417,11 @@ void LLFloaterTools::refresh()
 	LLResMgr::getInstance()->getIntegerString(prim_count_string, LLSelectMgr::getInstance()->getSelection()->getObjectCount());
 	childSetTextArg("prim_count", "[COUNT]", prim_count_string);
 
+	// disable the object and prim counts if nothing selected
+	bool have_selection = ! LLSelectMgr::getInstance()->getSelection()->isEmpty();
+	childSetEnabled("obj_count", have_selection);
+	childSetEnabled("prim_count", have_selection);
+
 	// Refresh child tabs
 	mPanelPermissions->refresh();
 	mPanelObject->refresh();
@@ -1060,7 +1065,7 @@ void LLFloaterTools::getMediaState()
 		return;
 	}
 	
-	bool editable = (first_object->permModify());// && selectedMediaEditable());
+	bool editable = (first_object->permModify() || selectedMediaEditable());
 	
 	// Media settings
 	U8 has_media = (U8)0;
@@ -1114,7 +1119,7 @@ void LLFloaterTools::getMediaState()
 			// Media data is valid
 			if(media_data_get!=default_media_data)
 			{
-				//TODO: get Meida title
+				//TODO: get media title
 				//media_title =  media_data_get->getTile();
 				//LLFloaterMediaSettings::getInstance()->mIdenticalValidMedia = true;
 				media_title = media_data_get.getHomeURL();
@@ -1149,7 +1154,7 @@ void LLFloaterTools::getMediaState()
 			// Media data is valid
 			if(media_data_get!=default_media_data)
 			{
-				//TODO: get Meida title
+				//TODO: get media title
 				//media_title =  media_data_get->getTile();
 				media_title = media_data_get.getHomeURL();
 			}

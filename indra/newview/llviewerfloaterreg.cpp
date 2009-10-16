@@ -58,7 +58,6 @@
 #include "llfloaterchatterbox.h"
 #include "llfloaterdaycycle.h"
 #include "llfloaterdirectory.h"
-#include "llfloaterfirsttimetip.h"
 #include "llfloaterenvsettings.h"
 #include "llfloaterfonttest.h"
 #include "llfloatergesture.h"
@@ -154,7 +153,6 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("compile_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCompileQueue>);
 	LLFloaterReg::add("contacts", "floater_my_friends.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMyFriends>);	
 
-	LLFloaterReg::add("first_time_tip", "floater_first_time_tip.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFirstTimeTip>);
 	LLFloaterReg::add("env_day_cycle", "floater_day_cycle_options.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterDayCycle>);
 	LLFloaterReg::add("env_post_process", "floater_post_process.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPostProcess>);
 	LLFloaterReg::add("env_settings", "floater_env_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEnvSettings>);
@@ -234,7 +232,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("snapshot", "floater_snapshot.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSnapshot>);
 	LLFloaterReg::add("search", "floater_directory.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterDirectory>);
 	
-	LLFloaterReg::add("ui_preview", "floater_ui_preview.xml", &LLFloaterReg::build<LLFloaterUIPreview>);
+	LLFloaterUIPreviewUtil::registerFloater();
 	LLFloaterReg::add("upload_anim", "floater_animation_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAnimPreview>, "upload");
 	LLFloaterReg::add("upload_image", "floater_image_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterImagePreview>, "upload");
 	LLFloaterReg::add("upload_sound", "floater_sound_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundPreview>, "upload");

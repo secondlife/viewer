@@ -28,6 +28,7 @@
          label="Friends"
          layout="topleft"
          left="0"
+         help_topic="my_friends_friends_tab"
          name="friends_panel"
          width="370" />
         <panel
@@ -36,6 +37,7 @@
          label="Groups"
          layout="topleft"
          left="0"
+         help_topic="my_friends_groups_tab"
          name="groups_panel"
          width="370" />
     </tab_container>

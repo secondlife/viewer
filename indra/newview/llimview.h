@@ -53,18 +53,21 @@ public:
 	struct LLIMSession
 	{
 		LLIMSession(const LLUUID& session_id, const std::string& name, 
-			const EInstantMessage& type, const LLUUID& other_participant_id);
+			const EInstantMessage& type, const LLUUID& other_participant_id, const std::vector<LLUUID>& ids);
 		virtual ~LLIMSession();
 
 		LLUUID mSessionID;
 		std::string mName;
 		EInstantMessage mType;
 		LLUUID mOtherParticipantID;
+		std::vector<LLUUID> mInitialTargetIDs;
 		S32 mNumUnread;
 		std::list<LLSD> mMsgs;
 
 		LLVoiceChannel* mVoiceChannel;
 		LLIMSpeakerMgr* mSpeakers;
+
+		bool mSessionInitialized;
 	};
 	
 
@@ -88,11 +91,16 @@ public:
 
 	boost::signals2::connection addChangedCallback( boost::function<void (const LLSD& data)> cb );
 
-	bool newSession(LLUUID session_id, std::string name, EInstantMessage type, LLUUID other_participant_id);
+	bool newSession(LLUUID session_id, std::string name, EInstantMessage type, LLUUID other_participant_id, 
+		const std::vector<LLUUID>& ids = std::vector<LLUUID>());
 	bool clearSession(LLUUID session_id);
 	std::list<LLSD> getMessages(LLUUID session_id, int start_index = 0);
-	bool addMessage(LLUUID session_id, std::string from, LLUUID other_participant_id, std::string utf8_text);
+
+	bool addMessage(LLUUID session_id, std::string from, LLUUID other_participant_id, std::string utf8_text, bool log2file = true);
 	bool addToHistory(LLUUID session_id, std::string from, std::string utf8_text); 
+
+	bool logToFile(const LLUUID& session_id, const std::string& from, const std::string& utf8_text);
+
 	//used to get the name of the session, for use as the title
 	//currently just the other avatar name
 	const std::string& getName(const LLUUID& session_id) const;
@@ -223,12 +231,6 @@ public:
 		const std::string& session_handle = LLStringUtil::null,
 		const std::string& session_uri = LLStringUtil::null);
 
-	//Updates a given session's session IDs.  Does not open,
-	//create or do anything new.  If the old session doesn't
-	//exist, then nothing happens.
-	void updateFloaterSessionID(const LLUUID& old_session_id,
-								const LLUUID& new_session_id);
-
 	void processIMTypingStart(const LLIMInfo* im_info);
 	void processIMTypingStop(const LLIMInfo* im_info);
 
@@ -293,8 +295,8 @@ private:
 	// prints a simple message if they are not online. Used to help
 	// reduce 'hello' messages to the linden employees unlucky enough
 	// to have their calling card in the default inventory.
-	void noteOfflineUsers(LLFloaterIMPanel* panel, const LLDynamicArray<LLUUID>& ids);
-	void noteMutedUsers(LLFloaterIMPanel* panel, const LLDynamicArray<LLUUID>& ids);
+	void noteOfflineUsers(const LLUUID& session_id, LLFloaterIMPanel* panel, const LLDynamicArray<LLUUID>& ids);
+	void noteMutedUsers(const LLUUID& session_id, LLFloaterIMPanel* panel, const LLDynamicArray<LLUUID>& ids);
 
 	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
 

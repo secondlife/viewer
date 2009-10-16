@@ -222,7 +222,7 @@ void LLOutputMonitorCtrl::draw()
 
 void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id)
 {
-	if (speaker_id.isNull()) return;
+	if (speaker_id.isNull() || speaker_id == mSpeakerId) return;
 
 	mSpeakerId = speaker_id;
 

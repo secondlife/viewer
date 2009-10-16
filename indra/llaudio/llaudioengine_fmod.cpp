@@ -132,6 +132,7 @@ bool LLAudioEngine_FMOD::init(const S32 num_channels, void* userdata)
 	bool audio_ok = false;
 
 	if (!audio_ok)
+	{
 		if (NULL == getenv("LL_BAD_FMOD_ESD")) /*Flawfinder: ignore*/
 		{
 			LL_DEBUGS("AppInit") << "Trying ESD audio output..." << LL_ENDL;
@@ -148,8 +149,9 @@ bool LLAudioEngine_FMOD::init(const S32 num_channels, void* userdata)
 		} else {
 			LL_DEBUGS("AppInit") << "ESD audio output SKIPPED" << LL_ENDL;
 		}
-
+	}
 	if (!audio_ok)
+	{
 		if (NULL == getenv("LL_BAD_FMOD_OSS")) 	 /*Flawfinder: ignore*/
 		{
 			LL_DEBUGS("AppInit") << "Trying OSS audio output..."	<< LL_ENDL;
@@ -165,8 +167,9 @@ bool LLAudioEngine_FMOD::init(const S32 num_channels, void* userdata)
 		} else {
 			LL_DEBUGS("AppInit") << "OSS audio output SKIPPED" << LL_ENDL;
 		}
-
+	}
 	if (!audio_ok)
+	{
 		if (NULL == getenv("LL_BAD_FMOD_ALSA"))		/*Flawfinder: ignore*/
 		{
 			LL_DEBUGS("AppInit") << "Trying ALSA audio output..." << LL_ENDL;
@@ -182,7 +185,7 @@ bool LLAudioEngine_FMOD::init(const S32 num_channels, void* userdata)
 		} else {
 			LL_DEBUGS("AppInit") << "OSS audio output SKIPPED" << LL_ENDL;
 		}
-
+	}
 	if (!audio_ok)
 	{
 		LL_WARNS("AppInit") << "Overall audio init failure." << LL_ENDL;

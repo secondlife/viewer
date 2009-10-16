@@ -84,6 +84,7 @@
          layout="topleft"
          left="1"
          mouse_opaque="false"
+         help_topic="windlight_atmosphere_tab"
          name="Atmosphere"
          top="60"
          width="698">
@@ -519,6 +520,7 @@
          label="Lighting"
          layout="topleft"
          left_delta="0"
+         help_topic="windlight_lighting_tab"
          name="Lighting"
          top_delta="4"
          width="698">
@@ -978,6 +980,7 @@
          layout="topleft"
          left_delta="0"
          mouse_opaque="false"
+         help_topic="windlight_clouds_tab"
          name="Clouds"
          top_delta="4"
          width="698">

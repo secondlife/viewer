@@ -279,47 +279,7 @@ BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLKeyBinding*> *listp)
 // the current accelerator key and mask to the provided string.
 void LLMenuItemGL::appendAcceleratorString( std::string& st ) const
 {
-	// break early if this is a silly thing to do.
-	if( KEY_NONE == mAcceleratorKey )
-	{
-		return;
-	}
-
-	// Append any masks
-#ifdef LL_DARWIN
-	// Standard Mac names for modifier keys in menu equivalents
-	// We could use the symbol characters, but they only exist in certain fonts.
-	if( mAcceleratorMask & MASK_CONTROL )
-	{
-		if ( mAcceleratorMask & MASK_MAC_CONTROL )
-		{
-			st.append( "Ctrl-" );
-		}
-		else
-		{
-			st.append( "Cmd-" );		// Symbol would be "\xE2\x8C\x98"
-		}
-	}
-	if( mAcceleratorMask & MASK_ALT )
-		st.append( "Opt-" );		// Symbol would be "\xE2\x8C\xA5"
-	if( mAcceleratorMask & MASK_SHIFT )
-		st.append( "Shift-" );		// Symbol would be "\xE2\x8C\xA7"
-#else
-	if( mAcceleratorMask & MASK_CONTROL )
-		st.append( "Ctrl-" );
-	if( mAcceleratorMask & MASK_ALT )
-		st.append( "Alt-" );
-	if( mAcceleratorMask & MASK_SHIFT )
-		st.append( "Shift-" );
-#endif
-
-	std::string keystr = LLKeyboard::stringFromKey( mAcceleratorKey );
-	if ((mAcceleratorMask & MASK_NORMALKEYS) &&
-		(keystr[0] == '-' || keystr[0] == '='))
-	{
-		st.append( " " );
-	}
-	st.append( keystr );
+	st = LLKeyboard::stringFromAccelerator( mAcceleratorMask, mAcceleratorKey );
 	LL_DEBUGS("HotKeys") << "appendAcceleratorString: " << st << LL_ENDL;
 }
 

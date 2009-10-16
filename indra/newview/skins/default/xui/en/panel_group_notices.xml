@@ -187,7 +187,6 @@ the General tab.
         </text>
         <text_editor
          height="75"
-         hide_scrollbar="true"
          layout="topleft"
          left_pad="3"
          max_length="511"
@@ -344,7 +343,6 @@ the General tab.
         <text_editor
          enabled="false"
          height="150"
-         hide_scrollbar="true"
          layout="topleft"
          left="10"
          max_length="511"

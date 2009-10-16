@@ -82,7 +82,6 @@
 #include "llface.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
-#include "llfirsttimetipmanager.h"
 #include "llfloater.h"
 #include "llfloaterabout.h"
 #include "llfloaterbuycurrency.h"
@@ -278,7 +277,6 @@ void handle_compress_image(void*);
 // Edit menu
 void handle_dump_group_info(void *);
 void handle_dump_capabilities_info(void *);
-void handle_dump_focus(void*);
 
 // Advanced->Consoles menu
 void handle_region_dump_settings(void*);
@@ -325,7 +323,6 @@ BOOL check_show_xui_names(void *);
 
 // Debug UI
 
-void handle_web_browser_test(void*);
 void handle_buy_currency_test(void*);
 void handle_save_to_xml(void*);
 void handle_load_from_xml(void*);
@@ -1237,15 +1234,6 @@ class LLAdvancedDumpRegionObjectCache : public view_listener_t
 	}
 };
 
-class LLAdvancedWebBrowserTest : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_web_browser_test(NULL);
-		return true;
-	}
-};
-	
 class LLAdvancedBuyCurrencyTest : public view_listener_t
 	{
 	bool handleEvent(const LLSD& userdata)
@@ -1288,22 +1276,6 @@ class LLAdvancedDumpInventory : public view_listener_t
 
 
 
-///////////////////////
-// DUMP FOCUS HOLDER //
-///////////////////////
-	
-
-class LLAdvancedDumpFocusHolder : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_dump_focus(NULL);
-		return true;
-	}
-};
-
-
-	
 ////////////////////////////////
 // PRINT SELECTED OBJECT INFO //
 ////////////////////////////////
@@ -3467,7 +3439,7 @@ void handle_dump_region_object_cache(void*)
 	}
 }
 
-void handle_dump_focus(void *)
+void handle_dump_focus()
 {
 	LLUICtrl *ctrl = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
 
@@ -3483,14 +3455,11 @@ class LLSelfStandUp : public view_listener_t
 	}
 };
 
-class LLSelfEnableStandUp : public view_listener_t
+bool enable_standup_self()
 {
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = gAgent.getAvatarObject() && gAgent.getAvatarObject()->isSitting();
-		return new_value;
-	}
-};
+	bool new_value = gAgent.getAvatarObject() && gAgent.getAvatarObject()->isSitting();
+	return new_value;
+}
 
 class LLSelfFriends : public view_listener_t
 {
@@ -4767,6 +4736,96 @@ class LLToolsSnapObjectXY : public view_listener_t
 	}
 };
 
+// Determine if the option to cycle between linked prims is shown
+class LLToolsEnableSelectNextPart : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool new_value = (gSavedSettings.getBOOL("EditLinkedParts") &&
+				 !LLSelectMgr::getInstance()->getSelection()->isEmpty());
+		return new_value;
+	}
+};
+
+// Cycle selection through linked children in selected object.
+// FIXME: Order of children list is not always the same as sim's idea of link order. This may confuse
+// resis. Need link position added to sim messages to address this.
+class LLToolsSelectNextPart : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		S32 object_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+		if (gSavedSettings.getBOOL("EditLinkedParts") && object_count)
+		{
+			LLViewerObject* selected = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+			if (selected && selected->getRootEdit())
+			{
+				bool fwd = (userdata.asString() == "next");
+				bool prev = (userdata.asString() == "previous");
+				bool ifwd = (userdata.asString() == "includenext");
+				bool iprev = (userdata.asString() == "includeprevious");
+				LLViewerObject* to_select = NULL;
+				LLViewerObject::child_list_t children = selected->getRootEdit()->getChildren();
+				children.push_front(selected->getRootEdit());	// need root in the list too
+
+				for (LLViewerObject::child_list_t::iterator iter = children.begin(); iter != children.end(); ++iter)
+				{
+					if ((*iter)->isSelected())
+					{
+						if (object_count > 1 && (fwd || prev))	// multiple selection, find first or last selected if not include
+						{
+							to_select = *iter;
+							if (fwd)
+							{
+								// stop searching if going forward; repeat to get last hit if backward
+								break;
+							}
+						}
+						else if ((object_count == 1) || (ifwd || iprev))	// single selection or include
+						{
+							if (fwd || ifwd)
+							{
+								++iter;
+								while (iter != children.end() && ((*iter)->isAvatar() || (ifwd && (*iter)->isSelected())))
+								{
+									++iter;	// skip sitting avatars and selected if include
+								}
+							}
+							else // backward
+							{
+								iter = (iter == children.begin() ? children.end() : iter);
+								--iter;
+								while (iter != children.begin() && ((*iter)->isAvatar() || (iprev && (*iter)->isSelected())))
+								{
+									--iter;	// skip sitting avatars and selected if include
+								}
+							}
+							iter = (iter == children.end() ? children.begin() : iter);
+							to_select = *iter;
+							break;
+						}
+					}
+				}
+
+				if (to_select)
+				{
+					if (gFocusMgr.childHasKeyboardFocus(gFloaterTools))
+					{
+						gFocusMgr.setKeyboardFocus(NULL);	// force edit toolbox to commit any changes
+					}
+					if (fwd || prev)
+					{
+						LLSelectMgr::getInstance()->deselectAll();
+					}
+					LLSelectMgr::getInstance()->selectObjectOnly(to_select);
+					return true;
+				}
+			}
+		}
+		return true;
+	}
+};
+
 // in order to link, all objects must have the same owner, and the
 // agent must have the ability to modify all of the objects. However,
 // we're not answering that question with this method. The question
@@ -5341,42 +5400,64 @@ class LLWorldCreateLandmark : public view_listener_t
 	}
 };
 
-class LLToolsLookAtSelection : public view_listener_t
+void handle_look_at_selection(const LLSD& param)
 {
-	bool handleEvent(const LLSD& userdata)
+	const F32 PADDING_FACTOR = 2.f;
+	BOOL zoom = (param.asString() == "zoom");
+	if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
 	{
-		const F32 PADDING_FACTOR = 2.f;
-		BOOL zoom = (userdata.asString() == "zoom");
-		if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
+		gAgent.setFocusOnAvatar(FALSE, ANIMATE);
+
+		LLBBox selection_bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
+		F32 angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getAspect() > 1.f ? LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect() : LLViewerCamera::getInstance()->getView());
+		F32 distance = selection_bbox.getExtentLocal().magVec() * PADDING_FACTOR / atan(angle_of_view);
+
+		LLVector3 obj_to_cam = LLViewerCamera::getInstance()->getOrigin() - selection_bbox.getCenterAgent();
+		obj_to_cam.normVec();
+
+		LLUUID object_id;
+		if (LLSelectMgr::getInstance()->getSelection()->getPrimaryObject())
 		{
-			gAgent.setFocusOnAvatar(FALSE, ANIMATE);
-
-			LLBBox selection_bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
-			F32 angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getAspect() > 1.f ? LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect() : LLViewerCamera::getInstance()->getView());
-			F32 distance = selection_bbox.getExtentLocal().magVec() * PADDING_FACTOR / atan(angle_of_view);
-
-			LLVector3 obj_to_cam = LLViewerCamera::getInstance()->getOrigin() - selection_bbox.getCenterAgent();
-			obj_to_cam.normVec();
-
-			LLUUID object_id;
-			if (LLSelectMgr::getInstance()->getSelection()->getPrimaryObject())
-			{
-				object_id = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->mID;
-			}
-			if (zoom)
-			{
-				gAgent.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance), 
-												LLSelectMgr::getInstance()->getSelectionCenterGlobal(), 
-												object_id );
-			}
-			else
-			{
-				gAgent.setFocusGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal(), object_id );
-			}
+			object_id = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->mID;
 		}
-		return true;
+		if (zoom)
+		{
+			gAgent.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance), 
+											LLSelectMgr::getInstance()->getSelectionCenterGlobal(), 
+											object_id );
+		}
+		else
+		{
+			gAgent.setFocusGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal(), object_id );
+		}
 	}
-};
+}
+
+void handle_zoom_to_object(LLUUID object_id)
+{
+	const F32 PADDING_FACTOR = 2.f;
+
+	LLViewerObject* object = gObjectList.findObject(object_id);
+
+	if (object)
+	{
+		gAgent.setFocusOnAvatar(FALSE, ANIMATE);
+
+		LLBBox bbox = object->getBoundingBoxAgent() ;
+		F32 angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getAspect() > 1.f ? LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect() : LLViewerCamera::getInstance()->getView());
+		F32 distance = bbox.getExtentLocal().magVec() * PADDING_FACTOR / atan(angle_of_view);
+
+		LLVector3 obj_to_cam = LLViewerCamera::getInstance()->getOrigin() - bbox.getCenterAgent();
+		obj_to_cam.normVec();
+
+
+			LLVector3d object_center_global = gAgent.getPosGlobalFromAgent(bbox.getCenterAgent());
+
+			gAgent.setCameraPosAndFocusGlobal(object_center_global + LLVector3d(obj_to_cam * distance), 
+											object_center_global, 
+											object_id );
+	}
+}
 
 class LLAvatarInviteToGroup : public view_listener_t
 {
@@ -6816,6 +6897,11 @@ void handle_dump_avatar_local_textures(void*)
 	gAgent.getAvatarObject()->dumpLocalTextures();
 }
 
+void handle_dump_timers()
+{
+	LLFastTimer::dumpCurTimes();
+}
+
 void handle_debug_avatar_textures(void*)
 {
 	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
@@ -7081,9 +7167,14 @@ void handle_load_from_xml(void*)
 	}
 }
 
-void handle_web_browser_test(void*)
+void handle_web_browser_test(const LLSD& param)
 {
-	LLWeb::loadURL("http://secondlife.com/app/search/slurls.html");
+	std::string url = param.asString();
+	if (url.empty())
+	{
+		url = "about:blank";
+	}
+	LLWeb::loadURL(url);
 }
 
 void handle_buy_currency_test(void*)
@@ -7604,24 +7695,6 @@ class LLWorldDayCycle : public view_listener_t
 	}
 };
 
-/// Show First Time Tips calbacks
-class LLHelpCheckShowFirstTimeTip : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		return LLFirstTimeTipsManager::tipsEnabled();
-	}
-};
-
-class LLHelpShowFirstTimeTip : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFirstTimeTipsManager::enabledTip(!userdata.asBoolean());
-		return true;
-	}
-};
-
 void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
 {
 	static LLMenuGL*	show_navbar_context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_navbar.xml",
@@ -7739,9 +7812,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
 	view_listener_t::addMenu(new LLWorldDayCycle(), "World.DayCycle");
 
-	view_listener_t::addMenu(new LLHelpCheckShowFirstTimeTip(), "Help.CheckShowFirstTimeTip");
-	view_listener_t::addMenu(new LLHelpShowFirstTimeTip(), "Help.ShowQuickTips");
-
 	// Tools menu
 	view_listener_t::addMenu(new LLToolsSelectTool(), "Tools.SelectTool");
 	view_listener_t::addMenu(new LLToolsSelectOnlyMyObjects(), "Tools.SelectOnlyMyObjects");
@@ -7752,12 +7822,13 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToolsEditLinkedParts(), "Tools.EditLinkedParts");
 	view_listener_t::addMenu(new LLToolsSnapObjectXY(), "Tools.SnapObjectXY");
 	view_listener_t::addMenu(new LLToolsUseSelectionForGrid(), "Tools.UseSelectionForGrid");
+	view_listener_t::addMenu(new LLToolsSelectNextPart(), "Tools.SelectNextPart");
 	view_listener_t::addMenu(new LLToolsLink(), "Tools.Link");
 	view_listener_t::addMenu(new LLToolsUnlink(), "Tools.Unlink");
 	view_listener_t::addMenu(new LLToolsStopAllAnimations(), "Tools.StopAllAnimations");
 	view_listener_t::addMenu(new LLToolsReleaseKeys(), "Tools.ReleaseKeys");
-	view_listener_t::addMenu(new LLToolsEnableReleaseKeys(), "Tools.EnableReleaseKeys");
-	view_listener_t::addMenu(new LLToolsLookAtSelection(), "Tools.LookAtSelection");
+	view_listener_t::addMenu(new LLToolsEnableReleaseKeys(), "Tools.EnableReleaseKeys");	
+	commit.add("Tools.LookAtSelection", boost::bind(&handle_look_at_selection, _2));
 	commit.add("Tools.BuyOrTake", boost::bind(&handle_buy_or_take));
 	commit.add("Tools.TakeCopy", boost::bind(&handle_take_copy));
 	view_listener_t::addMenu(new LLToolsSaveToInventory(), "Tools.SaveToInventory");
@@ -7765,6 +7836,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToolsSelectedScriptAction(), "Tools.SelectedScriptAction");
 
 	view_listener_t::addMenu(new LLToolsEnableToolNotPie(), "Tools.EnableToolNotPie");
+	view_listener_t::addMenu(new LLToolsEnableSelectNextPart(), "Tools.EnableSelectNextPart");
 	view_listener_t::addMenu(new LLToolsEnableLink(), "Tools.EnableLink");
 	view_listener_t::addMenu(new LLToolsEnableUnlink(), "Tools.EnableUnlink");
 	view_listener_t::addMenu(new LLToolsEnableBuyOrTake(), "Tools.EnableBuyOrTake");
@@ -7832,11 +7904,12 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedDumpRegionObjectCache(), "Advanced.DumpRegionObjectCache");
 
 	// Advanced > UI
-	view_listener_t::addMenu(new LLAdvancedWebBrowserTest(), "Advanced.WebBrowserTest");
+	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test, _2));
 	view_listener_t::addMenu(new LLAdvancedBuyCurrencyTest(), "Advanced.BuyCurrencyTest");
 	view_listener_t::addMenu(new LLAdvancedDumpSelectMgr(), "Advanced.DumpSelectMgr");
 	view_listener_t::addMenu(new LLAdvancedDumpInventory(), "Advanced.DumpInventory");
-	view_listener_t::addMenu(new LLAdvancedDumpFocusHolder(), "Advanced.DumpFocusHolder");
+	commit.add("Advanced.DumpTimers", boost::bind(&handle_dump_timers) );
+	commit.add("Advanced.DumpFocusHolder", boost::bind(&handle_dump_focus) );
 	view_listener_t::addMenu(new LLAdvancedPrintSelectedObjectInfo(), "Advanced.PrintSelectedObjectInfo");
 	view_listener_t::addMenu(new LLAdvancedPrintAgentInfo(), "Advanced.PrintAgentInfo");
 	view_listener_t::addMenu(new LLAdvancedPrintTextureMemoryStats(), "Advanced.PrintTextureMemoryStats");
@@ -7949,7 +8022,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLSelfStandUp(), "Self.StandUp");
 	view_listener_t::addMenu(new LLSelfRemoveAllAttachments(), "Self.RemoveAllAttachments");
 
-	view_listener_t::addMenu(new LLSelfEnableStandUp(), "Self.EnableStandUp");
+	visible.add("Self.VisibleStandUp", boost::bind(&enable_standup_self));
+	enable.add("Self.EnableStandUp", boost::bind(&enable_standup_self));
 	view_listener_t::addMenu(new LLSelfEnableRemoveAllAttachments(), "Self.EnableRemoveAllAttachments");
 
 	// we don't use boost::bind directly to delay side tray construction

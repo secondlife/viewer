@@ -47,7 +47,7 @@
 #include "llviewerwindow.h"
 
 // defined in llfloaterland.cpp
-void send_parcel_select_objects(S32 parcel_local_id, S32 return_type,
+void send_parcel_select_objects(S32 parcel_local_id, U32 return_type,
 								uuid_list_t* return_ids = NULL);
 
 enum Badge { BADGE_OK, BADGE_NOTE, BADGE_WARN, BADGE_ERROR };

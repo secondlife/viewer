@@ -70,10 +70,8 @@ public:
 	S32 mHeight;		// In pixels
 	F32 mXAdvance;		// In pixels
 	F32 mYAdvance;		// In pixels
-	BOOL mMetricsValid; // We have up-to-date metrics for this glyph
 
 	// Information for actually rendering
-	BOOL mIsRendered;	// We actually have rendered this glyph
 	S32 mXBitmapOffset; // Offset to the origin in the bitmap
 	S32 mYBitmapOffset; // Offset to the origin in the bitmap
 	S32 mXBearing;	// Distance from baseline to left in pixels
@@ -133,26 +131,13 @@ public:
 	F32 getXAdvance(llwchar wc) const;
 	F32 getXKerning(llwchar char_left, llwchar char_right) const; // Get the kerning between the two characters
 
-	BOOL hasGlyph(llwchar wch) const;		// Has a glyph for this character
-	BOOL addChar(llwchar wch) const;		// Add a new character to the font if necessary
-	BOOL addGlyph(llwchar wch, U32 glyph_index) const;	// Add a new glyph to the existing font
-	BOOL addGlyphFromFont(const LLFontFreetype *fontp, llwchar wch, U32 glyph_index) const;	// Add a glyph from this font to the other (returns the glyph_index, 0 if not found)
-
 	LLFontGlyphInfo* getGlyphInfo(llwchar wch) const;
 
-	void insertGlyphInfo(llwchar wch, LLFontGlyphInfo* gi) const;
-	void renderGlyph(U32 glyph_index) const;
-
 	void reset(F32 vert_dpi, F32 horz_dpi);
-	void resetBitmapCache();
 
 	void destroyGL();
 
-	BOOL getIsFallback() const;
-
 	const std::string& getName() const;
-
-	F32 getPointSize() const;
 
 	const LLPointer<LLFontBitmapCache> getFontBitmapCache() const;
 
@@ -160,7 +145,13 @@ public:
 	U8 getStyle() const;
 
 private:
+	void resetBitmapCache();
 	void setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32 width, U32 height, U8 *data, S32 stride = 0) const;
+	BOOL hasGlyph(llwchar wch) const;		// Has a glyph for this character
+	LLFontGlyphInfo* addGlyph(llwchar wch) const;		// Add a new character to the font if necessary
+	LLFontGlyphInfo* addGlyphFromFont(const LLFontFreetype *fontp, llwchar wch, U32 glyph_index) const;	// Add a glyph from this font to the other (returns the glyph_index, 0 if not found)
+	void renderGlyph(U32 glyph_index) const;
+	void insertGlyphInfo(llwchar wch, LLFontGlyphInfo* gi) const;
 
 	std::string mName;
 

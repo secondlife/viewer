@@ -144,7 +144,7 @@ This is a really long description for an object being as how it is at least 80 c
      image_disabled="OptionsMenu_Disabled"
      image_selected="OptionsMenu_Press"
      image_unselected="OptionsMenu_Off"
-     menu_filename="menu_inspect_avatar_gear.xml"
+     menu_filename="menu_inspect_object_gear.xml"
      name="gear_btn"
      picture_style="true"
      right="-10"

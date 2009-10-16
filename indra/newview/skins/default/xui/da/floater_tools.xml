@@ -153,7 +153,7 @@
 			</combo_box>
 		<panel name="perms_build">
 			<text name="perm_modify">
-				Du kan redigére dette objekt.
+				Du kan redigére dette objekt
 			</text>
 			<text name="B:">
 				B:
@@ -187,22 +187,22 @@
 				Du kan redigere disse objekter
 			</string>
 			<string name="text modify info 3">
-				Du kan ikke redigere dette objekt.
+				Du kan ikke redigere dette objekt
 			</string>
 			<string name="text modify info 4">
-				Du kan ikke redigere disse objekter.
+				Du kan ikke redigere disse objekter
 			</string>
 			<string name="text modify warning">
-				Du skal vælge hele objektet for at sætte rettigheder.
+				Du skal vælge hele objektet for at sætte rettigheder
 			</string>
 			<string name="Cost Default">
-				Pris:            L$
+				Pris: L$
 			</string>
 			<string name="Cost Total">
-				Total pris:   L$
+				Total pris: L$
 			</string>
 			<string name="Cost Per Unit">
-				Pris Pr:       L$
+				Pris Pr: L$
 			</string>
 			<string name="Cost Mixed">
 				Blandet pris
@@ -449,8 +449,8 @@
 			<button label="Ret ind" label_selected="Ret ind" name="button align" left="160"/>
 		</panel>
 		<panel label="Indhold" name="Contents">
-			<button label="Nyt script" label_selected="Nyt script..." name="button new script"/>
-			<button label="Rettigheder..." name="button permissions"/>
+			<button label="Nyt script" label_selected="Nyt script" name="button new script"/>
+			<button label="Rettigheder" name="button permissions"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
@@ -464,18 +464,18 @@
 			Område: [AREA] m².
 		</text>
 		<button label="Om land..." label_selected="Om land..." name="button about land"/>
-		<check_box label="Vis ejere" name="checkbox show owners" tool_tip="Farver grunde afhængigt af ejerskab"/>
+		<check_box label="Vis ejere" name="checkbox show owners" tool_tip="Farver grunde afhængigt af ejerskab: &#10;&#10;Grøn = Dit land &#10;Turkis = Din gruppes land &#10;Rød = Ejet af andre &#10;Gul = Til salg &#10;Lilla = På auktion &#10;Grå = Offentligt ejet"/>
 		<button label="?" label_selected="?" name="button show owners help"/>
 		<text name="label_parcel_modify">
 			Redigere grund
 		</text>
-		<button label="Opdel..." label_selected="Opdel..." name="button subdivide land"/>
-		<button label="Saml..." label_selected="Saml..." name="button join land"/>
+		<button label="Opdel" label_selected="Opdel" name="button subdivide land"/>
+		<button label="Saml" label_selected="Saml" name="button join land"/>
 		<text name="label_parcel_trans">
 			Transaktioner for land
 		</text>
-		<button label="Køb land..." label_selected="Køb land..." name="button buy land"/>
-		<button label="Flyt fra land..." label_selected="Flyt fra land..." name="button abandon land"/>
+		<button label="Køb land" label_selected="Køb land" name="button buy land"/>
+		<button label="Flyt fra land" label_selected="Flyt fra land" name="button abandon land"/>
 	</panel>
 	<floater.string name="status_rotate">
 		Træk i de farvede bånd for at rotere objekt

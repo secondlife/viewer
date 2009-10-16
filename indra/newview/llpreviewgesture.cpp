@@ -1178,7 +1178,7 @@ void LLPreviewGesture::onSaveComplete(const LLUUID& asset_uuid, void* user_data,
 			else
 			{
 				llwarns << "Inventory item for gesture " << info->mItemUUID
-						<< " is no longer in agent inventory." << llendl
+						<< " is no longer in agent inventory." << llendl;
 			}
 		}
 		else

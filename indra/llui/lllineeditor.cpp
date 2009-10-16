@@ -148,6 +148,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mBgImage( p.background_image ),
 	mBgImageDisabled( p.background_image_disabled ),
 	mBgImageFocused( p.background_image_focused ),
+	mHaveHistory(FALSE),
 	mReplaceNewlinesWithSpaces( TRUE ),
 	mLabel(p.label),
 	mCursorColor(p.cursor_color()),
@@ -164,13 +165,8 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mTripleClickTimer.reset();
 	setText(p.default_text());
 
-	// line history support:
-	// - initialize line history list
-	mLineHistory.insert( mLineHistory.end(), "" );
-	// - disable line history by default
-	mHaveHistory = FALSE;
-	// - reset current history line pointer
-	mCurrentHistoryLine = 0;
+	// Initialize current history line iterator
+	mCurrentHistoryLine = mLineHistory.begin();
 
 	LLRect border_rect(getLocalRect());
 	// adjust for gl line drawing glitch
@@ -278,16 +274,31 @@ void LLLineEditor::updateHistory()
 	// reset current history line number.
 	// Be sure only to remember lines that are not empty and that are
 	// different from the last on the list.
-	if( mHaveHistory && mText.length() && ( mLineHistory.empty() || getText() != mLineHistory.back() ) )
+	if( mHaveHistory && getLength() )
 	{
-		// discard possible empty line at the end of the history
-		// inserted by setText()
-		if( !mLineHistory.back().length() )
+		if( !mLineHistory.empty() )
 		{
-			mLineHistory.pop_back();
+			// When not empty, last line of history should always be blank.
+			if( mLineHistory.back().empty() )
+			{
+				// discard the empty line
+				mLineHistory.pop_back();
+			}
+			else
+			{
+				LL_WARNS("") << "Last line of history was not blank." << LL_ENDL;
+			}
 		}
-		mLineHistory.insert( mLineHistory.end(), getText() );
-		mCurrentHistoryLine = mLineHistory.size() - 1;
+
+		// Add text to history, ignoring duplicates
+		if( mLineHistory.empty() || getText() != mLineHistory.back() )
+		{
+			mLineHistory.push_back( getText() );
+		}
+
+		// Restore the blank line and set mCurrentHistoryLine to point at it
+		mLineHistory.push_back( "" );
+		mCurrentHistoryLine = mLineHistory.end() - 1;
 	}
 }
 
@@ -357,11 +368,8 @@ void LLLineEditor::setText(const LLStringExplicit &new_text)
 	}
 	setCursor(llmin((S32)mText.length(), getCursor()));
 
-	// Newly set text goes always in the last line of history.
-	// Possible empty strings (as with chat line) will be deleted later.
-	mLineHistory.insert( mLineHistory.end(), new_text );
 	// Set current history line to end of history.
-	mCurrentHistoryLine = mLineHistory.size() - 1;
+	mCurrentHistoryLine = mLineHistory.end() - 1;
 
 	mPrevText = mText;
 }
@@ -1254,9 +1262,9 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 	case KEY_UP:
 		if( mHaveHistory && ( MASK_CONTROL == mask ) )
 		{
-			if( mCurrentHistoryLine > 0 )
+			if( mCurrentHistoryLine > mLineHistory.begin() )
 			{
-				mText.assign( mLineHistory[ --mCurrentHistoryLine ] );
+				mText.assign( *(--mCurrentHistoryLine) );
 				setCursor(llmin((S32)mText.length(), getCursor()));
 			}
 			else
@@ -1271,9 +1279,9 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 	case KEY_DOWN:
 		if( mHaveHistory  && ( MASK_CONTROL == mask ) )
 		{
-			if( !mLineHistory.empty() && mCurrentHistoryLine < mLineHistory.size() - 1 )
+			if( !mLineHistory.empty() && mCurrentHistoryLine < mLineHistory.end() - 1 )
 			{
-				mText.assign( mLineHistory[ ++mCurrentHistoryLine ] );
+				mText.assign( *(++mCurrentHistoryLine) );
 				setCursor(llmin((S32)mText.length(), getCursor()));
 			}
 			else
@@ -2291,14 +2299,20 @@ BOOL LLLineEditor::hasPreeditString() const
 
 void LLLineEditor::resetPreedit()
 {
-	if (hasPreeditString())
+	if (hasSelection())
 	{
-		if (hasSelection())
+		if (hasPreeditString())
 		{
 			llwarns << "Preedit and selection!" << llendl;
 			deselect();
 		}
-
+		else
+		{
+			deleteSelection();
+		}
+	}
+	if (hasPreeditString())
+	{
 		const S32 preedit_pos = mPreeditPositions.front();
 		mText.erase(preedit_pos, mPreeditPositions.back() - preedit_pos);
 		mText.insert(preedit_pos, mPreeditOverwrittenWString);
@@ -2499,21 +2513,4 @@ LLWString LLLineEditor::getConvertedText() const
 		LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
 	}
 	return text;
-}
-
-namespace LLInitParam
-{
-	template<>
-	bool ParamCompare<LLLinePrevalidateFunc>::equals(const LLLinePrevalidateFunc &a, const LLLinePrevalidateFunc &b)
-	{
-		return false;
-	}
-
-	template<>
-	bool ParamCompare<boost::function<void (LLLineEditor *)> >::equals(
-		const boost::function<void (LLLineEditor *)> &a,
-		const boost::function<void (LLLineEditor *)> &b)
-	{
-		return false;
-	}
 }

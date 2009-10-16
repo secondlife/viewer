@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="sell land" title="Land verkaufen">
+    <scroll_container name="profile_scroll">
+    <panel name="scroll_content_panel">
 	<text name="info_parcel_label">
 		Parzelle:
 	</text>
@@ -60,4 +62,6 @@ wechseln den Eigentümer.
 	</text>
 	<button label="Land zum Verkauf freigeben" width="180" name="sell_btn" />
 	<button label="Abbrechen" name="cancel_btn" />
+    </panel>
+    </scroll_container>
 </floater>

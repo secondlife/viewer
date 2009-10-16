@@ -430,7 +430,7 @@ void	LLNearbyChat::pinn_panel()
 	mEChatTearofState = CHAT_PINNED;
 	LLIconCtrl* tearoff_btn = mChatCaptionPanel->getChild<LLIconCtrl>("tearoff_btn",false);
 	
-	tearoff_btn->setValue("inv_item_landmark_visited.tga");
+	tearoff_btn->setValue("Inv_Landmark");
 
 	const LLRect& parent_rect = gViewerWindow->getRootView()->getRect();
 	
@@ -451,7 +451,7 @@ void	LLNearbyChat::float_panel()
 	mEChatTearofState = CHAT_UNPINNED;
 	LLIconCtrl* tearoff_btn = mChatCaptionPanel->getChild<LLIconCtrl>("tearoff_btn", false);
 	
-	tearoff_btn->setValue("inv_item_landmark.tga");
+	tearoff_btn->setValue("Inv_Landmark");
 	mResizeBar[LLResizeBar::BOTTOM]->setVisible(true);
 	mResizeBar[LLResizeBar::LEFT]->setVisible(true);
 	mResizeBar[LLResizeBar::RIGHT]->setVisible(true);

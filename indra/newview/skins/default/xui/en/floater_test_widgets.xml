@@ -277,6 +277,7 @@
    follows="top|left" 
    label="Spinner"
    layout="topleft"
+   label_width="45" 
    name="test_spinner" 
    tool_tip="spinner"/>
   <text

@@ -369,7 +369,7 @@ void LLDrawPoolWater::shade()
 	LLVector3 light_dir;
 	LLColor3 light_color;
 
-	if (gSky.getSunDirection().mV[2] > NIGHTTIME_ELEVATION_COS) 	 
+	if (gSky.getSunDirection().mV[2] > LLSky::NIGHTTIME_ELEVATION_COS) 	 
     { 	 
         light_dir  = gSky.getSunDirection(); 	 
         light_dir.normVec(); 	

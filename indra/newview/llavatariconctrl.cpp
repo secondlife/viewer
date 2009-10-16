@@ -50,7 +50,94 @@
 
 static LLDefaultChildRegistry::Register<LLAvatarIconCtrl> r("avatar_icon");
 
-LLAvatarIconCtrl::avatar_image_map_t LLAvatarIconCtrl::sImagesCache;
+bool LLAvatarIconIDCache::LLAvatarIconIDCacheItem::expired()
+{
+	const F64 SEC_PER_DAY_PLUS_HOUR = (24.0 + 1.0) * 60.0 * 60.0;
+	F64 delta = LLDate::now().secondsSinceEpoch() - cached_time.secondsSinceEpoch();
+	if (delta > SEC_PER_DAY_PLUS_HOUR)
+		return true;
+	return false;
+}
+
+void LLAvatarIconIDCache::load	()
+{
+	llinfos << "Loading avatar icon id cache." << llendl;
+	
+	// build filename for each user
+	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, mFilename);
+	llifstream file(resolved_filename);
+
+	if (!file.is_open())
+		return;
+	
+	// add each line in the file to the list
+	int uuid_len = UUID_STR_LENGTH-1;
+	std::string line;
+	while (std::getline(file, line)) 
+	{
+		LLUUID avatar_id;
+		LLUUID icon_id;
+		LLDate date;
+
+		std::string avatar_id_str = line.substr(0,uuid_len);
+		std::string icon_id_str = line.substr(uuid_len,uuid_len);
+		
+		std::string date_str = line.substr(uuid_len*2, line.length()-uuid_len*2);
+
+		if(!avatar_id.set(avatar_id_str) || !icon_id.set(icon_id_str) || !date.fromString(date_str))
+			continue;
+
+		LLAvatarIconIDCacheItem item = {icon_id,date};
+		mCache[avatar_id] = item;
+	}
+
+	file.close();
+	
+}
+
+void LLAvatarIconIDCache::save	()
+{
+	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, mFilename);
+
+	// open a file for writing
+	llofstream file (resolved_filename);
+	if (!file.is_open())
+	{
+		llwarns << "can't open avatar icons cache file\"" << mFilename << "\" for writing" << llendl;
+		return;
+	}
+
+	for(std::map<LLUUID,LLAvatarIconIDCacheItem>::iterator it = mCache.begin();it!=mCache.end();++it)
+	{
+		if(!it->second.expired())
+		{
+			file << it->first << it->second.icon_id << it->second.cached_time << std::endl;	
+		}
+	}
+	
+	file.close();
+}
+
+LLUUID*	LLAvatarIconIDCache::get		(const LLUUID& avatar_id)
+{
+	std::map<LLUUID,LLAvatarIconIDCacheItem>::iterator it = mCache.find(avatar_id);
+	if(it==mCache.end())
+		return 0;
+	if(it->second.expired())
+		return 0;
+	return &it->second.icon_id;
+}
+
+void LLAvatarIconIDCache::add		(const LLUUID& avatar_id,const LLUUID& icon_id)
+{
+	LLAvatarIconIDCacheItem item = {icon_id,LLDate::now()};
+	mCache[avatar_id] = item;
+}
+
+void LLAvatarIconIDCache::remove	(const LLUUID& avatar_id)
+{
+	mCache.erase(avatar_id);
+}
 
 
 LLAvatarIconCtrl::Params::Params()
@@ -161,18 +248,13 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 			// an avatar.
 
 			// Check if cache already contains image_id for that avatar
-			avatar_image_map_t::iterator it = sImagesCache.find(mAvatarId);
-			if (it != sImagesCache.end())
+			
+			if (!updateFromCache())
 			{
-				updateFromCache(it->second);
-			}
-			else
-			{
-				app->addObserver(value.asUUID(), this);
-				app->sendAvatarPropertiesRequest(value.asUUID());
+				app->addObserver(mAvatarId, this);
+				app->sendAvatarPropertiesRequest(mAvatarId);
 			}
 		}
-
 	}
 	else
 	{
@@ -182,12 +264,18 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 	gCacheName->get(mAvatarId, FALSE, boost::bind(&LLAvatarIconCtrl::nameUpdatedCallback, this, _1, _2, _3, _4));
 }
 
-void LLAvatarIconCtrl::updateFromCache(LLAvatarIconCtrl::LLImagesCacheItem data)
+bool LLAvatarIconCtrl::updateFromCache()
 {
+	LLUUID* icon_id_ptr = LLAvatarIconIDCache::getInstance()->get(mAvatarId);
+	if(!icon_id_ptr)
+		return false;
+
+	const LLUUID& icon_id = *icon_id_ptr;
+
 	// Update the avatar
-	if (data.image_id.notNull())
+	if (icon_id.notNull())
 	{
-		LLIconCtrl::setValue(data.image_id);
+		LLIconCtrl::setValue(icon_id);
 	}
 	else
 	{
@@ -224,6 +312,7 @@ void LLAvatarIconCtrl::updateFromCache(LLAvatarIconCtrl::LLImagesCacheItem data)
 			setToolTip((LLStringExplicit)"");
 		}
 	}
+	return true;
 }
 
 //virtual
@@ -239,10 +328,8 @@ void LLAvatarIconCtrl::processProperties(void* data, EAvatarProcessorType type)
 				return;
 			}
 
-			LLAvatarIconCtrl::LLImagesCacheItem data(avatar_data->image_id, avatar_data->flags);
-
-			updateFromCache(data);
-			sImagesCache.insert(std::pair<LLUUID, LLAvatarIconCtrl::LLImagesCacheItem>(mAvatarId, data));
+			LLAvatarIconIDCache::getInstance()->add(mAvatarId,avatar_data->image_id);
+			updateFromCache();
 		}
 	}
 }

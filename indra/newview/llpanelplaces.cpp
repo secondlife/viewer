@@ -200,7 +200,7 @@ BOOL LLPanelPlaces::postBuild()
 	mFilterEditor = getChild<LLFilterEditor>("Filter");
 	if (mFilterEditor)
 	{
-		mFilterEditor->setCommitCallback(boost::bind(&LLPanelPlaces::onFilterEdit, this, _2));
+		mFilterEditor->setCommitCallback(boost::bind(&LLPanelPlaces::onFilterEdit, this, _2, false));
 	}
 
 	mPlaceInfo = getChild<LLPanelPlaceInfo>("panel_place_info");
@@ -225,11 +225,12 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 		return;
 
 	mFilterEditor->clear();
-	onFilterEdit("");
+	onFilterEdit("", false);
 
 	mPlaceInfoType = key["type"].asString();
 	mPosGlobal.setZero();
 	mItem = NULL;
+	isLandmarkEditModeOn = false;
 	togglePlaceInfoPanel(TRUE);
 	updateVerbs();
 
@@ -317,21 +318,38 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 void LLPanelPlaces::setItem(LLInventoryItem* item)
 {
-	if (!item)
+	if (!mPlaceInfo || !item)
 		return;
 
 	mItem = item;
-	
-	// If the item is a link get a linked item
-	if (mItem->getType() == LLAssetType::AT_LINK)
+
+	LLAssetType::EType item_type = mItem->getActualType();
+	if (item_type == LLAssetType::AT_LANDMARK || item_type == LLAssetType::AT_LINK)
 	{
-		mItem = gInventory.getItem(mItem->getAssetUUID());
-		if (mItem.isNull())
-			return;
+		// If the item is a link get a linked item
+		if (item_type == LLAssetType::AT_LINK)
+		{
+			mItem = gInventory.getItem(mItem->getLinkedUUID());
+			if (mItem.isNull())
+				return;
+		}
+	}
+	else
+	{
+		return;
 	}
 
-	if (!mPlaceInfo)
-		return;
+	// Check if item is in agent's inventory and he has the permission to modify it.
+	BOOL is_landmark_editable = gInventory.isObjectDescendentOf(mItem->getUUID(), gInventory.getRootFolderID()) &&
+								mItem->getPermissions().allowModifyBy(gAgent.getID());
+
+	mEditBtn->setEnabled(is_landmark_editable);
+	mSaveBtn->setEnabled(is_landmark_editable);
+
+	if (is_landmark_editable)
+	{
+		mPlaceInfo->setLandmarkFolder(mItem->getParentUUID());
+	}
 
 	mPlaceInfo->displayItemInfo(mItem);
 
@@ -352,17 +370,11 @@ void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
 	landmark->getRegionID(region_id);
 	landmark->getGlobalPos(mPosGlobal);
 	mPlaceInfo->displayParcelInfo(region_id, mPosGlobal);
-
-	// Check if item is in agent's inventory and he has the permission to modify it.
-	BOOL is_landmark_editable = mItem.notNull() &&
-								gInventory.isObjectDescendentOf(mItem->getUUID(), gInventory.getRootFolderID()) &&
-								mItem->getPermissions().allowModifyBy(gAgent.getID());
-	mEditBtn->setEnabled(is_landmark_editable);
 }
 
-void LLPanelPlaces::onFilterEdit(const std::string& search_string)
+void LLPanelPlaces::onFilterEdit(const std::string& search_string, bool force_filter)
 {
-	if (mFilterSubString != search_string)
+	if (force_filter || mFilterSubString != search_string)
 	{
 		mFilterSubString = search_string;
 
@@ -381,7 +393,7 @@ void LLPanelPlaces::onTabSelected()
 	if (!mActivePanel)
 		return;
 
-	onFilterEdit(mFilterSubString);	
+	onFilterEdit(mFilterSubString, true);
 	mActivePanel->updateVerbs();
 }
 
@@ -487,22 +499,6 @@ void LLPanelPlaces::onSaveButtonClicked()
 	if (!mPlaceInfo || mItem.isNull())
 		return;
 
-	LLAssetType::EType item_type = mItem->getType();
-	if (item_type == LLAssetType::AT_LANDMARK || item_type != LLAssetType::AT_LINK)
-	{
-		// If the item is a link get a linked item
-		if (item_type == LLAssetType::AT_LINK)
-		{
-			mItem = gInventory.getItem(mItem->getAssetUUID());
-			if (mItem.isNull())
-				return;
-		}
-	}
-	else
-	{
-		return;
-	}
-
 	std::string current_title_value = mPlaceInfo->getLandmarkTitle();
 	std::string item_title_value = mItem->getName();
 	std::string current_notes_value = mPlaceInfo->getLandmarkNotes();
@@ -511,72 +507,34 @@ void LLPanelPlaces::onSaveButtonClicked()
 	LLStringUtil::trim(current_title_value);
 	LLStringUtil::trim(current_notes_value);
 
-	bool is_item_update_needed = false;
+	LLUUID item_id = mItem->getUUID();
+	LLUUID folder_id = mPlaceInfo->getLandmarkFolder();
+
+	LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(mItem);
 
 	if (!current_title_value.empty() &&
 		(item_title_value != current_title_value || item_notes_value != current_notes_value))
 	{
-		is_item_update_needed = true;
+		new_item->rename(current_title_value);
+		new_item->setDescription(current_notes_value);
+		new_item->updateServer(FALSE);
 	}
 
-	LLUUID item_id = mItem->getUUID();
-	LLUUID folder_id = mPlaceInfo->getLandmarkFolder();
-
-	// Check if item is in agent's inventory and he has the permission to modify it.
-	if (!gInventory.isObjectDescendentOf(item_id, gInventory.getRootFolderID()) ||
-		!mItem->getPermissions().allowModifyBy(gAgent.getID()))
-		return;
-
-	if(folder_id != mItem->getParentUUID() || is_item_update_needed)
+	if(folder_id != mItem->getParentUUID())
 	{
-		LLViewerInventoryItem* item = (LLViewerInventoryItem*)mItem.get();
-		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+		LLInventoryModel::update_list_t update;
+		LLInventoryModel::LLCategoryUpdate old_folder(mItem->getParentUUID(),-1);
+		update.push_back(old_folder);
+		LLInventoryModel::LLCategoryUpdate new_folder(folder_id, 1);
+		update.push_back(new_folder);
+		gInventory.accountForUpdate(update);
 
-		LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
-
-		// If target is the favorites folder we create link to it.
-		if (favorites_id == folder_id)
-		{
-			if (is_item_update_needed)
-			{
-				new_item->rename(current_title_value);
-				new_item->setDescription(current_notes_value);
-				new_item->updateServer(FALSE);
-
-				gInventory.updateItem(new_item);
-				gInventory.notifyObservers();
-			}
-
-			link_inventory_item(gAgent.getID(),
-								item->getUUID(),
-								folder_id,
-								item->getName(),
-								LLAssetType::AT_LINK,
-								LLPointer<LLInventoryCallback>(NULL));
-		}
-		else
-		{
-			if (is_item_update_needed)
-			{
-				new_item->rename(current_title_value);
-				new_item->setDescription(current_notes_value);
-				new_item->updateServer(FALSE);
-			}
-
-			LLInventoryModel::update_list_t update;
-			LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
-			update.push_back(old_folder);
-			LLInventoryModel::LLCategoryUpdate new_folder(folder_id, 1);
-			update.push_back(new_folder);
-			gInventory.accountForUpdate(update);
-
-			new_item->setParent(folder_id);
-			new_item->updateParentOnServer(FALSE);
-
-			gInventory.updateItem(new_item);
-			gInventory.notifyObservers();
-		}
+		new_item->setParent(folder_id);
+		new_item->updateParentOnServer(FALSE);
 	}
+
+	gInventory.updateItem(new_item);
+	gInventory.notifyObservers();
 
 	onCancelButtonClicked();
 }
@@ -593,6 +551,8 @@ void LLPanelPlaces::onCancelButtonClicked()
 	else
 	{
 		mPlaceInfo->toggleLandmarkEditMode(FALSE);
+		isLandmarkEditModeOn = false;
+
 		updateVerbs();
 
 		// Reload the landmark properties.
@@ -707,6 +667,8 @@ void LLPanelPlaces::onBackButtonClicked()
 
 		// Resetting mPlaceInfoType when Place Info panel is closed.
 		mPlaceInfoType = LLStringUtil::null;
+
+		isLandmarkEditModeOn = false;
 	}
 
 	updateVerbs();
@@ -766,7 +728,8 @@ void LLPanelPlaces::changedParcelSelection()
 
 	// If agent is inside the selected parcel show agent's region<X, Y, Z>,
 	// otherwise show region<X, Y, Z> of agent's selection point.
-	if (is_agent_in_selected_parcel(parcel))
+	bool is_current_parcel = is_agent_in_selected_parcel(parcel);
+	if (is_current_parcel)
 	{
 		mPosGlobal = gAgent.getPositionGlobal();
 	}
@@ -780,7 +743,7 @@ void LLPanelPlaces::changedParcelSelection()
 	}
 
 	mPlaceInfo->resetLocation();
-	mPlaceInfo->displaySelectedParcelInfo(parcel, region, mPosGlobal);
+	mPlaceInfo->displaySelectedParcelInfo(parcel, region, mPosGlobal, is_current_parcel);
 
 	updateVerbs();
 }
@@ -885,8 +848,6 @@ void LLPanelPlaces::updateVerbs()
 		if (mActivePanel)
 			mActivePanel->updateVerbs();
 	}
-
-	isLandmarkEditModeOn = false;
 }
 
 static bool is_agent_in_selected_parcel(LLParcel* parcel)

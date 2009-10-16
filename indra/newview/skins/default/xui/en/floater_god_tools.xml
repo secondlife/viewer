@@ -23,6 +23,7 @@
          layout="topleft"
          left="1"
          mouse_opaque="false"
+         help_topic="godtools_grid_tab"
          name="grid"
          top="16"
          width="398">
@@ -61,6 +62,7 @@
          layout="topleft"
          left_delta="0"
          mouse_opaque="false"
+         help_topic="godtools_region_tab"
          name="region"
          top_delta="0"
          width="398">
@@ -483,6 +485,7 @@
          layout="topleft"
          left_delta="0"
          mouse_opaque="false"
+         help_topic="godtools_objects_tab"
          name="objects"
          top_delta="0"
          width="398">
@@ -690,6 +693,7 @@
          label="Request"
          layout="topleft"
          left_delta="0"
+         help_topic="godtools_request_tab"
          name="request"
          top_delta="0"
          width="398">

@@ -1556,6 +1556,9 @@ void LLUI::initClass(const settings_map_t& settings,
 	// Button initialization callback for toggle buttons
 	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Button.SetFloaterToggle", boost::bind(&LLButton::setFloaterToggle, _1, _2));
 	
+	// Button initialization callback for toggle buttons on dockale floaters
+	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Button.SetDockableFloaterToggle", boost::bind(&LLButton::setDockableFloaterToggle, _1, _2));
+
 	// Display the help topic for the current context
 	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Button.ShowHelp", boost::bind(&LLButton::showHelp, _1, _2));
 
@@ -1915,16 +1918,11 @@ namespace LLInitParam
 		declare("blue", LLColor4::blue);
 	}
 
-	template<>
-	class ParamCompare<const LLFontGL*>
+	bool ParamCompare<const LLFontGL*, false>::equals(const LLFontGL* a, const LLFontGL* b)
 	{
-	public:
-		static bool equals(const LLFontGL* a, const LLFontGL* b)
-		{
-			return !(a->getFontDesc() < b->getFontDesc())
-				&& !(b->getFontDesc() < a->getFontDesc());
-		}
-	};
+		return !(a->getFontDesc() < b->getFontDesc())
+			&& !(b->getFontDesc() < a->getFontDesc());
+	}
 
 	TypedParam<const LLFontGL*>::TypedParam(BlockDescriptor& descriptor, const char* _name, const LLFontGL*const value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
 	:	super_t(descriptor, _name, value, func, min_count, max_count),

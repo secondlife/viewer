@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="sell land" title="Sælg land">
+    <scroll_container name="profile_scroll">
+    <panel name="scroll_content_panel">
 	<text name="info_parcel_label">
 		Parcel:
 	</text>
@@ -55,4 +57,6 @@
 	</text>
 	<button label="Sæt land til salg" name="sell_btn" />
 	<button label="Annullér" name="cancel_btn" />
+    </panel>
+    </scroll_container>
 </floater>

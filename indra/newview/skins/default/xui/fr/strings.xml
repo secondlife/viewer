@@ -488,16 +488,16 @@
 		Choisir le répertoire
 	</string>
 	<string name="accel-mac-control">
-		Ctrl-
+		&#8963;
 	</string>
 	<string name="accel-mac-command">
-		Cmd-
+		&#8984;
 	</string>
 	<string name="accel-mac-option">
-		Opt-
+		&#8997;
 	</string>
 	<string name="accel-mac-shift">
-		Maj-
+		&#8679;
 	</string>
 	<string name="accel-win-control">
 		Ctrl+
@@ -604,6 +604,9 @@
 	<string name="no_ability_error">
 		Vous n&apos;avez pas ce pouvoir.
 	</string>
+	<string name="no_ability">
+		Vous n&apos;avez pas ce pouvoir.
+	</string>
 	<string name="not_a_mod_error">
 		Vous n&apos;êtes pas modérateur de session.
 	</string>
@@ -622,4 +625,31 @@
 	<string name="close_on_no_ability">
 		Vous ne pouvez plus participer à la session de chat.
 	</string>
+			<string name="AcctTypeResident">
+				Résident
+			</string>
+			<string name="AcctTypeTrial">
+				Essai
+			</string>
+			<string name="AcctTypeCharterMember">
+				Membre originaire
+			</string>
+			<string name="AcctTypeEmployee">
+				Employé(e) de Linden Lab
+			</string>
+			<string name="PaymentInfoUsed">
+				Infos de paiement utilisées
+			</string>
+			<string name="PaymentInfoOnFile">
+				Infos de paiement enregistrées
+			</string>
+			<string name="NoPaymentInfoOnFile">
+				Aucune info de paiement
+			</string>
+			<string name="AgeVerified">
+				Âge vérifié
+			</string>
+			<string name="NotAgeVerified">
+				Âge non vérifié
+			</string>
 </strings>

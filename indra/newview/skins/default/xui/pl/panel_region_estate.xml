@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="EstateWrapper">
-  <scroll_container name="container1">
-   <panel label="Majątek" name="Estate">
+<panel label="Majątek" name="Estate">
 	<text name="estate_help_text">
 		Zmiany ustawień na tej zakładce odnoszą się
 do wszystkich Regionów w tym Majątku.
@@ -73,6 +71,4 @@ do wszystkich Regionów w tym Majątku.
 	<name_list name="banned_avatar_name_list"/>
 	<button label="Usuń..." name="remove_banned_avatar_btn"/>
 	<button label="Dodaj..." name="add_banned_avatar_btn"/>
-    </panel>
-  </scroll_container>
 </panel>

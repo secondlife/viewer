@@ -703,7 +703,8 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 					.image(LLUI::getUIImage("Info"))
 					.click_callback(boost::bind(showAvatarInspector, hover_object->getID()))
 					.visible_time_near(6.f)
-					.visible_time_far(3.f));
+					.visible_time_far(3.f)
+					.wrap(false));
 			}
 		}
 		else
@@ -746,7 +747,8 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 						.image(LLUI::getUIImage("Info"))
 						.click_callback(boost::bind(showObjectInspector, hover_object->getID()))
 						.visible_time_near(6.f)
-						.visible_time_far(3.f));
+						.visible_time_far(3.f)
+						.wrap(false));
 				}
 			}
 		}

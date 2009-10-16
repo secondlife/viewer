@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="sell land" title="土地を販売" height="496" min_height="496" >
+    <scroll_container name="profile_scroll">
+    <panel name="scroll_content_panel">
 	<text name="info_parcel_label">
 		区画：
 	</text>
@@ -63,4 +65,6 @@
 	</text>
 	<button label="販売を決定" name="sell_btn" bottom="-489"/>
 	<button label="取り消し" name="cancel_btn" />
+    </panel>
+    </scroll_container>
 </floater>

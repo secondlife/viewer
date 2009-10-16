@@ -164,7 +164,7 @@
      control_name="RememberPassword"
      follows="left|bottom"
      height="16"
-     label="Remember me"
+     label="Remember password"
      layout="topleft"
      left_pad="10"
      name="remember_check"

@@ -66,7 +66,7 @@ public:
 
 private:
 	void onLandmarkLoaded(LLLandmark* landmark);
-	void onFilterEdit(const std::string& search_string);
+	void onFilterEdit(const std::string& search_string, bool force_filter);
 	void onTabSelected();
 
 	//void onShareButtonClicked();

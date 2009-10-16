@@ -2,13 +2,13 @@
 <panel
  background_visible="true"
  bevel_style="in"
- height="420"
+ height="570"
  label="Edit Pick"
  layout="topleft"
  left="0"
  name="panel_edit_pick"
  top="0"
- width="255">
+ width="333">
    <text
      type="string"
      length="1"
@@ -36,34 +36,26 @@
    <scroll_container
      color="DkGray2"
      follows="left|top|right|bottom"
-     height="300"
+     height="470"
      layout="topleft"
-     left="0"
+     left="10"
+     top_pad="10"
      name="profile_scroll"
      reserve_scroll_corner="true"
      opaque="true"
-     width="255">
+     width="313">
     <panel
      name="scroll_content_panel"
      follows="left|top|right"
      layout="topleft"
      top="0"
      left="0"
-     width="240"
-     height="575">
-    <panel
-     background_visible="true"
-     bg_alpha_color="DkGray2"
-     width="220"
-     follows="left|right|top|bottom"
-     height="560"
-     layout="topleft"
-     left="0"
-     top="0">
+     width="298"
+     height="555">
     <texture_picker
      follows="left|top|right"
-     height="190"
-     width="220"
+     height="197"
+     width="280"
      layout="topleft"
      top="20"
      left="10"
@@ -101,7 +93,7 @@
          max_length="63"
          name="pick_name"
          text_color="black"
-         width="220" />
+         width="280" />
         <text
          type="string"
          length="1"
@@ -119,8 +111,8 @@
         <text_editor
          follows="left|top|right"
          height="100"
-         width="220"
-         hide_scrollbar="true"
+         width="280"
+         hide_scrollbar="false"
          layout="topleft"
          left="10"
          top_pad="2"
@@ -153,7 +145,7 @@
          right="-10"
          top_pad="2"
          text_color="white"
-         width="250"
+         width="280"
          word_wrap="true">
             loading...
         </text>
@@ -165,7 +157,6 @@
          left="10"
          name="set_to_curr_location_btn"
          width="200" />
-    </panel>
     </panel>
     </scroll_container>
     <panel

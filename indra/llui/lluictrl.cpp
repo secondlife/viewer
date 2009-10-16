@@ -795,16 +795,29 @@ bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
 	LLUICtrl* ctrl = this;
 
 	// search back through the control's parents for a panel
-	// with a help_topic string defined
+	// or tab with a help_topic string defined
 	while (ctrl)
 	{
 		LLPanel *panel = dynamic_cast<LLPanel *>(ctrl);
-		if (panel && !panel->getHelpTopic().empty())
+
+		if (panel)
 		{
-			help_topic_out = panel->getHelpTopic();
-			return true; // success
+			// does the panel have an active tab with a help topic?
+			LLPanel *tab = panel->childGetVisibleTabWithHelp();
+			if (tab)
+			{
+				help_topic_out = tab->getHelpTopic();
+				return true; // success (tab)
+			}
+
+			// otherwise, does the panel have a help topic itself?
+			if (!panel->getHelpTopic().empty())
+			{
+				help_topic_out = panel->getHelpTopic();
+				return true; // success (panel)
+			}		
 		}
-		
+
 		ctrl = ctrl->getParentUICtrl();
 	}
 
@@ -836,24 +849,3 @@ BOOL LLUICtrl::getTentative() const
 // virtual
 void LLUICtrl::setColor(const LLColor4& color)							
 { }
-
-
-namespace LLInitParam
-{
-    template<> 
-	bool ParamCompare<LLUICtrl::commit_callback_t>::equals(
-		const LLUICtrl::commit_callback_t &a, 
-		const LLUICtrl::commit_callback_t &b)
-    {
-    	return false;
-    }
-    
-   
-    template<> 
-	bool ParamCompare<LLUICtrl::enable_callback_t>::equals(
-		const LLUICtrl::enable_callback_t &a, 
-		const LLUICtrl::enable_callback_t &b)
-    {
-    	return false;
-    }
-}

@@ -167,11 +167,4 @@ private:
 };
 
 
-namespace LLInitParam
-{
-    template<>
-	bool ParamCompare<boost::function<void (S32, LLScrollbar*)> >::equals(
-		const boost::function<void (S32, LLScrollbar*)> &a, const boost::function<void (S32, LLScrollbar*)> &b); 
-}
-
 #endif  // LL_SCROLLBAR_H

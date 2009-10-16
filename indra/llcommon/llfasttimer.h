@@ -37,7 +37,75 @@
 
 #define FAST_TIMER_ON 1
 
-LL_COMMON_API U64 get_cpu_clock_count();
+#if LL_WINDOWS
+
+// shift off lower 8 bits for lower resolution but longer term timing
+// on 1Ghz machine, a 32-bit word will hold ~1000 seconds of timing
+inline U32 get_cpu_clock_count_32()
+{
+	U32 ret_val;
+	__asm 
+	{
+        _emit   0x0f
+        _emit   0x31
+		shr eax,8
+		shl edx,24
+		or eax, edx
+		mov dword ptr [ret_val], eax
+	}
+    return ret_val;
+}
+
+// return full timer value, still shifted by 8 bits
+inline U64 get_cpu_clock_count_64()
+{
+	U64 ret_val;
+	__asm 
+	{
+        _emit   0x0f
+        _emit   0x31
+		mov eax,eax
+		mov edx,edx
+		mov dword ptr [ret_val+4], edx
+		mov dword ptr [ret_val], eax
+	}
+    return ret_val >> 8;
+}
+
+#endif // LL_WINDOWS
+
+#if (LL_LINUX || LL_SOLARIS || LL_DARWIN) && (defined(__i386__) || defined(__amd64__))
+inline U32 get_cpu_clock_count_32()
+{																	
+	U64 x;															
+	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));					
+	return (U32)x >> 8;													
+}
+
+inline U32 get_cpu_clock_count_64()
+{																	
+	U64 x;
+	__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
+	return x >> 8;
+}
+#endif
+
+#if ( LL_DARWIN && !(defined(__i386__) || defined(__amd64__))) || (LL_SOLARIS && defined(__sparc__))
+//
+// Mac PPC (deprecated) & Solaris SPARC implementation of CPU clock
+//
+// Just use gettimeofday implementation for now
+
+inline U32 get_cpu_clock_count_32()
+{
+	return (U32)get_clock_count();
+}
+
+inline U32 get_cpu_clock_count_64()
+{																	
+	return get_clock_count();
+}
+#endif
 
 class LLMutex;
 
@@ -52,13 +120,14 @@ public:
 	class LL_COMMON_API NamedTimer 
 	:	public LLInstanceTracker<NamedTimer>
 	{
+		friend class DeclareTimer;
 	public:
 		~NamedTimer();
 
 		enum { HISTORY_NUM = 60 };
 
-		const std::string& getName() { return mName; }
-		NamedTimer* getParent() { return mParent; }
+		const std::string& getName() const { return mName; }
+		NamedTimer* getParent() const { return mParent; }
 		void setParent(NamedTimer* parent);
 		S32 getDepth();
 		std::string getToolTip(S32 history_index = -1);
@@ -71,11 +140,11 @@ public:
 		void setCollapsed(bool collapsed) { mCollapsed = collapsed; }
 		bool getCollapsed() const { return mCollapsed; }
 
-		U64 getCountAverage() const { return mCountAverage; }
-		U64 getCallAverage() const { return mCallAverage; }
+		U32 getCountAverage() const { return mCountAverage; }
+		U32 getCallAverage() const { return mCallAverage; }
 
-		U64 getHistoricalCount(S32 history_index = 0) const;
-		U64 getHistoricalCalls(S32 history_index = 0) const;
+		U32 getHistoricalCount(S32 history_index = 0) const;
+		U32 getHistoricalCalls(S32 history_index = 0) const;
 
 		static NamedTimer& getRootNamedTimer();
 
@@ -83,8 +152,7 @@ public:
 		{
 			FrameState(NamedTimer* timerp);
 
-			U64 		mSelfTimeCounter;
-			U64			mLastStartTime;		// most recent time when this timer was started
+			U32 		mSelfTimeCounter;
 			U32 		mCalls;
 			FrameState*	mParent;		// info for caller timer
 			FrameState*	mLastCaller;	// used to bootstrap tree construction
@@ -92,11 +160,6 @@ public:
 			U16			mActiveCount;	// number of timers with this ID active on stack
 			bool		mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
 		};
-
-		FrameState& getFrameStateFast() const
-		{
-			return (*sTimerInfos)[mFrameStateIndex];
-		}
 
 		S32 getFrameStateIndex() const { return mFrameStateIndex; }
 
@@ -122,10 +185,7 @@ public:
 		static void resetFrame();
 		static void reset();
 
-		typedef std::vector<FrameState> info_list_t;
-		static info_list_t& getFrameStateList();
-		static void createFrameStateList(); // must call before any call to getFrameStateList()
-		
+	
 		//
 		// members
 		//
@@ -133,13 +193,13 @@ public:
 
 		std::string	mName;
 
-		U64 		mTotalTimeCounter;
+		U32 		mTotalTimeCounter;
 
-		U64 		mCountAverage;
-		U64			mCallAverage;
+		U32 		mCountAverage;
+		U32			mCallAverage;
 
-		U64*		mCountHistory;
-		U64*		mCallHistory;
+		U32*		mCountHistory;
+		U32*		mCallHistory;
 
 		// tree structure
 		NamedTimer*					mParent;				// NamedTimer of caller(parent)
@@ -147,41 +207,46 @@ public:
 		bool						mCollapsed;				// don't show children
 		bool						mNeedsSorting;			// sort children whenever child added
 
-		static info_list_t* sTimerInfos;
 	};
 
 	// used to statically declare a new named timer
 	class LL_COMMON_API DeclareTimer
+	:	public LLInstanceTracker<DeclareTimer>
 	{
 	public:
 		DeclareTimer(const std::string& name, bool open);
 		DeclareTimer(const std::string& name);
 
+		static void updateCachedPointers();
+
 		// convertable to NamedTimer::FrameState for convenient usage of LLFastTimer(declared_timer)
-		operator NamedTimer::FrameState&() { return mNamedTimer.getFrameStateFast(); }
+		operator NamedTimer::FrameState&() { return *mFrameState; }
 	private:
-		NamedTimer& mNamedTimer;
+		NamedTimer&				mTimer;
+		NamedTimer::FrameState* mFrameState; 
 	};
 
 
 public:
-	enum RootTimerMarker { ROOT };
-	
 	static LLMutex* sLogLock;
 	static std::queue<LLSD> sLogQueue;
 	static BOOL sLog;
 	static BOOL sMetricLog;
 
+	typedef std::vector<NamedTimer::FrameState> info_list_t;
+	static info_list_t& getFrameStateList();
+
+	enum RootTimerMarker { ROOT };
 	LLFastTimer(RootTimerMarker);
 
 	LLFastTimer(NamedTimer::FrameState& timer)
 	:	mFrameState(&timer)
 	{
 #if FAST_TIMER_ON
-		NamedTimer::FrameState* frame_state = mFrameState;
-		U64 cur_time = get_cpu_clock_count();
-		frame_state->mLastStartTime = cur_time;
+		NamedTimer::FrameState* frame_state = &timer;
+		U32 cur_time = get_cpu_clock_count_32();
 		mStartSelfTime = cur_time;
+		mStartTotalTime = cur_time;
 
 		frame_state->mActiveCount++;
 		frame_state->mCalls++;
@@ -197,7 +262,7 @@ public:
 	{
 #if FAST_TIMER_ON
 		NamedTimer::FrameState* frame_state = mFrameState;
-		U64 cur_time = get_cpu_clock_count();
+		U32 cur_time = get_cpu_clock_count_32();
 		frame_state->mSelfTimeCounter += cur_time - mStartSelfTime;
 
 		frame_state->mActiveCount--;
@@ -208,7 +273,7 @@ public:
 		frame_state->mLastCaller = last_timer->mFrameState;
 
 		// we are only tracking self time, so subtract our total time delta from parents
-		U64 total_time = cur_time - frame_state->mLastStartTime;
+		U32 total_time = cur_time - mStartTotalTime;
 		last_timer->mStartSelfTime += total_time;
 #endif
 	}
@@ -240,9 +305,11 @@ private:
 	static LLFastTimer*		sCurTimer;
 	static S32				sCurFrameIndex;
 	static S32				sLastFrameIndex;
+	static U64				sLastFrameTime;
+	static info_list_t*		sTimerInfos;
 
-	static F64				sCPUClockFrequency;
-	U64						mStartSelfTime;	// start time + time of all child timers
+	U32						mStartSelfTime;	// start time + time of all child timers
+	U32						mStartTotalTime;	// start time + time of all child timers
 	NamedTimer::FrameState*	mFrameState;
 	LLFastTimer*			mLastTimer;
 };

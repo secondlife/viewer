@@ -107,9 +107,10 @@ static LLDefaultChildRegistry::Register<LLTabContainer> r2("tab_container");
 
 LLTabContainer::Params::Params()
 :	tab_width("tab_width"),
-	tab_position("tab_position"),
 	tab_min_width("tab_min_width"),
 	tab_max_width("tab_max_width"),
+	tab_height("tab_height"),
+	tab_position("tab_position"),
 	hide_tabs("hide_tabs", false),
 	tab_padding_right("tab_padding_right"),
 	tab_top_image_unselected("tab_top_image_unselected"),
@@ -136,6 +137,7 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mLockedTabCount(0),
 	mMinTabWidth(0),
 	mMaxTabWidth(p.tab_max_width),
+	mTabHeight(p.tab_height),
 	mPrevArrowBtn(NULL),
 	mNextArrowBtn(NULL),
 	mIsVertical( p.tab_position == LEFT ),
@@ -802,7 +804,6 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 
 	static LLUICachedControl<S32> tabcntrv_pad ("UITabCntrvPad", 0);
 	static LLUICachedControl<S32> tabcntr_button_panel_overlap ("UITabCntrButtonPanelOverlap", 0);
-	static LLUICachedControl<S32> tabcntr_tab_height ("UITabCntrTabHeight", 0);
 	static LLUICachedControl<S32> tab_padding ("UITabPadding", 0);
 	if (child->getParent() == this)
 	{
@@ -830,14 +831,14 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	{
 		if( getTabPosition() == LLTabContainer::TOP )
 		{
-			S32 tab_height = mIsVertical ? BTN_HEIGHT : tabcntr_tab_height;
+			S32 tab_height = mIsVertical ? BTN_HEIGHT : mTabHeight;
 			tab_panel_top = getRect().getHeight() - getTopBorderHeight() - (tab_height - tabcntr_button_panel_overlap);	
 			tab_panel_bottom = LLPANEL_BORDER_WIDTH;
 		}
 		else
 		{
 			tab_panel_top = getRect().getHeight() - getTopBorderHeight();
-			tab_panel_bottom = (tabcntr_tab_height - tabcntr_button_panel_overlap);  // Run to the edge, covering up the border
+			tab_panel_bottom = (mTabHeight - tabcntr_button_panel_overlap);  // Run to the edge, covering up the border
 		}
 	}
 	else
@@ -886,13 +887,13 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	}
 	else if( getTabPosition() == LLTabContainer::TOP )
 	{
-		btn_rect.setLeftTopAndSize( 0, getRect().getHeight() - getTopBorderHeight() + tab_fudge, button_width, tabcntr_tab_height );
+		btn_rect.setLeftTopAndSize( 0, getRect().getHeight() - getTopBorderHeight() + tab_fudge, button_width, mTabHeight);
 		tab_img = mImageTopUnselected.get();
 		tab_selected_img = mImageTopSelected.get();
 	}
 	else
 	{
-		btn_rect.setOriginAndSize( 0, 0 + tab_fudge, button_width, tabcntr_tab_height );
+		btn_rect.setOriginAndSize( 0, 0 + tab_fudge, button_width, mTabHeight);
 		tab_img = mImageBottomUnselected.get();
 		tab_selected_img = mImageBottomSelected.get();
 	}

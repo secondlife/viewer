@@ -40,6 +40,7 @@
          label="Search"
          layout="topleft"
          left="6"
+         help_topic="avatarpicker_search_tab"
          name="SearchPanel"
          top="150"
          width="132">
@@ -91,6 +92,7 @@
          label="Near Me"
          layout="topleft"
          left="6"
+         help_topic="avatarpicker_near_me_tab"
          name="NearMePanel"
          top="150"
          width="132">

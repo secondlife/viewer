@@ -18,18 +18,31 @@
      left_delta="7"
      left="0"
      name="chat_box"
-     tool_tip="Press Enter to say, Ctrl-Enter to shout."
+     tool_tip="Press Enter to say, Ctrl+Enter to shout."
      top="3"
      width="250" />
+    <output_monitor
+     auto_update="true"
+     follows="right"
+     draw_border="false"
+     halign="left"
+     height="16"
+     layout="topleft"
+     left_pad="-24"
+     mouse_opaque="true"
+     name="chat_zone_indicator"
+     top="4"
+     visible="true"
+     width="20" />
     <button 
-	   follows="right" 
-	   width="45" 
-	   top="3" 
-	   layout="topleft" 
-	   left_pad="5"
-	   label="Log" 
-	   height="20">
-      <button.commit_callback function="Floater.Toggle" parameter="nearby_chat"/>
+     follows="right" 
+     width="45"
+     top="3" 
+     layout="topleft" 
+     left_pad="5"
+     label="Log" 
+     height="20">
+    <button.commit_callback function="Floater.Toggle" parameter="nearby_chat"/>
     </button>
     <chiclet_talk
      follows="right"

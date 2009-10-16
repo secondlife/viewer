@@ -484,16 +484,16 @@
 		Scegli la cartella
 	</string>
 	<string name="accel-mac-control">
-		Ctrl-
+		&#8963;
 	</string>
 	<string name="accel-mac-command">
-		Cmd-
+		&#8984;
 	</string>
 	<string name="accel-mac-option">
-		Opt-
+		&#8997;
 	</string>
 	<string name="accel-mac-shift">
-		Shift-
+		&#8679;
 	</string>
 	<string name="accel-win-control">
 		Ctrl+
@@ -600,6 +600,9 @@
 	<string name="no_ability_error">
 		Non hai questa abilitazione.
 	</string>
+	<string name="no_ability">
+		Non hai questa abilitazione.
+	</string>
 	<string name="not_a_mod_error">
 		Non sei un moderatore.
 	</string>
@@ -618,4 +621,31 @@
 	<string name="close_on_no_ability">
 		Non hai più le abilitazioni per rimanere nella sessione chat.
 	</string>
+			<string name="AcctTypeResident">
+				Residente
+			</string>
+			<string name="AcctTypeTrial">
+				Prova
+			</string>
+			<string name="AcctTypeCharterMember">
+				Membro privilegiato
+			</string>
+			<string name="AcctTypeEmployee">
+				Impiegato della Linden Lab
+			</string>
+			<string name="PaymentInfoUsed">
+				Info. di pagamento usate
+			</string>
+			<string name="PaymentInfoOnFile">
+				Info. di pagamento in archivio
+			</string>
+			<string name="NoPaymentInfoOnFile">
+				Nessuna info. di pagamento
+			</string>
+			<string name="AgeVerified">
+				Età verificata
+			</string>
+			<string name="NotAgeVerified">
+				Età non verificata
+			</string>
 </strings>

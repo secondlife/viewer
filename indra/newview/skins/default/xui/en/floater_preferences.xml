@@ -52,54 +52,63 @@
          filename="panel_preferences_general.xml"
          label="General"
          layout="topleft"
+         help_topic="preferences_general_tab"
          name="general" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_graphics1.xml"
          label="Graphics"
          layout="topleft"
+         help_topic="preferences_display_tab"
          name="display" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_im.xml"
          label="Privacy"
          layout="topleft"
+         help_topic="preferences_im_tab"
          name="im" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_audio.xml"
          label="Sound"
          layout="topleft"
+         help_topic="preferences_audio_tab"
          name="audio" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_chat.xml"
          label="Chat"
          layout="topleft"
+         help_topic="preferences_chat_tab"
          name="chat" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_popups.xml"
          label="Alerts"
          layout="topleft"
+         help_topic="preferences_msgs_tab"
          name="msgs" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_input.xml"
          label="Setup"
          layout="topleft"
+         help_topic="preferences_input_tab"
          name="input" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_advanced.xml"
          label="Advanced"
          layout="topleft"
+         help_topic="preferences_advanced1_tab"
          name="advanced1" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_advanced2.xml"
          label="Move or Kill"
          layout="topleft"
+         help_topic="preferences_advanced2_tab"
          name="advanced2" />
     </tab_container>
 

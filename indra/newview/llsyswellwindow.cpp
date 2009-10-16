@@ -112,9 +112,12 @@ BOOL LLSysWellWindow::postBuild()
 void LLSysWellWindow::setMinimized(BOOL minimize)
 {
 	// we don't show empty Message Well window
-	setVisible(!minimize && !isWindowEmpty());
+	if (!minimize)
+	{
+		setVisible(!isWindowEmpty());
+	}
 
-	LLFloater::setMinimized(minimize);
+	LLDockableFloater::setMinimized(minimize);
 }
 
 //---------------------------------------------------------------------------------
@@ -264,7 +267,7 @@ void LLSysWellWindow::toggleWindow()
 				getDockTongue(), LLDockControl::TOP, boost::bind(&LLSysWellWindow::getAllowedRect, this, _1)));
 	}
 
-	if(!getVisible())
+	if(!getVisible() || isMinimized())
 	{
 		if(isWindowEmpty())
 		{
@@ -273,7 +276,7 @@ void LLSysWellWindow::toggleWindow()
 
 		setVisible(TRUE);
 	}
-	else
+	else if (isDocked())
 	{
 		setVisible(FALSE);
 	}

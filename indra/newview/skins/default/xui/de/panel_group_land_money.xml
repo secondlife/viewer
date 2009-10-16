@@ -48,8 +48,11 @@
 	<string name="land_contrib_error">
 		Ihr Landbeitrag kann nicht festgelegt werden.
 	</string>
+	<text name="your_contribution_units">
+		( qm )
+	</text>
 	<text name="your_contribution_max_value">
-		qm (max. [AMOUNT])
+		(max. [AMOUNT])
 	</text>
 	<text name="group_over_limit_text">
 		Die Gruppenmitglieder müssen mehr Landnutzungsrechte spenden, damit das verwendete Land gehalten werden kann.

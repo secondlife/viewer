@@ -86,6 +86,7 @@ LLIMMgr* gIMMgr = NULL;
 //
 // *FIXME: make these all either UIStrings or Strings
 
+const static std::string IM_SEPARATOR(": ");
 
 std::map<LLUUID, LLIMModel::LLIMSession*> LLIMModel::sSessionsMap;
 
@@ -119,14 +120,16 @@ LLIMModel::LLIMModel()
 }
 
 
-LLIMModel::LLIMSession::LLIMSession( const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id )
+LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, const std::vector<LLUUID>& ids)
 :	mSessionID(session_id),
 	mName(name),
 	mType(type),
 	mNumUnread(0),
 	mOtherParticipantID(other_participant_id),
+	mInitialTargetIDs(ids),
 	mVoiceChannel(NULL),
-	mSpeakers(NULL)
+	mSpeakers(NULL),
+	mSessionInitialized(false)
 {
 	if (IM_NOTHING_SPECIAL == type || IM_SESSION_P2P_INVITE == type)
 	{
@@ -140,6 +143,14 @@ LLIMModel::LLIMSession::LLIMSession( const LLUUID& session_id, const std::string
 
 	// All participants will be added to the list of people we've recently interacted with.
 	mSpeakers->addListener(&LLRecentPeople::instance(), "add");
+
+	if (!LLIMModel::getInstance()->sendStartSession(mSessionID, mOtherParticipantID, 
+		mInitialTargetIDs, mType))
+	{
+		//we don't need to wait for any responses
+		//so we're already initialized
+		mSessionInitialized = true;
+	}
 }
 
 LLIMModel::LLIMSession::~LLIMSession()
@@ -186,10 +197,17 @@ void LLIMModel::updateSessionID(const LLUUID& old_session_id, const LLUUID& new_
 		session->mSessionID = new_session_id;
 		session->mVoiceChannel->updateSessionID(new_session_id);
 
-		//*TODO set session initialized flag here? (IB)
+		session->mSessionInitialized = true;
 
 		sSessionsMap.erase(old_session_id);
 		sSessionsMap[new_session_id] = session;
+	}
+
+	//*TODO remove this "floater" stuff when Communicate Floater is gone
+	LLFloaterIMPanel* floater = gIMMgr->findFloaterBySession(old_session_id);
+	if (floater)
+	{
+		floater->sessionInitReplyReceived(new_session_id);
 	}
 }
 
@@ -219,7 +237,7 @@ void LLIMModel::testMessages()
 }
 
 
-bool LLIMModel::newSession(LLUUID session_id, std::string name, EInstantMessage type, LLUUID other_participant_id)
+bool LLIMModel::newSession(LLUUID session_id, std::string name, EInstantMessage type, LLUUID other_participant_id, const std::vector<LLUUID>& ids)
 {
 	if (is_in_map(sSessionsMap, session_id))
 	{
@@ -227,7 +245,7 @@ bool LLIMModel::newSession(LLUUID session_id, std::string name, EInstantMessage 
 		return false;
 	}
 
-	LLIMSession* session = new LLIMSession(session_id, name, type, other_participant_id);
+	LLIMSession* session = new LLIMSession(session_id, name, type, other_participant_id, ids);
 	sSessionsMap[session_id] = session;
 
 	LLIMMgr::getInstance()->notifyObserverSessionAdded(session_id, name, other_participant_id);
@@ -303,9 +321,34 @@ bool LLIMModel::addToHistory(LLUUID session_id, std::string from, std::string ut
 
 }
 
-		
-bool LLIMModel::addMessage(LLUUID session_id, std::string from, LLUUID from_id, std::string utf8_text) { 
+//*TODO rewrite chat history persistence using LLSD serialization (IB)
+bool LLIMModel::logToFile(const LLUUID& session_id, const std::string& from, const std::string& utf8_text)
+{
+	S32 im_log_option =  gSavedPerAccountSettings.getS32("IMLogOptions");
+	if (im_log_option != LOG_CHAT)
+	{
+		std::string histstr;
+		if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
+			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + from + IM_SEPARATOR + utf8_text;
+		else
+			histstr = from + IM_SEPARATOR + utf8_text;
 
+		if(im_log_option == LOG_BOTH_TOGETHER)
+		{
+			LLLogChat::saveHistory(std::string("chat"), histstr);
+			return true;
+		}
+		else
+		{
+			LLLogChat::saveHistory(LLIMModel::getInstance()->getName(session_id), histstr);
+			return true;
+		}
+	}
+	return false;
+}
+
+//*TODO add const qualifier and pass by references (IB)
+bool LLIMModel::addMessage(LLUUID session_id, std::string from, LLUUID from_id, std::string utf8_text, bool log2file /* = true */) { 
 	LLIMSession* session = findIMSession(session_id);
 
 	if (!session) 
@@ -315,10 +358,8 @@ bool LLIMModel::addMessage(LLUUID session_id, std::string from, LLUUID from_id, 
 	}
 
 	addToHistory(session_id, from, utf8_text);
+	if (log2file) logToFile(session_id, from, utf8_text);
 
-	std::string agent_name;
-	LLAgentUI::buildFullname(agent_name);
-	
 	session->mNumUnread++;
 
 	// notify listeners
@@ -527,7 +568,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 		// Do we have to replace the /me's here?
 		std::string from;
 		LLAgentUI::buildFullname(from);
-		LLIMModel::instance().addToHistory(im_session_id, from, utf8_text);
+		LLIMModel::getInstance()->addMessage(im_session_id, from, gAgentID, utf8_text);
 
 		//local echo for the legacy communicate panel
 		std::string history_echo;
@@ -1194,7 +1235,7 @@ LLIMMgr::LLIMMgr() :
 	static bool registered_dialog = false;
 	if (!registered_dialog)
 	{
-		LLFloaterReg::add("incoming_call", "floater_incoming_call.xml.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIncomingCallDialog>);
+		LLFloaterReg::add("incoming_call", "floater_incoming_call.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIncomingCallDialog>);
 		registered_dialog = true;
 	}
 		
@@ -1432,12 +1473,15 @@ LLUUID LLIMMgr::addP2PSession(const std::string& name,
 {
 	LLUUID session_id = addSession(name, IM_NOTHING_SPECIAL, other_participant_id);
 
-	LLVoiceChannelP2P* voice_channel = (LLVoiceChannelP2P*) LLIMModel::getInstance()->getSpeakerManager(session_id);
-	if (voice_channel)
+	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
+	if (speaker_mgr)
 	{
-		voice_channel->setSessionHandle(voice_session_handle, caller_uri);
+		LLVoiceChannelP2P* voice_channel = dynamic_cast<LLVoiceChannelP2P*>(speaker_mgr->getVoiceChannel());
+		if (voice_channel)
+		{
+			voice_channel->setSessionHandle(voice_session_handle, caller_uri);
+		}
 	}
-
 	return session_id;
 }
 
@@ -1472,9 +1516,12 @@ LLUUID LLIMMgr::addSession(
 
 	if (!LLIMModel::getInstance()->findIMSession(session_id))
 	{
-		LLIMModel::instance().newSession(session_id, name, dialog, other_participant_id);
+		LLIMModel::getInstance()->newSession(session_id, name, dialog, other_participant_id, ids);
 	}
 
+	LLIMFloater::show(session_id);
+
+	//*TODO remove this "floater" thing when Communicate Floater's gone
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
 	if(!floater)
 	{
@@ -1487,19 +1534,17 @@ LLUUID LLIMMgr::addSession(
 			dialog,
 			TRUE,
 			ids);
-
-		if ( !floater ) return LLUUID::null;
-
-		noteOfflineUsers(floater, ids);
-
-		// Only warn for regular IMs - not group IMs
-		if( dialog == IM_NOTHING_SPECIAL )
-		{
-			noteMutedUsers(floater, ids);
-		}
 	}
-	floater->setInputFocus(TRUE);
-	LLIMFloater::show(session_id);
+
+	noteOfflineUsers(session_id, floater, ids);
+
+	// Only warn for regular IMs - not group IMs
+	if( dialog == IM_NOTHING_SPECIAL )
+	{
+		noteMutedUsers(session_id, floater, ids);
+	}
+
+
 
 	return session_id;
 }
@@ -1865,18 +1910,25 @@ LLFloaterIMPanel* LLIMMgr::createFloater(
 }
 
 void LLIMMgr::noteOfflineUsers(
+	const LLUUID& session_id,
 	LLFloaterIMPanel* floater,
 	const LLDynamicArray<LLUUID>& ids)
 {
 	S32 count = ids.count();
 	if(count == 0)
 	{
-		floater->addHistoryLine(LLTrans::getString("only_user_message"), LLUIColorTable::instance().getColor("SystemChatColor"));
+		const std::string& only_user = LLTrans::getString("only_user_message");
+		if (floater)
+		{
+			floater->addHistoryLine(only_user, LLUIColorTable::instance().getColor("SystemChatColor"));
+		}
+		LLIMModel::getInstance()->addMessage(session_id, SYSTEM_FROM, LLUUID::null, only_user);
 	}
 	else
 	{
 		const LLRelationship* info = NULL;
 		LLAvatarTracker& at = LLAvatarTracker::instance();
+		LLIMModel* im_model = LLIMModel::getInstance();
 		for(S32 i = 0; i < count; ++i)
 		{
 			info = at.getBuddyInfo(ids.get(i));
@@ -1887,13 +1939,19 @@ void LLIMMgr::noteOfflineUsers(
 				LLUIString offline = LLTrans::getString("offline_message");
 				offline.setArg("[FIRST]", first);
 				offline.setArg("[LAST]", last);
-				floater->addHistoryLine(offline, LLUIColorTable::instance().getColor("SystemChatColor"));
+
+				if (floater)
+				{
+					floater->addHistoryLine(offline, LLUIColorTable::instance().getColor("SystemChatColor"));
+				}
+
+				im_model->addMessage(session_id, SYSTEM_FROM, LLUUID::null, offline);
 			}
 		}
 	}
 }
 
-void LLIMMgr::noteMutedUsers(LLFloaterIMPanel* floater,
+void LLIMMgr::noteMutedUsers(const LLUUID& session_id, LLFloaterIMPanel* floater,
 								  const LLDynamicArray<LLUUID>& ids)
 {
 	// Don't do this if we don't have a mute list.
@@ -1906,12 +1964,18 @@ void LLIMMgr::noteMutedUsers(LLFloaterIMPanel* floater,
 	S32 count = ids.count();
 	if(count > 0)
 	{
+		LLIMModel* im_model = LLIMModel::getInstance();
+		
 		for(S32 i = 0; i < count; ++i)
 		{
 			if( ml->isMuted(ids.get(i)) )
 			{
 				LLUIString muted = LLTrans::getString("muted_message");
+
+				//*TODO remove this "floater" thing when Communicate Floater's gone
 				floater->addHistoryLine(muted);
+
+				im_model->addMessage(session_id, SYSTEM_FROM, LLUUID::null, muted);
 				break;
 			}
 		}
@@ -1935,17 +1999,6 @@ void LLIMMgr::processIMTypingCore(const LLIMInfo* im_info, BOOL typing)
 	if (floater)
 	{
 		floater->processIMTyping(im_info, typing);
-	}
-}
-
-void LLIMMgr::updateFloaterSessionID(
-	const LLUUID& old_session_id,
-	const LLUUID& new_session_id)
-{
-	LLFloaterIMPanel* floater = findFloaterBySession(old_session_id);
-	if (floater)
-	{
-		floater->sessionInitReplyReceived(new_session_id);
 	}
 }
 
@@ -1977,9 +2030,6 @@ public:
 		if ( success )
 		{
 			session_id = body["session_id"].asUUID();
-			gIMMgr->updateFloaterSessionID(
-				temp_session_id,
-				session_id);
 
 			LLIMModel::getInstance()->updateSessionID(temp_session_id, session_id);
 

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="sell land" title="Vendi terra">
+    <scroll_container name="profile_scroll">
+    <panel name="scroll_content_panel">
 	<text name="info_parcel_label">
 		Terreno:
 	</text>
@@ -58,4 +60,6 @@ cambieranno proprietario.
 	</text>
 	<button label="Metti la terra in vendita" name="sell_btn"/>
 	<button label="Annulla" name="cancel_btn"/>
+    </panel>
+    </scroll_container>
 </floater>

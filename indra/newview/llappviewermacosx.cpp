@@ -159,15 +159,7 @@ bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
 	clp.addOptionDesc("psn", NULL, 1, "MacOSX process serial number");
 	clp.setCustomParser(parse_psn);
 	
-	// First parse the command line, not often used on the mac.
-	if(clp.parseCommandLine(gArgC, gArgV) == false)
-	{
-		return false;
-	}
-    
-    // Now read in the args from arguments txt.
-    // Succesive calls to clp.parse... will NOT override earlier 
-    // options. 
+    // First read in the args from arguments txt.
     const char* filename = "arguments.txt";
 	llifstream ifs(filename, llifstream::binary);
 	if (!ifs.is_open())
@@ -180,7 +172,14 @@ bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
 	{
 		return false;
 	}
-	
+
+	// Then parse the user's command line, so that any --url arg can appear last
+	// Succesive calls to clp.parse... will NOT override earlier options. 
+	if(clp.parseCommandLine(gArgC, gArgV) == false)
+	{
+		return false;
+	}
+    	
 	// Get the user's preferred language string based on the Mac OS localization mechanism.
 	// To add a new localization:
 		// go to the "Resources" section of the project

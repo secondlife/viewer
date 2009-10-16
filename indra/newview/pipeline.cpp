@@ -35,7 +35,7 @@
 #include "pipeline.h"
 
 // library includes
-#include "llaudioengine.h" // For MAX_BUFFERS for debugging.
+#include "llaudioengine.h" // For debugging.
 #include "imageids.h"
 #include "llerror.h"
 #include "llviewercontrol.h"
@@ -413,6 +413,9 @@ LLPipeline::~LLPipeline()
 void LLPipeline::cleanup()
 {
 	assertInitialized();
+
+	mGroupQ1.clear() ;
+	mGroupQ2.clear() ;
 
 	for(pool_set_t::iterator iter = mPools.begin();
 		iter != mPools.end(); )
@@ -4286,7 +4289,7 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 			}
 		}
 		F32 backlight_mag;
-		if (gSky.getSunDirection().mV[2] >= NIGHTTIME_ELEVATION_COS)
+		if (gSky.getSunDirection().mV[2] >= LLSky::NIGHTTIME_ELEVATION_COS)
 		{
 			backlight_mag = BACKLIGHT_DAY_MAGNITUDE_OBJECT;
 		}
@@ -4472,7 +4475,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 
 	// Light 0 = Sun or Moon (All objects)
 	{
-		if (gSky.getSunDirection().mV[2] >= NIGHTTIME_ELEVATION_COS)
+		if (gSky.getSunDirection().mV[2] >= LLSky::NIGHTTIME_ELEVATION_COS)
 		{
 			mSunDir.setVec(gSky.getSunDirection());
 			mSunDiffuse.setVec(gSky.getSunDiffuseColor());

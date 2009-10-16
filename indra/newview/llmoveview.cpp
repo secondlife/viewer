@@ -44,9 +44,7 @@
 #include "llvoavatarself.h" // to check gAgent.getAvatarObject()->isSitting()
 #include "llbottomtray.h"
 #include "llbutton.h"
-#include "llfirsttimetipmanager.h"
 #include "llfloaterreg.h"
-#include "llfloaterfirsttimetip.h"
 #include "lljoystickbutton.h"
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
@@ -54,6 +52,7 @@
 #include "llselectmgr.h" 
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
+#include "lltooltip.h"
 
 //
 // Constants
@@ -71,7 +70,7 @@ const std::string BOTTOM_TRAY_BUTTON_NAME = "movement_btn";
 
 // protected
 LLFloaterMove::LLFloaterMove(const LLSD& key)
-:	LLDockableFloater(NULL, false, key),
+:	LLDockableFloater(NULL, key),
 	mForwardButton(NULL),
 	mBackwardButton(NULL),
 	mTurnLeftButton(NULL), 
@@ -305,7 +304,6 @@ void LLFloaterMove::setMovementMode(const EMovementMode mode)
 
 	showModeButtons(!bHideModeButtons);
 
-	showQuickTips(mode);
 }
 
 void LLFloaterMove::updateButtonsWithMovementMode(const EMovementMode newMode)
@@ -464,6 +462,11 @@ void LLFloaterMove::enableInstance(BOOL bEnable)
 	if (instance)
 	{
 		instance->setEnabled(bEnable);
+
+		if (gAgent.getFlying())
+		{
+			instance->showModeButtons(FALSE);
+		}
 	}
 }
 
@@ -487,8 +490,6 @@ void LLFloaterMove::onOpen(const LLSD& key)
 		anchor_panel, this,
 		getDockTongue(), LLDockControl::TOP));
 
-	showQuickTips(mCurrentMode);
-
 	sUpdateFlyingStatus();
 }
 
@@ -498,20 +499,6 @@ void LLFloaterMove::setDocked(bool docked, bool pop_on_undock/* = true*/)
 	LLDockableFloater::setDocked(docked, pop_on_undock);
 	bool show_mode_buttons = isDocked() || !gAgent.getFlying();
 	updateHeight(show_mode_buttons);
-}
-
-void LLFloaterMove::showQuickTips(const EMovementMode mode)
-{
-	LLFirstTimeTipsManager::EFirstTimeTipType tipType = LLFirstTimeTipsManager::FTT_MOVE_WALK;
-	switch (mode)
-	{
-	case MM_FLY:	tipType = LLFirstTimeTipsManager::FTT_MOVE_FLY;			break;
-	case MM_RUN:	tipType = LLFirstTimeTipsManager::FTT_MOVE_RUN;			break;
-	case MM_WALK:	tipType = LLFirstTimeTipsManager::FTT_MOVE_WALK;		break;
-	default: llwarns << "Quick Tip type was not detected, FTT_MOVE_WALK will be used" << llendl;
-	}
-
-	LLFirstTimeTipsManager::showTipsFor(tipType, this, LLFirstTimeTipsManager::TPA_POS_LEFT_ALIGN_TOP);
 }
 
 void LLFloaterMove::setModeButtonToggleState(const EMovementMode mode)
@@ -610,6 +597,22 @@ void LLPanelStandStopFlying::setVisible(BOOL visible)
 	LLPanel::setVisible(visible);
 }
 
+BOOL LLPanelStandStopFlying::handleToolTip(S32 x, S32 y, MASK mask)
+{
+	LLToolTipMgr::instance().unblockToolTips();
+
+	if (mStandButton->getVisible())
+	{
+		LLToolTipMgr::instance().show(mStandButton->getToolTip());
+	}
+	else if (mStopFlyingButton->getVisible())
+	{
+		LLToolTipMgr::instance().show(mStopFlyingButton->getToolTip());
+	}
+
+	return TRUE;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Private Section
 //////////////////////////////////////////////////////////////////////////
@@ -635,7 +638,10 @@ void LLPanelStandStopFlying::onStandButtonClick()
 	gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 
 	setFocus(FALSE); // EXT-482
-	setVisible(FALSE);
+
+	BOOL fly = gAgent.getFlying();
+	mStopFlyingButton->setVisible(fly);
+	setVisible(fly);
 }
 
 void LLPanelStandStopFlying::onStopFlyingButtonClick()

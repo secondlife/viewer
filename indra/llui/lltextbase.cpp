@@ -124,17 +124,6 @@ struct LLTextBase::line_end_compare
 
 //////////////////////////////////////////////////////////////////////////
 //
-// LLTextBase::DocumentPanel
-//
-
-
-LLTextBase::DocumentPanel::DocumentPanel(const Params& p)
-: LLPanel(p)
-{}
-
-
-//////////////////////////////////////////////////////////////////////////
-//
 // LLTextBase
 //
 
@@ -157,8 +146,7 @@ LLTextBase::Params::Params()
 	bg_readonly_color("bg_readonly_color"),
 	bg_writeable_color("bg_writeable_color"),
 	bg_focus_color("bg_focus_color"),
-	hide_scrollbar("hide_scrollbar"),
-	clip_to_rect("clip_to_rect", true),
+	allow_scroll("allow_scroll", true),
 	track_end("track_end", false),
 	read_only("read_only", false),
 	v_pad("v_pad", 0),
@@ -205,35 +193,42 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mSelectionStart( 0 ),
 	mSelectionEnd( 0 ),
 	mIsSelecting( FALSE ),
-	mClip(p.clip_to_rect),
 	mWordWrap(p.wrap),
 	mUseEllipses( p.use_ellipses ),
 	mParseHTML(p.allow_html),
 	mParseHighlights(p.parse_highlights),
-	mHideScrollbar(p.hide_scrollbar)
+	mBGVisible(p.bg_visible),
+	mScroller(NULL)
 {
-	LLScrollContainer::Params scroll_params;
-	scroll_params.name = "text scroller";
-	scroll_params.rect = getLocalRect();
-	scroll_params.follows.flags = FOLLOWS_ALL;
-	scroll_params.is_opaque = false;
-	scroll_params.mouse_opaque = false;
-	scroll_params.min_auto_scroll_rate = 200;
-	scroll_params.max_auto_scroll_rate = 800;
-	scroll_params.hide_scrollbar = p.hide_scrollbar;
-	scroll_params.border_visible = p.border_visible;
-	mScroller = LLUICtrlFactory::create<LLScrollContainer>(scroll_params);
-	addChild(mScroller);
+	if(p.allow_scroll)
+	{
+		LLScrollContainer::Params scroll_params;
+		scroll_params.name = "text scroller";
+		scroll_params.rect = getLocalRect();
+		scroll_params.follows.flags = FOLLOWS_ALL;
+		scroll_params.is_opaque = false;
+		scroll_params.mouse_opaque = false;
+		scroll_params.min_auto_scroll_rate = 200;
+		scroll_params.max_auto_scroll_rate = 800;
+		scroll_params.border_visible = p.border_visible;
+		mScroller = LLUICtrlFactory::create<LLScrollContainer>(scroll_params);
+		addChild(mScroller);
+	}
 
-	LLPanel::Params panel_params;
-	panel_params.name = "text_contents";
-	panel_params.rect =  LLRect(0, 500, 500, 0);
-	panel_params.background_visible = p.bg_visible;
-	panel_params.background_opaque = true;
-	panel_params.mouse_opaque = false;
+	LLView::Params view_params;
+	view_params.name = "text_contents";
+	view_params.rect =  LLRect(0, 500, 500, 0);
+	view_params.mouse_opaque = false;
 
-	mDocumentPanel = LLUICtrlFactory::create<DocumentPanel>(panel_params);
-	mScroller->addChild(mDocumentPanel);
+	mDocumentView = LLUICtrlFactory::create<LLView>(view_params);
+	if (mScroller)
+	{
+		mScroller->addChild(mDocumentView);
+	}
+	else
+	{
+		addChild(mDocumentView);
+	}
 
 	createDefaultSegment();
 
@@ -314,7 +309,7 @@ void LLTextBase::drawSelectionBackground()
 		LLRect selection_rect = mTextRect;
 
 		// Skip through the lines we aren't drawing.
-		LLRect content_display_rect = mScroller->getVisibleContentRect();
+		LLRect content_display_rect = getVisibleDocumentRect();
 
 		// binary search for line that starts before top of visible buffer
 		line_list_t::const_iterator line_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), content_display_rect.mTop, compare_bottom());
@@ -418,6 +413,9 @@ void LLTextBase::drawCursor()
 			return;
 		}
 
+		if (!mTextRect.contains(cursor_rect))
+			return;
+
 		// Draw the cursor
 		// (Flash the cursor every half second starting a fixed time after the last keystroke)
 		F32 elapsed = mCursorBlinkTimer.getElapsedTimeF32();
@@ -496,8 +494,7 @@ void LLTextBase::drawText()
 		selection_right = llmax( mSelectionStart, mSelectionEnd );
 	}
 
-	LLRect scrolled_view_rect = mScroller->getVisibleContentRect();
-	LLRect content_rect = mScroller->getContentWindowRect();
+	LLRect scrolled_view_rect = getVisibleDocumentRect();
 	std::pair<S32, S32> line_range = getVisibleLines();
 	S32 first_line = line_range.first;
 	S32 last_line = line_range.second;
@@ -540,7 +537,7 @@ void LLTextBase::drawText()
 
 		LLRect text_rect(line.mRect.mLeft + mTextRect.mLeft - scrolled_view_rect.mLeft,
 						line.mRect.mTop - scrolled_view_rect.mBottom + mTextRect.mBottom,
-						mDocumentPanel->getRect().getWidth() - scrolled_view_rect.mLeft,
+						mDocumentView->getRect().getWidth() - scrolled_view_rect.mLeft,
 						line.mRect.mBottom - scrolled_view_rect.mBottom + mTextRect.mBottom);
 
 		// draw a single line of text
@@ -645,6 +642,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 	}
 
 	onValueChange(pos, pos + insert_len);
+	needsReflow();
 
 	return insert_len;
 }
@@ -704,6 +702,7 @@ S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 	createDefaultSegment();
 
 	onValueChange(pos, pos);
+	needsReflow();
 
 	return -length;	// This will be wrong if someone calls removeStringNoUndo with an excessive length
 }
@@ -719,6 +718,7 @@ S32 LLTextBase::overwriteCharNoUndo(S32 pos, llwchar wc)
     getViewModel()->setDisplay(text);
 
 	onValueChange(pos, pos + 1);
+	needsReflow();
 
 	return 1;
 }
@@ -949,29 +949,31 @@ void LLTextBase::draw()
 	// then update scroll position, as cursor may have moved
 	updateScrollFromCursor();
 
-	LLColor4 bg_color = mReadOnly 
-						? mReadOnlyBgColor.get()
-						: hasFocus() 
-							? mFocusBgColor.get() 
-							: mWriteableBgColor.get();
-
-	mDocumentPanel->setBackgroundColor(bg_color);
-
-	LLUICtrl::draw();
+	if (mBGVisible)
 	{
-		LLLocalClipRect clip(mTextRect, mClip);
+		// clip background rect against extents, if we support scrolling
+		LLLocalClipRect clip(getLocalRect(), mScroller != NULL);
+
+		LLColor4 bg_color = mReadOnly 
+							? mReadOnlyBgColor.get()
+							: hasFocus() 
+								? mFocusBgColor.get() 
+								: mWriteableBgColor.get();
+		gl_rect_2d(mDocumentView->getRect(), bg_color, TRUE);
+	}
+
+	// draw document view
+	LLUICtrl::draw();
+
+	{
+		// only clip if we support scrolling (mScroller != NULL)
+		LLLocalClipRect clip(mTextRect, mScroller != NULL);
 		drawSelectionBackground();
 		drawText();
 		drawCursor();
 	}
 }
 
-//virtual
-void LLTextBase::clear()
-{
-	getViewModel()->setDisplay(LLWStringUtil::null);
-	clearSegments();
-}
 
 //virtual
 void LLTextBase::setColor( const LLColor4& c )
@@ -1000,14 +1002,14 @@ void LLTextBase::updateScrollFromCursor()
 	// Update scroll position even in read-only mode (when there's no cursor displayed)
 	// because startOfDoc()/endOfDoc() modify cursor position. See EXT-736.
 
-	if (!mScrollNeeded)
+	if (!mScrollNeeded || !mScroller)
 	{
 		return;
 	}
 	mScrollNeeded = FALSE; 
 
 	// scroll so that the cursor is at the top of the page
-	LLRect scroller_doc_window = mScroller->getVisibleContentRect();
+	LLRect scroller_doc_window = getVisibleDocumentRect();
 	LLRect cursor_rect_doc = getLocalRectFromDocIndex(mCursorPos);
 	cursor_rect_doc.translate(scroller_doc_window.mLeft, scroller_doc_window.mBottom);
 	mScroller->scrollToShowRect(cursor_rect_doc, LLRect(0, scroller_doc_window.getHeight() - 5, scroller_doc_window.getWidth(), 5));
@@ -1042,7 +1044,7 @@ void LLTextBase::reflow(S32 start_index)
 	{
 		mReflowNeeded = FALSE;
 
-		bool scrolled_to_bottom = mScroller->isAtBottom();
+		bool scrolled_to_bottom = mScroller ? mScroller->isAtBottom() : false;
 
 		LLRect old_cursor_rect = getLocalRectFromDocIndex(mCursorPos);
 		bool follow_selection = mTextRect.overlaps(old_cursor_rect); // cursor is visible
@@ -1104,11 +1106,16 @@ void LLTextBase::reflow(S32 start_index)
 
 			S32 segment_width = segment->getWidth(seg_offset, character_count);
 			remaining_pixels -= segment_width;
-			S32 text_left = getLeftOffset(text_width - remaining_pixels);
 
 			seg_offset += character_count;
 
 			S32 last_segment_char_on_line = segment->getStart() + seg_offset;
+
+			S32 text_left = getLeftOffset(text_width - remaining_pixels);
+			LLRect line_rect(text_left, 
+							cur_top, 
+							text_left + (text_width - remaining_pixels), 
+							cur_top - line_height);
 
 			// if we didn't finish the current segment...
 			if (last_segment_char_on_line < segment->getEnd())
@@ -1127,10 +1134,7 @@ void LLTextBase::reflow(S32 start_index)
 				mLineInfoList.push_back(line_info(
 											line_start_index, 
 											last_segment_char_on_line, 
-											LLRect(text_left, 
-													cur_top, 
-													text_left + (text_width - remaining_pixels),
-													cur_top - line_height), 
+											line_rect, 
 											line_count));
 
 				line_start_index = segment->getStart() + seg_offset;
@@ -1145,15 +1149,12 @@ void LLTextBase::reflow(S32 start_index)
 				mLineInfoList.push_back(line_info(
 											line_start_index, 
 											last_segment_char_on_line, 
-											LLRect(text_left, 
-													cur_top, 
-													text_left + (text_width - remaining_pixels),
-													cur_top - line_height), 
+											line_rect, 
 											line_count));
 				cur_top -= llround((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
 				break;
 			}
-			// finished a segment and there are segments remaining on this line
+			// ...or finished a segment and there are segments remaining on this line
 			else
 			{
 				// subtract pixels used and increment segment
@@ -1183,17 +1184,29 @@ void LLTextBase::reflow(S32 start_index)
 			mContentsRect.stretch(1);
 		}
 
-		// change mDocumentPanel document size to accomodate reflowed text
+		// change mDocumentView size to accomodate reflowed text
 		LLRect document_rect;
-		document_rect.setOriginAndSize(1, 1, 
-									mScroller->getContentWindowRect().getWidth(), 
-									llmax(mScroller->getContentWindowRect().getHeight(), mContentsRect.getHeight()));
-		mDocumentPanel->setShape(document_rect);
+		if (mScroller)
+		{
+			// document is size of scroller or size of text contents, whichever is larger
+			document_rect.setOriginAndSize(0, 0, 
+										mScroller->getContentWindowRect().getWidth(), 
+										llmax(mScroller->getContentWindowRect().getHeight(), mContentsRect.getHeight()));
+		}
+		else
+		{
+			// document size is just extents of reflowed text, reset to origin 0,0
+			document_rect.set(0, 
+							getLocalRect().getHeight(), 
+							getLocalRect().getWidth(), 
+							llmin(0, getLocalRect().getHeight() - mContentsRect.getHeight()));
+		}
+		mDocumentView->setShape(document_rect);
 
 		// after making document big enough to hold all the text, move the text to fit in the document
 		if (!mLineInfoList.empty())
 		{
-			S32 delta_pos = mDocumentPanel->getRect().getHeight() - mLineInfoList.begin()->mRect.mTop - mVPad;
+			S32 delta_pos = mDocumentView->getRect().getHeight() - mLineInfoList.begin()->mRect.mTop - mVPad;
 			// move line segments to fit new document rect
 			for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
 			{
@@ -1215,9 +1228,9 @@ void LLTextBase::reflow(S32 start_index)
 		}
 
 		// apply scroll constraints after reflowing text
-		if (!hasMouseCapture())
+		if (!hasMouseCapture() && mScroller)
 		{
-			LLRect visible_content_rect = mScroller->getVisibleContentRect();
+			LLRect visible_content_rect = getVisibleDocumentRect();
 			if (scrolled_to_bottom && mTrackEnd)
 			{
 				// keep bottom of text buffer visible
@@ -1329,7 +1342,7 @@ S32 LLTextBase::getLineOffsetFromDocIndex( S32 startpos, bool include_wordwrap) 
 
 S32	LLTextBase::getFirstVisibleLine() const
 {
-	LLRect visible_region = mScroller->getVisibleContentRect();
+	LLRect visible_region = getVisibleDocumentRect();
 
 	// binary search for line that starts before top of visible buffer
 	line_list_t::const_iterator iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mTop, compare_bottom());
@@ -1339,7 +1352,7 @@ S32	LLTextBase::getFirstVisibleLine() const
 
 std::pair<S32, S32>	LLTextBase::getVisibleLines(bool fully_visible) 
 {
-	LLRect visible_region = mScroller->getVisibleContentRect();
+	LLRect visible_region = getVisibleDocumentRect();
 	line_list_t::const_iterator first_iter;
 	line_list_t::const_iterator last_iter;
 
@@ -1370,12 +1383,12 @@ LLTextViewModel* LLTextBase::getViewModel() const
 
 void LLTextBase::addDocumentChild(LLView* view) 
 { 
-	mDocumentPanel->addChild(view); 
+	mDocumentView->addChild(view); 
 }
 
 void LLTextBase::removeDocumentChild(LLView* view) 
 { 
-	mDocumentPanel->removeChild(view); 
+	mDocumentView->removeChild(view); 
 }
 
 
@@ -1481,11 +1494,10 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 void LLTextBase::setText(const LLStringExplicit &utf8str)
 {
 	// clear out the existing text and segments
-	clear();
+	getViewModel()->setDisplay(LLWStringUtil::null);
 
-	truncate();
-
-	createDefaultSegment();
+	clearSegments();
+//	createDefaultSegment();
 
 	startOfDoc();
 	deselect();
@@ -1496,10 +1508,9 @@ void LLTextBase::setText(const LLStringExplicit &utf8str)
 
 	appendText(text, false);
 
-	needsReflow();
-
 	//resetDirty();
 	onValueChange(0, getLength());
+	needsReflow();
 }
 
 //virtual
@@ -1767,7 +1778,7 @@ LLWString LLTextBase::getWText() const
 S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const
 {
 	// Figure out which line we're nearest to.
-	LLRect visible_region = mScroller->getVisibleContentRect();
+	LLRect visible_region = getVisibleDocumentRect();
 
 	// binary search for line that starts before local_y
 	line_list_t::const_iterator line_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), local_y - mTextRect.mBottom + visible_region.mBottom, compare_bottom());
@@ -1838,7 +1849,7 @@ LLRect LLTextBase::getLocalRectFromDocIndex(S32 pos) const
 	// find line that contains cursor
 	line_list_t::const_iterator line_iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), pos, line_end_compare());
 
-	LLRect scrolled_view_rect = mScroller->getVisibleContentRect();
+	LLRect scrolled_view_rect = getVisibleDocumentRect();
 	local_rect.mLeft = mTextRect.mLeft - scrolled_view_rect.mLeft + line_iter->mRect.mLeft; 
 	local_rect.mBottom = mTextRect.mBottom + (line_iter->mRect.mBottom - scrolled_view_rect.mBottom);
 	local_rect.mTop = mTextRect.mBottom + (line_iter->mRect.mTop - scrolled_view_rect.mBottom);
@@ -1917,7 +1928,7 @@ void LLTextBase::endOfDoc()
 void LLTextBase::changePage( S32 delta )
 {
 	const S32 PIXEL_OVERLAP_ON_PAGE_CHANGE = 10;
-	if (delta == 0) return;
+	if (delta == 0 || !mScroller) return;
 
 	LLRect cursor_rect = getLocalRectFromDocIndex(mCursorPos);
 
@@ -1970,7 +1981,7 @@ void LLTextBase::changeLine( S32 delta )
 		new_line = line + 1;
 	}
 
-	LLRect visible_region = mScroller->getVisibleContentRect();
+	LLRect visible_region = getVisibleDocumentRect();
 
 	S32 new_cursor_pos = getDocIndexFromLocalCoord(mDesiredXPixel, mLineInfoList[new_line].mRect.mBottom + mTextRect.mBottom - visible_region.mBottom, TRUE);
 	setCursorPos(new_cursor_pos, true);
@@ -2047,7 +2058,7 @@ S32 LLTextBase::getEditableIndex(S32 index, bool increasing_direction)
 void LLTextBase::updateTextRect()
 {
 	LLRect old_text_rect = mTextRect;
-	mTextRect = mScroller->getContentWindowRect();
+	mTextRect = mScroller ? mScroller->getContentWindowRect() : getLocalRect();
 	//FIXME: replace border with image?
 	if (mBorderVisible)
 	{
@@ -2078,6 +2089,22 @@ void LLTextBase::endSelection()
 	{
 		mIsSelecting = FALSE;
 		mSelectionEnd = mCursorPos;
+	}
+}
+
+// get portion of document that is visible in text editor
+LLRect LLTextBase::getVisibleDocumentRect() const
+{
+	if (mScroller)
+	{
+		return mScroller->getVisibleContentRect();
+	}
+	else
+	{
+		// entire document rect when not scrolling
+		LLRect doc_rect = mDocumentView->getLocalRect();
+		doc_rect.translate(-mDocumentView->getRect().mLeft, -mDocumentView->getRect().mBottom);
+		return doc_rect;
 	}
 }
 
@@ -2150,6 +2177,7 @@ F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selec
 	{
 		if ( mStyle->isImage() && (start >= 0) && (end <= mEnd - mStart))
 		{
+			LLColor4 color = LLColor4::white % mEditor.getDrawContext().mAlpha;
 			LLUIImagePtr image = mStyle->getImage();
 			S32 style_image_height = image->getHeight();
 			S32 style_image_width = image->getWidth();
@@ -2398,7 +2426,7 @@ S32	LLInlineViewSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 void LLInlineViewSegment::updateLayout(const LLTextBase& editor)
 {
 	LLRect start_rect = editor.getLocalRectFromDocIndex(mStart);
-	LLRect doc_rect = editor.getDocumentPanel()->getRect();
+	LLRect doc_rect = editor.getDocumentView()->getRect();
 	mView->setOrigin(doc_rect.mLeft + start_rect.mLeft, doc_rect.mBottom + start_rect.mBottom);
 }
 

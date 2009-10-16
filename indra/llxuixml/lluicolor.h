@@ -11,11 +11,12 @@
 #define LL_LLUICOLOR_H_
 
 #include "v4color.h"
+#include <boost/type_traits/integral_constant.hpp> // for boost::false_type
 
 namespace LLInitParam
 {
-	template<typename T>
-	class ParamCompare;
+	template<typename T, bool>
+	struct ParamCompare;
 }
 
 class LLUIColor
@@ -36,10 +37,19 @@ public:
 	bool isReference() const;
 
 private:
-	friend class LLInitParam::ParamCompare<LLUIColor>;
+	friend struct LLInitParam::ParamCompare<LLUIColor, false>;
 
 	const LLColor4* mColorPtr;
 	LLColor4 mColor;
 };
+
+namespace LLInitParam
+{
+	template<>
+	struct ParamCompare<LLUIColor, false>
+	{
+		static bool equals(const class LLUIColor& a, const class LLUIColor& b);
+	};
+}
 
 #endif

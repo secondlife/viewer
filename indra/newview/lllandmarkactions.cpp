@@ -131,16 +131,36 @@ public:
 	}
 };
 
+static void fetch_landmarks(LLInventoryModel::cat_array_t& cats,
+							LLInventoryModel::item_array_t& items,
+							LLInventoryCollectFunctor& add)
+{
+	// Look in "My Favorites"
+	LLUUID favorites_folder_id =
+		gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+	gInventory.collectDescendentsIf(favorites_folder_id,
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		add);
+
+	// Look in "Landmarks"
+	LLUUID landmarks_folder_id = 
+		gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+	gInventory.collectDescendentsIf(landmarks_folder_id,
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		add);
+}
+
 LLInventoryModel::item_array_t LLLandmarkActions::fetchLandmarksByName(std::string& name, BOOL use_substring)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
-	LLFetchLandmarksByName fetchLandmarks(name, use_substring);
-	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
-			cats,
-			items,
-			LLInventoryModel::EXCLUDE_TRASH,
-			fetchLandmarks);
+	LLFetchLandmarksByName by_name(name, use_substring);
+	fetch_landmarks(cats, items, by_name);
+
 	return items;
 }
 
@@ -151,17 +171,15 @@ bool LLLandmarkActions::landmarkAlreadyExists()
 }
 
 
+// *TODO: This could be made more efficient by only fetching the FIRST
+// landmark that meets the criteria
 LLViewerInventoryItem* LLLandmarkActions::findLandmarkForGlobalPos(const LLVector3d &pos)
 {
 	// Determine whether there are landmarks pointing to the current parcel.
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
 	LLFetchlLandmarkByPos is_current_pos_landmark(pos);
-	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
-		cats,
-		items,
-		LLInventoryModel::EXCLUDE_TRASH,
-		is_current_pos_landmark);
+	fetch_landmarks(cats, items, is_current_pos_landmark);
 
 	if(items.empty())
 	{

@@ -81,7 +81,6 @@
      enabled="false"
      height="60"
      border_visible="false"
-     hide_scrollbar="true"
      layout="topleft"
      left_delta="10"
      max_length="65535"

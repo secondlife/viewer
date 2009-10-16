@@ -39,7 +39,6 @@
 
 // Viewer includes
 #include "lljoystickbutton.h"
-#include "llfirsttimetipmanager.h"
 #include "llviewercontrol.h"
 #include "llbottomtray.h"
 #include "llagent.h"
@@ -54,10 +53,6 @@ const F32 CAMERA_BUTTON_DELAY = 0.0f;
 #define CONTROLS "controls"
 
 
-void show_tip(LLFirstTimeTipsManager::EFirstTimeTipType tipType, LLView* anchorView)
-{
-	LLFirstTimeTipsManager::showTipsFor(tipType, anchorView, LLFirstTimeTipsManager::TPA_POS_RIGHT_ALIGN_TOP);
-}
 //
 // Member functions
 //
@@ -88,7 +83,6 @@ void LLFloaterCamera::update()
 {
 	ECameraControlMode mode = determineMode();
 	if (mode != mCurrMode) setMode(mode);
-	show_tip(mMode2TipType[mode], this);
 }
 
 
@@ -129,12 +123,11 @@ void LLFloaterCamera::onOpen(const LLSD& key)
 		anchor_panel, this,
 		getDockTongue(), LLDockControl::TOP));
 
-	show_tip(mMode2TipType[mCurrMode], this);
 }
 
 
 LLFloaterCamera::LLFloaterCamera(const LLSD& val)
-:	LLDockableFloater(NULL, false, val),
+:	LLDockableFloater(NULL, val),
 	mCurrMode(CAMERA_CTRL_MODE_ORBIT),
 	mPrevMode(CAMERA_CTRL_MODE_ORBIT)
 {
@@ -148,8 +141,6 @@ BOOL LLFloaterCamera::postBuild()
 	mRotate = getChild<LLJoystickCameraRotate>(ORBIT);
 	mZoom = getChild<LLJoystickCameraZoom>("zoom");
 	mTrack = getChild<LLJoystickCameraTrack>(PAN);
-
-	initMode2TipTypeMap();
 
 	assignButton2Mode(CAMERA_CTRL_MODE_ORBIT,			"orbit_btn");
 	assignButton2Mode(CAMERA_CTRL_MODE_PAN,				"pan_btn");
@@ -236,7 +227,6 @@ void LLFloaterCamera::onClickBtn(ECameraControlMode mode)
 	
 	switchMode(mode);
 
-	show_tip(mMode2TipType[mode], this);
 }
 
 void LLFloaterCamera::assignButton2Mode(ECameraControlMode mode, const std::string& button_name)
@@ -246,15 +236,6 @@ void LLFloaterCamera::assignButton2Mode(ECameraControlMode mode, const std::stri
 	button->setClickedCallback(boost::bind(&LLFloaterCamera::onClickBtn, this, mode));
 	mMode2Button[mode] = button;
 }
-
-void LLFloaterCamera::initMode2TipTypeMap()
-{
-	mMode2TipType[CAMERA_CTRL_MODE_ORBIT]			= LLFirstTimeTipsManager::FTT_CAMERA_ORBIT_MODE;
-	mMode2TipType[CAMERA_CTRL_MODE_PAN]				= LLFirstTimeTipsManager::FTT_CAMERA_PAN_MODE;
-	mMode2TipType[CAMERA_CTRL_MODE_FREE_CAMERA]		= LLFirstTimeTipsManager::FTT_CAMERA_FREE_MODE;
-	mMode2TipType[CAMERA_CTRL_MODE_AVATAR_VIEW]		= LLFirstTimeTipsManager::FTT_AVATAR_FREE_MODE;
-}
-
 
 void LLFloaterCamera::updateState()
 {
@@ -305,7 +286,7 @@ void LLFloaterCamera::updateState()
 //-------------LLFloaterCameraPresets------------------------
 
 LLFloaterCameraPresets::LLFloaterCameraPresets(const LLSD& key):
-LLDockableFloater(NULL, false, key)
+LLDockableFloater(NULL, key)
 {}
 
 BOOL LLFloaterCameraPresets::postBuild()
@@ -330,17 +311,14 @@ void LLFloaterCameraPresets::onClickCameraPresets(LLUICtrl* ctrl, const LLSD& pa
 
 	if ("rear_view" == name)
 	{
-		LLFirstTimeTipsManager::showTipsFor(LLFirstTimeTipsManager::FTT_CAMERA_PRESET_REAR, ctrl);
 		gAgent.switchCameraPreset(CAMERA_PRESET_REAR_VIEW);
 	}
 	else if ("group_view" == name)
 	{
-		LLFirstTimeTipsManager::showTipsFor(LLFirstTimeTipsManager::FTT_CAMERA_PRESET_GROUP);
 		gAgent.switchCameraPreset(CAMERA_PRESET_GROUP_VIEW);
 	}
 	else if ("front_view" == name)
 	{
-		LLFirstTimeTipsManager::showTipsFor(LLFirstTimeTipsManager::FTT_CAMERA_PRESET_FRONT);
 		gAgent.switchCameraPreset(CAMERA_PRESET_FRONT_VIEW);
 	}
 

@@ -57,14 +57,13 @@
 #include "lltexteditor.h"
 #include "lltextbox.h"
 
-BOOL	LLView::sDebugRects = FALSE;
-BOOL	LLView::sDebugKeys = FALSE;
 S32		LLView::sDepth = 0;
-BOOL	LLView::sDebugMouseHandling = FALSE;
+bool	LLView::sDebugRects = false;
+bool	LLView::sDebugRectsShowNames = true;
+bool	LLView::sDebugKeys = false;
+bool	LLView::sDebugMouseHandling = false;
 std::string LLView::sMouseHandlerMessage;
-//BOOL	LLView::sEditingUI = FALSE;
 BOOL	LLView::sForceReshape = FALSE;
-//LLView*	LLView::sEditingUIView = NULL;
 std::set<LLView*> LLView::sPreviewHighlightedElements;
 BOOL LLView::sHighlightingDiffs = FALSE;
 LLView* LLView::sPreviewClickedElement = NULL;
@@ -1353,7 +1352,7 @@ void LLView::drawDebugRect()
 		LLRect debug_rect = mUseBoundingRect ? mBoundingRect : mRect;
 
 		// draw red rectangle for the border
-		LLColor4 border_color(0.f, 0.f, 0.f, 1.f);
+		LLColor4 border_color(0.25f, 0.25f, 0.25f, 1.f);
 		if(preview_iter != sPreviewHighlightedElements.end())
 		{
 			if(LLView::sPreviewClickedElement && this == sPreviewClickedElement)
@@ -1388,7 +1387,9 @@ void LLView::drawDebugRect()
 		gGL.end();
 
 		// Draw the name if it's not a leaf node or not in editing or preview mode
-		if (mChildList.size() && preview_iter == sPreviewHighlightedElements.end())
+		if (mChildList.size()
+			&& preview_iter == sPreviewHighlightedElements.end()
+			&& sDebugRectsShowNames)
 		{
 			//char temp[256];
 			S32 x, y;

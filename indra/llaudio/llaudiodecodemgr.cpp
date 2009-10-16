@@ -43,6 +43,8 @@
 #include "llassetstorage.h"
 #include "llrefcount.h"
 
+#include "llvorbisencode.h"
+
 #include "vorbis/codec.h"
 #include "vorbis/vorbisfile.h"
 
@@ -218,11 +220,42 @@ BOOL LLVorbisDecodeState::initDecode()
 		return(FALSE);
 	}
 	
-	size_t size_guess = (size_t)ov_pcm_total(&mVF, -1);
+	S32 sample_count = ov_pcm_total(&mVF, -1);
+	size_t size_guess = (size_t)sample_count;
 	vorbis_info* vi = ov_info(&mVF, -1);
 	size_guess *= vi->channels;
 	size_guess *= 2;
 	size_guess += 2048;
+	
+	bool abort_decode = false;
+	
+	if( vi->channels < 1 || vi->channels > LLVORBIS_CLIP_MAX_CHANNELS )
+	{
+		abort_decode = true;
+		llwarns << "Bad channel count: " << vi->channels << llendl;
+	}
+	
+	if( (size_t)sample_count > LLVORBIS_CLIP_REJECT_SAMPLES )
+	{
+		abort_decode = true;
+		llwarns << "Illegal sample count: " << sample_count << llendl;
+	}
+	
+	if( size_guess > LLVORBIS_CLIP_REJECT_SIZE )
+	{
+		abort_decode = true;
+		llwarns << "Illegal sample size: " << size_guess << llendl;
+	}
+	
+	if( abort_decode )
+	{
+		llwarns << "Canceling initDecode. Bad asset: " << mUUID << llendl;
+		llwarns << "Bad asset encoded by: " << ov_comment(&mVF,-1)->vendor << llendl;
+		delete mInFilep;
+		mInFilep = NULL;
+		return FALSE;
+	}
+	
 	mWAVBuffer.reserve(size_guess);
 	mWAVBuffer.resize(WAV_HEADER_SIZE);
 

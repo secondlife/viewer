@@ -152,8 +152,7 @@ namespace LLInitParam
 	}
 
 	
-	template<>
-	bool ParamCompare<LLUIImage*>::equals(
+	bool ParamCompare<LLUIImage*, false>::equals(
 		LLUIImage* const &a,
 		LLUIImage* const &b)
 	{

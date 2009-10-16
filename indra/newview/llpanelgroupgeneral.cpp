@@ -186,7 +186,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 	}
 
 	mIncompleteMemberDataStr = getString("incomplete_member_data_str");
-	
+
 	// If the group_id is null, then we are creating a new group
 	if (mGroupID.isNull())
 	{
@@ -476,8 +476,15 @@ bool LLPanelGroupGeneral::confirmMatureApply(const LLSD& notification, const LLS
 
 	// If we got here it means they set a valid value
 	std::string mesg = "";
-	apply(mesg);
-	return false;
+	bool ret = apply(mesg);
+	if ( !mesg.empty() )
+	{
+		LLSD args;
+		args["MESSAGE"] = mesg;
+		LLNotifications::instance().add("GenericAlert", args);
+	}
+
+	return ret;
 }
 
 // static

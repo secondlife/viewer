@@ -31,7 +31,7 @@
              parameter="ShowMoveButton" />
     </menu_item_check>
     <menu_item_check
-         label="Camera button"
+         label="View button"
          layout="topleft"
          name="ShowCameraButton">
            <menu_item_check.on_click
@@ -40,5 +40,16 @@
              <menu_item_check.on_check
              function="CheckControl"
              parameter="ShowCameraButton" />
+    </menu_item_check>        
+    <menu_item_check
+         label="Snapshot button"
+         layout="topleft"
+         name="ShowSnapshotButton">
+           <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="ShowSnapshotButton" />
+             <menu_item_check.on_check
+             function="CheckControl"
+             parameter="ShowSnapshotButton" />
     </menu_item_check>        
 </menu>

@@ -488,16 +488,16 @@
 		Verzeichnis auswählen
 	</string>
 	<string name="accel-mac-control">
-		Strg-
+		&#8963;
 	</string>
 	<string name="accel-mac-command">
-		Cmd-
+		&#8984;
 	</string>
 	<string name="accel-mac-option">
-		Opt-
+		&#8997;
 	</string>
 	<string name="accel-mac-shift">
-		Umschalt-
+		&#8679;
 	</string>
 	<string name="accel-win-control">
 		Strg+
@@ -603,6 +603,9 @@
 	<string name="no_ability_error">
 		Sie besitzen diese Fähigkeit nicht.
 	</string>
+	<string name="no_ability">
+		Sie besitzen diese Fähigkeit nicht.
+	</string>
 	<string name="not_a_mod_error">
 		Sie sind kein Sitzungsmoderator.
 	</string>
@@ -621,4 +624,31 @@
 	<string name="close_on_no_ability">
 		Sie haben nicht mehr die Berechtigung an der Chat-Sitzung teilzunehmen.
 	</string>
+			<string name="AcctTypeResident">
+				Einwohner
+			</string>
+			<string name="AcctTypeTrial">
+				Test
+			</string>
+			<string name="AcctTypeCharterMember">
+				Charta-Mitglied
+			</string>
+			<string name="AcctTypeEmployee">
+				Linden Lab-Mitarbeiter
+			</string>
+			<string name="PaymentInfoUsed">
+				Zahlungsinfo verwendet
+			</string>
+			<string name="PaymentInfoOnFile">
+				Zahlungsinfo archiviert
+			</string>
+			<string name="NoPaymentInfoOnFile">
+				Keine Zahlungsinfo archiviert
+			</string>
+			<string name="AgeVerified">
+				Altersgeprüft
+			</string>
+			<string name="NotAgeVerified">
+				Nicht altersgeprüft
+			</string>
 </strings>

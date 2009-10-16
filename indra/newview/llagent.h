@@ -475,7 +475,7 @@ private:
 	S32 			mLeftKey;
 	S32				mUpKey;
 	F32				mYawKey;
-	S32				mPitchKey;
+	F32				mPitchKey;
 
 	//--------------------------------------------------------------------
 	// Movement from user input
@@ -490,7 +490,7 @@ public:
 	void			moveLeftNudge(S32 direction);
 	void			moveUp(S32 direction);
 	void			moveYaw(F32 mag, bool reset_view = true);
-	void			movePitch(S32 direction);
+	void			movePitch(F32 mag);
 
 	//--------------------------------------------------------------------
 	// Orbit

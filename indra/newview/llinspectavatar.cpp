@@ -39,7 +39,6 @@
 #include "llavataractions.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
-#include "lldateutil.h"		// ageFromDate()
 #include "llfloaterreporter.h"
 #include "llfloaterworldmap.h"
 #include "llmutelist.h"
@@ -109,10 +108,11 @@ private:
 	void onClickPay();
 	void onClickBlock();
 	void onClickReport();
+	void onClickZoomIn();  
+	void onClickFindOnMap();
 	bool onVisibleFindOnMap();
 	bool onVisibleGodMode();
 	void onClickMuteVolume();
-	void onFindOnMap();
 	void onVolumeChange(const LLSD& data);
 	
 	// Callback for gCacheName to look up avatar name
@@ -196,7 +196,8 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mCommitCallbackRegistrar.add("InspectAvatar.Pay",	boost::bind(&LLInspectAvatar::onClickPay, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Block",	boost::bind(&LLInspectAvatar::onClickBlock, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Report",	boost::bind(&LLInspectAvatar::onClickReport, this));	
-	mCommitCallbackRegistrar.add("InspectAvatar.FindOnMap",	boost::bind(&LLInspectAvatar::onFindOnMap, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.FindOnMap",	boost::bind(&LLInspectAvatar::onClickFindOnMap, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.ZoomIn", boost::bind(&LLInspectAvatar::onClickZoomIn, this));
 	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleFindOnMap",	boost::bind(&LLInspectAvatar::onVisibleFindOnMap, this));	
 	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleGodMode",	boost::bind(&LLInspectAvatar::onVisibleGodMode, this));	
 
@@ -274,6 +275,11 @@ void LLInspectAvatar::onOpen(const LLSD& data)
 	mAvatarID = data["avatar_id"];
 	mPartnerID = LLUUID::null;
 
+	BOOL self = mAvatarID == gAgent.getID();
+	
+	getChild<LLUICtrl>("gear_self_btn")->setVisible(self);
+	getChild<LLUICtrl>("gear_btn")->setVisible(!self);
+	
 	// Position the inspector relative to the mouse cursor
 	// Similar to how tooltips are positioned
 	// See LLToolTipMgr::createToolTip
@@ -352,7 +358,7 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 {
 	LLStringUtil::format_map_t args;
 	args["[BORN_ON]"] = data->born_on;
-	args["[AGE]"] = LLDateUtil::ageFromDate(data->born_on);
+	args["[AGE]"] = data->born_on;
 	args["[SL_PROFILE]"] = data->about_text;
 	args["[RW_PROFILE"] = data->fl_about_text;
 	args["[ACCTTYPE]"] = LLAvatarPropertiesProcessor::accountType(data);
@@ -476,7 +482,6 @@ void LLInspectAvatar::onClickViewProfile()
 	// hide inspector when showing profile
 	setFocus(FALSE);
 	LLAvatarActions::showProfile(mAvatarID);
-
 }
 
 bool LLInspectAvatar::onVisibleFindOnMap()
@@ -521,8 +526,13 @@ void LLInspectAvatar::onClickReport()
 	LLFloaterReporter::showFromObject(mAvatarID);
 }
 
+void LLInspectAvatar::onClickZoomIn() 
+{
+	handle_zoom_to_object(mAvatarID);
+	closeFloater();
+}
 
-void LLInspectAvatar::onFindOnMap()
+void LLInspectAvatar::onClickFindOnMap()
 {
 	gFloaterWorldMap->trackAvatar(mAvatarID, mAvatarName);
 	LLFloaterReg::showInstance("world_map");

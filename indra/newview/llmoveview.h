@@ -142,6 +142,7 @@ public:
 	// *HACK: due to hard enough to have this control aligned with "Move" button while resizing
 	// let update its position in each frame
 	/*virtual*/ void draw(){updatePosition(); LLPanel::draw();}
+	/*virtual*/ BOOL handleToolTip(S32 x, S32 y, MASK mask);
 
 
 protected:

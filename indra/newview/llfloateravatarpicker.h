@@ -76,7 +76,7 @@ private:
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
 	LLUUID				mQueryID;
-	BOOL				mResultsReturned;
+	int				mNumResultsReturned;
 	BOOL				mNearMeListComplete;
 	BOOL				mCloseOnSelect;
 

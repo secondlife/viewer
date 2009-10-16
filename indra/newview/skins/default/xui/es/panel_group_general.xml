@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="General" name="general_tab">
 	<string name="help_text">
-		La pestaña General contiene información global de este grupo,
-la lista de propietarios y miembros visibles,
-las preferencias generales del grupo, y las opciones de los miembros.
+		La pestaña General contiene información global de este grupo, la lista de propietarios y miembros visibles, las preferencias generales del grupo, y las opciones de los miembros.
 
 Ponga su ratón sobre las opciones para más información.
 	</string>
@@ -47,7 +45,7 @@ Ponga su ratón sobre las opciones para más información.
 	<panel name="preferences_container">
 		<check_box label="Mostrar en la búsqueda" name="show_in_group_list" tool_tip="Dejar que la gente vea este grupo en los resultados de la búsqueda."/>
 		<check_box label="Inscripción libre" name="open_enrollement" tool_tip="Definir si se admiten al grupo nuevos miembros sin que sea preciso invitárseles."/>
-		<check_box label="Cuota de inscripción&#10; en L$:" name="check_enrollment_fee" tool_tip="Define si se requiere una cuota para entrar al grupo."/>
+		<check_box label="Cuota de inscripción:" name="check_enrollment_fee" tool_tip="Define si se requiere una cuota para entrar al grupo."/>
 		<spinner width="60" left_delta="130" name="spin_enrollment_fee" tool_tip="Cuando está marcado &apos;Cuota de inscripción&apos;, los miembros nuevos deben pagar esta cuota para entrar al grupo."/>
 		<combo_box bottom_delta="-38" width="150" name="group_mature_check" tool_tip="Establece si la información de su grupo es &apos;mature&apos;.">
 			<combo_box.item name="select_mature" label="- Elegir Calificación -"/>

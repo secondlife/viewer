@@ -545,7 +545,7 @@ BOOL LLSelectMgr::removeObjectFromSelections(const LLUUID &id)
 				object_found = TRUE;
 				break; // must break here, may have removed multiple objects from list
 			}
-			else if (object->isAvatar())
+			else if (object->isAvatar() && object->getParent() && ((LLViewerObject*)object->getParent())->mID == id)
 			{
 				// It's possible the item being removed has an avatar sitting on it
 				// So remove the avatar that is sitting on the object.

@@ -1315,7 +1315,10 @@ bool LLViewerFetchedTexture::updateFetch()
 					mComponents = mRawImage->getComponents();
 					mGLTexturep->setComponents(mComponents) ;
 
-					gTextureList.dirtyImage(this);
+					for(ll_face_list_t::iterator iter = mFaceList.begin(); iter != mFaceList.end(); ++iter)
+					{
+						(*iter)->dirtyTexture() ;
+					}
 				}			
 				mIsRawImageValid = TRUE;
 				gTextureList.mCreateTextureList.insert(this);

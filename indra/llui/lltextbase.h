@@ -80,8 +80,7 @@ public:
 								border_visible,
 								track_end,
 								read_only,
-								hide_scrollbar,
-								clip_to_rect,
+								allow_scroll,
 								wrap,
 								use_ellipses,
 								allow_html,
@@ -118,7 +117,6 @@ public:
 
 	// LLUICtrl interface
 	/*virtual*/ BOOL		acceptsTextInput() const { return !mReadOnly; }
-	/*virtual*/ void		clear();
 	/*virtual*/ void		setColor( const LLColor4& c );
 	/*virtual*/ void		setValue(const LLSD& value );
 	/*virtual*/ LLTextViewModel* getViewModel() const;
@@ -149,16 +147,13 @@ public:
 	S32						getLength() const { return getWText().length(); }
 	S32						getLineCount() const { return mLineInfoList.size(); }
 
-	class DocumentPanel : public LLPanel
-	{
-	public:
-		DocumentPanel(const Params&);
-	};
 	void					addDocumentChild(LLView* view);
 	void					removeDocumentChild(LLView* view);
-	const DocumentPanel*	getDocumentPanel() const { return mDocumentPanel; }
+	const LLView*			getDocumentView() const { return mDocumentView; }
 	LLRect					getTextRect() { return mTextRect; }
 	LLRect					getContentsRect();
+	LLRect					getVisibleDocumentRect() const;
+
 
 	S32						getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const;
 	LLRect					getLocalRectFromDocIndex(S32 pos) const;
@@ -344,13 +339,12 @@ protected:
 	bool						mUseEllipses;
 	bool						mTrackEnd;			// if true, keeps scroll position at end of document during resize
 	bool						mReadOnly;
-	bool						mClip;
-	bool						mHideScrollbar;
+	bool						mBGVisible;			// render background?
 	S32							mMaxTextByteLength;	// Maximum length mText is allowed to be in bytes
 
 	// support widgets
 	LLContextMenu*				mPopupMenu;
-	DocumentPanel*				mDocumentPanel;
+	LLView*						mDocumentView;
 	class LLScrollContainer*	mScroller;
 
 	// transient state

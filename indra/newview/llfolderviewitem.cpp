@@ -125,6 +125,8 @@ LLFolderViewItem::LLFolderViewItem(LLFolderViewItem::Params p)
 	mLabel(p.name),
 	mRoot(p.root),
 	mCreationDate(p.creation_date),
+	mIcon(p.icon),
+	mIconOpen(p.icon_open),
 	mListener(p.listener),
 	mArrowImage(p.folder_arrow_image),
 	mBoxImage(p.selection_image)
@@ -598,6 +600,11 @@ BOOL LLFolderViewItem::handleRightMouseDown( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 {
+	if (LLView::childrenHandleMouseDown(x, y, mask))
+	{
+		return TRUE;
+	}
+	
 	// No handler needed for focus lost since this class has no
 	// state that depends on it.
 	gFocusMgr.setMouseCapture( this );
@@ -717,6 +724,11 @@ BOOL LLFolderViewItem::handleScrollWheel(S32 x, S32 y, S32 clicks)
 
 BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 {
+	if (LLView::childrenHandleMouseUp(x, y, mask))
+	{
+		return TRUE;
+	}
+	
 	// if mouse hasn't moved since mouse down...
 	if ( pointInView(x, y) && mSelectPending )
 	{
@@ -893,11 +905,15 @@ void LLFolderViewItem::draw()
 		mDragAndDropTarget = FALSE;
 	}
 
-
-	if(mIcon)
-	{
-		mIcon->draw(mIndentation + ARROW_SIZE + TEXT_PAD, getRect().getHeight() - mIcon->getHeight());
+	// First case is used for open folders
+	if (!mIconOpen.isNull() && (llabs(mControlLabelRotation) > 80))
+ 	{
+		mIconOpen->draw(mIndentation + ARROW_SIZE + TEXT_PAD, getRect().getHeight() - mIcon->getHeight());
 	}
+	else if(mIcon)
+	{
+ 		mIcon->draw(mIndentation + ARROW_SIZE + TEXT_PAD, getRect().getHeight() - mIcon->getHeight());
+ 	}
 
 	if (!mLabel.empty())
 	{

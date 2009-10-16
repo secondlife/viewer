@@ -1809,7 +1809,7 @@ L$[AMOUNT]で、このクラシファイド広告を今すぐ公開しますか�
 	</notification>
 	<notification label="スクリプトを無効化" name="HelpRegionDisableScripts">
 		スクリプトが原因でシムの状況が悪くなる場合があります。
-統計グラフをだして（Ctrl-Shift-1）、
+統計グラフをだして（Ctrl+Shift+1）、
 シミュレーターフィジックスFPSを見てください。
 45より数が低ければ、一番下に位置しているタイムパネルを開いてください。
 スクリプト時間が25ms以上であれば、
@@ -1828,7 +1828,7 @@ L$[AMOUNT]で、このクラシファイド広告を今すぐ公開しますか�
 	<notification label="衝突を無効化" name="HelpRegionDisableCollisions">
 		物理的オブジェクトが原因で、
 シムの処理が重くなることがあります。
-統計グラフを開いて（Ctrl-Shift-1）、
+統計グラフを開いて（Ctrl+Shift+1）、
 シミュレーターフィジックスFPSを見てください。
 数値が45より低ければ、統計バーの下に位置しているタイムパネルを開いてください。
 もしシムタイム（物理的作用）が20 msより長い場合は、
@@ -3128,8 +3128,8 @@ Mキーを押して変更します。
 [SECOND_LIFE] をデバッグするデベロッパーにとって
 有用な機能があります。
 このメニューを切り替えるには、
-WindowsではCtrl-Alt-Dを押します。
-Macの場合は、&#8984;-Opt-Shift-Dを押してください。
+WindowsではCtrl+Alt+Dを押します。
+Macの場合は、&#8997;&#8984;Dを押してください。
 	</notification>
 	<notification name="FirstSculptedPrim">
 		スカルプトプリムを編集しています。

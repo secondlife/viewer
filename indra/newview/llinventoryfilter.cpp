@@ -131,6 +131,13 @@ BOOL LLInventoryFilter::check(LLFolderViewItem* item)
 		&& (mFilterSubString.size() == 0 || mSubStringMatchOffset != std::string::npos)
 		&& ((listener->getPermissionMask() & mFilterOps.mPermissions) == mFilterOps.mPermissions)
 		&& (listener->getCreationDate() >= earliest && listener->getCreationDate() <= mFilterOps.mMaxDate);
+
+	BOOL is_folder = (dynamic_cast<LLFolderViewFolder*>(item) != NULL);
+	if (is_folder && mFilterOps.mShowFolderState == LLInventoryFilter::SHOW_ALL_FOLDERS)
+	{
+		passed = TRUE;
+	}
+
 	return passed;
 }
 

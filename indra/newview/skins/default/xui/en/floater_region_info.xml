@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  height="512"
+ help_topic="regioninfo"
  layout="topleft"
  name="regioninfo"
- help_topic="regioninfo"
  save_rect="true"
  title="Region/Estate"
- width="280">
+ width="480">
     <tab_container
      bottom="512"
      follows="left|right|top|bottom"

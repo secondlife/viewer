@@ -1013,33 +1013,28 @@ LLFloaterIMPanel::LLFloaterIMPanel(const std::string& session_label,
 				       (void *)this);
 	}
 
-	if ( !mSessionInitialized )
+	//*TODO we probably need the same "awaiting message" thing in LLIMFloater
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(mSessionUUID);
+	if (!im_session)
 	{
-		if ( !LLIMModel::instance().sendStartSession(
-				 mSessionUUID,
-				 mOtherParticipantUUID,
-				 mSessionInitialTargetIDs,
-				 mDialog) )
-		{
-			//we don't need to need to wait for any responses
-			//so we're already initialized
-			mSessionInitialized = TRUE;
-			mSessionStartMsgPos = 0;
-		}
-		else
-		{
-			//locally echo a little "starting session" message
-			LLUIString session_start = sSessionStartString;
+		llerror("im session with id " + mSessionUUID.asString() + " does not exist!", 0);
+		return;
+	}
 
-			session_start.setArg("[NAME]", getTitle());
-			mSessionStartMsgPos = 
-				mHistoryEditor->getWText().length();
+	mSessionInitialized =  im_session->mSessionInitialized;
+	if (!mSessionInitialized)
+	{
+		//locally echo a little "starting session" message
+		LLUIString session_start = sSessionStartString;
 
-			addHistoryLine(
-				session_start,
-				LLUIColorTable::instance().getColor("SystemChatColor"),
-				false);
-		}
+		session_start.setArg("[NAME]", getTitle());
+		mSessionStartMsgPos = 
+			mHistoryEditor->getWText().length();
+
+		addHistoryLine(
+			session_start,
+			LLUIColorTable::instance().getColor("SystemChatColor"),
+			false);
 	}
 }
 
@@ -1162,8 +1157,12 @@ void LLFloaterIMPanel::draw()
 	childSetEnabled("start_call_btn", enable_connect);
 	childSetEnabled("send_btn", !childGetValue("chat_editor").asString().empty());
 	
+	LLPointer<LLSpeaker> self_speaker;
 	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionUUID);
-	LLPointer<LLSpeaker> self_speaker = speaker_mgr->findSpeaker(gAgent.getID());
+	if (speaker_mgr)
+	{
+		self_speaker = speaker_mgr->findSpeaker(gAgent.getID());
+	}
 	if(!mTextIMPossible)
 	{
 		mInputEditor->setEnabled(FALSE);
@@ -1341,25 +1340,6 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 	}
 	mHistoryEditor->appendText(utf8msg, prepend_newline, LLStyle::Params().color(color));
 	mHistoryEditor->blockUndo();
-
-	S32 im_log_option =  gSavedPerAccountSettings.getS32("IMLogOptions");
-	if (log_to_file && (im_log_option!=LOG_CHAT))
-	{
-		std::string histstr;
-		if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
-			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + name + separator_string + utf8msg;
-		else
-			histstr = name + separator_string + utf8msg;
-
-		if(im_log_option==LOG_BOTH_TOGETHER)
-		{
-			LLLogChat::saveHistory(std::string("chat"),histstr);
-		}
-		else
-		{
-			LLLogChat::saveHistory(getTitle(),histstr);
-		}
-	}
 
 	if (!isInVisibleChain())
 	{
@@ -1650,6 +1630,8 @@ void LLFloaterIMPanel::sendMsg()
 		LLWString text = mInputEditor->getConvertedText();
 		if(!text.empty())
 		{
+			// store sent line in history, duplicates will get filtered
+			if (mInputEditor) mInputEditor->updateHistory();
 			// Truncate and convert to UTF8 for transport
 			std::string utf8_text = wstring_to_utf8str(text);
 			utf8_text = utf8str_truncate(utf8_text, MAX_MSG_BUF_SIZE - 1);
@@ -1751,8 +1733,9 @@ void LLFloaterIMPanel::setTyping(BOOL typing)
 			// Will send typing state after a short delay.
 			mSentTypingState = FALSE;
 		}
-
-		speaker_mgr->setSpeakerTyping(gAgent.getID(), TRUE);
+		
+		if (speaker_mgr)
+			speaker_mgr->setSpeakerTyping(gAgent.getID(), TRUE);
 	}
 	else
 	{
@@ -1762,7 +1745,8 @@ void LLFloaterIMPanel::setTyping(BOOL typing)
 			sendTypingState(FALSE);
 			mSentTypingState = TRUE;
 		}
-		speaker_mgr->setSpeakerTyping(gAgent.getID(), FALSE);
+		if (speaker_mgr)
+			speaker_mgr->setSpeakerTyping(gAgent.getID(), FALSE);
 	}
 
 	mTyping = typing;
@@ -1822,7 +1806,11 @@ void LLFloaterIMPanel::removeTypingIndicator(const LLIMInfo* im_info)
 		mHistoryEditor->removeTextFromEnd(chars_to_remove);
 		if (im_info)
 		{
-			LLIMModel::getInstance()->getSpeakerManager(mSessionUUID)->setSpeakerTyping(im_info->mFromID, FALSE);
+			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionUUID);
+			if (speaker_mgr)
+			{
+				speaker_mgr->setSpeakerTyping(im_info->mFromID, FALSE);
+			}
 		}
 	}
 }

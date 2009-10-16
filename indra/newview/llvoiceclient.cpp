@@ -1664,7 +1664,6 @@ void LLVoiceClient::stateMachine()
 						// SLIM SDK: these arguments are no longer necessary.
 //						std::string args = " -p tcp -h -c";
 						std::string args;
-						std::string cmd;
 						std::string loglevel = gSavedSettings.getString("VivoxDebugLevel");
 						
 						if(loglevel.empty())
@@ -1679,17 +1678,18 @@ void LLVoiceClient::stateMachine()
 
 #if LL_WINDOWS
 						PROCESS_INFORMATION pinfo;
-						STARTUPINFOA sinfo;
+						STARTUPINFOW sinfo;
 						memset(&sinfo, 0, sizeof(sinfo));
-						std::string exe_dir = gDirUtilp->getAppRODataDir();
-						cmd = "SLVoice.exe";
-						cmd += args;
-						
-						// So retarded.  Windows requires that the second parameter to CreateProcessA be a writable (non-const) string...
-						char *args2 = new char[args.size() + 1];
-						strcpy(args2, args.c_str());
 
-						if(!CreateProcessA(exe_path.c_str(), args2, NULL, NULL, FALSE, 0, NULL, exe_dir.c_str(), &sinfo, &pinfo))
+						std::string exe_dir = gDirUtilp->getExecutableDir();
+
+						llutf16string exe_path16 = utf8str_to_utf16str(exe_path);
+						llutf16string exe_dir16 = utf8str_to_utf16str(exe_dir);
+						llutf16string args16 = utf8str_to_utf16str(args);
+						// Create a writeable copy to keep Windows happy.
+						U16 *argscpy_16 = new U16[args16.size() + 1];
+						wcscpy_s(argscpy_16,args16.size()+1,args16.c_str());
+						if(!CreateProcessW(exe_path16.c_str(), argscpy_16, NULL, NULL, FALSE, 0, NULL, exe_dir16.c_str(), &sinfo, &pinfo))
 						{
 //							DWORD dwErr = GetLastError();
 						}
@@ -1701,7 +1701,7 @@ void LLVoiceClient::stateMachine()
 							CloseHandle(pinfo.hThread); // stops leaks - nothing else
 						}		
 						
-						delete[] args2;
+						delete[] argscpy_16;
 #else	// LL_WINDOWS
 						// This should be the same for mac and linux
 						{
@@ -4972,7 +4972,7 @@ void LLVoiceClient::sessionState::removeAllParticipants()
 	
 	if(!mParticipantsByUUID.empty())
 	{
-		LL_ERRS("Voice") << "Internal error: empty URI map, non-empty UUID map" << LL_ENDL
+		LL_ERRS("Voice") << "Internal error: empty URI map, non-empty UUID map" << LL_ENDL;
 	}
 }
 
@@ -6488,7 +6488,7 @@ void LLVoiceClient::deleteSession(sessionState *session)
 		{
 			if(iter->second != session)
 			{
-				LL_ERRS("Voice") << "Internal error: session mismatch" << LL_ENDL
+				LL_ERRS("Voice") << "Internal error: session mismatch" << LL_ENDL;
 			}
 			mSessionsByHandle.erase(iter);
 		}
@@ -6528,7 +6528,7 @@ void LLVoiceClient::deleteAllSessions()
 	
 	if(!mSessionsByHandle.empty())
 	{
-		LL_ERRS("Voice") << "Internal error: empty session map, non-empty handle map" << LL_ENDL
+		LL_ERRS("Voice") << "Internal error: empty session map, non-empty handle map" << LL_ENDL;
 	}
 }
 

@@ -66,6 +66,7 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 		mReplyBtn->setVisible(FALSE);
 		S32 btn_height = mReplyBtn->getRect().getHeight();
 		LLRect msg_rect = mMessage->getRect();
+		mMessage->reshape(msg_rect.getWidth(), msg_rect.getHeight() + btn_height);
 		msg_rect.setLeftTopAndSize(msg_rect.mLeft, msg_rect.mTop, msg_rect.getWidth(), msg_rect.getHeight() + btn_height);
 		mMessage->setRect(msg_rect);
 	}

@@ -127,7 +127,7 @@ namespace LLInitParam
 
 	bool BaseBlock::submitValue(const Parser::name_stack_t& name_stack, Parser& p, bool silent)
 	{
-		if (!deserializeBlock(p, boost::make_iterator_range(name_stack.begin(), name_stack.end())))
+		if (!deserializeBlock(p, std::make_pair(name_stack.begin(), name_stack.end())))
 		{
 			if (!silent)
 			{
@@ -304,11 +304,11 @@ namespace LLInitParam
 	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack)
 	{
 		BlockDescriptor& block_data = getBlockDescriptor();
-		bool names_left = !name_stack.empty();
+		bool names_left = name_stack.first != name_stack.second;
 
 		if (names_left)
 		{
-			const std::string& top_name = name_stack.front().first;
+			const std::string& top_name = name_stack.first->first;
 
 			ParamDescriptor::deserialize_func_t deserialize_func = NULL;
 			Param* paramp = NULL;
@@ -331,10 +331,11 @@ namespace LLInitParam
 				}
 			}
 					
-			Parser::name_stack_range_t new_name_stack(++name_stack.begin(), name_stack.end());
+			Parser::name_stack_range_t new_name_stack(name_stack.first, name_stack.second);
+			++new_name_stack.first;
 			if (deserialize_func)
 			{
-				return deserialize_func(*paramp, p, new_name_stack, name_stack.empty() ? -1 : name_stack.front().second);
+				return deserialize_func(*paramp, p, new_name_stack, name_stack.first == name_stack.second ? -1 : name_stack.first->second);
 			}
 		}
 
@@ -346,7 +347,7 @@ namespace LLInitParam
 			Param* paramp = getParamFromHandle((*it)->mParamHandle);
 			ParamDescriptor::deserialize_func_t deserialize_func = (*it)->mDeserializeFunc;
 
-			if (deserialize_func && deserialize_func(*paramp, p, name_stack, name_stack.empty() ? -1 : name_stack.front().second))
+			if (deserialize_func && deserialize_func(*paramp, p, name_stack, name_stack.first == name_stack.second ? -1 : name_stack.first->second))
 			{
 				mLastChangedParam = (*it)->mParamHandle;
 				return true;
@@ -499,33 +500,7 @@ namespace LLInitParam
 		return param_changed;
 	}
 
-
-	template<>
-	bool ParamCompare<boost::function<void (const std::string &,void *)> >::equals(
-	   const boost::function<void (const std::string &,void *)> &a,
-	   const boost::function<void (const std::string &,void *)> &b)
-	{
-		return false;
-	}
-
-	template<>
-	bool ParamCompare<boost::function<void (const LLSD &,const LLSD &)> >::equals(
-	   const boost::function<void (const LLSD &,const LLSD &)> &a,
-	   const boost::function<void (const LLSD &,const LLSD &)> &b)
-	{
-		return false;
-	}
-
-	template<>
-	bool ParamCompare<boost::function<void (void)> >::equals(
-		const boost::function<void (void)> &a,
-		const boost::function<void (void)> &b)
-	{
-		return false;
-	}
-
-	template<>
-	bool ParamCompare<LLSD>::equals(const LLSD &a, const LLSD &b)
+	bool ParamCompare<LLSD, false>::equals(const LLSD &a, const LLSD &b)
 	{
 		return false;
 	}

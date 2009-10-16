@@ -164,33 +164,6 @@ private:
 	LLSLURLGetter mUrlGetter;
 };
 
-class LLFavoritesToggleableMenu : public LLToggleableMenu
-{
-public:
-	virtual BOOL handleHover(S32 x, S32 y, MASK mask)
-	{
-		if (fb)
-		{
-			fb->handleHover(x, y, mask);
-		}
-
-		return LLToggleableMenu::handleHover(x, y, mask);
-	}
-
-	void initFavoritesBarPointer(LLFavoritesBarCtrl* fb) { this->fb = fb; }
-
-protected:
-	LLFavoritesToggleableMenu(const LLToggleableMenu::Params& p):
-		LLToggleableMenu(p)
-	{
-	}
-
-	friend class LLUICtrlFactory;
-
-private:
-	LLFavoritesBarCtrl* fb;
-};
-
 /**
  * This class is needed to override LLMenuItemCallGL default handleToolTip function and
  * show SLURL as button tooltip.
@@ -221,6 +194,18 @@ public:
 		return LLMenuItemCallGL::handleMouseUp(x, y, mask);
 	}
 
+	virtual BOOL handleHover(S32 x, S32 y, MASK mask)
+	{
+		if (fb)
+		{
+			fb->handleHover(x, y, mask);
+		}
+
+		return TRUE;
+	}
+
+	void initFavoritesBarPointer(LLFavoritesBarCtrl* fb) { this->fb = fb; }
+
 protected:
 
 	LLFavoriteLandmarkMenuItem(const LLMenuItemCallGL::Params& p) : LLMenuItemCallGL(p) {}
@@ -228,6 +213,36 @@ protected:
 
 private:
 	LLSLURLGetter mUrlGetter;
+	LLFavoritesBarCtrl* fb;
+};
+
+/**
+ * This class was introduced just for fixing the following issue:
+ * EXT-836 Nav bar: Favorites overflow menu passes left-mouse click through.
+ * We must explicitly handle drag and drop event by returning TRUE
+ * because otherwise LLToolDragAndDrop will initiate drag and drop operation
+ * with the world.
+ */
+class LLFavoriteLandmarkToggleableMenu : public LLToggleableMenu
+{
+public:
+	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+								   EDragAndDropType cargo_type,
+								   void* cargo_data,
+								   EAcceptance* accept,
+								   std::string& tooltip_msg)
+	{
+		*accept = ACCEPT_NO;
+		return TRUE;
+	}
+
+protected:
+	LLFavoriteLandmarkToggleableMenu(const LLToggleableMenu::Params& p):
+		LLToggleableMenu(p)
+	{
+	}
+
+	friend class LLUICtrlFactory;
 };
 
 /**
@@ -312,8 +327,8 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 		boost::bind(&LLFavoritesBarCtrl::doToSelected, this, _2));
 
 	// Add this if we need to selectively enable items
-	//LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Favorites.EnableSelected",
-	//	boost::bind(&LLFavoritesBarCtrl::enableSelected, this, _2));
+	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Favorites.EnableSelected",
+		boost::bind(&LLFavoritesBarCtrl::enableSelected, this, _2));
 	
 	gInventory.addObserver(this);
 }
@@ -433,7 +448,7 @@ void LLFavoritesBarCtrl::handleExistingFavoriteDragAndDrop(S32 x, S32 y)
 
 	saveItemsOrder(mItems);
 
-	LLFavoritesToggleableMenu* menu = (LLFavoritesToggleableMenu*) mPopupMenuHandle.get();
+	LLToggleableMenu* menu = (LLToggleableMenu*) mPopupMenuHandle.get();
 
 	if (menu && menu->getVisible())
 	{
@@ -794,7 +809,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 {
 	if (mPopupMenuHandle.isDead())
 	{
-		LLFavoritesToggleableMenu::Params menu_p;
+		LLToggleableMenu::Params menu_p;
 		menu_p.name("favorites menu");
 		menu_p.can_tear_off(false);
 		menu_p.visible(false);
@@ -802,12 +817,11 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 		menu_p.max_scrollable_items = 10;
 		menu_p.preferred_width = DROP_DOWN_MENU_WIDTH;
 
-		LLFavoritesToggleableMenu* menu = LLUICtrlFactory::create<LLFavoritesToggleableMenu>(menu_p);
-		menu->initFavoritesBarPointer(this);
+		LLToggleableMenu* menu = LLUICtrlFactory::create<LLFavoriteLandmarkToggleableMenu>(menu_p);
 		mPopupMenuHandle = menu->getHandle();
 	}
 
-	LLFavoritesToggleableMenu* menu = (LLFavoritesToggleableMenu*)mPopupMenuHandle.get();
+	LLToggleableMenu* menu = (LLToggleableMenu*)mPopupMenuHandle.get();
 
 	if(menu)
 	{
@@ -873,6 +887,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 			
 			item_params.on_click.function(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
 			LLFavoriteLandmarkMenuItem *menu_item = LLUICtrlFactory::create<LLFavoriteLandmarkMenuItem>(item_params);
+			menu_item->initFavoritesBarPointer(this);
 			menu_item->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this,item->getUUID(),_1,_2,_3,_4));
 			menu_item->LLUICtrl::setMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseDown, this, item->getUUID(), _1, _2, _3, _4));
 			menu_item->LLUICtrl::setMouseUpCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseUp, this, item->getUUID(), _1, _2, _3, _4));
@@ -950,6 +965,18 @@ void copy_slurl_to_clipboard_cb(std::string& slurl)
 	gClipboard.copyFromString(utf8str_to_wstring(slurl));
 }
 
+
+bool LLFavoritesBarCtrl::enableSelected(const LLSD& userdata)
+{
+    std::string param = userdata.asString();
+
+    if (param == std::string("can_paste"))
+    {
+        return isClipboardPasteable();
+    }
+
+    return false;
+}
 
 void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 {
@@ -1072,6 +1099,7 @@ void LLFavoritesBarCtrl::pastFromClipboard() const
 void LLFavoritesBarCtrl::onButtonMouseDown(LLUUID id, LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
 {
 	mDragItemId = id;
+	mStartDrag = TRUE;
 
 	S32 screenX, screenY;
 	localPointToScreen(x, y, &screenX, &screenY);
@@ -1081,6 +1109,7 @@ void LLFavoritesBarCtrl::onButtonMouseDown(LLUUID id, LLUICtrl* ctrl, S32 x, S32
 
 void LLFavoritesBarCtrl::onButtonMouseUp(LLUUID id, LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
 {
+	mStartDrag = FALSE;
 	mDragItemId = LLUUID::null;
 }
 
@@ -1095,7 +1124,7 @@ void LLFavoritesBarCtrl::onEndDrag()
 
 BOOL LLFavoritesBarCtrl::handleHover(S32 x, S32 y, MASK mask)
 {
-	if (mDragItemId != LLUUID::null)
+	if (mDragItemId != LLUUID::null && mStartDrag)
 	{
 		S32 screenX, screenY;
 		localPointToScreen(x, y, &screenX, &screenY);
@@ -1105,6 +1134,8 @@ BOOL LLFavoritesBarCtrl::handleHover(S32 x, S32 y, MASK mask)
 			LLToolDragAndDrop::getInstance()->beginDrag(
 				DAD_LANDMARK, mDragItemId,
 				LLToolDragAndDrop::SOURCE_LIBRARY);
+
+			mStartDrag = FALSE;
 
 			return LLToolDragAndDrop::getInstance()->handleHover(x, y, mask);
 		}

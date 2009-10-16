@@ -59,7 +59,7 @@ public:
 
 	/*virtual*/ S32 getWidth(S32 first_char, S32 num_chars) const
 	{
-		return mEditor->getDocumentPanel()->getRect().getWidth();
+		return mEditor->getDocumentView()->getRect().getWidth();
 	}
 
 	/*virtual*/ F32	draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)

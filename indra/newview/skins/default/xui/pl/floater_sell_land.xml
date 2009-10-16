@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="sell land" title="Sell Land">
+    <scroll_container name="profile_scroll">
+    <panel name="scroll_content_panel">
 	<text name="info_parcel_label">
 		Posiadłość:
 	</text>
@@ -55,4 +57,6 @@
 	</text>
 	<button label="Wystaw Ziemię na Sprzedaż" name="sell_btn" />
 	<button label="Anuluj" name="cancel_btn" />
+    </panel>
+    </scroll_container>
 </floater>

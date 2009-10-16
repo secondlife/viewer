@@ -116,6 +116,7 @@ public:
 	virtual void	setEnabled(BOOL enabled);
 
 	// uictrl overrides
+	virtual void	clear();
 	virtual void	setFocus( BOOL b );
 	virtual BOOL	isDirty() const;
 

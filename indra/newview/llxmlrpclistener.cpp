@@ -57,10 +57,10 @@ protected:
     MapType mMap;
 };
 
-class StatusMapper: public StatusMapperBase<LLXMLRPCTransaction::Status>
+class StatusMapper: public StatusMapperBase<LLXMLRPCTransaction::EStatus>
 {
 public:
-    StatusMapper(): StatusMapperBase<LLXMLRPCTransaction::Status>("Status")
+    StatusMapper(): StatusMapperBase<LLXMLRPCTransaction::EStatus>("Status")
     {
 		mMap[LLXMLRPCTransaction::StatusNotStarted]  = "NotStarted";
 		mMap[LLXMLRPCTransaction::StatusStarted]     = "Started";
@@ -314,7 +314,7 @@ public:
         bool done = mTransaction->process();
 
         CURLcode curlcode;
-        LLXMLRPCTransaction::Status status;
+        LLXMLRPCTransaction::EStatus status;
         {
             // LLXMLRPCTransaction::status() is defined to accept int* rather
             // than CURLcode*. I don't feel the urge to fix the signature, but
@@ -483,7 +483,7 @@ private:
     const std::string mReplyPump;
     LLTempBoundListener mBoundListener;
     boost::scoped_ptr<LLXMLRPCTransaction> mTransaction;
-	LLXMLRPCTransaction::Status mPreviousStatus; // To detect state changes.
+	LLXMLRPCTransaction::EStatus mPreviousStatus; // To detect state changes.
 };
 
 bool LLXMLRPCListener::process(const LLSD& command)

@@ -3,7 +3,6 @@
 project(llcommon)
 
 include(00-Common)
-include(LLAddBuildTest)
 include(LLCommon)
 include(Linking)
 include(Boost)
@@ -291,16 +290,27 @@ add_dependencies(llcommon stage_third_party_libs)
 
 include(LLAddBuildTest)
 SET(llcommon_TEST_SOURCE_FILES
+  # unit-testing llcommon is not possible right now as the test-harness *itself* depends upon llcommon, causing a circular dependency.  Add your 'unit' tests as integration tests for now.
   )
 LL_ADD_PROJECT_UNIT_TESTS(llcommon "${llcommon_TEST_SOURCE_FILES}")
 
 #set(TEST_DEBUG on)
 set(test_libs llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES} ${GOOGLEMOCK_LIBRARIES})
-# Have to treat lllazy test as an integration test until this issue is resolved:
-# https://jira.lindenlab.com/jira/browse/DEV-29456
-LL_ADD_INTEGRATION_TEST(lllazy lllazy.cpp "${test_libs}")
+LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(llbase64 "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(lldate "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(llerror "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(llframetimer "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(lllazy "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(llrand "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(llstring "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(lltreeiterators "" "${test_libs}")
+LL_ADD_INTEGRATION_TEST(lluri "" "${test_libs}")
 
 # *TODO - reenable these once tcmalloc libs no longer break the build.
 #ADD_BUILD_TEST(llallocator llcommon)
 #ADD_BUILD_TEST(llallocator_heap_profile llcommon)
 #ADD_BUILD_TEST(llmemtype llcommon)
+

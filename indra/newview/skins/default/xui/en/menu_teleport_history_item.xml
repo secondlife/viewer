@@ -23,11 +23,4 @@
         <menu_item_call.on_click
          function="TeleportHistory.Copy" />
     </menu_item_call>
-    <menu_item_call
-     label="Make Landmark"
-     layout="topleft"
-     name="Make Landmark">
-        <menu_item_call.on_click
-         function="TeleportHistory.MakeLandmark" />
-    </menu_item_call>
 </context_menu>

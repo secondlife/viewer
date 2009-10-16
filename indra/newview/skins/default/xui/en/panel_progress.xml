@@ -62,7 +62,7 @@
                     <text
                      follows="left|right|top"
                      font="SansSerifHuge"
-                     font_shadow="hard"
+                     font_shadow="none"
                      halign="left"
                      height="20"
                      layout="topleft"
@@ -74,7 +74,7 @@
                     <text
                      follows="left|right|top"
                      font="SansSerif"
-                     font_shadow="hard"
+                     font_shadow="none"
                      halign="left"
                      height="20"
                      layout="topleft"
@@ -96,7 +96,7 @@
                     <text
                      follows="left|right|top|bottom"
                      font="SansSerifLarge"
-                     font_shadow="hard"
+                     font_shadow="none"
                      halign="left"
                      height="100"
                      layout="topleft"

@@ -530,6 +530,8 @@ void notify_automute_callback(const LLUUID& agent_id, const std::string& first_n
 			{
 				timp->addHistoryLine(message);
 			}
+
+			LLIMModel::getInstance()->addMessage(agent_id, SYSTEM_FROM, LLUUID::null, message);
 		}
 
 		LLChat auto_chat(message);

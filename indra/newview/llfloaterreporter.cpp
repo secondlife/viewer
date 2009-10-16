@@ -143,6 +143,7 @@ BOOL LLFloaterReporter::postBuild()
 	LLViewerRegion *regionp = gAgent.getRegion();
 	if (regionp)
 	{
+		childSetText("sim_field", regionp->getName());
 		pos -= regionp->getOriginGlobal();
 	}
 	setPosBox(pos);

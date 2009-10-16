@@ -149,7 +149,7 @@
 			</combo_box>
 		<panel name="perms_build">
 			<text name="perm_modify">
-				Vous pouvez modifier cet objet.
+				Vous pouvez modifier cet objet
 			</text>
 			<text name="B:">
 				B :
@@ -177,28 +177,28 @@
 			<check_box name="checkbox next owner can transfer"/>
 		</panel>
 			<string name="text modify info 1">
-				Vous pouvez modifier cet objet.
+				Vous pouvez modifier cet objet
 			</string>
 			<string name="text modify info 2">
-				Vous pouvez modifier ces objets.
+				Vous pouvez modifier ces objets
 			</string>
 			<string name="text modify info 3">
-				Vous ne pouvez pas modifier cet objet.
+				Vous ne pouvez pas modifier cet objet
 			</string>
 			<string name="text modify info 4">
-				Vous ne pouvez pas modifier ces objets.
+				Vous ne pouvez pas modifier ces objets
 			</string>
 			<string name="text modify warning">
-				Sélectionnez l&apos;objet en entier.
+				Sélectionnez l&apos;objet en entier
 			</string>
 			<string name="Cost Default">
-				Prix :           L$
+				Prix : L$
 			</string>
 			<string name="Cost Total">
-				Prix total :  L$
+				Prix total : L$
 			</string>
 			<string name="Cost Per Unit">
-				Prix par :     L$
+				Prix par : L$
 			</string>
 			<string name="Cost Mixed">
 				Prix mixte
@@ -443,8 +443,8 @@
 			<button label="Ajuster" label_selected="Ajuster" left="150" name="button align"/>
 		</panel>
 		<panel label="Contenu" name="Contents">
-			<button label="Nouveau script" label_selected="Nouveau script..." name="button new script"/>
-			<button label="Droits..." name="button permissions"/>
+			<button label="Nouveau script" label_selected="Nouveau script" name="button new script"/>
+			<button label="Droits" name="button permissions"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
@@ -458,18 +458,18 @@
 			Surface : [AREA] m²
 		</text>
 		<button label="À propos du terrain..." label_selected="À propos du terrain..." name="button about land" width="142"/>
-		<check_box label="Afficher les propriétaires" name="checkbox show owners" tool_tip="Colorie les parcelles en fonction de leur propriétaire"/>
+		<check_box label="Afficher les propriétaires" name="checkbox show owners" tool_tip="Colorie les parcelles en fonction de leur propriétaire : &#10;&#10;Vert = votre terrain &#10;Turquoise = le terrain de votre groupe &#10;Rouge = appartenant à d&apos;autres &#10;Jaune = en vente &#10;Mauve = aux enchères &#10;Gris = public"/>
 		<button label="?" label_selected="?" name="button show owners help" left_delta="154"/>
 		<text name="label_parcel_modify">
 			Modifier la parcelle
 		</text>
-		<button label="Diviser..." label_selected="Diviser..." name="button subdivide land" width="142"/>
-		<button label="Fusionner..." label_selected="Fusionner..." name="button join land" width="142"/>
+		<button label="Diviser" label_selected="Diviser" name="button subdivide land" width="142"/>
+		<button label="Fusionner" label_selected="Fusionner" name="button join land" width="142"/>
 		<text name="label_parcel_trans">
 			Transactions
 		</text>
-		<button label="Acheter le terrain..." label_selected="Acheter le terrain..." name="button buy land" width="142"/>
-		<button label="Abandonner le terrain..." label_selected="Abandonner le terrain..." name="button abandon land" width="142"/>
+		<button label="Acheter le terrain" label_selected="Acheter le terrain" name="button buy land" width="142"/>
+		<button label="Abandonner le terrain" label_selected="Abandonner le terrain" name="button abandon land" width="142"/>
 	</panel>
 	<floater.string name="status_rotate">
 		Pour faire tourner l&apos;objet, faîtes glisser les bandes de couleur.

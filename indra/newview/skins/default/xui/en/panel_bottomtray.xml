@@ -83,7 +83,7 @@
              top="6"
              width="70">
                 <button.init_callback
-                 function="Button.SetFloaterToggle"
+                 function="Button.SetDockableFloaterToggle"
                  parameter="moveview" />
             </button>
         </layout_panel>
@@ -105,10 +105,10 @@
          height="28"
          layout="topleft"
          min_height="28"
-         min_width="150"
+         min_width="100"
          name="cam_panel"
          top_delta="-10"
-         width="150">
+         width="100">
             <button
              follows="right"
              height="20"
@@ -121,7 +121,7 @@
              name="camera_btn"
              width="70">
                 <button.init_callback
-                 function="Button.SetFloaterToggle"
+                 function="Button.SetDockableFloaterToggle"
                  parameter="camera" />
             </button>
  			<button
@@ -136,15 +136,28 @@
          	 image_selected="toggle_button_selected"
              image_unselected="toggle_button_off">
              <button.init_callback
-             	function="Button.SetFloaterToggle"
+             	function="Button.SetDockableFloaterToggle"
              	parameter="camera_presets"
              	/>
             </button>
+        </layout_panel>
+        <layout_panel
+         mouse_opaque="false"        
+         auto_resize="false"
+         follows="right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="35"
+         name="snapshot_panel"
+         top_delta="-10"
+         width="35">         
             <split_button
              arrow_position="right"
              follows="right"
              height="18"
-             left_pad="4"
+             left="0"
+             layout="topleft"             
              name="snapshots"
              top="6"
              width="35">
@@ -160,19 +173,8 @@
                  image_unselected="camera_presets/camera_presets_snapshot.png"
                  name="snapshot"
                  tool_tip="Take Snapshot" />
-            </split_button>
+            </split_button>                  
         </layout_panel>
-        <icon
-         auto_resize="false"
-         color="0 0 0 0"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
-         name="DUMMY"
-         top="0"
-         width="5"/>
         <layout_panel
          mouse_opaque="false"
          follows="left|right"
