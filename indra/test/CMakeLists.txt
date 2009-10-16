@@ -54,7 +54,6 @@ set(test_SOURCE_FILES
     lltranscode_tut.cpp
     lltut.cpp
     lluuidhashmap_tut.cpp
-    llxfer_tut.cpp
     message_tut.cpp
     test.cpp
     )
