@@ -418,11 +418,7 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 
 	if (!append && total_links > 0)
 	{
-		for (S32 i = 0; i < cof_items.count(); ++i)
-		{
-			gInventory.purgeObject(cof_items.get(i)->getUUID());
-		}
-		gInventory.notifyObservers();
+		purgeCOFBeforeRebuild(category);
 	}
 
 	LLPointer<LLUpdateAppearanceOnDestroy> link_waiter = new LLUpdateAppearanceOnDestroy;
@@ -521,6 +517,68 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 	}
 }
 
+/* static */ bool LLAppearanceManager::isMandatoryWearableType(EWearableType type)
+{
+	return (type==WT_SHAPE) || (type==WT_SKIN) || (type== WT_HAIR) || (type==WT_EYES);
+}
+
+// For mandatory body parts.
+/* static */ void LLAppearanceManager::checkMandatoryWearableTypes(const LLUUID& category, std::set<EWearableType>& types_found)
+{
+	LLInventoryModel::cat_array_t new_cats;
+	LLInventoryModel::item_array_t new_items;
+	gInventory.collectDescendents(category, new_cats, new_items,
+								  LLInventoryModel::EXCLUDE_TRASH);
+	std::set<EWearableType> wt_types_found;
+	for (S32 i = 0; i < new_items.count(); ++i)
+	{
+		LLViewerInventoryItem *itemp = new_items.get(i);
+		if (itemp->isWearableType())
+		{
+			EWearableType type = itemp->getWearableType();
+			if (isMandatoryWearableType(type))
+			{
+				types_found.insert(type);
+			}
+		}
+	}
+}
+
+// Remove everything from the COF that we safely can before replacing
+// with contents of new category.  This means preserving any mandatory
+// body parts that aren't present in the new category, and getting rid
+// of everything else.
+/* static */ void LLAppearanceManager::purgeCOFBeforeRebuild(const LLUUID& category)
+{
+	// See which mandatory body types are present in the new category.
+	std::set<EWearableType> wt_types_found;
+	checkMandatoryWearableTypes(category,wt_types_found);
+	
+	LLInventoryModel::cat_array_t cof_cats;
+	LLInventoryModel::item_array_t cof_items;
+	gInventory.collectDescendents(getCOF(), cof_cats, cof_items,
+								  LLInventoryModel::EXCLUDE_TRASH);
+	for (S32 i = 0; i < cof_items.count(); ++i)
+	{
+		LLViewerInventoryItem *itemp = cof_items.get(i);
+		if (itemp->isWearableType())
+		{
+			EWearableType type = itemp->getWearableType();
+			if (!isMandatoryWearableType(type) || (wt_types_found.find(type) != wt_types_found.end()))
+			{
+				// Not mandatory or supplied by the new category - OK to delete
+				gInventory.purgeObject(cof_items.get(i)->getUUID());
+			}
+		}
+		else
+		{
+			// Not a wearable - always purge
+			gInventory.purgeObject(cof_items.get(i)->getUUID());
+		}
+	}
+	gInventory.notifyObservers();
+}
+
 // Replace COF contents from a given outfit folder.
 /* static */ void LLAppearanceManager::rebuildCOFFromOutfit(const LLUUID& category)
 {
@@ -539,29 +597,17 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 		return;
 	}
 		
-	const LLUUID &current_outfit_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CURRENT_OUTFIT);
 	// Processes that take time should show the busy cursor
 	//inc_busy_count();
 
-	LLInventoryModel::cat_array_t cof_cats;
-	LLInventoryModel::item_array_t cof_items;
-	gInventory.collectDescendents(current_outfit_id, cof_cats, cof_items,
-								  LLInventoryModel::EXCLUDE_TRASH);
-	
 	//dumpCat(current_outfit_id,"COF before remove:");
-
-	if (items.count() > 0)
-	{
-		for (S32 i = 0; i < cof_items.count(); ++i)
-		{
-			gInventory.purgeObject(cof_items.get(i)->getUUID());
-		}
-		gInventory.notifyObservers();
-	}
 
 	//dumpCat(current_outfit_id,"COF after remove:");
 
+	purgeCOFBeforeRebuild(category);
+	
 	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
+	LLUUID current_outfit_id = getCOF();
 	LLAppearanceManager::shallowCopyCategory(category, current_outfit_id, link_waiter);
 
 	//dumpCat(current_outfit_id,"COF after shallow copy:");
@@ -907,6 +953,7 @@ void LLAppearanceManager::wearItem( LLInventoryItem* item, bool do_update )
 /* static */
 void LLAppearanceManager::wearEnsemble( LLInventoryCategory* cat, bool do_update )
 {
+#if SUPPORT_ENSEMBLES
 	// BAP add check for already in COF.
 	LLPointer<LLInventoryCallback> cb = do_update ? new ModifiedCOFCallback : 0;
 	link_inventory_item( gAgent.getID(),
@@ -915,6 +962,7 @@ void LLAppearanceManager::wearEnsemble( LLInventoryCategory* cat, bool do_update
 						 cat->getName(),
 						 LLAssetType::AT_LINK_FOLDER,
 						 cb);
+#endif
 }
 
 /* static */

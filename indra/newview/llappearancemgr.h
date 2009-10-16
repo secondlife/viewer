@@ -78,6 +78,11 @@ private:
 								   bool follow_folder_links);
 	static void onWearableAssetFetch(LLWearable* wearable, void* data);
 	static void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
+	static bool isMandatoryWearableType(EWearableType type);
+	static void checkMandatoryWearableTypes(const LLUUID& category, std::set<EWearableType>& types_found);
+	static void purgeCOFBeforeRebuild(const LLUUID& category);
 };
+
+#define SUPPORT_ENSEMBLES 0
 
 #endif

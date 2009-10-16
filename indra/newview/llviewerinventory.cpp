@@ -612,9 +612,9 @@ void LLViewerInventoryCategory::determineFolderType()
 			const LLViewerInventoryItem *item = (*item_iter);
 			if (item->getIsLinkType())
 				return;
-			if (item->getInventoryType() == LLInventoryType::IT_WEARABLE)
+			if (item->isWearableType())
 			{
-				const EWearableType wearable_type = EWearableType(item->getFlags() & LLInventoryItem::II_FLAGS_WEARABLES_MASK);
+				const EWearableType wearable_type = item->getWearableType();
 				const std::string& wearable_name = LLWearableDictionary::getTypeName(wearable_type);
 				U64 valid_folder_types = LLFolderType::lookupValidFolderTypes(wearable_name);
 				folder_valid |= valid_folder_types;
@@ -1277,6 +1277,22 @@ U32 LLViewerInventoryItem::getFlags() const
 	}
 	return LLInventoryItem::getFlags();
 }
+
+bool LLViewerInventoryItem::isWearableType() const
+{
+	return (getInventoryType() == LLInventoryType::IT_WEARABLE);
+}
+
+EWearableType LLViewerInventoryItem::getWearableType() const
+{
+	if (!isWearableType())
+	{
+		llwarns << "item is not a wearable" << llendl;
+		return WT_INVALID;
+	}
+	return EWearableType(getFlags() & LLInventoryItem::II_FLAGS_WEARABLES_MASK);
+}
+
 
 time_t LLViewerInventoryItem::getCreationDate() const
 {

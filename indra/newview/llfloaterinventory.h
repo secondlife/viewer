@@ -94,12 +94,14 @@ public:
 		Optional<LLInventoryModel*>			inventory;
 		Optional<bool>						allow_multi_select;
 		Optional<Filter>					filter;
+		Optional<std::string>               start_folder;
 
 		Params()
 		:	sort_order_setting("sort_order_setting"),
 			inventory("", &gInventory),
 			allow_multi_select("allow_multi_select", true),
-			filter("filter")
+			filter("filter"),
+			start_folder("start_folder")
 		{}
 	};
 
@@ -169,16 +171,20 @@ public:
 	
 protected:
 	// Given the id and the parent, build all of the folder views.
-	void rebuildViewsFor(const LLUUID& id, U32 mask);
+	void rebuildViewsFor(const LLUUID& id);
 	void buildNewViews(const LLUUID& id);
 
 protected:
 	LLInventoryModel*			mInventory;
 	LLInventoryObserver*		mInventoryObserver;
-	LLFolderView*				mFolders;
-	LLScrollContainer*			mScroller;
 	BOOL 						mAllowMultiSelect;
 	std::string					mSortOrderSetting;
+
+private:
+	LLFolderView*				mFolders;
+	std::string                 mStartFolderString;
+	LLUUID						mStartFolderID;
+	LLScrollContainer*			mScroller;
 	bool						mHasInventoryConnection;
 };
 

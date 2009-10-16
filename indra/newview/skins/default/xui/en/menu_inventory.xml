@@ -457,14 +457,6 @@
          function="Inventory.DoToSelected"
          parameter="replaceoutfit" />
     </menu_item_call>
-    <menu_item_call
-     label="Wear As Ensemble"
-     layout="topleft"
-     name="Wear As Ensemble">
-        <menu_item_call.on_click
-         function="Inventory.DoToSelected"
-         parameter="wearasensemble" />
-    </menu_item_call>
     <menu_item_separator
      layout="topleft" />
     <menu_item_call

@@ -104,8 +104,6 @@ public:
 		Mandatory<LLPanel*> parent_panel;
 		Optional<LLUUID>	task_id;
 	};
-	LLFolderView( const std::string& name, LLUIImagePtr root_folder_icon, const LLRect& rect, 
-					const LLUUID& source_id, LLPanel *parent_view );
 	LLFolderView(const Params&);
 	virtual ~LLFolderView( void );
 

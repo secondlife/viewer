@@ -74,6 +74,8 @@ public:
 	virtual const std::string& getDescription() const;
 	virtual const LLSaleInfo& getSaleInfo() const;
 	virtual LLInventoryType::EType getInventoryType() const;
+	virtual bool isWearableType() const;
+	virtual EWearableType getWearableType() const;
 	virtual U32 getFlags() const;
 	virtual time_t getCreationDate() const;
 	virtual U32 getCRC32() const; // really more of a checksum.

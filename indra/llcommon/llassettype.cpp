@@ -112,12 +112,12 @@ LLAssetDictionary::LLAssetDictionary()
 		 ensemble_num <= S32(LLAssetType::AT_FOLDER_ENSEMBLE_END); 
 		 ensemble_num++)
 	{
-		addEntry(LLAssetType::EType(ensemble_num), new AssetEntry("ENSEMBLE",		"ensemble", "ensemble", 		"New Folder", 		DAD_CATEGORY,	TRUE,		FALSE)); 
+		addEntry(LLAssetType::EType(ensemble_num), new AssetEntry("ENSEMBLE",		"ensemble", "ensemble", 		"New Folder", 		DAD_CATEGORY,	FALSE,		FALSE)); 
 	}
 
-	addEntry(LLAssetType::AT_CURRENT_OUTFIT, 	new AssetEntry("CURRENT",			"current",	"current outfit",	"Current Outfit", 	DAD_CATEGORY,	FALSE,		TRUE));
-	addEntry(LLAssetType::AT_OUTFIT, 			new AssetEntry("OUTFIT",			"outfit",	"outfit",			"New Outfit", 		DAD_CATEGORY,	TRUE,		FALSE));
-	addEntry(LLAssetType::AT_MY_OUTFITS, 		new AssetEntry("MY_OUTFITS",		"my_otfts",	"my outfits",		"My Outfits", 		DAD_CATEGORY,	FALSE,		TRUE));
+	addEntry(LLAssetType::AT_CURRENT_OUTFIT, 	new AssetEntry("CURRENT",			"current",	"current outfit",	"Current Look", 	DAD_CATEGORY,	FALSE,		TRUE));
+	addEntry(LLAssetType::AT_OUTFIT, 			new AssetEntry("OUTFIT",			"outfit",	"outfit",			"New Look", 		DAD_CATEGORY,	FALSE,		FALSE));
+	addEntry(LLAssetType::AT_MY_OUTFITS, 		new AssetEntry("MY_OUTFITS",		"my_otfts",	"my outfits",		"My Looks", 		DAD_CATEGORY,	FALSE,		TRUE));
 		 
 	addEntry(LLAssetType::AT_NONE, 				new AssetEntry("NONE",				"-1",		NULL,		  		"New Folder", 		DAD_NONE,		FALSE,		FALSE));
 };
@@ -211,7 +211,7 @@ LLAssetType::EType LLAssetType::lookupHumanReadable(const std::string& readable_
 		 iter++)
 	{
 		const AssetEntry *entry = iter->second;
-		if (readable_name == entry->mHumanName)
+		if (entry->mHumanName && (readable_name == entry->mHumanName))
 		{
 			return iter->first;
 		}

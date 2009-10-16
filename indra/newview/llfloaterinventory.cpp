@@ -1170,7 +1170,8 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p)
 	mSortOrderSetting(p.sort_order_setting),
 	mInventory(p.inventory),
 	mAllowMultiSelect(p.allow_multi_select),
-	mHasInventoryConnection(false)
+	mHasInventoryConnection(false),
+	mStartFolderString(p.start_folder)
 {
 	// contex menu callbacks
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLInventoryPanel::doToSelected, this, _2));
@@ -1230,15 +1231,21 @@ BOOL LLInventoryPanel::postBuild()
 	// build everything.
 	mInventoryObserver = new LLInventoryPanelObserver(this);
 	mInventory->addObserver(mInventoryObserver);
+
+	// determine the root folder, if any, so inventory contents show just the children
+	// of that folder (i.e. not including the folder itself).
+	const LLAssetType::EType preferred_type = LLAssetType::lookupHumanReadable(mStartFolderString);
+	mStartFolderID = (preferred_type != LLAssetType::AT_NONE ? gInventory.findCategoryUUIDForType(preferred_type) : LLUUID::null);
+
 	// build view of inventory if inventory ready, otherwise wait for modelChanged() callback
 	if (mInventory->isInventoryUsable() && !mHasInventoryConnection)
 	{
-		rebuildViewsFor(LLUUID::null, LLInventoryObserver::ADD);
+		rebuildViewsFor(mStartFolderID);
 		mHasInventoryConnection = true;
 	}
 
 	// bit of a hack to make sure the inventory is open.
-	mFolders->openFolder(std::string("My Inventory"));
+	mFolders->openFolder(preferred_type != LLAssetType::AT_NONE ? LLAssetType::lookupCategoryName(preferred_type) : "My Inventory");
 
 	if (mSortOrderSetting != INHERIT_SORT_ORDER)
 	{
@@ -1271,7 +1278,7 @@ LLInventoryPanel::~LLInventoryPanel()
 	mScroller = NULL;
 }
 
-	LLMemType mt(LLMemType::MTYPE_INVENTORY_FROM_XML);
+LLMemType mt(LLMemType::MTYPE_INVENTORY_FROM_XML); // ! BUG ! Should this be removed?
 void LLInventoryPanel::draw()
 {
 	// select the desired item (in case it wasn't loaded when the selection was requested)
@@ -1336,7 +1343,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 	// inventory just initialized, do complete build
 	if ((mask & LLInventoryObserver::ADD) && gInventory.getChangedIDs().empty() && !mHasInventoryConnection)
 	{
-		rebuildViewsFor(LLUUID::null, LLInventoryObserver::ADD);
+		rebuildViewsFor(mStartFolderID);
 		mHasInventoryConnection = true;
 		return;
 	}
@@ -1449,7 +1456,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 	}
 }
 
-void LLInventoryPanel::rebuildViewsFor(const LLUUID& id, U32 mask)
+void LLInventoryPanel::rebuildViewsFor(const LLUUID& id)
 {
 	LLFolderViewItem* old_view = NULL;
 
@@ -1467,81 +1474,99 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 {
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_BUILD_NEW_VIEWS);
 	LLFolderViewItem* itemp = NULL;
-	LLInventoryObject* objectp = gInventory.getObject(id);
+	LLInventoryObject* objectp = NULL;
 
-	if (objectp)
-	{		
-		if (objectp->getType() <= LLAssetType::AT_NONE ||
-			objectp->getType() >= LLAssetType::AT_COUNT)
-		{
-			llwarns << "LLInventoryPanel::buildNewViews called with objectp->mType == " 
-				<< ((S32) objectp->getType())
-				<< " (shouldn't happen)" << llendl;
-		}
-		else if (objectp->getType() == LLAssetType::AT_CATEGORY &&
-				 objectp->getActualType() != LLAssetType::AT_LINK_FOLDER) 
-		{
-			LLInvFVBridge* new_listener = LLInvFVBridge::createBridge(objectp->getType(),
-																	  objectp->getType(),
-																	  LLInventoryType::IT_CATEGORY,
-																	  this,
-																	  objectp->getUUID());
-
-			if (new_listener)
+	// Don't add the start folder (the inventory panel will show contents
+	// beginning with the children of the starting folder, excluding the starting folder itself).
+	if (id != mStartFolderID)
+	{
+		objectp = gInventory.getObject(id);
+		if (objectp)
+		{		
+			if (objectp->getType() <= LLAssetType::AT_NONE ||
+				objectp->getType() >= LLAssetType::AT_COUNT)
 			{
-				LLFolderViewFolder::Params p;
-				p.name = new_listener->getDisplayName();
-				p.icon = LLUI::getUIImage("Inv_FolderClosed");
-				p.icon_open = LLUI::getUIImage("Inv_FolderOpen");
-				p.root = mFolders;
-				p.listener = new_listener;
-				LLFolderViewFolder* folderp = LLUICtrlFactory::create<LLFolderViewFolder>(p);
+				llwarns << "LLInventoryPanel::buildNewViews called with objectp->mType == " 
+						<< ((S32) objectp->getType())
+						<< " (shouldn't happen)" << llendl;
+			}
+			else if (objectp->getType() == LLAssetType::AT_CATEGORY &&
+					 objectp->getActualType() != LLAssetType::AT_LINK_FOLDER) 
+			{
+				LLInvFVBridge* new_listener = LLInvFVBridge::createBridge(objectp->getType(),
+																		  objectp->getType(),
+																		  LLInventoryType::IT_CATEGORY,
+																		  this,
+																		  objectp->getUUID());
+
+				if (new_listener)
+				{
+					LLFolderViewFolder::Params p;
+					p.name = new_listener->getDisplayName();
+					p.icon = new_listener->getIcon();
+					p.root = mFolders;
+					p.listener = new_listener;
+					LLFolderViewFolder* folderp = LLUICtrlFactory::create<LLFolderViewFolder>(p);
 				
-				folderp->setItemSortOrder(mFolders->getSortOrder());
-				itemp = folderp;
+					folderp->setItemSortOrder(mFolders->getSortOrder());
+					itemp = folderp;
+				}
 			}
-		}
-		else 
-		{
-			// Build new view for item
-			LLInventoryItem* item = (LLInventoryItem*)objectp;
-			LLInvFVBridge* new_listener = LLInvFVBridge::createBridge(item->getType(),
-																	  item->getActualType(),
-																	  item->getInventoryType(),
-																	  this,
-																	  item->getUUID(),
-																	  item->getFlags());
-
-			if (new_listener)
+			else 
 			{
-				LLFolderViewItem::Params params;
-				params.name(new_listener->getDisplayName());
-				params.icon(new_listener->getIcon());
-				params.creation_date(new_listener->getCreationDate());
-				params.root(mFolders);
-				params.listener(new_listener);
-				params.rect(LLRect (0, 0, 0, 0));
-				itemp = LLUICtrlFactory::create<LLFolderViewItem> (params);
+				// Build new view for item
+				LLInventoryItem* item = (LLInventoryItem*)objectp;
+				LLInvFVBridge* new_listener = LLInvFVBridge::createBridge(item->getType(),
+																		  item->getActualType(),
+																		  item->getInventoryType(),
+																		  this,
+																		  item->getUUID(),
+																		  item->getFlags());
+
+				if (new_listener)
+				{
+					LLFolderViewItem::Params params;
+					params.name(new_listener->getDisplayName());
+					params.icon(new_listener->getIcon());
+					params.creation_date(new_listener->getCreationDate());
+					params.root(mFolders);
+					params.listener(new_listener);
+					params.rect(LLRect (0, 0, 0, 0));
+					itemp = LLUICtrlFactory::create<LLFolderViewItem> (params);
+				}
 			}
-		}
 
-		LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)mFolders->getItemByID(objectp->getParentUUID());
+			if (itemp)
+			{
+				
+				const LLUUID &parent_id = objectp->getParentUUID();
+				LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)mFolders->getItemByID(parent_id);
 
-		if (itemp)
-		{
-			if (parent_folder)
-			{
-				itemp->addToFolder(parent_folder, mFolders);
-			}
-			else
-			{
-				llwarns << "Couldn't find parent folder for child " << itemp->getLabel() << llendl;
-				delete itemp;
+				// If this item's parent is the starting folder, then just add it to the top level (recall that 
+				// the starting folder isn't actually represented in the view, parent_folder would be NULL in
+				// this case otherwise).
+				if (parent_id == mStartFolderID)
+				{
+					parent_folder = mFolders;
+				}
+
+				if (parent_folder)
+				{
+					itemp->addToFolder(parent_folder, mFolders);
+				}
+				else
+				{
+					llwarns << "Couldn't find parent folder for child " << itemp->getLabel() << llendl;
+					delete itemp;
+				}
 			}
 		}
 	}
-	if ((id.isNull() ||
-		 (objectp && objectp->getType() == LLAssetType::AT_CATEGORY)))
+
+	// If this is a folder, add the children of the folder and recursively add any 
+	// child folders.
+	if ((id == mStartFolderID) ||
+		(objectp && objectp->getType() == LLAssetType::AT_CATEGORY))
 	{
 		LLViewerInventoryCategory::cat_array_t* categories;
 		LLViewerInventoryItem::item_array_t* items;

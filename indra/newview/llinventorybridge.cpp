@@ -487,6 +487,11 @@ BOOL LLInvFVBridge::isClipboardPasteableAsLink() const
 				return FALSE;
 			}
 		}
+		const LLViewerInventoryCategory *cat = model->getCategory(objects.get(i));
+		if (cat && !LLAssetType::lookupCanLink(cat->getPreferredType()))
+		{
+			return FALSE;
+		}
 	}
 	return TRUE;
 }
@@ -1581,6 +1586,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			// if target is an outfit or current outfit folder we use link
 			if (move_is_into_current_outfit || move_is_into_outfit) 
 			{
+#if SUPPORT_ENSEMBLES
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
@@ -1597,6 +1603,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 						LLAssetType::AT_LINK_FOLDER,
 						cb);
 				}
+#endif
 			}
 			else
 			{
@@ -1978,6 +1985,7 @@ void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 		modifyOutfit(FALSE);
 		return;
 	}
+#if SUPPORT_ENSEMBLES
 	else if ("wearasensemble" == action)
 	{
 		LLInventoryModel* model = getInventoryModel();
@@ -1987,6 +1995,7 @@ void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 		LLAppearanceManager::wearEnsemble(cat,true);
 		return;
 	}
+#endif
 	else if ("addtooutfit" == action)
 	{
 		modifyOutfit(TRUE);
@@ -2205,6 +2214,7 @@ void LLFolderBridge::pasteLinkFromClipboard()
 		for(S32 i = 0; i < count; i++)
 		{
 			const LLUUID &object_id = objects.get(i);
+#if SUPPORT_ENSEMBLES
 			if (LLInventoryCategory *cat = model->getCategory(object_id))
 			{
 				link_inventory_item(
@@ -2215,7 +2225,9 @@ void LLFolderBridge::pasteLinkFromClipboard()
 					LLAssetType::AT_LINK_FOLDER,
 					LLPointer<LLInventoryCallback>(NULL));
 			}
-			else if (LLInventoryItem *item = model->getItem(object_id))
+			else
+#endif
+			if (LLInventoryItem *item = model->getItem(object_id))
 			{
 				link_inventory_item(
 					gAgent.getID(),
