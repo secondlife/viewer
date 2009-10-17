@@ -18,6 +18,8 @@
 // external library headers
 // other Linden headers
 #include "llfloaterreg.h"
+#include "llfloater.h"
+#include "llbutton.h"
 
 LLFloaterRegListener::LLFloaterRegListener(const std::string& pumpName):
     LLDispatchListener(pumpName, "op")
@@ -28,6 +30,10 @@ LLFloaterRegListener::LLFloaterRegListener(const std::string& pumpName):
     add("showInstance", &LLFloaterRegListener::showInstance, requiredName);
     add("hideInstance", &LLFloaterRegListener::hideInstance, requiredName);
     add("toggleInstance", &LLFloaterRegListener::toggleInstance, requiredName);
+    LLSD requiredNameButton;
+    requiredNameButton["name"] = LLSD();
+    requiredNameButton["button"] = LLSD();
+    add("clickButton", &LLFloaterRegListener::clickButton, requiredNameButton);
 }
 
 void LLFloaterRegListener::getBuildMap(const LLSD& event) const
@@ -63,4 +69,46 @@ void LLFloaterRegListener::hideInstance(const LLSD& event) const
 void LLFloaterRegListener::toggleInstance(const LLSD& event) const
 {
     LLFloaterReg::toggleInstance(event["name"], event["key"]);
+}
+
+void LLFloaterRegListener::clickButton(const LLSD& event) const
+{
+    // If the caller requests a reply, build the reply.
+    LLReqID reqID(event);
+    LLSD reply(reqID.makeResponse());
+
+    LLFloater* floater = LLFloaterReg::findInstance(event["name"], event["key"]);
+    if (! LLFloater::isShown(floater))
+    {
+        reply["type"]  = "LLFloater";
+        reply["name"]  = event["name"];
+        reply["key"]   = event["key"];
+        reply["error"] = floater? "!isShown()" : "NULL";
+    }
+    else
+    {
+        // Here 'floater' points to an LLFloater instance with the specified
+        // name and key which isShown().
+        LLButton* button = floater->findChild<LLButton>(event["button"]);
+        if (! LLButton::isAvailable(button))
+        {
+            reply["type"]  = "LLButton";
+            reply["name"]  = event["button"];
+            reply["error"] = button? "!isAvailable()" : "NULL";
+        }
+        else
+        {
+            // Here 'button' points to an isAvailable() LLButton child of
+            // 'floater' with the specified button name. Pretend to click it.
+            button->onCommit();
+            // Leave reply["error"] isUndefined(): no error, i.e. success.
+        }
+    }
+
+    // Send a reply only if caller asked for a reply.
+    LLSD replyPump(event["reply"]);
+    if (replyPump.isString())       // isUndefined() if absent
+    {
+        LLEventPumps::instance().obtain(replyPump).post(reply);
+    }
 }
