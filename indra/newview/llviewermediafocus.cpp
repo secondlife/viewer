@@ -53,7 +53,8 @@
 //
 
 LLViewerMediaFocus::LLViewerMediaFocus()
-: mMouseOverFlag(false)
+:	mFocusedObjectFace(0),
+	mHoverObjectFace(0)
 {
 }
 
@@ -63,110 +64,100 @@ LLViewerMediaFocus::~LLViewerMediaFocus()
 	// Clean up in cleanupClass() instead.
 }
 
-void LLViewerMediaFocus::cleanupClass()
-{
-	LLViewerMediaFocus *self = LLViewerMediaFocus::getInstance();
-	
-	if(self)
-	{
-		// mMediaHUD will have been deleted by this point -- don't try to delete it.
-
-		/* Richard says:
-			all widgets are supposed to be destroyed at the same time
-			you shouldn't hold on to pointer to them outside of ui code		
-			you can use the LLHandle approach
-			if you want to be type safe, you'll need to add a LLRootHandle to whatever derived class you are pointing to
-			look at llview::gethandle
-			its our version of a weak pointer			
-		*/
-		if(self->mMediaHUD.get())
-		{
-			self->mMediaHUD.get()->setMediaImpl(NULL);
-		}
-		self->mMediaImpl = NULL;
-	}
-	
-}
-
-
-void LLViewerMediaFocus::setFocusFace( BOOL b, LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl )
-{
+void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal)
+{	
 	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-
-	if(mMediaImpl.notNull())
+	
+	LLViewerMediaImpl *old_media_impl = getFocusedMediaImpl();
+	if(old_media_impl)
 	{
-		mMediaImpl->focus(false);
+		old_media_impl->focus(false);
 	}
 
-	if (b && media_impl.notNull())
+	if (media_impl.notNull() && objectp.notNull())
 	{
 		bool face_auto_zoom = false;
-		mMediaImpl = media_impl;
-		mMediaImpl->focus(true);
+		media_impl->focus(true);
 
-		LLSelectMgr::getInstance()->deselectAll();
-		LLSelectMgr::getInstance()->selectObjectOnly(objectp, face);
+		mFocusedImplID = media_impl->getMediaTextureID();
+		mFocusedObjectID = objectp->getID();
+		mFocusedObjectFace = face;
+		mFocusedObjectNormal = pick_normal;
 
-		if(objectp.notNull())
+		LLTextureEntry* tep = objectp->getTE(face);
+		if(tep->hasMedia())
 		{
-			LLTextureEntry* tep = objectp->getTE(face);
-			if(! tep->hasMedia())
-			{
-				// Error condition
-			}
 			LLMediaEntry* mep = tep->getMediaData();
 			face_auto_zoom = mep->getAutoZoom();
-			if(! mep->getAutoPlay())
+			if(!media_impl->hasMedia())
 			{
 				std::string url = mep->getCurrentURL().empty() ? mep->getHomeURL() : mep->getCurrentURL();
 				media_impl->navigateTo(url, "", true);
 			}
 		}
-		mFocus = LLSelectMgr::getInstance()->getSelection();
+		else
+		{
+			// This should never happen.
+			llwarns << "Can't find media entry for focused face" << llendl;
+		}
+
+		gFocusMgr.setKeyboardFocus(this);
+		
+		// We must do this before  processing the media HUD zoom, or it may zoom to the wrong face. 
+		update();
+
 		if(mMediaHUD.get() && face_auto_zoom && ! parcel->getMediaPreventCameraZoom())
 		{
 			mMediaHUD.get()->resetZoomLevel();
 			mMediaHUD.get()->nextZoomLevel();
 		}
-		if (!mFocus->isEmpty())
-		{
-			gFocusMgr.setKeyboardFocus(this);
-		}
-		mObjectID = objectp->getID();
-		mObjectFace = face;
-		// LLViewerMedia::addObserver(this, mObjectID);
-
-
 	}
 	else
 	{
-		gFocusMgr.setKeyboardFocus(NULL);
-		if(! parcel->getMediaPreventCameraZoom())
+		if(hasFocus())
 		{
-			if (!mFocus->isEmpty())
+			if(mMediaHUD.get())
 			{
-				gAgent.setFocusOnAvatar(TRUE, ANIMATE);
+				mMediaHUD.get()->resetZoomLevel();
 			}
-		}
-		mFocus = NULL;
-		// LLViewerMedia::remObserver(this, mObjectID);
-		
-		// Null out the media hud media pointer
-		if(mMediaHUD.get())
-		{
-			mMediaHUD.get()->setMediaImpl(NULL);
-		}
 
-		// and null out the media impl
-		mMediaImpl = NULL;
-		mObjectID = LLUUID::null;
-		mObjectFace = 0;
-	}
-	if(mMediaHUD.get())
-	{
-		mMediaHUD.get()->setMediaFocus(b);
+			gFocusMgr.setKeyboardFocus(NULL);
+		}
+		
+		mFocusedImplID = LLUUID::null;
+		mFocusedObjectID = LLUUID::null;
+		mFocusedObjectFace = 0;
 	}
 }
+
+void LLViewerMediaFocus::clearFocus()
+{
+	setFocusFace(NULL, 0, NULL);
+}
+
+void LLViewerMediaFocus::setHoverFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal)
+{
+	if (media_impl.notNull())
+	{
+		mHoverImplID = media_impl->getMediaTextureID();
+		mHoverObjectID = objectp->getID();
+		mHoverObjectFace = face;
+		mHoverObjectNormal = pick_normal;
+	}
+	else
+	{
+		mHoverObjectID = LLUUID::null;
+		mHoverObjectFace = 0;
+		mHoverImplID = LLUUID::null;
+	}
+}
+
+void LLViewerMediaFocus::clearHover()
+{
+	setHoverFace(NULL, 0, NULL);
+}
+
+
 bool LLViewerMediaFocus::getFocus()
 {
 	if (gFocusMgr.getKeyboardFocus() == this)
@@ -176,22 +167,15 @@ bool LLViewerMediaFocus::getFocus()
 	return false;
 }
 
-// This function selects an ideal viewing distance given a selection bounding box, normal, and padding value
-void LLViewerMediaFocus::setCameraZoom(F32 padding_factor)
+// This function selects an ideal viewing distance based on the focused object, pick normal, and padding value
+void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal, F32 padding_factor)
 {
-	LLPickInfo& pick = LLToolPie::getInstance()->getPick();
-
-	if(LLSelectMgr::getInstance()->getSelection()->isEmpty())
-	{
-		pick = mPickInfo;
-		setFocusFace(true, pick.getObject(), pick.mObjectFace, mMediaImpl);
-	}
-
-	if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
+	if (object)
 	{
 		gAgent.setFocusOnAvatar(FALSE, ANIMATE);
 
-		LLBBox selection_bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
+		LLBBox bbox = object->getBoundingBoxAgent();
+		LLVector3d center = gAgent.getPosGlobalFromAgent(bbox.getCenterAgent());
 		F32 height;
 		F32 width;
 		F32 depth;
@@ -199,7 +183,7 @@ void LLViewerMediaFocus::setCameraZoom(F32 padding_factor)
 		F32 distance;
 
 		// We need the aspect ratio, and the 3 components of the bbox as height, width, and depth.
-		F32 aspect_ratio = getBBoxAspectRatio(selection_bbox, pick.mNormal, &height, &width, &depth);
+		F32 aspect_ratio = getBBoxAspectRatio(bbox, normal, &height, &width, &depth);
 		F32 camera_aspect = LLViewerCamera::getInstance()->getAspect();
 
 		// We will normally use the side of the volume aligned with the short side of the screen (i.e. the height for 
@@ -227,93 +211,97 @@ void LLViewerMediaFocus::setCameraZoom(F32 padding_factor)
 		distance += depth * 0.5;
 
 		// Finally animate the camera to this new position and focal point
-		gAgent.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(pick.mNormal * distance), 
-			LLSelectMgr::getInstance()->getSelectionCenterGlobal(), LLSelectMgr::getInstance()->getSelection()->getFirstObject()->mID );
+		LLVector3d camera_pos, target_pos;
+		// The target lookat position is the center of the selection (in global coords)
+		target_pos = center;
+		// Target look-from (camera) position is "distance" away from the target along the normal 
+		LLVector3d pickNormal = LLVector3d(normal);
+		pickNormal.normalize();
+        camera_pos = target_pos + pickNormal * distance;
+        if (pickNormal == LLVector3d::z_axis || pickNormal == LLVector3d::z_axis_neg)
+        {
+			// If the normal points directly up, the camera will "flip" around.
+			// We try to avoid this by adjusting the target camera position a 
+			// smidge towards current camera position
+			// *NOTE: this solution is not perfect.  All it attempts to solve is the
+			// "looking down" problem where the camera flips around when it animates
+			// to that position.  You still are not guaranteed to be looking at the
+			// media in the correct orientation.  What this solution does is it will
+			// put the camera into position keeping as best it can the current 
+			// orientation with respect to the face.  In other words, if before zoom
+			// the media appears "upside down" from the camera, after zooming it will
+			// still be upside down, but at least it will not flip.
+            LLVector3d cur_camera_pos = LLVector3d(gAgent.getCameraPositionGlobal());
+            LLVector3d delta = (cur_camera_pos - camera_pos);
+            F64 len = delta.length();
+            delta.normalize();
+            // Move 1% of the distance towards original camera location
+            camera_pos += 0.01 * len * delta;
+        }
+
+		gAgent.setCameraPosAndFocusGlobal(camera_pos, target_pos, object->getID() );
+	}
+	else
+	{
+		// If we have no object, focus back on the avatar.
+		gAgent.setFocusOnAvatar(TRUE, ANIMATE);
 	}
 }
 void LLViewerMediaFocus::onFocusReceived()
 {
-	if(mMediaImpl.notNull())
-		mMediaImpl->focus(true);
+	// Don't do this here -- this doesn't change "inworld media focus", it just changes whether the viewer's input is focused on the media.
+//	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
+//	if(media_impl.notNull())
+//		media_impl->focus(true);
 
 	LLFocusableElement::onFocusReceived();
 }
 
 void LLViewerMediaFocus::onFocusLost()
 {
-	if(mMediaImpl.notNull())
-		mMediaImpl->focus(false);
+	// Don't do this here -- this doesn't change "inworld media focus", it just changes whether the viewer's input is focused on the media.
+//	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
+//	if(media_impl.notNull())
+//		media_impl->focus(false);
+
 	gViewerWindow->focusClient();
-	mFocus = NULL;
 	LLFocusableElement::onFocusLost();
 }
-void LLViewerMediaFocus::setMouseOverFlag(bool b, viewer_media_t media_impl)
-{
-	if (b && media_impl.notNull())
-	{
-		if(! mMediaHUD.get())
-		{
-			LLPanelMediaHUD* media_hud = new LLPanelMediaHUD(mMediaImpl);
-			mMediaHUD = media_hud->getHandle();
-			gHUDView->addChild(media_hud);	
-		}
-		mMediaHUD.get()->setMediaImpl(media_impl);
 
-		if(mMediaImpl.notNull() && (mMediaImpl != media_impl))
-		{
-			mMediaImpl->focus(false);
-		}
-
-		mMediaImpl = media_impl;
-	}
-	mMouseOverFlag = b;
-}
-LLUUID LLViewerMediaFocus::getSelectedUUID() 
-{ 
-	LLViewerObject* object = mFocus->getFirstObject();
-	return object ? object->getID() : LLUUID::null; 
-}
-#if 0 // Must re-implement when the new media api event system is ready
-void LLViewerMediaFocus::onNavigateComplete( const EventType& event_in )
-{
-	if (hasFocus() && mLastURL != event_in.getStringValue())
-	{
-		LLViewerMedia::focus(true, mObjectID);
-		// spoof mouse event to reassert focus
-		LLViewerMedia::mouseDown(1,1, mObjectID);
-		LLViewerMedia::mouseUp(1,1, mObjectID);
-	}
-	mLastURL = event_in.getStringValue();
-}
-#endif
 BOOL LLViewerMediaFocus::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
-	if(mMediaImpl.notNull())
-		mMediaImpl->handleKeyHere(key, mask);
-
-	if (key == KEY_ESCAPE && mMediaHUD.get())
+	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
+	if(media_impl)
 	{
-		mMediaHUD.get()->close();
+		media_impl->handleKeyHere(key, mask);
+
+		if (key == KEY_ESCAPE)
+		{
+			clearFocus();
+		}
 	}
+	
 	return true;
 }
 
 BOOL LLViewerMediaFocus::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 {
-	if(mMediaImpl.notNull())
-		mMediaImpl->handleUnicodeCharHere(uni_char);
+	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
+	if(media_impl)
+		media_impl->handleUnicodeCharHere(uni_char);
 	return true;
 }
 BOOL LLViewerMediaFocus::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	BOOL retval = FALSE;
-	if(mFocus.notNull() && mMediaImpl.notNull() && mMediaImpl->hasMedia())
+	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
+	if(media_impl && media_impl->hasMedia())
 	{
         // the scrollEvent() API's x and y are not the same as handleScrollWheel's x and y.
         // The latter is the position of the mouse at the time of the event
         // The former is the 'scroll amount' in x and y, respectively.
         // All we have for 'scroll amount' here is 'clicks', and no mask.
-		mMediaImpl->getMediaPlugin()->scrollEvent(0, clicks, /*mask*/0);
+		media_impl->getMediaPlugin()->scrollEvent(0, clicks, /*mask*/0);
 		retval = TRUE;
 	}
 	return retval;
@@ -321,19 +309,45 @@ BOOL LLViewerMediaFocus::handleScrollWheel(S32 x, S32 y, S32 clicks)
 
 void LLViewerMediaFocus::update()
 {
-	if (mMediaHUD.get())
+	LLViewerMediaImpl *media_impl = getFocusedMediaImpl();
+	LLViewerObject *viewer_object = getFocusedObject();
+	S32 face = mFocusedObjectFace;
+	LLVector3 normal = mFocusedObjectNormal;
+	bool focus = true;
+	
+	if(!media_impl || !viewer_object)
 	{
-		if(mFocus.notNull() || mMouseOverFlag || mMediaHUD.get()->isMouseOver())
+		focus = false;
+		media_impl = getHoverMediaImpl();
+		viewer_object = getHoverObject();
+		face = mHoverObjectFace;
+		normal = mHoverObjectNormal;
+	}
+	
+	if(media_impl && viewer_object)
+	{
+		// We have an object and impl to point at.
+		
+		// Make sure the media HUD object exists.
+		if(! mMediaHUD.get())
 		{
-			// mMediaHUD.get()->setVisible(true);
-			mMediaHUD.get()->updateShape();
+			LLPanelMediaHUD* media_hud = new LLPanelMediaHUD();
+			mMediaHUD = media_hud->getHandle();
+			gHUDView->addChild(media_hud);	
 		}
-		else
+		mMediaHUD.get()->setMediaFace(viewer_object, face, media_impl, normal);
+	}
+	else
+	{
+		// The media HUD is no longer needed.
+		if(mMediaHUD.get())
 		{
-			mMediaHUD.get()->setVisible(false);
+			mMediaHUD.get()->setMediaFace(NULL, 0, NULL);
 		}
 	}
 }
+
+
 // This function calculates the aspect ratio and the world aligned components of a selection bounding box.
 F32 LLViewerMediaFocus::getBBoxAspectRatio(const LLBBox& bbox, const LLVector3& normal, F32* height, F32* width, F32* depth)
 {
@@ -402,5 +416,31 @@ F32 LLViewerMediaFocus::getBBoxAspectRatio(const LLBBox& bbox, const LLVector3& 
 
 bool LLViewerMediaFocus::isFocusedOnFace(LLPointer<LLViewerObject> objectp, S32 face)
 {
-	return objectp->getID() == mObjectID && face == mObjectFace;
+	return objectp->getID() == mFocusedObjectID && face == mFocusedObjectFace;
+}
+
+bool LLViewerMediaFocus::isHoveringOverFace(LLPointer<LLViewerObject> objectp, S32 face)
+{
+	return objectp->getID() == mHoverObjectID && face == mHoverObjectFace;
+}
+
+
+LLViewerMediaImpl* LLViewerMediaFocus::getFocusedMediaImpl()
+{
+	return LLViewerMedia::getMediaImplFromTextureID(mFocusedImplID);
+}
+
+LLViewerObject* LLViewerMediaFocus::getFocusedObject()
+{
+	return gObjectList.findObject(mFocusedObjectID);
+}
+
+LLViewerMediaImpl* LLViewerMediaFocus::getHoverMediaImpl()
+{
+	return LLViewerMedia::getMediaImplFromTextureID(mHoverImplID);
+}
+
+LLViewerObject* LLViewerMediaFocus::getHoverObject()
+{
+	return gObjectList.findObject(mHoverObjectID);
 }

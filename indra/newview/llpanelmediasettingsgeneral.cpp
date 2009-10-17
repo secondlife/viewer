@@ -354,6 +354,16 @@ void LLPanelMediaSettingsGeneral::onClose(bool app_quitting)
 void LLPanelMediaSettingsGeneral::onCommitHomeURL( LLUICtrl* ctrl, void *userdata )
 {
 	LLPanelMediaSettingsGeneral* self =(LLPanelMediaSettingsGeneral *)userdata;
+
+	// check url user is trying to enter for home URL will pass whitelist 
+	// and decline to accept it if it doesn't.
+	std::string home_url = self->mHomeURL->getValue().asString();
+	if ( ! self->mParent->passesWhiteList( home_url ) )
+	{
+		LLNotifications::instance().add("WhiteListInvalidatesHomeUrl");		
+		return;
+	};
+	
 	self->updateMediaPreview();
 }
 
@@ -436,5 +446,12 @@ bool LLPanelMediaSettingsGeneral::navigateHomeSelectedFace()
 	selected_objects->getSelectedTEValue( &functor_navigate_media, all_face_media_navigated );
 	
 	return all_face_media_navigated;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+const std::string LLPanelMediaSettingsGeneral::getHomeUrl()
+{
+	return mHomeURL->getValue().asString(); 
 }
 

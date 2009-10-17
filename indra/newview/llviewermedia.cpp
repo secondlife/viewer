@@ -836,7 +836,15 @@ void LLViewerMediaImpl::stop()
 {
 	if(mMediaSource)
 	{
-		mMediaSource->stop();
+		if(mMediaSource->pluginSupportsMediaBrowser())
+		{
+			mMediaSource->browse_stop();
+		}
+		else
+		{
+			mMediaSource->stop();
+		}
+
 		// destroyMediaSource();
 	}
 }
@@ -1007,6 +1015,44 @@ BOOL LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
 	}
 
 	return TRUE; 
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::navigateBack()
+{
+	if (mMediaSource)
+	{
+		if(mMediaSource->pluginSupportsMediaTime())
+		{
+			mMediaSource->start(-2.0);
+		}
+		else
+		{
+			mMediaSource->browse_back();
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::navigateForward()
+{
+	if (mMediaSource)
+	{
+		if(mMediaSource->pluginSupportsMediaTime())
+		{
+			mMediaSource->start(2.0);
+		}
+		else
+		{
+			mMediaSource->browse_forward();
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::navigateReload()
+{
+	navigateTo(mMediaURL, "", true, false);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

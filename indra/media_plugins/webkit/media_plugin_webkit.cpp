@@ -308,7 +308,16 @@ private:
 		message.setValue("status", event.getStringValue());
 		sendMessage(message);
 	}
-	
+
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
+	void onTitleChange(const EventType& event)
+	{
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "name_text");
+		message.setValue("name", event.getStringValue());
+		sendMessage(message);
+	}
+
 	////////////////////////////////////////////////////////////////////////////////
 	// virtual
 	void onLocationChange(const EventType& event)
