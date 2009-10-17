@@ -202,7 +202,7 @@
         Client
     </text>
     <text
-     visiblity_control="LagMeterShrunk"
+     invisiblity_control="LagMeterShrunk"
      type="string"
      length="1"
      bottom="40"
@@ -216,7 +216,7 @@
         Normal
     </text>
     <text
-     visiblity_control="LagMeterShrunk"
+     invisiblity_control="LagMeterShrunk"
      bottom="56"
      follows="left|top"
      height="16"
@@ -251,7 +251,7 @@
         Network
     </text>
     <text
-     visiblity_control="LagMeterShrunk"
+     invisiblity_control="LagMeterShrunk"
      type="string"
      length="1"
      bottom="80"
@@ -265,7 +265,7 @@
         Normal
     </text>
     <text
-     visiblity_control="LagMeterShrunk"
+     invisiblity_control="LagMeterShrunk"
      bottom="96"
      follows="left|top"
      height="16"
@@ -300,7 +300,7 @@
         Server
     </text>
     <text
-     visiblity_control="LagMeterShrunk"
+     invisiblity_control="LagMeterShrunk"
      type="string"
      length="1"
      bottom="120"
@@ -314,7 +314,7 @@
         Normal
     </text>
     <text
-     visiblity_control="LagMeterShrunk"
+     invisiblity_control="LagMeterShrunk"
      bottom="136"
      follows="left|top"
      height="16"
@@ -338,6 +338,7 @@
      layout="topleft"
      left="10"
      name="minimize"
+	 tool_tip="Toggle Floater Size"
      top_delta="4"
      width="40">
         <button.commit_callback
