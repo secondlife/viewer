@@ -1038,46 +1038,42 @@ LLSecAPIBasicHandler::LLSecAPIBasicHandler()
 
 void LLSecAPIBasicHandler::init()
 {
+	mProtectedDataMap = LLSD::emptyMap();
 	if (mProtectedDataFilename.length() == 0)
 	{
 		mProtectedDataFilename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
 															"bin_conf.dat");
-	}
-	if (mLegacyPasswordPath.length() == 0)
-	{
 		mLegacyPasswordPath = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "password.dat");
-	}
-	mProtectedDataMap = LLSD::emptyMap();
 	
-	mProtectedDataFilename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
+		mProtectedDataFilename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
 															"bin_conf.dat");	
-
-	std::string store_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
-															"CA.pem");
-	// copy the CA file to a user writable location so we can manipulate it.
-	// for this provider, by using a user writable file, there is a risk that
-	// an attacking program can modify the file, but OS dependent providers
-	// will reduce that risk.
-	// by using a user file, modifications will be limited to one user if
-	// we read-only the main file
-	if (!LLFile::isfile(store_file))
-	{
-
-		std::string ca_file_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
-		llifstream ca_file(ca_file_path.c_str(), llifstream::binary | llifstream::in);
-		llofstream copied_store_file(store_file.c_str(), llofstream::binary | llofstream::out);
-
-		while(!ca_file.fail())
+		std::string store_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
+														"CA.pem");
+		// copy the CA file to a user writable location so we can manipulate it.
+		// for this provider, by using a user writable file, there is a risk that
+		// an attacking program can modify the file, but OS dependent providers
+		// will reduce that risk.
+		// by using a user file, modifications will be limited to one user if
+		// we read-only the main file
+		if (!LLFile::isfile(store_file))
 		{
-			char buffer[BUFFER_READ_SIZE];
-			ca_file.read(buffer, sizeof(buffer));
-			copied_store_file.write(buffer, ca_file.gcount());
+
+			std::string ca_file_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
+			llifstream ca_file(ca_file_path.c_str(), llifstream::binary | llifstream::in);
+			llofstream copied_store_file(store_file.c_str(), llofstream::binary | llofstream::out);
+
+			while(!ca_file.fail())
+			{
+				char buffer[BUFFER_READ_SIZE];
+				ca_file.read(buffer, sizeof(buffer));
+				copied_store_file.write(buffer, ca_file.gcount());
+			}
+			ca_file.close();
+			copied_store_file.close();
 		}
-		ca_file.close();
-		copied_store_file.close();
+		LL_INFOS("SECAPI") << "Loading certificate store from " << store_file << LL_ENDL;
+		mStore = new LLBasicCertificateStore(store_file);
 	}
-	LL_INFOS("SECAPI") << "Loading certificate store from " << store_file << LL_ENDL;
-	mStore = new LLBasicCertificateStore(store_file);
 	_readProtectedData(); // initialize mProtectedDataMap
 						  // may throw LLProtectedDataException if saved datamap is not decryptable
 }
