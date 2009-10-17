@@ -185,7 +185,13 @@ public:
 	void			addDependentFloater(LLHandle<LLFloater> dependent_handle, BOOL reposition = TRUE);
 	LLFloater*		getDependee() { return (LLFloater*)mDependeeHandle.get(); }
 	void		removeDependentFloater(LLFloater* dependent);
-	BOOL			isMinimized()					{ return mMinimized; }
+	BOOL			isMinimized() const				{ return mMinimized; }
+	/// isShown() differs from getVisible() in that isShown() also considers
+	/// isMinimized(). isShown() is true only if visible and not minimized.
+	bool			isShown() const;
+	/// The static isShown() can accept a NULL pointer (which of course
+	/// returns false). When non-NULL, it calls the non-static isShown().
+	static bool		isShown(const LLFloater* floater);
 	BOOL			isFrontmost();
 	BOOL			isDependent()					{ return !mDependeeHandle.isDead(); }
 	void			setCanMinimize(BOOL can_minimize);

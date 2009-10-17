@@ -2605,3 +2605,13 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 	moveResizeHandlesToFront();
 }
 
+bool LLFloater::isShown() const
+{
+    return ! isMinimized() && isInVisibleChain();
+}
+
+/* static */
+bool LLFloater::isShown(const LLFloater* floater)
+{
+    return floater && floater->isShown();
+}

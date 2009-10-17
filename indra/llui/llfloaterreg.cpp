@@ -247,7 +247,7 @@ bool LLFloaterReg::hideInstance(const std::string& name, const LLSD& key)
 bool LLFloaterReg::toggleInstance(const std::string& name, const LLSD& key)
 {
 	LLFloater* instance = findInstance(name, key); 
-	if (instance && !instance->isMinimized() && instance->isInVisibleChain())
+	if (LLFloater::isShown(instance))
 	{
 		// When toggling *visibility*, close the host instead of the floater when hosted
 		if (instance->getHost())
@@ -267,14 +267,7 @@ bool LLFloaterReg::toggleInstance(const std::string& name, const LLSD& key)
 bool LLFloaterReg::instanceVisible(const std::string& name, const LLSD& key)
 {
 	LLFloater* instance = findInstance(name, key); 
-	if (instance && !instance->isMinimized() && instance->isInVisibleChain())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return LLFloater::isShown(instance);
 }
 
 //static
