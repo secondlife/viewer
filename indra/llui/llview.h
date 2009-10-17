@@ -304,6 +304,11 @@ public:
 	BOOL			getVisible() const			{ return mVisible; }
 	virtual void	setEnabled(BOOL enabled);
 	BOOL			getEnabled() const			{ return mEnabled; }
+	/// 'available' in this context means 'visible and enabled': in other
+	/// words, can a user actually interact with this?
+	virtual bool	isAvailable() const;
+	/// The static isAvailable() tests an LLView* that could be NULL.
+	static bool		isAvailable(const LLView* view);
 	U8              getSoundFlags() const       { return mSoundFlags; }
 
 	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
