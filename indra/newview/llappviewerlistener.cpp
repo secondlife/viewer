@@ -19,19 +19,22 @@
 // other Linden headers
 #include "llappviewer.h"
 
-LLAppViewerListener::LLAppViewerListener(const std::string& pumpname, LLAppViewer* llappviewer):
+LLAppViewerListener::LLAppViewerListener(const std::string& pumpname,
+                                         const LLAppViewerGetter& getter):
     LLDispatchListener(pumpname, "op"),
-    mAppViewer(llappviewer)
+    mAppViewerGetter(getter)
 {
     // add() every method we want to be able to invoke via this event API.
     add("requestQuit", &LLAppViewerListener::requestQuit);
+    add("forceQuit", &LLAppViewerListener::forceQuit);
 }
 
 void LLAppViewerListener::requestQuit(const LLSD& event)
 {
-    if(mAppViewer == NULL)
-    {
-        mAppViewer = LLAppViewer::instance();
-    }
-    mAppViewer->requestQuit();
+    mAppViewerGetter()->requestQuit();
+}
+
+void LLAppViewerListener::forceQuit(const LLSD& event)
+{
+    mAppViewerGetter()->forceQuit();
 }
