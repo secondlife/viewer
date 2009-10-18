@@ -427,7 +427,16 @@ void	LLSideTray::createButtons	()
 
 void		LLSideTray::onTabButtonClick(string name)
 {
-	
+	LLSideTrayTab* side_bar = getTab(name);
+
+	if(side_bar == mActiveTab)
+	{
+		if(mCollapsed)
+			expandSideBar();
+		else
+			collapseSideBar();
+		return;
+	}
 	selectTabByName	(name);
 	if(mCollapsed)
 		expandSideBar();

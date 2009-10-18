@@ -60,6 +60,8 @@ public:
 	static void processGroupAccountSummaryReply(LLMessageSystem* msg, void** data);
 
 	virtual void setGroupID(const LLUUID& id);
+
+	virtual void onLandSelectionChanged();
 	
 protected:
 	class impl;

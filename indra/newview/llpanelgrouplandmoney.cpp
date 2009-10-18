@@ -690,7 +690,7 @@ BOOL LLPanelGroupLandMoney::postBuild()
 
 	if ( mImplementationp->mGroupParcelsp )
 	{
-		mImplementationp->mGroupParcelsp->setCommitCallback(boost::bind(&LLButton::setEnabled, mImplementationp->mMapButtonp, true));
+		mImplementationp->mGroupParcelsp->setCommitCallback(boost::bind(&LLPanelGroupLandMoney::onLandSelectionChanged, this));
 		mImplementationp->mGroupParcelsp->setCommitOnSelectionChange(true);
 	}
 
@@ -806,6 +806,11 @@ BOOL LLPanelGroupLandMoney::postBuild()
 	}
 
 	return LLPanelGroupTab::postBuild();
+}
+
+void LLPanelGroupLandMoney::onLandSelectionChanged()
+{
+	mImplementationp->mMapButtonp->setEnabled( mImplementationp->mGroupParcelsp->getItemCount() > 0 );
 }
 
 BOOL LLPanelGroupLandMoney::isVisibleByAgent(LLAgent* agentp)
@@ -1493,7 +1498,7 @@ void LLPanelGroupLandMoney::setGroupID(const LLUUID& id)
 
 	if ( mImplementationp->mGroupParcelsp )
 	{
-		mImplementationp->mGroupParcelsp->setCommitCallback(boost::bind(&LLButton::setEnabled, mImplementationp->mMapButtonp, true));
+		mImplementationp->mGroupParcelsp->setCommitCallback(boost::bind(&LLPanelGroupLandMoney::onLandSelectionChanged, this));
 		mImplementationp->mGroupParcelsp->setCommitOnSelectionChange(true);
 	}
 

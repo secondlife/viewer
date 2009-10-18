@@ -329,6 +329,8 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 {
 	std::string str_group_id;
 	group_id.toString(str_group_id);
+
+	bool is_same_id = group_id == mID;
 	
 	LLGroupMgr::getInstance()->removeObserver(this);
 	mID = group_id;
@@ -397,16 +399,19 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 		getChild<LLUICtrl>("group_name")->setVisible(false);
 		getChild<LLUICtrl>("group_name_editor")->setVisible(true);
 	}
-	else
+	else 
 	{
-		if(!tab_general->getDisplayChildren())
-			tab_general->changeOpenClose(tab_general->getDisplayChildren());
-		if(!tab_roles->getDisplayChildren())
-			tab_roles->changeOpenClose(tab_roles->getDisplayChildren());
-		if(!tab_notices->getDisplayChildren())
-			tab_notices->changeOpenClose(tab_notices->getDisplayChildren());
-		if(!tab_land->getDisplayChildren())
-			tab_land->changeOpenClose(tab_land->getDisplayChildren());
+		if(!is_same_id)
+		{
+			if(!tab_general->getDisplayChildren())
+				tab_general->changeOpenClose(tab_general->getDisplayChildren());
+			if(tab_roles->getDisplayChildren())
+				tab_roles->changeOpenClose(tab_roles->getDisplayChildren());
+			if(tab_notices->getDisplayChildren())
+				tab_notices->changeOpenClose(tab_notices->getDisplayChildren());
+			if(tab_land->getDisplayChildren())
+				tab_land->changeOpenClose(tab_land->getDisplayChildren());
+		}
 		
 		tab_roles->canOpenClose(true);
 		tab_notices->canOpenClose(true);
