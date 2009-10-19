@@ -1024,7 +1024,14 @@ void LLViewerMediaImpl::navigateBack()
 	{
 		if(mMediaSource->pluginSupportsMediaTime())
 		{
-			mMediaSource->start(-2.0);
+			F64 step_scale = 0.02; // temp , can be changed
+			F64 back_step = mMediaSource->getCurrentTime() - (mMediaSource->getDuration()*step_scale);
+			if(back_step < 0.0)
+			{
+				back_step = 0.0;
+			}
+			mMediaSource->seek(back_step);
+			//mMediaSource->start(-2.0);
 		}
 		else
 		{
@@ -1040,7 +1047,14 @@ void LLViewerMediaImpl::navigateForward()
 	{
 		if(mMediaSource->pluginSupportsMediaTime())
 		{
-			mMediaSource->start(2.0);
+			F64 step_scale = 0.02; // temp , can be changed
+			F64 forward_step = mMediaSource->getCurrentTime() + (mMediaSource->getDuration()*step_scale);
+			if(forward_step > mMediaSource->getDuration())
+			{
+				forward_step = mMediaSource->getDuration();
+			}
+			mMediaSource->seek(forward_step);
+			//mMediaSource->start(2.0);
 		}
 		else
 		{
