@@ -311,3 +311,9 @@ BOOL LLVisualParam::linkDrivenParams(visual_param_mapper mapper, bool only_cross
 	return TRUE;
 }
 
+//virtual 
+void LLVisualParam::resetDrivenParams()
+{
+	// nothing to do for non-driver parameters
+	return;
+}

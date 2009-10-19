@@ -103,6 +103,7 @@ public:
 	/*virtual*/ void				setAnimationTarget( F32 target_value, BOOL set_by_user );
 	/*virtual*/ void				stopAnimating(BOOL set_by_user);
 	/*virtual*/ BOOL				linkDrivenParams(visual_param_mapper mapper, bool only_cross_params);
+	/*virtual*/ void				resetDrivenParams();
 	
 	// LLViewerVisualParam Virtual functions
 	/*virtual*/ F32					getTotalDistortion();

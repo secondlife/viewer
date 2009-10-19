@@ -194,11 +194,12 @@ void LLWearable::createVisualParams()
 		LLVisualParam*(LLWearable::*wearable_function)(S32)const = &LLWearable::getVisualParam; 
 		// need this line to disambiguate between versions of LLCharacter::getVisualParam()
 		LLVisualParam*(LLVOAvatarSelf::*avatar_function)(S32)const = &LLVOAvatarSelf::getVisualParam; 
+		param->resetDrivenParams();
 		if(!param->linkDrivenParams(boost::bind(wearable_function,(LLWearable*)this, _1), false))
 		{
 			if( !param->linkDrivenParams(boost::bind(avatar_function,(LLVOAvatarSelf*)avatar,_1 ), true))
 			{
-				llwarns << "could not link driven params for wearable " << getName() << llendl;
+				llwarns << "could not link driven params for wearable " << getName() << " id: " << param->getID() << llendl;
 				continue;
 			}
 		}

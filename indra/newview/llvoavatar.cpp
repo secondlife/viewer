@@ -4751,6 +4751,12 @@ BOOL LLVOAvatar::loadAvatar()
 		if (driver_param->setInfo(info))
 		{
 			addVisualParam( driver_param );
+			LLVisualParam*(LLVOAvatar::*avatar_function)(S32)const = &LLVOAvatar::getVisualParam; 
+			if( !driver_param->linkDrivenParams(boost::bind(avatar_function,(LLVOAvatar*)this,_1 ), false))
+			{
+				llwarns << "could not link driven params for avatar " << this->getFullname() << " id: " << driver_param->getID() << llendl;
+				continue;
+			}
 		}
 		else
 		{

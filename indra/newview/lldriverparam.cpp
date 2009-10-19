@@ -180,23 +180,6 @@ BOOL LLDriverParam::setInfo(LLDriverParamInfo *info)
 
 	setWeight(getDefaultWeight(), FALSE );
 
-	BOOL success;
-	if (mWearablep)
-	{
-		LLVisualParam*(LLWearable::*function)(S32)const = &LLWearable::getVisualParam; // need this line to disambiguate between versions of LLCharacter::getVisualParam()
-		success = linkDrivenParams(boost::bind(function,(LLWearable*)mWearablep, _1), false);
-	}
-	else
-	{
-		LLVisualParam*(LLCharacter::*function)(S32)const = &LLCharacter::getVisualParam; // need this line to disambiguate between versions of LLCharacter::getVisualParam()
-		success = linkDrivenParams(boost::bind(function,(LLCharacter*)mAvatarp, _1), false);
-	}
-	if(!success)
-	{
-		mInfo = NULL;
-		return FALSE;
-	}
-	
 	return TRUE;
 }
 
@@ -502,8 +485,6 @@ BOOL LLDriverParam::linkDrivenParams(visual_param_mapper mapper, bool only_cross
 {
 	BOOL success = TRUE;
 	LLDriverParamInfo::entry_info_list_t::iterator iter;
-	mDriven.clear();
-	mDriven.reserve(getInfo()->mDrivenInfoList.size());
 	for (iter = getInfo()->mDrivenInfoList.begin(); iter != getInfo()->mDrivenInfoList.end(); ++iter)
 	{
 		LLDrivenEntryInfo *driven_info = &(*iter);
@@ -535,6 +516,12 @@ BOOL LLDriverParam::linkDrivenParams(visual_param_mapper mapper, bool only_cross
 	}
 	
 	return success;	
+}
+
+void LLDriverParam::resetDrivenParams()
+{
+	mDriven.clear();
+	mDriven.reserve(getInfo()->mDrivenInfoList.size());
 }
 
 //-----------------------------------------------------------------------------

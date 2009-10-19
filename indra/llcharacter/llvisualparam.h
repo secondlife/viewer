@@ -120,6 +120,7 @@ public:
 	virtual void			stopAnimating(BOOL set_by_user);
 
 	virtual BOOL			linkDrivenParams(visual_param_mapper mapper, bool only_cross_params);
+	virtual void			resetDrivenParams();
 
 	// Interface methods
 	S32						getID() const		{ return mID; }
