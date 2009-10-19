@@ -48,15 +48,17 @@
 //# define STRING_TABLE_HASH_MAP 1
 #endif
 
-#if LL_WINDOWS
-#include <hash_map>
-#else
-#include <ext/hash_map>
+#if STRING_TABLE_HASH_MAP
+# if LL_WINDOWS
+#  include <hash_map>
+# else
+#  include <ext/hash_map>
+# endif
 #endif
 
 const U32 MAX_STRINGS_LENGTH = 256;
 
-class LLStringTableEntry
+class LL_COMMON_API LLStringTableEntry
 {
 public:
 	LLStringTableEntry(const char *str);
@@ -69,7 +71,7 @@ public:
 	S32  mCount;
 };
 
-class LLStringTable
+class LL_COMMON_API LLStringTable
 {
 public:
 	LLStringTable(int tablesize);
@@ -103,7 +105,7 @@ public:
 #endif	
 };
 
-extern LLStringTable gStringTable;
+extern LL_COMMON_API LLStringTable gStringTable;
 
 //============================================================================
 
@@ -113,7 +115,7 @@ extern LLStringTable gStringTable;
 
 typedef const std::string* LLStdStringHandle;
 
-class LLStdStringTable
+class LL_COMMON_API LLStdStringTable
 {
 public:
 	LLStdStringTable(S32 tablesize = 0)

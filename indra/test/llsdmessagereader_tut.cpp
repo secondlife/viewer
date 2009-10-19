@@ -42,6 +42,7 @@
 #include "message.h"
 #include "llsdmessagereader.h"
 #include "llsdutil.h"
+#include "llsdutil_math.h"
 
 namespace tut
 {	

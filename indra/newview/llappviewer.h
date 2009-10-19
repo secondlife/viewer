@@ -47,6 +47,8 @@ class LLVFS;
 class LLWatchdogTimeout;
 class LLWorkerThread;
 
+struct apr_dso_handle_t;
+
 
 class LLAppViewer : public LLApp
 {
@@ -124,7 +126,7 @@ public:
     virtual void forceErrorLLError();
     virtual void forceErrorBreakpoint();
     virtual void forceErrorBadMemoryAccess();
-    virtual void forceErrorInifiniteLoop();
+    virtual void forceErrorInfiniteLoop();
     virtual void forceErrorSoftwareException();
     virtual void forceErrorDriverCrash();
 
@@ -210,6 +212,8 @@ private:
     void sendLogoutRequest();
     void disconnectViewer();
 
+	void loadEventHostModule(S32 listen_port);
+	
 	// *FIX: the app viewer class should be some sort of singleton, no?
 	// Perhaps its child class is the singleton and this should be an abstract base.
 	static LLAppViewer* sInstance; 
@@ -255,6 +259,8 @@ private:
 
     LLAllocator mAlloc;
 
+	std::set<struct apr_dso_handle_t*> mPlugins;
+
 public:
 	//some information for updater
 	typedef struct
@@ -263,6 +269,8 @@ public:
 		std::ostringstream mParams;
 	}LLUpdaterInfo ;
 	static LLUpdaterInfo *sUpdaterInfo ;
+
+	void launchUpdater();
 };
 
 // consts from viewer.h
@@ -277,10 +285,6 @@ extern LLSD gDebugInfo;
 
 extern BOOL	gAllowTapTapHoldRun;
 extern BOOL	gShowObjectUpdates;
-
-extern BOOL gAcceptTOS;
-extern BOOL gAcceptCriticalMessage;
-
 
 typedef enum 
 {

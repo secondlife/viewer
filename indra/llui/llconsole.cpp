@@ -120,6 +120,11 @@ void LLConsole::setFontSize(S32 size_index)
 	{
 		mFont = LLFontGL::getFontSansSerifHuge();
 	}
+	// Make sure the font exists
+	if (mFont == NULL)
+	{
+		mFont = LLFontGL::getFontDefault();
+	}
 	
 	for(paragraph_t::iterator paragraph_it = mParagraphs.begin(); paragraph_it != mParagraphs.end(); paragraph_it++)
 	{

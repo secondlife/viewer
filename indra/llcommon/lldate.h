@@ -35,6 +35,8 @@
 #ifndef LL_LLDATE_H
 #define LL_LLDATE_H
 
+#include "linden_common.h"
+
 #include <iosfwd>
 #include <string>
 
@@ -46,7 +48,7 @@
  *
  * The date class represents a point in time after epoch - 1970-01-01.
  */
-class LLDate
+class LL_COMMON_API LLDate
 {
 public:
 	/** 
@@ -156,10 +158,10 @@ private:
 };
 
 // Helper function to stream out a date
-std::ostream& operator<<(std::ostream& s, const LLDate& date);
+LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLDate& date);
 
 // Helper function to stream in a date
-std::istream& operator>>(std::istream& s, LLDate& date);
+LL_COMMON_API std::istream& operator>>(std::istream& s, LLDate& date);
 
 
 const static std::string weekdays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};

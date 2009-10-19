@@ -47,7 +47,7 @@
 // Note: ~LLQueuedThread is O(N) N=# of queued threads, assumed to be small
 //   It is assumed that LLQueuedThreads are rarely created/destroyed.
 
-class LLQueuedThread : public LLThread
+class LL_COMMON_API LLQueuedThread : public LLThread
 {
 	//------------------------------------------------------------------------
 public:
@@ -80,7 +80,7 @@ public:
 	//------------------------------------------------------------------------
 public:
 
-	class QueuedRequest : public LLSimpleHashEntry<handle_t>
+	class LL_COMMON_API QueuedRequest : public LLSimpleHashEntry<handle_t>
 	{
 		friend class LLQueuedThread;
 		
@@ -147,6 +147,7 @@ protected:
 			return lhs->higherPriority(*rhs); // higher priority in front of queue (set)
 		}
 	};
+
 
 	//------------------------------------------------------------------------
 	
