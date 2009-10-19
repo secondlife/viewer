@@ -41,13 +41,13 @@
 #include "llcallingcard.h"
 #include "llfloaterreporter.h"
 #include "llfloaterworldmap.h"
+#include "llinspect.h"
 #include "llmutelist.h"
 #include "llpanelblockedlist.h"
 #include "llviewermenu.h"
 #include "llvoiceclient.h"
 
 // Linden libraries
-#include "llcontrol.h"	// LLCachedControl
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llmenubutton.h"
@@ -66,7 +66,7 @@ class LLFetchAvatarData;
 // Avatar Inspector, a small information window used when clicking
 // on avatar names in the 2D UI and in the ambient inspector widget for
 // the 3D world.
-class LLInspectAvatar : public LLFloater
+class LLInspectAvatar : public LLInspect
 {
 	friend class LLFloaterReg;
 	
@@ -77,7 +77,6 @@ public:
 	virtual ~LLInspectAvatar();
 	
 	/*virtual*/ BOOL postBuild(void);
-	/*virtual*/ void draw();
 	
 	// Because floater is single instance, need to re-parse data on each spawn
 	// (for example, inspector about same avatar but in different position)
@@ -85,9 +84,6 @@ public:
 
 	// When closing they should close their gear menu 
 	/*virtual*/ void onClose(bool app_quitting);
-	
-	// Inspectors close themselves when they lose focus
-	/*virtual*/ void onFocusLost();
 	
 	// Update view based on information from avatar properties processor
 	void processAvatarData(LLAvatarData* data);
@@ -132,8 +128,6 @@ private:
 	// an in-flight request for avatar properties from LLAvatarPropertiesProcessor
 	// is represented by this object
 	LLFetchAvatarData*	mPropertiesRequest;
-	LLFrameTimer		mCloseTimer;
-	LLFrameTimer		mOpenTimer;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -183,12 +177,11 @@ public:
 };
 
 LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
-:	LLFloater( LLSD() ),	// single_instance, doesn't really need key
+:	LLInspect( LLSD() ),	// single_instance, doesn't really need key
 	mAvatarID(),			// set in onOpen()
 	mPartnerID(),
 	mAvatarName(),
-	mPropertiesRequest(NULL),
-	mCloseTimer()
+	mPropertiesRequest(NULL)
 {
 	mCommitCallbackRegistrar.add("InspectAvatar.ViewProfile",	boost::bind(&LLInspectAvatar::onClickViewProfile, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.AddFriend",	boost::bind(&LLInspectAvatar::onClickAddFriend, this));	
@@ -234,35 +227,7 @@ BOOL LLInspectAvatar::postBuild(void)
 	return TRUE;
 }
 
-void LLInspectAvatar::draw()
-{
-	static LLCachedControl<F32> FADE_TIME(*LLUI::sSettingGroups["config"], "InspectorFadeTime", 1.f);
-	if (mOpenTimer.getStarted())
-	{
-		F32 alpha = clamp_rescale(mOpenTimer.getElapsedTimeF32(), 0.f, FADE_TIME, 0.f, 1.f);
-		LLViewDrawContext context(alpha);
-		LLFloater::draw();
-		if (alpha == 1.f)
-		{
-			mOpenTimer.stop();
-		}
 
-	}
-	else if (mCloseTimer.getStarted())
-	{
-		F32 alpha = clamp_rescale(mCloseTimer.getElapsedTimeF32(), 0.f, FADE_TIME, 1.f, 0.f);
-		LLViewDrawContext context(alpha);
-		LLFloater::draw();
-		if (mCloseTimer.getElapsedTimeF32() > FADE_TIME)
-		{
-			closeFloater(false);
-		}
-	}
-	else
-	{
-		LLFloater::draw();
-	}
-}
 
 
 // Multiple calls to showInstance("inspect_avatar", foo) will provide different
@@ -270,8 +235,8 @@ void LLInspectAvatar::draw()
 //virtual
 void LLInspectAvatar::onOpen(const LLSD& data)
 {
-	mCloseTimer.stop();
-	mOpenTimer.start();
+	// Start open animation
+	LLInspect::onOpen(data);
 
 	// Extract appropriate avatar id
 	mAvatarID = data["avatar_id"];
@@ -305,14 +270,6 @@ void LLInspectAvatar::onClose(bool app_quitting)
 {  
   getChild<LLMenuButton>("gear_btn")->hideMenu();
 }	
-
-//virtual
-void LLInspectAvatar::onFocusLost()
-{
-	// Start closing when we lose focus
-	mCloseTimer.start();
-	mOpenTimer.stop();
-}
 
 void LLInspectAvatar::requestUpdate()
 {

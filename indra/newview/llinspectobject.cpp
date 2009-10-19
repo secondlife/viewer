@@ -34,6 +34,7 @@
 #include "llinspectobject.h"
 
 // Viewer
+#include "llinspect.h"
 #include "llnotifications.h"	// *TODO: Eliminate, add LLNotificationsUtil wrapper
 #include "llselectmgr.h"
 #include "llslurl.h"
@@ -43,8 +44,6 @@
 // Linden libraries
 #include "llbutton.h"			// setLabel(), not virtual!
 #include "llclickaction.h"
-#include "llcontrol.h"			// LLCachedControl
-#include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llmenubutton.h"
 #include "llresmgr.h"			// getMonetaryString
@@ -56,15 +55,13 @@
 
 class LLViewerObject;
 
-// *TODO: Abstract out base class for LLInspectObject and LLInspectObject
-
 //////////////////////////////////////////////////////////////////////////////
 // LLInspectObject
 //////////////////////////////////////////////////////////////////////////////
 
 // Object Inspector, a small information window used when clicking
 // in the ambient inspector widget for objects in the 3D world.
-class LLInspectObject : public LLFloater
+class LLInspectObject : public LLInspect
 {
 	friend class LLFloaterReg;
 	
@@ -75,7 +72,6 @@ public:
 	virtual ~LLInspectObject();
 	
 	/*virtual*/ BOOL postBuild(void);
-	/*virtual*/ void draw();
 	
 	// Because floater is single instance, need to re-parse data on each spawn
 	// (for example, inspector about same avatar but in different position)
@@ -83,9 +79,6 @@ public:
 	
 	// Release the selection and do other cleanup
 	/*virtual*/ void onClose(bool app_quitting);
-	
-	// Inspectors close themselves when they lose focus
-	/*virtual*/ void onFocusLost();
 	
 private:
 	// Refresh displayed data with information from selection manager
@@ -113,16 +106,13 @@ private:
 	
 private:
 	LLUUID				mObjectID;
-	LLFrameTimer		mOpenTimer;
-	LLFrameTimer		mCloseTimer;
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
 };
 
 LLInspectObject::LLInspectObject(const LLSD& sd)
-:	LLFloater( LLSD() ),	// single_instance, doesn't really need key
+:	LLInspect( LLSD() ),	// single_instance, doesn't really need key
 	mObjectID(),			// set in onOpen()
-	mCloseTimer(),
-	mOpenTimer()
+	mObjectSelection()
 {
 	// can't make the properties request until the widgets are constructed
 	// as it might return immediately, so do it in postBuild.
@@ -181,39 +171,14 @@ BOOL LLInspectObject::postBuild(void)
 	return TRUE;
 }
 
-void LLInspectObject::draw()
-{
-	static LLCachedControl<F32> FADE_OUT_TIME(*LLUI::sSettingGroups["config"], "InspectorFadeTime", 1.f);
-	if (mOpenTimer.getStarted())
-	{
-		F32 alpha = clamp_rescale(mOpenTimer.getElapsedTimeF32(), 0.f, FADE_OUT_TIME, 0.f, 1.f);
-		LLViewDrawContext context(alpha);
-		LLFloater::draw();
-	}
-	else if (mCloseTimer.getStarted())
-	{
-		F32 alpha = clamp_rescale(mCloseTimer.getElapsedTimeF32(), 0.f, FADE_OUT_TIME, 1.f, 0.f);
-		LLViewDrawContext context(alpha);
-		LLFloater::draw();
-		if (mCloseTimer.getElapsedTimeF32() > FADE_OUT_TIME)
-		{
-			closeFloater(false);
-		}
-	}
-	else
-	{
-		LLFloater::draw();
-	}
-}
-
 
 // Multiple calls to showInstance("inspect_avatar", foo) will provide different
 // LLSD for foo, which we will catch here.
 //virtual
 void LLInspectObject::onOpen(const LLSD& data)
 {
-	mCloseTimer.stop();
-	mOpenTimer.start();
+	// Start animation
+	LLInspect::onOpen(data);
 
 	// Extract appropriate avatar id
 	mObjectID = data["object_id"];
@@ -258,14 +223,6 @@ void LLInspectObject::onClose(bool app_quitting)
 	mObjectSelection = NULL;
 
 	getChild<LLMenuButton>("gear_btn")->hideMenu();
-}
-
-//virtual
-void LLInspectObject::onFocusLost()
-{
-	// Start closing when we lose focus
-	mCloseTimer.start();
-	mOpenTimer.stop();
 }
 
 

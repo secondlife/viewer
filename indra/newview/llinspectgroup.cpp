@@ -36,6 +36,7 @@
 // viewer files
 #include "llgroupactions.h"
 #include "llgroupmgr.h"
+#include "llinspect.h"
 
 // Linden libraries
 #include "llcontrol.h"	// LLCachedControl
@@ -55,7 +56,7 @@ class LLFetchGroupData;
 
 /// Group Inspector, a small information window used when clicking
 /// on group names in the 2D UI
-class LLInspectGroup : public LLFloater
+class LLInspectGroup : public LLInspect
 {
 	friend class LLFloaterReg;
 	
@@ -65,17 +66,12 @@ public:
 	LLInspectGroup(const LLSD& key);
 	virtual ~LLInspectGroup();
 	
-	/*virtual*/ void draw();
-	
 	// Because floater is single instance, need to re-parse data on each spawn
 	// (for example, inspector about same group but in different position)
 	/*virtual*/ void onOpen(const LLSD& group_id);
 
 	// When closing they should close their gear menu 
 	/*virtual*/ void onClose(bool app_quitting);
-	
-	// Inspectors close themselves when they lose focus
-	/*virtual*/ void onFocusLost();
 	
 	// Update view based on information from group manager
 	void processGroupData();
@@ -101,8 +97,6 @@ private:
 	// an in-flight network request for group properties 
 	// is represented by this object
 	LLFetchGroupData*	mPropertiesRequest;
-	LLFrameTimer		mCloseTimer;
-	LLFrameTimer		mOpenTimer;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -144,10 +138,9 @@ public:
 };
 
 LLInspectGroup::LLInspectGroup(const LLSD& sd)
-:	LLFloater( LLSD() ),	// single_instance, doesn't really need key
+:	LLInspect( LLSD() ),	// single_instance, doesn't really need key
 	mGroupID(),			// set in onOpen()
-	mPropertiesRequest(NULL),
-	mCloseTimer()
+	mPropertiesRequest(NULL)
 {
 	mCommitCallbackRegistrar.add("InspectGroup.ViewProfile",
 		boost::bind(&LLInspectGroup::onClickViewProfile, this));
@@ -168,44 +161,14 @@ LLInspectGroup::~LLInspectGroup()
 	mPropertiesRequest = NULL;
 }
 
-void LLInspectGroup::draw()
-{
-	static LLCachedControl<F32> FADE_TIME(*LLUI::sSettingGroups["config"], "InspectorFadeTime", 1.f);
-	if (mOpenTimer.getStarted())
-	{
-		F32 alpha = clamp_rescale(mOpenTimer.getElapsedTimeF32(), 0.f, FADE_TIME, 0.f, 1.f);
-		LLViewDrawContext context(alpha);
-		LLFloater::draw();
-		if (alpha == 1.f)
-		{
-			mOpenTimer.stop();
-		}
-
-	}
-	else if (mCloseTimer.getStarted())
-	{
-		F32 alpha = clamp_rescale(mCloseTimer.getElapsedTimeF32(), 0.f, FADE_TIME, 1.f, 0.f);
-		LLViewDrawContext context(alpha);
-		LLFloater::draw();
-		if (mCloseTimer.getElapsedTimeF32() > FADE_TIME)
-		{
-			closeFloater(false);
-		}
-	}
-	else
-	{
-		LLFloater::draw();
-	}
-}
-
 
 // Multiple calls to showInstance("inspect_avatar", foo) will provide different
 // LLSD for foo, which we will catch here.
 //virtual
 void LLInspectGroup::onOpen(const LLSD& data)
 {
-	mCloseTimer.stop();
-	mOpenTimer.start();
+	// start fade animation
+	LLInspect::onOpen(data);
 
 	mGroupID = data["group_id"];
 
@@ -227,16 +190,9 @@ void LLInspectGroup::onOpen(const LLSD& data)
 
 // virtual
 void LLInspectGroup::onClose(bool app_quitting)
-{  
-}	
-
-//virtual
-void LLInspectGroup::onFocusLost()
 {
-	// Start closing when we lose focus
-	mCloseTimer.start();
-	mOpenTimer.stop();
-}
+	// *TODO: If we add a gear menu, close it here
+}	
 
 void LLInspectGroup::requestUpdate()
 {

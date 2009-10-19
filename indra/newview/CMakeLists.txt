@@ -240,6 +240,7 @@ set(viewer_SOURCE_FILES
     llimpanel.cpp
     llimview.cpp
     llimcontrolpanel.cpp
+    llinspect.cpp
     llinspectavatar.cpp
     llinspectgroup.cpp
     llinspectobject.cpp
@@ -706,6 +707,7 @@ set(viewer_HEADER_FILES
     llimview.h
     llimcontrolpanel.h
     llinspectavatar.h
+    llinspect.h
     llinspectgroup.h
     llinspectobject.h
     llinventorybridge.h
