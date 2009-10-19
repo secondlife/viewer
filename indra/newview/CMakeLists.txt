@@ -159,7 +159,6 @@ set(viewer_SOURCE_FILES
     llfloatercolorpicker.cpp
     llfloatercustomize.cpp
     llfloaterdaycycle.cpp
-    llfloaterdirectory.cpp
     llfloaterenvsettings.cpp
     llfloaterfriends.cpp
     llfloaterfonttest.cpp
@@ -299,14 +298,6 @@ set(viewer_SOURCE_FILES
     llpanelblockedlist.cpp
     llpanelclassified.cpp
     llpanelcontents.cpp
-    llpaneldirbrowser.cpp
-    llpaneldirclassified.cpp
-    llpaneldirevents.cpp
-    llpaneldirfind.cpp
-    llpaneldirgroups.cpp
-    llpaneldirland.cpp
-    llpaneldirpeople.cpp
-    llpaneldirplaces.cpp
     llpaneleditwearable.cpp
     llpanelevent.cpp
     llpanelface.cpp
@@ -634,7 +625,6 @@ set(viewer_HEADER_FILES
     llfloatercolorpicker.h
     llfloatercustomize.h
     llfloaterdaycycle.h
-    llfloaterdirectory.h
     llfloaterenvsettings.h
     llfloaterfonttest.h
     llfloaterfriends.h
@@ -770,14 +760,6 @@ set(viewer_HEADER_FILES
     llpanelblockedlist.h
     llpanelclassified.h
     llpanelcontents.h
-    llpaneldirbrowser.h
-    llpaneldirclassified.h
-    llpaneldirevents.h
-    llpaneldirfind.h
-    llpaneldirgroups.h
-    llpaneldirland.h
-    llpaneldirpeople.h
-    llpaneldirplaces.h
     llpaneleditwearable.h
     llpanelevent.h
     llpanelface.h

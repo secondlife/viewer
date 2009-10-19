@@ -44,7 +44,6 @@
 #include "llfloateractivespeakers.h"
 #include "llfloatercamera.h"
 #include "llfloatercustomize.h"
-#include "llfloaterdirectory.h"
 
 #include "llfloaterland.h"
 #include "llfloatersnapshot.h"
@@ -5433,8 +5432,6 @@ void LLAgent::processAgentDropGroup(LLMessageSystem *msg, void **)
 		LLGroupMgr::getInstance()->clearGroupData(group_id);
 		// close the floater for this group, if any.
 		LLGroupActions::closeGroup(group_id);
-		// refresh the group panel of the search window, if necessary.
-		LLFloaterDirectory::refreshGroup(group_id);
 	}
 	else
 	{
@@ -5512,9 +5509,6 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 				LLGroupMgr::getInstance()->clearGroupData(group_id);
 				// close the floater for this group, if any.
 				LLGroupActions::closeGroup(group_id);
-				// refresh the group panel of the search window,
-				//if necessary.
-				LLFloaterDirectory::refreshGroup(group_id);
 			}
 			else
 			{

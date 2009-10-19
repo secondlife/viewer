@@ -39,7 +39,6 @@
 #include "llnotify.h"
 #include "lleventinfo.h"
 #include "llfloaterreg.h"
-#include "llfloaterdirectory.h"
 #include "llfloaterworldmap.h"
 #include "llagent.h"
 
@@ -199,7 +198,6 @@ bool LLEventNotification::handleResponse(const LLSD& notification, const LLSD& r
 			break;
 		}
 	case 1:
-		gDisplayEventHack = TRUE;
 		LLFloaterReg::showInstance("search", LLSD().insert("panel", "event").insert("id", S32(getEventID())));
 		break;
 	case 2:

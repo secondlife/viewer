@@ -50,7 +50,6 @@
 #include "llstatusbar.h"
 #include "lleconomy.h"
 #include "llviewerwindow.h"
-#include "llfloaterdirectory.h"
 #include "llpanelgroup.h"
 #include "llgroupactions.h"
 #include "lluictrlfactory.h"
@@ -1232,8 +1231,6 @@ void LLGroupMgr::processJoinGroupReply(LLMessageSystem* msg, void ** data)
 		LLGroupMgr::getInstance()->clearGroupData(group_id);
 		// refresh the floater for this group, if any.
 		LLGroupActions::refresh(group_id);
-		// refresh the group panel of the search window, if necessary.
-		LLFloaterDirectory::refreshGroup(group_id);
 	}
 }
 
@@ -1254,8 +1251,6 @@ void LLGroupMgr::processLeaveGroupReply(LLMessageSystem* msg, void ** data)
 		LLGroupMgr::getInstance()->clearGroupData(group_id);
 		// close the floater for this group, if any.
 		LLGroupActions::closeGroup(group_id);
-		// refresh the group panel of the search window, if necessary.
-		LLFloaterDirectory::refreshGroup(group_id);
 	}
 }
 

@@ -47,7 +47,6 @@
 #include "llcallingcard.h"
 #include "llviewercontrol.h"
 #include "llcylinder.h"
-#include "llfloaterdirectory.h"
 #include "llfloatermap.h"
 #include "llfloaterworldmap.h"
 #include "llfocusmgr.h"

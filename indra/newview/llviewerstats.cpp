@@ -52,7 +52,6 @@
 #include "llvlmanager.h"
 #include "llagent.h"
 #include "llviewercontrol.h"
-#include "llfloaterdirectory.h"
 #include "llfloatertools.h"
 #include "lldebugview.h"
 #include "llfasttimerview.h"
@@ -813,8 +812,6 @@ void send_stats()
 	S32 window_size = (window_width * window_height) / 1024;
 	misc["string_1"] = llformat("%d", window_size);
 	// misc["string_2"] = 
-// 	misc["int_1"] = LLFloaterDirectory::sOldSearchCount; // Steve: 1.18.6
-// 	misc["int_2"] = LLFloaterDirectory::sNewSearchCount; // Steve: 1.18.6
 // 	misc["int_1"] = LLSD::Integer(gSavedSettings.getU32("RenderQualityPerformance")); // Steve: 1.21
 // 	misc["int_2"] = LLSD::Integer(gFrameStalls); // Steve: 1.21
 

@@ -120,8 +120,6 @@
 #include "llnotify.h"
 #include "llpanelavatar.h"
 #include "llavatarpropertiesprocessor.h"
-#include "llpaneldirbrowser.h"
-#include "llpaneldirland.h"
 #include "llpanelevent.h"
 #include "llpanelclassified.h"
 #include "llpanelpick.h"
@@ -3264,15 +3262,6 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	// Special handler as this message is sometimes used for group land.
 	msg->setHandlerFunc("PlacesReply", process_places_reply);
 	msg->setHandlerFunc("GroupNoticesListReply", LLPanelGroupNotices::processGroupNoticesListReply);
-
-	msg->setHandlerFunc("DirPlacesReply", LLPanelDirBrowser::processDirPlacesReply);
-	msg->setHandlerFunc("DirPeopleReply", LLPanelDirBrowser::processDirPeopleReply);
-	msg->setHandlerFunc("DirEventsReply", LLPanelDirBrowser::processDirEventsReply);
-	msg->setHandlerFunc("DirGroupsReply", LLPanelDirBrowser::processDirGroupsReply);
-	//msg->setHandlerFunc("DirPicksReply",  LLPanelDirBrowser::processDirPicksReply);
-	msg->setHandlerFunc("DirClassifiedReply",  LLPanelDirBrowser::processDirClassifiedReply);
-	msg->setHandlerFunc("DirLandReply",   LLPanelDirBrowser::processDirLandReply);
-	//msg->setHandlerFunc("DirPopularReply",LLPanelDirBrowser::processDirPopularReply);
 
 	msg->setHandlerFunc("AvatarPickerReply", LLFloaterAvatarPicker::processAvatarPickerReply);
 

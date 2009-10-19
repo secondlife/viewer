@@ -41,7 +41,6 @@
 #include "llviewercontrol.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterchat.h"
-#include "llfloaterdirectory.h"		// to spawn search
 #include "llfloaterlagmeter.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterscriptdebug.h"

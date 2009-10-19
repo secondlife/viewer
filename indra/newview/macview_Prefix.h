@@ -66,7 +66,6 @@
 #include "llfloaterbuildoptions.h"
 #include "llfloaterchat.h"
 #include "llfloatercustomize.h"
-#include "llfloaterdirectory.h"
 #include "llfloatergroups.h"
 #include "llfloaterworldmap.h"
 #include "llfloatermute.h"

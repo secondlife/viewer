@@ -909,13 +909,7 @@ bool LLPanelClassified::confirmPublish(const LLSD& notification, const LLSD& res
 
 	// Big hack - assume that top picks are always in a browser,
 	// and non-finder-classifieds are always in a tab container.
-	if (mInFinder)
-	{
-		// TODO: enable this
-		//LLPanelDirClassifieds* panel = (LLPanelDirClassifieds*)getParent();
-		//panel->renameClassified(mClassifiedID, mNameEditor->getText());
-	}
-	else
+	if (! mInFinder)
 	{
 		LLTabContainer* tab = (LLTabContainer*)getParent();
 		tab->setCurrentTabName(mNameEditor->getText());

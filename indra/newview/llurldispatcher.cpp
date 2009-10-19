@@ -36,7 +36,6 @@
 // viewer includes
 #include "llagent.h"			// teleportViaLocation()
 #include "llcommandhandler.h"
-#include "llfloaterdirectory.h"
 #include "llfloaterhelpbrowser.h"
 #include "llfloaterreg.h"
 #include "llfloaterurldisplay.h"

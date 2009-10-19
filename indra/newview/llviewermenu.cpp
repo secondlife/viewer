@@ -97,7 +97,6 @@
 #include "llfloaterchat.h"
 #include "llfloatercustomize.h"
 #include "llfloaterdaycycle.h"
-#include "llfloaterdirectory.h"
 #include "llfloaterchatterbox.h"
 #include "llfloaterfonttest.h"
 #include "llfloatergodtools.h"
@@ -3512,9 +3511,6 @@ void set_god_level(U8 god_level)
 	gAgent.setGodLevel( god_level );
 	gIMMgr->refresh();
 	LLViewerParcelMgr::getInstance()->notifyObservers();
-
-	// Some classifieds change visibility on god mode
-	LLFloaterDirectory::requestClassifieds();
 
 	// God mode changes sim visibility
 	LLWorldMap::getInstance()->reset();
