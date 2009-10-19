@@ -152,6 +152,7 @@ void LLFloaterBuyCurrencyUI::draw()
 	{
 		if (mManager.bought())
 		{
+			LLNotifications::instance().add("BuyLindenDollarSuccess");
 			closeFloater();
 			return;
 		}

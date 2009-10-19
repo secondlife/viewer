@@ -28,7 +28,7 @@
      layout="topleft"
      left="20"
      height="30"
-     top="30"
+     top="25"
      width="300"
      name="info_need_more">
         You need more L$
@@ -53,7 +53,7 @@
      layout="topleft"
      left="20"
      height="30"
-     top="30"
+     top="25"
      width="200"
      name="info_buying">
         Buy L$
@@ -67,7 +67,7 @@
      layout="topleft"
      left="20"
      name="balance_label"
-     top="70"
+     top="65"
      width="210">
         I have
     </text>
@@ -91,7 +91,7 @@
      follows="top|left"
      font="SansSerifMedium"
      height="16"
-     top="100"
+     top="95"
      layout="topleft"
      left="20"
      name="currency_action"
@@ -133,7 +133,7 @@
      height="16"
      layout="topleft"
      left="20"
-     top="130"
+     top="125"
      name="buying_label"
      width="210">
         For the price
@@ -148,10 +148,10 @@
      height="16"
      top_delta="0"
      layout="topleft"
-     left="170"
+     left="150"
      name="currency_est"
-     width="150">
-     [LOCALAMOUNT]
+     width="170">
+     approx. [LOCALAMOUNT]
     </text>
     <text
      type="string"
@@ -161,7 +161,7 @@
      follows="top|left"
      height="16"
      layout="topleft"
-     top="130"
+     top="125"
      left="170"
      width="150"
      halign="right"
@@ -171,11 +171,11 @@
     <text
      type="string"
      font="SansSerifSmall"
-     top="150"
+     top="145"
      length="1"
      follows="top|left"
-     halign="right"
      height="16"
+     halign="right"
      left="150"
      width="170"
      layout="topleft"
@@ -191,7 +191,7 @@
      layout="topleft"
      left="20"
      name="total_label"
-     top="170"
+     top="165"
      width="210">
         My new balance will be
     </text>
@@ -212,28 +212,58 @@
     <text
      type="string"
      length="1"
+     text_color="0.7 0.7 0.7 0.5"
      follows="top|left"
      layout="topleft"
-     top="195"
+     halign="right"
+     top="189"
      left="20"
      width="300"
      height="30"
-     name="purchase_warning_repurchase">
-        Confirming this purchase only buys the L$.
-You&apos;ll need to try again.
+     name="currency_links">
+      [http://www.secondlife.com/ payment method] | [http://www.secondlife.com/ currency] | [http://www.secondlife.com exchange rate]
     </text>
     <text
      type="string"
      length="1"
+     text_color="0.7 0.7 0.7 0.5"
      follows="top|left"
      layout="topleft"
-     top="195"
+     halign="right"
+     top="202"
+     left="20"
+     width="300"
+     height="30"
+     name="exchange_rate_note">
+Re-enter amount to see the latest exchange rate.
+    </text>
+    <text
+     type="string"
+     length="1"
+     text_color="0.7 0.7 0.7 0.5"
+     follows="top|left"
+     layout="topleft"
+     halign="right"
+     top="213"
+     left="10"
+     width="310"
+     height="30"
+     name="purchase_warning_repurchase">
+        Confirming this purchase only buys L$, not the object.
+    </text>
+    <text
+     type="string"
+     length="1"
+     text_color="0.7 0.7 0.7 0.5"
+     follows="top|left"
+     layout="topleft"
+     halign="right"
+     top="213"
      left="20"
      width="300"
      height="30"
      name="purchase_warning_notenough">
-        You aren&apos;t buying enough L$.
-Increase the amount to buy.
+        You aren&apos;t buying enough L$. Increase the amount.
     </text>
 
     <button

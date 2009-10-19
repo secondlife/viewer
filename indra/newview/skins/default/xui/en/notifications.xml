@@ -6127,6 +6127,16 @@ Your L$ balance is shown in the upper-right.
 
   <notification
    icon="notify.tga"
+   name="BuyLindenDollarSuccess"
+   type="notify">
+Thank you for your payment!
+
+When processing completes, your L$ balance will be credited. If your payment takes more than 20 minutes to complete, the purchase amount will be credited to your account for use on your next purchase.
+
+Payment status can be checked on your Transaction History page at SecondLife.com.
+  </notification>
+  <notification
+   icon="notify.tga"
    name="FirstSit"
    type="notify">
 You are sitting.
