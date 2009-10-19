@@ -162,8 +162,5 @@ std::ostream& operator<<(std::ostream& s, const LLDate& date);
 std::istream& operator>>(std::istream& s, LLDate& date);
 
 
-const static std::string weekdays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-
-const static std::string months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
 #endif // LL_LLDATE_H
