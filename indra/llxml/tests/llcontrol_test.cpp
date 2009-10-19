@@ -54,7 +54,21 @@ namespace tut
 			random.generate();
 			// generate temp dir
 			std::ostringstream oStr;
+
+#ifdef LL_WINDOWS
+			char* tmp_dir = getenv("TMP");
+			if(tmp_dir)
+			{
+				oStr << tmp_dir << "/llcontrol-test-" << random << "/";
+			}
+			else
+			{
+				oStr << "c:/tmp/llcontrol-test-" << random << "/";
+			}
+#else
 			oStr << "/tmp/llcontrol-test-" << random << "/";
+#endif
+
 			mTestConfigDir = oStr.str();
 			mTestConfigFile = mTestConfigDir + "settings.xml";
 			LLFile::mkdir(mTestConfigDir);
