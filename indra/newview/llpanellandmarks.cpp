@@ -89,6 +89,8 @@ BOOL LLLandmarksPanel::postBuild()
 	// mast be called before any other initXXX methods to init Gear menu
 	initListCommandsHandlers();
 
+	U32 sort_order = gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER);
+	mSortByDate = sort_order & LLInventoryFilter::SO_DATE;
 	initFavoritesInventroyPanel();
 	initLandmarksInventroyPanel();
 	initMyInventroyPanel();
@@ -227,6 +229,21 @@ LLFolderViewItem* LLLandmarksPanel::getCurSelectedItem () const
 	return mCurrentSelectedList ?  mCurrentSelectedList->getRootFolder()->getCurSelectedItem() : NULL;
 }
 
+void LLLandmarksPanel::updateSortOrder(LLInventoryPanel* panel, bool byDate)
+{
+	if(!panel) return; 
+
+	U32 order = panel->getSortOrder();
+	if (byDate)
+	{
+		panel->setSortOrder( order | LLInventoryFilter::SO_DATE );
+	}
+	else 
+	{
+		panel->setSortOrder( order & ~LLInventoryFilter::SO_DATE );
+	}
+}
+
 // virtual
 void LLLandmarksPanel::processParcelInfo(const LLParcelData& parcel_data)
 {
@@ -240,20 +257,27 @@ void LLLandmarksPanel::processParcelInfo(const LLParcelData& parcel_data)
 		LLInventoryItem* inv_item =  mCurrentSelectedList->getModel()->getItem(id);
 		if(landmark)
 		{
-			LLPanelPick* panel_pick = new LLPanelPick(TRUE);
-			LLSD params;
+			LLPanelPickEdit* panel_pick = LLPanelPickEdit::create();
 			LLVector3d landmark_global_pos;
 			landmark->getGlobalPos(landmark_global_pos);
-			panel_pick->prepareNewPick(landmark_global_pos,cur_item->getName(),inv_item->getDescription(),
-			parcel_data.snapshot_id,parcel_data.parcel_id);
-			// by default save button should be enabled
-			panel_pick->childSetEnabled("save_changes_btn", TRUE);
+
 			// let's toggle pick panel into  panel places
 			LLPanel* panel_places =  LLSideTray::getInstance()->getChild<LLPanel>("panel_places");//-> sidebar_places
 			panel_places->addChild(panel_pick);
 			LLRect paren_rect(panel_places->getRect());
 			panel_pick->reshape(paren_rect.getWidth(),paren_rect.getHeight(), TRUE);
 			panel_pick->setRect(paren_rect);
+			panel_pick->onOpen(LLSD());
+
+			LLPickData data;
+			data.pos_global = landmark_global_pos;
+			data.name = cur_item->getName();
+			data.desc = inv_item->getDescription();
+			data.snapshot_id = parcel_data.snapshot_id;
+			data.parcel_id = parcel_data.parcel_id;
+			panel_pick->setPickData(&data);
+
+			LLSD params;
 			params["parcel_id"] =parcel_data.parcel_id;
 			/* set exit callback to get back onto panel places  
 			 in callback we will make cleaning up( delete pick_panel instance, 
@@ -261,6 +285,8 @@ void LLLandmarksPanel::processParcelInfo(const LLParcelData& parcel_data)
 			*/ 
 			panel_pick->setExitCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
 					panel_pick, panel_places,params));
+			panel_pick->setSaveCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
+				panel_pick, panel_places,params));
 		}
 	}
 }
@@ -343,6 +369,7 @@ void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_lis
 	inventory_list->setSelectCallback(boost::bind(&LLLandmarksPanel::onSelectionChange, this, inventory_list, _1, _2));
 
 	inventory_list->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+	updateSortOrder(inventory_list, mSortByDate);
 
 	LLPlacesFolderView* root_folder = dynamic_cast<LLPlacesFolderView*>(inventory_list->getRootFolder());
 	if (root_folder)
@@ -552,7 +579,7 @@ void LLLandmarksPanel::onCopyPasteAction(const LLSD& userdata) const
 	}
 }
 
-void LLLandmarksPanel::onFoldingAction(const LLSD& userdata) const
+void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 {
 	if(!mCurrentSelectedList) return;
 
@@ -567,6 +594,14 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata) const
 	else if ("collapse_all" == command_name)
 	{
 		root_folder->closeAllFolders();
+	}
+	else if ( "sort_by_date" == command_name)
+	{
+		mSortByDate = !mSortByDate;
+		updateSortOrder(mFavoritesInventoryPanel, mSortByDate);
+		updateSortOrder(mLandmarksInventoryPanel, mSortByDate);
+		updateSortOrder(mMyInventoryPanel, mSortByDate);
+		updateSortOrder(mLibraryInventoryPanel, mSortByDate);
 	}
 	else
 	{
@@ -585,6 +620,22 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	{
 		return mCurrentSelectedList ? mCurrentSelectedList->getRootFolder()->canPaste() : false;
 	}
+	else if ( "sort_by_date" == command_name)
+	{
+		return  mSortByDate;
+	}
+	// do not allow teleport and more info for multi-selections
+	else if ("teleport" == command_name || "more_info" == command_name)
+	{
+		return mCurrentSelectedList ?
+			static_cast<LLPlacesFolderView*>(mCurrentSelectedList->getRootFolder())->getSelectedCount() == 1 : false;
+	}
+	// we can add folder, or change item/folder only in Landmarks Accordion
+	else if ("add_folder" == command_name || "rename" == command_name || "delete" == command_name)
+	{
+		return mLandmarksInventoryPanel == mCurrentSelectedList;
+	}
+
 	return true;
 }
 
@@ -647,7 +698,7 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
 	}
 }
 
-void LLLandmarksPanel::onPickPanelExit( LLPanelPick* pick_panel, LLView* owner, const LLSD& params)
+void LLLandmarksPanel::onPickPanelExit( LLPanelPickEdit* pick_panel, LLView* owner, const LLSD& params)
 {
 	pick_panel->setVisible(FALSE);
 	owner->removeChild(pick_panel);

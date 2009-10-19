@@ -117,24 +117,20 @@ void LLPanelProfile::onOpen(const LLSD& key)
 void LLPanelProfile::togglePanel(LLPanel* panel)
 {
 	// TRUE - we need to open/expand "panel"
-	bool expand = getChildList()->back() != panel;  // mTabCtrl->getVisible();
+	bool expand = getChildList()->front() != panel;  // mTabCtrl->getVisible();
 
 	if (expand)
 	{
-		//*NOTE on view profile panel along with tabcontainer there is 
-		// a backbutton that will be shown when there will be a panel over it even 
-		//if that panel has visible backgroud
-		setAllChildrenVisible(FALSE);
-		
-		panel->setVisible(TRUE);
 		if (panel->getParent() != this)
 		{
-			addChildInBack(panel);
+			addChild(panel);
 		}
 		else
 		{
-			sendChildToBack(panel);
+			sendChildToFront(panel);
 		}
+
+		panel->setVisible(TRUE);
 
 		LLRect new_rect = getRect();
 		panel->reshape(new_rect.getWidth(), new_rect.getHeight());
@@ -143,13 +139,12 @@ void LLPanelProfile::togglePanel(LLPanel* panel)
 	}
 	else 
 	{
-		this->setAllChildrenVisible(TRUE);
 		panel->setVisible(FALSE);
 		if (panel->getParent() == this) 
 		{
 			removeChild(panel);
 		}
-		sendChildToBack(getTabCtrl());
+
 		getTabCtrl()->getCurrentPanel()->onOpen(getAvatarId());
 	}
 }
@@ -174,3 +169,34 @@ void LLPanelProfile::setAllChildrenVisible(BOOL visible)
 	}
 }
 
+void LLPanelProfile::openPanel(LLPanel* panel, const LLSD& params)
+{
+	if (panel->getParent() != this)
+	{
+		addChild(panel);
+	}
+	else
+	{
+		sendChildToFront(panel);
+	}
+
+	panel->setVisible(TRUE);
+
+	panel->onOpen(params);
+
+	LLRect new_rect = getRect();
+	panel->reshape(new_rect.getWidth(), new_rect.getHeight());
+	new_rect.setLeftTopAndSize(0, new_rect.getHeight(), new_rect.getWidth(), new_rect.getHeight());
+	panel->setRect(new_rect);
+}
+
+void LLPanelProfile::notifyParent(const LLSD& info)
+{
+	// lets update Picks list after Pick was saved
+	if("save_new_pick" == info["action"])
+	{
+		onOpen(info);
+		return;
+	}
+	LLPanel::notifyParent(info);
+}

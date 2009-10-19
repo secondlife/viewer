@@ -567,7 +567,7 @@
      reference="White_05" />
     <color
      name="ScrollDisabledColor"
-     reference="Unused?" />
+     reference="White_25" />
     <color
      name="ScrollHighlightedColor"
      reference="Unused?" />

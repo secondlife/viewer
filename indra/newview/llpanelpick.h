@@ -45,48 +45,40 @@ class LLTextureCtrl;
 class LLMessageSystem;
 class LLAvatarPropertiesObserver;
 
-class LLPanelPick : public LLPanel, public LLAvatarPropertiesObserver, LLRemoteParcelInfoObserver
+/**
+ * Panel for displaying Pick Information - snapshot, name, description, etc.
+ */
+class LLPanelPickInfo : public LLPanel, public LLAvatarPropertiesObserver, LLRemoteParcelInfoObserver
 {
-	LOG_CLASS(LLPanelPick);
+	LOG_CLASS(LLPanelPickInfo);
 public:
-	LLPanelPick(BOOL edit_mode = FALSE);
-	/*virtual*/ ~LLPanelPick();
+	
+	// Creates new panel
+	static LLPanelPickInfo* create();
 
-	// switches the panel to the VIEW mode and resets controls
-	void reset();
+	virtual ~LLPanelPickInfo();
+
+	/**
+	 * Initializes panel properties
+	 *
+	 * By default Pick will be created for current Agent location.
+	 * Use setPickData to change Pick properties.
+	 */
+	/*virtual*/ void onOpen(const LLSD& key);
 
 	/*virtual*/ BOOL postBuild();
 
-	// Prepares a new pick, including creating an id, giving a sane
-	// initial position, etc (saved on clicking Save Pick button - onClickSave callback).
-	void prepareNewPick();
-	void prepareNewPick(const LLVector3d pos_global,
-					   const std::string& name,
-					   const std::string& desc,
-					   const LLUUID& snapshot_id,
-					   const LLUUID& parcel_id);
-
-	//initializes the panel with data of the pick with id = pick_id 
-	//owned by the avatar with id = creator_id
-	void init(LLUUID creator_id, LLUUID pick_id);
-
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
 
-	// switches the panel to either View or Edit mode
-	void setEditMode(BOOL edit_mode);
+	/**
+	 * Sets "Back" button click callback
+	 */
+	virtual void setExitCallback(const commit_callback_t& cb);
 
-	void onPickChanged(LLUICtrl* ctrl);
-
-	// because this panel works in two modes (edit/view) we are  
-	// free from managing two panel for editing and viewing picks and so
-	// are free from controlling switching between them in the parent panel (e.g. Me Profile)
-	// but that causes such a complication that we cannot set a callback for a "Back" button
-	// from the parent panel only once, so we have to preserve that callback
-	// in the pick panel and set it for the back button everytime postBuild() is called.
-	void setExitCallback(commit_callback_t cb);
-
-	static void teleport(const LLVector3d& position);
-	static void showOnMap(const LLVector3d& position);
+	/**
+	 * Sets "Edit" button click callback
+	 */
+	virtual void setEditPickCallback(const commit_callback_t& cb);
 
 	//This stuff we got from LLRemoteParcelObserver, in the last two we intentionally do nothing
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
@@ -95,63 +87,154 @@ public:
 
 protected:
 
+	LLPanelPickInfo();
+	
+	/**
+	 * Resets Pick information
+	 */
+	virtual void resetData();
+
+	/**
+	 * Resets UI controls (visibility, values)
+	 */
+	virtual void resetControls();
+
 	/** 
 	* "Location text" is actually the owner name, the original
 	* name that owner gave the parcel, and the location.
 	*/
-	static std::string createLocationText(const std::string& owner_name, const std::string& original_name,
-		const std::string& sim_name, const LLVector3d& pos_global);
+	static std::string createLocationText(
+		const std::string& owner_name, 
+		const std::string& original_name,
+		const std::string& sim_name, 
+		const LLVector3d& pos_global);
 
-	void setPickName(std::string name);
-	void setPickDesc(std::string desc);
-	void setPickLocation(const std::string& location);
+	virtual void setAvatarId(const LLUUID& avatar_id) { mAvatarId = avatar_id; }
+	virtual LLUUID& getAvatarId() { return mAvatarId; }
 
-	std::string getPickName();
-	std::string getPickDesc();
-	std::string getPickLocation();
+	/**
+	 * Sets snapshot id.
+	 *
+	 * Will mark snapshot control as valid if id is not null.
+	 * Will mark snapshot control as invalid if id is null. If null id is a valid value,
+	 * you have to manually mark snapshot is valid.
+	 */
+	virtual void setSnapshotId(const LLUUID& id);
+	
+	virtual void setPickId(const LLUUID& id) { mPickId = id; }
+	virtual LLUUID& getPickId() { return mPickId; }
+	
+	virtual void setPickName(const std::string& name);
+	
+	virtual void setPickDesc(const std::string& desc);
+	
+	virtual void setPickLocation(const std::string& location);
+	
+	virtual void setPosGlobal(const LLVector3d& pos) { mPosGlobal = pos; }
+	virtual LLVector3d& getPosGlobal() { return mPosGlobal; }
 
-	void sendUpdate();
-	void requestData();
-
-	void init(LLPickData *pick_data);
-
-	void updateButtons();
-
-	//-----------------------------------------
-	// "PICK INFO" (VIEW MODE) BUTTON HANDLERS
-	//-----------------------------------------
-	void onClickEdit();
-	void onClickTeleport();
+	/**
+	 * Callback for "Map" button, opens Map
+	 */
 	void onClickMap();
 
-	//-----------------------------------------
-	// "EDIT PICK" (EDIT MODE) BUTTON HANDLERS
-	//-----------------------------------------
-	void onClickSet();
-	void onClickSave();
-	void onClickCancel();
+	/**
+	 * Callback for "Teleport" button, teleports user to Pick location.
+	 */
+	void onClickTeleport();
 
-	void enableSaveButton(bool enable);
+	void onClickBack();
 
 protected:
-	BOOL mEditMode;
-	LLTextureCtrl*	mSnapshotCtrl;
-	BOOL mDataReceived;
-	bool mIsPickNew;
 
-	LLUUID mPickId;
-	LLUUID mCreatorId;
+	LLTextureCtrl* mSnapshotCtrl;
+
+	LLUUID mAvatarId;
 	LLVector3d mPosGlobal;
 	LLUUID mParcelId;
+	LLUUID mPickId;
 	std::string mSimName;
-
-	//These strings are used to keep non-wrapped text
-	std::string mName;
-	std::string mDesc;
 	std::string mLocation;
+};
 
-	commit_callback_t mBackCb;
+/**
+ * Panel for creating/editing Pick.
+ */
+class LLPanelPickEdit : public LLPanelPickInfo
+{
+	LOG_CLASS(LLPanelPickEdit);
+public:
+
+	/**
+	 * Creates new panel
+	 */
+	static LLPanelPickEdit* create();
+
+	/*virtual*/ ~LLPanelPickEdit();
+
+	/*virtual*/ void onOpen(const LLSD& key);
+
+	virtual void setPickData(const LLPickData* pick_data);
+
+	/*virtual*/ BOOL postBuild();
+
+	/**
+	 * Sets "Save" button click callback
+	 */
+	virtual void setSaveCallback(const commit_callback_t& cb);
+
+	/**
+	 * Sets "Cancel" button click callback
+	 */
+	virtual void setCancelCallback(const commit_callback_t& cb);
+
+	/**
+	 * Resets panel and all cantrols to unedited state
+	 */
+	/*virtual*/ void resetDirty();
+
+	/**
+	 * Returns true if any of Pick properties was changed by user.
+	 */
+	/*virtual*/ BOOL isDirty() const;
+
+	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+
+protected:
+
+	LLPanelPickEdit();
+
+	/**
+	 * Sends Pick properties to server.
+	 */
+	void sendUpdate();
+
+	/**
+	 * Callback for Pick snapshot, name and description changed event.
+	 */
+	void onPickChanged(LLUICtrl* ctrl);
+
+	/*virtual*/ void resetData();
+
+	/**
+	 * Enables/disables "Save" button
+	 */
+	void enableSaveButton(bool enable);
+
+	/**
+	 * Callback for "Set Location" button click
+	 */
+	void onClickSetLocation();
+
+	/**
+	 * Callback for "Save" button click
+	 */
+	void onClickSave();
+
+protected:
+
 	bool mLocationChanged;
+	bool mNeedData;
 };
 
 #endif // LL_LLPANELPICK_H

@@ -221,7 +221,8 @@ LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 		mTeleportHistory(NULL),
 		mHistoryAccordion(NULL),
 		mAccordionTabMenu(NULL),
-		mLastSelectedScrollList(NULL)
+		mLastSelectedFlatlList(NULL),
+		mLastSelectedItemIndex(-1)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_teleport_history.xml");
 }
@@ -236,7 +237,7 @@ BOOL LLTeleportHistoryPanel::postBuild()
 	mTeleportHistory = LLTeleportHistoryStorage::getInstance();
 	if (mTeleportHistory)
 	{
-		mTeleportHistory->setHistoryChangedCallback(boost::bind(&LLTeleportHistoryPanel::showTeleportHistory, this));
+		mTeleportHistory->setHistoryChangedCallback(boost::bind(&LLTeleportHistoryPanel::onTeleportHistoryChange, this));
 	}
 
 	mHistoryAccordion = getChild<LLAccordionCtrl>("history_accordion");
@@ -308,10 +309,10 @@ void LLTeleportHistoryPanel::onSearchEdit(const std::string& string)
 // virtual
 void LLTeleportHistoryPanel::onShowOnMap()
 {
-	if (!mLastSelectedScrollList)
+	if (!mLastSelectedFlatlList)
 		return;
 
-	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedScrollList->getSelectedItem());
+	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedFlatlList->getSelectedItem());
 
 	if(!itemp)
 		return;
@@ -328,10 +329,10 @@ void LLTeleportHistoryPanel::onShowOnMap()
 // virtual
 void LLTeleportHistoryPanel::onTeleport()
 {
-	if (!mLastSelectedScrollList)
+	if (!mLastSelectedFlatlList)
 		return;
 
-	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedScrollList->getSelectedItem());
+	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedFlatlList->getSelectedItem());
 	if(!itemp)
 		return;
 
@@ -369,14 +370,14 @@ void LLTeleportHistoryPanel::updateVerbs()
 	if (!isTabVisible())
 		return;
 
-	if (!mLastSelectedScrollList)
+	if (!mLastSelectedFlatlList)
 	{
 		mTeleportBtn->setEnabled(false);
 		mShowOnMapBtn->setEnabled(false);
 		return;
 	}
 
-	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedScrollList->getSelectedItem());
+	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedFlatlList->getSelectedItem());
 
 	mTeleportBtn->setEnabled(NULL != itemp && itemp->getIndex() < (S32)mTeleportHistory->getItems().size() - 1);
 	mShowOnMapBtn->setEnabled(NULL != itemp);
@@ -480,8 +481,14 @@ void LLTeleportHistoryPanel::refresh()
 		}
 
 		if (curr_flat_view)
-			curr_flat_view->addItem(new LLTeleportHistoryFlatItem(mCurrentItem, &mContextMenu, items[mCurrentItem].mTitle));
+		{
+			LLTeleportHistoryFlatItem* item = new LLTeleportHistoryFlatItem(mCurrentItem, &mContextMenu, items[mCurrentItem].mTitle);
+			curr_flat_view->addItem(item);
 
+			if (mLastSelectedItemIndex == mCurrentItem)
+				curr_flat_view->selectItem(item, true);
+		}
+			
 		mCurrentItem--;
 
 		if (++added_items >= ADD_LIMIT)
@@ -494,6 +501,12 @@ void LLTeleportHistoryPanel::refresh()
 
 	if (mCurrentItem < 0)
 		mDirty = false;
+}
+
+void LLTeleportHistoryPanel::onTeleportHistoryChange()
+{
+	mLastSelectedItemIndex = -1;
+	showTeleportHistory();
 }
 
 void LLTeleportHistoryPanel::showTeleportHistory()
@@ -516,7 +529,10 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 
 void LLTeleportHistoryPanel::handleItemSelect(LLFlatListView* selected)
 {
-	mLastSelectedScrollList = selected;
+	mLastSelectedFlatlList = selected;
+	LLTeleportHistoryFlatItem* item = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedFlatlList->getSelectedItem());
+	if (item)
+		mLastSelectedItemIndex = item->getIndex();
 
 	S32 tabs_cnt = mItemContainers.size();
 
@@ -633,8 +649,6 @@ bool LLTeleportHistoryPanel::onClearTeleportHistoryDialog(const LLSD& notificati
 		LLTeleportHistoryStorage *th = LLTeleportHistoryStorage::getInstance();
 		th->purgeItems();
 		th->save();
-
-		showTeleportHistory();
 	}
 
 	return false;

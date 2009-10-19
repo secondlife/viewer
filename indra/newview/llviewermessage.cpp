@@ -95,6 +95,7 @@
 #include "llmenugl.h"
 #include "llmoveview.h"
 #include "llmutelist.h"
+#include "llnearbychat.h"
 #include "llnotifications.h"
 #include "llnotify.h"
 #include "llpanelgrouplandmoney.h"
@@ -1986,6 +1987,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// IMs from objcts don't open IM sessions.
 			chat.mSourceType = CHAT_SOURCE_OBJECT;
 			LLFloaterChat::addChat(chat, FALSE, FALSE);
+
+			// archive message in nearby chat
+			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+			if(nearby_chat)
+				nearby_chat->addMessage(chat);
+
 		}
 		break;
 	case IM_FROM_TASK_AS_ALERT:

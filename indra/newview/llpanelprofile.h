@@ -53,6 +53,10 @@ public:
 
 	virtual void togglePanel(LLPanel*);
 
+	virtual void openPanel(LLPanel* panel, const LLSD& params);
+
+	void notifyParent(const LLSD& info);
+
 protected:
 
 	LLPanelProfile();

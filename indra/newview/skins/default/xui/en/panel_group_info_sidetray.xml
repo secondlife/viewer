@@ -20,6 +20,10 @@
      name="group_join_btn">
         Join (L$[AMOUNT])
     </panel.string>
+    <panel.string
+     name="group_join_free">
+        Free
+    </panel.string>
     <button
      layout="topleft"
      name="back"
@@ -87,16 +91,28 @@
      top_pad="10"
      use_ellipses="true"
      width="140" />
+    <text
+     type="string"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="join_cost_text"
+     top_pad="10"
+     visible="true"
+     width="140">
+      Free
+    </text>
     <button
      follows="left|top"
      left_delta="0"
      top_pad="10"
      height="20"
-     label="Join"
-     label_selected="Join"
+     label="Join now!"
+     label_selected="Join now!"
      name="btn_join"
      visible="true"
-     width="65" />
+     width="85" />
     <button
      top="632"
      height="20"

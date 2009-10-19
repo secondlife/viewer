@@ -908,7 +908,7 @@ void LLPanelPlaceInfo::createLandmark(const LLUUID& folder_id)
 		folder_id.notNull() ? folder_id : gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK));
 }
 
-void LLPanelPlaceInfo::createPick(const LLVector3d& pos_global, LLPanelPick* pick_panel)
+void LLPanelPlaceInfo::createPick(const LLVector3d& pos_global, LLPanelPickEdit* pick_panel)
 {
 	std::string name = mParcelName->getText();
 	if (name.empty())
@@ -916,11 +916,13 @@ void LLPanelPlaceInfo::createPick(const LLVector3d& pos_global, LLPanelPick* pic
 		name = mRegionName->getText();
 	}
 
-	pick_panel->prepareNewPick(pos_global,
-							  name,
-							  mDescEditor->getText(),
-							  mSnapshotCtrl->getImageAssetID(),
-							  mParcelID);
+	LLPickData data;
+	data.pos_global = pos_global;
+	data.name = name;
+	data.desc = mDescEditor->getText();
+	data.snapshot_id = mSnapshotCtrl->getImageAssetID();
+	data.parcel_id = mParcelID;
+	pick_panel->setPickData(&data);
 }
 
 // virtual

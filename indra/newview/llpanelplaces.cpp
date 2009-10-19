@@ -635,20 +635,21 @@ void LLPanelPlaces::onOverflowMenuItemClicked(const LLSD& param)
 
 		if (mPickPanel == NULL)
 		{
-			mPickPanel = new LLPanelPick();
+			mPickPanel = LLPanelPickEdit::create();
 			addChild(mPickPanel);
 
 			mPickPanel->setExitCallback(boost::bind(&LLPanelPlaces::togglePickPanel, this, FALSE));
+			mPickPanel->setCancelCallback(boost::bind(&LLPanelPlaces::togglePickPanel, this, FALSE));
+			mPickPanel->setSaveCallback(boost::bind(&LLPanelPlaces::togglePickPanel, this, FALSE));
 		}
 
 		togglePickPanel(TRUE);
+		mPickPanel->onOpen(LLSD());
+		mPlaceInfo->createPick(mPosGlobal, mPickPanel);
 
 		LLRect rect = getRect();
 		mPickPanel->reshape(rect.getWidth(), rect.getHeight());
 		mPickPanel->setRect(rect);
-		mPickPanel->setEditMode(TRUE);
-
-		mPlaceInfo->createPick(mPosGlobal, mPickPanel);
 	}
     else if (item == "add_to_favbar")
     {

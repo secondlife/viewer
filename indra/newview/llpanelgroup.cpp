@@ -309,18 +309,31 @@ void LLPanelGroup::update(LLGroupChange gc)
 	{
 		childSetValue("group_name", gdatap->mName);
 
+		LLButton* btn_join = getChild<LLButton>("btn_join");
+		LLUICtrl* join_text = getChild<LLUICtrl>("join_cost_text");
+
 		LLGroupData agent_gdatap;
 		bool is_member = gAgent.getGroupData(mID,agent_gdatap);
-		LLButton* btn_join = getChild<LLButton>("btn_join");
 		bool join_btn_visible = !is_member && gdatap->mOpenEnrollment;
+		
 		btn_join->setVisible(join_btn_visible);
+		join_text->setVisible(join_btn_visible);
+
 		if(join_btn_visible)
 		{
 			LLStringUtil::format_map_t string_args;
-			string_args["[AMOUNT]"] = llformat("%d", gdatap->mMembershipFee);
-			std::string fee_buff = getString("group_join_btn", string_args);
-			btn_join->setLabelSelected(fee_buff);
-			btn_join->setLabelUnselected(fee_buff);
+			std::string fee_buff;
+			if(gdatap->mMembershipFee)
+			{
+				string_args["[AMOUNT]"] = llformat("%d", gdatap->mMembershipFee);
+				fee_buff = getString("group_join_btn", string_args);
+				
+			}
+			else
+			{
+				fee_buff = getString("group_join_free", string_args);
+			}
+			childSetValue("join_cost_text",fee_buff);
 		}
 	}
 }

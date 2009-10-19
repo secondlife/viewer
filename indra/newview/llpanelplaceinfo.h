@@ -45,7 +45,7 @@ class LLButton;
 class LLComboBox;
 class LLInventoryItem;
 class LLLineEditor;
-class LLPanelPick;
+class LLPanelPickEdit;
 class LLParcel;
 class LLIconCtrl;
 class LLTextBox;
@@ -89,7 +89,7 @@ public:
 	
 	// Create a pick for the location specified
 	// by global_pos.
-	void createPick(const LLVector3d& pos_global, LLPanelPick* pick_panel);
+	void createPick(const LLVector3d& pos_global, LLPanelPickEdit* pick_panel);
 
 	BOOL isMediaPanelVisible();
 	void toggleMediaPanel(BOOL visible);

@@ -57,6 +57,13 @@ public:
 	class Updater;
 
 private:
+
+	typedef enum e_sort_oder {
+		E_SORT_BY_NAME = 0,
+		E_SORT_BY_STATUS = 1,
+		E_SORT_BY_MOST_RECENT = 2,
+	} ESortOrder;
+
 	// methods indirectly called by the updaters
 	void					updateFriendList();
 	void					updateNearbyList();
@@ -69,6 +76,7 @@ private:
 	void					buttonSetEnabled(const std::string& btn_name, bool enabled);
 	void					buttonSetAction(const std::string& btn_name, const commit_signal_t::slot_type& cb);
 	void					showGroupMenu(LLMenuGL* menu);
+	void					setSortOrder(LLAvatarList* list, ESortOrder order, bool save = true);
 
 	void					onVisibilityChange( const LLSD& new_visibility);
 
@@ -103,6 +111,9 @@ private:
 	void					onNearbyViewSortMenuItemClicked(const LLSD& userdata);
 	void					onGroupsViewSortMenuItemClicked(const LLSD& userdata);
 	void					onRecentViewSortMenuItemClicked(const LLSD& userdata);
+
+	bool					onFriendsViewSortMenuItemCheck(const LLSD& userdata);
+	bool					onRecentViewSortMenuItemCheck(const LLSD& userdata);
 
 	// misc callbacks
 	static void				onAvatarPicked(

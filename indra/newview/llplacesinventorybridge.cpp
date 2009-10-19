@@ -79,13 +79,8 @@ void LLPlacesLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		fill_items_with_menu_items(items, menu);
 
-		// Disable "Landmark More Information" menu item for
-		// multiple landmarks selected. Only one landmark
-		// info panel can be shown at a time.
-		if ((flags & FIRST_SELECTED_ITEM) == 0)
-		{
-			disabled_items.push_back(std::string("more_info"));
-		}
+		// Disabled items are processed via LLLandmarksPanel::isActionEnabled()
+		// they should be synchronized with Places/My Landmarks/Gear menu. See EXT-1601 
 	}
 
 	hideContextEntries(menu, items, disabled_items);
@@ -101,13 +96,10 @@ void LLPlacesFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		LLInventoryPanel* inv_panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
 		bool is_open = false;
-		bool disable_changing = true;
 		if (inv_panel)
 		{
 			LLFolderViewFolder* folder = dynamic_cast<LLFolderViewFolder*>(inv_panel->getRootFolder()->getItemByID(mUUID));
 			is_open = (NULL != folder) && folder->isOpen();
-
-			disable_changing = !is_landmarks_panel(inv_panel);
 		}
 
 		// collect all items' names
@@ -118,12 +110,8 @@ void LLPlacesFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		std::vector<std::string>::iterator it = std::find(items.begin(), items.end(), collapse_expand_item_to_hide);
 		if (it != items.end())	items.erase(it);
 
-		if (disable_changing)
-		{
-			disabled_items.push_back(std::string("add_folder"));
-			disabled_items.push_back(std::string("rename"));
-			disabled_items.push_back(std::string("delete"));
-		}
+		// Disabled items are processed via LLLandmarksPanel::isActionEnabled()
+		// they should be synchronized with Places/My Landmarks/Gear menu. See EXT-1601 
 
 		// repeat parent functionality
  		sSelf = this; // necessary for "New Folder" functionality

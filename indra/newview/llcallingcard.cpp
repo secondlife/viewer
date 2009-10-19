@@ -726,10 +726,11 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 				if (!notifyMsg.empty())
 				{
 					floater->addHistoryLine(notifyMsg,LLUIColorTable::instance().getColor("SystemChatColor"));
-
-					LLIMModel::getInstance()->addMessage(session_id, SYSTEM_FROM, LLUUID::null, notifyMsg);
 				}
 			}
+
+			//*TODO instead of adding IM message about online/offline status
+			//do something like graying avatar icon on messages from a user that went offline, and  make it colored when online.
 		}
 
 		mModifyMask |= LLFriendObserver::ONLINE;

@@ -87,7 +87,39 @@ protected:
 	}
 };
 
+/** Compares avatar items by online status, then by name */
+class LLAvatarItemStatusComparator : public LLAvatarItemComparator
+{
+public:
+	LLAvatarItemStatusComparator() {};
+
+protected:
+	/**
+	 * @return true if item1 < item2, false otherwise
+	 */
+	virtual bool doCompare(const LLAvatarListItem* item1, const LLAvatarListItem* item2) const
+	{
+		LLAvatarTracker& at = LLAvatarTracker::instance();
+		bool online1 = at.isBuddyOnline(item1->getAvatarId());
+		bool online2 = at.isBuddyOnline(item2->getAvatarId());
+
+		if (online1 == online2)
+		{
+			std::string name1 = item1->getAvatarName();
+			std::string name2 = item2->getAvatarName();
+
+			LLStringUtil::toUpper(name1);
+			LLStringUtil::toUpper(name2);
+
+			return name1 < name2;
+		}
+		
+		return online1 > online2; 
+	}
+};
+
 static const LLAvatarItemRecentComparator RECENT_COMPARATOR;
+static const LLAvatarItemStatusComparator STATUS_COMPARATOR;
 
 static LLRegisterPanelClassWrapper<LLPanelPeople> t_people("panel_people");
 
@@ -395,7 +427,8 @@ BOOL LLPanelPeople::postBuild()
 	mNearbyList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	mRecentList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 
-	mRecentList->setComparator(&RECENT_COMPARATOR);
+	setSortOrder(mRecentList,		(ESortOrder)gSavedSettings.getU32("RecentPeopleSortOrder"),	false);
+	setSortOrder(mAllFriendList,	(ESortOrder)gSavedSettings.getU32("FriendsSortOrder"),		false);
 
 	LLPanel* groups_panel = getChild<LLPanel>(GROUP_TAB_NAME);
 	groups_panel->childSetAction("activate_btn", boost::bind(&LLPanelPeople::onActivateButtonClicked,	this));
@@ -446,12 +479,16 @@ BOOL LLPanelPeople::postBuild()
 
 	// Create menus.
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 	
 	registrar.add("People.Group.Plus.Action",  boost::bind(&LLPanelPeople::onGroupPlusMenuItemClicked,  this, _2));
 	registrar.add("People.Friends.ViewSort.Action",  boost::bind(&LLPanelPeople::onFriendsViewSortMenuItemClicked,  this, _2));
 	registrar.add("People.Nearby.ViewSort.Action",  boost::bind(&LLPanelPeople::onNearbyViewSortMenuItemClicked,  this, _2));
 	registrar.add("People.Groups.ViewSort.Action",  boost::bind(&LLPanelPeople::onGroupsViewSortMenuItemClicked,  this, _2));
 	registrar.add("People.Recent.ViewSort.Action",  boost::bind(&LLPanelPeople::onRecentViewSortMenuItemClicked,  this, _2));
+
+	enable_registrar.add("People.Friends.ViewSort.CheckItem",	boost::bind(&LLPanelPeople::onFriendsViewSortMenuItemCheck,	this, _2));
+	enable_registrar.add("People.Recent.ViewSort.CheckItem",	boost::bind(&LLPanelPeople::onRecentViewSortMenuItemCheck,	this, _2));
 	
 	LLMenuGL* plus_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_group_plus.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGroupPlusMenuHandle  = plus_menu->getHandle();
@@ -672,6 +709,42 @@ void LLPanelPeople::showGroupMenu(LLMenuGL* menu)
 	LLMenuGL::showPopup(parent_panel, menu, menu_x, menu_y);
 }
 
+void LLPanelPeople::setSortOrder(LLAvatarList* list, ESortOrder order, bool save)
+{
+	switch (order)
+	{
+	case E_SORT_BY_NAME:
+		list->sortByName();
+		break;
+	case E_SORT_BY_STATUS:
+		list->setComparator(&STATUS_COMPARATOR);
+		list->sort();
+		break;
+	case E_SORT_BY_MOST_RECENT:
+		list->setComparator(&RECENT_COMPARATOR);
+		list->sort();
+		break;
+	default:
+		llwarns << "Unrecognized people sort order for " << list->getName() << llendl;
+		return;
+	}
+
+	if (save)
+	{
+		std::string setting;
+
+		if (list == mAllFriendList || list == mOnlineFriendList)
+			setting = "FriendsSortOrder";
+		else if (list == mRecentList)
+			setting = "RecentPeopleSortOrder";
+		else if (list == mNearbyList)
+			setting = "NearbyPeopleSortOrder"; // *TODO: unused by current implementation
+
+		if (!setting.empty())
+			gSavedSettings.setU32(setting, order);
+	}
+}
+
 void LLPanelPeople::onVisibilityChange(const LLSD& new_visibility)
 {
 	if (new_visibility.asBoolean() == FALSE)
@@ -854,9 +927,11 @@ void LLPanelPeople::onFriendsViewSortMenuItemClicked(const LLSD& userdata)
 
 	if (chosen_item == "sort_name")
 	{
+		setSortOrder(mAllFriendList, E_SORT_BY_NAME);
 	}
 	else if (chosen_item == "sort_status")
 	{
+		setSortOrder(mAllFriendList, E_SORT_BY_STATUS);
 	}
 	else if (chosen_item == "view_icons")
 	{
@@ -900,16 +975,42 @@ void LLPanelPeople::onRecentViewSortMenuItemClicked(const LLSD& userdata)
 
 	if (chosen_item == "sort_recent")
 	{
-		mRecentList->setComparator(&RECENT_COMPARATOR);
-		mRecentList->sort();
+		setSortOrder(mRecentList, E_SORT_BY_MOST_RECENT);
 	} 
 	else if (chosen_item == "sort_name")
 	{
-		mRecentList->sortByName();
+		setSortOrder(mRecentList, E_SORT_BY_NAME);
 	}
 	else if (chosen_item == "view_icons")
 	{
+		// *TODO: implement showing/hiding icons
 	}
+}
+
+bool LLPanelPeople::onFriendsViewSortMenuItemCheck(const LLSD& userdata) 
+{
+	std::string item = userdata.asString();
+	U32 sort_order = gSavedSettings.getU32("FriendsSortOrder");
+
+	if (item == "sort_name") 
+		return sort_order == E_SORT_BY_NAME;
+	if (item == "sort_status")
+		return sort_order == E_SORT_BY_STATUS;
+
+	return false;
+}
+
+bool LLPanelPeople::onRecentViewSortMenuItemCheck(const LLSD& userdata) 
+{
+	std::string item = userdata.asString();
+	U32 sort_order = gSavedSettings.getU32("RecentPeopleSortOrder");
+
+	if (item == "sort_recent")
+		return sort_order == E_SORT_BY_MOST_RECENT;
+	if (item == "sort_name") 
+		return sort_order == E_SORT_BY_NAME;
+
+	return false;
 }
 
 void LLPanelPeople::onCallButtonClicked()

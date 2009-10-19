@@ -37,7 +37,7 @@
 class LLInventoryItem;
 class LLFilterEditor;
 class LLLandmark;
-class LLPanelPick;
+class LLPanelPickEdit;
 class LLPanelPlaceInfo;
 class LLPanelPlacesTab;
 class LLParcelSelection;
@@ -91,7 +91,7 @@ private:
 	LLPanelPlacesTab*			mActivePanel;
 	LLTabContainer*				mTabContainer;
 	LLPanelPlaceInfo*			mPlaceInfo;
-	LLPanelPick*				mPickPanel;
+	LLPanelPickEdit*			mPickPanel;
 	LLToggleableMenu*			mPlaceMenu;
 	LLToggleableMenu*			mLandmarkMenu;
 

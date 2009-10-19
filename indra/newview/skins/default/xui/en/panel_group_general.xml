@@ -24,20 +24,6 @@ Hover your mouse over the options for more help.
      name="incomplete_member_data_str">
         Retrieving member data
     </panel.string>
-    <panel.string
-     name="group_join_btn">
-        Join (L$[AMOUNT])
-    </panel.string>
-    <!--<button
-     follows="left|top"
-     height="16"
-     label="?"
-     label_selected="?"
-     layout="topleft"
-     left="255"
-     name="help_button"
-     top="8"
-     width="20" /> -->
     <text_editor
      type="string"
      follows="left|top"

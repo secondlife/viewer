@@ -68,6 +68,7 @@ protected:
 	bool isLandmarkSelected() const;
 	LLLandmark* getCurSelectedLandmark() const;
 	LLFolderViewItem* getCurSelectedItem () const;
+	void updateSortOrder(LLInventoryPanel* panel, bool byDate);
 
 	//LLRemoteParcelInfoObserver interface
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
@@ -93,10 +94,10 @@ private:
 	void onTrashButtonClick() const;
 	void onAddAction(const LLSD& command_name) const;
 	void onCopyPasteAction(const LLSD& command_name) const;
-	void onFoldingAction(const LLSD& command_name) const;
+	void onFoldingAction(const LLSD& command_name);
 	bool isActionEnabled(const LLSD& command_name) const;
 	void onCustomAction(const LLSD& command_name);
-	void onPickPanelExit( LLPanelPick* pick_panel, LLView* owner, const LLSD& params);
+	void onPickPanelExit( LLPanelPickEdit* pick_panel, LLView* owner, const LLSD& params);
 
 private:
 	LLInventorySubTreePanel*	mFavoritesInventoryPanel;
@@ -108,6 +109,7 @@ private:
 	LLInventorySubTreePanel*	mCurrentSelectedList;
 
 	LLPanel*					mListCommands;
+	bool 						mSortByDate;
 };
 
 #endif //LL_LLPANELLANDMARKS_H

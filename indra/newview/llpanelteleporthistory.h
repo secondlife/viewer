@@ -90,6 +90,7 @@ private:
 
 	void refresh();
 	void getNextTab(const LLDate& item_date, S32& curr_tab, LLDate& tab_date);
+	void onTeleportHistoryChange();
 	void showTeleportHistory();
 	void handleItemSelect(LLFlatListView* );
 	LLFlatListView* getFlatListViewFromTab(LLAccordionCtrlTab *);
@@ -98,7 +99,8 @@ private:
 	LLTeleportHistoryStorage*	mTeleportHistory;
 	LLAccordionCtrl*		mHistoryAccordion;
 
-	LLFlatListView*			mLastSelectedScrollList;
+	LLFlatListView*			mLastSelectedFlatlList;
+	S32				mLastSelectedItemIndex;
 	bool				mDirty;
 	S32				mCurrentItem;
 	std::string				mFilterSubString;

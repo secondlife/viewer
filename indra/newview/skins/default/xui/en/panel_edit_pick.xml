@@ -2,6 +2,7 @@
 <panel
  background_visible="true"
  bevel_style="in"
+ follows="left|top|right|bottom"
  height="570"
  label="Edit Pick"
  layout="topleft"
@@ -43,7 +44,7 @@
      left="10"
      top_pad="10"
      name="profile_scroll"
-     reserve_scroll_corner="true"
+     reserve_scroll_corner="false"
      opaque="true"
      width="313">
     <panel
