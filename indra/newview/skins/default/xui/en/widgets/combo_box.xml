@@ -15,7 +15,7 @@
                               label=""
                               hover_glow_amount="0.15"
                               font="SansSerifSmall"
-                              scale_image="false"
+                              scale_image="true"
                               pad_right="24"
                               image_unselected="DropDown_Off"
                               image_selected="DropDown_Selected"
