@@ -180,7 +180,7 @@ regions in the estate.
      layout="topleft"
      left_delta="0"
      name="limit_payment"
-     tool_tip="Ban unidentified residents."
+     tool_tip="Ban unidentified residents"
      top_pad="2"
      width="278" />
     <check_box

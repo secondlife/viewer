@@ -61,7 +61,7 @@
          height="16"
          layout="topleft"
          left="10"
-         tool_tip="Grid Opacity"
+         tool_tip="Grid opacity"
          name="grid_opacity_label"
          top_pad="5"
          width="128">

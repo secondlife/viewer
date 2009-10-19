@@ -46,7 +46,7 @@
   <combo_button name="Location History"
                           label=""
                           pad_right="0"
-                          tool_tip="My Location History"/>
+                          tool_tip="My location history"/>
   <combo_list bg_writeable_color="MenuDefaultBgColor" page_lines="10"
               scroll_bar_bg_visible="true" />
   <combo_editor name="Combo Text Entry"

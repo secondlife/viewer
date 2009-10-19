@@ -57,7 +57,7 @@
          name="turn left btn"
          picture_style="true"
          scale_image="false"
-         tool_tip="Turn Left (press Left Arrow or A)"
+         tool_tip="Turn left (press Left Arrow or A)"
          top="45"
          width="25" />
         <button
@@ -71,7 +71,7 @@
          name="turn right btn"
          picture_style="true"
          scale_image="false"
-         tool_tip="Turn Right (press Right Arrow or D)"
+         tool_tip="Turn right (press Right Arrow or D)"
          top_delta="0"
          width="25" />
         <button
@@ -85,7 +85,7 @@
          name="move up btn"
          picture_style="true"
          scale_image="false"
-         tool_tip="Fly Up, Press &quot;E&quot;"
+         tool_tip="Fly up, press &quot;E&quot;"
          top="14"
          width="25" />
         <button
@@ -99,7 +99,7 @@
          name="move down btn"
          picture_style="true"
          scale_image="false"
-         tool_tip="Fly Down, Press &quot;C&quot;"
+         tool_tip="Fly down, press &quot;C&quot;"
          top_delta="0"
          width="20" />
         <joystick_turn
@@ -114,7 +114,7 @@
          picture_style="true"
          quadrant="up"
          scale_image="false"
-         tool_tip="Walk Forward (press Up Arrow or W)"
+         tool_tip="Walk forward (press up arrow or W)"
          top_delta="10"
          width="21" />
         <joystick_turn
@@ -129,7 +129,7 @@
          picture_style="true"
          quadrant="down"
          scale_image="false"
-         tool_tip="Walk Backward (press Down Arrow or S)"
+         tool_tip="Walk backward (press down arrow or S)"
          top_delta="30"
          width="21" />
     </panel>
@@ -152,7 +152,7 @@
          name="mode_walk_btn"
          left="10"
          pad_right="0"
-         tool_tip="Walking Mode"
+         tool_tip="Walking mode"
          top="2"
          width="31" />
         <button
@@ -167,7 +167,7 @@
          name="mode_run_btn"
          pad_left="0"
          pad_right="0"
-         tool_tip="Running Mode"
+         tool_tip="Running mode"
          top="2"
          width="31" />
         <button
@@ -181,7 +181,7 @@
          name="mode_fly_btn"
          pad_left="0"
          pad_right="0"
-         tool_tip="Flying Mode"
+         tool_tip="Flying mode"
          top="2"
          width="31" />
         <button
@@ -192,7 +192,7 @@
          layout="topleft"
          left="0"
          name="stop_fly_btn"
-         tool_tip="Stop Flying"
+         tool_tip="Stop flying"
          top="2"
          width="115" />
     </panel>

@@ -37,7 +37,7 @@
         layout="topleft"
         left_pad="10"
         name="Color/Tint"
-        tool_tip="Click to open Color Picker"
+        tool_tip="Click to open color picker"
         top="10"
         width="64" />
 	 </panel>

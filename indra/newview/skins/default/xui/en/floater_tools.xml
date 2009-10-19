@@ -321,7 +321,7 @@
      label_selected="Options"
      layout="topleft"
      name="Options..."
-     tool_tip="Grid Options"
+     tool_tip="Grid options"
      top_delta="0"
      right="-10"
      width="18"
@@ -714,7 +714,7 @@
      layout="topleft"
      left="135"
      name="button apply to selection"
-     tool_tip="Modify Selected Land"
+     tool_tip="Modify selected land"
      width="78">
 	  <button.commit_callback
 	     function="BuildTool.applyToSelection"/>
@@ -946,7 +946,7 @@
              name="button deed"
              top_pad="0"
              left="100"
-             tool_tip="Deeding gives this item away with Next owner permissions. Group shared objects can be deeded by a group officer."
+             tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."
              width="80" />
             <check_box
              height="19"
@@ -1244,7 +1244,7 @@
              label="Temporary"
              layout="topleft"
              name="Temporary Checkbox Ctrl"
-             tool_tip="Causes object to be deleted 1 minute after creation."
+             tool_tip="Causes object to be deleted 1 minute after creation"
              top_pad="0"
              width="123" />
             <check_box
@@ -1941,7 +1941,7 @@
              layout="topleft"
              left_delta="0"
              name="sculpt mirror control"
-             tool_tip="Flips sculpted prim along the X axis."
+             tool_tip="Flips sculpted prim along the X axis"
              top_pad="8"
              visible="false"
              width="130" />
@@ -1951,7 +1951,7 @@
              layout="topleft"
              left_delta="0"
              name="sculpt invert control"
-             tool_tip="Inverts the sculpted prims normals, making it appear inside-out."
+             tool_tip="Inverts the sculpted prims normals, making it appear inside-out"
              top_pad="4"
              visible="false"
              width="121" />
@@ -2041,7 +2041,7 @@
              layout="topleft"
              left="10"
              name="Flexible1D Checkbox Ctrl"
-             tool_tip="Allows object to flex about the Z axis. (Client-side only)"
+             tool_tip="Allows object to flex about the Z axis (Client-side only)"
              top_pad="10"
              width="121" />
             <spinner
@@ -2173,7 +2173,7 @@
              left_pad="10"
              top_pad="-17"
              name="colorswatch"
-             tool_tip="Click to open Color Picker"
+             tool_tip="Click to open color picker"
              width="40" />
          <texture_picker
             allow_no_texture="true"
@@ -2278,7 +2278,7 @@
              layout="topleft"
              left_pad="15"
              name="colorswatch"
-             tool_tip="Click to open Color Picker"
+             tool_tip="Click to open color picker"
              top_delta="0"
              width="64" />
             <text
@@ -2699,7 +2699,7 @@
             picture_style="true"
             tab_stop="false"
             top_delta="0"
-            tool_tip="Add Media"
+            tool_tip="Add media"
             width="18">
             <button.commit_callback
 		function="BuildTool.AddMedia"/>
@@ -2733,7 +2733,7 @@
              width="100" />
               <button
                follows="bottom|left"
-               tool_tip="Change sort and view of Recent Residents list"
+               tool_tip="Change sort and view of recent residents list"
                height="18"
                image_disabled="OptionsMenu_Disabled"
                image_selected="OptionsMenu_Press"

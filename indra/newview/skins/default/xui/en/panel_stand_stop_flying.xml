@@ -23,7 +23,7 @@
      label="Stop Flying"
      layout="topleft"
      name="stop_fly_btn"
-     tool_tip="Stop Flying"
+     tool_tip="Stop flying"
      top="2"
      visible="false"
      width="115" />

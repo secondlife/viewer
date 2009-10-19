@@ -116,7 +116,7 @@ Hover your mouse over the options for more help.
          layout="topleft"
          left_delta="0"
          name="list_groups_in_profile"
-         tool_tip="Sets whether you want to show this group in your Profile"
+         tool_tip="Sets whether you want to show this group in your profile"
          top_pad="5"
          width="240" />
         <panel
@@ -147,7 +147,7 @@ Hover your mouse over the options for more help.
          layout="topleft"
          left_delta="0"
          name="check_enrollment_fee"
-         tool_tip="Sets whether to require an enrollment fee to join the group."
+         tool_tip="Sets whether to require an enrollment fee to join the group"
          top_pad="5"
          width="90" />
         <spinner
@@ -173,7 +173,7 @@ Hover your mouse over the options for more help.
          layout="topleft"
          left="4"
          name="show_in_group_list"
-         tool_tip="Let people see this group in search results."
+         tool_tip="Let people see this group in search results"
          top_pad="4"
          width="90" />
         <combo_box
@@ -181,7 +181,7 @@ Hover your mouse over the options for more help.
          layout="topleft"
          left_delta="0"
          name="group_mature_check"
-         tool_tip="Sets whether your group information is considered mature."
+         tool_tip="Sets whether your group information is considered mature"
          top_pad="10"
          width="240">
             <combo_box.item

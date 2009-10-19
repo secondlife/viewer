@@ -49,7 +49,7 @@ Resident Chooser&apos; to start.
      left_delta="0"
      multi_select="true"
      name="invitee_list"
-     tool_tip="Hold the Ctrl key and click resident names to multi-select."
+     tool_tip="Hold the Ctrl key and click resident names to multi-select"
      top_pad="4"
      width="200" />
     <button
@@ -59,7 +59,7 @@ Resident Chooser&apos; to start.
      layout="topleft"
      left_delta="0"
      name="remove_button"
-     tool_tip="Removes residents selected above from the invite list."
+     tool_tip="Removes residents selected above from the invite list"
      top_pad="4"
      width="200" />
     <text
@@ -78,7 +78,7 @@ Resident Chooser&apos; to start.
      layout="topleft"
      left_delta="0"
      name="role_name"
-     tool_tip="Choose from the list of Roles you are allowed to assign members to."
+     tool_tip="Choose from the list of Roles you are allowed to assign members to"
      top_delta="16"
      width="196" />
     <button

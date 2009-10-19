@@ -108,10 +108,10 @@
     	<combo_item name="Unconstrained" value="Unconstrained">
     		Unconstrained
     	</combo_item>
-   	<combo_item name="1:1" value="1:1" tool_tip="Group Insignia or 1st Life Profile">
+   	<combo_item name="1:1" value="1:1" tool_tip="Group insignia or 1st Life profile">
 		1:1
 	</combo_item>
-	<combo_item name="4:3" value="4:3" tool_tip="2nd Life Profile">
+	<combo_item name="4:3" value="4:3" tool_tip="2nd Life profile">
 		4:3
 	</combo_item>
 	<combo_item name="10:7" value="10:7" tool_tip="Classifieds and search listings, landmarks">
@@ -123,7 +123,7 @@
 	<combo_item name="16:10" value="16:10">
 		16:10
 	</combo_item>
-	<combo_item name="16:9" value="16:9" tool_tip="Profile Picks">
+	<combo_item name="16:9" value="16:9" tool_tip="Profile picks">
 		16:9
 	</combo_item>
 	<combo_item name="2:1" value="2:1">

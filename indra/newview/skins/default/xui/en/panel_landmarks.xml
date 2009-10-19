@@ -113,7 +113,7 @@
          left_pad="5"
          name="add_landmark_btn"
          picture_style="true"
-         tool_tip="Add New Landmark"
+         tool_tip="Add new landmark"
          width="18" />
         <button
          follows="bottom|left"
@@ -125,7 +125,7 @@
          left_pad="5"
          name="add_folder_btn"
          picture_style="true"
-         tool_tip="Add New Folder"
+         tool_tip="Add new folder"
          width="18" />
         <button
          follows="bottom|right"
@@ -136,7 +136,7 @@
          right="-5"
          name="trash_btn"
          picture_style="true"
-         tool_tip="Remove selected Landmark"
+         tool_tip="Remove selected landmark"
          top="6"
          width="18" />
     </panel>

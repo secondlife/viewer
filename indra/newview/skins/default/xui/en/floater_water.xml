@@ -111,7 +111,7 @@
              layout="topleft"
              left="40"
              name="WaterFogColor"
-             tool_tip="Click to open Color Picker"
+             tool_tip="Click to open color picker"
              top="30"
              width="40" />
             <text

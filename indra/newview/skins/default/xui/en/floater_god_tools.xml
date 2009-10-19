@@ -98,7 +98,7 @@
              layout="topleft"
              left="10"
              name="check prelude"
-             tool_tip="Set this to make the region a prelude."
+             tool_tip="Set this to make the region a prelude"
              top_pad="10"
              width="180">
 			       <check_box.commit_callback
@@ -110,7 +110,7 @@
              layout="topleft"
              left_delta="0"
              name="check fixed sun"
-             tool_tip="Fix the sun position (like in Region/Estate &gt; Terrain."
+             tool_tip="Fix the sun position (like in Region/Estate &gt; Terrain"
              top_pad="4"
              width="180">
 			       <check_box.commit_callback
@@ -134,7 +134,7 @@
              layout="topleft"
              left_delta="0"
              name="check visible"
-             tool_tip="Set this to make the region visible to non-gods."
+             tool_tip="Set this to make the region visible to non-gods"
              top_pad="4"
              width="180">
 			       <check_box.commit_callback
@@ -146,7 +146,7 @@
              layout="topleft"
              left_delta="0"
              name="check damage"
-             tool_tip="Set this to enable damage in this region."
+             tool_tip="Set this to enable damage in this region"
              top_pad="4"
              width="180">
 			       <check_box.commit_callback
@@ -158,7 +158,7 @@
              layout="topleft"
              left_delta="0"
              name="block dwell"
-             tool_tip="Set this to make the region not compute traffic."
+             tool_tip="Set this to make the region not compute traffic"
              top_pad="4"
              width="180">
 			       <check_box.commit_callback
@@ -182,7 +182,7 @@
              layout="topleft"
              left_delta="0"
              name="is sandbox"
-             tool_tip="Toggle whether this is a sandbox region."
+             tool_tip="Toggle whether this is a sandbox region"
              top_pad="4"
              width="180">
 			       <check_box.commit_callback
@@ -197,7 +197,7 @@
              layout="topleft"
              left="12"
              name="Bake Terrain"
-             tool_tip="Save the current terrain as default."
+             tool_tip="Save the current terrain as default"
              top_pad="32"
              width="110">
 			       <button.commit_callback
@@ -211,7 +211,7 @@
              label_selected="Revert Terrain"
              layout="topleft"
              name="Revert Terrain"
-             tool_tip="Replace the current terrain with default."
+             tool_tip="Replace the current terrain with default"
              top_pad="10"
              width="110">
 			       <button.commit_callback
@@ -225,7 +225,7 @@
              label_selected="Swap Terrain"
              layout="topleft"
              name="Swap Terrain"
-             tool_tip="Swap current terrain with default."
+             tool_tip="Swap current terrain with default"
              top_pad="10"
              width="110">
 			       <button.commit_callback
@@ -425,7 +425,7 @@
              layout="topleft"
              left="278"
              name="Refresh"
-             tool_tip="Click here to refresh the above information."
+             tool_tip="Click here to refresh the above information"
              top_pad="10"
              width="110">
 				<button.commit_callback
@@ -440,7 +440,7 @@
              layout="topleft"
              left="278"
              name="Apply"
-             tool_tip="Click here to apply any changes from above."
+             tool_tip="Click here to apply any changes from above"
              top="317"
              width="110">
 				<button.commit_callback
@@ -455,7 +455,7 @@
              layout="topleft"
              left="130"
              name="Select Region"
-             tool_tip="Select the whole region with the land tool."
+             tool_tip="Select the whole region with the land tool"
              top="238"
              width="110">
 				<button.commit_callback
@@ -470,7 +470,7 @@
              layout="topleft"
              left_delta="0"
              name="Autosave now"
-             tool_tip="Save gzipped state to autosave directory."
+             tool_tip="Save gzipped state to autosave directory"
              top_pad="10"
              width="110">
 				<button.commit_callback
@@ -562,7 +562,7 @@
              layout="topleft"
              left="278"
              name="Apply"
-             tool_tip="Click here to apply any changes from above."
+             tool_tip="Click here to apply any changes from above"
              top="54"
              width="110">
 				<button.commit_callback
@@ -577,7 +577,7 @@
              layout="topleft"
              left="8"
              name="Set Target"
-             tool_tip="Set the target avatar for object deletion."
+             tool_tip="Set the target avatar for object deletion"
              top="78"
              width="110">
 				<button.commit_callback
@@ -649,7 +649,7 @@
              layout="topleft"
              left="12"
              name="Get Top Colliders"
-             tool_tip="Gets list of objects experiencing the most narrowphase callbacks."
+             tool_tip="Gets list of objects experiencing the most narrowphase callbacks"
              top_pad="20"
              width="130">
 				<button.commit_callback
@@ -664,7 +664,7 @@
              layout="topleft"
              left_delta="0"
              name="Get Top Scripts"
-             tool_tip="Gets list of objects spending the most time running scripts."
+             tool_tip="Gets list of objects spending the most time running scripts"
              top_pad="5"
              width="130">
 				<button.commit_callback
@@ -679,7 +679,7 @@
              layout="topleft"
              left_delta="0"
              name="Scripts digest"
-             tool_tip="Gets a list of all scripts and number of occurences of each."
+             tool_tip="Gets a list of all scripts and number of occurences of each"
              top_pad="5"
              width="130" >
 				<button.commit_callback

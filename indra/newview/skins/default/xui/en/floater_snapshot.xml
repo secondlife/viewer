@@ -125,7 +125,7 @@
      layout="topleft"
      left="10"
      name="more_btn"
-     tool_tip="Advanced Options"
+     tool_tip="Advanced options"
      top="270"
      width="80" />
     <button
@@ -136,7 +136,7 @@
      layout="topleft"
      left_delta="0"
      name="less_btn"
-     tool_tip="Advanced Options"
+     tool_tip="Advanced options"
      top_delta="0"
      width="80" />
     <text

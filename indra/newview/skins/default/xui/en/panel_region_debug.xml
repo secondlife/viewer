@@ -162,7 +162,7 @@
      layout="topleft"
      left_delta="60"
      name="return_scripts"
-     tool_tip="Return only objects which have scripts."
+     tool_tip="Return only objects which have scripts"
      top_delta="0"
      width="80" />
     <check_box

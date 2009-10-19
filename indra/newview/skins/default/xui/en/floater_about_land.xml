@@ -1560,7 +1560,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="5"
              name="Clear"
-             tool_tip="Clear the landing point."
+             tool_tip="Clear the landing point"
              top_delta="0"
              width="50" />
             <text
@@ -1580,7 +1580,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_delta="116"
              name="landing type"
-             tool_tip="Teleport Routing -- select how to handle teleports onto your land."
+             tool_tip="Teleport Routing -- select how to handle teleports onto your land"
              top_delta="0"
              width="120">
                 <combo_box.item

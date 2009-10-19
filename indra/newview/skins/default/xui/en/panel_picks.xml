@@ -54,7 +54,7 @@
              left_pad="15"
              name="new_btn"
              picture_style="true"
-             tool_tip="Create New Pick at Current Location"
+             tool_tip="Create new pick at current location"
              top="5"
              width="18" />
             <button

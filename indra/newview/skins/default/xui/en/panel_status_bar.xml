@@ -68,7 +68,7 @@
      left_pad="20"
      name="TimeText"
      text_color="TimeTextColor"
-     tool_tip="Current Time (Pacific)"
+     tool_tip="Current time (Pacific)"
      width="80">
         12:00 AM
     </text>
@@ -82,7 +82,7 @@
      name="scriptout"
      picture_style="true"
      scale_image="false"
-     tool_tip="Script Warnings and Errors"
+     tool_tip="Script warnings and errors"
      top="0"
      visible="false"
      width="16" />
@@ -140,7 +140,7 @@
      name="no_build"
      picture_style="true"
      scale_image="false"
-     tool_tip="Building/Rezzing not allowed"
+     tool_tip="Building/rezzing not allowed"
      top="0"
      visible="false"
      width="16" />
@@ -168,7 +168,7 @@
      name="restrictpush"
      picture_style="true"
      scale_image="false"
-     tool_tip="No Pushing"
+     tool_tip="No pushing"
      top="0"
      visible="false"
      width="16" />

@@ -338,7 +338,7 @@
      layout="topleft"
      left="10"
      name="minimize"
-	 tool_tip="Toggle Floater Size"
+	 tool_tip="Toggle floater size"
      top_delta="4"
      width="40">
         <button.commit_callback

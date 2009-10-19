@@ -464,7 +464,7 @@ things in this group. There&apos;s a broad variety of Abilities.
              multi_select="true"
              name="action_list"
              search_column="1"
-             tool_tip="Select an Ability to view more details."
+             tool_tip="Select an Ability to view more details"
              top_pad="6"
              width="255">
                 <scroll_list.columns
@@ -542,7 +542,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          follows="left|top"
          left_pad="5"
          name="member_allowed_actions"
-         tool_tip="For Details of each Allowed Ability see the Abilities tab."
+         tool_tip="For details of each allowed ability see the abilities tab"
          top_delta="0"
          width="130">
             <scroll_list.columns
@@ -655,7 +655,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          layout="topleft"
          left_pad="15"
          name="static5"
-         tool_tip="A list of Abilities the currently selected role can perform."
+         tool_tip="A list of abilities the currently selected role can perform"
          top_delta="0"
          width="100">
             Allowed Abilities
@@ -674,7 +674,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          layout="topleft"
          left_delta="0"
          name="role_visible_in_list"
-         tool_tip="Sets whether members of this role are visible in the General tab   to people outside of the group."
+         tool_tip="Sets whether members of this role are visible in the General tab to people outside of the group."
          top_pad="10"
          width="130" />
         <scroll_list
@@ -684,7 +684,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          left="135"
          name="role_allowed_actions"
          search_column="2"
-         tool_tip="For Details of each Allowed Ability see the Abilities tab."
+         tool_tip="For details of each allowed ability see the abilities tab"
          top="101"
          width="130">
             <scroll_list.columns

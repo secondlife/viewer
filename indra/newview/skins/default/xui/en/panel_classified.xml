@@ -40,7 +40,7 @@
      layout="topleft"
      left_delta="0"
      name="given_name_editor"
-     tool_tip="Name must begin with a letter or number, not punctuation."
+     tool_tip="Name must begin with a letter or number, not punctuation"
      top_delta="288"
      width="400" />
     <text_editor
@@ -61,7 +61,7 @@
      layout="topleft"
      left="20"
      name="location_editor"
-     tool_tip="Set the location for this classified to your current position."
+     tool_tip="Set the location for this classified to your current position"
      width="400" />
     <button
      follows="left|top"

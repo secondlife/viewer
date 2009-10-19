@@ -325,7 +325,7 @@
      left_pad="4"
      max_chars="60"
      name="friend combo"
-     tool_tip="Friend to Show on Map"
+     tool_tip="Friend to show on map"
      top_delta="-4"
      width="202">
         <combo_box.item
@@ -355,7 +355,7 @@
      left_pad="4"
      max_chars="64"
      name="landmark combo"
-     tool_tip="Landmark to Show on Map"
+     tool_tip="Landmark to show on map"
      top_delta="-4"
      width="202">
         <combo_box.item

@@ -45,7 +45,7 @@
          quadrant="left"
          scale_image="false"
          sound_flags="3"
-         tool_tip="Orbit Camera Around Focus"
+         tool_tip="Orbit camera around focus"
          top="15"
          width="64" />
         <joystick_track
@@ -60,7 +60,7 @@
          quadrant="left"
          scale_image="false"
          sound_flags="3"
-         tool_tip="Move Camera Up and Down, Left and Right"
+         tool_tip="Move camera up and down, left and right"
          top="15"
          visible="false"
          width="64" />
@@ -77,7 +77,7 @@
          quadrant="left"
          scale_image="false"
          sound_flags="3"
-         tool_tip="Zoom Camera Towards Focus"
+         tool_tip="Zoom camera toward focus"
          top_delta="0"
          width="16" />
     </panel>
@@ -99,7 +99,7 @@
          image_selected="PushButton_Selected_Press" 
          name="orbit_btn"
          tab_stop="false"
-         tool_tip="Orbit Camera"
+         tool_tip="Orbit camera"
          value="true"
          width="25">
         </button>
@@ -113,7 +113,7 @@
          image_selected="PushButton_Selected_Press" 
          name="pan_btn"
          tab_stop="false"
-         tool_tip="Pan Camera"
+         tool_tip="Pan camera"
          width="25">
         </button>
         <button
@@ -125,7 +125,7 @@
          image_selected="PushButton_Selected_Press" 
          name="avatarview_btn"
          tab_stop="false"
-         tool_tip="See as Avatar"
+         tool_tip="See as avatar"
          width="25">
         </button>
         <button
@@ -138,7 +138,7 @@
          image_selected="PushButton_Selected_Press" 
          name="freecamera_btn"
          tab_stop="false"
-         tool_tip="View Object"
+         tool_tip="View object"
          width="25">
         </button>
         

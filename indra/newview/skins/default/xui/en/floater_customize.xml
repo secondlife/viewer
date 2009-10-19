@@ -1039,7 +1039,7 @@ scratch and wear it.
              layout="topleft"
              left_delta="0"
              name="Color/Tint"
-             tool_tip="Click to open Color Picker"
+             tool_tip="Click to open color picker"
              top_delta="80"
              width="64" />
             <button
@@ -1245,7 +1245,7 @@ scratch and wear it.
              layout="topleft"
              left_delta="0"
              name="Color/Tint"
-             tool_tip="Click to open Color Picker"
+             tool_tip="Click to open color picker"
              top_delta="80"
              width="64" />
             <button
@@ -1555,7 +1555,7 @@ scratch and wear it.
              layout="topleft"
              left_delta="0"
              name="Color/Tint"
-             tool_tip="Click to open Color Picker"
+             tool_tip="Click to open color picker"
              top_delta="80"
              width="64" />
             <button
@@ -1761,7 +1761,7 @@ scratch and wear it.
              layout="topleft"
              left_delta="0"
              name="Color/Tint"
-             tool_tip="Click to open Color Picker"
+             tool_tip="Click to open color picker"
              top_delta="80"
              width="64" />
             <button
@@ -1979,7 +1979,7 @@ scratch and wear it.
              layout="topleft"
              left_delta="0"
              name="Color/Tint"
-             tool_tip="Click to open Color Picker"
+             tool_tip="Click to open color picker"
              top_delta="80"
              width="64" />
             <button
@@ -2185,7 +2185,7 @@ scratch and wear it.
              layout="topleft"
              left_delta="0"
              name="Color/Tint"
-             tool_tip="Click to open Color Picker"
+             tool_tip="Click to open color picker"
              top_delta="80"
              width="64" />
             <button
@@ -2391,7 +2391,7 @@ scratch and wear it.
              layout="topleft"
              left_delta="0"
              name="Color/Tint"
-             tool_tip="Click to open Color Picker"
+             tool_tip="Click to open color picker"
              top_delta="80"
              width="64" />
             <button
@@ -2597,7 +2597,7 @@ scratch and wear it.
              layout="topleft"
              left_delta="0"
              name="Color/Tint"
-             tool_tip="Click to open Color Picker"
+             tool_tip="Click to open color picker"
              top_delta="80"
              width="64" />
             <button
@@ -2803,7 +2803,7 @@ scratch and wear it.
              layout="topleft"
              left_delta="0"
              name="Color/Tint"
-             tool_tip="Click to open Color Picker"
+             tool_tip="Click to open color picker"
              top_delta="80"
              width="64" />
             <button

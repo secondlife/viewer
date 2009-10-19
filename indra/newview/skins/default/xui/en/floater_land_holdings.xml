@@ -58,7 +58,7 @@
      layout="topleft"
      left_pad="4"
      name="Show on Map"
-     tool_tip="Show this land on the world map."
+     tool_tip="Show this land on the world map"
      top_delta="0"
      width="100" />
     <text

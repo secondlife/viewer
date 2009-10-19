@@ -86,7 +86,7 @@
      min_val="0.05"
      name="volume_slider"
      show_text="false"
-     tool_tip="Voice Volume"
+     tool_tip="Voice volume"
      top_pad="0"
      value="0.5"
      width="150" />

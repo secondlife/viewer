@@ -43,7 +43,7 @@
      layout="topleft"
      left="10"
      name="Anim play btn"
-     tool_tip="Play this animation so that others can see it."
+     tool_tip="Play this animation so that others can see it"
      top="47"
      width="125" />
     <button
@@ -54,7 +54,7 @@
      layout="topleft"
      left_pad="5"
      name="Anim audition btn"
-     tool_tip="Play this animation so that only you can see it."
+     tool_tip="Play this animation so that only you can see it"
      top_delta="0"
      width="125" />
 </floater>

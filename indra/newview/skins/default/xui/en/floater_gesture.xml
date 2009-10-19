@@ -59,7 +59,7 @@
                <button
                follows="bottom|left"
                font="SansSerifBigBold"
-               tool_tip="Change sort and view of Recent Residents list"
+               tool_tip="Change sort and view of recent residents list"
                height="18"
                image_disabled="OptionsMenu_Disabled"
                image_selected="OptionsMenu_Press"
@@ -81,7 +81,7 @@
                  left_pad="5"
                  name="new_gesture_btn"
                  picture_style="true"
-                 tool_tip="Make new Gesture"
+                 tool_tip="Make new gesture"
                  top_delta="0"
                  width="18" />
                 <button
@@ -95,7 +95,7 @@
                  left_pad="230"
                  name="del_btn"
                  picture_style="true"
-                 tool_tip="Delete this Gesture"
+                 tool_tip="Delete this gesture"
                  top_delta="0"
                  width="18" />
             </panel>

@@ -196,7 +196,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      left="10"
      max_val="4"
      name="priority"
-     tool_tip="Controls which other animations can be overridden by this animation."
+     tool_tip="Controls which other animations can be overridden by this animation"
      width="160" />
     <check_box
      top_pad="0"
@@ -206,7 +206,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      left="10"
      width="100"
      name="loop_check"
-     tool_tip="Makes this animation loop." />
+     tool_tip="Makes this animation loop" />
     <spinner
      follows="left|top"
      height="23"
@@ -219,7 +219,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      left="30"
      max_val="100"
      name="loop_in_point"
-     tool_tip="Sets point in animation that looping returns to."
+     tool_tip="Sets point in animation that looping returns to"
      width="110" />
     <spinner
      bottom_delta="0"
@@ -232,7 +232,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      left_pad="10"
      max_val="100"
      name="loop_out_point"
-     tool_tip="Sets point in animation that ends a loop."
+     tool_tip="Sets point in animation that ends a loop"
      label_width="45"
      width="120" />
     <text
@@ -252,7 +252,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      layout="topleft"
      left_pad="0"
      name="hand_pose_combo"
-     tool_tip="Controls what hands do during animation."
+     tool_tip="Controls what hands do during animation"
      width="150">
         <combo_box.item
          label="Spread"
@@ -325,7 +325,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      layout="topleft"
      left_pad="0"
      name="emote_combo"
-     tool_tip="Controls what face does during animation.">
+     tool_tip="Controls what face does during animation">
         <combo_box.item
          label="(None)"
          name="[None]" />
@@ -405,7 +405,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      layout="topleft"
      left_pad="0"
      name="preview_base_anim"
-     tool_tip="Use this to test your animation behavior while your avatar performs common actions.">
+     tool_tip="Use this to test your animation behavior while your avatar performs common actions">
         <combo_box.item
          label="Standing"
          name="Standing" />
@@ -430,7 +430,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      left="10"
      max_val="10"
      name="ease_in_time"
-     tool_tip="Amount of time (in seconds) over which animations blends in."
+     tool_tip="Amount of time (in seconds) over which animations blends in"
      top_pad="10"
      width="200" />
     <spinner
@@ -444,7 +444,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      top_pad="0"
      max_val="10"
      name="ease_out_time"
-     tool_tip="Amount of time (in seconds) over which animations blends out."
+     tool_tip="Amount of time (in seconds) over which animations blends out"
      width="200" />
     <button
      follows="top|right"
@@ -455,7 +455,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      left="10"
      name="play_btn"
      picture_style="true"
-     tool_tip="Play/pause your animation."
+     tool_tip="Play/pause your animation"
      top_pad="0"
      width="28" />
     <button
