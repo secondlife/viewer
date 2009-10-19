@@ -655,20 +655,20 @@ U32 LLAgentWearables::pushWearable(const EWearableType type, LLWearable *wearabl
 	{
 		// no null wearables please!
 		//TODO: insert llwarns
-		return MAX_ATTACHMENTS_PER_TYPE;
+		return MAX_WEARABLES_PER_TYPE;
 	}
-	if (type < WT_COUNT)
+	if (type < WT_COUNT || mWearableDatas[type].size() < MAX_WEARABLES_PER_TYPE)
 	{
 		mWearableDatas[type].push_back(wearable);
 		return mWearableDatas[type].size()-1;
 	}
-	return MAX_ATTACHMENTS_PER_TYPE;
+	return MAX_WEARABLES_PER_TYPE;
 }
 
 void LLAgentWearables::popWearable(const EWearableType type, LLWearable *wearable)
 {
 	U32 index = getWearableIndex(type, wearable);
-	if (index < MAX_ATTACHMENTS_PER_TYPE && index < getWearableCount(type))
+	if (index < MAX_WEARABLES_PER_TYPE && index < getWearableCount(type))
 	{
 		popWearable(type, index);
 	}
@@ -688,7 +688,7 @@ U32	LLAgentWearables::getWearableIndex(const EWearableType type, LLWearable *wea
 	if (wearable_iter == mWearableDatas.end())
 	{
 		llwarns << "tried to get wearable index with an invalid type!" << llendl;
-		return MAX_ATTACHMENTS_PER_TYPE;
+		return MAX_WEARABLES_PER_TYPE;
 	}
 	const wearableentry_vec_t& wearable_vec = wearable_iter->second;
 	for(U32 index = 0; index < wearable_vec.size(); index++)
@@ -699,7 +699,7 @@ U32	LLAgentWearables::getWearableIndex(const EWearableType type, LLWearable *wea
 		}
 	}
 
-	return MAX_ATTACHMENTS_PER_TYPE;
+	return MAX_WEARABLES_PER_TYPE;
 }
 
 const LLWearable* LLAgentWearables::getWearable(const EWearableType type, U32 index) const

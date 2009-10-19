@@ -258,7 +258,7 @@ private:
 		LLPointer<LLRefCount> mCB;
 	};
 
-	static const U32 MAX_ATTACHMENTS_PER_TYPE = 4; 
+	static const U32 MAX_WEARABLES_PER_TYPE = 1; 
 
 }; // LLAgentWearables
 
