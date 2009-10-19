@@ -672,6 +672,26 @@ LLView* LLView::childrenHandleToolTip(S32 x, S32 y, MASK mask)
 }
 
 
+LLView*	LLView::childFromPoint(S32 x, S32 y)
+{
+	if (!getVisible()  )
+		return false;
+	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+	{
+		LLView* viewp = *child_it;
+		S32 local_x = x - viewp->getRect().mLeft;
+		S32 local_y = y - viewp->getRect().mBottom;
+		if (!viewp->pointInView(local_x, local_y) 
+			|| !viewp->getVisible() )
+		{
+			continue;
+		}
+		return viewp;
+
+	}
+	return 0;
+}
+
 BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
@@ -898,12 +918,6 @@ LLView* LLView::childrenHandleScrollWheel(S32 x, S32 y, S32 clicks)
 					sMouseHandlerMessage = std::string("/") + viewp->mName + sMouseHandlerMessage;
 				}
 
-				handled_view = viewp;
-				break;
-			}
-
-			if (viewp->blockMouseEvent(local_x, local_y))
-			{
 				handled_view = viewp;
 				break;
 			}

@@ -68,6 +68,10 @@ public:
 	// Returns true iff panel became visible
 	static bool toggle(const LLUUID& session_id);
 
+	static LLIMFloater* findInstance(const LLUUID& session_id);
+
+	void sessionInitReplyReceived(const LLUUID& im_session_id);
+
 	// get new messages from LLIMModel
 	void updateMessages();
 	static void onSendMsg( LLUICtrl*, void*);
@@ -108,6 +112,9 @@ private:
 	LLViewerTextEditor* mHistoryEditor;
 	LLLineEditor* mInputEditor;
 	bool mPositioned;
+
+	bool mSessionInitialized;
+	LLSD mQueuedMsgsForInit;
 };
 
 

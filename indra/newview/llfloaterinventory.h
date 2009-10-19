@@ -57,6 +57,7 @@ class LLFolderViewItem;
 class LLInventoryFilter;
 class LLInventoryModel;
 class LLInvFVBridge;
+class LLInventoryFVBridgeBuilder;
 class LLMenuBarGL;
 class LLCheckBoxCtrl;
 class LLSpinCtrl;
@@ -110,7 +111,7 @@ protected:
 	friend class LLUICtrlFactory;
 
 public:
-	~LLInventoryPanel();
+	virtual ~LLInventoryPanel();
 
 	LLInventoryModel* getModel() { return mInventory; }
 
@@ -172,7 +173,10 @@ public:
 protected:
 	// Given the id and the parent, build all of the folder views.
 	void rebuildViewsFor(const LLUUID& id);
-	void buildNewViews(const LLUUID& id);
+	virtual void buildNewViews(const LLUUID& id); // made virtual to support derived classes. EXT-719
+
+	// Be sure that passed pointer will be destroyed where it was created.
+	void setInvFVBridgeBuilder(const LLInventoryFVBridgeBuilder* bridge_builder);
 
 protected:
 	LLInventoryModel*			mInventory;
@@ -180,12 +184,34 @@ protected:
 	BOOL 						mAllowMultiSelect;
 	std::string					mSortOrderSetting;
 
-private:
+//private: // Can not make these private - needed by llinventorysubtreepanel
 	LLFolderView*				mFolders;
 	std::string                 mStartFolderString;
 	LLUUID						mStartFolderID;
 	LLScrollContainer*			mScroller;
 	bool						mHasInventoryConnection;
+
+	/**
+	 * Flag specified if default inventory hierarchy should be created in postBuild()
+	 */
+	bool						mBuildDefaultHierarchy;
+
+	/**
+	 * Contains UUID of Inventory item from which hierarchy should be built.
+	 * Should be set by derived class before modelChanged() is called.
+	 * Default is LLUUID::null that means total Inventory hierarchy.
+	 */
+	LLUUID						mRootInventoryItemUUID;
+
+	/**
+	 * Pointer to LLInventoryFVBridgeBuilder.
+	 *
+	 * It is set in LLInventoryPanel's constructor and can be overridden in derived classes with 
+	 * another implementation.
+	 * Take into account it will not be deleted by LLInventoryPanel itself.
+	 */
+	const LLInventoryFVBridgeBuilder* mInvFVBridgeBuilder;
+
 };
 
 class LLFloaterInventory;

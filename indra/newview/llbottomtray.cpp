@@ -185,6 +185,18 @@ void LLBottomTray::sessionRemoved(const LLUUID& session_id)
 	}
 }
 
+void LLBottomTray::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
+{
+	//this is only needed in case of outgoing ad-hoc/group chat sessions
+	LLChicletPanel* chiclet_panel = getChicletPanel();
+	if (chiclet_panel)
+	{
+		//it should be ad-hoc im chiclet or group im chiclet
+		LLChiclet* chiclet = chiclet_panel->findChiclet<LLChiclet>(old_session_id);
+		if (chiclet) chiclet->setSessionId(new_session_id);
+	}
+}
+
 //virtual
 void LLBottomTray::onFocusLost()
 {

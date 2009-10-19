@@ -559,6 +559,15 @@ void LLSideTray::highlightFocused()
 
 	
 }
+BOOL	LLSideTray::handleScrollWheel(S32 x, S32 y, S32 mask)
+{
+	BOOL ret = LLPanel::handleScrollWheel(x,y,mask);
+
+	if(!ret && childFromPoint(x,y) != 0 )
+		return TRUE;//mouse wheel over sidetray buttons, eat mouse wheel
+	return ret;
+}
+
 //virtual
 BOOL		LLSideTray::handleMouseDown	(S32 x, S32 y, MASK mask)
 {
@@ -641,7 +650,9 @@ LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& para
 		LLView* view = (*child_it)->findChildView(panel_name,true);
 		if(view)
 		{
-			onTabButtonClick((*child_it)->getName());
+			selectTabByName	((*child_it)->getName());
+			if(mCollapsed)
+				expandSideBar();
 
 			LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(view->getParent());
 			if(container)

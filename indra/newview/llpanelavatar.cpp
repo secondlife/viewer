@@ -43,6 +43,7 @@
 #include "lltexturectrl.h"
 #include "lltooldraganddrop.h"
 #include "llscrollcontainer.h"
+#include "llavatariconctrl.h"
 #include "llweb.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -447,6 +448,10 @@ void LLPanelAvatarProfile::processGroupProperties(const LLAvatarGroups* avatar_g
 
 void LLPanelAvatarProfile::fillCommonData(const LLAvatarData* avatar_data)
 {
+	//remove avatar id from cache to get fresh info
+	LLAvatarIconIDCache::getInstance()->remove(avatar_data->avatar_id);
+
+
 	childSetValue("register_date", avatar_data->born_on );
 	childSetValue("sl_description_edit", avatar_data->about_text);
 	childSetValue("fl_description_edit",avatar_data->fl_about_text);

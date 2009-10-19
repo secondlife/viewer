@@ -1161,6 +1161,7 @@ LLUIImagePtr get_item_icon(LLAssetType::EType asset_type,
 const std::string LLInventoryPanel::DEFAULT_SORT_ORDER = std::string("InventorySortOrder");
 const std::string LLInventoryPanel::RECENTITEMS_SORT_ORDER = std::string("RecentItemsSortOrder");
 const std::string LLInventoryPanel::INHERIT_SORT_ORDER = std::string("");
+static const LLInventoryFVBridgeBuilder INVENTORY_BRIDGE_BUILDER;
 
 LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p)
 :	LLPanel(p),
@@ -1172,7 +1173,12 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p)
 	mAllowMultiSelect(p.allow_multi_select),
 	mHasInventoryConnection(false),
 	mStartFolderString(p.start_folder)
+,	mBuildDefaultHierarchy(true)
+,	mRootInventoryItemUUID(LLUUID::null)
+,	mInvFVBridgeBuilder(NULL)
 {
+	mInvFVBridgeBuilder = &INVENTORY_BRIDGE_BUILDER;
+
 	// contex menu callbacks
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLInventoryPanel::doToSelected, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLAssetType::AT_TRASH));
@@ -1237,8 +1243,8 @@ BOOL LLInventoryPanel::postBuild()
 	const LLAssetType::EType preferred_type = LLAssetType::lookupHumanReadable(mStartFolderString);
 	mStartFolderID = (preferred_type != LLAssetType::AT_NONE ? gInventory.findCategoryUUIDForType(preferred_type) : LLUUID::null);
 
-	// build view of inventory if inventory ready, otherwise wait for modelChanged() callback
-	if (mInventory->isInventoryUsable() && !mHasInventoryConnection)
+	// build view of inventory if we need default full hierarchy and inventory ready, otherwise wait for modelChanged() callback
+	if (mBuildDefaultHierarchy && mInventory->isInventoryUsable() && !mHasInventoryConnection)
 	{
 		rebuildViewsFor(mStartFolderID);
 		mHasInventoryConnection = true;
@@ -1456,6 +1462,25 @@ void LLInventoryPanel::modelChanged(U32 mask)
 	}
 }
 
+void LLInventoryPanel::setInvFVBridgeBuilder(const LLInventoryFVBridgeBuilder* bridge_builder)
+{
+	if (NULL == bridge_builder)
+	{
+		llwarns << "NULL is passed as Inventory Bridge Builder. Default will be used." << llendl; 
+	}
+	else
+	{
+		mInvFVBridgeBuilder = bridge_builder;
+	}
+
+	if (mInventory->isInventoryUsable() && !mHasInventoryConnection)
+	{
+		rebuildViewsFor(mRootInventoryItemUUID);
+		mHasInventoryConnection = true;
+	}
+}
+
+
 void LLInventoryPanel::rebuildViewsFor(const LLUUID& id)
 {
 	LLFolderViewItem* old_view = NULL;
@@ -1493,11 +1518,11 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 			else if (objectp->getType() == LLAssetType::AT_CATEGORY &&
 					 objectp->getActualType() != LLAssetType::AT_LINK_FOLDER) 
 			{
-				LLInvFVBridge* new_listener = LLInvFVBridge::createBridge(objectp->getType(),
-																		  objectp->getType(),
-																		  LLInventoryType::IT_CATEGORY,
-																		  this,
-																		  objectp->getUUID());
+				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(objectp->getType(),
+																				objectp->getType(),
+																				LLInventoryType::IT_CATEGORY,
+																				this,
+																				objectp->getUUID());
 
 				if (new_listener)
 				{
@@ -1516,12 +1541,12 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 			{
 				// Build new view for item
 				LLInventoryItem* item = (LLInventoryItem*)objectp;
-				LLInvFVBridge* new_listener = LLInvFVBridge::createBridge(item->getType(),
-																		  item->getActualType(),
-																		  item->getInventoryType(),
-																		  this,
-																		  item->getUUID(),
-																		  item->getFlags());
+				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(item->getType(),
+																				item->getActualType(),
+																				item->getInventoryType(),
+																				this,
+																				item->getUUID(),
+																				item->getFlags());
 
 				if (new_listener)
 				{

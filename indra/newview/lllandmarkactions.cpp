@@ -42,16 +42,18 @@
 #include "llnotifications.h"
 
 #include "llagent.h"
+#include "llagentui.h"
 #include "llinventorymodel.h"
 #include "lllandmarklist.h"
 #include "llslurl.h"
+#include "llstring.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerwindow.h"
+#include "llwindow.h"
 #include "llworldmap.h"
-#include "lllandmark.h"
-#include "llinventorymodel.h"
-#include "llagentui.h"
 
+void copy_slurl_to_clipboard_callback(const std::string& slurl);
 
 class LLFetchlLandmarkByPos : public LLInventoryCollectFunctor
 {
@@ -303,15 +305,39 @@ void LLLandmarkActions::onRegionResponse(slurl_callback_t cb,
 
 bool LLLandmarkActions::getLandmarkGlobalPos(const LLUUID& landmarkInventoryItemID, LLVector3d& posGlobal)
 {
-	LLViewerInventoryItem* item = gInventory.getItem(landmarkInventoryItemID);
-	if (NULL == item)
-		return false;
-
-	const LLUUID& asset_id = item->getAssetUUID();
-	LLLandmark* landmark = gLandmarkList.getAsset(asset_id, NULL);
+	LLLandmark* landmark = LLLandmarkActions::getLandmark(landmarkInventoryItemID);
 
 	if (NULL == landmark)
 		return false;
 
 	return landmark->getGlobalPos(posGlobal);
+}
+
+LLLandmark* LLLandmarkActions::getLandmark(const LLUUID& landmarkInventoryItemID)
+{
+	LLViewerInventoryItem* item = gInventory.getItem(landmarkInventoryItemID);
+	if (NULL == item)
+		return false;
+
+	const LLUUID& asset_id = item->getAssetUUID();
+	return gLandmarkList.getAsset(asset_id, NULL);
+}
+
+void LLLandmarkActions::copySLURLtoClipboard(const LLUUID& landmarkInventoryItemID)
+{
+	LLLandmark* landmark = LLLandmarkActions::getLandmark(landmarkInventoryItemID);
+	if(landmark)
+	{
+		LLVector3d global_pos;
+		landmark->getGlobalPos(global_pos);
+		LLLandmarkActions::getSLURLfromPosGlobal(global_pos,&copy_slurl_to_clipboard_callback,true);
+	}
+}
+
+void copy_slurl_to_clipboard_callback(const std::string& slurl)
+{
+	gViewerWindow->mWindow->copyTextToClipboard(utf8str_to_wstring(slurl));
+	LLSD args;
+	args["SLURL"] = slurl;
+	LLNotifications::instance().add("CopySLURL", args);
 }

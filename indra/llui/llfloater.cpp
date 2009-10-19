@@ -1262,6 +1262,12 @@ BOOL LLFloater::offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButtons inde
 	return FALSE;
 }
 
+BOOL LLFloater::handleScrollWheel(S32 x, S32 y, S32 clicks)
+{
+	LLPanel::handleScrollWheel(x,y,clicks);
+	return TRUE;//always
+}
+
 // virtual
 BOOL LLFloater::handleMouseDown(S32 x, S32 y, MASK mask)
 {

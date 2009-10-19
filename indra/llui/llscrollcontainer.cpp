@@ -235,6 +235,8 @@ BOOL LLScrollContainer::handleKeyHere(KEY key, MASK mask)
 
 BOOL LLScrollContainer::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
+	if(LLUICtrl::handleScrollWheel(x,y,clicks))
+		return TRUE;
 	for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
 	{
 		// Note: tries vertical and then horizontal
@@ -246,9 +248,7 @@ BOOL LLScrollContainer::handleScrollWheel( S32 x, S32 y, S32 clicks )
 			return TRUE;
 		}
 	}
-
-	// Eat scroll wheel event (to avoid scrolling nested containers?)
-	return TRUE;
+	return FALSE;
 }
 
 BOOL LLScrollContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,

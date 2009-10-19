@@ -47,6 +47,10 @@
 #include "lllandmarkactions.h"
 #include "llclipboard.h"
 
+// Maximum number of items that can be added to a list in one pass.
+// Used to limit time spent for items list update per frame.
+static const U32 ADD_LIMIT = 50;
+
 class LLTeleportHistoryFlatItem : public LLPanel
 {
 public:
@@ -56,6 +60,7 @@ public:
 	virtual BOOL postBuild();
 
 	S32 getIndex() { return mIndex; }
+	const std::string& getRegionName() { return mRegionName;}
 
 	/*virtual*/ void setValue(const LLSD& value);
 
@@ -211,9 +216,10 @@ void LLTeleportHistoryPanel::ContextMenu::onCopy()
 LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 	:	LLPanelPlacesTab(),
 		mFilterSubString(LLStringUtil::null),
+		mDirty(true),
+		mCurrentItem(0),
 		mTeleportHistory(NULL),
 		mHistoryAccordion(NULL),
-		mStarButton(NULL),
 		mAccordionTabMenu(NULL),
 		mLastSelectedScrollList(NULL)
 {
@@ -277,10 +283,16 @@ BOOL LLTeleportHistoryPanel::postBuild()
 	if(gear_menu)
 		mGearMenuHandle  = gear_menu->getHandle();
 
-	mStarButton = getChild<LLButton>("star_btn");
-	mStarButton->setCommitCallback(boost::bind(&LLTeleportHistoryPanel::onStarButtonCommit, this));
-
 	return TRUE;
+}
+
+// virtual
+void LLTeleportHistoryPanel::draw()
+{
+	if (mDirty)
+		refresh();
+
+	LLPanelPlacesTab::draw();
 }
 
 // virtual
@@ -361,8 +373,6 @@ void LLTeleportHistoryPanel::updateVerbs()
 	{
 		mTeleportBtn->setEnabled(false);
 		mShowOnMapBtn->setEnabled(false);
-		mStarButton->setEnabled(false);
-		mStarButton->setToolTip(LLStringExplicit(""));
 		return;
 	}
 
@@ -370,141 +380,138 @@ void LLTeleportHistoryPanel::updateVerbs()
 
 	mTeleportBtn->setEnabled(NULL != itemp && itemp->getIndex() < (S32)mTeleportHistory->getItems().size() - 1);
 	mShowOnMapBtn->setEnabled(NULL != itemp);
-
-	if (NULL != itemp)
-	{
-		LLViewerInventoryItem *landmark = LLLandmarkActions::findLandmarkForGlobalPos(
-			mTeleportHistory->getItems()[itemp->getIndex()].mGlobalPos);
-
-		mStarButton->setEnabled(true);
-		if (!landmark || landmark->getUUID().isNull())
-		{
-			mStarButton->setToggleState(true);
-			// Landmark can be created only for current agent positon, which is most recent (last) item in teleport history.
-			// mTeleportBtn is disabled only for that item.
-			mStarButton->setToolTip(mTeleportBtn->getEnabled() ? getString("cant_create_lm_here") : getString("create_landmark"));
-		}
-		else
-		{
-			mStarButton->setToggleState(false);
-			mStarButton->setToolTip(getString("open_landmark"));
-		}
-	}
-	else
-	{
-		mStarButton->setEnabled(false);
-		mStarButton->setToolTip(LLStringExplicit(""));
-	}
 }
 
-void LLTeleportHistoryPanel::showTeleportHistory()
+void LLTeleportHistoryPanel::getNextTab(const LLDate& item_date, S32& tab_idx, LLDate& tab_date)
 {
-	if (!mHistoryAccordion)
-		return;
-
-	const LLTeleportHistoryStorage::slurl_list_t& hist_items = mTeleportHistory->getItems();
-
 	const U32 seconds_in_day = 24 * 60 * 60;
-	LLDate curr_date =  LLDate::now();
 
-	S32 curr_tab = -1;
 	S32 tabs_cnt = mItemContainers.size();
 	S32 curr_year = 0, curr_month = 0, curr_day = 0;
 
-	curr_date.split(&curr_year, &curr_month, &curr_day);
-	curr_date.fromYMDHMS(curr_year, curr_month, curr_day); // Set hour, min, and sec to 0
-	curr_date.secondsSinceEpoch(curr_date.secondsSinceEpoch() + seconds_in_day);
+	tab_date = LLDate::now();
+	tab_date.split(&curr_year, &curr_month, &curr_day);
+	tab_date.fromYMDHMS(curr_year, curr_month, curr_day); // Set hour, min, and sec to 0
+	tab_date.secondsSinceEpoch(tab_date.secondsSinceEpoch() + seconds_in_day);
 
+	tab_idx = -1;
+
+	while (tab_idx < tabs_cnt - 1 && item_date < tab_date)
+	{
+		tab_idx++;
+
+		if (tab_idx <= tabs_cnt - 4)
+		{
+			tab_date.secondsSinceEpoch(tab_date.secondsSinceEpoch() - seconds_in_day);
+		}
+		else if (tab_idx == tabs_cnt - 3) // 6 day and older, low boundary is 1 month
+		{
+			tab_date =  LLDate::now();
+			tab_date.split(&curr_year, &curr_month, &curr_day);
+			curr_month--;
+			if (0 == curr_month)
+			{
+				curr_month = 12;
+				curr_year--;
+			}
+			tab_date.fromYMDHMS(curr_year, curr_month, curr_day);
+		}
+		else if (tab_idx == tabs_cnt - 2) // 1 month and older, low boundary is 6 months
+		{
+			tab_date =  LLDate::now();
+			tab_date.split(&curr_year, &curr_month, &curr_day);
+			if (curr_month > 6)
+			{
+				curr_month -= 6;
+			}
+			else
+			{
+				curr_month += 6;
+				curr_year--;
+			}
+			tab_date.fromYMDHMS(curr_year, curr_month, curr_day);
+		}
+		else // 6 months and older
+		{
+			tab_date.secondsSinceEpoch(0);
+		}
+	}
+}
+
+void LLTeleportHistoryPanel::refresh()
+{
+	if (!mHistoryAccordion)
+	{
+		mDirty = false;
+		return;
+	}
+
+	const LLTeleportHistoryStorage::slurl_list_t& items = mTeleportHistory->getItems();
+
+	LLDate tab_boundary_date =  LLDate::now();
 	LLFlatListView* curr_flat_view = NULL;
 
-	S32 index = hist_items.size() - 1;
-
-	for (LLTeleportHistoryStorage::slurl_list_t::const_reverse_iterator iter = hist_items.rbegin();
-	      iter != hist_items.rend(); ++iter, --index)
+	U32 added_items = 0;
+	while (mCurrentItem >= 0)
 	{
-		std::string landmark_title = (*iter).mTitle;
+		std::string landmark_title = items[mCurrentItem].mTitle;
 		LLStringUtil::toUpper(landmark_title);
 
 		std::string::size_type match_offset = mFilterSubString.size() ? landmark_title.find(mFilterSubString) : std::string::npos;
 		bool passed = mFilterSubString.size() == 0 || match_offset != std::string::npos;
 
 		if (!passed)
-			continue;
-
-		if (curr_tab < tabs_cnt - 1)
 		{
-			const LLDate &date = (*iter).mDate;
+			mCurrentItem--;
+			continue;
+		}
 
-			if (date < curr_date)
-			{
-				LLAccordionCtrlTab* tab = NULL;
-				while (curr_tab < tabs_cnt - 1 && date < curr_date)
-				{
-					curr_tab++;
+		const LLDate &date = items[mCurrentItem].mDate;
 
-					tab = mItemContainers.get(mItemContainers.size() - 1 - curr_tab);
-					tab->setVisible(false);
+		if (date < tab_boundary_date)
+		{
+			S32 tab_idx = 0;
+			getNextTab(date, tab_idx, tab_boundary_date);
 
-					if (curr_tab <= tabs_cnt - 4)
-					{
-						curr_date.secondsSinceEpoch(curr_date.secondsSinceEpoch() - seconds_in_day);
-					}
-					else if (curr_tab == tabs_cnt - 3) // 6 day and older, low boundary is 1 month
-					{
-						curr_date =  LLDate::now();
-						curr_date.split(&curr_year, &curr_month, &curr_day);
-						curr_month--;
-						if (0 == curr_month)
-						{
-							curr_month = 12;
-							curr_year--;
-						}
-						curr_date.fromYMDHMS(curr_year, curr_month, curr_day);
-					}
-					else if (curr_tab == tabs_cnt - 2) // 1 month and older, low boundary is 6 months
-					{
-						curr_date =  LLDate::now();
-						curr_date.split(&curr_year, &curr_month, &curr_day);
-						if (curr_month > 6)
-						{
-							curr_month -= 6;
-						}
-						else
-						{
-							curr_month += 6;
-							curr_year--;
-						}
-						curr_date.fromYMDHMS(curr_year, curr_month, curr_day);
-					}
-					else // 6 months and older
-					{
-						curr_date.secondsSinceEpoch(0);
-					}
-				}
+			LLAccordionCtrlTab* tab = mItemContainers.get(mItemContainers.size() - 1 - tab_idx);
+			tab->setVisible(true);
 
-				tab->setVisible(true);
-
-				curr_flat_view = getFlatListViewFromTab(tab);
-				if (curr_flat_view)
-				{
-					curr_flat_view->clear();
-				}
-			}
+			curr_flat_view = getFlatListViewFromTab(tab);
 		}
 
 		if (curr_flat_view)
-		{
-			curr_flat_view->addItem(new LLTeleportHistoryFlatItem(index, &mContextMenu, (*iter).mTitle));
-		}
-	}
+			curr_flat_view->addItem(new LLTeleportHistoryFlatItem(mCurrentItem, &mContextMenu, items[mCurrentItem].mTitle));
 
-	// Hide empty tabs from current to bottom
-	for (curr_tab++; curr_tab < tabs_cnt; curr_tab++)
-		mItemContainers.get(mItemContainers.size() - 1 - curr_tab)->setVisible(false);
+		mCurrentItem--;
+
+		if (++added_items >= ADD_LIMIT)
+			break;
+	}
 
 	mHistoryAccordion->arrange();
 
 	updateVerbs();
+
+	if (mCurrentItem < 0)
+		mDirty = false;
+}
+
+void LLTeleportHistoryPanel::showTeleportHistory()
+{
+	mDirty = true;
+	mCurrentItem = mTeleportHistory->getItems().size() - 1;
+
+	for (S32 n = mItemContainers.size() - 1; n >= 0; --n)
+	{
+		LLAccordionCtrlTab* tab = mItemContainers.get(n);
+		tab->setVisible(false);
+
+		LLFlatListView* fv = getFlatListViewFromTab(tab);
+		if (fv)
+			fv->clear();
+	}
+
+	refresh();
 }
 
 void LLTeleportHistoryPanel::handleItemSelect(LLFlatListView* selected)
@@ -665,30 +672,5 @@ void LLTeleportHistoryPanel::onGearButtonClicked()
 	menu->buildDrawLabels();
 	menu->updateParent(LLMenuGL::sMenuContainer);
 	LLMenuGL::showPopup(this, menu, menu_x, menu_y);
-}
-
-void LLTeleportHistoryPanel::onStarButtonCommit()
-{
-	if (!mLastSelectedScrollList)
-		return;
-
-	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedScrollList->getSelectedItem());
-	if(!itemp)
-		return;
-
-	if (itemp->getIndex() < (S32)mTeleportHistory->getItems().size() - 1)
-	{
-		LLTeleportHistoryFlatItem::showPlaceInfoPanel(itemp->getIndex());
-	}
-	else
-	{
-		LLViewerInventoryItem *landmark = LLLandmarkActions::findLandmarkForGlobalPos(
-			mTeleportHistory->getItems()[itemp->getIndex()].mGlobalPos);
-
-		if (!landmark || landmark->getUUID().isNull())
-			LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
-		else
-			LLTeleportHistoryFlatItem::showPlaceInfoPanel(itemp->getIndex());
-	}
 }
 

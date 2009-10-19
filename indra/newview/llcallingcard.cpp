@@ -260,7 +260,7 @@ S32 LLAvatarTracker::addBuddyList(const LLAvatarTracker::buddy_map_t& buds)
 			++new_buddy_count;
 			mBuddyInfo[agent_id] = (*itr).second;
 			gCacheName->getName(agent_id, first, last);
-			mModifyMask |= LLFriendObserver::ADD;
+			addChangedMask(LLFriendObserver::ADD, agent_id);
 			lldebugs << "Added buddy " << agent_id
 					<< ", " << (mBuddyInfo[agent_id]->isOnline() ? "Online" : "Offline")
 					<< ", TO: " << mBuddyInfo[agent_id]->getRightsGrantedTo()
@@ -333,7 +333,7 @@ void LLAvatarTracker::setBuddyOnline(const LLUUID& id, bool is_online)
 	if(info)
 	{
 		info->online(is_online);
-		mModifyMask |= LLFriendObserver::ONLINE;
+		addChangedMask(LLFriendObserver::ONLINE, id);
 		lldebugs << "Set buddy " << id << (is_online ? " Online" : " Offline") << llendl;
 	}
 	else
@@ -488,8 +488,50 @@ void LLAvatarTracker::notifyObservers()
 	{
 		(*it)->changed(mModifyMask);
 	}
+
+	for (changed_buddy_t::iterator it = mChangedBuddyIDs.begin(); it != mChangedBuddyIDs.end(); it++)
+	{
+		notifyParticularFriendObservers(*it);
+	}
+
 	mModifyMask = LLFriendObserver::NONE;
 	mChangedBuddyIDs.clear();
+}
+
+void LLAvatarTracker::addParticularFriendObserver(const LLUUID& buddy_id, LLFriendObserver* observer)
+{
+	if (buddy_id.notNull() && observer)
+		mParticularFriendObserverMap[buddy_id].insert(observer);
+}
+
+void LLAvatarTracker::removeParticularFriendObserver(const LLUUID& buddy_id, LLFriendObserver* observer)
+{
+	if (buddy_id.isNull() || !observer)
+		return;
+
+    observer_map_t::iterator obs_it = mParticularFriendObserverMap.find(buddy_id);
+    if(obs_it == mParticularFriendObserverMap.end())
+        return;
+
+    obs_it->second.erase(observer);
+
+    // purge empty sets from the map
+    if (obs_it->second.size() == 0)
+    	mParticularFriendObserverMap.erase(obs_it);
+}
+
+void LLAvatarTracker::notifyParticularFriendObservers(const LLUUID& buddy_id)
+{
+    observer_map_t::iterator obs_it = mParticularFriendObserverMap.find(buddy_id);
+    if(obs_it == mParticularFriendObserverMap.end())
+        return;
+
+    // Notify observers interested in buddy_id.
+    observer_set_t& obs = obs_it->second;
+    for (observer_set_t::iterator ob_it = obs.begin(); ob_it != obs.end(); ob_it++)
+    {
+        (*ob_it)->changed(mModifyMask);
+    }
 }
 
 // store flag for change
@@ -610,8 +652,8 @@ void LLAvatarTracker::processChange(LLMessageSystem* msg)
 			}
 		}
 	}
-	mModifyMask |= LLFriendObserver::POWERS;
 
+	addChangedMask(LLFriendObserver::POWERS, agent_id);
 	notifyObservers();
 }
 

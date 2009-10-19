@@ -144,6 +144,8 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	// All participants will be added to the list of people we've recently interacted with.
 	mSpeakers->addListener(&LLRecentPeople::instance(), "add");
 
+	//we need to wait for session initialization for outgoing ad-hoc and group chat session
+	//correct session id for initiated ad-hoc chat will be received from the server
 	if (!LLIMModel::getInstance()->sendStartSession(mSessionID, mOtherParticipantID, 
 		mInitialTargetIDs, mType))
 	{
@@ -181,26 +183,44 @@ LLIMModel::LLIMSession::~LLIMSession()
 	mVoiceChannel = NULL;
 }
 
+void LLIMModel::LLIMSession::sessionInitReplyReceived(const LLUUID& new_session_id)
+{
+	mSessionInitialized = true;
+
+	if (new_session_id != mSessionID)
+	{
+		mSessionID = new_session_id;
+		mVoiceChannel->updateSessionID(new_session_id);
+	}
+}
+
 LLIMModel::LLIMSession* LLIMModel::findIMSession(const LLUUID& session_id) const
 {
 	return get_if_there(LLIMModel::instance().sSessionsMap, session_id,
 		(LLIMModel::LLIMSession*) NULL);
 }
 
+//*TODO change name to represent session initialization aspect (IB)
 void LLIMModel::updateSessionID(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
-	if (new_session_id == old_session_id) return;
-
 	LLIMSession* session = findIMSession(old_session_id);
 	if (session)
 	{
-		session->mSessionID = new_session_id;
-		session->mVoiceChannel->updateSessionID(new_session_id);
+		session->sessionInitReplyReceived(new_session_id);
 
-		session->mSessionInitialized = true;
+		if (old_session_id != new_session_id)
+		{
+			sSessionsMap.erase(old_session_id);
+			sSessionsMap[new_session_id] = session;
 
-		sSessionsMap.erase(old_session_id);
-		sSessionsMap[new_session_id] = session;
+			gIMMgr->notifyObserverSessionIDUpdated(old_session_id, new_session_id);
+		}
+
+		LLIMFloater* im_floater = LLIMFloater::findInstance(old_session_id);
+		if (im_floater)
+		{
+			im_floater->sessionInitReplyReceived(new_session_id);
+		}
 	}
 
 	//*TODO remove this "floater" stuff when Communicate Floater is gone
@@ -736,18 +756,10 @@ bool LLIMModel::sendStartSession(
 			temp_session_id,
 			other_participant_id,
 			dialog);
-
-		switch(dialog)
-		{
-		case IM_SESSION_GROUP_START:
-			gMessageSystem->addBinaryDataFast(
+		gMessageSystem->addBinaryDataFast(
 				_PREHASH_BinaryBucket,
 				EMPTY_BINARY_BUCKET,
 				EMPTY_BINARY_BUCKET_SIZE);
-			break;
-		default:
-			break;
-		}
 		gAgent.sendReliableMessage();
 
 		return true;
@@ -789,6 +801,9 @@ bool LLIMModel::sendStartSession(
 				other_participant_id,
 				agents);
 		}
+
+		//we also need to wait for reply from the server in case of ad-hoc chat (we'll get new session id)
+		return true;
 	}
 
 	return false;
@@ -1291,9 +1306,16 @@ void LLIMMgr::addMessage(
 		new_session_id = computeSessionID(dialog, other_participant_id);
 	}
 
+	//*NOTE session_name is empty in case of incoming P2P sessions
+	std::string fixed_session_name = from;
+	if(!session_name.empty() && session_name.size()>1)
+	{
+		fixed_session_name = session_name;
+	}
+
 	if (!LLIMModel::getInstance()->findIMSession(new_session_id))
 	{
-		LLIMModel::instance().newSession(session_id, session_name, dialog, other_participant_id);
+		LLIMModel::getInstance()->newSession(session_id, fixed_session_name, dialog, other_participant_id);
 	}
 
 	floater = findFloaterBySession(new_session_id);
@@ -1310,17 +1332,12 @@ void LLIMMgr::addMessage(
 	// create IM window as necessary
 	if(!floater)
 	{
-		std::string name = from;
-		if(!session_name.empty() && session_name.size()>1)
-		{
-			name = session_name;
-		}
 
 		
 		floater = createFloater(
 			new_session_id,
 			other_participant_id,
-			name,
+			fixed_session_name,
 			dialog,
 			FALSE);
 
@@ -1867,6 +1884,15 @@ void LLIMMgr::notifyObserverSessionRemoved(const LLUUID& session_id)
 	{
 		(*it)->sessionRemoved(session_id);
 	}
+}
+
+void LLIMMgr::notifyObserverSessionIDUpdated( const LLUUID& old_session_id, const LLUUID& new_session_id )
+{
+	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); it++)
+	{
+		(*it)->sessionIDUpdated(old_session_id, new_session_id);
+	}
+
 }
 
 void LLIMMgr::addSessionObserver(LLIMSessionObserver *observer)

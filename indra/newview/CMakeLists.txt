@@ -94,6 +94,7 @@ set(viewer_SOURCE_FILES
     llchannelmanager.cpp
     llchatbar.cpp
     llchatitemscontainerctrl.cpp
+    llchathistory.cpp
     llchatmsgbox.cpp
     llchiclet.cpp
     llclassifiedinfo.cpp
@@ -246,6 +247,7 @@ set(viewer_SOURCE_FILES
     llinventoryclipboard.cpp
     llinventoryfilter.cpp
     llinventorymodel.cpp
+    llinventorysubtreepanel.cpp
     lljoystickbutton.cpp
     lllandmarkactions.cpp
     lllandmarklist.cpp
@@ -344,6 +346,7 @@ set(viewer_SOURCE_FILES
     llpanelvolume.cpp
     llparcelselection.cpp
     llpatchvertexarray.cpp
+    llplacesinventorybridge.cpp
     llpolymesh.cpp
     llpolymorph.cpp
     llpreviewanim.cpp
@@ -564,6 +567,7 @@ set(viewer_HEADER_FILES
     llchannelmanager.h
     llchatbar.h
     llchatitemscontainerctrl.h
+    llchathistory.h
     llchatmsgbox.h
     llchiclet.h
     llclassifiedinfo.h
@@ -716,6 +720,7 @@ set(viewer_HEADER_FILES
     llinventoryclipboard.h
     llinventoryfilter.h
     llinventorymodel.h
+    llinventorysubtreepanel.h
     lljoystickbutton.h
     lllandmarkactions.h
     lllandmarklist.h
@@ -811,6 +816,7 @@ set(viewer_HEADER_FILES
     llpanelvolume.h
     llparcelselection.h
     llpatchvertexarray.h
+    llplacesinventorybridge.h
     llpolymesh.h
     llpolymorph.h
     llpreview.h

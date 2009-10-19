@@ -29,4 +29,12 @@
          function="Places.OverflowMenu.Action"
          parameter="pick" />
     </menu_item_call>
+    <menu_item_call
+     label="Add to Favorites Bar"
+     layout="topleft"
+     name="add_to_favbar">
+        <menu_item_call.on_click
+         function="Places.OverflowMenu.Action"
+         parameter="add_to_favbar" />
+    </menu_item_call>
 </toggleable_menu>

@@ -120,6 +120,11 @@ protected:
 	LLInventoryPanel* mIP;
 };
 
+const std::string safe_inv_type_lookup(LLInventoryType::EType inv_type);
+void hideContextEntries(LLMenuGL& menu, 
+						const std::vector<std::string> &entries_to_show,
+						const std::vector<std::string> &disabled_entries);
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInvFVBridge (& it's derived classes)
 //
@@ -168,13 +173,13 @@ public:
 	virtual BOOL isItemRenameable() const { return TRUE; }
 	//virtual BOOL renameItem(const std::string& new_name) {}
 	virtual BOOL isItemRemovable();
-	virtual BOOL isItemMovable();
+	virtual BOOL isItemMovable() const;
 	//virtual BOOL removeItem() = 0;
 	virtual void removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch);
 	virtual void move(LLFolderViewEventListener* new_parent_bridge) {}
 	virtual BOOL isItemCopyable() const { return FALSE; }
 	virtual BOOL copyToClipboard() const { return FALSE; }
-	virtual void cutToClipboard() {}
+	virtual void cutToClipboard();
 	virtual BOOL isClipboardPasteable() const;
 	virtual BOOL isClipboardPasteableAsLink() const;
 	virtual void pasteFromClipboard() {}
@@ -219,6 +224,22 @@ protected:
 	const LLUUID mUUID;	// item id
 	LLInventoryType::EType mInvType;
 	void purgeItem(LLInventoryModel *model, const LLUUID &uuid);
+};
+
+/**
+ * This class intended to build Folder View Bridge via LLInvFVBridge::createBridge.
+ * It can be overridden with another way of creation necessary Inventory-Folder-View-Bridge.
+ */
+class LLInventoryFVBridgeBuilder
+{
+public:
+ 	virtual ~LLInventoryFVBridgeBuilder(){}
+	virtual LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
+										LLAssetType::EType actual_asset_type,
+										LLInventoryType::EType inv_type,
+										LLInventoryPanel* inventory,
+										const LLUUID& uuid,
+										U32 flags = 0x00) const;
 };
 
 
@@ -291,7 +312,7 @@ public:
 							void* cargo_data);
 
 	virtual BOOL isItemRemovable();
-	virtual BOOL isItemMovable();
+	virtual BOOL isItemMovable() const ;
 	virtual BOOL isUpToDate() const;
 	virtual BOOL isItemCopyable() const;
 	virtual BOOL isClipboardPasteableAsLink() const;

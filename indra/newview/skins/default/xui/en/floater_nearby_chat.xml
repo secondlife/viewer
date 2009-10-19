@@ -30,23 +30,18 @@
       		color="1 1 1 1" enabled="true" image_name="closebox.tga"
       		name="close_btn"/>
 	</panel>
-            <text_editor
+            <chat_history
              allow_html="true" 
              bg_readonly_color="ChatHistoryBgColor"
              bg_writeable_color="ChatHistoryBgColor"
-             follows="left|top|right|bottom"
+             follows="left|top|right"
              font="SansSerif"
              layout="topleft"
-			       height="320"
-             max_length="2147483647"
-             name="Chat History Editor"
+			 height="320"
+             name="chat_history"
              parse_highlights="true" 
-             read_only="true"
              text_color="ChatHistoryTextColor"
              text_readonly_color="ChatHistoryTextColor"
-             bottom="0"
-             track_bottom="true"
-             width="250"
-             word_wrap="true" />
+             width="250"/>
 
 </floater>

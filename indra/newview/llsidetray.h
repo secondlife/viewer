@@ -203,6 +203,7 @@ public:
 	bool		addChild		(LLView* view, S32 tab_group);
 
 	BOOL		handleMouseDown	(S32 x, S32 y, MASK mask);
+	BOOL		handleScrollWheel(S32 x, S32 y, S32 mask);
 	
 	void		reshape			(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	S32			getTrayWidth();

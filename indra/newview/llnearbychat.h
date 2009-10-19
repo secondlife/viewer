@@ -38,7 +38,7 @@
 #include "llchat.h"
 
 class LLResizeBar;
-class LLViewerTextEditor;
+class LLChatHistory;
 
 class LLNearbyChat: public LLFloater
 {
@@ -89,7 +89,7 @@ private:
 
 	LLHandle<LLView>	mPopupMenuHandle;
 	LLPanel*			mChatCaptionPanel;
-	LLViewerTextEditor*	mChatHistoryEditor;
+	LLChatHistory*		mChatHistory;
 
 	bool				m_isDirty;
 };

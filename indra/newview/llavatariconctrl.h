@@ -104,7 +104,6 @@ public:
 	const std::string&	getLastName() const { return mLastName; }
 
 protected:
-	LLIconCtrl*			mStatusSymbol;
 	LLUUID				mAvatarId;
 	std::string			mFirstName;
 	std::string			mLastName;

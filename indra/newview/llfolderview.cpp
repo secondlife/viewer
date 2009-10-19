@@ -190,6 +190,8 @@ LLFolderView::LLFolderView(const Params& p)
 	mDragAndDropThisFrame(FALSE),
 	mCallbackRegistrar(NULL),
 	mParentPanel(p.parent_panel)
+,	mUseEllipses(false)
+,	mDraggingOverItem(NULL)
 {
 	LLRect rect = p.rect;
 	LLRect new_rect(rect.mLeft, rect.mBottom + getRect().getHeight(), rect.mLeft + getRect().getWidth(), rect.mBottom);
@@ -481,6 +483,11 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		scroll_rect = mScrollContainer->getContentWindowRect();
 	}
 	width = llmax(mMinWidth, scroll_rect.getWidth());
+
+	// restrict width with scroll container's width
+	if (mUseEllipses)
+		width = scroll_rect.getWidth();
+
 	LLView::reshape(width, height, called_from_parent);
 
 	mReshapeSignal(mSelectedItems, FALSE);
@@ -1224,12 +1231,42 @@ void LLFolderView::copy()
 
 BOOL LLFolderView::canCut() const
 {
-	return FALSE;
+	if (!(getVisible() && getEnabled() && (mSelectedItems.size() > 0)))
+	{
+		return FALSE;
+	}
+	
+	for (selected_items_t::const_iterator selected_it = mSelectedItems.begin(); selected_it != mSelectedItems.end(); ++selected_it)
+	{
+		const LLFolderViewItem* item = *selected_it;
+		const LLFolderViewEventListener* listener = item->getListener();
+		if (!listener || !listener->isItemMovable())
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
 }
 
 void LLFolderView::cut()
 {
-	// implement Windows-style cut-and-leave
+	// clear the inventory clipboard
+	LLInventoryClipboard::instance().reset();
+	S32 count = mSelectedItems.size();
+	if(getVisible() && getEnabled() && (count > 0))
+	{
+		LLFolderViewEventListener* listener = NULL;
+		selected_items_t::iterator item_it;
+		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
+		{
+			listener = (*item_it)->getListener();
+			if(listener)
+			{
+				listener->cutToClipboard();
+			}
+		}
+	}
+	mSearchString.clear();
 }
 
 BOOL LLFolderView::canPaste() const

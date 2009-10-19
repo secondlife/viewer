@@ -181,16 +181,6 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 
 	rect.setOriginAndSize(left, bottom, llavatariconctrl_symbol_size, llavatariconctrl_symbol_size);
 
-	LLIconCtrl::Params icparams;
-	icparams.name ("Status Symbol");
-	icparams.follows.flags (FOLLOWS_RIGHT | FOLLOWS_BOTTOM);
-	icparams.rect (rect);
-	mStatusSymbol = LLUICtrlFactory::create<LLIconCtrl> (icparams);
-	mStatusSymbol->setValue("circle.tga");
-	mStatusSymbol->setColor(LLColor4::grey);
-
-	addChild(mStatusSymbol);
-	
 	if (p.avatar_id.isProvided())
 	{
 		LLSD value(p.avatar_id);
@@ -239,16 +229,13 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 			mAvatarId = value.asUUID();
 
 			// *BUG: This will return stale icons if a user changes their
-			// profile picture.  Also, the online/offline tooltips will be
-			// out of date.  However, otherwise we send too many upstream
+			// profile picture. However, otherwise we send too many upstream
 			// AvatarPropertiesRequest messages.
-			//
-			// *TODO: Implement a timeout on the icon cache, perhaps a day?,
-			// and make the cache update if a user views the full-profile for
-			// an avatar.
+
+			// to get fresh avatar icon use
+			// LLAvatarIconIDCache::getInstance()->remove(avatar_id);
 
 			// Check if cache already contains image_id for that avatar
-			
 			if (!updateFromCache())
 			{
 				app->addObserver(mAvatarId, this);
@@ -282,36 +269,6 @@ bool LLAvatarIconCtrl::updateFromCache()
 		LLIconCtrl::setValue("default_profile_picture.j2c");
 	}
 
-	// Can only see online status of friends
-	if (LLAvatarTracker::instance().isBuddy(mAvatarId))
-	{
-		if (LLAvatarTracker::instance().isBuddyOnline(mAvatarId))
-		{
-			// Update color of status symbol and tool tip
-			mStatusSymbol->setColor(LLColor4::green);
-			if (mDrawTooltip)
-			{
-				setToolTip((LLStringExplicit)"Online");
-			}
-		}
-		else
-		{
-			mStatusSymbol->setColor(LLColor4::grey);
-			if (mDrawTooltip)
-			{
-				setToolTip((LLStringExplicit)"Offline");
-			}
-		}
-	}
-	else
-	{
-		// Not a buddy, no information
-		mStatusSymbol->setColor(LLColor4::grey);
-		if (mDrawTooltip)
-		{
-			setToolTip((LLStringExplicit)"");
-		}
-	}
 	return true;
 }
 
@@ -370,6 +327,11 @@ void LLAvatarIconCtrl::nameUpdatedCallback(
 	{
 		mFirstName = first;
 		mLastName = last;
+
+		if (mDrawTooltip)
+		{
+			setToolTip(mFirstName + " " + mLastName);
+		}
 	}
 }
 

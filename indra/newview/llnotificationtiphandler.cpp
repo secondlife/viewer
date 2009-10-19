@@ -33,6 +33,8 @@
 
 #include "llviewerprecompiledheaders.h" // must be first include
 
+#include "llfloaterreg.h"
+#include "llnearbychat.h"
 #include "llnotificationhandler.h"
 #include "lltoastnotifypanel.h"
 #include "llviewercontrol.h"
@@ -96,6 +98,14 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
 		if(channel)
 			channel->addToast(p);
+
+		// archive message in nearby chat
+		LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+		if(nearby_chat)
+		{
+			LLChat chat_msg(notification->getMessage());
+			nearby_chat->addMessage(chat_msg);
+		}
 	}
 	else if (notify["sigtype"].asString() == "delete")
 	{

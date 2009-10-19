@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ follows="left|right|top"
+ height="10"
+ layout="topleft"
+ left="8"
+ name="chat_separator_container">
+    <panel
+     background_visible="true"
+     bg_alpha_color="black"
+     follows="left|right|top"
+     height="1"
+     layout="topleft"
+     name="chat_separator_panel"
+     top_pad="5" />
+</panel>

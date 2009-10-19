@@ -202,6 +202,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	item->showSpeakingIndicator(true);
 	item->setName(name);
 	item->setAvatarId(id);
+	item->setOnline(is_bold);
 	item->setContextMenu(mContextMenu);
 
 	item->childSetVisible("info_btn", false);

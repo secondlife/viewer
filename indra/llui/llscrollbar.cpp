@@ -409,8 +409,13 @@ BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
 
 BOOL LLScrollbar::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	changeLine( clicks * mStepSize, TRUE );
-	return TRUE;
+	S32 pos = llclamp(mDocPos + clicks * mStepSize, 0, getDocPosMax());
+	if (pos != mDocPos)
+	{
+		setDocPos(pos, TRUE);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 BOOL LLScrollbar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,

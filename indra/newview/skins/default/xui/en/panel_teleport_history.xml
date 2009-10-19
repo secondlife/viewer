@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="Teleport History" bottom="0" height="326" left="0" width="380"
      border="true" follows="left|top|right|bottom">     
-    <string
-     name="cant_create_lm_here"
-     value="Please teleport to selected location before creating Landmark. " />
-    <string
-     name="create_landmark"
-     value="Create Landmark" />
-    <string
-     name="open_landmark"
-     value="Open Landmark panel" />
     <accordion
      follows="left|top|right|bottom"
      height="300"
@@ -187,20 +178,6 @@
          name="gear_btn"
          picture_style="true"
          top="5"
-         width="18" />
-        <button
-         follows="bottom|left"
-         font="SansSerifBigBold"
-         height="18"
-         image_selected="Favorite_Star_Active"
-         image_disabled="Favorite_Star_Off"
-         image_unselected="Favorite_Star_Press"
-         layout="topleft"
-         left_pad="5"
-         name="star_btn"
-         picture_style="true"
-         tool_tip=""
-         top_delta="0"
          width="18" />
     </panel>
 </panel>

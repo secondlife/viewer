@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chat_history
+	message_header="panel_chat_header.xml"
+    message_separator="panel_chat_separator.xml"
+    left_text_pad="10"
+	right_text_pad="15"
+    left_widget_pad="5"
+	rigth_widget_pad="10"
+	max_length="2147483647"
+	enabled="false"
+	track_bottom="true"
+	name="chat_history"
+	type="string"
+	word_wrap="true" />

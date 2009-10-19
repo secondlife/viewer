@@ -150,6 +150,12 @@ public:
 	void removeObserver(LLFriendObserver* observer);
 	void notifyObservers();
 
+	// Observers interested in updates of a particular avatar.
+	// On destruction these observers are NOT deleted.
+	void addParticularFriendObserver(const LLUUID& buddy_id, LLFriendObserver* observer);
+	void removeParticularFriendObserver(const LLUUID& buddy_id, LLFriendObserver* observer);
+	void notifyParticularFriendObservers(const LLUUID& buddy_id);
+
 	/**
 	 * Stores flag for change and id of object change applies to
 	 *
@@ -198,6 +204,10 @@ protected:
 
 	typedef std::vector<LLFriendObserver*> observer_list_t;
 	observer_list_t mObservers;
+
+    typedef std::set<LLFriendObserver*> observer_set_t;
+    typedef std::map<LLUUID, observer_set_t> observer_map_t;
+    observer_map_t mParticularFriendObserverMap;
 
 private:
 	// do not implement

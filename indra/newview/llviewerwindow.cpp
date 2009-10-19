@@ -2293,7 +2293,9 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 	}
 
 	// Zoom the camera in and out behavior
-	gAgent.handleScrollWheel(clicks);
+
+	if(top_ctrl == 0 && mWorldViewRect.pointInRect(mCurrentMousePoint.mX, mCurrentMousePoint.mY) )
+		gAgent.handleScrollWheel(clicks);
 
 	return;
 }
@@ -4168,8 +4170,9 @@ void LLViewerWindow::drawMouselookInstructions()
 		instructions, 0,
 		getVirtualWorldViewRect().getCenterX(),
 		getVirtualWorldViewRect().mBottom + INSTRUCTIONS_PAD,
-		LLColor4( 0.0f, 0.0f, 0.0f, 0.6f ),
-		LLFontGL::HCENTER, LLFontGL::TOP);
+		LLColor4( 1.0f, 1.0f, 1.0f, 0.5f ),
+		LLFontGL::HCENTER, LLFontGL::TOP,
+		LLFontGL::NORMAL,LLFontGL::DROP_SHADOW);
 }
 
 S32	LLViewerWindow::getWindowHeight()	const 	

@@ -52,9 +52,15 @@ LLAvatarListItem::LLAvatarListItem()
 	mInfoBtn(NULL),
 	mProfileBtn(NULL),
 	mContextMenu(NULL),
-	mAvatarId(LLUUID::null)
+	mOnlineStatus(E_UNKNOWN)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
+}
+
+LLAvatarListItem::~LLAvatarListItem()
+{
+	if (mAvatarId.notNull())
+		LLAvatarTracker::instance().removeParticularFriendObserver(mAvatarId, this);
 }
 
 BOOL  LLAvatarListItem::postBuild()
@@ -138,6 +144,36 @@ void LLAvatarListItem::setStatus(const std::string& status)
 	mStatus->setValue(status);
 }
 
+// virtual, called by LLAvatarTracker
+void LLAvatarListItem::changed(U32 mask)
+{
+	// no need to check mAvatarId for null in this case
+	setOnline(LLAvatarTracker::instance().isBuddyOnline(mAvatarId));
+}
+
+void LLAvatarListItem::setOnline(bool online)
+{
+	// *FIX: setName() overrides font style set by setOnline(). Not an issue ATM.
+	// *TODO: Make the colors configurable via XUI.
+
+	if (mOnlineStatus != E_UNKNOWN && (bool) mOnlineStatus == online)
+		return;
+
+	mOnlineStatus = (EOnlineStatus) online;
+
+	// Change avatar name font style depending on the new online status.
+	LLStyle::Params style_params;
+	style_params.color = online ? LLColor4::white : LLColor4::grey;
+
+	// Rebuild the text to change its style.
+	std::string text = mAvatarName->getText();
+	mAvatarName->setText(LLStringUtil::null);
+	mAvatarName->appendText(text, false, style_params);
+
+	// Make the icon fade if the avatar goes offline.
+	mAvatarIcon->setColor(online ? LLColor4::white : LLColor4::smoke);
+}
+
 void LLAvatarListItem::setName(const std::string& name)
 {
 	mAvatarName->setValue(name);
@@ -146,9 +182,16 @@ void LLAvatarListItem::setName(const std::string& name)
 
 void LLAvatarListItem::setAvatarId(const LLUUID& id)
 {
+	if (mAvatarId.notNull())
+		LLAvatarTracker::instance().removeParticularFriendObserver(mAvatarId, this);
+
 	mAvatarId = id;
 	mAvatarIcon->setValue(id);
 	mSpeakingIndicator->setSpeakerId(id);
+
+	// We'll be notified on avatar online status changes
+	if (mAvatarId.notNull())
+		LLAvatarTracker::instance().addParticularFriendObserver(mAvatarId, this);
 
 	// Set avatar name.
 	gCacheName->get(id, FALSE, boost::bind(&LLAvatarListItem::onNameCache, this, _2, _3));

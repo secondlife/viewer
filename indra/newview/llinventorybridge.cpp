@@ -257,11 +257,22 @@ void LLInvFVBridge::renameLinkedItems(const LLUUID &item_id, const std::string& 
 }
 
 // Can be moved to another folder
-BOOL LLInvFVBridge::isItemMovable()
+BOOL LLInvFVBridge::isItemMovable() const
 {
 	return TRUE;
 }
 
+/*virtual*/
+/**
+ * @brief Adds this item into clipboard storage
+ */
+void LLInvFVBridge::cutToClipboard()
+{
+	if(isItemMovable())
+	{
+		LLInventoryClipboard::instance().cut(mUUID);
+	}
+}
 // *TODO: make sure this does the right thing
 void LLInvFVBridge::showProperties()
 {
@@ -912,6 +923,24 @@ void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 }
 
 // +=================================================+
+// |        InventoryFVBridgeBuilder                 |
+// +=================================================+
+LLInvFVBridge* LLInventoryFVBridgeBuilder::createBridge(LLAssetType::EType asset_type,
+														LLAssetType::EType actual_asset_type,
+														LLInventoryType::EType inv_type,
+														LLInventoryPanel* inventory,
+														const LLUUID& uuid,
+														U32 flags /* = 0x00 */) const
+{
+	return LLInvFVBridge::createBridge(asset_type,
+		actual_asset_type,
+		inv_type,
+		inventory,
+		uuid,
+		flags);
+}
+
+// +=================================================+
 // |        LLItemBridge                             |
 // +=================================================+
 
@@ -1321,7 +1350,7 @@ BOOL LLItemBridge::isItemPermissive() const
 LLFolderBridge* LLFolderBridge::sSelf=NULL;
 
 // Can be moved to another folder
-BOOL LLFolderBridge::isItemMovable()
+BOOL LLFolderBridge::isItemMovable() const 
 {
 	LLInventoryObject* obj = getInventoryObject();
 	if(obj)
@@ -2184,19 +2213,28 @@ void LLFolderBridge::pasteFromClipboard()
 		LLDynamicArray<LLUUID> objects;
 		LLInventoryClipboard::instance().retrieve(objects);
 		S32 count = objects.count();
-		LLUUID parent_id(mUUID);
+		const LLUUID parent_id(mUUID);
 		for(S32 i = 0; i < count; i++)
 		{
 			item = model->getItem(objects.get(i));
 			if (item)
 			{
-				copy_inventory_item(
-					gAgent.getID(),
-					item->getPermissions().getOwner(),
-					item->getUUID(),
-					parent_id,
-					std::string(),
-					LLPointer<LLInventoryCallback>(NULL));
+				if(LLInventoryClipboard::instance().isCutMode())
+				{
+					// move_inventory_item() is not enough, 
+					//we have to update inventory locally too
+					changeItemParent(model, dynamic_cast<LLViewerInventoryItem*>(item), parent_id, FALSE);
+				}
+				else
+				{
+					copy_inventory_item(
+						gAgent.getID(),
+						item->getPermissions().getOwner(),
+						item->getUUID(),
+						parent_id,
+						std::string(),
+						LLPointer<LLInventoryCallback>(NULL));
+				}
 			}
 		}
 	}
@@ -2668,6 +2706,56 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 	return false;
 }
 
+/*
+Next functions intended to reorder items in the inventory folder and save order on server
+Is now used for Favorites folder.
+
+*TODO: refactoring is needed with Favorites Bar functionality. Probably should be moved in LLInventoryModel
+*/
+void saveItemsOrder(LLInventoryModel::item_array_t& items)
+{
+	int sortField = 0;
+
+	// current order is saved by setting incremental values (1, 2, 3, ...) for the sort field
+	for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
+	{
+		LLViewerInventoryItem* item = *i;
+
+		item->setSortField(++sortField);
+		item->setComplete(TRUE);
+		item->updateServer(FALSE);
+
+		gInventory.updateItem(item);
+	}
+
+	gInventory.notifyObservers();
+}
+
+LLInventoryModel::item_array_t::iterator findItemByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id)
+{
+	LLInventoryModel::item_array_t::iterator result = items.end();
+
+	for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
+	{
+		if ((*i)->getUUID() == id)
+		{
+			result = i;
+			break;
+		}
+	}
+
+	return result;
+}
+
+void updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& srcItemId, const LLUUID& destItemId)
+{
+	LLViewerInventoryItem* srcItem = gInventory.getItem(srcItemId);
+	LLViewerInventoryItem* destItem = gInventory.getItem(destItemId);
+
+	items.erase(findItemByUUID(items, srcItem->getUUID()));
+	items.insert(findItemByUUID(items, destItem->getUUID()), srcItem);
+}
+
 BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 										BOOL drop)
 {
@@ -2726,7 +2814,10 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			}
 		}
  
-		accept = is_movable && (mUUID != inv_item->getParentUUID());
+		LLUUID favorites_id = model->findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+
+		// we can move item inside a folder only if this folder is Favorites. See EXT-719
+		accept = is_movable && ((mUUID != inv_item->getParentUUID()) || (mUUID == favorites_id));
 		if(accept && drop)
 		{
 			if (inv_item->getType() == LLAssetType::AT_GESTURE
@@ -2748,8 +2839,28 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				}
 			}
 
-			LLUUID favorites_id = model->findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
-			if (favorites_id == mUUID) // if target is the favorites folder we use copy
+			// if dragging from/into favorites folder only reorder items
+			if ((mUUID == inv_item->getParentUUID()) && (favorites_id == mUUID))
+			{
+				LLInventoryModel::cat_array_t cats;
+				LLInventoryModel::item_array_t items;
+				LLIsType is_type(LLAssetType::AT_LANDMARK);
+				model->collectDescendentsIf(favorites_id, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
+
+				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
+				LLFolderViewItem* itemp = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
+				if (itemp)
+				{
+					LLUUID srcItemId = inv_item->getUUID();
+					LLUUID destItemId = itemp->getListener()->getUUID();
+
+					// update order
+					updateItemsOrder(items, srcItemId, destItemId);
+
+					saveItemsOrder(items);
+				}
+			}
+			else if (favorites_id == mUUID) // if target is the favorites folder we use copy
 			{
 				copy_inventory_item(
 					gAgent.getID(),
@@ -3023,14 +3134,14 @@ void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 
 	items.push_back(std::string("Landmark Separator"));
-	items.push_back(std::string("Teleport To Landmark"));
+	items.push_back(std::string("About Landmark"));
 
 	// Disable "About Landmark" menu item for
 	// multiple landmarks selected. Only one landmark
 	// info panel can be shown at a time.
 	if ((flags & FIRST_SELECTED_ITEM) == 0)
 	{
-		disabled_items.push_back(std::string("Teleport To Landmark"));
+		disabled_items.push_back(std::string("About Landmark"));
 	}
 
 	hideContextEntries(menu, items, disabled_items);

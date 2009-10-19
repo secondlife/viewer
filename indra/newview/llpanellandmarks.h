@@ -33,14 +33,20 @@
 #ifndef LL_LLPANELLANDMARKS_H
 #define LL_LLPANELLANDMARKS_H
 
+#include "lllandmark.h"
+
+// newview
 #include "llinventorymodel.h"
 #include "llpanelplacestab.h"
+#include "llpanelpick.h"
+#include "llremoteparcelrequest.h"
 
 class LLFolderViewItem;
+class LLMenuGL;
 class LLInventoryPanel;
-class LLSaveFolderState;
+class LLInventorySubTreePanel;
 
-class LLLandmarksPanel : public LLPanelPlacesTab
+class LLLandmarksPanel : public LLPanelPlacesTab, LLRemoteParcelInfoObserver
 {
 public:
 	LLLandmarksPanel();
@@ -50,17 +56,58 @@ public:
 	/*virtual*/ void onSearchEdit(const std::string& string);
 	/*virtual*/ void onShowOnMap();
 	/*virtual*/ void onTeleport();
-	///*virtual*/ void onCopySLURL();
 	/*virtual*/ void updateVerbs();
 
-	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
+	void onSelectionChange(LLInventorySubTreePanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();
-	void setSelectedItem(const LLUUID& obj_id);
+	
+protected:
+	/**
+	 * @return true - if current selected panel is not null and selected item is a landmark
+	 */
+	bool isLandmarkSelected() const;
+	LLLandmark* getCurSelectedLandmark() const;
+	LLFolderViewItem* getCurSelectedItem () const;
+
+	//LLRemoteParcelInfoObserver interface
+	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
+	/*virtual*/ void setParcelID(const LLUUID& parcel_id);
+	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason);
+	
+private:
+	void initFavoritesInventroyPanel();
+	void initLandmarksInventroyPanel();
+	void initMyInventroyPanel();
+	void initLibraryInventroyPanel();
+	void initLandmarksPanel(LLInventorySubTreePanel* inventory_list, const LLUUID& start_folder_id);
+	void initAccordion(const std::string& accordion_tab_name, LLInventorySubTreePanel* inventory_list);
+	void onAccordionExpandedCollapsed(const LLSD& param, LLInventorySubTreePanel* inventory_list);
+	void deselectOtherThan(const LLInventorySubTreePanel* inventory_list);
+
+	// List Commands Handlers
+	void initListCommandsHandlers();
+	void updateListCommands();
+	void onActionsButtonClick();
+	void onAddLandmarkButtonClick() const;
+	void onAddFolderButtonClick() const;
+	void onTrashButtonClick() const;
+	void onAddAction(const LLSD& command_name) const;
+	void onCopyPasteAction(const LLSD& command_name) const;
+	void onFoldingAction(const LLSD& command_name) const;
+	bool isActionEnabled(const LLSD& command_name) const;
+	void onCustomAction(const LLSD& command_name);
+	void onPickPanelExit( LLPanelPick* pick_panel, LLView* owner, const LLSD& params);
 
 private:
-	LLInventoryPanel*			mInventoryPanel;
-	LLSaveFolderState*			mSavedFolderState;
-	LLButton*					mActionBtn;
+	LLInventorySubTreePanel*	mFavoritesInventoryPanel;
+	LLInventorySubTreePanel*	mLandmarksInventoryPanel;
+	LLInventorySubTreePanel*	mMyInventoryPanel;
+	LLInventorySubTreePanel*	mLibraryInventoryPanel;
+	LLMenuGL*					mGearLandmarkMenu;
+	LLMenuGL*					mGearFolderMenu;
+	LLInventorySubTreePanel*	mCurrentSelectedList;
+
+	LLPanel*					mListCommands;
 };
 
 #endif //LL_LLPANELLANDMARKS_H

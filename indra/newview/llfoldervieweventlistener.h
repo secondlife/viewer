@@ -68,7 +68,7 @@ public:
 	virtual void showProperties(void) = 0;
 	virtual BOOL isItemRenameable() const = 0;
 	virtual BOOL renameItem(const std::string& new_name) = 0;
-	virtual BOOL isItemMovable( void ) = 0;		// Can be moved to another folder
+	virtual BOOL isItemMovable( void ) const = 0;		// Can be moved to another folder
 	virtual BOOL isItemRemovable( void ) = 0;	// Can be destroyed
 	virtual BOOL removeItem() = 0;
 	virtual void removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch) = 0;

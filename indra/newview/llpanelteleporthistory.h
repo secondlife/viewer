@@ -69,6 +69,8 @@ public:
 	virtual ~LLTeleportHistoryPanel();
 
 	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void draw();
+
 	/*virtual*/ void onSearchEdit(const std::string& string);
 	/*virtual*/ void onShowOnMap();
 	/*virtual*/ void onTeleport();
@@ -86,17 +88,19 @@ private:
 	void onClearTeleportHistory();
 	bool onClearTeleportHistoryDialog(const LLSD& notification, const LLSD& response);
 
+	void refresh();
+	void getNextTab(const LLDate& item_date, S32& curr_tab, LLDate& tab_date);
 	void showTeleportHistory();
 	void handleItemSelect(LLFlatListView* );
 	LLFlatListView* getFlatListViewFromTab(LLAccordionCtrlTab *);
 	void onGearButtonClicked();
-	void onStarButtonCommit();
 
 	LLTeleportHistoryStorage*	mTeleportHistory;
 	LLAccordionCtrl*		mHistoryAccordion;
-	LLButton *			mStarButton;
 
 	LLFlatListView*			mLastSelectedScrollList;
+	bool				mDirty;
+	S32				mCurrentItem;
 	std::string				mFilterSubString;
 
 	typedef LLDynamicArray<LLAccordionCtrlTab*> item_containers_t;

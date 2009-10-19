@@ -36,178 +36,106 @@
 #include "llviewercontrol.h"
 #include "lluiconstants.h"
 #include "llrect.h"
-#include "lliconctrl.h"
-#include "lltexteditor.h"
-#include "lltextbox.h"
-#include "lldbstrings.h"
-#include "llchat.h"
-#include "llfloaterchat.h"
 #include "lltrans.h"
-#include "lloverlaybar.h"
-
 
 const S32 BOTTOM_PAD = VPAD * 3;
+const S32 BUTTON_WIDTH = 90;
 
 //static
 const LLFontGL* LLToastNotifyPanel::sFont = NULL;
 const LLFontGL* LLToastNotifyPanel::sFontSmall = NULL;
 
-LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification) : LLToastPanel(notification) {
+LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification) : 
+LLToastPanel(notification),
+mTextBox(NULL),
+mIcon(NULL),
+mInfoPanel(NULL),
+mControlPanel(NULL),
+mNumOptions(0),
+mNumButtons(0),
+mAddedDefaultBtn(false)
+{
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_notification.xml");
+	mInfoPanel = getChild<LLPanel>("info_panel");
+	mControlPanel = getChild<LLPanel>("control_panel");
+	mIcon = getChild<LLIconCtrl>("info_icon");
+
+	// customize panel's attributes
+	// is it intended for displaying a tip
 	mIsTip = notification->getType() == "notifytip";
-	mNumOptions = 0;
-	mNumButtons = 0;
-	mIsScriptDialog = (notification->getName() == "ScriptDialog"
-			|| notification->getName() == "ScriptDialogGroup");
-	mAddedDefaultBtn = false;
+	// is it a script dialog
+	mIsScriptDialog = (notification->getName() == "ScriptDialog" || notification->getName() == "ScriptDialogGroup");
+	// is it a caution
+	//
+	// caution flag can be set explicitly by specifying it in the notification payload, or it can be set implicitly if the
+	// notify xml template specifies that it is a caution
+	// tip-style notification handle 'caution' differently -they display the tip in a different color
+	mIsCaution = notification->getPriority() >= NOTIFICATION_PRIORITY_HIGH;
 
-	// clicking on a button does not steal current focus
-	setIsChrome(TRUE);
-
-	// class init
+	// setup parameters
+	// get a notification message
+	mMessage = notification->getMessage();
+	// init font variables
 	if (!sFont)
 	{
 		sFont = LLFontGL::getFontSansSerif();
 		sFontSmall = LLFontGL::getFontSansSerifSmall();
 	}
-
-	// setup paramaters
-	mMessage = notification->getMessage();
-
+	// clicking on a button does not steal current focus
+	setIsChrome(TRUE);
 	// initialize
 	setFocusRoot(!mIsTip);
-
-	// caution flag can be set explicitly by specifying it in the
-	// notification payload, or it can be set implicitly if the
-	// notify xml template specifies that it is a caution
-	//
-	// tip-style notification handle 'caution' differently -
-	// they display the tip in a different color
-	mIsCaution = notification->getPriority() >= NOTIFICATION_PRIORITY_HIGH;
-
+	// get a form for the notification
 	LLNotificationFormPtr form(notification->getForm());
-
+	// get number of elements
 	mNumOptions = form->getNumElements();
 
-	LLRect rect = mIsTip ? getNotifyTipRect(mMessage)
-		   		  		 : getNotifyRect(mNumOptions, mIsScriptDialog, mIsCaution);
-	setRect(rect);
-	setFollows(mIsTip ? (FOLLOWS_BOTTOM|FOLLOWS_RIGHT) : (FOLLOWS_TOP|FOLLOWS_RIGHT));
-	setBackgroundVisible(FALSE);
-	setBackgroundOpaque(TRUE);
+	// customize panel's outfit
+	// preliminary adjust panel's layout
+	mIsTip ? adjustPanelForTipNotice() : adjustPanelForScriptNotice(form);
 
-	LLIconCtrl* icon;
-	LLTextEditor* text;
-
-	const S32 TOP = getRect().getHeight() - (mIsTip ? (S32)sFont->getLineHeight() : 32);
-	const S32 BOTTOM = (S32)sFont->getLineHeight();
-	S32 x = HPAD + HPAD;
-	S32 y = TOP;
-
-	LLIconCtrl::Params common_params;
-	common_params.rect(LLRect(x, y, x+32, TOP-32));
-	common_params.mouse_opaque(false);
-	common_params.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
-
+	// choose a right icon
 	if (mIsTip)
 	{
 		// use the tip notification icon
-		common_params.image(LLUI::getUIImage("notify_tip_icon.tga"));
-		icon = LLUICtrlFactory::create<LLIconCtrl> (common_params);
+		mIcon->setValue("notify_tip_icon.tga");
+		LLRect icon_rect = mIcon->getRect();
+		icon_rect.setLeftTopAndSize(icon_rect.mLeft, getRect().getHeight() - VPAD, icon_rect.getWidth(), icon_rect.getHeight());
+		mIcon->setRect(icon_rect);
 	}
 	else if (mIsCaution)
 	{
 		// use the caution notification icon
-		common_params.image(LLUI::getUIImage("notify_caution_icon.tga"));
-		icon = LLUICtrlFactory::create<LLIconCtrl> (common_params);
+		mIcon->setValue("notify_caution_icon.tga");
 	}
 	else
 	{
 		// use the default notification icon
-		common_params.image(LLUI::getUIImage("notify_box_icon.tga"));
-		icon = LLUICtrlFactory::create<LLIconCtrl> (common_params);
+		mIcon->setValue("notify_box_icon.tga");
 	}
 
-	icon->setMouseOpaque(FALSE);
-	addChild(icon);
-
-	x += HPAD + HPAD + 32;
-
+	// adjust text options according to the notification type
 	// add a caution textbox at the top of a caution notification
-	LLTextBox* caution_box = NULL;
 	if (mIsCaution && !mIsTip)
 	{
-		S32 caution_height = ((S32)sFont->getLineHeight() * 2) + VPAD;
-		LLTextBox::Params params;
-		params.name("caution_box");
-		params.rect(LLRect(x, y, getRect().getWidth() - 2, caution_height));
-		params.font(sFont);
-		params.mouse_opaque(false);
-		params.font.style("BOLD");
-		params.text_color(LLUIColorTable::instance().getColor("NotifyCautionWarnColor"));
-		params.bg_readonly_color(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
-		params.border_visible(false);
-		params.wrap(true);
-		caution_box = LLUICtrlFactory::create<LLTextBox> (params);
-		caution_box->setValue(notification->getMessage());
-
-		addChild(caution_box);
-
-		// adjust the vertical position of the next control so that
-		// it appears below the caution textbox
-		y = y - caution_height;
+		mTextBox = getChild<LLTextBox>("caution_text_box");
 	}
 	else
 	{
-
-		const S32 BTN_TOP = BOTTOM_PAD + (((mNumOptions-1+2)/3)) * (BTN_HEIGHT+VPAD);
-
-		// Tokenization on \n is handled by LLTextBox
-
-		const S32 MAX_LENGTH = 512 + 20 +
-			DB_FIRST_NAME_BUF_SIZE +
-			DB_LAST_NAME_BUF_SIZE +
-			DB_INV_ITEM_NAME_BUF_SIZE;  // For script dialogs: add space for title.
-
-		LLTextEditor::Params params;
-		params.name("box");
-		params.rect(LLRect(x, y, getRect().getWidth()-2, mIsTip ? BOTTOM : BTN_TOP+16));
-		params.max_text_length(MAX_LENGTH);
-		params.read_only(true);
-		params.default_text(mMessage);
-		params.font(sFont);
-		params.embedded_items(false);
-		params.wrap(true);
-		params.tab_stop(false);
-		params.mouse_opaque(false);
-		params.bg_readonly_color(LLColor4::transparent);
-		params.text_readonly_color(LLUIColorTable::instance().getColor("NotifyTextColor"));
-		params.enabled(false);
-		params.border_visible(false);
-		text = LLUICtrlFactory::create<LLTextEditor> (params);
-		addChild(text);
+		mTextBox = getChild<LLTextEditor>("text_editor_box"); 
 	}
 
-	if (mIsTip)
-	{
-		// TODO: Make a separate archive for these.
-		LLChat chat(mMessage);
-		chat.mSourceType = CHAT_SOURCE_SYSTEM;
-		LLFloaterChat::addChatHistory(chat);
-	}
-	else
-	{
-		LLButton::Params p;
-		p.name(std::string("next"));
-		p.rect(LLRect(getRect().getWidth()-26, BOTTOM_PAD + 20, getRect().getWidth()-2, BOTTOM_PAD));
-		p.image_selected.name("notify_next.png");
-		p.image_unselected.name("notify_next.png");
-		p.font(sFont);
-		p.scale_image(true);
-		p.tool_tip(LLTrans::getString("next").c_str());
+	// *TODO: magic numbers(???) - copied from llnotify.cpp(250)
+	const S32 MAX_LENGTH = 512 + 20 + DB_FIRST_NAME_BUF_SIZE + DB_LAST_NAME_BUF_SIZE + DB_INV_ITEM_NAME_BUF_SIZE; 
 
+	mTextBox->setVisible(TRUE);
+	mTextBox->setValue(notification->getMessage());
+
+	// add buttons for a script notification
+	if (!mIsTip)
+	{
 		for (S32 i = 0; i < mNumOptions; i++)
 		{
-
 			LLSD form_element = form->getElement(i);
 			if (form_element["type"].asString() != "button")
 			{
@@ -222,136 +150,62 @@ LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification) : LLToas
 			addButton("OK", LLTrans::getString("ok"), FALSE, TRUE);
 			mAddedDefaultBtn = true;
 		}
-
-
 	}
+
+	// adjust panel's height to the text size
+	mInfoPanel->setFollowsAll();
+	snapToMessageHeight(mTextBox, MAX_LENGTH);
 }
 
-LLToastNotifyPanel::~LLToastNotifyPanel() {
+LLToastNotifyPanel::~LLToastNotifyPanel() 
+{
 	std::for_each(mBtnCallbackData.begin(), mBtnCallbackData.end(), DeletePointer());
 }
 
 
-LLRect LLToastNotifyPanel::getNotifyRect(S32 num_options, BOOL mIsScriptDialog, BOOL is_caution)
+void LLToastNotifyPanel::adjustPanelForScriptNotice(const LLNotificationFormPtr form)
 {
-	S32 notify_height = gSavedSettings.getS32("NotifyBoxHeight");
-	if (is_caution)
+	F32 buttons_num = 0;
+	S32 button_rows = 0;
+
+	// calculate number of buttons
+	for (S32 i = 0; i < mNumOptions; i++)
 	{
-		// make caution-style dialog taller to accomodate extra text,
-		// as well as causing the accept/decline buttons to be drawn
-		// in a different position, to help prevent "quick-click-through"
-		// of many permissions prompts
-		notify_height = gSavedSettings.getS32("PermissionsCautionNotifyBoxHeight");
-	}
-	const S32 NOTIFY_WIDTH = gSavedSettings.getS32("NotifyBoxWidth");
-
-	const S32 TOP = getRect().getHeight();
-	const S32 RIGHT =getRect().getWidth();
-	const S32 LEFT = RIGHT - NOTIFY_WIDTH;
-
-	if (num_options < 1)
-	{
-		num_options = 1;
-	}
-
-	// Add two "blank" option spaces.
-	if (mIsScriptDialog)
-	{
-		num_options += 2;
-	}
-
-	S32 additional_lines = (num_options-1) / 3;
-
-	notify_height += additional_lines * (BTN_HEIGHT + VPAD);
-
-	return LLRect(LEFT, TOP, RIGHT, TOP-notify_height);
-}
-
-// static
-LLRect LLToastNotifyPanel::getNotifyTipRect(const std::string &utf8message)
-{
-	S32 line_count = 1;
-	LLWString message = utf8str_to_wstring(utf8message);
-	S32 message_len = message.length();
-
-	const S32 NOTIFY_WIDTH = gSavedSettings.getS32("NotifyBoxWidth");
-	// Make room for the icon area.
-	const S32 text_area_width = NOTIFY_WIDTH - HPAD * 4 - 32;
-
-	const llwchar* wchars = message.c_str();
-	const llwchar* start = wchars;
-	const llwchar* end;
-	S32 total_drawn = 0;
-	BOOL done = FALSE;
-
-	do
-	{
-		line_count++;
-
-		for (end=start; *end != 0 && *end != '\n'; end++)
-			;
-
-		if( *end == 0 )
+		if (form->getElement(i)["type"].asString() == "button")
 		{
-			end = wchars + message_len;
-			done = TRUE;
+			buttons_num++;
 		}
+	}
 
-		S32 remaining = end - start;
-		while( remaining )
-		{
-			S32 drawn = sFont->maxDrawableChars( start, (F32)text_area_width, remaining, TRUE );
-
-			if( 0 == drawn )
-			{
-				drawn = 1;  // Draw at least one character, even if it doesn't all fit. (avoids an infinite loop)
-			}
-
-			total_drawn += drawn;
-			start += drawn;
-			remaining -= drawn;
-
-			if( total_drawn < message_len )
-			{
-				if( (wchars[ total_drawn ] != '\n') )
-				{
-					// wrap because line was too long
-					line_count++;
-				}
-			}
-			else
-			{
-				done = TRUE;
-			}
-		}
-
-		total_drawn++;	// for '\n'
-		end++;
-		start = end;
-	} while( !done );
-
-	const S32 MIN_NOTIFY_HEIGHT = 72;
-	const S32 MAX_NOTIFY_HEIGHT = 600;
-	S32 notify_height = llceil((F32) (line_count+1) * sFont->getLineHeight());
-	if(gOverlayBar)
+	// calculate necessary height for the button panel
+	// if notification form contains no buttons - reserve a place for OK button
+	// script notifications have extra line for an IGNORE button
+	if(mIsScriptDialog)
 	{
-		notify_height += gOverlayBar->getBoundingRect().mTop;
+		button_rows = llceil((buttons_num - 1) / 3.0f) + 1;
 	}
 	else
 	{
-		// *FIX: this is derived from the padding caused by the
-		// rounded rects, shouldn't be a const here.
-		notify_height += 10;
+		button_rows = llmax( 1, llceil(buttons_num / 3.0f));
 	}
-	notify_height += VPAD;
-	notify_height = llclamp(notify_height, MIN_NOTIFY_HEIGHT, MAX_NOTIFY_HEIGHT);
 
-	const S32 RIGHT = getRect().getWidth();
-	const S32 LEFT = RIGHT - NOTIFY_WIDTH;
+	S32 button_panel_height = button_rows * BTN_HEIGHT + (button_rows + 1) * VPAD + BOTTOM_PAD;
 
-	return LLRect(LEFT, notify_height, RIGHT, 0);
+	//adjust layout
+	LLRect button_rect = mControlPanel->getRect();
+	reshape(getRect().getWidth(), mInfoPanel->getRect().getHeight() + button_panel_height);
+	mControlPanel->reshape(button_rect.getWidth(), button_panel_height);
 }
 
+// static
+void LLToastNotifyPanel::adjustPanelForTipNotice()
+{
+	LLRect info_rect = mInfoPanel->getRect();
+	LLRect this_rect = getRect();
+
+	mControlPanel->setVisible(FALSE);
+	reshape(getRect().getWidth(), mInfoPanel->getRect().getHeight());
+}
 
 // static
 void LLToastNotifyPanel::onClickButton(void* data)
@@ -371,10 +225,6 @@ void LLToastNotifyPanel::onClickButton(void* data)
 // virtual
 LLButton* LLToastNotifyPanel::addButton(const std::string& name, const std::string& label, BOOL is_option, BOOL is_default)
 {
-	// make caution notification buttons slightly narrower
-	// so that 3 of them can fit without overlapping the "next" button
-	S32 btn_width = mIsCaution? 84 : 90;
-
 	LLRect btn_rect;
 	LLButton* btn;
 	S32 btn_height= BTN_HEIGHT;
@@ -397,9 +247,9 @@ LLButton* LLToastNotifyPanel::addButton(const std::string& name, const std::stri
 		}
 	}
 
-	btn_rect.setOriginAndSize(x + (index % 3) * (btn_width+HPAD+HPAD) + ignore_pad,
+	btn_rect.setOriginAndSize(x + (index % 3) * (BUTTON_WIDTH+HPAD+HPAD) + ignore_pad,
 		BOTTOM_PAD + (index / 3) * (BTN_HEIGHT+VPAD),
-		btn_width - 2*ignore_pad,
+		BUTTON_WIDTH - 2*ignore_pad,
 		btn_height);
 
 	InstanceAndS32* userdata = new InstanceAndS32;
@@ -422,7 +272,7 @@ LLButton* LLToastNotifyPanel::addButton(const std::string& name, const std::stri
 	btn = LLUICtrlFactory::create<LLButton>(p);
 
 
-	addChild(btn, -1);
+	mControlPanel->addChild(btn, -1);
 
 	if (is_default)
 	{

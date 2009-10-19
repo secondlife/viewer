@@ -650,6 +650,23 @@ void LLPanelPlaces::onOverflowMenuItemClicked(const LLSD& param)
 
 		mPlaceInfo->createPick(mPosGlobal, mPickPanel);
 	}
+    else if (item == "add_to_favbar")
+    {
+        if ( mItem.notNull() ) 
+        {
+            LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+            if ( favorites_id.notNull() )
+            {
+                copy_inventory_item(gAgent.getID(),
+                                    mItem->getPermissions().getOwner(),
+                                    mItem->getUUID(),
+                                    favorites_id,
+                                    std::string(),
+                                    LLPointer<LLInventoryCallback>(NULL));
+                llinfos << "Copied inventory item #" << mItem->getUUID() << " to favorites." << llendl;
+            }
+        }
+    }
 }
 
 void LLPanelPlaces::onBackButtonClicked()

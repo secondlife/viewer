@@ -38,6 +38,9 @@
 #include "llnotifications.h"
 #include "llbutton.h"
 #include "lltoastpanel.h"
+#include "lliconctrl.h"
+#include "lltexteditor.h"
+#include "lltextbox.h"
 
 
 /**
@@ -46,15 +49,15 @@
  *
  * Replaces class LLNotifyBox.
  */
-class LLToastNotifyPanel: public LLToastPanel {
+class LLToastNotifyPanel: public LLToastPanel 
+{
 public:
 	LLToastNotifyPanel(LLNotificationPtr&);
 	virtual ~LLToastNotifyPanel();
-	bool isTip() {return mIsTip;}
-	static LLToastNotifyPanel * buildNotifyPanel(LLNotificationPtr notification);
 
 protected:
 	LLButton* addButton(std::string const &name, const std::string& label, BOOL is_option, BOOL is_default);
+
 	// Used for callbacks
 	struct InstanceAndS32
 	{
@@ -65,16 +68,23 @@ protected:
 
 private:
 
-	// Returns the rect, relative to gNotifyView, where this
-	// notify box should be placed.
-	LLRect getNotifyRect(S32 num_options, BOOL layout_script_dialog, BOOL is_caution);
-	LLRect getNotifyTipRect(const std::string &message);
+	void adjustPanelForScriptNotice(const LLNotificationFormPtr form);
+	void adjustPanelForTipNotice();
+
+	// panel elements
+	LLTextBase*		mTextBox;
+	LLIconCtrl*		mIcon;
+	LLPanel*		mInfoPanel;		// a panel, that contains an information
+	LLPanel*		mControlPanel;	// a panel, that contains buttons (if present)
+
 	// internal handler for button being clicked
 	static void onClickButton(void* data);
+
 	bool mIsTip;
 	bool mAddedDefaultBtn;
 	bool mIsScriptDialog;
-	bool mIsCaution; // is this a caution notification?
+	bool mIsCaution; 
+
 	std::string mMessage;
 	S32 mNumOptions;
 	S32 mNumButtons;

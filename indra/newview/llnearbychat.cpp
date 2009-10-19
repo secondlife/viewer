@@ -48,11 +48,9 @@
 #include "llnearbychathandler.h"
 #include "llchannelmanager.h"
 
-//for LLViewerTextEditor support
 #include "llagent.h" 			// gAgent
 #include "llfloaterscriptdebug.h"
-#include "llslurl.h"
-#include "llviewertexteditor.h"
+#include "llchathistory.h"
 #include "llstylemap.h"
 
 #include "lldraghandle.h"
@@ -64,7 +62,7 @@ LLNearbyChat::LLNearbyChat(const LLSD& key) :
 	LLFloater(key),
 	mEChatTearofState(CHAT_PINNED),
 	mChatCaptionPanel(NULL),
-	mChatHistoryEditor(NULL)
+	mChatHistory(NULL)
 {
 	m_isDirty = false;
 }
@@ -110,7 +108,7 @@ BOOL LLNearbyChat::postBuild()
 	gSavedSettings.declareS32("nearbychat_showicons_and_names",2,"NearByChat header settings",true);
 
 	mChatCaptionPanel = getChild<LLPanel>("chat_caption", false);
-	mChatHistoryEditor = getChild<LLViewerTextEditor>("Chat History Editor");
+	mChatHistory = getChild<LLChatHistory>("chat_history");
 
 	reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
 	
@@ -185,44 +183,6 @@ LLColor4 nearbychat_get_text_color(const LLChat& chat)
 
 void LLNearbyChat::add_timestamped_line(const LLChat& chat, const LLColor4& color)
 {
-	std::string line = chat.mText;
-
-	//chat.mText starts with Avatar Name if entered message was "/me <action>". 
-	// In this case output chat message should be "<Avatar Name> <action>". See EXT-656
-	// See also process_chat_from_simulator() in the llviewermessage.cpp where ircstyle = TRUE;
-	if (CHAT_STYLE_IRC != chat.mChatStyle)
-		line = chat.mFromName + ": " + line;
-
-	bool prepend_newline = true;
-	if (gSavedSettings.getBOOL("ChatShowTimestamps"))
-	{
-		mChatHistoryEditor->appendTime(prepend_newline);
-		prepend_newline = false;
-	}
-
-	// If the msg is from an agent (not yourself though),
-	// extract out the sender name and replace it with the hotlinked name.
-	
-	std::string		str_URL = chat.mURL;
-
-	if (chat.mSourceType == CHAT_SOURCE_AGENT &&
-		chat.mFromID != LLUUID::null)
-	{
-		str_URL = LLSLURL::buildCommand("agent", chat.mFromID, "inspect");
-	}
-
-	// If the chat line has an associated url, link it up to the name.
-	if (!str_URL.empty()
-		&& (line.length() > chat.mFromName.length() && line.find(chat.mFromName,0) == 0))
-	{
-		std::string start_line = line.substr(0, chat.mFromName.length() + 1);
-		line = line.substr(chat.mFromName.length() + 1);
-		mChatHistoryEditor->appendText(start_line, prepend_newline, 
-			LLStyleMap::instance().lookup(chat.mFromID,str_URL));
-		mChatHistoryEditor->blockUndo();
-		prepend_newline = false;
-	}
-
 	S32 font_size = gSavedSettings.getS32("ChatFontSize");
 
 	const LLFontGL* fontp = NULL;
@@ -240,8 +200,14 @@ void LLNearbyChat::add_timestamped_line(const LLChat& chat, const LLColor4& colo
 		break;
 	}
 
-	mChatHistoryEditor->appendText(line, prepend_newline, LLStyle::Params().color(color).font(fontp));
-	mChatHistoryEditor->blockUndo();
+	LLStyle::Params style_params;
+	style_params.color(color);
+	style_params.font(fontp);
+	LLUUID uuid = chat.mFromID;
+	std::string from = chat.mFromName;
+	std::string time = "";
+	std::string message = chat.mText;
+	mChatHistory->appendWidgetMessage(uuid, from, time, message, style_params);
 }
 
 void	LLNearbyChat::addMessage(const LLChat& chat)
@@ -315,7 +281,7 @@ void LLNearbyChat::reshape(S32 width, S32 height, BOOL called_from_parent)
 		mResizeBar[LLResizeBar::RIGHT]->setRect(resize_rect);
 	}
 
-	// *NOTE: we must check mChatCaptionPanel and mChatHistoryEditor against NULL because reshape is called from the 
+	// *NOTE: we must check mChatCaptionPanel and mChatHistory against NULL because reshape is called from the 
 	// LLView::initFromParams BEFORE postBuild is called and child controls are not exist yet
 	LLRect caption_rect;
 	if (NULL != mChatCaptionPanel)
@@ -326,12 +292,12 @@ void LLNearbyChat::reshape(S32 width, S32 height, BOOL called_from_parent)
 		mChatCaptionPanel->setRect(caption_rect);
 	}
 	
-	if (NULL != mChatHistoryEditor)
+	if (NULL != mChatHistory)
 	{
-		LLRect scroll_rect = mChatHistoryEditor->getRect();
+		LLRect scroll_rect = mChatHistory->getRect();
 		scroll_rect.setLeftTopAndSize( 2, height - caption_rect.getHeight() - RESIZE_BAR_THICKNESS, width - 4, height - caption_rect.getHeight() - RESIZE_BAR_THICKNESS*2);
-		mChatHistoryEditor->reshape( width - 4, height - caption_rect.getHeight() - RESIZE_BAR_THICKNESS*2, 1);
-		mChatHistoryEditor->setRect(scroll_rect);
+		mChatHistory->reshape( width - 4, height - caption_rect.getHeight() - RESIZE_BAR_THICKNESS*2, 1);
+		mChatHistory->setRect(scroll_rect);
 	}
 	
 	//

@@ -54,6 +54,8 @@
 #include "lltooltip.h"	// positionViewNearMouse()
 #include "lluictrl.h"
 
+#include "llavatariconctrl.h"
+
 class LLFetchAvatarData;
 
 
@@ -347,6 +349,10 @@ void LLInspectAvatar::requestUpdate()
 	// and this may result in the image being visible sooner.
 	// *NOTE: This may generate a duplicate avatar properties request, but that
 	// will be suppressed internally in the avatar properties processor.
+	
+	//remove avatar id from cache to get fresh info
+	LLAvatarIconIDCache::getInstance()->remove(mAvatarID);
+
 	childSetValue("avatar_icon", LLSD(mAvatarID) );
 
 	gCacheName->get(mAvatarID, FALSE,

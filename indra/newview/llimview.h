@@ -56,6 +56,8 @@ public:
 			const EInstantMessage& type, const LLUUID& other_participant_id, const std::vector<LLUUID>& ids);
 		virtual ~LLIMSession();
 
+		void sessionInitReplyReceived(const LLUUID& new_session_id);
+
 		LLUUID mSessionID;
 		std::string mName;
 		EInstantMessage mType;
@@ -153,6 +155,7 @@ public:
 	virtual ~LLIMSessionObserver() {}
 	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) = 0;
 	virtual void sessionRemoved(const LLUUID& session_id) = 0;
+	virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) = 0;
 };
 
 
@@ -304,6 +307,7 @@ private:
 
 	void notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
 	void notifyObserverSessionRemoved(const LLUUID& session_id);
+	void notifyObserverSessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
 private:
 	std::set<LLHandle<LLFloater> > mFloaters;

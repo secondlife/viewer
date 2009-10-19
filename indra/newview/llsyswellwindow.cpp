@@ -45,29 +45,6 @@
 #include "llnotificationmanager.h"
 
 
-// IM session ID can be the same as Avatar UUID. (See LLIMMgr::computeSessionID)
-// Probably notification ID also can be the same as Avatar UUID.
-// In case when session ID & notification ID are the same it will be impossible to add both 
-// appropriate Items into Flat List.
-// Functions below are intended to wrap passed LLUUID into LLSD value with different "type".
-// Use them anywhere you need to add, get, remove items via the list
-inline
-LLSD get_notification_value(const LLUUID& notification_id)
-{
-	return LLSD()
-		.insert("type", "notification")
-		.insert("uuid", notification_id);
-}
-
-inline
-LLSD get_session_value(const LLUUID& session_id)
-{
-	return LLSD()
-		.insert("type", "im_chiclet")
-		.insert("uuid", session_id);
-}
-
-
 //---------------------------------------------------------------------------------
 LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLDockableFloater(NULL, key),
 													mChannel(NULL),
@@ -157,7 +134,7 @@ LLSysWellWindow::~LLSysWellWindow()
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::addItem(LLSysWellItem::Params p)
 {
-	LLSD value = get_notification_value(p.notification_id);
+	LLSD value = p.notification_id;
 	// do not add clones
 	if( mMessageList->getItemByValue(value))
 		return;
@@ -191,7 +168,7 @@ void LLSysWellWindow::clear()
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::removeItemByID(const LLUUID& id)
 {
-	if(mMessageList->removeItemByValue(get_notification_value(id)))
+	if(mMessageList->removeItemByValue(id))
 	{
 		handleItemRemoved(IT_NOTIFICATION);
 		reshapeWindow();
@@ -357,7 +334,7 @@ void LLSysWellWindow::reshapeWindow()
 LLChiclet* LLSysWellWindow::findIMChiclet(const LLUUID& sessionId)
 {
 	LLChiclet* res = NULL;
-	RowPanel* panel = mMessageList->getTypedItemByValue<RowPanel>(get_session_value(sessionId));
+	RowPanel* panel = mMessageList->getTypedItemByValue<RowPanel>(sessionId);
 	if (panel != NULL)
 	{
 		res = panel->mChiclet;
@@ -371,7 +348,7 @@ void LLSysWellWindow::addIMRow(const LLUUID& sessionId, S32 chicletCounter,
 		const std::string& name, const LLUUID& otherParticipantId)
 {
 	RowPanel* item = new RowPanel(this, sessionId, chicletCounter, name, otherParticipantId);
-	if (mMessageList->insertItemAfter(mSeparator, item, get_session_value(sessionId)))
+	if (mMessageList->insertItemAfter(mSeparator, item, sessionId))
 	{
 		handleItemAdded(IT_INSTANT_MESSAGE);
 	}
@@ -389,7 +366,7 @@ void LLSysWellWindow::addIMRow(const LLUUID& sessionId, S32 chicletCounter,
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::delIMRow(const LLUUID& sessionId)
 {
-	if (mMessageList->removeItemByValue(get_session_value(sessionId)))
+	if (mMessageList->removeItemByValue(sessionId))
 	{
 		handleItemRemoved(IT_INSTANT_MESSAGE);
 	}
@@ -423,7 +400,7 @@ void LLSysWellWindow::sessionAdded(const LLUUID& session_id,
 		const std::string& name, const LLUUID& other_participant_id)
 {
 	//*TODO get rid of get_session_value, session_id's are unique, cause performance degradation with lots chiclets (IB)
-	if (mMessageList->getItemByValue(get_session_value(session_id)) == NULL)
+	if (mMessageList->getItemByValue(session_id) == NULL)
 	{
 		S32 chicletCounter = LLIMModel::getInstance()->getNumUnread(session_id);
 		if (chicletCounter > -1)
@@ -441,6 +418,17 @@ void LLSysWellWindow::sessionRemoved(const LLUUID& sessionId)
 	delIMRow(sessionId);
 	reshapeWindow();
 	LLBottomTray::getInstance()->getSysWell()->updateUreadIMNotifications();
+}
+
+void LLSysWellWindow::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)
+{
+	//for outgoing ad-hoc and group im sessions only
+	LLChiclet* chiclet = findIMChiclet(old_session_id);
+	if (chiclet)
+	{
+		chiclet->setSessionId(new_session_id);
+		mMessageList->updateValue(old_session_id, new_session_id);
+	}
 }
 
 void LLSysWellWindow::handleItemAdded(EItemType added_item_type)

@@ -38,12 +38,13 @@
      width="20" />
     <text
      follows="left|right"
-     font="SansSerifSmallBold"
+     font="SansSerifSmall"
+     font.style="BOLD"
      height="20"
      layout="topleft"
      left_pad="5"
      name="avatar_name"
-     text_color="white"
+     text_color="grey"
      top="4"
      use_ellipses="true" 
      value="Unknown"

@@ -63,13 +63,15 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	mDialog(IM_NOTHING_SPECIAL),
 	mHistoryEditor(NULL),
 	mInputEditor(NULL), 
-	mPositioned(false)
+	mPositioned(false),
+	mSessionInitialized(false)
 {
-	EInstantMessage type = LLIMModel::getInstance()->getType(session_id);
-	if(IM_COUNT != type)
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(mSessionID);
+	if (im_session)
 	{
-		mDialog = type;
-
+		mSessionInitialized = im_session->mSessionInitialized;
+		
+		mDialog = im_session->mType;
 		if (IM_NOTHING_SPECIAL == mDialog || IM_SESSION_P2P_INVITE == mDialog)
 		{
 			mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelIMControl, this);
@@ -139,10 +141,16 @@ void LLIMFloater::sendMsg()
 			std::string utf8_text = wstring_to_utf8str(text);
 			utf8_text = utf8str_truncate(utf8_text, MAX_MSG_BUF_SIZE - 1);
 			
-			LLIMModel::sendMessage(utf8_text,
-								mSessionID,
-								mOtherParticipantUUID,
-								mDialog);
+			if (mSessionInitialized)
+			{
+				LLIMModel::sendMessage(utf8_text, mSessionID,
+					mOtherParticipantUUID,mDialog);
+			}
+			else
+			{
+				//queue up the message to send once the session is initialized
+				mQueuedMsgsForInit.append(utf8_text);
+			}
 
 			mInputEditor->setText(LLStringUtil::null);
 
@@ -200,6 +208,8 @@ BOOL LLIMFloater::postBuild()
 		LLLogChat::loadHistory(getTitle(), &chatFromLogFile, (void *)this);
 	}
 
+	//*TODO if session is not initialized yet, add some sort of a warning message like "starting session...blablabla"
+	//see LLFloaterIMPanel for how it is done (IB)
 
 	return LLDockableFloater::postBuild();
 }
@@ -337,6 +347,37 @@ bool LLIMFloater::toggle(const LLUUID& session_id)
 	}
 }
 
+//static
+LLIMFloater* LLIMFloater::findInstance(const LLUUID& session_id)
+{
+	return LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
+}
+
+void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
+{
+	mSessionInitialized = true;
+
+	if (mSessionID != im_session_id)
+	{
+		mSessionID = im_session_id;
+		setKey(im_session_id);
+	}
+	
+	//*TODO here we should remove "starting session..." warning message if we added it in postBuild() (IB)
+
+
+	//need to send delayed messaged collected while waiting for session initialization
+	if (!mQueuedMsgsForInit.size()) return;
+	LLSD::array_iterator iter;
+	for ( iter = mQueuedMsgsForInit.beginArray();
+		iter != mQueuedMsgsForInit.endArray();
+		++iter)
+	{
+		LLIMModel::sendMessage(iter->asString(), mSessionID,
+			mOtherParticipantUUID, mDialog);
+	}
+}
+
 void LLIMFloater::updateMessages()
 {
 	std::list<LLSD> messages = LLIMModel::instance().getMessages(mSessionID, mLastMessageIndex+1);
@@ -457,3 +498,4 @@ void LLIMFloater::chatFromLogFile(LLLogChat::ELogLineType type, std::string line
 	self->mHistoryEditor->appendText(message, true, LLStyle::Params().color(LLUIColorTable::instance().getColor("ChatHistoryTextColor")));
 	self->mHistoryEditor->blockUndo();
 }
+

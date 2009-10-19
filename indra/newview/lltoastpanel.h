@@ -58,9 +58,11 @@ public:
 
 	virtual std::string getTitle();
 	virtual const LLUUID& getID() { return mNotification->id();}
+
+	static const S32 MIN_PANEL_HEIGHT;
 protected:
 	LLNotificationPtr mNotification;
-	void snapToMessageHeight(LLTextBox* message, S32 maxLineCount);
+	void snapToMessageHeight(LLTextBase* message, S32 maxLineCount);
 };
 
 #endif /* LL_TOASTPANEL_H */

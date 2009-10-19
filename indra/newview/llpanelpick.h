@@ -39,6 +39,7 @@
 
 #include "llpanel.h"
 #include "llremoteparcelrequest.h"
+#include "llavatarpropertiesprocessor.h"
 
 class LLTextureCtrl;
 class LLMessageSystem;

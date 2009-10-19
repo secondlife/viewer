@@ -35,6 +35,7 @@
 
 #include "llinventorymodel.h"
 
+class LLLandmark;
 /**
  * @brief Provides helper functions to manage landmarks
  */
@@ -100,6 +101,20 @@ public:
      */
     // *TODO: mantipov: profide callback for cases, when Landmark is not loaded yet.
     static bool getLandmarkGlobalPos(const LLUUID& landmarkInventoryItemID, LLVector3d& posGlobal);
+
+    /**
+     * @brief Retrieve a landmark from gLandmarkList by inventory item's id
+     * 
+     * @return pointer to loaded landmark from gLandmarkList or NULL if landmark does not exist.
+     */
+    static LLLandmark* getLandmark(const LLUUID& landmarkInventoryItemID);
+
+    /**
+     * @brief  Performs standard action of copying of SLURL from landmark to user's clipboard.
+     * 	This action requires additional server request. The user will be notified  by info message, 
+     *  when URL is copied .
+     */
+    static void copySLURLtoClipboard(const LLUUID& landmarkInventoryItemID);
 
 private:
     LLLandmarkActions();
