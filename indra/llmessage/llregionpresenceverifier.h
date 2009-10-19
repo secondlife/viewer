@@ -1,5 +1,5 @@
 /** 
- * @file 
+ * @file llregionpresenceverifier.cpp
  * @brief 
  *
  * $LicenseInfo:firstyear=2008&license=viewergpl$
@@ -37,7 +37,7 @@
 #include "llhttpclient.h"
 #include <string>
 #include "llsd.h"
-#include <boost/shared_ptr.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 class LLHTTPClientInterface;
 
@@ -47,49 +47,58 @@ public:
 	class Response
 	{
 	public:
-		virtual ~Response() {}
+		virtual ~Response() = 0;
 
 		virtual bool checkValidity(const LLSD& content) const = 0;
 		virtual void onRegionVerified(const LLSD& region_details) = 0;
-
-		virtual void decrementRetries() = 0;
+		virtual void onRegionVerificationFailed() = 0;
 
 		virtual LLHTTPClientInterface& getHttpClient() = 0;
-		virtual std::string getRegionUri() const = 0;
-		virtual bool shouldRetry() const = 0;
 
-		virtual void onCompletedRegionRequest() {}
+	public: /* but not really -- don't touch this */
+		U32 mReferenceCount;		
 	};
 
-	typedef boost::shared_ptr<Response> ResponsePtr;
+	typedef boost::intrusive_ptr<Response> ResponsePtr;
 
 	class RegionResponder : public LLHTTPClient::Responder
 	{
 	public:
-		RegionResponder(ResponsePtr data);
+		RegionResponder(const std::string& uri, ResponsePtr data,
+						S32 retry_count);
+		virtual ~RegionResponder(); 
 		virtual void result(const LLSD& content);
-		virtual void completed(
-			U32 status,
-			const std::string& reason,
-			const LLSD& content);
+		virtual void error(U32 status, const std::string& reason);
 
 	private:
 		ResponsePtr mSharedData;
+		std::string mUri;
+		S32 mRetryCount;
 	};
 
 	class VerifiedDestinationResponder : public LLHTTPClient::Responder
 	{
 	public:
-		VerifiedDestinationResponder(ResponsePtr data, const LLSD& content);
+		VerifiedDestinationResponder(const std::string& uri, ResponsePtr data,
+									 const LLSD& content, S32 retry_count);
+		virtual ~VerifiedDestinationResponder();
 		virtual void result(const LLSD& content);
 		
 		virtual void error(U32 status, const std::string& reason);
+		
 	private:
 		void retry();
 		ResponsePtr mSharedData;
 		LLSD mContent;
+		std::string mUri;
+		S32 mRetryCount;
 	};
 };
 
+namespace boost
+{
+	void intrusive_ptr_add_ref(LLRegionPresenceVerifier::Response* p);
+	void intrusive_ptr_release(LLRegionPresenceVerifier::Response* p);
+};
 
 #endif //LL_LLREGIONPRESENCEVERIFIER_H

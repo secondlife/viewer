@@ -1,5 +1,5 @@
 /** 
- * @file 
+ * @file llstoredmessage.cpp
  * @brief 
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$

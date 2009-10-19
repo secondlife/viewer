@@ -13,6 +13,7 @@
 #define LL_STRINGIZE_H
 
 #include <sstream>
+#include <boost/lambda/lambda.hpp>
 
 /**
  * stringize(item) encapsulates an idiom we use constantly, using
@@ -28,6 +29,17 @@ std::string stringize(const T& item)
 }
 
 /**
+ * stringize_f(functor)
+ */
+template <typename Functor>
+std::string stringize_f(Functor const & f)
+{
+    std::ostringstream out;
+    f(out);
+    return out.str();
+}
+
+/**
  * STRINGIZE(item1 << item2 << item3 ...) effectively expands to the
  * following:
  * @code
@@ -36,40 +48,43 @@ std::string stringize(const T& item)
  * return out.str();
  * @endcode
  */
-#define STRINGIZE(EXPRESSION) (static_cast<std::ostringstream&>(Stringize() << EXPRESSION).str())
+#define STRINGIZE(EXPRESSION) (stringize_f(boost::lambda::_1 << EXPRESSION))
+
 
 /**
- * Helper class for STRINGIZE() macro. Ideally the body of
- * STRINGIZE(EXPRESSION) would look something like this:
- * @code
- * (std::ostringstream() << EXPRESSION).str()
- * @endcode
- * That doesn't work because each of the relevant operator<<() functions
- * accepts a non-const std::ostream&, to which you can't pass a temp instance
- * of std::ostringstream. Stringize plays the necessary const tricks to make
- * the whole thing work.
+ * destringize(str)
+ * defined for symmetry with stringize
+ * *NOTE - this has distinct behavior from boost::lexical_cast<T> regarding
+ * leading/trailing whitespace and handling of bad_lexical_cast exceptions
  */
-class Stringize
+template <typename T>
+T destringize(std::string const & str)
 {
-public:
-    /**
-     * This is the essence of Stringize. The leftmost << operator (the one
-     * coded in the STRINGIZE() macro) engages this operator<<() const method
-     * on the temp Stringize instance. Every other << operator (ones embedded
-     * in EXPRESSION) simply sees the std::ostream& returned by the first one.
-     *
-     * Finally, the STRINGIZE() macro downcasts that std::ostream& to
-     * std::ostringstream&.
-     */
-    template <typename T>
-    std::ostream& operator<<(const T& item) const
-    {
-        mOut << item;
-        return mOut;
-    }
+	T val;
+    std::istringstream in(str);
+	in >> val;
+    return val;
+}
 
-private:
-    mutable std::ostringstream mOut;
-};
+/**
+ * destringize_f(str, functor)
+ */
+template <typename Functor>
+void destringize_f(std::string const & str, Functor const & f)
+{
+    std::istringstream in(str);
+    f(in);
+}
+
+/**
+ * DESTRINGIZE(str, item1 >> item2 >> item3 ...) effectively expands to the
+ * following:
+ * @code
+ * std::istringstream in(str);
+ * in >> item1 >> item2 >> item3 ... ;
+ * @endcode
+ */
+#define DESTRINGIZE(STR, EXPRESSION) (destringize_f((STR), (boost::lambda::_1 >> EXPRESSION)))
+
 
 #endif /* ! defined(LL_STRINGIZE_H) */
