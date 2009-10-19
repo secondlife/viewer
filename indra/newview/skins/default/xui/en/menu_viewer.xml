@@ -19,7 +19,7 @@
              parameter="preferences" />
         </menu_item_call>
          <menu_item_call
-             label="Manage My Account"
+             label="My Dashboard"
              layout="topleft"
              name="Manage My Account">
                 <menu_item_call.on_click
@@ -272,6 +272,28 @@
            name="Land"
            tear_off="true">
           <menu_item_check
+             label="Ban Lines"
+             layout="topleft"
+             name="Ban Lines">
+            <menu_item_check.on_check
+               control="ShowBanLines" />
+            <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="ShowBanLines" />
+          </menu_item_check>
+           <menu_item_check
+                 label="Beacons"
+                 layout="topleft"
+                 name="beacons"
+                 shortcut="control|alt|shift|N">
+                    <menu_item_check.on_check
+                     function="Floater.Visible"
+                     parameter="beacons" />
+                    <menu_item_check.on_click
+                     function="Floater.Toggle"
+                     parameter="beacons" />
+                </menu_item_check>
+          <menu_item_check
              label="Property Lines"
              layout="topleft"
              name="Property Lines"
@@ -291,16 +313,6 @@
             <menu_item_check.on_click
                function="ToggleControl"
                parameter="ShowParcelOwners" />
-          </menu_item_check>
-          <menu_item_check
-             label="Ban Lines"
-             layout="topleft"
-             name="Ban Lines">
-            <menu_item_check.on_check
-               control="ShowBanLines" />
-            <menu_item_check.on_click
-               function="ToggleControl"
-               parameter="ShowBanLines" />
           </menu_item_check>
         </menu>
         <menu_item_separator
@@ -951,36 +963,6 @@
                      function="Tools.EnableToolNotPie" />
                 </menu_item_call>
             </menu>
-            <menu
-             create_jump_keys="true"
-             label="Beacons"
-             layout="topleft"
-             name="Beacons"
-             tear_off="true">
-                <menu_item_check
-                 label="Beacons"
-                 layout="topleft"
-                 name="beacons"
-                 shortcut="control|alt|shift|N">
-                    <menu_item_check.on_check
-                     function="Floater.Visible"
-                     parameter="beacons" />
-                    <menu_item_check.on_click
-                     function="Floater.Toggle"
-                     parameter="beacons" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Cheesy Beacon"
-                 layout="topleft"
-                 name="Cheesy Beacon">
-                    <menu_item_check.on_check
-                     function="CheckControl"
-                     parameter="CheesyBeacon" />
-                    <menu_item_check.on_click
-                     function="ToggleControl"
-                     parameter="CheesyBeacon" />
-                </menu_item_check>
-            </menu>
         </menu>
         <menu
          create_jump_keys="true"
@@ -1221,6 +1203,17 @@
          layout="topleft"
          name="Highlighting and Visibility"
          tear_off="true">
+         <menu_item_check
+                 label="Cheesy Beacon"
+                 layout="topleft"
+                 name="Cheesy Beacon">
+                    <menu_item_check.on_check
+                     function="CheckControl"
+                     parameter="CheesyBeacon" />
+                    <menu_item_check.on_click
+                     function="ToggleControl"
+                     parameter="CheesyBeacon" />
+                </menu_item_check>
             <menu_item_check
              label="Hide Particles"
              layout="topleft"
