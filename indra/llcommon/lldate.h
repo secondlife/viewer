@@ -35,8 +35,6 @@
 #ifndef LL_LLDATE_H
 #define LL_LLDATE_H
 
-#include "linden_common.h"
-
 #include <iosfwd>
 #include <string>
 

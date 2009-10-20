@@ -438,6 +438,18 @@ void LLView::setEnabled(BOOL enabled)
 }
 
 //virtual
+bool LLView::isAvailable() const
+{
+    return isInEnabledChain() && isInVisibleChain();
+}
+
+//static
+bool LLView::isAvailable(const LLView* view)
+{
+    return view && view->isAvailable();
+}
+
+//virtual
 BOOL LLView::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
 	return FALSE;

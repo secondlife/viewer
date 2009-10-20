@@ -2619,3 +2619,13 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 	return true; // *TODO: Error checking
 }
 
+bool LLFloater::isShown() const
+{
+    return ! isMinimized() && isInVisibleChain();
+}
+
+/* static */
+bool LLFloater::isShown(const LLFloater* floater)
+{
+    return floater && floater->isShown();
+}

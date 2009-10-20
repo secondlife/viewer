@@ -1,5 +1,6 @@
 # -*- cmake -*-
 include(LLTestCommand)
+include(GoogleMock)
 
 MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   # Given a project name and a list of sourcefiles (with optional properties on each),
@@ -190,6 +191,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
 
   SET(libraries
     ${library_dependencies}
+    ${GOOGLEMOCK_LIBRARIES}
     ${PTHREAD_LIBRARY}
     )
 

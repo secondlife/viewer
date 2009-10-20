@@ -13,6 +13,7 @@
 #define LL_LLAPPVIEWERLISTENER_H
 
 #include "lleventdispatcher.h"
+#include <boost/function.hpp>
 
 class LLAppViewer;
 class LLSD;
@@ -21,14 +22,16 @@ class LLSD;
 class LLAppViewerListener: public LLDispatchListener
 {
 public:
+    typedef boost::function<LLAppViewer*(void)> LLAppViewerGetter;
     /// Specify the pump name on which to listen, and bind the LLAppViewer
     /// instance to use (e.g. LLAppViewer::instance()).
-    LLAppViewerListener(const std::string& pumpname, LLAppViewer* llappviewer);
+    LLAppViewerListener(const std::string& pumpname, const LLAppViewerGetter& getter);
 
 private:
     void requestQuit(const LLSD& event);
+    void forceQuit(const LLSD& event);
 
-    LLAppViewer* mAppViewer;
+    LLAppViewerGetter mAppViewerGetter;
 };
 
 #endif /* ! defined(LL_LLAPPVIEWERLISTENER_H) */
