@@ -60,7 +60,7 @@ template <typename T>
 class LLHandle
 {
 public:
-	LLHandle() : mTombStone(sDefaultTombStone) {}
+	LLHandle() : mTombStone(getDefaultTombStone()) {}
 	const LLHandle<T>& operator =(const LLHandle<T>& other)  
 	{ 
 		mTombStone = other.mTombStone;
@@ -74,7 +74,7 @@ public:
 
 	void markDead() 
 	{ 
-		mTombStone = sDefaultTombStone; 
+		mTombStone = getDefaultTombStone();
 	}
 
 	T* get() const
@@ -104,12 +104,12 @@ protected:
 	LLPointer<LLTombStone<T> > mTombStone;
 
 private:
-	static LLPointer<LLTombStone<T> > sDefaultTombStone;
+	static LLPointer<LLTombStone<T> >& getDefaultTombStone()
+	{
+		static LLPointer<LLTombStone<T> > sDefaultTombStone = new LLTombStone<T>;
+		return sDefaultTombStone;
+	}
 };
-
-// initialize static "empty" tombstone pointer
-template <typename T> LLPointer<LLTombStone<T> > LLHandle<T>::sDefaultTombStone = new LLTombStone<T>();
-
 
 template <typename T>
 class LLRootHandle : public LLHandle<T>

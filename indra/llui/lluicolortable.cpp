@@ -278,7 +278,7 @@ bool LLUIColorTable::loadFromFilename(const std::string& filename)
 	}
 
 	Params params;
-	LLXUIParser::instance().readXUI(root, params);
+	LLXUIParser::instance().readXUI(root, params, filename);
 
 	if(params.validateBlock())
 	{

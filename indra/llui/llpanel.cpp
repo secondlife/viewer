@@ -474,7 +474,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 			{
 				//if we are exporting, we want to export the current xml
 				//not the referenced xml
-				LLXUIParser::instance().readXUI(node, params);
+				LLXUIParser::instance().readXUI(node, params, xml_filename);
 				Params output_params(params);
 				setupParamsForExport(output_params, parent);
 				output_node->setName(node->getName()->mString);
@@ -490,14 +490,15 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 				return FALSE;
 			}
 
-			LLXUIParser::instance().readXUI(referenced_xml, params);
+			LLXUIParser::instance().readXUI(referenced_xml, params, xml_filename);
 
 			// add children using dimensions from referenced xml for consistent layout
 			setShape(params.rect);
 			LLUICtrlFactory::createChildren(this, referenced_xml, child_registry_t::instance());
 		}
 
-		LLXUIParser::instance().readXUI(node, params);
+		// ask LLUICtrlFactory for filename, since xml_filename might be empty
+		LLXUIParser::instance().readXUI(node, params, LLUICtrlFactory::getInstance()->getCurFileName());
 
 		if (output_node)
 		{

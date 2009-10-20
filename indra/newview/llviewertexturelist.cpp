@@ -1474,7 +1474,7 @@ bool LLUIImageList::initFromFile()
 	}
 
 	UIImageDeclarations images;
-	LLXUIParser::instance().readXUI(root, images);
+	LLXUIParser::instance().readXUI(root, images, base_file_path);
 
 	if (!images.validateBlock()) return false;
 

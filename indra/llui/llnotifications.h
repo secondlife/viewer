@@ -102,7 +102,6 @@
 #include "llfunctorregistry.h"
 #include "llpointer.h"
 #include "llinitparam.h"
-#include "llxmlnode.h"
 
 class LLNotification;
 typedef boost::shared_ptr<LLNotification> LLNotificationPtr;
@@ -160,7 +159,7 @@ public:
 	LLNotificationForm();
 	LLNotificationForm(const LLSD& sd);
 	LLNotificationForm(const std::string& name, 
-		const LLPointer<LLXMLNode> xml_node);
+		const LLPointer<class LLXMLNode> xml_node);
 
 	LLSD asLLSD() const;
 

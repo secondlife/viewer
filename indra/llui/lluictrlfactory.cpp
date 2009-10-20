@@ -34,6 +34,8 @@
 
 #include "lluictrlfactory.h"
 
+#include "llxmlnode.h"
+
 #include <fstream>
 #include <boost/tokenizer.hpp>
 
@@ -94,7 +96,7 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
 
 	if (LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
 	{
-		LLXUIParser::instance().readXUI(root_node, block);
+		LLXUIParser::instance().readXUI(root_node, block, filename);
 	}
 }
 
@@ -409,4 +411,40 @@ void LLUICtrlFactory::popFactoryFunctions()
 	{
 		mFactoryStack.pop_back();
 	}
+}
+
+//static 
+void LLUICtrlFactory::copyName(LLXMLNodePtr src, LLXMLNodePtr dest)
+{
+	dest->setName(src->getName()->mString);
+}
+
+// adds a widget and its param block to various registries
+//static 
+void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const std::type_info* param_block_type, dummy_widget_creator_func_t creator_func, const std::string& tag)
+{
+	// associate parameter block type with template .xml file
+	std::string* existing_tag = LLWidgetNameRegistry::instance().getValue(param_block_type);
+	if (existing_tag != NULL && *existing_tag != tag)
+	{
+		llerrs << "Duplicate entry for T::Params, try creating empty param block in derived classes that inherit T::Params" << llendl;
+	}
+	LLWidgetNameRegistry ::instance().defaultRegistrar().add(param_block_type, tag);
+	// associate widget type with factory function
+	LLDefaultWidgetRegistry::instance().defaultRegistrar().add(widget_type, creator_func);
+	LLWidgetTypeRegistry::instance().defaultRegistrar().add(tag, widget_type);
+	//FIXME: comment this in when working on schema generation
+	//LLDefaultParamBlockRegistry::instance().defaultRegistrar().add(widget_type, &getEmptyParamBlock<T>);
+}
+
+//static
+dummy_widget_creator_func_t* LLUICtrlFactory::getDefaultWidgetFunc(const std::type_info* widget_type)
+{
+	return LLDefaultWidgetRegistry::instance().getValue(widget_type);
+}
+
+//static 
+const std::string* LLUICtrlFactory::getWidgetTag(const std::type_info* widget_type)
+{
+	return LLWidgetNameRegistry::instance().getValue(widget_type);
 }

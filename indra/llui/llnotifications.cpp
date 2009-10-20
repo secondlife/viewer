@@ -34,6 +34,7 @@
 
 #include "llnotifications.h"
 
+#include "llxmlnode.h"
 #include "lluictrl.h"
 #include "lluictrlfactory.h"
 #include "lldir.h"

@@ -8537,13 +8537,13 @@
     <key>ToolTipVisibleTimeNear</key>
     <map>
       <key>Comment</key>
-      <string>Fade tooltip after after time passes (seconds) while mouse near tooltip</string>
+      <string>Fade tooltip after after time passes (seconds) while mouse near tooltip or original position</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>5.0</real>
+      <real>10.0</real>
     </map>
     <key>ToolTipVisibleTimeOver</key>
     <map>

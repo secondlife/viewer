@@ -46,6 +46,7 @@
 
 namespace LLInitParam
 {
+
 	template <typename T, bool IS_BOOST_FUNCTION = boost::is_convertible<T, boost::function_base>::value >
     struct ParamCompare 
 	{
@@ -474,7 +475,11 @@ namespace LLInitParam
 
 		BlockDescriptor*		mBlockDescriptor;	// most derived block descriptor
 
-		static BlockDescriptor sBlockDescriptor;
+		static BlockDescriptor& blockDescriptor()
+		{
+			static BlockDescriptor sBlockDescriptor;
+			return sBlockDescriptor;
+		}
 
 	private:
 		const std::string& getParamName(const BlockDescriptor& block_data, const Param* paramp) const;
@@ -493,13 +498,13 @@ namespace LLInitParam
 	// that derive from BaseBlock and those that don't
 	// this is supposedly faster than boost::is_convertible and its ilk
 	template<typename T, typename Void = void>
-	struct is_BaseBlock
+	struct IsBaseBlock
 	{
 		static const bool value = false;
 	};
 
 	template<typename T>
-	struct is_BaseBlock<T, typename T::baseblock_base_class_t>
+	struct IsBaseBlock<T, typename T::baseblock_base_class_t>
 	{
 		static const bool value = true;
 	};
@@ -509,7 +514,7 @@ namespace LLInitParam
 	template<typename	T,
 			typename	NAME_VALUE_LOOKUP = TypeValues<T>,
 			bool		HAS_MULTIPLE_VALUES = false,
-			bool		VALUE_IS_BLOCK = is_BaseBlock<T>::value>
+			bool		VALUE_IS_BLOCK = IsBaseBlock<T>::value>
 	class TypedParam 
 	:	public Param
 	{
@@ -1246,7 +1251,7 @@ namespace LLInitParam
 		bool overwriteFrom(const self_t& other)
 		{
 			mCurChoice = other.mCurChoice;
-			return BaseBlock::overwriteFromImpl(sBlockDescriptor, other);
+			return BaseBlock::overwriteFromImpl(blockDescriptor(), other);
 		}
 
 		// take all provided params that are not already provided, and apply to self
@@ -1277,7 +1282,7 @@ namespace LLInitParam
 		Choice()
 		:	mCurChoice(0)
 		{
-			BaseBlock::init(sBlockDescriptor, BaseBlock::sBlockDescriptor, sizeof(DERIVED_BLOCK));
+			BaseBlock::init(blockDescriptor(), BaseBlock::blockDescriptor(), sizeof(DERIVED_BLOCK));
 		}
 
 		// Alternatives are mutually exclusive wrt other Alternatives in the same block.  
@@ -1290,16 +1295,16 @@ namespace LLInitParam
 			friend class Choice<DERIVED_BLOCK>;
 
 			typedef Alternative<T, NAME_VALUE_LOOKUP>									self_t;
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, is_BaseBlock<T>::value>		super_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBaseBlock<T>::value>		super_t;
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
 			explicit Alternative(const char* name, value_assignment_t val = DefaultInitializer<T>::get())
-			:	super_t(DERIVED_BLOCK::sBlockDescriptor, name, val, NULL, 0, 1),
+			:	super_t(DERIVED_BLOCK::blockDescriptor(), name, val, NULL, 0, 1),
 				mOriginalValue(val)
 			{
 				// assign initial choice to first declared option
-				DERIVED_BLOCK* blockp = ((DERIVED_BLOCK*)DERIVED_BLOCK::sBlockDescriptor.mCurrentBlockPtr);
-				if (DERIVED_BLOCK::sBlockDescriptor.mInitializationState == BlockDescriptor::INITIALIZING
+				DERIVED_BLOCK* blockp = ((DERIVED_BLOCK*)DERIVED_BLOCK::blockDescriptor().mCurrentBlockPtr);
+				if (DERIVED_BLOCK::blockDescriptor().mInitializationState == BlockDescriptor::INITIALIZING
 					&& blockp->mCurChoice == 0)
 				{
 					blockp->mCurChoice = Param::enclosingBlock().getHandleFromParam(this);
@@ -1345,7 +1350,11 @@ namespace LLInitParam
 		};
 
 	protected:
-		static BlockDescriptor sBlockDescriptor;
+		static BlockDescriptor& blockDescriptor()
+		{
+			static BlockDescriptor sBlockDescriptor;
+			return sBlockDescriptor;
+		}
 
 	private:
 		param_handle_t	mCurChoice;
@@ -1355,15 +1364,6 @@ namespace LLInitParam
 			return BaseBlock::getParamFromHandle(mCurChoice);
 		}
 	};
-
-	template<typename DERIVED_BLOCK> 
-		BlockDescriptor
-			Choice<DERIVED_BLOCK>::sBlockDescriptor;
-
-	//struct CardinalityConstraint
-	//{
-	//	virtual std::pair<S32, S32> getRange() = 0;
-	//};
 
 	struct AnyAmount
 	{
@@ -1412,19 +1412,19 @@ namespace LLInitParam
 		// take all provided params from other and apply to self
 		bool overwriteFrom(const self_t& other)
 		{
-			return BaseBlock::overwriteFromImpl(sBlockDescriptor, other);
+			return BaseBlock::overwriteFromImpl(blockDescriptor(), other);
 		}
 
 		// take all provided params that are not already provided, and apply to self
 		bool fillFrom(const self_t& other)
 		{
-			return BaseBlock::fillFromImpl(sBlockDescriptor, other);
+			return BaseBlock::fillFromImpl(blockDescriptor(), other);
 		}
 	protected:
 		Block()
 		{
 			//#pragma message("Parsing LLInitParam::Block")
-			BaseBlock::init(sBlockDescriptor, BASE_BLOCK::sBlockDescriptor, sizeof(DERIVED_BLOCK));
+			BaseBlock::init(blockDescriptor(), BASE_BLOCK::blockDescriptor(), sizeof(DERIVED_BLOCK));
 		}
 
 		//
@@ -1434,11 +1434,11 @@ namespace LLInitParam
 		class Optional : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, is_BaseBlock<T>::value>		super_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBaseBlock<T>::value>		super_t;
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
 			explicit Optional(const char* name = "", value_assignment_t val = DefaultInitializer<T>::get())
-			:	super_t(DERIVED_BLOCK::sBlockDescriptor, name, val, NULL, 0, 1)
+			:	super_t(DERIVED_BLOCK::blockDescriptor(), name, val, NULL, 0, 1)
 			{
 				//#pragma message("Parsing LLInitParam::Block::Optional")
 			}
@@ -1461,13 +1461,13 @@ namespace LLInitParam
 		class Mandatory : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, is_BaseBlock<T>::value>		super_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBaseBlock<T>::value>		super_t;
 			typedef Mandatory<T, NAME_VALUE_LOOKUP>										self_t;
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
 			// mandatory parameters require a name to be parseable
 			explicit Mandatory(const char* name = "", value_assignment_t val = DefaultInitializer<T>::get())
-			:	super_t(DERIVED_BLOCK::sBlockDescriptor, name, val, &validate, 1, 1)
+			:	super_t(DERIVED_BLOCK::blockDescriptor(), name, val, &validate, 1, 1)
 			{}
 
 			Mandatory& operator=(value_assignment_t val)
@@ -1495,7 +1495,7 @@ namespace LLInitParam
 		class Multiple : public TypedParam<T, NAME_VALUE_LOOKUP, true>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, true, is_BaseBlock<T>::value>	super_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, true, IsBaseBlock<T>::value>	super_t;
 			typedef Multiple<T, RANGE, NAME_VALUE_LOOKUP>							self_t;
 			typedef typename super_t::container_t									container_t;
 			typedef typename super_t::value_assignment_t							value_assignment_t;
@@ -1503,7 +1503,7 @@ namespace LLInitParam
 			typedef typename container_t::const_iterator							const_iterator;
 
 			explicit Multiple(const char* name = "", value_assignment_t val = DefaultInitializer<container_t>::get())
-			:	super_t(DERIVED_BLOCK::sBlockDescriptor, name, val, &validate, RANGE::minCount(), RANGE::maxCount())
+			:	super_t(DERIVED_BLOCK::blockDescriptor(), name, val, &validate, RANGE::minCount(), RANGE::maxCount())
 			{}
 
 			using super_t::operator();
@@ -1531,9 +1531,9 @@ namespace LLInitParam
 		{
 		public:
 			explicit Deprecated(const char* name)
-			:	Param(DERIVED_BLOCK::sBlockDescriptor.mCurrentBlockPtr)
+			:	Param(DERIVED_BLOCK::blockDescriptor().mCurrentBlockPtr)
 			{
-				BlockDescriptor& block_descriptor = DERIVED_BLOCK::sBlockDescriptor;
+				BlockDescriptor& block_descriptor = DERIVED_BLOCK::blockDescriptor();
 				if (block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING)
 				{
 					ParamDescriptor param_descriptor(block_descriptor.mCurrentBlockPtr->getHandleFromParam(this),
@@ -1563,13 +1563,13 @@ namespace LLInitParam
 		typedef Deprecated Ignored;
 
 	protected:
-		static BlockDescriptor sBlockDescriptor;
+		static BlockDescriptor& blockDescriptor()
+		{
+			static BlockDescriptor sBlockDescriptor;
+			return sBlockDescriptor;
+		}
 	};
 	
-	template<typename DERIVED_BLOCK, typename BASE_BLOCK> 
-		BlockDescriptor
-			Block<DERIVED_BLOCK, BASE_BLOCK>::sBlockDescriptor;
-
 	template<typename T, typename DERIVED = TypedParam<T> >
 	class BlockValue
 	:	public Block<TypedParam<T, TypeValues<T>, false> >,
@@ -1803,11 +1803,11 @@ namespace LLInitParam
 				// assign individual parameters
 				if (overwrite)
 				{
-					dst_typed_param.BaseBlock::overwriteFromImpl(block_t::sBlockDescriptor, src_param);
+					dst_typed_param.BaseBlock::overwriteFromImpl(block_t::blockDescriptor(), src_param);
 				}
 				else
 				{
-					dst_typed_param.BaseBlock::fillFromImpl(block_t::sBlockDescriptor, src_param);
+					dst_typed_param.BaseBlock::fillFromImpl(block_t::blockDescriptor(), src_param);
 				}
 				// then copy actual value
 				dst_typed_param.mData.mValue = src_param.get();

@@ -105,7 +105,6 @@
 #include "llstl.h"
 #include "llstrider.h"
 #include "llstring.h"
-#include "llstringtable.h"
 #include "llsys.h"
 #include "llthread.h"
 #include "lltimer.h"
