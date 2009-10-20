@@ -2276,7 +2276,7 @@ void LLTextEditor::insertText(const std::string &new_text)
 	setEnabled( enabled );
 }
 
-void LLTextEditor::appendWidget(LLView* widget, const std::string &widget_text, bool allow_undo, bool prepend_newline)
+void LLTextEditor::appendWidget(LLView* widget, const std::string &widget_text, bool allow_undo, bool force_new_line)
 {
 	// Save old state
 	S32 selection_start = mSelectionStart;
@@ -2293,17 +2293,9 @@ void LLTextEditor::appendWidget(LLView* widget, const std::string &widget_text, 
 	LLWString widget_wide_text;
 
 	// Add carriage return if not first line
-	if (getLength() != 0
-		&& prepend_newline)
-	{
-		widget_wide_text = utf8str_to_wstring(std::string("\n") + widget_text);
-	}
-	else
-	{
-		widget_wide_text = utf8str_to_wstring(widget_text);
-	}
+	widget_wide_text = utf8str_to_wstring(widget_text);
 
-	LLTextSegmentPtr segment = new LLInlineViewSegment(widget, old_length, old_length + widget_text.size());
+	LLTextSegmentPtr segment = new LLInlineViewSegment(widget, old_length, old_length + widget_text.size(), force_new_line);
 	insert(getLength(), widget_wide_text, FALSE, segment);
 
 	needsReflow();

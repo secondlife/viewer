@@ -340,11 +340,14 @@ void LLTextBase::drawSelectionBackground()
 					S32 segment_line_start = segmentp->getStart() + segment_offset;
 					S32 segment_line_end = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd);
 
+					S32 segment_width, segment_height;
+
 					// if selection after beginning of segment
 					if(selection_left >= segment_line_start)
 					{
 						S32 num_chars = llmin(selection_left, segment_line_end) - segment_line_start;
-						selection_rect.mLeft += segmentp->getWidth(segment_offset, num_chars);
+						segmentp->getDimensions(segment_offset, num_chars, segment_width, segment_height);
+						selection_rect.mLeft += segment_width;
 					}
 
 					// if selection spans end of current segment...
@@ -352,13 +355,16 @@ void LLTextBase::drawSelectionBackground()
 					{
 						// extend selection slightly beyond end of line
 						// to indicate selection of newline character (use "n" character to determine width)
-						selection_rect.mRight += segmentp->getWidth(segment_offset, segment_line_end - segment_line_start);
+						S32 num_chars = segment_line_end - segment_line_start;
+						segmentp->getDimensions(segment_offset, num_chars, segment_width, segment_height);
+						selection_rect.mRight += segment_width;
 					}
 					// else if selection ends on current segment...
 					else
 					{
 						S32 num_chars = selection_right - segment_line_start;
-						selection_rect.mRight += segmentp->getWidth(segment_offset, num_chars);
+						segmentp->getDimensions(segment_offset, num_chars, segment_width, segment_height);
+						selection_rect.mRight += segment_width;
 
 						break;
 					}
@@ -424,7 +430,9 @@ void LLTextBase::drawCursor()
 
 			if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection())
 			{
-				S32 width = llmax(CURSOR_THICKNESS, segmentp->getWidth(mCursorPos - segmentp->getStart(), 1));
+				S32 segment_width, segment_height;
+				segmentp->getDimensions(mCursorPos - segmentp->getStart(), 1, segment_width, segment_height);
+				S32 width = llmax(CURSOR_THICKNESS, segment_width);
 				cursor_rect.mRight = cursor_rect.mLeft + width;
 			}
 			else
@@ -1087,24 +1095,18 @@ void LLTextBase::reflow(S32 start_index)
 			LLTextSegmentPtr segment = *seg_iter;
 
 			// track maximum height of any segment on this line
-			line_height = llmax(line_height, segment->getMaxHeight());
 			S32 cur_index = segment->getStart() + seg_offset;
-			// find run of text from this segment that we can display on one line
-			S32 end_index = cur_index;
-			while(end_index < segment->getEnd() && text[end_index] != '\n')
-			{
-				++end_index;
-			}
 
 			// ask segment how many character fit in remaining space
-			S32 max_characters = end_index - cur_index;
 			S32 character_count = segment->getNumChars(getWordWrap() ? llmax(0, remaining_pixels) : S32_MAX,
 														seg_offset, 
 														cur_index - line_start_index, 
-														max_characters);
-			
+														S32_MAX);
 
-			S32 segment_width = segment->getWidth(seg_offset, character_count);
+			S32 segment_width, segment_height;
+			segment->getDimensions(seg_offset, character_count, segment_width, segment_height);
+			// grow line height as necessary based on reported height of this segment
+			line_height = llmax(line_height, segment_height);
 			remaining_pixels -= segment_width;
 
 			seg_offset += character_count;
@@ -1120,16 +1122,6 @@ void LLTextBase::reflow(S32 start_index)
 			// if we didn't finish the current segment...
 			if (last_segment_char_on_line < segment->getEnd())
 			{
-				// set up index for next line
-				// ...skip newline, we don't want to draw
-				S32 next_line_count = line_count;
-				if (text[last_segment_char_on_line] == '\n')
-				{
-					seg_offset++;
-					last_segment_char_on_line++;
-					next_line_count++;
-				}
-
 				// add line info and keep going
 				mLineInfoList.push_back(line_info(
 											line_start_index, 
@@ -1141,7 +1133,6 @@ void LLTextBase::reflow(S32 start_index)
 				cur_top -= llround((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
 				remaining_pixels = text_width;
 				line_height = 0;
-				line_count = next_line_count;
 			}
 			// ...just consumed last segment..
 			else if (++segment_set_t::iterator(seg_iter) == mSegments.end())
@@ -1801,7 +1792,8 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round 
 
 		S32 segment_line_start = segmentp->getStart() + line_seg_offset;
 		S32 segment_line_length = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd - 1) - segment_line_start;
-		S32 text_width = segmentp->getWidth(line_seg_offset, segment_line_length);
+		S32 text_width, text_height;
+		segmentp->getDimensions(line_seg_offset, segment_line_length, text_width, text_height);
 		if (local_x < start_x + text_width						// cursor to left of right edge of text
 			|| segmentp->getEnd() >= line_iter->mDocIndexEnd - 1)	// or this segment wraps to next line
 		{
@@ -1809,7 +1801,8 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round 
 			S32 offset;
 			if (!segmentp->canEdit())
 			{
-				S32 segment_width = segmentp->getWidth(0, segmentp->getEnd() - segmentp->getStart());
+				S32 segment_width, segment_height;
+				segmentp->getDimensions(0, segmentp->getEnd() - segmentp->getStart(), segment_width, segment_height);
 				if (round && local_x - start_x > segment_width / 2)
 				{
 					offset = segment_line_length;
@@ -1868,14 +1861,18 @@ LLRect LLTextBase::getLocalRectFromDocIndex(S32 pos) const
 		if (line_seg_iter == cursor_seg_iter)
 		{
 			// cursor advanced to right based on difference in offset of cursor to start of line
-			local_rect.mLeft += segmentp->getWidth(line_seg_offset, cursor_seg_offset - line_seg_offset);
+			S32 segment_width, segment_height;
+			segmentp->getDimensions(line_seg_offset, cursor_seg_offset - line_seg_offset, segment_width, segment_height);
+			local_rect.mLeft += segment_width;
 
 			break;
 		}
 		else
 		{
 			// add remainder of current text segment to cursor position
-			local_rect.mLeft += segmentp->getWidth(line_seg_offset, (segmentp->getEnd() - segmentp->getStart()) - line_seg_offset);
+			S32 segment_width, segment_height;
+			segmentp->getDimensions(line_seg_offset, (segmentp->getEnd() - segmentp->getStart()) - line_seg_offset, segment_width, segment_height);
+			local_rect.mLeft += segment_width;
 			// offset will be 0 for all segments after the first
 			line_seg_offset = 0;
 			// go to next text segment on this line
@@ -2115,12 +2112,11 @@ LLRect LLTextBase::getVisibleDocumentRect() const
 LLTextSegment::~LLTextSegment()
 {}
 
-S32	LLTextSegment::getWidth(S32 first_char, S32 num_chars) const { return 0; }
+void LLTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const { width = 0; height = 0; }
 S32	LLTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const { return 0; }
 S32	LLTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const { return 0; }
 void LLTextSegment::updateLayout(const LLTextBase& editor) {}
 F32	LLTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect) { return draw_rect.mLeft; }
-S32	LLTextSegment::getMaxHeight() const { return 0; }
 bool LLTextSegment::canEdit() const { return false; }
 void LLTextSegment::unlinkFromDocument(LLTextBase*) {}
 void LLTextSegment::linkToDocument(LLTextBase*) {}
@@ -2158,7 +2154,7 @@ LLNormalTextSegment::LLNormalTextSegment( const LLStyleSP& style, S32 start, S32
 	mToken(NULL),
 	mEditor(editor)
 {
-	mMaxHeight = llceil(mStyle->getFont()->getLineHeight());
+	mFontHeight = llceil(mStyle->getFont()->getLineHeight());
 }
 
 LLNormalTextSegment::LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible) 
@@ -2168,7 +2164,7 @@ LLNormalTextSegment::LLNormalTextSegment( const LLColor4& color, S32 start, S32 
 {
 	mStyle = new LLStyle(LLStyle::Params().visible(is_visible).color(color));
 
-	mMaxHeight = llceil(mStyle->getFont()->getLineHeight());
+	mFontHeight = llceil(mStyle->getFont()->getLineHeight());
 }
 
 F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
@@ -2266,11 +2262,6 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 	return right_x;
 }
 
-S32	LLNormalTextSegment::getMaxHeight() const	
-{ 
-	return mMaxHeight; 
-}
-
 BOOL LLNormalTextSegment::handleHover(S32 x, S32 y, MASK mask)
 {
 	if (getStyle() && getStyle()->isLink())
@@ -2344,10 +2335,21 @@ void LLNormalTextSegment::setToolTip(const std::string& tooltip)
 	mTooltip = tooltip;
 }
 
-S32	LLNormalTextSegment::getWidth(S32 first_char, S32 num_chars) const
+void LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 {
 	LLWString text = mEditor.getWText();
-	return mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
+
+	// look for any printable character, then return the font height
+	height = 0;
+	for (S32 index = mStart + first_char; index < mStart + first_char + num_chars; ++index)
+	{
+		if (text[index] != '\n')
+		{
+			height = mFontHeight;
+			break;
+		}
+	}
+	width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
 }
 
 S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const
@@ -2363,6 +2365,17 @@ S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, 
 S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const
 {
 	LLWString text = mEditor.getWText();
+
+	// search for newline and if found, truncate there
+	S32 last_char = mStart + segment_offset;
+	for (; last_char != mEnd; ++last_char)
+	{
+		if (text[last_char] == '\n') break;
+	}
+
+	// set max characters to length of segment, or to first newline
+	max_chars = llmin(max_chars, last_char - (mStart + segment_offset));
+
 	S32 num_chars = mStyle->getFont()->maxDrawableChars(text.c_str() + segment_offset + mStart, 
 												(F32)num_pixels,
 												max_chars, 
@@ -2378,6 +2391,10 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	if (mStart + segment_offset + num_chars == mEditor.getLength())
 	{
 		// include terminating NULL
+		num_chars++;
+	}
+	else if (text[mStart + segment_offset + num_chars] == '\n')
+	{
 		num_chars++;
 	}
 	return num_chars;
@@ -2399,9 +2416,10 @@ void LLNormalTextSegment::dump() const
 // LLInlineViewSegment
 //
 
-LLInlineViewSegment::LLInlineViewSegment(LLView* view, S32 start, S32 end)
+LLInlineViewSegment::LLInlineViewSegment(LLView* view, S32 start, S32 end, bool force_new_line)
 :	LLTextSegment(start, end),
-	mView(view)
+	mView(view),
+	mForceNewLine(force_new_line)
 {
 } 
 
@@ -2410,21 +2428,29 @@ LLInlineViewSegment::~LLInlineViewSegment()
 	mView->die();
 }
 
-S32	LLInlineViewSegment::getWidth(S32 first_char, S32 num_chars) const
+void	LLInlineViewSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 {
 	if (first_char == 0 && num_chars == 0) 
 	{
-		return 0;
+		// we didn't fit on a line, the widget will fall on the next line
+		// so dimensions here are 0
+		width = 0;
+		height = 0;
 	}
 	else
 	{
-		return mView->getRect().getWidth();
+		width = mView->getRect().getWidth();
+		height = mView->getRect().getHeight();
 	}
 }
 
 S32	LLInlineViewSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const
 {
-	if (line_offset != 0 && num_pixels < mView->getRect().getWidth()) 
+	// if putting a widget anywhere but at the beginning of a line
+	// and the widget doesn't fit or mForceNewLine is true
+	// then return 0 chars for that line, and all characters for the next
+	if (line_offset != 0 
+		&& (mForceNewLine || num_pixels < mView->getRect().getWidth())) 
 	{
 		return 0;
 	}
@@ -2444,11 +2470,6 @@ void LLInlineViewSegment::updateLayout(const LLTextBase& editor)
 F32	LLInlineViewSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
 {
 	return (F32)(draw_rect.mLeft + mView->getRect().getWidth());
-}
-
-S32	LLInlineViewSegment::getMaxHeight() const
-{
-	return mView->getRect().getHeight();
 }
 
 void LLInlineViewSegment::unlinkFromDocument(LLTextBase* editor)

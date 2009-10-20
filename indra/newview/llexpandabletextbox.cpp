@@ -48,10 +48,11 @@ public:
 		mExpanderLabel(more_text)
 	{}
 
-	/*virtual*/ S32		getWidth(S32 first_char, S32 num_chars) const 
+	/*virtual*/ void	getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const 
 	{
 		// more label always spans width of text box
-		return mEditor.getTextRect().getWidth(); 
+		width = mEditor.getTextRect().getWidth(); 
+		height = llceil(mStyle->getFont()->getLineHeight());
 	}
 	/*virtual*/ S32		getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const 
 	{ 
@@ -85,8 +86,9 @@ public:
 									mEditor.getUseEllipses());
 		return right_x;
 	}
-	/*virtual*/ S32		getMaxHeight() const { return llceil(mStyle->getFont()->getLineHeight()); }
 	/*virtual*/ bool	canEdit() const { return false; }
+	// eat handleMouseDown event so we get the mouseup event
+	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask) { return TRUE; }
 	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask) { mEditor.onCommit(); return TRUE; }
 	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask) 
 	{
@@ -126,9 +128,12 @@ void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, BOOL calle
 	}
 }
 
-void LLExpandableTextBox::LLTextBoxEx::setValue(const LLSD& value)
+void LLExpandableTextBox::LLTextBoxEx::setText(const LLStringExplicit& text)
 {
-	LLTextBox::setValue(value);
+	// LLTextBox::setText will obliterate the expander segment, so make sure
+	// we generate it again by clearing mExpanderVisible
+	mExpanderVisible = false;
+	LLTextBox::setText(text);
 
 	// text contents have changed, segments are cleared out
 	// so hide the expander and determine if we need it
@@ -395,7 +400,6 @@ void LLExpandableTextBox::onTopLost()
 void LLExpandableTextBox::setValue(const LLSD& value)
 {
 	collapseTextBox();
-
 	mText = value.asString();
 	mTextBox->setValue(value);
 }
@@ -403,7 +407,6 @@ void LLExpandableTextBox::setValue(const LLSD& value)
 void LLExpandableTextBox::setText(const std::string& str)
 {
 	collapseTextBox();
-
 	mText = str;
 	mTextBox->setText(str);
 }

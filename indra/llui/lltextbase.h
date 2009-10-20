@@ -366,12 +366,11 @@ public:
 	LLTextSegment(S32 start, S32 end) : mStart(start), mEnd(end){};
 	virtual ~LLTextSegment();
 
-	virtual S32					getWidth(S32 first_char, S32 num_chars) const;
+	virtual void				getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	virtual S32					getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
 	virtual S32					getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
 	virtual void				updateLayout(const class LLTextBase& editor);
 	virtual F32					draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
-	virtual S32					getMaxHeight() const;
 	virtual bool				canEdit() const;
 	virtual void				unlinkFromDocument(class LLTextBase* editor);
 	virtual void				linkToDocument(class LLTextBase* editor);
@@ -418,11 +417,10 @@ public:
 	LLNormalTextSegment( const LLStyleSP& style, S32 start, S32 end, LLTextBase& editor );
 	LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
 
-	/*virtual*/ S32					getWidth(S32 first_char, S32 num_chars) const;
+	/*virtual*/ void				getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	/*virtual*/ S32					getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
 	/*virtual*/ S32					getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
 	/*virtual*/ F32					draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
-	/*virtual*/ S32					getMaxHeight() const;
 	/*virtual*/ bool				canEdit() const { return true; }
 	/*virtual*/ const LLColor4&		getColor() const					{ return mStyle->getColor(); }
 	/*virtual*/ void 				setColor(const LLColor4 &color)		{ mStyle->setColor(color); }
@@ -446,7 +444,7 @@ protected:
 protected:
 	class LLTextBase&	mEditor;
 	LLStyleSP			mStyle;
-	S32					mMaxHeight;
+	S32					mFontHeight;
 	LLKeywordToken* 	mToken;
 	std::string     	mTooltip;
 };
@@ -460,19 +458,19 @@ public:
 class LLInlineViewSegment : public LLTextSegment
 {
 public:
-	LLInlineViewSegment(LLView* widget, S32 start, S32 end);
+	LLInlineViewSegment(LLView* widget, S32 start, S32 end, bool force_new_line);
 	~LLInlineViewSegment();
-	/*virtual*/ S32			getWidth(S32 first_char, S32 num_chars) const;
+	/*virtual*/ void		getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	/*virtual*/ S32			getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
 	/*virtual*/ void		updateLayout(const class LLTextBase& editor);
 	/*virtual*/ F32			draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
-	/*virtuaL*/ S32			getMaxHeight() const;
 	/*virtual*/ bool		canEdit() const { return false; }
 	/*virtual*/ void		unlinkFromDocument(class LLTextBase* editor);
 	/*virtual*/ void		linkToDocument(class LLTextBase* editor);
 
 private:
 	LLView* mView;
+	bool	mForceNewLine;
 };
 
 

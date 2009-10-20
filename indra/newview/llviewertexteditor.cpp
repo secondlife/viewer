@@ -130,15 +130,17 @@ public:
 		mToolTip = inv_item->getName() + '\n' + inv_item->getDescription();
 	}
 
-	/*virtual*/ S32				getWidth(S32 first_char, S32 num_chars) const
+	/*virtual*/ void getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 	{
 		if (num_chars == 0)
 		{
-			return 0;
+			width = 0;
+			height = 0;
 		}
 		else
 		{
-			return EMBEDDED_ITEM_LABEL_PADDING + mImage->getWidth() + mStyle->getFont()->getWidth(mLabel.c_str());
+			width = EMBEDDED_ITEM_LABEL_PADDING + mImage->getWidth() + mStyle->getFont()->getWidth(mLabel.c_str());
+			height = llmax(mImage->getHeight(), llceil(mStyle->getFont()->getLineHeight()));
 		}
 
 	}
@@ -169,10 +171,6 @@ public:
 		return right_x;
 	}
 	
-	/*virtual*/ S32				getMaxHeight() const
-	{
-		return llmax(mImage->getHeight(), llceil(mStyle->getFont()->getLineHeight()));
-	}
 	/*virtual*/ bool			canEdit() const { return false; }
 
 

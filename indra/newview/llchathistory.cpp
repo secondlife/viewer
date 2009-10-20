@@ -109,7 +109,7 @@ void LLChatHistory::appendWidgetMessage(const LLUUID& avatar_id, std::string& fr
 		view_text = from + MESSAGE_USERNAME_DATE_SEPARATOR + time;
 	}
 	//Prepare the rect for the view
-	LLRect target_rect = mScroller->getContentWindowRect();
+	LLRect target_rect = getDocumentView()->getRect();
 	target_rect.mLeft += mLeftWidgetPad;
 	target_rect.mRight -= mRightWidgetPad;
 	view->reshape(target_rect.getWidth(), view->getRect().getHeight());
