@@ -18,8 +18,6 @@
                 max_chars="20"
                 follows="left|top"
                 allow_new_values="true"
-                add_landmark_tool_tip="Add this to My Landmarks"
-                edit_landmark_tool_tip="Edit My Landmark"
                 >
   <info_button name="Place Information"
                           label=""

@@ -2844,8 +2844,14 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Wide Lips">Wide Lips</string>
 <string name="Wild">Wild</string>
 <string name="Wrinkles">Wrinkles</string>
-	
-	<!-- Strings used by the (currently Linux) auto-updater app -->
+
+  <string name="Search">Search</string>
+  
+  <!-- Favorites Bar -->
+  <string name="LocationCtrlAddLandmarkTooltip">Add to My Landmarks</string>
+  <string name="LocationCtrlEditLandmarkTooltip">Edit My Landmark</string>
+
+  <!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
 	  [APP_NAME] Update
 	</string>

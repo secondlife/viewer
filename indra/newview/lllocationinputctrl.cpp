@@ -159,9 +159,7 @@ LLLocationInputCtrl::Params::Params()
 	add_landmark_image_selected("add_landmark_image_selected"),
 	add_landmark_button("add_landmark_button"),
 	add_landmark_hpad("add_landmark_hpad", 0),
-	info_button("info_button"),
-	add_landmark_tool_tip("add_landmark_tool_tip"),
-	edit_landmark_tool_tip("edit_landmark_tool_tip")
+	info_button("info_button")
 {
 }
 
@@ -172,9 +170,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mLocationContextMenu(NULL),
 	mAddLandmarkBtn(NULL),
 	mLandmarkImageOn(NULL),
-	mLandmarkImageOff(NULL),
-	mAddLandmarkTooltip(p.add_landmark_tool_tip),
-	mEditLandmarkTooltip(p.edit_landmark_tool_tip)
+	mLandmarkImageOff(NULL)
 {
 	// Lets replace default LLLineEditor with LLLocationLineEditor
 	// to make needed escaping while copying and cutting url
@@ -265,6 +261,9 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mAddLandmarkObserver	= new LLAddLandmarkObserver(this);
 	gInventory.addObserver(mRemoveLandmarkObserver);
 	gInventory.addObserver(mAddLandmarkObserver);
+	
+	mAddLandmarkTooltip = LLTrans::getString("LocationCtrlAddLandmarkTooltip");
+	mEditLandmarkTooltip = LLTrans::getString("LocationCtrlEditLandmarkTooltip");
 }
 
 LLLocationInputCtrl::~LLLocationInputCtrl()
