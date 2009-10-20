@@ -43,6 +43,7 @@ set(llui_SOURCE_FILES
     llflatlistview.cpp
     llfloater.cpp
     llfloaterreg.cpp
+    llfloaterreglistener.cpp
     llflyoutbutton.cpp 
     llfocusmgr.cpp
     llfunctorregistry.cpp
@@ -58,6 +59,7 @@ set(llui_SOURCE_FILES
     llmultislider.cpp
     llmultisliderctrl.cpp
     llnotifications.cpp
+    llnotificationslistener.cpp
     llpanel.cpp
     llprogressbar.cpp
     llradiogroup.cpp
@@ -128,6 +130,7 @@ set(llui_HEADER_FILES
     llflatlistview.h
     llfloater.h
     llfloaterreg.h
+    llfloaterreglistener.h
     llflyoutbutton.h 
     llfocusmgr.h
     llfunctorregistry.h
@@ -146,6 +149,7 @@ set(llui_HEADER_FILES
     llmultisliderctrl.h
     llmultislider.h
     llnotifications.h
+    llnotificationslistener.h
     llpanel.h
     llprogressbar.h
     llradiogroup.h

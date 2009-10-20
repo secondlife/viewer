@@ -233,7 +233,18 @@ public:
 	BOOL canBeFlexible() const;
 	BOOL setIsFlexible(BOOL is_flexible);
 
-	void updateObjectMediaData(const LLSD &media_data_duples);
+    // Functions that deal with media, or media navigation
+    
+    // Update this object's media data with the given media data array
+    // (typically this is only called upon a response from a server request)
+	void updateObjectMediaData(const LLSD &media_data_array);
+    
+    // Bounce back media at the given index to its current URL (or home URL, if current URL is empty)
+	void mediaNavigateBounceBack(U8 texture_index);
+    
+    // Returns whether or not this object has permission to navigate the given media entry
+    bool hasNavigatePermission(const LLMediaEntry* media_entry);
+    
 	void mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, LLViewerMediaObserver::EMediaEvent event);
 
 	// Sync the given media data with the impl and the given te
@@ -244,6 +255,7 @@ public:
 
 	viewer_media_t getMediaImpl(U8 face_id) const;
 	S32 getFaceIndexWithMediaImpl(const LLViewerMediaImpl* media_impl, S32 start_face_id);
+	F64 getTotalMediaInterest() const;
    
 	bool hasMedia() const;
 

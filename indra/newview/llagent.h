@@ -105,6 +105,8 @@ struct LLGroupData
 	std::string mName;
 };
 
+class LLAgentListener;
+
 //------------------------------------------------------------------------
 // LLAgent
 //------------------------------------------------------------------------
@@ -142,6 +144,8 @@ public:
 	BOOL			mInitialized;
 	BOOL			mFirstLogin;
 	std::string		mMOTD; 					// Message of the day
+private:
+	boost::shared_ptr<LLAgentListener> mListener;
 
 	//--------------------------------------------------------------------
 	// Session

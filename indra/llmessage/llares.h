@@ -36,7 +36,13 @@
 #define LL_LLARES_H
 
 #ifdef LL_WINDOWS
+// ares.h is broken on windows in that it depends on types defined in ws2tcpip.h
+// we need to include them first to work around it, but the headers issue warnings
+# pragma warning(push)
+# pragma warning(disable:4996)
+# include <winsock2.h>
 # include <ws2tcpip.h>
+# pragma warning(pop)
 #endif
 
 #ifdef LL_STANDALONE
@@ -49,7 +55,10 @@
 #include "llrefcount.h"
 #include "lluri.h"
 
+#include <boost/shared_ptr.hpp>
+
 class LLQueryResponder;
+class LLAresListener;
 
 /**
  * @brief Supported DNS RR types.
@@ -444,6 +453,9 @@ public:
 protected:
 	ares_channel chan_;
 	bool mInitSuccess;
+    // boost::scoped_ptr would actually fit the requirement better, but it
+    // can't handle incomplete types as boost::shared_ptr can.
+    boost::shared_ptr<LLAresListener> mListener;
 };
 	
 /**

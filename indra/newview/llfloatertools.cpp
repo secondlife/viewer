@@ -1120,7 +1120,7 @@ void LLFloaterTools::getMediaState()
 			if(media_data_get!=default_media_data)
 			{
 				//TODO: get media title
-				//media_title =  media_data_get->getTile();
+				//media_title =  media_data_get->getTitle();
 				//LLFloaterMediaSettings::getInstance()->mIdenticalValidMedia = true;
 				media_title = media_data_get.getHomeURL();
 			}
@@ -1155,7 +1155,7 @@ void LLFloaterTools::getMediaState()
 			if(media_data_get!=default_media_data)
 			{
 				//TODO: get media title
-				//media_title =  media_data_get->getTile();
+				//media_title =  media_data_get->getTitle();
 				media_title = media_data_get.getHomeURL();
 			}
 			

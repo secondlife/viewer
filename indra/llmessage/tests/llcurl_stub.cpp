@@ -22,6 +22,7 @@
 #include "linden_common.h"
 
 LLCurl::Responder::Responder()
+	: mReferenceCount(0)
 {
 }
 

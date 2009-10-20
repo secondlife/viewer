@@ -113,11 +113,11 @@ class LLMutex;
 #include "llsd.h"
 
 
-class LLFastTimer
+class LL_COMMON_API LLFastTimer
 {
 public:
 	// stores a "named" timer instance to be reused via multiple LLFastTimer stack instances
-	class NamedTimer 
+	class LL_COMMON_API NamedTimer 
 	:	public LLInstanceTracker<NamedTimer>
 	{
 		friend class DeclareTimer;
@@ -210,7 +210,7 @@ public:
 	};
 
 	// used to statically declare a new named timer
-	class DeclareTimer 
+	class LL_COMMON_API DeclareTimer
 	:	public LLInstanceTracker<DeclareTimer>
 	{
 	public:

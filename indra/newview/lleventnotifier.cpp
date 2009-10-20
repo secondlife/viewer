@@ -94,18 +94,16 @@ void LLEventNotifier::update()
 	}
 }
 
-void LLEventNotifier::load(const LLUserAuth::options_t& event_options)
+void LLEventNotifier::load(const LLSD& event_options)
 {
-	LLUserAuth::options_t::const_iterator resp_it;
-	for (resp_it = event_options.begin(); 
-		 resp_it != event_options.end(); 
-		 ++resp_it)
+	for(LLSD::array_const_iterator resp_it = event_options.beginArray(),
+		end = event_options.endArray(); resp_it != end; ++resp_it)
 	{
-		const LLUserAuth::response_t& response = *resp_it;
+		LLSD response = *resp_it;
 
 		LLEventNotification *new_enp = new LLEventNotification();
 
-		if (!new_enp->load(response))
+		if(!new_enp->load(response))
 		{
 			delete new_enp;
 			continue;
@@ -208,49 +206,46 @@ bool LLEventNotification::handleResponse(const LLSD& notification, const LLSD& r
 	return false;
 }
 
-BOOL LLEventNotification::load(const LLUserAuth::response_t &response)
+BOOL LLEventNotification::load(const LLSD& response)
 {
-
-	LLUserAuth::response_t::const_iterator option_it;
 	BOOL event_ok = TRUE;
-	option_it = response.find("event_id");
-	if (option_it != response.end())
+	LLSD option = response.get("event_id");
+	if (option.isDefined())
 	{
-		mEventID = atoi(option_it->second.c_str());
+		mEventID = option.asInteger();
 	}
 	else
 	{
 		event_ok = FALSE;
 	}
 
-	option_it = response.find("event_name");
-	if (option_it != response.end())
+	option = response.get("event_name");
+	if (option.isDefined())
 	{
-		llinfos << "Event: " << option_it->second << llendl;
-		mEventName = option_it->second;
+		llinfos << "Event: " << option.asString() << llendl;
+		mEventName = option.asString();
 	}
 	else
 	{
 		event_ok = FALSE;
 	}
 
-
-	option_it = response.find("event_date");
-	if (option_it != response.end())
+	option = response.get("event_date");
+	if (option.isDefined())
 	{
-		llinfos << "EventDate: " << option_it->second << llendl;
-		mEventDateStr = option_it->second;
+		llinfos << "EventDate: " << option.asString() << llendl;
+		mEventDateStr = option.asString();
 	}
 	else
 	{
 		event_ok = FALSE;
 	}
 
-	option_it = response.find("event_date_ut");
-	if (option_it != response.end())
+	option = response.get("event_date_ut");
+	if (option.isDefined())
 	{
-		llinfos << "EventDate: " << option_it->second << llendl;
-		mEventDate = strtoul(option_it->second.c_str(), NULL, 10);
+		llinfos << "EventDate: " << option.asString() << llendl;
+		mEventDate = strtoul(option.asString().c_str(), NULL, 10);
 	}
 	else
 	{
@@ -262,44 +257,44 @@ BOOL LLEventNotification::load(const LLUserAuth::response_t &response)
 	S32 x_region = 0;
 	S32 y_region = 0;
 
-	option_it = response.find("grid_x");
-	if (option_it != response.end())
+	option = response.get("grid_x");
+	if (option.isDefined())
 	{
-		llinfos << "GridX: " << option_it->second << llendl;
-		grid_x= atoi(option_it->second.c_str());
+		llinfos << "GridX: " << option.asInteger() << llendl;
+		grid_x= option.asInteger();
 	}
 	else
 	{
 		event_ok = FALSE;
 	}
 
-	option_it = response.find("grid_y");
-	if (option_it != response.end())
+	option = response.get("grid_y");
+	if (option.isDefined())
 	{
-		llinfos << "GridY: " << option_it->second << llendl;
-		grid_y = atoi(option_it->second.c_str());
+		llinfos << "GridY: " << option.asInteger() << llendl;
+		grid_y = option.asInteger();
 	}
 	else
 	{
 		event_ok = FALSE;
 	}
 
-	option_it = response.find("x_region");
-	if (option_it != response.end())
+	option = response.get("x_region");
+	if (option.isDefined())
 	{
-		llinfos << "RegionX: " << option_it->second << llendl;
-		x_region = atoi(option_it->second.c_str());
+		llinfos << "RegionX: " << option.asInteger() << llendl;
+		x_region = option.asInteger();
 	}
 	else
 	{
 		event_ok = FALSE;
 	}
 
-	option_it = response.find("y_region");
-	if (option_it != response.end())
+	option = response.get("y_region");
+	if (option.isDefined())
 	{
-		llinfos << "RegionY: " << option_it->second << llendl;
-		y_region = atoi(option_it->second.c_str());
+		llinfos << "RegionY: " << option.asInteger() << llendl;
+		y_region = option.asInteger();
 	}
 	else
 	{
