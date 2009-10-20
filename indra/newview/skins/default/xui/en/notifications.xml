@@ -6131,9 +6131,10 @@ Your L$ balance is shown in the upper-right.
    type="notify">
 Thank you for your payment!
 
-When processing completes, your L$ balance will be credited. If your payment takes more than 20 minutes to complete, the purchase amount will be credited to your account for use on your next purchase.
+When the processing completes, your L$ balance will be updated at the top of your screen.
+If processing your payment takes more than 20 minutes to complete, the purchase amount will be credited to your account for use on your next purchase.
 
-Payment status can be checked on your Transaction History page at SecondLife.com.
+The status of your payment can be checked on your Transaction History page at Me > My Dashboard, or http://secondlife.com/account/
   </notification>
   <notification
    icon="notify.tga"

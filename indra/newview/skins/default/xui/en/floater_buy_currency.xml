@@ -263,7 +263,7 @@ Re-enter amount to see the latest exchange rate.
      width="300"
      height="30"
      name="purchase_warning_notenough">
-        You aren&apos;t buying enough L$. Increase the amount.
+        You aren&apos;t buying enough L$. Please increase the amount.
     </text>
 
     <button
