@@ -8,7 +8,7 @@
  top="0"
  width="320">
     <icon
-     follows="top|right|left" 
+     follows="top|right|left"
      height="24"
      image_name="ListItem_Over"
      layout="topleft"
@@ -29,14 +29,14 @@
      width="320" />
     <icon
      follows="top|left"
-     height="18"
-     image_name="icon_group.tga"
+     height="20"
+     image_name="Generic_Group"
      layout="topleft"
      left="5"
      mouse_opaque="true"
-     name="group_icon" 
+     name="group_icon"
      top="4"
-     width="18" />
+     width="20" />
     <text
      follows="left|right"
      font="SansSerifSmall"
@@ -44,23 +44,20 @@
      layout="topleft"
      left_pad="5"
      name="group_name"
-     text_color="white"
      top="7"
-     use_ellipses="true" 
+     use_ellipses="true"
      value="Unknown"
      width="263" />
     <button
      follows="right"
-     height="18"
-     image_disabled="Info"
-     image_disabled_selected="Info"
-     image_hover_selected="Info"
-     image_selected="Info"
-     image_unselected="Info"
+     height="16"
+     image_pressed="Info_Press"
+     image_hover="Info_Over"
+     image_unselected="Info_Off"
      layout="topleft"
      name="info_btn"
      picture_style="true"
      right="-5"
-     top="4" 
-     width="18" />
+     top="4"
+     width="16" />
 </panel>
