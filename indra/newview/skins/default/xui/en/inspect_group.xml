@@ -84,7 +84,8 @@ L$123 to join
      top="35"
      left_delta="110"
      tab_stop="false"
-     width="18" />
+     width="18"
+     commit_callback.function="InspectGroup.ViewProfile" />
   <button
    follows="bottom|left"
    height="23"

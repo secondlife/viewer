@@ -133,16 +133,4 @@
     secondlife:///app/group/00000000-0000-0000-0000-000000000000/inspect
   </text>
 
-  <text
-  follows="left|top"
-  font="SansSerif"
-  height="20"
-  left="0"
-  max_length="65536"
-  name="slurl_group_about"
-  top_pad="4"
-  width="150">
-    secondlife:///app/group/00000000-0000-0000-0000-000000000000/about
-  </text>
-
 </floater>

@@ -47,7 +47,6 @@
      value="Grumpity ProductEngine"
      width="240"
      word_wrap="false" />
-    <!-- Leave text fields blank so it doesn't flash when data arrives off the network -->
     <text
      follows="all"
      height="16"

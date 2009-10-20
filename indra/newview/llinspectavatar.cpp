@@ -44,6 +44,7 @@
 #include "llinspect.h"
 #include "llmutelist.h"
 #include "llpanelblockedlist.h"
+#include "llstartup.h"
 #include "llviewermenu.h"
 #include "llvoiceclient.h"
 
@@ -277,12 +278,12 @@ void LLInspectAvatar::requestUpdate()
 	// login screen (which is useful to work on the layout).
 	if (mAvatarID.isNull())
 	{
-		getChild<LLUICtrl>("user_subtitle")->
-			setValue("Test subtitle");
-		getChild<LLUICtrl>("user_details")->
-			setValue("Test details");
-		getChild<LLUICtrl>("user_partner")->
-			setValue("Test partner");
+		if (LLStartUp::getStartupState() >= STATE_STARTED)
+		{
+			// once we're running we don't want to show the test floater
+			// for bogus LLUUID::null links
+			closeFloater();
+		}
 		return;
 	}
 

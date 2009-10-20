@@ -280,23 +280,37 @@ void LLUrlEntryAgent::onAgentNameReceived(const LLUUID& id,
 
 std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
-	std::string id = getIDStringFromUrl(url);
-	if (gCacheName && ! id.empty())
+	if (!gCacheName)
 	{
-		LLUUID uuid(id);
-		std::string full_name;
-		if (gCacheName->getFullName(uuid, full_name))
-		{
-			return full_name;
-		}
-		else
-		{
-			gCacheName->get(uuid, FALSE, boost::bind(&LLUrlEntryAgent::onAgentNameReceived, this, _1, _2, _3, _4));
-			addObserver(id, url, cb);
-		}
+		// probably at the login screen, use short string for layout
+		return LLTrans::getString("LoadingData");
 	}
 
-	return LLTrans::getString("LoadingData");//unescapeUrl(url);
+	std::string agent_id_string = getIDStringFromUrl(url);
+	if (agent_id_string.empty())
+	{
+		// something went wrong, just give raw url
+		return unescapeUrl(url);
+	}
+
+	LLUUID agent_id(agent_id_string);
+	std::string full_name;
+	if (agent_id.isNull())
+	{
+		return LLTrans::getString("AvatarNameNobody");
+	}
+	else if (gCacheName->getFullName(agent_id, full_name))
+	{
+		return full_name;
+	}
+	else
+	{
+		gCacheName->get(agent_id, FALSE,
+			boost::bind(&LLUrlEntryAgent::onAgentNameReceived,
+				this, _1, _2, _3, _4));
+		addObserver(agent_id_string, url, cb);
+		return LLTrans::getString("LoadingData");
+	}
 }
 
 //
@@ -324,23 +338,37 @@ void LLUrlEntryGroup::onGroupNameReceived(const LLUUID& id,
 
 std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
-	std::string id = getIDStringFromUrl(url);
-	if (gCacheName && ! id.empty())
+	if (!gCacheName)
 	{
-		LLUUID uuid(id);
-		std::string group_name;
-		if (gCacheName->getGroupName(uuid, group_name))
-		{
-			return group_name;
-		}
-		else
-		{
-			gCacheName->get(uuid, TRUE, boost::bind(&LLUrlEntryGroup::onGroupNameReceived, this, _1, _2, _3, _4));
-			addObserver(id, url, cb);
-		}
+		// probably at login screen, give something short for layout
+		return LLTrans::getString("LoadingData");
 	}
 
-	return unescapeUrl(url);
+	std::string group_id_string = getIDStringFromUrl(url);
+	if (group_id_string.empty())
+	{
+		// something went wrong, give raw url
+		return unescapeUrl(url);
+	}
+
+	LLUUID group_id(group_id_string);
+	std::string group_name;
+	if (group_id.isNull())
+	{
+		return LLTrans::getString("GroupNameNone");
+	}
+	else if (gCacheName->getGroupName(group_id, group_name))
+	{
+		return group_name;
+	}
+	else
+	{
+		gCacheName->get(group_id, TRUE,
+			boost::bind(&LLUrlEntryGroup::onGroupNameReceived,
+				this, _1, _2, _3, _4));
+		addObserver(group_id_string, url, cb);
+		return LLTrans::getString("LoadingData");
+	}
 }
 
 ///

@@ -37,6 +37,7 @@
 #include "llgroupactions.h"
 #include "llgroupmgr.h"
 #include "llinspect.h"
+#include "llstartup.h"
 
 // Linden libraries
 #include "llcontrol.h"	// LLCachedControl
@@ -200,6 +201,12 @@ void LLInspectGroup::requestUpdate()
 	// login screen (which is useful to work on the layout).
 	if (mGroupID.isNull())
 	{
+		if (LLStartUp::getStartupState() >= STATE_STARTED)
+		{
+			// once we're running we don't want to show the test floater
+			// for bogus LLUUID::null links
+			closeFloater();
+		}
 		return;
 	}
 
