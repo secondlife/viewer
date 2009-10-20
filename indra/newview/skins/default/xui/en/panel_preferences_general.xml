@@ -33,7 +33,7 @@
      width="170">
         <combo_box.item
          enabled="true"
-         label="System Default"
+         label="System default"
          name="System Default Language"
          value="default" />
         <combo_box.item
@@ -189,7 +189,7 @@
      name="start_location_textbox"
      top_delta="20"
      width="394">
-        Start Location:
+        Start location:
     </text>
     <combo_box
      control_name="LoginLocation"
@@ -213,7 +213,7 @@
      control_name="ShowStartLocation"
      height="16"
      initial_value="true"
-     label="Show on Login"
+     label="Show on login"
      layout="topleft"
      left_delta="175"
      name="show_location_checkbox"
@@ -272,7 +272,7 @@
      layout="topleft"
      left_delta="0"
      name="show_my_name_checkbox1"
-     top_pad="5"
+     top_pad="-7"
      width="300" />
     <check_box
 	 enabled_control="AvatarNameTagMode"
@@ -303,7 +303,7 @@
      layout="topleft"
      left="30"
      name="effects_color_textbox"
-     top_pad="10"
+     top_pad="5"
      width="400">
         My Effects:
     </text>
@@ -316,7 +316,76 @@
      left_delta="50"
      name="effect_color_swatch"
      tool_tip="Click to open Color Picker"
-     top_pad="10"
+     top_pad="5"
      width="32" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="15"
+     layout="topleft"
+     left="30"
+     name="title_afk_text"
+     text_color="white"
+     top_pad="-5"
+     width="190">
+        Away timeout:
+    </text>
+    <spinner
+     control_name="AFKTimeout"
+     decimal_digits="0"
+     follows="left|top"
+     halign="right"
+     height="15"
+     increment="1"
+     initial_value="300"
+     label=""
+     label_width="0"
+     layout="topleft"
+     left_delta="50"
+     max_val="600"
+     min_val="30"
+     name="afk_timeout_spinner"
+     top_pad="5"
+     width="50" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     halign="left"
+     height="15"
+     layout="topleft"
+     left_pad="2"
+     name="seconds_textbox"
+     width="70">
+       seconds
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     text_color="white"
+     left="30"
+     mouse_opaque="false"
+     name="text_box3"
+     top_pad="10"
+     width="240">
+       Busy mode response:
+    </text>
+    <text_editor
+     control_name="BusyModeResponse2"
+     commit_on_focus_lost = "true"
+     follows="left|top"
+     height="56"
+     layout="topleft"
+     left_delta="50"
+     name="busy_response"
+     width="400"
+     word_wrap="true"
+     top_pad="5">
+       log_in_to_change
+    </text_editor>
     
 </panel>
