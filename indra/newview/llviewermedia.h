@@ -243,12 +243,14 @@ public:
 	
 	typedef enum 
 	{
-		MEDIANAVSTATE_NONE,								// State is outside what we need to track for navigation.
-		MEDIANAVSTATE_BEGUN,							// a MEDIA_EVENT_NAVIGATE_BEGIN has been received which was not server-directed
-		MEDIANAVSTATE_FIRST_LOCATION_CHANGED,			// first LOCATION_CHANGED event after a non-server-directed BEGIN
-		MEDIANAVSTATE_SERVER_SENT,						// server-directed nav has been requested, but MEDIA_EVENT_NAVIGATE_BEGIN hasn't been received yet
-		MEDIANAVSTATE_SERVER_BEGUN,						// MEDIA_EVENT_NAVIGATE_BEGIN has been received which was server-directed
-		MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED		// first LOCATION_CHANGED event after a server-directed BEGIN
+		MEDIANAVSTATE_NONE,										// State is outside what we need to track for navigation.
+		MEDIANAVSTATE_BEGUN,									// a MEDIA_EVENT_NAVIGATE_BEGIN has been received which was not server-directed
+		MEDIANAVSTATE_FIRST_LOCATION_CHANGED,					// first LOCATION_CHANGED event after a non-server-directed BEGIN
+		MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED,			// we received a NAVIGATE_COMPLETE event before the first LOCATION_CHANGED
+		MEDIANAVSTATE_SERVER_SENT,								// server-directed nav has been requested, but MEDIA_EVENT_NAVIGATE_BEGIN hasn't been received yet
+		MEDIANAVSTATE_SERVER_BEGUN,								// MEDIA_EVENT_NAVIGATE_BEGIN has been received which was server-directed
+		MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED,			// first LOCATION_CHANGED event after a server-directed BEGIN
+		MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED	// we received a NAVIGATE_COMPLETE event before the first LOCATION_CHANGED
 		
 	}EMediaNavState;
     

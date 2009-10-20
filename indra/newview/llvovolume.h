@@ -245,6 +245,7 @@ public:
     // Returns whether or not this object has permission to navigate the given media entry
     bool hasNavigatePermission(const LLMediaEntry* media_entry);
     
+	void mediaNavigated(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, std::string new_location);
 	void mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, LLViewerMediaObserver::EMediaEvent event);
 
 	// Sync the given media data with the impl and the given te

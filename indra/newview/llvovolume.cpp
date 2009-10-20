@@ -1834,6 +1834,53 @@ bool LLVOVolume::hasNavigatePermission(const LLMediaEntry* media_entry)
     
 }
 
+void LLVOVolume::mediaNavigated(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, std::string new_location)
+{
+	bool block_navigation = false;
+	// FIXME: if/when we allow the same media impl to be used by multiple faces, the logic here will need to be fixed
+	// to deal with multiple face indices.
+	int face_index = getFaceIndexWithMediaImpl(impl, -1);
+	
+	// Find the media entry for this navigate
+	LLMediaEntry* mep = NULL;
+	LLTextureEntry *te = getTE(face_index);
+	if(te)
+	{
+		mep = te->getMediaData();
+	}
+	
+	if(mep)
+	{
+		if(!mep->checkCandidateUrl(new_location))
+		{
+			block_navigation = true;
+		}
+		if (!block_navigation && !hasNavigatePermission(mep))
+		{
+			block_navigation = true;
+		}
+	}
+	else
+	{
+		llwarns << "Couldn't find media entry!" << llendl;
+	}
+						
+	if(block_navigation)
+	{
+		llinfos << "blocking navigate to URI " << new_location << llendl;
+
+		// "bounce back" to the current URL from the media entry
+		mediaNavigateBounceBack(face_index);
+	}
+	else
+	{
+		
+		llinfos << "broadcasting navigate with URI " << new_location << llendl;
+
+		sObjectMediaNavigateClient->navigate(new LLMediaDataClientObjectImpl(this), face_index, new_location);
+	}
+}
+
 void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, LLViewerMediaObserver::EMediaEvent event)
 {
 	switch(event)
@@ -1845,52 +1892,8 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 			{
 				case LLViewerMediaImpl::MEDIANAVSTATE_FIRST_LOCATION_CHANGED:
 				{
-					// This is the first location changed event after the start of a non-server-directed nav.  It may need to be broadcast.
-
-					bool block_navigation = false;
-					// FIXME: if/when we allow the same media impl to be used by multiple faces, the logic here will need to be fixed
-					// to deal with multiple face indices.
-					int face_index = getFaceIndexWithMediaImpl(impl, -1);
-					std::string new_location = plugin->getLocation();
-					
-					// Find the media entry for this navigate
-					LLMediaEntry* mep = NULL;
-					LLTextureEntry *te = getTE(face_index);
-					if(te)
-					{
-						mep = te->getMediaData();
-					}
-					
-					if(mep)
-					{
-						if(!mep->checkCandidateUrl(new_location))
-						{
-							block_navigation = true;
-						}
-                        if (!block_navigation && !hasNavigatePermission(mep))
-                        {
-                            block_navigation = true;
-                        }
-					}
-					else
-					{
-						llwarns << "Couldn't find media entry!" << llendl;
-					}
-										
-					if(block_navigation)
-					{
-						llinfos << "blocking navigate to URI " << new_location << llendl;
-
-						// "bounce back" to the current URL from the media entry
-						mediaNavigateBounceBack(face_index);
-					}
-					else
-					{
-						
-						llinfos << "broadcasting navigate with URI " << new_location << llendl;
-
-						sObjectMediaNavigateClient->navigate(new LLMediaDataClientObjectImpl(this), face_index, new_location);
-					}
+					// This is the first location changed event after the start of a non-server-directed nav.  It may need to be broadcast or bounced back.
+					mediaNavigated(impl, plugin, plugin->getLocation());
 				}
 				break;
 				
@@ -1902,6 +1905,29 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 				default:
 					// This is a subsequent location-changed due to a redirect.	 Don't broadcast.
 					llinfos << "	NOT broadcasting navigate (redirect)" << llendl;
+				break;
+			}
+		}
+		break;
+		
+		case LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_COMPLETE:
+		{
+			switch(impl->getNavState())
+			{
+				case LLViewerMediaImpl::MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED:
+				{
+					// This is the first location changed event after the start of a non-server-directed nav.  It may need to be broadcast or bounced back.
+					mediaNavigated(impl, plugin, plugin->getNavigateURI());
+				}
+				break;
+				
+				case LLViewerMediaImpl::MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED:
+					// This is the the navigate complete event from a server-directed nav.  Don't broadcast it.
+					llinfos << "	NOT broadcasting navigate (server-directed)" << llendl;
+				break;
+				
+				default:
+					// For all other states, the navigate should have been handled by LOCATION_CHANGED events already.
 				break;
 			}
 		}
