@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="left|right|top"
- height="10"
+ height="9"
  layout="topleft"
  left="8"
  name="chat_separator_container">
@@ -12,5 +12,5 @@
      height="1"
      layout="topleft"
      name="chat_separator_panel"
-     top_pad="5" />
+     top_pad="3" />
 </panel>
