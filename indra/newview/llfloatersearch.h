@@ -56,9 +56,14 @@ public:
 	LLFloaterSearch(const LLSD& key);
 
 	/// show the search floater with a new search
+	/// see search() for details on the key parameter.
 	/*virtual*/ void onOpen(const LLSD& key);
 
-	/// perform a search with the specific search term
+	/// perform a search with the specific search term.
+	/// The key should be a map that can contain the following keys:
+	///  - "id": specifies the text phrase to search for
+	///  - "category": one of "all" (default), "people", "places",
+	///    "events", "groups", "wiki", "destinations", "classifieds"
 	void search(const LLSD &key);
 
 private:
@@ -68,6 +73,7 @@ private:
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event);
 	
 	LLMediaCtrl *mBrowser;
+	LLSD        mCategoryPaths;
 };
 
 #endif  // LL_LLFLOATERSEARCH_H

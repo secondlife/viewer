@@ -1897,20 +1897,20 @@ BOOL LLWorldMapView::handleDoubleClick( S32 x, S32 y, MASK mask )
 				id.toString(uuid_str);
 				uuid_str = uuid_str.substr(28);
 				sscanf(uuid_str.c_str(), "%X", &event_id);
-				LLFloaterReg::showInstance("search", LLSD().insert("panel", "event").insert("id", event_id));
+				LLFloaterReg::showInstance("search", LLSD().insert("category", "events").insert("id", event_id));
 				break;
 			}
 		case MAP_ITEM_LAND_FOR_SALE:
 		case MAP_ITEM_LAND_FOR_SALE_ADULT:
 			{
 				LLFloaterReg::hideInstance("world_map");
-				LLFloaterReg::showInstance("search", LLSD().insert("panel", "land").insert("id", id));
+				LLFloaterReg::showInstance("search", LLSD().insert("category", "destinations").insert("id", id));
 				break;
 			}
 		case MAP_ITEM_CLASSIFIED:
 			{
 				LLFloaterReg::hideInstance("world_map");
-				LLFloaterReg::showInstance("search", LLSD().insert("panel", "classified").insert("id", id));
+				LLFloaterReg::showInstance("search", LLSD().insert("category", "classifieds").insert("id", id));
 				break;
 			}
 		default:

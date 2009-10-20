@@ -112,7 +112,7 @@ LLGroupHandler gGroupHandler;
 // static
 void LLGroupActions::search()
 {
-	LLFloaterReg::showInstance("search", LLSD().insert("panel", "group"));
+	LLFloaterReg::showInstance("search", LLSD().insert("category", "groups"));
 }
 
 // static

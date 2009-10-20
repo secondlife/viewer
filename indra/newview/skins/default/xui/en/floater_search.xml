@@ -13,7 +13,7 @@
  width="620">
     <floater.string
      name="search_url">
-        http://eniac21.lindenlab.com:10001/viewer/search/
+        http://eniac21.lindenlab.com:10001/viewer
     </floater.string>
     <floater.string
      name="loading_text">

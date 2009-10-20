@@ -535,7 +535,7 @@ void LLNavigationBar::handleLoginComplete()
 
 void LLNavigationBar::invokeSearch(std::string search_text)
 {
-	LLFloaterReg::showInstance("search", LLSD().insert("panel", "all").insert("id", LLSD(search_text)));
+	LLFloaterReg::showInstance("search", LLSD().insert("category", "all").insert("id", LLSD(search_text)));
 }
 
 void LLNavigationBar::clearHistoryCache()

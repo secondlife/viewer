@@ -40,6 +40,17 @@ LLFloaterSearch::LLFloaterSearch(const LLSD& key) :
 	LLFloater(key),
 	mBrowser(NULL)
 {
+	// declare a map that transforms a category name into
+	// the URL suffix that is used to search that category
+	mCategoryPaths = LLSD::emptyMap();
+	mCategoryPaths["all"]          = "search";
+	mCategoryPaths["people"]       = "search/people";
+	mCategoryPaths["places"]       = "search/places";
+	mCategoryPaths["events"]       = "search/events";
+	mCategoryPaths["groups"]       = "search/groups";
+	mCategoryPaths["wiki"]         = "search/wiki";
+	mCategoryPaths["destinations"] = "destinations";
+	mCategoryPaths["classifieds"]  = "classifieds";
 }
 
 BOOL LLFloaterSearch::postBuild()
@@ -79,13 +90,33 @@ void LLFloaterSearch::handleMediaEvent(LLPluginClassMedia *self, EMediaEvent eve
 
 void LLFloaterSearch::search(const LLSD &key)
 {
-	if (mBrowser)
+	if (! mBrowser)
 	{
-		std::string query = getString("search_url");
-		if (key.has("id"))
-		{
-			query += std::string("?q=") + key["id"].asString();
-		}
-		mBrowser->navigateTo(query);
+		return;
 	}
+
+	// get the URL for the search page
+	std::string url = getString("search_url");
+	if (! LLStringUtil::endsWith(url, "/"))
+	{
+		url += "/";
+	}
+
+	// work out the subdir to use based on the requested category
+	std::string category = key.has("category") ? key["category"].asString() : "";
+	if (mCategoryPaths.has(category))
+	{
+		url += mCategoryPaths[category].asString();
+	}
+	else
+	{
+		url += mCategoryPaths["all"].asString();
+	}
+
+	// append the search query string
+	std::string search_text = key.has("id") ? key["id"].asString() : "";
+	url += std::string("?q=") + search_text;
+
+	// and load the URL in the web view
+	mBrowser->navigateTo(url);
 }
