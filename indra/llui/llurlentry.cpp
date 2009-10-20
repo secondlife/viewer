@@ -325,6 +325,7 @@ LLUrlEntryGroup::LLUrlEntryGroup()
 	mMenuName = "menu_url_group.xml";
 	mIcon = "Generic_Group";
 	mTooltip = LLTrans::getString("TooltipGroupUrl");
+	mColor = LLUIColorTable::instance().getColor("GroupLinkColor");
 }
 
 void LLUrlEntryGroup::onGroupNameReceived(const LLUUID& id,
