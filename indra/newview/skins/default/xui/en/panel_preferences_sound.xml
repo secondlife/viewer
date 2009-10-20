@@ -15,7 +15,7 @@
      height="15"
      increment="0.05"
      initial_value="0.5"
-     label="Master Volume"
+     label="Master volume"
      label_width="125"
      layout="topleft"
      left="30"
@@ -318,7 +318,7 @@
      follows="left|top"
      height="20"
      is_toggle="true"
-     label="Device Settings"
+     label="Device settings"
      layout="topleft"
      left_delta="55"
      name="device_settings_btn"
@@ -385,7 +385,7 @@
      name="Input level:"
      top_pad="10"
      width="200">
-        Input Level
+        Input level
     </text>
     <slider_bar
      follows="left|top"

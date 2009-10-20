@@ -196,7 +196,7 @@ Automatic positioning for:
      name="heading3"
      top_pad="10"
      width="270">
-My Avatar:
+Avatars:
 	</text>
     <check_box
      control_name="FirstPersonAvatarVisible"
