@@ -693,6 +693,13 @@ void LLVOAvatarSelf::updateVisualParams()
 		}
 	}
 
+	LLWearable *shape = gAgentWearables.getWearable(WT_SHAPE,0);
+	if (shape)
+	{
+		F32 gender = shape->getVisualParamWeight(80); // param 80 == gender
+		setVisualParamWeight("male",gender ,TRUE);
+	}
+
 	LLVOAvatar::updateVisualParams();
 }
 
