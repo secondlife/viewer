@@ -314,23 +314,27 @@
         Sound out/in:
     </text>
     <button
-	 enabled_control="EnableVoiceChat"
+     control_name="ShowDeviceSettings"
      follows="left|top"
      height="20"
+     is_toggle="true"
      label="Device Settings"
      layout="topleft"
      left_delta="55"
      name="device_settings_btn"
      top_pad="0"
-     width="155">
-		<button.commit_callback
-         function="Floater.Show"
-         parameter="pref_voicedevicesettings" />
-    </button>    
-    <panel.string
-     name="default_text">
-        Default
-    </panel.string>
+     width="155" />
+    <panel
+     visiblity_control="ShowDeviceSettings"
+     border="false"
+	 follows="top|left"
+     height="260"
+     label="DeviceSettings"
+     layout="topleft"
+     left="0"
+     name="Device Settings"
+     top_pad="5"
+     width="485">
     <text
      type="string"
      length="1"
@@ -339,14 +343,14 @@
      layout="topleft"
      left="30"
      name="Input device (microphone):"
-     top_pad="5"
+     top_pad="0"
      width="200">
         Input device (microphone):
     </text>
     <combo_box
      height="18"
      layout="topleft"
-     left_delta="70"
+     left_delta="55"
      max_chars="128"
      name="voice_input_device"
      top_pad="2"
@@ -366,7 +370,7 @@
     <combo_box
      height="18"
      layout="topleft"
-     left_delta="70"
+     left_delta="55"
      max_chars="128"
      name="voice_output_device"
      top_pad="2"
@@ -452,6 +456,6 @@
      word_wrap="true">
         Adjust the slider to control how loud you sound to other Residents. To test the input level, simply speak into your microphone.
     </text>
-
+    </panel>
     
 </panel>
