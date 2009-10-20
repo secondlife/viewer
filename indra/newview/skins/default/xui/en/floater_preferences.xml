@@ -63,14 +63,14 @@
          name="display" />
         <panel
 		 class="panel_preference"
-         filename="panel_preferences_im.xml"
+         filename="panel_preferences_privacy.xml"
          label="Privacy"
          layout="topleft"
          help_topic="preferences_im_tab"
          name="im" />
         <panel
 		 class="panel_preference"
-         filename="panel_preferences_audio.xml"
+         filename="panel_preferences_sound.xml"
          label="Sound"
          layout="topleft"
          help_topic="preferences_audio_tab"
@@ -84,14 +84,14 @@
          name="chat" />
         <panel
 		 class="panel_preference"
-         filename="panel_preferences_popups.xml"
+         filename="panel_preferences_alerts.xml"
          label="Alerts"
          layout="topleft"
          help_topic="preferences_msgs_tab"
          name="msgs" />
         <panel
 		 class="panel_preference"
-         filename="panel_preferences_input.xml"
+         filename="panel_preferences_setup.xml"
          label="Setup"
          layout="topleft"
          help_topic="preferences_input_tab"

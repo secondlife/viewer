@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ border="true"
+ height="500"
+ label="Popups"
+ layout="topleft"
+ left="0"
+ name="popups"
+ top="500"
+ width="517">
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     height="12"
+     layout="topleft"
+     left="30"
+     name="tell_me_label"
+     top="10"
+     width="300">
+        Tell me:
+    </text>
+    <check_box
+     control_name="NotifyMoneyChange"
+     height="16"
+     label="When I spend or get L$"
+     layout="topleft"
+     left_delta="50"
+     name="notify_money_change_checkbox"
+     top_pad="4"
+     width="300" />
+    <check_box
+     control_name="ChatOnlineNotification"
+	 enabled="false"
+     height="16"
+     label="When my friends log out or in"
+     layout="topleft"
+     left_delta="0"
+     name="friends_online_notify_checkbox"
+     top_pad="4"
+     width="300" />
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerifBold"
+     height="12"
+     layout="topleft"
+     left="30"
+     name="show_label"
+     top_pad="14"
+     width="450">
+        Always show these alerts:
+    </text>
+    <scroll_list
+     follows="top|left"
+     height="92"
+     layout="topleft"
+     left="10"
+     multi_select="true" 
+     name="enabled_popups"
+     width="475" />
+	 <button
+	 enabled_control="FirstSelectedDisabledPopups"
+     follows="top|left"
+     height="20"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_overlay="Arrow_Up"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     hover_glow_amount="0.15"
+     layout="topleft"
+     left_delta="137"
+     name="enable_this_popup"
+     picture_style="true"
+     top_pad="10"
+     width="43">
+        <button.commit_callback
+         function="Pref.ClickEnablePopup" />
+    </button>
+    <button
+	 enabled_control="FirstSelectedEnabledPopups"
+	 follows="top|left"
+     height="20"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_overlay="Arrow_Down"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     hover_glow_amount="0.15"
+     layout="topleft"
+     left_pad="50"
+     name="disable_this_popup"
+     picture_style="true"
+     top_delta="0"
+     width="43">
+        <button.commit_callback
+         function="Pref.ClickDisablePopup" />
+    </button>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerifBold"
+     height="12"
+     layout="topleft"
+     left="30"
+     name="dont_show_label"
+     top_pad="10"
+     width="450">
+        Never show these alerts:
+    </text>
+    <scroll_list
+     follows="top|left"
+     height="92"
+     layout="topleft"
+     left="10"
+     multi_select="true" 
+     name="disabled_popups"
+     width="475" />
+</panel>
