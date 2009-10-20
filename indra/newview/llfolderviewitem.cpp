@@ -71,6 +71,10 @@ LLFontGL* LLFolderViewItem::getLabelFontForStyle(U8 style)
 	{
 		LLFontDescriptor labelfontdesc("SansSerif", "Small", style);
 		rtn = LLFontGL::getFont(labelfontdesc);
+		if (!rtn)
+		{
+			rtn = LLFontGL::getFontDefault();
+		}
 		sFonts[style] = rtn;
 	}
 	return rtn;

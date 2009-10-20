@@ -103,6 +103,7 @@
 #include "llpointer.h"
 #include "llinitparam.h"
 #include "llxmlnode.h"
+#include "llnotificationslistener.h"
 
 class LLNotification;
 typedef boost::shared_ptr<LLNotification> LLNotificationPtr;
@@ -813,9 +814,19 @@ private:
 	LLNotificationComparator mComparator;
 };
 
-
+// An interface class to provide a clean linker seam to the LLNotifications class.
+// Extend this interface as needed for your use of LLNotifications.
+class LLNotificationsInterface
+{
+public:
+	virtual LLNotificationPtr add(const std::string& name, 
+						const LLSD& substitutions, 
+						const LLSD& payload, 
+						LLNotificationFunctorRegistry::ResponseFunctor functor) = 0;
+};
 
 class LLNotifications : 
+	public LLNotificationsInterface,
 	public LLSingleton<LLNotifications>, 
 	public LLNotificationChannelBase
 {
@@ -839,7 +850,7 @@ public:
 						const LLSD& substitutions, 
 						const LLSD& payload, 
 						const std::string& functor_name);
-	LLNotificationPtr add(const std::string& name, 
+	/* virtual */ LLNotificationPtr add(const std::string& name, 
 						const LLSD& substitutions, 
 						const LLSD& payload, 
 						LLNotificationFunctorRegistry::ResponseFunctor functor);
@@ -918,6 +929,8 @@ private:
 	GlobalStringMap mGlobalStrings;
 
 	bool mIgnoreAllNotifications;
+
+    boost::scoped_ptr<LLNotificationsListener> mListener;
 };
 
 

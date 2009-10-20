@@ -45,6 +45,12 @@
 #include "llchainio.h"
 #include "llerror.h"
 
+
+extern const std::string CONTEXT_REQUEST;
+extern const std::string CONTEXT_DEST_URI_SD_LABEL;
+extern const std::string CONTEXT_RESPONSE;
+extern const std::string CONTEXT_TRANSFERED_BYTES;
+
 class LLURLRequestDetail;
 
 class LLURLRequestComplete;
@@ -208,6 +214,8 @@ protected:
 	ERequestAction mAction;
 	LLURLRequestDetail* mDetail;
 	LLIOPipe::ptr_t mCompletionCallback;
+	 S32 mRequestTransferedBytes;
+	 S32 mResponseTransferedBytes;
 
 private:
 	/** 

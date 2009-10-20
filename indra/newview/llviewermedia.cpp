@@ -588,7 +588,9 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mHasFocus(false),
 	mPriority(LLPluginClassMedia::PRIORITY_UNLOADED),
 	mDoNavigateOnLoad(false),
+	mDoNavigateOnLoadRediscoverType(false),
 	mDoNavigateOnLoadServerRequest(false),
+	mMediaSourceFailedInit(false),
 	mIsUpdated(false)
 { 
 	
@@ -664,7 +666,7 @@ void LLViewerMediaImpl::createMediaSource()
 	{
 		if(! mMediaURL.empty())
 		{
-			navigateTo(mMediaURL, mMimeType, false, mDoNavigateOnLoadServerRequest);
+			navigateTo(mMediaURL, mMimeType, mDoNavigateOnLoadRediscoverType, mDoNavigateOnLoadServerRequest);
 		}
 		else if(! mMimeType.empty())
 		{
@@ -703,7 +705,7 @@ void LLViewerMediaImpl::setMediaType(const std::string& media_type)
 LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height)
 {
 	std::string plugin_basename = LLMIMETypes::implType(media_type);
-
+	
 	if(plugin_basename.empty())
 	{
 		LL_WARNS("Media") << "Couldn't find plugin for media type " << media_type << LL_ENDL;
@@ -774,6 +776,9 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		return false;
 	}
 
+	// If we got here, we want to ignore previous init failures.
+	mMediaSourceFailedInit = false;
+
 	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight);
 	
 	if (media_source)
@@ -786,6 +791,9 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		mMediaSource = media_source;
 		return true;
 	}
+
+	// Make sure the timer doesn't try re-initing this plugin repeatedly until something else changes.
+	mMediaSourceFailedInit = true;
 
 	return false;
 }
@@ -828,7 +836,15 @@ void LLViewerMediaImpl::stop()
 {
 	if(mMediaSource)
 	{
-		mMediaSource->stop();
+		if(mMediaSource->pluginSupportsMediaBrowser())
+		{
+			mMediaSource->browse_stop();
+		}
+		else
+		{
+			mMediaSource->stop();
+		}
+
 		// destroyMediaSource();
 	}
 }
@@ -1002,21 +1018,69 @@ BOOL LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::navigateBack()
+{
+	if (mMediaSource)
+	{
+		if(mMediaSource->pluginSupportsMediaTime())
+		{
+			F64 step_scale = 0.02; // temp , can be changed
+			F64 back_step = mMediaSource->getCurrentTime() - (mMediaSource->getDuration()*step_scale);
+			if(back_step < 0.0)
+			{
+				back_step = 0.0;
+			}
+			mMediaSource->seek(back_step);
+			//mMediaSource->start(-2.0);
+		}
+		else
+		{
+			mMediaSource->browse_back();
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::navigateForward()
+{
+	if (mMediaSource)
+	{
+		if(mMediaSource->pluginSupportsMediaTime())
+		{
+			F64 step_scale = 0.02; // temp , can be changed
+			F64 forward_step = mMediaSource->getCurrentTime() + (mMediaSource->getDuration()*step_scale);
+			if(forward_step > mMediaSource->getDuration())
+			{
+				forward_step = mMediaSource->getDuration();
+			}
+			mMediaSource->seek(forward_step);
+			//mMediaSource->start(2.0);
+		}
+		else
+		{
+			mMediaSource->browse_forward();
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::navigateReload()
+{
+	navigateTo(mMediaURL, "", true, false);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateHome()
 {
-	mMediaURL = mHomeURL;
-	mDoNavigateOnLoad = !mMediaURL.empty();
-	mDoNavigateOnLoadServerRequest = false;
-	
-	if(mMediaSource)
-	{
-		mMediaSource->loadURI( mHomeURL );
-	}
+	navigateTo(mHomeURL, "", true, false);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mime_type,  bool rediscover_type, bool server_request)
 {
+	// Helpful to have media urls in log file. Shouldn't be spammy.
+	llinfos << "url=" << url << " mime_type=" << mime_type << llendl;
+	
 	if(server_request)
 	{
 		setNavState(MEDIANAVSTATE_SERVER_SENT);
@@ -1026,12 +1090,16 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 		setNavState(MEDIANAVSTATE_NONE);
 	}
 	
-	// Always set the current URL.
+	// Always set the current URL and MIME type.
 	mMediaURL = url;
+	mMimeType = mime_type;
 	
 	// If the current URL is not null, make the instance do a navigate on load.
 	mDoNavigateOnLoad = !mMediaURL.empty();
 
+	// if mime type discovery was requested, we'll need to do it when the media loads
+	mDoNavigateOnLoadRediscoverType = rediscover_type;
+	
 	// and if this was a server request, the navigate on load will also need to be one.
 	mDoNavigateOnLoadServerRequest = server_request;
 
@@ -1041,6 +1109,21 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 		LL_DEBUGS("PluginPriority") << this << "Not loading (PRIORITY_UNLOADED)" << LL_ENDL;
 		
 		return;
+	}
+	
+	// If the caller has specified a non-empty MIME type, look that up in our MIME types list.
+	// If we have a plugin for that MIME type, use that instead of attempting auto-discovery.
+	// This helps in supporting legacy media content where the server the media resides on returns a bogus MIME type
+	// but the parcel owner has correctly set the MIME type in the parcel media settings.
+	
+	if(!mMimeType.empty() && (mMimeType != "none/none"))
+	{
+		std::string plugin_basename = LLMIMETypes::implType(mMimeType);
+		if(!plugin_basename.empty())
+		{
+			// We have a plugin for this mime type
+			rediscover_type = false;
+		}
 	}
 
 	if(rediscover_type)
@@ -1101,6 +1184,11 @@ void LLViewerMediaImpl::navigateStop()
 bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 {
 	bool result = false;
+	// *NOTE:Mani - if this doesn't exist llmozlib goes crashy in the debug build.
+	// LLMozlib::init wants to write some files to <exe_dir>/components
+	std::string debug_init_component_dir( gDirUtilp->getExecutableDir() );
+	debug_init_component_dir += "/components";
+	LLAPRFile::makeDir(debug_init_component_dir.c_str()); 
 	
 	if (mMediaSource)
 	{
@@ -1148,7 +1236,7 @@ bool LLViewerMediaImpl::canNavigateBack()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::update()
 {
-	if(mMediaSource == NULL)
+	if(mMediaSource == NULL && !mMediaSourceFailedInit)
 	{
 		if(mPriority != LLPluginClassMedia::PRIORITY_UNLOADED)
 		{
@@ -1375,6 +1463,18 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 {
 	switch(event)
 	{
+		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
+		{
+			// The plugin failed to load properly.  Make sure the timer doesn't retry.
+			mMediaSourceFailedInit = true;
+			
+			// TODO: may want a different message for this case?
+			LLSD args;
+			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
+			LLNotifications::instance().add("MediaPluginFailed", args);
+		}
+		break;
+
 		case MEDIA_EVENT_PLUGIN_FAILED:
 		{
 			LLSD args;
@@ -1423,7 +1523,19 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		case LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_COMPLETE:
 		{
 			LL_DEBUGS("Media") << "MEDIA_EVENT_NAVIGATE_COMPLETE, uri is: " << plugin->getNavigateURI() << LL_ENDL;
-			setNavState(MEDIANAVSTATE_NONE);
+
+			if(getNavState() == MEDIANAVSTATE_BEGUN)
+			{
+				setNavState(MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED);
+			}
+			else if(getNavState() == MEDIANAVSTATE_SERVER_BEGUN)
+			{
+				setNavState(MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED);
+			}
+			else
+			{
+				// all other cases need to leave the state alone.
+			}
 		}
 		break;
 		
@@ -1626,9 +1738,11 @@ void LLViewerMediaImpl::setNavState(EMediaNavState state)
 		case MEDIANAVSTATE_NONE: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_NONE" << llendl; break;
 		case MEDIANAVSTATE_BEGUN: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_BEGUN" << llendl; break;
 		case MEDIANAVSTATE_FIRST_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_FIRST_LOCATION_CHANGED" << llendl; break;
+		case MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED" << llendl; break;
 		case MEDIANAVSTATE_SERVER_SENT: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_SENT" << llendl; break;
 		case MEDIANAVSTATE_SERVER_BEGUN: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_BEGUN" << llendl; break;
 		case MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED" << llendl; break;
+		case MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED" << llendl; break;
 	}
 }
 

@@ -6921,7 +6921,8 @@ void LLVoiceClient::notifyFriendObservers()
 
 void LLVoiceClient::lookupName(const LLUUID &id)
 {
-	gCacheName->get(id, FALSE, &LLVoiceClient::onAvatarNameLookup);
+	BOOL is_group = FALSE;
+	gCacheName->get(id, is_group, &LLVoiceClient::onAvatarNameLookup);
 }
 
 //static

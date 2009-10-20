@@ -42,7 +42,7 @@ FIND_PROGRAM (GACUTIL_EXECUTABLE gacutil
              /usr/local/bin
 )
 FIND_PROGRAM (ILASM_EXECUTABLE
-             ilasm
+             NAMES ilasm.bat ilasm
              NO_DEFAULT_PATH
              PATHS "$ENV{PROGRAMFILES}/Mono-1.9.1/bin" "$ENV{PROGRAMFILES}/Mono-1.2.6/bin" /bin /usr/bin /usr/local/bin
 )

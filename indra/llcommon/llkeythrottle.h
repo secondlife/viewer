@@ -118,6 +118,63 @@ public:
 		THROTTLE_BLOCKED,		// rate exceed, block key
 	};
 
+	F64 getActionCount(const T& id)
+	{
+		U64 now = 0;
+		if ( mIsRealtime )
+		{
+			now = LLKeyThrottleImpl<T>::getTime();
+		}
+		else
+		{
+			now = LLKeyThrottleImpl<T>::getFrame();
+		}
+
+		if (now >= (m.startTime + m.intervalLength))
+		{
+			if (now < (m.startTime + 2 * m.intervalLength))
+			{
+				// prune old data
+				delete m.prevMap;
+				m.prevMap = m.currMap;
+				m.currMap = new typename LLKeyThrottleImpl<T>::EntryMap;
+
+				m.startTime += m.intervalLength;
+			}
+			else
+			{
+				// lots of time has passed, all data is stale
+				delete m.prevMap;
+				delete m.currMap;
+				m.prevMap = new typename LLKeyThrottleImpl<T>::EntryMap;
+				m.currMap = new typename LLKeyThrottleImpl<T>::EntryMap;
+
+				m.startTime = now;
+			}
+		}
+
+		U32 prevCount = 0;
+
+		typename LLKeyThrottleImpl<T>::EntryMap::const_iterator prev = m.prevMap->find(id);
+		if (prev != m.prevMap->end())
+		{
+			prevCount = prev->second.count;
+		}
+
+		typename LLKeyThrottleImpl<T>::Entry& curr = (*m.currMap)[id];
+
+		// curr.count is the number of keys in
+		// this current 'time slice' from the beginning of it until now
+		// prevCount is the number of keys in the previous
+		// time slice scaled to be one full time slice back from the current 
+		// (now) time.
+
+		// compute current, windowed rate
+		F64 timeInCurrent = ((F64)(now - m.startTime) / m.intervalLength);
+		F64 averageCount = curr.count + prevCount * (1.0 - timeInCurrent);
+		return averageCount;
+	}
+
 	// call each time the key wants use
 	State noteAction(const T& id, S32 weight = 1)
 	{

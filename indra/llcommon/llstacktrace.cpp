@@ -30,6 +30,7 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
 #include "llstacktrace.h"
 
 #ifdef LL_WINDOWS

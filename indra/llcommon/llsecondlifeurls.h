@@ -34,49 +34,49 @@
 #define LL_LLSECONDLIFEURLS_H
 /*
 // Account registration web page
-extern const std::string CREATE_ACCOUNT_URL;
+LL_COMMON_API extern const std::string CREATE_ACCOUNT_URL;
 
 // Manage Account
-extern const std::string MANAGE_ACCOUNT;
+LL_COMMON_API extern const std::string MANAGE_ACCOUNT;
 
-extern const std::string AUCTION_URL; 
+LL_COMMON_API extern const std::string AUCTION_URL; 
 
-extern const std::string EVENTS_URL;
+LL_COMMON_API extern const std::string EVENTS_URL;
 */
 // Tier up to a new land level.
-extern const std::string TIER_UP_URL;
+LL_COMMON_API extern const std::string TIER_UP_URL;
 
 
 // Tier up to a new land level.
-extern const std::string LAND_URL;
+LL_COMMON_API extern const std::string LAND_URL;
 
 // How to get DirectX 9
-extern const std::string DIRECTX_9_URL;
+LL_COMMON_API extern const std::string DIRECTX_9_URL;
 
 /*
 // Upgrade from basic membership to premium membership
-extern const std::string UPGRADE_TO_PREMIUM_URL;
+LL_COMMON_API extern const std::string UPGRADE_TO_PREMIUM_URL;
 
 
 // Out of date VIA chipset
-extern const std::string VIA_URL;
+LL_COMMON_API extern const std::string VIA_URL;
 
 // Support URL
-extern const std::string SUPPORT_URL;
+LL_COMMON_API extern const std::string SUPPORT_URL;
 
 // Linden Blogs page
-extern const std::string BLOGS_URL;
+LL_COMMON_API extern const std::string BLOGS_URL;
 
 // Currency page
-extern const std::string BUY_CURRENCY_URL;
+LL_COMMON_API extern const std::string BUY_CURRENCY_URL;
 
 // LSL script wiki
-extern const std::string LSL_DOC_URL;
+LL_COMMON_API extern const std::string LSL_DOC_URL;
 
 // SL KnowledgeBase page
-extern const std::string SL_KB_URL;
+LL_COMMON_API extern const std::string SL_KB_URL;
 
 // Release Notes Redirect URL for Server and Viewer
-extern const std::string RELEASE_NOTES_BASE_URL;
+LL_COMMON_API extern const std::string RELEASE_NOTES_BASE_URL;
 */
 #endif

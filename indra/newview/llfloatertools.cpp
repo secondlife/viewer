@@ -1038,12 +1038,13 @@ void LLFloaterTools::getMediaState()
 		  &&first_object->permModify() 
 	      ))
 	{
-		childSetEnabled("media_tex", FALSE);
+		childSetEnabled("Add_Media",  FALSE);
+/*		childSetEnabled("media_tex", FALSE);
 		childSetEnabled("add_media", FALSE);
 		childSetEnabled("delete_media", FALSE);
 		childSetEnabled("edit_media", FALSE);
 		childSetEnabled("media_info", FALSE);
-		media_info->setEnabled(FALSE);
+		media_info->setEnabled(FALSE);*/
 		media_info->clear();
 		clearMediaSettings();
 		return;
@@ -1054,13 +1055,14 @@ void LLFloaterTools::getMediaState()
 	
 	if(!has_media_capability)
 	{
-		childSetEnabled("media_tex", FALSE);
+		childSetEnabled("Add_Media",  FALSE);
+	/*	childSetEnabled("media_tex", FALSE);
 		childSetEnabled("add_media", FALSE);
 		childSetEnabled("delete_media", FALSE);
 		childSetEnabled("edit_media", FALSE);
 		childSetEnabled("media_info", FALSE);
 		media_info->setEnabled(FALSE);
-		media_info->clear();	
+		media_info->clear();*/	
 		clearMediaSettings();
 		return;
 	}
@@ -1081,6 +1083,7 @@ void LLFloaterTools::getMediaState()
 	LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo = selected_objects->getSelectedTEValue( &func, has_media );
 	bool bool_has_media = (has_media & LLTextureEntry::MF_HAS_MEDIA);
 
+	
 	const LLMediaEntry default_media_data;
 	
 	struct functor_getter_media_data : public LLSelectedTEGetFunctor< LLMediaEntry>
@@ -1108,6 +1111,7 @@ void LLFloaterTools::getMediaState()
 	// update UI depending on whether "object" (prim or face) has media
 	// and whether or not you are allowed to edit it.
 	
+	childSetEnabled("Add_Media",  editable);
 	// IF all the faces have media (or all dont have media)
 	if ( LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo )
 	{
@@ -1120,7 +1124,7 @@ void LLFloaterTools::getMediaState()
 			if(media_data_get!=default_media_data)
 			{
 				//TODO: get media title
-				//media_title =  media_data_get->getTile();
+				//media_title =  media_data_get->getTitle();
 				//LLFloaterMediaSettings::getInstance()->mIdenticalValidMedia = true;
 				media_title = media_data_get.getHomeURL();
 			}
@@ -1155,7 +1159,7 @@ void LLFloaterTools::getMediaState()
 			if(media_data_get!=default_media_data)
 			{
 				//TODO: get media title
-				//media_title =  media_data_get->getTile();
+				//media_title =  media_data_get->getTitle();
 				media_title = media_data_get.getHomeURL();
 			}
 			
