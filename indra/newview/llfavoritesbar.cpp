@@ -66,29 +66,46 @@ const S32 DROP_DOWN_MENU_WIDTH = 250;
  * Helper for LLFavoriteLandmarkButton and LLFavoriteLandmarkMenuItem.
  * Performing requests for SLURL for given Landmark ID
  */
-class LLSLURLGetter
+class LLLandmarkInfoGetter
 {
 public:
-	LLSLURLGetter()
-		: mLandmarkID(LLUUID::null)
-		, mSLURL("(Loading...)")
-		, mLoaded(false) {}
+	LLLandmarkInfoGetter()
+	:	mLandmarkID(LLUUID::null),
+		mName("(Loading...)"),
+		mPosX(0),
+		mPosY(0),
+		mLoaded(false) 
+	{}
 
 	void setLandmarkID(const LLUUID& id) { mLandmarkID = id; }
 	const LLUUID& getLandmarkId() const { return mLandmarkID; }
 
-	const std::string& getSLURL()
+	const std::string& getName()
 	{
 		if(!mLoaded)
-			requestSLURL();
+			requestNameAndPos();
 
-		return mSLURL;
+		return mName;
+	}
+
+	S32 getPosX()
+	{
+		if (!mLoaded)
+			requestNameAndPos();
+		return mPosX;
+	}
+
+	S32 getPosY()
+	{
+		if (!mLoaded)
+			requestNameAndPos();
+		return mPosY;
 	}
 private:
 	/**
 	 * Requests landmark data from server.
 	 */
-	void requestSLURL()
+	void requestNameAndPos()
 	{
 		if (mLandmarkID.isNull())
 			return;
@@ -96,19 +113,23 @@ private:
 		LLVector3d g_pos;
 		if(LLLandmarkActions::getLandmarkGlobalPos(mLandmarkID, g_pos))
 		{
-			LLLandmarkActions::getSLURLfromPosGlobal(g_pos,
-				boost::bind(&LLSLURLGetter::landmarkNameCallback, this, _1), false);
+			LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(g_pos,
+				boost::bind(&LLLandmarkInfoGetter::landmarkNameCallback, this, _1, _2, _3));
 		}
 	}
 
-	void landmarkNameCallback(const std::string& name)
+	void landmarkNameCallback(const std::string& name, S32 x, S32 y)
 	{
-		mSLURL = name;
+		mPosX = x;
+		mPosY = y;
+		mName = name;
 		mLoaded = true;
 	}
 
 	LLUUID mLandmarkID;
-	std::string mSLURL;
+	std::string mName;
+	S32 mPosX;
+	S32 mPosY;
 	bool mLoaded;
 };
 
@@ -125,7 +146,15 @@ public:
 
 	BOOL handleToolTip(S32 x, S32 y, MASK mask)
 	{
-		LLToolTipMgr::instance().show(mUrlGetter.getSLURL());
+		std::string region_name = mLandmarkInfoGetter.getName();
+		
+		if (!region_name.empty())
+		{
+			LLToolTip::Params params;
+			params.message = llformat("%s\n%s (%d, %d)", getLabelSelected().c_str(), region_name.c_str(), mLandmarkInfoGetter.getPosX(), mLandmarkInfoGetter.getPosY());
+			params.sticky_rect = calcScreenRect();
+			LLToolTipMgr::instance().show(params);
+		}
 		return TRUE;
 	}
 
@@ -141,8 +170,8 @@ public:
 		return LLButton::handleHover(x, y, mask);
 	}
 	
-	void setLandmarkID(const LLUUID& id){ mUrlGetter.setLandmarkID(id); }
-	const LLUUID& getLandmarkId() const { return mUrlGetter.getLandmarkId(); }
+	void setLandmarkID(const LLUUID& id){ mLandmarkInfoGetter.setLandmarkID(id); }
+	const LLUUID& getLandmarkId() const { return mLandmarkInfoGetter.getLandmarkId(); }
 
 	void onMouseEnter(S32 x, S32 y, MASK mask)
 	{
@@ -161,7 +190,7 @@ protected:
 	friend class LLUICtrlFactory;
 
 private:
-	LLSLURLGetter mUrlGetter;
+	LLLandmarkInfoGetter mLandmarkInfoGetter;
 };
 
 /**
@@ -176,11 +205,18 @@ class LLFavoriteLandmarkMenuItem : public LLMenuItemCallGL
 public:
 	BOOL handleToolTip(S32 x, S32 y, MASK mask)
 	{
-		LLToolTipMgr::instance().show(mUrlGetter.getSLURL());
+		std::string region_name = mLandmarkInfoGetter.getName();
+		if (!region_name.empty())
+		{
+			LLToolTip::Params params;
+			params.message = llformat("%s\n%s (%d, %d)", getLabel().c_str(), region_name.c_str(), mLandmarkInfoGetter.getPosX(), mLandmarkInfoGetter.getPosY());
+			params.sticky_rect = calcScreenRect();
+			LLToolTipMgr::instance().show(params);
+		}
 		return TRUE;
 	}
 	
-	void setLandmarkID(const LLUUID& id){ mUrlGetter.setLandmarkID(id); }
+	void setLandmarkID(const LLUUID& id){ mLandmarkInfoGetter.setLandmarkID(id); }
 
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask)
 	{
@@ -212,7 +248,7 @@ protected:
 	friend class LLUICtrlFactory;
 
 private:
-	LLSLURLGetter mUrlGetter;
+	LLLandmarkInfoGetter mLandmarkInfoGetter;
 	LLFavoritesBarCtrl* fb;
 };
 

@@ -270,23 +270,42 @@ void LLLandmarkActions::getSLURLfromPosGlobal(const LLVector3d& global_pos, slur
 	{
 		U64 new_region_handle = to_region_handle(global_pos);
 
-		LLWorldMap::url_callback_t url_cb = boost::bind(&LLLandmarkActions::onRegionResponse,
+		LLWorldMap::url_callback_t url_cb = boost::bind(&LLLandmarkActions::onRegionResponseSLURL,
 														cb,
 														global_pos,
 														escaped,
-														_1, _2, _3, _4);
+														_2);
 
 		LLWorldMap::getInstance()->sendHandleRegionRequest(new_region_handle, url_cb, std::string("unused"), false);
 	}
 }
 
-void LLLandmarkActions::onRegionResponse(slurl_callback_t cb,
+void LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(const LLVector3d& global_pos, region_name_and_coords_callback_t cb)
+{
+	std::string sim_name;
+	LLSimInfo* sim_infop = LLWorldMap::getInstance()->simInfoFromPosGlobal(global_pos);
+	if (sim_infop)
+	{
+		LLVector3 pos = sim_infop->getLocalPos(global_pos);
+		cb(sim_infop->mName, llround(pos.mV[VX]), llround(pos.mV[VY]));
+	}
+	else
+	{
+		U64 new_region_handle = to_region_handle(global_pos);
+
+		LLWorldMap::url_callback_t url_cb = boost::bind(&LLLandmarkActions::onRegionResponseNameAndCoords,
+														cb,
+														global_pos,
+														_1);
+
+		LLWorldMap::getInstance()->sendHandleRegionRequest(new_region_handle, url_cb, std::string("unused"), false);
+	}
+}
+
+void LLLandmarkActions::onRegionResponseSLURL(slurl_callback_t cb,
 										 const LLVector3d& global_pos,
 										 bool escaped,
-										 U64 region_handle,
-										 const std::string& url,
-										 const LLUUID& snapshot_id,
-										 bool teleport)
+										 const std::string& url)
 {
 	std::string sim_name;
 	std::string slurl;
@@ -301,6 +320,18 @@ void LLLandmarkActions::onRegionResponse(slurl_callback_t cb,
 	}
 
 	cb(slurl);
+}
+
+void LLLandmarkActions::onRegionResponseNameAndCoords(region_name_and_coords_callback_t cb,
+										 const LLVector3d& global_pos,
+										 U64 region_handle)
+{
+	LLSimInfo* sim_infop = LLWorldMap::getInstance()->simInfoFromHandle(region_handle);
+	if (sim_infop)
+	{
+		LLVector3 local_pos = sim_infop->getLocalPos(global_pos);
+		cb(sim_infop->mName, llround(local_pos.mV[VX]), llround(local_pos.mV[VY]));
+	}
 }
 
 bool LLLandmarkActions::getLandmarkGlobalPos(const LLUUID& landmarkInventoryItemID, LLVector3d& posGlobal)

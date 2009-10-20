@@ -183,6 +183,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	params.font = p.font;
 	params.use_ellipses = true;
 	params.wrap = p.wrap;
+	params.allow_html = false; // disallow hyperlinks in tooltips, as they want to spawn their own explanatory tooltips
 	mTextBox = LLUICtrlFactory::create<LLTextBox> (params);
 	addChild(mTextBox);
 
@@ -319,8 +320,15 @@ void LLToolTipMgr::createToolTip(const LLToolTip::Params& params)
 
 	LLToolTip::Params tooltip_params(params);
 	// block mouse events if there is a click handler registered (specifically, hover)
-	tooltip_params.mouse_opaque = params.click_callback.isProvided();
+	if (params.click_callback.isProvided())
+	{
+		// set mouse_opaque to true if it wasn't already set to something else
+		// this prevents mouse down from going "through" the tooltip and ultimately
+		// causing the tooltip to disappear
+		tooltip_params.mouse_opaque.setIfNotProvided(true);
+	}
 	tooltip_params.rect = LLRect (0, 1, 1, 0);
+
 
 	mToolTip = LLUICtrlFactory::create<LLToolTip> (tooltip_params);
 	mToolTip->setValue(params.message());

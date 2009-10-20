@@ -94,6 +94,13 @@ LLVector3d LLSimInfo::getGlobalPos(LLVector3 local_pos) const
 	return pos;
 }
 
+LLVector3 LLSimInfo::getLocalPos(LLVector3d global_pos) const
+{
+	LLVector3d sim_origin = from_region_handle(mHandle);
+	return LLVector3(global_pos - sim_origin);
+}
+
+
 
 //---------------------------------------------------------------------------
 // World Map

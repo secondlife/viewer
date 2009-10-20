@@ -78,6 +78,7 @@ public:
 	LLSimInfo();
 
 	LLVector3d getGlobalPos(LLVector3 local_pos) const;
+	LLVector3 getLocalPos(LLVector3d global_pos) const;
 
 public:
 	U64 mHandle;
