@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="音声とビデオ" name="Preference Media panel">
+	<slider label="マスター" name="System Volume"/>
+	<slider label="風の音量" name="Wind Volume"/>
+	<slider label="サウンド" name="SFX Volume"/>
+	<slider label="メディア" name="Media Volume"/>
+	<slider label="UI" name="UI Volume"/>
+	<slider label="ミュージック" name="Music Volume"/>
+	<slider label="ボイス" name="Voice Volume"/>
+	<text_editor name="voice_unavailable">
+		ボイスチャットを利用できません
+	</text_editor>
+	<check_box label="ボイスチャットを有効にする" name="enable_voice_check"/>
+	<radio_group name="ear_location">
+		<radio_item name="0" label="カメラの位置からボイスチャットを聞く。" />
+		<radio_item name="1" label="アバターの位置からボイスチャットを聞く。" />
+	</radio_group>
+	<button label="機器の設定" name="device_settings_btn"/>
+	<text name="muting_text">
+		ボリューム：
+	</text>
+	<check_box label="オーディオをミュート" name="disable audio" />
+	<text name="streaming_prefs_text">
+		ストリーム環境設定：
+	</text>
+	<text name="audio_prefs_text">
+		オーディオ環境設定：
+	</text>
+	<panel label="ボリューム" name="Volume Panel" />
+	<check_box label="メディアを自動再生" name="auto_streaming_video" />
+	<check_box
+	     label="ウィンドウが最小化されたときにオーディオをミュート"
+	     name="mute_when_minimized" />
+	<text name="streaming_text">
+		ストリーミング：
+	</text>
+	<check_box label="音楽がある場合再生する"
+	     name="streaming_music" />
+	<check_box
+	     label="ストリーミング・メディア使用可時に再生"
+	     name="streaming_video" />
+	<text name="system_volume_text">
+		サウンド効果：
+	</text>
+	<text name="wind_volume_text">
+		風の音量：
+	</text>
+	<text name="footsteps_volume_text">
+		足音：
+	</text>
+	<text name="ui_volume_text">
+		UI音量：
+	</text>
+	<slider label="ドップラー効果" name="Doppler Effect" />
+	<slider label="遠隔要因" name="Distance Factor" />
+	<slider label="ロールオフ係数" name="Rolloff Factor" />
+	<spinner label="L$変更基準点" name="L$ Change Threshold" />
+	<spinner label="ヘルス変化基準点" name="Health Change Threshold" />
+	<text name="doppler_effect_text">
+		オーディオ環境設定：
+	</text>
+	<text name="distance_factor_text">
+		距離係数：
+	</text>
+	<text name="rolloff_factor_text">
+		ロールオフ：
+	</text>
+	<text name="default_upload_bitrate_text">
+		デフォルトUL速度：
+	</text>
+	<radio_group name="bitrate">
+		<radio_item name="32kbps" label="32kbps" />
+		<radio_item name="64kbps" label="64kbps" />
+		<radio_item name="96kbps" label="96kbps" />
+		<radio_item name="128kbps" label="128kbps" />
+	</radio_group>
+</panel>

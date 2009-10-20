@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="チャット設定" name="im">
+	<text name="text_box">
+		オンライン通知：
+	</text>
+	<check_box label="フレンドとグループのみ自分のオンラインを確認可能に" name="online_visibility"/>
+	<text name="text_box2">
+		IMオプション：
+	</text>
+	<text name="log_in_to_change">
+		ログインして変更してください
+	</text>
+	<check_box label="IMを電子メール（[EMAIL]）へ送信" name="send_im_to_email"/>
+	<check_box label="チャットコンソールにIMを表示する" name="include_im_in_chat_console"/>
+	<check_box label="IMにタイムスタンプを表示" name="show_timestamps_check"/>
+	<check_box label="オンライン・フレンド通知を表示" name="friends_online_notify_checkbox"/>
+	<text name="text_box4">
+		記録オプション：
+	</text>
+	<check_box label="IMログを自分のコンピュータに保存" name="log_instant_messages"/>
+	<check_box label="IMログにタイムスタンプを表示" name="log_instant_messages_timestamp"/>
+	<check_box label="ローカルチャットのログを自分のコンピュータに保存" name="log_chat"/>
+	<check_box label="最後のIMチャットの末尾を表示" name="log_show_history"/>
+	<check_box label="ローカルチャットのログにタイムスタンプを表示" name="log_chat_timestamp"/>
+	<check_box label="ローカルチャットのログに受信IMを表示" name="log_chat_IM"/>
+	<check_box label="タイムスタンプに日付を加える" name="log_date_timestamp"/>
+	<button label="パス変更" label_selected="パス変更" name="log_path_button"/>
+	<text name="text_box3">
+		取り込み中
+応答メッセージ：
+	</text>
+</panel>

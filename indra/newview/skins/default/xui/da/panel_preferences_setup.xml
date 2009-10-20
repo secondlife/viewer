@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Input &amp; kamera" name="Input panel">
+	<text name=" Mouselook Options:">
+		Førstepersons valg:
+	</text>
+	<text name=" Mouse Sensitivity:">
+		Mus følsomhed:
+	</text>
+	<check_box label="Omvendt mus" name="invert_mouse"/>
+	<text name=" Auto Fly Options:">
+		Auto flyv valg:
+	</text>
+	<check_box label="Flyv/Land ved at holde Page Up/Down nede" name="automatic_fly"/>
+	<text name=" Camera Options:">
+		Kamera valg:
+	</text>
+	<text name="camera_fov_label">
+		Camera synsvinkel:
+	</text>
+	<text name="Camera Follow Distance:">
+		Kamera følge-afstand:
+	</text>
+	<check_box label="Fokusér kamera automatisk ved redigering" name="edit_camera_movement" tool_tip="Fokusér kamera automatisk når du går ind og ud af redigering."/>
+	<check_box label="Fokusér kamera automatisk ved udseende" name="appearance_camera_movement" tool_tip="Lad kameraet automatisk placere sig når du er i redigering"/>
+	<text name="text2">
+		Avatar skærm funktioner:
+	</text>
+	<check_box label="Vis avatar i førsteperson" name="first_person_avatar_visible"/>
+	<button label="Joystick opsætning" name="joystick_setup_button"/>
+</panel>

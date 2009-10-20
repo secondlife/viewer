@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Kommunikation" name="im">
+	<text name="text_box">
+		Mein Onlinestatus:
+	</text>
+	<check_box label="Nur Freunden und Gruppen meinen Online-Status mitteilen" name="online_visibility"/>
+	<text name="text_box2">
+		IM-Optionen:
+	</text>
+	<text name="log_in_to_change">
+		Zum Ändern anmelden
+	</text>
+	<check_box label="IM an E-Mail senden ([EMAIL])" name="send_im_to_email"/>
+	<check_box label="IM in Chat-Konsole anzeigen" name="include_im_in_chat_console"/>
+	<check_box label="Zeitstempel in IM anzeigen" name="show_timestamps_check"/>
+	<check_box label="Online-Freundbenachrichtigungen anzeigen" name="friends_online_notify_checkbox"/>
+	<text name="text_box3">
+		Antwort für 
+Beschäftigt-Modus:
+	</text>
+	<text name="text_box4">
+		Protokolloptionen:
+	</text>
+	<check_box label="IM-Verlauf auf meinem Computer speichern" name="log_instant_messages"/>
+	<check_box label="Zeitstempel in IM-Verlauf anzeigen" name="log_instant_messages_timestamp"/>
+	<check_box label="Ende des letzten IM-Gesprächs anzeigen" name="log_show_history"/>
+	<check_box label="Verlauf des lokalen Chats auf meinem Computer speichern" name="log_chat"/>
+	<check_box label="Zeitstempel im Verlauf des lokalen Chats anzeigen" name="log_chat_timestamp"/>
+	<check_box label="Eingehende IM in Chat-Verlauf anzeigen" name="log_chat_IM"/>
+	<check_box label="Datum mit Zeitstempeln hinzufügen" name="log_date_timestamp"/>
+	<button label="Pfad ändern" label_selected="Pfad ändern" name="log_path_button"/>
+</panel>

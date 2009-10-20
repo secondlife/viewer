@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Kommunikation" name="im">
+	<text name="text_box">
+		Min online status:
+	</text>
+	<check_box label="Kun mine venner og grupper kan se når jeg er online"
+	     name="online_visibility" />
+	<text name="text_box2">
+		IM valg:
+	</text>
+	<string name="log_in_to_change">
+		Log ind for at ændre
+	</string>
+	<check_box label="Send IM til E-mail ([EMAIL])" name="send_im_to_email" />
+	<check_box label="Inkludér IM i chat vindue" name="include_im_in_chat_console" />
+	<check_box label="Vis tidslinje i private beskeder (IM)" name="show_timestamps_check" />
+	<check_box label="Vis når venner logger på" name="friends_online_notify_checkbox" />
+	<text name="text_box3">
+		Optaget autosvar:
+	</text>
+	<text name="text_box4">
+		Log funktioner:
+	</text>
+	<check_box label="Gem en log af privat beskeder (IM) på min computer"
+	     name="log_instant_messages" />
+	<check_box label="Vis klokkeslæt i log" name="log_instant_messages_timestamp" />
+	<check_box label="Vis slutningen af sidste samtale i beskeder" name="log_show_history" />
+	<check_box label="Gem log af lokal chat på min computer" name="log_chat" />
+	<check_box label="Vis klokkeslæt i lokat chat log" name="log_chat_timestamp" />
+	<check_box label="Vis indkommende IM i lokal chat log" name="log_chat_IM" />
+	<check_box label="Inkludér dato med klokkeslæt" name="log_date_timestamp" />
+	<button label="Ændre sti" label_selected="Ændre sti" name="log_path_button" left="150"/>
+</panel>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Contrôle et caméra" name="Input panel">
+	<text name=" Mouselook Options:">
+		Vue subjective :
+	</text>
+	<text name=" Mouse Sensitivity:">
+		Sensibilité de la souris :
+	</text>
+	<check_box label="Inverser la souris" name="invert_mouse"/>
+	<text name=" Auto Fly Options:">
+		Vol automatique :
+	</text>
+	<check_box label="Voler/atterrir en appuyant sur la flèche du haut/bas" name="automatic_fly"/>
+	<text name=" Camera Options:">
+		Options de la caméra :
+	</text>
+	<text name="camera_fov_label">
+		Angle de vision :
+	</text>
+	<text name="Camera Follow Distance:">
+		Distance :
+	</text>
+	<check_box label="Ajustement automatique en mode Édition" name="edit_camera_movement" tool_tip="Positionner automatiquement la caméra lors de l&apos;entrée ou de la sortie du mode Édition"/>
+	<check_box label="Ajustement automatique en mode Édition d&apos;apparence" name="appearance_camera_movement" tool_tip="Positionner automatiquement la caméra en mode Édition"/>
+	<text name="text2">
+		Affichage de l&apos;avatar :
+	</text>
+	<check_box label="Montrer l&apos;avatar en vue subjective" name="first_person_avatar_visible"/>
+	<button label="Configuration du joystick" name="joystick_setup_button" width="175"/>
+</panel>

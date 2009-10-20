@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Comunicazioni" name="im">
+	<text name="text_box">
+		Il mio stato online:
+	</text>
+	<check_box label="Solo i miei amici e i miei gruppi possono vedermi online" name="online_visibility"/>
+	<text name="text_box2">
+		Opzioni IM:
+	</text>
+	<string name="log_in_to_change">
+		Effettua login per cambiare
+	</string>
+	<check_box label="Invia gli IM alla mia email ([EMAIL])" name="send_im_to_email"/>
+	<check_box label="Inserisci gli IM nella console della chat" name="include_im_in_chat_console"/>
+	<check_box label="Mostra l&apos;orario negli IM" name="show_timestamps_check"/>
+	<check_box label="Mostrami le notifiche degli amici online" name="friends_online_notify_checkbox"/>
+	<text name="text_box3">
+		Risposta agli IM quando
+sono in &apos;Occupato&apos;:
+	</text>
+	<text name="text_box4" width="136">
+		Opzioni salvataggio chat:
+	</text>
+	<check_box label="Salva una copia degli IM sul mio computer" name="log_instant_messages"/>
+	<check_box label="Mostra l&apos;orario nei registri IM" name="log_instant_messages_timestamp"/>
+	<check_box label="Mostra la parte finale della precedente conversazione IM" name="log_show_history"/>
+	<check_box label="Salva un registro della chat locale sul mio computer" name="log_chat"/>
+	<check_box label="Mostra l&apos;orario nei registri della chat locale" name="log_chat_timestamp"/>
+	<check_box label="Mostra gli IM entranti nel registro della chat locale" name="log_chat_IM"/>
+	<check_box label="Includi la data nell&apos;orario" name="log_date_timestamp"/>
+	<button label="Cambia percorso" label_selected="Cambia percorso" name="log_path_button" width="130"/>
+	<line_editor left="288" name="log_path_string" right="-20"/>
+</panel>

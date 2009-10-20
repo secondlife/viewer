@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Câmera" name="Input panel">
+	<text name=" Mouselook Options:">
+		Mouselook:
+	</text>
+	<text name=" Mouse Sensitivity:">
+		Sensibilidade do Mouse:
+	</text>
+	<check_box label="Inverter o  Mouse" name="invert_mouse"/>
+	<text name=" Auto Fly Options:">
+		Vôo Automático:
+	</text>
+	<check_box label="Voar/Aterrissar pressionando teclas para cima/baixo" name="automatic_fly"/>
+	<text name=" Camera Options:">
+		Opções de Câmera:
+	</text>
+	<text name="camera_fov_label" width="218">
+		Angulo de Visão da Câmera:
+	</text>
+	<slider bottom_delta="-6" width="128" left="360" name="camera_fov" />
+	<text name="Camera Follow Distance:" width="218">
+		Distância de Acompanhamento da Camêra:
+	</text>
+	<slider bottom_delta="-6" width="128" left="360" name="camera_offset_scale" />
+	<check_box label="Edição automática do movimento da câmera" name="edit_camera_movement" tool_tip="Usar posicionamento automático da câmera quando entrar e sair do modo de edição"/>
+	<check_box label="Movimento Automático da Câmera na edição de aparência" name="appearance_camera_movement" tool_tip="Usar posicionamento automático da câmera em  modo de edição"/>
+	<text name="text2">
+		Opções de Exibição 
+do Avatar:
+	</text>
+	<check_box label="Mostra o avatar em primeira pessoa" name="first_person_avatar_visible"/>
+	<button bottom_delta="-40" label="Configuração do Joystick" name="joystick_setup_button" width="165"/>
+</panel>

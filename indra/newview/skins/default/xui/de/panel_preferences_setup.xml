@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Kamera" name="Input panel">
+	<text name=" Mouselook Options:">
+		Mouselook-Optionen:
+	</text>
+	<text name=" Mouse Sensitivity:">
+		Mausempfindlichkeit:
+	</text>
+	<check_box label="Maus umkehren" name="invert_mouse"/>
+	<text name=" Auto Fly Options:">
+		Auto-Flug-Optionen:
+	</text>
+	<check_box label="Zum Fliegen/Landen nach oben/unten halten" name="automatic_fly"/>
+	<text name=" Camera Options:">
+		Kameraoptionen:
+	</text>
+	<text name="camera_fov_label">
+		Kamera-Sichtwinkel:
+	</text>
+	<text name="Camera Follow Distance:">
+		Kameraabstand:
+	</text>
+	<check_box label="Automatischer Kameraschwenk im Bearbeiten-Modus" name="edit_camera_movement" tool_tip="Automatische Kamerapositionierung bei Wechsel in und aus dem Bearbeitungsmodus verwenden"/>
+	<check_box label="Automatischer Kameraschwenk im Aussehen-Modus" name="appearance_camera_movement" tool_tip="Automatische Kamerapositionierung im Bearbeitenmodus verwenden"/>
+	<text name="text2">
+		Avatar-Anzeigeoptionen:
+	</text>
+	<check_box label="Avatar in Mouselook anzeigen" name="first_person_avatar_visible"/>
+	<button label="Joystick-Einrichtung" name="joystick_setup_button"/>
+</panel>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Audio i Video" name="Preference Media panel">
+	<slider label="Master" name="System Volume"/>
+	<slider label="Otoczenie" name="Wind Volume"/>
+	<slider label="Dźwięki" name="SFX Volume"/>
+	<slider label="Media" name="Media Volume"/>
+	<slider label="UI" name="UI Volume"/>
+	<slider label="Muzyka" name="Music Volume"/>
+	<slider label="Głos" name="Voice Volume"/>
+	<text_editor name="voice_unavailable">
+		Rozmowy są Niedostępne
+	</text_editor>
+	<check_box label="Pozwól na Rozmowy" name="enable_voice_check"/>
+	<radio_group name="ear_location">
+		<radio_item name="0" label="Odtwarzaj głos z pozycji kamery" />
+		<radio_item name="1" label="Odtwarzaj głos z pozycji awatara" />
+	</radio_group>
+	<button label="Ustawienia Sprzętowe" name="device_settings_btn"/>
+	<text name="muting_text">
+		Głośność:
+	</text>
+	<text name="streaming_prefs_text">
+		Ustawienia Strumieni:
+	</text>
+	<text name="audio_prefs_text">
+		Ustawienia Audio:
+	</text>
+	<panel label="Głośność" name="Volume Panel" />
+	<check_box label="Odtwarzaj Strumienie Muzyki"
+	     name="streaming_music" />
+	<check_box label="Odtwarzaj Strumienie Video"
+	     name="streaming_video" />
+	<check_box label="Automatycznie Odtwarzaj Media" name="auto_streaming_video" />
+	<check_box label="Wyciszaj Audio Podczas Minimalizacji Okna" name="mute_when_minimized" />
+	<slider label="Efekt Dopplera" name="Doppler Effect" />
+	<slider label="Wpływ Dystansu" name="Distance Factor" />
+	<slider label="Wyciszanie" name="Rolloff Factor" />
+	<spinner label="Próg Zmiany L$" name="L$ Change Threshold" />
+	<spinner label="Próg Zmiany Statusu" name="Health Change Threshold" />
+</panel>

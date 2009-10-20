@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Comunicação" name="im">
+	<text name="text_box">
+		Minha situação online:
+	</text>
+	<check_box label="Apenas meus Amigos e Grupos podem me ver online" name="online_visibility"/>
+	<text name="text_box2">
+		Opções MI:
+	</text>
+	<string name="log_in_to_change">
+		Logar para Alterar
+	</string>
+	<check_box label="Enviar MI para o e-mail ([EMAIL])" name="send_im_to_email"/>
+	<check_box label="Incluir MIs no console do chat" name="include_im_in_chat_console"/>
+	<check_box label="Mostrar data e hora na MI" name="show_timestamps_check"/>
+	<check_box label="Mostrar notificação de Amigo online" name="friends_online_notify_checkbox"/>
+	<text name="text_box3" width="134">
+		Resposta no Modo
+Ocupado:
+	</text>
+	<text name="text_box4">
+		Opções de Registro:
+	</text>
+	<check_box label="Salvar um registro das MIs em meu computador" name="log_instant_messages"/>
+	<check_box label="Mostrar a hora nas MIs" name="log_instant_messages_timestamp"/>
+	<check_box label="Mostrar o final da última conversa em MI" name="log_show_history"/>
+	<check_box label="Salvar um registro da Conversa local em meu computador" name="log_chat"/>
+	<check_box label="Mostrar a hora no registro da Conversa local" name="log_chat_timestamp"/>
+	<check_box label="Mostrar MIs recebidas no registro de Conversa local" name="log_chat_IM"/>
+	<check_box label="Incluir data e hora" name="log_date_timestamp"/>
+	<button label="Mudar Local" label_selected="Alterar Caminho" name="log_path_button" width="120"/>
+	<line_editor left="278" name="log_path_string" right="-20"/>
+</panel>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="操作とカメラ" name="Input panel">
+	<text name=" Mouselook Options:">
+		一人称視点
+（マウスルック）：
+	</text>
+	<text name=" Mouse Sensitivity:">
+		感度：
+	</text>
+	<check_box label="上下を反転" name="invert_mouse"/>
+	<text name=" Auto Fly Options:">
+		自動飛行オプション：
+	</text>
+	<check_box label="上下矢印キーの長押しで飛行／着地" name="automatic_fly"/>
+	<text name=" Camera Options:">
+		カメラ・オプション：
+	</text>
+	<text name="camera_fov_label">
+		カメラ視野角：
+	</text>
+	<text name="Camera Follow Distance:">
+		カメラ追従距離：
+	</text>
+	<check_box label="編集カメラの自動移動" name="edit_camera_movement" tool_tip="編集モードの開始、終了時はカメラ自動位置調整を使用"/>
+	<check_box label="容姿カメラの自動移動" name="appearance_camera_movement" tool_tip="編集モードでは、カメラ自動位置調整を使用"/>
+	<text name="text2">
+		アバター表示：
+	</text>
+	<check_box label="アバターを一人称視点（マウスルック）で表示" name="first_person_avatar_visible"/>
+	<button label="ジョイスティック設定" name="joystick_setup_button"/>
+</panel>

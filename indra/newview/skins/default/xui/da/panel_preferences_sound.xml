@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Lyd &amp; video" name="Preference Media panel">
+	<slider label="Generel" name="System Volume"/>
+	<slider label="Omgivelser" name="Wind Volume"/>
+	<slider label="Effekter" name="SFX Volume"/>
+	<slider label="Media" name="Media Volume"/>
+	<slider label="Brugerflade" name="UI Volume"/>
+	<slider label="Musik" name="Music Volume"/>
+	<slider label="Tale" name="Voice Volume"/>
+	<text_editor name="voice_unavailable">
+		Stemme chat er ikke tilgængelig
+	</text_editor>
+	<check_box label="Aktivér stemme chat" name="enable_voice_check"/>
+	<radio_group name="ear_location">
+		<radio_item name="0" label="Hør stemmer fra kamera position" />
+		<radio_item name="1" label="Hør stemmer fra avatar position" />
+	</radio_group>
+	<button label="Enheds Indstillinger" name="device_settings_btn"/>
+	<text name="muting_text">
+		Lydstyrke:
+	</text>
+	<text name="streaming_prefs_text">
+		Streaming indstillinger:
+	</text>
+	<text name="audio_prefs_text">
+		Lyd indstillinger:
+	</text>
+	<panel label="Lydstyrke" name="Volume Panel" />
+	<check_box label="Afspil musik når det er muligt"
+	     name="streaming_music" />
+	<check_box label="Afspil video når det er muligt"
+	     name="streaming_video" />
+	<check_box label="Afspil automatisk medie" name="auto_streaming_video" />
+	<check_box label="Sluk lyd når vinduet er minimeret" name="mute_when_minimized" />
+	<slider label="Doppler effekt" name="Doppler Effect" />
+	<slider label="Rækkevidde" name="Distance Factor" />
+	<slider label="Styrkefald/afstand" name="Rolloff Factor" />
+	<spinner label="Penge lydstyrke" name="L$ Change Threshold" />
+	<spinner label="Livspoint lydstyrke" name="Health Change Threshold" />
+</panel>

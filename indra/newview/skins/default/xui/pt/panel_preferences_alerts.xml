@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Popups" name="popups" title="Popups">
+	<text name="dont_show_label">
+		Não mostrar estas popups:
+	</text>
+	<button label="Habilitar esta popup" label_selected="Habilitar este popup" name="enable_popup"/>
+	<button label="Habilitar todas as popups..." label_selected="Reiniciar Dialogos que serão mostrados na próxima vez..." name="reset_dialogs_btn" tool_tip="Habilitar todas as popups opcionais e notificações de “primeiro uso”." width="200"/>
+	<text name="show_label">
+		Mostrar estas popups:
+	</text>
+	<button label="Desabilitar todas estas popups..." name="skip_dialogs_btn" tool_tip="Desabilitar todas as popups opcionais e notificações de “primeiro uso”." width="200"/>
+	<text name="text_box2">
+		Ofertas de notecards, texturas e landmarks:
+	</text>
+	<check_box label="Aceitar automaticamente" name="accept_new_inventory"/>
+	<check_box label="Visualizar automaticamente após aceitar" name="show_new_inventory"/>
+	<check_box label="Mostrar automaticamente objetos aceitos recentemente no inventário." name="show_in_inventory"/>
+</panel>

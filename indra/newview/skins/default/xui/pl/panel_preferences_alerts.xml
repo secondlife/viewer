@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel label="Informacje" name="popups" title="Popups">
+	<text name="dont_show_label">
+		Ukryj te informacje:
+	</text>
+	<button label="Pokazuj Tę Informację" name="enable_popup" />
+	<button label="Pokazuj Wszystko..." name="reset_dialogs_btn"
+	     tool_tip="Wyświetlaj wszystkie opcjonalne i &apos;Użyte pierwszy raz&apos; informacje." />
+	<text name="show_label">
+		Pokazuj te informacje:
+	</text>
+	<button label="Ukryj Tę Informację..." name="skip_dialogs_btn"
+	     tool_tip="Nie wyświetlaj żadnych opcjonalnych i &apos;Użyte pierwszy raz&apos; informacji" />
+	<text name="text_box2">
+		Oferty notek, obrazów i miejsc (LM):
+	</text>
+	<check_box label="Akceptuj automatycznie" name="accept_new_inventory" />
+	<check_box label="Wyświetlaj automatycznie po akceptacji" name="show_new_inventory" />
+	<check_box label="Automatycznie pokazuj nowe obiekty w szafie po akceptacji"
+	     name="show_in_inventory" />
+</panel>
