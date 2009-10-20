@@ -250,7 +250,7 @@ void LLMediaDataClient::Responder::error(U32 status, const std::string& reason)
 /*virtual*/
 void LLMediaDataClient::Responder::result(const LLSD& content)
 {
-	LL_INFOS("LLMediaDataClient") << *mRequest << "result : " << ll_pretty_print_sd(content) << LL_ENDL;
+	LL_INFOS("LLMediaDataClient") << *mRequest << "result : " << ll_print_sd(content) << LL_ENDL;
 }
 
 
@@ -524,7 +524,7 @@ void LLObjectMediaDataClient::updateMedia(LLMediaDataClientObject *object)
 	}
 	sd_payload[LLTextureEntry::OBJECT_MEDIA_DATA_KEY] = object_media_data;
 		
-	LL_INFOS("LLMediaDataClient") << "update media data: " << object->getID() << " " << ll_pretty_print_sd(sd_payload) << LL_ENDL;
+	LL_INFOS("LLMediaDataClient") << "update media data: " << object->getID() << " " << ll_print_sd(sd_payload) << LL_ENDL;
 	
 	request(object, sd_payload);
 }
@@ -536,7 +536,7 @@ void LLObjectMediaDataClient::Responder::result(const LLSD& content)
 	llassert(type == LLMediaDataClient::Request::GET || type == LLMediaDataClient::Request::UPDATE)
 	if (type == LLMediaDataClient::Request::GET)
 	{
-		LL_INFOS("LLMediaDataClient") << *(getRequest()) << "GET returned: " << ll_pretty_print_sd(content) << LL_ENDL;
+		LL_INFOS("LLMediaDataClient") << *(getRequest()) << "GET returned: " << ll_print_sd(content) << LL_ENDL;
 		
 		// Look for an error
 		if (content.has("error"))
@@ -614,7 +614,7 @@ void LLObjectMediaNavigateClient::Responder::error(U32 status, const std::string
 /*virtual*/
 void LLObjectMediaNavigateClient::Responder::result(const LLSD& content)
 {
-	LL_DEBUGS("LLMediaDataClient") << *(getRequest()) << " NAVIGATE returned " << ll_pretty_print_sd(content) << LL_ENDL;
+	LL_INFOS("LLMediaDataClient") << *(getRequest()) << " NAVIGATE returned " << ll_print_sd(content) << LL_ENDL;
 	
 	if (content.has("error"))
 	{
