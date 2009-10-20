@@ -157,6 +157,7 @@ namespace tut
 	template<> template<>
 	void host_object::test<9>()
 	{
+		skip("setHostByName(\"google.com\"); getHostName() -> (e.g.) \"yx-in-f100.1e100.net\"");
 		std::string hostStr = "google.com";		
 		LLHost host;
 		host.setHostByName(hostStr);	
@@ -166,11 +167,6 @@ namespace tut
 		// the main domain name and not do the exact compare
 		
 		std::string hostname = host.getHostName();
-/*==========================================================================*|
-		// nat 2009-10-20: not sure this ensure() is such a good idea, at
-		// least with "google.com". The logic below is failing for me with:
-		// set 'google.com'; reported 'yx-in-f100.1e100.net'
-		// Disabling test until we can replace it with something more robust.
 		try
 		{
 			ensure("getHostName failed", hostname.find(hostStr) != std::string::npos);
@@ -180,7 +176,6 @@ namespace tut
 			std::cerr << "set '" << hostStr << "'; reported '" << hostname << "'" << std::endl;
 			throw;
 		}
-|*==========================================================================*/
 	}
 
 //	setHostByName for dotted IP
