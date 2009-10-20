@@ -18,7 +18,7 @@
      left_delta="7"
      left="0"
      name="chat_box"
-     tool_tip="Press Enter to say, Ctrl+Enter to shout."
+     tool_tip="Press Enter to say, Ctrl+Enter to shout"
      top="3"
      width="250" />
     <output_monitor
@@ -41,7 +41,8 @@
      layout="topleft" 
      left_pad="5"
      label="Log" 
-     height="20">
+     height="20"
+     tool_tip="Shows/hides nearby chat log">
     <button.commit_callback function="Floater.Toggle" parameter="nearby_chat"/>
     </button>
     <chiclet_talk
@@ -54,7 +55,9 @@
      left_pad="5"
      name="talk"
      top="3"
-     width="100" />
+     width="100"
+     speak_button.tool_tip="Turns microphone on/off"
+     show_button.tool_tip="Shows/hides voice control panel" />
     <gesture_combo_box
       follows="right"
      height="20"
@@ -63,5 +66,6 @@
      name="Gesture"
      left_pad="5"
      top="3"
-     width="90" />
+     width="90"
+     tool_tip="Shows/hides gestures" />
 </panel>

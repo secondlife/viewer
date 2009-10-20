@@ -79,7 +79,7 @@
              label="Move"
              layout="topleft"
              name="movement_btn"
-             tool_tip="Shows/Hide Movement controls" 
+             tool_tip="Shows/hides movement controls" 
              top="6"
              width="70">
                 <button.init_callback
@@ -116,7 +116,7 @@
              label="View"
              layout="topleft"
              left="0"
-             tool_tip="Shows/Hide Camera controls" 
+             tool_tip="Shows/hides camera controls" 
              top="6"
              name="camera_btn"
              width="70">
@@ -167,12 +167,12 @@
                  image_disabled_selected="camera_presets/camera_presets_arrow_right.png" 
                  image_disabled="camera_presets/camera_presets_arrow_right.png"
                  name="snapshot_settings"
-                 tool_tip="Snapshot Settings" />
+                 tool_tip="Snapshot settings" />
                 <split_button.item
                  image_selected="camera_presets/camera_presets_snapshot.png"
                  image_unselected="camera_presets/camera_presets_snapshot.png"
                  name="snapshot"
-                 tool_tip="Take Snapshot" />
+                 tool_tip="Take snapshot" />
             </split_button>                  
         </layout_panel>
         <layout_panel

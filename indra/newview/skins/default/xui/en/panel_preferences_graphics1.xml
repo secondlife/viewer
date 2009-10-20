@@ -26,7 +26,7 @@
      height="16"
      label="Use fullscreen"
      layout="topleft"
-     left_delta="30"
+     left_delta="50"
      name="windowed mode"
      top_pad="4"
      width="175">
@@ -103,7 +103,7 @@
      increment="0.025"
      initial_value="1"
      layout="topleft"
-     left_delta="32"
+     left_delta="52"
      max_val="1.4"
      min_val="0.75"
      name="ui_scale_slider"
@@ -304,7 +304,7 @@
 		layout="topleft"
 		left_delta="0"
 		name="BasicShaders"
-		tool_tip="Disabling this option may prevent some graphics card drivers from crashing."
+		tool_tip="Disabling this option may prevent some graphics card drivers from crashing"
 		top_pad="1"
 		width="315">
 			<check_box.commit_callback

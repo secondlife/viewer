@@ -405,7 +405,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      layout="topleft"
      left_pad="0"
      name="preview_base_anim"
-     tool_tip="Use this to test your animation behavior while your avatar performs common actions">
+     tool_tip="Use this to test your animation behavior while your avatar performs common actions.">
         <combo_box.item
          label="Standing"
          name="Standing" />
