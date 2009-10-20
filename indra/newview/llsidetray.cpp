@@ -209,11 +209,6 @@ void LLSideTrayTab::reshape		(S32 width, S32 height, BOOL called_from_parent )
 void LLSideTrayTab::draw()
 {
 	LLPanel::draw();
-
-	//border
-	gl_rect_2d(0,0,getRect().getWidth() - 1,getRect().getHeight() - 1,LLColor4::black,false);
-
-
 }
 
 void	LLSideTrayTab::onOpen		(const LLSD& key)
