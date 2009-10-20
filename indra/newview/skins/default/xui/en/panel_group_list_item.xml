@@ -31,33 +31,44 @@
      follows="top|left"
      height="20"
      image_name="Generic_Group"
+     name="group_icon"
      layout="topleft"
      left="5"
      mouse_opaque="true"
-     name="group_icon"
-     top="4"
+     top="2"
      width="20" />
-    <text
+   <text
      follows="left|right"
      font="SansSerifSmall"
-     height="17"
+     height="15"
      layout="topleft"
      left_pad="5"
      name="group_name"
-     top="7"
+     top="6"
      use_ellipses="true"
      value="Unknown"
-     width="263" />
+     width="246" />
     <button
      follows="right"
      height="16"
      image_pressed="Info_Press"
      image_hover="Info_Over"
      image_unselected="Info_Off"
-     layout="topleft"
+     left_pad="3"
+     right="-25"
      name="info_btn"
      picture_style="true"
+     width="16" />
+    <button
+     follows="right"
+     height="16"
+      image_selected="BuyArrow_Press"
+     image_pressed="BuyArrow_Press"
+     image_unselected="BuyArrow_Press"
+     layout="topleft"
+     left_pad="5"
      right="-5"
-     top="4"
+     name="profile_btn"
+     picture_style="true"
      width="16" />
 </panel>
