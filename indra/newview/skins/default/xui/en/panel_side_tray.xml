@@ -20,7 +20,6 @@
         name="panel_home"
         filename="panel_sidetray_home_tab.xml"
         label="home"
-        border="true"
       />
   </sidetray_tab>
 
@@ -42,20 +41,17 @@
         class="panel_people"
         name="panel_people"
         filename="panel_people.xml"
-        border="true"
       />
       <panel
         class="panel_profile_view"
         name="panel_profile_view"
         filename="panel_profile_view.xml"
-        border="true"
       />
       <panel
         class="panel_group_info_sidetray"
         name="panel_group_info_sidetray"
         filename="panel_group_info_sidetray.xml"
         label="Group Info"
-        border="true"
         font="SansSerifBold"
       />
       <panel
@@ -63,7 +59,6 @@
         name="panel_block_list_sidetray"
         filename="panel_block_list_sidetray.xml"
         label="Blocked Residents &amp; Objects"
-        border="true"
         font="SansSerifBold"
       />
 
@@ -84,7 +79,6 @@
         name="panel_places"
         filename="panel_places.xml"
         label="Places"
-        border="true"
         font="SansSerifBold"
       />
   </sidetray_tab>
@@ -103,7 +97,6 @@
         name="panel_me_profile"
         filename="panel_me_profile.xml"
         label="Me"
-        border="true"
       />
   </sidetray_tab>
 
@@ -121,7 +114,6 @@
         class="panel_appearance"
         name="panel_appearance"
         filename="panel_appearance.xml"
-        border="true"
         label="Edit Appearance"
         font="SansSerifBold"
       />

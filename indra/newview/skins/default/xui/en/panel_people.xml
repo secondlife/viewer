@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- Side tray panel -->
 <panel
 background_visible="true"
- draw_border="false"
  follows="all"
  height="570"
  label="People"
@@ -10,7 +10,6 @@ background_visible="true"
  name="people_panel"
  top="0"
  left="0"
- bevel_style="none"
  width="333">
     <string
      name="no_people"
