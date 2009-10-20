@@ -166,7 +166,21 @@ namespace tut
 		// the main domain name and not do the exact compare
 		
 		std::string hostname = host.getHostName();
-		ensure("getHostName failed", hostname.find(hostStr) != std::string::npos);
+/*==========================================================================*|
+		// nat 2009-10-20: not sure this ensure() is such a good idea, at
+		// least with "google.com". The logic below is failing for me with:
+		// set 'google.com'; reported 'yx-in-f100.1e100.net'
+		// Disabling test until we can replace it with something more robust.
+		try
+		{
+			ensure("getHostName failed", hostname.find(hostStr) != std::string::npos);
+		}
+		catch (const std::exception&)
+		{
+			std::cerr << "set '" << hostStr << "'; reported '" << hostname << "'" << std::endl;
+			throw;
+		}
+|*==========================================================================*/
 	}
 
 //	setHostByName for dotted IP

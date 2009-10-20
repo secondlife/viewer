@@ -56,6 +56,8 @@ public:
 	static void clearValues( bool editable);
 	void enableOkApplyBtns( bool enable );
 	LLPanelMediaSettingsSecurity* getPanelSecurity(){return mPanelMediaSettingsSecurity;};
+	const std::string getHomeUrl();
+	bool passesWhiteList( const std::string& test_url );
 
 	bool mIdenticalHasMediaInfo;
 	bool mMultipleMedia;

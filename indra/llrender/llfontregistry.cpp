@@ -380,7 +380,10 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 	LLFontDescriptor nearest_exact_desc = *match_desc;
 	nearest_exact_desc.setSize(norm_desc.getSize());
 	font_reg_map_t::iterator it = mFontMap.find(nearest_exact_desc);
-	if (it != mFontMap.end())
+	// If we fail to find a font in the fonts directory, it->second might be NULL.
+	// We shouldn't construcnt a font with a NULL mFontFreetype.
+	// This may not be the best solution, but it at least prevents a crash.
+	if (it != mFontMap.end() && it->second != NULL)
 	{
 		llinfos << "-- matching font exists: " << nearest_exact_desc.getName() << " size " << nearest_exact_desc.getSize() << " style " << ((S32) nearest_exact_desc.getStyle()) << llendl;
 		

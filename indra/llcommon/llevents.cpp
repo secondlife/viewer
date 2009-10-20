@@ -38,6 +38,12 @@
 #pragma warning (pop)
 #endif
 // other Linden headers
+#include "stringize.h"
+#include "llerror.h"
+#include "llsdutil.h"
+#if LL_MSVC
+#pragma warning (disable : 4702)
+#endif
 
 /*****************************************************************************
 *   queue_names: specify LLEventPump names that should be instantiated as
@@ -56,14 +62,12 @@ const char* queue_names[] =
 /*****************************************************************************
 *   If there's a "mainloop" pump, listen on that to flush all LLEventQueues
 *****************************************************************************/
-struct RegisterFlush
+struct RegisterFlush : public LLEventTrackable
 {
     RegisterFlush():
-        pumps(LLEventPumps::instance()),
-        mainloop(pumps.obtain("mainloop")),
-        name("flushLLEventQueues")
+        pumps(LLEventPumps::instance())
     {
-        mainloop.listen(name, boost::bind(&RegisterFlush::flush, this, _1));
+        pumps.obtain("mainloop").listen("flushLLEventQueues", boost::bind(&RegisterFlush::flush, this, _1));
     }
     bool flush(const LLSD&)
     {
@@ -72,11 +76,9 @@ struct RegisterFlush
     }
     ~RegisterFlush()
     {
-        mainloop.stopListening(name);
+        // LLEventTrackable handles stopListening for us.
     }
     LLEventPumps& pumps;
-    LLEventPump& mainloop;
-    const std::string name;
 };
 static RegisterFlush registerFlush;
 
@@ -255,6 +257,12 @@ LLEventPump::~LLEventPump()
 
 // static data member
 const LLEventPump::NameList LLEventPump::empty;
+
+std::string LLEventPump::inventName(const std::string& pfx)
+{
+    static long suffix = 0;
+    return STRINGIZE(pfx << suffix++);
+}
 
 LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventListener& listener,
                                          const NameList& after,
@@ -498,4 +506,27 @@ bool LLListenerOrPumpName::operator()(const LLSD& event) const
         throw Empty("attempting to call uninitialized");
     }
     return (*mListener)(event);
+}
+
+void LLReqID::stamp(LLSD& response) const
+{
+    if (! (response.isUndefined() || response.isMap()))
+    {
+        // If 'response' was previously completely empty, it's okay to
+        // turn it into a map. If it was already a map, then it should be
+        // okay to add a key. But if it was anything else (e.g. a scalar),
+        // assigning a ["reqid"] key will DISCARD the previous value,
+        // replacing it with a map. That would be Bad.
+        LL_INFOS("LLReqID") << "stamp(" << mReqid << ") leaving non-map response unmodified: "
+                            << response << LL_ENDL;
+        return;
+    }
+    LLSD oldReqid(response["reqid"]);
+    if (! (oldReqid.isUndefined() || llsd_equals(oldReqid, mReqid)))
+    {
+        LL_INFOS("LLReqID") << "stamp(" << mReqid << ") preserving existing [\"reqid\"] value "
+                            << oldReqid << " in response: " << response << LL_ENDL;
+        return;
+    }
+    response["reqid"] = mReqid;
 }

@@ -64,7 +64,7 @@ public:
 };
 
 template <typename HASH_KEY_TYPE, int TABLE_SIZE>
-class LLSimpleHash
+class LL_COMMON_API LLSimpleHash
 {
 public:
 	LLSimpleHash()

@@ -32,6 +32,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llagent.h"
 #include "llpanelmediasettingsgeneral.h"
 #include "llcombobox.h"
 #include "llcheckboxctrl.h"
@@ -48,6 +49,7 @@
 #include "llmediaentry.h"
 #include "llmediactrl.h"
 #include "llpanelcontents.h"
+#include "llpermissions.h"
 #include "llpluginclassmedia.h"
 #include "llfloatermediasettings.h"
 #include "llfloatertools.h"
@@ -161,8 +163,7 @@ void LLPanelMediaSettingsGeneral::draw()
 	// current URL can change over time.
 //	updateCurrentURL();
 
-	// enable/disable RESRET button depending on permissions
-	// since this is the same as a navigate action
+	LLPermissions perm;
 	bool user_can_press_reset = mMediaEditable;
 
 	// several places modify this widget so we must collect states in one place
@@ -353,6 +354,16 @@ void LLPanelMediaSettingsGeneral::onClose(bool app_quitting)
 void LLPanelMediaSettingsGeneral::onCommitHomeURL( LLUICtrl* ctrl, void *userdata )
 {
 	LLPanelMediaSettingsGeneral* self =(LLPanelMediaSettingsGeneral *)userdata;
+
+	// check url user is trying to enter for home URL will pass whitelist 
+	// and decline to accept it if it doesn't.
+	std::string home_url = self->mHomeURL->getValue().asString();
+	if ( ! self->mParent->passesWhiteList( home_url ) )
+	{
+		LLNotifications::instance().add("WhiteListInvalidatesHomeUrl");		
+		return;
+	};
+	
 	self->updateMediaPreview();
 }
 
@@ -388,8 +399,7 @@ void LLPanelMediaSettingsGeneral::getValues( LLSD &fill_me_in )
     fill_me_in[LLMediaEntry::AUTO_SCALE_KEY] = mAutoScale->getValue();
     fill_me_in[LLMediaEntry::AUTO_ZOOM_KEY] = mAutoZoom->getValue();
     fill_me_in[LLMediaEntry::CONTROLS_KEY] = mControls->getCurrentIndex();
-    // XXX Don't send current URL!
-    //fill_me_in[LLMediaEntry::CURRENT_URL_KEY] = mCurrentURL->getValue();
+    fill_me_in[LLMediaEntry::CURRENT_URL_KEY] = mCurrentURL->getValue();
     fill_me_in[LLMediaEntry::HEIGHT_PIXELS_KEY] = mHeightPixels->getValue();
     fill_me_in[LLMediaEntry::HOME_URL_KEY] = mHomeURL->getValue();
     fill_me_in[LLMediaEntry::FIRST_CLICK_INTERACT_KEY] = mFirstClick->getValue();
@@ -436,5 +446,12 @@ bool LLPanelMediaSettingsGeneral::navigateHomeSelectedFace()
 	selected_objects->getSelectedTEValue( &functor_navigate_media, all_face_media_navigated );
 	
 	return all_face_media_navigated;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+const std::string LLPanelMediaSettingsGeneral::getHomeUrl()
+{
+	return mHomeURL->getValue().asString(); 
 }
 
