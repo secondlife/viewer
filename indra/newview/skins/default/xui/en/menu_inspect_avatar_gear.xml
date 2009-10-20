@@ -64,30 +64,27 @@
   </menu_item_call>  
   <menu_item_call
    label="Freeze"
-   layout="topleft"
    name="freeze">
     <menu_item_call.on_click
      function="InspectAvatar.Freeze"/>
     <menu_item_call.on_visible
-     function="InspectAvatar.VisibleGodMode"/>
+     function="IsGodCustomerService"/>
   </menu_item_call>
   <menu_item_call
    label="Eject"
-   layout="topleft"
    name="eject">
     <menu_item_call.on_click
      function="InspectAvatar.Eject"/>
     <menu_item_call.on_visible
-     function="InspectAvatar.VisibleGodMode"/>
+     function="IsGodCustomerService"/>
   </menu_item_call>
   <menu_item_call
    label="Debug"
-   layout="topleft"
    name="debug">
     <menu_item_call.on_click
      function="InspectAvatar.Debug"/>
     <menu_item_call.on_visible
-     function="InspectAvatar.VisibleGodMode"/>
+     function="IsGodCustomerService"/>
   </menu_item_call>
   <menu_item_call
    label="Find On Map"

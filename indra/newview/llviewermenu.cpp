@@ -1634,16 +1634,6 @@ class LLAdvancedToggleCharacterGeometry : public view_listener_t
 }
 };
 
-class LLEnableGodCustomerService : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-{
-		bool new_value = enable_god_customer_service(NULL);
-		return new_value;
-	}
-};
-
-
 
 	/////////////////////////////
 // TEST MALE / TEST FEMALE //
@@ -4029,7 +4019,7 @@ void handle_god_request_avatar_geometry(void *)
 {
 	if (gAgent.isGodlike())
 	{
-		LLSelectMgr::getInstance()->sendGodlikeRequest("avatar toggle", NULL);
+		LLSelectMgr::getInstance()->sendGodlikeRequest("avatar toggle", "");
 	}
 }
 
@@ -6802,7 +6792,7 @@ BOOL enable_god_liaison(void*)
 	return gAgent.getGodLevel() >= GOD_LIAISON;
 }
 
-BOOL enable_god_customer_service(void*)
+bool is_god_customer_service()
 {
 	return gAgent.getGodLevel() >= GOD_CUSTOMER_SERVICE;
 }
@@ -7746,8 +7736,10 @@ void initialize_menus()
 	LLUICtrl::CommitCallbackRegistry::Registrar& commit = LLUICtrl::CommitCallbackRegistry::currentRegistrar();
 	LLUICtrl::VisibleCallbackRegistry::Registrar& visible = LLUICtrl::VisibleCallbackRegistry::currentRegistrar();
 	
-	// Enable God Mode
-	view_listener_t::addMenu(new LLEnableGodCustomerService(), "EnableGodCustomerService");
+	// Generic enable and visible
+	// Don't prepend MenuName.Foo because these can be used in any menu.
+	enable.add("IsGodCustomerService", boost::bind(&is_god_customer_service));
+	visible.add("IsGodCustomerService", boost::bind(&is_god_customer_service));
 
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));

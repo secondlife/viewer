@@ -2998,7 +2998,7 @@
                     <menu_item_call.on_click
                      function="Advanced.ToggleCharacterGeometry" />
                     <menu_item_call.on_enable
-                     function="EnableGodCustomerService" />
+                     function="IsGodCustomerService" />
                 </menu_item_call>
                 <menu_item_call
                  label="Test Male"
@@ -3251,7 +3251,7 @@
                 <menu_item_call.on_click
                  function="Admin.ForceTakeCopy" />
                 <menu_item_call.on_enable
-                 function="EnableGodCustomerService" />
+                 function="IsGodCustomerService" />
             </menu_item_call>
             <menu_item_call
              label="Force Owner To Me"
@@ -3260,7 +3260,7 @@
                 <menu_item_call.on_click
                  function="Admin.HandleObjectOwnerSelf" />
                 <menu_item_call.on_enable
-                 function="EnableGodCustomerService" />
+                 function="IsGodCustomerService" />
             </menu_item_call>
             <menu_item_call
              label="Force Owner Permissive"
@@ -3269,7 +3269,7 @@
                 <menu_item_call.on_click
                  function="Admin.HandleObjectOwnerPermissive" />
                 <menu_item_call.on_enable
-                 function="EnableGodCustomerService" />
+                 function="IsGodCustomerService" />
             </menu_item_call>
             <menu_item_call
              label="Delete"
@@ -3279,7 +3279,7 @@
                 <menu_item_call.on_click
                  function="Admin.HandleForceDelete" />
                 <menu_item_call.on_enable
-                 function="EnableGodCustomerService" />
+                 function="IsGodCustomerService" />
             </menu_item_call>
             <menu_item_call
              label="Lock"
@@ -3289,7 +3289,7 @@
                 <menu_item_call.on_click
                  function="Admin.HandleObjectLock" />
                 <menu_item_call.on_enable
-                 function="EnableGodCustomerService" />
+                 function="IsGodCustomerService" />
             </menu_item_call>
             <menu_item_call
              label="Get Assets IDs"
@@ -3299,7 +3299,7 @@
                 <menu_item_call.on_click
                  function="Admin.HandleObjectAssetIDs" />
                 <menu_item_call.on_enable
-                 function="EnableGodCustomerService" />
+                 function="IsGodCustomerService" />
             </menu_item_call>
         </menu>
         <menu
@@ -3315,7 +3315,7 @@
                 <menu_item_call.on_click
                  function="Admin.HandleForceParcelOwnerToMe" />
                 <menu_item_call.on_enable
-                 function="EnableGodCustomerService" />
+                 function="IsGodCustomerService" />
             </menu_item_call>
             <menu_item_call
              label="Set to Linden Content"
@@ -3325,7 +3325,7 @@
                 <menu_item_call.on_click
                  function="Admin.HandleForceParcelToContent" />
                 <menu_item_call.on_enable
-                 function="EnableGodCustomerService" />
+                 function="IsGodCustomerService" />
             </menu_item_call>
             <menu_item_call
              label="Claim Public Land"
@@ -3334,7 +3334,7 @@
                 <menu_item_call.on_click
                  function="Admin.HandleClaimPublicLand" />
                 <menu_item_call.on_enable
-                 function="EnableGodCustomerService" />
+                 function="IsGodCustomerService" />
             </menu_item_call>
         </menu>
         <menu
@@ -3350,7 +3350,7 @@
                 <menu_item_call.on_click
                  function="Admin.HandleRegionDumpTempAssetData" />
                 <menu_item_call.on_enable
-                 function="EnableGodCustomerService" />
+                 function="IsGodCustomerService" />
             </menu_item_call>
             <menu_item_call
              label="Save Region State"
@@ -3359,7 +3359,7 @@
                 <menu_item_call.on_click
                  function="Admin.OnSaveState" />
                 <menu_item_call.on_enable
-                 function="EnableGodCustomerService" />
+                 function="IsGodCustomerService" />
             </menu_item_call>
         </menu>
         <menu_item_call
@@ -3370,7 +3370,7 @@
              function="Floater.Show"
              parameter="god_tools" />
             <menu_item_call.on_enable
-             function="EnableGodCustomerService" />
+             function="IsGodCustomerService" />
         </menu_item_call>
     </menu>
     <menu

@@ -110,7 +110,6 @@ private:
 	void onClickZoomIn();  
 	void onClickFindOnMap();
 	bool onVisibleFindOnMap();
-	bool onVisibleGodMode();
 	void onClickMuteVolume();
 	void onVolumeChange(const LLSD& data);
 	
@@ -195,7 +194,6 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mCommitCallbackRegistrar.add("InspectAvatar.FindOnMap",	boost::bind(&LLInspectAvatar::onClickFindOnMap, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.ZoomIn", boost::bind(&LLInspectAvatar::onClickZoomIn, this));
 	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleFindOnMap",	boost::bind(&LLInspectAvatar::onVisibleFindOnMap, this));	
-	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleGodMode",	boost::bind(&LLInspectAvatar::onVisibleGodMode, this));	
 
 
 	// can't make the properties request until the widgets are constructed
@@ -451,11 +449,6 @@ void LLInspectAvatar::onClickViewProfile()
 bool LLInspectAvatar::onVisibleFindOnMap()
 {
 	return gAgent.isGodlike() || is_agent_mappable(mAvatarID);
-}
-
-bool LLInspectAvatar::onVisibleGodMode()
-{
-	return gAgent.isGodlike();
 }
 
 void LLInspectAvatar::onClickIM()

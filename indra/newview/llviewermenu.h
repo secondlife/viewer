@@ -84,7 +84,6 @@ void detach_label(std::string& label, const LLSD&);
 void handle_detach(void*);
 BOOL enable_god_full(void* user_data);
 BOOL enable_god_liaison(void* user_data);
-BOOL enable_god_customer_service(void* user_data);
 BOOL enable_god_basic(void* user_data);
 void set_underclothes_menu_options();
 
