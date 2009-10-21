@@ -266,8 +266,10 @@ protected:
  **/
 
 public:
-	/*virtual*/ BOOL	isWearingWearableType(EWearableType type ) const;
+	/*virtual*/ BOOL	isWearingWearableType(EWearableType type) const;
 	void				wearableUpdated(EWearableType type);
+protected:
+	U32 getNumWearables(LLVOAvatarDefines::ETextureIndex i) const;
 
 	//--------------------------------------------------------------------
 	// Attachments
@@ -275,17 +277,18 @@ public:
 public:
 	void 				updateAttachmentVisibility(U32 camera_mode);
 	BOOL 				isWearingAttachment(const LLUUID& inv_item_id, BOOL include_linked_items = FALSE) const;
-	LLViewerObject* 	getWornAttachment(const LLUUID& inv_item_id );
+	LLViewerObject* 	getWornAttachment(const LLUUID& inv_item_id);
 	const std::string   getAttachedPointName(const LLUUID& inv_item_id) const;
 	/*virtual*/ const LLViewerJointAttachment *attachObject(LLViewerObject *viewer_object);
+	/*virtual*/ BOOL 	detachObject(LLViewerObject *viewer_object);
 	void				getAllAttachmentsArray(LLDynamicArray<S32>& attachments);
+protected:
+	const LLUUID&		getBaseAttachmentObject(const LLUUID &object_id) const;
 
 	//--------------------------------------------------------------------
 	// HUDs
 	//--------------------------------------------------------------------
 private:
-	U32 getNumWearables(LLVOAvatarDefines::ETextureIndex i) const;
-
 	LLViewerJoint* 		mScreenp; // special purpose joint for HUD attachments
 	
 /**                    Attachments

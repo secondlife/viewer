@@ -649,7 +649,7 @@ public:
 public:
 	void 				clampAttachmentPositions();
 	virtual const LLViewerJointAttachment* attachObject(LLViewerObject *viewer_object);
-	BOOL 				detachObject(LLViewerObject *viewer_object);
+	virtual BOOL 		detachObject(LLViewerObject *viewer_object);
 	static LLVOAvatar*  findAvatarFromAttachment(LLViewerObject* obj);
 protected:
 	LLViewerJointAttachment* getTargetAttachmentPoint(LLViewerObject* viewer_object);

@@ -966,7 +966,7 @@ void LLAppearanceManager::wearEnsemble( LLInventoryCategory* cat, bool do_update
 }
 
 /* static */
-void LLAppearanceManager::removeItemLinks(LLUUID& item_id, bool do_update)
+void LLAppearanceManager::removeItemLinks(const LLUUID& item_id, bool do_update)
 {
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;

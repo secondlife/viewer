@@ -3818,12 +3818,14 @@ void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 	else if ("detach" == action)
 	{
 		LLInventoryItem* item = gInventory.getItem(mUUID);
-		if( item )
+		// In case we clicked on a link, detach the base object instead of the link.
+		LLInventoryItem* base_item = gInventory.getItem(item->getLinkedUUID());
+		if(base_item)
 		{
 			gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
 			gMessageSystem->nextBlockFast(_PREHASH_ObjectData );
 			gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-			gMessageSystem->addUUIDFast(_PREHASH_ItemID, item->getUUID() );
+			gMessageSystem->addUUIDFast(_PREHASH_ItemID, base_item->getUUID() );
 
 			gMessageSystem->sendReliable( gAgent.getRegion()->getHost() );
 		}

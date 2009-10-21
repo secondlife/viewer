@@ -62,7 +62,7 @@ public:
 	static LLUUID getCOF();
 
 	// Remove COF entries
-	static void removeItemLinks(LLUUID& item_id, bool do_update = true);
+	static void removeItemLinks(const LLUUID& item_id, bool do_update = true);
 
 	// For debugging - could be moved elsewhere.
 	static void dumpCat(const LLUUID& cat_id, std::string str);
