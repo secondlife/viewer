@@ -246,6 +246,10 @@ void LLSysWellWindow::toggleWindow()
 
 	if(!getVisible() || isMinimized())
 	{
+		if(mChannel)
+		{
+			mChannel->removeAndStoreAllStorableToasts();
+		}
 		if(isWindowEmpty())
 		{
 			return;

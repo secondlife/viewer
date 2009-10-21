@@ -70,7 +70,7 @@ const std::string BOTTOM_TRAY_BUTTON_NAME = "movement_btn";
 
 // protected
 LLFloaterMove::LLFloaterMove(const LLSD& key)
-:	LLDockableFloater(NULL, key),
+:	LLTransientDockableFloater(NULL, true, key),
 	mForwardButton(NULL),
 	mBackwardButton(NULL),
 	mTurnLeftButton(NULL), 
@@ -499,6 +499,8 @@ void LLFloaterMove::setDocked(bool docked, bool pop_on_undock/* = true*/)
 	LLDockableFloater::setDocked(docked, pop_on_undock);
 	bool show_mode_buttons = isDocked() || !gAgent.getFlying();
 	updateHeight(show_mode_buttons);
+
+	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
 }
 
 void LLFloaterMove::setModeButtonToggleState(const EMovementMode mode)

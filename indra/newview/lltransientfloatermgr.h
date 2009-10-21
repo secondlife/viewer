@@ -1,10 +1,10 @@
 /** 
- * @file llrootview.h
- * @brief Mother of all Views
+ * @file lltransientfloatermgr.h
+ * @brief LLFocusMgr base class
  *
- * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
- * Copyright (c) 2001-2009, Linden Research, Inc.
+ * Copyright (c) 2002-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,44 +30,34 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLROOTVIEW_H
-#define LL_LLROOTVIEW_H
+#ifndef LL_LLTRANSIENTFLOATERMGR_H
+#define LL_LLTRANSIENTFLOATERMGR_H
 
-#include "llview.h"
-#include "lluictrlfactory.h"
+#include "llui.h"
+#include "llsingleton.h"
+#include "llfloater.h"
 
-class LLRootViewRegistry : public LLChildRegistry<LLRootViewRegistry>
-{};
 
-class LLRootView : public LLView
+/**
+ * Provides functionality to hide transient floaters.
+ */
+class LLTransientFloaterMgr: public LLSingleton<LLTransientFloaterMgr>
 {
 public:
-	typedef LLRootViewRegistry child_registry_t;
+	LLTransientFloaterMgr();
+	void registerTransientFloater(LLFloater* floater);
+	void unregisterTransientFloater(LLFloater* floater);
+	void addControlView(LLView* view);
+	void removeControlView(LLView* view);
 
-	LLRootView(const Params& p)
-	:	LLView(p)
-	{}
+private:
+	void hideTransientFloaters();
+	void leftMouseClickCallback(S32 x, S32 y, MASK mask);
 
-	// added to provide possibility to handle mouse click event inside all application
-	// window without creating any floater
-	typedef boost::signals2::signal<void(S32 x, S32 y, MASK mask)>
-			mouse_signal_t;
-
-	private:
-		mouse_signal_t mMouseDownSignal;
-
-	public:
-	/*virtual*/
-	BOOL handleMouseDown(S32 x, S32 y, MASK mask)
-	{
-		mMouseDownSignal(x, y, mask);
-		return LLView::handleMouseDown(x, y, mask);
-	}
-
-	boost::signals2::connection addMouseDownCallback(
-			const mouse_signal_t::slot_type& cb)
-	{
-		return mMouseDownSignal.connect(cb);
-	}
+private:
+	std::set<LLFloater*> mTransSet;
+	typedef std::set<LLView*> controls_set_t;
+	controls_set_t mControlsSet;
 };
-#endif //LL_LLROOTVIEW_H
+
+#endif  // LL_LLTRANSIENTFLOATERMGR_H

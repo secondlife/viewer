@@ -1,5 +1,5 @@
 /** 
- * @file lldockcontrol.h
+ * @file lltransientdockablefloater.h
  * @brief Creates a panel of a specific kind for a toast.
  *
  * $LicenseInfo:firstyear=2003&license=viewergpl$
@@ -30,64 +30,28 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_DOCKCONTROL_H
-#define LL_DOCKCONTROL_H
+#ifndef LL_TRANSIENTDOCKABLEFLOATER_H
+#define LL_TRANSIENTDOCKABLEFLOATER_H
 
 #include "llerror.h"
-#include "llview.h"
 #include "llfloater.h"
-#include "lluiimage.h"
+#include "lldockcontrol.h"
+#include "lldockablefloater.h"
 
 /**
- * Provides services for docking of specified floater.
- * This class should be used in case impossibility deriving from LLDockableFloater.
+ * Represents floater that can dock and managed by transient floater manager.
+ * Transient floaters should be hidden if user click anywhere except defined view list.
  */
-class LLDockControl
+class LLTransientDockableFloater : public LLDockableFloater
 {
 public:
-	enum DocAt
-	{
-		TOP
-	};
+	LOG_CLASS(LLTransientDockableFloater);
+	LLTransientDockableFloater(LLDockControl* dockControl, bool uniqueDocking,
+			const LLSD& key, const Params& params = getDefaultParams());
+	virtual ~LLTransientDockableFloater();
 
-public:
-	// callback for a function getting a rect valid for control's position
-	typedef boost::function<void (LLRect& )> get_allowed_rect_callback_t;
-
-	LOG_CLASS(LLDockControl);
-	LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
-			const LLUIImagePtr& dockTongue, DocAt dockAt, get_allowed_rect_callback_t get_rect_callback = NULL);
-	virtual ~LLDockControl();
-
-public:
-	void on();
-	void off();
-	void setDock(LLView* dockWidget);
-	LLView* getDock()
-	{
-		return mDockWidget;
-	}
-	void repositionDockable();
-	void drawToungue();
-	bool isDockVisible();
-
-	// gets a rect that bounds possible positions for a dockable control (EXT-1111)
-	void getAllowedRect(LLRect& rect);
-
-private:
-	virtual void moveDockable();
-private:
-	get_allowed_rect_callback_t mGetAllowedRectCallback;
-	bool mEnabled;
-	bool mRecalculateDocablePosition;
-	DocAt mDockAt;
-	LLView* mDockWidget;
-	LLRect mPrevDockRect;
-	LLRect mRootRect;
-	LLFloater* mDockableFloater;
-	LLUIImagePtr mDockTongue;
-	S32 mDockTongueX;
-	S32 mDockTongueY;
+	/*virtual*/ void setVisible(BOOL visible);
+	/* virtual */void setDocked(bool docked, bool pop_on_undock = true);
 };
 
-#endif /* LL_DOCKCONTROL_H */
+#endif /* LL_TRANSIENTDOCKABLEFLOATER_H */

@@ -412,6 +412,8 @@ set(viewer_SOURCE_FILES
     lltoolselectland.cpp
     lltoolselectrect.cpp
     lltracker.cpp
+    lltransientdockablefloater.cpp
+    lltransientfloatermgr.cpp
     lluploaddialog.cpp
     llurl.cpp
     llurldispatcher.cpp
@@ -878,6 +880,8 @@ set(viewer_HEADER_FILES
     lltoolselectland.h
     lltoolselectrect.h
     lltracker.h
+    lltransientdockablefloater.h
+    lltransientfloatermgr.h
     lluiconstants.h
     lluploaddialog.h
     llurl.h

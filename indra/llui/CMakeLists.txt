@@ -86,7 +86,6 @@ set(llui_SOURCE_FILES
     lltextbox.cpp
     lltexteditor.cpp
     lltextparser.cpp
-    lltransientfloatermgr.cpp
     lltransutil.cpp
     lltoggleablemenu.cpp
     lltooltip.cpp
@@ -176,7 +175,6 @@ set(llui_HEADER_FILES
     lltextparser.h
     lltoggleablemenu.h
     lltooltip.h
-    lltransientfloatermgr.h
     lltransutil.h
     lluicolortable.h
     lluiconstants.h

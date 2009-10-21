@@ -33,7 +33,7 @@
 #ifndef LL_IMFLOATER_H
 #define LL_IMFLOATER_H
 
-#include "lldockablefloater.h"
+#include "lltransientdockablefloater.h"
 #include "lllogchat.h"
 
 class LLLineEditor;
@@ -45,7 +45,7 @@ class LLViewerTextEditor;
  * Individual IM window that appears at the bottom of the screen,
  * optionally "docked" to the bottom tray.
  */
-class LLIMFloater : public LLDockableFloater
+class LLIMFloater : public LLTransientDockableFloater
 {
 public:
 	LLIMFloater(const LLUUID& session_id);

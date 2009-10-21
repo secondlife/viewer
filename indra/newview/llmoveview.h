@@ -34,7 +34,7 @@
 #define LL_LLMOVEVIEW_H
 
 // Library includes
-#include "lldockablefloater.h"
+#include "lltransientdockablefloater.h"
 
 class LLButton;
 class LLJoystickAgentTurn;
@@ -44,7 +44,7 @@ class LLJoystickAgentSlide;
 // Classes
 //
 class LLFloaterMove
-:	public LLDockableFloater
+:	public LLTransientDockableFloater
 {
 	friend class LLFloaterReg;
 

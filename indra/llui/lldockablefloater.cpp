@@ -99,7 +99,7 @@ void LLDockableFloater::toggleInstance(const LLSD& sdname)
 	{
 		instance->setMinimized(FALSE);
 		instance->setVisible(TRUE);
-		instance->setFocus(TRUE);
+		gFloaterView->bringToFront(instance);
 	}
 }
 
@@ -139,6 +139,16 @@ void LLDockableFloater::setMinimized(BOOL minimize)
 	setCanDock(!minimize);
 
 	LLFloater::setMinimized(minimize);
+}
+
+LLView * LLDockableFloater::getDockWidget()
+{
+	LLView * res = NULL;
+	if (getDockControl() != NULL) {
+		res = getDockControl()->getDock();
+	}
+
+	return res;
 }
 
 void LLDockableFloater::onDockHidden()
