@@ -1508,14 +1508,28 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 		objectp = gInventory.getObject(id);
 		if (objectp)
 		{		
+			const LLUUID &parent_id = objectp->getParentUUID();
+			// If this item's parent is the starting folder, then just add it to the top level (recall that 
+			// the starting folder isn't actually represented in the view, parent_folder would be NULL in
+			// this case otherwise).
+			LLFolderViewFolder* parent_folder = (parent_id == mStartFolderID ?
+				mFolders : (LLFolderViewFolder*)mFolders->getItemByID(parent_id));
+
+			// This item exists outside the inventory's hierarchy, so don't add it.
+			if (!parent_folder)
+			{
+				return;
+			}
+
 			if (objectp->getType() <= LLAssetType::AT_NONE ||
 				objectp->getType() >= LLAssetType::AT_COUNT)
 			{
-				llwarns << "LLInventoryPanel::buildNewViews called with objectp->mType == " 
-						<< ((S32) objectp->getType())
-						<< " (shouldn't happen)" << llendl;
+				llwarns << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : " << 
+					((S32) objectp->getType()) << llendl;
+				return;
 			}
-			else if (objectp->getType() == LLAssetType::AT_CATEGORY &&
+			
+			if (objectp->getType() == LLAssetType::AT_CATEGORY &&
 					 objectp->getActualType() != LLAssetType::AT_LINK_FOLDER) 
 			{
 				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(objectp->getType(),
@@ -1563,27 +1577,7 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 
 			if (itemp)
 			{
-				
-				const LLUUID &parent_id = objectp->getParentUUID();
-				LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)mFolders->getItemByID(parent_id);
-
-				// If this item's parent is the starting folder, then just add it to the top level (recall that 
-				// the starting folder isn't actually represented in the view, parent_folder would be NULL in
-				// this case otherwise).
-				if (parent_id == mStartFolderID)
-				{
-					parent_folder = mFolders;
-				}
-
-				if (parent_folder)
-				{
-					itemp->addToFolder(parent_folder, mFolders);
-				}
-				else
-				{
-					llwarns << "Couldn't find parent folder for child " << itemp->getLabel() << llendl;
-					delete itemp;
-				}
+				itemp->addToFolder(parent_folder, mFolders);
 			}
 		}
 	}
