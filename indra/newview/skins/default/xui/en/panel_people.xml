@@ -68,6 +68,7 @@ background_visible="true"
             <avatar_list
              follows="all"
              height="470"
+             ignore_online_status="true"
              layout="topleft"
              left="0"
              name="avatar_list"

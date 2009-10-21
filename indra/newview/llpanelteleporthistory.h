@@ -57,7 +57,7 @@ public:
 		LLContextMenu* createMenu();
 		void onTeleport();
 		void onInfo();
-		void onCopy();
+		void onCopyToClipboard();
 
 		static void gotSLURLCallback(const std::string& slurl);
 
@@ -90,7 +90,8 @@ private:
 
 	void refresh();
 	void getNextTab(const LLDate& item_date, S32& curr_tab, LLDate& tab_date);
-	void onTeleportHistoryChange();
+	void onTeleportHistoryChange(S32 removed_index);
+	void replaceItem(S32 removed_index);
 	void showTeleportHistory();
 	void handleItemSelect(LLFlatListView* );
 	LLFlatListView* getFlatListViewFromTab(LLAccordionCtrlTab *);

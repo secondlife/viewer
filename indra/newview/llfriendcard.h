@@ -72,6 +72,12 @@ public:
 	bool isItemInAnyFriendsList(const LLViewerInventoryItem* item);
 
 	/**
+	 *	Checks if specified category is contained in the Calling Card/Friends folder and 
+	 *	determines if specified Inventory Object exists in that category.
+	 */
+	bool isObjDirectDescendentOfCategory(const LLInventoryObject* obj, const LLViewerInventoryCategory* cat) const;
+
+	/**
 	 *	Checks is the specified category is in the Calling Card/Friends folder
 	 */
 	bool isCategoryInFriendFolder(const LLViewerInventoryCategory* cat) const;

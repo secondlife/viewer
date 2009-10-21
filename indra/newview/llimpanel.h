@@ -250,8 +250,6 @@ public:
 	EInstantMessage getDialogType() const { return mDialog; }
 	void setDialogType(EInstantMessage dialog) { mDialog = dialog; }
 
-	void requestAutoConnect();
-
 	void sessionInitReplyReceived(const LLUUID& im_session_id);
 
 	// Handle other participant in the session typing.

@@ -83,13 +83,20 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	}
 }
 
+void LLIMFloater::onFocusLost()
+{
+	LLIMModel::getInstance()->resetActiveSessionID();
+}
+
+void LLIMFloater::onFocusReceived()
+{
+	LLIMModel::getInstance()->setActiveSessionID(mSessionID);
+}
+
 // virtual
 void LLIMFloater::onClose(bool app_quitting)
 {
-	LLIMModel::instance().sendLeaveSession(mSessionID, mOtherParticipantUUID);
-
-	//*TODO - move to the IMModel::sendLeaveSession() for the integrity (IB)
-	gIMMgr->removeSession(mSessionID);
+	gIMMgr->leaveSession(mSessionID);
 }
 
 /* static */
@@ -111,6 +118,23 @@ void LLIMFloater::newIMCallback(const LLSD& data){
 		{
 			floater->updateMessages();
 		}
+	}
+}
+
+void LLIMFloater::onVisibilityChange(const LLSD& new_visibility)
+{
+	bool visible = new_visibility.asBoolean();
+
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
+
+	if (visible && voice_channel &&
+		voice_channel->getState() == LLVoiceChannel::STATE_CONNECTED)
+	{
+		LLFloaterReg::showInstance("voice_call", mSessionID);
+	}
+	else
+	{
+		LLFloaterReg::hideInstance("voice_call", mSessionID);
 	}
 }
 

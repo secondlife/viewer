@@ -43,7 +43,7 @@ using namespace LLNotificationsUI;
 //--------------------------------------------------------------------------
 LLToast::LLToast(LLToast::Params p) :	LLModalDialog(LLSD(), p.is_modal),
 										mPanel(p.panel), 
-										mTimerValue(p.timer_period),  
+										mToastLifetime(p.lifetime_secs),  
 										mNotificationID(p.notif_id),  
 										mSessionID(p.session_id),
 										mCanFade(p.can_fade),
@@ -103,22 +103,22 @@ void LLToast::setAndStartTimer(F32 period)
 {
 	if(mCanFade)
 	{
-		mTimerValue = period;
+		mToastLifetime = period;
 		mTimer.start();
 	}
 }
 
 //--------------------------------------------------------------------------
-bool LLToast::timerHasExpired()
+bool LLToast::lifetimeHasExpired()
 {
 	if (mTimer.getStarted())
 	{
 		F32 elapsed_time = mTimer.getElapsedTimeF32();
-		if (elapsed_time > gSavedSettings.getS32("ToastOpaqueTime")) 
+		if ((mToastLifetime - elapsed_time) <= gSavedSettings.getS32("ToastOpaqueTime")) 
 		{
 			setBackgroundOpaque(FALSE);
 		}
-		if (elapsed_time > mTimerValue) 
+		if (elapsed_time > mToastLifetime) 
 		{
 			return true;
 		}
@@ -183,7 +183,7 @@ void LLToast::insertPanel(LLPanel* panel)
 //--------------------------------------------------------------------------
 void LLToast::draw()
 {
-	if(timerHasExpired())
+	if(lifetimeHasExpired())
 	{
 		tick();
 	}

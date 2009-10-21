@@ -64,7 +64,7 @@ public:
 	void setStatus(const std::string& status);
 	void setOnline(bool online);
 	void setName(const std::string& name);
-	void setAvatarId(const LLUUID& id);
+	void setAvatarId(const LLUUID& id, bool ignore_status_changes = false);
 	
 	const LLUUID& getAvatarId() const;
 	const std::string getAvatarName() const;

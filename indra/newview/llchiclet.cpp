@@ -861,7 +861,8 @@ void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 BOOL LLChicletPanel::postBuild()
 {
 	LLPanel::postBuild();
-	LLIMModel::instance().addChangedCallback(boost::bind(im_chiclet_callback, this, _1));
+	LLIMModel::instance().addNewMsgCallback(boost::bind(im_chiclet_callback, this, _1));
+	LLIMModel::instance().addNoUnreadMsgsCallback(boost::bind(im_chiclet_callback, this, _1));
 	LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLChicletPanel::findChiclet<LLChiclet>, this, _1));
 
 	return TRUE;

@@ -338,6 +338,7 @@ set(viewer_SOURCE_FILES
     llpanelteleporthistory.cpp
     llpanelvolume.cpp
     llparcelselection.cpp
+    llparticipantlist.cpp
     llpatchvertexarray.cpp
     llplacesinventorybridge.cpp
     llpolymesh.cpp
@@ -803,6 +804,7 @@ set(viewer_HEADER_FILES
     llpanelteleporthistory.h
     llpanelvolume.h
     llparcelselection.h
+    llparticipantlist.h
     llpatchvertexarray.h
     llplacesinventorybridge.h
     llpolymesh.h

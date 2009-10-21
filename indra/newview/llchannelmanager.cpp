@@ -128,7 +128,7 @@ void LLChannelManager::onLoginCompleted()
 	mStartUpChannel->setShowToasts(true);
 
 	mStartUpChannel->setCommitCallback(boost::bind(&LLChannelManager::onStartUpToastClose, this));
-	mStartUpChannel->createStartUpToast(away_notifications, gSavedSettings.getS32("ChannelBottomPanelMargin"), gSavedSettings.getS32("StartUpToastTime"));
+	mStartUpChannel->createStartUpToast(away_notifications, gSavedSettings.getS32("ChannelBottomPanelMargin"), gSavedSettings.getS32("StartUpToastLifeTime"));
 }
 
 //--------------------------------------------------------------------------

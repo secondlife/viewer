@@ -528,7 +528,7 @@ LLSysWellWindow::RowPanel::~RowPanel()
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::RowPanel::onClosePanel()
 {
-	gIMMgr->removeSession(mChiclet->getSessionId());
+	gIMMgr->leaveSession(mChiclet->getSessionId());
 	// This row panel will be removed from the list in LLSysWellWindow::sessionRemoved().
 }
 

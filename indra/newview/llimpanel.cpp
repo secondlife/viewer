@@ -1586,9 +1586,7 @@ void LLFloaterIMPanel::onClose(bool app_quitting)
 {
 	setTyping(FALSE);
 
-	LLIMModel::instance().sendLeaveSession(mSessionUUID, mOtherParticipantUUID);
-
-	gIMMgr->removeSession(mSessionUUID);
+	gIMMgr->leaveSession(mSessionUUID);
 
 	// *HACK hide the voice floater
 	LLFloaterReg::hideInstance("voice_call", mSessionUUID);

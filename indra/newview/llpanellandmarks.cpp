@@ -458,20 +458,8 @@ void LLLandmarksPanel::initListCommandsHandlers()
 
 void LLLandmarksPanel::updateListCommands()
 {
-	// TODO: should be false when "Received" folder is selected
-	bool add_folder_enabled = mCurrentSelectedList == mLandmarksInventoryPanel;
-	bool trash_enabled = false; // TODO: should be false when "Received" folder is selected
-
-	LLFolderViewItem* current_item = getCurSelectedItem();
-
-	if (current_item)
-	{
-		LLFolderViewEventListener* listenerp = current_item->getListener();
-		if (listenerp->getInventoryType() == LLInventoryType::IT_LANDMARK)
-		{
-			trash_enabled = mCurrentSelectedList != mLibraryInventoryPanel;
-		}
-	}
+	bool add_folder_enabled = isActionEnabled("category");
+	bool trash_enabled = isActionEnabled("delete");
 
 	// keep Options & Add Landmark buttons always enabled
 	mListCommands->childSetEnabled(ADD_FOLDER_BUTTON_NAME, add_folder_enabled);
@@ -635,7 +623,13 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 
 	if("category" == command_name)
 	{
-		return mCurrentSelectedList == mLandmarksInventoryPanel; 
+		// we can add folder only in Landmarks Accordion
+		if (mCurrentSelectedList == mLandmarksInventoryPanel)
+		{
+			// ... but except Received folder
+			return !isReceivedFolderSelected();
+		}
+		else return false;
 	}
 	else if("paste" == command_name || "rename" == command_name || "cut" == command_name || "delete" == command_name)
 	{
@@ -649,11 +643,6 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	else if ("teleport" == command_name || "more_info" == command_name)
 	{
 		return rootFolderView->getSelectedCount() == 1;
-	}
-	// we can add folder, or change item/folder only in Landmarks Accordion
-	else if ("add_folder" == command_name)
-	{
-		return mLandmarksInventoryPanel == mCurrentSelectedList;
 	}
 	else
 	{

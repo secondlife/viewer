@@ -63,7 +63,7 @@ public:
 		LLUUID				notif_id;	 //notification ID
 		LLUUID				session_id;	 //im session ID
 		LLNotificationPtr	notification;
-		F32					timer_period;
+		F32					lifetime_secs;
 		toast_callback_t	on_delete_toast;
 		toast_callback_t	on_mouse_enter;
 		bool				can_fade;
@@ -82,7 +82,7 @@ public:
 					force_show(false),
 					force_store(false),
 					panel(NULL),
-					timer_period(gSavedSettings.getS32("NotificationToastTime"))
+					lifetime_secs(gSavedSettings.getS32("NotificationToastLifeTime"))
 
 		{};
 	};
@@ -153,7 +153,7 @@ public:
 private:
 
 	// check timer
-	bool	timerHasExpired();
+	bool	lifetimeHasExpired();
 	// on timer finished function
 	void	tick();
 
@@ -161,8 +161,9 @@ private:
 	LLUUID				mSessionID;
 	LLNotificationPtr	mNotification;
 
+	// timer counts a lifetime of a toast
 	LLTimer		mTimer;
-	F32			mTimerValue;
+	F32			mToastLifetime; // in seconds
 
 	LLPanel*	mPanel;
 	LLButton*	mHideBtn;

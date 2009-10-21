@@ -93,14 +93,12 @@ void LLTeleportHistoryStorage::onTeleportHistoryChange()
 
 	addItem(item.mTitle, item.mGlobalPos);
 	save();
-
-	mHistoryChangedSignal();
 }
 
 void LLTeleportHistoryStorage::purgeItems()
 {
 	mItems.clear();
-	mHistoryChangedSignal();
+	mHistoryChangedSignal(-1);
 }
 
 void LLTeleportHistoryStorage::addItem(const std::string title, const LLVector3d& global_pos)
@@ -116,15 +114,16 @@ bool LLTeleportHistoryStorage::compareByTitleAndGlobalPos(const LLTeleportHistor
 
 void LLTeleportHistoryStorage::addItem(const std::string title, const LLVector3d& global_pos, const LLDate& date)
 {
-
 	LLTeleportHistoryPersistentItem item(title, global_pos, date);
 
 	slurl_list_t::iterator item_iter = std::find_if(mItems.begin(), mItems.end(),
 							    boost::bind(&LLTeleportHistoryStorage::compareByTitleAndGlobalPos, this, _1, item));
 
 	// If there is such item already, remove it, since new item is more recent
+	S32 removed_index = -1;
 	if (item_iter != mItems.end())
 	{
+		removed_index = item_iter - mItems.begin();
 		mItems.erase(item_iter);
 	}
 
@@ -141,9 +140,12 @@ void LLTeleportHistoryStorage::addItem(const std::string title, const LLVector3d
 		// If second to last item is more recent than last, then resort items
 		if (item_iter->mDate > item.mDate)
 		{
+			removed_index = -1;
 			std::sort(mItems.begin(), mItems.end(), LLSortItemsByDate());
 		}
 	}
+
+	mHistoryChangedSignal(removed_index);
 }
 
 void LLTeleportHistoryStorage::removeItem(S32 idx)
@@ -211,6 +213,8 @@ void LLTeleportHistoryStorage::load()
 	file.close();
 
 	std::sort(mItems.begin(), mItems.end(), LLSortItemsByDate());
+
+	mHistoryChangedSignal(-1);
 }
 
 void LLTeleportHistoryStorage::dump() const
@@ -234,7 +238,6 @@ boost::signals2::connection LLTeleportHistoryStorage::setHistoryChangedCallback(
 }
 
 void LLTeleportHistoryStorage::goToItem(S32 idx)
-
 {
 	// Validate specified index.
 	if (idx < 0 || idx >= (S32)mItems.size())

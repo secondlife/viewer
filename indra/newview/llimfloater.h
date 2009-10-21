@@ -84,7 +84,12 @@ public:
 	// called when docked floater's position has been set by chiclet
 	void setPositioned(bool b) { mPositioned = b; };
 
+	void onVisibilityChange(const LLSD& new_visibility);
+
 private:
+	// process focus events to set a currently active session
+	/* virtual */ void onFocusLost();
+	/* virtual */ void onFocusReceived();
 	
 	static void		onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata );
 	static void		onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);

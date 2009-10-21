@@ -315,6 +315,7 @@ public:
 	virtual BOOL isItemMovable() const ;
 	virtual BOOL isUpToDate() const;
 	virtual BOOL isItemCopyable() const;
+	virtual BOOL isClipboardPasteable() const;
 	virtual BOOL isClipboardPasteableAsLink() const;
 	virtual BOOL copyToClipboard() const;
 	

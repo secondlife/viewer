@@ -180,7 +180,7 @@ void LLAvatarListItem::setName(const std::string& name)
 	mAvatarName->setToolTip(name);
 }
 
-void LLAvatarListItem::setAvatarId(const LLUUID& id)
+void LLAvatarListItem::setAvatarId(const LLUUID& id, bool ignore_status_changes)
 {
 	if (mAvatarId.notNull())
 		LLAvatarTracker::instance().removeParticularFriendObserver(mAvatarId, this);
@@ -190,7 +190,7 @@ void LLAvatarListItem::setAvatarId(const LLUUID& id)
 	mSpeakingIndicator->setSpeakerId(id);
 
 	// We'll be notified on avatar online status changes
-	if (mAvatarId.notNull())
+	if (!ignore_status_changes && mAvatarId.notNull())
 		LLAvatarTracker::instance().addParticularFriendObserver(mAvatarId, this);
 
 	// Set avatar name.
