@@ -640,13 +640,18 @@ void LLViewerMediaImpl::emitEvent(LLPluginClassMedia* plugin, LLViewerMediaObser
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMediaImpl::initializeMedia(const std::string& mime_type)
 {
-	if((mMediaSource == NULL) || (mMimeType != mime_type))
+	bool mimeTypeChanged = (mMimeType != mime_type);
+	bool pluginChanged = (LLMIMETypes::implType(mMimeType) != LLMIMETypes::implType(mime_type));
+	
+	if(!mMediaSource || pluginChanged)
 	{
-		if(! initializePlugin(mime_type))
-		{
-			// This may be the case where the plugin's priority is PRIORITY_UNLOADED
-			return false;
-		}
+		// We don't have a plugin at all, or the new mime type is handled by a different plugin than the old mime type.
+		(void)initializePlugin(mime_type);
+	}
+	else if(mimeTypeChanged)
+	{
+		// The same plugin should be able to handle the new media -- just update the stored mime type.
+		mMimeType = mime_type;
 	}
 
 	// play();
