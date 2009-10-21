@@ -1794,7 +1794,7 @@ void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
     }
 }
 
-bool LLVOVolume::hasNavigatePermission(const LLMediaEntry* media_entry)
+bool LLVOVolume::hasMediaPermission(const LLMediaEntry* media_entry, MediaPermType perm_type)
 {
     // NOTE: This logic duplicates the logic in the server (in particular, in llmediaservice.cpp).
     if (NULL == media_entry ) return false; // XXX should we assert here?
@@ -1810,7 +1810,7 @@ bool LLVOVolume::hasNavigatePermission(const LLMediaEntry* media_entry)
         return true;
     }
     
-    U8 media_perms = media_entry->getPermsInteract();
+    U8 media_perms = (perm_type == INTERACT) ? media_entry->getPermsInteract() : media_entry->getPermsControl();
     
     // World permissions
     if (0 != (media_perms & LLMediaEntry::PERM_ANYONE)) 
@@ -1855,7 +1855,7 @@ void LLVOVolume::mediaNavigated(LLViewerMediaImpl *impl, LLPluginClassMedia* plu
 		{
 			block_navigation = true;
 		}
-		if (!block_navigation && !hasNavigatePermission(mep))
+		if (!block_navigation && !hasMediaPermission(mep, INTERACT))
 		{
 			block_navigation = true;
 		}

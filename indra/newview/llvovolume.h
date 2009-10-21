@@ -242,8 +242,12 @@ public:
     // Bounce back media at the given index to its current URL (or home URL, if current URL is empty)
 	void mediaNavigateBounceBack(U8 texture_index);
     
-    // Returns whether or not this object has permission to navigate the given media entry
-    bool hasNavigatePermission(const LLMediaEntry* media_entry);
+    // Returns whether or not this object has permission to navigate or control 
+	// the given media entry
+	enum MediaPermType {
+		INTERACT, CONTROL
+	};
+    bool hasMediaPermission(const LLMediaEntry* media_entry, MediaPermType perm_type);
     
 	void mediaNavigated(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, std::string new_location);
 	void mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, LLViewerMediaObserver::EMediaEvent event);
