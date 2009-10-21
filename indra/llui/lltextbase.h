@@ -157,6 +157,7 @@ public:
 
 	S32						getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const;
 	LLRect					getLocalRectFromDocIndex(S32 pos) const;
+	LLRect					getDocRectFromDocIndex(S32 pos) const;
 
 	void					setReadOnly(bool read_only) { mReadOnly = read_only; }
 	bool					getReadOnly() { return mReadOnly; }
@@ -458,7 +459,7 @@ public:
 class LLInlineViewSegment : public LLTextSegment
 {
 public:
-	LLInlineViewSegment(LLView* widget, S32 start, S32 end, bool force_new_line);
+	LLInlineViewSegment(LLView* widget, S32 start, S32 end, bool force_new_line, S32 hpad = 0, S32 vpad = 0);
 	~LLInlineViewSegment();
 	/*virtual*/ void		getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	/*virtual*/ S32			getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
@@ -469,6 +470,8 @@ public:
 	/*virtual*/ void		linkToDocument(class LLTextBase* editor);
 
 private:
+	S32 mHPad;
+	S32 mVPad;
 	LLView* mView;
 	bool	mForceNewLine;
 };

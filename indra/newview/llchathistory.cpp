@@ -101,12 +101,12 @@ void LLChatHistory::appendWidgetMessage(const LLUUID& avatar_id, std::string& fr
 	if (mLastFromName == from)
 	{
 		view = getSeparator();
-		view_text = "\n";
+		view_text = " ";
 	}
 	else
 	{
 		view = getHeader(avatar_id, from, time);
-		view_text = from + MESSAGE_USERNAME_DATE_SEPARATOR + time;
+		view_text = "\n" + from + MESSAGE_USERNAME_DATE_SEPARATOR + time;
 	}
 	//Prepare the rect for the view
 	LLRect target_rect = getDocumentView()->getRect();
@@ -115,12 +115,12 @@ void LLChatHistory::appendWidgetMessage(const LLUUID& avatar_id, std::string& fr
 	view->reshape(target_rect.getWidth(), view->getRect().getHeight());
 	view->setOrigin(target_rect.mLeft, view->getRect().mBottom);
 
-	this->appendWidget(view, view_text, FALSE, TRUE);
+	appendWidget(view, view_text, FALSE, TRUE, mLeftWidgetPad, 0);
 
 	//Append the text message
-	this->appendText(message, TRUE, style_params);
+	appendText(message, TRUE, style_params);
 
 	mLastFromName = from;
-	this->blockUndo();
-	this->setCursorAndScrollToEnd();
+	blockUndo();
+	setCursorAndScrollToEnd();
 }
