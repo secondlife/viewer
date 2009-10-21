@@ -60,6 +60,11 @@ typedef std::vector<LLTexLayerParamAlpha *> param_alpha_list_t;
 typedef std::vector<LLTexLayerParamColorInfo *> param_color_info_list_t;
 typedef std::vector<LLTexLayerParamAlphaInfo *> param_alpha_info_list_t;
 
+
+//-----------------------------------------------------------------------------
+// LLTexLayerInterface
+// Interface class to generalize functionality shared by LLTexLayer and LLTexLayerTemplate.
+
 class LLTexLayerInterface 
 {
 public:
@@ -256,7 +261,7 @@ public:
 	void					deleteCaches();
 	void					gatherMorphMaskAlpha(U8 *data, S32 width, S32 height);
 	void					applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components);
-	LLTexLayerInterface*	findLayerByName(std::string name);
+	LLTexLayerInterface*	findLayerByName(const std::string& name);
 	void					cloneTemplates(LLLocalTextureObject *lto, LLVOAvatarDefines::ETextureIndex tex_index, LLWearable* wearable);
 	
 	LLVOAvatarSelf*		    getAvatar()	const { return mAvatar; }

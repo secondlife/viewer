@@ -3978,32 +3978,32 @@ void LLVOAvatar::updateTextures(LLAgent &agent)
 	mMaxPixelArea = 0.f;
 	mMinPixelArea = 99999999.f;
 	mHasGrey = FALSE; // debug
-	for (U32 texture = 0; texture < getNumTEs(); texture++)
+	for (U32 texture_index = 0; texture_index < getNumTEs(); texture_index++)
 	{
-		EWearableType wearable_type = LLVOAvatarDictionary::getTEWearableType((ETextureIndex)texture);
+		EWearableType wearable_type = LLVOAvatarDictionary::getTEWearableType((ETextureIndex)texture_index);
 		U32 num_wearables = gAgentWearables.getWearableCount(wearable_type);
-		const LLTextureEntry *te = getTE(texture);
+		const LLTextureEntry *te = getTE(texture_index);
 		const F32 texel_area_ratio = fabs(te->mScaleS * te->mScaleT);
 		LLViewerFetchedTexture *imagep = NULL;
 		for (U32 wearable_index = 0; wearable_index < num_wearables; wearable_index++)
 		{
-			imagep = LLViewerTextureManager::staticCastToFetchedTexture(getImage(texture, wearable_index), TRUE);
+			imagep = LLViewerTextureManager::staticCastToFetchedTexture(getImage(texture_index, wearable_index), TRUE);
 			if (imagep)
 			{
-				const LLVOAvatarDictionary::TextureEntry *texture_dict = LLVOAvatarDictionary::getInstance()->getTexture((ETextureIndex)texture);
+				const LLVOAvatarDictionary::TextureEntry *texture_dict = LLVOAvatarDictionary::getInstance()->getTexture((ETextureIndex)texture_index);
 				const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
 				if (texture_dict->mIsLocalTexture)
 				{
-					addLocalTextureStats((ETextureIndex)texture, imagep, texel_area_ratio, render_avatar, layer_baked[baked_index]);
+					addLocalTextureStats((ETextureIndex)texture_index, imagep, texel_area_ratio, render_avatar, layer_baked[baked_index]);
 				}
 			}
 		}
-		if (isIndexBakedTexture((ETextureIndex) texture))
+		if (isIndexBakedTexture((ETextureIndex) texture_index))
 		{
 			const S32 boost_level = getAvatarBakedBoostLevel();
-			imagep = LLViewerTextureManager::staticCastToFetchedTexture(getImage(texture,0), TRUE);
+			imagep = LLViewerTextureManager::staticCastToFetchedTexture(getImage(texture_index,0), TRUE);
 			// Spam if this is a baked texture, not set to default image, without valid host info
-			if (isIndexBakedTexture((ETextureIndex)texture)
+			if (isIndexBakedTexture((ETextureIndex)texture_index)
 				&& imagep->getID() != IMG_DEFAULT_AVATAR
 				&& !imagep->getTargetHost().isOk())
 			{
@@ -6028,7 +6028,7 @@ void LLVOAvatar::setLocalTexture( ETextureIndex type, LLViewerTexture* in_tex, B
 }
 
 //virtual 
-void	LLVOAvatar::setBakedReady(LLVOAvatarDefines::ETextureIndex type, BOOL baked_version_exists, U32 index)
+void LLVOAvatar::setBakedReady(LLVOAvatarDefines::ETextureIndex type, BOOL baked_version_exists, U32 index)
 {
 	// invalid for anyone but self
 	llassert(0);
@@ -6793,7 +6793,7 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 				 local_tex_iter != baked_dict->mLocalTextures.end();
 				 local_tex_iter++)
 			{
-				this->setBakedReady(*local_tex_iter, TRUE);
+				setBakedReady(*local_tex_iter, TRUE);
 			}
 
 			// ! BACKWARDS COMPATIBILITY !

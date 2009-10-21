@@ -84,7 +84,7 @@ public:
 	LLLocalTextureObject*		getLocalTextureObject(S32 index) const;
 
 public:
-	typedef std::vector<LLVisualParam*> visualParamCluster_t;
+	typedef std::vector<LLVisualParam*> visual_param_vec_t;
 
 	BOOL				isDirty() const;
 	BOOL				isOldVersion() const;
@@ -118,19 +118,19 @@ public:
 	void 				setVisualParamWeight(S32 index, F32 value, BOOL set_by_user);
 	F32					getVisualParamWeight(S32 index) const;
 	LLVisualParam*		getVisualParam(S32 index) const;
-	void				getVisualParams(visualParamCluster_t &list);
+	void				getVisualParams(visual_param_vec_t &list);
 
-	LLColor4			getClothesColor(S32 te);
+	LLColor4			getClothesColor(S32 te) const;
 	void 				setClothesColor( S32 te, const LLColor4& new_color, BOOL set_by_user );
 
 	void				revertValues();
 
-	BOOL				isOnTop();
+	BOOL				isOnTop() const;
 
 
 private:
 	typedef std::map<S32, LLLocalTextureObject*> te_map_t;
-	typedef std::map<S32, LLVisualParam *>    VisualParamIndexMap_t;
+	typedef std::map<S32, LLVisualParam *>    visual_param_index_map_t;
 
 	void 				createLayers(S32 te);
 	void 				createVisualParams();
@@ -151,7 +151,7 @@ private:
 	typedef std::map<S32, F32> param_map_t;
 	param_map_t mSavedVisualParamMap; // last saved version of visual params
 
-	VisualParamIndexMap_t mVisualParamIndexMap;
+	visual_param_index_map_t mVisualParamIndexMap;
 
 	te_map_t mTEMap;				// maps TE to LocalTextureObject
 	te_map_t mSavedTEMap;			// last saved version of TEMap

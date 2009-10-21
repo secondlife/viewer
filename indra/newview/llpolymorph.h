@@ -154,7 +154,7 @@ public:
 	//   This sets mInfo and calls initialization functions
 	BOOL					setInfo(LLPolyMorphTargetInfo *info);
 
-	/*virtual*/ LLViewerVisualParam * 	cloneParam(LLWearable* wearable) const;
+	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 
 	// LLVisualParam Virtual functions
 	///*virtual*/ BOOL				parseData(LLXmlTreeNode* node);

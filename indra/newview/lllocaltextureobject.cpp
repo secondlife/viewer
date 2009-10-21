@@ -47,18 +47,18 @@ LLLocalTextureObject::LLLocalTextureObject() :
 	mImage = NULL;
 }
 
-LLLocalTextureObject::LLLocalTextureObject(LLViewerFetchedTexture *image, LLUUID id)
+LLLocalTextureObject::LLLocalTextureObject(LLViewerFetchedTexture* image, LLUUID& id)
 {
 	mImage = image;
 	gGL.getTexUnit(0)->bind(mImage);
 	mID = id;
 }
 
-LLLocalTextureObject::LLLocalTextureObject(const LLLocalTextureObject &lto) :
-mImage(lto.mImage),
-mID(lto.mID),
-mIsBakedReady(lto.mIsBakedReady),
-mDiscard(lto.mDiscard)
+LLLocalTextureObject::LLLocalTextureObject(const LLLocalTextureObject& lto) :
+	mImage(lto.mImage),
+	mID(lto.mID),
+	mIsBakedReady(lto.mIsBakedReady),
+	mDiscard(lto.mDiscard)
 {
 	U32 num_layers = lto.getNumTexLayers();
 	mTexLayers.reserve(num_layers);
@@ -97,7 +97,7 @@ LLTexLayer* LLLocalTextureObject::getTexLayer(U32 index) const
 
 LLTexLayer* LLLocalTextureObject::getTexLayer(const std::string &name)
 {
-	for( tex_layer_p::iterator iter = mTexLayers.begin(); iter != mTexLayers.end(); iter++)
+	for( tex_layer_vec_t::iterator iter = mTexLayers.begin(); iter != mTexLayers.end(); iter++)
 	{
 		LLTexLayer *layer = *iter;
 		if (layer->getName().compare(name) == 0)
@@ -190,7 +190,7 @@ BOOL LLLocalTextureObject::removeTexLayer(U32 index)
 	{
 		return FALSE;
 	}
-	tex_layer_p::iterator iter = mTexLayers.begin();
+	tex_layer_vec_t::iterator iter = mTexLayers.begin();
 	iter += index;
 
 	delete *iter;

@@ -198,8 +198,8 @@ protected:
 private:
 	static void			onLocalTextureLoaded(BOOL succcess, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 
-	/*virtual*/	void				setImage(const U8 te, LLViewerTexture *imagep, const U32 index); 
-	/*virtual*/ LLViewerTexture*		getImage(const U8 te, const U32 index) const;
+	/*virtual*/	void	setImage(const U8 te, LLViewerTexture *imagep, const U32 index); 
+	/*virtual*/ LLViewerTexture* getImage(const U8 te, const U32 index) const;
 
 
 	//--------------------------------------------------------------------
@@ -220,7 +220,6 @@ protected:
 public:
 	void 				requestLayerSetUploads();
 	void				requestLayerSetUpdate(LLVOAvatarDefines::ETextureIndex i);
-public:
 	LLTexLayerSet*		getLayerSet(LLVOAvatarDefines::ETextureIndex index) const;
 	
 	//--------------------------------------------------------------------
@@ -267,8 +266,8 @@ protected:
  **/
 
 public:
-	/*virtual*/ BOOL			isWearingWearableType(EWearableType type ) const;
-	void			wearableUpdated(EWearableType type);
+	/*virtual*/ BOOL	isWearingWearableType(EWearableType type ) const;
+	void				wearableUpdated(EWearableType type);
 
 	//--------------------------------------------------------------------
 	// Attachments

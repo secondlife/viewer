@@ -1078,13 +1078,13 @@ BOOL LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearab
 	mInfo = info;
 	//mID = info->mID; // No ID
 
-		mParamColorList.reserve(mInfo->mParamColorInfoList.size());
+	mParamColorList.reserve(mInfo->mParamColorInfoList.size());
 	for (param_color_info_list_t::const_iterator iter = mInfo->mParamColorInfoList.begin(); 
 		 iter != mInfo->mParamColorInfoList.end(); 
 		 iter++)
 	{
 		LLTexLayerParamColor* param_color;
-			if (!wearable)
+		if (!wearable)
 			{
 				param_color = new LLTexLayerParamColor(this);
 				if (!param_color->setInfo(*iter, TRUE))
@@ -1105,7 +1105,7 @@ BOOL LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearab
 			mParamColorList.push_back( param_color );
 		}
 
-		mParamAlphaList.reserve(mInfo->mParamAlphaInfoList.size());
+	mParamAlphaList.reserve(mInfo->mParamAlphaInfoList.size());
 	for (param_alpha_info_list_t::const_iterator iter = mInfo->mParamAlphaInfoList.begin(); 
 		 iter != mInfo->mParamAlphaInfoList.end(); 
 		 iter++)
@@ -1893,13 +1893,13 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i)
 //-----------------------------------------------------------------------------
 // finds a specific layer based on a passed in name
 //-----------------------------------------------------------------------------
-LLTexLayerInterface*  LLTexLayerSet::findLayerByName(std::string name)
+LLTexLayerInterface*  LLTexLayerSet::findLayerByName(const std::string& name)
 {
 	for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
 	{
 		LLTexLayerInterface* layer = *iter;
 
-		if (layer->getName().compare(name) == 0)
+		if (layer->getName() == name)
 		{
 			return layer;
 		}
@@ -1908,7 +1908,7 @@ LLTexLayerInterface*  LLTexLayerSet::findLayerByName(std::string name)
 	{
 		LLTexLayerInterface* layer = *iter;
 
-		if (layer->getName().compare(name) == 0)
+		if (layer->getName() == name)
 		{
 			return layer;
 		}

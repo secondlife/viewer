@@ -305,7 +305,7 @@ void LLVisualParam::stopAnimating(BOOL set_by_user)
 }
 
 //virtual
-BOOL LLVisualParam::linkDrivenParams(visual_param_mapper mapper, bool only_cross_params)
+BOOL LLVisualParam::linkDrivenParams(visual_param_mapper mapper, BOOL only_cross_params)
 {
 	// nothing to do for non-driver parameters
 	return TRUE;

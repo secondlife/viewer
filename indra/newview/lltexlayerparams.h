@@ -43,8 +43,8 @@ class LLTexLayerParam : public LLViewerVisualParam
 public: 
 	LLTexLayerParam(LLTexLayerInterface *layer);
 	LLTexLayerParam(LLVOAvatar *avatar);
-	/* Virtual */ BOOL setInfo(LLViewerVisualParamInfo *info, BOOL add_to_avatar  );
-	/*virtual*/ LLViewerVisualParam * 	cloneParam(LLWearable* wearable) const = 0;
+	/*virtual*/ BOOL setInfo(LLViewerVisualParamInfo *info, BOOL add_to_avatar  );
+	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const = 0;
 
 protected:
 	LLTexLayerInterface*	mTexLayer;
@@ -61,7 +61,7 @@ public:
 	LLTexLayerParamAlpha( LLVOAvatar* avatar );
 	/*virtual*/ ~LLTexLayerParamAlpha();
 
-	/*virtual*/ LLViewerVisualParam * 	cloneParam(LLWearable* wearable = NULL) const;
+	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable = NULL) const;
 
 	// LLVisualParam Virtual functions
 	///*virtual*/ BOOL		parseData(LLXmlTreeNode* node);
@@ -138,7 +138,7 @@ public:
 	LLTexLayerParamColor( LLVOAvatar* avatar );
 	/* virtual */ ~LLTexLayerParamColor();
 
-	/*virtual*/ LLViewerVisualParam * 	cloneParam(LLWearable* wearable = NULL) const;
+	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable = NULL) const;
 
 	// LLVisualParam Virtual functions
 	///*virtual*/ BOOL			parseData(LLXmlTreeNode* node);

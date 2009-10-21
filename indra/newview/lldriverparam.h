@@ -94,7 +94,7 @@ public:
 	void					setWearable(LLWearable *wearablep);
 	void					setAvatar(LLVOAvatar *avatarp);
 
-	/*virtual*/ LLViewerVisualParam * 	cloneParam(LLWearable* wearable) const;
+	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 
 	// LLVisualParam Virtual functions
 	///*virtual*/ BOOL				parseData(LLXmlTreeNode* node);
@@ -102,7 +102,7 @@ public:
 	/*virtual*/ void				setWeight(F32 weight, BOOL set_by_user);
 	/*virtual*/ void				setAnimationTarget( F32 target_value, BOOL set_by_user );
 	/*virtual*/ void				stopAnimating(BOOL set_by_user);
-	/*virtual*/ BOOL				linkDrivenParams(visual_param_mapper mapper, bool only_cross_params);
+	/*virtual*/ BOOL				linkDrivenParams(visual_param_mapper mapper, BOOL only_cross_params);
 	/*virtual*/ void				resetDrivenParams();
 	
 	// LLViewerVisualParam Virtual functions

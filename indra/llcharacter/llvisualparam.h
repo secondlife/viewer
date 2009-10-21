@@ -96,10 +96,9 @@ protected:
 //-----------------------------------------------------------------------------
 class LLVisualParam
 {
-protected:
-	typedef		boost::function<LLVisualParam*(S32)> visual_param_mapper;
-
 public:
+	typedef	boost::function<LLVisualParam*(S32)> visual_param_mapper;
+
 	LLVisualParam();
 	virtual ~LLVisualParam();
 
@@ -119,7 +118,7 @@ public:
 	virtual void			animate(F32 delta, BOOL set_by_user);
 	virtual void			stopAnimating(BOOL set_by_user);
 
-	virtual BOOL			linkDrivenParams(visual_param_mapper mapper, bool only_cross_params);
+	virtual BOOL			linkDrivenParams(visual_param_mapper mapper, BOOL only_cross_params);
 	virtual void			resetDrivenParams();
 
 	// Interface methods
@@ -161,7 +160,6 @@ protected:
 
 	S32					mID;				// id for storing weight/morphtarget compares compactly
 	LLVisualParamInfo	*mInfo;
-
 };
 
 #endif // LL_LLVisualParam_H
