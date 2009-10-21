@@ -815,6 +815,20 @@ BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MAS
   	// Always handled as far as the OS is concerned.
 	return TRUE;
 }
+
+BOOL LLViewerWindow::handleDrop(LLWindow *window,  LLCoordGL pos, MASK mask, void* data)
+{
+	LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/ );
+
+	LLUUID object_id = pick_info.getObjectID();
+	S32 object_face = pick_info.mObjectFace;
+	std::string url = std::string( (char*)data );
+
+	llinfos << "### Object: picked at " << pos.mX << ", " << pos.mY << " - face = " << object_face << " - URL = " << url << llendl;
+
+  	// Always handled as far as the OS is concerned.
+	return TRUE;
+}
   
 BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
