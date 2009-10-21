@@ -52,7 +52,6 @@
 #include <mapi.h>
 #include <process.h>	// for _spawn
 #include <shellapi.h>
-#include <fstream>
 #include <Imm.h>
 
 // Require DirectInput version 8
@@ -1349,9 +1348,6 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	}
 
 	SetWindowLong(mWindowHandle, GWL_USERDATA, (U32)this);
-
-	// register this window as handling drag/drop events from the OS
-	DragAcceptFiles( mWindowHandle, TRUE );
 	
 	//register joystick timer callback
 	SetTimer( mWindowHandle, 0, 1000 / 30, NULL ); // 30 fps timer
@@ -2337,65 +2333,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			return 0;
 
 		case WM_COPYDATA:
-			{
-				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_COPYDATA");
-				// received a URL
-				PCOPYDATASTRUCT myCDS = (PCOPYDATASTRUCT) l_param;
-				window_imp->mCallbacks->handleDataCopy(window_imp, myCDS->dwData, myCDS->lpData);
-			};
+			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_COPYDATA");
+			// received a URL
+			PCOPYDATASTRUCT myCDS = (PCOPYDATASTRUCT) l_param;
+			window_imp->mCallbacks->handleDataCopy(window_imp, myCDS->dwData, myCDS->lpData);
 			return 0;			
-
-		case WM_DROPFILES:
-			{
-				// HDROP contains what we need
-				HDROP hdrop = (HDROP)w_param;
-
-				// get location in window space where drop occured and convert to OpenGL coordinate space
-				POINT pt;
-				DragQueryPoint( hdrop, &pt );
-				LLCoordGL gl_coord;
-				LLCoordWindow cursor_coord_window( pt.x, pt.y );
-				window_imp->convertCoords(cursor_coord_window, &gl_coord);
-
-				// get payload (eventually, this needs to more advanced and grab size of payload dynamically
-				static char file_name[ 1024 ];
-				DragQueryFileA( hdrop, 0, file_name, 1024 );
-				void* url = (void*)( file_name );
-
-				// if it's a .URL or .lnk ("shortcut") file
-				if ( std::string( file_name ).find( ".lnk" ) != std::string::npos ||
-					  std::string( file_name ).find( ".URL" ) != std::string::npos )
-				{
-					// read through file - looks like a 2 line file with second line URL= but who knows..
-					std::ifstream file_handle( file_name );
-					if ( file_handle.is_open() )
-					{
-						std::string line;
-						while ( ! file_handle.eof() )
-						{
-							std::getline( file_handle, line );
-							if ( ! file_handle.eof() )
-							{
-								std::string prefix( "URL=" );
-								if ( line.find( prefix, 0 ) != std::string::npos )
-								{
-									line = line.substr( 4 );  // skip off the URL= bit
-									strcpy( (char*)url, line.c_str() );
-									break;
-								};
-							};
-						};
-						file_handle.close();
-					};
-				};
-
-				MASK mask = gKeyboard->currentMask(TRUE);
-				if (window_imp->mCallbacks->handleDrop(window_imp, gl_coord, mask, url ) )
-				{
-					return 0;
-				}
-			}
-			break;
 		}
 
 	window_imp->mCallbacks->handlePauseWatchdog(window_imp);	
