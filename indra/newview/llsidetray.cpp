@@ -537,17 +537,15 @@ void LLSideTray::expandSideBar	()
 
 void LLSideTray::highlightFocused()
 {
+	/* uncomment in case something change
 	if(!mActiveTab)
 		return;
-	/* uncomment in case something change
 	BOOL dependent_has_focus = gFocusMgr.childHasKeyboardFocus(this);
 	setBackgroundOpaque( dependent_has_focus ); 
 	mActiveTab->setBackgroundOpaque( dependent_has_focus ); 
 	*/
-	mActiveTab->setBackgroundOpaque( true ); 
-
-	
 }
+
 BOOL	LLSideTray::handleScrollWheel(S32 x, S32 y, S32 mask)
 {
 	BOOL ret = LLPanel::handleScrollWheel(x,y,mask);
@@ -565,6 +563,7 @@ BOOL		LLSideTray::handleMouseDown	(S32 x, S32 y, MASK mask)
 		setFocus(true);	
 	return ret;
 }
+
 void LLSideTray::reshape			(S32 width, S32 height, BOOL called_from_parent)
 {
 	
@@ -675,7 +674,7 @@ void LLSideTray::resetPanelRect	()
 	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
 
 	S32 panel_width = sidetray_params.default_button_width;
-	panel_width += mCollapsed ? sidetray_params.default_button_margin : mMaxBarWidth;
+	panel_width += mCollapsed ? 0 : mMaxBarWidth;
 
 	S32 panel_height = parent_rect.getHeight()-fake_top_offset;
 
@@ -692,7 +691,7 @@ void	LLSideTray::setPanelRect	()
 	const LLRect& parent_rect = gViewerWindow->getRootView()->getRect();
 
 	S32 panel_width = sidetray_params.default_button_width;
-	panel_width += mCollapsed ? sidetray_params.default_button_margin : mMaxBarWidth;
+	panel_width += mCollapsed ? 0 : mMaxBarWidth;
 
 	S32 panel_height = parent_rect.getHeight()-fake_top_offset - nav_rect.getHeight();
 	S32 panel_top = parent_rect.mTop-fake_top_offset - nav_rect.getHeight();
