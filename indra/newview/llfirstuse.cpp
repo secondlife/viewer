@@ -272,6 +272,8 @@ void LLFirstUse::useMedia()
 	{
 		gWarningSettings.setBOOL("FirstMedia", FALSE);
 
-		LLNotifications::instance().add("FirstMedia");
+		// Popup removed as a short-term fix for EXT-1643.
+		// Ultimately, the plan is to kill all First Use dialogs
+		//LLNotifications::instance().add("FirstMedia");
 	}
 }
