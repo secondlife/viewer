@@ -1653,8 +1653,7 @@ void LLViewerMediaImpl::calculateInterest()
 	}
 	else
 	{
-		// I don't think this case should ever be hit.
-		LL_WARNS("Plugin") << "no texture!" << LL_ENDL;
+		// This will be a relatively common case now, since it will always be true for unloaded media.
 		mInterest = 0.0f;
 	}
 }
