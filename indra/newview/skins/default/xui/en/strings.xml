@@ -146,9 +146,9 @@
 	<string name="tga texture">tga texture</string>
 	<string name="body part">body part</string>
 	<string name="snapshot">snapshot</string>
-	<string name="lost and found">lost and found</string>
+	<string name="lost and found">Lost and Found</string>
 	<string name="targa image">targa image</string>
-	<string name="trash">trash</string>
+	<string name="trash">Trash</string>
 	<string name="jpeg image">jpeg image</string>
 	<string name="animation">animation</string>
 	<string name="gesture">gesture</string>
