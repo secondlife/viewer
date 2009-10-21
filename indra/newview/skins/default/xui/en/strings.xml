@@ -16,7 +16,7 @@
 	<string name="StartupLoading">Loading</string>
 
 	<!-- Legacy strings, almost never used -->
-	<string name="Fullbright">Fullbright (Legacy)</string>	
+	<string name="Fullbright">Fullbright (Legacy)</string>	<!-- used in the Build > materials dropdown-->
 
 	<!-- Login -->
 	<string name="LoginInProgress">Logging in. [APP_NAME] may appear frozen.  Please wait.</string>
@@ -130,7 +130,7 @@
 	<string name="AssetErrorPriceMismatch">Viewer and server do not agree on price</string>
 	<string name="AssetErrorUnknownStatus">Unknown status</string>
 	
-	<!-- Asset Type Human Names -->
+	<!-- Asset Type human readable names:  these will replace variable [TYPE] in notification FailedToFindWearable* -->
 	<string name="texture">texture</string>
 	<string name="sound">sound</string>
 	<string name="calling card">calling card</string>
@@ -138,23 +138,23 @@
 	<string name="legacy script">legacy script</string>
 	<string name="clothing">clothing</string>
 	<string name="object">object</string>
-	<string name="note card">note card</string>
+	<string name="note card">notecard</string>
 	<string name="folder">folder</string>
 	<string name="root">root</string>
-	<string name="lsl2 script">lsl2 script</string>
-	<string name="lsl bytecode">lsl bytecode</string>
+	<string name="lsl2 script">LSL2 script</string>
+	<string name="lsl bytecode">LSL bytecode</string>
 	<string name="tga texture">tga texture</string>
-	<string name="body part">body part</string>												
-	<string name="snapshot">snapshot</string>															
-	<string name="lost and found">lost and found</string>																												
-	<string name="targa image">targa image</string>															
-	<string name="trash">trash</string>															
-	<string name="jpeg image">jpeg image</string>															
-	<string name="animation">animation</string>															
-	<string name="gesture">gesture</string>															
-	<string name="simstate">simstate</string>																
-	<string name="favorite">favorite</string>															
-	<string name="symbolic link">link</string>															
+	<string name="body part">body part</string>
+	<string name="snapshot">snapshot</string>
+	<string name="lost and found">lost and found</string>
+	<string name="targa image">targa image</string>
+	<string name="trash">trash</string>
+	<string name="jpeg image">jpeg image</string>
+	<string name="animation">animation</string>
+	<string name="gesture">gesture</string>
+	<string name="simstate">simstate</string>
+	<string name="favorite">favorite</string>
+	<string name="symbolic link">link</string>
 	
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>
