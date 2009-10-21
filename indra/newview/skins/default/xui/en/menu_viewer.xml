@@ -56,7 +56,7 @@
              function="Edit.EnableCustomizeAvatar" />
         </menu_item_call>
         <menu_item_check
-         label="My Things"
+         label="My Inventory"
          layout="topleft"
          name="Inventory"
          shortcut="control|I">
