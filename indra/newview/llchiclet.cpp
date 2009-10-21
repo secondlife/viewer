@@ -468,6 +468,115 @@ void LLIMP2PChiclet::setShowSpeaker(bool show)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+LLAdHocChiclet::Params::Params()
+: avatar_icon("avatar_icon")
+, unread_notifications("unread_notifications")
+, speaker("speaker")
+, show_speaker("show_speaker")
+{
+	// *TODO Vadim: Get rid of hardcoded values.
+	rect(LLRect(0, 25, 45, 0));
+
+	avatar_icon.name("avatar_icon");
+	avatar_icon.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
+
+	// *NOTE dzaporozhan
+	// Changed icon height from 25 to 24 to fix ticket EXT-794.
+	// In some cases(after changing UI scale) 25 pixel height icon was 
+	// drawn incorrectly, i'm not sure why.
+	avatar_icon.rect(LLRect(0, 24, 25, 0));
+	avatar_icon.mouse_opaque(false);
+
+	unread_notifications.name("unread");
+	unread_notifications.rect(LLRect(25, 25, 45, 0));
+	unread_notifications.font(LLFontGL::getFontSansSerif());
+	unread_notifications.font_halign(LLFontGL::HCENTER);
+	unread_notifications.v_pad(5);
+	unread_notifications.text_color(LLColor4::white);
+	unread_notifications.mouse_opaque(false);
+
+	speaker.name("speaker");
+	speaker.rect(LLRect(45, 25, 65, 0));
+
+	show_speaker = false;
+}
+
+LLAdHocChiclet::LLAdHocChiclet(const Params& p)
+: LLIMChiclet(p)
+, mChicletIconCtrl(NULL)
+, mCounterCtrl(NULL)
+, mSpeakerCtrl(NULL)
+, mPopupMenu(NULL)
+{
+	LLChicletAvatarIconCtrl::Params avatar_params = p.avatar_icon;
+	mChicletIconCtrl = LLUICtrlFactory::create<LLChicletAvatarIconCtrl>(avatar_params);
+	addChild(mChicletIconCtrl);
+
+	LLChicletNotificationCounterCtrl::Params unread_params = p.unread_notifications;
+	mCounterCtrl = LLUICtrlFactory::create<LLChicletNotificationCounterCtrl>(unread_params);
+	addChild(mCounterCtrl);
+
+	setCounter(getCounter());
+	setShowCounter(getShowCounter());
+
+	LLChicletSpeakerCtrl::Params speaker_params = p.speaker;
+	mSpeakerCtrl = LLUICtrlFactory::create<LLChicletSpeakerCtrl>(speaker_params);
+	addChild(mSpeakerCtrl);
+
+	setShowSpeaker(p.show_speaker);
+}
+
+void LLAdHocChiclet::setSessionId(const LLUUID& session_id)
+{
+	LLChiclet::setSessionId(session_id);
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
+	mChicletIconCtrl->setValue(im_session->mOtherParticipantID);
+}
+
+void LLAdHocChiclet::setCounter(S32 counter)
+{
+	mCounterCtrl->setCounter(counter);
+
+	if(getShowCounter())
+	{
+		LLRect counter_rect = mCounterCtrl->getRect();
+		LLRect required_rect = mCounterCtrl->getRequiredRect();
+		bool needs_resize = required_rect.getWidth() != counter_rect.getWidth();
+
+		if(needs_resize)
+		{
+			counter_rect.mRight = counter_rect.mLeft + required_rect.getWidth();
+			mCounterCtrl->reshape(counter_rect.getWidth(), counter_rect.getHeight());
+			mCounterCtrl->setRect(counter_rect);
+
+			onChicletSizeChanged();
+		}
+	}
+}
+
+LLRect LLAdHocChiclet::getRequiredRect()
+{
+	LLRect rect(0, 0, mChicletIconCtrl->getRect().getWidth(), 0);
+	if(getShowCounter())
+	{
+		rect.mRight += mCounterCtrl->getRequiredRect().getWidth();
+	}
+	if(getShowSpeaker())
+	{
+		rect.mRight += mSpeakerCtrl->getRect().getWidth();
+	}
+	return rect;
+}
+
+BOOL LLAdHocChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	return TRUE;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 LLIMGroupChiclet::Params::Params()
 : group_icon("group_icon")
 {

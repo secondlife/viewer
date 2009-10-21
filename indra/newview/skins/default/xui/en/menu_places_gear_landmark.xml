@@ -66,6 +66,9 @@
         <on_click
          function="Places.LandmarksGear.CopyPaste.Action"
          parameter="cut" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="cut" />
     </menu_item_call>
     <menu_item_call
      label="Copy Landmark"
@@ -101,6 +104,9 @@
         <on_click
          function="Places.LandmarksGear.CopyPaste.Action"
          parameter="rename" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="rename" />
     </menu_item_call>
     <menu_item_call
      label="Delete"
@@ -108,6 +114,9 @@
      name="delete">
         <on_click
          function="Places.LandmarksGear.CopyPaste.Action"
+         parameter="delete" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
          parameter="delete" />
     </menu_item_call>
     <menu_item_separator

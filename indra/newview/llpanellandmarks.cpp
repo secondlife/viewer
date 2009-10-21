@@ -213,6 +213,17 @@ bool LLLandmarksPanel::isLandmarkSelected() const
 	return false;
 }
 
+bool LLLandmarksPanel::isReceivedFolderSelected() const
+{
+	// Received Folder can be only in Landmarks accordion
+	if (mCurrentSelectedList != mLandmarksInventoryPanel) return false;
+
+	// *TODO: it should be filled with logic when EXT-976 is done.
+
+	llwarns << "Not implemented yet until EXT-976 is done." << llendl;
+
+	return false;
+}
 LLLandmark* LLLandmarksPanel::getCurSelectedLandmark() const
 {
 
@@ -612,13 +623,19 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 {
 	std::string command_name = userdata.asString();
+
+	LLPlacesFolderView* rootFolderView = mCurrentSelectedList ?
+		static_cast<LLPlacesFolderView*>(mCurrentSelectedList->getRootFolder()) : NULL;
+
+	if (NULL == rootFolderView) return false;
+
 	if("category" == command_name)
 	{
 		return mCurrentSelectedList == mLandmarksInventoryPanel; 
 	}
-	else if("paste" == command_name)
+	else if("paste" == command_name || "rename" == command_name || "cut" == command_name || "delete" == command_name)
 	{
-		return mCurrentSelectedList ? mCurrentSelectedList->getRootFolder()->canPaste() : false;
+		return canSelectedBeModified(command_name);
 	}
 	else if ( "sort_by_date" == command_name)
 	{
@@ -627,13 +644,16 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	// do not allow teleport and more info for multi-selections
 	else if ("teleport" == command_name || "more_info" == command_name)
 	{
-		return mCurrentSelectedList ?
-			static_cast<LLPlacesFolderView*>(mCurrentSelectedList->getRootFolder())->getSelectedCount() == 1 : false;
+		return rootFolderView->getSelectedCount() == 1;
 	}
 	// we can add folder, or change item/folder only in Landmarks Accordion
-	else if ("add_folder" == command_name || "rename" == command_name || "delete" == command_name)
+	else if ("add_folder" == command_name)
 	{
 		return mLandmarksInventoryPanel == mCurrentSelectedList;
+	}
+	else
+	{
+		llwarns << "Unprocessed command has come: " << command_name << llendl;
 	}
 
 	return true;
@@ -696,6 +716,75 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
 					<< " does not support RemoteParcelRequest" << llendl; 
 		}
 	}
+}
+
+/*
+Processes such actions: cut/rename/delete/paste actions
+
+Rules:
+ 1. We can't perform any action in Library
+ 2. For Landmarks we can:
+	- cut/rename/delete in any other accordions
+	- paste - only in Favorites, Landmarks accordions
+ 3. For Folders we can: perform any action in Landmarks accordion, except Received folder
+ 4. We can not paste folders from Clipboard (processed by LLFolderView::canPaste())
+ 5. Check LLFolderView/Inventory Bridges rules
+ */
+bool LLLandmarksPanel::canSelectedBeModified(const std::string& command_name) const
+{
+	// validate own rules first
+
+	// nothing can be modified in Library
+	if (mLibraryInventoryPanel == mCurrentSelectedList) return false;
+
+	bool can_be_modified = false;
+
+	// landmarks can be modified in any other accordion...
+	if (isLandmarkSelected())
+	{
+		can_be_modified = true;
+
+		// we can modify landmarks anywhere except paste to My Inventory
+		if ("paste" == command_name)
+		{
+			can_be_modified = (mCurrentSelectedList != mMyInventoryPanel);
+		}
+	}
+	else
+	{
+		// ...folders only in the Landmarks accordion...
+		can_be_modified = mLandmarksInventoryPanel == mCurrentSelectedList;
+
+		// ...except "Received" folder
+		can_be_modified &= !isReceivedFolderSelected();
+	}
+
+	// then ask LLFolderView permissions
+	if (can_be_modified)
+	{
+		if ("cut" == command_name)
+		{
+			can_be_modified = mCurrentSelectedList->getRootFolder()->canCut();
+		}
+		else if ("rename" == command_name)
+		{
+			can_be_modified = getCurSelectedItem()->getListener()->isItemRenameable();
+		}
+		else if ("delete" == command_name)
+		{
+			can_be_modified = getCurSelectedItem()->getListener()->isItemRemovable();
+		}
+		else if("paste" == command_name)
+		{
+			return mCurrentSelectedList->getRootFolder()->canPaste();
+		}
+		else
+		{
+			llwarns << "Unprocessed command has come: " << command_name << llendl;
+		}
+	}
+
+	return can_be_modified;
 }
 
 void LLLandmarksPanel::onPickPanelExit( LLPanelPickEdit* pick_panel, LLView* owner, const LLSD& params)

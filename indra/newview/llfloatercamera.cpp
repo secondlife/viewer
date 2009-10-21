@@ -125,6 +125,12 @@ void LLFloaterCamera::onOpen(const LLSD& key)
 
 }
 
+void LLFloaterCamera::onClose(bool app_quitting)
+{
+	//We don't care of camera mode if app is quitting
+	if(!app_quitting)
+		switchMode(CAMERA_CTRL_MODE_ORBIT);
+}
 
 LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 :	LLDockableFloater(NULL, val),

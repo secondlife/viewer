@@ -442,6 +442,65 @@ private:
 };
 
 /**
+ * Implements AD-HOC chiclet.
+ */
+class LLAdHocChiclet : public LLIMChiclet
+{
+public:
+	struct Params : public LLInitParam::Block<Params, LLChiclet::Params>
+	{
+		Optional<LLChicletAvatarIconCtrl::Params> avatar_icon;
+
+		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
+
+		Optional<LLChicletSpeakerCtrl::Params> speaker;
+
+		Optional<bool>	show_speaker;
+
+		Params();
+	};
+
+	/**
+	 * Sets session id.
+	 * Session ID for group chat is actually Group ID.
+	 */
+	/*virtual*/ void setSessionId(const LLUUID& session_id);
+
+	/*
+	* Sets number of unread messages. Will update chiclet's width if number text 
+	* exceeds size of counter and notify it's parent about size change.
+	*/
+	/*virtual*/ void setCounter(S32);
+
+	/*
+	* Returns number of unread messages.
+	*/
+	/*virtual*/ S32 getCounter() { return mCounterCtrl->getCounter(); }
+
+	/*
+	* Returns rect, required to display chiclet.
+	* Width is the only valid value.
+	*/
+	/*virtual*/ LLRect getRequiredRect();
+
+protected:
+	LLAdHocChiclet(const Params& p);
+	friend class LLUICtrlFactory;
+
+	/*
+	* Displays popup menu.
+	*/
+	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
+private:
+
+	LLChicletAvatarIconCtrl* mChicletIconCtrl;
+	LLChicletNotificationCounterCtrl* mCounterCtrl;
+	LLChicletSpeakerCtrl* mSpeakerCtrl;
+	LLMenuGL* mPopupMenu;
+};
+
+/**
  * Implements Group chat chiclet.
  */
 class LLIMGroupChiclet : public LLIMChiclet, public LLGroupMgrObserver

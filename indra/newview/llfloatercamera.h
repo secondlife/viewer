@@ -69,6 +69,7 @@ public:
 	static void updateIfNotInAvatarViewMode();
 
 	virtual void onOpen(const LLSD& key);
+	virtual void onClose(bool app_quitting);
 
 	LLJoystickCameraRotate* mRotate;
 	LLJoystickCameraZoom*	mZoom;

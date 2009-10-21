@@ -1547,6 +1547,12 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			// BAP - restrictions?
 			is_movable = true;
 		}
+
+		if (mUUID == gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE))
+		{
+			is_movable = FALSE; // It's generally movable but not into Favorites folder. EXT-1604
+		}
+
 		if( is_movable )
 		{
 			gInventory.collectDescendents( cat_id, descendent_categories, descendent_items, FALSE );

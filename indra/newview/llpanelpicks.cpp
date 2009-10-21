@@ -91,7 +91,12 @@ void* LLPanelPicks::create(void* data /* = NULL */)
 
 void LLPanelPicks::updateData()
 {
-	LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(getAvatarId());
+	// Send Picks request only when we need to, not on every onOpen(during tab switch).
+	if(isDirty())
+	{
+		mPicksList->clear();
+		LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(getAvatarId());
+	}
 }
 
 void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
@@ -134,6 +139,7 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 				picture->setMouseUpCallback(boost::bind(&LLPanelPicks::updateButtons, this));
 			}
 
+			resetDirty();
 			LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
 			updateButtons();
 		}
@@ -183,8 +189,6 @@ void LLPanelPicks::onOpen(const LLSD& key)
 	// Disable buttons when viewing profile for first time
 	if(getAvatarId() != id)
 	{
-		clear();
-
 		childSetEnabled(XML_BTN_INFO,FALSE);
 		childSetEnabled(XML_BTN_TELEPORT,FALSE);
 		childSetEnabled(XML_BTN_SHOW_ON_MAP,FALSE);
@@ -204,6 +208,8 @@ void LLPanelPicks::onOpen(const LLSD& key)
 	if(getAvatarId() != id)
 	{
 		mPicksList->goToTop();
+		// Set dummy value to make panel dirty and make it reload picks
+		setValue(LLSD());
 	}
 
 	LLPanelProfileTab::onOpen(key);

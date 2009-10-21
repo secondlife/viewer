@@ -134,8 +134,9 @@ LLIMChiclet* LLBottomTray::createIMChiclet(const LLUUID& session_id)
 	case LLIMChiclet::TYPE_IM:
 		return getChicletPanel()->createChiclet<LLIMP2PChiclet>(session_id);
 	case LLIMChiclet::TYPE_GROUP:
-	case LLIMChiclet::TYPE_AD_HOC:
 		return getChicletPanel()->createChiclet<LLIMGroupChiclet>(session_id);
+	case LLIMChiclet::TYPE_AD_HOC:
+		return getChicletPanel()->createChiclet<LLAdHocChiclet>(session_id);
 	case LLIMChiclet::TYPE_UNKNOWN:
 		break;
 	}

@@ -66,6 +66,7 @@ protected:
 	 * @return true - if current selected panel is not null and selected item is a landmark
 	 */
 	bool isLandmarkSelected() const;
+	bool isReceivedFolderSelected() const;
 	LLLandmark* getCurSelectedLandmark() const;
 	LLFolderViewItem* getCurSelectedItem () const;
 	void updateSortOrder(LLInventoryPanel* panel, bool byDate);
@@ -97,6 +98,14 @@ private:
 	void onFoldingAction(const LLSD& command_name);
 	bool isActionEnabled(const LLSD& command_name) const;
 	void onCustomAction(const LLSD& command_name);
+
+	/**
+	 * Determines if selected item can be modified via context/gear menu.
+	 *
+	 * It validates Places Landmarks rules first. And then LLFolderView permissions.
+	 * For now it checks cut/rename/delete/paste actions.
+	 */
+	bool canSelectedBeModified(const std::string& command_name) const;
 	void onPickPanelExit( LLPanelPickEdit* pick_panel, LLView* owner, const LLSD& params);
 
 private:

@@ -192,8 +192,9 @@ void LLPanelProfile::openPanel(LLPanel* panel, const LLSD& params)
 
 void LLPanelProfile::notifyParent(const LLSD& info)
 {
+	std::string action = info["action"];
 	// lets update Picks list after Pick was saved
-	if("save_new_pick" == info["action"])
+	if("save_new_pick" == action)
 	{
 		onOpen(info);
 		return;

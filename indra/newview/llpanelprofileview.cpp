@@ -46,6 +46,7 @@ static LLRegisterPanelClassWrapper<LLPanelProfileView> t_panel_target_profile("p
 
 static std::string PANEL_NOTES = "panel_notes";
 static const std::string PANEL_PROFILE = "panel_profile";
+static const std::string PANEL_PICKS = "panel_picks";
 
 LLPanelProfileView::LLPanelProfileView()
 :	LLPanelProfile()
@@ -103,6 +104,10 @@ BOOL LLPanelProfileView::postBuild()
 
 void LLPanelProfileView::onBackBtnClick()
 {
+	// Set dummy value to make picks panel dirty, 
+	// This will make Picks reload on next open.
+	getTabContainer()[PANEL_PICKS]->setValue(LLSD());
+
 	LLSideTrayPanelContainer* parent = dynamic_cast<LLSideTrayPanelContainer*>(getParent());
 	if(parent)
 	{
