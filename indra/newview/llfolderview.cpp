@@ -189,9 +189,9 @@ LLFolderView::LLFolderView(const Params& p)
 	mMinWidth(0),
 	mDragAndDropThisFrame(FALSE),
 	mCallbackRegistrar(NULL),
-	mParentPanel(p.parent_panel)
-,	mUseEllipses(false)
-,	mDraggingOverItem(NULL)
+	mParentPanel(p.parent_panel),
+	mUseEllipses(false),
+	mDraggingOverItem(NULL)
 {
 	LLRect rect = p.rect;
 	LLRect new_rect(rect.mLeft, rect.mBottom + getRect().getHeight(), rect.mLeft + getRect().getWidth(), rect.mBottom);
