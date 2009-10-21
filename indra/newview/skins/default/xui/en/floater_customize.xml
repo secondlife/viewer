@@ -39,10 +39,10 @@
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"
@@ -335,10 +335,10 @@ scratch and wear it.
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"
@@ -590,10 +590,10 @@ scratch and wear it.
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"
@@ -818,10 +818,10 @@ scratch and wear it.
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"
@@ -1006,10 +1006,10 @@ scratch and wear it.
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"
@@ -1212,10 +1212,10 @@ scratch and wear it.
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"
@@ -1418,10 +1418,10 @@ scratch and wear it.
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"
@@ -1624,10 +1624,10 @@ scratch and wear it.
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"
@@ -1830,10 +1830,10 @@ scratch and wear it.
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"
@@ -2048,10 +2048,10 @@ scratch and wear it.
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"
@@ -2254,10 +2254,10 @@ scratch and wear it.
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"
@@ -2460,10 +2460,10 @@ scratch and wear it.
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"
@@ -2666,10 +2666,10 @@ scratch and wear it.
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"
@@ -2872,10 +2872,10 @@ scratch and wear it.
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"
@@ -3159,10 +3159,10 @@ scratch and wear it.
              height="18"
              image_name="Lock"
              layout="topleft"
-             left="333"
+             left="315"
              mouse_opaque="true"
              name="square"
-             top="5"
+             top="4"
              width="18" />
             <icon
              height="16"

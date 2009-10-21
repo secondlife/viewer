@@ -33,10 +33,10 @@
      height="18"
      image_name="Lock"
      layout="topleft"
-     left="294"
+     left="276"
      mouse_opaque="true"
      name="IconLocked"
-     top="5"
+     top="4"
      width="18" />
     <text
      type="string"
