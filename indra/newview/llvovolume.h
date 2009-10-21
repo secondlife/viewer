@@ -245,7 +245,7 @@ public:
     // Returns whether or not this object has permission to navigate or control 
 	// the given media entry
 	enum MediaPermType {
-		INTERACT, CONTROL
+		MEDIA_PERM_INTERACT, MEDIA_PERM_CONTROL
 	};
     bool hasMediaPermission(const LLMediaEntry* media_entry, MediaPermType perm_type);
     

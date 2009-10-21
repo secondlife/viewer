@@ -1810,7 +1810,7 @@ bool LLVOVolume::hasMediaPermission(const LLMediaEntry* media_entry, MediaPermTy
         return true;
     }
     
-    U8 media_perms = (perm_type == INTERACT) ? media_entry->getPermsInteract() : media_entry->getPermsControl();
+    U8 media_perms = (perm_type == MEDIA_PERM_INTERACT) ? media_entry->getPermsInteract() : media_entry->getPermsControl();
     
     // World permissions
     if (0 != (media_perms & LLMediaEntry::PERM_ANYONE)) 
@@ -1855,7 +1855,7 @@ void LLVOVolume::mediaNavigated(LLViewerMediaImpl *impl, LLPluginClassMedia* plu
 		{
 			block_navigation = true;
 		}
-		if (!block_navigation && !hasMediaPermission(mep, INTERACT))
+		if (!block_navigation && !hasMediaPermission(mep, MEDIA_PERM_INTERACT))
 		{
 			block_navigation = true;
 		}
