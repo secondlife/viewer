@@ -2434,10 +2434,11 @@ void LLViewerMediaTexture::removeFace(LLFace* facep)
 
 void LLViewerMediaTexture::stopPlaying()
 {
-	if(mMediaImplp)
-	{
-		mMediaImplp->stop() ;
-	}
+	// Don't stop the media impl playing here -- this breaks non-inworld media (login screen, search, and media browser).
+//	if(mMediaImplp)
+//	{
+//		mMediaImplp->stop() ;
+//	}
 	mIsPlaying = FALSE ;			
 }
 
