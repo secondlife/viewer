@@ -336,10 +336,10 @@ BOOL LLPanelAvatarProfile::postBuild()
 	childSetCommitCallback("share",(boost::bind(&LLPanelAvatarProfile::onShareButtonClick,this)),NULL);
 
 	LLTextureCtrl* pic = getChild<LLTextureCtrl>("2nd_life_pic");
-	pic->setFallbackImageName("default_land_picture.j2c");
+	pic->setFallbackImageName("default_profile_picture.j2c");
 
 	pic = getChild<LLTextureCtrl>("real_world_pic");
-	pic->setFallbackImageName("default_land_picture.j2c");
+	pic->setFallbackImageName("default_profile_picture.j2c");
 
 	resetControls();
 	resetData();

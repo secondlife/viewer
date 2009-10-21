@@ -854,23 +854,18 @@ public:
 				//in case of race conditions
 				speaker_mgr->updateSpeakers(gIMMgr->getPendingAgentListUpdates(mSessionID));
 			}
-			
-			LLFloaterIMPanel* floaterp =
-				gIMMgr->findFloaterBySession(mSessionID);
 
-			if (floaterp)
+			if (LLIMMgr::INVITATION_TYPE_VOICE == mInvitiationType)
 			{
-				if ( mInvitiationType == LLIMMgr::INVITATION_TYPE_VOICE )
-				{
-					floaterp->requestAutoConnect();
-					LLFloaterIMPanel::onClickStartCall(floaterp);
-					// always open IM window when connecting to voice
-					LLFloaterReg::showInstance("communicate", LLSD(), TRUE);
-				}
-				else if ( mInvitiationType == LLIMMgr::INVITATION_TYPE_IMMEDIATE )
-				{
-					LLFloaterReg::showInstance("communicate", LLSD(), TRUE);
-				}
+				gIMMgr->startCall(mSessionID);
+			}
+
+			if ((mInvitiationType == LLIMMgr::INVITATION_TYPE_VOICE 
+				|| mInvitiationType == LLIMMgr::INVITATION_TYPE_IMMEDIATE)
+				&& LLIMModel::getInstance()->findIMSession(mSessionID))
+			{
+				// always open IM window when connecting to voice
+				LLIMFloater::show(mSessionID);
 			}
 
 			gIMMgr->clearPendingAgentListUpdates(mSessionID);
@@ -1041,19 +1036,12 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 
 			if (voice)
 			{
-				LLFloaterIMPanel* im_floater =
-					gIMMgr->findFloaterBySession(
-						session_id);
-
-				if (im_floater)
+				if (gIMMgr->startCall(session_id))
 				{
-					im_floater->requestAutoConnect();
-					LLFloaterIMPanel::onClickStartCall(im_floater);		
+					// always open IM window when connecting to voice
+					LLIMFloater::show(session_id);
 				}
 			}
-
-			// always open IM window when connecting to voice
-			LLFloaterReg::showInstance("communicate", session_id);
 
 			gIMMgr->clearPendingAgentListUpdates(session_id);
 			gIMMgr->clearPendingInvitation(session_id);
@@ -1159,15 +1147,10 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 					payload["session_handle"].asString(),
 					payload["session_uri"].asString());
 
-				LLFloaterIMPanel* im_floater =
-					gIMMgr->findFloaterBySession(
-						session_id);
-				if (im_floater)
+				if (gIMMgr->startCall(session_id))
 				{
-					im_floater->requestAutoConnect();
-					LLFloaterIMPanel::onClickStartCall(im_floater);
 					// always open IM window when connecting to voice
-					LLFloaterReg::showInstance("communicate", session_id, TRUE);
+					LLIMFloater::show(session_id);
 				}
 
 				gIMMgr->clearPendingAgentListUpdates(session_id);
@@ -1903,6 +1886,24 @@ void LLIMMgr::addSessionObserver(LLIMSessionObserver *observer)
 void LLIMMgr::removeSessionObserver(LLIMSessionObserver *observer)
 {
 	mSessionObservers.remove(observer);
+}
+
+bool LLIMMgr::startCall(const LLUUID& session_id)
+{
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(session_id);
+	if (!voice_channel) return false;
+	
+	voice_channel->activate();
+	return true;
+}
+
+bool LLIMMgr::endCall(const LLUUID& session_id)
+{
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(session_id);
+	if (!voice_channel) return false;
+
+	voice_channel->deactivate();
+	return true;
 }
 
 // create a floater and update internal representation for

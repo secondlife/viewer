@@ -282,6 +282,18 @@ public:
 	void addSessionObserver(LLIMSessionObserver *);
 	void removeSessionObserver(LLIMSessionObserver *);
 
+	/**
+	 * Start call in a session
+	 * @return false if voice channel doesn't exist
+	 **/
+	bool startCall(const LLUUID& session_id);
+
+	/**
+	 * End call in a session
+	 * @return false if voice channel doesn't exist
+	 **/
+	bool endCall(const LLUUID& session_id);
+
 private:
 	// create a panel and update internal representation for
 	// consistency. Returns the pointer, caller (the class instance
