@@ -158,7 +158,7 @@ public:
 	
 	// Operating with toasts
 	// add a toast to a channel
-	void		addToast(LLToast::Params p);
+	void		addToast(const LLToast::Params& p);
 	// kill or modify a toast by its ID
 	void		killToastByNotificationID(LLUUID id);
 	void		modifyToastByNotificationID(LLUUID id, LLPanel* panel);

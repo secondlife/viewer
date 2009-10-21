@@ -41,17 +41,29 @@
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
-LLToast::LLToast(LLToast::Params p) :	LLModalDialog(LLSD(), p.is_modal),
-										mPanel(p.panel), 
-										mToastLifetime(p.lifetime_secs),  
-										mNotificationID(p.notif_id),  
-										mSessionID(p.session_id),
-										mCanFade(p.can_fade),
-										mCanBeStored(p.can_be_stored),
-										mHideBtnEnabled(p.enable_hide_btn),
-										mHideBtn(NULL),
-										mNotification(p.notification),
-										mHideBtnPressed(false)
+LLToast::Params::Params() 
+:	can_fade("can_fade", true),
+	can_be_stored("can_be_stored", true),
+	is_modal("is_modal", false),
+	is_tip("is_tip", false),
+	enable_hide_btn("enable_hide_btn", true),
+	force_show("force_show", false),
+	force_store("force_store", false),
+	lifetime_secs("lifetime_secs", gSavedSettings.getS32("NotificationToastLifeTime"))
+{};
+
+LLToast::LLToast(const LLToast::Params& p) 
+:	LLModalDialog(LLSD(), p.is_modal),
+	mPanel(p.panel), 
+	mToastLifetime(p.lifetime_secs),  
+	mNotificationID(p.notif_id),  
+	mSessionID(p.session_id),
+	mCanFade(p.can_fade),
+	mCanBeStored(p.can_be_stored),
+	mHideBtnEnabled(p.enable_hide_btn),
+	mHideBtn(NULL),
+	mNotification(p.notification),
+	mHideBtnPressed(false)
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "panel_toast.xml", NULL);
 
@@ -67,11 +79,11 @@ LLToast::LLToast(LLToast::Params p) :	LLModalDialog(LLSD(), p.is_modal),
 	}
 
 	// init callbacks if present
-	if(!p.on_delete_toast.empty())
-		mOnDeleteToastSignal.connect(p.on_delete_toast);
+	if(!p.on_delete_toast().empty())
+		mOnDeleteToastSignal.connect(p.on_delete_toast());
 
-	if(!p.on_mouse_enter.empty())
-		mOnMouseEnterSignal.connect(p.on_mouse_enter);
+	if(!p.on_mouse_enter().empty())
+		mOnMouseEnterSignal.connect(p.on_mouse_enter());
 }
 
 //--------------------------------------------------------------------------

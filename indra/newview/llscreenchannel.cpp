@@ -138,7 +138,7 @@ void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_wo
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::addToast(LLToast::Params p)
+void LLScreenChannel::addToast(const LLToast::Params& p)
 {
 	bool store_toast = false, show_toast = false;
 
