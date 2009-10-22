@@ -202,6 +202,12 @@ public:
      */
     void flush();
 
+    /**
+     * Reset all known LLEventPump instances
+     * workaround for DEV-35406 crash on shutdown
+     */
+    void reset();
+
 private:
     friend class LLEventPump;
     /**
@@ -504,6 +510,8 @@ private:
     /// flush queued events
     virtual void flush() {}
 
+    virtual void reset();
+
 private:
     virtual LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
                                         const NameList& after,
@@ -512,7 +520,8 @@ private:
 
 protected:
     /// implement the dispatching
-    LLStandardSignal mSignal;
+    boost::scoped_ptr<LLStandardSignal> mSignal;
+
     /// valve open?
     bool mEnabled;
     /// Map of named listeners. This tracks the listeners that actually exist
