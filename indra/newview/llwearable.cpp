@@ -35,6 +35,7 @@
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llfloatercustomize.h"
+#include "lllocaltextureobject.h"
 #include "llviewertexturelist.h"
 #include "llinventorymodel.h"
 #include "llviewerregion.h"
