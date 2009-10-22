@@ -653,9 +653,14 @@ public:
 	virtual ~LLChicletPanel();
 
 	/*
-	 * Creates chiclet and adds it to chiclet list.
+	 * Creates chiclet and adds it to chiclet list at specified index.
 	*/
-	template<class T> T* createChiclet(const LLUUID& session_id = LLUUID::null, S32 index = 0);
+	template<class T> T* createChiclet(const LLUUID& session_id, S32 index);
+
+	/*
+	 * Creates chiclet and adds it to chiclet list at right.
+	*/
+	template<class T> T* createChiclet(const LLUUID& session_id);
 
 	/*
 	 * Returns pointer to chiclet of specified type at specified index.
@@ -722,6 +727,8 @@ public:
 protected:
 	LLChicletPanel(const Params&p);
 	friend class LLUICtrlFactory;
+
+	S32 calcChickletPanleWidth();
 
 	/*
 	 * Adds chiclet to list and rearranges all chiclets.
@@ -863,7 +870,7 @@ private:
 };
 
 template<class T> 
-T* LLChicletPanel::createChiclet(const LLUUID& session_id /*= LLUUID::null*/, S32 index /*= 0*/)
+T* LLChicletPanel::createChiclet(const LLUUID& session_id, S32 index)
 {
 	typename T::Params params;
 	T* chiclet = LLUICtrlFactory::create<T>(params);
@@ -887,6 +894,12 @@ T* LLChicletPanel::createChiclet(const LLUUID& session_id /*= LLUUID::null*/, S3
 	chiclet->setSessionId(session_id);
 
 	return chiclet;
+}
+
+template<class T>
+T* LLChicletPanel::createChiclet(const LLUUID& session_id)
+{
+	return createChiclet<T>(session_id, mChicletList.size());
 }
 
 template<class T>

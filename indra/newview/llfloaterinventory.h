@@ -175,9 +175,6 @@ protected:
 	void rebuildViewsFor(const LLUUID& id);
 	virtual void buildNewViews(const LLUUID& id); // made virtual to support derived classes. EXT-719
 
-	// Be sure that passed pointer will be destroyed where it was created.
-	void setInvFVBridgeBuilder(const LLInventoryFVBridgeBuilder* bridge_builder);
-
 protected:
 	LLInventoryModel*			mInventory;
 	LLInventoryObserver*		mInventoryObserver;
@@ -187,6 +184,12 @@ protected:
 //private: // Can not make these private - needed by llinventorysubtreepanel
 	LLFolderView*				mFolders;
 	std::string                 mStartFolderString;
+
+	/**
+	 * Contains UUID of Inventory item from which hierarchy should be built.
+	 * Can be set with the "start_folder" xml property.
+	 * Default is LLUUID::null that means total Inventory hierarchy.
+	 */
 	LLUUID						mStartFolderID;
 	LLScrollContainer*			mScroller;
 	bool						mHasInventoryConnection;
@@ -196,11 +199,6 @@ protected:
 	 */
 	bool						mBuildDefaultHierarchy;
 
-	/**
-	 * Contains UUID of Inventory item from which hierarchy should be built.
-	 * Should be set by derived class before modelChanged() is called.
-	 * Default is LLUUID::null that means total Inventory hierarchy.
-	 */
 	LLUUID						mRootInventoryItemUUID;
 
 	/**

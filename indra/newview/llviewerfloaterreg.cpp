@@ -190,7 +190,6 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("syswell_window", "floater_sys_well.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLSysWellWindow>);
 	
 	LLFloaterReg::add("notifications_console", "floater_notifications_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNotificationConsole>);
-	LLFloaterReg::add("nearby_chat", "floater_nearby_chat.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLNearbyChat>);
 
 	LLFloaterReg::add("openobject", "floater_openobject.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterOpenObject>);
 	

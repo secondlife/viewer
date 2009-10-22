@@ -12,6 +12,7 @@
   width="350">
   <panel
     background_visible="true"
+    bg_alpha_color="0.3 0.3 0.3 0"
     follows="left|right|top"
     height="100"
     label="info_panel"
@@ -70,6 +71,7 @@
   </panel>
   <panel
     background_visible="true"
+    bg_alpha_color="0.3 0.3 0.3 0"
     follows="left|right|bottom"
     height="40"
     label="control_panel"

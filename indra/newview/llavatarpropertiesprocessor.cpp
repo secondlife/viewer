@@ -36,6 +36,7 @@
 
 // Viewer includes
 #include "llagent.h"
+#include "llagentpicksinfo.h"
 #include "llviewergenericmessage.h"
 
 // Linden library includes
@@ -438,6 +439,9 @@ void LLAvatarPropertiesProcessor::sendPickDelete( const LLUUID& pick_id )
 	msg->nextBlock(_PREHASH_Data);
 	msg->addUUID(_PREHASH_PickID, pick_id);
 	gAgent.sendReliableMessage();
+
+	LLAgentPicksInfo::getInstance()->requestNumberOfPicks();
+	LLAgentPicksInfo::getInstance()->decrementNumberOfPicks();
 }
 
 void LLAvatarPropertiesProcessor::sendPickInfoUpdate(const LLPickData* new_pick)
@@ -470,6 +474,8 @@ void LLAvatarPropertiesProcessor::sendPickInfoUpdate(const LLPickData* new_pick)
 
 	msg->addBOOL(_PREHASH_Enabled, new_pick->enabled);
 	gAgent.sendReliableMessage();
+
+	LLAgentPicksInfo::getInstance()->requestNumberOfPicks();
 }
 
 void LLAvatarPropertiesProcessor::sendPickInfoRequest(const LLUUID& creator_id, const LLUUID& pick_id)

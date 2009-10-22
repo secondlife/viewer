@@ -50,6 +50,7 @@
 #include "lluictrlfactory.h"
 
 #include "llagent.h"
+#include "llagentpicksinfo.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llfloaterworldmap.h"
 #include "llinventorybridge.h"
@@ -178,6 +179,8 @@ BOOL LLPanelPlaces::postBuild()
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	registrar.add("Places.OverflowMenu.Action",  boost::bind(&LLPanelPlaces::onOverflowMenuItemClicked, this, _2));
+	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+	enable_registrar.add("Places.OverflowMenu.Enable",  boost::bind(&LLPanelPlaces::onOverflowMenuItemEnable, this, _2));
 
 	mPlaceMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_place.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if (!mPlaceMenu)
@@ -604,6 +607,16 @@ void LLPanelPlaces::onOverflowButtonClicked()
 	LLRect rect = mOverflowBtn->getRect();
 	menu->setButtonRect(rect, this);
 	LLMenuGL::showPopup(this, menu, rect.mRight, rect.mTop);
+}
+
+bool LLPanelPlaces::onOverflowMenuItemEnable(const LLSD& param)
+{
+	std::string value = param.asString();
+	if("can_create_pick" == value)
+	{
+		return !LLAgentPicksInfo::getInstance()->isPickLimitReached();
+	}
+	return true;
 }
 
 void LLPanelPlaces::onOverflowMenuItemClicked(const LLSD& param)

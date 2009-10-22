@@ -118,6 +118,8 @@
   <texture name="Icon_Dock_Press" file_name="windows/Icon_Dock_Press.png" preload="true" />
 
   <texture name="Icon_For_Sale" file_name="icons/Icon_For_sale.png" preload="false" />
+  <texture name="Banner_ForSale" file_name="Banner_ForSale.png" preload="false" />
+  <texture name="Banner_YouAreHere" file_name="Banner_YouAreHere.png" preload="false" />
 
   <texture name="Icon_Gear_Background" file_name="windows/Icon_Gear_Background.png" preload="false" />
   <texture name="Icon_Gear_Foreground" file_name="windows/Icon_Gear_Foreground.png" preload="false" />

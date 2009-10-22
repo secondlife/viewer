@@ -635,7 +635,6 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 	}
 
 	// Add the recipient to the recent people list.
-	//*TODO should be deleted, because speaker manager updates through callback the recent list
 	LLRecentPeople::instance().add(other_participant_id);
 }
 
@@ -1415,12 +1414,10 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 	}
 	else // going to IM session
 	{
-		LLFloaterIMPanel* floaterp = findFloaterBySession(session_id);
-		if (floaterp)
+		if (hasSession(session_id))
 		{
-			message = floaterp->getString(message_name);
+			message = LLTrans::getString(message_name + "-im");
 			message.setArgs(args);
-
 			gIMMgr->addMessage(session_id, LLUUID::null, SYSTEM_FROM, message.getString());
 		}
 	}
@@ -1775,7 +1772,7 @@ LLFloaterIMPanel* LLIMMgr::findFloaterBySession(const LLUUID& session_id)
 
 BOOL LLIMMgr::hasSession(const LLUUID& session_id)
 {
-	return (findFloaterBySession(session_id) != NULL);
+	return LLIMModel::getInstance()->findIMSession(session_id) != NULL;
 }
 
 void LLIMMgr::clearPendingInvitation(const LLUUID& session_id)

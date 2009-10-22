@@ -38,6 +38,7 @@
 #include "llpanel.h"
 #include "message.h"
 #include "llagent.h"
+#include "llagentpicksinfo.h"
 #include "llbutton.h"
 #include "lllineeditor.h"
 #include "llparcel.h"
@@ -310,6 +311,7 @@ LLPanelPickEdit::LLPanelPickEdit()
  : LLPanelPickInfo()
  , mLocationChanged(false)
  , mNeedData(true)
+ , mNewPick(false)
 {
 }
 
@@ -325,6 +327,8 @@ void LLPanelPickEdit::onOpen(const LLSD& key)
 	// creating new Pick
 	if(pick_id.isNull())
 	{
+		mNewPick = true;
+
 		setAvatarId(gAgent.getID());
 
 		resetData();
@@ -356,6 +360,7 @@ void LLPanelPickEdit::onOpen(const LLSD& key)
 	// editing existing pick
 	else
 	{
+		mNewPick = false;
 		LLPanelPickInfo::onOpen(key);
 
 		enableSaveButton(false);
@@ -463,6 +468,14 @@ void LLPanelPickEdit::sendUpdate()
 	pick_data.enabled = TRUE;
 
 	LLAvatarPropertiesProcessor::instance().sendPickInfoUpdate(&pick_data);
+
+	if(mNewPick)
+	{
+		// Assume a successful create pick operation, make new number of picks
+		// available immediately. Actual number of picks will be requested in 
+		// LLAvatarPropertiesProcessor::sendPickInfoUpdate and updated upon server respond.
+		LLAgentPicksInfo::getInstance()->incrementNumberOfPicks();
+	}
 }
 
 void LLPanelPickEdit::onPickChanged(LLUICtrl* ctrl)

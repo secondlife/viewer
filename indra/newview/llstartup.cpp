@@ -83,6 +83,7 @@
 #include "v3math.h"
 
 #include "llagent.h"
+#include "llagentpicksinfo.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
 #include "llfloateravatarpicker.h"
@@ -2602,7 +2603,7 @@ bool idle_startup()
 		// reset timers now that we are running "logged in" logic
 		LLFastTimer::reset();
 
-		
+		LLAgentPicksInfo::getInstance()->requestNumberOfPicks();
 
 		return TRUE;
 	}

@@ -1,10 +1,10 @@
 /** 
- * @file llnearbychat.h
- * @brief nearby chat history scrolling panel implementation
+ * @file lldndbutton.cpp
+ * @brief Implementation of the drag-n-drop button.
  *
- * $LicenseInfo:firstyear=2004&license=viewergpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2004-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,42 +30,31 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNEARBYCHAT_H_
-#define LL_LLNEARBYCHAT_H_
+#include "llviewerprecompiledheaders.h"
 
-#include "llfloater.h"
-#include "llscrollbar.h"
-#include "llchat.h"
+#include "lldndbutton.h"
 
-class LLResizeBar;
-class LLChatHistory;
 
-class LLNearbyChat: public LLFloater
+static LLDefaultChildRegistry::Register<LLDragAndDropButton> r("dnd_button");
+
+LLDragAndDropButton::Params::Params()
 {
-public:
-	LLNearbyChat(const LLSD& key);
-	~LLNearbyChat();
 
-	BOOL	postBuild			();
-	void	addMessage			(const LLChat& message);
-	
-	void	onNearbyChatContextMenuItemClicked(const LLSD& userdata);
-	bool	onNearbyChatCheckContextMenuItem(const LLSD& userdata);
+}
 
-	void	setDocked			(bool docked, bool pop_on_undock);
+LLDragAndDropButton::LLDragAndDropButton(Params& params)
+: LLButton(params)
+{
 
-	/*virtual*/ void	onOpen	(const LLSD& key);
+}
 
-private:
-	void	onNearbySpeakers	();
-	void	add_timestamped_line(const LLChat& chat, const LLColor4& color);
-	
+BOOL LLDragAndDropButton::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept, std::string& tooltip_msg)
+{
+	if (mDragDropHandler)
+	{
+		return mDragDropHandler(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+	}
+	return false;
+}
 
-private:
-	LLHandle<LLView>	mPopupMenuHandle;
-	LLChatHistory*		mChatHistory;
-};
-
-#endif
-
-
+// EOF

@@ -70,6 +70,7 @@ set(viewer_SOURCE_FILES
     llagentaccess.cpp
     llagentdata.cpp
     llagentlanguage.cpp
+    llagentpicksinfo.cpp
     llagentpilot.cpp
     llagentui.cpp
     llagentwearables.cpp
@@ -112,6 +113,7 @@ set(viewer_SOURCE_FILES
     lldebugview.cpp
     lldelayedgestureerror.cpp
     lldirpicker.cpp
+    lldndbutton.cpp
     lldrawable.cpp
     lldrawpoolalpha.cpp
     lldrawpoolavatar.cpp
@@ -537,6 +539,7 @@ set(viewer_HEADER_FILES
     llagentaccess.h
     llagentdata.h
     llagentlanguage.h
+    llagentpicksinfo.h
     llagentpilot.h
     llagentui.h
     llagentwearables.h
@@ -581,6 +584,7 @@ set(viewer_HEADER_FILES
     lldebugview.h
     lldelayedgestureerror.h
     lldirpicker.h
+    lldndbutton.h
     lldrawable.h
     lldrawpool.h
     lldrawpoolalpha.h

@@ -235,6 +235,7 @@ protected:
 
 	bool mLocationChanged;
 	bool mNeedData;
+	bool mNewPick;
 };
 
 #endif // LL_LLPANELPICK_H

@@ -39,7 +39,9 @@
 
 #include "llaccordionctrltab.h"
 #include "llagent.h"
+#include "llagentpicksinfo.h"
 #include "llagentui.h"
+#include "lldndbutton.h"
 #include "llfloaterworldmap.h"
 #include "llfolderviewitem.h"
 #include "llinventorysubtreepanel.h"
@@ -57,7 +59,6 @@ static const std::string ADD_LANDMARK_BUTTON_NAME = "add_landmark_btn";
 static const std::string ADD_FOLDER_BUTTON_NAME = "add_folder_btn";
 static const std::string TRASH_BUTTON_NAME = "trash_btn";
 
-static const LLPlacesInventoryBridgeBuilder PLACES_INVENTORY_BUILDER;
 
 // helper functions
 static void filter_list(LLInventorySubTreePanel* inventory_list, const std::string& string);
@@ -327,9 +328,7 @@ void LLLandmarksPanel::initFavoritesInventroyPanel()
 {
 	mFavoritesInventoryPanel = getChild<LLInventorySubTreePanel>("favorites_list");
 
-	LLUUID start_folder_id = mFavoritesInventoryPanel->getModel()->findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
-
-	initLandmarksPanel(mFavoritesInventoryPanel, start_folder_id);
+	initLandmarksPanel(mFavoritesInventoryPanel);
 
 	initAccordion("tab_favorites", mFavoritesInventoryPanel);
 }
@@ -338,9 +337,8 @@ void LLLandmarksPanel::initLandmarksInventroyPanel()
 {
 	mLandmarksInventoryPanel = getChild<LLInventorySubTreePanel>("landmarks_list");
 
-	LLUUID start_folder_id = mLandmarksInventoryPanel->getModel()->findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+	initLandmarksPanel(mLandmarksInventoryPanel);
 
-	initLandmarksPanel(mLandmarksInventoryPanel, start_folder_id);
 	mLandmarksInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
 
 	// subscribe to have auto-rename functionality while creating New Folder
@@ -353,9 +351,7 @@ void LLLandmarksPanel::initMyInventroyPanel()
 {
 	mMyInventoryPanel= getChild<LLInventorySubTreePanel>("my_inventory_list");
 
-	LLUUID start_folder_id = mMyInventoryPanel->getModel()->getRootFolderID();
-
-	initLandmarksPanel(mMyInventoryPanel, start_folder_id);
+	initLandmarksPanel(mMyInventoryPanel);
 
 	initAccordion("tab_inventory", mMyInventoryPanel);
 }
@@ -364,18 +360,13 @@ void LLLandmarksPanel::initLibraryInventroyPanel()
 {
 	mLibraryInventoryPanel = getChild<LLInventorySubTreePanel>("library_list");
 
-	LLUUID start_folder_id = mLibraryInventoryPanel->getModel()->getLibraryRootFolderID();
-
-	initLandmarksPanel(mLibraryInventoryPanel, start_folder_id);
+	initLandmarksPanel(mLibraryInventoryPanel);
 
 	initAccordion("tab_library", mLibraryInventoryPanel);
 }
 
-
-void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_list, const LLUUID& start_folder_id)
+void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_list)
 {
-	inventory_list->buildSubtreeViewsFor(start_folder_id, &PLACES_INVENTORY_BUILDER);
-
 	inventory_list->setFilterTypes(0x1 << LLInventoryType::IT_LANDMARK);
 	inventory_list->setSelectCallback(boost::bind(&LLLandmarksPanel::onSelectionChange, this, inventory_list, _1, _2));
 
@@ -446,8 +437,15 @@ void LLLandmarksPanel::initListCommandsHandlers()
 	mListCommands->childSetAction(TRASH_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onTrashButtonClick, this));
 
 	
+	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>(TRASH_BUTTON_NAME);
+	trash_btn->setDragAndDropHandler(boost::bind(&LLLandmarksPanel::handleDragAndDropToTrash, this
+			,	_4 // BOOL drop
+			,	_5 // EDragAndDropType cargo_type
+			,	_7 // EAcceptance* accept
+			));
+
 	mCommitCallbackRegistrar.add("Places.LandmarksGear.Add.Action", boost::bind(&LLLandmarksPanel::onAddAction, this, _2));
-	mCommitCallbackRegistrar.add("Places.LandmarksGear.CopyPaste.Action", boost::bind(&LLLandmarksPanel::onCopyPasteAction, this, _2));
+	mCommitCallbackRegistrar.add("Places.LandmarksGear.CopyPaste.Action", boost::bind(&LLLandmarksPanel::onClipboardAction, this, _2));
 	mCommitCallbackRegistrar.add("Places.LandmarksGear.Custom.Action", boost::bind(&LLLandmarksPanel::onCustomAction, this, _2));
 	mCommitCallbackRegistrar.add("Places.LandmarksGear.Folding.Action", boost::bind(&LLLandmarksPanel::onFoldingAction, this, _2));
 	mEnableCallbackRegistrar.add("Places.LandmarksGear.Enable", boost::bind(&LLLandmarksPanel::isActionEnabled, this, _2));
@@ -539,9 +537,7 @@ void LLLandmarksPanel::onAddFolderButtonClick() const
 
 void LLLandmarksPanel::onTrashButtonClick() const
 {
-	if(!mCurrentSelectedList) return;
-
-	mCurrentSelectedList->getRootFolder()->doToSelected(mCurrentSelectedList->getModel(), "delete");
+	onClipboardAction("delete");
 }
 
 void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
@@ -557,7 +553,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 	}
 }
 
-void LLLandmarksPanel::onCopyPasteAction(const LLSD& userdata) const
+void LLLandmarksPanel::onClipboardAction(const LLSD& userdata) const
 {
 	if(!mCurrentSelectedList) 
 		return;
@@ -643,6 +639,10 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	else if ("teleport" == command_name || "more_info" == command_name)
 	{
 		return rootFolderView->getSelectedCount() == 1;
+	}
+	else if("create_pick" == command_name)
+	{
+		return !LLAgentPicksInfo::getInstance()->isPickLimitReached();
 	}
 	else
 	{
@@ -789,6 +789,33 @@ void LLLandmarksPanel::onPickPanelExit( LLPanelPickEdit* pick_panel, LLView* own
 
 	delete pick_panel;
 	pick_panel = NULL;
+}
+
+bool LLLandmarksPanel::handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept)
+{
+	*accept = ACCEPT_NO;
+
+	switch (cargo_type)
+	{
+
+	case DAD_LANDMARK:
+	case DAD_CATEGORY:
+		{
+			bool is_enabled = isActionEnabled("delete");
+
+			if (is_enabled) *accept = ACCEPT_YES_MULTI;
+
+			if (is_enabled && drop)
+			{
+				onClipboardAction("delete");
+			}
+		}
+		break;
+	default:
+		break;
+	}
+
+	return true;
 }
 
 

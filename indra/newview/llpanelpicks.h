@@ -86,6 +86,7 @@ private:
 	void onClickNew();
 	void onClickInfo();
 	void onPanelPickClose(LLPanel* panel);
+	void onPanelPickSave(LLPanel* panel);
 	void onPanelPickEdit();
 	void onClickMenuEdit();
 

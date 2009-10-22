@@ -31,6 +31,7 @@
              left="0"
              mouse_opaque="true"
              name="favorites_list"
+             start_folder="favorite"
              width="380"/>
         </accordion_tab>
         <accordion_tab
@@ -62,6 +63,7 @@
              left="0"
              mouse_opaque="true"
              name="my_inventory_list"
+             start_folder="inventory"
              width="380"/>
         </accordion_tab>
         <accordion_tab
@@ -77,6 +79,7 @@
              left="0"
              mouse_opaque="true"
              name="library_list"
+             start_folder="library"
              width="380"/>
         </accordion_tab>
     </accordion>
@@ -127,7 +130,7 @@
          picture_style="true"
          tool_tip="Add new folder"
          width="18" />
-        <button
+        <dnd_button
          follows="bottom|right"
          height="18"
          image_selected="TrashItem_Press"

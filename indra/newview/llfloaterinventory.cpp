@@ -1174,7 +1174,6 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p)
 	mHasInventoryConnection(false),
 	mStartFolderString(p.start_folder)
 ,	mBuildDefaultHierarchy(true)
-,	mRootInventoryItemUUID(LLUUID::null)
 ,	mInvFVBridgeBuilder(NULL)
 {
 	mInvFVBridgeBuilder = &INVENTORY_BRIDGE_BUILDER;
@@ -1241,7 +1240,19 @@ BOOL LLInventoryPanel::postBuild()
 	// determine the root folder, if any, so inventory contents show just the children
 	// of that folder (i.e. not including the folder itself).
 	const LLAssetType::EType preferred_type = LLAssetType::lookupHumanReadable(mStartFolderString);
-	mStartFolderID = (preferred_type != LLAssetType::AT_NONE ? gInventory.findCategoryUUIDForType(preferred_type) : LLUUID::null);
+
+	if ("inventory" == mStartFolderString)
+	{
+		mStartFolderID = gInventory.getRootFolderID();
+	}
+	else if ("library" == mStartFolderString)
+	{
+		mStartFolderID = gInventory.getLibraryRootFolderID();
+	}
+	else
+	{
+		mStartFolderID = (preferred_type != LLAssetType::AT_NONE ? gInventory.findCategoryUUIDForType(preferred_type) : LLUUID::null);
+	}
 
 	// build view of inventory if we need default full hierarchy and inventory ready, otherwise wait for modelChanged() callback
 	if (mBuildDefaultHierarchy && mInventory->isInventoryUsable() && !mHasInventoryConnection)
@@ -1459,24 +1470,6 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		// *TODO: figure out a more efficient way to do the refresh
 		// since it is expensive on large inventories
 		mFolders->refresh();
-	}
-}
-
-void LLInventoryPanel::setInvFVBridgeBuilder(const LLInventoryFVBridgeBuilder* bridge_builder)
-{
-	if (NULL == bridge_builder)
-	{
-		llwarns << "NULL is passed as Inventory Bridge Builder. Default will be used." << llendl; 
-	}
-	else
-	{
-		mInvFVBridgeBuilder = bridge_builder;
-	}
-
-	if (mInventory->isInventoryUsable() && !mHasInventoryConnection)
-	{
-		rebuildViewsFor(mRootInventoryItemUUID);
-		mHasInventoryConnection = true;
 	}
 }
 

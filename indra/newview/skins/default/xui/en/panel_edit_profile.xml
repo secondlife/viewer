@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
+ background_visible="true"
  class="edit_profile_panel"
   follows="all"
  height="535"

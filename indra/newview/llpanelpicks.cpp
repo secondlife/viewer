@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h"
+#include "llagentpicksinfo.h"
 #include "llavatarconstants.h"
 #include "llflatlistview.h"
 #include "llfloaterreg.h"
@@ -302,14 +303,13 @@ void LLPanelPicks::onDoubleClickItem(LLUICtrl* item)
 
 void LLPanelPicks::updateButtons()
 {
-	int picks_num = mPicksList->size();
 	bool has_selected = mPicksList->numSelected();
 
 	childSetEnabled(XML_BTN_INFO, has_selected);
 
 	if (getAvatarId() == gAgentID)
 	{
-		childSetEnabled(XML_BTN_NEW, picks_num < MAX_AVATAR_PICKS);
+		childSetEnabled(XML_BTN_NEW, !LLAgentPicksInfo::getInstance()->isPickLimitReached());
 		childSetEnabled(XML_BTN_DELETE, has_selected);
 	}
 
@@ -364,6 +364,12 @@ void LLPanelPicks::onPanelPickClose(LLPanel* panel)
 	panel->setVisible(FALSE);
 }
 
+void LLPanelPicks::onPanelPickSave(LLPanel* panel)
+{
+	onPanelPickClose(panel);
+	updateButtons();
+}
+
 void LLPanelPicks::createPickInfoPanel()
 {
 	if(!mPanelPickInfo)
@@ -381,7 +387,7 @@ void LLPanelPicks::createPickEditPanel()
 	{
 		mPanelPickEdit = LLPanelPickEdit::create();
 		mPanelPickEdit->setExitCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelPickEdit));
-		mPanelPickEdit->setSaveCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelPickEdit));
+		mPanelPickEdit->setSaveCallback(boost::bind(&LLPanelPicks::onPanelPickSave, this, mPanelPickEdit));
 		mPanelPickEdit->setCancelCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelPickEdit));
 		mPanelPickEdit->setVisible(FALSE);
 	}

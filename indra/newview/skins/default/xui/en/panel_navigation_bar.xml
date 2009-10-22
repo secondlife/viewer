@@ -137,6 +137,6 @@
      name="favorite"
      image_drag_indication="Arrow_Down"
      chevron_button_tool_tip="Show more of My Favorites"
-     top="32"
+     bottom="65"
      width="590" />
 </panel>

@@ -868,19 +868,29 @@ BOOL LLChicletPanel::postBuild()
 	return TRUE;
 }
 
+S32 LLChicletPanel::calcChickletPanleWidth()
+{
+	S32 res = 0;
+
+	for (chiclet_list_t::iterator it = mChicletList.begin(); it
+			!= mChicletList.end(); it++)
+	{
+		res = (*it)->getRect().getWidth() + getChicletPadding();
+	}
+	return res;
+}
+
 bool LLChicletPanel::addChiclet(LLChiclet* chiclet, S32 index)
 {
 	if(mScrollArea->addChild(chiclet))
 	{
+		// chicklets should be aligned to right edge of scroll panel
 		S32 offset = 0;
 
-		// if index == 0 and chickelt list isn't empty insert chiclet before first in the list
-		// without scrolling, so other visible chicklets aren't change screen position
-		if (0 == index && !mChicletList.empty())
+		if (!canScrollLeft())
 		{
-			offset = getChiclet(0)->getRect().mLeft
-					- (chiclet->getRequiredRect().getWidth()
-							+ getChicletPadding());
+			offset = mScrollArea->getRect().getWidth()
+					- chiclet->getRect().getWidth() - calcChickletPanleWidth();
 		}
 
 		mChicletList.insert(mChicletList.begin() + index, chiclet);
@@ -1073,23 +1083,14 @@ void LLChicletPanel::arrange()
 void LLChicletPanel::trimChiclets()
 {
 	// trim right
-	if(canScrollLeft() && !canScrollRight())
-	{
-		S32 last_chiclet_right = (*mChicletList.rbegin())->getRect().mRight;
-		S32 scroll_width = mScrollArea->getRect().getWidth();
-		if(last_chiclet_right < scroll_width)
-		{
-			shiftChiclets(scroll_width - last_chiclet_right);
-		}
-	}
-
-	// trim left
 	if(!mChicletList.empty())
 	{
-		LLRect first_chiclet_rect = getChiclet(0)->getRect();
-		if(first_chiclet_rect.mLeft > 0)
+		S32 last_chiclet_right = (*mChicletList.rbegin())->getRect().mRight;
+		S32 first_chiclet_left = getChiclet(0)->getRect().mLeft;
+		S32 scroll_width = mScrollArea->getRect().getWidth();
+		if(last_chiclet_right < scroll_width || first_chiclet_left > 0)
 		{
-			shiftChiclets( - first_chiclet_rect.mLeft);
+			shiftChiclets(scroll_width - last_chiclet_right);
 		}
 	}
 }

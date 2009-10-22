@@ -155,5 +155,8 @@
         <on_click
          function="Places.LandmarksGear.Custom.Action"
          parameter="create_pick" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="create_pick" />
     </menu_item_call>
 </menu>

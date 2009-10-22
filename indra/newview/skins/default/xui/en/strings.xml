@@ -2884,6 +2884,22 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 
   <!-- IM system messages -->
+  <string name="ringing-im">
+    Joining Voice Chat...
+  </string>
+  <string name="connected-im">
+    Connected, click End Call to hang up
+  </string>
+  <string name="hang_up-im">
+    Left Voice Chat
+  </string>
+  <string name="answering-im">
+    Connecting...
+  </string>
+  <string name="inventory_item_offered-im">
+    Inventory item offered
+  </string>
+
   <string name="only_user_message">
     You are the only user in this session.
   </string>
