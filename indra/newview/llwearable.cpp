@@ -408,9 +408,10 @@ BOOL LLWearable::importFile( LLFILE* file )
 		{
 			delete mSavedTEMap[te];
 		}
-		
-		mTEMap[te] = new LLLocalTextureObject(image, LLUUID(text_buffer));
-		mSavedTEMap[te] = new LLLocalTextureObject(image, LLUUID(text_buffer));
+
+		LLUUID textureid(text_buffer);
+		mTEMap[te] = new LLLocalTextureObject(image, textureid);
+		mSavedTEMap[te] = new LLLocalTextureObject(image, textureid);
 		createLayers(te);
 	}
 

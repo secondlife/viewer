@@ -135,7 +135,8 @@
 
   <check_box 
    bottom_delta="-25" 
-   enabled="true" 
+   visible="false" 
+   enabled="false" 
    follows="left|top" 
    font="SansSerifSmall"
    height="16" 
@@ -148,7 +149,7 @@
    width="150" />
 
   <check_box 
-   bottom_delta="-25" 
+   bottom_delta="0" 
    enabled="true" 
    follows="left|top"
    font="SansSerifSmall"

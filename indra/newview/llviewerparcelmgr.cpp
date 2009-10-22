@@ -1162,10 +1162,11 @@ void LLViewerParcelMgr::sendParcelBuy(ParcelBuyInfo* info)
 	msg->sendReliable(info->mHost);
 }
 
-void LLViewerParcelMgr::deleteParcelBuy(ParcelBuyInfo*& info)
+void LLViewerParcelMgr::deleteParcelBuy(ParcelBuyInfo* *info)
 {
-	delete info;
-	info = NULL;
+	// Must be here because ParcelBuyInfo is local to this .cpp file
+	delete *info;
+	*info = NULL;
 }
 
 void LLViewerParcelMgr::sendParcelDeed(const LLUUID& group_id)
