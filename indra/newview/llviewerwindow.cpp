@@ -79,6 +79,7 @@
 #include "timing.h"
 #include "llviewermenu.h"
 #include "lltooltip.h"
+#include "llmediaentry.h"
 
 // newview includes
 #include "llagent.h"
@@ -812,6 +813,33 @@ BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MAS
 	gVoiceClient->middleMouseState(true);
  	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
   
+  	// Always handled as far as the OS is concerned.
+	return TRUE;
+}
+
+BOOL LLViewerWindow::handleDrop(LLWindow *window,  LLCoordGL pos, MASK mask, void* data)
+{
+	if (gSavedSettings.getBOOL("PrimMediaDragNDrop"))
+	{
+		LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/ );
+
+		LLUUID object_id = pick_info.getObjectID();
+		S32 object_face = pick_info.mObjectFace;
+		std::string url = std::string( (char*)data );
+
+		llinfos << "### Object: picked at " << pos.mX << ", " << pos.mY << " - face = " << object_face << " - URL = " << url << llendl;
+
+		LLVOVolume *obj = dynamic_cast<LLVOVolume*>(static_cast<LLViewerObject*>(pick_info.getObject()));
+		if (obj)
+		{
+			LLSD media_data;
+			/// XXX home URL too?
+			media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
+			media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
+			obj->syncMediaData(object_face, media_data, true, true);
+			obj->sendMediaDataUpdate();
+		}
+	}
   	// Always handled as far as the OS is concerned.
 	return TRUE;
 }
