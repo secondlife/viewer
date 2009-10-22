@@ -582,11 +582,11 @@ class DarwinManifest(ViewerManifest):
                                     "libaprutil-1.0.3.8.dylib",
                                     "libexpat.0.5.0.dylib"):
                         target_lib = os.path.join('../../..', libfile)
-                        self.run_command("ln -s %(target)s '%(link)s'" % 
+                        self.run_command("ln -sf %(target)s '%(link)s'" % 
                                          {'target': target_lib,
                                           'link' : os.path.join(mac_crash_logger_res_path, libfile)}
                                          )
-                        self.run_command("ln -s %(target)s '%(link)s'" % 
+                        self.run_command("ln -sf %(target)s '%(link)s'" % 
                                          {'target': target_lib,
                                           'link' : os.path.join(mac_updater_res_path, libfile)}
                                          )
