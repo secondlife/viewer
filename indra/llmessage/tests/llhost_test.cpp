@@ -157,7 +157,7 @@ namespace tut
 	template<> template<>
 	void host_object::test<9>()
 	{
-		std::string hostStr = "google.com";		
+		std::string hostStr = "linux.org";
 		LLHost host;
 		host.setHostByName(hostStr);	
 

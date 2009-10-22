@@ -412,7 +412,7 @@ void LLScreenChannel::showToastsBottom()
 			(*it).toast->stopTimer();
 			mHiddenToastsNum++;
 		}
-		createOverflowToast(bottom, gSavedSettings.getS32("NotificationToastLifeTime"));
+		createOverflowToast(bottom, gSavedSettings.getS32("NotificationTipToastLifeTime"));
 	}	
 }
 
@@ -449,7 +449,7 @@ void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 	if(!mOverflowToastPanel)
 		return;
 
-	mOverflowToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::onOverflowToastHide, this));
+	mOverflowToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::closeOverflowToastPanel, this));
 
 	LLTextBox* text_box = mOverflowToastPanel->getChild<LLTextBox>("toast_text");
 	LLIconCtrl* icon = mOverflowToastPanel->getChild<LLIconCtrl>("icon");
@@ -514,7 +514,7 @@ void LLScreenChannel::closeOverflowToastPanel()
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::createStartUpToast(S32 notif_num, S32 bottom, F32 timer)
+void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 {
 	LLRect toast_rect;
 	LLToast::Params p;
@@ -545,13 +545,15 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, S32 bottom, F32 timer)
 
 	toast_rect = mStartUpToastPanel->getRect();
 	mStartUpToastPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
-	toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastGap"), getRect().getWidth(), toast_rect.getHeight());	
+	toast_rect.setLeftTopAndSize(0, toast_rect.getHeight()+gSavedSettings.getS32("ToastGap"), getRect().getWidth(), toast_rect.getHeight());	
 	mStartUpToastPanel->setRect(toast_rect);
 
 	text_box->setValue(text);
 	text_box->setVisible(TRUE);
 	icon->setVisible(TRUE);
 
+	addChild(mStartUpToastPanel);
+	
 	mStartUpToastPanel->setVisible(TRUE);
 }
 
@@ -572,7 +574,7 @@ void LLScreenChannel::closeStartUpToast()
 {
 	if(mStartUpToastPanel != NULL)
 	{
-		mStartUpToastPanel->closeFloater();
+		mStartUpToastPanel->setVisible(FALSE);
 		mStartUpToastPanel = NULL;
 	}
 }

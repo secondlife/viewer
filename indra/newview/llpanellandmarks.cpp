@@ -515,23 +515,23 @@ void LLLandmarksPanel::onAddFolderButtonClick() const
 	LLFolderViewItem*  item = getCurSelectedItem();
 	if(item &&  mCurrentSelectedList == mLandmarksInventoryPanel)
 	{
-		LLFolderBridge *parentBridge = NULL;
+		LLFolderViewEventListener* folder_bridge = NULL;
 		if(item-> getListener()->getInventoryType() == LLInventoryType::IT_LANDMARK)
 		{
-			parentBridge = dynamic_cast<LLFolderBridge*>(item->getParentFolder()->getListener());
-			/*WORKAROUND:* 
-			 LLFolderView::doIdle() is calling in each frame,
-			 it changes selected items before LLFolderView::startRenamingSelectedItem.
-			 To avoid it we have to change keyboardFocus. 
-			*/
-			gFocusMgr.setKeyboardFocus(item->getParentFolder());
+			// for a landmark get parent folder bridge
+			folder_bridge = item->getParentFolder()->getListener();
 		}
 		else if (item-> getListener()->getInventoryType() == LLInventoryType::IT_CATEGORY) 
 		{
-			parentBridge = dynamic_cast<LLFolderBridge*>(item->getListener());
-			gFocusMgr.setKeyboardFocus(item);
+			// for a folder get its own bridge
+			folder_bridge = item->getListener();
 		}
-		menu_create_inventory_item(mCurrentSelectedList->getRootFolder(),parentBridge, LLSD("category"));
+
+		menu_create_inventory_item(mCurrentSelectedList->getRootFolder()
+			, dynamic_cast<LLFolderBridge*>(folder_bridge)
+			, LLSD("category")
+			, gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK)
+			);
 	}
 }
 

@@ -7,7 +7,7 @@
   visible="false"
   layout="topleft"
 	width="350"
-	height="72"
+	height="40"
   left="100"
   top="500"
   follows="right|bottom" 
@@ -24,18 +24,18 @@
    visible="false"
    follows="left|top|right|bottom"
    font="SansSerifBold"
-   height="40"
+   height="28"
    layout="topleft"
    left="60"
    name="toast_text"
    word_wrap="true"
    text_color="white"
-   top="20"
+   top="10"
    width="290">
     Toast text;
   </text>
   <icon
-    top="20" 
+    top="4" 
     left="10" 
     width="32" 
     height="32"

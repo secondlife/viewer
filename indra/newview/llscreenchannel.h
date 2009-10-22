@@ -256,7 +256,7 @@ private:
 	void	createOverflowToast(S32 bottom, F32 timer);
 
 	// create the StartUp Toast
-	void	createStartUpToast(S32 notif_num, S32 bottom, F32 timer);
+	void	createStartUpToast(S32 notif_num, F32 timer);
 
 	// Channel's flags
 	static bool	mWasStartUpToastShown;
