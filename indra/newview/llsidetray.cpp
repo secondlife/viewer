@@ -111,6 +111,61 @@ bool	LLSideTray::instanceCreated	()
 	return sInstance!=0;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// LLSideTrayTab
+// Represents a single tab in the side tray, only used by LLSideTray
+//////////////////////////////////////////////////////////////////////////////
+
+class LLSideTrayTab: public LLPanel
+{
+	friend class LLUICtrlFactory;
+	friend class LLSideTray;
+public:
+	
+	struct Params 
+	:	public LLInitParam::Block<Params, LLPanel::Params>
+	{
+		// image name
+		Optional<std::string>		image_path;
+		Optional<std::string>		tab_title;
+		Optional<std::string>		description;
+		Params()
+		:	image_path("image"),
+		tab_title("tab_title","no title"),
+		description("description","no description")
+		{};
+	};
+protected:
+	LLSideTrayTab(const Params& params);
+	
+	
+public:
+	virtual ~LLSideTrayTab();
+	
+    /*virtual*/ BOOL	postBuild	();
+	/*virtual*/ bool	addChild	(LLView* view, S32 tab_group);
+	
+	
+	void			arrange		(S32 width, S32 height);
+	void			reshape		(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	
+	static LLSideTrayTab*  createInstance	();
+	
+	const std::string& getDescription () const { return mDescription;}
+	const std::string& getTabTitle() const { return mTabTitle;}
+	
+	void draw();
+	
+	void			onOpen		(const LLSD& key);
+	
+private:
+	std::string mTabTitle;
+	std::string mImagePath;
+	std::string	mDescription;
+	
+	LLView*	mMainPanel;
+};
+
 LLSideTrayTab::LLSideTrayTab(const Params& params):mMainPanel(0)
 {
 	mImagePath = params.image_path;
@@ -221,6 +276,18 @@ LLSideTrayTab*  LLSideTrayTab::createInstance	()
 	return tab;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// LLSideTray
+//////////////////////////////////////////////////////////////////////////////
+
+LLSideTray::Params::Params()
+:	collapsed("collapsed",false),
+	tab_btn_image_normal("tab_btn_image","sidebar_tab_left.tga"),
+	tab_btn_image_selected("tab_btn_image_selected","button_enabled_selected_32x128.tga"),
+	default_button_width("tab_btn_width",32),
+	default_button_height("tab_btn_height",32),
+	default_button_margin("tab_btn_margin",0)
+{}
 
 //virtual 
 LLSideTray::LLSideTray(Params& params)
