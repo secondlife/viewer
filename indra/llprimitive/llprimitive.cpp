@@ -43,7 +43,7 @@
 #include "llvolumemgr.h"
 #include "llstring.h"
 #include "lldatapacker.h"
-#include "llsdutil.h"
+#include "llsdutil_math.h"
 #include "llprimtexturelist.h"
 
 /**
@@ -746,16 +746,201 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 
 	U32 old_face_mask = mVolumep->mFaceMask;
 
+	S32 face_bit = 0;
+	S32 cur_mask = 0;
+
+	// Grab copies of the old faces from the original shape, ordered by type.
+	// We will use these to figure out what old texture info gets mapped to new
+	// faces in the new shape.
+	std::vector<LLProfile::Face> old_faces; 
+	for (S32 face = 0; face < mVolumep->getNumFaces(); face++)
+	{
+		old_faces.push_back(mVolumep->getProfile().mFaces[face]);
+	}
+
+	// Copy the old texture info off to the side, but not in the order in which
+	// they live in the mTextureList, rather in order of ther "face id" which
+	// is the corresponding value of LLVolueParams::LLProfile::mFaces::mIndex.
+	//
+	// Hence, some elements of old_tes::mEntryList will be invalid.  It is
+	// initialized to a size of 9 (max number of possible faces on a volume?)
+	// and only the ones with valid types are filled in.
+	LLPrimTextureList old_tes;
+	old_tes.setSize(9);
+	for (face_bit = 0; face_bit < 9; face_bit++)
+	{
+		cur_mask = 0x1 << face_bit;
+		if (old_face_mask & cur_mask)
+		{
+			S32 te_index = face_index_from_id(cur_mask, old_faces);
+			old_tes.copyTexture(face_bit, *(getTE(te_index)));
+			//llinfos << face_bit << ":" << te_index << ":" << old_tes[face_bit].getID() << llendl;
+		}
+	}
+
+
 	// build the new object
 	sVolumeManager->unrefVolume(mVolumep);
 	mVolumep = volumep;
 	
 	U32 new_face_mask = mVolumep->mFaceMask;
-	if (old_face_mask != new_face_mask) 
+	S32 i;
+
+	if (old_face_mask == new_face_mask) 
 	{
-		setNumTEs(mVolumep->getNumFaces());
+		// nothing to do
+		return TRUE;
 	}
 
+	if (mVolumep->getNumFaces() == 0 && new_face_mask != 0)
+	{
+		llwarns << "Object with 0 faces found...INCORRECT!" << llendl;
+		setNumTEs(mVolumep->getNumFaces());
+		return TRUE;
+	}
+
+	// initialize face_mapping
+	S32 face_mapping[9];
+	for (face_bit = 0; face_bit < 9; face_bit++)
+	{
+		face_mapping[face_bit] = face_bit;
+	}
+
+	// The new shape may have more faces than the original, but we can't just
+	// add them to the end -- the ordering matters and it may be that we must
+	// insert the new faces in the middle of the list.  When we add a face it
+	// will pick up the texture/color info of one of the old faces an so we
+	// now figure out which old face info gets mapped to each new face, and 
+	// store in the face_mapping lookup table.
+	for (face_bit = 0; face_bit < 9; face_bit++)
+	{
+		cur_mask = 0x1 << face_bit;
+		if (!(new_face_mask & cur_mask))
+		{
+			// Face doesn't exist in new map.
+			face_mapping[face_bit] = -1;
+			continue;
+		}
+		else if (old_face_mask & cur_mask)
+		{
+			// Face exists in new and old map.
+			face_mapping[face_bit] = face_bit;
+			continue;
+		}
+
+		// OK, how we've got a mismatch, where we have to fill a new face with one from
+		// the old face.
+		if (cur_mask & (LL_FACE_PATH_BEGIN | LL_FACE_PATH_END | LL_FACE_INNER_SIDE))
+		{
+			// It's a top/bottom/hollow interior face.
+			if (old_face_mask & LL_FACE_PATH_END)
+			{
+				face_mapping[face_bit] = 1;
+				continue;
+			}
+			else
+			{
+				S32 cur_outer_mask = LL_FACE_OUTER_SIDE_0;
+				for (i = 0; i < 4; i++)
+				{
+					if (old_face_mask & cur_outer_mask)
+					{
+						face_mapping[face_bit] = 5 + i;
+						break;
+					}
+					cur_outer_mask <<= 1;
+				}
+				if (i == 4)
+				{
+					llwarns << "No path end or outer face in volume!" << llendl;
+				}
+				continue;
+			}
+		}
+
+		if (cur_mask & (LL_FACE_PROFILE_BEGIN | LL_FACE_PROFILE_END))
+		{
+			// A cut slice.  Use the hollow interior if we have it.
+			if (old_face_mask & LL_FACE_INNER_SIDE)
+			{
+				face_mapping[face_bit] = 2;
+				continue;
+			}
+
+			// No interior, use the bottom face.
+			// Could figure out which of the outer faces was nearest, but that would be harder.
+			if (old_face_mask & LL_FACE_PATH_END)
+			{
+				face_mapping[face_bit] = 1;
+				continue;
+			}
+			else
+			{
+				S32 cur_outer_mask = LL_FACE_OUTER_SIDE_0;
+				for (i = 0; i < 4; i++)
+				{
+					if (old_face_mask & cur_outer_mask)
+					{
+						face_mapping[face_bit] = 5 + i;
+						break;
+					}
+					cur_outer_mask <<= 1;
+				}
+				if (i == 4)
+				{
+					llwarns << "No path end or outer face in volume!" << llendl;
+				}
+				continue;
+			}
+		}
+
+		// OK, the face that's missing is an outer face...
+		// Pull from the nearest adjacent outer face (there's always guaranteed to be one...
+		S32 cur_outer = face_bit - 5;
+		S32 min_dist = 5;
+		S32 min_outer_bit = -1;
+		S32 i;
+		for (i = 0; i < 4; i++)
+		{
+			if (old_face_mask & (LL_FACE_OUTER_SIDE_0 << i))
+			{
+				S32 dist = abs(i - cur_outer);
+				if (dist < min_dist)
+				{
+					min_dist = dist;
+					min_outer_bit = i + 5;
+				}
+			}
+		}
+		if (-1 == min_outer_bit)
+		{
+			llinfos << (LLVolume *)mVolumep << llendl;
+			llwarns << "Bad!  No outer faces, impossible!" << llendl;
+		}
+		face_mapping[face_bit] = min_outer_bit;
+	}
+	
+
+	setNumTEs(mVolumep->getNumFaces());
+	for (face_bit = 0; face_bit < 9; face_bit++)
+	{
+		// For each possible face type on the new shape we check to see if that
+		// face exists and if it does we create a texture entry that is a copy
+		// of one of the originals.  Since the originals might not have a
+		// matching face, we use the face_mapping lookup table to figure out
+		// which face information to copy.
+		cur_mask = 0x1 << face_bit;
+		if (new_face_mask & cur_mask)
+		{
+			if (-1 == face_mapping[face_bit])
+			{
+				llwarns << "No mapping from old face to new face!" << llendl;
+			}
+
+			S32 te_num = face_index_from_id(cur_mask, mVolumep->getProfile().mFaces);
+			setTE(te_num, *(old_tes.getTexture(face_mapping[face_bit])));
+		}
+	}
 	return TRUE;
 }
 
@@ -1715,10 +1900,10 @@ LLSD LLLightImageParams::asLLSD() const
 
 bool LLLightImageParams::fromLLSD(LLSD& sd)
 {
-	if (sd.has("texture") && sd.has("params") && sd["params"].size() == 3)
+	if (sd.has("texture"))
 	{
 		setLightTexture( sd["texture"] );
-		setParams( LLVector3(sd["params"][0].asReal(), sd["params"][1].asReal(), sd["params"][2].asReal()) );
+		setParams( LLVector3( sd["params"] ) );
 		return true;
 	} 
 	

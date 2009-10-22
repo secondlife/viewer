@@ -42,7 +42,7 @@
 	It also keeps track of whether the process is still running, and can kill it if required.
 */
 
-class LLProcessLauncher
+class LL_COMMON_API LLProcessLauncher
 {
 	LOG_CLASS(LLProcessLauncher);
 public:

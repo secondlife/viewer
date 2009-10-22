@@ -39,14 +39,14 @@
  * @param str The string to parse.
  * @return Returns the first U64 value found in the string or 0 on failure.
  */
-U64 str_to_U64(const std::string& str);
+LL_COMMON_API U64 str_to_U64(const std::string& str);
 
 /**
  * @brief Given a U64 value, return a printable representation.
  * @param value The U64 to turn into a printable character array.
  * @return Returns the result string.
  */
-std::string U64_to_str(U64 value);
+LL_COMMON_API std::string U64_to_str(U64 value);
 
 /**
  * @brief Given a U64 value, return a printable representation.
@@ -65,16 +65,16 @@ std::string U64_to_str(U64 value);
  * @param result_size The size of the buffer allocated. Use U64_BUF.
  * @return Returns the result pointer.
  */
-char* U64_to_str(U64 value, char* result, S32 result_size);
+LL_COMMON_API char* U64_to_str(U64 value, char* result, S32 result_size);
 
 /**
  * @brief Convert a U64 to the closest F64 value.
  */
-F64 U64_to_F64(const U64 value);
+LL_COMMON_API F64 U64_to_F64(const U64 value);
 
 /**
  * @brief Helper function to wrap strtoull() which is not available on windows.
  */
-U64 llstrtou64(const char* str, char** end, S32 base);
+LL_COMMON_API U64 llstrtou64(const char* str, char** end, S32 base);
 
 #endif

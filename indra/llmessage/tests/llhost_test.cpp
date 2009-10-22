@@ -157,7 +157,7 @@ namespace tut
 	template<> template<>
 	void host_object::test<9>()
 	{
-		std::string hostStr = "linux.org";
+		skip("setHostByName(\"linux.org\"); getHostName() -> (e.g.) \"yx-in-f100.1e100.net\"");
 		LLHost host;
 		host.setHostByName(hostStr);	
 
@@ -166,7 +166,15 @@ namespace tut
 		// the main domain name and not do the exact compare
 		
 		std::string hostname = host.getHostName();
-		ensure("getHostName failed", hostname.find(hostStr) != std::string::npos);
+		try
+		{
+			ensure("getHostName failed", hostname.find(hostStr) != std::string::npos);
+		}
+		catch (const std::exception&)
+		{
+			std::cerr << "set '" << hostStr << "'; reported '" << hostname << "'" << std::endl;
+			throw;
+		}
 	}
 
 //	setHostByName for dotted IP

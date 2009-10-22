@@ -265,6 +265,11 @@ static void request(
 		}
 	}
 
+	if (responder)
+	{
+		responder->setURL(url);
+	}
+
 	req->setCallback(new LLHTTPClientURLAdaptor(responder));
 
 	if (method == LLURLRequest::HTTP_POST  &&  gMessageSystem)

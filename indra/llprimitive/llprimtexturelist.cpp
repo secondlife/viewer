@@ -135,13 +135,12 @@ S32 LLPrimTextureList::copyTexture(const U8 index, const LLTextureEntry& te)
 {
 	if (S32(index) >= mEntryList.size())
 	{
-		// TODO -- assert here
 		S32 current_size = mEntryList.size();
-		llerrs << "index = " << S32(index) << "  current_size = " << current_size << llendl;
+		llwarns << "ignore copy of index = " << S32(index) << " into texture entry list of size = " << current_size << llendl;
 		return TEM_CHANGE_NONE;
 	}
 
-	// we're changing an existing entry
+		// we're changing an existing entry
 	llassert(mEntryList[index]);
 	delete (mEntryList[index]);
 	if  (&te)
@@ -387,8 +386,18 @@ void LLPrimTextureList::setSize(S32 new_size)
 		mEntryList.resize(new_size);
 		for (S32 index = current_size; index < new_size; ++index)
 		{
-			LLTextureEntry* new_entry = LLPrimTextureList::newTextureEntry();
-			mEntryList[index] = new_entry;
+			if (current_size > 0
+				&& mEntryList[current_size - 1])
+			{
+				// copy the last valid entry for the new one
+				mEntryList[index] = mEntryList[current_size - 1]->newCopy();
+			}
+			else
+			{
+				// no valid enries to copy, so we new one up
+				LLTextureEntry* new_entry = LLPrimTextureList::newTextureEntry();
+				mEntryList[index] = new_entry;
+			}
 		}
 	}
 	else if (new_size < current_size)

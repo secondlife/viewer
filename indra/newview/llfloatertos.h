@@ -36,6 +36,7 @@
 #include "llmodaldialog.h"
 #include "llassetstorage.h"
 #include "llmediactrl.h"
+#include <boost/function.hpp>
 
 class LLButton;
 class LLRadioGroup;
@@ -48,7 +49,7 @@ class LLFloaterTOS :
 	public LLViewerMediaObserver
 {
 public:
-	LLFloaterTOS(const LLSD& message);
+	LLFloaterTOS(const LLSD& data);
 	virtual ~LLFloaterTOS();
 
 	BOOL postBuild();
@@ -68,6 +69,7 @@ private:
 	std::string		mMessage;
 	int				mWebBrowserWindowId;
 	int				mLoadCompleteCount;
+	std::string		mReplyPumpName;
 };
 
 #endif // LL_LLFLOATERTOS_H
