@@ -247,7 +247,7 @@
          name="radio stretch" />
         <radio_item
 		 top_pad="6"
-         label="Select Texture"
+         label="Select Face"
          layout="topleft"
          name="radio select face" />
 			<radio_group.commit_callback

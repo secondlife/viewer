@@ -1310,6 +1310,11 @@ void LLAgentWearables::removeWearable(const EWearableType type, bool do_remove_a
 		// TODO: enable the removing of a single undershirt/underpants if multiple are worn. - Nyx
 		return;
 	}
+	if (getWearableCount(type) == 0)
+	{
+		// no wearables to remove
+		return;
+	}
 
 	if (do_remove_all)
 	{
@@ -1431,6 +1436,9 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	wearables_to_remove[WT_UNDERSHIRT]	= (!gAgent.isTeen()) & remove;
 	wearables_to_remove[WT_UNDERPANTS]	= (!gAgent.isTeen()) & remove;
 	wearables_to_remove[WT_SKIRT]		= remove;
+	wearables_to_remove[WT_ALPHA]		= remove;
+	wearables_to_remove[WT_TATTOO]		= remove;
+
 
 	S32 count = wearables.count();
 	llassert(items.count() == count);
@@ -1743,6 +1751,8 @@ void LLAgentWearables::userRemoveAllClothesStep2(BOOL proceed)
 		gAgentWearables.removeWearable(WT_UNDERSHIRT,true,0);
 		gAgentWearables.removeWearable(WT_UNDERPANTS,true,0);
 		gAgentWearables.removeWearable(WT_SKIRT,true,0);
+		gAgentWearables.removeWearable(WT_ALPHA,true,0);
+		gAgentWearables.removeWearable(WT_TATTOO,true,0);
 	}
 }
 

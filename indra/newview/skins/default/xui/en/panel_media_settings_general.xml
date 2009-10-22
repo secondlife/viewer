@@ -135,7 +135,8 @@
 
   <check_box 
    bottom_delta="-25" 
-   enabled="true" 
+   visible="false" 
+   enabled="false" 
    follows="left|top" 
    font="SansSerifSmall"
    height="16" 
@@ -148,7 +149,7 @@
    width="150" />
 
   <check_box 
-   bottom_delta="-25" 
+   bottom_delta="0" 
    enabled="true" 
    follows="left|top"
    font="SansSerifSmall"
@@ -158,20 +159,6 @@
    left_delta="0" 
    mouse_opaque="true"
    name="auto_zoom" 
-   radio_style="false" 
-   width="150" />
-
-  <check_box 
-   bottom_delta="-25" 
-   enabled="true" 
-   follows="left|top" 
-   font="SansSerifSmall"
-   height="16" 
-   initial_value="false"
-   label="Use Default Alternative Image" 
-   left="10" 
-   mouse_opaque="true"
-   name="alt_image_enable" 
    radio_style="false" 
    width="150" />
 
