@@ -1206,6 +1206,9 @@ bool LLAppViewer::mainLoop()
 
 bool LLAppViewer::cleanup()
 {
+	// workaround for DEV-35406 crash on shutdown
+	LLEventPumps::instance().reset();
+
 	// *TODO - generalize this and move DSO wrangling to a helper class -brad
 	std::set<struct apr_dso_handle_t *>::const_iterator i;
 	for(i = mPlugins.begin(); i != mPlugins.end(); ++i)
@@ -1214,9 +1217,7 @@ bool LLAppViewer::cleanup()
 		apr_status_t rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll_plugin_stop_func, *i, "ll_plugin_stop");
 		ll_plugin_stop_func();
 
-		// *NOTE - disabled unloading as partial solution to DEV-35406 crash on shutdown
-		//rv = apr_dso_unload(*i);
-		(void)rv;
+		rv = apr_dso_unload(*i);
 	}
 	mPlugins.clear();
 
