@@ -187,8 +187,8 @@ public:
 	void				setLocalTextureTE(U8 te, LLViewerTexture* image, BOOL set_by_user, U32 index);
 	const LLUUID&		grabLocalTexture(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	BOOL				canGrabLocalTexture(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
-protected:
 	/*virtual*/ void	setLocalTexture(LLVOAvatarDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index);
+protected:
 	/*virtual*/ void	setBakedReady(LLVOAvatarDefines::ETextureIndex type, BOOL baked_version_exists, U32 index);
 	void				localTextureLoaded(BOOL succcess, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 	void				getLocalTextureByteCount(S32* gl_byte_count) const;

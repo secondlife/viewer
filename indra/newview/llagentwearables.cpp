@@ -668,9 +668,17 @@ U32 LLAgentWearables::pushWearable(const EWearableType type, LLWearable *wearabl
 	return MAX_WEARABLES_PER_TYPE;
 }
 
-void LLAgentWearables::popWearable(const EWearableType type, LLWearable *wearable)
+void LLAgentWearables::popWearable(LLWearable *wearable)
 {
-	U32 index = getWearableIndex(type, wearable);
+	if (wearable == NULL)
+	{
+		// nothing to do here. move along.
+		return;
+	}
+
+	U32 index = getWearableIndex(wearable);
+	EWearableType type = wearable->getType();
+
 	if (index < MAX_WEARABLES_PER_TYPE && index < getWearableCount(type))
 	{
 		popWearable(type, index);
@@ -685,8 +693,14 @@ void LLAgentWearables::popWearable(const EWearableType type, U32 index)
 	}
 }
 
-U32	LLAgentWearables::getWearableIndex(const EWearableType type, LLWearable *wearable)
+U32	LLAgentWearables::getWearableIndex(LLWearable *wearable)
 {
+	if (wearable == NULL)
+	{
+		return MAX_WEARABLES_PER_TYPE;
+	}
+
+	const EWearableType type = wearable->getType();
 	wearableentry_map_t::const_iterator wearable_iter = mWearableDatas.find(type);
 	if (wearable_iter == mWearableDatas.end())
 	{

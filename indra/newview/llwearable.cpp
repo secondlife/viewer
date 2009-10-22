@@ -537,6 +537,7 @@ BOOL LLWearable::isDirty() const
 					const LLUUID& saved_image_id = saved_iter->second->getID();
 					if (saved_image_id != current_image_id)
 					{
+						// saved vs current images are different, wearable is dirty
 						return TRUE;
 					}
 				}
