@@ -1197,7 +1197,33 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 	
 	if (mMediaSource)
 	{
-		result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN ,key, mask);
+		// FIXME: THIS IS SO WRONG.
+		// Menu keys should be handled by the menu system and not passed to UI elements, but this is how LLTextEditor and LLLineEditor do it...
+		if( MASK_CONTROL & mask )
+		{
+			if( 'C' == key )
+			{
+				mMediaSource->copy();
+				result = true;
+			}
+			else
+			if( 'V' == key )
+			{
+				mMediaSource->paste();
+				result = true;
+			}
+			else
+			if( 'X' == key )
+			{
+				mMediaSource->cut();
+				result = true;
+			}
+		}
+		
+		if(!result)
+		{
+			result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN ,key, mask);
+		}
 	}
 	
 	return result;
@@ -1210,7 +1236,12 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
 	
 	if (mMediaSource)
 	{
-		mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)));
+		// only accept 'printable' characters, sigh...
+		if (uni_char >= 32 // discard 'control' characters
+			&& uni_char != 127) // SDL thinks this is 'delete' - yuck.
+		{
+			mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)));
+		}
 	}
 	
 	return result;

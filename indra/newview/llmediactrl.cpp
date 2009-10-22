@@ -321,36 +321,9 @@ BOOL LLMediaCtrl::handleKeyHere( KEY key, MASK mask )
 {
 	BOOL result = FALSE;
 	
-	// FIXME: THIS IS SO WRONG.
-	// Menu keys should be handled by the menu system and not passed to UI elements, but this is how LLTextEditor and LLLineEditor do it...
-	
 	if (mMediaSource)
 	{
-		if( MASK_CONTROL & mask )
-		{
-			if( 'C' == key )
-			{
-				mMediaSource->copy();
-				result = TRUE;
-			}
-			else
-			if( 'V' == key )
-			{
-				mMediaSource->paste();
-				result = TRUE;
-			}
-			else
-			if( 'X' == key )
-			{
-				mMediaSource->cut();
-				result = TRUE;
-			}
-		}
-		
-		if(!result)
-		{
-			result = mMediaSource->handleKeyHere(key, mask);
-		}
+		result = mMediaSource->handleKeyHere(key, mask);
 	}
 		
 	return result;
@@ -373,12 +346,9 @@ BOOL LLMediaCtrl::handleUnicodeCharHere(llwchar uni_char)
 {
 	BOOL result = FALSE;
 	
-	// only accept 'printable' characters, sigh...
-	if (uni_char >= 32 // discard 'control' characters
-	    && uni_char != 127) // SDL thinks this is 'delete' - yuck.
+	if (mMediaSource)
 	{
-		if (mMediaSource)
-			result = mMediaSource->handleUnicodeCharHere(uni_char);
+		result = mMediaSource->handleUnicodeCharHere(uni_char);
 	}
 
 	return result;
