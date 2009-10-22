@@ -58,6 +58,7 @@
 #include "llui.h"
 #include "llrender.h"
 #include "llsdutil.h"
+#include "llsdutil_math.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs

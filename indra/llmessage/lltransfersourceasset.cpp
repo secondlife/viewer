@@ -270,7 +270,6 @@ bool is_asset_fetch_by_id_allowed(LLAssetType::EType type)
 		case LLAssetType::AT_BODYPART:
 		case LLAssetType::AT_ANIMATION:
 		case LLAssetType::AT_GESTURE:
-		case LLAssetType::AT_FAVORITE:
 			rv = true;
 			break;
 		default:

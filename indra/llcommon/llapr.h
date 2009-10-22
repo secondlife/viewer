@@ -48,25 +48,25 @@
 #include "apr_atomic.h"
 #include "llstring.h"
 
-extern apr_thread_mutex_t* gLogMutexp;
+extern LL_COMMON_API apr_thread_mutex_t* gLogMutexp;
 extern apr_thread_mutex_t* gCallStacksLogMutexp;
 
 /** 
  * @brief initialize the common apr constructs -- apr itself, the
  * global pool, and a mutex.
  */
-void ll_init_apr();
+void LL_COMMON_API ll_init_apr();
 
 /** 
  * @brief Cleanup those common apr constructs.
  */
-void ll_cleanup_apr();
+void LL_COMMON_API ll_cleanup_apr();
 
 //
 //LL apr_pool
 //manage apr_pool_t, destroy allocated apr_pool in the destruction function.
 //
-class LLAPRPool
+class LL_COMMON_API LLAPRPool
 {
 public:
 	LLAPRPool(apr_pool_t *parent = NULL, apr_size_t size = 0, BOOL releasePoolFlag = TRUE) ;
@@ -92,7 +92,7 @@ protected:
 //which clears memory automatically.
 //so it can not hold static data or data after memory is cleared
 //
-class LLVolatileAPRPool : public LLAPRPool
+class LL_COMMON_API LLVolatileAPRPool : public LLAPRPool
 {
 public:
 	LLVolatileAPRPool(apr_pool_t *parent = NULL, apr_size_t size = 0, BOOL releasePoolFlag = TRUE);
@@ -118,7 +118,7 @@ private:
  * destructor handles the unlock. Instances of this class are
  * <b>not</b> thread safe.
  */
-class LLScopedLock : private boost::noncopyable
+class LL_COMMON_API LLScopedLock : private boost::noncopyable
 {
 public:
 	/**
@@ -192,7 +192,7 @@ typedef LLAtomic32<S32> LLAtomicS32;
 //      1, a temperary pool passed to an APRFile function, which is used within this function and only once.
 //      2, a global pool.
 //
-class LLAPRFile
+class LL_COMMON_API LLAPRFile
 {
 private:
 	apr_file_t* mFile ;
@@ -250,10 +250,10 @@ public:
  * APR_SUCCESS.
  * @return Returns <code>true</code> if status is an error condition.
  */
-bool ll_apr_warn_status(apr_status_t status);
+bool LL_COMMON_API ll_apr_warn_status(apr_status_t status);
 
-void ll_apr_assert_status(apr_status_t status);
+void LL_COMMON_API ll_apr_assert_status(apr_status_t status);
 
-extern "C" apr_pool_t* gAPRPoolp; // Global APR memory pool
+extern "C" LL_COMMON_API apr_pool_t* gAPRPoolp; // Global APR memory pool
 
 #endif // LL_LLAPR_H

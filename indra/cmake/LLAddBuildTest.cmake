@@ -1,4 +1,6 @@
 # -*- cmake -*-
+include(LLTestCommand)
+include(GoogleMock)
 
 MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   # Given a project name and a list of sourcefiles (with optional properties on each),
@@ -13,6 +15,8 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   #
   # WARNING: do NOT modify this code without working with poppy -
   # there is another branch that will conflict heavily with any changes here.
+INCLUDE(GoogleMock)
+
 
   IF(LL_TEST_VERBOSE)
     MESSAGE("LL_ADD_PROJECT_UNIT_TESTS UNITTEST_PROJECT_${project} sources: ${sources}")
@@ -41,8 +45,10 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
     ${LLMATH_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${LIBS_OPEN_DIR}/test
+    ${GOOGLEMOCK_INCLUDE_DIRS}
     )
   SET(alltest_LIBRARIES
+    ${GOOGLEMOCK_LIBRARIES}
     ${PTHREAD_LIBRARY}
     ${WINDOWS_LIBRARIES}
     )
@@ -50,6 +56,11 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   SET(alltest_HEADER_FILES
     ${CMAKE_SOURCE_DIR}/test/test.h
     )
+
+  # Use the default flags
+  if (LINUX)
+    SET(CMAKE_EXE_LINKER_FLAGS "")
+  endif (LINUX)
 
   # start the source test executable definitions
   SET(${project}_TEST_OUTPUT "")
@@ -93,9 +104,9 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
       MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_additional_INCLUDE_DIRS ${${name}_test_additional_INCLUDE_DIRS}")
     ENDIF(LL_TEST_VERBOSE)
 
+
     # Setup target
     ADD_EXECUTABLE(PROJECT_${project}_TEST_${name} ${${name}_test_SOURCE_FILES})
-
     #
     # Per-codefile additional / external project dep and lib dep property extraction
     #
@@ -123,16 +134,20 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
     GET_TARGET_PROPERTY(TEST_EXE PROJECT_${project}_TEST_${name} LOCATION)
     SET(TEST_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/PROJECT_${project}_TEST_${name}_ok.txt)
     SET(TEST_CMD ${TEST_EXE} --touch=${TEST_OUTPUT} --sourcedir=${CMAKE_CURRENT_SOURCE_DIR})
-    # daveh - what configuration does this use? Debug? it's cmake-time, not build time. + poppy 2009-04-19
+
+	# daveh - what configuration does this use? Debug? it's cmake-time, not build time. + poppy 2009-04-19
     IF(LL_TEST_VERBOSE)
       MESSAGE(STATUS "LL_ADD_PROJECT_UNIT_TESTS ${name} test_cmd  = ${TEST_CMD}")
     ENDIF(LL_TEST_VERBOSE)
-    SET(TEST_SCRIPT_CMD 
-      ${CMAKE_COMMAND} 
-      -DLD_LIBRARY_PATH=${ARCH_PREBUILT_DIRS}:/usr/lib
-      -DTEST_CMD:STRING="${TEST_CMD}" 
-      -P ${CMAKE_SOURCE_DIR}/cmake/RunBuildTest.cmake
-      )
+    
+    IF(WINDOWS)
+      set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR})
+    ELSE(WINDOWS)
+      set(LD_LIBRARY_PATH ${ARCH_PREBUILT_DIRS}:${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}:/usr/lib)
+    ENDIF(WINDOWS)
+
+    LL_TEST_COMMAND("${LD_LIBRARY_PATH}" ${TEST_CMD})
+    SET(TEST_SCRIPT_CMD ${LL_TEST_COMMAND_value})
     IF(LL_TEST_VERBOSE)
       MESSAGE(STATUS "LL_ADD_PROJECT_UNIT_TESTS ${name} test_script  = ${TEST_SCRIPT_CMD}")
     ENDIF(LL_TEST_VERBOSE)
@@ -176,6 +191,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
 
   SET(libraries
     ${library_dependencies}
+    ${GOOGLEMOCK_LIBRARIES}
     ${PTHREAD_LIBRARY}
     )
 
@@ -212,12 +228,14 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     LIST(INSERT test_command test_exe_pos "${TEST_EXE}")
   ENDIF (test_exe_pos LESS 0)
 
-  SET(TEST_SCRIPT_CMD 
-    ${CMAKE_COMMAND} 
-    -DLD_LIBRARY_PATH=${ARCH_PREBUILT_DIRS}:/usr/lib
-    -DTEST_CMD:STRING="${test_command}" 
-    -P ${CMAKE_SOURCE_DIR}/cmake/RunBuildTest.cmake
-    )
+  IF(WINDOWS)
+    set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR})
+  ELSE(WINDOWS)
+    set(LD_LIBRARY_PATH ${ARCH_PREBUILT_DIRS}:${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}:/usr/lib)
+  ENDIF(WINDOWS)
+
+  LL_TEST_COMMAND("${LD_LIBRARY_PATH}" ${test_command})
+  SET(TEST_SCRIPT_CMD ${LL_TEST_COMMAND_value})
 
   if(TEST_DEBUG)
     message(STATUS "TEST_SCRIPT_CMD: ${TEST_SCRIPT_CMD}")

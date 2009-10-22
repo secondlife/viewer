@@ -70,7 +70,7 @@ typedef struct stat		llstat;
 
 #include "llstring.h" // safe char* -> std::string conversion
 
-class	LLFile
+class LL_COMMON_API LLFile
 {
 public:
 	// All these functions take UTF8 path/filenames.
@@ -95,7 +95,7 @@ public:
 
 #if USE_LLFILESTREAMS
 
-class	llifstream	:	public	std::basic_istream < char , std::char_traits < char > >
+class LL_COMMON_API llifstream	:	public	std::basic_istream < char , std::char_traits < char > >
 {
 	// input stream associated with a C stream
 public:
@@ -136,7 +136,7 @@ private:
 };
 
 
-class	llofstream	:	public	std::basic_ostream< char , std::char_traits < char > >
+class LL_COMMON_API llofstream	:	public	std::basic_ostream< char , std::char_traits < char > >
 {
 public:
 	typedef std::basic_ostream< char , std::char_traits < char > > _Myt;
@@ -185,7 +185,7 @@ private:
 //#define	llifstream	std::ifstream
 //#define	llofstream	std::ofstream
 
-class	llifstream	:	public	std::ifstream
+class LL_COMMON_API llifstream	:	public	std::ifstream
 {
 public:
 	llifstream() : std::ifstream()
@@ -203,7 +203,7 @@ public:
 };
 
 
-class	llofstream	:	public	std::ofstream
+class LL_COMMON_API llofstream	:	public	std::ofstream
 {
 public:
 	llofstream() : std::ofstream()
@@ -231,7 +231,7 @@ public:
  * and should only be used for config files and the like -- not in a
  * loop.
  */
-std::streamsize llifstream_size(llifstream& fstr);
-std::streamsize llofstream_size(llofstream& fstr);
+std::streamsize LL_COMMON_API llifstream_size(llifstream& fstr);
+std::streamsize LL_COMMON_API llofstream_size(llofstream& fstr);
 
 #endif // not LL_LLFILE_H

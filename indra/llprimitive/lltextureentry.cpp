@@ -35,7 +35,7 @@
 #include "lluuid.h"
 #include "llmediaentry.h"
 #include "lltextureentry.h"
-#include "llsdutil.h"
+#include "llsdutil_math.h"
 #include "v4color.h"
 
 const U8 DEFAULT_BUMP_CODE = 0;  // no bump or shininess
@@ -645,4 +645,10 @@ LLUUID LLTextureEntry::getAgentIDFromMediaVersionString(const std::string &versi
         }
     }
     return id;
+}
+
+//static
+bool LLTextureEntry::isMediaVersionString(const std::string &version_string)
+{
+	return std::string::npos != version_string.find(MEDIA_VERSION_STRING_PREFIX);
 }

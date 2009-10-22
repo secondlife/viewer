@@ -37,6 +37,7 @@
 #include <deque>
 
 #include "apr_base64.h"
+#include <boost/regex.hpp>
 
 extern "C"
 {
@@ -777,10 +778,17 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
 		
 		case ELEMENT_BINARY:
 		{
-			S32 len = apr_base64_decode_len(mCurrentContent.c_str());
+			// Regex is expensive, but only fix for whitespace in base64,
+			// created by python and other non-linden systems - DEV-39358
+			// Fortunately we have very little binary passing now,
+			// so performance impact shold be negligible. + poppy 2009-09-04
+			boost::regex r;
+			r.assign("\\s");
+			std::string stripped = boost::regex_replace(mCurrentContent, r, "");
+			S32 len = apr_base64_decode_len(stripped.c_str());
 			std::vector<U8> data;
 			data.resize(len);
-			len = apr_base64_decode_binary(&data[0], mCurrentContent.c_str());
+			len = apr_base64_decode_binary(&data[0], stripped.c_str());
 			data.resize(len);
 			value = data;
 			break;

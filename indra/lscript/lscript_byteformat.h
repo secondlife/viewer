@@ -556,7 +556,7 @@ const U32 LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_EOF] =
 // http_request string constants
 extern const char* URL_REQUEST_GRANTED;
 extern const char* URL_REQUEST_DENIED;
-extern const U64 LSL_HTTP_REQUEST_TIMEOUT;
+extern const U64 LSL_HTTP_REQUEST_TIMEOUT_USEC;
 
 #endif
 

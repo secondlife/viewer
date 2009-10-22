@@ -234,7 +234,7 @@
    label="" 
    label_width="0"
    left_delta="40" 
-   max_val="2000" 
+   max_val="2048" 
    min_val="0" 
    mouse_opaque="true"
    name="width_pixels" 
@@ -246,7 +246,7 @@
   <spinner bottom_delta="0"
 	     decimal_digits="0" enabled="true" follows="left|top" height="16"
 	     increment="1" initial_val="256" label="" label_width="0"
-	     left_delta="20" max_val="2000" min_val="0" mouse_opaque="true"
+	     left_delta="20" max_val="2048" min_val="0" mouse_opaque="true"
 	     name="height_pixels" width="50" />
  
 </panel>
