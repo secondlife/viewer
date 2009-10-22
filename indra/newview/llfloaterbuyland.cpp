@@ -81,6 +81,8 @@ public:
 	LLFloaterBuyLandUI(const LLSD& key);
 	virtual ~LLFloaterBuyLandUI();
 	
+	/*virtual*/ void onClose(bool app_quitting);
+	
 private:
 	class SelectionObserver : public LLParcelObserver
 	{
@@ -300,9 +302,19 @@ LLFloaterBuyLandUI::LLFloaterBuyLandUI(const LLSD& key)
 LLFloaterBuyLandUI::~LLFloaterBuyLandUI()
 {
 	LLViewerParcelMgr::getInstance()->removeObserver(&mParcelSelectionObserver);
-	LLViewerParcelMgr::getInstance()->deleteParcelBuy(mParcelBuyInfo);
+	LLViewerParcelMgr::getInstance()->deleteParcelBuy(&mParcelBuyInfo);
 	
 	delete mTransaction;
+}
+
+// virtual
+void LLFloaterBuyLandUI::onClose(bool app_quitting)
+{
+	// This object holds onto observer, transactions, and parcel state.
+	// Despite being single_instance, destroy it to call destructors and clean
+	// everything up.
+	setVisible(FALSE);
+	destroy();
 }
 
 void LLFloaterBuyLandUI::SelectionObserver::changed()
@@ -756,7 +768,7 @@ void LLFloaterBuyLandUI::sendBuyLand()
 	if (mParcelBuyInfo)
 	{
 		LLViewerParcelMgr::getInstance()->sendParcelBuy(mParcelBuyInfo);
-		LLViewerParcelMgr::getInstance()->deleteParcelBuy(mParcelBuyInfo);
+		LLViewerParcelMgr::getInstance()->deleteParcelBuy(&mParcelBuyInfo);
 		mBought = true;
 	}
 }
