@@ -11,6 +11,7 @@
  save_rect="true"
  title="Nearby Chat"
  save_visibility="true"
+ single_instance="true" 
  width="320">
             <chat_history
              allow_html="true" 
