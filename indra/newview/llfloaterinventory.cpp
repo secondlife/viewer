@@ -48,6 +48,7 @@
 #include "message.h"
 
 // newview includes
+#include "llappearancemgr.h"
 #include "llappviewer.h"
 #include "llfirstuse.h"
 #include "llfloaterchat.h"
@@ -1719,6 +1720,12 @@ void LLInventoryPanel::openDefaultFolderForType(LLAssetType::EType type)
 
 void LLInventoryPanel::setSelection(const LLUUID& obj_id, BOOL take_keyboard_focus)
 {
+	// Don't select objects in COF (e.g. to prevent refocus when items are worn).
+	const LLInventoryObject *obj = gInventory.getObject(obj_id);
+	if (obj && obj->getParentUUID() == LLAppearanceManager::getCOF())
+	{
+		return;
+	}
 	mFolders->setSelectionByID(obj_id, take_keyboard_focus);
 }
 
