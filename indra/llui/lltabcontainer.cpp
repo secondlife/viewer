@@ -44,6 +44,7 @@
 #include "lluictrlfactory.h"
 #include "llrender.h"
 #include "llfloater.h"
+#include "lltrans.h"
 
 //----------------------------------------------------------------------------
 
@@ -940,8 +941,8 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 		else
 		{
 			std::string tooltip = trimmed_label;
-			tooltip += "\nAlt-Left arrow for previous tab";
-			tooltip += "\nAlt-Right arrow for next tab";
+			tooltip += "\n" + LLTrans::getString("TooltipAltLeft"); 
+			tooltip += "\n" + LLTrans::getString("TooltipAltRight"); 
 
 			LLButton::Params p;
 			p.name(std::string(child->getName()) + " tab");
