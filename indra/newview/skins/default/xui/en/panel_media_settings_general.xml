@@ -8,6 +8,7 @@
  left="102" 
  mouse_opaque="true"
  name="Media Settings General" 
+ help_topic = "media_settings_general"
  width="365">
 	
   <text 

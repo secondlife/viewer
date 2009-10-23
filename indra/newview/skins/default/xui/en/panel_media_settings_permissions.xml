@@ -8,6 +8,7 @@
  left="102" 
  mouse_opaque="true"
  name="Media settings for controls" 
+ help_topic = "media_settings_controls"
  width="365">
 
   <text 
