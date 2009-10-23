@@ -3884,7 +3884,10 @@ std::string LLObjectBridge::getLabelSuffix() const
 	{
 		std::string attachment_point_name = avatar->getAttachedPointName(mUUID);
 		LLStringUtil::toLower(attachment_point_name);
-		return LLItemBridge::getLabelSuffix() + std::string(" (worn on ") + attachment_point_name + std::string(")");
+		
+		LLStringUtil::format_map_t args;
+		args["[ATTACHMENT_POINT]"] =  attachment_point_name.c_str();
+		return LLItemBridge::getLabelSuffix() + LLTrans::getString("WornOnAttachmentPoint", args);
 	}
 	else
 	{
@@ -4303,7 +4306,7 @@ std::string LLWearableBridge::getLabelSuffix() const
 {
 	if( gAgentWearables.isWearingItem( mUUID ) )
 	{
-		return LLItemBridge::getLabelSuffix() + " (worn)";
+		return LLItemBridge::getLabelSuffix() + LLTrans::getString("worn");
 	}
 	else
 	{
