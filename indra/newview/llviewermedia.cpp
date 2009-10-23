@@ -250,7 +250,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 			media_impl->mMediaSource->setSize(media_entry->getWidthPixels(), media_entry->getHeightPixels());
 		}
 		
-		if((was_loaded || media_entry->getAutoPlay()) && !update_from_self)
+		if((was_loaded || (media_entry->getAutoPlay() && gSavedSettings.getBOOL("AutoPlayMedia"))) && !update_from_self)
 		{
 			if(!media_entry->getCurrentURL().empty())
 			{
@@ -273,7 +273,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 		
 		media_impl->setHomeURL(media_entry->getHomeURL());
 		
-		if(media_entry->getAutoPlay())
+		if(media_entry->getAutoPlay() && gSavedSettings.getBOOL("AutoPlayMedia"))
 		{
 			needs_navigate = true;
 		}

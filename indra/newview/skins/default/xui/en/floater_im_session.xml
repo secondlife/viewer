@@ -11,7 +11,10 @@
  can_dock="true"
  can_minimize="true"
  visible="true" 
- width="365">
+ width="365"
+ can_resize="true"
+ min_width="200"
+ min_height="150">
   <layout_stack follows="left|top|right|bottom"
                 height="235"
                 width="365"
@@ -24,9 +27,9 @@
       name="panel_im_control_panel"
       layout="topleft"
       top_delta="-3"
-      min_width="96" 
       width="146"
       height="225"
+      follows="left"
       label="IM Control Panel"
       user_resize="false" />
     <layout_panel height="235"
@@ -35,33 +38,30 @@
                   top="0"
                   user_resize="false">
       <button height="12"
+      		  follows="left|top"
               top="8" 
               label="&lt;&lt;"
               layout="topleft"
               width="35"
               name="slide_left_btn" />
       <button height="12"
+      		  follows="left|top"
               top="8"
               label="&gt;&gt;"
               layout="topleft"
               width="35"
               name="slide_right_btn" />
-      <text_editor
-       enabled="false"
-       type="string"
+      <chat_history
        length="1"
-       follows="left|top|right"
+       follows="left|top|right|bottom"
        font="SansSerif"
        height="185"
        layout="topleft"
-       max_length="2147483647"
-       name="im_text"
+       name="chat_history"
        parse_highlights="true"
        allow_html="true" 
-       track_bottom="true" 
-       width="195"
-       word_wrap="true">
-      </text_editor>
+       width="195">
+      </chat_history>
       <line_editor follows="left|right" name="chat_editor" height="20" layout="topleft" width="190">
       </line_editor>
     </layout_panel>

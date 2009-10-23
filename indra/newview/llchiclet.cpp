@@ -778,7 +778,12 @@ LLChicletPanel::Params::Params()
 {
 	chiclet_padding = 3;
 	scrolling_offset = 40;
-	min_width = 70;
+
+	if (!min_width.isProvided())
+	{
+		// min_width = 4 chiclets + 3 paddings
+		min_width = 179 + 3*chiclet_padding;
+	}
 
 	LLRect scroll_button_rect(0, 25, 19, 5);
 
@@ -813,6 +818,7 @@ LLChicletPanel::LLChicletPanel(const Params&p)
 
 	mLeftScrollButton = LLUICtrlFactory::create<LLButton>(scroll_button_params);
 	addChild(mLeftScrollButton);
+	LLTransientFloaterMgr::getInstance()->addControlView(mLeftScrollButton);
 
 	mLeftScrollButton->setClickedCallback(boost::bind(&LLChicletPanel::onLeftScrollClick,this));
 	mLeftScrollButton->setEnabled(false);
@@ -820,6 +826,7 @@ LLChicletPanel::LLChicletPanel(const Params&p)
 	scroll_button_params = p.right_scroll_button;
 	mRightScrollButton = LLUICtrlFactory::create<LLButton>(scroll_button_params);
 	addChild(mRightScrollButton);
+	LLTransientFloaterMgr::getInstance()->addControlView(mRightScrollButton);
 
 	mRightScrollButton->setClickedCallback(boost::bind(&LLChicletPanel::onRightScrollClick,this));
 	mRightScrollButton->setEnabled(false);

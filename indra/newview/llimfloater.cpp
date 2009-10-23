@@ -48,7 +48,7 @@
 #include "llpanelimcontrolpanel.h"
 #include "llscreenchannel.h"
 #include "lltrans.h"
-#include "llviewertexteditor.h"
+#include "llchathistory.h"
 #include "llviewerwindow.h"
 #include "lltransientfloatermgr.h"
 
@@ -59,9 +59,8 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	mControlPanel(NULL),
 	mSessionID(session_id),
 	mLastMessageIndex(-1),
-	mLastFromName(),
 	mDialog(IM_NOTHING_SPECIAL),
-	mHistoryEditor(NULL),
+	mChatHistory(NULL),
 	mInputEditor(NULL), 
 	mPositioned(false),
 	mSessionInitialized(false)
@@ -219,7 +218,7 @@ BOOL LLIMFloater::postBuild()
 
 	childSetCommitCallback("chat_editor", onSendMsg, this);
 	
-	mHistoryEditor = getChild<LLViewerTextEditor>("im_text");
+	mChatHistory = getChild<LLChatHistory>("chat_history");
 		
 	setTitle(LLIMModel::instance().getName(mSessionID));
 	setDocked(true);
@@ -251,7 +250,7 @@ void* LLIMFloater::createPanelIMControl(void* userdata)
 void* LLIMFloater::createPanelGroupControl(void* userdata)
 {
 	LLIMFloater *self = (LLIMFloater*)userdata;
-	self->mControlPanel = new LLPanelGroupControlPanel();
+	self->mControlPanel = new LLPanelGroupControlPanel(self->mSessionID);
 	self->mControlPanel->setXMLFilename("panel_group_control_panel.xml");
 	return self->mControlPanel;
 }
@@ -317,6 +316,8 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 	LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
 		(LLNotificationsUI::LLChannelManager::getInstance()->
 											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
+
+	setCanResize(!docked);
 	
 	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
 
@@ -408,7 +409,6 @@ void LLIMFloater::updateMessages()
 
 	if (messages.size())
 	{
-		LLUIColor divider_color = LLUIColorTable::instance().getColor("LtGray_50");
 		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
 
 		std::ostringstream message;
@@ -418,30 +418,20 @@ void LLIMFloater::updateMessages()
 		{
 			LLSD msg = *iter;
 
-			const bool prepend_newline = true;
 			std::string from = msg["from"].asString();
+			std::string time = msg["time"].asString();
+			LLUUID from_id = msg["from_id"].asUUID();
+			std::string message = msg["message"].asString();
+			LLStyle::Params style_params;
+			style_params.color(chat_color);
+
 			if (from == agent_name)
 				from = LLTrans::getString("You");
-			if (mLastFromName != from)
-			{
-				message << from << " ----- " << msg["time"].asString();
-				mHistoryEditor->appendText(message.str(),
-					prepend_newline, LLStyle::Params().color(divider_color) );
-				message.str("");
-				mLastFromName = from;
-			}
 
-			message << msg["message"].asString(); 
-			mHistoryEditor->appendText(message.str(),
-				prepend_newline, 
-				LLStyle::Params().color(chat_color) );
-			message.str("");
+			mChatHistory->appendWidgetMessage(from_id, from, time, message, style_params);
 
 			mLastMessageIndex = msg["index"].asInteger();
 		}
-		mHistoryEditor->blockUndo();
-
-		mHistoryEditor->setCursorAndScrollToEnd();
 	}
 }
 
@@ -453,7 +443,7 @@ void LLIMFloater::onInputEditorFocusReceived( LLFocusableElement* caller, void* 
 	//in disconnected state IM input editor should be disabled
 	self->mInputEditor->setEnabled(!gDisconnected);
 
-	self->mHistoryEditor->setCursorAndScrollToEnd();
+	self->mChatHistory->setCursorAndScrollToEnd();
 }
 
 // static
@@ -516,7 +506,7 @@ void LLIMFloater::chatFromLogFile(LLLogChat::ELogLineType type, std::string line
 		break;
 	}
 
-	self->mHistoryEditor->appendText(message, true, LLStyle::Params().color(LLUIColorTable::instance().getColor("ChatHistoryTextColor")));
-	self->mHistoryEditor->blockUndo();
+	self->mChatHistory->appendText(message, true, LLStyle::Params().color(LLUIColorTable::instance().getColor("ChatHistoryTextColor")));
+	self->mChatHistory->blockUndo();
 }
 

@@ -401,6 +401,16 @@ void LLLayoutStack::collapsePanel(LLPanel* panel, BOOL collapsed)
 	panel_container->mCollapsed = collapsed;
 }
 
+void LLLayoutStack::updatePanelAutoResize(const std::string& panel_name, BOOL auto_resize)
+{
+	LayoutPanel* panel = findEmbeddedPanelByName(panel_name);
+
+	if (panel)
+	{
+		panel->mAutoResize = auto_resize;
+	}
+}
+
 void LLLayoutStack::updateLayout(BOOL force_resize)
 {
 	static LLUICachedControl<S32> resize_bar_overlap ("UIResizeBarOverlap", 0);
@@ -711,6 +721,24 @@ LLLayoutStack::LayoutPanel* LLLayoutStack::findEmbeddedPanel(LLPanel* panelp) co
 		}
 	}
 	return NULL;
+}
+
+LLLayoutStack::LayoutPanel* LLLayoutStack::findEmbeddedPanelByName(const std::string& name) const
+{
+	LayoutPanel* result = NULL;
+
+	for (e_panel_list_t::const_iterator panel_it = mPanels.begin(); panel_it != mPanels.end(); ++panel_it)
+	{
+		LayoutPanel* p = *panel_it;
+
+		if (p->mPanel->getName() == name)
+		{
+			result = p;
+			break;
+		}
+	}
+
+	return result;
 }
 
 // Compute sum of min_width or min_height of children

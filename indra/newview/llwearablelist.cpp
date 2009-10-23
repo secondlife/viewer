@@ -74,21 +74,8 @@ LLWearableList::~LLWearableList()
 	mList.clear();
 }
 
-void LLWearableList::getAsset(const LLAssetID& _assetID, const std::string& wearable_name, LLAssetType::EType asset_type, void(*asset_arrived_callback)(LLWearable*, void* userdata), void* userdata)
+void LLWearableList::getAsset(const LLAssetID& assetID, const std::string& wearable_name, LLAssetType::EType asset_type, void(*asset_arrived_callback)(LLWearable*, void* userdata), void* userdata)
 {
-	LLAssetID assetID = _assetID;
-
-	// A bit of a hack since wearables database doesn't contain asset types...
-	// Perform indirection in case this assetID is in fact a link.  This only works
-	// because of the assumption that all assetIDs and itemIDs are unique (i.e.
-	// no assetID is also used as an itemID elsewhere); therefore if the assetID
-	// exists as an itemID in the user's inventory, then this must be a link.
-	const LLInventoryItem *linked_item = gInventory.getItem(_assetID);
-	if (linked_item)
-	{
-		assetID = linked_item->getAssetUUID();
-		asset_type = linked_item->getType();
-	}
 	llassert( (asset_type == LLAssetType::AT_CLOTHING) || (asset_type == LLAssetType::AT_BODYPART) );
 	LLWearable* instance = get_if_there(mList, assetID, (LLWearable*)NULL );
 	if( instance )
