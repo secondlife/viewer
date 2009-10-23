@@ -171,7 +171,9 @@ public:
     static U32 getVersionFromMediaVersionString(const std::string &version_string);
     // Given a media version string, return the UUID of the agent
     static LLUUID getAgentIDFromMediaVersionString(const std::string &version_string);
-
+	// Return whether or not the given string is actually a media version
+	static bool isMediaVersionString(const std::string &version_string);
+	
 	// Media flags
 	enum { MF_NONE = 0x0, MF_HAS_MEDIA = 0x1 };
 

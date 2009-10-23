@@ -32,10 +32,9 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
 #include "../test/lltut.h"
-
 #include "../llbboxlocal.h"
-
 
 namespace tut
 {

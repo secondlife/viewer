@@ -55,7 +55,7 @@ const U32	USEC_PER_HOUR	= USEC_PER_MIN * MIN_PER_HOUR;
 const U32	SEC_PER_HOUR	= SEC_PER_MIN * MIN_PER_HOUR;
 const F64 	SEC_PER_USEC 	= 1.0 / (F64) USEC_PER_SEC;
 
-class LLTimer 
+class LL_COMMON_API LLTimer 
 {
 public:
 	static LLTimer *sTimer;				// global timer
@@ -114,17 +114,17 @@ public:
 //
 // Various functions for initializing/accessing clock and timing stuff.  Don't use these without REALLY knowing how they work.
 //
-U64 get_clock_count();
-F64 calc_clock_frequency(U32 msecs);
-void update_clock_frequencies();
+LL_COMMON_API U64 get_clock_count();
+LL_COMMON_API F64 calc_clock_frequency(U32 msecs);
+LL_COMMON_API void update_clock_frequencies();
 
 // Sleep for milliseconds
-void ms_sleep(U32 ms);
-U32 micro_sleep(U64 us, U32 max_yields = 0xFFFFFFFF);
+LL_COMMON_API void ms_sleep(U32 ms);
+LL_COMMON_API U32 micro_sleep(U64 us, U32 max_yields = 0xFFFFFFFF);
 
 // Returns the correct UTC time in seconds, like time(NULL).
 // Useful on the viewer, which may have its local clock set wrong.
-time_t time_corrected();
+LL_COMMON_API time_t time_corrected();
 
 static inline time_t time_min()
 {
@@ -155,24 +155,24 @@ static inline time_t time_max()
 }
 
 // Correction factor used by time_corrected() above.
-extern S32 gUTCOffset;
+extern LL_COMMON_API S32 gUTCOffset;
 
 // Is the current computer (in its current time zone)
 // observing daylight savings time?
-BOOL is_daylight_savings();
+LL_COMMON_API BOOL is_daylight_savings();
 
 // Converts internal "struct tm" time buffer to Pacific Standard/Daylight Time
 // Usage:
 // S32 utc_time;
 // utc_time = time_corrected();
 // struct tm* internal_time = utc_to_pacific_time(utc_time, gDaylight);
-struct tm* utc_to_pacific_time(time_t utc_time, BOOL pacific_daylight_time);
+LL_COMMON_API struct tm* utc_to_pacific_time(time_t utc_time, BOOL pacific_daylight_time);
 
-void microsecondsToTimecodeString(U64 current_time, std::string& tcstring);
-void secondsToTimecodeString(F32 current_time, std::string& tcstring);
+LL_COMMON_API void microsecondsToTimecodeString(U64 current_time, std::string& tcstring);
+LL_COMMON_API void secondsToTimecodeString(F32 current_time, std::string& tcstring);
 
 // class for scheduling a function to be called at a given frequency (approximate, inprecise)
-class LLEventTimer : protected LLInstanceTracker<LLEventTimer>
+class LL_COMMON_API LLEventTimer : protected LLInstanceTracker<LLEventTimer>
 {
 public:
 	LLEventTimer(F32 period);	// period is the amount of time between each call to tick() in seconds
@@ -189,5 +189,7 @@ protected:
 	LLTimer mEventTimer;
 	F32 mPeriod;
 };
+
+U64 LL_COMMON_API totalTime();					// Returns current system time in microseconds
 
 #endif

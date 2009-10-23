@@ -30,6 +30,12 @@
  * $/LicenseInfo$
  */
 
+#if LL_MSVC
+// disable warning about boost::lexical_cast returning uninitialized data
+// when it fails to parse the string
+#pragma warning (disable:4701)
+#endif
+
 #include "llviewerprecompiledheaders.h"
 
 #include "llvoavatarself.h"
@@ -84,7 +90,12 @@
 #include "llvoicevisualizer.h" // Ventrella
 #include "llappearancemgr.h"
 
-#include "boost/lexical_cast.hpp"
+#if LL_MSVC
+// disable boost::lexical_cast warning
+#pragma warning (disable:4702)
+#endif
+
+#include <boost/lexical_cast.hpp>
 
 using namespace LLVOAvatarDefines;
 

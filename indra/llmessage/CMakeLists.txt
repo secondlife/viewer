@@ -3,6 +3,7 @@
 project(llmessage)
 
 include(00-Common)
+include(GoogleMock)
 include(LLAddBuildTest)
 include(LLCommon)
 include(LLMath)
@@ -22,6 +23,7 @@ include_directories(
 
 set(llmessage_SOURCE_FILES
     llares.cpp
+    llareslistener.cpp
     llassetstorage.cpp
     llblowfishcipher.cpp
     llbuffer.cpp
@@ -104,6 +106,7 @@ set(llmessage_HEADER_FILES
     CMakeLists.txt
 
     llares.h
+    llareslistener.h
     llassetstorage.h
     llblowfishcipher.h
     llbuffer.h
@@ -221,6 +224,7 @@ SET(llmessage_TEST_SOURCE_FILES
   llnamevalue.cpp
   lltrustedmessageservice.cpp
   lltemplatemessagedispatcher.cpp
+      llregionpresenceverifier.cpp
   )
 LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
 
@@ -231,6 +235,7 @@ set(test_libs
   ${LLVFS_LIBRARIES}
   ${LLMATH_LIBRARIES}
   ${LLCOMMON_LIBRARIES}
+      ${GOOGLEMOCK_LIBRARIES}
   )
 
 LL_ADD_INTEGRATION_TEST(

@@ -111,12 +111,72 @@ bool	LLSideTray::instanceCreated	()
 	return sInstance!=0;
 }
 
-LLSideTrayTab::LLSideTrayTab(const Params& params):mMainPanel(0)
-{
-	mImagePath = params.image_path;
-	mTabTitle = params.tab_title;
-	mDescription = params.description;
+//////////////////////////////////////////////////////////////////////////////
+// LLSideTrayTab
+// Represents a single tab in the side tray, only used by LLSideTray
+//////////////////////////////////////////////////////////////////////////////
 
+class LLSideTrayTab: public LLPanel
+{
+	friend class LLUICtrlFactory;
+	friend class LLSideTray;
+public:
+	
+	struct Params 
+	:	public LLInitParam::Block<Params, LLPanel::Params>
+	{
+		// image name
+		Optional<std::string>		image;
+		Optional<std::string>		image_selected;
+		Optional<std::string>		tab_title;
+		Optional<std::string>		description;
+		Params()
+		:	image("image"),
+			image_selected("image_selected"),
+			tab_title("tab_title","no title"),
+			description("description","no description")
+		{};
+	};
+protected:
+	LLSideTrayTab(const Params& params);
+	
+	
+public:
+	virtual ~LLSideTrayTab();
+	
+    /*virtual*/ BOOL	postBuild	();
+	/*virtual*/ bool	addChild	(LLView* view, S32 tab_group);
+	
+	
+	void			arrange		(S32 width, S32 height);
+	void			reshape		(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	
+	static LLSideTrayTab*  createInstance	();
+	
+	const std::string& getDescription () const { return mDescription;}
+	const std::string& getTabTitle() const { return mTabTitle;}
+	
+	void draw();
+	
+	void			onOpen		(const LLSD& key);
+	
+private:
+	std::string mTabTitle;
+	std::string mImage;
+	std::string mImageSelected;
+	std::string	mDescription;
+	
+	LLView*	mMainPanel;
+};
+
+LLSideTrayTab::LLSideTrayTab(const Params& p)
+:	LLPanel(),
+	mTabTitle(p.tab_title),
+	mImage(p.image),
+	mImageSelected(p.image_selected),
+	mDescription(p.description),
+	mMainPanel(NULL)
+{
 	// Necessary for focus movement among child controls
 	setFocusRoot(TRUE);
 }
@@ -221,6 +281,18 @@ LLSideTrayTab*  LLSideTrayTab::createInstance	()
 	return tab;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// LLSideTray
+//////////////////////////////////////////////////////////////////////////////
+
+LLSideTray::Params::Params()
+:	collapsed("collapsed",false),
+	tab_btn_image_normal("tab_btn_image","sidebar_tab_left.tga"),
+	tab_btn_image_selected("tab_btn_image_selected","button_enabled_selected_32x128.tga"),
+	default_button_width("tab_btn_width",32),
+	default_button_height("tab_btn_height",32),
+	default_button_margin("tab_btn_margin",0)
+{}
 
 //virtual 
 LLSideTray::LLSideTray(Params& params)
@@ -255,41 +327,11 @@ BOOL LLSideTray::postBuild()
 	setMouseOpaque(false);
 	return true;
 }
-    
-/**
- * add new panel to tab with tab_name name
- * @param tab_name - name of sidebar tab to add new panel
- * @param panel - pointer to panel 
- */
-bool        LLSideTray::addPanel        ( const std::string& tab_name
-										,LLPanel* panel )
-{
-	return false;
-}
-/**
- * Add new tab to side bar
- * @param tab_name - name of the new tab
- * @param image - image for new sidebar button
- * @param title -  title for new tab
- */
-bool        LLSideTray::addTab          ( const std::string& tab_name
-										,const std::string& image
-										,const std::string& title)
-{
-	LLSideTrayTab::Params params;
-	params.image_path = image;
-	params.tab_title = title;
-	LLSideTrayTab* tab = LLUICtrlFactory::create<LLSideTrayTab> (params);
-	addChild(tab,1);
-	return true;
-}
-
 
 LLSideTrayTab* LLSideTray::getTab(const std::string& name)
 {
 	return getChild<LLSideTrayTab>(name,false);
 }
-
 
 
 void LLSideTray::toggleTabButton	(LLSideTrayTab* tab)
@@ -393,25 +435,30 @@ bool LLSideTray::addChild(LLView* view, S32 tab_group)
 
 void	LLSideTray::createButtons	()
 {
-	//create show/hide button
-	mCollapseButton = createButton(EXPANDED_NAME,"",boost::bind(&LLSideTray::onToggleCollapse, this));
-
 	//create buttons for tabs
 	child_vector_const_iter_t child_it = mTabs.begin();
-	++child_it;
-
 	for ( ; child_it != mTabs.end(); ++child_it)
 	{
 		LLSideTrayTab* sidebar_tab = dynamic_cast<LLSideTrayTab*>(*child_it);
 		if(sidebar_tab == NULL)
 			continue;
 
-		string name = sidebar_tab->getName();
+		std::string name = sidebar_tab->getName();
 		
-		LLButton* button = createButton("",sidebar_tab->mImagePath,boost::bind(&LLSideTray::onTabButtonClick, this, sidebar_tab->getName()));
-		mTabButtons[sidebar_tab->getName()] = button;
+		// The "home" button will open/close the whole panel, this will need to
+		// change if the home screen becomes its own tab.
+		if (name == "sidebar_home")
+		{
+			mCollapseButton = createButton("",sidebar_tab->mImage,
+				boost::bind(&LLSideTray::onToggleCollapse, this));
+		}
+		else
+		{
+			LLButton* button = createButton("",sidebar_tab->mImage,
+				boost::bind(&LLSideTray::onTabButtonClick, this, name));
+			mTabButtons[name] = button;
+		}
 	}
-	
 }
 
 void		LLSideTray::onTabButtonClick(string name)
@@ -514,25 +561,33 @@ void LLSideTray::arrange			()
 	}
 }
 
-void LLSideTray::collapseSideBar	()
+void LLSideTray::collapseSideBar()
 {
 	mCollapsed = true;
-	mCollapseButton->setLabel(COLLAPSED_NAME);
+	LLSideTrayTab* home_tab = getTab("sidebar_home");
+	if (home_tab)
+	{
+		mCollapseButton->setImageOverlay( home_tab->mImage );
+	}
 	mActiveTab->setVisible(FALSE);
 	reflectCollapseChange();
 	setFocus( FALSE );
 
 }
-void LLSideTray::expandSideBar	()
+
+void LLSideTray::expandSideBar()
 {
 	mCollapsed = false;
-	mCollapseButton->setLabel(EXPANDED_NAME);
+	LLSideTrayTab* home_tab = getTab("sidebar_home");
+	if (home_tab)
+	{
+		mCollapseButton->setImageOverlay( home_tab->mImageSelected );
+	}
 	LLSD key;//empty
 	mActiveTab->onOpen(key);
 	mActiveTab->setVisible(TRUE);
 
 	reflectCollapseChange();
-
 }
 
 void LLSideTray::highlightFocused()

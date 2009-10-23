@@ -66,7 +66,6 @@
 #include "llfocusmgr.h"
 #include "llnearbychatbar.h"
 
-
 void handle_mouselook(void*)
 {
 	gAgent.changeCameraToMouselook();
