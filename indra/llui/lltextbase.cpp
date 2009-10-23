@@ -538,10 +538,6 @@ void LLTextBase::drawText()
 			next_start = getLineStart(cur_line + 1);
 			line_end = next_start;
 		}
-		if ( text[line_end-1] == '\n' )
-		{
-			--line_end;
-		}
 
 		LLRect text_rect(line.mRect.mLeft + mTextRect.mLeft - scrolled_view_rect.mLeft,
 						line.mRect.mTop - scrolled_view_rect.mBottom + mTextRect.mBottom,
@@ -957,10 +953,20 @@ void LLTextBase::draw()
 	// then update scroll position, as cursor may have moved
 	updateScrollFromCursor();
 
+	LLRect doc_rect;
+	if (mScroller)
+	{
+		mScroller->localRectToOtherView(mScroller->getContentWindowRect(), &doc_rect, this);
+	}
+	else
+	{
+		doc_rect = getLocalRect();
+	}
+
 	if (mBGVisible)
 	{
 		// clip background rect against extents, if we support scrolling
-		LLLocalClipRect clip(getLocalRect(), mScroller != NULL);
+		LLLocalClipRect clip(doc_rect, mScroller != NULL);
 
 		LLColor4 bg_color = mReadOnly 
 							? mReadOnlyBgColor.get()
@@ -975,7 +981,7 @@ void LLTextBase::draw()
 
 	{
 		// only clip if we support scrolling (mScroller != NULL)
-		LLLocalClipRect clip(mTextRect, mScroller != NULL);
+		LLLocalClipRect clip(doc_rect, mScroller != NULL);
 		drawSelectionBackground();
 		drawText();
 		drawCursor();
@@ -2218,6 +2224,11 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 
 	const LLWString &text = mEditor.getWText();
 
+	if ( text[seg_end-1] == '\n' )
+	{
+		--seg_end;
+	}
+
 	F32 right_x = rect.mLeft;
 	if (!mStyle->isVisible())
 	{
@@ -2362,16 +2373,7 @@ void LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 {
 	LLWString text = mEditor.getWText();
 
-	// look for any printable character, then return the font height
-	height = 0;
-	for (S32 index = mStart + first_char; index < mStart + first_char + num_chars; ++index)
-	{
-		if (text[index] != '\n')
-		{
-			height = mFontHeight;
-			break;
-		}
-	}
+	height = mFontHeight;
 	width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
 }
 
@@ -2393,7 +2395,11 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	S32 last_char = mStart + segment_offset;
 	for (; last_char != mEnd; ++last_char)
 	{
-		if (text[last_char] == '\n') break;
+		if (text[last_char] == '\n') 
+		{
+			last_char++;
+			break;
+		}
 	}
 
 	// set max characters to length of segment, or to first newline
@@ -2414,10 +2420,6 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	if (mStart + segment_offset + num_chars == mEditor.getLength())
 	{
 		// include terminating NULL
-		num_chars++;
-	}
-	else if (text[mStart + segment_offset + num_chars] == '\n')
-	{
 		num_chars++;
 	}
 	return num_chars;
