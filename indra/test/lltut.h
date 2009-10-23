@@ -121,6 +121,9 @@ namespace tut
 
 	void ensure_equals(const char* msg,
 		const LLSD& actual, const LLSD& expected);
+
+	void ensure_equals(const std::string& msg,
+		const LLSD& actual, const LLSD& expected);
 	
 	void ensure_starts_with(const std::string& msg,
 		const std::string& actual, const std::string& expectedStart);

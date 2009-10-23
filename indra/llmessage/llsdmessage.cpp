@@ -68,6 +68,7 @@ bool LLSDMessage::httpListener(const LLSD& request)
     }
     LLHTTPClient::post(url, payload,
                        new LLSDMessage::EventResponder(LLEventPumps::instance(),
+                                                       request,
                                                        url, "POST", reply, error),
                        LLSD(),      // headers
                        timeout);
@@ -81,7 +82,9 @@ void LLSDMessage::EventResponder::result(const LLSD& data)
     // to the pump whose name is "".
     if (! mReplyPump.empty())
     {
-        mPumps.obtain(mReplyPump).post(data);
+        LLSD response(data);
+        mReqID.stamp(response);
+        mPumps.obtain(mReplyPump).post(response);
     }
     else                            // default success handling
     {
@@ -98,7 +101,7 @@ void LLSDMessage::EventResponder::errorWithContent(U32 status, const std::string
     // explicit pump name.
     if (! mErrorPump.empty())
     {
-        LLSD info;
+        LLSD info(mReqID.makeResponse());
         info["target"]  = mTarget;
         info["message"] = mMessage;
         info["status"]  = LLSD::Integer(status);

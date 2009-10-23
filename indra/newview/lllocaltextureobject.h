@@ -35,7 +35,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-class LLViewerFetchedTexture;
+#include "llviewertexture.h"
+
 class LLUUID;
 class LLTexLayer;
 class LLTextureEntry;
@@ -49,7 +50,7 @@ class LLLocalTextureObject
 {
 public:
 	LLLocalTextureObject();
-	LLLocalTextureObject(LLViewerFetchedTexture* image, LLUUID& id);
+	LLLocalTextureObject(LLViewerFetchedTexture* image, const LLUUID& id);
 	LLLocalTextureObject(const LLLocalTextureObject& lto);
 	~LLLocalTextureObject();
 

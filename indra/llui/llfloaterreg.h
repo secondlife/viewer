@@ -70,6 +70,7 @@ public:
 	typedef std::map<std::string, BuildData> build_map_t;
 	
 private:
+	friend class LLFloaterRegListener;
 	static instance_list_t sNullInstanceList;
 	static instance_map_t sInstanceMap;
 	static build_map_t sBuildMap;

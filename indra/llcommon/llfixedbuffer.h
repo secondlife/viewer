@@ -41,7 +41,7 @@
 #include "llerrorcontrol.h"
 
 //  fixed buffer implementation
-class LLFixedBuffer : public LLLineBuffer
+class LL_COMMON_API LLFixedBuffer : public LLLineBuffer
 {
 public:
 	LLFixedBuffer(const U32 max_lines = 20);

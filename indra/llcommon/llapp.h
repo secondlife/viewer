@@ -62,7 +62,7 @@ public:
 };
 #endif
 
-class LLApp : public LLOptionInterface
+class LL_COMMON_API LLApp : public LLOptionInterface
 {
 	friend class LLErrorThread;
 public:

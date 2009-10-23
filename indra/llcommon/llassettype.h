@@ -37,7 +37,7 @@
 
 #include "stdenums.h" 	// for EDragAndDropType
 
-class LLAssetType
+class LL_COMMON_API LLAssetType
 {
 public:
 	enum EType
@@ -150,6 +150,7 @@ public:
 
 		
 		AT_COUNT = 49,
+
 			// +*********************************************************+
 			// |  TO ADD AN ELEMENT TO THIS ENUM:                        |
 			// +*********************************************************+

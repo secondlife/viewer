@@ -53,6 +53,7 @@ set(cmake_SOURCE_FILES
     LLPrimitive.cmake
     LLRender.cmake
     LLScene.cmake
+    LLTestCommand.cmake
     LLUI.cmake
     LLVFS.cmake
     LLWindow.cmake
@@ -69,7 +70,6 @@ set(cmake_SOURCE_FILES
     PNG.cmake
     Python.cmake
     Prebuilt.cmake
-    RunBuildTest.cmake
     TemplateCheck.cmake
     Tut.cmake
     UI.cmake
