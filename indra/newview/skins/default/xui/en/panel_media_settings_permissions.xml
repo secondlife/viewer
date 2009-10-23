@@ -15,7 +15,6 @@
    follows="top|left" 
    height="15" 
    left="10" 
-   name="media_perms_label_owner" 
    enabled="false">
     Owner
   </text>
@@ -53,9 +52,8 @@
    follows="top|left" 
    height="15" 
    left="10" 
-   name="media_perms_label_group" 
    enabled="false">
-    Group
+    Group:
   </text>
   
   <name_box 
@@ -101,7 +99,6 @@
    follows="top|left" 
    height="15" 
    left="10" 
-   name="media_perms_label_anyone" 
    enabled="false">
     Anyone
   </text>
