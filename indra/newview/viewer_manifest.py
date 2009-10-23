@@ -582,11 +582,11 @@ class DarwinManifest(ViewerManifest):
                                     "libaprutil-1.0.3.8.dylib",
                                     "libexpat.0.5.0.dylib"):
                         target_lib = os.path.join('../../..', libfile)
-                        self.run_command("ln -sf %(target)s '%(link)s'" % 
+                        self.run_command("ln -sf %(target)r %(link)r" % 
                                          {'target': target_lib,
                                           'link' : os.path.join(mac_crash_logger_res_path, libfile)}
                                          )
-                        self.run_command("ln -sf %(target)s '%(link)s'" % 
+                        self.run_command("ln -sf %(target)r %(link)r" % 
                                          {'target': target_lib,
                                           'link' : os.path.join(mac_updater_res_path, libfile)}
                                          )
@@ -615,7 +615,7 @@ class DarwinManifest(ViewerManifest):
         # This may be desirable for the final release.  Or not.
         if ("package" in self.args['actions'] or 
             "unpacked" in self.args['actions']):
-            self.run_command('strip -S "%(viewer_binary)s"' %
+            self.run_command('strip -S %(viewer_binary)r' %
                              { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Second Life')})
 
 
@@ -644,12 +644,12 @@ class DarwinManifest(ViewerManifest):
         # make sure we don't have stale files laying about
         self.remove(sparsename, finalname)
 
-        self.run_command('hdiutil create "%(sparse)s" -volname "%(vol)s" -fs HFS+ -type SPARSE -megabytes 700 -layout SPUD' % {
+        self.run_command('hdiutil create %(sparse)r -volname %(vol)r -fs HFS+ -type SPARSE -megabytes 700 -layout SPUD' % {
                 'sparse':sparsename,
                 'vol':volname})
 
         # mount the image and get the name of the mount point and device node
-        hdi_output = self.run_command('hdiutil attach -private "' + sparsename + '"')
+        hdi_output = self.run_command('hdiutil attach -private %r' % sparsename)
         devfile = re.search("/dev/disk([0-9]+)[^s]", hdi_output).group(0).strip()
         volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
 
@@ -683,24 +683,25 @@ class DarwinManifest(ViewerManifest):
             self.copy_action(self.src_path_of(s), os.path.join(volpath, d))
 
         # Hide the background image, DS_Store file, and volume icon file (set their "visible" bit)
-        self.run_command('SetFile -a V "' + os.path.join(volpath, ".VolumeIcon.icns") + '"')
-        self.run_command('SetFile -a V "' + os.path.join(volpath, "background.jpg") + '"')
-        self.run_command('SetFile -a V "' + os.path.join(volpath, ".DS_Store") + '"')
+        for f in ".VolumeIcon.icns", "background.jpg", ".DS_Store":
+            self.run_command('SetFile -a V %r' % os.path.join(volpath, f))
 
         # Create the alias file (which is a resource file) from the .r
-        self.run_command('rez "' + self.src_path_of("installers/darwin/release-dmg/Applications-alias.r") + '" -o "' + os.path.join(volpath, "Applications") + '"')
+        self.run_command('rez %r -o %r' %
+                         (self.src_path_of("installers/darwin/release-dmg/Applications-alias.r"),
+                          os.path.join(volpath, "Applications")))
 
         # Set the alias file's alias and custom icon bits
-        self.run_command('SetFile -a AC "' + os.path.join(volpath, "Applications") + '"')
+        self.run_command('SetFile -a AC %r' % os.path.join(volpath, "Applications"))
 
         # Set the disk image root's custom icon bit
-        self.run_command('SetFile -a C "' + volpath + '"')
+        self.run_command('SetFile -a C %r' % volpath)
 
         # Unmount the image
-        self.run_command('hdiutil detach -force "' + devfile + '"')
+        self.run_command('hdiutil detach -force %r' % devfile)
 
         print "Converting temp disk image to final disk image"
-        self.run_command('hdiutil convert "%(sparse)s" -format UDZO -imagekey zlib-level=9 -o "%(final)s"' % {'sparse':sparsename, 'final':finalname})
+        self.run_command('hdiutil convert %(sparse)r -format UDZO -imagekey zlib-level=9 -o %(final)r' % {'sparse':sparsename, 'final':finalname})
         # get rid of the temp file
         self.package_file = finalname
         self.remove(sparsename)
