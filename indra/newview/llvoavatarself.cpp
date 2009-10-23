@@ -975,11 +975,9 @@ void LLVOAvatarSelf::wearableUpdated( EWearableType type )
 //-----------------------------------------------------------------------------
 // isWearingAttachment()
 //-----------------------------------------------------------------------------
-// Warning: include_linked_items = TRUE makes this operation expensive.
-BOOL LLVOAvatarSelf::isWearingAttachment(const LLUUID& inv_item_id, BOOL include_linked_items) const
+BOOL LLVOAvatarSelf::isWearingAttachment(const LLUUID& inv_item_id) const
 {
-	const LLUUID& base_inv_item_id = getBaseAttachmentObject(inv_item_id);
-	
+	const LLUUID& base_inv_item_id = gInventory.getLinkedItemID(inv_item_id);
 	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end();
 		 ++iter)
@@ -990,30 +988,6 @@ BOOL LLVOAvatarSelf::isWearingAttachment(const LLUUID& inv_item_id, BOOL include
 			return TRUE;
 		}
 	}
-
-	if (include_linked_items)
-	{
-		LLInventoryModel::item_array_t item_array;
-		gInventory.collectLinkedItems(base_inv_item_id, item_array);
-		for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
-			 iter != item_array.end();
-			 ++iter)
-		{
-			const LLViewerInventoryItem *linked_item = (*iter);
-			const LLUUID &item_id = linked_item->getUUID();
-			for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
-				 iter != mAttachmentPoints.end();
-				 ++iter)
-			{
-				const LLViewerJointAttachment* attachment = iter->second;
-				if (attachment->getAttachedObject(item_id))
-				{
-					return TRUE;
-				}
-			}
-		}
-	}
-
 	return FALSE;
 }
 
@@ -1022,7 +996,7 @@ BOOL LLVOAvatarSelf::isWearingAttachment(const LLUUID& inv_item_id, BOOL include
 //-----------------------------------------------------------------------------
 LLViewerObject* LLVOAvatarSelf::getWornAttachment(const LLUUID& inv_item_id)
 {
-	const LLUUID& base_inv_item_id = getBaseAttachmentObject(inv_item_id);
+	const LLUUID& base_inv_item_id = gInventory.getLinkedItemID(inv_item_id);
 	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end();
 		 ++iter)
@@ -1038,7 +1012,7 @@ LLViewerObject* LLVOAvatarSelf::getWornAttachment(const LLUUID& inv_item_id)
 
 const std::string LLVOAvatarSelf::getAttachedPointName(const LLUUID& inv_item_id) const
 {
-	const LLUUID& base_inv_item_id = getBaseAttachmentObject(inv_item_id);
+	const LLUUID& base_inv_item_id = gInventory.getLinkedItemID(inv_item_id);
 	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end(); 
 		 ++iter)
@@ -1076,7 +1050,6 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 			LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Adding attachment link:");
 			LLAppearanceManager::wearItem(item,false);  // Add COF link for item.
 			gInventory.addChangedMask(LLInventoryObserver::LABEL, attachment_id);
-			gInventory.updateLinkedObjects(attachment_id);
 		}
 	}
 	gInventory.notifyObservers();
@@ -1123,22 +1096,10 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 		
 		// BAP - needs to change for label to track link.
 		gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
-		gInventory.updateLinkedObjects(item_id);
 		gInventory.notifyObservers();
 		return TRUE;
 	}
 	return FALSE;
-}
-
-const LLUUID& LLVOAvatarSelf::getBaseAttachmentObject(const LLUUID &object_id) const
-{
-	const LLInventoryItem *item = gInventory.getItem(object_id);
-	if (!item)
-		return LLUUID::null;
-
-	// Find the base object in case this a link (if it's not a link,
-	// this will just be inv_item_id)
-	return item->getLinkedUUID();
 }
 
 void LLVOAvatarSelf::getAllAttachmentsArray(LLDynamicArray<S32>& attachments)

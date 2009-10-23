@@ -1905,7 +1905,7 @@ BOOL LLToolDragAndDrop::isInventoryGroupGiveAcceptable(LLInventoryItem* item)
 	switch(item->getType())
 	{
 	case LLAssetType::AT_OBJECT:
-		if(my_avatar->isWearingAttachment(item->getUUID(), TRUE))
+		if(my_avatar->isWearingAttachment(item->getUUID()))
 		{
 			acceptable = FALSE;
 		}

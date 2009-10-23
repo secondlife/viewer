@@ -70,7 +70,7 @@ protected:
 	// Queries
 	//--------------------------------------------------------------------
 public:
-	BOOL			isWearingItem(const LLUUID& item_id, const BOOL include_linked_items = FALSE) const;
+	BOOL			isWearingItem(const LLUUID& item_id) const;
 	BOOL			isWearableModifiable(EWearableType type, U32 index /*= 0*/) const;
 	BOOL			isWearableCopyable(EWearableType type, U32 index /*= 0*/) const;
 	BOOL			areWearablesLoaded() const;
@@ -79,7 +79,6 @@ public:
 	
 	// Note: False for shape, skin, eyes, and hair, unless you have MORE than 1.
 	bool			canWearableBeRemoved(const LLWearable* wearable) const;
-
 	
 	//--------------------------------------------------------------------
 	// Accessors

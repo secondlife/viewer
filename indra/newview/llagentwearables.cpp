@@ -794,22 +794,12 @@ const LLUUID LLAgentWearables::getWearableAssetID(EWearableType type, U32 index)
 		return LLUUID();
 }
 
-// Warning: include_linked_items = TRUE makes this operation expensive.
-BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id, BOOL include_linked_items) const
+BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id) const
 {
-	if (getWearableFromItemID(item_id) != NULL) return TRUE;
-	if (include_linked_items)
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
+	if (getWearableFromItemID(base_item_id) != NULL) 
 	{
-		LLInventoryModel::item_array_t item_array;
-		gInventory.collectLinkedItems(item_id, item_array);
-		for (LLInventoryModel::item_array_t::iterator iter = item_array.begin();
-			 iter != item_array.end();
-			 iter++)
-		{
-			LLViewerInventoryItem *linked_item = (*iter);
-			const LLUUID &linked_item_id = linked_item->getUUID();
-			if (getWearableFromItemID(linked_item_id) != NULL) return TRUE;
-		}
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -1395,8 +1385,9 @@ void LLAgentWearables::removeWearableFinal(const EWearableType type, bool do_rem
 		for (S32 i=max_entry; i>=0; i--)
 		{
 			LLWearable* old_wearable = getWearable(type,i);
-			gInventory.addChangedMask(LLInventoryObserver::LABEL, getWearableItemID(type,i));
+			const LLUUID &item_id = getWearableItemID(type,i);
 			popWearable(type,i);
+			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
 			//queryWearableCache(); // moved below
 			if (old_wearable)
@@ -1410,8 +1401,9 @@ void LLAgentWearables::removeWearableFinal(const EWearableType type, bool do_rem
 	{
 		LLWearable* old_wearable = getWearable(type, index);
 
-		gInventory.addChangedMask(LLInventoryObserver::LABEL, getWearableItemID(type,index));
+		const LLUUID &item_id = getWearableItemID(type,index);
 		popWearable(type, index);
+		gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
 		//queryWearableCache(); // moved below
 
@@ -1479,7 +1471,6 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 			}
 
 			gInventory.addChangedMask(LLInventoryObserver::LABEL, old_item_id);
-
 			// Assumes existing wearables are not dirty.
 			if (old_wearable->isDirty())
 			{
@@ -1501,7 +1492,8 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		{
 			// MULTI_WEARABLE: assuming 0th
 			LLWearable* wearable = getWearable((EWearableType)i, 0);
-			gInventory.addChangedMask(LLInventoryObserver::LABEL, getWearableItemID((EWearableType)i,0));
+			const LLUUID &item_id = getWearableItemID((EWearableType)i,0);
+			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 			if (wearable)
 			{
 				wearables_being_removed.push_back(wearable);

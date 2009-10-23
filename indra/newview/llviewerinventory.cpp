@@ -657,7 +657,6 @@ void LLViewerInventoryCategory::changeType(LLAssetType::EType new_folder_type)
 
 	setPreferredType(new_folder_type);
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, folder_id);
-	gInventory.updateLinkedObjects(folder_id);	
 }
 
 ///----------------------------------------------------------------------------

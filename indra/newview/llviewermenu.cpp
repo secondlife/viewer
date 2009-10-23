@@ -6918,7 +6918,7 @@ void handle_debug_avatar_textures(void*)
 	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 	if (objectp)
 	{
-		LLFloaterReg::showInstance( "avatar_tetures", LLSD(objectp->getID()) );
+		LLFloaterReg::showInstance( "avatar_textures", LLSD(objectp->getID()) );
 	}
 }
 

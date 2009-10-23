@@ -52,7 +52,8 @@ enum EAvatarProcessorType
 	APT_NOTES,
 	APT_GROUPS,
 	APT_PICKS,
-	APT_PICK_INFO
+	APT_PICK_INFO,
+	APT_TEXTURES
 };
 
 struct LLAvatarData
@@ -160,6 +161,7 @@ public:
 	void sendAvatarPicksRequest(const LLUUID& avatar_id);
 	void sendAvatarNotesRequest(const LLUUID& avatar_id);
 	void sendAvatarGroupsRequest(const LLUUID& avatar_id);
+	void sendAvatarTexturesRequest(const LLUUID& avatar_id);
 
 	// Duplicate pick info requests are not suppressed.
 	void sendPickInfoRequest(const LLUUID& creator_id, const LLUUID& pick_id);

@@ -43,6 +43,7 @@
 #include "llagent.h" //  Get state values from here
 #include "llagentwearables.h"
 #include "llanimationstates.h"
+#include "llavatarpropertiesprocessor.h"
 #include "llviewercontrol.h"
 #include "lldrawpoolavatar.h"
 #include "lldriverparam.h"
@@ -5792,7 +5793,36 @@ BOOL LLVOAvatar::updateIsFullyLoaded()
 		loading = TRUE;
 	}
 	
+	updateRuthTimer(loading);
 	return processFullyLoadedChange(loading);
+}
+
+void LLVOAvatar::updateRuthTimer(bool loading)
+{
+	if (isSelf() || !loading) 
+	{
+		return;
+	}
+
+	if (mPreviousFullyLoaded)
+	{
+		mRuthTimer.reset();
+	}
+	
+	const F32 LOADING_TIMEOUT = 120.f;
+	if (mRuthTimer.getElapsedTimeF32() > LOADING_TIMEOUT)
+	{
+		/*
+		llinfos << "Ruth Timer timeout: Missing texture data for '" << getFullname() << "' "
+				<< "( Params loaded : " << !visualParamWeightsAreDefault() << " ) "
+				<< "( Lower : " << isTextureDefined(TEX_LOWER_BAKED) << " ) "
+				<< "( Upper : " << isTextureDefined(TEX_UPPER_BAKED) << " ) "
+				<< "( Head : " << isTextureDefined(TEX_HEAD_BAKED) << " )."
+				<< llendl;
+		*/
+		LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(getID());
+		mRuthTimer.reset();
+	}
 }
 
 BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
