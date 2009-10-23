@@ -7340,17 +7340,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ScriptErrorsAsChat</key>
-    <map>
-      <key>Comment</key>
-      <string>Display script errors and warning in chat history</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>ScriptHelpFollowsCursor</key>
     <map>
       <key>Comment</key>
@@ -7664,6 +7653,28 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>   
+    </map>
+	<key>ShowScriptErrors</key>
+    <map>
+      <key>Comment</key>
+      <string>Show script errors</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+	<key>ShowScriptErrorsLocation</key>
+    <map>
+      <key>Comment</key>
+      <string>Show script error in chat or window</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>ShowSnapshotButton</key>                
     <map>
