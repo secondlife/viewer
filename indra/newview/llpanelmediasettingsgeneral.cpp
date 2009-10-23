@@ -68,15 +68,11 @@ LLPanelMediaSettingsGeneral::LLPanelMediaSettingsGeneral() :
 	mHeightPixels( NULL ),
 	mHomeURL( NULL ),
 	mCurrentURL( NULL ),
-	mAltImageEnable( NULL ),
 	mParent( NULL ),
 	mMediaEditable(false)
 {
 	// build dialog from XML
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_media_settings_general.xml");
-//	mCommitCallbackRegistrar.add("Media.ResetCurrentUrl",		boost::bind(&LLPanelMediaSettingsGeneral::onBtnResetCurrentUrl, this));
-//	mCommitCallbackRegistrar.add("Media.CommitHomeURL",			boost::bind(&LLPanelMediaSettingsGeneral::onCommitHomeURL, this));	
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,7 +80,6 @@ LLPanelMediaSettingsGeneral::LLPanelMediaSettingsGeneral() :
 BOOL LLPanelMediaSettingsGeneral::postBuild()
 {
 	// connect member vars with UI widgets
-    mAltImageEnable = getChild< LLCheckBoxCtrl >( LLMediaEntry::ALT_IMAGE_ENABLE_KEY );
 	mAutoLoop = getChild< LLCheckBoxCtrl >( LLMediaEntry::AUTO_LOOP_KEY );
 	mAutoPlay = getChild< LLCheckBoxCtrl >( LLMediaEntry::AUTO_PLAY_KEY );
 	mAutoScale = getChild< LLCheckBoxCtrl >( LLMediaEntry::AUTO_SCALE_KEY );
@@ -192,7 +187,6 @@ void LLPanelMediaSettingsGeneral::draw()
 void LLPanelMediaSettingsGeneral::clearValues( void* userdata, bool editable)
 {	
 	LLPanelMediaSettingsGeneral *self =(LLPanelMediaSettingsGeneral *)userdata;
-	self->mAltImageEnable ->clear();
 	self->mAutoLoop->clear();
 	self->mAutoPlay->clear();
 	self->mAutoScale->clear();
@@ -203,7 +197,6 @@ void LLPanelMediaSettingsGeneral::clearValues( void* userdata, bool editable)
 	self->mHeightPixels->clear();
 	self->mHomeURL->clear();
 	self->mWidthPixels->clear();
-	self->mAltImageEnable ->setEnabled(editable);
 	self->mAutoLoop ->setEnabled(editable);
 	self->mAutoPlay ->setEnabled(editable);
 	self->mAutoScale ->setEnabled(editable);
@@ -272,7 +265,6 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_
 		{ LLMediaEntry::HOME_URL_KEY,				self->mHomeURL,			"LLLineEditor" },
 		{ LLMediaEntry::FIRST_CLICK_INTERACT_KEY,	self->mFirstClick,		"LLCheckBoxCtrl" },
 		{ LLMediaEntry::WIDTH_PIXELS_KEY,			self->mWidthPixels,		"LLSpinCtrl" },
-		{ LLMediaEntry::ALT_IMAGE_ENABLE_KEY,		self->mAltImageEnable,	"LLCheckBoxCtrl" },
 		{ "", NULL , "" }
 	};
 
@@ -393,7 +385,6 @@ void LLPanelMediaSettingsGeneral::apply( void* userdata )
 //
 void LLPanelMediaSettingsGeneral::getValues( LLSD &fill_me_in )
 {
-    fill_me_in[LLMediaEntry::ALT_IMAGE_ENABLE_KEY] = mAltImageEnable->getValue();
     fill_me_in[LLMediaEntry::AUTO_LOOP_KEY] = mAutoLoop->getValue();
     fill_me_in[LLMediaEntry::AUTO_PLAY_KEY] = mAutoPlay->getValue();
     fill_me_in[LLMediaEntry::AUTO_SCALE_KEY] = mAutoScale->getValue();

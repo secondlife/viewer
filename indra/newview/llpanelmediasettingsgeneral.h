@@ -85,7 +85,6 @@ private:
 	LLSpinCtrl* mHeightPixels;
 	LLLineEditor* mHomeURL;
 	LLLineEditor* mCurrentURL;
-	LLCheckBoxCtrl* mAltImageEnable;
 	LLMediaCtrl* mPreviewMedia;
 };
 
