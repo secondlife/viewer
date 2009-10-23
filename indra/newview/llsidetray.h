@@ -89,23 +89,6 @@ public:
      */
 	bool		selectTabByIndex(size_t index);
 
-    /**
-     * add new panel to tab with tab_name name
-     * @param tab_name - name of sidebar tab to add new panel
-     * @param panel - pointer to panel 
-     */
-    bool        addPanel        ( const std::string& tab_name
-                                 ,LLPanel* panel );
-    /**
-     * Add new tab to side bar
-     * @param tab_name - name of the new tab
-     * @param image - image for new sidebar button
-     * @param title -  title for new tab
-     */
-    bool        addTab          ( const std::string& tab_name
-                                 ,const std::string& image
-                                 ,const std::string& title);
-
 	/**
 	 * Activate tab with "panel_name" panel
 	 * if no such tab - return NULL, otherwise a pointer to the panel

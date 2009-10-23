@@ -18,6 +18,7 @@
     tab_title="Home"
     description="Home."
     image="TabIcon_Open_Off"
+	image_selected="TabIcon_Close_Off"
     mouse_opaque="false"
     background_visible="true"
   >
