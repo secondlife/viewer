@@ -4445,9 +4445,27 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			disabled_items.push_back(std::string("Wearable Edit"));
 		}
 
-		if( item && (item->getType() == LLAssetType::AT_CLOTHING) )
+		// Disable wear and take off based on whether the item is worn.
+		if(item)
 		{
-			items.push_back(std::string("Take Off"));
+			switch (item->getType())
+			{
+				case LLAssetType::AT_CLOTHING:
+					items.push_back(std::string("Take Off"));
+				case LLAssetType::AT_BODYPART:
+					if (gAgentWearables.isWearingItem(item->getUUID()))
+					{
+						disabled_items.push_back(std::string("Wearable Wear"));
+						disabled_items.push_back(std::string("Wearable Add"));
+					}
+					else
+					{	
+						disabled_items.push_back(std::string("Take Off"));
+					}
+					break;
+				default:
+					break;
+			}
 		}
 	}
 	hideContextEntries(menu, items, disabled_items);
