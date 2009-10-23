@@ -8,6 +8,7 @@
 (WK) Canvas Paint (DHTML version of MS Paint),http://www.canvaspaint.org
 (WK) DHTML Lemmings!,http://www.elizium.nu/scripts/lemmings/
 (WK) DHTML graphics demos,http://www.dhteumeuleu.com/
+(WK) Shared paint app,http://colorillo.com/ac79?1l0q6cp
 (Flash) YouTube,http://youtube.com
 (Flash) Vimeo,http://www.vimeo.com/1778399
 (Flash) Simple whiteboard,http://www.imaginationcubed.com/
