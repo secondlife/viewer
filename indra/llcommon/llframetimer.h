@@ -43,7 +43,7 @@
 #include "lltimer.h"
 #include "timing.h"
 
-class LLFrameTimer 
+class LL_COMMON_API LLFrameTimer 
 {
 public:
 	LLFrameTimer() : mStartTime( sFrameTime ), mExpiry(0), mStarted(TRUE) {}

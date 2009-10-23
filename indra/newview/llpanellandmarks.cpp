@@ -36,6 +36,7 @@
 #include "llbutton.h"
 #include "llfloaterreg.h"
 #include "llsdutil.h"
+#include "llsdutil_math.h"
 
 #include "llaccordionctrltab.h"
 #include "llagent.h"

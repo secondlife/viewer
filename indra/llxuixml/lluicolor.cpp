@@ -7,6 +7,8 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "lluicolor.h"
 
 LLUIColor::LLUIColor()
