@@ -80,6 +80,7 @@ public:
 	void collapsePanel(LLPanel* panel, BOOL collapsed = TRUE);
 	S32 getNumPanels() { return mPanels.size(); }
 
+	void updatePanelAutoResize(const std::string& panel_name, BOOL auto_resize);
 protected:
 	LLLayoutStack(const Params&);
 	friend class LLUICtrlFactory;
@@ -96,7 +97,9 @@ private:
 
 	typedef std::vector<LayoutPanel*> e_panel_list_t;
 	e_panel_list_t mPanels;
+
 	LayoutPanel* findEmbeddedPanel(LLPanel* panelp) const;
+	LayoutPanel* findEmbeddedPanelByName(const std::string& name) const;
 
 	S32 mMinWidth;  // calculated by calcMinExtents
 	S32 mMinHeight;  // calculated by calcMinExtents

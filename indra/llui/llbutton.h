@@ -210,6 +210,9 @@ public:
 	
 	void			setFont(const LLFontGL *font)		
 		{ mGLFont = ( font ? font : LLFontGL::getFontSansSerif()); }
+
+	S32				getLastDrawCharsCount() const { return mLastDrawCharsCount; }
+
 	void			setScaleImage(BOOL scale)			{ mScaleImage = scale; }
 	BOOL			getScaleImage() const				{ return mScaleImage; }
 
@@ -260,6 +263,7 @@ private:
 	S32 						mMouseHeldDownCount; 	// Counter for parameter passed to held-down callback
 	F32							mHeldDownDelay;			// seconds, after which held-down callbacks get called
 	S32							mHeldDownFrameDelay;	// frames, after which held-down callbacks get called
+	S32							mLastDrawCharsCount;
 
 	LLPointer<LLUIImage>		mImageOverlay;
 	LLFontGL::HAlign			mImageOverlayAlignment;

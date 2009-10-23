@@ -613,6 +613,9 @@ void LLNavigationBar::showNavigationPanel(BOOL visible)
 		}
 	}
 
+	childSetVisible("bg_icon", fpVisible);
+	childSetVisible("bg_icon_no_fav", !fpVisible);
+
 	if(LLSideTray::instanceCreated())
 	{
 		LLSideTray::getInstance()->resetPanelRect();
@@ -676,6 +679,9 @@ void LLNavigationBar::showFavoritesPanel(BOOL visible)
 		reshape(nbRect.getWidth(), nbRect.getHeight());
 		setRect(nbRect);
 	}
+
+	childSetVisible("bg_icon", visible);
+	childSetVisible("bg_icon_no_fav", !visible);
 
 	fb->setVisible(visible);
 	if(LLSideTray::instanceCreated())

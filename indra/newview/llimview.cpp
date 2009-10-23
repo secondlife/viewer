@@ -334,7 +334,7 @@ std::list<LLSD> LLIMModel::getMessages(LLUUID session_id, int start_index)
 
 }
 
-bool LLIMModel::addToHistory(LLUUID session_id, std::string from, std::string utf8_text) { 
+bool LLIMModel::addToHistory(LLUUID session_id, std::string from, LLUUID from_id, std::string utf8_text) { 
 	
 	LLIMSession* session = findIMSession(session_id);
 
@@ -346,6 +346,7 @@ bool LLIMModel::addToHistory(LLUUID session_id, std::string from, std::string ut
 
 	LLSD message;
 	message["from"] = from;
+	message["from_id"] = from_id;
 	message["message"] = utf8_text;
 	message["time"] = LLLogChat::timestamp(false);  //might want to add date separately
 	message["index"] = (LLSD::Integer)session->mMsgs.size(); 
@@ -392,7 +393,7 @@ bool LLIMModel::addMessage(LLUUID session_id, std::string from, LLUUID from_id, 
 		return false;
 	}
 
-	addToHistory(session_id, from, utf8_text);
+	addToHistory(session_id, from, from_id, utf8_text);
 	if (log2file) logToFile(session_id, from, utf8_text);
 
 	session->mNumUnread++;

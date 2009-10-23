@@ -96,6 +96,7 @@ private:
 	void onAddAction(const LLSD& command_name) const;
 	void onClipboardAction(const LLSD& command_name) const;
 	void onFoldingAction(const LLSD& command_name);
+	bool isActionChecked(const LLSD& userdata) const;
 	bool isActionEnabled(const LLSD& command_name) const;
 	void onCustomAction(const LLSD& command_name);
 

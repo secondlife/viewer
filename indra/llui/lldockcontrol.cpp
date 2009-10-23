@@ -37,7 +37,7 @@
 
 LLDockControl::LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
 		const LLUIImagePtr& dockTongue, DocAt dockAt, get_allowed_rect_callback_t get_allowed_rect_callback) :
-		mDockWidget(dockWidget), mDockableFloater(dockableFloater), mDockTongue(dockTongue)		
+		mDockWidget(dockWidget), mDockableFloater(dockableFloater), mDockTongue(dockTongue)
 {
 	mDockAt = dockAt;
 
@@ -63,6 +63,15 @@ LLDockControl::LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
 	{
 		repositionDockable();
 	}
+
+	if (mDockWidget != NULL)
+	{
+		mDockWidgetVisible = isDockVisible();
+	}
+	else
+	{
+		mDockWidgetVisible = false;
+	}
 }
 
 LLDockControl::~LLDockControl()
@@ -75,6 +84,11 @@ void LLDockControl::setDock(LLView* dockWidget)
 	if (mDockWidget != NULL)
 	{
 		repositionDockable();
+		mDockWidgetVisible = isDockVisible();
+	}
+	else
+	{
+		mDockWidgetVisible = false;
 	}
 }
 
@@ -88,11 +102,10 @@ void LLDockControl::repositionDockable()
 	LLRect dockRect = mDockWidget->calcScreenRect();
 	LLRect rootRect;
 	mGetAllowedRectCallback(rootRect);
-	static BOOL prev_visibility = !mDockWidget->getVisible();
 
 	// recalculate dockable position if dock position changed, dock visibility changed,
 	// root view rect changed or recalculation is forced
-	if (mPrevDockRect != dockRect  || prev_visibility != mDockWidget->getVisible()
+	if (mPrevDockRect != dockRect  || mDockWidgetVisible != isDockVisible()
 			|| mRootRect != rootRect || mRecalculateDocablePosition)
 	{
 		// undock dockable and off() if dock not visible
@@ -125,7 +138,7 @@ void LLDockControl::repositionDockable()
 		mPrevDockRect = dockRect;
 		mRootRect = rootRect;
 		mRecalculateDocablePosition = false;
-		prev_visibility = mDockWidget->getVisible();
+		mDockWidgetVisible = isDockVisible();
 	}
 }
 
@@ -143,6 +156,8 @@ bool LLDockControl::isDockVisible()
 
 			switch (mDockAt)
 			{
+			case LEFT: // to keep compiler happy
+				break;
 			case TOP:
 				// check is dock inside parent rect
 				LLRect dockParentRect =
@@ -170,8 +185,27 @@ void LLDockControl::moveDockable()
 	LLRect dockableRect = mDockableFloater->calcScreenRect();
 	S32 x = 0;
 	S32 y = 0;
+	LLRect dockParentRect;
 	switch (mDockAt)
 	{
+	case LEFT:
+		x = dockRect.mLeft;
+		y = dockRect.mTop + mDockTongue->getHeight() + dockableRect.getHeight();
+		// check is dockable inside root view rect
+		if (x < rootRect.mLeft)
+		{
+			x = rootRect.mLeft;
+		}
+		if (x + dockableRect.getWidth() > rootRect.mRight)
+		{
+			x = rootRect.mRight - dockableRect.getWidth();
+		}
+		
+		mDockTongueX = x + dockableRect.getWidth()/2 - mDockTongue->getWidth() / 2;
+		
+		mDockTongueY = dockRect.mTop;
+		break;
+
 	case TOP:
 		x = dockRect.getCenterX() - dockableRect.getWidth() / 2;
 		y = dockRect.mTop + mDockTongue->getHeight() + dockableRect.getHeight();
@@ -187,8 +221,7 @@ void LLDockControl::moveDockable()
 
 
 		// calculate dock tongue position
-		LLRect dockParentRect =
-								mDockWidget->getParent()->calcScreenRect();
+		dockParentRect = mDockWidget->getParent()->calcScreenRect();
 		if (dockRect.getCenterX() < dockParentRect.mLeft)
 		{
 			mDockTongueX = dockParentRect.mLeft - mDockTongue->getWidth() / 2;

@@ -49,17 +49,17 @@ public:
 
 	/**
 	 * Show the menu at specified coordinates.
-	 * 
-	 * @param id either avatar or group id
+	 *
+	 * @param  uuids - an array of avatar or group ids
 	 */
-	/*virtual*/ void show(LLView* spawning_view, const LLUUID& id, S32 x, S32 y);
+	/*virtual*/ void show(LLView* spawning_view, const std::vector<LLUUID>& uuids, S32 x, S32 y);
 
 protected:
 
 	virtual LLContextMenu* createMenu() = 0;
 
-	LLUUID			mID;
-	LLContextMenu*	mMenu;
+	std::vector<LLUUID>	mUUIDs;
+	LLContextMenu*		mMenu;
 };
 
 /**
