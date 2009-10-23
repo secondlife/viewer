@@ -77,7 +77,6 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 	if (media_impl.notNull() && objectp.notNull())
 	{
 		bool face_auto_zoom = false;
-		media_impl->focus(true);
 
 		mFocusedImplID = media_impl->getMediaTextureID();
 		mFocusedObjectID = objectp->getID();
@@ -101,6 +100,7 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 			llwarns << "Can't find media entry for focused face" << llendl;
 		}
 
+		media_impl->focus(true);
 		gFocusMgr.setKeyboardFocus(this);
 		
 		// We must do this before  processing the media HUD zoom, or it may zoom to the wrong face. 
