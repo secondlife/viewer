@@ -626,8 +626,6 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 	buttonXMLNode->getAttributeS32("width", buttonWidth);
 	S32 buttonHGap = 2; // default value
 	buttonXMLNode->getAttributeS32("left", buttonHGap);
-
-	const S32 buttonVGap = 2;
 	
 	S32 count = mItems.count();
 
@@ -713,7 +711,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 		if (chevron_button)
 		{
 			LLRect rect;
-			rect.setOriginAndSize(bar_width - chevron_button_width - buttonHGap, buttonVGap, chevron_button_width, getRect().getHeight()-buttonVGap);
+			rect.setOriginAndSize(bar_width - chevron_button_width - buttonHGap, 0, chevron_button_width, getRect().getHeight());
 			chevron_button->setRect(rect);
 			chevron_button->setVisible(TRUE);
 			mChevronRect = rect;
@@ -728,7 +726,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 			LLButton::Params bparams;
 
 			LLRect rect;
-			rect.setOriginAndSize(bar_width - chevron_button_width - buttonHGap, buttonVGap, chevron_button_width, getRect().getHeight()-buttonVGap);
+			rect.setOriginAndSize(bar_width - chevron_button_width - buttonHGap, 0, chevron_button_width, getRect().getHeight());
 
 			bparams.follows.flags (FOLLOWS_LEFT | FOLLOWS_BOTTOM);
 			bparams.image_unselected.name(flat_icon);

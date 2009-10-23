@@ -61,14 +61,17 @@ LLVOAvatarDictionary::Textures::Textures()
 	addEntry(TEX_UPPER_UNDERSHIRT,            new TextureEntry("upper_undershirt", TRUE,  BAKED_NUM_INDICES, "UIImgDefaultUnderwearUUID", WT_UNDERSHIRT));
 	addEntry(TEX_LOWER_UNDERPANTS,            new TextureEntry("lower_underpants", TRUE,  BAKED_NUM_INDICES, "UIImgDefaultUnderwearUUID", WT_UNDERPANTS));
 	addEntry(TEX_SKIRT,                       new TextureEntry("skirt",            TRUE,  BAKED_NUM_INDICES, "UIImgDefaultSkirtUUID",     WT_SKIRT));
+
 	addEntry(TEX_LOWER_ALPHA,                 new TextureEntry("lower_alpha",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     WT_ALPHA));
 	addEntry(TEX_UPPER_ALPHA,                 new TextureEntry("upper_alpha",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     WT_ALPHA));
 	addEntry(TEX_HEAD_ALPHA,                  new TextureEntry("head_alpha",       TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     WT_ALPHA));
 	addEntry(TEX_EYES_ALPHA,                  new TextureEntry("eyes_alpha",       TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     WT_ALPHA));
 	addEntry(TEX_HAIR_ALPHA,                  new TextureEntry("hair_alpha",       TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     WT_ALPHA));
+
 	addEntry(TEX_HEAD_TATTOO,                 new TextureEntry("head_tattoo",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultTattooUUID",     WT_TATTOO));
 	addEntry(TEX_UPPER_TATTOO,                new TextureEntry("upper_tattoo",     TRUE,  BAKED_NUM_INDICES, "UIImgDefaultTattooUUID",     WT_TATTOO));
 	addEntry(TEX_LOWER_TATTOO,                new TextureEntry("lower_tattoo",     TRUE,  BAKED_NUM_INDICES, "UIImgDefaultTattooUUID",     WT_TATTOO));
+
 	addEntry(TEX_HEAD_BAKED,                  new TextureEntry("head-baked",       FALSE, BAKED_HEAD));
 	addEntry(TEX_UPPER_BAKED,                 new TextureEntry("upper-baked",      FALSE, BAKED_UPPER));
 	addEntry(TEX_LOWER_BAKED,                 new TextureEntry("lower-baked",      FALSE, BAKED_LOWER));

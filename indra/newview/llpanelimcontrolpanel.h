@@ -35,6 +35,9 @@
 
 #include "llpanel.h"
 
+class LLSpeakerMgr;
+class LLAvatarList;
+class LLParticipantList;
 
 class LLPanelChatControlPanel : public LLPanel
 {
@@ -68,18 +71,22 @@ private:
 class LLPanelGroupControlPanel : public LLPanelChatControlPanel
 {
 public:
-	LLPanelGroupControlPanel() {};
-	~LLPanelGroupControlPanel() {};
+	LLPanelGroupControlPanel(const LLUUID& session_id);
+	~LLPanelGroupControlPanel();
 
 	BOOL postBuild();
 
 	void setID(const LLUUID& id);
+	/*virtual*/ void draw();
 
 private:
 	void onGroupInfoButtonClicked();
 	void onCallButtonClicked();
 
 	LLUUID mGroupID;
+	LLSpeakerMgr* mSpeakerManager;
+	LLAvatarList* mAvatarList;
+	LLParticipantList* mParticipantList;
 };
 
 

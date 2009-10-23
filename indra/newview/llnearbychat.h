@@ -33,14 +33,14 @@
 #ifndef LL_LLNEARBYCHAT_H_
 #define LL_LLNEARBYCHAT_H_
 
-#include "llfloater.h"
+#include "lldockablefloater.h"
 #include "llscrollbar.h"
 #include "llchat.h"
 
 class LLResizeBar;
 class LLChatHistory;
 
-class LLNearbyChat: public LLFloater
+class LLNearbyChat: public LLDockableFloater
 {
 public:
 	LLNearbyChat(const LLSD& key);
@@ -53,10 +53,17 @@ public:
 	bool	onNearbyChatCheckContextMenuItem(const LLSD& userdata);
 
 	void	setDocked			(bool docked, bool pop_on_undock);
+	void	toggleWindow		();
 
 	/*virtual*/ void	onOpen	(const LLSD& key);
 
+	virtual void setVisible		(BOOL visible);
+
+	virtual void setRect		(const LLRect &rect);
+
 private:
+	void	getAllowedRect		(LLRect& rect);
+
 	void	onNearbySpeakers	();
 	void	add_timestamped_line(const LLChat& chat, const LLColor4& color);
 	

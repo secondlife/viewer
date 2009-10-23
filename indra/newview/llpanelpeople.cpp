@@ -690,6 +690,27 @@ LLUUID LLPanelPeople::getCurrentItemID() const
 	return LLUUID::null;
 }
 
+void LLPanelPeople::getCurrentItemIDs(std::vector<LLUUID>& selected_uuids) const
+{
+	std::string cur_tab = getActiveTabName();
+
+	if (cur_tab == FRIENDS_TAB_NAME)
+	{
+		// friends tab has two lists
+		mOnlineFriendList->getSelectedUUIDs(selected_uuids);
+		mAllFriendList->getSelectedUUIDs(selected_uuids);
+	}
+	else if (cur_tab == NEARBY_TAB_NAME)
+		mNearbyList->getSelectedUUIDs(selected_uuids);
+	else if (cur_tab == RECENT_TAB_NAME)
+		mRecentList->getSelectedUUIDs(selected_uuids);
+	else if (cur_tab == GROUP_TAB_NAME)
+		mGroupList->getSelectedUUIDs(selected_uuids);
+	else
+		llassert(0 && "unknown tab selected");
+
+}
+
 void LLPanelPeople::showGroupMenu(LLMenuGL* menu)
 {
 	// Shows the menu at the top of the button bar.
@@ -873,10 +894,17 @@ void LLPanelPeople::onChatButtonClicked()
 
 void LLPanelPeople::onImButtonClicked()
 {
-	LLUUID id = getCurrentItemID();
-	if (id.notNull())
+	std::vector<LLUUID> selected_uuids;
+	getCurrentItemIDs(selected_uuids);
+	if ( selected_uuids.size() == 1 )
 	{
-		LLAvatarActions::startIM(id);
+		// if selected only one person then start up IM
+		LLAvatarActions::startIM(selected_uuids.at(0));
+	}
+	else if ( selected_uuids.size() > 1 )
+	{
+		// for multiple selection start up friends conference
+		LLAvatarActions::startConference(selected_uuids);
 	}
 }
 

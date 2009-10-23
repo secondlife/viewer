@@ -57,6 +57,8 @@ public:
 
 	/* whether in free camera mode */
 	static bool inFreeCameraMode();
+	/* callback for camera presets changing */
+	static void onClickCameraPresets(const LLSD& param);
 
 	static void toPrevModeIfInAvatarViewMode();
 
@@ -112,15 +114,4 @@ private:
 
 };
 
-class LLFloaterCameraPresets : public LLTransientDockableFloater
-{
-	friend class LLFloaterReg;
-public:
-	static void onClickCameraPresets(LLUICtrl* ctrl, const LLSD& param);
-private:
-	LLFloaterCameraPresets(const LLSD&);
-	~LLFloaterCameraPresets(){}
-	/*virtual*/ BOOL postBuild();
-	
-};
 #endif

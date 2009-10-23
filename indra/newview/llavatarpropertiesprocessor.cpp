@@ -151,6 +151,13 @@ void LLAvatarPropertiesProcessor::sendAvatarGroupsRequest(const LLUUID& avatar_i
 	sendGenericRequest(avatar_id, APT_GROUPS, "avatargroupsrequest");
 }
 
+void LLAvatarPropertiesProcessor::sendAvatarTexturesRequest(const LLUUID& avatar_id)
+{
+	sendGenericRequest(avatar_id, APT_TEXTURES, "avatartexturesrequest");
+	// No response expected.
+	removePendingRequest(avatar_id, APT_TEXTURES);
+}
+
 void LLAvatarPropertiesProcessor::sendAvatarPropertiesUpdate(const LLAvatarData* avatar_props)
 {
 	llinfos << "Sending avatarinfo update" << llendl;

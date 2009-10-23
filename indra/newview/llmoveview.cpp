@@ -498,7 +498,11 @@ void LLFloaterMove::setDocked(bool docked, bool pop_on_undock/* = true*/)
 {
 	LLDockableFloater::setDocked(docked, pop_on_undock);
 	bool show_mode_buttons = isDocked() || !gAgent.getFlying();
-	updateHeight(show_mode_buttons);
+
+	if (!isMinimized())
+	{
+		updateHeight(show_mode_buttons);
+	}
 
 	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
 }

@@ -369,7 +369,7 @@ void LLPanelEditWearable::saveChanges()
 		return;
 	}
 
-	U32 index = gAgentWearables.getWearableIndex(mWearablePtr->getType(), mWearablePtr);
+	U32 index = gAgentWearables.getWearableIndex(mWearablePtr);
 	
 	if (mWearablePtr->getName().compare(mTextEditor->getText()) != 0)
 	{

@@ -38,7 +38,7 @@
 
 class LLLineEditor;
 class LLPanelChatControlPanel;
-class LLViewerTextEditor;
+class LLChatHistory;
 
 
 /**
@@ -108,13 +108,9 @@ private:
 	LLUUID mSessionID;
 	S32 mLastMessageIndex;
 
-	// username of last user who added text to this conversation, used to
-	// suppress duplicate username divider bars
-	std::string mLastFromName;
-
 	EInstantMessage mDialog;
 	LLUUID mOtherParticipantUUID;
-	LLViewerTextEditor* mHistoryEditor;
+	LLChatHistory* mChatHistory;
 	LLLineEditor* mInputEditor;
 	bool mPositioned;
 

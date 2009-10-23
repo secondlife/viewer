@@ -203,7 +203,7 @@ BOOL LLNearbyChatBar::postBuild()
 
 	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
 	mOutputMonitor->setVisible(FALSE);
-	mTalkBtn = getChild<LLTalkButton>("talk");
+	mTalkBtn = getParent()->getChild<LLTalkButton>("talk");
 
 	// Speak button should be initially disabled because
 	// it takes some time between logging in to world and connecting to voice channel.
@@ -229,6 +229,16 @@ bool LLNearbyChatBar::instanceExists()
 
 void LLNearbyChatBar::draw()
 {
+	LLRect rect = getRect();
+	S32 max_width = getMaxWidth();
+
+	if (rect.getWidth() > max_width)
+	{
+		rect.setLeftTopAndSize(rect.mLeft, rect.mTop, max_width, rect.getHeight());
+		reshape(rect.getWidth(), rect.getHeight(), FALSE);
+		setRect(rect);
+	}
+
 	displaySpeakingIndicator();
 	LLPanel::draw();
 }
@@ -252,6 +262,32 @@ BOOL LLNearbyChatBar::handleKeyHere( KEY key, MASK mask )
 	}
 
 	return handled;
+}
+
+S32 LLNearbyChatBar::getMinWidth() const
+{
+	static S32 min_width = -1;
+
+	if (min_width < 0)
+	{
+		const std::string& s = getString("min_width");
+		min_width = !s.empty() ? atoi(s.c_str()) : 300;
+	}
+
+	return min_width;
+}
+
+S32 LLNearbyChatBar::getMaxWidth() const
+{
+	static S32 max_width = -1;
+
+	if (max_width < 0)
+	{
+		const std::string& s = getString("max_width");
+		max_width = !s.empty() ? atoi(s.c_str()) : 510;
+	}
+
+	return max_width;
 }
 
 BOOL LLNearbyChatBar::matchChatTypeTrigger(const std::string& in_str, std::string* out_str)

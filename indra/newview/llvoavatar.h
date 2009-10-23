@@ -195,7 +195,6 @@ public:
 public:
 	virtual bool 	isSelf() const { return false; } // True if this avatar is for this viewer's agent
 	bool isBuilt() const { return mIsBuilt; }
-	
 private:
 	BOOL			mSupportsAlphaLayers; // For backwards compatibility, TRUE for 1.23+ clients
 
@@ -247,15 +246,18 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			isFullyLoaded() const;
+protected:
 	virtual BOOL	updateIsFullyLoaded();
 	BOOL			processFullyLoadedChange(bool loading);
+	void			updateRuthTimer(bool loading);
 private:
 	BOOL			mFullyLoaded;
 	BOOL			mPreviousFullyLoaded;
 	BOOL			mFullyLoadedInitialized;
 	S32				mFullyLoadedFrameCounter;
 	LLFrameTimer	mFullyLoadedTimer;
-
+	LLFrameTimer	mRuthTimer;
+	
 /**                    State
  **                                                                            **
  *******************************************************************************/
@@ -800,7 +802,6 @@ public:
 	BOOL			isSitting(){return mIsSitting;}
 	void 			sitOnObject(LLViewerObject *sit_object);
 	void 			getOffObject();
-	
 private:
 	// set this property only with LLVOAvatar::sitDown method
 	BOOL 			mIsSitting;

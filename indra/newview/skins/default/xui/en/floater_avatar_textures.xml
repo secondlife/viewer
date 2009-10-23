@@ -5,7 +5,7 @@
  name="avatar_texture_debug"
  help_topic="avatar_texture_debug"
  title="Avatar Textures"
- width="960">
+ width="1250">
     <floater.string
      name="InvalidAvatar">
         INVALID AVATAR
@@ -41,6 +41,7 @@
      name="Dump"
      top_delta="1"
      width="150" />
+
     <texture_picker
      height="143"
      label="Hair"
@@ -54,9 +55,18 @@
      label="Hair"
      layout="topleft"
      left_pad="7"
-     name="hair"
+     name="hair_grain"
      top_delta="0"
      width="128" />
+    <texture_picker
+     height="143"
+     label="Hair Alpha"
+     layout="topleft"
+     left_pad="7"
+     name="hair_alpha"
+     top_delta="0"
+     width="128" />
+
     <texture_picker
      height="143"
      label="Head"
@@ -70,9 +80,26 @@
      label="Makeup"
      layout="topleft"
      left_pad="7"
-     name="head bodypaint"
+     name="head_bodypaint"
      top_delta="0"
      width="128" />
+    <texture_picker
+     height="143"
+     label="Head Alpha"
+     layout="topleft"
+     left_pad="7"
+     name="head_alpha"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Head Tattoo"
+     layout="topleft"
+     left_pad="7"
+     name="head_tattoo"
+     top_delta="0"
+     width="128" />
+
     <texture_picker
      height="143"
      label="Eyes"
@@ -86,9 +113,18 @@
      label="Eye"
      layout="topleft"
      left_pad="7"
-     name="iris"
+     name="eyes_iris"
      top_delta="0"
      width="128" />
+    <texture_picker
+     height="143"
+     label="Eyes Alpha"
+     layout="topleft"
+     left_pad="7"
+     name="eyes_alpha"
+     top_delta="0"
+     width="128" />
+
     <texture_picker
      height="143"
      label="Upper Body"
@@ -99,10 +135,10 @@
      width="128" />
     <texture_picker
      height="143"
-     label="Upper Body Tattoo"
+     label="Upper Body Bodypaint"
      layout="topleft"
      left_pad="7"
-     name="upper bodypaint"
+     name="upper_bodypaint"
      top_delta="0"
      width="128" />
     <texture_picker
@@ -110,7 +146,7 @@
      label="Undershirt"
      layout="topleft"
      left_pad="7"
-     name="undershirt"
+     name="upper_undershirt"
      top_delta="0"
      width="128" />
     <texture_picker
@@ -118,7 +154,7 @@
      label="Gloves"
      layout="topleft"
      left_pad="7"
-     name="gloves"
+     name="upper_gloves"
      top_delta="0"
      width="128" />
     <texture_picker
@@ -126,7 +162,7 @@
      label="Shirt"
      layout="topleft"
      left_pad="7"
-     name="shirt"
+     name="upper_shirt"
      top_delta="0"
      width="128" />
     <texture_picker
@@ -134,9 +170,26 @@
      label="Upper Jacket"
      layout="topleft"
      left_pad="7"
-     name="upper jacket"
+     name="upper_jacket"
      top_delta="0"
      width="128" />
+    <texture_picker
+     height="143"
+     label="Upper Alpha"
+     layout="topleft"
+     left_pad="7"
+     name="upper_alpha"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Upper Tattoo"
+     layout="topleft"
+     left_pad="7"
+     name="upper_tattoo"
+     top_delta="0"
+     width="128" />
+
     <texture_picker
      height="143"
      label="Lower Body"
@@ -147,10 +200,10 @@
      width="128" />
     <texture_picker
      height="143"
-     label="Lower Body Tattoo"
+     label="Lower Body Bodypaint"
      layout="topleft"
      left_pad="7"
-     name="lower bodypaint"
+     name="lower_bodypaint"
      top_delta="0"
      width="128" />
     <texture_picker
@@ -158,7 +211,7 @@
      label="Underpants"
      layout="topleft"
      left_pad="7"
-     name="underpants"
+     name="lower_underpants"
      top_delta="0"
      width="128" />
     <texture_picker
@@ -166,7 +219,7 @@
      label="Socks"
      layout="topleft"
      left_pad="7"
-     name="socks"
+     name="lower_socks"
      top_delta="0"
      width="128" />
     <texture_picker
@@ -174,7 +227,7 @@
      label="Shoes"
      layout="topleft"
      left_pad="7"
-     name="shoes"
+     name="lower_shoes"
      top_delta="0"
      width="128" />
     <texture_picker
@@ -182,7 +235,7 @@
      label="Pants"
      layout="topleft"
      left_pad="7"
-     name="pants"
+     name="lower_pants"
      top_delta="0"
      width="128" />
     <texture_picker
@@ -190,9 +243,26 @@
      label="Jacket"
      layout="topleft"
      left_pad="7"
-     name="lower jacket"
+     name="lower_jacket"
      top_delta="0"
      width="128" />
+    <texture_picker
+     height="143"
+     label="Lower Alpha"
+     layout="topleft"
+     left_pad="7"
+     name="lower_alpha"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Lower Tattoo"
+     layout="topleft"
+     left_pad="7"
+     name="lower_tattoo"
+     top_delta="0"
+     width="128" />
+
     <texture_picker
      height="143"
      label="Skirt"
@@ -209,4 +279,5 @@
      name="skirt"
      top_delta="0"
      width="128" />
+
 </floater>

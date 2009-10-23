@@ -350,13 +350,15 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 }
 
 
-/* static */ LLUUID LLAppearanceManager::getCOF()
+/* static */ 
+LLUUID LLAppearanceManager::getCOF()
 {
 	return gInventory.findCategoryUUIDForType(LLAssetType::AT_CURRENT_OUTFIT);
 }
 
 // Update appearance from outfit folder.
-/* static */ void LLAppearanceManager::changeOutfit(bool proceed, const LLUUID& category, bool append)
+/* static */ 
+void LLAppearanceManager::changeOutfit(bool proceed, const LLUUID& category, bool append)
 {
 	if (!proceed)
 		return;
@@ -381,7 +383,8 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 }
 
 // Append to current COF contents by recursively traversing a folder.
-/* static */ void LLAppearanceManager::updateCOFFromCategory(const LLUUID& category, bool append)
+/* static */ 
+void LLAppearanceManager::updateCOFFromCategory(const LLUUID& category, bool append)
 {
 		// BAP consolidate into one "get all 3 types of descendents" function, use both places.
 	LLInventoryModel::item_array_t wear_items;
@@ -473,8 +476,9 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 	}
 }
 
-/* static */ void LLAppearanceManager::shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
-														   LLPointer<LLInventoryCallback> cb)
+/* static */ 
+void LLAppearanceManager::shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
+											  LLPointer<LLInventoryCallback> cb)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
@@ -517,13 +521,15 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 	}
 }
 
-/* static */ bool LLAppearanceManager::isMandatoryWearableType(EWearableType type)
+/* static */ 
+bool LLAppearanceManager::isMandatoryWearableType(EWearableType type)
 {
 	return (type==WT_SHAPE) || (type==WT_SKIN) || (type== WT_HAIR) || (type==WT_EYES);
 }
 
 // For mandatory body parts.
-/* static */ void LLAppearanceManager::checkMandatoryWearableTypes(const LLUUID& category, std::set<EWearableType>& types_found)
+/* static */ 
+void LLAppearanceManager::checkMandatoryWearableTypes(const LLUUID& category, std::set<EWearableType>& types_found)
 {
 	LLInventoryModel::cat_array_t new_cats;
 	LLInventoryModel::item_array_t new_items;
@@ -548,7 +554,8 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 // with contents of new category.  This means preserving any mandatory
 // body parts that aren't present in the new category, and getting rid
 // of everything else.
-/* static */ void LLAppearanceManager::purgeCOFBeforeRebuild(const LLUUID& category)
+/* static */ 
+void LLAppearanceManager::purgeCOFBeforeRebuild(const LLUUID& category)
 {
 	// See which mandatory body types are present in the new category.
 	std::set<EWearableType> wt_types_found;
@@ -580,7 +587,8 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 }
 
 // Replace COF contents from a given outfit folder.
-/* static */ void LLAppearanceManager::rebuildCOFFromOutfit(const LLUUID& category)
+/* static */ 
+void LLAppearanceManager::rebuildCOFFromOutfit(const LLUUID& category)
 {
 	lldebugs << "rebuildCOFFromOutfit()" << llendl;
 
@@ -688,7 +696,8 @@ void LLAppearanceManager::updateAgentWearables(LLWearableHoldingPattern* holder,
 //	dec_busy_count();
 }
 
-/* static */ void LLAppearanceManager::updateAppearanceFromCOF()
+/* static */ 
+void LLAppearanceManager::updateAppearanceFromCOF()
 {
 	dumpCat(getCOF(),"COF, start");
 
@@ -739,7 +748,7 @@ void LLAppearanceManager::updateAgentWearables(LLWearableHoldingPattern* holder,
 		LLDynamicArray<LLFoundData*> found_container;
 		for(S32 i = 0; i  < wear_items.count(); ++i)
 		{
-			found = new LLFoundData(wear_items.get(i)->getUUID(),
+			found = new LLFoundData(wear_items.get(i)->getLinkedUUID(), // Wear the base item, not the link
 									wear_items.get(i)->getAssetUUID(),
 									wear_items.get(i)->getName(),
 									wear_items.get(i)->getType());
@@ -770,7 +779,7 @@ void LLAppearanceManager::updateAgentWearables(LLWearableHoldingPattern* holder,
 
 /* static */ 
 void LLAppearanceManager::getCOFValidDescendents(const LLUUID& category,
-															  LLInventoryModel::item_array_t& items)
+												 LLInventoryModel::item_array_t& items)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLFindCOFValidItems is_cof_valid;
@@ -783,11 +792,12 @@ void LLAppearanceManager::getCOFValidDescendents(const LLUUID& category,
 									follow_folder_links);
 }
 
-/* static */ void LLAppearanceManager::getUserDescendents(const LLUUID& category, 
-														  LLInventoryModel::item_array_t& wear_items,
-														  LLInventoryModel::item_array_t& obj_items,
-														  LLInventoryModel::item_array_t& gest_items,
-														  bool follow_folder_links)
+/* static */ 
+void LLAppearanceManager::getUserDescendents(const LLUUID& category, 
+											 LLInventoryModel::item_array_t& wear_items,
+											 LLInventoryModel::item_array_t& obj_items,
+											 LLInventoryModel::item_array_t& gest_items,
+											 bool follow_folder_links)
 {
 	LLInventoryModel::cat_array_t wear_cats;
 	LLFindWearables is_wearable;
