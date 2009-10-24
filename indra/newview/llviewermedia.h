@@ -133,13 +133,13 @@ public:
 	void focus(bool focus);
 	// True if the impl has user focus.
 	bool hasFocus() const;
-	void mouseDown(S32 x, S32 y);
-	void mouseUp(S32 x, S32 y);
-	void mouseMove(S32 x, S32 y);
-	void mouseDown(const LLVector2& texture_coords);
-	void mouseUp(const LLVector2& texture_coords);
-	void mouseMove(const LLVector2& texture_coords);
-	void mouseLeftDoubleClick(S32 x,S32 y );
+	void mouseDown(S32 x, S32 y, MASK mask, S32 button = 0);
+	void mouseUp(S32 x, S32 y, MASK mask, S32 button = 0);
+	void mouseMove(S32 x, S32 y, MASK mask);
+	void mouseDown(const LLVector2& texture_coords, MASK mask, S32 button = 0);
+	void mouseUp(const LLVector2& texture_coords, MASK mask, S32 button = 0);
+	void mouseMove(const LLVector2& texture_coords, MASK mask);
+	void mouseDoubleClick(S32 x,S32 y, MASK mask, S32 button = 0);
 	void mouseCapture();
 	
 	void navigateBack();
