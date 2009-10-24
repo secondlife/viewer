@@ -46,11 +46,15 @@ void main()
 	
 	dlt /= max(-pos.z*dist_factor, 1.0);
 	
-	vec2 defined_weight = kern[0].xy; // special case the first (centre) sample's weight in the blur; we have to sample it anyway so we get it for 'free'
+	vec2 defined_weight = kern[0].xy; // special case the kern[0] (centre) sample's weight in the blur; we have to sample it anyway so we get it for 'free'
 	vec4 col = defined_weight.xyxx * ccol;
+
+	float center_e = 1.0 - (texture2DRect(edgeMap, vary_fragcoord.xy).a+
+		      texture2DRect(edgeMap, vary_fragcoord.xy+dlt*0.333).a+
+	              texture2DRect(edgeMap, vary_fragcoord.xy-dlt*0.333).a);
 	
-	float e = 1.0;
-	for (int i = 0; i < 4; i++)
+	float e = center_e;
+	for (int i = 1; i < 4; i++)
 	{
 		vec2 tc = vary_fragcoord.xy + kern[i].z*dlt;
 		
@@ -67,10 +71,8 @@ void main()
 			texture2DRect(edgeMap, tc.xy-dlt*0.333).a;
 	}
 
-
-	e = 1.0;
-	
-	for (int i = 0; i < 4; i++)
+	e = center_e;
+	for (int i = 1; i < 4; i++)
 	{
 		vec2 tc = vary_fragcoord.xy - kern[i].z*dlt;
 		
