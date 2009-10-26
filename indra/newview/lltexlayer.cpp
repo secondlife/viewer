@@ -804,8 +804,9 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 	
 	gGL.setColorMask(false, true);
 	gGL.setSceneBlendType(LLRender::BT_REPLACE);
+	
 	// (Optionally) replace alpha with a single component image from a tga file.
-	if (!info->mStaticAlphaFileName.empty() && mMaskLayerList.empty())
+	if (!info->mStaticAlphaFileName.empty())
 	{
 		LLGLSNoAlphaTest gls_no_alpha_test;
 		gGL.flush();
