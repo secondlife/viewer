@@ -76,7 +76,6 @@
 typedef std::pair<LLUUID, std::string> folder_pair_t;
 
 static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right);
-static std::string getFullFolderName(const LLViewerInventoryCategory* cat);
 static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats);
 
 static LLRegisterPanelClassWrapper<LLPanelPlaceInfo> t_place_info("panel_place_info");
@@ -1028,14 +1027,9 @@ void LLPanelPlaceInfo::onForSaleBannerClick()
 	
 	
 }
- 
 
-static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right)
-{
-	return left.second < right.second;
-}
-
-static std::string getFullFolderName(const LLViewerInventoryCategory* cat)
+/*static*/
+std::string LLPanelPlaceInfo::getFullFolderName(const LLViewerInventoryCategory* cat)
 {
 	std::string name = cat->getName();
 	LLUUID parent_id;
@@ -1055,6 +1049,11 @@ static std::string getFullFolderName(const LLViewerInventoryCategory* cat)
 	}
 
 	return name;
+}
+
+static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right)
+{
+	return left.second < right.second;
 }
 
 static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats)
