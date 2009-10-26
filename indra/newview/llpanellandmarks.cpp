@@ -40,7 +40,9 @@
 
 #include "llaccordionctrltab.h"
 #include "llagent.h"
+#include "llagentpicksinfo.h"
 #include "llagentui.h"
+#include "lldndbutton.h"
 #include "llfloaterworldmap.h"
 #include "llfolderviewitem.h"
 #include "llinventorysubtreepanel.h"
@@ -58,7 +60,6 @@ static const std::string ADD_LANDMARK_BUTTON_NAME = "add_landmark_btn";
 static const std::string ADD_FOLDER_BUTTON_NAME = "add_folder_btn";
 static const std::string TRASH_BUTTON_NAME = "trash_btn";
 
-static const LLPlacesInventoryBridgeBuilder PLACES_INVENTORY_BUILDER;
 
 // helper functions
 static void filter_list(LLInventorySubTreePanel* inventory_list, const std::string& string);
@@ -214,6 +215,17 @@ bool LLLandmarksPanel::isLandmarkSelected() const
 	return false;
 }
 
+bool LLLandmarksPanel::isReceivedFolderSelected() const
+{
+	// Received Folder can be only in Landmarks accordion
+	if (mCurrentSelectedList != mLandmarksInventoryPanel) return false;
+
+	// *TODO: it should be filled with logic when EXT-976 is done.
+
+	llwarns << "Not implemented yet until EXT-976 is done." << llendl;
+
+	return false;
+}
 LLLandmark* LLLandmarksPanel::getCurSelectedLandmark() const
 {
 
@@ -317,9 +329,7 @@ void LLLandmarksPanel::initFavoritesInventroyPanel()
 {
 	mFavoritesInventoryPanel = getChild<LLInventorySubTreePanel>("favorites_list");
 
-	LLUUID start_folder_id = mFavoritesInventoryPanel->getModel()->findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
-
-	initLandmarksPanel(mFavoritesInventoryPanel, start_folder_id);
+	initLandmarksPanel(mFavoritesInventoryPanel);
 
 	initAccordion("tab_favorites", mFavoritesInventoryPanel);
 }
@@ -328,9 +338,8 @@ void LLLandmarksPanel::initLandmarksInventroyPanel()
 {
 	mLandmarksInventoryPanel = getChild<LLInventorySubTreePanel>("landmarks_list");
 
-	LLUUID start_folder_id = mLandmarksInventoryPanel->getModel()->findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+	initLandmarksPanel(mLandmarksInventoryPanel);
 
-	initLandmarksPanel(mLandmarksInventoryPanel, start_folder_id);
 	mLandmarksInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
 
 	// subscribe to have auto-rename functionality while creating New Folder
@@ -343,9 +352,7 @@ void LLLandmarksPanel::initMyInventroyPanel()
 {
 	mMyInventoryPanel= getChild<LLInventorySubTreePanel>("my_inventory_list");
 
-	LLUUID start_folder_id = mMyInventoryPanel->getModel()->getRootFolderID();
-
-	initLandmarksPanel(mMyInventoryPanel, start_folder_id);
+	initLandmarksPanel(mMyInventoryPanel);
 
 	initAccordion("tab_inventory", mMyInventoryPanel);
 }
@@ -354,18 +361,13 @@ void LLLandmarksPanel::initLibraryInventroyPanel()
 {
 	mLibraryInventoryPanel = getChild<LLInventorySubTreePanel>("library_list");
 
-	LLUUID start_folder_id = mLibraryInventoryPanel->getModel()->getLibraryRootFolderID();
-
-	initLandmarksPanel(mLibraryInventoryPanel, start_folder_id);
+	initLandmarksPanel(mLibraryInventoryPanel);
 
 	initAccordion("tab_library", mLibraryInventoryPanel);
 }
 
-
-void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_list, const LLUUID& start_folder_id)
+void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_list)
 {
-	inventory_list->buildSubtreeViewsFor(start_folder_id, &PLACES_INVENTORY_BUILDER);
-
 	inventory_list->setFilterTypes(0x1 << LLInventoryType::IT_LANDMARK);
 	inventory_list->setSelectCallback(boost::bind(&LLLandmarksPanel::onSelectionChange, this, inventory_list, _1, _2));
 
@@ -378,6 +380,10 @@ void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_lis
 		root_folder->setupMenuHandle(LLInventoryType::IT_CATEGORY, mGearFolderMenu->getHandle());
 		root_folder->setupMenuHandle(LLInventoryType::IT_LANDMARK, mGearLandmarkMenu->getHandle());
 	}
+
+	// save initial folder state to avoid incorrect work while switching between Landmarks & Teleport History tabs
+	// See EXT-1609.
+	inventory_list->saveFolderState();
 }
 
 void LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLInventorySubTreePanel* inventory_list)
@@ -432,10 +438,18 @@ void LLLandmarksPanel::initListCommandsHandlers()
 	mListCommands->childSetAction(TRASH_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onTrashButtonClick, this));
 
 	
+	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>(TRASH_BUTTON_NAME);
+	trash_btn->setDragAndDropHandler(boost::bind(&LLLandmarksPanel::handleDragAndDropToTrash, this
+			,	_4 // BOOL drop
+			,	_5 // EDragAndDropType cargo_type
+			,	_7 // EAcceptance* accept
+			));
+
 	mCommitCallbackRegistrar.add("Places.LandmarksGear.Add.Action", boost::bind(&LLLandmarksPanel::onAddAction, this, _2));
-	mCommitCallbackRegistrar.add("Places.LandmarksGear.CopyPaste.Action", boost::bind(&LLLandmarksPanel::onCopyPasteAction, this, _2));
+	mCommitCallbackRegistrar.add("Places.LandmarksGear.CopyPaste.Action", boost::bind(&LLLandmarksPanel::onClipboardAction, this, _2));
 	mCommitCallbackRegistrar.add("Places.LandmarksGear.Custom.Action", boost::bind(&LLLandmarksPanel::onCustomAction, this, _2));
 	mCommitCallbackRegistrar.add("Places.LandmarksGear.Folding.Action", boost::bind(&LLLandmarksPanel::onFoldingAction, this, _2));
+	mEnableCallbackRegistrar.add("Places.LandmarksGear.Check", boost::bind(&LLLandmarksPanel::isActionChecked, this, _2));
 	mEnableCallbackRegistrar.add("Places.LandmarksGear.Enable", boost::bind(&LLLandmarksPanel::isActionEnabled, this, _2));
 	mGearLandmarkMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_places_gear_landmark.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGearFolderMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_places_gear_folder.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -444,20 +458,8 @@ void LLLandmarksPanel::initListCommandsHandlers()
 
 void LLLandmarksPanel::updateListCommands()
 {
-	// TODO: should be false when "Received" folder is selected
-	bool add_folder_enabled = mCurrentSelectedList == mLandmarksInventoryPanel;
-	bool trash_enabled = false; // TODO: should be false when "Received" folder is selected
-
-	LLFolderViewItem* current_item = getCurSelectedItem();
-
-	if (current_item)
-	{
-		LLFolderViewEventListener* listenerp = current_item->getListener();
-		if (listenerp->getInventoryType() == LLInventoryType::IT_LANDMARK)
-		{
-			trash_enabled = mCurrentSelectedList != mLibraryInventoryPanel;
-		}
-	}
+	bool add_folder_enabled = isActionEnabled("category");
+	bool trash_enabled = isActionEnabled("delete");
 
 	// keep Options & Add Landmark buttons always enabled
 	mListCommands->childSetEnabled(ADD_FOLDER_BUTTON_NAME, add_folder_enabled);
@@ -515,31 +517,29 @@ void LLLandmarksPanel::onAddFolderButtonClick() const
 	LLFolderViewItem*  item = getCurSelectedItem();
 	if(item &&  mCurrentSelectedList == mLandmarksInventoryPanel)
 	{
-		LLFolderBridge *parentBridge = NULL;
+		LLFolderViewEventListener* folder_bridge = NULL;
 		if(item-> getListener()->getInventoryType() == LLInventoryType::IT_LANDMARK)
 		{
-			parentBridge = dynamic_cast<LLFolderBridge*>(item->getParentFolder()->getListener());
-			/*WORKAROUND:* 
-			 LLFolderView::doIdle() is calling in each frame,
-			 it changes selected items before LLFolderView::startRenamingSelectedItem.
-			 To avoid it we have to change keyboardFocus. 
-			*/
-			gFocusMgr.setKeyboardFocus(item->getParentFolder());
+			// for a landmark get parent folder bridge
+			folder_bridge = item->getParentFolder()->getListener();
 		}
 		else if (item-> getListener()->getInventoryType() == LLInventoryType::IT_CATEGORY) 
 		{
-			parentBridge = dynamic_cast<LLFolderBridge*>(item->getListener());
-			gFocusMgr.setKeyboardFocus(item);
+			// for a folder get its own bridge
+			folder_bridge = item->getListener();
 		}
-		menu_create_inventory_item(mCurrentSelectedList->getRootFolder(),parentBridge, LLSD("category"));
+
+		menu_create_inventory_item(mCurrentSelectedList->getRootFolder()
+			, dynamic_cast<LLFolderBridge*>(folder_bridge)
+			, LLSD("category")
+			, gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK)
+			);
 	}
 }
 
 void LLLandmarksPanel::onTrashButtonClick() const
 {
-	if(!mCurrentSelectedList) return;
-
-	mCurrentSelectedList->getRootFolder()->doToSelected(mCurrentSelectedList->getModel(), "delete");
+	onClipboardAction("delete");
 }
 
 void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
@@ -555,7 +555,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 	}
 }
 
-void LLLandmarksPanel::onCopyPasteAction(const LLSD& userdata) const
+void LLLandmarksPanel::onClipboardAction(const LLSD& userdata) const
 {
 	if(!mCurrentSelectedList) 
 		return;
@@ -599,7 +599,6 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 	else if ( "sort_by_date" == command_name)
 	{
 		mSortByDate = !mSortByDate;
-		updateSortOrder(mFavoritesInventoryPanel, mSortByDate);
 		updateSortOrder(mLandmarksInventoryPanel, mSortByDate);
 		updateSortOrder(mMyInventoryPanel, mSortByDate);
 		updateSortOrder(mLibraryInventoryPanel, mSortByDate);
@@ -610,31 +609,79 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 	}
 }
 
+bool LLLandmarksPanel::isActionChecked(const LLSD& userdata) const
+{
+	const std::string command_name = userdata.asString();
+
+	if ( "sort_by_date" == command_name)
+	{
+		return  mSortByDate;
+	}
+
+	return false;
+}
+
 bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 {
 	std::string command_name = userdata.asString();
+
+
+	LLPlacesFolderView* rootFolderView = mCurrentSelectedList ?
+		static_cast<LLPlacesFolderView*>(mCurrentSelectedList->getRootFolder()) : NULL;
+
+	if (NULL == rootFolderView) return false;
+
+	// disable some commands for multi-selection. EXT-1757
+	if (rootFolderView->getSelectedCount() > 1)
+	{
+		if (   "teleport"		== command_name 
+			|| "more_info"		== command_name
+			|| "rename"			== command_name
+			|| "show_on_map"	== command_name
+			|| "copy_slurl"		== command_name
+			)
+		{
+			return false;
+		}
+
+	}
+
+	// disable some commands for Favorites accordion. EXT-1758
+	if (mCurrentSelectedList == mFavoritesInventoryPanel)
+	{
+		if (   "expand_all"		== command_name
+			|| "collapse_all"	== command_name
+			|| "sort_by_date"	== command_name
+			)
+			return false;
+	}
+
+
 	if("category" == command_name)
 	{
-		return mCurrentSelectedList == mLandmarksInventoryPanel; 
+		// we can add folder only in Landmarks Accordion
+		if (mCurrentSelectedList == mLandmarksInventoryPanel)
+		{
+			// ... but except Received folder
+			return !isReceivedFolderSelected();
+		}
+		else return false;
 	}
-	else if("paste" == command_name)
+	else if("paste" == command_name || "rename" == command_name || "cut" == command_name || "delete" == command_name)
 	{
-		return mCurrentSelectedList ? mCurrentSelectedList->getRootFolder()->canPaste() : false;
+		return canSelectedBeModified(command_name);
 	}
 	else if ( "sort_by_date" == command_name)
 	{
 		return  mSortByDate;
 	}
-	// do not allow teleport and more info for multi-selections
-	else if ("teleport" == command_name || "more_info" == command_name)
+	else if("create_pick" == command_name)
 	{
-		return mCurrentSelectedList ?
-			static_cast<LLPlacesFolderView*>(mCurrentSelectedList->getRootFolder())->getSelectedCount() == 1 : false;
+		return !LLAgentPicksInfo::getInstance()->isPickLimitReached();
 	}
-	// we can add folder, or change item/folder only in Landmarks Accordion
-	else if ("add_folder" == command_name || "rename" == command_name || "delete" == command_name)
+	else
 	{
-		return mLandmarksInventoryPanel == mCurrentSelectedList;
+		llwarns << "Unprocessed command has come: " << command_name << llendl;
 	}
 
 	return true;
@@ -699,6 +746,75 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
 	}
 }
 
+/*
+Processes such actions: cut/rename/delete/paste actions
+
+Rules:
+ 1. We can't perform any action in Library
+ 2. For Landmarks we can:
+	- cut/rename/delete in any other accordions
+	- paste - only in Favorites, Landmarks accordions
+ 3. For Folders we can: perform any action in Landmarks accordion, except Received folder
+ 4. We can not paste folders from Clipboard (processed by LLFolderView::canPaste())
+ 5. Check LLFolderView/Inventory Bridges rules
+ */
+bool LLLandmarksPanel::canSelectedBeModified(const std::string& command_name) const
+{
+	// validate own rules first
+
+	// nothing can be modified in Library
+	if (mLibraryInventoryPanel == mCurrentSelectedList) return false;
+
+	bool can_be_modified = false;
+
+	// landmarks can be modified in any other accordion...
+	if (isLandmarkSelected())
+	{
+		can_be_modified = true;
+
+		// we can modify landmarks anywhere except paste to My Inventory
+		if ("paste" == command_name)
+		{
+			can_be_modified = (mCurrentSelectedList != mMyInventoryPanel);
+		}
+	}
+	else
+	{
+		// ...folders only in the Landmarks accordion...
+		can_be_modified = mLandmarksInventoryPanel == mCurrentSelectedList;
+
+		// ...except "Received" folder
+		can_be_modified &= !isReceivedFolderSelected();
+	}
+
+	// then ask LLFolderView permissions
+	if (can_be_modified)
+	{
+		if ("cut" == command_name)
+		{
+			can_be_modified = mCurrentSelectedList->getRootFolder()->canCut();
+		}
+		else if ("rename" == command_name)
+		{
+			can_be_modified = getCurSelectedItem()->getListener()->isItemRenameable();
+		}
+		else if ("delete" == command_name)
+		{
+			can_be_modified = getCurSelectedItem()->getListener()->isItemRemovable();
+		}
+		else if("paste" == command_name)
+		{
+			return mCurrentSelectedList->getRootFolder()->canPaste();
+		}
+		else
+		{
+			llwarns << "Unprocessed command has come: " << command_name << llendl;
+		}
+	}
+
+	return can_be_modified;
+}
+
 void LLLandmarksPanel::onPickPanelExit( LLPanelPickEdit* pick_panel, LLView* owner, const LLSD& params)
 {
 	pick_panel->setVisible(FALSE);
@@ -708,6 +824,33 @@ void LLLandmarksPanel::onPickPanelExit( LLPanelPickEdit* pick_panel, LLView* own
 
 	delete pick_panel;
 	pick_panel = NULL;
+}
+
+bool LLLandmarksPanel::handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept)
+{
+	*accept = ACCEPT_NO;
+
+	switch (cargo_type)
+	{
+
+	case DAD_LANDMARK:
+	case DAD_CATEGORY:
+		{
+			bool is_enabled = isActionEnabled("delete");
+
+			if (is_enabled) *accept = ACCEPT_YES_MULTI;
+
+			if (is_enabled && drop)
+			{
+				onClipboardAction("delete");
+			}
+		}
+		break;
+	default:
+		break;
+	}
+
+	return true;
 }
 
 

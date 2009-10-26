@@ -35,8 +35,6 @@
 #include "llsd.h"
 #include "lltrans.h"
 
-const LLStringUtil::format_map_t LLUIString::sNullArgs;
-
 LLFastTimer::DeclareTimer FTM_UI_STRING("UI String");
 
 

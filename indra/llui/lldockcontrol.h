@@ -48,6 +48,7 @@ public:
 	enum DocAt
 	{
 		TOP
+		,LEFT
 	};
 
 public:
@@ -63,6 +64,10 @@ public:
 	void on();
 	void off();
 	void setDock(LLView* dockWidget);
+	LLView* getDock()
+	{
+		return mDockWidget;
+	}
 	void repositionDockable();
 	void drawToungue();
 	bool isDockVisible();
@@ -76,6 +81,7 @@ private:
 	get_allowed_rect_callback_t mGetAllowedRectCallback;
 	bool mEnabled;
 	bool mRecalculateDocablePosition;
+	bool mDockWidgetVisible;
 	DocAt mDockAt;
 	LLView* mDockWidget;
 	LLRect mPrevDockRect;

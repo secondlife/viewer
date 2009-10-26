@@ -1825,27 +1825,26 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round 
 	return pos;
 }
 
-LLRect LLTextBase::getLocalRectFromDocIndex(S32 pos) const
+// returns rectangle of insertion caret 
+// in document coordinate frame from given index into text
+LLRect LLTextBase::getDocRectFromDocIndex(S32 pos) const
 {
-	LLRect local_rect;
 	if (mLineInfoList.empty()) 
 	{ 
-		local_rect = mTextRect;
-		local_rect.mBottom = local_rect.mTop - (S32)(mDefaultFont->getLineHeight());
-		return local_rect;
+		return LLRect();
 	}
+
+	LLRect doc_rect;
 
 	// clamp pos to valid values
 	pos = llclamp(pos, 0, mLineInfoList.back().mDocIndexEnd - 1);
 
-
 	// find line that contains cursor
 	line_list_t::const_iterator line_iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), pos, line_end_compare());
 
-	LLRect scrolled_view_rect = getVisibleDocumentRect();
-	local_rect.mLeft = mTextRect.mLeft - scrolled_view_rect.mLeft + line_iter->mRect.mLeft; 
-	local_rect.mBottom = mTextRect.mBottom + (line_iter->mRect.mBottom - scrolled_view_rect.mBottom);
-	local_rect.mTop = mTextRect.mBottom + (line_iter->mRect.mTop - scrolled_view_rect.mBottom);
+	doc_rect.mLeft = line_iter->mRect.mLeft; 
+	doc_rect.mBottom = line_iter->mRect.mBottom;
+	doc_rect.mTop = line_iter->mRect.mTop;
 
 	segment_set_t::iterator line_seg_iter;
 	S32 line_seg_offset;
@@ -1863,7 +1862,7 @@ LLRect LLTextBase::getLocalRectFromDocIndex(S32 pos) const
 			// cursor advanced to right based on difference in offset of cursor to start of line
 			S32 segment_width, segment_height;
 			segmentp->getDimensions(line_seg_offset, cursor_seg_offset - line_seg_offset, segment_width, segment_height);
-			local_rect.mLeft += segment_width;
+			doc_rect.mLeft += segment_width;
 
 			break;
 		}
@@ -1872,7 +1871,7 @@ LLRect LLTextBase::getLocalRectFromDocIndex(S32 pos) const
 			// add remainder of current text segment to cursor position
 			S32 segment_width, segment_height;
 			segmentp->getDimensions(line_seg_offset, (segmentp->getEnd() - segmentp->getStart()) - line_seg_offset, segment_width, segment_height);
-			local_rect.mLeft += segment_width;
+			doc_rect.mLeft += segment_width;
 			// offset will be 0 for all segments after the first
 			line_seg_offset = 0;
 			// go to next text segment on this line
@@ -1880,7 +1879,31 @@ LLRect LLTextBase::getLocalRectFromDocIndex(S32 pos) const
 		}
 	}
 
-	local_rect.mRight = local_rect.mLeft; 
+	// set rect to 0 width
+	doc_rect.mRight = doc_rect.mLeft; 
+
+	return doc_rect;
+}
+
+LLRect LLTextBase::getLocalRectFromDocIndex(S32 pos) const
+{
+	LLRect local_rect;
+	if (mLineInfoList.empty()) 
+	{ 
+		// return default height rect in upper left
+		local_rect = mTextRect;
+		local_rect.mBottom = local_rect.mTop - (S32)(mDefaultFont->getLineHeight());
+		return local_rect;
+	}
+
+	// get the rect in document coordinates
+	LLRect doc_rect = getDocRectFromDocIndex(pos);
+
+	// compensate for scrolled, inset view of doc
+	LLRect scrolled_view_rect = getVisibleDocumentRect();
+	local_rect = doc_rect;
+	local_rect.translate(mTextRect.mLeft - scrolled_view_rect.mLeft, 
+						mTextRect.mBottom - scrolled_view_rect.mBottom);
 
 	return local_rect;
 }
@@ -2416,10 +2439,12 @@ void LLNormalTextSegment::dump() const
 // LLInlineViewSegment
 //
 
-LLInlineViewSegment::LLInlineViewSegment(LLView* view, S32 start, S32 end, bool force_new_line)
+LLInlineViewSegment::LLInlineViewSegment(LLView* view, S32 start, S32 end, bool force_new_line, S32 hpad, S32 vpad)
 :	LLTextSegment(start, end),
 	mView(view),
-	mForceNewLine(force_new_line)
+	mForceNewLine(force_new_line),
+	mHPad(hpad), // one sided padding (applied to left and right)
+	mVPad(vpad)
 {
 } 
 
@@ -2439,8 +2464,8 @@ void	LLInlineViewSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 	}
 	else
 	{
-		width = mView->getRect().getWidth();
-		height = mView->getRect().getHeight();
+		width = mHPad * 2 + mView->getRect().getWidth();
+		height = mVPad * 2 + mView->getRect().getHeight();
 	}
 }
 
@@ -2462,14 +2487,15 @@ S32	LLInlineViewSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 
 void LLInlineViewSegment::updateLayout(const LLTextBase& editor)
 {
-	LLRect start_rect = editor.getLocalRectFromDocIndex(mStart);
-	LLRect doc_rect = editor.getDocumentView()->getRect();
-	mView->setOrigin(doc_rect.mLeft + start_rect.mLeft, doc_rect.mBottom + start_rect.mBottom);
+	LLRect start_rect = editor.getDocRectFromDocIndex(mStart);
+	mView->setOrigin(start_rect.mLeft + mHPad, start_rect.mBottom + mVPad);
 }
 
 F32	LLInlineViewSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
 {
-	return (F32)(draw_rect.mLeft + mView->getRect().getWidth());
+	// return padded width of widget
+	// widget is actually drawn during mDocumentView's draw()
+	return (F32)(draw_rect.mLeft + mView->getRect().getWidth() + mHPad * 2);
 }
 
 void LLInlineViewSegment::unlinkFromDocument(LLTextBase* editor)

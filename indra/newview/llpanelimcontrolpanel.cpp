@@ -38,6 +38,9 @@
 #include "llavatariconctrl.h"
 #include "llbutton.h"
 #include "llgroupactions.h"
+#include "llavatarlist.h"
+#include "llparticipantlist.h"
+#include "llimview.h"
 
 LLPanelIMControlPanel::LLPanelIMControlPanel()
 {
@@ -89,13 +92,33 @@ void LLPanelIMControlPanel::setID(const LLUUID& avatar_id)
 }
 
 
+LLPanelGroupControlPanel::LLPanelGroupControlPanel(const LLUUID& session_id)
+{
+	mSpeakerManager = LLIMModel::getInstance()->getSpeakerManager(session_id);
+}
 
 BOOL LLPanelGroupControlPanel::postBuild()
 {
 	childSetAction("group_info_btn", boost::bind(&LLPanelGroupControlPanel::onGroupInfoButtonClicked, this));
 	childSetAction("call_btn", boost::bind(&LLPanelGroupControlPanel::onCallButtonClicked, this));
 
+	mAvatarList = getChild<LLAvatarList>("speakers_list");
+	mParticipantList = new LLParticipantList(mSpeakerManager, mAvatarList);
+
 	return TRUE;
+}
+
+LLPanelGroupControlPanel::~LLPanelGroupControlPanel()
+{
+	delete mParticipantList;
+	mParticipantList = NULL;
+}
+
+// virtual
+void LLPanelGroupControlPanel::draw()
+{
+	mSpeakerManager->update(true);
+	LLPanelChatControlPanel::draw();
 }
 
 void LLPanelGroupControlPanel::onGroupInfoButtonClicked()

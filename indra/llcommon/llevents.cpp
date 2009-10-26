@@ -126,6 +126,16 @@ void LLEventPumps::flush()
     }
 }
 
+void LLEventPumps::reset()
+{
+    // Reset every known LLEventPump instance. Leave it up to each instance to
+    // decide what to do with the reset() call.
+    for (PumpMap::iterator pmi = mPumpMap.begin(), pmend = mPumpMap.end(); pmi != pmend; ++pmi)
+    {
+        pmi->second->reset();
+    }
+}
+
 std::string LLEventPumps::registerNew(const LLEventPump& pump, const std::string& name, bool tweak)
 {
     std::pair<PumpMap::iterator, bool> inserted =
@@ -242,6 +252,7 @@ LLEventPumps::~LLEventPumps()
 LLEventPump::LLEventPump(const std::string& name, bool tweak):
     // Register every new instance with LLEventPumps
     mName(LLEventPumps::instance().registerNew(*this, name, tweak)),
+    mSignal(new LLStandardSignal()),
     mEnabled(true)
 {}
 
@@ -262,6 +273,13 @@ std::string LLEventPump::inventName(const std::string& pfx)
 {
     static long suffix = 0;
     return STRINGIZE(pfx << suffix++);
+}
+
+void LLEventPump::reset()
+{
+    mSignal.reset();
+    mConnections.clear();
+    //mDeps.clear();
 }
 
 LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventListener& listener,
@@ -405,7 +423,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
     }
     // Now that newNode has a value that places it appropriately in mSignal,
     // connect it.
-    LLBoundListener bound = mSignal.connect(newNode, listener);
+    LLBoundListener bound = mSignal->connect(newNode, listener);
     mConnections[name] = bound;
     return bound;
 }
@@ -445,7 +463,7 @@ bool LLEventStream::post(const LLSD& event)
     // Let caller know if any one listener handled the event. This is mostly
     // useful when using LLEventStream as a listener for an upstream
     // LLEventPump.
-    return mSignal(event);
+    return (*mSignal)(event);
 }
 
 /*****************************************************************************
@@ -476,7 +494,7 @@ void LLEventQueue::flush()
     mEventQueue.clear();
     for ( ; ! queue.empty(); queue.pop_front())
     {
-        mSignal(queue.front());
+        (*mSignal)(queue.front());
     }
 }
 

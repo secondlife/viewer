@@ -34,6 +34,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llmimetypes.h"
+#include "llxmlnode.h"
 
 #include "lluictrlfactory.h"
 

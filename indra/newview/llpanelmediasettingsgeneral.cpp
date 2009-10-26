@@ -68,15 +68,11 @@ LLPanelMediaSettingsGeneral::LLPanelMediaSettingsGeneral() :
 	mHeightPixels( NULL ),
 	mHomeURL( NULL ),
 	mCurrentURL( NULL ),
-	mAltImageEnable( NULL ),
 	mParent( NULL ),
 	mMediaEditable(false)
 {
 	// build dialog from XML
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_media_settings_general.xml");
-//	mCommitCallbackRegistrar.add("Media.ResetCurrentUrl",		boost::bind(&LLPanelMediaSettingsGeneral::onBtnResetCurrentUrl, this));
-//	mCommitCallbackRegistrar.add("Media.CommitHomeURL",			boost::bind(&LLPanelMediaSettingsGeneral::onCommitHomeURL, this));	
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,7 +80,6 @@ LLPanelMediaSettingsGeneral::LLPanelMediaSettingsGeneral() :
 BOOL LLPanelMediaSettingsGeneral::postBuild()
 {
 	// connect member vars with UI widgets
-    mAltImageEnable = getChild< LLCheckBoxCtrl >( LLMediaEntry::ALT_IMAGE_ENABLE_KEY );
 	mAutoLoop = getChild< LLCheckBoxCtrl >( LLMediaEntry::AUTO_LOOP_KEY );
 	mAutoPlay = getChild< LLCheckBoxCtrl >( LLMediaEntry::AUTO_PLAY_KEY );
 	mAutoScale = getChild< LLCheckBoxCtrl >( LLMediaEntry::AUTO_SCALE_KEY );
@@ -192,7 +187,6 @@ void LLPanelMediaSettingsGeneral::draw()
 void LLPanelMediaSettingsGeneral::clearValues( void* userdata, bool editable)
 {	
 	LLPanelMediaSettingsGeneral *self =(LLPanelMediaSettingsGeneral *)userdata;
-	self->mAltImageEnable ->clear();
 	self->mAutoLoop->clear();
 	self->mAutoPlay->clear();
 	self->mAutoScale->clear();
@@ -203,7 +197,6 @@ void LLPanelMediaSettingsGeneral::clearValues( void* userdata, bool editable)
 	self->mHeightPixels->clear();
 	self->mHomeURL->clear();
 	self->mWidthPixels->clear();
-	self->mAltImageEnable ->setEnabled(editable);
 	self->mAutoLoop ->setEnabled(editable);
 	self->mAutoPlay ->setEnabled(editable);
 	self->mAutoScale ->setEnabled(editable);
@@ -214,7 +207,7 @@ void LLPanelMediaSettingsGeneral::clearValues( void* userdata, bool editable)
 	self->mHeightPixels ->setEnabled(editable);
 	self->mHomeURL ->setEnabled(editable);
 	self->mWidthPixels ->setEnabled(editable);
-	self->mPreviewMedia->unloadMediaSource(); 
+	self->updateMediaPreview();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -272,7 +265,6 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_
 		{ LLMediaEntry::HOME_URL_KEY,				self->mHomeURL,			"LLLineEditor" },
 		{ LLMediaEntry::FIRST_CLICK_INTERACT_KEY,	self->mFirstClick,		"LLCheckBoxCtrl" },
 		{ LLMediaEntry::WIDTH_PIXELS_KEY,			self->mWidthPixels,		"LLSpinCtrl" },
-		{ LLMediaEntry::ALT_IMAGE_ENABLE_KEY,		self->mAltImageEnable,	"LLCheckBoxCtrl" },
 		{ "", NULL , "" }
 	};
 
@@ -320,10 +312,10 @@ void LLPanelMediaSettingsGeneral::updateMediaPreview()
 		mPreviewMedia->navigateTo( mHomeURL->getValue().asString() );
 	}
 	else
-	// new home URL will be empty if media is deleted but
-	// we still need to clean out the preview.
+	// new home URL will be empty if media is deleted so display a 
+	// "preview goes here" data url page
 	{
-		mPreviewMedia->unloadMediaSource();
+		mPreviewMedia->navigateTo( "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%%22 height=%22100%%22 %3E%3Cdefs%3E%3Cpattern id=%22checker%22 patternUnits=%22userSpaceOnUse%22 x=%220%22 y=%220%22 width=%22128%22 height=%22128%22 viewBox=%220 0 128 128%22 %3E%3Crect x=%220%22 y=%220%22 width=%2264%22 height=%2264%22 fill=%22#ddddff%22 /%3E%3Crect x=%2264%22 y=%2264%22 width=%2264%22 height=%2264%22 fill=%22#ddddff%22 /%3E%3C/pattern%3E%3C/defs%3E%3Crect x=%220%22 y=%220%22 width=%22100%%22 height=%22100%%22 fill=%22url(#checker)%22 /%3E%3C/svg%3E" );
 	};
 }
 
@@ -393,7 +385,6 @@ void LLPanelMediaSettingsGeneral::apply( void* userdata )
 //
 void LLPanelMediaSettingsGeneral::getValues( LLSD &fill_me_in )
 {
-    fill_me_in[LLMediaEntry::ALT_IMAGE_ENABLE_KEY] = mAltImageEnable->getValue();
     fill_me_in[LLMediaEntry::AUTO_LOOP_KEY] = mAutoLoop->getValue();
     fill_me_in[LLMediaEntry::AUTO_PLAY_KEY] = mAutoPlay->getValue();
     fill_me_in[LLMediaEntry::AUTO_SCALE_KEY] = mAutoScale->getValue();

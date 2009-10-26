@@ -153,7 +153,13 @@ private:
 	{
 		bool operator()(const LLMute& a, const LLMute& b) const
 		{
-			return a.mName < b.mName;
+			std::string name1 = a.mName;
+			std::string name2 = b.mName;
+
+			LLStringUtil::toUpper(name1);
+			LLStringUtil::toUpper(name2);
+
+			return name1 < name2;
 		}
 	};
 	struct compare_by_id

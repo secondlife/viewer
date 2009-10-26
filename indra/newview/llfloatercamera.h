@@ -33,7 +33,7 @@
 #ifndef LLFLOATERCAMERA_H
 #define LLFLOATERCAMERA_H
 
-#include "lldockablefloater.h"
+#include "lltransientdockablefloater.h"
 
 class LLJoystickCameraRotate;
 class LLJoystickCameraZoom;
@@ -49,7 +49,7 @@ enum ECameraControlMode
 };
 
 class LLFloaterCamera
-	:	public LLDockableFloater
+	:	public LLTransientDockableFloater
 {
 	friend class LLFloaterReg;
 	
@@ -57,6 +57,8 @@ public:
 
 	/* whether in free camera mode */
 	static bool inFreeCameraMode();
+	/* callback for camera presets changing */
+	static void onClickCameraPresets(const LLSD& param);
 
 	static void toPrevModeIfInAvatarViewMode();
 
@@ -69,6 +71,7 @@ public:
 	static void updateIfNotInAvatarViewMode();
 
 	virtual void onOpen(const LLSD& key);
+	virtual void onClose(bool app_quitting);
 
 	LLJoystickCameraRotate* mRotate;
 	LLJoystickCameraZoom*	mZoom;
@@ -111,15 +114,4 @@ private:
 
 };
 
-class LLFloaterCameraPresets : public LLDockableFloater 
-{
-	friend class LLFloaterReg;
-public:
-	static void onClickCameraPresets(LLUICtrl* ctrl, const LLSD& param);
-private:
-	LLFloaterCameraPresets(const LLSD&);
-	~LLFloaterCameraPresets(){}
-	/*virtual*/ BOOL postBuild();
-	
-};
 #endif

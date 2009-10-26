@@ -890,11 +890,11 @@ void LLFolderViewItem::draw()
 				llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD),
 				sHighlightFgColor, FALSE);
 		}
-		if (getRect().getHeight() > llround(font->getLineHeight()) + ICON_PAD + 2)
+		if (getRect().getHeight() > llround(font->getLineHeight()) + ICON_PAD + 4)
 		{
 			gl_rect_2d(
 				0, 
-				llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD) - 2, 
+				llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD) - 4, 
 				getRect().getWidth() - 2,
 				2,
 				sHighlightFgColor, FALSE);
@@ -902,7 +902,7 @@ void LLFolderViewItem::draw()
 			{
 				gl_rect_2d(
 					0, 
-					llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD) - 2, 
+					llfloor(getRect().getHeight() - font->getLineHeight() - ICON_PAD) - 4, 
 					getRect().getWidth() - 2,
 					2,
 					sHighlightBgColor, TRUE);

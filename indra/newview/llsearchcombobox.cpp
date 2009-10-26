@@ -85,11 +85,6 @@ LLSearchComboBox::LLSearchComboBox(const Params&p)
 	setSelectionCallback(boost::bind(&LLSearchComboBox::onSelectionCommit, this));
 	setPrearrangeCallback(boost::bind(&LLSearchComboBox::onSearchPrearrange, this, _2));
 	mSearchButton->setCommitCallback(boost::bind(&LLSearchComboBox::onTextCommit, this, _2));
-
-	// set tooltip here for now since we don't want to parse /en/widgets
-	std::string tool_tip = LLTrans::getString("Search");
-	getChild<LLView>("child1")->setToolTip(tool_tip);
-	getChild<LLView>("child3")->setToolTip(tool_tip);
 }
 
 void LLSearchComboBox::rebuildSearchHistory(const std::string& filter)

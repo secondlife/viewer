@@ -17,10 +17,10 @@
          function="TeleportHistory.MoreInformation" />
     </menu_item_call>
     <menu_item_call
-     label="Copy"
+     label="Copy to Clipboard"
      layout="topleft"
-     name="Copy">
+     name="CopyToClipboard">
         <menu_item_call.on_click
-         function="TeleportHistory.Copy" />
+         function="TeleportHistory.CopyToClipboard" />
     </menu_item_call>
 </context_menu>

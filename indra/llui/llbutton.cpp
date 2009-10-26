@@ -147,7 +147,8 @@ LLButton::LLButton(const LLButton::Params& p)
 	mHoverGlowStrength(p.hover_glow_amount),
 	mCommitOnReturn(p.commit_on_return),
 	mFadeWhenDisabled(FALSE),
-	mForcePressedState(FALSE)
+	mForcePressedState(FALSE),
+	mLastDrawCharsCount(0)
 {
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
 	static Params default_params(LLUICtrlFactory::getDefaultParams<LLButton>());
@@ -814,7 +815,7 @@ void LLButton::draw()
 		// LLFontGL::render expects S32 max_chars variable but process in a separate way -1 value.
 		// Due to U32_MAX is equal to S32 -1 value I have rest this value for non-ellipses mode.
 		// Not sure if it is really needed. Probably S32_MAX should be always passed as max_chars.
-		mGLFont->render(label, 0, (F32)x, (F32)(LLBUTTON_V_PAD + y_offset), 
+		mLastDrawCharsCount = mGLFont->render(label, 0, (F32)x, (F32)(LLBUTTON_V_PAD + y_offset),
 			label_color % alpha,
 			mHAlign, LLFontGL::BOTTOM,
 			LLFontGL::NORMAL,

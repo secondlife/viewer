@@ -65,7 +65,7 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 	mChicletPanel->setChicletClickedCallback(boost::bind(&LLBottomTray::onChicletClick,this,_1));
 
-	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("CameraPresets.ChangeView",&LLFloaterCameraPresets::onClickCameraPresets);
+	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraPresets, _2));
 	LLIMMgr::getInstance()->addSessionObserver(this);
 
 	//this is to fix a crash that occurs because LLBottomTray is a singleton
@@ -75,22 +75,6 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 	// Necessary for focus movement among child controls
 	setFocusRoot(TRUE);
-}
-
-BOOL LLBottomTray::postBuild()
-{
-	mBottomTrayContextMenu =  LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_bottomtray.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	gMenuHolder->addChild(mBottomTrayContextMenu);
-
-	mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
-	mToolbarStack = getChild<LLLayoutStack>("toolbar_stack");
-	mMovementPanel = getChild<LLPanel>("movement_panel");
-	mGestureCombo = getChild<LLComboBox>("Gesture");
-	mCamPanel = getChild<LLPanel>("cam_panel");
-	mSnapshotPanel = getChild<LLPanel>("snapshot_panel");
-	setRightMouseDownCallback(boost::bind(&LLBottomTray::showBottomTrayContextMenu,this, _2, _3,_4));
-
-	return TRUE;
 }
 
 LLBottomTray::~LLBottomTray()
@@ -134,8 +118,9 @@ LLIMChiclet* LLBottomTray::createIMChiclet(const LLUUID& session_id)
 	case LLIMChiclet::TYPE_IM:
 		return getChicletPanel()->createChiclet<LLIMP2PChiclet>(session_id);
 	case LLIMChiclet::TYPE_GROUP:
-	case LLIMChiclet::TYPE_AD_HOC:
 		return getChicletPanel()->createChiclet<LLIMGroupChiclet>(session_id);
+	case LLIMChiclet::TYPE_AD_HOC:
+		return getChicletPanel()->createChiclet<LLAdHocChiclet>(session_id);
 	case LLIMChiclet::TYPE_UNKNOWN:
 		break;
 	}
@@ -250,24 +235,7 @@ void LLBottomTray::showBottomTrayContextMenu(S32 x, S32 y, MASK mask)
 
 void LLBottomTray::showGestureButton(BOOL visible)
 {
-	if (visible != mGestureCombo->getVisible())
-	{
-		LLRect r = mNearbyChatBar->getRect();
-
-		mGestureCombo->setVisible(visible);
-
-		if (!visible)
-		{
-			LLFloaterReg::hideFloaterInstance("gestures");
-			r.mRight -= mGestureCombo->getRect().getWidth();
-		}
-		else
-		{
-			r.mRight += mGestureCombo->getRect().getWidth();
-		}
-
-		mNearbyChatBar->setRect(r);
-	}
+	mGesturePanel->setVisible(visible);
 }
 
 void LLBottomTray::showMoveButton(BOOL visible)
@@ -283,4 +251,192 @@ void LLBottomTray::showCameraButton(BOOL visible)
 void LLBottomTray::showSnapshotButton(BOOL visible)
 {
 	mSnapshotPanel->setVisible(visible);
+}
+
+namespace
+{
+	const std::string& PANEL_CHICLET_NAME = "chiclet_list_panel";
+	const std::string& PANEL_CHATBAR_NAME = "chat_bar";
+	const std::string& PANEL_MOVEMENT_NAME = "movement_panel";
+	const std::string& PANEL_CAMERA_NAME = "cam_panel";
+}
+
+BOOL LLBottomTray::postBuild()
+{
+	mBottomTrayContextMenu =  LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_bottomtray.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	gMenuHolder->addChild(mBottomTrayContextMenu);
+
+	mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
+	mToolbarStack = getChild<LLLayoutStack>("toolbar_stack");
+	mMovementPanel = getChild<LLPanel>("movement_panel");
+	mMovementButton = mMovementPanel->getChild<LLButton>("movement_btn");
+	mGesturePanel = getChild<LLPanel>("gesture_panel");
+	mCamPanel = getChild<LLPanel>("cam_panel");
+	mCamButton = mCamPanel->getChild<LLButton>("camera_btn");
+	mSnapshotPanel = getChild<LLPanel>("snapshot_panel");
+	setRightMouseDownCallback(boost::bind(&LLBottomTray::showBottomTrayContextMenu,this, _2, _3,_4));
+
+	if (mChicletPanel && mToolbarStack && mNearbyChatBar)
+	{
+		verifyChildControlsSizes();
+	}
+
+	return TRUE;
+}
+
+void LLBottomTray::verifyChildControlsSizes()
+{
+	LLRect rect = mChicletPanel->getRect();
+	if (rect.getWidth() < mChicletPanel->getMinWidth())
+	{
+		mChicletPanel->reshape(mChicletPanel->getMinWidth(), rect.getHeight());
+	}
+
+	rect = mNearbyChatBar->getRect();
+	if (rect.getWidth() < mNearbyChatBar->getMinWidth())
+	{
+		mNearbyChatBar->reshape(mNearbyChatBar->getMinWidth(), rect.getHeight());
+	}
+	else if (rect.getWidth() > mNearbyChatBar->getMaxWidth())
+	{
+		rect.setLeftTopAndSize(rect.mLeft, rect.mTop, mNearbyChatBar->getMaxWidth(), rect.getHeight());
+		mNearbyChatBar->reshape(mNearbyChatBar->getMaxWidth(), rect.getHeight());
+		mNearbyChatBar->setRect(rect);
+	}
+}
+
+void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+
+	if (mChicletPanel && mToolbarStack && mNearbyChatBar)
+	{
+#ifdef __FEATURE_EXT_991__
+		BOOL shrink = width < getRect().getWidth();
+		const S32 MIN_RENDERED_CHARS = 3;
+#endif
+
+		verifyChildControlsSizes();
+		updateResizeState(width, height);
+
+		switch (mResizeState)
+		{
+		case STATE_CHICLET_PANEL:
+			mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, TRUE);
+
+			mToolbarStack->updatePanelAutoResize(PANEL_CHATBAR_NAME, FALSE);
+			mToolbarStack->updatePanelAutoResize(PANEL_CAMERA_NAME, FALSE);
+			mToolbarStack->updatePanelAutoResize(PANEL_MOVEMENT_NAME, FALSE);
+
+			break;
+		case STATE_CHATBAR_INPUT:
+			mToolbarStack->updatePanelAutoResize(PANEL_CHATBAR_NAME, TRUE);
+
+			mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, FALSE);
+			mToolbarStack->updatePanelAutoResize(PANEL_CAMERA_NAME, FALSE);
+			mToolbarStack->updatePanelAutoResize(PANEL_MOVEMENT_NAME, FALSE);
+
+			break;
+
+#ifdef __FEATURE_EXT_991__
+
+		case STATE_BUTTONS:
+			mToolbarStack->updatePanelAutoResize(PANEL_CAMERA_NAME, TRUE);
+			mToolbarStack->updatePanelAutoResize(PANEL_MOVEMENT_NAME, TRUE);
+
+			mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, FALSE);
+			mToolbarStack->updatePanelAutoResize(PANEL_CHATBAR_NAME, FALSE);
+
+			if (shrink)
+			{
+
+				if (mSnapshotPanel->getVisible())
+				{
+					showSnapshotButton(FALSE);
+				}
+
+				if (mCamPanel->getVisible() && mCamButton->getLastDrawCharsCount() < MIN_RENDERED_CHARS)
+				{
+					showCameraButton(FALSE);
+				}
+
+				if (mMovementPanel->getVisible() && mMovementButton->getLastDrawCharsCount() < MIN_RENDERED_CHARS)
+				{
+					showMoveButton(FALSE);
+				}
+
+			}
+			else
+			{
+				showMoveButton(TRUE);
+				mMovementPanel->draw();
+
+				if (mMovementButton->getLastDrawCharsCount() >= MIN_RENDERED_CHARS)
+				{
+					showMoveButton(TRUE);
+				}
+				else
+				{
+					showMoveButton(FALSE);
+				}
+			}
+			break;
+#endif
+
+		default:
+			break;
+		}
+	}
+
+	LLPanel::reshape(width, height, called_from_parent);
+}
+
+void LLBottomTray::updateResizeState(S32 width, S32 height)
+{
+	mResizeState = STATE_BUTTONS;
+
+	const S32 chiclet_panel_width = mChicletPanel->getRect().getWidth();
+	const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
+
+	const S32 chatbar_panel_width = mNearbyChatBar->getRect().getWidth();
+	const S32 chatbar_panel_min_width = mNearbyChatBar->getMinWidth();
+	const S32 chatbar_panel_max_width = mNearbyChatBar->getMaxWidth();
+
+	// bottom tray is narrowed
+	if (width < getRect().getWidth())
+	{
+		if (chiclet_panel_width > chiclet_panel_min_width)
+		{
+			mResizeState = STATE_CHICLET_PANEL;
+		}
+		else if (chatbar_panel_width > chatbar_panel_min_width)
+		{
+			mResizeState = STATE_CHATBAR_INPUT;
+		}
+		else
+		{
+			mResizeState = STATE_BUTTONS;
+		}
+	}
+	// bottom tray is widen
+	else
+	{
+#ifdef __FEATURE_EXT_991__
+		if (!mMovementPanel->getVisible())
+		{
+			mResizeState = STATE_BUTTONS;
+		}
+		else
+#endif
+		if (chatbar_panel_width < chatbar_panel_max_width)
+		{
+			mResizeState = STATE_CHATBAR_INPUT;
+		}
+		else
+		{
+			mResizeState = STATE_CHICLET_PANEL;
+		}
+	}
+
+
+	// TODO: finish implementation
 }

@@ -951,7 +951,6 @@ LLFloaterIMPanel::LLFloaterIMPanel(const std::string& session_label,
 	mSentTypingState(TRUE),
 	mNumUnreadMessages(0),
 	mShowSpeakersOnConnect(TRUE),
-	mAutoConnect(FALSE),
 	mTextIMPossible(TRUE),
 	mProfileButtonEnabled(TRUE),
 	mCallBackEnabled(TRUE),
@@ -1177,12 +1176,6 @@ void LLFloaterIMPanel::draw()
 	{
 		mInputEditor->setEnabled(TRUE);
 		mInputEditor->setLabel(getString("default_text_label"));
-	}
-
-	if (mAutoConnect && enable_connect)
-	{
-		onClickStartCall(this);
-		mAutoConnect = FALSE;
 	}
 
 	// show speakers window when voice first connects
@@ -1525,7 +1518,7 @@ void LLFloaterIMPanel::onClickStartCall(void* userdata)
 {
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*) userdata;
 
-	LLIMModel::getInstance()->getVoiceChannel(self->mSessionUUID)->activate();
+	gIMMgr->startCall(self->mSessionUUID);
 }
 
 // static
@@ -1533,7 +1526,7 @@ void LLFloaterIMPanel::onClickEndCall(void* userdata)
 {
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*) userdata;
 
-	LLIMModel::getInstance()->getVoiceChannel(self->mSessionUUID)->deactivate();
+	gIMMgr->endCall(self->mSessionUUID);
 }
 
 // static
@@ -1593,9 +1586,7 @@ void LLFloaterIMPanel::onClose(bool app_quitting)
 {
 	setTyping(FALSE);
 
-	LLIMModel::instance().sendLeaveSession(mSessionUUID, mOtherParticipantUUID);
-
-	gIMMgr->removeSession(mSessionUUID);
+	gIMMgr->leaveSession(mSessionUUID);
 
 	// *HACK hide the voice floater
 	LLFloaterReg::hideInstance("voice_call", mSessionUUID);
@@ -1710,11 +1701,6 @@ void LLFloaterIMPanel::sessionInitReplyReceived(const LLUUID& session_id)
 			mOtherParticipantUUID,
 			mDialog);
 	}
-}
-
-void LLFloaterIMPanel::requestAutoConnect()
-{
-	mAutoConnect = TRUE;
 }
 
 void LLFloaterIMPanel::setTyping(BOOL typing)

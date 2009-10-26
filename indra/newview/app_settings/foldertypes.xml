@@ -65,10 +65,4 @@
     icon_name="inv_folder_outfit_undershirt.tga"
 	allowed="undershirt"
      />
-  <ensemble
-    asset_num="47"
-    xui_name="outfit"
-    icon_name="inv_folder_outfit.tga"
-	allowed="outfit"
-     />
 </ensemble_defs>

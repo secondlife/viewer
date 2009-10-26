@@ -70,6 +70,7 @@ set(viewer_SOURCE_FILES
     llagentaccess.cpp
     llagentdata.cpp
     llagentlanguage.cpp
+    llagentpicksinfo.cpp
     llagentpilot.cpp
     llagentui.cpp
     llagentwearables.cpp
@@ -113,6 +114,7 @@ set(viewer_SOURCE_FILES
     lldebugview.cpp
     lldelayedgestureerror.cpp
     lldirpicker.cpp
+    lldndbutton.cpp
     lldrawable.cpp
     lldrawpoolalpha.cpp
     lldrawpoolavatar.cpp
@@ -341,6 +343,7 @@ set(viewer_SOURCE_FILES
     llpanelteleporthistory.cpp
     llpanelvolume.cpp
     llparcelselection.cpp
+    llparticipantlist.cpp
     llpatchvertexarray.cpp
     llplacesinventorybridge.cpp
     llpolymesh.cpp
@@ -414,6 +417,8 @@ set(viewer_SOURCE_FILES
     lltoolselectland.cpp
     lltoolselectrect.cpp
     lltracker.cpp
+    lltransientdockablefloater.cpp
+    lltransientfloatermgr.cpp
     lluilistener.cpp
     lluploaddialog.cpp
     llurl.cpp
@@ -540,6 +545,7 @@ set(viewer_HEADER_FILES
     llagentaccess.h
     llagentdata.h
     llagentlanguage.h
+    llagentpicksinfo.h
     llagentpilot.h
     llagentui.h
     llagentwearables.h
@@ -585,6 +591,7 @@ set(viewer_HEADER_FILES
     lldebugview.h
     lldelayedgestureerror.h
     lldirpicker.h
+    lldndbutton.h
     lldrawable.h
     lldrawpool.h
     lldrawpoolalpha.h
@@ -810,6 +817,7 @@ set(viewer_HEADER_FILES
     llpanelteleporthistory.h
     llpanelvolume.h
     llparcelselection.h
+    llparticipantlist.h
     llpatchvertexarray.h
     llplacesinventorybridge.h
     llpolymesh.h
@@ -886,6 +894,8 @@ set(viewer_HEADER_FILES
     lltoolselectland.h
     lltoolselectrect.h
     lltracker.h
+    lltransientdockablefloater.h
+    lltransientfloatermgr.h
     lluiconstants.h
     lluilistener.h
     lluploaddialog.h
@@ -1378,7 +1388,11 @@ if (WINDOWS)
         COMMENT "Copying staged dlls."
         )
 
-      add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon llkdu)
+      add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon)
+      if(LLKDU_LIBRARY)
+	# kdu may not exist!
+	add_dependencies(${VIEWER_BINARY_NAME} llkdu)
+      endif(LLKDU_LIBRARY)
     endif(WINDOWS)    
 
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)

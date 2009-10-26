@@ -38,6 +38,7 @@
 #include "llpanel.h"
 #include "message.h"
 #include "llagent.h"
+#include "llagentpicksinfo.h"
 #include "llbutton.h"
 #include "lllineeditor.h"
 #include "llparcel.h"
@@ -45,6 +46,7 @@
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
 #include "lluiconstants.h"
+#include "llviewerregion.h"
 #include "llworldmap.h"
 #include "llfloaterworldmap.h"
 #include "llfloaterreg.h"
@@ -310,6 +312,7 @@ LLPanelPickEdit::LLPanelPickEdit()
  : LLPanelPickInfo()
  , mLocationChanged(false)
  , mNeedData(true)
+ , mNewPick(false)
 {
 }
 
@@ -325,6 +328,8 @@ void LLPanelPickEdit::onOpen(const LLSD& key)
 	// creating new Pick
 	if(pick_id.isNull())
 	{
+		mNewPick = true;
+
 		setAvatarId(gAgent.getID());
 
 		resetData();
@@ -344,6 +349,15 @@ void LLPanelPickEdit::onOpen(const LLSD& key)
 			snapshot_id = parcel->getSnapshotID();
 		}
 
+		if(pick_name.empty())
+		{
+			LLViewerRegion* region = gAgent.getRegion();
+			if(region)
+			{
+				pick_name = region->getName();
+			}
+		}
+
 		setParcelID(parcel_id);
 		childSetValue("pick_name", pick_name);
 		childSetValue("pick_desc", pick_desc);
@@ -356,6 +370,7 @@ void LLPanelPickEdit::onOpen(const LLSD& key)
 	// editing existing pick
 	else
 	{
+		mNewPick = false;
 		LLPanelPickInfo::onOpen(key);
 
 		enableSaveButton(false);
@@ -463,6 +478,14 @@ void LLPanelPickEdit::sendUpdate()
 	pick_data.enabled = TRUE;
 
 	LLAvatarPropertiesProcessor::instance().sendPickInfoUpdate(&pick_data);
+
+	if(mNewPick)
+	{
+		// Assume a successful create pick operation, make new number of picks
+		// available immediately. Actual number of picks will be requested in 
+		// LLAvatarPropertiesProcessor::sendPickInfoUpdate and updated upon server respond.
+		LLAgentPicksInfo::getInstance()->incrementNumberOfPicks();
+	}
 }
 
 void LLPanelPickEdit::onPickChanged(LLUICtrl* ctrl)

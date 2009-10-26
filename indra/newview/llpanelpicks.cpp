@@ -33,11 +33,13 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h"
+#include "llagentpicksinfo.h"
 #include "llavatarconstants.h"
 #include "llflatlistview.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
 #include "lltexturectrl.h"
+#include "lltoggleablemenu.h"
 #include "llviewergenericmessage.h"	// send_generic_message
 #include "llmenugl.h"
 #include "llviewermenu.h"
@@ -54,6 +56,7 @@ static const std::string XML_BTN_DELETE = "trash_btn";
 static const std::string XML_BTN_INFO = "info_btn";
 static const std::string XML_BTN_TELEPORT = "teleport_btn";
 static const std::string XML_BTN_SHOW_ON_MAP = "show_on_map_btn";
+static const std::string XML_BTN_OVERFLOW = "overflow_btn";
 
 static const std::string PICK_ID("pick_id");
 static const std::string PICK_CREATOR_ID("pick_creator_id");
@@ -73,6 +76,7 @@ LLPanelPicks::LLPanelPicks()
 	mPicksList(NULL)
 	, mPanelPickInfo(NULL)
 	, mPanelPickEdit(NULL)
+	, mOverflowMenu(NULL)
 {
 }
 
@@ -91,7 +95,12 @@ void* LLPanelPicks::create(void* data /* = NULL */)
 
 void LLPanelPicks::updateData()
 {
-	LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(getAvatarId());
+	// Send Picks request only when we need to, not on every onOpen(during tab switch).
+	if(isDirty())
+	{
+		mPicksList->clear();
+		LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(getAvatarId());
+	}
 }
 
 void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
@@ -134,6 +143,7 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 				picture->setMouseUpCallback(boost::bind(&LLPanelPicks::updateButtons, this));
 			}
 
+			resetDirty();
 			LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
 			updateButtons();
 		}
@@ -152,23 +162,54 @@ BOOL LLPanelPicks::postBuild()
 {
 	mPicksList = getChild<LLFlatListView>("picks_list");
 
+	childSetAction(XML_BTN_NEW, boost::bind(&LLPanelPicks::onClickNew, this));
 	childSetAction(XML_BTN_DELETE, boost::bind(&LLPanelPicks::onClickDelete, this));
-
-	childSetAction("teleport_btn", boost::bind(&LLPanelPicks::onClickTeleport, this));
-	childSetAction("show_on_map_btn", boost::bind(&LLPanelPicks::onClickMap, this));
-
-	childSetAction("info_btn", boost::bind(&LLPanelPicks::onClickInfo, this));
-	childSetAction("new_btn", boost::bind(&LLPanelPicks::onClickNew, this));
+	childSetAction(XML_BTN_TELEPORT, boost::bind(&LLPanelPicks::onClickTeleport, this));
+	childSetAction(XML_BTN_SHOW_ON_MAP, boost::bind(&LLPanelPicks::onClickMap, this));
+	childSetAction(XML_BTN_INFO, boost::bind(&LLPanelPicks::onClickInfo, this));
+	childSetAction(XML_BTN_OVERFLOW, boost::bind(&LLPanelPicks::onOverflowButtonClicked, this));
 	
-	CommitCallbackRegistry::ScopedRegistrar registar;
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registar;
 	registar.add("Pick.Info", boost::bind(&LLPanelPicks::onClickInfo, this));
 	registar.add("Pick.Edit", boost::bind(&LLPanelPicks::onClickMenuEdit, this)); 
 	registar.add("Pick.Teleport", boost::bind(&LLPanelPicks::onClickTeleport, this));
 	registar.add("Pick.Map", boost::bind(&LLPanelPicks::onClickMap, this));
 	registar.add("Pick.Delete", boost::bind(&LLPanelPicks::onClickDelete, this));
 	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_picks.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar overflow_registar;
+	overflow_registar.add("PicksList.Overflow", boost::bind(&LLPanelPicks::onOverflowMenuItemClicked, this, _2));
+	mOverflowMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_picks_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	
 	return TRUE;
+}
+
+void LLPanelPicks::onOverflowMenuItemClicked(const LLSD& param)
+{
+	std::string value = param.asString();
+
+	if("info" == value)
+	{
+		onClickInfo();
+	}
+	else if("teleport" == value)
+	{
+		onClickTeleport();
+	}
+	else if("map" == value)
+	{
+		onClickMap();
+	}
+}
+
+void LLPanelPicks::onOverflowButtonClicked()
+{
+	LLRect rect;
+	childGetRect(XML_BTN_OVERFLOW, rect);
+
+	mOverflowMenu->updateParent(LLMenuGL::sMenuContainer);
+	mOverflowMenu->setButtonRect(rect, this);
+	LLMenuGL::showPopup(this, mOverflowMenu, rect.mRight, rect.mTop);
 }
 
 void LLPanelPicks::onOpen(const LLSD& key)
@@ -183,8 +224,6 @@ void LLPanelPicks::onOpen(const LLSD& key)
 	// Disable buttons when viewing profile for first time
 	if(getAvatarId() != id)
 	{
-		clear();
-
 		childSetEnabled(XML_BTN_INFO,FALSE);
 		childSetEnabled(XML_BTN_TELEPORT,FALSE);
 		childSetEnabled(XML_BTN_SHOW_ON_MAP,FALSE);
@@ -204,6 +243,8 @@ void LLPanelPicks::onOpen(const LLSD& key)
 	if(getAvatarId() != id)
 	{
 		mPicksList->goToTop();
+		// Set dummy value to make panel dirty and make it reload picks
+		setValue(LLSD());
 	}
 
 	LLPanelProfileTab::onOpen(key);
@@ -296,20 +337,18 @@ void LLPanelPicks::onDoubleClickItem(LLUICtrl* item)
 
 void LLPanelPicks::updateButtons()
 {
-	int picks_num = mPicksList->size();
 	bool has_selected = mPicksList->numSelected();
-
-	childSetEnabled(XML_BTN_INFO, has_selected);
 
 	if (getAvatarId() == gAgentID)
 	{
-		childSetEnabled(XML_BTN_NEW, picks_num < MAX_AVATAR_PICKS);
+		childSetEnabled(XML_BTN_NEW, !LLAgentPicksInfo::getInstance()->isPickLimitReached());
 		childSetEnabled(XML_BTN_DELETE, has_selected);
 	}
 
 	childSetEnabled(XML_BTN_INFO, has_selected);
 	childSetEnabled(XML_BTN_TELEPORT, has_selected);
 	childSetEnabled(XML_BTN_SHOW_ON_MAP, has_selected);
+	childSetEnabled(XML_BTN_OVERFLOW, has_selected);
 }
 
 void LLPanelPicks::setProfilePanel(LLPanelProfile* profile_panel)
@@ -358,6 +397,12 @@ void LLPanelPicks::onPanelPickClose(LLPanel* panel)
 	panel->setVisible(FALSE);
 }
 
+void LLPanelPicks::onPanelPickSave(LLPanel* panel)
+{
+	onPanelPickClose(panel);
+	updateButtons();
+}
+
 void LLPanelPicks::createPickInfoPanel()
 {
 	if(!mPanelPickInfo)
@@ -375,7 +420,7 @@ void LLPanelPicks::createPickEditPanel()
 	{
 		mPanelPickEdit = LLPanelPickEdit::create();
 		mPanelPickEdit->setExitCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelPickEdit));
-		mPanelPickEdit->setSaveCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelPickEdit));
+		mPanelPickEdit->setSaveCallback(boost::bind(&LLPanelPicks::onPanelPickSave, this, mPanelPickEdit));
 		mPanelPickEdit->setCancelCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelPickEdit));
 		mPanelPickEdit->setVisible(FALSE);
 	}

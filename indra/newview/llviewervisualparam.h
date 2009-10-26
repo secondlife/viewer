@@ -83,7 +83,7 @@ public:
 	//   This sets mInfo and calls initialization functions
 	BOOL						setInfo(LLViewerVisualParamInfo *info);
 
-	virtual LLViewerVisualParam * 	cloneParam(LLWearable* wearable) const = 0;
+	virtual LLViewerVisualParam* cloneParam(LLWearable* wearable) const = 0;
 	
 	// LLVisualParam Virtual functions
 	///*virtual*/ BOOL			parseData(LLXmlTreeNode* node);

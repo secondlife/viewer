@@ -225,7 +225,7 @@ void LLNearbyChatScreenChannel::showToastsBottom()
 
 	LLRect	toast_rect;	
 	S32		bottom = getRect().mBottom;
-	S32		margin = gSavedSettings.getS32("ToastMargin");
+	S32		margin = gSavedSettings.getS32("ToastGap");
 
 	for(std::vector<LLToast*>::iterator it = m_active_toasts.begin(); it != m_active_toasts.end(); ++it)
 	{

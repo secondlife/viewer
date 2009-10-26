@@ -34,6 +34,7 @@
 
 #include "llxuiparser.h"
 
+#include "llxmlnode.h"
 #include <fstream>
 #include <boost/tokenizer.hpp>
 
@@ -401,10 +402,11 @@ LLXUIParser::LLXUIParser()
 
 static LLFastTimer::DeclareTimer FTM_PARSE_XUI("XUI Parsing");
 
-void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, bool silent)
+void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, const std::string& filename, bool silent)
 {
 	LLFastTimer timer(FTM_PARSE_XUI);
 	mNameStack.clear();
+	mCurFileName = filename;
 	mCurReadDepth = 0;
 	setParseSilently(silent);
 
@@ -946,9 +948,9 @@ bool LLXUIParser::writeSDValue(const void* val_ptr, const name_stack_t& stack)
 
 void LLXUIParser::parserWarning(const std::string& message)
 {
-#if 0 //#ifdef LL_WINDOWS
+#ifdef LL_WINDOWS
 	// use Visual Studo friendly formatting of output message for easy access to originating xml
-	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", LLUICtrlFactory::getInstance()->getCurFileName().c_str(), mCurReadNode->getLineNumber(), message.c_str()).c_str());
+	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()).c_str());
 	utf16str += '\n';
 	OutputDebugString(utf16str.c_str());
 #else
@@ -958,8 +960,8 @@ void LLXUIParser::parserWarning(const std::string& message)
 
 void LLXUIParser::parserError(const std::string& message)
 {
-#if 0 //#ifdef LL_WINDOWS
-	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", LLUICtrlFactory::getInstance()->getCurFileName().c_str(), mCurReadNode->getLineNumber(), message.c_str()).c_str());
+#ifdef LL_WINDOWS
+	llutf16string utf16str = utf8str_to_utf16str(llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()).c_str());
 	utf16str += '\n';
 	OutputDebugString(utf16str.c_str());
 #else

@@ -75,10 +75,20 @@ public:
 
 	LLIMModel();
 
+
+	//we should control the currently active session
+	LLUUID	mActiveSessionID;
+	void	setActiveSessionID(const LLUUID& session_id);
+	void	resetActiveSessionID() { mActiveSessionID.setNull(); }
+	LLUUID	getActiveSessionID() { return mActiveSessionID; }
+
 	//*TODO make it non-static as LLIMMOdel is a singleton (IB)
 	static std::map<LLUUID, LLIMSession*> sSessionsMap;  //mapping session_id to session
 
-	boost::signals2::signal<void(const LLSD&)> mChangedSignal;
+	typedef boost::signals2::signal<void(const LLSD&)> session_signal_t;
+	typedef boost::function<void(const LLSD&)> session_callback_t;
+	session_signal_t mNewMsgSignal;
+	session_signal_t mNoUnreadMsgsSignal;
 	
 	/** 
 	 * Find an IM Session corresponding to session_id
@@ -91,7 +101,8 @@ public:
 	 */
 	void updateSessionID(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
-	boost::signals2::connection addChangedCallback( boost::function<void (const LLSD& data)> cb );
+	boost::signals2::connection addNewMsgCallback( session_callback_t cb ) { return mNewMsgSignal.connect(cb); }
+	boost::signals2::connection addNoUnreadMsgsCallback( session_callback_t cb ) { return mNoUnreadMsgsSignal.connect(cb); }
 
 	bool newSession(LLUUID session_id, std::string name, EInstantMessage type, LLUUID other_participant_id, 
 		const std::vector<LLUUID>& ids = std::vector<LLUUID>());
@@ -99,7 +110,7 @@ public:
 	std::list<LLSD> getMessages(LLUUID session_id, int start_index = 0);
 
 	bool addMessage(LLUUID session_id, std::string from, LLUUID other_participant_id, std::string utf8_text, bool log2file = true);
-	bool addToHistory(LLUUID session_id, std::string from, std::string utf8_text); 
+	bool addToHistory(LLUUID session_id, std::string from, LLUUID from_id, std::string utf8_text); 
 
 	bool logToFile(const LLUUID& session_id, const std::string& from, const std::string& utf8_text);
 
@@ -219,10 +230,12 @@ public:
 					  const std::string& voice_session_handle,
 					  const std::string& caller_uri = LLStringUtil::null);
 
-	// This removes the panel referenced by the uuid, and then
-	// restores internal consistency. The internal pointer is not
-	// deleted.
-	void removeSession(LLUUID session_id);
+	/**
+	 * Leave the session with session id. Send leave session notification
+	 * to the server and removes all associated session data
+	 * @return false if the session with specified id was not exist
+	 */
+	bool leaveSession(const LLUUID& session_id);
 
 	void inviteToSession(
 		const LLUUID& session_id, 
@@ -282,7 +295,24 @@ public:
 	void addSessionObserver(LLIMSessionObserver *);
 	void removeSessionObserver(LLIMSessionObserver *);
 
+	/**
+	 * Start call in a session
+	 * @return false if voice channel doesn't exist
+	 **/
+	bool startCall(const LLUUID& session_id);
+
+	/**
+	 * End call in a session
+	 * @return false if voice channel doesn't exist
+	 **/
+	bool endCall(const LLUUID& session_id);
+
 private:
+	// This removes the panel referenced by the uuid, and then
+	// restores internal consistency. The internal pointer is not
+	// deleted.
+	void removeSession(LLUUID session_id);
+
 	// create a panel and update internal representation for
 	// consistency. Returns the pointer, caller (the class instance
 	// since it is a private method) is not responsible for deleting

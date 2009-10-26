@@ -91,6 +91,7 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 		LLToast::Params p;
 		p.notif_id = notification->getID();
 		p.notification = notification;
+		p.lifetime_secs = gSavedSettings.getS32("NotificationTipToastLifeTime");
 		p.panel = notify_box;
 		p.is_tip = true;
 		p.can_be_stored = false;

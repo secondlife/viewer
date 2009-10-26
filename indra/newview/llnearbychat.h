@@ -33,65 +33,44 @@
 #ifndef LL_LLNEARBYCHAT_H_
 #define LL_LLNEARBYCHAT_H_
 
-#include "llfloater.h"
+#include "lldockablefloater.h"
 #include "llscrollbar.h"
 #include "llchat.h"
 
 class LLResizeBar;
 class LLChatHistory;
 
-class LLNearbyChat: public LLFloater
+class LLNearbyChat: public LLDockableFloater
 {
 public:
-	// enumerations used by the chat system
-	typedef enum e_chat_tearof_state
-	{
-		CHAT_PINNED = 0,
-		CHAT_UNPINNED = 1,
-	} EChatTearofState;
-
-	enum { RESIZE_BAR_COUNT=4 };
-
 	LLNearbyChat(const LLSD& key);
 	~LLNearbyChat();
 
 	BOOL	postBuild			();
-	void	reshape				(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	
-	BOOL	handleMouseDown		(S32 x, S32 y, MASK mask);
-	BOOL	handleMouseUp		(S32 x, S32 y, MASK mask);
-	BOOL	handleHover			(S32 x, S32 y, MASK mask);
-
-	BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	
 	void	addMessage			(const LLChat& message);
 	
-	void	onNearbySpeakers	();
-	void	onTearOff();
-
 	void	onNearbyChatContextMenuItemClicked(const LLSD& userdata);
 	bool	onNearbyChatCheckContextMenuItem(const LLSD& userdata);
 
+	void	setDocked			(bool docked, bool pop_on_undock);
+	void	toggleWindow		();
+
 	/*virtual*/ void	onOpen	(const LLSD& key);
 
-	/*virtual*/ void	draw	();
+	virtual void setVisible		(BOOL visible);
+
+	virtual void setRect		(const LLRect &rect);
 
 private:
+	void	getAllowedRect		(LLRect& rect);
+
+	void	onNearbySpeakers	();
 	void	add_timestamped_line(const LLChat& chat, const LLColor4& color);
 	
-	void	pinn_panel();
-	void	float_panel();
 
 private:
-	EChatTearofState mEChatTearofState;
-	S32		mStart_X;
-	S32		mStart_Y;
-
 	LLHandle<LLView>	mPopupMenuHandle;
-	LLPanel*			mChatCaptionPanel;
 	LLChatHistory*		mChatHistory;
-
-	bool				m_isDirty;
 };
 
 #endif

@@ -54,6 +54,11 @@
   <texture name="CameraView_Off" file_name="bottomtray/CameraView_Off.png" preload="false" />
   <texture name="CameraView_Over" file_name="bottomtray/CameraView_Over.png" preload="false" />
 
+  <texture name="CameraPreset_Rear" file_name="camera_presets/camera_presets_rear.png" preload="false" />
+  <texture name="CameraPreset_3_4" file_name="camera_presets/camera_presets_3_4.png" preload="false" />
+  <texture name="CameraPreset_Front" file_name="camera_presets/camera_presets_front.png" preload="false" />
+  <texture name="CameraPreset_Mouselook" file_name="camera_presets/camera_presets_mouselook.png" preload="false" />
+
   <texture name="Checkbox_Off_Disabled" file_name="widgets/Checkbox_Disabled.png" preload="true" />
   <texture name="Checkbox_On_Disabled" file_name="widgets/Checkbox_On_Disabled.png" preload="true" />
   <texture name="Checkbox_Off" file_name="widgets/Checkbox_Off.png" preload="true" />
@@ -118,6 +123,8 @@
   <texture name="Icon_Dock_Press" file_name="windows/Icon_Dock_Press.png" preload="true" />
 
   <texture name="Icon_For_Sale" file_name="icons/Icon_For_sale.png" preload="false" />
+  <texture name="Banner_ForSale" file_name="Banner_ForSale.png" preload="false" />
+  <texture name="Banner_YouAreHere" file_name="Banner_YouAreHere.png" preload="false" />
 
   <texture name="Icon_Gear_Background" file_name="windows/Icon_Gear_Background.png" preload="false" />
   <texture name="Icon_Gear_Foreground" file_name="windows/Icon_Gear_Foreground.png" preload="false" />

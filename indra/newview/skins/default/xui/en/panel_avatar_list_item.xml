@@ -69,14 +69,14 @@
      name="speaking_indicator"
      visible="true"
      width="20" />
-    <button
+   <button
      follows="right"
      height="16"
      image_pressed="Info_Press"
      image_hover="Info_Over"
      image_unselected="Info_Off"
-     layout="topleft"
-     left_pad="5"
+     left_pad="3"
+     right="-25"
      name="info_btn"
      picture_style="true"
      width="16" />
@@ -88,6 +88,7 @@
      image_unselected="BuyArrow_Press"
      layout="topleft"
      left_pad="5"
+     right="-5"
      name="profile_btn"
      picture_style="true"
      width="16" />

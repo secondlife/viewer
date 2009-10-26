@@ -77,6 +77,7 @@ private:
 	void onCancelButtonClicked();
 	void onOverflowButtonClicked();
 	void onOverflowMenuItemClicked(const LLSD& param);
+	bool onOverflowMenuItemEnable(const LLSD& param);
 	void onCreateLandmarkButtonClicked(const LLUUID& folder_id);
 	void onBackButtonClicked();
 

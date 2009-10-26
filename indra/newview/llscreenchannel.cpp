@@ -138,7 +138,7 @@ void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_wo
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::addToast(LLToast::Params p)
+void LLScreenChannel::addToast(const LLToast::Params& p)
 {
 	bool store_toast = false, show_toast = false;
 
@@ -381,7 +381,7 @@ void LLScreenChannel::showToastsBottom()
 		if(it != mToastList.rbegin())
 		{
 			bottom = (*(it-1)).toast->getRect().mTop;
-			toast_margin = gSavedSettings.getS32("ToastMargin");
+			toast_margin = gSavedSettings.getS32("ToastGap");
 		}
 
 		toast_rect = (*it).toast->getRect();
@@ -394,7 +394,7 @@ void LLScreenChannel::showToastsBottom()
 		{
 			if( it != mToastList.rend()-1)
 			{
-				stop_showing_toasts = ((*it).toast->getRect().mTop + gSavedSettings.getS32("OverflowToastHeight") + gSavedSettings.getS32("ToastMargin")) > getRect().mTop;
+				stop_showing_toasts = ((*it).toast->getRect().mTop + gSavedSettings.getS32("OverflowToastHeight") + gSavedSettings.getS32("ToastGap")) > getRect().mTop;
 			}
 		} 
 
@@ -412,7 +412,7 @@ void LLScreenChannel::showToastsBottom()
 			(*it).toast->stopTimer();
 			mHiddenToastsNum++;
 		}
-		createOverflowToast(bottom, gSavedSettings.getS32("NotificationToastTime"));
+		createOverflowToast(bottom, gSavedSettings.getS32("NotificationTipToastLifeTime"));
 	}	
 }
 
@@ -426,7 +426,7 @@ void LLScreenChannel::showToastsCentre()
 	for(it = mToastList.rbegin(); it != mToastList.rend(); ++it)
 	{
 		toast_rect = (*it).toast->getRect();
-		toast_rect.setLeftTopAndSize(getRect().mLeft - toast_rect.getWidth() / 2, bottom + toast_rect.getHeight() / 2 + gSavedSettings.getS32("ToastMargin"), toast_rect.getWidth() ,toast_rect.getHeight());
+		toast_rect.setLeftTopAndSize(getRect().mLeft - toast_rect.getWidth() / 2, bottom + toast_rect.getHeight() / 2 + gSavedSettings.getS32("ToastGap"), toast_rect.getWidth() ,toast_rect.getHeight());
 		(*it).toast->setRect(toast_rect);
 
 		(*it).toast->setVisible(TRUE);	
@@ -443,13 +443,13 @@ void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 {
 	LLRect toast_rect;
 	LLToast::Params p;
-	p.timer_period = timer;
+	p.lifetime_secs = timer;
 	mOverflowToastPanel = new LLToast(p);
 
 	if(!mOverflowToastPanel)
 		return;
 
-	mOverflowToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::onOverflowToastHide, this));
+	mOverflowToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::closeOverflowToastPanel, this));
 
 	LLTextBox* text_box = mOverflowToastPanel->getChild<LLTextBox>("toast_text");
 	LLIconCtrl* icon = mOverflowToastPanel->getChild<LLIconCtrl>("icon");
@@ -465,7 +465,7 @@ void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 
 	toast_rect = mOverflowToastPanel->getRect();
 	mOverflowToastPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
-	toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastMargin"), getRect().getWidth(), toast_rect.getHeight());	
+	toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastGap"), getRect().getWidth(), toast_rect.getHeight());	
 	mOverflowToastPanel->setRect(toast_rect);
 
 	text_box->setValue(text);
@@ -514,11 +514,11 @@ void LLScreenChannel::closeOverflowToastPanel()
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::createStartUpToast(S32 notif_num, S32 bottom, F32 timer)
+void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 {
 	LLRect toast_rect;
 	LLToast::Params p;
-	p.timer_period = timer;
+	p.lifetime_secs = timer;
 	mStartUpToastPanel = new LLToast(p);
 
 	if(!mStartUpToastPanel)
@@ -545,13 +545,15 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, S32 bottom, F32 timer)
 
 	toast_rect = mStartUpToastPanel->getRect();
 	mStartUpToastPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
-	toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastMargin"), getRect().getWidth(), toast_rect.getHeight());	
+	toast_rect.setLeftTopAndSize(0, toast_rect.getHeight()+gSavedSettings.getS32("ToastGap"), getRect().getWidth(), toast_rect.getHeight());	
 	mStartUpToastPanel->setRect(toast_rect);
 
 	text_box->setValue(text);
 	text_box->setVisible(TRUE);
 	icon->setVisible(TRUE);
 
+	addChild(mStartUpToastPanel);
+	
 	mStartUpToastPanel->setVisible(TRUE);
 }
 
@@ -572,7 +574,7 @@ void LLScreenChannel::closeStartUpToast()
 {
 	if(mStartUpToastPanel != NULL)
 	{
-		mStartUpToastPanel->closeFloater();
+		mStartUpToastPanel->setVisible(FALSE);
 		mStartUpToastPanel = NULL;
 	}
 }
@@ -703,7 +705,7 @@ void LLScreenChannel::updateShowToastsState()
 		LLRect this_rect = getRect();
 		if(floater->getVisible() && floater->isDocked())
 		{
-			channel_bottom += (floater->getRect().getHeight() + gSavedSettings.getS32("ToastMargin"));
+			channel_bottom += (floater->getRect().getHeight() + gSavedSettings.getS32("ToastGap"));
 		}
 
 		if(channel_bottom != this_rect.mBottom)

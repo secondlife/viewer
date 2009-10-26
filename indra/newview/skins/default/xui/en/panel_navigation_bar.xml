@@ -8,10 +8,33 @@
  layout="topleft"
  name="navigation_bar"
  width="600">
+	<icon
+	 follows="all"
+	 image_name="NavBar_BG"
+	 mouse_opaque="true"
+	 name="bg_icon"
+	 scale_image="true"
+	 visible="true"
+	 left="0"
+	 top="0"
+	 height="65"
+	 width="600"/>
+	<icon
+	 follows="all"
+	 image_name="NavBar_BG_NoFav"
+	 mouse_opaque="true"
+	 name="bg_icon_no_fav"
+	 scale_image="true"
+	 visible="false"
+	 left="0"
+	 top="0"
+	 height="65"
+	 width="600"/>
 	<panel
 	 background_visible="false"
 	 follows="left|top|right"
-	 height="60"
+	 top="5"
+	 height="23"
 	 layout="topleft"
 	 name="navigation_panel"
 	 width="600">
@@ -131,12 +154,12 @@
 
     <favorites_bar
      follows="left|right|top"
-     height="25"
+     height="15"
      layout="topleft"
      left="0"
      name="favorite"
      image_drag_indication="Arrow_Down"
      chevron_button_tool_tip="Show more of My Favorites"
-     top="32"
+     bottom="62"
      width="590" />
 </panel>

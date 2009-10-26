@@ -130,15 +130,6 @@ void LLAvatarListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 	LLPanel::onMouseLeave(x, y, mask);
 }
 
-// virtual
-BOOL LLAvatarListItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
-{
-	if (mContextMenu)
-		mContextMenu->show(this, const_cast<const LLUUID&>(mAvatarId), x, y);
-
-	return LLPanel::handleRightMouseDown(x, y, mask);
-}
-
 void LLAvatarListItem::setStatus(const std::string& status)
 {
 	mStatus->setValue(status);
@@ -180,7 +171,7 @@ void LLAvatarListItem::setName(const std::string& name)
 	mAvatarName->setToolTip(name);
 }
 
-void LLAvatarListItem::setAvatarId(const LLUUID& id)
+void LLAvatarListItem::setAvatarId(const LLUUID& id, bool ignore_status_changes)
 {
 	if (mAvatarId.notNull())
 		LLAvatarTracker::instance().removeParticularFriendObserver(mAvatarId, this);
@@ -190,7 +181,7 @@ void LLAvatarListItem::setAvatarId(const LLUUID& id)
 	mSpeakingIndicator->setSpeakerId(id);
 
 	// We'll be notified on avatar online status changes
-	if (mAvatarId.notNull())
+	if (!ignore_status_changes && mAvatarId.notNull())
 		LLAvatarTracker::instance().addParticularFriendObserver(mAvatarId, this);
 
 	// Set avatar name.

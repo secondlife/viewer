@@ -156,13 +156,17 @@ void LLDriverParamInfo::toStream(std::ostream &out)
 // LLDriverParam
 //-----------------------------------------------------------------------------
 
-LLDriverParam::LLDriverParam(LLVOAvatar *avatarp)
-	: mCurrentDistortionParam( NULL ), mAvatarp(avatarp), mWearablep(NULL)
+LLDriverParam::LLDriverParam(LLVOAvatar *avatarp) : 
+	mCurrentDistortionParam( NULL ), 
+	mAvatarp(avatarp), 
+	mWearablep(NULL)
 {
 }
 
-LLDriverParam::LLDriverParam(LLWearable *wearablep)
-	: mCurrentDistortionParam( NULL ), mAvatarp(NULL), mWearablep(wearablep)
+LLDriverParam::LLDriverParam(LLWearable *wearablep) : 
+	mCurrentDistortionParam( NULL ), 
+	mAvatarp(NULL), 
+	mWearablep(wearablep)
 {
 }
 
@@ -201,7 +205,7 @@ void LLDriverParam::setAvatar(LLVOAvatar *avatarp)
 	}
 }
 
-/*virtual*/ LLViewerVisualParam * 	LLDriverParam::cloneParam(LLWearable* wearable) const
+/*virtual*/ LLViewerVisualParam* LLDriverParam::cloneParam(LLWearable* wearable) const
 {
 	LLDriverParam *new_param;
 	if (wearable)
@@ -481,7 +485,7 @@ void LLDriverParam::stopAnimating(BOOL set_by_user)
 }
 
 /*virtual*/ 
-BOOL LLDriverParam::linkDrivenParams(visual_param_mapper mapper, bool only_cross_params)
+BOOL LLDriverParam::linkDrivenParams(visual_param_mapper mapper, BOOL only_cross_params)
 {
 	BOOL success = TRUE;
 	LLDriverParamInfo::entry_info_list_t::iterator iter;
@@ -584,7 +588,8 @@ F32 LLDriverParam::getDrivenWeight(const LLDrivenEntry* driven, F32 input_weight
 void LLDriverParam::setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bool set_by_user)
 {
 	LLVOAvatarSelf *avatar_self = gAgent.getAvatarObject();
-	if(mWearablep && driven->mParam->getCrossWearable() &&
+	if(mWearablep && 
+	   driven->mParam->getCrossWearable() &&
 	   mWearablep->isOnTop())
 	{
 		// call setWeight through LLVOAvatarSelf so other wearables can be updated with the correct values

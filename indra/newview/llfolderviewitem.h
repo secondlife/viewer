@@ -202,6 +202,7 @@ public:
 	virtual S32 arrange( S32* width, S32* height, S32 filter_generation );
 	virtual S32 getItemHeight();
 	void setDontShowInHierarchy(bool dont_show) { mDontShowInHierarhy = dont_show; }
+	bool getDontShowInHierarchy() { return mDontShowInHierarhy; }
 
 	// applies filters to control visibility of inventory items
 	virtual void filter( LLInventoryFilter& filter);

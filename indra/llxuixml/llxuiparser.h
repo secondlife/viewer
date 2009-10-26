@@ -34,9 +34,9 @@
 #define LLXUIPARSER_H
 
 #include "llinitparam.h"
-#include "llxmlnode.h"
 #include "llfasttimer.h"
 #include "llregistry.h"
+#include "llpointer.h"
 
 #include <boost/function.hpp>
 #include <iosfwd>
@@ -47,6 +47,8 @@
 
 class LLView;
 
+
+typedef LLPointer<class LLXMLNode> LLXMLNodePtr;
 
 
 // lookup widget type by name
@@ -114,7 +116,7 @@ public:
 	/*virtual*/ void parserWarning(const std::string& message);
 	/*virtual*/ void parserError(const std::string& message);
 
-	void readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, bool silent=false);
+	void readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, const std::string& filename = LLStringUtil::null, bool silent=false);
 	void writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const LLInitParam::BaseBlock* diff_block = NULL);
 
 private:
@@ -168,6 +170,7 @@ private:
 	S32								mLastWriteGeneration;
 	LLXMLNodePtr					mLastWrittenChild;
 	S32								mCurReadDepth;
+	std::string						mCurFileName;
 };
 
 

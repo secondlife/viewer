@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- Part of side tray, see that XML file for panel config -->
 <panel
- background_visible="true"
- bevel_style="out"
  follows="all"
  height="560"
  label="home_tab"

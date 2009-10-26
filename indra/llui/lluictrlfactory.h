@@ -36,7 +36,7 @@
 #include "llcallbackmap.h"
 #include "llinitparam.h"
 #include "llregistry.h"
-#include "llxmlnode.h"
+#include "v4color.h"
 #include "llfasttimer.h"
 
 #include "llxuiparser.h"
@@ -98,10 +98,11 @@ class LLDefaultWidgetRegistry
 {};
 
 // lookup function for generating empty param block by widget type
-typedef const LLInitParam::BaseBlock& (*empty_param_block_func_t)();
-class LLDefaultParamBlockRegistry
-:	public LLRegistrySingleton<const std::type_info*, empty_param_block_func_t, LLDefaultParamBlockRegistry, LLCompareTypeID>
-{};
+// this is used for schema generation
+//typedef const LLInitParam::BaseBlock& (*empty_param_block_func_t)();
+//class LLDefaultParamBlockRegistry
+//:	public LLRegistrySingleton<const std::type_info*, empty_param_block_func_t, LLDefaultParamBlockRegistry, LLCompareTypeID>
+//{};
 
 extern LLFastTimer::DeclareTimer FTM_WIDGET_SETUP;
 extern LLFastTimer::DeclareTimer FTM_WIDGET_CONSTRUCTION;
@@ -124,7 +125,7 @@ private:
 			// recursively initialize from base class param block
 			((typename PARAM_BLOCK::base_block_t&)mPrototype).fillFrom(ParamDefaults<typename PARAM_BLOCK::base_block_t, DUMMY>::instance().get());
 			// after initializing base classes, look up template file for this param block
-			std::string* param_block_tag = LLWidgetNameRegistry::instance().getValue(&typeid(PARAM_BLOCK));
+			const std::string* param_block_tag = getWidgetTag(&typeid(PARAM_BLOCK));
 			if (param_block_tag)
 			{
 				LLUICtrlFactory::loadWidgetTemplate(*param_block_tag, mPrototype);
@@ -241,7 +242,7 @@ fail:
 	template<class T>
 	static T* getDefaultWidget(const std::string& name)
 	{
-		dummy_widget_creator_func_t* dummy_func = LLDefaultWidgetRegistry::instance().getValue(&typeid(T));
+		dummy_widget_creator_func_t* dummy_func = getDefaultWidgetFunc(&typeid(T));
 		return dummy_func ? dynamic_cast<T*>((*dummy_func)(name)) : NULL;
 	}
 
@@ -254,6 +255,8 @@ fail:
 		return create<T>(params);
 	}
 
+	static void copyName(LLXMLNodePtr src, LLXMLNodePtr dest);
+
 	template<typename T>
 	static T* defaultBuilder(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 	{
@@ -262,7 +265,7 @@ fail:
 		//#pragma message("Generating LLUICtrlFactory::defaultBuilder")
 		typename T::Params params(getDefaultParams<T>());
 
-		LLXUIParser::instance().readXUI(node, params);
+		LLXUIParser::instance().readXUI(node, params, LLUICtrlFactory::getInstance()->getCurFileName());
 
 		if (output_node)
 		{
@@ -271,7 +274,7 @@ fail:
 			T::setupParamsForExport(output_params, parent);
 			// Export only the differences between this any default params
 			typename T::Params default_params(getDefaultParams<T>());
-			output_node->setName(node->getName()->mString);
+			copyName(node, output_node);
 			LLXUIParser::instance().writeXUI(
 				output_node, output_params, &default_params);
 		}
@@ -320,7 +323,15 @@ fail:
 
 	static void loadWidgetTemplate(const std::string& widget_tag, LLInitParam::BaseBlock& block);
 
+	// helper function for adding widget type info to various registries
+	static void registerWidget(const std::type_info* widget_type, const std::type_info* param_block_type, dummy_widget_creator_func_t creator_func, const std::string& tag);
+
 private:
+	// return default widget instance factory func for a given type
+	static dummy_widget_creator_func_t* getDefaultWidgetFunc(const std::type_info* widget_type);
+
+	static const std::string* getWidgetTag(const std::type_info* widget_type);
+
 	// this exists to get around dependency on llview
 	static void setCtrlParent(LLView* view, LLView* parent, S32 tab_group);
 
@@ -347,23 +358,12 @@ template<typename T>
 LLChildRegistry<DERIVED>::Register<T>::Register(const char* tag, LLWidgetCreatorFunc func)
 :	LLChildRegistry<DERIVED>::StaticRegistrar(tag, func.empty() ? (LLWidgetCreatorFunc)&LLUICtrlFactory::defaultBuilder<T> : func)
 {
-	const std::type_info* widget_type_infop = &typeid(T);
-	// associate parameter block type with template .xml file
-	std::string* existing_tag = LLWidgetNameRegistry ::instance().getValue(&typeid(typename T::Params));
-	if (existing_tag != NULL && *existing_tag != tag)
-	{
-		// duplicate entry for T::Params
-		// try creating empty param block in derived classes that inherit T::Params
-		int* crash = 0;
-		*crash = 0;
-	}
-	LLWidgetNameRegistry ::instance().defaultRegistrar().add(&typeid(typename T::Params), tag);
-	// associate widget type with factory function
-	LLDefaultWidgetRegistry::instance().defaultRegistrar().add(widget_type_infop, &LLUICtrlFactory::createDefaultWidget<T>);
-	LLWidgetTypeRegistry::instance().defaultRegistrar().add(tag, widget_type_infop);
-	LLDefaultParamBlockRegistry::instance().defaultRegistrar().add(widget_type_infop, &getEmptyParamBlock<T>);
+	// add this widget to various registries
+	LLUICtrlFactory::instance().registerWidget(&typeid(T), &typeid(typename T::Params), &LLUICtrlFactory::createDefaultWidget<T>, tag);
+	
+	// since registry_t depends on T, do this in line here
 	typedef typename T::child_registry_t registry_t;
-	LLChildRegistryRegistry::instance().defaultRegistrar().add(widget_type_infop, registry_t::instance());
+	LLChildRegistryRegistry::instance().defaultRegistrar().add(&typeid(T), registry_t::instance());
 }
 
 

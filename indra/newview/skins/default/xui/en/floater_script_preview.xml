@@ -30,10 +30,10 @@
      height="18"
      image_name="Lock"
      layout="topleft"
-     left="444"
+     left="426"
      mouse_opaque="true"
      name="lock"
-     top="3"
+     top="4"
      width="18" />
     <text
      type="string"

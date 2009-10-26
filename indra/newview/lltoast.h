@@ -57,37 +57,28 @@ public:
 	typedef boost::function<void (LLToast* toast)> toast_callback_t;
 	typedef boost::signals2::signal<void (LLToast* toast)> toast_signal_t;
 
-	struct Params
+	struct Params : public LLInitParam::Block<Params>
 	{
-		LLPanel*			panel;
-		LLUUID				notif_id;	 //notification ID
-		LLUUID				session_id;	 //im session ID
-		LLNotificationPtr	notification;
-		F32					timer_period;
-		toast_callback_t	on_delete_toast;
-		toast_callback_t	on_mouse_enter;
-		bool				can_fade;
-		bool				can_be_stored;
-		bool				enable_hide_btn;
-		bool				is_modal;
-		bool				is_tip;
-		bool				force_show;
-		bool				force_store;
+		Mandatory<LLPanel*>				panel;
+		Optional<LLUUID>				notif_id,	 //notification ID
+										session_id;	 //im session ID
+		Optional<LLNotificationPtr>		notification;
+		Optional<F32>					lifetime_secs;
+		Optional<toast_callback_t>		on_delete_toast,
+										on_mouse_enter;
+		Optional<bool>					can_fade,
+										can_be_stored,
+										enable_hide_btn,
+										is_modal,
+										is_tip,
+										force_show,
+										force_store;
 
-		Params() :	can_fade(true),
-					can_be_stored(true),
-					is_modal(false),
-					is_tip(false),
-					enable_hide_btn(true),
-					force_show(false),
-					force_store(false),
-					panel(NULL),
-					timer_period(gSavedSettings.getS32("NotificationToastTime"))
 
-		{};
+		Params();
 	};
 
-	LLToast(LLToast::Params p);
+	LLToast(const LLToast::Params& p);
 	virtual ~LLToast();
 	BOOL postBuild();
 
@@ -153,7 +144,7 @@ public:
 private:
 
 	// check timer
-	bool	timerHasExpired();
+	bool	lifetimeHasExpired();
 	// on timer finished function
 	void	tick();
 
@@ -161,8 +152,9 @@ private:
 	LLUUID				mSessionID;
 	LLNotificationPtr	mNotification;
 
+	// timer counts a lifetime of a toast
 	LLTimer		mTimer;
-	F32			mTimerValue;
+	F32			mToastLifetime; // in seconds
 
 	LLPanel*	mPanel;
 	LLButton*	mHideBtn;

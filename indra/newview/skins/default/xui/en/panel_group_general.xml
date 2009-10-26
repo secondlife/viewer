@@ -46,6 +46,7 @@ Hover your mouse over the options for more help.
      layout="topleft"
      left="5"
      name="text_owners_and_visible_members"
+     text_color="EmphasisColor"
      top_pad="10"
      width="270">
         Members
@@ -74,6 +75,7 @@ Hover your mouse over the options for more help.
       follows="left|top"
       height="16"
      type="string"
+     text_color="EmphasisColor"
      top_pad="10"
      font="SansSerifBig"
      layout="topleft"
@@ -165,7 +167,7 @@ Hover your mouse over the options for more help.
          name="spin_enrollment_fee"
          tool_tip="New members must pay this fee to join the group when Enrollment Fee is checked."
          top_delta="-2"
-         width="75" />
+         width="105" />
         <check_box
          height="16"
          initial_value="true"

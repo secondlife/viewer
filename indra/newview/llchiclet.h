@@ -442,6 +442,65 @@ private:
 };
 
 /**
+ * Implements AD-HOC chiclet.
+ */
+class LLAdHocChiclet : public LLIMChiclet
+{
+public:
+	struct Params : public LLInitParam::Block<Params, LLChiclet::Params>
+	{
+		Optional<LLChicletAvatarIconCtrl::Params> avatar_icon;
+
+		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
+
+		Optional<LLChicletSpeakerCtrl::Params> speaker;
+
+		Optional<bool>	show_speaker;
+
+		Params();
+	};
+
+	/**
+	 * Sets session id.
+	 * Session ID for group chat is actually Group ID.
+	 */
+	/*virtual*/ void setSessionId(const LLUUID& session_id);
+
+	/*
+	* Sets number of unread messages. Will update chiclet's width if number text 
+	* exceeds size of counter and notify it's parent about size change.
+	*/
+	/*virtual*/ void setCounter(S32);
+
+	/*
+	* Returns number of unread messages.
+	*/
+	/*virtual*/ S32 getCounter() { return mCounterCtrl->getCounter(); }
+
+	/*
+	* Returns rect, required to display chiclet.
+	* Width is the only valid value.
+	*/
+	/*virtual*/ LLRect getRequiredRect();
+
+protected:
+	LLAdHocChiclet(const Params& p);
+	friend class LLUICtrlFactory;
+
+	/*
+	* Displays popup menu.
+	*/
+	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
+private:
+
+	LLChicletAvatarIconCtrl* mChicletIconCtrl;
+	LLChicletNotificationCounterCtrl* mCounterCtrl;
+	LLChicletSpeakerCtrl* mSpeakerCtrl;
+	LLMenuGL* mPopupMenu;
+};
+
+/**
  * Implements Group chat chiclet.
  */
 class LLIMGroupChiclet : public LLIMChiclet, public LLGroupMgrObserver
@@ -594,9 +653,14 @@ public:
 	virtual ~LLChicletPanel();
 
 	/*
-	 * Creates chiclet and adds it to chiclet list.
+	 * Creates chiclet and adds it to chiclet list at specified index.
 	*/
-	template<class T> T* createChiclet(const LLUUID& session_id = LLUUID::null, S32 index = 0);
+	template<class T> T* createChiclet(const LLUUID& session_id, S32 index);
+
+	/*
+	 * Creates chiclet and adds it to chiclet list at right.
+	*/
+	template<class T> T* createChiclet(const LLUUID& session_id);
 
 	/*
 	 * Returns pointer to chiclet of specified type at specified index.
@@ -660,9 +724,13 @@ public:
 
 	/*virtual*/ void draw();
 
+	S32 getMinWidth() const { return mMinWidth; }
+
 protected:
 	LLChicletPanel(const Params&p);
 	friend class LLUICtrlFactory;
+
+	S32 calcChickletPanleWidth();
 
 	/*
 	 * Adds chiclet to list and rearranges all chiclets.
@@ -804,7 +872,7 @@ private:
 };
 
 template<class T> 
-T* LLChicletPanel::createChiclet(const LLUUID& session_id /*= LLUUID::null*/, S32 index /*= 0*/)
+T* LLChicletPanel::createChiclet(const LLUUID& session_id, S32 index)
 {
 	typename T::Params params;
 	T* chiclet = LLUICtrlFactory::create<T>(params);
@@ -828,6 +896,12 @@ T* LLChicletPanel::createChiclet(const LLUUID& session_id /*= LLUUID::null*/, S3
 	chiclet->setSessionId(session_id);
 
 	return chiclet;
+}
+
+template<class T>
+T* LLChicletPanel::createChiclet(const LLUUID& session_id)
+{
+	return createChiclet<T>(session_id, mChicletList.size());
 }
 
 template<class T>

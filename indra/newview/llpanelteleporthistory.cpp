@@ -60,6 +60,7 @@ public:
 	virtual BOOL postBuild();
 
 	S32 getIndex() { return mIndex; }
+	void setIndex(S32 index) { mIndex = index; }
 	const std::string& getRegionName() { return mRegionName;}
 
 	/*virtual*/ void setValue(const LLSD& value);
@@ -180,7 +181,7 @@ LLContextMenu* LLTeleportHistoryPanel::ContextMenu::createMenu()
 
 	registrar.add("TeleportHistory.Teleport",	boost::bind(&LLTeleportHistoryPanel::ContextMenu::onTeleport, this));
 	registrar.add("TeleportHistory.MoreInformation",boost::bind(&LLTeleportHistoryPanel::ContextMenu::onInfo, this));
-	registrar.add("TeleportHistory.Copy",		boost::bind(&LLTeleportHistoryPanel::ContextMenu::onCopy, this));
+	registrar.add("TeleportHistory.CopyToClipboard",boost::bind(&LLTeleportHistoryPanel::ContextMenu::onCopyToClipboard, this));
 
 	// create the context menu from the XUI
 	return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
@@ -203,11 +204,11 @@ void LLTeleportHistoryPanel::ContextMenu::gotSLURLCallback(const std::string& sl
 	gClipboard.copyFromString(utf8str_to_wstring(slurl));
 }
 
-void LLTeleportHistoryPanel::ContextMenu::onCopy()
+void LLTeleportHistoryPanel::ContextMenu::onCopyToClipboard()
 {
 	LLVector3d globalPos = LLTeleportHistoryStorage::getInstance()->getItems()[mIndex].mGlobalPos;
 	LLLandmarkActions::getSLURLfromPosGlobal(globalPos,
-		boost::bind(&LLTeleportHistoryPanel::ContextMenu::gotSLURLCallback, _1), false);
+		boost::bind(&LLTeleportHistoryPanel::ContextMenu::gotSLURLCallback, _1));
 }
 
 // Not yet implemented; need to remove buildPanel() from constructor when we switch
@@ -237,7 +238,7 @@ BOOL LLTeleportHistoryPanel::postBuild()
 	mTeleportHistory = LLTeleportHistoryStorage::getInstance();
 	if (mTeleportHistory)
 	{
-		mTeleportHistory->setHistoryChangedCallback(boost::bind(&LLTeleportHistoryPanel::onTeleportHistoryChange, this));
+		mTeleportHistory->setHistoryChangedCallback(boost::bind(&LLTeleportHistoryPanel::onTeleportHistoryChange, this, _1));
 	}
 
 	mHistoryAccordion = getChild<LLAccordionCtrl>("history_accordion");
@@ -488,7 +489,7 @@ void LLTeleportHistoryPanel::refresh()
 			if (mLastSelectedItemIndex == mCurrentItem)
 				curr_flat_view->selectItem(item, true);
 		}
-			
+
 		mCurrentItem--;
 
 		if (++added_items >= ADD_LIMIT)
@@ -503,10 +504,75 @@ void LLTeleportHistoryPanel::refresh()
 		mDirty = false;
 }
 
-void LLTeleportHistoryPanel::onTeleportHistoryChange()
+void LLTeleportHistoryPanel::onTeleportHistoryChange(S32 removed_index)
 {
 	mLastSelectedItemIndex = -1;
-	showTeleportHistory();
+
+	if (-1 == removed_index)
+		showTeleportHistory(); // recreate all items
+	else
+		replaceItem(removed_index); // replace removed item by most recent
+}
+
+void LLTeleportHistoryPanel::replaceItem(S32 removed_index)
+{
+	// Flat list for 'Today' (mItemContainers keeps accordion tabs in reverse order)
+	LLFlatListView* fv = getFlatListViewFromTab(mItemContainers[mItemContainers.size() - 1]);
+
+	// Empty flat list for 'Today' means that other flat lists are empty as well,
+	// so all items from teleport history should be added.
+	if (!fv || fv->size() == 0)
+	{
+		showTeleportHistory();
+		return;
+	}
+
+	const LLTeleportHistoryStorage::slurl_list_t& history_items = mTeleportHistory->getItems();
+	LLTeleportHistoryFlatItem* item = new LLTeleportHistoryFlatItem(history_items.size(), // index will be decremented inside loop below
+									&mContextMenu,
+									history_items[history_items.size() - 1].mTitle); // Most recent item, it was
+															 // added instead of removed
+	fv->addItem(item, LLUUID::null, ADD_TOP);
+
+	// Index of each item, from last to removed item should be decremented
+	// to point to the right item in LLTeleportHistoryStorage
+	for (S32 tab_idx = mItemContainers.size() - 1; tab_idx >= 0; --tab_idx)
+	{
+		LLAccordionCtrlTab* tab = mItemContainers.get(tab_idx);
+		if (!tab->getVisible())
+			continue;
+
+		fv = getFlatListViewFromTab(tab);
+		if (!fv)
+		{
+			showTeleportHistory();
+			return;
+		}
+
+		std::vector<LLPanel*> items;
+		fv->getItems(items);
+
+		S32 items_cnt = items.size();
+		for (S32 n = 0; n < items_cnt; ++n)
+		{
+			LLTeleportHistoryFlatItem *item = (LLTeleportHistoryFlatItem*) items[n];
+
+			if (item->getIndex() == removed_index)
+			{
+				fv->removeItem(item);
+
+				// If flat list becames empty, then accordion tab should be hidden
+				if (fv->size() == 0)
+					tab->setVisible(false);
+
+				mHistoryAccordion->arrange();
+
+				return; // No need to decrement idexes for the rest of items
+			}
+
+			item->setIndex(item->getIndex() - 1);
+		}
+	}
 }
 
 void LLTeleportHistoryPanel::showTeleportHistory()

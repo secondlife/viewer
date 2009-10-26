@@ -72,7 +72,7 @@ bool LLTrans::parseStrings(LLXMLNodePtr &root, const std::set<std::string>& defa
 	}
 
 	StringTable string_table;
-	LLXUIParser::instance().readXUI(root, string_table);
+	LLXUIParser::instance().readXUI(root, string_table, xml_filename);
 
 	if (!string_table.validateBlock())
 	{
@@ -115,7 +115,7 @@ bool LLTrans::parseLanguageStrings(LLXMLNodePtr &root)
 	}
 	
 	StringTable string_table;
-	LLXUIParser::instance().readXUI(root, string_table);
+	LLXUIParser::instance().readXUI(root, string_table, xml_filename);
 	
 	if (!string_table.validateBlock())
 	{

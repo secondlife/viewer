@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- Side tray cannot show background because it is always 
+	partially on screen to hold tab buttons. -->
 <side_tray
   name="sidebar"
   background_visible="false"
@@ -6,21 +8,24 @@
   width="333"
   collapsed="true"
 >
+  <!-- Individual tabs must show background to have seemless
+	appearance up to tray panel header word like "Home".
+	Embedded panels are inset by a pixel and so their 
+	backgrounds will not block the world fully. -->
   <sidetray_tab
     name="sidebar_home"
     help_topic="sidebar_home"
     tab_title="Home"
     description="Home."
     image="TabIcon_Open_Off"
+	image_selected="TabIcon_Close_Off"
     mouse_opaque="false"
-    background_opaque="false"
     background_visible="true"
   >
       <panel
         name="panel_home"
         filename="panel_sidetray_home_tab.xml"
         label="home"
-        border="true"
       />
   </sidetray_tab>
 
@@ -30,8 +35,8 @@
     tab_title="People"
     description="Find your friends, contacts and people nearby."
     image="TabIcon_People_Off"
+    image_selected="TabIcon_People_Selected"
     mouse_opaque="false"
-    background_opaque="false"
     background_visible="true"
   >
     <panel_container
@@ -42,20 +47,17 @@
         class="panel_people"
         name="panel_people"
         filename="panel_people.xml"
-        border="true"
       />
       <panel
         class="panel_profile_view"
         name="panel_profile_view"
         filename="panel_profile_view.xml"
-        border="true"
       />
       <panel
         class="panel_group_info_sidetray"
         name="panel_group_info_sidetray"
         filename="panel_group_info_sidetray.xml"
         label="Group Info"
-        border="true"
         font="SansSerifBold"
       />
       <panel
@@ -63,12 +65,12 @@
         name="panel_block_list_sidetray"
         filename="panel_block_list_sidetray.xml"
         label="Blocked Residents &amp; Objects"
-        border="true"
         font="SansSerifBold"
       />
 
     </panel_container>
   </sidetray_tab>
+  
   <sidetray_tab
     name="sidebar_places"
     help_topic="sidebar_places"
@@ -76,6 +78,7 @@
     label="Places"
     description="Find places to go and places you&apos;ve visited before."
     image="TabIcon_Places_Off"
+	image_selected="TabIcon_Places_Selected"
     mouse_opaque="false"
     background_visible="true"
   >
@@ -84,7 +87,6 @@
         name="panel_places"
         filename="panel_places.xml"
         label="Places"
-        border="true"
         font="SansSerifBold"
       />
   </sidetray_tab>
@@ -95,6 +97,7 @@
     tab_title="Me"
     description="Edit your public profile and Picks."
     image="TabIcon_Me_Off"
+    image_selected="TabIcon_Me_Selected"
     mouse_opaque="false"
     background_visible="true"
   >
@@ -103,7 +106,6 @@
         name="panel_me_profile"
         filename="panel_me_profile.xml"
         label="Me"
-        border="true"
       />
   </sidetray_tab>
 
@@ -113,19 +115,17 @@
     tab_title="Appearance"
     description="Change your appearance and current look."
     image="TabIcon_Appearance_Off"
+    image_selected="TabIcon_Appearance_Selected"
     mouse_opaque="false"
-    background_opaque="false"
     background_visible="true"
   >
       <panel
         class="panel_appearance"
         name="panel_appearance"
         filename="panel_appearance.xml"
-        border="true"
         label="Edit Appearance"
         font="SansSerifBold"
       />
   </sidetray_tab>
-
 
 </side_tray>

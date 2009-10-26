@@ -135,7 +135,12 @@ public:
 private:
 
 	void populateFoldersList();
+	void updateYouAreHereBanner();
+	void onForSaleBannerClick();
 
+	/**
+	 * mParcelID is valid only for remote places, in other cases it's null. See resetLocation() 
+	 */
 	LLUUID			mParcelID;
 	LLUUID			mRequestedID;
 	LLUUID			mLandmarkID;
@@ -144,8 +149,15 @@ private:
 	S32				mMinHeight;
 	INFO_TYPE 		mInfoType;
 
+	/**
+	 * Hold last displayed parcel. Needs for YouAreHere banner.
+	 */
+	S32			mSelectedParcelID;
+	LLUUID		mLastSelectedRegionID;
+
 	LLTextBox*			mTitle;
-	LLIconCtrl*			mForSaleIcon;
+	LLPanel*			mForSalePanel;
+	LLPanel*			mYouAreHerePanel;
 	LLTextureCtrl*		mSnapshotCtrl;
 	LLTextBox*			mRegionName;
 	LLTextBox*			mParcelName;

@@ -7,7 +7,13 @@
  left="0"
  name="chat_bar"
  top="24"
- width="510">
+ width="310">
+    <string name="min_width">
+        310
+    </string>
+    <string name="max_width">
+        320
+    </string>
     <line_editor
      border_style="line"
      border_thickness="1"
@@ -45,27 +51,4 @@
      tool_tip="Shows/hides nearby chat log">
     <button.commit_callback function="Floater.Toggle" parameter="nearby_chat"/>
     </button>
-    <chiclet_talk
-     follows="right"
-     height="20"
-     speak_button.font="SansSerifMedium"
-     speak_button.tab_stop="true"
-     show_button.tab_stop="true"
-     layout="topleft"
-     left_pad="5"
-     name="talk"
-     top="3"
-     width="100"
-     speak_button.tool_tip="Turns microphone on/off"
-     show_button.tool_tip="Shows/hides voice control panel" />
-    <gesture_combo_box
-      follows="right"
-     height="20"
-     label="Gestures"
-     layout="topleft"
-     name="Gesture"
-     left_pad="5"
-     top="3"
-     width="90"
-     tool_tip="Shows/hides gestures" />
 </panel>

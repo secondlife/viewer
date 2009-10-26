@@ -375,6 +375,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>AutoPlayMedia</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow media objects to automatically play or navigate?</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>AutoSnapshot</key>
     <map>
       <key>Comment</key>
@@ -4842,32 +4853,43 @@
       <key>Value</key>
       <integer>350</integer>
     </map>
-    <key>NotificationToastTime</key>
+    <key>NotificationToastLifeTime</key>
     <map>
       <key>Comment</key>
-      <string>Width of notification messages</string>
+      <string>Number of seconds while a notification toast exists</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
       <integer>5</integer>
+    </map>
+    <key>NotificationTipToastLifeTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of seconds while a notification tip toast exist</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>10</integer>
     </map>
     <key>ToastOpaqueTime</key>
     <map>
       <key>Comment</key>
-      <string>Width of notification messages</string>
+      <string>Number of seconds while a toast is fading </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>4</integer>
+      <integer>1</integer>
     </map>
-    <key>StartUpToastTime</key>
+    <key>StartUpToastLifeTime</key>
     <map>
       <key>Comment</key>
-      <string>Width of notification messages</string>
+      <string>Number of seconds while a StartUp toast exist</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -4875,10 +4897,10 @@
       <key>Value</key>
       <integer>5</integer>
     </map>
-    <key>ToastMargin</key>
+    <key>ToastGap</key>
     <map>
       <key>Comment</key>
-      <string>Width of notification messages</string>
+      <string>Gap between toasts on a screen</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -4889,7 +4911,7 @@
     <key>ChannelBottomPanelMargin</key>
     <map>
       <key>Comment</key>
-      <string>Width of notification messages</string>
+      <string>Space from a lower toast to the Bottom Tray</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -4900,7 +4922,7 @@
     <key>NotificationChannelRightMargin</key>
     <map>
       <key>Comment</key>
-      <string>Width of notification messages</string>
+      <string>Space between toasts and a right border of an area where they can appear</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -4911,7 +4933,7 @@
     <key>OverflowToastHeight</key>
     <map>
       <key>Comment</key>
-      <string>Width of notification messages</string>
+      <string>Height of an overflow toast</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8570,13 +8592,13 @@
     <key>ToolTipVisibleTimeNear</key>
     <map>
       <key>Comment</key>
-      <string>Fade tooltip after after time passes (seconds) while mouse near tooltip</string>
+      <string>Fade tooltip after after time passes (seconds) while mouse near tooltip or original position</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>5.0</real>
+      <real>10.0</real>
     </map>
     <key>ToolTipVisibleTimeOver</key>
     <map>
@@ -10536,6 +10558,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>ShowDeviceSettings</key>
+    <map>
+      <key>Comment</key>
+      <string>Show device settings</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>soundsbeacon</key>
     <map>

@@ -39,6 +39,7 @@
 #include "llimview.h"
 #include "llbottomtray.h"
 #include "llviewerwindow.h"
+#include "llrootview.h"
 
 #include <algorithm>
 
@@ -121,6 +122,8 @@ void LLChannelManager::onLoginCompleted()
 		return;
 	}
 
+	gViewerWindow->getRootView()->addChild(mStartUpChannel);
+
 	// init channel's position and size
 	S32 channel_right_bound = gViewerWindow->getWorldViewRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
 	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
@@ -128,7 +131,7 @@ void LLChannelManager::onLoginCompleted()
 	mStartUpChannel->setShowToasts(true);
 
 	mStartUpChannel->setCommitCallback(boost::bind(&LLChannelManager::onStartUpToastClose, this));
-	mStartUpChannel->createStartUpToast(away_notifications, gSavedSettings.getS32("ChannelBottomPanelMargin"), gSavedSettings.getS32("StartUpToastTime"));
+	mStartUpChannel->createStartUpToast(away_notifications, gSavedSettings.getS32("StartUpToastLifeTime"));
 }
 
 //--------------------------------------------------------------------------
@@ -139,19 +142,11 @@ void LLChannelManager::onStartUpToastClose()
 		mStartUpChannel->setVisible(FALSE);
 		mStartUpChannel->closeStartUpToast();
 		removeChannelByID(LLUUID(gSavedSettings.getString("StartUpChannelUUID")));
-		delete mStartUpChannel;
 		mStartUpChannel = NULL;
 	}
 
 	// set StartUp Toast Flag to allow all other channels to show incoming toasts
 	LLScreenChannel::setStartUpToastShown();
-
-	// force NEARBY CHAT CHANNEL to repost all toasts if present
-	//LLScreenChannelBase* nearby_channel = findChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
-	//!!!!!!!!!!!!!!
-	//FIXME
-	//nearby_channel->loadStoredToastsToChannel();
-	//nearby_channel->setCanStoreToasts(false);
 }
 
 //--------------------------------------------------------------------------

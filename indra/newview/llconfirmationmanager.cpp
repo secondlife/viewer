@@ -39,6 +39,7 @@
 // viewer includes
 #include "llnotifications.h"
 #include "llstring.h"
+#include "llxmlnode.h"
 
 LLConfirmationManager::ListenerBase::~ListenerBase()
 {

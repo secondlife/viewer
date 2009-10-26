@@ -108,7 +108,8 @@ void LLRNGWriter::addDefinition(const std::string& type_name, const LLInitParam:
 		
 		LLXMLNodePtr old_element_node = mElementNode;
 		LLXMLNodePtr old_child_node = mChildrenNode;
-		addDefinition(child_name, (*LLDefaultParamBlockRegistry::instance().getValue(type))());
+		//FIXME: add LLDefaultParamBlockRegistry back when working on schema generation
+		//addDefinition(child_name, (*LLDefaultParamBlockRegistry::instance().getValue(type))());
 		mElementNode = old_element_node;
 		mChildrenNode = old_child_node;
 

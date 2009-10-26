@@ -68,8 +68,11 @@ public:
 		EWearableType mType;
 		LLUUID mItemID;
 		LLUUID mAssetID;
-		InitialWearableData(EWearableType type, LLUUID itemID, LLUUID assetID) :
-			mType(type), mItemID(itemID), mAssetID(assetID) { }
+		InitialWearableData(EWearableType type, LLUUID& itemID, LLUUID& assetID) :
+			mType(type),
+			mItemID(itemID),
+			mAssetID(assetID)
+		{}
 	};
 
 	typedef std::vector<InitialWearableData> initial_wearable_data_vec_t;
@@ -646,6 +649,7 @@ void LLAgentWearables::setWearable(const EWearableType type, U32 index, LLWearab
 	else
 	{
 		wearable_vec[index] = wearable;
+		mAvatarObject->wearableUpdated(wearable->getType());
 	}
 }
 
@@ -654,20 +658,29 @@ U32 LLAgentWearables::pushWearable(const EWearableType type, LLWearable *wearabl
 	if (wearable == NULL)
 	{
 		// no null wearables please!
-		//TODO: insert llwarns
+		llwarns << "Null wearable sent for type " << type << llendl;
 		return MAX_WEARABLES_PER_TYPE;
 	}
 	if (type < WT_COUNT || mWearableDatas[type].size() < MAX_WEARABLES_PER_TYPE)
 	{
 		mWearableDatas[type].push_back(wearable);
+		mAvatarObject->wearableUpdated(wearable->getType());
 		return mWearableDatas[type].size()-1;
 	}
 	return MAX_WEARABLES_PER_TYPE;
 }
 
-void LLAgentWearables::popWearable(const EWearableType type, LLWearable *wearable)
+void LLAgentWearables::popWearable(LLWearable *wearable)
 {
-	U32 index = getWearableIndex(type, wearable);
+	if (wearable == NULL)
+	{
+		// nothing to do here. move along.
+		return;
+	}
+
+	U32 index = getWearableIndex(wearable);
+	EWearableType type = wearable->getType();
+
 	if (index < MAX_WEARABLES_PER_TYPE && index < getWearableCount(type))
 	{
 		popWearable(type, index);
@@ -676,14 +689,22 @@ void LLAgentWearables::popWearable(const EWearableType type, LLWearable *wearabl
 
 void LLAgentWearables::popWearable(const EWearableType type, U32 index)
 {
-	if (getWearable(type, index))
+	LLWearable *wearable = getWearable(type, index);
+	if (wearable)
 	{
 		mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
+		mAvatarObject->wearableUpdated(wearable->getType());
 	}
 }
 
-U32	LLAgentWearables::getWearableIndex(const EWearableType type, LLWearable *wearable)
+U32	LLAgentWearables::getWearableIndex(LLWearable *wearable)
 {
+	if (wearable == NULL)
+	{
+		return MAX_WEARABLES_PER_TYPE;
+	}
+
+	const EWearableType type = wearable->getType();
 	wearableentry_map_t::const_iterator wearable_iter = mWearableDatas.find(type);
 	if (wearable_iter == mWearableDatas.end())
 	{
@@ -777,22 +798,12 @@ const LLUUID LLAgentWearables::getWearableAssetID(EWearableType type, U32 index)
 		return LLUUID();
 }
 
-// Warning: include_linked_items = TRUE makes this operation expensive.
-BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id, BOOL include_linked_items) const
+BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id) const
 {
-	if (getWearableFromItemID(item_id) != NULL) return TRUE;
-	if (include_linked_items)
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
+	if (getWearableFromItemID(base_item_id) != NULL) 
 	{
-		LLInventoryModel::item_array_t item_array;
-		gInventory.collectLinkedItems(item_id, item_array);
-		for (LLInventoryModel::item_array_t::iterator iter = item_array.begin();
-			 iter != item_array.end();
-			 iter++)
-		{
-			LLViewerInventoryItem *linked_item = (*iter);
-			const LLUUID &linked_item_id = linked_item->getUUID();
-			if (getWearableFromItemID(linked_item_id) != NULL) return TRUE;
-		}
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -1090,7 +1101,7 @@ void LLAgentWearables::getAllWearablesArray(LLDynamicArray<S32>& wearables)
 {
 	for( S32 i = 0; i < WT_COUNT; ++i )
 	{
-		if (getWearableCount( (EWearableType) i) !=  0 )
+		if (getWearableCount((EWearableType) i) !=  0)
 		{
 			wearables.push_back(i);
 		}
@@ -1300,11 +1311,16 @@ void LLAgentWearables::addWearableToAgentInventory(LLPointer<LLInventoryCallback
 
 void LLAgentWearables::removeWearable(const EWearableType type, bool do_remove_all, U32 index)
 {
-	if ((gAgent.isTeen())
-		&& (type == WT_UNDERSHIRT || type == WT_UNDERPANTS))
+	if (gAgent.isTeen() &&
+		(type == WT_UNDERSHIRT || type == WT_UNDERPANTS))
 	{
 		// Can't take off underclothing in simple UI mode or on PG accounts
 		// TODO: enable the removing of a single undershirt/underpants if multiple are worn. - Nyx
+		return;
+	}
+	if (getWearableCount(type) == 0)
+	{
+		// no wearables to remove
 		return;
 	}
 
@@ -1373,8 +1389,9 @@ void LLAgentWearables::removeWearableFinal(const EWearableType type, bool do_rem
 		for (S32 i=max_entry; i>=0; i--)
 		{
 			LLWearable* old_wearable = getWearable(type,i);
-			gInventory.addChangedMask(LLInventoryObserver::LABEL, getWearableItemID(type,i));
+			const LLUUID &item_id = getWearableItemID(type,i);
 			popWearable(type,i);
+			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
 			//queryWearableCache(); // moved below
 			if (old_wearable)
@@ -1388,8 +1405,9 @@ void LLAgentWearables::removeWearableFinal(const EWearableType type, bool do_rem
 	{
 		LLWearable* old_wearable = getWearable(type, index);
 
-		gInventory.addChangedMask(LLInventoryObserver::LABEL, getWearableItemID(type,index));
+		const LLUUID &item_id = getWearableItemID(type,index);
 		popWearable(type, index);
+		gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
 		//queryWearableCache(); // moved below
 
@@ -1428,6 +1446,9 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	wearables_to_remove[WT_UNDERSHIRT]	= (!gAgent.isTeen()) & remove;
 	wearables_to_remove[WT_UNDERPANTS]	= (!gAgent.isTeen()) & remove;
 	wearables_to_remove[WT_SKIRT]		= remove;
+	wearables_to_remove[WT_ALPHA]		= remove;
+	wearables_to_remove[WT_TATTOO]		= remove;
+
 
 	S32 count = wearables.count();
 	llassert(items.count() == count);
@@ -1454,7 +1475,6 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 			}
 
 			gInventory.addChangedMask(LLInventoryObserver::LABEL, old_item_id);
-
 			// Assumes existing wearables are not dirty.
 			if (old_wearable->isDirty())
 			{
@@ -1476,7 +1496,8 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		{
 			// MULTI_WEARABLE: assuming 0th
 			LLWearable* wearable = getWearable((EWearableType)i, 0);
-			gInventory.addChangedMask(LLInventoryObserver::LABEL, getWearableItemID((EWearableType)i,0));
+			const LLUUID &item_id = getWearableItemID((EWearableType)i,0);
+			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 			if (wearable)
 			{
 				wearables_being_removed.push_back(wearable);
@@ -1740,6 +1761,8 @@ void LLAgentWearables::userRemoveAllClothesStep2(BOOL proceed)
 		gAgentWearables.removeWearable(WT_UNDERSHIRT,true,0);
 		gAgentWearables.removeWearable(WT_UNDERPANTS,true,0);
 		gAgentWearables.removeWearable(WT_SKIRT,true,0);
+		gAgentWearables.removeWearable(WT_ALPHA,true,0);
+		gAgentWearables.removeWearable(WT_TATTOO,true,0);
 	}
 }
 

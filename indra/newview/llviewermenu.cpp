@@ -3450,6 +3450,15 @@ bool enable_standup_self()
 	return new_value;
 }
 
+// Used from the login screen to aid in UI work on side tray
+void handle_show_side_tray()
+{
+	LLSideTray* side_tray = LLSideTray::getInstance();
+	LLView* root = gViewerWindow->getRootView();
+	// automatically removes and re-adds if there already
+	root->addChild(side_tray);
+}
+
 class LLSelfFriends : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -6912,7 +6921,7 @@ void handle_debug_avatar_textures(void*)
 	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 	if (objectp)
 	{
-		LLFloaterReg::showInstance( "avatar_tetures", LLSD(objectp->getID()) );
+		LLFloaterReg::showInstance( "avatar_textures", LLSD(objectp->getID()) );
 	}
 }
 
@@ -7934,7 +7943,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckDebugKeys(), "Advanced.CheckDebugKeys");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugWindowProc(), "Advanced.ToggleDebugWindowProc");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugWindowProc(), "Advanced.CheckDebugWindowProc");
-
+	commit.add("Advanced.ShowSideTray", boost::bind(&handle_show_side_tray));
 
 	// Advanced > XUI
 	commit.add("Advanced.ReloadColorSettings", boost::bind(&LLUIColorTable::loadFromSettings, LLUIColorTable::getInstance()));

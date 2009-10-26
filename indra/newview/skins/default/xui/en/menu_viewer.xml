@@ -56,7 +56,7 @@
              function="Edit.EnableCustomizeAvatar" />
         </menu_item_call>
         <menu_item_check
-         label="My Things"
+         label="My Inventory"
          layout="topleft"
          name="Inventory"
          shortcut="control|I">
@@ -2933,7 +2933,8 @@
                      function="Advanced.GrabBakedTexture"
                      parameter="iris" />
                     <menu_item_call.on_enable
-                     function="Advanced.EnableGrabBakedTexture" />
+                     function="Advanced.EnableGrabBakedTexture"
+					 parameter="iris" />
                 </menu_item_call>
                 <menu_item_call
                  label="Head"
@@ -2943,7 +2944,8 @@
                      function="Advanced.GrabBakedTexture"
                      parameter="head" />
                     <menu_item_call.on_enable
-                     function="Advanced.EnableGrabBakedTexture" />
+                     function="Advanced.EnableGrabBakedTexture"
+					 parameter="head" />
                 </menu_item_call>
                 <menu_item_call
                  label="Upper Body"
@@ -2953,7 +2955,8 @@
                      function="Advanced.GrabBakedTexture"
                      parameter="upper" />
                     <menu_item_call.on_enable
-                     function="Advanced.EnableGrabBakedTexture" />
+                     function="Advanced.EnableGrabBakedTexture"
+					 parameter="upper" />
                 </menu_item_call>
                 <menu_item_call
                  label="Lower Body"
@@ -2963,7 +2966,8 @@
                      function="Advanced.GrabBakedTexture"
                      parameter="lower" />
                     <menu_item_call.on_enable
-                     function="Advanced.EnableGrabBakedTexture" />
+                     function="Advanced.EnableGrabBakedTexture"
+					 parameter="lower" />
                 </menu_item_call>
                 <menu_item_call
                  label="Skirt"
@@ -2973,17 +2977,8 @@
                      function="Advanced.GrabBakedTexture"
                      parameter="skirt" />
                     <menu_item_call.on_enable
-                     function="Advanced.EnableGrabBakedTexture" />
-                </menu_item_call>
-                <menu_item_call
-                 label="Skirt"
-                 layout="topleft"
-                 name="Hair">
-                    <menu_item_call.on_click
-                     function="Advanced.GrabBakedTexture"
-                     parameter="hair" />
-                    <menu_item_call.on_enable
-                     function="Advanced.EnableGrabBakedTexture" />
+                     function="Advanced.EnableGrabBakedTexture"
+					 parameter="skirt" />
                 </menu_item_call>
             </menu>
             <menu

@@ -657,7 +657,6 @@ void LLViewerInventoryCategory::changeType(LLAssetType::EType new_folder_type)
 
 	setPreferredType(new_folder_type);
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, folder_id);
-	gInventory.updateLinkedObjects(folder_id);	
 }
 
 ///----------------------------------------------------------------------------
@@ -990,7 +989,7 @@ const std::string NEW_LSL_NAME = "New Script"; // *TODO:Translate? (probably not
 const std::string NEW_NOTECARD_NAME = "New Note"; // *TODO:Translate? (probably not)
 const std::string NEW_GESTURE_NAME = "New Gesture"; // *TODO:Translate? (probably not)
 
-void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, const LLSD& userdata)
+void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, const LLSD& userdata, const LLUUID& default_parent_uuid)
 {
 	std::string type = userdata.asString();
 	
@@ -1003,15 +1002,22 @@ void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, co
 			a_type = LLAssetType::AT_OUTFIT;
 		if ("my_otfts" == type)
 			a_type = LLAssetType::AT_MY_OUTFITS;
-		LLUUID category;
+
+		LLUUID parent_id;
 		if (bridge)
 		{
-			category = gInventory.createNewCategory(bridge->getUUID(), a_type, LLStringUtil::null);
+			parent_id = bridge->getUUID();
+		}
+		else if (default_parent_uuid.notNull())
+		{
+			parent_id = default_parent_uuid;
 		}
 		else
 		{
-			category = gInventory.createNewCategory(gInventory.getRootFolderID(), a_type, LLStringUtil::null);
+			parent_id = gInventory.getRootFolderID();
 		}
+
+		LLUUID category = gInventory.createNewCategory(parent_id, a_type, LLStringUtil::null);
 		gInventory.notifyObservers();
 		folder->setSelectionByID(category, TRUE);
 	}

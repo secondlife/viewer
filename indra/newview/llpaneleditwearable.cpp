@@ -369,7 +369,7 @@ void LLPanelEditWearable::saveChanges()
 		return;
 	}
 
-	U32 index = gAgentWearables.getWearableIndex(mWearablePtr->getType(), mWearablePtr);
+	U32 index = gAgentWearables.getWearableIndex(mWearablePtr);
 	
 	if (mWearablePtr->getName().compare(mTextEditor->getText()) != 0)
 	{
@@ -601,15 +601,14 @@ LLPanel* LLPanelEditWearable::getPanel(EWearableType type)
 
 void LLPanelEditWearable::getSortedParams(value_map_t &sorted_params, const std::string &edit_group)
 {
-	LLWearable::visualParamCluster_t param_list;
+	LLWearable::visual_param_vec_t param_list;
 	ESex avatar_sex = gAgent.getAvatarObject()->getSex();
 
 	mWearablePtr->getVisualParams(param_list);
 
-	LLWearable::visualParamCluster_t::iterator iter = param_list.begin();
-	LLWearable::visualParamCluster_t::iterator end = param_list.end();
-
-	for (; iter != end; ++iter)
+	for (LLWearable::visual_param_vec_t::iterator iter = param_list.begin();
+		iter != param_list.end();
+		++iter)
 	{
 		LLViewerVisualParam *param = (LLViewerVisualParam*) *iter;
 

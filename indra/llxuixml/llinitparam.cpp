@@ -38,8 +38,6 @@
 
 namespace LLInitParam
 {
-	BlockDescriptor BaseBlock::sBlockDescriptor;
-
 	//
 	// Param
 	//

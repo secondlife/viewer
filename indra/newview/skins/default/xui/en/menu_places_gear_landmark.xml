@@ -35,6 +35,9 @@
         <on_click
          function="Places.LandmarksGear.Custom.Action"
          parameter="show_on_map" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="show_on_map" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft" />
@@ -66,6 +69,9 @@
         <on_click
          function="Places.LandmarksGear.CopyPaste.Action"
          parameter="cut" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="cut" />
     </menu_item_call>
     <menu_item_call
      label="Copy Landmark"
@@ -81,6 +87,9 @@
      name="copy_slurl">
         <on_click
          function="Places.LandmarksGear.CopyPaste.Action"
+         parameter="copy_slurl" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
          parameter="copy_slurl" />
     </menu_item_call>
     <menu_item_call
@@ -101,6 +110,9 @@
         <on_click
          function="Places.LandmarksGear.CopyPaste.Action"
          parameter="rename" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="rename" />
     </menu_item_call>
     <menu_item_call
      label="Delete"
@@ -108,6 +120,9 @@
      name="delete">
         <on_click
          function="Places.LandmarksGear.CopyPaste.Action"
+         parameter="delete" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
          parameter="delete" />
     </menu_item_call>
     <menu_item_separator
@@ -119,6 +134,9 @@
         <on_click
          function="Places.LandmarksGear.Folding.Action"
          parameter="expand_all" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="expand_all" />
     </menu_item_call>
     <menu_item_call
      label="Collapse all folders"
@@ -127,16 +145,22 @@
         <on_click
          function="Places.LandmarksGear.Folding.Action"
          parameter="collapse_all" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="collapse_all" />
     </menu_item_call>
     <menu_item_check
      label="Sort by Date"
      layout="topleft"
      name="sort_by_date">
         <on_check
-         function="Places.LandmarksGear.Enable"
+         function="Places.LandmarksGear.Check"
          parameter="sort_by_date" />
         <on_click
          function="Places.LandmarksGear.Folding.Action"
+         parameter="sort_by_date" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
          parameter="sort_by_date" />
     </menu_item_check>
     <menu_item_call
@@ -145,6 +169,9 @@
      name="create_pick">
         <on_click
          function="Places.LandmarksGear.Custom.Action"
+         parameter="create_pick" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
          parameter="create_pick" />
     </menu_item_call>
 </menu>

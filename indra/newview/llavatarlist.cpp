@@ -57,17 +57,13 @@ static const LLAvatarItemNameComparator NAME_COMPARATOR;
 static const LLFlatListView::ItemReverseComparator REVERSE_NAME_COMPARATOR(NAME_COMPARATOR);
 
 LLAvatarList::Params::Params()
-:
-volume_column_width("volume_column_width", 0)
-, online_go_first("online_go_first", true)
+: ignore_online_status("ignore_online_status", false)
 {
 }
 
-
-
 LLAvatarList::LLAvatarList(const Params& p)
 :	LLFlatListView(p)
-, mOnlineGoFirst(p.online_go_first)
+, mIgnoreOnlineStatus(p.ignore_online_status)
 , mContextMenu(NULL)
 , mDirty(true) // to force initial update
 {
@@ -194,20 +190,33 @@ void LLAvatarList::refresh()
 }
 
 
-void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_bold, EAddPosition pos)
+void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
 {
 	LLAvatarListItem* item = new LLAvatarListItem();
 	item->showStatus(false);
 	item->showInfoBtn(true);
 	item->showSpeakingIndicator(true);
 	item->setName(name);
-	item->setAvatarId(id);
-	item->setOnline(is_bold);
+	item->setAvatarId(id, mIgnoreOnlineStatus);
+	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
 	item->setContextMenu(mContextMenu);
 
 	item->childSetVisible("info_btn", false);
 
 	addItem(item, id, pos);
+}
+
+// virtual
+BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
+	if ( mContextMenu )
+	{
+		std::vector<LLUUID> selected_uuids;
+		getSelectedUUIDs(selected_uuids);
+		mContextMenu->show(this, selected_uuids, x, y);
+	}
+	return handled;
 }
 
 void LLAvatarList::computeDifference(

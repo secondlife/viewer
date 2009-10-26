@@ -33,10 +33,10 @@
      height="18"
      image_name="Lock"
      layout="topleft"
-     left="340"
+     left="322"
      mouse_opaque="true"
      name="lock"
-     top="1"
+     top="4"
      width="18" />
     <text
      type="string"

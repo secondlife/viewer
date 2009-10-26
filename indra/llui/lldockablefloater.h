@@ -78,6 +78,8 @@ public:
 	 */
 	/*virtual*/ void setMinimized(BOOL minimize);
 
+	LLView * getDockWidget();
+
 	virtual void onDockHidden();
 	virtual void onDockShown();
 

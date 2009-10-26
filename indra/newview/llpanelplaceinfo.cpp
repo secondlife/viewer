@@ -56,10 +56,12 @@
 #include "llagentui.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llfloaterworldmap.h"
+#include "llfloaterbuycurrency.h"
 #include "llinventorymodel.h"
 #include "lllandmarkactions.h"
 #include "llpanelpick.h"
 #include "lltexturectrl.h"
+#include "llstatusbar.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -88,7 +90,10 @@ LLPanelPlaceInfo::LLPanelPlaceInfo()
 	mMinHeight(0),
 	mScrollingPanel(NULL),
 	mInfoPanel(NULL),
-	mMediaPanel(NULL)
+	mMediaPanel(NULL),
+	mForSalePanel(NULL),
+	mYouAreHerePanel(NULL),
+	mSelectedParcelID(-1)
 {}
 
 LLPanelPlaceInfo::~LLPanelPlaceInfo()
@@ -104,14 +109,15 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mTitle = getChild<LLTextBox>("panel_title");
 	mCurrentTitle = mTitle->getText();
 
-	mForSaleIcon = getChild<LLIconCtrl>("icon_for_sale");
+	mForSalePanel = getChild<LLPanel>("for_sale_panel");
+	mYouAreHerePanel = getChild<LLPanel>("here_panel");
+	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&LLPanelPlaceInfo::updateYouAreHereBanner,this));
+	
+	//Icon value should contain sale price of last selected parcel. 
+	mForSalePanel->getChild<LLIconCtrl>("icon_for_sale")->
+				setMouseDownCallback(boost::bind(&LLPanelPlaceInfo::onForSaleBannerClick, this));
 
-	// Since this is only used in the directory browser, always
-	// disable the snapshot control. Otherwise clicking on it will
-	// open a texture picker.
 	mSnapshotCtrl = getChild<LLTextureCtrl>("logo");
-	mSnapshotCtrl->setEnabled(FALSE);
-
 	mRegionName = getChild<LLTextBox>("region_title");
 	mParcelName = getChild<LLTextBox>("parcel_title");
 	mDescEditor = getChild<LLTextEditor>("description");
@@ -267,7 +273,8 @@ void LLPanelPlaceInfo::resetLocation()
 	mRequestedID.setNull();
 	mLandmarkID.setNull();
 	mPosRegion.clearVec();
-	mForSaleIcon->setVisible(FALSE);
+	mForSalePanel->setVisible(FALSE);
+	mYouAreHerePanel->setVisible(FALSE);
 	std::string not_available = getString("not_available");
 	mMaturityRatingText->setValue(not_available);
 	mParcelOwner->setValue(not_available);
@@ -480,9 +487,9 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 
 	//update for_sale banner, here we should use DFQ_FOR_SALE instead of PF_FOR_SALE
 	//because we deal with remote parcel response format
-	bool isForSale = (parcel_data.flags & DFQ_FOR_SALE) &&
+	bool is_for_sale = (parcel_data.flags & DFQ_FOR_SALE) &&
 					 mInfoType == AGENT ? TRUE : FALSE;
-	mForSaleIcon->setVisible(isForSale);
+	mForSalePanel->setVisible(is_for_sale);
 
 	S32 region_x;
 	S32 region_y;
@@ -798,11 +805,11 @@ void LLPanelPlaceInfo::displaySelectedParcelInfo(LLParcel* parcel,
 		}
 	}
 
+	mSelectedParcelID = parcel->getLocalID();
+	mLastSelectedRegionID = region->getRegionID();
 	processParcelInfo(parcel_data);
 
-	// TODO: If agent is in currently within the selected parcel
-	// show the "You Are Here" banner.
-
+	mYouAreHerePanel->setVisible(is_current_parcel);
 	getChild<LLAccordionCtrlTab>("sales_tab")->setVisible(for_sale);
 }
 
@@ -978,6 +985,50 @@ void LLPanelPlaceInfo::populateFoldersList()
 	for (folder_vec_t::const_iterator it = folders.begin(); it != folders.end(); it++)
 		mFolderCombo->add(it->second, LLSD(it->first));
 }
+
+void LLPanelPlaceInfo::updateYouAreHereBanner()
+{
+	//YouAreHere Banner should be displayed only for selected places, 
+	// If you want to display it for landmark or teleport history item, you should check by mParcelId
+	
+	bool is_you_are_here = false;
+	if (mSelectedParcelID != S32(-1) && !mLastSelectedRegionID.isNull())
+	{
+		is_you_are_here = gAgent.getRegion()->getRegionID()== mLastSelectedRegionID &&
+		mSelectedParcelID == LLViewerParcelMgr::getInstance()->getAgentParcel()->getLocalID();
+	}
+	mYouAreHerePanel->setVisible(is_you_are_here);
+}
+
+void LLPanelPlaceInfo::onForSaleBannerClick()
+{
+	LLViewerParcelMgr* mgr = LLViewerParcelMgr::getInstance();
+	LLParcelSelectionHandle hParcel = mgr->getFloatingParcelSelection();
+	LLViewerRegion* selected_region =  mgr->getSelectionRegion();
+	if(!hParcel.isNull() && selected_region)
+	{
+		if(hParcel->getParcel()->getLocalID() == mSelectedParcelID && 
+				mLastSelectedRegionID ==selected_region->getRegionID())
+		{
+			if(hParcel->getParcel()->getSalePrice() - gStatusBar->getBalance() > 0)
+			{
+				LLFloaterBuyCurrency::buyCurrency("Buying selected land ", hParcel->getParcel()->getSalePrice());
+			}
+			else
+			{
+				LLViewerParcelMgr::getInstance()->startBuyLand();
+			}
+		}
+		else
+		{
+			LL_WARNS("Places") << "User  is trying  to buy remote parcel.Operation is not supported"<< LL_ENDL; 
+		}
+		
+	}
+	
+	
+}
+ 
 
 static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right)
 {

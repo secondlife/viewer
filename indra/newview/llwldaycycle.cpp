@@ -36,6 +36,7 @@
 #include "llsdserialize.h"
 #include "llwlparammanager.h"
 #include "llnotifications.h"
+#include "llxmlnode.h"
 
 #include <map>
 

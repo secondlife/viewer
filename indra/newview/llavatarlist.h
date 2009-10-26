@@ -55,8 +55,7 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> 
 	{
-		Optional<S32> volume_column_width;
-		Optional<bool> online_go_first;
+		Optional<bool> ignore_online_status; // show all items as online
 		Params();
 	};
 
@@ -72,11 +71,12 @@ public:
 	void setContextMenu(LLAvatarListItem::ContextMenu* menu) { mContextMenu = menu; }
 
 	void sortByName();
+	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 protected:
 	void refresh();
 
-	void addNewItem(const LLUUID& id, const std::string& name, BOOL is_bold, EAddPosition pos = ADD_BOTTOM);
+	void addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos = ADD_BOTTOM);
 	void computeDifference(
 		const std::vector<LLUUID>& vnew,
 		std::vector<LLUUID>& vadded,
@@ -84,7 +84,7 @@ protected:
 
 private:
 
-	bool mOnlineGoFirst;
+	bool mIgnoreOnlineStatus;
 	bool mDirty;
 
 	std::string				mNameFilter;

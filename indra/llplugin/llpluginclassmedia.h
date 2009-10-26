@@ -101,7 +101,7 @@ public:
 		MOUSE_EVENT_DOUBLE_CLICK
 	}EMouseEventType;
 	
-	void mouseEvent(EMouseEventType type, int x, int y, MASK modifiers);
+	void mouseEvent(EMouseEventType type, int button, int x, int y, MASK modifiers);
 
 	typedef enum 
 	{
@@ -115,7 +115,7 @@ public:
 	void scrollEvent(int x, int y, MASK modifiers);
 	
 	// Text may be unicode (utf8 encoded)
-	bool textInput(const std::string &text);
+	bool textInput(const std::string &text, MASK modifiers);
 	
 	void loadURI(const std::string &uri);
 	
@@ -310,6 +310,8 @@ protected:
 	std::string translateModifiers(MASK modifiers);
 	
 	std::string mCursorName;
+	int			mLastMouseX;
+	int			mLastMouseY;
 
 	LLPluginClassMediaOwner::EMediaStatus mStatus;
 	

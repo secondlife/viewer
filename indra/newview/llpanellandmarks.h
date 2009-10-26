@@ -66,6 +66,7 @@ protected:
 	 * @return true - if current selected panel is not null and selected item is a landmark
 	 */
 	bool isLandmarkSelected() const;
+	bool isReceivedFolderSelected() const;
 	LLLandmark* getCurSelectedLandmark() const;
 	LLFolderViewItem* getCurSelectedItem () const;
 	void updateSortOrder(LLInventoryPanel* panel, bool byDate);
@@ -80,7 +81,7 @@ private:
 	void initLandmarksInventroyPanel();
 	void initMyInventroyPanel();
 	void initLibraryInventroyPanel();
-	void initLandmarksPanel(LLInventorySubTreePanel* inventory_list, const LLUUID& start_folder_id);
+	void initLandmarksPanel(LLInventorySubTreePanel* inventory_list);
 	void initAccordion(const std::string& accordion_tab_name, LLInventorySubTreePanel* inventory_list);
 	void onAccordionExpandedCollapsed(const LLSD& param, LLInventorySubTreePanel* inventory_list);
 	void deselectOtherThan(const LLInventorySubTreePanel* inventory_list);
@@ -93,11 +94,25 @@ private:
 	void onAddFolderButtonClick() const;
 	void onTrashButtonClick() const;
 	void onAddAction(const LLSD& command_name) const;
-	void onCopyPasteAction(const LLSD& command_name) const;
+	void onClipboardAction(const LLSD& command_name) const;
 	void onFoldingAction(const LLSD& command_name);
+	bool isActionChecked(const LLSD& userdata) const;
 	bool isActionEnabled(const LLSD& command_name) const;
 	void onCustomAction(const LLSD& command_name);
+
+	/**
+	 * Determines if selected item can be modified via context/gear menu.
+	 *
+	 * It validates Places Landmarks rules first. And then LLFolderView permissions.
+	 * For now it checks cut/rename/delete/paste actions.
+	 */
+	bool canSelectedBeModified(const std::string& command_name) const;
 	void onPickPanelExit( LLPanelPickEdit* pick_panel, LLView* owner, const LLSD& params);
+
+	/**
+	 * Processes drag-n-drop of the Landmarks and folders into trash button.
+	 */
+	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
 
 private:
 	LLInventorySubTreePanel*	mFavoritesInventoryPanel;

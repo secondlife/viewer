@@ -189,9 +189,9 @@ LLFolderView::LLFolderView(const Params& p)
 	mMinWidth(0),
 	mDragAndDropThisFrame(FALSE),
 	mCallbackRegistrar(NULL),
-	mParentPanel(p.parent_panel)
-,	mUseEllipses(false)
-,	mDraggingOverItem(NULL)
+	mParentPanel(p.parent_panel),
+	mUseEllipses(false),
+	mDraggingOverItem(NULL)
 {
 	LLRect rect = p.rect;
 	LLRect new_rect(rect.mLeft, rect.mBottom + getRect().getHeight(), rect.mLeft + getRect().getWidth(), rect.mBottom);
@@ -1240,7 +1240,9 @@ BOOL LLFolderView::canCut() const
 	{
 		const LLFolderViewItem* item = *selected_it;
 		const LLFolderViewEventListener* listener = item->getListener();
-		if (!listener || !listener->isItemMovable())
+
+		// *WARKAROUND: it is too many places where the "isItemRemovable" method should be changed with "const" modifier
+		if (!listener || !(const_cast<LLFolderViewEventListener*>(listener))->isItemRemovable())
 		{
 			return FALSE;
 		}

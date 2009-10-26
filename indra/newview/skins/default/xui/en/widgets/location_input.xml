@@ -21,7 +21,6 @@
                 >
   <info_button name="Place Information"
                           label=""
-                          tool_tip="See more info about the current location"
                           width="16"
                           height="16"
                           follows="left|top"
@@ -43,8 +42,7 @@
 			  left="-3" />
   <combo_button name="Location History"
                           label=""
-                          pad_right="0"
-                          tool_tip="My location history"/>
+                          pad_right="0"/>
   <combo_list bg_writeable_color="MenuDefaultBgColor" page_lines="10"
               scroll_bar_bg_visible="true" />
   <combo_editor name="Combo Text Entry"

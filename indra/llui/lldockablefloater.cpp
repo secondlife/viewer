@@ -99,7 +99,7 @@ void LLDockableFloater::toggleInstance(const LLSD& sdname)
 	{
 		instance->setMinimized(FALSE);
 		instance->setVisible(TRUE);
-		instance->setFocus(TRUE);
+		gFloaterView->bringToFront(instance);
 	}
 }
 
@@ -136,9 +136,27 @@ void LLDockableFloater::setMinimized(BOOL minimize)
 	{
 		setVisible(FALSE);
 	}
-	setCanDock(!minimize);
+
+	if (minimize)
+	{
+		setCanDock(false);
+	}
+	else if (!minimize && mDockControl.get() != NULL && mDockControl.get()->isDockVisible())
+	{
+		setCanDock(true);
+	}
 
 	LLFloater::setMinimized(minimize);
+}
+
+LLView * LLDockableFloater::getDockWidget()
+{
+	LLView * res = NULL;
+	if (getDockControl() != NULL) {
+		res = getDockControl()->getDock();
+	}
+
+	return res;
 }
 
 void LLDockableFloater::onDockHidden()
@@ -148,7 +166,10 @@ void LLDockableFloater::onDockHidden()
 
 void LLDockableFloater::onDockShown()
 {
-	setCanDock(TRUE);
+	if (!isMinimized())
+	{
+		setCanDock(TRUE);
+	}
 }
 
 void LLDockableFloater::setDocked(bool docked, bool pop_on_undock)

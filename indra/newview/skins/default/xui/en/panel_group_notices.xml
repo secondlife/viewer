@@ -52,6 +52,7 @@ the General tab.
      layout="topleft"
      left_delta="10"
      name="lbl2"
+     text_color="EmphasisColor"
      top_pad="10"
      width="270">
         Notices are kept for 14 days. Notice lists are limited to 200 notices per group on a daily basis.
@@ -135,6 +136,7 @@ the General tab.
          left="10"
          mouse_opaque="false"
          name="lbl"
+         text_color="EmphasisColor"
          top_pad="0"
          width="265">
             Create a Notice
@@ -147,6 +149,7 @@ the General tab.
          layout="topleft"
          left_delta="0"
          name="lbl2"
+         text_color="EmphasisColor"
          top_pad="4"
          width="195">
             You can add a single item to a notice by dragging it from your inventory to this panel. Attached items must be copiable and transferrable, and you can&apos;t send a folder.
@@ -289,6 +292,7 @@ the General tab.
          left="10"
          mouse_opaque="false"
          name="lbl"
+         text_color="EmphasisColor"
          top_pad="0"
          width="265">
             Archived Notice
@@ -302,7 +306,7 @@ the General tab.
          name="lbl2"
          top_pad="4"
          width="265">
-            To send a new notice, click the &apos;Create New Notice&apos; button above.
+            To send a new notice, click the &apos;New Notice&apos; button above.
         </text>
         <text
          type="string"

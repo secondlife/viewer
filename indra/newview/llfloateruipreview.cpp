@@ -553,32 +553,33 @@ void LLFloaterUIPreview::onLanguageComboSelect(LLUICtrl* ctrl)
 
 void LLFloaterUIPreview::onClickExportSchema()
 {
-	gViewerWindow->setCursor(UI_CURSOR_WAIT);
-	std::string template_path = gDirUtilp->getExpandedFilename(LL_PATH_DEFAULT_SKIN, "xui", "schema");
+	//NOTE: schema generation not complete
+	//gViewerWindow->setCursor(UI_CURSOR_WAIT);
+	//std::string template_path = gDirUtilp->getExpandedFilename(LL_PATH_DEFAULT_SKIN, "xui", "schema");
 
-	typedef LLWidgetTypeRegistry::Registrar::registry_map_t::const_iterator registry_it;
-	registry_it end_it = LLWidgetTypeRegistry::defaultRegistrar().endItems();
-	for(registry_it it = LLWidgetTypeRegistry::defaultRegistrar().beginItems();
-		it != end_it;
-		++it)
-	{
-		std::string widget_name = it->first;
-		const LLInitParam::BaseBlock& block = 
-			(*LLDefaultParamBlockRegistry::instance().getValue(*LLWidgetTypeRegistry::instance().getValue(widget_name)))();
-		LLXMLNodePtr root_nodep = new LLXMLNode();
-		LLRNGWriter().writeRNG(widget_name, root_nodep, block, "http://www.lindenlab.com/xui");
+	//typedef LLWidgetTypeRegistry::Registrar::registry_map_t::const_iterator registry_it;
+	//registry_it end_it = LLWidgetTypeRegistry::defaultRegistrar().endItems();
+	//for(registry_it it = LLWidgetTypeRegistry::defaultRegistrar().beginItems();
+	//	it != end_it;
+	//	++it)
+	//{
+	//	std::string widget_name = it->first;
+	//	const LLInitParam::BaseBlock& block = 
+	//		(*LLDefaultParamBlockRegistry::instance().getValue(*LLWidgetTypeRegistry::instance().getValue(widget_name)))();
+	//	LLXMLNodePtr root_nodep = new LLXMLNode();
+	//	LLRNGWriter().writeRNG(widget_name, root_nodep, block, "http://www.lindenlab.com/xui");
 
-		std::string file_name(template_path + gDirUtilp->getDirDelimiter() + widget_name + ".rng");
+	//	std::string file_name(template_path + gDirUtilp->getDirDelimiter() + widget_name + ".rng");
 
-		LLFILE* rng_file = LLFile::fopen(file_name.c_str(), "w");
-		{
-			LLXMLNode::writeHeaderToFile(rng_file);
-			const bool use_type_decorations = false;
-			root_nodep->writeToFile(rng_file, std::string(), use_type_decorations);
-		}
-		fclose(rng_file);
-	}
-	gViewerWindow->setCursor(UI_CURSOR_ARROW);
+	//	LLFILE* rng_file = LLFile::fopen(file_name.c_str(), "w");
+	//	{
+	//		LLXMLNode::writeHeaderToFile(rng_file);
+	//		const bool use_type_decorations = false;
+	//		root_nodep->writeToFile(rng_file, std::string(), use_type_decorations);
+	//	}
+	//	fclose(rng_file);
+	//}
+	//gViewerWindow->setCursor(UI_CURSOR_ARROW);
 }
 
 void LLFloaterUIPreview::onClickShowRectangles(const LLSD& data)

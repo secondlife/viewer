@@ -2,7 +2,7 @@
 <panel
  border="true"
  follows="all"
- height="410"
+ height="510"
  label="Land &amp; L$"
  layout="topleft"
  left="1"
@@ -194,7 +194,7 @@
      left_pad="5"
      name="your_contribution_units"
      top_delta="2">
-        ( m² )
+        m²
     </text>
      <text
      type="string"
@@ -239,13 +239,14 @@
      layout="topleft"
      left="10"
      name="group_money_heading"
+     text_color="EmphasisColor"
      top_pad="0"
      width="150">
         Group L$
     </text>
     <tab_container
      follows="all"
-     height="100"
+     height="200"
      layout="topleft"
      left="10"
      name="group_money_tab_container"
@@ -268,13 +269,14 @@
              bg_readonly_color="0.784314 0.819608 0.8 1"
              follows="all"
              font="Monospace"
-             height="172"
+             height="168"
              layout="topleft"
              left="8"
              max_length="4096"
              name="group_money_planning_text"
              top="5"
-             width="250">
+             width="250"
+             word_wrap="true">
                 Computing...
             </text_editor>
         </panel>
@@ -300,7 +302,8 @@
              max_length="4096"
              name="group_money_details_text"
              top="7"
-             width="250">
+             width="250"
+             word_wrap="true">
                 Computing...
             </text_editor> 
           <button
@@ -346,7 +349,8 @@
              max_length="4096"
              name="group_money_sales_text"
              top="7"
-             width="250">
+             width="250"
+             word_wrap="true">
                 Computing...
             </text_editor>
             <button
