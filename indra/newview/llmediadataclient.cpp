@@ -367,8 +367,9 @@ BOOL LLMediaDataClient::QueueTimer::tick()
 	// Peel one off of the items from the queue, and execute request
 	request_ptr_t request = queue.top();
 	llassert(!request.isNull());
-	const LLMediaDataClientObject *object = request->getObject();
+	const LLMediaDataClientObject *object = (request.isNull()) ? NULL : request->getObject();
 	bool performed_request = false;
+	bool error = false;
 	llassert(NULL != object);
 	if (NULL != object && object->hasMedia())
 	{
@@ -387,7 +388,11 @@ BOOL LLMediaDataClient::QueueTimer::tick()
 		}
 	}
 	else {
-		if (NULL == object) 
+		if (request.isNull()) 
+		{
+			LL_WARNS("LLMediaDataClient") << "Not Sending request: NULL request!" << LL_ENDL;
+		}
+		else if (NULL == object) 
 		{
 			LL_WARNS("LLMediaDataClient") << "Not Sending request for " << *request << " NULL object!" << LL_ENDL;
 		}
@@ -395,9 +400,10 @@ BOOL LLMediaDataClient::QueueTimer::tick()
 		{
 			LL_WARNS("LLMediaDataClient") << "Not Sending request for " << *request << " hasMedia() is false!" << LL_ENDL;
 		}
+		error = true;
 	}
 	bool exceeded_retries = request->getRetryCount() > mMDC->mMaxNumRetries;
-	if (performed_request || exceeded_retries) // Try N times before giving up 
+	if (performed_request || exceeded_retries || error) // Try N times before giving up 
 	{
 		if (exceeded_retries)
 		{
