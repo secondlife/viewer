@@ -42,7 +42,8 @@
 //-----------------------------------------------------------------------------
 LLTexLayerParam::LLTexLayerParam(LLTexLayerInterface *layer) :
 	mTexLayer(layer),
-	mAvatar(NULL)
+	mAvatar(NULL),
+	mIsWearableParam(TRUE)
 {
 	if (mTexLayer != NULL)
 	{
@@ -55,7 +56,8 @@ LLTexLayerParam::LLTexLayerParam(LLTexLayerInterface *layer) :
 }
 
 LLTexLayerParam::LLTexLayerParam(LLVOAvatar *avatar) :
-	mTexLayer(NULL)
+	mTexLayer(NULL),
+	mIsWearableParam(FALSE)
 {
 	mAvatar = avatar;
 }
@@ -175,16 +177,15 @@ void LLTexLayerParamAlpha::setWeight(F32 weight, BOOL set_by_user)
 	{
 		mCurWeight = new_weight;
 
-		LLVOAvatar* avatar = mTexLayer->getTexLayerSet()->getAvatar();
-		if (avatar->getSex() & getSex())
+		if ((mAvatar->getSex() & getSex()) && !mIsWearableParam) // only trigger a baked texture update if we're changing a wearable's visual param.
 		{
 			if (gAgent.cameraCustomizeAvatar())
 			{
 				set_by_user = FALSE;
 			}
-			avatar->invalidateComposite(mTexLayer->getTexLayerSet(), set_by_user);
+			mAvatar->invalidateComposite(mTexLayer->getTexLayerSet(), set_by_user);
 			mTexLayer->invalidateMorphMasks();
-			avatar->updateMeshTextures();
+			mAvatar->updateMeshTextures();
 		}
 	}
 }
@@ -467,14 +468,16 @@ void LLTexLayerParamColor::setWeight(F32 weight, BOOL set_by_user)
 			return;
 		}
 
-		if (mAvatar->getSex() & getSex())
+		if ((mAvatar->getSex() & getSex()) && !mIsWearableParam) // only trigger a baked texture update if we're changing a wearable's visual param.
 		{
 			onGlobalColorChanged(set_by_user);
 			if (mTexLayer)
 			{
 				mAvatar->invalidateComposite(mTexLayer->getTexLayerSet(), set_by_user);
+				mAvatar->updateMeshTextures();
 			}
 		}
+
 //		llinfos << "param " << mName << " = " << new_weight << llendl;
 	}
 }
