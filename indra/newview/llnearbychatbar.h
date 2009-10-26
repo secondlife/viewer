@@ -62,6 +62,9 @@ public:
 	virtual void changed() { refreshGestures(); }
 
 protected:
+
+	virtual void showList();
+
 	LLFrameTimer mGestureLabelTimer;
 	std::vector<LLMultiGesture*> mGestures;
 	std::string mLabel;
