@@ -52,8 +52,9 @@
      height="535"
      layout="topleft"
      left="10"
+ min_width="333"
      name="tabs"
-     tab_min_width="95"
+     tab_min_width="80"
      tab_height="30"
      tab_position="top"
      top_pad="10"
@@ -61,21 +62,21 @@
         <panel
          class="panel_profile"
          filename="panel_profile.xml"
-         label="Profile"
+         label="PROFILE"
          layout="topleft"
          help_topic="profile_profile_tab"
          name="panel_profile" />
         <panel
          class="panel_picks"
          filename="panel_picks.xml"
-         label="Picks"
+         label="PICKS"
          layout="topleft"
          help_topic="profile_picks_tab"
          name="panel_picks" />
         <panel
          class="panel_notes"
          filename="panel_notes.xml"
-         label="Notes &amp; Privacy"
+         label="NOTES &amp; PRIVACY"
          layout="topleft"
          help_topic="profile_notes_tab"
          name="panel_notes" />

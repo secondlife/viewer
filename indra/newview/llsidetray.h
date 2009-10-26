@@ -69,7 +69,7 @@ public:
 	static bool			instanceCreated	();
 protected:
 	LLSideTray(Params& params);
-	typedef std::vector<LLView*> child_vector_t;
+	typedef std::vector<LLSideTrayTab*> child_vector_t;
 	typedef child_vector_t::iterator					child_vector_iter_t;
 	typedef child_vector_t::const_iterator  			child_vector_const_iter_t;
 	typedef child_vector_t::reverse_iterator 			child_vector_reverse_iter_t;
