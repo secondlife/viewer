@@ -114,6 +114,7 @@ public:
 	void			setWearableName(const LLUUID& item_id, const std::string& new_name);
 	void			addLocalTextureObject(const EWearableType wearable_type, const LLVOAvatarDefines::ETextureIndex texture_type, U32 wearable_index);
 	U32				getWearableIndex(LLWearable *wearable);
+
 protected:
 	void			setWearableFinal(LLInventoryItem* new_item, LLWearable* new_wearable, bool do_append = false);
 	static bool		onSetWearableDialog(const LLSD& notification, const LLSD& response, LLWearable* wearable);
