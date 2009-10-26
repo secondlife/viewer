@@ -8,9 +8,7 @@ include(Linking)
 include(Boost)
 include (Pth)
 
-if (WINDOWS)
-    include(CopyWinLibs)
-endif (WINDOWS)
+include(Copy3rdPartyLibs)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
