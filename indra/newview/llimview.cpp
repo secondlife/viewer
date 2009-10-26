@@ -1991,6 +1991,12 @@ void LLIMMgr::processIMTypingCore(const LLIMInfo* im_info, BOOL typing)
 	{
 		floater->processIMTyping(im_info, typing);
 	}
+
+	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+	if ( im_floater )
+	{
+		im_floater->processIMTyping(im_info, typing);
+	}
 }
 
 class LLViewerChatterBoxSessionStartReply : public LLHTTPNode

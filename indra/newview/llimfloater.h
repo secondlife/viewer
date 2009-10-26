@@ -55,6 +55,8 @@ public:
 	// LLView overrides
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void setVisible(BOOL visible);
+	// Check typing timeout timer.
+	/*virtual*/ void draw();
 
 	// LLFloater overrides
 	/*virtual*/ void onClose(bool app_quitting);
@@ -85,6 +87,7 @@ public:
 	void setPositioned(bool b) { mPositioned = b; };
 
 	void onVisibilityChange(const LLSD& new_visibility);
+	void processIMTyping(const LLIMInfo* im_info, BOOL typing);
 
 private:
 	// process focus events to set a currently active session
@@ -94,7 +97,7 @@ private:
 	static void		onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata );
 	static void		onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
 	static void		onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
-	void			setTyping(BOOL typing);
+	void			setTyping(bool typing);
 	void			onSlide();
 	static void*	createPanelIMControl(void* userdata);
 	static void*	createPanelGroupControl(void* userdata);
@@ -103,6 +106,11 @@ private:
 
 	static void chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata);
 
+	// Add the "User is typing..." indicator.
+	void addTypingIndicator(const LLIMInfo* im_info);
+
+	// Remove the "User is typing..." indicator.
+	void removeTypingIndicator(const LLIMInfo* im_info = NULL);
 
 	LLPanelChatControlPanel* mControlPanel;
 	LLUUID mSessionID;
@@ -113,6 +121,14 @@ private:
 	LLChatHistory* mChatHistory;
 	LLLineEditor* mInputEditor;
 	bool mPositioned;
+
+	std::string mSavedTitle;
+	LLUIString mTypingStart;
+	bool mMeTyping;
+	bool mOtherTyping;
+	bool mShouldSendTypingState;
+	LLFrameTimer mTypingTimer;
+	LLFrameTimer mTypingTimeoutTimer;
 
 	bool mSessionInitialized;
 	LLSD mQueuedMsgsForInit;
