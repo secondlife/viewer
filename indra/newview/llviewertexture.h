@@ -118,10 +118,10 @@ public:
 		BOOST_SELECTED		= 12,
 		BOOST_HUD			= 13,
 		BOOST_AVATAR_BAKED_SELF	= 14,
-		BOOST_UI			= 15,
-		BOOST_PREVIEW		= 16,
-		BOOST_MAP			= 17,
-		BOOST_MAP_LAYER		= 18,
+		BOOST_ICON			= 15,
+		BOOST_UI			= 16,
+		BOOST_PREVIEW		= 17,
+		BOOST_MAP			= 18,
 		BOOST_AVATAR_SELF	= 19, // needed for baking avatar
 		BOOST_MAX_LEVEL
 	};
