@@ -297,10 +297,11 @@ public:
 	bool endCall(const LLUUID& session_id);
 
 private:
-	// This removes the panel referenced by the uuid, and then
-	// restores internal consistency. The internal pointer is not
-	// deleted.
-	void removeSession(LLUUID session_id);
+
+	/**
+	 * Remove data associated with a particular session specified by session_id
+	 */
+	void removeSession(const LLUUID& session_id);
 
 	// create a panel and update internal representation for
 	// consistency. Returns the pointer, caller (the class instance
@@ -341,9 +342,6 @@ private:
 
 	LLSD mPendingInvitations;
 	LLSD mPendingAgentListUpdates;
-	// ID of a session that is being removed: observers are already told
-	// that this session is being removed, but it is still present in the sessions' map
-	LLUUID	mBeingRemovedSessionID;
 };
 
 class LLIncomingCallDialog : public LLModalDialog

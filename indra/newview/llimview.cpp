@@ -1405,10 +1405,7 @@ S32 LLIMMgr::getNumberOfUnreadIM()
 	S32 num = 0;
 	for(it = LLIMModel::sSessionsMap.begin(); it != LLIMModel::sSessionsMap.end(); ++it)
 	{
-		if((*it).first != mBeingRemovedSessionID)
-		{
-			num += (*it).second->mNumUnread;
-		}
+		num += (*it).second->mNumUnread;
 	}
 
 	return num;
@@ -1517,41 +1514,25 @@ bool LLIMMgr::leaveSession(const LLUUID& session_id)
 	return true;
 }
 
-// This removes the panel referenced by the uuid, and then restores
-// internal consistency. The internal pointer is not deleted? Did you mean
-// a pointer to the corresponding LLIMSession? Session data is cleared now.
-// Put a copy of UUID to avoid problem when passed reference becames invalid
-// if it has been come from the object removed in observer.
-void LLIMMgr::removeSession(LLUUID session_id)
+// Removes data associated with a particular session specified by session_id
+void LLIMMgr::removeSession(const LLUUID& session_id)
 {
-	if (mBeingRemovedSessionID == session_id)
-	{
-		return;
-	}
+	llassert_always(hasSession(session_id));
 	
+	//*TODO remove this floater thing when Communicate Floater is being deleted (IB)
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
 	if(floater)
 	{
 		mFloaters.erase(floater->getHandle());
 		LLFloaterChatterBox::getInstance()->removeFloater(floater);
-		//mTabContainer->removeTabPanel(floater);
-
-		clearPendingInvitation(session_id);
-		clearPendingAgentListUpdates(session_id);
 	}
 
-	// for some purposes storing ID of a sessios that is being removed
-	mBeingRemovedSessionID = session_id;
-	notifyObserverSessionRemoved(session_id);
+	clearPendingInvitation(session_id);
+	clearPendingAgentListUpdates(session_id);
 
-	//if we don't clear session data on removing the session
-	//we can't use LLBottomTray as observer of session creation/delettion and 
-	//creating chiclets only on session created even, we need to handle chiclets creation
-	//the same way as LLFloaterIMPanels were managed.
 	LLIMModel::getInstance()->clearSession(session_id);
 
-	// now this session is completely removed
-	mBeingRemovedSessionID.setNull();
+	notifyObserverSessionRemoved(session_id);
 }
 
 void LLIMMgr::inviteToSession(
