@@ -615,6 +615,10 @@ void LLPanelPeople::updateButtons()
 	bool recent_tab_active	= (cur_tab == RECENT_TAB_NAME);
 	LLUUID selected_id;
 
+	std::vector<LLUUID> selected_uuids;
+	getCurrentItemIDs(selected_uuids);
+	bool item_selected = (selected_uuids.size() == 1);
+
 	buttonSetVisible("group_info_btn",		group_tab_active);
 	buttonSetVisible("chat_btn",			group_tab_active);
 	buttonSetVisible("add_friend_btn",		nearby_tab_active || recent_tab_active);
@@ -625,7 +629,6 @@ void LLPanelPeople::updateButtons()
 
 	if (group_tab_active)
 	{
-		bool item_selected = mGroupList->getSelectedItem() != NULL;
 		bool cur_group_active = true;
 
 		if (item_selected)
@@ -633,7 +636,7 @@ void LLPanelPeople::updateButtons()
 			selected_id = mGroupList->getSelectedUUID();
 			cur_group_active = (gAgent.getGroupID() == selected_id);
 		}
-	
+
 		LLPanel* groups_panel = mTabContainer->getCurrentPanel();
 		groups_panel->childSetEnabled("activate_btn",	item_selected && !cur_group_active); // "none" or a non-active group selected
 		groups_panel->childSetEnabled("plus_btn",		item_selected);
@@ -644,18 +647,18 @@ void LLPanelPeople::updateButtons()
 		bool is_friend = true;
 
 		// Check whether selected avatar is our friend.
-		if ((selected_id = getCurrentItemID()).notNull())
+		if (item_selected)
 		{
+			selected_id = selected_uuids.front();
 			is_friend = LLAvatarTracker::instance().getBuddyInfo(selected_id) != NULL;
 		}
 
 		childSetEnabled("add_friend_btn",	!is_friend);
 	}
 
-	bool item_selected = selected_id.notNull();
 	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected);
 	buttonSetEnabled("view_profile_btn",	item_selected);
-	buttonSetEnabled("im_btn",				item_selected);
+	buttonSetEnabled("im_btn",				(selected_uuids.size() >= 1)); // allow starting the friends conference for multiple selection
 	buttonSetEnabled("call_btn",			item_selected && false); // not implemented yet
 	buttonSetEnabled("share_btn",			item_selected && false); // not implemented yet
 	buttonSetEnabled("group_info_btn",		item_selected);
@@ -881,7 +884,17 @@ void LLPanelPeople::onAddFriendWizButtonClicked()
 
 void LLPanelPeople::onDeleteFriendButtonClicked()
 {
-	LLAvatarActions::removeFriendDialog(getCurrentItemID());
+	std::vector<LLUUID> selected_uuids;
+	getCurrentItemIDs(selected_uuids);
+
+	if (selected_uuids.size() == 1)
+	{
+		LLAvatarActions::removeFriendDialog( selected_uuids.front() );
+	}
+	else if (selected_uuids.size() > 1)
+	{
+		LLAvatarActions::removeFriendsDialog( selected_uuids );
+	}
 }
 
 void LLPanelPeople::onGroupInfoButtonClicked()
