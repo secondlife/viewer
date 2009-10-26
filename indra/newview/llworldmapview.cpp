@@ -368,7 +368,7 @@ void LLWorldMapView::draw()
 			continue;
 		}
 		
-		current_image->setBoostLevel(LLViewerTexture::BOOST_MAP_LAYER);
+		current_image->setBoostLevel(LLViewerTexture::BOOST_MAP);
 		current_image->setKnownDrawSize(llround(pix_width * LLUI::sGLScaleFactor.mV[VX]), llround(pix_height * LLUI::sGLScaleFactor.mV[VY]));
 		
 		if (!current_image->hasGLTexture())
