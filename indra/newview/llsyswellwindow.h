@@ -76,6 +76,7 @@ public:
 	void onItemClose(LLSysWellItem* item);
 	void onStoreToast(LLPanel* info_panel, LLUUID id);
 	void onChicletClick();
+	void onStartUpToastClick(S32 x, S32 y, MASK mask);
 
 	// size constants for the window and for its elements
 	static const S32 MAX_WINDOW_HEIGHT		= 200;

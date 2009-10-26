@@ -519,6 +519,7 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 	LLRect toast_rect;
 	LLToast::Params p;
 	p.lifetime_secs = timer;
+	p.enable_hide_btn = false;
 	mStartUpToastPanel = new LLToast(p);
 
 	if(!mStartUpToastPanel)
