@@ -104,18 +104,35 @@ public:
 	boost::signals2::connection addNewMsgCallback( session_callback_t cb ) { return mNewMsgSignal.connect(cb); }
 	boost::signals2::connection addNoUnreadMsgsCallback( session_callback_t cb ) { return mNoUnreadMsgsSignal.connect(cb); }
 
-	bool newSession(LLUUID session_id, std::string name, EInstantMessage type, LLUUID other_participant_id, 
+	/**
+	 * Create new session object in a model
+	 */
+	bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, 
 		const std::vector<LLUUID>& ids = std::vector<LLUUID>());
-	bool clearSession(LLUUID session_id);
-	std::list<LLSD> getMessages(LLUUID session_id, int start_index = 0);
 
-	bool addMessage(LLUUID session_id, std::string from, LLUUID other_participant_id, std::string utf8_text, bool log2file = true);
-	bool addToHistory(LLUUID session_id, std::string from, LLUUID from_id, std::string utf8_text); 
+	/**
+	 * Remove all session data associated with a session specified by session_id
+	 */
+	bool clearSession(const LLUUID& session_id);
 
-	bool logToFile(const LLUUID& session_id, const std::string& from, const std::string& utf8_text);
+	/**
+	 * Populate supplied std::list with messages starting from index specified by start_index
+	 */
+	void getMessages(const LLUUID& session_id, std::list<LLSD>& messages, int start_index = 0);
 
-	//used to get the name of the session, for use as the title
-	//currently just the other avatar name
+	/**
+	 * Add a message to an IM Model - the message is saved in a message store associated with a session specified by session_id
+	 * and also saved into a file if log2file is specified.
+	 * It sends new message signal for each added message.
+	 */
+	bool addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& other_participant_id, const std::string& utf8_text, bool log2file = true);
+	
+	/**
+	 * Get a session's name. 
+	 * For a P2P chat - it's an avatar's name, 
+	 * For a group chat - it's a group's name
+	 * For an ad-hoc chat - is received from the server and is in a from of "<Avatar's name> conference"
+	 */
 	const std::string& getName(const LLUUID& session_id) const;
 
 	/** 
@@ -150,7 +167,7 @@ public:
 	*/
 	LLIMSpeakerMgr* getSpeakerManager(const LLUUID& session_id) const;
 
-	static void sendLeaveSession(LLUUID session_id, LLUUID other_participant_id);
+	static void sendLeaveSession(const LLUUID& session_id, const LLUUID& other_participant_id);
 	static bool sendStartSession(const LLUUID& temp_session_id, const LLUUID& other_participant_id,
 						  const std::vector<LLUUID>& ids, EInstantMessage dialog);
 	static void sendTypingState(LLUUID session_id, LLUUID other_participant_id, BOOL typing);
@@ -158,6 +175,19 @@ public:
 								const LLUUID& other_participant_id, EInstantMessage dialog);
 
 	void testMessages();
+
+private:
+	
+	/**
+	 * Add message to a list of message associated with session specified by session_id
+	 */
+	bool addToHistory(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text); 
+
+	/**
+	 * Save an IM message into a file
+	 */
+	//*TODO should also save uuid of a sender
+	bool logToFile(const LLUUID& session_id, const std::string& from, const std::string& utf8_text);
 };
 
 class LLIMSessionObserver

@@ -272,7 +272,8 @@ void LLIMModel::testMessages()
 }
 
 
-bool LLIMModel::newSession(LLUUID session_id, std::string name, EInstantMessage type, LLUUID other_participant_id, const std::vector<LLUUID>& ids)
+bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, 
+						   const LLUUID& other_participant_id, const std::vector<LLUUID>& ids)
 {
 	if (is_in_map(sSessionsMap, session_id))
 	{
@@ -289,7 +290,7 @@ bool LLIMModel::newSession(LLUUID session_id, std::string name, EInstantMessage 
 
 }
 
-bool LLIMModel::clearSession(LLUUID session_id)
+bool LLIMModel::clearSession(const LLUUID& session_id)
 {
 	if (sSessionsMap.find(session_id) == sSessionsMap.end()) return false;
 	delete (sSessionsMap[session_id]);
@@ -297,16 +298,13 @@ bool LLIMModel::clearSession(LLUUID session_id)
 	return true;
 }
 
-//*TODO remake it, instead of returing the list pass it as as parameter (IB)
-std::list<LLSD> LLIMModel::getMessages(LLUUID session_id, int start_index)
+void LLIMModel::getMessages(const LLUUID& session_id, std::list<LLSD>& messages, int start_index)
 {
-	std::list<LLSD> return_list;
-
 	LLIMSession* session = findIMSession(session_id);
 	if (!session) 
 	{
 		llwarns << "session " << session_id << "does not exist " << llendl;
-		return return_list;
+		return;
 	}
 
 	int i = session->mMsgs.size() - start_index;
@@ -317,7 +315,7 @@ std::list<LLSD> LLIMModel::getMessages(LLUUID session_id, int start_index)
 	{
 		LLSD msg;
 		msg = *iter;
-		return_list.push_back(*iter);
+		messages.push_back(*iter);
 		i--;
 	}
 
@@ -327,14 +325,9 @@ std::list<LLSD> LLIMModel::getMessages(LLUUID session_id, int start_index)
 	arg["session_id"] = session_id;
 	arg["num_unread"] = 0;
 	mNoUnreadMsgsSignal(arg);
-
-    // TODO: in the future is there a more efficient way to return these
-	//of course there is - return as parameter (IB)
-	return return_list;
-
 }
 
-bool LLIMModel::addToHistory(LLUUID session_id, std::string from, LLUUID from_id, std::string utf8_text) { 
+bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text) {
 	
 	LLIMSession* session = findIMSession(session_id);
 
@@ -383,8 +376,8 @@ bool LLIMModel::logToFile(const LLUUID& session_id, const std::string& from, con
 	return false;
 }
 
-//*TODO add const qualifier and pass by references (IB)
-bool LLIMModel::addMessage(LLUUID session_id, std::string from, LLUUID from_id, std::string utf8_text, bool log2file /* = true */) { 
+bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, 
+						   const std::string& utf8_text, bool log2file /* = true */) { 
 	LLIMSession* session = findIMSession(session_id);
 
 	if (!session) 
@@ -506,7 +499,7 @@ void LLIMModel::sendTypingState(LLUUID session_id, LLUUID other_participant_id, 
 	gAgent.sendReliableMessage();
 }
 
-void LLIMModel::sendLeaveSession(LLUUID session_id, LLUUID other_participant_id) 
+void LLIMModel::sendLeaveSession(const LLUUID& session_id, const LLUUID& other_participant_id)
 {
 	if(session_id.notNull())
 	{

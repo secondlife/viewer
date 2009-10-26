@@ -402,7 +402,8 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 
 void LLIMFloater::updateMessages()
 {
-	std::list<LLSD> messages = LLIMModel::instance().getMessages(mSessionID, mLastMessageIndex+1);
+	std::list<LLSD> messages;
+	LLIMModel::instance().getMessages(mSessionID, messages, mLastMessageIndex+1);
 	std::string agent_name;
 
 	gCacheName->getFullName(gAgentID, agent_name);
