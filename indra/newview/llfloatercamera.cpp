@@ -50,6 +50,8 @@ const F32 CAMERA_BUTTON_DELAY = 0.0f;
 
 #define ORBIT "cam_rotate_stick"
 #define PAN "cam_track_stick"
+#define ZOOM "zoom"
+#define PRESETS "camera_presets"
 #define CONTROLS "controls"
 
 
@@ -145,7 +147,7 @@ BOOL LLFloaterCamera::postBuild()
 	setIsChrome(TRUE);
 
 	mRotate = getChild<LLJoystickCameraRotate>(ORBIT);
-	mZoom = getChild<LLJoystickCameraZoom>("zoom");
+	mZoom = getChild<LLJoystickCameraZoom>(ZOOM);
 	mTrack = getChild<LLJoystickCameraTrack>(PAN);
 
 	assignButton2Mode(CAMERA_CTRL_MODE_ORBIT,			"orbit_btn");
@@ -216,7 +218,6 @@ void LLFloaterCamera::switchMode(ECameraControlMode mode)
 		break;
 
 	case CAMERA_CTRL_MODE_AVATAR_VIEW:
-		gAgent.changeCameraToMouselook();
 		break;
 
 	default:
@@ -252,15 +253,13 @@ void LLFloaterCamera::updateState()
 		iter->second->setToggleState(iter->first == mCurrMode);
 	}
 
-	//updating controls
-	bool isOrbitMode = CAMERA_CTRL_MODE_ORBIT == mCurrMode;
-	bool isPanMode = CAMERA_CTRL_MODE_PAN == mCurrMode;
-
-	childSetVisible(ORBIT, isOrbitMode);
-	childSetVisible(PAN, isPanMode);
+	childSetVisible(ORBIT, CAMERA_CTRL_MODE_ORBIT == mCurrMode);
+	childSetVisible(PAN, CAMERA_CTRL_MODE_PAN == mCurrMode);
+	childSetVisible(ZOOM, CAMERA_CTRL_MODE_AVATAR_VIEW != mCurrMode);
+	childSetVisible(PRESETS, CAMERA_CTRL_MODE_AVATAR_VIEW == mCurrMode);
 
 	//hiding or showing the panel with controls by reshaping the floater
-	bool showControls = isOrbitMode || isPanMode;
+	bool showControls = CAMERA_CTRL_MODE_FREE_CAMERA != mCurrMode;
 	if (showControls == childIsVisible(CONTROLS)) return;
 
 	childSetVisible(CONTROLS, showControls);
@@ -289,29 +288,7 @@ void LLFloaterCamera::updateState()
 	}
 }
 
-//-------------LLFloaterCameraPresets------------------------
-
-LLFloaterCameraPresets::LLFloaterCameraPresets(const LLSD& key):
-LLTransientDockableFloater(NULL, true, key)
-{}
-
-BOOL LLFloaterCameraPresets::postBuild()
-{
-	setIsChrome(TRUE);
-
-	//build dockTongue 
-	LLDockableFloater::postBuild();
-	 
-	LLButton *anchor_btn = LLBottomTray::getInstance()->getChild<LLButton>("camera_presets_btn");
-
-		setDockControl(new LLDockControl(
-			anchor_btn, this,
-			getDockTongue(), LLDockControl::TOP));
-		return TRUE;
-}
-
-/*static*/
-void LLFloaterCameraPresets::onClickCameraPresets(LLUICtrl* ctrl, const LLSD& param)
+void LLFloaterCamera::onClickCameraPresets(const LLSD& param)
 {
 	std::string name = param.asString();
 
@@ -326,6 +303,10 @@ void LLFloaterCameraPresets::onClickCameraPresets(LLUICtrl* ctrl, const LLSD& pa
 	else if ("front_view" == name)
 	{
 		gAgent.switchCameraPreset(CAMERA_PRESET_FRONT_VIEW);
+	}
+	else if ("mouselook_view" == name)
+	{
+		gAgent.changeCameraToMouselook();
 	}
 
 }

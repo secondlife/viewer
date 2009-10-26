@@ -4,7 +4,7 @@
 <button
  follows="left|bottom"
  halign="center"
- height="23"
+ height="15"
  image_disabled="transparent.j2c"
  image_disabled_selected="transparent.j2c"
  image_selected="transparent.j2c"

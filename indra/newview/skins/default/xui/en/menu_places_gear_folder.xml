@@ -118,7 +118,7 @@
      layout="topleft"
      name="sort_by_date">
         <on_check
-         function="Places.LandmarksGear.Enable"
+         function="Places.LandmarksGear.Check"
          parameter="sort_by_date" />
         <on_click
          function="Places.LandmarksGear.Folding.Action"

@@ -375,6 +375,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>AutoPlayMedia</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow media objects to automatically play or navigate?</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>AutoSnapshot</key>
     <map>
       <key>Comment</key>

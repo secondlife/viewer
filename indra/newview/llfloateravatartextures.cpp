@@ -81,15 +81,23 @@ static void update_texture_ctrl(LLVOAvatar* avatarp,
 								 ETextureIndex te)
 {
 	LLUUID id = IMG_DEFAULT_AVATAR;
-	EWearableType wearable_type = LLVOAvatarDictionary::getInstance()->getTEWearableType(te);
-	LLWearable *wearable = gAgentWearables.getWearable(wearable_type, 0);
-	if (wearable)
+	const LLVOAvatarDictionary::TextureEntry* tex_entry = LLVOAvatarDictionary::getInstance()->getTexture(te);
+	if (tex_entry->mIsLocalTexture)
 	{
-		LLLocalTextureObject *lto = wearable->getLocalTextureObject(te);
-		if (lto)
+		const EWearableType wearable_type = tex_entry->mWearableType;
+		LLWearable *wearable = gAgentWearables.getWearable(wearable_type, 0);
+		if (wearable)
 		{
-			id = lto->getID();
+			LLLocalTextureObject *lto = wearable->getLocalTextureObject(te);
+			if (lto)
+			{
+				id = lto->getID();
+			}
 		}
+	}
+	else
+	{
+		id = avatarp->getTE(te)->getID();
 	}
 	//id = avatarp->getTE(te)->getID();
 	if (id == IMG_DEFAULT_AVATAR)

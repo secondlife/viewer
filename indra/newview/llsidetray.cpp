@@ -334,14 +334,19 @@ LLSideTrayTab* LLSideTray::getTab(const std::string& name)
 }
 
 
-void LLSideTray::toggleTabButton	(LLSideTrayTab* tab)
+void LLSideTray::toggleTabButton(LLSideTrayTab* tab)
 {
 	if(tab == NULL)
 		return;
-	string name = tab->getName();
-	std::map<std::string,LLButton*>::iterator tIt = mTabButtons.find(name);
-	if(tIt!=mTabButtons.end())
-		tIt->second->setToggleState(!tIt->second->getToggleState());
+	std::string name = tab->getName();
+	std::map<std::string,LLButton*>::iterator it = mTabButtons.find(name);
+	if(it != mTabButtons.end())
+	{
+		LLButton* btn = it->second;
+		bool new_state = !btn->getToggleState();
+		btn->setToggleState(new_state); 
+		btn->setImageOverlay( new_state ? tab->mImageSelected : tab->mImage );
+	}
 }
 
 bool LLSideTray::selectTabByIndex(size_t index)
@@ -349,9 +354,7 @@ bool LLSideTray::selectTabByIndex(size_t index)
 	if(index>=mTabs.size())
 		return false;
 
-	LLSideTrayTab* sidebar_tab = dynamic_cast<LLSideTrayTab*>(mTabs[index]);
-	if(sidebar_tab == NULL)
-		return false;
+	LLSideTrayTab* sidebar_tab = mTabs[index];
 	return selectTabByName(sidebar_tab->getName());
 }
 
@@ -380,9 +383,7 @@ bool LLSideTray::selectTabByName	(const std::string& name)
 	child_vector_const_iter_t child_it;
 	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
 	{
-		LLSideTrayTab* sidebar_tab = dynamic_cast<LLSideTrayTab*>(*child_it);
-		if(sidebar_tab == NULL)
-			continue;
+		LLSideTrayTab* sidebar_tab = *child_it;
 		sidebar_tab->setVisible(sidebar_tab  == mActiveTab);
 	}
 	return true;
@@ -439,9 +440,7 @@ void	LLSideTray::createButtons	()
 	child_vector_const_iter_t child_it = mTabs.begin();
 	for ( ; child_it != mTabs.end(); ++child_it)
 	{
-		LLSideTrayTab* sidebar_tab = dynamic_cast<LLSideTrayTab*>(*child_it);
-		if(sidebar_tab == NULL)
-			continue;
+		LLSideTrayTab* sidebar_tab = *child_it;
 
 		std::string name = sidebar_tab->getName();
 		
@@ -527,9 +526,7 @@ void LLSideTray::arrange			()
 	int offset = (sidetray_params.default_button_height+sidetray_params.default_button_margin)*2;
 	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)	
 	{
-		LLSideTrayTab* sidebar_tab = dynamic_cast<LLSideTrayTab*>(*child_it);
-		if(sidebar_tab == NULL)
-			continue;
+		LLSideTrayTab* sidebar_tab = *child_it;
 		
 		ctrl_rect.setLeftTopAndSize(0,getRect().getHeight()-offset
 								,sidetray_params.default_button_width
@@ -552,10 +549,7 @@ void LLSideTray::arrange			()
 	//arrange tabs
 	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
 	{
-		LLSideTrayTab* sidebar_tab = dynamic_cast<LLSideTrayTab*>(*child_it);
-		if(sidebar_tab == NULL)
-			continue;
-		
+		LLSideTrayTab* sidebar_tab = *child_it;
 		sidebar_tab->setRect(ctrl_rect);
 		sidebar_tab->arrange(mMaxBarWidth,getRect().getHeight());
 	}
@@ -564,6 +558,23 @@ void LLSideTray::arrange			()
 void LLSideTray::collapseSideBar()
 {
 	mCollapsed = true;
+	// Reset all overlay images, because there is no "selected" tab when the
+	// whole side tray is hidden.
+	child_vector_const_iter_t it = mTabs.begin();
+	for ( ; it != mTabs.end(); ++it )
+	{
+		LLSideTrayTab* tab = *it;
+		std::string name = tab->getName();
+		std::map<std::string,LLButton*>::const_iterator btn_it =
+			mTabButtons.find(name);
+		if (btn_it != mTabButtons.end())
+		{
+			LLButton* btn = btn_it->second;
+			btn->setImageOverlay( tab->mImage );
+		}
+	}
+		
+	// Home tab doesn't put its button in mTabButtons
 	LLSideTrayTab* home_tab = getTab("sidebar_home");
 	if (home_tab)
 	{
@@ -643,9 +654,7 @@ void LLSideTray::reshape			(S32 width, S32 height, BOOL called_from_parent)
 	int offset = (sidetray_params.default_button_height+sidetray_params.default_button_margin)*2;
 	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)	
 	{
-		LLSideTrayTab* sidebar_tab = dynamic_cast<LLSideTrayTab*>(*child_it);
-		if(sidebar_tab == NULL)
-			continue;
+		LLSideTrayTab* sidebar_tab = *child_it;
 		
 		ctrl_rect.setLeftTopAndSize(0,getRect().getHeight()-offset
 								,sidetray_params.default_button_width
@@ -667,9 +676,7 @@ void LLSideTray::reshape			(S32 width, S32 height, BOOL called_from_parent)
 	
 	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
 	{
-		LLSideTrayTab* sidebar_tab = dynamic_cast<LLSideTrayTab*>(*child_it);
-		if(sidebar_tab == NULL)
-			continue;
+		LLSideTrayTab* sidebar_tab = *child_it;
 		sidebar_tab->reshape(mMaxBarWidth,getRect().getHeight());
 		ctrl_rect.setLeftTopAndSize(sidetray_params.default_button_width,getRect().getHeight(),mMaxBarWidth,getRect().getHeight());
 		sidebar_tab->setRect(ctrl_rect);

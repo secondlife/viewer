@@ -50,6 +50,7 @@ class LLPickItem;
 class LLFlatListView;
 class LLPanelPickInfo;
 class LLPanelPickEdit;
+class LLToggleableMenu;
 
 class LLPanelPicks 
 	: public LLPanelProfileTab
@@ -79,6 +80,9 @@ private:
 	void onClickDelete();
 	void onClickTeleport();
 	void onClickMap();
+
+	void onOverflowMenuItemClicked(const LLSD& param);
+	void onOverflowButtonClicked();
 
 	//------------------------------------------------
 	// Callbacks which require panel toggling
@@ -113,6 +117,7 @@ private:
 	LLFlatListView* mPicksList;
 	LLPanelPickInfo* mPanelPickInfo;
 	LLPanelPickEdit* mPanelPickEdit;
+	LLToggleableMenu* mOverflowMenu;
 };
 
 class LLPickItem : public LLPanel, public LLAvatarPropertiesObserver

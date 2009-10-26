@@ -46,6 +46,7 @@
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
 #include "lluiconstants.h"
+#include "llviewerregion.h"
 #include "llworldmap.h"
 #include "llfloaterworldmap.h"
 #include "llfloaterreg.h"
@@ -346,6 +347,15 @@ void LLPanelPickEdit::onOpen(const LLSD& key)
 			pick_name = parcel->getName();
 			pick_desc = parcel->getDesc();
 			snapshot_id = parcel->getSnapshotID();
+		}
+
+		if(pick_name.empty())
+		{
+			LLViewerRegion* region = gAgent.getRegion();
+			if(region)
+			{
+				pick_name = region->getName();
+			}
 		}
 
 		setParcelID(parcel_id);

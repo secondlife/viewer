@@ -55,7 +55,7 @@ ContextMenu::ContextMenu()
 {
 }
 
-void ContextMenu::show(LLView* spawning_view, const LLUUID& id, S32 x, S32 y)
+void ContextMenu::show(LLView* spawning_view, const std::vector<LLUUID>& uuids, S32 x, S32 y)
 {
 	if (mMenu)
 	{
@@ -67,9 +67,16 @@ void ContextMenu::show(LLView* spawning_view, const LLUUID& id, S32 x, S32 y)
 			mMenu->setParent(NULL);
 		}
 		delete mMenu;
+		mMenu = NULL;
+		mUUIDs.clear();
 	}
 
-	mID = id;
+	if ( uuids.empty() )
+		return;
+
+	mUUIDs.resize(uuids.size());
+	std::copy(uuids.begin(), uuids.end(), mUUIDs.begin());
+
 	mMenu = createMenu();
 	mMenu->show(x, y);
 	LLMenuGL::showPopup(spawning_view, mMenu, x, y);
@@ -80,47 +87,92 @@ void ContextMenu::show(LLView* spawning_view, const LLUUID& id, S32 x, S32 y)
 LLContextMenu* NearbyMenu::createMenu()
 {
 	// set up the callbacks for all of the avatar menu items
-	// (N.B. callbacks don't take const refs as mID is local scope)
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-	registrar.add("Avatar.Profile",			boost::bind(&LLAvatarActions::showProfile,				mID));
-	registrar.add("Avatar.AddFriend",		boost::bind(&LLAvatarActions::requestFriendshipDialog,	mID));
-	registrar.add("Avatar.IM",				boost::bind(&LLAvatarActions::startIM,					mID));
-	registrar.add("Avatar.Call",			boost::bind(&LLAvatarActions::startIM,					mID)); // *TODO: unimplemented
-	registrar.add("Avatar.OfferTeleport",	boost::bind(&NearbyMenu::offerTeleport,					this));
-	registrar.add("Avatar.ShowOnMap",		boost::bind(&LLAvatarActions::startIM,					mID)); // *TODO: unimplemented
-	registrar.add("Avatar.Share",			boost::bind(&LLAvatarActions::startIM,					mID)); // *TODO: unimplemented
-	registrar.add("Avatar.Pay",				boost::bind(&LLAvatarActions::pay,						mID));
-	registrar.add("Avatar.BlockUnblock",	boost::bind(&LLAvatarActions::toggleBlock,				mID));
+	if ( mUUIDs.size() == 1 )
+	{
+		// Set up for one person selected menu
 
-	enable_registrar.add("Avatar.EnableItem",	boost::bind(&NearbyMenu::enableContextMenuItem,	this, _2));
-	enable_registrar.add("Avatar.CheckItem",	boost::bind(&NearbyMenu::checkContextMenuItem,	this, _2));
+		const LLUUID& id = mUUIDs.front();
+		registrar.add("Avatar.Profile",			boost::bind(&LLAvatarActions::showProfile,				id));
+		registrar.add("Avatar.AddFriend",		boost::bind(&LLAvatarActions::requestFriendshipDialog,	id));
+		registrar.add("Avatar.IM",				boost::bind(&LLAvatarActions::startIM,					id));
+		registrar.add("Avatar.Call",			boost::bind(&LLAvatarActions::startIM,					id));	// *TODO: unimplemented
+		registrar.add("Avatar.OfferTeleport",	boost::bind(&NearbyMenu::offerTeleport,					this));
+		registrar.add("Avatar.ShowOnMap",		boost::bind(&LLAvatarActions::startIM,					id));	// *TODO: unimplemented
+		registrar.add("Avatar.Share",			boost::bind(&LLAvatarActions::startIM,					id));	// *TODO: unimplemented
+		registrar.add("Avatar.Pay",				boost::bind(&LLAvatarActions::pay,						id));
+		registrar.add("Avatar.BlockUnblock",	boost::bind(&LLAvatarActions::toggleBlock,				id));
 
-	// create the context menu from the XUI
-	return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
-		"menu_people_nearby.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+		enable_registrar.add("Avatar.EnableItem", boost::bind(&NearbyMenu::enableContextMenuItem,	this, _2));
+		enable_registrar.add("Avatar.CheckItem",  boost::bind(&NearbyMenu::checkContextMenuItem,	this, _2));
+
+		// create the context menu from the XUI
+		return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
+			"menu_people_nearby.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+	}
+	else
+	{
+		// Set up for multi-selected People
+
+		// registrar.add("Avatar.AddFriend",	boost::bind(&LLAvatarActions::requestFriendshipDialog,	mUUIDs)); // *TODO: unimplemented
+		registrar.add("Avatar.IM",			boost::bind(&LLAvatarActions::startConference,			mUUIDs));
+		// registrar.add("Avatar.Call",		boost::bind(&LLAvatarActions::startConference,			mUUIDs)); // *TODO: unimplemented
+		// registrar.add("Avatar.Share",		boost::bind(&LLAvatarActions::startIM,					mUUIDs)); // *TODO: unimplemented
+		// registrar.add("Avatar.Pay",		boost::bind(&LLAvatarActions::pay,						mUUIDs)); // *TODO: unimplemented
+		enable_registrar.add("Avatar.EnableItem",	boost::bind(&NearbyMenu::enableContextMenuItem,	this, _2));
+
+		// create the context menu from the XUI
+		return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>
+			("menu_people_nearby_multiselect.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+
+	}
 }
 
 bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
 
+	// Note: can_block and can_delete is used only for one person selected menu
+	// so we don't need to go over all uuids.
+
 	if (item == std::string("can_block"))
 	{
+		const LLUUID& id = mUUIDs.front();
 		std::string firstname, lastname;
-		gCacheName->getName(mID, firstname, lastname);
+		gCacheName->getName(id, firstname, lastname);
 		bool is_linden = !LLStringUtil::compareStrings(lastname, "Linden");
-		bool is_self = mID == gAgentID;
+		bool is_self = id == gAgentID;
 		return !is_self && !is_linden;
 	}
 	else if (item == std::string("can_add"))
 	{
-		return !LLAvatarActions::isFriend(mID);
+		// We can add friends if:
+		// - there are selected people
+		// - and there are no friends among selection yet.
+
+		bool result = (mUUIDs.size() > 0);
+
+		std::vector<LLUUID>::const_iterator
+			id = mUUIDs.begin(),
+			uuids_end = mUUIDs.end();
+
+		for (;id != uuids_end; ++id)
+		{
+			if ( LLAvatarActions::isFriend(*id) )
+			{
+				result = false;
+				break;
+			}
+		}
+
+		return result;
 	}
 	else if (item == std::string("can_delete"))
 	{
-		return LLAvatarActions::isFriend(mID);
+		const LLUUID& id = mUUIDs.front();
+		return LLAvatarActions::isFriend(id);
 	}
 
 	return false;
@@ -129,10 +181,11 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 bool NearbyMenu::checkContextMenuItem(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
+	const LLUUID& id = mUUIDs.front();
 
 	if (item == std::string("is_blocked"))
 	{
-		return LLAvatarActions::isBlocked(mID);
+		return LLAvatarActions::isBlocked(id);
 	}
 
 	return false;
@@ -142,7 +195,8 @@ void NearbyMenu::offerTeleport()
 {
 	// boost::bind cannot recognize overloaded method LLAvatarActions::offerTeleport(),
 	// so we have to use a wrapper.
-	LLAvatarActions::offerTeleport(mID);
+	const LLUUID& id = mUUIDs.front();
+	LLAvatarActions::offerTeleport(id);
 }
 
 } // namespace LLPanelPeopleMenus

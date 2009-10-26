@@ -98,6 +98,7 @@ public:
 private:
 	void setActive(bool active);
 	void onInfoBtnClick();
+	void onProfileBtnClick();
 
 	LLTextBox*	mGroupNameBox;
 	LLUUID		mGroupID;

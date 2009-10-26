@@ -449,6 +449,7 @@ void LLLandmarksPanel::initListCommandsHandlers()
 	mCommitCallbackRegistrar.add("Places.LandmarksGear.CopyPaste.Action", boost::bind(&LLLandmarksPanel::onClipboardAction, this, _2));
 	mCommitCallbackRegistrar.add("Places.LandmarksGear.Custom.Action", boost::bind(&LLLandmarksPanel::onCustomAction, this, _2));
 	mCommitCallbackRegistrar.add("Places.LandmarksGear.Folding.Action", boost::bind(&LLLandmarksPanel::onFoldingAction, this, _2));
+	mEnableCallbackRegistrar.add("Places.LandmarksGear.Check", boost::bind(&LLLandmarksPanel::isActionChecked, this, _2));
 	mEnableCallbackRegistrar.add("Places.LandmarksGear.Enable", boost::bind(&LLLandmarksPanel::isActionEnabled, this, _2));
 	mGearLandmarkMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_places_gear_landmark.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGearFolderMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_places_gear_folder.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -598,7 +599,6 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 	else if ( "sort_by_date" == command_name)
 	{
 		mSortByDate = !mSortByDate;
-		updateSortOrder(mFavoritesInventoryPanel, mSortByDate);
 		updateSortOrder(mLandmarksInventoryPanel, mSortByDate);
 		updateSortOrder(mMyInventoryPanel, mSortByDate);
 		updateSortOrder(mLibraryInventoryPanel, mSortByDate);
@@ -609,14 +609,53 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 	}
 }
 
+bool LLLandmarksPanel::isActionChecked(const LLSD& userdata) const
+{
+	const std::string command_name = userdata.asString();
+
+	if ( "sort_by_date" == command_name)
+	{
+		return  mSortByDate;
+	}
+
+	return false;
+}
+
 bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 {
 	std::string command_name = userdata.asString();
+
 
 	LLPlacesFolderView* rootFolderView = mCurrentSelectedList ?
 		static_cast<LLPlacesFolderView*>(mCurrentSelectedList->getRootFolder()) : NULL;
 
 	if (NULL == rootFolderView) return false;
+
+	// disable some commands for multi-selection. EXT-1757
+	if (rootFolderView->getSelectedCount() > 1)
+	{
+		if (   "teleport"		== command_name 
+			|| "more_info"		== command_name
+			|| "rename"			== command_name
+			|| "show_on_map"	== command_name
+			|| "copy_slurl"		== command_name
+			)
+		{
+			return false;
+		}
+
+	}
+
+	// disable some commands for Favorites accordion. EXT-1758
+	if (mCurrentSelectedList == mFavoritesInventoryPanel)
+	{
+		if (   "expand_all"		== command_name
+			|| "collapse_all"	== command_name
+			|| "sort_by_date"	== command_name
+			)
+			return false;
+	}
+
 
 	if("category" == command_name)
 	{
@@ -635,11 +674,6 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	else if ( "sort_by_date" == command_name)
 	{
 		return  mSortByDate;
-	}
-	// do not allow teleport and more info for multi-selections
-	else if ("teleport" == command_name || "more_info" == command_name)
-	{
-		return rootFolderView->getSelectedCount() == 1;
 	}
 	else if("create_pick" == command_name)
 	{

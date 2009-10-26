@@ -130,15 +130,6 @@ void LLAvatarListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 	LLPanel::onMouseLeave(x, y, mask);
 }
 
-// virtual
-BOOL LLAvatarListItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
-{
-	if (mContextMenu)
-		mContextMenu->show(this, const_cast<const LLUUID&>(mAvatarId), x, y);
-
-	return LLPanel::handleRightMouseDown(x, y, mask);
-}
-
 void LLAvatarListItem::setStatus(const std::string& status)
 {
 	mStatus->setValue(status);

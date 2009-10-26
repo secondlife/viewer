@@ -724,6 +724,8 @@ public:
 
 	/*virtual*/ void draw();
 
+	S32 getMinWidth() const { return mMinWidth; }
+
 protected:
 	LLChicletPanel(const Params&p);
 	friend class LLUICtrlFactory;

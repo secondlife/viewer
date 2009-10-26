@@ -1190,7 +1190,7 @@ void LLMediaPluginTest::mouseButton( int button, int state, int x, int y )
 			windowPosToTexturePos( x, y, media_x, media_y, id );
 
 			if ( mSelectedPanel )
-				mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_DOWN, media_x, media_y, 0 );
+				mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_DOWN, 0, media_x, media_y, 0 );
 		}
 		else
 		if ( state == GLUT_UP )
@@ -1206,7 +1206,7 @@ void LLMediaPluginTest::mouseButton( int button, int state, int x, int y )
 				selectPanelById( id );
 
 				if ( mSelectedPanel )
-					mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_UP, media_x, media_y, 0 );
+					mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_UP, 0, media_x, media_y, 0 );
 			};
 		};
 	};
@@ -1220,7 +1220,7 @@ void LLMediaPluginTest::mousePassive( int x, int y )
 	windowPosToTexturePos( x, y, media_x, media_y, id );
 
 	if ( mSelectedPanel )
-		mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_MOVE, media_x, media_y, 0 );
+		mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_MOVE, 0, media_x, media_y, 0 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1231,7 +1231,7 @@ void LLMediaPluginTest::mouseMove( int x, int y )
 	windowPosToTexturePos( x, y, media_x, media_y, id );
 
 	if ( mSelectedPanel )
-		mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_MOVE, media_x, media_y, 0 );
+		mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_MOVE, 0, media_x, media_y, 0 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

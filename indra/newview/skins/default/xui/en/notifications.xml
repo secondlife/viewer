@@ -5523,6 +5523,13 @@ The objects on the selected parcel that are NOT owned by you have been returned 
 
   <notification
    icon="notify.tga"
+   name="ServerObjectMessage"
+   type="notify">
+[MSG]
+  </notification>
+  
+  <notification
+   icon="notify.tga"
    name="NotSafe"
    type="notify">
 This land has damage enabled.

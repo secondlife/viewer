@@ -304,6 +304,8 @@ protected:
 	/** Manage selection on mouse events */
 	void onItemMouseClick(item_pair_t* item_pair, MASK mask);
 
+	void onItemRightMouseClick(item_pair_t* item_pair, MASK mask);
+
 	/**
 	 *	Updates position of items.
 	 *	It does not take into account invisible items.

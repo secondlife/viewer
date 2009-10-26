@@ -1947,52 +1947,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				return;
 			}
-			chat.mText = name + separator_string + message.substr(message_offset);
-			chat.mFromName = name;
 
-			// Build a link to open the object IM info window.
-			std::string location = ll_safe_string((char*)binary_bucket,binary_bucket_size);
-			
-			LLSD query_string;
-			query_string["owner"] = from_id;
-			query_string["slurl"] = location.c_str();
-			query_string["name"] = name;
-			if (from_group)
-			{
-				query_string["groupowned"] = "true";
-			}	
-
-			if (session_id.notNull())
-			{
-				chat.mFromID = session_id;
-			}
-			else
-			{
-				// This message originated on a region without the updated code for task id and slurl information.
-				// We just need a unique ID for this object that isn't the owner ID.
-				// If it is the owner ID it will overwrite the style that contains the link to that owner's profile.
-				// This isn't ideal - it will make 1 style for all objects owned by the the same person/group.
-				// This works because the only thing we can really do in this case is show the owner name and link to their profile.
-				chat.mFromID = from_id ^ gAgent.getSessionID();
-			}
-
-			std::ostringstream link;
-			link << "secondlife:///app/objectim/" << session_id
-					<< LLURI::mapToQueryString(query_string);
-
-			chat.mURL = link.str();
-			chat.mText = name + separator_string + message.substr(message_offset);
-
-			// Note: lie to LLFloaterChat::addChat(), pretending that this is NOT an IM, because
-			// IMs from objcts don't open IM sessions.
-			chat.mSourceType = CHAT_SOURCE_OBJECT;
-			LLFloaterChat::addChat(chat, FALSE, FALSE);
-
-			// archive message in nearby chat
-			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
-			if(nearby_chat)
-				nearby_chat->addMessage(chat);
-
+			LLSD substitutions;
+			substitutions["MSG"] = message.substr(message_offset);
+			LLNotifications::instance().add("ServerObjectMessage", substitutions);
 		}
 		break;
 	case IM_FROM_TASK_AS_ALERT:
