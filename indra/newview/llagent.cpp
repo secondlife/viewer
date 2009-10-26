@@ -5391,12 +5391,6 @@ void update_group_floaters(const LLUUID& group_id)
 	//*TODO Implement group update for Profile View 
 	// still actual as of July 31, 2009 (DZ)
 
-	if (gIMMgr)
-	{
-		// update the talk view
-		gIMMgr->refresh();
-	}
-
 	gAgent.fireEvent(new LLOldEvents::LLEvent(&gAgent, "new group"), "");
 }
 

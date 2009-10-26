@@ -1114,29 +1114,6 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 	}
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLIMViewFriendObserver
-//
-// Bridge to suport knowing when the inventory has changed.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class LLIMViewFriendObserver : public LLFriendObserver
-{
-public:
-	LLIMViewFriendObserver(LLIMMgr* tv) : mTV(tv) {}
-	virtual ~LLIMViewFriendObserver() {}
-	virtual void changed(U32 mask)
-	{
-		if(mask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE | LLFriendObserver::ONLINE))
-		{
-			mTV->refresh();
-		}
-	}
-protected:
-	LLIMMgr* mTV;
-};
-
-
 bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 {
 	const LLSD& payload = notification["payload"];
@@ -1237,7 +1214,6 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 //
 
 LLIMMgr::LLIMMgr() :
-	mFriendObserver(NULL),
 	mIMReceived(FALSE)
 {
 	static bool registered_dialog = false;
@@ -1246,19 +1222,9 @@ LLIMMgr::LLIMMgr() :
 		LLFloaterReg::add("incoming_call", "floater_incoming_call.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIncomingCallDialog>);
 		registered_dialog = true;
 	}
-		
-	mFriendObserver = new LLIMViewFriendObserver(this);
-	LLAvatarTracker::instance().addObserver(mFriendObserver);
 
 	mPendingInvitations = LLSD::emptyMap();
 	mPendingAgentListUpdates = LLSD::emptyMap();
-}
-
-LLIMMgr::~LLIMMgr()
-{
-	LLAvatarTracker::instance().removeObserver(mFriendObserver);
-	delete mFriendObserver;
-	// Children all cleaned up by default view destructor.
 }
 
 // Add a message to a session. 
@@ -1712,10 +1678,6 @@ void LLIMMgr::onInviteNameLookup(LLSD payload, const LLUUID& id, const std::stri
 			payload,
 			&inviteUserResponse);
 	}
-}
-
-void LLIMMgr::refresh()
-{
 }
 
 void LLIMMgr::disconnectAllSessions()
