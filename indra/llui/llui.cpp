@@ -1807,11 +1807,11 @@ void LLUI::glRectToScreen(const LLRect& gl, LLRect *screen)
 }
 
 //static
-LLPointer<LLUIImage> LLUI::getUIImageByID(const LLUUID& image_id)
+LLPointer<LLUIImage> LLUI::getUIImageByID(const LLUUID& image_id, S32 priority)
 {
 	if (sImageProvider)
 	{
-		return sImageProvider->getUIImageByID(image_id);
+		return sImageProvider->getUIImageByID(image_id, priority);
 	}
 	else
 	{
@@ -1820,10 +1820,10 @@ LLPointer<LLUIImage> LLUI::getUIImageByID(const LLUUID& image_id)
 }
 
 //static 
-LLPointer<LLUIImage> LLUI::getUIImage(const std::string& name)
+LLPointer<LLUIImage> LLUI::getUIImage(const std::string& name, S32 priority)
 {
 	if (!name.empty() && sImageProvider)
-		return sImageProvider->getUIImage(name);
+		return sImageProvider->getUIImage(name, priority);
 	else
 		return NULL;
 }
@@ -1952,7 +1952,12 @@ namespace LLInitParam
 				return fontp;
 			}
 		}
-
+		
+		if (mData.mValue == NULL)
+		{
+			mData.mValue = LLFontGL::getFontDefault();
+		}
+		
 		// default to current value
 		return mData.mValue;
 	}

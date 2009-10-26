@@ -47,7 +47,8 @@
 #include "llfloatermediasettings.h"
 ////////////////////////////////////////////////////////////////////////////////
 //
-LLPanelMediaSettingsSecurity::LLPanelMediaSettingsSecurity()
+LLPanelMediaSettingsSecurity::LLPanelMediaSettingsSecurity() :
+	mParent( NULL )
 {
 	// build dialog from XML
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_media_settings_security.xml");
@@ -230,12 +231,91 @@ void LLPanelMediaSettingsSecurity::getValues( LLSD &fill_me_in )
     };
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Try to make a valid URL if a fragment (
+// white list list box widget and build a list to test against. Can also
+const std::string LLPanelMediaSettingsSecurity::makeValidUrl( const std::string& src_url )
+{
+	// use LLURI to determine if we have a valid scheme
+	LLURI candidate_url( src_url );
+	if ( candidate_url.scheme().empty() )
+	{
+		// build a URL comprised of default scheme and the original fragment 
+		const std::string default_scheme( "http://" );
+		return default_scheme + src_url;
+	};
+
+	// we *could* test the "default scheme" + "original fragment" URL again
+	// using LLURI to see if it's valid but I think the outcome is the same
+	// in either case - our only option is to return the original URL
+
+	// we *think* the original url passed in was valid
+	return src_url;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
-// static
+// wrapper for testing a URL against the whitelist. We grab entries from
+// white list list box widget and build a list to test against. Can also
+// optionally pass the URL that you are trying to add to the widget since
+// it won't be added until this call returns.
+bool LLPanelMediaSettingsSecurity::passesWhiteList( const std::string& added_url,
+													const std::string& test_url )
+{
+	// the checkUrlAgainstWhitelist(..) function works on a vector
+	// of strings for the white list entries - in this panel, the white list
+	// is stored in the widgets themselves so we need to build something compatible.
+	std::vector< std::string > whitelist_strings;
+	whitelist_strings.clear();	// may not be required - I forget what the spec says.
+
+	// step through whitelist widget entries and grab them as strings
+    std::vector< LLScrollListItem* > white_list_items = mWhiteListList->getAllData();
+    std::vector< LLScrollListItem* >::iterator iter = white_list_items.begin(); 
+	while( iter != white_list_items.end()  )
+    {
+        const std::string whitelist_url = (*iter)->getValue().asString();
+		whitelist_strings.push_back( whitelist_url );
+
+		++iter;
+    };
+
+	// add in the URL that might be added to the whitelist so we can test that too
+	if ( added_url.length() )
+		whitelist_strings.push_back( added_url );
+
+	// possible the URL is just a fragment so we validize it
+	const std::string valid_url = makeValidUrl( test_url );
+
+	// indicate if the URL passes whitelist
+	return LLMediaEntry::checkUrlAgainstWhitelist( valid_url, whitelist_strings );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 void LLPanelMediaSettingsSecurity::addWhiteListItem(const std::string& url)
 {
-	mWhiteListList->addSimpleElement( url );
+	// grab home URL from the general panel (via the parent floater)
+	std::string home_url( "" );
+	if ( mParent )
+		home_url = mParent->getHomeUrl();
+
+	// if the home URL is blank (user hasn't entered it yet) then
+	// don't bother to check if it passes the white list
+	if ( home_url.empty() )
+	{
+		mWhiteListList->addSimpleElement( url );
+		return;
+	};
+
+	// if the URL passes the white list, add it
+	if ( passesWhiteList( url, home_url ) )
+	{
+		mWhiteListList->addSimpleElement( url );
+	}
+	else
+	// display a message indicating you can't do that
+	{
+		LLNotifications::instance().add("WhiteListInvalidatesHomeUrl");
+	};
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -253,3 +333,11 @@ void LLPanelMediaSettingsSecurity::onBtnDel( void* userdata )
 
 	self->mWhiteListList->deleteSelectedItems();
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void LLPanelMediaSettingsSecurity::setParent( LLFloaterMediaSettings* parent )
+{
+	mParent = parent;
+};
+

@@ -13,7 +13,8 @@ include(LLXML)
 include(LScript)
 include(Linking)
 include(Tut)
-include(Boost)
+
+include(GoogleMock)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -24,6 +25,7 @@ include_directories(
     ${LLVFS_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}
+    ${GOOGLEMOCK_INCLUDE_DIRS}
     )
 
 set(test_SOURCE_FILES
@@ -60,6 +62,7 @@ set(test_SOURCE_FILES
 set(test_HEADER_FILES
     CMakeLists.txt
 
+    debug.h
     llpipeutil.h
     llsdtraits.h
     lltut.h
@@ -93,6 +96,8 @@ target_link_libraries(test
     ${LLXML_LIBRARIES}
     ${LSCRIPT_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
+    ${EXPAT_LIBRARIES}
+    ${GOOGLEMOCK_LIBRARIES}
     ${APRICONV_LIBRARIES}
     ${PTHREAD_LIBRARY}
     ${WINDOWS_LIBRARIES}
@@ -112,16 +117,21 @@ endif (WINDOWS)
 
 get_target_property(TEST_EXE test LOCATION)
 
-add_custom_command(
+IF(WINDOWS)
+  set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR})
+ELSE(WINDOWS)
+  set(LD_LIBRARY_PATH ${ARCH_PREBUILT_DIRS}:${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}:/usr/lib)
+ENDIF(WINDOWS)
+
+LL_TEST_COMMAND("${LD_LIBRARY_PATH}"
+  "${TEST_EXE}" "--output=${CMAKE_CURRENT_BINARY_DIR}/cpp_test_results.txt" "--touch=${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt")
+ADD_CUSTOM_COMMAND(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt
-  COMMAND ${TEST_EXE}
-  ARGS
-    --output=${CMAKE_CURRENT_BINARY_DIR}/cpp_test_results.txt
-    --touch=${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt
+  COMMAND ${LL_TEST_COMMAND_value}
   DEPENDS test
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMENT "C++ unit tests"
-  )
+ )
 
 set(test_results ${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt)
 

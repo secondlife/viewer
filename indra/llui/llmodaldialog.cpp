@@ -297,5 +297,16 @@ void LLModalDialog::onAppFocusGained()
 	}
 }
 
-
-
+void LLModalDialog::shutdownModals()
+{
+	// This method is only for use during app shutdown. ~LLModalDialog()
+	// checks sModalStack, and if the dialog instance is still there, it
+	// crumps with "Attempt to delete dialog while still in sModalStack!" But
+	// at app shutdown, all bets are off. If the user asks to shut down the
+	// app, we shouldn't have to care WHAT's open. Put differently, if a modal
+	// dialog is so crucial that we can't let the user terminate until s/he
+	// addresses it, we should reject a termination request. The current state
+	// of affairs is that we accept it, but then produce an llerrs popup that
+	// simply makes our software look unreliable.
+	sModalStack.clear();
+}

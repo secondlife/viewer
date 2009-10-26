@@ -40,7 +40,7 @@
 // Note: Win32 does not support the heartbeat/smackdown system;
 //   heartbeat-delivery turns into a no-op there.
 
-class LLHeartbeat
+class LL_COMMON_API LLHeartbeat
 {
 public:
 	// secs_between_heartbeat: after a heartbeat is successfully delivered,

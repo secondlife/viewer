@@ -50,7 +50,7 @@
 //  llinfos << "File crc: " << crc.getCRC() << llendl;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLCRC
+class LL_COMMON_API LLCRC
 {
 protected:
 	U32 mCurrent;

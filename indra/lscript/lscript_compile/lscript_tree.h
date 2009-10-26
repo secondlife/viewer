@@ -1888,6 +1888,7 @@ public:
 	S32 getSize();
 
 	LLScriptIdentifier *mIdentifier;
+	LSCRIPTType mReturnType;
 };
 
 class LLScriptJump : public LLScriptStatement

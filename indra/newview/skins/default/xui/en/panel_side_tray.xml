@@ -18,6 +18,7 @@
     tab_title="Home"
     description="Home."
     image="TabIcon_Open_Off"
+	image_selected="TabIcon_Close_Off"
     mouse_opaque="false"
     background_visible="true"
   >
@@ -34,6 +35,7 @@
     tab_title="People"
     description="Find your friends, contacts and people nearby."
     image="TabIcon_People_Off"
+    image_selected="TabIcon_People_Selected"
     mouse_opaque="false"
     background_visible="true"
   >
@@ -76,6 +78,7 @@
     label="Places"
     description="Find places to go and places you&apos;ve visited before."
     image="TabIcon_Places_Off"
+	image_selected="TabIcon_Places_Selected"
     mouse_opaque="false"
     background_visible="true"
   >
@@ -94,6 +97,7 @@
     tab_title="Me"
     description="Edit your public profile and Picks."
     image="TabIcon_Me_Off"
+    image_selected="TabIcon_Me_Selected"
     mouse_opaque="false"
     background_visible="true"
   >
@@ -111,6 +115,7 @@
     tab_title="Appearance"
     description="Change your appearance and current look."
     image="TabIcon_Appearance_Off"
+    image_selected="TabIcon_Appearance_Selected"
     mouse_opaque="false"
     background_visible="true"
   >

@@ -136,9 +136,9 @@ class LLSD;
 class LLAccessEntry
 {
 public:
-	LLUUID		mID;
-	S32			mTime;
-	U32			mFlags;
+	LLUUID		mID;		// Agent ID
+	S32			mTime;		// Time (unix seconds) when entry expires
+	U32			mFlags;		// Not used - currently should always be zero
 };
 
 typedef std::map<LLUUID,LLAccessEntry>::iterator access_map_iterator;

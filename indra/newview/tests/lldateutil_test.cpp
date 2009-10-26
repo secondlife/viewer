@@ -28,6 +28,9 @@
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
+
+#include "linden_common.h"
+
 #include "../test/lltut.h"
 
 #include "../lldateutil.h"

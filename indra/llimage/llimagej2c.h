@@ -87,6 +87,10 @@ protected:
 	void updateRawDiscardLevel();
 
 	S32 mMaxBytes; // Maximum number of bytes of data to use...
+	
+	S32 mDataSizes[MAX_DISCARD_LEVEL+1];		// Size of data required to reach a given level
+	U32 mAreaUsedForDataSizeCalcs;				// Height * width used to calculate mDataSizes
+
 	S8  mRawDiscardLevel;
 	F32 mRate;
 	BOOL mReversible;

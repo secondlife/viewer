@@ -73,7 +73,8 @@ public:
 	static void		onAppFocusGained();
 
 	static S32		activeCount() { return sModalStack.size(); }
-	
+	static void		shutdownModals();
+
 protected:
 	void			centerOnScreen();
 
