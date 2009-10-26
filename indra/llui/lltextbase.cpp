@@ -232,7 +232,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 
 	createDefaultSegment();
 
-	updateTextRect();
+	updateRects();
 }
 
 LLTextBase::~LLTextBase()
@@ -940,7 +940,7 @@ void LLTextBase::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 	// do this first after reshape, because other things depend on
 	// up-to-date mTextRect
-	updateTextRect();
+	updateRects();
 	
 	needsReflow();
 }
@@ -1160,60 +1160,8 @@ void LLTextBase::reflow(S32 start_index)
 			}
 		}
 
-		if (mLineInfoList.empty()) 
-		{
-			mContentsRect = LLRect(0, mVPad, mHPad, 0);
-		}
-		else
-		{
-
-			mContentsRect = mLineInfoList.begin()->mRect;
-			for (line_list_t::const_iterator line_iter = ++mLineInfoList.begin();
-				line_iter != mLineInfoList.end();
-				++line_iter)
-			{
-				mContentsRect.unionWith(line_iter->mRect);
-			}
-
-			mContentsRect.mRight += mHPad;
-			mContentsRect.mTop += mVPad;
-			// get around rounding errors when clipping text against rectangle
-			mContentsRect.stretch(1);
-		}
-
-		// change mDocumentView size to accomodate reflowed text
-		LLRect document_rect;
-		if (mScroller)
-		{
-			// document is size of scroller or size of text contents, whichever is larger
-			document_rect.setOriginAndSize(0, 0, 
-										mScroller->getContentWindowRect().getWidth(), 
-										llmax(mScroller->getContentWindowRect().getHeight(), mContentsRect.getHeight()));
-		}
-		else
-		{
-			// document size is just extents of reflowed text, reset to origin 0,0
-			document_rect.set(0, 
-							getLocalRect().getHeight(), 
-							getLocalRect().getWidth(), 
-							llmin(0, getLocalRect().getHeight() - mContentsRect.getHeight()));
-		}
-		mDocumentView->setShape(document_rect);
-
-		// after making document big enough to hold all the text, move the text to fit in the document
-		if (!mLineInfoList.empty())
-		{
-			S32 delta_pos = mDocumentView->getRect().getHeight() - mLineInfoList.begin()->mRect.mTop - mVPad;
-			// move line segments to fit new document rect
-			for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
-			{
-				it->mRect.translate(0, delta_pos);
-			}
-			mContentsRect.translate(0, delta_pos);
-		}
-
 		// calculate visible region for diplaying text
-		updateTextRect();
+		updateRects();
 
 		for (segment_set_t::iterator segment_it = mSegments.begin();
 			segment_it != mSegments.end();
@@ -2081,8 +2029,30 @@ S32 LLTextBase::getEditableIndex(S32 index, bool increasing_direction)
 	}
 }
 
-void LLTextBase::updateTextRect()
+void LLTextBase::updateRects()
 {
+	if (mLineInfoList.empty()) 
+	{
+		mContentsRect = LLRect(0, mVPad, mHPad, 0);
+	}
+	else
+	{
+
+		mContentsRect = mLineInfoList.begin()->mRect;
+		for (line_list_t::const_iterator line_iter = ++mLineInfoList.begin();
+			line_iter != mLineInfoList.end();
+			++line_iter)
+		{
+			mContentsRect.unionWith(line_iter->mRect);
+		}
+
+		mContentsRect.mRight += mHPad;
+		mContentsRect.mTop += mVPad;
+		// get around rounding errors when clipping text against rectangle
+		mContentsRect.stretch(1);
+	}
+
+
 	LLRect old_text_rect = mTextRect;
 	mTextRect = mScroller ? mScroller->getContentWindowRect() : getLocalRect();
 	//FIXME: replace border with image?
@@ -2095,6 +2065,37 @@ void LLTextBase::updateTextRect()
 	if (mTextRect != old_text_rect)
 	{
 		needsReflow();
+	}
+
+	// change document rect size too
+	LLRect document_rect;
+	if (mScroller)
+	{
+		// document is size of scroller or size of text contents, whichever is larger
+		document_rect.setOriginAndSize(0, 0, 
+									mScroller->getContentWindowRect().getWidth(), 
+									llmax(mScroller->getContentWindowRect().getHeight(), mContentsRect.getHeight()));
+	}
+	else
+	{
+		// document size is just extents of reflowed text, reset to origin 0,0
+		document_rect.set(0, 
+						getLocalRect().getHeight(), 
+						getLocalRect().getWidth(), 
+						llmin(0, getLocalRect().getHeight() - mContentsRect.getHeight()));
+	}
+	mDocumentView->setShape(document_rect);
+
+	// after making document big enough to hold all the text, move the text to fit in the document
+	if (!mLineInfoList.empty())
+	{
+		S32 delta_pos = mDocumentView->getRect().getHeight() - mLineInfoList.begin()->mRect.mTop - mVPad;
+		// move line segments to fit new document rect
+		for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
+		{
+			it->mRect.translate(0, delta_pos);
+		}
+		mContentsRect.translate(0, delta_pos);
 	}
 }
 
