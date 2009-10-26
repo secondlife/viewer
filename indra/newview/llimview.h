@@ -183,7 +183,7 @@ public:
 	};
 
 	LLIMMgr();
-	virtual ~LLIMMgr();
+	virtual ~LLIMMgr() {};
 
 	// Add a message to a session. The session can keyed to sesion id
 	// or agent id.
@@ -245,9 +245,6 @@ public:
 	void processIMTypingStart(const LLIMInfo* im_info);
 	void processIMTypingStop(const LLIMInfo* im_info);
 
-	// Rebuild stuff
-	void refresh();
-
 	void notifyNewIM();
 	void clearNewIMNotification();
 
@@ -262,10 +259,6 @@ public:
 	// forced to log out or similar situations where you do not have a
 	// good connection.
 	void disconnectAllSessions();
-
-	// This is a helper function to determine what kind of im session
-	// should be used for the given agent.
-	static EInstantMessage defaultIMTypeForAgent(const LLUUID& agent_id);
 
 	BOOL hasSession(const LLUUID& session_id);
 
@@ -285,6 +278,7 @@ public:
 	void clearPendingAgentListUpdates(const LLUUID& session_id);
 
 	//HACK: need a better way of enumerating existing session, or listening to session create/destroy events
+	//@deprecated, is used only by LLToolBox, which is not used anywhere, right? (IB)
 	const std::set<LLHandle<LLFloater> >& getIMFloaterHandles() { return mFloaters; }
 
 	void addSessionObserver(LLIMSessionObserver *);
@@ -335,8 +329,9 @@ private:
 	void notifyObserverSessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
 private:
+	
+	//*TODO should be deleted when Communicate Floater is being deleted
 	std::set<LLHandle<LLFloater> > mFloaters;
-	LLFriendObserver* mFriendObserver;
 
 	typedef std::list <LLIMSessionObserver *> session_observers_list_t;
 	session_observers_list_t mSessionObservers;
