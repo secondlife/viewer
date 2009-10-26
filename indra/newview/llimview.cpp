@@ -1258,7 +1258,8 @@ void LLIMMgr::addMessage(
 		fixed_session_name = session_name;
 	}
 
-	if (!LLIMModel::getInstance()->findIMSession(new_session_id))
+	bool new_session = !hasSession(session_id);
+	if (new_session)
 	{
 		LLIMModel::getInstance()->newSession(session_id, fixed_session_name, dialog, other_participant_id);
 	}
@@ -1277,15 +1278,16 @@ void LLIMMgr::addMessage(
 	// create IM window as necessary
 	if(!floater)
 	{
-
-		
 		floater = createFloater(
 			new_session_id,
 			other_participant_id,
 			fixed_session_name,
 			dialog,
 			FALSE);
+	}
 
+	if (new_session)
+	{
 		// When we get a new IM, and if you are a god, display a bit
 		// of information about the source. This is to help liaisons
 		// when answering questions.
@@ -1295,7 +1297,7 @@ void LLIMMgr::addMessage(
 			std::ostringstream bonus_info;
 			bonus_info << LLTrans::getString("***")+ " "+ LLTrans::getString("IMParentEstate") + ":" + " "
 				<< parent_estate_id
-			<< ((parent_estate_id == 1) ? "," + LLTrans::getString("IMMainland") : "")
+				<< ((parent_estate_id == 1) ? "," + LLTrans::getString("IMMainland") : "")
 				<< ((parent_estate_id == 5) ? "," + LLTrans::getString ("IMTeen") : "");
 
 			// once we have web-services (or something) which returns
