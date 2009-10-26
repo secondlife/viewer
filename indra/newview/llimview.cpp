@@ -272,7 +272,8 @@ void LLIMModel::testMessages()
 }
 
 
-bool LLIMModel::newSession(LLUUID session_id, std::string name, EInstantMessage type, LLUUID other_participant_id, const std::vector<LLUUID>& ids)
+bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, 
+						   const LLUUID& other_participant_id, const std::vector<LLUUID>& ids)
 {
 	if (is_in_map(sSessionsMap, session_id))
 	{
@@ -289,7 +290,7 @@ bool LLIMModel::newSession(LLUUID session_id, std::string name, EInstantMessage 
 
 }
 
-bool LLIMModel::clearSession(LLUUID session_id)
+bool LLIMModel::clearSession(const LLUUID& session_id)
 {
 	if (sSessionsMap.find(session_id) == sSessionsMap.end()) return false;
 	delete (sSessionsMap[session_id]);
@@ -297,16 +298,13 @@ bool LLIMModel::clearSession(LLUUID session_id)
 	return true;
 }
 
-//*TODO remake it, instead of returing the list pass it as as parameter (IB)
-std::list<LLSD> LLIMModel::getMessages(LLUUID session_id, int start_index)
+void LLIMModel::getMessages(const LLUUID& session_id, std::list<LLSD>& messages, int start_index)
 {
-	std::list<LLSD> return_list;
-
 	LLIMSession* session = findIMSession(session_id);
 	if (!session) 
 	{
 		llwarns << "session " << session_id << "does not exist " << llendl;
-		return return_list;
+		return;
 	}
 
 	int i = session->mMsgs.size() - start_index;
@@ -317,7 +315,7 @@ std::list<LLSD> LLIMModel::getMessages(LLUUID session_id, int start_index)
 	{
 		LLSD msg;
 		msg = *iter;
-		return_list.push_back(*iter);
+		messages.push_back(*iter);
 		i--;
 	}
 
@@ -327,14 +325,9 @@ std::list<LLSD> LLIMModel::getMessages(LLUUID session_id, int start_index)
 	arg["session_id"] = session_id;
 	arg["num_unread"] = 0;
 	mNoUnreadMsgsSignal(arg);
-
-    // TODO: in the future is there a more efficient way to return these
-	//of course there is - return as parameter (IB)
-	return return_list;
-
 }
 
-bool LLIMModel::addToHistory(LLUUID session_id, std::string from, LLUUID from_id, std::string utf8_text) { 
+bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text) {
 	
 	LLIMSession* session = findIMSession(session_id);
 
@@ -383,8 +376,8 @@ bool LLIMModel::logToFile(const LLUUID& session_id, const std::string& from, con
 	return false;
 }
 
-//*TODO add const qualifier and pass by references (IB)
-bool LLIMModel::addMessage(LLUUID session_id, std::string from, LLUUID from_id, std::string utf8_text, bool log2file /* = true */) { 
+bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, 
+						   const std::string& utf8_text, bool log2file /* = true */) { 
 	LLIMSession* session = findIMSession(session_id);
 
 	if (!session) 
@@ -506,7 +499,7 @@ void LLIMModel::sendTypingState(LLUUID session_id, LLUUID other_participant_id, 
 	gAgent.sendReliableMessage();
 }
 
-void LLIMModel::sendLeaveSession(LLUUID session_id, LLUUID other_participant_id) 
+void LLIMModel::sendLeaveSession(const LLUUID& session_id, const LLUUID& other_participant_id)
 {
 	if(session_id.notNull())
 	{
@@ -1265,7 +1258,8 @@ void LLIMMgr::addMessage(
 		fixed_session_name = session_name;
 	}
 
-	if (!LLIMModel::getInstance()->findIMSession(new_session_id))
+	bool new_session = !hasSession(session_id);
+	if (new_session)
 	{
 		LLIMModel::getInstance()->newSession(session_id, fixed_session_name, dialog, other_participant_id);
 	}
@@ -1284,15 +1278,16 @@ void LLIMMgr::addMessage(
 	// create IM window as necessary
 	if(!floater)
 	{
-
-		
 		floater = createFloater(
 			new_session_id,
 			other_participant_id,
 			fixed_session_name,
 			dialog,
 			FALSE);
+	}
 
+	if (new_session)
+	{
 		// When we get a new IM, and if you are a god, display a bit
 		// of information about the source. This is to help liaisons
 		// when answering questions.
@@ -1302,7 +1297,7 @@ void LLIMMgr::addMessage(
 			std::ostringstream bonus_info;
 			bonus_info << LLTrans::getString("***")+ " "+ LLTrans::getString("IMParentEstate") + ":" + " "
 				<< parent_estate_id
-			<< ((parent_estate_id == 1) ? "," + LLTrans::getString("IMMainland") : "")
+				<< ((parent_estate_id == 1) ? "," + LLTrans::getString("IMMainland") : "")
 				<< ((parent_estate_id == 5) ? "," + LLTrans::getString ("IMTeen") : "");
 
 			// once we have web-services (or something) which returns
@@ -1405,10 +1400,7 @@ S32 LLIMMgr::getNumberOfUnreadIM()
 	S32 num = 0;
 	for(it = LLIMModel::sSessionsMap.begin(); it != LLIMModel::sSessionsMap.end(); ++it)
 	{
-		if((*it).first != mBeingRemovedSessionID)
-		{
-			num += (*it).second->mNumUnread;
-		}
+		num += (*it).second->mNumUnread;
 	}
 
 	return num;
@@ -1517,41 +1509,25 @@ bool LLIMMgr::leaveSession(const LLUUID& session_id)
 	return true;
 }
 
-// This removes the panel referenced by the uuid, and then restores
-// internal consistency. The internal pointer is not deleted? Did you mean
-// a pointer to the corresponding LLIMSession? Session data is cleared now.
-// Put a copy of UUID to avoid problem when passed reference becames invalid
-// if it has been come from the object removed in observer.
-void LLIMMgr::removeSession(LLUUID session_id)
+// Removes data associated with a particular session specified by session_id
+void LLIMMgr::removeSession(const LLUUID& session_id)
 {
-	if (mBeingRemovedSessionID == session_id)
-	{
-		return;
-	}
+	llassert_always(hasSession(session_id));
 	
+	//*TODO remove this floater thing when Communicate Floater is being deleted (IB)
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
 	if(floater)
 	{
 		mFloaters.erase(floater->getHandle());
 		LLFloaterChatterBox::getInstance()->removeFloater(floater);
-		//mTabContainer->removeTabPanel(floater);
-
-		clearPendingInvitation(session_id);
-		clearPendingAgentListUpdates(session_id);
 	}
 
-	// for some purposes storing ID of a sessios that is being removed
-	mBeingRemovedSessionID = session_id;
-	notifyObserverSessionRemoved(session_id);
+	clearPendingInvitation(session_id);
+	clearPendingAgentListUpdates(session_id);
 
-	//if we don't clear session data on removing the session
-	//we can't use LLBottomTray as observer of session creation/delettion and 
-	//creating chiclets only on session created even, we need to handle chiclets creation
-	//the same way as LLFloaterIMPanels were managed.
 	LLIMModel::getInstance()->clearSession(session_id);
 
-	// now this session is completely removed
-	mBeingRemovedSessionID.setNull();
+	notifyObserverSessionRemoved(session_id);
 }
 
 void LLIMMgr::inviteToSession(
@@ -1990,6 +1966,12 @@ void LLIMMgr::processIMTypingCore(const LLIMInfo* im_info, BOOL typing)
 	if (floater)
 	{
 		floater->processIMTyping(im_info, typing);
+	}
+
+	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+	if ( im_floater )
+	{
+		im_floater->processIMTyping(im_info, typing);
 	}
 }
 
