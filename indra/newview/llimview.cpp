@@ -1458,15 +1458,6 @@ BOOL LLIMMgr::getIMReceived() const
 	return mIMReceived;
 }
 
-// This method returns TRUE if the local viewer has a session
-// currently open keyed to the uuid. 
-BOOL LLIMMgr::isIMSessionOpen(const LLUUID& uuid)
-{
-	LLFloaterIMPanel* floater = findFloaterBySession(uuid);
-	if(floater) return TRUE;
-	return FALSE;
-}
-
 LLUUID LLIMMgr::addP2PSession(const std::string& name,
 							const LLUUID& other_participant_id,
 							const std::string& voice_session_handle,

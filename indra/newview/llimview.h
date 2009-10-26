@@ -200,11 +200,6 @@ public:
 
 	void addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLSD& args);
 
-	// This method returns TRUE if the local viewer has a session
-	// currently open keyed to the uuid. The uuid can be keyed by
-	// either session id or agent id.
-	BOOL isIMSessionOpen(const LLUUID& uuid);
-
 	// This adds a session to the talk view. The name is the local
 	// name of the session, dialog specifies the type of
 	// session. Since sessions can be keyed off of first recipient or
