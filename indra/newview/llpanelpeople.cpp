@@ -413,13 +413,17 @@ BOOL LLPanelPeople::postBuild()
 	mOnlineFriendList = getChild<LLPanel>(FRIENDS_TAB_NAME)->getChild<LLAvatarList>("avatars_online");
 	mAllFriendList = getChild<LLPanel>(FRIENDS_TAB_NAME)->getChild<LLAvatarList>("avatars_all");
 	mOnlineFriendList->setNoItemsCommentText(getString("no_friends_online"));
+	mOnlineFriendList->setShowIcons("FriendsListShowIcons");
 	mAllFriendList->setNoItemsCommentText(getString("no_friends"));
+	mAllFriendList->setShowIcons("FriendsListShowIcons");
 
 	mNearbyList = getChild<LLPanel>(NEARBY_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
 	mNearbyList->setNoItemsCommentText(getString("no_one_near"));
+	mNearbyList->setShowIcons("NearbyListShowIcons");
 
 	mRecentList = getChild<LLPanel>(RECENT_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
 	mRecentList->setNoItemsCommentText(getString("no_people"));
+	mRecentList->setShowIcons("RecentListShowIcons");
 
 	mGroupList = getChild<LLGroupList>("group_list");
 	mGroupList->setNoItemsCommentText(getString("no_groups"));
@@ -963,6 +967,8 @@ void LLPanelPeople::onFriendsViewSortMenuItemClicked(const LLSD& userdata)
 	}
 	else if (chosen_item == "view_icons")
 	{
+		mAllFriendList->toggleIcons();
+		mOnlineFriendList->toggleIcons();
 	}
 	else if (chosen_item == "organize_offline")
 	{
@@ -992,6 +998,7 @@ void LLPanelPeople::onNearbyViewSortMenuItemClicked(const LLSD& userdata)
 	}
 	else if (chosen_item == "view_icons")
 	{
+		mNearbyList->toggleIcons();
 	}
 	else if (chosen_item == "sort_distance")
 	{
@@ -1011,7 +1018,7 @@ void LLPanelPeople::onRecentViewSortMenuItemClicked(const LLSD& userdata)
 	}
 	else if (chosen_item == "view_icons")
 	{
-		// *TODO: implement showing/hiding icons
+		mRecentList->toggleIcons();
 	}
 }
 
