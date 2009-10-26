@@ -544,7 +544,7 @@ BOOL LLWearable::isDirty() const
 				else
 				{
 					// image found in current image list but not saved image list
-					return FALSE;
+					return TRUE;
 				}
 			}
 		}
