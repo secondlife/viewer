@@ -471,8 +471,10 @@
 
   <texture name="Widget_DownArrow" file_name="icons/Widget_DownArrow.png" preload="true" />
 
-  <texture name="Window_Background" file_name="windows/Window_Background.png" preload="true" />
-  <texture name="Window_Foreground" file_name="windows/Window_Foreground.png" preload="true" />
+  <texture name="Window_Background" file_name="windows/Window_Background.png" preload="true" 
+           scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />
+  <texture name="Window_Foreground" file_name="windows/Window_Foreground.png" preload="true" 
+           scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />
 
 
 

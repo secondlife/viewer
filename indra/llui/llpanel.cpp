@@ -71,10 +71,12 @@ const LLPanel::Params& LLPanel::getDefaultParams()
 LLPanel::Params::Params()
 :	has_border("border", false),
 	border(""),
-	bg_opaque_color("bg_opaque_color"),
-	bg_alpha_color("bg_alpha_color"),
 	background_visible("background_visible", false),
 	background_opaque("background_opaque", false),
+	bg_opaque_color("bg_opaque_color"),
+	bg_alpha_color("bg_alpha_color"),
+	bg_opaque_image("bg_opaque_image"),
+	bg_alpha_image("bg_alpha_image"),
 	min_width("min_width", 100),
 	min_height("min_height", 100),
 	strings("string"),
@@ -92,10 +94,12 @@ LLPanel::Params::Params()
 
 LLPanel::LLPanel(const LLPanel::Params& p)
 :	LLUICtrl(p),
-	mBgColorAlpha(p.bg_alpha_color()),
-	mBgColorOpaque(p.bg_opaque_color()),
 	mBgVisible(p.background_visible),
 	mBgOpaque(p.background_opaque),
+	mBgOpaqueColor(p.bg_opaque_color()),
+	mBgAlphaColor(p.bg_alpha_color()),
+	mBgOpaqueImage(p.bg_opaque_image()),
+	mBgAlphaImage(p.bg_alpha_image()),
 	mDefaultBtn(NULL),
 	mBorder(NULL),
 	mLabel(p.label),
@@ -178,19 +182,31 @@ void LLPanel::draw()
 	// draw background
 	if( mBgVisible )
 	{
-		//RN: I don't see the point of this
-		S32 left = 0;//LLPANEL_BORDER_WIDTH;
-		S32 top = getRect().getHeight();// - LLPANEL_BORDER_WIDTH;
-		S32 right = getRect().getWidth();// - LLPANEL_BORDER_WIDTH;
-		S32 bottom = 0;//LLPANEL_BORDER_WIDTH;
-
+		LLRect local_rect = getLocalRect();
 		if (mBgOpaque )
 		{
-			gl_rect_2d( left, top, right, bottom, mBgColorOpaque.get() % alpha);
+			// opaque, in-front look
+			if (mBgOpaqueImage.notNull())
+			{
+				mBgOpaqueImage->draw( local_rect, UI_VERTEX_COLOR % alpha );
+			}
+			else
+			{
+				// fallback to flat colors when there are no images
+				gl_rect_2d( local_rect, mBgOpaqueColor.get() % alpha);
+			}
 		}
 		else
 		{
-			gl_rect_2d( left, top, right, bottom, mBgColorAlpha.get() % alpha);
+			// transparent, in-back look
+			if (mBgAlphaImage.notNull())
+			{
+				mBgAlphaImage->draw( local_rect, UI_VERTEX_COLOR % alpha );
+			}
+			else
+			{
+				gl_rect_2d( local_rect, mBgAlphaColor.get() % alpha );
+			}
 		}
 	}
 
