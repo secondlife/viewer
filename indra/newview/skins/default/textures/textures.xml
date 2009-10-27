@@ -146,7 +146,8 @@
   <texture name="Info_Off" file_name="navbar/Info_Off.png" preload="false" />
   <texture name="Info_Press" file_name="navbar/Info_Press.png" preload="false" />
 
-  <texture name="Inspector_Background" file_name="windows/Inspector_Background.png" preload="false" />
+  <texture name="Inspector_Background" file_name="windows/Inspector_Background.png" preload="false"
+           scale.left="4" scale.top="28" scale.right="60" scale.bottom="4" />
   <texture name="Inspector_Hover" file_name="windows/Inspector_Hover.png" preload="false" />
 
   <texture name="Inv_Acessories" file_name="icons/Inv_Accessories.png" preload="false" />
@@ -436,7 +437,8 @@
   <texture name="TextField_Active" file_name="widgets/TextField_Active.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
 
   <texture name="Toast_CloseBtn" file_name="windows/Toast_CloseBtn.png" preload="true" />
-  <texture name="Toast" file_name="windows/Toast.png" preload="true" />
+  <texture name="Toast_Background" file_name="windows/Toast_Background.png" preload="true"
+           scale.left="4" scale.top="28" scale.right="60" scale.bottom="4" />
 
   <texture name="Tool_Create" file_name="build/Tool_Create.png" preload="false" />
   <texture name="Tool_Dozer" file_name="build/Tool_Dozer.png" preload="false" />
@@ -471,8 +473,10 @@
   <texture name="Widget_DownArrow" file_name="icons/Widget_DownArrow.png" preload="true" />
   <texture name="Widget_UpArrow" file_name="icons/Widget_UpArrow.png" preload="true" />
 
-  <texture name="Window_Background" file_name="windows/Window_Background.png" preload="true" />
-  <texture name="Window_Foreground" file_name="windows/Window_Foreground.png" preload="true" />
+  <texture name="Window_Background" file_name="windows/Window_Background.png" preload="true" 
+           scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />
+  <texture name="Window_Foreground" file_name="windows/Window_Foreground.png" preload="true" 
+           scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />
 
 
 

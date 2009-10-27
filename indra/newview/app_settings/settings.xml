@@ -8779,13 +8779,13 @@
     <key>UICloseBoxFromTop</key>
     <map>
       <key>Comment</key>
-      <string>Size of UI floater close box from top</string>
+      <string>Distance from top of floater to top of close box icon, pixels</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>1</real>
+      <real>5</real>
     </map>
     <key>UIExtraTriangleHeight</key>
     <map>
@@ -8823,13 +8823,13 @@
     <key>UIFloaterHeaderSize</key>
     <map>
       <key>Comment</key>
-      <string>Size of UI floater header size</string>
+      <string>UI floater header height in pixels</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>18</real>
+      <real>25</real>
     </map>
     <key>UIFloaterHPad</key>
     <map>
@@ -8853,16 +8853,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>UIFloaterVPad</key>
+    <key>UIFloaterTitleVPad</key>
     <map>
       <key>Comment</key>
-      <string>Size of UI floater vertical pad</string>
+      <string>Distance from top of floater to top of title string, pixels</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>6</real>
+      <real>7</real>
     </map>
     <key>UIImgDefaultEyesUUID</key>
     <map>

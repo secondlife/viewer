@@ -12,6 +12,8 @@
   top="500"
   follows="right|bottom" 
   bevel_style="in"
+  bg_opaque_image="Toast_Background" 
+  bg_alpha_image="Toast_Background" 
   can_minimize="false"
   can_tear_off="false"
   can_resize="false"

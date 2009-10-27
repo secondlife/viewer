@@ -219,7 +219,7 @@ void LLFloater::initClass()
 static LLWidgetNameRegistry::StaticRegistrar sRegisterFloaterParams(&typeid(LLFloater::Params), "floater");
 
 LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
-:	LLPanel(),
+:	LLPanel(),	// intentionally do not pass params here, see initFromParams
 	mDragHandle(NULL),
 	mTitle(p.title),
 	mShortTitle(p.short_title),
@@ -1548,26 +1548,42 @@ void LLFloater::draw()
 			shadow_color % alpha, 
 			llround(shadow_offset));
 
-		// No transparent windows in simple UI
+		LLUIImage* image = NULL;
+		LLColor4 color;
 		if (isBackgroundOpaque())
 		{
-			gl_rect_2d( left, top, right, bottom, getBackgroundColor() % alpha );
+			// NOTE: image may not be set
+			image = getBackgroundImage();
+			color = getBackgroundColor();
 		}
 		else
 		{
-			gl_rect_2d( left, top, right, bottom, getTransparentColor() % alpha );
+			image = getTransparentImage();
+			color = getTransparentColor();
 		}
 
-		if(hasFocus() 
-			&& !getIsChrome() 
-			&& !getCurrentTitle().empty())
+		if (image)
 		{
-			static LLUIColor titlebar_focus_color = LLUIColorTable::instance().getColor("TitleBarFocusColor");
+			// We're using images for this floater's backgrounds
+			image->draw(getLocalRect(), UI_VERTEX_COLOR % alpha);
+		}
+		else
+		{
+			// We're not using images, use old-school flat colors
+			gl_rect_2d( left, top, right, bottom, color % alpha );
+
 			// draw highlight on title bar to indicate focus.  RDW
-			const LLFontGL* font = LLFontGL::getFontSansSerif();
-			LLRect r = getRect();
-			gl_rect_2d_offset_local(0, r.getHeight(), r.getWidth(), r.getHeight() - (S32)font->getLineHeight() - 1, 
-				titlebar_focus_color % alpha, 0, TRUE);
+			if(hasFocus() 
+				&& !getIsChrome() 
+				&& !getCurrentTitle().empty())
+			{
+				static LLUIColor titlebar_focus_color = LLUIColorTable::instance().getColor("TitleBarFocusColor");
+				
+				const LLFontGL* font = LLFontGL::getFontSansSerif();
+				LLRect r = getRect();
+				gl_rect_2d_offset_local(0, r.getHeight(), r.getWidth(), r.getHeight() - (S32)font->getLineHeight() - 1, 
+					titlebar_focus_color % alpha, 0, TRUE);
+			}
 		}
 	}
 
@@ -1615,18 +1631,6 @@ void LLFloater::draw()
 			focused_child->setVisible(TRUE);
 		}
 		drawChild(focused_child);
-	}
-
-	if( isBackgroundVisible() )
-	{
-		// add in a border to improve spacialized visual aclarity ;)
-		// use lines instead of gl_rect_2d so we can round the edges as per james' recommendation
-		static LLUIColor focus_border_color = LLUIColorTable::instance().getColor("FloaterFocusBorderColor");
-		static LLUIColor unfocus_border_color = LLUIColorTable::instance().getColor("FloaterUnfocusBorderColor");
-		LLUI::setLineWidth(1.5f);
-		LLColor4 outlineColor = gFocusMgr.childHasKeyboardFocus(this) ? focus_border_color : unfocus_border_color;
-		gl_rect_2d_offset_local(0, getRect().getHeight() + 1, getRect().getWidth() + 1, 0, outlineColor % alpha, -LLPANEL_BORDER_WIDTH, FALSE);
-		LLUI::setLineWidth(1.f);
 	}
 
 	// update tearoff button for torn off floaters
@@ -2528,6 +2532,9 @@ void LLFloater::setupParamsForExport(Params& p, LLView* parent)
 
 void LLFloater::initFromParams(const LLFloater::Params& p)
 {
+	// *NOTE: We have too many classes derived from LLPanel to retrofit them 
+	// all to pass in params via constructors.  So we use this method.
+
 	 // control_name, tab_stop, focus_lost_callback, initial_value, rect, enabled, visible
 	LLPanel::initFromParams(p);
 
