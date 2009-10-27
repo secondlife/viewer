@@ -1350,7 +1350,9 @@ bool LLAppViewer::cleanup()
 	// Destroy the UI
 	if( gViewerWindow)
 		gViewerWindow->shutdownViews();
-
+	
+	gInventory.cleanupInventory();
+	
 	// Clean up selection managers after UI is destroyed, as UI may be observing them.
 	// Clean up before GL is shut down because we might be holding on to objects with texture references
 	LLSelectMgr::cleanupGlobals();
