@@ -159,6 +159,7 @@ public:
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}
 
+
 		LLTextBox* userName = getChild<LLTextBox>("user_name");
 		
 		if(!chat.mFromName.empty())
@@ -174,18 +175,14 @@ public:
 
 		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 
+		if(mSourceType != CHAT_SOURCE_AGENT)
+			icon->setDrawTooltip(false);
 
 		if(!chat.mFromID.isNull())
 		{
 			icon->setValue(chat.mFromID);
 		}
-		else
-		{
 
-		}
-
-		if(mSourceType != CHAT_SOURCE_AGENT)
-			icon->setToolTip(std::string(""));
 	} 
 
 	void nameUpdatedCallback(const LLUUID& id,const std::string& first,const std::string& last,BOOL is_group)
