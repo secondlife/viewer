@@ -1161,9 +1161,6 @@ void LLViewerMediaImpl::navigateHome()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mime_type,  bool rediscover_type, bool server_request)
 {
-	// Helpful to have media urls in log file. Shouldn't be spammy.
-	llinfos << "url=" << url << " mime_type=" << mime_type << llendl;
-	
 	if(server_request)
 	{
 		setNavState(MEDIANAVSTATE_SERVER_SENT);
@@ -1188,11 +1185,18 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 
 	if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
 	{
+		// Helpful to have media urls in log file. Shouldn't be spammy.
+		llinfos << "UNLOADED media id= " << mTextureId << " url=" << url << " mime_type=" << mime_type << llendl;
+
 		// This impl should not be loaded at this time.
 		LL_DEBUGS("PluginPriority") << this << "Not loading (PRIORITY_UNLOADED)" << LL_ENDL;
 		
 		return;
 	}
+
+	// Helpful to have media urls in log file. Shouldn't be spammy.
+	llinfos << "media id= " << mTextureId << " url=" << url << " mime_type=" << mime_type << llendl;
+	
 	
 	// If the caller has specified a non-empty MIME type, look that up in our MIME types list.
 	// If we have a plugin for that MIME type, use that instead of attempting auto-discovery.
