@@ -7,7 +7,7 @@
     <avatar_list
      color="DkGray2"
      follows="left|top|right|bottom"
-     height="150"
+     height="130"
      layout="topleft"
      left="3"
      name="speakers_list"
@@ -24,4 +24,10 @@
      label="Call"
      width="90"
      height="20" />
+    <button
+     name="end_call_btn"
+     label="End Call"
+     width="90"
+     height="20" 
+     visible="false"/>
 </panel>

@@ -202,8 +202,9 @@ BOOL LLIMFloater::postBuild()
 	if (other_party_id.notNull())
 	{
 		mOtherParticipantUUID = other_party_id;
-		mControlPanel->setID(mOtherParticipantUUID);
 	}
+
+	mControlPanel->setSessionId(mSessionID);
 
 	LLButton* slide_left = getChild<LLButton>("slide_left_btn");
 	slide_left->setVisible(mControlPanel->getVisible());
@@ -248,6 +249,8 @@ BOOL LLIMFloater::postBuild()
 // virtual
 void LLIMFloater::draw()
 {
+
+	
 	if ( mMeTyping )
 	{
 		// Time out if user hasn't typed for a while.
@@ -403,10 +406,12 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 {
 	mSessionInitialized = true;
 
+	//will be different only for an ad-hoc im session
 	if (mSessionID != im_session_id)
 	{
 		mSessionID = im_session_id;
 		setKey(im_session_id);
+		mControlPanel->setSessionId(im_session_id);
 	}
 	
 	//*TODO here we should remove "starting session..." warning message if we added it in postBuild() (IB)

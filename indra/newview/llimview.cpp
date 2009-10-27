@@ -145,7 +145,8 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	mInitialTargetIDs(ids),
 	mVoiceChannel(NULL),
 	mSpeakers(NULL),
-	mSessionInitialized(false)
+	mSessionInitialized(false),
+	mCallBackEnabled(true)
 {
 	if (IM_NOTHING_SPECIAL == type || IM_SESSION_P2P_INVITE == type)
 	{
@@ -168,6 +169,11 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		//we don't need to wait for any responses
 		//so we're already initialized
 		mSessionInitialized = true;
+	}
+
+	if (IM_NOTHING_SPECIAL == type)
+	{
+		mCallBackEnabled = LLVoiceClient::getInstance()->isSessionCallBackPossible(mSessionID);
 	}
 }
 
