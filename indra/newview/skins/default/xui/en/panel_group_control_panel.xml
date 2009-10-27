@@ -12,7 +12,8 @@
      left="3"
      name="speakers_list"
      top="10"
-     width="140"/>
+     width="140"
+     ignore_online_status="true"/>
     <button
      name="group_info_btn"
      label="Group Info"
