@@ -107,6 +107,8 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 	mCommitCallbackRegistrar(false),
 	mEnableCallbackRegistrar(false),
 	mXMLFilename(p.filename)
+	// *NOTE: Be sure to also change LLPanel::initFromParams().  We have too
+	// many classes derived from LLPanel to retrofit them all to pass in params.
 {
 	setIsChrome(FALSE);
 
@@ -459,7 +461,8 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 	setBackgroundOpaque(p.background_opaque);
 	setBackgroundColor(p.bg_opaque_color().get());
 	setTransparentColor(p.bg_alpha_color().get());
-	
+	mBgOpaqueImage = p.bg_opaque_image();
+	mBgAlphaImage = p.bg_alpha_image();
 }
 
 static LLFastTimer::DeclareTimer FTM_PANEL_SETUP("Panel Setup");

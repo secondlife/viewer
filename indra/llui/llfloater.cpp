@@ -219,7 +219,7 @@ void LLFloater::initClass()
 static LLWidgetNameRegistry::StaticRegistrar sRegisterFloaterParams(&typeid(LLFloater::Params), "floater");
 
 LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
-:	LLPanel(p),
+:	LLPanel(),	// intentionally do not pass params here, see initFromParams
 	mDragHandle(NULL),
 	mTitle(p.title),
 	mShortTitle(p.short_title),
@@ -2532,6 +2532,9 @@ void LLFloater::setupParamsForExport(Params& p, LLView* parent)
 
 void LLFloater::initFromParams(const LLFloater::Params& p)
 {
+	// *NOTE: We have too many classes derived from LLPanel to retrofit them 
+	// all to pass in params via constructors.  So we use this method.
+
 	 // control_name, tab_stop, focus_lost_callback, initial_value, rect, enabled, visible
 	LLPanel::initFromParams(p);
 
