@@ -437,7 +437,7 @@
   <texture name="TextField_Active" file_name="widgets/TextField_Active.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
 
   <texture name="Toast_CloseBtn" file_name="windows/Toast_CloseBtn.png" preload="true" />
-  <texture name="Toast" file_name="windows/Toast.png" preload="true" />
+  <texture name="Toast_Background" file_name="windows/Toast_Background.png" preload="true" />
 
   <texture name="Tool_Create" file_name="build/Tool_Create.png" preload="false" />
   <texture name="Tool_Dozer" file_name="build/Tool_Dozer.png" preload="false" />
