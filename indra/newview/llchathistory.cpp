@@ -38,8 +38,209 @@
 #include "llscrollcontainer.h"
 #include "llavatariconctrl.h"
 
+#include "llimview.h"
+#include "llcallingcard.h" //for LLAvatarTracker
+#include "llagentdata.h"
+#include "llavataractions.h"
+#include "lltrans.h"
+
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 static const std::string MESSAGE_USERNAME_DATE_SEPARATOR(" ----- ");
+
+std::string formatCurrentTime()
+{
+	time_t utc_time;
+	utc_time = time_corrected();
+	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
+		+LLTrans::getString("TimeMin")+"] ";
+
+	LLSD substitution;
+
+	substitution["datetime"] = (S32) utc_time;
+	LLStringUtil::format (timeStr, substitution);
+
+	return timeStr;
+}
+
+class LLChatHistoryHeader: public LLPanel
+{
+public:
+	static LLChatHistoryHeader* createInstance(const std::string& file_name)
+	{
+		LLChatHistoryHeader* pInstance = new LLChatHistoryHeader;
+		LLUICtrlFactory::getInstance()->buildPanel(pInstance, file_name);	
+		return pInstance;
+	}
+
+	BOOL handleMouseUp(S32 x, S32 y, MASK mask)
+	{
+		return LLPanel::handleMouseUp(x,y,mask);
+	}
+
+	void onAvatarIconContextMenuItemClicked(const LLSD& userdata)
+	{
+		std::string level = userdata.asString();
+
+		if (level == "profile")
+		{
+			LLAvatarActions::showProfile(getAvatarId());
+		}
+		else if (level == "im")
+		{
+			LLAvatarActions::startIM(getAvatarId());
+		}
+		else if (level == "add")
+		{
+			std::string name;
+			name.assign(getFirstName());
+			name.append(" ");
+			name.append(getLastName());
+
+			LLAvatarActions::requestFriendshipDialog(getAvatarId(), name);
+		}
+		else if (level == "remove")
+		{
+			LLAvatarActions::removeFriendDialog(getAvatarId());
+		}
+	}
+
+	BOOL postBuild()
+	{
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+
+		registrar.add("AvatarIcon.Action", boost::bind(&LLChatHistoryHeader::onAvatarIconContextMenuItemClicked, this, _2));
+
+		LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_avatar_icon.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+
+		mPopupMenuHandleAvatar = menu->getHandle();
+
+		return LLPanel::postBuild();
+	}
+
+	bool pointInChild(const std::string& name,S32 x,S32 y)
+	{
+		LLUICtrl* child = findChild<LLUICtrl>(name);
+		if(!child)
+			return false;
+		S32 local_x = x - child->getRect().mLeft ;
+		S32 local_y = y - child->getRect().mBottom ;
+		return 	child->pointInView(local_x, local_y);
+	}
+
+	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask)
+	{
+		if(pointInChild("avatar_icon",x,y) || pointInChild("user_name",x,y))
+		{
+			showContextMenu(x,y);
+			return TRUE;
+		}
+
+		return LLPanel::handleRightMouseDown(x,y,mask);
+	}
+	const LLUUID&		getAvatarId () const { return mAvatarID;}
+	const std::string&	getFirstName() const { return mFirstName; }
+	const std::string&	getLastName	() const { return mLastName; }
+
+	void setup(const LLChat& chat) 
+	{
+		mAvatarID = chat.mFromID;
+		mSourceType = chat.mSourceType;
+		gCacheName->get(mAvatarID, FALSE, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3, _4));
+		if(chat.mFromID.isNull())
+		{
+			mSourceType = CHAT_SOURCE_SYSTEM;
+		}
+
+		LLTextBox* userName = getChild<LLTextBox>("user_name");
+		
+		if(!chat.mFromName.empty())
+			userName->setValue(chat.mFromName);
+		else
+		{
+			std::string SL = LLTrans::getString("SECOND_LIFE");
+			userName->setValue(SL);
+		}
+		
+		LLTextBox* timeBox = getChild<LLTextBox>("time_box");
+		timeBox->setValue(formatCurrentTime());
+
+		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
+
+
+		if(!chat.mFromID.isNull())
+		{
+			icon->setValue(chat.mFromID);
+		}
+		else
+		{
+
+		}
+
+		if(mSourceType != CHAT_SOURCE_AGENT)
+			icon->setToolTip(std::string(""));
+	} 
+
+	void nameUpdatedCallback(const LLUUID& id,const std::string& first,const std::string& last,BOOL is_group)
+	{
+		if (id != mAvatarID)
+			return;
+		mFirstName = first;
+		mLastName = last;
+	}
+protected:
+	void showContextMenu(S32 x,S32 y)
+	{
+		if(mSourceType == CHAT_SOURCE_SYSTEM)
+			showSystemContextMenu(x,y);
+		if(mSourceType == CHAT_SOURCE_AGENT)
+			showAvatarContextMenu(x,y);
+		if(mSourceType == CHAT_SOURCE_OBJECT)
+			showObjectContextMenu(x,y);
+	}
+
+	void showSystemContextMenu(S32 x,S32 y)
+	{
+	}
+	void showObjectContextMenu(S32 x,S32 y)
+	{
+	}
+	
+	void showAvatarContextMenu(S32 x,S32 y)
+	{
+		LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandleAvatar.get();
+
+		if(menu)
+		{
+			bool is_friend = LLAvatarTracker::instance().getBuddyInfo(mAvatarID) != NULL;
+			
+			menu->setItemEnabled("Add Friend", !is_friend);
+			menu->setItemEnabled("Remove Friend", is_friend);
+
+			if(gAgentID == mAvatarID)
+			{
+				menu->setItemEnabled("Add Friend", false);
+				menu->setItemEnabled("Send IM", false);
+				menu->setItemEnabled("Remove Friend", false);
+			}
+
+			menu->buildDrawLabels();
+			menu->updateParent(LLMenuGL::sMenuContainer);
+			LLMenuGL::showPopup(this, menu, x, y);
+		}
+	}
+
+	
+
+protected:
+	LLHandle<LLView>	mPopupMenuHandleAvatar;
+
+	LLUUID			    mAvatarID;
+	EChatSourceType		mSourceType;
+	std::string			mFirstName;
+	std::string			mLastName;
+
+};
+
 
 LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
 : LLTextEditor(p),
@@ -78,35 +279,27 @@ LLView* LLChatHistory::getSeparator()
 	return separator;
 }
 
-LLView* LLChatHistory::getHeader(const LLUUID& avatar_id, std::string& from, std::string& time)
+LLView* LLChatHistory::getHeader(const LLChat& chat)
 {
-	LLPanel* header = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>(mMessageHeaderFilename, NULL, LLPanel::child_registry_t::instance());
-	LLTextBox* userName = header->getChild<LLTextBox>("user_name");
-	userName->setValue(from);
-	LLTextBox* timeBox = header->getChild<LLTextBox>("time_box");
-	timeBox->setValue(time);
-	if(!avatar_id.isNull())
-	{
-		LLAvatarIconCtrl* icon = header->getChild<LLAvatarIconCtrl>("avatar_icon");
-		icon->setValue(avatar_id);
-	}
+	LLChatHistoryHeader* header = LLChatHistoryHeader::createInstance(mMessageHeaderFilename);
+	header->setup(chat);
 	return header;
 }
 
-void LLChatHistory::appendWidgetMessage(const LLUUID& avatar_id, std::string& from, std::string& time, std::string& message, LLStyle::Params& style_params)
+void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& style_params)
 {
 	LLView* view = NULL;
 	std::string view_text;
 
-	if (mLastFromName == from)
+	if (mLastFromName == chat.mFromName)
 	{
 		view = getSeparator();
 		view_text = " ";
 	}
 	else
 	{
-		view = getHeader(avatar_id, from, time);
-		view_text = "\n" + from + MESSAGE_USERNAME_DATE_SEPARATOR + time;
+		view = getHeader(chat);
+		view_text = "\n" + chat.mFromName + MESSAGE_USERNAME_DATE_SEPARATOR + formatCurrentTime();
 	}
 	//Prepare the rect for the view
 	LLRect target_rect = getDocumentView()->getRect();
@@ -118,9 +311,9 @@ void LLChatHistory::appendWidgetMessage(const LLUUID& avatar_id, std::string& fr
 	appendWidget(view, view_text, FALSE, TRUE, mLeftWidgetPad, 0);
 
 	//Append the text message
-	appendText(message, TRUE, style_params);
+	appendText(chat.mText, TRUE, style_params);
 
-	mLastFromName = from;
+	mLastFromName = chat.mFromName;
 	blockUndo();
 	setCursorAndScrollToEnd();
 }
