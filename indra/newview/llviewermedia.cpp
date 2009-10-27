@@ -49,6 +49,7 @@
 #include "llnotifications.h"
 #include "lluuid.h"
 #include "llkeyboard.h"
+#include "llmutelist.h"
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
@@ -194,6 +195,14 @@ static void remove_media_impl(LLViewerMediaImpl* media)
 		}
 	}
 }
+
+class LLViewerMediaMuteListObserver : public LLMuteListObserver
+{
+	/* virtual */ void onChange()  { LLViewerMedia::muteListChanged();}
+};
+
+static LLViewerMediaMuteListObserver sViewerMediaMuteListObserver;
+static bool sViewerMediaMuteListObserverInitialized = false;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -410,10 +419,35 @@ F32 LLViewerMedia::getVolume()
 	return sGlobalVolume;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::muteListChanged()
+{
+	// When the mute list changes, we need to check mute status on all impls.
+	impl_list::iterator iter = sViewerMediaImplList.begin();
+	impl_list::iterator end = sViewerMediaImplList.end();
+
+	for(; iter != end; iter++)
+	{
+		LLViewerMediaImpl* pimpl = *iter;
+		pimpl->mNeedsMuteCheck = true;
+	}
+}
+
 // This is the predicate function used to sort sViewerMediaImplList by priority.
 static inline bool compare_impl_interest(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
 {
-	if(i1->hasFocus())
+	if(i1->mIsMuted)
+	{
+		// Muted items always go to the end of the list, period.
+		return false;
+	}
+	else if(i2->mIsMuted)
+	{
+		// Muted items always go to the end of the list, period.
+		return true;
+	}
+	else if(i1->hasFocus())
 	{
 		// The item with user focus always comes to the front of the list, period.
 		return true;
@@ -487,8 +521,9 @@ void LLViewerMedia::updateMedia()
 		
 		LLPluginClassMedia::EPriority new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 
-		if(impl_count_total > (int)max_instances)
+		if(pimpl->mIsMuted || (impl_count_total > (int)max_instances))
 		{
+			// Never load muted impls.
 			// Hard limit on the number of instances that will be loaded at one time
 			new_priority = LLPluginClassMedia::PRIORITY_UNLOADED;
 		}
@@ -605,8 +640,17 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mDoNavigateOnLoadServerRequest(false),
 	mMediaSourceFailedInit(false),
 	mRequestedVolume(1.0f),
+	mIsMuted(false),
+	mNeedsMuteCheck(false),
 	mIsUpdated(false)
 { 
+
+	// Set up the mute list observer if it hasn't been set up already.
+	if(!sViewerMediaMuteListObserverInitialized)
+	{
+		LLMuteList::getInstance()->addObserver(&sViewerMediaMuteListObserver);
+		sViewerMediaMuteListObserverInitialized = true;
+	}
 	
 	add_media_impl(this);
 	
@@ -1721,6 +1765,32 @@ void LLViewerMediaImpl::calculateInterest()
 		// This will be a relatively common case now, since it will always be true for unloaded media.
 		mInterest = 0.0f;
 	}
+	
+	if(mNeedsMuteCheck)
+	{
+		// Check all objects this instance is associated with, and those objects' owners, against the mute list
+		mIsMuted = false;
+		
+		std::list< LLVOVolume* >::iterator iter = mObjectList.begin() ;
+		for(; iter != mObjectList.end() ; ++iter)
+		{
+			LLVOVolume *obj = *iter;
+			if(LLMuteList::getInstance()->isMuted(obj->getID()))
+				mIsMuted = true;
+			else
+			{
+				// We won't have full permissions data for all objects.  Attempt to mute objects when we can tell their owners are muted.
+				LLPermissions* obj_perm = LLSelectMgr::getInstance()->findObjectPermissions(obj);
+				if(obj_perm)
+				{
+					if(LLMuteList::getInstance()->isMuted(obj_perm->getOwner()))
+						mIsMuted = true;
+				}
+			}
+		}
+		
+		mNeedsMuteCheck = false;
+	}
 }
 
 F64 LLViewerMediaImpl::getApproximateTextureInterest()
@@ -1828,11 +1898,13 @@ void LLViewerMediaImpl::addObject(LLVOVolume* obj)
 	}
 
 	mObjectList.push_back(obj) ;
+	mNeedsMuteCheck = true;
 }
 	
 void LLViewerMediaImpl::removeObject(LLVOVolume* obj) 
 {
 	mObjectList.remove(obj) ;	
+	mNeedsMuteCheck = true;
 }
 	
 const std::list< LLVOVolume* >* LLViewerMediaImpl::getObjectList() const 

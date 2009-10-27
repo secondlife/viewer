@@ -96,6 +96,7 @@ class LLViewerMedia
 		static void toggleMediaPlay(void*);
 		static void mediaStop(void*);
 		static F32 getVolume();	
+		static void muteListChanged();
 };
 
 // Implementation functions not exported into header file
@@ -290,6 +291,8 @@ public:
 	bool mDoNavigateOnLoadServerRequest;
 	bool mMediaSourceFailedInit;
 	F32 mRequestedVolume;
+	bool mIsMuted;
+	bool mNeedsMuteCheck;
 
 
 private:
