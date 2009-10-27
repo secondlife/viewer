@@ -437,14 +437,14 @@ void LLViewerMedia::muteListChanged()
 // This is the predicate function used to sort sViewerMediaImplList by priority.
 static inline bool compare_impl_interest(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
 {
-	if(i1->mIsMuted)
+	if(i1->mIsMuted || i1->mMediaSourceFailed)
 	{
-		// Muted items always go to the end of the list, period.
+		// Muted or failed items always go to the end of the list, period.
 		return false;
 	}
-	else if(i2->mIsMuted)
+	else if(i2->mIsMuted || i2->mMediaSourceFailed)
 	{
-		// Muted items always go to the end of the list, period.
+		// Muted or failed items always go to the end of the list, period.
 		return true;
 	}
 	else if(i1->hasFocus())
@@ -521,9 +521,9 @@ void LLViewerMedia::updateMedia()
 		
 		LLPluginClassMedia::EPriority new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 
-		if(pimpl->mIsMuted || (impl_count_total > (int)max_instances))
+		if(pimpl->mIsMuted || pimpl->mMediaSourceFailed || (impl_count_total > (int)max_instances))
 		{
-			// Never load muted impls.
+			// Never load muted or failed impls.
 			// Hard limit on the number of instances that will be loaded at one time
 			new_priority = LLPluginClassMedia::PRIORITY_UNLOADED;
 		}
@@ -583,6 +583,11 @@ void LLViewerMedia::updateMedia()
 			}
 		}
 		
+		if(new_priority != LLPluginClassMedia::PRIORITY_UNLOADED)
+		{
+			impl_count_total++;
+		}
+		
 		pimpl->setPriority(new_priority);
 
 #if 0		
@@ -596,7 +601,6 @@ void LLViewerMedia::updateMedia()
 #endif
 
 		total_cpu += pimpl->getCPUUsage();
-		impl_count_total++;
 	}
 	
 	LL_DEBUGS("PluginPriority") << "Total reported CPU usage is " << total_cpu << llendl;
@@ -638,7 +642,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mDoNavigateOnLoad(false),
 	mDoNavigateOnLoadRediscoverType(false),
 	mDoNavigateOnLoadServerRequest(false),
-	mMediaSourceFailedInit(false),
+	mMediaSourceFailed(false),
 	mRequestedVolume(1.0f),
 	mIsMuted(false),
 	mNeedsMuteCheck(false),
@@ -840,7 +844,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 	}
 
 	// If we got here, we want to ignore previous init failures.
-	mMediaSourceFailedInit = false;
+	mMediaSourceFailed = false;
 
 	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight);
 	
@@ -860,7 +864,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 	}
 
 	// Make sure the timer doesn't try re-initing this plugin repeatedly until something else changes.
-	mMediaSourceFailedInit = true;
+	mMediaSourceFailed = true;
 
 	return false;
 }
@@ -1182,6 +1186,9 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 	
 	// and if this was a server request, the navigate on load will also need to be one.
 	mDoNavigateOnLoadServerRequest = server_request;
+	
+	// An explicit navigate resets the "failed" flag.
+	mMediaSourceFailed = false;
 
 	if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
 	{
@@ -1354,7 +1361,7 @@ bool LLViewerMediaImpl::canNavigateBack()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::update()
 {
-	if(mMediaSource == NULL && !mMediaSourceFailedInit)
+	if(mMediaSource == NULL)
 	{
 		if(mPriority != LLPluginClassMedia::PRIORITY_UNLOADED)
 		{
@@ -1584,7 +1591,8 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
 		{
 			// The plugin failed to load properly.  Make sure the timer doesn't retry.
-			mMediaSourceFailedInit = true;
+			// TODO: maybe mark this plugin as not loadable somehow?
+			mMediaSourceFailed = true;
 			
 			// TODO: may want a different message for this case?
 			LLSD args;
@@ -1595,6 +1603,9 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 
 		case MEDIA_EVENT_PLUGIN_FAILED:
 		{
+			// The plugin crashed.
+			mMediaSourceFailed = true;
+
 			LLSD args;
 			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
 			// SJB: This is getting called every frame if the plugin fails to load, continuously respawining the alert!

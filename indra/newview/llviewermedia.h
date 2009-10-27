@@ -173,6 +173,7 @@ public:
 	bool isMediaPlaying();
 	bool isMediaPaused();
 	bool hasMedia();
+	bool isMediaFailed() { return mMediaSourceFailed; };
 
 	ECursorType getLastSetCursor() { return mLastSetCursor; };
 	
@@ -289,7 +290,7 @@ public:
 	bool mDoNavigateOnLoad;
 	bool mDoNavigateOnLoadRediscoverType;
 	bool mDoNavigateOnLoadServerRequest;
-	bool mMediaSourceFailedInit;
+	bool mMediaSourceFailed;
 	F32 mRequestedVolume;
 	bool mIsMuted;
 	bool mNeedsMuteCheck;
