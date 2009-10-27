@@ -20,8 +20,9 @@
     </panel.string>
     <check_box
      control_name="UseChatBubbles"
+     follows="left|top"
      height="16"
-     label="Bubble Chat"
+     label="Bubble chat"
      layout="topleft"
      left="30"
      top="10"
@@ -30,6 +31,7 @@
 
     <slider
      control_name="ChatBubbleOpacity"
+     follows="left|top"
      height="16"
      increment="0.05"
      initial_value="1"
@@ -40,40 +42,24 @@
      label_width="50"
      name="bubble_chat_opacity"
      width="200" />
-
-   <!-- <check_box
-     control_name="UIAutoScale"
-     height="16"
-     label="Resolution independent scale"
-     layout="topleft"
-     left="30"
-     name="ui_auto_scale"
-     top_pad="10"
-     width="256" />-->
-    <!--
-    <combo_box
-     height="18"
-     layout="topleft"
-     left_pad="5"
-     name="fullscreen combo"
-     top_delta="-1"
-     width="150" /-->
     <text
+     follows="left|top"
      type="string"
      length="1"
      height="25"
      layout="topleft"
      left="30"
-     top_pad="20"
+     top_pad="5"
      name="AspectRatioLabel1"
      tool_tip="width / height"
      label_width="50"
      width="120">
-        Aspect Ratio
+        Aspect ratio
     </text>
     <combo_box
      allow_text_entry="true"
      height="20"
+     follows="left|top"
      layout="topleft"
      left_pad="0"
      max_chars="100"
@@ -104,6 +90,7 @@
     </combo_box>
     <check_box
      control_name="FullScreenAutoDetectAspectRatio"
+     follows="left|top"
      height="25"
      label="Auto-detect"
      layout="topleft"
@@ -113,14 +100,14 @@
         <check_box.commit_callback
          function="Pref.AutoDetectAspect" />
     </check_box>
-
      <text
+     follows="left|top"
      type="string"
      length="1"
      height="10"
      left="30"
      name="heading1"
-     top_pad="10"
+     top_pad="5"
      width="270">
 Camera:
 	</text>
@@ -128,7 +115,7 @@ Camera:
      can_edit_text="true"
 	 control_name="CameraAngle"
      decimal_digits="2"
-     top_pad="10"
+     top_pad="5"
      follows="left|top"
      height="16"
      increment="0.025"
@@ -159,56 +146,62 @@ Camera:
      name="camera_offset_scale"
      show_text="false"
      width="240"
-     top_pad="10"/>
+     top_pad="5"/>
      <text
+     follows="left|top"
      type="string"
      length="1"
      height="10"
      left="30"
      name="heading2"
-     width="270">
+     width="270"
+     top_pad="5">
 Automatic positioning for:
 	</text>
         <check_box
      control_name="EditCameraMovement"
      height="20"
+     follows="left|top"
      label="Build/Edit"
      layout="topleft"
      left_delta="50"
      name="edit_camera_movement"
      tool_tip="Use automatic camera positioning when entering and exiting edit mode"
      width="280"
-     top_pad="10" />
+     top_pad="5" />
     <check_box
      control_name="AppearanceCameraMovement"
+     follows="left|top"
      height="16"
      label="Appearance"
      layout="topleft"
      name="appearance_camera_movement"
      tool_tip="Use automatic camera positioning while in edit mode"
      width="242" />
-
      <text
+     follows="left|top"
      type="string"
      length="1"
      height="10"
      left="30"
      name="heading3"
-     top_pad="10"
+     top_pad="5"
      width="270">
 Avatars:
 	</text>
     <check_box
      control_name="FirstPersonAvatarVisible"
+     follows="left|top"
      height="20"
      label="Show me in Mouselook"
      layout="topleft"
      left_delta="50"
      name="first_person_avatar_visible"
      width="256"
-     top_pad="10"/>
+     top_pad="0"/>
     <check_box
      control_name="ArrowKeysMoveAvatar"
+     follows="left|top"
      height="20"
      label="Arrow keys always move me"
      layout="topleft"
@@ -218,6 +211,7 @@ Avatars:
      top_pad="0"/>
     <check_box
      control_name="AllowTapTapHoldRun"
+     follows="left|top"
      height="20"
      label="Tap-tap-hold to run"
      layout="topleft"
@@ -227,6 +221,7 @@ Avatars:
      top_pad="0"/>
     <check_box
      control_name="LipSyncEnabled"
+     follows="left|top"
      height="20"
      label="Move avatar lips when speaking"
      layout="topleft"
@@ -236,16 +231,18 @@ Avatars:
      top_pad="0" />
     <check_box
      control_name="ShowScriptErrors"
+     follows="left|top"
      height="20"
      label="Show script errors"
      layout="topleft"
      left="30"
      name="show_script_errors"
      width="256"
-     top_pad="10"/>
+     top_pad="5"/>
     <radio_group
 	 enabled_control="ShowScriptErrors"
 	 control_name="ShowScriptErrorsLocation"
+     follows="top|left"
      draw_border="false"
      height="40"
      layout="topleft"
@@ -259,17 +256,53 @@ Avatars:
          layout="topleft"
          left="3"
          name="0"
-         top="3"
+         top="0"
          width="315" />
         <radio_item
          height="16"
          label="In window"
          layout="topleft"
-         left_delta="0"
+         left_delta="175"
          name="1"
-         top_delta="16"
+         top_delta="0"
          width="315" />
     </radio_group>
-
-
+     <check_box
+     follows="top|left"
+     height="20"
+     label="Use Push-to-talk in toggle mode"
+     layout="topleft"
+     left="30"
+     name="push_to_talk_toggle_check"
+     width="237"
+     top_pad="-25"
+     tool_tip="When in toggle mode, press and release the push-to-talk trigger to switch your microphone on and off. When not in toggle mode, the microphone is active only when the trigger is held down."/>
+    <line_editor 
+     follows="top|left"
+     height="19"
+     left_delta="50"
+     max_length="254"
+     name="modifier_combo"
+     label="Push-to-talk trigger"
+     top_pad="0"
+     width="280" />
+    <button
+	follows="top|left"
+	height="20"
+	label="Set Key"
+	left_delta="0"
+        name="set_voice_hotkey_button"
+	width="115"
+	top_pad="5" />
+    <button
+        bottom_delta="0"
+	follows="left"
+	font="SansSerif"
+	halign="center"
+	height="20"
+	label="Middle Mouse Button"
+	left_delta="120"
+	mouse_opaque="true"
+	name="set_voice_middlemouse_button"
+	width="160" />
 </panel>
