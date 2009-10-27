@@ -71,7 +71,6 @@
   <texture name="ComboButton_Press" file_name="widgets/ComboButton_Press.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_Selected" file_name="widgets/ComboButton_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_Off" file_name="widgets/ComboButton_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-
   <texture name="Container" file_name="containers/Container.png" preload="false" />
 
   <texture name="DisclosureArrow_Closed_Off" file_name="widgets/DisclosureArrow_Closed_Off.png" preload="true" />
@@ -374,7 +373,7 @@
   <texture name="SliderThumb_Disabled" file_name="widgets/SliderThumb_Disabled.png" />
   <texture name="SliderThumb_Press" file_name="widgets/SliderThumb_Press.png" />
 
-  <texture name="Snapshot_Off" file_name="bottomtray/Snapshot_Off.png" preload="false" />
+  <texture name="Snapshot_Off" file_name="bottomtray/Snapshot_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="Snapshot_Over" file_name="bottomtray/Snapshot_Over.png" preload="false" />
   <texture name="Snapshot_Press" file_name="bottomtray/Snapshot_Press.png" preload="false" />
 
@@ -470,6 +469,7 @@
   <texture name="VoicePTT_On" file_name="bottomtray/VoicePTT_On.png" preload="false" />
 
   <texture name="Widget_DownArrow" file_name="icons/Widget_DownArrow.png" preload="true" />
+  <texture name="Widget_UpArrow" file_name="icons/Widget_UpArrow.png" preload="true" />
 
   <texture name="Window_Background" file_name="windows/Window_Background.png" preload="true" />
   <texture name="Window_Foreground" file_name="windows/Window_Foreground.png" preload="true" />
