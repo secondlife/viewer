@@ -79,6 +79,7 @@ private:
 	const int mMinHeight;
 	const int mMaxHeight;
 	F64 mPlayRate;
+	std::string mNavigateURL;
 
 	enum ECommand {
 		COMMAND_NONE,
@@ -179,6 +180,11 @@ private:
 			setStatus(STATUS_ERROR);
 			return;
 		};
+		
+		mNavigateURL = url;
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_begin");
+		message.setValue("uri", mNavigateURL);
+		sendMessage(message);
 
 		// do pre-roll actions (typically fired for streaming movies but not always)
 		PrePrerollMovie( mMovieHandle, 0, getPlayRate(), moviePrePrerollCompleteCallback, ( void * )this );
@@ -389,11 +395,18 @@ private:
 
 	static void moviePrePrerollCompleteCallback( Movie movie, OSErr preroll_err, void *ref )
 	{
-		//MediaPluginQuickTime* self = ( MediaPluginQuickTime* )ref;
+		MediaPluginQuickTime* self = ( MediaPluginQuickTime* )ref;
 
 		// TODO:
 		//LLMediaEvent event( self );
 		//self->mEventEmitter.update( &LLMediaObserver::onMediaPreroll, event );
+		
+		// Send a "navigate complete" event.
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_complete");
+		message.setValue("uri", self->mNavigateURL);
+		message.setValueS32("result_code", 200);
+		message.setValue("result_string", "OK");
+		self->sendMessage(message);
 	};
 
 

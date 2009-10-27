@@ -232,7 +232,7 @@
         <menu_item_separator
          layout="topleft" />
         <menu_item_call
-         label="Place Profile"
+         label="About Land"
          layout="topleft"
          name="About Land">
             <menu_item_call.on_click

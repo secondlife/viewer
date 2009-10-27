@@ -191,25 +191,25 @@ LLPointer<LLViewerTexture> LLViewerTextureManager::getLocalTexture(const U32 wid
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(
 	                                               const LLUUID &image_id,											       
 												   BOOL usemipmaps,
-												   BOOL level_immediate,
+												   S32 boost_priority,
 												   S8 texture_type,
 												   LLGLint internal_format,
 												   LLGLenum primary_format,
 												   LLHost request_from_host)
 {
-	return gTextureList.getImage(image_id, usemipmaps, level_immediate, texture_type, internal_format, primary_format, request_from_host) ;
+	return gTextureList.getImage(image_id, usemipmaps, boost_priority, texture_type, internal_format, primary_format, request_from_host) ;
 }
 	
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromFile(
 	                                               const std::string& filename,												   
 												   BOOL usemipmaps,
-												   BOOL level_immediate,
+												   S32 boost_priority,
 												   S8 texture_type,
 												   LLGLint internal_format,
 												   LLGLenum primary_format, 
 												   const LLUUID& force_id)
 {
-	return gTextureList.getImageFromFile(filename, usemipmaps, level_immediate, texture_type, internal_format, primary_format, force_id) ;
+	return gTextureList.getImageFromFile(filename, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id) ;
 }
 
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromHost(const LLUUID& image_id, LLHost host) 

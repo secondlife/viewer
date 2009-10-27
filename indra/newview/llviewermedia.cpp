@@ -48,6 +48,7 @@
 #include "llevent.h"		// LLSimpleListener
 #include "llnotifications.h"
 #include "lluuid.h"
+#include "llkeyboard.h"
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
@@ -170,6 +171,7 @@ typedef std::vector<LLViewerMediaImpl*> impl_list;
 static impl_list sViewerMediaImplList;
 static LLTimer sMediaCreateTimer;
 static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
+static F32 sGlobalVolume = 1.0f;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 static void add_media_impl(LLViewerMediaImpl* media)
@@ -387,14 +389,25 @@ bool LLViewerMedia::textureHasMedia(const LLUUID& texture_id)
 // static
 void LLViewerMedia::setVolume(F32 volume)
 {
-	impl_list::iterator iter = sViewerMediaImplList.begin();
-	impl_list::iterator end = sViewerMediaImplList.end();
-
-	for(; iter != end; iter++)
+	if(volume != sGlobalVolume)
 	{
-		LLViewerMediaImpl* pimpl = *iter;
-		pimpl->setVolume(volume);
+		sGlobalVolume = volume;
+		impl_list::iterator iter = sViewerMediaImplList.begin();
+		impl_list::iterator end = sViewerMediaImplList.end();
+
+		for(; iter != end; iter++)
+		{
+			LLViewerMediaImpl* pimpl = *iter;
+			pimpl->updateVolume();
+		}
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+F32 LLViewerMedia::getVolume()
+{
+	return sGlobalVolume;
 }
 
 // This is the predicate function used to sort sViewerMediaImplList by priority.
@@ -591,6 +604,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mDoNavigateOnLoadRediscoverType(false),
 	mDoNavigateOnLoadServerRequest(false),
 	mMediaSourceFailedInit(false),
+	mRequestedVolume(1.0f),
 	mIsUpdated(false)
 { 
 	
@@ -792,8 +806,12 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		media_source->setLoop(mMediaLoop);
 		media_source->setAutoScale(mMediaAutoScale);
 		media_source->setBrowserUserAgent(LLViewerMedia::getCurrentUserAgent());
+		media_source->focus(mHasFocus);
 		
 		mMediaSource = media_source;
+
+		updateVolume();
+
 		return true;
 	}
 
@@ -884,10 +902,23 @@ void LLViewerMediaImpl::seek(F32 time)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::setVolume(F32 volume)
 {
+	mRequestedVolume = volume;
+	updateVolume();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::updateVolume()
+{
 	if(mMediaSource)
 	{
-		mMediaSource->setVolume(volume);
+		mMediaSource->setVolume(mRequestedVolume * LLViewerMedia::getVolume());
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+F32 LLViewerMediaImpl::getVolume()
+{
+	return mRequestedVolume;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -917,7 +948,7 @@ bool LLViewerMediaImpl::hasFocus() const
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::mouseDown(S32 x, S32 y)
+void LLViewerMediaImpl::mouseDown(S32 x, S32 y, MASK mask, S32 button)
 {
 	scaleMouse(&x, &y);
 	mLastMouseX = x;
@@ -925,12 +956,12 @@ void LLViewerMediaImpl::mouseDown(S32 x, S32 y)
 //	llinfos << "mouse down (" << x << ", " << y << ")" << llendl;
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOWN, x, y, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOWN, button, x, y, mask);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::mouseUp(S32 x, S32 y)
+void LLViewerMediaImpl::mouseUp(S32 x, S32 y, MASK mask, S32 button)
 {
 	scaleMouse(&x, &y);
 	mLastMouseX = x;
@@ -938,12 +969,12 @@ void LLViewerMediaImpl::mouseUp(S32 x, S32 y)
 //	llinfos << "mouse up (" << x << ", " << y << ")" << llendl;
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, x, y, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, button, x, y, mask);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::mouseMove(S32 x, S32 y)
+void LLViewerMediaImpl::mouseMove(S32 x, S32 y, MASK mask)
 {
     scaleMouse(&x, &y);
 	mLastMouseX = x;
@@ -951,50 +982,53 @@ void LLViewerMediaImpl::mouseMove(S32 x, S32 y)
 //	llinfos << "mouse move (" << x << ", " << y << ")" << llendl;
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_MOVE, x, y, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_MOVE, 0, x, y, mask);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::mouseDown(const LLVector2& texture_coords)
+void LLViewerMediaImpl::mouseDown(const LLVector2& texture_coords, MASK mask, S32 button)
 {
 	if(mMediaSource)
 	{		
 		mouseDown(
 			llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth()),
-			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()));
+			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()),
+			mask, button);
 	}
 }
 
-void LLViewerMediaImpl::mouseUp(const LLVector2& texture_coords)
+void LLViewerMediaImpl::mouseUp(const LLVector2& texture_coords, MASK mask, S32 button)
 {
 	if(mMediaSource)
 	{		
 		mouseUp(
 			llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth()),
-			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()));
+			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()),
+			mask, button);
 	}
 }
 
-void LLViewerMediaImpl::mouseMove(const LLVector2& texture_coords)
+void LLViewerMediaImpl::mouseMove(const LLVector2& texture_coords, MASK mask)
 {
 	if(mMediaSource)
 	{		
 		mouseMove(
 			llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth()),
-			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()));
+			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()),
+			mask);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::mouseLeftDoubleClick(S32 x, S32 y)
+void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 {
 	scaleMouse(&x, &y);
 	mLastMouseX = x;
 	mLastMouseY = y;
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOUBLE_CLICK, x, y, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOUBLE_CLICK, button, x, y, mask);
 	}
 }
 
@@ -1003,7 +1037,7 @@ void LLViewerMediaImpl::onMouseCaptureLost()
 {
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, mLastMouseX, mLastMouseY, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, 0, mLastMouseX, mLastMouseY, 0);
 	}
 }
 
@@ -1240,7 +1274,7 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
 		if (uni_char >= 32 // discard 'control' characters
 			&& uni_char != 127) // SDL thinks this is 'delete' - yuck.
 		{
-			mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)));
+			mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(FALSE));
 		}
 	}
 	

@@ -273,7 +273,7 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	if (mShowLineNumbers)
 	{
 		mHPad += UI_TEXTEDITOR_LINE_NUMBER_MARGIN;
-		updateTextRect();
+		updateRects();
 	}
 }
 

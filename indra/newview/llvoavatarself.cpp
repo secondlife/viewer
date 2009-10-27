@@ -973,8 +973,7 @@ void LLVOAvatarSelf::wearableUpdated( EWearableType type )
 				{
 					if (mBakedTextureDatas[index].mTexLayerSet)
 					{
-						mBakedTextureDatas[index].mTexLayerSet->requestUpdate();
-						mBakedTextureDatas[index].mTexLayerSet->requestUpload();
+						invalidateComposite(mBakedTextureDatas[index].mTexLayerSet, TRUE);
 					}
 					break;
 				}

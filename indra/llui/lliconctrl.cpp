@@ -56,7 +56,8 @@ LLIconCtrl::Params::Params()
 LLIconCtrl::LLIconCtrl(const LLIconCtrl::Params& p)
 :	LLUICtrl(p),
 	mColor(p.color()),
-	mImagep(p.image)
+	mImagep(p.image),
+	mPriority(0)
 {
 	if (mImagep.notNull())
 	{
@@ -93,11 +94,11 @@ void LLIconCtrl::setValue(const LLSD& value )
 	LLUICtrl::setValue(tvalue);
 	if (tvalue.isUUID())
 	{
-		mImagep = LLUI::getUIImageByID(tvalue.asUUID());
+		mImagep = LLUI::getUIImageByID(tvalue.asUUID(), mPriority);
 	}
 	else
 	{
-		mImagep = LLUI::getUIImage(tvalue.asString());
+		mImagep = LLUI::getUIImage(tvalue.asString(), mPriority);
 	}
 }
 
