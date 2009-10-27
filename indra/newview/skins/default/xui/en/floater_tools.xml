@@ -2836,8 +2836,8 @@
         <button
          follows="left|top"
          height="20"
-         label="Land profile"
-         label_selected="Land profile"
+         label="About Land"
+         label_selected="About Land"
          layout="topleft"
          left_delta="0"
          name="button about land"
