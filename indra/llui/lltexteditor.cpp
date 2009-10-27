@@ -63,6 +63,7 @@
 #include "llpanel.h"
 #include "llurlregistry.h"
 #include "lltooltip.h"
+#include "llmenugl.h"
 
 #include <queue>
 #include "llcombobox.h"
@@ -252,7 +253,8 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	mHandleEditKeysDirectly( p.handle_edit_keys_directly ),
 	mMouseDownX(0),
 	mMouseDownY(0),
-	mTabsToNextField(p.ignore_tab)
+	mTabsToNextField(p.ignore_tab),
+	mContextMenu(NULL)
 {
 	mDefaultFont = p.font;
 
@@ -301,6 +303,8 @@ LLTextEditor::~LLTextEditor()
 
 	// Scrollbar is deleted by LLView
 	std::for_each(mUndoStack.begin(), mUndoStack.end(), DeletePointer());
+
+	delete mContextMenu;
 }
 
 ////////////////////////////////////////////////////////////
@@ -702,6 +706,19 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
+BOOL LLTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = LLTextBase::handleRightMouseDown(x, y, mask);
+	if (!handled && hasTabStop())
+	{
+		setFocus( TRUE );
+		showContextMenu(x, y);
+		handled = TRUE;
+	}
+	return handled;
+}
+
+
 
 BOOL LLTextEditor::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
@@ -736,7 +753,6 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 			setCursorAtLocalPos( clamped_x, clamped_y, true );
 			mSelectionEnd = mCursorPos;
 		}
-
 		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (active)" << llendl;		
 		getWindow()->setCursor(UI_CURSOR_IBEAM);
 		handled = TRUE;
@@ -1990,6 +2006,21 @@ void LLTextEditor::setEnabled(BOOL enabled)
 		updateAllowingLanguageInput();
 	}
 }
+
+void LLTextEditor::showContextMenu(S32 x, S32 y)
+{
+	if (!mContextMenu)
+	{
+		mContextMenu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>("menu_text_editor.xml", 
+																				LLMenuGL::sMenuContainer, 
+																				LLMenuHolderGL::child_registry_t::instance());
+	}
+
+	S32 screen_x, screen_y;
+	localPointToScreen(x, y, &screen_x, &screen_y);
+	mContextMenu->show(screen_x, screen_y);
+}
+
 
 void LLTextEditor::drawPreeditMarker()
 {
