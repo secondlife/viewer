@@ -56,7 +56,7 @@
 //static LLRegisterPanelClassWrapper<LLLandmarksPanel> t_landmarks("panel_landmarks");
 
 static const std::string OPTIONS_BUTTON_NAME = "options_gear_btn";
-static const std::string ADD_LANDMARK_BUTTON_NAME = "add_landmark_btn";
+static const std::string ADD_BUTTON_NAME = "add_btn";
 static const std::string ADD_FOLDER_BUTTON_NAME = "add_folder_btn";
 static const std::string TRASH_BUTTON_NAME = "trash_btn";
 
@@ -300,6 +300,8 @@ void LLLandmarksPanel::processParcelInfo(const LLParcelData& parcel_data)
 					panel_pick, panel_places,params));
 			panel_pick->setSaveCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
 				panel_pick, panel_places,params));
+			panel_pick->setCancelCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
+							panel_pick, panel_places,params));
 		}
 	}
 }
@@ -433,11 +435,11 @@ void LLLandmarksPanel::initListCommandsHandlers()
 	mListCommands = getChild<LLPanel>("bottom_panel");
 
 	mListCommands->childSetAction(OPTIONS_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onActionsButtonClick, this));
-	mListCommands->childSetAction(ADD_LANDMARK_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onAddLandmarkButtonClick, this));
-	mListCommands->childSetAction(ADD_FOLDER_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onAddFolderButtonClick, this));
 	mListCommands->childSetAction(TRASH_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onTrashButtonClick, this));
+	mListCommands->getChild<LLButton>(ADD_BUTTON_NAME)->setHeldDownCallback(boost::bind(&LLLandmarksPanel::onAddButtonHeldDown, this));
+	static const LLSD add_landmark_command("add_landmark");
+	mListCommands->childSetAction(ADD_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onAddAction, this, add_landmark_command));
 
-	
 	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>(TRASH_BUTTON_NAME);
 	trash_btn->setDragAndDropHandler(boost::bind(&LLLandmarksPanel::handleDragAndDropToTrash, this
 			,	_4 // BOOL drop
@@ -453,6 +455,7 @@ void LLLandmarksPanel::initListCommandsHandlers()
 	mEnableCallbackRegistrar.add("Places.LandmarksGear.Enable", boost::bind(&LLLandmarksPanel::isActionEnabled, this, _2));
 	mGearLandmarkMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_places_gear_landmark.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGearFolderMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_places_gear_folder.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mMenuAdd = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_place_add_button.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 }
 
 
@@ -488,52 +491,26 @@ void LLLandmarksPanel::onActionsButtonClick()
 		mGearFolderMenu->getChild<LLMenuItemCallGL>("collapse")->setVisible(cur_item->isOpen());
 		menu = mGearFolderMenu;
 	}
-	if(menu)
+	showActionMenu(menu,OPTIONS_BUTTON_NAME);
+}
+
+void LLLandmarksPanel::onAddButtonHeldDown()
+{
+	showActionMenu(mMenuAdd,ADD_BUTTON_NAME);
+}
+
+void LLLandmarksPanel::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)
+{
+	if (menu)
 	{
 		menu->buildDrawLabels();
 		menu->updateParent(LLMenuGL::sMenuContainer);
-		LLView* actions_btn  = getChild<LLView>(OPTIONS_BUTTON_NAME);
+		LLView* spawning_view = getChild<LLView> (spawning_view_name);
 		S32 menu_x, menu_y;
-		actions_btn->localPointToOtherView(0,actions_btn->getRect().getHeight(),&menu_x,&menu_y, this);
+		//show menu in co-ordinates of panel
+		spawning_view->localPointToOtherView(0, spawning_view->getRect().getHeight(), &menu_x, &menu_y, this);
 		menu_y += menu->getRect().getHeight();
-		LLMenuGL::showPopup(this, menu, menu_x,menu_y);
-	}
-}
-
-void LLLandmarksPanel::onAddLandmarkButtonClick() const
-{
-	if(LLLandmarkActions::landmarkAlreadyExists())
-	{
-		std::string location;
-		LLAgentUI::buildLocationString(location, LLAgentUI::LOCATION_FORMAT_FULL);
-		llwarns<<" Landmark already exists at location:  "<< location<<llendl;
-		return;
-	}
-	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
-}
-
-void LLLandmarksPanel::onAddFolderButtonClick() const
-{
-	LLFolderViewItem*  item = getCurSelectedItem();
-	if(item &&  mCurrentSelectedList == mLandmarksInventoryPanel)
-	{
-		LLFolderViewEventListener* folder_bridge = NULL;
-		if(item-> getListener()->getInventoryType() == LLInventoryType::IT_LANDMARK)
-		{
-			// for a landmark get parent folder bridge
-			folder_bridge = item->getParentFolder()->getListener();
-		}
-		else if (item-> getListener()->getInventoryType() == LLInventoryType::IT_CATEGORY) 
-		{
-			// for a folder get its own bridge
-			folder_bridge = item->getListener();
-		}
-
-		menu_create_inventory_item(mCurrentSelectedList->getRootFolder()
-			, dynamic_cast<LLFolderBridge*>(folder_bridge)
-			, LLSD("category")
-			, gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK)
-			);
+		LLMenuGL::showPopup(this, menu, menu_x, menu_y);
 	}
 }
 
@@ -547,11 +524,39 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 	std::string command_name = userdata.asString();
 	if("add_landmark" == command_name)
 	{
-		onAddLandmarkButtonClick();
+		if(LLLandmarkActions::landmarkAlreadyExists())
+		{
+			std::string location;
+			LLAgentUI::buildLocationString(location, LLAgentUI::LOCATION_FORMAT_FULL);
+			llwarns<<" Landmark already exists at location:  "<< location<<llendl;
+			return;
+		}
+		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
 	} 
 	else if ("category" == command_name)
 	{
-		onAddFolderButtonClick();
+		LLFolderViewItem* item = getCurSelectedItem();
+		if (item && mCurrentSelectedList == mLandmarksInventoryPanel)
+		{
+			LLFolderViewEventListener* folder_bridge = NULL;
+			if (item-> getListener()->getInventoryType()
+					== LLInventoryType::IT_LANDMARK)
+			{
+				// for a landmark get parent folder bridge
+				folder_bridge = item->getParentFolder()->getListener();
+			}
+			else if (item-> getListener()->getInventoryType()
+					== LLInventoryType::IT_CATEGORY)
+			{
+				// for a folder get its own bridge
+				folder_bridge = item->getListener();
+			}
+
+			menu_create_inventory_item(mCurrentSelectedList->getRootFolder(),
+					dynamic_cast<LLFolderBridge*> (folder_bridge), LLSD(
+							"category"), gInventory.findCategoryUUIDForType(
+							LLAssetType::AT_LANDMARK));
+		}
 	}
 }
 

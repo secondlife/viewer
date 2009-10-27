@@ -48,6 +48,18 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	mSpeakerMgr->addListener(mSpeakerAddListener, "add");
 	mSpeakerMgr->addListener(mSpeakerRemoveListener, "remove");
 	mSpeakerMgr->addListener(mSpeakerClearListener, "clear");
+
+	//Lets fill avatarList with existing speakers
+	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
+
+	LLSpeakerMgr::speaker_list_t speaker_list;
+	mSpeakerMgr->getSpeakerList(&speaker_list, true);
+	for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
+	{
+		group_members.push_back((*it)->mID);
+	}
+	mAvatarList->setDirty();
+	mAvatarList->sortByName();
 }
 
 LLParticipantList::~LLParticipantList()
