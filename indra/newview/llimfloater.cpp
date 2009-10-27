@@ -428,7 +428,11 @@ void LLIMFloater::updateMessages()
 			if (from == agent_name)
 				from = LLTrans::getString("You");
 
-			mChatHistory->appendWidgetMessage(from_id, from, time, message, style_params);
+			LLChat chat(message);
+			chat.mFromID = from_id;
+			chat.mFromName = from;
+
+			mChatHistory->appendWidgetMessage(chat, style_params);
 
 			mLastMessageIndex = msg["index"].asInteger();
 		}
