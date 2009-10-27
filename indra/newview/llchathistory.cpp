@@ -122,6 +122,14 @@ public:
 		LLUICtrl* child = findChild<LLUICtrl>(name);
 		if(!child)
 			return false;
+		
+		LLView* parent = child->getParent();
+		if(parent!=this)
+		{
+			x-=parent->getRect().mLeft;
+			y-=parent->getRect().mBottom;
+		}
+
 		S32 local_x = x - child->getRect().mLeft ;
 		S32 local_y = y - child->getRect().mBottom ;
 		return 	child->pointInView(local_x, local_y);

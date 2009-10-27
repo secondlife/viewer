@@ -70,6 +70,10 @@ public:
 		LLIMSpeakerMgr* mSpeakers;
 
 		bool mSessionInitialized;
+
+		//true if calling back the session URI after the session has closed is possible.
+		//Currently this will be false only for PSTN P2P calls.
+		bool mCallBackEnabled;
 	};
 	
 
@@ -313,6 +317,12 @@ public:
 
 	void addSessionObserver(LLIMSessionObserver *);
 	void removeSessionObserver(LLIMSessionObserver *);
+
+	//show error statuses to the user
+	void showSessionStartError(const std::string& error_string, const LLUUID session_id);
+	void showSessionEventError(const std::string& event_string, const std::string& error_string, const LLUUID session_id);
+	void showSessionForceClose(const std::string& reason, const LLUUID session_id);
+	static bool onConfirmForceCloseError(const LLSD& notification, const LLSD& response);
 
 	/**
 	 * Start call in a session

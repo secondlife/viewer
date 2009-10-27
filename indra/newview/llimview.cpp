@@ -145,7 +145,8 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	mInitialTargetIDs(ids),
 	mVoiceChannel(NULL),
 	mSpeakers(NULL),
-	mSessionInitialized(false)
+	mSessionInitialized(false),
+	mCallBackEnabled(true)
 {
 	if (IM_NOTHING_SPECIAL == type || IM_SESSION_P2P_INVITE == type)
 	{
@@ -168,6 +169,11 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		//we don't need to wait for any responses
 		//so we're already initialized
 		mSessionInitialized = true;
+	}
+
+	if (IM_NOTHING_SPECIAL == type)
+	{
+		mCallBackEnabled = LLVoiceClient::getInstance()->isSessionCallBackPossible(mSessionID);
 	}
 }
 
@@ -884,20 +890,11 @@ public:
 		{
 			gIMMgr->clearPendingAgentListUpdates(mSessionID);
 			gIMMgr->clearPendingInvitation(mSessionID);
-
-			LLFloaterIMPanel* floaterp =
-				gIMMgr->findFloaterBySession(mSessionID);
-
-			if ( floaterp )
+			if ( 404 == statusNum )
 			{
-				if ( 404 == statusNum )
-				{
-					std::string error_string;
-					error_string = "does not exist";
-
-					floaterp->showSessionStartError(
-						error_string);
-				}
+				std::string error_string;
+				error_string = "does not exist";
+				gIMMgr->showSessionStartError(error_string, mSessionID);
 			}
 		}
 	}
@@ -948,6 +945,106 @@ LLUUID LLIMMgr::computeSessionID(
 	}
 	return session_id;
 }
+
+inline LLFloater* getFloaterBySessionID(const LLUUID session_id)
+{
+	LLFloater* floater = NULL;
+	if ( gIMMgr )
+	{
+		floater = dynamic_cast < LLFloater* >
+			( gIMMgr->findFloaterBySession(session_id) );
+	}
+	if ( !floater )
+	{
+		floater = dynamic_cast < LLFloater* >
+			( LLIMFloater::findInstance(session_id) );
+	}
+	return floater;
+}
+
+void
+LLIMMgr::showSessionStartError(
+	const std::string& error_string,
+	const LLUUID session_id)
+{
+	const LLFloater* floater = getFloaterBySessionID (session_id);
+	if (!floater) return;
+
+	LLSD args;
+	args["REASON"] = LLTrans::getString(error_string);
+	args["RECIPIENT"] = floater->getTitle();
+
+	LLSD payload;
+	payload["session_id"] = session_id;
+
+	LLNotifications::instance().add(
+		"ChatterBoxSessionStartError",
+		args,
+		payload,
+		LLIMMgr::onConfirmForceCloseError);
+}
+
+void
+LLIMMgr::showSessionEventError(
+	const std::string& event_string,
+	const std::string& error_string,
+	const LLUUID session_id)
+{
+	const LLFloater* floater = getFloaterBySessionID (session_id);
+	if (!floater) return;
+
+	LLSD args;
+	args["REASON"] =
+		LLTrans::getString(error_string);
+	args["EVENT"] =
+		LLTrans::getString(event_string);
+	args["RECIPIENT"] = floater->getTitle();
+
+	LLNotifications::instance().add(
+		"ChatterBoxSessionEventError",
+		args);
+}
+
+void
+LLIMMgr::showSessionForceClose(
+	const std::string& reason_string,
+	const LLUUID session_id)
+{
+	const LLFloater* floater = getFloaterBySessionID (session_id);
+	if (!floater) return;
+
+	LLSD args;
+
+	args["NAME"] = floater->getTitle();
+	args["REASON"] = LLTrans::getString(reason_string);
+
+	LLSD payload;
+	payload["session_id"] = session_id;
+
+	LLNotifications::instance().add(
+		"ForceCloseChatterBoxSession",
+		args,
+		payload,
+		LLIMMgr::onConfirmForceCloseError);
+}
+
+//static
+bool
+LLIMMgr::onConfirmForceCloseError(
+	const LLSD& notification,
+	const LLSD& response)
+{
+	//only 1 option really
+	LLUUID session_id = notification["payload"]["session_id"];
+
+	LLFloater* floater = getFloaterBySessionID (session_id);
+	if ( floater )
+	{
+		floater->closeFloater(FALSE);
+	}
+	return false;
+}
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLIncomingCallDialog
@@ -2027,15 +2124,8 @@ public:
 		}
 		else
 		{
-			//throw an error dialog and close the temp session's
-			//floater
-			LLFloaterIMPanel* floater = 
-				gIMMgr->findFloaterBySession(temp_session_id);
-
-			if ( floater )
-			{
-				floater->showSessionStartError(body["error"].asString());
-			}
+			//throw an error dialog and close the temp session's floater
+			gIMMgr->showSessionStartError(body["error"].asString(), temp_session_id);
 		}
 
 		gIMMgr->clearPendingAgentListUpdates(session_id);
@@ -2068,15 +2158,10 @@ public:
 		if ( !success )
 		{
 			//throw an error dialog
-			LLFloaterIMPanel* floater = 
-				gIMMgr->findFloaterBySession(session_id);
-
-			if (floater)
-			{
-				floater->showSessionEventError(
-					body["event"].asString(),
-					body["error"].asString());
-			}
+			gIMMgr->showSessionEventError(
+				body["event"].asString(),
+				body["error"].asString(),
+				session_id);
 		}
 	}
 };
@@ -2094,13 +2179,7 @@ public:
 		session_id = input["body"]["session_id"].asUUID();
 		reason = input["body"]["reason"].asString();
 
-		LLFloaterIMPanel* floater =
-			gIMMgr ->findFloaterBySession(session_id);
-
-		if ( floater )
-		{
-			floater->showSessionForceClose(reason);
-		}
+		gIMMgr->showSessionForceClose(reason, session_id);
 	}
 };
 

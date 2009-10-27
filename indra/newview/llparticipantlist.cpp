@@ -48,6 +48,18 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	mSpeakerMgr->addListener(mSpeakerAddListener, "add");
 	mSpeakerMgr->addListener(mSpeakerRemoveListener, "remove");
 	mSpeakerMgr->addListener(mSpeakerClearListener, "clear");
+
+	//Lets fill avatarList with existing speakers
+	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
+
+	LLSpeakerMgr::speaker_list_t speaker_list;
+	mSpeakerMgr->getSpeakerList(&speaker_list, true);
+	for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
+	{
+		group_members.push_back((*it)->mID);
+	}
+	mAvatarList->setDirty();
+	mAvatarList->sortByName();
 }
 
 LLParticipantList::~LLParticipantList()
@@ -87,8 +99,12 @@ bool LLParticipantList::SpeakerAddListener::handleEvent(LLPointer<LLOldEvents::L
 bool LLParticipantList::SpeakerRemoveListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
-	group_members.erase(std::find(group_members.begin(), group_members.end(), event->getValue().asUUID()), group_members.end());
-	mAvatarList->setDirty();
+	LLAvatarList::uuid_vector_t::iterator pos = std::find(group_members.begin(), group_members.end(), event->getValue().asUUID());
+	if(pos != group_members.end())
+	{
+		group_members.erase(pos);
+		mAvatarList->setDirty();
+	}
 	return true;
 }
 
