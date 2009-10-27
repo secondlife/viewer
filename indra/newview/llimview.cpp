@@ -70,6 +70,7 @@
 #include "llviewerwindow.h"
 #include "llnotify.h"
 #include "llviewerregion.h"
+#include "llvoicechannel.h"
 #include "lltrans.h"
 #include "llrecentpeople.h"
 

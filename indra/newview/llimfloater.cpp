@@ -42,7 +42,6 @@
 #include "llchiclet.h"
 #include "llfloaterchat.h"
 #include "llfloaterreg.h"
-#include "llimview.h"
 #include "lllineeditor.h"
 #include "lllogchat.h"
 #include "llpanelimcontrolpanel.h"
@@ -50,6 +49,7 @@
 #include "lltrans.h"
 #include "llchathistory.h"
 #include "llviewerwindow.h"
+#include "llvoicechannel.h"
 #include "lltransientfloatermgr.h"
 
 

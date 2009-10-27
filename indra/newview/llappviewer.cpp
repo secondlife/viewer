@@ -49,7 +49,6 @@
 #include "llviewerstats.h"
 #include "llmd5.h"
 #include "llpumpio.h"
-#include "llimpanel.h"
 #include "llmimetypes.h"
 #include "llslurl.h"
 #include "llstartup.h"
@@ -76,6 +75,7 @@
 #include "llteleporthistory.h"
 #include "lllocationhistory.h"
 #include "llfasttimerview.h"
+#include "llvoicechannel.h"
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
