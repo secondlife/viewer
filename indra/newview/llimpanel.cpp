@@ -1011,78 +1011,8 @@ void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string
 	self->mHistoryEditor->blockUndo();
 }
 
-void LLFloaterIMPanel::showSessionStartError(
-	const std::string& error_string)
-{
-	LLSD args;
-	args["REASON"] = LLTrans::getString(error_string);
-	args["RECIPIENT"] = getTitle();
-
-	LLSD payload;
-	payload["session_id"] = mSessionUUID;
-
-	LLNotifications::instance().add(
-		"ChatterBoxSessionStartError",
-		args,
-		payload,
-		onConfirmForceCloseError);
-}
-
-void LLFloaterIMPanel::showSessionEventError(
-	const std::string& event_string,
-	const std::string& error_string)
-{
-	LLSD args;
-	args["REASON"] =
-		LLTrans::getString(error_string);
-	args["EVENT"] =
-		LLTrans::getString(event_string);
-	args["RECIPIENT"] = getTitle();
-
-	LLNotifications::instance().add(
-		"ChatterBoxSessionEventError",
-		args);
-}
-
-void LLFloaterIMPanel::showSessionForceClose(
-	const std::string& reason_string)
-{
-	LLSD args;
-
-	args["NAME"] = getTitle();
-	args["REASON"] = LLTrans::getString(reason_string);
-
-	LLSD payload;
-	payload["session_id"] = mSessionUUID;
-
-	LLNotifications::instance().add(
-		"ForceCloseChatterBoxSession",
-		args,
-		payload,
-		LLFloaterIMPanel::onConfirmForceCloseError);
-
-}
-
 //static 
 void LLFloaterIMPanel::onKickSpeaker(void* user_data)
 {
 
-}
-
-bool LLFloaterIMPanel::onConfirmForceCloseError(const LLSD& notification, const LLSD& response)
-{
-	//only 1 option really
-	LLUUID session_id = notification["payload"]["session_id"];
-
-	if ( gIMMgr )
-	{
-		LLFloaterIMPanel* floaterp = gIMMgr->findFloaterBySession(
-			session_id);
-
-		if ( floaterp ) floaterp->closeFloater(FALSE);
-
-
-
-	}
-	return false;
 }

@@ -90,8 +90,8 @@ private:
 	void initListCommandsHandlers();
 	void updateListCommands();
 	void onActionsButtonClick();
-	void onAddLandmarkButtonClick() const;
-	void onAddFolderButtonClick() const;
+	void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
+	void onAddButtonHeldDown();
 	void onTrashButtonClick() const;
 	void onAddAction(const LLSD& command_name) const;
 	void onClipboardAction(const LLSD& command_name) const;
@@ -121,6 +121,7 @@ private:
 	LLInventorySubTreePanel*	mLibraryInventoryPanel;
 	LLMenuGL*					mGearLandmarkMenu;
 	LLMenuGL*					mGearFolderMenu;
+	LLMenuGL*					mMenuAdd;
 	LLInventorySubTreePanel*	mCurrentSelectedList;
 
 	LLPanel*					mListCommands;

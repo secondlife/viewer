@@ -8,11 +8,12 @@
      color="DkGray2"
      follows="left|top|right|bottom"
      height="130"
+     ignore_online_status="true"
      layout="topleft"
      left="3"
      name="speakers_list"
      top="10"
-     width="140"/>
+     width="140" />
     <button
      name="group_info_btn"
      label="Group Info"

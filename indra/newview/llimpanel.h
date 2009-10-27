@@ -129,15 +129,6 @@ public:
 	void processIMTyping(const LLIMInfo* im_info, BOOL typing);
 	static void chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata);
 
-	//show error statuses to the user
-	void showSessionStartError(const std::string& error_string);
-	void showSessionEventError(
-		const std::string& event_string,
-		const std::string& error_string);
-	void showSessionForceClose(const std::string& reason);
-
-	static bool onConfirmForceCloseError(const LLSD& notification, const LLSD& response);
-
 private:
 	// Called by UI methods.
 	void sendMsg();
