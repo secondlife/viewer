@@ -314,6 +314,12 @@ public:
 	void addSessionObserver(LLIMSessionObserver *);
 	void removeSessionObserver(LLIMSessionObserver *);
 
+	//show error statuses to the user
+	void showSessionStartError(const std::string& error_string, const LLUUID session_id);
+	void showSessionEventError(const std::string& event_string, const std::string& error_string, const LLUUID session_id);
+	void showSessionForceClose(const std::string& reason, const LLUUID session_id);
+	static bool onConfirmForceCloseError(const LLSD& notification, const LLSD& response);
+
 	/**
 	 * Start call in a session
 	 * @return false if voice channel doesn't exist
