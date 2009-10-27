@@ -227,6 +227,7 @@ public:
 	void seek(float time);
 	void setLoop(bool loop);
 	void setVolume(float volume);
+	float getVolume();
 	
 	F64 getCurrentTime(void) const { return mCurrentTime; };
 	F64 getDuration(void) const { return mDuration; };

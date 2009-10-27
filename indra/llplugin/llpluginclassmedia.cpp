@@ -1129,6 +1129,11 @@ void LLPluginClassMedia::setVolume(float volume)
 	}
 }
 
+float LLPluginClassMedia::getVolume()
+{
+	return mRequestedVolume;
+}
+
 void LLPluginClassMedia::initializeUrlHistory(const LLSD& url_history)
 {
 	// Send URL history to plugin

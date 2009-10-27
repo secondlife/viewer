@@ -95,6 +95,7 @@ class LLViewerMedia
 		static void toggleMusicPlay(void*);
 		static void toggleMediaPlay(void*);
 		static void mediaStop(void*);
+		static F32 getVolume();	
 };
 
 // Implementation functions not exported into header file
@@ -130,6 +131,8 @@ public:
 	void start();
 	void seek(F32 time);
 	void setVolume(F32 volume);
+	void updateVolume();
+	F32 getVolume();
 	void focus(bool focus);
 	// True if the impl has user focus.
 	bool hasFocus() const;
@@ -286,6 +289,7 @@ public:
 	bool mDoNavigateOnLoadRediscoverType;
 	bool mDoNavigateOnLoadServerRequest;
 	bool mMediaSourceFailedInit;
+	F32 mRequestedVolume;
 
 
 private:

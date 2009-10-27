@@ -171,6 +171,7 @@ typedef std::vector<LLViewerMediaImpl*> impl_list;
 static impl_list sViewerMediaImplList;
 static LLTimer sMediaCreateTimer;
 static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
+static F32 sGlobalVolume = 1.0f;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 static void add_media_impl(LLViewerMediaImpl* media)
@@ -388,14 +389,25 @@ bool LLViewerMedia::textureHasMedia(const LLUUID& texture_id)
 // static
 void LLViewerMedia::setVolume(F32 volume)
 {
-	impl_list::iterator iter = sViewerMediaImplList.begin();
-	impl_list::iterator end = sViewerMediaImplList.end();
-
-	for(; iter != end; iter++)
+	if(volume != sGlobalVolume)
 	{
-		LLViewerMediaImpl* pimpl = *iter;
-		pimpl->setVolume(volume);
+		sGlobalVolume = volume;
+		impl_list::iterator iter = sViewerMediaImplList.begin();
+		impl_list::iterator end = sViewerMediaImplList.end();
+
+		for(; iter != end; iter++)
+		{
+			LLViewerMediaImpl* pimpl = *iter;
+			pimpl->updateVolume();
+		}
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+F32 LLViewerMedia::getVolume()
+{
+	return sGlobalVolume;
 }
 
 // This is the predicate function used to sort sViewerMediaImplList by priority.
@@ -592,6 +604,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mDoNavigateOnLoadRediscoverType(false),
 	mDoNavigateOnLoadServerRequest(false),
 	mMediaSourceFailedInit(false),
+	mRequestedVolume(1.0f),
 	mIsUpdated(false)
 { 
 	
@@ -796,6 +809,9 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		media_source->focus(mHasFocus);
 		
 		mMediaSource = media_source;
+
+		updateVolume();
+
 		return true;
 	}
 
@@ -886,10 +902,23 @@ void LLViewerMediaImpl::seek(F32 time)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::setVolume(F32 volume)
 {
+	mRequestedVolume = volume;
+	updateVolume();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::updateVolume()
+{
 	if(mMediaSource)
 	{
-		mMediaSource->setVolume(volume);
+		mMediaSource->setVolume(mRequestedVolume * LLViewerMedia::getVolume());
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+F32 LLViewerMediaImpl::getVolume()
+{
+	return mRequestedVolume;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
