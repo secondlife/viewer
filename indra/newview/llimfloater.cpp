@@ -61,7 +61,14 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	mLastMessageIndex(-1),
 	mDialog(IM_NOTHING_SPECIAL),
 	mChatHistory(NULL),
-	mInputEditor(NULL), 
+	mInputEditor(NULL),
+	mSavedTitle(),
+	mTypingStart(),
+	mShouldSendTypingState(false),
+	mMeTyping(false),
+	mOtherTyping(false),
+	mTypingTimer(),
+	mTypingTimeoutTimer(),
 	mPositioned(false),
 	mSessionInitialized(false)
 {
@@ -95,6 +102,7 @@ void LLIMFloater::onFocusReceived()
 // virtual
 void LLIMFloater::onClose(bool app_quitting)
 {
+	setTyping(false);
 	gIMMgr->leaveSession(mSessionID);
 }
 
@@ -141,6 +149,7 @@ void LLIMFloater::onSendMsg( LLUICtrl* ctrl, void* userdata )
 {
 	LLIMFloater* self = (LLIMFloater*) userdata;
 	self->sendMsg();
+	self->setTyping(false);
 }
 
 void LLIMFloater::sendMsg()
@@ -228,12 +237,27 @@ BOOL LLIMFloater::postBuild()
 		LLLogChat::loadHistory(getTitle(), &chatFromLogFile, (void *)this);
 	}
 
+	mTypingStart = LLTrans::getString("IM_typing_start_string");
+
 	//*TODO if session is not initialized yet, add some sort of a warning message like "starting session...blablabla"
 	//see LLFloaterIMPanel for how it is done (IB)
 
 	return LLDockableFloater::postBuild();
 }
 
+// virtual
+void LLIMFloater::draw()
+{
+	if ( mMeTyping )
+	{
+		// Time out if user hasn't typed for a while.
+		if ( mTypingTimeoutTimer.getElapsedTimeF32() > LLAgent::TYPING_TIMEOUT_SECS )
+		{
+			setTyping(false);
+		}
+	}
+	LLFloater::draw();
+}
 
 
 // static
@@ -402,7 +426,8 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 
 void LLIMFloater::updateMessages()
 {
-	std::list<LLSD> messages = LLIMModel::instance().getMessages(mSessionID, mLastMessageIndex+1);
+	std::list<LLSD> messages;
+	LLIMModel::instance().getMessages(mSessionID, messages, mLastMessageIndex+1);
 	std::string agent_name;
 
 	gCacheName->getFullName(gAgentID, agent_name);
@@ -454,7 +479,7 @@ void LLIMFloater::onInputEditorFocusReceived( LLFocusableElement* caller, void* 
 void LLIMFloater::onInputEditorFocusLost(LLFocusableElement* caller, void* userdata)
 {
 	LLIMFloater* self = (LLIMFloater*) userdata;
-	self->setTyping(FALSE);
+	self->setTyping(false);
 }
 
 // static
@@ -464,19 +489,118 @@ void LLIMFloater::onInputEditorKeystroke(LLLineEditor* caller, void* userdata)
 	std::string text = self->mInputEditor->getText();
 	if (!text.empty())
 	{
-		self->setTyping(TRUE);
+		self->setTyping(true);
 	}
 	else
 	{
 		// Deleting all text counts as stopping typing.
-		self->setTyping(FALSE);
+		self->setTyping(false);
 	}
 }
 
-
-//just a stub for now
-void LLIMFloater::setTyping(BOOL typing)
+void LLIMFloater::setTyping(bool typing)
 {
+	if ( typing )
+	{
+		// Started or proceeded typing, reset the typing timeout timer
+		mTypingTimeoutTimer.reset();
+	}
+
+	if ( mMeTyping != typing )
+	{
+		// Typing state is changed
+		mMeTyping = typing;
+		// So, should send current state
+		mShouldSendTypingState = true;
+		// In case typing is started, send state after some delay
+		mTypingTimer.reset();
+	}
+
+	// Don't want to send typing indicators to multiple people, potentially too
+	// much network traffic. Only send in person-to-person IMs.
+	if ( mShouldSendTypingState && mDialog == IM_NOTHING_SPECIAL )
+	{
+		if ( mMeTyping )
+		{
+			if ( mTypingTimer.getElapsedTimeF32() > 1.f )
+			{
+				// Still typing, send 'start typing' notification
+				LLIMModel::instance().sendTypingState(mSessionID, mOtherParticipantUUID, TRUE);
+				mShouldSendTypingState = false;
+			}
+		}
+		else
+		{
+			// Send 'stop typing' notification immediately
+			LLIMModel::instance().sendTypingState(mSessionID, mOtherParticipantUUID, FALSE);
+			mShouldSendTypingState = false;
+		}
+	}
+
+	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
+	if (speaker_mgr)
+		speaker_mgr->setSpeakerTyping(gAgent.getID(), FALSE);
+
+}
+
+void LLIMFloater::processIMTyping(const LLIMInfo* im_info, BOOL typing)
+{
+	if ( typing )
+	{
+		// other user started typing
+		addTypingIndicator(im_info);
+	}
+	else
+	{
+		// other user stopped typing
+		removeTypingIndicator(im_info);
+	}
+}
+
+void LLIMFloater::addTypingIndicator(const LLIMInfo* im_info)
+{
+	// We may have lost a "stop-typing" packet, don't add it twice
+	if ( im_info && !mOtherTyping )
+	{
+		mOtherTyping = true;
+
+		// Create typing is started title string
+		LLUIString typing_start(mTypingStart);
+		typing_start.setArg("[NAME]", im_info->mName);
+
+		// Save and set new title
+		mSavedTitle = getTitle();
+		setTitle (typing_start);
+
+		// Update speaker
+		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
+		if ( speaker_mgr )
+		{
+			speaker_mgr->setSpeakerTyping(im_info->mFromID, TRUE);
+		}
+	}
+}
+
+void LLIMFloater::removeTypingIndicator(const LLIMInfo* im_info)
+{
+	if ( mOtherTyping )
+	{
+		mOtherTyping = false;
+
+		// Revert the title to saved one
+		setTitle(mSavedTitle);
+
+		if ( im_info )
+		{
+			// Update speaker
+			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
+			if ( speaker_mgr )
+			{
+				speaker_mgr->setSpeakerTyping(im_info->mFromID, FALSE);
+			}
+		}
+
+	}
 }
 
 void LLIMFloater::chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata)

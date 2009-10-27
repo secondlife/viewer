@@ -38,12 +38,28 @@
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llcachename.h"
 #include "llvoiceclient.h"
+#include "llviewercontrol.h"	// for gSavedSettings
 
 static LLDefaultChildRegistry::Register<LLAvatarList> r("avatar_list");
 
 // Maximum number of avatars that can be added to a list in one pass.
 // Used to limit time spent for avatar list update per frame.
 static const unsigned ADD_LIMIT = 50;
+
+void LLAvatarList::toggleIcons()
+{
+	// Save the new value for new items to use.
+	mShowIcons = !mShowIcons;
+	gSavedSettings.setBOOL(mIconParamName, mShowIcons);
+	
+	// Show/hide icons for all existing items.
+	std::vector<LLPanel*> items;
+	getItems(items);
+	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
+	{
+		static_cast<LLAvatarListItem*>(*it)->setAvatarIconVisible(mShowIcons);
+	}
+}
 
 static bool findInsensitive(std::string haystack, const std::string& needle_upper)
 {
@@ -71,6 +87,12 @@ LLAvatarList::LLAvatarList(const Params& p)
 
 	// Set default sort order.
 	setComparator(&NAME_COMPARATOR);
+}
+
+void LLAvatarList::setShowIcons(std::string param_name)
+{
+	mIconParamName= param_name;
+	mShowIcons = gSavedSettings.getBOOL(mIconParamName);
 }
 
 // virtual
@@ -202,6 +224,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	item->setContextMenu(mContextMenu);
 
 	item->childSetVisible("info_btn", false);
+	item->setAvatarIconVisible(mShowIcons);
 
 	addItem(item, id, pos);
 }

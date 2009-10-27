@@ -64,6 +64,7 @@ public:
 	void setOnline(bool online);
 	void setName(const std::string& name);
 	void setAvatarId(const LLUUID& id, bool ignore_status_changes = false);
+	void setAvatarIconVisible(bool visible);
 	
 	const LLUUID& getAvatarId() const;
 	const std::string getAvatarName() const;
@@ -87,7 +88,7 @@ private:
 
 	void onNameCache(const std::string& first_name, const std::string& last_name);
 
-	LLAvatarIconCtrl*mAvatarIcon;
+	LLAvatarIconCtrl* mAvatarIcon;
 	LLTextBox* mAvatarName;
 	LLTextBox* mStatus;
 	
@@ -98,6 +99,7 @@ private:
 
 	LLUUID mAvatarId;
 	EOnlineStatus mOnlineStatus;
+	static S32	sIconWidth; // icon width + padding
 };
 
 #endif //LL_LLAVATARLISTITEM_H

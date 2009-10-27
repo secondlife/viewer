@@ -87,7 +87,7 @@ bool LLParticipantList::SpeakerAddListener::handleEvent(LLPointer<LLOldEvents::L
 bool LLParticipantList::SpeakerRemoveListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
-	group_members.erase(std::find(group_members.begin(), group_members.end(), event->getValue().asUUID()));
+	group_members.erase(std::find(group_members.begin(), group_members.end(), event->getValue().asUUID()), group_members.end());
 	mAvatarList->setDirty();
 	return true;
 }
