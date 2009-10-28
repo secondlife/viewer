@@ -187,3 +187,17 @@ void LLPanelGroupControlPanel::setSessionId(const LLUUID& session_id)
 
 	mGroupID = LLIMModel::getInstance()->getOtherParticipantID(session_id);
 }
+
+
+LLPanelAdHocControlPanel::LLPanelAdHocControlPanel(const LLUUID& session_id):LLPanelGroupControlPanel(session_id)
+{
+}
+
+BOOL LLPanelAdHocControlPanel::postBuild()
+{
+	mAvatarList = getChild<LLAvatarList>("speakers_list");
+	mParticipantList = new LLParticipantList(mSpeakerManager, mAvatarList);
+
+	return LLPanelChatControlPanel::postBuild();
+}
+

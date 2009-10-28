@@ -78,12 +78,15 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 		mSessionInitialized = im_session->mSessionInitialized;
 		
 		mDialog = im_session->mType;
-		if (IM_NOTHING_SPECIAL == mDialog || IM_SESSION_P2P_INVITE == mDialog)
-		{
+		switch(mDialog){
+		case IM_NOTHING_SPECIAL:
+		case IM_SESSION_P2P_INVITE:
 			mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelIMControl, this);
-		}
-		else
-		{
+			break;
+		case IM_SESSION_CONFERENCE_START:
+			mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelAdHocControl, this);
+			break;
+		default:
 			mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelGroupControl, this);
 		}
 	}
@@ -287,6 +290,15 @@ void* LLIMFloater::createPanelGroupControl(void* userdata)
 	LLIMFloater *self = (LLIMFloater*)userdata;
 	self->mControlPanel = new LLPanelGroupControlPanel(self->mSessionID);
 	self->mControlPanel->setXMLFilename("panel_group_control_panel.xml");
+	return self->mControlPanel;
+}
+
+// static
+void* LLIMFloater::createPanelAdHocControl(void* userdata)
+{
+	LLIMFloater *self = (LLIMFloater*)userdata;
+	self->mControlPanel = new LLPanelAdHocControlPanel(self->mSessionID);
+	self->mControlPanel->setXMLFilename("panel_adhoc_control_panel.xml");
 	return self->mControlPanel;
 }
 
