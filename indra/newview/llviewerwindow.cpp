@@ -817,7 +817,7 @@ BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MAS
 	return TRUE;
 }
 
-BOOL LLViewerWindow::handleDrop(LLWindow *window,  LLCoordGL pos, MASK mask, void* data)
+BOOL LLViewerWindow::handleDrop( LLWindow *window,  LLCoordGL pos, MASK mask, std::string data )
 {
 	if (gSavedSettings.getBOOL("PrimMediaDragNDrop"))
 	{
@@ -825,7 +825,7 @@ BOOL LLViewerWindow::handleDrop(LLWindow *window,  LLCoordGL pos, MASK mask, voi
 
 		LLUUID object_id = pick_info.getObjectID();
 		S32 object_face = pick_info.mObjectFace;
-		std::string url = std::string( (char*)data );
+		std::string url = data;
 
 		llinfos << "### Object: picked at " << pos.mX << ", " << pos.mY << " - face = " << object_face << " - URL = " << url << llendl;
 
