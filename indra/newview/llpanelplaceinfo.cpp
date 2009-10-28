@@ -458,13 +458,13 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 		mSnapshotCtrl->setImageAssetID(parcel_data.snapshot_id);
 	}
 
-	if(!parcel_data.name.empty())
+	if(!parcel_data.sim_name.empty())
 	{
-		mParcelName->setText(parcel_data.name);
+		mRegionName->setText(parcel_data.sim_name);
 	}
 	else
 	{
-		mParcelName->setText(LLStringUtil::null);
+		mRegionName->setText(LLStringUtil::null);
 	}
 
 	if(!parcel_data.desc.empty())
@@ -511,19 +511,22 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 		region_z = llround(mPosRegion.mV[VZ]);
 	}
 
-	std::string name = getString("not_available");
-	if (!parcel_data.sim_name.empty())
+	if (!parcel_data.name.empty())
 	{
-		name = llformat("%s (%d, %d, %d)",
-						parcel_data.sim_name.c_str(), region_x, region_y, region_z);
-		mRegionName->setText(name);
+		mParcelName->setText(llformat("%s (%d, %d, %d)",
+							 parcel_data.name.c_str(), region_x, region_y, region_z));
+	}
+	else
+	{
+		mParcelName->setText(getString("not_available"));
 	}
 
 	if (mInfoType == CREATE_LANDMARK)
 	{
 		if (parcel_data.name.empty())
 		{
-			mTitleEditor->setText(name);
+			mTitleEditor->setText(llformat("%s (%d, %d, %d)",
+								  parcel_data.sim_name.c_str(), region_x, region_y, region_z));
 		}
 		else
 		{
