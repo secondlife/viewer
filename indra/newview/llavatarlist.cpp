@@ -98,10 +98,10 @@ void LLAvatarList::setShowIcons(std::string param_name)
 // virtual
 void LLAvatarList::draw()
 {
+	LLFlatListView::draw();
+
 	if (mDirty)
 		refresh();
-
-	LLFlatListView::draw();
 }
 
 void LLAvatarList::setNameFilter(const std::string& filter)
