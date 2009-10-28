@@ -1363,7 +1363,12 @@ void LLIMMgr::addMessage(
 	bool new_session = !hasSession(session_id);
 	if (new_session)
 	{
-		LLIMModel::getInstance()->newSession(session_id, fixed_session_name, dialog, other_participant_id);
+		// *NOTE dzaporozhan
+		// Workaround for critical bug EXT-1918
+
+		// *TODO 
+		// Investigate cases when session_id == NULL and find solution to handle those cases
+		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id);
 	}
 
 	floater = findFloaterBySession(new_session_id);
