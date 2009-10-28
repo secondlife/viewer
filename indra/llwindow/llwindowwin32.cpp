@@ -38,6 +38,7 @@
 
 // LLWindow library includes
 #include "llkeyboardwin32.h"
+#include "lldragdropwin32.h"
 #include "llpreeditor.h"
 #include "llwindowcallbacks.h"
 
@@ -384,6 +385,9 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	gKeyboard = new LLKeyboardWin32();
 	gKeyboard->setCallbacks(callbacks);
 
+	// Initialize the Drag and Drop functionality
+	mDragDrop = new LLDragDropWin32;
+
 	// Initialize (boot strap) the Language text input management,
 	// based on the system's (user's) default settings.
 	allowLanguageTextInput(mPreeditor, FALSE);
@@ -621,6 +625,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 
 LLWindowWin32::~LLWindowWin32()
 {
+	delete mDragDrop;
+
 	delete [] mWindowTitle;
 	mWindowTitle = NULL;
 
@@ -670,6 +676,8 @@ void LLWindowWin32::close()
 	{
 		return;
 	}
+
+	mDragDrop->reset();
 
 	// Make sure cursor is visible and we haven't mangled the clipping state.
 	setMouseClipping(FALSE);
@@ -1352,6 +1360,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 
 	// register this window as handling drag/drop events from the OS
 	DragAcceptFiles( mWindowHandle, TRUE );
+
+	mDragDrop->init( mWindowHandle );
 	
 	//register joystick timer callback
 	SetTimer( mWindowHandle, 0, 1000 / 30, NULL ); // 30 fps timer
@@ -2390,10 +2400,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				};
 
 				MASK mask = gKeyboard->currentMask(TRUE);
-				if (window_imp->mCallbacks->handleDrop(window_imp, gl_coord, mask, url ) )
+
+				if ( window_imp->completeDropRequest( gl_coord, mask, (char*)url ) )
 				{
 					return 0;
-				}
+				};
 			}
 			break;
 		}
@@ -3564,6 +3575,18 @@ static LLWString find_context(const LLWString & wtext, S32 focus, S32 focus_leng
 	*offset = start;
 	return wtext.substr(start, end - start);
 }
+
+// final stage of handling drop requests - both from WM_DROPFILES message
+// for files and via IDropTarget interface requests.
+BOOL LLWindowWin32::completeDropRequest( const LLCoordGL gl_coord, const MASK mask, const std::string url )
+{
+	if ( mCallbacks->handleDrop( this, gl_coord, mask, url ) )
+	{
+		return TRUE;
+	};
+
+	return FALSE;
+};
 
 // Handle WM_IME_REQUEST message.
 // If it handled the message, returns TRUE.  Otherwise, FALSE.
