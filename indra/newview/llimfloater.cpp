@@ -562,6 +562,30 @@ void LLIMFloater::processIMTyping(const LLIMInfo* im_info, BOOL typing)
 	}
 }
 
+void LLIMFloater::processSessionUpdate(const LLSD& session_update)
+{
+	// *TODO : verify following code when moderated mode will be implemented
+	if ( false && session_update.has("moderated_mode") &&
+		 session_update["moderated_mode"].has("voice") )
+	{
+		BOOL voice_moderated = session_update["moderated_mode"]["voice"];
+		const std::string session_label = LLIMModel::instance().getName(mSessionID);
+
+		if (voice_moderated)
+		{
+			setTitle(session_label + std::string(" ") + LLTrans::getString("IM_moderated_chat_label"));
+		}
+		else
+		{
+			setTitle(session_label);
+		}
+
+		// *TODO : uncomment this when/if LLPanelActiveSpeakers panel will be added
+		//update the speakers dropdown too
+		//mSpeakerPanel->setVoiceModerationCtrlMode(voice_moderated);
+	}
+}
+
 void LLIMFloater::addTypingIndicator(const LLIMInfo* im_info)
 {
 	// We may have lost a "stop-typing" packet, don't add it twice

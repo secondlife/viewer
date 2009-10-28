@@ -2120,6 +2120,15 @@ public:
 				}
 			}
 
+			LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+			if ( im_floater )
+			{
+				if ( body.has("session_info") )
+				{
+					im_floater->processSessionUpdate(body["session_info"]);
+				}
+			}
+
 			gIMMgr->clearPendingAgentListUpdates(session_id);
 		}
 		else
@@ -2217,10 +2226,16 @@ public:
 		const LLSD& context,
 		const LLSD& input) const
 	{
-		LLFloaterIMPanel* floaterp = gIMMgr->findFloaterBySession(input["body"]["session_id"].asUUID());
+		LLUUID session_id = input["body"]["session_id"].asUUID();
+		LLFloaterIMPanel* floaterp = gIMMgr->findFloaterBySession(session_id);
 		if (floaterp)
 		{
 			floaterp->processSessionUpdate(input["body"]["info"]);
+		}
+		LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+		if ( im_floater )
+		{
+			im_floater->processSessionUpdate(input["body"]["info"]);
 		}
 	}
 };
