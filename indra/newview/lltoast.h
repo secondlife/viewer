@@ -166,7 +166,7 @@ private:
 	bool		mCanBeStored;
 	bool		mHideBtnEnabled;
 	bool		mHideBtnPressed;
-	bool		mIsHidden;  // this flag is TRUE when a toast has faded or was hidden with (x) button
+	bool		mIsHidden;  // this flag is TRUE when a toast has faded or was hidden with (x) button (EXT-1849)
 };
 
 }

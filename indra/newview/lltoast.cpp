@@ -208,7 +208,11 @@ void LLToast::setVisible(BOOL show)
 {
 	if(mIsHidden)
 	{
-		// this toast is invisible untill its ScreenChannel will allow it
+		// this toast is invisible after fade until its ScreenChannel will allow it
+		//
+		// (EXT-1849) according to this bug a toast can be resurrected from
+		// invisible state if it faded during a teleportation
+		// then it fades a second time and causes a crash
 		return;
 	}
 
