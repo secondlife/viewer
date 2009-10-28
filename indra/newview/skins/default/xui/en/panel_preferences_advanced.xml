@@ -235,7 +235,7 @@ Avatars:
      width="237"
      top_pad="0" />
     <check_box
-     control_name="test"
+     control_name="ShowScriptErrors"
      height="20"
      label="Show script errors"
      layout="topleft"
@@ -244,7 +244,7 @@ Avatars:
      width="256"
      top_pad="10"/>
     <radio_group
-	 enabled_control="EnableShowScriptErrors"
+	 enabled_control="ShowScriptErrors"
 	 control_name="ShowScriptErrorsLocation"
      draw_border="false"
      height="40"

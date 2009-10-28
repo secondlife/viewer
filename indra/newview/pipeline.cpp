@@ -1797,6 +1797,7 @@ void LLPipeline::rebuildPriorityGroups()
 		
 void LLPipeline::rebuildGroups()
 {
+	llpushcallstacks ;
 	// Iterate through some drawables on the non-priority build queue
 	S32 size = (S32) mGroupQ2.size();
 	S32 min_count = llclamp((S32) ((F32) (size * size)/4096*0.25f), 1, size);

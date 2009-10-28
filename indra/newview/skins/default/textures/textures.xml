@@ -7,7 +7,7 @@
   <texture name="Accordion_Off" file_name="containers/Accordion_Off.png" preload="false" />
   <texture name="Accordion_Press" file_name="containers/Accordion_Press.png" preload="false" />
 
-<texture name="Activate_Checkmark" file_name="taskpanel/Activate_Checkmark.png" preload="false" />
+ <texture name="Activate_Checkmark" file_name="taskpanel/Activate_Checkmark.png" preload="false" />
 
   <texture name="AddItem_Disabled" file_name="icons/AddItem_Disabled.png" preload="false" />
   <texture name="AddItem_Off" file_name="icons/AddItem_Off.png" preload="false" />
@@ -71,7 +71,6 @@
   <texture name="ComboButton_Press" file_name="widgets/ComboButton_Press.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_Selected" file_name="widgets/ComboButton_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_Off" file_name="widgets/ComboButton_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-
   <texture name="Container" file_name="containers/Container.png" preload="false" />
 
   <texture name="DisclosureArrow_Closed_Off" file_name="widgets/DisclosureArrow_Closed_Off.png" preload="true" />
@@ -102,6 +101,7 @@
 
   <texture name="Generic_Group" file_name="icons/Generic_Group.png" preload="false" />
   <texture name="Generic_Group_Large" file_name="icons/Generic_Group_Large.png" preload="false" />
+  <texture name="Generic_Object" file_name="icons/Generic_Object.png" preload="false" />
   <texture name="Generic_Person" file_name="icons/Generic_Person.png" preload="false" />
   <texture name="Generic_Person_Large" file_name="icons/Generic_Person_Large.png" preload="false" />
 
@@ -123,8 +123,6 @@
   <texture name="Icon_Dock_Press" file_name="windows/Icon_Dock_Press.png" preload="true" />
 
   <texture name="Icon_For_Sale" file_name="icons/Icon_For_sale.png" preload="false" />
-  <texture name="Banner_ForSale" file_name="Banner_ForSale.png" preload="false" />
-  <texture name="Banner_YouAreHere" file_name="Banner_YouAreHere.png" preload="false" />
 
   <texture name="Icon_Gear_Background" file_name="windows/Icon_Gear_Background.png" preload="false" />
   <texture name="Icon_Gear_Foreground" file_name="windows/Icon_Gear_Foreground.png" preload="false" />
@@ -151,7 +149,7 @@
   <texture name="Inspector_Background" file_name="windows/Inspector_Background.png" preload="false" />
   <texture name="Inspector_Hover" file_name="windows/Inspector_Hover.png" preload="false" />
 
-  <texture name="Inv_Acessories" file_name="icons/Inv_Acessories.png" preload="false" />
+  <texture name="Inv_Acessories" file_name="icons/Inv_Accessories.png" preload="false" />
   <texture name="Inv_Animation" file_name="icons/Inv_Animation.png" preload="false" />
   <texture name="Inv_BodyShape" file_name="icons/Inv_BodyShape.png" preload="false" />
   <texture name="Inv_CallingCard" file_name="icons/Inv_CallingCard.png" preload="false" />
@@ -229,6 +227,9 @@
   <texture name="NearbyVoice_Lvl3" file_name="bottomtray/NearbyVoice_Lvl3.png" preload="false" />
   <texture name="NearbyVoice_On" file_name="bottomtray/NearbyVoice_On.png" preload="false" />
 
+  <texture name="NoEntryLines" file_name="world/NoEntryLines.png" use_mips="true" preload="false" />
+  <texture name="NoEntryPassLines" file_name="world/NoEntryPassLines.png" use_mips="true" preload="false" />
+
   <texture name="Object_Cone" file_name="build/Object_Cone.png" preload="false" />
   <texture name="Object_Cube" file_name="build/Object_Cube.png" preload="false" />
   <texture name="Object_Cylinder" file_name="build/Object_Cylinder.png" preload="false" />
@@ -255,6 +256,42 @@
   <texture name="Overhead_L" file_name="world/Overhead_L.png" preload="false" />
   <texture name="Overhead_M" file_name="world/Overhead_M.png" preload="false" />
   <texture name="Overhead_S" file_name="world/Overhead_S.png" preload="false" />
+
+  <texture name="parcel_drk_Build" file_name="icons/parcel_drk_Build.png" preload="false" />
+  <texture name="parcel_drk_BuildNo" file_name="icons/parcel_drk_BuildNo.png" preload="false" />
+  <texture name="parcel_drk_Damage" file_name="icons/parcel_drk_Damage.png" preload="false" />
+  <texture name="parcel_drk_DamageNo" file_name="icons/parcel_drk_DamageNo.png" preload="false" />
+  <texture name="parcel_drk_Fly" file_name="icons/parcel_drk_Fly.png" preload="false" />
+  <texture name="parcel_drk_FlyNo" file_name="icons/parcel_drk_FlyNo.png" preload="false" />
+  <texture name="parcel_drk_ForSale" file_name="icons/parcel_drk_ForSale.png" preload="false" />
+  <texture name="parcel_drk_ForSaleNo" file_name="icons/parcel_drk_ForSaleNo.png" preload="false" />
+  <texture name="parcel_drk_M" file_name="icons/parcel_drk_M.png" preload="false" />
+  <texture name="parcel_drk_PG" file_name="icons/parcel_drk_PG.png" preload="false" />
+  <texture name="parcel_drk_Push" file_name="icons/parcel_drk_Push.png" preload="false" />
+  <texture name="parcel_drk_PushNo" file_name="icons/parcel_drk_PushNo.png" preload="false" />
+  <texture name="parcel_drk_R" file_name="icons/parcel_drk_R.png" preload="false" />
+  <texture name="parcel_drk_Scripts" file_name="icons/parcel_drk_Scripts.png" preload="false" />
+  <texture name="parcel_drk_ScriptsNo" file_name="icons/parcel_drk_ScriptsNo.png" preload="false" />
+  <texture name="parcel_drk_Voice" file_name="icons/parcel_drk_Voice.png" preload="false" />
+  <texture name="parcel_drk_VoiceNo" file_name="icons/parcel_drk_VoiceNo.png" preload="false" />
+
+  <texture name="parcel_lght_Build" file_name="icons/parcel_lght_Build.png" preload="false" />
+  <texture name="parcel_lght_BuildNo" file_name="icons/parcel_lght_BuildNo.png" preload="false" />
+  <texture name="parcel_lght_Damage" file_name="icons/parcel_lght_Damage.png" preload="false" />
+  <texture name="parcel_lght_DamageNo" file_name="icons/parcel_lght_DamageNo.png" preload="false" />
+  <texture name="parcel_lght_Fly" file_name="icons/parcel_lght_Fly.png" preload="false" />
+  <texture name="parcel_lght_FlyNo" file_name="icons/parcel_lght_FlyNo.png" preload="false" />
+  <texture name="parcel_lght_ForSale" file_name="icons/parcel_lght_ForSale.png" preload="false" />
+  <texture name="parcel_lght_ForSaleNo" file_name="icons/parcel_lght_ForSaleNo.png" preload="false" />
+  <texture name="parcel_lght_M" file_name="icons/parcel_lght_M.png" preload="false" />
+  <texture name="parcel_lght_PG" file_name="icons/parcel_lght_PG.png" preload="false" />
+  <texture name="parcel_lght_Push" file_name="icons/parcel_lght_Push.png" preload="false" />
+  <texture name="parcel_lght_PushNo" file_name="icons/parcel_lght_PushNo.png" preload="false" />
+  <texture name="parcel_lght_R" file_name="icons/parcel_lght_R.png" preload="false" />
+  <texture name="parcel_lght_Scripts" file_name="icons/parcel_lght_Scripts.png" preload="false" />
+  <texture name="parcel_lght_ScriptsNo" file_name="icons/parcel_lght_ScriptsNo.png" preload="false" />
+  <texture name="parcel_lght_Voice" file_name="icons/parcel_lght_Voice.png" preload="false" />
+  <texture name="parcel_lght_VoiceNo" file_name="icons/parcel_lght_VoiceNo.png" preload="false" />
 
   <texture name="Progress_1" file_name="icons/Progress_1.png" preload="false" />
   <texture name="Progress_2" file_name="icons/Progress_2.png" preload="false" />
@@ -336,7 +373,7 @@
   <texture name="SliderThumb_Disabled" file_name="widgets/SliderThumb_Disabled.png" />
   <texture name="SliderThumb_Press" file_name="widgets/SliderThumb_Press.png" />
 
-  <texture name="Snapshot_Off" file_name="bottomtray/Snapshot_Off.png" preload="false" />
+  <texture name="Snapshot_Off" file_name="bottomtray/Snapshot_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="Snapshot_Over" file_name="bottomtray/Snapshot_Over.png" preload="false" />
   <texture name="Snapshot_Press" file_name="bottomtray/Snapshot_Press.png" preload="false" />
 
@@ -432,6 +469,7 @@
   <texture name="VoicePTT_On" file_name="bottomtray/VoicePTT_On.png" preload="false" />
 
   <texture name="Widget_DownArrow" file_name="icons/Widget_DownArrow.png" preload="true" />
+  <texture name="Widget_UpArrow" file_name="icons/Widget_UpArrow.png" preload="true" />
 
   <texture name="Window_Background" file_name="windows/Window_Background.png" preload="true" />
   <texture name="Window_Foreground" file_name="windows/Window_Foreground.png" preload="true" />
@@ -441,6 +479,9 @@
 
 
   <!--WARNING OLD ART *do not use*-->
+
+  <texture name="Banner_ForSale" file_name="Banner_ForSale.png" preload="false" />
+  <texture name="Banner_YouAreHere" file_name="Banner_YouAreHere.png" preload="false" />
 
   <texture name="btn_chatbar.tga" scale.left="20" scale.top="24" scale.right="44" scale.bottom="0" />
   <texture name="btn_chatbar_selected.tga" scale.left="20" scale.top="24" scale.right="44" scale.bottom="0" />
@@ -559,54 +600,6 @@
   <texture name="icon_popular.tga" />
   <texture name="icon_top_pick.tga" />
 
-  <texture name="inv_folder_animation.tga" />
-  <texture name="inv_folder_bodypart.tga" />
-  <texture name="inv_folder_callingcard.tga" />
-  <texture name="inv_folder_clothing.tga" />
-  <texture name="inv_folder_current_outfit.tga" />
-  <texture name="inv_folder_gesture.tga" />
-  <texture name="inv_folder_landmark.tga" />
-  <texture name="inv_folder_lostandfound.tga" />
-  <texture name="inv_folder_my_outfits.tga" />
-  <texture name="inv_folder_notecard.tga" />
-  <texture name="inv_folder_object.tga" />
-  <texture name="inv_folder_outfit.tga" />
-  <texture name="inv_folder_plain_closed.tga" />
-  <texture name="inv_folder_script.tga" />
-  <texture name="inv_folder_snapshot.tga" />
-  <texture name="inv_folder_sound.tga" />
-  <texture name="inv_folder_texture.tga" />
-  <texture name="inv_folder_trash.tga" />
-
-  <texture name="inv_item_animation.tga" />
-  <texture name="inv_item_skin.tga" />
-  <texture name="inv_item_callingcard_offline.tga" />
-  <texture name="inv_item_callingcard_online.tga" />
-  <texture name="inv_item_eyes.tga" />
-  <texture name="inv_item_gesture.tga" />
-  <texture name="inv_item_gloves.tga" />
-  <texture name="inv_item_hair.tga" />
-  <texture name="inv_item_jacket.tga" />
-  <texture name="inv_item_landmark.tga" />
-  <texture name="inv_item_landmark_visited.tga" />
-  <texture name="inv_item_linkitem.tga" />
-  <texture name="inv_item_linkfolder.tga" />
-  <texture name="inv_item_notecard.tga" />
-  <texture name="inv_item_object.tga" />
-  <texture name="inv_item_object_multi.tga" />
-  <texture name="inv_item_pants.tga" />
-  <texture name="inv_item_script.tga" />
-  <texture name="inv_item_shape.tga" />
-  <texture name="inv_item_shirt.tga" />
-  <texture name="inv_item_shoes.tga" />
-  <texture name="inv_item_skirt.tga" />
-  <texture name="inv_item_snapshot.tga" />
-  <texture name="inv_item_socks.tga" />
-  <texture name="inv_item_sound.tga" />
-  <texture name="inv_item_texture.tga" />
-  <texture name="inv_item_underpants.tga" />
-  <texture name="inv_item_undershirt.tga" />
-
   <texture name="lag_status_critical.tga" />
   <texture name="lag_status_good.tga" />
   <texture name="lag_status_warning.tga" />
@@ -625,44 +618,11 @@
 
   <texture name="media_icon.tga" file_name="icn_label_media.tga" />
   <texture name="music_icon.tga" file_name="icn_label_music.tga" />
-  <texture name="NoEntryLines" file_name="world/NoEntryLines.png" use_mips="true" preload="false" />
-  <texture name="NoEntryPassLines" file_name="world/NoEntryPassLines.png" use_mips="true" preload="false" />
 
   <texture name="notify_tip_icon.tga" />
   <texture name="notify_caution_icon.tga" />
   <texture name="notify_next.png" preload="true" />
   <texture name="notify_box_icon.tga" />
-
-  <texture name="object_cone.tga" />
-  <texture name="object_cone_active.tga" />
-  <texture name="object_cube.tga" />
-  <texture name="object_cube_active.tga" />
-  <texture name="object_cylinder.tga" />
-  <texture name="object_cylinder_active.tga" />
-  <texture name="object_grass.tga" />
-  <texture name="object_grass_active.tga" />
-  <texture name="object_hemi_cone.tga" />
-  <texture name="object_hemi_cone_active.tga" />
-  <texture name="object_hemi_cylinder.tga" />
-  <texture name="object_hemi_cylinder_active.tga" />
-  <texture name="object_hemi_sphere.tga" />
-  <texture name="object_hemi_sphere_active.tga" />
-  <texture name="object_prism.tga" />
-  <texture name="object_prism_active.tga" />
-  <texture name="object_pyramid.tga" />
-  <texture name="object_pyramid_active.tga" />
-  <texture name="object_ring.tga" />
-  <texture name="object_ring_active.tga" />
-  <texture name="object_sphere.tga" />
-  <texture name="object_sphere_active.tga" />
-  <texture name="object_tetrahedron.tga" />
-  <texture name="object_tetrahedron_active.tga" />
-  <texture name="object_torus.tga" />
-  <texture name="object_torus_active.tga" />
-  <texture name="object_tree.tga" />
-  <texture name="object_tree_active.tga" />
-  <texture name="object_tube.tga" />
-  <texture name="object_tube_active.tga" />
 
   <texture name="pixiesmall.j2c" use_mips="true" />
   <texture name="script_error.j2c" use_mips="true" />
@@ -678,11 +638,6 @@
   <texture name="status_health.tga" />
   <texture name="status_no_push.tga" />
   <texture name="status_no_scripts.tga" />
-
-  <texture name="tool_dozer.tga" />
-  <texture name="tool_dozer_active.tga" />
-  <texture name="tool_zoom.tga" />
-  <texture name="tool_zoom_active.tga" />
 
   <texture name="icn_active-speakers-dot-lvl0.tga" />
   <texture name="icn_active-speakers-dot-lvl1.tga" />

@@ -49,6 +49,7 @@
 #include "llnotifications.h"
 #include "lluuid.h"
 #include "llkeyboard.h"
+#include "llmutelist.h"
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
@@ -171,6 +172,7 @@ typedef std::vector<LLViewerMediaImpl*> impl_list;
 static impl_list sViewerMediaImplList;
 static LLTimer sMediaCreateTimer;
 static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
+static F32 sGlobalVolume = 1.0f;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 static void add_media_impl(LLViewerMediaImpl* media)
@@ -193,6 +195,14 @@ static void remove_media_impl(LLViewerMediaImpl* media)
 		}
 	}
 }
+
+class LLViewerMediaMuteListObserver : public LLMuteListObserver
+{
+	/* virtual */ void onChange()  { LLViewerMedia::muteListChanged();}
+};
+
+static LLViewerMediaMuteListObserver sViewerMediaMuteListObserver;
+static bool sViewerMediaMuteListObserverInitialized = false;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -388,20 +398,56 @@ bool LLViewerMedia::textureHasMedia(const LLUUID& texture_id)
 // static
 void LLViewerMedia::setVolume(F32 volume)
 {
+	if(volume != sGlobalVolume)
+	{
+		sGlobalVolume = volume;
+		impl_list::iterator iter = sViewerMediaImplList.begin();
+		impl_list::iterator end = sViewerMediaImplList.end();
+
+		for(; iter != end; iter++)
+		{
+			LLViewerMediaImpl* pimpl = *iter;
+			pimpl->updateVolume();
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+F32 LLViewerMedia::getVolume()
+{
+	return sGlobalVolume;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::muteListChanged()
+{
+	// When the mute list changes, we need to check mute status on all impls.
 	impl_list::iterator iter = sViewerMediaImplList.begin();
 	impl_list::iterator end = sViewerMediaImplList.end();
 
 	for(; iter != end; iter++)
 	{
 		LLViewerMediaImpl* pimpl = *iter;
-		pimpl->setVolume(volume);
+		pimpl->mNeedsMuteCheck = true;
 	}
 }
 
 // This is the predicate function used to sort sViewerMediaImplList by priority.
 static inline bool compare_impl_interest(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
 {
-	if(i1->hasFocus())
+	if(i1->mIsMuted || i1->mMediaSourceFailed)
+	{
+		// Muted or failed items always go to the end of the list, period.
+		return false;
+	}
+	else if(i2->mIsMuted || i2->mMediaSourceFailed)
+	{
+		// Muted or failed items always go to the end of the list, period.
+		return true;
+	}
+	else if(i1->hasFocus())
 	{
 		// The item with user focus always comes to the front of the list, period.
 		return true;
@@ -475,8 +521,9 @@ void LLViewerMedia::updateMedia()
 		
 		LLPluginClassMedia::EPriority new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 
-		if(impl_count_total > (int)max_instances)
+		if(pimpl->mIsMuted || pimpl->mMediaSourceFailed || (impl_count_total > (int)max_instances))
 		{
+			// Never load muted or failed impls.
 			// Hard limit on the number of instances that will be loaded at one time
 			new_priority = LLPluginClassMedia::PRIORITY_UNLOADED;
 		}
@@ -536,6 +583,11 @@ void LLViewerMedia::updateMedia()
 			}
 		}
 		
+		if(new_priority != LLPluginClassMedia::PRIORITY_UNLOADED)
+		{
+			impl_count_total++;
+		}
+		
 		pimpl->setPriority(new_priority);
 
 #if 0		
@@ -549,7 +601,6 @@ void LLViewerMedia::updateMedia()
 #endif
 
 		total_cpu += pimpl->getCPUUsage();
-		impl_count_total++;
 	}
 	
 	LL_DEBUGS("PluginPriority") << "Total reported CPU usage is " << total_cpu << llendl;
@@ -591,9 +642,19 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mDoNavigateOnLoad(false),
 	mDoNavigateOnLoadRediscoverType(false),
 	mDoNavigateOnLoadServerRequest(false),
-	mMediaSourceFailedInit(false),
+	mMediaSourceFailed(false),
+	mRequestedVolume(1.0f),
+	mIsMuted(false),
+	mNeedsMuteCheck(false),
 	mIsUpdated(false)
 { 
+
+	// Set up the mute list observer if it hasn't been set up already.
+	if(!sViewerMediaMuteListObserverInitialized)
+	{
+		LLMuteList::getInstance()->addObserver(&sViewerMediaMuteListObserver);
+		sViewerMediaMuteListObserverInitialized = true;
+	}
 	
 	add_media_impl(this);
 	
@@ -783,7 +844,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 	}
 
 	// If we got here, we want to ignore previous init failures.
-	mMediaSourceFailedInit = false;
+	mMediaSourceFailed = false;
 
 	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight);
 	
@@ -796,11 +857,14 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		media_source->focus(mHasFocus);
 		
 		mMediaSource = media_source;
+
+		updateVolume();
+
 		return true;
 	}
 
 	// Make sure the timer doesn't try re-initing this plugin repeatedly until something else changes.
-	mMediaSourceFailedInit = true;
+	mMediaSourceFailed = true;
 
 	return false;
 }
@@ -886,10 +950,23 @@ void LLViewerMediaImpl::seek(F32 time)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::setVolume(F32 volume)
 {
+	mRequestedVolume = volume;
+	updateVolume();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::updateVolume()
+{
 	if(mMediaSource)
 	{
-		mMediaSource->setVolume(volume);
+		mMediaSource->setVolume(mRequestedVolume * LLViewerMedia::getVolume());
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+F32 LLViewerMediaImpl::getVolume()
+{
+	return mRequestedVolume;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1088,9 +1165,6 @@ void LLViewerMediaImpl::navigateHome()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mime_type,  bool rediscover_type, bool server_request)
 {
-	// Helpful to have media urls in log file. Shouldn't be spammy.
-	llinfos << "url=" << url << " mime_type=" << mime_type << llendl;
-	
 	if(server_request)
 	{
 		setNavState(MEDIANAVSTATE_SERVER_SENT);
@@ -1112,14 +1186,24 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 	
 	// and if this was a server request, the navigate on load will also need to be one.
 	mDoNavigateOnLoadServerRequest = server_request;
+	
+	// An explicit navigate resets the "failed" flag.
+	mMediaSourceFailed = false;
 
 	if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
 	{
+		// Helpful to have media urls in log file. Shouldn't be spammy.
+		llinfos << "UNLOADED media id= " << mTextureId << " url=" << url << " mime_type=" << mime_type << llendl;
+
 		// This impl should not be loaded at this time.
 		LL_DEBUGS("PluginPriority") << this << "Not loading (PRIORITY_UNLOADED)" << LL_ENDL;
 		
 		return;
 	}
+
+	// Helpful to have media urls in log file. Shouldn't be spammy.
+	llinfos << "media id= " << mTextureId << " url=" << url << " mime_type=" << mime_type << llendl;
+	
 	
 	// If the caller has specified a non-empty MIME type, look that up in our MIME types list.
 	// If we have a plugin for that MIME type, use that instead of attempting auto-discovery.
@@ -1228,6 +1312,8 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 		if(!result)
 		{
 			result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN ,key, mask);
+			// Since the viewer internal event dispatching doesn't give us key-up events, simulate one here.
+			(void)mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_UP ,key, mask);
 		}
 	}
 	
@@ -1277,7 +1363,7 @@ bool LLViewerMediaImpl::canNavigateBack()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::update()
 {
-	if(mMediaSource == NULL && !mMediaSourceFailedInit)
+	if(mMediaSource == NULL)
 	{
 		if(mPriority != LLPluginClassMedia::PRIORITY_UNLOADED)
 		{
@@ -1507,7 +1593,8 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
 		{
 			// The plugin failed to load properly.  Make sure the timer doesn't retry.
-			mMediaSourceFailedInit = true;
+			// TODO: maybe mark this plugin as not loadable somehow?
+			mMediaSourceFailed = true;
 			
 			// TODO: may want a different message for this case?
 			LLSD args;
@@ -1518,6 +1605,9 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 
 		case MEDIA_EVENT_PLUGIN_FAILED:
 		{
+			// The plugin crashed.
+			mMediaSourceFailed = true;
+
 			LLSD args;
 			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
 			// SJB: This is getting called every frame if the plugin fails to load, continuously respawining the alert!
@@ -1692,6 +1782,32 @@ void LLViewerMediaImpl::calculateInterest()
 		// This will be a relatively common case now, since it will always be true for unloaded media.
 		mInterest = 0.0f;
 	}
+	
+	if(mNeedsMuteCheck)
+	{
+		// Check all objects this instance is associated with, and those objects' owners, against the mute list
+		mIsMuted = false;
+		
+		std::list< LLVOVolume* >::iterator iter = mObjectList.begin() ;
+		for(; iter != mObjectList.end() ; ++iter)
+		{
+			LLVOVolume *obj = *iter;
+			if(LLMuteList::getInstance()->isMuted(obj->getID()))
+				mIsMuted = true;
+			else
+			{
+				// We won't have full permissions data for all objects.  Attempt to mute objects when we can tell their owners are muted.
+				LLPermissions* obj_perm = LLSelectMgr::getInstance()->findObjectPermissions(obj);
+				if(obj_perm)
+				{
+					if(LLMuteList::getInstance()->isMuted(obj_perm->getOwner()))
+						mIsMuted = true;
+				}
+			}
+		}
+		
+		mNeedsMuteCheck = false;
+	}
 }
 
 F64 LLViewerMediaImpl::getApproximateTextureInterest()
@@ -1799,11 +1915,13 @@ void LLViewerMediaImpl::addObject(LLVOVolume* obj)
 	}
 
 	mObjectList.push_back(obj) ;
+	mNeedsMuteCheck = true;
 }
 	
 void LLViewerMediaImpl::removeObject(LLVOVolume* obj) 
 {
 	mObjectList.remove(obj) ;	
+	mNeedsMuteCheck = true;
 }
 	
 const std::list< LLVOVolume* >* LLViewerMediaImpl::getObjectList() const 

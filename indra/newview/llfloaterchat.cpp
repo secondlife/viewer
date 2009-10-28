@@ -204,12 +204,14 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 
 	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 	{
-		LLFloaterScriptDebug::addScriptLine(chat.mText,
-											chat.mFromName, 
-											color, 
-											chat.mFromID);
-		if (!gSavedSettings.getBOOL("ScriptErrorsAsChat"))
+		if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE)
+			return;
+		if (gSavedSettings.getS32("ShowScriptErrorsLocation") == 1)
 		{
+			LLFloaterScriptDebug::addScriptLine(chat.mText,
+												chat.mFromName, 
+												color, 
+												chat.mFromID);
 			return;
 		}
 	}
@@ -315,9 +317,9 @@ void LLFloaterChat::addChat(const LLChat& chat,
 {
 	LLColor4 text_color = get_text_color(chat);
 
-	BOOL invisible_script_debug_chat = 
-			chat.mChatType == CHAT_TYPE_DEBUG_MSG
-			&& !gSavedSettings.getBOOL("ScriptErrorsAsChat");
+	BOOL invisible_script_debug_chat = ((gSavedSettings.getBOOL("ShowScriptErrors") == FALSE) ||
+			(chat.mChatType == CHAT_TYPE_DEBUG_MSG
+			&& (gSavedSettings.getS32("ShowScriptErrorsLocation") == 1)));
 
 	if (!invisible_script_debug_chat 
 		&& !chat.mMuted 

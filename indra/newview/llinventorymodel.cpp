@@ -176,12 +176,21 @@ LLInventoryModel::LLInventoryModel()
 // Destroys the object
 LLInventoryModel::~LLInventoryModel()
 {
+	cleanupInventory();
+}
+
+void LLInventoryModel::cleanupInventory()
+{
 	empty();
-	for (observer_list_t::iterator iter = mObservers.begin();
-		 iter != mObservers.end(); ++iter)
+	// Deleting one observer might erase others from the list, so always pop off the front
+	while (!mObservers.empty())
 	{
-		delete *iter;
+		observer_list_t::iterator iter = mObservers.begin();
+		LLInventoryObserver* observer = *iter;
+		mObservers.erase(iter);
+		delete observer;
 	}
+	mObservers.clear();
 }
 
 // This is a convenience function to check if one object has a parent

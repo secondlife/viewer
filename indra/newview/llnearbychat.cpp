@@ -222,12 +222,14 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 
 	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 	{
-		LLFloaterScriptDebug::addScriptLine(chat.mText,
-											chat.mFromName, 
-											color, 
-											chat.mFromID);
-		if (!gSavedSettings.getBOOL("ScriptErrorsAsChat"))
+		if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE)
+			return;
+		if (gSavedSettings.getS32("ShowScriptErrorsLocation")== 1)// show error in window //("ScriptErrorsAsChat"))
 		{
+			LLFloaterScriptDebug::addScriptLine(chat.mText,
+												chat.mFromName, 
+												color, 
+												chat.mFromID);
 			return;
 		}
 	}
