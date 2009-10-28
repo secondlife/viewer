@@ -41,6 +41,7 @@
 #include "llpanelpick.h"
 #include "llremoteparcelrequest.h"
 
+class LLAccordionCtrlTab;
 class LLFolderViewItem;
 class LLMenuGL;
 class LLInventoryPanel;
@@ -114,6 +115,18 @@ private:
 	 */
 	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
 
+	/**
+	 * Static callback for gIdleCallbacks to perform actions out of drawing
+	 */
+	static void doIdle(void* landmarks_panel);
+
+	/**
+	 * Updates accordions according to filtered items in lists.
+	 *
+	 * It hides accordion for empty lists
+	 */
+	void updateFilteredAccordions();
+
 private:
 	LLInventorySubTreePanel*	mFavoritesInventoryPanel;
 	LLInventorySubTreePanel*	mLandmarksInventoryPanel;
@@ -126,6 +139,10 @@ private:
 
 	LLPanel*					mListCommands;
 	bool 						mSortByDate;
+	bool						mDirtyFilter;
+	
+	typedef	std::vector<LLAccordionCtrlTab*> accordion_tabs_t;
+	accordion_tabs_t			mAccordionTabs;
 };
 
 #endif //LL_LLPANELLANDMARKS_H

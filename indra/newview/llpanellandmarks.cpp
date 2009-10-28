@@ -38,10 +38,12 @@
 #include "llsdutil.h"
 #include "llsdutil_math.h"
 
+#include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llagent.h"
 #include "llagentpicksinfo.h"
 #include "llagentui.h"
+#include "llcallbacklist.h"
 #include "lldndbutton.h"
 #include "llfloaterworldmap.h"
 #include "llfolderviewitem.h"
@@ -75,6 +77,7 @@ LLLandmarksPanel::LLLandmarksPanel()
 	,	mListCommands(NULL)
 	,	mGearFolderMenu(NULL)
 	,	mGearLandmarkMenu(NULL)
+	,	mDirtyFilter(false)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_landmarks.xml");
 }
@@ -98,16 +101,37 @@ BOOL LLLandmarksPanel::postBuild()
 	initMyInventroyPanel();
 	initLibraryInventroyPanel();
 
+	gIdleCallbacks.addFunction(LLLandmarksPanel::doIdle, this);
 	return TRUE;
 }
 
 // virtual
 void LLLandmarksPanel::onSearchEdit(const std::string& string)
 {
+	static std::string prev_string("");
+
+	if (prev_string == string) return;
+
+	// show all folders in Landmarks Accordion for empty filter
+	mLandmarksInventoryPanel->setShowFolderState(string.empty() ?
+		LLInventoryFilter::SHOW_ALL_FOLDERS :
+		LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS
+		);
+
 	filter_list(mFavoritesInventoryPanel, string);
 	filter_list(mLandmarksInventoryPanel, string);
 	filter_list(mMyInventoryPanel, string);
 	filter_list(mLibraryInventoryPanel, string);
+
+	prev_string = string;
+	mDirtyFilter = true;
+
+	// give FolderView a chance to be refreshed. So, made all accordions visible
+	for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
+	{
+		LLAccordionCtrlTab* tab = *iter;
+		tab->setVisible(true);
+	}
 }
 
 // virtual
@@ -391,6 +415,7 @@ void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_lis
 void LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLInventorySubTreePanel* inventory_list)
 {
 	LLAccordionCtrlTab* accordion_tab = getChild<LLAccordionCtrlTab>(accordion_tab_name);
+	mAccordionTabs.push_back(accordion_tab);
 	accordion_tab->setDropDownStateChangedCallback(
 		boost::bind(&LLLandmarksPanel::onAccordionExpandedCollapsed, this, _2, inventory_list));
 }
@@ -856,6 +881,43 @@ bool LLLandmarksPanel::handleDragAndDropToTrash(BOOL drop, EDragAndDropType carg
 	}
 
 	return true;
+}
+
+
+void LLLandmarksPanel::doIdle(void* landmarks_panel)
+{
+	LLLandmarksPanel* panel = (LLLandmarksPanel* ) landmarks_panel;
+
+	if (panel->mDirtyFilter)
+	{
+		panel->updateFilteredAccordions();
+	}
+
+}
+
+void LLLandmarksPanel::updateFilteredAccordions()
+{
+	LLInventoryPanel* inventory_list = NULL;
+	LLAccordionCtrlTab* accordion_tab = NULL;
+	for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
+	{
+		accordion_tab = *iter;
+		inventory_list = dynamic_cast<LLInventorySubTreePanel*> (accordion_tab->getAccordionView());
+		if (NULL == inventory_list) continue;
+		LLFolderView* fv = inventory_list->getRootFolder();
+
+		bool has_visible_children = fv->hasVisibleChildren();
+
+		accordion_tab->setVisible(has_visible_children);
+	}
+
+	// we have to arrange accordion tabs for cases when filter string is less restrictive but 
+	// all items are still filtered.
+	static LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("landmarks_accordion");
+	accordion->arrange();
+
+	// now filter state is applied to accordion tabs
+	mDirtyFilter = false;
 }
 
 
