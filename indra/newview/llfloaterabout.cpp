@@ -63,6 +63,7 @@
 #include "llwindow.h"
 #include "stringize.h"
 #include "llsdutil_math.h"
+#include "lleventdispatcher.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -298,6 +299,27 @@ static std::string get_viewer_release_notes_url()
 
 	return LLWeb::escapeURL(url.str());
 }
+
+class LLFloaterAboutListener: public LLDispatchListener
+{
+public:
+	LLFloaterAboutListener():
+		LLDispatchListener("LLFloaterAbout", "op")
+	{
+		add("getInfo", &LLFloaterAboutListener::getInfo, LLSD().insert("reply", LLSD()));
+	}
+
+private:
+	void getInfo(const LLSD& request) const
+	{
+		LLReqID reqid(request);
+		LLSD reply(LLFloaterAbout::getInfo());
+		reqid.stamp(reply);
+		LLEventPumps::instance().obtain(request["reply"]).post(reply);
+	}
+};
+
+static LLFloaterAboutListener floaterAboutListener;
 
 void LLFloaterAbout::onClickCopyToClipboard()
 {
