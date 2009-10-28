@@ -81,6 +81,9 @@ private:
 	bool	mCanCut;
 	bool	mCanCopy;
 	bool	mCanPaste;
+	int mLastMouseX;
+	int mLastMouseY;
+	bool mFirstFocus;
 	
 	////////////////////////////////////////////////////////////////////////////////
 	//
@@ -345,33 +348,30 @@ private:
 		message.setValue("uri", event.getStringValue());
 		sendMessage(message);
 	}
-
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	void mouseDown( int x, int y )
+	
+	LLQtWebKit::EKeyboardModifier decodeModifiers(std::string &modifiers)
 	{
-		LLQtWebKit::getInstance()->mouseDown( mBrowserWindowId, x, y );
-	};
+		int result = 0;
+		
+		if(modifiers.find("shift") != std::string::npos)
+			result |= LLQtWebKit::KM_MODIFIER_SHIFT;
+
+		if(modifiers.find("alt") != std::string::npos)
+			result |= LLQtWebKit::KM_MODIFIER_ALT;
+		
+		if(modifiers.find("control") != std::string::npos)
+			result |= LLQtWebKit::KM_MODIFIER_CONTROL;
+		
+		if(modifiers.find("meta") != std::string::npos)
+			result |= LLQtWebKit::KM_MODIFIER_META;
+		
+		return (LLQtWebKit::EKeyboardModifier)result;
+	}
+	
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
-	void mouseUp( int x, int y )
-	{
-		LLQtWebKit::getInstance()->mouseUp( mBrowserWindowId, x, y );
-		LLQtWebKit::getInstance()->focusBrowser( mBrowserWindowId, true );
-		checkEditState();
-	};
-
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	void mouseMove( int x, int y )
-	{
-		LLQtWebKit::getInstance()->mouseMove( mBrowserWindowId, x, y );
-	};
-
-	////////////////////////////////////////////////////////////////////////////////
-	//
-	void keyPress( int key )
+	void keyEvent(LLQtWebKit::EKeyEvent key_event, int key, LLQtWebKit::EKeyboardModifier modifiers)
 	{
 		int llqt_key;
 		
@@ -425,7 +425,7 @@ private:
 		
 		if(llqt_key != 0)
 		{
-			LLQtWebKit::getInstance()->keyPress( mBrowserWindowId, llqt_key );
+			LLQtWebKit::getInstance()->keyEvent( mBrowserWindowId, key_event, llqt_key, modifiers);
 		}
 
 		checkEditState();
@@ -433,7 +433,7 @@ private:
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
-	void unicodeInput( const std::string &utf8str )
+	void unicodeInput( const std::string &utf8str, LLQtWebKit::EKeyboardModifier modifiers)
 	{
 		LLWString wstr = utf8str_to_wstring(utf8str);
 		
@@ -442,7 +442,7 @@ private:
 		{
 //			std::cerr << "unicode input, code = 0x" << std::hex << (unsigned long)(wstr[i]) << std::dec << std::endl;
 			
-			LLQtWebKit::getInstance()->unicodeInput(mBrowserWindowId, wstr[i]);
+			LLQtWebKit::getInstance()->unicodeInput(mBrowserWindowId, wstr[i], modifiers);
 		}
 
 		checkEditState();
@@ -494,6 +494,9 @@ MediaPluginWebKit::MediaPluginWebKit(LLPluginInstance::sendMessageFunction host_
 	mCanCut = false;
 	mCanCopy = false;
 	mCanPaste = false;
+	mLastMouseX = 0;
+	mLastMouseY = 0;
+	mFirstFocus = true;
 }
 
 MediaPluginWebKit::~MediaPluginWebKit()
@@ -678,66 +681,84 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			else if(message_name == "mouse_event")
 			{
 				std::string event = message_in.getValue("event");
-				S32 x = message_in.getValueS32("x");
-				S32 y = message_in.getValueS32("y");
-				// std::string modifiers = message.getValue("modifiers");
-	
+				S32 button = message_in.getValueS32("button");
+				mLastMouseX = message_in.getValueS32("x");
+				mLastMouseY = message_in.getValueS32("y");
+				std::string modifiers = message_in.getValue("modifiers");
+				
+				// Treat unknown mouse events as mouse-moves.
+				LLQtWebKit::EMouseEvent mouse_event = LLQtWebKit::ME_MOUSE_MOVE;
 				if(event == "down")
 				{
-					mouseDown(x, y);
-					//std::cout << "Mouse down at " << x << " x " << y << std::endl;
+					mouse_event = LLQtWebKit::ME_MOUSE_DOWN;
 				}
 				else if(event == "up")
 				{
-					mouseUp(x, y);
-					//std::cout << "Mouse up at " << x << " x " << y << std::endl;
+					mouse_event = LLQtWebKit::ME_MOUSE_UP;
 				}
-				else if(event == "move")
+				else if(event == "double_click")
 				{
-					mouseMove(x, y);
-					//std::cout << ">>>>>>>>>>>>>>>>>>>> Mouse move at " << x << " x " << y << std::endl;
+					mouse_event = LLQtWebKit::ME_MOUSE_DOUBLE_CLICK;
 				}
+				
+				LLQtWebKit::getInstance()->mouseEvent( mBrowserWindowId, mouse_event, button, mLastMouseX, mLastMouseY, decodeModifiers(modifiers));
+				checkEditState();
 			}
 			else if(message_name == "scroll_event")
 			{
-				// S32 x = message_in.getValueS32("x");
+				S32 x = message_in.getValueS32("x");
 				S32 y = message_in.getValueS32("y");
-				// std::string modifiers = message.getValue("modifiers");
+				std::string modifiers = message_in.getValue("modifiers");
 				
-				// We currently ignore horizontal scrolling.
-				// The scroll values are roughly 1 per wheel click, so we need to magnify them by some factor.
-				// Arbitrarily, I choose 16.
-				y *= 16;
-				LLQtWebKit::getInstance()->scrollByLines(mBrowserWindowId, y);
+				// Incoming scroll events are adjusted so that 1 detent is approximately 1 unit.
+				// Qt expects 1 detent to be 120 units.
+				// It also seems that our y scroll direction is inverted vs. what Qt expects.
+				
+				x *= 120;
+				y *= -120;
+				
+				LLQtWebKit::getInstance()->scrollWheelEvent(mBrowserWindowId, mLastMouseX, mLastMouseY, x, y, decodeModifiers(modifiers));
 			}
 			else if(message_name == "key_event")
 			{
 				std::string event = message_in.getValue("event");
-
-				// act on "key down" or "key repeat"
-				if ( (event == "down") || (event == "repeat") )
+				S32 key = message_in.getValueS32("key");
+				std::string modifiers = message_in.getValue("modifiers");
+				
+				// Treat unknown events as key-up for safety.
+				LLQtWebKit::EKeyEvent key_event = LLQtWebKit::KE_KEY_UP;
+				if(event == "down")
 				{
-					S32 key = message_in.getValueS32("key");
-					keyPress( key );
-				};
+					key_event = LLQtWebKit::KE_KEY_DOWN;
+				}
+				else if(event == "repeat")
+				{
+					key_event = LLQtWebKit::KE_KEY_REPEAT;
+				}
+				
+				keyEvent(key_event, key, decodeModifiers(modifiers));
 			}
 			else if(message_name == "text_event")
 			{
 				std::string text = message_in.getValue("text");
+				std::string modifiers = message_in.getValue("modifiers");
 				
-				unicodeInput(text);
+				unicodeInput(text, decodeModifiers(modifiers));
 			}
 			if(message_name == "edit_cut")
 			{
 				LLQtWebKit::getInstance()->userAction( mBrowserWindowId, LLQtWebKit::UA_EDIT_CUT );
+				checkEditState();
 			}
 			if(message_name == "edit_copy")
 			{
 				LLQtWebKit::getInstance()->userAction( mBrowserWindowId, LLQtWebKit::UA_EDIT_COPY );
+				checkEditState();
 			}
 			if(message_name == "edit_paste")
 			{
 				LLQtWebKit::getInstance()->userAction( mBrowserWindowId, LLQtWebKit::UA_EDIT_PASTE );
+				checkEditState();
 			}
 			else
 			{
@@ -750,6 +771,15 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			{
 				bool val = message_in.getValueBoolean("focused");
 				LLQtWebKit::getInstance()->focusBrowser( mBrowserWindowId, val );
+				
+				if(mFirstFocus && val)
+				{
+					// On the first focus, post a tab key event.  This fixes a problem with initial focus.
+					std::string empty;
+					keyEvent(LLQtWebKit::KE_KEY_DOWN, KEY_TAB, decodeModifiers(empty));
+					keyEvent(LLQtWebKit::KE_KEY_UP, KEY_TAB, decodeModifiers(empty));
+					mFirstFocus = false;
+				}
 			}
 			else if(message_name == "clear_cache")
 			{

@@ -112,6 +112,8 @@ void LLPluginClassMedia::reset()
 	mLowPrioritySizeLimit = LOW_PRIORITY_TEXTURE_SIZE_DEFAULT;
 	mAllowDownsample = false;
 	mPadding = 0;
+	mLastMouseX = 0;
+	mLastMouseY = 0;
 	mStatus = LLPluginClassMediaOwner::MEDIA_NONE;
 	mSleepTime = 1.0f / 100.0f;
 	mCanCut = false;
@@ -412,8 +414,20 @@ std::string LLPluginClassMedia::translateModifiers(MASK modifiers)
 	return result;
 }
 
-void LLPluginClassMedia::mouseEvent(EMouseEventType type, int x, int y, MASK modifiers)
+void LLPluginClassMedia::mouseEvent(EMouseEventType type, int button, int x, int y, MASK modifiers)
 {
+	if(type == MOUSE_EVENT_MOVE)
+	{
+		if((x == mLastMouseX) && (y == mLastMouseY))
+		{
+			// Don't spam unnecessary mouse move events.
+			return;
+		}
+		
+		mLastMouseX = x;
+		mLastMouseY = y;
+	}
+	
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "mouse_event");
 	std::string temp;
 	switch(type)
@@ -424,6 +438,8 @@ void LLPluginClassMedia::mouseEvent(EMouseEventType type, int x, int y, MASK mod
 		case MOUSE_EVENT_DOUBLE_CLICK:	temp = "double_click";	break;
 	}
 	message.setValue("event", temp);
+
+	message.setValueS32("button", button);
 
 	message.setValueS32("x", x);
 	
@@ -515,11 +531,12 @@ void LLPluginClassMedia::scrollEvent(int x, int y, MASK modifiers)
 	sendMessage(message);
 }
 	
-bool LLPluginClassMedia::textInput(const std::string &text)
+bool LLPluginClassMedia::textInput(const std::string &text, MASK modifiers)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "text_event");
 
 	message.setValue("text", text);
+	message.setValue("modifiers", translateModifiers(modifiers));
 	
 	sendMessage(message);
 	
@@ -1110,6 +1127,11 @@ void LLPluginClassMedia::setVolume(float volume)
 		
 		sendMessage(message);
 	}
+}
+
+float LLPluginClassMedia::getVolume()
+{
+	return mRequestedVolume;
 }
 
 void LLPluginClassMedia::initializeUrlHistory(const LLSD& url_history)

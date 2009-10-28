@@ -649,6 +649,7 @@ void LLAgentWearables::setWearable(const EWearableType type, U32 index, LLWearab
 	else
 	{
 		wearable_vec[index] = wearable;
+		mAvatarObject->wearableUpdated(wearable->getType());
 	}
 }
 
@@ -663,6 +664,7 @@ U32 LLAgentWearables::pushWearable(const EWearableType type, LLWearable *wearabl
 	if (type < WT_COUNT || mWearableDatas[type].size() < MAX_WEARABLES_PER_TYPE)
 	{
 		mWearableDatas[type].push_back(wearable);
+		mAvatarObject->wearableUpdated(wearable->getType());
 		return mWearableDatas[type].size()-1;
 	}
 	return MAX_WEARABLES_PER_TYPE;
@@ -687,9 +689,11 @@ void LLAgentWearables::popWearable(LLWearable *wearable)
 
 void LLAgentWearables::popWearable(const EWearableType type, U32 index)
 {
-	if (getWearable(type, index))
+	LLWearable *wearable = getWearable(type, index);
+	if (wearable)
 	{
 		mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
+		mAvatarObject->wearableUpdated(wearable->getType());
 	}
 }
 

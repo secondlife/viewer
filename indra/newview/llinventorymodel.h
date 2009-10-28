@@ -112,7 +112,9 @@ public:
 	// construction & destruction
 	LLInventoryModel();
 	~LLInventoryModel();
-
+	
+	void cleanupInventory();
+	
 	class fetchInventoryResponder : public LLHTTPClient::Responder
 	{
 	public:

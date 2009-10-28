@@ -99,6 +99,7 @@ public:
 	// mousehandler overrides
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask );
 	virtual BOOL	handleMiddleMouseDown(S32 x,S32 y,MASK mask);
@@ -201,6 +202,7 @@ public:
 	void getSelectedSegments(segment_vec_t& segments) const;
 
 protected:
+	void			showContextMenu(S32 x, S32 y);
 	void			drawPreeditMarker();
 
 	void 			assignEmbedded(const std::string &s);
@@ -328,6 +330,8 @@ private:
 	LLCoordGL		mLastIMEPosition;		// Last position of the IME editor
 
 	keystroke_signal_t mKeystrokeSignal;
+
+	LLContextMenu* mContextMenu;
 }; // end class LLTextEditor
 
 

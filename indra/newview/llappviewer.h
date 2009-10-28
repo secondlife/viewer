@@ -282,8 +282,6 @@ const S32 AGENT_UPDATES_PER_SECOND  = 10;
 // "// llstartup" indicates that llstartup is the only client for this global.
 
 extern LLSD gDebugInfo;
-
-extern BOOL	gAllowTapTapHoldRun;
 extern BOOL	gShowObjectUpdates;
 
 typedef enum 

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  border="true"
- follows="left|top|right|bottom"
+ follows="all"
  height="408"
- label="Audio &amp; Video"
+ label="Sounds"
  layout="topleft"
  left="102"
  name="Preference Media panel"
@@ -12,18 +12,20 @@
     <slider
      control_name="AudioLevelMaster"
      follows="left|top"
+     font.style="BOLD"
      height="15"
      increment="0.05"
      initial_value="0.5"
      label="Master volume"
-     label_width="125"
+     label_width="160"
      layout="topleft"
-     left="30"
+     left="0"
      name="System Volume"
      show_text="false"
+     slider_label.halign="right"
      top_pad="5"
      volume="true"
-     width="425">
+     width="350">
         <slider.commit_callback
          function="Pref.setControlFalse"
          parameter="MuteAudio" />
@@ -31,43 +33,44 @@
     <button
      control_name="MuteAudio"
      follows="top|right"
-     height="16"
-     image_selected="icn_speaker-muted_dark.tga"
-     image_unselected="icn_speaker_dark.tga"
+     height="18"
+     image_selected="parcel_drk_VoiceNo"
+     image_unselected="parcel_drk_Voice"
      is_toggle="true"
      layout="topleft"
-     left_pad="30"
+     left_pad="16"
      name="mute_audio"
      picture_style="true"
      tab_stop="false"
-     top_delta="-1"
-     width="25" />
+     top_delta="-2"
+     width="22" />
     <check_box
      control_name="MuteWhenMinimized"
-     height="16"
+     height="15"
      initial_value="true"
      label="Mute if minimized"
      layout="topleft"
-     left="165"
+     left="167"
      name="mute_when_minimized"
      top_pad="5"
      width="215" />
     <slider
      control_name="AudioLevelAmbient"
      disabled_control="MuteAudio"
-     follows="left|topt"
+     follows="left|top"
      height="15"
      increment="0.05"
      initial_value="0.5"
      label="Ambient"
-     label_width="125"
+     label_width="160"
      layout="topleft"
-     left="30"
+     left="0"
      name="Wind Volume"
      show_text="false"
-     top_pad="5"
+     slider_label.halign="right"
+     top_pad="7"
      volume="true"
-     width="300">
+     width="350">
         <slider.commit_callback
          function="Pref.setControlFalse"
          parameter="MuteAmbient" />
@@ -76,103 +79,34 @@
      control_name="MuteAmbient"
      disabled_control="MuteAudio"
      follows="top|right"
-     height="16"
-     image_selected="icn_speaker-muted_dark.tga"
-     image_unselected="icn_speaker_dark.tga"
+     height="18"
+     image_selected="parcel_drk_VoiceNo"
+     image_unselected="parcel_drk_Voice"
      is_toggle="true"
      layout="topleft"
-     left_pad="30"
+     left_pad="16"
      name="mute_wind"
      picture_style="true"
      tab_stop="false"
-     top_delta="-1"
-     width="25" />
-    <slider
-     control_name="AudioLevelSFX"
-     disabled_control="MuteAudio"
-     follows="left|top"
-     height="15"
-     increment="0.05"
-     initial_value="0.5"
-     label="Sounds"
-     label_width="125"
-     layout="topleft"
-     left="30"
-     name="SFX Volume"
-     show_text="false"
-     top_pad="5"
-     volume="true"
-     width="300">
-        <slider.commit_callback
-         function="Pref.setControlFalse"
-         parameter="MuteSounds" />
-    </slider>
-    <button
-     control_name="MuteSounds"
-     disabled_control="MuteAudio"
-     follows="top|right"
-     height="16"
-     image_selected="icn_speaker-muted_dark.tga"
-     image_unselected="icn_speaker_dark.tga"
-     is_toggle="true"
-     layout="topleft"
-     left_pad="30"
-     name="mute_sfx"
-     picture_style="true"
-     tab_stop="false"
-     top_delta="-1"
-     width="25" />
-    <slider
-     control_name="AudioLevelMedia"
-     disabled_control="MuteAudio"
-     follows="left|top"
-     height="15"
-     increment="0.05"
-     initial_value="0.5"
-     label="Media"
-     label_width="125"
-     layout="topleft"
-     left="30"
-     name="Media Volume"
-     show_text="false"
-     top_pad="5"
-     volume="true"
-     width="300">
-    <slider.commit_callback
-     function="Pref.setControlFalse"
-     parameter="MuteMedia" />
-    </slider>
-    <button
-     control_name="MuteMedia"
-     disabled_control="MuteAudio"
-     follows="top|right"
-     height="16"
-     image_selected="icn_speaker-muted_dark.tga"
-     image_unselected="icn_speaker_dark.tga"
-     is_toggle="true"
-     layout="topleft"
-     left_pad="30"
-     name="mute_media"
-     picture_style="true"
-     tab_stop="false"
-     top_delta="-1"
-     width="25" />
-    <slider
+     top_delta="-2"
+     width="22" />
+        <slider
      control_name="AudioLevelUI"
      disabled_control="MuteAudio"
      follows="left|top"
      height="15"
      increment="0.05"
      initial_value="0.5"
-     label="UI"
-     label_width="125"
+     label="Buttons"
+     label_width="160"
      layout="topleft"
-     left="30"
+     left="0"
      name="UI Volume"
      show_text="false"
-     top_pad="5"
+     slider_label.halign="right"
+     top_pad="7"
      volume="true"
-     width="300">
+     width="350">
         <slider.commit_callback
          function="Pref.setControlFalse"
          parameter="MuteUI" />
@@ -181,17 +115,89 @@
      control_name="MuteUI"
      disabled_control="MuteAudio"
      follows="top|right"
-     height="16"
-     image_selected="icn_speaker-muted_dark.tga"
-     image_unselected="icn_speaker_dark.tga"
+     height="18"
+     image_selected="parcel_drk_VoiceNo"
+     image_unselected="parcel_drk_Voice"
      is_toggle="true"
      layout="topleft"
-     left_pad="30"
+     left_pad="16"
      name="mute_ui"
      picture_style="true"
      tab_stop="false"
-     top_delta="-1"
-     width="25" />
+     top_delta="-2"
+     width="22" />
+        <slider
+     control_name="AudioLevelMedia"
+     disabled_control="MuteAudio"
+     follows="left|top"
+     height="15"
+     increment="0.05"
+     initial_value="0.5"
+     label="Media"
+     label_width="160"
+     layout="topleft"
+     left="0"
+     name="Media Volume"
+     show_text="false"
+     slider_label.halign="right"
+     top_pad="7"
+     volume="true"
+     width="350">
+    <slider.commit_callback
+     function="Pref.setControlFalse"
+     parameter="MuteMedia" />
+    </slider>
+    <button
+     control_name="MuteMedia"
+     disabled_control="MuteAudio"
+     follows="top|right"
+     height="18"
+     image_selected="parcel_drk_VoiceNo"
+     image_unselected="parcel_drk_Voice"
+     is_toggle="true"
+     layout="topleft"
+     left_pad="16"
+     name="mute_media"
+     picture_style="true"
+     tab_stop="false"
+     top_delta="-2"
+     width="22" />
+    <slider
+     control_name="AudioLevelSFX"
+     disabled_control="MuteAudio"
+     follows="left|top"
+     height="15"
+     increment="0.05"
+     initial_value="0.5"
+     label="Sound effects"
+     label_width="160"
+     slider_label.halign="right"
+     layout="topleft"
+     left="0"
+     name="SFX Volume"
+     show_text="false"
+     top_pad="7"
+     volume="true"
+     width="350">
+        <slider.commit_callback
+         function="Pref.setControlFalse"
+         parameter="MuteSounds" />
+    </slider>
+    <button
+     control_name="MuteSounds"
+     disabled_control="MuteAudio"
+     follows="top|right"
+     height="18"
+     image_selected="parcel_drk_VoiceNo"
+     image_unselected="parcel_drk_Voice"
+     is_toggle="true"
+     layout="topleft"
+     left_pad="16"
+     name="mute_sfx"
+     picture_style="true"
+     tab_stop="false"
+     top_delta="-2"
+     width="22" />
     <slider
      control_name="AudioLevelMusic"
      disabled_control="MuteAudio"
@@ -199,15 +205,16 @@
      height="15"
      increment="0.05"
      initial_value="0.5"
-     label="Music"
-     label_width="125"
+     label="Streaming music"
+     label_width="160"
      layout="topleft"
-     left="30"
+     left="0"
      name="Music Volume"
+     slider_label.halign="right"
      show_text="false"
-     top_pad="5"
+     top_pad="7"
      volume="true"
-     width="300">
+     width="350">
         <slider.commit_callback
          function="Pref.setControlFalse"
          parameter="MuteMusic" />
@@ -216,199 +223,206 @@
      control_name="MuteMusic"
      disabled_control="MuteAudio"
      follows="top|right"
-     height="16"
-     image_selected="icn_speaker-muted_dark.tga"
-     image_unselected="icn_speaker_dark.tga"
+     height="18"
+     image_selected="parcel_drk_VoiceNo"
+     image_unselected="parcel_drk_Voice"
      is_toggle="true"
      layout="topleft"
-     left_pad="30"
+     left_pad="16"
      name="mute_music"
      picture_style="true"
      tab_stop="false"
-     top_delta="-1"
-     width="25" />
+     top_delta="-2"
+     width="22" />
+     <check_box
+     height="16"
+	 control_name ="EnableVoiceChat"
+	 disabled_control="CmdLineDisableVoice"
+     label="Enable Voice"
+     layout="topleft"
+     left="22"
+     name="enable_voice_check"
+     width="100">
+    </check_box>
     <slider
      control_name="AudioLevelVoice"
+     enabled_control="EnableVoiceChat"
      disabled_control="MuteAudio"
      follows="left|top"
      height="15"
      increment="0.05"
      initial_value="0.5"
-     label="Voice"
-     label_width="125"
+	 label="Voice"
+     label_width="60"
      layout="topleft"
-     left="30"
+     left="100"
      name="Voice Volume"
      show_text="false"
-     top_pad="5"
+     slider_label.halign="right"
+     top_pad="-15"
      volume="true"
-     width="300">
+     width="250">
         <slider.commit_callback
          function="Pref.setControlFalse"
          parameter="MuteVoice" />
     </slider>
     <button
      control_name="MuteVoice"
+     enabled_control="EnableVoiceChat"
      disabled_control="MuteAudio"
      follows="top|right"
-     height="16"
-     image_selected="icn_speaker-muted_dark.tga"
-     image_unselected="icn_speaker_dark.tga"
+     height="18"
+     image_selected="parcel_drk_VoiceNo"
+     image_unselected="parcel_drk_Voice"
      is_toggle="true"
      layout="topleft"
-     left_pad="30"
+     left_pad="16"
      name="mute_voice"
      picture_style="true"
      tab_stop="false"
-     top_delta="-1"
-     width="25" />
+     top_delta="-2"
+     width="22" />
     <text
      type="string"
      length="1"
      follows="left|top"
-     height="16"
+     height="13"
      layout="topleft"
-     left="30"
+     left="170"
      name="Listen from"
-     top_pad="5"
-     width="100">
+     width="200">
         Listen from:
     </text>
-    <radio_group
-	 enabled_control="EnableVoiceChat"
-	 control_name="VoiceEarLocation"
+    <icon
+	 follows="left"
+	 height="18"
+	 image_name="CameraView_Off"
+	 name="camera_icon"
+	 mouse_opaque="false"
+	 visible="true"
+	 width="18" />
+	<icon
+	 follows="left"
+	 height="18"
+	 image_name="Move_Walk_Off"
+	 name="avatar_icon"
+	 mouse_opaque="false"
+	 visible="true"
+	 width="18" />
+   <radio_group
+     enabled_control="EnableVoiceChat"
+     control_name="VoiceEarLocation"
      draw_border="false"
-     height="40"
-     layout="topleft"
-     left_delta="50"
-     name="ear_location"
-     top_pad="0"
-     width="364">
+	 follows="left"
+     left_delta="20"
+	 top = "210"
+	 width="221"
+	 height="38"
+     name="ear_location">
         <radio_item
          height="16"
-         label="Listen from camera position"
-         layout="topleft"
-         left="3"
+         label="Camera position"
+         left_pad="1"
+		 follows="topleft"
          name="0"
-         top="3"
-         width="315" />
+         top_delta="-30"
+         width="200" />
         <radio_item
          height="16"
-         label="Listen from avatar position"
-         layout="topleft"
+		 follows="topleft"
+         label="Avatar position"
          left_delta="0"
          name="1"
-         top_delta="16"
-         width="315" />
+         top_delta="19"
+         width="200" />
     </radio_group>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left="30"
-     name="Sound out/in"
-     top_pad="2"
-     width="100">
-        Sound out/in:
-    </text>
     <button
      control_name="ShowDeviceSettings"
-     follows="left|top"
-     height="20"
+     follows="left|bottom"
+     height="19"
      is_toggle="true"
-     label="Device settings"
+     label="Input / Output  Devices"
      layout="topleft"
-     left_delta="55"
+     left="165"
+     top_pad="12"
      name="device_settings_btn"
-     top_pad="0"
-     width="155" />
+     width="190" />
     <panel
+    background_visible="true"
+     bg_alpha_color="DkGray"
      visiblity_control="ShowDeviceSettings"
      border="false"
-	 follows="top|left"
-     height="260"
+     follows="top|left"
+     height="145"
      label="DeviceSettings"
      layout="topleft"
      left="0"
      name="Device Settings"
-     top_pad="5"
-     width="485">
+     width="501">
+      <icon
+             height="18"
+             image_name="Microphone_On"
+             left="80"
+             name="microphone_icon"
+             mouse_opaque="false"
+             top="7"
+             visible="true"
+             width="18" />
     <text
      type="string"
      length="1"
+      font.style="BOLD"
      follows="left|top"
      height="16"
      layout="topleft"
-     left="30"
-     name="Input device (microphone):"
-     top_pad="0"
+     left_pad="3"
+     name="Input"
      width="200">
-        Input device (microphone):
+        Input
     </text>
     <combo_box
-     height="18"
+     height="19"
      layout="topleft"
-     left_delta="55"
+     left="165"
      max_chars="128"
      name="voice_input_device"
-     top_pad="2"
-     width="225" />
-    <text
+     top_pad="0"
+     width="200" />
+   <text
      type="string"
      length="1"
      follows="left|top"
      height="16"
      layout="topleft"
-     left="30"
-     name="Output device (speakers):"
-     top_pad="5"
-     width="200">
-        Output device (speakers):
-    </text>
-    <combo_box
-     height="18"
-     layout="topleft"
-     left_delta="55"
-     max_chars="128"
-     name="voice_output_device"
-     top_pad="2"
-     width="225" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left="30"
-     name="Input level:"
+     left="165"
+     name="My volume label"
      top_pad="10"
      width="200">
-        Input level
+        My volume:
     </text>
-    <slider_bar
+      <slider
      follows="left|top"
      height="17"
      increment="0.05"
      initial_value="1.0"
      layout="topleft"
-     left_delta="125"
+     left="160"
      max_val="2"
      name="mic_volume_slider"
      tool_tip="Change the volume using this slider"
-     top_delta="-1"
-     width="175" />
+     top_pad="0"
+     width="220" />
     <text
      type="string"
+     text_color="EmphasisColor"
      length="1"
      follows="left|top"
-     height="20"
+     height="18"
      layout="topleft"
      left_pad="5"
      name="wait_text"
-     top_delta="1"
-     width="200">
+     top_delta="0"
+     width="110">
         Please wait
     </text>
     <locate
@@ -446,16 +460,57 @@
      name="bar4"
      top_delta="0"
      width="20" />
-    <text
+  <!--  <text
      type="string"
-     height="40"
+     height="37"
      left="30"
      name="voice_intro_text1"
      top_pad="-4"
-     width="480"
+     width="410"
      word_wrap="true">
-        Adjust the slider to control how loud you sound to other Residents. To test the input level, simply speak into your microphone.
+        Adjust the slider to control how loud you sound to other people. To test your volume, simply speak into your microphone
+    </text>-->
+          <icon
+             height="18"
+             image_name="parcel_lght_Voice"
+             left="80"
+             name="speaker_icon"
+             mouse_opaque="false"
+             top_pad="-8"
+             visible="true"
+             width="22" />
+    <text
+    font.style="BOLD"
+     type="string"
+     length="1"
+     follows="left|top"
+     height="15"
+     layout="topleft"
+     left_pad="0"
+     name="Output"
+     width="200">
+        Output
     </text>
+    <combo_box
+     height="19"
+     layout="topleft"
+     left="165"
+     max_chars="128"
+     name="voice_output_device"
+     top_pad="0"
+     width="200" />
     </panel>
-    
-</panel>
+          <!-- Until new panel is hooked up to code, we need to be able to get to
+    the old window to change input devices. James -->
+  <button
+    follows="left|bottom"
+    label="Old"
+    name="legacy_device_window_btn"
+    height="16"
+    left="20"
+    top="-270"
+    width="40"
+    commit_callback.function="Floater.Show"
+    commit_callback.parameter="pref_voicedevicesettings"
+    />
+    </panel>

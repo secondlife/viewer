@@ -95,6 +95,8 @@ class LLViewerMedia
 		static void toggleMusicPlay(void*);
 		static void toggleMediaPlay(void*);
 		static void mediaStop(void*);
+		static F32 getVolume();	
+		static void muteListChanged();
 };
 
 // Implementation functions not exported into header file
@@ -130,16 +132,18 @@ public:
 	void start();
 	void seek(F32 time);
 	void setVolume(F32 volume);
+	void updateVolume();
+	F32 getVolume();
 	void focus(bool focus);
 	// True if the impl has user focus.
 	bool hasFocus() const;
-	void mouseDown(S32 x, S32 y);
-	void mouseUp(S32 x, S32 y);
-	void mouseMove(S32 x, S32 y);
-	void mouseDown(const LLVector2& texture_coords);
-	void mouseUp(const LLVector2& texture_coords);
-	void mouseMove(const LLVector2& texture_coords);
-	void mouseLeftDoubleClick(S32 x,S32 y );
+	void mouseDown(S32 x, S32 y, MASK mask, S32 button = 0);
+	void mouseUp(S32 x, S32 y, MASK mask, S32 button = 0);
+	void mouseMove(S32 x, S32 y, MASK mask);
+	void mouseDown(const LLVector2& texture_coords, MASK mask, S32 button = 0);
+	void mouseUp(const LLVector2& texture_coords, MASK mask, S32 button = 0);
+	void mouseMove(const LLVector2& texture_coords, MASK mask);
+	void mouseDoubleClick(S32 x,S32 y, MASK mask, S32 button = 0);
 	void mouseCapture();
 	
 	void navigateBack();
@@ -169,6 +173,7 @@ public:
 	bool isMediaPlaying();
 	bool isMediaPaused();
 	bool hasMedia();
+	bool isMediaFailed() { return mMediaSourceFailed; };
 
 	ECursorType getLastSetCursor() { return mLastSetCursor; };
 	
@@ -285,7 +290,10 @@ public:
 	bool mDoNavigateOnLoad;
 	bool mDoNavigateOnLoadRediscoverType;
 	bool mDoNavigateOnLoadServerRequest;
-	bool mMediaSourceFailedInit;
+	bool mMediaSourceFailed;
+	F32 mRequestedVolume;
+	bool mIsMuted;
+	bool mNeedsMuteCheck;
 
 
 private:

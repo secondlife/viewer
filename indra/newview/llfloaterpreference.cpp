@@ -843,10 +843,7 @@ void LLFloaterPreference::refreshEnabledState()
 	bool bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
 	getChild<LLCheckBoxCtrl>("BumpShiny")->setEnabled(bumpshiny ? TRUE : FALSE);
 	
-	for (S32 i = 0; i < radio_reflection_detail->getItemCount(); ++i)
-	{
-		radio_reflection_detail->setIndexEnabled(i, ctrl_reflections->get() && reflections);
-	}
+	radio_reflection_detail->setEnabled(ctrl_reflections->get() && reflections);
 	
 	// Avatar Mode
 	// Enable Avatar Shaders
@@ -880,20 +877,10 @@ void LLFloaterPreference::refreshEnabledState()
 	{
 		mRadioTerrainDetail->setValue(1);
 		mRadioTerrainDetail->setEnabled(FALSE);
-		for (S32 i = 0; i < mRadioTerrainDetail->getItemCount(); ++i)
-		{
-			mRadioTerrainDetail->setIndexEnabled(i, FALSE);
-		}
 	}
 	else
 	{
-		mRadioTerrainDetail->setEnabled(TRUE);
-		
-		for (S32 i = 0; i < mRadioTerrainDetail->getItemCount(); ++i)
-		{
-			mRadioTerrainDetail->setIndexEnabled(i, TRUE);
-		}
-		
+		mRadioTerrainDetail->setEnabled(TRUE);		
 	}
 	
 	// WindLight

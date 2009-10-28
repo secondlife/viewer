@@ -48,6 +48,7 @@
 #include "lltooltip.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
+#include "llkeyboard.h"
 #include "llmediaentry.h"
 #include "llmenugl.h"
 #include "llmutelist.h"
@@ -1048,7 +1049,10 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 		}
 		else
 		{
-			media_impl->mouseDown(pick.mUVCoords);
+			// Make sure keyboard focus is set to the media focus object.
+			gFocusMgr.setKeyboardFocus(LLViewerMediaFocus::getInstance());
+			
+			media_impl->mouseDown(pick.mUVCoords, gKeyboard->currentMask(TRUE));
 			mMediaMouseCaptureID = mep->getMediaID();
 			setMouseCapture(TRUE);  // This object will send a mouse-up to the media when it loses capture.
 		}
@@ -1098,7 +1102,7 @@ bool LLToolPie::handleMediaHover(const LLPickInfo& pick)
 			// If this is the focused media face, send mouse move events.
 			if (LLViewerMediaFocus::getInstance()->isFocusedOnFace(objectp, pick.mObjectFace))
 			{
-				media_impl->mouseMove(pick.mUVCoords);
+				media_impl->mouseMove(pick.mUVCoords, gKeyboard->currentMask(TRUE));
 				gViewerWindow->setCursor(media_impl->getLastSetCursor());
 			}
 			else
