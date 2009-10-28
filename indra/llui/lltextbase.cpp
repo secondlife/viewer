@@ -419,9 +419,6 @@ void LLTextBase::drawCursor()
 			return;
 		}
 
-		if (!mTextRect.contains(cursor_rect))
-			return;
-
 		// Draw the cursor
 		// (Flash the cursor every half second starting a fixed time after the last keystroke)
 		F32 elapsed = mCursorBlinkTimer.getElapsedTimeF32();
@@ -2381,7 +2378,6 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	{
 		if (text[last_char] == '\n') 
 		{
-			last_char++;
 			break;
 		}
 	}
@@ -2401,9 +2397,14 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 		// If at the beginning of a line, and a single character won't fit, draw it anyway
 		num_chars = 1;
 	}
-	if (mStart + segment_offset + num_chars == mEditor.getLength())
+
+	// include *either* the EOF or newline character in this run of text
+	// but not both
+	S32 last_char_in_run = mStart + segment_offset + num_chars;
+	// check length first to avoid indexing off end of string
+	if (last_char_in_run >= mEditor.getLength() 
+		|| text[last_char_in_run] == '\n')
 	{
-		// include terminating NULL
 		num_chars++;
 	}
 	return num_chars;
