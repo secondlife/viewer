@@ -138,7 +138,7 @@ public:
 private:
 
 	void populateFoldersList();
-	void updateYouAreHereBanner();
+	static void updateYouAreHereBanner(void*);// added to gIdleCallbacks
 	void onForSaleBannerClick();
 
 	/**

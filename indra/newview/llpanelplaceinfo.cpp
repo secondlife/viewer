@@ -55,6 +55,7 @@
 #include "llagent.h"
 #include "llagentui.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llcallbacklist.h"
 #include "llfloaterworldmap.h"
 #include "llfloaterbuycurrency.h"
 #include "llinventorymodel.h"
@@ -65,6 +66,7 @@
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
+#include "llviewercontrol.h" 
 #include "llviewertexteditor.h"
 #include "llworldmap.h"
 #include "llsdutil_math.h"
@@ -110,7 +112,7 @@ BOOL LLPanelPlaceInfo::postBuild()
 
 	mForSalePanel = getChild<LLPanel>("for_sale_panel");
 	mYouAreHerePanel = getChild<LLPanel>("here_panel");
-	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&LLPanelPlaceInfo::updateYouAreHereBanner,this));
+	gIdleCallbacks.addFunction(&LLPanelPlaceInfo::updateYouAreHereBanner, this);
 	
 	//Icon value should contain sale price of last selected parcel. 
 	mForSalePanel->getChild<LLIconCtrl>("icon_for_sale")->
@@ -609,6 +611,9 @@ void LLPanelPlaceInfo::displaySelectedParcelInfo(LLParcel* parcel,
 	parcel_data.name = parcel->getName();
 	parcel_data.sim_name = region->getName();
 	parcel_data.snapshot_id = parcel->getSnapshotID();
+	mPosRegion.setVec((F32)fmod(pos_global.mdV[VX], (F64)REGION_WIDTH_METERS),
+					  (F32)fmod(pos_global.mdV[VY], (F64)REGION_WIDTH_METERS),
+					  (F32)pos_global.mdV[VZ]);
 	parcel_data.global_x = pos_global.mdV[VX];
 	parcel_data.global_y = pos_global.mdV[VY];
 	parcel_data.global_z = pos_global.mdV[VZ];
@@ -985,18 +990,22 @@ void LLPanelPlaceInfo::populateFoldersList()
 		mFolderCombo->add(it->second, LLSD(it->first));
 }
 
-void LLPanelPlaceInfo::updateYouAreHereBanner()
+//static
+void LLPanelPlaceInfo::updateYouAreHereBanner(void* userdata)
 {
 	//YouAreHere Banner should be displayed only for selected places, 
 	// If you want to display it for landmark or teleport history item, you should check by mParcelId
 	
-	bool is_you_are_here = false;
-	if (mSelectedParcelID != S32(-1) && !mLastSelectedRegionID.isNull())
-	{
-		is_you_are_here = gAgent.getRegion()->getRegionID()== mLastSelectedRegionID &&
-		mSelectedParcelID == LLViewerParcelMgr::getInstance()->getAgentParcel()->getLocalID();
-	}
-	mYouAreHerePanel->setVisible(is_you_are_here);
+	LLPanelPlaceInfo* self  = static_cast<LLPanelPlaceInfo*>(userdata);
+	if(!self->getVisible())
+		return;
+
+	static F32 radius  = gSavedSettings.getF32("YouAreHereDistance");
+
+	BOOL display_banner = self->mLastSelectedRegionID == gAgent.getRegion()->getRegionID() && 
+			LLAgentUI::checkAgentDistance(self->mPosRegion, radius);
+
+	self->mYouAreHerePanel->setVisible(display_banner);
 }
 
 void LLPanelPlaceInfo::onForSaleBannerClick()

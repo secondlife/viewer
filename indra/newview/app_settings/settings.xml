@@ -10482,6 +10482,17 @@
       <key>Value</key>
       <real>90.0</real>
     </map>
+    <key>YouAreHereDistance</key>
+    <map>
+      <key>Comment</key>
+      <string>Radius of distance for banner that indicates if the resident is "on" the Place.(meters from avatar to requested place)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>10.0</real>
+    </map>
     <key>YieldTime</key>
     <map>
       <key>Comment</key>
