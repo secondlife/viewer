@@ -12,6 +12,7 @@
      layout="topleft"
      left="3"
      name="speakers_list"
+     opaque="false"
      top="10"
      width="140" />
     <button
