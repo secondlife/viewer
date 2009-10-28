@@ -299,12 +299,12 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& sty
 	if (mLastFromName == chat.mFromName)
 	{
 		view = getSeparator();
-		view_text = " ";
+		view_text = "\n";
 	}
 	else
 	{
 		view = getHeader(chat);
-		view_text = "\n" + chat.mFromName + MESSAGE_USERNAME_DATE_SEPARATOR + formatCurrentTime();
+		view_text = chat.mFromName + MESSAGE_USERNAME_DATE_SEPARATOR + formatCurrentTime() + '\n';
 	}
 	//Prepare the rect for the view
 	LLRect target_rect = getDocumentView()->getRect();
@@ -316,7 +316,8 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& sty
 	appendWidget(view, view_text, FALSE, TRUE, mLeftWidgetPad, 0);
 
 	//Append the text message
-	appendText(chat.mText, TRUE, style_params);
+	std::string message = chat.mText + '\n';
+	appendText(message, FALSE, style_params);
 
 	mLastFromName = chat.mFromName;
 	blockUndo();

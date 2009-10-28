@@ -43,3 +43,4 @@ tarfile_tmp
 ^indra/web/dataservice/locale.*
 ^indra/web/dataservice/lib/shared/vault.*
 ^indra/web/dataservice/vendor.*
+glob:indra/newview/dbghelp.dll

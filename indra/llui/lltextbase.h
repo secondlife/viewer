@@ -294,7 +294,7 @@ protected:
 	void 							endSelection();
 
 	// misc
-	void							updateTextRect();
+	void							updateRects();
 	void							needsReflow() { mReflowNeeded = TRUE; }
 	void							needsScroll() { mScrollNeeded = TRUE; }
 	void							replaceUrlLabel(const std::string &url, const std::string &label);
