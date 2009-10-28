@@ -114,7 +114,7 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 	}
 	else
 	{
-		if(hasFocus())
+		if(mFocusedImplID != LLUUID::null)
 		{
 			if(mMediaHUD.get())
 			{
@@ -249,20 +249,18 @@ void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal,
 }
 void LLViewerMediaFocus::onFocusReceived()
 {
-	// Don't do this here -- this doesn't change "inworld media focus", it just changes whether the viewer's input is focused on the media.
-//	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
-//	if(media_impl.notNull())
-//		media_impl->focus(true);
+	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
+	if(media_impl)
+		media_impl->focus(true);
 
 	LLFocusableElement::onFocusReceived();
 }
 
 void LLViewerMediaFocus::onFocusLost()
 {
-	// Don't do this here -- this doesn't change "inworld media focus", it just changes whether the viewer's input is focused on the media.
-//	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
-//	if(media_impl.notNull())
-//		media_impl->focus(false);
+	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
+	if(media_impl)
+		media_impl->focus(false);
 
 	gViewerWindow->focusClient();
 	LLFocusableElement::onFocusLost();

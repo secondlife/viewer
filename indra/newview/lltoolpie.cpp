@@ -1049,6 +1049,9 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 		}
 		else
 		{
+			// Make sure keyboard focus is set to the media focus object.
+			gFocusMgr.setKeyboardFocus(LLViewerMediaFocus::getInstance());
+			
 			media_impl->mouseDown(pick.mUVCoords, gKeyboard->currentMask(TRUE));
 			mMediaMouseCaptureID = mep->getMediaID();
 			setMouseCapture(TRUE);  // This object will send a mouse-up to the media when it loses capture.
