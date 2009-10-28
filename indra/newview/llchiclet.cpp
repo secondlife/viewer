@@ -1398,7 +1398,7 @@ void LLTalkButton::onClick_ShowBtn()
 
 
 	LLAvatarListItem* item = new LLAvatarListItem();
-	item->showStatus(true);
+	item->showLastInteractionTime(false);
 	item->showInfoBtn(true);
 	item->showSpeakingIndicator(true);
 	item->reshape(mPrivateCallPanel->getRect().getWidth(), item->getRect().getHeight(), FALSE);
