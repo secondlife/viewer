@@ -54,6 +54,7 @@
 #include "llconsole.h"
 #include "llgroupactions.h"
 #include "llfloater.h"
+#include "llfloateractivespeakers.h"
 #include "llfloatercall.h"
 #include "llavataractions.h"
 #include "llimview.h"

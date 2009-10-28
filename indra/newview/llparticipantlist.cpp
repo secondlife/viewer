@@ -34,7 +34,7 @@
 
 #include "llparticipantlist.h"
 #include "llavatarlist.h"
-#include "llfloateractivespeakers.h"
+#include "llspeakers.h"
 
 //LLParticipantList retrieves add, clear and remove events and updates view accordingly 
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list):

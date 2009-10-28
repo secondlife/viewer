@@ -40,7 +40,7 @@
 #include "llchiclet.h"
 #include "llvoiceclient.h"
 #include "lloutputmonitorctrl.h"
-#include "llfloateractivespeakers.h"
+#include "llspeakers.h"
 
 class LLGestureComboBox
 	: public LLComboBox

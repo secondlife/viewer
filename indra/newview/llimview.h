@@ -34,7 +34,7 @@
 #define LL_LLIMVIEW_H
 
 #include "lldarray.h"
-#include "llfloateractivespeakers.h" //for LLIMSpeakerMgr
+#include "llspeakers.h" //for LLIMSpeakerMgr
 #include "llimpanel.h" //for voice channels
 #include "llmodaldialog.h"
 #include "llinstantmessage.h"
@@ -76,7 +76,7 @@ public:
 		bool mCallBackEnabled;
 
 		bool mTextIMPossible;
-		bool mProfileButtonEnabled;
+		bool mOtherParticipantIsAvatar;
 	};
 	
 

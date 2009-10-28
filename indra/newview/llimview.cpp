@@ -148,7 +148,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	mSessionInitialized(false),
 	mCallBackEnabled(true),
 	mTextIMPossible(true),
-	mProfileButtonEnabled(true)
+	mOtherParticipantIsAvatar(true)
 {
 	if (IM_NOTHING_SPECIAL == type || IM_SESSION_P2P_INVITE == type)
 	{
@@ -177,7 +177,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	{
 		mCallBackEnabled = LLVoiceClient::getInstance()->isSessionCallBackPossible(mSessionID);
 		mTextIMPossible = LLVoiceClient::getInstance()->isSessionTextIMPossible(mSessionID);
-		mProfileButtonEnabled = LLVoiceClient::getInstance()->isParticipantAvatar(mSessionID);
+		mOtherParticipantIsAvatar = LLVoiceClient::getInstance()->isParticipantAvatar(mSessionID);
 	}
 }
 

@@ -142,7 +142,7 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 	// Disable profile button if participant is not realy SL avatar
 	LLIMModel::LLIMSession* im_session =
 		im_model.findIMSession(session_id);
-	if( im_session && !im_session->mProfileButtonEnabled )
+	if( im_session && !im_session->mOtherParticipantIsAvatar )
 		childSetEnabled("view_profile_btn", FALSE);
 }
 
