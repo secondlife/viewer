@@ -43,6 +43,7 @@
 
 class LLButton;
 class LLComboBox;
+class LLExpandableTextBox;
 class LLInventoryItem;
 class LLLineEditor;
 class LLPanelPickEdit;
@@ -164,7 +165,7 @@ private:
 	LLTextureCtrl*		mSnapshotCtrl;
 	LLTextBox*			mRegionName;
 	LLTextBox*			mParcelName;
-	LLTextEditor*		mDescEditor;
+	LLExpandableTextBox*mDescEditor;
 	LLTextBox*			mMaturityRatingText;
 	LLTextBox*			mParcelOwner;
 	LLTextBox*			mLastVisited;

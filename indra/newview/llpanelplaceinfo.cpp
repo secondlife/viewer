@@ -56,6 +56,7 @@
 #include "llagentui.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llcallbacklist.h"
+#include "llexpandabletextbox.h"
 #include "llfloaterworldmap.h"
 #include "llfloaterbuycurrency.h"
 #include "llinventorymodel.h"
@@ -121,7 +122,7 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mSnapshotCtrl = getChild<LLTextureCtrl>("logo");
 	mRegionName = getChild<LLTextBox>("region_title");
 	mParcelName = getChild<LLTextBox>("parcel_title");
-	mDescEditor = getChild<LLTextEditor>("description");
+	mDescEditor = getChild<LLExpandableTextBox>("description");
 
 	mMaturityRatingText = getChild<LLTextBox>("maturity_value");
 	mParcelOwner = getChild<LLTextBox>("owner_value");
