@@ -41,6 +41,7 @@
 #include "llpanelpick.h"
 #include "llremoteparcelrequest.h"
 
+class LLAccordionCtrlTab;
 class LLFolderViewItem;
 class LLMenuGL;
 class LLInventoryPanel;
@@ -90,8 +91,8 @@ private:
 	void initListCommandsHandlers();
 	void updateListCommands();
 	void onActionsButtonClick();
-	void onAddLandmarkButtonClick() const;
-	void onAddFolderButtonClick() const;
+	void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
+	void onAddButtonHeldDown();
 	void onTrashButtonClick() const;
 	void onAddAction(const LLSD& command_name) const;
 	void onClipboardAction(const LLSD& command_name) const;
@@ -114,6 +115,18 @@ private:
 	 */
 	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
 
+	/**
+	 * Static callback for gIdleCallbacks to perform actions out of drawing
+	 */
+	static void doIdle(void* landmarks_panel);
+
+	/**
+	 * Updates accordions according to filtered items in lists.
+	 *
+	 * It hides accordion for empty lists
+	 */
+	void updateFilteredAccordions();
+
 private:
 	LLInventorySubTreePanel*	mFavoritesInventoryPanel;
 	LLInventorySubTreePanel*	mLandmarksInventoryPanel;
@@ -121,10 +134,15 @@ private:
 	LLInventorySubTreePanel*	mLibraryInventoryPanel;
 	LLMenuGL*					mGearLandmarkMenu;
 	LLMenuGL*					mGearFolderMenu;
+	LLMenuGL*					mMenuAdd;
 	LLInventorySubTreePanel*	mCurrentSelectedList;
 
 	LLPanel*					mListCommands;
 	bool 						mSortByDate;
+	bool						mDirtyFilter;
+	
+	typedef	std::vector<LLAccordionCtrlTab*> accordion_tabs_t;
+	accordion_tabs_t			mAccordionTabs;
 };
 
 #endif //LL_LLPANELLANDMARKS_H

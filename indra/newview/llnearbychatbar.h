@@ -40,7 +40,7 @@
 #include "llchiclet.h"
 #include "llvoiceclient.h"
 #include "lloutputmonitorctrl.h"
-#include "llfloateractivespeakers.h"
+#include "llspeakers.h"
 
 class LLGestureComboBox
 	: public LLComboBox
@@ -62,6 +62,9 @@ public:
 	virtual void changed() { refreshGestures(); }
 
 protected:
+
+	virtual void showList();
+
 	LLFrameTimer mGestureLabelTimer;
 	std::vector<LLMultiGesture*> mGestures;
 	std::string mLabel;
