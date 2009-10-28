@@ -67,6 +67,7 @@
 #include "llviewerregion.h"
 #include "llviewertexteditor.h"
 #include "llworldmap.h"
+#include "llsdutil_math.h"
 
 //----------------------------------------------------------------------------
 // Aux types and methods

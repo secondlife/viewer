@@ -40,7 +40,7 @@
 #include "llerror.h"
 #include "llbutton.h"
 #include "llhttpclient.h"
-#include "llsdutil.h"
+#include "llsdutil_math.h"
 #include "llstring.h"
 #include "lluictrlfactory.h"
 

@@ -114,6 +114,7 @@ bool LLCapabilityListener::capListener(const LLSD& request)
         // This capability is supported by the region to which we're talking.
         LLHTTPClient::post(url, payload,
                            new LLSDMessage::EventResponder(LLEventPumps::instance(),
+                                                           request,
                                                            mProvider.getDescription(),
                                                            cap, reply, error),
                            LLSD(),  // headers

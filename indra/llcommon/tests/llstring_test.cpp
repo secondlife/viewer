@@ -32,6 +32,7 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
 #include "../test/lltut.h"
 
 #include "../llstring.h"

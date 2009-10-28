@@ -246,7 +246,7 @@ public:
 								  BOOL remove_contribution);
 		// callers responsibility to call deleteParcelBuy() on return value
 	void sendParcelBuy(ParcelBuyInfo*);
-	void deleteParcelBuy(ParcelBuyInfo*&);
+	void deleteParcelBuy(ParcelBuyInfo* *info);
 					   
 	void sendParcelDeed(const LLUUID& group_id);
 

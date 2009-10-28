@@ -33,6 +33,7 @@
  */
 
 #include "linden_common.h"
+#include "llares.h"
 
 #include <ares_dns.h>
 #include <ares_version.h>
@@ -42,9 +43,10 @@
 #include "apr_poll.h"
 
 #include "llapr.h"
-#include "llares.h"
+#include "llareslistener.h"
 
 #if defined(LL_WINDOWS)
+#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 # define ns_c_in 1
 # define NS_HFIXEDSZ     12      /* #/bytes of fixed data in header */
 # define NS_QFIXEDSZ     4       /* #/bytes of fixed data in query */
@@ -102,7 +104,9 @@ void LLAres::QueryResponder::queryError(int code)
 }
 
 LLAres::LLAres() :
-chan_(NULL), mInitSuccess(false)
+    chan_(NULL),
+    mInitSuccess(false),
+    mListener(new LLAresListener("LLAres", this))
 {
 	if (ares_init(&chan_) != ARES_SUCCESS)
 	{

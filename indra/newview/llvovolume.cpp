@@ -91,6 +91,57 @@ LLPointer<LLObjectMediaNavigateClient> LLVOVolume::sObjectMediaNavigateClient = 
 static LLFastTimer::DeclareTimer FTM_GEN_TRIANGLES("Generate Triangles");
 static LLFastTimer::DeclareTimer FTM_GEN_VOLUME("Generate Volumes");
 
+// Implementation class of LLMediaDataClientObject.  See llmediadataclient.h
+class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
+{
+public:
+	LLMediaDataClientObjectImpl(LLVOVolume *obj) : mObject(obj) {}
+	LLMediaDataClientObjectImpl() { mObject = NULL; }
+	
+	virtual U8 getMediaDataCount() const 
+		{ return mObject->getNumTEs(); }
+
+	virtual LLSD getMediaDataLLSD(U8 index) const 
+		{
+			LLSD result;
+			LLTextureEntry *te = mObject->getTE(index); 
+			if (NULL != te)
+			{
+				llassert((te->getMediaData() != NULL) == te->hasMedia());
+				if (te->getMediaData() != NULL)
+				{
+					result = te->getMediaData()->asLLSD();
+				}
+			}
+			return result;
+		}
+
+	virtual LLUUID getID() const
+		{ return mObject->getID(); }
+
+	virtual void mediaNavigateBounceBack(U8 index)
+		{ mObject->mediaNavigateBounceBack(index); }
+	
+	virtual bool hasMedia() const
+		{ return mObject->hasMedia(); }
+	
+	virtual void updateObjectMediaData(LLSD const &data) 
+		{ mObject->updateObjectMediaData(data); }
+
+	virtual F64 getDistanceFromAvatar() const
+		{ return mObject->getRenderPosition().length(); }
+	
+	virtual F64 getTotalMediaInterest() const 
+		{ return mObject->getTotalMediaInterest(); }
+
+	virtual std::string getCapabilityUrl(const std::string &name) const
+		{ return mObject->getRegion()->getCapability(name); }
+	
+private:
+	LLPointer<LLVOVolume> mObject;
+};
+
+
 LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	: LLViewerObject(id, pcode, regionp),
 	  mVolumeImpl(NULL)
@@ -134,8 +185,12 @@ LLVOVolume::~LLVOVolume()
 // static
 void LLVOVolume::initClass()
 {
-    sObjectMediaClient = new LLObjectMediaDataClient();
-    sObjectMediaNavigateClient = new LLObjectMediaNavigateClient();
+	// gSavedSettings better be around
+	const F32 queue_timer_delay = gSavedSettings.getF32("PrimMediaRequestQueueDelay");
+	const F32 retry_timer_delay = gSavedSettings.getF32("PrimMediaRetryTimerDelay");
+	const U32 max_retries = gSavedSettings.getU32("PrimMediaMaxRetries");
+    sObjectMediaClient = new LLObjectMediaDataClient(queue_timer_delay, retry_timer_delay, max_retries);
+    sObjectMediaNavigateClient = new LLObjectMediaNavigateClient(queue_timer_delay, retry_timer_delay, max_retries);
 }
 
 // static
@@ -319,13 +374,23 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 			}
 		}
 	}
-	if (retval & (MEDIA_URL_REMOVED | MEDIA_URL_ADDED | MEDIA_URL_UPDATED | MEDIA_FLAGS_CHANGED)) {
-		// If the media changed at all, request new media data
-		if(mMedia)
+	if (retval & (MEDIA_URL_REMOVED | MEDIA_URL_ADDED | MEDIA_URL_UPDATED | MEDIA_FLAGS_CHANGED)) 
+	{
+		// If only the media URL changed, and it isn't a media version URL,
+		// ignore it
+		if ( ! ( retval & (MEDIA_URL_ADDED | MEDIA_URL_UPDATED) &&
+				 mMedia && ! mMedia->mMediaURL.empty() &&
+				 ! LLTextureEntry::isMediaVersionString(mMedia->mMediaURL) ) )
 		{
-			llinfos << "Media URL: " << mMedia->mMediaURL << llendl;
+			// If the media changed at all, request new media data
+			LL_DEBUGS("MediaOnAPrim") << "Media update: " << getID() << ": retval=" << retval << " Media URL: " <<
+                ((mMedia) ?  mMedia->mMediaURL : std::string("")) << LL_ENDL;
+			requestMediaDataUpdate();
 		}
-		requestMediaDataUpdate();
+        else {
+            LL_INFOS("MediaOnAPrim") << "Ignoring media update for: " << getID() << " Media URL: " <<
+                ((mMedia) ?  mMedia->mMediaURL : std::string("")) << LL_ENDL;
+        }
 	}
 	// ...and clean up any media impls
 	cleanUpMediaImpls();
@@ -1624,7 +1689,7 @@ bool LLVOVolume::hasMedia() const
 
 void LLVOVolume::requestMediaDataUpdate()
 {
-    sObjectMediaClient->fetchMedia(this);
+    sObjectMediaClient->fetchMedia(new LLMediaDataClientObjectImpl(this));
 }
 
 void LLVOVolume::cleanUpMediaImpls()
@@ -1703,6 +1768,119 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
 	//	<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << llendl;
 }
 
+void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
+{
+	// Find the media entry for this navigate
+	const LLMediaEntry* mep = NULL;
+	viewer_media_t impl = getMediaImpl(texture_index);
+	LLTextureEntry *te = getTE(texture_index);
+	if(te)
+	{
+		mep = te->getMediaData();
+	}
+	
+	if (mep && impl)
+	{
+        std::string url = mep->getCurrentURL();
+        if (url.empty())
+        {
+            url = mep->getHomeURL();
+        }
+        if (! url.empty())
+        {
+            LL_INFOS("LLMediaDataClient") << "bouncing back to URL: " << url << LL_ENDL;
+            impl->navigateTo(url, "", false, true);
+        }
+    }
+}
+
+bool LLVOVolume::hasMediaPermission(const LLMediaEntry* media_entry, MediaPermType perm_type)
+{
+    // NOTE: This logic duplicates the logic in the server (in particular, in llmediaservice.cpp).
+    if (NULL == media_entry ) return false; // XXX should we assert here?
+    
+    // The agent has permissions to navigate if:
+    // - agent has edit permissions, or
+    // - world permissions are on, or
+    // - group permissions are on, and agent_id is in the group, or
+    // - agent permissions are on, and agent_id is the owner
+    
+    if (permModify()) 
+    {
+        return true;
+    }
+    
+    U8 media_perms = (perm_type == MEDIA_PERM_INTERACT) ? media_entry->getPermsInteract() : media_entry->getPermsControl();
+    
+    // World permissions
+    if (0 != (media_perms & LLMediaEntry::PERM_ANYONE)) 
+    {
+        return true;
+    }
+    
+    // Group permissions
+    else if (0 != (media_perms & LLMediaEntry::PERM_GROUP) && permGroupOwner())
+    {
+        return true;
+    }
+    
+    // Owner permissions
+    else if (0 != (media_perms & LLMediaEntry::PERM_OWNER) && permYouOwner()) 
+    {
+        return true;
+    }
+    
+    return false;
+    
+}
+
+void LLVOVolume::mediaNavigated(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, std::string new_location)
+{
+	bool block_navigation = false;
+	// FIXME: if/when we allow the same media impl to be used by multiple faces, the logic here will need to be fixed
+	// to deal with multiple face indices.
+	int face_index = getFaceIndexWithMediaImpl(impl, -1);
+	
+	// Find the media entry for this navigate
+	LLMediaEntry* mep = NULL;
+	LLTextureEntry *te = getTE(face_index);
+	if(te)
+	{
+		mep = te->getMediaData();
+	}
+	
+	if(mep)
+	{
+		if(!mep->checkCandidateUrl(new_location))
+		{
+			block_navigation = true;
+		}
+		if (!block_navigation && !hasMediaPermission(mep, MEDIA_PERM_INTERACT))
+		{
+			block_navigation = true;
+		}
+	}
+	else
+	{
+		llwarns << "Couldn't find media entry!" << llendl;
+	}
+						
+	if(block_navigation)
+	{
+		llinfos << "blocking navigate to URI " << new_location << llendl;
+
+		// "bounce back" to the current URL from the media entry
+		mediaNavigateBounceBack(face_index);
+	}
+	else
+	{
+		
+		llinfos << "broadcasting navigate with URI " << new_location << llendl;
+
+		sObjectMediaNavigateClient->navigate(new LLMediaDataClientObjectImpl(this), face_index, new_location);
+	}
+}
+
 void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, LLViewerMediaObserver::EMediaEvent event)
 {
 	switch(event)
@@ -1714,49 +1892,8 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 			{
 				case LLViewerMediaImpl::MEDIANAVSTATE_FIRST_LOCATION_CHANGED:
 				{
-					// This is the first location changed event after the start of a non-server-directed nav.  It may need to be broadcast.
-
-					bool block_navigation = false;
-					// FIXME: if/when we allow the same media impl to be used by multiple faces, the logic here will need to be fixed
-					// to deal with multiple face indices.
-					int face_index = getFaceIndexWithMediaImpl(impl, -1);
-					std::string new_location = plugin->getLocation();
-					
-					// Find the media entry for this navigate
-					LLMediaEntry* mep = NULL;
-					LLTextureEntry *te = getTE(face_index);
-					if(te)
-					{
-						mep = te->getMediaData();
-					}
-					
-					if(mep)
-					{
-						if(!mep->checkCandidateUrl(new_location))
-						{
-							block_navigation = true;
-						}
-					}
-					else
-					{
-						llwarns << "Couldn't find media entry!" << llendl;
-					}
-										
-					if(block_navigation)
-					{
-						llinfos << "blocking navigate to URI " << new_location << llendl;
-
-						// "bounce back" to the current URL from the media entry
-						// NOTE: the only way block_navigation can be true is if we found the media entry, so we're guaranteed here that mep is not NULL.
-						impl->navigateTo(mep->getCurrentURL());
-					}
-					else
-					{
-						
-						llinfos << "broadcasting navigate with URI " << new_location << llendl;
-
-						sObjectMediaNavigateClient->navigate(this, face_index, new_location);
-					}
+					// This is the first location changed event after the start of a non-server-directed nav.  It may need to be broadcast or bounced back.
+					mediaNavigated(impl, plugin, plugin->getLocation());
 				}
 				break;
 				
@@ -1773,6 +1910,29 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 		}
 		break;
 		
+		case LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_COMPLETE:
+		{
+			switch(impl->getNavState())
+			{
+				case LLViewerMediaImpl::MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED:
+				{
+					// This is the first location changed event after the start of a non-server-directed nav.  It may need to be broadcast or bounced back.
+					mediaNavigated(impl, plugin, plugin->getNavigateURI());
+				}
+				break;
+				
+				case LLViewerMediaImpl::MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED:
+					// This is the the navigate complete event from a server-directed nav.  Don't broadcast it.
+					llinfos << "	NOT broadcasting navigate (server-directed)" << llendl;
+				break;
+				
+				default:
+					// For all other states, the navigate should have been handled by LOCATION_CHANGED events already.
+				break;
+			}
+		}
+		break;
+		
 		default:
 		break;
 	}
@@ -1781,7 +1941,7 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 
 void LLVOVolume::sendMediaDataUpdate()
 {
-    sObjectMediaClient->updateMedia(this);
+    sObjectMediaClient->updateMedia(new LLMediaDataClientObjectImpl(this));
 }
 
 void LLVOVolume::removeMediaImpl(S32 texture_index)
@@ -1872,6 +2032,22 @@ viewer_media_t LLVOVolume::getMediaImpl(U8 face_id) const
 		return mMediaImplList[face_id];
 	}
 	return NULL;
+}
+
+F64 LLVOVolume::getTotalMediaInterest() const
+{
+	F64 interest = (F64)0.0;
+    int i = 0;
+	const int end = getNumTEs();
+	for ( ; i < end; ++i)
+	{
+		const viewer_media_t &impl = getMediaImpl(i);
+		if (!impl.isNull())
+		{
+			interest += impl->getInterest();
+		}
+	}
+	return interest;
 }
 
 S32 LLVOVolume::getFaceIndexWithMediaImpl(const LLViewerMediaImpl* media_impl, S32 start_face_id)
@@ -2812,6 +2988,7 @@ static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
 
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
+	llpushcallstacks ;
 	if (group->changeLOD())
 	{
 		group->mLastUpdateDistance = group->mDistance;
@@ -3042,6 +3219,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 static LLFastTimer::DeclareTimer FTM_VOLUME_GEOM("Volume Geometry");
 void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 {
+	llpushcallstacks ;
 	if (group->isState(LLSpatialGroup::MESH_DIRTY) && !group->isState(LLSpatialGroup::GEOM_DIRTY))
 	{
 		LLFastTimer tm(FTM_VOLUME_GEOM);
@@ -3132,6 +3310,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
 void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort)
 {
+	llpushcallstacks ;
 	//calculate maximum number of vertices to store in a single buffer
 	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcStride(group->mSpatialPartition->mVertexDataMask);
 	max_vertices = llmin(max_vertices, (U32) 65535);

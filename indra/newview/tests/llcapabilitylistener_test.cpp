@@ -47,9 +47,9 @@
 #include "../test/lltut.h"
 #include "../llcapabilityprovider.h"
 #include "lluuid.h"
-#include "llerrorcontrol.h"
 #include "tests/networkio.h"
 #include "tests/commtest.h"
+#include "tests/wrapllerrs.h"
 #include "stringize.h"
 
 #if defined(LL_WINDOWS)
@@ -127,28 +127,6 @@ namespace tut
     typedef llcapears_group::object llcapears_object;
     llcapears_group llsdmgr("llcapabilitylistener");
 
-    struct CaptureError: public LLError::OverrideFatalFunction
-    {
-        CaptureError():
-            LLError::OverrideFatalFunction(boost::bind(&CaptureError::operator(), this, _1))
-        {
-            LLError::setPrintLocation(false);
-        }
-
-        struct FatalException: public std::runtime_error
-        {
-            FatalException(const std::string& what): std::runtime_error(what) {}
-        };
-
-        void operator()(const std::string& message)
-        {
-            error = message;
-            throw FatalException(message);
-        }
-
-        std::string error;
-    };
-
     template<> template<>
     void llcapears_object::test<1>()
     {
@@ -160,10 +138,10 @@ namespace tut
         std::string threw;
         try
         {
-            CaptureError capture;
+            WrapLL_ERRS capture;
             regionPump.post(request);
         }
-        catch (const CaptureError::FatalException& e)
+        catch (const WrapLL_ERRS::FatalException& e)
         {
             threw = e.what();
         }
@@ -207,10 +185,10 @@ namespace tut
         std::string threw;
         try
         {
-            CaptureError capture;
+            WrapLL_ERRS capture;
             regionPump.post(request);
         }
-        catch (const CaptureError::FatalException& e)
+        catch (const WrapLL_ERRS::FatalException& e)
         {
             threw = e.what();
         }
@@ -269,10 +247,10 @@ namespace tut
         std::string threw;
         try
         {
-            CaptureError capture;
+            WrapLL_ERRS capture;
             regionPump.post(request);
         }
-        catch (const CaptureError::FatalException& e)
+        catch (const WrapLL_ERRS::FatalException& e)
         {
             threw = e.what();
         }

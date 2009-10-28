@@ -62,7 +62,7 @@ class LLPidLockFile
 			mSaving(FALSE), mWaiting(FALSE), 
 			mClean(TRUE), mPID(getpid())
 		{
-			mLockName = gDirUtilp->getTempDir() + "/savelock";
+			mLockName = gDirUtilp->getTempDir() + gDirUtilp->getDirDelimiter() + "savelock";
 		}
 		bool requestLock(LLNameTable<void *> *name_table, bool autosave,
 						bool force_immediate=FALSE, F32 timeout=300.0);

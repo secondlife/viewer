@@ -101,7 +101,7 @@ public:
 		MOUSE_EVENT_DOUBLE_CLICK
 	}EMouseEventType;
 	
-	void mouseEvent(EMouseEventType type, int x, int y, MASK modifiers);
+	void mouseEvent(EMouseEventType type, int button, int x, int y, MASK modifiers);
 
 	typedef enum 
 	{
@@ -115,7 +115,7 @@ public:
 	void scrollEvent(int x, int y, MASK modifiers);
 	
 	// Text may be unicode (utf8 encoded)
-	bool textInput(const std::string &text);
+	bool textInput(const std::string &text, MASK modifiers);
 	
 	void loadURI(const std::string &uri);
 	
@@ -135,6 +135,7 @@ public:
 	
 	// Inherited from LLPluginProcessParentOwner
 	/* virtual */ void receivePluginMessage(const LLPluginMessage &message);
+	/* virtual */ void pluginLaunchFailed();
 	/* virtual */ void pluginDied();
 	
 	
@@ -226,10 +227,12 @@ public:
 	void seek(float time);
 	void setLoop(bool loop);
 	void setVolume(float volume);
+	float getVolume();
 	
 	F64 getCurrentTime(void) const { return mCurrentTime; };
 	F64 getDuration(void) const { return mDuration; };
 	F64 getCurrentPlayRate(void) { return mCurrentRate; };
+	F64 getLoadedDuration(void) const { return mLoadedDuration; };
 	
 	// Initialize the URL history of the plugin by sending
 	// "init_history" message 
@@ -308,6 +311,8 @@ protected:
 	std::string translateModifiers(MASK modifiers);
 	
 	std::string mCursorName;
+	int			mLastMouseX;
+	int			mLastMouseY;
 
 	LLPluginClassMediaOwner::EMediaStatus mStatus;
 	
@@ -338,6 +343,7 @@ protected:
 	F64				mCurrentTime;
 	F64				mDuration;
 	F64				mCurrentRate;
+	F64				mLoadedDuration;
 	
 };
 

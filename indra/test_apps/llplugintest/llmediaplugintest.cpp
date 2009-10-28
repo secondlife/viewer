@@ -44,6 +44,7 @@
 
 #if __APPLE__
 	#include <GLUT/glut.h>
+	#include <CoreFoundation/CoreFoundation.h>
 #else
 	#define FREEGLUT_STATIC
 	#include "GL/freeglut.h"
@@ -137,6 +138,8 @@ LLMediaPluginTest::LLMediaPluginTest( int app_window, int window_width, int wind
 	mMediaBrowserControlBackButtonFlag( true ),
 	mMediaBrowserControlForwardButtonFlag( true ),
 	mHomeWebUrl( "http://www.google.com/" )
+	//mHomeWebUrl( "file:///C|/Program Files/QuickTime/Sample.mov" )
+	//mHomeWebUrl( "http://movies.apple.com/movies/wb/watchmen/watchmen-tlr2_480p.mov" )
 {
 	// debugging spam
 	std::cout << std::endl << "             GLUT version: " << "3.7.6" << std::endl;	// no way to get real version from GLUT
@@ -1187,7 +1190,7 @@ void LLMediaPluginTest::mouseButton( int button, int state, int x, int y )
 			windowPosToTexturePos( x, y, media_x, media_y, id );
 
 			if ( mSelectedPanel )
-				mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_DOWN, media_x, media_y, 0 );
+				mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_DOWN, 0, media_x, media_y, 0 );
 		}
 		else
 		if ( state == GLUT_UP )
@@ -1203,7 +1206,7 @@ void LLMediaPluginTest::mouseButton( int button, int state, int x, int y )
 				selectPanelById( id );
 
 				if ( mSelectedPanel )
-					mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_UP, media_x, media_y, 0 );
+					mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_UP, 0, media_x, media_y, 0 );
 			};
 		};
 	};
@@ -1217,7 +1220,7 @@ void LLMediaPluginTest::mousePassive( int x, int y )
 	windowPosToTexturePos( x, y, media_x, media_y, id );
 
 	if ( mSelectedPanel )
-		mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_MOVE, media_x, media_y, 0 );
+		mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_MOVE, 0, media_x, media_y, 0 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1228,7 +1231,7 @@ void LLMediaPluginTest::mouseMove( int x, int y )
 	windowPosToTexturePos( x, y, media_x, media_y, id );
 
 	if ( mSelectedPanel )
-		mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_MOVE, media_x, media_y, 0 );
+		mSelectedPanel->mMediaSource->mouseEvent( LLPluginClassMedia::MOUSE_EVENT_MOVE, 0, media_x, media_y, 0 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2007,6 +2010,11 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 			std::cerr <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << self->getStatusText() << std::endl;
 		break;
 
+		case MEDIA_EVENT_NAME_CHANGED:
+			std::cerr <<  "Media event:  MEDIA_EVENT_NAME_CHANGED, new name is: " << self->getMediaName() << std::endl;
+			glutSetWindowTitle( self->getMediaName().c_str() );
+		break;
+
 		case MEDIA_EVENT_LOCATION_CHANGED:
 		{
 			std::cerr <<  "Media event:  MEDIA_EVENT_LOCATION_CHANGED, new uri is: " << self->getLocation() << std::endl;
@@ -2032,6 +2040,10 @@ void LLMediaPluginTest::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 		
 		case MEDIA_EVENT_PLUGIN_FAILED:
 			std::cerr <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED" << std::endl;
+		break;
+
+		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
+			std::cerr <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED_LAUNCH" << std::endl;
 		break;
 	}
 }
@@ -2107,6 +2119,25 @@ void glutMouseButton( int button, int state, int x, int y )
 //
 int main( int argc, char* argv[] )
 {
+#if LL_DARWIN
+	// Set the current working directory to <application bundle>/Contents/Resources/
+	CFURLRef resources_url = CFBundleCopyResourcesDirectoryURL(CFBundleGetMainBundle());
+	if(resources_url != NULL)
+	{
+		CFStringRef resources_string = CFURLCopyFileSystemPath(resources_url, kCFURLPOSIXPathStyle);
+		CFRelease(resources_url);
+		if(resources_string != NULL)
+		{
+			char buffer[PATH_MAX] = "";
+			if(CFStringGetCString(resources_string, buffer, sizeof(buffer), kCFStringEncodingUTF8))
+			{
+				chdir(buffer);
+			}
+			CFRelease(resources_string);
+		}
+	}
+#endif
+
 	glutInit( &argc, argv );
 	glutInitDisplayMode( GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGB );
 

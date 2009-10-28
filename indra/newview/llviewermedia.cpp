@@ -48,6 +48,8 @@
 #include "llevent.h"		// LLSimpleListener
 #include "llnotifications.h"
 #include "lluuid.h"
+#include "llkeyboard.h"
+#include "llmutelist.h"
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
@@ -170,6 +172,7 @@ typedef std::vector<LLViewerMediaImpl*> impl_list;
 static impl_list sViewerMediaImplList;
 static LLTimer sMediaCreateTimer;
 static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
+static F32 sGlobalVolume = 1.0f;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 static void add_media_impl(LLViewerMediaImpl* media)
@@ -192,6 +195,14 @@ static void remove_media_impl(LLViewerMediaImpl* media)
 		}
 	}
 }
+
+class LLViewerMediaMuteListObserver : public LLMuteListObserver
+{
+	/* virtual */ void onChange()  { LLViewerMedia::muteListChanged();}
+};
+
+static LLViewerMediaMuteListObserver sViewerMediaMuteListObserver;
+static bool sViewerMediaMuteListObserverInitialized = false;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -250,7 +261,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 			media_impl->mMediaSource->setSize(media_entry->getWidthPixels(), media_entry->getHeightPixels());
 		}
 		
-		if((was_loaded || media_entry->getAutoPlay()) && !update_from_self)
+		if((was_loaded || (media_entry->getAutoPlay() && gSavedSettings.getBOOL("AutoPlayMedia"))) && !update_from_self)
 		{
 			if(!media_entry->getCurrentURL().empty())
 			{
@@ -273,7 +284,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 		
 		media_impl->setHomeURL(media_entry->getHomeURL());
 		
-		if(media_entry->getAutoPlay())
+		if(media_entry->getAutoPlay() && gSavedSettings.getBOOL("AutoPlayMedia"))
 		{
 			needs_navigate = true;
 		}
@@ -387,20 +398,56 @@ bool LLViewerMedia::textureHasMedia(const LLUUID& texture_id)
 // static
 void LLViewerMedia::setVolume(F32 volume)
 {
+	if(volume != sGlobalVolume)
+	{
+		sGlobalVolume = volume;
+		impl_list::iterator iter = sViewerMediaImplList.begin();
+		impl_list::iterator end = sViewerMediaImplList.end();
+
+		for(; iter != end; iter++)
+		{
+			LLViewerMediaImpl* pimpl = *iter;
+			pimpl->updateVolume();
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+F32 LLViewerMedia::getVolume()
+{
+	return sGlobalVolume;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::muteListChanged()
+{
+	// When the mute list changes, we need to check mute status on all impls.
 	impl_list::iterator iter = sViewerMediaImplList.begin();
 	impl_list::iterator end = sViewerMediaImplList.end();
 
 	for(; iter != end; iter++)
 	{
 		LLViewerMediaImpl* pimpl = *iter;
-		pimpl->setVolume(volume);
+		pimpl->mNeedsMuteCheck = true;
 	}
 }
 
 // This is the predicate function used to sort sViewerMediaImplList by priority.
 static inline bool compare_impl_interest(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
 {
-	if(i1->hasFocus())
+	if(i1->mIsMuted || i1->mMediaSourceFailed)
+	{
+		// Muted or failed items always go to the end of the list, period.
+		return false;
+	}
+	else if(i2->mIsMuted || i2->mMediaSourceFailed)
+	{
+		// Muted or failed items always go to the end of the list, period.
+		return true;
+	}
+	else if(i1->hasFocus())
 	{
 		// The item with user focus always comes to the front of the list, period.
 		return true;
@@ -474,8 +521,9 @@ void LLViewerMedia::updateMedia()
 		
 		LLPluginClassMedia::EPriority new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 
-		if(impl_count_total > (int)max_instances)
+		if(pimpl->mIsMuted || pimpl->mMediaSourceFailed || (impl_count_total > (int)max_instances))
 		{
+			// Never load muted or failed impls.
 			// Hard limit on the number of instances that will be loaded at one time
 			new_priority = LLPluginClassMedia::PRIORITY_UNLOADED;
 		}
@@ -535,6 +583,11 @@ void LLViewerMedia::updateMedia()
 			}
 		}
 		
+		if(new_priority != LLPluginClassMedia::PRIORITY_UNLOADED)
+		{
+			impl_count_total++;
+		}
+		
 		pimpl->setPriority(new_priority);
 
 #if 0		
@@ -548,7 +601,6 @@ void LLViewerMedia::updateMedia()
 #endif
 
 		total_cpu += pimpl->getCPUUsage();
-		impl_count_total++;
 	}
 	
 	LL_DEBUGS("PluginPriority") << "Total reported CPU usage is " << total_cpu << llendl;
@@ -588,9 +640,21 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mHasFocus(false),
 	mPriority(LLPluginClassMedia::PRIORITY_UNLOADED),
 	mDoNavigateOnLoad(false),
+	mDoNavigateOnLoadRediscoverType(false),
 	mDoNavigateOnLoadServerRequest(false),
+	mMediaSourceFailed(false),
+	mRequestedVolume(1.0f),
+	mIsMuted(false),
+	mNeedsMuteCheck(false),
 	mIsUpdated(false)
 { 
+
+	// Set up the mute list observer if it hasn't been set up already.
+	if(!sViewerMediaMuteListObserverInitialized)
+	{
+		LLMuteList::getInstance()->addObserver(&sViewerMediaMuteListObserver);
+		sViewerMediaMuteListObserverInitialized = true;
+	}
 	
 	add_media_impl(this);
 	
@@ -638,13 +702,18 @@ void LLViewerMediaImpl::emitEvent(LLPluginClassMedia* plugin, LLViewerMediaObser
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMediaImpl::initializeMedia(const std::string& mime_type)
 {
-	if((mMediaSource == NULL) || (mMimeType != mime_type))
+	bool mimeTypeChanged = (mMimeType != mime_type);
+	bool pluginChanged = (LLMIMETypes::implType(mMimeType) != LLMIMETypes::implType(mime_type));
+	
+	if(!mMediaSource || pluginChanged)
 	{
-		if(! initializePlugin(mime_type))
-		{
-			// This may be the case where the plugin's priority is PRIORITY_UNLOADED
-			return false;
-		}
+		// We don't have a plugin at all, or the new mime type is handled by a different plugin than the old mime type.
+		(void)initializePlugin(mime_type);
+	}
+	else if(mimeTypeChanged)
+	{
+		// The same plugin should be able to handle the new media -- just update the stored mime type.
+		mMimeType = mime_type;
 	}
 
 	// play();
@@ -664,7 +733,7 @@ void LLViewerMediaImpl::createMediaSource()
 	{
 		if(! mMediaURL.empty())
 		{
-			navigateTo(mMediaURL, mMimeType, false, mDoNavigateOnLoadServerRequest);
+			navigateTo(mMediaURL, mMimeType, mDoNavigateOnLoadRediscoverType, mDoNavigateOnLoadServerRequest);
 		}
 		else if(! mMimeType.empty())
 		{
@@ -703,7 +772,7 @@ void LLViewerMediaImpl::setMediaType(const std::string& media_type)
 LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height)
 {
 	std::string plugin_basename = LLMIMETypes::implType(media_type);
-
+	
 	if(plugin_basename.empty())
 	{
 		LL_WARNS("Media") << "Couldn't find plugin for media type " << media_type << LL_ENDL;
@@ -774,6 +843,9 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		return false;
 	}
 
+	// If we got here, we want to ignore previous init failures.
+	mMediaSourceFailed = false;
+
 	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight);
 	
 	if (media_source)
@@ -782,10 +854,17 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		media_source->setLoop(mMediaLoop);
 		media_source->setAutoScale(mMediaAutoScale);
 		media_source->setBrowserUserAgent(LLViewerMedia::getCurrentUserAgent());
+		media_source->focus(mHasFocus);
 		
 		mMediaSource = media_source;
+
+		updateVolume();
+
 		return true;
 	}
+
+	// Make sure the timer doesn't try re-initing this plugin repeatedly until something else changes.
+	mMediaSourceFailed = true;
 
 	return false;
 }
@@ -828,7 +907,15 @@ void LLViewerMediaImpl::stop()
 {
 	if(mMediaSource)
 	{
-		mMediaSource->stop();
+		if(mMediaSource->pluginSupportsMediaBrowser())
+		{
+			mMediaSource->browse_stop();
+		}
+		else
+		{
+			mMediaSource->stop();
+		}
+
 		// destroyMediaSource();
 	}
 }
@@ -863,10 +950,23 @@ void LLViewerMediaImpl::seek(F32 time)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::setVolume(F32 volume)
 {
+	mRequestedVolume = volume;
+	updateVolume();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::updateVolume()
+{
 	if(mMediaSource)
 	{
-		mMediaSource->setVolume(volume);
+		mMediaSource->setVolume(mRequestedVolume * LLViewerMedia::getVolume());
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+F32 LLViewerMediaImpl::getVolume()
+{
+	return mRequestedVolume;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -896,7 +996,7 @@ bool LLViewerMediaImpl::hasFocus() const
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::mouseDown(S32 x, S32 y)
+void LLViewerMediaImpl::mouseDown(S32 x, S32 y, MASK mask, S32 button)
 {
 	scaleMouse(&x, &y);
 	mLastMouseX = x;
@@ -904,12 +1004,12 @@ void LLViewerMediaImpl::mouseDown(S32 x, S32 y)
 //	llinfos << "mouse down (" << x << ", " << y << ")" << llendl;
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOWN, x, y, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOWN, button, x, y, mask);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::mouseUp(S32 x, S32 y)
+void LLViewerMediaImpl::mouseUp(S32 x, S32 y, MASK mask, S32 button)
 {
 	scaleMouse(&x, &y);
 	mLastMouseX = x;
@@ -917,12 +1017,12 @@ void LLViewerMediaImpl::mouseUp(S32 x, S32 y)
 //	llinfos << "mouse up (" << x << ", " << y << ")" << llendl;
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, x, y, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, button, x, y, mask);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::mouseMove(S32 x, S32 y)
+void LLViewerMediaImpl::mouseMove(S32 x, S32 y, MASK mask)
 {
     scaleMouse(&x, &y);
 	mLastMouseX = x;
@@ -930,50 +1030,53 @@ void LLViewerMediaImpl::mouseMove(S32 x, S32 y)
 //	llinfos << "mouse move (" << x << ", " << y << ")" << llendl;
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_MOVE, x, y, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_MOVE, 0, x, y, mask);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::mouseDown(const LLVector2& texture_coords)
+void LLViewerMediaImpl::mouseDown(const LLVector2& texture_coords, MASK mask, S32 button)
 {
 	if(mMediaSource)
 	{		
 		mouseDown(
 			llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth()),
-			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()));
+			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()),
+			mask, button);
 	}
 }
 
-void LLViewerMediaImpl::mouseUp(const LLVector2& texture_coords)
+void LLViewerMediaImpl::mouseUp(const LLVector2& texture_coords, MASK mask, S32 button)
 {
 	if(mMediaSource)
 	{		
 		mouseUp(
 			llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth()),
-			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()));
+			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()),
+			mask, button);
 	}
 }
 
-void LLViewerMediaImpl::mouseMove(const LLVector2& texture_coords)
+void LLViewerMediaImpl::mouseMove(const LLVector2& texture_coords, MASK mask)
 {
 	if(mMediaSource)
 	{		
 		mouseMove(
 			llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth()),
-			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()));
+			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()),
+			mask);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::mouseLeftDoubleClick(S32 x, S32 y)
+void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 {
 	scaleMouse(&x, &y);
 	mLastMouseX = x;
 	mLastMouseY = y;
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOUBLE_CLICK, x, y, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOUBLE_CLICK, button, x, y, mask);
 	}
 }
 
@@ -982,7 +1085,7 @@ void LLViewerMediaImpl::onMouseCaptureLost()
 {
 	if (mMediaSource)
 	{
-		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, mLastMouseX, mLastMouseY, 0);
+		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, 0, mLastMouseX, mLastMouseY, 0);
 	}
 }
 
@@ -1002,16 +1105,61 @@ BOOL LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::navigateBack()
+{
+	if (mMediaSource)
+	{
+		if(mMediaSource->pluginSupportsMediaTime())
+		{
+			F64 step_scale = 0.02; // temp , can be changed
+			F64 back_step = mMediaSource->getCurrentTime() - (mMediaSource->getDuration()*step_scale);
+			if(back_step < 0.0)
+			{
+				back_step = 0.0;
+			}
+			mMediaSource->seek(back_step);
+			//mMediaSource->start(-2.0);
+		}
+		else
+		{
+			mMediaSource->browse_back();
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::navigateForward()
+{
+	if (mMediaSource)
+	{
+		if(mMediaSource->pluginSupportsMediaTime())
+		{
+			F64 step_scale = 0.02; // temp , can be changed
+			F64 forward_step = mMediaSource->getCurrentTime() + (mMediaSource->getDuration()*step_scale);
+			if(forward_step > mMediaSource->getDuration())
+			{
+				forward_step = mMediaSource->getDuration();
+			}
+			mMediaSource->seek(forward_step);
+			//mMediaSource->start(2.0);
+		}
+		else
+		{
+			mMediaSource->browse_forward();
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::navigateReload()
+{
+	navigateTo(mMediaURL, "", true, false);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateHome()
 {
-	mMediaURL = mHomeURL;
-	mDoNavigateOnLoad = !mMediaURL.empty();
-	mDoNavigateOnLoadServerRequest = false;
-	
-	if(mMediaSource)
-	{
-		mMediaSource->loadURI( mHomeURL );
-	}
+	navigateTo(mHomeURL, "", true, false);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1026,21 +1174,50 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 		setNavState(MEDIANAVSTATE_NONE);
 	}
 	
-	// Always set the current URL.
+	// Always set the current URL and MIME type.
 	mMediaURL = url;
+	mMimeType = mime_type;
 	
 	// If the current URL is not null, make the instance do a navigate on load.
 	mDoNavigateOnLoad = !mMediaURL.empty();
 
+	// if mime type discovery was requested, we'll need to do it when the media loads
+	mDoNavigateOnLoadRediscoverType = rediscover_type;
+	
 	// and if this was a server request, the navigate on load will also need to be one.
 	mDoNavigateOnLoadServerRequest = server_request;
+	
+	// An explicit navigate resets the "failed" flag.
+	mMediaSourceFailed = false;
 
 	if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
 	{
+		// Helpful to have media urls in log file. Shouldn't be spammy.
+		llinfos << "UNLOADED media id= " << mTextureId << " url=" << url << " mime_type=" << mime_type << llendl;
+
 		// This impl should not be loaded at this time.
 		LL_DEBUGS("PluginPriority") << this << "Not loading (PRIORITY_UNLOADED)" << LL_ENDL;
 		
 		return;
+	}
+
+	// Helpful to have media urls in log file. Shouldn't be spammy.
+	llinfos << "media id= " << mTextureId << " url=" << url << " mime_type=" << mime_type << llendl;
+	
+	
+	// If the caller has specified a non-empty MIME type, look that up in our MIME types list.
+	// If we have a plugin for that MIME type, use that instead of attempting auto-discovery.
+	// This helps in supporting legacy media content where the server the media resides on returns a bogus MIME type
+	// but the parcel owner has correctly set the MIME type in the parcel media settings.
+	
+	if(!mMimeType.empty() && (mMimeType != "none/none"))
+	{
+		std::string plugin_basename = LLMIMETypes::implType(mMimeType);
+		if(!plugin_basename.empty())
+		{
+			// We have a plugin for this mime type
+			rediscover_type = false;
+		}
 	}
 
 	if(rediscover_type)
@@ -1101,10 +1278,43 @@ void LLViewerMediaImpl::navigateStop()
 bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 {
 	bool result = false;
+	// *NOTE:Mani - if this doesn't exist llmozlib goes crashy in the debug build.
+	// LLMozlib::init wants to write some files to <exe_dir>/components
+	std::string debug_init_component_dir( gDirUtilp->getExecutableDir() );
+	debug_init_component_dir += "/components";
+	LLAPRFile::makeDir(debug_init_component_dir.c_str()); 
 	
 	if (mMediaSource)
 	{
-		result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN ,key, mask);
+		// FIXME: THIS IS SO WRONG.
+		// Menu keys should be handled by the menu system and not passed to UI elements, but this is how LLTextEditor and LLLineEditor do it...
+		if( MASK_CONTROL & mask )
+		{
+			if( 'C' == key )
+			{
+				mMediaSource->copy();
+				result = true;
+			}
+			else
+			if( 'V' == key )
+			{
+				mMediaSource->paste();
+				result = true;
+			}
+			else
+			if( 'X' == key )
+			{
+				mMediaSource->cut();
+				result = true;
+			}
+		}
+		
+		if(!result)
+		{
+			result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN ,key, mask);
+			// Since the viewer internal event dispatching doesn't give us key-up events, simulate one here.
+			(void)mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_UP ,key, mask);
+		}
 	}
 	
 	return result;
@@ -1117,7 +1327,12 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
 	
 	if (mMediaSource)
 	{
-		mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)));
+		// only accept 'printable' characters, sigh...
+		if (uni_char >= 32 // discard 'control' characters
+			&& uni_char != 127) // SDL thinks this is 'delete' - yuck.
+		{
+			mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(FALSE));
+		}
 	}
 	
 	return result;
@@ -1375,8 +1590,24 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 {
 	switch(event)
 	{
+		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
+		{
+			// The plugin failed to load properly.  Make sure the timer doesn't retry.
+			// TODO: maybe mark this plugin as not loadable somehow?
+			mMediaSourceFailed = true;
+			
+			// TODO: may want a different message for this case?
+			LLSD args;
+			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
+			LLNotifications::instance().add("MediaPluginFailed", args);
+		}
+		break;
+
 		case MEDIA_EVENT_PLUGIN_FAILED:
 		{
+			// The plugin crashed.
+			mMediaSourceFailed = true;
+
 			LLSD args;
 			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
 			// SJB: This is getting called every frame if the plugin fails to load, continuously respawining the alert!
@@ -1423,7 +1654,19 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		case LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_COMPLETE:
 		{
 			LL_DEBUGS("Media") << "MEDIA_EVENT_NAVIGATE_COMPLETE, uri is: " << plugin->getNavigateURI() << LL_ENDL;
-			setNavState(MEDIANAVSTATE_NONE);
+
+			if(getNavState() == MEDIANAVSTATE_BEGUN)
+			{
+				setNavState(MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED);
+			}
+			else if(getNavState() == MEDIANAVSTATE_SERVER_BEGUN)
+			{
+				setNavState(MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED);
+			}
+			else
+			{
+				// all other cases need to leave the state alone.
+			}
 		}
 		break;
 		
@@ -1536,9 +1779,34 @@ void LLViewerMediaImpl::calculateInterest()
 	}
 	else
 	{
-		// I don't think this case should ever be hit.
-		LL_WARNS("Plugin") << "no texture!" << LL_ENDL;
+		// This will be a relatively common case now, since it will always be true for unloaded media.
 		mInterest = 0.0f;
+	}
+	
+	if(mNeedsMuteCheck)
+	{
+		// Check all objects this instance is associated with, and those objects' owners, against the mute list
+		mIsMuted = false;
+		
+		std::list< LLVOVolume* >::iterator iter = mObjectList.begin() ;
+		for(; iter != mObjectList.end() ; ++iter)
+		{
+			LLVOVolume *obj = *iter;
+			if(LLMuteList::getInstance()->isMuted(obj->getID()))
+				mIsMuted = true;
+			else
+			{
+				// We won't have full permissions data for all objects.  Attempt to mute objects when we can tell their owners are muted.
+				LLPermissions* obj_perm = LLSelectMgr::getInstance()->findObjectPermissions(obj);
+				if(obj_perm)
+				{
+					if(LLMuteList::getInstance()->isMuted(obj_perm->getOwner()))
+						mIsMuted = true;
+				}
+			}
+		}
+		
+		mNeedsMuteCheck = false;
 	}
 }
 
@@ -1626,9 +1894,11 @@ void LLViewerMediaImpl::setNavState(EMediaNavState state)
 		case MEDIANAVSTATE_NONE: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_NONE" << llendl; break;
 		case MEDIANAVSTATE_BEGUN: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_BEGUN" << llendl; break;
 		case MEDIANAVSTATE_FIRST_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_FIRST_LOCATION_CHANGED" << llendl; break;
+		case MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED" << llendl; break;
 		case MEDIANAVSTATE_SERVER_SENT: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_SENT" << llendl; break;
 		case MEDIANAVSTATE_SERVER_BEGUN: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_BEGUN" << llendl; break;
 		case MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED" << llendl; break;
+		case MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED: LL_DEBUGS("Media") << "Setting nav state to MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED" << llendl; break;
 	}
 }
 
@@ -1645,11 +1915,13 @@ void LLViewerMediaImpl::addObject(LLVOVolume* obj)
 	}
 
 	mObjectList.push_back(obj) ;
+	mNeedsMuteCheck = true;
 }
 	
 void LLViewerMediaImpl::removeObject(LLVOVolume* obj) 
 {
 	mObjectList.remove(obj) ;	
+	mNeedsMuteCheck = true;
 }
 	
 const std::list< LLVOVolume* >* LLViewerMediaImpl::getObjectList() const 

@@ -47,7 +47,7 @@ LLLocalTextureObject::LLLocalTextureObject() :
 	mImage = NULL;
 }
 
-LLLocalTextureObject::LLLocalTextureObject(LLViewerFetchedTexture* image, LLUUID& id)
+LLLocalTextureObject::LLLocalTextureObject(LLViewerFetchedTexture* image, const LLUUID& id)
 {
 	mImage = image;
 	gGL.getTexUnit(0)->bind(mImage);

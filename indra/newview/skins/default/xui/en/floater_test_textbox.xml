@@ -114,16 +114,59 @@
         Escaped greater than &gt;
     </text>
     <text
-     type="string"
-     length="1"
-     bottom="390"
-     label="N"
-     layout="topleft"
-     left="10"
-     name="floater_map_north"
-     right="30"
-     text_color="1 1 1 0.7"
-     top="370">
-        N
-    </text>
+   type="string"
+   length="1"
+   bottom="390"
+   label="N"
+   layout="topleft"
+   left="10"
+   name="right_aligned_text"
+   width="380"
+   halign="right" 
+   text_color="1 1 1 0.7"
+   top_pad="10">
+    Right aligned text
+  </text>
+  <text
+ type="string"
+ length="1"
+ bottom="390"
+ label="N"
+ layout="topleft"
+ left="10"
+ name="centered_text"
+ width="380"
+ halign="center"
+ text_color="1 1 1 0.7"
+ top_pad="10">
+    Centered text
+  </text>
+  <text
+ type="string"
+ length="1"
+ bottom="390"
+ label="N"
+ layout="topleft"
+ left="10"
+ name="centered_text"
+ width="380"
+ halign="left"
+ text_color="1 1 1 0.7"
+ top_pad="10">
+    Left aligned text
+  </text>
+  <text
+   type="string"
+   length="1"
+   bottom="390"
+   label="N"
+   layout="topleft"
+   left="10"
+   name="floater_map_north"
+   right="30"
+   text_color="1 1 1 0.7"
+   top="370">
+    N
+  </text>
+
 </floater>
