@@ -5679,7 +5679,7 @@ void onCovenantLoadComplete(LLVFS *vfs,
 	LLPanelLandCovenant::updateCovenantText(covenant_text);
 	LLFloaterBuyLand::updateCovenantText(covenant_text, asset_uuid);
 
-	LLPanelPlaceInfo* panel = dynamic_cast<LLPanelPlaceInfo*>(LLSideTray::getInstance()->showPanel("panel_place_info", LLSD()));
+	LLPanelPlaceInfo* panel = LLSideTray::getInstance()->findChild<LLPanelPlaceInfo>("panel_place_info");
 	if (panel)
 	{
 		panel->updateCovenantText(covenant_text);
