@@ -83,6 +83,7 @@ private:
 	bool	mCanPaste;
 	int mLastMouseX;
 	int mLastMouseY;
+	bool mFirstFocus;
 	
 	////////////////////////////////////////////////////////////////////////////////
 	//
@@ -495,6 +496,7 @@ MediaPluginWebKit::MediaPluginWebKit(LLPluginInstance::sendMessageFunction host_
 	mCanPaste = false;
 	mLastMouseX = 0;
 	mLastMouseY = 0;
+	mFirstFocus = true;
 }
 
 MediaPluginWebKit::~MediaPluginWebKit()
@@ -769,6 +771,15 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			{
 				bool val = message_in.getValueBoolean("focused");
 				LLQtWebKit::getInstance()->focusBrowser( mBrowserWindowId, val );
+				
+				if(mFirstFocus && val)
+				{
+					// On the first focus, post a tab key event.  This fixes a problem with initial focus.
+					std::string empty;
+					keyEvent(LLQtWebKit::KE_KEY_DOWN, KEY_TAB, decodeModifiers(empty));
+					keyEvent(LLQtWebKit::KE_KEY_UP, KEY_TAB, decodeModifiers(empty));
+					mFirstFocus = false;
+				}
 			}
 			else if(message_name == "clear_cache")
 			{
