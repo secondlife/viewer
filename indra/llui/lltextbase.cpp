@@ -2058,9 +2058,7 @@ void LLTextBase::updateRects()
 	// update document container dimensions according to text contents
 	LLRect doc_rect = mContentsRect;
 	// use old mTextRect constraint document to width of viewable region
-	LLRect scroll_rect = mTextRect;
-	// doc_rect.mLeft should be 0
-	doc_rect.mRight = doc_rect.mLeft + scroll_rect.getWidth();
+	doc_rect.mRight = doc_rect.mLeft + mTextRect.getWidth();
 
 	mDocumentView->setShape(doc_rect);
 
@@ -2078,6 +2076,10 @@ void LLTextBase::updateRects()
 	{
 		needsReflow();
 	}
+
+	// update document container again, using new mTextRect
+	doc_rect.mRight = doc_rect.mLeft + mTextRect.getWidth();
+	mDocumentView->setShape(doc_rect);
 }
 
 
