@@ -1312,6 +1312,8 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 		if(!result)
 		{
 			result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN ,key, mask);
+			// Since the viewer internal event dispatching doesn't give us key-up events, simulate one here.
+			(void)mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_UP ,key, mask);
 		}
 	}
 	
