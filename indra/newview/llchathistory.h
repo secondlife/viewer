@@ -52,7 +52,7 @@ class LLChatHistory : public LLTextEditor
 			//Widget left padding from the scroll rect
 			Optional<S32>			left_widget_pad;
 			//Widget right padding from the scroll rect
-			Optional<S32>			rigth_widget_pad;
+			Optional<S32>			right_widget_pad;
 
 			Params()
 			:	message_header("message_header"),
@@ -60,7 +60,7 @@ class LLChatHistory : public LLTextEditor
 				left_text_pad("left_text_pad"),
 				right_text_pad("right_text_pad"),
 				left_widget_pad("left_widget_pad"),
-				rigth_widget_pad("rigth_widget_pad")
+				right_widget_pad("right_widget_pad")
 				{
 				}
 
