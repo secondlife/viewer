@@ -2885,6 +2885,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_typing_start_string">[NAME] is typing...</string>
 	<string name="Unnamed">(Unnamed)</string>
 	<string name="IM_moderated_chat_label">(Moderated: Voices off by default)</string>
+	<string name="IM_unavailable_text_label">Text chat is not available for this call.</string>
 
 
   <string name="ringing-im">

@@ -240,6 +240,15 @@ BOOL LLIMFloater::postBuild()
 
 	mTypingStart = LLTrans::getString("IM_typing_start_string");
 
+	// Disable input editor if session cannot accept text
+	LLIMModel::LLIMSession* im_session =
+		LLIMModel::instance().findIMSession(mSessionID);
+	if( im_session && !im_session->mTextIMPossible )
+	{
+		mInputEditor->setEnabled(FALSE);
+		mInputEditor->setLabel(LLTrans::getString("IM_unavailable_text_label"));
+	}
+
 	//*TODO if session is not initialized yet, add some sort of a warning message like "starting session...blablabla"
 	//see LLFloaterIMPanel for how it is done (IB)
 
@@ -249,8 +258,6 @@ BOOL LLIMFloater::postBuild()
 // virtual
 void LLIMFloater::draw()
 {
-
-	
 	if ( mMeTyping )
 	{
 		// Time out if user hasn't typed for a while.
@@ -259,6 +266,7 @@ void LLIMFloater::draw()
 			setTyping(false);
 		}
 	}
+
 	LLFloater::draw();
 }
 
@@ -474,9 +482,14 @@ void LLIMFloater::onInputEditorFocusReceived( LLFocusableElement* caller, void* 
 {
 	LLIMFloater* self= (LLIMFloater*) userdata;
 
-	//in disconnected state IM input editor should be disabled
-	self->mInputEditor->setEnabled(!gDisconnected);
-
+	// Allow enabling the LLIMFloater input editor only if session can accept text
+	LLIMModel::LLIMSession* im_session =
+		LLIMModel::instance().findIMSession(self->mSessionID);
+	if( im_session && im_session->mTextIMPossible )
+	{
+		//in disconnected state IM input editor should be disabled
+		self->mInputEditor->setEnabled(!gDisconnected);
+	}
 	self->mChatHistory->setCursorAndScrollToEnd();
 }
 
