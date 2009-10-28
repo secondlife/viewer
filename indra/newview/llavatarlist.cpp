@@ -98,6 +98,9 @@ void LLAvatarList::setShowIcons(std::string param_name)
 // virtual
 void LLAvatarList::draw()
 {
+	// *NOTE dzaporozhan
+	// Call refresh() after draw() to avoid flickering of avatar list items.
+
 	LLFlatListView::draw();
 
 	if (mDirty)
