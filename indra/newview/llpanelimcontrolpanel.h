@@ -88,15 +88,23 @@ public:
 	void setSessionId(const LLUUID& session_id);
 	/*virtual*/ void draw();
 
-private:
-	void onGroupInfoButtonClicked();
-
+protected:
 	LLUUID mGroupID;
 	LLSpeakerMgr* mSpeakerManager;
 	LLAvatarList* mAvatarList;
 	LLParticipantList* mParticipantList;
+
+private:
+	void onGroupInfoButtonClicked();
 };
 
+class LLPanelAdHocControlPanel : public LLPanelGroupControlPanel
+{
+public:
+	LLPanelAdHocControlPanel(const LLUUID& session_id);
 
+	BOOL postBuild();
+
+};
 
 #endif // LL_LLPANELIMCONTROLPANEL_H
