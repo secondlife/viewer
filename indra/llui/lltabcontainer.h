@@ -258,6 +258,9 @@ private:
 	LLPointer<LLUIImage>			mImageBottomSelected;
 	LLPointer<LLUIImage>			mImageLeftUnselected;
 	LLPointer<LLUIImage>			mImageLeftSelected;
+	
+	LLFontGL::HAlign                mFontHalign;
+	const LLFontGL*					mFont;
 };
 
 #endif  // LL_TABCONTAINER_H

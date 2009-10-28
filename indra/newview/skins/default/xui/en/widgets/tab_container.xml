@@ -2,6 +2,7 @@
 <tab_container tab_min_width="60"
                tab_max_width="150"
                tab_height="16"
+			   font_halign="left"
                tab_top_image_unselected="TabTop_Middle_Off"
                tab_top_image_selected="TabTop_Middle_Selected"
                tab_bottom_image_unselected="Toolbar_Left_Off"
