@@ -240,6 +240,15 @@ BOOL LLIMFloater::postBuild()
 
 	mTypingStart = LLTrans::getString("IM_typing_start_string");
 
+	// Disable input editor if session cannot accept text
+	LLIMModel::LLIMSession* im_session =
+		LLIMModel::instance().findIMSession(mSessionID);
+	if( im_session && !im_session->mTextIMPossible )
+	{
+		mInputEditor->setEnabled(FALSE);
+		mInputEditor->setLabel(LLTrans::getString("IM_unavailable_text_label"));
+	}
+
 	//*TODO if session is not initialized yet, add some sort of a warning message like "starting session...blablabla"
 	//see LLFloaterIMPanel for how it is done (IB)
 
@@ -249,8 +258,6 @@ BOOL LLIMFloater::postBuild()
 // virtual
 void LLIMFloater::draw()
 {
-
-	
 	if ( mMeTyping )
 	{
 		// Time out if user hasn't typed for a while.
@@ -259,6 +266,7 @@ void LLIMFloater::draw()
 			setTyping(false);
 		}
 	}
+
 	LLFloater::draw();
 }
 
@@ -474,9 +482,14 @@ void LLIMFloater::onInputEditorFocusReceived( LLFocusableElement* caller, void* 
 {
 	LLIMFloater* self= (LLIMFloater*) userdata;
 
-	//in disconnected state IM input editor should be disabled
-	self->mInputEditor->setEnabled(!gDisconnected);
-
+	// Allow enabling the LLIMFloater input editor only if session can accept text
+	LLIMModel::LLIMSession* im_session =
+		LLIMModel::instance().findIMSession(self->mSessionID);
+	if( im_session && im_session->mTextIMPossible )
+	{
+		//in disconnected state IM input editor should be disabled
+		self->mInputEditor->setEnabled(!gDisconnected);
+	}
 	self->mChatHistory->setCursorAndScrollToEnd();
 }
 
@@ -559,6 +572,30 @@ void LLIMFloater::processIMTyping(const LLIMInfo* im_info, BOOL typing)
 	{
 		// other user stopped typing
 		removeTypingIndicator(im_info);
+	}
+}
+
+void LLIMFloater::processSessionUpdate(const LLSD& session_update)
+{
+	// *TODO : verify following code when moderated mode will be implemented
+	if ( false && session_update.has("moderated_mode") &&
+		 session_update["moderated_mode"].has("voice") )
+	{
+		BOOL voice_moderated = session_update["moderated_mode"]["voice"];
+		const std::string session_label = LLIMModel::instance().getName(mSessionID);
+
+		if (voice_moderated)
+		{
+			setTitle(session_label + std::string(" ") + LLTrans::getString("IM_moderated_chat_label"));
+		}
+		else
+		{
+			setTitle(session_label);
+		}
+
+		// *TODO : uncomment this when/if LLPanelActiveSpeakers panel will be added
+		//update the speakers dropdown too
+		//mSpeakerPanel->setVoiceModerationCtrlMode(voice_moderated);
 	}
 }
 

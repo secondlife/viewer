@@ -74,6 +74,9 @@ public:
 		//true if calling back the session URI after the session has closed is possible.
 		//Currently this will be false only for PSTN P2P calls.
 		bool mCallBackEnabled;
+
+		bool mTextIMPossible;
+		bool mProfileButtonEnabled;
 	};
 	
 

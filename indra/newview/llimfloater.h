@@ -88,6 +88,7 @@ public:
 
 	void onVisibilityChange(const LLSD& new_visibility);
 	void processIMTyping(const LLIMInfo* im_info, BOOL typing);
+	void processSessionUpdate(const LLSD& session_update);
 
 private:
 	// process focus events to set a currently active session

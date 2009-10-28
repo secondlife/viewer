@@ -130,12 +130,20 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 {
 	LLPanelChatControlPanel::setSessionId(session_id);
 
-	LLUUID avatar_id = LLIMModel::getInstance()->getOtherParticipantID(session_id);
+	LLIMModel& im_model = LLIMModel::instance();
+
+	LLUUID avatar_id = im_model.getOtherParticipantID(session_id);
 
 	// Disable "Add friend" button for friends.
 	childSetEnabled("add_friend_btn", !LLAvatarActions::isFriend(avatar_id));
-	
+
 	getChild<LLAvatarIconCtrl>("avatar_icon")->setValue(avatar_id);
+
+	// Disable profile button if participant is not realy SL avatar
+	LLIMModel::LLIMSession* im_session =
+		im_model.findIMSession(session_id);
+	if( im_session && !im_session->mProfileButtonEnabled )
+		childSetEnabled("view_profile_btn", FALSE);
 }
 
 
