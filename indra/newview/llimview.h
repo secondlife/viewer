@@ -76,7 +76,7 @@ public:
 		bool mCallBackEnabled;
 
 		bool mTextIMPossible;
-		bool mProfileButtonEnabled;
+		bool mOtherParticipantIsAvatar;
 	};
 	
 
