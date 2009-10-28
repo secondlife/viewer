@@ -106,12 +106,14 @@ private:
 	
 private:
 	LLUUID				mObjectID;
+	S32					mObjectFace;
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
 };
 
 LLInspectObject::LLInspectObject(const LLSD& sd)
 :	LLInspect( LLSD() ),	// single_instance, doesn't really need key
 	mObjectID(),			// set in onOpen()
+	mObjectFace(0),
 	mObjectSelection()
 {
 	// can't make the properties request until the widgets are constructed
@@ -182,7 +184,11 @@ void LLInspectObject::onOpen(const LLSD& data)
 
 	// Extract appropriate avatar id
 	mObjectID = data["object_id"];
-
+	
+	if(data.has("object_face"))
+	{
+		mObjectFace = data["object_face"];
+	}
 	// Position the inspector relative to the mouse cursor
 	// Similar to how tooltips are positioned
 	// See LLToolTipMgr::createToolTip

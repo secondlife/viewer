@@ -81,6 +81,11 @@ public:
 
 		Optional<click_callback_t>	click_callback;
 		Optional<LLUIImage*>		image;
+		
+		
+		Optional<bool>				time_based_media;
+		Optional<bool>				media_playing;
+		Optional<click_callback_t>	click_playmedia_callback;
 		Optional<S32>				max_width;
 		Optional<S32>				padding;
 		Optional<bool>				wrap;
@@ -101,6 +106,7 @@ public:
 
 private:
 	class LLTextBox*	mTextBox;
+	class LLButton*     mPlayMediaButton;
 	LLFrameTimer	mFadeTimer;
 	LLFrameTimer	mVisibleTimer;
 	S32				mMaxWidth;

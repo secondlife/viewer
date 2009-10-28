@@ -78,6 +78,8 @@ public:
 
 	static void			showAvatarInspector(const LLUUID& avatar_id);
 	static void			showObjectInspector(const LLUUID& object_id);
+	static void			showObjectInspector(const LLUUID& object_id, const S32& object_face);
+	static void			playCurrentMedia(const LLPickInfo& info);
 private:
 	BOOL outsideSlop		(S32 x, S32 y, S32 start_x, S32 start_y);
 	BOOL pickLeftMouseDownCallback();
