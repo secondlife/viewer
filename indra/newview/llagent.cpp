@@ -42,7 +42,7 @@
 #include "lldrawable.h"
 #include "llfirstuse.h"
 #include "llfloaterreg.h"
-#include "llfloateractivespeakers.h"
+#include "llspeakers.h"
 #include "llfloatercamera.h"
 #include "llfloatercustomize.h"
 

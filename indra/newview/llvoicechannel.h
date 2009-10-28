@@ -33,6 +33,7 @@
 #ifndef LL_VOICECHANNEL_H
 #define LL_VOICECHANNEL_H
 
+#include "llhandle.h"
 #include "llvoiceclient.h"
 
 class LLPanel;

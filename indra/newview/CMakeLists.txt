@@ -371,6 +371,7 @@ set(viewer_SOURCE_FILES
     llsky.cpp
     llslurl.cpp
     llspatialpartition.cpp
+    llspeakers.cpp
     llsplitbutton.cpp
     llsprite.cpp
     llstartup.cpp
@@ -848,6 +849,7 @@ set(viewer_HEADER_FILES
     llsky.h
     llslurl.h
     llspatialpartition.h
+    llspeakers.h
     llsplitbutton.h
     llsprite.h
     llstartup.h
