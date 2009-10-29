@@ -53,4 +53,4 @@ set_source_files_properties(
     LL_TEST_ADDITIONAL_LIBRARIES "${PTH_LIBRARIES}"
   )
 
-LL_ADD_PROJECT_UNIT_TESTS(lllogin "${lllogin_TEST_SOURCE_FILES}")
+#LL_ADD_PROJECT_UNIT_TESTS(lllogin "${lllogin_TEST_SOURCE_FILES}")
