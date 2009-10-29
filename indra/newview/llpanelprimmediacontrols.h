@@ -1,5 +1,5 @@
 /** 
- * @file llpanelmediahud.h
+ * @file llpanelprimmediacontrols.h
  * @brief Pop-up media controls panel
  *
  * $LicenseInfo:firstyear=2003&license=viewergpl$
@@ -29,8 +29,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PANELMEDIAHUD_H
-#define LL_PANELMEDIAHUD_H
+#ifndef LL_PANELPRIMMEDIACONTROLS_H
+#define LL_PANELPRIMMEDIACONTROLS_H
 
 #include "llpanel.h"
 #include "llviewermedia.h"
@@ -38,11 +38,11 @@
 class LLCoordWindow;
 class LLViewerMediaImpl;
 
-class LLPanelMediaControls : public LLPanel
+class LLPanelPrimMediaControls : public LLPanel
 {
 public:
-	LLPanelMediaControls();
-	virtual ~LLPanelMediaControls();
+	LLPanelPrimMediaControls();
+	virtual ~LLPanelPrimMediaControls();
 	/*virtual*/ BOOL postBuild();
 	virtual void draw();
 	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
@@ -57,7 +57,7 @@ public:
 	void resetZoomLevel();
 	void close();
 
-	LLHandle<LLPanelMediaControls>	getHandle() const { return mPanelHandle; }
+	LLHandle<LLPanelPrimMediaControls>	getHandle() const { return mPanelHandle; }
 	void setMediaFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal = LLVector3::zero);
 
 
@@ -131,7 +131,7 @@ private:
 	LLFrameTimer mFadeTimer;
 	F32 mInactiveTimeout;
 	F32 mControlFadeTime;
-	LLRootHandle<LLPanelMediaControls> mPanelHandle;
+	LLRootHandle<LLPanelPrimMediaControls> mPanelHandle;
 	F32 mAlpha;
 	std::string mCurrentURL;
 	std::string mPreviousURL;
@@ -145,4 +145,4 @@ private:
 	LLVector3 mTargetObjectNormal;
 };
 
-#endif // LL_PANELMEDIAHUD_H
+#endif // LL_PANELPRIMMEDIACONTROLS_H

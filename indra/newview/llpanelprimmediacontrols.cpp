@@ -1,5 +1,5 @@
 /** 
- * @file llpanelmediahud.cpp
+ * @file llpanelprimmediacontrols.cpp
  * @brief media controls popup panel
  *
  * $LicenseInfo:firstyear=2003&license=viewergpl$
@@ -31,7 +31,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-//LLPanelMediaControls
+//LLPanelPrimMediaControls
 #include "llagent.h"
 #include "llparcel.h"
 #include "llpanel.h"
@@ -69,14 +69,14 @@ const F32 ZOOM_MEDIUM_PADDING	= 1.15f;
 const F32 ZOOM_FAR_PADDING		= 1.5f;
 
 // Warning: make sure these two match!
-const LLPanelMediaControls::EZoomLevel LLPanelMediaControls::kZoomLevels[] = { ZOOM_NONE, ZOOM_MEDIUM };
-const int LLPanelMediaControls::kNumZoomLevels = 2;
+const LLPanelPrimMediaControls::EZoomLevel LLPanelPrimMediaControls::kZoomLevels[] = { ZOOM_NONE, ZOOM_MEDIUM };
+const int LLPanelPrimMediaControls::kNumZoomLevels = 2;
 
 //
-// LLPanelMediaControls
+// LLPanelPrimMediaControls
 //
 
-LLPanelMediaControls::LLPanelMediaControls() : 
+LLPanelPrimMediaControls::LLPanelPrimMediaControls() : 
 	mAlpha(1.f),
 	mCurrentURL(""),
 	mPreviousURL(""),
@@ -87,23 +87,23 @@ LLPanelMediaControls::LLPanelMediaControls() :
 	mMovieDuration(0.0),
 	mUpdatePercent(0)
 {
-	mCommitCallbackRegistrar.add("MediaCtrl.Close",		boost::bind(&LLPanelMediaControls::onClickClose, this));
-	mCommitCallbackRegistrar.add("MediaCtrl.Back",		boost::bind(&LLPanelMediaControls::onClickBack, this));
-	mCommitCallbackRegistrar.add("MediaCtrl.Forward",	boost::bind(&LLPanelMediaControls::onClickForward, this));
-	mCommitCallbackRegistrar.add("MediaCtrl.Home",		boost::bind(&LLPanelMediaControls::onClickHome, this));
-	mCommitCallbackRegistrar.add("MediaCtrl.Stop",		boost::bind(&LLPanelMediaControls::onClickStop, this));
-	mCommitCallbackRegistrar.add("MediaCtrl.Reload",	boost::bind(&LLPanelMediaControls::onClickReload, this));
-	mCommitCallbackRegistrar.add("MediaCtrl.Play",		boost::bind(&LLPanelMediaControls::onClickPlay, this));
-	mCommitCallbackRegistrar.add("MediaCtrl.Pause",		boost::bind(&LLPanelMediaControls::onClickPause, this));
-	mCommitCallbackRegistrar.add("MediaCtrl.Open",		boost::bind(&LLPanelMediaControls::onClickOpen, this));
-	mCommitCallbackRegistrar.add("MediaCtrl.Zoom",		boost::bind(&LLPanelMediaControls::onClickZoom, this));
-	mCommitCallbackRegistrar.add("MediaCtrl.CommitURL",	boost::bind(&LLPanelMediaControls::onCommitURL, this));
-	mCommitCallbackRegistrar.add("MediaCtrl.JumpProgress",		boost::bind(&LLPanelMediaControls::onCommitSlider, this));
-	mCommitCallbackRegistrar.add("MediaCtrl.CommitVolumeUp",	boost::bind(&LLPanelMediaControls::onCommitVolumeUp, this));
-	mCommitCallbackRegistrar.add("MediaCtrl.CommitVolumeDown",	boost::bind(&LLPanelMediaControls::onCommitVolumeDown, this));
-	mCommitCallbackRegistrar.add("MediaCtrl.ToggleMute",		boost::bind(&LLPanelMediaControls::onToggleMute, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.Close",		boost::bind(&LLPanelPrimMediaControls::onClickClose, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.Back",		boost::bind(&LLPanelPrimMediaControls::onClickBack, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.Forward",	boost::bind(&LLPanelPrimMediaControls::onClickForward, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.Home",		boost::bind(&LLPanelPrimMediaControls::onClickHome, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.Stop",		boost::bind(&LLPanelPrimMediaControls::onClickStop, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.Reload",	boost::bind(&LLPanelPrimMediaControls::onClickReload, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.Play",		boost::bind(&LLPanelPrimMediaControls::onClickPlay, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.Pause",		boost::bind(&LLPanelPrimMediaControls::onClickPause, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.Open",		boost::bind(&LLPanelPrimMediaControls::onClickOpen, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.Zoom",		boost::bind(&LLPanelPrimMediaControls::onClickZoom, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.CommitURL",	boost::bind(&LLPanelPrimMediaControls::onCommitURL, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.JumpProgress",		boost::bind(&LLPanelPrimMediaControls::onCommitSlider, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.CommitVolumeUp",	boost::bind(&LLPanelPrimMediaControls::onCommitVolumeUp, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.CommitVolumeDown",	boost::bind(&LLPanelPrimMediaControls::onCommitVolumeDown, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.ToggleMute",		boost::bind(&LLPanelPrimMediaControls::onToggleMute, this));
 	
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_media_hud.xml");
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_prim_media_controls.xml");
 	mInactivityTimer.reset();
 	mFadeTimer.stop();
 	mCurrentZoom = ZOOM_NONE;
@@ -111,11 +111,11 @@ LLPanelMediaControls::LLPanelMediaControls() :
 
 	mPanelHandle.bind(this);
 }
-LLPanelMediaControls::~LLPanelMediaControls()
+LLPanelPrimMediaControls::~LLPanelPrimMediaControls()
 {
 }
 
-BOOL LLPanelMediaControls::postBuild()
+BOOL LLPanelPrimMediaControls::postBuild()
 {
 	LLButton* scroll_up_ctrl = getChild<LLButton>("scrollup");
 	scroll_up_ctrl->setClickedCallback(onScrollUp, this);
@@ -135,7 +135,7 @@ BOOL LLPanelMediaControls::postBuild()
 	scroll_down_ctrl->setMouseUpCallback(onScrollStop, this);
 	
 	LLUICtrl* media_address	= getChild<LLUICtrl>("media_address");
-	media_address->setFocusReceivedCallback(boost::bind(&LLPanelMediaControls::onInputURL, _1, this ));
+	media_address->setFocusReceivedCallback(boost::bind(&LLPanelPrimMediaControls::onInputURL, _1, this ));
 	mInactiveTimeout = gSavedSettings.getF32("MediaControlTimeout");
 	mControlFadeTime = gSavedSettings.getF32("MediaControlFadeTime");
 
@@ -145,7 +145,7 @@ BOOL LLPanelMediaControls::postBuild()
 	return TRUE;
 }
 
-void LLPanelMediaControls::setMediaFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal)
+void LLPanelPrimMediaControls::setMediaFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal)
 {
 	if (media_impl.notNull() && objectp.notNull())
 	{
@@ -167,9 +167,9 @@ void LLPanelMediaControls::setMediaFace(LLPointer<LLViewerObject> objectp, S32 f
 	updateShape();
 }
 
-void LLPanelMediaControls::focusOnTarget()
+void LLPanelPrimMediaControls::focusOnTarget()
 {
-	// Sets the media focus to the current target of the LLPanelMediaControls.
+	// Sets the media focus to the current target of the LLPanelPrimMediaControls.
 	// This is how we transition from hover to focus when the user clicks on a control.
 	LLViewerMediaImpl* media_impl = getTargetMediaImpl();
 	if(media_impl)
@@ -183,17 +183,17 @@ void LLPanelMediaControls::focusOnTarget()
 	}	
 }
 
-LLViewerMediaImpl* LLPanelMediaControls::getTargetMediaImpl()
+LLViewerMediaImpl* LLPanelPrimMediaControls::getTargetMediaImpl()
 {
 	return LLViewerMedia::getMediaImplFromTextureID(mTargetImplID);
 }
 
-LLViewerObject* LLPanelMediaControls::getTargetObject()
+LLViewerObject* LLPanelPrimMediaControls::getTargetObject()
 {
 	return gObjectList.findObject(mTargetObjectID);
 }
 
-LLPluginClassMedia* LLPanelMediaControls::getTargetMediaPlugin()
+LLPluginClassMedia* LLPanelPrimMediaControls::getTargetMediaPlugin()
 {
 	LLViewerMediaImpl* impl = getTargetMediaImpl();
 	if(impl && impl->hasMedia())
@@ -204,7 +204,7 @@ LLPluginClassMedia* LLPanelMediaControls::getTargetMediaPlugin()
 	return NULL;
 }
 
-void LLPanelMediaControls::updateShape()
+void LLPanelPrimMediaControls::updateShape()
 {
 	const S32 MIN_HUD_WIDTH=400;
 	const S32 MIN_HUD_HEIGHT=120;
@@ -560,23 +560,23 @@ void LLPanelMediaControls::updateShape()
 		screen_max.mY = llround((F32)gViewerWindow->getWorldViewHeight() * (max.mV[VY] + 1.f) * 0.5f);
 
 		// grow panel so that screenspace bounding box fits inside "media_region" element of HUD
-		LLRect media_hud_rect;
-		getParent()->screenRectToLocal(LLRect(screen_min.mX, screen_max.mY, screen_max.mX, screen_min.mY), &media_hud_rect);
+		LLRect media_controls_rect;
+		getParent()->screenRectToLocal(LLRect(screen_min.mX, screen_max.mY, screen_max.mX, screen_min.mY), &media_controls_rect);
 		LLView* media_region = getChild<LLView>("media_region");
-		media_hud_rect.mLeft -= media_region->getRect().mLeft;
-		media_hud_rect.mBottom -= media_region->getRect().mBottom;
-		media_hud_rect.mTop += getRect().getHeight() - media_region->getRect().mTop;
-		media_hud_rect.mRight += getRect().getWidth() - media_region->getRect().mRight;
+		media_controls_rect.mLeft -= media_region->getRect().mLeft;
+		media_controls_rect.mBottom -= media_region->getRect().mBottom;
+		media_controls_rect.mTop += getRect().getHeight() - media_region->getRect().mTop;
+		media_controls_rect.mRight += getRect().getWidth() - media_region->getRect().mRight;
 
-		LLRect old_hud_rect = media_hud_rect;
+		LLRect old_hud_rect = media_controls_rect;
 		// keep all parts of HUD on-screen
-		media_hud_rect.intersectWith(getParent()->getLocalRect());
+		media_controls_rect.intersectWith(getParent()->getLocalRect());
 
 		// clamp to minimum size, keeping centered
-		media_hud_rect.setCenterAndSize(media_hud_rect.getCenterX(), media_hud_rect.getCenterY(),
-			llmax(MIN_HUD_WIDTH, media_hud_rect.getWidth()), llmax(MIN_HUD_HEIGHT, media_hud_rect.getHeight()));
+		media_controls_rect.setCenterAndSize(media_controls_rect.getCenterX(), media_controls_rect.getCenterY(),
+			llmax(MIN_HUD_WIDTH, media_controls_rect.getWidth()), llmax(MIN_HUD_HEIGHT, media_controls_rect.getHeight()));
 
-		setShape(media_hud_rect, true);
+		setShape(media_controls_rect, true);
 
 		// Test mouse position to see if the cursor is stationary
 		LLCoordWindow cursor_pos_window;
@@ -617,7 +617,7 @@ void LLPanelMediaControls::updateShape()
 }
 
 /*virtual*/
-void LLPanelMediaControls::draw()
+void LLPanelPrimMediaControls::draw()
 {
 	F32 alpha = 1.f;
 	if(mFadeTimer.getStarted())
@@ -644,31 +644,31 @@ void LLPanelMediaControls::draw()
 	}
 }
 
-BOOL LLPanelMediaControls::handleScrollWheel(S32 x, S32 y, S32 clicks)
+BOOL LLPanelPrimMediaControls::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	mInactivityTimer.start();
 	return LLViewerMediaFocus::getInstance()->handleScrollWheel(x, y, clicks);
 }
 
-BOOL LLPanelMediaControls::handleMouseDown(S32 x, S32 y, MASK mask)
+BOOL LLPanelPrimMediaControls::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	mInactivityTimer.start();
 	return LLPanel::handleMouseDown(x, y, mask);
 }
 
-BOOL LLPanelMediaControls::handleMouseUp(S32 x, S32 y, MASK mask)
+BOOL LLPanelPrimMediaControls::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	mInactivityTimer.start();
 	return LLPanel::handleMouseUp(x, y, mask);
 }
 
-BOOL LLPanelMediaControls::handleKeyHere( KEY key, MASK mask )
+BOOL LLPanelPrimMediaControls::handleKeyHere( KEY key, MASK mask )
 {
 	mInactivityTimer.start();
 	return LLPanel::handleKeyHere(key, mask);
 }
 
-bool LLPanelMediaControls::isMouseOver()
+bool LLPanelPrimMediaControls::isMouseOver()
 {
 	bool result = false;
 	
@@ -707,12 +707,12 @@ bool LLPanelMediaControls::isMouseOver()
 }
 
 
-void LLPanelMediaControls::onClickClose()
+void LLPanelPrimMediaControls::onClickClose()
 {
 	close();
 }
 
-void LLPanelMediaControls::close()
+void LLPanelPrimMediaControls::close()
 {
 	LLViewerMediaFocus::getInstance()->clearFocus();
 	resetZoomLevel();
@@ -720,7 +720,7 @@ void LLPanelMediaControls::close()
 }
 
 
-void LLPanelMediaControls::onClickBack()
+void LLPanelPrimMediaControls::onClickBack()
 {
 	focusOnTarget();
 
@@ -732,7 +732,7 @@ void LLPanelMediaControls::onClickBack()
 	}
 }
 
-void LLPanelMediaControls::onClickForward()
+void LLPanelPrimMediaControls::onClickForward()
 {
 	focusOnTarget();
 
@@ -744,7 +744,7 @@ void LLPanelMediaControls::onClickForward()
 	}
 }
 
-void LLPanelMediaControls::onClickHome()
+void LLPanelPrimMediaControls::onClickHome()
 {
 	focusOnTarget();
 
@@ -756,7 +756,7 @@ void LLPanelMediaControls::onClickHome()
 	}
 }
 
-void LLPanelMediaControls::onClickOpen()
+void LLPanelPrimMediaControls::onClickOpen()
 {
 	LLViewerMediaImpl* impl =getTargetMediaImpl();
 	if(impl)
@@ -775,7 +775,7 @@ void LLPanelMediaControls::onClickOpen()
 	}	
 }
 
-void LLPanelMediaControls::onClickReload()
+void LLPanelPrimMediaControls::onClickReload()
 {
 	focusOnTarget();
 
@@ -788,7 +788,7 @@ void LLPanelMediaControls::onClickReload()
 	}
 }
 
-void LLPanelMediaControls::onClickPlay()
+void LLPanelPrimMediaControls::onClickPlay()
 {
 	focusOnTarget();
 
@@ -800,7 +800,7 @@ void LLPanelMediaControls::onClickPlay()
 	}
 }
 
-void LLPanelMediaControls::onClickPause()
+void LLPanelPrimMediaControls::onClickPause()
 {
 	focusOnTarget();
 
@@ -812,7 +812,7 @@ void LLPanelMediaControls::onClickPause()
 	}
 }
 
-void LLPanelMediaControls::onClickStop()
+void LLPanelPrimMediaControls::onClickStop()
 {
 	focusOnTarget();
 
@@ -824,13 +824,13 @@ void LLPanelMediaControls::onClickStop()
 	}
 }
 
-void LLPanelMediaControls::onClickZoom()
+void LLPanelPrimMediaControls::onClickZoom()
 {
 	focusOnTarget();
 
 	nextZoomLevel();
 }
-void LLPanelMediaControls::nextZoomLevel()
+void LLPanelPrimMediaControls::nextZoomLevel()
 {
 	int index = 0;
 	while (index < kNumZoomLevels)
@@ -846,7 +846,7 @@ void LLPanelMediaControls::nextZoomLevel()
 	updateZoom();
 }
 
-void LLPanelMediaControls::resetZoomLevel()
+void LLPanelPrimMediaControls::resetZoomLevel()
 {
 	if(mCurrentZoom != ZOOM_NONE)
 	{
@@ -855,7 +855,7 @@ void LLPanelMediaControls::resetZoomLevel()
 	}
 }
 
-void LLPanelMediaControls::updateZoom()
+void LLPanelPrimMediaControls::updateZoom()
 {
 	F32 zoom_padding = 0.0f;
 	switch (mCurrentZoom)
@@ -890,9 +890,9 @@ void LLPanelMediaControls::updateZoom()
 	if (zoom_padding > 0.0f)		
 		LLViewerMediaFocus::setCameraZoom(getTargetObject(), mTargetObjectNormal, zoom_padding);
 }
-void LLPanelMediaControls::onScrollUp(void* user_data)
+void LLPanelPrimMediaControls::onScrollUp(void* user_data)
 {
-	LLPanelMediaControls* this_panel = static_cast<LLPanelMediaControls*> (user_data);
+	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (user_data);
 	this_panel->focusOnTarget();
 
 	LLPluginClassMedia* plugin = this_panel->getTargetMediaPlugin();
@@ -902,14 +902,14 @@ void LLPanelMediaControls::onScrollUp(void* user_data)
 		plugin->scrollEvent(0, -1, MASK_NONE);
 	}
 }
-void LLPanelMediaControls::onScrollUpHeld(void* user_data)
+void LLPanelPrimMediaControls::onScrollUpHeld(void* user_data)
 {
-	LLPanelMediaControls* this_panel = static_cast<LLPanelMediaControls*> (user_data);
+	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (user_data);
 	this_panel->mScrollState = SCROLL_UP;
 }
-void LLPanelMediaControls::onScrollRight(void* user_data)
+void LLPanelPrimMediaControls::onScrollRight(void* user_data)
 {
-	LLPanelMediaControls* this_panel = static_cast<LLPanelMediaControls*> (user_data);
+	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (user_data);
 	this_panel->focusOnTarget();
 
 	LLViewerMediaImpl* impl = this_panel->getTargetMediaImpl();
@@ -919,15 +919,15 @@ void LLPanelMediaControls::onScrollRight(void* user_data)
 		impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
 	}
 }
-void LLPanelMediaControls::onScrollRightHeld(void* user_data)
+void LLPanelPrimMediaControls::onScrollRightHeld(void* user_data)
 {
-	LLPanelMediaControls* this_panel = static_cast<LLPanelMediaControls*> (user_data);
+	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (user_data);
 	this_panel->mScrollState = SCROLL_RIGHT;
 }
 
-void LLPanelMediaControls::onScrollLeft(void* user_data)
+void LLPanelPrimMediaControls::onScrollLeft(void* user_data)
 {
-	LLPanelMediaControls* this_panel = static_cast<LLPanelMediaControls*> (user_data);
+	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (user_data);
 	this_panel->focusOnTarget();
 
 	LLViewerMediaImpl* impl = this_panel->getTargetMediaImpl();
@@ -937,15 +937,15 @@ void LLPanelMediaControls::onScrollLeft(void* user_data)
 		impl->handleKeyHere(KEY_LEFT, MASK_NONE);
 	}
 }
-void LLPanelMediaControls::onScrollLeftHeld(void* user_data)
+void LLPanelPrimMediaControls::onScrollLeftHeld(void* user_data)
 {
-	LLPanelMediaControls* this_panel = static_cast<LLPanelMediaControls*> (user_data);
+	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (user_data);
 	this_panel->mScrollState = SCROLL_LEFT;
 }
 
-void LLPanelMediaControls::onScrollDown(void* user_data)
+void LLPanelPrimMediaControls::onScrollDown(void* user_data)
 {
-	LLPanelMediaControls* this_panel = static_cast<LLPanelMediaControls*> (user_data);
+	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (user_data);
 	this_panel->focusOnTarget();
 
 	LLPluginClassMedia* plugin = this_panel->getTargetMediaPlugin();
@@ -955,19 +955,19 @@ void LLPanelMediaControls::onScrollDown(void* user_data)
 		plugin->scrollEvent(0, 1, MASK_NONE);
 	}
 }
-void LLPanelMediaControls::onScrollDownHeld(void* user_data)
+void LLPanelPrimMediaControls::onScrollDownHeld(void* user_data)
 {
-	LLPanelMediaControls* this_panel = static_cast<LLPanelMediaControls*> (user_data);
+	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (user_data);
 	this_panel->mScrollState = SCROLL_DOWN;
 }
 
-void LLPanelMediaControls::onScrollStop(void* user_data)
+void LLPanelPrimMediaControls::onScrollStop(void* user_data)
 {
-	LLPanelMediaControls* this_panel = static_cast<LLPanelMediaControls*> (user_data);
+	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (user_data);
 	this_panel->mScrollState = SCROLL_NONE;
 }
 
-void LLPanelMediaControls::onCommitURL()
+void LLPanelPrimMediaControls::onCommitURL()
 {
 	focusOnTarget();
 
@@ -986,10 +986,10 @@ void LLPanelMediaControls::onCommitURL()
 }
 
 
-void LLPanelMediaControls::onInputURL(LLFocusableElement* caller, void *userdata)
+void LLPanelPrimMediaControls::onInputURL(LLFocusableElement* caller, void *userdata)
 {
 
-	LLPanelMediaControls* this_panel = static_cast<LLPanelMediaControls*> (userdata);
+	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (userdata);
 	this_panel->focusOnTarget();
 
 	this_panel->mPauseFadeout = true;
@@ -998,7 +998,7 @@ void LLPanelMediaControls::onInputURL(LLFocusableElement* caller, void *userdata
 	
 }
 
-void LLPanelMediaControls::setCurrentURL()
+void LLPanelPrimMediaControls::setCurrentURL()
 {	
 	LLComboBox* media_address_combo	= getChild<LLComboBox>("media_address_combo");
 	// redirects will navigate momentarily to about:blank, don't add to history
@@ -1010,7 +1010,7 @@ void LLPanelMediaControls::setCurrentURL()
 	}
 }
 
-void LLPanelMediaControls::onCommitSlider()
+void LLPanelPrimMediaControls::onCommitSlider()
 {
 	focusOnTarget();
 
@@ -1032,7 +1032,7 @@ void LLPanelMediaControls::onCommitSlider()
 	}
 }		
 
-void LLPanelMediaControls::onCommitVolumeUp()
+void LLPanelPrimMediaControls::onCommitVolumeUp()
 {
 	focusOnTarget();
 
@@ -1052,7 +1052,7 @@ void LLPanelMediaControls::onCommitVolumeUp()
 	}
 }		
 
-void LLPanelMediaControls::onCommitVolumeDown()
+void LLPanelPrimMediaControls::onCommitVolumeDown()
 {
 	focusOnTarget();
 
@@ -1073,7 +1073,7 @@ void LLPanelMediaControls::onCommitVolumeDown()
 }		
 
 
-void LLPanelMediaControls::onToggleMute()
+void LLPanelPrimMediaControls::onToggleMute()
 {
 	focusOnTarget();
 
