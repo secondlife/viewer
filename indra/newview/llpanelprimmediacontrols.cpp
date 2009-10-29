@@ -472,7 +472,7 @@ void LLPanelPrimMediaControls::updateShape()
 			}
 		}
 
-		if(media_plugin)
+		if(media_impl)
 		{
 			//
 			// Handle Scrolling
@@ -480,16 +480,18 @@ void LLPanelPrimMediaControls::updateShape()
 			switch (mScrollState) 
 			{
 			case SCROLL_UP:
-				media_plugin->scrollEvent(0, -1, MASK_NONE);
+				media_impl->scrollWheel(0, -1, MASK_NONE);
 				break;
 			case SCROLL_DOWN:
-				media_plugin->scrollEvent(0, 1, MASK_NONE);
+				media_impl->scrollWheel(0, 1, MASK_NONE);
 				break;
 			case SCROLL_LEFT:
-				media_impl->handleKeyHere(KEY_LEFT, MASK_NONE);
+				media_impl->scrollWheel(1, 0, MASK_NONE);
+//				media_impl->handleKeyHere(KEY_LEFT, MASK_NONE);
 				break;
 			case SCROLL_RIGHT:
-				media_impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
+				media_impl->scrollWheel(-1, 0, MASK_NONE);
+//				media_impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
 				break;
 			case SCROLL_NONE:
 			default:
