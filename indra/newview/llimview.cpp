@@ -1360,14 +1360,9 @@ void LLIMMgr::addMessage(
 		fixed_session_name = session_name;
 	}
 
-	bool new_session = !hasSession(session_id);
+	bool new_session = !hasSession(new_session_id);
 	if (new_session)
 	{
-		// *NOTE dzaporozhan
-		// Workaround for critical bug EXT-1918
-
-		// *TODO 
-		// Investigate cases when session_id == NULL and find solution to handle those cases
 		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id);
 	}
 
