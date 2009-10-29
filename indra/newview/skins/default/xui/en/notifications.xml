@@ -6151,8 +6151,7 @@ Your L$ balance is shown in the upper-right.
    type="notify">
 Thank you for your payment!
 
-When the processing completes, your L$ balance will be updated at the top of your screen.
-If processing your payment takes more than 20 minutes to complete, the purchase amount will be credited to your account for use on your next purchase.
+Your L$ balance will be updated when processing completes. If processing takes more than 20 mins, your transaction may be cancelled. In that case, the purchase amount will be credited to your US$ balance.
 
 The status of your payment can be checked on your Transaction History page at Me > My Dashboard, or http://secondlife.com/account/
   </notification>
