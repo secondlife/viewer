@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_dock="true"
- can_minimize="true"
- can_close="true" 
+ can_minimize="false"
+ can_close="true"
  center_horiz="true"
- follows="top"
- height="110"
+ follows="bottom"
+ height="152"
  layout="topleft"
  name="camera_floater"
  help_topic="camera_floater"
  save_rect="true"
  save_visibility="true"
- width="105">
+ width="150">
     <floater.string
      name="rotate_tooltip">
         Rotate Camera Around Focus
@@ -25,69 +25,71 @@
         Move Camera Up and Down, Left and Right
     </floater.string>
     <panel
-     border="true"
-     height="79"
+     border="false"
+     height="110"
      layout="topleft"
-     left="0"
+     left="2"
      top="0"
-     mouse_opaque="false" 
+     mouse_opaque="false"
      name="controls"
-     width="105">
-        <joystick_rotate
-         follows="top|left"
-         height="64"
-         image_selected="cam_rotate_in.tga"
-         image_unselected="cam_rotate_out.tga"
-         layout="topleft"
-         left="2"
-         name="cam_rotate_stick"
-         picture_style="true"
-         quadrant="left"
-         scale_image="false"
-         sound_flags="3"
-         tool_tip="Orbit camera around focus"
-         top="15"
-         width="64" />
+     width="148">
         <joystick_track
          follows="top|left"
-         height="64"
-         image_selected="cam_tracking_in.tga"
-         image_unselected="cam_tracking_out.tga"
+         height="78"
+         image_selected="Cam_Tracking_In"
+         image_unselected="Cam_Tracking_Out"
          layout="topleft"
-         left="2"
+         left="45"
          name="cam_track_stick"
          picture_style="true"
          quadrant="left"
          scale_image="false"
          sound_flags="3"
          tool_tip="Move camera up and down, left and right"
-         top="15"
+         top="22"
          visible="false"
-         width="64" />
+         width="78" />
+         <!--TODO: replace with slider, + - images -->
         <joystick_zoom
          follows="top|left"
-         height="64"
-         image_unselected="cam_zoom_out.tga"
+         height="78"
+         image_unselected="ScrollThumb_Vert"
          layout="topleft"
-         left_delta="70"
-         minus_image="cam_zoom_minus_in.tga"
+         left="7"
+         minus_image="ScrollThumb_Vert"
          name="zoom"
          picture_style="true"
-         plus_image="cam_zoom_plus_in.tga"
+         plus_image="ScrollThumb_Vert"
          quadrant="left"
          scale_image="false"
          sound_flags="3"
          tool_tip="Zoom camera toward focus"
-         top_delta="0"
-         width="16" />
-        <panel
-         height="70"
+         top="22"
+         width="20" />
+         <joystick_rotate
+         follows="top|left"
+         height="78"
+         image_selected="Cam_Rotate_In"
+         image_unselected="Cam_Rotate_Out"
          layout="topleft"
-         left="15"
+         left="45"
+         name="cam_rotate_stick"
+         picture_style="true"
+         quadrant="left"
+         scale_image="false"
+         sound_flags="3"
+         visible="true"
+         tool_tip="Orbit camera around focus"
+         top="22"
+         width="78" />
+        <panel
+         height="78"
+         layout="topleft"
+         left="36"
          name="camera_presets"
-         top="15"
+         top="30"
          visible="false"
-         width="75">
+         width="78">
             <button
              height="30"
              image_selected="CameraPreset_Rear"
@@ -127,7 +129,7 @@
              name="front_view"
              picture_style="true"
              tool_tip="Front View"
-             top_pad="2"
+             top_pad="5"
              width="30">
                 <click_callback
                  function="CameraPresets.ChangeView"
@@ -151,21 +153,21 @@
         </panel>
     </panel>
     <panel
-     border="true"
-     height="25"
+     border="false"
+     height="42"
      layout="topleft"
-     left="0"
-     top_pad="1"
+     left="2"
+     top_pad="0"
      name="buttons"
-     width="105">
+     width="148">
         <button
          height="23"
          label=""
          layout="topleft"
-         left="2"
+         left="23"
          is_toggle="true"
          image_overlay="Cam_Orbit_Off"
-         image_selected="PushButton_Selected_Press" 
+         image_selected="PushButton_Selected_Press"
          name="orbit_btn"
          tab_stop="false"
          tool_tip="Orbit camera"
@@ -179,7 +181,7 @@
          left_pad="0"
          is_toggle="true"
          image_overlay="Cam_Pan_Off"
-         image_selected="PushButton_Selected_Press" 
+         image_selected="PushButton_Selected_Press"
          name="pan_btn"
          tab_stop="false"
          tool_tip="Pan camera"
@@ -191,7 +193,7 @@
          layout="topleft"
          left_pad="0"
          image_overlay="Cam_Avatar_Off"
-         image_selected="PushButton_Selected_Press" 
+         image_selected="PushButton_Selected_Press"
          name="avatarview_btn"
          tab_stop="false"
          tool_tip="See as avatar"
@@ -204,12 +206,11 @@
          left_pad="0"
          is_toggle="true"
          image_overlay="Cam_FreeCam_Off"
-         image_selected="PushButton_Selected_Press" 
+         image_selected="PushButton_Selected_Press"
          name="freecamera_btn"
          tab_stop="false"
          tool_tip="View object"
          width="25">
         </button>
-        
     </panel>
 </floater>
