@@ -1,41 +1,46 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- All our XML is utf-8 encoded. -->
 
+<!-- All this does is establish the position of the "close" button on the toast. -->
+
 <floater
 	name="toast"
 	title=""
   visible="false"
   layout="topleft"
-	width="350"
-	height="40"
-  left="100"
-  top="500"
+	width="305"
+  left="0"
+  top="0"
   follows="right|bottom" 
-  bevel_style="in"
   can_minimize="false"
   can_tear_off="false"
   can_resize="false"
   can_drag_on_left="false"
   can_close="false"
   can_dock="false"  
+  border_visible = "false"
+  border_drop_shadow_visible = "false"
+  drop_shadow_visible = "false"
+  border = "false"
   >
 
+  <!--
   <text
    visible="false"
    follows="left|top|right|bottom"
    font="SansSerifBold"
-   height="28"
+   height="40"
    layout="topleft"
    left="60"
    name="toast_text"
    word_wrap="true"
    text_color="white"
-   top="10"
+   top="20"
    width="290">
     Toast text;
   </text>
   <icon
-    top="4" 
+    top="20" 
     left="10" 
     width="32" 
     height="32"
@@ -47,24 +52,24 @@
     image_name="notify_tip_icon.tga"
     mouse_opaque="true" 
     name="icon"
-  />
+  />-->
   <button
     layout="topleft"
-    top="-5" 
-    left="335" 
-    width="20" 
-    height="20" 
+    top="-6" 
+    left="293" 
+    width="17" 
+    height="17" 
     follows="top|right"
     visible="false" 
     enabled="true" 
-    mouse_opaque="true" 
+    mouse_opaque="false" 
     name="hide_btn" 
     label="" 
     tab_stop="false"
-    image_unselected="toast_hide_btn.tga" 
-    image_disabled="toast_hide_btn.tga"
-    image_selected="toast_hide_btn.tga" 
-    image_hover_selected="toast_hide_btn.tga"
-    image_disabled_selected="toast_hide_btn.tga"
+    image_unselected="windows/Toast_CloseBtn.png" 
+    image_disabled="windows/Toast_CloseBtn.png"
+    image_selected="windows/Toast_CloseBtn.png" 
+    image_hover_selected="windows/Toast_CloseBtn.png"
+    image_disabled_selected="windows/Toast_CloseBtn.png"
   />
 </floater> 
