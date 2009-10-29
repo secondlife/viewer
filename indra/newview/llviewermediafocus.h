@@ -40,7 +40,7 @@
 #include "llselectmgr.h"
 
 class LLViewerMediaImpl;
-class LLPanelMediaHUD;
+class LLPanelMediaControls;
 
 class LLViewerMediaFocus : 
 	public LLFocusableElement, 
@@ -88,7 +88,7 @@ protected:
 
 private:
 	
-	LLHandle<LLPanelMediaHUD> mMediaHUD;
+	LLHandle<LLPanelMediaControls> mMediaHUD;
 	
 	LLUUID mFocusedObjectID;
 	S32 mFocusedObjectFace;

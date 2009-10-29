@@ -329,7 +329,7 @@ void LLViewerMediaFocus::update()
 		// Make sure the media HUD object exists.
 		if(! mMediaHUD.get())
 		{
-			LLPanelMediaHUD* media_hud = new LLPanelMediaHUD();
+			LLPanelMediaControls* media_hud = new LLPanelMediaControls();
 			mMediaHUD = media_hud->getHandle();
 			gHUDView->addChild(media_hud);	
 		}
