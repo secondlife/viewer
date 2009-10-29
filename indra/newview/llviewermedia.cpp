@@ -156,10 +156,10 @@ public:
 	{
 		if(!mInitialized && ! mime_type.empty())
 		{
-			if (mMediaImpl->initializeMedia(mime_type))
+			if(mMediaImpl->initializeMedia(mime_type))
 			{
 				mInitialized = true;
-				mMediaImpl->play();
+				mMediaImpl->loadURI();
 			}
 		}
 	}
@@ -267,10 +267,6 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 			{
 				needs_navigate = (media_entry->getCurrentURL() != previous_url);
 			}
-			else if(!media_entry->getHomeURL().empty())
-			{
-				needs_navigate = (media_entry->getHomeURL() != previous_url);
-			}
 		}
 	}
 	else
@@ -293,8 +289,6 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 	if(media_impl && needs_navigate)
 	{
 		std::string url = media_entry->getCurrentURL();
-		if(url.empty())
-			url = media_entry->getHomeURL();
 			
 		media_impl->navigateTo(url, "", true, true);
 	}
@@ -639,13 +633,14 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mUsedInUI(false),
 	mHasFocus(false),
 	mPriority(LLPluginClassMedia::PRIORITY_UNLOADED),
-	mDoNavigateOnLoad(false),
-	mDoNavigateOnLoadRediscoverType(false),
-	mDoNavigateOnLoadServerRequest(false),
+	mNavigateRediscoverType(false),
+	mNavigateServerRequest(false),
 	mMediaSourceFailed(false),
 	mRequestedVolume(1.0f),
 	mIsMuted(false),
 	mNeedsMuteCheck(false),
+	mPreviousMediaState(MEDIA_NONE),
+	mPreviousMediaTime(0.0f),
 	mIsUpdated(false)
 { 
 
@@ -716,7 +711,6 @@ bool LLViewerMediaImpl::initializeMedia(const std::string& mime_type)
 		mMimeType = mime_type;
 	}
 
-	// play();
 	return (mMediaSource != NULL);
 }
 
@@ -729,16 +723,13 @@ void LLViewerMediaImpl::createMediaSource()
 		return;
 	}
 	
-	if(mDoNavigateOnLoad)
+	if(! mMediaURL.empty())
 	{
-		if(! mMediaURL.empty())
-		{
-			navigateTo(mMediaURL, mMimeType, mDoNavigateOnLoadRediscoverType, mDoNavigateOnLoadServerRequest);
-		}
-		else if(! mMimeType.empty())
-		{
-			initializeMedia(mMimeType);
-		}
+		navigateInternal();
+	}
+	else if(! mMimeType.empty())
+	{
+		initializeMedia(mMimeType);
 	}
 }
 
@@ -869,6 +860,46 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 	return false;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::loadURI()
+{
+	if(mMediaSource)
+	{
+		mMediaSource->loadURI( mMediaURL );
+
+		if(mPreviousMediaState == MEDIA_PLAYING)
+		{
+			// This media was playing before this instance was unloaded.
+
+			if(mPreviousMediaTime != 0.0f)
+			{
+				// Seek back to where we left off, if possible.
+				seek(mPreviousMediaTime);
+			}
+			
+			start();
+		}
+		else if(mPreviousMediaState == MEDIA_PAUSED)
+		{
+			// This media was paused before this instance was unloaded.
+
+			if(mPreviousMediaTime != 0.0f)
+			{
+				// Seek back to where we left off, if possible.
+				seek(mPreviousMediaTime);
+			}
+			
+			pause();
+		}
+		else
+		{
+			// No relevant previous media play state -- if we're loading the URL, we want to start playing.
+			start();
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::setSize(int width, int height)
 {
 	mMediaWidth = width;
@@ -882,24 +913,21 @@ void LLViewerMediaImpl::setSize(int width, int height)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::play()
 {
-	// first stop any previously playing media
-	// stop();
-
-	// mMediaSource->addObserver( this );
+	// If the media source isn't there, try to initialize it and load an URL.
 	if(mMediaSource == NULL)
 	{
-	 	if(!initializePlugin(mMimeType))
+	 	if(!initializeMedia(mMimeType))
 		{
 			// This may be the case where the plugin's priority is PRIORITY_UNLOADED
 			return;
 		}
+		
+		// Only do this if the media source was just loaded.
+		loadURI();
 	}
 	
-	mMediaSource->loadURI( mMediaURL );
-	if(/*mMediaSource->pluginSupportsMediaTime()*/ true)
-	{
-		start();
-	}
+	// always start the media
+	start();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1165,27 +1193,21 @@ void LLViewerMediaImpl::navigateHome()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mime_type,  bool rediscover_type, bool server_request)
 {
-	if(server_request)
+	if(mMediaURL != url)
 	{
-		setNavState(MEDIANAVSTATE_SERVER_SENT);
-	}
-	else
-	{
-		setNavState(MEDIANAVSTATE_NONE);
+		// Don't carry media play state across distinct URLs.
+		resetPreviousMediaState();
 	}
 	
 	// Always set the current URL and MIME type.
 	mMediaURL = url;
 	mMimeType = mime_type;
 	
-	// If the current URL is not null, make the instance do a navigate on load.
-	mDoNavigateOnLoad = !mMediaURL.empty();
-
 	// if mime type discovery was requested, we'll need to do it when the media loads
-	mDoNavigateOnLoadRediscoverType = rediscover_type;
+	mNavigateRediscoverType = rediscover_type;
 	
 	// and if this was a server request, the navigate on load will also need to be one.
-	mDoNavigateOnLoadServerRequest = server_request;
+	mNavigateServerRequest = server_request;
 	
 	// An explicit navigate resets the "failed" flag.
 	mMediaSourceFailed = false;
@@ -1193,7 +1215,7 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 	if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
 	{
 		// Helpful to have media urls in log file. Shouldn't be spammy.
-		llinfos << "UNLOADED media id= " << mTextureId << " url=" << url << " mime_type=" << mime_type << llendl;
+		llinfos << "NOT LOADING media id= " << mTextureId << " url=" << url << " mime_type=" << mime_type << llendl;
 
 		// This impl should not be loaded at this time.
 		LL_DEBUGS("PluginPriority") << this << "Not loading (PRIORITY_UNLOADED)" << LL_ENDL;
@@ -1201,10 +1223,24 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 		return;
 	}
 
+	navigateInternal();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::navigateInternal()
+{
 	// Helpful to have media urls in log file. Shouldn't be spammy.
-	llinfos << "media id= " << mTextureId << " url=" << url << " mime_type=" << mime_type << llendl;
-	
-	
+	llinfos << "media id= " << mTextureId << " url=" << mMediaURL << " mime_type=" << mMimeType << llendl;
+
+	if(mNavigateServerRequest)
+	{
+		setNavState(MEDIANAVSTATE_SERVER_SENT);
+	}
+	else
+	{
+		setNavState(MEDIANAVSTATE_NONE);
+	}
+			
 	// If the caller has specified a non-empty MIME type, look that up in our MIME types list.
 	// If we have a plugin for that MIME type, use that instead of attempting auto-discovery.
 	// This helps in supporting legacy media content where the server the media resides on returns a bogus MIME type
@@ -1216,11 +1252,11 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 		if(!plugin_basename.empty())
 		{
 			// We have a plugin for this mime type
-			rediscover_type = false;
+			mNavigateRediscoverType = false;
 		}
 	}
 
-	if(rediscover_type)
+	if(mNavigateRediscoverType)
 	{
 
 		LLURI uri(mMediaURL);
@@ -1236,7 +1272,7 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 			// We use "data" internally for a text/html url for loading the login screen
 			if(initializeMedia("text/html"))
 			{
-				mMediaSource->loadURI( mMediaURL );
+				loadURI();
 			}
 		}
 		else
@@ -1244,24 +1280,18 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 			// This catches 'rtsp://' urls
 			if(initializeMedia(scheme))
 			{
-				mMediaSource->loadURI( mMediaURL );
+				loadURI();
 			}
 		}
 	}
-	else if (mMediaSource)
+	else if(initializeMedia(mMimeType))
 	{
-		mMediaSource->loadURI( mMediaURL );
-	}
-	else if(initializeMedia(mime_type) && mMediaSource)
-	{
-		mMediaSource->loadURI( mMediaURL );
+		loadURI();
 	}
 	else
 	{
-		LL_WARNS("Media") << "Couldn't navigate to: " << url << " as there is no media type for: " << mime_type << LL_ENDL;
-		return;
+		LL_WARNS("Media") << "Couldn't navigate to: " << mMediaURL << " as there is no media type for: " << mMimeType << LL_ENDL;
 	}
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1390,6 +1420,7 @@ void LLViewerMediaImpl::update()
 	
 	if(mMediaSource->isPluginExited())
 	{
+		resetPreviousMediaState();
 		destroyMediaSource();
 		return;
 	}
@@ -1586,6 +1617,14 @@ bool LLViewerMediaImpl::hasMedia()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+//
+void LLViewerMediaImpl::resetPreviousMediaState()
+{
+	mPreviousMediaState = MEDIA_NONE;
+	mPreviousMediaTime = 0.0f;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginClassMediaOwner::EMediaEvent event)
 {
 	switch(event)
@@ -1595,6 +1634,9 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			// The plugin failed to load properly.  Make sure the timer doesn't retry.
 			// TODO: maybe mark this plugin as not loadable somehow?
 			mMediaSourceFailed = true;
+
+			// Reset the last known state of the media to defaults.
+			resetPreviousMediaState();
 			
 			// TODO: may want a different message for this case?
 			LLSD args;
@@ -1607,6 +1649,9 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 		{
 			// The plugin crashed.
 			mMediaSourceFailed = true;
+
+			// Reset the last known state of the media to defaults.
+			resetPreviousMediaState();
 
 			LLSD args;
 			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
@@ -1833,11 +1878,11 @@ void LLViewerMediaImpl::setUsedInUI(bool used_in_ui)
 	{
 		if(getVisible())
 		{
-			mPriority = LLPluginClassMedia::PRIORITY_NORMAL;
+			setPriority(LLPluginClassMedia::PRIORITY_NORMAL);
 		}
 		else
 		{
-			mPriority = LLPluginClassMedia::PRIORITY_HIDDEN;
+			setPriority(LLPluginClassMedia::PRIORITY_HIDDEN);
 		}
 
 		createMediaSource();
@@ -1858,6 +1903,15 @@ F64 LLViewerMediaImpl::getCPUUsage() const
 
 void LLViewerMediaImpl::setPriority(LLPluginClassMedia::EPriority priority)
 {
+	if(mPriority != priority)
+	{
+		LL_INFOS("PluginPriority")
+			<< "changing priority of media id " << mTextureId
+			<< " from " << LLPluginClassMedia::priorityToString(mPriority)
+			<< " to " << LLPluginClassMedia::priorityToString(priority)
+			<< LL_ENDL;
+	}
+	
 	mPriority = priority;
 	
 	if(priority == LLPluginClassMedia::PRIORITY_UNLOADED)
@@ -1865,6 +1919,11 @@ void LLViewerMediaImpl::setPriority(LLPluginClassMedia::EPriority priority)
 		if(mMediaSource)
 		{
 			// Need to unload the media source
+			
+			// First, save off previous media state
+			mPreviousMediaState = mMediaSource->getStatus();
+			mPreviousMediaTime = mMediaSource->getCurrentTime();
+			
 			destroyMediaSource();
 		}
 	}

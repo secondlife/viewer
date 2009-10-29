@@ -552,6 +552,23 @@ void LLPluginClassMedia::loadURI(const std::string &uri)
 	sendMessage(message);
 }
 
+const char* LLPluginClassMedia::priorityToString(EPriority priority)
+{
+	const char* result = "UNKNOWN";
+	switch(priority)
+	{
+		case PRIORITY_UNLOADED:		result = "unloaded";	break;
+		case PRIORITY_STOPPED:		result = "stopped";		break;
+		case PRIORITY_HIDDEN:		result = "hidden";		break;
+		case PRIORITY_SLIDESHOW:	result = "slideshow";	break;
+		case PRIORITY_LOW:			result = "low";			break;
+		case PRIORITY_NORMAL:		result = "normal";		break;
+		case PRIORITY_HIGH:			result = "high";		break;
+	}
+	
+	return result;
+}
+
 void LLPluginClassMedia::setPriority(EPriority priority)
 {
 	if(mPriority != priority)
@@ -560,35 +577,28 @@ void LLPluginClassMedia::setPriority(EPriority priority)
 
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "set_priority");
 		
-		std::string priority_string;
+		std::string priority_string = priorityToString(priority);
 		switch(priority)
 		{
 			case PRIORITY_UNLOADED:	
-				priority_string = "unloaded";	
 				mSleepTime = 1.0f;
 			break;
 			case PRIORITY_STOPPED:	
-				priority_string = "stopped";	
 				mSleepTime = 1.0f;
 			break;
 			case PRIORITY_HIDDEN:	
-				priority_string = "hidden";	
 				mSleepTime = 1.0f;
 			break;
 			case PRIORITY_SLIDESHOW:
-				priority_string = "slideshow";		
 				mSleepTime = 1.0f;
 			break;
 			case PRIORITY_LOW:		
-				priority_string = "low";		
 				mSleepTime = 1.0f / 50.0f;
 			break;
 			case PRIORITY_NORMAL:	
-				priority_string = "normal";	
 				mSleepTime = 1.0f / 100.0f;
 			break;
 			case PRIORITY_HIGH:		
-				priority_string = "high";		
 				mSleepTime = 1.0f / 100.0f;
 			break;
 		}
@@ -793,6 +803,10 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			else if(status == "paused")
 			{
 				mStatus = LLPluginClassMediaOwner::MEDIA_PAUSED;
+			}
+			else if(status == "done")
+			{
+				mStatus = LLPluginClassMediaOwner::MEDIA_DONE;
 			}
 			else
 			{
