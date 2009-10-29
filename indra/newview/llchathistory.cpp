@@ -43,6 +43,7 @@
 #include "llagentdata.h"
 #include "llavataractions.h"
 #include "lltrans.h"
+#include "llfloaterreg.h"
 #include "llmutelist.h"
 
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
@@ -131,7 +132,8 @@ public:
 		menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_object_icon.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 		mPopupMenuHandleObject = menu->getHandle();
 
-		
+		LLPanel* visible_panel = getChild<LLPanel>("im_header");
+		visible_panel->setMouseDownCallback(boost::bind(&LLChatHistoryHeader::onHeaderPanelClick, this, _2, _3, _4));
 
 		return LLPanel::postBuild();
 	}
@@ -164,6 +166,12 @@ public:
 
 		return LLPanel::handleRightMouseDown(x,y,mask);
 	}
+
+	void onHeaderPanelClick(S32 x, S32 y, MASK mask)
+	{
+		LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", mAvatarID));
+	}
+
 	const LLUUID&		getAvatarId () const { return mAvatarID;}
 	const std::string&	getFirstName() const { return mFirstName; }
 	const std::string&	getLastName	() const { return mLastName; }
