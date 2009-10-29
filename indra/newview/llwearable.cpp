@@ -185,7 +185,9 @@ void LLWearable::createVisualParams()
 			{
 				delete mVisualParamIndexMap[param->getID()];
 			}
-			mVisualParamIndexMap[param->getID()] = param->cloneParam(this);
+			LLViewerVisualParam *new_param = param->cloneParam(this);
+			new_param->setIsDummy(FALSE);
+			mVisualParamIndexMap[param->getID()] = new_param;
 		}
 	}
 
