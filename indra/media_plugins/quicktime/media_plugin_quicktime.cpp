@@ -420,7 +420,7 @@ private:
 	{
 		if ( mCommand == COMMAND_PLAY )
 		{
-			if ( mStatus == STATUS_LOADED || mStatus == STATUS_PAUSED || mStatus == STATUS_PLAYING )
+			if ( mStatus == STATUS_LOADED || mStatus == STATUS_PAUSED || mStatus == STATUS_PLAYING || mStatus == STATUS_DONE )
 			{
 				long state = GetMovieLoadState( mMovieHandle );
 
@@ -446,7 +446,7 @@ private:
 		else
 		if ( mCommand == COMMAND_STOP )
 		{
-			if ( mStatus == STATUS_PLAYING || mStatus == STATUS_PAUSED )
+			if ( mStatus == STATUS_PLAYING || mStatus == STATUS_PAUSED || mStatus == STATUS_DONE )
 			{
 				if ( GetMovieLoadState( mMovieHandle ) >= kMovieLoadStatePlaythroughOK )
 				{
@@ -547,12 +547,12 @@ private:
 
 		// see if title arrived and if so, update member variable with contents
 		checkTitle();
-
-		// special code for looping - need to rewind at the end of the movie
-		if ( mIsLooping )
+		
+		// QT call to see if we are at the end - can't do with controller
+		if ( IsMovieDone( mMovieHandle ) )
 		{
-			// QT call to see if we are at the end - can't do with controller
-			if ( IsMovieDone( mMovieHandle ) )
+			// special code for looping - need to rewind at the end of the movie
+			if ( mIsLooping )
 			{
 				// go back to start
 				rewind();
@@ -565,8 +565,16 @@ private:
 					// set the volume
 					MCDoAction( mMovieController, mcActionSetVolume, (void*)mCurVolume );
 				};
-			};
-		};
+			}
+			else
+			{
+				if(mStatus == STATUS_PLAYING)
+				{
+					setStatus(STATUS_DONE);
+				}
+			}
+		}
+
 	};
 
 	int getDataWidth() const
