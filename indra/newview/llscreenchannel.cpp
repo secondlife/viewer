@@ -44,7 +44,6 @@
 #include "lltrans.h"
 
 #include "lldockablefloater.h"
-#include "llimpanel.h"
 #include "llsyswellwindow.h"
 #include "llimfloater.h"
 

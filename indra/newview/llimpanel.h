@@ -127,7 +127,6 @@ public:
 
 	// Handle other participant in the session typing.
 	void processIMTyping(const LLIMInfo* im_info, BOOL typing);
-	static void chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata);
 
 private:
 	// Called by UI methods.

@@ -43,6 +43,8 @@
 #include "llagentdata.h"
 #include "llavataractions.h"
 #include "lltrans.h"
+#include "llfloaterreg.h"
+#include "llmutelist.h"
 
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 static const std::string MESSAGE_USERNAME_DATE_SEPARATOR(" ----- ");
@@ -77,6 +79,19 @@ public:
 		return LLPanel::handleMouseUp(x,y,mask);
 	}
 
+	void onObjectIconContextMenuItemClicked(const LLSD& userdata)
+	{
+		std::string level = userdata.asString();
+
+		if (level == "profile")
+		{
+		}
+		else if (level == "block")
+		{
+			LLMuteList::getInstance()->add(LLMute(getAvatarId(), mFrom, LLMute::OBJECT));
+		}
+	}
+
 	void onAvatarIconContextMenuItemClicked(const LLSD& userdata)
 	{
 		std::string level = userdata.asString();
@@ -109,10 +124,16 @@ public:
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
 		registrar.add("AvatarIcon.Action", boost::bind(&LLChatHistoryHeader::onAvatarIconContextMenuItemClicked, this, _2));
+		registrar.add("ObjectIcon.Action", boost::bind(&LLChatHistoryHeader::onObjectIconContextMenuItemClicked, this, _2));
 
 		LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_avatar_icon.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-
 		mPopupMenuHandleAvatar = menu->getHandle();
+
+		menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_object_icon.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+		mPopupMenuHandleObject = menu->getHandle();
+
+		LLPanel* visible_panel = getChild<LLPanel>("im_header");
+		visible_panel->setMouseDownCallback(boost::bind(&LLChatHistoryHeader::onHeaderPanelClick, this, _2, _3, _4));
 
 		return LLPanel::postBuild();
 	}
@@ -145,6 +166,12 @@ public:
 
 		return LLPanel::handleRightMouseDown(x,y,mask);
 	}
+
+	void onHeaderPanelClick(S32 x, S32 y, MASK mask)
+	{
+		LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", mAvatarID));
+	}
+
 	const LLUUID&		getAvatarId () const { return mAvatarID;}
 	const std::string&	getFirstName() const { return mFirstName; }
 	const std::string&	getLastName	() const { return mLastName; }
@@ -163,7 +190,10 @@ public:
 		LLTextBox* userName = getChild<LLTextBox>("user_name");
 		
 		if(!chat.mFromName.empty())
+		{
 			userName->setValue(chat.mFromName);
+			mFrom = chat.mFromName;
+		}
 		else
 		{
 			std::string SL = LLTrans::getString("SECOND_LIFE");
@@ -206,8 +236,12 @@ protected:
 	void showSystemContextMenu(S32 x,S32 y)
 	{
 	}
+	
 	void showObjectContextMenu(S32 x,S32 y)
 	{
+		LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandleObject.get();
+		if(menu)
+			LLMenuGL::showPopup(this, menu, x, y);
 	}
 	
 	void showAvatarContextMenu(S32 x,S32 y)
@@ -238,11 +272,13 @@ protected:
 
 protected:
 	LLHandle<LLView>	mPopupMenuHandleAvatar;
+	LLHandle<LLView>	mPopupMenuHandleObject;
 
 	LLUUID			    mAvatarID;
 	EChatSourceType		mSourceType;
 	std::string			mFirstName;
 	std::string			mLastName;
+	std::string			mFrom;
 
 };
 

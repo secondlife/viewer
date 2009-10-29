@@ -1546,11 +1546,12 @@ void LLViewerWindow::initWorldUI()
 	getRootView()->addChild(gMorphView);
 
 	// Make space for nav bar.
+	LLNavigationBar* navbar = LLNavigationBar::getInstance();
 	LLRect floater_view_rect = gFloaterView->getRect();
 	LLRect notify_view_rect = gNotifyBoxView->getRect();
-	floater_view_rect.mTop -= NAVIGATION_BAR_HEIGHT;
+	floater_view_rect.mTop -= navbar->getDefNavBarHeight();
 	floater_view_rect.mBottom += LLBottomTray::getInstance()->getRect().getHeight();
-	notify_view_rect.mTop -= NAVIGATION_BAR_HEIGHT;
+	notify_view_rect.mTop -= navbar->getDefNavBarHeight();
 	notify_view_rect.mBottom += LLBottomTray::getInstance()->getRect().getHeight();
 	gFloaterView->setRect(floater_view_rect);
 	gNotifyBoxView->setRect(notify_view_rect);
@@ -1577,20 +1578,19 @@ void LLViewerWindow::initWorldUI()
 	gStatusBar->setBackgroundColor( gMenuBarView->getBackgroundColor().get() );
 
 	// Navigation bar
-
-	LLNavigationBar* navbar = LLNavigationBar::getInstance();
 	navbar->reshape(root_rect.getWidth(), navbar->getRect().getHeight(), TRUE); // *TODO: redundant?
 	navbar->translate(0, root_rect.getHeight() - menu_bar_height - navbar->getRect().getHeight()); // FIXME
 	navbar->setBackgroundColor(gMenuBarView->getBackgroundColor().get());
+
 	
 	if (!gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
 	{
-		navbar->showNavigationPanel(FALSE);
+		toggle_show_navigation_panel(LLSD(0));
 	}
 
 	if (!gSavedSettings.getBOOL("ShowNavbarFavoritesPanel"))
 	{
-		navbar->showFavoritesPanel(FALSE);
+		toggle_show_favorites_panel(LLSD(0));
 	}
 
 	if (!gSavedSettings.getBOOL("ShowCameraButton"))
