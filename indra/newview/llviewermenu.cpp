@@ -3483,7 +3483,6 @@ void set_god_level(U8 god_level)
 {
 	U8 old_god_level = gAgent.getGodLevel();
 	gAgent.setGodLevel( god_level );
-	gIMMgr->refresh();
 	LLViewerParcelMgr::getInstance()->notifyObservers();
 
 	// God mode changes sim visibility

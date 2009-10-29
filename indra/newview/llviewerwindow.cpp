@@ -142,7 +142,6 @@
 #include "llstatview.h"
 #include "llsurface.h"
 #include "llsurfacepatch.h"
-#include "llimview.h"
 #include "lltexlayer.h"
 #include "lltextbox.h"
 #include "lltexturecache.h"

@@ -42,7 +42,7 @@
 #include "lldrawable.h"
 #include "llfirstuse.h"
 #include "llfloaterreg.h"
-#include "llfloateractivespeakers.h"
+#include "llspeakers.h"
 #include "llfloatercamera.h"
 #include "llfloatercustomize.h"
 
@@ -5390,12 +5390,6 @@ void update_group_floaters(const LLUUID& group_id)
 	LLGroupActions::refresh(group_id);
 	//*TODO Implement group update for Profile View 
 	// still actual as of July 31, 2009 (DZ)
-
-	if (gIMMgr)
-	{
-		// update the talk view
-		gIMMgr->refresh();
-	}
 
 	gAgent.fireEvent(new LLOldEvents::LLEvent(&gAgent, "new group"), "");
 }

@@ -103,6 +103,8 @@ public:
 	const std::string&	getFirstName() const { return mFirstName; }
 	const std::string&	getLastName() const { return mLastName; }
 
+	void setDrawTooltip(bool value) { mDrawTooltip = value;}
+
 protected:
 	LLUUID				mAvatarId;
 	std::string			mFirstName;

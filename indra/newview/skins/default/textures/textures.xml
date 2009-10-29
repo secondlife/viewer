@@ -144,6 +144,7 @@
   <texture name="Info" file_name="icons/Info.png" preload="false" />
   <texture name="Info_Small" file_name="icons/Info_Small.png" preload="false" />
   <texture name="Info_Off" file_name="navbar/Info_Off.png" preload="false" />
+  <texture name="Info_Over" file_name="icons/Info_Over.png" preload="false" />
   <texture name="Info_Press" file_name="navbar/Info_Press.png" preload="false" />
 
   <texture name="Inspector_Background" file_name="windows/Inspector_Background.png" preload="false" />

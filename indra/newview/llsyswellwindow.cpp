@@ -113,6 +113,12 @@ void LLSysWellWindow::connectListUpdaterToSignal(std::string notification_type)
 }
 
 //---------------------------------------------------------------------------------
+void LLSysWellWindow::onStartUpToastClick(S32 x, S32 y, MASK mask)
+{
+	onChicletClick();
+}
+
+//---------------------------------------------------------------------------------
 void LLSysWellWindow::onChicletClick()
 {
 	// 1 - remove StartUp toast and channel if present

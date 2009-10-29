@@ -371,6 +371,7 @@ set(viewer_SOURCE_FILES
     llsky.cpp
     llslurl.cpp
     llspatialpartition.cpp
+    llspeakers.cpp
     llsplitbutton.cpp
     llsprite.cpp
     llstartup.cpp
@@ -484,6 +485,7 @@ set(viewer_SOURCE_FILES
     llvoclouds.cpp
     llvograss.cpp
     llvoground.cpp
+    llvoicechannel.cpp
     llvoiceclient.cpp
     llvoiceremotectrl.cpp
     llvoicevisualizer.cpp
@@ -847,6 +849,7 @@ set(viewer_HEADER_FILES
     llsky.h
     llslurl.h
     llspatialpartition.h
+    llspeakers.h
     llsplitbutton.h
     llsprite.h
     llstartup.h
@@ -960,6 +963,7 @@ set(viewer_HEADER_FILES
     llvoclouds.h
     llvograss.h
     llvoground.h
+    llvoicechannel.h
     llvoiceclient.h
     llvoiceremotectrl.h
     llvoicevisualizer.h
