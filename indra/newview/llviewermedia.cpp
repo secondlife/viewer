@@ -1119,6 +1119,18 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, MASK mask)
+{
+	scaleMouse(&x, &y);
+	mLastMouseX = x;
+	mLastMouseY = y;
+	if (mMediaSource)
+	{
+		mMediaSource->scrollEvent(x, y, mask);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::onMouseCaptureLost()
 {
 	if (mMediaSource)
