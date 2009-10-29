@@ -16,12 +16,6 @@
      top="10"
      width="140" />
     <button
-     name="group_info_btn"
-     label="Group Info"
-     left_delta="3"
-     width="90"
-     height="20" />
-    <button
      name="call_btn"
      label="Call"
      width="90"

@@ -23,7 +23,8 @@
                               image_selected="DropDown_Selected"
                               image_disabled="DropDown_Disabled"
                               image_disabled_selected="DropDown_Disabled_Selected" />
-  <gesture_combo_box.combo_list bg_writeable_color="MenuDefaultBgColor" />
+  <gesture_combo_box.combo_list bg_writeable_color="MenuDefaultBgColor"
+                                scroll_bar_bg_visible="true" />
   <gesture_combo_box.combo_editor name="Combo Text Entry"
                           select_on_focus="true"
                           font="SansSerifSmall" />

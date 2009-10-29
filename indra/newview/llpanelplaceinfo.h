@@ -43,6 +43,7 @@
 
 class LLButton;
 class LLComboBox;
+class LLExpandableTextBox;
 class LLInventoryItem;
 class LLLineEditor;
 class LLPanelPickEdit;
@@ -52,6 +53,7 @@ class LLTextBox;
 class LLTextEditor;
 class LLTextureCtrl;
 class LLViewerRegion;
+class LLViewerInventoryCategory;
 
 class LLPanelPlaceInfo : public LLPanel, LLRemoteParcelInfoObserver
 {
@@ -131,11 +133,13 @@ public:
 
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 	/*virtual*/ void handleVisibilityChange (BOOL new_visibility);
+	
+	 static std::string getFullFolderName(const LLViewerInventoryCategory* cat);
 
 private:
 
 	void populateFoldersList();
-	void updateYouAreHereBanner();
+	static void updateYouAreHereBanner(void*);// added to gIdleCallbacks
 	void onForSaleBannerClick();
 
 	/**
@@ -161,7 +165,7 @@ private:
 	LLTextureCtrl*		mSnapshotCtrl;
 	LLTextBox*			mRegionName;
 	LLTextBox*			mParcelName;
-	LLTextEditor*		mDescEditor;
+	LLExpandableTextBox*mDescEditor;
 	LLTextBox*			mMaturityRatingText;
 	LLTextBox*			mParcelOwner;
 	LLTextBox*			mLastVisited;

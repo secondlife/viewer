@@ -42,6 +42,7 @@
 #include "llavatariconctrl.h"
 #include "llbutton.h"
 
+S32 LLAvatarListItem::sIconWidth = 0;
 
 LLAvatarListItem::LLAvatarListItem()
 :	LLPanel(),
@@ -55,6 +56,12 @@ LLAvatarListItem::LLAvatarListItem()
 	mOnlineStatus(E_UNKNOWN)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
+	// Remember avatar icon width including its padding from the name text box,
+	// so that we can hide and show the icon again later.
+	if (!sIconWidth)
+	{
+		sIconWidth = mAvatarName->getRect().mLeft - mAvatarIcon->getRect().mLeft;
+	}
 }
 
 LLAvatarListItem::~LLAvatarListItem()
@@ -186,6 +193,21 @@ void LLAvatarListItem::setAvatarId(const LLUUID& id, bool ignore_status_changes)
 
 	// Set avatar name.
 	gCacheName->get(id, FALSE, boost::bind(&LLAvatarListItem::onNameCache, this, _2, _3));
+}
+
+void LLAvatarListItem::setAvatarIconVisible(bool visible)
+{
+	// Already done? Then do nothing.
+	if (mAvatarIcon->getVisible() == (BOOL)visible)
+		return;
+
+	// Show/hide avatar icon.
+	mAvatarIcon->setVisible(visible);
+
+	// Move the avatar name horizontally by icon size + its distance from the avatar name.
+	LLRect name_rect = mAvatarName->getRect();
+	name_rect.mLeft += visible ? sIconWidth : -sIconWidth;
+	mAvatarName->setRect(name_rect);
 }
 
 void LLAvatarListItem::onInfoBtnClick()
