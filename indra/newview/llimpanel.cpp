@@ -181,13 +181,6 @@ LLFloaterIMPanel::LLFloaterIMPanel(const std::string& session_label,
 	// enable line history support for instant message bar
 	mInputEditor->setEnableLineHistory(TRUE);
 
-	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
-	{
-		LLLogChat::loadHistory(mSessionLabel,
-				       &chatFromLogFile,
-				       (void *)this);
-	}
-
 	//*TODO we probably need the same "awaiting message" thing in LLIMFloater
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(mSessionUUID);
 	if (!im_session)
@@ -975,41 +968,6 @@ void LLFloaterIMPanel::removeTypingIndicator(const LLIMInfo* im_info)
 			}
 		}
 	}
-}
-
-//static
-void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata)
-{
-	LLFloaterIMPanel* self = (LLFloaterIMPanel*)userdata;
-	std::string message = line;
-	S32 im_log_option =  gSavedPerAccountSettings.getS32("IMLogOptions");
-	switch (type)
-	{
-	case LLLogChat::LOG_EMPTY:
-		// add warning log enabled message
-		if (im_log_option!=LOG_CHAT)
-		{
-			message = LLTrans::getString("IM_logging_string");
-		}
-		break;
-	case LLLogChat::LOG_END:
-		// add log end message
-		if (im_log_option!=LOG_CHAT)
-		{
-			message = LLTrans::getString("IM_logging_string");
-		}
-		break;
-	case LLLogChat::LOG_LINE:
-		// just add normal lines from file
-		break;
-	default:
-		// nothing
-		break;
-	}
-
-	//self->addHistoryLine(line, LLColor4::grey, FALSE);
-	self->mHistoryEditor->appendText(message, true, LLStyle::Params().color(LLUIColorTable::instance().getColor("ChatHistoryTextColor")));
-	self->mHistoryEditor->blockUndo();
 }
 
 //static 
