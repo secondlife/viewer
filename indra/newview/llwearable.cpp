@@ -921,6 +921,17 @@ void LLWearable::getVisualParams(visual_param_vec_t &list)
 	}
 }
 
+void LLWearable::animateParams(F32 delta, BOOL set_by_user)
+{
+	for(visual_param_index_map_t::iterator iter = mVisualParamIndexMap.begin();
+		 iter != mVisualParamIndexMap.end();
+		 ++iter)
+	{
+		LLVisualParam *param = (LLVisualParam*) iter->second;
+		param->animate(delta, set_by_user);
+	}
+}
+
 LLColor4 LLWearable::getClothesColor(S32 te) const
 {
 	LLColor4 color;
