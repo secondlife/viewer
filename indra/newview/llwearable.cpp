@@ -668,21 +668,7 @@ void LLWearable::writeToAvatar( BOOL set_by_user, BOOL update_customize_floater 
 
 	if( gFloaterCustomize && update_customize_floater )
 	{
-		LLViewerInventoryItem* item;
-		// MULTI_WEARABLE:
-		item = (LLViewerInventoryItem*)gInventory.getItem(gAgentWearables.getWearableItemID(mType,0));
-		U32 perm_mask = PERM_NONE;
-		BOOL is_complete = FALSE;
-		if(item)
-		{
-			perm_mask = item->getPermissions().getMaskOwner();
-			is_complete = item->isComplete();
-			if(!is_complete)
-			{
-				item->fetchFromServer();
-			}
-		}
-		gFloaterCustomize->setWearable(mType, this, perm_mask, is_complete);
+		gFloaterCustomize->setWearable(mType, 0);
 		gFloaterCustomize->setCurrentWearableType( mType );
 	}
 
