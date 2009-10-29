@@ -37,7 +37,6 @@
 #include "llbottomtray.h"
 #include "llgroupactions.h"
 #include "lliconctrl.h"
-#include "llimpanel.h"				// LLFloaterIMPanel
 #include "llimfloater.h"
 #include "llimview.h"
 #include "llfloaterreg.h"

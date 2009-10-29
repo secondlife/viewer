@@ -65,7 +65,6 @@
 #include "llworld.h" //for particle system banning
 #include "llchat.h"
 #include "llfloaterchat.h"
-#include "llimpanel.h"
 #include "llimview.h"
 #include "llnotifications.h"
 #include "lluistring.h"

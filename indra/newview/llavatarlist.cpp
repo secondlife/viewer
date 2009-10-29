@@ -106,7 +106,6 @@ LLAvatarList::LLAvatarList(const Params& p)
 LLAvatarList::~LLAvatarList()
 {
 	delete mLITUpdateTimer;
-	mShowIcons = gSavedSettings.getBOOL(mIconParamName);
 }
 
 void LLAvatarList::setShowIcons(std::string param_name)

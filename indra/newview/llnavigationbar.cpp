@@ -164,8 +164,6 @@ TODO:
 - Load navbar height from saved settings (as it's done for status bar) or think of a better way.
 */
 
-S32 NAVIGATION_BAR_HEIGHT = 60; // *HACK, used in llviewerwindow.cpp
-
 LLNavigationBar::LLNavigationBar()
 :	mTeleportHistoryMenu(NULL),
 	mBtnBack(NULL),
@@ -543,6 +541,15 @@ void LLNavigationBar::clearHistoryCache()
 	lh->removeItems();
 	lh->save();	
 	mPurgeTPHistoryItems= true;
+}
+
+int LLNavigationBar::getDefNavBarHeight()
+{
+	return mDefaultNbRect.getHeight();
+}
+int LLNavigationBar::getDefFavBarHeight()
+{
+	return mDefaultFpRect.getHeight();
 }
 
 void LLNavigationBar::showNavigationPanel(BOOL visible)

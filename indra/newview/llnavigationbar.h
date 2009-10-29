@@ -35,8 +35,6 @@
 
 #include "llpanel.h"
 
-extern S32 NAVIGATION_BAR_HEIGHT;
-
 class LLButton;
 class LLLocationInputCtrl;
 class LLMenuGL;
@@ -63,6 +61,9 @@ public:
 
 	void showNavigationPanel(BOOL visible);
 	void showFavoritesPanel(BOOL visible);
+
+	int getDefNavBarHeight();
+	int getDefFavBarHeight();
 	
 private:
 
