@@ -291,7 +291,7 @@ void LLPanelPrimMediaControls::updateShape()
 		// Disable zoom if HUD
 		zoom_ctrl->setEnabled(!objectp->isHUDAttachment());
 		secure_lock_icon->setVisible(false);
-		mCurrentURL = media_impl->getMediaURL();
+		mCurrentURL = media_impl->getCurrentMediaURL();
 		
 		back_ctrl->setEnabled((media_impl != NULL) && media_impl->canNavigateBack() && can_navigate);
 		fwd_ctrl->setEnabled((media_impl != NULL) && media_impl->canNavigateForward() && can_navigate);
@@ -758,20 +758,10 @@ void LLPanelPrimMediaControls::onClickHome()
 
 void LLPanelPrimMediaControls::onClickOpen()
 {
-	LLViewerMediaImpl* impl =getTargetMediaImpl();
+	LLViewerMediaImpl* impl = getTargetMediaImpl();
 	if(impl)
 	{
-		if(impl->getMediaPlugin())
-		{	
-			if(impl->getMediaPlugin()->getLocation().empty())
-			{
-				LLWeb::loadURL(impl->getMediaURL());
-			}
-			else
-			{
-				LLWeb::loadURL( impl->getMediaPlugin()->getLocation());
-			}
-		}
+		LLWeb::loadURL(impl->getCurrentMediaURL());
 	}	
 }
 

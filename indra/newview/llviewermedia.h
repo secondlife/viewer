@@ -159,6 +159,7 @@ public:
 	bool canNavigateForward();
 	bool canNavigateBack();
 	std::string getMediaURL() { return mMediaURL; }
+	std::string getCurrentMediaURL();
 	std::string getHomeURL() { return mHomeURL; }
     void setHomeURL(const std::string& home_url) { mHomeURL = home_url; };
 	std::string getMimeType() { return mMimeType; }
@@ -272,9 +273,10 @@ public:
 	LLPluginClassMedia* mMediaSource;
 	LLUUID mTextureId;
 	bool  mMovieImageHasMips;
-	std::string mMediaURL;
+	std::string mMediaURL;			// The last media url set with NavigateTo
 	std::string mHomeURL;
 	std::string mMimeType;
+	std::string mCurrentMediaURL;	// The most current media url from the plugin (via the "location changed" or "navigate complete" events).
 	S32 mLastMouseX;	// save the last mouse coord we get, so when we lose capture we can simulate a mouseup at that point.
 	S32 mLastMouseY;
 	S32 mMediaWidth;
