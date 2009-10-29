@@ -125,6 +125,8 @@ public:
 								save_rect,
 								save_visibility,
 								can_dock;
+		Optional<S32>			header_height,
+								legacy_header_height; // HACK see initFromXML()
 		
 		Optional<CommitCallbackParam> open_callback,
 									  close_callback;
@@ -209,6 +211,7 @@ public:
 	bool			isDragOnLeft() const{ return mDragOnLeft; }
 	S32				getMinWidth() const{ return mMinWidth; }
 	S32				getMinHeight() const{ return mMinHeight; }
+	S32				getHeaderHeight() const { return mHeaderHeight; }
 
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
@@ -302,7 +305,10 @@ private:
 	void			buildButtons();
 	BOOL			offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButtons index);
 	void			addResizeCtrls();
+	void			layoutResizeCtrls();
+	void			enableResizeCtrls(bool enable);
 	void 			addDragHandle();
+	void			layoutDragHandle();		// repair layout
 
 public:
 	// Called when floater is opened, passes mKey
@@ -340,6 +346,8 @@ private:
 	
 	S32				mMinWidth;
 	S32				mMinHeight;
+	S32				mHeaderHeight;		// height in pixels of header for title, drag bar
+	S32				mLegacyHeaderHeight;// HACK see initFloaterXML()
 	
 	BOOL			mMinimized;
 	BOOL			mForeground;
