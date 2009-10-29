@@ -83,7 +83,7 @@
         Loading...
     </text_editor>
     <button
-     follows="left|bottom"
+     follows="right|bottom"
      height="22"
      label="Save"
      label_selected="Save"

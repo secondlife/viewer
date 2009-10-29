@@ -61,9 +61,7 @@
 	<string name="TooltipFlagGroupScripts">Group Scripts</string>
 	<string name="TooltipFlagNoScripts">No Scripts</string>
 	<string name="TooltipLand">Land:</string>
-	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>	
-	<string name="TooltipAltLeft">Alt+&#8592; for previous tab</string>	
-	<string name="TooltipAltRight">Alt+&#8594; for next tab</string>	
+	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>
 
 	<!-- tooltips for Urls -->
 	<string name="TooltipHttpUrl">Click to view this web page</string>
@@ -265,10 +263,6 @@
 	<string name="TrackYourCamera">Track your camera</string>
 	<string name="ControlYourCamera">Control your camera</string>
 
-	<!-- IM -->
-	<string name="IM_logging_string">-- Instant message logging enabled --</string>
-	<string name="Unnamed">(Unnamed)</string>
-	
 	<!-- Sim Access labels -->
 	<string name="SIM_ACCESS_PG">PG</string>
 	<string name="SIM_ACCESS_MATURE">Mature</string>
@@ -2023,15 +2017,14 @@ this texture in your inventory
 	<string name="IMTeen">teen</string>
 	
 	<!-- floater region info -->
+	<!-- The following will replace variable [ALL_ESTATES] in notifications EstateAllowed*, EstateBanned*, EstateManager* -->
 	<string name="RegionInfoError">error</string>
 	<string name="RegionInfoAllEstatesOwnedBy">
-		all estates
-owned by [OWNER]
+		all estates owned by [OWNER]
 	</string>
-	<string name="RegionInfoAllEstatesYouOwn">all estates you owned</string>
+	<string name="RegionInfoAllEstatesYouOwn">all estates that you own</string>
 	<string name="RegionInfoAllEstatesYouManage">
-		all estates that
-you managed for [OWNER]
+		all estates that you manage for [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">Allowed residents: ([ALLOWEDAGENTS], max [MAXACCESS])</string>
 	<string name="RegionInfoAllowedGroups">Allowed groups: ([ALLOWEDGROUPS], max [MAXACCESS])</string>
@@ -2886,7 +2879,14 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	  Failed to start viewer
 	</string>
 
-  <!-- IM system messages -->
+	<!-- IM system messages -->
+	<string name="IM_logging_string">-- Instant message logging enabled --</string>
+	<string name="IM_typing_start_string">[NAME] is typing...</string>
+	<string name="Unnamed">(Unnamed)</string>
+	<string name="IM_moderated_chat_label">(Moderated: Voices off by default)</string>
+	<string name="IM_unavailable_text_label">Text chat is not available for this call.</string>
+
+
   <string name="ringing-im">
     Joining Voice Chat...
   </string>

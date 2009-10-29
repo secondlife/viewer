@@ -262,6 +262,9 @@ private:
 	S32								mTabHeight;
 
 	LLFrameTimer					mDragAndDropDelayTimer;
+	
+	LLFontGL::HAlign                mFontHalign;
+	const LLFontGL*					mFont;
 
 	TabParams						mFirstTabParams;
 	TabParams						mMiddleTabParams;

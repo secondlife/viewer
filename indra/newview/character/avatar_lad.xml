@@ -5589,6 +5589,13 @@
     </layer>
 
     <layer
+       name="hair texture alpha layer"
+       visibility_mask="TRUE">
+      <texture
+         local_texture="hair_grain" />
+    </layer>
+
+    <layer
        name="hair alpha"
        visibility_mask="TRUE">
       <texture
