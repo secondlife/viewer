@@ -235,11 +235,6 @@ BOOL LLIMFloater::postBuild()
 		
 	setTitle(LLIMModel::instance().getName(mSessionID));
 	setDocked(true);
-	
-	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
-	{
-		LLLogChat::loadHistory(getTitle(), &chatFromLogFile, (void *)this);
-	}
 
 	mTypingStart = LLTrans::getString("IM_typing_start_string");
 
@@ -453,9 +448,6 @@ void LLIMFloater::updateMessages()
 {
 	std::list<LLSD> messages;
 	LLIMModel::instance().getMessages(mSessionID, messages, mLastMessageIndex+1);
-	std::string agent_name;
-
-	gCacheName->getFullName(gAgentID, agent_name);
 
 	if (messages.size())
 	{
@@ -464,19 +456,16 @@ void LLIMFloater::updateMessages()
 		std::ostringstream message;
 		std::list<LLSD>::const_reverse_iterator iter = messages.rbegin();
 		std::list<LLSD>::const_reverse_iterator iter_end = messages.rend();
-	    for (; iter != iter_end; ++iter)
+		for (; iter != iter_end; ++iter)
 		{
 			LLSD msg = *iter;
 
-			std::string from = msg["from"].asString();
 			std::string time = msg["time"].asString();
 			LLUUID from_id = msg["from_id"].asUUID();
+			std::string from = from_id != gAgentID ? msg["from"].asString() : LLTrans::getString("You");
 			std::string message = msg["message"].asString();
 			LLStyle::Params style_params;
 			style_params.color(chat_color);
-
-			if (from == agent_name)
-				from = LLTrans::getString("You");
 
 			LLChat chat(message);
 			chat.mFromID = from_id;
@@ -655,40 +644,5 @@ void LLIMFloater::removeTypingIndicator(const LLIMInfo* im_info)
 		}
 
 	}
-}
-
-void LLIMFloater::chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata)
-{
-	if (!userdata) return;
-
-	LLIMFloater* self = (LLIMFloater*) userdata;
-	std::string message = line;
-	S32 im_log_option =  gSavedPerAccountSettings.getS32("IMLogOptions");
-	switch (type)
-	{
-	case LLLogChat::LOG_EMPTY:
-		// add warning log enabled message
-		if (im_log_option!=LOG_CHAT)
-		{
-			message = LLTrans::getString("IM_logging_string");
-		}
-		break;
-	case LLLogChat::LOG_END:
-		// add log end message
-		if (im_log_option!=LOG_CHAT)
-		{
-			message = LLTrans::getString("IM_logging_string");
-		}
-		break;
-	case LLLogChat::LOG_LINE:
-		// just add normal lines from file
-		break;
-	default:
-		// nothing
-		break;
-	}
-
-	self->mChatHistory->appendText(message, true, LLStyle::Params().color(LLUIColorTable::instance().getColor("ChatHistoryTextColor")));
-	self->mChatHistory->blockUndo();
 }
 

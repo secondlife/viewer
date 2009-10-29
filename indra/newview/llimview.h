@@ -40,6 +40,7 @@
 #include "llinstantmessage.h"
 #include "lluuid.h"
 #include "llmultifloater.h"
+#include "lllogchat.h"
 
 class LLFloaterChatterBox;
 class LLUUID;
@@ -57,6 +58,8 @@ public:
 		virtual ~LLIMSession();
 
 		void sessionInitReplyReceived(const LLUUID& new_session_id);
+		void addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time);
+		static void chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata);
 
 		LLUUID mSessionID;
 		std::string mName;
@@ -193,8 +196,7 @@ private:
 	/**
 	 * Save an IM message into a file
 	 */
-	//*TODO should also save uuid of a sender
-	bool logToFile(const LLUUID& session_id, const std::string& from, const std::string& utf8_text);
+	bool logToFile(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text);
 };
 
 class LLIMSessionObserver

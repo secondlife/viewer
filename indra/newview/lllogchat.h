@@ -41,13 +41,18 @@ public:
 	enum ELogLineType {
 		LOG_EMPTY,
 		LOG_LINE,
+		LOG_LLSD,
 		LOG_END
 	};
 	static std::string timestamp(bool withdate = false);
 	static std::string makeLogFileName(std::string(filename));
-	static void saveHistory(std::string filename, std::string line);
-	static void loadHistory(std::string filename, 
-		                    void (*callback)(ELogLineType,std::string,void*), 
+	static void saveHistory(const std::string& filename,
+				const std::string& from,
+				const LLUUID& from_id,
+				const std::string& line);
+
+	static void loadHistory(const std::string& filename, 
+		                    void (*callback)(ELogLineType, const LLSD&, void*), 
 							void* userdata);
 private:
 	static std::string cleanFileName(std::string filename);
