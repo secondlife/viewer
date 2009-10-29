@@ -35,7 +35,7 @@
 
 //LLViewerMediaFocus
 #include "llviewerobjectlist.h"
-#include "llpanelmediahud.h"
+#include "llpanelprimmediacontrols.h"
 #include "llpluginclassmedia.h"
 #include "llagent.h"
 #include "lltoolpie.h"
