@@ -2735,8 +2735,19 @@
 				<button.commit_callback
 				function="BuildTool.EditMedia"/>
 			</button>
-
-			<button
+      <web_browser
+        visible="false" 
+        enabled="false" 
+        border_visible="true"
+        bottom_delta="0"
+        follows="top|left"
+        left="0"
+        name="title_media"
+        width="4"
+        height="4"
+        start_url="about:blank"
+        decouple_texture_size="true" />
+     <button
 			 follows="left|top"
 			 font="SansSerifSmall"
 			 height="19"
