@@ -408,9 +408,10 @@ BOOL LLWearable::importFile( LLFILE* file )
 		{
 			delete mSavedTEMap[te];
 		}
-		
-		mTEMap[te] = new LLLocalTextureObject(image, LLUUID(text_buffer));
-		mSavedTEMap[te] = new LLLocalTextureObject(image, LLUUID(text_buffer));
+
+		LLUUID textureid(text_buffer);
+		mTEMap[te] = new LLLocalTextureObject(image, textureid);
+		mSavedTEMap[te] = new LLLocalTextureObject(image, textureid);
 		createLayers(te);
 	}
 
@@ -537,13 +538,14 @@ BOOL LLWearable::isDirty() const
 					const LLUUID& saved_image_id = saved_iter->second->getID();
 					if (saved_image_id != current_image_id)
 					{
+						// saved vs current images are different, wearable is dirty
 						return TRUE;
 					}
 				}
 				else
 				{
 					// image found in current image list but not saved image list
-					return FALSE;
+					return TRUE;
 				}
 			}
 		}

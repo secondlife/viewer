@@ -12,32 +12,32 @@
  width="620">
     <button
      follows="right|bottom"
-     height="20"
+     height="23"
      label="OK"
      label_selected="OK"
      layout="topleft"
-     left="427"
+     right="-105"
      name="OK"
-     top="435"
+     top="433"
      width="90">
         <button.commit_callback
          function="Pref.OK" />
     </button>
     <button
      follows="right|bottom"
-     height="20"
+     height="23"
      label="Cancel"
      label_selected="Cancel"
      layout="topleft"
-     left_pad="3"
+     left_pad="5"
      name="Cancel"
-     top_delta="0"
+     right="-10"
      width="90" >
         <button.commit_callback
          function="Pref.Cancel" />
     </button>
     <tab_container
-     follows="left|top|right|bottom"
+     follows="all"
      height="410"
      layout="topleft"
      left="0"
@@ -48,14 +48,14 @@
      top="21"
      width="620">
         <panel
-		 class="panel_preference"
+	 class="panel_preference"
          filename="panel_preferences_general.xml"
          label="General"
          layout="topleft"
          help_topic="preferences_general_tab"
          name="general" />
         <panel
-		 class="panel_preference"
+	 class="panel_preference"
          filename="panel_preferences_graphics1.xml"
          label="Graphics"
          layout="topleft"
@@ -103,13 +103,6 @@
          layout="topleft"
          help_topic="preferences_advanced1_tab"
          name="advanced1" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_advanced2.xml"
-         label="Move or Kill"
-         layout="topleft"
-         help_topic="preferences_advanced2_tab"
-         name="advanced2" />
     </tab_container>
 
 </floater>

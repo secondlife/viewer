@@ -55,6 +55,11 @@ LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner *owner)
 	mBoundPort = 0;
 	mState = STATE_UNINITIALIZED;
 	mDisableTimeout = false;
+
+	// initialize timer - heartbeat test (mHeartbeat.hasExpired()) 
+	// can sometimes return true immediately otherwise and plugins 
+	// fail immediately because it looks like 
+	mHeartbeat.setTimerExpirySec(PLUGIN_LOCKED_UP_SECONDS);
 }
 
 LLPluginProcessParent::~LLPluginProcessParent()

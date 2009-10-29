@@ -1678,34 +1678,6 @@ class LLAdvancedTogglePG : public view_listener_t
 };
 
 
-
-////////////////////////////
-// ALLOW TAP-TAP-HOLD RUN //
-////////////////////////////
-
-
-class LLAdvancedToggleAllowTapTapHoldRun : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		gAllowTapTapHoldRun = !(gAllowTapTapHoldRun);
-		return true;
-	}
-};
-
-class LLAdvancedCheckAllowTapTapHoldRun : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = gAllowTapTapHoldRun;
-		return new_value;
-	}
-};
-
-
-
-
-
 class LLAdvancedForceParamsToDefault : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -6921,7 +6893,7 @@ void handle_debug_avatar_textures(void*)
 	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 	if (objectp)
 	{
-		LLFloaterReg::showInstance( "avatar_tetures", LLSD(objectp->getID()) );
+		LLFloaterReg::showInstance( "avatar_textures", LLSD(objectp->getID()) );
 	}
 }
 
@@ -7966,8 +7938,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedTogglePG(), "Advanced.TogglePG");
 	
 	// Advanced > Character (toplevel)
-	view_listener_t::addMenu(new LLAdvancedToggleAllowTapTapHoldRun(), "Advanced.ToggleAllowTapTapHoldRun");
-	view_listener_t::addMenu(new LLAdvancedCheckAllowTapTapHoldRun(), "Advanced.CheckAllowTapTapHoldRun");
 	view_listener_t::addMenu(new LLAdvancedForceParamsToDefault(), "Advanced.ForceParamsToDefault");
 	view_listener_t::addMenu(new LLAdvancedReloadVertexShader(), "Advanced.ReloadVertexShader");
 	view_listener_t::addMenu(new LLAdvancedToggleAnimationInfo(), "Advanced.ToggleAnimationInfo");

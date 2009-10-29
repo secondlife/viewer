@@ -1637,7 +1637,11 @@ void LLViewerWindow::shutdownViews()
 	// DEV-40930: Clear sModalStack. Otherwise, any LLModalDialog left open
 	// will crump with LL_ERRS.
 	LLModalDialog::shutdownModals();
-
+	
+	// destroy the nav bar, not currently part of gViewerWindow
+	// *TODO: Make LLNavigationBar part of gViewerWindow
+	delete LLNavigationBar::getInstance();
+	
 	// Delete all child views.
 	delete mRootView;
 	mRootView = NULL;

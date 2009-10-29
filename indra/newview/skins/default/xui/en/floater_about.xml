@@ -7,66 +7,56 @@
  save_rect="true"
  title="About [APP_NAME]"
  width="470">
-    <floater.string
-     name="you_are_at">
-        You are at [POSITION]
-    </floater.string>
-    <floater.string
-     name="in_region">
-        in [REGION] located at
-    </floater.string>
-    <floater.string
-     name="CPU">
-        CPU:
-    </floater.string>
-    <floater.string
-     name="Memory">
-        Memory: [MEM] MB
-    </floater.string>
-    <floater.string
-     name="OSVersion">
-        OS Version:
-    </floater.string>
-    <floater.string
-     name="GraphicsCardVendor">
-        Graphics Card Vendor:
-    </floater.string>
-    <floater.string
-     name="GraphicsCard">
-        Graphics Card:
-    </floater.string>
-    <floater.string
-     name="OpenGLVersion">
-        OpenGL Version:
-    </floater.string>
-    <floater.string
-     name="LibCurlVersion">
-        libcurl Version:
-    </floater.string>
-    <floater.string
-     name="J2CDecoderVersion">
-        J2C Decoder Version:
-    </floater.string>
-    <floater.string
-     name="AudioDriverVersion">
-        Audio Driver Version:
-    </floater.string>
-    <floater.string
-     name="none">
-        (none)
-    </floater.string>
-    <floater.string
-     name="LLMozLibVersion">
-        LLMozLib Version:
-    </floater.string>
   <floater.string
-     name="LLQtWebkitVersion">
-        Qt Webkit Version: 4.5.2
+     name="AboutHeader">
+[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+
+</floater.string>
+  <floater.string
+     name="AboutCompiler">
+Built with [COMPILER] version [COMPILER_VERSION]
+
+</floater.string>
+  <floater.string
+     name="AboutPosition">
+You are at [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] located at [HOSTNAME] ([HOSTIP])
+[SERVER_VERSION]
+[[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
+
+</floater.string>
+  <!-- *NOTE: Do not translate text like GPU, Graphics Card, etc -
+       Most PC users who know what these mean will be used to the English versions,
+       and this info sometimes gets sent to support. -->
+  <floater.string
+     name="AboutSystem">
+CPU: [CPU]
+Memory: [MEMORY_MB] MB
+OS Version: [OS_VERSION]
+Graphics Card Vendor: [GRAPHICS_CARD_VENDOR]
+Graphics Card: [GRAPHICS_CARD]
+</floater.string>
+  <floater.string
+     name="AboutDriver">
+Windows Graphics Driver Version: [GRAPHICS_DRIVER_VERSION]
+</floater.string>
+  <floater.string
+     name="AboutLibs">
+OpenGL Version: [OPENGL_VERSION]
+
+libcurl Version: [LIBCURL_VERSION]
+J2C Decoder Version: [J2C_VERSION]
+Audio Driver Version: [AUDIO_DRIVER_VERSION]
+Qt Webkit Version: [QT_WEBKIT_VERSION]
+</floater.string>
+  <floater.string
+     name="none">
+      (none)
   </floater.string>
   <floater.string
-     name="PacketsLost">
-        Packets Lost: [LOST]/[IN] ([PCT]%)
-    </floater.string>
+     name="AboutTraffic">
+Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+</floater.string>
   <tab_container
     follows="all" 
     top="25"

@@ -1,10 +1,10 @@
 /** 
  * @file llparticipantlist.h
- * @brief LLParticipantList implementing LLSimpleListener listener
+ * @brief LLParticipantList intended to update view(LLAvatarList) according to incoming messages
  *
- * $LicenseInfo:firstyear=2005&license=viewergpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2005-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -36,13 +36,48 @@
 class LLSpeakerMgr;
 class LLAvatarList;
 
-class LLParticipantList: public LLOldEvents::LLSimpleListener
+class LLParticipantList
 {
 	public:
 		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list);
-		/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+		~LLParticipantList();
 
+	protected:
+
+		//List of listeners implementing LLOldEvents::LLSimpleListener.
+		//There is no way to handle all the events in one listener as LLSpeakerMgr registers listeners in such a way
+		//that one listener can handle only one type of event
+		class SpeakerAddListener : public LLOldEvents::LLSimpleListener
+		{
+		public:
+			SpeakerAddListener(LLAvatarList* avatar_list) : mAvatarList(avatar_list) {}
+
+			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+			LLAvatarList* mAvatarList;
+		};
+
+		class SpeakerRemoveListener : public LLOldEvents::LLSimpleListener
+		{
+		public:
+			SpeakerRemoveListener(LLAvatarList* avatar_list) : mAvatarList(avatar_list) {}
+
+			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+			LLAvatarList* mAvatarList;
+		};
+
+		class SpeakerClearListener : public LLOldEvents::LLSimpleListener
+		{
+		public:
+			SpeakerClearListener(LLAvatarList* avatar_list) : mAvatarList(avatar_list) {}
+
+			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+			LLAvatarList* mAvatarList;
+		};
 	private:
 		LLSpeakerMgr*		mSpeakerMgr;
 		LLAvatarList* 		mAvatarList;
+
+		SpeakerAddListener* mSpeakerAddListener;
+		SpeakerRemoveListener* mSpeakerRemoveListener;
+		SpeakerClearListener* mSpeakerClearListener;
 };

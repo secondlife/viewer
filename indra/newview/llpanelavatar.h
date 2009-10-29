@@ -173,6 +173,10 @@ protected:
 	void onCallButtonClick();
 	void onTeleportButtonClick();
 	void onShareButtonClick();
+
+private:
+
+	std::string mGroups;
 };
 
 /**

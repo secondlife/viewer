@@ -71,6 +71,7 @@ public:
 	void setContextMenu(LLAvatarListItem::ContextMenu* menu) { mContextMenu = menu; }
 
 	void sortByName();
+	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 protected:
 	void refresh();

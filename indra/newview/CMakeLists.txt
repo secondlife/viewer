@@ -1388,7 +1388,11 @@ if (WINDOWS)
         COMMENT "Copying staged dlls."
         )
 
-      add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon llkdu)
+      add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon)
+      if(LLKDU_LIBRARY)
+	# kdu may not exist!
+	add_dependencies(${VIEWER_BINARY_NAME} llkdu)
+      endif(LLKDU_LIBRARY)
     endif(WINDOWS)    
 
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)

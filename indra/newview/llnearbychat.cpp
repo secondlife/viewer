@@ -55,11 +55,13 @@
 
 #include "lldraghandle.h"
 #include "lltrans.h"
+#include "llbottomtray.h"
+#include "llnearbychatbar.h"
 
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
-LLNearbyChat::LLNearbyChat(const LLSD& key) :
-	LLFloater(key)
+LLNearbyChat::LLNearbyChat(const LLSD& key) 
+	: LLDockableFloater(NULL, key)
 	,mChatHistory(NULL)
 {
 	
@@ -89,7 +91,17 @@ BOOL LLNearbyChat::postBuild()
 
 	setCanResize(true);
 
-	return LLFloater::postBuild();
+	if(!LLDockableFloater::postBuild())
+		return false;
+
+	if (getDockControl() == NULL)
+	{
+		setDockControl(new LLDockControl(
+				LLBottomTray::getInstance()->getNearbyChatBar(), this,
+				getDockTongue(), LLDockControl::LEFT, boost::bind(&LLNearbyChat::getAllowedRect, this, _1)));
+	}
+
+	return true;
 }
 
 
@@ -210,12 +222,14 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 
 	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 	{
-		LLFloaterScriptDebug::addScriptLine(chat.mText,
-											chat.mFromName, 
-											color, 
-											chat.mFromID);
-		if (!gSavedSettings.getBOOL("ScriptErrorsAsChat"))
+		if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE)
+			return;
+		if (gSavedSettings.getS32("ShowScriptErrorsLocation")== 1)// show error in window //("ScriptErrorsAsChat"))
 		{
+			LLFloaterScriptDebug::addScriptLine(chat.mText,
+												chat.mFromName, 
+												color, 
+												chat.mFromID);
 			return;
 		}
 	}
@@ -255,13 +269,25 @@ void	LLNearbyChat::onOpen(const LLSD& key )
 
 void	LLNearbyChat::setDocked			(bool docked, bool pop_on_undock)
 {
-	LLFloater::setDocked(docked, pop_on_undock);
+	LLDockableFloater::setDocked(docked, pop_on_undock);
 
-	if(docked)
-	{
-		//move nearby_chat to right bottom
-		LLRect rect =  gFloaterView->getRect();
-		setRect(LLRect(rect.mLeft,getRect().getHeight(),rect.mLeft+getRect().getWidth(),0));
-	}
+	setCanResize(!docked);
+}
+
+void LLNearbyChat::setRect	(const LLRect &rect)
+{
+	LLDockableFloater::setRect(rect);
+}
+
+void LLNearbyChat::getAllowedRect(LLRect& rect)
+{
+	rect = gViewerWindow->getWorldViewRect();
+}
+void LLNearbyChat::setVisible	(BOOL visible)
+{
+	LLDockableFloater::setVisible(visible);
+}
+void LLNearbyChat::toggleWindow()
+{
 }
 

@@ -2,21 +2,21 @@
 <panel
  mouse_opaque="true"
  background_visible="true"
- bg_alpha_color="0.25 0.25 0.25 1"
- bg_opaque_color="0.25 0.25 0.25 1"
+ bg_alpha_color="DkGray"
+ bg_opaque_color="DkGray"
  follows="left|bottom|right"
- height="28"
+ height="33"
  layout="topleft"
  left="0"
  name="bottom_tray"
  top="28"
- border_visible="true"
+ border_visible="false"
  width="1000">
     <layout_stack
-     mouse_opaque="false"    
+     mouse_opaque="false"
      border_size="0"
-     clip="false" 
-     follows="left|right|bottom|top"
+     clip="false"
+     follows="all"
      height="28"
      layout="topleft"
      left="0"
@@ -26,28 +26,84 @@
      width="1000">
         <icon
          auto_resize="false"
-         color="0 0 0 0"
          follows="left|right"
          height="10"
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
          top="0"
-         width="5"/>
+         width="4" />
         <layout_panel
- 		 mouse_opaque="false"        
-         auto_resize="true"
+ 	mouse_opaque="false"
+         auto_resize="false"
          follows="left|right"
          height="28"
          layout="topleft"
-         left="5"
-         min_height="28"
-         width="450"
+         left="0"
+         min_height="23"
+         width="310"
          top="0"
-         min_width="305"
+         min_width="300"
          name="chat_bar"
          user_resize="false"
          filename="panel_nearby_chat_bar.xml"/>
+        <layout_panel
+         mouse_opaque="false"
+         auto_resize="false"
+         follows="right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         width="96"
+         top_delta="0"
+         min_width="96"
+         name="speak_panel"
+         user_resize="false">
+		    <chiclet_talk
+		     follows="right"
+		     height="23"
+		     speak_button.font="SansSerifMedium"
+		     speak_button.tab_stop="true"
+		     show_button.tab_stop="true"
+		     layout="topleft"
+		     left="0"
+		     name="talk"
+		     top="3"
+		     width="96" />
+         </layout_panel>
+		 <icon
+         auto_resize="false"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         name="DUMMY"
+         top="0"
+         width="4"/>
+        <layout_panel
+         mouse_opaque="false"
+         auto_resize="false"
+         follows="right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         width="76"
+         top_delta="0"
+         min_width="76"
+         name="gesture_panel"
+         user_resize="false">
+		    <button
+		      follows="right"
+		     height="23"
+		     label="Gesture"
+		     layout="topleft"
+		     name="Gesture"
+		     left="0"
+		     top="3"
+             use_ellipses="true"
+		     width="76" />
+        </layout_panel>
 		 <icon
          auto_resize="false"
          color="0 0 0 0"
@@ -58,30 +114,28 @@
          left="0"
          name="DUMMY"
          top="0"
-         width="3"/>
+         width="4"/>
         <layout_panel
-         mouse_opaque="false"        
+         mouse_opaque="false"
          auto_resize="false"
          follows="right"
          height="28"
          layout="topleft"
-		 left="5"
          min_height="28"
-         width="70"
-         top_delta="-10"
-         min_width="70"
          name="movement_panel"
-         user_resize="false">
+         width="76"
+         min_width="76">
             <button
-             follows="right"
-             height="20"
+             follows="left|right"
+             height="23"
+             use_ellipses="true"
              is_toggle="true"
              label="Move"
              layout="topleft"
              name="movement_btn"
-             tool_tip="Shows/hides movement controls" 
-             top="6"
-             width="70">
+             tool_tip="Show/hide movement controls"
+             top="3"
+             width="76">
                 <button.init_callback
                  function="Button.SetDockableFloaterToggle"
                  parameter="moveview" />
@@ -97,105 +151,98 @@
          left="0"
          name="DUMMY"
          top="0"
-         width="8"/>
+         width="4"/>
         <layout_panel
-         mouse_opaque="false"        
+         mouse_opaque="false"
          auto_resize="false"
-         follows="right"
+         follows="left|right"
          height="28"
          layout="topleft"
          min_height="28"
-         min_width="100"
+         min_width="76"
          name="cam_panel"
          top_delta="-10"
          width="100">
             <button
-             follows="right"
-             height="20"
+             follows="left|right"
+             height="23"
+             use_ellipses="true"
              is_toggle="true"
              label="View"
              layout="topleft"
              left="0"
-             tool_tip="Shows/hides camera controls" 
-             top="6"
+             tool_tip="Show/hide camera controls"
+             top="3"
              name="camera_btn"
-             width="70">
+             width="76">
                 <button.init_callback
                  function="Button.SetDockableFloaterToggle"
                  parameter="camera" />
             </button>
- 			<button
-             follows="right"
-             name="camera_presets_btn"
-             top="6"
-             height="20"
-             width="20"
-             left_pad="0"
-             is_toggle="true"
-             picture_style="true"
-         	 image_selected="toggle_button_selected"
-             image_unselected="toggle_button_off">
-             <button.init_callback
-             	function="Button.SetDockableFloaterToggle"
-             	parameter="camera_presets"
-             	/>
-            </button>
         </layout_panel>
-        <layout_panel
-         mouse_opaque="false"        
+        <icon
          auto_resize="false"
-         follows="right"
+         color="0 0 0 0"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         name="DUMMY"
+         top="0"
+         width="4"/>
+        <layout_panel
+         mouse_opaque="false"
+         auto_resize="false"
+         follows="left|right"
          height="28"
          layout="topleft"
-         min_height="28"
-         min_width="35"
          name="snapshot_panel"
-         top_delta="-10"
-         width="35">         
+         width="35">
             <split_button
              arrow_position="right"
-             follows="right"
-             height="18"
+         follows="left|right"
+             height="23"
              left="0"
-             layout="topleft"             
+             layout="topleft"
              name="snapshots"
-             top="6"
-             width="35">
-                <split_button.arrow_button 
-                 image_selected="camera_presets/camera_presets_arrow_right.png"
-                 image_unselected="camera_presets/camera_presets_arrow_right.png"
-                 image_disabled_selected="camera_presets/camera_presets_arrow_right.png" 
-                 image_disabled="camera_presets/camera_presets_arrow_right.png"
-                 name="snapshot_settings"
-                 tool_tip="Snapshot settings" />
+             width="46"
+             top="3">
                 <split_button.item
-                 image_selected="camera_presets/camera_presets_snapshot.png"
-                 image_unselected="camera_presets/camera_presets_snapshot.png"
+                 image_overlay="Snapshot_Off"
                  name="snapshot"
-                 tool_tip="Take snapshot" />
-            </split_button>                  
+                 tool_tip="Take snapshot"
+                 />
+                <split_button.arrow_button
+                 name="snapshot_settings"
+                 image_overlay="Widget_UpArrow"
+                 tool_tip="Snapshot and Preset Views"
+                 width="18"
+                 />
+            </split_button>
         </layout_panel>
         <layout_panel
          mouse_opaque="false"
          follows="left|right"
          height="28"
          layout="topleft"
-         min_height="28"
          top="0"
          name="chiclet_list_panel"
-         width="150"
-         user_resize="false">
+         width="189"
+         min_width="189"
+         user_resize="false"
+         auto_resize="true">
             <chiclet_panel
-	         mouse_opaque="false"
+	    mouse_opaque="false"
              follows="left|right"
-             height="25"
+             height="28"
              layout="topleft"
              left="0"
              name="chiclet_list"
-             top="1"
+             top="0"
              chiclet_padding="3"
              scrolling_offset="40"
-             width="150" />
+             width="189" />
         </layout_panel>
         <icon
          auto_resize="false"
@@ -207,36 +254,6 @@
          left="0"
          top="0"
          width="5"/>
-      <icon
-         auto_resize="false"
-         color="0 0 0 0"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
-         top="0"
-         width="10"/>
-        <view_border
-         auto_resize="false"
-         bevel_style="in"
-         follows="left|right"
-         height="28"
-         layout="topleft"
-         left="270"
-         name="well_separator"
-         top="0"
-         width="1" />
-        <icon
-         auto_resize="false"
-         color="0 0 0 0"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
-         top="0"
-         width="10"/>
         <layout_panel
          auto_resize="false"
          follows="right"
@@ -245,8 +262,8 @@
          min_height="28"
          top="0"
          name="sys_well_panel"
-         width="48"
-         min_width="48"
+         width="34"
+         min_width="34"
          user_resize="false">
             <chiclet_notification
              follows="right"
@@ -254,24 +271,25 @@
              layout="topleft"
              left="0"
              name="sys_well"
-             top="2"
-             width="48">
+             top="3"
+             width="34">
               <button
-               image_selected="bottom_tray_sys_notifications_selected.tga"
-               image_unselected="bottom_tray_sys_notifications.tga"/>
-              <unread_notifications
-               width="20"
-               height="20"
+              auto_resize="true"
+               halign="right"
+               height="23"
+               follows="right"
+               flash_color="EmphasisColor"
+               name="Unread"
+               picture_style="true"
+               image_overlay="Widget_UpArrow" />
+               <unread_notifications
+               width="34"
+               height="23"
                left="22"
-               top="23"/>
-<!-- 
-			  <chiclet_notification.commit_callback
-				 function="Notification.Show"
-				 parameter="ClickUnimplemented" />
- -->               				 
-			</chiclet_notification>
+               top="23" />
+	    </chiclet_notification>
         </layout_panel>
-        <icon
+       <icon
          auto_resize="false"
          color="0 0 0 0"
          follows="left|right"
@@ -280,6 +298,6 @@
          layout="topleft"
          left="0"
          top="0"
-         width="5"/>
+         width="10"/>
     </layout_stack>
 </panel>

@@ -206,6 +206,19 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	addItem(item, id, pos);
 }
 
+// virtual
+BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
+	if ( mContextMenu )
+	{
+		std::vector<LLUUID> selected_uuids;
+		getSelectedUUIDs(selected_uuids);
+		mContextMenu->show(this, selected_uuids, x, y);
+	}
+	return handled;
+}
+
 void LLAvatarList::computeDifference(
 	const std::vector<LLUUID>& vnew_unsorted,
 	std::vector<LLUUID>& vadded,

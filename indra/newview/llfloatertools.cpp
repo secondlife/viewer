@@ -1141,7 +1141,7 @@ void LLFloaterTools::getMediaState()
 		childSetEnabled( "edit_media", bool_has_media & editable );
 		childSetEnabled( "delete_media", bool_has_media & editable );
 		childSetEnabled( "add_media", ( ! bool_has_media ) & editable );
-		media_info->setEnabled(bool_has_media & editable);
+		media_info->setEnabled(false);
 			// TODO: display a list of all media on the face - use 'identical' flag
 	}
 	else // not all face has media but at least one does.
@@ -1165,7 +1165,7 @@ void LLFloaterTools::getMediaState()
 			
 		}
 		
-		media_info->setEnabled(TRUE);
+		media_info->setEnabled(false);
 		media_info->setTentative(true);
 		childSetEnabled("media_tex",  TRUE);
 		childSetEnabled( "edit_media", TRUE);

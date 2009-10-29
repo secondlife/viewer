@@ -106,6 +106,15 @@ struct LLPlaceHolderPanel : public LLPanel
 static LLDefaultChildRegistry::Register<LLPlaceHolderPanel> r1("placeholder");
 static LLDefaultChildRegistry::Register<LLTabContainer> r2("tab_container");
 
+LLTabContainer::TabParams::TabParams()
+:	tab_top_image_unselected("tab_top_image_unselected"),
+	tab_top_image_selected("tab_top_image_selected"),
+	tab_bottom_image_unselected("tab_bottom_image_unselected"),
+	tab_bottom_image_selected("tab_bottom_image_selected"),
+	tab_left_image_unselected("tab_left_image_unselected"),
+	tab_left_image_selected("tab_left_image_selected")
+{}
+
 LLTabContainer::Params::Params()
 :	tab_width("tab_width"),
 	tab_min_width("tab_min_width"),
@@ -114,12 +123,9 @@ LLTabContainer::Params::Params()
 	tab_position("tab_position"),
 	hide_tabs("hide_tabs", false),
 	tab_padding_right("tab_padding_right"),
-	tab_top_image_unselected("tab_top_image_unselected"),
-	tab_top_image_selected("tab_top_image_selected"),
-	tab_bottom_image_unselected("tab_bottom_image_unselected"),
-	tab_bottom_image_selected("tab_bottom_image_selected"),
-	tab_left_image_unselected("tab_left_image_unselected"),
-	tab_left_image_selected("tab_left_image_selected")
+	first_tab("first_tab"),
+	middle_tab("middle_tab"),
+	last_tab("last_tab")
 {
 	name(std::string("tab_container"));
 	mouse_opaque = false;
@@ -148,14 +154,11 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mRightTabBtnOffset(p.tab_padding_right),
 	mTotalTabWidth(0),
 	mTabPosition(p.tab_position),
-	mImageTopUnselected(p.tab_top_image_unselected),
-	mImageTopSelected(p.tab_top_image_selected),
-	mImageBottomUnselected(p.tab_bottom_image_unselected),
-	mImageBottomSelected(p.tab_bottom_image_selected),
-	mImageLeftUnselected(p.tab_left_image_unselected),
-	mImageLeftSelected(p.tab_left_image_selected),
 	mFontHalign(p.font_halign),
 	mFont(p.font.isProvided() ? p.font() : (mIsVertical ? LLFontGL::getFontSansSerif() : LLFontGL::getFontSansSerifSmall()))
+	mFirstTabParams(p.first_tab),
+	mMiddleTabParams(p.middle_tab),
+	mLastTabParams(p.last_tab)
 {
 	static LLUICachedControl<S32> tabcntr_vert_tab_min_width ("UITabCntrVertTabMinWidth", 0);
 
@@ -782,6 +785,29 @@ void LLTabContainer::addTabPanel(LLPanel* panelp)
 	addTabPanel(TabPanelParams().panel(panelp));
 }
 
+// function to update images
+void LLTabContainer::update_images(LLTabTuple* tuple, TabParams params, LLTabContainer::TabPosition pos)
+{
+	if (tuple && tuple->mButton)
+	{
+		if (pos == LLTabContainer::TOP)
+		{
+			tuple->mButton->setImageUnselected(static_cast<LLUIImage*>(params.tab_top_image_unselected));
+			tuple->mButton->setImageSelected(static_cast<LLUIImage*>(params.tab_top_image_selected));
+		}
+		else if (pos == LLTabContainer::BOTTOM)
+		{
+			tuple->mButton->setImageUnselected(static_cast<LLUIImage*>(params.tab_bottom_image_unselected));
+			tuple->mButton->setImageSelected(static_cast<LLUIImage*>(params.tab_bottom_image_selected));
+		}
+		else if (pos == LLTabContainer::LEFT)
+		{
+			tuple->mButton->setImageUnselected(static_cast<LLUIImage*>(params.tab_left_image_unselected));
+			tuple->mButton->setImageSelected(static_cast<LLUIImage*>(params.tab_left_image_selected));
+		}
+	}
+}
+
 void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 {
 	LLPanel* child = panel.panel();
@@ -877,14 +903,14 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	else if( getTabPosition() == LLTabContainer::TOP )
 	{
 		btn_rect.setLeftTopAndSize( 0, getRect().getHeight() - getTopBorderHeight() + tab_fudge, button_width, mTabHeight);
-		tab_img = mImageTopUnselected.get();
-		tab_selected_img = mImageTopSelected.get();
+		tab_img = mMiddleTabParams.tab_top_image_unselected;
+		tab_selected_img = mMiddleTabParams.tab_top_image_selected; 
 	}
 	else
 	{
 		btn_rect.setOriginAndSize( 0, 0 + tab_fudge, button_width, mTabHeight);
-		tab_img = mImageBottomUnselected.get();
-		tab_selected_img = mImageBottomSelected.get();
+		tab_img = mMiddleTabParams.tab_bottom_image_unselected;
+		tab_selected_img = mMiddleTabParams.tab_bottom_image_selected;
 	}
 
 	LLTextBox* textbox = NULL;
@@ -915,8 +941,8 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 			p.click_callback.function(boost::bind(&LLTabContainer::onTabBtn, this, _2, child));
 			p.font(mFont);
 			p.label(trimmed_label);
-			p.image_unselected(mImageLeftUnselected);
-			p.image_selected(mImageLeftSelected);
+			p.image_unselected(mMiddleTabParams.tab_left_image_unselected);
+			p.image_selected(mMiddleTabParams.tab_left_image_selected);
 			p.scale_image(true);
 			p.font_halign = mFontHalign;
 			p.tab_stop(false);
@@ -966,6 +992,31 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	
 	LLTabTuple* tuple = new LLTabTuple( this, child, btn, textbox );
 	insertTuple( tuple, insertion_point );
+
+	// if new tab was added as a first or last tab, update button image 
+	// and update button image of any tab it may have affected
+	if (tuple == mTabList.front())
+	{  
+		update_images(tuple, mFirstTabParams, getTabPosition());
+
+		if (mTabList.size() == 2) 
+		{		
+			update_images(mTabList[1], mLastTabParams, getTabPosition());
+		}
+		else if (mTabList.size() > 2) 
+		{
+			update_images(mTabList[1], mMiddleTabParams, getTabPosition());
+		}
+	}
+	else if (tuple == mTabList.back())
+	{
+		update_images(tuple, mLastTabParams, getTabPosition());
+
+		if (mTabList.size() > 2)
+		{
+			update_images(mTabList[mTabList.size()-2], mMiddleTabParams, getTabPosition());
+		}
+	}
 
 	//Don't add button and textbox if tab buttons are invisible(EXT - 576)
 	if (!getTabsHidden())
@@ -1048,7 +1099,17 @@ void LLTabContainer::removeTabPanel(LLPanel* child)
 		LLTabTuple* tuple = *iter;
 		if( tuple->mTabPanel == child )
 		{
- 			removeChild( tuple->mButton );
+			// update tab button images if removing the first or last tab
+			if ((tuple == mTabList.front()) && (mTabList.size() > 1))
+			{
+				update_images(mTabList[1], mFirstTabParams, getTabPosition());
+			}
+			else if ((tuple == mTabList.back()) && (mTabList.size() > 2))
+			{
+				update_images(mTabList[mTabList.size()-2], mLastTabParams, getTabPosition());
+			}
+
+			removeChild( tuple->mButton );
  			delete tuple->mButton;
 
  			removeChild( tuple->mTabPanel );

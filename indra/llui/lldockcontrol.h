@@ -48,6 +48,7 @@ public:
 	enum DocAt
 	{
 		TOP
+		,LEFT
 	};
 
 public:
@@ -80,6 +81,7 @@ private:
 	get_allowed_rect_callback_t mGetAllowedRectCallback;
 	bool mEnabled;
 	bool mRecalculateDocablePosition;
+	bool mDockWidgetVisible;
 	DocAt mDockAt;
 	LLView* mDockWidget;
 	LLRect mPrevDockRect;

@@ -47,12 +47,12 @@ class LLSearchComboBox;
  * Web browser-like navigation bar.
  */ 
 class LLNavigationBar
-:	public LLPanel
+	:	public LLPanel, public LLSingleton<LLNavigationBar>
 {
 	LOG_CLASS(LLNavigationBar);
-
+	
 public:
-	static LLNavigationBar* getInstance();
+	LLNavigationBar();
 	virtual ~LLNavigationBar();
 	
 	/*virtual*/ void	draw();
@@ -65,7 +65,6 @@ public:
 	void showFavoritesPanel(BOOL visible);
 	
 private:
-	LLNavigationBar();
 
 	void rebuildTeleportHistoryMenu();
 	void showTeleportHistoryMenu();
@@ -91,8 +90,6 @@ private:
 
 	void fillSearchComboBox();
 
-	static LLNavigationBar *sInstance;
-	
 	LLMenuGL*					mTeleportHistoryMenu;
 	LLButton*					mBtnBack;
 	LLButton*					mBtnForward;

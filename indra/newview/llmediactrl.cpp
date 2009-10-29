@@ -51,6 +51,7 @@
 #include "llpluginclassmedia.h"
 #include "llslurl.h"
 #include "lluictrlfactory.h"	// LLDefaultChildRegistry
+#include "llkeyboard.h"
 
 // linden library includes
 #include "llfocusmgr.h"
@@ -193,7 +194,7 @@ BOOL LLMediaCtrl::handleHover( S32 x, S32 y, MASK mask )
 
 	if (mMediaSource)
 	{
-		mMediaSource->mouseMove(x, y);
+		mMediaSource->mouseMove(x, y, mask);
 		gViewerWindow->setCursor(mMediaSource->getLastSetCursor());
 	}
 
@@ -205,7 +206,7 @@ BOOL LLMediaCtrl::handleHover( S32 x, S32 y, MASK mask )
 BOOL LLMediaCtrl::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
 	if (mMediaSource && mMediaSource->hasMedia())
-		mMediaSource->getMediaPlugin()->scrollEvent(0, clicks, MASK_NONE);
+		mMediaSource->getMediaPlugin()->scrollEvent(0, clicks, gKeyboard->currentMask(TRUE));
 
 	return TRUE;
 }
@@ -218,7 +219,7 @@ BOOL LLMediaCtrl::handleMouseUp( S32 x, S32 y, MASK mask )
 
 	if (mMediaSource)
 	{
-		mMediaSource->mouseUp(x, y);
+		mMediaSource->mouseUp(x, y, mask);
 
 		// *HACK: LLMediaImplLLMozLib automatically takes focus on mouseup,
 		// in addition to the onFocusReceived() call below.  Undo this. JC
@@ -241,7 +242,50 @@ BOOL LLMediaCtrl::handleMouseDown( S32 x, S32 y, MASK mask )
 	convertInputCoords(x, y);
 
 	if (mMediaSource)
-		mMediaSource->mouseDown(x, y);
+		mMediaSource->mouseDown(x, y, mask);
+	
+	gFocusMgr.setMouseCapture( this );
+
+	if (mTakeFocusOnClick)
+	{
+		setFocus( TRUE );
+	}
+
+	return TRUE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+BOOL LLMediaCtrl::handleRightMouseUp( S32 x, S32 y, MASK mask )
+{
+	convertInputCoords(x, y);
+
+	if (mMediaSource)
+	{
+		mMediaSource->mouseUp(x, y, mask, 1);
+
+		// *HACK: LLMediaImplLLMozLib automatically takes focus on mouseup,
+		// in addition to the onFocusReceived() call below.  Undo this. JC
+		if (!mTakeFocusOnClick)
+		{
+			mMediaSource->focus(false);
+			gViewerWindow->focusClient();
+		}
+	}
+	
+	gFocusMgr.setMouseCapture( NULL );
+
+	return TRUE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+BOOL LLMediaCtrl::handleRightMouseDown( S32 x, S32 y, MASK mask )
+{
+	convertInputCoords(x, y);
+
+	if (mMediaSource)
+		mMediaSource->mouseDown(x, y, mask, 1);
 	
 	gFocusMgr.setMouseCapture( this );
 
@@ -260,7 +304,7 @@ BOOL LLMediaCtrl::handleDoubleClick( S32 x, S32 y, MASK mask )
 	convertInputCoords(x, y);
 
 	if (mMediaSource)
-		mMediaSource->mouseLeftDoubleClick( x, y );
+		mMediaSource->mouseDoubleClick( x, y, mask);
 
 	gFocusMgr.setMouseCapture( this );
 

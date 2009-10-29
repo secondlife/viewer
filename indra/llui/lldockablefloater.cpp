@@ -136,7 +136,15 @@ void LLDockableFloater::setMinimized(BOOL minimize)
 	{
 		setVisible(FALSE);
 	}
-	setCanDock(!minimize);
+
+	if (minimize)
+	{
+		setCanDock(false);
+	}
+	else if (!minimize && mDockControl.get() != NULL && mDockControl.get()->isDockVisible())
+	{
+		setCanDock(true);
+	}
 
 	LLFloater::setMinimized(minimize);
 }
@@ -158,7 +166,10 @@ void LLDockableFloater::onDockHidden()
 
 void LLDockableFloater::onDockShown()
 {
-	setCanDock(TRUE);
+	if (!isMinimized())
+	{
+		setCanDock(TRUE);
+	}
 }
 
 void LLDockableFloater::setDocked(bool docked, bool pop_on_undock)

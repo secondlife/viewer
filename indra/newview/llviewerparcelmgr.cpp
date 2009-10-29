@@ -843,8 +843,11 @@ void LLViewerParcelMgr::renderParcelCollision()
 	if (mRenderCollision && gSavedSettings.getBOOL("ShowBanLines"))
 	{
 		LLViewerRegion* regionp = gAgent.getRegion();
-		BOOL use_pass = mCollisionParcel->getParcelFlag(PF_USE_PASS_LIST);
-		renderCollisionSegments(mCollisionSegments, use_pass, regionp);
+		if (regionp)
+		{
+			BOOL use_pass = mCollisionParcel->getParcelFlag(PF_USE_PASS_LIST);
+			renderCollisionSegments(mCollisionSegments, use_pass, regionp);
+		}
 	}
 }
 
@@ -1162,10 +1165,11 @@ void LLViewerParcelMgr::sendParcelBuy(ParcelBuyInfo* info)
 	msg->sendReliable(info->mHost);
 }
 
-void LLViewerParcelMgr::deleteParcelBuy(ParcelBuyInfo*& info)
+void LLViewerParcelMgr::deleteParcelBuy(ParcelBuyInfo* *info)
 {
-	delete info;
-	info = NULL;
+	// Must be here because ParcelBuyInfo is local to this .cpp file
+	delete *info;
+	*info = NULL;
 }
 
 void LLViewerParcelMgr::sendParcelDeed(const LLUUID& group_id)

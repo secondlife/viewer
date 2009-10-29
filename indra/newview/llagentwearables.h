@@ -70,7 +70,7 @@ protected:
 	// Queries
 	//--------------------------------------------------------------------
 public:
-	BOOL			isWearingItem(const LLUUID& item_id, const BOOL include_linked_items = FALSE) const;
+	BOOL			isWearingItem(const LLUUID& item_id) const;
 	BOOL			isWearableModifiable(EWearableType type, U32 index /*= 0*/) const;
 	BOOL			isWearableCopyable(EWearableType type, U32 index /*= 0*/) const;
 	BOOL			areWearablesLoaded() const;
@@ -79,7 +79,6 @@ public:
 	
 	// Note: False for shape, skin, eyes, and hair, unless you have MORE than 1.
 	bool			canWearableBeRemoved(const LLWearable* wearable) const;
-
 	
 	//--------------------------------------------------------------------
 	// Accessors
@@ -106,7 +105,7 @@ private:
 	// Low-level data structure setter - public access is via setWearableItem, etc.
 	void 			setWearable(const EWearableType type, U32 index, LLWearable *wearable);
 	U32 			pushWearable(const EWearableType type, LLWearable *wearable);
-	void 			popWearable(const EWearableType type, LLWearable *wearable);
+	void 			popWearable(LLWearable *wearable);
 	void			popWearable(const EWearableType type, U32 index);
 	
 public:
@@ -114,7 +113,8 @@ public:
 	void			setWearableOutfit(const LLInventoryItem::item_array_t& items, const LLDynamicArray< LLWearable* >& wearables, BOOL remove);
 	void			setWearableName(const LLUUID& item_id, const std::string& new_name);
 	void			addLocalTextureObject(const EWearableType wearable_type, const LLVOAvatarDefines::ETextureIndex texture_type, U32 wearable_index);
-	U32				getWearableIndex(const EWearableType type, LLWearable *wearable);
+	U32				getWearableIndex(LLWearable *wearable);
+
 protected:
 	void			setWearableFinal(LLInventoryItem* new_item, LLWearable* new_wearable, bool do_append = false);
 	static bool		onSetWearableDialog(const LLSD& notification, const LLSD& response, LLWearable* wearable);

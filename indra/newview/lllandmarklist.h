@@ -74,7 +74,10 @@ protected:
 
 	typedef std::set<LLUUID> landmark_bad_list_t;
 	landmark_bad_list_t mBadList;
-
+	
+	typedef std::map<LLUUID,F32> landmark_requested_list_t;
+	landmark_requested_list_t mRequestedList;
+	
 	// *TODO: make the callback multimap a template class and make use of it
 	// here and in LLLandmark.
 	typedef std::multimap<LLUUID, loaded_callback_t> loaded_callback_map_t;

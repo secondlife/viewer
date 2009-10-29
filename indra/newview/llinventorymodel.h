@@ -112,7 +112,9 @@ public:
 	// construction & destruction
 	LLInventoryModel();
 	~LLInventoryModel();
-
+	
+	void cleanupInventory();
+	
 	class fetchInventoryResponder : public LLHTTPClient::Responder
 	{
 	public:
@@ -190,10 +192,13 @@ public:
 
 	// Collect all items in inventory that are linked to item_id.
 	// Assumes item_id is itself not a linked item.
-	void collectLinkedItems(const LLUUID& item_id,
-							item_array_t& items);
-	// Updates all linked objects pointing to this id.
-	void updateLinkedObjects(const LLUUID& object_id);
+	item_array_t collectLinkedItems(const LLUUID& item_id,
+									const LLUUID& start_folder_id = LLUUID::null);
+	// Updates all linked items pointing to this id.
+	void updateLinkedItems(const LLUUID& object_id);
+
+	// Get the inventoryID that this item points to, else just return item_id
+	const LLUUID& getLinkedItemID(const LLUUID& object_id) const;
 
 	// The inventory model usage is sensitive to the initial construction of the 
 	// model. 

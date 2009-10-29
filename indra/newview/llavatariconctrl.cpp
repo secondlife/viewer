@@ -152,6 +152,8 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 :	LLIconCtrl(p),
 	mDrawTooltip(p.draw_tooltip)
 {
+	mPriority = LLViewerFetchedTexture::BOOST_ICON;
+	
 	LLRect rect = p.rect;
 
 	static LLUICachedControl<S32> llavatariconctrl_symbol_hpad("UIAvatariconctrlSymbolHPad", 2);

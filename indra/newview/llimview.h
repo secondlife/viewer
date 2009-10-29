@@ -110,7 +110,7 @@ public:
 	std::list<LLSD> getMessages(LLUUID session_id, int start_index = 0);
 
 	bool addMessage(LLUUID session_id, std::string from, LLUUID other_participant_id, std::string utf8_text, bool log2file = true);
-	bool addToHistory(LLUUID session_id, std::string from, std::string utf8_text); 
+	bool addToHistory(LLUUID session_id, std::string from, LLUUID from_id, std::string utf8_text); 
 
 	bool logToFile(const LLUUID& session_id, const std::string& from, const std::string& utf8_text);
 

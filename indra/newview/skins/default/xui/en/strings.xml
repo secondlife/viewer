@@ -1817,6 +1817,7 @@ this texture in your inventory
 	<string name="broken_link" value=" (broken_link)" />
 	<string name="LoadingContents">Loading contents...</string>
 	<string name="NoContents">No contents</string>
+	<string name="WornOnAttachmentPoint" value=" (worn on [ATTACHMENT_POINT])" />
 
 	<!-- Gestures labels -->
     <!-- use value="" because they have preceding spaces -->
@@ -2019,15 +2020,14 @@ this texture in your inventory
 	<string name="IMTeen">teen</string>
 	
 	<!-- floater region info -->
+	<!-- The following will replace variable [ALL_ESTATES] in notifications EstateAllowed*, EstateBanned*, EstateManager* -->
 	<string name="RegionInfoError">error</string>
 	<string name="RegionInfoAllEstatesOwnedBy">
-		all estates
-owned by [OWNER]
+		all estates owned by [OWNER]
 	</string>
-	<string name="RegionInfoAllEstatesYouOwn">all estates you owned</string>
+	<string name="RegionInfoAllEstatesYouOwn">all estates that you own</string>
 	<string name="RegionInfoAllEstatesYouManage">
-		all estates that
-you managed for [OWNER]
+		all estates that you manage for [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">Allowed residents: ([ALLOWEDAGENTS], max [MAXACCESS])</string>
 	<string name="RegionInfoAllowedGroups">Allowed groups: ([ALLOWEDGROUPS], max [MAXACCESS])</string>

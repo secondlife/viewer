@@ -188,6 +188,17 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 		return;
 	}
 
+	int chat_type = notification["chat_type"].asInteger();
+	
+	if( ((EChatType)chat_type == CHAT_TYPE_DEBUG_MSG))
+	{
+		if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE) 
+			return;
+		if(gSavedSettings.getS32("ShowScriptErrorsLocation")== 1)
+			return;
+	}
+		
+
 	//take 1st element from pool, (re)initialize it, put it in active toasts
 
 	LLToast* toast = m_toast_pool.back();
@@ -330,6 +341,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 		notification["from_id"] = chat_msg.mFromID;
 		notification["time"] = chat_msg.mTime;
 		notification["source"] = (S32)chat_msg.mSourceType;
+		notification["chat_type"] = (S32)chat_msg.mChatType;
 
 		channel->addNotification(notification);	
 	}

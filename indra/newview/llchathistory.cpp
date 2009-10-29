@@ -48,7 +48,7 @@ mMessageSeparatorFilename(p.message_separator),
 mLeftTextPad(p.left_text_pad),
 mRightTextPad(p.right_text_pad),
 mLeftWidgetPad(p.left_widget_pad),
-mRightWidgetPad(p.rigth_widget_pad)
+mRightWidgetPad(p.right_widget_pad)
 {
 }
 
@@ -101,24 +101,32 @@ void LLChatHistory::appendWidgetMessage(const LLUUID& avatar_id, std::string& fr
 	if (mLastFromName == from)
 	{
 		view = getSeparator();
-		view_text = " ";
+		view_text = "\n";
 	}
 	else
 	{
 		view = getHeader(avatar_id, from, time);
-		view_text = "\n" + from + MESSAGE_USERNAME_DATE_SEPARATOR + time;
+		view_text = from + MESSAGE_USERNAME_DATE_SEPARATOR + time + '\n';
 	}
 	//Prepare the rect for the view
 	LLRect target_rect = getDocumentView()->getRect();
-	target_rect.mLeft += mLeftWidgetPad;
+	// squeeze down the widget by subtracting padding off left and right
+	target_rect.mLeft += mLeftWidgetPad + mHPad;
 	target_rect.mRight -= mRightWidgetPad;
 	view->reshape(target_rect.getWidth(), view->getRect().getHeight());
 	view->setOrigin(target_rect.mLeft, view->getRect().mBottom);
 
-	appendWidget(view, view_text, FALSE, TRUE, mLeftWidgetPad, 0);
+	LLInlineViewSegment::Params p;
+	p.view = view;
+	p.force_newline = true;
+	p.left_pad = mLeftWidgetPad;
+	p.right_pad = mRightWidgetPad;
+
+	appendWidget(p, view_text, false);
 
 	//Append the text message
-	appendText(message, TRUE, style_params);
+	message += '\n';
+	appendText(message, FALSE, style_params);
 
 	mLastFromName = from;
 	blockUndo();

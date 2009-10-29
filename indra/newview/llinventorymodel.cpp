@@ -176,12 +176,21 @@ LLInventoryModel::LLInventoryModel()
 // Destroys the object
 LLInventoryModel::~LLInventoryModel()
 {
+	cleanupInventory();
+}
+
+void LLInventoryModel::cleanupInventory()
+{
 	empty();
-	for (observer_list_t::iterator iter = mObservers.begin();
-		 iter != mObservers.end(); ++iter)
+	// Deleting one observer might erase others from the list, so always pop off the front
+	while (!mObservers.empty())
 	{
-		delete *iter;
+		observer_list_t::iterator iter = mObservers.begin();
+		LLInventoryObserver* observer = *iter;
+		mObservers.erase(iter);
+		delete observer;
 	}
+	mObservers.clear();
 }
 
 // This is a convenience function to check if one object has a parent
@@ -507,8 +516,12 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 	}
 }
 
-void LLInventoryModel::updateLinkedObjects(const LLUUID& object_id)
+void LLInventoryModel::updateLinkedItems(const LLUUID& object_id)
 {
+	const LLInventoryObject *obj = getObject(object_id);
+	if (!obj || obj->getIsLinkType())
+		return;
+
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
 	LLLinkedItemIDMatches is_linked_item_match(object_id);
@@ -536,16 +549,31 @@ void LLInventoryModel::updateLinkedObjects(const LLUUID& object_id)
 	notifyObservers();
 }
 
-void LLInventoryModel::collectLinkedItems(const LLUUID& id,
-										  item_array_t& items)
+const LLUUID& LLInventoryModel::getLinkedItemID(const LLUUID& object_id) const
 {
+	const LLInventoryItem *item = gInventory.getItem(object_id);
+	if (!item)
+	{
+		return object_id;
+	}
+
+	// Find the base item in case this a link (if it's not a link,
+	// this will just be inv_item_id)
+	return item->getLinkedUUID();
+}
+
+LLInventoryModel::item_array_t LLInventoryModel::collectLinkedItems(const LLUUID& id,
+																	const LLUUID& start_folder_id)
+{
+	item_array_t items;
 	LLInventoryModel::cat_array_t cat_array;
 	LLLinkedItemIDMatches is_linked_item_match(id);
-	collectDescendentsIf(gInventory.getRootFolderID(),
+	collectDescendentsIf((start_folder_id == LLUUID::null ? gInventory.getRootFolderID() : start_folder_id),
 						 cat_array,
 						 items,
 						 LLInventoryModel::INCLUDE_TRASH,
 						 is_linked_item_match);
+	return items;
 }
 
 // Generates a string containing the path to the item specified by
@@ -909,8 +937,7 @@ void LLInventoryModel::purgeLinkedObjects(const LLUUID &id)
 		return;
 	}
 
-	LLInventoryModel::item_array_t item_array;
-	collectLinkedItems(id, item_array);
+	LLInventoryModel::item_array_t item_array = collectLinkedItems(id);
 	
 	for (LLInventoryModel::item_array_t::iterator iter = item_array.begin();
 		 iter != item_array.end();
@@ -1130,6 +1157,13 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 	if (referent.notNull())
 	{
 		mChangedItemIDs.insert(referent);
+	}
+	
+	// Update all linked items.  Starting with just LABEL because I'm
+	// not sure what else might need to be accounted for this.
+	if (mModifyMask & LLInventoryObserver::LABEL)
+	{
+		updateLinkedItems(referent);
 	}
 }
 

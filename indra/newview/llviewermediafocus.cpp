@@ -77,7 +77,6 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 	if (media_impl.notNull() && objectp.notNull())
 	{
 		bool face_auto_zoom = false;
-		media_impl->focus(true);
 
 		mFocusedImplID = media_impl->getMediaTextureID();
 		mFocusedObjectID = objectp->getID();
@@ -101,6 +100,7 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 			llwarns << "Can't find media entry for focused face" << llendl;
 		}
 
+		media_impl->focus(true);
 		gFocusMgr.setKeyboardFocus(this);
 		
 		// We must do this before  processing the media HUD zoom, or it may zoom to the wrong face. 
@@ -114,7 +114,7 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 	}
 	else
 	{
-		if(hasFocus())
+		if(mFocusedImplID != LLUUID::null)
 		{
 			if(mMediaHUD.get())
 			{
@@ -249,20 +249,18 @@ void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal,
 }
 void LLViewerMediaFocus::onFocusReceived()
 {
-	// Don't do this here -- this doesn't change "inworld media focus", it just changes whether the viewer's input is focused on the media.
-//	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
-//	if(media_impl.notNull())
-//		media_impl->focus(true);
+	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
+	if(media_impl)
+		media_impl->focus(true);
 
 	LLFocusableElement::onFocusReceived();
 }
 
 void LLViewerMediaFocus::onFocusLost()
 {
-	// Don't do this here -- this doesn't change "inworld media focus", it just changes whether the viewer's input is focused on the media.
-//	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
-//	if(media_impl.notNull())
-//		media_impl->focus(false);
+	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
+	if(media_impl)
+		media_impl->focus(false);
 
 	gViewerWindow->focusClient();
 	LLFocusableElement::onFocusLost();
