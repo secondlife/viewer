@@ -93,6 +93,7 @@ BOOL LLViewerTexture::sUseTextureAtlas        = FALSE ;
 
 const F32 desired_discard_bias_min = -2.0f; // -max number of levels to improve image quality by
 const F32 desired_discard_bias_max = 1.5f; // max number of levels to reduce image quality by
+const F64 log_2 = log(2.0);
 
 //----------------------------------------------------------------------------------------------
 //namespace: LLViewerTextureAccess
@@ -134,7 +135,7 @@ LLViewerMediaTexture*  LLViewerTextureManager::getMediaTexture(const LLUUID& id,
 	return tex ;
 }
 
-LLViewerFetchedTexture* LLViewerTextureManager::staticCastToFetchedTexture(LLViewerTexture* tex, BOOL report_error)
+LLViewerFetchedTexture* LLViewerTextureManager::staticCastToFetchedTexture(LLTexture* tex, BOOL report_error)
 {
 	if(!tex)
 	{
@@ -522,6 +523,12 @@ F32 LLViewerTexture::getMaxVirtualSize()
 	return mMaxVirtualSize ;
 }
 
+//virtual 
+void LLViewerTexture::setKnownDrawSize(S32 width, S32 height)
+{
+	//nothing here.
+}
+
 //virtual
 void LLViewerTexture::addFace(LLFace* facep) 
 {
@@ -852,6 +859,7 @@ void LLViewerFetchedTexture::init(bool firstinit)
 
 	mKnownDrawWidth = 0;
 	mKnownDrawHeight = 0;
+	mKnownDrawSizeChanged = FALSE ;
 
 	if (firstinit)
 	{
@@ -1084,10 +1092,17 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 }
 
 // Call with 0,0 to turn this feature off.
+//virtual
 void LLViewerFetchedTexture::setKnownDrawSize(S32 width, S32 height)
 {
-	mKnownDrawWidth = width;
-	mKnownDrawHeight = height;
+	if(mKnownDrawWidth != width || mKnownDrawHeight != height)
+	{
+		mKnownDrawWidth = width;
+		mKnownDrawHeight = height;
+
+		mKnownDrawSizeChanged = TRUE ;
+		mFullyLoaded = FALSE ;
+	}
 	addTextureStats((F32)(width * height));
 }
 
@@ -1104,13 +1119,26 @@ void LLViewerFetchedTexture::processTextureStats()
 		mDesiredDiscardLevel = 	getMaxDiscardLevel() ;
 	}
 	else
-	{
-		mDesiredDiscardLevel = 0;
-		if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
+	{	
+		if(!mKnownDrawWidth || !mKnownDrawHeight || mFullWidth <= mKnownDrawWidth || mFullHeight <= mKnownDrawHeight)
 		{
-			mDesiredDiscardLevel = 1; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+			if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
+			{
+				mDesiredDiscardLevel = 1; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+			}
+			else
+			{
+				mDesiredDiscardLevel = 0;
+			}
 		}
-
+		else if(mKnownDrawSizeChanged)//known draw size is set
+		{			
+			mDesiredDiscardLevel = (S8)llmin(log((F32)mFullWidth / mKnownDrawWidth) / log_2, 
+					                             log((F32)mFullHeight / mKnownDrawHeight) / log_2) ;
+			mDesiredDiscardLevel = 	llclamp(mDesiredDiscardLevel, (S8)0, (S8)getMaxDiscardLevel()) ;
+		}
+		mKnownDrawSizeChanged = FALSE ;
+		
 		if(getDiscardLevel() >= 0 && (getDiscardLevel() <= mDesiredDiscardLevel))
 		{
 			mFullyLoaded = TRUE ;
@@ -1121,8 +1149,6 @@ void LLViewerFetchedTexture::processTextureStats()
 //texture does not have any data, so we don't know the size of the image, treat it like 32 * 32.
 F32 LLViewerFetchedTexture::calcDecodePriorityForUnknownTexture(F32 pixel_priority)
 {
-	static const F64 log_2 = log(2.0);
-
 	F32 desired = (F32)(log(32.0/pixel_priority) / log_2);
 	S32 ddiscard = MAX_DISCARD_LEVEL - (S32)desired + 1;
 	ddiscard = llclamp(ddiscard, 1, 9);
@@ -1169,7 +1195,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		// Don't decode anything we don't need
 		priority = -1.0f;
 	}
-	else if (mBoostLevel == LLViewerTexture::BOOST_UI && !have_all_data)
+	else if ((mBoostLevel == LLViewerTexture::BOOST_UI || mBoostLevel == LLViewerTexture::BOOST_ICON) && !have_all_data)
 	{
 		priority = 1.f;
 	}

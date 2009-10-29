@@ -163,6 +163,7 @@ public:
 	
 	S32 getFullWidth() const { return mFullWidth; }
 	S32 getFullHeight() const { return mFullHeight; }	
+	/*virtual*/ void setKnownDrawSize(S32 width, S32 height);
 
 	virtual void addFace(LLFace* facep) ;
 	virtual void removeFace(LLFace* facep) ; 
@@ -357,7 +358,7 @@ public:
 	// Override the computation of discard levels if we know the exact output
 	// size of the image.  Used for UI textures to not decode, even if we have
 	// more data.
-	void setKnownDrawSize(S32 width, S32 height);
+	/*virtual*/ void setKnownDrawSize(S32 width, S32 height);
 
 	void setIsMissingAsset();
 	/*virtual*/ BOOL isMissingAsset()	const		{ return mIsMissingAsset; }
@@ -406,6 +407,8 @@ private:
 	BOOL  mFullyLoaded;
 
 protected:		
+	std::string mLocalFileName;
+
 	S32 mOrigWidth;
 	S32 mOrigHeight;
 
@@ -413,8 +416,7 @@ protected:
 	// Used for UI textures to not decode, even if we have more data.
 	S32 mKnownDrawWidth;
 	S32	mKnownDrawHeight;
-
-	std::string mLocalFileName;
+	BOOL mKnownDrawSizeChanged ;
 
 	S8  mDesiredDiscardLevel;			// The discard level we'd LIKE to have - if we have it and there's space	
 	S8  mMinDesiredDiscardLevel;	// The minimum discard level we'd like to have
@@ -570,7 +572,7 @@ public:
 	static LLTexturePipelineTester* sTesterp ;
 
 	//returns NULL if tex is not a LLViewerFetchedTexture nor derived from LLViewerFetchedTexture.
-	static LLViewerFetchedTexture*    staticCastToFetchedTexture(LLViewerTexture* tex, BOOL report_error = FALSE) ;
+	static LLViewerFetchedTexture*    staticCastToFetchedTexture(LLTexture* tex, BOOL report_error = FALSE) ;
 
 	//
 	//"find-texture" just check if the texture exists, if yes, return it, otherwise return null.
