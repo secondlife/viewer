@@ -35,7 +35,7 @@
 
 //LLViewerMediaFocus
 #include "llviewerobjectlist.h"
-#include "llpanelmediahud.h"
+#include "llpanelprimmediacontrols.h"
 #include "llpluginclassmedia.h"
 #include "llagent.h"
 #include "lltoolpie.h"
@@ -106,19 +106,19 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 		// We must do this before  processing the media HUD zoom, or it may zoom to the wrong face. 
 		update();
 
-		if(mMediaHUD.get() && face_auto_zoom && ! parcel->getMediaPreventCameraZoom())
+		if(mMediaControls.get() && face_auto_zoom && ! parcel->getMediaPreventCameraZoom())
 		{
-			mMediaHUD.get()->resetZoomLevel();
-			mMediaHUD.get()->nextZoomLevel();
+			mMediaControls.get()->resetZoomLevel();
+			mMediaControls.get()->nextZoomLevel();
 		}
 	}
 	else
 	{
 		if(mFocusedImplID != LLUUID::null)
 		{
-			if(mMediaHUD.get())
+			if(mMediaControls.get())
 			{
-				mMediaHUD.get()->resetZoomLevel();
+				mMediaControls.get()->resetZoomLevel();
 			}
 
 			gFocusMgr.setKeyboardFocus(NULL);
@@ -327,20 +327,20 @@ void LLViewerMediaFocus::update()
 		// We have an object and impl to point at.
 		
 		// Make sure the media HUD object exists.
-		if(! mMediaHUD.get())
+		if(! mMediaControls.get())
 		{
-			LLPanelMediaHUD* media_hud = new LLPanelMediaHUD();
-			mMediaHUD = media_hud->getHandle();
-			gHUDView->addChild(media_hud);	
+			LLPanelPrimMediaControls* media_controls = new LLPanelPrimMediaControls();
+			mMediaControls = media_controls->getHandle();
+			gHUDView->addChild(media_controls);	
 		}
-		mMediaHUD.get()->setMediaFace(viewer_object, face, media_impl, normal);
+		mMediaControls.get()->setMediaFace(viewer_object, face, media_impl, normal);
 	}
 	else
 	{
 		// The media HUD is no longer needed.
-		if(mMediaHUD.get())
+		if(mMediaControls.get())
 		{
-			mMediaHUD.get()->setMediaFace(NULL, 0, NULL);
+			mMediaControls.get()->setMediaFace(NULL, 0, NULL);
 		}
 	}
 }

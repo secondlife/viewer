@@ -486,7 +486,7 @@ things in this group. There&apos;s a broad variety of Abilities.
         </panel>
     </tab_container>
     <panel
-     height="170"
+     height="190"
      layout="topleft"
      follows="left|top"
      left="10"
@@ -556,7 +556,7 @@ things in this group. There&apos;s a broad variety of Abilities.
         </scroll_list>
     </panel>
     <panel
-     height="215"
+     height="252"
      layout="topleft"
      left_delta="0"
      name="roles_footer"

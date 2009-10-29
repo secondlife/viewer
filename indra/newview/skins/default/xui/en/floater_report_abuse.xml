@@ -14,19 +14,19 @@
      allow_no_texture="true"
      default_image_name="None"
      follows="left|top"
-     height="125"
+     height="150"
      layout="topleft"
-     left="10"
-     name="screenshot"
-     top="23"
-     width="160" />
+     left="60"
+     name=""
+     top="15"
+     width="220" />
     <check_box
      height="15"
      label="Use this screenshot"
      layout="topleft"
-     left_pad="5"
+     left="8"
      name="screen_check"
-     top="120"
+     top_pad="-12"
      width="116" />
     <text
      type="string"
@@ -38,8 +38,8 @@
      layout="topleft"
      left="10"
      name="reporter_title"
-     top="140"
-     width="60">
+     top_pad="0"
+     width="100">
         Reporter:
     </text>
     <text
@@ -48,24 +48,25 @@
      follows="left|top"
      height="16"
      layout="topleft"
-     left_pad="10"
+     left_pad="5"
      name="reporter_field"
      top_delta="0"
-     width="193">
-        Loremipsum Dolorsitamut
+     use_ellipses="true"
+     width="200">
+        Loremipsum Dolorsitamut Longnamez
     </text>
     <text
      type="string"
      length="1"
      follows="left|top"
      height="16"
-     font.name="SansSerif" 
+     font.name="SansSerif"
      font.style="BOLD"
      layout="topleft"
      left="10"
      name="sim_title"
-     top_pad="5"
-     width="60">
+     top_pad="2"
+     width="100">
         Region:
     </text>
     <text
@@ -74,10 +75,11 @@
      follows="left|top"
      height="16"
      layout="topleft"
-     left_pad="2"
+     left_pad="5"
      name="sim_field"
      top_delta="0"
-     width="193">
+     use_ellipses="true"
+     width="200">
         Region Name
     </text>
     <text
@@ -85,13 +87,13 @@
      length="1"
      follows="left|top"
      height="16"
-     font.name="SansSerif" 
+     font.name="SansSerif"
      font.style="BOLD"
      layout="topleft"
      left="10"
      name="pos_title"
-     top_pad="5"
-     width="50">
+     top_pad="2"
+     width="100">
         Position:
     </text>
     <text
@@ -100,10 +102,10 @@
      follows="left|top"
      height="16"
      layout="topleft"
-     left_pad="12"
+     left_pad="5"
      name="pos_field"
      top_delta="0"
-     width="193">
+     width="200">
         {128.1, 128.1, 15.4}
     </text>
  <text
@@ -114,7 +116,7 @@
      layout="topleft"
      left="10"
      name="select_object_label"
-     top_pad="5"
+     top_pad="2"
      width="310">
         Click the button, then the abusive object:
     </text>
@@ -133,13 +135,13 @@
      length="1"
      follows="left|top"
      height="16"
-     font.name="SansSerif" 
+     font.name="SansSerif"
      font.style="BOLD"
      layout="topleft"
      left="48"
      name="object_name_label"
      top_delta="0"
-     width="60">
+     width="80">
         Object:
     </text>
     <text
@@ -151,7 +153,8 @@
      left_pad="6"
      name="object_name"
      top_delta="0"
-     width="157">
+     use_ellipses="true"
+     width="185">
         Consetetur Sadipscing
     </text>
     <text
@@ -159,13 +162,13 @@
      length="1"
      follows="left|top"
      height="16"
-     font.name="SansSerif" 
+     font.name="SansSerif"
      font.style="BOLD"
      layout="topleft"
      left="48"
      name="owner_name_label"
      top_pad="0"
-     width="60">
+     width="80">
         Owner:
     </text>
     <text
@@ -177,8 +180,9 @@
      left_pad="6"
      name="owner_name"
      top_delta="0"
-     width="157">
-        Hendrerit Vulputate
+     use_ellipses="true"
+     width="185">
+        Hendrerit Vulputate Kamawashi Longname
     </text>
     <combo_box
      height="23"
@@ -349,8 +353,8 @@
      type="string"
      length="1"
      follows="left|top"
-     height="16"
-     font.name="SansSerif" 
+     height="14"
+     font.name="SansSerif"
      font.style="BOLD"
      layout="topleft"
      left_delta="0"
@@ -368,11 +372,10 @@
      left_delta="0"
      max_length="32"
      name="abuser_name_edit"
-     top_pad="2"
+     top_pad="0"
      width="195" />
     <button
      height="23"
-     font="SansSerifSmall"
      label="Choose"
      layout="topleft"
      left_pad="5"
@@ -394,13 +397,13 @@
      type="string"
      length="1"
      follows="left|top"
-     height="16"
-     font.name="SansSerif" 
+     height="14"
+     font.name="SansSerif"
      font.style="BOLD"
      layout="topleft"
      left="10"
      name="abuser_name_title2"
-     top_pad="5"
+     top_pad="2"
      width="313">
         Location of Abuse:
     </text>
@@ -413,19 +416,19 @@
      left="10"
      max_length="256"
      name="abuse_location_edit"
-     top_pad="2"
+     top_pad="0"
      width="313" />
     <text
      type="string"
      length="1"
      follows="left|top"
      height="16"
-     font.name="SansSerif" 
+     font.name="SansSerif"
      font.style="BOLD"
      layout="topleft"
      left_delta="0"
      name="sum_title"
-     top_pad="5"
+     top_pad="2"
      width="313">
         Summary:
     </text>
@@ -438,14 +441,14 @@
      left_delta="0"
      max_length="64"
      name="summary_edit"
-     top_pad="2"
+     top_pad="0"
      width="313" />
     <text
      type="string"
      length="1"
      follows="left|top"
-     height="16"
-     font.name="SansSerif" 
+     height="14"
+     font.name="SansSerif"
      font.style="BOLD"
      layout="topleft"
      left_delta="0"
@@ -461,9 +464,9 @@
      height="16"
      layout="topleft"
      name="bug_aviso"
-     left_pad="0"
+     left_pad="10"
      width="200">
-        Please be as specific as possible.
+        Please be as specific as possible
     </text>
     <text_editor
      follows="left|top"
@@ -479,16 +482,15 @@
      type="string"
      length="1"
      follows="left|top"
-     height="50"
+     height="30"
      layout="topleft"
      left="10"
-     font.name="SansSerif" 
-     font.style="BOLD"
+     font.name="SansSerifSmall"
      name="incomplete_title"
-     top_pad="5"
+     top_pad="2"
      word_wrap="true"
      width="313">
-        Note: Incomplete reports won't be investigated.
+        * Incomplete reports won't be investigated
     </text>
      <button
      left="80"

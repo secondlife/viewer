@@ -70,7 +70,8 @@ public:
 		MEDIA_ERROR,		// navigation/preroll failed
 		MEDIA_PLAYING,		// playing (only for time-based media)
 		MEDIA_PAUSED,		// paused (only for time-based media)
-		
+		MEDIA_DONE			// finished playing (only for time-based media)
+	
 	} EMediaStatus;
 	
 	virtual ~LLPluginClassMediaOwner() {};

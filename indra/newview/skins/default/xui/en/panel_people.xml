@@ -49,11 +49,13 @@ background_visible="true"
      height="500"
      layout="topleft"
      left="10"
+       font="SansSerifBigBold"
      name="tabs"
      tab_min_width="70"
      tab_height="30"
      tab_position="top"
      top_pad="10"
+     halign="center"  
      width="313">
         <panel
          follows="all"

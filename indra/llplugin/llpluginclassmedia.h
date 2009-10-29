@@ -150,6 +150,7 @@ public:
 		PRIORITY_HIGH		// media has user focus and/or is taking up most of the screen
 	}EPriority;
 
+	static const char* priorityToString(EPriority priority);
 	void setPriority(EPriority priority);
 	void setLowPrioritySizeLimit(int size);
 	

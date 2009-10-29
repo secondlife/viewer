@@ -503,13 +503,15 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 		return;
 	}
 
+	LLPointer<LLViewerInventoryItem> viewer_item = new LLViewerInventoryItem(item);
+
 	if (dest)
 	{
-		insertBeforeItem(mItems, dest->getLandmarkId(), item->getUUID());
+		insertBeforeItem(mItems, dest->getLandmarkId(), viewer_item);
 	}
 	else
 	{
-		mItems.push_back(gInventory.getItem(item->getUUID()));
+		mItems.push_back(viewer_item);
 	}
 
 	int sortField = 0;
@@ -534,13 +536,22 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 		}
 	}
 
-	copy_inventory_item(
-			gAgent.getID(),
-			item->getPermissions().getOwner(),
-			item->getUUID(),
-			favorites_id,
-			std::string(),
-			cb);
+	LLToolDragAndDrop* tool_dad = LLToolDragAndDrop::getInstance();
+	if (tool_dad->getSource() == LLToolDragAndDrop::SOURCE_NOTECARD)
+	{
+		viewer_item->setType(LLAssetType::AT_FAVORITE);
+		copy_inventory_from_notecard(tool_dad->getObjectID(), tool_dad->getSourceID(), viewer_item.get(), gInventoryCallbacks.registerCB(cb));
+	}
+	else
+	{
+		copy_inventory_item(
+				gAgent.getID(),
+				item->getPermissions().getOwner(),
+				item->getUUID(),
+				favorites_id,
+				std::string(),
+				cb);
+	}
 
 	llinfos << "Copied inventory item #" << item->getUUID() << " to favorites." << llendl;
 }
@@ -1263,10 +1274,9 @@ void LLFavoritesBarCtrl::updateItemsOrder(LLInventoryModel::item_array_t& items,
 	items.insert(findItemByUUID(items, destItem->getUUID()), srcItem);
 }
 
-void LLFavoritesBarCtrl::insertBeforeItem(LLInventoryModel::item_array_t& items, const LLUUID& beforeItemId, const LLUUID& insertedItemId)
+void LLFavoritesBarCtrl::insertBeforeItem(LLInventoryModel::item_array_t& items, const LLUUID& beforeItemId, LLViewerInventoryItem* insertedItem)
 {
 	LLViewerInventoryItem* beforeItem = gInventory.getItem(beforeItemId);
-	LLViewerInventoryItem* insertedItem = gInventory.getItem(insertedItemId);
 
 	items.insert(findItemByUUID(items, beforeItem->getUUID()), insertedItem);
 }

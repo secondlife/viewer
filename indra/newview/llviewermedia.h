@@ -123,6 +123,7 @@ public:
 	void setMediaType(const std::string& media_type);
 	bool initializeMedia(const std::string& mime_type);
 	bool initializePlugin(const std::string& media_type);
+	void loadURI();
 	LLPluginClassMedia* getMediaPlugin() { return mMediaSource; }
 	void setSize(int width, int height);
 
@@ -151,6 +152,7 @@ public:
 	void navigateReload();
 	void navigateHome();
 	void navigateTo(const std::string& url, const std::string& mime_type = "", bool rediscover_type = false, bool server_request = false);
+	void navigateInternal();
 	void navigateStop();
 	bool handleKeyHere(KEY key, MASK mask);
 	bool handleUnicodeCharHere(llwchar uni_char);
@@ -174,6 +176,7 @@ public:
 	bool isMediaPaused();
 	bool hasMedia();
 	bool isMediaFailed() { return mMediaSourceFailed; };
+	void resetPreviousMediaState();
 
 	ECursorType getLastSetCursor() { return mLastSetCursor; };
 	
@@ -287,14 +290,14 @@ public:
 	bool mUsedInUI;
 	bool mHasFocus;
 	LLPluginClassMedia::EPriority mPriority;
-	bool mDoNavigateOnLoad;
-	bool mDoNavigateOnLoadRediscoverType;
-	bool mDoNavigateOnLoadServerRequest;
+	bool mNavigateRediscoverType;
+	bool mNavigateServerRequest;
 	bool mMediaSourceFailed;
 	F32 mRequestedVolume;
 	bool mIsMuted;
 	bool mNeedsMuteCheck;
-
+	int mPreviousMediaState;
+	F64 mPreviousMediaTime;
 
 private:
 	BOOL mIsUpdated ;
