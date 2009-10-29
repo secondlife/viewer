@@ -1000,6 +1000,7 @@ void LLPanelPrimMediaControls::onInputURL(LLFocusableElement* caller, void *user
 
 void LLPanelPrimMediaControls::setCurrentURL()
 {	
+#ifdef USE_COMBO_BOX_FOR_MEDIA_URL
 	LLComboBox* media_address_combo	= getChild<LLComboBox>("media_address_combo");
 	// redirects will navigate momentarily to about:blank, don't add to history
 	if (media_address_combo && mCurrentURL != "about:blank")
@@ -1008,6 +1009,13 @@ void LLPanelPrimMediaControls::setCurrentURL()
 		media_address_combo->add(mCurrentURL, ADD_SORTED);
 		media_address_combo->selectByValue(mCurrentURL);
 	}
+#else   // USE_COMBO_BOX_FOR_MEDIA_URL
+	LLLineEditor* media_address_url = getChild<LLLineEditor>("media_address_url");
+	if (media_address_url && mCurrentURL != "about:blank")
+	{
+		media_address_url->setValue(mCurrentURL);
+	}
+#endif	// USE_COMBO_BOX_FOR_MEDIA_URL
 }
 
 void LLPanelPrimMediaControls::onCommitSlider()
