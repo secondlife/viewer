@@ -733,32 +733,41 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 					tooltip_msg.append( nodep->mName );
 				}
 				
-				// Does this face have media?
-				const LLTextureEntry* tep = hover_object->getTE(mHoverPick.mObjectFace);
-				const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
-				viewer_media_t media_impl = mep ? LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID()) : NULL;
-				LLPluginClassMedia* media_plugin = NULL;
-				
 				bool is_time_based_media = false;
 				bool is_media_playing = false;
 				
-				if (media_impl && (media_impl->hasMedia()))
+				// Does this face have media?
+				const LLTextureEntry* tep = hover_object->getTE(mHoverPick.mObjectFace);
+				
+				if(tep)
 				{
-					LLStringUtil::format_map_t args;
+					const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
+					if (mep)
+					{
+						viewer_media_t media_impl = mep ? LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID()) : NULL;
+						LLPluginClassMedia* media_plugin = NULL;
+				
+						if (media_impl.notNull() && (media_impl->hasMedia()))
+						{
+							LLStringUtil::format_map_t args;
 					
-					media_plugin = media_impl->getMediaPlugin();
-					if(media_plugin->pluginSupportsMediaTime())
-					{
-						is_time_based_media = true;
-						args["[CurrentURL]"] =  media_impl->getMediaURL();
-						is_media_playing = media_impl->isMediaPlaying();
+							media_plugin = media_impl->getMediaPlugin();
+							if(media_plugin)
+							{	if(media_plugin->pluginSupportsMediaTime())
+								{
+									is_time_based_media = true;
+									args["[CurrentURL]"] =  media_impl->getMediaURL();
+									is_media_playing = media_impl->isMediaPlaying();
+								}
+								else
+								{
+									is_time_based_media = false;
+									args["[CurrentURL]"] =  media_plugin->getLocation();
+								}
+								//tooltip_msg.append(LLTrans::getString("CurrentURL", args));
+							}
+						}
 					}
-					else
-					{
-						is_time_based_media = false;
-						args["[CurrentURL]"] =  media_plugin->getLocation();
-					}
-					//tooltip_msg.append(LLTrans::getString("CurrentURL", args));
 				}
 				
 				bool needs_tip = needs_tooltip(nodep);
@@ -769,7 +778,7 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 					mPick = mHoverPick;
 					LLToolTipMgr::instance().show(LLToolTip::Params()
 						.message(tooltip_msg)
-						.image(LLUI::getUIImage("Info"))
+						.image(LLUI::getUIImage("Info_Off"))
 						.click_callback(boost::bind(showObjectInspector, hover_object->getID()))
 						.time_based_media(is_time_based_media)
 						.media_playing(is_media_playing)						  
@@ -1012,11 +1021,16 @@ void LLToolPie::playCurrentMedia(const LLPickInfo& info)
 	
 	// Does this face have media?
 	const LLTextureEntry* tep = objectp->getTE(info.mObjectFace);
+	if (!tep)
+		return;
+	
 	const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
+	if(!mep)
+		return;
+	
 	LLPluginClassMedia* media_plugin = NULL;
 	
-	if (mep
-		&& gSavedSettings.getBOOL("MediaOnAPrimUI"))
+	if (gSavedSettings.getBOOL("MediaOnAPrimUI"))
 	{		
 		viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
 		
@@ -1141,12 +1155,17 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 
 	// Does this face have media?
 	const LLTextureEntry* tep = objectp->getTE(pick.mObjectFace);
+	if(!tep)
+		return false;
+
 	LLMediaEntry* mep = (tep->hasMedia()) ? tep->getMediaData() : NULL;
+	
+	if(!mep)
+		return false;
+	
 	viewer_media_t media_impl = mep ? LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID()) : NULL;
 
-	if (tep 
-		&& mep
-		&& gSavedSettings.getBOOL("MediaOnAPrimUI")
+	if (gSavedSettings.getBOOL("MediaOnAPrimUI")
 		&& media_impl.notNull())
 	{
 		if (!LLViewerMediaFocus::getInstance()->isFocusedOnFace(pick.getObject(), pick.mObjectFace) )
@@ -1191,6 +1210,9 @@ bool LLToolPie::handleMediaHover(const LLPickInfo& pick)
 
 	// Does this face have media?
 	const LLTextureEntry* tep = objectp->getTE(pick.mObjectFace);
+	if(!tep)
+		return false;
+	
 	const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
 	if (mep
 		&& gSavedSettings.getBOOL("MediaOnAPrimUI"))

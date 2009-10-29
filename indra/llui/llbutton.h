@@ -176,6 +176,7 @@ public:
 	BOOL			getToggleState() const;
 	void			setToggleState(BOOL b);
 
+	void			setHighlight(bool b);
 	void			setFlashing( BOOL b );
 	BOOL			getFlashing() const		{ return mFlashing; }
 

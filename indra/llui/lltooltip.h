@@ -94,7 +94,7 @@ public:
 	};
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
-
+	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 	/*virtual*/ void setValue(const LLSD& value);
 	/*virtual*/ void setVisible(BOOL visible);
 
@@ -106,6 +106,7 @@ public:
 
 private:
 	class LLTextBox*	mTextBox;
+	class LLButton*     mInfoButton;
 	class LLButton*     mPlayMediaButton;
 	LLFrameTimer	mFadeTimer;
 	LLFrameTimer	mVisibleTimer;

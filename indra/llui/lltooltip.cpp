@@ -170,7 +170,10 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 :	LLPanel(p),
 	mMaxWidth(p.max_width),
 	mHasClickCallback(p.click_callback.isProvided()),
-	mPadding(p.padding)
+	mPadding(p.padding),
+	mTextBox(NULL),
+	mInfoButton(NULL),
+	mPlayMediaButton(NULL)
 {
 	LLTextBox::Params params;
 	params.initial_value = "tip_text";
@@ -194,25 +197,26 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	S32 TOOLTIP_PLAYBUTTON_SIZE = 0;
 	if (p.image.isProvided())
 	{
-		LLIconCtrl::Params icon_params;
-		icon_params.name = "tooltip_icon";
+		LLButton::Params icon_params;
+		icon_params.name = "tooltip_info";
 		LLRect icon_rect;
 		LLUIImage* imagep = p.image;
 		TOOLTIP_ICON_SIZE = (imagep ? imagep->getWidth() : 16);
 		icon_rect.setOriginAndSize(mPadding, mPadding, TOOLTIP_ICON_SIZE, TOOLTIP_ICON_SIZE);
 		icon_params.rect = icon_rect;
-		icon_params.follows.flags = FOLLOWS_LEFT | FOLLOWS_BOTTOM;
-		icon_params.image = p.image;
-		icon_params.mouse_opaque = false;
-		LLIconCtrl* tooltip_icon  = LLUICtrlFactory::create<LLIconCtrl>(icon_params);
-		addChild(tooltip_icon);
-
-		// move text over to fit image in
-		mTextBox->translate(TOOLTIP_ICON_SIZE + mPadding, 0);
+		//icon_params.follows.flags = FOLLOWS_LEFT | FOLLOWS_BOTTOM;
+		icon_params.image_unselected(imagep);
+		icon_params.scale_image(true);
+		icon_params.flash_color(icon_params.highlight_color());
+		mInfoButton  = LLUICtrlFactory::create<LLButton>(icon_params);
 		if (p.click_callback.isProvided())
 		{
-			tooltip_icon->setMouseUpCallback(boost::bind(p.click_callback()));
+			mInfoButton->setCommitCallback(boost::bind(p.click_callback()));
 		}
+		addChild(mInfoButton);
+		
+		// move text over to fit image in
+		mTextBox->translate(TOOLTIP_ICON_SIZE + mPadding, 0);
 	}
 	
 	if (p.time_based_media.isProvided() && p.time_based_media == true)
@@ -221,11 +225,12 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 		p_button.name(std::string("play_media"));
 		TOOLTIP_PLAYBUTTON_SIZE = 16;
 		LLRect button_rect;
-		button_rect.setOriginAndSize((mPadding +TOOLTIP_ICON_SIZE),mPadding, TOOLTIP_ICON_SIZE, TOOLTIP_ICON_SIZE);
+		button_rect.setOriginAndSize((mPadding +TOOLTIP_ICON_SIZE+ mPadding ), mPadding, TOOLTIP_ICON_SIZE, TOOLTIP_ICON_SIZE);
 		p_button.rect = button_rect;
 		p_button.image_selected.name("button_anim_pause.tga");
 		p_button.image_unselected.name("button_anim_play.tga");
 		p_button.scale_image(true);
+		
 		mPlayMediaButton = LLUICtrlFactory::create<LLButton>(p_button); 
 		if(p.click_playmedia_callback.isProvided())
 		{
@@ -239,6 +244,11 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 		
 		// move text over to fit image in
 		mTextBox->translate(TOOLTIP_PLAYBUTTON_SIZE + mPadding, 0);
+	}
+	
+	if (p.click_callback.isProvided())
+	{
+		setMouseUpCallback(boost::bind(p.click_callback()));
 	}
 }
 
@@ -286,12 +296,22 @@ void LLToolTip::setVisible(BOOL visible)
 
 BOOL LLToolTip::handleHover(S32 x, S32 y, MASK mask)
 {
+	//mInfoButton->setFlashing(true);
+	mInfoButton->setHighlight(true);
+	
 	LLPanel::handleHover(x, y, mask);
 	if (mHasClickCallback)
 	{
 		getWindow()->setCursor(UI_CURSOR_HAND);
 	}
 	return TRUE;
+}
+
+void LLToolTip::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	//mInfoButton->setFlashing(true);
+	mInfoButton->setHighlight(false);
+	LLUICtrl::onMouseLeave(x, y, mask);
 }
 
 void LLToolTip::draw()
