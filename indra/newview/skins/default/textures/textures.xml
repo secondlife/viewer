@@ -151,6 +151,7 @@
   <texture name="Inspector_Hover" file_name="windows/Inspector_Hover.png" preload="false" />
 
   <texture name="Inv_Acessories" file_name="icons/Inv_Accessories.png" preload="false" />
+  <texture name="Inv_Alpha" file_name="icons/Inv_Alpha.png" preload="false" />
   <texture name="Inv_Animation" file_name="icons/Inv_Animation.png" preload="false" />
   <texture name="Inv_BodyShape" file_name="icons/Inv_BodyShape.png" preload="false" />
   <texture name="Inv_CallingCard" file_name="icons/Inv_CallingCard.png" preload="false" />
@@ -175,6 +176,7 @@
   <texture name="Inv_Snapshot" file_name="icons/Inv_Snapshot.png" preload="false" />
   <texture name="Inv_Socks" file_name="icons/Inv_Socks.png" preload="false" />
   <texture name="Inv_Sound" file_name="icons/Inv_Sound.png" preload="false" />
+  <texture name="Inv_Tattoo" file_name="icons/Inv_Tattoo.png" preload="false" />
   <texture name="Inv_Texture" file_name="icons/Inv_Texture.png" preload="false" />
   <texture name="Inv_Trash" file_name="icons/Inv_Trash.png" preload="false" />
   <texture name="Inv_Underpants" file_name="icons/Inv_Underpants.png" preload="false" />
