@@ -155,7 +155,7 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mTotalTabWidth(0),
 	mTabPosition(p.tab_position),
 	mFontHalign(p.font_halign),
-	mFont(p.font.isProvided() ? p.font() : (mIsVertical ? LLFontGL::getFontSansSerif() : LLFontGL::getFontSansSerifSmall()))
+	mFont(p.font.isProvided() ? p.font() : (mIsVertical ? LLFontGL::getFontSansSerif() : LLFontGL::getFontSansSerifSmall())),
 	mFirstTabParams(p.first_tab),
 	mMiddleTabParams(p.middle_tab),
 	mLastTabParams(p.last_tab)
