@@ -8820,17 +8820,6 @@
       <key>Value</key>
       <real>16</real>
     </map>
-    <key>UIFloaterHeaderSize</key>
-    <map>
-      <key>Comment</key>
-      <string>UI floater header height in pixels</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <real>25</real>
-    </map>
     <key>UIFloaterHPad</key>
     <map>
       <key>Comment</key>

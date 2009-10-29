@@ -6,4 +6,6 @@
          bg_opaque_image="Window_Foreground" 
          bg_alpha_image="Window_Background" 
          background_visible="true"
-         background_opaque="false"/>
+         background_opaque="false"
+         header_height="25"
+         legacy_header_height="18" />

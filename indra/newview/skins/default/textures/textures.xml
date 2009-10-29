@@ -477,10 +477,10 @@
            scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />
   <texture name="Window_Foreground" file_name="windows/Window_Foreground.png" preload="true" 
            scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />
-
-
-
-
+  <texture name="Window_NoTitle_Background" file_name="windows/Window_NoTitle_Background.png" preload="true"
+           scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />
+  <texture name="Window_NoTitle_Foreground" file_name="windows/Window_NoTitle_Foreground.png" preload="true"
+           scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />
 
   <!--WARNING OLD ART *do not use*-->
 

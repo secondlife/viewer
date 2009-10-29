@@ -54,7 +54,8 @@ LLMultiFloater::LLMultiFloater(const LLSD& key, const LLFloater::Params& params)
 
 void LLMultiFloater::buildTabContainer()
 {
-	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
+	const LLFloater::Params& default_params = LLFloater::getDefaultParams();
+	S32 floater_header_size = default_params.header_height;
 	
 	LLTabContainer::Params p;
 	p.name(std::string("Preview Tabs"));
@@ -131,7 +132,8 @@ BOOL LLMultiFloater::closeAllFloaters()
 void LLMultiFloater::growToFit(S32 content_width, S32 content_height)
 {
 	static LLUICachedControl<S32> tabcntr_close_btn_size ("UITabCntrCloseBtnSize", 0);
-	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
+	const LLFloater::Params& default_params = LLFloater::getDefaultParams();
+	S32 floater_header_size = default_params.header_height;
 	S32 tabcntr_header_height = LLPANEL_BORDER_WIDTH + tabcntr_close_btn_size;
 	S32 new_width = llmax(getRect().getWidth(), content_width + LLPANEL_BORDER_WIDTH * 2);
 	S32 new_height = llmax(getRect().getHeight(), content_height + floater_header_size + tabcntr_header_height);
@@ -461,7 +463,8 @@ BOOL LLMultiFloater::postBuild()
 void LLMultiFloater::updateResizeLimits()
 {
 	static LLUICachedControl<S32> tabcntr_close_btn_size ("UITabCntrCloseBtnSize", 0);
-	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
+	const LLFloater::Params& default_params = LLFloater::getDefaultParams();
+	S32 floater_header_size = default_params.header_height;
 	S32 tabcntr_header_height = LLPANEL_BORDER_WIDTH + tabcntr_close_btn_size;
 	// initialize minimum size constraint to the original xml values.
 	S32 new_min_width = mOrigMinWidth;

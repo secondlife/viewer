@@ -3435,7 +3435,7 @@ void LLMenuHolderGL::setActivatedItem(LLMenuItemGL* item)
 LLTearOffMenu::LLTearOffMenu(LLMenuGL* menup) : 
 	LLFloater(LLSD())
 {
-	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
+	S32 floater_header_size = getHeaderHeight();
 
 	setName(menup->getName());
 	setTitle(menup->getLabel());
@@ -3479,7 +3479,6 @@ LLTearOffMenu::~LLTearOffMenu()
 
 void LLTearOffMenu::draw()
 {
-	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
 	mMenu->setBackgroundVisible(isBackgroundOpaque());
 	mMenu->needsArrange();
 
