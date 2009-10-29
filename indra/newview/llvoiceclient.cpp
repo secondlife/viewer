@@ -57,13 +57,13 @@
 #include "llagent.h"
 #include "llcachename.h"
 #include "llimview.h" // for LLIMMgr
-#include "llimpanel.h" // for LLVoiceChannel
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
 #include "llfirstuse.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
 #include "llvoavatarself.h"
+#include "llvoicechannel.h"
 
 #include "llfloaterfriends.h"  //VIVOX, inorder to refresh communicate panel
 #include "llfloaterchat.h"		// for LLFloaterChat::addChat()

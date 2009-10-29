@@ -125,6 +125,8 @@ public:
 	void setCanBeStored(bool can_be_stored) { mCanBeStored = can_be_stored; }
 	//
 	bool getCanBeStored() { return mCanBeStored; }
+	// set whether this toast considered as hidden or not
+	void setIsHidden( bool is_toast_hidden ) { mIsHidden = is_toast_hidden; }
 
 
 	// Registers signals/callbacks for events
@@ -164,6 +166,7 @@ private:
 	bool		mCanBeStored;
 	bool		mHideBtnEnabled;
 	bool		mHideBtnPressed;
+	bool		mIsHidden;  // this flag is TRUE when a toast has faded or was hidden with (x) button (EXT-1849)
 };
 
 }

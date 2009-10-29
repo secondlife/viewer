@@ -70,7 +70,11 @@ public:
 
 	void setContextMenu(LLAvatarListItem::ContextMenu* menu) { mContextMenu = menu; }
 
+	void toggleIcons();
 	void sortByName();
+	void setShowIcons(std::string param_name);
+	bool getIconsVisible() const { return mShowIcons; }
+	const std::string getIconParamName() const{return mIconParamName;}
 	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 protected:
@@ -86,7 +90,9 @@ private:
 
 	bool mIgnoreOnlineStatus;
 	bool mDirty;
+	bool mShowIcons;
 
+	std::string				mIconParamName;
 	std::string				mNameFilter;
 	uuid_vector_t			mIDs;
 

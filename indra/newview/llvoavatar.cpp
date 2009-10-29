@@ -6400,6 +6400,11 @@ LLBBox LLVOAvatar::getHUDBBox() const
 				 ++attachment_iter)
 			{
 				const LLViewerObject* attached_object = (*attachment_iter);
+				if (attached_object == NULL)
+				{
+					llwarns << "HUD attached object is NULL!" << llendl;
+					continue;
+				}
 				// initialize bounding box to contain identity orientation and center point for attached object
 				bbox.addPointLocal(attached_object->getPosition());
 				// add rotated bounding box for attached object

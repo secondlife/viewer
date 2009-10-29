@@ -108,7 +108,7 @@ public:
     /**
      * @brief Retrieve a landmark from gLandmarkList by inventory item's id
      * 
-     * @return pointer to loaded landmark from gLandmarkList or NULL if landmark does not exist.
+     * @return pointer to loaded landmark from gLandmarkList or NULL if landmark does not exist or wasn't loaded.
      */
     static LLLandmark* getLandmark(const LLUUID& landmarkInventoryItemID);
 

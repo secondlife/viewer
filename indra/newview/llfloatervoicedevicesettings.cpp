@@ -43,7 +43,7 @@
 #include "llsliderctrl.h"
 #include "llviewercontrol.h"
 #include "llvoiceclient.h"
-#include "llimpanel.h"
+#include "llvoicechannel.h"
 
 // Library includes (after viewer)
 #include "lluictrlfactory.h"

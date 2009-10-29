@@ -7753,6 +7753,39 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>FriendsListShowIcons</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide online and all friends icons in the friend list</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>NearbyListShowIcons</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide people icons in nearby list</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>RecentListShowIcons</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide people icons in recent list</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>FriendsSortOrder</key>
     <map>
       <key>Comment</key>
@@ -10470,6 +10503,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>90.0</real>
+    </map>
+    <key>YouAreHereDistance</key>
+    <map>
+      <key>Comment</key>
+      <string>Radius of distance for banner that indicates if the resident is "on" the Place.(meters from avatar to requested place)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>10.0</real>
     </map>
     <key>YieldTime</key>
     <map>

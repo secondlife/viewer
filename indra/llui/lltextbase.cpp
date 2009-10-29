@@ -419,9 +419,6 @@ void LLTextBase::drawCursor()
 			return;
 		}
 
-		if (!mTextRect.contains(cursor_rect))
-			return;
-
 		// Draw the cursor
 		// (Flash the cursor every half second starting a fixed time after the last keystroke)
 		F32 elapsed = mCursorBlinkTimer.getElapsedTimeF32();
@@ -973,7 +970,7 @@ void LLTextBase::draw()
 							: hasFocus() 
 								? mFocusBgColor.get() 
 								: mWriteableBgColor.get();
-		gl_rect_2d(mDocumentView->getRect(), bg_color, TRUE);
+		gl_rect_2d(mTextRect, bg_color, TRUE);
 	}
 
 	// draw document view
@@ -1034,13 +1031,13 @@ S32 LLTextBase::getLeftOffset(S32 width)
 	switch (mHAlign)
 	{
 	case LLFontGL::LEFT:
-		return 0;
+		return mHPad;
 	case LLFontGL::HCENTER:
-		return (mTextRect.getWidth() - width) / 2;
+		return mHPad + (mTextRect.getWidth() - width - mHPad) / 2;
 	case LLFontGL::RIGHT:
 		return mTextRect.getWidth() - width;
 	default:
-		return 0;
+		return mHPad;
 	}
 }
 
@@ -1048,8 +1045,6 @@ S32 LLTextBase::getLeftOffset(S32 width)
 static LLFastTimer::DeclareTimer FTM_TEXT_REFLOW ("Text Reflow");
 void LLTextBase::reflow(S32 start_index)
 {
-	if (!mReflowNeeded) return;
-
 	LLFastTimer ft(FTM_TEXT_REFLOW);
 
 	updateSegments();
@@ -1078,7 +1073,7 @@ void LLTextBase::reflow(S32 start_index)
 		segment_set_t::iterator seg_iter = mSegments.begin();
 		S32 seg_offset = 0;
 		S32 line_start_index = 0;
-		const S32 text_width = mTextRect.getWidth();  // optionally reserve room for margin
+		const S32 text_width = mTextRect.getWidth() - mHPad;  // reserve room for margin
 		S32 remaining_pixels = text_width;
 		LLWString text(getWText());
 		S32 line_count = 0;
@@ -2037,7 +2032,6 @@ void LLTextBase::updateRects()
 	}
 	else
 	{
-
 		mContentsRect = mLineInfoList.begin()->mRect;
 		for (line_list_t::const_iterator line_iter = ++mLineInfoList.begin();
 			line_iter != mLineInfoList.end();
@@ -2046,50 +2040,10 @@ void LLTextBase::updateRects()
 			mContentsRect.unionWith(line_iter->mRect);
 		}
 
-		mContentsRect.mRight += mHPad;
+		mContentsRect.mLeft = 0;
 		mContentsRect.mTop += mVPad;
-		// get around rounding errors when clipping text against rectangle
-		mContentsRect.stretch(1);
-	}
 
-
-	LLRect old_text_rect = mTextRect;
-	mTextRect = mScroller ? mScroller->getContentWindowRect() : getLocalRect();
-	//FIXME: replace border with image?
-	if (mBorderVisible)
-	{
-		mTextRect.stretch(-1);
-	}
-	mTextRect.mLeft += mHPad;
-	mTextRect.mTop -= mVPad;
-	if (mTextRect != old_text_rect)
-	{
-		needsReflow();
-	}
-
-	// change document rect size too
-	LLRect document_rect;
-	if (mScroller)
-	{
-		// document is size of scroller or size of text contents, whichever is larger
-		document_rect.setOriginAndSize(0, 0, 
-									mScroller->getContentWindowRect().getWidth(), 
-									llmax(mScroller->getContentWindowRect().getHeight(), mContentsRect.getHeight()));
-	}
-	else
-	{
-		// document size is just extents of reflowed text, reset to origin 0,0
-		document_rect.set(0, 
-						getLocalRect().getHeight(), 
-						getLocalRect().getWidth(), 
-						llmin(0, getLocalRect().getHeight() - mContentsRect.getHeight()));
-	}
-	mDocumentView->setShape(document_rect);
-
-	// after making document big enough to hold all the text, move the text to fit in the document
-	if (!mLineInfoList.empty())
-	{
-		S32 delta_pos = mDocumentView->getRect().getHeight() - mLineInfoList.begin()->mRect.mTop - mVPad;
+		S32 delta_pos = -mContentsRect.mBottom;
 		// move line segments to fit new document rect
 		for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
 		{
@@ -2097,6 +2051,32 @@ void LLTextBase::updateRects()
 		}
 		mContentsRect.translate(0, delta_pos);
 	}
+
+	// update document container dimensions according to text contents
+	LLRect doc_rect = mContentsRect;
+	// use old mTextRect constraint document to width of viewable region
+	doc_rect.mRight = doc_rect.mLeft + mTextRect.getWidth();
+
+	mDocumentView->setShape(doc_rect);
+
+	//update mTextRect *after* mDocumentView has been resized
+	// so that scrollbars are added if document needs to scroll
+	// since mTextRect does not include scrollbars
+	LLRect old_text_rect = mTextRect;
+	mTextRect = mScroller ? mScroller->getContentWindowRect() : getLocalRect();
+	//FIXME: replace border with image?
+	if (mBorderVisible)
+	{
+		mTextRect.stretch(-1);
+	}
+	if (mTextRect != old_text_rect)
+	{
+		needsReflow();
+	}
+
+	// update document container again, using new mTextRect
+	doc_rect.mRight = doc_rect.mLeft + mTextRect.getWidth();
+	mDocumentView->setShape(doc_rect);
 }
 
 
@@ -2398,7 +2378,6 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	{
 		if (text[last_char] == '\n') 
 		{
-			last_char++;
 			break;
 		}
 	}
@@ -2418,9 +2397,14 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 		// If at the beginning of a line, and a single character won't fit, draw it anyway
 		num_chars = 1;
 	}
-	if (mStart + segment_offset + num_chars == mEditor.getLength())
+
+	// include *either* the EOF or newline character in this run of text
+	// but not both
+	S32 last_char_in_run = mStart + segment_offset + num_chars;
+	// check length first to avoid indexing off end of string
+	if (last_char_in_run >= mEditor.getLength() 
+		|| text[last_char_in_run] == '\n')
 	{
-		// include terminating NULL
 		num_chars++;
 	}
 	return num_chars;
@@ -2442,12 +2426,14 @@ void LLNormalTextSegment::dump() const
 // LLInlineViewSegment
 //
 
-LLInlineViewSegment::LLInlineViewSegment(LLView* view, S32 start, S32 end, bool force_new_line, S32 hpad, S32 vpad)
+LLInlineViewSegment::LLInlineViewSegment(const Params& p, S32 start, S32 end)
 :	LLTextSegment(start, end),
-	mView(view),
-	mForceNewLine(force_new_line),
-	mHPad(hpad), // one sided padding (applied to left and right)
-	mVPad(vpad)
+	mView(p.view),
+	mForceNewLine(p.force_newline),
+	mLeftPad(p.left_pad),
+	mRightPad(p.right_pad),
+	mTopPad(p.top_pad),
+	mBottomPad(p.bottom_pad)
 {
 } 
 
@@ -2467,8 +2453,8 @@ void	LLInlineViewSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 	}
 	else
 	{
-		width = mHPad * 2 + mView->getRect().getWidth();
-		height = mVPad * 2 + mView->getRect().getHeight();
+		width = mLeftPad + mRightPad + mView->getRect().getWidth();
+		height = mBottomPad + mTopPad + mView->getRect().getHeight();
 	}
 }
 
@@ -2491,14 +2477,14 @@ S32	LLInlineViewSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 void LLInlineViewSegment::updateLayout(const LLTextBase& editor)
 {
 	LLRect start_rect = editor.getDocRectFromDocIndex(mStart);
-	mView->setOrigin(start_rect.mLeft + mHPad, start_rect.mBottom + mVPad);
+	mView->setOrigin(start_rect.mLeft + mLeftPad, start_rect.mBottom + mBottomPad);
 }
 
 F32	LLInlineViewSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
 {
 	// return padded width of widget
 	// widget is actually drawn during mDocumentView's draw()
-	return (F32)(draw_rect.mLeft + mView->getRect().getWidth() + mHPad * 2);
+	return (F32)(draw_rect.mLeft + mView->getRect().getWidth() + mLeftPad + mRightPad);
 }
 
 void LLInlineViewSegment::unlinkFromDocument(LLTextBase* editor)

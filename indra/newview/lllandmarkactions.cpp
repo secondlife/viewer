@@ -348,7 +348,7 @@ LLLandmark* LLLandmarkActions::getLandmark(const LLUUID& landmarkInventoryItemID
 {
 	LLViewerInventoryItem* item = gInventory.getItem(landmarkInventoryItemID);
 	if (NULL == item)
-		return false;
+		return NULL;
 
 	const LLUUID& asset_id = item->getAssetUUID();
 	return gLandmarkList.getAsset(asset_id, NULL);

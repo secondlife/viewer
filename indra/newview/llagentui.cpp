@@ -89,6 +89,11 @@ std::string LLAgentUI::buildSLURL(const bool escaped /*= true*/)
 	return slurl;
 }
 
+//static
+BOOL LLAgentUI::checkAgentDistance(const LLVector3& pole, F32 radius)
+{
+	return  (gAgent.getPositionAgent() - pole).length() < radius;
+}
 BOOL LLAgentUI::buildLocationString(std::string& str, ELocationFormat fmt,const LLVector3& agent_pos_region)
 {
 	LLViewerRegion* region = gAgent.getRegion();

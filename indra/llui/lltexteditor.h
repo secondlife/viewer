@@ -166,7 +166,7 @@ public:
 	// inserts text at cursor
 	void			insertText(const std::string &text);
 
-	void			appendWidget(LLView* widget, const std::string &widget_text, bool allow_undo, bool force_newline, S32 hpad, S32 vpad);
+	void			appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo);
 	// Non-undoable
 	void			setText(const LLStringExplicit &utf8str);
 
