@@ -48,7 +48,7 @@ LLAvatarListItem::LLAvatarListItem()
 :	LLPanel(),
 	mAvatarIcon(NULL),
 	mAvatarName(NULL),
-	mStatus(NULL),
+	mLastInteractionTime(NULL),
 	mSpeakingIndicator(NULL),
 	mInfoBtn(NULL),
 	mProfileBtn(NULL),
@@ -74,8 +74,8 @@ BOOL  LLAvatarListItem::postBuild()
 {
 	mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
 	mAvatarName = getChild<LLTextBox>("avatar_name");
-	mStatus = getChild<LLTextBox>("avatar_status");
-
+	mLastInteractionTime = getChild<LLTextBox>("last_interaction");
+	
 	mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
 	mInfoBtn = getChild<LLButton>("info_btn");
 	mProfileBtn = getChild<LLButton>("profile_btn");
@@ -96,12 +96,6 @@ BOOL  LLAvatarListItem::postBuild()
 
 		rect.setLeftTopAndSize(mName->getRect().mLeft, mName->getRect().mTop, mName->getRect().getWidth() + 30, mName->getRect().getHeight());
 		mName->setRect(rect);
-
-		if(mStatus)
-		{
-			rect.setLeftTopAndSize(mStatus->getRect().mLeft + 30, mStatus->getRect().mTop, mStatus->getRect().getWidth(), mStatus->getRect().getHeight());
-			mStatus->setRect(rect);
-		}
 
 		if(mLocator)
 		{
@@ -135,11 +129,6 @@ void LLAvatarListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 	mProfileBtn->setVisible(false);
 
 	LLPanel::onMouseLeave(x, y, mask);
-}
-
-void LLAvatarListItem::setStatus(const std::string& status)
-{
-	mStatus->setValue(status);
 }
 
 // virtual, called by LLAvatarTracker
@@ -195,6 +184,24 @@ void LLAvatarListItem::setAvatarId(const LLUUID& id, bool ignore_status_changes)
 	gCacheName->get(id, FALSE, boost::bind(&LLAvatarListItem::onNameCache, this, _2, _3));
 }
 
+void LLAvatarListItem::showLastInteractionTime(bool show)
+{
+	if (show)
+		return;
+
+	LLRect	name_rect	= mAvatarName->getRect();
+	LLRect	time_rect	= mLastInteractionTime->getRect();
+
+	mLastInteractionTime->setVisible(false);
+	name_rect.mRight += (time_rect.mRight - name_rect.mRight);
+	mAvatarName->setRect(name_rect);
+}
+
+void LLAvatarListItem::setLastInteractionTime(const std::string& val)
+{
+	mLastInteractionTime->setValue(val);
+}
+
 void LLAvatarListItem::setAvatarIconVisible(bool visible)
 {
 	// Already done? Then do nothing.
@@ -238,21 +245,6 @@ void LLAvatarListItem::onInfoBtnClick()
 void LLAvatarListItem::onProfileBtnClick()
 {
 	LLAvatarActions::showProfile(mAvatarId);
-}
-
-void LLAvatarListItem::showStatus(bool show_status)
-{
-	// *HACK: dirty hack until we can determine correct avatar status (EXT-1076).
-
-	if (show_status)
-		return;
-
-	LLRect	name_rect	= mAvatarName->getRect();
-	LLRect	status_rect	= mStatus->getRect();
-
-	mStatus->setVisible(show_status);
-	name_rect.mRight += (status_rect.mRight - name_rect.mRight);
-	mAvatarName->setRect(name_rect);
 }
 
 void LLAvatarListItem::setValue( const LLSD& value )
