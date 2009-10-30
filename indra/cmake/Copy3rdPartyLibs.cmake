@@ -11,104 +11,59 @@ if(WINDOWS)
     set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}/RelWithDebInfo")
     set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}/Release")
 
-#*******************************
-# VIVOX - *NOTE: no debug version
-set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-win32")
-set(vivox_files
-    SLVoice.exe
-    alut.dll
-    vivoxsdk.dll
-    ortp.dll
-    wrap_oal.dll
-    )
-
-#*******************************
-# Misc shared libs 
-
-# *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
-set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug")
-set(debug_files
-    openjpegd.dll
-    libtcmalloc_minimal-debug.dll
-    libapr-1.dll
-    libaprutil-1.dll
-    libapriconv-1.dll
-    )
-
-# *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
-set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release")
-set(release_files
-    openjpeg.dll
-    libtcmalloc_minimal.dll
-    libapr-1.dll
-    libaprutil-1.dll
-    libapriconv-1.dll
-    )
-
-if (FMOD_SDK_DIR)
-    set(fmod_files fmod.dll)
-    copy_if_different(
-        ${FMOD_SDK_DIR} 
-        "${CMAKE_CURRENT_BINARY_DIR}/Debug"
-        out_targets 
-        ${fmod_files}
+    #*******************************
+    # VIVOX - *NOTE: no debug version
+    set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-win32")
+    set(vivox_files
+        SLVoice.exe
+        alut.dll
+        vivoxsdk.dll
+        ortp.dll
+        wrap_oal.dll
         )
-    set(all_targets ${all_targets} ${out_targets})
-    copy_if_different(
-        ${FMOD_SDK_DIR} 
-        "${CMAKE_CURRENT_BINARY_DIR}/Release"
-        out_targets 
-        ${fmod_files}
+
+    #*******************************
+    # Misc shared libs 
+
+    # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
+    set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug")
+    set(debug_files
+        openjpegd.dll
+        libtcmalloc_minimal-debug.dll
+        libapr-1.dll
+        libaprutil-1.dll
+        libapriconv-1.dll
         )
-    set(all_targets ${all_targets} ${out_targets})
-    copy_if_different(
-        ${FMOD_SDK_DIR} 
-        "${CMAKE_CURRENT_BINARY_DIR}/RelWithDbgInfo"
-        out_targets 
-        ${fmod_files}
+
+    # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
+    set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release")
+    set(release_files
+        openjpeg.dll
+        libtcmalloc_minimal.dll
+        libapr-1.dll
+        libaprutil-1.dll
+        libapriconv-1.dll
         )
-    set(all_targets ${all_targets} ${out_targets})
-endif (FMOD_SDK_DIR)
 
+    if (FMOD_SDK_DIR)
+        set(fmod_files fmod.dll)
+    endif (FMOD_SDK_DIR)
 
-#*******************************
-# LLKDU
-set(internal_llkdu_path "${CMAKE_SOURCE_DIR}/llkdu")
-if(NOT EXISTS ${internal_llkdu_path})
-    if (EXISTS "${debug_src_dir}/llkdu.dll")
-        set(debug_llkdu_src "${debug_src_dir}/llkdu.dll")
-        set(debug_llkdu_dst "${SHARED_LIB_STAGING_DIR_DEBUG}/llkdu.dll")
-        ADD_CUSTOM_COMMAND(
-            OUTPUT  ${debug_llkdu_dst}
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${debug_llkdu_src} ${debug_llkdu_dst}
-            DEPENDS ${debug_llkdu_src}
-            COMMENT "Copying llkdu.dll ${SHARED_LIB_STAGING_DIR_DEBUG}"
-            )
-        set(third_party_targets ${third_party_targets} $} ${debug_llkdu_dst})
-    endif (EXISTS "${debug_src_dir}/llkdu.dll")
+    #*******************************
+    # LLKDU
+    set(internal_llkdu_path "${CMAKE_SOURCE_DIR}/llkdu")
+    if(NOT EXISTS ${internal_llkdu_path})
+        if (EXISTS "${debug_src_dir}/llkdu.dll")
+            set(debug_llkdu_src "${debug_src_dir}/llkdu.dll")
+            set(debug_llkdu_dst "${SHARED_LIB_STAGING_DIR_DEBUG}/llkdu.dll")
+        endif (EXISTS "${debug_src_dir}/llkdu.dll")
 
-    if (EXISTS "${release_src_dir}/llkdu.dll")
-        set(release_llkdu_src "${release_src_dir}/llkdu.dll")
-        set(release_llkdu_dst "${SHARED_LIB_STAGING_DIR_RELEASE}/llkdu.dll")
-        ADD_CUSTOM_COMMAND(
-            OUTPUT  ${release_llkdu_dst}
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${release_llkdu_src} ${release_llkdu_dst}
-            DEPENDS ${release_llkdu_src}
-            COMMENT "Copying llkdu.dll ${SHARED_LIB_STAGING_DIR_RELEASE}"
-            )
-        set(third_party_targets ${third_party_targets} ${release_llkdu_dst})
-
-        set(relwithdebinfo_llkdu_dst "${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}/llkdu.dll")
-        ADD_CUSTOM_COMMAND(
-            OUTPUT  ${relwithdebinfo_llkdu_dst}
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${release_llkdu_src} ${relwithdebinfo_llkdu_dst}
-            DEPENDS ${release_llkdu_src}
-            COMMENT "Copying llkdu.dll ${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}"
-            )
-        set(third_party_targets ${third_party_targets} ${relwithdebinfo_llkdu_dst})
-    endif (EXISTS "${release_src_dir}/llkdu.dll")
-
-endif (NOT EXISTS ${internal_llkdu_path})
+        if (EXISTS "${release_src_dir}/llkdu.dll")
+            set(release_llkdu_src "${release_src_dir}/llkdu.dll")
+            set(release_llkdu_dst "${SHARED_LIB_STAGING_DIR_RELEASE}/llkdu.dll")
+            set(relwithdebinfo_llkdu_dst "${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}/llkdu.dll")
+        endif (EXISTS "${release_src_dir}/llkdu.dll")
+    endif (NOT EXISTS ${internal_llkdu_path})
 
 #*******************************
 # Copy MS C runtime dlls, required for packaging.
@@ -183,6 +138,25 @@ elseif(DARWIN)
     set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib/release")
     set(release_files
        )
+
+    # fmod is statically linked on darwin
+    set(fmod_files "")
+
+    #*******************************
+    # LLKDU
+    set(internal_llkdu_path "${CMAKE_SOURCE_DIR}/llkdu")
+    if(NOT EXISTS ${internal_llkdu_path})
+        if (EXISTS "${debug_src_dir}/libllkdu.dylib")
+            set(debug_llkdu_src "${debug_src_dir}/libllkdu.dylib")
+            set(debug_llkdu_dst "${SHARED_LIB_STAGING_DIR_DEBUG}/libllkdu.dylib")
+        endif (EXISTS "${debug_src_dir}/libllkdu.dylib")
+
+        if (EXISTS "${release_src_dir}/libllkdu.dylib")
+            set(release_llkdu_src "${release_src_dir}/libllkdu.dylib")
+            set(release_llkdu_dst "${SHARED_LIB_STAGING_DIR_RELEASE}/libllkdu.dylib")
+            set(relwithdebinfo_llkdu_dst "${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}/libllkdu.dylib")
+        endif (EXISTS "${release_src_dir}/libllkdu.dylib")
+    endif (NOT EXISTS ${internal_llkdu_path})
 elseif(LINUX)
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-linux")
     set(vivox_files
@@ -195,19 +169,43 @@ elseif(LINUX)
     set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib/release")
     set(release_files
        )
+
+    if (FMOD_SDK_DIR)
+        set(fmod_files "libfmod-3.75.so")
+    endif (FMOD_SDK_DIR)
+
+    #*******************************
+    # LLKDU
+    set(internal_llkdu_path "${CMAKE_SOURCE_DIR}/llkdu")
+    if(NOT EXISTS ${internal_llkdu_path})
+        if (EXISTS "${debug_src_dir}/libllkdu.so")
+            set(debug_llkdu_src "${debug_src_dir}/libllkdu.so")
+            set(debug_llkdu_dst "${SHARED_LIB_STAGING_DIR_DEBUG}/libllkdu.so")
+        endif (EXISTS "${debug_src_dir}/libllkdu.so")
+
+        if (EXISTS "${release_src_dir}/libllkdu.so")
+            set(release_llkdu_src "${release_src_dir}/libllkdu.so")
+            set(release_llkdu_dst "${SHARED_LIB_STAGING_DIR_RELEASE}/libllkdu.so")
+            set(relwithdebinfo_llkdu_dst "${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}/libllkdu.so")
+        endif (EXISTS "${release_src_dir}/libllkdu.so")
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-linux")
-    set(vivox_files
-       )
+    set(vivox_files "")
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
     set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib/debug")
-    set(debug_files
-       )
+    set(debug_files "")
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
     set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib/release")
-    set(release_files
-       )
+    set(release_files "")
+
+    set(fmod_files "")
+
+    set(debug_llkdu_src "")
+    set(debug_llkdu_dst "")
+    set(release_llkdu_src "")
+    set(release_llkdu_dst "")
+    set(relwithdebinfo_llkdu_dst "")
 endif(WINDOWS)
 
 
@@ -260,6 +258,64 @@ copy_if_different(
     ${release_files}
     )
 set(third_party_targets ${third_party_targets} ${out_targets})
+
+if (FMOD_SDK_DIR)
+    copy_if_different(
+        ${FMOD_SDK_DIR} 
+        "${CMAKE_CURRENT_BINARY_DIR}/Debug"
+        out_targets 
+        ${fmod_files}
+        )
+    set(all_targets ${all_targets} ${out_targets})
+    copy_if_different(
+        ${FMOD_SDK_DIR} 
+        "${CMAKE_CURRENT_BINARY_DIR}/Release"
+        out_targets 
+        ${fmod_files}
+        )
+    set(all_targets ${all_targets} ${out_targets})
+    copy_if_different(
+        ${FMOD_SDK_DIR} 
+        "${CMAKE_CURRENT_BINARY_DIR}/RelWithDbgInfo"
+        out_targets 
+        ${fmod_files}
+        )
+    set(all_targets ${all_targets} ${out_targets})
+endif (FMOD_SDK_DIR)
+
+#*******************************
+# LLKDU
+set(internal_llkdu_path "${CMAKE_SOURCE_DIR}/llkdu")
+if(NOT EXISTS ${internal_llkdu_path})
+    if (EXISTS "${debug_llkdu_src}")
+        ADD_CUSTOM_COMMAND(
+            OUTPUT  ${debug_llkdu_dst}
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${debug_llkdu_src} ${debug_llkdu_dst}
+            DEPENDS ${debug_llkdu_src}
+            COMMENT "Copying llkdu.dll ${SHARED_LIB_STAGING_DIR_DEBUG}"
+            )
+        set(third_party_targets ${third_party_targets} $} ${debug_llkdu_dst})
+    endif (EXISTS "${debug_llkdu_src}")
+
+    if (EXISTS "${release_llkdu_src}")
+        ADD_CUSTOM_COMMAND(
+            OUTPUT  ${release_llkdu_dst}
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${release_llkdu_src} ${release_llkdu_dst}
+            DEPENDS ${release_llkdu_src}
+            COMMENT "Copying llkdu.dll ${SHARED_LIB_STAGING_DIR_RELEASE}"
+            )
+        set(third_party_targets ${third_party_targets} ${release_llkdu_dst})
+
+        ADD_CUSTOM_COMMAND(
+            OUTPUT  ${relwithdebinfo_llkdu_dst}
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${release_llkdu_src} ${relwithdebinfo_llkdu_dst}
+            DEPENDS ${release_llkdu_src}
+            COMMENT "Copying llkdu.dll ${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}"
+            )
+        set(third_party_targets ${third_party_targets} ${relwithdebinfo_llkdu_dst})
+    endif (EXISTS "${release_llkdu_src}")
+
+endif (NOT EXISTS ${internal_llkdu_path})
 
 
 add_custom_target(stage_third_party_libs ALL
