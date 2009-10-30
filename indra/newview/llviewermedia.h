@@ -109,7 +109,7 @@ class LLViewerMedia
 		static const impl_list &getPriorityList();
 		
 		// This is the comparitor used to sort the list.
-		static bool priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
+		static bool priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2);
 };
 
 // Implementation functions not exported into header file
