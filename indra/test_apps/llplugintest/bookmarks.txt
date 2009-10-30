@@ -34,3 +34,4 @@
 (QT) Movie - The Informers,http://movies.apple.com/movies/independent/theinformers/theinformers_h.320.mov
 (QT) Animated GIF,http://upload.wikimedia.org/wikipedia/commons/4/44/Optical.greysquares.arp-animated.gif
 (QT) Apple Text Descriptors,http://ubrowser.com/tmp/apple_text.txt
+(EX) Example Plugin,example://blah
