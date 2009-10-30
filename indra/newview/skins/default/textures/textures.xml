@@ -6,6 +6,8 @@
   <texture name="Accordion_ArrowOpened_Press" file_name="containers/Accordion_ArrowOpened_Press.png" preload="false" />
   <texture name="Accordion_Off" file_name="containers/Accordion_Off.png" preload="false" />
   <texture name="Accordion_Press" file_name="containers/Accordion_Press.png" preload="false" />
+  <texture name="Accordion_Over" file_name="containers/Accordion_Over.png" preload="false" />
+  <texture name="Accordion_Selected" file_name="containers/Accordion_Selected.png" preload="false" />
 
 <texture name="Activate_Checkmark" file_name="taskpanel/Activate_Checkmark.png" preload="false" />
 
