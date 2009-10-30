@@ -81,6 +81,13 @@ public:
 
 		Optional<click_callback_t>	click_callback;
 		Optional<LLUIImage*>		image;
+		
+		
+		Optional<bool>				time_based_media;
+		Optional<bool>				web_based_media;
+		Optional<bool>				media_playing;
+		Optional<click_callback_t>	click_playmedia_callback;
+		Optional<click_callback_t>	click_homepage_callback;
 		Optional<S32>				max_width;
 		Optional<S32>				padding;
 		Optional<bool>				wrap;
@@ -89,7 +96,7 @@ public:
 	};
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
-
+	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 	/*virtual*/ void setValue(const LLSD& value);
 	/*virtual*/ void setVisible(BOOL visible);
 
@@ -101,6 +108,10 @@ public:
 
 private:
 	class LLTextBox*	mTextBox;
+	class LLButton*     mInfoButton;
+	class LLButton*     mPlayMediaButton;
+	class LLButton*     mHomePageButton;
+
 	LLFrameTimer	mFadeTimer;
 	LLFrameTimer	mVisibleTimer;
 	S32				mMaxWidth;

@@ -4,6 +4,7 @@
 <!-- All this does is establish the position of the "close" button on the toast. -->
 
 <floater
+ legacy_header_height="18"
 	name="toast"
 	title=""
   visible="false"
@@ -12,6 +13,8 @@
   left="0"
   top="0"
   follows="right|bottom" 
+  bg_opaque_image="Toast_Background" 
+  bg_alpha_image="Toast_Background" 
   can_minimize="false"
   can_tear_off="false"
   can_resize="false"

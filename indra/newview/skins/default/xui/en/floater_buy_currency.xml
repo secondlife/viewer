@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater
+ legacy_header_height="18"
  can_minimize="false"
  height="275"
  layout="topleft"
+ title="Buy L$"
  name="buy currency"
  help_topic="buy_linden_dollars"
  single_instance="true"
- title="Buy L$"
  width="350">
     <floater.string
      name="buy_currency">
