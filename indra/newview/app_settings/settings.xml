@@ -8996,17 +8996,6 @@
       <key>Value</key>
       <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
     </map>
-    <key>UIImgDefaultTattooUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
-    </map>
     <key>UIImgDefaultUnderwearUUID</key>
     <map>
       <key>Comment</key>
