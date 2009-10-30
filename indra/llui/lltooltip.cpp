@@ -158,6 +158,7 @@ LLToolTip::Params::Params()
 	sticky_rect("sticky_rect"),
 	image("image"),
 	time_based_media("time_based_media", false),
+	web_based_media("web_based_media", false),
 	media_playing("media_playing", false)
 {
 	name = "tooltip";
@@ -173,7 +174,8 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	mPadding(p.padding),
 	mTextBox(NULL),
 	mInfoButton(NULL),
-	mPlayMediaButton(NULL)
+	mPlayMediaButton(NULL),
+	mHomePageButton(NULL)
 {
 	LLTextBox::Params params;
 	params.initial_value = "tip_text";
@@ -246,6 +248,28 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 		mTextBox->translate(TOOLTIP_PLAYBUTTON_SIZE + mPadding, 0);
 	}
 	
+	if (p.web_based_media.isProvided() && p.web_based_media == true)
+	{
+		LLButton::Params p_w_button;
+		p_w_button.name(std::string("home_page"));
+		TOOLTIP_PLAYBUTTON_SIZE = 16;
+		LLRect button_rect;
+		button_rect.setOriginAndSize((mPadding +TOOLTIP_ICON_SIZE+ mPadding ), mPadding, TOOLTIP_ICON_SIZE, TOOLTIP_ICON_SIZE);
+		p_w_button.rect = button_rect;
+		p_w_button.image_unselected.name("map_home.tga");
+		p_w_button.scale_image(true);
+		
+		mHomePageButton = LLUICtrlFactory::create<LLButton>(p_w_button); 
+		if(p.click_homepage_callback.isProvided())
+		{
+			mHomePageButton->setCommitCallback(boost::bind(p.click_homepage_callback()));
+		}
+		addChild(mHomePageButton);
+		
+		// move text over to fit image in
+		mTextBox->translate(TOOLTIP_PLAYBUTTON_SIZE + mPadding, 0);
+	}
+	
 	if (p.click_callback.isProvided())
 	{
 		setMouseUpCallback(boost::bind(p.click_callback()));
@@ -297,7 +321,8 @@ void LLToolTip::setVisible(BOOL visible)
 BOOL LLToolTip::handleHover(S32 x, S32 y, MASK mask)
 {
 	//mInfoButton->setFlashing(true);
-	mInfoButton->setHighlight(true);
+	if(mInfoButton)
+		mInfoButton->setHighlight(true);
 	
 	LLPanel::handleHover(x, y, mask);
 	if (mHasClickCallback)
@@ -310,7 +335,8 @@ BOOL LLToolTip::handleHover(S32 x, S32 y, MASK mask)
 void LLToolTip::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	//mInfoButton->setFlashing(true);
-	mInfoButton->setHighlight(false);
+	if(mInfoButton)
+		mInfoButton->setHighlight(false);
 	LLUICtrl::onMouseLeave(x, y, mask);
 }
 
@@ -444,7 +470,9 @@ void LLToolTipMgr::show(const LLToolTip::Params& params)
 		&& LLUI::getMouseIdleTime() > params.delay_time)	// the mouse has been still long enough
 	{
 		bool tooltip_changed = mLastToolTipParams.message() != params.message()
-								|| mLastToolTipParams.pos() != params.pos();
+								|| mLastToolTipParams.pos() != params.pos()
+								|| mLastToolTipParams.time_based_media() != params.time_based_media()
+								|| mLastToolTipParams.web_based_media() != params.web_based_media();
 
 		bool tooltip_shown = mToolTip 
 							 && mToolTip->getVisible() 
