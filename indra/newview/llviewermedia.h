@@ -106,7 +106,7 @@ class LLViewerMedia
 		static bool getInWorldMediaDisabled();
 				
 		// Returns the priority-sorted list of all media impls.
-		static const impl_list &getPriorityList();
+		static impl_list &getPriorityList();
 		
 		// This is the comparitor used to sort the list.
 		static bool priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2);

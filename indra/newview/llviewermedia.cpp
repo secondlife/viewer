@@ -442,7 +442,7 @@ bool LLViewerMedia::getInWorldMediaDisabled()
 	return sInWorldMediaDisabled;
 }
 
-const LLViewerMedia::impl_list &getPriorityList()
+LLViewerMedia::impl_list &LLViewerMedia::getPriorityList()
 {
 	return sViewerMediaImplList;
 }
