@@ -48,6 +48,7 @@ const BOOL BORDER_YES = TRUE;
 const BOOL BORDER_NO = FALSE;
 
 class LLButton;
+class LLUIImage;
 
 /*
  * General purpose concrete view base class.
@@ -72,11 +73,14 @@ public:
 		Optional<bool>			has_border;
 		Optional<LLViewBorder::Params>	border;
 
-		Optional<LLUIColor>		bg_opaque_color,
-								bg_alpha_color;
-
 		Optional<bool>			background_visible,
 								background_opaque;
+
+		Optional<LLUIColor>		bg_opaque_color,
+								bg_alpha_color;
+		// opaque image is for "panel in foreground" look
+		Optional<LLUIImage*>	bg_opaque_image,
+								bg_alpha_image;
 
 		Optional<S32>			min_width,
 								min_height;
@@ -127,10 +131,12 @@ public:
 	BOOL			hasBorder() const { return mBorder != NULL; }
 	void			setBorderVisible( BOOL b );
 
-	void			setBackgroundColor( const LLColor4& color ) { mBgColorOpaque = color; }
-	const LLColor4&	getBackgroundColor() const { return mBgColorOpaque; }
-	void			setTransparentColor(const LLColor4& color) { mBgColorAlpha = color; }
-	const LLColor4& getTransparentColor() const { return mBgColorAlpha; }
+	void			setBackgroundColor( const LLColor4& color ) { mBgOpaqueColor = color; }
+	const LLColor4&	getBackgroundColor() const { return mBgOpaqueColor; }
+	void			setTransparentColor(const LLColor4& color) { mBgAlphaColor = color; }
+	const LLColor4& getTransparentColor() const { return mBgAlphaColor; }
+	LLPointer<LLUIImage> getBackgroundImage() const { return mBgOpaqueImage; }
+	LLPointer<LLUIImage> getTransparentImage() const { return mBgAlphaImage; }
 	void			setBackgroundVisible( BOOL b )	{ mBgVisible = b; }
 	BOOL			isBackgroundVisible() const { return mBgVisible; }
 	void			setBackgroundOpaque(BOOL b)		{ mBgOpaque = b; }
@@ -248,10 +254,12 @@ protected:
 	std::string		mHelpTopic;         // the name of this panel's help topic to display in the Help Viewer
 	
 private:
-	LLUIColor		mBgColorAlpha;
-	LLUIColor		mBgColorOpaque;
-	BOOL			mBgVisible;
-	BOOL			mBgOpaque;
+	BOOL			mBgVisible;				// any background at all?
+	BOOL			mBgOpaque;				// use opaque color or image
+	LLUIColor		mBgOpaqueColor;
+	LLUIColor		mBgAlphaColor;
+	LLPointer<LLUIImage> mBgOpaqueImage;	// "panel in front" look
+	LLPointer<LLUIImage> mBgAlphaImage;		// "panel in back" look
 	LLViewBorder*	mBorder;
 	LLButton*		mDefaultBtn;
 	LLUIString		mLabel;

@@ -2448,28 +2448,20 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
 		}
 		else
 		{
-			F32 blend_frac = calc_bouncy_animation(appearance_anim_time / APPEARANCE_MORPH_TIME);
-			F32 last_blend_frac = calc_bouncy_animation(mLastAppearanceBlendTime / APPEARANCE_MORPH_TIME);
-			F32 morph_amt;
-			if (last_blend_frac == 1.f)
-			{
-				morph_amt = 1.f;
-			}
-			else
-			{
-				morph_amt = (blend_frac - last_blend_frac) / (1.f - last_blend_frac);
-			}
-
+			F32 morph_amt = calcMorphAmount();
 			LLVisualParam *param;
 
-			// animate only top level params
-			for (param = getFirstVisualParam();
-				 param;
-				 param = getNextVisualParam())
+			if (!isSelf())
 			{
-				if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+				// animate only top level params for non-self avatars
+				for (param = getFirstVisualParam();
+					 param;
+					 param = getNextVisualParam())
 				{
-					param->animate(morph_amt, mAppearanceAnimSetByUser);
+					if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+					{
+						param->animate(morph_amt, mAppearanceAnimSetByUser);
+					}
 				}
 			}
 
@@ -2485,6 +2477,25 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
 		}
 		dirtyMesh();
 	}
+}
+
+F32 LLVOAvatar::calcMorphAmount()
+{
+	F32 appearance_anim_time = mAppearanceMorphTimer.getElapsedTimeF32();
+	F32 blend_frac = calc_bouncy_animation(appearance_anim_time / APPEARANCE_MORPH_TIME);
+	F32 last_blend_frac = calc_bouncy_animation(mLastAppearanceBlendTime / APPEARANCE_MORPH_TIME);
+
+	F32 morph_amt;
+	if (last_blend_frac == 1.f)
+	{
+		morph_amt = 1.f;
+	}
+	else
+	{
+		morph_amt = (blend_frac - last_blend_frac) / (1.f - last_blend_frac);
+	}
+
+	return morph_amt;
 }
 
 void LLVOAvatar::idleUpdateLipSync(bool voice_enabled)

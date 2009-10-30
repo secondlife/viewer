@@ -193,6 +193,25 @@ void LLVOAvatarSelf::markDead()
 	LLVOAvatar::markDead();
 }
 
+/*virtual*/ BOOL LLVOAvatarSelf::loadAvatar()
+{
+	BOOL success = LLVOAvatar::loadAvatar();
+
+	// set all parameters sotred directly in the avatar to have
+	// the isSelfParam to be TRUE - this is used to prevent
+	// them from being animated or trigger accidental rebakes
+	// when we copy params from the wearable to the base avatar.
+	for (LLViewerVisualParam* param = (LLViewerVisualParam*) getFirstVisualParam(); 
+		 param;
+		 param = (LLViewerVisualParam*) getNextVisualParam())
+	{
+		param->setIsDummy(TRUE);
+	}
+
+	return success;
+}
+
+
 BOOL LLVOAvatarSelf::loadAvatarSelf()
 {
 	BOOL success = TRUE;
@@ -704,14 +723,21 @@ void LLVOAvatarSelf::updateVisualParams()
 		}
 	}
 
-	LLWearable *shape = gAgentWearables.getWearable(WT_SHAPE,0);
-	if (shape)
-	{
-		F32 gender = shape->getVisualParamWeight(80); // param 80 == gender
-		setVisualParamWeight("male",gender ,TRUE);
-	}
-
 	LLVOAvatar::updateVisualParams();
+}
+
+/*virtual*/
+void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
+{
+	// Animate all top-level wearable visual parameters
+	gAgentWearables.animateAllWearableParams(calcMorphAmount(), mAppearanceAnimSetByUser);
+
+	// apply wearable visual params to avatar
+	updateVisualParams();
+
+	//allow avatar to process updates
+	LLVOAvatar::idleUpdateAppearanceAnimation();
+
 }
 
 // virtual

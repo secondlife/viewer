@@ -127,7 +127,7 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	scroll_left_ctrl->setMouseUpCallback(onScrollStop, this);
 	LLButton* scroll_right_ctrl = getChild<LLButton>("scrollright");
 	scroll_right_ctrl->setClickedCallback(onScrollRight, this);
-	scroll_right_ctrl->setHeldDownCallback(onScrollLeftHeld, this);
+	scroll_right_ctrl->setHeldDownCallback(onScrollRightHeld, this);
 	scroll_right_ctrl->setMouseUpCallback(onScrollStop, this);
 	LLButton* scroll_down_ctrl = getChild<LLButton>("scrolldown");
 	scroll_down_ctrl->setClickedCallback(onScrollDown, this);
@@ -291,7 +291,7 @@ void LLPanelPrimMediaControls::updateShape()
 		// Disable zoom if HUD
 		zoom_ctrl->setEnabled(!objectp->isHUDAttachment());
 		secure_lock_icon->setVisible(false);
-		mCurrentURL = media_impl->getMediaURL();
+		mCurrentURL = media_impl->getCurrentMediaURL();
 		
 		back_ctrl->setEnabled((media_impl != NULL) && media_impl->canNavigateBack() && can_navigate);
 		fwd_ctrl->setEnabled((media_impl != NULL) && media_impl->canNavigateForward() && can_navigate);
@@ -472,7 +472,7 @@ void LLPanelPrimMediaControls::updateShape()
 			}
 		}
 
-		if(media_plugin)
+		if(media_impl)
 		{
 			//
 			// Handle Scrolling
@@ -480,16 +480,18 @@ void LLPanelPrimMediaControls::updateShape()
 			switch (mScrollState) 
 			{
 			case SCROLL_UP:
-				media_plugin->scrollEvent(0, -1, MASK_NONE);
+				media_impl->scrollWheel(0, -1, MASK_NONE);
 				break;
 			case SCROLL_DOWN:
-				media_plugin->scrollEvent(0, 1, MASK_NONE);
+				media_impl->scrollWheel(0, 1, MASK_NONE);
 				break;
 			case SCROLL_LEFT:
-				media_impl->handleKeyHere(KEY_LEFT, MASK_NONE);
+				media_impl->scrollWheel(1, 0, MASK_NONE);
+//				media_impl->handleKeyHere(KEY_LEFT, MASK_NONE);
 				break;
 			case SCROLL_RIGHT:
-				media_impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
+				media_impl->scrollWheel(-1, 0, MASK_NONE);
+//				media_impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
 				break;
 			case SCROLL_NONE:
 			default:
@@ -758,20 +760,10 @@ void LLPanelPrimMediaControls::onClickHome()
 
 void LLPanelPrimMediaControls::onClickOpen()
 {
-	LLViewerMediaImpl* impl =getTargetMediaImpl();
+	LLViewerMediaImpl* impl = getTargetMediaImpl();
 	if(impl)
 	{
-		if(impl->getMediaPlugin())
-		{	
-			if(impl->getMediaPlugin()->getLocation().empty())
-			{
-				LLWeb::loadURL(impl->getMediaURL());
-			}
-			else
-			{
-				LLWeb::loadURL( impl->getMediaPlugin()->getLocation());
-			}
-		}
+		LLWeb::loadURL(impl->getCurrentMediaURL());
 	}	
 }
 
@@ -895,11 +887,11 @@ void LLPanelPrimMediaControls::onScrollUp(void* user_data)
 	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (user_data);
 	this_panel->focusOnTarget();
 
-	LLPluginClassMedia* plugin = this_panel->getTargetMediaPlugin();
+	LLViewerMediaImpl* impl = this_panel->getTargetMediaImpl();
 	
-	if(plugin)
+	if(impl)
 	{
-		plugin->scrollEvent(0, -1, MASK_NONE);
+		impl->scrollWheel(0, -1, MASK_NONE);
 	}
 }
 void LLPanelPrimMediaControls::onScrollUpHeld(void* user_data)
@@ -916,7 +908,8 @@ void LLPanelPrimMediaControls::onScrollRight(void* user_data)
 
 	if(impl)
 	{
-		impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
+		impl->scrollWheel(-1, 0, MASK_NONE);
+//		impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
 	}
 }
 void LLPanelPrimMediaControls::onScrollRightHeld(void* user_data)
@@ -934,7 +927,8 @@ void LLPanelPrimMediaControls::onScrollLeft(void* user_data)
 
 	if(impl)
 	{
-		impl->handleKeyHere(KEY_LEFT, MASK_NONE);
+		impl->scrollWheel(1, 0, MASK_NONE);
+//		impl->handleKeyHere(KEY_LEFT, MASK_NONE);
 	}
 }
 void LLPanelPrimMediaControls::onScrollLeftHeld(void* user_data)
@@ -948,11 +942,11 @@ void LLPanelPrimMediaControls::onScrollDown(void* user_data)
 	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (user_data);
 	this_panel->focusOnTarget();
 
-	LLPluginClassMedia* plugin = this_panel->getTargetMediaPlugin();
+	LLViewerMediaImpl* impl = this_panel->getTargetMediaImpl();
 	
-	if(plugin)
+	if(impl)
 	{
-		plugin->scrollEvent(0, 1, MASK_NONE);
+		impl->scrollWheel(0, 1, MASK_NONE);
 	}
 }
 void LLPanelPrimMediaControls::onScrollDownHeld(void* user_data)
@@ -1000,6 +994,7 @@ void LLPanelPrimMediaControls::onInputURL(LLFocusableElement* caller, void *user
 
 void LLPanelPrimMediaControls::setCurrentURL()
 {	
+#ifdef USE_COMBO_BOX_FOR_MEDIA_URL
 	LLComboBox* media_address_combo	= getChild<LLComboBox>("media_address_combo");
 	// redirects will navigate momentarily to about:blank, don't add to history
 	if (media_address_combo && mCurrentURL != "about:blank")
@@ -1008,6 +1003,13 @@ void LLPanelPrimMediaControls::setCurrentURL()
 		media_address_combo->add(mCurrentURL, ADD_SORTED);
 		media_address_combo->selectByValue(mCurrentURL);
 	}
+#else   // USE_COMBO_BOX_FOR_MEDIA_URL
+	LLLineEditor* media_address_url = getChild<LLLineEditor>("media_address_url");
+	if (media_address_url && mCurrentURL != "about:blank")
+	{
+		media_address_url->setValue(mCurrentURL);
+	}
+#endif	// USE_COMBO_BOX_FOR_MEDIA_URL
 }
 
 void LLPanelPrimMediaControls::onCommitSlider()
