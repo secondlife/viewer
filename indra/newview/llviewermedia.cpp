@@ -512,6 +512,7 @@ void LLViewerMedia::updateMedia()
 	int impl_count_total = 0;
 	int impl_count_interest_low = 0;
 	int impl_count_interest_normal = 0;
+	int i = 0;
 
 #if 0	
 	LL_DEBUGS("PluginPriority") << "Sorted impls:" << llendl;
@@ -602,6 +603,17 @@ void LLViewerMedia::updateMedia()
 		}
 		
 		pimpl->setPriority(new_priority);
+		
+		if(!pimpl->getUsedInUI())
+		{
+			// Any impls used in the UI should not be in the proximity list.
+			pimpl->mProximity = -1;
+		}
+		else
+		{
+			// Other impls just get the same ordering as the priority list (for now).
+			pimpl->mProximity = i;
+		}
 
 #if 0		
 		LL_DEBUGS("PluginPriority") << "    " << pimpl 
@@ -614,6 +626,8 @@ void LLViewerMedia::updateMedia()
 #endif
 
 		total_cpu += pimpl->getCPUUsage();
+		
+		i++;
 	}
 	
 	LL_DEBUGS("PluginPriority") << "Total reported CPU usage is " << total_cpu << llendl;
@@ -661,6 +675,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mPreviousMediaState(MEDIA_NONE),
 	mPreviousMediaTime(0.0f),
 	mIsDisabled(false),
+	mProximity(-1),
 	mIsUpdated(false)
 { 
 

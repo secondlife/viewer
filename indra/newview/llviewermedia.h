@@ -257,6 +257,7 @@ public:
 	void calculateInterest();
 	F64 getInterest() const { return mInterest; };
 	F64 getApproximateTextureInterest();
+	S32 getProximity() { return mProximity; };
 	
 	// Mark this object as being used in a UI panel instead of on a prim
 	// This will be used as part of the interest sorting algorithm.
@@ -321,6 +322,7 @@ public:
 	int mPreviousMediaState;
 	F64 mPreviousMediaTime;
 	bool mIsDisabled;
+	S32 mProximity;
 
 private:
 	BOOL mIsUpdated ;
