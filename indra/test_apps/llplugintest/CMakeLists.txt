@@ -293,6 +293,7 @@ add_dependencies(llmediaplugintest
   SLPlugin
   media_plugin_quicktime
   media_plugin_webkit
+  media_plugin_example
   ${LLPLUGIN_LIBRARIES}
   ${LLMESSAGE_LIBRARIES}
   ${LLCOMMON_LIBRARIES}
@@ -367,6 +368,12 @@ if (DARWIN OR WINDOWS)
   add_custom_command(TARGET llmediaplugintest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_QUICKTIME_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
     DEPENDS ${BUILT_QUICKTIME_PLUGIN}
+  )
+  
+  get_target_property(BUILT_EXAMPLE_PLUGIN media_plugin_example LOCATION)
+  add_custom_command(TARGET llmediaplugintest POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_EXAMPLE_PLUGIN}  ${PLUGINS_DESTINATION_DIR}
+    DEPENDS ${BUILT_EXAMPLE_PLUGIN}
   )
   
   # copy over bookmarks file if llmediaplugintest gets built
