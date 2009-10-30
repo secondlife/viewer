@@ -123,7 +123,10 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 			{
 				mMediaControls.get()->resetZoomLevel();
 			}
+		}
 
+		if(hasFocus())
+		{
 			gFocusMgr.setKeyboardFocus(NULL);
 		}
 		
