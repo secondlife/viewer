@@ -630,9 +630,13 @@ void LLPanelPrimMediaControls::draw()
 
 		if(mFadeTimer.getElapsedTimeF32() >= mControlFadeTime)
 		{
-			setVisible(FALSE);
 			if(mClearFaceOnFade)
 			{
+				// Hiding this object makes scroll events go missing after it fades out 
+				// (see DEV-41755 for a full description of the train wreck).
+				// Only hide the controls when we're untargeting.
+				setVisible(FALSE);
+
 				mClearFaceOnFade = false;
 				mTargetImplID = LLUUID::null;
 				mTargetObjectID = LLUUID::null;
