@@ -5,7 +5,7 @@
 -->
 <floater
  bevel_style="in"
- bg_opaque_color="MouseGray"
+ bg_opaque_image="Inspector_Background" 
  can_close="false"
  can_minimize="false"
  height="138"

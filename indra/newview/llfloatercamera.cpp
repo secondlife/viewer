@@ -268,8 +268,8 @@ void LLFloaterCamera::updateState()
 	LLRect controls_rect;
 	if (childGetRect(CONTROLS, controls_rect))
 	{
-		static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
-		static S32 height = controls_rect.getHeight() - floater_header_size;
+		S32 floater_header_size = getHeaderHeight();
+		S32 height = controls_rect.getHeight() - floater_header_size;
 		S32 newHeight = rect.getHeight();
 		
 		if (showControls)

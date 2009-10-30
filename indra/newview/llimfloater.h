@@ -106,8 +106,6 @@ private:
 	// gets a rect that bounds possible positions for the LLIMFloater on a screen (EXT-1111)
 	void getAllowedRect(LLRect& rect);
 
-	static void chatFromLogFile(LLLogChat::ELogLineType type, std::string line, void* userdata);
-
 	// Add the "User is typing..." indicator.
 	void addTypingIndicator(const LLIMInfo* im_info);
 

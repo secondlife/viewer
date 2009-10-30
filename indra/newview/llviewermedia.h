@@ -145,6 +145,7 @@ public:
 	void mouseUp(const LLVector2& texture_coords, MASK mask, S32 button = 0);
 	void mouseMove(const LLVector2& texture_coords, MASK mask);
 	void mouseDoubleClick(S32 x,S32 y, MASK mask, S32 button = 0);
+	void scrollWheel(S32 x, S32 y, MASK mask);
 	void mouseCapture();
 	
 	void navigateBack();
@@ -159,6 +160,7 @@ public:
 	bool canNavigateForward();
 	bool canNavigateBack();
 	std::string getMediaURL() { return mMediaURL; }
+	std::string getCurrentMediaURL();
 	std::string getHomeURL() { return mHomeURL; }
     void setHomeURL(const std::string& home_url) { mHomeURL = home_url; };
 	std::string getMimeType() { return mMimeType; }
@@ -272,9 +274,10 @@ public:
 	LLPluginClassMedia* mMediaSource;
 	LLUUID mTextureId;
 	bool  mMovieImageHasMips;
-	std::string mMediaURL;
+	std::string mMediaURL;			// The last media url set with NavigateTo
 	std::string mHomeURL;
 	std::string mMimeType;
+	std::string mCurrentMediaURL;	// The most current media url from the plugin (via the "location changed" or "navigate complete" events).
 	S32 mLastMouseX;	// save the last mouse coord we get, so when we lose capture we can simulate a mouseup at that point.
 	S32 mLastMouseY;
 	S32 mMediaWidth;

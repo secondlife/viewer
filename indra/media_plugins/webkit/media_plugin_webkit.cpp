@@ -207,14 +207,13 @@ private:
 			// don't flip bitmap
 			LLQtWebKit::getInstance()->flipWindow( mBrowserWindowId, true );
 			
-			// Set the background color to black
-			LLQtWebKit::getInstance()->
 			// set background color to be black - mostly for initial login page
 			LLQtWebKit::getInstance()->setBackgroundColor( mBrowserWindowId, 0x00, 0x00, 0x00 );
 
-			// go to the "home page"
 			// Don't do this here -- it causes the dreaded "white flash" when loading a browser instance.
-//			LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, "about:blank" );
+			// FIXME: Re-added this because navigating to a "page" initializes things correctly - especially
+			// for the HTTP AUTH dialog issues (DEV-41731). Will fix at a later date.
+			LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, "about:blank" );
 
 			// set flag so we don't do this again
 			mBrowserInitialized = true;

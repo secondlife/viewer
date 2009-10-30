@@ -135,7 +135,6 @@ LLIMModel::LLIMModel()
 	addNewMsgCallback(toast_callback);
 }
 
-
 LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, const std::vector<LLUUID>& ids)
 :	mSessionID(session_id),
 	mName(name),
@@ -179,6 +178,9 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		mTextIMPossible = LLVoiceClient::getInstance()->isSessionTextIMPossible(mSessionID);
 		mOtherParticipantIsAvatar = LLVoiceClient::getInstance()->isParticipantAvatar(mSessionID);
 	}
+
+	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
+		LLLogChat::loadHistory(mName, &chatFromLogFile, (void *)this);
 }
 
 LLIMModel::LLIMSession::~LLIMSession()
@@ -217,6 +219,34 @@ void LLIMModel::LLIMSession::sessionInitReplyReceived(const LLUUID& new_session_
 	{
 		mSessionID = new_session_id;
 		mVoiceChannel->updateSessionID(new_session_id);
+	}
+}
+
+void LLIMModel::LLIMSession::addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time)
+{
+	LLSD message;
+	message["from"] = from;
+	message["from_id"] = from_id;
+	message["message"] = utf8_text;
+	message["time"] = time; 
+	message["index"] = (LLSD::Integer)mMsgs.size(); 
+
+	mMsgs.push_front(message); 
+}
+
+void LLIMModel::LLIMSession::chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata)
+{
+	if (!userdata) return;
+
+	LLIMSession* self = (LLIMSession*) userdata;
+
+	if (type == LLLogChat::LOG_LINE)
+	{
+		self->addMessage("", LLSD(), msg["message"].asString(), "");
+	}
+	else if (type == LLLogChat::LOG_LLSD)
+	{
+		self->addMessage(msg["from"].asString(), msg["from_id"].asUUID(), msg["message"].asString(), msg["time"].asString());
 	}
 }
 
@@ -348,39 +378,25 @@ bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, 
 		return false;
 	}
 
-	LLSD message;
-	message["from"] = from;
-	message["from_id"] = from_id;
-	message["message"] = utf8_text;
-	message["time"] = LLLogChat::timestamp(false);  //might want to add date separately
-	message["index"] = (LLSD::Integer)session->mMsgs.size(); 
-
-	session->mMsgs.push_front(message); 
+	session->addMessage(from, from_id, utf8_text, LLLogChat::timestamp(false)); //might want to add date separately
 
 	return true;
-
 }
 
 //*TODO rewrite chat history persistence using LLSD serialization (IB)
-bool LLIMModel::logToFile(const LLUUID& session_id, const std::string& from, const std::string& utf8_text)
+bool LLIMModel::logToFile(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
 {
 	S32 im_log_option =  gSavedPerAccountSettings.getS32("IMLogOptions");
 	if (im_log_option != LOG_CHAT)
 	{
-		std::string histstr;
-		if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
-			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + from + IM_SEPARATOR + utf8_text;
-		else
-			histstr = from + IM_SEPARATOR + utf8_text;
-
 		if(im_log_option == LOG_BOTH_TOGETHER)
 		{
-			LLLogChat::saveHistory(std::string("chat"), histstr);
+			LLLogChat::saveHistory(std::string("chat"), from, from_id, utf8_text);
 			return true;
 		}
 		else
 		{
-			LLLogChat::saveHistory(LLIMModel::getInstance()->getName(session_id), histstr);
+			LLLogChat::saveHistory(LLIMModel::getInstance()->getName(session_id), from, from_id, utf8_text);
 			return true;
 		}
 	}
@@ -398,7 +414,7 @@ bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 	}
 
 	addToHistory(session_id, from, from_id, utf8_text);
-	if (log2file) logToFile(session_id, from, utf8_text);
+	if (log2file) logToFile(session_id, from, from_id, utf8_text);
 
 	session->mNumUnread++;
 
@@ -1360,14 +1376,9 @@ void LLIMMgr::addMessage(
 		fixed_session_name = session_name;
 	}
 
-	bool new_session = !hasSession(session_id);
+	bool new_session = !hasSession(new_session_id);
 	if (new_session)
 	{
-		// *NOTE dzaporozhan
-		// Workaround for critical bug EXT-1918
-
-		// *TODO 
-		// Investigate cases when session_id == NULL and find solution to handle those cases
 		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id);
 	}
 

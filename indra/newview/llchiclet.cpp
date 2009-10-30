@@ -37,7 +37,6 @@
 #include "llbottomtray.h"
 #include "llgroupactions.h"
 #include "lliconctrl.h"
-#include "llimpanel.h"				// LLFloaterIMPanel
 #include "llimfloater.h"
 #include "llimview.h"
 #include "llfloaterreg.h"
@@ -1398,7 +1397,7 @@ void LLTalkButton::onClick_ShowBtn()
 
 
 	LLAvatarListItem* item = new LLAvatarListItem();
-	item->showStatus(true);
+	item->showLastInteractionTime(false);
 	item->showInfoBtn(true);
 	item->showSpeakingIndicator(true);
 	item->reshape(mPrivateCallPanel->getRect().getWidth(), item->getRect().getHeight(), FALSE);

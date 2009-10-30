@@ -47,17 +47,17 @@
      top="6"
      use_ellipses="true"
      value="Unknown"
-     width="166" />
+     width="196" />
     <text
-     follows="left"
+     follows="right"
      font="SansSerifSmall"
      height="15"
      layout="topleft"
      left_pad="10"
-     name="avatar_status"
+     name="last_interaction"
      text_color="LtGray_50"
-     value="Away"
-     width="50" />
+     value="0s"
+     width="24" />
     <output_monitor
      auto_update="true"
      follows="right"
@@ -75,6 +75,7 @@
      image_pressed="Info_Press"
      image_hover="Info_Over"
      image_unselected="Info_Off"
+     layout="topleft"
      left_pad="3"
      right="-25"
      name="info_btn"
