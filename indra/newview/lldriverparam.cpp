@@ -224,6 +224,7 @@ void LLDriverParam::setAvatar(LLVOAvatar *avatarp)
 		}
 	}
 	*new_param = *this;
+	new_param->setIsDummy(FALSE);
 	return new_param;
 }
 

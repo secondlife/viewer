@@ -561,7 +561,7 @@ void LLFloaterColorPicker::draw()
 	// create rgb area outline
 	gl_rect_2d ( mRGBViewerImageLeft,
 				 mRGBViewerImageTop - mRGBViewerImageHeight,
-				 mRGBViewerImageLeft + mRGBViewerImageWidth,
+				 mRGBViewerImageLeft + mRGBViewerImageWidth + 1,
 				 mRGBViewerImageTop,
 				 LLColor4 ( 0.0f, 0.0f, 0.0f, 1.0f ),
 				 FALSE );
@@ -591,7 +591,7 @@ void LLFloaterColorPicker::draw()
 	// draw luminance slider outline
 	gl_rect_2d ( mLumRegionLeft,
 				 mLumRegionTop - mLumRegionHeight,
-				 mLumRegionLeft + mLumRegionWidth,
+				 mLumRegionLeft + mLumRegionWidth + 1,
 				 mLumRegionTop,
 				 LLColor4 ( 0.0f, 0.0f, 0.0f, 1.0f ),
 				 FALSE );
@@ -607,7 +607,7 @@ void LLFloaterColorPicker::draw()
 	// draw selected color swatch outline
 	gl_rect_2d ( mSwatchRegionLeft,
 				 mSwatchRegionTop - mSwatchRegionHeight,
-				 mSwatchRegionLeft + mSwatchRegionWidth,
+				 mSwatchRegionLeft + mSwatchRegionWidth + 1,
 				 mSwatchRegionTop,
 				 LLColor4 ( 0.0f, 0.0f, 0.0f, 1.0f ),
 				 FALSE );

@@ -173,7 +173,8 @@ LLVisualParam::LLVisualParam()
 	mTargetWeight( 0.f ),
 	mIsAnimating( FALSE ),
 	mID( -1 ),
-	mInfo( 0 )
+	mInfo( 0 ),
+	mIsDummy(FALSE)
 {
 }
 
@@ -251,6 +252,13 @@ void LLVisualParam::setWeight(F32 weight, BOOL set_by_user)
 //-----------------------------------------------------------------------------
 void LLVisualParam::setAnimationTarget(F32 target_value, BOOL set_by_user)
 {
+	// don't animate dummy parameters
+	if (mIsDummy)
+	{
+		setWeight(target_value, set_by_user);
+		return;
+	}
+
 	if (mInfo)
 	{
 		if (getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)

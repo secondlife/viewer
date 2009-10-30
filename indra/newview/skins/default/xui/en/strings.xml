@@ -74,6 +74,7 @@
 	<string name="TooltipTeleportUrl">Click to teleport to this location</string>
 	<string name="TooltipObjectIMUrl">Click to view this object's description</string>
 	<string name="TooltipSLAPP">Click to run the secondlife:// command</string>
+	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />
 	
 	<!-- ButtonToolTips, llfloater.cpp -->
 	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;W)</string>
@@ -636,7 +637,7 @@ Sets the script timer to zero
 float llGetAndResetTime()
 Returns the script time in seconds and then resets the script timer to zero
 	</string>
-	<string name="LSLTipText_llSound" translate="false">
+	<string name="LSLTipText_llSoplayund" translate="false">
 llSound(string sound, float volume, integer queue, integer loop)
 Plays sound at volume and whether it should loop or not
 	</string>
@@ -2187,6 +2188,7 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 
 	<!-- media -->
 	<string name="Multiple Media">Multiple Media</string>
+	<string name="Play Media">Play/Pause Media</string>
 	
 	<!-- OSMessageBox messages -->
 	<string name="MBCmdLineError">

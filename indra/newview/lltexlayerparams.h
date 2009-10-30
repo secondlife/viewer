@@ -49,7 +49,6 @@ public:
 protected:
 	LLTexLayerInterface*	mTexLayer;
 	LLVOAvatar*             mAvatar;
-	BOOL					mIsWearableParam;
 };
 
 //-----------------------------------------------------------------------------
