@@ -148,8 +148,10 @@ public:
 	LLVisualParam*			getNextParam()		{ return mNext; }
 	void					setNextParam( LLVisualParam *next );
 	
-	virtual void			setAnimating(BOOL is_animating) { mIsAnimating = is_animating; }
+	virtual void			setAnimating(BOOL is_animating) { mIsAnimating = is_animating && !mIsDummy; }
 	BOOL					getAnimating() const { return mIsAnimating; }
+
+	void					setIsDummy(BOOL is_self) { mIsDummy = is_self; }
 
 protected:
 	F32					mCurWeight;			// current weight
@@ -157,6 +159,8 @@ protected:
 	LLVisualParam*		mNext;				// next param in a shared chain
 	F32					mTargetWeight;		// interpolation target
 	BOOL				mIsAnimating;	// this value has been given an interpolation target
+	BOOL				mIsDummy;  // this is used to prevent dummy visual params from animating
+
 
 	S32					mID;				// id for storing weight/morphtarget compares compactly
 	LLVisualParamInfo	*mInfo;

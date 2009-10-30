@@ -88,7 +88,6 @@
 #include "llhudeffect.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llimpanel.h"
 #include "llinventorymodel.h"
 #include "llfloaterinventory.h"
 #include "llmenugl.h"

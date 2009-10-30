@@ -32,7 +32,6 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "lltoastimpanel.h"
-#include "llimpanel.h"
 
 const S32 LLToastIMPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 6;
 

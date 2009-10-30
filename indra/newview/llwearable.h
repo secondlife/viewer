@@ -119,6 +119,7 @@ public:
 	F32					getVisualParamWeight(S32 index) const;
 	LLVisualParam*		getVisualParam(S32 index) const;
 	void				getVisualParams(visual_param_vec_t &list);
+	void				animateParams(F32 delta, BOOL set_by_user);
 
 	LLColor4			getClothesColor(S32 te) const;
 	void 				setClothesColor( S32 te, const LLColor4& new_color, BOOL set_by_user );

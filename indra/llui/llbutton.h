@@ -242,8 +242,8 @@ public:
 	void		setForcePressedState(BOOL b) { mForcePressedState = b; }
 	
 protected:
-	const LLPointer<LLUIImage>&	getImageUnselected() const	{ return mImageUnselected; }
-	const LLPointer<LLUIImage>& getImageSelected() const	{ return mImageSelected; }
+	LLPointer<LLUIImage> getImageUnselected() const	{ return mImageUnselected; }
+	LLPointer<LLUIImage> getImageSelected() const	{ return mImageSelected; }
 
 	LLFrameTimer	mMouseDownTimer;
 

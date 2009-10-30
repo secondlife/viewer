@@ -303,6 +303,7 @@ background_visible="true"
              left="0"
              multi_select="true"
              name="avatar_list"
+             show_last_interaction_time="true"
              top="2"
              width="313" />
             <panel
