@@ -49,6 +49,7 @@
 #include "llweb.h"
 #include "llmediaentry.h"
 #include "llkeyboard.h"
+#include "lltoolmgr.h"
 
 //
 // LLViewerMediaFocus
@@ -116,7 +117,7 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 	}
 	else
 	{
-		if(mFocusedImplID != LLUUID::null)
+		if(mFocusedImplID.notNull())
 		{
 			if(mMediaControls.get())
 			{
@@ -310,6 +311,30 @@ BOOL LLViewerMediaFocus::handleScrollWheel(S32 x, S32 y, S32 clicks)
 
 void LLViewerMediaFocus::update()
 {
+	if(mFocusedImplID.notNull() || mFocusedObjectID.notNull())
+	{
+		// We have a focused impl/face.
+		if(!getFocus())
+		{
+			// We've lost keyboard focus -- check to see whether the media controls have it
+			if(mMediaControls.get() && mMediaControls.get()->hasFocus())
+			{
+				// the media controls have focus -- don't clear.
+			}
+			else
+			{
+				// Someone else has focus -- back off.
+				clearFocus();
+			}
+		}
+		else if(LLToolMgr::getInstance()->inBuildMode())
+		{
+			// Build tools are selected -- clear focus.
+			clearFocus();
+		}
+	}
+	
+	
 	LLViewerMediaImpl *media_impl = getFocusedMediaImpl();
 	LLViewerObject *viewer_object = getFocusedObject();
 	S32 face = mFocusedObjectFace;

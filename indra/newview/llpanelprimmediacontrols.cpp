@@ -595,9 +595,9 @@ void LLPanelPrimMediaControls::updateShape()
 			mLastCursorPos = cursor_pos_window;
 		}
 		
-		if(isMouseOver())
+		if(isMouseOver() || hasFocus())
 		{
-			// Never fade the controls if the mouse is over them.
+			// Never fade the controls if the mouse is over them or they have keyboard focus.
 			mFadeTimer.stop();
 		}
 		else if(!mClearFaceOnFade && (mInactivityTimer.getElapsedTimeF32() < mInactiveTimeout))
