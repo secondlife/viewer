@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater
+ legacy_header_height="18"
  can_minimize="false"
  height="275"
  layout="topleft"
