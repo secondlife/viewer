@@ -66,10 +66,15 @@ private:
 	observerListType mObservers;
 };
 
+class LLViewerMediaImpl;
+
 class LLViewerMedia
 {
 	LOG_CLASS(LLViewerMedia);
 	public:
+
+		typedef std::vector<LLViewerMediaImpl*> impl_list;
+
 		// Special case early init for just web browser component
 		// so we can show login screen.  See .cpp file for details. JC
 
@@ -97,6 +102,14 @@ class LLViewerMedia
 		static void mediaStop(void*);
 		static F32 getVolume();	
 		static void muteListChanged();
+		static void setInWorldMediaDisabled(bool disabled);
+		static bool getInWorldMediaDisabled();
+				
+		// Returns the priority-sorted list of all media impls.
+		static const impl_list &getPriorityList();
+		
+		// This is the comparitor used to sort the list.
+		static bool priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
 };
 
 // Implementation functions not exported into header file
@@ -179,6 +192,12 @@ public:
 	bool hasMedia();
 	bool isMediaFailed() { return mMediaSourceFailed; };
 	void resetPreviousMediaState();
+	
+	void setDisabled(bool disabled) { mIsDisabled = disabled; };
+	bool isMediaDisabled() { return mIsDisabled; };
+
+	// returns true if this instance should not be loaded (disabled, muted object, crashed, etc.)
+	bool isForcedUnloaded();
 
 	ECursorType getLastSetCursor() { return mLastSetCursor; };
 	
@@ -301,6 +320,7 @@ public:
 	bool mNeedsMuteCheck;
 	int mPreviousMediaState;
 	F64 mPreviousMediaTime;
+	bool mIsDisabled;
 
 private:
 	BOOL mIsUpdated ;

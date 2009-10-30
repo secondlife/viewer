@@ -168,8 +168,7 @@ public:
 		viewer_media_t mMediaImpl;
 		bool mInitialized;
 };
-typedef std::vector<LLViewerMediaImpl*> impl_list;
-static impl_list sViewerMediaImplList;
+static LLViewerMedia::impl_list sViewerMediaImplList;
 static LLTimer sMediaCreateTimer;
 static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
 static F32 sGlobalVolume = 1.0f;
@@ -183,8 +182,8 @@ static void add_media_impl(LLViewerMediaImpl* media)
 //////////////////////////////////////////////////////////////////////////////////////////
 static void remove_media_impl(LLViewerMediaImpl* media)
 {
-	impl_list::iterator iter = sViewerMediaImplList.begin();
-	impl_list::iterator end = sViewerMediaImplList.end();
+	LLViewerMedia::impl_list::iterator iter = sViewerMediaImplList.begin();
+	LLViewerMedia::impl_list::iterator end = sViewerMediaImplList.end();
 	
 	for(; iter != end; iter++)
 	{
@@ -203,6 +202,7 @@ class LLViewerMediaMuteListObserver : public LLMuteListObserver
 
 static LLViewerMediaMuteListObserver sViewerMediaMuteListObserver;
 static bool sViewerMediaMuteListObserverInitialized = false;
+static bool sInWorldMediaDisabled = false;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -428,15 +428,31 @@ void LLViewerMedia::muteListChanged()
 	}
 }
 
-// This is the predicate function used to sort sViewerMediaImplList by priority.
-static inline bool compare_impl_interest(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::setInWorldMediaDisabled(bool disabled)
 {
-	if(i1->mIsMuted || i1->mMediaSourceFailed)
+	sInWorldMediaDisabled = disabled;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::getInWorldMediaDisabled()
+{
+	return sInWorldMediaDisabled;
+}
+
+static const impl_list &getPriorityList();
+
+// This is the predicate function used to sort sViewerMediaImplList by priority.
+bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
+{
+	if(i1->isForcedUnloaded())
 	{
 		// Muted or failed items always go to the end of the list, period.
 		return false;
 	}
-	else if(i2->mIsMuted || i2->mMediaSourceFailed)
+	else if(i2->isForcedUnloaded())
 	{
 		// Muted or failed items always go to the end of the list, period.
 		return true;
@@ -483,7 +499,7 @@ void LLViewerMedia::updateMedia()
 	}
 		
 	// Sort the static instance list using our interest criteria
-	std::stable_sort(sViewerMediaImplList.begin(), sViewerMediaImplList.end(), compare_impl_interest);
+	std::stable_sort(sViewerMediaImplList.begin(), sViewerMediaImplList.end(), priorityComparitor);
 
 	// Go through the list again and adjust according to priority.
 	iter = sViewerMediaImplList.begin();
@@ -515,7 +531,7 @@ void LLViewerMedia::updateMedia()
 		
 		LLPluginClassMedia::EPriority new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 
-		if(pimpl->mIsMuted || pimpl->mMediaSourceFailed || (impl_count_total > (int)max_instances))
+		if(pimpl->isForcedUnloaded() || (impl_count_total > (int)max_instances))
 		{
 			// Never load muted or failed impls.
 			// Hard limit on the number of instances that will be loaded at one time
@@ -641,6 +657,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mNeedsMuteCheck(false),
 	mPreviousMediaState(MEDIA_NONE),
 	mPreviousMediaTime(0.0f),
+	mIsDisabled(false),
 	mIsUpdated(false)
 { 
 
@@ -1647,6 +1664,27 @@ void LLViewerMediaImpl::resetPreviousMediaState()
 {
 	mPreviousMediaState = MEDIA_NONE;
 	mPreviousMediaTime = 0.0f;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+bool LLViewerMediaImpl::isForcedUnloaded()
+{
+	if(mIsMuted || mMediaSourceFailed || mIsDisabled)
+	{
+		return true;
+	}
+	
+	if(sInWorldMediaDisabled)
+	{
+		// When inworld media is disabled, all instances that aren't marked as "used in UI" will not be loaded.
+		if(!mUsedInUI)
+		{
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
