@@ -71,7 +71,7 @@ owner James Linden
    width="150">
 L$300,000
   </text>
-    <text
+   <text
    follows="all"
    height="30"
    left="8"
@@ -84,24 +84,35 @@ This is a really long description for an object being as how it is at least 80 c
   </text>
   <!-- Overlapping buttons for all default actions.  Show "Buy" if
   for sale, "Sit" if can sit, etc. -->
-  <button
-     follows="top|left"
-     font="SansSerif"
-     height="23"
-     label="Buy"
-     left="10"
-     name="buy_btn"
-     top="114"
-     width="100" />
+   <text
+   follows="all"
+   height="15"
+   left_delta="0"
+   name="object_media_url"
+   top_pad="-5"
+   width="291"
+   max_length = "50" 
+   use_ellipses="true"
+   word_wrap="true"/>   
+    
   <button
    follows="top|left"
    font="SansSerif"
-   height="23"
+   height="20"
+   label="Buy"
+   left="10"
+   name="buy_btn"
+   top="114"
+   width="75" />
+  <button
+   follows="top|left"
+   font="SansSerif"
+   height="20"
    label="Pay"
    left_delta="0"
    name="pay_btn"
    top_delta="0"
-   width="100" />
+   width="75" />
   <button
    follows="top|left"
    font="SansSerif"
@@ -110,16 +121,16 @@ This is a really long description for an object being as how it is at least 80 c
    left_delta="0"
    name="take_free_copy_btn"
    top_delta="0"
-   width="100" />
+   width="75" />
   <button
    follows="top|left"
    font="SansSerifSmall"
-   height="23"
+   height="20"
    label="Touch"
    left_delta="0"
    name="touch_btn"
    top_delta="0"
-   width="100" />
+   width="75" />
   <button
    follows="top|left"
    font="SansSerif"
@@ -128,17 +139,27 @@ This is a really long description for an object being as how it is at least 80 c
    left_delta="0"
    name="sit_btn"
    top_delta="0"
-   width="100" />
+   width="75" />
   <button
    follows="top|left"
    font="SansSerifSmall"
-   height="23"
+   height="20"
    label="Open"
    left_delta="0"
    name="open_btn"
    top_delta="0"
-   width="100" />
-  <!-- non-overlapping buttons here -->
+   width="75" />
+  <icon
+   name="secure_browsing"
+   image_name="map_infohub.tga"
+   left_delta="80"
+   width="16"
+   height="16"
+   top_delta="2"
+   tool_tip="Secure Browsing"
+   follows="left|top"/> 
+   
+ <!--  non-overlapping buttons here -->
     <menu_button
      follows="top|left"
      height="18"

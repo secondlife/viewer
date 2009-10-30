@@ -258,7 +258,8 @@ void LLPanelPrimMediaControls::updateShape()
         LLUICtrl* zoom_ctrl					= getChild<LLUICtrl>("zoom_frame");
 		LLPanel* media_loading_panel		= getChild<LLPanel>("media_progress_indicator");
 		LLUICtrl* media_address_ctrl		= getChild<LLUICtrl>("media_address");
-		LLUICtrl* media_play_slider_ctrl	= getChild<LLUICtrl>("media_play_position");
+		LLUICtrl* media_play_slider_panel	= getChild<LLUICtrl>("media_play_position");
+		LLUICtrl* media_play_slider_ctrl	= getChild<LLUICtrl>("media_play_slider");
 		LLUICtrl* volume_ctrl				= getChild<LLUICtrl>("media_volume");
 		LLButton* volume_btn				= getChild<LLButton>("media_volume_button");
 		LLUICtrl* volume_up_ctrl			= getChild<LLUICtrl>("volume_up");
@@ -282,7 +283,7 @@ void LLPanelPrimMediaControls::updateShape()
 		close_ctrl->setVisible(has_focus);
 		open_ctrl->setVisible(true);
 		media_address_ctrl->setVisible(has_focus && !mini_controls);
-		media_play_slider_ctrl->setVisible(has_focus && !mini_controls);
+		media_play_slider_panel->setVisible(has_focus && !mini_controls);
 		volume_ctrl->setVisible(false);
 		volume_up_ctrl->setVisible(false);
 		volume_down_ctrl->setVisible(false);
@@ -309,8 +310,8 @@ void LLPanelPrimMediaControls::updateShape()
 			fwd_ctrl->setEnabled(has_focus);
 			media_address_ctrl->setVisible(false);
 			media_address_ctrl->setEnabled(false);
-			media_play_slider_ctrl->setVisible(!mini_controls);
-			media_play_slider_ctrl->setEnabled(!mini_controls);
+			media_play_slider_panel->setVisible(!mini_controls);
+			media_play_slider_panel->setEnabled(!mini_controls);
 				
 			volume_ctrl->setVisible(has_focus);
 			volume_up_ctrl->setVisible(has_focus);
@@ -406,8 +407,8 @@ void LLPanelPrimMediaControls::updateShape()
 			media_stop_ctrl->setVisible(FALSE);
 			media_address_ctrl->setVisible(has_focus && !mini_controls);
 			media_address_ctrl->setEnabled(has_focus && !mini_controls);
-			media_play_slider_ctrl->setVisible(FALSE);
-			media_play_slider_ctrl->setEnabled(FALSE);
+			media_play_slider_panel->setVisible(FALSE);
+			media_play_slider_panel->setEnabled(FALSE);
 				
 			volume_ctrl->setVisible(FALSE);
 			volume_up_ctrl->setVisible(FALSE);
@@ -594,9 +595,9 @@ void LLPanelPrimMediaControls::updateShape()
 			mLastCursorPos = cursor_pos_window;
 		}
 		
-		if(isMouseOver())
+		if(isMouseOver() || hasFocus())
 		{
-			// Never fade the controls if the mouse is over them.
+			// Never fade the controls if the mouse is over them or they have keyboard focus.
 			mFadeTimer.stop();
 		}
 		else if(!mClearFaceOnFade && (mInactivityTimer.getElapsedTimeF32() < mInactiveTimeout))
@@ -629,9 +630,13 @@ void LLPanelPrimMediaControls::draw()
 
 		if(mFadeTimer.getElapsedTimeF32() >= mControlFadeTime)
 		{
-			setVisible(FALSE);
 			if(mClearFaceOnFade)
 			{
+				// Hiding this object makes scroll events go missing after it fades out 
+				// (see DEV-41755 for a full description of the train wreck).
+				// Only hide the controls when we're untargeting.
+				setVisible(FALSE);
+
 				mClearFaceOnFade = false;
 				mTargetImplID = LLUUID::null;
 				mTargetObjectID = LLUUID::null;
