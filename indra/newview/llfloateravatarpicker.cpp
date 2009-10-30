@@ -35,6 +35,7 @@
 
 // Viewer includes
 #include "llagent.h"
+#include "llcallingcard.h"
 #include "llfocusmgr.h"
 #include "llfloaterreg.h"
 #include "llviewercontrol.h"
@@ -76,6 +77,7 @@ LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
 	mCloseOnSelect(FALSE)
 {
 // 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_avatar_picker.xml");
+	mCommitCallbackRegistrar.add("Refresh.FriendList", boost::bind(&LLFloaterAvatarPicker::populateFriend, this));
 }
 
 BOOL LLFloaterAvatarPicker::postBuild()
@@ -95,7 +97,11 @@ BOOL LLFloaterAvatarPicker::postBuild()
 	LLScrollListCtrl* nearme = getChild<LLScrollListCtrl>("NearMe");
 	nearme->setDoubleClickCallback(onBtnSelect, this);
 	childSetCommitCallback("NearMe", onList, this);
-	
+
+	LLScrollListCtrl* friends = getChild<LLScrollListCtrl>("Friends");
+	friends->setDoubleClickCallback(onBtnSelect, this);
+	childSetCommitCallback("Friends", onList, this);
+
 	childSetAction("Select", onBtnSelect, this);
 	childDisable("Select");
 
@@ -119,6 +125,8 @@ BOOL LLFloaterAvatarPicker::postBuild()
 	
 	center();
 	
+	populateFriend();
+
 	return TRUE;
 }
 
@@ -159,25 +167,37 @@ void LLFloaterAvatarPicker::onBtnSelect(void* userdata)
 
 	if(self->mCallback)
 	{
+		std::string acvtive_panel_name;
+		LLScrollListCtrl* list =  NULL;
 		LLPanel* active_panel = self->childGetVisibleTab("ResidentChooserTabs");
-
-		if(active_panel == self->getChild<LLPanel>("SearchPanel"))
+		if(active_panel)
 		{
-			std::vector<std::string>	avatar_names;
-			std::vector<LLUUID>			avatar_ids;
-			getSelectedAvatarData(self->getChild<LLScrollListCtrl>("SearchResults"), avatar_names, avatar_ids);
-			self->mCallback(avatar_names, avatar_ids, self->mCallbackUserdata);
+			acvtive_panel_name = active_panel->getName();
 		}
-		else if(active_panel == self->getChild<LLPanel>("NearMePanel"))
+		if(acvtive_panel_name == "SearchPanel")
+		{
+			list = self->getChild<LLScrollListCtrl>("SearchResults");
+		}
+		else if(acvtive_panel_name == "NearMePanel")
+		{
+			list =self->getChild<LLScrollListCtrl>("NearMe");
+		}
+		else if (acvtive_panel_name == "FriendsPanel")
+		{
+			list =self->getChild<LLScrollListCtrl>("Friends");
+		}
+
+		if(list)
 		{
 			std::vector<std::string>	avatar_names;
 			std::vector<LLUUID>			avatar_ids;
-			getSelectedAvatarData(self->getChild<LLScrollListCtrl>("NearMe"), avatar_names, avatar_ids);
+			getSelectedAvatarData(list, avatar_names, avatar_ids);
 			self->mCallback(avatar_names, avatar_ids, self->mCallbackUserdata);
 		}
 	}
 	self->getChild<LLScrollListCtrl>("SearchResults")->deselectAllItems(TRUE);
 	self->getChild<LLScrollListCtrl>("NearMe")->deselectAllItems(TRUE);
+	self->getChild<LLScrollListCtrl>("Friends")->deselectAllItems(TRUE);
 	if(self->mCloseOnSelect)
 	{
 		self->mCloseOnSelect = FALSE;
@@ -268,6 +288,26 @@ void LLFloaterAvatarPicker::populateNearMe()
 	}
 }
 
+void LLFloaterAvatarPicker::populateFriend()
+{
+	LLScrollListCtrl* friends_scroller = getChild<LLScrollListCtrl>("Friends");
+	friends_scroller->deleteAllItems();
+	LLCollectAllBuddies collector;
+	LLAvatarTracker::instance().applyFunctor(collector);
+	LLCollectAllBuddies::buddy_map_t::iterator it;
+	
+	
+	for(it = collector.mOnline.begin(); it!=collector.mOnline.end(); it++)
+	{
+		friends_scroller->addStringUUIDItem(it->first, it->second);
+	}
+	for(it = collector.mOffline.begin(); it!=collector.mOffline.end(); it++)
+	{
+			friends_scroller->addStringUUIDItem(it->first, it->second);
+	}
+	friends_scroller->sortByColumnIndex(0, TRUE);
+}
+
 void LLFloaterAvatarPicker::draw()
 {
 	LLFloater::draw();
@@ -288,6 +328,10 @@ BOOL LLFloaterAvatarPicker::visibleItemsSelected() const
 	else if(active_panel == getChild<LLPanel>("NearMePanel"))
 	{
 		return getChild<LLScrollListCtrl>("NearMe")->getFirstSelectedIndex() >= 0;
+	}
+	else if(active_panel == getChild<LLPanel>("FriendsPanel"))
+	{
+		return getChild<LLScrollListCtrl>("Friends")->getFirstSelectedIndex() >= 0;
 	}
 	return FALSE;
 }
@@ -321,6 +365,7 @@ void LLFloaterAvatarPicker::setAllowMultiple(BOOL allow_multiple)
 {
 	getChild<LLScrollListCtrl>("SearchResults")->setAllowMultipleSelection(allow_multiple);
 	getChild<LLScrollListCtrl>("NearMe")->setAllowMultipleSelection(allow_multiple);
+	getChild<LLScrollListCtrl>("Friends")->setAllowMultipleSelection(allow_multiple);
 }
 
 // static 
