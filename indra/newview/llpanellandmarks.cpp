@@ -131,6 +131,9 @@ void LLLandmarksPanel::onSearchEdit(const std::string& string)
 	{
 		LLAccordionCtrlTab* tab = *iter;
 		tab->setVisible(true);
+
+		// expand accordion to see matched items in all ones. See EXT-2014.
+		tab->changeOpenClose(false);
 	}
 }
 
@@ -883,7 +886,7 @@ bool LLLandmarksPanel::handleDragAndDropToTrash(BOOL drop, EDragAndDropType carg
 	return true;
 }
 
-
+// static
 void LLLandmarksPanel::doIdle(void* landmarks_panel)
 {
 	LLLandmarksPanel* panel = (LLLandmarksPanel* ) landmarks_panel;

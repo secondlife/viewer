@@ -364,6 +364,26 @@ std::string LLFloaterReg::declareVisibilityControl(const std::string& name)
 }
 
 //static
+std::string LLFloaterReg::declareDockStateControl(const std::string& name)
+{
+	std::string controlname = getDockStateControlName(name);
+	LLUI::sSettingGroups["floater"]->declareBOOL(controlname, FALSE,
+												 llformat("Window Docking state for %s", name.c_str()),
+												 TRUE);
+	return controlname;
+
+}
+
+//static
+std::string LLFloaterReg::getDockStateControlName(const std::string& name)
+{
+	std::string res = std::string("floater_dock_") + name;
+	LLStringUtil::replaceChar( res, ' ', '_' );
+	return res;
+}
+
+
+//static
 void LLFloaterReg::registerControlVariables()
 {
 	// Iterate through alll registered instance names and register rect and visibility control variables
