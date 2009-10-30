@@ -2894,8 +2894,8 @@ void hide_top_view( LLView* view )
 }
 
 
-// x and y are the desired location for the popup, NOT necessarily the
-// mouse location
+// x and y are the desired location for the popup, in the spawning_view's
+// coordinate frame, NOT necessarily the mouse location
 // static
 void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 {
