@@ -1989,7 +1989,7 @@ void LLAgentWearables::animateAllWearableParams(F32 delta, BOOL set_by_user)
 {
 	for( S32 type = 0; type < WT_COUNT; ++type )
 	{
-		for (S32 count = 0; count < getWearableCount((EWearableType)type); ++count)
+		for (S32 count = 0; count < (S32)getWearableCount((EWearableType)type); ++count)
 		{
 			LLWearable *wearable = getWearable((EWearableType)type,count);
 			wearable->animateParams(delta, set_by_user);

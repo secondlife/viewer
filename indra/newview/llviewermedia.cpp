@@ -1023,6 +1023,16 @@ bool LLViewerMediaImpl::hasFocus() const
 	return mHasFocus;
 }
 
+std::string LLViewerMediaImpl::getCurrentMediaURL()
+{
+	if(!mCurrentMediaURL.empty())
+	{
+		return mCurrentMediaURL;
+	}
+	
+	return mMediaURL;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::mouseDown(S32 x, S32 y, MASK mask, S32 button)
 {
@@ -1109,6 +1119,18 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, MASK mask)
+{
+	scaleMouse(&x, &y);
+	mLastMouseX = x;
+	mLastMouseY = y;
+	if (mMediaSource)
+	{
+		mMediaSource->scrollEvent(x, y, mask);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::onMouseCaptureLost()
 {
 	if (mMediaSource)
@@ -1181,7 +1203,7 @@ void LLViewerMediaImpl::navigateForward()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateReload()
 {
-	navigateTo(mMediaURL, "", true, false);
+	navigateTo(getCurrentMediaURL(), "", true, false);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1202,6 +1224,9 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 	// Always set the current URL and MIME type.
 	mMediaURL = url;
 	mMimeType = mime_type;
+	
+	// Clear the current media URL, since it will no longer be correct.
+	mCurrentMediaURL.clear();
 	
 	// if mime type discovery was requested, we'll need to do it when the media loads
 	mNavigateRediscoverType = rediscover_type;
@@ -1702,10 +1727,12 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 
 			if(getNavState() == MEDIANAVSTATE_BEGUN)
 			{
+				mCurrentMediaURL = plugin->getNavigateURI();
 				setNavState(MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED);
 			}
 			else if(getNavState() == MEDIANAVSTATE_SERVER_BEGUN)
 			{
+				mCurrentMediaURL = plugin->getNavigateURI();
 				setNavState(MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED);
 			}
 			else
@@ -1721,10 +1748,12 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 
 			if(getNavState() == MEDIANAVSTATE_BEGUN)
 			{
+				mCurrentMediaURL = plugin->getLocation();
 				setNavState(MEDIANAVSTATE_FIRST_LOCATION_CHANGED);
 			}
 			else if(getNavState() == MEDIANAVSTATE_SERVER_BEGUN)
 			{
+				mCurrentMediaURL = plugin->getLocation();
 				setNavState(MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED);
 			}
 			else

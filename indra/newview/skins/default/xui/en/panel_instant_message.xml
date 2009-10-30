@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  background_visible="true"
- bevel_style="in"
  bg_alpha_color="0.3 0.3 0.3 0"
- height="140"
+ height="175"
  label="im_panel"
  layout="topleft"
  left="0"
  name="im_panel"
  top="0"
- width="350">
+ width="305">
     <string
      name="message_max_lines_count">
         6
@@ -19,50 +18,52 @@
      bevel_style="in"
      bg_alpha_color="black"
      follows="top"
-     height="30"
+     height="20"
      label="im_header"
      layout="topleft"
      left="5"
      name="im_header"
      top="5"
-     width="340">
+     width="295">
         <avatar_icon
          follows="right"
          height="20"
          image_name="icon_avatar_online.tga"
          layout="topleft"
-         left="5"
+         left="0"
          mouse_opaque="true"
          name="avatar_icon"
-         top="5"
+         top="0"
          width="20" />
         <icon
          follows="right"
          height="20"
          image_name="icon_top_pick.tga"
          layout="topleft"
-         left="5"
+         left="0"
          mouse_opaque="true"
          name="sys_msg_icon"
-         top="5"
+         top="0"
          width="20" />
         <text
          follows="left|right"
-         font="SansSerifBigBold"
+         font="SansSerifBold"
          height="20"
          layout="topleft"
-         left_pad="10"
+         left_pad="5"
          name="user_name"
          text_color="white"
          top="5"
          value="Darth Vader"
-         width="250" />
+         width="295" />
+	 <!-- TIME STAMP -->
         <text
          follows="right"
-         font="SansSerifBig"
+         font="SansSerif"
          height="20"
          layout="topleft"
-         left_pad="10"
+	 halign="right"
+         left="245"
          name="time_box"
          text_color="white"
          top="5"
@@ -71,25 +72,25 @@
     </panel>
     <text
      follows="left|top|bottom|right"
-     height="60"
+     height="86"
      layout="topleft"
      left="10"
      name="message"
      text_color="white"
-     top="40"
+     top="33"
      use_ellipses="true"
      value="MESSAGE"
-     width="330"
+     width="285"
      word_wrap="true"
      max_length="350" />
     <button
      follows="bottom"
-     font="SansSerifBigBold"
+     font="SansSerifBold"
      height="25"
-     label="reply"
+     label="Reply"
      layout="topleft"
-     left="120"
+     left="97"
      name="reply"
-     top="110"
+     top="137"
      width="110" />
 </panel>
