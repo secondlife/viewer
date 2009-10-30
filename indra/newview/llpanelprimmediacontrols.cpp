@@ -127,7 +127,7 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	scroll_left_ctrl->setMouseUpCallback(onScrollStop, this);
 	LLButton* scroll_right_ctrl = getChild<LLButton>("scrollright");
 	scroll_right_ctrl->setClickedCallback(onScrollRight, this);
-	scroll_right_ctrl->setHeldDownCallback(onScrollLeftHeld, this);
+	scroll_right_ctrl->setHeldDownCallback(onScrollRightHeld, this);
 	scroll_right_ctrl->setMouseUpCallback(onScrollStop, this);
 	LLButton* scroll_down_ctrl = getChild<LLButton>("scrolldown");
 	scroll_down_ctrl->setClickedCallback(onScrollDown, this);
