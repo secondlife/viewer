@@ -4,10 +4,10 @@
  can_minimize="false"
  height="275"
  layout="topleft"
+ title="Buy L$"
  name="buy currency"
  help_topic="buy_linden_dollars"
  single_instance="true"
- title="Buy L$"
  width="350">
     <floater.string
      name="buy_currency">
