@@ -40,6 +40,7 @@
 class LLPanelProfile;
 class LLPanelProfileTab;
 class LLTextBox;
+class AvatarStatusObserver;
 
 /**
 * Panel for displaying Avatar's profile. It consists of three sub panels - Profile,
