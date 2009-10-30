@@ -124,6 +124,7 @@ public:
 								can_tear_off,
 								save_rect,
 								save_visibility,
+								save_dock_state,
 								can_dock;
 		
 		Optional<CommitCallbackParam> open_callback,
@@ -277,8 +278,10 @@ protected:
 
 	void			setRectControl(const std::string& rectname) { mRectControl = rectname; };
 	void			applyRectControl();
+	void			applyDockState();
 	void			storeRectControl();
 	void			storeVisibilityControl();
+	void			storeDockStateControl();
 
 	void		 	setKey(const LLSD& key);
 	void		 	setInstanceName(const std::string& name);
@@ -316,6 +319,7 @@ public:
 protected:
 	std::string		mRectControl;
 	std::string		mVisibilityControl;
+	std::string		mDocStateControl;
 	LLSD			mKey;				// Key used for retrieving instances; set (for now) by LLFLoaterReg
 
 	LLDragHandle*	mDragHandle;
