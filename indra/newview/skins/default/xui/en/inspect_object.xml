@@ -4,6 +4,7 @@
   Single instance - only have one at a time, recycle it each spawn
 -->
 <floater
+ legacy_header_height="18"
  bevel_style="in"
  bg_opaque_image="Inspector_Background" 
  can_close="false"
