@@ -427,7 +427,6 @@ void LLSysWellWindow::sessionRemoved(const LLUUID& sessionId)
 {
 	delIMRow(sessionId);
 	reshapeWindow();
-	LLBottomTray::getInstance()->getSysWell()->updateUreadIMNotifications();
 }
 
 void LLSysWellWindow::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)

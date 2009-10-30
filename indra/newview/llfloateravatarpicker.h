@@ -67,6 +67,7 @@ private:
 		   void onTabChanged();
 	
 	void populateNearMe();
+	void populateFriend();
 	BOOL visibleItemsSelected() const; // Returns true if any items in the current tab are selected.
 
 	void find();
