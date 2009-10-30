@@ -63,7 +63,8 @@ public:
 		Optional<LLUUID>				notif_id,	 //notification ID
 										session_id;	 //im session ID
 		Optional<LLNotificationPtr>		notification;
-		Optional<F32>					lifetime_secs;
+		Optional<F32>					lifetime_secs,
+										fading_time_secs; // Number of seconds while a toast is fading
 		Optional<toast_callback_t>		on_delete_toast,
 										on_mouse_enter;
 		Optional<bool>					can_fade,
@@ -157,6 +158,7 @@ private:
 	// timer counts a lifetime of a toast
 	LLTimer		mTimer;
 	F32			mToastLifetime; // in seconds
+	F32			mToastFadingTime; // in seconds
 
 	LLPanel*	mPanel;
 	LLButton*	mHideBtn;

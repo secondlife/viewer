@@ -224,7 +224,6 @@ BOOL LLNearbyChatBar::postBuild()
 	mChatBox->setIgnoreTab(TRUE);
 	mChatBox->setPassDelete(TRUE);
 	mChatBox->setReplaceNewlinesWithSpaces(FALSE);
-	mChatBox->setMaxTextLength(1023);
 	mChatBox->setEnableLineHistory(TRUE);
 
 	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
