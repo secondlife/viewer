@@ -326,6 +326,12 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 		initChannel();
 	}
 
+	//only messages from AGENTS
+	if(CHAT_SOURCE_OBJECT == chat_msg.mSourceType)
+	{
+		return;//dn't show toast for messages from objects
+	}
+
 	LLUUID id;
 	id.generate();
 
