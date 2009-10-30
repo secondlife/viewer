@@ -5,10 +5,10 @@
   name="instant_message"
   width="300"
   height="180"
-  background_opaque="false"
-  background_visible="true"
+  background_opaque="true"
+  background_visible="false"
   follows="left|top|right|bottom"
-  bg_alpha_color="0.3 0.3 0.3 1.0">
+  bg_alpha_color="0.3 0.3 0.3 0">
 	<panel width="250" height="30" background_visible="true" background_opaque="false" bg_alpha_color="0.0 0.0 0.0 1.0" name="msg_caption">
   		<avatar_icon
       		top="25" left="10" width="20" height="20" follows="left|top"

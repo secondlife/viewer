@@ -49,13 +49,15 @@ LLToast::Params::Params()
 	enable_hide_btn("enable_hide_btn", true),
 	force_show("force_show", false),
 	force_store("force_store", false),
+	fading_time_secs("fading_time_secs", gSavedSettings.getS32("ToastFadingTime")),
 	lifetime_secs("lifetime_secs", gSavedSettings.getS32("NotificationToastLifeTime"))
 {};
 
 LLToast::LLToast(const LLToast::Params& p) 
 :	LLModalDialog(LLSD(), p.is_modal),
 	mPanel(p.panel), 
-	mToastLifetime(p.lifetime_secs),  
+	mToastLifetime(p.lifetime_secs),
+	mToastFadingTime(p.fading_time_secs),
 	mNotificationID(p.notif_id),  
 	mSessionID(p.session_id),
 	mCanFade(p.can_fade),
@@ -127,7 +129,7 @@ bool LLToast::lifetimeHasExpired()
 	if (mTimer.getStarted())
 	{
 		F32 elapsed_time = mTimer.getElapsedTimeF32();
-		if ((mToastLifetime - elapsed_time) <= gSavedSettings.getS32("ToastOpaqueTime")) 
+		if ((mToastLifetime - elapsed_time) <= mToastFadingTime) 
 		{
 			setBackgroundOpaque(FALSE);
 		}
