@@ -66,6 +66,9 @@
 	 name="Blue"
 	 value="0 0 1 1" />
 	<color
+	 name="Yellow"
+	 value="1 1 0 1" />
+	<color
 	 name="Unused?"
 	 value="1 0 1 1" />
 	<color
@@ -411,7 +414,7 @@
      reference="Green" />
     <color
      name="MapAvatarFriendColor"
-     reference="Unused?" />
+     reference="Yellow" />
     <color
      name="MapAvatarSelfColor"
      value="0.53125 0 0.498047 1" />
