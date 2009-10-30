@@ -57,8 +57,6 @@ static LLDefaultChildRegistry::Register<LLIMP2PChiclet> t4("chiclet_im_p2p");
 static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t5("chiclet_im_group");
 
 S32 LLNotificationChiclet::mUreadSystemNotifications = 0;
-S32 LLNotificationChiclet::mUreadIMNotifications = 0;
-
 
 boost::signals2::signal<LLChiclet* (const LLUUID&),
 		LLIMChiclet::CollectChicletCombiner<std::list<LLChiclet*> > >
@@ -99,7 +97,6 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 	// connect counter handlers to the signals
 	connectCounterUpdatersToSignal("notify");
 	connectCounterUpdatersToSignal("groupnotify");
-	connectCounterUpdatersToSignal("notifytoast");
 }
 
 LLNotificationChiclet::~LLNotificationChiclet()
@@ -113,16 +110,8 @@ void LLNotificationChiclet::connectCounterUpdatersToSignal(std::string notificat
 	LLNotificationsUI::LLEventHandler* n_handler = manager->getHandlerForNotification(notification_type);
 	if(n_handler)
 	{
-		if(notification_type == "notifytoast")
-		{
-			n_handler->setNewNotificationCallback(boost::bind(&LLNotificationChiclet::updateUreadIMNotifications, this));
-			n_handler->setDelNotification(boost::bind(&LLNotificationChiclet::updateUreadIMNotifications, this));
-		}
-		else
-		{
-			n_handler->setNewNotificationCallback(boost::bind(&LLNotificationChiclet::incUreadSystemNotifications, this));
-			n_handler->setDelNotification(boost::bind(&LLNotificationChiclet::decUreadSystemNotifications, this));
-		}
+		n_handler->setNewNotificationCallback(boost::bind(&LLNotificationChiclet::incUreadSystemNotifications, this));
+		n_handler->setDelNotification(boost::bind(&LLNotificationChiclet::decUreadSystemNotifications, this));
 	}
 }
 
@@ -145,12 +134,6 @@ boost::signals2::connection LLNotificationChiclet::setClickCallback(
 
 void LLNotificationChiclet::setToggleState(BOOL toggled) {
 	mButton->setToggleState(toggled);
-}
-
-void LLNotificationChiclet::updateUreadIMNotifications()
-{
-	mUreadIMNotifications = gIMMgr->getNumberOfUnreadIM();
-	setCounter(mUreadSystemNotifications + mUreadIMNotifications);
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -608,10 +608,9 @@ public:
 
 	/*virtual*/ ~ LLNotificationChiclet();
 
-	// methods for updating a number of unread System or IM notifications
-	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications + mUreadIMNotifications); }
-	void decUreadSystemNotifications() { setCounter(--mUreadSystemNotifications + mUreadIMNotifications); }
-	void updateUreadIMNotifications();
+	// methods for updating a number of unread System notifications
+	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications); }
+	void decUreadSystemNotifications() { setCounter(--mUreadSystemNotifications); }
 	void setToggleState(BOOL toggled);
 
 protected:
@@ -622,7 +621,6 @@ protected:
 	friend class LLUICtrlFactory;
 
 	static S32 mUreadSystemNotifications;
-	static S32 mUreadIMNotifications;
 
 protected:
 	LLButton* mButton;

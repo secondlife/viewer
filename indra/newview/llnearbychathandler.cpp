@@ -162,6 +162,8 @@ bool	LLNearbyChatScreenChannel::createPoolToast()
 	
 	LLToast::Params p;
 	p.panel = panel;
+	p.lifetime_secs = gSavedSettings.getS32("NearbyToastLifeTime");
+	p.fading_time_secs = gSavedSettings.getS32("NearbyToastFadingTime");
 
 	LLToast* toast = new LLToast(p); 
 	
