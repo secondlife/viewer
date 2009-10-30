@@ -167,6 +167,18 @@
              function="Floater.Toggle"
              parameter="active_speakers" />
         </menu_item_check>
+        <menu_item_check
+         label="Nearby Media"
+         layout="topleft"
+         name="Nearby Media"
+         shortcut="control|alt|N">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="nearby_media" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="nearby_media" />
+        </menu_item_check>
         <!--menu_item_check
          label="Block List"
          layout="topleft"
