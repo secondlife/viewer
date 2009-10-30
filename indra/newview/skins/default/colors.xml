@@ -408,7 +408,7 @@
      reference="White" />
     <color
      name="MapAvatarColor"
-     reference="White" />
+     reference="Green" />
     <color
      name="MapAvatarFriendColor"
      reference="Unused?" />
