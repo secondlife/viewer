@@ -106,7 +106,7 @@ void LLRadioGroup::setIndexEnabled(S32 index, BOOL enabled)
 			child->setEnabled(enabled);
 			if (index == mSelectedIndex && enabled == FALSE)
 			{
-				mSelectedIndex = -1;
+				setSelectedIndex(-1);
 			}
 			break;
 		}

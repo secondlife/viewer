@@ -126,7 +126,8 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
 		Optional<std::string>			label;
-		Optional<bool>					tab_stop;
+		Optional<bool>					tab_stop,
+										chrome;
 		Optional<LLSD>					initial_value;
 
 		Optional<CommitCallbackParam>	init_callback,

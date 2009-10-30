@@ -104,8 +104,6 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 	mEnableCallbackRegistrar(false),
 	mXMLFilename(p.filename)
 {
-	setIsChrome(FALSE);
-
 	if (p.has_border)
 	{
 		addBorder(p.border);

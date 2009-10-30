@@ -2,4 +2,5 @@
 <panel bg_opaque_color="PanelFocusBackgroundColor"
        bg_alpha_color="PanelDefaultBackgroundColor"
        background_visible="false"
-       background_opaque="false"/>
+       background_opaque="false"
+       chrome="false"/>
