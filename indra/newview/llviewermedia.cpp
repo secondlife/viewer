@@ -442,7 +442,10 @@ bool LLViewerMedia::getInWorldMediaDisabled()
 	return sInWorldMediaDisabled;
 }
 
-static const impl_list &getPriorityList();
+const LLViewerMedia::impl_list &getPriorityList()
+{
+	return sViewerMediaImplList;
+}
 
 // This is the predicate function used to sort sViewerMediaImplList by priority.
 bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
@@ -1668,7 +1671,7 @@ void LLViewerMediaImpl::resetPreviousMediaState()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-bool LLViewerMediaImpl::isForcedUnloaded()
+bool LLViewerMediaImpl::isForcedUnloaded() const
 {
 	if(mIsMuted || mMediaSourceFailed || mIsDisabled)
 	{

@@ -197,7 +197,7 @@ public:
 	bool isMediaDisabled() { return mIsDisabled; };
 
 	// returns true if this instance should not be loaded (disabled, muted object, crashed, etc.)
-	bool isForcedUnloaded();
+	bool isForcedUnloaded() const;
 
 	ECursorType getLastSetCursor() { return mLastSetCursor; };
 	
