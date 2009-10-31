@@ -221,6 +221,9 @@ public:
 	BOOL getDontDiscard() const { return mDontDiscard; }
 	//-----------------	
 	
+	void setParcelMedia(BOOL has_media) {mHasParcelMedia = has_media;}
+	BOOL hasParcelMedia() const { return mHasParcelMedia ;}
+
 	/*virtual*/ void updateBindStatsForTester() ;
 protected:
 	void cleanup() ;
@@ -246,6 +249,8 @@ protected:
 	//GL texture
 	LLPointer<LLImageGL> mGLTexturep ;
 	S8 mDontDiscard;			// Keep full res version of this image (for UI, etc)
+
+	BOOL mHasParcelMedia ;
 
 protected:
 	typedef enum 
@@ -547,6 +552,7 @@ private:
 	LLViewerMediaImpl* mMediaImplp ;	
 	BOOL mIsPlaying ;
 	U32  mUpdateVirtualSizeTime ;
+	LLPointer< LLViewerTexture > mParcelTexture ; //the texture replaces this media texure when it is a parcel media texture.
 
 public:
 	static void updateClass() ;

@@ -278,6 +278,16 @@ void LLFace::setTexture(LLViewerTexture* tex)
 	}
 
 	mTexture = tex ;
+
+	//check if this texture is replaced by a parcel media texture.
+	if(mTexture.notNull() && mTexture->hasParcelMedia()) 
+	{
+		LLViewerMediaTexture* mediap = LLViewerTextureManager::findMediaTexture(mTexture->getID()) ;
+		if(mediap)
+		{
+			mediap->addMediaToFace(this) ;
+		}
+	}
 }
 
 void LLFace::dirtyTexture()

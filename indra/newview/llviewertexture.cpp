@@ -416,6 +416,7 @@ void LLViewerTexture::init(bool firstinit)
 	mDontDiscard = FALSE;
 	mMaxVirtualSize = 0.f;
 	mNeedsResetMaxVirtualSize = FALSE ;
+	mHasParcelMedia = FALSE ;
 }
 
 //virtual 
@@ -2150,19 +2151,20 @@ void LLViewerMediaTexture::updateClass()
 	for(media_map_t::iterator iter = sMediaMap.begin() ; iter != sMediaMap.end(); )
 	{
 		LLViewerMediaTexture* mediap = iter->second;	
-
-		//
-		//Note: delay some time to delete the media textures to stop endlessly creating and immediately removing media texture.
-		//
-		if(mediap->getNumRefs() == 1 && mediap->getLastReferencedTimer()->getElapsedTimeF32() > MAX_INACTIVE_TIME) //one by sMediaMap
+		
+		if(mediap->getNumRefs() == 1) //one reference by sMediaMap
 		{
-			media_map_t::iterator cur = iter++ ;
-			sMediaMap.erase(cur) ;
+			//
+			//Note: delay some time to delete the media textures to stop endlessly creating and immediately removing media texture.
+			//
+			if(mediap->getLastReferencedTimer()->getElapsedTimeF32() > MAX_INACTIVE_TIME)
+			{
+				media_map_t::iterator cur = iter++ ;
+				sMediaMap.erase(cur) ;
+				continue ;
+			}
 		}
-		else
-		{
-			++iter ;
-		}
+		++iter ;
 	}
 }
 
@@ -2215,11 +2217,22 @@ LLViewerMediaTexture::LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps, LL
 	mIsPlaying = FALSE ;
 
 	setMediaImpl() ;
+
+	LLViewerTexture* tex = gTextureList.findImage(mID) ;
+	if(tex) //this media is a parcel media for tex.
+	{
+		tex->setParcelMedia(TRUE) ;
+		mParcelTexture = tex ;
+	}
 }
 
 //virtual 
 LLViewerMediaTexture::~LLViewerMediaTexture() 
 {	
+	if(mParcelTexture.notNull())
+	{
+		mParcelTexture->setParcelMedia(FALSE) ;
+	}
 }
 
 void LLViewerMediaTexture::reinit(BOOL usemipmaps /* = TRUE */)
@@ -2272,10 +2285,19 @@ BOOL LLViewerMediaTexture::findFaces()
 	BOOL ret = TRUE ;
 
 	//for parcel media
-	LLViewerTexture* tex = gTextureList.findImage(mID) ;	
-	if(tex)
+	if(mParcelTexture.isNull())
 	{
-		const ll_face_list_t* face_list = tex->getFaceList() ;
+		LLViewerTexture* tex = gTextureList.findImage(mID) ;
+		if(tex)
+		{
+			tex->setParcelMedia(TRUE) ;
+			mParcelTexture = tex ;
+		}
+	}
+	
+	if(mParcelTexture.notNull())
+	{
+		const ll_face_list_t* face_list = mParcelTexture->getFaceList() ;
 		for(ll_face_list_t::const_iterator iter = face_list->begin(); iter != face_list->end(); ++iter)
 		{
 			mMediaFaceList.push_back(*iter) ;
@@ -2382,9 +2404,14 @@ void LLViewerMediaTexture::addFace(LLFace* facep)
 	if(facep->getTexture() && facep->getTexture() != this && facep->getTexture()->getID() == mID)
 	{
 		mTextureList.push_back(facep->getTexture()) ; //a parcel media.
+		if(mParcelTexture.isNull())
+		{			
+			mParcelTexture = facep->getTexture() ;
+			mParcelTexture->setParcelMedia(TRUE) ;
+		}
 		return ;
 	}
-
+	
 	llerrs << "The face does not have a valid texture before media texture." << llendl ;
 }
 
