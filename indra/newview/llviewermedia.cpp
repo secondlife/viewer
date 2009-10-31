@@ -604,7 +604,7 @@ void LLViewerMedia::updateMedia()
 		
 		pimpl->setPriority(new_priority);
 		
-		if(!pimpl->getUsedInUI())
+		if(pimpl->getUsedInUI())
 		{
 			// Any impls used in the UI should not be in the proximity list.
 			pimpl->mProximity = -1;
