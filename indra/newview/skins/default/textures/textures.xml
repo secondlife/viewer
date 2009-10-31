@@ -260,6 +260,42 @@
   <texture name="Overhead_M" file_name="world/Overhead_M.png" preload="false" />
   <texture name="Overhead_S" file_name="world/Overhead_S.png" preload="false" />
 
+  <texture name="parcel_drk_Build" file_name="icons/parcel_drk_Build.png" preload="false" />
+ <texture name="parcel_drk_BuildNo" file_name="icons/parcel_drk_BuildNo.png" preload="false" />
+ <texture name="parcel_drk_Damage" file_name="icons/parcel_drk_Damage.png" preload="false" />
+ <texture name="parcel_drk_DamageNo" file_name="icons/parcel_drk_DamageNo.png" preload="false" />
+ <texture name="parcel_drk_Fly" file_name="icons/parcel_drk_Fly.png" preload="false" />
+ <texture name="parcel_drk_FlyNo" file_name="icons/parcel_drk_FlyNo.png" preload="false" />
+ <texture name="parcel_drk_ForSale" file_name="icons/parcel_drk_ForSale.png" preload="false" />
+ <texture name="parcel_drk_ForSaleNo" file_name="icons/parcel_drk_ForSaleNo.png" preload="false" />
+ <texture name="parcel_drk_M" file_name="icons/parcel_drk_M.png" preload="false" />
+ <texture name="parcel_drk_PG" file_name="icons/parcel_drk_PG.png" preload="false" />
+ <texture name="parcel_drk_Push" file_name="icons/parcel_drk_Push.png" preload="false" />
+ <texture name="parcel_drk_PushNo" file_name="icons/parcel_drk_PushNo.png" preload="false" />
+ <texture name="parcel_drk_R" file_name="icons/parcel_drk_R.png" preload="false" />
+ <texture name="parcel_drk_Scripts" file_name="icons/parcel_drk_Scripts.png" preload="false" />
+ <texture name="parcel_drk_ScriptsNo" file_name="icons/parcel_drk_ScriptsNo.png" preload="false" />
+ <texture name="parcel_drk_Voice" file_name="icons/parcel_drk_Voice.png" preload="false" />
+ <texture name="parcel_drk_VoiceNo" file_name="icons/parcel_drk_VoiceNo.png" preload="false" />
+
+ <texture name="parcel_lght_Build" file_name="icons/parcel_lght_Build.png" preload="false" />
+ <texture name="parcel_lght_BuildNo" file_name="icons/parcel_lght_BuildNo.png" preload="false" />
+ <texture name="parcel_lght_Damage" file_name="icons/parcel_lght_Damage.png" preload="false" />
+ <texture name="parcel_lght_DamageNo" file_name="icons/parcel_lght_DamageNo.png" preload="false" />
+ <texture name="parcel_lght_Fly" file_name="icons/parcel_lght_Fly.png" preload="false" />
+ <texture name="parcel_lght_FlyNo" file_name="icons/parcel_lght_FlyNo.png" preload="false" />
+ <texture name="parcel_lght_ForSale" file_name="icons/parcel_lght_ForSale.png" preload="false" />
+ <texture name="parcel_lght_ForSaleNo" file_name="icons/parcel_lght_ForSaleNo.png" preload="false" />
+ <texture name="parcel_lght_M" file_name="icons/parcel_lght_M.png" preload="false" />
+ <texture name="parcel_lght_PG" file_name="icons/parcel_lght_PG.png" preload="false" />
+ <texture name="parcel_lght_Push" file_name="icons/parcel_lght_Push.png" preload="false" />
+ <texture name="parcel_lght_PushNo" file_name="icons/parcel_lght_PushNo.png" preload="false" />
+ <texture name="parcel_lght_R" file_name="icons/parcel_lght_R.png" preload="false" />
+ <texture name="parcel_lght_Scripts" file_name="icons/parcel_lght_Scripts.png" preload="false" />
+ <texture name="parcel_lght_ScriptsNo" file_name="icons/parcel_lght_ScriptsNo.png" preload="false" />
+ <texture name="parcel_lght_Voice" file_name="icons/parcel_lght_Voice.png" preload="false" />
+ <texture name="parcel_lght_VoiceNo" file_name="icons/parcel_lght_VoiceNo.png" preload="false" />
+
   <texture name="Progress_1" file_name="icons/Progress_1.png" preload="false" />
   <texture name="Progress_2" file_name="icons/Progress_2.png" preload="false" />
   <texture name="Progress_3" file_name="icons/Progress_3.png" preload="false" />
@@ -733,8 +769,5 @@
 
   <texture name="media_panel_bg.png" preload="true" scale_left="9" scale_top="9" scale_right="9" scale_bottom="9" />
   <texture name="media_panel_hoverrectangle.png" preload="true" scale_left="9" scale_top="9" scale_right="9" scale_bottom="9" />
-
-  <texture name="square_btn_32x128.tga" scale_left="2" scale_bottom="2" scale_right="126" scale_top="30"/>
-  <texture name="square_btn_selected_32x128.tga" scale_left="2" scale_bottom="2" scale_right="126" scale_top="30"/>
 
 </textures>
