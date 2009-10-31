@@ -503,3 +503,17 @@ void LLViewerMediaFocus::focusZoomOnMedia(LLUUID media_id)
 		}
 	}
 }
+
+LLUUID LLViewerMediaFocus::getControlsMediaID()
+{
+	if(getFocusedMediaImpl())
+	{
+		return mFocusedImplID;
+	}
+	else if(getHoverMediaImpl())
+	{
+		return mHoverImplID;
+	}
+	
+	return LLUUID::null;
+}
