@@ -154,6 +154,9 @@ public:
 	LLRect					getContentsRect();
 	LLRect					getVisibleDocumentRect() const;
 
+	S32						getVPad() { return mVPad; }
+	S32						getHPad() { return mHPad; }
+
 
 	S32						getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const;
 	LLRect					getLocalRectFromDocIndex(S32 pos) const;
