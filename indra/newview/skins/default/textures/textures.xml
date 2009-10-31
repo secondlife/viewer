@@ -734,4 +734,7 @@
   <texture name="media_panel_bg.png" preload="true" scale_left="9" scale_top="9" scale_right="9" scale_bottom="9" />
   <texture name="media_panel_hoverrectangle.png" preload="true" scale_left="9" scale_top="9" scale_right="9" scale_bottom="9" />
 
+  <texture name="square_btn_32x128.tga" scale_left="2" scale_bottom="2" scale_right="126" scale_top="30"/>
+  <texture name="square_btn_selected_32x128.tga" scale_left="2" scale_bottom="2" scale_right="126" scale_top="30"/>
+
 </textures>
