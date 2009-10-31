@@ -78,16 +78,13 @@ public:
 									visible_time_far;	// time for which tooltip is visible while mouse moved away
 		Optional<LLRect>			sticky_rect;
 		Optional<const LLFontGL*>	font;
-
-		Optional<click_callback_t>	click_callback;
 		Optional<LLUIImage*>		image;
-		
-		
-		Optional<bool>				time_based_media;
-		Optional<bool>				web_based_media;
-		Optional<bool>				media_playing;
-		Optional<click_callback_t>	click_playmedia_callback;
-		Optional<click_callback_t>	click_homepage_callback;
+		Optional<bool>				time_based_media,
+									web_based_media,
+									media_playing;
+		Optional<click_callback_t>	click_callback,
+									click_playmedia_callback,
+									click_homepage_callback;
 		Optional<S32>				max_width;
 		Optional<S32>				padding;
 		Optional<bool>				wrap;
