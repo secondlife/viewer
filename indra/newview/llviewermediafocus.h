@@ -81,6 +81,9 @@ public:
 	LLViewerMediaImpl* getHoverMediaImpl();
 	LLViewerObject* getHoverObject();
 	S32 getHoverFace() { return mHoverObjectFace; }
+	
+	// Try to focus/zoom on the specified media (if it's on an object in world).
+	void focusZoomOnMedia(LLUUID media_id);
 
 protected:
 	/*virtual*/ void	onFocusReceived();

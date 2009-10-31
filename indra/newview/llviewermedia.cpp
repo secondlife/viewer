@@ -2073,6 +2073,19 @@ const std::list< LLVOVolume* >* LLViewerMediaImpl::getObjectList() const
 	return &mObjectList ;
 }
 
+LLVOVolume *LLViewerMediaImpl::getSomeObject()
+{
+	LLVOVolume *result = NULL;
+	
+	std::list< LLVOVolume* >::iterator iter = mObjectList.begin() ;
+	if(iter != mObjectList.end())
+	{
+		result = *iter;
+	}
+	
+	return result;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 //static
 void LLViewerMedia::toggleMusicPlay(void*)

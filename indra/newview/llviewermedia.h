@@ -250,6 +250,7 @@ public:
 	void addObject(LLVOVolume* obj) ;
 	void removeObject(LLVOVolume* obj) ;
 	const std::list< LLVOVolume* >* getObjectList() const ;
+	LLVOVolume *getSomeObject();
 	void setUpdated(BOOL updated) ;
 	BOOL isUpdated() ;
 	

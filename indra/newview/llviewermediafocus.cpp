@@ -50,6 +50,7 @@
 #include "llmediaentry.h"
 #include "llkeyboard.h"
 #include "lltoolmgr.h"
+#include "llvovolume.h"
 
 //
 // LLViewerMediaFocus
@@ -472,4 +473,33 @@ LLViewerMediaImpl* LLViewerMediaFocus::getHoverMediaImpl()
 LLViewerObject* LLViewerMediaFocus::getHoverObject()
 {
 	return gObjectList.findObject(mHoverObjectID);
+}
+
+void LLViewerMediaFocus::focusZoomOnMedia(LLUUID media_id)
+{
+	LLViewerMediaImpl* impl = LLViewerMedia::getMediaImplFromTextureID(media_id);
+	
+	if(impl)
+	{	
+		// Get the first object from the media impl's object list.  This is completely arbitrary, but should suffice.
+		LLVOVolume *obj = impl->getSomeObject();
+		if(obj)
+		{
+			// This media is attached to at least one object.  Figure out which face it's on.
+			S32 face = obj->getFaceIndexWithMediaImpl(impl, -1);
+			
+			// We don't have a proper pick normal here, and finding a face's real normal is... complicated.
+			// For now, use +z to look at the top of the object.
+			LLVector3 normal(0.0f, 0.0f, 1.0f);
+			
+			// Attempt to focus/zoom on that face.
+			setFocusFace(obj, face, impl, normal);
+			
+			if(mMediaControls.get())
+			{
+				mMediaControls.get()->resetZoomLevel();
+				mMediaControls.get()->nextZoomLevel();
+			}
+		}
+	}
 }
