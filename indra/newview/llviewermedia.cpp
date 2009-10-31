@@ -168,8 +168,7 @@ public:
 		viewer_media_t mMediaImpl;
 		bool mInitialized;
 };
-typedef std::vector<LLViewerMediaImpl*> impl_list;
-static impl_list sViewerMediaImplList;
+static LLViewerMedia::impl_list sViewerMediaImplList;
 static LLTimer sMediaCreateTimer;
 static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
 static F32 sGlobalVolume = 1.0f;
@@ -183,8 +182,8 @@ static void add_media_impl(LLViewerMediaImpl* media)
 //////////////////////////////////////////////////////////////////////////////////////////
 static void remove_media_impl(LLViewerMediaImpl* media)
 {
-	impl_list::iterator iter = sViewerMediaImplList.begin();
-	impl_list::iterator end = sViewerMediaImplList.end();
+	LLViewerMedia::impl_list::iterator iter = sViewerMediaImplList.begin();
+	LLViewerMedia::impl_list::iterator end = sViewerMediaImplList.end();
 	
 	for(; iter != end; iter++)
 	{
@@ -203,6 +202,7 @@ class LLViewerMediaMuteListObserver : public LLMuteListObserver
 
 static LLViewerMediaMuteListObserver sViewerMediaMuteListObserver;
 static bool sViewerMediaMuteListObserverInitialized = false;
+static bool sInWorldMediaDisabled = false;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -428,15 +428,34 @@ void LLViewerMedia::muteListChanged()
 	}
 }
 
-// This is the predicate function used to sort sViewerMediaImplList by priority.
-static inline bool compare_impl_interest(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::setInWorldMediaDisabled(bool disabled)
 {
-	if(i1->mIsMuted || i1->mMediaSourceFailed)
+	sInWorldMediaDisabled = disabled;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::getInWorldMediaDisabled()
+{
+	return sInWorldMediaDisabled;
+}
+
+LLViewerMedia::impl_list &LLViewerMedia::getPriorityList()
+{
+	return sViewerMediaImplList;
+}
+
+// This is the predicate function used to sort sViewerMediaImplList by priority.
+bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
+{
+	if(i1->isForcedUnloaded())
 	{
 		// Muted or failed items always go to the end of the list, period.
 		return false;
 	}
-	else if(i2->mIsMuted || i2->mMediaSourceFailed)
+	else if(i2->isForcedUnloaded())
 	{
 		// Muted or failed items always go to the end of the list, period.
 		return true;
@@ -483,7 +502,7 @@ void LLViewerMedia::updateMedia()
 	}
 		
 	// Sort the static instance list using our interest criteria
-	std::stable_sort(sViewerMediaImplList.begin(), sViewerMediaImplList.end(), compare_impl_interest);
+	std::stable_sort(sViewerMediaImplList.begin(), sViewerMediaImplList.end(), priorityComparitor);
 
 	// Go through the list again and adjust according to priority.
 	iter = sViewerMediaImplList.begin();
@@ -493,6 +512,7 @@ void LLViewerMedia::updateMedia()
 	int impl_count_total = 0;
 	int impl_count_interest_low = 0;
 	int impl_count_interest_normal = 0;
+	int i = 0;
 
 #if 0	
 	LL_DEBUGS("PluginPriority") << "Sorted impls:" << llendl;
@@ -515,7 +535,7 @@ void LLViewerMedia::updateMedia()
 		
 		LLPluginClassMedia::EPriority new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 
-		if(pimpl->mIsMuted || pimpl->mMediaSourceFailed || (impl_count_total > (int)max_instances))
+		if(pimpl->isForcedUnloaded() || (impl_count_total > (int)max_instances))
 		{
 			// Never load muted or failed impls.
 			// Hard limit on the number of instances that will be loaded at one time
@@ -583,6 +603,17 @@ void LLViewerMedia::updateMedia()
 		}
 		
 		pimpl->setPriority(new_priority);
+		
+		if(!pimpl->getUsedInUI())
+		{
+			// Any impls used in the UI should not be in the proximity list.
+			pimpl->mProximity = -1;
+		}
+		else
+		{
+			// Other impls just get the same ordering as the priority list (for now).
+			pimpl->mProximity = i;
+		}
 
 #if 0		
 		LL_DEBUGS("PluginPriority") << "    " << pimpl 
@@ -595,6 +626,8 @@ void LLViewerMedia::updateMedia()
 #endif
 
 		total_cpu += pimpl->getCPUUsage();
+		
+		i++;
 	}
 	
 	LL_DEBUGS("PluginPriority") << "Total reported CPU usage is " << total_cpu << llendl;
@@ -641,6 +674,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mNeedsMuteCheck(false),
 	mPreviousMediaState(MEDIA_NONE),
 	mPreviousMediaTime(0.0f),
+	mIsDisabled(false),
+	mProximity(-1),
 	mIsUpdated(false)
 { 
 
@@ -1023,6 +1058,16 @@ bool LLViewerMediaImpl::hasFocus() const
 	return mHasFocus;
 }
 
+std::string LLViewerMediaImpl::getCurrentMediaURL()
+{
+	if(!mCurrentMediaURL.empty())
+	{
+		return mCurrentMediaURL;
+	}
+	
+	return mMediaURL;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::mouseDown(S32 x, S32 y, MASK mask, S32 button)
 {
@@ -1109,6 +1154,18 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, MASK mask)
+{
+	scaleMouse(&x, &y);
+	mLastMouseX = x;
+	mLastMouseY = y;
+	if (mMediaSource)
+	{
+		mMediaSource->scrollEvent(x, y, mask);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::onMouseCaptureLost()
 {
 	if (mMediaSource)
@@ -1181,7 +1238,7 @@ void LLViewerMediaImpl::navigateForward()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateReload()
 {
-	navigateTo(mMediaURL, "", true, false);
+	navigateTo(getCurrentMediaURL(), "", true, false);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1202,6 +1259,9 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 	// Always set the current URL and MIME type.
 	mMediaURL = url;
 	mMimeType = mime_type;
+	
+	// Clear the current media URL, since it will no longer be correct.
+	mCurrentMediaURL.clear();
 	
 	// if mime type discovery was requested, we'll need to do it when the media loads
 	mNavigateRediscoverType = rediscover_type;
@@ -1537,7 +1597,7 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
-LLUUID LLViewerMediaImpl::getMediaTextureID()
+LLUUID LLViewerMediaImpl::getMediaTextureID() const
 {
 	return mTextureId;
 }
@@ -1625,6 +1685,27 @@ void LLViewerMediaImpl::resetPreviousMediaState()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+//
+bool LLViewerMediaImpl::isForcedUnloaded() const
+{
+	if(mIsMuted || mMediaSourceFailed || mIsDisabled)
+	{
+		return true;
+	}
+	
+	if(sInWorldMediaDisabled)
+	{
+		// When inworld media is disabled, all instances that aren't marked as "used in UI" will not be loaded.
+		if(!mUsedInUI)
+		{
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginClassMediaOwner::EMediaEvent event)
 {
 	switch(event)
@@ -1702,10 +1783,12 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 
 			if(getNavState() == MEDIANAVSTATE_BEGUN)
 			{
+				mCurrentMediaURL = plugin->getNavigateURI();
 				setNavState(MEDIANAVSTATE_COMPLETE_BEFORE_LOCATION_CHANGED);
 			}
 			else if(getNavState() == MEDIANAVSTATE_SERVER_BEGUN)
 			{
+				mCurrentMediaURL = plugin->getNavigateURI();
 				setNavState(MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED);
 			}
 			else
@@ -1721,10 +1804,12 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 
 			if(getNavState() == MEDIANAVSTATE_BEGUN)
 			{
+				mCurrentMediaURL = plugin->getLocation();
 				setNavState(MEDIANAVSTATE_FIRST_LOCATION_CHANGED);
 			}
 			else if(getNavState() == MEDIANAVSTATE_SERVER_BEGUN)
 			{
+				mCurrentMediaURL = plugin->getLocation();
 				setNavState(MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED);
 			}
 			else

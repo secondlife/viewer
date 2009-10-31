@@ -1595,8 +1595,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// Claim to be from a local agent so it doesn't go into
 			// console.
 			chat.mText = name + separator_string + message.substr(message_offset);
-			BOOL local_agent = TRUE;
-			LLFloaterChat::addChat(chat, FALSE, local_agent);
+
+			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+			if(nearby_chat)
+			{
+				nearby_chat->addMessage(chat);
+			}
 		}
 		else
 		{

@@ -9,4 +9,5 @@
     header_image="Accordion_Off"
     header_image_over="Accordion_Over"
     header_image_pressed="Accordion_Press"
+    header_image_selected="Accordion_Selected"
     />

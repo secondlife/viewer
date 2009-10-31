@@ -963,30 +963,29 @@ bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
 	// if never fell into those two ifs above, param must be utc
 	if (secFromEpoch < 0) secFromEpoch = 0;
 
-	LLDate * datetime = new LLDate((F64)secFromEpoch);
+	LLDate datetime((F64)secFromEpoch);
 	std::string code = LLStringOps::getDatetimeCode (token);
 
 	// special case to handle timezone
 	if (code == "%Z") {
 		if (param == "utc")
+		{
 			replacement = "GMT";
-		else if (param == "slt")
-			replacement = "SLT";
-		else if (param != "local") // *TODO Vadim: not local? then what?
+		}
+		else if (param == "local")
+		{
+			replacement = "";		// user knows their own timezone
+		}
+		else
+		{
+			// "slt" = Second Life Time, which is deprecated.
+			// If not utc or user local time, fallback to Pacific time
 			replacement = LLStringOps::getDaylightSavings() ? "PDT" : "PST";
-
+		}
 		return true;
 	}
-	replacement = datetime->toHTTPDateString(code);
-
-	if (code.empty())
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
+	replacement = datetime.toHTTPDateString(code);
+	return !code.empty();
 }
 
 // LLStringUtil::format recogizes the following patterns.

@@ -127,7 +127,7 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	scroll_left_ctrl->setMouseUpCallback(onScrollStop, this);
 	LLButton* scroll_right_ctrl = getChild<LLButton>("scrollright");
 	scroll_right_ctrl->setClickedCallback(onScrollRight, this);
-	scroll_right_ctrl->setHeldDownCallback(onScrollLeftHeld, this);
+	scroll_right_ctrl->setHeldDownCallback(onScrollRightHeld, this);
 	scroll_right_ctrl->setMouseUpCallback(onScrollStop, this);
 	LLButton* scroll_down_ctrl = getChild<LLButton>("scrolldown");
 	scroll_down_ctrl->setClickedCallback(onScrollDown, this);
@@ -258,7 +258,8 @@ void LLPanelPrimMediaControls::updateShape()
         LLUICtrl* zoom_ctrl					= getChild<LLUICtrl>("zoom_frame");
 		LLPanel* media_loading_panel		= getChild<LLPanel>("media_progress_indicator");
 		LLUICtrl* media_address_ctrl		= getChild<LLUICtrl>("media_address");
-		LLUICtrl* media_play_slider_ctrl	= getChild<LLUICtrl>("media_play_position");
+		LLUICtrl* media_play_slider_panel	= getChild<LLUICtrl>("media_play_position");
+		LLUICtrl* media_play_slider_ctrl	= getChild<LLUICtrl>("media_play_slider");
 		LLUICtrl* volume_ctrl				= getChild<LLUICtrl>("media_volume");
 		LLButton* volume_btn				= getChild<LLButton>("media_volume_button");
 		LLUICtrl* volume_up_ctrl			= getChild<LLUICtrl>("volume_up");
@@ -282,7 +283,7 @@ void LLPanelPrimMediaControls::updateShape()
 		close_ctrl->setVisible(has_focus);
 		open_ctrl->setVisible(true);
 		media_address_ctrl->setVisible(has_focus && !mini_controls);
-		media_play_slider_ctrl->setVisible(has_focus && !mini_controls);
+		media_play_slider_panel->setVisible(has_focus && !mini_controls);
 		volume_ctrl->setVisible(false);
 		volume_up_ctrl->setVisible(false);
 		volume_down_ctrl->setVisible(false);
@@ -291,7 +292,7 @@ void LLPanelPrimMediaControls::updateShape()
 		// Disable zoom if HUD
 		zoom_ctrl->setEnabled(!objectp->isHUDAttachment());
 		secure_lock_icon->setVisible(false);
-		mCurrentURL = media_impl->getMediaURL();
+		mCurrentURL = media_impl->getCurrentMediaURL();
 		
 		back_ctrl->setEnabled((media_impl != NULL) && media_impl->canNavigateBack() && can_navigate);
 		fwd_ctrl->setEnabled((media_impl != NULL) && media_impl->canNavigateForward() && can_navigate);
@@ -309,8 +310,8 @@ void LLPanelPrimMediaControls::updateShape()
 			fwd_ctrl->setEnabled(has_focus);
 			media_address_ctrl->setVisible(false);
 			media_address_ctrl->setEnabled(false);
-			media_play_slider_ctrl->setVisible(!mini_controls);
-			media_play_slider_ctrl->setEnabled(!mini_controls);
+			media_play_slider_panel->setVisible(!mini_controls);
+			media_play_slider_panel->setEnabled(!mini_controls);
 				
 			volume_ctrl->setVisible(has_focus);
 			volume_up_ctrl->setVisible(has_focus);
@@ -406,8 +407,8 @@ void LLPanelPrimMediaControls::updateShape()
 			media_stop_ctrl->setVisible(FALSE);
 			media_address_ctrl->setVisible(has_focus && !mini_controls);
 			media_address_ctrl->setEnabled(has_focus && !mini_controls);
-			media_play_slider_ctrl->setVisible(FALSE);
-			media_play_slider_ctrl->setEnabled(FALSE);
+			media_play_slider_panel->setVisible(FALSE);
+			media_play_slider_panel->setEnabled(FALSE);
 				
 			volume_ctrl->setVisible(FALSE);
 			volume_up_ctrl->setVisible(FALSE);
@@ -472,7 +473,7 @@ void LLPanelPrimMediaControls::updateShape()
 			}
 		}
 
-		if(media_plugin)
+		if(media_impl)
 		{
 			//
 			// Handle Scrolling
@@ -480,16 +481,18 @@ void LLPanelPrimMediaControls::updateShape()
 			switch (mScrollState) 
 			{
 			case SCROLL_UP:
-				media_plugin->scrollEvent(0, -1, MASK_NONE);
+				media_impl->scrollWheel(0, -1, MASK_NONE);
 				break;
 			case SCROLL_DOWN:
-				media_plugin->scrollEvent(0, 1, MASK_NONE);
+				media_impl->scrollWheel(0, 1, MASK_NONE);
 				break;
 			case SCROLL_LEFT:
-				media_impl->handleKeyHere(KEY_LEFT, MASK_NONE);
+				media_impl->scrollWheel(1, 0, MASK_NONE);
+//				media_impl->handleKeyHere(KEY_LEFT, MASK_NONE);
 				break;
 			case SCROLL_RIGHT:
-				media_impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
+				media_impl->scrollWheel(-1, 0, MASK_NONE);
+//				media_impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
 				break;
 			case SCROLL_NONE:
 			default:
@@ -592,9 +595,9 @@ void LLPanelPrimMediaControls::updateShape()
 			mLastCursorPos = cursor_pos_window;
 		}
 		
-		if(isMouseOver())
+		if(isMouseOver() || hasFocus())
 		{
-			// Never fade the controls if the mouse is over them.
+			// Never fade the controls if the mouse is over them or they have keyboard focus.
 			mFadeTimer.stop();
 		}
 		else if(!mClearFaceOnFade && (mInactivityTimer.getElapsedTimeF32() < mInactiveTimeout))
@@ -627,9 +630,13 @@ void LLPanelPrimMediaControls::draw()
 
 		if(mFadeTimer.getElapsedTimeF32() >= mControlFadeTime)
 		{
-			setVisible(FALSE);
 			if(mClearFaceOnFade)
 			{
+				// Hiding this object makes scroll events go missing after it fades out 
+				// (see DEV-41755 for a full description of the train wreck).
+				// Only hide the controls when we're untargeting.
+				setVisible(FALSE);
+
 				mClearFaceOnFade = false;
 				mTargetImplID = LLUUID::null;
 				mTargetObjectID = LLUUID::null;
@@ -758,20 +765,10 @@ void LLPanelPrimMediaControls::onClickHome()
 
 void LLPanelPrimMediaControls::onClickOpen()
 {
-	LLViewerMediaImpl* impl =getTargetMediaImpl();
+	LLViewerMediaImpl* impl = getTargetMediaImpl();
 	if(impl)
 	{
-		if(impl->getMediaPlugin())
-		{	
-			if(impl->getMediaPlugin()->getLocation().empty())
-			{
-				LLWeb::loadURL(impl->getMediaURL());
-			}
-			else
-			{
-				LLWeb::loadURL( impl->getMediaPlugin()->getLocation());
-			}
-		}
+		LLWeb::loadURL(impl->getCurrentMediaURL());
 	}	
 }
 
@@ -895,11 +892,11 @@ void LLPanelPrimMediaControls::onScrollUp(void* user_data)
 	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (user_data);
 	this_panel->focusOnTarget();
 
-	LLPluginClassMedia* plugin = this_panel->getTargetMediaPlugin();
+	LLViewerMediaImpl* impl = this_panel->getTargetMediaImpl();
 	
-	if(plugin)
+	if(impl)
 	{
-		plugin->scrollEvent(0, -1, MASK_NONE);
+		impl->scrollWheel(0, -1, MASK_NONE);
 	}
 }
 void LLPanelPrimMediaControls::onScrollUpHeld(void* user_data)
@@ -916,7 +913,8 @@ void LLPanelPrimMediaControls::onScrollRight(void* user_data)
 
 	if(impl)
 	{
-		impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
+		impl->scrollWheel(-1, 0, MASK_NONE);
+//		impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
 	}
 }
 void LLPanelPrimMediaControls::onScrollRightHeld(void* user_data)
@@ -934,7 +932,8 @@ void LLPanelPrimMediaControls::onScrollLeft(void* user_data)
 
 	if(impl)
 	{
-		impl->handleKeyHere(KEY_LEFT, MASK_NONE);
+		impl->scrollWheel(1, 0, MASK_NONE);
+//		impl->handleKeyHere(KEY_LEFT, MASK_NONE);
 	}
 }
 void LLPanelPrimMediaControls::onScrollLeftHeld(void* user_data)
@@ -948,11 +947,11 @@ void LLPanelPrimMediaControls::onScrollDown(void* user_data)
 	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (user_data);
 	this_panel->focusOnTarget();
 
-	LLPluginClassMedia* plugin = this_panel->getTargetMediaPlugin();
+	LLViewerMediaImpl* impl = this_panel->getTargetMediaImpl();
 	
-	if(plugin)
+	if(impl)
 	{
-		plugin->scrollEvent(0, 1, MASK_NONE);
+		impl->scrollWheel(0, 1, MASK_NONE);
 	}
 }
 void LLPanelPrimMediaControls::onScrollDownHeld(void* user_data)
@@ -1000,6 +999,7 @@ void LLPanelPrimMediaControls::onInputURL(LLFocusableElement* caller, void *user
 
 void LLPanelPrimMediaControls::setCurrentURL()
 {	
+#ifdef USE_COMBO_BOX_FOR_MEDIA_URL
 	LLComboBox* media_address_combo	= getChild<LLComboBox>("media_address_combo");
 	// redirects will navigate momentarily to about:blank, don't add to history
 	if (media_address_combo && mCurrentURL != "about:blank")
@@ -1008,6 +1008,13 @@ void LLPanelPrimMediaControls::setCurrentURL()
 		media_address_combo->add(mCurrentURL, ADD_SORTED);
 		media_address_combo->selectByValue(mCurrentURL);
 	}
+#else   // USE_COMBO_BOX_FOR_MEDIA_URL
+	LLLineEditor* media_address_url = getChild<LLLineEditor>("media_address_url");
+	if (media_address_url && mCurrentURL != "about:blank")
+	{
+		media_address_url->setValue(mCurrentURL);
+	}
+#endif	// USE_COMBO_BOX_FOR_MEDIA_URL
 }
 
 void LLPanelPrimMediaControls::onCommitSlider()

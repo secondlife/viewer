@@ -81,7 +81,7 @@ void LLFloaterGroupInvite::impl::closeFloater(void* data)
 LLFloaterGroupInvite::LLFloaterGroupInvite(const LLUUID& group_id)
 :	LLFloater(group_id)
 {
-	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
+	S32 floater_header_size = getHeaderHeight();
 	LLRect contents;
 
 	mImpl = new impl(group_id);
@@ -114,7 +114,8 @@ LLFloaterGroupInvite::~LLFloaterGroupInvite()
 // static
 void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id, std::vector<LLUUID> *agent_ids)
 {
-	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
+	const LLFloater::Params& floater_params = LLFloater::getDefaultParams();
+	S32 floater_header_size = floater_params.header_height;
 	LLRect contents;
 
 	// Make sure group_id isn't null

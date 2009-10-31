@@ -66,10 +66,15 @@ private:
 	observerListType mObservers;
 };
 
+class LLViewerMediaImpl;
+
 class LLViewerMedia
 {
 	LOG_CLASS(LLViewerMedia);
 	public:
+
+		typedef std::vector<LLViewerMediaImpl*> impl_list;
+
 		// Special case early init for just web browser component
 		// so we can show login screen.  See .cpp file for details. JC
 
@@ -97,6 +102,14 @@ class LLViewerMedia
 		static void mediaStop(void*);
 		static F32 getVolume();	
 		static void muteListChanged();
+		static void setInWorldMediaDisabled(bool disabled);
+		static bool getInWorldMediaDisabled();
+				
+		// Returns the priority-sorted list of all media impls.
+		static impl_list &getPriorityList();
+		
+		// This is the comparitor used to sort the list.
+		static bool priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2);
 };
 
 // Implementation functions not exported into header file
@@ -145,6 +158,7 @@ public:
 	void mouseUp(const LLVector2& texture_coords, MASK mask, S32 button = 0);
 	void mouseMove(const LLVector2& texture_coords, MASK mask);
 	void mouseDoubleClick(S32 x,S32 y, MASK mask, S32 button = 0);
+	void scrollWheel(S32 x, S32 y, MASK mask);
 	void mouseCapture();
 	
 	void navigateBack();
@@ -158,7 +172,8 @@ public:
 	bool handleUnicodeCharHere(llwchar uni_char);
 	bool canNavigateForward();
 	bool canNavigateBack();
-	std::string getMediaURL() { return mMediaURL; }
+	std::string getMediaURL() const { return mMediaURL; }
+	std::string getCurrentMediaURL();
 	std::string getHomeURL() { return mHomeURL; }
     void setHomeURL(const std::string& home_url) { mHomeURL = home_url; };
 	std::string getMimeType() { return mMimeType; }
@@ -166,7 +181,7 @@ public:
 
 	void update();
 	void updateImagesMediaStreams();
-	LLUUID getMediaTextureID();
+	LLUUID getMediaTextureID() const;
 	
 	void suspendUpdates(bool suspend) { mSuspendUpdates = suspend; };
 	void setVisible(bool visible);
@@ -177,6 +192,12 @@ public:
 	bool hasMedia();
 	bool isMediaFailed() { return mMediaSourceFailed; };
 	void resetPreviousMediaState();
+	
+	void setDisabled(bool disabled) { mIsDisabled = disabled; };
+	bool isMediaDisabled() { return mIsDisabled; };
+
+	// returns true if this instance should not be loaded (disabled, muted object, crashed, etc.)
+	bool isForcedUnloaded() const;
 
 	ECursorType getLastSetCursor() { return mLastSetCursor; };
 	
@@ -236,6 +257,7 @@ public:
 	void calculateInterest();
 	F64 getInterest() const { return mInterest; };
 	F64 getApproximateTextureInterest();
+	S32 getProximity() { return mProximity; };
 	
 	// Mark this object as being used in a UI panel instead of on a prim
 	// This will be used as part of the interest sorting algorithm.
@@ -272,9 +294,10 @@ public:
 	LLPluginClassMedia* mMediaSource;
 	LLUUID mTextureId;
 	bool  mMovieImageHasMips;
-	std::string mMediaURL;
+	std::string mMediaURL;			// The last media url set with NavigateTo
 	std::string mHomeURL;
 	std::string mMimeType;
+	std::string mCurrentMediaURL;	// The most current media url from the plugin (via the "location changed" or "navigate complete" events).
 	S32 mLastMouseX;	// save the last mouse coord we get, so when we lose capture we can simulate a mouseup at that point.
 	S32 mLastMouseY;
 	S32 mMediaWidth;
@@ -298,6 +321,8 @@ public:
 	bool mNeedsMuteCheck;
 	int mPreviousMediaState;
 	F64 mPreviousMediaTime;
+	bool mIsDisabled;
+	S32 mProximity;
 
 private:
 	BOOL mIsUpdated ;

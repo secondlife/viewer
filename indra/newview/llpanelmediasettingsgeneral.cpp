@@ -134,6 +134,11 @@ void LLPanelMediaSettingsGeneral::draw()
 		LLPluginClassMedia* media_plugin = mPreviewMedia->getMediaPlugin();
 		if( media_plugin )
 		{
+			// turn off volume (if we can) for preview. Note: this really only
+			// works for QuickTime movies right now - no way to control the 
+			// volume of a flash app embedded in a page for example
+			media_plugin->setVolume( 0 );
+
 			// some controls are only appropriate for time or browser type plugins
 			// so we selectively enable/disable them - need to do it in draw
 			// because the information from plugins arrives assynchronously

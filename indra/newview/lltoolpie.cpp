@@ -732,7 +732,47 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 				{
 					tooltip_msg.append( nodep->mName );
 				}
-
+				
+				bool is_time_based_media = false;
+				bool is_web_based_media = false;
+				bool is_media_playing = false;
+				
+				// Does this face have media?
+				const LLTextureEntry* tep = hover_object->getTE(mHoverPick.mObjectFace);
+				
+				if(tep)
+				{
+					const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
+					if (mep)
+					{
+						viewer_media_t media_impl = mep ? LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID()) : NULL;
+						LLPluginClassMedia* media_plugin = NULL;
+				
+						if (media_impl.notNull() && (media_impl->hasMedia()))
+						{
+							LLStringUtil::format_map_t args;
+					
+							media_plugin = media_impl->getMediaPlugin();
+							if(media_plugin)
+							{	if(media_plugin->pluginSupportsMediaTime())
+								{
+									is_time_based_media = true;
+									is_web_based_media = false;
+									args["[CurrentURL]"] =  media_impl->getMediaURL();
+									is_media_playing = media_impl->isMediaPlaying();
+								}
+								else
+								{
+									is_time_based_media = false;
+									is_web_based_media = true;
+									args["[CurrentURL]"] =  media_plugin->getLocation();
+								}
+								//tooltip_msg.append(LLTrans::getString("CurrentURL", args));
+							}
+						}
+					}
+				}
+				
 				bool needs_tip = needs_tooltip(nodep);
 
 				if (show_all_object_tips || needs_tip)
@@ -741,8 +781,13 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 					mPick = mHoverPick;
 					LLToolTipMgr::instance().show(LLToolTip::Params()
 						.message(tooltip_msg)
-						.image(LLUI::getUIImage("Info"))
-						.click_callback(boost::bind(showObjectInspector, hover_object->getID()))
+						.image(LLUI::getUIImage("Info_Off"))
+						.click_callback(boost::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace))
+						.time_based_media(is_time_based_media)
+						.web_based_media(is_web_based_media)						  
+						.media_playing(is_media_playing)						  
+						.click_playmedia_callback(boost::bind(playCurrentMedia, mHoverPick))
+						.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick))						
 						.visible_time_near(6.f)
 						.visible_time_far(3.f)
 						.wrap(false));
@@ -925,6 +970,20 @@ static void show_inspector(const char* inspector, const char* param, const LLUUI
 	LLFloaterReg::showInstance(inspector, params);
 }
 
+
+static void show_inspector(const char* inspector,  LLSD& params)
+{
+	if (LLToolTipMgr::instance().toolTipVisible())
+	{
+		LLRect rect = LLToolTipMgr::instance().getToolTipRect();
+		params["pos"]["x"] = rect.mLeft;
+		params["pos"]["y"] = rect.mTop;
+	}
+	
+	LLFloaterReg::showInstance(inspector, params);
+}
+
+
 // static
 void LLToolPie::showAvatarInspector(const LLUUID& avatar_id)
 {
@@ -936,6 +995,114 @@ void LLToolPie::showObjectInspector(const LLUUID& object_id)
 {
 	show_inspector("inspect_object", "object_id", object_id);
 }
+
+
+// static
+void LLToolPie::showObjectInspector(const LLUUID& object_id, const S32& object_face)
+{
+	LLSD params;
+	params["object_id"] = object_id;
+	params["object_face"] = object_face;
+	show_inspector("inspect_object", params);
+}
+
+// static
+void LLToolPie::playCurrentMedia(const LLPickInfo& info)
+{
+	//FIXME: how do we handle object in different parcel than us?
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	if (!parcel) return;
+	
+	LLPointer<LLViewerObject> objectp = info.getObject();
+	
+	// Early out cases.  Must clear media hover. 
+	// did not hit an object or did not hit a valid face
+	if ( objectp.isNull() ||
+		info.mObjectFace < 0 || 
+		info.mObjectFace >= objectp->getNumTEs() )
+	{
+		return;
+	}
+	
+	// Does this face have media?
+	const LLTextureEntry* tep = objectp->getTE(info.mObjectFace);
+	if (!tep)
+		return;
+	
+	const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
+	if(!mep)
+		return;
+	
+	LLPluginClassMedia* media_plugin = NULL;
+	
+//	if (gSavedSettings.getBOOL("MediaOnAPrimUI"))
+//	{		
+		viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
+		
+		if(media_impl.notNull() && media_impl->hasMedia())
+		{
+			media_plugin = media_impl->getMediaPlugin();
+			
+			if (media_plugin && media_plugin->pluginSupportsMediaTime())
+			{
+				if(media_impl->isMediaPlaying())
+				{
+					media_impl->pause();
+				}
+				else //if(media_impl->isMediaPaused())
+				{
+					media_impl->play();
+				}
+				
+			}
+					
+		}
+//	 }
+
+}
+
+// static
+void LLToolPie::VisitHomePage(const LLPickInfo& info)
+{
+	//FIXME: how do we handle object in different parcel than us?
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	if (!parcel) return;
+	
+	LLPointer<LLViewerObject> objectp = info.getObject();
+	
+	// Early out cases.  Must clear media hover. 
+	// did not hit an object or did not hit a valid face
+	if ( objectp.isNull() ||
+		info.mObjectFace < 0 || 
+		info.mObjectFace >= objectp->getNumTEs() )
+	{
+		return;
+	}
+	
+	// Does this face have media?
+	const LLTextureEntry* tep = objectp->getTE(info.mObjectFace);
+	if (!tep)
+		return;
+	
+	const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
+	if(!mep)
+		return;
+	
+	LLPluginClassMedia* media_plugin = NULL;
+	
+	viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
+	
+	if(media_impl.notNull() && media_impl->hasMedia())
+	{
+		media_plugin = media_impl->getMediaPlugin();
+		
+		if (media_plugin && !(media_plugin->pluginSupportsMediaTime()))
+		{
+			media_impl->navigateHome();
+		}
+	}
+}
+
 
 void LLToolPie::handleDeselect()
 {
@@ -1035,12 +1202,17 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 
 	// Does this face have media?
 	const LLTextureEntry* tep = objectp->getTE(pick.mObjectFace);
+	if(!tep)
+		return false;
+
 	LLMediaEntry* mep = (tep->hasMedia()) ? tep->getMediaData() : NULL;
+	
+	if(!mep)
+		return false;
+	
 	viewer_media_t media_impl = mep ? LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID()) : NULL;
 
-	if (tep 
-		&& mep
-		&& gSavedSettings.getBOOL("MediaOnAPrimUI")
+	if (gSavedSettings.getBOOL("MediaOnAPrimUI")
 		&& media_impl.notNull())
 	{
 		if (!LLViewerMediaFocus::getInstance()->isFocusedOnFace(pick.getObject(), pick.mObjectFace) )
@@ -1085,6 +1257,9 @@ bool LLToolPie::handleMediaHover(const LLPickInfo& pick)
 
 	// Does this face have media?
 	const LLTextureEntry* tep = objectp->getTE(pick.mObjectFace);
+	if(!tep)
+		return false;
+	
 	const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
 	if (mep
 		&& gSavedSettings.getBOOL("MediaOnAPrimUI"))

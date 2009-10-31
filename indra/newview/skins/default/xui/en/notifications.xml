@@ -5837,15 +5837,11 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
       <button
        index="0"
        name="Keep"
-       text="OK"/>
+       text="Accept"/>
       <button
        index="1"
        name="Discard"
-       text="Cancel"/>
-      <button
-       index="2"
-       name="Mute"
-       text="Block"/>
+       text="No, thanks"/>
     </form>
   </notification>
 

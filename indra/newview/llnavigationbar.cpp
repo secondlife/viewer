@@ -517,8 +517,8 @@ void	LLNavigationBar::showTeleportHistoryMenu()
 	// *TODO: why to draw/update anything before showing the menu?
 	mTeleportHistoryMenu->buildDrawLabels();
 	mTeleportHistoryMenu->updateParent(LLMenuGL::sMenuContainer);
-	LLRect btnBackRect = mBtnBack->getRect();
-	LLMenuGL::showPopup(this, mTeleportHistoryMenu, btnBackRect.mLeft, btnBackRect.mBottom);
+	const S32 MENU_SPAWN_PAD = -1;
+	LLMenuGL::showPopup(mBtnBack, mTeleportHistoryMenu, 0, MENU_SPAWN_PAD);
 
 	// *HACK pass the mouse capturing to the drop-down menu
 	gFocusMgr.setMouseCapture( NULL );

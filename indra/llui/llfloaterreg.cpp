@@ -127,7 +127,7 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 				bool success = LLUICtrlFactory::getInstance()->buildFloater(res, xui_file, NULL);
 				if (!success)
 				{
-					llwarns << "Failed to buid floater type: '" << name << "'." << llendl;
+					llwarns << "Failed to build floater type: '" << name << "'." << llendl;
 					return NULL;
 				}
 					
@@ -362,6 +362,26 @@ std::string LLFloaterReg::declareVisibilityControl(const std::string& name)
 												 TRUE);
 	return controlname;
 }
+
+//static
+std::string LLFloaterReg::declareDockStateControl(const std::string& name)
+{
+	std::string controlname = getDockStateControlName(name);
+	LLUI::sSettingGroups["floater"]->declareBOOL(controlname, FALSE,
+												 llformat("Window Docking state for %s", name.c_str()),
+												 TRUE);
+	return controlname;
+
+}
+
+//static
+std::string LLFloaterReg::getDockStateControlName(const std::string& name)
+{
+	std::string res = std::string("floater_dock_") + name;
+	LLStringUtil::replaceChar( res, ' ', '_' );
+	return res;
+}
+
 
 //static
 void LLFloaterReg::registerControlVariables()

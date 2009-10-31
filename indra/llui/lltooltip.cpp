@@ -38,10 +38,11 @@
 // Library includes
 #include "lltextbox.h"
 #include "lliconctrl.h"
+#include "llbutton.h"
 #include "llmenugl.h"       // hideMenus()
 #include "llui.h"			// positionViewNearMouse()
 #include "llwindow.h"
-
+#include "lltrans.h"
 //
 // Constants
 //
@@ -155,7 +156,10 @@ LLToolTip::Params::Params()
 	visible_time_near("visible_time_near", LLUI::sSettingGroups["config"]->getF32( "ToolTipVisibleTimeNear" )),
 	visible_time_far("visible_time_far", LLUI::sSettingGroups["config"]->getF32( "ToolTipVisibleTimeFar" )),
 	sticky_rect("sticky_rect"),
-	image("image")
+	image("image"),
+	time_based_media("time_based_media", false),
+	web_based_media("web_based_media", false),
+	media_playing("media_playing", false)
 {
 	name = "tooltip";
 	font = LLFontGL::getFontSansSerif();
@@ -167,7 +171,11 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 :	LLPanel(p),
 	mMaxWidth(p.max_width),
 	mHasClickCallback(p.click_callback.isProvided()),
-	mPadding(p.padding)
+	mPadding(p.padding),
+	mTextBox(NULL),
+	mInfoButton(NULL),
+	mPlayMediaButton(NULL),
+	mHomePageButton(NULL)
 {
 	LLTextBox::Params params;
 	params.initial_value = "tip_text";
@@ -186,25 +194,82 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	params.allow_html = false; // disallow hyperlinks in tooltips, as they want to spawn their own explanatory tooltips
 	mTextBox = LLUICtrlFactory::create<LLTextBox> (params);
 	addChild(mTextBox);
-
+	
+	S32 TOOLTIP_ICON_SIZE = 0;
+	S32 TOOLTIP_PLAYBUTTON_SIZE = 0;
 	if (p.image.isProvided())
 	{
-		LLIconCtrl::Params icon_params;
-		icon_params.name = "tooltip_icon";
+		LLButton::Params icon_params;
+		icon_params.name = "tooltip_info";
 		LLRect icon_rect;
 		LLUIImage* imagep = p.image;
-		const S32 TOOLTIP_ICON_SIZE = (imagep ? imagep->getWidth() : 16);
+		TOOLTIP_ICON_SIZE = (imagep ? imagep->getWidth() : 16);
 		icon_rect.setOriginAndSize(mPadding, mPadding, TOOLTIP_ICON_SIZE, TOOLTIP_ICON_SIZE);
 		icon_params.rect = icon_rect;
-		icon_params.follows.flags = FOLLOWS_LEFT | FOLLOWS_BOTTOM;
-		icon_params.image = p.image;
-		icon_params.mouse_opaque = false;
-		addChild(LLUICtrlFactory::create<LLIconCtrl>(icon_params));
-
+		//icon_params.follows.flags = FOLLOWS_LEFT | FOLLOWS_BOTTOM;
+		icon_params.image_unselected(imagep);
+		icon_params.scale_image(true);
+		icon_params.flash_color(icon_params.highlight_color());
+		mInfoButton  = LLUICtrlFactory::create<LLButton>(icon_params);
+		if (p.click_callback.isProvided())
+		{
+			mInfoButton->setCommitCallback(boost::bind(p.click_callback()));
+		}
+		addChild(mInfoButton);
+		
 		// move text over to fit image in
 		mTextBox->translate(TOOLTIP_ICON_SIZE + mPadding, 0);
 	}
-
+	
+	if (p.time_based_media.isProvided() && p.time_based_media == true)
+	{
+		LLButton::Params p_button;
+		p_button.name(std::string("play_media"));
+		TOOLTIP_PLAYBUTTON_SIZE = 16;
+		LLRect button_rect;
+		button_rect.setOriginAndSize((mPadding +TOOLTIP_ICON_SIZE+ mPadding ), mPadding, TOOLTIP_ICON_SIZE, TOOLTIP_ICON_SIZE);
+		p_button.rect = button_rect;
+		p_button.image_selected.name("button_anim_pause.tga");
+		p_button.image_unselected.name("button_anim_play.tga");
+		p_button.scale_image(true);
+		
+		mPlayMediaButton = LLUICtrlFactory::create<LLButton>(p_button); 
+		if(p.click_playmedia_callback.isProvided())
+		{
+			mPlayMediaButton->setCommitCallback(boost::bind(p.click_playmedia_callback()));
+		}
+		if(p.media_playing.isProvided())
+		{
+			mPlayMediaButton->setToggleState(p.media_playing);
+		}
+		addChild(mPlayMediaButton);
+		
+		// move text over to fit image in
+		mTextBox->translate(TOOLTIP_PLAYBUTTON_SIZE + mPadding, 0);
+	}
+	
+	if (p.web_based_media.isProvided() && p.web_based_media == true)
+	{
+		LLButton::Params p_w_button;
+		p_w_button.name(std::string("home_page"));
+		TOOLTIP_PLAYBUTTON_SIZE = 16;
+		LLRect button_rect;
+		button_rect.setOriginAndSize((mPadding +TOOLTIP_ICON_SIZE+ mPadding ), mPadding, TOOLTIP_ICON_SIZE, TOOLTIP_ICON_SIZE);
+		p_w_button.rect = button_rect;
+		p_w_button.image_unselected.name("map_home.tga");
+		p_w_button.scale_image(true);
+		
+		mHomePageButton = LLUICtrlFactory::create<LLButton>(p_w_button); 
+		if(p.click_homepage_callback.isProvided())
+		{
+			mHomePageButton->setCommitCallback(boost::bind(p.click_homepage_callback()));
+		}
+		addChild(mHomePageButton);
+		
+		// move text over to fit image in
+		mTextBox->translate(TOOLTIP_PLAYBUTTON_SIZE + mPadding, 0);
+	}
+	
 	if (p.click_callback.isProvided())
 	{
 		setMouseUpCallback(boost::bind(p.click_callback()));
@@ -255,12 +320,24 @@ void LLToolTip::setVisible(BOOL visible)
 
 BOOL LLToolTip::handleHover(S32 x, S32 y, MASK mask)
 {
+	//mInfoButton->setFlashing(true);
+	if(mInfoButton)
+		mInfoButton->setHighlight(true);
+	
 	LLPanel::handleHover(x, y, mask);
 	if (mHasClickCallback)
 	{
 		getWindow()->setCursor(UI_CURSOR_HAND);
 	}
 	return TRUE;
+}
+
+void LLToolTip::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	//mInfoButton->setFlashing(true);
+	if(mInfoButton)
+		mInfoButton->setHighlight(false);
+	LLUICtrl::onMouseLeave(x, y, mask);
 }
 
 void LLToolTip::draw()
@@ -393,7 +470,9 @@ void LLToolTipMgr::show(const LLToolTip::Params& params)
 		&& LLUI::getMouseIdleTime() > params.delay_time)	// the mouse has been still long enough
 	{
 		bool tooltip_changed = mLastToolTipParams.message() != params.message()
-								|| mLastToolTipParams.pos() != params.pos();
+								|| mLastToolTipParams.pos() != params.pos()
+								|| mLastToolTipParams.time_based_media() != params.time_based_media()
+								|| mLastToolTipParams.web_based_media() != params.web_based_media();
 
 		bool tooltip_shown = mToolTip 
 							 && mToolTip->getVisible() 
