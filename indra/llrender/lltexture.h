@@ -61,6 +61,8 @@ public:
 	//
 	//interfaces to access LLViewerTexture
 	//
+	virtual S8         getType() const = 0 ;
+	virtual void       setKnownDrawSize(S32 width, S32 height) = 0 ;
 	virtual bool       bindDefaultImage(const S32 stage = 0) const = 0 ;
 	virtual void       forceImmediateUpdate() = 0 ;
 	virtual void       setActive() = 0 ;
