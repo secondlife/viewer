@@ -18,7 +18,7 @@
     </os>
   </font>
 
-  <font name="SansSerifBold" 
+  <font name="SansSerifBold"
 	comment="Name of bold sans-serif font">
     <file>DejaVuSans-Bold.ttf</file>
     <os name="Windows">
@@ -39,20 +39,20 @@
       </os>
   </font>
 
-  <font name="SansSerif" 
-	comment="Name of bold sans-serif font" 
+  <font name="SansSerif"
+	comment="Name of bold sans-serif font"
 	font_style="BOLD">
     <file>DejaVuSans-Bold.ttf</file>
   </font>
 
-  <font name="SansSerif" 
-	comment="Name of italic sans-serif font" 
+  <font name="SansSerif"
+	comment="Name of italic sans-serif font"
 	font_style="ITALIC">
     <file>DejaVuSans-Oblique.ttf</file>
   </font>
 
-  <font name="SansSerif" 
-	comment="Name of bold italic sans-serif font" 
+  <font name="SansSerif"
+	comment="Name of bold italic sans-serif font"
 	font_style="BOLD|ITALIC">
     <file>DejaVuSans-BoldOblique.ttf</file>
   </font>
@@ -140,11 +140,11 @@
 
   <font_size name="Monospace"
 	     comment="Size for monospaced font (points, or 1/72 of an inch)"
-	     size="9.0"
+	     size="8.0"
 	     />
   <font_size name="Huge"
 	     comment="Size of huge font (points, or 1/72 of an inch)"
-	     size="16.0"
+	     size="15.0"
 	     />
   <font_size name="Large"
 	     comment="Size of large font (points, or 1/72 of an inch)"
@@ -158,7 +158,6 @@
 	     />
   <font_size name="Small"
 	     comment="Size of small font (points, or 1/72 of an inch)"
-	     size="8.0"
+	     size="7.8"
 	     />
 </fonts>
-
