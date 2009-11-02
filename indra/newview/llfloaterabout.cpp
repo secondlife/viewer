@@ -39,6 +39,7 @@
 #include "llagent.h"
 #include "llappviewer.h" 
 #include "llsecondlifeurls.h"
+#include "llvoiceclient.h"
 #include "lluictrlfactory.h"
 #include "llviewertexteditor.h"
 #include "llviewercontrol.h"
@@ -268,6 +269,7 @@ LLSD LLFloaterAbout::getInfo()
 	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
 	bool want_fullname = true;
 	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : LLSD();
+	info["VIVOX_VERSION"] = gVoiceClient ? gVoiceClient->getAPIVersion() : "Unknown";
 
 	// TODO: Implement media plugin version query
 	info["QT_WEBKIT_VERSION"] = "4.5.2";
