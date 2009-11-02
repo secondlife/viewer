@@ -40,7 +40,6 @@
 #include "llsd.h"
 #include "lluictrlfactory.h"
 #include "llviewermessage.h"
-#include "llappviewer.h"		// gPacificDaylightTime
 
 ///----------------------------------------------------------------------------
 /// Class LLFloaterBump

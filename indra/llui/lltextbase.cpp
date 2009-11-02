@@ -933,13 +933,16 @@ BOOL LLTextBase::handleToolTip(S32 x, S32 y, MASK mask)
 
 void LLTextBase::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	LLUICtrl::reshape( width, height, called_from_parent );
+	if (width != getRect().getWidth() || height != getRect().getHeight())
+	{
+		LLUICtrl::reshape( width, height, called_from_parent );
 
-	// do this first after reshape, because other things depend on
-	// up-to-date mTextRect
-	updateRects();
-	
-	needsReflow();
+		// do this first after reshape, because other things depend on
+		// up-to-date mTextRect
+		updateRects();
+		
+		needsReflow();
+	}
 }
 
 void LLTextBase::draw()
@@ -1193,11 +1196,10 @@ void LLTextBase::reflow(S32 start_index)
 				//llassert_always(getLocalRectFromDocIndex(mScrollIndex).mBottom == first_char_rect.mBottom);
 			}
 		}
+
+		// reset desired x cursor position
+		updateCursorXPos();
 	}
-
-
-	// reset desired x cursor position
-	updateCursorXPos();
 }
 
 LLRect LLTextBase::getContentsRect()
@@ -2108,9 +2110,12 @@ LLRect LLTextBase::getVisibleDocumentRect() const
 	}
 	else
 	{
-		// entire document rect when not scrolling
+		// entire document rect is visible when not scrolling
+		// but offset according to height of widget
 		LLRect doc_rect = mDocumentView->getLocalRect();
-		doc_rect.translate(-mDocumentView->getRect().mLeft, -mDocumentView->getRect().mBottom);
+		doc_rect.mLeft -= mDocumentView->getRect().mLeft;
+		// adjust for height of text above widget baseline
+		doc_rect.mBottom = llmin(0, doc_rect.getHeight() - mTextRect.getHeight());
 		return doc_rect;
 	}
 }

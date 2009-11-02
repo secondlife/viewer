@@ -652,6 +652,13 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL	handled = FALSE;
 
+	// set focus first, in case click callbacks want to change it
+	// RN: do we really need to have a tab stop?
+	if (hasTabStop())
+	{
+		setFocus( TRUE );
+	}
+
 	// Let scrollbar have first dibs
 	handled = LLTextBase::handleMouseDown(x, y, mask);
 
@@ -694,12 +701,6 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 		handled = TRUE;
 	}
 
-	if (hasTabStop())
-	{
-		setFocus( TRUE );
-		handled = TRUE;
-	}
-
 	// Delay cursor flashing
 	resetCursorBlink();
 
@@ -708,29 +709,32 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = LLTextBase::handleRightMouseDown(x, y, mask);
-	if (!handled && hasTabStop())
+	if (hasTabStop())
 	{
-		setFocus( TRUE );
-		showContextMenu(x, y);
-		handled = TRUE;
+		setFocus(TRUE);
 	}
-	return handled;
+	if (!LLTextBase::handleRightMouseDown(x, y, mask))
+	{
+		showContextMenu(x, y);
+	}
+	return TRUE;
 }
 
 
 
 BOOL LLTextEditor::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
-	handled = LLTextBase::handleMouseDown(x, y, mask);
-
-	if (!handled)
+	if (hasTabStop())
 	{
-		setFocus( TRUE );
+		setFocus(TRUE);
+	}
+
+	if (!LLTextBase::handleMouseDown(x, y, mask))
+	{
 		if( canPastePrimary() )
 		{
 			setCursorAtLocalPos( x, y, true );
+			// does not rely on focus being set
 			pastePrimary();
 		}
 	}
