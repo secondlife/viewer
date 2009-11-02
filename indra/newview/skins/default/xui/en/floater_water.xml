@@ -62,10 +62,12 @@
     <tab_container
      follows="left|top"
      height="180"
+     halign="center"
      layout="topleft"
      left="0"
      name="Water Tabs"
      tab_position="top"
+     tab_height="20"
      top="60"
      width="700">
         <panel

@@ -18,7 +18,7 @@
      visible="false"
      width="380" />
     <icon
-     height="20"
+     height="24"
      follows="top|right|left"
      image_name="ListItem_Select"
      layout="topleft"
@@ -26,7 +26,7 @@
      name="selected_icon"
      top="0"
      visible="false"
-     width="380" />
+     width="320" />
     <icon
      height="16"
      follows="top|left"
@@ -45,21 +45,28 @@
      name="region"
      text_color="white"
      top="4"
-     value="Unknown"
-     width="330" />
+     value="..."
+     width="242" />
     <button
      follows="right"
-     height="18"
-     image_disabled="Info"
-     image_disabled_selected="Info"
-     image_hover_selected="Info"
-     image_selected="Info"
-     image_unselected="Info"
-     layout="topleft"
+     height="16"
+     image_pressed="Info_Press"
+     image_unselected="Info_Over"
+     left_pad="3"
+     right="-31"
      name="info_btn"
      picture_style="true"
-     visible="false"
-     right="-5"
-     top="2" 
-     width="18" />
+     top_delta="-2"
+     width="16" />
+    <button
+     follows="right"
+     height="20"
+     image_overlay="ForwardArrow_Off"
+     layout="topleft"
+     left_pad="5"
+     right="-3"
+     name="profile_btn"
+     picture_style="true"
+     top_delta="-2"
+     width="20" />
 </panel>

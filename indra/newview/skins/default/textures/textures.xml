@@ -29,9 +29,9 @@
 
   <texture name="BottomTray_BG" file_name="bottomtray/BottomTray_BG.png" preload="false" />
 
-  <texture name="BuyArrow_Off" file_name="navbar/BuyArrow_Off.png" preload="false" />
-  <texture name="BuyArrow_Over" file_name="navbar/BuyArrow_Over.png" preload="false" />
-  <texture name="BuyArrow_Press" file_name="navbar/BuyArrow_Press.png" preload="false" />
+  <texture name="BuyArrow_Off" file_name="navbar/BuyArrow_Off.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0"  />
+  <texture name="BuyArrow_Over" file_name="navbar/BuyArrow_Over.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0"  />
+  <texture name="BuyArrow_Press" file_name="navbar/BuyArrow_Press.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0"  />
 
   <texture name="Cam_Avatar_Disabled" file_name="bottomtray/Cam_Avatar_Disabled.png" preload="false" />
   <texture name="Cam_Avatar_Over" file_name="bottomtray/Cam_Avatar_Over.png" preload="false" />

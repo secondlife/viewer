@@ -50,6 +50,7 @@
     <tab_container
      follows="all"
      height="535"
+     halign="center"
      layout="topleft"
      left="10"
  min_width="333"
