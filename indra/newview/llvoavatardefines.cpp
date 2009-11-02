@@ -68,9 +68,9 @@ LLVOAvatarDictionary::Textures::Textures()
 	addEntry(TEX_EYES_ALPHA,                  new TextureEntry("eyes_alpha",       TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     WT_ALPHA));
 	addEntry(TEX_HAIR_ALPHA,                  new TextureEntry("hair_alpha",       TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     WT_ALPHA));
 
-	addEntry(TEX_HEAD_TATTOO,                 new TextureEntry("head_tattoo",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultTattooUUID",     WT_TATTOO));
-	addEntry(TEX_UPPER_TATTOO,                new TextureEntry("upper_tattoo",     TRUE,  BAKED_NUM_INDICES, "UIImgDefaultTattooUUID",     WT_TATTOO));
-	addEntry(TEX_LOWER_TATTOO,                new TextureEntry("lower_tattoo",     TRUE,  BAKED_NUM_INDICES, "UIImgDefaultTattooUUID",     WT_TATTOO));
+	addEntry(TEX_HEAD_TATTOO,                 new TextureEntry("head_tattoo",      TRUE,  BAKED_NUM_INDICES, "",     WT_TATTOO));
+	addEntry(TEX_UPPER_TATTOO,                new TextureEntry("upper_tattoo",     TRUE,  BAKED_NUM_INDICES, "",     WT_TATTOO));
+	addEntry(TEX_LOWER_TATTOO,                new TextureEntry("lower_tattoo",     TRUE,  BAKED_NUM_INDICES, "",     WT_TATTOO));
 
 	addEntry(TEX_HEAD_BAKED,                  new TextureEntry("head-baked",       FALSE, BAKED_HEAD));
 	addEntry(TEX_UPPER_BAKED,                 new TextureEntry("upper-baked",      FALSE, BAKED_UPPER));
@@ -248,8 +248,6 @@ EBakedTextureIndex LLVOAvatarDictionary::findBakedByRegionName(std::string name)
 //static
 const LLUUID LLVOAvatarDictionary::getDefaultTextureImageID(ETextureIndex index)
 {
-	/* switch( index )
-		case TEX_UPPER_SHIRT:		return LLUUID( gSavedSettings.getString("UIImgDefaultShirtUUID") ); */
 	const TextureEntry *texture_dict = getInstance()->getTexture(index);
 	const std::string &default_image_name = texture_dict->mDefaultImageName;
 	if (default_image_name == "")
@@ -265,9 +263,6 @@ const LLUUID LLVOAvatarDictionary::getDefaultTextureImageID(ETextureIndex index)
 // static
 EWearableType LLVOAvatarDictionary::getTEWearableType(ETextureIndex index )
 {
-	/* switch(index)
-		case TEX_UPPER_SHIRT:
-			return WT_SHIRT; */
 	return getInstance()->getTexture(index)->mWearableType;
 }
 

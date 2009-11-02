@@ -53,7 +53,7 @@
          left="10"
          name="second_life_image_panel"
          top="0"
-         width="290">
+         width="280">
             <texture_picker
              allow_no_texture="true"
              default_image_name="None"
@@ -75,13 +75,15 @@
              text_color="white"
              top_delta="0"
              value="[SECOND_LIFE]:"
-             width="170" />
+             width="165" />
             <expandable_text
              follows="left|top|right"
              height="95"
              layout="topleft"
              left="107"
+             max_length="512"
              name="sl_description_edit"
+             top_pad="-3"
              width="173"
              expanded_bg_visible="true"
              expanded_bg_color="DkGray">
@@ -95,7 +97,7 @@
 	 top_pad="10"
          left="10"
          name="first_life_image_panel"
-         width="290">
+         width="280">
             <texture_picker
              allow_no_texture="true"
              default_image_name="None"
@@ -116,13 +118,15 @@
              text_color="white"
              top_delta="0"
              value="Real World:"
-             width="173" />
+             width="165" />
             <expandable_text
              follows="left|top|right"
              height="95"
              layout="topleft"
              left="107"
+             max_length="512"
              name="fl_description_edit"
+             top_pad="-3"
              width="173"
              expanded_bg_visible="true"
              expanded_bg_color="DkGray">
@@ -151,7 +155,7 @@
          name="homepage_edit"
          top_pad="0"
          value="http://librarianavengers.org"
-         width="290"
+         width="280"
          word_wrap="false"
          use_elipsis="true"
          />
@@ -205,7 +209,7 @@
          name="acc_status_text"
          top_pad="0"
          value="Resident. No payment info on file."
-         width="295"
+         width="280"
          word_wrap="true" />
         <text
          follows="left|top"
@@ -215,7 +219,7 @@
          left="10"
          name="title_partner_text"
          text_color="white"
-         top_pad="10"
+         top_pad="5"
          value="Partner:"
          width="280" />
         <panel
@@ -245,21 +249,21 @@
          left="10"
          name="title_groups_text"
          text_color="white"
-         top_pad="10"
+         top_pad="8"
          value="Groups:"
          width="280" />
-        <text
+                     <expandable_text
          follows="left|top|bottom"
-         height="160"
+         height="60"
          layout="topleft"
          left="10"
-         name="sl_groups"
-         top_pad="0"
-         width="290"
-         word_wrap="true"
-         use_elipsis="true">
+             name="sl_groups"
+       top_pad="0"
+         width="280"
+             expanded_bg_visible="true"
+             expanded_bg_color="DkGray">
             Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-        </text>
+        </expandable_text>
       </panel>
  </scroll_container>
  <panel
@@ -270,17 +274,17 @@
      top_pad="2"
      bottom="10"
      height="19"
-     width="313">
+     width="303">
         <button
          follows="bottom|left"
          height="19"
-         label="Add"
+         label="Add Friend"
          layout="topleft"
          left="0"
          mouse_opaque="false"
          name="add_friend"
          top="5"
-         width="55" />
+         width="75" />
         <button
          follows="bottom|left"
          height="19"
@@ -289,7 +293,7 @@
          name="im"
          top="5"
          left_pad="5"
-         width="40" />
+         width="45" />
         <button
          enabled="false"
          follows="bottom|left"
@@ -299,7 +303,7 @@
          name="call"
          left_pad="5"
          top="5"
-         width="55" />
+         width="45" />
         <button
          enabled="false"
          follows="bottom|left"
@@ -309,7 +313,7 @@
          name="show_on_map_btn"
          top="5"
          left_pad="5"
-         width="50" />
+         width="45" />
         <button
          follows="bottom|left"
          height="19"
@@ -318,7 +322,7 @@
          name="teleport"
          left_pad="5"
          top="5"
-         width="90" />
+         width="80" />
  </panel>
  <panel
      follows="bottom|left"
@@ -328,7 +332,7 @@
      name="profile_me_buttons_panel"
      visible="false"
      height="19"
-     width="313">
+     width="303">
         <button
          follows="bottom|right"
          font="SansSerifSmall"

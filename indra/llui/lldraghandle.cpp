@@ -49,9 +49,9 @@
 #include "lluictrlfactory.h"
 
 const S32 LEADING_PAD = 5;
-const S32 TITLE_PAD = 8;
+const S32 TITLE_HPAD = 8;
 const S32 BORDER_PAD = 1;
-const S32 LEFT_PAD = BORDER_PAD + TITLE_PAD + LEADING_PAD;
+const S32 LEFT_PAD = BORDER_PAD + TITLE_HPAD + LEADING_PAD;
 const S32 RIGHT_PAD = BORDER_PAD + 32; // HACK: space for close btn and minimize btn
 
 S32 LLDragHandle::sSnapMargin = 5;
@@ -240,19 +240,20 @@ void LLDragHandleLeft::draw()
 
 void LLDragHandleTop::reshapeTitleBox()
 {
+	static LLUICachedControl<S32> title_vpad("UIFloaterTitleVPad", 0);
 	if( ! mTitleBox)
 	{
 		return;
 	}
 	const LLFontGL* font = LLFontGL::getFontSansSerif();
-	S32 title_width = font->getWidth( mTitleBox->getText() ) + TITLE_PAD;
+	S32 title_width = font->getWidth( mTitleBox->getText() ) + TITLE_HPAD;
 	if (getMaxTitleWidth() > 0)
 		title_width = llmin(title_width, getMaxTitleWidth());
 	S32 title_height = llround(font->getLineHeight());
 	LLRect title_rect;
 	title_rect.setLeftTopAndSize( 
 		LEFT_PAD, 
-		getRect().getHeight() - BORDER_PAD,
+		getRect().getHeight() - title_vpad,
 		getRect().getWidth() - LEFT_PAD - RIGHT_PAD,
 		title_height);
 

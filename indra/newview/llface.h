@@ -246,7 +246,7 @@ protected:
 
 	//atlas
 	LLPointer<LLTextureAtlasSlot> mAtlasInfop ;
-	BOOL                              mUsingAtlas ;
+	BOOL                          mUsingAtlas ;
 	
 protected:
 	static BOOL	sSafeRenderSelect;

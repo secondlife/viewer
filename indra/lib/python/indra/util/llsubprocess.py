@@ -90,6 +90,17 @@ all the output, and get the result.
                     child.tochild.close()
         result = child.poll()
         if result != -1:
+            # At this point, the child process has exited and result
+            # is the return value from the process. Between the time
+            # we called select() and poll() the process may have
+            # exited so read all the data left on the child process
+            # stdout and stderr.
+            last = child.fromchild.read()
+            if last:
+                out.append(last)
+            last = child.childerr.read()
+            if last:
+                err.append(last)
             child.tochild.close()
             child.fromchild.close()
             child.childerr.close()

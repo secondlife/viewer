@@ -113,6 +113,12 @@ void LLSysWellWindow::connectListUpdaterToSignal(std::string notification_type)
 }
 
 //---------------------------------------------------------------------------------
+void LLSysWellWindow::onStartUpToastClick(S32 x, S32 y, MASK mask)
+{
+	onChicletClick();
+}
+
+//---------------------------------------------------------------------------------
 void LLSysWellWindow::onChicletClick()
 {
 	// 1 - remove StartUp toast and channel if present
@@ -403,7 +409,6 @@ bool LLSysWellWindow::isWindowEmpty()
 void LLSysWellWindow::sessionAdded(const LLUUID& session_id,
 		const std::string& name, const LLUUID& other_participant_id)
 {
-	//*TODO get rid of get_session_value, session_id's are unique, cause performance degradation with lots chiclets (IB)
 	if (mMessageList->getItemByValue(session_id) == NULL)
 	{
 		S32 chicletCounter = LLIMModel::getInstance()->getNumUnread(session_id);
@@ -421,7 +426,6 @@ void LLSysWellWindow::sessionRemoved(const LLUUID& sessionId)
 {
 	delIMRow(sessionId);
 	reshapeWindow();
-	LLBottomTray::getInstance()->getSysWell()->updateUreadIMNotifications();
 }
 
 void LLSysWellWindow::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)

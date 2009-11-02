@@ -73,10 +73,10 @@ LLPanelPicks::LLPanelPicks()
 	mPopupMenu(NULL),
 	mProfilePanel(NULL),
 	mPickPanel(NULL),
-	mPicksList(NULL)
-	, mPanelPickInfo(NULL)
-	, mPanelPickEdit(NULL)
-	, mOverflowMenu(NULL)
+	mPicksList(NULL),
+	mPanelPickInfo(NULL),
+	mPanelPickEdit(NULL),
+	mOverflowMenu(NULL)
 {
 }
 

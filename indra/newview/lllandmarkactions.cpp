@@ -133,6 +133,33 @@ public:
 	}
 };
 
+// Returns true if the given inventory item is a landmark pointing to the current parcel.
+// Used to find out if there is at least one landmark from current parcel.
+class LLFistAgentParcelLandmark : public LLInventoryCollectFunctor
+{
+private:	
+	bool mFounded;// to avoid unnecessary  check
+	
+public:
+	LLFistAgentParcelLandmark(): mFounded(false){}
+	
+	/*virtual*/ bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+	{
+		if (mFounded || !item || item->getType() != LLAssetType::AT_LANDMARK)
+			return false;
+
+		LLLandmark* landmark = gLandmarkList.getAsset(item->getAssetUUID());
+		if (!landmark) // the landmark not been loaded yet
+			return false;
+
+		LLVector3d landmark_global_pos;
+		if (!landmark->getGlobalPos(landmark_global_pos))
+			return false;
+		mFounded = LLViewerParcelMgr::getInstance()->inAgentParcel(landmark_global_pos);
+		return mFounded;
+	}
+};
+
 static void fetch_landmarks(LLInventoryModel::cat_array_t& cats,
 							LLInventoryModel::item_array_t& items,
 							LLInventoryCollectFunctor& add)
@@ -172,6 +199,16 @@ bool LLLandmarkActions::landmarkAlreadyExists()
 	return findLandmarkForAgentPos() != NULL;
 }
 
+//static
+bool LLLandmarkActions::hasParcelLandmark()
+{
+	LLFistAgentParcelLandmark get_first_agent_landmark;
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	fetch_landmarks(cats, items, get_first_agent_landmark);
+	return !items.empty();
+	
+}
 
 // *TODO: This could be made more efficient by only fetching the FIRST
 // landmark that meets the criteria
@@ -348,7 +385,7 @@ LLLandmark* LLLandmarkActions::getLandmark(const LLUUID& landmarkInventoryItemID
 {
 	LLViewerInventoryItem* item = gInventory.getItem(landmarkInventoryItemID);
 	if (NULL == item)
-		return false;
+		return NULL;
 
 	const LLUUID& asset_id = item->getAssetUUID();
 	return gLandmarkList.getAsset(asset_id, NULL);

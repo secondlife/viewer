@@ -35,6 +35,7 @@
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llfloatercustomize.h"
+#include "lllocaltextureobject.h"
 #include "llviewertexturelist.h"
 #include "llinventorymodel.h"
 #include "llviewerregion.h"
@@ -184,7 +185,9 @@ void LLWearable::createVisualParams()
 			{
 				delete mVisualParamIndexMap[param->getID()];
 			}
-			mVisualParamIndexMap[param->getID()] = param->cloneParam(this);
+			LLViewerVisualParam *new_param = param->cloneParam(this);
+			new_param->setIsDummy(FALSE);
+			mVisualParamIndexMap[param->getID()] = new_param;
 		}
 	}
 
@@ -667,21 +670,7 @@ void LLWearable::writeToAvatar( BOOL set_by_user, BOOL update_customize_floater 
 
 	if( gFloaterCustomize && update_customize_floater )
 	{
-		LLViewerInventoryItem* item;
-		// MULTI_WEARABLE:
-		item = (LLViewerInventoryItem*)gInventory.getItem(gAgentWearables.getWearableItemID(mType,0));
-		U32 perm_mask = PERM_NONE;
-		BOOL is_complete = FALSE;
-		if(item)
-		{
-			perm_mask = item->getPermissions().getMaskOwner();
-			is_complete = item->isComplete();
-			if(!is_complete)
-			{
-				item->fetchFromServer();
-			}
-		}
-		gFloaterCustomize->setWearable(mType, this, perm_mask, is_complete);
+		gFloaterCustomize->setWearable(mType, 0);
 		gFloaterCustomize->setCurrentWearableType( mType );
 	}
 
@@ -931,6 +920,17 @@ void LLWearable::getVisualParams(visual_param_vec_t &list)
 	for( ; iter != end; ++iter )
 	{
 		list.push_back(iter->second);
+	}
+}
+
+void LLWearable::animateParams(F32 delta, BOOL set_by_user)
+{
+	for(visual_param_index_map_t::iterator iter = mVisualParamIndexMap.begin();
+		 iter != mVisualParamIndexMap.end();
+		 ++iter)
+	{
+		LLVisualParam *param = (LLVisualParam*) iter->second;
+		param->animate(delta, set_by_user);
 	}
 }
 

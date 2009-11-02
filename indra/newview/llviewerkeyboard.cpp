@@ -99,7 +99,7 @@ static void agent_handle_doubletap_run(EKeystate s, LLAgent::EDoubleTapRunMode m
 			gAgent.sendWalkRun(gAgent.getRunning());
 		}
 	}
-	else if (gAllowTapTapHoldRun &&
+	else if (gSavedSettings.getBOOL("AllowTapTapHoldRun") &&
 		 KEYSTATE_DOWN == s &&
 		 !gAgent.getRunning())
 	{

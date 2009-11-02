@@ -351,7 +351,16 @@ void LLPanelPlaces::setItem(LLInventoryItem* item)
 
 	if (is_landmark_editable)
 	{
-		mPlaceInfo->setLandmarkFolder(mItem->getParentUUID());
+		if(!mPlaceInfo->setLandmarkFolder(mItem->getParentUUID()) && !mItem->getParentUUID().isNull())
+		{
+			const LLViewerInventoryCategory* cat = gInventory.getCategory(mItem->getParentUUID());
+			if(cat)
+			{
+				std::string cat_fullname = LLPanelPlaceInfo::getFullFolderName(cat);
+				LLComboBox* folderList = mPlaceInfo->getChild<LLComboBox>("folder_combo");
+				folderList->add(cat_fullname, cat->getUUID(),ADD_TOP);
+			}
+		}
 	}
 
 	mPlaceInfo->displayItemInfo(mItem);

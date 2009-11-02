@@ -49,6 +49,7 @@
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llmediaentry.h"
+#include "llmediactrl.h"
 #include "llmenugl.h"
 #include "llpanelcontents.h"
 #include "llpanelface.h"
@@ -221,6 +222,7 @@ BOOL	LLFloaterTools::postBuild()
 	mRadioGroupMove		= getChild<LLRadioGroup>("move_radio_group");
 	mRadioGroupEdit		= getChild<LLRadioGroup>("edit_radio_group");
 	mBtnGridOptions		= getChild<LLButton>("Options...");
+	mTitleMedia			= getChild<LLMediaCtrl>("title_media");
 	
 	mCheckSelectIndividual	= getChild<LLCheckBoxCtrl>("checkbox edit linked parts");	
 	childSetValue("checkbox edit linked parts",(BOOL)gSavedSettings.getBOOL("EditLinkedParts"));
@@ -304,6 +306,7 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 
 	mCheckSnapToGrid(NULL),
 	mBtnGridOptions(NULL),
+	mTitleMedia(NULL),
 	mTextGridMode(NULL),
 	mComboGridMode(NULL),
 	mCheckStretchUniform(NULL),
@@ -335,7 +338,8 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 	mPanelLandInfo(NULL),
 
 	mTabLand(NULL),
-	mDirty(TRUE)
+	mDirty(TRUE),
+	mNeedMediaTitle(TRUE)
 {
 	gFloaterTools = this;
 	
@@ -439,6 +443,9 @@ void LLFloaterTools::draw()
 		refresh();
 		mDirty = FALSE;
 	}
+
+	// grab media name/title and update the UI widget
+	updateMediaTitle();
 
 	//	mCheckSelectIndividual->set(gSavedSettings.getBOOL("EditLinkedParts"));
 	LLFloater::draw();
@@ -735,6 +742,10 @@ void LLFloaterTools::onClose(bool app_quitting)
 	mTab->setVisible(FALSE);
 
 	LLViewerJoystick::getInstance()->moveAvatar(false);
+
+	// destroy media source used to grab media title
+	if( mTitleMedia )
+		mTitleMedia->unloadMediaSource();
 
     // Different from handle_reset_view in that it doesn't actually 
 	//   move the camera if EditCameraMovement is not set.
@@ -1038,12 +1049,13 @@ void LLFloaterTools::getMediaState()
 		  &&first_object->permModify() 
 	      ))
 	{
-		childSetEnabled("media_tex", FALSE);
+		childSetEnabled("Add_Media",  FALSE);
+/*		childSetEnabled("media_tex", FALSE);
 		childSetEnabled("add_media", FALSE);
 		childSetEnabled("delete_media", FALSE);
 		childSetEnabled("edit_media", FALSE);
 		childSetEnabled("media_info", FALSE);
-		media_info->setEnabled(FALSE);
+		media_info->setEnabled(FALSE);*/
 		media_info->clear();
 		clearMediaSettings();
 		return;
@@ -1054,13 +1066,14 @@ void LLFloaterTools::getMediaState()
 	
 	if(!has_media_capability)
 	{
-		childSetEnabled("media_tex", FALSE);
+		childSetEnabled("Add_Media",  FALSE);
+	/*	childSetEnabled("media_tex", FALSE);
 		childSetEnabled("add_media", FALSE);
 		childSetEnabled("delete_media", FALSE);
 		childSetEnabled("edit_media", FALSE);
 		childSetEnabled("media_info", FALSE);
 		media_info->setEnabled(FALSE);
-		media_info->clear();	
+		media_info->clear();*/	
 		clearMediaSettings();
 		return;
 	}
@@ -1081,6 +1094,7 @@ void LLFloaterTools::getMediaState()
 	LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo = selected_objects->getSelectedTEValue( &func, has_media );
 	bool bool_has_media = (has_media & LLTextureEntry::MF_HAS_MEDIA);
 
+	
 	const LLMediaEntry default_media_data;
 	
 	struct functor_getter_media_data : public LLSelectedTEGetFunctor< LLMediaEntry>
@@ -1105,9 +1119,11 @@ void LLFloaterTools::getMediaState()
 	
 	std::string multi_media_info_str = LLTrans::getString("Multiple Media");
 	std::string media_title = "";
+	mNeedMediaTitle = false;
 	// update UI depending on whether "object" (prim or face) has media
 	// and whether or not you are allowed to edit it.
 	
+	childSetEnabled("Add_Media",  editable);
 	// IF all the faces have media (or all dont have media)
 	if ( LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo )
 	{
@@ -1119,25 +1135,26 @@ void LLFloaterTools::getMediaState()
 			// Media data is valid
 			if(media_data_get!=default_media_data)
 			{
-				//TODO: get media title
-				//media_title =  media_data_get->getTile();
-				//LLFloaterMediaSettings::getInstance()->mIdenticalValidMedia = true;
+				// initial media title is the media URL (until we get the name)
 				media_title = media_data_get.getHomeURL();
+
+				// kick off a navigate and flag that we need to update the title
+				navigateToTitleMedia( media_data_get.getHomeURL() );
+				mNeedMediaTitle = true;
 			}
 			// else all faces might be empty. 
-			
-			
 		}
 		else // there' re Different Medias' been set on on the faces.
 		{
 			media_title = multi_media_info_str;
+			mNeedMediaTitle = false;
 		}
 		
 		childSetEnabled("media_tex",  bool_has_media & editable);
 		childSetEnabled( "edit_media", bool_has_media & editable );
 		childSetEnabled( "delete_media", bool_has_media & editable );
 		childSetEnabled( "add_media", ( ! bool_has_media ) & editable );
-		media_info->setEnabled(bool_has_media & editable);
+		media_info->setEnabled(false);
 			// TODO: display a list of all media on the face - use 'identical' flag
 	}
 	else // not all face has media but at least one does.
@@ -1148,20 +1165,23 @@ void LLFloaterTools::getMediaState()
 		if(LLFloaterMediaSettings::getInstance()->mMultipleValidMedia)
 		{
 			media_title = multi_media_info_str;
+			mNeedMediaTitle = false;
 		}
 		else
 		{
 			// Media data is valid
 			if(media_data_get!=default_media_data)
 			{
-				//TODO: get media title
-				//media_title =  media_data_get->getTile();
+				// initial media title is the media URL (until we get the name)
 				media_title = media_data_get.getHomeURL();
+
+				// kick off a navigate and flag that we need to update the title
+				navigateToTitleMedia( media_data_get.getHomeURL() );
+				mNeedMediaTitle = true;
 			}
-			
 		}
 		
-		media_info->setEnabled(TRUE);
+		media_info->setEnabled(false);
 		media_info->setTentative(true);
 		childSetEnabled("media_tex",  TRUE);
 		childSetEnabled( "edit_media", TRUE);
@@ -1249,12 +1269,63 @@ bool LLFloaterTools::deleteMediaConfirm(const LLSD& notification, const LLSD& re
 	return false;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//
 void LLFloaterTools::clearMediaSettings()
 {
 	LLFloaterMediaSettings::getInstance();
 	LLFloaterMediaSettings::clearValues(false);
 
 }
+
+//////////////////////////////////////////////////////////////////////////////
+//
+void LLFloaterTools::navigateToTitleMedia( const std::string url )
+{
+	if ( mTitleMedia )
+	{
+		LLPluginClassMedia* media_plugin = mTitleMedia->getMediaPlugin();
+		if ( media_plugin )
+		{
+			// if it's a movie, we don't want to hear it
+			media_plugin->setVolume( 0 );
+		};
+		mTitleMedia->navigateTo( url );
+	};
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+void LLFloaterTools::updateMediaTitle()
+{
+	// only get the media name if we need it
+	if ( ! mNeedMediaTitle )
+		return;
+
+	// get plugin impl
+	LLPluginClassMedia* media_plugin = mTitleMedia->getMediaPlugin();
+	if ( media_plugin )
+	{
+		// get the media name (asynchronous - must call repeatedly)
+		std::string media_title = media_plugin->getMediaName();
+
+		// only replace the title if what we get contains something
+		if ( ! media_title.empty() )
+		{
+			// update the UI widget
+			LLLineEditor* media_title_field = getChild<LLLineEditor>("media_info");
+			if ( media_title_field )
+			{
+				media_title_field->setText( media_title );
+
+				// stop looking for a title when we get one
+				// FIXME: check this is the right approach
+				mNeedMediaTitle = false;
+			};
+		};
+	};
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 void LLFloaterTools::updateMediaSettings()

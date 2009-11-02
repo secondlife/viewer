@@ -34,7 +34,6 @@ background_visible="true"
      value="Filter Groups" />
     <filter_editor
      follows="left|top|right"
-     font="SansSerif"
      height="23"
      layout="topleft"
      left="15"
@@ -54,11 +53,12 @@ background_visible="true"
      tab_height="30"
      tab_position="top"
      top_pad="10"
+     halign="center"
      width="313">
         <panel
          follows="all"
          height="500"
-         label="Nearby"
+         label="NEARBY"
          layout="topleft"
          left="0"
          help_topic="people_nearby_tab"
@@ -98,17 +98,30 @@ background_visible="true"
              picture_style="true"
              top="5"
              width="18" />
+             <button
+                 follows="bottom|left"
+                 height="18"
+                 image_selected="AddItem_Press"
+                 image_unselected="AddItem_Off"
+                 image_disabled="AddItem_Disabled"
+                 layout="topleft"
+                 left_pad="5"
+                 name="add_friend_btn"
+                 picture_style="true"
+                 top_delta="0"
+                 tool_tip="Add selected resident to your friends List"
+                 width="18" />
             </panel>
         </panel>
         <panel
          follows="all"
          height="500"
-         left="0"
-         top="0"
-         label="Friends"
+         label="FRIENDS"
          layout="topleft"
+         left="0"
          help_topic="people_friends_tab"
          name="friends_panel"
+         top="0"
          width="313">
             <accordion
              follows="all"
@@ -121,14 +134,13 @@ background_visible="true"
                 <accordion_tab
                  can_resize="false"
                  layout="topleft"
-                 height="230"
+                 height="235"
                  min_height="150"
                  name="tab_online"
                  title="Online">
                         <avatar_list
                          allow_select="true"
                          follows="all"
-                         height="150"
                          layout="topleft"
                          left="0"
                          multi_select="true"
@@ -139,13 +151,12 @@ background_visible="true"
                 <accordion_tab
                  can_resize="false"
                  layout="topleft"
-                 height="230"
+                 height="235"
                  name="tab_all"
                  title="All">
                         <avatar_list
                          allow_select="true"
                          follows="all"
-                         height="230"
                          layout="topleft"
                          left="0"
                          multi_select="true"
@@ -207,11 +218,12 @@ background_visible="true"
         <panel
          follows="all"
          height="500"
-         label="Groups"
-         top="0"
+         label="GROUPS"
          layout="topleft"
+         left="0"
          help_topic="people_groups_tab"
          name="groups_panel"
+         top="0"
          width="313">
             <group_list
              follows="all"
@@ -285,13 +297,14 @@ background_visible="true"
             </panel>
         </panel>
         <panel
-         top="0"
          follows="all"
          height="500"
-         label="Recent"
+         label="RECENT"
          layout="topleft"
+         left="0"
          help_topic="people_recent_tab"
          name="recent_panel"
+         top="0"
          width="313">
             <avatar_list
              allow_select="true"
@@ -301,11 +314,10 @@ background_visible="true"
              left="0"
              multi_select="true"
              name="avatar_list"
-             top="2"
+             show_last_interaction_time="true"
+             top="0"
              width="313" />
             <panel
-             background_visible="true"
-             bevel_style="none"
              top_pad="0"
              follows="left|right|bottom"
              height="30"
@@ -327,6 +339,19 @@ background_visible="true"
                picture_style="true"
                top="7"
                width="18" />
+              <button
+                 follows="bottom|left"
+                 height="18"
+                 image_selected="AddItem_Press"
+                 image_unselected="AddItem_Off"
+                 image_disabled="AddItem_Disabled"
+                 layout="topleft"
+                 left_pad="5"
+                 name="add_friend_btn"
+                 picture_style="true"
+                 top_delta="0"
+                 tool_tip="Add selected resident to your friends List"
+                 width="18" />
             </panel>
         </panel>
     </tab_container>
@@ -342,104 +367,88 @@ background_visible="true"
      width="313">
         <layout_panel
          default_tab_group="1"
-         follows="left|top|right"
+         follows="left|top"
          height="25"
          layout="topleft"
          left="0"
          name="view_profile_btn_panel"
          top="-25"
-         width="65">
+         width="100">
             <button
-             follows="top|left|right"
+             follows="top|left"
              font="SansSerifSmall"
              height="19"
              label="Profile"
              layout="topleft"
              name="view_profile_btn"
              tool_tip="Show picture, groups, and other residents information"
-             width="65" />
+             width="100" />
         </layout_panel>
         <layout_panel
          default_tab_group="1"
-         follows="left|top|right"
-         height="25"
-         layout="topleft"
-         left_delta="0"
-         min_width="85"
-         name="add_friend_btn_panel"
-         top_delta="0"
-         width="50">
-            <button
-             follows="top|left|right"
-             font="SansSerifSmall"
-             height="19"
-             label="Add"
-             layout="topleft"
-             name="add_friend_btn"
-             tool_tip="Add selected resident to your friends List"
-             width="50" />
-        </layout_panel>
-        <layout_panel
-         default_tab_group="1"
-         follows="left|top|right"
+         follows="left|top"
          height="19"
          layout="topleft"
+         left="0"
          min_width="80"
          name="group_info_btn_panel"
-         width="80">
+         width="100">
             <button
-             follows="top|left|right"
+             follows="top|left"
              font="SansSerifSmall"
              height="19"
              label="Group Profile"
              layout="topleft"
              name="group_info_btn"
              tool_tip="Show group information"
-             width="80" />
+             width="100" />
         </layout_panel>
         <layout_panel
          default_tab_group="1"
-         follows="left|top|right"
+         follows="left|top"
          height="25"
          layout="topleft"
+         left_pad="5"
          min_width="45"
          name="chat_btn_panel"
          top_delta="0"
-         width="45">
+         width="100">
             <button
-             follows="top|left|right"
+             follows="top|left"
              font="SansSerifSmall"
              height="19"
-             label="Chat"
+             label="Group Chat"
              layout="topleft"
              name="chat_btn"
              tool_tip="Open chat session"
-             width="45" />
+             width="100" />
         </layout_panel>
         <layout_panel
          default_tab_group="1"
-         follows="left|top|right"
+         follows="left|top|"
          height="25"
          layout="topleft"
+         left_pad="5"
          min_width="35"
          name="im_btn_panel"
          top_delta="0"
-         width="35">
+         width="50">
             <button
-             follows="top|left|right"
+             follows="top|left"
              font="SansSerifSmall"
              height="19"
              label="IM"
              layout="topleft"
              name="im_btn"
              tool_tip="Open instant message session"
-             width="35" />
+             width="50" />
         </layout_panel>
         <layout_panel
          default_tab_group="1"
          follows="left|top|right"
          height="25"
          layout="topleft"
+         left_pad="5"
          min_width="40"
          name="call_btn_panel"
          top_delta="0"
@@ -447,53 +456,55 @@ background_visible="true"
          width="40">
             <button
              enabled="false"
-             follows="top|left|right"
+             follows="top|left"
              font="SansSerifSmall"
              height="19"
              label="Call"
              layout="topleft"
              name="call_btn"
-             width="40" />
+             width="50" />
         </layout_panel>
         <layout_panel
          default_tab_group="1"
-         follows="left|top|right"
+         follows="left|top"
          height="25"
          layout="topleft"
+         left_pad="5"
          min_width="65"
          name="teleport_btn_panel"
          top_delta="0"
-         width="65">
+         width="100">
             <button
-             follows="left|top|right"
+             follows="left|top"
              font="SansSerifSmall"
              height="19"
              label="Teleport"
              layout="topleft"
              name="teleport_btn"
              tool_tip="Offer teleport"
-             width="65" />
+             width="100" />
         </layout_panel>
       <layout_panel
          default_tab_group="1"
          enabled="false"
-         follows="left|top|right"
+         follows="left|top"
          height="25"
          layout="topleft"
+         left_pad="5"
          min_width="50"
          name="share_btn_panel"
          top_delta="0"
          visible="false"
-         width="50">
+         width="80">
             <button
              enabled="false"
-             follows="top|left|right"
+             follows="top|left"
              font="SansSerifSmall"
              height="19"
              label="Share"
              layout="topleft"
              name="share_btn"
-             width="50" />
+             width="80" />
         </layout_panel>
     </layout_stack>
 </panel>

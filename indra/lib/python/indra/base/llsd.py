@@ -238,7 +238,7 @@ class LLSDXMLFormatter(object):
     def MAP(self, v):
         return self.elt(
             'map',
-            ''.join(["%s%s" % (self.elt('key', key), self.generate(value))
+            ''.join(["%s%s" % (self.elt('key', self.xml_esc(str(key))), self.generate(value))
              for key, value in v.items()]))
 
     typeof = type

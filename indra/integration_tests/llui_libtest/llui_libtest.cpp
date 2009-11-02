@@ -84,12 +84,12 @@ class LLTexture ;
 class TestImageProvider : public LLImageProviderInterface
 {
 public:
-	/*virtual*/ LLPointer<LLUIImage> getUIImage(const std::string& name)
+	/*virtual*/ LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority)
 	{
 		return makeImage();
 	}
 
-	/*virtual*/ LLPointer<LLUIImage> getUIImageByID(const LLUUID& id)
+	/*virtual*/ LLPointer<LLUIImage> getUIImageByID(const LLUUID& id, S32 priority)
 	{
 		return makeImage();
 	}

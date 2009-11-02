@@ -195,8 +195,8 @@ public:
 	static void getMousePositionLocal(const LLView* viewp, S32 *x, S32 *y);
 	static void setScaleFactor(const LLVector2& scale_factor);
 	static void setLineWidth(F32 width);
-	static LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id);
-	static LLPointer<LLUIImage> getUIImage(const std::string& name);
+	static LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id, S32 priority = 0);
+	static LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority = 0);
 	static LLVector2 getWindowSize();
 	static void screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y);
 	static void glPointToScreen(S32 gl_x, S32 gl_y, S32 *screen_x, S32 *screen_y);
@@ -241,8 +241,8 @@ protected:
 	LLImageProviderInterface() {};
 	virtual ~LLImageProviderInterface() {};
 public:
-	virtual LLPointer<LLUIImage> getUIImage(const std::string& name) = 0;
-	virtual LLPointer<LLUIImage> getUIImageByID(const LLUUID& id) = 0;
+	virtual LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority) = 0;
+	virtual LLPointer<LLUIImage> getUIImageByID(const LLUUID& id, S32 priority) = 0;
 	virtual void cleanUp() = 0;
 };
 
@@ -403,6 +403,20 @@ namespace LLInitParam
 		TypedParam(BlockDescriptor& descriptor, const char* name, const LLUIColor& value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);
 		LLUIColor getValueFromBlock() const;
 	};
+
+	// provide a better default for Optional<const LLFontGL*> than NULL
+	template <>
+	struct DefaultInitializer<const LLFontGL*>
+	{
+		// return reference to a single default instance of T
+		// built-in types will be initialized to zero, default constructor otherwise
+		static const LLFontGL* get() 
+		{ 
+			static const LLFontGL* sDefaultFont = LLFontGL::getFontDefault();  
+			return sDefaultFont;
+		} 
+	};
+
 
 	template<>
 	class TypedParam<const LLFontGL*> 

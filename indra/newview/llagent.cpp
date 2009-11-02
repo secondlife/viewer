@@ -35,13 +35,14 @@
 #include "llagent.h" 
 #include "llagentwearables.h"
 
+#include "llagentlistener.h"
 #include "llanimationstates.h"
 #include "llcallingcard.h"
 #include "llconsole.h"
 #include "lldrawable.h"
 #include "llfirstuse.h"
 #include "llfloaterreg.h"
-#include "llfloateractivespeakers.h"
+#include "llspeakers.h"
 #include "llfloatercamera.h"
 #include "llfloatercustomize.h"
 
@@ -255,6 +256,7 @@ LLAgent::LLAgent() :
 	mHUDTargetZoom(1.f),
 	mHUDCurZoom(1.f),
 	mInitialized(FALSE),
+	mListener(),
 	mForceMouselook(FALSE),
 
 	mDoubleTapRunTimer(),
@@ -383,6 +385,8 @@ LLAgent::LLAgent() :
 	}
 
 	mFollowCam.setMaxCameraDistantFromSubject( MAX_CAMERA_DISTANCE_FROM_AGENT );
+
+	mListener.reset(new LLAgentListener(*this));
 }
 
 // Requires gSavedSettings to be initialized.
@@ -5387,12 +5391,6 @@ void update_group_floaters(const LLUUID& group_id)
 	//*TODO Implement group update for Profile View 
 	// still actual as of July 31, 2009 (DZ)
 
-	if (gIMMgr)
-	{
-		// update the talk view
-		gIMMgr->refresh();
-	}
-
 	gAgent.fireEvent(new LLOldEvents::LLEvent(&gAgent, "new group"), "");
 }
 
@@ -5971,7 +5969,7 @@ bool LLAgent::teleportCore(bool is_local)
 	LLFloaterReg::hideInstance("about_land");
 
 	LLViewerParcelMgr::getInstance()->deselectLand();
-	LLViewerMediaFocus::getInstance()->setFocusFace(false, NULL, 0, NULL);
+	LLViewerMediaFocus::getInstance()->clearFocus();
 
 	// Close all pie menus, deselect land, etc.
 	// Don't change the camera until we know teleport succeeded. JC

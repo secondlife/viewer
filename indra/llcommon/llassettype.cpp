@@ -290,6 +290,7 @@ bool LLAssetType::lookupIsEnsembleCategoryType(EType asset_type)
 			asset_type <= AT_FOLDER_ENSEMBLE_END);
 }
 
+
 // static. Generate a good default description
 void LLAssetType::generateDescriptionFor(LLAssetType::EType asset_type,
 										 std::string& description)

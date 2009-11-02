@@ -85,6 +85,8 @@ void LLMenuButton::toggleMenu()
 
 void LLMenuButton::hideMenu() 
 { 
+	if(!mMenu)
+		return;
 	mMenu->setVisible(FALSE); 
 }
 

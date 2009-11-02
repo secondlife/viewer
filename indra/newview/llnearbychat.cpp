@@ -170,22 +170,6 @@ LLColor4 nearbychat_get_text_color(const LLChat& chat)
 	return text_color;
 }
 
-std::string formatCurrentTime()
-{
-	time_t utc_time;
-	utc_time = time_corrected();
-	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
-		+LLTrans::getString("TimeMin")+"] ";
-
-	LLSD substitution;
-
-	substitution["datetime"] = (S32) utc_time;
-	LLStringUtil::format (timeStr, substitution);
-
-	return timeStr;
-}
-
-
 void LLNearbyChat::add_timestamped_line(const LLChat& chat, const LLColor4& color)
 {
 	S32 font_size = gSavedSettings.getS32("ChatFontSize");
@@ -210,24 +194,24 @@ void LLNearbyChat::add_timestamped_line(const LLChat& chat, const LLColor4& colo
 	style_params.font(fontp);
 	LLUUID uuid = chat.mFromID;
 	std::string from = chat.mFromName;
-	std::string time = formatCurrentTime();
 	std::string message = chat.mText;
-	mChatHistory->appendWidgetMessage(uuid, from, time, message, style_params);
+	mChatHistory->appendWidgetMessage(chat, style_params);
 }
 
 void	LLNearbyChat::addMessage(const LLChat& chat)
 {
 	LLColor4 color = nearbychat_get_text_color(chat);
 	
-
 	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 	{
-		LLFloaterScriptDebug::addScriptLine(chat.mText,
-											chat.mFromName, 
-											color, 
-											chat.mFromID);
-		if (!gSavedSettings.getBOOL("ScriptErrorsAsChat"))
+		if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE)
+			return;
+		if (gSavedSettings.getS32("ShowScriptErrorsLocation")== 1)// show error in window //("ScriptErrorsAsChat"))
 		{
+			LLFloaterScriptDebug::addScriptLine(chat.mText,
+												chat.mFromName, 
+												color, 
+												chat.mFromID);
 			return;
 		}
 	}

@@ -56,6 +56,7 @@ protected:
 		STATUS_ERROR,
 		STATUS_PLAYING,
 		STATUS_PAUSED,
+		STATUS_DONE
 	} EStatus;
 
 	class SharedSegmentInfo

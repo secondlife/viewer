@@ -206,6 +206,7 @@
 #include "llwaterparammanager.h"
 #include "llfloaternotificationsconsole.h"
 #include "llfloatercamera.h"
+#include "lluilistener.h"
 
 #include "lltexlayer.h"
 #include "llappearancemgr.h"
@@ -411,6 +412,8 @@ public:
 };
 
 static LLMenuParcelObserver* gMenuParcelObserver = NULL;
+
+static LLUIListener sUIListener("UI");
 
 LLMenuParcelObserver::LLMenuParcelObserver()
 {
@@ -1673,34 +1676,6 @@ class LLAdvancedTogglePG : public view_listener_t
 		return true;
 	}
 };
-
-
-
-////////////////////////////
-// ALLOW TAP-TAP-HOLD RUN //
-////////////////////////////
-
-
-class LLAdvancedToggleAllowTapTapHoldRun : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		gAllowTapTapHoldRun = !(gAllowTapTapHoldRun);
-		return true;
-	}
-};
-
-class LLAdvancedCheckAllowTapTapHoldRun : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = gAllowTapTapHoldRun;
-		return new_value;
-	}
-};
-
-
-
 
 
 class LLAdvancedForceParamsToDefault : public view_listener_t
@@ -3508,7 +3483,6 @@ void set_god_level(U8 god_level)
 {
 	U8 old_god_level = gAgent.getGodLevel();
 	gAgent.setGodLevel( god_level );
-	gIMMgr->refresh();
 	LLViewerParcelMgr::getInstance()->notifyObservers();
 
 	// God mode changes sim visibility
@@ -7064,7 +7038,7 @@ void force_error_bad_memory_access(void *)
 
 void force_error_infinite_loop(void *)
 {
-    LLAppViewer::instance()->forceErrorInifiniteLoop();
+    LLAppViewer::instance()->forceErrorInfiniteLoop();
 }
 
 void force_error_software_exception(void *)
@@ -7963,8 +7937,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedTogglePG(), "Advanced.TogglePG");
 	
 	// Advanced > Character (toplevel)
-	view_listener_t::addMenu(new LLAdvancedToggleAllowTapTapHoldRun(), "Advanced.ToggleAllowTapTapHoldRun");
-	view_listener_t::addMenu(new LLAdvancedCheckAllowTapTapHoldRun(), "Advanced.CheckAllowTapTapHoldRun");
 	view_listener_t::addMenu(new LLAdvancedForceParamsToDefault(), "Advanced.ForceParamsToDefault");
 	view_listener_t::addMenu(new LLAdvancedReloadVertexShader(), "Advanced.ReloadVertexShader");
 	view_listener_t::addMenu(new LLAdvancedToggleAnimationInfo(), "Advanced.ToggleAnimationInfo");

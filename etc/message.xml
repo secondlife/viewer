@@ -669,11 +669,14 @@
 			<key>FetchLib</key>
 			<boolean>true</boolean>
 
-            <key>ObjectMedia</key>
-            <boolean>false</boolean>
+			<key>UploadBakedTexture</key>
+			<boolean>true</boolean>
+			
+			<key>ObjectMedia</key>
+            		<boolean>false</boolean>
                   
-            <key>ObjectMediaNavigate</key>
-            <boolean>false</boolean>
+            		<key>ObjectMediaNavigate</key>
+            		<boolean>false</boolean>
                   
       </map>
 

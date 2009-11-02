@@ -1441,7 +1441,11 @@ void LLInventoryPanel::modelChanged(U32 mask)
 						}
 
 						LLFolderViewFolder* new_parent = (LLFolderViewFolder*)mFolders->getItemByID(model_item->getParentUUID());
-						if (view_item->getParentFolder() != new_parent)
+
+						// added check against NULL for cases when Inventory panel contains startFolder.
+						// in this case parent is LLFolderView (LLInventoryPanel::mFolders) itself.
+						// this check is a fix for bug EXT-1859.
+						if (NULL != new_parent && view_item->getParentFolder() != new_parent)
 						{
 							view_item->getParentFolder()->extractItem(view_item);
 							view_item->addToFolder(new_parent, mFolders);

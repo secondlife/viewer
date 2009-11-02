@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu
+ height="101"
+ layout="topleft"
+ left="100"
+ mouse_opaque="false"
+ name="Object Icon Menu"
+ top="724"
+ visible="false"
+ width="128">
+    <menu_item_call
+     label="Object Profile..."
+     layout="topleft"
+     name="Object Profile">
+        <menu_item_call.on_click
+         function="ObjectIcon.Action"
+         parameter="profile" />
+    </menu_item_call>
+    <menu_item_call
+     label="Block..."
+     layout="topleft"
+     name="Block">
+        <menu_item_call.on_click
+         function="ObjectIcon.Action"
+         parameter="block" />
+    </menu_item_call>
+</menu>

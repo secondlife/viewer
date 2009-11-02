@@ -87,12 +87,14 @@ friend class LLMultiFloater;
 public:
 	struct KeyCompare
 	{
-		static bool compare(const LLSD& a, const LLSD& b);
+//		static bool compare(const LLSD& a, const LLSD& b);
 		static bool equate(const LLSD& a, const LLSD& b);
+/*==========================================================================*|
 		bool operator()(const LLSD& a, const LLSD& b) const
 		{
 			return compare(a, b);
 		}
+|*==========================================================================*/
 	};
 	
 	enum EFloaterButtons
@@ -122,7 +124,10 @@ public:
 								can_tear_off,
 								save_rect,
 								save_visibility,
+								save_dock_state,
 								can_dock;
+		Optional<S32>			header_height,
+								legacy_header_height; // HACK see initFromXML()
 		
 		Optional<CommitCallbackParam> open_callback,
 									  close_callback;
@@ -183,7 +188,13 @@ public:
 	void			addDependentFloater(LLHandle<LLFloater> dependent_handle, BOOL reposition = TRUE);
 	LLFloater*		getDependee() { return (LLFloater*)mDependeeHandle.get(); }
 	void		removeDependentFloater(LLFloater* dependent);
-	BOOL			isMinimized()					{ return mMinimized; }
+	BOOL			isMinimized() const				{ return mMinimized; }
+	/// isShown() differs from getVisible() in that isShown() also considers
+	/// isMinimized(). isShown() is true only if visible and not minimized.
+	bool			isShown() const;
+	/// The static isShown() can accept a NULL pointer (which of course
+	/// returns false). When non-NULL, it calls the non-static isShown().
+	static bool		isShown(const LLFloater* floater);
 	BOOL			isFrontmost();
 	BOOL			isDependent()					{ return !mDependeeHandle.isDead(); }
 	void			setCanMinimize(BOOL can_minimize);
@@ -201,6 +212,7 @@ public:
 	bool			isDragOnLeft() const{ return mDragOnLeft; }
 	S32				getMinWidth() const{ return mMinWidth; }
 	S32				getMinHeight() const{ return mMinHeight; }
+	S32				getHeaderHeight() const { return mHeaderHeight; }
 
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
@@ -269,8 +281,10 @@ protected:
 
 	void			setRectControl(const std::string& rectname) { mRectControl = rectname; };
 	void			applyRectControl();
+	void			applyDockState();
 	void			storeRectControl();
 	void			storeVisibilityControl();
+	void			storeDockStateControl();
 
 	void		 	setKey(const LLSD& key);
 	void		 	setInstanceName(const std::string& name);
@@ -294,7 +308,10 @@ private:
 	void			buildButtons();
 	BOOL			offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButtons index);
 	void			addResizeCtrls();
+	void			layoutResizeCtrls();
+	void			enableResizeCtrls(bool enable);
 	void 			addDragHandle();
+	void			layoutDragHandle();		// repair layout
 
 public:
 	// Called when floater is opened, passes mKey
@@ -308,6 +325,7 @@ public:
 protected:
 	std::string		mRectControl;
 	std::string		mVisibilityControl;
+	std::string		mDocStateControl;
 	LLSD			mKey;				// Key used for retrieving instances; set (for now) by LLFLoaterReg
 
 	LLDragHandle*	mDragHandle;
@@ -332,6 +350,8 @@ private:
 	
 	S32				mMinWidth;
 	S32				mMinHeight;
+	S32				mHeaderHeight;		// height in pixels of header for title, drag bar
+	S32				mLegacyHeaderHeight;// HACK see initFloaterXML()
 	
 	BOOL			mMinimized;
 	BOOL			mForeground;

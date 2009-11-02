@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ legacy_header_height="18"
  can_minimize="false"
  height="185"
  layout="topleft"
@@ -34,7 +35,7 @@
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerif"
+     font="SansSerifSmall"
      height="16"
      layout="topleft"
      left_pad="7"
@@ -44,6 +45,7 @@
     </text>
     <button
      height="23"
+     font="SansSerifSmall"  
      label="L$1"
      label_selected="L$1"
      layout="topleft"
@@ -53,7 +55,8 @@
      width="80" />
     <button
      height="23"
-     label="L$5"
+     label="L$1"
+     font="SansSerif"  
      label_selected="L$5"
      layout="topleft"
      left_pad="15"
@@ -62,6 +65,7 @@
     <button
      height="23"
      label="L$10"
+     font="SansSerifHuge"  
      label_selected="L$10"
      layout="topleft"
      left="25"

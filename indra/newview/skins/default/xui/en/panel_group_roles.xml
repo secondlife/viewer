@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- border="true"
- height="490"
+ border="false"
+ height="412"
  label="Members &amp; Roles"
  layout="topleft"
- left="1"
+ left="0"
+ top="0"
  name="roles_tab"
- top="490"
- width="280">
+ width="313">
     <panel.string
      name="default_needs_apply_text">
-        There are unapplied changes on the current sub-tab.
+        There are unsaved changes to the current tab
     </panel.string>
     <panel.string
      name="want_apply_text">
-        Do you want to apply these changes?
+        Do you want to save these changes?
     </panel.string>
     <panel.string
      name="help_text" />
@@ -160,17 +160,20 @@
         </text>
     </panel> -->
     <tab_container
+    border="true"
      follows="left|top"
-     height="180"
+     height="260"
+     halign="center"
      layout="topleft"
      left="5"
      name="roles_tab_container"
      tab_position="top"
-     top="10"
-     width="265">
+     tab_height="20"
+     top="0"
+     width="303">
         <panel
-         border="true"
-         height="165"
+         border="false"
+         height="260"
          label="Members"
          layout="topleft"
          left="1"
@@ -179,7 +182,7 @@
          tool_tip="Members"
          top="17"
          class="panel_group_members_subtab"
-         width="265">
+         width="300">
             <panel.string
              name="help_text">
                 You can add or remove Roles assigned to Members.
@@ -190,77 +193,56 @@ clicking on their names.
          layout="topleft"
          top="10"
          left="4"
-         width="255"
+         width="280"
          height="20"
          follows="left|top|right"
          max_length="250"
          label="Filter Members"
          name="filter_input"
          font="SansSerif" />
-            <!--<line_editor
-             border_style="line"
-             border_thickness="1"
-             follows="left|top"
-             height="16"
-             layout="topleft"
-             left="4"
-             max_length="63"
-             name="search_text"
-             top="10"
-             width="90" />
-            <button
-             font="SansSerifSmall"
-             height="20"
-             label="Search"
-             layout="topleft"
-             left_pad="5"
-             name="search_button"
-             top_delta="-2"
-             width="80" />
-            <button
+          <!--  <button
              enabled="false"
              font="SansSerifSmall"
              height="20"
              label="Show All"
              layout="topleft"
-             left_pad="0"
+             left_pad="-90"
              name="show_all_button"
-             top_delta="0"
-             width="80" /> -->
+             top_delta="-6"
+             width="80" />-->
             <name_list
              column_padding="0"
              draw_heading="true"
-             heading_height="14"
-             height="100"
+             heading_height="20"
+             height="160"
              follows="left|top"
              layout="topleft"
-             left="4"
+             left="0"
              multi_select="true"
              name="member_list"
-             top_pad="6"
-             width="255">
+             top_pad="2"
+             width="300">
                 <name_list.columns
                  label="Member"
                  name="name"
-                 width="90" />
+               relative_width="0.45" />
                 <name_list.columns
                  label="Donations"
                  name="donated"
-                 width="95" />
+         relative_width="0.3" />
                 <name_list.columns
                  label="Online"
                  name="online"
-                 width="80" />
+         relative_width="0.2" />
             </name_list>
             <button
              height="20"
              font="SansSerifSmall"
              label="Invite"
              layout="topleft"
-             left_delta="0"
              name="member_invite"
-             top_pad="6"
-             width="125" />
+             top_pad="3"
+             width="100" />
             <button
              height="20"
              font="SansSerifSmall"
@@ -268,18 +250,17 @@ clicking on their names.
              layout="topleft"
              left_pad="5"
              name="member_eject"
-             top_delta="0"
-             width="125" />
+             width="100" />
             <icon
              height="16"
-             image_name="inv_folder_plain_closed.tga"
+             image_name="Inv_FolderClosed"
              layout="topleft"
              name="power_folder_icon"
              visible="false"
              width="16" />
         </panel>
         <panel
-         border="true"
+         border="false"
          height="164"
          label="Roles"
          layout="topleft"
@@ -292,7 +273,7 @@ clicking on their names.
             <panel.string
              name="help_text">
                 Roles have a title and an allowed list of Abilities
-that Members can perform. Members can belong to 
+that Members can perform. Members can belong to
 one or more Roles. A group can have up to 10 Roles,
 including the Everyone and Owner Roles.
             </panel.string>
@@ -302,7 +283,7 @@ including the Everyone and Owner Roles.
             </panel.string>
             <panel.string
              name="power_folder_icon">
-                inv_folder_plain_closed.tga
+                Inv_FolderClosed
             </panel.string>
             <panel.string
              name="power_all_have_icon">
@@ -316,7 +297,7 @@ including the Everyone and Owner Roles.
             layout="topleft"
             top="10"
             left="4"
-            width="255"
+            width="260"
             height="20"
             follows="left|top|right"
             max_length="250"
@@ -357,13 +338,13 @@ including the Everyone and Owner Roles.
              column_padding="0"
              draw_heading="true"
              follows="left|top"
-             heading_height="14"
-             height="100"
+             heading_height="20"
+             height="150"
              layout="topleft"
              left="4"
              name="role_list"
              top_pad="4"
-             width="255">
+             width="300">
                 <scroll_list.columns
                  label="Role"
                  name="name"
@@ -397,7 +378,7 @@ including the Everyone and Owner Roles.
              width="125" />
         </panel>
         <panel
-         border="true"
+         border="false"
          height="164"
          label="Abilities"
          layout="topleft"
@@ -407,7 +388,7 @@ including the Everyone and Owner Roles.
          class="panel_group_actions_subtab"
          top="17"
          tool_tip="You can view an Ability&apos;s Description and which Roles and Members can execute the Ability."
-         width="265">
+         width="300">
             <panel.string
              name="help_text">
                 Abilities allow Members in Roles to do specific
@@ -486,13 +467,13 @@ things in this group. There&apos;s a broad variety of Abilities.
         </panel>
     </tab_container>
     <panel
-     height="170"
+     height="150"
      layout="topleft"
      follows="left|top"
      left="10"
      name="members_footer"
-     top_pad="10"
-     width="265">
+     top_pad="2"
+     width="300">
         <text
          type="string"
          font="SansSerif"
@@ -556,7 +537,7 @@ things in this group. There&apos;s a broad variety of Abilities.
         </scroll_list>
     </panel>
     <panel
-     height="215"
+     height="252"
      layout="topleft"
      left_delta="0"
      name="roles_footer"

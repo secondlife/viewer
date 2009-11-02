@@ -69,16 +69,6 @@ protected:
 		virtual S32 getVerticalTextDelta();
 
 		/**
-		 * Returns text vertical padding
-		 */
-		virtual S32 getVPad() { return mVPad; }
-
-		/**
-		 * Returns text horizontal padding
-		 */
-		virtual S32 getHPad() { return mHPad; }
-
-		/**
 		 * Shows "More" link
 		 */
 		void showExpandText();

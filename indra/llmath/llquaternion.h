@@ -469,20 +469,30 @@ inline const LLQuaternion&	operator*=(LLQuaternion &a, const LLQuaternion &b)
 	return a;
 }
 
+const F32 ONE_PART_IN_A_MILLION = 0.000001f;
+
 inline F32	LLQuaternion::normalize()
 {
 	F32 mag = sqrtf(mQ[VX]*mQ[VX] + mQ[VY]*mQ[VY] + mQ[VZ]*mQ[VZ] + mQ[VS]*mQ[VS]);
 
 	if (mag > FP_MAG_THRESHOLD)
 	{
-		F32 oomag = 1.f/mag;
-		mQ[VX] *= oomag;
-		mQ[VY] *= oomag;
-		mQ[VZ] *= oomag;
-		mQ[VS] *= oomag;
+		// Floating point error can prevent some quaternions from achieving
+		// exact unity length.  When trying to renormalize such quaternions we
+		// can oscillate between multiple quantized states.  To prevent such
+		// drifts we only renomalize if the length is far enough from unity.
+		if (fabs(1.f - mag) > ONE_PART_IN_A_MILLION)
+		{
+			F32 oomag = 1.f/mag;
+			mQ[VX] *= oomag;
+			mQ[VY] *= oomag;
+			mQ[VZ] *= oomag;
+			mQ[VS] *= oomag;
+		}
 	}
 	else
 	{
+		// we were given a very bad quaternion so we set it to identity
 		mQ[VX] = 0.f;
 		mQ[VY] = 0.f;
 		mQ[VZ] = 0.f;
@@ -499,11 +509,15 @@ inline F32	LLQuaternion::normQuat()
 
 	if (mag > FP_MAG_THRESHOLD)
 	{
-		F32 oomag = 1.f/mag;
-		mQ[VX] *= oomag;
-		mQ[VY] *= oomag;
-		mQ[VZ] *= oomag;
-		mQ[VS] *= oomag;
+		if (fabs(1.f - mag) > ONE_PART_IN_A_MILLION)
+		{
+			// only renormalize if length not close enough to 1.0 already
+			F32 oomag = 1.f/mag;
+			mQ[VX] *= oomag;
+			mQ[VY] *= oomag;
+			mQ[VZ] *= oomag;
+			mQ[VS] *= oomag;
+		}
 	}
 	else
 	{
