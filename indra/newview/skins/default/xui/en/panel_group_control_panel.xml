@@ -13,6 +13,8 @@
      left="3"
      name="speakers_list"
      opaque="false"
+     show_info_btn="false"
+     show_profile_btn="false"
      top="10"
      width="140" />
     <button

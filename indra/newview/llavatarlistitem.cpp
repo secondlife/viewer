@@ -42,8 +42,6 @@
 #include "llavatariconctrl.h"
 #include "llbutton.h"
 
-S32 LLAvatarListItem::sIconWidth = 0;
-
 LLAvatarListItem::LLAvatarListItem()
 :	LLPanel(),
 	mAvatarIcon(NULL),
@@ -53,15 +51,17 @@ LLAvatarListItem::LLAvatarListItem()
 	mInfoBtn(NULL),
 	mProfileBtn(NULL),
 	mContextMenu(NULL),
-	mOnlineStatus(E_UNKNOWN)
+	mOnlineStatus(E_UNKNOWN),
+	mShowInfoBtn(true),
+	mShowProfileBtn(true)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
 	// Remember avatar icon width including its padding from the name text box,
 	// so that we can hide and show the icon again later.
-	if (!sIconWidth)
-	{
-		sIconWidth = mAvatarName->getRect().mLeft - mAvatarIcon->getRect().mLeft;
-	}
+
+	mIconWidth = mAvatarName->getRect().mLeft - mAvatarIcon->getRect().mLeft;
+	mInfoBtnWidth = mInfoBtn->getRect().mRight - mSpeakingIndicator->getRect().mRight;
+	mProfileBtnWidth = mProfileBtn->getRect().mRight - mInfoBtn->getRect().mRight;
 }
 
 LLAvatarListItem::~LLAvatarListItem()
@@ -116,8 +116,8 @@ BOOL  LLAvatarListItem::postBuild()
 void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
 	childSetVisible("hovered_icon", true);
-	mInfoBtn->setVisible(true);
-	mProfileBtn->setVisible(true);
+	mInfoBtn->setVisible(mShowInfoBtn);
+	mProfileBtn->setVisible(mShowProfileBtn);
 
 	LLPanel::onMouseEnter(x, y, mask);
 }
@@ -202,6 +202,34 @@ void LLAvatarListItem::setLastInteractionTime(const std::string& val)
 	mLastInteractionTime->setValue(val);
 }
 
+void LLAvatarListItem::setShowInfoBtn(bool show)
+{
+	// Already done? Then do nothing.
+	if(mShowInfoBtn == show)
+		return;
+	mShowInfoBtn = show;
+	S32 width_delta = show ? - mInfoBtnWidth : mInfoBtnWidth;
+
+	//Translating speaking indicator
+	mSpeakingIndicator->translate(width_delta, 0);
+	//Reshaping avatar name
+	mAvatarName->reshape(mAvatarName->getRect().getWidth() + width_delta, mAvatarName->getRect().getHeight());
+}
+
+void LLAvatarListItem::setShowProfileBtn(bool show)
+{
+	// Already done? Then do nothing.
+	if(mShowProfileBtn == show)
+			return;
+	mShowProfileBtn = show;
+	S32 width_delta = show ? - mProfileBtnWidth : mProfileBtnWidth;
+
+	//Translating speaking indicator
+	mSpeakingIndicator->translate(width_delta, 0);
+	//Reshaping avatar name
+	mAvatarName->reshape(mAvatarName->getRect().getWidth() + width_delta, mAvatarName->getRect().getHeight());
+}
+
 void LLAvatarListItem::setAvatarIconVisible(bool visible)
 {
 	// Already done? Then do nothing.
@@ -213,7 +241,7 @@ void LLAvatarListItem::setAvatarIconVisible(bool visible)
 
 	// Move the avatar name horizontally by icon size + its distance from the avatar name.
 	LLRect name_rect = mAvatarName->getRect();
-	name_rect.mLeft += visible ? sIconWidth : -sIconWidth;
+	name_rect.mLeft += visible ? mIconWidth : -mIconWidth;
 	mAvatarName->setRect(name_rect);
 }
 
