@@ -184,18 +184,48 @@ elseif(DARWIN)
         endif (EXISTS "${release_src_dir}/libllkdu.dylib")
     endif (NOT EXISTS ${internal_llkdu_path})
 elseif(LINUX)
+    # linux is weird, multiple side by side configurations aren't supported
+    # and we don't seem to have any debug shared libs built yet anyways...
+    set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}")
+    set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}")
+    set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}")
+
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-linux")
     set(vivox_files
+        libalut.so
+        libopenal.so.1
+        libortp.so
+        libvivoxsdk.so
+        SLVoice
        )
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
     # or ARCH_PREBUILT_DIRS
-    set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib/debug")
+    set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib_debug")
     set(debug_files
        )
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
     # or ARCH_PREBUILT_DIRS
-    set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib/release")
+    set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib_release_client")
+    # *FIX - figure out what to do with duplicate libalut.so here -brad
     set(release_files
+        libapr-1.so
+        libaprutil-1.so
+        libatk-1.0.so
+        libcrypto.so
+        libexpat.so
+        libgmock_main.so
+        libgmock.so
+        libgmodule-2.0.so
+        libgobject-2.0.so
+        libgtest_main.so
+        libgtest.so
+        libopenal.so
+        libopenjpeg.so
+        libssl.so
+        libstacktrace.so
+        libtcmalloc.so
+        libuuid.so
+        libz.so
        )
 
     if (FMOD_SDK_DIR)
