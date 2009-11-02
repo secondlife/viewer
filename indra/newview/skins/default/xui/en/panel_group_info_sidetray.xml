@@ -47,7 +47,7 @@ background_visible="true"
      text_color="white"
      top="0"
      value="(Loading...)"
-     use_elipsis="true"
+     use_ellipses="true"
      width="300" />
     <line_editor
      follows="left|top"
