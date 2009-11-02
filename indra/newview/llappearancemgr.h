@@ -68,6 +68,9 @@ public:
 	// For debugging - could be moved elsewhere.
 	static void dumpCat(const LLUUID& cat_id, const std::string& msg);
 	static void dumpItemArray(const LLInventoryModel::item_array_t& items, const std::string& msg);
+	static void unregisterAttachment(const LLUUID& item_id);
+	static void registerAttachment(const LLUUID& item_id);
+
 
 private:
 	static void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type);
@@ -94,6 +97,9 @@ private:
 	static void checkMandatoryWearableTypes(const LLUUID& category, std::set<EWearableType>& types_found);
 	static void purgeCOFBeforeRebuild(const LLUUID& category);
 	static void purgeCategory(const LLUUID& category, bool keep_outfit_links);
+
+	static std::set<LLUUID> sRegisteredAttachments;
+
 };
 
 #define SUPPORT_ENSEMBLES 0
