@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_visible="true"
+ follows="all"
+ height="400"
+ label="Places"
+ layout="topleft"
+ min_height="350"
+ min_width="240"
+ name="objects panel"
+ width="333">
+    <tab_container
+     follows="all"
+     height="360"
+     layout="topleft"
+     left="9"
+     name="Inventory Tabs"
+     tab_position="top"
+     top="30"
+     width="313"
+	 tab_height="0"
+	 visible="true">
+	 <panel
+	      class="panel_main_inventory"
+		  filename="panel_main_inventory.xml"
+		  follows="all"
+		  layout="topleft"
+		  left="0"
+		  name="panel_main_inventory"
+		  top="15"
+		  label=""
+		  height="300"
+		  width="467">
+    <panel
+     height="25"
+     layout="bottomright"
+     left="0"
+     help_topic="objects_button_tab"
+     name="button_panel"
+	 bottom="5"
+     width="313">
+        <button
+         enabled="true"
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Info"
+         layout="topleft"
+         left="0"
+         name="info_btn"
+         top="0"
+         width="60" />
+        <button
+         enabled="true"
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Share"
+         layout="topleft"
+         left_pad="5"
+         name="share_btn"
+         top="0"
+         width="60" />
+        <button
+         enabled="false"
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Wear"
+         layout="topleft"
+         left="130"
+         name="wear_btn"
+         top="0"
+         width="60" />
+        <button
+         enabled="false"
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Play"
+         layout="topleft"
+         name="play_btn"
+         left="130"
+         top="0"
+         width="50" />
+        <button
+         enabled="false"
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Teleport"
+         layout="topleft"
+         left="130"
+         name="teleport_btn"
+         top="0"
+         width="77" />
+        <button
+         follows="bottom|right"
+         font="SansSerifSmallBold"
+         height="25"
+         label="v"
+         layout="topleft"
+         name="overflow_btn"
+         right="-10"
+         top="0"
+         width="30" />
+    </panel>
+    </panel>
+   </tab_container>
+
+    <panel
+     class="sidepanel_object_info"
+     filename="sidepanel_object_info.xml"
+     follows="all"
+     height="360"
+     layout="topleft"
+     left="0"
+     help_topic="objects_info_tab"
+     name="sidepanel_object_info"
+     top="30"
+     visible="false" />
+</panel>

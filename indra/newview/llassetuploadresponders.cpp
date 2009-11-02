@@ -41,6 +41,7 @@
 #include "llfilepicker.h"
 #include "llnotify.h"
 #include "llinventorymodel.h"
+#include "llinventorypanel.h"
 #include "llfloaterinventory.h"
 #include "llpermissionsflags.h"
 #include "llpreviewnotecard.h"

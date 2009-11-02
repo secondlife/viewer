@@ -7,7 +7,7 @@
   <texture name="Accordion_Off" file_name="containers/Accordion_Off.png" preload="false" />
   <texture name="Accordion_Press" file_name="containers/Accordion_Press.png" preload="false" />
 
- <texture name="Activate_Checkmark" file_name="taskpanel/Activate_Checkmark.png" preload="false" />
+<texture name="Activate_Checkmark" file_name="taskpanel/Activate_Checkmark.png" preload="false" />
 
   <texture name="AddItem_Disabled" file_name="icons/AddItem_Disabled.png" preload="false" />
   <texture name="AddItem_Off" file_name="icons/AddItem_Off.png" preload="false" />
@@ -394,6 +394,10 @@
   <texture name="TabIcon_Home_Off" file_name="taskpanel/TabIcon_Home_Off.png" preload="false" />
   <texture name="TabIcon_Home_Over" file_name="taskpanel/TabIcon_Home_Over.png" preload="false" />
   <texture name="TabIcon_Home_Selected" file_name="taskpanel/TabIcon_Home_Selected.png" preload="false" />
+  <texture name="TabIcon_Inventory_Large" file_name="taskpanel/TabIcon_Inventory_Large.png" preload="false" />
+  <texture name="TabIcon_Inventory_Off" file_name="taskpanel/TabIcon_Inventory_Off.png" preload="false" />
+  <texture name="TabIcon_Inventory_Over" file_name="taskpanel/TabIcon_Inventory_Over.png" preload="false" />
+  <texture name="TabIcon_Inventory_Selected" file_name="taskpanel/TabIcon_Inventory_Selected.png" preload="false" />
   <texture name="TabIcon_Me_Large" file_name="taskpanel/TabIcon_Me_Large.png" preload="false" />
   <texture name="TabIcon_Me_Off" file_name="taskpanel/TabIcon_Me_Off.png" preload="false" />
   <texture name="TabIcon_Me_Over" file_name="taskpanel/TabIcon_Me_Over.png" preload="false" />

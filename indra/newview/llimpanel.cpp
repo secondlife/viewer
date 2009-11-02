@@ -70,6 +70,7 @@
 #include "llpanelimcontrolpanel.h"
 #include "llrecentpeople.h"
 #include "llresmgr.h"
+#include "lltooldraganddrop.h"
 #include "lltrans.h"
 #include "lltabcontainer.h"
 #include "llviewertexteditor.h"

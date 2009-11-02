@@ -38,6 +38,7 @@
 
 #include "llagent.h"
 #include "llfoldertype.h"
+#include "llfolderview.h"
 #include "llviewercontrol.h"
 #include "llconsole.h"
 #include "llinventorymodel.h"

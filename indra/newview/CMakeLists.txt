@@ -250,7 +250,9 @@ set(viewer_SOURCE_FILES
     llinventorybridge.cpp
     llinventoryclipboard.cpp
     llinventoryfilter.cpp
+    llinventoryfunctions.cpp
     llinventorymodel.cpp
+    llinventorypanel.cpp
     llinventorysubtreepanel.cpp
     lljoystickbutton.cpp
     lllandmarkactions.cpp
@@ -312,7 +314,6 @@ set(viewer_SOURCE_FILES
     llpanelgroupnotices.cpp
     llpanelgrouproles.cpp
     llpanelimcontrolpanel.cpp
-    llpanelinventory.cpp
     llpanelland.cpp
     llpanellandaudio.cpp
     llpanellandmarks.cpp
@@ -320,12 +321,14 @@ set(viewer_SOURCE_FILES
     llpanellogin.cpp
     llpanellookinfo.cpp
     llpanellooks.cpp
+    llpanelmaininventory.cpp
     llpanelmedia.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
     llpanelmeprofile.cpp
     llpanelobject.cpp
+    llpanelobjectinventory.cpp
     llpanelpeople.cpp
     llpanelpeoplemenus.cpp
     llpanelpermissions.cpp
@@ -365,6 +368,8 @@ set(viewer_SOURCE_FILES
     llsearchcombobox.cpp
     llsearchhistory.cpp
     llselectmgr.cpp
+    llsidepanelinventory.cpp
+    llsidepanelobjectinfo.cpp
     llsidetray.cpp
     llsidetraypanelcontainer.cpp
     llsky.cpp
@@ -729,7 +734,9 @@ set(viewer_HEADER_FILES
     llinventorybridge.h
     llinventoryclipboard.h
     llinventoryfilter.h
+    llinventoryfunctions.h
     llinventorymodel.h
+    llinventorypanel.h
     llinventorysubtreepanel.h
     lljoystickbutton.h
     lllandmarkactions.h
@@ -797,12 +804,14 @@ set(viewer_HEADER_FILES
     llpanellogin.h
     llpanellookinfo.h
     llpanellooks.h
+    llpanelmaininventory.h
     llpanelmedia.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h
     llpanelmeprofile.h
     llpanelobject.h
+    llpanelobjectinventory.h
     llpanelpeople.h
     llpanelpeoplemenus.h
     llpanelpermissions.h
@@ -844,6 +853,8 @@ set(viewer_HEADER_FILES
     llsearchcombobox.h
     llsearchhistory.h
     llselectmgr.h
+    llsidepanelinventory.h
+    llsidepanelobjectinfo.h
     llsidetray.h
     llsidetraypanelcontainer.h
     llsky.h

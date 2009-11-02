@@ -45,6 +45,7 @@
 #include "llinventorymodel.h"	// for gInventory
 #include "llfloaterreg.h"
 #include "llfloaterinventory.h"	// for get_item_icon
+#include "llinventoryfunctions.h"
 #include "llselectmgr.h"
 #include "llscrolllistctrl.h"
 #include "llviewerobject.h"

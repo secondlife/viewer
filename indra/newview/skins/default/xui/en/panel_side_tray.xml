@@ -128,4 +128,22 @@
       />
   </sidetray_tab>
 
+  <sidetray_tab
+    name="sidebar_inventory"
+    help_topic="sidebar_inventory"
+    tab_title="Inventory"
+    description="Browse your inventory."
+    image="TabIcon_Inventory_Off"
+    mouse_opaque="false"
+    background_visible="true"
+  >
+      <panel
+        class="sidepanel_inventory"
+        name="sidepanel_inventory"
+        filename="sidepanel_inventory.xml"
+        label="Edit Inventory"
+        font="SansSerifBold"
+      />
+  </sidetray_tab>
+
 </side_tray>

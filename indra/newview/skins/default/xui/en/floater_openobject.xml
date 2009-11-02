@@ -25,7 +25,7 @@
      width="284">
         [DESC]:
     </text>
-    <panel_inventory
+    <panel_inventory_object
      background_visible="false"
      draw_border="false"
      follows="all"

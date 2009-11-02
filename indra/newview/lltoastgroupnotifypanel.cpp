@@ -38,6 +38,7 @@
 
 #include "llbutton.h"
 #include "lliconctrl.h"
+#include "llinventoryfunctions.h"
 #include "llnotify.h"
 #include "lltextbox.h"
 

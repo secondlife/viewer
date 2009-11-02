@@ -62,7 +62,9 @@
 #include "llavataractions.h"
 #include "llgesturemgr.h"
 #include "lliconctrl.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
+#include "llinventorypanel.h"
 #include "llinventoryclipboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
@@ -275,7 +277,11 @@ void LLInvFVBridge::cutToClipboard()
 // *TODO: make sure this does the right thing
 void LLInvFVBridge::showProperties()
 {
-	LLFloaterReg::showInstance("properties", mUUID);
+	LLSD key;
+	key["id"] = mUUID;
+	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+
+	// LLFloaterReg::showInstance("properties", mUUID);
 }
 
 void LLInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch)
@@ -506,7 +512,7 @@ BOOL LLInvFVBridge::isClipboardPasteableAsLink() const
 	return TRUE;
 }
 
-void hideContextEntries(LLMenuGL& menu, 
+void hide_context_entries(LLMenuGL& menu, 
 						const std::vector<std::string> &entries_to_show,
 						const std::vector<std::string> &disabled_entries)
 {
@@ -521,7 +527,7 @@ void hideContextEntries(LLMenuGL& menu,
 		LLMenuItemBranchGL* branchp = dynamic_cast<LLMenuItemBranchGL*>(*itor);
 		if ((name == "More") && branchp)
 		{
-			hideContextEntries(*branchp->getBranch(), entries_to_show, disabled_entries);
+			hide_context_entries(*branchp->getBranch(), entries_to_show, disabled_entries);
 		}
 		
 		
@@ -621,7 +627,7 @@ void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		getClipboardEntries(true, items, disabled_items, flags);
 	}
-	hideContextEntries(menu, items, disabled_items);
+	hide_context_entries(menu, items, disabled_items);
 }
 
 // *TODO: remove this
@@ -2387,7 +2393,7 @@ void LLFolderBridge::folderOptionsMenu()
 		}
 		mItems.push_back(std::string("Take Off Items"));
 	}
-	hideContextEntries(*mMenu, mItems, disabled_items);
+	hide_context_entries(*mMenu, mItems, disabled_items);
 }
 
 BOOL LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& is_type)
@@ -2526,7 +2532,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		mItems.push_back(std::string("--no options--"));
 		mDisabledItems.push_back(std::string("--no options--"));
 	}
-	hideContextEntries(menu, mItems, mDisabledItems);
+	hide_context_entries(menu, mItems, mDisabledItems);
 }
 
 BOOL LLFolderBridge::hasChildren() const
@@ -3147,7 +3153,7 @@ void LLSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	items.push_back(std::string("Sound Separator"));
 	items.push_back(std::string("Sound Play"));
 
-	hideContextEntries(menu, items, disabled_items);
+	hide_context_entries(menu, items, disabled_items);
 }
 
 // +=================================================+
@@ -3204,7 +3210,7 @@ void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		disabled_items.push_back(std::string("About Landmark"));
 	}
 
-	hideContextEntries(menu, items, disabled_items);
+	hide_context_entries(menu, items, disabled_items);
 }
 
 // Convenience function for the two functions below.
@@ -3433,7 +3439,7 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			disabled_items.push_back(std::string("Conference Chat"));
 		}
 	}
-	hideContextEntries(menu, items, disabled_items);
+	hide_context_entries(menu, items, disabled_items);
 }
 
 BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
@@ -3662,7 +3668,7 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		items.push_back(std::string("Activate"));
 		items.push_back(std::string("Deactivate"));
 	}
-	hideContextEntries(menu, items, disabled_items);
+	hide_context_entries(menu, items, disabled_items);
 }
 
 // +=================================================+
@@ -3702,7 +3708,7 @@ void LLAnimationBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	items.push_back(std::string("Animation Play"));
 	items.push_back(std::string("Animation Audition"));
 
-	hideContextEntries(menu, items, disabled_items);
+	hide_context_entries(menu, items, disabled_items);
 
 }
 
@@ -3846,6 +3852,10 @@ void LLObjectBridge::openItem()
 	{
 		LLInvFVBridgeAction::doAction(item->getType(),mUUID,getInventoryModel());
 	}
+
+	LLSD key;
+	key["id"] = mUUID;
+	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 
 	/*
 	LLFloaterReg::showInstance("properties", mUUID);
@@ -4058,7 +4068,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			}
 		}
 	}
-	hideContextEntries(menu, items, disabled_items);
+	hide_context_entries(menu, items, disabled_items);
 }
 
 BOOL LLObjectBridge::renameItem(const std::string& new_name)
@@ -4471,7 +4481,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			}
 		}
 	}
-	hideContextEntries(menu, items, disabled_items);
+	hide_context_entries(menu, items, disabled_items);
 }
 
 // Called from menus
@@ -5043,7 +5053,7 @@ void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			disabled_items.push_back(std::string("Delete"));
 		}
 	}
-	hideContextEntries(menu, items, disabled_items);
+	hide_context_entries(menu, items, disabled_items);
 }
 
 
@@ -5094,7 +5104,7 @@ void LLLinkFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			disabled_items.push_back(std::string("Delete"));
 		}
 	}
-	hideContextEntries(menu, items, disabled_items);
+	hide_context_entries(menu, items, disabled_items);
 }
 
 void LLLinkFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)

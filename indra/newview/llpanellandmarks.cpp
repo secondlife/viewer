@@ -47,6 +47,7 @@
 #include "lldndbutton.h"
 #include "llfloaterworldmap.h"
 #include "llfolderviewitem.h"
+#include "llinventorypanel.h"
 #include "llinventorysubtreepanel.h"
 #include "lllandmarkactions.h"
 #include "llplacesinventorybridge.h"
