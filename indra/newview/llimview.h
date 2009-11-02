@@ -136,7 +136,12 @@ public:
 	 * It sends new message signal for each added message.
 	 */
 	bool addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& other_participant_id, const std::string& utf8_text, bool log2file = true);
-	
+
+	/**
+	 * Add a system message to an IM Model
+	 */
+	bool proccessOnlineOfflineNotification(const LLUUID& session_id, const std::string& utf8_text);
+
 	/**
 	 * Get a session's name. 
 	 * For a P2P chat - it's an avatar's name, 

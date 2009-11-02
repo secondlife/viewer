@@ -105,7 +105,13 @@ void toast_callback(const LLSD& msg){
 	{
 		return;
 	}
-	
+
+	// Skip toasting for system messages
+	if (msg["from_id"].asUUID() == LLUUID::null)
+	{
+		return;
+	}
+
 	LLSD args;
 	args["MESSAGE"] = msg["message"];
 	args["TIME"] = msg["time"];
@@ -401,6 +407,23 @@ bool LLIMModel::logToFile(const LLUUID& session_id, const std::string& from, con
 		}
 	}
 	return false;
+}
+
+bool LLIMModel::proccessOnlineOfflineNotification(
+	const LLUUID& session_id, 
+	const std::string& utf8_text)
+{
+	// Add message to old one floater
+	LLFloaterIMPanel *floater = gIMMgr->findFloaterBySession(session_id);
+	if ( floater )
+	{
+		if ( !utf8_text.empty() )
+		{
+			floater->addHistoryLine(utf8_text, LLUIColorTable::instance().getColor("SystemChatColor"));
+		}
+	}
+	// Add system message to history
+	return addMessage(session_id, SYSTEM_FROM, LLUUID::null, utf8_text);
 }
 
 bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, 
@@ -2013,7 +2036,7 @@ void LLIMMgr::noteOfflineUsers(
 	{
 		const LLRelationship* info = NULL;
 		LLAvatarTracker& at = LLAvatarTracker::instance();
-		LLIMModel* im_model = LLIMModel::getInstance();
+		LLIMModel& im_model = LLIMModel::instance();
 		for(S32 i = 0; i < count; ++i)
 		{
 			info = at.getBuddyInfo(ids.get(i));
@@ -2024,13 +2047,7 @@ void LLIMMgr::noteOfflineUsers(
 				LLUIString offline = LLTrans::getString("offline_message");
 				offline.setArg("[FIRST]", first);
 				offline.setArg("[LAST]", last);
-
-				if (floater)
-				{
-					floater->addHistoryLine(offline, LLUIColorTable::instance().getColor("SystemChatColor"));
-				}
-
-				im_model->addMessage(session_id, SYSTEM_FROM, LLUUID::null, offline);
+				im_model.proccessOnlineOfflineNotification(session_id, offline);
 			}
 		}
 	}
