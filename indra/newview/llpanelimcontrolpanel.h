@@ -50,6 +50,7 @@ public:
 
 	void onCallButtonClicked();
 	void onEndCallButtonClicked();
+	void onOpenVoiceControlsClicked();
 
 	virtual void setSessionId(const LLUUID& session_id) { mSessionId = session_id; }
 

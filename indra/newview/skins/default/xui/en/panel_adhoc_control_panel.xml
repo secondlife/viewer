@@ -20,12 +20,19 @@
     <button
      name="call_btn"
      label="Call"
-     width="90"
+     width="125"
      height="20" />
     <button
      name="end_call_btn"
      label="End Call"
-     width="90"
+     width="125"
      height="20" 
+     visible="false"/>
+    <button
+     enabled="false"
+     name="voice_ctrls_btn"
+     label="Open Voice Controls"
+     width="125"
+     height="20"
      visible="false"/>
 </panel>
