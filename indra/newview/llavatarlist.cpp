@@ -79,6 +79,8 @@ static const LLFlatListView::ItemReverseComparator REVERSE_NAME_COMPARATOR(NAME_
 LLAvatarList::Params::Params()
 : ignore_online_status("ignore_online_status", false)
 , show_last_interaction_time("show_last_interaction_time", false)
+, show_info_btn("show_info_btn", true)
+, show_profile_btn("show_profile_btn", true)
 {
 }
 
@@ -89,6 +91,9 @@ LLAvatarList::LLAvatarList(const Params& p)
 , mContextMenu(NULL)
 , mDirty(true) // to force initial update
 , mLITUpdateTimer(NULL)
+, mShowIcons(true)
+, mShowInfoBtn(p.show_info_btn)
+, mShowProfileBtn(p.show_profile_btn)
 {
 	setCommitOnSelectionChange(true);
 
@@ -253,6 +258,8 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 
 	item->childSetVisible("info_btn", false);
 	item->setAvatarIconVisible(mShowIcons);
+	item->setShowInfoBtn(mShowInfoBtn);
+	item->setShowProfileBtn(mShowProfileBtn);
 
 	addItem(item, id, pos);
 }

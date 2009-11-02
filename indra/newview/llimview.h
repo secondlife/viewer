@@ -92,8 +92,8 @@ public:
 	void	resetActiveSessionID() { mActiveSessionID.setNull(); }
 	LLUUID	getActiveSessionID() { return mActiveSessionID; }
 
-	//*TODO make it non-static as LLIMMOdel is a singleton (IB)
-	static std::map<LLUUID, LLIMSession*> sSessionsMap;  //mapping session_id to session
+	/** Session id to session object */
+	std::map<LLUUID, LLIMSession*> mId2SessionMap;
 
 	typedef boost::signals2::signal<void(const LLSD&)> session_signal_t;
 	typedef boost::function<void(const LLSD&)> session_callback_t;
@@ -109,7 +109,7 @@ public:
 	/**
 	 * Rebind session data to a new session id.
 	 */
-	void updateSessionID(const LLUUID& old_session_id, const LLUUID& new_session_id);
+	void processSessionInitializedReply(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
 	boost::signals2::connection addNewMsgCallback( session_callback_t cb ) { return mNewMsgSignal.connect(cb); }
 	boost::signals2::connection addNoUnreadMsgsCallback( session_callback_t cb ) { return mNoUnreadMsgsSignal.connect(cb); }
@@ -136,7 +136,12 @@ public:
 	 * It sends new message signal for each added message.
 	 */
 	bool addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& other_participant_id, const std::string& utf8_text, bool log2file = true);
-	
+
+	/**
+	 * Add a system message to an IM Model
+	 */
+	bool proccessOnlineOfflineNotification(const LLUUID& session_id, const std::string& utf8_text);
+
 	/**
 	 * Get a session's name. 
 	 * For a P2P chat - it's an avatar's name, 

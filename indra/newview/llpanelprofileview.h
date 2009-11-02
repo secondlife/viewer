@@ -40,6 +40,7 @@
 class LLPanelProfile;
 class LLPanelProfileTab;
 class LLTextBox;
+class AvatarStatusObserver;
 
 /**
 * Panel for displaying Avatar's profile. It consists of three sub panels - Profile,
@@ -49,6 +50,7 @@ class LLPanelProfileView : public LLPanelProfile
 {
 	LOG_CLASS(LLPanelProfileView);
 	friend class LLUICtrlFactory;
+	friend class AvatarStatusObserver;
 
 public:
 
@@ -65,8 +67,9 @@ public:
 protected:
 
 	void onBackBtnClick();
-	bool isGrantedToSeeOnlineStatus();
-	void updateOnlineStatus();
+	bool isGrantedToSeeOnlineStatus(); // deprecated after EXT-2022 is implemented
+	void updateOnlineStatus(); // deprecated after EXT-2022 is implemented
+	void processOnlineStatus(bool online);
 
 private:
 	// LLCacheName will call this function when avatar name is loaded from server.
@@ -78,6 +81,8 @@ private:
 		BOOL is_group);
 
 	LLTextBox* mStatusText;
+	AvatarStatusObserver* mAvatarStatusObserver;
+	bool mAvatarIsOnline;
 };
 
 #endif //LL_LLPANELPROFILEVIEW_H

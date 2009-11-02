@@ -94,7 +94,7 @@
          min_width="76"
          name="gesture_panel"
          user_resize="false">
-		    <button
+		    <gesture_combo_box
 		      follows="right"
 		     height="23"
 		     label="Gesture"

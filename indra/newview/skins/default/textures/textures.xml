@@ -488,6 +488,9 @@
 
   <!--WARNING OLD ART *do not use*-->
 
+ <texture name="Banner_ForSale" file_name="Banner_ForSale.png" preload="false" />
+  <texture name="Banner_YouAreHere" file_name="Banner_YouAreHere.png" preload="false" />
+
   <texture name="btn_chatbar.tga" scale.left="20" scale.top="24" scale.right="44" scale.bottom="0" />
   <texture name="btn_chatbar_selected.tga" scale.left="20" scale.top="24" scale.right="44" scale.bottom="0" />
 

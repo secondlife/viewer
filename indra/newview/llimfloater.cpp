@@ -51,6 +51,7 @@
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
 #include "lltransientfloatermgr.h"
+#include "llinventorymodel.h"
 
 
 
@@ -265,7 +266,7 @@ void LLIMFloater::draw()
 		}
 	}
 
-	LLFloater::draw();
+	LLTransientDockableFloater::draw();
 }
 
 
@@ -600,6 +601,162 @@ void LLIMFloater::processSessionUpdate(const LLSD& session_update)
 		//update the speakers dropdown too
 		//mSpeakerPanel->setVoiceModerationCtrlMode(voice_moderated);
 	}
+}
+
+BOOL LLIMFloater::handleDragAndDrop(S32 x, S32 y, MASK mask,
+						   BOOL drop, EDragAndDropType cargo_type,
+						   void *cargo_data, EAcceptance *accept,
+						   std::string& tooltip_msg)
+{
+
+	if (mDialog == IM_NOTHING_SPECIAL)
+	{
+		LLToolDragAndDrop::handleGiveDragAndDrop(mOtherParticipantUUID, mSessionID, drop,
+												 cargo_type, cargo_data, accept);
+	}
+
+	// handle case for dropping calling cards (and folders of calling cards) onto invitation panel for invites
+	else if (isInviteAllowed())
+	{
+		*accept = ACCEPT_NO;
+
+		if (cargo_type == DAD_CALLINGCARD)
+		{
+			if (dropCallingCard((LLInventoryItem*)cargo_data, drop))
+			{
+				*accept = ACCEPT_YES_MULTI;
+			}
+		}
+		else if (cargo_type == DAD_CATEGORY)
+		{
+			if (dropCategory((LLInventoryCategory*)cargo_data, drop))
+			{
+				*accept = ACCEPT_YES_MULTI;
+			}
+		}
+	}
+	return TRUE;
+}
+
+BOOL LLIMFloater::dropCallingCard(LLInventoryItem* item, BOOL drop)
+{
+	BOOL rv = isInviteAllowed();
+	if(rv && item && item->getCreatorUUID().notNull())
+	{
+		if(drop)
+		{
+			std::vector<LLUUID> ids;
+			ids.push_back(item->getCreatorUUID());
+			inviteToSession(ids);
+		}
+	}
+	else
+	{
+		// set to false if creator uuid is null.
+		rv = FALSE;
+	}
+	return rv;
+}
+
+BOOL LLIMFloater::dropCategory(LLInventoryCategory* category, BOOL drop)
+{
+	BOOL rv = isInviteAllowed();
+	if(rv && category)
+	{
+		LLInventoryModel::cat_array_t cats;
+		LLInventoryModel::item_array_t items;
+		LLUniqueBuddyCollector buddies;
+		gInventory.collectDescendentsIf(category->getUUID(),
+										cats,
+										items,
+										LLInventoryModel::EXCLUDE_TRASH,
+										buddies);
+		S32 count = items.count();
+		if(count == 0)
+		{
+			rv = FALSE;
+		}
+		else if(drop)
+		{
+			std::vector<LLUUID> ids;
+			ids.reserve(count);
+			for(S32 i = 0; i < count; ++i)
+			{
+				ids.push_back(items.get(i)->getCreatorUUID());
+			}
+			inviteToSession(ids);
+		}
+	}
+	return rv;
+}
+
+BOOL LLIMFloater::isInviteAllowed() const
+{
+
+	return ( (IM_SESSION_CONFERENCE_START == mDialog)
+			 || (IM_SESSION_INVITE == mDialog) );
+}
+
+class LLSessionInviteResponder : public LLHTTPClient::Responder
+{
+public:
+	LLSessionInviteResponder(const LLUUID& session_id)
+	{
+		mSessionID = session_id;
+	}
+
+	void error(U32 statusNum, const std::string& reason)
+	{
+		llinfos << "Error inviting all agents to session" << llendl;
+		//throw something back to the viewer here?
+	}
+
+private:
+	LLUUID mSessionID;
+};
+
+BOOL LLIMFloater::inviteToSession(const std::vector<LLUUID>& ids)
+{
+	LLViewerRegion* region = gAgent.getRegion();
+	if (!region)
+	{
+		return FALSE;
+	}
+
+	S32 count = ids.size();
+
+	if( isInviteAllowed() && (count > 0) )
+	{
+		llinfos << "LLIMFloater::inviteToSession() - inviting participants" << llendl;
+
+		std::string url = region->getCapability("ChatSessionRequest");
+
+		LLSD data;
+
+		data["params"] = LLSD::emptyArray();
+		for (int i = 0; i < count; i++)
+		{
+			data["params"].append(ids[i]);
+		}
+
+		data["method"] = "invite";
+		data["session-id"] = mSessionID;
+		LLHTTPClient::post(
+			url,
+			data,
+			new LLSessionInviteResponder(
+					mSessionID));
+	}
+	else
+	{
+		llinfos << "LLIMFloater::inviteToSession -"
+				<< " no need to invite agents for "
+				<< mDialog << llendl;
+		// successful add, because everyone that needed to get added
+		// was added.
+	}
+
+	return TRUE;
 }
 
 void LLIMFloater::addTypingIndicator(const LLIMInfo* im_info)
