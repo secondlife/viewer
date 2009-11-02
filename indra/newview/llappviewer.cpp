@@ -238,8 +238,6 @@ U32	gFrameCount = 0;
 U32 gForegroundFrameCount = 0; // number of frames that app window was in foreground
 LLPumpIO* gServicePump = NULL;
 
-BOOL gPacificDaylightTime = FALSE;
-
 U64 gFrameTime = 0;
 F32 gFrameTimeSeconds = 0.f;
 F32 gFrameIntervalSeconds = 0.f;

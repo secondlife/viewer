@@ -172,7 +172,7 @@ public:
 	bool handleUnicodeCharHere(llwchar uni_char);
 	bool canNavigateForward();
 	bool canNavigateBack();
-	std::string getMediaURL() { return mMediaURL; }
+	std::string getMediaURL() const { return mMediaURL; }
 	std::string getCurrentMediaURL();
 	std::string getHomeURL() { return mHomeURL; }
     void setHomeURL(const std::string& home_url) { mHomeURL = home_url; };
@@ -181,7 +181,7 @@ public:
 
 	void update();
 	void updateImagesMediaStreams();
-	LLUUID getMediaTextureID();
+	LLUUID getMediaTextureID() const;
 	
 	void suspendUpdates(bool suspend) { mSuspendUpdates = suspend; };
 	void setVisible(bool visible);
@@ -250,6 +250,7 @@ public:
 	void addObject(LLVOVolume* obj) ;
 	void removeObject(LLVOVolume* obj) ;
 	const std::list< LLVOVolume* >* getObjectList() const ;
+	LLVOVolume *getSomeObject();
 	void setUpdated(BOOL updated) ;
 	BOOL isUpdated() ;
 	

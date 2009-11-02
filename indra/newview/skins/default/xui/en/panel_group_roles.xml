@@ -163,6 +163,7 @@
     border="true"
      follows="left|top"
      height="260"
+     halign="center"
      layout="topleft"
      left="5"
      name="roles_tab_container"

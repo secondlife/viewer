@@ -42,13 +42,15 @@
      top="34"
      width="455" />
     <tab_container
-     follows="left|top|right|bottom"
+     follows="all"
      height="508"
+     halign="center"
      layout="topleft"
      left_delta="-4"
      name="inventory filter tabs"
      tab_position="top"
-     top_pad="4"
+     tab_height="20"
+     top_pad="5"
      width="463">
         <inventory_panel
          follows="left|top|right|bottom"

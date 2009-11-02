@@ -29,9 +29,9 @@
 
   <texture name="BottomTray_BG" file_name="bottomtray/BottomTray_BG.png" preload="false" />
 
-  <texture name="BuyArrow_Off" file_name="navbar/BuyArrow_Off.png" preload="false" />
-  <texture name="BuyArrow_Over" file_name="navbar/BuyArrow_Over.png" preload="false" />
-  <texture name="BuyArrow_Press" file_name="navbar/BuyArrow_Press.png" preload="false" />
+  <texture name="BuyArrow_Off" file_name="navbar/BuyArrow_Off.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0"  />
+  <texture name="BuyArrow_Over" file_name="navbar/BuyArrow_Over.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0"  />
+  <texture name="BuyArrow_Press" file_name="navbar/BuyArrow_Press.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0"  />
 
   <texture name="Cam_Avatar_Disabled" file_name="bottomtray/Cam_Avatar_Disabled.png" preload="false" />
   <texture name="Cam_Avatar_Over" file_name="bottomtray/Cam_Avatar_Over.png" preload="false" />
@@ -93,6 +93,7 @@
   <texture name="FileMenu_BarSelect" file_name="navbar/FileMenu_BarSelect.png" preload="false" scale.left="2" scale.top="0" scale.right="2" scale.bottom="0" />
   <texture name="FileMenu_BG" file_name="navbar/FileMenu_BG.png" preload="false" />
 
+  <texture name="ForSale_Badge" file_name="icons/ForSale_Badge.png" preload="false" />
   <texture name="ForwardArrow_Off" file_name="icons/ForwardArrow_Off.png" preload="false" />
   <texture name="ForwardArrow_Press" file_name="icons/ForwardArrow_Press.png" preload="false" />
 
@@ -258,6 +259,42 @@
   <texture name="Overhead_L" file_name="world/Overhead_L.png" preload="false" />
   <texture name="Overhead_M" file_name="world/Overhead_M.png" preload="false" />
   <texture name="Overhead_S" file_name="world/Overhead_S.png" preload="false" />
+
+  <texture name="parcel_drk_Build" file_name="icons/parcel_drk_Build.png" preload="false" />
+ <texture name="parcel_drk_BuildNo" file_name="icons/parcel_drk_BuildNo.png" preload="false" />
+ <texture name="parcel_drk_Damage" file_name="icons/parcel_drk_Damage.png" preload="false" />
+ <texture name="parcel_drk_DamageNo" file_name="icons/parcel_drk_DamageNo.png" preload="false" />
+ <texture name="parcel_drk_Fly" file_name="icons/parcel_drk_Fly.png" preload="false" />
+ <texture name="parcel_drk_FlyNo" file_name="icons/parcel_drk_FlyNo.png" preload="false" />
+ <texture name="parcel_drk_ForSale" file_name="icons/parcel_drk_ForSale.png" preload="false" />
+ <texture name="parcel_drk_ForSaleNo" file_name="icons/parcel_drk_ForSaleNo.png" preload="false" />
+ <texture name="parcel_drk_M" file_name="icons/parcel_drk_M.png" preload="false" />
+ <texture name="parcel_drk_PG" file_name="icons/parcel_drk_PG.png" preload="false" />
+ <texture name="parcel_drk_Push" file_name="icons/parcel_drk_Push.png" preload="false" />
+ <texture name="parcel_drk_PushNo" file_name="icons/parcel_drk_PushNo.png" preload="false" />
+ <texture name="parcel_drk_R" file_name="icons/parcel_drk_R.png" preload="false" />
+ <texture name="parcel_drk_Scripts" file_name="icons/parcel_drk_Scripts.png" preload="false" />
+ <texture name="parcel_drk_ScriptsNo" file_name="icons/parcel_drk_ScriptsNo.png" preload="false" />
+ <texture name="parcel_drk_Voice" file_name="icons/parcel_drk_Voice.png" preload="false" />
+ <texture name="parcel_drk_VoiceNo" file_name="icons/parcel_drk_VoiceNo.png" preload="false" />
+
+ <texture name="parcel_lght_Build" file_name="icons/parcel_lght_Build.png" preload="false" />
+ <texture name="parcel_lght_BuildNo" file_name="icons/parcel_lght_BuildNo.png" preload="false" />
+ <texture name="parcel_lght_Damage" file_name="icons/parcel_lght_Damage.png" preload="false" />
+ <texture name="parcel_lght_DamageNo" file_name="icons/parcel_lght_DamageNo.png" preload="false" />
+ <texture name="parcel_lght_Fly" file_name="icons/parcel_lght_Fly.png" preload="false" />
+ <texture name="parcel_lght_FlyNo" file_name="icons/parcel_lght_FlyNo.png" preload="false" />
+ <texture name="parcel_lght_ForSale" file_name="icons/parcel_lght_ForSale.png" preload="false" />
+ <texture name="parcel_lght_ForSaleNo" file_name="icons/parcel_lght_ForSaleNo.png" preload="false" />
+ <texture name="parcel_lght_M" file_name="icons/parcel_lght_M.png" preload="false" />
+ <texture name="parcel_lght_PG" file_name="icons/parcel_lght_PG.png" preload="false" />
+ <texture name="parcel_lght_Push" file_name="icons/parcel_lght_Push.png" preload="false" />
+ <texture name="parcel_lght_PushNo" file_name="icons/parcel_lght_PushNo.png" preload="false" />
+ <texture name="parcel_lght_R" file_name="icons/parcel_lght_R.png" preload="false" />
+ <texture name="parcel_lght_Scripts" file_name="icons/parcel_lght_Scripts.png" preload="false" />
+ <texture name="parcel_lght_ScriptsNo" file_name="icons/parcel_lght_ScriptsNo.png" preload="false" />
+ <texture name="parcel_lght_Voice" file_name="icons/parcel_lght_Voice.png" preload="false" />
+ <texture name="parcel_lght_VoiceNo" file_name="icons/parcel_lght_VoiceNo.png" preload="false" />
 
   <texture name="Progress_1" file_name="icons/Progress_1.png" preload="false" />
   <texture name="Progress_2" file_name="icons/Progress_2.png" preload="false" />
@@ -446,6 +483,8 @@
            scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />
   <texture name="Window_NoTitle_Foreground" file_name="windows/Window_NoTitle_Foreground.png" preload="true"
            scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />
+
+  <texture name="YouAreHere_Badge" file_name="icons/YouAreHere_Badge.png" preload="false" />
 
   <!--WARNING OLD ART *do not use*-->
 

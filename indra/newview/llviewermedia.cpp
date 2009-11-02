@@ -604,7 +604,7 @@ void LLViewerMedia::updateMedia()
 		
 		pimpl->setPriority(new_priority);
 		
-		if(!pimpl->getUsedInUI())
+		if(pimpl->getUsedInUI())
 		{
 			// Any impls used in the UI should not be in the proximity list.
 			pimpl->mProximity = -1;
@@ -1597,7 +1597,7 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
-LLUUID LLViewerMediaImpl::getMediaTextureID()
+LLUUID LLViewerMediaImpl::getMediaTextureID() const
 {
 	return mTextureId;
 }
@@ -2071,6 +2071,19 @@ void LLViewerMediaImpl::removeObject(LLVOVolume* obj)
 const std::list< LLVOVolume* >* LLViewerMediaImpl::getObjectList() const 
 {
 	return &mObjectList ;
+}
+
+LLVOVolume *LLViewerMediaImpl::getSomeObject()
+{
+	LLVOVolume *result = NULL;
+	
+	std::list< LLVOVolume* >::iterator iter = mObjectList.begin() ;
+	if(iter != mObjectList.end())
+	{
+		result = *iter;
+	}
+	
+	return result;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
