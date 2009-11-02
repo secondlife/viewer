@@ -265,7 +265,7 @@ void LLIMFloater::draw()
 		}
 	}
 
-	LLFloater::draw();
+	LLTransientDockableFloater::draw();
 }
 
 
