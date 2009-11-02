@@ -89,9 +89,6 @@ LLIMMgr* gIMMgr = NULL;
 
 const static std::string IM_SEPARATOR(": ");
 
-std::map<LLUUID, LLIMModel::LLIMSession*> LLIMModel::sSessionsMap;
-
-
 
 void toast_callback(const LLSD& msg){
 	// do not show toast in busy mode or it goes from agent
@@ -238,6 +235,12 @@ void LLIMModel::LLIMSession::addMessage(const std::string& from, const LLUUID& f
 	message["index"] = (LLSD::Integer)mMsgs.size(); 
 
 	mMsgs.push_front(message); 
+
+	if (mSpeakers && from_id.notNull())
+	{
+		mSpeakers->speakerChatted(from_id);
+		mSpeakers->setSpeakerTyping(from_id, FALSE);
+	}
 }
 
 void LLIMModel::LLIMSession::chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata)
@@ -258,12 +261,11 @@ void LLIMModel::LLIMSession::chatFromLogFile(LLLogChat::ELogLineType type, const
 
 LLIMModel::LLIMSession* LLIMModel::findIMSession(const LLUUID& session_id) const
 {
-	return get_if_there(LLIMModel::instance().sSessionsMap, session_id,
+	return get_if_there(mId2SessionMap, session_id,
 		(LLIMModel::LLIMSession*) NULL);
 }
 
-//*TODO change name to represent session initialization aspect (IB)
-void LLIMModel::updateSessionID(const LLUUID& old_session_id, const LLUUID& new_session_id)
+void LLIMModel::processSessionInitializedReply(const LLUUID& old_session_id, const LLUUID& new_session_id)
 {
 	LLIMSession* session = findIMSession(old_session_id);
 	if (session)
@@ -272,8 +274,8 @@ void LLIMModel::updateSessionID(const LLUUID& old_session_id, const LLUUID& new_
 
 		if (old_session_id != new_session_id)
 		{
-			sSessionsMap.erase(old_session_id);
-			sSessionsMap[new_session_id] = session;
+			mId2SessionMap.erase(old_session_id);
+			mId2SessionMap[new_session_id] = session;
 
 			gIMMgr->notifyObserverSessionIDUpdated(old_session_id, new_session_id);
 		}
@@ -322,14 +324,14 @@ void LLIMModel::testMessages()
 bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, 
 						   const LLUUID& other_participant_id, const std::vector<LLUUID>& ids)
 {
-	if (is_in_map(sSessionsMap, session_id))
+	if (findIMSession(session_id))
 	{
 		llwarns << "IM Session " << session_id << " already exists" << llendl;
 		return false;
 	}
 
 	LLIMSession* session = new LLIMSession(session_id, name, type, other_participant_id, ids);
-	sSessionsMap[session_id] = session;
+	mId2SessionMap[session_id] = session;
 
 	LLIMMgr::getInstance()->notifyObserverSessionAdded(session_id, name, other_participant_id);
 
@@ -339,9 +341,9 @@ bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, co
 
 bool LLIMModel::clearSession(const LLUUID& session_id)
 {
-	if (sSessionsMap.find(session_id) == sSessionsMap.end()) return false;
-	delete (sSessionsMap[session_id]);
-	sSessionsMap.erase(session_id);
+	if (mId2SessionMap.find(session_id) == mId2SessionMap.end()) return false;
+	delete (mId2SessionMap[session_id]);
+	mId2SessionMap.erase(session_id);
 	return true;
 }
 
@@ -389,7 +391,6 @@ bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, 
 	return true;
 }
 
-//*TODO rewrite chat history persistence using LLSD serialization (IB)
 bool LLIMModel::logToFile(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
 {
 	S32 im_log_option =  gSavedPerAccountSettings.getS32("IMLogOptions");
@@ -570,8 +571,7 @@ void LLIMModel::sendLeaveSession(const LLUUID& session_id, const LLUUID& other_p
 	}
 }
 
-
-//*TODO update list of messages in a LLIMSession (IB)
+//*TODO this method is better be moved to the LLIMMgr
 void LLIMModel::sendMessage(const std::string& utf8_text,
 					 const LLUUID& im_session_id,
 					 const LLUUID& other_participant_id,
@@ -1466,14 +1466,6 @@ void LLIMMgr::addMessage(
 	else
 	{
 		floater->addHistoryLine(msg, color, true, other_participant_id, from); // Insert linked name to front of message
-
-		//*TODO consider moving that speaker management stuff into model (IB)
-		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(new_session_id);
-		if (speaker_mgr)
-		{
-			speaker_mgr->speakerChatted(gAgentID);
-			speaker_mgr->setSpeakerTyping(gAgentID, FALSE);
-		}
 	}
 
 	LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
@@ -1539,7 +1531,7 @@ S32 LLIMMgr::getNumberOfUnreadIM()
 	std::map<LLUUID, LLIMModel::LLIMSession*>::iterator it;
 	
 	S32 num = 0;
-	for(it = LLIMModel::sSessionsMap.begin(); it != LLIMModel::sSessionsMap.end(); ++it)
+	for(it = LLIMModel::getInstance()->mId2SessionMap.begin(); it != LLIMModel::getInstance()->mId2SessionMap.end(); ++it)
 	{
 		num += (*it).second->mNumUnread;
 	}
@@ -2139,7 +2131,7 @@ public:
 		{
 			session_id = body["session_id"].asUUID();
 
-			LLIMModel::getInstance()->updateSessionID(temp_session_id, session_id);
+			LLIMModel::getInstance()->processSessionInitializedReply(temp_session_id, session_id);
 
 			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
 			if (speaker_mgr)
