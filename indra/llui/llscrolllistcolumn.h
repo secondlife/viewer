@@ -50,20 +50,7 @@ public:
 	{
 		Mandatory<LLScrollListColumn*> column;
 
-		Params()
-		:	column("column")
-		{
-			name  = "column_header";
-			image_unselected.name("square_btn_32x128.tga");
-			image_selected.name("square_btn_selected_32x128.tga");
-			image_disabled.name("square_btn_32x128.tga");
-			image_disabled_selected.name("square_btn_selected_32x128.tga");
-			image_overlay.name("combobox_arrow.tga");
-			image_overlay_alignment("right");
-			font_halign = LLFontGL::LEFT;
-			tab_stop(false);
-			scale_image(true);
-		}
+		Params();
 	};
 	LLScrollColumnHeader(const Params&);
 	~LLScrollColumnHeader();

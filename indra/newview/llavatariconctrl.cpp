@@ -155,6 +155,8 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 	mPriority = LLViewerFetchedTexture::BOOST_ICON;
 	
 	LLRect rect = p.rect;
+	mDrawWidth  = llmax(32, rect.getWidth()) ;
+	mDrawHeight = llmax(32, rect.getHeight()) ;
 
 	static LLUICachedControl<S32> llavatariconctrl_symbol_hpad("UIAvatariconctrlSymbolHPad", 2);
 	static LLUICachedControl<S32> llavatariconctrl_symbol_vpad("UIAvatariconctrlSymbolVPad", 2);
@@ -192,7 +194,6 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 	{
 		LLIconCtrl::setValue("default_profile_picture.j2c");
 	}
-
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 

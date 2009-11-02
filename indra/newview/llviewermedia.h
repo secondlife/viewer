@@ -66,10 +66,15 @@ private:
 	observerListType mObservers;
 };
 
+class LLViewerMediaImpl;
+
 class LLViewerMedia
 {
 	LOG_CLASS(LLViewerMedia);
 	public:
+
+		typedef std::vector<LLViewerMediaImpl*> impl_list;
+
 		// Special case early init for just web browser component
 		// so we can show login screen.  See .cpp file for details. JC
 
@@ -97,6 +102,14 @@ class LLViewerMedia
 		static void mediaStop(void*);
 		static F32 getVolume();	
 		static void muteListChanged();
+		static void setInWorldMediaDisabled(bool disabled);
+		static bool getInWorldMediaDisabled();
+				
+		// Returns the priority-sorted list of all media impls.
+		static impl_list &getPriorityList();
+		
+		// This is the comparitor used to sort the list.
+		static bool priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2);
 };
 
 // Implementation functions not exported into header file
@@ -159,7 +172,7 @@ public:
 	bool handleUnicodeCharHere(llwchar uni_char);
 	bool canNavigateForward();
 	bool canNavigateBack();
-	std::string getMediaURL() { return mMediaURL; }
+	std::string getMediaURL() const { return mMediaURL; }
 	std::string getCurrentMediaURL();
 	std::string getHomeURL() { return mHomeURL; }
     void setHomeURL(const std::string& home_url) { mHomeURL = home_url; };
@@ -168,7 +181,7 @@ public:
 
 	void update();
 	void updateImagesMediaStreams();
-	LLUUID getMediaTextureID();
+	LLUUID getMediaTextureID() const;
 	
 	void suspendUpdates(bool suspend) { mSuspendUpdates = suspend; };
 	void setVisible(bool visible);
@@ -179,6 +192,12 @@ public:
 	bool hasMedia();
 	bool isMediaFailed() { return mMediaSourceFailed; };
 	void resetPreviousMediaState();
+	
+	void setDisabled(bool disabled) { mIsDisabled = disabled; };
+	bool isMediaDisabled() { return mIsDisabled; };
+
+	// returns true if this instance should not be loaded (disabled, muted object, crashed, etc.)
+	bool isForcedUnloaded() const;
 
 	ECursorType getLastSetCursor() { return mLastSetCursor; };
 	
@@ -231,6 +250,7 @@ public:
 	void addObject(LLVOVolume* obj) ;
 	void removeObject(LLVOVolume* obj) ;
 	const std::list< LLVOVolume* >* getObjectList() const ;
+	LLVOVolume *getSomeObject();
 	void setUpdated(BOOL updated) ;
 	BOOL isUpdated() ;
 	
@@ -238,6 +258,7 @@ public:
 	void calculateInterest();
 	F64 getInterest() const { return mInterest; };
 	F64 getApproximateTextureInterest();
+	S32 getProximity() { return mProximity; };
 	
 	// Mark this object as being used in a UI panel instead of on a prim
 	// This will be used as part of the interest sorting algorithm.
@@ -301,6 +322,8 @@ public:
 	bool mNeedsMuteCheck;
 	int mPreviousMediaState;
 	F64 mPreviousMediaTime;
+	bool mIsDisabled;
+	S32 mProximity;
 
 private:
 	BOOL mIsUpdated ;

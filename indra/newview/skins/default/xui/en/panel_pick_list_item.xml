@@ -57,7 +57,7 @@
      use_ellipses="false"
      width="197"
      word_wrap="false" />
-    <text
+    <expandable_text
      follows="top|left|right"
      font="SansSerifSmall"
      height="40"
