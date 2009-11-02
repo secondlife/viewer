@@ -477,6 +477,7 @@ LLUIImagePtr LLEmbeddedItems::getItemImage(llwchar ext_char) const
 			case LLAssetType::AT_GESTURE:			img_name = "Inv_Gesture";	break;
 				//TODO need img_name
 			case LLAssetType::AT_FAVORITE:		img_name = "Inv_Landmark";	 break;
+			case LLAssetType::AT_MESH:            img_name = "inv_item_mesh.tga";	 break;
 			default: llassert(0); 
 		}
 

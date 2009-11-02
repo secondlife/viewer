@@ -194,6 +194,12 @@ class WindowsManifest(ViewerManifest):
         # For using FMOD for sound... DJS
         self.path("fmod.dll")
 
+        # For automatic level of detail generation in mesh importer
+        self.path("glod.dll")
+
+        # For reading collada files
+        self.path("libcollada14dom21.dll")
+
         # For textures
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
             self.path("openjpeg.dll")

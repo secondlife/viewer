@@ -41,33 +41,56 @@ class LLTransactionID;
 
 void init_menu_file();
 
-void upload_new_resource(const std::string& src_filename, 
-			 std::string name,
-			 std::string desc, 
-			 S32 compression_info,
-			 LLAssetType::EType destination_folder_type,
-			 LLInventoryType::EType inv_type,
-			 U32 next_owner_perms,
-			 U32 group_perms,
-			 U32 everyone_perms,
-			 const std::string& display_name,
-			 LLAssetStorage::LLStoreAssetCallback callback,
-			 S32 expected_upload_cost,
-			 void *userdata);
+void upload_new_resource(
+	const std::string& src_filename, 
+	std::string name,
+	std::string desc, 
+	S32 compression_info,
+	LLAssetType::EType destination_folder_type,
+	LLInventoryType::EType inv_type,
+	U32 next_owner_perms,
+	U32 group_perms,
+	U32 everyone_perms,
+	const std::string& display_name,
+	LLAssetStorage::LLStoreAssetCallback callback,
+	S32 expected_upload_cost,
+	void *userdata);
 
-void upload_new_resource(const LLTransactionID &tid, 
-			 LLAssetType::EType type,
-			 std::string name,
-			 std::string desc, 
-			 S32 compression_info,
-			 LLAssetType::EType destination_folder_type,
-			 LLInventoryType::EType inv_type,
-			 U32 next_owner_perms,
-			 U32 group_perms,
-			 U32 everyone_perms,
-			 const std::string& display_name,
-			 LLAssetStorage::LLStoreAssetCallback callback,
-			 S32 expected_upload_cost,
-			 void *userdata);
+void upload_new_resource(
+	const LLTransactionID &tid, 
+	LLAssetType::EType type,
+	std::string name,
+	std::string desc, 
+	S32 compression_info,
+	LLAssetType::EType destination_folder_type,
+	LLInventoryType::EType inv_type,
+	U32 next_owner_perms,
+	U32 group_perms,
+	U32 everyone_perms,
+	const std::string& display_name,
+	LLAssetStorage::LLStoreAssetCallback callback,
+	S32 expected_upload_cost,
+	void *userdata);
+
+// TODO* : Move all uploads to use this new function
+// since at some point, that upload path will be deprecated and no longer
+// used
+
+// We make a new function here to ensure that previous code is not broken
+BOOL upload_new_variable_cost_resource(
+	const LLTransactionID &tid, 
+	LLAssetType::EType type,
+	std::string name,
+	std::string desc, 
+	S32 compression_info,
+	LLAssetType::EType destination_folder_type,
+	LLInventoryType::EType inv_type,
+	U32 next_owner_perms,
+	U32 group_perms,
+	U32 everyone_perms,
+	const std::string& display_name,
+	LLAssetStorage::LLStoreAssetCallback callback,
+	void *userdata);
+
 
 #endif

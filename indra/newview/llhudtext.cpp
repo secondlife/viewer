@@ -567,6 +567,18 @@ void LLHUDText::setStringUTF8(const std::string &wtext)
 	setString(utf8str_to_wstring(wtext));
 }
 
+std::string LLHUDText::getString()
+{
+	std::ostringstream ostr;
+	for (U32 i = 0; i < mTextSegments.size(); ++i)
+	{
+		const std::string str = wstring_to_utf8str(mTextSegments[i].getText());
+		ostr << str;
+	}
+
+	return ostr.str();
+}
+
 void LLHUDText::setString(const LLWString &wtext)
 {
 	mTextSegments.clear();

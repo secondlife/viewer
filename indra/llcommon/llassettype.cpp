@@ -107,6 +107,7 @@ LLAssetDictionary::LLAssetDictionary()
 
 	addEntry(LLAssetType::AT_LINK, 				new AssetEntry("LINK",				"link",		"symbolic link",	"Link", 			DAD_LINK,		FALSE,		TRUE));
 	addEntry(LLAssetType::AT_LINK_FOLDER, 		new AssetEntry("FOLDER_LINK",		"link_f", 	"symbolic folder link", "New Folder", 	DAD_LINK,		FALSE,		TRUE));
+	addEntry(LLAssetType::AT_MESH,              new AssetEntry("MESH",              "mesh",     "mesh",             "Meshes",           DAD_MESH,       FALSE,		TRUE));
 
 	for (S32 ensemble_num = S32(LLAssetType::AT_FOLDER_ENSEMBLE_START); 
 		 ensemble_num <= S32(LLAssetType::AT_FOLDER_ENSEMBLE_END); 

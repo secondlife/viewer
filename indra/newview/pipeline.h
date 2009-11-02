@@ -278,6 +278,10 @@ public:
 	LLCullResult::sg_list_t::iterator beginAlphaGroups();
 	LLCullResult::sg_list_t::iterator endAlphaGroups();
 	
+
+	//mesh management functions
+	void loadMesh(LLVOVolume* volume, LLUUID mesh_id);
+	
 	void addTrianglesDrawn(S32 count);
 	BOOL hasRenderType(const U32 type) const				{ return (type && (mRenderTypeMask & (1<<type))) ? TRUE : FALSE; }
 	BOOL hasRenderDebugFeatureMask(const U32 mask) const	{ return (mRenderDebugFeatureMask & mask) ? TRUE : FALSE; }
@@ -671,6 +675,35 @@ public:
 	std::vector<LLFace*>		mHighlightFaces;	// highlight faces on physical objects
 protected:
 	std::vector<LLFace*>		mSelectedFaces;
+
+	typedef std::map<LLUUID, std::set<LLUUID> > mesh_load_map;
+	mesh_load_map mLoadingMeshes;
+	
+	LLMutex*					mMeshMutex;
+
+	class LLMeshThread : public LLThread
+	{
+	public:
+		LLPointer<LLVolume> mVolume;
+		LLVolume* mTargetVolume;
+		LLUUID mMeshID;
+		F32 mDetail;
+		LLMeshThread(LLUUID mesh_id, LLVolume* target);
+		~LLMeshThread();
+		void run();
+	};
+	
+	static void getMeshAssetCallback(LLVFS *vfs,
+										  const LLUUID& asset_uuid,
+										  LLAssetType::EType type,
+										  void* user_data, S32 status, LLExtStat ext_status);
+
+	std::list<LLMeshThread*> mLoadedMeshes;
+	std::list<LLMeshThread*> mPendingMeshes;
+	U32 mMeshThreadCount;
+
+	void meshLoaded(LLMeshThread* mesh_thread);
+	void notifyLoadedMeshes();
 
 	LLPointer<LLViewerFetchedTexture>	mFaceSelectImagep;
 	LLPointer<LLViewerTexture>	mBloomImagep;

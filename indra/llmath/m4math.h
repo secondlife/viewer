@@ -159,6 +159,7 @@ public:
 	const LLMatrix4& initRotTrans(const F32 roll, const F32 pitch, const F32 yaw, const LLVector4 &pos); // Rotation from Euler + translation
 	const LLMatrix4& initRotTrans(const LLQuaternion &q, const LLVector4 &pos);	// Set with Quaternion and position
 
+	const LLMatrix4& initScale(const LLVector3 &scale);
 
 	// Set all
 	const LLMatrix4& initAll(const LLVector3 &scale, const LLQuaternion &q, const LLVector3 &pos);	

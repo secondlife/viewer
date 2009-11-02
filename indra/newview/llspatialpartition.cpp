@@ -2294,7 +2294,6 @@ void pushVerts(LLFace* face, U32 mask)
 		U16 offset = face->getIndicesStart();
 		buffer->drawRange(LLRender::TRIANGLES, start, end, count, offset);
 	}
-
 }
 
 void pushBufferVerts(LLVertexBuffer* buffer, U32 mask)

@@ -744,18 +744,11 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 		return TRUE;
 	}
 
-	U32 old_face_mask = mVolumep->mFaceMask;
-
 	// build the new object
 	sVolumeManager->unrefVolume(mVolumep);
 	mVolumep = volumep;
-	
-	U32 new_face_mask = mVolumep->mFaceMask;
-	if (old_face_mask != new_face_mask) 
-	{
-		setNumTEs(mVolumep->getNumFaces());
-	}
-
+	setNumTEs(mVolumep->getNumFaces());
+		
 	return TRUE;
 }
 
@@ -898,7 +891,7 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 	U8 packed_buffer[MAX_TE_BUFFER];
 	U8 *cur_ptr = packed_buffer;
 	
-	S32 last_face_index = getNumTEs() - 1;
+	S32 last_face_index = llmin((U32) getNumTEs(), MAX_TES) - 1;
 	
 	if (last_face_index > -1)
 	{
@@ -1179,7 +1172,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 		return retval;
 	}
 
-	face_count = getNumTEs();
+	face_count = llmin((U32) getNumTEs(), MAX_TES);
 	U32 i;
 
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)image_data, 16, face_count, MVT_LLUUID);

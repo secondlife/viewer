@@ -568,6 +568,7 @@
   <texture name="inv_folder_landmark.tga" />
   <texture name="inv_folder_lostandfound.tga" />
   <texture name="inv_folder_my_outfits.tga" />
+  <texture name="inv_folder_mesh.tga"/>
   <texture name="inv_folder_notecard.tga" />
   <texture name="inv_folder_object.tga" />
   <texture name="inv_folder_outfit.tga" />
@@ -591,6 +592,7 @@
   <texture name="inv_item_landmark_visited.tga" />
   <texture name="inv_item_linkitem.tga" />
   <texture name="inv_item_linkfolder.tga" />
+  <texture name="inv_item_mesh.tga"/>
   <texture name="inv_item_notecard.tga" />
   <texture name="inv_item_object.tga" />
   <texture name="inv_item_object_multi.tga" />

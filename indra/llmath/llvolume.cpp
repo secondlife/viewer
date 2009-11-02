@@ -46,6 +46,9 @@
 #include "lldarray.h"
 #include "llvolume.h"
 #include "llstl.h"
+#include "llsdserialize.h"
+#include "zlib/zlib.h"
+
 
 #define DEBUG_SILHOUETTE_BINORMALS 0
 #define DEBUG_SILHOUETTE_NORMALS 0 // TomY: Use this to display normals using the silhouette
@@ -1688,7 +1691,7 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 	mGenerateSingleFace = generate_single_face;
 
 	generate();
-	if (mParams.getSculptID().isNull())
+	if (mParams.getSculptID().isNull() && params.getSculptType() == LL_SCULPT_TYPE_NONE)
 	{
 		createVolumeFaces();
 	}
@@ -1839,6 +1842,295 @@ BOOL LLVolume::generate()
 	return FALSE;
 }
 
+bool LLVolumeFace::VertexData::operator<(const LLVolumeFace::VertexData& rhs)const
+{
+	const U8* l = (const U8*) this;
+	const U8* r = (const U8*) &rhs;
+
+	for (U32 i = 0; i < sizeof(VertexData); ++i)
+	{
+		if (l[i] != r[i])
+		{
+			return r[i] < l[i];
+		}
+	}
+	
+	return false;
+}
+
+bool LLVolumeFace::VertexData::operator==(const LLVolumeFace::VertexData& rhs)const
+{
+	const U8* l = (const U8*) this;
+	const U8* r = (const U8*) &rhs;
+
+	for (U32 i = 0; i < sizeof(VertexData); ++i)
+	{
+		if (l[i] != r[i])
+		{
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+
+BOOL LLVolume::createVolumeFacesFromFile(const std::string& file_name)
+{
+	std::ifstream is;
+	
+	is.open(file_name.c_str(), std::ifstream::in | std::ifstream::binary);
+
+	BOOL success = createVolumeFacesFromStream(is);
+	
+	is.close();
+
+	return success;
+}
+
+BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
+{
+	mSculptLevel = -1;  // default is an error occured
+	
+	LLSD header;
+	{
+		if (!LLSDSerialize::deserialize(header, is, 1024*1024*1024))
+		{
+			llwarns << "not a valid mesh asset!" << llendl;
+			return FALSE;
+		}
+	}
+	
+	std::string nm[] = 
+	{
+		"impostor",
+		"low_lod",
+		"medium_lod",
+		"high_lod"
+	};
+
+	S32 lod = llclamp((S32) mDetail, 0, 3);
+
+	while (lod < 4 && header[nm[lod]]["offset"].asInteger() == -1)
+	{
+		++lod;
+	}
+
+	if (lod >= 4)
+	{
+		llwarns << "Couldn't load model for given lod" << llendl;
+		return FALSE;
+	}
+
+	is.seekg(header[nm[lod]]["offset"].asInteger(), std::ios_base::cur);
+	
+
+	U8* result = NULL;
+	U32 cur_size = 0;
+
+	{
+		//input stream is now pointing at a zlib compressed block of LLSD
+		//decompress block
+		z_stream strm;
+		
+		const U32 CHUNK = 65536;
+
+		S32 size = header[nm[lod]]["size"].asInteger();
+		U8 *in = new U8[size];
+		is.read((char*) in, size); 
+
+		U8 out[CHUNK];
+			
+		strm.zalloc = Z_NULL;
+		strm.zfree = Z_NULL;
+		strm.opaque = Z_NULL;
+		strm.avail_in = size;
+		strm.next_in = in;
+
+		S32 ret = inflateInit(&strm);
+
+		if (ret != Z_OK)
+		{
+			llerrs << "WTF?" << llendl;
+		}
+		
+		do
+		{
+			strm.avail_out = CHUNK;
+			strm.next_out = out;
+			ret = inflate(&strm, Z_NO_FLUSH);
+			if (ret == Z_STREAM_ERROR)
+			{
+				inflateEnd(&strm);
+				free(result);
+				delete [] in;
+				return FALSE;
+			}
+			
+			switch (ret)
+			{
+			case Z_NEED_DICT:
+				ret = Z_DATA_ERROR;
+			case Z_DATA_ERROR:
+			case Z_MEM_ERROR:
+				inflateEnd(&strm);
+				free(result);
+				delete [] in;
+				return FALSE;
+				break;
+			}
+
+			U32 have = CHUNK-strm.avail_out;
+
+			result = (U8*) realloc(result, cur_size + have);
+			memcpy(result+cur_size, out, have);
+			cur_size += have;
+
+		} while (strm.avail_out == 0);
+
+		inflateEnd(&strm);
+		delete [] in;
+
+		if (ret != Z_STREAM_END)
+		{
+			free(result);
+			return FALSE;
+		}
+	}
+
+	//result now points to the decompressed LLSD block
+
+	LLSD mdl;
+
+	{
+		std::string res_str((char*) result, cur_size);
+		std::istringstream istr(res_str);
+
+		if (!LLSDSerialize::deserialize(mdl, istr, cur_size))
+		{
+			llwarns << "not a valid mesh asset!" << llendl;
+			return FALSE;
+		}
+	}
+
+
+	free(result);
+
+
+	{
+		U32 face_count = mdl.size();
+
+		mVolumeFaces.resize(face_count);
+
+		for (U32 i = 0; i < face_count; ++i)
+		{
+			LLSD::Binary pos = mdl[i]["Position"];
+			LLSD::Binary norm = mdl[i]["Normal"];
+			LLSD::Binary tc = mdl[i]["TexCoord0"];
+			LLSD::Binary idx = mdl[i]["TriangleList"];
+
+			LLVolumeFace& face = mVolumeFaces[i];
+
+			face.mHasBinormals = FALSE;
+
+			//copy out indices
+			face.mIndices.resize(idx.size()/2);
+			if (idx.empty())
+			{ //why is there an empty index list?
+				continue;
+			}
+
+			U16* indices = (U16*) &(idx[0]);
+			for (U32 j = 0; j < idx.size()/2; ++j)
+			{
+				face.mIndices[j] = indices[j];
+			}
+
+			//copy out vertices
+			U32 num_verts = pos.size()/(3*2);
+			face.mVertices.resize(num_verts);
+
+			LLVector3 min_pos;
+			LLVector3 max_pos;
+			LLVector2 min_tc; 
+			LLVector2 max_tc; 
+
+			min_pos.setValue(mdl[i]["PositionDomain"]["Min"]);
+			max_pos.setValue(mdl[i]["PositionDomain"]["Max"]);
+			min_tc.setValue(mdl[i]["TexCoord0Domain"]["Min"]);
+			max_tc.setValue(mdl[i]["TexCoord0Domain"]["Max"]);
+
+			F32 scale = llclamp((F32) mdl[i]["Scale"].asReal(), 1.f, 10.f);
+
+			LLVector3 pos_range = max_pos - min_pos;
+			LLVector2 tc_range = max_tc - min_tc;
+
+			LLVector3& min = face.mExtents[0];
+			LLVector3& max = face.mExtents[1];
+
+			min = max = LLVector3(0,0,0);
+
+			for (U32 j = 0; j < num_verts; ++j)
+			{
+				U16* v = (U16*) &(pos[j*3*2]);
+
+				face.mVertices[j].mPosition.setVec(
+					(F32) v[0] / 65535.f * pos_range.mV[0] + min_pos.mV[0],
+					(F32) v[1] / 65535.f * pos_range.mV[1] + min_pos.mV[1],
+					(F32) v[2] / 65535.f * pos_range.mV[2] + min_pos.mV[2]);
+
+				face.mVertices[j].mPosition *= scale;
+
+				if (j == 0)
+				{
+					min = max = face.mVertices[j].mPosition;
+				}
+				else
+				{
+					update_min_max(min,max,face.mVertices[j].mPosition);
+				}
+
+				U16* n = (U16*) &(norm[j*3*2]);
+
+				face.mVertices[j].mNormal.setVec(
+					(F32) n[0] / 65535.f * 2.f - 1.f,
+					(F32) n[1] / 65535.f * 2.f - 1.f,
+					(F32) n[2] / 65535.f * 2.f - 1.f);
+
+				U16* t = (U16*) &(tc[j*2*2]);
+
+				face.mVertices[j].mTexCoord.setVec(
+					(F32) t[0] / 65535.f * tc_range.mV[0] + min_tc.mV[0],
+					(F32) t[1] / 65535.f * tc_range.mV[1] + min_tc.mV[1]);
+			}
+
+		}
+	}
+
+	mSculptLevel = 0;  // success!
+	return TRUE;
+}
+
+void LLVolume::copyVolumeFaces(LLVolume* volume)
+{
+	mVolumeFaces = volume->mVolumeFaces;
+	mSculptLevel = 0;
+}
+
+S32 const LL_SCULPT_MESH_MAX_FACES = 8;
+
+S32	LLVolume::getNumFaces() const
+{
+	U8 sculpt_type = (mParams.getSculptType() & LL_SCULPT_TYPE_MASK);
+
+	if (sculpt_type == LL_SCULPT_TYPE_MESH)
+	{
+		return LL_SCULPT_MESH_MAX_FACES;
+	}
+
+	return (S32)mProfilep->mFaces.size();
+}
+
 
 void LLVolume::createVolumeFaces()
 {
@@ -1864,6 +2156,11 @@ void LLVolume::createVolumeFaces()
 			LLProfile::Face& face = mProfilep->mFaces[i];
 			vf.mBeginS = face.mIndex;
 			vf.mNumS = face.mCount;
+			if (vf.mNumS < 0)
+			{
+				llerrs << "Volume face corruption detected." << llendl;
+			}
+
 			vf.mBeginT = 0;
 			vf.mNumT= getPath().mPath.size();
 			vf.mID = i;
@@ -1907,6 +2204,10 @@ void LLVolume::createVolumeFaces()
 					if (face.mFlat && vf.mNumS > 2)
 					{ //flat inner faces have to copy vert normals
 						vf.mNumS = vf.mNumS*2;
+						if (vf.mNumS < 0)
+						{
+							llerrs << "Volume face corruption detected." << llendl;
+						}
 					}
 				}
 				else
@@ -2308,7 +2609,6 @@ bool LLVolumeParams::operator<(const LLVolumeParams &params) const
 	{
 		return mSculptID < params.mSculptID;
 	}
-
 
 	return mSculptType < params.mSculptType;
 
@@ -3379,22 +3679,29 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 										  S32 face_mask)
 {
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
-	
+
 	vertices.clear();
 	normals.clear();
 	segments.clear();
 
+	if (mParams.getSculptType() == LL_SCULPT_TYPE_MESH)
+	{
+		return;
+	}
+	
 	S32 cur_index = 0;
 	//for each face
 	for (face_list_t::iterator iter = mVolumeFaces.begin();
 		 iter != mVolumeFaces.end(); ++iter)
 	{
-		const LLVolumeFace& face = *iter;
+		LLVolumeFace& face = *iter;
 	
-		if (!(face_mask & (0x1 << cur_index++)))
+		if (!(face_mask & (0x1 << cur_index++)) ||
+		     face.mIndices.empty() || face.mEdge.empty())
 		{
 			continue;
 		}
+
 		if (face.mTypeMask & (LLVolumeFace::CAP_MASK)) {
 	
 		}
@@ -3594,6 +3901,8 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 
 	F32 closest_t = 2.f; // must be larger than 1
 	
+	end_face = llmin(end_face, getNumVolumeFaces()-1);
+
 	for (S32 i = start_face; i <= end_face; i++)
 	{
 		const LLVolumeFace &face = getVolumeFace((U32)i);
@@ -4103,11 +4412,28 @@ BOOL LLVolumeParams::exportLegacyStream(std::ostream& output_stream) const
 	return TRUE;
 }
 
+LLSD LLVolumeParams::sculptAsLLSD() const
+{
+	LLSD sd = LLSD();
+	sd["id"] = getSculptID();
+	sd["type"] = getSculptType();
+
+	return sd;
+}
+
+bool LLVolumeParams::sculptFromLLSD(LLSD& sd)
+{
+	setSculptID(sd["id"].asUUID(), (U8)sd["type"].asInteger());
+	return true;
+}
+
 LLSD LLVolumeParams::asLLSD() const
 {
 	LLSD sd = LLSD();
 	sd["path"] = mPathParams;
 	sd["profile"] = mProfileParams;
+	sd["sculpt"] = sculptAsLLSD();
+	
 	return sd;
 }
 
@@ -4115,6 +4441,8 @@ bool LLVolumeParams::fromLLSD(LLSD& sd)
 {
 	mPathParams.fromLLSD(sd["path"]);
 	mProfileParams.fromLLSD(sd["profile"]);
+	sculptFromLLSD(sd["sculpt"]);
+		
 	return true;
 }
 
@@ -4157,6 +4485,12 @@ const F32 MIN_CONCAVE_PATH_WEDGE = 0.111111f;	// 1/9 unity
 // for collison purposes
 BOOL LLVolumeParams::isConvex() const
 {
+	if (!getSculptID().isNull())
+	{
+		// can't determine, be safe and say no:
+		return FALSE;
+	}
+	
 	F32 path_length = mPathParams.getEnd() - mPathParams.getBegin();
 	F32 hollow = mProfileParams.getHollow();
 	 
@@ -5011,7 +5345,11 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	if (!partial_build)
 	{
 		mIndices.resize(num_indices);
-		mEdge.resize(num_indices);
+
+		if (volume->getParams().getSculptType() != LL_SCULPT_TYPE_MESH)
+		{
+			mEdge.resize(num_indices);
+		}
 	}
 	else
 	{

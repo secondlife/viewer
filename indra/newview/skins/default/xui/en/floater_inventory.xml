@@ -123,6 +123,16 @@
                     <menu_item_call.on_enable
                      function="File.EnableUpload" />
                 </menu_item_call>
+              <menu_item_call
+                 label="Model (L$[COST])..."
+                 layout="topleft"
+                 name="Upload Model">
+                <menu_item_call.on_click
+                 function="File.UploadModel"
+                 parameter="" />
+                <menu_item_call.on_enable
+                 function="File.EnableUpload" />
+              </menu_item_call>
                 <menu_item_call
                  label="Animation (L$[COST])..."
                  layout="topleft"

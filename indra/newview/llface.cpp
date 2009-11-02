@@ -1040,7 +1040,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	if (full_rebuild)
 	{
 		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex);
-		for (U16 i = 0; i < num_indices; i++)
+		for (S32 i = 0; i < num_indices; i++)
 		{
 			*indicesp++ = vf.mIndices[i] + index_offset;
 		}

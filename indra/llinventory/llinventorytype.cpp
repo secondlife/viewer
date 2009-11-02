@@ -96,7 +96,9 @@ LLInventoryDictionary::LLInventoryDictionary()
 	addEntry(LLInventoryType::IT_WEARABLE,            new InventoryEntry("wearable",  "wearable",      2, LLAssetType::AT_CLOTHING, LLAssetType::AT_BODYPART));
 	addEntry(LLInventoryType::IT_ANIMATION,           new InventoryEntry("animation", "animation",     1, LLAssetType::AT_ANIMATION));  
 	addEntry(LLInventoryType::IT_GESTURE,             new InventoryEntry("gesture",   "gesture",       1, LLAssetType::AT_GESTURE)); 
-	addEntry(LLInventoryType::IT_FAVORITE,            new InventoryEntry("favorite",  "favorite",      1, LLAssetType::AT_FAVORITE)); 
+	addEntry(LLInventoryType::IT_FAVORITE,            new InventoryEntry("favorite",  "favorite",      1, LLAssetType::AT_FAVORITE));
+	addEntry(LLInventoryType::IT_MESH,                new InventoryEntry("mesh",      "mesh",          1, LLAssetType::AT_MESH));
+
 }
 
 
@@ -132,7 +134,7 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
 
 	LLInventoryType::IT_NONE,			// AT_LINK
 	LLInventoryType::IT_NONE,			// AT_LINK_FOLDER
-
+	
 	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
 	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
 	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
@@ -157,6 +159,7 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
 	LLInventoryType::IT_CATEGORY,		// AT_CURRENT_OUTFIT
 	LLInventoryType::IT_CATEGORY,		// AT_OUTFIT
 	LLInventoryType::IT_CATEGORY,		// AT_MY_OUTFITS
+	LLInventoryType::IT_MESH,           // AT_MESH
 };
 
 // static

@@ -701,6 +701,18 @@ void LLDrawPoolBump::endBump()
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 }
 
+S32 LLDrawPoolBump::getNumDeferredPasses()
+{ 
+	if (gSavedSettings.getBOOL("RenderObjectBump"))
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 void LLDrawPoolBump::beginDeferredPass(S32 pass)
 {
 	if (!gPipeline.hasRenderBatches(LLRenderPass::PASS_BUMP))

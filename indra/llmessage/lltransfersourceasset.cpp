@@ -271,6 +271,7 @@ bool is_asset_fetch_by_id_allowed(LLAssetType::EType type)
 		case LLAssetType::AT_ANIMATION:
 		case LLAssetType::AT_GESTURE:
 		case LLAssetType::AT_FAVORITE:
+		case LLAssetType::AT_MESH:
 			rv = true;
 			break;
 		default:
@@ -296,6 +297,7 @@ bool is_asset_id_knowable(LLAssetType::EType type)
 		case LLAssetType::AT_FAVORITE:
 		case LLAssetType::AT_LINK:
 		case LLAssetType::AT_LINK_FOLDER:
+	    case LLAssetType::AT_MESH:
 			rv = true;
 			break;
 		default:

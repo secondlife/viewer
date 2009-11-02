@@ -68,7 +68,8 @@ public:
 		IT_ANIMATION = 19,
 		IT_GESTURE = 20,
 		IT_FAVORITE = 21,
-		IT_COUNT = 22,
+		IT_MESH = 22,
+		IT_COUNT = 23,
 
 		IT_NONE = -1
 	};

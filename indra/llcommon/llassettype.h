@@ -147,9 +147,11 @@ public:
 
 		AT_MY_OUTFITS = 48,
 			// Folder that holds your outfits.
+			
+		AT_MESH = 49,
+		    // Mesh data in our proprietary SLM format
 
-		
-		AT_COUNT = 49,
+		AT_COUNT = 50,
 			// +*********************************************************+
 			// |  TO ADD AN ELEMENT TO THIS ENUM:                        |
 			// +*********************************************************+

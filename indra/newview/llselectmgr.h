@@ -140,6 +140,7 @@ public:
 	BOOL isTESelected(S32 te_index);
 	S32 getLastSelectedTE();
 	S32 getTESelectMask() { return mTESelectMask; }
+	void renderOneWireframe(const LLColor4& color);
 	void renderOneSilhouette(const LLColor4 &color);
 	void setTransient(BOOL transient) { mTransient = transient; }
 	BOOL isTransient() { return mTransient; }

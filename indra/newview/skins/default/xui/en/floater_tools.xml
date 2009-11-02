@@ -1996,6 +1996,9 @@
                  label="Cylinder"
                  name="Cylinder"
                  value="Cylinder" />
+                <combo_box.item
+                 label="Mesh"
+                 value="Mesh" />
             </combo_box>
         </panel>
 

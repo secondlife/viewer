@@ -428,6 +428,17 @@ const LLMatrix4&  	LLMatrix4::initRotTrans(const LLQuaternion &q, const LLVector
 	return (*this);
 }
 
+const LLMatrix4& LLMatrix4::initScale(const LLVector3 &scale)
+{
+	setIdentity();
+
+	mMatrix[VX][VX] = scale.mV[VX];
+	mMatrix[VY][VY] = scale.mV[VY];
+	mMatrix[VZ][VZ] = scale.mV[VZ];
+	
+	return (*this);
+}
+
 const LLMatrix4& LLMatrix4::initAll(const LLVector3 &scale, const LLQuaternion &q, const LLVector3 &pos)
 {
 	F32		sx, sy, sz;

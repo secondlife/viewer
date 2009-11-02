@@ -79,6 +79,8 @@ enum EInventoryIcon
 
 	LINKITEM_ICON_NAME,
 	LINKFOLDER_ICON_NAME,
+	
+	MESH_ICON_NAME,
 
 	ICON_NAME_COUNT
 };
@@ -609,7 +611,6 @@ protected:
 	static std::string sPrefix;
 };
 
-
 class LLLinkFolderBridge : public LLItemBridge
 {
 	friend class LLInvFVBridge;
@@ -629,6 +630,25 @@ protected:
 protected:
 	static std::string sPrefix;
 };
+
+
+
+class LLMeshBridge : public LLItemBridge
+{
+	friend class LLInvFVBridge;
+public:
+	virtual LLUIImagePtr getIcon() const;
+	virtual void openItem();
+	virtual void previewItem();
+	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+
+protected:
+	LLMeshBridge(LLInventoryPanel* inventory, const LLUUID& uuid) :
+		LLItemBridge(inventory, uuid) {}
+};
+
+
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInvFVBridgeAction (& its derived classes)
@@ -789,6 +809,19 @@ protected:
 	void wearOnAvatar();
 
 };
+
+class LLMeshBridgeAction: public LLInvFVBridgeAction
+{
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void	doIt() ;
+	virtual ~LLMeshBridgeAction(){}
+protected:
+	LLMeshBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
+
+};
+
+
 
 void wear_inventory_item_on_avatar(LLInventoryItem* item);
 

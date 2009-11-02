@@ -13,11 +13,14 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
+    ${LIBS_PREBUILT_DIR}/include/collada
+    ${LIBS_PREBUILT_DIR}/include/collada/1.4
     )
 
 set(llprimitive_SOURCE_FILES
     llmaterialtable.cpp
     llmediaentry.cpp
+    llmodel.cpp
     llprimitive.cpp
     llprimtexturelist.cpp
     lltextureanim.cpp
@@ -33,6 +36,7 @@ set(llprimitive_HEADER_FILES
     legacy_object_types.h
     llmaterialtable.h
     llmediaentry.h
+    llmodel.h
     llprimitive.h
     llprimtexturelist.h
     lltextureanim.h
