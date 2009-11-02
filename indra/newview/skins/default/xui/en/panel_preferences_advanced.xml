@@ -240,8 +240,8 @@ Avatars:
      width="256"
      top_pad="5"/>
     <radio_group
-	 enabled_control="ShowScriptErrors"
-	 control_name="ShowScriptErrorsLocation"
+     enabled_control="ShowScriptErrors"
+     control_name="ShowScriptErrorsLocation"
      follows="top|left"
      draw_border="false"
      height="40"
@@ -269,6 +269,8 @@ Avatars:
     </radio_group>
      <check_box
      follows="top|left"
+     enabled_control="EnableVoiceChat"
+     control_name="PushToTalkToggle"
      height="20"
      label="Use Push-to-talk in toggle mode"
      layout="topleft"
@@ -279,6 +281,9 @@ Avatars:
      tool_tip="When in toggle mode, press and release the push-to-talk trigger to switch your microphone on and off. When not in toggle mode, the microphone is active only when the trigger is held down."/>
     <line_editor
      follows="top|left"
+     control_name="PushToTalkButton"
+     enabled="false" 
+     enabled_control="EnableVoiceChat"
      height="19"
      left_delta="50"
      max_length="254"
@@ -287,22 +292,30 @@ Avatars:
      top_pad="0"
      width="280" />
     <button
-	follows="top|left"
-	height="20"
-	label="Set Key"
-	left_delta="0"
-        name="set_voice_hotkey_button"
-	width="115"
-	top_pad="5" />
+     follows="top|left"
+     enabled_control="EnableVoiceChat"
+     height="20"
+     label="Set Key"
+     left_delta="0"
+     name="set_voice_hotkey_button"
+     width="115"
+     top_pad="5">
+          <button.commit_callback
+          function="Pref.VoiceSetKey" />
+    </button>
     <button
-        bottom_delta="0"
-	follows="left"
-	font="SansSerif"
-	halign="center"
-	height="20"
-	label="Middle Mouse Button"
-	left_delta="120"
-	mouse_opaque="true"
-	name="set_voice_middlemouse_button"
-	width="160" />
+     bottom_delta="0"
+     enabled_control="EnableVoiceChat"
+     follows="left"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="Middle Mouse Button"
+     left_delta="120"
+     mouse_opaque="true"
+     name="set_voice_middlemouse_button"
+     width="160">
+          <button.commit_callback
+          function="Pref.VoiceSetMiddleMouse" />
+    </button>
 </panel>
