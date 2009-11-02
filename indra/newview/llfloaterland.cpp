@@ -1519,7 +1519,9 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 		}
 
 		// Placeholder for name.
-		item_params.columns.add().font(FONT).column("name");
+		std::string name;
+		gCacheName->getFullName(owner_id, name);		
+		item_params.columns.add().value(name).font(FONT).column("name");
 
 		object_count_str = llformat("%d", object_count);
 		item_params.columns.add().value(object_count_str).font(FONT).column("count");
