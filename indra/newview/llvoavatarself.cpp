@@ -1080,6 +1080,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 	if (attachment->isObjectAttached(viewer_object))
 	{
 		const LLUUID& attachment_id = viewer_object->getItemID();
+		LLAppearanceManager::registerAttachment(attachment_id);
 		LLViewerInventoryItem *item = gInventory.getItem(attachment_id);
 		if (item)
 		{
@@ -1096,12 +1097,12 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 //virtual
 BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 {
-	const LLUUID item_id = viewer_object->getItemID();
+	const LLUUID attachment_id = viewer_object->getItemID();
 	if (LLVOAvatar::detachObject(viewer_object))
 	{
 		// the simulator should automatically handle permission revocation
 		
-		stopMotionFromSource(item_id);
+		stopMotionFromSource(attachment_id);
 		LLFollowCamMgr::setCameraActive(viewer_object->getID(), FALSE);
 		
 		LLViewerObject::const_child_list_t& child_list = viewer_object->getChildren();
@@ -1127,11 +1128,12 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 		else
 		{
 			LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Removing attachment link:");
-			LLAppearanceManager::removeItemLinks(item_id, false);
+			LLAppearanceManager::removeItemLinks(attachment_id, false);
+			LLAppearanceManager::unregisterAttachment(attachment_id);
 		}
 		
 		// BAP - needs to change for label to track link.
-		gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+		gInventory.addChangedMask(LLInventoryObserver::LABEL, attachment_id);
 		gInventory.notifyObservers();
 		return TRUE;
 	}
