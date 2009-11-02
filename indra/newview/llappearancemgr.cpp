@@ -528,7 +528,7 @@ void LLAppearanceManager::shallowCopyCategory(const LLUUID& src_id, const LLUUID
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
-	gInventory.collectDescendents(getCOF(), cats, items,
+	gInventory.collectDescendents(category, cats, items,
 								  LLInventoryModel::EXCLUDE_TRASH);
 	for (S32 i = 0; i < items.count(); ++i)
 	{
@@ -563,7 +563,7 @@ void LLAppearanceManager::shallowCopyCategory(const LLUUID& src_id, const LLUUID
 		S32 size = items_by_type[i].size();
 		if (size <= 0)
 			continue;
-		S32 start_index = max(0,size-max_per_type);
+		S32 start_index = llmax(0,size-max_per_type);
 		for (S32 j = start_index; j<size; j++)
 		{
 			items.push_back(items_by_type[i][j]);
@@ -1177,4 +1177,38 @@ void LLAppearanceManager::dumpItemArray(const LLInventoryModel::item_array_t& it
 		llinfos << i <<" " << item->getName() << llendl;
 	}
 	llinfos << llendl;
+}
+
+
+std::set<LLUUID> LLAppearanceManager::sRegisteredAttachments;
+
+void dumpAttachmentSet(const std::set<LLUUID>& atts, const std::string& msg)
+{
+       llinfos << msg << llendl;
+       for (std::set<LLUUID>::const_iterator it = atts.begin();
+               it != atts.end();
+               ++it)
+       {
+               LLUUID item_id = *it;
+               LLViewerInventoryItem *item = gInventory.getItem(item_id);
+               if (item)
+                       llinfos << "atts " << item->getName() << llendl;
+               else
+                       llinfos << "atts " << "UNKNOWN[" << item_id.asString() << "]" << llendl;
+       }
+       llinfos << llendl;
+}
+
+/* static */
+void LLAppearanceManager::registerAttachment(const LLUUID& item_id)
+{
+       sRegisteredAttachments.insert(item_id);
+       dumpAttachmentSet(sRegisteredAttachments,"after register:");
+}
+
+/* static */
+void LLAppearanceManager::unregisterAttachment(const LLUUID& item_id)
+{
+       sRegisteredAttachments.erase(item_id);
+       dumpAttachmentSet(sRegisteredAttachments,"after unregister:");
 }
