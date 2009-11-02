@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="panel_im_control_panel"
        width="125"
-       height="248"
+       height="298"
        border="false">
 
   <avatar_icon name="avatar_icon"
@@ -39,8 +39,16 @@
      height="20"
      visible="false"/>
 
+  <button name="teleport_btn"
+          label="Teleport"
+          width="125"
+          height="20" />
   <button name="share_btn"
           label="Share"
+          width="125"
+          height="20" />
+  <button name="pay_btn"
+          label="Pay"
           width="125"
           height="20" />
 

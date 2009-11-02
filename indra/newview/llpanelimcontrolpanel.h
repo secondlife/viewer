@@ -73,6 +73,8 @@ private:
 	void onViewProfileButtonClicked();
 	void onAddFriendButtonClicked();
 	void onShareButtonClicked();
+	void onTeleportButtonClicked();
+	void onPayButtonClicked();
 
 	LLUUID mAvatarID;
 };
