@@ -1,62 +1,67 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- background_visible="true"
+background_visible="true"
  follows="all"
- height="400"
+ height="570"
  label="Places"
  layout="topleft"
  min_height="350"
- min_width="240"
  name="places panel"
+ top="0"
+ left="0"
  width="333">
     <string
      name="landmarks_tab_title"
-     value="Landmarks" />
+     value="MY LANDMARKS" />
     <string
      name="teleport_history_tab_title"
-     value="Teleport History" />
+     value="TELEPORT HISTORY" />
     <filter_editor
      follows="left|top|right"
      font="SansSerif"
      height="23"
-     label="Filter"
      layout="topleft"
      left="15"
+     label="Filter"
+     max_length="300"
      name="Filter"
      top="3"
-     width="300" />
+     width="303" />
     <tab_container
      follows="all"
-     height="326"
+     halign="center"
+     height="500"
      layout="topleft"
-     left="9"
+     left="10"
      name="Places Tabs"
+     tab_min_width="80"
+     tab_height="30"
      tab_position="top"
-     top="30"
+     top_pad="10"
      width="313" />
     <panel
      class="panel_place_info"
      filename="panel_place_info.xml"
      follows="all"
-     height="326"
+     height="533"
      layout="topleft"
      left="0"
      help_topic="places_info_tab"
      name="panel_place_info"
-     top="30"
-     visible="false" />
+     top="5"
+     visible="false"
+     width="313" />
     <panel
-     height="25"
+     height="19"
      layout="topleft"
      left="0"
      help_topic="places_button_tab"
      name="button_panel"
-     top_pad="10"
      width="313">
         <button
          follows="bottom|left"
-         font="SansSerifSmallBold"
-         height="25"
+         font="SansSerifSmall"
+         height="19"
          label="Teleport"
          layout="topleft"
          left="5"
@@ -65,8 +70,8 @@
          width="77" />
         <button
          follows="bottom|left"
-         font="SansSerifSmallBold"
-         height="25"
+         font="SansSerifSmall"
+         height="19"
          label="Map"
          layout="topleft"
          left_pad="5"
@@ -76,8 +81,8 @@
         <button
          enabled="false"
          follows="bottom|left"
-         font="SansSerifSmallBold"
-         height="25"
+         font="SansSerifSmall"
+         height="19"
          label="Share"
          layout="topleft"
          left_pad="5"
@@ -86,8 +91,8 @@
          width="60" />
         <button
          follows="bottom|left"
-         font="SansSerifSmallBold"
-         height="25"
+         font="SansSerifSmall"
+         height="19"
          label="Edit"
          layout="topleft"
          left_pad="5"
@@ -96,18 +101,21 @@
          width="50" />
         <button
          follows="bottom|right"
-         font="SansSerifSmallBold"
-         height="25"
-         label="▼"
+         font="SansSerifSmall"
+         height="19"
+         image_disabled="ForwardArrow_Disabled"
+         image_selected="ForwardArrow_Press"
+         image_unselected="ForwardArrow_Off"
+         picture_style="true"
          layout="topleft"
          name="overflow_btn"
          right="-10"
          top="0"
-         width="30" />
+         width="18" />
         <button
          follows="bottom|right"
-         font="SansSerifSmallBold"
-         height="25"
+         font="SansSerifSmall"
+         height="19"
          label="Close"
          layout="topleft"
          name="close_btn"
@@ -116,8 +124,8 @@
          width="60" />
         <button
          follows="bottom|right"
-         font="SansSerifSmallBold"
-         height="25"
+         font="SansSerifSmall"
+         height="19"
          label="Cancel"
          layout="topleft"
          name="cancel_btn"
@@ -126,8 +134,8 @@
          width="60" />
         <button
          follows="bottom|right"
-         font="SansSerifSmallBold"
-         height="25"
+         font="SansSerifSmall"
+         height="19"
          label="Save"
          layout="topleft"
          name="save_btn"

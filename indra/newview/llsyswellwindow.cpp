@@ -113,6 +113,12 @@ void LLSysWellWindow::connectListUpdaterToSignal(std::string notification_type)
 }
 
 //---------------------------------------------------------------------------------
+void LLSysWellWindow::onStartUpToastClick(S32 x, S32 y, MASK mask)
+{
+	onChicletClick();
+}
+
+//---------------------------------------------------------------------------------
 void LLSysWellWindow::onChicletClick()
 {
 	// 1 - remove StartUp toast and channel if present
@@ -421,7 +427,6 @@ void LLSysWellWindow::sessionRemoved(const LLUUID& sessionId)
 {
 	delIMRow(sessionId);
 	reshapeWindow();
-	LLBottomTray::getInstance()->getSysWell()->updateUreadIMNotifications();
 }
 
 void LLSysWellWindow::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id)

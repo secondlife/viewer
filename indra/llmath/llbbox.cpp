@@ -30,6 +30,8 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 // self include
 #include "llbbox.h"
 

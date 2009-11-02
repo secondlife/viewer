@@ -162,6 +162,8 @@ bool	LLNearbyChatScreenChannel::createPoolToast()
 	
 	LLToast::Params p;
 	p.panel = panel;
+	p.lifetime_secs = gSavedSettings.getS32("NearbyToastLifeTime");
+	p.fading_time_secs = gSavedSettings.getS32("NearbyToastFadingTime");
 
 	LLToast* toast = new LLToast(p); 
 	
@@ -187,6 +189,17 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 		addNotification(notification);
 		return;
 	}
+
+	int chat_type = notification["chat_type"].asInteger();
+	
+	if( ((EChatType)chat_type == CHAT_TYPE_DEBUG_MSG))
+	{
+		if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE) 
+			return;
+		if(gSavedSettings.getS32("ShowScriptErrorsLocation")== 1)
+			return;
+	}
+		
 
 	//take 1st element from pool, (re)initialize it, put it in active toasts
 
@@ -315,6 +328,12 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 		initChannel();
 	}
 
+	//only messages from AGENTS
+	if(CHAT_SOURCE_OBJECT == chat_msg.mSourceType)
+	{
+		return;//dn't show toast for messages from objects
+	}
+
 	LLUUID id;
 	id.generate();
 
@@ -330,6 +349,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 		notification["from_id"] = chat_msg.mFromID;
 		notification["time"] = chat_msg.mTime;
 		notification["source"] = (S32)chat_msg.mSourceType;
+		notification["chat_type"] = (S32)chat_msg.mChatType;
 
 		channel->addNotification(notification);	
 	}

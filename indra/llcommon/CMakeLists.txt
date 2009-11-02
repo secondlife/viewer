@@ -4,12 +4,19 @@ project(llcommon)
 
 include(00-Common)
 include(LLCommon)
+include(Linking)
 include(Boost)
+include (Pth)
+
+if (WINDOWS)
+    include(CopyWinLibs)
+endif (WINDOWS)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
+    ${PTH_INCLUDE_DIRS}
     )
 
 # add_executable(lltreeiterators lltreeiterators.cpp)
@@ -26,6 +33,7 @@ set(llcommon_SOURCE_FILES
     llbase32.cpp
     llbase64.cpp
     llcommon.cpp
+    llcoros.cpp
     llcrc.cpp
     llcriticaldamp.cpp
     llcursortypes.cpp
@@ -34,6 +42,9 @@ set(llcommon_SOURCE_FILES
     llerror.cpp
     llerrorthread.cpp
     llevent.cpp
+    lleventcoro.cpp
+    lleventdispatcher.cpp
+    lleventfilter.cpp
     llevents.cpp
     llfasttimer.cpp
     llfile.cpp
@@ -64,6 +75,7 @@ set(llcommon_SOURCE_FILES
     llsdserialize_xml.cpp
     llsdutil.cpp
     llsecondlifeurls.cpp
+    llsingleton.cpp
     llstat.cpp
     llstacktrace.cpp
     llstreamtools.cpp
@@ -106,6 +118,7 @@ set(llcommon_HEADER_FILES
     llchat.h
     llclickaction.h
     llcommon.h
+    llcoros.h
     llcrc.h
     llcriticaldamp.h
     llcursortypes.h
@@ -127,6 +140,9 @@ set(llcommon_HEADER_FILES
     llerrorlegacy.h
     llerrorthread.h
     llevent.h
+    lleventcoro.h
+    lleventdispatcher.h
+    lleventfilter.h
     llevents.h
     lleventemitter.h
     llextendedstatus.h
@@ -140,6 +156,7 @@ set(llcommon_HEADER_FILES
     llheartbeat.h
     llhttpstatuscodes.h
     llindexedqueue.h
+    llinstancetracker.h
     llinstancetracker.h
     llkeythrottle.h
     lllazy.h
@@ -222,25 +239,63 @@ set_source_files_properties(${llcommon_HEADER_FILES}
 
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
-add_library (llcommon ${llcommon_SOURCE_FILES})
-target_link_libraries(llcommon
+if(LLCOMMON_LINK_SHARED)
+    add_library (llcommon SHARED ${llcommon_SOURCE_FILES})
+
+    if(SHARED_LIB_STAGING_DIR)
+        # *FIX:Mani ---
+        # llcommon.dll get written to the DLL staging directory.
+        # Also this directory is shared with RunBuildTest.cmake, y'know, for the tests.
+        set_target_properties(llcommon PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${SHARED_LIB_STAGING_DIR})
+        if(NOT WINDOWS)
+          get_target_property(LLCOMMON_PATH llcommon LOCATION)
+          get_filename_component(LLCOMMON_FILE ${LLCOMMON_PATH} NAME)
+          add_custom_command(
+            TARGET llcommon POST_BUILD
+            COMMAND ${CMAKE_COMMAND}
+            ARGS
+              -E
+              copy_if_different
+              ${LLCOMMON_PATH}
+              ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/${LLCOMMON_FILE}
+            COMMENT "Copying llcommon to the staging folder."
+            )
+        endif(NOT WINDOWS)
+    endif(SHARED_LIB_STAGING_DIR)
+
+    if (DARWIN)
+      set_target_properties(llcommon PROPERTIES
+        BUILD_WITH_INSTALL_RPATH 1
+        INSTALL_NAME_DIR "@executable_path/../Resources"
+        )
+    endif(DARWIN)
+
+else(LLCOMMON_LINK_SHARED)
+    add_library (llcommon ${llcommon_SOURCE_FILES})
+endif(LLCOMMON_LINK_SHARED)
+
+target_link_libraries(
+    llcommon
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
     ${ZLIB_LIBRARIES}
+    ${WINDOWS_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
+    ${PTH_LIBRARIES}
     )
 
-#add unit tests
-INCLUDE(LLAddBuildTest)
+add_dependencies(llcommon stage_third_party_libs)
+
+include(LLAddBuildTest)
 SET(llcommon_TEST_SOURCE_FILES
   # unit-testing llcommon is not possible right now as the test-harness *itself* depends upon llcommon, causing a circular dependency.  Add your 'unit' tests as integration tests for now.
   )
 LL_ADD_PROJECT_UNIT_TESTS(llcommon "${llcommon_TEST_SOURCE_FILES}")
 
 #set(TEST_DEBUG on)
-set(test_libs llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
+set(test_libs llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES} ${GOOGLEMOCK_LIBRARIES})
 LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
 LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
 LL_ADD_INTEGRATION_TEST(llbase64 "" "${test_libs}")

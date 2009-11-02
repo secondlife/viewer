@@ -2894,8 +2894,8 @@ void hide_top_view( LLView* view )
 }
 
 
-// x and y are the desired location for the popup, NOT necessarily the
-// mouse location
+// x and y are the desired location for the popup, in the spawning_view's
+// coordinate frame, NOT necessarily the mouse location
 // static
 void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 {
@@ -3435,7 +3435,7 @@ void LLMenuHolderGL::setActivatedItem(LLMenuItemGL* item)
 LLTearOffMenu::LLTearOffMenu(LLMenuGL* menup) : 
 	LLFloater(LLSD())
 {
-	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
+	S32 floater_header_size = getHeaderHeight();
 
 	setName(menup->getName());
 	setTitle(menup->getLabel());
@@ -3479,7 +3479,6 @@ LLTearOffMenu::~LLTearOffMenu()
 
 void LLTearOffMenu::draw()
 {
-	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
 	mMenu->setBackgroundVisible(isBackgroundOpaque());
 	mMenu->needsArrange();
 

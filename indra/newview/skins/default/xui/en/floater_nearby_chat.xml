@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater 
+<floater
+ legacy_header_height="18"
  can_minimize="true"
  can_tear_off="false"
  can_resize="false"
@@ -14,6 +15,7 @@
  save_rect="true"
  title="Nearby Chat"
  save_visibility="true"
+ single_instance="true"
  width="320">
             <chat_history
              allow_html="true" 

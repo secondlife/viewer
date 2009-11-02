@@ -47,6 +47,8 @@ class LLVFS;
 class LLWatchdogTimeout;
 class LLWorkerThread;
 
+struct apr_dso_handle_t;
+
 
 class LLAppViewer : public LLApp
 {
@@ -124,7 +126,7 @@ public:
     virtual void forceErrorLLError();
     virtual void forceErrorBreakpoint();
     virtual void forceErrorBadMemoryAccess();
-    virtual void forceErrorInifiniteLoop();
+    virtual void forceErrorInfiniteLoop();
     virtual void forceErrorSoftwareException();
     virtual void forceErrorDriverCrash();
 
@@ -210,6 +212,8 @@ private:
     void sendLogoutRequest();
     void disconnectViewer();
 
+	void loadEventHostModule(S32 listen_port);
+	
 	// *FIX: the app viewer class should be some sort of singleton, no?
 	// Perhaps its child class is the singleton and this should be an abstract base.
 	static LLAppViewer* sInstance; 
@@ -255,6 +259,8 @@ private:
 
     LLAllocator mAlloc;
 
+	std::set<struct apr_dso_handle_t*> mPlugins;
+
 public:
 	//some information for updater
 	typedef struct
@@ -263,6 +269,8 @@ public:
 		std::ostringstream mParams;
 	}LLUpdaterInfo ;
 	static LLUpdaterInfo *sUpdaterInfo ;
+
+	void launchUpdater();
 };
 
 // consts from viewer.h
@@ -274,13 +282,7 @@ const S32 AGENT_UPDATES_PER_SECOND  = 10;
 // "// llstartup" indicates that llstartup is the only client for this global.
 
 extern LLSD gDebugInfo;
-
-extern BOOL	gAllowTapTapHoldRun;
 extern BOOL	gShowObjectUpdates;
-
-extern BOOL gAcceptTOS;
-extern BOOL gAcceptCriticalMessage;
-
 
 typedef enum 
 {
@@ -298,10 +300,6 @@ extern U32 gFrameCount;
 extern U32 gForegroundFrameCount;
 
 extern LLPumpIO* gServicePump;
-
-// Is the Pacific time zone (aka server time zone)
-// currently in daylight savings time?
-extern BOOL gPacificDaylightTime;
 
 extern U64      gFrameTime;					// The timestamp of the most-recently-processed frame
 extern F32		gFrameTimeSeconds;			// Loses msec precision after ~4.5 hours...

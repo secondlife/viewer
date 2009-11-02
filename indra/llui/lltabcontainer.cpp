@@ -44,6 +44,7 @@
 #include "lluictrlfactory.h"
 #include "llrender.h"
 #include "llfloater.h"
+#include "lltrans.h"
 
 //----------------------------------------------------------------------------
 
@@ -153,6 +154,8 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mRightTabBtnOffset(p.tab_padding_right),
 	mTotalTabWidth(0),
 	mTabPosition(p.tab_position),
+	mFontHalign(p.font_halign),
+	mFont(p.font.isProvided() ? p.font() : (mIsVertical ? LLFontGL::getFontSansSerif() : LLFontGL::getFontSansSerifSmall())),
 	mFirstTabParams(p.first_tab),
 	mMiddleTabParams(p.middle_tab),
 	mLastTabParams(p.last_tab)
@@ -401,12 +404,6 @@ void LLTabContainer::draw()
 					}
 				}
 			}
-			LLUI::pushMatrix();
-			{
-				LLUI::translate((F32)tuple->mButton->getRect().mLeft, (F32)tuple->mButton->getRect().mBottom, 0.f);
-				tuple->mButton->draw();
-			}
-			LLUI::popMatrix();
 
 			idx++;
 		}
@@ -641,12 +638,6 @@ BOOL LLTabContainer::handleToolTip( S32 x, S32 y, MASK mask)
 				}
 			}
 		}
-
-		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
-		{
-			LLTabTuple* tuple = *iter;
-			tuple->mButton->setVisible( FALSE );
-		}
 	}
 	return handled;
 }
@@ -836,8 +827,6 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 		// already a child of mine
 		return;
 	}
-	const LLFontGL* font =
-		(mIsVertical ? LLFontGL::getFontSansSerif() : LLFontGL::getFontSansSerifSmall());
 
 	// Store the original label for possible xml export.
 	child->setLabel(label);
@@ -847,7 +836,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	S32 button_width = mMinTabWidth;
 	if (!mIsVertical)
 	{
-		button_width = llclamp(font->getWidth(trimmed_label) + tab_padding, mMinTabWidth, mMaxTabWidth);
+		button_width = llclamp(mFont->getWidth(trimmed_label) + tab_padding, mMinTabWidth, mMaxTabWidth);
 	}
 	
 	// Tab panel
@@ -934,7 +923,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 		params.name(trimmed_label);
 		params.rect(btn_rect);
 		params.initial_value(trimmed_label);
-		params.font(font);
+		params.font(mFont);
 		textbox = LLUICtrlFactory::create<LLTextBox> (params);
 		
 		LLButton::Params p;
@@ -950,12 +939,12 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 			p.rect(btn_rect);
 			p.follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT);
 			p.click_callback.function(boost::bind(&LLTabContainer::onTabBtn, this, _2, child));
-			p.font(font);
+			p.font(mFont);
 			p.label(trimmed_label);
 			p.image_unselected(mMiddleTabParams.tab_left_image_unselected);
 			p.image_selected(mMiddleTabParams.tab_left_image_selected);
 			p.scale_image(true);
-			p.font_halign = LLFontGL::LEFT;
+			p.font_halign = mFontHalign;
 			p.tab_stop(false);
 			if (indent)
 			{
@@ -965,18 +954,13 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 		}
 		else
 		{
-			std::string tooltip = trimmed_label;
-			tooltip += "\nAlt-Left arrow for previous tab";
-			tooltip += "\nAlt-Right arrow for next tab";
-
 			LLButton::Params p;
 			p.name(std::string(child->getName()) + " tab");
 			p.rect(btn_rect);
 			p.click_callback.function(boost::bind(&LLTabContainer::onTabBtn, this, _2, child));
-			p.font(font);
+			p.font(mFont);
 			p.label(trimmed_label);
 			p.visible(false);
-			p.tool_tip(tooltip);
 			p.scale_image(true);
 			p.image_unselected(tab_img);
 			p.image_selected(tab_selected_img);
@@ -984,7 +968,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 			// Try to squeeze in a bit more text
 			p.pad_left(4);
 			p.pad_right(2);
-			p.font_halign = LLFontGL::LEFT;
+			p.font_halign = mFontHalign;
 			p.follows.flags = FOLLOWS_LEFT;
 			p.follows.flags = FOLLOWS_LEFT;
 	
@@ -1505,7 +1489,6 @@ void LLTabContainer::setTabImage(LLPanel* child, std::string image_name, const L
 
 		if (!mIsVertical)
 		{
-			const LLFontGL* fontp = LLFontGL::getFontSansSerifSmall();
 			// remove current width from total tab strip width
 			mTotalTabWidth -= tuple->mButton->getRect().getWidth();
 
@@ -1516,7 +1499,7 @@ void LLTabContainer::setTabImage(LLPanel* child, std::string image_name, const L
 			tuple->mPadding = image_overlay_width;
 
 			tuple->mButton->setRightHPad(6);
-			tuple->mButton->reshape(llclamp(fontp->getWidth(tuple->mButton->getLabelSelected()) + tab_padding + tuple->mPadding, mMinTabWidth, mMaxTabWidth), 
+			tuple->mButton->reshape(llclamp(mFont->getWidth(tuple->mButton->getLabelSelected()) + tab_padding + tuple->mPadding, mMinTabWidth, mMaxTabWidth), 
 									tuple->mButton->getRect().getHeight());
 			// add back in button width to total tab strip width
 			mTotalTabWidth += tuple->mButton->getRect().getWidth();

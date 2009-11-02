@@ -32,9 +32,9 @@
  */
 
 #ifndef LLBASE32_H
-#define LLBASE32_h
+#define LLBASE32_H
 
-class LLBase32
+class LL_COMMON_API LLBase32
 {
 public:
 	static std::string encode(const U8* input, size_t input_size);

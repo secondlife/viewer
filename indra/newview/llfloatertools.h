@@ -51,6 +51,7 @@ class LLRadioGroup;
 class LLSlider;
 class LLTabContainer;
 class LLTextBox;
+class LLMediaCtrl;
 class LLTool;
 class LLParcelSelection;
 class LLObjectSelection;
@@ -107,6 +108,8 @@ public:
 	void onClickBtnAddMedia();
 	void onClickBtnEditMedia();
 	void clearMediaSettings();
+	void updateMediaTitle();
+	void navigateToTitleMedia( const std::string url );
 	bool selectedMediaEditable();
 
 private:
@@ -181,6 +184,9 @@ public:
 
 	LLParcelSelectionHandle	mParcelSelection;
 	LLObjectSelectionHandle	mObjectSelection;
+
+	LLMediaCtrl				*mTitleMedia;
+	bool					mNeedMediaTitle;
 
 private:
 	BOOL					mDirty;

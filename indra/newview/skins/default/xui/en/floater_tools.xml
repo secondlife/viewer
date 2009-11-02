@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ legacy_header_height="18"
  follows="left|top|right"
  height="570"
  layout="topleft"
+ bg_opaque_image="Window_NoTitle_Foreground"
+ bg_alpha_image="Window_NoTitle_Background"
  name="toolbox floater"
  help_topic="toolbox_floater"
  save_rect="true"
@@ -207,71 +210,71 @@
      layout="topleft"
      name="move_radio_group">
         <radio_item
-      top_pad="6"
+         top_pad="6"
          label="Move"
          layout="topleft"
          name="radio move" />
         <radio_item
-      top_pad="6"
+		 top_pad="6"
          label="Lift (Ctrl)"
          layout="topleft"
          name="radio lift" />
         <radio_item
-      top_pad="6"
+         top_pad="6"
          label="Spin (Ctrl+Shift)"
          layout="topleft"
          name="radio spin" />
 		 <radio_group.commit_callback
-	     function="BuildTool.commitRadioMove"/>
-   </radio_group>
-    <radio_group
+			function="BuildTool.commitRadioMove"/>
+	</radio_group>
+	<radio_group
      follows="left|top"
-      left="10"
-      top="54"
-      height="70"
+	 left="10"
+	 top="54"
+	 height="70"
      layout="topleft"
-     name="edit_radio_group">
+	 name="edit_radio_group">
         <radio_item
-         label="Move"
-         layout="topleft"
-         name="radio position" />
+		 label="Move"
+		 layout="topleft"
+		 name="radio position" />
         <radio_item
-      top_pad="6"
+		 top_pad="6"
          label="Rotate (Ctrl)"
          layout="topleft"
          name="radio rotate" />
         <radio_item
-      top_pad="6"
+		 top_pad="6"
          label="Stretch (Ctrl+Shift)"
          layout="topleft"
          name="radio stretch" />
         <radio_item
-      top_pad="6"
-         label="Select Texture"
+		 top_pad="6"
+         label="Select Face"
          layout="topleft"
          name="radio select face" />
-		  <radio_group.commit_callback
-	     function="BuildTool.commitRadioEdit"/>
+			<radio_group.commit_callback
+			function="BuildTool.commitRadioEdit"/>
     </radio_group>
     <check_box
      left="10"
      follows="left|top"
      height="16"
-      control_name="EditLinkedParts"
+	 control_name="EditLinkedParts"
      label="Edit linked"
      layout="topleft"
      name="checkbox edit linked parts" >
 		  <check_box.commit_callback
-	     function="BuildTool.selectComponent"/>
+			function="BuildTool.selectComponent"/>
 	</check_box>
-        <check_box
+	<check_box
      control_name="ScaleUniform"
      height="19"
      label="Stretch Both Sides"
      layout="topleft"
      left="143"
      name="checkbox uniform"
-      top="50"
+	 top="50"
      width="134" />
     <check_box
      control_name="ScaleStretchTextures"
@@ -312,7 +315,7 @@
 		 <combo_box.commit_callback
 	     function="BuildTool.gridMode"/>
     </combo_box>
-   <button
+    <button
      left_pad="0"
      image_disabled="ForwardArrow_Disabled"
      image_selected="ForwardArrow_Press"
@@ -746,6 +749,7 @@
     <tab_container
      follows="left|top"
      height="400"
+     halign="center"
      left="0"
      name="Object Info Tabs"
      tab_max_width="55"
@@ -754,24 +758,24 @@
      tab_height="25"
      top="170"
      width="280">
-        <panel
-         border="false"
-         follows="all"
-         label="General"
-         layout="topleft"
-         mouse_opaque="false"
-         help_topic="toolbox_general_tab"
-         name="General"
-         top="16"
-         width="280">
-            <panel.string
-             name="text deed continued">
-                Deed
-            </panel.string>
-            <panel.string
-             name="text deed">
-                Deed
-            </panel.string>
+	<panel
+	 border="false"
+	 follows="all"
+	 label="General"
+	 layout="topleft"
+	 mouse_opaque="false"
+	 help_topic="toolbox_general_tab"
+	 name="General"
+	 top="16"
+	 width="280">
+	 <panel.string
+	  name="text deed continued">
+		Deed
+	 </panel.string>
+	<panel.string
+	 name="text deed">
+		Deed
+	</panel.string>
             <panel.string
              name="text modify info 1">
                 You can modify this object
@@ -912,21 +916,21 @@
              width="75">
                 Group:
             </text>
-           <button
-     follows="top|left"
-     height="10"
-     image_disabled="Activate_Checkmark"
-     image_selected="Activate_Checkmark"
-     image_unselected="Activate_Checkmark"
-     image_color="White_50"
-     layout="topleft"
-     left_pad="0"
-     top_delta="0"
-     name="button set group"
-     picture_style="true"
-     tab_stop="false"
-     tool_tip="Choose a group to share this object's permissions"
-     width="10" />
+            <button
+			 follows="top|left"
+			 height="10"
+			 image_disabled="Activate_Checkmark"
+			 image_selected="Activate_Checkmark"
+			 image_unselected="Activate_Checkmark"
+			 image_color="White_50"
+			 layout="topleft"
+			 left_pad="0"
+			 top_delta="0"
+			 name="button set group"
+			 picture_style="true"
+			 tab_stop="false"
+			 tool_tip="Choose a group to share this object's permissions"
+			 width="10" />
             <name_box
              follows="left|top"
              height="18"
@@ -1046,15 +1050,15 @@
         height="20"
         max_val="999999999" />
       <check_box
-             height="15"
-             width="110"
-             top_pad="3"
-             label="Show in search"
+	   height="15"
+	   width="110"
+	   top_pad="3"
+	   label="Show in search"
        layout="topleft"
-        left="100"
+	   left="100"
        name="search_check"
        tool_tip="Let people see this object in search results" />
-<panel
+		<panel
          border="false"
          follows="left|top"
          layout="topleft"
@@ -2353,7 +2357,7 @@
              left_delta="0"
              name="combobox texgen"
              top_pad="4"
-             width="87">
+             width="60">
                 <combo_box.item
                  label="Default"
                  name="Default"
@@ -2372,7 +2376,7 @@
              name="label shininess"
              left_pad="5"
              top_pad="-36"
-             width="80">
+             width="60">
                 Shininess
             </text>
             <combo_box
@@ -2381,7 +2385,7 @@
              left_delta="0"
              name="combobox shininess"
              top_pad="4"
-             width="80">
+             width="60">
                 <combo_box.item
                  label="None"
                  name="None"
@@ -2584,9 +2588,9 @@
              height="19"
              increment="1"
              initial_value="0"
-	    label="Rotation˚"
+			 label="Rotation˚"
              layout="topleft"
-	    label_width="100"
+			 label_width="100"
              left="10"
              max_val="9999"
              min_val="-9999"
@@ -2599,9 +2603,9 @@
              follows="left|top"
              height="19"
              initial_value="1"
-	    label="Repeats / Meter"
+			 label="Repeats / Meter"
              layout="topleft"
-	    label_width="100"
+			 label_width="100"
              left="10"
              max_val="10"
              min_val="0.1"
@@ -2654,7 +2658,7 @@
              name="TexOffsetV"
              top_pad="1"
              width="160" />
-      <panel
+        <panel
          border="false"
          follows="left|top"
          layout="topleft"
@@ -2667,88 +2671,99 @@
          height="75"
          width="278">
             <text
-           type="string"
-           length="1"
-           follows="left|top"
-           height="12"
-           layout="topleft"
-           left="10"
-           top_pad="5"
-           name="media_tex"
-           width="260">
-            Media URL
-	    </text>
-	    <line_editor
-             follows="left|top|right"
-             height="18"
-             layout="topleft"
-             left="10"
-	    read_only="true"
-             name="media_info"
-             select_on_focus="true"
-             width="220" />
-            <button
-            follows="top|left"
-            height="18"
-            image_selected="AddItem_Press"
-            image_unselected="AddItem_Off"
-            image_disabled="AddItem_Disabled"
-            layout="topleft"
-            left_pad="0"
-            name="add_media"
-            picture_style="true"
-            tab_stop="false"
-            top_delta="0"
-            tool_tip="Add media"
-            width="18">
-            <button.commit_callback
-		function="BuildTool.AddMedia"/>
-	</button>
-            <button
-                 follows="bottom|left"
-                 height="18"
-                 image_selected="TrashItem_Press"
-                 image_unselected="TrashItem_Off"
-                 layout="topleft"
-                 left_pad="5"
-                 name="delete_media"
-                 picture_style="true"
-                 right="-10"
-                 tool_tip="Delete this media texture"
-                 top_delta="0"
-                 width="18">
-	    <button.commit_callback
-		function="BuildTool.DeleteMedia"/>
-	     </button>
-         <button
+             type="string"
+             length="1"
              follows="left|top"
-             font="SansSerifSmall"
-             height="19"
-             label="Align"
-             label_selected="Align Media"
+             height="12"
              layout="topleft"
              left="10"
-             name="button align"
              top_pad="5"
-             width="100" />
-              <button
-               follows="bottom|left"
-               tool_tip="Change sort and view of recent residents list"
-               height="18"
-               image_disabled="OptionsMenu_Disabled"
-               image_selected="OptionsMenu_Press"
-               image_unselected="OptionsMenu_Off"
-               layout="topleft"
-               left_pad="10"
-               name="edit_media"
-               picture_style="true"
-               top_delta="0"
-               width="18">
-               <button.commit_callback
-		function="BuildTool.EditMedia"/>
-	       </button>
-            </panel>
-        </panel>
+             name="media_tex"
+             width="260">
+              Media URL
+			</text>
+			<line_editor
+			 follows="left|top|right"
+			 height="18"
+			 layout="topleft"
+			 left="10"
+			 read_only="true"
+			 name="media_info"
+			 select_on_focus="true"
+			 width="180" />
+			<button
+			 follows="top|left"
+			 height="18"
+			 image_selected="AddItem_Press"
+			 image_unselected="AddItem_Off"
+			 image_disabled="AddItem_Disabled"
+			 layout="topleft"
+			 left_pad="0"
+			 name="add_media"
+			 picture_style="true"
+			 tab_stop="false"
+			 top_delta="0"
+			 tool_tip="Add Media"
+			 width="18">
+				<button.commit_callback
+				function="BuildTool.AddMedia"/>
+			</button>
+			<button
+			 follows="top|left"
+			 height="18"
+			 image_selected="TrashItem_Press"
+			 image_unselected="TrashItem_Off"
+			 layout="topleft"
+			 left_pad="5"
+			 name="delete_media"
+			 picture_style="true"
+			 tool_tip="Delete this media texture"
+			 top_delta="0"
+			 width="18">
+				<button.commit_callback
+				function="BuildTool.DeleteMedia"/>
+			</button>
+			<button
+			 follows="top|left"
+			 tool_tip="Edit this Media"
+			 height="18"
+			 image_disabled="OptionsMenu_Disabled"
+			 image_selected="OptionsMenu_Press"
+			 image_unselected="OptionsMenu_Off"
+			 layout="topleft"
+			 left_pad="10"
+			 name="edit_media"
+			 picture_style="true"
+			 top_delta="0"
+			 width="18">
+				<button.commit_callback
+				function="BuildTool.EditMedia"/>
+			</button>
+      <web_browser
+        visible="false"
+        enabled="false"
+        border_visible="true"
+        bottom_delta="0"
+        follows="top|left"
+        left="0"
+        name="title_media"
+        width="4"
+        height="4"
+        start_url="about:blank"
+        decouple_texture_size="true" />
+     <button
+			 follows="left|top"
+			 font="SansSerifSmall"
+			 height="19"
+			 label="Align"
+			 label_selected="Align Media"
+			 layout="topleft"
+			 left="10"
+			 name="button align"
+			 top_pad="5"
+			 width="100" />
+		</panel>
+	   </panel>
        <panel
          border="false"
          follows="all"
@@ -2786,10 +2801,10 @@
              name="contents_inventory"
              top="50"
              width="260" />
-	 </panel>
+		</panel>
         </tab_container>
-<panel
-      follows="left|top"
+	<panel
+	 follows="left|top"
      height="384"
      layout="topleft"
      left_delta="0"
@@ -2836,8 +2851,8 @@
         <button
          follows="left|top"
          height="20"
-         label="Land profile"
-         label_selected="Land profile"
+         label="About Land"
+         label_selected="About Land"
          layout="topleft"
          left_delta="0"
          name="button about land"

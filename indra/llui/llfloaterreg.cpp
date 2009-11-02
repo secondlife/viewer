@@ -36,6 +36,7 @@
 
 #include "llfloater.h"
 #include "llmultifloater.h"
+#include "llfloaterreglistener.h"
 
 //*******************************************************
 
@@ -44,6 +45,8 @@ LLFloaterReg::instance_list_t LLFloaterReg::sNullInstanceList;
 LLFloaterReg::instance_map_t LLFloaterReg::sInstanceMap;
 LLFloaterReg::build_map_t LLFloaterReg::sBuildMap;
 std::map<std::string,std::string> LLFloaterReg::sGroupMap;
+
+static LLFloaterRegListener sFloaterRegListener("LLFloaterReg");
 
 //*******************************************************
 
@@ -124,7 +127,7 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 				bool success = LLUICtrlFactory::getInstance()->buildFloater(res, xui_file, NULL);
 				if (!success)
 				{
-					llwarns << "Failed to buid floater type: '" << name << "'." << llendl;
+					llwarns << "Failed to build floater type: '" << name << "'." << llendl;
 					return NULL;
 				}
 					
@@ -249,7 +252,7 @@ bool LLFloaterReg::hideInstance(const std::string& name, const LLSD& key)
 bool LLFloaterReg::toggleInstance(const std::string& name, const LLSD& key)
 {
 	LLFloater* instance = findInstance(name, key); 
-	if (instance && !instance->isMinimized() && instance->isInVisibleChain())
+	if (LLFloater::isShown(instance))
 	{
 		// When toggling *visibility*, close the host instead of the floater when hosted
 		if (instance->getHost())
@@ -269,14 +272,7 @@ bool LLFloaterReg::toggleInstance(const std::string& name, const LLSD& key)
 bool LLFloaterReg::instanceVisible(const std::string& name, const LLSD& key)
 {
 	LLFloater* instance = findInstance(name, key); 
-	if (instance && !instance->isMinimized() && instance->isInVisibleChain())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return LLFloater::isShown(instance);
 }
 
 //static
@@ -366,6 +362,26 @@ std::string LLFloaterReg::declareVisibilityControl(const std::string& name)
 												 TRUE);
 	return controlname;
 }
+
+//static
+std::string LLFloaterReg::declareDockStateControl(const std::string& name)
+{
+	std::string controlname = getDockStateControlName(name);
+	LLUI::sSettingGroups["floater"]->declareBOOL(controlname, FALSE,
+												 llformat("Window Docking state for %s", name.c_str()),
+												 TRUE);
+	return controlname;
+
+}
+
+//static
+std::string LLFloaterReg::getDockStateControlName(const std::string& name)
+{
+	std::string res = std::string("floater_dock_") + name;
+	LLStringUtil::replaceChar( res, ' ', '_' );
+	return res;
+}
+
 
 //static
 void LLFloaterReg::registerControlVariables()

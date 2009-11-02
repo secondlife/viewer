@@ -8,6 +8,7 @@
  left="102" 
  mouse_opaque="true"
  name="Media Settings General" 
+ help_topic = "media_settings_general"
  width="365">
 	
   <text 
@@ -31,6 +32,27 @@
     <!--  <line_editor.commit_callback
 	     function="Media.CommitHomeURL"/> -->
   </line_editor>
+
+  <web_browser
+   border_visible="true"
+   bottom_delta="-133"
+   follows="top|left"
+   left="120"
+   name="preview_media"
+   width="128"
+   height="128"
+   start_url="about:blank"
+   decouple_texture_size="true" />
+  
+  <text
+   bottom_delta="-15"
+   follows="top|left"
+   height="15"
+   left="164"
+   name="">
+    Preview
+  </text>
+  
   <text 
    bottom_delta="-20" 
    follows="top|left" 
@@ -61,27 +83,6 @@
    <button.commit_callback
 	     function="Media.ResetCurrentUrl"/>
   </button>
-
-  <web_browser 
-   border_visible="false" 
-   bottom_delta="-133" 
-   follows="top|left"
-   left="120" 
-   name="preview_media" 
-   width="128" 
-   height="128" 
-   start_url="about:blank" 
-   decouple_texture_size="true" />
-
-  <text 
-   bottom_delta="-15" 
-   follows="top|left" 
-   height="15" 
-   left="164" 
-   name="">
-    Preview
-  </text>
-
   <text 
    bottom_delta="-5" 
    follows="top|left" 
@@ -135,7 +136,8 @@
 
   <check_box 
    bottom_delta="-25" 
-   enabled="true" 
+   visible="false" 
+   enabled="false" 
    follows="left|top" 
    font="SansSerifSmall"
    height="16" 
@@ -148,7 +150,7 @@
    width="150" />
 
   <check_box 
-   bottom_delta="-25" 
+   bottom_delta="0" 
    enabled="true" 
    follows="left|top"
    font="SansSerifSmall"
@@ -158,20 +160,6 @@
    left_delta="0" 
    mouse_opaque="true"
    name="auto_zoom" 
-   radio_style="false" 
-   width="150" />
-
-  <check_box 
-   bottom_delta="-25" 
-   enabled="true" 
-   follows="left|top" 
-   font="SansSerifSmall"
-   height="16" 
-   initial_value="false"
-   label="Use Default Alternative Image" 
-   left="10" 
-   mouse_opaque="true"
-   name="alt_image_enable" 
    radio_style="false" 
    width="150" />
 
@@ -234,7 +222,7 @@
    label="" 
    label_width="0"
    left_delta="40" 
-   max_val="2000" 
+   max_val="2048" 
    min_val="0" 
    mouse_opaque="true"
    name="width_pixels" 
@@ -246,7 +234,7 @@
   <spinner bottom_delta="0"
 	     decimal_digits="0" enabled="true" follows="left|top" height="16"
 	     increment="1" initial_val="256" label="" label_width="0"
-	     left_delta="20" max_val="2000" min_val="0" mouse_opaque="true"
+	     left_delta="20" max_val="2048" min_val="0" mouse_opaque="true"
 	     name="height_pixels" width="50" />
  
 </panel>

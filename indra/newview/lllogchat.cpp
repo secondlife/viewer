@@ -36,6 +36,8 @@
 #include "llappviewer.h"
 #include "llfloaterchat.h"
 #include "lltrans.h"
+#include "llviewercontrol.h"
+#include "llsdserialize.h"
 
 const S32 LOG_RECALL_SIZE = 2048;
 
@@ -89,41 +91,53 @@ std::string LLLogChat::timestamp(bool withdate)
 
 
 //static
-void LLLogChat::saveHistory(std::string filename, std::string line)
+void LLLogChat::saveHistory(const std::string& filename,
+			    const std::string& from,
+			    const LLUUID& from_id,
+			    const std::string& line)
 {
+	if (!gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
+		return;
+
 	if(!filename.size())
 	{
 		llinfos << "Filename is Empty!" << llendl;
 		return;
 	}
 
-	LLFILE* fp = LLFile::fopen(LLLogChat::makeLogFileName(filename), "a"); 		/*Flawfinder: ignore*/
-	if (!fp)
+	llofstream file (LLLogChat::makeLogFileName(filename), std::ios_base::app);
+	if (!file.is_open())
 	{
 		llinfos << "Couldn't open chat history log!" << llendl;
+		return;
 	}
-	else
-	{
-		fprintf(fp, "%s\n", line.c_str());
-		
-		fclose (fp);
-	}
+
+	LLSD item;
+
+	if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
+		 item["time"] = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate"));
+
+	item["from"]	= from;
+	item["from_id"]	= from_id;
+	item["message"]	= line;
+
+	file << LLSDOStreamer <LLSDNotationFormatter>(item) << std::endl;
+
+	file.close();
 }
 
-void LLLogChat::loadHistory(std::string filename , void (*callback)(ELogLineType,std::string,void*), void* userdata)
+void LLLogChat::loadHistory(const std::string& filename, void (*callback)(ELogLineType, const LLSD&, void*), void* userdata)
 {
 	if(!filename.size())
 	{
 		llwarns << "Filename is Empty!" << llendl;
 		return ;
 	}
-
+        
 	LLFILE* fptr = LLFile::fopen(makeLogFileName(filename), "r");		/*Flawfinder: ignore*/
 	if (!fptr)
 	{
-		//LLUIString message = LLTrans::getString("IM_logging_string");
-		//callback(LOG_EMPTY,"IM_logging_string",userdata);
-		callback(LOG_EMPTY,LLStringUtil::null,userdata);
+		callback(LOG_EMPTY, LLSD(), userdata);
 		return;			//No previous conversation with this name.
 	}
 	else
@@ -143,6 +157,9 @@ void LLLogChat::loadHistory(std::string filename , void (*callback)(ELogLineType
 			}
 		}
 
+		// the parser's destructor is protected so we cannot create in the stack.
+		LLPointer<LLSDParser> parser = new LLSDNotationParser();
+
 		while ( fgets(buffer, LOG_RECALL_SIZE, fptr)  && !feof(fptr) ) 
 		{
 			len = strlen(buffer) - 1;		/*Flawfinder: ignore*/
@@ -150,14 +167,25 @@ void LLLogChat::loadHistory(std::string filename , void (*callback)(ELogLineType
 			
 			if (!firstline)
 			{
-				callback(LOG_LINE,std::string(buffer),userdata);
+				LLSD item;
+				std::string line(buffer);
+				std::istringstream iss(line);
+				if (parser->parse(iss, item, line.length()) == LLSDParser::PARSE_FAILURE)
+				{
+					item["message"]	= line;
+					callback(LOG_LINE, item, userdata);
+				}
+				else
+				{
+					callback(LOG_LLSD, item, userdata);
+				}
 			}
 			else
 			{
 				firstline = FALSE;
 			}
 		}
-		callback(LOG_END,LLStringUtil::null,userdata);
+		callback(LOG_END, LLSD(), userdata);
 		
 		fclose(fptr);
 	}

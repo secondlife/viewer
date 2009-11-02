@@ -34,6 +34,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llfloatersearch.h"
 #include "llmediactrl.h"
+#include "llagent.h"
 
 
 LLFloaterSearch::LLFloaterSearch(const LLSD& key) :
@@ -116,6 +117,14 @@ void LLFloaterSearch::search(const LLSD &key)
 	// append the search query string
 	std::string search_text = key.has("id") ? key["id"].asString() : "";
 	url += std::string("?q=") + search_text;
+
+	// append the maturity and teen capabilities for this agent
+	BOOL godlike = gAgent.isGodlike();
+	bool mature_enabled = gAgent.canAccessMature() || godlike;
+	bool adult_enabled = gAgent.canAccessAdult() || godlike;
+	std::string mature = (mature_enabled) ? "True" : "False";
+	std::string teen = (!adult_enabled) ? "True" : "False";
+	url += "&t=" + teen + "&m=" + mature;
 
 	// and load the URL in the web view
 	mBrowser->navigateTo(url);

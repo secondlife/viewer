@@ -37,6 +37,8 @@
 
 #include "llavatarlistitem.h"
 
+class LLTimer;
+
 /**
  * Generic list of avatars.
  * 
@@ -56,11 +58,12 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> 
 	{
 		Optional<bool> ignore_online_status; // show all items as online
+		Optional<bool> show_last_interaction_time; // show most recent interaction time. *HACK: move this to a derived class
 		Params();
 	};
 
 	LLAvatarList(const Params&);
-	virtual	~LLAvatarList() {}
+	virtual	~LLAvatarList();
 
 	virtual void draw(); // from LLView
 
@@ -70,7 +73,11 @@ public:
 
 	void setContextMenu(LLAvatarListItem::ContextMenu* menu) { mContextMenu = menu; }
 
+	void toggleIcons();
 	void sortByName();
+	void setShowIcons(std::string param_name);
+	bool getIconsVisible() const { return mShowIcons; }
+	const std::string getIconParamName() const{return mIconParamName;}
 	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 protected:
@@ -81,12 +88,17 @@ protected:
 		const std::vector<LLUUID>& vnew,
 		std::vector<LLUUID>& vadded,
 		std::vector<LLUUID>& vremoved);
+	void updateLastInteractionTimes();
 
 private:
 
 	bool mIgnoreOnlineStatus;
+	bool mShowLastInteractionTime;
 	bool mDirty;
+	bool mShowIcons;
 
+	LLTimer*				mLITUpdateTimer; // last interaction time update timer
+	std::string				mIconParamName;
 	std::string				mNameFilter;
 	uuid_vector_t			mIDs;
 

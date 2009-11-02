@@ -221,7 +221,8 @@ void LLFloaterNotificationConsole::removeChannel(const std::string& name)
 //static 
 void LLFloaterNotificationConsole::updateResizeLimits()
 {
-	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
+	const LLFloater::Params& floater_params = LLFloater::getDefaultParams();
+	S32 floater_header_size = floater_params.header_height;
 
 	LLLayoutStack& stack = getChildRef<LLLayoutStack>("notification_channels");
 	setResizeLimits(getMinWidth(), floater_header_size + HEADER_PADDING + ((NOTIFICATION_PANEL_HEADER_HEIGHT + 3) * stack.getNumPanels()));

@@ -33,7 +33,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "lleventinfo.h"
 
-#include "llappviewer.h"	// for gPacificDaylightTime
 #include "lluuid.h"
 #include "message.h"
 
@@ -87,35 +86,19 @@ void LLEventInfo::unpack(LLMessageSystem *msg)
 }
 
 // static
-void LLEventInfo::loadCategories(LLUserAuth::options_t event_options)
+void LLEventInfo::loadCategories(const LLSD& options)
 {
-	LLUserAuth::options_t::iterator resp_it;
-	for (resp_it = event_options.begin(); 
-		 resp_it != event_options.end(); 
-		 ++resp_it)
+	for(LLSD::array_const_iterator resp_it = options.beginArray(),
+		end = options.endArray(); resp_it != end; ++resp_it)
 	{
-		const LLUserAuth::response_t& response = *resp_it;
-
-		LLUserAuth::response_t::const_iterator option_it;
-
-		S32 cat_id = 0;
-		option_it = response.find("category_id");
-		if (option_it != response.end())
+		LLSD name = (*resp_it)["category_name"];
+		if(name.isDefined())
 		{
-			cat_id = atoi(option_it->second.c_str());
+			LLSD id = (*resp_it)["category_id"];
+			if(id.isDefined())
+			{
+				LLEventInfo::sCategories[id.asInteger()] = name.asString();
+			}
 		}
-		else
-		{
-			continue;
-		}
-
-		// Add the category id/name pair
-		option_it = response.find("category_name");
-		if (option_it != response.end())
-		{
-			LLEventInfo::sCategories[cat_id] = option_it->second;
-		}
-
 	}
-
 }

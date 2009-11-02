@@ -176,6 +176,7 @@ public:
 	BOOL			getToggleState() const;
 	void			setToggleState(BOOL b);
 
+	void			setHighlight(bool b);
 	void			setFlashing( BOOL b );
 	BOOL			getFlashing() const		{ return mFlashing; }
 
@@ -241,8 +242,8 @@ public:
 	void		setForcePressedState(BOOL b) { mForcePressedState = b; }
 	
 protected:
-	const LLPointer<LLUIImage>&	getImageUnselected() const	{ return mImageUnselected; }
-	const LLPointer<LLUIImage>& getImageSelected() const	{ return mImageSelected; }
+	LLPointer<LLUIImage> getImageUnselected() const	{ return mImageUnselected; }
+	LLPointer<LLUIImage> getImageSelected() const	{ return mImageSelected; }
 
 	LLFrameTimer	mMouseDownTimer;
 

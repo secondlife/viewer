@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ legacy_header_height="18"
  auto_tile="true"
  can_resize="true"
  default_tab_group="1"
@@ -83,7 +84,7 @@
         Loading...
     </text_editor>
     <button
-     follows="left|bottom"
+     follows="right|bottom"
      height="22"
      label="Save"
      label_selected="Save"

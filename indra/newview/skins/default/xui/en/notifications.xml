@@ -13,7 +13,7 @@
   <global name="implicitclosebutton">
 		Close
   </global>
-    
+
   <template name="okbutton">
     <form>
       <button
@@ -154,7 +154,7 @@ No tutorial is currently available.
    icon="alertmodal.tga"
    name="BadInstallation"
    type="alertmodal">
- An error occurred while updating [APP_NAME].  Please download the latest version of the Viewer. http://get.secondlife.com
+ An error occurred while updating [APP_NAME].  Please [http://get.secondlife.com download the latest version] of the Viewer.
     <usetemplate
      name="okbutton"
      yestext="Ok"/>
@@ -507,7 +507,7 @@ For L$[COST] you can enter this land (&apos;[PARCEL_NAME]&apos;) for [TIME] hour
      notext="Cancel"
      yestext="OK"/>
   </notification>
-  
+
   <notification
    icon="alertmodal.tga"
    name="SalePriceRestriction"
@@ -664,7 +664,7 @@ Scripts must be allowed to run for weapons to work.
    icon="alertmodal.tga"
    name="MultipleFacesSelected"
    type="alertmodal">
-Multiple faces are currently selected. 
+Multiple faces are currently selected.
 If you continue this action, separate instances of media will be set on multiple faces of the object.
 To place the media on only one face, choose Select Texture and click on the desired face of that object then click Add.
     <usetemplate
@@ -672,6 +672,19 @@ To place the media on only one face, choose Select Texture and click on the desi
      notext="Cancel"
      yestext="OK"/>
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="WhiteListInvalidatesHomeUrl"
+   type="alertmodal">
+Adding this entry to the whitelist will invalidate the home URL you
+specified for this instance of media. You are not allowed to do this
+so the entry cannot be added to the whitelist.
+    <usetemplate
+     name="okbutton"
+     yestext="Ok"/>
+  </notification>
+
 
   <notification
    icon="alertmodal.tga"
@@ -778,7 +791,7 @@ Oops! Something was left blank.
 You need to enter both the First and Last name of your avatar.
 
 You need an account to enter [SECOND_LIFE]. Would you like to create one now?
-    <url 
+    <url
 	option="0"
 	name="url"
 	openexternally = "1">
@@ -795,7 +808,7 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
    icon="alertmodal.tga"
    name="AddClassified"
    type="alertmodal">
-Classified ads appear in the &apos;Classified&apos; section of the Search directory and on www.secondlife.com for one week.
+Classified ads appear in the &apos;Classified&apos; section of the Search directory and on [http://www.secondlife.com secondlife.com] for one week.
 Fill out your ad, then click &apos;Publish...&apos; to add it to the directory.
 You&apos;ll be asked for a price to pay when clicking Publish.
 Paying more makes your ad appear higher in the list, and also appear higher when people search for keywords.
@@ -1047,13 +1060,13 @@ There was a problem saving a compiled script due to the following reason: [REASO
    icon="alertmodal.tga"
    name="StartRegionEmpty"
    type="alertmodal">
-Oops, Your Start Region is not defined. 
-Please type the Region name in Start Location box or choose My Last Location or My Home as your Start Location.  
+Oops, Your Start Region is not defined.
+Please type the Region name in Start Location box or choose My Last Location or My Home as your Start Location.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
   </notification>
-  
+
   <notification
    icon="alertmodal.tga"
    name="CouldNotStartStopScript"
@@ -2396,7 +2409,7 @@ You can use [SECOND_LIFE] normally and other people will see you correctly.
 [APP_NAME] installation is complete.
 
 If this is your first time using [SECOND_LIFE], you will need to create an account before you can log in.
-Return to www.secondlife.com to create a new account?
+Return to [http://join.secondlife.com secondlife.com] to create a new account?
     <usetemplate
      name="okcancelbuttons"
      notext="Continue"
@@ -2413,7 +2426,7 @@ You can either check your Internet connection and try again in a few minutes, cl
     <url option="1" name="url">
 
 			http://secondlife.com/support/
-    </url>	 
+    </url>
     <form name="form">
       <button
        default="true"
@@ -2788,7 +2801,7 @@ Do you want to open your Web browser to view this content?
    icon="alertmodal.tga"
    name="WebLaunchJoinNow"
    type="alertmodal">
-Go to secondlife.com to manage your account?
+Go to your [http://secondlife.com/account/ Dashboard] to manage your account?
     <usetemplate
      ignoretext="Launch my browser to manage my account"
      name="okcancelignore"
@@ -3150,7 +3163,7 @@ Teleport to [PICK]?
      notext="Cancel"
      yestext="Teleport"/>
   </notification>
-  
+
   <notification
    icon="alert.tga"
    label="Message everyone in your Estate"
@@ -3644,7 +3657,7 @@ Default: off
    label="Bulk Change Content Permissions"
    name="HelpBulkPermission"
    type="alertmodal">
-The Bulk Permissions tool helps you to quickly change the permissions on multiple items in the contents of the selected object(s).  However, please note that you are only setting permissions on the items in the Contents of the selected objects -- not permissions on the container object(s) themselves.  
+The Bulk Permissions tool helps you to quickly change the permissions on multiple items in the contents of the selected object(s).  However, please note that you are only setting permissions on the items in the Contents of the selected objects -- not permissions on the container object(s) themselves.
 
 Also note, the permissions are not applied to the nested contents of any of the contained items.  Your request only operates on items exactly one level deep.
 
@@ -4238,7 +4251,7 @@ There are no items in this object that you are allowed to copy.
    icon="alertmodal.tga"
    name="WebLaunchAccountHistory"
    type="alertmodal">
-Go to secondlife.com to see your account history?
+Go to  your [http://secondlife.com/account/ Dashboard] to see your account history?
     <usetemplate
      ignoretext="Launch my browser to see my account history"
      name="okcancelignore"
@@ -4275,14 +4288,9 @@ Are you sure you want to quit?
    icon="alertmodal.tga"
    name="HelpReportAbuseEmailLL"
    type="alertmodal">
-Use this tool to report violations of the Terms of Service and Community Standards. See:
+Use this tool to report violations of the [http://secondlife.com/corporate/tos.php Terms of Service] and [http://secondlife.com/corporate/cs.php Community Standards].
 
-http://secondlife.com/corporate/tos.php
-http://secondlife.com/corporate/cs.php
-
-All reported abuses of the Terms of Service and Community Standards are investigated and resolved. You can view the incident resolution on the Incident Report at:
-
-http://secondlife.com/support/incidentreport.php
+All reported abuses are investigated and resolved. You can view the resolution by reading the [http://secondlife.com/support/incidentreport.php Incident Report].
    <unique/>
   </notification>
 
@@ -4350,9 +4358,9 @@ Dear Resident,
 
 You appear to be reporting intellectual property infringement. Please make sure you are reporting it correctly:
 
-(1) The Abuse Process. You may submit an abuse report if you believe a Resident is exploiting the [SECOND_LIFE] permissions system, for example, by using CopyBot or similar copying tools, to infringe intellectual property rights. The Abuse Team investigates and issues appropriate disciplinary action for behavior that violates the [SECOND_LIFE] Community Standards or Terms of Service. However, the Abuse Team does not handle and will not respond to requests to remove content from the [SECOND_LIFE] world.
+(1) The Abuse Process. You may submit an abuse report if you believe a Resident is exploiting the [SECOND_LIFE] permissions system, for example, by using CopyBot or similar copying tools, to infringe intellectual property rights. The Abuse Team investigates and issues appropriate disciplinary action for behavior that violates the [SECOND_LIFE] [http://secondlife.com/corporate/tos.php Terms of Service] or [http://secondlife.com/corporate/cs.php Community Standards]. However, the Abuse Team does not handle and will not respond to requests to remove content from the [SECOND_LIFE] world.
 
-(2) The DMCA or Content Removal Process. To request removal of content from [SECOND_LIFE], you MUST submit a valid notification of infringement as provided in our DMCA Policy at http://secondlife.com/corporate/dmca.php.
+(2) The DMCA or Content Removal Process. To request removal of content from [SECOND_LIFE], you MUST submit a valid notification of infringement as provided in our [http://secondlife.com/corporate/dmca.php DMCA Policy].
 
 If you still wish to continue with the abuse process, please close this window and finish submitting your report.  You may need to select the specific category &apos;CopyBot or Permissions Exploit&apos;.
 
@@ -5450,7 +5458,7 @@ Deactivated gestures with same trigger:
    name="NoQuickTime"
    type="notify">
 Apple&apos;s QuickTime software does not appear to be installed on your system.
-If you want to view streaming media on parcels that support it you should go to the QuickTime site (http://www.apple.com/quicktime) and install the QuickTime Player.
+If you want to view streaming media on parcels that support it you should go to the [http://www.apple.com/quicktime QuickTime site] and install the QuickTime Player.
   </notification>
   <notification
    icon="notify.tga"
@@ -5514,7 +5522,7 @@ The objects on the selected parcel that are NOT owned by you have been returned 
    type="notify">
 [MSG]
   </notification>
-  
+
   <notification
    icon="notify.tga"
    name="NotSafe"
@@ -5824,15 +5832,11 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
       <button
        index="0"
        name="Keep"
-       text="OK"/>
+       text="Accept"/>
       <button
        index="1"
        name="Discard"
-       text="Cancel"/>
-      <button
-       index="2"
-       name="Mute"
-       text="Block"/>
+       text="No, thanks"/>
     </form>
   </notification>
 
@@ -6138,10 +6142,9 @@ Your L$ balance is shown in the upper-right.
    type="notify">
 Thank you for your payment!
 
-When the processing completes, your L$ balance will be updated at the top of your screen.
-If processing your payment takes more than 20 minutes to complete, the purchase amount will be credited to your account for use on your next purchase.
+Your L$ balance will be updated when processing completes. If processing takes more than 20 mins, your transaction may be cancelled. In that case, the purchase amount will be credited to your US$ balance.
 
-The status of your payment can be checked on your Transaction History page at Me > My Dashboard, or http://secondlife.com/account/
+The status of your payment can be checked on your Transaction History page on your [http://secondlife.com/account/ Dashboard]
   </notification>
   <notification
    icon="notify.tga"
@@ -6595,12 +6598,11 @@ Yes
   <global name="PermNo">
 No
   </global>
-<!-- this is alert string from server. the name needs to match entire the server string, and needs to be changed 
-	whenever the server string changes --> 
+<!-- this is alert string from server. the name needs to match entire the server string, and needs to be changed
+	whenever the server string changes -->
    <global name="You can only set your 'Home Location' on your land or at a mainland Infohub.">
-If you own a piece of land, you can make it your home location. 
+If you own a piece of land, you can make it your home location.
 Otherwise, you can look at the Map and find places marked &quot;Infohub&quot;.
-  </global> 
-  
-</notifications>
+  </global>
 
+</notifications>

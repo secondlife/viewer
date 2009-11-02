@@ -34,6 +34,7 @@
 #define LLCHATHISTORY_H_
 
 #include "lltexteditor.h"
+#include "llchat.h"
 
 //Chat log widget allowing addition of a message as a widget 
 class LLChatHistory : public LLTextEditor
@@ -52,7 +53,7 @@ class LLChatHistory : public LLTextEditor
 			//Widget left padding from the scroll rect
 			Optional<S32>			left_widget_pad;
 			//Widget right padding from the scroll rect
-			Optional<S32>			rigth_widget_pad;
+			Optional<S32>			right_widget_pad;
 
 			Params()
 			:	message_header("message_header"),
@@ -60,7 +61,7 @@ class LLChatHistory : public LLTextEditor
 				left_text_pad("left_text_pad"),
 				right_text_pad("right_text_pad"),
 				left_widget_pad("left_widget_pad"),
-				rigth_widget_pad("rigth_widget_pad")
+				right_widget_pad("right_widget_pad")
 				{
 				}
 
@@ -85,7 +86,7 @@ class LLChatHistory : public LLTextEditor
 		 * @param time time of a message.
 		 * @return pointer to LLView header object.
 		 */
-		LLView* getHeader(const LLUUID& avatar_id, std::string& from, std::string& time);
+		LLView* getHeader(const LLChat& chat);
 
 	public:
 		~LLChatHistory();
@@ -94,11 +95,11 @@ class LLChatHistory : public LLTextEditor
 		 * Appends a widget message.
 		 * If last user appended message, concurs with current user,
 		 * separator is added before the message, otherwise header is added.
-		 * @param from owner of a message.
+		 * @param chat - base chat message.
 		 * @param time time of a message.
 		 * @param message message itself.
 		 */
-		void appendWidgetMessage(const LLUUID& avatar_id, std::string& from, std::string& time, std::string& message, LLStyle::Params& style_params);
+		void appendWidgetMessage(const LLChat& chat, LLStyle::Params& style_params);
 
 	private:
 		std::string mLastFromName;

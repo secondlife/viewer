@@ -40,6 +40,8 @@
 #include "llbottomtray.h"
 #include "llviewerwindow.h"
 #include "llrootview.h"
+#include "llsyswellwindow.h"
+#include "llfloaterreg.h"
 
 #include <algorithm>
 
@@ -128,7 +130,7 @@ void LLChannelManager::onLoginCompleted()
 	S32 channel_right_bound = gViewerWindow->getWorldViewRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
 	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
 	mStartUpChannel->init(channel_right_bound - channel_width, channel_right_bound);
-	mStartUpChannel->setShowToasts(true);
+	mStartUpChannel->setMouseDownCallback(boost::bind(&LLSysWellWindow::onStartUpToastClick, LLFloaterReg::getTypedInstance<LLSysWellWindow>("syswell_window"), _2, _3, _4));
 
 	mStartUpChannel->setCommitCallback(boost::bind(&LLChannelManager::onStartUpToastClose, this));
 	mStartUpChannel->createStartUpToast(away_notifications, gSavedSettings.getS32("StartUpToastLifeTime"));

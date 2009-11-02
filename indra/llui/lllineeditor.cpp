@@ -1544,18 +1544,24 @@ void LLLineEditor::drawBackground()
 		image = mBgImage;
 	}
 	
+	F32 alpha = getDrawContext().mAlpha;
 	// optionally draw programmatic border
 	if (has_focus)
 	{
+		LLColor4 tmp_color = gFocusMgr.getFocusColor();
+		tmp_color.setAlpha(alpha);
 		image->drawBorder(0, 0, getRect().getWidth(), getRect().getHeight(),
-						  gFocusMgr.getFocusColor(),
+						  tmp_color,
 						  gFocusMgr.getFocusFlashWidth());
 	}
-	image->draw(getLocalRect());
+	LLColor4 tmp_color = UI_VERTEX_COLOR;
+	tmp_color.setAlpha(alpha);
+	image->draw(getLocalRect(), tmp_color);
 }
 
 void LLLineEditor::draw()
 {
+	F32 alpha = getDrawContext().mAlpha;
 	S32 text_len = mText.length();
 	static LLUICachedControl<S32> lineeditor_cursor_thickness ("UILineEditorCursorThickness", 0);
 	static LLUICachedControl<S32> lineeditor_v_pad ("UILineEditorVPad", 0);
@@ -1608,8 +1614,10 @@ void LLLineEditor::draw()
 	{
 		text_color = mReadOnlyFgColor.get();
 	}
+	text_color.setAlpha(alpha);
 	LLColor4 label_color = mTentativeFgColor.get();
-
+	label_color.setAlpha(alpha);
+	
 	if (hasPreeditString())
 	{
 		// Draw preedit markers.  This needs to be before drawing letters.
@@ -1632,7 +1640,7 @@ void LLLineEditor::draw()
 						preedit_pixels_right - preedit_standout_gap - 1,
 						background.mBottom + preedit_standout_position - preedit_standout_thickness,
 						(text_color * preedit_standout_brightness 
-						 + mPreeditBgColor * (1 - preedit_standout_brightness)).setAlpha(1.0f));
+						 + mPreeditBgColor * (1 - preedit_standout_brightness)).setAlpha(alpha/*1.0f*/));
 				}
 				else
 				{
@@ -1641,7 +1649,7 @@ void LLLineEditor::draw()
 						preedit_pixels_right - preedit_marker_gap - 1,
 						background.mBottom + preedit_marker_position - preedit_marker_thickness,
 						(text_color * preedit_marker_brightness
-						 + mPreeditBgColor * (1 - preedit_marker_brightness)).setAlpha(1.0f));
+						 + mPreeditBgColor * (1 - preedit_marker_brightness)).setAlpha(alpha/*1.0f*/));
 				}
 			}
 		}
@@ -1684,15 +1692,17 @@ void LLLineEditor::draw()
 		if( (rendered_pixels_right < (F32)mMaxHPixels) && (rendered_text < text_len) )
 		{
 			LLColor4 color = mHighlightColor;
+			color.setAlpha(alpha);
 			// selected middle
 			S32 width = mGLFont->getWidth(mText.getWString().c_str(), mScrollHPos + rendered_text, select_right - mScrollHPos - rendered_text);
 			width = llmin(width, mMaxHPixels - llround(rendered_pixels_right));
 			gl_rect_2d(llround(rendered_pixels_right), cursor_top, llround(rendered_pixels_right)+width, cursor_bottom, color);
 
+			LLColor4 tmp_color( 1.f - text_color.mV[0], 1.f - text_color.mV[1], 1.f - text_color.mV[2], alpha );
 			rendered_text += mGLFont->render( 
 				mText, mScrollHPos + rendered_text,
 				rendered_pixels_right, text_bottom,
-				LLColor4( 1.f - text_color.mV[0], 1.f - text_color.mV[1], 1.f - text_color.mV[2], 1 ),
+				tmp_color,
 				LLFontGL::LEFT, LLFontGL::BOTTOM,
 				0,
 				LLFontGL::NO_SHADOW,
@@ -1758,8 +1768,9 @@ void LLLineEditor::draw()
 					cursor_right, cursor_bottom, text_color);
 				if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection())
 				{
+					LLColor4 tmp_color( 1.f - text_color.mV[0], 1.f - text_color.mV[1], 1.f - text_color.mV[2], alpha );
 					mGLFont->render(mText, getCursor(), (F32)(cursor_left + lineeditor_cursor_thickness / 2), text_bottom, 
-						LLColor4( 1.f - text_color.mV[0], 1.f - text_color.mV[1], 1.f - text_color.mV[2], 1 ),
+						tmp_color,
 						LLFontGL::LEFT, LLFontGL::BOTTOM,
 						0,
 						LLFontGL::NO_SHADOW,

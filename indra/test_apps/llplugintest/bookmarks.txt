@@ -8,7 +8,15 @@
 (WK) Canvas Paint (DHTML version of MS Paint),http://www.canvaspaint.org
 (WK) DHTML Lemmings!,http://www.elizium.nu/scripts/lemmings/
 (WK) DHTML graphics demos,http://www.dhteumeuleu.com/
-(WK) Neat Javascript 3D,http://gyu.que.jp/jscloth/
+(WK) Shared paint app,http://colorillo.com/ac79?1l0q6cp
+(Flash) YouTube,http://youtube.com
+(Flash) Vimeo,http://www.vimeo.com/1778399
+(Flash) Simple whiteboard,http://www.imaginationcubed.com/
+(Flash) Dabble Board,http://www.dabbleboard.com/draw
+(Flash) Bubble Shooter game,http://www.wiicade.com/playGame.aspx?gameID=72&gameName=Bubble%20Shooter 
+(Flash) Pixlr photo editor,http://pixlr.com/editor/
+(Flash) Scribd,http://www.scribd.com/doc/14427744/Second-Life-Quickstart-Guide
+(Flash) MAME,http://yvern.com/fMAME/fMAME.html
 (QT) Local sample,file:///C|/Program Files/QuickTime/Sample.mov
 (QT) Movie - Watchmen Trailer,http://movies.apple.com/movies/wb/watchmen/watchmen-tlr2_480p.mov
 (QT) Movie - Transformers - Revenge of the Fallen,http://movies.apple.com/movies/paramount/transformers2/transformersrevengeofthefallen-tlr1_h.320.mov
@@ -26,3 +34,4 @@
 (QT) Movie - The Informers,http://movies.apple.com/movies/independent/theinformers/theinformers_h.320.mov
 (QT) Animated GIF,http://upload.wikimedia.org/wikipedia/commons/4/44/Optical.greysquares.arp-animated.gif
 (QT) Apple Text Descriptors,http://ubrowser.com/tmp/apple_text.txt
+(EX) Example Plugin,example://blah

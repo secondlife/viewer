@@ -7,12 +7,14 @@
     <avatar_list
      color="DkGray2"
      follows="left|top|right|bottom"
-     height="150"
+     height="130"
+     ignore_online_status="true"
      layout="topleft"
      left="3"
      name="speakers_list"
+     opaque="false"
      top="10"
-     width="140"/>
+     width="140" />
     <button
      name="group_info_btn"
      label="Group Info"
@@ -24,4 +26,10 @@
      label="Call"
      width="90"
      height="20" />
+    <button
+     name="end_call_btn"
+     label="End Call"
+     width="90"
+     height="20" 
+     visible="false"/>
 </panel>

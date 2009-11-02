@@ -43,7 +43,7 @@
 class LLReflective;
 class LLMetaProperty;
 class LLMetaMethod;
-class LLMetaClass
+class LL_COMMON_API LLMetaClass
 {
 public:
 

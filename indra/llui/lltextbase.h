@@ -154,6 +154,9 @@ public:
 	LLRect					getContentsRect();
 	LLRect					getVisibleDocumentRect() const;
 
+	S32						getVPad() { return mVPad; }
+	S32						getHPad() { return mHPad; }
+
 
 	S32						getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const;
 	LLRect					getLocalRectFromDocIndex(S32 pos) const;
@@ -294,7 +297,7 @@ protected:
 	void 							endSelection();
 
 	// misc
-	void							updateTextRect();
+	void							updateRects();
 	void							needsReflow() { mReflowNeeded = TRUE; }
 	void							needsScroll() { mScrollNeeded = TRUE; }
 	void							replaceUrlLabel(const std::string &url, const std::string &label);
@@ -459,7 +462,17 @@ public:
 class LLInlineViewSegment : public LLTextSegment
 {
 public:
-	LLInlineViewSegment(LLView* widget, S32 start, S32 end, bool force_new_line, S32 hpad = 0, S32 vpad = 0);
+	struct Params : public LLInitParam::Block<Params>
+	{
+		Mandatory<LLView*>		view;
+		Optional<bool>			force_newline;
+		Optional<S32>			left_pad,
+								right_pad,
+								bottom_pad,
+								top_pad;
+	};
+
+	LLInlineViewSegment(const Params& p, S32 start, S32 end);
 	~LLInlineViewSegment();
 	/*virtual*/ void		getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	/*virtual*/ S32			getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
@@ -470,8 +483,10 @@ public:
 	/*virtual*/ void		linkToDocument(class LLTextBase* editor);
 
 private:
-	S32 mHPad;
-	S32 mVPad;
+	S32 mLeftPad;
+	S32 mRightPad;
+	S32 mTopPad;
+	S32 mBottomPad;
 	LLView* mView;
 	bool	mForceNewLine;
 };
