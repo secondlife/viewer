@@ -1336,6 +1336,7 @@ LLTalkButton::LLTalkButton(const Params& p)
 
 	// never show "muted" because you can't mute yourself
 	mOutputMonitor->setIsMuted(false);
+	mOutputMonitor->setIsAgentControl(true);
 }
 
 LLTalkButton::~LLTalkButton()
