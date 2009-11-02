@@ -184,9 +184,8 @@ void LLLandmarksPanel::updateVerbs()
 	if (!isTabVisible()) 
 		return;
 
-	BOOL enabled = isLandmarkSelected();
-	mTeleportBtn->setEnabled(enabled);
-	mShowOnMapBtn->setEnabled(enabled);
+	mTeleportBtn->setEnabled(isActionEnabled("teleport"));
+	mShowOnMapBtn->setEnabled(isActionEnabled("show_on_map"));
 
 	// TODO: mantipov: Uncomment when mShareBtn is supported
 	// Share button should be enabled when neither a folder nor a landmark is selected
