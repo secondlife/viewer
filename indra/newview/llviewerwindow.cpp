@@ -2452,17 +2452,33 @@ void LLViewerWindow::updateUI()
 	BOOL handled_by_top_ctrl = FALSE;
 	LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
 	LLMouseHandler* mouse_captor = gFocusMgr.getMouseCapture();
+	LLView* captor_view = dynamic_cast<LLView*>(mouse_captor);
+
+	//FIXME: only include captor and captor's ancestors if mouse is truly over them --RN
 
 	//build set of views containing mouse cursor by traversing UI hierarchy and testing 
 	//screen rect against mouse cursor
 	view_handle_set_t mouse_hover_set;
 
-	// start at current mouse captor (if is a view) or UI root
-	LLView* root_view = NULL;
-	root_view = dynamic_cast<LLView*>(mouse_captor);
+	// constraint mouse enter events to children of mouse captor
+	LLView* root_view = captor_view;
+
+	// if mouse captor doesn't exist or isn't a LLView
+	// then allow mouse enter events on entire UI hierarchy
 	if (!root_view)
 	{
 		root_view = mRootView;
+	}
+
+	// include all ancestors of captor_view as automatically having mouse
+	if (captor_view)
+	{
+		LLView* captor_parent_view = captor_view->getParent();
+		while(captor_parent_view)
+		{
+			mouse_hover_set.insert(captor_parent_view->getHandle());
+			captor_parent_view = captor_parent_view->getParent();
+		}
 	}
 
 	// aggregate visible views that contain mouse cursor in display order

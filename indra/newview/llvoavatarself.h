@@ -57,6 +57,7 @@ public:
 	virtual void			markDead();
 	virtual void 		initInstance(); // Called after construction to initialize the class.
 protected:
+	/*virtual*/ BOOL		loadAvatar();
 	BOOL					loadAvatarSelf();
 	BOOL					buildSkeletonSelf(const LLVOAvatarSkeletonInfo *info);
 	BOOL					buildMenus();
@@ -89,6 +90,7 @@ public:
 	/*virtual*/ BOOL setVisualParamWeight(const char* param_name, F32 weight, BOOL set_by_user = FALSE );
 	/*virtual*/ BOOL setVisualParamWeight(S32 index, F32 weight, BOOL set_by_user = FALSE );
 	/*virtual*/ void updateVisualParams();
+	/*virtual*/ void idleUpdateAppearanceAnimation();
 
 private:
 	// helper function. Passed in param is assumed to be in avatar's parameter list.

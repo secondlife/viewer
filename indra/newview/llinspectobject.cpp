@@ -35,10 +35,12 @@
 
 // Viewer
 #include "llinspect.h"
+#include "llmediaentry.h"
 #include "llnotifications.h"	// *TODO: Eliminate, add LLNotificationsUtil wrapper
 #include "llselectmgr.h"
 #include "llslurl.h"
 #include "llviewermenu.h"		// handle_object_touch(), handle_buy()
+#include "llviewermedia.h"
 #include "llviewerobjectlist.h"	// to select the requested object
 
 // Linden libraries
@@ -92,8 +94,10 @@ private:
 	void updateName(LLSelectNode* nodep);
 	void updateDescription(LLSelectNode* nodep);
 	void updatePrice(LLSelectNode* nodep);
-	
 	void updateCreator(LLSelectNode* nodep);
+	
+	void updateMediaCurrentURL();	
+	void updateSecureBrowsing();
 		
 	void onClickBuy();
 	void onClickPay();
@@ -106,13 +110,17 @@ private:
 	
 private:
 	LLUUID				mObjectID;
+	S32					mObjectFace;
+	viewer_media_t		mMediaImpl;
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
 };
 
 LLInspectObject::LLInspectObject(const LLSD& sd)
 :	LLInspect( LLSD() ),	// single_instance, doesn't really need key
-	mObjectID(),			// set in onOpen()
-	mObjectSelection()
+	mObjectID(NULL),			// set in onOpen()
+	mObjectFace(0),
+	mObjectSelection(NULL),
+	mMediaImpl(NULL)
 {
 	// can't make the properties request until the widgets are constructed
 	// as it might return immediately, so do it in postBuild.
@@ -139,7 +147,7 @@ BOOL LLInspectObject::postBuild(void)
 	getChild<LLUICtrl>("object_name")->setValue("");
 	getChild<LLUICtrl>("object_creator")->setValue("");
 	getChild<LLUICtrl>("object_description")->setValue("");
-
+	getChild<LLUICtrl>("object_media_url")->setValue("");
 	// Set buttons invisible until we know what this object can do
 	hideButtons();
 
@@ -182,7 +190,11 @@ void LLInspectObject::onOpen(const LLSD& data)
 
 	// Extract appropriate avatar id
 	mObjectID = data["object_id"];
-
+	
+	if(data.has("object_face"))
+	{
+		mObjectFace = data["object_face"];
+	}
 	// Position the inspector relative to the mouse cursor
 	// Similar to how tooltips are positioned
 	// See LLToolTipMgr::createToolTip
@@ -213,6 +225,17 @@ void LLInspectObject::onOpen(const LLSD& data)
 			}
 		} functor;
 		mObjectSelection->applyToNodes(&functor);
+		
+		// Does this face have media?
+		const LLTextureEntry* tep = obj->getTE(mObjectFace);
+		if (!tep)
+			return;
+		
+		const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
+		if(!mep)
+			return;
+		
+		mMediaImpl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
 	}
 }
 
@@ -243,6 +266,30 @@ void LLInspectObject::update()
 	updateDescription(nodep);
 	updateCreator(nodep);
 	updatePrice(nodep);
+	
+	LLViewerObject* obj = nodep->getObject();
+	if(!obj)
+		return;
+	
+	if ( mObjectFace < 0 
+		||  mObjectFace >= obj->getNumTEs() )
+	{
+		return;
+	}
+	
+	// Does this face have media?
+	const LLTextureEntry* tep = obj->getTE(mObjectFace);
+	if (!tep)
+		return;
+	
+	const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
+	if(!mep)
+		return;
+	
+	mMediaImpl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
+	
+	updateMediaCurrentURL();
+	updateSecureBrowsing();
 }
 
 void LLInspectObject::hideButtons()
@@ -381,6 +428,40 @@ void LLInspectObject::updateDescription(LLSelectNode* nodep)
 	}
 }
 
+void LLInspectObject::updateMediaCurrentURL()
+{	
+	LLTextBox* textbox = getChild<LLTextBox>("object_media_url");
+	std::string media_url = "";
+	textbox->setValue(media_url);
+	textbox->setToolTip(media_url);
+	
+	if(mMediaImpl.notNull() && mMediaImpl->hasMedia())
+	{
+		LLStringUtil::format_map_t args;
+		LLPluginClassMedia* media_plugin = NULL;
+		media_plugin = mMediaImpl->getMediaPlugin();
+		if(media_plugin)
+		{
+			if(media_plugin->pluginSupportsMediaTime())
+			{
+				args["[CurrentURL]"] =  mMediaImpl->getMediaURL();
+			}
+			else
+			{
+				args["[CurrentURL]"] =  media_plugin->getLocation();
+			}
+			media_url = LLTrans::getString("CurrentURL", args);
+			textbox->setText(media_url);
+			textbox->setToolTip(media_url);
+		}
+	}
+	else
+	{
+		textbox->setText(media_url);
+		textbox->setToolTip(media_url);
+	}
+}
+
 void LLInspectObject::updateCreator(LLSelectNode* nodep)
 {
 	// final information for display
@@ -452,6 +533,40 @@ void LLInspectObject::updatePrice(LLSelectNode* nodep)
 	getChild<LLUICtrl>("price_text")->setValue(line);
 	getChild<LLUICtrl>("price_icon")->setVisible(show_price_icon);
 }
+
+void LLInspectObject::updateSecureBrowsing()
+{
+	bool is_secure_browsing = false;
+	
+	if(mMediaImpl.notNull() 
+	   && mMediaImpl->hasMedia())
+	{
+		LLPluginClassMedia* media_plugin = NULL;
+		std::string current_url = "";
+		media_plugin = mMediaImpl->getMediaPlugin();
+		if(media_plugin)
+		{
+			if(media_plugin->pluginSupportsMediaTime())
+			{
+				current_url = mMediaImpl->getMediaURL();
+			}
+			else
+			{
+				current_url =  media_plugin->getLocation();
+			}
+		}
+		
+		std::string prefix =  std::string("https://");
+		std::string test_prefix = current_url.substr(0, prefix.length());
+		LLStringUtil::toLower(test_prefix);	
+		if(test_prefix == prefix)
+		{
+			is_secure_browsing = true;
+		}
+	}
+	getChild<LLUICtrl>("secure_browsing")->setVisible(is_secure_browsing);
+}
+
 
 void LLInspectObject::onClickBuy()
 {

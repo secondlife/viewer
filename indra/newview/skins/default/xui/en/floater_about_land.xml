@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ legacy_header_height="18"
  can_tear_off="false"
  height="420"
  layout="topleft"
@@ -25,26 +26,28 @@
         remaining
     </floater.string>
     <tab_container
-     follows="left|top|right|bottom"
+     follows="all"
      height="400"
+   halign="center"
      layout="topleft"
      font="SansSerifSmall"
      left="1"
-       tab_padding_right="5"
+      tab_padding_right="5"
+      tab_height="20"
      name="landtab"
      tab_position="top"
      top="20"
      width="459">
-        <panel
+   <panel
          border="true"
-         follows="left|top|right|bottom"
+         follows="all"
          height="380"
          label="General"
          layout="topleft"
          left="1"
          help_topic="land_general_tab"
          name="land_general_panel"
-         top="-31"
+         top="0"
          width="458">
             <panel.string
              name="new users only">
@@ -533,7 +536,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
         </panel>
         <panel
          border="true"
-         follows="left|top|right|bottom"
+         follows="all"
          height="380"
          label="Covenant"
          layout="topleft"
@@ -629,7 +632,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              length="1"
              enabled="false"
              follows="left|top|right|bottom"
-             handle_edit_keys_directly="true" 
+             handle_edit_keys_directly="true"
              height="115"
              layout="topleft"
              left_delta="0"
@@ -800,7 +803,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
         </panel>
         <panel
          border="true"
-         follows="left|top|right|bottom"
+         follows="all"
          height="380"
          label="Objects"
          layout="topleft"
@@ -1166,7 +1169,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
         </panel>
         <panel
          border="true"
-         follows="left|top|right|bottom"
+         follows="all"
          height="333"
          label="Options"
          layout="topleft"
@@ -1602,16 +1605,15 @@ Only large parcels can be listed in search.
                  value="Anywhere" />
             </combo_box>
         </panel>
-        <panel
+     <panel
          border="true"
-         follows="left|top|right|bottom"
+         follows="all"
          height="363"
          label="Media"
          layout="topleft"
          left_delta="0"
          help_topic="land_media_tab"
          name="land_media_panel"
-         top_delta="1"
          width="458">
             <text
              type="string"
@@ -1622,24 +1624,22 @@ Only large parcels can be listed in search.
              left="10"
              name="with media:"
              top="9"
-             width="65">
+             width="100">
                 Type:
             </text>
             <combo_box
-             height="18"
+            height="20"
              layout="topleft"
-             left_pad="5"
+             left_pad="10"
              name="media type"
              tool_tip="Specify if the URL is a movie, web page, or other media"
-             top_delta="-2"
-             width="120" />
+             width="150" />
             <text
              follows="left|top"
              height="16"
              layout="topleft"
              left_pad="10"
              name="mime_type"
-             top_delta="2"
              width="200" />
             <text
              type="string"
@@ -1649,32 +1649,30 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="at URL:"
-             top="29"
-             width="65">
+             top_pad="10"
+             width="100">
                 Home URL:
             </text>
             <line_editor
-             bottom_delta="0"
              follows="left|top"
-             height="16"
+             height="20"
              layout="topleft"
-             left="80"
+             left_pad="10"
              max_length="255"
              name="media_url"
-             right="-80"
              select_on_focus="true"
-             text_readonly_color="0.576471 0.662745 0.835294 1" />
+             width="270"
+            />
             <button
              follows="left|top"
              font="SansSerifSmall"
-             height="16"
-             label="Set..."
-             label_selected="Set..."
+             height="20"
+             label="Set"
+             label_selected="Set"
              layout="topleft"
-             left_pad="8"
+             left_pad="5"
              name="set_media_url"
-             top_delta="0"
-             width="60" />
+             width="50" />
             <text
              type="string"
              length="1"
@@ -1683,37 +1681,34 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="CurrentURL:"
-             top="49"
-             width="65">
+             top_pad="10"
+             width="100">
                 Current URL:
             </text>
             <text
              follows="left|top"
              height="16"
              layout="topleft"
-             left_pad="5"
+             left_pad="10"
              name="current_url"
-             top_delta="0"
-             width="300" />
+             width="260">http://</text>
             <button
              follows="left|top"
-             font="SansSerifSmall"
-             height="16"
-             label="Reset..."
-             label_selected="Reset..."
+             height="20"
+             label="Reset"
+             label_selected="Reset"
              layout="topleft"
              left_pad="6"
              name="reset_media_url"
-             top_delta="0"
              width="60" />
             <check_box
              height="16"
              label="Hide URL"
              layout="topleft"
-             left="100"
+             left="120"
              name="hide_media_url"
              tool_tip="Checking this option will hide the media url to any non-authorized viewers of this parcel information. Note this is not available for HTML types."
-             top="89"
+             top_pad="2"
              width="200" />
             <text
              type="string"
@@ -1723,23 +1718,20 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="Description:"
-             top="49"
-             width="364">
+             top_pad="10"
+             width="100">
                 Description:
             </text>
             <line_editor
-             border_style="line"
-             border_thickness="1"
-             bottom_delta="0"
              follows="left|top"
-             height="16"
+             height="35"
              layout="topleft"
-             left="80"
-             max_length="255"
              name="url_description"
-             right="-80"
+             left_pad="10"
              select_on_focus="true"
-             tool_tip="Text displayed next to play/load button" />
+             tool_tip="Text displayed next to play/load button"
+             top_delta="0"
+             width="270" />
             <text
              type="string"
              length="1"
@@ -1748,10 +1740,9 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="Media texture:"
-             top="69"
-             width="364">
-                Replace
-Texture:
+             top_pad="10"
+             width="100">
+                Replace Texture:
             </text>
             <texture_picker
              allow_no_texture="true"
@@ -1759,7 +1750,7 @@ Texture:
              follows="left|top"
              height="80"
              layout="topleft"
-             left_delta="70"
+             left_pad="10"
              name="media texture"
              tool_tip="Click to choose a picture"
              top_delta="0"
@@ -1768,25 +1759,22 @@ Texture:
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="50"
              layout="topleft"
-             left_delta="75"
+             left_pad="10"
              name="replace_texture_help"
-             top="85"
-             width="270">
-                Objects using this texture will show the movie or
-        web page after you click the play arrow.
-
-        Select the thumbnail to choose a different texture.
+             top_delta="0"
+             word_wrap="true"
+             width="240">
+                Objects using this texture will show the movie or  web page after you click the play arrow.
             </text>
             <check_box
              height="16"
              label="Auto scale"
              layout="topleft"
-             left_delta="70"
              name="media_auto_scale"
              tool_tip="Checking this option will scale the content for this parcel automatically. It may be slightly slower and lower quality visually but no other texture scaling or alignment will be required."
-             top_delta="0"
+             top_pad="3"
              width="200" />
             <text
              type="string"
@@ -1794,11 +1782,11 @@ Texture:
              follows="left|top"
              height="16"
              layout="topleft"
-             left="85"
+             left="10"
+             top_pad="10"
              name="media_size"
              tool_tip="Size to render Web media, leave 0 for default."
-             top="185"
-             width="85">
+             width="100">
                 Size:
             </text>
             <spinner
@@ -1810,12 +1798,22 @@ Texture:
              increment="1"
              initial_value="0"
              layout="topleft"
-             left_delta="65"
+             left_pad="10"
              max_val="1024"
              name="media_size_width"
              tool_tip="Size to render Web media, leave 0 for default."
              top_delta="0"
              width="64" />
+                         <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_pad="5"
+             name="pixels">
+                px wide
+            </text>
             <spinner
              decimal_digits="0"
              enabled="false"
@@ -1825,23 +1823,21 @@ Texture:
              increment="1"
              initial_value="0"
              layout="topleft"
-             left_pad="16"
+             left="120"
+             top_pad="3"
              max_val="1024"
              name="media_size_height"
              tool_tip="Size to render Web media, leave 0 for default."
-             top_delta="0"
              width="64" />
             <text
              type="string"
              length="1"
-             bottom_delta="0"
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="70"
-             name="pixels"
-             right="-10">
-                pixels
+             left_pad="5"
+             name="pixels">
+                px high
             </text>
             <text
              type="string"
@@ -1851,15 +1847,15 @@ Texture:
              layout="topleft"
              left="10"
              name="Options:"
-             top="237"
-             width="292">
+             top_pad="10"
+             width="100">
                 Options:
             </text>
             <check_box
              height="16"
              label="Loop"
              layout="topleft"
-             left_delta="70"
+             left_pad="10"
              name="media_loop"
              tool_tip="Play media in a loop.  When the media has finished playing, it will restart from the beginning."
              top_delta="0"
@@ -1867,9 +1863,9 @@ Texture:
         </panel>
         <panel
          border="true"
-         follows="left|top|right|bottom"
+         follows="all"
          height="363"
-         label="Audio"
+         label="Sound"
          layout="topleft"
          left_delta="0"
          help_topic="land_audio_tab"
@@ -1971,7 +1967,7 @@ Texture:
         </panel>
         <panel
          border="true"
-         follows="left|top|right|bottom"
+         follows="all"
          height="333"
          label="Access"
          layout="topleft"

@@ -138,8 +138,6 @@ LLMediaPluginTest::LLMediaPluginTest( int app_window, int window_width, int wind
 	mMediaBrowserControlBackButtonFlag( true ),
 	mMediaBrowserControlForwardButtonFlag( true ),
 	mHomeWebUrl( "http://www.google.com/" )
-	//mHomeWebUrl( "file:///C|/Program Files/QuickTime/Sample.mov" )
-	//mHomeWebUrl( "http://movies.apple.com/movies/wb/watchmen/watchmen-tlr2_480p.mov" )
 {
 	// debugging spam
 	std::cout << std::endl << "             GLUT version: " << "3.7.6" << std::endl;	// no way to get real version from GLUT
@@ -277,8 +275,6 @@ void LLMediaPluginTest::bindTexture(GLuint texture, GLint row_length, GLint alig
 {
 	glEnable( GL_TEXTURE_2D );
 	
-//	std::cerr << "binding texture " << texture << std::endl;
-	
 	glBindTexture( GL_TEXTURE_2D, texture );
 	glPixelStorei( GL_UNPACK_ROW_LENGTH, row_length );
 	glPixelStorei( GL_UNPACK_ALIGNMENT, alignment );
@@ -410,7 +406,7 @@ void LLMediaPluginTest::draw( int draw_type )
 			// only bother with pick if we have something to render
 			// Actually, we need to pick even if we're not ready to render.  
 			// Otherwise you can't select and remove a panel which has gone bad.
-//			if ( mMediaPanels[ panel ]->mReadyToRender )
+			//if ( mMediaPanels[ panel ]->mReadyToRender )
 			{
 				glMatrixMode( GL_TEXTURE );
 				glPushMatrix();
@@ -621,10 +617,10 @@ void LLMediaPluginTest::idle()
 	if ( mSelectedPanel )
 	{
 		// set volume based on slider if we have time media
-//		if ( mGluiMediaTimeControlWindowFlag )
-//		{
-//			mSelectedPanel->mMediaSource->setVolume( (float)mMediaTimeControlVolume / 100.0f );
-//		};
+		//if ( mGluiMediaTimeControlWindowFlag )
+		//{
+		//	mSelectedPanel->mMediaSource->setVolume( (float)mMediaTimeControlVolume / 100.0f );
+		//};
 
 		// NOTE: it is absurd that we need cache the state of GLUI controls
 		//       but enabling/disabling controls drags framerate from 500+
@@ -1463,6 +1459,9 @@ std::string LLMediaPluginTest::mimeTypeFromUrl( std::string& url )
 	else
 	if ( url.find( ".txt" ) != std::string::npos )	// Apple Text descriptors
 		mime_type = "video/quicktime";
+	else
+	if ( url.find( "example://" ) != std::string::npos )	// Example plugin
+		mime_type = "example/example";
 
 	return mime_type;
 }
@@ -1487,6 +1486,9 @@ std::string LLMediaPluginTest::pluginNameFromMimeType( std::string& mime_type )
 	else
 	if ( mime_type == "text/html" )
 		plugin_name = "media_plugin_webkit.dll";
+	else
+	if ( mime_type == "example/example" )
+		plugin_name = "media_plugin_example.dll";
 
 #elif LL_LINUX
 	std::string plugin_name( "libmedia_plugin_null.so" );
@@ -1799,7 +1801,7 @@ void LLMediaPluginTest::getRandomMediaSize( int& width, int& height, std::string
 
 	// adjust this random size if it's a browser so we get 
 	// a more useful size for testing.. 
-	if ( mime_type == "text/html" )
+	if ( mime_type == "text/html" || mime_type == "example/example"  )
 	{
 		width = ( ( rand() % 100 ) + 100 ) * 4;
 		height = ( width * ( ( rand() % 400 ) + 1000 ) ) / 1000;

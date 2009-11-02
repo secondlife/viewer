@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ legacy_header_height="18"
  follows="left|top|right"
  height="570"
  layout="topleft"
+ bg_opaque_image="Window_NoTitle_Foreground"
+ bg_alpha_image="Window_NoTitle_Background"
  name="toolbox floater"
  help_topic="toolbox_floater"
  save_rect="true"
@@ -746,6 +749,7 @@
     <tab_container
      follows="left|top"
      height="400"
+     halign="center"
      left="0"
      name="Object Info Tabs"
      tab_max_width="55"
@@ -2735,8 +2739,19 @@
 				<button.commit_callback
 				function="BuildTool.EditMedia"/>
 			</button>
-
-			<button
+      <web_browser
+        visible="false"
+        enabled="false"
+        border_visible="true"
+        bottom_delta="0"
+        follows="top|left"
+        left="0"
+        name="title_media"
+        width="4"
+        height="4"
+        start_url="about:blank"
+        decouple_texture_size="true" />
+     <button
 			 follows="left|top"
 			 font="SansSerifSmall"
 			 height="19"

@@ -404,6 +404,20 @@ namespace LLInitParam
 		LLUIColor getValueFromBlock() const;
 	};
 
+	// provide a better default for Optional<const LLFontGL*> than NULL
+	template <>
+	struct DefaultInitializer<const LLFontGL*>
+	{
+		// return reference to a single default instance of T
+		// built-in types will be initialized to zero, default constructor otherwise
+		static const LLFontGL* get() 
+		{ 
+			static const LLFontGL* sDefaultFont = LLFontGL::getFontDefault();  
+			return sDefaultFont;
+		} 
+	};
+
+
 	template<>
 	class TypedParam<const LLFontGL*> 
 	:	public BlockValue<const LLFontGL*>

@@ -33,7 +33,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "lleventinfo.h"
 
-#include "llappviewer.h"	// for gPacificDaylightTime
 #include "lluuid.h"
 #include "message.h"
 

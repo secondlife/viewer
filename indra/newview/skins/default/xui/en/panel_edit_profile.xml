@@ -136,6 +136,7 @@
        layout="topleft"
        left="120"
        top="18"
+       max_length="512"
        name="sl_description_edit"
        width="173"
        word_wrap="true">
@@ -188,6 +189,7 @@
        height="100"
        layout="topleft"
        left="120"
+       max_length="512"
        top="142"
        name="fl_description_edit"
        width="173"

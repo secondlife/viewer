@@ -162,6 +162,8 @@ bool	LLNearbyChatScreenChannel::createPoolToast()
 	
 	LLToast::Params p;
 	p.panel = panel;
+	p.lifetime_secs = gSavedSettings.getS32("NearbyToastLifeTime");
+	p.fading_time_secs = gSavedSettings.getS32("NearbyToastFadingTime");
 
 	LLToast* toast = new LLToast(p); 
 	
@@ -324,6 +326,12 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 	if(!mChannel->getVisible())
 	{
 		initChannel();
+	}
+
+	//only messages from AGENTS
+	if(CHAT_SOURCE_OBJECT == chat_msg.mSourceType)
+	{
+		return;//dn't show toast for messages from objects
 	}
 
 	LLUUID id;

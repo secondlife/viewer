@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ legacy_header_height="18"
  can_dock="true"
  can_close="true"
- can_minimize="true"
+ can_minimize="false"
  center_horiz="true"
  follows="bottom"
  height="110"
@@ -37,7 +38,7 @@
         Fly Backwards (press Down Arrow or S)
     </string>
     <panel
-     border="true" 
+     border="false" 
      height="83"
      follows="left|top" 
      layout="topleft"
@@ -135,7 +136,7 @@
     </panel>
 <!-- Width and height of this panel should be synchronized with panel_stand_stop_flying.xml -->
     <panel
-     border="true" 
+     border="false" 
      height="27"
      layout="topleft"
      left="0"

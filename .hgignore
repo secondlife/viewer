@@ -1,6 +1,10 @@
 syntax: glob
 
+# WinMerge temp files
+*.bak
+# Compiled python bytecode
 *.pyc
+# Emacs temp files
 *~
 .*.swp
 LICENSES

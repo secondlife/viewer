@@ -302,6 +302,8 @@ void LLIMFloater::onSlide()
 	LLPanel* im_control_panel = getChild<LLPanel>("panel_im_control_panel");
 	im_control_panel->setVisible(!im_control_panel->getVisible());
 
+	gSavedSettings.setBOOL("IMShowControlPanel", im_control_panel->getVisible());
+
 	getChild<LLButton>("slide_left_btn")->setVisible(im_control_panel->getVisible());
 	getChild<LLButton>("slide_right_btn")->setVisible(!im_control_panel->getVisible());
 }
@@ -343,6 +345,8 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 		floater->setDockControl(new LLDockControl(chiclet, floater, floater->getDockTongue(),
 				LLDockControl::TOP,  boost::bind(&LLIMFloater::getAllowedRect, floater, _1)));
 	}
+
+	floater->childSetVisible("panel_im_control_panel", gSavedSettings.getBOOL("IMShowControlPanel"));
 
 	return floater;
 }
@@ -405,8 +409,6 @@ bool LLIMFloater::toggle(const LLUUID& session_id)
 	{
 		// ensure the list of messages is updated when floater is made visible
 		show(session_id);
-		// update number of unread notifications in the SysWell
-		LLBottomTray::getInstance()->getSysWell()->updateUreadIMNotifications();
 		return true;
 	}
 }
