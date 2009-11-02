@@ -134,6 +134,7 @@
     tab_title="Inventory"
     description="Browse your inventory."
     image="TabIcon_Inventory_Off"
+    image_selected="TabIcon_Inventory_Selected"
     mouse_opaque="false"
     background_visible="true"
   >

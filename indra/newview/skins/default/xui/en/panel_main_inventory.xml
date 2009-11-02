@@ -60,7 +60,7 @@
      left_delta="0"
      mouse_opaque="false"
      name="Inventory Menu"
-     top_delta="-38"
+     top_delta="-45"
      width="290">
         <menu
          height="101"
