@@ -38,6 +38,7 @@
 
 #include "llfloaterinventory.h" // for LLInventoryPanel
 #include "llfolderview.h" // for FIRST_SELECTED_ITEM
+#include "llinventorypanel.h"
 
 
 static const std::string LANDMARKS_INVENTORY_LIST_NAME("landmarks_list");
@@ -83,7 +84,7 @@ void LLPlacesLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		// they should be synchronized with Places/My Landmarks/Gear menu. See EXT-1601 
 	}
 
-	hideContextEntries(menu, items, disabled_items);
+	hide_context_entries(menu, items, disabled_items);
 }
 
 
@@ -116,7 +117,7 @@ void LLPlacesFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		// repeat parent functionality
  		sSelf = this; // necessary for "New Folder" functionality
 
-		hideContextEntries(menu, items, disabled_items);
+		hide_context_entries(menu, items, disabled_items);
 	}
 }
 

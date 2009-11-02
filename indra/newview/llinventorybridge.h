@@ -41,6 +41,7 @@
 #include "llfoldervieweventlistener.h"
 
 class LLInventoryPanel;
+class LLMenuGL;
 
 enum EInventoryIcon
 {
@@ -121,7 +122,7 @@ protected:
 };
 
 const std::string safe_inv_type_lookup(LLInventoryType::EType inv_type);
-void hideContextEntries(LLMenuGL& menu, 
+void hide_context_entries(LLMenuGL& menu, 
 						const std::vector<std::string> &entries_to_show,
 						const std::vector<std::string> &disabled_entries);
 
@@ -807,5 +808,9 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 
 void teleport_via_landmark(const LLUUID& asset_id);
 
+// Utility function to hide all entries except those in the list
+void hide_context_entries(LLMenuGL& menu, 
+		const std::vector<std::string> &entries_to_show, 
+		const std::vector<std::string> &disabled_entries);
 
 #endif // LL_LLINVENTORYBRIDGE_H

@@ -2793,7 +2793,7 @@
              left_pad="8"
              name="button permissions"
              width="130" />
-            <panel_inventory
+            <panel_inventory_object
              follows="left|top"
              height="210"
              layout="topleft"

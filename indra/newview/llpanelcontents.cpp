@@ -51,7 +51,7 @@
 // project includes
 #include "llagent.h"
 #include "llfloaterbulkpermission.h"
-#include "llpanelinventory.h"
+#include "llpanelobjectinventory.h"
 #include "llpreviewscript.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
@@ -89,14 +89,14 @@ BOOL LLPanelContents::postBuild()
 	childSetAction("button new script",&LLPanelContents::onClickNewScript, this);
 	childSetAction("button permissions",&LLPanelContents::onClickPermissions, this);
 
-	mPanelInventory = getChild<LLPanelInventory>("contents_inventory");
+	mPanelInventoryObject = getChild<LLPanelObjectInventory>("contents_inventory");
 
 	return TRUE;
 }
 
 LLPanelContents::LLPanelContents()
 	:	LLPanel(),
-		mPanelInventory(NULL)
+		mPanelInventoryObject(NULL)
 {
 }
 
@@ -139,9 +139,9 @@ void LLPanelContents::refresh()
 	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
 
 	getState(object);
-	if (mPanelInventory)
+	if (mPanelInventoryObject)
 	{
-		mPanelInventory->refresh();
+		mPanelInventoryObject->refresh();
 	}	
 }
 

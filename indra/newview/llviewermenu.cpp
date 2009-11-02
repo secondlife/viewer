@@ -50,6 +50,7 @@
 #include "llfocusmgr.h"
 #include "llfontgl.h"
 #include "llinstantmessage.h"
+#include "llinventorypanel.h"
 #include "llpermissionsflags.h"
 #include "llrect.h"
 #include "llsecondlifeurls.h"
