@@ -204,6 +204,9 @@ static	void updatePosition(void);
 		void keyDown(KEY key, MASK mask);
 		void keyUp(KEY key, MASK mask);
 		void middleMouseState(bool down);
+
+		// Return the version of the Vivox library
+		std::string getAPIVersion() const { return mAPIVersion; }
 		
 		/////////////////////////////
 		// Accessors for data related to nearby speakers
@@ -738,6 +741,8 @@ static	std::string nameFromsipURI(const std::string &uri);
 		LLTimer		mUpdateTimer;
 		
 		BOOL		mLipSyncEnabled;
+
+		std::string	mAPIVersion;
 
 		typedef std::set<LLVoiceClientParticipantObserver*> observer_set_t;
 		observer_set_t mParticipantObservers;
