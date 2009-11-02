@@ -51,7 +51,7 @@ public:
 	/*virtual*/ void	getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const 
 	{
 		// more label always spans width of text box
-		width = mEditor.getTextRect().getWidth(); 
+		width = mEditor.getTextRect().getWidth() - mEditor.getHPad(); 
 		height = llceil(mStyle->getFont()->getLineHeight());
 	}
 	/*virtual*/ S32		getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const 
@@ -153,6 +153,11 @@ void LLExpandableTextBox::LLTextBoxEx::showExpandText()
 {
 	if (!mExpanderVisible)
 	{
+		// make sure we're scrolled to top when collapsing
+		if (mScroller)
+		{
+			mScroller->goToTop();
+		}
 		// get fully visible lines
 		std::pair<S32, S32> visible_lines = getVisibleLines(true);
 		S32 last_line = visible_lines.second - 1;

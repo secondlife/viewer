@@ -434,6 +434,7 @@ void LLMultiFloater::onTabSelected()
 void LLMultiFloater::setCanResize(BOOL can_resize)
 {
 	LLFloater::setCanResize(can_resize);
+	if (!mTabContainer) return;
 	if (isResizable() && mTabContainer->getTabPosition() == LLTabContainer::BOTTOM)
 	{
 		mTabContainer->setRightTabBtnOffset(RESIZE_HANDLE_WIDTH);
@@ -457,6 +458,8 @@ BOOL LLMultiFloater::postBuild()
 	}
 
 	mTabContainer = getChild<LLTabContainer>("Preview Tabs");
+	
+	setCanResize(mResizable);
 	return TRUE;
 }
 

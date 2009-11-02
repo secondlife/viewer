@@ -268,20 +268,13 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 		mButtonsEnabled[i] = FALSE;
 		mButtons[i] = NULL;
 	}
-	for (S32 i = 0; i < 4; i++) 
-	{
-		mResizeBar[i] = NULL; 
-		mResizeHandle[i] = NULL;
-	}
+	addDragHandle();
+	addResizeCtrls();
 	
 	initFromParams(p);
 	
 	// chrome floaters don't take focus at all
 	setFocusRoot(!getIsChrome());
-
-	addDragHandle();
-	addResizeCtrls();
-	enableResizeCtrls(mResizable);
 
 	initFloater();
 }
@@ -2589,7 +2582,7 @@ void LLFloater::setupParamsForExport(Params& p, LLView* parent)
 
 void LLFloater::initFromParams(const LLFloater::Params& p)
 {
-	// *NOTE: We have too many classes derived from LLPanel to retrofit them 
+	// *NOTE: We have too many classes derived from LLFloater to retrofit them 
 	// all to pass in params via constructors.  So we use this method.
 
 	 // control_name, tab_stop, focus_lost_callback, initial_value, rect, enabled, visible
@@ -2603,11 +2596,10 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	setCanMinimize(p.can_minimize);
 	setCanClose(p.can_close);
 	setCanDock(p.can_dock);
+	setCanResize(p.can_resize);
+	setResizeLimits(p.min_width, p.min_height);
 	
 	mDragOnLeft = p.can_drag_on_left;
-	mResizable = p.can_resize;
-	mMinWidth = p.min_width;
-	mMinHeight = p.min_height;
 	mHeaderHeight = p.header_height;
 	mLegacyHeaderHeight = p.legacy_header_height;
 	mSingleInstance = p.single_instance;

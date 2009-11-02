@@ -161,10 +161,7 @@ LLToolTip::Params::Params()
 	web_based_media("web_based_media", false),
 	media_playing("media_playing", false)
 {
-	name = "tooltip";
-	font = LLFontGL::getFontSansSerif();
-	bg_opaque_color = LLUIColorTable::instance().getColor( "ToolTipBgColor" );
-	background_visible = true;
+	chrome = true;
 }
 
 LLToolTip::LLToolTip(const LLToolTip::Params& p)
@@ -208,6 +205,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 		icon_params.rect = icon_rect;
 		//icon_params.follows.flags = FOLLOWS_LEFT | FOLLOWS_BOTTOM;
 		icon_params.image_unselected(imagep);
+		icon_params.image_selected(imagep);
 		icon_params.scale_image(true);
 		icon_params.flash_color(icon_params.highlight_color());
 		mInfoButton  = LLUICtrlFactory::create<LLButton>(icon_params);
@@ -221,7 +219,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 		mTextBox->translate(TOOLTIP_ICON_SIZE + mPadding, 0);
 	}
 	
-	if (p.time_based_media.isProvided() && p.time_based_media == true)
+	if (p.time_based_media)
 	{
 		LLButton::Params p_button;
 		p_button.name(std::string("play_media"));
@@ -238,17 +236,14 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 		{
 			mPlayMediaButton->setCommitCallback(boost::bind(p.click_playmedia_callback()));
 		}
-		if(p.media_playing.isProvided())
-		{
-			mPlayMediaButton->setToggleState(p.media_playing);
-		}
+		mPlayMediaButton->setToggleState(p.media_playing);
 		addChild(mPlayMediaButton);
 		
 		// move text over to fit image in
 		mTextBox->translate(TOOLTIP_PLAYBUTTON_SIZE + mPadding, 0);
 	}
 	
-	if (p.web_based_media.isProvided() && p.web_based_media == true)
+	if (p.web_based_media)
 	{
 		LLButton::Params p_w_button;
 		p_w_button.name(std::string("home_page"));
@@ -455,7 +450,10 @@ void LLToolTipMgr::show(const std::string& msg)
 
 void LLToolTipMgr::show(const LLToolTip::Params& params)
 {
-	if (!params.validateBlock()) 
+	// fill in default tooltip params from tool_tip.xml
+	LLToolTip::Params params_with_defaults(params);
+	params_with_defaults.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLToolTip>());
+	if (!params_with_defaults.validateBlock()) 
 	{
 		llwarns << "Could not display tooltip!" << llendl;
 		return;
@@ -467,12 +465,12 @@ void LLToolTipMgr::show(const LLToolTip::Params& params)
 
 	// are we ready to show the tooltip?
 	if (!mToolTipsBlocked									// we haven't hit a key, moved the mouse, etc.
-		&& LLUI::getMouseIdleTime() > params.delay_time)	// the mouse has been still long enough
+		&& LLUI::getMouseIdleTime() > params_with_defaults.delay_time)	// the mouse has been still long enough
 	{
-		bool tooltip_changed = mLastToolTipParams.message() != params.message()
-								|| mLastToolTipParams.pos() != params.pos()
-								|| mLastToolTipParams.time_based_media() != params.time_based_media()
-								|| mLastToolTipParams.web_based_media() != params.web_based_media();
+		bool tooltip_changed = mLastToolTipParams.message() != params_with_defaults.message()
+								|| mLastToolTipParams.pos() != params_with_defaults.pos()
+								|| mLastToolTipParams.time_based_media() != params_with_defaults.time_based_media()
+								|| mLastToolTipParams.web_based_media() != params_with_defaults.web_based_media();
 
 		bool tooltip_shown = mToolTip 
 							 && mToolTip->getVisible() 
@@ -480,7 +478,7 @@ void LLToolTipMgr::show(const LLToolTip::Params& params)
 
 		mNeedsToolTip = tooltip_changed || !tooltip_shown;
 		// store description of tooltip for later creation
-		mNextToolTipParams = params;
+		mNextToolTipParams = params_with_defaults;
 	}
 }
 

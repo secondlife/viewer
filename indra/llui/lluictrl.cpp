@@ -42,6 +42,7 @@ static LLDefaultChildRegistry::Register<LLUICtrl> r("ui_ctrl");
 
 LLUICtrl::Params::Params()
 :	tab_stop("tab_stop", true),
+	chrome("chrome", false),
 	label("label"),
 	initial_value("value"),
 	init_callback("init_callback"),
@@ -86,6 +87,7 @@ void LLUICtrl::initFromParams(const Params& p)
 {
 	LLView::initFromParams(p);
 
+	setIsChrome(p.chrome);
 	setControlName(p.control_name);
 	if(p.enabled_controls.isProvided())
 	{
@@ -582,7 +584,6 @@ void LLUICtrl::setIsChrome(BOOL is_chrome)
 // virtual
 BOOL LLUICtrl::getIsChrome() const
 { 
-
 	LLView* parent_ctrl = getParent();
 	while(parent_ctrl)
 	{

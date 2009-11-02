@@ -230,7 +230,7 @@
      top_delta="0"
      width="250">
         Group members must contribute more land credits to support land in use.
-    </text> 
+    </text>
     <text
      type="string"
      follows="left|top"
@@ -247,15 +247,17 @@
     <tab_container
      follows="all"
      height="200"
+     halign="center"
      layout="topleft"
      left="10"
      name="group_money_tab_container"
      tab_position="top"
+     tab_height="20"
      top_pad="10"
      width="265">
         <panel
          border="true"
-         follows="left|top|right|bottom"
+         follows="all"
          height="180"
          label="Planning"
          layout="topleft"
@@ -305,7 +307,7 @@
              width="250"
              word_wrap="true">
                 Computing...
-            </text_editor> 
+            </text_editor>
           <button
              height="20"
              label="&lt; Earlier"
@@ -325,7 +327,7 @@
              name="later_details_button"
              tool_tip="Go forward in time"
              top_delta="0"
-             width="125" />  
+             width="125" />
         </panel>
       <panel
          border="true"
@@ -375,4 +377,4 @@
              width="125" />
         </panel>
     </tab_container>
-</panel> 
+</panel>

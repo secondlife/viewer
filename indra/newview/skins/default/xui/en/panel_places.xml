@@ -12,10 +12,10 @@ background_visible="true"
  width="333">
     <string
      name="landmarks_tab_title"
-     value="My Landmarks" />
+     value="MY LANDMARKS" />
     <string
      name="teleport_history_tab_title"
-     value="Teleport History" />
+     value="TELEPORT HISTORY" />
     <filter_editor
      follows="left|top|right"
      font="SansSerif"
@@ -29,11 +29,12 @@ background_visible="true"
      width="303" />
     <tab_container
      follows="all"
+     halign="center"
      height="500"
      layout="topleft"
      left="10"
      name="Places Tabs"
-     tab_min_width="70"
+     tab_min_width="80"
      tab_height="30"
      tab_position="top"
      top_pad="10"

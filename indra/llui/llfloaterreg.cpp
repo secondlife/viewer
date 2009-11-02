@@ -127,7 +127,7 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 				bool success = LLUICtrlFactory::getInstance()->buildFloater(res, xui_file, NULL);
 				if (!success)
 				{
-					llwarns << "Failed to buid floater type: '" << name << "'." << llendl;
+					llwarns << "Failed to build floater type: '" << name << "'." << llendl;
 					return NULL;
 				}
 					

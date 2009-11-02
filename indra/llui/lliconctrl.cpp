@@ -57,7 +57,9 @@ LLIconCtrl::LLIconCtrl(const LLIconCtrl::Params& p)
 :	LLUICtrl(p),
 	mColor(p.color()),
 	mImagep(p.image),
-	mPriority(0)
+	mPriority(0),
+	mDrawWidth(0),
+	mDrawHeight(0)
 {
 	if (mImagep.notNull())
 	{
@@ -100,6 +102,8 @@ void LLIconCtrl::setValue(const LLSD& value )
 	{
 		mImagep = LLUI::getUIImage(tvalue.asString(), mPriority);
 	}
+
+	setIconImageDrawSize();
 }
 
 std::string LLIconCtrl::getImageName() const
@@ -109,3 +113,16 @@ std::string LLIconCtrl::getImageName() const
 	else
 		return std::string();
 }
+
+void LLIconCtrl::setIconImageDrawSize()
+{
+	if(mImagep.notNull() && mDrawWidth && mDrawHeight)
+	{
+		if(mImagep->getImage().notNull())
+		{
+			mImagep->getImage()->setKnownDrawSize(mDrawWidth, mDrawHeight) ;
+		}
+	}
+}
+
+
