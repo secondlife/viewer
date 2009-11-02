@@ -1839,6 +1839,7 @@ void LLFloater::buildButtons()
 		p.follows.flags(FOLLOWS_TOP|FOLLOWS_RIGHT);
 		p.tool_tip(sButtonToolTips[i]);
 		p.scale_image(true);
+		p.chrome(true);
 
 		LLButton* buttonp = LLUICtrlFactory::create<LLButton>(p);
 		addChild(buttonp);
