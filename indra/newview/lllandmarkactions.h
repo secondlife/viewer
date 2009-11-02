@@ -50,9 +50,14 @@ public:
 	 */
 	static LLInventoryModel::item_array_t fetchLandmarksByName(std::string& name, BOOL if_use_substring);
 	/**
-	 * @brief Checks whether landmark exists for current parcel.
+	 * @brief Checks whether landmark exists for current agent position.
 	 */
 	static bool landmarkAlreadyExists();
+	
+	/**
+	 * @brief Checks whether landmark exists for current parcel.
+	 */
+	static bool hasParcelLandmark();
 
 	/**
 	 * @brief Searches landmark for global position.
