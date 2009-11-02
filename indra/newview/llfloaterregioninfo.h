@@ -123,9 +123,12 @@ public:
 	void enableButton(const std::string& btn_name, BOOL enable = TRUE);
 	void disableButton(const std::string& btn_name);
 	
+	void onClickManageTelehub();
+	
 protected:
 	void initCtrl(const std::string& name);
 	void initHelpBtn(const std::string& name, const std::string& xml_alert);
+
 
 	// Callback for all help buttons, data is name of XML alert to show.
 	void onClickHelp(std::string xml_alert);
@@ -152,6 +155,7 @@ protected:
 
 class LLPanelRegionGeneralInfo : public LLPanelRegionInfo
 {
+	
 public:
 	LLPanelRegionGeneralInfo()
 		:	LLPanelRegionInfo()	{}
@@ -161,16 +165,16 @@ public:
 	
 	// LLPanel
 	virtual BOOL postBuild();
+	
 protected:
 	virtual BOOL sendUpdate();
-	
 	static void onClickKick(void* userdata);
 	static void onKickCommit(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
 	static void onClickKickAll(void* userdata);
 	bool onKickAllCommit(const LLSD& notification, const LLSD& response);
 	static void onClickMessage(void* userdata);
 	bool onMessageCommit(const LLSD& notification, const LLSD& response);
-	void onClickManageTelehub();
+
 };
 
 /////////////////////////////////////////////////////////////////////////////

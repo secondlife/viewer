@@ -179,6 +179,8 @@ BOOL LLFloaterRegionInfo::postBuild()
 	LLPanelRegionInfo* panel;
 	panel = new LLPanelRegionGeneralInfo;
 	mInfoPanels.push_back(panel);
+	panel->getCommitCallbackRegistrar().add("RegionInfo.ManageTelehub",	boost::bind(&LLPanelRegionInfo::onClickManageTelehub, panel));
+	
 	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_general.xml");
 	mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
 
@@ -554,6 +556,12 @@ void LLPanelRegionInfo::onClickHelp(std::string xml_alert)
 	LLNotifications::instance().add(xml_alert);
 }
 
+void LLPanelRegionInfo::onClickManageTelehub()
+{
+	LLFloaterReg::hideInstance("region_info");
+	LLFloaterReg::showInstance("telehubs");
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // LLPanelRegionGeneralInfo
 //
@@ -604,7 +612,6 @@ BOOL LLPanelRegionGeneralInfo::postBuild()
 	childSetAction("kick_all_btn", onClickKickAll, this);
 	childSetAction("im_btn", onClickMessage, this);
 //	childSetAction("manage_telehub_btn", onClickManageTelehub, this);
-	mCommitCallbackRegistrar.add("RegionInfo.Cancel",	boost::bind(&LLPanelRegionGeneralInfo::onClickManageTelehub, this));
 
 	return LLPanelRegionInfo::postBuild();
 }
@@ -712,11 +719,7 @@ bool LLPanelRegionGeneralInfo::onMessageCommit(const LLSD& notification, const L
 	return false;
 }
 
-void LLPanelRegionGeneralInfo::onClickManageTelehub()
-{
-	LLFloaterReg::hideInstance("region_info");
-	LLFloaterReg::showInstance("telehubs");
-}
+
 
 // setregioninfo
 // strings[0] = 'Y' - block terraform, 'N' - not
