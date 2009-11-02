@@ -1597,7 +1597,9 @@ LLUUID LLIMMgr::addSession(
 
 	LLUUID session_id = computeSessionID(dialog,other_participant_id);
 
-	if (!LLIMModel::getInstance()->findIMSession(session_id))
+	bool new_session = !LLIMModel::getInstance()->findIMSession(session_id);
+
+	if (new_session)
 	{
 		LLIMModel::getInstance()->newSession(session_id, name, dialog, other_participant_id, ids);
 	}
@@ -1619,6 +1621,9 @@ LLUUID LLIMMgr::addSession(
 			ids);
 	}
 
+	//we don't need to show notes about online/offline, mute/unmute users' statuses for existing sessions
+	if (!new_session) return session_id;
+	
 	noteOfflineUsers(session_id, floater, ids);
 
 	// Only warn for regular IMs - not group IMs
@@ -1626,8 +1631,6 @@ LLUUID LLIMMgr::addSession(
 	{
 		noteMutedUsers(session_id, floater, ids);
 	}
-
-
 
 	return session_id;
 }
