@@ -6,6 +6,9 @@
 
 include(CMakeCopyIfDifferent)
 
+###################################################################
+# set up platform specific lists of files that need to be copied
+###################################################################
 if(WINDOWS)
     set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/Debug")
     set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}/RelWithDebInfo")
@@ -26,6 +29,7 @@ if(WINDOWS)
     # Misc shared libs 
 
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
+    # or ARCH_PREBUILT_DIRS
     set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug")
     set(debug_files
         openjpegd.dll
@@ -36,6 +40,7 @@ if(WINDOWS)
         )
 
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
+    # or ARCH_PREBUILT_DIRS
     set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release")
     set(release_files
         openjpeg.dll
@@ -127,16 +132,37 @@ if (MSVC80)
 endif (MSVC80)
 
 elseif(DARWIN)
+    set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/Debug")
+    set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}/RelWithDebInfo")
+    set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}/Release")
+
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/universal-darwin")
     set(vivox_files
+        SLVoice
+        libalut.dylib
+        libopenal.dylib
+        libortp.dylib
+        libvivoxsdk.dylib
        )
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
-    set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib/debug")
+    # or ARCH_PREBUILT_DIRS
+    set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_debug")
     set(debug_files
        )
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
-    set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib/release")
+    # or ARCH_PREBUILT_DIRS
+    set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release")
     set(release_files
+        libapr-1.0.3.7.dylib
+        libapr-1.0.3.8.dylib
+        libapr-1.dylib
+        libaprutil-1.0.3.8.dylib
+        libaprutil-1.0.3.9.dylib
+        libaprutil-1.dylib
+        libexpat.0.5.0.dylib
+        libexpat.dylib
+        libllqtwebkit.dylib
+        libndofdev.dylib
        )
 
     # fmod is statically linked on darwin
@@ -162,10 +188,12 @@ elseif(LINUX)
     set(vivox_files
        )
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
+    # or ARCH_PREBUILT_DIRS
     set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib/debug")
     set(debug_files
        )
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
+    # or ARCH_PREBUILT_DIRS
     set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib/release")
     set(release_files
        )
@@ -194,9 +222,11 @@ else(WINDOWS)
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-linux")
     set(vivox_files "")
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
+    # or ARCH_PREBUILT_DIRS
     set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib/debug")
     set(debug_files "")
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
+    # or ARCH_PREBUILT_DIRS
     set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib/release")
     set(release_files "")
 
@@ -209,6 +239,10 @@ else(WINDOWS)
     set(relwithdebinfo_llkdu_dst "")
 endif(WINDOWS)
 
+
+################################################################
+# Done building the file lists, now set up the copy commands.
+################################################################
 
 copy_if_different(
     ${vivox_src_dir}
