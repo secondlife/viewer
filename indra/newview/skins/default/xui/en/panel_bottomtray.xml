@@ -10,7 +10,7 @@
  left="0"
  name="bottom_tray"
  top="28"
- chrome="true" 
+ chrome="true"
  border_visible="false"
  width="1000">
     <layout_stack
@@ -124,7 +124,7 @@
          layout="topleft"
          min_height="28"
          name="movement_panel"
-         width="76"
+         width="80"
          min_width="76">
             <button
              follows="left|right"
@@ -136,7 +136,7 @@
              name="movement_btn"
              tool_tip="Show/hide movement controls"
              top="3"
-             width="76">
+             width="80">
                 <button.init_callback
                  function="Button.SetDockableFloaterToggle"
                  parameter="moveview" />
@@ -175,7 +175,7 @@
              tool_tip="Show/hide camera controls"
              top="3"
              name="camera_btn"
-             width="76">
+             width="80">
                 <button.init_callback
                  function="Button.SetDockableFloaterToggle"
                  parameter="camera" />
@@ -199,28 +199,19 @@
          height="28"
          layout="topleft"
          name="snapshot_panel"
-         width="35">
-            <split_button
-             arrow_position="right"
+         width="40">
+            <button
          follows="left|right"
              height="23"
              left="0"
+             label=""
              layout="topleft"
              name="snapshots"
-             width="46"
-             top="3">
-                <split_button.item
-                 image_overlay="Snapshot_Off"
-                 name="snapshot"
-                 tool_tip="Take snapshot"
+             width="36"
+             top="3"
+             image_overlay="Snapshot_Off"
+            tool_tip="Take snapshot"
                  />
-                <split_button.arrow_button
-                 name="snapshot_settings"
-                 image_overlay="Widget_UpArrow"
-                 tool_tip="Snapshot and Preset Views"
-                 width="18"
-                 />
-            </split_button>
         </layout_panel>
         <layout_panel
          mouse_opaque="false"
