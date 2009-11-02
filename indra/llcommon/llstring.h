@@ -151,9 +151,9 @@ struct char_traits<U16>
 class LL_COMMON_API LLStringOps
 {
 private:
-	static long sltOffset;
-	static long localTimeOffset;
-	static bool daylightSavings;
+	static long sPacificTimeOffset;
+	static long sLocalTimeOffset;
+	static bool sPacificDaylightTime;
 	static std::map<std::string, std::string> datetimeToCodes;
 
 public:
@@ -184,10 +184,13 @@ public:
 	static S32	collate(const char* a, const char* b) { return strcoll(a, b); }
 	static S32	collate(const llwchar* a, const llwchar* b);
 
-	static void setupDatetimeInfo (bool daylight);
-	static long getSltOffset (void) {return sltOffset;}
-	static long getLocalTimeOffset (void) {return localTimeOffset;}
-	static bool getDaylightSavings (void) {return daylightSavings;}
+	static void setupDatetimeInfo(bool pacific_daylight_time);
+	static long getPacificTimeOffset(void) { return sPacificTimeOffset;}
+	static long getLocalTimeOffset(void) { return sLocalTimeOffset;}
+	// Is the Pacific time zone (aka server time zone)
+	// currently in daylight savings time?
+	static bool getPacificDaylightTime(void) { return sPacificDaylightTime;}
+
 	static std::string getDatetimeCode (std::string key);
 };
 
