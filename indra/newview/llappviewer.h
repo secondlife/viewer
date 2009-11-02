@@ -301,10 +301,6 @@ extern U32 gForegroundFrameCount;
 
 extern LLPumpIO* gServicePump;
 
-// Is the Pacific time zone (aka server time zone)
-// currently in daylight savings time?
-extern BOOL gPacificDaylightTime;
-
 extern U64      gFrameTime;					// The timestamp of the most-recently-processed frame
 extern F32		gFrameTimeSeconds;			// Loses msec precision after ~4.5 hours...
 extern F32		gFrameIntervalSeconds;		// Elapsed time between current and previous gFrameTimeSeconds

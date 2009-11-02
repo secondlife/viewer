@@ -671,9 +671,9 @@ std::string ll_convert_wide_to_string(const wchar_t* in)
 }
 #endif // LL_WINDOWS
 
-long LLStringOps::sltOffset;
-long LLStringOps::localTimeOffset;
-bool LLStringOps::daylightSavings;
+long LLStringOps::sPacificTimeOffset = 0;
+long LLStringOps::sLocalTimeOffset = 0;
+bool LLStringOps::sPacificDaylightTime = 0;
 std::map<std::string, std::string> LLStringOps::datetimeToCodes;
 
 S32	LLStringOps::collate(const llwchar* a, const llwchar* b)
@@ -700,11 +700,11 @@ void LLStringOps::setupDatetimeInfo (bool daylight)
 	tmpT = gmtime (&nowT);
 	gmtT = mktime (tmpT);
 
-	localTimeOffset = (long) (gmtT - localT);
+	sLocalTimeOffset = (long) (gmtT - localT);
 
 
-	daylightSavings = daylight;
-	sltOffset = (daylightSavings? 7 : 8 ) * 60 * 60;
+	sPacificDaylightTime = daylight;
+	sPacificTimeOffset = (sPacificDaylightTime? 7 : 8 ) * 60 * 60;
 
 	datetimeToCodes["wkday"]	= "%a";		// Thu
 	datetimeToCodes["weekday"]	= "%A";		// Thursday
@@ -957,7 +957,7 @@ bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
 	}
 	else if (param != "utc") // slt
 	{
-		secFromEpoch -= LLStringOps::getSltOffset();
+		secFromEpoch -= LLStringOps::getPacificTimeOffset();
 	}
 		
 	// if never fell into those two ifs above, param must be utc
@@ -980,7 +980,7 @@ bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
 		{
 			// "slt" = Second Life Time, which is deprecated.
 			// If not utc or user local time, fallback to Pacific time
-			replacement = LLStringOps::getDaylightSavings() ? "PDT" : "PST";
+			replacement = LLStringOps::getPacificDaylightTime() ? "PDT" : "PST";
 		}
 		return true;
 	}
