@@ -249,6 +249,12 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 		facep->mCenterLocal = part->mPosAgent;
 		facep->setFaceColor(part->mColor);
 		facep->setTexture(part->mImagep);
+			
+		//check if this particle texture is replaced by a parcel media texture.
+		if(part->mImagep.notNull() && part->mImagep->hasParcelMedia()) 
+		{
+			part->mImagep->getParcelMedia()->addMediaToFace(facep) ;
+		}
 
 		mPixelArea = tot_area * pixel_meter_ratio;
 		const F32 area_scale = 10.f; // scale area to increase priority a bit
