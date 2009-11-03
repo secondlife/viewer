@@ -74,6 +74,8 @@ class LLParticipantList
 			LLAvatarList* mAvatarList;
 		};
 	private:
+		void onAvatarListDoubleClicked(LLAvatarList* list);
+
 		LLSpeakerMgr*		mSpeakerMgr;
 		LLAvatarList* 		mAvatarList;
 
