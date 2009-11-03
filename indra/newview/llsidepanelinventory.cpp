@@ -37,21 +37,14 @@
 #include "llinventorybridge.h"
 #include "llinventorypanel.h"
 #include "llpanelmaininventory.h"
-#include "llsidepanelobjectinfo.h"
+#include "llsidepaneliteminfo.h"
 #include "lltabcontainer.h"
-
-static const S32 LANDMARK_FOLDERS_MENU_WIDTH = 250;
-static const std::string AGENT_INFO_TYPE			= "agent";
-static const std::string CREATE_LANDMARK_INFO_TYPE	= "create_landmark";
-static const std::string LANDMARK_INFO_TYPE			= "landmark";
-static const std::string REMOTE_PLACE_INFO_TYPE		= "remote_place";
-static const std::string TELEPORT_HISTORY_INFO_TYPE	= "teleport_history";
 
 static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_inventory");
 
 LLSidepanelInventory::LLSidepanelInventory()
 	:	LLPanel(),
-		mSidepanelObjectInfo(NULL)
+		mSidepanelItemInfo(NULL)
 {
 
 	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
@@ -85,12 +78,12 @@ BOOL LLSidepanelInventory::postBuild()
 	mOverflowBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onOverflowButtonClicked, this));
 
 	mTabContainer = getChild<LLTabContainer>("Inventory Tabs");
-	mSidepanelObjectInfo = getChild<LLSidepanelObjectInfo>("sidepanel_object_info");
+	mSidepanelItemInfo = getChild<LLSidepanelItemInfo>("sidepanel_item_info");
 
 	mPanelMainInventory = getChild<LLPanelMainInventory>("panel_main_inventory");
 	mPanelMainInventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
 
-	LLButton* back_btn = mSidepanelObjectInfo->getChild<LLButton>("back_btn");
+	LLButton* back_btn = mSidepanelItemInfo->getChild<LLButton>("back_btn");
 	back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
 
 	return TRUE;
@@ -101,19 +94,19 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 	if(key.size() == 0)
 		return;
 
-	mSidepanelObjectInfo->reset();
+	mSidepanelItemInfo->reset();
 
 	if (key.has("id"))
 	{
-		mSidepanelObjectInfo->setItemID(key["id"].asUUID());
+		mSidepanelItemInfo->setItemID(key["id"].asUUID());
 	}
 	
 	if (key.has("object"))
 	{
-		mSidepanelObjectInfo->setObjectID(key["object"].asUUID());
+		mSidepanelItemInfo->setObjectID(key["object"].asUUID());
 	}
 
-	toggleObjectInfoPanel(TRUE);
+	toggleItemInfoPanel(TRUE);
 }
 
 void LLSidepanelInventory::onInfoButtonClicked()
@@ -121,9 +114,9 @@ void LLSidepanelInventory::onInfoButtonClicked()
 	LLInventoryItem *item = getSelectedItem();
 	if (item)
 	{
-		mSidepanelObjectInfo->reset();
-		mSidepanelObjectInfo->setItemID(item->getUUID());
-		toggleObjectInfoPanel(TRUE);
+		mSidepanelItemInfo->reset();
+		mSidepanelItemInfo->setItemID(item->getUUID());
+		toggleItemInfoPanel(TRUE);
 	}
 }
 
@@ -164,7 +157,7 @@ void LLSidepanelInventory::onOverflowButtonClicked()
 
 void LLSidepanelInventory::onBackButtonClicked()
 {
-	toggleObjectInfoPanel(FALSE);
+	toggleItemInfoPanel(FALSE);
 	updateVerbs();
 }
 
@@ -173,19 +166,19 @@ void LLSidepanelInventory::onSelectionChange(const std::deque<LLFolderViewItem*>
 	updateVerbs();
 }
 
-void LLSidepanelInventory::toggleObjectInfoPanel(BOOL visible)
+void LLSidepanelInventory::toggleItemInfoPanel(BOOL visible)
 {
-	mSidepanelObjectInfo->setVisible(visible);
+	mSidepanelItemInfo->setVisible(visible);
 	mTabContainer->setVisible(!visible);
 
 	if (visible)
 	{
-		mSidepanelObjectInfo->reset();
-		mSidepanelObjectInfo->setEditMode(FALSE);
+		mSidepanelItemInfo->dirty();
+		mSidepanelItemInfo->setEditMode(FALSE);
 
 		LLRect rect = getRect();
 		LLRect new_rect = LLRect(rect.mLeft, rect.mTop, rect.mRight, mTabContainer->getRect().mBottom);
-		mSidepanelObjectInfo->reshape(new_rect.getWidth(),new_rect.getHeight());
+		mSidepanelItemInfo->reshape(new_rect.getWidth(),new_rect.getHeight());
 	}
 }
 

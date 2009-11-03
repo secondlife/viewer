@@ -35,7 +35,7 @@
      height="25"
      layout="bottomright"
      left="0"
-     help_topic="objects_button_tab"
+     help_topic="item_button_tab"
      name="button_panel"
 	 bottom="0"
      width="313">
@@ -109,14 +109,14 @@
    </tab_container>
 
     <panel
-     class="sidepanel_object_info"
-     filename="sidepanel_object_info.xml"
+     class="sidepanel_item_info"
+     filename="sidepanel_item_info.xml"
      follows="all"
      height="360"
      layout="topleft"
      left="0"
-     help_topic="objects_info_tab"
-     name="sidepanel_object_info"
+     help_topic="item_info_tab"
+     name="sidepanel_item_info"
      top="30"
      visible="false" />
 </panel>
