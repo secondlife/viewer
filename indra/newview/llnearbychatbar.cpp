@@ -77,6 +77,10 @@ LLGestureComboBox::LLGestureComboBox(const LLGestureComboBox::Params& p)
 
 	// refresh list from current active gestures
 	refreshGestures();
+
+	// This forces using of halign from xml, since LLComboBox
+	// sets it to LLFontGL::LEFT, if text entry is disabled
+	mButton->setHAlign(p.drop_down_button.font_halign);
 }
 
 LLGestureComboBox::~LLGestureComboBox()

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="panel_im_control_panel"
-       width="125"
+       width="128"
        height="298"
        border="false">
 
