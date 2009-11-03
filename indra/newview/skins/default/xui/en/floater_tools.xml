@@ -1034,7 +1034,10 @@
            label="Original"
            value="1" />
       </combo_box>
-<!-- NEW PRICE SPINNER -->
+<!-- NEW PRICE SPINNER
+  Objects are allowed to be for sale for L$0 to invoke buy UI behavior
+  even though the user gets a free copy.
+-->
       <spinner
         follows="left|top"
         decimal_digits="0"
@@ -1046,7 +1049,7 @@
         label="Price: L$"
         label_width="65"
         width="150"
-        min_val="1"
+        min_val="0"
         height="20"
         max_val="999999999" />
       <check_box
