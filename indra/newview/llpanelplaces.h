@@ -37,6 +37,10 @@
 class LLInventoryItem;
 class LLFilterEditor;
 class LLLandmark;
+
+class LLPanelLandmarkInfo;
+class LLPanelPlaceProfile;
+
 class LLPanelPickEdit;
 class LLPanelPlaceInfo;
 class LLPanelPlacesTab;
@@ -85,13 +89,16 @@ private:
 	void togglePickPanel(BOOL visible);
 	void togglePlaceInfoPanel(BOOL visible);
 
-	void onAgentParcelChange();
 	void updateVerbs();
+
+	LLPanelPlaceInfo* getCurrentInfoPanel();
 
 	LLFilterEditor*				mFilterEditor;
 	LLPanelPlacesTab*			mActivePanel;
 	LLTabContainer*				mTabContainer;
-	LLPanelPlaceInfo*			mPlaceInfo;
+	LLPanelPlaceProfile*		mPlaceProfile;
+	LLPanelLandmarkInfo*		mLandmarkInfo;
+
 	LLPanelPickEdit*			mPickPanel;
 	LLToggleableMenu*			mPlaceMenu;
 	LLToggleableMenu*			mLandmarkMenu;
