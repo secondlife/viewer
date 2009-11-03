@@ -127,11 +127,6 @@ public:
 	
 protected:
 	void initCtrl(const std::string& name);
-	void initHelpBtn(const std::string& name, const std::string& xml_alert);
-
-
-	// Callback for all help buttons, data is name of XML alert to show.
-	void onClickHelp(std::string xml_alert);
 	
 	// Returns TRUE if update sent and apply button should be
 	// disabled.
