@@ -135,6 +135,7 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 				res->mKey = key;
 				res->setInstanceName(name);
 				res->applyRectControl(); // Can't apply rect control until setting instance name
+				res->applyDockState();//same...
 				if (res->mAutoTile && !res->getHost() && index > 0)
 				{
 					const LLRect& cur_rect = res->getRect();

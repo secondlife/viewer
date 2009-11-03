@@ -262,8 +262,9 @@ void LLNearbyChatScreenChannel::showToastsBottom()
 			toast_rect.setLeftTopAndSize(getRect().mLeft , toast_top, toast_rect.getWidth() ,toast_rect.getHeight());
 		
 			toast->setRect(toast_rect);
-			
+			toast->setIsHidden(false);
 			toast->setVisible(TRUE);
+			
 			bottom = toast->getRect().mTop;
 		}		
 	}

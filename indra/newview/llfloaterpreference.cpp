@@ -339,7 +339,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
 	mCommitCallbackRegistrar.add("Pref.Logging",				boost::bind(&LLFloaterPreference::onCommitLogging, this));
-	mCommitCallbackRegistrar.add("Pref.OpenHelp",				boost::bind(&LLFloaterPreference::onOpenHelp, this));	
 	mCommitCallbackRegistrar.add("Pref.UpdateMeterText",		boost::bind(&LLFloaterPreference::updateMeterText, this, _1));	
 	mCommitCallbackRegistrar.add("Pref.HardwareSettings",       boost::bind(&LLFloaterPreference::onOpenHardwareSettings, this));	
 	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",       boost::bind(&LLFloaterPreference::setHardwareDefaults, this));	
@@ -606,12 +605,6 @@ void LLFloaterPreference::onBtnOK()
 	}
 
 	LLPanelLogin::refreshLocation( false );
-}
-
-void LLFloaterPreference::onOpenHelp()
-{
-	const char* xml_alert = "GraphicsPreferencesHelp";
-	LLNotifications::instance().add(this->contextualNotification(xml_alert));
 }
 
 // static 
@@ -1043,11 +1036,15 @@ void LLFloaterPreference::onClickSetKey()
 void LLFloaterPreference::setKey(KEY key)
 {
 	childSetValue("modifier_combo", LLKeyboard::stringFromKey(key));
+	// update the control right away since we no longer wait for apply
+	getChild<LLUICtrl>("modifier_combo")->onCommit();
 }
 
 void LLFloaterPreference::onClickSetMiddleMouse()
 {
 	childSetValue("modifier_combo", "MiddleMouse");
+	// update the control right away since we no longer wait for apply
+	getChild<LLUICtrl>("modifier_combo")->onCommit();
 }
 
 void LLFloaterPreference::onClickSkipDialogs()

@@ -104,9 +104,9 @@
              layout="topleft"
              left="10"
              name="InstructSelectFriend"
-             top="15"
+             top="5"
              width="200">
-                Select a friend(s):
+                Select a person:
             </text>
             <button
              follows="top|right"

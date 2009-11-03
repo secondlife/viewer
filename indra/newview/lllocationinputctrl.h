@@ -107,6 +107,7 @@ private:
 	bool 					findTeleportItemsByTitle(const LLTeleportHistoryItem& item, const std::string& filter);
 	void					setText(const LLStringExplicit& text);
 	void					updateAddLandmarkButton();
+	void 					updateAddLandmarkTooltip();
 	void 					updateContextMenu();
 	void					updateWidgetlayout();
 	void					changeLocationPresentation();

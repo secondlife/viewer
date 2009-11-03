@@ -72,8 +72,6 @@ LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed)
 
 BOOL LLFloaterBulkPermission::postBuild()
 {
-//	childSetAction("help", onHelpBtn, this);  // this is not in use
-
 	return TRUE;
 }
 
@@ -156,12 +154,6 @@ void LLFloaterBulkPermission::onApplyBtn()
 {
 	doApply();
 }
-
-// angela -- this is not in use
-//void LLFloaterBulkPermission::onHelpBtn(void* user_data)
-//{
-//	LLNotifications::instance().add("HelpBulkPermission");
-//}
 
 void LLFloaterBulkPermission::onCloseBtn()
 {

@@ -70,7 +70,6 @@ BOOL	LLPanelLandInfo::postBuild()
 	childSetAction("button subdivide land",onClickDivide,this);
 	childSetAction("button join land",onClickJoin,this);
 	childSetAction("button about land",onClickAbout,this);
-	childSetAction("button show owners help", onShowOwnersHelp, this);
 
 	mCheckShowOwners = getChild<LLCheckBoxCtrl>("checkbox show owners");
 	childSetValue("checkbox show owners", gSavedSettings.getBOOL("ShowParcelOwners"));
@@ -264,9 +263,4 @@ void LLPanelLandInfo::onClickAbout(void*)
 	}
 
 	LLFloaterReg::showInstance("about_land");
-}
-
-void LLPanelLandInfo::onShowOwnersHelp(void* user_data)
-{
-	LLNotifications::instance().add("ShowOwnersHelp");
 }

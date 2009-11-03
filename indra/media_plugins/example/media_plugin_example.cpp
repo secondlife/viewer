@@ -52,7 +52,7 @@ class MediaPluginExample :
 
 	private:
 		bool init();
-		void update( int milliseconds );
+		void update( F64 milliseconds );
 		void write_pixel( int x, int y, unsigned char r, unsigned char g, unsigned char b );
 		bool mFirstTime;
 
@@ -276,7 +276,7 @@ void MediaPluginExample::receiveMessage( const char* message_string )
 					if ( key == ' ')
 					{
 						mLastUpdateTime = 0;
-						update( 0 );
+						update( 0.0f );
 					};
 				};
 			}
@@ -293,7 +293,7 @@ void MediaPluginExample::receiveMessage( const char* message_string )
 				mLastUpdateTime = 0;
 				mFirstTime = true;
 				mStopAction = false;
-				update( 0 );
+				update( 0.0f );
 			}
 			else
 			if ( message_name == "browse_stop" )
@@ -302,7 +302,7 @@ void MediaPluginExample::receiveMessage( const char* message_string )
 					mXInc[ n ] = mYInc[ n ] = 0;
 
 				mStopAction = true;
-				update( 0 );
+				update( 0.0f );
 			}
 			else
 			{
@@ -339,7 +339,7 @@ void MediaPluginExample::write_pixel( int x, int y, unsigned char r, unsigned ch
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginExample::update( int milliseconds )
+void MediaPluginExample::update( F64 milliseconds )
 {
 	if ( mWidth < 1 || mWidth > 2048 || mHeight < 1 || mHeight > 2048 )
 		return;

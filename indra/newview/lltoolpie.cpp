@@ -598,6 +598,9 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 static bool needs_tooltip(LLSelectNode* nodep)
 {
+	if (!nodep) 
+		return false;
+
 	LLViewerObject* object = nodep->getObject();
 	LLViewerObject *parent = (LLViewerObject *)object->getParent();
 	if (object->flagHandleTouch()
@@ -773,7 +776,10 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 					}
 				}
 				
-				bool needs_tip = needs_tooltip(nodep);
+				// also check the primary node since sometimes it can have an action even though
+				// the root node doesn't
+				bool needs_tip = needs_tooltip(nodep) || 
+					             needs_tooltip(LLSelectMgr::getInstance()->getPrimaryHoverNode());
 
 				if (show_all_object_tips || needs_tip)
 				{

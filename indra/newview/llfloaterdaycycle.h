@@ -59,9 +59,6 @@ public:
 	LLFloaterDayCycle(const LLSD& key);
 	virtual ~LLFloaterDayCycle();
 	/*virtual*/	BOOL	postBuild();
-	/// help button stuff
-	void onClickHelp(std::string xml_alert);
-	void initHelpBtn(const std::string& name, const std::string& xml_alert);
 
 	/// initialize all
 	void initCallbacks(void);
