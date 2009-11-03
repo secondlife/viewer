@@ -50,10 +50,11 @@
 LLPanelMediaSettingsSecurity::LLPanelMediaSettingsSecurity() :
 	mParent( NULL )
 {
-	// build dialog from XML
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_media_settings_security.xml");
 	mCommitCallbackRegistrar.add("Media.whitelistAdd",		boost::bind(&LLPanelMediaSettingsSecurity::onBtnAdd, this));
 	mCommitCallbackRegistrar.add("Media.whitelistDelete",	boost::bind(&LLPanelMediaSettingsSecurity::onBtnDel, this));	
+	// build dialog from XML
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_media_settings_security.xml");
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,10 +63,7 @@ BOOL LLPanelMediaSettingsSecurity::postBuild()
 {
 	mEnableWhiteList = getChild< LLCheckBoxCtrl >( LLMediaEntry::WHITELIST_ENABLE_KEY );
 	mWhiteListList = getChild< LLScrollListCtrl >( LLMediaEntry::WHITELIST_KEY );
-
-	childSetAction("whitelist_add", onBtnAdd, this);
-	childSetAction("whitelist_del", onBtnDel, this);
-
+	
 	setDefaultBtn("whitelist_add");
 
 	return true;

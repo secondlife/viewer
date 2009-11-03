@@ -40,16 +40,6 @@
      tool_tip="Disable all scripts in this region"
      top="30"
      width="80" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="70"
-     name="disable_scripts_help"
-     top_delta="2"
-     width="18" />
     <check_box
      height="20"
      label="Disable Collisions"
@@ -59,16 +49,6 @@
      tool_tip="Disable non-avatar collisions in this region"
      top="50"
      width="80" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="70"
-     name="disable_collisions_help"
-     top_delta="2"
-     width="18" />
     <check_box
      height="20"
      label="Disable Physics"
@@ -78,16 +58,6 @@
      tool_tip="Disable all physics in this region"
      top="70"
      width="80" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="70"
-     name="disable_physics_help"
-     top_delta="2"
-     width="18" />
     <button
      enabled="false"
      follows="left|top"
@@ -207,16 +177,6 @@
     <button
      follows="left|top"
      font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="10"
-     name="top_colliders_help"
-     top_delta="2"
-     width="18" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
      height="20"
      label="Get Top Scripts..."
      layout="topleft"
@@ -228,16 +188,6 @@
     <button
      follows="left|top"
      font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="10"
-     name="top_scripts_help"
-     top_delta="2"
-     width="18" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
      height="20"
      label="Restart Region"
      layout="topleft"
@@ -246,16 +196,6 @@
      tool_tip="Give 2 minute countdown and restart region"
      top_pad="5"
      width="130" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="10"
-     name="restart_help"
-     top_delta="2"
-     width="18" />
     <button
      follows="left|top"
      font="SansSerifSmall"

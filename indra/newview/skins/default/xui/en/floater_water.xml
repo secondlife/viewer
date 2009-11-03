@@ -95,16 +95,6 @@
              width="355">
                 Water Fog Color
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WaterFogColorHelp"
-             top_delta="-2"
-             width="18" />
             <color_swatch
              border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
@@ -130,16 +120,6 @@
              width="355">
                 Fog Density Exponent
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WaterFogDensityHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WaterFogDensity"
              decimal_digits="1"
@@ -165,16 +145,6 @@
              width="355">
                 Underwater Fog Modifier
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WaterUnderWaterFogModHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              decimal_digits="2"
              follows="left"
@@ -200,16 +170,6 @@
              width="355">
                 Reflection Wavelet Scale
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WaterNormalScaleHelp"
-             top_delta="-2"
-             width="18" />
             <text
              type="string"
              length="1"
@@ -298,16 +258,6 @@
              width="355">
                 Fresnel Scale
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WaterFresnelScaleHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WaterFresnelScale"
              decimal_digits="2"
@@ -333,16 +283,6 @@
              width="355">
                 Fresnel Offset
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WaterFresnelOffsetHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WaterFresnelOffset"
              decimal_digits="2"
@@ -368,16 +308,6 @@
              width="355">
                 Refract Scale Above
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WaterScaleAboveHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WaterScaleAbove"
              decimal_digits="2"
@@ -403,16 +333,6 @@
              width="355">
                 Refract Scale Below
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WaterScaleBelowHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WaterScaleBelow"
              decimal_digits="2"
@@ -438,16 +358,6 @@
              width="355">
                 Blur Multiplier
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WaterBlurMultiplierHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WaterBlurMult"
              follows="left"
@@ -486,16 +396,6 @@
              width="355">
                 Big Wave Direction
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="145"
-             name="WaterWave1Help"
-             top_delta="-2"
-             width="18" />
             <text
              type="string"
              length="1"
@@ -563,16 +463,6 @@
              width="355">
                 Little Wave Direction
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="145"
-             name="WaterWave2Help"
-             top_delta="-2"
-             width="18" />
             <text
              type="string"
              length="1"
@@ -640,16 +530,6 @@
              width="355">
                 Normal Map
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="125"
-             name="WaterNormalMapHelp"
-             top_delta="-2"
-             width="18" />
             <texture_picker
              height="143"
              layout="topleft"

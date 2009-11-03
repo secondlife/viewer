@@ -452,7 +452,7 @@ bool LLScriptEdCore::hasChanged()
 {
 	if (!mEditor) return false;
 
-	return !mEditor->isPristine();
+	return ((!mEditor->isPristine() || mEnableSave) && mHasScriptData);
 }
 
 void LLScriptEdCore::draw()

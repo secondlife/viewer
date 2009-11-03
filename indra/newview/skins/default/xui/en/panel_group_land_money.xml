@@ -29,17 +29,6 @@
      name="land_contrib_error">
         Unable to set your land contribution.
     </panel.string>
-    <!--
-    <button
-      follows="left|top"
-     height="16"
-     label="?"
-     layout="topleft"
-     left="250"
-     name="help_button"
-     top="8"
-     width="20" />
-    -->
    <!-- <text
      type="string"
      follows="left|top"

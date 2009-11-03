@@ -7908,6 +7908,7 @@ void LLPipeline::generateHighlight(LLCamera& camera)
 
 		mHighlight.flush();
 		gGL.setColorMask(true, false);
+		gViewerWindow->setup3DViewport();
 	}
 }
 

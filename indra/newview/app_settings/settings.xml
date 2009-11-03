@@ -5294,7 +5294,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-
     <key>PluginInstancesCPULimit</key>
     <map>
       <key>Comment</key>
@@ -5360,6 +5359,17 @@
       <string>U32</string>
       <key>Value</key>
 	  <integer>13</integer>
+    </map>
+	<key>PrimMediaControlsUseHoverControlSet</key>
+	<map>
+	  <key>Comment</key>
+      <string>Whether or not hovering over prim media uses minimal "hover" controls or the authored control set.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>PrimMediaMaxRetries</key>
     <map>

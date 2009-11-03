@@ -83,16 +83,6 @@
      name="block_terraform_check"
      top="70"
      width="80" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="115"
-     name="terraform_help"
-     top_delta="2"
-     width="18" />
     <check_box
      height="20"
      label="Block Fly"
@@ -101,16 +91,6 @@
      name="block_fly_check"
      top="90"
      width="80" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="115"
-     name="fly_help"
-     top_delta="2"
-     width="18" />
     <check_box
      height="20"
      label="Allow Damage"
@@ -119,16 +99,6 @@
      name="allow_damage_check"
      top="110"
      width="80" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="115"
-     name="damage_help"
-     top_delta="2"
-     width="18" />
     <check_box
      height="20"
      label="Restrict Pushing"
@@ -137,16 +107,6 @@
      name="restrict_pushobject"
      top="130"
      width="80" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="115"
-     name="restrict_pushobject_help"
-     top_delta="2"
-     width="18" />
     <check_box
      height="20"
      label="Allow Land Resell"
@@ -155,16 +115,6 @@
      name="allow_land_resell_check"
      top="160"
      width="80" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="115"
-     name="land_resell_help"
-     top_delta="2"
-     width="18" />
     <check_box
      height="20"
      label="Allow Land Join/Divide"
@@ -173,16 +123,6 @@
      name="allow_parcel_changes_check"
      top="180"
      width="80" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="115"
-     name="parcel_changes_help"
-     top_delta="2"
-     width="18" />
     <check_box
      height="20"
      label="Block Land Show in Search"
@@ -192,16 +132,6 @@
      tool_tip="Let people see this region and its parcels in search results"
      top="200"
      width="80" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="115"
-     name="parcel_search_help"
-     top_delta="2"
-     width="18" />
     <spinner
      follows="left|top"
      height="20"
@@ -215,16 +145,6 @@
      name="agent_limit_spin"
      top="240"
      width="170" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="25"
-     name="agent_limit_help"
-     top_delta="2"
-     width="18" />
     <spinner
      follows="left|top"
      height="20"
@@ -238,16 +158,6 @@
      name="object_bonus_spin"
      top="260"
      width="170" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="25"
-     name="object_bonus_help"
-     top_delta="2"
-     width="18" />
     <text
      follows="left|top"
      height="20"
@@ -281,16 +191,6 @@
          value="13" />
     </combo_box> 
     <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="10"
-     name="access_help"
-     top_delta="2"
-     width="18" />
-    <button
      enabled="false"
      follows="left|top"
      height="20"
@@ -299,10 +199,7 @@
      left="108"
      name="apply_btn"
      top="320"
-     width="100">
-        <button.commit_callback
-         function="RegionInfo.Cancel" />
-    </button>
+     width="100"/>
    <button
      follows="left|top"
      height="20"
@@ -338,5 +235,8 @@
      left_delta="0"
      name="manage_telehub_btn"
      top_pad="20"
-     width="150" /> 
+     width="150" >
+		<button.commit_callback
+         function="RegionInfo.ManageTelehub" />
+    </button> 
 </panel>
