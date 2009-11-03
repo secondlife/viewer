@@ -70,7 +70,7 @@ public:
 	static void dumpItemArray(const LLInventoryModel::item_array_t& items, const std::string& msg);
 	static void unregisterAttachment(const LLUUID& item_id);
 	static void registerAttachment(const LLUUID& item_id);
-
+	static void setAttachmentInvLinkEnable(bool val);
 
 private:
 	static void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type);
@@ -99,6 +99,7 @@ private:
 	static void purgeCategory(const LLUUID& category, bool keep_outfit_links);
 
 	static std::set<LLUUID> sRegisteredAttachments;
+	static bool sAttachmentInvLinkEnabled;
 
 };
 
