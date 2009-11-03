@@ -32,6 +32,11 @@
 
 #include "llviewerprecompiledheaders.h"
 
+// common includes
+#include "lltrans.h"
+#include "llavataractions.h"
+#include "llagent.h"
+
 #include "llparticipantlist.h"
 #include "llavatarlist.h"
 #include "llspeakers.h"
@@ -49,6 +54,9 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	mSpeakerMgr->addListener(mSpeakerRemoveListener, "remove");
 	mSpeakerMgr->addListener(mSpeakerClearListener, "clear");
 
+	mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
+	mAvatarList->setDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
+
 	//Lets fill avatarList with existing speakers
 	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
 
@@ -60,6 +68,16 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	}
 	mAvatarList->setDirty();
 	mAvatarList->sortByName();
+}
+
+void LLParticipantList::onAvatarListDoubleClicked(LLAvatarList* list)
+{
+	LLUUID clicked_id = list->getSelectedUUID();
+
+	if (clicked_id.isNull() || clicked_id == gAgent.getID())
+		return;
+	
+	LLAvatarActions::startIM(clicked_id);
 }
 
 LLParticipantList::~LLParticipantList()
