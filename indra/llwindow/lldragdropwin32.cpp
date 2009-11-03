@@ -209,11 +209,18 @@ class LLDragDropWin32Target:
 					LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(mWindowHandle, GWL_USERDATA);
 					if (NULL != window_imp)
 					{
-						LLCoordGL gl_coord( pt.x, pt.y);
-						LLCoordWindow cursor_coord_window( pt.x, pt.y );
+						LLCoordGL gl_coord( 0, 0 );
+
+						POINT pt2;
+						pt2.x = pt.x;
+						pt2.y = pt.y;
+						ScreenToClient( mWindowHandle, &pt2 );
+
+						LLCoordWindow cursor_coord_window( pt2.x, pt2.y );
 						window_imp->convertCoords(cursor_coord_window, &gl_coord);
 						llinfos << "### (Drop) URL is: " << lpszText << llendl;
 						llinfos << "###        raw coords are: " << pt.x << " x " << pt.y << llendl;
+						llinfos << "###	    window coords are: " << pt2.x << " x " << pt2.y << llendl;
 						llinfos << "###         GL coords are: " << gl_coord.mX << " x " << gl_coord.mY << llendl;
 						llinfos << llendl;
 
