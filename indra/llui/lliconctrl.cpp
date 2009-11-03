@@ -124,4 +124,3 @@ void LLIconCtrl::setIconImageDrawSize()
 		}
 	}
 }
-
