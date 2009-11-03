@@ -77,20 +77,26 @@ void upload_new_resource(
 // used
 
 // We make a new function here to ensure that previous code is not broken
-BOOL upload_new_variable_cost_resource(
-	const LLTransactionID &tid, 
+BOOL upload_new_variable_price_resource(
+	const LLTransactionID& tid, 
 	LLAssetType::EType type,
 	std::string name,
 	std::string desc, 
-	S32 compression_info,
 	LLAssetType::EType destination_folder_type,
 	LLInventoryType::EType inv_type,
 	U32 next_owner_perms,
 	U32 group_perms,
 	U32 everyone_perms,
 	const std::string& display_name,
-	LLAssetStorage::LLStoreAssetCallback callback,
-	void *userdata);
+	const LLSD& asset_resources);
 
+LLAssetID generate_asset_id_for_new_upload(const LLTransactionID& tid);
+void increase_new_upload_stats(LLAssetType::EType asset_type);
+void assign_defaults_and_show_upload_message(
+	LLAssetType::EType asset_type,
+	LLInventoryType::EType& inventory_type,
+	std::string& name,
+	const std::string& display_name,
+	std::string& description);
 
 #endif

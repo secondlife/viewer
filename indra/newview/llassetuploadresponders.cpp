@@ -72,7 +72,7 @@ static const S32 FILE_COUNT_DISPLAY_THRESHOLD = 5;
 
 void dialog_refresh_all();
 
-void on_new_single_inventory_upload_complete(
+static void on_new_single_inventory_upload_complete(
 	LLAssetType::EType asset_type,
 	LLInventoryType::EType inventory_type,
 	const std::string inventory_type_string,
@@ -736,22 +736,103 @@ public:
 		LLUploadDialog::modalUploadFinished();
 	}
 
-	void onApplicationLevelError(const std::string& error_identifier)
+	void onApplicationLevelError(const LLSD& error)
 	{
-		// TODO*: Pull these user visible strings from an xml file
-		// to be localized
+		static const std::string _IDENTIFIER = "identifier";
+
 		static const std::string _INSUFFICIENT_FUNDS =
 			"NewAgentInventory_InsufficientLindenDollarBalance";
+		static const std::string _MISSING_REQUIRED_PARAMETER =
+			"NewAgentInventory_MissingRequiredParamater";
+		static const std::string _INVALID_REQUEST_BODY =
+			"NewAgentInventory_InvalidRequestBody";
+		static const std::string _RESOURCE_COST_DIFFERS =
+			"NewAgentInventory_ResourceCostDiffers";
 
+		static const std::string _MISSING_PARAMETER = "missing_parameter";
+		static const std::string _INVALID_PARAMETER = "invalid_parameter";
+		static const std::string _MISSING_RESOURCE = "missing_resource";
+		static const std::string _INVALID_RESOURCE = "invalid_resource";
 
+		// TODO* Add the other error_identifiers
+
+		std::string error_identifier = error[_IDENTIFIER].asString();
+
+		// TODO*: Pull these user visible strings from an xml file
+		// to be localized
 		if ( _INSUFFICIENT_FUNDS == error_identifier )
 		{
 			displayCannotUploadReason("You do not have a sufficient L$ balance to complete this upload.");
 		}
+		else if ( _MISSING_REQUIRED_PARAMETER == error_identifier )
+		{
+			// Missing parameters
+			if (error.has(_MISSING_PARAMETER) )
+			{
+				std::string message = 
+					"Upload request was missing required parameter '[P]'";
+				LLStringUtil::replaceString(
+					message,
+					"[P]",
+					error[_MISSING_PARAMETER].asString());
+
+				displayCannotUploadReason(message);
+			}
+			else
+			{
+				std::string message = 
+					"Upload request was missing a required parameter";
+				displayCannotUploadReason(message);					
+			}
+		}
+		else if ( _INVALID_REQUEST_BODY == error_identifier )
+		{
+			// Invalid request body, check to see if 
+			// a particular parameter was invalid
+			if ( error.has(_INVALID_PARAMETER) )
+			{
+				std::string message = "Upload parameter '[P]' is invalid.";
+				LLStringUtil::replaceString(
+					message,
+					"[P]",
+					error[_INVALID_PARAMETER].asString());
+
+				// See if the server also responds with what resource
+				// is missing.
+				if ( error.has(_MISSING_RESOURCE) )
+				{
+					message += "\nMissing resource '[R]'.";
+
+					LLStringUtil::replaceString(
+						message,
+						"[R]",
+						error[_MISSING_RESOURCE].asString());
+				}
+				else if ( error.has(_INVALID_RESOURCE) )
+				{
+					message += "\nInvalid resource '[R]'.";
+
+					LLStringUtil::replaceString(
+						message,
+						"[R]",
+						error[_INVALID_RESOURCE].asString());
+				}
+
+				displayCannotUploadReason(message);
+			}
+			else
+			{
+				std::string message = "Upload request was malformed";
+				displayCannotUploadReason(message);					
+			}
+		}
+		else if ( _RESOURCE_COST_DIFFERS == error_identifier )
+		{
+			displayCannotUploadReason("The resource cost associated with this upload is not consistent with the server.");
+		}
 		else
 		{
 			displayCannotUploadReason("Unknown Error");
-
 		}
 	}
 
@@ -761,13 +842,17 @@ public:
 				"The server is experiencing unexpected difficulties.");
 	}
 
-	void onTransportError(const std::string& error_identifier)
+	void onTransportError(const LLSD& error)
 	{
-		// TODO*: Pull these user visible strings from an xml file
-		// to be localized
+		static const std::string _IDENTIFIER = "identifier";
 
 		static const std::string _SERVER_ERROR_AFTER_CHARGE =
 			"NewAgentInventory_ServerErrorAfterCharge";
+
+		std::string error_identifier = error[_IDENTIFIER].asString();
+
+		// TODO*: Pull the user visible strings from an xml file
+		// to be localized
 
 		if ( _SERVER_ERROR_AFTER_CHARGE == error_identifier )
 		{
@@ -779,7 +864,6 @@ public:
 			displayCannotUploadReason(
 				"The server is experiencing unexpected difficulties.");
 		}
-
 	}
 
 	bool uploadConfirmationCallback(
@@ -798,25 +882,32 @@ public:
 			notification["payload"]["confirmation_url"].asString();
 
 		// Yay!  We are confirming or cancelling our upload
-		LLSD body;
-
-		body["confirm_upload"] = false;
-
 		switch(option)
 		{
 		case 0:
 		    {
-				body["confirm_upload"] = true;
-				body["expected_upload_price"] =
-					notification["payload"]["expected_upload_price"];
+				if ( getFilename().empty() )
+				{
+					// we have no filename, use virtual file ID instead
+					LLHTTPClient::postFile(
+						confirmation_url,
+						getVFileID(),
+						getAssetType(),
+						responder);
+				}
+				else
+				{
+					LLHTTPClient::postFile(
+						confirmation_url,
+						getFilename(),
+						responder);
+				}
 			}
 			break;
 		case 1:
 		default:
 			break;
 		}
-
-		LLHTTPClient::post(confirmation_url, body, responder);
 
 		return false;
 	}
@@ -865,9 +956,8 @@ void LLNewAgentInventoryVariablePriceResponder::errorWithContent(
 	if ( content.has("error") )
 	{
 		static const std::string _ERROR = "error";
-		static const std::string _IDENTIFIER = "identifier";
 
-		mImpl->onTransportError(content[_ERROR][_IDENTIFIER].asString());
+		mImpl->onTransportError(content[_ERROR]);
 	}
 	else
 	{
@@ -880,52 +970,25 @@ void LLNewAgentInventoryVariablePriceResponder::result(const LLSD& content)
 	// Parse out application level errors and the appropriate
 	// responses for them
 	static const std::string _ERROR = "error";
-	static const std::string _IDENTIFIER = "identifier";
 	static const std::string _STATE = "state";
 
 	static const std::string _COMPLETE = "complete";
-	static const std::string _COST_ANALYSIS = "cost_analysis";
-	static const std::string _NEEDS_CONFIRMATION = "needs_confirmation";
-	static const std::string _CANCEL = "cancel";
+	static const std::string _CONFIRM_UPLOAD = "confirm_upload";
 
-	static const std::string _RESOURCE_COST = "resource_cost";
 	static const std::string _UPLOAD_PRICE = "upload_price";
-
-	static const std::string _ANALYZER = "analyzer";
 	static const std::string _RSVP = "rsvp";
 
 	// Check for application level errors
 	if ( content.has(_ERROR) )
 	{
-		onApplicationLevelError(content[_ERROR][_IDENTIFIER].asString());
+		onApplicationLevelError(content[_ERROR]);
 		return;
 	}
 
 	std::string state = content[_STATE];
 	LLAssetType::EType asset_type = mImpl->getAssetType();
 
-	if ( _COST_ANALYSIS == state )
-	{
-		std::string analyzer_url = content[_ANALYZER];
-
-		if ( mImpl->getFilename().empty() )
-		{
-			// we have no filename, use virtual file ID instead
-			LLHTTPClient::postFile(
-				analyzer_url,
-				mImpl->getVFileID(),
-				asset_type,
-				this);
-		}
-		else
-		{
-			LLHTTPClient::postFile(
-				analyzer_url,
-				mImpl->getFilename(),
-				this);
-		}
-	}
-	else if ( _COMPLETE == state )
+	if ( _COMPLETE == state )
 	{
 		// rename file in VFS with new asset id
 		if (mImpl->getFilename().empty())
@@ -952,16 +1015,11 @@ void LLNewAgentInventoryVariablePriceResponder::result(const LLSD& content)
 		// TODO* Add bulk (serial) uploading or add
 		// a super class of this that does so
 	}
-	else if ( _NEEDS_CONFIRMATION == state )
+	else if ( _CONFIRM_UPLOAD == state )
 	{
 		showConfirmationDialog(
 			content[_UPLOAD_PRICE].asInteger(),
-			content[_RESOURCE_COST].asInteger(),
 			content[_RSVP].asString());
-	}
-	else if ( _CANCEL == state )
-	{
-		// cancelled, do nothing
 	}
 	else
 	{
@@ -970,14 +1028,13 @@ void LLNewAgentInventoryVariablePriceResponder::result(const LLSD& content)
 }
 
 void LLNewAgentInventoryVariablePriceResponder::onApplicationLevelError(
-	const std::string& error_identifier)
+	const LLSD& error)
 {
-	mImpl->onApplicationLevelError(error_identifier);
+	mImpl->onApplicationLevelError(error);
 }
 
 void LLNewAgentInventoryVariablePriceResponder::showConfirmationDialog(
 	S32 upload_price,
-	S32 resource_cost,
 	const std::string& confirmation_url)
 {
 	if ( 0 == upload_price ) 
@@ -998,7 +1055,6 @@ void LLNewAgentInventoryVariablePriceResponder::showConfirmationDialog(
 		substitutions["PRICE"] = upload_price;
 
 		payload["confirmation_url"] = confirmation_url;
-		payload["expected_upload_price"] = upload_price;
 
 		// The creating of a new instrusive_ptr(this)
 		// creates a new boost::intrusive_ptr

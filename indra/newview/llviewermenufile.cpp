@@ -964,60 +964,24 @@ void upload_done_callback(
 	}
 }
 
-LLAssetID upload_new_resource_prep(
-	const LLTransactionID &tid,
+static LLAssetID upload_new_resource_prep(
+	const LLTransactionID& tid,
 	LLAssetType::EType asset_type,
 	LLInventoryType::EType& inventory_type,
 	std::string& name,
 	const std::string& display_name,
 	std::string& description)
 {
-	if ( gDisconnected )
-	{
-		LLAssetID rv;
+	LLAssetID uuid = generate_asset_id_for_new_upload(tid);
 
-		rv.setNull();
-		return rv;
-	}
+	increase_new_upload_stats(asset_type);
 
-	LLAssetID uuid = tid.makeAssetID(gAgent.getSecureSessionID());
-	
-	if ( LLAssetType::AT_SOUND == asset_type )
-	{
-		LLViewerStats::getInstance()->incStat(
-			LLViewerStats::ST_UPLOAD_SOUND_COUNT );
-	}
-	else if ( LLAssetType::AT_TEXTURE == asset_type )
-	{
-		LLViewerStats::getInstance()->incStat(
-			LLViewerStats::ST_UPLOAD_TEXTURE_COUNT );
-	}
-	else if ( LLAssetType::AT_ANIMATION == asset_type )
-	{
-		LLViewerStats::getInstance()->incStat(
-			LLViewerStats::ST_UPLOAD_ANIM_COUNT );
-	}
-
-	if ( LLInventoryType::IT_NONE == inventory_type )
-	{
-		inventory_type = LLInventoryType::defaultForAssetType(asset_type);
-	}
-	LLStringUtil::stripNonprintable(name);
-	LLStringUtil::stripNonprintable(description);
-
-	if ( name.empty() )
-	{
-		name = "(No Name)";
-	}
-	if ( description.empty() )
-	{
-		description = "(No Description)";
-	}
-
-	// At this point, we're ready for the upload.
-	std::string upload_message = "Uploading...\n\n";
-	upload_message.append(display_name);
-	LLUploadDialog::modalUploadDialog(upload_message);
+	assign_defaults_and_show_upload_message(
+		asset_type,
+		inventory_type,
+		name,
+		display_name,
+		description);
 
 	return uuid;
 }
@@ -1146,27 +1110,27 @@ void upload_new_resource(
 		{
 			asset_callback = callback;
 		}
-		gAssetStorage->storeAssetData(data->mAssetInfo.mTransactionID, data->mAssetInfo.mType,
-										asset_callback,
-										(void*)data,
-										FALSE);
+		gAssetStorage->storeAssetData(
+			data->mAssetInfo.mTransactionID,
+			data->mAssetInfo.mType,
+			asset_callback,
+			(void*)data,
+			FALSE);
 	}
 }
 
-BOOL upload_new_variable_cost_resource(
+BOOL upload_new_variable_price_resource(
 	const LLTransactionID &tid, 
 	LLAssetType::EType asset_type,
 	std::string name,
 	std::string desc, 
-	S32 compression_info,
 	LLAssetType::EType destination_folder_type,
 	LLInventoryType::EType inv_type,
 	U32 next_owner_perms,
 	U32 group_perms,
 	U32 everyone_perms,
 	const std::string& display_name,
-	LLAssetStorage::LLStoreAssetCallback callback,
-	void *userdata)
+	const LLSD& asset_resources)
 {
 	LLAssetID uuid = 
 		upload_new_resource_prep(
@@ -1209,6 +1173,8 @@ BOOL upload_new_variable_cost_resource(
 			group_perms,
 			everyone_perms);
 
+		body["asset_resources"] = asset_resources;
+
 		LLHTTPClient::post(
 			url,
 			body,
@@ -1223,6 +1189,70 @@ BOOL upload_new_variable_cost_resource(
 		return FALSE;
 	}
 }
+
+LLAssetID generate_asset_id_for_new_upload(const LLTransactionID& tid)
+{
+	if ( gDisconnected )
+	{
+		LLAssetID rv;
+
+		rv.setNull();
+		return rv;
+	}
+
+	LLAssetID uuid = tid.makeAssetID(gAgent.getSecureSessionID());
+
+	return uuid;
+}
+
+void increase_new_upload_stats(LLAssetType::EType asset_type)
+{
+	if ( LLAssetType::AT_SOUND == asset_type )
+	{
+		LLViewerStats::getInstance()->incStat(
+			LLViewerStats::ST_UPLOAD_SOUND_COUNT );
+	}
+	else if ( LLAssetType::AT_TEXTURE == asset_type )
+	{
+		LLViewerStats::getInstance()->incStat(
+			LLViewerStats::ST_UPLOAD_TEXTURE_COUNT );
+	}
+	else if ( LLAssetType::AT_ANIMATION == asset_type )
+	{
+		LLViewerStats::getInstance()->incStat(
+			LLViewerStats::ST_UPLOAD_ANIM_COUNT );
+	}
+}
+
+void assign_defaults_and_show_upload_message(
+	LLAssetType::EType asset_type,
+	LLInventoryType::EType& inventory_type,
+	std::string& name,
+	const std::string& display_name,
+	std::string& description)
+{
+	if ( LLInventoryType::IT_NONE == inventory_type )
+	{
+		inventory_type = LLInventoryType::defaultForAssetType(asset_type);
+	}
+	LLStringUtil::stripNonprintable(name);
+	LLStringUtil::stripNonprintable(description);
+
+	if ( name.empty() )
+	{
+		name = "(No Name)";
+	}
+	if ( description.empty() )
+	{
+		description = "(No Description)";
+	}
+
+	// At this point, we're ready for the upload.
+	std::string upload_message = "Uploading...\n\n";
+	upload_message.append(display_name);
+	LLUploadDialog::modalUploadDialog(upload_message);
+}
+
 
 void init_menu_file()
 {

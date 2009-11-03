@@ -102,10 +102,9 @@ public:
 	void result(const LLSD& content);
 
 	virtual void onApplicationLevelError(
-		const std::string& error_identifier);
+		const LLSD& error);
 	virtual void showConfirmationDialog(
 		S32 upload_price,
-		S32 resource_cost,
 		const std::string& confirmation_url);
 
 private:
