@@ -797,14 +797,15 @@ void LLPanelPeople::reSelectedCurrentTab()
 
 void LLPanelPeople::onFilterEdit(const std::string& search_string)
 {
-	if (mFilterSubString == search_string)
+	std::string search_upper = search_string;
+	// Searches are case-insensitive
+	LLStringUtil::toUpper(search_upper);
+	LLStringUtil::trimHead(search_upper);
+
+	if (mFilterSubString == search_upper)
 		return;
 
-	mFilterSubString = search_string;
-
-	// Searches are case-insensitive
-	LLStringUtil::toUpper(mFilterSubString);
-	LLStringUtil::trimHead(mFilterSubString);
+	mFilterSubString = search_upper;
 
 	// Apply new filter.
 	mNearbyList->setNameFilter(mFilterSubString);
