@@ -31,18 +31,11 @@
  * $/LicenseInfo$
  */
 
-// 1
-
-
-
-
 #if LL_SDL
 
 // 2
 
 #include "linden_common.h"
-
-// 3
 
 #include "llwindowsdl.h"
 
