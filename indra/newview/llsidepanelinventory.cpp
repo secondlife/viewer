@@ -54,8 +54,7 @@ static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_
 
 LLSidepanelInventory::LLSidepanelInventory()
 	:	LLPanel(),
-		mSidepanelObjectInfo(NULL),
-		mItem(NULL)
+		mSidepanelObjectInfo(NULL)
 {
 
 	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
@@ -102,43 +101,22 @@ BOOL LLSidepanelInventory::postBuild()
 
 void LLSidepanelInventory::onOpen(const LLSD& key)
 {
-	if(mSidepanelObjectInfo == NULL || key.size() == 0)
+	if(key.size() == 0)
 		return;
 
-	mItem = NULL;
+	mSidepanelObjectInfo->reset();
 
-	LLInventoryItem* item = gInventory.getItem(key["id"].asUUID());
-	if (!item)
+	if (key.has("id"))
 	{
-		return;
+		mSidepanelObjectInfo->setItemID(key["id"].asUUID());
 	}
-	setItem(item);
+	
+	if (key.has("object"))
+	{
+		mSidepanelObjectInfo->setObjectID(key["object"].asUUID());
+	}
+
 	toggleObjectInfoPanel(TRUE);
-}
-
-void LLSidepanelInventory::setItem(LLInventoryItem* item)
-{
-	if (!mSidepanelObjectInfo || !item)
-		return;
-
-	mItem = item;
-
-	LLAssetType::EType item_type = mItem->getActualType();
-	if (item_type == LLAssetType::AT_LINK)
-	{
-		mItem = gInventory.getItem(mItem->getLinkedUUID());
-		if (mItem.isNull())
-			return;
-	}
-
-	// Check if item is in agent's inventory and he has the permission to modify it.
-	BOOL is_object_editable = gInventory.isObjectDescendentOf(mItem->getUUID(), gInventory.getRootFolderID()) &&
-		mItem->getPermissions().allowModifyBy(gAgent.getID());
-
-	mInfoBtn->setEnabled(is_object_editable);
-	// mSaveBtn->setEnabled(is_object_editable);
-
-	mSidepanelObjectInfo->displayItemInfo(mItem);
 }
 
 void LLSidepanelInventory::onInfoButtonClicked()
@@ -146,7 +124,8 @@ void LLSidepanelInventory::onInfoButtonClicked()
 	LLInventoryItem *item = getSelectedItem();
 	if (item)
 	{
-		setItem(item);
+		mSidepanelObjectInfo->reset();
+		mSidepanelObjectInfo->setItemID(item->getUUID());
 		toggleObjectInfoPanel(TRUE);
 	}
 }
@@ -188,12 +167,7 @@ void LLSidepanelInventory::onOverflowButtonClicked()
 
 void LLSidepanelInventory::onBackButtonClicked()
 {
-	if (!mSidepanelObjectInfo)
-		return;
-	
 	toggleObjectInfoPanel(FALSE);
-
-	
 	updateVerbs();
 }
 
@@ -204,9 +178,6 @@ void LLSidepanelInventory::onSelectionChange(const std::deque<LLFolderViewItem*>
 
 void LLSidepanelInventory::toggleObjectInfoPanel(BOOL visible)
 {
-	if (!mSidepanelObjectInfo)
-		return;
-
 	mSidepanelObjectInfo->setVisible(visible);
 	mTabContainer->setVisible(!visible);
 

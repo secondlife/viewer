@@ -49,8 +49,6 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
-	void setItem(LLInventoryItem* item);
-
 protected:
 	LLInventoryItem *getSelectedItem();
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
@@ -77,9 +75,6 @@ protected:
 	LLButton*					mPlayBtn;
 	LLButton*					mTeleportBtn;
 	LLButton*					mOverflowBtn;
-
-	// Pointer to a item
-	LLPointer<LLInventoryItem>	mItem;
 };
 
 #endif //LL_LLSIDEPANELINVENTORY_H

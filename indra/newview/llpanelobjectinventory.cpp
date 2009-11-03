@@ -57,6 +57,7 @@
 #include "llpreviewtexture.h"
 #include "llscrollcontainer.h"
 #include "llselectmgr.h"
+#include "llsidetray.h"
 #include "llstatusbar.h"
 #include "lltrans.h"
 #include "llviewerregion.h"
@@ -159,11 +160,18 @@ LLInventoryItem* LLTaskInvFVBridge::findItem() const
 
 void LLTaskInvFVBridge::showProperties()
 {
+	LLSD key;
+	key["object"] = mPanel->getTaskUUID();
+	key["id"] = mUUID;
+	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+	
+	/*
 	LLFloaterProperties* floater = LLFloaterReg::showTypedInstance<LLFloaterProperties>("properties", mUUID);
 	if (floater)
 	{
 		floater->setObjectID(mPanel->getTaskUUID());
 	}
+	*/
 }
 
 struct LLBuyInvItemData
