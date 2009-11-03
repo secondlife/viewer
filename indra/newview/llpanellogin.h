@@ -56,6 +56,10 @@ public:
 	virtual void draw();
 	virtual void setFocus( BOOL b );
 
+	// Show the XUI first name, last name, and password widgets.  They are
+	// hidden on startup for reg-in-client
+	static void showLoginWidgets();
+
 	static void show(const LLRect &rect, BOOL show_server, 
 		void (*callback)(S32 option, void* user_data), 
 		void* callback_data);
@@ -86,10 +90,10 @@ public:
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
 private:
+	void reshapeBrowser();
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
 //	static bool newAccountAlertCallback(const LLSD& notification, const LLSD& response);
-	static void onClickQuit(void*);
 	static void onClickVersion(void*);
 	static void onClickForgotPassword(void*);
 	static void onPassKey(LLLineEditor* caller, void* user_data);
