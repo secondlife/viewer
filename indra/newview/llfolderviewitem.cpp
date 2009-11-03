@@ -244,13 +244,13 @@ void LLFolderViewItem::refreshFromListener()
 	if(mListener)
 	{
 		mLabel = mListener->getDisplayName();
-		LLAssetType::EType preferred_type = mListener->getPreferredType();
+		LLFolderType::EType preferred_type = mListener->getPreferredType();
 
 		// *TODO: to be removed when database supports multi language. This is a
 		// temporary attempt to display the inventory folder in the user locale.
 		// mantipov: *NOTE: be sure this code is synchronized with LLFriendCardsManager::findChildFolderUUID
 		//		it uses the same way to find localized string
-		if (LLAssetType::lookupIsProtectedCategoryType(preferred_type))
+		if (LLFolderType::lookupIsProtectedType(preferred_type))
 		{
 			LLTrans::findString(mLabel, "InvFolder " + mLabel);
 		};
@@ -1749,7 +1749,7 @@ bool LLFolderViewFolder::isTrash() const
 {
 	if (mAmTrash == LLFolderViewFolder::UNKNOWN)
 	{
-		mAmTrash = mListener->getUUID() == gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH, false) ? LLFolderViewFolder::TRASH : LLFolderViewFolder::NOT_TRASH;
+		mAmTrash = mListener->getUUID() == gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH, false) ? LLFolderViewFolder::TRASH : LLFolderViewFolder::NOT_TRASH;
 	}
 	return mAmTrash == LLFolderViewFolder::TRASH;
 }
@@ -2163,7 +2163,7 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
 	const LLUUID &cat_uuid = getListener()->getUUID();
 	const LLViewerInventoryCategory *cat = gInventory.getCategory(cat_uuid);
-	if (cat && cat->getPreferredType() == LLAssetType::AT_OUTFIT)
+	if (cat && cat->getPreferredType() == LLFolderType::FT_OUTFIT)
 	{
 		getListener()->performAction(NULL, NULL,"replaceoutfit");
 		return TRUE;
@@ -2486,7 +2486,7 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 		&& b->getListener()->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{
 
-		static LLUUID favorites_folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+		static const LLUUID& favorites_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 
 		LLUUID a_uuid = a->getParentFolder()->getListener()->getUUID();
 		LLUUID b_uuid = b->getParentFolder()->getListener()->getUUID();

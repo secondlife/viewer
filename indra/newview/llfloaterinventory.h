@@ -37,6 +37,7 @@
 #include "llassetstorage.h"
 #include "lldarray.h"
 #include "llfloater.h"
+#include "llfoldertype.h"
 #include "llinventory.h"
 #include "llinventoryfilter.h"
 #include "llfolderview.h"
@@ -131,12 +132,12 @@ public:
 
 	// Call this method to set the selection.
 	void openAllFolders();
-	void openDefaultFolderForType(LLAssetType::EType);
+	void openDefaultFolderForType(LLFolderType::EType type);
 	void setSelection(const LLUUID& obj_id, BOOL take_keyboard_focus);
 	void setSelectCallback(const LLFolderView::signal_t::slot_type& cb) { if (mFolders) mFolders->setSelectCallback(cb); }
 	void clearSelection();
 	LLInventoryFilter* getFilter() { return mFolders->getFilter(); }
-	void setFilterTypes(U64 filter, BOOL filter_for_categories = FALSE); // if filter_for_categories is true, operate on folder preferred asset type
+	void setFilterTypes(U64 filter, BOOL filter_for_categories = FALSE); // if filter_for_categories is true, operate on folder preferred type
 	U32 getFilterTypes() const { return mFolders->getFilterTypes(); }
 	void setFilterPermMask(PermissionMask filter_perm_mask);
 	U32 getFilterPermMask() const { return mFolders->getFilterPermissions(); }

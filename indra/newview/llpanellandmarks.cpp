@@ -531,7 +531,7 @@ void LLLandmarksPanel::onAddFolderButtonClick() const
 		menu_create_inventory_item(mCurrentSelectedList->getRootFolder()
 			, dynamic_cast<LLFolderBridge*>(folder_bridge)
 			, LLSD("category")
-			, gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK)
+			, gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK)
 			);
 	}
 }

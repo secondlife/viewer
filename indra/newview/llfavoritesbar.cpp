@@ -437,7 +437,7 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			}
 			else
 			{
-				LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+				const LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 				if (item->getParentUUID() == favorites_id)
 				{
 					llwarns << "Attemt to copy a favorite item into the same folder." << llendl;
@@ -550,7 +550,7 @@ void LLFavoritesBarCtrl::changed(U32 mask)
 {
 	if (mFavoriteFolderId.isNull())
 	{
-		mFavoriteFolderId = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+		mFavoriteFolderId = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 		
 		if (mFavoriteFolderId.notNull())
 		{

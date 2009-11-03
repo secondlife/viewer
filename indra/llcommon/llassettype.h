@@ -94,18 +94,6 @@ public:
 		AT_BODYPART = 13,
 			// A collection of textures and parameters that can be worn by an avatar.
 
-		AT_TRASH = 14,
-			// Only to be used as a marker for a category preferred type. 
-			// Using this, we can throw things in the trash before completely deleting.
-
-		AT_SNAPSHOT_CATEGORY = 15,
-			// A marker for a folder meant for snapshots. 
-			// No actual assets will be snapshots, though if there were, you
-			// could interpret them as textures.
-
-		AT_LOST_AND_FOUND = 16,
-			// Used to stuff lost&found items into.
-
 		AT_SOUND_WAV = 17,
 			// Uncompressed sound.
 
@@ -126,37 +114,21 @@ public:
 		AT_SIMSTATE = 22,
 			// Simstate file.
 
-		AT_FAVORITE = 23,
-			// favorite items
-
 		AT_LINK = 24,
 			// Inventory symbolic link
 
 		AT_LINK_FOLDER = 25,
 			// Inventory folder link
-
-		AT_FOLDER_ENSEMBLE_START = 26,
-		AT_FOLDER_ENSEMBLE_END = 45,
-			// This range is reserved for special clothing folder types.
-
-		AT_CURRENT_OUTFIT = 46,
-			// Current outfit
-
-		AT_OUTFIT = 47,
-			// Predefined outfit ("look")
-
-		AT_MY_OUTFITS = 48,
-			// Folder that holds your outfits.
-
 		
-		AT_COUNT = 49,
+		AT_COUNT = 26,
 			// +*********************************************************+
 			// |  TO ADD AN ELEMENT TO THIS ENUM:                        |
 			// +*********************************************************+
 			// | 1. INSERT BEFORE AT_COUNT                               |
 			// | 2. INCREMENT AT_COUNT BY 1                              |
-			// | 3. ADD TO LLAssetDictionary in LLAssetType.cpp          |
-			// | 3. ADD TO DEFAULT_ASSET_FOR_INV in LLInventoryType.cpp  |
+			// | 3. ADD TO LLAssetType.cpp                               |
+			// | 4. ADD TO LLViewerAssetType.cpp                         |
+			// | 5. ADD TO DEFAULT_ASSET_FOR_INV in LLInventoryType.cpp  |
 			// +*********************************************************+
 
 		AT_NONE = -1
@@ -172,33 +144,17 @@ public:
 	static EType 				lookupHumanReadable(const std::string& readable_name);
 	static const char*			lookupHumanReadable(EType asset_type);
 
-	// Generate a good default description. You may want to add a verb
-	// or agent name after this depending on your application.
-	static void 				generateDescriptionFor(LLAssetType::EType asset_type,
-													   std::string& description);
-
 	static EType 				getType(const std::string& desc_name);
 	static const std::string&	getDesc(EType asset_type);
-	static EDragAndDropType   	lookupDragAndDropType(EType asset_type);
 
 	static bool 				lookupCanLink(EType asset_type);
 	static bool 				lookupIsLinkType(EType asset_type);
 
-	static const char*  		lookupCategoryName(EType asset_type);
-	static bool 				lookupIsProtectedCategoryType(EType asset_type);
-	static bool 				lookupIsEnsembleCategoryType(EType asset_type);
+	static const std::string&	badLookup(); // error string when a lookup fails
 
-	/* TODO: Change return types from "const char *" to "const std::string &".
-	This is fairly straightforward, but requires changing some calls to use .c_str().
-	e.g.:
-	-	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType));
-	+	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType).c_str());
-	*/
-	
-private:
-	// don't instantiate or derive one of these objects
-	LLAssetType( void ) {}
-	~LLAssetType( void ) {}
+protected:
+	LLAssetType() {}
+	~LLAssetType() {}
 };
 
 #endif // LL_LLASSETTYPE_H

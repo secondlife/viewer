@@ -424,7 +424,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 		mInventoryPanel->getRootFolder()->getFilter()->markDefault();
 
 		// Commented out to stop opening all folders with textures
-		// mInventoryPanel->openDefaultFolderForType(LLAssetType::AT_TEXTURE);
+		// mInventoryPanel->openDefaultFolderForType(LLFolderType::FT_TEXTURE);
 
 		// don't put keyboard focus on selected item, because the selection callback
 		// will assume that this was user input
@@ -1071,7 +1071,7 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 	{
 		showPicker(FALSE);
 		//grab textures first...
-		gInventory.startBackgroundFetch(gInventory.findCategoryUUIDForType(LLAssetType::AT_TEXTURE));
+		gInventory.startBackgroundFetch(gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE));
 		//...then start full inventory fetch.
 		gInventory.startBackgroundFetch();
 		handled = TRUE;

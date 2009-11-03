@@ -158,7 +158,7 @@ public:
 	virtual const std::string& getName() const;
 	virtual const std::string& getDisplayName() const;
 	virtual PermissionMask getPermissionMask() const;
-	virtual LLAssetType::EType getPreferredType() const;
+	virtual LLFolderType::EType getPreferredType() const;
 	virtual time_t getCreationDate() const;
 	virtual LLFontGL::StyleFlags getLabelStyle() const
 	{
@@ -297,9 +297,9 @@ public:
 	virtual void selectItem();
 	virtual void restoreItem();
 
-	virtual LLAssetType::EType getPreferredType() const;
+	virtual LLFolderType::EType getPreferredType() const;
 	virtual LLUIImagePtr getIcon() const;
-	static LLUIImagePtr getIcon(LLAssetType::EType asset_type);
+	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type);
 
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL removeItem();
@@ -320,7 +320,7 @@ public:
 	virtual BOOL copyToClipboard() const;
 	
 	static void createWearable(LLFolderBridge* bridge, EWearableType type);
-	static void createWearable(LLUUID parent_folder_id, EWearableType type);
+	static void createWearable(const LLUUID &parent_folder_id, EWearableType type);
 
 	LLViewerInventoryCategory* getCategory() const;
 
