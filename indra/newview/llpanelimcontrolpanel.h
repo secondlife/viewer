@@ -99,6 +99,7 @@ protected:
 
 private:
 	void onGroupInfoButtonClicked();
+	void onSortMenuItemClicked(const LLSD& userdata);
 };
 
 class LLPanelAdHocControlPanel : public LLPanelGroupControlPanel

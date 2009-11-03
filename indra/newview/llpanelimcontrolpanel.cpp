@@ -199,6 +199,20 @@ void LLPanelGroupControlPanel::onGroupInfoButtonClicked()
 	LLGroupActions::show(mGroupID);
 }
 
+void LLPanelGroupControlPanel::onSortMenuItemClicked(const LLSD& userdata)
+{
+	// TODO: Check this code when when sort order menu will be added. (EM)
+	if (false && !mParticipantList)
+		return;
+
+	std::string chosen_item = userdata.asString();
+
+	if (chosen_item == "sort_name")
+	{
+		mParticipantList->setSortOrder(LLParticipantList::E_SORT_BY_NAME);
+	}
+
+}
 
 void LLPanelGroupControlPanel::setSessionId(const LLUUID& session_id)
 {
