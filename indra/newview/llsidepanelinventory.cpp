@@ -47,9 +47,6 @@ static const std::string LANDMARK_INFO_TYPE			= "landmark";
 static const std::string REMOTE_PLACE_INFO_TYPE		= "remote_place";
 static const std::string TELEPORT_HISTORY_INFO_TYPE	= "teleport_history";
 
-// Helper functions
-static void setAllChildrenVisible(LLView* view, BOOL visible);
-
 static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_inventory");
 
 LLSidepanelInventory::LLSidepanelInventory()
