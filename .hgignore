@@ -7,6 +7,8 @@ syntax: glob
 # Emacs temp files
 *~
 .*.swp
+#OSX image cache file
+*.DS_Store
 LICENSES
 indra/.distcc
 indra/build-darwin-*
