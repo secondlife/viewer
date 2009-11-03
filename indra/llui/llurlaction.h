@@ -67,6 +67,9 @@ public:
 	/// if the Url specifies an SL location, teleport there
 	static void teleportToLocation(std::string url);
 
+	/// if the Url specifies an SL location, show it on a map
+	static void showLocationOnMap(std::string url);
+
 	/// perform the appropriate action for left-clicking on a Url
 	static void clickAction(std::string url);
 

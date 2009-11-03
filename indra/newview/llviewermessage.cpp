@@ -2381,7 +2381,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			switch(chat.mChatType)
 			{
 			case CHAT_TYPE_WHISPER:
-				verb = "(" + LLTrans::getString("whisper") + ")";
+				verb = LLTrans::getString("whisper") + " ";
 				break;
 			case CHAT_TYPE_DEBUG_MSG:
 			case CHAT_TYPE_OWNER:
@@ -2389,7 +2389,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 				verb = "";
 				break;
 			case CHAT_TYPE_SHOUT:
-				verb = "(" + LLTrans::getString("shout") + ")";
+				verb = LLTrans::getString("shout") + " ";
 				break;
 			case CHAT_TYPE_START:
 			case CHAT_TYPE_STOP:

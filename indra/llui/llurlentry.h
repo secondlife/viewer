@@ -243,4 +243,16 @@ public:
 	/*virtual*/ std::string getUrl(const std::string &string);
 };
 
+///
+/// LLUrlEntryWorldMap Describes a Second Life worldmap Url, e.g.,
+/// secondlife:///app/worldmap/Ahern/50/50/50
+///
+class LLUrlEntryWorldMap : public LLUrlEntryBase
+{
+public:
+	LLUrlEntryWorldMap();
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getLocation(const std::string &url) const;
+};
+
 #endif

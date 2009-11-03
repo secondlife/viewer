@@ -22,16 +22,6 @@ the General tab.
      name="no_notices_text">
         There are no past notices.
     </panel.string>
-   <!-- <button
-      follows="left|top"
-     height="16"
-     label="?"
-     label_selected="?"
-     layout="topleft"
-     left="250"
-     name="help_button"
-     top="8"
-     width="20" /> -->
      <!--<text
       follows="left|top"
      type="string"

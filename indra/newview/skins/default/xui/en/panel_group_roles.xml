@@ -18,17 +18,6 @@
     </panel.string>
     <panel.string
      name="help_text" />
-    <!--
-    <button
-     follows="left|top"
-     height="16"
-     label="?"
-     layout="topleft"
-     left="250"
-     name="help_button"
-     top="8"
-     width="20" />
-    -->
     <!--<panel
      follows="left|top"
      height="80"

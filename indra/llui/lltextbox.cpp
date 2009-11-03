@@ -45,6 +45,9 @@ LLTextBox::LLTextBox(const LLTextBox::Params& p)
 	mClickedCallback(NULL)
 {}
 
+LLTextBox::~LLTextBox()
+{}
+
 BOOL LLTextBox::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL	handled = LLTextBase::handleMouseDown(x, y, mask);
@@ -97,12 +100,29 @@ BOOL LLTextBox::handleMouseUp(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
+BOOL LLTextBox::handleHover(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = LLTextBase::handleHover(x, y, mask);
+	if (!handled && mClickedCallback)
+	{
+		// Clickable text boxes change the cursor to a hand
+		LLUI::getWindow()->setCursor(UI_CURSOR_HAND);
+		return TRUE;
+	}
+	return handled;
+}
+
 void LLTextBox::setText(const LLStringExplicit& text)
 {
 	// does string argument insertion
 	mText.assign(text);
 	
 	LLTextBase::setText(mText.getString());
+}
+
+void LLTextBox::setClickedCallback( boost::function<void (void*)> cb, void* userdata /*= NULL */ )
+{
+	mClickedCallback = boost::bind(cb, userdata);
 }
 
 S32 LLTextBox::getTextPixelWidth()
@@ -113,6 +133,12 @@ S32 LLTextBox::getTextPixelWidth()
 S32 LLTextBox::getTextPixelHeight()
 {
 	return getContentsRect().getHeight();
+}
+
+
+LLSD LLTextBox::getValue() const
+{
+	return LLSD(getText());
 }
 
 BOOL LLTextBox::setTextArg( const std::string& key, const LLStringExplicit& text )

@@ -54,6 +54,7 @@
 #include "llaccordionctrltab.h"
 #include "llagent.h"
 #include "llagentui.h"
+#include "llappviewer.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llcallbacklist.h"
 #include "llexpandabletextbox.h"
@@ -1003,13 +1004,15 @@ void LLPanelPlaceInfo::updateYouAreHereBanner(void* userdata)
 	LLPanelPlaceInfo* self  = static_cast<LLPanelPlaceInfo*>(userdata);
 	if(!self->getVisible())
 		return;
+	if(!gDisconnected)
+	{
+		static F32 radius  = gSavedSettings.getF32("YouAreHereDistance");
 
-	static F32 radius  = gSavedSettings.getF32("YouAreHereDistance");
-
-	BOOL display_banner = self->mLastSelectedRegionID == gAgent.getRegion()->getRegionID() && 
+		BOOL display_banner = gAgent.getRegion()->getRegionID() == self->mLastSelectedRegionID && 
 			LLAgentUI::checkAgentDistance(self->mPosRegion, radius);
 
-	self->mYouAreHerePanel->setVisible(display_banner);
+		self->mYouAreHerePanel->setVisible(display_banner);
+	}
 }
 
 void LLPanelPlaceInfo::onForSaleBannerClick()

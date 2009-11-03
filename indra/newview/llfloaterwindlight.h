@@ -57,10 +57,6 @@ public:
 	/// initialize all
 	void initCallbacks(void);
 
-	// help button stuff
-	void onClickHelp(std::string alert);
-	void initHelpBtn(const std::string& name, const std::string& xml_alert);
-
 	bool newPromptCallback(const LLSD& notification, const LLSD& response);
 
 	/// general purpose callbacks for dealing with color controllers

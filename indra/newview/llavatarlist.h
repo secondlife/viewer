@@ -59,6 +59,8 @@ public:
 	{
 		Optional<bool> ignore_online_status; // show all items as online
 		Optional<bool> show_last_interaction_time; // show most recent interaction time. *HACK: move this to a derived class
+		Optional<bool> show_info_btn;
+		Optional<bool> show_profile_btn;
 		Params();
 	};
 
@@ -96,6 +98,8 @@ private:
 	bool mShowLastInteractionTime;
 	bool mDirty;
 	bool mShowIcons;
+	bool mShowInfoBtn;
+	bool mShowProfileBtn;
 
 	LLTimer*				mLITUpdateTimer; // last interaction time update timer
 	std::string				mIconParamName;

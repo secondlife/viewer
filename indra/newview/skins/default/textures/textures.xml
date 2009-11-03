@@ -492,6 +492,9 @@
 
   <!--WARNING OLD ART *do not use*-->
 
+ <texture name="Banner_ForSale" file_name="Banner_ForSale.png" preload="false" />
+  <texture name="Banner_YouAreHere" file_name="Banner_YouAreHere.png" preload="false" />
+
   <texture name="btn_chatbar.tga" scale.left="20" scale.top="24" scale.right="44" scale.bottom="0" />
   <texture name="btn_chatbar_selected.tga" scale.left="20" scale.top="24" scale.right="44" scale.bottom="0" />
 
@@ -535,15 +538,6 @@
   <texture name="move_up_out.tga" preload="false" />
   <texture name="move_down_in.tga" preload="false" />
   <texture name="move_down_out.tga" preload="false" />
-
-  <texture name="tool_grab.tga" />
-  <texture name="tool_grab_active.tga" />
-
-  <texture name="tool_face.tga" />
-  <texture name="tool_face_active.tga" />
-
-  <texture name="tool_create.tga" />
-  <texture name="tool_create_active.tga" />
 
   <texture name="up_arrow.tga" file_name="up_arrow.png" />
   <texture name="down_arrow.tga" file_name="down_arrow.png" />
@@ -609,54 +603,6 @@
   <texture name="icon_popular.tga" />
   <texture name="icon_top_pick.tga" />
 
-  <texture name="inv_folder_animation.tga" />
-  <texture name="inv_folder_bodypart.tga" />
-  <texture name="inv_folder_callingcard.tga" />
-  <texture name="inv_folder_clothing.tga" />
-  <texture name="inv_folder_current_outfit.tga" />
-  <texture name="inv_folder_gesture.tga" />
-  <texture name="inv_folder_landmark.tga" />
-  <texture name="inv_folder_lostandfound.tga" />
-  <texture name="inv_folder_my_outfits.tga" />
-  <texture name="inv_folder_notecard.tga" />
-  <texture name="inv_folder_object.tga" />
-  <texture name="inv_folder_outfit.tga" />
-  <texture name="inv_folder_plain_closed.tga" />
-  <texture name="inv_folder_script.tga" />
-  <texture name="inv_folder_snapshot.tga" />
-  <texture name="inv_folder_sound.tga" />
-  <texture name="inv_folder_texture.tga" />
-  <texture name="inv_folder_trash.tga" />
-
-  <texture name="inv_item_animation.tga" />
-  <texture name="inv_item_skin.tga" />
-  <texture name="inv_item_callingcard_offline.tga" />
-  <texture name="inv_item_callingcard_online.tga" />
-  <texture name="inv_item_eyes.tga" />
-  <texture name="inv_item_gesture.tga" />
-  <texture name="inv_item_gloves.tga" />
-  <texture name="inv_item_hair.tga" />
-  <texture name="inv_item_jacket.tga" />
-  <texture name="inv_item_landmark.tga" />
-  <texture name="inv_item_landmark_visited.tga" />
-  <texture name="inv_item_linkitem.tga" />
-  <texture name="inv_item_linkfolder.tga" />
-  <texture name="inv_item_notecard.tga" />
-  <texture name="inv_item_object.tga" />
-  <texture name="inv_item_object_multi.tga" />
-  <texture name="inv_item_pants.tga" />
-  <texture name="inv_item_script.tga" />
-  <texture name="inv_item_shape.tga" />
-  <texture name="inv_item_shirt.tga" />
-  <texture name="inv_item_shoes.tga" />
-  <texture name="inv_item_skirt.tga" />
-  <texture name="inv_item_snapshot.tga" />
-  <texture name="inv_item_socks.tga" />
-  <texture name="inv_item_sound.tga" />
-  <texture name="inv_item_texture.tga" />
-  <texture name="inv_item_underpants.tga" />
-  <texture name="inv_item_undershirt.tga" />
-
   <texture name="lag_status_critical.tga" />
   <texture name="lag_status_good.tga" />
   <texture name="lag_status_warning.tga" />
@@ -683,37 +629,6 @@
   <texture name="notify_next.png" preload="true" />
   <texture name="notify_box_icon.tga" />
 
-  <texture name="object_cone.tga" />
-  <texture name="object_cone_active.tga" />
-  <texture name="object_cube.tga" />
-  <texture name="object_cube_active.tga" />
-  <texture name="object_cylinder.tga" />
-  <texture name="object_cylinder_active.tga" />
-  <texture name="object_grass.tga" />
-  <texture name="object_grass_active.tga" />
-  <texture name="object_hemi_cone.tga" />
-  <texture name="object_hemi_cone_active.tga" />
-  <texture name="object_hemi_cylinder.tga" />
-  <texture name="object_hemi_cylinder_active.tga" />
-  <texture name="object_hemi_sphere.tga" />
-  <texture name="object_hemi_sphere_active.tga" />
-  <texture name="object_prism.tga" />
-  <texture name="object_prism_active.tga" />
-  <texture name="object_pyramid.tga" />
-  <texture name="object_pyramid_active.tga" />
-  <texture name="object_ring.tga" />
-  <texture name="object_ring_active.tga" />
-  <texture name="object_sphere.tga" />
-  <texture name="object_sphere_active.tga" />
-  <texture name="object_tetrahedron.tga" />
-  <texture name="object_tetrahedron_active.tga" />
-  <texture name="object_torus.tga" />
-  <texture name="object_torus_active.tga" />
-  <texture name="object_tree.tga" />
-  <texture name="object_tree_active.tga" />
-  <texture name="object_tube.tga" />
-  <texture name="object_tube_active.tga" />
-
   <texture name="pixiesmall.j2c" use_mips="true" />
   <texture name="script_error.j2c" use_mips="true" />
   <texture name="silhouette.j2c" use_mips="true" />
@@ -728,11 +643,6 @@
   <texture name="status_health.tga" />
   <texture name="status_no_push.tga" />
   <texture name="status_no_scripts.tga" />
-
-  <texture name="tool_dozer.tga" />
-  <texture name="tool_dozer_active.tga" />
-  <texture name="tool_zoom.tga" />
-  <texture name="tool_zoom_active.tga" />
 
   <texture name="icn_active-speakers-dot-lvl0.tga" />
   <texture name="icn_active-speakers-dot-lvl1.tga" />

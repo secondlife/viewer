@@ -77,7 +77,6 @@ private:
 	void onBackOrForwardButtonHeldDown(const LLSD& param);
 	void onForwardButtonClicked();
 	void onHomeButtonClicked();
-	void onHelpButtonClicked();
 	void onLocationSelection();
 	void onLocationPrearrange(const LLSD& data);
 	void onSearchCommit();

@@ -220,37 +220,12 @@
     <color_swatch
      border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
-     color="0 0 0 1"
-     control_name="BackgroundChatColor"
-     follows="left|top"
-     height="47"
-     layout="topleft"
-     left="180"
-     name="background"
-     top_pad="-17"
-     width="44" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left_pad="5"
-     mouse_opaque="false"
-     name="text_box8"
-     top_delta="5"
-     width="95">
-        Bubble
-    </text>
-    <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
-     can_apply_immediately="true"
      color="0.6 0.6 1 1"
      control_name="HTMLLinkColor"
      follows="left|top"
      height="47"
      layout="topleft"
-     left="350"
+     left="180"
      name="links"
      top_pad="-17"
      width="44" />

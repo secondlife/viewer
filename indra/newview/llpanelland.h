@@ -60,7 +60,6 @@ protected:
 	static void onClickDivide(void*);
 	static void onClickJoin(void*);
 	static void onClickAbout(void*);
-	static void onShowOwnersHelp(void*);
 
 protected:
 	//LLTextBox*		mTextPriceLabel;

@@ -64,6 +64,9 @@ public:
 	void setName(const std::string& name);
 	void setAvatarId(const LLUUID& id, bool ignore_status_changes = false);
 	void setLastInteractionTime(const std::string& val);
+	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly
+	void setShowProfileBtn(bool hide);
+	void setShowInfoBtn(bool hide);
 	void setAvatarIconVisible(bool visible);
 	
 	const LLUUID& getAvatarId() const;
@@ -99,7 +102,13 @@ private:
 
 	LLUUID mAvatarId;
 	EOnlineStatus mOnlineStatus;
-	static S32	sIconWidth; // icon width + padding
+	//Flag indicating that info/profile button shouldn't be shown at all.
+	//Speaker indicator and avatar name coords are translated accordingly
+	bool mShowInfoBtn;
+	bool mShowProfileBtn;
+	S32	 mIconWidth; // icon width + padding
+	S32  mInfoBtnWidth; //info btn width + padding
+	S32  mProfileBtnWidth; //profile btn width + padding
 };
 
 #endif //LL_LLAVATARLISTITEM_H

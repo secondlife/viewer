@@ -289,10 +289,24 @@ const std::string& LLTaskInvFVBridge::getName() const
 const std::string& LLTaskInvFVBridge::getDisplayName() const
 {
 	LLInventoryItem* item = findItem();
+
 	if(item)
 	{
-		mDisplayName.assign(item->getName());
-
+		if(item->getParentUUID().isNull())
+		{
+			if(item->getName() == "Contents")
+			{
+				mDisplayName.assign(LLTrans::getString("ViewerObjectContents"));
+			}
+			else
+			{
+				mDisplayName.assign(item->getName());
+			}
+		}
+		else
+		{
+			mDisplayName.assign(item->getName());
+		}
 		const LLPermissions& perm(item->getPermissions());
 		BOOL copy = gAgent.allowOperation(PERM_COPY, perm, GP_OBJECT_MANIPULATE);
 		BOOL mod  = gAgent.allowOperation(PERM_MODIFY, perm, GP_OBJECT_MANIPULATE);
@@ -300,15 +314,15 @@ const std::string& LLTaskInvFVBridge::getDisplayName() const
 
 		if(!copy)
 		{
-			mDisplayName.append(" (no copy)");
+			mDisplayName.append(LLTrans::getString("no_copy"));
 		}
 		if(!mod)
 		{
-			mDisplayName.append(" (no modify)");
+			mDisplayName.append(LLTrans::getString("no_modify"));
 		}
 		if(!xfer)
 		{
-			mDisplayName.append(" (no transfer)");
+			mDisplayName.append(LLTrans::getString("no_transfer"));
 		}
 	}
 
