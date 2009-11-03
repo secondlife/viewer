@@ -32,6 +32,9 @@
 
 #include "llviewerprecompiledheaders.h"
 
+// common includes
+#include "lltrans.h"
+
 #include "llparticipantlist.h"
 #include "llavatarlist.h"
 #include "llspeakers.h"
@@ -48,6 +51,8 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	mSpeakerMgr->addListener(mSpeakerAddListener, "add");
 	mSpeakerMgr->addListener(mSpeakerRemoveListener, "remove");
 	mSpeakerMgr->addListener(mSpeakerClearListener, "clear");
+
+	mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
 
 	//Lets fill avatarList with existing speakers
 	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
