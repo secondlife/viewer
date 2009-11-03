@@ -552,14 +552,16 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 	std::string command_name = userdata.asString();
 	if("add_landmark" == command_name)
 	{
-		if(LLLandmarkActions::landmarkAlreadyExists())
+		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
+		if(landmark)
 		{
-			std::string location;
-			LLAgentUI::buildLocationString(location, LLAgentUI::LOCATION_FORMAT_FULL);
-			llwarns<<" Landmark already exists at location:  "<< location<<llendl;
-			return;
+			LLSideTray::getInstance()->showPanel("panel_places", 
+								LLSD().insert("type", "landmark").insert("id",landmark->getUUID()));
 		}
-		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+		else
+		{
+			LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+		}
 	} 
 	else if ("category" == command_name)
 	{
