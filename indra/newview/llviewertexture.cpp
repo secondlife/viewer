@@ -416,7 +416,7 @@ void LLViewerTexture::init(bool firstinit)
 	mDontDiscard = FALSE;
 	mMaxVirtualSize = 0.f;
 	mNeedsResetMaxVirtualSize = FALSE ;
-	mHasParcelMedia = FALSE ;
+	mParcelMedia = NULL ;
 }
 
 //virtual 
@@ -2148,6 +2148,12 @@ void LLViewerMediaTexture::updateClass()
 {
 	static const F32 MAX_INACTIVE_TIME = 30.f ;
 
+#if 0
+	//force to play media.
+	gSavedSettings.setBOOL("AudioSteamingMedia", true) ;
+	gSavedSettings.setBOOL("AudioStreamingVideo", true) ;
+#endif
+
 	for(media_map_t::iterator iter = sMediaMap.begin() ; iter != sMediaMap.end(); )
 	{
 		LLViewerMediaTexture* mediap = iter->second;	
@@ -2221,17 +2227,17 @@ LLViewerMediaTexture::LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps, LL
 	LLViewerTexture* tex = gTextureList.findImage(mID) ;
 	if(tex) //this media is a parcel media for tex.
 	{
-		tex->setParcelMedia(TRUE) ;
-		mParcelTexture = tex ;
+		tex->setParcelMedia(this) ;
 	}
 }
 
 //virtual 
 LLViewerMediaTexture::~LLViewerMediaTexture() 
 {	
-	if(mParcelTexture.notNull())
+	LLViewerTexture* tex = gTextureList.findImage(mID) ;
+	if(tex) //this media is a parcel media for tex.
 	{
-		mParcelTexture->setParcelMedia(FALSE) ;
+		tex->setParcelMedia(NULL) ;
 	}
 }
 
@@ -2283,21 +2289,11 @@ BOOL LLViewerMediaTexture::findFaces()
 	mMediaFaceList.clear() ;
 
 	BOOL ret = TRUE ;
-
-	//for parcel media
-	if(mParcelTexture.isNull())
-	{
-		LLViewerTexture* tex = gTextureList.findImage(mID) ;
-		if(tex)
-		{
-			tex->setParcelMedia(TRUE) ;
-			mParcelTexture = tex ;
-		}
-	}
 	
-	if(mParcelTexture.notNull())
+	LLViewerTexture* tex = gTextureList.findImage(mID) ;
+	if(tex) //this media is a parcel media for tex.
 	{
-		const ll_face_list_t* face_list = mParcelTexture->getFaceList() ;
+		const ll_face_list_t* face_list = tex->getFaceList() ;
 		for(ll_face_list_t::const_iterator iter = face_list->begin(); iter != face_list->end(); ++iter)
 		{
 			mMediaFaceList.push_back(*iter) ;
@@ -2404,11 +2400,6 @@ void LLViewerMediaTexture::addFace(LLFace* facep)
 	if(facep->getTexture() && facep->getTexture() != this && facep->getTexture()->getID() == mID)
 	{
 		mTextureList.push_back(facep->getTexture()) ; //a parcel media.
-		if(mParcelTexture.isNull())
-		{			
-			mParcelTexture = facep->getTexture() ;
-			mParcelTexture->setParcelMedia(TRUE) ;
-		}
 		return ;
 	}
 	
