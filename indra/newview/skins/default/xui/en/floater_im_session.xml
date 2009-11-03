@@ -28,10 +28,10 @@
       name="panel_im_control_panel"
       layout="topleft"
       top_delta="-3"
-      width="146"
       height="305"
       follows="left"
       label="IM Control Panel"
+      auto_resize="false"
       user_resize="false" />
     <layout_panel height="305"
                   width="200"
