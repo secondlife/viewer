@@ -59,12 +59,6 @@ LLFloaterHardwareSettings::~LLFloaterHardwareSettings()
 {
 }
 
-void LLFloaterHardwareSettings::onClickHelp(void* data)
-{
-	const char* xml_alert = "HardwareSettingsHelpButton";
-	LLNotifications::instance().add(xml_alert);
-}
-
 void LLFloaterHardwareSettings::initCallbacks(void) 
 {
 }

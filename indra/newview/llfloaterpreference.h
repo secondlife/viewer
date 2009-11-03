@@ -84,7 +84,6 @@ protected:
 	void		onBtnOK();
 	void		onBtnCancel();
 	void		onBtnApply();
-	void		onOpenHelp();
 
 //	void		onClickClearCache();
 	void		onClickBrowserClearCache();

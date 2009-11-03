@@ -323,15 +323,6 @@
      left="40"
      name="server_lag_cause"
      right="-32" />
-    <!--button
-     bottom="145"
-     follows="left|top"
-     height="18"
-     label="?"
-     layout="topleft"
-     name="server_help"
-     right="-10"
-     width="18" /-->
     <button
      follows="left|top"
      height="20"

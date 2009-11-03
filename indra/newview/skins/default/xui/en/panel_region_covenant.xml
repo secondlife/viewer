@@ -103,17 +103,6 @@
      width="308">
         Last Modified Wed Dec 31 16:00:00 1969
     </text>
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="5"
-     name="covenant_help"
-     top_delta="-2"
-     width="18" />
-
     <text_editor
      enabled="false"
      follows="left|top"

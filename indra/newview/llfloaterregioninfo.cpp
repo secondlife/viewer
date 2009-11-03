@@ -544,16 +544,6 @@ void LLPanelRegionInfo::initCtrl(const std::string& name)
 	getChild<LLUICtrl>(name)->setCommitCallback(boost::bind(&LLPanelRegionInfo::onChangeAnything, this));
 }
 
-void LLPanelRegionInfo::initHelpBtn(const std::string& name, const std::string& xml_alert)
-{
-	getChild<LLUICtrl>(name)->setCommitCallback(boost::bind(&LLPanelRegionInfo::onClickHelp, this, xml_alert));
-}
-
-void LLPanelRegionInfo::onClickHelp(std::string xml_alert)
-{
-	LLNotifications::instance().add(xml_alert);
-}
-
 /////////////////////////////////////////////////////////////////////////////
 // LLPanelRegionGeneralInfo
 //
@@ -588,17 +578,6 @@ BOOL LLPanelRegionGeneralInfo::postBuild()
 	initCtrl("access_combo");
 	initCtrl("restrict_pushobject");
 	initCtrl("block_parcel_search_check");
-
-	initHelpBtn("terraform_help",		"HelpRegionBlockTerraform");
-	initHelpBtn("fly_help",				"HelpRegionBlockFly");
-	initHelpBtn("damage_help",			"HelpRegionAllowDamage");
-	initHelpBtn("agent_limit_help",		"HelpRegionAgentLimit");
-	initHelpBtn("object_bonus_help",	"HelpRegionObjectBonus");
-	initHelpBtn("access_help",			"HelpRegionMaturity");
-	initHelpBtn("restrict_pushobject_help",		"HelpRegionRestrictPushObject");
-	initHelpBtn("land_resell_help",	"HelpRegionLandResell");
-	initHelpBtn("parcel_changes_help", "HelpParcelChanges");
-	initHelpBtn("parcel_search_help", "HelpRegionSearch");
 
 	childSetAction("kick_btn", onClickKick, this);
 	childSetAction("kick_all_btn", onClickKickAll, this);
@@ -808,13 +787,6 @@ BOOL LLPanelRegionDebugInfo::postBuild()
 	initCtrl("disable_scripts_check");
 	initCtrl("disable_collisions_check");
 	initCtrl("disable_physics_check");
-
-	initHelpBtn("disable_scripts_help",		"HelpRegionDisableScripts");
-	initHelpBtn("disable_collisions_help",	"HelpRegionDisableCollisions");
-	initHelpBtn("disable_physics_help",		"HelpRegionDisablePhysics");
-	initHelpBtn("top_colliders_help",		"HelpRegionTopColliders");
-	initHelpBtn("top_scripts_help",			"HelpRegionTopScripts");
-	initHelpBtn("restart_help",				"HelpRegionRestart");
 
 	childSetAction("choose_avatar_btn", onClickChooseAvatar, this);
 	childSetAction("return_btn", onClickReturn, this);
@@ -1181,15 +1153,6 @@ void LLPanelRegionTextureInfo::onClickDump(void* data)
 BOOL LLPanelRegionTerrainInfo::postBuild()
 {
 	LLPanelRegionInfo::postBuild();
-
-	initHelpBtn("water_height_help",	"HelpRegionWaterHeight");
-	initHelpBtn("terrain_raise_help",	"HelpRegionTerrainRaise");
-	initHelpBtn("terrain_lower_help",	"HelpRegionTerrainLower");
-	initHelpBtn("upload_raw_help",		"HelpRegionUploadRaw");
-	initHelpBtn("download_raw_help",	"HelpRegionDownloadRaw");
-	initHelpBtn("use_estate_sun_help",	"HelpRegionUseEstateSun");
-	initHelpBtn("fixed_sun_help",		"HelpRegionFixedSun");
-	initHelpBtn("bake_terrain_help",	"HelpRegionBakeTerrain");
 
 	initCtrl("water_height_spin");
 	initCtrl("terrain_raise_spin");
@@ -2103,20 +2066,6 @@ BOOL LLPanelEstateInfo::postBuild()
 	getChild<LLUICtrl>("abuse_email_address")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeAnything, this));
 	getChild<LLLineEditor>("abuse_email_address")->setKeystrokeCallback(onChangeText, this);
 
-	initHelpBtn("estate_manager_help",			"HelpEstateEstateManager");
-	initHelpBtn("use_global_time_help",			"HelpEstateUseGlobalTime");
-	initHelpBtn("fixed_sun_help",				"HelpEstateFixedSun");
-	initHelpBtn("WLEditSkyHelp",				"HelpEditSky");
-	initHelpBtn("WLEditDayCycleHelp",			"HelpEditDayCycle");
-
-	initHelpBtn("externally_visible_help",		"HelpEstateExternallyVisible");
-	initHelpBtn("allow_direct_teleport_help",	"HelpEstateAllowDirectTeleport");
-	initHelpBtn("allow_resident_help",			"HelpEstateAllowResident");
-	initHelpBtn("allow_group_help",				"HelpEstateAllowGroup");
-	initHelpBtn("ban_resident_help",			"HelpEstateBanResident");
-	initHelpBtn("abuse_email_address_help",     "HelpEstateAbuseEmailAddress");
-	initHelpBtn("voice_chat_help",              "HelpEstateVoiceChat");
-
 	// set up the use global time checkbox
 	getChild<LLUICtrl>("use_global_time_check")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeUseGlobalTime, this));
 	getChild<LLUICtrl>("fixed_sun_check")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeFixedSun, this));
@@ -2694,7 +2643,6 @@ bool LLPanelEstateCovenant::estateUpdate(LLMessageSystem* msg)
 // virtual 
 BOOL LLPanelEstateCovenant::postBuild()
 {
-	initHelpBtn("covenant_help",		"HelpEstateCovenant");
 	mEstateNameText = getChild<LLTextBox>("estate_name_text");
 	mEstateOwnerText = getChild<LLTextBox>("estate_owner_text");
 	mLastModifiedText = getChild<LLTextBox>("covenant_timestamp_text");

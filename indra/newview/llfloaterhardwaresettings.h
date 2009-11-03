@@ -50,9 +50,6 @@ public:
 	/// initialize all the callbacks for the menu
 	void initCallbacks(void);
 
-	/// callback for the menus help button
-	static void onClickHelp(void* data);
-
 	/// OK button
 	static void onBtnOK( void* userdata );
 	
