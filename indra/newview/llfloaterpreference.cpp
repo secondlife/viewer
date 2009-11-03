@@ -1043,11 +1043,15 @@ void LLFloaterPreference::onClickSetKey()
 void LLFloaterPreference::setKey(KEY key)
 {
 	childSetValue("modifier_combo", LLKeyboard::stringFromKey(key));
+	// update the control right away since we no longer wait for apply
+	getChild<LLUICtrl>("modifier_combo")->onCommit();
 }
 
 void LLFloaterPreference::onClickSetMiddleMouse()
 {
 	childSetValue("modifier_combo", "MiddleMouse");
+	// update the control right away since we no longer wait for apply
+	getChild<LLUICtrl>("modifier_combo")->onCommit();
 }
 
 void LLFloaterPreference::onClickSkipDialogs()
