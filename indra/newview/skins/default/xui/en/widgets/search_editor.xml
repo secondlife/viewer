@@ -7,14 +7,14 @@
   background_image="TextField_Search_Off"
   background_image_disabled="TextField_Search_Disabled"
   background_image_focused="TextField_Search_Active" >
-  <search_button label=""
+  <search_button 
     top_pad="4"
     left_pad="4" 
     width="13"
     height="13" 
 	  image_unselected="Search"
 	  image_selected="Search" />
-  <clear_button label=""
+  <clear_button 
    image_unselected="Icon_Close_Foreground"
    image_selected="Icon_Close_Press" />
 </search_editor>

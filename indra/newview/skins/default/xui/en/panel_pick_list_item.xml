@@ -75,7 +75,6 @@
      image_unselected="BuyArrow_Press"
      layout="topleft"
      name="info_chevron"
-     picture_style="true"
      right="-7"
      tab_stop="false"
      top="27"

@@ -927,7 +927,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 		textbox = LLUICtrlFactory::create<LLTextBox> (params);
 		
 		LLButton::Params p;
-		p.name("");
+		p.name("placeholder");
 		btn = LLUICtrlFactory::create<LLButton>(p);
 	}
 	else
@@ -1645,6 +1645,7 @@ void LLTabContainer::initButtons()
 
 		LLButton::Params prev_btn_params;
 		prev_btn_params.name(std::string("Up Arrow"));
+		prev_btn_params.label(std::string("Up Arrow"));
 		prev_btn_params.rect(up_arrow_btn_rect);
 		prev_btn_params.follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT);
 		prev_btn_params.image_unselected.name("scrollbutton_up_out_blue.tga");
@@ -1654,6 +1655,7 @@ void LLTabContainer::initButtons()
 
 		LLButton::Params next_btn_params;
 		next_btn_params.name(std::string("Down Arrow"));
+		next_btn_params.label(std::string("Down Arrow"));
 		next_btn_params.rect(down_arrow_btn_rect);
 		next_btn_params.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_LEFT);
 		next_btn_params.image_unselected.name("scrollbutton_down_out_blue.tga");

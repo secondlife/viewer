@@ -1826,7 +1826,6 @@ void LLFloater::buildButtons()
 		LLButton::Params p;
 		p.name(sButtonNames[i]);
 		p.rect(btn_rect);
-		p.label("");
 		p.image_unselected.name(sButtonActiveImageNames[i]);
 		// Selected, no matter if hovered or not, is "pressed"
 		p.image_selected.name(sButtonPressedImageNames[i]);

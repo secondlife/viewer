@@ -115,6 +115,7 @@ LLScrollbar::LLScrollbar(const Params & p)
 
 	LLButton::Params up_btn(mOrientation == VERTICAL ? p.up_button : p.left_button);
 	up_btn.name(std::string("Line Up"));
+	up_btn.label(std::string("Line Up"));
 	up_btn.rect(line_up_rect);
 	up_btn.click_callback.function(boost::bind(&LLScrollbar::onLineUpBtnPressed, this, _2));
 	up_btn.mouse_held_callback.function(boost::bind(&LLScrollbar::onLineUpBtnPressed, this, _2));
@@ -125,6 +126,7 @@ LLScrollbar::LLScrollbar(const Params & p)
 
 	LLButton::Params down_btn(mOrientation == VERTICAL ? p.down_button : p.right_button);
 	down_btn.name(std::string("Line Down"));
+	down_btn.label(std::string("Line Down"));
 	down_btn.rect(line_down_rect);
 	down_btn.follows.flags(FOLLOWS_RIGHT|FOLLOWS_BOTTOM);
 	down_btn.click_callback.function(boost::bind(&LLScrollbar::onLineDownBtnPressed, this, _2));
