@@ -132,9 +132,9 @@ if (MSVC80)
 endif (MSVC80)
 
 elseif(DARWIN)
-    set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/Debug")
-    set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}/RelWithDebInfo")
-    set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}/Release")
+    set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/Debug/Resources")
+    set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/Resources")
+    set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}/Release/Resources")
 
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/universal-darwin")
     set(vivox_files
@@ -208,17 +208,18 @@ elseif(LINUX)
     set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib_release_client")
     # *FIX - figure out what to do with duplicate libalut.so here -brad
     set(release_files
-        libapr-1.so
-        libaprutil-1.so
+        libapr-1.so.0
+        libaprutil-1.so.0
         libatk-1.0.so
         libcrypto.so
+        libdb-4.2.so
         libexpat.so
         libgmock_main.so
-        libgmock.so
+        libgmock.so.0
         libgmodule-2.0.so
         libgobject-2.0.so
         libgtest_main.so
-        libgtest.so
+        libgtest.so.0
         libopenal.so
         libopenjpeg.so
         libssl.so
@@ -226,6 +227,7 @@ elseif(LINUX)
         libtcmalloc.so
         libuuid.so
         libz.so
+        libssl.so.0.9.7
        )
 
     if (FMOD_SDK_DIR)
