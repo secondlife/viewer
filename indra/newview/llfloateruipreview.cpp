@@ -865,7 +865,8 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 	}
 	else																// if it is a panel...
 	{
-		static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
+		const LLFloater::Params& floater_params = LLFloater::getDefaultParams();
+		S32 floater_header_size = floater_params.header_height;
 
 		LLPanel::Params panel_params;
 		LLPanel* panel = LLUICtrlFactory::create<LLPanel>(panel_params);	// create a new panel

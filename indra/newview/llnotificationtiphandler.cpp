@@ -86,6 +86,20 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
+		// archive message in nearby chat
+		LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+		if(nearby_chat)
+		{
+			LLChat chat_msg(notification->getMessage());
+			nearby_chat->addMessage(chat_msg);
+
+			// don't show toast if Nearby Chat is opened
+			if (nearby_chat->getVisible())
+			{
+				return true;
+			}			
+		}
+
 		LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
 
 		LLToast::Params p;
@@ -99,14 +113,6 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
 		if(channel)
 			channel->addToast(p);
-
-		// archive message in nearby chat
-		LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
-		if(nearby_chat)
-		{
-			LLChat chat_msg(notification->getMessage());
-			nearby_chat->addMessage(chat_msg);
-		}
 	}
 	else if (notify["sigtype"].asString() == "delete")
 	{

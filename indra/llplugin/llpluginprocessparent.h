@@ -45,6 +45,7 @@ public:
 	virtual ~LLPluginProcessParentOwner();
 	virtual void receivePluginMessage(const LLPluginMessage &message) = 0;
 	// This will only be called when the plugin has died unexpectedly 
+	virtual void pluginLaunchFailed() {};
 	virtual void pluginDied() {};
 };
 
@@ -68,6 +69,9 @@ public:
 	bool isDone(void);	
 	
 	void killSockets(void);
+	
+	// Go to the proper error state
+	void errorState(void);
 
 	void setSleepTime(F64 sleep_time, bool force_send = false);
 	F64 getSleepTime(void) const { return mSleepTime; };
@@ -110,6 +114,7 @@ private:
 		STATE_HELLO,			// first message from the plugin process has been received
 		STATE_LOADING,			// process has been asked to load the plugin
 		STATE_RUNNING,			// 
+		STATE_LAUNCH_FAILURE,	// Failure before plugin loaded
 		STATE_ERROR,			// generic bailout state
 		STATE_CLEANUP,			// clean everything up
 		STATE_EXITING,			// Tried to kill process, waiting for it to exit

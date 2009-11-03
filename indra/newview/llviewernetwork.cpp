@@ -35,6 +35,8 @@
 
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
+#include "llevents.h"
+#include "lllogin.h"
 
 struct LLGridData
 {
@@ -154,6 +156,10 @@ LLViewerLogin::LLViewerLogin() :
 	mGridChoice(DEFAULT_GRID_CHOICE)
 {
 }
+
+ LLViewerLogin::~LLViewerLogin() 
+ {
+ }
 
 void LLViewerLogin::setGridChoice(EGridInfo grid)
 {	

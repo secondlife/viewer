@@ -99,6 +99,7 @@ public:
 	// mousehandler overrides
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask );
 	virtual BOOL	handleMiddleMouseDown(S32 x,S32 y,MASK mask);
@@ -165,7 +166,7 @@ public:
 	// inserts text at cursor
 	void			insertText(const std::string &text);
 
-	void			appendWidget(LLView* widget, const std::string &widget_text, bool allow_undo, bool force_newline, S32 hpad, S32 vpad);
+	void			appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo);
 	// Non-undoable
 	void			setText(const LLStringExplicit &utf8str);
 
@@ -201,6 +202,7 @@ public:
 	void getSelectedSegments(segment_vec_t& segments) const;
 
 protected:
+	void			showContextMenu(S32 x, S32 y);
 	void			drawPreeditMarker();
 
 	void 			assignEmbedded(const std::string &s);
@@ -328,6 +330,8 @@ private:
 	LLCoordGL		mLastIMEPosition;		// Last position of the IME editor
 
 	keystroke_signal_t mKeystrokeSignal;
+
+	LLContextMenu* mContextMenu;
 }; // end class LLTextEditor
 
 

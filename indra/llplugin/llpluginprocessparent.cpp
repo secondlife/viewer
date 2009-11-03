@@ -55,6 +55,11 @@ LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner *owner)
 	mBoundPort = 0;
 	mState = STATE_UNINITIALIZED;
 	mDisableTimeout = false;
+
+	// initialize timer - heartbeat test (mHeartbeat.hasExpired()) 
+	// can sometimes return true immediately otherwise and plugins 
+	// fail immediately because it looks like 
+	mHeartbeat.setTimerExpirySec(PLUGIN_LOCKED_UP_SECONDS);
 }
 
 LLPluginProcessParent::~LLPluginProcessParent()
@@ -81,6 +86,14 @@ void LLPluginProcessParent::killSockets(void)
 	killMessagePipe();
 	mListenSocket.reset();
 	mSocket.reset();
+}
+
+void LLPluginProcessParent::errorState(void)
+{
+	if(mState < STATE_RUNNING)
+		setState(STATE_LAUNCH_FAILURE);
+	else
+		setState(STATE_ERROR);
 }
 
 void LLPluginProcessParent::init(const std::string &launcher_filename, const std::string &plugin_filename)
@@ -132,7 +145,7 @@ bool LLPluginProcessParent::accept()
 		ll_apr_warn_status(status);
 		
 		// Some other error.
-		setState(STATE_ERROR);
+		errorState();
 	}
 	
 	return result;	
@@ -150,15 +163,15 @@ void LLPluginProcessParent::idle(void)
 			if(!mMessagePipe->pump())
 			{
 //				LL_WARNS("Plugin") << "Message pipe hit an error state" << LL_ENDL;
-				setState(STATE_ERROR);
+				errorState();
 			}
 		}
 
-		if((mSocketError != APR_SUCCESS) && (mState < STATE_ERROR))
+		if((mSocketError != APR_SUCCESS) && (mState <= STATE_RUNNING))
 		{
 			// The socket is in an error state -- the plugin is gone.
 			LL_WARNS("Plugin") << "Socket hit an error state (" << mSocketError << ")" << LL_ENDL;
-			setState(STATE_ERROR);
+			errorState();
 		}	
 		
 		// If a state needs to go directly to another state (as a performance enhancement), it can set idle_again to true after calling setState().
@@ -191,7 +204,7 @@ void LLPluginProcessParent::idle(void)
 				if(ll_apr_warn_status(status))
 				{
 					killSockets();
-					setState(STATE_ERROR);
+					errorState();
 					break;
 				}
 
@@ -202,7 +215,7 @@ void LLPluginProcessParent::idle(void)
 				if(ll_apr_warn_status(status))
 				{
 					killSockets();
-					setState(STATE_ERROR);
+					errorState();
 					break;
 				}
 
@@ -212,7 +225,7 @@ void LLPluginProcessParent::idle(void)
 					if(ll_apr_warn_status(apr_socket_addr_get(&bound_addr, APR_LOCAL, mListenSocket->getSocket())))
 					{
 						killSockets();
-						setState(STATE_ERROR);
+						errorState();
 						break;
 					}
 					mBoundPort = bound_addr->port;	
@@ -222,7 +235,7 @@ void LLPluginProcessParent::idle(void)
 						LL_WARNS("Plugin") << "Bound port number unknown, bailing out." << LL_ENDL;
 						
 						killSockets();
-						setState(STATE_ERROR);
+						errorState();
 						break;
 					}
 				}
@@ -234,7 +247,7 @@ void LLPluginProcessParent::idle(void)
 				if(ll_apr_warn_status(status))
 				{
 					killSockets();
-					setState(STATE_ERROR);
+					errorState();
 					break;
 				}
 
@@ -242,7 +255,7 @@ void LLPluginProcessParent::idle(void)
 				if(ll_apr_warn_status(status))
 				{
 					killSockets();
-					setState(STATE_ERROR);
+					errorState();
 					break;
 				}
 				
@@ -255,7 +268,7 @@ void LLPluginProcessParent::idle(void)
 				if(ll_apr_warn_status(status))
 				{
 					killSockets();
-					setState(STATE_ERROR);
+					errorState();
 					break;
 				}
 				
@@ -274,7 +287,7 @@ void LLPluginProcessParent::idle(void)
 				mProcess.addArgument(stream.str());
 				if(mProcess.launch() != 0)
 				{
-					setState(STATE_ERROR);
+					errorState();
 				}
 				else
 				{
@@ -290,7 +303,7 @@ void LLPluginProcessParent::idle(void)
 				// waiting for the plugin to connect
 				if(pluginLockedUpOrQuit())
 				{
-					setState(STATE_ERROR);
+					errorState();
 				}
 				else
 				{
@@ -309,7 +322,7 @@ void LLPluginProcessParent::idle(void)
 
 				if(pluginLockedUpOrQuit())
 				{
-					setState(STATE_ERROR);
+					errorState();
 				}
 			break;
 
@@ -330,14 +343,14 @@ void LLPluginProcessParent::idle(void)
 				// The load_plugin_response message will kick us from here into STATE_RUNNING
 				if(pluginLockedUpOrQuit())
 				{
-					setState(STATE_ERROR);
+					errorState();
 				}
 			break;
 			
 			case STATE_RUNNING:
 				if(pluginLockedUpOrQuit())
 				{
-					setState(STATE_ERROR);
+					errorState();
 				}
 			break;
 			
@@ -349,8 +362,16 @@ void LLPluginProcessParent::idle(void)
 				else if(pluginLockedUp())
 				{
 					LL_WARNS("Plugin") << "timeout in exiting state, bailing out" << llendl;
-					setState(STATE_ERROR);
+					errorState();
 				}
+			break;
+
+			case STATE_LAUNCH_FAILURE:
+				if(mOwner != NULL)
+				{
+					mOwner->pluginLaunchFailed();
+				}
+				setState(STATE_CLEANUP);
 			break;
 
 			case STATE_ERROR:
@@ -467,7 +488,7 @@ void LLPluginProcessParent::receiveMessage(const LLPluginMessage &message)
 			else
 			{
 				LL_WARNS("Plugin") << "received hello message in wrong state -- bailing out" << LL_ENDL;
-				setState(STATE_ERROR);
+				errorState();
 			}
 			
 		}
@@ -477,6 +498,9 @@ void LLPluginProcessParent::receiveMessage(const LLPluginMessage &message)
 			{
 				// Plugin has been loaded. 
 				
+				mPluginVersionString = message.getValue("plugin_version");
+				LL_INFOS("Plugin") << "plugin version string: " << mPluginVersionString << LL_ENDL;
+
 				// Check which message classes/versions the plugin supports.
 				// TODO: check against current versions
 				// TODO: kill plugin on major mismatches?
@@ -487,8 +511,6 @@ void LLPluginProcessParent::receiveMessage(const LLPluginMessage &message)
 					LL_INFOS("Plugin") << "message class: " << iter->first << " -> version: " << iter->second.asString() << LL_ENDL;
 				}
 				
-				mPluginVersionString = message.getValue("plugin_version");
-				
 				// Send initial sleep time
 				setSleepTime(mSleepTime, true);			
 
@@ -497,7 +519,7 @@ void LLPluginProcessParent::receiveMessage(const LLPluginMessage &message)
 			else
 			{
 				LL_WARNS("Plugin") << "received load_plugin_response message in wrong state -- bailing out" << LL_ENDL;
-				setState(STATE_ERROR);
+				errorState();
 			}
 		}
 		else if(message_name == "heartbeat")

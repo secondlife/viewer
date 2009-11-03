@@ -458,7 +458,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 // virtual
 void LLFloaterTexturePicker::draw()
 {
-	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
+	S32 floater_header_size = getHeaderHeight();
 	if (mOwner)
 	{
 		// draw cone of context pointing back to texture swatch	

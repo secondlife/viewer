@@ -44,7 +44,6 @@
 #include "lltrans.h"
 
 #include "lldockablefloater.h"
-#include "llimpanel.h"
 #include "llsyswellwindow.h"
 #include "llimfloater.h"
 
@@ -191,19 +190,22 @@ void LLScreenChannel::onToastFade(LLToast* toast)
 {	
 	std::vector<ToastElem>::iterator it = find(mToastList.begin(), mToastList.end(), static_cast<LLPanel*>(toast));
 		
-	bool delete_toast = !mCanStoreToasts || !toast->getCanBeStored();
-	if(delete_toast)
+	if(it != mToastList.end())
 	{
-		mToastList.erase(it);
-		deleteToast(toast);
-	}
-	else
-	{
-		storeToast((*it));
-		mToastList.erase(it);
-	}	
+		bool delete_toast = !mCanStoreToasts || !toast->getCanBeStored();
+		if(delete_toast)
+		{
+			mToastList.erase(it);
+			deleteToast(toast);
+		}
+		else
+		{
+			storeToast((*it));
+			mToastList.erase(it);
+		}	
 
-	redrawToasts();
+		redrawToasts();
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -247,6 +249,7 @@ void LLScreenChannel::loadStoredToastsToChannel()
 
 	for(it = mStoredToastList.begin(); it != mStoredToastList.end(); ++it)
 	{
+		(*it).toast->setIsHidden(false);
 		(*it).toast->resetTimer();
 		mToastList.push_back((*it));
 	}
@@ -266,6 +269,7 @@ void LLScreenChannel::loadStoredToastByNotificationIDToChannel(LLUUID id)
 	mOverflowToastHidden = false;
 
 	LLToast* toast = (*it).toast;
+	toast->setIsHidden(false);
 	toast->resetTimer();
 	mToastList.push_back((*it));
 	mStoredToastList.erase(it);
@@ -519,6 +523,7 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 	LLRect toast_rect;
 	LLToast::Params p;
 	p.lifetime_secs = timer;
+	p.enable_hide_btn = false;
 	mStartUpToastPanel = new LLToast(p);
 
 	if(!mStartUpToastPanel)

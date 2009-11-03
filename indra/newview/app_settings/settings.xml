@@ -375,6 +375,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>AutoPlayMedia</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow media objects to automatically play or navigate?</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>AutoSnapshot</key>
     <map>
       <key>Comment</key>
@@ -3620,6 +3631,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>IMShowControlPanel</key>
+    <map>
+      <key>Comment</key>
+      <string>Show IM Control Panel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>IgnoreAllNotifications</key>
     <map>
       <key>Comment</key>
@@ -4864,7 +4886,7 @@
       <key>Value</key>
       <integer>10</integer>
     </map>
-    <key>ToastOpaqueTime</key>
+    <key>ToastFadingTime</key>
     <map>
       <key>Comment</key>
       <string>Number of seconds while a toast is fading </string>
@@ -4874,6 +4896,29 @@
       <string>S32</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>StartUpToastLifeTime</key>
+    <key>NearbyToastFadingTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of seconds while a nearby chat toast is fading </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>3</integer>
+    </map>
+    <key>NearbyToastLifeTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of seconds while a nearby chat toast exists</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>23</integer>
     </map>
     <key>StartUpToastLifeTime</key>
     <map>
@@ -5316,6 +5361,17 @@
       <key>Value</key>
 	  <integer>13</integer>
     </map>
+    <key>PrimMediaMaxRetries</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of retries for media queries.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>4</integer>
+    </map>
     <key>PrimMediaRequestQueueDelay</key>
     <map>
       <key>Comment</key>
@@ -5403,6 +5459,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>QAModeEventHostPort</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable Testing Features.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
     </map>
     <key>QuietSnapshotsToDisk</key>
     <map>
@@ -7319,17 +7386,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ScriptErrorsAsChat</key>
-    <map>
-      <key>Comment</key>
-      <string>Display script errors and warning in chat history</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>ScriptHelpFollowsCursor</key>
     <map>
       <key>Comment</key>
@@ -7644,6 +7700,28 @@
       <key>Value</key>
       <integer>1</integer>   
     </map>
+	<key>ShowScriptErrors</key>
+    <map>
+      <key>Comment</key>
+      <string>Show script errors</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+	<key>ShowScriptErrorsLocation</key>
+    <map>
+      <key>Comment</key>
+      <string>Show script error in chat or window</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ShowSnapshotButton</key>                
     <map>
       <key>Comment</key>
@@ -7703,6 +7781,39 @@
     <map>
       <key>Comment</key>
       <string>Show/hide group icons in the group list</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FriendsListShowIcons</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide online and all friends icons in the friend list</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>NearbyListShowIcons</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide people icons in nearby list</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>RecentListShowIcons</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide people icons in recent list</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8747,13 +8858,13 @@
     <key>UICloseBoxFromTop</key>
     <map>
       <key>Comment</key>
-      <string>Size of UI floater close box from top</string>
+      <string>Distance from top of floater to top of close box icon, pixels</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>1</real>
+      <real>5</real>
     </map>
     <key>UIExtraTriangleHeight</key>
     <map>
@@ -8788,17 +8899,6 @@
       <key>Value</key>
       <real>16</real>
     </map>
-    <key>UIFloaterHeaderSize</key>
-    <map>
-      <key>Comment</key>
-      <string>Size of UI floater header size</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <real>18</real>
-    </map>
     <key>UIFloaterHPad</key>
     <map>
       <key>Comment</key>
@@ -8821,16 +8921,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>UIFloaterVPad</key>
+    <key>UIFloaterTitleVPad</key>
     <map>
       <key>Comment</key>
-      <string>Size of UI floater vertical pad</string>
+      <string>Distance from top of floater to top of title string, pixels</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>6</real>
+      <real>7</real>
     </map>
     <key>UIImgDefaultEyesUUID</key>
     <map>
@@ -8932,17 +9032,6 @@
       <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
     </map>
     <key>UIImgDefaultAlphaUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
-    </map>
-    <key>UIImgDefaultTattooUUID</key>
     <map>
       <key>Comment</key>
       <string />
@@ -10026,7 +10115,7 @@
       <key>Comment</key>
       <string>Versioning Channel Name.</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
@@ -10427,6 +10516,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>90.0</real>
+    </map>
+    <key>YouAreHereDistance</key>
+    <map>
+      <key>Comment</key>
+      <string>Radius of distance for banner that indicates if the resident is "on" the Place.(meters from avatar to requested place)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>10.0</real>
     </map>
     <key>YieldTime</key>
     <map>

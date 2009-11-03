@@ -60,6 +60,7 @@ public:
 protected:
 	LLIconCtrl(const Params&);
 	friend class LLUICtrlFactory;
+
 public:
 	virtual ~LLIconCtrl();
 
@@ -72,10 +73,20 @@ public:
 	std::string	getImageName() const;
 
 	void			setColor(const LLColor4& color) { mColor = color; }
+	
+private:
+	void setIconImageDrawSize() ;
+
+protected:
+	S32 mPriority;
+
+	//the output size of the icon image if set.
+	S32 mDrawWidth ;
+	S32 mDrawHeight ;
 
 private:
 	LLUIColor mColor;
-	LLPointer<LLUIImage>	mImagep;
+	LLPointer<LLUIImage> mImagep;
 };
 
 #endif

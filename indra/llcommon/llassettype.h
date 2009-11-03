@@ -37,7 +37,7 @@
 
 #include "stdenums.h" 	// for EDragAndDropType
 
-class LLAssetType
+class LL_COMMON_API LLAssetType
 {
 public:
 	enum EType
@@ -152,6 +152,7 @@ public:
 		    // Mesh data in our proprietary SLM format
 
 		AT_COUNT = 50,
+
 			// +*********************************************************+
 			// |  TO ADD AN ELEMENT TO THIS ENUM:                        |
 			// +*********************************************************+

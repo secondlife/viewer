@@ -8,6 +8,7 @@
  left="102" 
  mouse_opaque="true"
  name="Media Settings Security" 
+ help_topic = "media_settings_security"
  width="365">
   <check_box 
    bottom_delta="-40" 

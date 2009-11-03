@@ -52,6 +52,11 @@ public:
 	static BOOL buildLocationString(std::string& str, ELocationFormat fmt = LOCATION_FORMAT_LANDMARK);
 	//build location string using a region position of the avatar. 
 	static BOOL buildLocationString(std::string& str, ELocationFormat fmt,const LLVector3& agent_pos_region);
+	/**
+	 * @brief Check whether  the agent is in neighborhood of the pole  Within same region
+	 * @return true if the agent is in neighborhood.
+	 */
+	static BOOL checkAgentDistance(const LLVector3& local_pole, F32 radius);
 };
 
 #endif //LLAGENTUI_H

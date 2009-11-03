@@ -856,6 +856,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 								const LLMatrix4& mat_vert, const LLMatrix3& mat_normal,
 								const U16 &index_offset)
 {
+	llpushcallstacks ;
 	const LLVolumeFace &vf = volume.getVolumeFace(f);
 	S32 num_vertices = (S32)vf.mVertices.size();
 	S32 num_indices = (S32)vf.mIndices.size();
@@ -864,7 +865,15 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	{
 		if (num_indices + (S32) mIndicesIndex > mVertexBuffer->getNumIndices())
 		{
-			llwarns << "Index buffer overflow!" << llendl;
+			llwarns	<< "Index buffer overflow!" << llendl;
+			llwarns << "Indices Count: " << mIndicesCount
+					<< " VF Num Indices: " << num_indices
+					<< " Indices Index: " << mIndicesIndex
+					<< " VB Num Indices: " << mVertexBuffer->getNumIndices() << llendl;
+			llwarns	<< "Last Indices Count: " << mLastIndicesCount
+					<< " Last Indices Index: " << mLastIndicesIndex
+					<< " Face Index: " << f
+					<< " Pool Type: " << mPoolType << llendl;
 			return FALSE;
 		}
 

@@ -182,13 +182,7 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 
 void log_chat_text(const LLChat& chat)
 {
-		std::string histstr;
-		if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
-			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + chat.mText;
-		else
-			histstr = chat.mText;
-
-		LLLogChat::saveHistory(std::string("chat"),histstr);
+	LLLogChat::saveHistory(std::string("chat"), chat.mFromName, chat.mFromID, chat.mText);
 }
 // static
 void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
@@ -204,12 +198,14 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 
 	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 	{
-		LLFloaterScriptDebug::addScriptLine(chat.mText,
-											chat.mFromName, 
-											color, 
-											chat.mFromID);
-		if (!gSavedSettings.getBOOL("ScriptErrorsAsChat"))
+		if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE)
+			return;
+		if (gSavedSettings.getS32("ShowScriptErrorsLocation") == 1)
 		{
+			LLFloaterScriptDebug::addScriptLine(chat.mText,
+												chat.mFromName, 
+												color, 
+												chat.mFromID);
 			return;
 		}
 	}
@@ -315,9 +311,9 @@ void LLFloaterChat::addChat(const LLChat& chat,
 {
 	LLColor4 text_color = get_text_color(chat);
 
-	BOOL invisible_script_debug_chat = 
-			chat.mChatType == CHAT_TYPE_DEBUG_MSG
-			&& !gSavedSettings.getBOOL("ScriptErrorsAsChat");
+	BOOL invisible_script_debug_chat = ((gSavedSettings.getBOOL("ShowScriptErrors") == FALSE) ||
+			(chat.mChatType == CHAT_TYPE_DEBUG_MSG
+			&& (gSavedSettings.getS32("ShowScriptErrorsLocation") == 1)));
 
 	if (!invisible_script_debug_chat 
 		&& !chat.mMuted 
@@ -474,7 +470,7 @@ void LLFloaterChat::loadHistory()
 }
 
 //static
-void LLFloaterChat::chatFromLogFile(LLLogChat::ELogLineType type , std::string line, void* userdata)
+void LLFloaterChat::chatFromLogFile(LLLogChat::ELogLineType type , const LLSD& line, void* userdata)
 {
 	switch (type)
 	{
@@ -483,9 +479,10 @@ void LLFloaterChat::chatFromLogFile(LLLogChat::ELogLineType type , std::string l
 		// *TODO: nice message from XML file here
 		break;
 	case LLLogChat::LOG_LINE:
+	case LLLogChat::LOG_LLSD:
 		{
 			LLChat chat;					
-			chat.mText = line;
+			chat.mText = line["message"].asString();
 			get_text_color(chat);
 			addChatHistory(chat,  FALSE);
 		}

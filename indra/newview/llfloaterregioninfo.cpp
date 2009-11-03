@@ -442,32 +442,31 @@ LLPanelRegionInfo::LLPanelRegionInfo()
 {
 }
 
-// static
-void LLPanelRegionInfo::onBtnSet(void* user_data)
+void LLPanelRegionInfo::onBtnSet()
 {
-	LLPanelRegionInfo* panel = (LLPanelRegionInfo*)user_data;
-	if(!panel) return;
-	if (panel->sendUpdate())
+	if (sendUpdate())
 	{
-		panel->disableButton("apply_btn");
+		disableButton("apply_btn");
 	}
 }
 
-//static 
-void LLPanelRegionInfo::onChangeChildCtrl(LLUICtrl* ctrl, void* user_data)
+void LLPanelRegionInfo::onChangeChildCtrl(LLUICtrl* ctrl)
 {
-	if (ctrl)
-	{
-		LLPanelRegionInfo* panel = (LLPanelRegionInfo*) ctrl->getParent();
-		panel->updateChild(ctrl);
-	}
+	updateChild(ctrl); // virtual function
 }
 
-// static
 // Enables the "set" button if it is not already enabled
-void LLPanelRegionInfo::onChangeAnything(LLUICtrl* ctrl, void* user_data)
+void LLPanelRegionInfo::onChangeAnything()
 {
-	LLPanelRegionInfo* panel = (LLPanelRegionInfo*)user_data;
+	enableButton("apply_btn");
+	refresh();
+}
+
+// static
+// Enables set button on change to line editor
+void LLPanelRegionInfo::onChangeText(LLLineEditor* caller, void* user_data)
+{
+	LLPanelRegionInfo* panel = dynamic_cast<LLPanelRegionInfo*>(caller->getParent());
 	if(panel)
 	{
 		panel->enableButton("apply_btn");
@@ -475,19 +474,11 @@ void LLPanelRegionInfo::onChangeAnything(LLUICtrl* ctrl, void* user_data)
 	}
 }
 
-// static
-// Enables set button on change to line editor
-void LLPanelRegionInfo::onChangeText(LLLineEditor* caller, void* user_data)
-{
-	// reuse the previous method
-	onChangeAnything(0, user_data);
-}
-
 
 // virtual
 BOOL LLPanelRegionInfo::postBuild()
 {
-	childSetAction("apply_btn", onBtnSet, this);
+	getChild<LLUICtrl>("apply_btn")->setCommitCallback(boost::bind(&LLPanelRegionInfo::onBtnSet, this));
 	childDisable("apply_btn");
 	refresh();
 	return TRUE;
@@ -550,19 +541,17 @@ void LLPanelRegionInfo::disableButton(const std::string& btn_name)
 
 void LLPanelRegionInfo::initCtrl(const std::string& name)
 {
-	childSetCommitCallback(name, onChangeAnything, this);
+	getChild<LLUICtrl>(name)->setCommitCallback(boost::bind(&LLPanelRegionInfo::onChangeAnything, this));
 }
 
 void LLPanelRegionInfo::initHelpBtn(const std::string& name, const std::string& xml_alert)
 {
-	childSetAction(name, onClickHelp, new std::string(xml_alert));
+	getChild<LLUICtrl>(name)->setCommitCallback(boost::bind(&LLPanelRegionInfo::onClickHelp, this, xml_alert));
 }
 
-// static
-void LLPanelRegionInfo::onClickHelp(void* data)
+void LLPanelRegionInfo::onClickHelp(std::string xml_alert)
 {
-	std::string* xml_alert = (std::string*)data;
-	LLNotifications::instance().add(*xml_alert);
+	LLNotifications::instance().add(xml_alert);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1207,9 +1196,9 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	initCtrl("terrain_lower_spin");
 
 	initCtrl("fixed_sun_check");
-	childSetCommitCallback("fixed_sun_check", onChangeFixedSun, this);
-	childSetCommitCallback("use_estate_sun_check", onChangeUseEstateTime, this);
-	childSetCommitCallback("sun_hour_slider", onChangeSunHour, this);
+	getChild<LLUICtrl>("fixed_sun_check")->setCommitCallback(boost::bind(&LLPanelRegionTerrainInfo::onChangeFixedSun, this));
+	getChild<LLUICtrl>("use_estate_sun_check")->setCommitCallback(boost::bind(&LLPanelRegionTerrainInfo::onChangeUseEstateTime, this));
+	getChild<LLUICtrl>("sun_hour_slider")->setCommitCallback(boost::bind(&LLPanelRegionTerrainInfo::onChangeSunHour, this));
 
 	childSetAction("download_raw_btn", onClickDownloadRaw, this);
 	childSetAction("upload_raw_btn", onClickUploadRaw, this);
@@ -1292,39 +1281,29 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 	return TRUE;
 }
 
-// static 
-void LLPanelRegionTerrainInfo::onChangeUseEstateTime(LLUICtrl* ctrl, void* user_data)
+void LLPanelRegionTerrainInfo::onChangeUseEstateTime()
 {
-	LLPanelRegionTerrainInfo* panel = (LLPanelRegionTerrainInfo*) user_data;
-	if (!panel) return;
-	BOOL use_estate_sun = panel->childGetValue("use_estate_sun_check").asBoolean();
-	panel->childSetEnabled("fixed_sun_check", !use_estate_sun);
-	panel->childSetEnabled("sun_hour_slider", !use_estate_sun);
+	BOOL use_estate_sun = childGetValue("use_estate_sun_check").asBoolean();
+	childSetEnabled("fixed_sun_check", !use_estate_sun);
+	childSetEnabled("sun_hour_slider", !use_estate_sun);
 	if (use_estate_sun)
 	{
-		panel->childSetValue("fixed_sun_check", LLSD(FALSE));
-		panel->childSetValue("sun_hour_slider", LLSD(0.f));
+		childSetValue("fixed_sun_check", LLSD(FALSE));
+		childSetValue("sun_hour_slider", LLSD(0.f));
 	}
-	panel->childEnable("apply_btn");
+	childEnable("apply_btn");
 }
 
-// static 
-void LLPanelRegionTerrainInfo::onChangeFixedSun(LLUICtrl* ctrl, void* user_data)
+void LLPanelRegionTerrainInfo::onChangeFixedSun()
 {
-	LLPanelRegionTerrainInfo* panel = (LLPanelRegionTerrainInfo*) user_data;
-	if (!panel) return;
 	// Just enable the apply button.  We let the sun-hour slider be enabled
 	// for both fixed-sun and non-fixed-sun. JC
-	panel->childEnable("apply_btn");
+	childEnable("apply_btn");
 }
 
-// static 
-void LLPanelRegionTerrainInfo::onChangeSunHour(LLUICtrl* ctrl, void*)
+void LLPanelRegionTerrainInfo::onChangeSunHour()
 {
-	// can't use userdata to get panel, slider uses it internally
-	LLPanelRegionTerrainInfo* panel = (LLPanelRegionTerrainInfo*) ctrl->getParent();
-	if (!panel) return;
-	panel->childEnable("apply_btn");
+	childEnable("apply_btn");
 }
 
 // static
@@ -1420,32 +1399,23 @@ void LLPanelEstateInfo::initDispatch(LLDispatcher& dispatch)
 	estate_dispatch_initialized = true;
 }
 
-// static
 // Disables the sun-hour slider and the use fixed time check if the use global time is check
-void LLPanelEstateInfo::onChangeUseGlobalTime(LLUICtrl* ctrl, void* user_data)
+void LLPanelEstateInfo::onChangeUseGlobalTime()
 {
-	LLPanelEstateInfo* panel = (LLPanelEstateInfo*) user_data;
-	if (panel)
-	{
-		bool enabled = !panel->childGetValue("use_global_time_check").asBoolean();
-		panel->childSetEnabled("sun_hour_slider", enabled);
-		panel->childSetEnabled("fixed_sun_check", enabled);
-		panel->childSetValue("fixed_sun_check", LLSD(FALSE));
-		panel->enableButton("apply_btn");
-	}
+	bool enabled = !childGetValue("use_global_time_check").asBoolean();
+	childSetEnabled("sun_hour_slider", enabled);
+	childSetEnabled("fixed_sun_check", enabled);
+	childSetValue("fixed_sun_check", LLSD(FALSE));
+	enableButton("apply_btn");
 }
 
 // Enables the sun-hour slider if the fixed-sun checkbox is set
-void LLPanelEstateInfo::onChangeFixedSun(LLUICtrl* ctrl, void* user_data)
+void LLPanelEstateInfo::onChangeFixedSun()
 {
-	LLPanelEstateInfo* panel = (LLPanelEstateInfo*) user_data;
-	if (panel)
-	{
-		bool enabled = !panel->childGetValue("fixed_sun_check").asBoolean();
-		panel->childSetEnabled("use_global_time_check", enabled);
-		panel->childSetValue("use_global_time_check", LLSD(FALSE));
-		panel->enableButton("apply_btn");
-	}
+	bool enabled = !childGetValue("fixed_sun_check").asBoolean();
+	childSetEnabled("use_global_time_check", enabled);
+	childSetValue("use_global_time_check", LLSD(FALSE));
+	enableButton("apply_btn");
 }
 
 
@@ -2130,7 +2100,7 @@ BOOL LLPanelEstateInfo::postBuild()
 	initCtrl("limit_payment");
 	initCtrl("limit_age_verified");
 	initCtrl("voice_chat_check");
-	childSetCommitCallback("abuse_email_address", onChangeAnything, this);
+	getChild<LLUICtrl>("abuse_email_address")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeAnything, this));
 	getChild<LLLineEditor>("abuse_email_address")->setKeystrokeCallback(onChangeText, this);
 
 	initHelpBtn("estate_manager_help",			"HelpEstateEstateManager");
@@ -2144,15 +2114,15 @@ BOOL LLPanelEstateInfo::postBuild()
 	initHelpBtn("allow_resident_help",			"HelpEstateAllowResident");
 	initHelpBtn("allow_group_help",				"HelpEstateAllowGroup");
 	initHelpBtn("ban_resident_help",			"HelpEstateBanResident");
-	initHelpBtn("abuse_email_address_help",         "HelpEstateAbuseEmailAddress");
-	initHelpBtn("voice_chat_help",                  "HelpEstateVoiceChat");
+	initHelpBtn("abuse_email_address_help",     "HelpEstateAbuseEmailAddress");
+	initHelpBtn("voice_chat_help",              "HelpEstateVoiceChat");
 
 	// set up the use global time checkbox
-	childSetCommitCallback("use_global_time_check", onChangeUseGlobalTime, this);
-	childSetCommitCallback("fixed_sun_check", onChangeFixedSun, this);
-	childSetCommitCallback("sun_hour_slider", onChangeChildCtrl, this);
-
-	childSetCommitCallback("allowed_avatar_name_list", onChangeChildCtrl, this);
+	getChild<LLUICtrl>("use_global_time_check")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeUseGlobalTime, this));
+	getChild<LLUICtrl>("fixed_sun_check")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeFixedSun, this));
+	getChild<LLUICtrl>("sun_hour_slider")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeChildCtrl, this, _1));
+	
+	getChild<LLUICtrl>("allowed_avatar_name_list")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeChildCtrl, this, _1));	
 	LLNameListCtrl *avatar_name_list = getChild<LLNameListCtrl>("allowed_avatar_name_list");
 	if (avatar_name_list)
 	{
@@ -2163,7 +2133,7 @@ BOOL LLPanelEstateInfo::postBuild()
 	childSetAction("add_allowed_avatar_btn", onClickAddAllowedAgent, this);
 	childSetAction("remove_allowed_avatar_btn", onClickRemoveAllowedAgent, this);
 
-	childSetCommitCallback("allowed_group_name_list", onChangeChildCtrl, this);
+	getChild<LLUICtrl>("allowed_group_name_list")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeChildCtrl, this, _1));
 	LLNameListCtrl* group_name_list = getChild<LLNameListCtrl>("allowed_group_name_list");
 	if (group_name_list)
 	{
@@ -2174,7 +2144,7 @@ BOOL LLPanelEstateInfo::postBuild()
 	getChild<LLUICtrl>("add_allowed_group_btn")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onClickAddAllowedGroup, this));
 	childSetAction("remove_allowed_group_btn", onClickRemoveAllowedGroup, this);
 
-	childSetCommitCallback("banned_avatar_name_list", onChangeChildCtrl, this);
+	getChild<LLUICtrl>("banned_avatar_name_list")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeChildCtrl, this, _1));
 	LLNameListCtrl* banned_name_list = getChild<LLNameListCtrl>("banned_avatar_name_list");
 	if (banned_name_list)
 	{
@@ -2185,7 +2155,7 @@ BOOL LLPanelEstateInfo::postBuild()
 	childSetAction("add_banned_avatar_btn", onClickAddBannedAgent, this);
 	childSetAction("remove_banned_avatar_btn", onClickRemoveBannedAgent, this);
 
-	childSetCommitCallback("estate_manager_name_list", onChangeChildCtrl, this);
+	getChild<LLUICtrl>("estate_manager_name_list")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeChildCtrl, this, _1));
 	LLNameListCtrl* manager_name_list = getChild<LLNameListCtrl>("estate_manager_name_list");
 	if (manager_name_list)
 	{
@@ -2299,13 +2269,18 @@ void LLPanelEstateInfo::getEstateOwner()
 class LLEstateChangeInfoResponder : public LLHTTPClient::Responder
 {
 public:
-	LLEstateChangeInfoResponder(void* userdata) : mpPanel((LLPanelEstateInfo*)userdata) {};
+	LLEstateChangeInfoResponder(LLPanelEstateInfo* panel)
+	{
+		mpPanel = panel->getHandle();
+	}
 	
 	// if we get a normal response, handle it here
 	virtual void result(const LLSD& content)
 	{
 	    // refresh the panel from the database
-		mpPanel->refresh();
+		LLPanelEstateInfo* panel = dynamic_cast<LLPanelEstateInfo*>(mpPanel.get());
+		if (panel)
+			panel->refresh();
 	}
 	
 	// if we get an error response
@@ -2315,7 +2290,7 @@ public:
 			<< status << ": " << reason << llendl;
 	}
 private:
-	LLPanelEstateInfo* mpPanel;
+	LLHandle<LLPanel> mpPanel;
 };
 
 // tries to send estate info using a cap; returns true if it succeeded
@@ -2353,7 +2328,7 @@ bool LLPanelEstateInfo::commitEstateInfoCaps()
 	body["owner_abuse_email"] = childGetValue("abuse_email_address").asString();
 
 	// we use a responder so that we can re-get the data after committing to the database
-	LLHTTPClient::post(url, body, new LLEstateChangeInfoResponder((void*)this));
+	LLHTTPClient::post(url, body, new LLEstateChangeInfoResponder(this));
     return true;
 }
 

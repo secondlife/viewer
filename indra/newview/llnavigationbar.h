@@ -35,8 +35,6 @@
 
 #include "llpanel.h"
 
-extern S32 NAVIGATION_BAR_HEIGHT;
-
 class LLButton;
 class LLLocationInputCtrl;
 class LLMenuGL;
@@ -47,12 +45,12 @@ class LLSearchComboBox;
  * Web browser-like navigation bar.
  */ 
 class LLNavigationBar
-:	public LLPanel
+	:	public LLPanel, public LLSingleton<LLNavigationBar>
 {
 	LOG_CLASS(LLNavigationBar);
-
+	
 public:
-	static LLNavigationBar* getInstance();
+	LLNavigationBar();
 	virtual ~LLNavigationBar();
 	
 	/*virtual*/ void	draw();
@@ -63,9 +61,11 @@ public:
 
 	void showNavigationPanel(BOOL visible);
 	void showFavoritesPanel(BOOL visible);
+
+	int getDefNavBarHeight();
+	int getDefFavBarHeight();
 	
 private:
-	LLNavigationBar();
 
 	void rebuildTeleportHistoryMenu();
 	void showTeleportHistoryMenu();
@@ -91,8 +91,6 @@ private:
 
 	void fillSearchComboBox();
 
-	static LLNavigationBar *sInstance;
-	
 	LLMenuGL*					mTeleportHistoryMenu;
 	LLButton*					mBtnBack;
 	LLButton*					mBtnForward;

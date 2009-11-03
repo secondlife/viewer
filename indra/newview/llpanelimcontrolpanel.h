@@ -45,8 +45,17 @@ public:
 	LLPanelChatControlPanel() {};
 	~LLPanelChatControlPanel() {};
 
-	// sets the group or avatar UUID
-	virtual void setID(const LLUUID& avatar_id)= 0;
+	virtual BOOL postBuild();
+	virtual void draw();
+
+	void onCallButtonClicked();
+	void onEndCallButtonClicked();
+	void onOpenVoiceControlsClicked();
+
+	virtual void setSessionId(const LLUUID& session_id) { mSessionId = session_id; }
+
+private:
+	LLUUID mSessionId;
 };
 
 
@@ -58,13 +67,14 @@ public:
 
 	BOOL postBuild();
 
-	void setID(const LLUUID& avatar_id);
+	void setSessionId(const LLUUID& session_id);
 
 private:
 	void onViewProfileButtonClicked();
 	void onAddFriendButtonClicked();
-	void onCallButtonClicked();
 	void onShareButtonClicked();
+
+	LLUUID mAvatarID;
 };
 
 
@@ -76,19 +86,26 @@ public:
 
 	BOOL postBuild();
 
-	void setID(const LLUUID& id);
+	void setSessionId(const LLUUID& session_id);
 	/*virtual*/ void draw();
 
-private:
-	void onGroupInfoButtonClicked();
-	void onCallButtonClicked();
-
+protected:
 	LLUUID mGroupID;
 	LLSpeakerMgr* mSpeakerManager;
 	LLAvatarList* mAvatarList;
 	LLParticipantList* mParticipantList;
+
+private:
+	void onGroupInfoButtonClicked();
 };
 
+class LLPanelAdHocControlPanel : public LLPanelGroupControlPanel
+{
+public:
+	LLPanelAdHocControlPanel(const LLUUID& session_id);
 
+	BOOL postBuild();
+
+};
 
 #endif // LL_LLPANELIMCONTROLPANEL_H

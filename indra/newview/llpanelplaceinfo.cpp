@@ -54,7 +54,10 @@
 #include "llaccordionctrltab.h"
 #include "llagent.h"
 #include "llagentui.h"
+#include "llappviewer.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llcallbacklist.h"
+#include "llexpandabletextbox.h"
 #include "llfloaterworldmap.h"
 #include "llfloaterbuycurrency.h"
 #include "llinventorymodel.h"
@@ -65,8 +68,10 @@
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
+#include "llviewercontrol.h" 
 #include "llviewertexteditor.h"
 #include "llworldmap.h"
+#include "llsdutil_math.h"
 
 //----------------------------------------------------------------------------
 // Aux types and methods
@@ -75,7 +80,6 @@
 typedef std::pair<LLUUID, std::string> folder_pair_t;
 
 static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right);
-static std::string getFullFolderName(const LLViewerInventoryCategory* cat);
 static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats);
 
 static LLRegisterPanelClassWrapper<LLPanelPlaceInfo> t_place_info("panel_place_info");
@@ -110,7 +114,7 @@ BOOL LLPanelPlaceInfo::postBuild()
 
 	mForSalePanel = getChild<LLPanel>("for_sale_panel");
 	mYouAreHerePanel = getChild<LLPanel>("here_panel");
-	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&LLPanelPlaceInfo::updateYouAreHereBanner,this));
+	gIdleCallbacks.addFunction(&LLPanelPlaceInfo::updateYouAreHereBanner, this);
 	
 	//Icon value should contain sale price of last selected parcel. 
 	mForSalePanel->getChild<LLIconCtrl>("icon_for_sale")->
@@ -119,7 +123,7 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mSnapshotCtrl = getChild<LLTextureCtrl>("logo");
 	mRegionName = getChild<LLTextBox>("region_title");
 	mParcelName = getChild<LLTextBox>("parcel_title");
-	mDescEditor = getChild<LLTextEditor>("description");
+	mDescEditor = getChild<LLExpandableTextBox>("description");
 
 	mMaturityRatingText = getChild<LLTextBox>("maturity_value");
 	mParcelOwner = getChild<LLTextBox>("owner_value");
@@ -455,13 +459,13 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 		mSnapshotCtrl->setImageAssetID(parcel_data.snapshot_id);
 	}
 
-	if(!parcel_data.name.empty())
+	if(!parcel_data.sim_name.empty())
 	{
-		mParcelName->setText(parcel_data.name);
+		mRegionName->setText(parcel_data.sim_name);
 	}
 	else
 	{
-		mParcelName->setText(LLStringUtil::null);
+		mRegionName->setText(LLStringUtil::null);
 	}
 
 	if(!parcel_data.desc.empty())
@@ -508,19 +512,22 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 		region_z = llround(mPosRegion.mV[VZ]);
 	}
 
-	std::string name = getString("not_available");
-	if (!parcel_data.sim_name.empty())
+	if (!parcel_data.name.empty())
 	{
-		name = llformat("%s (%d, %d, %d)",
-						parcel_data.sim_name.c_str(), region_x, region_y, region_z);
-		mRegionName->setText(name);
+		mParcelName->setText(llformat("%s (%d, %d, %d)",
+							 parcel_data.name.c_str(), region_x, region_y, region_z));
+	}
+	else
+	{
+		mParcelName->setText(getString("not_available"));
 	}
 
 	if (mInfoType == CREATE_LANDMARK)
 	{
 		if (parcel_data.name.empty())
 		{
-			mTitleEditor->setText(name);
+			mTitleEditor->setText(llformat("%s (%d, %d, %d)",
+								  parcel_data.sim_name.c_str(), region_x, region_y, region_z));
 		}
 		else
 		{
@@ -609,6 +616,9 @@ void LLPanelPlaceInfo::displaySelectedParcelInfo(LLParcel* parcel,
 	parcel_data.name = parcel->getName();
 	parcel_data.sim_name = region->getName();
 	parcel_data.snapshot_id = parcel->getSnapshotID();
+	mPosRegion.setVec((F32)fmod(pos_global.mdV[VX], (F64)REGION_WIDTH_METERS),
+					  (F32)fmod(pos_global.mdV[VY], (F64)REGION_WIDTH_METERS),
+					  (F32)pos_global.mdV[VZ]);
 	parcel_data.global_x = pos_global.mdV[VX];
 	parcel_data.global_y = pos_global.mdV[VY];
 	parcel_data.global_z = pos_global.mdV[VZ];
@@ -985,18 +995,24 @@ void LLPanelPlaceInfo::populateFoldersList()
 		mFolderCombo->add(it->second, LLSD(it->first));
 }
 
-void LLPanelPlaceInfo::updateYouAreHereBanner()
+//static
+void LLPanelPlaceInfo::updateYouAreHereBanner(void* userdata)
 {
 	//YouAreHere Banner should be displayed only for selected places, 
 	// If you want to display it for landmark or teleport history item, you should check by mParcelId
 	
-	bool is_you_are_here = false;
-	if (mSelectedParcelID != S32(-1) && !mLastSelectedRegionID.isNull())
+	LLPanelPlaceInfo* self  = static_cast<LLPanelPlaceInfo*>(userdata);
+	if(!self->getVisible())
+		return;
+	if(!gDisconnected)
 	{
-		is_you_are_here = gAgent.getRegion()->getRegionID()== mLastSelectedRegionID &&
-		mSelectedParcelID == LLViewerParcelMgr::getInstance()->getAgentParcel()->getLocalID();
+		static F32 radius  = gSavedSettings.getF32("YouAreHereDistance");
+
+		BOOL display_banner = gAgent.getRegion()->getRegionID() == self->mLastSelectedRegionID && 
+			LLAgentUI::checkAgentDistance(self->mPosRegion, radius);
+
+		self->mYouAreHerePanel->setVisible(display_banner);
 	}
-	mYouAreHerePanel->setVisible(is_you_are_here);
 }
 
 void LLPanelPlaceInfo::onForSaleBannerClick()
@@ -1027,14 +1043,9 @@ void LLPanelPlaceInfo::onForSaleBannerClick()
 	
 	
 }
- 
 
-static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right)
-{
-	return left.second < right.second;
-}
-
-static std::string getFullFolderName(const LLViewerInventoryCategory* cat)
+/*static*/
+std::string LLPanelPlaceInfo::getFullFolderName(const LLViewerInventoryCategory* cat)
 {
 	std::string name = cat->getName();
 	LLUUID parent_id;
@@ -1054,6 +1065,11 @@ static std::string getFullFolderName(const LLViewerInventoryCategory* cat)
 	}
 
 	return name;
+}
+
+static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right)
+{
+	return left.second < right.second;
 }
 
 static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats)

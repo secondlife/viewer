@@ -63,7 +63,8 @@ public:
 		Optional<LLUUID>				notif_id,	 //notification ID
 										session_id;	 //im session ID
 		Optional<LLNotificationPtr>		notification;
-		Optional<F32>					lifetime_secs;
+		Optional<F32>					lifetime_secs,
+										fading_time_secs; // Number of seconds while a toast is fading
 		Optional<toast_callback_t>		on_delete_toast,
 										on_mouse_enter;
 		Optional<bool>					can_fade,
@@ -125,6 +126,8 @@ public:
 	void setCanBeStored(bool can_be_stored) { mCanBeStored = can_be_stored; }
 	//
 	bool getCanBeStored() { return mCanBeStored; }
+	// set whether this toast considered as hidden or not
+	void setIsHidden( bool is_toast_hidden ) { mIsHidden = is_toast_hidden; }
 
 
 	// Registers signals/callbacks for events
@@ -155,6 +158,7 @@ private:
 	// timer counts a lifetime of a toast
 	LLTimer		mTimer;
 	F32			mToastLifetime; // in seconds
+	F32			mToastFadingTime; // in seconds
 
 	LLPanel*	mPanel;
 	LLButton*	mHideBtn;
@@ -164,6 +168,7 @@ private:
 	bool		mCanBeStored;
 	bool		mHideBtnEnabled;
 	bool		mHideBtnPressed;
+	bool		mIsHidden;  // this flag is TRUE when a toast has faded or was hidden with (x) button (EXT-1849)
 };
 
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ legacy_header_height="18"
  height="224"
  layout="topleft"
  name="Hardware Settings Floater"
@@ -131,7 +132,7 @@
      layout="topleft"
      left="10"
      max_val="4096"
-     name="GrapicsCardTextureMemory"
+     name="GraphicsCardTextureMemory"
      tool_tip="Amount of memory to allocate for textures. Defaults to video card memory. Reducing this may improve performance but may also make textures blurry."
      top_pad="10"
      width="300" />

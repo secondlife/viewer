@@ -60,10 +60,14 @@ public:
 	virtual void setValue(const LLSD& value);
 	virtual void changed(U32 mask); // from LLFriendObserver
 
-	void setStatus(const std::string& status);
 	void setOnline(bool online);
 	void setName(const std::string& name);
 	void setAvatarId(const LLUUID& id, bool ignore_status_changes = false);
+	void setLastInteractionTime(const std::string& val);
+	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly
+	void setShowProfileBtn(bool hide);
+	void setShowInfoBtn(bool hide);
+	void setAvatarIconVisible(bool visible);
 	
 	const LLUUID& getAvatarId() const;
 	const std::string getAvatarName() const;
@@ -73,7 +77,7 @@ public:
 
 	void showSpeakingIndicator(bool show) { mSpeakingIndicator->setVisible(show); }
 	void showInfoBtn(bool show_info_btn) {mInfoBtn->setVisible(show_info_btn); }
-	void showStatus(bool show_status);
+	void showLastInteractionTime(bool show);
 
 	void setContextMenu(ContextMenu* menu) { mContextMenu = menu; }
 
@@ -87,9 +91,9 @@ private:
 
 	void onNameCache(const std::string& first_name, const std::string& last_name);
 
-	LLAvatarIconCtrl*mAvatarIcon;
+	LLAvatarIconCtrl* mAvatarIcon;
 	LLTextBox* mAvatarName;
-	LLTextBox* mStatus;
+	LLTextBox* mLastInteractionTime;
 	
 	LLOutputMonitorCtrl* mSpeakingIndicator;
 	LLButton* mInfoBtn;
@@ -98,6 +102,13 @@ private:
 
 	LLUUID mAvatarId;
 	EOnlineStatus mOnlineStatus;
+	//Flag indicating that info/profile button shouldn't be shown at all.
+	//Speaker indicator and avatar name coords are translated accordingly
+	bool mShowInfoBtn;
+	bool mShowProfileBtn;
+	S32	 mIconWidth; // icon width + padding
+	S32  mInfoBtnWidth; //info btn width + padding
+	S32  mProfileBtnWidth; //profile btn width + padding
 };
 
 #endif //LL_LLAVATARLISTITEM_H

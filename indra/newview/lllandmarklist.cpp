@@ -37,6 +37,7 @@
 #include "message.h"
 #include "llassetstorage.h"
 
+#include "llappviewer.h"
 #include "llagent.h"
 #include "llnotify.h"
 #include "llvfile.h"
@@ -63,20 +64,32 @@ LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t
 	}
 	else
 	{
-	    if ( gLandmarkList.mBadList.find(asset_uuid) == gLandmarkList.mBadList.end() )
+	    if ( mBadList.find(asset_uuid) != mBadList.end() )
 		{
-			if (cb)
-			{
-				loaded_callback_map_t::value_type vt(asset_uuid, cb);
-				mLoadedCallbackMap.insert(vt);
-			}
-
-			gAssetStorage->getAssetData(
-				asset_uuid,
-				LLAssetType::AT_LANDMARK,
-				LLLandmarkList::processGetAssetReply,
-				NULL);
+			return NULL;
 		}
+		
+		landmark_requested_list_t::iterator iter = mRequestedList.find(asset_uuid);
+		if (iter != mRequestedList.end())
+		{
+			const F32 rerequest_time = 30.f; // 30 seconds between requests
+			if (gFrameTimeSeconds - iter->second < rerequest_time)
+			{
+				return NULL;
+			}
+		}
+		
+		if (cb)
+		{
+			loaded_callback_map_t::value_type vt(asset_uuid, cb);
+			mLoadedCallbackMap.insert(vt);
+		}
+
+		gAssetStorage->getAssetData(asset_uuid,
+									LLAssetType::AT_LANDMARK,
+									LLLandmarkList::processGetAssetReply,
+									NULL);
+		mRequestedList[asset_uuid] = gFrameTimeSeconds;
 	}
 	return NULL;
 }
@@ -103,7 +116,8 @@ void LLLandmarkList::processGetAssetReply(
 		if (landmark)
 		{
 			gLandmarkList.mList[ uuid ] = landmark;
-
+			gLandmarkList.mRequestedList.erase(uuid);
+			
 			LLVector3d pos;
 			if(!landmark->getGlobalPos(pos))
 			{

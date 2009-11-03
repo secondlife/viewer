@@ -16,16 +16,12 @@ import os
 import sys
 from threading import Thread
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+
 mydir = os.path.dirname(__file__)       # expected to be .../indra/llmessage/tests/
 sys.path.insert(0, os.path.join(mydir, os.pardir, os.pardir, "lib", "python"))
 from indra.util.fastest_elementtree import parse as xml_parse
 from indra.base import llsd
-
-def debug(*args):
-    sys.stdout.writelines(args)
-    sys.stdout.flush()
-# comment out the line below to enable debug output
-debug = lambda *args: None
+from testrunner import run, debug
 
 class TestHTTPRequestHandler(BaseHTTPRequestHandler):
     """This subclass of BaseHTTPRequestHandler is to receive and echo
@@ -106,25 +102,5 @@ class TestHTTPServer(Thread):
         debug("Starting HTTP server...\n")
         httpd.serve_forever()
 
-def main(*args):
-    # Start HTTP server thread. Note that this and all other comm server
-    # threads should be daemon threads: we'll let them run "forever,"
-    # confident that the whole process will terminate when the main thread
-    # terminates, which will be when the test executable child process
-    # terminates.
-    httpThread = TestHTTPServer(name="httpd")
-    httpThread.setDaemon(True)
-    httpThread.start()
-    # choice of os.spawnv():
-    # - [v vs. l] pass a list of args vs. individual arguments,
-    # - [no p] don't use the PATH because we specifically want to invoke the
-    #   executable passed as our first arg,
-    # - [no e] child should inherit this process's environment.
-    debug("Running %s...\n" % (" ".join(args)))
-    sys.stdout.flush()
-    rc = os.spawnv(os.P_WAIT, args[0], args)
-    debug("%s returned %s\n" % (args[0], rc))
-    return rc
-
 if __name__ == "__main__":
-    sys.exit(main(*sys.argv[1:]))
+    sys.exit(run(server=TestHTTPServer(name="httpd"), *sys.argv[1:]))

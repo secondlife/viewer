@@ -56,7 +56,10 @@ LLIconCtrl::Params::Params()
 LLIconCtrl::LLIconCtrl(const LLIconCtrl::Params& p)
 :	LLUICtrl(p),
 	mColor(p.color()),
-	mImagep(p.image)
+	mImagep(p.image),
+	mPriority(0),
+	mDrawWidth(0),
+	mDrawHeight(0)
 {
 	if (mImagep.notNull())
 	{
@@ -93,12 +96,14 @@ void LLIconCtrl::setValue(const LLSD& value )
 	LLUICtrl::setValue(tvalue);
 	if (tvalue.isUUID())
 	{
-		mImagep = LLUI::getUIImageByID(tvalue.asUUID());
+		mImagep = LLUI::getUIImageByID(tvalue.asUUID(), mPriority);
 	}
 	else
 	{
-		mImagep = LLUI::getUIImage(tvalue.asString());
+		mImagep = LLUI::getUIImage(tvalue.asString(), mPriority);
 	}
+
+	setIconImageDrawSize();
 }
 
 std::string LLIconCtrl::getImageName() const
@@ -108,3 +113,16 @@ std::string LLIconCtrl::getImageName() const
 	else
 		return std::string();
 }
+
+void LLIconCtrl::setIconImageDrawSize()
+{
+	if(mImagep.notNull() && mDrawWidth && mDrawHeight)
+	{
+		if(mImagep->getImage().notNull())
+		{
+			mImagep->getImage()->setKnownDrawSize(mDrawWidth, mDrawHeight) ;
+		}
+	}
+}
+
+

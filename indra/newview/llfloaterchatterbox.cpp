@@ -42,7 +42,7 @@
 #include "llfloaterfriends.h"
 #include "llfloatergroups.h"
 #include "llviewercontrol.h"
-#include "llimview.h"
+#include "llvoicechannel.h"
 #include "llimpanel.h"
 
 //

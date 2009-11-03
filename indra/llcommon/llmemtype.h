@@ -48,14 +48,14 @@
 
 #define MEM_TYPE_NEW(T)
 
-class LLMemType
+class LL_COMMON_API LLMemType
 {
 public:
 
 	// class we'll initialize all instances of as
 	// static members of MemType.  Then use
 	// to construct any new mem type.
-	class DeclareMemType
+	class LL_COMMON_API DeclareMemType
 	{
 	public:
 		DeclareMemType(char const * st);

@@ -164,17 +164,6 @@ TODO:
 - Load navbar height from saved settings (as it's done for status bar) or think of a better way.
 */
 
-S32 NAVIGATION_BAR_HEIGHT = 60; // *HACK
-LLNavigationBar* LLNavigationBar::sInstance = 0;
-
-LLNavigationBar* LLNavigationBar::getInstance()
-{
-	if (!sInstance)
-		sInstance = new LLNavigationBar();
-
-	return sInstance;
-}
-
 LLNavigationBar::LLNavigationBar()
 :	mTeleportHistoryMenu(NULL),
 	mBtnBack(NULL),
@@ -198,8 +187,6 @@ LLNavigationBar::LLNavigationBar()
 LLNavigationBar::~LLNavigationBar()
 {
 	mTeleportFinishConnection.disconnect();
-	sInstance = 0;
-
 	LLSearchHistory::getInstance()->save();
 }
 
@@ -272,6 +259,15 @@ void LLNavigationBar::draw()
 		onTeleportHistoryChanged();
 		mPurgeTPHistoryItems = false;
 	}
+
+	if (isBackgroundVisible())
+	{
+		static LLUICachedControl<S32> drop_shadow_floater ("DropShadowFloater", 0);
+		static LLUIColor color_drop_shadow = LLUIColorTable::instance().getColor("ColorDropShadow");
+		gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0,
+                           color_drop_shadow, drop_shadow_floater );
+	}
+
 	LLPanel::draw();
 }
 
@@ -521,8 +517,8 @@ void	LLNavigationBar::showTeleportHistoryMenu()
 	// *TODO: why to draw/update anything before showing the menu?
 	mTeleportHistoryMenu->buildDrawLabels();
 	mTeleportHistoryMenu->updateParent(LLMenuGL::sMenuContainer);
-	LLRect btnBackRect = mBtnBack->getRect();
-	LLMenuGL::showPopup(this, mTeleportHistoryMenu, btnBackRect.mLeft, btnBackRect.mBottom);
+	const S32 MENU_SPAWN_PAD = -1;
+	LLMenuGL::showPopup(mBtnBack, mTeleportHistoryMenu, 0, MENU_SPAWN_PAD);
 
 	// *HACK pass the mouse capturing to the drop-down menu
 	gFocusMgr.setMouseCapture( NULL );
@@ -545,6 +541,15 @@ void LLNavigationBar::clearHistoryCache()
 	lh->removeItems();
 	lh->save();	
 	mPurgeTPHistoryItems= true;
+}
+
+int LLNavigationBar::getDefNavBarHeight()
+{
+	return mDefaultNbRect.getHeight();
+}
+int LLNavigationBar::getDefFavBarHeight()
+{
+	return mDefaultFpRect.getHeight();
 }
 
 void LLNavigationBar::showNavigationPanel(BOOL visible)

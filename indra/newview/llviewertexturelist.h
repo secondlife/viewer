@@ -202,8 +202,8 @@ class LLUIImageList : public LLImageProviderInterface, public LLSingleton<LLUIIm
 {
 public:
 	// LLImageProviderInterface
-	LLUIImagePtr getUIImageByID(const LLUUID& id);
-	LLUIImagePtr getUIImage(const std::string& name);
+	/*virtual*/ LLUIImagePtr getUIImageByID(const LLUUID& id, S32 priority);
+	/*virtual*/ LLUIImagePtr getUIImage(const std::string& name, S32 priority);
 	void cleanUp();
 
 	bool initFromFile();
@@ -212,8 +212,10 @@ public:
 	
 	static void onUIImageLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 private:
-	LLUIImagePtr loadUIImageByName(const std::string& name, const std::string& filename, BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null);
-	LLUIImagePtr loadUIImageByID(const LLUUID& id, BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null);
+	LLUIImagePtr loadUIImageByName(const std::string& name, const std::string& filename,
+								   BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, S32 boost_priority = 0);
+	LLUIImagePtr loadUIImageByID(const LLUUID& id,
+								 BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, S32 boost_priority = 0);
 
 	LLUIImagePtr loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null);
 

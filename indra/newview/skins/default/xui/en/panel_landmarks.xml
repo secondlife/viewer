@@ -114,21 +114,9 @@
          image_disabled="AddItem_Disabled"
          layout="topleft"
          left_pad="5"
-         name="add_landmark_btn"
+         name="add_btn"
          picture_style="true"
          tool_tip="Add new landmark"
-         width="18" />
-        <button
-         follows="bottom|left"
-         height="18"
-         image_selected="AddItem_Press"
-         image_unselected="AddItem_Off"
-         image_disabled="AddItem_Disabled"
-         layout="topleft"
-         left_pad="5"
-         name="add_folder_btn"
-         picture_style="true"
-         tool_tip="Add new folder"
          width="18" />
         <dnd_button
          follows="bottom|right"

@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+	follows="left|right|top|bottom"
+	name="MediaControls"
+	bg_alpha_color="1 1 1 0"
+	height="160"
+	layout="topleft"
+	mouse_opaque="false"
+	width="800">
+  <panel
+	  name="media_region"
+	  bottom="125"
+	  follows="left|right|top|bottom"
+	  layout="topleft"
+	  left="20"
+	  mouse_opaque="false"
+	  right="-20"
+	  top="20" />
+  <layout_stack
+	  follows="left|right|bottom"
+	  height="32"
+	  layout="topleft"
+	  animate="false"
+	  left="0"
+	  orientation="horizontal"
+	  top="96">
+	<!-- outer layout_panels center the inner one -->
+	<layout_panel
+		width="0"
+		layout="topleft"
+		user_resize="false" />
+	<panel
+		name="media_progress_indicator"
+		height="22"
+		layout="topleft"
+		left="0"
+		top="0"
+		auto_resize="false"
+		user_resize="false"
+		min_width="100"
+		width="200">
+	  <progress_bar
+		  name="media_progress_bar"
+		  color_bar="1 1 1 0.96"
+		  follows="left|right|top"
+		  height="16"
+		  layout="topleft"
+		  left="0"
+		  tool_tip="Media is Loading"/>
+	</panel>
+	<layout_panel
+		width="0"
+		layout="topleft"
+		user_resize="false" />
+  </layout_stack>
+  <layout_stack
+	  name="media_controls"
+	  follows="left|right"
+	  animate="false"
+	  height="32"
+	  layout="topleft"
+	  left="0"
+	  orientation="horizontal"
+	  top="128">
+	<!-- outer layout_panels center the inner one -->
+	<layout_panel
+		width="0"
+		layout="topleft"
+		user_resize="false" />
+	<layout_panel
+		name="back"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		min_width="22"
+		width="22"
+		top="4">
+	  <button
+		  auto_resize="false"
+		  height="22"
+		  image_selected="media_btn_back.png"
+		  image_unselected="media_btn_back.png"
+		  layout="topleft"
+		  tool_tip="Step back"
+		  picture_style="true"
+		  width="22"
+		  top_delta="4">
+		<button.commit_callback
+			function="MediaCtrl.Back" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="fwd"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="10"
+		min_width="17"
+		width="17">
+	  <button
+		  height="22"
+		  image_selected="media_btn_forward.png"
+		  image_unselected="media_btn_forward.png"
+		  layout="topleft"
+		  tool_tip="Step forward"
+		  picture_style="true"
+		  top_delta="0"
+		  min_width="17"
+		  width="17">
+		<button.commit_callback
+			function="MediaCtrl.Forward" />
+	  </button>
+	</layout_panel>
+<!--
+	<panel
+		height="22"
+		layout="topleft"
+		auto_resize="false"
+		min_width="3"
+		width="3">
+	  <icon
+		  height="22"
+		  image_name="media_panel_divider.png"
+		  layout="topleft"
+		  top="0"
+		  min_width="3"
+		  width="3" />
+	</panel>
+-->
+	<layout_panel
+		name="home"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="-2"
+		min_width="22"
+		width="22">
+	  <button
+		  height="22"
+		  image_selected="media_btn_home.png"
+		  image_unselected="media_btn_home.png"
+		  layout="topleft"
+		  tool_tip="Home page"
+		  picture_style="true"
+		  min_width="22"
+		  width="22">
+		<button.commit_callback
+			function="MediaCtrl.Home" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="media_stop"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="2"
+		min_width="22"
+		width="22">
+	  <button
+		  height="22"
+		  image_selected="button_anim_stop.tga"
+		  image_unselected="button_anim_stop.tga"
+		  layout="topleft"
+		  tool_tip="Stop media"
+		  picture_style="true"
+		  min_width="22"
+		  width="22">
+		<button.commit_callback
+			function="MediaCtrl.Stop" />
+	  </button>
+	</layout_panel>
+<!--
+	<panel
+		height="22"
+		layout="topleft"
+		auto_resize="false"
+		min_width="3"
+		width="3">
+	  <icon
+		  height="22"
+		  image_name="media_panel_divider.png"
+		  layout="topleft"
+		  top="0"
+		  min_width="3"
+		  width="3" />
+	</panel>
+-->
+	<layout_panel
+		name="reload"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="6"
+		min_width="22"
+		width="22">
+	  <button
+		  height="22"
+		  image_selected="media_btn_reload.png"
+		  image_unselected="media_btn_reload.png"
+		  layout="topleft"
+		  tool_tip="Reload"
+		  picture_style="true"
+		  min_width="22"
+		  width="22">
+		<button.commit_callback
+			function="MediaCtrl.Reload" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="stop"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="10"
+		min_width="22"
+		width="22">
+	  <button
+		  height="22"
+		  image_selected="media_btn_stoploading.png"
+		  image_unselected="media_btn_stoploading.png"
+		  layout="topleft"
+		  picture_style="true"
+		  tool_tip = "Stop loading"
+		  min_width="22"
+		  width="22">
+		<button.commit_callback
+			function="MediaCtrl.Stop" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="play"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="14"
+		min_width="22"
+		width="22">
+	  <button
+		  height="22"
+		  image_selected="button_anim_play.tga"
+		  image_unselected="button_anim_play.tga"
+		  layout="topleft"
+		  tool_tip = "Play media"
+		  picture_style="true"
+		  min_width="22"
+		  width="22">
+		<button.commit_callback
+			function="MediaCtrl.Play" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="pause"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		top="18"
+		min_width="22"
+		width="22">
+	  <button
+		  height="22"
+		  image_selected="button_anim_pause.tga"
+		  image_unselected="button_anim_pause.tga"
+		  layout="topleft"
+		  tool_tip = "Pause media"
+		  picture_style="true">
+		<button.commit_callback
+			function="MediaCtrl.Pause" />
+	  </button>
+	</layout_panel>
+	<!-- media URL entry  -->
+	<layout_panel
+		name="media_address"
+		auto_resize="true"
+		user_resize="false"
+		height="22"
+		follows="left|right|bottom"
+		layout="topleft"
+		width="190"
+		min_width="90">
+	  <!--
+		  RE-ENABLE THIS WHEN WE HAVE A HISTORY DROP-DOWN AGAIN
+
+<combo_box
+name="media_address_url"
+allow_text_entry="true"
+height="22"
+layout="topleft"
+max_chars="1024"
+tool_tip = "Media URL"
+<combo_box.commit_callback
+function="MediaCtrl.CommitURL" />
+</combo_box>
+	  -->
+	  <line_editor 
+		  name="media_address_url"
+		  follows="left|right" 
+		  height="22"
+		  top="0"
+		  tool_tip="Media URL"
+		  text_pad_right="16"> 
+		<line_editor.commit_callback
+			function="MediaCtrl.CommitURL"/>
+	  </line_editor>
+	  <layout_stack
+		  animate="false"
+		  follows="right"
+		  width="32"
+		  min_width="32"
+		  height="16"
+		  top="3"
+		  orientation="horizontal"
+		  left_pad="-38">
+		<icon
+			name="media_whitelist_flag"
+			follows="top|right"
+			height="16"
+			image_name="smicon_warn.tga"
+			layout="topleft"
+			tool_tip="White List enabled"
+			min_width="16"
+			width="16" />
+		<icon
+			name="media_secure_lock_flag"
+			height="16"
+			image_name="inv_item_eyes.tga"
+			layout="topleft"
+			tool_tip="Secured Browsing"
+			min_width="16"
+			width="16" />
+	  </layout_stack>
+	</layout_panel>
+	<layout_panel
+		name="media_play_position"
+		auto_resize="true"
+		user_resize="false"
+		follows="left|right|top|bottom"
+		layout="topleft"
+		min_width="100"
+		width="200">
+	  <slider_bar
+		  name="media_play_slider"
+		  follows="left|right|top"
+		  height="22"
+		  increment="0.05"
+		  initial_value="0.5"
+		  layout="topleft"
+		  tool_tip="Movie play progress"
+		  min_width="100"
+		  width="200">
+		<slider_bar.commit_callback
+			function="MediaCtrl.JumpProgress" />
+	  </slider_bar>
+	</layout_panel>
+	<layout_panel
+		name="media_volume"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		height="24"
+		min_width="24"
+		width="24">
+	  <button
+		  name="media_volume_button"
+		  height="22"
+		  image_selected="icn_speaker-muted_dark.tga"
+		  image_unselected="icn_speaker_dark.tga"
+		  is_toggle="true"
+		  layout="topleft"
+		  scale_image="false" 
+		  picture_style="true"
+		  tool_tip="Mute This Media"
+		  top_delta="22"
+		  min_width="24"
+		  width="24" >
+		<button.commit_callback
+			function="MediaCtrl.ToggleMute" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="volume_up"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		min_width="20"
+		height="14"
+		width="20">
+	  <button
+		  top="-3"
+		  height="14"
+		  image_selected="media_btn_scrollup.png"
+		  image_unselected="media_btn_scrollup.png"
+		  layout="topleft"
+		  tool_tip="Volume up"
+		  picture_style="true"
+		  scale_image="true"
+		  min_width="20"
+		  width="20" >
+		<button.commit_callback
+			function="MediaCtrl.CommitVolumeUp" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="volume_down"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		min_width="20"
+		height="14"
+		width="20">
+	  <button
+		  top="-5"
+		  height="14"
+		  image_selected="media_btn_scrolldown.png"
+		  image_unselected="media_btn_scrolldown.png"
+		  layout="topleft"
+		  tool_tip="Volume down"
+		  picture_style="true"
+		  scale_image="true"
+		  min_width="20"
+		  width="20">
+		<button.commit_callback
+			function="MediaCtrl.CommitVolumeDown" />
+	  </button>
+	</layout_panel>
+	<!-- Scroll pad -->
+	<layout_panel
+		name="media_panel_scroll"
+		auto_resize="false"
+		user_resize="false"
+		height="32"
+		follows="left|right|top|bottom"
+		layout="topleft"
+		min_width="32"
+		width="32">
+	  <icon
+		  height="32"
+		  image_name="media_panel_scrollbg.png"
+		  layout="topleft"
+		  top="0"
+		  min_width="32"
+		  width="32" />
+	  <button
+		  name="scrollup"
+		  height="8"
+		  image_selected="media_btn_scrollup.png"
+		  image_unselected="media_btn_scrollup.png"
+		  layout="topleft"
+		  tool_tip="Scroll up"
+		  picture_style="true"
+		  scale_image="false"
+		  left="12"
+		  top_delta="4"
+		  min_width="8"
+		  width="8" />
+	  <button
+		  name="scrollleft"
+		  height="8"
+		  image_selected="media_btn_scrollleft.png"
+		  image_unselected="media_btn_scrollleft.png"
+		  layout="topleft"
+		  left="3"
+		  tool_tip="Scroll left"
+		  picture_style="true"
+		  scale_image="false"
+		  top="12"
+		  min_width="8"
+		  width="8" />
+	  <button
+		  name="scrollright"
+		  height="8"
+		  image_selected="media_btn_scrollright.png"
+		  image_unselected="media_btn_scrollright.png"
+		  layout="topleft"
+		  left_pad="9"
+		  tool_tip="Scroll right"
+		  picture_style="true"
+		  scale_image="false"
+		  top_delta="0"
+		  min_width="8"
+		  width="8" />
+	  <button
+		  name="scrolldown"
+		  height="8"
+		  image_selected="media_btn_scrolldown.png"
+		  image_unselected="media_btn_scrolldown.png"
+		  layout="topleft"
+		  left="12"
+		  tool_tip="Scroll down"
+		  picture_style="true"
+		  scale_image="false"
+		  top="20"
+		  min_width="8"
+		  width="8" />
+	</layout_panel>
+	<layout_panel
+		name="zoom_frame"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		height="28"
+		min_width="22"
+		width="22">
+	  <button
+		  height="22"
+		  image_selected="media_btn_optimalzoom.png"
+		  image_unselected="media_btn_optimalzoom.png"
+		  layout="topleft"
+		  tool_tip="Zoom"
+		  picture_style="true"
+		  min_width="22"
+		  width="22">
+		<button.commit_callback
+			function="MediaCtrl.Zoom" />
+	  </button>
+	</layout_panel>
+<!--
+	<panel
+		height="22"
+		layout="topleft"
+		auto_resize="false"
+		min_width="3"
+		width="3">
+	  <icon
+		  height="22"
+		  image_name="media_panel_divider.png"
+		  layout="topleft"
+		  top="0"
+		  min_width="3"
+		  width="3" />
+	</panel>
+-->
+	<layout_panel
+		name="new_window"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		min_width="22"
+		width="22">
+	  <button
+		  height="22"
+		  image_selected="media_btn_newwindow.png"
+		  image_unselected="media_btn_newwindow.png"
+		  layout="topleft"
+		  tool_tip = "Open URL in browser"
+		  picture_style="true"
+		  top_delta="-3"
+		  min_width="24"
+		  width="24" >
+		<button.commit_callback
+			function="MediaCtrl.Open" />
+	  </button>
+	</layout_panel>
+<!--
+	<panel
+		height="22"
+		layout="topleft"
+		auto_resize="false"
+		min_width="3"
+		width="3">
+	  <icon
+		  height="22"
+		  image_name="media_panel_divider.png"
+		  layout="topleft"
+		  top="0"
+		  min_width="3"
+		  width="3" />
+	</panel>
+-->
+	<layout_panel
+		name="close"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		min_width="21"
+		width="21" >
+	  <button
+		  height="22"
+		  image_selected="media_btn_done.png"
+		  image_unselected="media_btn_done.png"
+		  layout="topleft"
+		  tool_tip ="Close media control"
+		  picture_style="true"
+		  top_delta="-4"
+		  width="21" >
+		<button.commit_callback
+			function="MediaCtrl.Close" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		width="0"
+		layout="topleft"
+		user_resize="false" />
+  </layout_stack>
+</panel>

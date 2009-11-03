@@ -486,6 +486,11 @@ void LLButton::onMouseLeave(S32 x, S32 y, MASK mask)
 	mNeedsHighlight = FALSE;
 }
 
+void LLButton::setHighlight(bool b)
+{
+	mNeedsHighlight = b;
+}
+
 BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 {
 	if (!childrenHandleHover(x, y, mask))

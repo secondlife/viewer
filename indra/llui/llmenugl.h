@@ -505,7 +505,7 @@ public:
 	void buildDrawLabels();
 	void createJumpKeys();
 
-	// Show popup at a specific location.
+	// Show popup at a specific location, in the spawn_view's coordinate frame
 	static void showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y);
 
 	// Whether to drop shadow menu bar 
