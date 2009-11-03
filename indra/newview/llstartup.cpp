@@ -738,7 +738,7 @@ bool idle_startup()
 		}
 		if (!gLoginHandler.getFirstName().empty()
 			|| !gLoginHandler.getLastName().empty()
-			|| !gLoginHandler.getWebLoginKey().isNull() )
+			/*|| !gLoginHandler.getWebLoginKey().isNull()*/ )
 		{
 			// We have at least some login information on a SLURL
 			gFirstname = gLoginHandler.getFirstName();
@@ -895,13 +895,9 @@ bool idle_startup()
 		gViewerWindow->moveProgressViewToFront();
 
 		//reset the values that could have come in from a slurl
-		if (!gLoginHandler.getWebLoginKey().isNull())
-		{
-			gFirstname = gLoginHandler.getFirstName();
-			gLastname = gLoginHandler.getLastName();
-//			gWebLoginKey = gLoginHandler.getWebLoginKey();
-		}
-				
+		gFirstname = gLoginHandler.getFirstName();
+		gLastname = gLoginHandler.getLastName();
+
 		if (show_connect_box)
 		{
 			// TODO if not use viewer auth

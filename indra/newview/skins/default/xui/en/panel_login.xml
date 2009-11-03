@@ -15,19 +15,30 @@
      name="real_url">
         http://secondlife.com/app/login/
     </panel.string>
+    <string name="reg_in_client_url">
+      http://secondlife.eniac15.lindenlab.com/reg-in-client/
+    </string>
     <panel.string
      name="forgot_password_url">
         http://secondlife.com/account/request.php
     </panel.string>
+  <!-- *NOTE: Custom resize logic for login_html in llpanellogin.cpp -->
     <web_browser
      border_visible="false"
      bottom="600"
      follows="all"
      left="0"
      name="login_html"
-     right="-1"
      start_url=""
-     top="1" />
+     top="0"
+     height="600"
+     width="800"/>
+    <panel
+     follows="left|bottom|right"
+     name="login_widgets"
+     layout="topleft"
+     left="0"
+     top="0">
     <text
      follows="left|bottom"
      font="SansSerif"
@@ -182,4 +193,5 @@
      width="300">
         [VERSION]
     </text>
+  </panel>
 </panel>
