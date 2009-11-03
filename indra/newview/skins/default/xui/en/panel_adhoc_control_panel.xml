@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  name="panel_im_control_panel"
- width="146"
+ width="180"
  height="215"
  border="false">
     <avatar_list
@@ -16,10 +16,11 @@
      show_info_btn="false"
      show_profile_btn="false"
      top="10"
-     width="140" />
+     width="180" />
     <button
      name="call_btn"
      label="Call"
+     left_delta="27"
      width="125"
      height="20" />
     <button
