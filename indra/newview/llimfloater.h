@@ -35,11 +35,13 @@
 
 #include "lltransientdockablefloater.h"
 #include "lllogchat.h"
+#include "lltooldraganddrop.h"
 
 class LLLineEditor;
 class LLPanelChatControlPanel;
 class LLChatHistory;
-
+class LLInventoryItem;
+class LLInventoryCategory;
 
 /**
  * Individual IM window that appears at the bottom of the screen,
@@ -90,10 +92,21 @@ public:
 	void processIMTyping(const LLIMInfo* im_info, BOOL typing);
 	void processSessionUpdate(const LLSD& session_update);
 
+	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
+							   BOOL drop, EDragAndDropType cargo_type,
+							   void *cargo_data, EAcceptance *accept,
+							   std::string& tooltip_msg);
+
 private:
 	// process focus events to set a currently active session
 	/* virtual */ void onFocusLost();
 	/* virtual */ void onFocusReceived();
+
+	BOOL dropCallingCard(LLInventoryItem* item, BOOL drop);
+	BOOL dropCategory(LLInventoryCategory* category, BOOL drop);
+
+	BOOL isInviteAllowed() const;
+	BOOL inviteToSession(const std::vector<LLUUID>& agent_ids);
 	
 	static void		onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata );
 	static void		onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);

@@ -738,7 +738,7 @@ bool idle_startup()
 		}
 		if (!gLoginHandler.getFirstName().empty()
 			|| !gLoginHandler.getLastName().empty()
-			|| !gLoginHandler.getWebLoginKey().isNull() )
+			/*|| !gLoginHandler.getWebLoginKey().isNull()*/ )
 		{
 			// We have at least some login information on a SLURL
 			gFirstname = gLoginHandler.getFirstName();
@@ -895,13 +895,9 @@ bool idle_startup()
 		gViewerWindow->moveProgressViewToFront();
 
 		//reset the values that could have come in from a slurl
-		if (!gLoginHandler.getWebLoginKey().isNull())
-		{
-			gFirstname = gLoginHandler.getFirstName();
-			gLastname = gLoginHandler.getLastName();
-//			gWebLoginKey = gLoginHandler.getWebLoginKey();
-		}
-				
+		gFirstname = gLoginHandler.getFirstName();
+		gLastname = gLoginHandler.getLastName();
+
 		if (show_connect_box)
 		{
 			// TODO if not use viewer auth
@@ -1149,7 +1145,8 @@ bool idle_startup()
 				}
 
 				//setup map of datetime strings to codes and slt & local time offset from utc
-				LLStringOps::setupDatetimeInfo (gPacificDaylightTime);
+				// *TODO: Does this need to be here?
+				LLStringOps::setupDatetimeInfo (false);
 				transition_back_to_login_panel(emsg.str());
 				show_connect_box = true;
 			}
@@ -3037,14 +3034,15 @@ bool process_login_success_response()
 			gAgent.setGenderChosen(TRUE);
 		}
 		
+		bool pacific_daylight_time = false;
 		flag = login_flags["daylight_savings"].asString();
 		if(flag == "Y")
 		{
-			gPacificDaylightTime  = (flag == "Y") ? TRUE : FALSE;
+			pacific_daylight_time = (flag == "Y");
 		}
 
 		//setup map of datetime strings to codes and slt & local time offset from utc
-		LLStringOps::setupDatetimeInfo (gPacificDaylightTime);
+		LLStringOps::setupDatetimeInfo(pacific_daylight_time);
 	}
 
 	LLSD initial_outfit = response["initial-outfit"][0];

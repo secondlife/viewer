@@ -32,7 +32,7 @@
 
 /*
  * Shows the contents of an object.
- * A floater wrapper for llpanelinventory
+ * A floater wrapper for LLPanelObjectInventory
  */
 
 #include "llviewerprecompiledheaders.h"
@@ -47,7 +47,8 @@
 #include "llinventorybridge.h"
 #include "llfloaterinventory.h"
 #include "llinventorymodel.h"
-#include "llpanelinventory.h"
+#include "llinventorypanel.h"
+#include "llpanelobjectinventory.h"
 #include "llfloaterreg.h"
 #include "llselectmgr.h"
 #include "lluiconstants.h"
@@ -58,7 +59,7 @@
 
 LLFloaterOpenObject::LLFloaterOpenObject(const LLSD& key)
 :	LLFloater(key),
-	mPanelInventory(NULL),
+	mPanelInventoryObject(NULL),
 	mDirty(TRUE)
 {
 //	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_openobject.xml");
@@ -74,7 +75,7 @@ LLFloaterOpenObject::~LLFloaterOpenObject()
 BOOL LLFloaterOpenObject::postBuild()
 {
 	childSetTextArg("object_name", "[DESC]", std::string("Object") ); // *Note: probably do not want to translate this
-	mPanelInventory = getChild<LLPanelInventory>("object_contents");
+	mPanelInventoryObject = getChild<LLPanelObjectInventory>("object_contents");
 	return TRUE;
 }
 
@@ -96,7 +97,7 @@ void LLFloaterOpenObject::onOpen(const LLSD& key)
 }
 void LLFloaterOpenObject::refresh()
 {
-	mPanelInventory->refresh();
+	mPanelInventoryObject->refresh();
 
 	std::string name;
 	BOOL enabled;

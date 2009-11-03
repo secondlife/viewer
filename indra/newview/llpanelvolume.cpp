@@ -57,7 +57,6 @@
 #include "llfirstuse.h"
 #include "llfocusmgr.h"
 #include "llmanipscale.h"
-#include "llpanelinventory.h"
 #include "llpreviewscript.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"

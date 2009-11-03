@@ -62,7 +62,6 @@
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "llimview.h"
-#include "llimpanel.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -719,18 +718,8 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 
 			// If there's an open IM session with this agent, send a notification there too.
 			LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, agent_id);
-			LLFloaterIMPanel *floater = gIMMgr->findFloaterBySession(session_id);
-			if (floater)
-			{
-				std::string notifyMsg = notification->getMessage();
-				if (!notifyMsg.empty())
-				{
-					floater->addHistoryLine(notifyMsg,LLUIColorTable::instance().getColor("SystemChatColor"));
-				}
-			}
-
-			//*TODO instead of adding IM message about online/offline status
-			//do something like graying avatar icon on messages from a user that went offline, and  make it colored when online.
+			std::string notify_msg = notification->getMessage();
+			LLIMModel::instance().proccessOnlineOfflineNotification(session_id, notify_msg);
 		}
 
 		mModifyMask |= LLFriendObserver::ONLINE;

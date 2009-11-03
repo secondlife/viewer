@@ -94,16 +94,6 @@ regions in the estate.
      name="use_global_time_check"
      top="132"
      width="200" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="20"
-     name="use_global_time_help"
-     top_delta="2"
-     width="18" />
     <check_box
      height="20"
      label="Fixed Sun"
@@ -112,16 +102,6 @@ regions in the estate.
      name="fixed_sun_check"
      top="152"
      width="100" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="120"
-     name="fixed_sun_help"
-     top_delta="2"
-     width="18" />
     <icon
      height="20"
      image_name="icon_day_cycle.tga"
@@ -151,16 +131,6 @@ regions in the estate.
      name="externally_visible_check"
      top_pad="6"
      width="200" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="20"
-     name="externally_visible_help"
-     top_delta="2"
-     width="18" />
     <text
      type="string"
      length="1"
@@ -201,16 +171,6 @@ regions in the estate.
      name="voice_chat_check"
      top="304"
      width="200" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="20"
-     name="voice_chat_help"
-     top_delta="2"
-     width="18" />
     <check_box
      height="20"
      label="Allow Direct Teleport"
@@ -219,16 +179,6 @@ regions in the estate.
      name="allow_direct_teleport"
      top_pad="4"
      width="80" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="140"
-     name="allow_direct_teleport_help"
-     top_delta="2"
-     width="18" />
     <text
      type="string"
      length="1"
@@ -249,16 +199,6 @@ regions in the estate.
      name="abuse_email_address"
      top_pad="5"
      width="205" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_pad="12"
-     name="abuse_email_address_help"
-     top_dekta="0"
-     width="18" />
     <button
      enabled="false"
      follows="left|top"
@@ -300,16 +240,6 @@ regions in the estate.
      width="200">
         Estate Managers:
     </text>
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_delta="182"
-     name="estate_manager_help"
-     top_delta="-1"
-     width="18" />
     <view_border
      bevel_style="none"
      follows="top|left"
@@ -357,16 +287,6 @@ regions in the estate.
      width="200">
         Allowed Residents:
     </text>
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_delta="182"
-     name="allow_resident_help"
-     top_delta="-1"
-     width="18" />
     <view_border
      bevel_style="none"
      follows="top|left"
@@ -414,16 +334,6 @@ regions in the estate.
      width="200">
         Allowed Groups:
     </text>
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_delta="182"
-     name="allow_group_help"
-     top_delta="-1"
-     width="18" />
     <view_border
      bevel_style="none"
      follows="top|left"
@@ -471,16 +381,6 @@ regions in the estate.
      width="200">
         Banned Residents:
     </text>
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="18"
-     label="?"
-     layout="topleft"
-     left_delta="182"
-     name="ban_resident_help"
-     top_delta="-1"
-     width="18" />
     <view_border
      bevel_style="none"
      follows="top|left"

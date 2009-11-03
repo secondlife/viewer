@@ -86,23 +86,6 @@ BOOL LLPanelGroupTab::postBuild()
 	return TRUE;
 }
 
-
-
-void LLPanelGroupTab::handleClickHelp()
-{
-	// Display the help text.
-	std::string help_text( getHelpText() );
-	if ( !help_text.empty() )
-	{
-		LLSD args;
-		args["MESSAGE"] = help_text;
-		LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-		LLNotification::Params params(parent_floater->contextualNotification("GenericAlert"));
-		params.substitutions(args);
-		LLNotifications::instance().add(params);
-	}
-}
-
 LLPanelGroup::LLPanelGroup()
 :	LLPanel(),
 	LLGroupMgrObserver( LLUUID() ),

@@ -1190,6 +1190,17 @@ BOOL LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+std::string LLViewerMediaImpl::getName() const 
+{ 
+	if (mMediaSource)
+	{
+		return mMediaSource->getMediaName();
+	}
+	
+	return LLStringUtil::null; 
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateBack()
 {
 	if (mMediaSource)

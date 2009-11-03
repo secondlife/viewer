@@ -361,20 +361,6 @@ void LLPanelGroupRoles::cancel()
 	panelp->cancel();
 }
 
-// Pass all of these messages to the currently visible sub tab.
-std::string LLPanelGroupRoles::getHelpText() const
-{
-	LLPanelGroupTab* panelp = (LLPanelGroupTab*) mSubTabContainer->getCurrentPanel();
-	if (panelp)
-	{
-		return panelp->getHelpText();
-	}
-	else
-	{
-		return mHelpText;
-	}
-}
-
 void LLPanelGroupRoles::update(LLGroupChange gc)
 {
 	if (mGroupID.isNull()) return;

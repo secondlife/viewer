@@ -41,7 +41,7 @@
 #include "llfloater.h"
 
 class LLObjectSelection;
-class LLPanelInventory;
+class LLPanelObjectInventory;
 
 class LLFloaterOpenObject
 : public LLFloater
@@ -77,7 +77,7 @@ private:
 	
 protected:
 
-	LLPanelInventory*	mPanelInventory;
+	LLPanelObjectInventory*	mPanelInventoryObject;
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
 	BOOL mDirty;
 };

@@ -39,6 +39,7 @@
 #include "llfloaterinventory.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
+#include "llinventorypanel.h"
 #include "llnotify.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
@@ -2014,7 +2015,8 @@ void LLInitialWearablesFetch::done()
 	LLFindWearables is_wearable;
 	gInventory.collectDescendentsIf(mCompleteFolders.front(), cat_array, wearable_array, 
 									LLInventoryModel::EXCLUDE_TRASH, is_wearable);
-	
+
+	LLAppearanceManager::setAttachmentInvLinkEnable(true);
 	if (wearable_array.count() > 0)
 	{
 		LLAppearanceManager::instance().updateAppearanceFromCOF();

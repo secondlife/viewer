@@ -46,6 +46,8 @@
 #include "llfloater.h"
 #include "llfocusmgr.h"
 #include "llinventorybridge.h"
+#include "llinventoryfunctions.h"
+#include "llinventorypanel.h"
 #include "llfloaterinventory.h"
 #include "llviewerinventory.h"
 #include "llviewermessage.h"
@@ -3174,13 +3176,13 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	// The incoming inventory could span more than one BulkInventoryUpdate packet,
 	// so record the transaction ID for this purchase, then wear all clothing
 	// that comes in as part of that transaction ID.  JC
-	if (LLFloaterInventory::sWearNewClothing)
+	if (LLInventoryState::sWearNewClothing)
 	{
-		LLFloaterInventory::sWearNewClothingTransactionID = tid;
-		LLFloaterInventory::sWearNewClothing = FALSE;
+		LLInventoryState::sWearNewClothingTransactionID = tid;
+		LLInventoryState::sWearNewClothing = FALSE;
 	}
 
-	if (tid == LLFloaterInventory::sWearNewClothingTransactionID)
+	if (tid == LLInventoryState::sWearNewClothingTransactionID)
 	{
 		count = wearable_ids.size();
 		for (i = 0; i < count; ++i)

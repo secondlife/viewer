@@ -86,6 +86,9 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 		mFocusedObjectID = objectp->getID();
 		mFocusedObjectFace = face;
 		mFocusedObjectNormal = pick_normal;
+		
+		// Focusing on a media face clears its disable flag.
+		media_impl->setDisabled(false);
 
 		LLTextureEntry* tep = objectp->getTE(face);
 		if(tep->hasMedia())

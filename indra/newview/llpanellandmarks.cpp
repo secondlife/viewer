@@ -47,6 +47,7 @@
 #include "lldndbutton.h"
 #include "llfloaterworldmap.h"
 #include "llfolderviewitem.h"
+#include "llinventorypanel.h"
 #include "llinventorysubtreepanel.h"
 #include "lllandmarkactions.h"
 #include "llplacesinventorybridge.h"
@@ -184,9 +185,9 @@ void LLLandmarksPanel::updateVerbs()
 	if (!isTabVisible()) 
 		return;
 
-	BOOL enabled = isLandmarkSelected();
-	mTeleportBtn->setEnabled(enabled);
-	mShowOnMapBtn->setEnabled(enabled);
+	bool landmark_selected = isLandmarkSelected();
+	mTeleportBtn->setEnabled(landmark_selected && isActionEnabled("teleport"));
+	mShowOnMapBtn->setEnabled(landmark_selected && isActionEnabled("show_on_map"));
 
 	// TODO: mantipov: Uncomment when mShareBtn is supported
 	// Share button should be enabled when neither a folder nor a landmark is selected

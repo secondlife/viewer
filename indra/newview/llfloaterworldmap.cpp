@@ -45,6 +45,7 @@
 #include "llcallingcard.h"
 #include "llcombobox.h"
 #include "llviewercontrol.h"
+#include "llcommandhandler.h"
 #include "lldraghandle.h"
 #include "llfirstuse.h"
 #include "llfloaterreg.h"		// getTypedInstance()
@@ -95,6 +96,35 @@ static const F32 SIM_COORD_DEFAULT = 128.f;
 //---------------------------------------------------------------------------
 // Globals
 //---------------------------------------------------------------------------
+
+// handle secondlife:///app/worldmap/{NAME}/{COORDS} URLs
+class LLWorldMapHandler : public LLCommandHandler
+{
+public:
+	// requires trusted browser to trigger
+	LLWorldMapHandler() : LLCommandHandler("worldmap", UNTRUSTED_THROTTLE) { }
+
+	bool handle(const LLSD& params, const LLSD& query_map,
+				LLMediaCtrl* web)
+	{
+		if (params.size() == 0)
+		{
+			return false;
+		}
+
+		const std::string region_name = params[0].asString();
+		S32 x = (params.size() > 1) ? params[1].asInteger() : 128;
+		S32 y = (params.size() > 2) ? params[2].asInteger() : 128;
+		S32 z = (params.size() > 3) ? params[3].asInteger() : 0;
+
+		LLFloaterWorldMap::getInstance()->trackURL(region_name, x, y, z);
+		LLFloaterReg::showInstance("world_map", "center");
+
+		return true;
+	}
+};
+LLWorldMapHandler gWorldMapHandler;
+
 
 LLFloaterWorldMap* gFloaterWorldMap = NULL;
 
