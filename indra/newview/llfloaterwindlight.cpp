@@ -119,36 +119,6 @@ BOOL LLFloaterWindLight::postBuild()
 }
 void LLFloaterWindLight::initCallbacks(void) {
 
-	// help buttons
-	initHelpBtn("WLBlueHorizonHelp", "HelpBlueHorizon");
-	initHelpBtn("WLHazeHorizonHelp", "HelpHazeHorizon");
-	initHelpBtn("WLBlueDensityHelp", "HelpBlueDensity");
-	initHelpBtn("WLHazeDensityHelp", "HelpHazeDensity");
-
-	initHelpBtn("WLDensityMultHelp", "HelpDensityMult");
-	initHelpBtn("WLDistanceMultHelp", "HelpDistanceMult");
-	initHelpBtn("WLMaxAltitudeHelp", "HelpMaxAltitude");
-
-	initHelpBtn("WLSunlightColorHelp", "HelpSunlightColor");
-	initHelpBtn("WLAmbientHelp", "HelpSunAmbient");
-	initHelpBtn("WLSunGlowHelp", "HelpSunGlow");
-	initHelpBtn("WLTimeOfDayHelp", "HelpTimeOfDay");
-	initHelpBtn("WLEastAngleHelp", "HelpEastAngle");
-
-	initHelpBtn("WLSceneGammaHelp", "HelpSceneGamma");
-	initHelpBtn("WLStarBrightnessHelp", "HelpStarBrightness");
-
-	initHelpBtn("WLCloudColorHelp", "HelpCloudColor");
-	initHelpBtn("WLCloudDetailHelp", "HelpCloudDetail");
-	initHelpBtn("WLCloudDensityHelp", "HelpCloudDensity");
-	initHelpBtn("WLCloudCoverageHelp", "HelpCloudCoverage");
-
-	initHelpBtn("WLCloudScaleHelp", "HelpCloudScale");
-	initHelpBtn("WLCloudScrollXHelp", "HelpCloudScrollX");
-	initHelpBtn("WLCloudScrollYHelp", "HelpCloudScrollY");
-
-	initHelpBtn("WLClassicCloudsHelp", "HelpClassicClouds");
-
 	LLWLParamManager * param_mgr = LLWLParamManager::instance();
 
 	// blue horizon
@@ -235,16 +205,6 @@ void LLFloaterWindLight::initCallbacks(void) {
 	// Dome
 	getChild<LLUICtrl>("WLGamma")->setCommitCallback(boost::bind(&LLFloaterWindLight::onFloatControlMoved, this, _1, &param_mgr->mWLGamma));
 	getChild<LLUICtrl>("WLStarAlpha")->setCommitCallback(boost::bind(&LLFloaterWindLight::onStarAlphaMoved, this, _1));
-}
-
-void LLFloaterWindLight::onClickHelp(std::string xml_alert)
-{
-	LLNotifications::instance().add(contextualNotification(xml_alert));
-}
-
-void LLFloaterWindLight::initHelpBtn(const std::string& name, const std::string& xml_alert)
-{
-	getChild<LLButton>(name)->setClickedCallback(boost::bind(&LLFloaterWindLight::onClickHelp, this, xml_alert));
 }
 
 bool LLFloaterWindLight::newPromptCallback(const LLSD& notification, const LLSD& response)

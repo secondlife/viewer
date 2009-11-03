@@ -82,6 +82,11 @@ public:
 	const std::string getIconParamName() const{return mIconParamName;}
 	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
+	// Return true if filter has at least one match.
+	bool filterHasMatches();
+
+	boost::signals2::connection setRefreshCompleteCallback(const commit_signal_t::slot_type& cb);
+
 protected:
 	void refresh();
 
@@ -107,6 +112,8 @@ private:
 	uuid_vector_t			mIDs;
 
 	LLAvatarListItem::ContextMenu* mContextMenu;
+
+	commit_signal_t mRefreshCompleteSignal;
 };
 
 /** Abstract comparator for avatar items */

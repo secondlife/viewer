@@ -54,6 +54,7 @@ public:
 	virtual ~LLNavigationBar();
 	
 	/*virtual*/ void	draw();
+	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	postBuild();
 
 	void handleLoginComplete();
@@ -77,7 +78,6 @@ private:
 	void onBackOrForwardButtonHeldDown(const LLSD& param);
 	void onForwardButtonClicked();
 	void onHomeButtonClicked();
-	void onHelpButtonClicked();
 	void onLocationSelection();
 	void onLocationPrearrange(const LLSD& data);
 	void onSearchCommit();

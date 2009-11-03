@@ -10,7 +10,7 @@
  left="0"
  name="bottom_tray"
  top="28"
- chrome="true" 
+ chrome="true"
  border_visible="false"
  width="1000">
     <layout_stack
@@ -47,7 +47,7 @@
          min_width="300"
          name="chat_bar"
          user_resize="false"
-         filename="panel_nearby_chat_bar.xml"/>
+         filename="panel_nearby_chat_bar.xml" />
         <layout_panel
          mouse_opaque="false"
          auto_resize="false"
@@ -55,23 +55,22 @@
          height="28"
          layout="topleft"
          min_height="28"
-         width="96"
+         width="100"
          top_delta="0"
          min_width="96"
          name="speak_panel"
          user_resize="false">
-		    <chiclet_talk
-		     follows="right"
-		     height="23"
-		     speak_button.font="SansSerifMedium"
-		     speak_button.tab_stop="true"
-		     show_button.tab_stop="true"
-		     layout="topleft"
-		     left="0"
-		     name="talk"
-		     top="3"
-		     width="96" />
-         </layout_panel>
+         <chiclet_talk
+          follows="right"
+          height="23"
+          speak_button.tab_stop="true"
+          show_button.tab_stop="true"
+          layout="topleft"
+          left="0"
+          name="talk"
+          top="3"
+          width="100" />
+        </layout_panel>
 		 <icon
          auto_resize="false"
          follows="left|right"
@@ -89,21 +88,21 @@
          height="28"
          layout="topleft"
          min_height="28"
-         width="76"
+         width="80"
          top_delta="0"
          min_width="76"
          name="gesture_panel"
          user_resize="false">
-		    <gesture_combo_box
-		      follows="right"
-		     height="23"
-		     label="Gesture"
-		     layout="topleft"
-		     name="Gesture"
-		     left="0"
-		     top="3"
-             use_ellipses="true"
-		     width="76" />
+         <button
+           follows="right"
+          height="23"
+          label="Gesture"
+          layout="topleft"
+          name="Gesture"
+          left="0"
+          top="3"
+         use_ellipses="true"
+          width="80" />
         </layout_panel>
 		 <icon
          auto_resize="false"
@@ -124,7 +123,7 @@
          layout="topleft"
          min_height="28"
          name="movement_panel"
-         width="76"
+         width="80"
          min_width="76">
             <button
              follows="left|right"
@@ -136,7 +135,7 @@
              name="movement_btn"
              tool_tip="Show/hide movement controls"
              top="3"
-             width="76">
+             width="80">
                 <button.init_callback
                  function="Button.SetDockableFloaterToggle"
                  parameter="moveview" />
@@ -175,7 +174,7 @@
              tool_tip="Show/hide camera controls"
              top="3"
              name="camera_btn"
-             width="76">
+             width="80">
                 <button.init_callback
                  function="Button.SetDockableFloaterToggle"
                  parameter="camera" />
@@ -199,28 +198,19 @@
          height="28"
          layout="topleft"
          name="snapshot_panel"
-         width="35">
-            <split_button
-             arrow_position="right"
+         width="40">
+            <button
          follows="left|right"
              height="23"
              left="0"
+             label=""
              layout="topleft"
              name="snapshots"
-             width="46"
-             top="3">
-                <split_button.item
-                 image_overlay="Snapshot_Off"
-                 name="snapshot"
-                 tool_tip="Take snapshot"
+             width="36"
+             top="3"
+             image_overlay="Snapshot_Off"
+            tool_tip="Take snapshot"
                  />
-                <split_button.arrow_button
-                 name="snapshot_settings"
-                 image_overlay="Widget_UpArrow"
-                 tool_tip="Snapshot and Preset Views"
-                 width="18"
-                 />
-            </split_button>
         </layout_panel>
         <layout_panel
          mouse_opaque="false"
@@ -297,7 +287,7 @@
          height="10"
          image_name="spacer24.tga"
          layout="topleft"
-         left="0"
+         right="-1"
          top="0"
          width="10"/>
     </layout_stack>

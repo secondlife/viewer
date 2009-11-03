@@ -1492,16 +1492,6 @@ Only large parcels can be listed in search.
                  name="item12"
                  value="other" />
             </combo_box>
-            <button
-             follows="left|top"
-             height="18"
-             label="?"
-             label_selected="?"
-             layout="topleft"
-             left_pad="15"
-             name="?"
-             top_delta="0"
-             width="18" />
             <check_box
              height="16"
              label="Mature Content"
@@ -1916,16 +1906,6 @@ Only large parcels can be listed in search.
              name="check sound local"
              top_delta="0"
              width="292" />
-            <button
-             follows="left|top"
-             height="18"
-             label="?"
-             label_selected="?"
-             layout="topleft"
-             left_delta="292"
-             name="?"
-             top_delta="-2"
-             width="18" />
             <text
              type="string"
              length="1"

@@ -124,6 +124,12 @@ private:
 
 	void					onFriendsAccordionExpandedCollapsed(const LLSD& param, LLAvatarList* avatar_list);
 
+	void					showAccordion(const std::string name, bool show);
+
+	void					showFriendsAccordionsIfNeeded();
+
+	void					onFriendListRefreshComplete(LLUICtrl*ctrl, const LLSD& param);
+
 	LLFilterEditor*			mFilterEditor;
 	LLTabContainer*			mTabContainer;
 	LLAvatarList*			mOnlineFriendList;

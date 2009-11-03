@@ -105,20 +105,8 @@ LLFloaterDayCycle::~LLFloaterDayCycle()
 {
 }
 
-void LLFloaterDayCycle::onClickHelp(std::string xml_alert)
-{
-	LLNotifications::instance().add(contextualNotification(xml_alert));
-}
-
-void LLFloaterDayCycle::initHelpBtn(const std::string& name, const std::string& xml_alert)
-{
-	getChild<LLButton>(name)->setClickedCallback(boost::bind(&LLFloaterDayCycle::onClickHelp, this, xml_alert));
-}
-
 void LLFloaterDayCycle::initCallbacks(void) 
 {
-	initHelpBtn("WLDayCycleHelp", "HelpDayCycle");
-
 	// WL Day Cycle
 	getChild<LLUICtrl>("WLTimeSlider")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onTimeSliderMoved, this, _1));
 	getChild<LLUICtrl>("WLDayCycleKeys")->setCommitCallback(boost::bind(&LLFloaterDayCycle::onKeyTimeMoved, this, _1));

@@ -320,7 +320,6 @@ private:
 	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
 	static void onClickSet(void* userdata);
 	static void onClickClear(void* userdata);
-	static void onClickPublishHelp(void*);
 
 private:
 	LLCheckBoxCtrl*	mCheckEditObjects;
@@ -345,7 +344,6 @@ private:
 
 	LLCheckBoxCtrl		*mMatureCtrl;
 	LLCheckBoxCtrl		*mPushRestrictionCtrl;
-	LLButton			*mPublishHelpButton;
 
 	LLSafeHandle<LLParcelSelection>&	mParcel;
 };

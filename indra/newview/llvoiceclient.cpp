@@ -254,6 +254,7 @@ protected:
 	std::string		nameString;
 	std::string		audioMediaString;
 	std::string		displayNameString;
+	std::string		deviceString;
 	int				participantType;
 	bool			isLocallyMuted;
 	bool			isModeratorMuted;
@@ -485,6 +486,14 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 			{
 				gVoiceClient->clearRenderDevices();
 			}
+			else if (!stricmp("CaptureDevice", tag))
+			{
+				deviceString.clear();
+			}
+			else if (!stricmp("RenderDevice", tag))
+			{
+				deviceString.clear();
+			}
 			else if (!stricmp("Buddies", tag))
 			{
 				gVoiceClient->deleteAllBuddies();
@@ -508,7 +517,6 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 void LLVivoxProtocolParser::EndTag(const char *tag)
 {
 	const std::string& string = textBuffer;
-	bool clearbuffer = true;
 
 	responseDepth--;
 
@@ -580,6 +588,8 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 			nameString = string;
 		else if (!stricmp("DisplayName", tag))
 			displayNameString = string;
+		else if (!stricmp("Device", tag))
+			deviceString = string;
 		else if (!stricmp("AccountName", tag))
 			nameString = string;
 		else if (!stricmp("ParticipantType", tag))
@@ -596,18 +606,13 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 			uriString = string;
 		else if (!stricmp("Presence", tag))
 			statusString = string;
-		else if (!stricmp("Device", tag))
-		{
-			// This closing tag shouldn't clear the accumulated text.
-			clearbuffer = false;
-		}
 		else if (!stricmp("CaptureDevice", tag))
 		{
-			gVoiceClient->addCaptureDevice(textBuffer);
+			gVoiceClient->addCaptureDevice(deviceString);
 		}
 		else if (!stricmp("RenderDevice", tag))
 		{
-			gVoiceClient->addRenderDevice(textBuffer);
+			gVoiceClient->addRenderDevice(deviceString);
 		}
 		else if (!stricmp("Buddy", tag))
 		{
@@ -648,12 +653,8 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 		else if (!stricmp("SubscriptionType", tag))
 			subscriptionType = string;
 		
-
-		if(clearbuffer)
-		{
-			textBuffer.clear();
-			accumulateText= false;
-		}
+		textBuffer.clear();
+		accumulateText= false;
 		
 		if (responseDepth == 0)
 		{
@@ -1160,7 +1161,8 @@ LLVoiceClient::LLVoiceClient() :
 	mVoiceEnabled(false),
 	mWriteInProgress(false),
 	
-	mLipSyncEnabled(false)
+	mLipSyncEnabled(false),
+	mAPIVersion("Unknown")
 {	
 	gVoiceClient = this;
 	
@@ -3749,6 +3751,7 @@ void LLVoiceClient::connectorCreateResponse(int statusCode, std::string &statusS
 	{
 		// Connector created, move forward.
 		LL_INFOS("Voice") << "Connector.Create succeeded, Vivox SDK version is " << versionID << LL_ENDL;
+		mAPIVersion = versionID;
 		mConnectorHandle = connectorHandle;
 		if(getState() == stateConnectorStarting)
 		{

@@ -1519,7 +1519,9 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 		}
 
 		// Placeholder for name.
-		item_params.columns.add().font(FONT).column("name");
+		std::string name;
+		gCacheName->getFullName(owner_id, name);		
+		item_params.columns.add().value(name).font(FONT).column("name");
 
 		object_count_str = llformat("%d", object_count);
 		item_params.columns.add().value(object_count_str).font(FONT).column("count");
@@ -1743,7 +1745,6 @@ LLPanelLandOptions::LLPanelLandOptions(LLParcelSelectionHandle& parcel)
 	mClearBtn(NULL),
 	mMatureCtrl(NULL),
 	mPushRestrictionCtrl(NULL),
-	mPublishHelpButton(NULL),
 	mParcel(parcel)
 {
 }
@@ -1812,14 +1813,9 @@ BOOL LLPanelLandOptions::postBuild()
 	mMatureCtrl = getChild<LLCheckBoxCtrl>( "MatureCheck");
 	childSetCommitCallback("MatureCheck", onCommitAny, this);
 	
-	mPublishHelpButton = getChild<LLButton>("?");
-	mPublishHelpButton->setClickedCallback(onClickPublishHelp, this);
-
 	if (gAgent.wantsPGOnly())
 	{
 		// Disable these buttons if they are PG (Teen) users
-		mPublishHelpButton->setVisible(FALSE);
-		mPublishHelpButton->setEnabled(FALSE);
 		mMatureCtrl->setVisible(FALSE);
 		mMatureCtrl->setEnabled(FALSE);
 	}
@@ -1912,7 +1908,6 @@ void LLPanelLandOptions::refresh()
 		mClearBtn->setEnabled(FALSE);
 
 		mMatureCtrl->setEnabled(FALSE);
-		mPublishHelpButton->setEnabled(FALSE);
 	}
 	else
 	{
@@ -1988,13 +1983,9 @@ void LLPanelLandOptions::refresh()
 		mSetBtn->setEnabled( can_change_landing_point );
 		mClearBtn->setEnabled( can_change_landing_point );
 
-		mPublishHelpButton->setEnabled( can_change_identity );
-
 		if (gAgent.wantsPGOnly())
 		{
 			// Disable these buttons if they are PG (Teen) users
-			mPublishHelpButton->setVisible(FALSE);
-			mPublishHelpButton->setEnabled(FALSE);
 			mMatureCtrl->setVisible(FALSE);
 			mMatureCtrl->setEnabled(FALSE);
 		}
@@ -2246,28 +2237,6 @@ void LLPanelLandOptions::onClickClear(void* userdata)
 
 	self->refresh();
 }
-
-// static
-void LLPanelLandOptions::onClickPublishHelp(void*)
-{
-	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
-	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection()->getParcel();
-	llassert(region); // Region should never be null.
-
-	bool can_change_identity = region && parcel ? 
-		LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_CHANGE_IDENTITY) &&
-		! (region->getRegionFlags() & REGION_FLAGS_BLOCK_PARCEL_SEARCH) : false;
-
-	if(! can_change_identity)
-	{
-		LLNotifications::instance().add("ClickPublishHelpLandDisabled");
-	}
-	else
-	{
-		LLNotifications::instance().add("ClickPublishHelpLand");
-	}
-}
-
 
 
 //---------------------------------------------------------------------------

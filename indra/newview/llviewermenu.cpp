@@ -2963,11 +2963,20 @@ bool callback_freeze(const LLSD& notification, const LLSD& response)
 }
 
 
-class LLAvatarFreeze : public view_listener_t
+void handle_avatar_freeze(const LLSD& avatar_id)
 {
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		// Use avatar_id if available, otherwise default to right-click avatar
+		LLVOAvatar* avatar = NULL;
+		if (avatar_id.asUUID().notNull())
+		{
+			avatar = find_avatar_from_object(avatar_id.asUUID());
+		}
+		else
+		{
+			avatar = find_avatar_from_object(
+				LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
+		}
+
 		if( avatar )
 		{
 			std::string fullname = avatar->getFullname();
@@ -2991,19 +3000,9 @@ class LLAvatarFreeze : public view_listener_t
 							callback_freeze);
 			}
 		}
-		return true;
-	}
-};
+}
 
 class LLAvatarVisibleDebug : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		return gAgent.isGodlike();
-	}
-};
-
-class LLAvatarEnableDebug : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
@@ -3087,11 +3086,20 @@ bool callback_eject(const LLSD& notification, const LLSD& response)
 	return false;
 }
 
-class LLAvatarEject : public view_listener_t
+void handle_avatar_eject(const LLSD& avatar_id)
 {
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		// Use avatar_id if available, otherwise default to right-click avatar
+		LLVOAvatar* avatar = NULL;
+		if (avatar_id.asUUID().notNull())
+		{
+			avatar = find_avatar_from_object(avatar_id.asUUID());
+		}
+		else
+		{
+			avatar = find_avatar_from_object(
+				LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
+		}
+
 		if( avatar )
 		{
 			LLSD payload;
@@ -3142,38 +3150,41 @@ class LLAvatarEject : public view_listener_t
 				}
 			}
 		}
-		return true;
-	}
-};
+}
 
-class LLAvatarEnableFreezeEject : public view_listener_t
+bool enable_freeze_eject(const LLSD& avatar_id)
 {
-	bool handleEvent(const LLSD& userdata)
+	// Use avatar_id if available, otherwise default to right-click avatar
+	LLVOAvatar* avatar = NULL;
+	if (avatar_id.asUUID().notNull())
 	{
-		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
-		bool new_value = (avatar != NULL);
-
-		if (new_value)
-		{
-			const LLVector3& pos = avatar->getPositionRegion();
-			const LLVector3d& pos_global = avatar->getPositionGlobal();
-			LLParcel* parcel = LLViewerParcelMgr::getInstance()->selectParcelAt(pos_global)->getParcel();
-			LLViewerRegion* region = avatar->getRegion();
-			new_value = (region != NULL);
-						
-			if (new_value)
-			{
-				new_value = region->isOwnedSelf(pos);
-				if (!new_value || region->isOwnedGroup(pos))
-				{
-					new_value = LLViewerParcelMgr::getInstance()->isParcelOwnedByAgent(parcel,GP_LAND_ADMIN);
-				}
-			}
-		}
-
-		return new_value;
+		avatar = find_avatar_from_object(avatar_id.asUUID());
 	}
-};
+	else
+	{
+		avatar = find_avatar_from_object(
+			LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
+	}
+	if (!avatar) return false;
+
+	// Gods can always freeze
+	if (gAgent.isGodlike()) return true;
+
+	// Estate owners / managers can freeze
+	// Parcel owners can also freeze
+	const LLVector3& pos = avatar->getPositionRegion();
+	const LLVector3d& pos_global = avatar->getPositionGlobal();
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->selectParcelAt(pos_global)->getParcel();
+	LLViewerRegion* region = avatar->getRegion();
+	if (!region) return false;
+				
+	bool new_value = region->isOwnedSelf(pos);
+	if (!new_value || region->isOwnedGroup(pos))
+	{
+		new_value = LLViewerParcelMgr::getInstance()->isParcelOwnedByAgent(parcel,GP_LAND_ADMIN);
+	}
+	return new_value;
+}
 
 class LLAvatarGiveCard : public view_listener_t
 {
@@ -8021,18 +8032,18 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");
 	view_listener_t::addMenu(new LLAvatarAddFriend(), "Avatar.AddFriend");
 	view_listener_t::addMenu(new LLAvatarAddContact(), "Avatar.AddContact");
-	view_listener_t::addMenu(new LLAvatarFreeze(), "Avatar.Freeze");
+	commit.add("Avatar.Freeze", boost::bind(&handle_avatar_freeze, LLSD()));
 	view_listener_t::addMenu(new LLAvatarDebug(), "Avatar.Debug");
 	view_listener_t::addMenu(new LLAvatarVisibleDebug(), "Avatar.VisibleDebug");
-	view_listener_t::addMenu(new LLAvatarEnableDebug(), "Avatar.EnableDebug");
 	view_listener_t::addMenu(new LLAvatarInviteToGroup(), "Avatar.InviteToGroup");
 	view_listener_t::addMenu(new LLAvatarGiveCard(), "Avatar.GiveCard");
-	view_listener_t::addMenu(new LLAvatarEject(), "Avatar.Eject");
+	commit.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
 	view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	
 	view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
-	view_listener_t::addMenu(new LLAvatarEnableFreezeEject(), "Avatar.EnableFreezeEject");
+	enable.add("Avatar.EnableFreezeEject", boost::bind(&enable_freeze_eject, _2));
+	visible.add("Avatar.EnableFreezeEject", boost::bind(&enable_freeze_eject, _2));
 
 	// Object pie menu
 	view_listener_t::addMenu(new LLObjectBuild(), "Object.Build");

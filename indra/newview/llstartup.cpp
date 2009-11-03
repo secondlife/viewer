@@ -1149,7 +1149,8 @@ bool idle_startup()
 				}
 
 				//setup map of datetime strings to codes and slt & local time offset from utc
-				LLStringOps::setupDatetimeInfo (gPacificDaylightTime);
+				// *TODO: Does this need to be here?
+				LLStringOps::setupDatetimeInfo (false);
 				transition_back_to_login_panel(emsg.str());
 				show_connect_box = true;
 			}
@@ -3037,14 +3038,15 @@ bool process_login_success_response()
 			gAgent.setGenderChosen(TRUE);
 		}
 		
+		bool pacific_daylight_time = false;
 		flag = login_flags["daylight_savings"].asString();
 		if(flag == "Y")
 		{
-			gPacificDaylightTime  = (flag == "Y") ? TRUE : FALSE;
+			pacific_daylight_time = (flag == "Y");
 		}
 
 		//setup map of datetime strings to codes and slt & local time offset from utc
-		LLStringOps::setupDatetimeInfo (gPacificDaylightTime);
+		LLStringOps::setupDatetimeInfo(pacific_daylight_time);
 	}
 
 	LLSD initial_outfit = response["initial-outfit"][0];
