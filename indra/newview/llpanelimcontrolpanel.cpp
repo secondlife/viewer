@@ -54,10 +54,16 @@ void LLPanelChatControlPanel::onEndCallButtonClicked()
 	gIMMgr->endCall(mSessionId);
 }
 
+void LLPanelChatControlPanel::onOpenVoiceControlsClicked()
+{
+	// TODO: implement Voice Control Panel opening
+}
+
 BOOL LLPanelChatControlPanel::postBuild()
 {
 	childSetAction("call_btn", boost::bind(&LLPanelChatControlPanel::onCallButtonClicked, this));
 	childSetAction("end_call_btn", boost::bind(&LLPanelChatControlPanel::onEndCallButtonClicked, this));
+	childSetAction("voice_ctrls_btn", boost::bind(&LLPanelChatControlPanel::onOpenVoiceControlsClicked, this));
 
 	return TRUE;
 }
@@ -73,8 +79,10 @@ void LLPanelChatControlPanel::draw()
 	LLVoiceChannel* voice_channel = session->mVoiceChannel;
 	if (voice_channel && voice_enabled)
 	{
-		childSetVisible("end_call_btn", voice_channel->getState() >= LLVoiceChannel::STATE_CALL_STARTED);
-		childSetVisible("call_btn", voice_channel->getState() < LLVoiceChannel::STATE_CALL_STARTED);
+		bool is_call_started = ( voice_channel->getState() >= LLVoiceChannel::STATE_CALL_STARTED );
+		childSetVisible("end_call_btn", is_call_started);
+		childSetVisible("voice_ctrls_btn", is_call_started);
+		childSetVisible("call_btn", ! is_call_started);
 	}
 
 	bool session_initialized = session->mSessionInitialized;

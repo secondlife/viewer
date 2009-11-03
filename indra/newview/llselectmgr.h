@@ -404,6 +404,7 @@ public:
 
 	LLObjectSelectionHandle setHoverObject(LLViewerObject *objectp, S32 face = -1);
 	LLSelectNode *getHoverNode();
+	LLSelectNode *getPrimaryHoverNode();
 
 	void highlightObjectOnly(LLViewerObject *objectp);
 	void highlightObjectAndFamily(LLViewerObject *objectp);

@@ -228,7 +228,10 @@ void LLPanelPrimMediaControls::updateShape()
 
 	bool can_navigate = parcel->getMediaAllowNavigate();
 	bool enabled = false;
-	bool has_focus = media_impl->hasFocus();
+	// There is no such thing as "has_focus" being different from normal controls set
+	// anymore (as of user feedback from bri 10/09).  So we cheat here and force 'has_focus'
+	// to 'true' (or, actually, we use a setting)
+	bool has_focus = (gSavedSettings.getBOOL("PrimMediaControlsUseHoverControlSet")) ? media_impl->hasFocus() : true;
 	setVisible(enabled);
 
 	if (objectp)
@@ -310,8 +313,8 @@ void LLPanelPrimMediaControls::updateShape()
 			fwd_ctrl->setEnabled(has_focus);
 			media_address_ctrl->setVisible(false);
 			media_address_ctrl->setEnabled(false);
-			media_play_slider_panel->setVisible(!mini_controls);
-			media_play_slider_panel->setEnabled(!mini_controls);
+			media_play_slider_panel->setVisible(has_focus && !mini_controls);
+			media_play_slider_panel->setEnabled(has_focus && !mini_controls);
 				
 			volume_ctrl->setVisible(has_focus);
 			volume_up_ctrl->setVisible(has_focus);

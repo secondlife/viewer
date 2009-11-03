@@ -107,9 +107,12 @@ private:
 	void onClickPay();
 	void onClickBlock();
 	void onClickReport();
+	void onClickFreeze();
+	void onClickEject();
 	void onClickZoomIn();  
 	void onClickFindOnMap();
 	bool onVisibleFindOnMap();
+	bool onVisibleFreezeEject();
 	void onClickMuteVolume();
 	void onVolumeChange(const LLSD& data);
 	
@@ -190,11 +193,16 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mCommitCallbackRegistrar.add("InspectAvatar.InviteToGroup",	boost::bind(&LLInspectAvatar::onClickInviteToGroup, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Pay",	boost::bind(&LLInspectAvatar::onClickPay, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Block",	boost::bind(&LLInspectAvatar::onClickBlock, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.Freeze",
+		boost::bind(&LLInspectAvatar::onClickFreeze, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.Eject",
+		boost::bind(&LLInspectAvatar::onClickEject, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Report",	boost::bind(&LLInspectAvatar::onClickReport, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.FindOnMap",	boost::bind(&LLInspectAvatar::onClickFindOnMap, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.ZoomIn", boost::bind(&LLInspectAvatar::onClickZoomIn, this));
 	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleFindOnMap",	boost::bind(&LLInspectAvatar::onVisibleFindOnMap, this));	
-
+	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleFreezeEject",	
+		boost::bind(&LLInspectAvatar::onVisibleFreezeEject, this));	
 
 	// can't make the properties request until the widgets are constructed
 	// as it might return immediately, so do it in postBuild.
@@ -437,13 +445,13 @@ void LLInspectAvatar::nameUpdatedCallback(
 void LLInspectAvatar::onClickAddFriend()
 {
 	LLAvatarActions::requestFriendshipDialog(mAvatarID, mAvatarName);
+	closeFloater();
 }
 
 void LLInspectAvatar::onClickViewProfile()
 {
-	// hide inspector when showing profile
-	setFocus(FALSE);
 	LLAvatarActions::showProfile(mAvatarID);
+	closeFloater();
 }
 
 bool LLInspectAvatar::onVisibleFindOnMap()
@@ -451,24 +459,33 @@ bool LLInspectAvatar::onVisibleFindOnMap()
 	return gAgent.isGodlike() || is_agent_mappable(mAvatarID);
 }
 
+bool LLInspectAvatar::onVisibleFreezeEject()
+{
+	return enable_freeze_eject( LLSD(mAvatarID) );
+}
+
 void LLInspectAvatar::onClickIM()
 { 
 	LLAvatarActions::startIM(mAvatarID);
+	closeFloater();
 }
 
 void LLInspectAvatar::onClickTeleport()
 {
 	LLAvatarActions::offerTeleport(mAvatarID);
+	closeFloater();
 }
 
 void LLInspectAvatar::onClickInviteToGroup()
 {
 	LLAvatarActions::inviteToGroup(mAvatarID);
+	closeFloater();
 }
 
 void LLInspectAvatar::onClickPay()
 {
 	LLAvatarActions::pay(mAvatarID);
+	closeFloater();
 }
 
 void LLInspectAvatar::onClickBlock()
@@ -476,11 +493,25 @@ void LLInspectAvatar::onClickBlock()
 	LLMute mute(mAvatarID, mAvatarName, LLMute::AGENT);
 	LLMuteList::getInstance()->add(mute);
 	LLPanelBlockedList::showPanelAndSelect(mute.mID);
+	closeFloater();
 }
 
 void LLInspectAvatar::onClickReport()
 {
 	LLFloaterReporter::showFromObject(mAvatarID);
+	closeFloater();
+}
+
+void LLInspectAvatar::onClickFreeze()
+{
+	handle_avatar_freeze( LLSD(mAvatarID) );
+	closeFloater();
+}
+
+void LLInspectAvatar::onClickEject()
+{
+	handle_avatar_eject( LLSD(mAvatarID) );
+	closeFloater();
 }
 
 void LLInspectAvatar::onClickZoomIn() 
