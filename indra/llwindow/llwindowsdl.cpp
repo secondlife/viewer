@@ -33,6 +33,8 @@
 
 #if LL_SDL
 
+// 2
+
 #include "linden_common.h"
 
 #include "llwindowsdl.h"
