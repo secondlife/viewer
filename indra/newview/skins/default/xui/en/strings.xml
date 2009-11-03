@@ -73,8 +73,13 @@
 	<string name="TooltipParcelUrl">Click to view this parcel's description</string>
 	<string name="TooltipTeleportUrl">Click to teleport to this location</string>
 	<string name="TooltipObjectIMUrl">Click to view this object's description</string>
+	<string name="TooltipMapUrl">Click to view this location on a map</string>
 	<string name="TooltipSLAPP">Click to run the secondlife:// command</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />
+
+	<!-- text for SLURL labels -->
+	<string name="SLurlLabelTeleport">Teleport to</string>
+	<string name="SLurlLabelShowOnMap">Show Map for</string>
 	
 	<!-- ButtonToolTips, llfloater.cpp -->
 	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;W)</string>

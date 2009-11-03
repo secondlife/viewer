@@ -121,6 +121,18 @@ void LLUrlAction::teleportToLocation(std::string url)
 	}	
 }
 
+void LLUrlAction::showLocationOnMap(std::string url)
+{
+	LLUrlMatch match;
+	if (LLUrlRegistry::instance().findUrl(url, match))
+	{
+		if (! match.getLocation().empty())
+		{
+			executeSLURL("secondlife:///app/worldmap/" + match.getLocation());
+		}
+	}	
+}
+
 void LLUrlAction::copyURLToClipboard(std::string url)
 {
 	LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(url));

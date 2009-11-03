@@ -3,20 +3,20 @@
  layout="topleft"
  name="Url Popup">
     <menu_item_call
-     label="Teleport to this Location"
+     label="Show on Map"
      layout="topleft"
-     name="teleport">
+     name="show_on_map">
         <menu_item_call.on_click
          function="Url.Execute" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft" />
     <menu_item_call
-     label="Show on Map"
+     label="Teleport to Location"
      layout="topleft"
-     name="show_on_map">
+     name="teleport_to_location">
         <menu_item_call.on_click
-         function="Url.ShowOnMap" />
+         function="Url.Teleport" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft" />
