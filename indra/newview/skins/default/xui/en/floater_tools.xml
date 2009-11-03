@@ -13,58 +13,58 @@
  single_instance="true"
  sound_flags="0"
  width="280">
-    <floater.string
+    <string
      name="status_rotate">
         Drag colored bands to rotate object
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="status_scale">
         Click and drag to stretch selected side
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="status_move">
         Drag to move, shift-drag to copy
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="status_modifyland">
         Click and hold to modify land
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="status_camera">
         Click and drag to move camera
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="status_grab">
         Drag to move, Ctrl to lift, Ctrl+Shift to rotate
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="status_place">
         Click inworld to build
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="status_selectland">
         Click and drag to select land
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="grid_screen_text">
         Screen
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="grid_local_text">
         Local
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="grid_world_text">
         World
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="grid_reference_text">
         Reference
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="grid_attachment_text">
         Attachment
-    </floater.string>
+    </string>
     <button
      follows="left|top"
      height="20"
