@@ -1181,6 +1181,14 @@ void LLAppearanceManager::dumpItemArray(const LLInventoryModel::item_array_t& it
 
 
 std::set<LLUUID> LLAppearanceManager::sRegisteredAttachments;
+bool LLAppearanceManager::sAttachmentInvLinkEnabled(false);
+
+/* static */
+void LLAppearanceManager::setAttachmentInvLinkEnable(bool val)
+{
+	llinfos << "setAttachmentInvLinkEnable => " << (int) val << llendl;
+	sAttachmentInvLinkEnabled = val;
+}
 
 void dumpAttachmentSet(const std::set<LLUUID>& atts, const std::string& msg)
 {
@@ -1204,6 +1212,22 @@ void LLAppearanceManager::registerAttachment(const LLUUID& item_id)
 {
        sRegisteredAttachments.insert(item_id);
        dumpAttachmentSet(sRegisteredAttachments,"after register:");
+
+	   if (sAttachmentInvLinkEnabled)
+	   {
+		   LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		   if (item)
+		   {
+			   LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Adding attachment link:");
+			   LLAppearanceManager::wearItem(item,false);  // Add COF link for item.
+			   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+			   gInventory.notifyObservers();
+		   }
+	   }
+	   else
+	   {
+		   llinfos << "no link changes, inv link not enabled" << llendl;
+	   }
 }
 
 /* static */
@@ -1211,4 +1235,17 @@ void LLAppearanceManager::unregisterAttachment(const LLUUID& item_id)
 {
        sRegisteredAttachments.erase(item_id);
        dumpAttachmentSet(sRegisteredAttachments,"after unregister:");
+
+	   if (sAttachmentInvLinkEnabled)
+	   {
+		   LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Removing attachment link:");
+		   LLAppearanceManager::removeItemLinks(item_id, false);
+		   // BAP - needs to change for label to track link.
+		   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+		   gInventory.notifyObservers();
+	   }
+	   else
+	   {
+		   llinfos << "no link changes, inv link not enabled" << llendl;
+	   }
 }

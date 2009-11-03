@@ -1081,15 +1081,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 	{
 		const LLUUID& attachment_id = viewer_object->getItemID();
 		LLAppearanceManager::registerAttachment(attachment_id);
-		LLViewerInventoryItem *item = gInventory.getItem(attachment_id);
-		if (item)
-		{
-			LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Adding attachment link:");
-			LLAppearanceManager::wearItem(item,false);  // Add COF link for item.
-			gInventory.addChangedMask(LLInventoryObserver::LABEL, attachment_id);
-		}
 	}
-	gInventory.notifyObservers();
 
 	return attachment;
 }
@@ -1127,14 +1119,9 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 		}
 		else
 		{
-			LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Removing attachment link:");
-			LLAppearanceManager::removeItemLinks(attachment_id, false);
 			LLAppearanceManager::unregisterAttachment(attachment_id);
 		}
 		
-		// BAP - needs to change for label to track link.
-		gInventory.addChangedMask(LLInventoryObserver::LABEL, attachment_id);
-		gInventory.notifyObservers();
 		return TRUE;
 	}
 	return FALSE;
