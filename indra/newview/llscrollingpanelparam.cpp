@@ -209,7 +209,7 @@ void LLScrollingPanelParam::onSliderMoved(LLUICtrl* ctrl, void* userdata)
 	F32 new_weight = self->percentToWeight( (F32)slider->getValue().asReal() );
 	if (current_weight != new_weight )
 	{
-		self->mWearable->setVisualParamWeight( param->getID(), new_weight, TRUE );
+		self->mWearable->setVisualParamWeight( param->getID(), new_weight, FALSE );
 		gAgent.getAvatarObject()->updateVisualParams();
 	}
 }
@@ -298,7 +298,7 @@ void LLScrollingPanelParam::onHintHeldDown( LLVisualParamHint* hint )
 			if (slider->getMinValue() < new_percent
 				&& new_percent < slider->getMaxValue())
 			{
-				mWearable->setVisualParamWeight( hint->getVisualParam()->getID(), new_weight, TRUE);
+				mWearable->setVisualParamWeight( hint->getVisualParam()->getID(), new_weight, FALSE);
 				gAgent.getAvatarObject()->updateVisualParams();
 
 				slider->setValue( weightToPercent( new_weight ) );
@@ -330,7 +330,7 @@ void LLScrollingPanelParam::onHintMinMouseUp( void* userdata )
 			if (slider->getMinValue() < new_percent
 				&& new_percent < slider->getMaxValue())
 			{
-				self->mWearable->setVisualParamWeight(hint->getVisualParam()->getID(), new_weight, TRUE);
+				self->mWearable->setVisualParamWeight(hint->getVisualParam()->getID(), new_weight, FALSE);
 				slider->setValue( self->weightToPercent( new_weight ) );
 			}
 		}
@@ -364,7 +364,7 @@ void LLScrollingPanelParam::onHintMaxMouseUp( void* userdata )
 				if (slider->getMinValue() < new_percent
 					&& new_percent < slider->getMaxValue())
 				{
-					self->mWearable->setVisualParamWeight(hint->getVisualParam()->getID(), new_weight, TRUE);
+					self->mWearable->setVisualParamWeight(hint->getVisualParam()->getID(), new_weight, FALSE);
 					slider->setValue( self->weightToPercent( new_weight ) );
 				}
 			}
