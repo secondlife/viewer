@@ -28,7 +28,19 @@
      top="10"
      name="bubble_text_chat"
      width="150" />
-
+    <color_swatch
+     border_color="0.45098 0.517647 0.607843 1"
+     can_apply_immediately="true"
+     color="0 0 0 1"
+     control_name="BackgroundChatColor"
+     follows="left|top"
+     height="47"
+     layout="topleft"
+     left_delta="280"
+     name="background"
+     tool_tip="Choose color for bubble chat"
+     top_delta="1"
+     width="44" />
     <slider
      control_name="ChatBubbleOpacity"
      follows="left|top"
@@ -37,8 +49,8 @@
      initial_value="1"
      label="Opacity"
      layout="topleft"
-     left_delta="50"
-     top_pad="5"
+     left_delta="-230"
+     top_pad="-28"
      label_width="50"
      name="bubble_chat_opacity"
      width="200" />
