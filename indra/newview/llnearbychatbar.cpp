@@ -207,6 +207,7 @@ LLNearbyChatBar::LLNearbyChatBar()
 	: LLPanel()
 	, mChatBox(NULL)
 {
+	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
 
 //virtual
@@ -516,8 +517,8 @@ void LLNearbyChatBar::displaySpeakingIndicator()
 	LLUUID id;
 
 	id.setNull();
-	mSpeakerMgr.update(TRUE);
-	mSpeakerMgr.getSpeakerList(&speaker_list, FALSE);
+	mSpeakerMgr->update(TRUE);
+	mSpeakerMgr->getSpeakerList(&speaker_list, FALSE);
 
 	for (LLSpeakerMgr::speaker_list_t::iterator i = speaker_list.begin(); i != speaker_list.end(); ++i)
 	{
