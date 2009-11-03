@@ -31,11 +31,6 @@
  * $/LicenseInfo$
  */
 
-// 1
-
-
-
-
 #if LL_SDL
 
 #include "linden_common.h"
