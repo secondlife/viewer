@@ -1123,7 +1123,7 @@ void LLWearable::saveNewAsset() const
 		{
 			llinfos << "Update Agent Inventory via capability" << llendl;
 			LLSD body;
-			body["folder_id"] = gInventory.findCategoryUUIDForType(getAssetType());
+			body["folder_id"] = gInventory.findCategoryUUIDForType(LLFolderType::assetToFolderType(getAssetType()));
 			body["asset_type"] = LLAssetType::lookup(getAssetType());
 			body["inventory_type"] = LLInventoryType::lookup(LLInventoryType::IT_WEARABLE);
 			body["name"] = getName();

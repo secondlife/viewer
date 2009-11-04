@@ -55,6 +55,7 @@
 #include "llviewermenu.h"
 #include "lluictrlfactory.h"
 #include "llviewercontrol.h"
+#include "llviewerfoldertype.h"
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "llfloaterproperties.h"
@@ -1108,7 +1109,7 @@ void LLFolderView::propertiesSelectedItems( void )
 	}
 }
 
-void LLFolderView::changeType(LLInventoryModel *model, LLAssetType::EType new_folder_type)
+void LLFolderView::changeType(LLInventoryModel *model, LLFolderType::EType new_folder_type)
 {
 	LLFolderBridge *folder_bridge = LLFolderBridge::sSelf;
 
@@ -1958,7 +1959,7 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 	if (action.length() > change_folder_string.length() && 
 		(action.compare(0,change_folder_string.length(),"change_folder_type_") == 0))
 	{
-		LLAssetType::EType new_folder_type = LLFolderType::lookupTypeFromXUIName(action.substr(change_folder_string.length()));
+		LLFolderType::EType new_folder_type = LLViewerFolderType::lookupTypeFromXUIName(action.substr(change_folder_string.length()));
 		changeType(model, new_folder_type);
 		return true;
 	}

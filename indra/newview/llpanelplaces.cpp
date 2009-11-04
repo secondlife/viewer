@@ -597,7 +597,7 @@ void LLPanelPlaces::onOverflowButtonClicked()
 		if (mItem.notNull())
 		{
 			const LLUUID& item_id = mItem->getUUID();
-			const LLUUID& trash_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
+			const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
 			is_landmark_removable = gInventory.isObjectDescendentOf(item_id, gInventory.getRootFolderID()) &&
 									!gInventory.isObjectDescendentOf(item_id, trash_id);
 		}
@@ -677,7 +677,7 @@ void LLPanelPlaces::onOverflowMenuItemClicked(const LLSD& param)
     {
         if ( mItem.notNull() ) 
         {
-            LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+            const LLUUID& favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
             if ( favorites_id.notNull() )
             {
                 copy_inventory_item(gAgent.getID(),
