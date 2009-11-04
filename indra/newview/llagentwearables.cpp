@@ -1393,6 +1393,7 @@ void LLAgentWearables::removeWearableFinal(const EWearableType type, bool do_rem
 			const LLUUID &item_id = getWearableItemID(type,i);
 			popWearable(type,i);
 			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+			LLAppearanceManager::removeItemLinks(item_id,false);
 
 			//queryWearableCache(); // moved below
 			if (old_wearable)
@@ -1409,6 +1410,7 @@ void LLAgentWearables::removeWearableFinal(const EWearableType type, bool do_rem
 		const LLUUID &item_id = getWearableItemID(type,index);
 		popWearable(type, index);
 		gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+		LLAppearanceManager::removeItemLinks(item_id,false);
 
 		//queryWearableCache(); // moved below
 
