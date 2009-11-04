@@ -1,5 +1,5 @@
-/** 
- * @file llparticipantlist.cpp
+llparticipantlist /** 
+ * @file.cpp
  * @brief LLParticipantList intended to update view(LLAvatarList) according to incoming messages
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
@@ -45,14 +45,18 @@
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list):
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),
-	mSpeakerAddListener(*this),
-	mSpeakerRemoveListener(*this),
-	mSpeakerClearListener(*this),
+	mSpeakerAddListener(NULL),
+	mSpeakerRemoveListener(NULL),
+	mSpeakerClearListener(NULL),
 	mSortOrder(E_SORT_BY_NAME)
 {
-	mSpeakerMgr->addListener(&mSpeakerAddListener, "add");
-	mSpeakerMgr->addListener(&mSpeakerRemoveListener, "remove");
-	mSpeakerMgr->addListener(&mSpeakerClearListener, "clear");
+	mSpeakerAddListener = new SpeakerAddListener(this);
+	mSpeakerRemoveListener = new SpeakerRemoveListener(this);
+	mSpeakerClearListener = new SpeakerClearListener(this);
+	
+	mSpeakerMgr->addListener(mSpeakerAddListener, "add");
+	mSpeakerMgr->addListener(mSpeakerRemoveListener, "remove");
+	mSpeakerMgr->addListener(mSpeakerClearListener, "clear");
 
 	mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
 	mAvatarList->setDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
@@ -71,6 +75,9 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 
 LLParticipantList::~LLParticipantList()
 {
+	delete mSpeakerAddListener;
+	delete mSpeakerRemoveListener;
+	delete mSpeakerClearListener;
 }
 
 void LLParticipantList::onAvatarListDoubleClicked(LLAvatarList* list)
@@ -153,7 +160,7 @@ void LLParticipantList::sort()
 //
 bool LLParticipantList::SpeakerAddListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
-	return mParent.onAddItemEvent(event, userdata);
+	return mParent->onAddItemEvent(event, userdata);
 }
 
 //
@@ -161,7 +168,7 @@ bool LLParticipantList::SpeakerAddListener::handleEvent(LLPointer<LLOldEvents::L
 //
 bool LLParticipantList::SpeakerRemoveListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
-	return mParent.onRemoveItemEvent(event, userdata);
+	return mParent->onRemoveItemEvent(event, userdata);
 }
 
 //
@@ -169,5 +176,5 @@ bool LLParticipantList::SpeakerRemoveListener::handleEvent(LLPointer<LLOldEvents
 //
 bool LLParticipantList::SpeakerClearListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
-	return mParent.onClearListEvent(event, userdata);
+	return mParent->onClearListEvent(event, userdata);
 }

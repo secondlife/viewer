@@ -71,29 +71,29 @@ class LLParticipantList
 		class BaseSpeakerListner : public LLOldEvents::LLSimpleListener
 		{
 		public:
-			BaseSpeakerListner(LLParticipantList& parent) : mParent(parent) {}
+			BaseSpeakerListner(LLParticipantList* parent) : mParent(parent) {}
 		protected:
-			LLParticipantList& mParent;
+			LLParticipantList* mParent;
 		};
 
 		class SpeakerAddListener : public BaseSpeakerListner
 		{
 		public:
-			SpeakerAddListener(LLParticipantList& parent) : BaseSpeakerListner(parent) {}
+			SpeakerAddListener(LLParticipantList* parent) : BaseSpeakerListner(parent) {}
 			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 		};
 
 		class SpeakerRemoveListener : public BaseSpeakerListner
 		{
 		public:
-			SpeakerRemoveListener(LLParticipantList& parent) : BaseSpeakerListner(parent) {}
+			SpeakerRemoveListener(LLParticipantList* parent) : BaseSpeakerListner(parent) {}
 			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 		};
 
 		class SpeakerClearListener : public BaseSpeakerListner
 		{
 		public:
-			SpeakerClearListener(LLParticipantList& parent) : BaseSpeakerListner(parent) {}
+			SpeakerClearListener(LLParticipantList* parent) : BaseSpeakerListner(parent) {}
 			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 		};
 
@@ -103,9 +103,9 @@ class LLParticipantList
 		LLSpeakerMgr*		mSpeakerMgr;
 		LLAvatarList*		mAvatarList;
 
-		SpeakerAddListener		mSpeakerAddListener;
-		SpeakerRemoveListener	mSpeakerRemoveListener;
-		SpeakerClearListener	mSpeakerClearListener;
+		SpeakerAddListener*		mSpeakerAddListener;
+		SpeakerRemoveListener*	mSpeakerRemoveListener;
+		SpeakerClearListener*	mSpeakerClearListener;
 
 		EParticipantSortOrder	mSortOrder;
 };
