@@ -278,6 +278,14 @@ public:
 		TYPE_GROUP,
 		TYPE_AD_HOC
 	};
+	struct Params : public LLInitParam::Block<Params, LLChiclet::Params>
+	{
+		Optional<std::string> new_messages_icon_name;
+
+		Params() : new_messages_icon_name("new_messages_icon_name", "icn_voice-localchat.tga")
+		{}
+	};
+
 	
 	/*virtual*/ ~LLIMChiclet() {};
 
@@ -308,6 +316,16 @@ public:
 	virtual bool getShowSpeaker() {return mShowSpeaker;};
 
 	/*
+	* Shows/hides overlay icon concerning new unread messages.
+	*/
+	virtual void setShowNewMessagesIcon(bool show);
+
+	/*
+	* Returns visibility of overlay icon concerning new unread messages.
+	*/
+	virtual bool getShowNewMessagesIcon();
+
+	/*
 	 * Draws border around chiclet.
 	*/
 	/*virtual*/ void draw();
@@ -335,13 +353,16 @@ public:
 
 protected:
 
-	LLIMChiclet(const LLChiclet::Params& p);
+	LLIMChiclet(const LLIMChiclet::Params& p);
 
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 
 protected:
 
 	bool mShowSpeaker;
+
+	LLIconCtrl* mNewMessagesIcon;
+	LLChicletNotificationCounterCtrl* mCounterCtrl;
 
 	/** the id of another participant, either an avatar id or a group id*/
 	LLUUID mOtherParticipantId;
@@ -374,7 +395,7 @@ public:
 class LLIMP2PChiclet : public LLIMChiclet
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLChiclet::Params>
+	struct Params : public LLInitParam::Block<Params, LLIMChiclet::Params>
 	{
 		Optional<LLChicletAvatarIconCtrl::Params> avatar_icon;
 
@@ -436,7 +457,6 @@ protected:
 private:
 
 	LLChicletAvatarIconCtrl* mChicletIconCtrl;
-	LLChicletNotificationCounterCtrl* mCounterCtrl;
 	LLChicletSpeakerCtrl* mSpeakerCtrl;
 	LLMenuGL* mPopupMenu;
 };
@@ -447,7 +467,7 @@ private:
 class LLAdHocChiclet : public LLIMChiclet
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLChiclet::Params>
+	struct Params : public LLInitParam::Block<Params, LLIMChiclet::Params>
 	{
 		Optional<LLChicletAvatarIconCtrl::Params> avatar_icon;
 
@@ -497,7 +517,6 @@ protected:
 private:
 
 	LLChicletAvatarIconCtrl* mChicletIconCtrl;
-	LLChicletNotificationCounterCtrl* mCounterCtrl;
 	LLChicletSpeakerCtrl* mSpeakerCtrl;
 	LLMenuGL* mPopupMenu;
 };
@@ -509,7 +528,7 @@ class LLIMGroupChiclet : public LLIMChiclet, public LLGroupMgrObserver
 {
 public:
 
-	struct Params : public LLInitParam::Block<Params, LLChiclet::Params>
+	struct Params : public LLInitParam::Block<Params, LLIMChiclet::Params>
 	{
 		Optional<LLChicletGroupIconCtrl::Params> group_icon;
 
@@ -578,7 +597,6 @@ protected:
 private:
 
 	LLChicletGroupIconCtrl* mChicletIconCtrl;
-	LLChicletNotificationCounterCtrl* mCounterCtrl;
 	LLChicletSpeakerCtrl* mSpeakerCtrl;
 	LLMenuGL* mPopupMenu;
 };
