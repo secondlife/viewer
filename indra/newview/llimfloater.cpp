@@ -106,6 +106,8 @@ void LLIMFloater::onFocusReceived()
 // virtual
 void LLIMFloater::onClose(bool app_quitting)
 {
+	if (!gIMMgr->hasSession(mSessionID)) return;
+	
 	setTyping(false);
 	gIMMgr->leaveSession(mSessionID);
 }
@@ -234,7 +236,10 @@ BOOL LLIMFloater::postBuild()
 	
 	mChatHistory = getChild<LLChatHistory>("chat_history");
 		
-	setTitle(LLIMModel::instance().getName(mSessionID));
+	std::string session_name(LLIMModel::instance().getName(mSessionID));
+	LLStringUtil::toUpper(session_name);
+	setTitle(session_name);
+
 	setDocked(true);
 
 	mTypingStart = LLTrans::getString("IM_typing_start_string");

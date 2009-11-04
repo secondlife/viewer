@@ -1,6 +1,6 @@
 /** 
  * @file llpanelplaceinfo.h
- * @brief Displays place information in Side Tray.
+ * @brief Base class for place information in Side Tray.
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
@@ -38,19 +38,13 @@
 #include "v3dmath.h"
 #include "lluuid.h"
 
-#include "llpanelmedia.h"
 #include "llremoteparcelrequest.h"
 
-class LLButton;
-class LLComboBox;
 class LLExpandableTextBox;
 class LLInventoryItem;
-class LLLineEditor;
 class LLPanelPickEdit;
 class LLParcel;
-class LLIconCtrl;
 class LLTextBox;
-class LLTextEditor;
 class LLTextureCtrl;
 class LLViewerRegion;
 class LLViewerInventoryCategory;
@@ -74,30 +68,18 @@ public:
 
 	// Ignore all old location information, useful if you are 
 	// recycling an existing dialog and need to clear it.
-	void resetLocation();
+	virtual void resetLocation();
 
 	// Sends a request for data about the given parcel, which will
 	// only update the location if there is none already available.
 	/*virtual*/ void setParcelID(const LLUUID& parcel_id);
 
-	// Depending on how the panel was triggered 
-	// (from landmark or current location, or other) 
+	// Depending on how the panel was triggered
+	// (from landmark or current location, or other)
 	// sets a corresponding title and contents.
-	void setInfoType(INFO_TYPE type);
+	virtual void setInfoType(INFO_TYPE type);
 
-	// Create a landmark for the current location
-	// in a folder specified by folder_id.
-	void createLandmark(const LLUUID& folder_id);
-	
-	// Create a pick for the location specified
-	// by global_pos.
-	void createPick(const LLVector3d& pos_global, LLPanelPickEdit* pick_panel);
-
-	BOOL isMediaPanelVisible();
-	void toggleMediaPanel(BOOL visible);
-	void displayItemInfo(const LLInventoryItem* pItem);
-	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason);
-
+	// Requests remote parcel info by parcel ID.
 	void sendParcelInfoRequest();
 
 	// Displays information about a remote parcel.
@@ -105,109 +87,37 @@ public:
 	void displayParcelInfo(const LLUUID& region_id,
 						   const LLVector3d& pos_global);
 
-	// Displays information about the currently selected parcel
-	// without sending a request to the server.
-	// If is_current_parcel true shows "You Are Here" banner.
-	void displaySelectedParcelInfo(LLParcel* parcel,
-								LLViewerRegion* region,
-								const LLVector3d& pos_global,
-								bool is_current_parcel);
-
-	void updateEstateName(const std::string& name);
-	void updateEstateOwnerName(const std::string& name);
-	void updateCovenantText(const std::string &text);
-	void updateLastVisitedText(const LLDate &date);
-
-	void nameUpdatedCallback(LLTextBox* text,
-							 const std::string& first,
-							 const std::string& last);
-
-	void toggleLandmarkEditMode(BOOL enabled);
-
-	const std::string& getLandmarkTitle() const;
-	const std::string getLandmarkNotes() const;
-	const LLUUID getLandmarkFolder() const;
-
-	// Select current landmark folder in combobox.
-	BOOL setLandmarkFolder(const LLUUID& id);
+	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason);
 
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
+
 	/*virtual*/ void handleVisibilityChange (BOOL new_visibility);
-	
-	 static std::string getFullFolderName(const LLViewerInventoryCategory* cat);
 
-private:
+	// Create a pick for the location specified
+	// by global_pos.
+	void createPick(const LLVector3d& pos_global, LLPanelPickEdit* pick_panel);
 
-	void populateFoldersList();
-	static void updateYouAreHereBanner(void*);// added to gIdleCallbacks
-	void onForSaleBannerClick();
+protected:
+	static void nameUpdatedCallback(LLTextBox* text,
+									const std::string& first,
+									const std::string& last);
 
 	/**
 	 * mParcelID is valid only for remote places, in other cases it's null. See resetLocation() 
 	 */
-	LLUUID			mParcelID;
-	LLUUID			mRequestedID;
-	LLUUID			mLandmarkID;
-	LLVector3		mPosRegion;
-	std::string		mCurrentTitle;
-	S32				mMinHeight;
-	INFO_TYPE 		mInfoType;
+	LLUUID					mParcelID;
+	LLUUID					mRequestedID;
+	LLVector3				mPosRegion;
+	std::string				mCurrentTitle;
+	S32						mMinHeight;
+	INFO_TYPE 				mInfoType;
 
-	/**
-	 * Hold last displayed parcel. Needs for YouAreHere banner.
-	 */
-	S32			mSelectedParcelID;
-	LLUUID		mLastSelectedRegionID;
-
-	LLTextBox*			mTitle;
-	LLPanel*			mForSalePanel;
-	LLPanel*			mYouAreHerePanel;
-	LLTextureCtrl*		mSnapshotCtrl;
-	LLTextBox*			mRegionName;
-	LLTextBox*			mParcelName;
-	LLExpandableTextBox*mDescEditor;
-	LLTextBox*			mMaturityRatingText;
-	LLTextBox*			mParcelOwner;
-	LLTextBox*			mLastVisited;
-
-	LLTextBox*			mRatingText;
-	LLTextBox*			mVoiceText;
-	LLTextBox*			mFlyText;
-	LLTextBox*			mPushText;
-	LLTextBox*			mBuildText;
-	LLTextBox*			mScriptsText;
-	LLTextBox*			mDamageText;
-
-	LLTextBox*			mRegionNameText;
-	LLTextBox*			mRegionTypeText;
-	LLTextBox*			mRegionRatingText;
-	LLTextBox*			mRegionOwnerText;
-	LLTextBox*			mRegionGroupText;
-
-	LLTextBox*			mEstateNameText;
-	LLTextBox*			mEstateRatingText;
-	LLTextBox*			mEstateOwnerText;
-	LLTextEditor*		mCovenantText;
-
-	LLTextBox*			mSalesPriceText;
-	LLTextBox*			mAreaText;
-	LLTextBox*			mTrafficText;
-	LLTextBox*			mPrimitivesText;
-	LLTextBox*			mParcelScriptsText;
-	LLTextBox*			mTerraformLimitsText;
-	LLTextEditor*		mSubdivideText;
-	LLTextEditor*		mResaleText;
-	LLTextBox*			mSaleToText;
-
-	LLTextBox*			mOwner;
-	LLTextBox*			mCreator;
-	LLTextBox*			mCreated;
-	LLLineEditor*		mTitleEditor;
-	LLTextEditor*		mNotesEditor;
-	LLComboBox*			mFolderCombo;
-	LLPanel*            mScrollingPanel;
-	LLPanel*			mInfoPanel;
-	LLMediaPanel*		mMediaPanel;
+	LLTextBox*				mTitle;
+	LLTextureCtrl*			mSnapshotCtrl;
+	LLTextBox*				mRegionName;
+	LLTextBox*				mParcelName;
+	LLExpandableTextBox*	mDescEditor;
+	LLTextBox*				mMaturityRatingText;
 };
 
 #endif // LL_LLPANELPLACEINFO_H

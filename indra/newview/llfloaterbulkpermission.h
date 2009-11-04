@@ -79,7 +79,6 @@ private:
 								U8 key,
 								bool is_new);
 
-//	static void onHelpBtn(void* user_data);
 	void onCloseBtn();
 	void onApplyBtn();
 	void onCommitCopy();

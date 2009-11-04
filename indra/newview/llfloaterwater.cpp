@@ -110,23 +110,6 @@ BOOL LLFloaterWater::postBuild()
 }
 void LLFloaterWater::initCallbacks(void) {
 
-	// help buttons
-	initHelpBtn("WaterFogColorHelp", "HelpWaterFogColor");
-	initHelpBtn("WaterFogDensityHelp", "HelpWaterFogDensity");
-	initHelpBtn("WaterUnderWaterFogModHelp", "HelpUnderWaterFogMod");
-	initHelpBtn("WaterGlowHelp", "HelpWaterGlow");	
-	initHelpBtn("WaterNormalScaleHelp", "HelpWaterNormalScale");
-	initHelpBtn("WaterFresnelScaleHelp", "HelpWaterFresnelScale");
-	initHelpBtn("WaterFresnelOffsetHelp", "HelpWaterFresnelOffset");
-
-	initHelpBtn("WaterBlurMultiplierHelp", "HelpWaterBlurMultiplier");
-	initHelpBtn("WaterScaleBelowHelp", "HelpWaterScaleBelow");
-	initHelpBtn("WaterScaleAboveHelp", "HelpWaterScaleAbove");
-
-	initHelpBtn("WaterNormalMapHelp", "HelpWaterNormalMap");
-	initHelpBtn("WaterWave1Help", "HelpWaterWave1");
-	initHelpBtn("WaterWave2Help", "HelpWaterWave2");
-
 	LLWaterParamManager * param_mgr = LLWaterParamManager::instance();
 
 	getChild<LLUICtrl>("WaterFogColor")->setCommitCallback(boost::bind(&LLFloaterWater::onWaterFogColorMoved, this, _1, &param_mgr->mFogColor));
@@ -171,16 +154,6 @@ void LLFloaterWater::initCallbacks(void) {
 	LLTextureCtrl* textCtrl = getChild<LLTextureCtrl>("WaterNormalMap");
 	textCtrl->setDefaultImageAssetID(DEFAULT_WATER_NORMAL);
 	getChild<LLUICtrl>("WaterNormalMap")->setCommitCallback(boost::bind(&LLFloaterWater::onNormalMapPicked, this, _1));
-}
-
-void LLFloaterWater::onClickHelp(std::string xml_alert)
-{
-	LLNotifications::instance().add(contextualNotification(xml_alert));
-}
-
-void LLFloaterWater::initHelpBtn(const std::string& name, const std::string& xml_alert)
-{
-	getChild<LLButton>(name)->setClickedCallback(boost::bind(&LLFloaterWater::onClickHelp, this, xml_alert));
 }
 
 bool LLFloaterWater::newPromptCallback(const LLSD& notification, const LLSD& response)

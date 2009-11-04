@@ -53,9 +53,6 @@ public:
 	/// initialize all the callbacks for the menu
 	void initCallbacks(void);
 
-	/// callback for the menus help button
-	void onClickHelp();
-	
 	/// handle if time of day is changed
 	void onChangeDayTime(LLUICtrl* ctrl);
 

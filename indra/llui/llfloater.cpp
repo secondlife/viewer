@@ -772,6 +772,12 @@ LLMultiFloater* LLFloater::getHost()
 	return (LLMultiFloater*)mHostHandle.get(); 
 }
 
+void    LLFloater::applySavedVariables()
+{
+	applyRectControl();
+	applyDockState();
+}
+
 void LLFloater::applyRectControl()
 {
 	if (mRectControl.size() > 1)

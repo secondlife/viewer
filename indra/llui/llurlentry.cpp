@@ -468,6 +468,7 @@ std::string LLUrlEntryTeleport::getLabel(const std::string &url, const LLUrlLabe
 	LLURI uri(url);
 	LLSD path_array = uri.pathArray();
 	S32 path_parts = path_array.size();
+	const std::string label = LLTrans::getString("SLurlLabelTeleport");
 	if (path_parts == 6)
 	{
 		// handle teleport url with (X,Y,Z) coordinates
@@ -475,7 +476,7 @@ std::string LLUrlEntryTeleport::getLabel(const std::string &url, const LLUrlLabe
 		std::string x = path_array[path_parts-3];
 		std::string y = path_array[path_parts-2];
 		std::string z = path_array[path_parts-1];
-		return "Teleport to " + location + " (" + x + "," + y + "," + z + ")";
+		return label + " " + location + " (" + x + "," + y + "," + z + ")";
 	}
 	else if (path_parts == 5)
 	{
@@ -483,20 +484,20 @@ std::string LLUrlEntryTeleport::getLabel(const std::string &url, const LLUrlLabe
 		std::string location = unescapeUrl(path_array[path_parts-3]);
 		std::string x = path_array[path_parts-2];
 		std::string y = path_array[path_parts-1];
-		return "Teleport to " + location + " (" + x + "," + y + ")";
+		return label + " " + location + " (" + x + "," + y + ")";
 	}
 	else if (path_parts == 4)
 	{
 		// handle teleport url with (X) coordinate only
 		std::string location = unescapeUrl(path_array[path_parts-2]);
 		std::string x = path_array[path_parts-1];
-		return "Teleport to " + location + " (" + x + ")";
+		return label + " " + location + " (" + x + ")";
 	}
 	else if (path_parts == 3)
 	{
 		// handle teleport url with no coordinates
 		std::string location = unescapeUrl(path_array[path_parts-1]);
-		return "Teleport to " + location;
+		return label + " " + location;
 	}
 
 	return url;
@@ -597,5 +598,54 @@ std::string LLUrlEntrySLLabel::getLabel(const std::string &url, const LLUrlLabel
 std::string LLUrlEntrySLLabel::getUrl(const std::string &string)
 {
 	return getUrlFromWikiLink(string);
+}
+
+//
+// LLUrlEntryWorldMap Describes secondlife:///<location> URLs
+//
+LLUrlEntryWorldMap::LLUrlEntryWorldMap()
+{
+	mPattern = boost::regex("secondlife:///app/worldmap/\\S+/?(\\d+)?/?(\\d+)?/?(\\d+)?/?\\S*",
+							boost::regex::perl|boost::regex::icase);
+	mMenuName = "menu_url_map.xml";
+	mTooltip = LLTrans::getString("TooltipMapUrl");
+}
+
+std::string LLUrlEntryWorldMap::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	//
+	// we handle SLURLs in the following formats:
+	//   - secondlife:///app/worldmap/PLACE/X/Y/Z
+	//   - secondlife:///app/worldmap/PLACE/X/Y
+	//   - secondlife:///app/worldmap/PLACE/X
+	//
+	LLURI uri(url);
+	LLSD path_array = uri.pathArray();
+	S32 path_parts = path_array.size();
+	if (path_parts < 3)
+	{
+		return url;
+	}
+
+	const std::string label = LLTrans::getString("SLurlLabelShowOnMap");
+	std::string location = path_array[2];
+	std::string x = (path_parts > 3) ? path_array[3] : "128";
+	std::string y = (path_parts > 4) ? path_array[4] : "128";
+	std::string z = (path_parts > 5) ? path_array[5] : "0";
+	return label + " " + location + " (" + x + "," + y + "," + z + ")";
+}
+
+std::string LLUrlEntryWorldMap::getLocation(const std::string &url) const
+{
+	// return the part of the Url after secondlife:///app/worldmap/ part
+	const std::string search_string = "//app/worldmap/";
+	size_t pos = url.find(search_string);
+	if (pos == std::string::npos)
+	{
+		return "";
+	}
+
+	pos += search_string.size();
+	return url.substr(pos, url.size() - pos);
 }
 

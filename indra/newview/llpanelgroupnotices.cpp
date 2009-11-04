@@ -38,6 +38,7 @@
 
 #include "llinventory.h"
 #include "llviewerinventory.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llfloaterinventory.h"
 #include "llagent.h"

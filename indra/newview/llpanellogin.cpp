@@ -198,7 +198,16 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	//leave room for the login menu bar
 	setRect(LLRect(0, rect.getHeight()-18, rect.getWidth(), 0)); 
 #endif
-	reshape(rect.getWidth(), rect.getHeight());
+	// Legacy login web page is hidden under the menu bar.
+	// Adjust reg-in-client web browser widget to not be hidden.
+	if (gSavedSettings.getBOOL("RegInClient"))
+	{
+		reshape(rect.getWidth(), rect.getHeight() - MENU_BAR_HEIGHT);
+	}
+	else
+	{
+		reshape(rect.getWidth(), rect.getHeight());
+	}
 
 #if !USE_VIEWER_AUTH
 	childSetPrevalidate("first_name_edit", LLLineEditor::prevalidatePrintableNoSpace);
@@ -234,9 +243,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	childSetAction("connect_btn", onClickConnect, this);
 
-	setDefaultBtn("connect_btn");
-
-	// childSetAction("quit_btn", onClickQuit, this);
+	getChild<LLPanel>("login_widgets")->setDefaultBtn("connect_btn");
 
 	std::string channel = gSavedSettings.getString("VersionChannelName");
 	std::string version = llformat("%d.%d.%d (%d)",
@@ -267,19 +274,20 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	web_browser->setTabStop(FALSE);
 	// web_browser->navigateToLocalPage( "loading", "loading.html" );
 
-	// make links open in external browser
-	web_browser->setOpenInExternalBrowser( true );
+	if (gSavedSettings.getBOOL("RegInClient"))
+	{
+		// need to follow links in the internal browser
+		web_browser->setOpenInExternalBrowser( false );
 
-	// force the size to be correct (XML doesn't seem to be sufficient to do this) (with some padding so the other login screen doesn't show through)
-	LLRect htmlRect = getRect();
-#if USE_VIEWER_AUTH
-	htmlRect.setCenterAndSize( getRect().getCenterX() - 2, getRect().getCenterY(), getRect().getWidth() + 6, getRect().getHeight());
-#else
-	htmlRect.setCenterAndSize( getRect().getCenterX() - 2, getRect().getCenterY() + 40, getRect().getWidth() + 6, getRect().getHeight() - 78 );
-#endif
-	web_browser->setRect( htmlRect );
-	web_browser->reshape( htmlRect.getWidth(), htmlRect.getHeight(), TRUE );
-	reshape( getRect().getWidth(), getRect().getHeight(), 1 );
+		getChild<LLView>("login_widgets")->setVisible(false);
+	}
+	else
+	{
+		// make links open in external browser
+		web_browser->setOpenInExternalBrowser( true );
+
+		reshapeBrowser();
+	}
 
 	// kick off a request to grab the url manually
 	gResponsePtr = LLIamHereLogin::build( this );
@@ -295,6 +303,27 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	refreshLocation( false );
 #endif
 
+}
+
+// force the size to be correct (XML doesn't seem to be sufficient to do this)
+// (with some padding so the other login screen doesn't show through)
+void LLPanelLogin::reshapeBrowser()
+{
+	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
+	LLRect rect = gViewerWindow->getVirtualWindowRect();
+	LLRect html_rect;
+#if USE_VIEWER_AUTH
+	html_rect.setCenterAndSize( 
+		rect.getCenterX() - 2, rect.getCenterY(), 
+		rect.getWidth() + 6, rect.getHeight());
+#else
+	html_rect.setCenterAndSize(
+		rect.getCenterX() - 2, rect.getCenterY() + 40,
+		rect.getWidth() + 6, rect.getHeight() - 78 );
+#endif
+	web_browser->setRect( html_rect );
+	web_browser->reshape( html_rect.getWidth(), html_rect.getHeight(), TRUE );
+	reshape( rect.getWidth(), rect.getHeight(), 1 );
 }
 
 void LLPanelLogin::setSiteIsAlive( bool alive )
@@ -384,10 +413,14 @@ void LLPanelLogin::draw()
 		if ( mHtmlAvailable )
 		{
 #if !USE_VIEWER_AUTH
-			// draw a background box in black
-			gl_rect_2d( 0, height - 264, width, 264, LLColor4( 0.0f, 0.0f, 0.0f, 1.f ) );
-			// draw the bottom part of the background image - just the blue background to the native client UI
-			mLogoImage->draw(0, -264, width + 8, mLogoImage->getHeight());
+			if (getChild<LLView>("login_widgets")->getVisible())
+			{
+				// draw a background box in black
+				gl_rect_2d( 0, height - 264, width, 264, LLColor4::black );
+				// draw the bottom part of the background image
+				// just the blue background to the native client UI
+				mLogoImage->draw(0, -264, width + 8, mLogoImage->getHeight());
+			}
 #endif
 		}
 		else
@@ -416,12 +449,6 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
 		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
 		vhelp->showTopic(vhelp->getTopicFromFocus());
 		return TRUE;
-	}
-
-	if (KEY_RETURN == key && MASK_NONE == mask)
-	{
-		// let the panel handle UICtrl processing: calls onClickConnect()
-		return LLPanel::handleKeyHere(key, mask);
 	}
 
 	return LLPanel::handleKeyHere(key, mask);
@@ -483,6 +510,19 @@ void LLPanelLogin::giveFocus()
 #endif
 }
 
+// static
+void LLPanelLogin::showLoginWidgets()
+{
+	sInstance->childSetVisible("login_widgets", true);
+	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
+	web_browser->setOpenInExternalBrowser( true );
+	sInstance->reshapeBrowser();
+	// *TODO: Append all the usual login parameters, like first_login=Y etc.
+	std::string splash_screen_url = sInstance->getString("real_url");
+	web_browser->navigateTo( splash_screen_url, "text/html" );
+	LLUICtrl* first_name_edit = sInstance->getChild<LLUICtrl>("first_name_edit");
+	first_name_edit->setFocus(TRUE);
+}
 
 // static
 void LLPanelLogin::show(const LLRect &rect,
@@ -797,8 +837,17 @@ void LLPanelLogin::loadLoginPage()
 	
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
 	
-	// navigate to the "real" page 
-	web_browser->navigateTo( oStr.str(), "text/html" );
+	// navigate to the "real" page
+	if (gSavedSettings.getBOOL("RegInClient"))
+	{
+		web_browser->setFocus(TRUE);
+		login_page = sInstance->getString("reg_in_client_url");
+		web_browser->navigateTo(login_page, "text/html");
+	}
+	else
+	{
+		web_browser->navigateTo( oStr.str(), "text/html" );
+	}
 }
 
 void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent event)
@@ -880,22 +929,6 @@ bool LLPanelLogin::newAccountAlertCallback(const LLSD& notification, const LLSD&
 void LLPanelLogin::onClickNewAccount(void*)
 {
 	LLWeb::loadURLExternal(sInstance->getString("create_account_url"));
-}
-
-
-// *NOTE: This function is dead as of 2008 August.  I left it here in case
-// we suddenly decide to put the Quit button back. JC
-// static
-void LLPanelLogin::onClickQuit(void*)
-{
-	if (sInstance && sInstance->mCallback)
-	{
-		// tell the responder we're not here anymore
-		if ( gResponsePtr )
-			gResponsePtr->setParent( 0 );
-
-		sInstance->mCallback(1, sInstance->mCallbackData);
-	}
 }
 
 

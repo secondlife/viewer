@@ -72,8 +72,6 @@ LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed)
 
 BOOL LLFloaterBulkPermission::postBuild()
 {
-//	childSetAction("help", onHelpBtn, this);  // this is not in use
-
 	return TRUE;
 }
 
@@ -156,12 +154,6 @@ void LLFloaterBulkPermission::onApplyBtn()
 {
 	doApply();
 }
-
-// angela -- this is not in use
-//void LLFloaterBulkPermission::onHelpBtn(void* user_data)
-//{
-//	LLNotifications::instance().add("HelpBulkPermission");
-//}
 
 void LLFloaterBulkPermission::onCloseBtn()
 {
@@ -272,7 +264,6 @@ void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, Invent
 			( asstype == LLAssetType::AT_BODYPART  && gSavedSettings.getBOOL("BulkChangeIncludeBodyParts" )) ||
 			( asstype == LLAssetType::AT_CLOTHING  && gSavedSettings.getBOOL("BulkChangeIncludeClothing"  )) ||
 			( asstype == LLAssetType::AT_GESTURE   && gSavedSettings.getBOOL("BulkChangeIncludeGestures"  )) ||
-			( asstype == LLAssetType::AT_FAVORITE  && gSavedSettings.getBOOL("BulkChangeIncludeFavourite" )) ||
 			( asstype == LLAssetType::AT_NOTECARD  && gSavedSettings.getBOOL("BulkChangeIncludeNotecards" )) ||
 			( asstype == LLAssetType::AT_OBJECT    && gSavedSettings.getBOOL("BulkChangeIncludeObjects"   )) ||
 			( asstype == LLAssetType::AT_LSL_TEXT  && gSavedSettings.getBOOL("BulkChangeIncludeScripts"   )) ||

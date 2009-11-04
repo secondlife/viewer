@@ -13,58 +13,58 @@
  single_instance="true"
  sound_flags="0"
  width="280">
-    <floater.string
+    <string
      name="status_rotate">
         Drag colored bands to rotate object
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="status_scale">
         Click and drag to stretch selected side
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="status_move">
         Drag to move, shift-drag to copy
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="status_modifyland">
         Click and hold to modify land
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="status_camera">
         Click and drag to move camera
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="status_grab">
         Drag to move, Ctrl to lift, Ctrl+Shift to rotate
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="status_place">
         Click inworld to build
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="status_selectland">
         Click and drag to select land
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="grid_screen_text">
         Screen
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="grid_local_text">
         Local
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="grid_world_text">
         World
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="grid_reference_text">
         Reference
-    </floater.string>
-    <floater.string
+    </string>
+    <string
      name="grid_attachment_text">
         Attachment
-    </floater.string>
+    </string>
     <button
      follows="left|top"
      height="20"
@@ -1034,7 +1034,10 @@
            label="Original"
            value="1" />
       </combo_box>
-<!-- NEW PRICE SPINNER -->
+<!-- NEW PRICE SPINNER
+  Objects are allowed to be for sale for L$0 to invoke buy UI behavior
+  even though the user gets a free copy.
+-->
       <spinner
         follows="left|top"
         decimal_digits="0"
@@ -1046,7 +1049,7 @@
         label="Price: L$"
         label_width="65"
         width="150"
-        min_val="1"
+        min_val="0"
         height="20"
         max_val="999999999" />
       <check_box
@@ -2793,7 +2796,7 @@
              left_pad="8"
              name="button permissions"
              width="130" />
-            <panel_inventory
+            <panel_inventory_object
              follows="left|top"
              height="210"
              layout="topleft"
@@ -2868,15 +2871,6 @@
          tool_tip="Colorize the parcels according to the type of owner: &#10;&#10;Green = Your land &#10;Aqua = Your group&apos;s land &#10;Red = Owned by others &#10;Yellow = For sale &#10;Purple = For auction &#10;Grey = Public"
          top_pad="8"
          width="205" />
-        <!--TODO: HOOK UP TO HELP VIEWER-->
-       <!-- <button
-         image_overlay="Arrow_Right_Off"
-         picture_style="true"
-         left_pad="5"
-         name="button show owners help"
-         tool_tip="See an explanation of colors"
-         width="26"
-         height="22" />-->
         <text
          type="string"
          length="1"
