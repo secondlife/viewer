@@ -457,6 +457,8 @@ public:
 
 		Optional<bool>	show_speaker;
 
+		Optional<LLColor4>	avatar_icon_color;
+
 		Params();
 	};
 
