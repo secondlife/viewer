@@ -135,13 +135,13 @@ public:
 
 // Returns true if the given inventory item is a landmark pointing to the current parcel.
 // Used to find out if there is at least one landmark from current parcel.
-class LLFistAgentParcelLandmark : public LLInventoryCollectFunctor
+class LLFirstAgentParcelLandmark : public LLInventoryCollectFunctor
 {
 private:	
 	bool mFounded;// to avoid unnecessary  check
 	
 public:
-	LLFistAgentParcelLandmark(): mFounded(false){}
+	LLFirstAgentParcelLandmark(): mFounded(false){}
 	
 	/*virtual*/ bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 	{
@@ -165,8 +165,7 @@ static void fetch_landmarks(LLInventoryModel::cat_array_t& cats,
 							LLInventoryCollectFunctor& add)
 {
 	// Look in "My Favorites"
-	LLUUID favorites_folder_id =
-		gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+	const LLUUID favorites_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 	gInventory.collectDescendentsIf(favorites_folder_id,
 		cats,
 		items,
@@ -174,8 +173,7 @@ static void fetch_landmarks(LLInventoryModel::cat_array_t& cats,
 		add);
 
 	// Look in "Landmarks"
-	LLUUID landmarks_folder_id = 
-		gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+	const LLUUID landmarks_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
 	gInventory.collectDescendentsIf(landmarks_folder_id,
 		cats,
 		items,
@@ -202,7 +200,7 @@ bool LLLandmarkActions::landmarkAlreadyExists()
 //static
 bool LLLandmarkActions::hasParcelLandmark()
 {
-	LLFistAgentParcelLandmark get_first_agent_landmark;
+	LLFirstAgentParcelLandmark get_first_agent_landmark;
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
 	fetch_landmarks(cats, items, get_first_agent_landmark);
@@ -287,7 +285,7 @@ void LLLandmarkActions::createLandmarkHere()
 
 	LLAgentUI::buildLocationString(landmark_name, LLAgentUI::LOCATION_FORMAT_LANDMARK);
 	LLAgentUI::buildLocationString(landmark_desc, LLAgentUI::LOCATION_FORMAT_FULL);
-	LLUUID folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+	const LLUUID folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
 
 	createLandmarkHere(landmark_name, landmark_desc, folder_id);
 }

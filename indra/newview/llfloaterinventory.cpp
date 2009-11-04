@@ -40,6 +40,7 @@
 #include "llinventorymodel.h"
 #include "llpanelmaininventory.h"
 #include "llresmgr.h"
+#include "llviewerfoldertype.h"
 
 ///----------------------------------------------------------------------------
 /// LLFloaterInventory

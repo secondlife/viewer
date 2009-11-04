@@ -130,11 +130,11 @@ void LLOutfitObserver::done()
 			{
 				if(LLInventoryType::IT_GESTURE == item->getInventoryType())
 				{
-					pid = gInventory.findCategoryUUIDForType(LLAssetType::AT_GESTURE);
+					pid = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE);
 				}
 				else
 				{
-					pid = gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
+					pid = gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
 				}
 				break;
 			}
@@ -146,7 +146,7 @@ void LLOutfitObserver::done()
 		
 		LLUUID cat_id = gInventory.createNewCategory(
 			pid,
-			LLAssetType::AT_NONE,
+			LLFolderType::FT_NONE,
 			name);
 		mCatID = cat_id;
 		LLPointer<LLInventoryCallback> cb = new LLWearInventoryCategoryCallback(mCatID, mAppend);
@@ -353,7 +353,7 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 /* static */ 
 LLUUID LLAppearanceManager::getCOF()
 {
-	return gInventory.findCategoryUUIDForType(LLAssetType::AT_CURRENT_OUTFIT);
+	return gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
 }
 
 // Update appearance from outfit folder.
@@ -373,12 +373,12 @@ void LLAppearanceManager::changeOutfit(bool proceed, const LLUUID& category, boo
 	else
 	{
 		LLViewerInventoryCategory* catp = gInventory.getCategory(category);
-		if (catp->getPreferredType() == LLAssetType::AT_NONE ||
-			LLAssetType::lookupIsEnsembleCategoryType(catp->getPreferredType()))
+		if (catp->getPreferredType() == LLFolderType::FT_NONE ||
+			LLFolderType::lookupIsEnsembleType(catp->getPreferredType()))
 		{
 			updateCOFFromCategory(category, append);  // append is false - rebuild COF.
 		}
-		else if (catp->getPreferredType() == LLAssetType::AT_OUTFIT)
+		else if (catp->getPreferredType() == LLFolderType::FT_OUTFIT)
 		{
 			rebuildCOFFromOutfit(category);
 		}
@@ -405,7 +405,7 @@ void LLAppearanceManager::updateCOFFromCategory(const LLUUID& category, bool app
 		return;
 	}
 		
-	const LLUUID &current_outfit_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CURRENT_OUTFIT);
+	const LLUUID current_outfit_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
 	// Processes that take time should show the busy cursor
 	//inc_busy_count();
 		
@@ -503,7 +503,7 @@ void LLAppearanceManager::shallowCopyCategory(const LLUUID& src_id, const LLUUID
 		{
 			LLViewerInventoryCategory *catp = item->getLinkedCategory();
 			// Skip copying outfit links.
-			if (catp && catp->getPreferredType() != LLAssetType::AT_OUTFIT)
+			if (catp && catp->getPreferredType() != LLFolderType::FT_OUTFIT)
 			{
 				link_inventory_item(gAgent.getID(),
 									item->getLinkedUUID(),
@@ -641,7 +641,7 @@ void LLAppearanceManager::shallowCopyCategory(const LLUUID& src_id, const LLUUID
 
 	// Add link to outfit if category is an outfit. 
 	LLViewerInventoryCategory* catp = gInventory.getCategory(category);
-	if (!append && catp && catp->getPreferredType() == LLAssetType::AT_OUTFIT)
+	if (!append && catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
 	{
 		link_inventory_item(gAgent.getID(), category, cof, catp->getName(),
 							LLAssetType::AT_LINK_FOLDER, link_waiter);
@@ -732,7 +732,7 @@ void LLAppearanceManager::rebuildCOFFromOutfit(const LLUUID& category)
 		LLNotifications::instance().add("CouldNotPutOnOutfit");
 		return;
 	}
-		
+
 	// Processes that take time should show the busy cursor
 	//inc_busy_count();
 
@@ -750,7 +750,7 @@ void LLAppearanceManager::rebuildCOFFromOutfit(const LLUUID& category)
 
 	// Create a link to the outfit that we wore.
 	LLViewerInventoryCategory* catp = gInventory.getCategory(category);
-	if (catp && catp->getPreferredType() == LLAssetType::AT_OUTFIT)
+	if (catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
 	{
 		link_inventory_item(gAgent.getID(), category, current_outfit_id, catp->getName(),
 							LLAssetType::AT_LINK_FOLDER, link_waiter);

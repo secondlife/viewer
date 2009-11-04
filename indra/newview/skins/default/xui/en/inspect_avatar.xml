@@ -128,6 +128,8 @@
      left_delta="110"
      tab_stop="false"
      width="18" />
+  <!-- Overlapping buttons for default actions
+    llinspectavatar.cpp makes visible the most likely default action -->
     <button
      follows="bottom|left"
      height="23"
@@ -136,6 +138,16 @@
      top="246"
      name="add_friend_btn"
      width="100" />
+    <button
+     follows="bottom|left"
+     height="23"
+     label="IM"
+     left_delta="0"
+     top_delta="0"
+     name="im_btn"
+     width="100"
+     commit_callback.function="InspectAvatar.IM"
+     />
     <menu_button
      follows="top|left"
      height="18"

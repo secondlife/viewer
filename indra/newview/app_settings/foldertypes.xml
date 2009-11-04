@@ -1,66 +1,61 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <ensemble_defs>
   <ensemble
-    asset_num="-1"
-    xui_name="default"
-    icon_name="inv_plain_closed.tga"
-     />
-  <ensemble
-    asset_num="27"
+    foldertype_num="27"
     xui_name="head"
     icon_name="inv_folder_outfit_head.tga"
 	allowed="hair,eyes"
      />
   <ensemble
-    asset_num="28"
+    foldertype_num="28"
     xui_name="gloves"
     icon_name="inv_folder_outfit_gloves.tga"
 	allowed="gloves"
      />
   <ensemble
-    asset_num="29"
+    foldertype_num="29"
     xui_name="jacket"
     icon_name="inv_folder_outfit_jacket.tga"
 	allowed="jacket"
      />
   <ensemble
-    asset_num="30"
+    foldertype_num="30"
     xui_name="pants"
     icon_name="inv_folder_outfit_pants.tga"
 	allowed="pants,underpants"
      />
   <ensemble
-    asset_num="31"
+    foldertype_num="31"
     xui_name="shape"
     icon_name="inv_folder_outfit_shape.tga"
 	allowed="shape,skin,hair,eyes"
      />
   <ensemble
-    asset_num="32"
+    foldertype_num="32"
     xui_name="shoes"
     icon_name="inv_folder_outfit_shoes.tga"
 	allowed="shoes,socks"
      />
   <ensemble
-    asset_num="33"
+    foldertype_num="33"
     xui_name="shirt"
     icon_name="inv_folder_outfit_shirt.tga"
 	allowed="shirt,undershirt"
      />
   <ensemble
-    asset_num="34"
+    foldertype_num="34"
     xui_name="skirt"
     icon_name="inv_folder_outfit_skirt.tga"
 	allowed=""
      />
   <ensemble
-    asset_num="35"
+    foldertype_num="35"
     xui_name="underpants"
     icon_name="inv_folder_outfit_underpants.tga"
 	allowed="underpants"
      />
   <ensemble
-    asset_num="36"
+    foldertype_num="36"
     xui_name="undershirt"
     icon_name="inv_folder_outfit_undershirt.tga"
 	allowed="undershirt"

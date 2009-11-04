@@ -158,14 +158,14 @@ void LLFloaterOpenObject::moveToInventory(bool wear)
 	if (wear)
 	{
 		parent_category_id = gInventory.findCategoryUUIDForType(
-			LLAssetType::AT_CLOTHING);
+			LLFolderType::FT_CLOTHING);
 	}
 	else
 	{
 		parent_category_id = gInventory.getRootFolderID();
 	}
 	LLUUID category_id = gInventory.createNewCategory(parent_category_id, 
-		LLAssetType::AT_NONE, 
+		LLFolderType::FT_NONE, 
 		name);
 
 	LLCatAndWear* data = new LLCatAndWear;

@@ -32,6 +32,7 @@
 #define LLFOLDERVIEWEVENTLISTENER_H
 
 #include "lldarray.h"	// JAMESDEBUG convert to std::vector
+#include "llfoldertype.h"
 #include "llfontgl.h"	// just for StyleFlags enum
 #include "llpointer.h"
 
@@ -57,7 +58,7 @@ public:
 	virtual const LLUUID& getUUID() const = 0;
 	virtual time_t getCreationDate() const = 0;	// UTC seconds
 	virtual PermissionMask getPermissionMask() const = 0;
-	virtual LLAssetType::EType getPreferredType() const = 0;
+	virtual LLFolderType::EType getPreferredType() const = 0;
 	virtual LLPointer<LLUIImage> getIcon() const = 0;
 	virtual LLFontGL::StyleFlags getLabelStyle() const = 0;
 	virtual std::string getLabelSuffix() const = 0;
