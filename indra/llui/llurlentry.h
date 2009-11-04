@@ -186,7 +186,7 @@ public:
 
 ///
 /// LLUrlEntryPlace Describes a Second Life location Url, e.g.,
-/// secondlife:///Ahern/50/50/50
+/// secondlife://Ahern/50/50/50
 ///
 class LLUrlEntryPlace : public LLUrlEntryBase
 {
