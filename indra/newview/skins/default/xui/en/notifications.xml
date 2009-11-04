@@ -4629,6 +4629,9 @@ If you want to view streaming media on parcels that support it you should go to 
    name="NoPlugin"
    type="notify">
 No Media Plugin was found to handle the "[MIME_TYPE]" mime type.  Media of this type will be unavailable.
+  <unique>
+    <context key="MIME_TYPE" />
+  </unique>
   </notification>
   <notification
    icon="alertmodal.tga"

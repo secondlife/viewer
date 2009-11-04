@@ -82,7 +82,6 @@
 		  image_unselected="media_btn_back.png"
 		  layout="topleft"
 		  tool_tip="Step back"
-		  picture_style="true"
 		  width="22"
 		  top_delta="4">
 		<button.commit_callback
@@ -103,7 +102,6 @@
 		  image_unselected="media_btn_forward.png"
 		  layout="topleft"
 		  tool_tip="Step forward"
-		  picture_style="true"
 		  top_delta="0"
 		  min_width="17"
 		  width="17">
@@ -141,7 +139,6 @@
 		  image_unselected="media_btn_home.png"
 		  layout="topleft"
 		  tool_tip="Home page"
-		  picture_style="true"
 		  min_width="22"
 		  width="22">
 		<button.commit_callback
@@ -162,7 +159,6 @@
 		  image_unselected="button_anim_stop.tga"
 		  layout="topleft"
 		  tool_tip="Stop media"
-		  picture_style="true"
 		  min_width="22"
 		  width="22">
 		<button.commit_callback
@@ -199,7 +195,6 @@
 		  image_unselected="media_btn_reload.png"
 		  layout="topleft"
 		  tool_tip="Reload"
-		  picture_style="true"
 		  min_width="22"
 		  width="22">
 		<button.commit_callback
@@ -219,7 +214,6 @@
 		  image_selected="media_btn_stoploading.png"
 		  image_unselected="media_btn_stoploading.png"
 		  layout="topleft"
-		  picture_style="true"
 		  tool_tip = "Stop loading"
 		  min_width="22"
 		  width="22">
@@ -241,7 +235,6 @@
 		  image_unselected="button_anim_play.tga"
 		  layout="topleft"
 		  tool_tip = "Play media"
-		  picture_style="true"
 		  min_width="22"
 		  width="22">
 		<button.commit_callback
@@ -262,7 +255,6 @@
 		  image_unselected="button_anim_pause.tga"
 		  layout="topleft"
 		  tool_tip = "Pause media"
-		  picture_style="true">
 		<button.commit_callback
 			function="MediaCtrl.Pause" />
 	  </button>
@@ -367,7 +359,6 @@ function="MediaCtrl.CommitURL" />
 		  is_toggle="true"
 		  layout="topleft"
 		  scale_image="false" 
-		  picture_style="true"
 		  tool_tip="Mute This Media"
 		  top_delta="22"
 		  min_width="24"
@@ -391,7 +382,6 @@ function="MediaCtrl.CommitURL" />
 		  image_unselected="media_btn_scrollup.png"
 		  layout="topleft"
 		  tool_tip="Volume up"
-		  picture_style="true"
 		  scale_image="true"
 		  min_width="20"
 		  width="20" >
@@ -414,7 +404,6 @@ function="MediaCtrl.CommitURL" />
 		  image_unselected="media_btn_scrolldown.png"
 		  layout="topleft"
 		  tool_tip="Volume down"
-		  picture_style="true"
 		  scale_image="true"
 		  min_width="20"
 		  width="20">
@@ -446,7 +435,6 @@ function="MediaCtrl.CommitURL" />
 		  image_unselected="media_btn_scrollup.png"
 		  layout="topleft"
 		  tool_tip="Scroll up"
-		  picture_style="true"
 		  scale_image="false"
 		  left="12"
 		  top_delta="4"
@@ -460,7 +448,6 @@ function="MediaCtrl.CommitURL" />
 		  layout="topleft"
 		  left="3"
 		  tool_tip="Scroll left"
-		  picture_style="true"
 		  scale_image="false"
 		  top="12"
 		  min_width="8"
@@ -473,7 +460,6 @@ function="MediaCtrl.CommitURL" />
 		  layout="topleft"
 		  left_pad="9"
 		  tool_tip="Scroll right"
-		  picture_style="true"
 		  scale_image="false"
 		  top_delta="0"
 		  min_width="8"
@@ -486,7 +472,6 @@ function="MediaCtrl.CommitURL" />
 		  layout="topleft"
 		  left="12"
 		  tool_tip="Scroll down"
-		  picture_style="true"
 		  scale_image="false"
 		  top="20"
 		  min_width="8"
@@ -506,7 +491,6 @@ function="MediaCtrl.CommitURL" />
 		  image_unselected="media_btn_optimalzoom.png"
 		  layout="topleft"
 		  tool_tip="Zoom"
-		  picture_style="true"
 		  min_width="22"
 		  width="22">
 		<button.commit_callback
@@ -542,7 +526,6 @@ function="MediaCtrl.CommitURL" />
 		  image_unselected="media_btn_newwindow.png"
 		  layout="topleft"
 		  tool_tip = "Open URL in browser"
-		  picture_style="true"
 		  top_delta="-3"
 		  min_width="24"
 		  width="24" >
@@ -579,7 +562,6 @@ function="MediaCtrl.CommitURL" />
 		  image_unselected="media_btn_done.png"
 		  layout="topleft"
 		  tool_tip ="Close media control"
-		  picture_style="true"
 		  top_delta="-4"
 		  width="21" >
 		<button.commit_callback

@@ -115,8 +115,7 @@ public:
 		// misc
 		Optional<bool>			is_toggle,
 								scale_image,
-								commit_on_return,
-								picture_style;      //if true, don't display label
+								commit_on_return;
 		
 		Optional<F32>				hover_glow_amount;
 		Optional<TimeIntervalParam>	held_down_delay;
@@ -247,8 +246,6 @@ protected:
 
 	LLFrameTimer	mMouseDownTimer;
 
-	// If the label is empty, set the picture_style attribute
-	static void setupParamsForExport(Params& p, LLView* parent);
 private:
 	void			drawBorder(LLUIImage* imagep, const LLColor4& color, S32 size);
 	void			resetMouseDownTimer();

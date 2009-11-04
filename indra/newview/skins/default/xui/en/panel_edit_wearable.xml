@@ -137,7 +137,6 @@ left="0"
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back_btn"
-     picture_style="true"
      left="10"
      top="7" />
 	<text

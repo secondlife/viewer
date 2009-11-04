@@ -271,7 +271,6 @@
                follows="right"
                flash_color="EmphasisColor"
                name="Unread"
-               picture_style="true"
                image_overlay="Widget_UpArrow" />
                <unread_notifications
                width="34"
