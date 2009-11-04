@@ -176,7 +176,6 @@
          layout="topleft"
          left="10"
          name="gear_btn"
-         picture_style="true"
          top="5"
          width="18" />
     </panel>

@@ -129,7 +129,6 @@
      layout="topleft"
      left="-106"
      name="cancel_btn"
-     picture_style="true"
      top="700"
      width="90" />
 </panel>

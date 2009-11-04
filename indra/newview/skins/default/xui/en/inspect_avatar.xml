@@ -102,7 +102,6 @@
      left_pad="0"
      top_delta="4"
      name="mute_btn"
-     picture_style="true"
      width="16" />
     <avatar_icon
      follows="all"
@@ -122,7 +121,6 @@
      image_unselected="ForwardArrow_Off"
      layout="topleft"
      name="view_profile_btn"
-     picture_style="true"
      right="-8"
      top="35"
      left_delta="110"
@@ -144,7 +142,6 @@
      image_unselected="OptionsMenu_Off"
      menu_filename="menu_inspect_avatar_gear.xml"
      name="gear_btn"
-     picture_style="true"
      right="-10"
      top="249"
      width="18" />
@@ -157,7 +154,6 @@
      image_unselected="OptionsMenu_Off"
      menu_filename="menu_inspect_self_gear.xml"
      name="gear_self_btn"
-     picture_style="true"
      right="-10"
      top="249"
      width="18" />

@@ -71,7 +71,6 @@
      layout="topleft"
      left_delta="0"
      name="header"
-     picture_style="true"
      top_delta="-20"
      width="100" />
 </panel>

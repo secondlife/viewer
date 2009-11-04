@@ -927,7 +927,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 		textbox = LLUICtrlFactory::create<LLTextBox> (params);
 		
 		LLButton::Params p;
-		p.name("");
+		p.name("placeholder");
 		btn = LLUICtrlFactory::create<LLButton>(p);
 	}
 	else
@@ -986,7 +986,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 				p.follows.flags = p.follows.flags() | FOLLOWS_BOTTOM;
 			}
 
-			btn = LLUICtrlFactory::create<LLButton>(p);
+++			btn = LLUICtrlFactory::create<LLButton>(p);
 		}
 	}
 	

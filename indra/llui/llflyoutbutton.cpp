@@ -48,6 +48,7 @@ LLFlyoutButton::LLFlyoutButton(const Params& p)
 	// Text label button
 	LLButton::Params bp(p.action_button);
 	bp.name(p.label);
+	bp.label(p.label);
 	bp.rect.left(0).bottom(0).width(getRect().getWidth() - FLYOUT_BUTTON_ARROW_WIDTH).height(getRect().getHeight());
 	bp.click_callback.function(boost::bind(&LLFlyoutButton::onActionButtonClick, this, _2));
 	bp.follows.flags(FOLLOWS_ALL);

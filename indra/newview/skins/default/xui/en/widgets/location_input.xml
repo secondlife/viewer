@@ -20,7 +20,6 @@
                 allow_new_values="true"
                 >
   <info_button name="Place Information"
-                          label=""
                           width="16"
                           height="16"
                           follows="left|top"
@@ -30,7 +29,6 @@
                           image_disabled_selected="Info_Off"
                           image_disabled="Info_Off" />
   <add_landmark_button name="Add Landmark"
-                          label=""
                           hover_glow_amount="0.15"
                           image_hover_selected="Favorite_Star_Over"
                           image_hover_unselected="Favorite_Star_Over"

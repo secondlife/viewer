@@ -126,7 +126,6 @@
      layout="topleft"
      left_delta="0"
      name="pick_btn"
-     picture_style="true"
      image_overlay="Inv_Object"
      tool_tip="Object Picker - Identify an object as the subject of this report"
      top_pad="0"

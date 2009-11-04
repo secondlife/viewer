@@ -1451,9 +1451,7 @@ void LLTextBase::setText(const LLStringExplicit &utf8str)
 
 	appendText(text, false);
 
-	//resetDirty();
 	onValueChange(0, getLength());
-	needsReflow();
 }
 
 //virtual
@@ -1631,8 +1629,6 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepen
 		insertStringNoUndo(getLength(), wide_text, &segments);
 	}
 
-	needsReflow();
-	
 	// Set the cursor and scroll position
 	if( selection_start != selection_end )
 	{
@@ -2116,7 +2112,7 @@ LLRect LLTextBase::getVisibleDocumentRect() const
 		LLRect doc_rect = mDocumentView->getLocalRect();
 		doc_rect.mLeft -= mDocumentView->getRect().mLeft;
 		// adjust for height of text above widget baseline
-		doc_rect.mBottom = llmin(0, doc_rect.getHeight() - mTextRect.getHeight());
+		doc_rect.mBottom = doc_rect.getHeight() - mTextRect.getHeight();
 		return doc_rect;
 	}
 }
