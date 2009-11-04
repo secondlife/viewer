@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2004-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -38,8 +38,6 @@
 #include "llsdutil.h"
 #include "llsecondlifeurls.h"
 
-#include "llinventory.h"
-
 #include "llsdutil_math.h"
 
 #include "llscrollcontainer.h"
@@ -48,15 +46,12 @@
 #include "llagent.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llexpandabletextbox.h"
-#include "llfloaterworldmap.h"
-#include "llinventorymodel.h"
 #include "llpanelpick.h"
 #include "lltexturectrl.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewertexteditor.h"
-#include "llworldmap.h"
 
 LLPanelPlaceInfo::LLPanelPlaceInfo()
 :	LLPanel(),
