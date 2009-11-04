@@ -390,7 +390,15 @@ void LLVoiceChannel::setState(EState state)
 		break;
 	}
 
-	mState = state;
+	doSetState(state);
+}
+
+void LLVoiceChannel::doSetState(const EState& new_state)
+{
+	EState old_state = mState;
+	mState = new_state;
+	if (!mStateChangedCallback.empty())
+		mStateChangedCallback(old_state, mState);
 }
 
 void LLVoiceChannel::toggleCallWindowIfNeeded(EState state)
@@ -620,7 +628,7 @@ void LLVoiceChannelGroup::setState(EState state)
 			gIMMgr->addSystemMessage(mSessionID, "ringing", mNotifyArgs);
 		}
 
-		mState = state;
+		doSetState(state);
 		break;
 	default:
 		LLVoiceChannel::setState(state);
@@ -865,7 +873,7 @@ void LLVoiceChannelP2P::setState(EState state)
 	if (mReceivedCall && state == STATE_RINGING)
 	{
 		gIMMgr->addSystemMessage(mSessionID, "answering", mNotifyArgs);
-		mState = state;
+		doSetState(state);
 		return;
 	}
 	LLVoiceChannel::setState(state);

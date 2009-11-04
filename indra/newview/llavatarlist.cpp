@@ -65,6 +65,20 @@ void LLAvatarList::toggleIcons()
 	}
 }
 
+void LLAvatarList::setSpeakingIndicatorsVisible(bool visible)
+{
+	// Save the new value for new items to use.
+	mShowSpeakingIndicator = visible;
+	
+	// Show/hide icons for all existing items.
+	std::vector<LLPanel*> items;
+	getItems(items);
+	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
+	{
+		static_cast<LLAvatarListItem*>(*it)->setSpeakingIndicatorVisible(mShowSpeakingIndicator);
+	}
+}
+
 static bool findInsensitive(std::string haystack, const std::string& needle_upper)
 {
     LLStringUtil::toUpper(haystack);
@@ -81,6 +95,7 @@ LLAvatarList::Params::Params()
 , show_last_interaction_time("show_last_interaction_time", false)
 , show_info_btn("show_info_btn", true)
 , show_profile_btn("show_profile_btn", true)
+, show_speaking_indicator("show_speaking_indicator", true)
 {
 }
 
@@ -94,6 +109,7 @@ LLAvatarList::LLAvatarList(const Params& p)
 , mShowIcons(true)
 , mShowInfoBtn(p.show_info_btn)
 , mShowProfileBtn(p.show_profile_btn)
+, mShowSpeakingIndicator(p.show_speaking_indicator)
 {
 	setCommitOnSelectionChange(true);
 
@@ -295,6 +311,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	item->setAvatarIconVisible(mShowIcons);
 	item->setShowInfoBtn(mShowInfoBtn);
 	item->setShowProfileBtn(mShowProfileBtn);
+	item->setSpeakingIndicatorVisible(mShowSpeakingIndicator);
 
 	addItem(item, id, pos);
 }
