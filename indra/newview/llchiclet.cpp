@@ -455,6 +455,7 @@ LLAdHocChiclet::Params::Params()
 , unread_notifications("unread_notifications")
 , speaker("speaker")
 , show_speaker("show_speaker")
+, avatar_icon_color("avatar_icon_color", LLColor4::green)
 {
 	// *TODO Vadim: Get rid of hardcoded values.
 	rect(LLRect(0, 25, 45, 0));
@@ -492,6 +493,8 @@ LLAdHocChiclet::LLAdHocChiclet(const Params& p)
 {
 	LLChicletAvatarIconCtrl::Params avatar_params = p.avatar_icon;
 	mChicletIconCtrl = LLUICtrlFactory::create<LLChicletAvatarIconCtrl>(avatar_params);
+	//Make the avatar modified
+	mChicletIconCtrl->setColor(p.avatar_icon_color);
 	addChild(mChicletIconCtrl);
 
 	LLChicletNotificationCounterCtrl::Params unread_params = p.unread_notifications;

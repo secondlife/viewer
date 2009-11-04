@@ -139,7 +139,7 @@
 #include "llgroupactions.h"
 #include "llagentui.h"
 #include "llpanelblockedlist.h"
-#include "llpanelplaceinfo.h"
+#include "llpanelplaceprofile.h"
 
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -5548,7 +5548,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLPanelLandCovenant::updateEstateOwnerName(owner_name);
 	LLFloaterBuyLand::updateEstateOwnerName(owner_name);
 
-	LLPanelPlaceInfo* panel = LLSideTray::getInstance()->findChild<LLPanelPlaceInfo>("panel_place_info");
+	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->findChild<LLPanelPlaceProfile>("panel_place_profile");
 	if (panel)
 	{
 		panel->updateEstateName(estate_name);
@@ -5682,7 +5682,7 @@ void onCovenantLoadComplete(LLVFS *vfs,
 	LLPanelLandCovenant::updateCovenantText(covenant_text);
 	LLFloaterBuyLand::updateCovenantText(covenant_text, asset_uuid);
 
-	LLPanelPlaceInfo* panel = LLSideTray::getInstance()->findChild<LLPanelPlaceInfo>("panel_place_info");
+	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->findChild<LLPanelPlaceProfile>("panel_place_profile");
 	if (panel)
 	{
 		panel->updateCovenantText(covenant_text);

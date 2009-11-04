@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="panel_im_control_panel"
-       width="125"
-       height="298"
+       width="128"
+       height="327"
        border="false">
 
   <avatar_icon name="avatar_icon"
                follows="left|top"
-               width="96"
-               height="96" />
+               left_delta="3"
+               width="125"
+               height="125" />
 
   <button name="view_profile_btn"
           follows="left|bottom"
           label="View Profile"
-          left_delta="3"
           width="125"
 		  height="20" />
 
@@ -31,7 +31,7 @@
     <button
      follows="left|bottom"
      height="20"
-     label="End Call"
+     label="Leave Call"
      name="end_call_btn"
      visible="false"
      width="125" />

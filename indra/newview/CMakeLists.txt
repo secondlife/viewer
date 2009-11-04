@@ -316,6 +316,7 @@ set(viewer_SOURCE_FILES
     llpanelinventory.cpp
     llpanelland.cpp
     llpanellandaudio.cpp
+    llpanellandmarkinfo.cpp
     llpanellandmarks.cpp
     llpanellandmedia.cpp
     llpanellogin.cpp
@@ -334,6 +335,7 @@ set(viewer_SOURCE_FILES
     llpanelpicks.cpp
     llpanelplace.cpp
     llpanelplaceinfo.cpp
+    llpanelplaceprofile.cpp
     llpanelplaces.cpp
     llpanelplacestab.cpp
     llpanelprimmediacontrols.cpp
@@ -794,6 +796,7 @@ set(viewer_HEADER_FILES
     llpanelinventory.h
     llpanelland.h
     llpanellandaudio.h
+    llpanellandmarkinfo.h
     llpanellandmarks.h
     llpanellandmedia.h
     llpanellogin.h
@@ -812,6 +815,7 @@ set(viewer_HEADER_FILES
     llpanelpicks.h
     llpanelplace.h
     llpanelplaceinfo.h
+    llpanelplaceprofile.h
     llpanelplaces.h
     llpanelplacestab.h
     llpanelprimmediacontrols.h
