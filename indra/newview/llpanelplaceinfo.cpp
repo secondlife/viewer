@@ -922,7 +922,7 @@ void LLPanelPlaceInfo::createLandmark(const LLUUID& folder_id)
 	LLStringUtil::replaceChar(desc, '\n', ' ');
 	// If no folder chosen use the "Landmarks" folder.
 	LLLandmarkActions::createLandmarkHere(name, desc,
-		folder_id.notNull() ? folder_id : gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK));
+		folder_id.notNull() ? folder_id : gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK));
 }
 
 void LLPanelPlaceInfo::createPick(const LLVector3d& pos_global, LLPanelPickEdit* pick_panel)
@@ -970,7 +970,7 @@ void LLPanelPlaceInfo::populateFoldersList()
 	mFolderCombo->removeall();
 
 	// Put the "Landmarks" folder first in list.
-	LLUUID landmarks_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+	const LLUUID landmarks_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
 	const LLViewerInventoryCategory* cat = gInventory.getCategory(landmarks_id);
 	if (!cat)
 	{
@@ -1074,7 +1074,7 @@ static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right)
 
 static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats)
 {
-	LLUUID landmarks_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+	const LLUUID landmarks_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
 
 	// Add descendent folders of the "Landmarks" category.
 	LLInventoryModel::item_array_t items; // unused
@@ -1087,7 +1087,7 @@ static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats)
 		is_category);
 
 	// Add the "My Favorites" category.
-	LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+	const LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 	LLViewerInventoryCategory* favorites_cat = gInventory.getCategory(favorites_id);
 	if (!favorites_cat)
 	{

@@ -41,53 +41,22 @@
 #include "llvoavatarself.h"
 #include "llvoavatar.h"
 
-#include <stdio.h>
-#include <ctype.h>
+#include "pipeline.h"
 
-#include "llaudioengine.h"
-#include "noise.h"
-
-// TODO: Seraph - Remove unnecessary headers.  These are copied from llvoavatar.h.
 #include "llagent.h" //  Get state values from here
 #include "llagentwearables.h"
-#include "llviewercontrol.h"
-#include "lldrawpoolavatar.h"
-#include "lldriverparam.h"
-#include "lleditingmotion.h"
-#include "llemote.h"
-#include "llface.h"
-#include "llfirstuse.h"
-#include "llheadrotmotion.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llkeyframefallmotion.h"
-#include "llkeyframestandmotion.h"
-#include "llkeyframewalkmotion.h"
-#include "llmutelist.h"
 #include "llselectmgr.h"
-#include "llsprite.h"
-#include "lltargetingmotion.h"
-#include "lltexlayer.h"
-#include "lltexglobalcolor.h"
 #include "lltoolgrab.h"	// for needsRenderBeam
 #include "lltoolmgr.h" // for needsRenderBeam
 #include "lltoolmorph.h"
 #include "lltrans.h"
 #include "llviewercamera.h"
-#include "llviewertexturelist.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
-#include "llviewerparcelmgr.h"
 #include "llviewerstats.h"
-#include "llvovolume.h"
-#include "llworld.h"
-#include "pipeline.h"
-#include "llviewershadermgr.h"
-#include "llsky.h"
-#include "llanimstatelabels.h"
-#include "llgesturemgr.h" //needed to trigger the voice gesticulations
-#include "llvoiceclient.h"
-#include "llvoicevisualizer.h" // Ventrella
+#include "llviewerregion.h"
 #include "llappearancemgr.h"
 
 #if LL_MSVC

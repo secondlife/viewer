@@ -1,10 +1,10 @@
 /** 
- * @file llresourcedata.h
- * @brief Tracking object for uploads.
+ * @file llviewerfoldertype.h
+ * @brief Declaration of LLAssetType.
  *
- * $LicenseInfo:firstyear=2006&license=viewergpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2006-2009, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,21 +30,28 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLRESOURCEDATA_H
-#define LLRESOURCEDATA_H
+#ifndef LL_LLVIEWERFOLDERTYPE_H
+#define LL_LLVIEWERFOLDERTYPE_H
 
-#include "llassetstorage.h"
-#include "llinventorytype.h"
+#include <string>
+#include "llfoldertype.h"
 
-struct LLResourceData
+// This class is similar to llfoldertype, but contains methods
+// only used by the viewer.  This also handles ensembles.
+class LLViewerFolderType : public LLFolderType
 {
-	LLAssetInfo mAssetInfo;
-	LLFolderType::EType mPreferredLocation;
-	LLInventoryType::EType mInventoryType;
-	U32 mNextOwnerPerm;
-	S32 mExpectedUploadCost;
-	void *mUserData;
-	static const S8 INVALID_LOCATION = -2;
+public:
+	static const std::string&   lookupXUIName(EType folder_type); // name used by the UI
+	static LLFolderType::EType 	lookupTypeFromXUIName(const std::string& name);
+
+	static const std::string&   lookupIconName(EType asset_type); // folder icon name
+	static const std::string&	lookupNewCategoryName(EType folder_type); // default name when creating new category
+	static LLFolderType::EType	lookupTypeFromNewCategoryName(const std::string& name); // default name when creating new category
+
+	static U64					lookupValidFolderTypes(const std::string& item_name); // which folders allow an item of this type?
+protected:
+	LLViewerFolderType() {}
+	~LLViewerFolderType() {}
 };
 
-#endif
+#endif // LL_LLVIEWERFOLDERTYPE_H
