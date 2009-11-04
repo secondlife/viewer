@@ -1011,8 +1011,11 @@
            label="Original"
            value="1" />
       </combo_box>
-<!-- NEW PRICE SPINNER -->
-      <spinner
+<!-- NEW PRICE SPINNER
+Objects are allowed to be for sale for L$0 to invoke buy UI behavior
+even though the user gets a free copy.
+-->
+    <spinner
         follows="left|top"
         decimal_digits="0"
         increment="1"
@@ -1023,7 +1026,7 @@
         label="Price: L$"
         label_width="65"
         width="150"
-        min_val="1"
+        min_val="0"
         height="20"
         max_val="999999999" />
       <check_box
@@ -2767,7 +2770,7 @@
              left_pad="8"
              name="button permissions"
              width="130" />
-            <panel_inventory
+            <panel_inventory_object
              follows="left|top"
              height="210"
              layout="topleft"
@@ -2842,14 +2845,6 @@
          tool_tip="Colorize the parcels according to the type of owner: &#10;&#10;Green = Your land &#10;Aqua = Your group&apos;s land &#10;Red = Owned by others &#10;Yellow = For sale &#10;Purple = For auction &#10;Grey = Public"
          top_pad="8"
          width="205" />
-        <!--TODO: HOOK UP TO HELP VIEWER-->
-       <!-- <button
-         image_overlay="Arrow_Right_Off"
-         left_pad="5"
-         name="button show owners help"
-         tool_tip="See an explanation of colors"
-         width="26"
-         height="22" />-->
         <text
          type="string"
          length="1"
