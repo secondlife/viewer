@@ -1,5 +1,5 @@
 /** 
- * @file llsidepaneliteminfo.h
+ * @file llsidepanelinventorysubpanel.h
  * @brief A panel which shows an inventory item's properties.
  *
  * $LicenseInfo:firstyear=2002&license=viewergpl$
@@ -30,62 +30,53 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSIDEPANELITEMINFO_H
-#define LL_LLSIDEPANELITEMINFO_H
+#ifndef LL_LLSIDEPANELINVENTORYSUBPANEL_H
+#define LL_LLSIDEPANELINVENTORYSUBPANEL_H
 
-#include "llsidepanelinventorysubpanel.h"
+#include "llpanel.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLSidepanelItemInfo
-// Object properties for inventory side panel.
+// Class LLSidepanelInventorySubpanel
+// Base class for inventory sidepanel panels (e.g. item info, task info).
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LLButton;
 class LLInventoryItem;
-class LLItemPropertiesObserver;
-class LLViewerObject;
-class LLPermissions;
 
-class LLSidepanelItemInfo : public LLSidepanelInventorySubpanel
+class LLSidepanelInventorySubpanel : public LLPanel
 {
 public:
-	LLSidepanelItemInfo();
-	virtual ~LLSidepanelItemInfo();
-	
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void reset();
+	LLSidepanelInventorySubpanel();
+	virtual ~LLSidepanelInventorySubpanel();
 
-	void setObjectID(const LLUUID& object_id);
-	void setItemID(const LLUUID& item_id);
-	void setEditMode(BOOL edit);
+	/*virtual*/ void setVisible(BOOL visible);
+	virtual BOOL postBuild();
+	virtual void draw();
+	virtual void reset();
 
+	void dirty();
+	void setIsEditing(BOOL edit);
 protected:
-	/*virtual*/ void refresh();
-	/*virtual*/ void save();
-	/*virtual*/ void updateVerbs();
-
-	LLInventoryItem* findItem() const;
-	LLViewerObject*  findObject() const;
+	virtual void refresh() = 0;
+	virtual void save() = 0;
+	virtual void updateVerbs();
 	
-	void refreshFromItem(LLInventoryItem* item);
-
-private:
-	LLUUID mItemID; 	// inventory UUID for the inventory item.
-	LLUUID mObjectID; 	// in-world task UUID, or null if in agent inventory.
-	LLItemPropertiesObserver* mPropertiesObserver; // for syncing changes to item
+	BOOL getIsEditing() const;
 	
 	//
 	// UI Elements
 	// 
 protected:
-	void 						onClickCreator();
-	void 						onClickOwner();
-	void 						onCommitName();
-	void 						onCommitDescription();
-	void 						onCommitPermissions();
-	void 						onCommitSaleInfo();
-	void 						onCommitSaleType();
-	void 						updateSaleInfo();
+	void 						onEditButtonClicked();
+	void 						onSaveButtonClicked();
+	void 						onCancelButtonClicked();
+	LLButton*					mEditBtn;
+	LLButton*					mSaveBtn;
+	LLButton*					mCancelBtn;
+
+private:
+	BOOL mIsDirty; 		// item properties need to be updated
+	BOOL mIsEditing; 	// if we're in edit mode
 };
 
-#endif // LL_LLSIDEPANELITEMINFO_H
+#endif // LL_LLSIDEPANELINVENTORYSUBPANEL_H

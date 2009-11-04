@@ -33,7 +33,7 @@
 #ifndef LL_LLSIDEPANELTASKINFO_H
 #define LL_LLSIDEPANELTASKINFO_H
 
-#include "llpanel.h"
+#include "llsidepanelinventorysubpanel.h"
 #include "lluuid.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -44,18 +44,18 @@
 
 class LLNameBox;
 
-class LLSidepanelTaskInfo : public LLPanel
+class LLSidepanelTaskInfo : public LLSidepanelInventorySubpanel
 {
 public:
 	LLSidepanelTaskInfo();
 	virtual ~LLSidepanelTaskInfo();
 
 	/*virtual*/	BOOL postBuild();
-	/*virtual*/ void draw();
-	/*virtual*/ void setVisible(BOOL visible);
 
 protected:
-	void refresh();							// refresh all labels as needed
+	/*virtual*/ void refresh();	// refresh all labels as needed
+	/*virtual*/ void save();
+	/*virtual*/ void updateVerbs();
 
 	// statics
 	static void onClickClaim(void*);
@@ -91,19 +91,12 @@ private:
 	LLUUID			mCreatorID;
 	LLUUID			mOwnerID;
 	LLUUID			mLastOwnerID;
-	BOOL mDirty; 		// item properties need to be updated
 
 protected:
-	void 						onEditButtonClicked();
-	void 						onSaveButtonClicked();
-	void 						onCancelButtonClicked();
 	void 						onOpenButtonClicked();
 	void 						onBuildButtonClicked();
 	void 						onBuyButtonClicked();
 private:
-	LLButton*					mEditBtn;
-	LLButton*					mSaveBtn;
-	LLButton*					mCancelBtn;
 	LLButton*					mOpenBtn;
 	LLButton*					mBuildBtn;
 	LLButton*					mBuyBtn;

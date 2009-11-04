@@ -89,10 +89,7 @@ static LLRegisterPanelClassWrapper<LLSidepanelItemInfo> t_item_info("sidepanel_i
 
 // Default constructor
 LLSidepanelItemInfo::LLSidepanelItemInfo()
-  : LLPanel(),
-	mItemID(LLUUID::null),
-	mDirty(TRUE),
-	mEditMode(FALSE)
+  : mItemID(LLUUID::null)
 {
 	mPropertiesObserver = new LLItemPropertiesObserver(this);
 	
@@ -109,14 +106,7 @@ LLSidepanelItemInfo::~LLSidepanelItemInfo()
 // virtual
 BOOL LLSidepanelItemInfo::postBuild()
 {
-	mEditBtn = getChild<LLButton>("edit_btn");
-	mEditBtn->setClickedCallback(boost::bind(&LLSidepanelItemInfo::onEditButtonClicked, this));
-
-	mSaveBtn = getChild<LLButton>("save_btn");
-	mSaveBtn->setClickedCallback(boost::bind(&LLSidepanelItemInfo::onSaveButtonClicked, this));
-
-	mCancelBtn = getChild<LLButton>("cancel_btn");
-	mCancelBtn->setClickedCallback(boost::bind(&LLSidepanelItemInfo::onCancelButtonClicked, this));
+	LLSidepanelInventorySubpanel::postBuild();
 
 	// build the UI
 	// item name & description
@@ -131,40 +121,8 @@ BOOL LLSidepanelItemInfo::postBuild()
 	// owner information
 	getChild<LLUICtrl>("BtnOwner")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onClickOwner,this));
 
-	// acquired date
-	// owner permissions
-	// Permissions debug text
-	// group permissions
-	// getChild<LLUICtrl>("CheckShareWithGroup")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
-
-	// everyone permissions
-	// getChild<LLUICtrl>("CheckEveryoneCopy")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
-
-	// next owner permissions
-	// getChild<LLUICtrl>("CheckNextOwnerModify")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
-	// getChild<LLUICtrl>("CheckNextOwnerCopy")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
-	// getChild<LLUICtrl>("CheckNextOwnerTransfer")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
-
-	// Mark for sale or not, and sale info
-	// getChild<LLUICtrl>("CheckPurchase")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this));
-	// getChild<LLUICtrl>("RadioSaleType")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleType, this));
-	
-	// "Price" label for edit
-	// getChild<LLUICtrl>("Edit Cost")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this));
-
-	// The UI has been built, now fill in all the values
 	refresh();
-
 	return TRUE;
-}
-
-void LLSidepanelItemInfo::setVisible(BOOL visible)
-{
-	if (visible)
-	{
-		mDirty = TRUE;
-	}
-	LLPanel::setVisible(visible);
 }
 
 void LLSidepanelItemInfo::setObjectID(const LLUUID& object_id)
@@ -177,17 +135,12 @@ void LLSidepanelItemInfo::setItemID(const LLUUID& item_id)
 	mItemID = item_id;
 }
 
-void LLSidepanelItemInfo::setEditMode(BOOL edit)
-{
-	mEditMode = edit;
-	mDirty = TRUE;
-}
-
 void LLSidepanelItemInfo::reset()
 {
+	LLSidepanelInventorySubpanel::reset();
+
 	mObjectID = LLUUID::null;
 	mItemID = LLUUID::null;
-	mDirty = TRUE;
 }
 
 void LLSidepanelItemInfo::refresh()
@@ -199,13 +152,8 @@ void LLSidepanelItemInfo::refresh()
 		updateVerbs();
 	}
 
-	if (!mEditMode || !item)
+	if (!getIsEditing() || !item)
 	{
-		//RN: it is possible that the container object is in the middle of an inventory refresh
-		// causing findItem() to fail, so just temporarily disable everything
-		
-		mDirty = TRUE;
-
 		const std::string no_item_names[]={
 			"LabelItemName",
 			"LabelItemDesc",
@@ -255,22 +203,6 @@ void LLSidepanelItemInfo::refresh()
 	}
 
 	updateVerbs();
-}
-
-void LLSidepanelItemInfo::draw()
-{
-	if (mDirty)
-	{
-		mDirty = FALSE;
-		refresh();
-	}
-
-	LLPanel::draw();
-}
-
-void LLSidepanelItemInfo::dirty()
-{
-	mDirty = TRUE;
 }
 
 void LLSidepanelItemInfo::refreshFromItem(LLInventoryItem* item)
@@ -916,11 +848,10 @@ LLInventoryItem* LLSidepanelItemInfo::findItem() const
 	return item;
 }
 
+// virtual
 void LLSidepanelItemInfo::updateVerbs()
 {
-	mEditBtn->setVisible(!mEditMode);
-	mSaveBtn->setVisible(mEditMode);
-	mCancelBtn->setVisible(mEditMode);
+	LLSidepanelInventorySubpanel::updateVerbs();
 
 	const LLViewerInventoryItem* item = (LLViewerInventoryItem*)findItem();
 	if (item)
@@ -932,29 +863,12 @@ void LLSidepanelItemInfo::updateVerbs()
 	}
 }
 
-void LLSidepanelItemInfo::onEditButtonClicked()
-{
-	setEditMode(TRUE);
-	refresh();
-	updateVerbs();
-}
-
-void LLSidepanelItemInfo::onSaveButtonClicked()
+// virtual
+void LLSidepanelItemInfo::save()
 {
 	onCommitName();
 	onCommitDescription();
 	onCommitPermissions();
 	onCommitSaleInfo();
 	onCommitSaleType();
-
-	setEditMode(FALSE);
-	refresh();
-	updateVerbs();
-}
-
-void LLSidepanelItemInfo::onCancelButtonClicked()
-{
-	setEditMode(FALSE);
-	refresh();
-	updateVerbs();
 }

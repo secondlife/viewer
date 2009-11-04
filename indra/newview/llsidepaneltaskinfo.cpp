@@ -73,14 +73,22 @@
 static LLRegisterPanelClassWrapper<LLSidepanelTaskInfo> t_task_info("sidepanel_task_info");
 
 // Default constructor
-LLSidepanelTaskInfo::LLSidepanelTaskInfo() :
-	LLPanel()
+LLSidepanelTaskInfo::LLSidepanelTaskInfo()
 {
 	setMouseOpaque(FALSE);
 }
 
 BOOL LLSidepanelTaskInfo::postBuild()
 {
+	LLSidepanelInventorySubpanel::postBuild();
+
+	mOpenBtn = getChild<LLButton>("open_btn");
+	mOpenBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onOpenButtonClicked, this));
+	mBuildBtn = getChild<LLButton>("build_btn");
+	mBuildBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onBuildButtonClicked, this));
+	mBuyBtn = getChild<LLButton>("buy_btn");
+	mBuyBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onBuyButtonClicked, this));
+
 	childSetCommitCallback("Object Name",LLSidepanelTaskInfo::onCommitName,this);
 	childSetPrevalidate("Object Name",LLLineEditor::prevalidatePrintableNotPipe);
 	childSetCommitCallback("Object Description",LLSidepanelTaskInfo::onCommitDesc,this);
@@ -112,26 +120,6 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	mLabelGroupName = getChild<LLNameBox>("Group Name Proxy");
 
 	return TRUE;
-}
-
-void LLSidepanelTaskInfo::setVisible(BOOL visible)
-{
-	if (visible)
-	{
-		mDirty = TRUE;
-	}
-	LLPanel::setVisible(visible);
-}
-
-void LLSidepanelTaskInfo::draw()
-{
-	if (mDirty)
-	{
-		mDirty = FALSE;
-		refresh();
-	}
-
-	LLPanel::draw();
 }
 
 LLSidepanelTaskInfo::~LLSidepanelTaskInfo()
@@ -800,6 +788,8 @@ void LLSidepanelTaskInfo::refresh()
 	}
 	childSetEnabled("label click action",is_perm_modify && all_volume);
 	childSetEnabled("clickaction",is_perm_modify && all_volume);
+
+	updateVerbs();
 }
 
 
@@ -1062,5 +1052,32 @@ void LLSidepanelTaskInfo::onCommitIncludeInSearch(LLUICtrl* ctrl, void*)
 	llassert(box);
 
 	LLSelectMgr::getInstance()->selectionSetIncludeInSearch(box->get());
+}
+
+// virtual
+void LLSidepanelTaskInfo::updateVerbs()
+{
+	LLSidepanelInventorySubpanel::updateVerbs();
+
+	mOpenBtn->setVisible(!getIsEditing());
+	mBuildBtn->setVisible(!getIsEditing());
+	mBuyBtn->setVisible(!getIsEditing());
+}
+
+void LLSidepanelTaskInfo::onOpenButtonClicked()
+{
+}
+
+void LLSidepanelTaskInfo::onBuildButtonClicked()
+{
+}
+
+void LLSidepanelTaskInfo::onBuyButtonClicked()
+{
+}
+
+// virtual
+void LLSidepanelTaskInfo::save()
+{
 }
 
