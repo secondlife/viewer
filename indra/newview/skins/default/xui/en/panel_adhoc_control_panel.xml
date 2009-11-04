@@ -25,19 +25,23 @@
      border="false"
      bottom="1"
      follows="left|bottom"
-     height="78"
+     height="70"
      left="0"
-     name="panel_buttons"
+     left_pad="0"
+     name="panel_call_buttons"
+     top_pad="0"
      width="180">
 
         <button
+         bottom="10"
          height="20"
-         label="Call Group"
-         left_delta="27"
+         label="Call"
+         left_delta="28"
          name="call_btn"
          width="125"/>
 
         <button
+         bottom="40"
          height="20"
          label="Leave Call"
          name="end_call_btn"
@@ -46,6 +50,7 @@
 
         <button
          enabled="false"
+         bottom="10"
          height="20"
          label="Open Voice Controls"
          name="voice_ctrls_btn"
