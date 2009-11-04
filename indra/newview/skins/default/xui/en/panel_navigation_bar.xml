@@ -11,7 +11,7 @@
 	<icon
 	 follows="all"
 	 image_name="NavBar_BG"
-	 mouse_opaque="true"
+	 mouse_opaque="false"
 	 name="bg_icon"
 	 scale_image="true"
 	 visible="true"
