@@ -63,7 +63,13 @@
        allow_html="true" 
        width="350">
       </chat_history>
-      <line_editor follows="left|right" name="chat_editor" height="20" layout="topleft" width="345">
+      <line_editor
+       follows="left|right"
+       height="20"
+       label="To"
+       layout="topleft"
+       name="chat_editor"
+       width="345">
       </line_editor>
     </layout_panel>
   </layout_stack>

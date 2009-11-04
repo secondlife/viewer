@@ -172,6 +172,8 @@ public:
 	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
 	void			setLabel(const LLStringExplicit &new_label) { mLabel = new_label; }
+	const std::string& 	getLabel()	{ return mLabel.getString(); }
+
 	void			setText(const LLStringExplicit &new_text);
 
 	const std::string& getText() const		{ return mText.getString(); }
