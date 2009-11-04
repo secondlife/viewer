@@ -41,6 +41,7 @@
 #include "llremoteparcelrequest.h"
 #include "llavatarpropertiesprocessor.h"
 
+class LLIconCtrl;
 class LLTextureCtrl;
 class LLMessageSystem;
 class LLAvatarPropertiesObserver;
@@ -236,6 +237,16 @@ protected:
 	bool mLocationChanged;
 	bool mNeedData;
 	bool mNewPick;
+
+private:
+
+	void initTexturePickerMouseEvents();
+        void onTexturePickerMouseEnter(LLUICtrl* ctrl);
+	void onTexturePickerMouseLeave(LLUICtrl* ctrl);
+
+private:
+
+	LLIconCtrl* text_icon;
 };
 
 #endif // LL_LLPANELPICK_H
