@@ -37,10 +37,13 @@
 #include "llcombobox.h"
 #include "llgesturemgr.h"
 #include "llchat.h"
-#include "llchiclet.h"
 #include "llvoiceclient.h"
 #include "lloutputmonitorctrl.h"
 #include "llspeakers.h"
+
+
+class LLTalkButton;
+
 
 class LLGestureComboBox
 	: public LLComboBox
