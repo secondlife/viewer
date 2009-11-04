@@ -84,16 +84,24 @@ BOOL LLPanelPlaceProfile::postBuild()
 	mParcelOwner = getChild<LLTextBox>("owner_value");
 	mLastVisited = getChild<LLTextBox>("last_visited_value");
 
-	mRatingText = getChild<LLTextBox>("rating_value");
+	mParcelRatingIcon = getChild<LLIconCtrl>("rating_icon");
+	mParcelRatingText = getChild<LLTextBox>("rating_value");
+	mVoiceIcon = getChild<LLIconCtrl>("voice_icon");
 	mVoiceText = getChild<LLTextBox>("voice_value");
+	mFlyIcon = getChild<LLIconCtrl>("fly_icon");
 	mFlyText = getChild<LLTextBox>("fly_value");
+	mPushIcon = getChild<LLIconCtrl>("push_icon");
 	mPushText = getChild<LLTextBox>("push_value");
+	mBuildIcon = getChild<LLIconCtrl>("build_icon");
 	mBuildText = getChild<LLTextBox>("build_value");
+	mScriptsIcon = getChild<LLIconCtrl>("scripts_icon");
 	mScriptsText = getChild<LLTextBox>("scripts_value");
+	mDamageIcon = getChild<LLIconCtrl>("damage_icon");
 	mDamageText = getChild<LLTextBox>("damage_value");
 
 	mRegionNameText = getChild<LLTextBox>("region_name");
 	mRegionTypeText = getChild<LLTextBox>("region_type");
+	mRegionRatingIcon = getChild<LLIconCtrl>("region_rating_icon");
 	mRegionRatingText = getChild<LLTextBox>("region_rating");
 	mRegionOwnerText = getChild<LLTextBox>("region_owner");
 	mRegionGroupText = getChild<LLTextBox>("region_group");
@@ -128,16 +136,24 @@ void LLPanelPlaceProfile::resetLocation()
 	mParcelOwner->setValue(not_available);
 	mLastVisited->setValue(not_available);
 
-	mRatingText->setText(not_available);
+	mParcelRatingIcon->setValue(not_available);
+	mParcelRatingText->setText(not_available);
+	mVoiceIcon->setValue(not_available);
 	mVoiceText->setText(not_available);
+	mFlyIcon->setValue(not_available);
 	mFlyText->setText(not_available);
+	mPushIcon->setValue(not_available);
 	mPushText->setText(not_available);
+	mBuildIcon->setValue(not_available);
 	mBuildText->setText(not_available);
-	mParcelScriptsText->setText(not_available);
+	mScriptsIcon->setValue(not_available);
+	mScriptsText->setText(not_available);
+	mDamageIcon->setValue(not_available);
 	mDamageText->setText(not_available);
 
 	mRegionNameText->setValue(not_available);
 	mRegionTypeText->setValue(not_available);
+	mRegionRatingIcon->setValue(not_available);
 	mRegionRatingText->setValue(not_available);
 	mRegionOwnerText->setValue(not_available);
 	mRegionGroupText->setValue(not_available);
@@ -191,33 +207,6 @@ void LLPanelPlaceProfile::setInfoType(INFO_TYPE type)
 	LLPanelPlaceInfo::setInfoType(type);
 }
 
-// virtual
-void LLPanelPlaceProfile::processParcelInfo(const LLParcelData& parcel_data)
-{
-	LLPanelPlaceInfo::processParcelInfo(parcel_data);
-
-	// HACK: Flag 0x2 == adult region,
-	// Flag 0x1 == mature region, otherwise assume PG
-	std::string rating = LLViewerRegion::accessToString(SIM_ACCESS_PG);
-	if (parcel_data.flags & 0x2)
-	{
-		rating = LLViewerRegion::accessToString(SIM_ACCESS_ADULT);
-	}
-	else if (parcel_data.flags & 0x1)
-	{
-		rating = LLViewerRegion::accessToString(SIM_ACCESS_MATURE);
-	}
-
-	mMaturityRatingText->setValue(rating);
-	mRatingText->setValue(rating);
-
-	//update for_sale banner, here we should use DFQ_FOR_SALE instead of PF_FOR_SALE
-	//because we deal with remote parcel response format
-	bool is_for_sale = (parcel_data.flags & DFQ_FOR_SALE) &&
-					 mInfoType == AGENT ? TRUE : FALSE;
-	mForSalePanel->setVisible(is_for_sale);
-}
-
 void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 													LLViewerRegion* region,
 													const LLVector3d& pos_global,
@@ -238,19 +227,34 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 
 	// HACK: Converting sim access flags to the format
 	// returned by remote parcel response.
-	switch(region->getSimAccess())
+	U8 sim_access = region->getSimAccess();
+	switch(sim_access)
 	{
 	case SIM_ACCESS_MATURE:
 		parcel_data.flags = 0x1;
+
+		mParcelRatingIcon->setValue("parcel_drk_M");
+		mRegionRatingIcon->setValue("parcel_drk_M");
 		break;
 
 	case SIM_ACCESS_ADULT:
 		parcel_data.flags = 0x2;
+
+		mParcelRatingIcon->setValue("parcel_drk_R");
+		mRegionRatingIcon->setValue("parcel_drk_R");
 		break;
 
 	default:
 		parcel_data.flags = 0;
+
+		mParcelRatingIcon->setValue("parcel_drk_PG");
+		mRegionRatingIcon->setValue("parcel_drk_PG");
 	}
+
+	std::string rating = LLViewerRegion::accessToString(sim_access);
+	mParcelRatingText->setText(rating);
+	mRegionRatingText->setText(rating);
+
 	parcel_data.desc = parcel->getDesc();
 	parcel_data.name = parcel->getName();
 	parcel_data.sim_name = region->getName();
@@ -268,37 +272,45 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	// Processing parcel characteristics
 	if (parcel->getParcelFlagAllowVoice())
 	{
+		mVoiceIcon->setValue("parcel_drk_Voice");
 		mVoiceText->setText(on);
 	}
 	else
 	{
+		mVoiceIcon->setValue("parcel_drk_VoiceNo");
 		mVoiceText->setText(off);
 	}
 
 	if (!region->getBlockFly() && parcel->getAllowFly())
 	{
+		mFlyIcon->setValue("parcel_drk_Fly");
 		mFlyText->setText(on);
 	}
 	else
 	{
+		mFlyIcon->setValue("parcel_drk_FlyNo");
 		mFlyText->setText(off);
 	}
 
 	if (region->getRestrictPushObject() || parcel->getRestrictPushObject())
 	{
+		mPushIcon->setValue("parcel_drk_PushNo");
 		mPushText->setText(off);
 	}
 	else
 	{
+		mPushIcon->setValue("parcel_drk_Push");
 		mPushText->setText(on);
 	}
 
 	if (parcel->getAllowModify())
 	{
+		mBuildIcon->setValue("parcel_drk_Build");
 		mBuildText->setText(on);
 	}
 	else
 	{
+		mBuildIcon->setValue("parcel_drk_BuildNo");
 		mBuildText->setText(off);
 	}
 
@@ -306,25 +318,28 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	   (region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS) ||
 	   !parcel->getAllowOtherScripts())
 	{
+		mScriptsIcon->setValue("parcel_drk_ScriptsNo");
 		mScriptsText->setText(off);
 	}
 	else
 	{
+		mScriptsIcon->setValue("parcel_drk_Scripts");
 		mScriptsText->setText(on);
 	}
 
 	if (region->getAllowDamage() || parcel->getAllowDamage())
 	{
+		mDamageIcon->setValue("parcel_drk_Damage");
 		mDamageText->setText(on);
 	}
 	else
 	{
+		mDamageIcon->setValue("parcel_drk_DamageNo");
 		mDamageText->setText(off);
 	}
 
 	mRegionNameText->setText(region->getName());
 	mRegionTypeText->setText(region->getSimProductName());
-	mRegionRatingText->setText(region->getSimAccessString());
 
 	// Determine parcel owner
 	if (parcel->isPublic())
@@ -383,9 +398,6 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 													 &dwell);
 	if (for_sale)
 	{
-		// Adding "For Sale" flag in remote parcel response format.
-		parcel_data.flags |= DFQ_FOR_SALE;
-
 		const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
 		if(auth_buyer_id.notNull())
 		{
@@ -402,6 +414,8 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		{
 			mSaleToText->setText(getString("anyone"));
 		}
+
+		mForSalePanel->setVisible(for_sale);
 
 		const U8* sign = (U8*)getString("price_text").c_str();
 		const U8* sqm = (U8*)getString("area_text").c_str();
@@ -455,7 +469,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 
 	mSelectedParcelID = parcel->getLocalID();
 	mLastSelectedRegionID = region->getRegionID();
-	processParcelInfo(parcel_data);
+	LLPanelPlaceInfo::processParcelInfo(parcel_data);
 
 	mYouAreHerePanel->setVisible(is_current_parcel);
 	getChild<LLAccordionCtrlTab>("sales_tab")->setVisible(for_sale);

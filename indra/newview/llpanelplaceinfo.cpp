@@ -209,6 +209,20 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 		mDescEditor->setText(parcel_data.desc);
 	}
 
+	// HACK: Flag 0x2 == adult region,
+	// Flag 0x1 == mature region, otherwise assume PG
+	std::string rating = LLViewerRegion::accessToString(SIM_ACCESS_PG);
+	if (parcel_data.flags & 0x2)
+	{
+		rating = LLViewerRegion::accessToString(SIM_ACCESS_ADULT);
+	}
+	else if (parcel_data.flags & 0x1)
+	{
+		rating = LLViewerRegion::accessToString(SIM_ACCESS_MATURE);
+	}
+
+	mMaturityRatingText->setValue(rating);
+
 	S32 region_x;
 	S32 region_y;
 	S32 region_z;

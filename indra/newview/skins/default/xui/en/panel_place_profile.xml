@@ -292,30 +292,11 @@
                             <icon
                              follows="top|left"
                              height="16"
-                             image_name="parcel_drk_M"
-                             layout="topleft"
-                             left="20"
-                             name="icon_M"
-                             top="0"
-                             width="18" />
-                            <icon
-                             follows="top|left"
-                             height="16"
-                             image_name="parcel_drk_R"
-                             layout="topleft"
-                             left="20"
-                             name="icon_R"
-                             top="0"
-                             width="18" />
-                            <icon
-                             follows="top|left"
-                             height="16"
                              image_name="parcel_drk_PG"
                              layout="topleft"
                              left="20"
-                             name="icon_PG"
+                             name="rating_icon"
                              top="0"
-                             visible="false"
                              width="18" />
                             <text
                              follows="left|top"
@@ -332,7 +313,7 @@
                              left_pad="0"
                              name="rating_value"
                              top_delta="0"
-                             value="Mature"
+                             value="unknown"
                              width="120" />
                             <icon
                              follows="top|left"
@@ -340,18 +321,8 @@
                              image_name="parcel_drk_Voice"
                              layout="topleft"
                              left="20"
-                             name="icon_Voice"
+                             name="voice_icon"
                              top_pad="5"
-                             width="22" />
-                            <icon
-                             follows="top|left"
-                             height="18"
-                             image_name="parcel_drk_VoiceNo"
-                             layout="topleft"
-                             left="20"
-                             name="icon_VoiceNo"
-                             top_delta="0"
-                             visible="false"
                              width="22" />
                             <text
                              follows="left|top"
@@ -377,18 +348,8 @@
                              image_name="parcel_drk_Fly"
                              layout="topleft"
                              left="20"
-                             name="icon_Fly"
+                             name="fly_icon"
                              top_pad="3"
-                             width="22" />
-                            <icon
-                             follows="top|left"
-                             height="18"
-                             image_name="parcel_drk_FlyNo"
-                             layout="topleft"
-                             left="20"
-                             name="icon_FlyNo"
-                             top_delta="0"
-                             visible="false"
                              width="22" />
                             <text
                              follows="left|top"
@@ -413,18 +374,8 @@
                              image_name="parcel_drk_Push"
                              layout="topleft"
                              left="20"
-                             name="icon_Push"
+                             name="push_icon"
                              top_pad="3"
-                             visible="false"
-                             width="22" />
-                            <icon
-                             follows="top|left"
-                             height="18"
-                             image_name="parcel_drk_PushNo"
-                             layout="topleft"
-                             left="20"
-                             name="icon_PushNo"
-                             top_delta="0"
                              width="22" />
                             <text
                              follows="left|top"
@@ -449,18 +400,9 @@
                              image_name="parcel_drk_Build"
                              layout="topleft"
                              left="20"
-                             name="icon_Build"
+                             name="build_icon"
                              top_pad="3"
                              width="22" />
-                            <icon
-                             follows="top|left"
-                             height="18"
-                             image_name="parcel_drk_BuildNo"
-                             layout="topleft"
-                             left="20"
-                             name="icon_BuildNo"
-                             top_delta="0"
-                             visible="false" />
                             <text
                              follows="left|top"
                              height="14"
@@ -484,18 +426,9 @@
                              image_name="parcel_drk_Scripts"
                              layout="topleft"
                              left="20"
-                             name="icon_Scripts"
+                             name="scripts_icon"
                              top_pad="3"
                              width="22" />
-                            <icon
-                             follows="top|left"
-                             height="18"
-                             image_name="parcel_drk_ScriptsNo"
-                             layout="topleft"
-                             left="20"
-                             name="icon_ScriptsNo"
-                             top_delta="0"
-                             visible="false" />
                             <text
                              follows="left|top"
                              height="14"
@@ -519,18 +452,9 @@
                              image_name="parcel_drk_Damage"
                              layout="topleft"
                              left="20"
-                             name="icon_Damage"
+                             name="damage_icon"
                              top_pad="7"
-                             visible="false"
                              width="22" />
-                            <icon
-                             follows="top|left"
-                             height="18"
-                             image_name="parcel_drk_DamageNo"
-                             layout="topleft"
-                             left="20"
-                             name="icon_DamageNo"
-                             top_delta="0" />
                             <text
                              follows="left|top"
                              height="14"
@@ -625,30 +549,10 @@
                         <icon
                          follows="top|left"
                          height="16"
-                         image_name="parcel_drk_M"
-                         layout="topleft"
-                         left_pad="0"
-                         name="icon_M"
-                         width="18" />
-                        <icon
-                         follows="top|left"
-                         height="16"
-                         image_name="parcel_drk_R"
-                         layout="topleft"
-                         left_delta="0"
-                         name="icon_R"
-                         top_delta="0"
-                         visible="false"
-                         width="18" />
-                        <icon
-                         follows="top|left"
-                         height="16"
                          image_name="parcel_drk_PG"
                          layout="topleft"
-                         left_delta="0"
-                         name="icon_PG"
-                         top_delta="0"
-                         visible="false"
+                         left_pad="0"
+                         name="region_rating_icon"
                          width="18" />
                         <text
                          follows="left|top|right"
