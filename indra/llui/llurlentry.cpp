@@ -145,6 +145,18 @@ void LLUrlEntryBase::callObservers(const std::string &id, const std::string &lab
 	}
 }
 
+static std::string getStringAfterToken(const std::string str, const std::string token)
+{
+	size_t pos = str.find(token);
+	if (pos == std::string::npos)
+	{
+		return "";
+	}
+
+	pos += token.size();
+	return str.substr(pos, str.size() - pos);
+}
+
 //
 // LLUrlEntryHTTP Describes generic http: and https: Urls
 //
@@ -154,7 +166,6 @@ LLUrlEntryHTTP::LLUrlEntryHTTP()
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_http.xml";
 	mTooltip = LLTrans::getString("TooltipHttpUrl");
-	//mIcon = "gear.tga";
 }
 
 std::string LLUrlEntryHTTP::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
@@ -390,7 +401,7 @@ std::string LLUrlEntryParcel::getLabel(const std::string &url, const LLUrlLabelC
 }
 
 //
-// LLUrlEntryPlace Describes secondlife:///<location> URLs
+// LLUrlEntryPlace Describes secondlife://<location> URLs
 //
 LLUrlEntryPlace::LLUrlEntryPlace()
 {
@@ -433,15 +444,7 @@ std::string LLUrlEntryPlace::getLabel(const std::string &url, const LLUrlLabelCa
 std::string LLUrlEntryPlace::getLocation(const std::string &url) const
 {
 	// return the part of the Url after secondlife:// part
-	const std::string search_string = "://";
-	size_t pos = url.find(search_string);
-	if (pos == std::string::npos)
-	{
-		return "";
-	}
-
-	pos += search_string.size();
-	return url.substr(pos, url.size() - pos);
+	return ::getStringAfterToken(url, "://");
 }
 
 //
@@ -506,15 +509,7 @@ std::string LLUrlEntryTeleport::getLabel(const std::string &url, const LLUrlLabe
 std::string LLUrlEntryTeleport::getLocation(const std::string &url) const
 {
 	// return the part of the Url after ///app/teleport
-	const std::string search_string = "teleport";
-	size_t pos = url.find(search_string);
-	if (pos == std::string::npos)
-	{
-		return "";
-	}
-
-	pos += search_string.size() + 1;
-	return url.substr(pos, url.size() - pos);
+	return ::getStringAfterToken(url, "app/teleport/");
 }
 
 ///
@@ -638,14 +633,5 @@ std::string LLUrlEntryWorldMap::getLabel(const std::string &url, const LLUrlLabe
 std::string LLUrlEntryWorldMap::getLocation(const std::string &url) const
 {
 	// return the part of the Url after secondlife:///app/worldmap/ part
-	const std::string search_string = "//app/worldmap/";
-	size_t pos = url.find(search_string);
-	if (pos == std::string::npos)
-	{
-		return "";
-	}
-
-	pos += search_string.size();
-	return url.substr(pos, url.size() - pos);
+	return ::getStringAfterToken(url, "app/worldmap/");
 }
-
