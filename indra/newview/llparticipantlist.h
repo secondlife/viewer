@@ -103,9 +103,9 @@ class LLParticipantList
 		LLSpeakerMgr*		mSpeakerMgr;
 		LLAvatarList*		mAvatarList;
 
-		SpeakerAddListener		mSpeakerAddListener;
-		SpeakerRemoveListener	mSpeakerRemoveListener;
-		SpeakerClearListener	mSpeakerClearListener;
+		LLPointer<SpeakerAddListener>		mSpeakerAddListener;
+		LLPointer<SpeakerRemoveListener>	mSpeakerRemoveListener;
+		LLPointer<SpeakerClearListener>		mSpeakerClearListener;
 
 		EParticipantSortOrder	mSortOrder;
 };

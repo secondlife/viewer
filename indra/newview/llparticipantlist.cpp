@@ -45,14 +45,15 @@
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list):
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),
-	mSpeakerAddListener(*this),
-	mSpeakerRemoveListener(*this),
-	mSpeakerClearListener(*this),
 	mSortOrder(E_SORT_BY_NAME)
 {
-	mSpeakerMgr->addListener(&mSpeakerAddListener, "add");
-	mSpeakerMgr->addListener(&mSpeakerRemoveListener, "remove");
-	mSpeakerMgr->addListener(&mSpeakerClearListener, "clear");
+	mSpeakerAddListener = new SpeakerAddListener(*this);
+	mSpeakerRemoveListener = new SpeakerRemoveListener(*this);
+	mSpeakerClearListener = new SpeakerClearListener(*this);
+
+	mSpeakerMgr->addListener(mSpeakerAddListener, "add");
+	mSpeakerMgr->addListener(mSpeakerRemoveListener, "remove");
+	mSpeakerMgr->addListener(mSpeakerClearListener, "clear");
 
 	mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
 	mAvatarList->setDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
