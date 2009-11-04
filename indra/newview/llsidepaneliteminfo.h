@@ -36,6 +36,7 @@
 #include <map>
 #include "llmultifloater.h"
 #include "lliconctrl.h"
+#include "llpermissions.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLSidepanelItemInfo
@@ -45,6 +46,7 @@
 class LLButton;
 class LLInventoryItem;
 class LLItemPropertiesObserver;
+class LLViewerObject;
 
 class LLSidepanelItemInfo : public LLPanel
 {
@@ -65,31 +67,24 @@ public:
 
 protected:
 	LLInventoryItem* findItem() const;
+	LLViewerObject*  findObject() const;
 	void refresh();
 	void refreshFromItem(LLInventoryItem* item);
+	void refreshFromPermissions(const LLPermissions& perm);
 	void updateVerbs();
+	BOOL isUpdatingObject() const;
 
 private:
-	// The item id of the inventory item in question.
-	LLUUID mItemID;
-
-	// mObjectID will have a value if it is associated with a task in
-	// the world, and will be == LLUUID::null if it's in the agent
-	// inventory.
-	LLUUID mObjectID;
-
-	BOOL mDirty;
-	BOOL mEditMode;
-
-	LLItemPropertiesObserver* mPropertiesObserver;
+	LLUUID mItemID; 	// inventory UUID for the inventory item.
+	LLUUID mObjectID; 	// in-world task UUID, or null if in agent inventory.
+	BOOL mDirty; 		// item properties need to be updated
+	BOOL mEditMode; 	// if we're in edit mode
+	LLItemPropertiesObserver* mPropertiesObserver; // for syncing changes to item
 	
 	//
 	// UI Elements
 	// 
 protected:
-	void 						onEditButtonClicked();
-	void 						onSaveButtonClicked();
-	void 						onCancelButtonClicked();
 	void 						onClickCreator();
 	void 						onClickOwner();
 	void 						onCommitName();
@@ -98,6 +93,11 @@ protected:
 	void 						onCommitSaleInfo();
 	void 						onCommitSaleType();
 	void 						updateSaleInfo();
+
+protected:
+	void 						onEditButtonClicked();
+	void 						onSaveButtonClicked();
+	void 						onCancelButtonClicked();
 private:
 	LLButton*					mEditBtn;
 	LLButton*					mSaveBtn;

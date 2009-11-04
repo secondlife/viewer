@@ -261,7 +261,6 @@ void LLSidepanelItemInfo::draw()
 {
 	if (mDirty)
 	{
-		// RN: clear dirty first because refresh can set dirty to TRUE
 		mDirty = FALSE;
 		refresh();
 	}

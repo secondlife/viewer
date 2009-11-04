@@ -38,6 +38,7 @@
 #include "llinventorypanel.h"
 #include "llpanelmaininventory.h"
 #include "llsidepaneliteminfo.h"
+#include "llsidepaneltaskinfo.h"
 #include "lltabcontainer.h"
 
 static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_inventory");
@@ -89,6 +90,13 @@ BOOL LLSidepanelInventory::postBuild()
 		LLButton* back_btn = mItemPanel->getChild<LLButton>("back_btn");
 		back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
 	}
+
+	// UI elements from task panel
+	{
+		mTaskPanel = getChild<LLSidepanelTaskInfo>("sidepanel__task_panel");
+		LLButton* back_btn = mTaskPanel->getChild<LLButton>("back_btn");
+		back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
+	}
 	
 	return TRUE;
 }
@@ -103,14 +111,16 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 	if (key.has("id"))
 	{
 		mItemPanel->setItemID(key["id"].asUUID());
+		if (key.has("object"))
+		{
+			mItemPanel->setObjectID(key["object"].asUUID());
+		}
+		showItemInfoPanel();
 	}
-	
-	if (key.has("object"))
+	if (key.has("task"))
 	{
-		mItemPanel->setObjectID(key["object"].asUUID());
+		showTaskInfoPanel();
 	}
-
-	toggleItemInfoPanel(TRUE);
 }
 
 void LLSidepanelInventory::onInfoButtonClicked()
@@ -120,7 +130,7 @@ void LLSidepanelInventory::onInfoButtonClicked()
 	{
 		mItemPanel->reset();
 		mItemPanel->setItemID(item->getUUID());
-		toggleItemInfoPanel(TRUE);
+		showItemInfoPanel();
 	}
 }
 
@@ -161,8 +171,7 @@ void LLSidepanelInventory::onOverflowButtonClicked()
 
 void LLSidepanelInventory::onBackButtonClicked()
 {
-	toggleItemInfoPanel(FALSE);
-	updateVerbs();
+	showInventoryPanel();
 }
 
 void LLSidepanelInventory::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
@@ -170,21 +179,29 @@ void LLSidepanelInventory::onSelectionChange(const std::deque<LLFolderViewItem*>
 	updateVerbs();
 }
 
-void LLSidepanelInventory::toggleItemInfoPanel(BOOL visible)
+void LLSidepanelInventory::showItemInfoPanel()
 {
-	mItemPanel->setVisible(visible);
-	mInventoryPanel->setVisible(!visible);
+	mItemPanel->setVisible(TRUE);
+	mTaskPanel->setVisible(FALSE);
+	mInventoryPanel->setVisible(FALSE);
 
-	if (visible)
-	{
-		mItemPanel->dirty();
-		mItemPanel->setEditMode(FALSE);
-		/*
-		LLRect rect = getRect();
-		LLRect new_rect = LLRect(rect.mLeft, rect.mTop, rect.mRight, mInventoryPanel->getRect().mBottom);
-		mItemPanel->reshape(new_rect.getWidth(),new_rect.getHeight());
-		*/
-	}
+	mItemPanel->dirty();
+	mItemPanel->setEditMode(FALSE);
+}
+
+void LLSidepanelInventory::showTaskInfoPanel()
+{
+	mItemPanel->setVisible(FALSE);
+	mTaskPanel->setVisible(TRUE);
+	mInventoryPanel->setVisible(FALSE);
+}
+
+void LLSidepanelInventory::showInventoryPanel()
+{
+	mItemPanel->setVisible(FALSE);
+	mTaskPanel->setVisible(FALSE);
+	mInventoryPanel->setVisible(TRUE);
+	updateVerbs();
 }
 
 void LLSidepanelInventory::updateVerbs()

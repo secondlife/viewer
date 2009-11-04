@@ -34,10 +34,11 @@
 
 #include "llpanel.h"
 
-class LLInventoryItem;
-class LLSidepanelItemInfo;
-class LLPanelMainInventory;
 class LLFolderViewItem;
+class LLInventoryItem;
+class LLPanelMainInventory;
+class LLSidepanelItemInfo;
+class LLSidepanelTaskInfo;
 
 class LLSidepanelInventory : public LLPanel
 {
@@ -55,12 +56,19 @@ protected:
 	// "wear", "teleport", etc.
 	void performActionOnSelection(const std::string &action);
 
-	void toggleItemInfoPanel(BOOL visible);
+	void showItemInfoPanel();
+	void showTaskInfoPanel();
+	void showInventoryPanel();
 	void updateVerbs();
 
 	//
 	// UI Elements
 	//
+private:
+	LLPanel*					mInventoryPanel; // Main inventory view
+	LLSidepanelItemInfo*		mItemPanel; // Individual item view
+	LLSidepanelTaskInfo*		mTaskPanel; // Individual in-world object view
+
 protected:
 	void 						onInfoButtonClicked();
 	void 						onShareButtonClicked();
@@ -77,8 +85,6 @@ private:
 	LLButton*					mTeleportBtn;
 	LLButton*					mOverflowBtn;
 
-	LLPanel*					mInventoryPanel; // Main inventory view
-	LLSidepanelItemInfo*		mItemPanel; // Individual item view
 };
 
 #endif //LL_LLSIDEPANELINVENTORY_H

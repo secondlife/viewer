@@ -488,36 +488,6 @@
 		     top="0"
 		     width="50" />
 	    <button
-		     follows="bottom|left"
-		     font="SansSerifSmallBold"
-		     height="25"
-		     label="Open"
-		     layout="topleft"
-		     left_pad="5"
-		     name="edit_btn"
-		     top="0"
-		     width="60" />
-	    <button
-		     follows="bottom|left"
-		     font="SansSerifSmallBold"
-		     height="25"
-		     label="Build"
-		     layout="topleft"
-		     left_pad="5"
-		     name="edit_btn"
-		     top="0"
-		     width="60" />
-	    <button
-		     follows="bottom|left"
-		     font="SansSerifSmallBold"
-		     height="25"
-		     label="Buy"
-		     layout="topleft"
-		     left_pad="5"
-		     name="edit_btn"
-		     top="0"
-		     width="60" />
-	    <button
 		     follows="bottom|right"
 		     font="SansSerifSmallBold"
 		     height="25"

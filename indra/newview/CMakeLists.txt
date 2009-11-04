@@ -371,6 +371,7 @@ set(viewer_SOURCE_FILES
     llselectmgr.cpp
     llsidepanelinventory.cpp
     llsidepaneliteminfo.cpp
+    llsidepaneltaskinfo.cpp
     llsidetray.cpp
     llsidetraypanelcontainer.cpp
     llsky.cpp
@@ -856,6 +857,7 @@ set(viewer_HEADER_FILES
     llselectmgr.h
     llsidepanelinventory.h
     llsidepaneliteminfo.h
+    llsidepaneltaskinfo.h
     llsidetray.h
     llsidetraypanelcontainer.h
     llsky.h

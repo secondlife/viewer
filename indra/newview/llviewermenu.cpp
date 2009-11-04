@@ -2648,8 +2648,22 @@ void handle_object_edit()
 	// Could be first use
 	LLFirstUse::useBuild();
 	return;
-	
 }
+
+void handle_object_inspect()
+{
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	LLViewerObject* selected_objectp = selection->getFirstRootObject();
+	if (selected_objectp)
+	{
+		LLSD key;
+		key["task"] = "task";
+		LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+	}
+
+	LLFloaterReg::showInstance("inspect", LLSD());
+}
+
 //---------------------------------------------------------------------------
 // Land pie menu
 //---------------------------------------------------------------------------
@@ -8062,6 +8076,7 @@ void initialize_menus()
 
 	commit.add("Object.Buy", boost::bind(&handle_buy));
 	commit.add("Object.Edit", boost::bind(&handle_object_edit));
+	commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
 	
 	commit.add("Object.Take", boost::bind(&handle_take));
 
