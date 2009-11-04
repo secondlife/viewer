@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  border="false"
- height="327"
+ height="350"
  name="panel_im_control_panel"
  width="131">
 
@@ -12,6 +12,16 @@
      name="avatar_icon"
      top="-10"
      width="125"/>
+
+    <text
+     follows="left|right"
+     font="SansSerifBig"
+     height="16"
+     layout="topleft"
+     name="avatar_name"
+     use_ellipses="true"
+     value="Unknown"
+     width="125" />
 
     <button
      follows="left|bottom"

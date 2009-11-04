@@ -72,6 +72,9 @@ public:
 
 	void setSessionId(const LLUUID& session_id);
 
+protected:
+	void nameUpdatedCallback(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
+
 private:
 	void onViewProfileButtonClicked();
 	void onAddFriendButtonClicked();
