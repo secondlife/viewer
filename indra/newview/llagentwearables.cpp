@@ -1724,10 +1724,8 @@ void LLAgentWearables::queryWearableCache()
 // MULTI_WEARABLE: need a way to specify by wearable rather than by type.
 // User has picked "remove from avatar" from a menu.
 // static
-void LLAgentWearables::userRemoveWearable(void* userdata)
+void LLAgentWearables::userRemoveWearable(EWearableType& type)
 {
-	EWearableType type = (EWearableType)(intptr_t)userdata;
-	
 	if (!(type==WT_SHAPE || type==WT_SKIN || type==WT_HAIR)) //&&
 		//!((!gAgent.isTeen()) && (type==WT_UNDERPANTS || type==WT_UNDERSHIRT)))
 	{
@@ -1737,7 +1735,7 @@ void LLAgentWearables::userRemoveWearable(void* userdata)
 }
 
 // static
-void LLAgentWearables::userRemoveAllClothes(void* userdata)
+void LLAgentWearables::userRemoveAllClothes()
 {
 	// We have to do this up front to avoid having to deal with the case of multiple wearables being dirty.
 	if (gFloaterCustomize)
