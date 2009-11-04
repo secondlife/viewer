@@ -60,7 +60,7 @@
          min_width="96"
          name="speak_panel"
          user_resize="false">
-         <chiclet_talk
+         <talk_button
           follows="right"
           height="23"
           speak_button.tab_stop="true"
