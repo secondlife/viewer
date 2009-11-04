@@ -3,7 +3,7 @@
  legacy_header_height="18"
  background_visible="true"
  follows="left|top|right|bottom"
- height="270"
+ height="359"
  layout="topleft"
  left="0"
  name="panel_im"
@@ -12,13 +12,13 @@
  can_dock="true"
  can_minimize="true"
  visible="true" 
- width="365"
+ width="400"
  can_resize="true"
  min_width="200"
  min_height="150">
   <layout_stack follows="left|top|right|bottom"
-                height="255"
-                width="365"
+                height="344"
+                width="400"
                 layout="topleft"
                 orientation="horizontal"
                 name="im_panels"
@@ -28,13 +28,13 @@
       name="panel_im_control_panel"
       layout="topleft"
       top_delta="-3"
-      width="146"
-      height="255"
+      height="344"
       follows="left"
       label="IM Control Panel"
+      auto_resize="false"
       user_resize="false" />
-    <layout_panel height="255"
-                  width="200"
+    <layout_panel height="344"
+                  width="235"
                   left_delta="146" 
                   top="0"
                   user_resize="false">
@@ -56,14 +56,14 @@
        length="1"
        follows="left|top|right|bottom"
        font="SansSerif"
-       height="205"
+       height="290"
        layout="topleft"
        name="chat_history"
        parse_highlights="true"
        allow_html="true" 
-       width="195">
+       width="230">
       </chat_history>
-      <line_editor follows="left|right" name="chat_editor" height="20" layout="topleft" width="190">
+      <line_editor follows="left|right" name="chat_editor" height="20" layout="topleft" width="225">
       </line_editor>
     </layout_panel>
   </layout_stack>

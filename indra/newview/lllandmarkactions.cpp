@@ -135,13 +135,13 @@ public:
 
 // Returns true if the given inventory item is a landmark pointing to the current parcel.
 // Used to find out if there is at least one landmark from current parcel.
-class LLFistAgentParcelLandmark : public LLInventoryCollectFunctor
+class LLFirstAgentParcelLandmark : public LLInventoryCollectFunctor
 {
 private:	
 	bool mFounded;// to avoid unnecessary  check
 	
 public:
-	LLFistAgentParcelLandmark(): mFounded(false){}
+	LLFirstAgentParcelLandmark(): mFounded(false){}
 	
 	/*virtual*/ bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 	{
@@ -200,7 +200,7 @@ bool LLLandmarkActions::landmarkAlreadyExists()
 //static
 bool LLLandmarkActions::hasParcelLandmark()
 {
-	LLFistAgentParcelLandmark get_first_agent_landmark;
+	LLFirstAgentParcelLandmark get_first_agent_landmark;
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
 	fetch_landmarks(cats, items, get_first_agent_landmark);

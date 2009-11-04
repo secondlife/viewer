@@ -36,7 +36,7 @@
      text_color="white"
      top="0"
      value="(Loading...)"
-     use_elipsis="true"
+     use_ellipses="true"
      width="275" />
     <text
      follows="top|left"

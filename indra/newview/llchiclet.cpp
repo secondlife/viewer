@@ -830,13 +830,21 @@ LLChicletPanel::~LLChicletPanel()
 void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	
 	LLUUID session_id = data["session_id"].asUUID();
+	S32 unread = data["num_unread"].asInteger();
+
+	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+	if (im_floater && im_floater->getVisible())
+	{
+		unread = 0;
+	}
+
 	std::list<LLChiclet*> chiclets = LLIMChiclet::sFindChicletsSignal(session_id);
 	std::list<LLChiclet *>::iterator iter;
 	for (iter = chiclets.begin(); iter != chiclets.end(); iter++) {
 		LLChiclet* chiclet = *iter;
 		if (chiclet != NULL)
 		{
-			chiclet->setCounter(data["num_unread"].asInteger());
+			chiclet->setCounter(unread);
 		}
 	    else
 	    {
@@ -1313,6 +1321,7 @@ LLTalkButton::LLTalkButton(const Params& p)
 
 	// never show "muted" because you can't mute yourself
 	mOutputMonitor->setIsMuted(false);
+	mOutputMonitor->setIsAgentControl(true);
 }
 
 LLTalkButton::~LLTalkButton()

@@ -383,6 +383,19 @@ void LLInventoryPanel::modelChanged(U32 mask)
 							view_item->getParentFolder()->extractItem(view_item);
 							view_item->addToFolder(new_parent, mFolders);
 						}
+/*
+						 on the other side in case Inventory Panel has content of the any folder
+						 it is possible that item moved to some folder which is absent in current
+						 Panel. For ex. removing item (via moving to trash).
+						 In this case we need to check if new parent is other then inventory start folder
+						 and simply remove its View from the hierarchy.
+						 See details in EXT-2098.
+*/
+						// So, let check if item was moved into folder out of this Inventory Panel.
+						else if (mStartFolderID.notNull() && NULL == new_parent && model_item->getParentUUID() != mStartFolderID)
+						{
+							view_item->getParentFolder()->extractItem(view_item);
+						}
 					}
 				}
 				else
