@@ -8988,6 +8988,7 @@ void LLPipeline::LLMeshThread::run()
 		{
 			LLVolumeParams volume_params;
 			volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
+			volume_params.setSculptID(mMeshID, LL_SCULPT_TYPE_MESH);
 			mVolume = new LLVolume(volume_params, mDetail);
 			mVolume->createVolumeFacesFromStream(buffer_stream);
 		}
