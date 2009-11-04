@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- Derives from LLUICtrl -->
+<talk_button>
+  <!-- To make speak button look green when selected set:
+    image_selected="SegmentedBtn_Left_Selected"
+    image_unselected="SegmentedBtn_Left_Off"
+  -->
+  <speak_button
+    name="left"
+    label="Speak"
+    label_selected="Speak"
+    font="SansSerifSmall"
+    tab_stop="false"
+    is_toggle="true"
+    picture_style="true"
+    />
+  <show_button
+    name="right"
+    label=""
+    left="0"
+    top="0"
+    right="20"
+    bottom="0"
+    tab_stop="false"
+    is_toggle="true"
+    picture_style="true"
+    image_selected="ComboButton_Selected"
+    image_unselected="ComboButton_Off"
+    />
+  <monitor
+    name="monitor"
+    left="0"
+    top="18"
+    right="18"
+    bottom="0"
+    />
+</talk_button>
