@@ -300,14 +300,25 @@ struct LLWearableHoldingPattern
 {
 	LLInventoryModel::item_array_t new_items;
 	std::set<LLUUID> items_seen;
-	for (S32 i=0; i<items.count(); i++)
+	std::deque<LLViewerInventoryItem*> tmp_list;
+	// Traverse from the front and keep the first of each item
+	// encountered, so we actually keep the *last* of each duplicate
+	// item.  This is needed to give the right priority when adding
+	// duplicate items to an existing outfit.
+	for (S32 i=items.count()-1; i>=0; i--)
 	{
 		LLViewerInventoryItem *item = items.get(i);
 		LLUUID item_id = item->getLinkedUUID();
 		if (items_seen.find(item_id)!=items_seen.end())
 			continue;
 		items_seen.insert(item_id);
-		new_items.push_back(item);
+		tmp_list.push_front(item);
+	}
+	for (std::deque<LLViewerInventoryItem*>::iterator it = tmp_list.begin();
+		 it != tmp_list.end();
+		 ++it)
+	{
+		new_items.put(*it);
 	}
 	items = new_items;
 }
@@ -1068,9 +1079,21 @@ void LLAppearanceManager::wearOutfitByName(const std::string& name)
 	//dec_busy_count();
 }
 
+bool areMatchingWearables(const LLViewerInventoryItem *a, const LLViewerInventoryItem *b)
+{
+	return (a->isWearableType() && b->isWearableType() &&
+			(a->getWearableType() == b->getWearableType()));
+}
 /* static */
 void LLAppearanceManager::wearItem( LLInventoryItem* item, bool do_update )
 {
+	LLViewerInventoryItem *vitem = dynamic_cast<LLViewerInventoryItem*>(item);
+	if (!vitem)
+	{
+		llwarns << "not an llviewerinventoryitem, failed" << llendl;
+		return;
+	}
+		
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
 	gInventory.collectDescendents(LLAppearanceManager::getCOF(),
@@ -1080,11 +1103,18 @@ void LLAppearanceManager::wearItem( LLInventoryItem* item, bool do_update )
 	bool linked_already = false;
 	for (S32 i=0; i<item_array.count(); i++)
 	{
-		const LLInventoryItem* inv_item = item_array.get(i).get();
+		const LLViewerInventoryItem* inv_item = item_array.get(i).get();
 		if (inv_item->getLinkedUUID() == item->getLinkedUUID())
 		{
 			linked_already = true;
 			break;
+		}
+		// Are of same type but are not the same - new item will replace old.
+		if (areMatchingWearables(vitem,inv_item))
+		{
+			gAgentWearables.removeWearable(inv_item->getWearableType(),true,0);
+			gInventory.purgeObject(inv_item->getUUID());
+			gInventory.notifyObservers();
 		}
 	}
 	if (linked_already)
@@ -1096,9 +1126,9 @@ void LLAppearanceManager::wearItem( LLInventoryItem* item, bool do_update )
 	{
 		LLPointer<LLInventoryCallback> cb = do_update ? new ModifiedCOFCallback : 0;
 		link_inventory_item( gAgent.getID(),
-							 item->getLinkedUUID(),
+							 vitem->getLinkedUUID(),
 							 getCOF(),
-							 item->getName(),
+							 vitem->getName(),
 							 LLAssetType::AT_LINK,
 							 cb);
 	}
