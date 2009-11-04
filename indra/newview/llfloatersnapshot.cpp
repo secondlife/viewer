@@ -1373,8 +1373,10 @@ void LLFloaterSnapshot::Impl::checkAutoSnapshot(LLSnapshotLivePreview* previewp,
 void LLFloaterSnapshot::Impl::onClickDiscard(void* data)
 {
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
+	
 	if (view)
 	{
+		view->getParent()->setMouseOpaque(FALSE);
 		view->closeFloater();
 	}
 }
