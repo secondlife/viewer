@@ -19,26 +19,39 @@
      top="10"
      width="180"/>
 
-    <button
-     height="20"
-     label="Call Group"
-     left_delta="27"
-     name="call_btn"
-     width="125"/>
+    <panel
+     background_visible="true"
+     bg_alpha_color="0.2 0.2 0.2 1"
+     border="false"
+     bottom="1"
+     follows="left|bottom"
+     height="78"
+     left="0"
+     name="panel_buttons"
+     width="180">
 
-    <button
-     height="20"
-     label="Leave Call"
-     name="end_call_btn"
-     visible="false"
-     width="125"/>
+        <button
+         height="20"
+         label="Call Group"
+         left_delta="27"
+         name="call_btn"
+         width="125"/>
 
-    <button
-     enabled="false"
-     height="20"
-     label="Open Voice Controls"
-     name="voice_ctrls_btn"
-     visible="false"
-     width="125"/>
+        <button
+         height="20"
+         label="Leave Call"
+         name="end_call_btn"
+         visible="false"
+         width="125"/>
+
+        <button
+         enabled="false"
+         height="20"
+         label="Open Voice Controls"
+         name="voice_ctrls_btn"
+         visible="false"
+         width="125"/>
+
+    </panel>
 
 </panel>

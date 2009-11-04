@@ -12,13 +12,13 @@
  can_dock="true"
  can_minimize="true"
  visible="true" 
- width="400"
+ width="520"
  can_resize="true"
  min_width="200"
  min_height="150">
   <layout_stack follows="left|top|right|bottom"
                 height="344"
-                width="400"
+                width="520"
                 layout="topleft"
                 orientation="horizontal"
                 name="im_panels"
@@ -34,7 +34,7 @@
       auto_resize="false"
       user_resize="false" />
     <layout_panel height="344"
-                  width="235"
+                  width="355"
                   left_delta="146" 
                   top="0"
                   user_resize="false">
@@ -61,9 +61,9 @@
        name="chat_history"
        parse_highlights="true"
        allow_html="true" 
-       width="230">
+       width="350">
       </chat_history>
-      <line_editor follows="left|right" name="chat_editor" height="20" layout="topleft" width="225">
+      <line_editor follows="left|right" name="chat_editor" height="20" layout="topleft" width="345">
       </line_editor>
     </layout_panel>
   </layout_stack>

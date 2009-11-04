@@ -2,73 +2,88 @@
 <panel
  border="false"
  height="327"
+ layout="topleft"
  name="panel_im_control_panel"
- width="128">
+ width="131">
 
     <avatar_icon
      follows="left|top"
      height="125"
      left_delta="3"
      name="avatar_icon"
+     top="-10"
      width="125"/>
 
-    <button
+    <panel
+     background_visible="true"
+     bg_alpha_color="0.2 0.2 0.2 1"
+     border="false"
+     bottom="1"
      follows="left|bottom"
-     height="20"
-     label="View Profile"
-     name="view_profile_btn"
-     width="125"/>
+     height="195"
+     left="0"
+     name="panel_buttons"
+     width="131">
 
-    <button
-     follows="left|bottom"
-     height="20"
-     label="Add Friend"
-     name="add_friend_btn"
-     width="125"/>
+        <button
+         follows="left|bottom"
+         height="20"
+         label="View Profile"
+         left_delta="3"
+         name="view_profile_btn"
+         width="125"/>
 
-    <button
-     follows="left|bottom"
-     height="20"
-     label="Call"
-     name="call_btn"
-     width="125"/>
+        <button
+         follows="left|bottom"
+         height="20"
+         label="Add Friend"
+         name="add_friend_btn"
+         width="125"/>
 
-    <button
-     follows="left|bottom"
-     height="20"
-     label="Leave Call"
-     name="end_call_btn"
-     visible="false"
-     width="125"/>
+        <button
+         follows="left|bottom"
+         height="20"
+         label="Call"
+         name="call_btn"
+         width="125"/>
 
-    <button
-     enabled="false"
-     follows="left|bottom"
-     height="20"
-     label="Open Voice Controls"
-     name="voice_ctrls_btn"
-     visible="false"
-     width="125"/>
+        <button
+         follows="left|bottom"
+         height="20"
+         label="Leave Call"
+         name="end_call_btn"
+         visible="false"
+         width="125"/>
 
-    <button
-     follows="left|bottom"
-     height="20"
-     label="Teleport"
-     name="teleport_btn"
-     width="125"/>
+        <button
+         enabled="false"
+         follows="left|bottom"
+         height="20"
+         label="Open Voice Controls"
+         name="voice_ctrls_btn"
+         visible="false"
+         width="125"/>
 
-    <button
-     follows="left|bottom"
-     height="20"
-     label="Share"
-     name="share_btn"
-     width="125"/>
+        <button
+         follows="left|bottom"
+         height="20"
+         label="Teleport"
+         name="teleport_btn"
+         width="125"/>
 
-    <button
-     follows="left|bottom"
-     height="20"
-     label="Pay"
-     name="pay_btn"
-     width="125"/>
+        <button
+         follows="left|bottom"
+         height="20"
+         label="Share"
+         name="share_btn"
+         width="125"/>
 
+        <button
+         follows="left|bottom"
+         height="20"
+         label="Pay"
+         name="pay_btn"
+         width="125"/>
+
+    </panel>
 </panel>
