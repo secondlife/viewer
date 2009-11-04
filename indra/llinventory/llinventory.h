@@ -37,7 +37,6 @@
 
 #include "llassetstorage.h"
 #include "lldarray.h"
-#include "llfoldertype.h"
 #include "llinventorytype.h"
 #include "llmemtype.h"
 #include "llpermissions.h"
@@ -322,15 +321,15 @@ protected:
 public:
 	MEM_TYPE_NEW(LLMemType::MTYPE_INVENTORY);
 	LLInventoryCategory(const LLUUID& uuid, const LLUUID& parent_uuid,
-						LLFolderType::EType preferred_type,
+						LLAssetType::EType preferred_type,
 						const std::string& name);
 	LLInventoryCategory();
 	LLInventoryCategory(const LLInventoryCategory* other);
 	void copyCategory(const LLInventoryCategory* other); // LLRefCount requires custom copy
 
 	// accessors and mutators
-	LLFolderType::EType getPreferredType() const;
-	void setPreferredType(LLFolderType::EType type);
+	LLAssetType::EType getPreferredType() const;
+	void setPreferredType(LLAssetType::EType type);
 	// For messaging system support
 	virtual void packMessage(LLMessageSystem* msg) const;
 	virtual void unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
@@ -346,8 +345,10 @@ public:
 	virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
 
 protected:
-	// May be the type that this category was "meant" to hold (although it may hold any type).	
-	LLFolderType::EType	mPreferredType;		
+	// The type of asset that this category was "meant" to hold
+	// (although it may in fact hold any type).
+	LLAssetType::EType	mPreferredType;		
+
 };
 
 

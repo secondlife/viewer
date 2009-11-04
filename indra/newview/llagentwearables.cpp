@@ -434,7 +434,7 @@ void LLAgentWearables::saveWearableAs(const EWearableType type,
 	if (save_in_lost_and_found)
 	{
 		category_id = gInventory.findCategoryUUIDForType(
-			LLFolderType::FT_LOST_AND_FOUND);
+			LLAssetType::AT_LOST_AND_FOUND);
 	}
 	else
 	{
@@ -840,7 +840,7 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 		}
 
 		// Get the UUID of the current outfit folder (will be created if it doesn't exist)
-		const LLUUID current_outfit_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+		LLUUID current_outfit_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CURRENT_OUTFIT);
 		
 		LLInitialWearablesFetch* outfit = new LLInitialWearablesFetch();
 		
@@ -981,7 +981,8 @@ void LLAgentWearables::recoverMissingWearable(const EWearableType type, U32 inde
 	// Add a new one in the lost and found folder.
 	// (We used to overwrite the "not found" one, but that could potentially
 	// destory content.) JC
-	const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+	LLUUID lost_and_found_id = 
+		gInventory.findCategoryUUIDForType(LLAssetType::AT_LOST_AND_FOUND);
 	LLPointer<LLInventoryCallback> cb =
 		new addWearableToAgentInventoryCallback(
 			LLPointer<LLRefCount>(NULL),
@@ -1122,8 +1123,8 @@ void LLAgentWearables::makeNewOutfit(const std::string& new_folder_name,
 
 	// First, make a folder in the Clothes directory.
 	LLUUID folder_id = gInventory.createNewCategory(
-		gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING),
-		LLFolderType::FT_NONE,
+		gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING),
+		LLAssetType::AT_NONE,
 		new_folder_name);
 
 	bool found_first_item = false;
@@ -1256,10 +1257,10 @@ LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
 	}
 
 	// First, make a folder in the My Outfits directory.
-	const LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+	LLUUID parent_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_MY_OUTFITS);
 	LLUUID folder_id = gInventory.createNewCategory(
 		parent_id,
-		LLFolderType::FT_OUTFIT,
+		LLAssetType::AT_OUTFIT,
 		new_folder_name);
 
 	LLAppearanceManager::shallowCopyCategory(LLAppearanceManager::getCOF(),folder_id, NULL);
@@ -2031,7 +2032,7 @@ void LLInitialWearablesFetch::processWearablesMessage()
 {
 	if (!mAgentInitialWearables.empty()) // We have an empty current outfit folder, use the message data instead.
 	{
-		const LLUUID current_outfit_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+		LLUUID current_outfit_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CURRENT_OUTFIT);
 		for (U8 i = 0; i < mAgentInitialWearables.size(); ++i)
 		{
 			// Populate the current outfit folder with links to the wearables passed in the message

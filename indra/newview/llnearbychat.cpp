@@ -97,38 +97,13 @@ BOOL LLNearbyChat::postBuild()
 	if (getDockControl() == NULL)
 	{
 		setDockControl(new LLDockControl(
-			LLBottomTray::getInstance()->getNearbyChatBar(), this,
-			getDockTongue(), LLDockControl::LEFT, boost::bind(&LLNearbyChat::getAllowedRect, this, _1)));
+				LLBottomTray::getInstance()->getNearbyChatBar(), this,
+				getDockTongue(), LLDockControl::LEFT, boost::bind(&LLNearbyChat::getAllowedRect, this, _1)));
 	}
 
 	return true;
 }
 
-
-void    LLNearbyChat::applySavedVariables()
-{
-
-	if (mRectControl.size() > 1)
-	{
-		const LLRect& rect = LLUI::sSettingGroups["floater"]->getRect(mRectControl);
-		reshape(rect.getWidth(), rect.getHeight());
-		setRect(rect);
-	}
-
-
-	if(!LLUI::sSettingGroups["floater"]->controlExists(mDocStateControl))
-	{
-		setDocked(true);
-	}
-	else
-	{
-		if (mDocStateControl.size() > 1)
-		{
-			bool dockState = LLUI::sSettingGroups["floater"]->getBOOL(mDocStateControl);
-			setDocked(dockState);
-		}
-	}
-}
 
 LLColor4 nearbychat_get_text_color(const LLChat& chat)
 {
@@ -290,5 +265,11 @@ void LLNearbyChat::getAllowedRect(LLRect& rect)
 {
 	rect = gViewerWindow->getWorldViewRect();
 }
-
+void LLNearbyChat::setVisible	(BOOL visible)
+{
+	LLDockableFloater::setVisible(visible);
+}
+void LLNearbyChat::toggleWindow()
+{
+}
 

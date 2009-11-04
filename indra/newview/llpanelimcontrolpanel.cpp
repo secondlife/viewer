@@ -112,32 +112,21 @@ BOOL LLPanelIMControlPanel::postBuild()
 	childSetAction("add_friend_btn", boost::bind(&LLPanelIMControlPanel::onAddFriendButtonClicked, this));
 
 	childSetAction("share_btn", boost::bind(&LLPanelIMControlPanel::onShareButtonClicked, this));
-	childSetAction("teleport_btn", boost::bind(&LLPanelIMControlPanel::onTeleportButtonClicked, this));
-	childSetAction("pay_btn", boost::bind(&LLPanelIMControlPanel::onPayButtonClicked, this));
 	childSetEnabled("add_friend_btn", !LLAvatarActions::isFriend(getChild<LLAvatarIconCtrl>("avatar_icon")->getAvatarId()));
 	
 	return LLPanelChatControlPanel::postBuild();
 }
 
-void LLPanelIMControlPanel::onTeleportButtonClicked()
-{
-	LLAvatarActions::offerTeleport(mAvatarID);
-}
-void LLPanelIMControlPanel::onPayButtonClicked()
-{
-	LLAvatarActions::pay(mAvatarID);
-}
-
 void LLPanelIMControlPanel::onViewProfileButtonClicked()
 {
-	LLAvatarActions::showProfile(mAvatarID);
+	LLAvatarActions::showProfile(getChild<LLAvatarIconCtrl>("avatar_icon")->getAvatarId());
 }
 
 void LLPanelIMControlPanel::onAddFriendButtonClicked()
 {
 	LLAvatarIconCtrl* avatar_icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 	std::string full_name = avatar_icon->getFirstName() + " " + avatar_icon->getLastName();
-	LLAvatarActions::requestFriendshipDialog(mAvatarID, full_name);
+	LLAvatarActions::requestFriendshipDialog(avatar_icon->getAvatarId(), full_name);
 }
 
 void LLPanelIMControlPanel::onShareButtonClicked()
@@ -151,12 +140,12 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 
 	LLIMModel& im_model = LLIMModel::instance();
 
-	mAvatarID = im_model.getOtherParticipantID(session_id);
+	LLUUID avatar_id = im_model.getOtherParticipantID(session_id);
 
 	// Disable "Add friend" button for friends.
-	childSetEnabled("add_friend_btn", !LLAvatarActions::isFriend(mAvatarID));
+	childSetEnabled("add_friend_btn", !LLAvatarActions::isFriend(avatar_id));
 
-	getChild<LLAvatarIconCtrl>("avatar_icon")->setValue(mAvatarID);
+	getChild<LLAvatarIconCtrl>("avatar_icon")->setValue(avatar_id);
 
 	// Disable profile button if participant is not realy SL avatar
 	LLIMModel::LLIMSession* im_session =
@@ -199,20 +188,6 @@ void LLPanelGroupControlPanel::onGroupInfoButtonClicked()
 	LLGroupActions::show(mGroupID);
 }
 
-void LLPanelGroupControlPanel::onSortMenuItemClicked(const LLSD& userdata)
-{
-	// TODO: Check this code when when sort order menu will be added. (EM)
-	if (false && !mParticipantList)
-		return;
-
-	std::string chosen_item = userdata.asString();
-
-	if (chosen_item == "sort_name")
-	{
-		mParticipantList->setSortOrder(LLParticipantList::E_SORT_BY_NAME);
-	}
-
-}
 
 void LLPanelGroupControlPanel::setSessionId(const LLUUID& session_id)
 {

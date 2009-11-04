@@ -73,8 +73,6 @@ private:
 	void onViewProfileButtonClicked();
 	void onAddFriendButtonClicked();
 	void onShareButtonClicked();
-	void onTeleportButtonClicked();
-	void onPayButtonClicked();
 
 	LLUUID mAvatarID;
 };
@@ -99,7 +97,6 @@ protected:
 
 private:
 	void onGroupInfoButtonClicked();
-	void onSortMenuItemClicked(const LLSD& userdata);
 };
 
 class LLPanelAdHocControlPanel : public LLPanelGroupControlPanel

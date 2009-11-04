@@ -77,10 +77,6 @@ LLGestureComboBox::LLGestureComboBox(const LLGestureComboBox::Params& p)
 
 	// refresh list from current active gestures
 	refreshGestures();
-
-	// This forces using of halign from xml, since LLComboBox
-	// sets it to LLFontGL::LEFT, if text entry is disabled
-	mButton->setHAlign(p.drop_down_button.font_halign);
 }
 
 LLGestureComboBox::~LLGestureComboBox()
@@ -211,7 +207,6 @@ LLNearbyChatBar::LLNearbyChatBar()
 	: LLPanel()
 	, mChatBox(NULL)
 {
-	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
 
 //virtual
@@ -521,8 +516,8 @@ void LLNearbyChatBar::displaySpeakingIndicator()
 	LLUUID id;
 
 	id.setNull();
-	mSpeakerMgr->update(TRUE);
-	mSpeakerMgr->getSpeakerList(&speaker_list, FALSE);
+	mSpeakerMgr.update(TRUE);
+	mSpeakerMgr.getSpeakerList(&speaker_list, FALSE);
 
 	for (LLSpeakerMgr::speaker_list_t::iterator i = speaker_list.begin(); i != speaker_list.end(); ++i)
 	{

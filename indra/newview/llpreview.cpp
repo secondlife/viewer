@@ -45,7 +45,6 @@
 #include "lltooldraganddrop.h"
 #include "llradiogroup.h"
 #include "llassetstorage.h"
-#include "llviewerassettype.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "lldbstrings.h"
@@ -318,7 +317,7 @@ BOOL LLPreview::handleHover(S32 x, S32 y, MASK mask)
 		   && LLToolDragAndDrop::getInstance()->isOverThreshold(screen_x, screen_y))
 		{
 			EDragAndDropType type;
-			type = LLViewerAssetType::lookupDragAndDropType(item->getType());
+			type = LLAssetType::lookupDragAndDropType(item->getType());
 			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_LIBRARY;
 			if(!mObjectUUID.isNull())
 			{
@@ -407,7 +406,7 @@ void LLPreview::onDiscardBtn(void* data)
 	*/
 
 	// Move the item to the trash
-	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+	LLUUID trash_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
 	if (item->getParentUUID() != trash_id)
 	{
 		LLInventoryModel::update_list_t update;

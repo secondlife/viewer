@@ -34,7 +34,6 @@
 #define LL_LLINVENTORYMODEL_H
 
 #include "llassettype.h"
-#include "llfoldertype.h"
 #include "lldarray.h"
 #include "llframetimer.h"
 #include "llhttpclient.h"
@@ -281,7 +280,7 @@ public:
 
 	// SDK: Added flag to specify whether the folder should be created if not found.  This fixes the horrible
 	// multiple trash can bug.
-	const LLUUID findCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder = true);
+	LLUUID findCategoryUUIDForType(LLAssetType::EType preferred_type, bool create_folder = true);
 
 	// Call this method when it's time to update everyone on a new
 	// state, by default, the inventory model will not update
@@ -330,7 +329,7 @@ public:
 	// category. If you want to use the default name based on type,
 	// pass in a NULL to the 'name parameter.
 	LLUUID createNewCategory(const LLUUID& parent_id,
-							 LLFolderType::EType preferred_type,
+							 LLAssetType::EType preferred_type,
 							 const std::string& name);
 
 	// methods to load up inventory skeleton & meat. These are used
@@ -386,9 +385,9 @@ public:
 	bool isCategoryComplete(const LLUUID& cat_id) const;
 	
 	// callbacks
-	// Trigger a notification and empty the folder type (FT_TRASH or FT_LOST_AND_FOUND) if confirmed
-	void emptyFolderType(const std::string notification, LLFolderType::EType folder_type);
-	bool callbackEmptyFolderType(const LLSD& notification, const LLSD& response, LLFolderType::EType preferred_type);
+	// Trigger a notification and empty the folder type (AT_TRASH or AT_LOST_AND_FOUND) if confirmed
+	void emptyFolderType(const std::string notification, LLAssetType::EType folder_type);
+	bool callbackEmptyFolderType(const LLSD& notification, const LLSD& response, LLAssetType::EType folder_type);
 
 	// Utility Functions
 	void removeItem(const LLUUID& item_id);
@@ -432,7 +431,7 @@ protected:
 	// 
 	// Internal method which looks for a category with the specified
 	// preferred type. Returns LLUUID::null if not found
- 	const LLUUID &findCatUUID(LLFolderType::EType preferred_type) const;
+ 	const LLUUID &findCatUUID(LLAssetType::EType preferred_type) const;
 
 	// Empty the entire contents
 	void empty();

@@ -134,7 +134,8 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 				// Note: key should eventually be a non optional LLFloater arg; for now, set mKey to be safe
 				res->mKey = key;
 				res->setInstanceName(name);
-				res->applySavedVariables(); // Can't apply rect and dock state until setting instance name
+				res->applyRectControl(); // Can't apply rect control until setting instance name
+				res->applyDockState();//same...
 				if (res->mAutoTile && !res->getHost() && index > 0)
 				{
 					const LLRect& cur_rect = res->getRect();

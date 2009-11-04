@@ -38,74 +38,46 @@ class LLAvatarList;
 
 class LLParticipantList
 {
-	LOG_CLASS(LLParticipantList);
 	public:
 		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list);
 		~LLParticipantList();
 
-		typedef enum e_participant_sort_oder {
-			E_SORT_BY_NAME = 0,
-		} EParticipantSortOrder;
-
-		/**
-		  * Set and sort Avatarlist by given order
-		  */
-		void setSortOrder(EParticipantSortOrder order = E_SORT_BY_NAME);
-
 	protected:
-		/**
-		 * LLSpeakerMgr event handlers
-		 */
-		bool onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
-		bool onRemoveItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
-		bool onClearListEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
-
-		/**
-		 * Sorts the Avatarlist by stored order
-		 */
-		void sort();
 
 		//List of listeners implementing LLOldEvents::LLSimpleListener.
 		//There is no way to handle all the events in one listener as LLSpeakerMgr registers listeners in such a way
 		//that one listener can handle only one type of event
-		class BaseSpeakerListner : public LLOldEvents::LLSimpleListener
+		class SpeakerAddListener : public LLOldEvents::LLSimpleListener
 		{
 		public:
-			BaseSpeakerListner(LLParticipantList& parent) : mParent(parent) {}
-		protected:
-			LLParticipantList& mParent;
-		};
+			SpeakerAddListener(LLAvatarList* avatar_list) : mAvatarList(avatar_list) {}
 
-		class SpeakerAddListener : public BaseSpeakerListner
-		{
-		public:
-			SpeakerAddListener(LLParticipantList& parent) : BaseSpeakerListner(parent) {}
 			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+			LLAvatarList* mAvatarList;
 		};
 
-		class SpeakerRemoveListener : public BaseSpeakerListner
+		class SpeakerRemoveListener : public LLOldEvents::LLSimpleListener
 		{
 		public:
-			SpeakerRemoveListener(LLParticipantList& parent) : BaseSpeakerListner(parent) {}
+			SpeakerRemoveListener(LLAvatarList* avatar_list) : mAvatarList(avatar_list) {}
+
 			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+			LLAvatarList* mAvatarList;
 		};
 
-		class SpeakerClearListener : public BaseSpeakerListner
+		class SpeakerClearListener : public LLOldEvents::LLSimpleListener
 		{
 		public:
-			SpeakerClearListener(LLParticipantList& parent) : BaseSpeakerListner(parent) {}
-			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
-		};
+			SpeakerClearListener(LLAvatarList* avatar_list) : mAvatarList(avatar_list) {}
 
+			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+			LLAvatarList* mAvatarList;
+		};
 	private:
-		void onAvatarListDoubleClicked(LLAvatarList* list);
-
 		LLSpeakerMgr*		mSpeakerMgr;
-		LLAvatarList*		mAvatarList;
+		LLAvatarList* 		mAvatarList;
 
-		SpeakerAddListener		mSpeakerAddListener;
-		SpeakerRemoveListener	mSpeakerRemoveListener;
-		SpeakerClearListener	mSpeakerClearListener;
-
-		EParticipantSortOrder	mSortOrder;
+		SpeakerAddListener* mSpeakerAddListener;
+		SpeakerRemoveListener* mSpeakerRemoveListener;
+		SpeakerClearListener* mSpeakerClearListener;
 };

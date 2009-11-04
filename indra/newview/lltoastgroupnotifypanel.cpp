@@ -220,6 +220,7 @@ bool LLToastGroupNotifyPanel::isAttachmentOpenable(LLAssetType::EType type)
 	switch(type)
 	{
 	case LLAssetType::AT_LANDMARK:
+	case LLAssetType::AT_FAVORITE:
 	case LLAssetType::AT_NOTECARD:
 	case LLAssetType::AT_IMAGE_JPEG:
 	case LLAssetType::AT_IMAGE_TGA:

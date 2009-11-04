@@ -62,7 +62,6 @@
 #include "lltooltip.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
-#include "llviewerassettype.h"
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewertexturelist.h"
@@ -506,17 +505,19 @@ LLUIImagePtr LLEmbeddedItems::getItemImage(llwchar ext_char) const
 				}
 
 				break;
-			case LLAssetType::AT_SOUND:			img_name = "Inv_Sound";		break;
+			case LLAssetType::AT_SOUND:			img_name = "Inv_Sound";	break;
 			case LLAssetType::AT_CLOTHING:		img_name = "Inv_Clothing";	break;
-			case LLAssetType::AT_OBJECT:		img_name = "Inv_Object"; 	break;
+			case LLAssetType::AT_OBJECT:		img_name = "Inv_Object"; break;
 			case LLAssetType::AT_CALLINGCARD:	img_name = "Inv_CallingCard"; break;
-			case LLAssetType::AT_LANDMARK:		img_name = "Inv_Landmark"; 	break;
+			case LLAssetType::AT_LANDMARK:		img_name = "Inv_Landmark"; break;
 			case LLAssetType::AT_NOTECARD:		img_name = "Inv_Notecard";	break;
 			case LLAssetType::AT_LSL_TEXT:		img_name = "Inv_Script";	break;
-			case LLAssetType::AT_BODYPART:		img_name = "Inv_Skin";		break;
-			case LLAssetType::AT_ANIMATION:		img_name = "Inv_Animation";	break;
-			case LLAssetType::AT_GESTURE:		img_name = "Inv_Gesture";	break;
-			default: llassert(0);
+			case LLAssetType::AT_BODYPART:		img_name = "Inv_Skin";	break;
+			case LLAssetType::AT_ANIMATION:		img_name = "Inv_Animation";break;
+			case LLAssetType::AT_GESTURE:			img_name = "Inv_Gesture";	break;
+				//TODO need img_name
+			case LLAssetType::AT_FAVORITE:		img_name = "Inv_Landmark";	 break;
+			default: llassert(0); 
 		}
 
 		return LLUI::getUIImage(img_name);
@@ -731,10 +732,11 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 		if( LLToolDragAndDrop::getInstance()->isOverThreshold( screen_x, screen_y ) )
 		{
 			LLToolDragAndDrop::getInstance()->beginDrag(
-				LLViewerAssetType::lookupDragAndDropType( mDragItem->getType() ),
+				LLAssetType::lookupDragAndDropType( mDragItem->getType() ),
 				mDragItem->getUUID(),
 				LLToolDragAndDrop::SOURCE_NOTECARD,
 				mPreviewID, mObjectID);
+
 			return LLToolDragAndDrop::getInstance()->handleHover( x, y, mask );
 		}
 		getWindow()->setCursor(UI_CURSOR_HAND);

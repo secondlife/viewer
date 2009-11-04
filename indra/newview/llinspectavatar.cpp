@@ -188,8 +188,7 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 {
 	mCommitCallbackRegistrar.add("InspectAvatar.ViewProfile",	boost::bind(&LLInspectAvatar::onClickViewProfile, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.AddFriend",	boost::bind(&LLInspectAvatar::onClickAddFriend, this));	
-	mCommitCallbackRegistrar.add("InspectAvatar.IM",
-		boost::bind(&LLInspectAvatar::onClickIM, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.IM",	boost::bind(&LLInspectAvatar::onClickIM, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Teleport",	boost::bind(&LLInspectAvatar::onClickTeleport, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.InviteToGroup",	boost::bind(&LLInspectAvatar::onClickInviteToGroup, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Pay",	boost::bind(&LLInspectAvatar::onClickPay, this));	
@@ -307,21 +306,7 @@ void LLInspectAvatar::requestUpdate()
 	// You can't re-add someone as a friend if they are already your friend
 	bool is_friend = LLAvatarTracker::instance().getBuddyInfo(mAvatarID) != NULL;
 	bool is_self = (mAvatarID == gAgentID);
-	if (is_self)
-	{
-		getChild<LLUICtrl>("add_friend_btn")->setVisible(false);
-		getChild<LLUICtrl>("im_btn")->setVisible(false);
-	}
-	else if (is_friend)
-	{
-		getChild<LLUICtrl>("add_friend_btn")->setVisible(false);
-		getChild<LLUICtrl>("im_btn")->setVisible(true);
-	}
-	else
-	{
-		getChild<LLUICtrl>("add_friend_btn")->setVisible(true);
-		getChild<LLUICtrl>("im_btn")->setVisible(false);
-	}
+	childSetEnabled("add_friend_btn", !is_friend && !is_self);
 
 	// Use an avatar_icon even though the image id will come down with the
 	// avatar properties because the avatar_icon code maintains a cache of icons

@@ -33,7 +33,7 @@
 #ifndef LLVIEWERMENUFILE_H
 #define LLVIEWERMENUFILE_H
 
-#include "llfoldertype.h"
+#include "llassettype.h"
 #include "llinventorytype.h"
 
 class LLTransactionID;
@@ -45,7 +45,7 @@ void upload_new_resource(const std::string& src_filename,
 			 std::string name,
 			 std::string desc, 
 			 S32 compression_info,
-			 LLFolderType::EType destination_folder_type,
+			 LLAssetType::EType destination_folder_type,
 			 LLInventoryType::EType inv_type,
 			 U32 next_owner_perms,
 			 U32 group_perms,
@@ -60,7 +60,7 @@ void upload_new_resource(const LLTransactionID &tid,
 			 std::string name,
 			 std::string desc, 
 			 S32 compression_info,
-			 LLFolderType::EType destination_folder_type,
+			 LLAssetType::EType destination_folder_type,
 			 LLInventoryType::EType inv_type,
 			 U32 next_owner_perms,
 			 U32 group_perms,

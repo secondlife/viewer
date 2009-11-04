@@ -59,7 +59,6 @@
 #include "lltoolcomp.h"
 #include "lltoolmgr.h"
 #include "lltrans.h"
-#include "llviewerassettype.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -168,7 +167,7 @@ void LLPanelContents::onClickNewScript(void *userdata)
 			PERM_NONE,
 			PERM_MOVE | PERM_TRANSFER);
 		std::string desc;
-		LLViewerAssetType::generateDescriptionFor(LLAssetType::AT_LSL_TEXT, desc);
+		LLAssetType::generateDescriptionFor(LLAssetType::AT_LSL_TEXT, desc);
 		LLPointer<LLViewerInventoryItem> new_item =
 			new LLViewerInventoryItem(
 				LLUUID::null,

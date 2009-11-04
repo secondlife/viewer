@@ -552,7 +552,7 @@ void LLPreviewTexture::onAspectRatioCommit(LLUICtrl* ctrl, void* userdata)
 
 void LLPreviewTexture::loadAsset()
 {
-	mImage = LLViewerTextureManager::getFetchedTexture(mImageID, MIPMAP_TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
+	mImage = LLViewerTextureManager::getFetchedTexture(mImageID, MIPMAP_TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 	mImage->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
 	mAssetStatus = PREVIEW_ASSET_LOADING;
 	updateDimensions();

@@ -280,9 +280,6 @@ public:
 protected:
 
 	void			setRectControl(const std::string& rectname) { mRectControl = rectname; };
-
-	virtual void    applySavedVariables();
-
 	void			applyRectControl();
 	void			applyDockState();
 	void			storeRectControl();

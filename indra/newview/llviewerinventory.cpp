@@ -37,7 +37,7 @@
 #include "indra_constants.h"
 
 #include "llagent.h"
-#include "llviewerfoldertype.h"
+#include "llfoldertype.h"
 #include "llfolderview.h"
 #include "llviewercontrol.h"
 #include "llconsole.h"
@@ -48,7 +48,6 @@
 #include "llinventorybridge.h"
 #include "llfloaterinventory.h"
 
-#include "llviewerassettype.h"
 #include "llviewerregion.h"
 #include "llviewerobjectlist.h"
 #include "llpreviewgesture.h"
@@ -360,7 +359,7 @@ void LLViewerInventoryItem::updateParentOnServer(BOOL restamp) const
 
 LLViewerInventoryCategory::LLViewerInventoryCategory(const LLUUID& uuid,
 													 const LLUUID& parent_uuid,
-													 LLFolderType::EType pref,
+													 LLAssetType::EType pref,
 													 const std::string& name,
 													 const LLUUID& owner_id) :
 	LLInventoryCategory(uuid, parent_uuid, pref, name),
@@ -417,7 +416,7 @@ void LLViewerInventoryCategory::updateServer(BOOL is_new) const
 {
 	// communicate that change with the server.
 
-	if (LLFolderType::lookupIsProtectedType(mPreferredType))
+	if (LLAssetType::lookupIsProtectedCategoryType(mPreferredType))
 	{
 		LLNotifications::instance().add("CannotModifyProtectedCategories");
 		return;
@@ -441,7 +440,7 @@ void LLViewerInventoryCategory::removeFromServer( void )
 	llinfos << "Removing inventory category " << mUUID << " from server."
 			<< llendl;
 	// communicate that change with the server.
-	if(LLFolderType::lookupIsProtectedType(mPreferredType))
+	if(LLAssetType::lookupIsProtectedCategoryType(mPreferredType))
 	{
 		LLNotifications::instance().add("CannotRemoveProtectedCategories");
 		return;
@@ -544,7 +543,7 @@ bool LLViewerInventoryCategory::importFileLocal(LLFILE* fp)
 		}
 		else if(0 == strcmp("pref_type", keyword))
 		{
-			mPreferredType = LLFolderType::lookup(valuestr);
+			mPreferredType = LLAssetType::lookup(valuestr);
 		}
 		else if(0 == strcmp("name", keyword))
 		{
@@ -582,7 +581,7 @@ bool LLViewerInventoryCategory::exportFileLocal(LLFILE* fp) const
 	mParentUUID.toString(uuid_str);
 	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str.c_str());
 	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType));
-	fprintf(fp, "\t\tpref_type\t%s\n", LLFolderType::lookup(mPreferredType).c_str());
+	fprintf(fp, "\t\tpref_type\t%s\n", LLAssetType::lookup(mPreferredType));
 	fprintf(fp, "\t\tname\t%s|\n", mName.c_str());
 	mOwnerID.toString(uuid_str);
 	fprintf(fp, "\t\towner_id\t%s\n", uuid_str.c_str());
@@ -593,8 +592,8 @@ bool LLViewerInventoryCategory::exportFileLocal(LLFILE* fp) const
 
 void LLViewerInventoryCategory::determineFolderType()
 {
-	LLFolderType::EType original_type = getPreferredType();
-	if (LLFolderType::lookupIsProtectedType(original_type))
+	LLAssetType::EType original_type = getPreferredType();
+	if (LLAssetType::lookupIsProtectedCategoryType(original_type))
 		return;
 
 	U64 folder_valid = 0;
@@ -617,28 +616,28 @@ void LLViewerInventoryCategory::determineFolderType()
 			{
 				const EWearableType wearable_type = item->getWearableType();
 				const std::string& wearable_name = LLWearableDictionary::getTypeName(wearable_type);
-				U64 valid_folder_types = LLViewerFolderType::lookupValidFolderTypes(wearable_name);
+				U64 valid_folder_types = LLFolderType::lookupValidFolderTypes(wearable_name);
 				folder_valid |= valid_folder_types;
 				folder_invalid |= ~valid_folder_types;
 			}
 		}
-		for (U8 i = LLFolderType::FT_ENSEMBLE_START; i <= LLFolderType::FT_ENSEMBLE_END; i++)
+		for (U8 i = LLAssetType::AT_FOLDER_ENSEMBLE_START; i <= LLAssetType::AT_FOLDER_ENSEMBLE_END; i++)
 		{
 			if ((folder_valid & (1LL << i)) &&
 				!(folder_invalid & (1LL << i)))
 			{
-				changeType((LLFolderType::EType)i);
+				changeType((LLAssetType::EType)i);
 				return;
 			}
 		}
 	}
-	if (LLFolderType::lookupIsEnsembleType(original_type))
+	if (LLAssetType::lookupIsEnsembleCategoryType(original_type))
 	{
-		changeType(LLFolderType::FT_NONE);
+		changeType(LLAssetType::AT_NONE);
 	}
 }
 
-void LLViewerInventoryCategory::changeType(LLFolderType::EType new_folder_type)
+void LLViewerInventoryCategory::changeType(LLAssetType::EType new_folder_type)
 {
 	const LLUUID &folder_id = getUUID();
 	const LLUUID &parent_id = getParentUUID();
@@ -949,7 +948,7 @@ void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecar
     body["notecard-id"] = notecard_inv_id;
     body["object-id"] = object_id;
     body["item-id"] = src->getUUID();
-	body["folder-id"] = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(src->getType()));
+    body["folder-id"] = gInventory.findCategoryUUIDForType(src->getType());
     body["callback-id"] = (LLSD::Integer)callback_id;
 
     request["message"] = "CopyInventoryFromNotecard";
@@ -965,7 +964,7 @@ void create_new_item(const std::string& name,
 				   U32 next_owner_perm)
 {
 	std::string desc;
-	LLViewerAssetType::generateDescriptionFor(asset_type, desc);
+	LLAssetType::generateDescriptionFor(asset_type, desc);
 	next_owner_perm = (next_owner_perm) ? next_owner_perm : PERM_MOVE | PERM_TRANSFER;
 
 	
@@ -990,14 +989,19 @@ const std::string NEW_LSL_NAME = "New Script"; // *TODO:Translate? (probably not
 const std::string NEW_NOTECARD_NAME = "New Note"; // *TODO:Translate? (probably not)
 const std::string NEW_GESTURE_NAME = "New Gesture"; // *TODO:Translate? (probably not)
 
-// ! REFACTOR ! Really need to refactor this so that it's not a bunch of if-then statements...
 void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, const LLSD& userdata, const LLUUID& default_parent_uuid)
 {
-	std::string type_name = userdata.asString();
+	std::string type = userdata.asString();
 	
-	if (("category" == type_name) || ("current" == type_name) || ("outfit" == type_name) || ("my_otfts" == type_name))
+	if (("category" == type) || ("current" == type) || ("outfit" == type) || ("my_otfts" == type) )
 	{
-		LLFolderType::EType preferred_type = LLFolderType::lookup(type_name);
+		LLAssetType::EType a_type = LLAssetType::AT_NONE;
+		if ("current" == type)
+			a_type = LLAssetType::AT_CURRENT_OUTFIT;
+		if ("outfit" == type)
+			a_type = LLAssetType::AT_OUTFIT;
+		if ("my_otfts" == type)
+			a_type = LLAssetType::AT_MY_OUTFITS;
 
 		LLUUID parent_id;
 		if (bridge)
@@ -1013,100 +1017,100 @@ void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, co
 			parent_id = gInventory.getRootFolderID();
 		}
 
-		LLUUID category = gInventory.createNewCategory(parent_id, preferred_type, LLStringUtil::null);
+		LLUUID category = gInventory.createNewCategory(parent_id, a_type, LLStringUtil::null);
 		gInventory.notifyObservers();
 		folder->setSelectionByID(category, TRUE);
 	}
-	else if ("lsl" == type_name)
+	else if ("lsl" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_LSL_TEXT);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_LSL_TEXT);
 		create_new_item(NEW_LSL_NAME,
 					  parent_id,
 					  LLAssetType::AT_LSL_TEXT,
 					  LLInventoryType::IT_LSL,
 					  PERM_MOVE | PERM_TRANSFER);
 	}
-	else if ("notecard" == type_name)
+	else if ("notecard" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_NOTECARD);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_NOTECARD);
 		create_new_item(NEW_NOTECARD_NAME,
 					  parent_id,
 					  LLAssetType::AT_NOTECARD,
 					  LLInventoryType::IT_NOTECARD,
 					  PERM_ALL);
 	}
-	else if ("gesture" == type_name)
+	else if ("gesture" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_GESTURE);
 		create_new_item(NEW_GESTURE_NAME,
 					  parent_id,
 					  LLAssetType::AT_GESTURE,
 					  LLInventoryType::IT_GESTURE,
 					  PERM_ALL);
 	}
-	else if ("shirt" == type_name)
+	else if ("shirt" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
 		LLFolderBridge::createWearable(parent_id, WT_SHIRT);
 	}
-	else if ("pants" == type_name)
+	else if ("pants" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
 		LLFolderBridge::createWearable(parent_id, WT_PANTS);
 	}
-	else if ("shoes" == type_name)
+	else if ("shoes" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
 		LLFolderBridge::createWearable(parent_id, WT_SHOES);
 	}
-	else if ("socks" == type_name)
+	else if ("socks" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
 		LLFolderBridge::createWearable(parent_id, WT_SOCKS);
 	}
-	else if ("jacket" == type_name)
+	else if ("jacket" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
 		LLFolderBridge::createWearable(parent_id, WT_JACKET);
 	}
-	else if ("skirt" == type_name)
+	else if ("skirt" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
 		LLFolderBridge::createWearable(parent_id, WT_SKIRT);
 	}
-	else if ("gloves" == type_name)
+	else if ("gloves" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
 		LLFolderBridge::createWearable(parent_id, WT_GLOVES);
 	}
-	else if ("undershirt" == type_name)
+	else if ("undershirt" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
 		LLFolderBridge::createWearable(parent_id, WT_UNDERSHIRT);
 	}
-	else if ("underpants" == type_name)
+	else if ("underpants" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
 		LLFolderBridge::createWearable(parent_id, WT_UNDERPANTS);
 	}
-	else if ("shape" == type_name)
+	else if ("shape" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_BODYPART);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_BODYPART);
 		LLFolderBridge::createWearable(parent_id, WT_SHAPE);
 	}
-	else if ("skin" == type_name)
+	else if ("skin" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_BODYPART);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_BODYPART);
 		LLFolderBridge::createWearable(parent_id, WT_SKIN);
 	}
-	else if ("hair" == type_name)
+	else if ("hair" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_BODYPART);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_BODYPART);
 		LLFolderBridge::createWearable(parent_id, WT_HAIR);
 	}
-	else if ("eyes" == type_name)
+	else if ("eyes" == type)
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_BODYPART);
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_BODYPART);
 		LLFolderBridge::createWearable(parent_id, WT_EYES);
 	}
 	

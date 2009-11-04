@@ -31,7 +31,7 @@
              left="0"
              mouse_opaque="true"
              name="favorites_list"
-             start_folder="Favorite"
+             start_folder="favorite"
              width="380"/>
         </accordion_tab>
         <accordion_tab
@@ -47,7 +47,7 @@
              left="0"
              mouse_opaque="true"
              name="landmarks_list"
-             start_folder="Landmarks"
+             start_folder="landmark"
              width="380"/>
         </accordion_tab>
         <accordion_tab
@@ -63,13 +63,13 @@
              left="0"
              mouse_opaque="true"
              name="my_inventory_list"
-             start_folder="INVENTORY"
+             start_folder="inventory"
              width="380"/>
-          </accordion_tab>
-          <accordion_tab
-           layout="topleft"
-           name="tab_library"
-           title="Library">
+        </accordion_tab>
+        <accordion_tab
+         layout="topleft"
+         name="tab_library"
+         title="Library">
             <inventory_subtree_panel
              allow_multi_select="true"
              border="true"
@@ -79,7 +79,7 @@
              left="0"
              mouse_opaque="true"
              name="library_list"
-             start_folder="LIBRARY"
+             start_folder="library"
              width="380"/>
         </accordion_tab>
     </accordion>

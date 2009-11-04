@@ -437,7 +437,7 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			}
 			else
 			{
-				const LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+				LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
 				if (item->getParentUUID() == favorites_id)
 				{
 					llwarns << "Attemt to copy a favorite item into the same folder." << llendl;
@@ -539,7 +539,7 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 	LLToolDragAndDrop* tool_dad = LLToolDragAndDrop::getInstance();
 	if (tool_dad->getSource() == LLToolDragAndDrop::SOURCE_NOTECARD)
 	{
-		viewer_item->setType(LLAssetType::AT_LANDMARK);
+		viewer_item->setType(LLAssetType::AT_FAVORITE);
 		copy_inventory_from_notecard(tool_dad->getObjectID(), tool_dad->getSourceID(), viewer_item.get(), gInventoryCallbacks.registerCB(cb));
 	}
 	else
@@ -561,7 +561,7 @@ void LLFavoritesBarCtrl::changed(U32 mask)
 {
 	if (mFavoriteFolderId.isNull())
 	{
-		mFavoriteFolderId = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+		mFavoriteFolderId = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
 		
 		if (mFavoriteFolderId.notNull())
 		{

@@ -176,7 +176,7 @@ void LLFloaterNameDesc::onBtnOK( )
 	upload_new_resource(mFilenameAndPath, // file
 			    childGetValue("name_form").asString(), 
 			    childGetValue("description_form").asString(), 
-			    0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+			    0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE,
 			    LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
 			    display_name, callback, expected_upload_cost, nruserdata);
 	closeFloater(false);

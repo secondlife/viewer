@@ -30,7 +30,7 @@
      text_color="white"
      top="0"
      value="Pick Info"
-     use_ellipses="true"
+     use_elipsis="true"
      width="275" />
     <scroll_container
      color="DkGray2"

@@ -1,35 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="panel_im_control_panel"
-       width="128"
-       height="327"
+       width="125"
+       height="248"
        border="false">
 
   <avatar_icon name="avatar_icon"
-               follows="left|top"
-               left_delta="3"
-               width="125"
-               height="125" />
+               width="96"
+               height="96" />
 
   <button name="view_profile_btn"
-          follows="left|bottom"
           label="View Profile"
+          left_delta="3"
           width="125"
 		  height="20" />
 
   <button name="add_friend_btn"
-          follows="left|bottom"
           label="Add Friend"
           width="125"
           height="20" />
 
   <button name="call_btn"
-          follows="left|bottom"
           label="Call"
           width="125"
           height="20" />
 
     <button
-     follows="left|bottom"
      height="20"
      label="End Call"
      name="end_call_btn"
@@ -38,26 +33,14 @@
 
   <button
 	 enabled="false"
-     follows="left|bottom"
      name="voice_ctrls_btn"
      label="Open Voice Controls"
      width="125"
      height="20"
      visible="false"/>
 
-  <button name="teleport_btn"
-          follows="left|bottom"
-          label="Teleport"
-          width="125"
-          height="20" />
   <button name="share_btn"
-          follows="left|bottom"
           label="Share"
-          width="125"
-          height="20" />
-  <button name="pay_btn"
-          follows="left|bottom"
-          label="Pay"
           width="125"
           height="20" />
 

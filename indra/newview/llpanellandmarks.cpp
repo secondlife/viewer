@@ -553,16 +553,14 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 	std::string command_name = userdata.asString();
 	if("add_landmark" == command_name)
 	{
-		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
-		if(landmark)
+		if(LLLandmarkActions::landmarkAlreadyExists())
 		{
-			LLSideTray::getInstance()->showPanel("panel_places", 
-								LLSD().insert("type", "landmark").insert("id",landmark->getUUID()));
+			std::string location;
+			LLAgentUI::buildLocationString(location, LLAgentUI::LOCATION_FORMAT_FULL);
+			llwarns<<" Landmark already exists at location:  "<< location<<llendl;
+			return;
 		}
-		else
-		{
-			LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
-		}
+		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
 	} 
 	else if ("category" == command_name)
 	{
@@ -586,7 +584,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 			menu_create_inventory_item(mCurrentSelectedList->getRootFolder(),
 					dynamic_cast<LLFolderBridge*> (folder_bridge), LLSD(
 							"category"), gInventory.findCategoryUUIDForType(
-							LLFolderType::FT_LANDMARK));
+							LLAssetType::AT_LANDMARK));
 		}
 	}
 }
@@ -618,21 +616,19 @@ void LLLandmarksPanel::onClipboardAction(const LLSD& userdata) const
 
 void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 {
-	LLFolderView* landmarks_folder = mLandmarksInventoryPanel->getRootFolder();
-	LLFolderView* fav_folder = mFavoritesInventoryPanel->getRootFolder();
+	if(!mCurrentSelectedList) return;
+
+	LLFolderView* root_folder = mCurrentSelectedList->getRootFolder();
 	std::string command_name = userdata.asString();
 
 	if ("expand_all" == command_name)
 	{
-		landmarks_folder->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_DOWN);
-		fav_folder->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_DOWN);
-		landmarks_folder->arrangeAll();
-		fav_folder->arrangeAll();
+		root_folder->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_DOWN);
+		root_folder->arrangeAll();
 	}
 	else if ("collapse_all" == command_name)
 	{
-		landmarks_folder->closeAllFolders();
-		fav_folder->closeAllFolders();
+		root_folder->closeAllFolders();
 	}
 	else if ( "sort_by_date" == command_name)
 	{
@@ -643,9 +639,6 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 	}
 	else
 	{
-		if(!mCurrentSelectedList) return;
-
-		LLFolderView* root_folder = mCurrentSelectedList->getRootFolder();
 		root_folder->doToSelected(&gInventory, userdata);
 	}
 }

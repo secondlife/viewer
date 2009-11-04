@@ -42,7 +42,6 @@
 #include "llpanelpeople.h"
 
 // newview
-#include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llagent.h"
 #include "llavataractions.h"
@@ -517,9 +516,6 @@ BOOL LLPanelPeople::postBuild()
 	// call this method in case some list is empty and buttons can be in inconsistent state
 	updateButtons();
 
-	mOnlineFriendList->setRefreshCompleteCallback(boost::bind(&LLPanelPeople::onFriendListRefreshComplete, this, _1, _2));
-	mAllFriendList->setRefreshCompleteCallback(boost::bind(&LLPanelPeople::onFriendListRefreshComplete, this, _1, _2));
-
 	return TRUE;
 }
 
@@ -564,8 +560,6 @@ void LLPanelPeople::updateFriendList()
 
 	mOnlineFriendList->setDirty();
 	mAllFriendList->setDirty();
-
-	showFriendsAccordionsIfNeeded();
 }
 
 void LLPanelPeople::updateNearbyList()
@@ -803,15 +797,14 @@ void LLPanelPeople::reSelectedCurrentTab()
 
 void LLPanelPeople::onFilterEdit(const std::string& search_string)
 {
-	std::string search_upper = search_string;
-	// Searches are case-insensitive
-	LLStringUtil::toUpper(search_upper);
-	LLStringUtil::trimHead(search_upper);
-
-	if (mFilterSubString == search_upper)
+	if (mFilterSubString == search_string)
 		return;
 
-	mFilterSubString = search_upper;
+	mFilterSubString = search_string;
+
+	// Searches are case-insensitive
+	LLStringUtil::toUpper(mFilterSubString);
+	LLStringUtil::trimHead(mFilterSubString);
 
 	// Apply new filter.
 	mNearbyList->setNameFilter(mFilterSubString);
@@ -819,8 +812,6 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 	mAllFriendList->setNameFilter(mFilterSubString);
 	mRecentList->setNameFilter(mFilterSubString);
 	mGroupList->setNameFilter(mFilterSubString);
-
-	showFriendsAccordionsIfNeeded();
 }
 
 void LLPanelPeople::onTabSelected(const LLSD& param)
@@ -1132,50 +1123,4 @@ void	LLPanelPeople::onOpen(const LLSD& key)
 		mTabContainer->selectTabByName(tab_name);
 	else
 		reSelectedCurrentTab();
-}
-
-void LLPanelPeople::showAccordion(const std::string name, bool show)
-{
-	if(name.empty())
-	{
-		llwarns << "No name provided" << llendl;
-		return;
-	}
-
-	LLAccordionCtrlTab* tab = getChild<LLAccordionCtrlTab>(name);
-	tab->setVisible(show);
-	if(show)
-	{
-		// expand accordion
-		tab->changeOpenClose(false);
-	}
-}
-
-void LLPanelPeople::showFriendsAccordionsIfNeeded()
-{
-	if(FRIENDS_TAB_NAME == getActiveTabName())
-	{
-		// Expand and show accordions if needed, else - hide them
-		showAccordion("tab_online", mOnlineFriendList->filterHasMatches());
-		showAccordion("tab_all", mAllFriendList->filterHasMatches());
-
-		// Rearrange accordions
-		LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("friends_accordion");
-		accordion->arrange();
-	}
-}
-
-void LLPanelPeople::onFriendListRefreshComplete(LLUICtrl*ctrl, const LLSD& param)
-{
-	if(ctrl == mOnlineFriendList)
-	{
-		showAccordion("tab_online", param.asInteger());
-	}
-	else if(ctrl == mAllFriendList)
-	{
-		showAccordion("tab_all", param.asInteger());
-	}
-
-	LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("friends_accordion");
-	accordion->arrange();
 }

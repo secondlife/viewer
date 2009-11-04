@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
+ border="true"
  follows="all"
  height="485"
  label="Notices"
  layout="topleft"
- left="0"
+ left="1"
  name="notices_tab"
- top="0"
- width="313">
+ top="485"
+ width="280">
     <panel.string
      name="help_text">
         Notices are a quick way to communicate across a 
@@ -19,48 +20,60 @@ the General tab.
     </panel.string>
     <panel.string
      name="no_notices_text">
-        There are no past notices
+        There are no past notices.
     </panel.string>
+     <!--<text
+      follows="left|top"
+     type="string"
+     font="SansSerifBig"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="lbl"
+     top_pad="10"
+     width="269">
+        Group Notices Archive
+    </text> -->
     <text
       follows="left|top"
      type="string"
      word_wrap="true"
-     height="30"
+     height="40"
      layout="topleft"
-     left="10"
+     left_delta="10"
      name="lbl2"
-     top="5"
-     width="300">
-     Notices are kept for 14 days
-Groups are limited to 200 notices/group daily
+     text_color="EmphasisColor"
+     top_pad="10"
+     width="270">
+        Notices are kept for 14 days. Notice lists are limited to 200 notices per group on a daily basis.
     </text>
     <scroll_list
       follows="left|top"
      column_padding="0"
      draw_heading="true"
-     heading_height="16"
-     height="125"
+     heading_height="14"
+     height="109"
      layout="topleft"
-     left="0"
+     left_delta="0"
      name="notice_list"
      top_pad="0"
-     width="303">
+     width="265">
         <scroll_list.columns
          label=""
          name="icon"
-         width="20" />
+         width="16" />
         <scroll_list.columns
          label="Subject"
          name="subject"
-         width="125" />
+         width="100" />
         <scroll_list.columns
          label="From"
          name="from"
-         width="90" />
+         width="83" />
         <scroll_list.columns
          label="Date"
          name="date"
-         width="30" />
+         width="50" />
         <scroll_list.columns
          name="sort"
          width="-1" />
@@ -71,42 +84,39 @@ Groups are limited to 200 notices/group daily
      layout="topleft"
      name="notice_list_none_found"
      visible="false">
-        None found
+        None found.
     </text>
-         <button
-       follows="bottom|left"
-       height="18"
-       image_selected="AddItem_Press"
-       image_unselected="AddItem_Off"
-       image_disabled="AddItem_Disabled"
-       layout="topleft"
-       label="Create a new notice"
-       left="15"
-       name="create_new_notice"
-       picture_style="true"
-       tool_tip="Create a new notice"
-     top_delta="-5"
-       width="18" />
-     <button
-     follows="top|left"
-     height="22"
-     image_overlay="Refresh_Off"
+    <button
+      follows="left|top"
+     height="20"
+     font="SansSerifSmall"
+     label="New Notice"
+     label_selected="Create New Notice"
      layout="topleft"
+     left_delta="0"
+     name="create_new_notice"
+     top_delta="4"
+     width="125" />
+    <button
+      follows="left|top"
+     height="20"
+     font="SansSerifSmall"
+     label="Refresh"
+     label_selected="Refresh List"
+     layout="topleft"
+     left_pad="12"
      name="refresh_notices"
-     picture_style="true"
-     right="-5"
-     top_delta="5"
-     width="23" />
+     top_delta="0"
+     width="125" />
     <panel
      follows="left|top"
-     height="300"
+     height="268"
      label="Create New Notice"
      layout="topleft"
      left="0"
-     top_pad="10"
-     visible="false"
      name="panel_create_new_notice"
-     width="303">
+     top_pad="10"
+     width="265">
         <text
          follows="left|top"
          type="string"
@@ -117,9 +127,22 @@ Groups are limited to 200 notices/group daily
          mouse_opaque="false"
          name="lbl"
          text_color="EmphasisColor"
-         top="0"
-         width="200">
+         top_pad="0"
+         width="265">
             Create a Notice
+        </text>
+        <text
+         follows="left|top"
+         type="string"
+         word_wrap="true"
+         height="90"
+         layout="topleft"
+         left_delta="0"
+         name="lbl2"
+         text_color="EmphasisColor"
+         top_pad="4"
+         width="195">
+            You can add a single item to a notice by dragging it from your inventory to this panel. Attached items must be copiable and transferrable, and you can&apos;t send a folder.
         </text>
         <text
          follows="left|top"
@@ -127,6 +150,7 @@ Groups are limited to 200 notices/group daily
          halign="left"
          height="16"
          layout="topleft"
+         left_delta="0"
          name="lbl3"
          top_pad="10"
          width="60">
@@ -140,7 +164,8 @@ Groups are limited to 200 notices/group daily
          left_pad="3"
          max_length="63"
          name="create_subject"
-         width="220" />
+         top_delta="-1"
+         width="200" />
         <text
          follows="left|top"
          type="string"
@@ -149,100 +174,106 @@ Groups are limited to 200 notices/group daily
          layout="topleft"
          left="10"
          name="lbl4"
-         top_pad="5"
+         top_pad="10"
          width="60">
             Message:
         </text>
         <text_editor
-         height="90"
+         height="75"
          layout="topleft"
          left_pad="3"
          max_length="511"
          name="create_message"
          top_delta="0"
-         width="220"
+         width="200"
          word_wrap="true" />
         <text
          follows="left|top"
          type="string"
          halign="left"
-         height="14"
+         height="16"
          layout="topleft"
          left="10"
          name="lbl5"
-         width="200">
+         top_pad="10"
+         width="60">
             Attach:
         </text>
         <line_editor
          enabled="false"
-         height="19"
+         height="16"
          layout="topleft"
-         max_length="90"
+         left_pad="3"
+         max_length="63"
          mouse_opaque="false"
          name="create_inventory_name"
-         top_pad="2"
-         width="285" />
-        <text
-        text_color="EmphasisColor"
+         top_delta="0"
+         width="200" />
+        <icon
+         height="16"
+         layout="topleft"
+         left_delta="0"
+         name="create_inv_icon"
+         top_delta="0"
+         width="16" />
+        <button
          follows="left|top"
-         type="string"
-         halign="right"
-         height="34"
+         height="20"
+         font="SansSerifSmall"
+         label="Remove Attachment"
+         label_selected="Remove Attachment"
          layout="topleft"
          left="10"
-         name="string"
-         top_pad="15"
-         word_wrap="true"
-         width="150">
-            Drag here to attach something -- >
-        </text>
-        <icon
-         height="72"
-         image_name="DropTarget"
-         layout="topleft"
-         left_pad="10"
-         mouse_opaque="true"
-         name="drop_icon"
-         top_delta="-10"
-         width="72" />
-        <button
-         follows="left|top"
-         height="23"
-         label="Remove"
-         layout="topleft"
-         left="70"
          name="remove_attachment"
-         top_delta="45"
-         width="90" />
+         top_pad="10"
+         width="135" />
         <button
          follows="left|top"
-         height="23"
+         height="20"
+         font="SansSerifSmall"
          label="Send"
          label_selected="Send Notice"
          layout="topleft"
-         right="-10"
-         top_pad="20"
+         left_delta="138"
          name="send_notice"
-         width="100" />
-      <group_drop_target
-         height="466"
-         top="0"
-         left="0"
+         top_delta="0"
+         width="125" />
+        <panel
+         bevel_style="in"
+         border="true"
+         height="71"
          layout="topleft"
+         left="200"
+         name="drop_target2"
+         top="20"
+         width="71" />
+        <icon
+         height="59"
+         image_name="icon_groupnoticeinventory.tga"
+         layout="topleft"
+         left_delta="6"
+         mouse_opaque="true"
+         name="drop_icon"
+         top="26"
+         width="59" />
+        <group_drop_target
+         height="466"
+         layout="topleft"
+         left="0"
          name="drop_target"
          tool_tip="Drag an inventory item onto the message box to send it with the notice. You must have permission to copy and transfer the object to send it with the notice."
-         width="295" />
+         top="-198"
+         width="280" />
    </panel> 
     <panel
      follows="left|top"
-     height="300"
+     height="268"
      label="View Past Notice"
      layout="topleft"
      left="0"
-     visible="true"
      name="panel_view_past_notice"
-     top="180"
-     width="303">
+     top="197"
+     width="265">
         <text
          type="string"
          font="SansSerifBig"
@@ -263,9 +294,9 @@ Groups are limited to 200 notices/group daily
          layout="topleft"
          left_delta="0"
          name="lbl2"
-         top_pad="2"
+         top_pad="4"
          width="265">
-            To send a new notice, click the + button
+            To send a new notice, click the &apos;New Notice&apos; button above.
         </text>
         <text
          type="string"
@@ -274,7 +305,7 @@ Groups are limited to 200 notices/group daily
          layout="topleft"
          left_delta="0"
          name="lbl3"
-         top_pad="15"
+         top_pad="24"
          visible="false"
          width="60">
             Subject:
@@ -305,13 +336,13 @@ Groups are limited to 200 notices/group daily
         </text>
         <text_editor
          enabled="false"
-         height="205"
+         height="150"
          layout="topleft"
          left="10"
          max_length="511"
          name="view_message"
          top_delta="-35"
-         width="285"
+         width="260"
          word_wrap="true" />
         <line_editor
          enabled="false"
@@ -322,7 +353,7 @@ Groups are limited to 200 notices/group daily
          mouse_opaque="false"
          name="view_inventory_name"
          top_pad="10"
-         width="285" />
+         width="260" />
         <icon
          height="16"
          layout="topleft"
@@ -332,12 +363,14 @@ Groups are limited to 200 notices/group daily
          width="16" />
         <button
          follows="left|top"
-         height="23"
-         label="Open attachment"
+         height="20"
+         font="SansSerifSmall"
+         label="Open Attachment"
+         label_selected="Open Attachment"
          layout="topleft"
-         right="-10"
+         left_delta="0"
          name="open_attachment"
-         top_pad="5"
+         top_pad="10"
          width="135" />
         </panel>
 </panel>

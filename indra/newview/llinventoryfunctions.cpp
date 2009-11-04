@@ -317,6 +317,10 @@ const std::string& get_item_icon_name(LLAssetType::EType asset_type,
 	case LLAssetType::AT_GESTURE:
 		idx = GESTURE_ICON_NAME;
 		break;
+	case LLAssetType::AT_FAVORITE:
+		//TODO - need bette idx
+		idx = LANDMARK_ICON_NAME;
+		break;
 	case LLAssetType::AT_LINK:
 		idx = LINKITEM_ICON_NAME;
 		break;

@@ -55,7 +55,7 @@ public:
 	static bool landmarkAlreadyExists();
 	
 	/**
-	 * @brief Checks whether landmark exists for current agent parcel.
+	 * @brief Checks whether landmark exists for current parcel.
 	 */
 	static bool hasParcelLandmark();
 

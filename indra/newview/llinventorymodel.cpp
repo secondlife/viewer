@@ -49,7 +49,6 @@
 #include "llinventoryfunctions.h"
 #include "llinventorypanel.h"
 #include "llfloaterinventory.h"
-#include "llviewerfoldertype.h"
 #include "llviewerinventory.h"
 #include "llviewermessage.h"
 #include "llviewerwindow.h"
@@ -317,7 +316,7 @@ void LLInventoryModel::unlockDirectDescendentArrays(const LLUUID& cat_id)
 // specifies 'type' as what it defaults to containing. The category is
 // not necessarily only for that type. *NOTE: This will create a new
 // inventory category on the fly if one does not exist.
-const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType t, bool create_folder)
+LLUUID LLInventoryModel::findCategoryUUIDForType(LLAssetType::EType t, bool create_folder)
 {
 	const LLUUID &rv = findCatUUID(t);
 	if(rv.isNull() && isInventoryUsable() && create_folder)
@@ -333,10 +332,10 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType t, bo
 
 // Internal method which looks for a category with the specified
 // preferred type. Returns LLUUID::null if not found.
-const LLUUID &LLInventoryModel::findCatUUID(LLFolderType::EType preferred_type) const
+const LLUUID &LLInventoryModel::findCatUUID(LLAssetType::EType preferred_type) const
 {
 	const LLUUID &root_id = gInventory.getRootFolderID();
-	if(LLFolderType::FT_CATEGORY == preferred_type)
+	if(LLAssetType::AT_CATEGORY == preferred_type)
 	{
 		return root_id;
 	}
@@ -364,7 +363,7 @@ const LLUUID &LLInventoryModel::findCatUUID(LLFolderType::EType preferred_type) 
 // version will take care of details like what the name should be
 // based on preferred type. Returns the UUID of the new category.
 LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
-										   LLFolderType::EType preferred_type,
+										   LLAssetType::EType preferred_type,
 										   const std::string& pname)
 {
 	LLUUID id;
@@ -374,9 +373,9 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 		return id;
 	}
 
-	if(LLFolderType::lookup(preferred_type) == LLFolderType::badLookup())
+	if(preferred_type == LLAssetType::AT_SIMSTATE)
 	{
-		lldebugs << "Attempt to create undefined category." << llendl;
+		lldebugs << "Attempt to create simstate category." << llendl;
 		return id;
 	}
 
@@ -388,7 +387,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	}
 	else
 	{
-		name.assign(LLViewerFolderType::lookupNewCategoryName(preferred_type));
+		name.assign(LLAssetType::lookupCategoryName(preferred_type));
 	}
 
 	// Add the category to the internal representation
@@ -452,7 +451,7 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 	// Start with categories
 	if(!include_trash)
 	{
-		const LLUUID trash_id = findCategoryUUIDForType(LLFolderType::FT_TRASH);
+		const LLUUID trash_id = findCategoryUUIDForType(LLAssetType::AT_TRASH);
 		if(trash_id.notNull() && (trash_id == id))
 			return;
 	}
@@ -486,7 +485,7 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 			if (item->getActualType() == LLAssetType::AT_LINK_FOLDER)
 			{
 				LLViewerInventoryCategory *linked_cat = item->getLinkedCategory();
-				if (linked_cat && linked_cat->getPreferredType() != LLFolderType::FT_OUTFIT)
+				if (linked_cat && linked_cat->getPreferredType() != LLAssetType::AT_OUTFIT)
 					// BAP - was 
 					// LLAssetType::lookupIsEnsembleCategoryType(linked_cat->getPreferredType()))
 					// Change back once ensemble typing is in place.
@@ -666,7 +665,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 
 		if(item->getParentUUID().isNull())
 		{
-			const LLUUID category_id = findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(new_item->getType()));
+			LLUUID category_id = findCategoryUUIDForType(new_item->getType());
 			new_item->setParent(category_id);
 			item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, category_id);
 			if( item_array )
@@ -690,7 +689,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 			LLUUID parent_id = item->getParentUUID();
 			if(parent_id == CATEGORIZE_LOST_AND_FOUND_ID)
 			{
-				parent_id = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+				parent_id = findCategoryUUIDForType(LLAssetType::AT_LOST_AND_FOUND);
 				new_item->setParent(parent_id);
 			}
 			item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, parent_id);
@@ -703,7 +702,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 				// Whoops! No such parent, make one.
 				llinfos << "Lost item: " << new_item->getUUID() << " - "
 						<< new_item->getName() << llendl;
-				parent_id = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+				parent_id = findCategoryUUIDForType(LLAssetType::AT_LOST_AND_FOUND);
 				new_item->setParent(parent_id);
 				item_array = get_ptr_in_map(mParentChildItemTree, parent_id);
 				if(item_array)
@@ -1185,7 +1184,7 @@ void LLInventoryModel::mock(const LLUUID& root_id)
 		root_id,
 		LLUUID::null,
 		LLAssetType::AT_CATEGORY,
-		LLFolderType::lookupNewCategoryName(LLFolderType::FT_ROOT_CATEGORY),
+		LLAssetType::lookupCategoryName(LLAssetType::AT_ROOT_CATEGORY),
 		gAgent.getID());
 	addCategory(cat);
 	gInventory.buildParentChildMap();
@@ -1343,7 +1342,7 @@ void  fetchDescendentsResponder::result(const LLSD& content)
 				    item_it != folder_sd["items"].endArray();
 				    ++item_it)
 			    {	
-                    const LLUUID lost_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+                    LLUUID lost_uuid = gInventory.findCategoryUUIDForType(LLAssetType::AT_LOST_AND_FOUND);
                     if (lost_uuid.notNull())
                     {
 				        LLSD item = *item_it;
@@ -2050,11 +2049,11 @@ bool LLInventoryModel::loadSkeleton(
 			cat->setUUID(folder_id.asUUID());
 			cat->setParent(parent_id.asUUID());
 
-			LLFolderType::EType preferred_type = LLFolderType::FT_NONE;
+			LLAssetType::EType preferred_type = LLAssetType::AT_NONE;
 			LLSD type_default = (*it)["type_default"];
 			if(type_default.isDefined())
             {
-				preferred_type = (LLFolderType::EType)type_default.asInteger();
+				preferred_type = (LLAssetType::EType)type_default.asInteger();
             }
             cat->setPreferredType(preferred_type);
 			cat->setVersion(version.asInteger());
@@ -2401,12 +2400,12 @@ void LLInventoryModel::buildParentChildMap()
 					<< cat->getName() << llendl;
 			++lost;
 			// plop it into the lost & found.
-			LLFolderType::EType pref = cat->getPreferredType();
-			if(LLFolderType::FT_NONE == pref)
+			LLAssetType::EType pref = cat->getPreferredType();
+			if(LLAssetType::AT_NONE == pref)
 			{
-				cat->setParent(findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
+				cat->setParent(findCategoryUUIDForType(LLAssetType::AT_LOST_AND_FOUND));
 			}
-			else if(LLFolderType::FT_CATEGORY == pref)
+			else if(LLAssetType::AT_CATEGORY == pref)
 			{
 				// it's the root
 				cat->setParent(LLUUID::null);
@@ -2465,7 +2464,7 @@ void LLInventoryModel::buildParentChildMap()
 			++lost;
 			// plop it into the lost & found.
 			//
-			item->setParent(findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
+			item->setParent(findCategoryUUIDForType(LLAssetType::AT_LOST_AND_FOUND));
 			// move it later using a special message to move items. If
 			// we update server here, the client might crash.
 			//item->updateServer();
@@ -2486,7 +2485,7 @@ void LLInventoryModel::buildParentChildMap()
 		llwarns << "Found " << lost << " lost items." << llendl;
 		LLMessageSystem* msg = gMessageSystem;
 		BOOL start_new_message = TRUE;
-		const LLUUID lnf = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+		LLUUID lnf = findCategoryUUIDForType(LLAssetType::AT_LOST_AND_FOUND);
 		for(std::vector<LLUUID>::iterator it = lost_item_ids.begin() ; it < lost_item_ids.end(); ++it)
 		{
 			if(start_new_message)
@@ -2939,7 +2938,7 @@ void LLInventoryModel::processUpdateInventoryFolder(LLMessageSystem* msg,
 		lastfolder = tfolder;
 		tfolder->unpackMessage(msg, _PREHASH_FolderData, i);
 		// make sure it's not a protected folder
-		tfolder->setPreferredType(LLFolderType::FT_NONE);
+		tfolder->setPreferredType(LLAssetType::AT_NONE);
 		folders.push_back(tfolder);
 		// examine update for changes.
 		LLViewerInventoryCategory* folderp = gInventory.getCategory(tfolder->getUUID());
@@ -3326,31 +3325,31 @@ void LLInventoryModel::processMoveInventoryItem(LLMessageSystem* msg, void**)
 
 //----------------------------------------------------------------------------
 
-// Trash: LLFolderType::FT_TRASH, "ConfirmEmptyTrash"
-// Lost&Found: LLFolderType::FT_LOST_AND_FOUND, "ConfirmEmptyLostAndFound"
+// Trash: LLAssetType::AT_TRASH, "ConfirmEmptyTrash"
+// Lost&Found: LLAssetType::AT_LOST_AND_FOUND, "ConfirmEmptyLostAndFound"
 
-bool LLInventoryModel::callbackEmptyFolderType(const LLSD& notification, const LLSD& response, LLFolderType::EType preferred_type)
+bool LLInventoryModel::callbackEmptyFolderType(const LLSD& notification, const LLSD& response, LLAssetType::EType folder_type)
 {
 	S32 option = LLNotification::getSelectedOption(notification, response);
 	if (option == 0) // YES
 	{
-		const LLUUID folder_id = findCategoryUUIDForType(preferred_type);
+		LLUUID folder_id = findCategoryUUIDForType(folder_type);
 		purgeDescendentsOf(folder_id);
 		notifyObservers();
 	}
 	return false;
 }
 
-void LLInventoryModel::emptyFolderType(const std::string notification, LLFolderType::EType preferred_type)
+void LLInventoryModel::emptyFolderType(const std::string notification, LLAssetType::EType folder_type)
 {
 	if (!notification.empty())
 	{
 		LLNotifications::instance().add(notification, LLSD(), LLSD(),
-										boost::bind(&LLInventoryModel::callbackEmptyFolderType, this, _1, _2, preferred_type));
+										boost::bind(&LLInventoryModel::callbackEmptyFolderType, this, _1, _2, folder_type));
 	}
 	else
 	{
-		const LLUUID folder_id = findCategoryUUIDForType(preferred_type);
+		LLUUID folder_id = findCategoryUUIDForType(folder_type);
 		purgeDescendentsOf(folder_id);
 		notifyObservers();
 	}
@@ -3361,7 +3360,7 @@ void LLInventoryModel::emptyFolderType(const std::string notification, LLFolderT
 void LLInventoryModel::removeItem(const LLUUID& item_id)
 {
 	LLViewerInventoryItem* item = getItem(item_id);
-	const LLUUID new_parent = findCategoryUUIDForType(LLFolderType::FT_TRASH);
+	const LLUUID new_parent = findCategoryUUIDForType(LLAssetType::AT_TRASH);
 	if (item && item->getParentUUID() != new_parent)
 	{
 		LLInventoryModel::update_list_t update;

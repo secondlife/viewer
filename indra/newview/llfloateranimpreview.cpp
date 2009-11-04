@@ -989,7 +989,7 @@ void LLFloaterAnimPreview::onBtnOK(void* userdata)
 						    name,
 						    desc,
 						    0,
-						    LLFolderType::FT_NONE,
+						    LLAssetType::AT_NONE,
 						    LLInventoryType::IT_ANIMATION,
 						    LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
 						    name,

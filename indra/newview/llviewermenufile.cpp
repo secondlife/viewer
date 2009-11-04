@@ -319,7 +319,7 @@ class LLFileUploadBulk : public view_listener_t
 			LLAssetStorage::LLStoreAssetCallback callback = NULL;
 			S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 			void *userdata = NULL;
-			upload_new_resource(filename, asset_name, asset_name, 0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+			upload_new_resource(filename, asset_name, asset_name, 0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE,
 				LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
 					    display_name,
 					    callback, expected_upload_cost, userdata);
@@ -493,7 +493,7 @@ void handle_compress_image(void*)
 
 void upload_new_resource(const std::string& src_filename, std::string name,
 			 std::string desc, S32 compression_info,
-			 LLFolderType::EType destination_folder_type,
+			 LLAssetType::EType destination_folder_type,
 			 LLInventoryType::EType inv_type,
 			 U32 next_owner_perms,
 			 U32 group_perms,
@@ -810,7 +810,7 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 
 	if(result >= 0)
 	{
-		LLFolderType::EType dest_loc = (data->mPreferredLocation == LLFolderType::FT_NONE) ? LLFolderType::assetTypeToFolderType(data->mAssetInfo.mType) : data->mPreferredLocation;
+		LLAssetType::EType dest_loc = (data->mPreferredLocation == LLAssetType::AT_NONE) ? data->mAssetInfo.mType : data->mPreferredLocation;
 
 		if (LLAssetType::AT_SOUND == data->mAssetInfo.mType ||
 			LLAssetType::AT_TEXTURE == data->mAssetInfo.mType ||
@@ -856,7 +856,7 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 		{
 			// Actually add the upload to inventory
 			llinfos << "Adding " << uuid << " to inventory." << llendl;
-			const LLUUID folder_id = gInventory.findCategoryUUIDForType(dest_loc);
+			LLUUID folder_id(gInventory.findCategoryUUIDForType(dest_loc));
 			if(folder_id.notNull())
 			{
 				U32 next_owner_perms = data->mNextOwnerPerm;
@@ -903,7 +903,7 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 		LLAssetStorage::LLStoreAssetCallback callback = NULL;
 		void *userdata = NULL;
 		upload_new_resource(next_file, asset_name, asset_name,	// file
-				    0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+				    0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE,
 				    PERM_NONE, PERM_NONE, PERM_NONE,
 				    display_name,
 				    callback,
@@ -915,7 +915,7 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_type,
 			 std::string name,
 			 std::string desc, S32 compression_info,
-			 LLFolderType::EType destination_folder_type,
+			 LLAssetType::EType destination_folder_type,
 			 LLInventoryType::EType inv_type,
 			 U32 next_owner_perms,
 			 U32 group_perms,
@@ -973,14 +973,14 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 	llinfos << "Name: " << name << llendl;
 	llinfos << "Desc: " << desc << llendl;
 	llinfos << "Expected Upload Cost: " << expected_upload_cost << llendl;
-	lldebugs << "Folder: " << gInventory.findCategoryUUIDForType((destination_folder_type == LLFolderType::FT_NONE) ? LLFolderType::assetTypeToFolderType(asset_type) : destination_folder_type) << llendl;
+	lldebugs << "Folder: " << gInventory.findCategoryUUIDForType((destination_folder_type == LLAssetType::AT_NONE) ? asset_type : destination_folder_type) << llendl;
 	lldebugs << "Asset Type: " << LLAssetType::lookup(asset_type) << llendl;
 	std::string url = gAgent.getRegion()->getCapability("NewFileAgentInventory");
 	if (!url.empty())
 	{
 		llinfos << "New Agent Inventory via capability" << llendl;
 		LLSD body;
-		body["folder_id"] = gInventory.findCategoryUUIDForType((destination_folder_type == LLFolderType::FT_NONE) ? LLFolderType::assetTypeToFolderType(asset_type) : destination_folder_type);
+		body["folder_id"] = gInventory.findCategoryUUIDForType((destination_folder_type == LLAssetType::AT_NONE) ? asset_type : destination_folder_type);
 		body["asset_type"] = LLAssetType::lookup(asset_type);
 		body["inventory_type"] = LLInventoryType::lookup(inv_type);
 		body["name"] = name;

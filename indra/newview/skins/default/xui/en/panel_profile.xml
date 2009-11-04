@@ -157,7 +157,7 @@
          value="http://librarianavengers.org"
          width="280"
          word_wrap="false"
-         use_ellipses="true"
+         use_elipsis="true"
          />
         <text
          follows="left|top"

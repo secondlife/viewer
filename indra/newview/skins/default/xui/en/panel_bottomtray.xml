@@ -60,7 +60,7 @@
          min_width="96"
          name="speak_panel"
          user_resize="false">
-         <talk_button
+         <chiclet_talk
           follows="right"
           height="23"
           speak_button.tab_stop="true"
@@ -93,7 +93,7 @@
          min_width="76"
          name="gesture_panel"
          user_resize="false">
-         <gesture_combo_box
+         <button
            follows="right"
           height="23"
           label="Gesture"

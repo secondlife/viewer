@@ -32,11 +32,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-// common includes
-#include "lltrans.h"
-#include "llavataractions.h"
-#include "llagent.h"
-
 #include "llparticipantlist.h"
 #include "llavatarlist.h"
 #include "llspeakers.h"
@@ -44,18 +39,15 @@
 //LLParticipantList retrieves add, clear and remove events and updates view accordingly 
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list):
 	mSpeakerMgr(data_source),
-	mAvatarList(avatar_list),
-	mSpeakerAddListener(*this),
-	mSpeakerRemoveListener(*this),
-	mSpeakerClearListener(*this),
-	mSortOrder(E_SORT_BY_NAME)
+	mAvatarList(avatar_list)
 {
-	mSpeakerMgr->addListener(&mSpeakerAddListener, "add");
-	mSpeakerMgr->addListener(&mSpeakerRemoveListener, "remove");
-	mSpeakerMgr->addListener(&mSpeakerClearListener, "clear");
+	mSpeakerAddListener = new SpeakerAddListener(mAvatarList);
+	mSpeakerRemoveListener = new SpeakerRemoveListener(mAvatarList);
+	mSpeakerClearListener = new SpeakerClearListener(mAvatarList);
 
-	mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
-	mAvatarList->setDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
+	mSpeakerMgr->addListener(mSpeakerAddListener, "add");
+	mSpeakerMgr->addListener(mSpeakerRemoveListener, "remove");
+	mSpeakerMgr->addListener(mSpeakerClearListener, "clear");
 
 	//Lets fill avatarList with existing speakers
 	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
@@ -66,33 +58,24 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	{
 		group_members.push_back((*it)->mID);
 	}
-	sort();
+	mAvatarList->setDirty();
+	mAvatarList->sortByName();
 }
 
 LLParticipantList::~LLParticipantList()
 {
+	delete mSpeakerAddListener;
+	delete mSpeakerRemoveListener;
+	delete mSpeakerClearListener;
+	mSpeakerAddListener = NULL;
+	mSpeakerRemoveListener = NULL;
+	mSpeakerClearListener = NULL;
 }
 
-void LLParticipantList::onAvatarListDoubleClicked(LLAvatarList* list)
-{
-	LLUUID clicked_id = list->getSelectedUUID();
-
-	if (clicked_id.isNull() || clicked_id == gAgent.getID())
-		return;
-	
-	LLAvatarActions::startIM(clicked_id);
-}
-
-void LLParticipantList::setSortOrder(EParticipantSortOrder order)
-{
-	if ( mSortOrder != order )
-	{
-		mSortOrder = order;
-		sort();
-	}
-}
-
-bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+//
+// LLParticipantList::SpeakerAddListener
+//
+bool LLParticipantList::SpeakerAddListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
 	LLUUID uu_id = event->getValue().asUUID();
@@ -105,11 +88,15 @@ bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, co
 	}
 
 	group_members.push_back(uu_id);
-	sort();
+	mAvatarList->setDirty();
+	mAvatarList->sortByName();
 	return true;
 }
 
-bool LLParticipantList::onRemoveItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+//
+// LLParticipantList::SpeakerRemoveListener
+//
+bool LLParticipantList::SpeakerRemoveListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
 	LLAvatarList::uuid_vector_t::iterator pos = std::find(group_members.begin(), group_members.end(), event->getValue().asUUID());
@@ -121,7 +108,10 @@ bool LLParticipantList::onRemoveItemEvent(LLPointer<LLOldEvents::LLEvent> event,
 	return true;
 }
 
-bool LLParticipantList::onClearListEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+//
+// LLParticipantList::SpeakerClearListener
+//
+bool LLParticipantList::SpeakerClearListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
 	group_members.clear();
@@ -129,45 +119,3 @@ bool LLParticipantList::onClearListEvent(LLPointer<LLOldEvents::LLEvent> event, 
 	return true;
 }
 
-void LLParticipantList::sort()
-{
-	if ( !mAvatarList )
-		return;
-
-	// Mark AvatarList as dirty one
-	mAvatarList->setDirty();
-
-	// TODO: Implement more sorting orders after specs updating (EM)
-	switch ( mSortOrder ) {
-	case E_SORT_BY_NAME :
-		mAvatarList->sortByName();
-		break;
-	default :
-		llwarns << "Unrecognized sort order for " << mAvatarList->getName() << llendl;
-		return;
-	}
-}
-
-//
-// LLParticipantList::SpeakerAddListener
-//
-bool LLParticipantList::SpeakerAddListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
-{
-	return mParent.onAddItemEvent(event, userdata);
-}
-
-//
-// LLParticipantList::SpeakerRemoveListener
-//
-bool LLParticipantList::SpeakerRemoveListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
-{
-	return mParent.onRemoveItemEvent(event, userdata);
-}
-
-//
-// LLParticipantList::SpeakerClearListener
-//
-bool LLParticipantList::SpeakerClearListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
-{
-	return mParent.onClearListEvent(event, userdata);
-}

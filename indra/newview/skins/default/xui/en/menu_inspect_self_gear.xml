@@ -7,6 +7,7 @@
          name="Gear Menu">
   <menu_item_call
    label="Stand Up"
+   layout="topleft"
    enabled="true"
    name="stand_up">
     <menu_item_call.on_click
@@ -17,6 +18,7 @@
   </menu_item_call>
   <menu_item_call
    label="My Appearance"
+   layout="topleft"
    name="my_appearance">
     <menu_item_call.on_click
      function="ShowFloater"
@@ -26,6 +28,7 @@
   </menu_item_call>
   <menu_item_call
    label="My Profile"
+   layout="topleft"
    enabled="true" 
    name="my_profile">
     <menu_item_call.on_click
@@ -34,6 +37,7 @@
   </menu_item_call>
   <menu_item_call
    label="My Friends"
+   layout="topleft"
    name="my_friends">
     <menu_item_call.on_click
      function="Self.Friends"
@@ -41,6 +45,7 @@
   </menu_item_call>
   <menu_item_call
    label="My Groups"
+   layout="topleft"
    name="my_groups">
     <menu_item_call.on_click
      function="Self.Groups" />

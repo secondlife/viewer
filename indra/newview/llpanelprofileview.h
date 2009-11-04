@@ -36,8 +36,6 @@
 #include "llpanel.h"
 #include "llpanelprofile.h"
 #include "llavatarpropertiesprocessor.h"
-#include "llagent.h"
-#include "lltooldraganddrop.h"
 
 class LLPanelProfile;
 class LLPanelProfileTab;
@@ -65,18 +63,6 @@ public:
 	/*virtual*/ BOOL postBuild();
 
 	/*virtual*/ void togglePanel(LLPanel* panel);
-
-	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
-						   BOOL drop, EDragAndDropType cargo_type,
-						   void *cargo_data, EAcceptance *accept,
-						   std::string& tooltip_msg)
-	{
-		LLToolDragAndDrop::handleGiveDragAndDrop(getAvatarId(), gAgent.getSessionID(), drop,
-				 cargo_type, cargo_data, accept);
-
-		return TRUE;
-	}
-
 
 protected:
 
