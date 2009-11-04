@@ -248,6 +248,13 @@ if(LLCOMMON_LINK_SHARED)
         if(NOT WINDOWS)
           get_target_property(LLCOMMON_PATH llcommon LOCATION)
           get_filename_component(LLCOMMON_FILE ${LLCOMMON_PATH} NAME)
+          if(DARWIN)
+            set(SHARED_LIB_STAGING_DIR_CONFIG ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/Resources)
+          else(DARWIN)
+            set(SHARED_LIB_STAGING_DIR_CONFIG ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR})
+          endif(DARWIN)
+
+          # *TODO - maybe make this a symbolic link? -brad
           add_custom_command(
             TARGET llcommon POST_BUILD
             COMMAND ${CMAKE_COMMAND}
@@ -255,7 +262,7 @@ if(LLCOMMON_LINK_SHARED)
               -E
               copy_if_different
               ${LLCOMMON_PATH}
-              ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/${LLCOMMON_FILE}
+              ${SHARED_LIB_STAGING_DIR_CONFIG}/${LLCOMMON_FILE}
             COMMENT "Copying llcommon to the staging folder."
             )
         endif(NOT WINDOWS)

@@ -22,7 +22,7 @@ if (NOT STANDALONE)
     set(ARCH_PREBUILT_DIRS ${ARCH_PREBUILT_DIRS_RELEASE})
     set(ARCH_PREBUILT_DIRS_DEBUG ${ARCH_PREBUILT_DIRS_RELEASE})
     set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs CACHE FILEPATH "Location of staged DLLs")
-    set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs CACHE FILEPATH "Location of staged executables")
+    set(EXE_STAGING_DIR "${CMAKE_BINARY_DIR}/sharedlibs/\$(CONFIGURATION)" CACHE FILEPATH "Location of staged executables")
   endif (WINDOWS)
 endif (NOT STANDALONE)
 
