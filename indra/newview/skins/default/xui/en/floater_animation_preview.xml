@@ -455,7 +455,6 @@ Maximum animation length is [MAX_LENGTH] seconds.
      layout="topleft"
      left="10"
      name="play_btn"
-     picture_style="true"
      tool_tip="Play/pause your animation"
      top_pad="0"
      width="28" />
@@ -467,7 +466,6 @@ Maximum animation length is [MAX_LENGTH] seconds.
      layout="topleft"
      left_pad="4"
      name="stop_btn"
-     picture_style="true"
      tool_tip="Stop animation playback"
      top_delta="0"
      width="28" />

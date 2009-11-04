@@ -1555,8 +1555,6 @@ LLMenuScrollItem::LLMenuScrollItem(const Params& p)
 	}
 
 	LLButton::Params bparams;
-	bparams.label("");
-	bparams.label_selected("");
 	bparams.mouse_opaque(true);
 	bparams.scale_image(false);
 	bparams.click_callback(p.scroll_callback);

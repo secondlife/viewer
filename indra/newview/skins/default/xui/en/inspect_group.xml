@@ -82,7 +82,6 @@ L$123 to join
      image_selected="ForwardArrow_Press"
      image_unselected="ForwardArrow_Off"
      name="view_profile_btn"
-     picture_style="true"
      right="-8"
      top="35"
      left_delta="110"

@@ -145,11 +145,11 @@
   <text
  type="string"
  length="1"
- bottom="390"
+ height="60" 
  label="N"
  layout="topleft"
  left="10"
- name="centered_text"
+ name="left_aligned_text"
  width="380"
  halign="left"
  text_color="1 1 1 0.7"

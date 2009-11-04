@@ -1264,17 +1264,14 @@ LLTalkButton::Params::Params()
 	speak_button.font(LLFontGL::getFontSansSerifSmall());
 	speak_button.tab_stop(false);
 	speak_button.is_toggle(true);
-	speak_button.picture_style(true);
 	// Use default button art. JC
 	//speak_button.image_selected(LLUI::getUIImage("SegmentedBtn_Left_Selected"));
 	//speak_button.image_unselected(LLUI::getUIImage("SegmentedBtn_Left_Off"));
 
 	show_button.name("right");
-	show_button.label(LLStringUtil::null);
 	show_button.rect(LLRect(0, 0, 20, 0));
 	show_button.tab_stop(false);
 	show_button.is_toggle(true);
-	show_button.picture_style(true);
 	show_button.image_selected(LLUI::getUIImage("ComboButton_Selected"));
 	show_button.image_unselected(LLUI::getUIImage("ComboButton_Off"));
 

@@ -750,6 +750,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 			bparams.tab_stop(false);
 			bparams.font(mFont);
 			bparams.name(">>");
+			bparams.label(">>");
 			bparams.tool_tip(mChevronButtonToolTip);
 			bparams.click_callback.function(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));
 
