@@ -47,7 +47,7 @@
 LLBottomTray::LLBottomTray(const LLSD&)
 :	mChicletPanel(NULL),
 	mSysWell(NULL),
-	mTalkBtn(NULL),
+	mSpeakBtn(NULL),
 	mNearbyChatBar(NULL),
 	mToolbarStack(NULL)
 

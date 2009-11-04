@@ -43,7 +43,7 @@ class LLChicletPanel;
 class LLLineEditor;
 class LLLayoutStack;
 class LLNotificationChiclet;
-class LLTalkButton;
+class LLSpeakButton;
 class LLNearbyChatBar;
 class LLIMChiclet;
 
@@ -110,7 +110,7 @@ protected:
 
 	LLChicletPanel* 	mChicletPanel;
 	LLNotificationChiclet* 	mSysWell;
-	LLTalkButton* 		mTalkBtn;
+	LLSpeakButton* 		mSpeakBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
 	LLLayoutStack*		mToolbarStack;
 	LLMenuGL*			mBottomTrayContextMenu;

@@ -42,7 +42,7 @@
 #include "llspeakers.h"
 
 
-class LLTalkButton;
+class LLSpeakButton;
 
 
 class LLGestureComboBox
@@ -128,7 +128,7 @@ protected:
 	static S32 sLastSpecialChatChannel;
 
 	LLLineEditor*		mChatBox;
-	LLTalkButton*		mTalkBtn;
+	LLSpeakButton*		mSpeakBtn;
 	LLOutputMonitorCtrl* mOutputMonitor;
 	LLActiveSpeakerMgr  mSpeakerMgr;
 };

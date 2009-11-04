@@ -36,7 +36,7 @@
 #include "lltrans.h"
 
 #include "llnearbychatbar.h"
-#include "lltalkbutton.h"
+#include "llspeakbutton.h"
 #include "llbottomtray.h"
 #include "llagent.h"
 #include "llgesturemgr.h"
@@ -229,11 +229,11 @@ BOOL LLNearbyChatBar::postBuild()
 
 	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
 	mOutputMonitor->setVisible(FALSE);
-	mTalkBtn = getParent()->getChild<LLTalkButton>("talk");
+	mSpeakBtn = getParent()->getChild<LLSpeakButton>("talk");
 
 	// Speak button should be initially disabled because
 	// it takes some time between logging in to world and connecting to voice channel.
-	mTalkBtn->setEnabled(FALSE);
+	mSpeakBtn->setEnabled(FALSE);
 
 	// Registering Chat Bar to receive Voice client status change notifications.
 	gVoiceClient->addObserver(this);
@@ -692,7 +692,7 @@ LLWString LLNearbyChatBar::stripChannelNumber(const LLWString &mesg, S32* channe
 
 void LLNearbyChatBar::setPTTState(bool state)
 {
-	mTalkBtn->setSpeakBtnToggleState(state);
+	mSpeakBtn->setSpeakBtnToggleState(state);
 }
 
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel)
@@ -748,7 +748,7 @@ void LLNearbyChatBar::onChange(EStatusType status, const std::string &channelURI
 		break;
 	}
 
-	mTalkBtn->setEnabled(enable);
+	mSpeakBtn->setEnabled(enable);
 }
 
 // Creating the object registers with the dispatcher.
