@@ -128,15 +128,16 @@ background_visible="true"
              <accordion_tab
                  can_resize="false"
                  layout="topleft"
-                 name="tab_general"
+                 name="group_general_tab"
                  title="General">
         <panel
         border="false"
+         class="panel_group_general" 
          filename="panel_group_general.xml"
          layout="topleft"
          left="0"
          help_topic="group_general_tab"
-         name="general_tab"
+         name="group_general_tab_panel"
          top="0"
          width="333" />
          </accordion_tab>
@@ -144,15 +145,16 @@ background_visible="true"
                  can_resize="false"
                  expanded="false"
                  layout="topleft"
-                 name="tab_roles"
+                 name="group_roles_tab"
                  title="Roles">
         <panel
         border="false"
+         class="panel_group_roles"
          filename="panel_group_roles.xml"
          layout="topleft"
          left="0"
          help_topic="group_roles_tab"
-         name="roles_tab"
+         name="group_roles_tab_panel"
          top="0"
          width="333" />
          </accordion_tab>
@@ -160,14 +162,15 @@ background_visible="true"
                  can_resize="false"
                  expanded="false"
                  layout="topleft"
-                 name="tab_notices"
+                 name="group_notices_tab"
                  title="Notices">
         <panel
+         class="panel_group_notices"
          filename="panel_group_notices.xml"
          layout="topleft"
          left="0"
          help_topic="group_notices_tab"
-         name="notices_tab"
+         name="group_notices_tab_panel"
          top="0"
          width="333" />
          </accordion_tab>
@@ -175,15 +178,16 @@ background_visible="true"
                  can_resize="false"
                  expanded="false"
                  layout="topleft"
-                 name="tab_notices"
+                 name="group_land_tab"
                  title="Land/Assets">
         <panel
         border="false"
+         class="panel_group_land_money"
          filename="panel_group_land_money.xml"
          layout="topleft"
          left="0"
          help_topic="group_land_money_tab"
-         name="land_money_tab"
+         name="group_land_tab_panel"
          top="0"
          width="333" />
          </accordion_tab>
