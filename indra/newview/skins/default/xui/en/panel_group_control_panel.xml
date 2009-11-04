@@ -25,12 +25,12 @@
      height="20" />
     <button
      name="call_btn"
-     label="Call"
+     label="Call Group"
      width="125"
      height="20" />
     <button
      name="end_call_btn"
-     label="End Call"
+     label="Leave Call"
      width="125"
      height="20" 
      visible="false"/>

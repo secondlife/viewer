@@ -19,13 +19,13 @@
      width="180" />
     <button
      name="call_btn"
-     label="Call"
+     label="Call Group"
      left_delta="27"
      width="125"
      height="20" />
     <button
      name="end_call_btn"
-     label="End Call"
+     label="Leave Call"
      width="125"
      height="20" 
      visible="false"/>

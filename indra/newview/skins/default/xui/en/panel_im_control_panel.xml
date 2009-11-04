@@ -31,7 +31,7 @@
     <button
      follows="left|bottom"
      height="20"
-     label="End Call"
+     label="Leave Call"
      name="end_call_btn"
      visible="false"
      width="125" />
