@@ -386,6 +386,7 @@ set(viewer_SOURCE_FILES
     llsurfacepatch.cpp
     llsyswellitem.cpp
     llsyswellwindow.cpp
+    lltalkbutton.cpp
     llteleporthistory.cpp
     llteleporthistorystorage.cpp
     lltexglobalcolor.cpp
@@ -872,6 +873,7 @@ set(viewer_HEADER_FILES
     llsyswellitem.h
     llsyswellwindow.h    
     lltable.h
+    lltalkbutton.h
     llteleporthistory.h
     llteleporthistorystorage.h
     lltexglobalcolor.h
