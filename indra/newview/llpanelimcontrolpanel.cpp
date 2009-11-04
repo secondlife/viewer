@@ -170,7 +170,7 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 
 	// Fetch the currect name
 	gCacheName->get(mAvatarID, FALSE, boost::bind(&LLPanelIMControlPanel::nameUpdatedCallback, this, _1, _2, _3, _4));
-	llwarns << "gCacheName->get" << llendl;
+
 	// Disable profile button if participant is not realy SL avatar
 	LLIMModel::LLIMSession* im_session =
 		im_model.findIMSession(session_id);
@@ -180,10 +180,8 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 
 void LLPanelIMControlPanel::nameUpdatedCallback(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
 {
-	llwarns << "LLPanelIMControlPanel::nameUpdatedCallback" << llendl;
 	if ( id == mAvatarID )
 	{
-		llwarns << "LLPanelIMControlPanel::nameUpdatedCallback id == mAvatarID" << llendl;
 		std::string avatar_name;
 		avatar_name.assign(first);
 		avatar_name.append(" ");
