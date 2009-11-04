@@ -205,7 +205,10 @@ void LLVOAvatarSelf::markDead()
 		 param;
 		 param = (LLViewerVisualParam*) getNextVisualParam())
 	{
-		param->setIsDummy(TRUE);
+		if (param->getWearableType() != WT_INVALID)
+		{
+			param->setIsDummy(TRUE);
+		}
 	}
 
 	return success;
