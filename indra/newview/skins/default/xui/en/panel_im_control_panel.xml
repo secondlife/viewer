@@ -1,32 +1,37 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel name="panel_im_control_panel"
-       width="128"
-       height="327"
-       border="false">
+<panel
+ border="false"
+ height="327"
+ name="panel_im_control_panel"
+ width="128">
 
-  <avatar_icon name="avatar_icon"
-               follows="left|top"
-               left_delta="3"
-               width="125"
-               height="125" />
+    <avatar_icon
+     follows="left|top"
+     height="125"
+     left_delta="3"
+     name="avatar_icon"
+     width="125"/>
 
-  <button name="view_profile_btn"
-          follows="left|bottom"
-          label="View Profile"
-          width="125"
-		  height="20" />
+    <button
+     follows="left|bottom"
+     height="20"
+     label="View Profile"
+     name="view_profile_btn"
+     width="125"/>
 
-  <button name="add_friend_btn"
-          follows="left|bottom"
-          label="Add Friend"
-          width="125"
-          height="20" />
+    <button
+     follows="left|bottom"
+     height="20"
+     label="Add Friend"
+     name="add_friend_btn"
+     width="125"/>
 
-  <button name="call_btn"
-          follows="left|bottom"
-          label="Call"
-          width="125"
-          height="20" />
+    <button
+     follows="left|bottom"
+     height="20"
+     label="Call"
+     name="call_btn"
+     width="125"/>
 
     <button
      follows="left|bottom"
@@ -34,31 +39,36 @@
      label="Leave Call"
      name="end_call_btn"
      visible="false"
-     width="125" />
+     width="125"/>
 
-  <button
-	 enabled="false"
+    <button
+     enabled="false"
      follows="left|bottom"
-     name="voice_ctrls_btn"
-     label="Open Voice Controls"
-     width="125"
      height="20"
-     visible="false"/>
+     label="Open Voice Controls"
+     name="voice_ctrls_btn"
+     visible="false"
+     width="125"/>
 
-  <button name="teleport_btn"
-          follows="left|bottom"
-          label="Teleport"
-          width="125"
-          height="20" />
-  <button name="share_btn"
-          follows="left|bottom"
-          label="Share"
-          width="125"
-          height="20" />
-  <button name="pay_btn"
-          follows="left|bottom"
-          label="Pay"
-          width="125"
-          height="20" />
+    <button
+     follows="left|bottom"
+     height="20"
+     label="Teleport"
+     name="teleport_btn"
+     width="125"/>
+
+    <button
+     follows="left|bottom"
+     height="20"
+     label="Share"
+     name="share_btn"
+     width="125"/>
+
+    <button
+     follows="left|bottom"
+     height="20"
+     label="Pay"
+     name="pay_btn"
+     width="125"/>
 
 </panel>
