@@ -60,6 +60,7 @@
 #include "llsidetray.h"
 #include "llstatusbar.h"
 #include "lltrans.h"
+#include "llviewerassettype.h"
 #include "llviewerregion.h"
 #include "llviewerobjectlist.h"
 #include "llviewermessage.h"
@@ -102,7 +103,7 @@ public:
 	virtual const std::string& getName() const;
 	virtual const std::string& getDisplayName() const;
 	virtual PermissionMask getPermissionMask() const { return PERM_NONE; }
-	/*virtual*/ LLAssetType::EType getPreferredType() const { return LLAssetType::AT_NONE; }
+	/*virtual*/ LLFolderType::EType getPreferredType() const { return LLFolderType::FT_NONE; }
 	virtual const LLUUID& getUUID() const { return mUUID; }
 	virtual time_t getCreationDate() const;
 	virtual LLUIImagePtr getIcon() const;
@@ -275,7 +276,7 @@ bool LLTaskInvFVBridge::commitBuyItem(const LLSD& notification, const LLSD& resp
 		msg->addUUIDFast(_PREHASH_ObjectID, notification["payload"]["task_id"].asUUID());
 		msg->addUUIDFast(_PREHASH_ItemID, notification["payload"]["item_id"].asUUID());
 		msg->addUUIDFast(_PREHASH_FolderID,
-			gInventory.findCategoryUUIDForType((LLAssetType::EType)notification["payload"]["type"].asInteger()));
+			gInventory.findCategoryUUIDForType((LLFolderType::EType)notification["payload"]["type"].asInteger()));
 		msg->sendReliable(object->getRegion()->getHost());
 	}
 	return false;
@@ -573,7 +574,7 @@ BOOL LLTaskInvFVBridge::startDrag(EDragAndDropType* type, LLUUID* id) const
 //				   || gAgent.isGodlike())
 
 				{
-					*type = LLAssetType::lookupDragAndDropType(inv->getType());
+					*type = LLViewerAssetType::lookupDragAndDropType(inv->getType());
 
 					*id = inv->getUUID();
 					return TRUE;
@@ -778,7 +779,7 @@ BOOL LLTaskCategoryBridge::startDrag(EDragAndDropType* type, LLUUID* id) const
 //				   || gAgent.isGodlike())
 
 				{
-					*type = LLAssetType::lookupDragAndDropType(inv->getType());
+					*type = LLViewerAssetType::lookupDragAndDropType(inv->getType());
 
 					*id = inv->getUUID();
 					return TRUE;
@@ -1461,7 +1462,6 @@ LLTaskInvFVBridge* LLTaskInvFVBridge::createObjectBridge(LLPanelObjectInventory*
 											  item->getFlags());
 		break;
 	case LLAssetType::AT_CATEGORY:
-	case LLAssetType::AT_FAVORITE:
 		new_bridge = new LLTaskCategoryBridge(panel,
 											  object->getUUID(),
 											  object->getName());
@@ -1503,8 +1503,8 @@ LLPanelObjectInventory::LLPanelObjectInventory(const LLPanelObjectInventory::Par
 {
 	// Setup context menu callbacks
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLPanelObjectInventory::doToSelected, this, _2));
-	mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLAssetType::AT_TRASH));
-	mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLAssetType::AT_LOST_AND_FOUND));
+	mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
+	mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
 	mCommitCallbackRegistrar.add("Inventory.DoCreate", boost::bind(&do_nothing));
 	mCommitCallbackRegistrar.add("Inventory.AttachObject", boost::bind(&do_nothing));
 	mCommitCallbackRegistrar.add("Inventory.BeginIMSession", boost::bind(&do_nothing));

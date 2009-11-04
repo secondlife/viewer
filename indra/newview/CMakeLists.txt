@@ -216,7 +216,6 @@ set(viewer_SOURCE_FILES
     llfloaterwhitelistentry.cpp
     llfloaterwindlight.cpp
     llfloaterworldmap.cpp
-    llfoldertype.cpp
     llfolderview.cpp
     llfolderviewitem.cpp
     llfollowcam.cpp
@@ -317,6 +316,7 @@ set(viewer_SOURCE_FILES
     llpanelimcontrolpanel.cpp
     llpanelland.cpp
     llpanellandaudio.cpp
+    llpanellandmarkinfo.cpp
     llpanellandmarks.cpp
     llpanellandmedia.cpp
     llpanellogin.cpp
@@ -337,6 +337,7 @@ set(viewer_SOURCE_FILES
     llpanelpicks.cpp
     llpanelplace.cpp
     llpanelplaceinfo.cpp
+    llpanelplaceprofile.cpp
     llpanelplaces.cpp
     llpanelplacestab.cpp
     llpanelprimmediacontrols.cpp
@@ -436,12 +437,14 @@ set(viewer_SOURCE_FILES
     llvectorperfoptions.cpp
     llviewchildren.cpp
     llviewerassetstorage.cpp
+    llviewerassettype.cpp
     llvieweraudio.cpp
     llviewercamera.cpp
     llviewercontrol.cpp
     llviewercontrollistener.cpp
     llviewerdisplay.cpp
     llviewerfloaterreg.cpp
+    llviewerfoldertype.cpp
     llviewergenericmessage.cpp
     llviewergesture.cpp    
     llviewerhelp.cpp
@@ -702,7 +705,6 @@ set(viewer_HEADER_FILES
     llfloaterwhitelistentry.h
     llfloaterwindlight.h
     llfloaterworldmap.h
-    llfoldertype.h
     llfolderview.h
     llfoldervieweventlistener.h
     llfolderviewitem.h
@@ -800,6 +802,7 @@ set(viewer_HEADER_FILES
     llpanelimcontrolpanel.h
     llpanelland.h
     llpanellandaudio.h
+    llpanellandmarkinfo.h
     llpanellandmarks.h
     llpanellandmedia.h
     llpanellogin.h
@@ -820,6 +823,7 @@ set(viewer_HEADER_FILES
     llpanelpicks.h
     llpanelplace.h
     llpanelplaceinfo.h
+    llpanelplaceprofile.h
     llpanelplaces.h
     llpanelplacestab.h
     llpanelprimmediacontrols.h
@@ -923,6 +927,7 @@ set(viewer_HEADER_FILES
     llvectorperfoptions.h
     llviewchildren.h
     llviewerassetstorage.h
+    llviewerassettype.h
     llvieweraudio.h
     llviewerbuild.h
     llviewercamera.h
@@ -930,6 +935,7 @@ set(viewer_HEADER_FILES
     llviewercontrollistener.h
     llviewerdisplay.h
     llviewerfloaterreg.h
+    llviewerfoldertype.h
     llviewergenericmessage.h
     llviewergesture.h    
     llviewerhelp.h

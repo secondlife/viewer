@@ -164,6 +164,7 @@ void LLMediaEntry::asLLSD(LLSD& sd) const
 
     // "security" fields
     sd[WHITELIST_ENABLE_KEY] = mWhiteListEnable;
+	sd.erase(WHITELIST_KEY);
     for (U32 i=0; i<mWhiteList.size(); i++) 
 	{
         sd[WHITELIST_KEY].append(mWhiteList[i]);

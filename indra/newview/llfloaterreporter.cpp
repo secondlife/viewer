@@ -770,7 +770,7 @@ void LLFloaterReporter::takeScreenshot()
 	if (COMPLAINT_REPORT == mReportType)
 	{
 		mResourceDatap->mAssetInfo.mType = LLAssetType::AT_TEXTURE;
-		mResourceDatap->mPreferredLocation = LLAssetType::EType(-2);
+		mResourceDatap->mPreferredLocation = LLFolderType::EType(LLResourceData::INVALID_LOCATION);
 	}
 	else
 	{
@@ -838,7 +838,7 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 	}
 
 	EReportType report_type = UNKNOWN_REPORT;
-	if (data->mPreferredLocation == -2)
+	if (data->mPreferredLocation == LLResourceData::INVALID_LOCATION)
 	{
 		report_type = COMPLAINT_REPORT;
 	}
