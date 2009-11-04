@@ -51,7 +51,6 @@ bool LLPanelPlacesTab::isTabVisible()
 
 void LLPanelPlacesTab::setPanelPlacesButtons(LLPanelPlaces* panel)
 {
-	//mShareBtn = panel->getChild<LLButton>("share_btn");
 	mTeleportBtn = panel->getChild<LLButton>("teleport_btn");
 	mShowOnMapBtn = panel->getChild<LLButton>("map_btn");
 }

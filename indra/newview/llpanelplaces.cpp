@@ -160,9 +160,6 @@ BOOL LLPanelPlaces::postBuild()
 	
 	mShowOnMapBtn = getChild<LLButton>("map_btn");
 	mShowOnMapBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onShowOnMapButtonClicked, this));
-	
-	mShareBtn = getChild<LLButton>("share_btn");
-	//mShareBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onShareButtonClicked, this));
 
 	mEditBtn = getChild<LLButton>("edit_btn");
 	mEditBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this));
@@ -412,13 +409,6 @@ void LLPanelPlaces::onTabSelected()
 	onFilterEdit(mFilterSubString, true);
 	mActivePanel->updateVerbs();
 }
-
-/*
-void LLPanelPlaces::onShareButtonClicked()
-{
-	// TODO: Launch the "Things" Share wizard
-}
-*/
 
 void LLPanelPlaces::onTeleportButtonClicked()
 {
@@ -852,7 +842,6 @@ void LLPanelPlaces::updateVerbs()
 
 	mTeleportBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
 	mShowOnMapBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
-	mShareBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
 	mOverflowBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
 	mEditBtn->setVisible(mPlaceInfoType == LANDMARK_INFO_TYPE && !isLandmarkEditModeOn);
 	mSaveBtn->setVisible(isLandmarkEditModeOn);

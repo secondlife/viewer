@@ -73,7 +73,6 @@ private:
 	void onFilterEdit(const std::string& search_string, bool force_filter);
 	void onTabSelected();
 
-	//void onShareButtonClicked();
 	void onTeleportButtonClicked();
 	void onShowOnMapButtonClicked();
 	void onEditButtonClicked();
@@ -105,7 +104,6 @@ private:
 
 	LLButton*					mTeleportBtn;
 	LLButton*					mShowOnMapBtn;
-	LLButton*					mShareBtn;
 	LLButton*					mEditBtn;
 	LLButton*					mSaveBtn;
 	LLButton*					mCancelBtn;
