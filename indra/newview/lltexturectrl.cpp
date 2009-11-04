@@ -529,7 +529,7 @@ void LLFloaterTexturePicker::draw()
 		mTexturep = NULL;
 		if(mImageAssetID.notNull())
 		{
-			mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES, IMMEDIATE_NO);
+			mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES);
 			mTexturep->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
 		}
 		else if (!mFallbackImageName.empty())
@@ -1190,7 +1190,7 @@ void LLTextureCtrl::draw()
 	}
 	else if (!mImageAssetID.isNull())
 	{
-		mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES, IMMEDIATE_NO);
+		mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES);
 		mTexturep->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
 	}
 	else if (!mFallbackImageName.empty())

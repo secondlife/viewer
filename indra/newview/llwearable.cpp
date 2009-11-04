@@ -661,7 +661,7 @@ void LLWearable::writeToAvatar( BOOL set_by_user, BOOL update_customize_floater 
 			{	
 				image_id = LLVOAvatarDictionary::getDefaultTextureImageID((ETextureIndex) te);
 			}
-			LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE );
+			LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE );
 			// MULTI-WEARABLE: replace hard-coded 0
 			avatar->setLocalTextureTE(te, image, set_by_user, 0);
 		}
