@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  auto_tile="true"
- height="560"
+ height="570"
  layout="topleft"
  name="item properties"
  help_topic="item_properties"
  save_rect="true"
  title="Inventory Item Properties"
- width="325">
+ width="333">
     <panel.string
      name="unknown">
         (unknown)
@@ -49,28 +49,15 @@
      tab_stop="false"
      top="0"
      width="25" />
-
-    <tab_container
-     follows="all"
-     height="450"
-     layout="topleft"
-     left="10"
-     name="tabs"
-     tab_min_width="70"
-     tab_height="0"
-     tab_position="top"
-     top_pad="10"
-     width="313">
         <panel
          follows="all"
-         height="500"
+         height="450"
          label=""
          layout="topleft"
-         left="0"
+         left="5"
          help_topic="people_nearby_tab"
          name="nearby_panel"
-         top="0"
-		 border="1"
+         top="30"
          width="313">
     <text
      type="string"
@@ -487,22 +474,22 @@
         Price: L$
     </text-->
 	</panel>
-	</tab_container>
+
     <panel
      height="25"
      layout="bottomright"
-     left="0"
-     help_topic="places_button_tab"
+     help_topic="button_tab"
      name="button_panel"
+     left="5"
 	 bottom="5"
-     width="325">
+     width="313">
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
          height="25"
          label="Edit"
          layout="topleft"
-         left="10"
+         left="0"
          name="edit_btn"
          top="0"
          width="50" />
@@ -513,7 +500,7 @@
          label="Cancel"
          layout="topleft"
          name="cancel_btn"
-         right="-10"
+         right="-1"
          top="0"
          width="70" />
         <button

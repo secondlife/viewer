@@ -44,7 +44,7 @@ static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_
 
 LLSidepanelInventory::LLSidepanelInventory()
 	:	LLPanel(),
-		mSidepanelItemInfo(NULL)
+		mItemPanel(NULL)
 {
 
 	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
@@ -56,36 +56,40 @@ LLSidepanelInventory::~LLSidepanelInventory()
 
 BOOL LLSidepanelInventory::postBuild()
 {
-	mInfoBtn = getChild<LLButton>("info_btn");
-	mInfoBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onInfoButtonClicked, this));
+	// UI elements from inventory panel
+	{
+		mInventoryPanel = getChild<LLPanel>("sidepanel__inventory_panel");
+		
+		mInfoBtn = mInventoryPanel->getChild<LLButton>("info_btn");
+		mInfoBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onInfoButtonClicked, this));
+		
+		mShareBtn = mInventoryPanel->getChild<LLButton>("share_btn");
+		mShareBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onShareButtonClicked, this));
+		
+		mWearBtn = mInventoryPanel->getChild<LLButton>("wear_btn");
+		mWearBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onWearButtonClicked, this));
+		
+		mPlayBtn = mInventoryPanel->getChild<LLButton>("play_btn");
+		mPlayBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onPlayButtonClicked, this));
+		
+		mTeleportBtn = mInventoryPanel->getChild<LLButton>("teleport_btn");
+		mTeleportBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onTeleportButtonClicked, this));
+		
+		mOverflowBtn = mInventoryPanel->getChild<LLButton>("overflow_btn");
+		mOverflowBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onOverflowButtonClicked, this));
+		
+		LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+		panel_main_inventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
+	}
 
-	mShareBtn = getChild<LLButton>("share_btn");
-	mShareBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onShareButtonClicked, this));
-
-	mShareBtn = getChild<LLButton>("share_btn");
-	mShareBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onShareButtonClicked, this));
-
-	mWearBtn = getChild<LLButton>("wear_btn");
-	mWearBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onWearButtonClicked, this));
-
-	mPlayBtn = getChild<LLButton>("play_btn");
-	mPlayBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onPlayButtonClicked, this));
-
-	mTeleportBtn = getChild<LLButton>("teleport_btn");
-	mTeleportBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onTeleportButtonClicked, this));
-
-	mOverflowBtn = getChild<LLButton>("overflow_btn");
-	mOverflowBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onOverflowButtonClicked, this));
-
-	mTabContainer = getChild<LLTabContainer>("Inventory Tabs");
-	mSidepanelItemInfo = getChild<LLSidepanelItemInfo>("sidepanel_item_info");
-
-	mPanelMainInventory = getChild<LLPanelMainInventory>("panel_main_inventory");
-	mPanelMainInventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
-
-	LLButton* back_btn = mSidepanelItemInfo->getChild<LLButton>("back_btn");
-	back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
-
+	// UI elements from item panel
+	{
+		mItemPanel = getChild<LLSidepanelItemInfo>("sidepanel__item_panel");
+		
+		LLButton* back_btn = mItemPanel->getChild<LLButton>("back_btn");
+		back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
+	}
+	
 	return TRUE;
 }
 
@@ -94,16 +98,16 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 	if(key.size() == 0)
 		return;
 
-	mSidepanelItemInfo->reset();
+	mItemPanel->reset();
 
 	if (key.has("id"))
 	{
-		mSidepanelItemInfo->setItemID(key["id"].asUUID());
+		mItemPanel->setItemID(key["id"].asUUID());
 	}
 	
 	if (key.has("object"))
 	{
-		mSidepanelItemInfo->setObjectID(key["object"].asUUID());
+		mItemPanel->setObjectID(key["object"].asUUID());
 	}
 
 	toggleItemInfoPanel(TRUE);
@@ -114,8 +118,8 @@ void LLSidepanelInventory::onInfoButtonClicked()
 	LLInventoryItem *item = getSelectedItem();
 	if (item)
 	{
-		mSidepanelItemInfo->reset();
-		mSidepanelItemInfo->setItemID(item->getUUID());
+		mItemPanel->reset();
+		mItemPanel->setItemID(item->getUUID());
 		toggleItemInfoPanel(TRUE);
 	}
 }
@@ -126,13 +130,13 @@ void LLSidepanelInventory::onShareButtonClicked()
 
 void LLSidepanelInventory::performActionOnSelection(const std::string &action)
 {
-	LLInventoryPanel *panel = mPanelMainInventory->getActivePanel();
-	LLFolderViewItem* current_item = panel->getRootFolder()->getCurSelectedItem();
+	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+	LLFolderViewItem* current_item = panel_main_inventory->getActivePanel()->getRootFolder()->getCurSelectedItem();
 	if (!current_item)
 	{
 		return;
 	}
-	current_item->getListener()->performAction(panel->getRootFolder(), panel->getModel(), action);
+	current_item->getListener()->performAction(panel_main_inventory->getActivePanel()->getRootFolder(), panel_main_inventory->getActivePanel()->getModel(), action);
 }
 
 void LLSidepanelInventory::onWearButtonClicked()
@@ -168,17 +172,18 @@ void LLSidepanelInventory::onSelectionChange(const std::deque<LLFolderViewItem*>
 
 void LLSidepanelInventory::toggleItemInfoPanel(BOOL visible)
 {
-	mSidepanelItemInfo->setVisible(visible);
-	mTabContainer->setVisible(!visible);
+	mItemPanel->setVisible(visible);
+	mInventoryPanel->setVisible(!visible);
 
 	if (visible)
 	{
-		mSidepanelItemInfo->dirty();
-		mSidepanelItemInfo->setEditMode(FALSE);
-
+		mItemPanel->dirty();
+		mItemPanel->setEditMode(FALSE);
+		/*
 		LLRect rect = getRect();
-		LLRect new_rect = LLRect(rect.mLeft, rect.mTop, rect.mRight, mTabContainer->getRect().mBottom);
-		mSidepanelItemInfo->reshape(new_rect.getWidth(),new_rect.getHeight());
+		LLRect new_rect = LLRect(rect.mLeft, rect.mTop, rect.mRight, mInventoryPanel->getRect().mBottom);
+		mItemPanel->reshape(new_rect.getWidth(),new_rect.getHeight());
+		*/
 	}
 }
 
@@ -226,7 +231,8 @@ void LLSidepanelInventory::updateVerbs()
 
 LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 {
-	LLFolderViewItem* current_item = mPanelMainInventory->getActivePanel()->getRootFolder()->getCurSelectedItem();
+	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+	LLFolderViewItem* current_item = panel_main_inventory->getActivePanel()->getRootFolder()->getCurSelectedItem();
 	if (!current_item)
 	{
 		return NULL;

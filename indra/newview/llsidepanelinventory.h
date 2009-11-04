@@ -36,7 +36,6 @@
 
 class LLInventoryItem;
 class LLSidepanelItemInfo;
-class LLTabContainer;
 class LLPanelMainInventory;
 class LLFolderViewItem;
 
@@ -78,9 +77,8 @@ private:
 	LLButton*					mTeleportBtn;
 	LLButton*					mOverflowBtn;
 
-	LLTabContainer*				mTabContainer;
-	LLSidepanelItemInfo*		mSidepanelItemInfo;
-	LLPanelMainInventory*		mPanelMainInventory;
+	LLPanel*					mInventoryPanel; // Main inventory view
+	LLSidepanelItemInfo*		mItemPanel; // Individual item view
 };
 
 #endif //LL_LLSIDEPANELINVENTORY_H
