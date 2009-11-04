@@ -36,6 +36,7 @@
 #include "lltrans.h"
 
 #include "llnearbychatbar.h"
+#include "lltalkbutton.h"
 #include "llbottomtray.h"
 #include "llagent.h"
 #include "llgesturemgr.h"
