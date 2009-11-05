@@ -24,8 +24,8 @@
     tab_stop="false"
     is_toggle="true"
     picture_style="true"
-    image_selected="ComboButton_Selected"
-    image_unselected="ComboButton_Off"
+    image_selected="ComboButton_UpSelected"
+    image_unselected="ComboButton_UpOff"
     />
   <monitor
     name="monitor"
