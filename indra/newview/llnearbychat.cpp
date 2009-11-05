@@ -61,7 +61,7 @@
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
 LLNearbyChat::LLNearbyChat(const LLSD& key) 
-	: LLDockableFloater(NULL, key)
+	: LLDockableFloater(NULL, false, key)
 	,mChatHistory(NULL)
 {
 	
