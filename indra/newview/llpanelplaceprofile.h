@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  *
- * Copyright (c) 2004-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  *
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -35,6 +35,7 @@
 
 #include "llpanelplaceinfo.h"
 
+class LLIconCtrl;
 class LLTextEditor;
 
 class LLPanelPlaceProfile : public LLPanelPlaceInfo
@@ -48,8 +49,6 @@ public:
 	/*virtual*/ void resetLocation();
 
 	/*virtual*/ void setInfoType(INFO_TYPE type);
-
-	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 
 	// Displays information about the currently selected parcel
 	// without sending a request to the server.
@@ -81,16 +80,24 @@ private:
 	LLTextBox*			mParcelOwner;
 	LLTextBox*			mLastVisited;
 
-	LLTextBox*			mRatingText;
+	LLIconCtrl*			mParcelRatingIcon;
+	LLTextBox*			mParcelRatingText;
+	LLIconCtrl*			mVoiceIcon;
 	LLTextBox*			mVoiceText;
+	LLIconCtrl*			mFlyIcon;
 	LLTextBox*			mFlyText;
+	LLIconCtrl*			mPushIcon;
 	LLTextBox*			mPushText;
+	LLIconCtrl*			mBuildIcon;
 	LLTextBox*			mBuildText;
+	LLIconCtrl*			mScriptsIcon;
 	LLTextBox*			mScriptsText;
+	LLIconCtrl*			mDamageIcon;
 	LLTextBox*			mDamageText;
 
 	LLTextBox*			mRegionNameText;
 	LLTextBox*			mRegionTypeText;
+	LLIconCtrl*			mRegionRatingIcon;
 	LLTextBox*			mRegionRatingText;
 	LLTextBox*			mRegionOwnerText;
 	LLTextBox*			mRegionGroupText;

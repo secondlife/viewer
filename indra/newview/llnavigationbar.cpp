@@ -274,8 +274,14 @@ void LLNavigationBar::draw()
 
 BOOL LLNavigationBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	show_navbar_context_menu(this,x,y);
-	return TRUE;
+	BOOL handled = childrenHandleRightMouseDown( x, y, mask) != NULL;
+	if(!handled && !gMenuHolder->hasVisibleMenu())
+	{
+		show_navbar_context_menu(this,x,y);
+		handled = true;
+	}
+					
+	return handled;
 }
 
 void LLNavigationBar::onBackButtonClicked()

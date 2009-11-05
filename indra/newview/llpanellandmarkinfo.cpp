@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  *
- * Copyright (c) 2004-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  *
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -34,8 +34,6 @@
 
 #include "llpanellandmarkinfo.h"
 
-#include "llinventory.h"
-
 #include "llcombobox.h"
 #include "lllineeditor.h"
 #include "lltextbox.h"
@@ -44,7 +42,6 @@
 
 #include "llagent.h"
 #include "llagentui.h"
-#include "llinventorymodel.h"
 #include "lllandmarkactions.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
@@ -138,20 +135,6 @@ void LLPanelLandmarkInfo::setInfoType(INFO_TYPE type)
 void LLPanelLandmarkInfo::processParcelInfo(const LLParcelData& parcel_data)
 {
 	LLPanelPlaceInfo::processParcelInfo(parcel_data);
-
-	// HACK: Flag 0x2 == adult region,
-	// Flag 0x1 == mature region, otherwise assume PG
-	std::string rating = LLViewerRegion::accessToString(SIM_ACCESS_PG);
-	if (parcel_data.flags & 0x2)
-	{
-		rating = LLViewerRegion::accessToString(SIM_ACCESS_ADULT);
-	}
-	else if (parcel_data.flags & 0x1)
-	{
-		rating = LLViewerRegion::accessToString(SIM_ACCESS_MATURE);
-	}
-
-	mMaturityRatingText->setValue(rating);
 
 	S32 region_x;
 	S32 region_y;

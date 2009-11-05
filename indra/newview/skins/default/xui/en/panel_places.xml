@@ -79,7 +79,7 @@ background_visible="true"
          left="5"
          name="teleport_btn"
          top="0"
-         width="77" />
+         width="100" />
         <button
          follows="bottom|left"
          font="SansSerifSmall"
@@ -89,18 +89,7 @@ background_visible="true"
          left_pad="5"
          name="map_btn"
          top="0"
-         width="50" />
-        <button
-         enabled="false"
-         follows="bottom|left"
-         font="SansSerifSmall"
-         height="19"
-         label="Share"
-         layout="topleft"
-         left_pad="5"
-         name="share_btn"
-         top="0"
-         width="60" />
+         width="70" />
         <button
          follows="bottom|left"
          font="SansSerifSmall"
@@ -110,7 +99,7 @@ background_visible="true"
          left_pad="5"
          name="edit_btn"
          top="0"
-         width="50" />
+         width="70" />
         <button
          follows="bottom|right"
          font="SansSerifSmall"

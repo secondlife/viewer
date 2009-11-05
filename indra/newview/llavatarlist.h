@@ -61,6 +61,7 @@ public:
 		Optional<bool> show_last_interaction_time; // show most recent interaction time. *HACK: move this to a derived class
 		Optional<bool> show_info_btn;
 		Optional<bool> show_profile_btn;
+		Optional<bool> show_speaking_indicator;
 		Params();
 	};
 
@@ -76,6 +77,7 @@ public:
 	void setContextMenu(LLAvatarListItem::ContextMenu* menu) { mContextMenu = menu; }
 
 	void toggleIcons();
+	void setSpeakingIndicatorsVisible(bool visible);
 	void sortByName();
 	void setShowIcons(std::string param_name);
 	bool getIconsVisible() const { return mShowIcons; }
@@ -105,6 +107,7 @@ private:
 	bool mShowIcons;
 	bool mShowInfoBtn;
 	bool mShowProfileBtn;
+	bool mShowSpeakingIndicator;
 
 	LLTimer*				mLITUpdateTimer; // last interaction time update timer
 	std::string				mIconParamName;

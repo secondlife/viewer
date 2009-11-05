@@ -323,7 +323,6 @@ set(viewer_SOURCE_FILES
     llpanellookinfo.cpp
     llpanellooks.cpp
     llpanelmaininventory.cpp
-    llpanelmedia.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
@@ -809,7 +808,6 @@ set(viewer_HEADER_FILES
     llpanellookinfo.h
     llpanellooks.h
     llpanelmaininventory.h
-    llpanelmedia.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h

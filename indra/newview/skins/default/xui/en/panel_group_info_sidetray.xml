@@ -128,7 +128,7 @@ background_visible="true"
                  can_resize="false"
                  expanded="true"
                  layout="topleft"
-                 name="tab_general"
+                 name="group_general_tab"
                  title="General">
          <scroll_container
          color="DkGray2"
@@ -143,11 +143,12 @@ background_visible="true"
          width="333">
             <panel
             border="false"
+         class="panel_group_general" 
              filename="panel_group_general.xml"
              layout="topleft"
              left="0"
              help_topic="group_general_tab"
-             name="general_tab"
+         name="group_general_tab_panel"
              top="0"
              width="303" />
          </scroll_container>
@@ -156,7 +157,7 @@ background_visible="true"
                  can_resize="false"
                  expanded="false"
                  layout="topleft"
-                 name="tab_roles"
+                 name="group_roles_tab"
                  title="Roles">
                <scroll_container
                   color="DkGray2"
@@ -171,11 +172,12 @@ background_visible="true"
                   width="333">
                  <panel
                  border="false"
+         class="panel_group_roles"
                   filename="panel_group_roles.xml"
                   layout="topleft"
                   left="0"
                   help_topic="group_roles_tab"
-                  name="roles_tab"
+         name="group_roles_tab_panel"
                   top="0"
              width="303" />
          </scroll_container>
@@ -184,7 +186,7 @@ background_visible="true"
                  can_resize="false"
                  expanded="false"
                  layout="topleft"
-                 name="tab_notices"
+                 name="group_notices_tab"
                  title="Notices">
             <scroll_container
                   color="DkGray2"
@@ -199,11 +201,12 @@ background_visible="true"
                   width="333">
         <panel
         border="false"
+         class="panel_group_notices"
          filename="panel_group_notices.xml"
          layout="topleft"
          left="0"
          help_topic="group_notices_tab"
-         name="notices_tab"
+         name="group_notices_tab_panel"
          top="0"
          width="303" />
          </scroll_container>
@@ -212,7 +215,7 @@ background_visible="true"
                  can_resize="false"
                  expanded="false"
                  layout="topleft"
-                 name="tab_notices"
+                 name="group_land_tab"
                  title="Land/Assets">
            <scroll_container
                   color="DkGray2"
@@ -227,11 +230,12 @@ background_visible="true"
                   width="333">
         <panel
         border="false"
+         class="panel_group_land_money"
          filename="panel_group_land_money.xml"
          layout="topleft"
          left="0"
          help_topic="group_land_money_tab"
-         name="land_money_tab"
+         name="group_land_tab_panel"
          top="0"
          width="313" />
          </scroll_container>
