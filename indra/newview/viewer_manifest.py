@@ -231,8 +231,21 @@ class WindowsManifest(ViewerManifest):
                                'llplugin', 'slplugin', self.args['configuration'], "slplugin.exe"),
                   "slplugin.exe")
         
-        # need to get the llcommon.dll from the build directory as well
-        if self.prefix(src=self.args['configuration'], dst=""):
+        self.disable_manifest_check()
+
+        # Get shared libs from the shared libs staging directory
+        if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
+                       dst=""):
+
+            self.enable_crt_manifest_check()
+            
+            # Get kdu dll, continue if missing.
+            try:
+                self.path('%s/llkdu.dll' % self.args['configuration'], dst='llkdu.dll')
+            except RuntimeError:
+                print "Skipping llkdu.dll"
+
+            # Get llcommon and deps. If missing assume static linkage and continue.
             try:
                 self.path('llcommon.dll')
                 self.path('libapr-1.dll')
@@ -242,22 +255,41 @@ class WindowsManifest(ViewerManifest):
                 print err.message
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
 
-            self.end_prefix()
+            self.disable_manifest_check()
 
-        # need to get the kdu dll from the build directory as well
-        try:
-            self.path('%s/llkdu.dll' % self.args['configuration'], dst='llkdu.dll')
-        except RuntimeError:
-            print "Skipping llkdu.dll"
-
-        self.disable_manifest_check()
-
-        # For textures
-        if self.prefix(src=self.args['configuration'], dst=""):
-            if(self.args['configuration'].lower() == 'debug'):
+            # For textures
+            if self.args['configuration'].lower() == 'debug':
                 self.path("openjpegd.dll")
             else:
                 self.path("openjpeg.dll")
+
+            # These need to be installed as a SxS assembly, currently a 'private' assembly.
+            # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
+            if self.args['configuration'].lower() == 'debug':
+                self.path("msvcr80d.dll")
+                self.path("msvcp80d.dll")
+                self.path("Microsoft.VC80.DebugCRT.manifest")
+            else:
+                self.path("msvcr80.dll")
+                self.path("msvcp80.dll")
+                self.path("Microsoft.VC80.CRT.manifest")
+
+            # Vivox runtimes
+            self.path("SLVoice.exe")
+            self.path("alut.dll")
+            self.path("vivoxsdk.dll")
+            self.path("ortp.dll")
+            self.path("wrap_oal.dll")
+
+            # For google-perftools tcmalloc allocator.
+            try:
+                if self.args['configuration'].lower() == 'debug':
+                    self.path('libtcmalloc_minimal-debug.dll')
+                else:
+                    self.path('libtcmalloc_minimal.dll')
+            except:
+                print "Skipping libtcmalloc_minimal.dll"
+
             self.end_prefix()
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
@@ -270,6 +302,7 @@ class WindowsManifest(ViewerManifest):
         self.path("fmod.dll")
 
         self.enable_no_crt_manifest_check()
+        
         # Media plugins - QuickTime
         if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_quicktime.dll")
@@ -302,45 +335,12 @@ class WindowsManifest(ViewerManifest):
 
         self.disable_manifest_check()
 
-        # These need to be installed as a SxS assembly, currently a 'private' assembly.
-        # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
-        if self.prefix(src=self.args['configuration'], dst=""):
-            if self.args['configuration'] == 'Debug':
-                self.path("msvcr80d.dll")
-                self.path("msvcp80d.dll")
-                self.path("Microsoft.VC80.DebugCRT.manifest")
-            else:
-                self.path("msvcr80.dll")
-                self.path("msvcp80.dll")
-                self.path("Microsoft.VC80.CRT.manifest")
-            self.end_prefix()
-
-        # Vivox runtimes
-        if self.prefix(src=self.args['configuration'], dst=""):
-            self.path("SLVoice.exe")
-            self.path("alut.dll")
-            self.path("vivoxsdk.dll")
-            self.path("ortp.dll")
-            self.path("wrap_oal.dll")
-            self.end_prefix()
-
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter
         self.path(src='../win_crash_logger/%s/windows-crash-logger.exe' % self.args['configuration'],
                   dst="win_crash_logger.exe")
         self.path(src='../win_updater/%s/windows-updater.exe' % self.args['configuration'],
                   dst="updater.exe")
-
-        # For google-perftools tcmalloc allocator.
-        if self.prefix(src=self.args['configuration'], dst=""):
-            try:
-                if self.args['configuration'] == 'Debug':
-                    self.path('libtcmalloc_minimal-debug.dll')
-                else:
-                    self.path('libtcmalloc_minimal.dll')
-            except:
-                print "Skipping libtcmalloc_minimal.dll"
-            self.end_prefix()
 
     def nsi_file_commands(self, install=True):
         def wpath(path):
