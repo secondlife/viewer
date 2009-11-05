@@ -76,6 +76,7 @@ public:
 	LLViewerMediaImpl* getFocusedMediaImpl();
 	LLViewerObject* getFocusedObject();
 	S32 getFocusedFace() { return mFocusedObjectFace; }
+	LLUUID getFocusedObjectID() { return mFocusedObjectID; }
 	
 	// These look up (by uuid) and return the values that were set with setHoverFace.  They will return null if the objects have been destroyed.
 	LLViewerMediaImpl* getHoverMediaImpl();
@@ -95,6 +96,7 @@ protected:
 private:
 	
 	LLHandle<LLPanelPrimMediaControls> mMediaControls;
+	LLObjectSelectionHandle mSelection;
 	
 	LLUUID mFocusedObjectID;
 	S32 mFocusedObjectFace;
