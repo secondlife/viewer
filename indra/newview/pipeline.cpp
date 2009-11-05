@@ -8902,33 +8902,68 @@ LLCullResult::sg_list_t::iterator LLPipeline::endAlphaGroups()
 }
 
 
-void LLPipeline::loadMesh(LLVOVolume* volume, LLUUID mesh_id)
+void LLPipeline::loadMesh(LLVOVolume* vobj, LLUUID mesh_id, S32 detail)
 {
-
 	{
 		LLMutexLock lock(mMeshMutex);
 		//add volume to list of loading meshes
 		mesh_load_map::iterator iter = mLoadingMeshes.find(mesh_id);
 		if (iter != mLoadingMeshes.end())
 		{ //request pending for this mesh, append volume id to list
-			iter->second.insert(volume->getID());
+			iter->second.insert(vobj->getID());
 			return;
 		}
 
 		//first request for this mesh
-		mLoadingMeshes[mesh_id].insert(volume->getID());
+		mLoadingMeshes[mesh_id].insert(vobj->getID());
 	}
 
 	if (gAssetStorage->hasLocalAsset(mesh_id, LLAssetType::AT_MESH))
 	{ //already have asset, load desired LOD in background
-		mPendingMeshes.push_back(new LLMeshThread(mesh_id, volume->getVolume()));
+		mPendingMeshes.push_back(new LLMeshThread(mesh_id, vobj->getVolume()));
 	}
 	else
 	{ //fetch asset and load when done
 		gAssetStorage->getAssetData(mesh_id, LLAssetType::AT_MESH,
-									getMeshAssetCallback, volume->getVolume(), TRUE);
+									getMeshAssetCallback, vobj->getVolume(), TRUE);
 	}
 
+	//do a quick search to see if we can't display something while we wait for this mesh to load
+	LLVolume* volume = vobj->getVolume();
+
+	if (volume)
+	{
+		LLVolumeParams params = volume->getParams();
+
+		LLVolumeLODGroup* group = LLPrimitive::getVolumeManager()->getGroup(params);
+
+		if (group)
+		{
+			//first see what the next lowest LOD available might be
+			for (S32 i = detail-1; i >= 0; --i)
+			{
+				LLVolume* lod = group->refLOD(i);
+				if (lod && lod->getNumVolumeFaces() > 0)
+				{
+					volume->copyVolumeFaces(lod);
+					group->derefLOD(lod);
+					return;
+				}
+			}
+
+			//no lower LOD is a available, is a higher lod available?
+			for (S32 i = detail+1; i < 4; ++i)
+			{
+				LLVolume* lod = group->refLOD(i);
+				if (lod && lod->getNumVolumeFaces() > 0)
+				{
+					volume->copyVolumeFaces(lod);
+					group->derefLOD(lod);
+					return;
+				}
+			}
+		}
+	}
 }
 
 //static

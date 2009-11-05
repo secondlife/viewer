@@ -744,6 +744,7 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 		return TRUE;
 	}
 	
+#if 0
 	U32 old_face_mask = mVolumep->mFaceMask;
 
 	S32 face_bit = 0;
@@ -941,6 +942,9 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 			setTE(te_num, *(old_tes.getTexture(face_mapping[face_bit])));
 		}
 	}
+#else
+	setNumTEs(mVolumep->getNumFaces());
+#endif
 	return TRUE;
 }
 

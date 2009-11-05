@@ -280,7 +280,7 @@ public:
 	
 
 	//mesh management functions
-	void loadMesh(LLVOVolume* volume, LLUUID mesh_id);
+	void loadMesh(LLVOVolume* volume, LLUUID mesh_id, S32 detail = 0);
 	
 	void addTrianglesDrawn(S32 count);
 	BOOL hasRenderType(const U32 type) const				{ return (type && (mRenderTypeMask & (1<<type))) ? TRUE : FALSE; }
