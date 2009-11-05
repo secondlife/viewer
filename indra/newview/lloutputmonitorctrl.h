@@ -81,6 +81,8 @@ public:
 
 	// For the current user, need to know the PTT state to show
 	// correct button image.
+	void			setIsAgentControl(bool val) { mIsAgentControl = val; }
+
 	void			setIsTalking(bool val) { mIsTalking = val; }
 
 	void			setSpeakerId(const LLUUID& speaker_id);
@@ -100,6 +102,7 @@ private:
 	
 
 	F32				mPower;
+	bool			mIsAgentControl;
 	bool			mIsMuted;
 	bool			mIsTalking;
 	LLPointer<LLUIImage> mImageMute;

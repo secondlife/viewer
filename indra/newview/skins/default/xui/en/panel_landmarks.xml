@@ -31,7 +31,7 @@
              left="0"
              mouse_opaque="true"
              name="favorites_list"
-             start_folder="favorite"
+             start_folder="Favorite"
              width="380"/>
         </accordion_tab>
         <accordion_tab
@@ -47,7 +47,7 @@
              left="0"
              mouse_opaque="true"
              name="landmarks_list"
-             start_folder="landmark"
+             start_folder="Landmarks"
              width="380"/>
         </accordion_tab>
         <accordion_tab
@@ -63,13 +63,13 @@
              left="0"
              mouse_opaque="true"
              name="my_inventory_list"
-             start_folder="inventory"
+             start_folder="INVENTORY"
              width="380"/>
-        </accordion_tab>
-        <accordion_tab
-         layout="topleft"
-         name="tab_library"
-         title="Library">
+          </accordion_tab>
+          <accordion_tab
+           layout="topleft"
+           name="tab_library"
+           title="Library">
             <inventory_subtree_panel
              allow_multi_select="true"
              border="true"
@@ -79,7 +79,7 @@
              left="0"
              mouse_opaque="true"
              name="library_list"
-             start_folder="library"
+             start_folder="LIBRARY"
              width="380"/>
         </accordion_tab>
     </accordion>
@@ -103,7 +103,6 @@
          layout="topleft"
          left="10"
          name="options_gear_btn"
-         picture_style="true"
          top="6"
          width="18" />
         <button
@@ -115,7 +114,6 @@
          layout="topleft"
          left_pad="5"
          name="add_btn"
-         picture_style="true"
          tool_tip="Add new landmark"
          width="18" />
         <dnd_button
@@ -126,7 +124,6 @@
          layout="topleft"
          right="-5"
          name="trash_btn"
-         picture_style="true"
          tool_tip="Remove selected landmark"
          top="6"
          width="18" />

@@ -185,7 +185,7 @@ protected:
 	
 public:
 	LLViewerInventoryCategory(const LLUUID& uuid, const LLUUID& parent_uuid,
-							  LLAssetType::EType preferred_type,
+							  LLFolderType::EType preferred_type,
 							  const std::string& name,
 							  const LLUUID& owner_id);
 	LLViewerInventoryCategory(const LLUUID& owner_id);
@@ -221,7 +221,7 @@ public:
 	bool exportFileLocal(LLFILE* fp) const;
 	bool importFileLocal(LLFILE* fp);
 	void determineFolderType();
-	void changeType(LLAssetType::EType new_folder_type);
+	void changeType(LLFolderType::EType new_folder_type);
 protected:
 	LLUUID mOwnerID;
 	S32 mVersion;

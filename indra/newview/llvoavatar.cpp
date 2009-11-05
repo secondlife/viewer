@@ -6520,7 +6520,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			&& baked_index != BAKED_SKIRT)
 		{
 			setTEImage(mBakedTextureDatas[baked_index].mTextureIndex, 
-				LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[baked_index].mLastTextureIndex, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE));
+				LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[baked_index].mLastTextureIndex, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 		}
 	}
 

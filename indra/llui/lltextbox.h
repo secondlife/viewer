@@ -33,8 +33,6 @@
 #ifndef LL_LLTEXTBOX_H
 #define LL_LLTEXTBOX_H
 
-#include "v4color.h"
-#include "llstring.h"
 #include "lluistring.h"
 #include "lltextbase.h"
 
@@ -54,28 +52,25 @@ protected:
 	friend class LLUICtrlFactory;
 
 public:
-	virtual ~LLTextBox() {}
+	virtual ~LLTextBox();
 
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 
-	/*virtual*/ void			setText( const LLStringExplicit& text );
+	/*virtual*/ void setText( const LLStringExplicit& text );
 	
 	void			setRightAlign()							{ mHAlign = LLFontGL::RIGHT; }
 	void			setHAlign( LLFontGL::HAlign align )		{ mHAlign = align; }
-	void			setClickedCallback( boost::function<void (void*)> cb, void* userdata = NULL ){ mClickedCallback = boost::bind(cb, userdata); }		// mouse down and up within button
-
-	//const LLFontGL* getFont() const							{ return mDefaultFont; }
-	//void			setFont(const LLFontGL* font)			{ mDefaultFont = font; }
+	void			setClickedCallback( boost::function<void (void*)> cb, void* userdata = NULL );
 
 	void			reshapeToFitText();
 
-	//const std::string&	getText() const							{ return mText.getString(); }
 	S32				getTextPixelWidth();
 	S32				getTextPixelHeight();
 
-	virtual LLSD	getValue() const						{ return LLSD(getText()); }
-	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
+	/*virtual*/ LLSD	getValue() const;
+	/*virtual*/ BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
 
 protected:
 	void            onUrlLabelUpdated(const std::string &url, const std::string &label);

@@ -228,7 +228,10 @@ void LLPanelPrimMediaControls::updateShape()
 
 	bool can_navigate = parcel->getMediaAllowNavigate();
 	bool enabled = false;
-	bool has_focus = media_impl->hasFocus();
+	// There is no such thing as "has_focus" being different from normal controls set
+	// anymore (as of user feedback from bri 10/09).  So we cheat here and force 'has_focus'
+	// to 'true' (or, actually, we use a setting)
+	bool has_focus = (gSavedSettings.getBOOL("PrimMediaControlsUseHoverControlSet")) ? media_impl->hasFocus() : true;
 	setVisible(enabled);
 
 	if (objectp)
@@ -310,8 +313,8 @@ void LLPanelPrimMediaControls::updateShape()
 			fwd_ctrl->setEnabled(has_focus);
 			media_address_ctrl->setVisible(false);
 			media_address_ctrl->setEnabled(false);
-			media_play_slider_panel->setVisible(!mini_controls);
-			media_play_slider_panel->setEnabled(!mini_controls);
+			media_play_slider_panel->setVisible(has_focus && !mini_controls);
+			media_play_slider_panel->setEnabled(has_focus && !mini_controls);
 				
 			volume_ctrl->setVisible(has_focus);
 			volume_up_ctrl->setVisible(has_focus);
@@ -688,24 +691,31 @@ bool LLPanelPrimMediaControls::isMouseOver()
 		getWindow()->getCursorPosition(&cursor_pos_window);
 		getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
 		
-		LLPanel* controls_panel = NULL;
-		controls_panel = getChild<LLPanel>("media_hover_controls");
-		if(controls_panel && !controls_panel->getVisible())
-		{
-			// The hover controls aren't visible -- use the focused controls instead.
-			controls_panel = getChild<LLPanel>("media_focused_controls");
-		}
+		LLView* controls_view = NULL;
+		controls_view = getChild<LLView>("media_controls");
 		
-		if(controls_panel && controls_panel->getVisible())
+		if(controls_view && controls_view->getVisible())
 		{
-			controls_panel->screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &x, &y);
+			controls_view->screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &x, &y);
 
-			LLView *hit_child = controls_panel->childFromPoint(x, y);
-			if(hit_child)
+			LLView *hit_child = controls_view->childFromPoint(x, y);
+			if(hit_child && hit_child->getVisible())
 			{
 				// This was useful for debugging both coordinate translation and view hieararchy problems...
-//				llinfos << "mouse coords: " << x << ", " << y << " hit child " << hit_child->getName() << llendl;
-				result = true;
+				// llinfos << "mouse coords: " << x << ", " << y << " hit child " << hit_child->getName() << llendl;
+
+				// This will be a direct child of the LLLayoutStack, which should be a layout_panel.
+				// These may not shown/hidden by the logic in updateShape(), so we need to do another hit test on the children of the layout panel,
+				// which are the actual controls.
+				hit_child->screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &x, &y);
+				
+				LLView *hit_child_2 = hit_child->childFromPoint(x, y);
+				if(hit_child_2 && hit_child_2->getVisible())
+				{
+					// This was useful for debugging both coordinate translation and view hieararchy problems...
+					// llinfos << "    mouse coords: " << x << ", " << y << " hit child 2 " << hit_child_2->getName() << llendl;
+					result = true;
+				}
 			}
 		}
 	}

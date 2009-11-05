@@ -78,7 +78,6 @@ public:
 	bool onModalClose(const LLSD& notification, const LLSD& response);
 
 	// Most of these messages are just passed on to the current sub-tab.
-	virtual std::string getHelpText() const;
 	virtual void activate();
 	virtual void deactivate();
 	virtual bool needsApply(std::string& mesg);

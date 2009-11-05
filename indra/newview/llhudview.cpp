@@ -71,20 +71,6 @@ void LLHUDView::draw()
 	LLView::draw();
 }
 
-
-// public
-const LLColor4& LLHUDView::colorFromType(S32 type)
-{
-	switch (type)
-	{
-	case 0:
-		return LLColor4::green;
-	default:
-		return LLColor4::black;
-	}
-}
-
-
 /*virtual*/
 BOOL LLHUDView::handleMouseDown(S32 x, S32 y, MASK mask)
 {

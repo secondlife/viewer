@@ -89,6 +89,7 @@
   <texture name="Favorite_Star_Off" file_name="navbar/Favorite_Star_Off.png" preload="false" />
   <texture name="Favorite_Star_Press" file_name="navbar/Favorite_Star_Press.png" preload="false" />
   <texture name="Favorite_Star_Over" file_name="navbar/Favorite_Star_Over.png" preload="false" />
+  <texture name="Favorite_Link_Over" file_name="navbar/Favorite_Link_Over.png" preload="false" />
 
   <texture name="FileMenu_BarSelect" file_name="navbar/FileMenu_BarSelect.png" preload="false" scale.left="2" scale.top="0" scale.right="2" scale.bottom="0" />
   <texture name="FileMenu_BG" file_name="navbar/FileMenu_BG.png" preload="false" />

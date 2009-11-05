@@ -41,6 +41,7 @@
 #include "llfilepicker.h"
 #include "llnotify.h"
 #include "llinventorymodel.h"
+#include "llinventorypanel.h"
 #include "llfloaterinventory.h"
 #include "llpermissionsflags.h"
 #include "llpreviewnotecard.h"
@@ -333,7 +334,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		LLAssetStorage::LLStoreAssetCallback callback = NULL;
 		void *userdata = NULL;
 		upload_new_resource(next_file, asset_name, asset_name,
-				    0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE,
+				    0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
 				    next_owner_perms, group_perms,
 				    everyone_perms, display_name,
 				    callback, expected_upload_cost, userdata);

@@ -47,7 +47,8 @@ public:
 
 	~LLAgentPicksObserver()
 	{
-		LLAvatarPropertiesProcessor::getInstance()->removeObserver(gAgent.getID(), this);
+		if (LLAvatarPropertiesProcessor::instanceExists())
+			LLAvatarPropertiesProcessor::getInstance()->removeObserver(gAgent.getID(), this);
 	}
 
 	void sendAgentPicksRequest()

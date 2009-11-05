@@ -45,6 +45,7 @@
 #include "llinventorymodel.h"	// for gInventory
 #include "llfloaterreg.h"
 #include "llfloaterinventory.h"	// for get_item_icon
+#include "llinventoryfunctions.h"
 #include "llselectmgr.h"
 #include "llscrolllistctrl.h"
 #include "llviewerobject.h"
@@ -292,7 +293,7 @@ void LLFloaterBuy::onClickBuy()
 {
 	// Put the items where we put new folders.
 	LLUUID category_id;
-	category_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_OBJECT);
+	category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
 
 	// *NOTE: doesn't work for multiple object buy, which UI does not
 	// currently support sale info is used for verification only, if

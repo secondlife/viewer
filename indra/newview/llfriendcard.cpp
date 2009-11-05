@@ -135,14 +135,14 @@ const LLUUID LLFriendCardsManager::extractAvatarID(const LLUUID& avatarID)
 // and this method must be called before any actions with friend list
 void LLFriendCardsManager::ensureFriendFoldersExist()
 {
-	LLUUID callingCardsFolderID = gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
+	const LLUUID callingCardsFolderID = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
 
 	LLUUID friendFolderUUID = findFriendFolderUUIDImpl();
 
 	if (friendFolderUUID.isNull())
 	{
 		friendFolderUUID = gInventory.createNewCategory(callingCardsFolderID,
-			LLAssetType::AT_CALLINGCARD, get_friend_folder_name());
+			LLFolderType::FT_CALLINGCARD, get_friend_folder_name());
 	}
 
 	LLUUID friendAllSubfolderUUID = findFriendAllSubfolderUUIDImpl();
@@ -150,7 +150,7 @@ void LLFriendCardsManager::ensureFriendFoldersExist()
 	if (friendAllSubfolderUUID.isNull())
 	{
 		friendAllSubfolderUUID = gInventory.createNewCategory(friendFolderUUID,
-			LLAssetType::AT_CALLINGCARD, get_friend_all_subfolder_name());
+			LLFolderType::FT_CALLINGCARD, get_friend_all_subfolder_name());
 	}
 }
 
@@ -351,7 +351,7 @@ void LLFriendCardsManager::collectFriendsLists(folderid_buddies_map_t& folderBud
 /************************************************************************/
 const LLUUID& LLFriendCardsManager::findFriendFolderUUIDImpl() const
 {
-	LLUUID callingCardsFolderID = gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
+	const LLUUID callingCardsFolderID = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
 
 	std::string friendFolderName = get_friend_folder_name();
 

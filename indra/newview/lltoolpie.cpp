@@ -598,6 +598,9 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 static bool needs_tooltip(LLSelectNode* nodep)
 {
+	if (!nodep) 
+		return false;
+
 	LLViewerObject* object = nodep->getObject();
 	LLViewerObject *parent = (LLViewerObject *)object->getParent();
 	if (object->flagHandleTouch()
@@ -758,14 +761,14 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 								{
 									is_time_based_media = true;
 									is_web_based_media = false;
-									args["[CurrentURL]"] =  media_impl->getMediaURL();
+									//args["[CurrentURL]"] =  media_impl->getMediaURL();
 									is_media_playing = media_impl->isMediaPlaying();
 								}
 								else
 								{
 									is_time_based_media = false;
 									is_web_based_media = true;
-									args["[CurrentURL]"] =  media_plugin->getLocation();
+									//args["[CurrentURL]"] =  media_plugin->getLocation();
 								}
 								//tooltip_msg.append(LLTrans::getString("CurrentURL", args));
 							}
@@ -773,7 +776,10 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 					}
 				}
 				
-				bool needs_tip = needs_tooltip(nodep);
+				// also check the primary node since sometimes it can have an action even though
+				// the root node doesn't
+				bool needs_tip = needs_tooltip(nodep) || 
+					             needs_tooltip(LLSelectMgr::getInstance()->getPrimaryHoverNode());
 
 				if (show_all_object_tips || needs_tip)
 				{
@@ -1033,31 +1039,28 @@ void LLToolPie::playCurrentMedia(const LLPickInfo& info)
 	if(!mep)
 		return;
 	
+	//TODO: Can you Use it? 
+
 	LLPluginClassMedia* media_plugin = NULL;
 	
-//	if (gSavedSettings.getBOOL("MediaOnAPrimUI"))
-//	{		
-		viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
+	viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
 		
-		if(media_impl.notNull() && media_impl->hasMedia())
+	if(media_impl.notNull() && media_impl->hasMedia())
+	{
+		media_plugin = media_impl->getMediaPlugin();
+		if (media_plugin && media_plugin->pluginSupportsMediaTime())
 		{
-			media_plugin = media_impl->getMediaPlugin();
-			
-			if (media_plugin && media_plugin->pluginSupportsMediaTime())
+			if(media_impl->isMediaPlaying())
 			{
-				if(media_impl->isMediaPlaying())
-				{
-					media_impl->pause();
-				}
-				else //if(media_impl->isMediaPaused())
-				{
-					media_impl->play();
-				}
-				
+				media_impl->pause();
 			}
-					
+			else 
+			{
+				media_impl->play();
+			}
 		}
-//	 }
+	}
+
 
 }
 
@@ -1087,6 +1090,8 @@ void LLToolPie::VisitHomePage(const LLPickInfo& info)
 	const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
 	if(!mep)
 		return;
+	
+	//TODO: Can you Use it? 
 	
 	LLPluginClassMedia* media_plugin = NULL;
 	

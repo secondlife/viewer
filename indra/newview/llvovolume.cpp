@@ -665,7 +665,7 @@ void LLVOVolume::updateTextures()
 	{
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 		LLUUID id =  sculpt_params->getSculptTexture(); 
-		mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
+		mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 		if (mSculptTexture.notNull())
 		{
 			S32 lod = llmin(mLOD, 3);
@@ -876,7 +876,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &volume_params, const S32 detail
 		
 		if (isSculpted())
 		{
-			mSculptTexture = LLViewerTextureManager::getFetchedTexture(volume_params.getSculptID(), TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
+			mSculptTexture = LLViewerTextureManager::getFetchedTexture(volume_params.getSculptID(), TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 			if (mSculptTexture.notNull())
 			{
 				//ignore sculpt GL usage since bao fixed this in a separate branch

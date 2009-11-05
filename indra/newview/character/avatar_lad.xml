@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
 <linden_avatar
- version="1.0" wearable_definition_version="23"> 
+ version="1.0" wearable_definition_version="24"> 
   <!-- The wearable_definition_version is checked during asset upload. -->
   <!-- If you increment it, check indra/lib/python/indra/assetutil.py.  -->
   <skeleton
@@ -8985,7 +8985,7 @@ render_pass="bump">
          id="1017" />
 
         <driven
-         id="1033" />
+         id="1035" />
 
         <driven
          id="914"

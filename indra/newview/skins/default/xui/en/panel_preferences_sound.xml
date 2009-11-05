@@ -40,7 +40,6 @@
      layout="topleft"
      left_pad="16"
      name="mute_audio"
-     picture_style="true"
      tab_stop="false"
      top_delta="-2"
      width="22" />
@@ -86,7 +85,6 @@
      layout="topleft"
      left_pad="16"
      name="mute_wind"
-     picture_style="true"
      tab_stop="false"
      top_delta="-2"
      width="22" />
@@ -122,7 +120,6 @@
      layout="topleft"
      left_pad="16"
      name="mute_ui"
-     picture_style="true"
      tab_stop="false"
      top_delta="-2"
      width="22" />
@@ -158,7 +155,6 @@
      layout="topleft"
      left_pad="16"
      name="mute_media"
-     picture_style="true"
      tab_stop="false"
      top_delta="-2"
      width="22" />
@@ -194,7 +190,6 @@
      layout="topleft"
      left_pad="16"
      name="mute_sfx"
-     picture_style="true"
      tab_stop="false"
      top_delta="-2"
      width="22" />
@@ -230,7 +225,6 @@
      layout="topleft"
      left_pad="16"
      name="mute_music"
-     picture_style="true"
      tab_stop="false"
      top_delta="-2"
      width="22" />
@@ -278,7 +272,6 @@
      layout="topleft"
      left_pad="16"
      name="mute_voice"
-     picture_style="true"
      tab_stop="false"
      top_delta="-2"
      width="22" />
@@ -336,19 +329,20 @@
          top_delta="19"
          width="200" />
     </radio_group>
-    <button
-     control_name="ShowDeviceSettings"
-     follows="left|bottom"
-     height="19"
-     is_toggle="true"
-     label="Input / Output  Devices"
-     layout="topleft"
-     left="165"
-     top_pad="12"
-     name="device_settings_btn"
-     width="190" />
+  <button
+   control_name="ShowDeviceSettings"
+   follows="left|bottom"
+   height="19"
+   is_toggle="true"
+   label="Input / Output  Devices"
+   layout="topleft"
+   left="165"
+   top_pad="12"
+   name="device_settings_btn"
+   width="190">
+  </button>
     <panel
-    background_visible="true"
+     background_visible="true"
      bg_alpha_color="DkGray"
      visiblity_control="ShowDeviceSettings"
      border="false"
@@ -357,8 +351,13 @@
      label="DeviceSettings"
      layout="topleft"
      left="0"
-     name="Device Settings"
+     name="device_settings_panel"
+     class="panel_voice_device_settings"
      width="501">
+      <panel.string
+        name="default_text">
+        Default
+      </panel.string>
       <icon
              height="18"
              image_name="Microphone_On"
@@ -382,6 +381,7 @@
     </text>
     <combo_box
      height="19"
+     control_name="VoiceInputAudioDevice"
      layout="topleft"
      left="165"
      max_chars="128"
@@ -400,7 +400,8 @@
      width="200">
         My volume:
     </text>
-      <slider
+      <slider_bar
+        control_name="AudioLevelMic" 
      follows="left|top"
      height="17"
      increment="0.05"
@@ -492,6 +493,7 @@
         Output
     </text>
     <combo_box
+     control_name="VoiceOutputAudioDevice"
      height="19"
      layout="topleft"
      left="165"

@@ -89,7 +89,6 @@
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llappviewer.h"
-#include "llpanelinventory.h"
 
 const std::string HELLO_LSL =
 	"default\n"
@@ -452,7 +451,7 @@ bool LLScriptEdCore::hasChanged()
 {
 	if (!mEditor) return false;
 
-	return !mEditor->isPristine();
+	return ((!mEditor->isPristine() || mEnableSave) && mHasScriptData);
 }
 
 void LLScriptEdCore::draw()

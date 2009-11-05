@@ -376,9 +376,9 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mSun.setIntensity(SUN_INTENSITY);
 	mMoon.setIntensity(0.1f * SUN_INTENSITY);
 
-	mSunTexturep = LLViewerTextureManager::getFetchedTexture(gSunTextureID, TRUE, TRUE);
+	mSunTexturep = LLViewerTextureManager::getFetchedTexture(gSunTextureID, TRUE, LLViewerTexture::BOOST_UI);
 	mSunTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
-	mMoonTexturep = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, TRUE, TRUE);
+	mMoonTexturep = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, TRUE, LLViewerTexture::BOOST_UI);
 	mMoonTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(IMG_BLOOM1);
 	mBloomTexturep->setNoDelete() ;
@@ -472,9 +472,9 @@ void LLVOSky::restoreGL()
 	{
 		mSkyTex[i].restoreGL();
 	}
-	mSunTexturep = LLViewerTextureManager::getFetchedTexture(gSunTextureID, TRUE, TRUE);
+	mSunTexturep = LLViewerTextureManager::getFetchedTexture(gSunTextureID, TRUE, LLViewerTexture::BOOST_UI);
 	mSunTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
-	mMoonTexturep = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, TRUE, TRUE);
+	mMoonTexturep = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, TRUE, LLViewerTexture::BOOST_UI);
 	mMoonTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(IMG_BLOOM1);
 	mBloomTexturep->setNoDelete() ;

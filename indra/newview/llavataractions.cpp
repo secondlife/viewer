@@ -343,7 +343,7 @@ bool LLAvatarActions::callbackAddFriend(const LLSD& notification, const LLSD& re
 		// Servers older than 1.25 require the text of the message to be the
 		// calling card folder ID for the offering user. JC
 		LLUUID calling_card_folder_id = 
-			gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
+			gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
 		std::string message = calling_card_folder_id.asString();
 		requestFriendship(notification["payload"]["id"].asUUID(), 
 		    notification["payload"]["name"].asString(),
@@ -355,7 +355,7 @@ bool LLAvatarActions::callbackAddFriend(const LLSD& notification, const LLSD& re
 // static
 void LLAvatarActions::requestFriendship(const LLUUID& target_id, const std::string& target_name, const std::string& message)
 {
-	LLUUID calling_card_folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
+	const LLUUID calling_card_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
 	send_improved_im(target_id,
 					 target_name,
 					 message,
