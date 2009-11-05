@@ -92,6 +92,52 @@
      name="acquired_date">
         [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
     </string>
+    <!-- Texture names for parcel permissions icons -->
+    <string
+     name="icon_PG"
+     value="parcel_drk_PG" />
+    <string
+     name="icon_M"
+     value="parcel_drk_M" />
+    <string
+     name="icon_R"
+     value="parcel_drk_R" />
+    <string
+     name="icon_Voice"
+     value="parcel_drk_Voice" />
+    <string
+     name="icon_VoiceNo"
+     value="parcel_drk_VoiceNo" />
+    <string
+     name="icon_Fly"
+     value="parcel_drk_Fly" />
+    <string
+     name="icon_FlyNo"
+     value="parcel_drk_FlyNo" />
+    <string
+     name="icon_Push"
+     value="parcel_drk_Push" />
+    <string
+     name="icon_PushNo"
+     value="parcel_drk_PushNo" />
+    <string
+     name="icon_Build"
+     value="parcel_drk_Build" />
+    <string
+     name="icon_BuildNo"
+     value="parcel_drk_BuildNo" />
+    <string
+     name="icon_Scripts"
+     value="parcel_drk_Scripts" />
+    <string
+     name="icon_ScriptsNo"
+     value="parcel_drk_ScriptsNo" />
+    <string
+     name="icon_Damage"
+     value="parcel_drk_Damage" />
+    <string
+     name="icon_DamageNo"
+     value="parcel_drk_DamageNo" />
     <button
      follows="top|right"
      height="23"
@@ -212,15 +258,6 @@
              use_ellipses="true"
              value="SampleRegion"
              width="290" />
-       <!-- <icon
-             follows="top|right"
-             height="16"
-             image_name="Icon_For_Sale"
-             layout="topleft"
-             left="3"
-             mouse_opaque="true"
-             name="icon_for_sale"
-             width="16" />-->
             <text
              follows="left|top|right"
              height="14"
