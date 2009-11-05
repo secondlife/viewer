@@ -193,7 +193,7 @@
              font="SansSerif"
              height="16"
              layout="topleft"
-             left="26"
+             left="8"
              name="title"
              top="8"
              width="355">
@@ -299,7 +299,7 @@ scratch and wear it.
              left="8"
              name="Create New"
              top="104"
-             width="120" />
+             width="140" />
             <button
              follows="right|bottom"
              height="20"
@@ -342,9 +342,10 @@ scratch and wear it.
              top="4"
              width="18" />
             <icon
+             follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="-325"
+             left="8"
              mouse_opaque="true"
              top_delta="3"
              width="16" />
@@ -399,7 +400,7 @@ scratch and wear it.
              font="SansSerif"
              height="16"
              layout="topleft"
-             left="26"
+             left="8"
              name="title"
              top="8"
              width="355">
@@ -599,7 +600,7 @@ scratch and wear it.
             <icon
              height="16"
              layout="topleft"
-             left_delta="-325"
+             left="8"
              mouse_opaque="true"
              top_delta="3"
              width="16" />
@@ -654,7 +655,7 @@ scratch and wear it.
              font="SansSerif"
              height="16"
              layout="topleft"
-             left="26"
+             left="8"
              name="title"
              top="8"
              width="355">
@@ -1015,7 +1016,7 @@ scratch and wear it.
             <icon
              height="16"
              layout="topleft"
-             left_delta="-325"
+             left="8"
              mouse_opaque="true"
              top_delta="3"
              width="16" />
@@ -1100,7 +1101,7 @@ scratch and wear it.
              font="SansSerif"
              height="16"
              layout="topleft"
-             left="26"
+             left="8"
              name="title"
              top="8"
              width="355">
@@ -1221,7 +1222,7 @@ scratch and wear it.
             <icon
              height="16"
              layout="topleft"
-             left_delta="-325"
+             left="8"
              mouse_opaque="true"
              top_delta="3"
              width="16" />
@@ -1306,7 +1307,7 @@ scratch and wear it.
              font="SansSerif"
              height="16"
              layout="topleft"
-             left="26"
+             left="8"
              name="title"
              top="8"
              width="355">
@@ -3378,16 +3379,6 @@ scratch and wear it.
          layout="topleft"
          name="panel_list" />
     </scroll_container>
-	<button
-     bottom="536"
-     follows="right|bottom"
-     height="20"
-     label="Make Outfit"
-     label_selected="Make Outfit"
-     layout="topleft"
-     name="make_outfit_btn"
-     right="-216"
-     width="100" />
     <button
      bottom="536"
      follows="right|bottom"
