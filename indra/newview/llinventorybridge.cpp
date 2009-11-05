@@ -281,7 +281,7 @@ void LLInvFVBridge::showProperties()
 	key["id"] = mUUID;
 	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 
-	// LLFloaterReg::showInstance("properties", mUUID);
+	LLFloaterReg::showInstance("properties", mUUID);
 }
 
 void LLInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch)

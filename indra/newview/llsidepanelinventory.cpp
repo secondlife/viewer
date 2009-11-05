@@ -40,6 +40,7 @@
 #include "llsidepaneliteminfo.h"
 #include "llsidepaneltaskinfo.h"
 #include "lltabcontainer.h"
+#include "llselectmgr.h"
 
 static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_inventory");
 
@@ -119,6 +120,7 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 	}
 	if (key.has("task"))
 	{
+		mTaskPanel->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
 		showTaskInfoPanel();
 	}
 }

@@ -151,8 +151,16 @@ void LLSidepanelItemInfo::refresh()
 		refreshFromItem(item);
 		updateVerbs();
 	}
+	else
+	{
+		if (getIsEditing())
+		{
+			setIsEditing(FALSE);
+			return;
+		}
+	}
 
-	if (!getIsEditing() || !item)
+	if (!getIsEditing())
 	{
 		const std::string no_item_names[]={
 			"LabelItemName",

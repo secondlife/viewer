@@ -35,6 +35,7 @@
 
 #include "llsidepanelinventorysubpanel.h"
 #include "lluuid.h"
+#include "llselectmgr.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLSidepanelTaskInfo
@@ -43,6 +44,7 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LLNameBox;
+class LLCheckBoxCtrl;
 
 class LLSidepanelTaskInfo : public LLSidepanelInventorySubpanel
 {
@@ -51,6 +53,8 @@ public:
 	virtual ~LLSidepanelTaskInfo();
 
 	/*virtual*/	BOOL postBuild();
+
+	void setObjectSelection(LLObjectSelectionHandle selection);
 
 protected:
 	/*virtual*/ void refresh();	// refresh all labels as needed
@@ -62,28 +66,24 @@ protected:
 	static void onClickRelease(void*);
 		   void onClickGroup();
 		   void cbGroupID(LLUUID group_id);
-	static void onClickDeedToGroup(void*);
 
-	static void onCommitPerm(LLUICtrl *ctrl, void *data, U8 field, U32 perm);
+	void onClickDeedToGroup();
+	void onCommitPerm(LLCheckBoxCtrl* ctrl, U8 field, U32 perm);
+	void onCommitGroupShare();
+	void onCommitEveryoneMove();
+	void onCommitEveryoneCopy();
+	void onCommitNextOwnerModify();
+	void onCommitNextOwnerCopy();
+	void onCommitNextOwnerTransfer();
+	void onCommitName();
+	void onCommitDesc();
+	void onCommitSaleInfo();
+	void onCommitSaleType();
 
-	static void onCommitGroupShare(LLUICtrl *ctrl, void *data);
+	void onCommitClickAction(U8 click_action);
+	void onCommitIncludeInSearch();
 
-	static void onCommitEveryoneMove(LLUICtrl *ctrl, void *data);
-	static void onCommitEveryoneCopy(LLUICtrl *ctrl, void *data);
-
-	static void onCommitNextOwnerModify(LLUICtrl* ctrl, void* data);
-	static void onCommitNextOwnerCopy(LLUICtrl* ctrl, void* data);
-	static void onCommitNextOwnerTransfer(LLUICtrl* ctrl, void* data);
-	
-	static void onCommitName(LLUICtrl* ctrl, void* data);
-	static void onCommitDesc(LLUICtrl* ctrl, void* data);
-
-	static void onCommitSaleInfo(LLUICtrl* ctrl, void* data);
-	static void onCommitSaleType(LLUICtrl* ctrl, void* data);
 	void setAllSaleInfo();
-
-	static void	onCommitClickAction(LLUICtrl* ctrl, void*);
-	static void onCommitIncludeInSearch(LLUICtrl* ctrl, void*);
 
 private:
 	LLNameBox*		mLabelGroupName;		// group name
@@ -94,12 +94,14 @@ private:
 
 protected:
 	void 						onOpenButtonClicked();
-	void 						onBuildButtonClicked();
+	void 						onPayButtonClicked();
 	void 						onBuyButtonClicked();
 private:
 	LLButton*					mOpenBtn;
-	LLButton*					mBuildBtn;
+	LLButton*					mPayBtn;
 	LLButton*					mBuyBtn;
+
+	LLObjectSelectionHandle mObjectSelection;
 };
 
 

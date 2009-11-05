@@ -2523,24 +2523,12 @@ class LLObjectEnableTouch : public view_listener_t
 //		label.assign("Touch");
 //	}
 //}
-/*
-bool handle_object_open()
-{
-	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-	if(!obj) return true;
 
-	LLFloaterOpenObject::show();
-	return true;
+void handle_object_open()
+{
+	LLFloaterReg::showInstance("openobject");
 }
 
-class LLObjectOpen : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		return handle_object_open();
-	}
-};
-*/
 bool enable_object_open()
 {
 	// Look for contents in root object, which is all the LLFloaterOpenObject
@@ -8077,6 +8065,7 @@ void initialize_menus()
 	commit.add("Object.Buy", boost::bind(&handle_buy));
 	commit.add("Object.Edit", boost::bind(&handle_object_edit));
 	commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
+	commit.add("Object.Open", boost::bind(&handle_object_open));
 	
 	commit.add("Object.Take", boost::bind(&handle_take));
 
