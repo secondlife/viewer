@@ -13,4 +13,15 @@
        function="CheckControl"
        parameter="GroupListShowIcons" />
   </menu_item_check>
+  <menu_item_check
+   label="Leave Selected Group"
+   layout="topleft"
+   name="Leave Selected Group">
+      <menu_item_check.on_click
+       function="People.Groups.ViewSort.Action"
+       parameter="show_icons" />
+      <menu_item_check.on_check
+       function="CheckControl"
+       parameter="GroupListShowIcons" />
+  </menu_item_check>
 </menu>
