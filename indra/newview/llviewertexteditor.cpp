@@ -171,7 +171,7 @@ public:
 		mToolTip = inv_item->getName() + '\n' + inv_item->getDescription();
 	}
 
-	/*virtual*/ void getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
+	/*virtual*/ bool getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 	{
 		if (num_chars == 0)
 		{
@@ -183,7 +183,7 @@ public:
 			width = EMBEDDED_ITEM_LABEL_PADDING + mImage->getWidth() + mStyle->getFont()->getWidth(mLabel.c_str());
 			height = llmax(mImage->getHeight(), llceil(mStyle->getFont()->getLineHeight()));
 		}
-
+		return false;
 	}
 
 	/*virtual*/ S32				getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const 
