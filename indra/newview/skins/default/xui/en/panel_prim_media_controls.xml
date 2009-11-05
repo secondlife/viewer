@@ -254,7 +254,7 @@
 		  image_selected="button_anim_pause.tga"
 		  image_unselected="button_anim_pause.tga"
 		  layout="topleft"
-		  tool_tip = "Pause media"
+		  tool_tip = "Pause media">
 		<button.commit_callback
 			function="MediaCtrl.Pause" />
 	  </button>
