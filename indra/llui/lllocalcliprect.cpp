@@ -77,6 +77,8 @@ LLScreenClipRect::LLScreenClipRect(const LLRect& rect, BOOL enabled)
 
 LLScreenClipRect::~LLScreenClipRect()
 {
+	// finish any deferred calls in this clipping region
+	gGL.flush();
 	if (mEnabled)
 	{
 		popClipRect();
