@@ -114,25 +114,22 @@
      layout="topleft"
      name="Communicate"
      tear_off="true">
-        <menu_item_check
+        <menu_item_call
          label="My Friends"
          layout="topleft"
          name="My Friends"
          shortcut="control|shift|F">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="contacts.friends" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="contacts.friends" />
-        </menu_item_check>
+            <menu_item_call.on_click
+             function="SideTray.PanelPeopleTab"
+             parameter="friends_panel" />
+            </menu_item_call>
         <menu_item_call
          label="My Groups"
          layout="topleft"
          name="My Groups">
             <menu_item_call.on_click
-             function="Floater.Show"
-             parameter="contacts.groups" />
+             function="SideTray.PanelPeopleTab"
+             parameter="groups_panel" />
         </menu_item_call>
         <menu_item_separator
          layout="topleft" />
@@ -155,18 +152,15 @@
              function="Floater.Toggle"
              parameter="nearby_chat" />
         </menu_item_check>
-        <menu_item_check
-         label="Nearby Speakers"
+        <menu_item_call
+         label="Nearby People"
          layout="topleft"
          name="Active Speakers"
          shortcut="control|shift|A">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="active_speakers" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="active_speakers" />
-        </menu_item_check>
+            <menu_item_call.on_click
+             function="SideTray.PanelPeopleTab"
+             parameter="nearby_panel" />
+            </menu_item_call>
         <menu_item_check
          label="Nearby Media"
          layout="topleft"

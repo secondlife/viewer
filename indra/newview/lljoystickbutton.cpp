@@ -517,43 +517,52 @@ void LLJoystickCameraRotate::draw()
 	LLGLSUIDefault gls_ui;
 
 	getImageUnselected()->draw( 0, 0 );
+	LLPointer<LLUIImage> image = getImageSelected();
 
 	if( mInTop )
 	{
-		drawRotatedImage( getImageSelected()->getImage(), 0 );
+		drawRotatedImage( getImageSelected(), 0 );
 	}
 
 	if( mInRight )
 	{
-		drawRotatedImage( getImageSelected()->getImage(), 1 );
+		drawRotatedImage( getImageSelected(), 1 );
 	}
 
 	if( mInBottom )
 	{
-		drawRotatedImage( getImageSelected()->getImage(), 2 );
+		drawRotatedImage( getImageSelected(), 2 );
 	}
 
 	if( mInLeft )
 	{
-		drawRotatedImage( getImageSelected()->getImage(), 3 );
+		drawRotatedImage( getImageSelected(), 3 );
 	}
 }
 
 // Draws image rotated by multiples of 90 degrees
-void LLJoystickCameraRotate::drawRotatedImage( LLTexture* image, S32 rotations )
+void LLJoystickCameraRotate::drawRotatedImage( LLPointer<LLUIImage> image, S32 rotations )
 {
 	S32 width = image->getWidth();
 	S32 height = image->getHeight();
+	LLTexture* texture = image->getImage();
 
+	/*
+	 * Scale  texture coordinate system 
+	 * to handle the different between image size and size of texture.
+	 * If we will use default matrix, 
+	 * it may break texture mapping after rotation.
+	 * see EXT-2023 Camera floater: arrows became shifted when pressed.
+	 */ 
 	F32 uv[][2] = 
 	{
-		{ 1.f, 1.f },
-		{ 0.f, 1.f },
+		{ (F32)width/texture->getWidth(), (F32)height/texture->getHeight() },
+		{ 0.f, (F32)height/texture->getHeight() },
 		{ 0.f, 0.f },
-		{ 1.f, 0.f }
+		{ (F32)width/texture->getWidth(), 0.f }
 	};
 
-	gGL.getTexUnit(0)->bind(image);
+	gGL.getTexUnit(0)->bind(texture);
 
 	gGL.color4fv(UI_VERTEX_COLOR.mV);
 	
