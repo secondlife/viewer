@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="Mehrere Inhaltsberechtigungen ändern">
+<floater name="floaterbulkperms" title="MEHRERE INHALTSBERECHTIGUNGEN ÄNDERN">
 	<text name="applyto">
 		Inhaltsarten
 	</text>

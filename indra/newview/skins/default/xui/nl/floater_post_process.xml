@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Post-Process Floater" title="Nabewerkinginstellingen">
+<floater name="Post-Process Floater" title="NABEWERKINGINSTELLINGEN">
 	<tab_container name="Post-Process Tabs">
 		<panel label="Kleurfilter" name="wmiColorFilterPanel">
 			<check_box label="Inschakelen" name="wmiColorFilterToggle"/>

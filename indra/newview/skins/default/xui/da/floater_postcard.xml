@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Postcard" title="E-mail billede">
+<floater name="Postcard" title="E-MAIL BILLEDE">
 	<text name="to_label">
 		Send til:
 	</text>

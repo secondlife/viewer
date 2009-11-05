@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Water Floater" title="Editor avanzado del agua">
+<floater name="Water Floater" title="EDITOR AVANZADO DEL AGUA">
 	<text name="KeyFramePresetsText">
 		Agua predefinida:
 	</text>

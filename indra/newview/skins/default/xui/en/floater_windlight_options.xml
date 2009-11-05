@@ -6,7 +6,7 @@
  name="WindLight floater"
  help_topic="windlight_floater"
  save_rect="true"
- title="Advanced Sky Editor"
+ title="ADVANCED SKY EDITOR"
  width="700">
     <floater.string
      name="WLDefaultSkyNames">

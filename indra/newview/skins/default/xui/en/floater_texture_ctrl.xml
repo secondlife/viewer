@@ -9,7 +9,7 @@
  min_width="410"
  name="texture picker"
  help_topic="texture_picker"
- title="Pick: Texture"
+ title="PICK: TEXTURE"
  width="410">
     <floater.string
      name="choose_picture">

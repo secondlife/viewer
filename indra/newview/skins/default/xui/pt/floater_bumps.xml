@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_bumps" title="Colisões, impulsos e batidas">
+<floater name="floater_bumps" title="COLISÕES, IMPULSOS E BATIDAS">
 	<text name="none_detected">
 		Nada detectado
 	</text>
