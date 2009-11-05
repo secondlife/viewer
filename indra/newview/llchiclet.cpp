@@ -51,10 +51,9 @@
 #include "lltransientfloatermgr.h"
 
 static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
-static LLDefaultChildRegistry::Register<LLTalkButton> t2("talk_button");
-static LLDefaultChildRegistry::Register<LLNotificationChiclet> t3("chiclet_notification");
-static LLDefaultChildRegistry::Register<LLIMP2PChiclet> t4("chiclet_im_p2p");
-static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t5("chiclet_im_group");
+static LLDefaultChildRegistry::Register<LLNotificationChiclet> t2("chiclet_notification");
+static LLDefaultChildRegistry::Register<LLIMP2PChiclet> t3("chiclet_im_p2p");
+static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t4("chiclet_im_group");
 
 S32 LLNotificationChiclet::mUreadSystemNotifications = 0;
 
@@ -1243,130 +1242,6 @@ bool LLChicletPanel::isAnyIMFloaterDoked()
 	}
 
 	return res;
-}
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-// *TODO Vadim: Move this out of llchiclet.cpp.
-
-LLTalkButton::Params::Params()
- : speak_button("speak_button")
- , show_button("show_button")
- , monitor("monitor")
-{
-	// See widgets/talk_button.xml
-}
-
-LLTalkButton::LLTalkButton(const Params& p)
-: LLUICtrl(p)
-, mPrivateCallPanel(NULL)
-, mOutputMonitor(NULL)
-, mSpeakBtn(NULL)
-, mShowBtn(NULL)
-{
-	LLRect rect = p.rect();
-	LLRect speak_rect(0, rect.getHeight(), rect.getWidth(), 0);
-	LLRect show_rect = p.show_button.rect();
-	show_rect.set(0, rect.getHeight(), show_rect.getWidth(), 0);
-
-	speak_rect.mRight -= show_rect.getWidth();
-	show_rect.mLeft = speak_rect.getWidth();
-	show_rect.mRight = rect.getWidth();
-
-	LLButton::Params speak_params = p.speak_button;
-	speak_params.rect(speak_rect);
-	mSpeakBtn = LLUICtrlFactory::create<LLButton>(speak_params);
-	addChild(mSpeakBtn);
-	LLTransientFloaterMgr::getInstance()->addControlView(mSpeakBtn);
-
-	mSpeakBtn->setClickedCallback(boost::bind(&LLTalkButton::onClick_SpeakBtn, this));
-	mSpeakBtn->setToggleState(FALSE);
-
-	LLButton::Params show_params = p.show_button;
-	show_params.rect(show_rect);
-	mShowBtn = LLUICtrlFactory::create<LLButton>(show_params);
-	addChild(mShowBtn);
-	LLTransientFloaterMgr::getInstance()->addControlView(mShowBtn);
-
-	mShowBtn->setClickedCallback(boost::bind(&LLTalkButton::onClick_ShowBtn, this));
-	mShowBtn->setToggleState(FALSE);
-
-	static const S32 MONITOR_RIGHT_PAD = 2;
-
-	LLRect monitor_rect = p.monitor.rect();
-	S32 monitor_height = monitor_rect.getHeight();
-	monitor_rect.mLeft = speak_rect.getWidth() - monitor_rect.getWidth() - MONITOR_RIGHT_PAD;
-	monitor_rect.mRight = speak_rect.getWidth() - MONITOR_RIGHT_PAD;
-	monitor_rect.mBottom = (rect.getHeight() / 2) - (monitor_height / 2);
-	monitor_rect.mTop = monitor_rect.mBottom + monitor_height;
-
-	LLOutputMonitorCtrl::Params monitor_params = p.monitor;
-	monitor_params.draw_border(false);
-	monitor_params.rect(monitor_rect);
-	monitor_params.auto_update(true);
-	monitor_params.speaker_id(gAgentID);
-	mOutputMonitor = LLUICtrlFactory::create<LLOutputMonitorCtrl>(monitor_params);
-	mSpeakBtn->addChild(mOutputMonitor);
-
-	// never show "muted" because you can't mute yourself
-	mOutputMonitor->setIsMuted(false);
-	mOutputMonitor->setIsAgentControl(true);
-}
-
-LLTalkButton::~LLTalkButton()
-{
-}
-
-void LLTalkButton::setSpeakBtnToggleState(bool state)
-{
-	mSpeakBtn->setToggleState(state);
-}
-
-void LLTalkButton::onClick_SpeakBtn()
-{
-	bool speaking = mSpeakBtn->getToggleState();
-	gVoiceClient->setUserPTTState(speaking);
-}
-
-void LLTalkButton::onClick_ShowBtn()
-{
-	if(!mShowBtn->getToggleState())
-	{
-		mPrivateCallPanel->onClickClose(mPrivateCallPanel);
-		delete mPrivateCallPanel;
-		mPrivateCallPanel = NULL;
-		mShowBtn->setToggleState(FALSE);
-		return;
-	}
-
-	S32 x = mSpeakBtn->getRect().mLeft;
-	S32 y = 0;
-
-	localPointToScreen(x, y, &x, &y);
-
-	mPrivateCallPanel = new LLVoiceControlPanel;
-	getRootView()->addChild(mPrivateCallPanel);
-
-	y = LLBottomTray::getInstance()->getRect().getHeight() + mPrivateCallPanel->getRect().getHeight();
-
-	LLRect rect;
-	rect.setLeftTopAndSize(x, y, mPrivateCallPanel->getRect().getWidth(), mPrivateCallPanel->getRect().getHeight());
-	mPrivateCallPanel->setRect(rect);
-
-
-	LLAvatarListItem* item = new LLAvatarListItem();
-	item->showLastInteractionTime(false);
-	item->showInfoBtn(true);
-	item->showSpeakingIndicator(true);
-	item->reshape(mPrivateCallPanel->getRect().getWidth(), item->getRect().getHeight(), FALSE);
-
-	mPrivateCallPanel->addItem(item);
-	mPrivateCallPanel->setVisible(TRUE);
-	mPrivateCallPanel->setFrontmost(TRUE);
-
-	mShowBtn->setToggleState(TRUE);
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -853,42 +853,6 @@ protected:
 	bool mShowControls;
 };
 
-/*
- * Button displaying voice chat status. Displays voice chat options When clicked.
-*/
-class LLTalkButton : public LLUICtrl
-{
-public:
-
-	struct Params :	public LLInitParam::Block<Params, LLUICtrl::Params>
-	{
-		Optional<LLButton::Params>	speak_button,
-									show_button;
-
-		Optional<LLOutputMonitorCtrl::Params> monitor;
-
-		Params();
-	};
-
-	/*virtual*/ ~LLTalkButton();
-
-	void setSpeakBtnToggleState(bool state);
-
-protected:
-	friend class LLUICtrlFactory;
-	LLTalkButton(const Params& p);
-
-	void onClick_SpeakBtn();
-
-	void onClick_ShowBtn();
-
-private:
-	LLButton*	mSpeakBtn;
-	LLButton*	mShowBtn;
-	LLVoiceControlPanel* mPrivateCallPanel;
-	LLOutputMonitorCtrl* mOutputMonitor;
-};
-
 template<class T> 
 T* LLChicletPanel::createChiclet(const LLUUID& session_id, S32 index)
 {
