@@ -204,8 +204,7 @@ public:
 	// signal on rejecting of a toast event
 	typedef boost::function<void (LLUUID id)> reject_tost_callback_t;
 	typedef boost::signals2::signal<void (LLUUID id)> reject_tost_signal_t;
-	reject_tost_signal_t mRejectToastSignal;	
-	boost::signals2::connection setOnRejectToastCallback(reject_tost_callback_t cb) { return mRejectToastSignal.connect(cb); }
+	reject_tost_signal_t mRejectToastSignal; boost::signals2::connection setOnRejectToastCallback(reject_tost_callback_t cb) { return mRejectToastSignal.connect(cb); }
 
 private:
 	struct ToastElem

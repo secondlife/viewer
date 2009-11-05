@@ -290,6 +290,7 @@ set(viewer_SOURCE_FILES
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
     llnotificationmanager.cpp
+    llnotificationofferhandler.cpp
     llnotificationscripthandler.cpp
     llnotificationtiphandler.cpp
     llnotify.cpp
