@@ -53,7 +53,8 @@ typedef enum e_notification_type
 	NT_GROUPCHAT, 
 	NT_NEARBYCHAT, 
 	NT_ALERT,
-	NT_ALERTMODAL
+	NT_ALERTMODAL,
+	NT_OFFER
 } ENotificationType;
 
 /**
@@ -229,6 +230,27 @@ protected:
 	virtual void initChannel();
 
 	bool	mIsModal;
+};
+
+/**
+ * Handler for offers notices.
+ * It manages life time of offer notices.
+ */
+class LLOfferHandler : public LLSysHandler
+{
+public:
+	LLOfferHandler(e_notification_type type, const LLSD& id);
+	virtual ~LLOfferHandler();
+
+	// base interface functions
+	virtual bool processNotification(const LLSD& notify);
+
+protected:
+	virtual void onDeleteToast(LLToast* toast);
+	virtual void initChannel();
+
+	// own handlers
+	void onRejectToast(LLUUID& id);
 };
 
 }

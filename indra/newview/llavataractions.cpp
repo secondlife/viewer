@@ -57,6 +57,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewermessage.h"	// for handle_lure
 #include "llviewerregion.h"
+#include "llimfloater.h"
 
 
 // static
@@ -176,7 +177,8 @@ void LLAvatarActions::startIM(const LLUUID& id)
 
 	std::string name;
 	gCacheName->getFullName(id, name);
-	gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id);
+	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id);
+	LLIMFloater::show(session_id);
 	make_ui_sound("UISndStartIM");
 }
 

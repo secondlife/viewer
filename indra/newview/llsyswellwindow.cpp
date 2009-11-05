@@ -66,6 +66,7 @@ BOOL LLSysWellWindow::postBuild()
 	// init connections to the list's update events
 	connectListUpdaterToSignal("notify");
 	connectListUpdaterToSignal("groupnotify");
+	connectListUpdaterToSignal("offer");
 
 	// get a corresponding channel
 	initChannel();
