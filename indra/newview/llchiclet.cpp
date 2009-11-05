@@ -212,7 +212,7 @@ LLIMChiclet::LLIMChiclet(const LLIMChiclet::Params& p)
 	LLRect chiclet_rect = p.rect;
 	LLRect overlay_icon_rect = LLRect(chiclet_rect.getWidth()/2, chiclet_rect.mTop, chiclet_rect.mRight, chiclet_rect.getHeight()/2); 
 	// shift an icon a little bit to the right and up corner of a chiclet
-	overlay_icon_rect.translate(overlay_icon_rect.getWidth()/4, overlay_icon_rect.getHeight()/4);
+	overlay_icon_rect.translate(overlay_icon_rect.getWidth()/5, overlay_icon_rect.getHeight()/5);
 	mNewMessagesIcon->setRect(overlay_icon_rect);
 	addChild(mNewMessagesIcon);
 
@@ -247,8 +247,6 @@ BOOL LLIMChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
 void LLIMChiclet::draw()
 {
 	LLUICtrl::draw();
-
-	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.0f,0.0f,0.0f,1.f), FALSE);
 }
 
 // static
