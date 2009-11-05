@@ -980,7 +980,7 @@ void LLSnapshotLivePreview::saveTexture()
 				    "Snapshot : " + pos_string,
 				    "Taken by " + who_took_it + " at " + pos_string,
 				    0,
-				    LLAssetType::AT_SNAPSHOT_CATEGORY,
+				    LLFolderType::FT_SNAPSHOT_CATEGORY,
 				    LLInventoryType::IT_SNAPSHOT,
 				    PERM_ALL,  // Note: Snapshots to inventory is a special case of content upload
 				    PERM_NONE, // that ignores the user's premissions preferences and continues to
@@ -1373,8 +1373,10 @@ void LLFloaterSnapshot::Impl::checkAutoSnapshot(LLSnapshotLivePreview* previewp,
 void LLFloaterSnapshot::Impl::onClickDiscard(void* data)
 {
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
+	
 	if (view)
 	{
+		view->getParent()->setMouseOpaque(FALSE);
 		view->closeFloater();
 	}
 }

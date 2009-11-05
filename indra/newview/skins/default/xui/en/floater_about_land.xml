@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- legacy_header_height="18"
  can_tear_off="false"
  height="420"
  layout="topleft"
@@ -26,28 +25,24 @@
         remaining
     </floater.string>
     <tab_container
-     follows="all"
+     follows="left|top|right|bottom"
      height="400"
-   halign="center"
      layout="topleft"
-     font="SansSerifSmall"
      left="1"
-      tab_padding_right="5"
-      tab_height="20"
      name="landtab"
      tab_position="top"
      top="20"
      width="459">
-   <panel
+        <panel
          border="true"
-         follows="all"
+         follows="left|top|right|bottom"
          height="380"
          label="General"
          layout="topleft"
          left="1"
          help_topic="land_general_tab"
          name="land_general_panel"
-         top="0"
+         top="-31"
          width="458">
             <panel.string
              name="new users only">
@@ -536,7 +531,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
         </panel>
         <panel
          border="true"
-         follows="all"
+         follows="left|top|right|bottom"
          height="380"
          label="Covenant"
          layout="topleft"
@@ -632,7 +627,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              length="1"
              enabled="false"
              follows="left|top|right|bottom"
-             handle_edit_keys_directly="true"
+             handle_edit_keys_directly="true" 
              height="115"
              layout="topleft"
              left_delta="0"
@@ -803,7 +798,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
         </panel>
         <panel
          border="true"
-         follows="all"
+         follows="left|top|right|bottom"
          height="380"
          label="Objects"
          layout="topleft"
@@ -854,7 +849,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              left_delta="152"
              name="objects_available"
              top_delta="0"
-             width="212">
+             width="260">
                 [COUNT] out of [MAX] ([AVAILABLE] available)
             </text>
             <text
@@ -875,7 +870,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="152"
+             left_delta="200"
              name="object_contrib_text"
              top_delta="0"
              width="212">
@@ -899,7 +894,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="152"
+             left_delta="200"
              name="total_objects_text"
              top_delta="0"
              width="48">
@@ -914,7 +909,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              left="28"
              name="Owned by parcel owner:"
              top="84"
-             width="128">
+             width="176">
                 Owned by parcel owner:
             </text>
             <text
@@ -923,7 +918,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="128"
+             left_delta="176"
              name="owner_objects_text"
              top_delta="0"
              width="48">
@@ -939,7 +934,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              label_selected="Show"
              layout="topleft"
              name="ShowOwner"
-             right="-190"
+             right="-140"
              width="60" />
             <button
              bottom="100"
@@ -951,7 +946,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              label_selected="Return..."
              layout="topleft"
              name="ReturnOwner..."
-             right="-60"
+             right="-10"
              tool_tip="Return objects to their owners."
              width="119" />
             <text
@@ -963,7 +958,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              left="28"
              name="Set to group:"
              top="104"
-             width="128">
+             width="176">
                 Set to group:
             </text>
             <text
@@ -972,7 +967,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="128"
+             left_delta="176"
              name="group_objects_text"
              top_delta="0"
              width="48">
@@ -988,7 +983,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              label_selected="Show"
              layout="topleft"
              name="ShowGroup"
-             right="-190"
+             right="-140"
              width="60" />
             <button
              bottom="120"
@@ -1000,7 +995,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              label_selected="Return..."
              layout="topleft"
              name="ReturnGroup..."
-             right="-60"
+             right="-10"
              tool_tip="Return objects to their owners."
              width="119" />
             <text
@@ -1012,7 +1007,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              left="28"
              name="Owned by others:"
              top="124"
-             width="128">
+             width="176">
                 Owned by others:
             </text>
             <text
@@ -1021,7 +1016,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="128"
+             left_delta="176"
              name="other_objects_text"
              top_delta="0"
              width="48">
@@ -1037,7 +1032,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              label_selected="Show"
              layout="topleft"
              name="ShowOther"
-             right="-190"
+             right="-140"
              width="60" />
             <button
              bottom="140"
@@ -1049,7 +1044,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              label_selected="Return..."
              layout="topleft"
              name="ReturnOther..."
-             right="-60"
+             right="-10"
              tool_tip="Return objects to their owners."
              width="119" />
             <text
@@ -1061,7 +1056,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              left="28"
              name="Selected / sat upon:"
              top="144"
-             width="128">
+             width="176">
                 Selected / sat upon:
             </text>
             <text
@@ -1070,7 +1065,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="128"
+             left_delta="176"
              name="selected_objects_text"
              top_delta="0"
              width="48">
@@ -1097,7 +1092,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              layout="topleft"
              max_length="6"
              name="clean other time"
-             right="-100"
+             right="-50"
              width="56" />
             <text
              type="string"
@@ -1169,7 +1164,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
         </panel>
         <panel
          border="true"
-         follows="all"
+         follows="left|top|right|bottom"
          height="333"
          label="Options"
          layout="topleft"
@@ -1595,15 +1590,16 @@ Only large parcels can be listed in search.
                  value="Anywhere" />
             </combo_box>
         </panel>
-     <panel
+        <panel
          border="true"
-         follows="all"
+         follows="left|top|right|bottom"
          height="363"
          label="Media"
          layout="topleft"
          left_delta="0"
          help_topic="land_media_tab"
          name="land_media_panel"
+         top_delta="1"
          width="458">
             <text
              type="string"
@@ -1614,22 +1610,24 @@ Only large parcels can be listed in search.
              left="10"
              name="with media:"
              top="9"
-             width="100">
+             width="65">
                 Type:
             </text>
             <combo_box
-            height="20"
+             height="18"
              layout="topleft"
-             left_pad="10"
+             left_pad="5"
              name="media type"
              tool_tip="Specify if the URL is a movie, web page, or other media"
-             width="150" />
+             top_delta="-2"
+             width="120" />
             <text
              follows="left|top"
              height="16"
              layout="topleft"
              left_pad="10"
              name="mime_type"
+             top_delta="2"
              width="200" />
             <text
              type="string"
@@ -1639,30 +1637,32 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="at URL:"
-             top_pad="10"
-             width="100">
+             top="29"
+             width="65">
                 Home URL:
             </text>
             <line_editor
+             bottom_delta="0"
              follows="left|top"
-             height="20"
+             height="16"
              layout="topleft"
-             left_pad="10"
+             left="80"
              max_length="255"
              name="media_url"
+             right="-80"
              select_on_focus="true"
-             width="270"
-            />
+             text_readonly_color="0.576471 0.662745 0.835294 1" />
             <button
              follows="left|top"
              font="SansSerifSmall"
-             height="20"
-             label="Set"
-             label_selected="Set"
+             height="16"
+             label="Set..."
+             label_selected="Set..."
              layout="topleft"
-             left_pad="5"
+             left_pad="8"
              name="set_media_url"
-             width="50" />
+             top_delta="0"
+             width="60" />
             <text
              type="string"
              length="1"
@@ -1671,34 +1671,37 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="CurrentURL:"
-             top_pad="10"
-             width="100">
+             top="49"
+             width="65">
                 Current URL:
             </text>
             <text
              follows="left|top"
              height="16"
              layout="topleft"
-             left_pad="10"
+             left_pad="5"
              name="current_url"
-             width="260">http://</text>
+             top_delta="0"
+             width="300" />
             <button
              follows="left|top"
-             height="20"
-             label="Reset"
-             label_selected="Reset"
+             font="SansSerifSmall"
+             height="16"
+             label="Reset..."
+             label_selected="Reset..."
              layout="topleft"
              left_pad="6"
              name="reset_media_url"
+             top_delta="0"
              width="60" />
             <check_box
              height="16"
              label="Hide URL"
              layout="topleft"
-             left="120"
+             left="100"
              name="hide_media_url"
              tool_tip="Checking this option will hide the media url to any non-authorized viewers of this parcel information. Note this is not available for HTML types."
-             top_pad="2"
+             top="89"
              width="200" />
             <text
              type="string"
@@ -1708,20 +1711,23 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="Description:"
-             top_pad="10"
-             width="100">
+             top="49"
+             width="364">
                 Description:
             </text>
             <line_editor
+             border_style="line"
+             border_thickness="1"
+             bottom_delta="0"
              follows="left|top"
-             height="35"
+             height="16"
              layout="topleft"
+             left="80"
+             max_length="255"
              name="url_description"
-             left_pad="10"
+             right="-80"
              select_on_focus="true"
-             tool_tip="Text displayed next to play/load button"
-             top_delta="0"
-             width="270" />
+             tool_tip="Text displayed next to play/load button" />
             <text
              type="string"
              length="1"
@@ -1730,9 +1736,10 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="Media texture:"
-             top_pad="10"
-             width="100">
-                Replace Texture:
+             top="69"
+             width="364">
+                Replace
+Texture:
             </text>
             <texture_picker
              allow_no_texture="true"
@@ -1740,7 +1747,7 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="80"
              layout="topleft"
-             left_pad="10"
+             left_delta="70"
              name="media texture"
              tool_tip="Click to choose a picture"
              top_delta="0"
@@ -1749,22 +1756,25 @@ Only large parcels can be listed in search.
              type="string"
              length="1"
              follows="left|top"
-             height="50"
+             height="16"
              layout="topleft"
-             left_pad="10"
+             left_delta="75"
              name="replace_texture_help"
-             top_delta="0"
-             word_wrap="true"
-             width="240">
-                Objects using this texture will show the movie or  web page after you click the play arrow.
+             top="85"
+             width="270">
+                Objects using this texture will show the movie or
+        web page after you click the play arrow.
+
+        Select the thumbnail to choose a different texture.
             </text>
             <check_box
              height="16"
              label="Auto scale"
              layout="topleft"
+             left_delta="70"
              name="media_auto_scale"
              tool_tip="Checking this option will scale the content for this parcel automatically. It may be slightly slower and lower quality visually but no other texture scaling or alignment will be required."
-             top_pad="3"
+             top_delta="0"
              width="200" />
             <text
              type="string"
@@ -1772,11 +1782,11 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="10"
-             top_pad="10"
+             left="85"
              name="media_size"
              tool_tip="Size to render Web media, leave 0 for default."
-             width="100">
+             top="185"
+             width="85">
                 Size:
             </text>
             <spinner
@@ -1788,22 +1798,12 @@ Only large parcels can be listed in search.
              increment="1"
              initial_value="0"
              layout="topleft"
-             left_pad="10"
+             left_delta="65"
              max_val="1024"
              name="media_size_width"
              tool_tip="Size to render Web media, leave 0 for default."
              top_delta="0"
              width="64" />
-                         <text
-             type="string"
-             length="1"
-             follows="left|top"
-             height="16"
-             layout="topleft"
-             left_pad="5"
-             name="pixels">
-                px wide
-            </text>
             <spinner
              decimal_digits="0"
              enabled="false"
@@ -1813,21 +1813,23 @@ Only large parcels can be listed in search.
              increment="1"
              initial_value="0"
              layout="topleft"
-             left="120"
-             top_pad="3"
+             left_pad="16"
              max_val="1024"
              name="media_size_height"
              tool_tip="Size to render Web media, leave 0 for default."
+             top_delta="0"
              width="64" />
             <text
              type="string"
              length="1"
+             bottom_delta="0"
              follows="left|top"
              height="16"
              layout="topleft"
-             left_pad="5"
-             name="pixels">
-                px high
+             left_delta="70"
+             name="pixels"
+             right="-10">
+                pixels
             </text>
             <text
              type="string"
@@ -1837,15 +1839,15 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="Options:"
-             top_pad="10"
-             width="100">
+             top="237"
+             width="292">
                 Options:
             </text>
             <check_box
              height="16"
              label="Loop"
              layout="topleft"
-             left_pad="10"
+             left_delta="70"
              name="media_loop"
              tool_tip="Play media in a loop.  When the media has finished playing, it will restart from the beginning."
              top_delta="0"
@@ -1853,9 +1855,9 @@ Only large parcels can be listed in search.
         </panel>
         <panel
          border="true"
-         follows="all"
+         follows="left|top|right|bottom"
          height="363"
-         label="Sound"
+         label="Audio"
          layout="topleft"
          left_delta="0"
          help_topic="land_audio_tab"
@@ -1947,7 +1949,7 @@ Only large parcels can be listed in search.
         </panel>
         <panel
          border="true"
-         follows="all"
+         follows="left|top|right|bottom"
          height="333"
          label="Access"
          layout="topleft"

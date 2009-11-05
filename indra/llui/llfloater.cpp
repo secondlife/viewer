@@ -1832,7 +1832,6 @@ void LLFloater::buildButtons()
 		LLButton::Params p;
 		p.name(sButtonNames[i]);
 		p.rect(btn_rect);
-		p.label("");
 		p.image_unselected.name(sButtonActiveImageNames[i]);
 		// Selected, no matter if hovered or not, is "pressed"
 		p.image_selected.name(sButtonPressedImageNames[i]);
@@ -1845,6 +1844,7 @@ void LLFloater::buildButtons()
 		p.follows.flags(FOLLOWS_TOP|FOLLOWS_RIGHT);
 		p.tool_tip(sButtonToolTips[i]);
 		p.scale_image(true);
+		p.chrome(true);
 
 		LLButton* buttonp = LLUICtrlFactory::create<LLButton>(p);
 		addChild(buttonp);

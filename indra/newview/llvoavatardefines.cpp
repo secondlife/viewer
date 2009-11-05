@@ -84,34 +84,34 @@ LLVOAvatarDictionary::BakedTextures::BakedTextures()
 {
 	// Baked textures
 	addEntry(BAKED_HEAD,       new BakedEntry(TEX_HEAD_BAKED,  
-											  "head", "18ded8d6-bcfc-e415-8539-944c0f5ea7a6", 
+											  "head", "a4b9dc38-e13b-4df9-b284-751efb0566ff", 
 											  3, TEX_HEAD_BODYPAINT, TEX_HEAD_TATTOO, TEX_HEAD_ALPHA,
 											  5, WT_SHAPE, WT_SKIN, WT_HAIR, WT_TATTOO, WT_ALPHA));
 
 	addEntry(BAKED_UPPER,      new BakedEntry(TEX_UPPER_BAKED, 
-											  "upper_body", "338c29e3-3024-4dbb-998d-7c04cf4fa88f", 
+											  "upper_body", "5943ff64-d26c-4a90-a8c0-d61f56bd98d4", 
 											  7, TEX_UPPER_SHIRT,TEX_UPPER_BODYPAINT, TEX_UPPER_JACKET,
 											  TEX_UPPER_GLOVES, TEX_UPPER_UNDERSHIRT, TEX_UPPER_TATTOO, TEX_UPPER_ALPHA,
 											  8, WT_SHAPE, WT_SKIN,	WT_SHIRT, WT_JACKET, WT_GLOVES, WT_UNDERSHIRT, WT_TATTOO, WT_ALPHA));											  
 
 	addEntry(BAKED_LOWER,      new BakedEntry(TEX_LOWER_BAKED, 
-											  "lower_body", "91b4a2c7-1b1a-ba16-9a16-1f8f8dcc1c3f",
+											  "lower_body", "2944ee70-90a7-425d-a5fb-d749c782ed7d",
 											  8, TEX_LOWER_PANTS,TEX_LOWER_BODYPAINT,TEX_LOWER_SHOES, TEX_LOWER_SOCKS,
 											  TEX_LOWER_JACKET, TEX_LOWER_UNDERPANTS, TEX_LOWER_TATTOO, TEX_LOWER_ALPHA,
 											  9, WT_SHAPE, WT_SKIN,	WT_PANTS, WT_SHOES,	 WT_SOCKS,  WT_JACKET, WT_UNDERPANTS, WT_TATTOO, WT_ALPHA));
 
 	addEntry(BAKED_EYES,       new BakedEntry(TEX_EYES_BAKED,  
-											  "eyes", "b2cf28af-b840-1071-3c6a-78085d8128b5",
+											  "eyes", "27b1bc0f-979f-4b13-95fe-b981c2ba9788",
 											  2, TEX_EYES_IRIS, TEX_EYES_ALPHA,
 											  2, WT_EYES, WT_ALPHA));
 
 	addEntry(BAKED_SKIRT,      new BakedEntry(TEX_SKIRT_BAKED,
-											  "skirt", "ea800387-ea1a-14e0-56cb-24f2022f969a", 
+											  "skirt", "03e7e8cb-1368-483b-b6f3-74850838ba63", 
 											  1, TEX_SKIRT,
 											  1, WT_SKIRT));
 
 	addEntry(BAKED_HAIR,       new BakedEntry(TEX_HAIR_BAKED,
-											  "hair", "0af1ef7c-ad24-11dd-8790-001f5bf833e8", 
+											  "hair", "a60e85a9-74e8-48d8-8a2d-8129f28d9b61", 
 											  2, TEX_HAIR, TEX_HAIR_ALPHA,
 											  2, WT_HAIR, WT_ALPHA));
 }

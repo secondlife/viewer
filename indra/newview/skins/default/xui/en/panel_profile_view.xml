@@ -21,7 +21,6 @@
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back"
-     picture_style="true"
      left="10"
      tab_stop="false"
      top="2"

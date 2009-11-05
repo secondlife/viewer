@@ -47,7 +47,9 @@
 #include "llfolderview.h"
 #include "llfoldervieweventlistener.h"
 #include "llinventory.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
+#include "llinventorypanel.h"
 #include "llfloaterinventory.h"
 #include "lllineeditor.h"
 #include "llui.h"
@@ -424,7 +426,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 		mInventoryPanel->getRootFolder()->getFilter()->markDefault();
 
 		// Commented out to stop opening all folders with textures
-		// mInventoryPanel->openDefaultFolderForType(LLAssetType::AT_TEXTURE);
+		// mInventoryPanel->openDefaultFolderForType(LLFolderType::FT_TEXTURE);
 
 		// don't put keyboard focus on selected item, because the selection callback
 		// will assume that this was user input
@@ -527,7 +529,7 @@ void LLFloaterTexturePicker::draw()
 		mTexturep = NULL;
 		if(mImageAssetID.notNull())
 		{
-			mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES, IMMEDIATE_NO);
+			mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES);
 			mTexturep->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
 		}
 		else if (!mFallbackImageName.empty())
@@ -1071,7 +1073,7 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 	{
 		showPicker(FALSE);
 		//grab textures first...
-		gInventory.startBackgroundFetch(gInventory.findCategoryUUIDForType(LLAssetType::AT_TEXTURE));
+		gInventory.startBackgroundFetch(gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE));
 		//...then start full inventory fetch.
 		gInventory.startBackgroundFetch();
 		handled = TRUE;
@@ -1188,7 +1190,7 @@ void LLTextureCtrl::draw()
 	}
 	else if (!mImageAssetID.isNull())
 	{
-		mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES, IMMEDIATE_NO);
+		mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES);
 		mTexturep->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
 	}
 	else if (!mFallbackImageName.empty())

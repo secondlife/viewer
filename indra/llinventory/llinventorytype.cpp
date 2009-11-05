@@ -79,24 +79,16 @@ LLInventoryDictionary::LLInventoryDictionary()
 	addEntry(LLInventoryType::IT_SOUND,               new InventoryEntry("sound",     "sound",         1, LLAssetType::AT_SOUND));
 	addEntry(LLInventoryType::IT_CALLINGCARD,         new InventoryEntry("callcard",  "calling card",  1, LLAssetType::AT_CALLINGCARD));
 	addEntry(LLInventoryType::IT_LANDMARK,            new InventoryEntry("landmark",  "landmark",      1, LLAssetType::AT_LANDMARK));
-	//addEntry(LLInventoryType::IT_SCRIPT,            new InventoryEntry(NULL,NULL));
-	//addEntry(LLInventoryType::IT_CLOTHING,          new InventoryEntry(NULL,NULL));
 	addEntry(LLInventoryType::IT_OBJECT,              new InventoryEntry("object",    "object",        1, LLAssetType::AT_OBJECT));
 	addEntry(LLInventoryType::IT_NOTECARD,            new InventoryEntry("notecard",  "note card",     1, LLAssetType::AT_NOTECARD));
 	addEntry(LLInventoryType::IT_CATEGORY,            new InventoryEntry("category",  "folder"         ));
 	addEntry(LLInventoryType::IT_ROOT_CATEGORY,       new InventoryEntry("root",      "root"           ));
 	addEntry(LLInventoryType::IT_LSL,                 new InventoryEntry("script",    "script",        2, LLAssetType::AT_LSL_TEXT, LLAssetType::AT_LSL_BYTECODE));
-	//addEntry(LLInventoryType::IT_LSL_BYTECODE,      new InventoryEntry(NULL,NULL));
-	//addEntry(LLInventoryType::IT_TEXTURE_TGA,       new InventoryEntry(NULL,NULL));
-	//addEntry(LLInventoryType::IT_BODYPART,          new InventoryEntry(NULL,NULL));
-	//addEntry(LLInventoryType::IT_TRASH,             new InventoryEntry(NULL,NULL));
 	addEntry(LLInventoryType::IT_SNAPSHOT,            new InventoryEntry("snapshot",  "snapshot",      1, LLAssetType::AT_TEXTURE));
-	//addEntry(LLInventoryType::IT_LOST_AND_FOUND,    new InventoryEntry(NULL,NULL, ));
 	addEntry(LLInventoryType::IT_ATTACHMENT,          new InventoryEntry("attach",    "attachment",    1, LLAssetType::AT_OBJECT));
 	addEntry(LLInventoryType::IT_WEARABLE,            new InventoryEntry("wearable",  "wearable",      2, LLAssetType::AT_CLOTHING, LLAssetType::AT_BODYPART));
 	addEntry(LLInventoryType::IT_ANIMATION,           new InventoryEntry("animation", "animation",     1, LLAssetType::AT_ANIMATION));  
 	addEntry(LLInventoryType::IT_GESTURE,             new InventoryEntry("gesture",   "gesture",       1, LLAssetType::AT_GESTURE)); 
-	addEntry(LLInventoryType::IT_FAVORITE,            new InventoryEntry("favorite",  "favorite",      1, LLAssetType::AT_FAVORITE)); 
 }
 
 
@@ -128,35 +120,9 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
 	LLInventoryType::IT_ANIMATION,		// AT_ANIMATION
 	LLInventoryType::IT_GESTURE,		// AT_GESTURE
 	LLInventoryType::IT_NONE,			// AT_SIMSTATE
-	LLInventoryType::IT_FAVORITE,		// AT_FAVORITE
 
 	LLInventoryType::IT_NONE,			// AT_LINK
 	LLInventoryType::IT_NONE,			// AT_LINK_FOLDER
-
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
-
-	LLInventoryType::IT_CATEGORY,		// AT_CURRENT_OUTFIT
-	LLInventoryType::IT_CATEGORY,		// AT_OUTFIT
-	LLInventoryType::IT_CATEGORY,		// AT_MY_OUTFITS
 };
 
 // static

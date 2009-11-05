@@ -73,6 +73,8 @@ L$123 to join
      name="group_icon"
      top="24"
      width="38" />
+  <!-- Must be tab_stop="true" so something can hold focus even when the
+    other buttons are disabled or invisible, otherwise inspector closes -->
     <button
      follows="top|left"
      height="18"
@@ -80,11 +82,10 @@ L$123 to join
      image_selected="ForwardArrow_Press"
      image_unselected="ForwardArrow_Off"
      name="view_profile_btn"
-     picture_style="true"
      right="-8"
      top="35"
      left_delta="110"
-     tab_stop="false"
+     tab_stop="true"
      width="18"
      commit_callback.function="InspectGroup.ViewProfile" />
   <button

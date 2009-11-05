@@ -89,7 +89,6 @@
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llappviewer.h"
-#include "llpanelinventory.h"
 
 const std::string HELLO_LSL =
 	"default\n"

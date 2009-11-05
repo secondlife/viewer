@@ -165,8 +165,7 @@ static void fetch_landmarks(LLInventoryModel::cat_array_t& cats,
 							LLInventoryCollectFunctor& add)
 {
 	// Look in "My Favorites"
-	LLUUID favorites_folder_id =
-		gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+	const LLUUID favorites_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 	gInventory.collectDescendentsIf(favorites_folder_id,
 		cats,
 		items,
@@ -174,8 +173,7 @@ static void fetch_landmarks(LLInventoryModel::cat_array_t& cats,
 		add);
 
 	// Look in "Landmarks"
-	LLUUID landmarks_folder_id = 
-		gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+	const LLUUID landmarks_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
 	gInventory.collectDescendentsIf(landmarks_folder_id,
 		cats,
 		items,
@@ -287,7 +285,7 @@ void LLLandmarkActions::createLandmarkHere()
 
 	LLAgentUI::buildLocationString(landmark_name, LLAgentUI::LOCATION_FORMAT_LANDMARK);
 	LLAgentUI::buildLocationString(landmark_desc, LLAgentUI::LOCATION_FORMAT_FULL);
-	LLUUID folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+	const LLUUID folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
 
 	createLandmarkHere(landmark_name, landmark_desc, folder_id);
 }

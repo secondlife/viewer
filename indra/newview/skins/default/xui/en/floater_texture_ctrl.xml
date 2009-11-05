@@ -125,7 +125,6 @@
      layout="topleft"
      left="139"
      name="Pipette"
-     picture_style="true"
      top="250"
      width="32" />
     <button

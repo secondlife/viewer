@@ -198,6 +198,7 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(
 												   LLGLenum primary_format,
 												   LLHost request_from_host)
 {
+	llassert_always(boost_priority >= LLViewerTexture::BOOST_NONE) ;
 	return gTextureList.getImage(image_id, usemipmaps, boost_priority, texture_type, internal_format, primary_format, request_from_host) ;
 }
 	
@@ -210,6 +211,7 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromFile(
 												   LLGLenum primary_format, 
 												   const LLUUID& force_id)
 {
+	llassert_always(boost_priority >= LLViewerTexture::BOOST_NONE) ;
 	return gTextureList.getImageFromFile(filename, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id) ;
 }
 
@@ -256,10 +258,10 @@ void LLViewerTextureManager::init()
 	image_raw = NULL;
 	LLViewerFetchedTexture::sDefaultImagep->dontDiscard();
 #else
- 	LLViewerFetchedTexture::sDefaultImagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, TRUE, TRUE);
+ 	LLViewerFetchedTexture::sDefaultImagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, TRUE, LLViewerTexture::BOOST_UI);
 #endif
 	
- 	LLViewerFetchedTexture::sSmokeImagep = LLViewerTextureManager::getFetchedTexture(IMG_SMOKE, TRUE, TRUE);
+ 	LLViewerFetchedTexture::sSmokeImagep = LLViewerTextureManager::getFetchedTexture(IMG_SMOKE, TRUE, LLViewerTexture::BOOST_UI);
 	LLViewerFetchedTexture::sSmokeImagep->setNoDelete() ;
 
 	LLViewerTexture::initClass() ;
@@ -1240,7 +1242,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		{
 			ddiscard+=2;
 		}
-		else if (mGLTexturep.notNull() && !mGLTexturep->getBoundRecently() && mBoostLevel == 0)
+		else if (mGLTexturep.notNull() && !mGLTexturep->getBoundRecently() && mBoostLevel == LLViewerTexture::BOOST_NONE)
 		{
 			ddiscard-=2;
 		}
@@ -1252,11 +1254,11 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		pixel_priority = llclamp(pixel_priority, 0.0f, priority-1.f); // priority range = 100000-900000
 		if ( mBoostLevel > BOOST_HIGH)
 		{
-			priority = 1000000.f + pixel_priority + 1000.f * mBoostLevel;
+			priority = 1000000.f + pixel_priority + 1000.f * (mBoostLevel - LLViewerTexture::BOOST_NONE);
 		}
 		else
 		{
-			priority +=      0.f + pixel_priority + 1000.f * mBoostLevel;
+			priority +=      0.f + pixel_priority + 1000.f * (mBoostLevel - LLViewerTexture::BOOST_NONE);
 		}
 	}
 	return priority;
@@ -1436,7 +1438,7 @@ bool LLViewerFetchedTexture::updateFetch()
 		}
 		if (!mDontDiscard)
 		{
-			if (mBoostLevel == 0)
+			if (mBoostLevel == LLViewerTexture::BOOST_NONE)
 			{
 				desired_discard = llmax(desired_discard, current_discard-1);
 			}

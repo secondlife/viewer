@@ -198,6 +198,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	{
 		LLButton::Params icon_params;
 		icon_params.name = "tooltip_info";
+		icon_params.label(""); // provid label but set to empty so name does not overwrite it -angela
 		LLRect icon_rect;
 		LLUIImage* imagep = p.image;
 		TOOLTIP_ICON_SIZE = (imagep ? imagep->getWidth() : 16);
@@ -206,6 +207,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 		//icon_params.follows.flags = FOLLOWS_LEFT | FOLLOWS_BOTTOM;
 		icon_params.image_unselected(imagep);
 		icon_params.image_selected(imagep);
+
 		icon_params.scale_image(true);
 		icon_params.flash_color(icon_params.highlight_color());
 		mInfoButton  = LLUICtrlFactory::create<LLButton>(icon_params);
@@ -223,6 +225,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	{
 		LLButton::Params p_button;
 		p_button.name(std::string("play_media"));
+		p_button.label(""); // provid label but set to empty so name does not overwrite it -angela
 		TOOLTIP_PLAYBUTTON_SIZE = 16;
 		LLRect button_rect;
 		button_rect.setOriginAndSize((mPadding +TOOLTIP_ICON_SIZE+ mPadding ), mPadding, TOOLTIP_ICON_SIZE, TOOLTIP_ICON_SIZE);
@@ -247,6 +250,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	{
 		LLButton::Params p_w_button;
 		p_w_button.name(std::string("home_page"));
+		p_w_button.label(""); // provid label but set to empty so name does not overwrite it -angela
 		TOOLTIP_PLAYBUTTON_SIZE = 16;
 		LLRect button_rect;
 		button_rect.setOriginAndSize((mPadding +TOOLTIP_ICON_SIZE+ mPadding ), mPadding, TOOLTIP_ICON_SIZE, TOOLTIP_ICON_SIZE);

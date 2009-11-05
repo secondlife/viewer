@@ -47,6 +47,7 @@
 #include "lldndbutton.h"
 #include "llfloaterworldmap.h"
 #include "llfolderviewitem.h"
+#include "llinventorypanel.h"
 #include "llinventorysubtreepanel.h"
 #include "lllandmarkactions.h"
 #include "llplacesinventorybridge.h"
@@ -585,7 +586,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 			menu_create_inventory_item(mCurrentSelectedList->getRootFolder(),
 					dynamic_cast<LLFolderBridge*> (folder_bridge), LLSD(
 							"category"), gInventory.findCategoryUUIDForType(
-							LLAssetType::AT_LANDMARK));
+							LLFolderType::FT_LANDMARK));
 		}
 	}
 }

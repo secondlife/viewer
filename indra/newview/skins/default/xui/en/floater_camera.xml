@@ -42,7 +42,6 @@
          layout="topleft"
          left="45"
          name="cam_track_stick"
-         picture_style="true"
          quadrant="left"
          scale_image="false"
          sound_flags="3"
@@ -59,7 +58,6 @@
          left="7"
          minus_image="ScrollThumb_Vert"
          name="zoom"
-         picture_style="true"
          plus_image="ScrollThumb_Vert"
          quadrant="left"
          scale_image="false"
@@ -75,7 +73,6 @@
          layout="topleft"
          left="45"
          name="cam_rotate_stick"
-         picture_style="true"
          quadrant="left"
          scale_image="false"
          sound_flags="3"
@@ -98,7 +95,6 @@
              layout="topleft"
              left="5"
              name="rear_view"
-             picture_style="true"
              tool_tip="Rear View"
              top="2"
              width="30">
@@ -113,7 +109,6 @@
              layout="topleft"
              left_pad="5"
              name="group_view"
-             picture_style="true"
              tool_tip="Group View"
              top="2"
              width="30">
@@ -128,7 +123,6 @@
              layout="topleft"
              left="5"
              name="front_view"
-             picture_style="true"
              tool_tip="Front View"
              top_pad="5"
              width="30">
@@ -143,7 +137,6 @@
              layout="topleft"
              left_pad="5"
              name="mouselook_view"
-             picture_style="true"
              tool_tip="Mouselook View"
              top_pad="-30"
              width="30">

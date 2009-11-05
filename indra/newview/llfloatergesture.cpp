@@ -44,6 +44,7 @@
 #include "llcombobox.h"
 #include "llgesturemgr.h"
 #include "llinventorymodel.h"
+#include "llinventorypanel.h"
 #include "llfloaterinventory.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
