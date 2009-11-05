@@ -151,10 +151,11 @@ This is a really long description for an object being as how it is at least 80 c
    width="75" />
   <icon
    name="secure_browsing"
-   image_name="map_infohub.tga"
+   image_name="Lock"
    left_delta="80"
-   width="16"
-   height="16"
+   visible="false"
+   width="18"
+   height="18"
    top_delta="2"
    tool_tip="Secure Browsing"
    follows="left|top"/> 
