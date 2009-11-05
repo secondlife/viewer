@@ -77,8 +77,6 @@ LLScreenClipRect::LLScreenClipRect(const LLRect& rect, BOOL enabled)
 
 LLScreenClipRect::~LLScreenClipRect()
 {
-	// finish any deferred calls in this clipping region
-	gGL.flush();
 	if (mEnabled)
 	{
 		popClipRect();
@@ -114,6 +112,9 @@ void LLScreenClipRect::popClipRect()
 void LLScreenClipRect::updateScissorRegion()
 {
 	if (sClipRectStack.empty()) return;
+
+	// finish any deferred calls in the old clipping region
+	gGL.flush();
 
 	LLRect rect = sClipRectStack.top();
 	stop_glerror();
