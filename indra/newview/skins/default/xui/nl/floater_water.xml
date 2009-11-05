@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Water Floater" title="Geavanceerde water editor">
+<floater name="Water Floater" title="GEAVANCEERDE WATER EDITOR">
 	<combo_box bottom="-50" height="18" left_delta="116" name="WaterPresetsCombo" width="150" />
 	<text name="KeyFramePresetsText">
 		Watervoorinstellingen

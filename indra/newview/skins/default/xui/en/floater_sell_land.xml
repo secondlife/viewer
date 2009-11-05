@@ -7,7 +7,7 @@
  name="sell land"
  help_topic="sell_land"
  single_instance="true"
- title="Sell Land"
+ title="SELL LAND"
  width="313">
     <scroll_container
      color="DkGray2"

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="floater_about" title="[APP_NAME]について">
 <tab_container name="about_tab">
 	<panel name="credits_panel">

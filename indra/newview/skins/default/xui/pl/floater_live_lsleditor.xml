@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="script ed float" title="Skrypt: Nowy Skrypt">
+<floater name="script ed float" title="SKRYPT: NOWY SKRYPT">
 	<button label="Zresetuj" label_selected="Zresetuj" name="Reset" />
 	<check_box label="Włącz" name="running" />
 	<check_box label="Mono" name="mono" />

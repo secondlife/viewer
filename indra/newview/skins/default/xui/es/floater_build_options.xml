@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="build options floater" title="Opciones de la cuadrícula">
+<floater name="build options floater" title="OPCIONES DE LA CUADRÍCULA">
 	<spinner label="Unidad de la cuadrícula (metros)" name="GridResolution" width="250" label_width="192"/>
 	<spinner label="Graduación de la cuadrícula (metros)" name="GridDrawSize" width="250" label_width="192"/>
 	<check_box label="Activar subunidades" name="GridSubUnit"/>

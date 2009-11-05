@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Environment Editor Floater" title="Omgeving editor">
+<floater name="Environment Editor Floater" title="OMGEVING EDITOR">
 	<text bottom="-42" name="EnvTimeText">
 		Tijd van de 
 dag

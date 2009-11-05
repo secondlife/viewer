@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="land holdings floater" title="Moja posiadłość">
+<floater name="land holdings floater" title="MOJA POSIADŁOŚĆ">
 	<scroll_list name="parcel list">
 		<column label="Nazwa posiadłości" name="name"/>
 		<column label="Region" name="location"/>

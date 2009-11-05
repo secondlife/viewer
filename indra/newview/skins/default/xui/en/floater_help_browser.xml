@@ -10,7 +10,7 @@
  help_topic="floater_help_browser"
  save_rect="true"
  single_instance="true"
- title="Help Browser"
+ title="HELP BROWSER"
  width="620">
     <floater.string
      name="home_page_url">

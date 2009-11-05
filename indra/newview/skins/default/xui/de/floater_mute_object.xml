@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="mute by name" title="Objekt nach Name stummschalten">
+<floater name="mute by name" title="OBJEKT NACH NAME STUMMSCHALTEN">
 	<text name="message">
 		Stummschalten nach Name betrifft nur Chat und IM, keine
 Sounds. Sie müssen den Objektnamen exakt angeben.

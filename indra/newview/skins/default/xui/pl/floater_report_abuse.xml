@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_report_abuse" title="Raport o Nadużyciu">
+<floater name="floater_report_abuse" title="RAPORT O NADUŻYCIU">
 	<texture_picker label="" name="screenshot"/>
 	<check_box label="Załącz zdjęcie ekranu" name="screen_check"/>
 	<text name="reporter_title">

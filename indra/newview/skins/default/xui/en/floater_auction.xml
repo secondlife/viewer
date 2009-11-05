@@ -8,7 +8,7 @@
  min_width="420"
  name="floater_auction"
  help_topic="floater_auction"
- title="Start Linden Land Sale"
+ title="START LINDEN LAND SALE"
  width="420">
     <floater.string
      name="already for sale">

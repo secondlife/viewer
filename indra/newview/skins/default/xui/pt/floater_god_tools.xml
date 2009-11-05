@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="godtools floater" title="Ferramentas de Deus">
+<floater name="godtools floater" title="FERRAMENTAS DE DEUS">
 	<tab_container name="GodTools Tabs">
 		<panel label="Grade" name="grid">
 			<button label="Desconectar todos os usuários" label_selected="Desconectar todos os usuários" name="Kick all users"/>
