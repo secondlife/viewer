@@ -8,32 +8,14 @@
  help_topic="give_money"
  save_rect="true"
  width="225">
-   <text
-     type="string"
-     length="1"
-     follows="left|top"
-     font="SansSerifBold"
-     height="18"
-     layout="topleft"
-     left="12"
-     name="payee_group"
-     top="7"
-     width="75">
-        Pay group:
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     font="SansSerifBold"
-     height="18"
-     layout="topleft"
-     left="12"
-     name="payee_resident"
-     top="7"
-     width="75">
-        Pay resident:
-    </text>
+    <string
+     name="payee_group">
+        Pay Group
+    </string>
+    <string
+     name="payee_resident">
+        Pay Resident
+    </string>
    <icon
      height="16"
      width="16"
@@ -41,7 +23,7 @@
      mouse_opaque="true"
      name="icon_person"
      tool_tip="Person"
-     top_pad="0"
+     top_pad="24"
      left="10"
      />
     <text
