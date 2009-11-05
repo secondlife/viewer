@@ -992,9 +992,6 @@ void LLPanelPeople::onFriendsViewSortMenuItemClicked(const LLSD& userdata)
 		mAllFriendList->toggleIcons();
 		mOnlineFriendList->toggleIcons();
 	}
-	else if (chosen_item == "organize_offline")
-	{
-	}
 }
 
 void LLPanelPeople::onGroupsViewSortMenuItemClicked(const LLSD& userdata)
