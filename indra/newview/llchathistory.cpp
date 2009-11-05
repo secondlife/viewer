@@ -132,8 +132,7 @@ public:
 		menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_object_icon.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 		mPopupMenuHandleObject = menu->getHandle();
 
-		LLPanel* visible_panel = getChild<LLPanel>("im_header");
-		visible_panel->setMouseDownCallback(boost::bind(&LLChatHistoryHeader::onHeaderPanelClick, this, _2, _3, _4));
+		setMouseDownCallback(boost::bind(&LLChatHistoryHeader::onHeaderPanelClick, this, _2, _3, _4));
 
 		return LLPanel::postBuild();
 	}
@@ -290,7 +289,11 @@ mMessageSeparatorFilename(p.message_separator),
 mLeftTextPad(p.left_text_pad),
 mRightTextPad(p.right_text_pad),
 mLeftWidgetPad(p.left_widget_pad),
-mRightWidgetPad(p.right_widget_pad)
+mRightWidgetPad(p.right_widget_pad),
+mTopSeparatorPad(p.top_separator_pad),
+mBottomSeparatorPad(p.bottom_separator_pad),
+mTopHeaderPad(p.top_header_pad),
+mBottomHeaderPad(p.bottom_header_pad)
 {
 }
 
@@ -332,16 +335,30 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& sty
 	LLView* view = NULL;
 	std::string view_text;
 
+	LLInlineViewSegment::Params p;
+	p.force_newline = true;
+	p.left_pad = mLeftWidgetPad;
+	p.right_pad = mRightWidgetPad;
+
 	if (mLastFromName == chat.mFromName)
 	{
 		view = getSeparator();
 		view_text = "\n";
+		p.top_pad = mTopSeparatorPad;
+		p.bottom_pad = mBottomSeparatorPad;
 	}
 	else
 	{
 		view = getHeader(chat);
 		view_text = chat.mFromName + MESSAGE_USERNAME_DATE_SEPARATOR + formatCurrentTime() + '\n';
+		if (getText().size() == 0)
+			p.top_pad = 0;
+		else
+			p.top_pad = mTopHeaderPad;
+		p.bottom_pad = mBottomHeaderPad;
 	}
+	p.view = view;
+
 	//Prepare the rect for the view
 	LLRect target_rect = getDocumentView()->getRect();
 	// squeeze down the widget by subtracting padding off left and right
@@ -349,12 +366,6 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& sty
 	target_rect.mRight -= mRightWidgetPad;
 	view->reshape(target_rect.getWidth(), view->getRect().getHeight());
 	view->setOrigin(target_rect.mLeft, view->getRect().mBottom);
-
-	LLInlineViewSegment::Params p;
-	p.view = view;
-	p.force_newline = true;
-	p.left_pad = mLeftWidgetPad;
-	p.right_pad = mRightWidgetPad;
 
 	appendWidget(p, view_text, false);
 

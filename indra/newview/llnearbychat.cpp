@@ -61,7 +61,7 @@
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
 LLNearbyChat::LLNearbyChat(const LLSD& key) 
-	: LLDockableFloater(NULL, key)
+	: LLDockableFloater(NULL, false, key)
 	,mChatHistory(NULL)
 {
 	
@@ -107,12 +107,14 @@ BOOL LLNearbyChat::postBuild()
 
 void    LLNearbyChat::applySavedVariables()
 {
-
 	if (mRectControl.size() > 1)
 	{
 		const LLRect& rect = LLUI::sSettingGroups["floater"]->getRect(mRectControl);
-		reshape(rect.getWidth(), rect.getHeight());
-		setRect(rect);
+		if(!rect.isEmpty() && rect.isValid())
+		{
+			reshape(rect.getWidth(), rect.getHeight());
+			setRect(rect);
+		}
 	}
 
 
