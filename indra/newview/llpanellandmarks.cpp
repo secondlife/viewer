@@ -100,6 +100,8 @@ BOOL LLLandmarksPanel::postBuild()
 	initLandmarksInventroyPanel();
 	initMyInventroyPanel();
 	initLibraryInventroyPanel();
+	getChild<LLAccordionCtrlTab>("tab_favorites")->setDisplayChildren(true);
+	getChild<LLAccordionCtrlTab>("tab_landmarks")->setDisplayChildren(true);
 
 	gIdleCallbacks.addFunction(LLLandmarksPanel::doIdle, this);
 	return TRUE;
@@ -421,6 +423,7 @@ void LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLIn
 	mAccordionTabs.push_back(accordion_tab);
 	accordion_tab->setDropDownStateChangedCallback(
 		boost::bind(&LLLandmarksPanel::onAccordionExpandedCollapsed, this, _2, inventory_list));
+	accordion_tab->setDisplayChildren(false);
 }
 
 void LLLandmarksPanel::onAccordionExpandedCollapsed(const LLSD& param, LLInventorySubTreePanel* inventory_list)
@@ -617,21 +620,19 @@ void LLLandmarksPanel::onClipboardAction(const LLSD& userdata) const
 
 void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 {
-	LLFolderView* landmarks_folder = mLandmarksInventoryPanel->getRootFolder();
-	LLFolderView* fav_folder = mFavoritesInventoryPanel->getRootFolder();
+	if(!mCurrentSelectedList) return;
+
+	LLFolderView* root_folder = mCurrentSelectedList->getRootFolder();
 	std::string command_name = userdata.asString();
 
 	if ("expand_all" == command_name)
 	{
-		landmarks_folder->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_DOWN);
-		fav_folder->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_DOWN);
-		landmarks_folder->arrangeAll();
-		fav_folder->arrangeAll();
+		root_folder->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_DOWN);
+		root_folder->arrangeAll();
 	}
 	else if ("collapse_all" == command_name)
 	{
-		landmarks_folder->closeAllFolders();
-		fav_folder->closeAllFolders();
+		root_folder->closeAllFolders();
 	}
 	else if ( "sort_by_date" == command_name)
 	{
@@ -642,9 +643,6 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 	}
 	else
 	{
-		if(!mCurrentSelectedList) return;
-
-		LLFolderView* root_folder = mCurrentSelectedList->getRootFolder();
 		root_folder->doToSelected(&gInventory, userdata);
 	}
 }
