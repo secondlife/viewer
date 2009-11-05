@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="gestures" title="Gestes utilisés">
+<floater name="gestures" title="GESTES UTILISÉS">
 	<text name="help_label">
 		Double-cliquez sur un geste pour jouer les animations
 et les sons.

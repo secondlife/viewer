@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="avatarpicker" title="Wybierz Rezydenta">
+<floater name="avatarpicker" title="WYBIERZ REZYDENTA">
 	<tab_container name="ResidentChooserTabs">
 		<panel label="Znajdź" name="SearchPanel">
 			<text name="InstructSearchResidentName">

@@ -17,7 +17,7 @@
  mouse_opaque="true" 
  name="Medis Settings" 
  help_topic = "media_settings"
- title="Media Settings">
+ title="MEDIA SETTINGS">
 	<button 
 	 bottom="-525" 
 	 enabled="true" 

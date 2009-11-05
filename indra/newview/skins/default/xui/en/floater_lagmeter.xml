@@ -6,7 +6,7 @@
  name="floater_lagmeter"
  help_topic="floater_lagmeter"
  save_rect="true"
- title="Lag Meter"
+ title="LAG METER"
  width="350">
     <floater.string
      name="max_title_msg">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="inspect" title="Objecten inspecteren">
+<floater name="inspect" title="OBJECTEN INSPECTEREN">
 	<scroll_list name="object_list" tool_tip="Selecteer een object van deze lijst om het in-wereld te markeren">
 		<column label="Objectnaam" name="object_name"/>
 		<column label="Eigenaar" name="owner_name"/>

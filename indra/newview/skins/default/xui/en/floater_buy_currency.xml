@@ -4,7 +4,7 @@
  can_minimize="false"
  height="275"
  layout="topleft"
- title="Buy L$"
+ title="BUY L$"
  name="buy currency"
  help_topic="buy_linden_dollars"
  single_instance="true"

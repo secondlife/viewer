@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Day Cycle Floater" title="Edytor Cyklu Dnia">
+<floater name="Day Cycle Floater" title="EDYTOR CYKLU DNIA">
 	<tab_container name="Day Cycle Tabs">
 		<panel label="Cykl Dnia" name="Day Cycle">
 			<button label="?" name="WLDayCycleHelp" />

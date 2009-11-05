@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Environment Editor Floater" title="Editor del entorno">
+<floater name="Environment Editor Floater" title="EDITOR DEL ENTORNO">
 	<text name="EnvTimeText">
 		Duración de
 un día

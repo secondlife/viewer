@@ -6,7 +6,7 @@
  layout="topleft"
  name="settings_debug"
  help_topic="settings_debug"
- title="Debug Settings"
+ title="DEBUG SETTINGS"
  width="350">
     <combo_box
      allow_text_entry="true"

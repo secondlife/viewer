@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="Anteprima della fotografia" width="247">
+<floater name="Snapshot" title="ANTEPRIMA DELLA FOTOGRAFIA" width="247">
 	<text name="type_label">
 		Destinazione della fotografia
 	</text>

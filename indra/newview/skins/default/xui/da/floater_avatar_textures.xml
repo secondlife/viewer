@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="avatar_texture_debug" title="Avatar teksturer">
+<floater name="avatar_texture_debug" title="AVATAR TEKSTURER">
 	<text name="baked_label">
 		Faste teksturer
 	</text>

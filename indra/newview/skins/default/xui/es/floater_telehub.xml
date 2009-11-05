@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="telehub" title="Punto de Teleporte" min_height="310" height="310">
+<floater name="telehub" title="PUNTO DE TELEPORTE" min_height="310" height="310">
 	<text name="status_text_connected">
 		Punto de Teleporte conectado al objeto [OBJECT]
 	</text>

@@ -5,65 +5,14 @@
  layout="topleft"
  left="0"
  mouse_opaque="false"
- name="bottom_panel"
+ name="screen"
  width="1024">
-    <panel
-     follows="left|right|top|bottom"
-     height="728"
-     layout="topleft"
-     left="0"
-     mouse_opaque="false"
-     name="status"
-     top="0"
-     width="1024" />
-    <layout_stack
-     border_size="0"
-     follows="left|right|bottom|top"
-     height="768"
-     layout="topleft"
-     left_delta="0"
-     mouse_opaque="false"
-     name="bar_stack"
-     top_delta="0"
-     use_bounding_rect="true"
-     width="1024">
-        <layout_panel
-         follows="left|right|top|bottom"
-         height="768"
-         layout="topleft"
-         left="0"
-         mouse_opaque="false"
-         name="spacer"
-         top="0"
-         user_resize="false"
-         width="1024" />
-        <layout_panel
-         auto_resize="false"
-         height="200"
-         layout="topleft"
-         min_height="200"
-         mouse_opaque="false"
-         name="overlay"
-         use_bounding_rect="true"
-         user_resize="false"
-         width="1024" />
-        <layout_panel
-         auto_resize="false"
-         filename="panel_toolbar.xml"
-         layout="topleft"
-         min_height="28"
-         name="toolbar"
-         use_bounding_rect="true"
-         user_resize="false"
-         width="1024" />
+  <layout_stack name="menu_stack" orientation="vertical" height="768" border_size="0">
+    <panel auto_resize="false" width="1024" name="status_bar" filename="panel_status_bar.xml"/>
+    <panel auto_resize="false" width="1024" height="65" name="navigation bar" filename="panel_navigation_bar.xml"/>
+    <layout_stack name="hud_stack" orientation="horizontal" auto_resize="true" width="1024" height="500" follows="all">
+      <panel auto_resize="true" name="floater_view" height="500"/>
+      <panel auto_resize="false" filename="panel_side_tray.xml" height="500" width="333"/>
     </layout_stack>
-    <panel
-     follows="left|right|top|bottom"
-     height="728"
-     layout="topleft"
-     left_delta="0"
-     mouse_opaque="false"
-     name="hud"
-     top_delta="-10"
-     width="1024" />
+  </layout_stack>
 </panel>

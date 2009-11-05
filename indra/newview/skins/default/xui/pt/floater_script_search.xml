@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="script search" title="Busca de Script" width="320">
+<floater name="script search" title="BUSCA DE SCRIPT" width="320">
 	<check_box label="Não diferenciar Maiúsculas de Minúsculas" name="case_text" left="75"/>
 	<button label="Buscar" label_selected="Buscar" name="search_btn" width="85"/>
 	<button label="Substituir" label_selected="Substituir" name="replace_btn" left="100" width="85"/>

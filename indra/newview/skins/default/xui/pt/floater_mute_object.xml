@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="mute by name" title="Silenciar objeto pelo nome">
+<floater name="mute by name" title="SILENCIAR OBJETO PELO NOME">
 	<text name="message">
 		Silenciar pelo nome afeta apenas conversa de objeto e MI,
 não sons. Você deve digitar o nome exato do objeto.

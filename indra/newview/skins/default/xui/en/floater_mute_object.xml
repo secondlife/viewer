@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
  can_minimize="false"
@@ -6,7 +6,7 @@
  layout="topleft"
  name="block by name"
  help_topic="mute_by_name"
- title="Block object by name"
+ title="BLOCK OBJECT BY NAME"
  width="375">
     <text
      type="string"

@@ -11,7 +11,7 @@
  min_width="234"
  name="preview notecard"
  help_topic="preview_notecard"
- title="Note:"
+ title="NOTE:"
  width="400">
     <floater.string
      name="no_object">

@@ -304,7 +304,6 @@
 	     image_overlay="Arrow_Left_Off"
 	     layout="topleft"
 	     name="earlier_details_button"
-	     picture_style="true"
 	     tool_tip="Back"
 	     top_pad="3"
              right="-35"
@@ -315,8 +314,7 @@
 	     image_overlay="Arrow_Right_Off"
 	     layout="topleft"
 	     left_pad="10"
-             name="later_details_button"
-	     picture_style="true"
+       name="later_details_button"
 	     tool_tip="Next"
 	     width="31" />
         </panel>
@@ -350,7 +348,6 @@
 	     image_overlay="Arrow_Left_Off"
 	     layout="topleft"
 	     name="earlier_sales_button"
-	     picture_style="true"
 	     tool_tip="Back"
 	     top_pad="3"
              right="-35"
@@ -362,7 +359,6 @@
 	     layout="topleft"
 	     left_pad="10"
              name="later_sales_button"
-	     picture_style="true"
 	     tool_tip="Next"
 	     width="31" />
         </panel>

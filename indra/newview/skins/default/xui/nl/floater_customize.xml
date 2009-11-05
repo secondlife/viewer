@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater customize" title="Uiterlijk" width="551">
+<floater name="floater customize" title="UITERLIJK" width="551">
 	<tab_container name="customize tab container" tab_min_width="120" width="549">
 		<placeholder label="Lichaamsdelen" name="body_parts_placeholder"/>
 		<panel label="Postuur" name="Shape" left="124" width="389">

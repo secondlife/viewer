@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="mute by name" title="Negeer object op naam">
+<floater name="mute by name" title="NEGEER OBJECT OP NAAM">
 	<text name="message" bottom_delta="-40">
 		Negeer op naam heeft alleen invloed op object chat
 en IM, niet op geluiden. U dient de naam van het object 

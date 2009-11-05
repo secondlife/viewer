@@ -174,8 +174,6 @@ LLNavigationBar::LLNavigationBar()
 	mSearchComboBox(NULL),
 	mPurgeTPHistoryItems(false)
 {
-	setIsChrome(TRUE);
-	
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_navigation_bar.xml");
 
 	// set a listener function for LoginComplete event

@@ -37,13 +37,11 @@
 		top_pad="10"
 		width="303">
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="hair_color_tab"
 			title="Color">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="hair_color_param_list"
@@ -51,13 +49,11 @@
 				width="303" />
 		</accordion_tab>
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="hair_style_tab"
 			title="Style">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="hair_style_param_list"
@@ -65,13 +61,11 @@
 				width="303" />
 		</accordion_tab>
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="hair_eyebrows_tab"
 			title="Eyebrows">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="hair_eyebrows_param_list"
@@ -79,13 +73,11 @@
 				width="303" />
 		</accordion_tab>
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="hair_facial_tab"
 			title="Facial">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="hair_facial_param_list"
