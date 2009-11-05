@@ -51,6 +51,7 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntryGroup());
 	registerUrl(new LLUrlEntryParcel());
 	registerUrl(new LLUrlEntryTeleport());
+	registerUrl(new LLUrlEntryWorldMap());
 	registerUrl(new LLUrlEntryObjectIM());
 	registerUrl(new LLUrlEntryPlace());
 	registerUrl(new LLUrlEntrySL());

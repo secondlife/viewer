@@ -51,7 +51,7 @@
 // project includes
 #include "llagent.h"
 #include "llfloaterbulkpermission.h"
-#include "llpanelinventory.h"
+#include "llpanelobjectinventory.h"
 #include "llpreviewscript.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
@@ -59,6 +59,7 @@
 #include "lltoolcomp.h"
 #include "lltoolmgr.h"
 #include "lltrans.h"
+#include "llviewerassettype.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -89,14 +90,14 @@ BOOL LLPanelContents::postBuild()
 	childSetAction("button new script",&LLPanelContents::onClickNewScript, this);
 	childSetAction("button permissions",&LLPanelContents::onClickPermissions, this);
 
-	mPanelInventory = getChild<LLPanelInventory>("contents_inventory");
+	mPanelInventoryObject = getChild<LLPanelObjectInventory>("contents_inventory");
 
 	return TRUE;
 }
 
 LLPanelContents::LLPanelContents()
 	:	LLPanel(),
-		mPanelInventory(NULL)
+		mPanelInventoryObject(NULL)
 {
 }
 
@@ -139,9 +140,9 @@ void LLPanelContents::refresh()
 	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
 
 	getState(object);
-	if (mPanelInventory)
+	if (mPanelInventoryObject)
 	{
-		mPanelInventory->refresh();
+		mPanelInventoryObject->refresh();
 	}	
 }
 
@@ -167,7 +168,7 @@ void LLPanelContents::onClickNewScript(void *userdata)
 			PERM_NONE,
 			PERM_MOVE | PERM_TRANSFER);
 		std::string desc;
-		LLAssetType::generateDescriptionFor(LLAssetType::AT_LSL_TEXT, desc);
+		LLViewerAssetType::generateDescriptionFor(LLAssetType::AT_LSL_TEXT, desc);
 		LLPointer<LLViewerInventoryItem> new_item =
 			new LLViewerInventoryItem(
 				LLUUID::null,

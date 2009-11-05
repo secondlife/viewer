@@ -73,8 +73,13 @@
 	<string name="TooltipParcelUrl">Click to view this parcel's description</string>
 	<string name="TooltipTeleportUrl">Click to teleport to this location</string>
 	<string name="TooltipObjectIMUrl">Click to view this object's description</string>
+	<string name="TooltipMapUrl">Click to view this location on a map</string>
 	<string name="TooltipSLAPP">Click to run the secondlife:// command</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />
+
+	<!-- text for SLURL labels -->
+	<string name="SLurlLabelTeleport">Teleport to</string>
+	<string name="SLurlLabelShowOnMap">Show Map for</string>
 	
 	<!-- ButtonToolTips, llfloater.cpp -->
 	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;W)</string>
@@ -2042,9 +2047,6 @@ this texture in your inventory
 	<!-- panel contents -->
 	<string name="PanelContentsNewScript">New Script</string>
 	
-	<!-- panel avatar -->
-	<!-- <string name="None">None</string>	Duplicate-->
-	
 	<!-- Mute -->
 	<string name="MuteByName">(by name)</string>
 	<string name="MuteAgent">(resident)</string>
@@ -2301,9 +2303,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Body Thick">Body Thick</string>
 <string name="Body Thickness">Body Thickness</string>
 <string name="Body Thin">Body Thin</string>
-<string name="Bottom">Bottom</string>
-<string name="Bottom Left">Bottom Left</string>
-<string name="Bottom Right">Bottom Right</string>
 
 <string name="Bow Legged">Bow Legged</string>
 <string name="Breast Buoyancy">Breast Buoyancy</string>
@@ -2325,13 +2324,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="no bustle">No Bustle</string>
 <string name="more bustle">More Bustle</string>
 
-<string name="Center">Center</string>
-<string name="Center 2">Center 2</string>
 <string name="Chaplin">Chaplin</string>
 <string name="Cheek Bones">Cheek Bones</string>
-<string name="Chest">Chest</string>
 <string name="Chest Size">Chest Size</string>
-<string name="Chin">Chin</string>
 <string name="Chin Angle">Chin Angle</string>
 <string name="Chin Cleft">Chin Cleft</string>
 <string name="Chin Curtains">Chin Curtains</string>
@@ -2495,22 +2490,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Jowls">Jowls</string>
 <string name="Knee Angle">Knee Angle</string>
 <string name="Knock Kneed">Knock Kneed</string>
-<string name="L Forearm">L Forearm</string>
-<string name="L Lower Leg">L Lower Leg</string>
-<string name="L Upper Arm">L Upper Arm</string>
-<string name="L Upper Leg">L Upper Leg</string>
 
 <string name="Large">Large</string>
 <string name="Large Hands">Large Hands</string>
-<string name="Left">Left</string>
-<string name="Left Ear">Left Ear</string>
-<string name="Left Eyeball">Left Eyeball</string>
-<string name="Left Foot">Left Foot</string>
-<string name="Left Hand">Left Hand</string>
-<string name="Left Hip">Left Hip</string>
 <string name="Left Part">Left Part</string>
-<string name="Left Pec">Left Pec</string>
-<string name="Left Shoulder">Left Shoulder</string>
 <string name="Leg Length">Leg Length</string>
 <string name="Leg Muscles">Leg Muscles</string>
 <string name="Less">Less</string>
@@ -2528,7 +2511,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Less Square">Less Square</string>
 <string name="Less Volume">Less Volume</string>
 <string name="Less soul">Less soul</string>
-<string name="Light">Light</string>
 <string name="Lighter">Lighter</string>
 <string name="Lip Cleft">Lip Cleft</string>
 <string name="Lip Cleft Depth">Lip Cleft Depth</string>
@@ -2591,7 +2573,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="More soul">More soul</string>
 <string name="Moustache">Moustache</string>
 
-<string name="Mouth">Mouth</string>
 <string name="Mouth Corner">Mouth Corner</string>
 <string name="Mouth Position">Mouth Position</string>
 <string name="Mowhawk">Mowhawk</string>
@@ -2619,10 +2600,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="No Spikes">No Spikes</string>
 <string name="No White">No White</string>
 <string name="No Wrinkles">No Wrinkles</string>
-<string name="None">None</string>
 <string name="Normal Lower">Normal Lower</string>
 <string name="Normal Upper">Normal Upper</string>
-<string name="Nose">Nose</string>
 <string name="Nose Left">Nose Left</string>
 <string name="Nose Right">Nose Right</string>
 <string name="Nose Size">Nose Size</string>
@@ -2662,7 +2641,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Part">Part</string>
 <string name="Part Bangs">Part Bangs</string>
 <string name="Pectorals">Pectorals</string>
-<string name="Pelvis">Pelvis</string>
 <string name="Pigment">Pigment</string>
 <string name="Pigtails">Pigtails</string>
 <string name="Pink">Pink</string>
@@ -2678,24 +2656,12 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Pop Right Eye">Pop Right Eye</string>
 <string name="Puffy">Puffy</string>
 <string name="Puffy Eyelids">Puffy Eyelids</string>
-<string name="R Forearm">R Forearm</string>
-<string name="R Lower Leg">R Lower Leg</string>
-<string name="R Upper Arm">R Upper Arm</string>
-<string name="R Upper Leg">R Upper Leg</string>
 <string name="Rainbow Color">Rainbow Color</string>
 <string name="Red Hair">Red Hair</string>
 <string name="Red Skin">Red Skin</string>
 <string name="Regular">Regular</string>
 <string name="Regular Muscles">Regular Muscles</string>
-<string name="Right">Right</string>
-<string name="Right Ear">Right Ear</string>
-<string name="Right Eyeball">Right Eyeball</string>
-<string name="Right Foot">Right Foot</string>
-<string name="Right Hand">Right Hand</string>
-<string name="Right Hip">Right Hip</string>
 <string name="Right Part">Right Part</string>
-<string name="Right Pec">Right Pec</string>
-<string name="Right Shoulder">Right Shoulder</string>
 <string name="Rosy Complexion">Rosy Complexion</string>
 <string name="Round">Round</string>
 <string name="Round Forehead">Round Forehead</string>
@@ -2752,7 +2718,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Skinny Neck">Skinny Neck</string>
 <string name="Skirt Fit">Skirt Fit</string>
 <string name="Skirt Length">Skirt Length</string>
-<string name="Skull">Skull</string>
 <string name="Slanted Forehead">Slanted Forehead</string>
 <string name="Sleeve Length">Sleeve Length</string>
 
@@ -2775,12 +2740,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 
 <string name="Sparse">Sparse</string>
 <string name="Spiked Hair">Spiked Hair</string>
-<string name="Spine">Spine</string>
 <string name="Square">Square</string>
 <string name="Square Toe">Square Toe</string>
 <string name="Squash Head">Squash Head</string>
 <string name="Squash/Stretch Head">Squash/Stretch Head</string>
-<string name="Stomach">Stomach</string>
 <string name="Stretch Head">Stretch Head</string>
 <string name="Sunken">Sunken</string>
 <string name="Sunken Chest">Sunken Chest</string>
@@ -2812,9 +2775,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Tilt Right">Tilt Right</string>
 <string name="Toe Shape">Toe Shape</string>
 <string name="Toe Thickness">Toe Thickness</string>
-<string name="Top">Top</string>
-<string name="Top Left">Top Left</string>
-<string name="Top Right">Top Right</string>
 <string name="Torso Length">Torso Length</string>
 <string name="Torso Muscles">Torso Muscles</string>
 <string name="Torso Scrawny">Torso Scrawny</string>

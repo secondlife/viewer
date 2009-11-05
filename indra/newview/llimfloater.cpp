@@ -106,6 +106,8 @@ void LLIMFloater::onFocusReceived()
 // virtual
 void LLIMFloater::onClose(bool app_quitting)
 {
+	if (!gIMMgr->hasSession(mSessionID)) return;
+	
 	setTyping(false);
 	gIMMgr->leaveSession(mSessionID);
 }
@@ -223,6 +225,7 @@ BOOL LLIMFloater::postBuild()
 	// enable line history support for instant message bar
 	mInputEditor->setEnableLineHistory(TRUE);
 	
+	
 	mInputEditor->setFocusReceivedCallback( boost::bind(onInputEditorFocusReceived, _1, this) );
 	mInputEditor->setFocusLostCallback( boost::bind(onInputEditorFocusLost, _1, this) );
 	mInputEditor->setKeystrokeCallback( onInputEditorKeystroke, this );
@@ -230,11 +233,17 @@ BOOL LLIMFloater::postBuild()
 	mInputEditor->setRevertOnEsc( FALSE );
 	mInputEditor->setReplaceNewlinesWithSpaces( FALSE );
 
+	std::string session_name(LLIMModel::instance().getName(mSessionID));
+
+	mInputEditor->setLabel(mInputEditor->getLabel() + " " + session_name);
+
+	LLStringUtil::toUpper(session_name);
+	setTitle(session_name);
+
 	childSetCommitCallback("chat_editor", onSendMsg, this);
 	
 	mChatHistory = getChild<LLChatHistory>("chat_history");
-		
-	setTitle(LLIMModel::instance().getName(mSessionID));
+
 	setDocked(true);
 
 	mTypingStart = LLTrans::getString("IM_typing_start_string");

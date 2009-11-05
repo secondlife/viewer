@@ -127,7 +127,6 @@
              layout="topleft"
              left_delta="55"
              name="play"
-             picture_style="true"
              top_delta="0"
              width="55" />
             <button
@@ -138,7 +137,6 @@
              layout="topleft"
              left_delta="0"
              name="pause"
-             picture_style="true"
              top_delta="0"
              width="55" />
             <button

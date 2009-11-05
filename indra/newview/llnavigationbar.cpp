@@ -50,6 +50,7 @@
 #include "llslurl.h"
 #include "llurlsimstring.h"
 #include "llviewerinventory.h"
+#include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
 #include "llworldmap.h"
 #include "llappviewer.h"
@@ -269,6 +270,18 @@ void LLNavigationBar::draw()
 	}
 
 	LLPanel::draw();
+}
+
+BOOL LLNavigationBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = childrenHandleRightMouseDown( x, y, mask) != NULL;
+	if(!handled && !gMenuHolder->hasVisibleMenu())
+	{
+		show_navbar_context_menu(this,x,y);
+		handled = true;
+	}
+					
+	return handled;
 }
 
 void LLNavigationBar::onBackButtonClicked()

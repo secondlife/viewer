@@ -65,8 +65,9 @@ public:
 	void setAvatarId(const LLUUID& id, bool ignore_status_changes = false);
 	void setLastInteractionTime(const std::string& val);
 	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly
-	void setShowProfileBtn(bool hide);
-	void setShowInfoBtn(bool hide);
+	void setShowProfileBtn(bool show);
+	void setShowInfoBtn(bool show);
+	void setSpeakingIndicatorVisible(bool visible);
 	void setAvatarIconVisible(bool visible);
 	
 	const LLUUID& getAvatarId() const;
@@ -109,6 +110,7 @@ private:
 	S32	 mIconWidth; // icon width + padding
 	S32  mInfoBtnWidth; //info btn width + padding
 	S32  mProfileBtnWidth; //profile btn width + padding
+	S32  mSpeakingIndicatorWidth; //speaking indicator width + padding
 };
 
 #endif //LL_LLAVATARLISTITEM_H

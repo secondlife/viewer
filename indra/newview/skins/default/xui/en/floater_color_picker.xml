@@ -180,7 +180,6 @@
      layout="topleft"
      left_pad="30"
      name="color_pipette"
-     picture_style="true"
      width="32" />
     <button
      follows="right|bottom"

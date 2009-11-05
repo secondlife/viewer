@@ -50,6 +50,7 @@
 #include "llfocusmgr.h"
 #include "llfontgl.h"
 #include "llinstantmessage.h"
+#include "llinventorypanel.h"
 #include "llpermissionsflags.h"
 #include "llrect.h"
 #include "llsecondlifeurls.h"
@@ -145,7 +146,6 @@
 #include "llmenucommands.h"
 #include "llmenugl.h"
 #include "llmimetypes.h"
-#include "llmorphview.h"
 #include "llmoveview.h"
 #include "llmutelist.h"
 #include "llnotify.h"
@@ -4175,11 +4175,9 @@ void handle_take_copy()
 {
 	if (LLSelectMgr::getInstance()->getSelection()->isEmpty()) return;
 
-	LLUUID category_id =
-		gInventory.findCategoryUUIDForType(LLAssetType::AT_OBJECT);
+	const LLUUID category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
 	derez_objects(DRD_ACQUIRE_TO_AGENT_INVENTORY, category_id);
 }
-
 
 // You can return an object to its owner if it is on your land.
 class LLObjectReturn : public view_listener_t
@@ -4261,7 +4259,7 @@ class LLObjectEnableReturn : public view_listener_t
 void force_take_copy(void*)
 {
 	if (LLSelectMgr::getInstance()->getSelection()->isEmpty()) return;
-	const LLUUID& category_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_OBJECT);
+	const LLUUID category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
 	derez_objects(DRD_FORCE_TO_GOD_INVENTORY, category_id);
 }
 
@@ -4322,8 +4320,7 @@ void handle_take()
 		if(category_id.notNull())
 		{
 		        // check trash
-			LLUUID trash;
-			trash = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
+			const LLUUID trash = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
 			if(category_id == trash || gInventory.isObjectDescendentOf(category_id, trash))
 			{
 				category_id.setNull();
@@ -4339,7 +4336,7 @@ void handle_take()
 	}
 	if(category_id.isNull())
 	{
-		category_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_OBJECT);
+		category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
 	}
 	LLSD payload;
 	payload["folder_id"] = category_id;
@@ -6918,7 +6915,7 @@ void handle_grab_texture(void* data)
 		LL_INFOS("texture") << "Adding baked texture " << asset_id << " to inventory." << llendl;
 		LLAssetType::EType asset_type = LLAssetType::AT_TEXTURE;
 		LLInventoryType::EType inv_type = LLInventoryType::IT_TEXTURE;
-		LLUUID folder_id(gInventory.findCategoryUUIDForType(asset_type));
+		const LLUUID folder_id = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(asset_type));
 		if(folder_id.notNull())
 		{
 			std::string name = "Unknown";
@@ -7460,52 +7457,10 @@ class LLEditEnableTakeOff : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string clothing = userdata.asString();
-		bool new_value = false;
-		if (clothing == "shirt")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_SHIRT);
-		}
-		if (clothing == "pants")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_PANTS);
-		}
-		if (clothing == "shoes")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_SHOES);
-		}
-		if (clothing == "socks")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_SOCKS);
-		}
-		if (clothing == "jacket")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_JACKET);
-		}
-		if (clothing == "gloves")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_GLOVES);
-		}
-		if (clothing == "undershirt")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_UNDERSHIRT);
-		}
-		if (clothing == "underpants")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_UNDERPANTS);
-		}
-		if (clothing == "skirt")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_SKIRT);
-		}
-		if (clothing == "alpha")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_ALPHA);
-		}
-		if (clothing == "tattoo")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_TATTOO);
-		}
-		return new_value;
+		EWearableType type = LLWearableDictionary::typeNameToType(clothing);
+		if (type >= WT_SHAPE && type < WT_COUNT)
+			return LLAgentWearables::selfHasWearable(type);
+		return false;
 	}
 };
 
@@ -7514,53 +7469,13 @@ class LLEditTakeOff : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string clothing = userdata.asString();
-		if (clothing == "shirt")
+		if (clothing == "all")
+			LLAgentWearables::userRemoveAllClothes();
+		else
 		{
-			LLAgentWearables::userRemoveWearable((void*)WT_SHIRT);
-		}
-		else if (clothing == "pants")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_PANTS);
-		}
-		else if (clothing == "shoes")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_SHOES);
-		}
-		else if (clothing == "socks")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_SOCKS);
-		}
-		else if (clothing == "jacket")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_JACKET);
-		}
-		else if (clothing == "gloves")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_GLOVES);
-		}
-		else if (clothing == "undershirt")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_UNDERSHIRT);
-		}
-		else if (clothing == "underpants")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_UNDERPANTS);
-		}
-		else if (clothing == "skirt")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_SKIRT);
-		}
-		else if (clothing == "alpha")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_ALPHA);
-		}
-		else if (clothing == "tattoo")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_TATTOO);
-		}
-		else if (clothing == "all")
-		{
-			LLAgentWearables::userRemoveAllClothes(NULL);
+			EWearableType type = LLWearableDictionary::typeNameToType(clothing);
+			if (type >= WT_SHAPE && type < WT_COUNT)
+				LLAgentWearables::userRemoveWearable(type);
 		}
 		return true;
 	}
