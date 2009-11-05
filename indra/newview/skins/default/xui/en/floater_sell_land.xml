@@ -13,7 +13,6 @@
      color="DkGray2"
      follows="left|top|right|bottom"
      height="435"
-     min_height="300"
      layout="topleft"
      name="profile_scroll"
      reserve_scroll_corner="true"

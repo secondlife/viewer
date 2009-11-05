@@ -120,12 +120,10 @@ background_visible="true"
              height="425"
              layout="topleft"
              left="0"
-             multiple_expansion="false"
              name="groups_accordion"
              top_pad="15"
              width="336">
              <accordion_tab
-                 can_resize="false"
                  expanded="true"
                  layout="topleft"
                  name="tab_general"
@@ -153,7 +151,6 @@ background_visible="true"
          </scroll_container>
          </accordion_tab>
          <accordion_tab
-                 can_resize="false"
                  expanded="false"
                  layout="topleft"
                  name="tab_roles"
@@ -181,7 +178,6 @@ background_visible="true"
          </scroll_container>
          </accordion_tab>
          <accordion_tab
-                 can_resize="false"
                  expanded="false"
                  layout="topleft"
                  name="tab_notices"
@@ -209,7 +205,6 @@ background_visible="true"
          </scroll_container>
          </accordion_tab>
         <accordion_tab
-                 can_resize="false"
                  expanded="false"
                  layout="topleft"
                  name="tab_notices"

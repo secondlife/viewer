@@ -12,7 +12,6 @@
     font="SansSerifSmall"
     tab_stop="false"
     is_toggle="true"
-    picture_style="true"
     />
   <show_button
     name="right"
@@ -23,7 +22,6 @@
     bottom="0"
     tab_stop="false"
     is_toggle="true"
-    picture_style="true"
     image_selected="ComboButton_Selected"
     image_unselected="ComboButton_Off"
     />

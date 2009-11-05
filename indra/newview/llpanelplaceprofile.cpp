@@ -529,7 +529,7 @@ void LLPanelPlaceProfile::updateYouAreHereBanner(void* userdata)
 	if(!self->getVisible())
 		return;
 
-	if(!gDisconnected)
+	if(!gDisconnected && gAgent.getRegion())
 	{
 		static F32 radius = gSavedSettings.getF32("YouAreHereDistance");
 

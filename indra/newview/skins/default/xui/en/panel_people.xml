@@ -75,7 +75,6 @@ background_visible="true"
              multi_select="true"
              name="avatar_list"
              top="0"
-             volume_column_width="20"
              width="313" />
             <panel
              follows="left|right|bottom"
@@ -130,7 +129,6 @@ background_visible="true"
              top="0"
              width="313">
                 <accordion_tab
-                 can_resize="false"
                  layout="topleft"
                  height="235"
                  min_height="150"
@@ -147,7 +145,6 @@ background_visible="true"
                          width="313" />
                 </accordion_tab>
                 <accordion_tab
-                 can_resize="false"
                  layout="topleft"
                  height="235"
                  name="tab_all"
