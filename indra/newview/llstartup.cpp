@@ -2469,7 +2469,7 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFunc("AvatarPicksReply",
 						&LLAvatarPropertiesProcessor::processAvatarPicksReply);
  	msg->setHandlerFunc("AvatarClassifiedReply",
- 						&LLAvatarPropertiesProcessor::processAvatarClassifiedReply);
+ 						&LLAvatarPropertiesProcessor::processAvatarClassifiedsReply);
 
 	msg->setHandlerFuncFast(_PREHASH_CreateGroupReply,
 						LLGroupMgr::processCreateGroupReply);
@@ -2535,7 +2535,8 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 
 	msg->setHandlerFunc("EventInfoReply", LLPanelEvent::processEventInfoReply);
 	msg->setHandlerFunc("PickInfoReply", &LLAvatarPropertiesProcessor::processPickInfoReply);
-	msg->setHandlerFunc("ClassifiedInfoReply", LLPanelClassified::processClassifiedInfoReply);
+//	msg->setHandlerFunc("ClassifiedInfoReply", LLPanelClassified::processClassifiedInfoReply);
+	msg->setHandlerFunc("ClassifiedInfoReply", LLAvatarPropertiesProcessor::processClassifiedInfoReply);
 	msg->setHandlerFunc("ParcelInfoReply", LLRemoteParcelInfoProcessor::processParcelInfoReply);
 	msg->setHandlerFunc("ScriptDialog", process_script_dialog);
 	msg->setHandlerFunc("LoadURL", process_load_url);

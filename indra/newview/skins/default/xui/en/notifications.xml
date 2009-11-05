@@ -3051,6 +3051,18 @@ Teleport to [PICK]?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="TeleportToClassified"
+   type="alertmodal">
+    Teleport to [CLASSIFIED]?
+    <usetemplate
+     ignoretext="Confirm that I want to teleport to a location in Classifieds"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Teleport"/>
+  </notification>
+
+  <notification
    icon="alert.tga"
    label="Message everyone in your Estate"
    name="MessageEstate"

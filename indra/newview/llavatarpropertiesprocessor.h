@@ -53,7 +53,9 @@ enum EAvatarProcessorType
 	APT_GROUPS,
 	APT_PICKS,
 	APT_PICK_INFO,
-	APT_TEXTURES
+	APT_TEXTURES,
+	APT_CLASSIFIEDS,
+	APT_CLASSIFIED_INFO
 };
 
 struct LLAvatarData
@@ -136,6 +138,43 @@ struct LLAvatarGroups
 	};
 };
 
+struct LLAvatarClassifieds
+{
+	LLUUID agent_id;
+	LLUUID target_id;
+
+	struct classified_data;
+	typedef std::list<classified_data> classifieds_list_t;
+
+	classifieds_list_t classifieds_list;
+
+	struct classified_data
+	{
+		LLUUID classified_id;
+		std::string name;
+	};
+};
+
+struct LLAvatarClassifiedInfo
+{
+	LLUUID agent_id;
+	LLUUID classified_id;
+	LLUUID creator_id;
+	U32 creation_date;
+	U32 expiration_date;
+	U32 category;
+	std::string name;
+	std::string description;
+	LLUUID parcel_id;
+	U32 parent_estate;
+	LLUUID snapshot_id;
+	std::string sim_name;
+	LLVector3d pos_global;
+	std::string parcel_name;
+	U8 classified_flags;
+	S32 price_for_listing;
+};
+
 class LLAvatarPropertiesObserver
 {
 public:
@@ -162,9 +201,12 @@ public:
 	void sendAvatarNotesRequest(const LLUUID& avatar_id);
 	void sendAvatarGroupsRequest(const LLUUID& avatar_id);
 	void sendAvatarTexturesRequest(const LLUUID& avatar_id);
+	void sendAvatarClassifiedsRequest(const LLUUID& avatar_id);
 
 	// Duplicate pick info requests are not suppressed.
 	void sendPickInfoRequest(const LLUUID& creator_id, const LLUUID& pick_id);
+
+	void sendClassifiedInfoRequest(const LLUUID& avatar_id, const LLUUID& classified_id);
 
 	void sendAvatarPropertiesUpdate(const LLAvatarData* avatar_props);
 
@@ -175,6 +217,8 @@ public:
 	void sendNotes(const LLUUID& avatar_id, const std::string notes);
 
 	void sendPickDelete(const LLUUID& pick_id);
+
+	void sendClassifiedDelete(const LLUUID& classified_id);
 
 	// Returns translated, human readable string for account type, such
 	// as "Resident" or "Linden Employee".  Used for profiles, inspectors.
@@ -189,7 +233,9 @@ public:
 
 	static void processAvatarInterestsReply(LLMessageSystem* msg, void**);
 
-	static void processAvatarClassifiedReply(LLMessageSystem* msg, void**);
+	static void processAvatarClassifiedsReply(LLMessageSystem* msg, void**);
+
+	static void processClassifiedInfoReply(LLMessageSystem* msg, void**);
 
 	static void processAvatarGroupsReply(LLMessageSystem* msg, void**);
 
