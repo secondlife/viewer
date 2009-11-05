@@ -96,7 +96,6 @@
      layout="topleft"
      left="200"
      name="image_button"
-     picture_style="true"
      top="20"
      width="16" />
     <button
@@ -107,7 +106,6 @@
      layout="topleft"
      left_delta="0"
      name="image_color_button"
-     picture_style="true"
      top_pad="10"
      width="16" />
 </floater>

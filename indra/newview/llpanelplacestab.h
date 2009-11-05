@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2004-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -44,10 +44,8 @@ public:
 
 	virtual void onSearchEdit(const std::string& string) = 0;
 	virtual void updateVerbs() = 0;		// Updates buttons at the bottom of Places panel
-	//virtual void onShare() = 0;
 	virtual void onShowOnMap() = 0;
 	virtual void onTeleport() = 0;
-	//virtual void onCopySLURL() = 0;
 
 	bool isTabVisible(); // Check if parent TabContainer is visible.
 
@@ -58,7 +56,6 @@ public:
 										const LLUUID& snapshot_id,
 										bool teleport);
 protected:
-	//LLButton*				mShareBtn;
 	LLButton*				mTeleportBtn;
 	LLButton*				mShowOnMapBtn;
 };

@@ -13,58 +13,58 @@
  single_instance="true"
  sound_flags="0"
  width="280">
-    <string
+    <floater.string
      name="status_rotate">
         Drag colored bands to rotate object
-    </string>
-    <string
+    </floater.string>
+    <floater.string
      name="status_scale">
         Click and drag to stretch selected side
-    </string>
-    <string
+    </floater.string>
+    <floater.string
      name="status_move">
         Drag to move, shift-drag to copy
-    </string>
-    <string
+    </floater.string>
+    <floater.string
      name="status_modifyland">
         Click and hold to modify land
-    </string>
-    <string
+    </floater.string>
+    <floater.string
      name="status_camera">
         Click and drag to move camera
-    </string>
-    <string
+    </floater.string>
+    <floater.string
      name="status_grab">
         Drag to move, Ctrl to lift, Ctrl+Shift to rotate
-    </string>
-    <string
+    </floater.string>
+    <floater.string
      name="status_place">
         Click inworld to build
-    </string>
-    <string
+    </floater.string>
+    <floater.string
      name="status_selectland">
         Click and drag to select land
-    </string>
-    <string
+    </floater.string>
+    <floater.string
      name="grid_screen_text">
         Screen
-    </string>
-    <string
+    </floater.string>
+    <floater.string
      name="grid_local_text">
         Local
-    </string>
-    <string
+    </floater.string>
+    <floater.string
      name="grid_world_text">
         World
-    </string>
-    <string
+    </floater.string>
+    <floater.string
      name="grid_reference_text">
         Reference
-    </string>
-    <string
+    </floater.string>
+    <floater.string
      name="grid_attachment_text">
         Attachment
-    </string>
+    </floater.string>
     <button
      follows="left|top"
      height="20"
@@ -75,7 +75,6 @@
      layout="topleft"
      left="10"
      name="button focus"
-     picture_style="true"
      tool_tip="Focus"
      width="20">
 	  <button.commit_callback
@@ -92,7 +91,6 @@
      layout="topleft"
      left_pad="20"
      name="button move"
-     picture_style="true"
      tool_tip="Move"
      width="20">
 	  <button.commit_callback
@@ -109,7 +107,6 @@
      layout="topleft"
      left_pad="20"
      name="button edit"
-     picture_style="true"
      tool_tip="Edit"
      width="20">
 	  <button.commit_callback
@@ -126,7 +123,6 @@
      layout="topleft"
      left_pad="20"
      name="button create"
-     picture_style="true"
      tool_tip="Create"
      width="20">
 	  <button.commit_callback
@@ -143,7 +139,6 @@
      layout="topleft"
      left_pad="20"
      name="button land"
-     picture_style="true"
      tool_tip="Land"
      width="20">
 	  <button.commit_callback
@@ -320,8 +315,6 @@
      image_disabled="ForwardArrow_Disabled"
      image_selected="ForwardArrow_Press"
      image_unselected="ForwardArrow_Off"
-     picture_style="true"
-     label_selected="Options"
      layout="topleft"
      name="Options..."
      tool_tip="Grid options"
@@ -342,7 +335,6 @@
      layout="topleft"
      left="4"
      name="ToolCube"
-     picture_style="true"
      tool_tip="Cube"
      top="51"
      width="20" />
@@ -356,7 +348,6 @@
      layout="topleft"
      left_delta="26"
      name="ToolPrism"
-     picture_style="true"
      tool_tip="Prism"
      top_delta="0"
      width="20" />
@@ -370,7 +361,6 @@
      layout="topleft"
      left_delta="26"
      name="ToolPyramid"
-     picture_style="true"
      tool_tip="Pyramid"
      top_delta="0"
      width="20" />
@@ -384,7 +374,6 @@
      layout="topleft"
      left_delta="26"
      name="ToolTetrahedron"
-     picture_style="true"
      tool_tip="Tetrahedron"
      top_delta="0"
      width="20" />
@@ -398,7 +387,6 @@
      layout="topleft"
      left_delta="26"
      name="ToolCylinder"
-     picture_style="true"
      tool_tip="Cylinder"
      top_delta="0"
      width="20" />
@@ -412,7 +400,6 @@
      layout="topleft"
      left_delta="26"
      name="ToolHemiCylinder"
-     picture_style="true"
      tool_tip="Hemicylinder"
      top_delta="0"
      width="20" />
@@ -426,7 +413,6 @@
      layout="topleft"
      left_delta="26"
      name="ToolCone"
-     picture_style="true"
      tool_tip="Cone"
      top_delta="0"
      width="20" />
@@ -440,7 +426,6 @@
      layout="topleft"
      left_delta="26"
      name="ToolHemiCone"
-     picture_style="true"
      tool_tip="Hemicone"
      top_delta="0"
      width="20" />
@@ -454,7 +439,6 @@
      layout="topleft"
      left_delta="26"
      name="ToolSphere"
-     picture_style="true"
      tool_tip="Sphere"
      top_delta="0"
      width="20" />
@@ -468,7 +452,6 @@
      layout="topleft"
      left_delta="26"
      name="ToolHemiSphere"
-     picture_style="true"
      tool_tip="Hemisphere"
      top_delta="0"
      width="20" />
@@ -482,7 +465,6 @@
      layout="topleft"
      left="4"
      name="ToolTorus"
-     picture_style="true"
      tool_tip="Torus"
      top="77"
      width="20" />
@@ -496,7 +478,6 @@
      layout="topleft"
      left_delta="26"
      name="ToolTube"
-     picture_style="true"
      tool_tip="Tube"
      top_delta="0"
      width="20" />
@@ -510,7 +491,6 @@
      layout="topleft"
      left_delta="26"
      name="ToolRing"
-     picture_style="true"
      tool_tip="Ring"
      top_delta="0"
      width="20" />
@@ -524,7 +504,6 @@
      layout="topleft"
      left_delta="26"
      name="ToolTree"
-     picture_style="true"
      tool_tip="Tree"
      top_delta="0"
      width="20" />
@@ -538,7 +517,6 @@
      layout="topleft"
      left_delta="26"
      name="ToolGrass"
-     picture_style="true"
      tool_tip="Grass"
      top_delta="0"
      width="20" />
@@ -927,7 +905,6 @@
 			 left_pad="0"
 			 top_delta="0"
 			 name="button set group"
-			 picture_style="true"
 			 tab_stop="false"
 			 tool_tip="Choose a group to share this object's permissions"
 			 width="10" />
@@ -1035,10 +1012,10 @@
            value="1" />
       </combo_box>
 <!-- NEW PRICE SPINNER
-  Objects are allowed to be for sale for L$0 to invoke buy UI behavior
-  even though the user gets a free copy.
+Objects are allowed to be for sale for L$0 to invoke buy UI behavior
+even though the user gets a free copy.
 -->
-      <spinner
+    <spinner
         follows="left|top"
         decimal_digits="0"
         increment="1"
@@ -2703,7 +2680,6 @@
 			 layout="topleft"
 			 left_pad="0"
 			 name="add_media"
-			 picture_style="true"
 			 tab_stop="false"
 			 top_delta="0"
 			 tool_tip="Add Media"
@@ -2719,7 +2695,6 @@
 			 layout="topleft"
 			 left_pad="5"
 			 name="delete_media"
-			 picture_style="true"
 			 tool_tip="Delete this media texture"
 			 top_delta="0"
 			 width="18">
@@ -2736,7 +2711,6 @@
 			 layout="topleft"
 			 left_pad="10"
 			 name="edit_media"
-			 picture_style="true"
 			 top_delta="0"
 			 width="18">
 				<button.commit_callback

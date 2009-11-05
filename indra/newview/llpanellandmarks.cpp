@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  *
- * Copyright (c) 2001-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  *
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -553,14 +553,16 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 	std::string command_name = userdata.asString();
 	if("add_landmark" == command_name)
 	{
-		if(LLLandmarkActions::landmarkAlreadyExists())
+		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
+		if(landmark)
 		{
-			std::string location;
-			LLAgentUI::buildLocationString(location, LLAgentUI::LOCATION_FORMAT_FULL);
-			llwarns<<" Landmark already exists at location:  "<< location<<llendl;
-			return;
+			LLSideTray::getInstance()->showPanel("panel_places", 
+								LLSD().insert("type", "landmark").insert("id",landmark->getUUID()));
 		}
-		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+		else
+		{
+			LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+		}
 	} 
 	else if ("category" == command_name)
 	{
@@ -584,7 +586,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 			menu_create_inventory_item(mCurrentSelectedList->getRootFolder(),
 					dynamic_cast<LLFolderBridge*> (folder_bridge), LLSD(
 							"category"), gInventory.findCategoryUUIDForType(
-							LLAssetType::AT_LANDMARK));
+							LLFolderType::FT_LANDMARK));
 		}
 	}
 }
@@ -616,19 +618,21 @@ void LLLandmarksPanel::onClipboardAction(const LLSD& userdata) const
 
 void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 {
-	if(!mCurrentSelectedList) return;
-
-	LLFolderView* root_folder = mCurrentSelectedList->getRootFolder();
+	LLFolderView* landmarks_folder = mLandmarksInventoryPanel->getRootFolder();
+	LLFolderView* fav_folder = mFavoritesInventoryPanel->getRootFolder();
 	std::string command_name = userdata.asString();
 
 	if ("expand_all" == command_name)
 	{
-		root_folder->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_DOWN);
-		root_folder->arrangeAll();
+		landmarks_folder->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_DOWN);
+		fav_folder->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_DOWN);
+		landmarks_folder->arrangeAll();
+		fav_folder->arrangeAll();
 	}
 	else if ("collapse_all" == command_name)
 	{
-		root_folder->closeAllFolders();
+		landmarks_folder->closeAllFolders();
+		fav_folder->closeAllFolders();
 	}
 	else if ( "sort_by_date" == command_name)
 	{
@@ -639,6 +643,9 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 	}
 	else
 	{
+		if(!mCurrentSelectedList) return;
+
+		LLFolderView* root_folder = mCurrentSelectedList->getRootFolder();
 		root_folder->doToSelected(&gInventory, userdata);
 	}
 }

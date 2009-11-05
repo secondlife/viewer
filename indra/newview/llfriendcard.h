@@ -89,8 +89,10 @@ public:
 
 	/**
 	 *	Synchronizes content of the Calling Card/Friends/All Global Inventory folder with Agent's Friend List
+	 *
+	 *	@return true - if folder is already synchronized, false otherwise.
 	 */
-	void syncFriendsFolder();
+	bool syncFriendsFolder();
 
 	/*!
 	 * \brief
@@ -144,11 +146,20 @@ private:
 
 	void onFriendListUpdate(U32 changed_mask);
 
+	/**
+	 * Force fetching of the Inventory folder specified by passed folder's LLUUID.
+	 *
+	 * It only sends request to server, server reply should be processed in other place.
+	 * Because request can be sent via UDP we need to periodically check if request was completed with success.
+	 */
+	void forceFriendListIsLoaded(const LLUUID& folder_id) const;
+
 
 private:
 	typedef std::set<LLUUID> avatar_uuid_set_t;
 
 	avatar_uuid_set_t mBuddyIDSet;
+	bool mFriendsAllFolderCompleted;
 };
 
 #endif // LL_LLFRIENDCARD_H

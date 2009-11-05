@@ -286,7 +286,7 @@ void LLFloaterBuyContents::onClickBuy()
 
 	// Put the items where we put new folders.
 	LLUUID category_id;
-	category_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CATEGORY);
+	category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CATEGORY);
 
 	// *NOTE: doesn't work for multiple object buy, which UI does not
 	// currently support sale info is used for verification only, if

@@ -76,7 +76,6 @@
      left_pad="3"
      right="-31"
      name="info_btn"
-     picture_style="true"
      top_delta="-2"
      width="16" />
     <button
@@ -87,7 +86,6 @@
      left_pad="5"
      right="-3"
      name="profile_btn"
-     picture_style="true"
      top_delta="-2"
      width="20" />
 </panel>

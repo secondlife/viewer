@@ -116,7 +116,6 @@
              height="20"
              width="20"
              name="RefreshFriends"
-             picture_style="true"
              image_overlay="Refresh_Off">
              <button.commit_callback 
               function="Refresh.FriendList"/>
@@ -188,7 +187,6 @@
              height="28"
              width="28"
              name="Refresh"
-             picture_style="true"
              image_overlay="Refresh_Off" />
             <scroll_list
              follows="all"

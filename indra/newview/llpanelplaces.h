@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2004-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -37,6 +37,10 @@
 class LLInventoryItem;
 class LLFilterEditor;
 class LLLandmark;
+
+class LLPanelLandmarkInfo;
+class LLPanelPlaceProfile;
+
 class LLPanelPickEdit;
 class LLPanelPlaceInfo;
 class LLPanelPlacesTab;
@@ -69,7 +73,6 @@ private:
 	void onFilterEdit(const std::string& search_string, bool force_filter);
 	void onTabSelected();
 
-	//void onShareButtonClicked();
 	void onTeleportButtonClicked();
 	void onShowOnMapButtonClicked();
 	void onEditButtonClicked();
@@ -85,20 +88,22 @@ private:
 	void togglePickPanel(BOOL visible);
 	void togglePlaceInfoPanel(BOOL visible);
 
-	void onAgentParcelChange();
 	void updateVerbs();
+
+	LLPanelPlaceInfo* getCurrentInfoPanel();
 
 	LLFilterEditor*				mFilterEditor;
 	LLPanelPlacesTab*			mActivePanel;
 	LLTabContainer*				mTabContainer;
-	LLPanelPlaceInfo*			mPlaceInfo;
+	LLPanelPlaceProfile*		mPlaceProfile;
+	LLPanelLandmarkInfo*		mLandmarkInfo;
+
 	LLPanelPickEdit*			mPickPanel;
 	LLToggleableMenu*			mPlaceMenu;
 	LLToggleableMenu*			mLandmarkMenu;
 
 	LLButton*					mTeleportBtn;
 	LLButton*					mShowOnMapBtn;
-	LLButton*					mShareBtn;
 	LLButton*					mEditBtn;
 	LLButton*					mSaveBtn;
 	LLButton*					mCancelBtn;

@@ -65,6 +65,20 @@ void LLAvatarList::toggleIcons()
 	}
 }
 
+void LLAvatarList::setSpeakingIndicatorsVisible(bool visible)
+{
+	// Save the new value for new items to use.
+	mShowSpeakingIndicator = visible;
+	
+	// Show/hide icons for all existing items.
+	std::vector<LLPanel*> items;
+	getItems(items);
+	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
+	{
+		static_cast<LLAvatarListItem*>(*it)->setSpeakingIndicatorVisible(mShowSpeakingIndicator);
+	}
+}
+
 static bool findInsensitive(std::string haystack, const std::string& needle_upper)
 {
     LLStringUtil::toUpper(haystack);
@@ -81,6 +95,7 @@ LLAvatarList::Params::Params()
 , show_last_interaction_time("show_last_interaction_time", false)
 , show_info_btn("show_info_btn", true)
 , show_profile_btn("show_profile_btn", true)
+, show_speaking_indicator("show_speaking_indicator", true)
 {
 }
 
@@ -94,6 +109,7 @@ LLAvatarList::LLAvatarList(const Params& p)
 , mShowIcons(true)
 , mShowInfoBtn(p.show_info_btn)
 , mShowProfileBtn(p.show_profile_btn)
+, mShowSpeakingIndicator(p.show_speaking_indicator)
 {
 	setCommitOnSelectionChange(true);
 
@@ -239,11 +255,46 @@ void LLAvatarList::refresh()
 	bool dirty = add_limit_exceeded || (have_filter && !have_names);
 	setDirty(dirty);
 
+	// Refreshed all items, lets send refresh_complete signal.
+	if(!dirty)
+	{
+		std::vector<LLSD> cur_values;
+		getValues(cur_values);
+		mRefreshCompleteSignal(this, LLSD((S32)cur_values.size()));
+	}
+
 	// Commit if we've added/removed items.
 	if (modified)
 		onCommit();
 }
 
+bool LLAvatarList::filterHasMatches()
+{
+	uuid_vector_t values = getIDs();
+
+	for (uuid_vector_t::const_iterator it=values.begin(); it != values.end(); it++)
+	{
+		std::string name;
+		const LLUUID& buddy_id = *it;
+		BOOL have_name = gCacheName->getFullName(buddy_id, name);
+
+		// If name has not been loaded yet we consider it as a match.
+		// When the name will be loaded the filter will be applied again(in refresh()).
+
+		if (have_name && !findInsensitive(name, mNameFilter))
+		{
+			continue;
+		}
+
+		return true;
+	}
+	return false;
+}
+
+boost::signals2::connection LLAvatarList::setRefreshCompleteCallback(const commit_signal_t::slot_type& cb)
+{
+	return mRefreshCompleteSignal.connect(cb);
+}
 
 void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
 {
@@ -260,6 +311,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	item->setAvatarIconVisible(mShowIcons);
 	item->setShowInfoBtn(mShowInfoBtn);
 	item->setShowProfileBtn(mShowProfileBtn);
+	item->setSpeakingIndicatorVisible(mShowSpeakingIndicator);
 
 	addItem(item, id, pos);
 }

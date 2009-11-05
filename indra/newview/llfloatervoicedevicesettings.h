@@ -50,6 +50,8 @@ public:
 	void initialize();
 	void cleanup();
 
+	/*virtual*/ void handleVisibilityChange ( BOOL new_visibility );
+	
 protected:
 	static void onCommitInputDevice(LLUICtrl* ctrl, void* user_data);
 	static void onCommitOutputDevice(LLUICtrl* ctrl, void* user_data);

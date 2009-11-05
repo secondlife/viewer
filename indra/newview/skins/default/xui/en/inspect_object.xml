@@ -169,7 +169,6 @@ This is a really long description for an object being as how it is at least 80 c
      image_unselected="OptionsMenu_Off"
      menu_filename="menu_inspect_object_gear.xml"
      name="gear_btn"
-     picture_style="true"
      right="-10"
      top_delta="5"
      width="18" />
@@ -181,7 +180,6 @@ This is a really long description for an object being as how it is at least 80 c
      image_unselected="ForwardArrow_Off"
      layout="topleft"
      name="more_info_btn"
-     picture_style="true"
      right="-5"
      top="20"
      left_delta="110"

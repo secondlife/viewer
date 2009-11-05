@@ -4,7 +4,6 @@
            max_chars="20"
            follows="right|top">
   <combo_box.combo_button name="Combobox Button"
-                          label=""
                           hover_glow_amount="0.15"
                           font="SansSerifSmall"
                           scale_image="false"
@@ -12,7 +11,6 @@
                           image_selected="ComboButton_Selected"
                           image_disabled="ComboButton_Disabled" />
   <combo_box.drop_down_button name="Drop Down Button"
-                              label=""
                               hover_glow_amount="0.15"
                               font="SansSerifSmall"
                               scale_image="true"

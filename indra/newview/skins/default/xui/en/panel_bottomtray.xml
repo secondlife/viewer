@@ -258,11 +258,11 @@
          user_resize="false">
             <chiclet_notification
              follows="right"
-             height="25"
+             height="23"
              layout="topleft"
              left="0"
              name="sys_well"
-             top="3"
+             top="4"
              width="34">
               <button
               auto_resize="true"
@@ -272,7 +272,9 @@
                flash_color="EmphasisColor"
                name="Unread"
                picture_style="true"
-               image_overlay="Widget_UpArrow" />
+               image_overlay="Notices_Unread"
+               width="20"
+               />
                <unread_notifications
                width="34"
                height="23"
@@ -289,6 +291,6 @@
          layout="topleft"
          right="-1"
          top="0"
-         width="10"/>
+         width="26"/>
     </layout_stack>
 </panel>
