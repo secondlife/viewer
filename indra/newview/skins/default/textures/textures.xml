@@ -89,6 +89,7 @@
   <texture name="Favorite_Star_Off" file_name="navbar/Favorite_Star_Off.png" preload="false" />
   <texture name="Favorite_Star_Press" file_name="navbar/Favorite_Star_Press.png" preload="false" />
   <texture name="Favorite_Star_Over" file_name="navbar/Favorite_Star_Over.png" preload="false" />
+  <texture name="Favorite_Link_Over" file_name="navbar/Favorite_Link_Over.png" preload="false" />
 
   <texture name="FileMenu_BarSelect" file_name="navbar/FileMenu_BarSelect.png" preload="false" scale.left="2" scale.top="0" scale.right="2" scale.bottom="0" />
   <texture name="FileMenu_BG" file_name="navbar/FileMenu_BG.png" preload="false" />
@@ -396,10 +397,6 @@
   <texture name="TabIcon_Home_Off" file_name="taskpanel/TabIcon_Home_Off.png" preload="false" />
   <texture name="TabIcon_Home_Over" file_name="taskpanel/TabIcon_Home_Over.png" preload="false" />
   <texture name="TabIcon_Home_Selected" file_name="taskpanel/TabIcon_Home_Selected.png" preload="false" />
-  <texture name="TabIcon_Inventory_Large" file_name="taskpanel/TabIcon_Inventory_Large.png" preload="false" />
-  <texture name="TabIcon_Inventory_Off" file_name="taskpanel/TabIcon_Inventory_Off.png" preload="false" />
-  <texture name="TabIcon_Inventory_Over" file_name="taskpanel/TabIcon_Inventory_Over.png" preload="false" />
-  <texture name="TabIcon_Inventory_Selected" file_name="taskpanel/TabIcon_Inventory_Selected.png" preload="false" />
   <texture name="TabIcon_Me_Large" file_name="taskpanel/TabIcon_Me_Large.png" preload="false" />
   <texture name="TabIcon_Me_Off" file_name="taskpanel/TabIcon_Me_Off.png" preload="false" />
   <texture name="TabIcon_Me_Over" file_name="taskpanel/TabIcon_Me_Over.png" preload="false" />
