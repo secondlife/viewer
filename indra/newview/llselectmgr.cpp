@@ -67,6 +67,7 @@
 #include "llinventorymodel.h"
 #include "llmenugl.h"
 #include "llmutelist.h"
+#include "llsidepaneltaskinfo.h"
 #include "llslurl.h"
 #include "llstatusbar.h"
 #include "llsurface.h"
@@ -4906,12 +4907,20 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	}
 	if (mSelectedObjects->getNumNodes())
 	{
-		LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
 		LLUUID inspect_item_id= LLUUID::null;
+#if 0		
+		LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
 		if(inspect_instance)
 		{
 			inspect_item_id = inspect_instance->getSelectedUUID();
 		}
+#endif
+		LLSidepanelTaskInfo *panel_task_info = LLSidepanelTaskInfo::getActivePanel();
+		if (panel_task_info)
+		{
+			inspect_item_id = panel_task_info->getSelectedUUID();
+		}
+
 		for (S32 pass = 0; pass < 2; pass++)
 		{
 			for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
@@ -5494,11 +5503,18 @@ void dialog_refresh_all()
 	}
 
 	LLFloaterProperties::dirtyAll();
-	
+
+#if 0	
 	LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
 	if(inspect_instance)
 	{
 		inspect_instance->dirty();
+	}
+#endif
+	LLSidepanelTaskInfo *panel_task_info = LLSidepanelTaskInfo::getActivePanel();
+	if (panel_task_info)
+	{
+		panel_task_info->dirty();
 	}
 }
 

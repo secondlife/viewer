@@ -71,6 +71,8 @@
 /// Class llsidepaneltaskinfo
 ///----------------------------------------------------------------------------
 
+LLSidepanelTaskInfo* LLSidepanelTaskInfo::sActivePanel = NULL;
+
 static LLRegisterPanelClassWrapper<LLSidepanelTaskInfo> t_task_info("sidepanel_task_info");
 
 // Default constructor
@@ -79,6 +81,14 @@ LLSidepanelTaskInfo::LLSidepanelTaskInfo()
 	setMouseOpaque(FALSE);
 }
 
+
+LLSidepanelTaskInfo::~LLSidepanelTaskInfo()
+{
+	if (sActivePanel == this)
+		sActivePanel = NULL;
+}
+
+// virtual
 BOOL LLSidepanelTaskInfo::postBuild()
 {
 	LLSidepanelInventorySubpanel::postBuild();
@@ -101,11 +111,19 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	return TRUE;
 }
 
-LLSidepanelTaskInfo::~LLSidepanelTaskInfo()
+// virtual
+void LLSidepanelTaskInfo::setVisible(BOOL visible)
 {
-	// base class will take care of everything
+	LLPanel::setVisible(visible);
+	if (visible)
+	{
+		sActivePanel = this;
+	}
+	else
+	{
+		sActivePanel = NULL;
+	}
 }
-
 
 void LLSidepanelTaskInfo::refresh()
 {
@@ -1037,6 +1055,8 @@ void LLSidepanelTaskInfo::updateVerbs()
 	mBuyBtn->setVisible(!getIsEditing());
 
 	mOpenBtn->setEnabled(enable_object_open());
+	const LLViewerObject *obj = getFirstSelectedObject();
+	mEditBtn->setEnabled(obj && obj->permModify());
 }
 
 void LLSidepanelTaskInfo::onOpenButtonClicked()
@@ -1076,4 +1096,29 @@ void LLSidepanelTaskInfo::save()
 void LLSidepanelTaskInfo::setObjectSelection(LLObjectSelectionHandle selection)
 {
 	mObjectSelection = selection;
+}
+
+LLSidepanelTaskInfo* LLSidepanelTaskInfo::getActivePanel()
+{
+	return sActivePanel;
+}
+
+LLViewerObject* LLSidepanelTaskInfo::getFirstSelectedObject()
+{
+	LLSelectNode *node = mObjectSelection->getFirstRootNode();
+	if (node)
+	{
+		return node->getObject();
+	}
+	return NULL;
+}
+
+const LLUUID& LLSidepanelTaskInfo::getSelectedUUID()
+{
+	const LLViewerObject* obj = getFirstSelectedObject();
+	if (obj)
+	{
+		return obj->getID();
+	}
+	return LLUUID::null;
 }

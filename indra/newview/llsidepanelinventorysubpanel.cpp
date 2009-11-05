@@ -87,7 +87,6 @@ void LLSidepanelInventorySubpanel::setVisible(BOOL visible)
 	if (visible)
 	{
 		dirty();
-		setIsEditing(FALSE);
 	}
 	LLPanel::setVisible(visible);
 }
@@ -123,6 +122,7 @@ void LLSidepanelInventorySubpanel::draw()
 void LLSidepanelInventorySubpanel::dirty()
 {
 	mIsDirty = TRUE;
+	setIsEditing(FALSE);
 }
 
 void LLSidepanelInventorySubpanel::updateVerbs()

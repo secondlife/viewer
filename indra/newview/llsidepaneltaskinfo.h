@@ -45,6 +45,7 @@
 
 class LLNameBox;
 class LLCheckBoxCtrl;
+class LLViewerObject;
 
 class LLSidepanelTaskInfo : public LLSidepanelInventorySubpanel
 {
@@ -53,9 +54,14 @@ public:
 	virtual ~LLSidepanelTaskInfo();
 
 	/*virtual*/	BOOL postBuild();
+	/*virtual*/ void setVisible(BOOL visible);
 
 	void setObjectSelection(LLObjectSelectionHandle selection);
 
+	const LLUUID& getSelectedUUID();
+	LLViewerObject* getFirstSelectedObject();
+
+	static LLSidepanelTaskInfo *getActivePanel();
 protected:
 	/*virtual*/ void refresh();	// refresh all labels as needed
 	/*virtual*/ void save();
@@ -102,6 +108,7 @@ private:
 	LLButton*					mBuyBtn;
 
 	LLObjectSelectionHandle mObjectSelection;
+	static LLSidepanelTaskInfo* sActivePanel;
 };
 
 

@@ -67,7 +67,7 @@ public:
 	static void selectAllTypes(void* user_data);
 	static void selectNoTypes(void* user_data);
 private:
-	LLPanelMainInventory*	mPanelInventoryDecorated;
+	LLPanelMainInventory*	mPanelMainInventory;
 	LLSpinCtrl*			mSpinSinceDays;
 	LLSpinCtrl*			mSpinSinceHours;
 	LLInventoryFilter*	mFilter;
@@ -126,6 +126,7 @@ BOOL LLPanelMainInventory::postBuild()
 		mActivePanel->getFilter()->markDefault();
 		mActivePanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
 		mActivePanel->setSelectCallback(boost::bind(&LLInventoryPanel::onSelectionChange, mActivePanel, _1, _2));
+		mActivePanel->getRootFolder()->openFolder("My Inventory");
 	}
 	LLInventoryPanel* recent_items_panel = getChild<LLInventoryPanel>("Recent Items");
 	if (recent_items_panel)
@@ -561,7 +562,7 @@ LLFloaterInventoryFinder* LLPanelMainInventory::getFinder()
 
 LLFloaterInventoryFinder::LLFloaterInventoryFinder(LLPanelMainInventory* inventory_view) :	
 	LLFloater(LLSD()),
-	mPanelInventoryDecorated(inventory_view),
+	mPanelMainInventory(inventory_view),
 	mFilter(inventory_view->getPanel()->getFilter())
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_inventory_view_finder.xml", NULL);
@@ -584,7 +585,7 @@ void LLFloaterInventoryFinder::onCheckSinceLogoff(LLUICtrl *ctrl, void *user_dat
 }
 BOOL LLFloaterInventoryFinder::postBuild()
 {
-	const LLRect& viewrect = mPanelInventoryDecorated->getRect();
+	const LLRect& viewrect = mPanelMainInventory->getRect();
 	setRect(LLRect(viewrect.mLeft - getRect().getWidth(), viewrect.mTop, viewrect.mLeft, viewrect.mTop - getRect().getHeight()));
 
 	childSetAction("All", selectAllTypes, this);
@@ -738,9 +739,9 @@ void LLFloaterInventoryFinder::draw()
 	}
 
 	// update the panel, panel will update the filter
-	mPanelInventoryDecorated->getPanel()->setShowFolderState(getCheckShowEmpty() ?
+	mPanelMainInventory->getPanel()->setShowFolderState(getCheckShowEmpty() ?
 		LLInventoryFilter::SHOW_ALL_FOLDERS : LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mPanelInventoryDecorated->getPanel()->setFilterTypes(filter);
+	mPanelMainInventory->getPanel()->setFilterTypes(filter);
 	if (getCheckSinceLogoff())
 	{
 		mSpinSinceDays->set(0);
@@ -756,9 +757,9 @@ void LLFloaterInventoryFinder::draw()
 		mSpinSinceHours->set((F32)hours);
 	}
 	hours += days * 24;
-	mPanelInventoryDecorated->getPanel()->setHoursAgo(hours);
-	mPanelInventoryDecorated->getPanel()->setSinceLogoff(getCheckSinceLogoff());
-	mPanelInventoryDecorated->setFilterTextFromFilter();
+	mPanelMainInventory->getPanel()->setHoursAgo(hours);
+	mPanelMainInventory->getPanel()->setSinceLogoff(getCheckSinceLogoff());
+	mPanelMainInventory->setFilterTextFromFilter();
 
 	LLPanel::draw();
 }
