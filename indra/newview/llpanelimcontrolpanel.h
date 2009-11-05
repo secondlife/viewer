@@ -34,6 +34,7 @@
 #define LL_LLPANELIMCONTROLPANEL_H
 
 #include "llpanel.h"
+#include "llvoicechannel.h"
 
 class LLSpeakerMgr;
 class LLAvatarList;
@@ -52,7 +53,9 @@ public:
 	void onEndCallButtonClicked();
 	void onOpenVoiceControlsClicked();
 
-	virtual void setSessionId(const LLUUID& session_id) { mSessionId = session_id; }
+	virtual void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
+
+	virtual void setSessionId(const LLUUID& session_id);
 
 private:
 	LLUUID mSessionId;
@@ -68,6 +71,9 @@ public:
 	BOOL postBuild();
 
 	void setSessionId(const LLUUID& session_id);
+
+protected:
+	void nameUpdatedCallback(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
 
 private:
 	void onViewProfileButtonClicked();
@@ -100,6 +106,7 @@ protected:
 private:
 	void onGroupInfoButtonClicked();
 	void onSortMenuItemClicked(const LLSD& userdata);
+	/*virtual*/ void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
 };
 
 class LLPanelAdHocControlPanel : public LLPanelGroupControlPanel

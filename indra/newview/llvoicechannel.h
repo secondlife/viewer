@@ -52,6 +52,8 @@ public:
 		STATE_CONNECTED
 	} EState;
 
+	typedef boost::function<void(const EState& old_state, const EState& new_state)> state_changed_callback_t;
+
 	LLVoiceChannel(const LLUUID& session_id, const std::string& session_name);
 	virtual ~LLVoiceChannel();
 
@@ -69,6 +71,8 @@ public:
 	virtual BOOL callStarted();
 	const std::string& getSessionName() const { return mSessionName; }
 
+	void setStateChangedCallback(state_changed_callback_t callback) { mStateChangedCallback = callback; }
+
 	const LLUUID getSessionID() { return mSessionID; }
 	EState getState() { return mState; }
 
@@ -85,6 +89,10 @@ public:
 
 protected:
 	virtual void setState(EState state);
+	/**
+	 * Use this method if you want mStateChangedCallback to be executed while state is changed
+	 */
+	void doSetState(const EState& state);
 	void toggleCallWindowIfNeeded(EState state);
 	void setURI(std::string uri);
 
@@ -106,6 +114,9 @@ protected:
 	static LLVoiceChannel* sCurrentVoiceChannel;
 	static LLVoiceChannel* sSuspendedVoiceChannel;
 	static BOOL sSuspended;
+
+private:
+	state_changed_callback_t mStateChangedCallback;
 };
 
 class LLVoiceChannelGroup : public LLVoiceChannel
