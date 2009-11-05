@@ -3442,26 +3442,13 @@ void handle_show_side_tray()
 	root->addChild(side_tray);
 }
 
-class LLSelfFriends : public view_listener_t
+class LLShowPanelPeopleTab : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		// Open "Friends" tab of the "People" panel in side tray.
+		// Open tab of the "People" panel in side tray.
 		LLSD param;
-		param["people_panel_tab_name"] = "friends_panel";
-
-		LLSideTray::getInstance()->showPanel("panel_people", param);
-		return true;
-	}
-};
-
-class LLSelfGroups : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		// Open "Groups" tab of the "People" panel in side tray.
-		LLSD param;
-		param["people_panel_tab_name"] = "groups_panel";
+		param["people_panel_tab_name"] = userdata.asString();
 		LLSideTray::getInstance()->showPanel("panel_people", param);
 		return true;
 	}
@@ -8022,8 +8009,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLSelfEnableRemoveAllAttachments(), "Self.EnableRemoveAllAttachments");
 
 	// we don't use boost::bind directly to delay side tray construction
-	view_listener_t::addMenu(new LLSelfFriends(), "Self.Friends");
-	view_listener_t::addMenu(new LLSelfGroups(), "Self.Groups");
+	view_listener_t::addMenu( new LLShowPanelPeopleTab(), "SideTray.PanelPeopleTab");
 
 	 // Avatar pie menu
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");

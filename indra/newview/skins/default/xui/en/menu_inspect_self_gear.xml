@@ -36,13 +36,14 @@
    label="My Friends"
    name="my_friends">
     <menu_item_call.on_click
-     function="Self.Friends"
-     parameter="" />
+    function="SideTray.PanelPeopleTab"
+    parameter="friends_panel" />
   </menu_item_call>
   <menu_item_call
    label="My Groups"
    name="my_groups">
     <menu_item_call.on_click
-     function="Self.Groups" />
+     function="SideTray.PanelPeopleTab"
+     parameter="groups_panel" />
   </menu_item_call>
 </menu>
