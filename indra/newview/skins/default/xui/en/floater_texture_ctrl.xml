@@ -23,14 +23,16 @@
      type="string"
      length="1"
      follows="left|top"
+     text_color="White"
+     font="SansSerifBig"
      halign="center"
-     height="14"
+     height="17"
      layout="topleft"
      left="4"
      name="Multiple"
      top="96"
      width="163">
-        Multiple
+        Multiple textures
     </text>
     <text
      type="string"
@@ -42,7 +44,7 @@
      name="unknown"
      top_pad="80"
      width="163">
-        Dimensions: [DIMENSIONS]
+        Size: [DIMENSIONS]
     </text>
     <button
      enabled="false"
@@ -55,7 +57,7 @@
      left_delta="0"
      name="Default"
      top_pad="4"
-     width="64" />
+     width="80" />
     <button
      enabled="false"
      follows="left|bottom"
@@ -67,7 +69,7 @@
      left_pad="4"
      name="None"
      top_delta="0"
-     width="64" />
+     width="80" />
     <button
      follows="left|bottom"
      font="SansSerifSmall"
@@ -77,74 +79,75 @@
      layout="topleft"
      left="4"
      name="Blank"
-     top="232"
-     width="64" />
-    <check_box
-     height="24"
-     initial_value="true"
-     label="Show Folders"
+     top_pad="5"
+     width="80" />
+         <button
+     follows="left|bottom"
+     height="28"
+     image_selected="eye_button_active.tga"
+     image_unselected="eye_button_inactive.tga"
      layout="topleft"
-     left="175"
-     name="show_folders_check"
-     top="20"
-     width="201" />
+     left_pad="50"
+     top_delta="3"
+     name="Pipette"
+     width="28" />
+   <check_box
+     follows="left|bottom"
+     height="20"
+     initial_value="true"
+     label="Apply now"
+     layout="topleft"
+     left="4"
+     name="apply_immediate_check"
+     top="262"
+     width="120" />
     <filter_editor
      follows="left|top|right"
-     height="16"
-     label="Type here to search"
+     height="23"
+     label="Filter textures"
      layout="topleft"
-     left_delta="0"
+     left="175"
      name="inventory search editor"
-     top_delta="0"
+     top="20"
      width="231" />
     <inventory_panel
      allow_multi_select="false"
-     border="true"
-     follows="left|top|right|bottom"
-     height="216"
+     bg_visible="true"
+     bg_alpha_color="DkGray2"
+     border="false"
+     follows="all"
+     height="200"
      layout="topleft"
      left_delta="0"
      name="inventory panel"
      top_pad="4"
      width="231" />
-    <check_box
-     follows="left|bottom"
+     <check_box
+     height="14"
+     initial_value="false"
+     label="Show folders"
+     layout="topleft"
+     name="show_folders_check"
+     top_pad="0"
+     left_delta="-3"
+     width="200" />
+         <button
+     follows="right|bottom"
      height="20"
-     initial_value="true"
-     label="Apply Immediately"
+     label="Ok"
+     label_selected="Ok"
      layout="topleft"
-     left="4"
-     name="apply_immediate_check"
-     top="262"
-     width="150" />
-    <button
-     follows="left|bottom"
-     height="32"
-     image_selected="eye_button_active.tga"
-     image_unselected="eye_button_inactive.tga"
-     layout="topleft"
-     left="139"
-     name="Pipette"
-     top="250"
-     width="32" />
+     right="-120"
+     name="Select"
+     width="100" />
     <button
      follows="right|bottom"
      height="20"
      label="Cancel"
      label_selected="Cancel"
      layout="topleft"
-     left="186"
+     right="-10"
+     left_pad="5"
      name="Cancel"
-     top="262"
-     width="100" />
-    <button
-     follows="right|bottom"
-     height="20"
-     label="Select"
-     label_selected="Select"
-     layout="topleft"
-     left_pad="4"
-     name="Select"
-     top_delta="0"
      width="100" />
 </floater>
