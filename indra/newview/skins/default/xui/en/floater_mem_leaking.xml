@@ -7,7 +7,7 @@
  layout="topleft"
  name="MemLeak"
  help_topic="memleak"
- title="Simulate a Memory Leak"
+ title="SIMULATE A MEMORY LEAK"
  width="350">
     <spinner
      decimal_digits="0"

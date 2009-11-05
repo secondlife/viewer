@@ -6,7 +6,7 @@
  layout="topleft"
  min_height="50"
  name="notification"
- title="Notifications Console"
+ title="NOTIFICATIONS CONSOLE"
  width="200">
     <text_editor
      type="string"

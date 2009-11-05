@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterland" title="Om land">
+<floater name="floaterland" title="OM LAND">
 	<tab_container name="landtab">
 		<panel label="Generelt" name="land_general_panel">
 			<text name="Name:">

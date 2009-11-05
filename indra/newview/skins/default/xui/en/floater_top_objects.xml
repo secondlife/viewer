@@ -8,7 +8,7 @@
  min_width="450"
  name="top_objects"
  help_topic="top_objects"
- title="loading..."
+ title="LOADING..."
  width="550">
     <floater.string
      name="top_scripts_title">

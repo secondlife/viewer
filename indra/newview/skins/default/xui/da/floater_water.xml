@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Water Floater" title="Avanceret opsætning af vand">
+<floater name="Water Floater" title="AVANCERET OPSÆTNING AF VAND">
 	<text name="KeyFramePresetsText">
 		Vand opsætninger:
 	</text>

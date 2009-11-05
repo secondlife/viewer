@@ -8,7 +8,7 @@
  name="queue"
  help_topic="queue"
  save_rect="true"
- title="Reset Progress"
+ title="RESET PROGRESS"
  width="300">
     <floater.string
      name="Starting">

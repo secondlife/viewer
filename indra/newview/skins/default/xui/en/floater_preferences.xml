@@ -9,7 +9,7 @@
  name="Preferences"
  help_topic="preferences"
  single_instance="true"
- title="Preferences"
+ title="PREFERENCES"
  width="620">
     <button
      follows="right|bottom"

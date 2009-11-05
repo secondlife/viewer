@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Postcard" title="Invia la fotografia via email">
+<floater name="Postcard" title="INVIA LA FOTOGRAFIA VIA EMAIL">
 	<text name="to_label" width="135">
 		Email del destinatario:
 	</text>

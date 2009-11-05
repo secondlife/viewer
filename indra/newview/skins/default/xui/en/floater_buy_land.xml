@@ -7,7 +7,7 @@
  name="buy land"
  help_topic="buy_land"
  single_instance="true"
- title="Buy Land"
+ title="BUY LAND"
  width="740">
     <floater.string
      name="can_resell">

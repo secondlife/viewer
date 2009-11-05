@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="WindLight floater" title="Editor avanzado del cielo">
+<floater name="WindLight floater" title="EDITOR AVANZADO DEL CIELO">
 	<text name="KeyFramePresetsText">
 		Cielos definidos:
 	</text>

@@ -59,13 +59,11 @@
 		top_pad="10"
 		width="303">
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="shape_body_tab"
 			title="Body">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="shape_body_param_list"
@@ -73,13 +71,11 @@
 				width="303" />
 		</accordion_tab>
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="shape_head_tab"
 			title="Head">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="shape_head_param_list"
@@ -87,13 +83,11 @@
 				width="303" />
 		</accordion_tab>
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="shape_eyes_tab"
 			title="Eyes">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="shape_eyes_param_list"
@@ -101,13 +95,11 @@
 				width="303" />
 		</accordion_tab>
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="shape_ears_tab"
 			title="Ears">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="shape_ears_param_list"
@@ -115,13 +107,11 @@
 				width="303" />
 		</accordion_tab>
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="shape_nose_tab"
 			title="Nose">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="shape_nose_param_list"
@@ -129,13 +119,11 @@
 				width="303" />
 		</accordion_tab>
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="shape_mouth_tab"
 			title="Mouth">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="shape_mouth_param_list"
@@ -143,13 +131,11 @@
 				width="303" />
 		</accordion_tab>
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="shape_chin_tab"
 			title="Chin">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="shape_chin_param_list"
@@ -157,13 +143,11 @@
 				width="303" />
 		</accordion_tab>
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="shape_torso_tab"
 			title="Torso">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="shape_torso_param_list"
@@ -171,13 +155,11 @@
 				width="303" />
 		</accordion_tab>
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="shape_legs_tab"
 			title="Legs">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="shape_legs_param_list"

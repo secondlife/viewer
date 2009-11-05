@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_report_abuse" title="Denuncia di Abuso">
+<floater name="floater_report_abuse" title="DENUNCIA DI ABUSO">
 	<check_box label="Includi una fotografia" name="screen_check"/>
 	<text name="reporter_title">
 		Segnalato da:

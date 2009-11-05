@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="telehub" title="Téléhub" min_height="310" height="310" >
+<floater name="telehub" title="TÉLÉHUB" min_height="310" height="310" >
 	<text name="status_text_connected">
 		Téléhub connecté à l&apos;objet [OBJECT]
 	</text>

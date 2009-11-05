@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="avatar_texture_debug" title="Texturas del avatar">
+<floater name="avatar_texture_debug" title="TEXTURAS DEL AVATAR">
 	<text name="baked_label">
 		Texturas predeterminadas
 	</text>

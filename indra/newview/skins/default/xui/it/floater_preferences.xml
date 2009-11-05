@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Preferences" title="Preferenze" min_width="350" width="646">
+<floater name="Preferences" title="PREFERENZE" min_width="350" width="646">
 	<button label="OK" label_selected="OK" name="OK"/>
 	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
 	<button label="Applica" label_selected="Applica" name="Apply"/>

@@ -10,7 +10,7 @@
  name="objectcontents"
  help_topic="objectcontents"
  save_rect="true"
- title="Object Contents"
+ title="OBJECT CONTENTS"
  width="300">
    <text
      type="string"
