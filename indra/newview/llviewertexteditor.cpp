@@ -188,7 +188,24 @@ public:
 
 	/*virtual*/ S32				getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const 
 	{
-		return 1;
+		// always draw at beginning of line
+		if (line_offset == 0)
+		{
+			return 1;
+		}
+		else
+		{
+			S32 width, height;
+			getDimensions(mStart, 1, width, height);
+			if (width > num_pixels) 
+			{
+				return 0;
+			}
+			else
+			{
+				return 1;
+			}
+		}
 	}
 	/*virtual*/ F32				draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
 	{
@@ -208,7 +225,7 @@ public:
 		}
 
 		F32 right_x;
-		mStyle->getFont()->render(mLabel, 0, image_rect.mRight + EMBEDDED_ITEM_LABEL_PADDING, draw_rect.mBottom, color, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::UNDERLINE, LLFontGL::NO_SHADOW, mLabel.length(), S32_MAX, &right_x);
+		mStyle->getFont()->render(mLabel, 0, image_rect.mRight + EMBEDDED_ITEM_LABEL_PADDING, draw_rect.mTop, color, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::UNDERLINE, LLFontGL::NO_SHADOW, mLabel.length(), S32_MAX, &right_x);
 		return right_x;
 	}
 	
