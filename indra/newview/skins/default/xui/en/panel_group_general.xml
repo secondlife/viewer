@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
- height="412"
+     height="380"
  label="General"
  class="panel_group_general"
  layout="topleft"
  left="0"
  top="0"
  name="general_tab"
- width="313">
+ width="303">
     <panel.string
      name="help_text">
         The General tab contains general information about this group, a list of members, general Group Preferences and member options.
@@ -41,7 +41,7 @@ Hover your mouse over the options for more help.
      draw_heading="true"
      follows="left|top"
      heading_height="16"
-     height="160"
+     height="130"
      layout="topleft"
      left_delta="0"
      name="visible_members"

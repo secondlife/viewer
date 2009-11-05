@@ -35,6 +35,7 @@
 #define LL_LLFLOATERINVENTORY_H
 
 #include "llfloater.h"
+#include "llfoldertype.h"
 
 class LLInventoryPanel;
 class LLPanelMainInventory;

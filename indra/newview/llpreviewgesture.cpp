@@ -130,10 +130,10 @@ LLPreviewGesture* LLPreviewGesture::show(const LLUUID& item_id, const LLUUID& ob
 	preview->setObjectID(object_id);
 	
 	// Start speculative download of sounds and animations
-	LLUUID animation_folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_ANIMATION);
+	const LLUUID animation_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_ANIMATION);
 	gInventory.startBackgroundFetch(animation_folder_id);
 
-	LLUUID sound_folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_SOUND);
+	const LLUUID sound_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SOUND);
 	gInventory.startBackgroundFetch(sound_folder_id);
 
 	// this will call refresh when we have everything.

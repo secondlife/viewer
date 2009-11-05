@@ -54,6 +54,7 @@ public:
 	virtual ~LLNavigationBar();
 	
 	/*virtual*/ void	draw();
+	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	postBuild();
 
 	void handleLoginComplete();

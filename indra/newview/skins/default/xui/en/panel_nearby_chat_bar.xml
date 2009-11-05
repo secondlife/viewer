@@ -42,13 +42,17 @@
      width="20" />
     <button
      follows="right"
+     is_toggle="true"
      width="45"
      top="0"
      layout="topleft"
      left_pad="8"
      label="Log"
      height="23"
+     name="show_nearby_chat"
      tool_tip="Show/hide nearby chat log">
-    <button.commit_callback function="Floater.Toggle" parameter="nearby_chat"/>
+        <button.init_callback
+           function="Button.SetDockableFloaterToggle"
+           parameter="nearby_chat" />
     </button>
 </panel>
