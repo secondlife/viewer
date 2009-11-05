@@ -2,9 +2,6 @@
 <panel
   background_opaque="false"
       border_visible="false"
-  border = "false"
-  border_drop_shadow_visible = "false"
-  drop_shadow_visible = "false"
   background_visible="true"
   bg_alpha_color="0.3 0.3 0.3 0"
   bg_opaque_color="0.3 0.3 0.3 0"
@@ -18,12 +15,7 @@
   <!-- THIS PANEL CONTROLS TOAST HEIGHT? -->
   <panel
       border_visible="false"
-      drop_shadow="false"
  bevel_style="none"
- border_style="none"
-  border = "false"
-  border_drop_shadow_visible = "false"
-  drop_shadow_visible = "false"
     background_visible="true"
   bg_alpha_color="0.3 0.3 0.3 0"
   bg_opaque_color="0.3 0.3 0.3 0"
@@ -67,9 +59,6 @@
 	v_pad="0"
       bg_readonly_color="0.0 0.0 0.0 0"
       border_visible="false"
-	  border = "false"
-	  border_drop_shadow_visible = "false"
-	  drop_shadow_visible = "false"
       embedded_items="false"
       enabled="false"
       follows="left|right|top|bottom"
