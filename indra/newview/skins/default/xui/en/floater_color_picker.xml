@@ -7,7 +7,7 @@
  layout="topleft"
  name="ColorPicker"
  help_topic="colorpicker"
- title="Color Picker"
+ title="COLOR PICKER"
  width="440">
     <text
      type="string"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Day Cycle Floater" title="Tageszyklus-Editor">
+<floater name="Day Cycle Floater" title="TAGESZYKLUS-EDITOR">
 	<tab_container name="Day Cycle Tabs">
 		<panel label="Tageszyklus" name="Day Cycle">
 			<button label=" ?" name="WLDayCycleHelp" />

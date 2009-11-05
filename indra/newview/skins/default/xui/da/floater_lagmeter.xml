@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_lagmeter" title="Lag måler">
+<floater name="floater_lagmeter" title="LAG MÅLER">
 	<button label="" label_selected="" name="client_lagmeter" tool_tip="Status for klient lag"/>
 	<text name="client">
 		Klient:

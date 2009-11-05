@@ -6,7 +6,7 @@
  name="Water Floater"
  help_topic="water_floater"
  save_rect="true"
- title="Advanced Water Editor"
+ title="ADVANCED WATER EDITOR"
  width="700">
     <floater.string
      name="WLDefaultWaterNames">

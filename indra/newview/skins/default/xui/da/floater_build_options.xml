@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="build options floater" title="Gitter indstillinger">
+<floater name="build options floater" title="GITTER INDSTILLINGER">
 	<spinner label="Gitter enhed (meter)" name="GridResolution" width="200" label_width="136"/>
 	<spinner label="Gitter rækkevidde (meter)" name="GridDrawSize" width="200" label_width="136"/>
 	<check_box label="Aktiver låsning til under-enheder" name="GridSubUnit" />

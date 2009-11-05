@@ -8,7 +8,7 @@
  name="Snapshot"
  help_topic="snapshot"
  save_rect="true"
- title="Snapshot Preview"
+ title="SNAPSHOT PREVIEW"
  width="215">
     <floater.string
      name="unknown">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy land" title="Koop land">
+<floater name="buy land" title="KOOP LAND">
 	<text name="region_name_label">
 		Regio:
 	</text>

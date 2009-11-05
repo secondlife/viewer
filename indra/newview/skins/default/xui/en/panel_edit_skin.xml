@@ -64,13 +64,11 @@
 		top_pad="10"
 		width="303">
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="skin_color_tab"
 			title="Skin Color">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="skin_color_param_list"
@@ -78,13 +76,11 @@
 				width="303" />
 		</accordion_tab>
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="skin_face_tab"
 			title="Face Detail">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="skin_face_param_list"
@@ -92,13 +88,11 @@
 				width="303" />
 		</accordion_tab>
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="skin_makeup_tab"
 			title="Makeup">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="skin_makeup_param_list"
@@ -106,13 +100,11 @@
 				width="303" />
 		</accordion_tab>
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="skin_body_tab"
 			title="Body Detail">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="skin_body_param_list"

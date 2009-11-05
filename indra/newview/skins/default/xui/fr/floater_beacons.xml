@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="beacons" title="Balises">
+<floater name="beacons" title="BALISES">
 	<panel name="beacons_panel">
 		<check_box label="Objets scriptés avec Toucher uniquement" name="touch_only"/>
 		<check_box label="Objets scriptés" name="scripted"/>

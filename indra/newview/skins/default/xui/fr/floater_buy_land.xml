@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy land" title="Acheter le terrain">
+<floater name="buy land" title="ACHETER LE TERRAIN">
 	<text name="region_name_label">
 		Région :
 	</text>

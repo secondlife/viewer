@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="avatar_texture_debug" title="Tekstury Awatara">
+<floater name="avatar_texture_debug" title="TEKSTURY AWATARA">
 	<text name="baked_label">
 		Tekstury Renderowane
 	</text>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="item properties" title="Propiedades del ítem del inventario">
+<floater name="item properties" title="PROPIEDADES DEL ÍTEM DEL INVENTARIO">
 	<text name="LabelItemNameTitle">
 		Nombre:
 	</text>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="script ed float" title="Script: script nuevo">
+<floater name="script ed float" title="SCRIPT: SCRIPT NUEVO">
 	<button label="Reiniciar" label_selected="Reiniciar" name="Reset"/>
 	<check_box label="Ejecutándose" name="running" left="4"/>
 	<check_box label="Mono" name="mono" left="106"/>
