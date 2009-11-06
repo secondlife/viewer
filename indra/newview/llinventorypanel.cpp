@@ -457,8 +457,8 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 			if (objectp->getType() <= LLAssetType::AT_NONE ||
 				objectp->getType() >= LLAssetType::AT_COUNT)
 			{
-				llwarns << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : " << 
-					((S32) objectp->getType()) << llendl;
+				lldebugs << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : " << 
+					((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID() << llendl;
 				return;
 			}
 			
