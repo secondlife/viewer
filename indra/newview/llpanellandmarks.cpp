@@ -499,6 +499,7 @@ void LLLandmarksPanel::updateListCommands()
 	// keep Options & Add Landmark buttons always enabled
 	mListCommands->childSetEnabled(ADD_FOLDER_BUTTON_NAME, add_folder_enabled);
 	mListCommands->childSetEnabled(TRASH_BUTTON_NAME, trash_enabled);
+	mListCommands->childSetEnabled(OPTIONS_BUTTON_NAME,getCurSelectedItem() != NULL);
 }
 
 void LLLandmarksPanel::onActionsButtonClick()
