@@ -369,7 +369,9 @@ set(viewer_SOURCE_FILES
     llsearchhistory.cpp
     llselectmgr.cpp
     llsidepanelinventory.cpp
-    llsidepanelobjectinfo.cpp
+    llsidepanelinventorysubpanel.cpp
+    llsidepaneliteminfo.cpp
+    llsidepaneltaskinfo.cpp
     llsidetray.cpp
     llsidetraypanelcontainer.cpp
     llsky.cpp
@@ -861,7 +863,9 @@ set(viewer_HEADER_FILES
     llsearchhistory.h
     llselectmgr.h
     llsidepanelinventory.h
-    llsidepanelobjectinfo.h
+    llsidepanelinventorysubpanel.h
+    llsidepaneliteminfo.h
+    llsidepaneltaskinfo.h
     llsidetray.h
     llsidetraypanelcontainer.h
     llsky.h

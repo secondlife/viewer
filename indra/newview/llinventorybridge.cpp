@@ -283,7 +283,7 @@ void LLInvFVBridge::showProperties()
 	key["id"] = mUUID;
 	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 
-	// LLFloaterReg::showInstance("properties", mUUID);
+	LLFloaterReg::showInstance("properties", mUUID);
 }
 
 void LLInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch)
@@ -3087,6 +3087,49 @@ void LLTextureBridge::openItem()
 	}
 }
 
+void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+	lldebugs << "LLTextureBridge::buildContextMenu()" << llendl;
+	std::vector<std::string> items;
+	std::vector<std::string> disabled_items;
+	if(isInTrash())
+	{
+		items.push_back(std::string("Purge Item"));
+		if (!isItemRemovable())
+		{
+			disabled_items.push_back(std::string("Purge Item"));
+		}
+
+		items.push_back(std::string("Restore Item"));
+	}
+	else
+	{
+		items.push_back(std::string("Open"));
+		items.push_back(std::string("Properties"));
+
+		getClipboardEntries(true, items, disabled_items, flags);
+
+		items.push_back(std::string("Texture Separator"));
+		items.push_back(std::string("Save As"));
+	}
+	hide_context_entries(menu, items, disabled_items);	
+}
+
+// virtual
+void LLTextureBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+{
+	if ("save_as" == action)
+	{
+		LLFloaterReg::showInstance("preview_texture", LLSD(mUUID), TAKE_FOCUS_YES);
+		LLPreviewTexture* preview_texture = LLFloaterReg::findTypedInstance<LLPreviewTexture>("preview_texture", mUUID);
+		if (preview_texture)
+		{
+			preview_texture->openToSave();
+		}
+	}
+	else LLItemBridge::performAction(folder, model, action);
+}
+
 // +=================================================+
 // |        LLSoundBridge                            |
 // +=================================================+
@@ -3135,7 +3178,7 @@ void LLSoundBridge::openSoundPreview(void* which)
 
 void LLSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
-	lldebugs << "LLTextureBridge::buildContextMenu()" << llendl;
+	lldebugs << "LLSoundBridge::buildContextMenu()" << llendl;
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
 
