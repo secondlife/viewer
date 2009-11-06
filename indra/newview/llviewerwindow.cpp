@@ -2113,31 +2113,30 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		// arrow keys move avatar while chatting hack
 		if (chat_editor && chat_editor->hasFocus())
 		{
-			if (chat_editor->getText().empty() || gSavedSettings.getBOOL("ArrowKeysMoveAvatar"))
+			// If text field is empty, there's no point in trying to move
+			// cursor with arrow keys, so allow movement
+			if (chat_editor->getText().empty() 
+				|| gSavedSettings.getBOOL("ArrowKeysAlwaysMove"))
 			{
-				switch(key)
+				// let Control-Up and Control-Down through for chat line history,
+				if (!(key == KEY_UP && mask == MASK_CONTROL)
+					&& !(key == KEY_DOWN && mask == MASK_CONTROL))
 				{
-				case KEY_LEFT:
-				case KEY_RIGHT:
-				case KEY_UP:
-					// let CTRL UP through for chat line history
-					if( MASK_CONTROL == mask )
+					switch(key)
 					{
+					case KEY_LEFT:
+					case KEY_RIGHT:
+					case KEY_UP:
+					case KEY_DOWN:
+					case KEY_PAGE_UP:
+					case KEY_PAGE_DOWN:
+					case KEY_HOME:
+						// when chatbar is empty or ArrowKeysAlwaysMove set,
+						// pass arrow keys on to avatar...
+						return FALSE;
+					default:
 						break;
 					}
-				case KEY_DOWN:
-					// let CTRL DOWN through for chat line history
-					if( MASK_CONTROL == mask )
-					{
-						break;
-					}
-				case KEY_PAGE_UP:
-				case KEY_PAGE_DOWN:
-				case KEY_HOME:
-					// when chatbar is empty or ArrowKeysMoveAvatar set, pass arrow keys on to avatar...
-					return FALSE;
-				default:
-					break;
 				}
 			}
 		}

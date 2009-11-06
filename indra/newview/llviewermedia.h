@@ -306,6 +306,8 @@ public:
 	bool mMediaAutoScale;
 	bool mMediaLoop;
 	bool mNeedsNewTexture;
+	S32 mTextureUsedWidth;
+	S32 mTextureUsedHeight;
 	bool mSuspendUpdates;
 	bool mVisible;
 	ECursorType mLastSetCursor;

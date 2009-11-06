@@ -412,6 +412,8 @@ function="MediaCtrl.CommitURL" />
 	  </button>
 	</layout_panel>
 	<!-- Scroll pad -->
+<!--
+disabled
 	<layout_panel
 		name="media_panel_scroll"
 		auto_resize="false"
@@ -477,6 +479,8 @@ function="MediaCtrl.CommitURL" />
 		  min_width="8"
 		  width="8" />
 	</layout_panel>
+disabled
+-->
 	<layout_panel
 		name="zoom_frame"
 		auto_resize="false"

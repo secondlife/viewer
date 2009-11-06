@@ -42,6 +42,9 @@
 #include "llspeakers.h"
 
 //LLParticipantList retrieves add, clear and remove events and updates view accordingly 
+#if LL_MSVC
+#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
+#endif
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list):
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),

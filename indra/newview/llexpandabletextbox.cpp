@@ -48,11 +48,12 @@ public:
 		mExpanderLabel(more_text)
 	{}
 
-	/*virtual*/ void	getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const 
+	/*virtual*/ bool	getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const 
 	{
 		// more label always spans width of text box
 		width = mEditor.getTextRect().getWidth() - mEditor.getHPad(); 
 		height = llceil(mStyle->getFont()->getLineHeight());
+		return true;
 	}
 	/*virtual*/ S32		getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const 
 	{ 

@@ -2385,7 +2385,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 			F32 old_angle = mImpostorAngle.mV[i];
 			F32 angle_diff = fabsf(cur_angle-old_angle);
 		
-			if (angle_diff > 3.14159f/512.f*distance*mUpdatePeriod)
+			if (angle_diff > F_PI/512.f*distance*mUpdatePeriod)
 			{
 				mNeedsImpostorUpdate = TRUE;
 			}
@@ -2557,7 +2557,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 			particle_parameters.mPartImageID                 = cloud->getID();
 			particle_parameters.mMaxAge                      = 0.f;
 			particle_parameters.mPattern                     = LLPartSysData::LL_PART_SRC_PATTERN_ANGLE_CONE;
-			particle_parameters.mInnerAngle                  = 3.14159f;
+			particle_parameters.mInnerAngle                  = F_PI;
 			particle_parameters.mOuterAngle                  = 0.f;
 			particle_parameters.mBurstRate                   = 0.02f;
 			particle_parameters.mBurstRadius                 = 0.0f;

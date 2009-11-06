@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_report_abuse" title="Missbrauch melden">
+<floater name="floater_report_abuse" title="MISSBRAUCH MELDEN">
 	<texture_picker label="" name="screenshot"/>
 	<check_box bottom_delta="-20" label="Screenshot einschließen" name="screen_check"/>
 	<text name="reporter_title">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="groups" title="Gruppen">
+<floater name="groups" title="GRUPPEN">
 	<text name="groupdesc">
 		Gruppe wählen:
 	</text>

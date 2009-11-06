@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="mute by name" title="Ignorar un objeto según su nombre">
+<floater name="mute by name" title="IGNORAR UN OBJETO SEGÚN SU NOMBRE">
 	<text name="message" bottom_delta="-40">
 		Ignorar según el nombre sólo afecta al chat y los MI del
 objeto, no a sus sonidos. 

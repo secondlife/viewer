@@ -1103,14 +1103,16 @@ void LLAppearanceManager::wearItem( LLInventoryItem* item, bool do_update )
 	bool linked_already = false;
 	for (S32 i=0; i<item_array.count(); i++)
 	{
+		// Are these links to the same object?
 		const LLViewerInventoryItem* inv_item = item_array.get(i).get();
 		if (inv_item->getLinkedUUID() == item->getLinkedUUID())
 		{
 			linked_already = true;
-			break;
 		}
-		// Are of same type but are not the same - new item will replace old.
-		if (areMatchingWearables(vitem,inv_item))
+		// Are these links to different items of the same wearable
+		// type? If so, new item will replace old.
+		// MULTI-WEARABLES: revisit if more than one per type is allowed.
+		else if (areMatchingWearables(vitem,inv_item))
 		{
 			gAgentWearables.removeWearable(inv_item->getWearableType(),true,0);
 			gInventory.purgeObject(inv_item->getUUID());

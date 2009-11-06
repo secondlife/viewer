@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="Cambio masivo de los permisos del contenido">
+<floater name="floaterbulkperms" title="CAMBIO MASIVO DE LOS PERMISOS DEL CONTENIDO">
 	<text name="applyto">
 		Tipos de contenido
 	</text>

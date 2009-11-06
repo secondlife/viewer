@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="preview notecard" title="Remarque :">
+<floater name="preview notecard" title="REMARQUE :">
 	<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
 	<text name="desc txt">
 		Description :

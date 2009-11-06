@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="gestures" title="Gesture attive">
+<floater name="gestures" title="GESTURE ATTIVE">
 	<text name="help_label">
 		Fai doppio click su una gesture per azionare animazioni
 e suoni.

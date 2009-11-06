@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="settings_debug" title="Tekniske indstillinger">
+<floater name="settings_debug" title="TEKNISKE INDSTILLINGER">
 	<combo_box name="boolean_combo">
 		<combo_box.item name="TRUE" label="TRUE (Valgt)" />
 		<combo_box.item name="FALSE" label="FALSE (Fravalgt)" />

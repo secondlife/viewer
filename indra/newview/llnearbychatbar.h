@@ -37,10 +37,13 @@
 #include "llcombobox.h"
 #include "llgesturemgr.h"
 #include "llchat.h"
-#include "llchiclet.h"
 #include "llvoiceclient.h"
 #include "lloutputmonitorctrl.h"
 #include "llspeakers.h"
+
+
+class LLSpeakButton;
+
 
 class LLGestureComboBox
 	: public LLComboBox
@@ -125,7 +128,7 @@ protected:
 	static S32 sLastSpecialChatChannel;
 
 	LLLineEditor*		mChatBox;
-	LLTalkButton*		mTalkBtn;
+	LLSpeakButton*		mSpeakBtn;
 	LLOutputMonitorCtrl* mOutputMonitor;
 	LLLocalSpeakerMgr*  mSpeakerMgr;
 };

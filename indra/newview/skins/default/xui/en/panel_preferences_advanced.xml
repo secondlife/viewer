@@ -212,7 +212,7 @@ Avatars:
      width="256"
      top_pad="0"/>
     <check_box
-     control_name="ArrowKeysMoveAvatar"
+     control_name="ArrowKeysAlwaysMove"
      follows="left|top"
      height="20"
      label="Arrow keys always move me"

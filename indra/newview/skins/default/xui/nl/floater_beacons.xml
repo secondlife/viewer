@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="beacons" title="Bakens">
+<floater name="beacons" title="BAKENS">
 	<panel name="beacons_panel">
 		<check_box label="Gescripte objecten met alleen Aanraken" name="touch_only"/>
 		<check_box label="Gescripte objecten" name="scripted"/>

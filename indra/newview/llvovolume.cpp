@@ -739,15 +739,15 @@ F32 LLVOVolume::getTextureVirtualSize(LLFace* face)
 
 	face->setPixelArea(face_area);
 
-	if (face_area <= 0)
+	if (face_area <= 0.f)
 	{
 		return 0.f;
 	}
 
 	//get area of circle in texture space
 	LLVector2 tdim = face->mTexExtents[1] - face->mTexExtents[0];
-	F32 texel_area = (tdim * 0.5f).lengthSquared()*3.14159f;
-	if (texel_area <= 0)
+	F32 texel_area = (tdim * 0.5f).lengthSquared()*F_PI;
+	if (texel_area <= 0.f)
 	{
 		// Probably animated, use default
 		texel_area = 1.f;
@@ -1036,7 +1036,7 @@ BOOL LLVOVolume::calcLOD()
 	}
 	
 	// DON'T Compensate for field of view changing on FOV zoom.
-	distance *= 3.14159f/3.f;
+	distance *= F_PI/3.f;
 
 	cur_detail = computeLODDetail(llround(distance, 0.01f), 
 									llround(radius, 0.01f));
@@ -1796,20 +1796,19 @@ void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
 
 bool LLVOVolume::hasMediaPermission(const LLMediaEntry* media_entry, MediaPermType perm_type)
 {
-    // NOTE: This logic duplicates the logic in the server (in particular, in llmediaservice.cpp).
+    // NOTE: This logic ALMOST duplicates the logic in the server (in particular, in llmediaservice.cpp).
     if (NULL == media_entry ) return false; // XXX should we assert here?
     
-    // The agent has permissions to navigate if:
-    // - agent has edit permissions, or
+    // The agent has permissions if:
     // - world permissions are on, or
     // - group permissions are on, and agent_id is in the group, or
     // - agent permissions are on, and agent_id is the owner
     
-    if (permModify()) 
-    {
-        return true;
-    }
-    
+	// *NOTE: We *used* to check for modify permissions here (i.e. permissions were
+	// granted if permModify() was true).  However, this doesn't make sense in the
+	// viewer: we don't want to show controls or allow interaction if the author
+	// has deemed it so.  See DEV-42115.
+	
     U8 media_perms = (perm_type == MEDIA_PERM_INTERACT) ? media_entry->getPermsInteract() : media_entry->getPermsControl();
     
     // World permissions

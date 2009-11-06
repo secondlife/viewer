@@ -6,7 +6,7 @@
  name="Day Cycle Floater"
  help_topic="day_cycle_floater"
  save_rect="true"
- title="Day Cycle Editor"
+ title="DAY CYCLE EDITOR"
  width="646">
     <tab_container
      follows="left|top"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="gestures" title="Aktive bevægelser">
+<floater name="gestures" title="AKTIVE BEVÆGELSER">
 	<text name="help_label">
 		Dobbelt-klik på en bevægelse for at afspille animation og lyd.
 	</text>

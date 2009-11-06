@@ -1223,25 +1223,28 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 	ifs.read ((char*)buffer, length);
 	ifs.close();
 	
-	image->updateData();
-	
-	if (j2c_lowest_mip_only && codec == IMG_CODEC_J2C)
-	{
-		S32 width = image->getWidth();
-		S32 height = image->getHeight();
-		S32 discard_level = 0;
-		while (width > 1 && height > 1 && discard_level < MAX_DISCARD_LEVEL)
-		{
-			width >>= 1;
-			height >>= 1;
-			discard_level++;
-		}
-		((LLImageJ2C *)((LLImageFormatted*)image))->setDiscardLevel(discard_level);
-	}
-	
-	BOOL success = image->decode(this, 100000.0f);
-	image = NULL; // deletes image
+	BOOL success;
 
+	success = image->updateData();
+	if (success)
+	{
+		if (j2c_lowest_mip_only && codec == IMG_CODEC_J2C)
+		{
+			S32 width = image->getWidth();
+			S32 height = image->getHeight();
+			S32 discard_level = 0;
+			while (width > 1 && height > 1 && discard_level < MAX_DISCARD_LEVEL)
+			{
+				width >>= 1;
+				height >>= 1;
+				discard_level++;
+			}
+			((LLImageJ2C *)((LLImageFormatted*)image))->setDiscardLevel(discard_level);
+		}
+		success = image->decode(this, 100000.0f);
+	}
+
+	image = NULL; // deletes image
 	if (!success)
 	{
 		deleteData();

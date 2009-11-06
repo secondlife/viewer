@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="floater_auction" title="Commencer la vente de terrain Linden">
+<floater name="floater_auction" title="COMMENCER LA VENTE DE TERRAIN LINDEN">
 	<check_box label="Inclure le marquage de sélection jaune" name="fence_check" />
 	<combo_box name="saletype_combo">
 		<combo_box.item name="Auction" label="Enchères" />

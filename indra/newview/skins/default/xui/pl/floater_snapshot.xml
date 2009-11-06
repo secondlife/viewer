@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="Wygląd Zdjęcia">
+<floater name="Snapshot" title="WYGLĄD ZDJĘCIA">
 	<text name="type_label">
 		Lokacja zapisu
 	</text>

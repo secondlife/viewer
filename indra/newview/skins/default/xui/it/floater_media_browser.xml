@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_about" title="Browser multimediale">
+<floater name="floater_about" title="BROWSER MULTIMEDIALE">
 	<layout_stack name="stack1">
 		<layout_panel name="nav_controls">
 			<button label="Indietro" name="back" width="75"/>
