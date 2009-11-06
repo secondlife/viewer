@@ -494,6 +494,8 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	}
 	else if (handleMediaHover(mHoverPick))
 	{
+		// *NOTE: If you think the hover glow conflicts with the media outline, you
+		// could disable it here.
 		show_highlight = true;
 		// cursor set by media object
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
