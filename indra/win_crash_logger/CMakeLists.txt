@@ -89,7 +89,4 @@ if (WINDOWS)
         )
 endif (WINDOWS)
 
-ll_deploy_sharedlibs_command(
-  windows-crash-logger
-  "${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}" 
-  ".") 
+ll_deploy_sharedlibs_command(windows-crash-logger)

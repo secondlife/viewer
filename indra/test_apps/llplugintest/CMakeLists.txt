@@ -488,8 +488,4 @@ if(WINDOWS)
 
 endif(WINDOWS)
 
-ll_deploy_sharedlibs_command(
-  llmediaplugintest
-  "${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR};${ARCH_PREBUILT_DIRS}" 
-  ${SHARED_LIB_REL_PATH}
-  ) 
+ll_deploy_sharedlibs_command(llmediaplugintest) 

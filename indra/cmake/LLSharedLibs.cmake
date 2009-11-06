@@ -1,49 +1,74 @@
-
-if(DARWIN)
-  set(TMP_PATH "../Resource")
-elseif(LINUX)
-  set(TMP_PATH "../lib")
-else(DARWIN)
-  set(TMP_PATH ".")
-endif(DARWIN)
-
- set(SHARED_LIB_REL_PATH ${TMP_PATH} CACHE STRING "Relative path from executable to shared libs")
-
 # ll_deploy_sharedlibs_command
 # target_exe: the cmake target of the executable for which the shared libs will be deployed.
-# search_dirs: a list of dirs to search for the dependencies
-# dst_path: path to copy deps to, relative to the output location of the target_exe
-macro(ll_deploy_sharedlibs_command target_exe search_dirs dst_path) 
-  get_target_property(OUTPUT_LOCATION ${target_exe} LOCATION)
-  get_filename_component(OUTPUT_PATH ${OUTPUT_LOCATION} PATH)
-
+macro(ll_deploy_sharedlibs_command target_exe) 
+  get_target_property(TARGET_LOCATION ${target_exe} LOCATION)
+  get_filename_component(OUTPUT_PATH ${TARGET_LOCATION} PATH)
+  
   if(DARWIN)
+	set(SEARCH_DIRS "${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/Resources")
     get_target_property(IS_BUNDLE ${target_exe} MACOSX_BUNDLE)
     if(IS_BUNDLE)
-      get_filename_component(TARGET_FILE ${OUTPUT_LOCATION} NAME)
-      set(OUTPUT_PATH ${OUTPUT_LOCATION}.app/Contents/MacOS)
-      set(OUTPUT_LOCATION ${OUTPUT_PATH}/${TARGET_FILE})
+	  # If its a bundle the exe is not in the target location, this should find it.
+      get_filename_component(TARGET_FILE ${TARGET_LOCATION} NAME)
+      set(OUTPUT_PATH ${TARGET_LOCATION}.app/Contents/MacOS)
+      set(TARGET_LOCATION ${OUTPUT_PATH}/${TARGET_FILE})
+	  set(OUTPUT_PATH ${OUTPUT_PATH}/../Resources)
     endif(IS_BUNDLE)
+  elseif(WINDOWS)
+    set(SEARCH_DIRS "${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}" "$ENV{SystemRoot}/system32")
+  elseif(LINUX)
+	set(SEARCH_DIRS "${SHARED_LIB_STAGING_DIR}")
+	set(OUTPUT_PATH ${OUTPUT_PATH}/lib)
   endif(DARWIN)
 
-  if(WINDOWS)
-    set(REAL_SEARCH_DIRS ${search_dirs} "$ENV{SystemRoot}/system32")
-  endif(WINDOWS)
-
-  if(LINUX)
-    message(FATAL_ERROR "LINUX Unsupported!?!")
-  endif(LINUX)
-  
   add_custom_command(
     TARGET ${target_exe} POST_BUILD
     COMMAND ${CMAKE_COMMAND} 
     ARGS
-    "-DBIN_NAME=\"${OUTPUT_LOCATION}\""
-    "-DSEARCH_DIRS=\"${REAL_SEARCH_DIRS}\""
-    "-DDST_PATH=\"${OUTPUT_PATH}/${dst_path}\""
+    "-DBIN_NAME=\"${TARGET_LOCATION}\""
+    "-DSEARCH_DIRS=\"${SEARCH_DIRS}\""
+    "-DDST_PATH=\"${OUTPUT_PATH}\""
     "-P"
     "${CMAKE_SOURCE_DIR}/cmake/DeploySharedLibs.cmake"
     )
 
 endmacro(ll_deploy_sharedlibs_command)
 
+# ll_stage_sharedlib
+# Performs config and adds a copy command for a sharedlib target.
+macro(ll_stage_sharedlib DSO_TARGET)
+  if(SHARED_LIB_STAGING_DIR)
+    # target gets written to the DLL staging directory.
+    # Also this directory is shared with RunBuildTest.cmake, y'know, for the tests.
+    set_target_properties(${DSO_TARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${SHARED_LIB_STAGING_DIR})
+    if(NOT WINDOWS)
+      get_target_property(DSO_PATH ${DSO_TARGET} LOCATION)
+      get_filename_component(DSO_FILE ${DSO_PATH} NAME)
+      if(DARWIN)
+        set(SHARED_LIB_STAGING_DIR_CONFIG ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/Resources)
+      else(DARWIN)
+        set(SHARED_LIB_STAGING_DIR_CONFIG ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR})
+      endif(DARWIN)
+	  
+      # *TODO - maybe make this a symbolic link? -brad
+      add_custom_command(
+        TARGET ${DSO_TARGET} POST_BUILD
+        COMMAND ${CMAKE_COMMAND}
+        ARGS
+          -E
+          copy_if_different
+          ${DSO_PATH}
+          ${SHARED_LIB_STAGING_DIR_CONFIG}/${DSO_FILE}
+          COMMENT "Copying llcommon to the staging folder."
+        )
+    endif(NOT WINDOWS)
+  endif(SHARED_LIB_STAGING_DIR)
+
+  if (DARWIN)
+    set_target_properties(${DSO_TARGET} PROPERTIES
+      BUILD_WITH_INSTALL_RPATH 1
+      INSTALL_NAME_DIR "@executable_path/../Resources"
+      )
+  endif(DARWIN)
+
+endmacro(ll_stage_sharedlib)
