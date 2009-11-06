@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
  height="260"
  layout="topleft"
  name="floater_device_settings"
  help_topic="floater_device_settings"
- title="Voice Chat Device Settings"
+ title="VOICE CHAT DEVICE SETTINGS"
  width="405">
     <panel
      bottom="260"

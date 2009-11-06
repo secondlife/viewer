@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="Hurtowa zmiana praw zawartości">
+<floater name="floaterbulkperms" title="HURTOWA ZMIANA PRAW ZAWARTOŚCI">
 	<text name="applyto">
 		Rodzaj Zawartości
 	</text>

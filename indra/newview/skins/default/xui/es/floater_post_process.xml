@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Post-Process Floater" title="Configuración del procesamiento">
+<floater name="Post-Process Floater" title="CONFIGURACIÓN DEL PROCESAMIENTO">
 	<tab_container name="Post-Process Tabs">
 		<panel label="Color del filtro" name="wmiColorFilterPanel">
 			<check_box label="Activar" name="wmiColorFilterToggle"/>

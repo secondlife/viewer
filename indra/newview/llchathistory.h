@@ -54,6 +54,14 @@ class LLChatHistory : public LLTextEditor
 			Optional<S32>			left_widget_pad;
 			//Widget right padding from the scroll rect
 			Optional<S32>			right_widget_pad;
+			//Separator top padding
+			Optional<S32>			top_separator_pad;
+			//Separator bottom padding
+			Optional<S32>			bottom_separator_pad;
+			//Header top padding
+			Optional<S32>			top_header_pad;
+			//Header bottom padding
+			Optional<S32>			bottom_header_pad;
 
 			Params()
 			:	message_header("message_header"),
@@ -61,7 +69,11 @@ class LLChatHistory : public LLTextEditor
 				left_text_pad("left_text_pad"),
 				right_text_pad("right_text_pad"),
 				left_widget_pad("left_widget_pad"),
-				right_widget_pad("right_widget_pad")
+				right_widget_pad("right_widget_pad"),
+				top_separator_pad("top_separator_pad"),
+				bottom_separator_pad("bottom_separator_pad"),
+				top_header_pad("top_header_pad"),
+				bottom_header_pad("bottom_header_pad")
 				{
 				}
 
@@ -105,9 +117,16 @@ class LLChatHistory : public LLTextEditor
 		std::string mLastFromName;
 		std::string mMessageHeaderFilename;
 		std::string mMessageSeparatorFilename;
+
 		S32 mLeftTextPad;
 		S32 mRightTextPad;
+
 		S32 mLeftWidgetPad;
 		S32 mRightWidgetPad;
+
+		S32 mTopSeparatorPad;
+		S32 mBottomSeparatorPad;
+		S32 mTopHeaderPad;
+		S32 mBottomHeaderPad;
 };
 #endif /* LLCHATHISTORY_H_ */

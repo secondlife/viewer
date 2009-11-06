@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Environment Editor Floater" title="Éditeur d&apos;environnement">
+<floater name="Environment Editor Floater" title="ÉDITEUR D&apos;ENVIRONNEMENT">
 	<text bottom="-45" name="EnvTimeText">
 		Heure de la
 journée

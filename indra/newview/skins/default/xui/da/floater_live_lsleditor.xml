@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="script ed float" title="Script: Nyt script">
+<floater name="script ed float" title="SCRIPT: NYT SCRIPT">
 	<button label="Nulstil" label_selected="Reset" name="Reset" />
 	<check_box label="Kører" name="running" />
 	<check_box label="Mono" name="mono" />

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="texture picker" title="Wybór Tekstury">
+<floater name="texture picker" title="WYBÓR TEKSTURY">
 	<string name="choose_picture">
 		Kliknij by wybrać obraz
 	</string>

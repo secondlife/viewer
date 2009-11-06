@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Preferences" title="Voorkeuren">
+<floater name="Preferences" title="VOORKEUREN">
 	<button label="OK" label_selected="OK" name="OK"/>
 	<button label="Annuleren" label_selected="Annuleren" name="Cancel"/>
 	<button label="Toepassen" label_selected="Toepassen" name="Apply"/>

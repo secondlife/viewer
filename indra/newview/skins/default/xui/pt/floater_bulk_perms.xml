@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="Mudança conjunta das permissões de conteúdo">
+<floater name="floaterbulkperms" title="MUDANÇA CONJUNTA DAS PERMISSÕES DE CONTEÚDO">
 	<text name="applyto">
 		Tipos de Conteúdo
 	</text>

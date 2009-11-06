@@ -291,6 +291,7 @@ void LLPanelGroup::update(LLGroupChange gc)
 	if(gdatap)
 	{
 		childSetValue("group_name", gdatap->mName);
+		childSetToolTip("group_name",gdatap->mName);
 
 		LLButton* btn_join = getChild<LLButton>("btn_join");
 		LLUICtrl* join_text = getChild<LLUICtrl>("join_cost_text");
@@ -337,7 +338,10 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mID);
 	if(gdatap)
+	{
 		childSetValue("group_name", gdatap->mName);
+		childSetToolTip("group_name",gdatap->mName);
+	}
 
 	LLButton* button_apply = findChild<LLButton>("btn_apply");
 	LLButton* button_refresh = findChild<LLButton>("btn_refresh");

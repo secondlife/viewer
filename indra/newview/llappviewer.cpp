@@ -620,7 +620,19 @@ bool LLAppViewer::init()
 	
 	if (!initConfiguration())
 		return false;
-	
+
+	// Although initLogging() is the right place to mess with
+	// setFatalFunction(), we can't query gSavedSettings until after
+	// initConfiguration().
+	S32 rc(gSavedSettings.getS32("QAModeTermCode"));
+	if (rc >= 0)
+	{
+		// QAModeTermCode set, terminate with that rc on LL_ERRS. Use _exit()
+		// rather than exit() because normal cleanup depends too much on
+		// successful startup!
+		LLError::setFatalFunction(boost::bind(_exit, rc));
+	}
+
     mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
 
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
@@ -1665,7 +1677,7 @@ bool LLAppViewer::initLogging()
 	LLError::initForApplication(
 				gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
 	LLError::setFatalFunction(errorCallback);
-	
+
 	// Remove the last ".old" log file.
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
 							     "SecondLife.old");

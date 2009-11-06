@@ -13,7 +13,7 @@
  save_rect="true"
  save_visibility="true"
  single_instance="true"
- title="World Map"
+ title="WORLD MAP"
  width="800">
     <tab_container
      follows="left|top|right|bottom"

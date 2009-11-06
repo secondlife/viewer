@@ -7,7 +7,7 @@
  name="build options floater"
  help_topic="build_options_floater"
  save_rect="true"
- title="Grid Options"
+ title="GRID OPTIONS"
  width="264">
     <spinner
      control_name="GridResolution"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="worldmap" title="Wereldkaart">
+<floater name="worldmap" title="WERELDKAART">
 	<tab_container name="maptab">
 		<panel label="Objecten" name="objects_mapview"/>
 		<panel label="Terrein" name="terrain_mapview"/>

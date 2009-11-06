@@ -370,7 +370,7 @@ public:
 	LLTextSegment(S32 start, S32 end) : mStart(start), mEnd(end){};
 	virtual ~LLTextSegment();
 
-	virtual void				getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
+	virtual bool				getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	virtual S32					getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
 	virtual S32					getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
 	virtual void				updateLayout(const class LLTextBase& editor);
@@ -421,7 +421,7 @@ public:
 	LLNormalTextSegment( const LLStyleSP& style, S32 start, S32 end, LLTextBase& editor );
 	LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
 
-	/*virtual*/ void				getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
+	/*virtual*/ bool				getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	/*virtual*/ S32					getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
 	/*virtual*/ S32					getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
 	/*virtual*/ F32					draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
@@ -474,7 +474,7 @@ public:
 
 	LLInlineViewSegment(const Params& p, S32 start, S32 end);
 	~LLInlineViewSegment();
-	/*virtual*/ void		getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
+	/*virtual*/ bool		getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	/*virtual*/ S32			getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
 	/*virtual*/ void		updateLayout(const class LLTextBase& editor);
 	/*virtual*/ F32			draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);

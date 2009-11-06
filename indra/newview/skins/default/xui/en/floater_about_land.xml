@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_tear_off="false"
  height="420"
@@ -6,7 +6,7 @@
  name="floaterland"
  help_topic="floaterland"
  save_rect="true"
- title="About Land"
+ title="ABOUT LAND"
  width="460">
     <floater.string
      name="Minutes">

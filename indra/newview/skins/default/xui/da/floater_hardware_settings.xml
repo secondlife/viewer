@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Hardware Settings Floater" title="Hardware opsætning">
+<floater name="Hardware Settings Floater" title="HARDWARE OPSÆTNING">
 	<text name="Filtering:">
 		Filtrering:
 	</text>

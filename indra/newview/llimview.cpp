@@ -1604,7 +1604,6 @@ LLUUID LLIMMgr::addSession(
 		LLIMModel::getInstance()->newSession(session_id, name, dialog, other_participant_id, ids);
 	}
 
-	LLIMFloater::show(session_id);
 
 	//*TODO remove this "floater" thing when Communicate Floater's gone
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);

@@ -5,7 +5,7 @@
  layout="topleft"
  name="Sound Preview"
  help_topic="sound_preview"
- title="sound.wav"
+ title="SOUND.WAV"
  width="300">
     <text
      type="string"

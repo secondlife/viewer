@@ -10,7 +10,7 @@
  help_topic="contents"
  save_rect="true"
  single_instance="true"
- title="Buy Copy of Object"
+ title="BUY COPY OF OBJECT"
  width="280">
     <floater.string
      name="title_buy_text">

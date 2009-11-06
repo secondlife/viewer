@@ -367,7 +367,7 @@ std::string LLFloaterReg::declareVisibilityControl(const std::string& name)
 std::string LLFloaterReg::declareDockStateControl(const std::string& name)
 {
 	std::string controlname = getDockStateControlName(name);
-	LLUI::sSettingGroups["floater"]->declareBOOL(controlname, FALSE,
+	LLUI::sSettingGroups["floater"]->declareBOOL(controlname, TRUE,
 												 llformat("Window Docking state for %s", name.c_str()),
 												 TRUE);
 	return controlname;

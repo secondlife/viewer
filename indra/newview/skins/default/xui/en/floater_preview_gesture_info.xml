@@ -8,7 +8,7 @@
  name="Gesture"
  help_topic="gesture"
  save_rect="true"
- title="Gesture Shortcut"
+ title="GESTURE SHORTCUT"
  width="260">
     <scroll_list
      follows="top|left"
