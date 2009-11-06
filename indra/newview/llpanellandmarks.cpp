@@ -829,17 +829,18 @@ bool LLLandmarksPanel::canSelectedBeModified(const std::string& command_name) co
 	// then ask LLFolderView permissions
 	if (can_be_modified)
 	{
+		LLFolderViewItem* selected =  getCurSelectedItem();
 		if ("cut" == command_name)
 		{
 			can_be_modified = mCurrentSelectedList->getRootFolder()->canCut();
 		}
 		else if ("rename" == command_name)
 		{
-			can_be_modified = getCurSelectedItem()->getListener()->isItemRenameable();
+			can_be_modified = selected? selected->getListener()->isItemRenameable() : false;
 		}
 		else if ("delete" == command_name)
 		{
-			can_be_modified = getCurSelectedItem()->getListener()->isItemRemovable();
+			can_be_modified = selected? selected->getListener()->isItemRemovable(): false;
 		}
 		else if("paste" == command_name)
 		{
