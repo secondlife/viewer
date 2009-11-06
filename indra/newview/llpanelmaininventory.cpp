@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llpanelmaininventory.h"
 
+#include "lldndbutton.h"
 #include "llfloaterinventory.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -43,6 +44,7 @@
 #include "llsdserialize.h"
 #include "llspinctrl.h"
 #include "lltooldraganddrop.h"
+#include "llviewermenu.h"
 
 static LLRegisterPanelClassWrapper<LLPanelMainInventory> t_inventory("panel_main_inventory"); // Seraph is this redundant with constructor?
 
@@ -78,7 +80,12 @@ private:
 ///----------------------------------------------------------------------------
 
 LLPanelMainInventory::LLPanelMainInventory()
-	: LLPanel()
+	: LLPanel(),
+	  mActivePanel(NULL),
+	  mSavedFolderState(NULL),
+	  mFilterText(""),
+	  mMenuGearDefault(NULL),
+	  mMenuAdd(NULL)
 {
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_VIEW_INIT);
 	// Menu Callbacks (non contex menus)
@@ -125,8 +132,7 @@ BOOL LLPanelMainInventory::postBuild()
 		mActivePanel->setSortOrder(gSavedSettings.getU32("InventorySortOrder"));
 		mActivePanel->getFilter()->markDefault();
 		mActivePanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
-		mActivePanel->setSelectCallback(boost::bind(&LLInventoryPanel::onSelectionChange, mActivePanel, _1, _2));
-		mActivePanel->getRootFolder()->openFolder("My Inventory");
+		mActivePanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mActivePanel, _1, _2));
 	}
 	LLInventoryPanel* recent_items_panel = getChild<LLInventoryPanel>("Recent Items");
 	if (recent_items_panel)
@@ -135,7 +141,7 @@ BOOL LLPanelMainInventory::postBuild()
 		recent_items_panel->setSortOrder(LLInventoryFilter::SO_DATE);
 		recent_items_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 		recent_items_panel->getFilter()->markDefault();
-		recent_items_panel->setSelectCallback(boost::bind(&LLInventoryPanel::onSelectionChange, recent_items_panel, _1, _2));
+		recent_items_panel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, recent_items_panel, _1, _2));
 	}
 
 	// Now load the stored settings from disk, if available.
@@ -163,7 +169,6 @@ BOOL LLPanelMainInventory::postBuild()
 
 	}
 
-
 	mFilterEditor = getChild<LLFilterEditor>("inventory search editor");
 	if (mFilterEditor)
 	{
@@ -176,8 +181,36 @@ BOOL LLPanelMainInventory::postBuild()
 	childSetLabelArg("Upload Sound", "[COST]", upload_cost);
 	childSetLabelArg("Upload Animation", "[COST]", upload_cost);
 	childSetLabelArg("Bulk Upload", "[COST]", upload_cost);
-	
+
+	initListCommandsHandlers();
 	return TRUE;
+}
+
+void LLPanelMainInventory::initListCommandsHandlers()
+{
+	mListCommands = getChild<LLPanel>("bottom_panel");
+
+	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelMainInventory::onGearButtonClick, this));
+	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelMainInventory::onTrashButtonClick, this));
+	mListCommands->childSetAction("add_btn", boost::bind(&LLPanelMainInventory::onAddButtonClick, this));
+	/*
+	mListCommands->getChild<LLButton>("add_btn")->setHeldDownCallback(boost::bind(&LLPanelMainInventory::onAddButtonHeldDown, this));
+	static const LLSD add_landmark_command("add_landmark");
+	mListCommands->childSetAction("add_btn", boost::bind(&LLPanelMainInventory::onAddAction, this, add_landmark_command));
+	*/
+
+	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>("trash_btn");
+	trash_btn->setDragAndDropHandler(boost::bind(&LLPanelMainInventory::handleDragAndDropToTrash, this
+			,	_4 // BOOL drop
+			,	_5 // EDragAndDropType cargo_type
+			,	_7 // EAcceptance* accept
+			));
+
+	mCommitCallbackRegistrar.add("Inventory.GearDefault.Custom.Action", boost::bind(&LLPanelMainInventory::onCustomAction, this, _2));
+	mEnableCallbackRegistrar.add("Inventory.GearDefault.Enable", boost::bind(&LLPanelMainInventory::isActionEnabled, this, _2));
+	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mMenuAdd = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory_add.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	
 }
 
 // Destroys the object
@@ -550,6 +583,12 @@ void LLPanelMainInventory::setSelectCallback(const LLFolderView::signal_t::slot_
 	getChild<LLInventoryPanel>("Recent Items")->setSelectCallback(cb);
 }
 
+void LLPanelMainInventory::onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action)
+{
+	updateListCommands();
+	panel->onSelectionChange(items, user_action);
+}
+
 ///----------------------------------------------------------------------------
 /// LLFloaterInventoryFinder
 ///----------------------------------------------------------------------------
@@ -816,4 +855,135 @@ void LLFloaterInventoryFinder::selectNoTypes(void* user_data)
 	self->childSetValue("check_sound", FALSE);
 	self->childSetValue("check_texture", FALSE);
 	self->childSetValue("check_snapshot", FALSE);
+}
+
+
+
+
+
+void LLPanelMainInventory::updateListCommands()
+{
+	bool trash_enabled = isActionEnabled("delete");
+
+	mListCommands->childSetEnabled("trash_btn", trash_enabled);
+}
+
+void LLPanelMainInventory::onGearButtonClick()
+{
+	showActionMenu(mMenuGearDefault,"options_gear_btn");
+}
+
+void LLPanelMainInventory::onAddButtonClick()
+{
+	showActionMenu(mMenuAdd,"add_btn");
+}
+
+void LLPanelMainInventory::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)
+{
+	if (menu)
+	{
+		menu->buildDrawLabels();
+		menu->updateParent(LLMenuGL::sMenuContainer);
+		LLView* spawning_view = getChild<LLView> (spawning_view_name);
+		S32 menu_x, menu_y;
+		//show menu in co-ordinates of panel
+		spawning_view->localPointToOtherView(0, spawning_view->getRect().getHeight(), &menu_x, &menu_y, this);
+		menu_y += menu->getRect().getHeight();
+		LLMenuGL::showPopup(this, menu, menu_x, menu_y);
+	}
+}
+
+void LLPanelMainInventory::onTrashButtonClick()
+{
+	onClipboardAction("delete");
+}
+
+void LLPanelMainInventory::onClipboardAction(const LLSD& userdata)
+{
+	std::string command_name = userdata.asString();
+	getActivePanel()->getRootFolder()->doToSelected(getActivePanel()->getModel(),command_name);
+}
+
+void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
+{
+	const std::string command_name = userdata.asString();
+	if (command_name == "new_window")
+	{
+		newWindow();
+	}
+	if (command_name == "sort_by_name")
+	{
+		const LLSD arg = "name";
+		setSortBy(arg);
+	}
+	if (command_name == "sort_by_recent")
+	{
+		const LLSD arg = "date";
+		setSortBy(arg);
+	}
+	if (command_name == "show_filters")
+	{
+		toggleFindOptions();
+	}
+	if (command_name == "reset_filters")
+	{
+		resetFilters();
+	}
+	if (command_name == "close_folders")
+	{
+		closeAllFolders();
+	}
+	if (command_name == "empty_trash")
+	{
+		const std::string notification = "ConfirmEmptyTrash";
+		gInventory.emptyFolderType(notification, LLAssetType::AT_TRASH);
+	}
+	if (command_name == "empty_lostnfound")
+	{
+		const std::string notification = "ConfirmEmptyLostAndFound";
+		gInventory.emptyFolderType(notification, LLAssetType::AT_LOST_AND_FOUND);
+	}
+	if (command_name == "save_texture")
+	{
+	}
+}
+
+BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
+{
+	const std::string command_name = userdata.asString();
+	if (command_name == "delete")
+	{
+		BOOL can_delete = FALSE;
+		LLFolderView *folder = getActivePanel()->getRootFolder();
+		if (folder)
+		{
+			can_delete = TRUE;
+			std::set<LLUUID> selection_set;
+			folder->getSelectionList(selection_set);
+			for (std::set<LLUUID>::iterator iter = selection_set.begin();
+				 iter != selection_set.end();
+				 ++iter)
+			{
+				const LLUUID &item_id = (*iter);
+				LLFolderViewItem *item = folder->getItemByID(item_id);
+				can_delete &= item->getListener()->isItemRemovable();
+			}
+			return can_delete;
+		}
+	}
+	return FALSE;
+}
+
+bool LLPanelMainInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept)
+{
+	*accept = ACCEPT_NO;
+
+	const bool is_enabled = isActionEnabled("delete");
+	if (is_enabled) *accept = ACCEPT_YES_MULTI;
+
+	if (is_enabled && drop)
+	{
+		onClipboardAction("delete");
+	}
+	return true;
 }

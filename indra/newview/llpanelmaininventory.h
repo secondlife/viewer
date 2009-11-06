@@ -44,6 +44,7 @@ class LLSaveFolderState;
 class LLFilterEditor;
 class LLTabContainer;
 class LLFloaterInventoryFinder;
+class LLMenuGL;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMainInventory
@@ -74,6 +75,7 @@ public:
 
 	LLInventoryPanel* getPanel() { return mActivePanel; }
 	LLInventoryPanel* getActivePanel() { return mActivePanel; }
+	const LLInventoryPanel* getActivePanel() const { return mActivePanel; }
 
 	const std::string& getFilterText() const { return mFilterText; }
 	
@@ -107,6 +109,20 @@ protected:
 	void resetFilters();
 	void setSortBy(const LLSD& userdata);
 	
+	// List Commands Handlers
+	void initListCommandsHandlers();
+	void updateListCommands();
+	void onGearButtonClick();
+	void onAddButtonClick();
+	void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
+	void onTrashButtonClick();
+	void onClipboardAction(const LLSD& userdata);
+	BOOL isActionEnabled(const LLSD& command_name);
+	void onCustomAction(const LLSD& command_name);
+	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
+
+	void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action);
+
 private:
 	LLFloaterInventoryFinder* getFinder();
 
@@ -115,6 +131,10 @@ private:
 	LLHandle<LLFloater>			mFinderHandle;
 	LLInventoryPanel*			mActivePanel;
 	LLSaveFolderState*			mSavedFolderState;
+
+	LLPanel*					mListCommands;
+	LLMenuGL*					mMenuGearDefault;
+	LLMenuGL*					mMenuAdd;
 
 	std::string					mFilterText;
 };

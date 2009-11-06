@@ -1,6 +1,6 @@
-/** 
- * @file llfloaterinventory.cpp
- * @brief Implementation of the inventory view and associated stuff.
+/* 
+ * @file llinventorypanel.cpp
+ * @brief Implementation of the inventory panel and associated stuff.
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
