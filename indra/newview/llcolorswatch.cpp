@@ -228,7 +228,7 @@ void LLColorSwatchCtrl::draw()
 	{
 		if (!mFallbackImageName.empty())
 		{
-			LLPointer<LLViewerTexture> fallback_image = LLViewerTextureManager::getFetchedTextureFromFile(mFallbackImageName, TRUE, 
+			LLPointer<LLViewerFetchedTexture> fallback_image = LLViewerTextureManager::getFetchedTextureFromFile(mFallbackImageName, TRUE, 
 				LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 			if( fallback_image->getComponents() == 4 )
 			{	

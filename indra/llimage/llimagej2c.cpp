@@ -283,6 +283,7 @@ BOOL LLImageJ2C::decode(LLImageRaw *raw_imagep, F32 decode_time)
 }
 
 
+// Returns TRUE to mean done, whether successful or not.
 BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count )
 {
 	LLMemType mt1(mMemType);
@@ -295,7 +296,7 @@ BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
 	if (!getData() || (getDataSize() < 16))
 	{
 		setLastError("LLImageJ2C uninitialized");
-		res = FALSE;
+		res = TRUE; // done
 	}
 	else
 	{
@@ -348,7 +349,7 @@ BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, const char* comment_text, 
 //static
 S32 LLImageJ2C::calcHeaderSizeJ2C()
 {
-	return 600; //2048; // ??? hack... just needs to be >= actual header size...
+	return FIRST_PACKET_SIZE; // Hack. just needs to be >= actual header size...
 }
 
 //static

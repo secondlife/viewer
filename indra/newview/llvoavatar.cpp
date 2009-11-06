@@ -998,7 +998,7 @@ void LLVOAvatar::resetImpostors()
 
 // static
 void LLVOAvatar::deleteCachedImages(bool clearAll)
-{
+{	
 	if (LLTexLayerSet::sHasCaches)
 	{
 		lldebugs << "Deleting layer set caches" << llendl;
@@ -3918,7 +3918,7 @@ U32 LLVOAvatar::renderFootShadows()
 	LLGLDepthTest test(GL_TRUE, GL_FALSE);
 	//render foot shadows
 	LLGLEnable blend(GL_BLEND);
-	gGL.getTexUnit(0)->bind(mShadowImagep.get());
+	gGL.getTexUnit(0)->bind(mShadowImagep, TRUE);
 	glColor4fv(mShadow0Facep->getRenderColor().mV);
 	mShadow0Facep->renderIndexed(foot_mask);
 	glColor4fv(mShadow1Facep->getRenderColor().mV);
@@ -3966,7 +3966,7 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
 //------------------------------------------------------------------------
 // LLVOAvatar::updateTextures()
 //------------------------------------------------------------------------
-void LLVOAvatar::updateTextures(LLAgent &agent)
+void LLVOAvatar::updateTextures()
 {
 	BOOL render_avatar = TRUE;
 

@@ -125,7 +125,7 @@ public:
 	virtual BOOL   	 	 	updateLOD();
 	BOOL  	 	 	 	 	updateJointLODs();
 	virtual BOOL   	 	 	isActive() const; // Whether this object needs to do an idleUpdate.
-	virtual void   	 	 	updateTextures(LLAgent &agent);
+	virtual void   	 	 	updateTextures();
 	virtual S32    	 	 	setTETexture(const U8 te, const LLUUID& uuid); // If setting a baked texture, need to request it from a non-local sim.
 	virtual void   	 	 	onShift(const LLVector3& shift_vector);
 	virtual U32    	 	 	getPartitionType() const;

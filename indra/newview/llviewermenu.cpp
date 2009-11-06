@@ -609,6 +609,14 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)((LLView*)gDebugView->mDebugConsolep) );
 		}
+		else if (gTextureSizeView && "texture size" == console_type)
+		{
+			toggle_visibility( (void*)gTextureSizeView );
+		}
+		else if (gTextureCategoryView && "texture category" == console_type)
+		{
+			toggle_visibility( (void*)gTextureCategoryView );
+		}
 		else if ("fast timers" == console_type)
 		{
 			toggle_visibility( (void*)gDebugView->mFastTimerView );
@@ -635,6 +643,14 @@ class LLAdvancedCheckConsole : public view_listener_t
 		else if ("debug" == console_type)
 		{
 			new_value = get_visibility( (void*)((LLView*)gDebugView->mDebugConsolep) );
+		}
+		else if (gTextureSizeView && "texture size" == console_type)
+		{
+			new_value = get_visibility( (void*)gTextureSizeView );
+		}
+		else if (gTextureCategoryView && "texture category" == console_type)
+		{
+			new_value = get_visibility( (void*)gTextureCategoryView );
 		}
 		else if ("fast timers" == console_type)
 		{
@@ -1159,28 +1175,6 @@ class LLAdvancedCheckWireframe : public view_listener_t
 	}
 };
 	
-//////////////////////
-// DISABLE TEXTURES //
-//////////////////////
-
-class LLAdvancedToggleDisableTextures : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLViewerTexture::sDontLoadVolumeTextures = !LLViewerTexture::sDontLoadVolumeTextures;
-		return true;
-	}
-};
-
-class LLAdvancedCheckDisableTextures : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = LLViewerTexture::sDontLoadVolumeTextures; // <-- make this using LLCacheControl
-		return new_value;
-	}
-};
-
 //////////////////////
 // TEXTURE ATLAS //
 //////////////////////
@@ -1884,7 +1878,7 @@ class LLAdvancedRebakeTextures : public view_listener_t
 };
 	
 	
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if 1 //ndef LL_RELEASE_FOR_DOWNLOAD
 ///////////////////////////
 // DEBUG AVATAR TEXTURES //
 ///////////////////////////
@@ -3483,9 +3477,8 @@ void set_god_level(U8 god_level)
 	gAgent.setGodLevel( god_level );
 	LLViewerParcelMgr::getInstance()->notifyObservers();
 
-	// God mode changes sim visibility
-	LLWorldMap::getInstance()->reset();
-	LLWorldMap::getInstance()->setCurrentLayer(0);
+	// God mode changes region visibility
+	LLWorldMap::getInstance()->reloadItems(true);
 
 	// inventory in items may change in god mode
 	gObjectList.dirtyAllObjectInventory();
@@ -7777,8 +7770,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedSelectedTextureInfo(), "Advanced.SelectedTextureInfo");
 	view_listener_t::addMenu(new LLAdvancedToggleWireframe(), "Advanced.ToggleWireframe");
 	view_listener_t::addMenu(new LLAdvancedCheckWireframe(), "Advanced.CheckWireframe");
-	view_listener_t::addMenu(new LLAdvancedToggleDisableTextures(), "Advanced.ToggleDisableTextures");
-	view_listener_t::addMenu(new LLAdvancedCheckDisableTextures(), "Advanced.CheckDisableTextures");
 	view_listener_t::addMenu(new LLAdvancedToggleTextureAtlas(), "Advanced.ToggleTextureAtlas");
 	view_listener_t::addMenu(new LLAdvancedCheckTextureAtlas(), "Advanced.CheckTextureAtlas");
 	view_listener_t::addMenu(new LLAdvancedEnableObjectObjectOcclusion(), "Advanced.EnableObjectObjectOcclusion");

@@ -234,12 +234,7 @@ void LLSurface::createSTexture()
 {
 	if (!mSTexturep)
 	{
-		// Fill with dummy gray data.
-	
-		//mSTexturep =  LLViewerTextureManager::getLocalTexture(sTextureSize, sTextureSize, 3, FALSE);
-		//mSTexturep->dontDiscard();
-		//mSTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
-		
+		// Fill with dummy gray data.	
 		// GL NOT ACTIVE HERE
 		LLPointer<LLImageRaw> raw = new LLImageRaw(sTextureSize, sTextureSize, 3);
 		U8 *default_texture = raw->getData();

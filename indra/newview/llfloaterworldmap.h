@@ -96,7 +96,7 @@ public:
 	static const LLUUID& getHomeID() { return sHomeID; }
 
 	// A z_attenuation of 0.0f collapses the distance into the X-Y plane
-	F32			getDistanceToDestination(const LLVector3d& pos_global, F32 z_attenuation = 0.5f) const;
+	F32				getDistanceToDestination(const LLVector3d& pos_global, F32 z_attenuation = 0.5f) const;
 
 	void			clearLocationSelection(BOOL clear_ui = FALSE);
 	void			clearAvatarSelection(BOOL clear_ui = FALSE);
@@ -120,8 +120,6 @@ protected:
 
 	void			onAvatarComboPrearrange();
 	void		    onAvatarComboCommit();
-
-	void			onCommitBackground();
 
 	void			onComboTextEntry( );
 	void			onSearchTextEntry( LLLineEditor* ctrl );
@@ -155,10 +153,10 @@ protected:
 
 	void			cacheLandmarkPosition();
 
-protected:
-	LLTabContainer*	mTabs;
+private:
+	LLPanel*			mPanel;		// Panel displaying the map
 
-	// Sets gMapScale, in pixels per region
+	// Ties to LLWorldMapView::sMapScale, in pixels per region
 	F32						mCurZoomVal;
 	LLFrameTimer			mZoomTimer;
 
