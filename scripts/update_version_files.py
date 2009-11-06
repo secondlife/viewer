@@ -164,6 +164,7 @@ def main():
     opts, args = getopt.getopt(sys.argv[1:],
                                "",
                                ['version=',
+                                'revision=',
                                 'channel=',
                                 'server_channel=',
                                 'skip-on-branch=',
