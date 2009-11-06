@@ -1350,13 +1350,6 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 LLIMMgr::LLIMMgr() :
 	mIMReceived(FALSE)
 {
-	static bool registered_dialog = false;
-	if (!registered_dialog)
-	{
-		LLFloaterReg::add("incoming_call", "floater_incoming_call.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIncomingCallDialog>);
-		registered_dialog = true;
-	}
-
 	mPendingInvitations = LLSD::emptyMap();
 	mPendingAgentListUpdates = LLSD::emptyMap();
 }
