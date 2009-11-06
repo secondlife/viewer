@@ -66,7 +66,10 @@ public:
 		EInstantMessage mType;
 		LLUUID mOtherParticipantID;
 		std::vector<LLUUID> mInitialTargetIDs;
+
+		//does NOT include system messages
 		S32 mNumUnread;
+
 		std::list<LLSD> mMsgs;
 
 		LLVoiceChannel* mVoiceChannel;

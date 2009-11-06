@@ -115,7 +115,7 @@ void LLIMFloater::onClose(bool app_quitting)
 /* static */
 void LLIMFloater::newIMCallback(const LLSD& data){
 	
-	if (data["num_unread"].asInteger() > 0)
+	if (data["num_unread"].asInteger() > 0 || data["from_id"].asUUID().isNull())
 	{
 		LLUUID session_id = data["session_id"].asUUID();
 
