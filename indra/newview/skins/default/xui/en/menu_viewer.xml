@@ -1915,6 +1915,42 @@
                  parameter="debug" />
             </menu_item_check>
             <menu_item_check
+             label="Notifications Console"
+             layout="topleft"
+             name="Notifications"
+             shortcut="control|shift|5">
+              <menu_item_check.on_check
+               function="Advanced.CheckConsole"
+               parameter="notifications" />
+              <menu_item_check.on_click
+               function="Floater.Show"
+               parameter="notifications_console" />
+            </menu_item_check>
+            <menu_item_check
+               label="Texture Size Console"
+               layout="topleft"
+               name="Texture Size"
+               shortcut="control|shift|6">
+              <menu_item_check.on_check
+               function="Advanced.CheckConsole"
+               parameter="texture size" />
+              <menu_item_check.on_click
+               function="Advanced.ToggleConsole"
+               parameter="texture size" />
+            </menu_item_check>
+            <menu_item_check
+               label="Texture Category Console"
+               layout="topleft"
+               name="Texture Category"
+               shortcut="control|shift|7">
+              <menu_item_check.on_check
+               function="Advanced.CheckConsole"
+               parameter="texture category" />
+              <menu_item_check.on_click
+               function="Advanced.ToggleConsole"
+               parameter="texture category" />
+            </menu_item_check>
+            <menu_item_check
              label="Fast Timers"
              layout="topleft"
              name="Fast Timers"
@@ -2471,19 +2507,43 @@
              label="Disable Textures"
              name="Disable Textures">
                 <menu_item_check.on_check
-                 function="Advanced.CheckDisableTextures"
-                 parameter="DisableTextures" />
+                 function="CheckControl"
+                 parameter="TextureDisable" />
                 <menu_item_check.on_click
-                 function="Advanced.ToggleDisableTextures" />
+                 function="ToggleControl" 
+                 parameter="TextureDisable" />
+            </menu_item_check>
+            <menu_item_check
+              label="Full Res Textures"
+             layout="topleft"
+             name="Rull Res Textures">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="TextureLoadFullRes" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="TextureLoadFullRes" />
+            </menu_item_check>
+            <menu_item_check
+               label="Audit Textures"
+               layout="topleft"
+               name="Audit Textures">
+              <menu_item_check.on_check
+               function="CheckControl"
+               parameter="AuditTexture" />
+              <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="AuditTexture" />
             </menu_item_check>
             <menu_item_check
              label="Texture Atlas"
              name="Texture Atlas">
               <menu_item_check.on_check
-               function="Advanced.CheckTextureAtlas"
+               function="CheckControl"
                parameter="TextureAtlas" />
               <menu_item_check.on_click
-               function="Advanced.ToggleTextureAtlas" />
+               function="ToggleControl"
+               parameter="TextureAtlas" />
             </menu_item_check>
               <menu_item_check
              label="Render Attached Lights"
@@ -2506,8 +2566,8 @@
                  parameter="RenderAttachedParticles" />
             </menu_item_check>
             <menu_item_check
-             label="Hover Highlight Objects"
-             name="Hover Highlight Objects">
+             label="Hover Glow Objects"
+             name="Hover Glow Objects">
                 <menu_item_check.on_check
                  function="CheckControl"
                  parameter="RenderHighlightEnable" />

@@ -46,7 +46,7 @@
 #include "llstartup.h"			// gStartupState
 #include "llurlsimstring.h"
 #include "llweb.h"
-#include "llworldmap.h"
+#include "llworldmapmessage.h"
 
 // library includes
 #include "llsd.h"
@@ -201,7 +201,7 @@ bool LLURLDispatcherImpl::dispatchRegion(const std::string& url, bool right_mous
 	//if(url_displayp) url_displayp->setName(region_name);
 
 	// Request a region handle by name
-	LLWorldMap::getInstance()->sendNamedRegionRequest(region_name,
+	LLWorldMapMessage::getInstance()->sendNamedRegionRequest(region_name,
 									  LLURLDispatcherImpl::regionNameCallback,
 									  url,
 									  false);	// don't teleport
@@ -240,7 +240,7 @@ void LLURLDispatcherImpl::regionNameCallback(U64 region_handle, const std::strin
 		LLVector3d global_pos = from_region_handle(region_handle) + LLVector3d(local_pos);
 
 		U64 new_region_handle = to_region_handle(global_pos);
-		LLWorldMap::getInstance()->sendHandleRegionRequest(new_region_handle,
+		LLWorldMapMessage::getInstance()->sendHandleRegionRequest(new_region_handle,
 										   LLURLDispatcherImpl::regionHandleCallback,
 										   url, teleport);
 	}
@@ -335,7 +335,7 @@ public:
 		{
 			url += tokens[i].asString() + "/";
 		}
-		LLWorldMap::getInstance()->sendNamedRegionRequest(region_name,
+		LLWorldMapMessage::getInstance()->sendNamedRegionRequest(region_name,
 			LLURLDispatcherImpl::regionHandleCallback,
 			url,
 			true);	// teleport

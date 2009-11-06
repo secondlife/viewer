@@ -27,6 +27,8 @@
   <texture name="BackArrow_Off" file_name="icons/BackArrow_Off.png" preload="false" />
   <texture name="BackArrow_Press" file_name="icons/BackArrow_Press.png" preload="false" />
 
+  <texture name="Blank" file_name="Blank.png" preload="false" />
+  
   <texture name="BottomTray_BG" file_name="bottomtray/BottomTray_BG.png" preload="false" />
 
   <texture name="BuyArrow_Off" file_name="navbar/BuyArrow_Off.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0"  />

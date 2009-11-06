@@ -70,9 +70,14 @@ protected:
 public:
 	virtual ~LLNetMap();
 
+	static const F32 MAP_SCALE_MIN;
+	static const F32 MAP_SCALE_MID;
+	static const F32 MAP_SCALE_MAX;
+
 	/*virtual*/ void	draw();
 	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
 	/*virtual*/ BOOL	handleToolTip( S32 x, S32 y, MASK mask);
+	/*virtual*/ void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	
 	void			setScale( F32 scale );
 	void			setRotateMap( BOOL b ) { mRotateMap = b; }
@@ -94,16 +99,17 @@ private:
 	void			drawTracking( const LLVector3d& pos_global, 
 								  const LLColor4& color,
 								  BOOL draw_arrow = TRUE);
-
-	void			createObjectImage();
 	
+	void			createObjectImage();
+
 private:
 	LLUIColor		mBackgroundColor;
 
 	F32				mScale;					// Size of a region in pixels
 	F32				mPixelsPerMeter;		// world meters to map pixels
 	F32				mObjectMapTPM;			// texels per meter on map
-	F32				mObjectMapPixels;		// Width of object map in pixels;
+	F32				mObjectMapPixels;		// Width of object map in pixels
+	F32				mDotRadius;				// Size of avatar markers
 	F32				mTargetPanX;
 	F32				mTargetPanY;
 	F32				mCurPanX;

@@ -201,6 +201,7 @@ LLWorkerClass::~LLWorkerClass()
 {
 	llassert_always(!(mWorkFlags & WCF_WORKING));
 	llassert_always(mWorkFlags & WCF_DELETE_REQUESTED);
+	llassert_always(!mMutex.isLocked());
 	if (mRequestHandle != LLWorkerThread::nullHandle())
 	{
 		LLWorkerThread::WorkRequest* workreq = (LLWorkerThread::WorkRequest*)mWorkerThread->getRequest(mRequestHandle);

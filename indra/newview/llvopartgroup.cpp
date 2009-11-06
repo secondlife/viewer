@@ -108,7 +108,7 @@ void LLVOPartGroup::setPixelAreaAndAngle(LLAgent &agent)
 	}
 }
 
-void LLVOPartGroup::updateTextures(LLAgent &agent)
+void LLVOPartGroup::updateTextures()
 {
 	// Texture stats for particles need to be updated in a different way...
 }

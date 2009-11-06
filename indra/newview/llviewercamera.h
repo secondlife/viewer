@@ -91,17 +91,20 @@ public:
 	BOOL projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoordGL &out_point, const BOOL clamp = TRUE) const;
 	BOOL projectPosAgentToScreenEdge(const LLVector3 &pos_agent, LLCoordGL &out_point) const;
 
-
+	const LLVector3* getVelocityDir() const {return &mVelocityDir;}
 	LLStat *getVelocityStat() { return &mVelocityStat; }
 	LLStat *getAngularVelocityStat() { return &mAngularVelocityStat; }
+	F32     getCosHalfFov() {return mCosHalfCameraFOV;}
+	F32     getAverageSpeed() {return mAverageSpeed ;}
+	F32     getAverageAngularSpeed() {return mAverageAngularSpeed;}
 
 	void getPixelVectors(const LLVector3 &pos_agent, LLVector3 &up, LLVector3 &right);
 	LLVector3 roundToPixel(const LLVector3 &pos_agent);
 
 	// Sets the current matrix
 	/* virtual */ void setView(F32 vertical_fov_rads);
-	// Sets the current matrix AND remembers result as default view
-	void setDefaultFOV(F32 vertical_fov_rads);
+
+	void setDefaultFOV(F32 fov) ;
 	F32 getDefaultFOV() { return mCameraFOVDefault; }
 
 	BOOL cameraUnderWater() const;
@@ -120,9 +123,14 @@ protected:
 
 	LLStat mVelocityStat;
 	LLStat mAngularVelocityStat;
+	LLVector3 mVelocityDir ;
+	F32       mAverageSpeed ;
+	F32       mAverageAngularSpeed ;
+
 	mutable LLMatrix4	mProjectionMatrix;	// Cache of perspective matrix
 	mutable LLMatrix4	mModelviewMatrix;
 	F32					mCameraFOVDefault;
+	F32					mCosHalfCameraFOV;
 	LLVector3			mLastPointOfInterest;
 	F32					mPixelMeterRatio; // Divide by distance from camera to get pixels per meter at that distance.
 	S32					mScreenPixelArea; // Pixel area of entire window

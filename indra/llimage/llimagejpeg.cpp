@@ -188,6 +188,7 @@ void LLImageJPEG::decodeTermSource (j_decompress_ptr cinfo)
 }
 
 
+// Returns true when done, whether or not decode was successful.
 BOOL LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
 {
 	llassert_always(raw_image);
@@ -198,7 +199,7 @@ BOOL LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
 	if (!getData() || (0 == getDataSize()))
 	{
 		setLastError("LLImageJPEG trying to decode an image with no data!");
-		return FALSE;
+		return TRUE;  // done
 	}
 	
 	S32 row_stride = 0;
@@ -226,7 +227,7 @@ BOOL LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
 	if(setjmp(sSetjmpBuffer))
 	{
 		jpeg_destroy_decompress(&cinfo);
-		return FALSE;
+		return TRUE; // done
 	}
 	try
 	{
@@ -320,7 +321,7 @@ BOOL LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
 	catch (int)
 	{
 		jpeg_destroy_decompress(&cinfo);
-		return FALSE;
+		return TRUE; // done
 	}
 
 	// Check to see whether any corrupt-data warnings occurred
@@ -328,7 +329,7 @@ BOOL LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
 	{
 		// TODO: extract the warning to find out what went wrong.
 		setLastError( "Unable to decode JPEG image.");
-		return FALSE;
+		return TRUE; // done
 	}
 
 	return TRUE;
