@@ -228,6 +228,7 @@ void LLPanelPrimMediaControls::updateShape()
 
 	bool can_navigate = parcel->getMediaAllowNavigate();
 	bool enabled = false;
+	bool is_zoomed = (mCurrentZoom != ZOOM_NONE);
 	// There is no such thing as "has_focus" being different from normal controls set
 	// anymore (as of user feedback from bri 10/09).  So we cheat here and force 'has_focus'
 	// to 'true' (or, actually, we use a setting)
@@ -256,7 +257,7 @@ void LLPanelPrimMediaControls::updateShape()
 		LLUICtrl* stop_ctrl					= getChild<LLUICtrl>("stop");
 		LLUICtrl* media_stop_ctrl			= getChild<LLUICtrl>("media_stop");
 		LLUICtrl* home_ctrl					= getChild<LLUICtrl>("home");
-		LLUICtrl* close_ctrl				= getChild<LLUICtrl>("close");
+		LLUICtrl* unzoom_ctrl				= getChild<LLUICtrl>("close"); // This is actually "unzoom"
 		LLUICtrl* open_ctrl					= getChild<LLUICtrl>("new_window");
         LLUICtrl* zoom_ctrl					= getChild<LLUICtrl>("zoom_frame");
 		LLPanel* media_loading_panel		= getChild<LLPanel>("media_progress_indicator");
@@ -283,7 +284,8 @@ void LLPanelPrimMediaControls::updateShape()
 		reload_ctrl->setVisible(has_focus);
 		stop_ctrl->setVisible(false);
 		home_ctrl->setVisible(has_focus);
-		close_ctrl->setVisible(has_focus);
+		zoom_ctrl->setVisible(!is_zoomed);
+		unzoom_ctrl->setVisible(has_focus && is_zoomed);
 		open_ctrl->setVisible(true);
 		media_address_ctrl->setVisible(has_focus && !mini_controls);
 		media_play_slider_panel->setVisible(has_focus && !mini_controls);
@@ -294,6 +296,7 @@ void LLPanelPrimMediaControls::updateShape()
 		whitelist_icon->setVisible(!mini_controls && (media_data)?media_data->getWhiteListEnable():false);
 		// Disable zoom if HUD
 		zoom_ctrl->setEnabled(!objectp->isHUDAttachment());
+		unzoom_ctrl->setEnabled(!objectp->isHUDAttachment());
 		secure_lock_icon->setVisible(false);
 		mCurrentURL = media_impl->getCurrentMediaURL();
 		
