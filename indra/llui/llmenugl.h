@@ -765,7 +765,9 @@ private:
 class LLMenuHolderGL : public LLPanel
 {
 public:
-	LLMenuHolderGL();
+	struct Params : public LLInitParam::Block<Params, LLPanel::Params>
+	{};
+	LLMenuHolderGL(const Params& p);
 	virtual ~LLMenuHolderGL() {}
 
 	virtual BOOL hideMenus();

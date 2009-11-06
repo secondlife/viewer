@@ -132,6 +132,11 @@ void handle_export_selected( void * );
 class LLViewerMenuHolderGL : public LLMenuHolderGL
 {
 public:
+	struct Params : public LLInitParam::Block<Params, LLMenuHolderGL::Params>
+	{};
+
+	LLViewerMenuHolderGL(const Params& p);
+
 	virtual BOOL hideMenus();
 	
 	void setParcelSelection(LLSafeHandle<LLParcelSelection> selection);

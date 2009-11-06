@@ -598,14 +598,11 @@ BOOL LLPanelStandStopFlying::postBuild()
 void LLPanelStandStopFlying::setVisible(BOOL visible)
 {
 	//we dont need to show the panel if these buttons are not activated
-	if (visible && !mStandButton->getVisible() && !mStopFlyingButton->getVisible()) visible = false;
-
 	if (gAgent.getCameraMode() == CAMERA_MODE_MOUSELOOK) visible = false;
 
 	if (visible)
 	{
 		updatePosition();
-		getParent()->sendChildToFront(this);
 	}
 
 	LLPanel::setVisible(visible);
@@ -638,7 +635,7 @@ LLPanelStandStopFlying* LLPanelStandStopFlying::getStandStopFlyingPanel()
 	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_stand_stop_flying.xml");
 
 	panel->setVisible(FALSE);
-	LLUI::getRootView()->addChild(panel);
+	//LLUI::getRootView()->addChild(panel);
 
 	llinfos << "Build LLPanelStandStopFlying panel" << llendl;
 

@@ -55,12 +55,16 @@ LLDebugView* gDebugView = NULL;
 //
 // Methods
 //
+static LLDefaultChildRegistry::Register<LLDebugView> r("debug_view");
 
 LLDebugView::LLDebugView(const LLDebugView::Params& p)
 :	LLView(p)
+{}
+
+void LLDebugView::init()
 {
 	LLRect r;
-	LLRect rect(p.rect);
+	LLRect rect = getLocalRect();
 
 	r.set(10, rect.getHeight() - 100, rect.getWidth()/2, 100);
 	LLConsole::Params cp;

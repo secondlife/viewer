@@ -101,6 +101,8 @@ S32 BORDER_WIDTH = 6;
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
 
+static LLDefaultChildRegistry::Register<LLSnapshotFloaterView> r("snapshot_floater_view");
+
 ///----------------------------------------------------------------------------
 /// Class LLSnapshotLivePreview 
 ///----------------------------------------------------------------------------
