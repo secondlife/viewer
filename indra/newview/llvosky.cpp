@@ -289,7 +289,7 @@ void LLSkyTex::create(const F32 brightness)
 
 void LLSkyTex::createGLImage(S32 which)
 {	
-	mTexture[which]->createGLTexture(0, mImageRaw[which]);
+	mTexture[which]->createGLTexture(0, mImageRaw[which], 0, TRUE, LLViewerTexture::LOCAL);
 	mTexture[which]->setAddressMode(LLTexUnit::TAM_CLAMP);
 }
 
@@ -1180,7 +1180,7 @@ BOOL LLVOSky::updateSky()
 	return TRUE;
 }
 
-void LLVOSky::updateTextures(LLAgent &agent)
+void LLVOSky::updateTextures()
 {
 	if (mSunTexturep)
 	{

@@ -74,6 +74,8 @@
 #include "llstatusbar.h"
 #include "llteleportflags.h"
 #include "llteleporthistory.h"
+#include "lltexturestats.h"
+#include "lltexturestats.h"
 #include "lltool.h"
 #include "lltoolcomp.h"
 #include "lltoolmgr.h"
@@ -6087,17 +6089,16 @@ void LLAgent::teleportCancel()
 void LLAgent::teleportViaLocation(const LLVector3d& pos_global)
 {
 	LLViewerRegion* regionp = getRegion();
-	LLSimInfo* info = LLWorldMap::getInstance()->simInfoFromPosGlobal(pos_global);
+	U64 handle = to_region_handle(pos_global);
+	LLSimInfo* info = LLWorldMap::getInstance()->simInfoFromHandle(handle);
 	if(regionp && info)
 	{
-		U32 x_pos;
-		U32 y_pos;
-		from_region_handle(info->mHandle, &x_pos, &y_pos);
+		LLVector3d region_origin = info->getGlobalOrigin();
 		LLVector3 pos_local(
-			(F32)(pos_global.mdV[VX] - x_pos),
-			(F32)(pos_global.mdV[VY] - y_pos),
+			(F32)(pos_global.mdV[VX] - region_origin.mdV[VX]),
+			(F32)(pos_global.mdV[VY] - region_origin.mdV[VY]),
 			(F32)(pos_global.mdV[VZ]));
-		teleportRequest(info->mHandle, pos_local);
+		teleportRequest(handle, pos_local);
 	}
 	else if(regionp && 
 		teleportCore(regionp->getHandle() == to_region_handle_global((F32)pos_global.mdV[VX], (F32)pos_global.mdV[VY])))
@@ -6514,3 +6515,4 @@ LLAgentQueryManager::~LLAgentQueryManager()
 }
 
 // EOF
+

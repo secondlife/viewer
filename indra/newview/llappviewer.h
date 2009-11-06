@@ -41,12 +41,10 @@ class LLCommandLineParser;
 class LLFrameTimer;
 class LLPumpIO;
 class LLTextureCache;
+class LLImageDecodeThread;
 class LLTextureFetch;
-class LLTimer;
-class LLVFS;
 class LLWatchdogTimeout;
-class LLWorkerThread;
-
+class LLCommandLineParser;
 
 class LLAppViewer : public LLApp
 {
@@ -98,7 +96,7 @@ public:
     
 	// Thread accessors
 	static LLTextureCache* getTextureCache() { return sTextureCache; }
-	static LLWorkerThread* getImageDecodeThread() { return sImageDecodeThread; }
+	static LLImageDecodeThread* getImageDecodeThread() { return sImageDecodeThread; }
 	static LLTextureFetch* getTextureFetch() { return sTextureFetch; }
 
 	const std::string& getSerialNumber() { return mSerialNumber; }
@@ -228,7 +226,7 @@ private:
 
 	// Thread objects.
 	static LLTextureCache* sTextureCache; 
-	static LLWorkerThread* sImageDecodeThread; 
+	static LLImageDecodeThread* sImageDecodeThread; 
 	static LLTextureFetch* sTextureFetch;
 
 	S32 mNumSessions;
@@ -321,9 +319,6 @@ extern F32 gSimLastTime;
 extern F32 gSimFrames;
 
 extern BOOL		gDisconnected;
-
-// Map scale in pixels per region
-extern F32 gMapScale;
 
 extern LLFrameTimer	gRestoreGLTimer;
 extern BOOL			gRestoreGL;

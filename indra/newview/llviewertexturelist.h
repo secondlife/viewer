@@ -53,7 +53,6 @@ const BOOL GL_TEXTURE_NO = FALSE;
 const BOOL IMMEDIATE_YES = TRUE;
 const BOOL IMMEDIATE_NO = FALSE;
 
-class LLImageJ2C;
 class LLMessageSystem;
 class LLTextureView;
 
@@ -146,6 +145,15 @@ private:
 									 LLGLenum primary_format = 0,
 									 const LLUUID& force_id = LLUUID::null
 									 );
+	
+	LLViewerFetchedTexture* getImageFromUrl(const std::string& url,
+									 BOOL usemipmap = TRUE,
+									 BOOL level_immediate = FALSE,		// Get the requested level immediately upon creation.
+									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
+									 LLGLint internal_format = 0,
+									 LLGLenum primary_format = 0,
+									 const LLUUID& force_id = LLUUID::null
+									 );
 
 	LLViewerFetchedTexture* createImage(const LLUUID &image_id,
 									 BOOL usemipmap = TRUE,
@@ -190,11 +198,18 @@ private:
 	LLFrameTimer mForceDecodeTimer;
 	
 public:
-	U32 mTextureBits;
-	U32 mTexturePackets;
+	static U32 sTextureBits;
+	static U32 sTexturePackets;
+
+	static LLStat sNumImagesStat;
+	static LLStat sNumRawImagesStat;
+	static LLStat sGLTexMemStat;
+	static LLStat sGLBoundMemStat;
+	static LLStat sRawMemStat;
+	static LLStat sFormattedMemStat;
 
 private:
-	S32 mNumImages;
+	static S32 sNumImages;
 	static void (*sUUIDCallback)(void**, const LLUUID &);
 };
 

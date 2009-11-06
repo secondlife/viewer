@@ -65,9 +65,15 @@
 
 static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
 
+const F32 LLNetMap::MAP_SCALE_MIN = 32;
+const F32 LLNetMap::MAP_SCALE_MID = 1024;
+const F32 LLNetMap::MAP_SCALE_MAX = 4096;
+
 const F32 MAP_SCALE_INCREMENT = 16;
-const F32 MAP_MIN_PICK_DIST = 4;
-const F32 MAX_PRIM_RADIUS = 256.0f; // Don't try to draw giant mega-prims on the mini map
+const F32 MAP_SCALE_ZOOM_FACTOR = 1.04f; // Zoom in factor per click of scroll wheel (4%)
+const F32 MIN_DOT_RADIUS = 3.5f;
+const F32 DOT_SCALE = 0.75f;
+const F32 MIN_PICK_SCALE = 2.f;
 
 LLNetMap::LLNetMap (const Params & p)
 :	LLUICtrl (p),
@@ -89,6 +95,7 @@ LLNetMap::LLNetMap (const Params & p)
 	mRotateMap(FALSE),
 	mToolTipMsg()
 {
+	mDotRadius = llmax(DOT_SCALE * mPixelsPerMeter, MIN_DOT_RADIUS);
 }
 
 LLNetMap::~LLNetMap()
@@ -101,17 +108,18 @@ void LLNetMap::setScale( F32 scale )
 	
 	if (mObjectImagep.notNull())
 	{
-		F32 half_width = (F32)(getRect().getWidth() / 2);
-		F32 half_height = (F32)(getRect().getHeight() / 2);
-		F32 radius = sqrt( half_width * half_width + half_height * half_height );
-		F32 region_widths = (2.f*radius)/mScale;
+		F32 width = (F32)(getRect().getWidth());
+		F32 height = (F32)(getRect().getHeight());
+		F32 diameter = sqrt(width * width + height * height);
+		F32 region_widths = diameter / mScale;
 		F32 meters = region_widths * LLWorld::getInstance()->getRegionWidthInMeters();
 		F32 num_pixels = (F32)mObjectImagep->getWidth();
-		mObjectMapTPM = num_pixels/meters;
-		mObjectMapPixels = 2.f*radius;
+		mObjectMapTPM = num_pixels / meters;
+		mObjectMapPixels = diameter;
 	}
 
 	mPixelsPerMeter = mScale / REGION_WIDTH_METERS;
+	mDotRadius = llmax(DOT_SCALE * mPixelsPerMeter, MIN_DOT_RADIUS);
 
 	mUpdateNow = TRUE;
 }
@@ -302,6 +310,7 @@ void LLNetMap::draw()
 		LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
 		mClosestAgentToCursor.setNull();
 		F32 closest_dist = F32_MAX;
+		F32 min_pick_dist = mDotRadius * MIN_PICK_SCALE; 
 
 		// Draw avatars
 		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
@@ -345,10 +354,10 @@ void LLNetMap::draw()
 				LLWorldMapView::drawAvatar(
 					pos_map.mV[VX], pos_map.mV[VY], 
 					show_as_friend ? map_avatar_friend_color : map_avatar_color, 
-					pos_map.mV[VZ]);
+					pos_map.mV[VZ], mDotRadius);
 
 				F32	dist_to_cursor = dist_vec(LLVector2(pos_map.mV[VX], pos_map.mV[VY]), LLVector2(local_mouse_x,local_mouse_y));
-				if(dist_to_cursor < MAP_MIN_PICK_DIST && dist_to_cursor < closest_dist)
+				if(dist_to_cursor < min_pick_dist && dist_to_cursor < closest_dist)
 				{
 					closest_dist = dist_to_cursor;
 					mClosestAgentToCursor = regionp->mMapAvatarIDs.get(i);
@@ -378,10 +387,12 @@ void LLNetMap::draw()
 		// Draw dot for self avatar position
 		pos_global = gAgent.getPositionGlobal();
 		pos_map = globalPosToView(pos_global);
-		LLUIImagePtr you = LLWorldMapView::sAvatarYouSmallImage;
-		you->draw(
-			llround(pos_map.mV[VX]) - you->getWidth()/2, 
-			llround(pos_map.mV[VY]) - you->getHeight()/2);
+		LLUIImagePtr you = LLWorldMapView::sAvatarYouLargeImage;
+		S32 dot_width = llround(mDotRadius * 2.f);
+		you->draw(llround(pos_map.mV[VX] - mDotRadius),
+				  llround(pos_map.mV[VY] - mDotRadius),
+				  dot_width,
+				  dot_width);
 
 		// Draw frustum
 		F32 meters_to_pixels = mScale/ LLWorld::getInstance()->getRegionWidthInMeters();
@@ -427,6 +438,12 @@ void LLNetMap::draw()
 	}
 	
 	LLUICtrl::draw();
+}
+
+void LLNetMap::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	LLUICtrl::reshape(width, height, called_from_parent);
+	createObjectImage();
 }
 
 LLVector3 LLNetMap::globalPosToView( const LLVector3d& global_pos )
@@ -504,8 +521,12 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 
 BOOL LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	// note that clicks are reversed from what you'd think
-	setScale(llclamp(mScale - clicks*MAP_SCALE_INCREMENT, MAP_SCALE_MIN, MAP_SCALE_MAX));
+	// note that clicks are reversed from what you'd think: i.e. > 0  means zoom out, < 0 means zoom in
+	F32 scale = mScale;
+        
+	scale *= pow(MAP_SCALE_ZOOM_FACTOR, -clicks);
+	setScale(llclamp(scale, MAP_SCALE_MIN, MAP_SCALE_MAX));
+
 	return TRUE;
 }
 
@@ -567,9 +588,7 @@ void LLNetMap::renderScaledPointGlobal( const LLVector3d& pos, const LLColor4U &
 	LLVector3 local_pos;
 	local_pos.setVec( pos - mObjectImageCenterGlobal );
 
-	F32 radius_clamped = llmin(radius_meters, MAX_PRIM_RADIUS);
-	
-	S32 diameter_pixels = llround(2 * radius_clamped * mObjectMapTPM);
+	S32 diameter_pixels = llround(2 * radius_meters * mObjectMapTPM);
 	renderPoint( local_pos, color, diameter_pixels );
 }
 
@@ -662,13 +681,13 @@ void LLNetMap::renderPoint(const LLVector3 &pos_local, const LLColor4U &color,
 void LLNetMap::createObjectImage()
 {
 	// Find the size of the side of a square that surrounds the circle that surrounds getRect().
-	F32 half_width = (F32)(getRect().getWidth() / 2);
-	F32 half_height = (F32)(getRect().getHeight() / 2);
-	F32 radius = sqrt( half_width * half_width + half_height * half_height );
-	S32 square_size = S32( 2 * radius );
+	// ... which is, the diagonal of the rect.
+	F32 width = (F32)getRect().getWidth();
+	F32 height = (F32)getRect().getHeight();
+	S32 square_size = llround( sqrt(width*width + height*height) );
 
 	// Find the least power of two >= the minimum size.
-	const S32 MIN_SIZE = 32;
+	const S32 MIN_SIZE = 64;
 	const S32 MAX_SIZE = 256;
 	S32 img_size = MIN_SIZE;
 	while( (img_size*2 < square_size ) && (img_size < MAX_SIZE) )
@@ -684,7 +703,7 @@ void LLNetMap::createObjectImage()
 		U8* data = mObjectRawImagep->getData();
 		memset( data, 0, img_size * img_size * 4 );
 		mObjectImagep = LLViewerTextureManager::getLocalTexture( mObjectRawImagep.get(), FALSE);
-		setScale(mScale);
 	}
+	setScale(mScale);
 	mUpdateNow = TRUE;
 }

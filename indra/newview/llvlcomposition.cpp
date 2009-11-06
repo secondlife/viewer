@@ -279,7 +279,6 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 		if (mRawImages[i].isNull())
 		{
 			// Read back a raw image for this discard level, if it exists
-			mRawImages[i] = new LLImageRaw;
 			S32 min_dim = llmin(mDetailTextures[i]->getFullWidth(), mDetailTextures[i]->getFullHeight());
 			S32 ddiscard = 0;
 			while (min_dim > BASE_SIZE && ddiscard < MAX_DISCARD_LEVEL)
@@ -287,12 +286,18 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 				ddiscard++;
 				min_dim /= 2;
 			}
-			if (!mDetailTextures[i]->readBackRaw(ddiscard, mRawImages[i], false))
+
+			mDetailTextures[i]->reloadRawImage(ddiscard) ;
+			if(mDetailTextures[i]->getRawImageLevel() != ddiscard)//raw iamge is not ready, will enter here again later.
 			{
-				llwarns << "Unable to read raw data for terrain detail texture: " << mDetailTextures[i]->getID() << llendl;
-				mRawImages[i] = NULL;
+				mDetailTextures[i]->destroyRawImage() ;
+				lldebugs << "cached raw data for terrain detail texture is not ready yet: " << mDetailTextures[i]->getID() << llendl;
 				return FALSE;
 			}
+
+			mRawImages[i] = mDetailTextures[i]->getRawImage() ;
+			mDetailTextures[i]->destroyRawImage() ;
+
 			if (mDetailTextures[i]->getWidth(ddiscard) != BASE_SIZE ||
 				mDetailTextures[i]->getHeight(ddiscard) != BASE_SIZE ||
 				mDetailTextures[i]->getComponents() != 3)

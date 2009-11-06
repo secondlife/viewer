@@ -51,11 +51,26 @@
 #include "llviewermenu.h"
 
 //
+// Constants
+//
+const F32 MAP_MINOR_DIR_THRESHOLD = 0.08f;
+
+//
 // Member functions
 //
 
 LLFloaterMap::LLFloaterMap(const LLSD& key) 
-	: LLFloater(key)
+	: LLFloater(key),
+	  mPopupMenu(NULL),
+	  mTextBoxEast(NULL),
+	  mTextBoxNorth(NULL),
+	  mTextBoxWest(NULL),
+	  mTextBoxSouth(NULL),
+	  mTextBoxSouthEast(NULL),
+	  mTextBoxNorthEast(NULL),
+	  mTextBoxNorthWest(NULL),
+	  mTextBoxSouthWest(NULL),
+	  mMap(NULL)
 {
 	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_map.xml", FALSE);
 }
@@ -91,6 +106,8 @@ BOOL LLFloaterMap::postBuild()
 	{
 		mPopupMenu->setItemEnabled ("Stop Tracking", false);
 	}
+
+	updateMinorDirections();
 
 	// Get the drag handle all the way in back
 	sendChildToBack(getDragHandle());
@@ -139,6 +156,23 @@ void LLFloaterMap::setDirectionPos( LLTextBox* text_box, F32 rotation )
 		llround(map_half_height - text_half_height + radius * sin( rotation )) );
 }
 
+void LLFloaterMap::updateMinorDirections()
+{
+	if (mTextBoxNorthEast == NULL)
+	{
+		return;
+	}
+
+	// Hide minor directions if they cover too much of the map
+	bool show_minors = mTextBoxNorthEast->getRect().getHeight() < MAP_MINOR_DIR_THRESHOLD *
+		llmin(getRect().getWidth(), getRect().getHeight());
+
+	mTextBoxNorthEast->setVisible(show_minors);
+	mTextBoxNorthWest->setVisible(show_minors);
+	mTextBoxSouthWest->setVisible(show_minors);
+	mTextBoxSouthEast->setVisible(show_minors);
+}
+
 // virtual
 void LLFloaterMap::draw()
 {
@@ -180,17 +214,23 @@ void LLFloaterMap::draw()
 	LLFloater::draw();
 }
 
+void LLFloaterMap::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	LLFloater::reshape(width, height, called_from_parent);
+	updateMinorDirections();
+}
+
 void LLFloaterMap::handleZoom(const LLSD& userdata)
 {
 	std::string level = userdata.asString();
 	
 	F32 scale = 0.0f;
 	if (level == std::string("close"))
-		scale = MAP_SCALE_MAX;
+		scale = LLNetMap::MAP_SCALE_MAX;
 	else if (level == std::string("medium"))
-		scale = MAP_SCALE_MID;
+		scale = LLNetMap::MAP_SCALE_MID;
 	else if (level == std::string("far"))
-		scale = MAP_SCALE_MIN;
+		scale = LLNetMap::MAP_SCALE_MIN;
 	if (scale != 0.0f)
 	{
 		gSavedSettings.setF32("MiniMapScale", scale );

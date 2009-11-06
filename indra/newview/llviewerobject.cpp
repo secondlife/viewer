@@ -2906,7 +2906,7 @@ F32 LLViewerObject::getMidScale() const
 }
 
 
-void LLViewerObject::updateTextures(LLAgent &agent)
+void LLViewerObject::updateTextures()
 {
 }
 

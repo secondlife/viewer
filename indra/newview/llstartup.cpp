@@ -61,6 +61,7 @@
 #include "llfocusmgr.h"
 #include "llhttpsender.h"
 #include "lllocationhistory.h"
+#include "llimageworker.h"
 #include "llloginflags.h"
 #include "llmd5.h"
 #include "llmemorystream.h"
@@ -170,7 +171,7 @@
 #include "llvoclouds.h"
 #include "llweb.h"
 #include "llworld.h"
-#include "llworldmap.h"
+#include "llworldmapmessage.h"
 #include "llxfermanager.h"
 #include "pipeline.h"
 #include "llappviewer.h"
@@ -1812,6 +1813,7 @@ bool idle_startup()
 			gViewerWindow->moveProgressViewToFront();
 
 			LLError::logToFixedBuffer(gDebugView->mDebugConsolep);
+			
 			// set initial visibility of debug console
 			gDebugView->mDebugConsolep->setVisible(gSavedSettings.getBOOL("ShowDebugConsole"));
 		}
@@ -3266,9 +3268,8 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 
 	msg->setHandlerFunc("AvatarPickerReply", LLFloaterAvatarPicker::processAvatarPickerReply);
 
-	msg->setHandlerFunc("MapLayerReply", LLWorldMap::processMapLayerReply);
-	msg->setHandlerFunc("MapBlockReply", LLWorldMap::processMapBlockReply);
-	msg->setHandlerFunc("MapItemReply", LLWorldMap::processMapItemReply);
+	msg->setHandlerFunc("MapBlockReply", LLWorldMapMessage::processMapBlockReply);
+	msg->setHandlerFunc("MapItemReply", LLWorldMapMessage::processMapItemReply);
 
 	msg->setHandlerFunc("EventInfoReply", LLPanelEvent::processEventInfoReply);
 	msg->setHandlerFunc("PickInfoReply", &LLAvatarPropertiesProcessor::processPickInfoReply);

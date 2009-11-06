@@ -61,7 +61,7 @@ public:
 	//
 	//interfaces to access LLViewerTexture
 	//
-	virtual bool       bindDefaultImage(const S32 stage = 0) const = 0 ;
+	virtual bool       bindDefaultImage(const S32 stage = 0) = 0 ;
 	virtual void       forceImmediateUpdate() = 0 ;
 	virtual void       setActive() = 0 ;
 	virtual S32	       getWidth(S32 discard_level = -1) const = 0 ;

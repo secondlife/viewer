@@ -101,7 +101,7 @@ void LLVOClouds::setPixelAreaAndAngle(LLAgent &agent)
 	mPixelArea = 1500*100;
 }
 
-void LLVOClouds::updateTextures(LLAgent &agent)
+void LLVOClouds::updateTextures()
 {
 	getTEImage(0)->addTextureStats(mPixelArea);
 }

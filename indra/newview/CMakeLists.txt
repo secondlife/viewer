@@ -265,7 +265,6 @@ set(viewer_SOURCE_FILES
     llmaniprotate.cpp
     llmanipscale.cpp
     llmaniptranslate.cpp
-    llmapresponders.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
     llmediaremotectrl.cpp
@@ -387,6 +386,10 @@ set(viewer_SOURCE_FILES
     lltexturecache.cpp
     lltexturectrl.cpp
     lltexturefetch.cpp
+    lltextureinfo.cpp
+    lltextureinfodetails.cpp
+    lltexturestats.cpp
+    lltexturestatsuploader.cpp
     lltextureview.cpp
     lltoast.cpp
     lltoastalertpanel.cpp
@@ -508,6 +511,8 @@ set(viewer_SOURCE_FILES
     llwlparamset.cpp
     llworld.cpp
     llworldmap.cpp
+    llworldmapmessage.cpp
+    llworldmipmap.cpp
     llworldmapview.cpp
     llxmlrpctransaction.cpp
     noise.cpp
@@ -738,7 +743,6 @@ set(viewer_HEADER_FILES
     llmaniprotate.h
     llmanipscale.h
     llmaniptranslate.h
-    llmapresponders.h
     llmediadataclient.h
     llmediaremotectrl.h
     llmemoryview.h
@@ -859,6 +863,10 @@ set(viewer_HEADER_FILES
     lltexturecache.h
     lltexturectrl.h
     lltexturefetch.h
+    lltextureinfo.h
+    lltextureinfodetails.h
+    lltexturestats.h
+    lltexturestatsuploader.h
     lltextureview.h
     lltoast.h
     lltoastalertpanel.h
@@ -982,6 +990,8 @@ set(viewer_HEADER_FILES
     llwlparamset.h
     llworld.h
     llworldmap.h
+    llworldmapmessage.h
+    llworldmipmap.h
     llworldmapview.h
     llxmlrpctransaction.h
     macmain.h
@@ -1574,6 +1584,12 @@ LL_ADD_INTEGRATION_TEST(llcapabilitylistener
   )
 
 #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
+#ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
+#ADD_VIEWER_BUILD_TEST(llworldmap viewer)
+#ADD_VIEWER_BUILD_TEST(llworldmipmap viewer)
+#ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
+#ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
+#ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)
 
 
 # Don't do these for DARWIN or LINUX here -- they're taken care of by viewer_manifest.py

@@ -357,7 +357,7 @@ void LLTeleportHistoryPanel::onCopySLURL()
 
 	U64 new_region_handle = to_region_handle(global_pos);
 
-	LLWorldMap::url_callback_t cb = boost::bind(
+	LLWorldMapMessage::url_callback_t cb = boost::bind(
 			&LLPanelPlacesTab::onRegionResponse, this,
 			global_pos, _1, _2, _3, _4);
 
