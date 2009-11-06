@@ -416,10 +416,10 @@ F32 pulse_func(F32 t, F32 z)
 		return 0.f;
 	}
 	
-	t *= 3.14159f;
+	t *= F_PI;
 	z -= t*64.f - 256.f;
 	
-	F32 a = cosf(z*3.14159/512.f)*10.0f;
+	F32 a = cosf(z*F_PI/512.f)*10.0f;
 	a = llmax(a, 9.9f);
 	a -= 9.9f;
 	a *= 10.f;
@@ -433,7 +433,7 @@ void draw_shockwave(F32 center_z, F32 t, S32 steps, LLColor4 color)
 		return;
 	}
 	
-	t *= 0.6284f/3.14159f;
+	t *= 0.6284f/F_PI;
 	
 	t -= (F32) (S32) t;	
 
