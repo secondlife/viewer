@@ -43,8 +43,9 @@
 #include "llfloatermediabrowser.h"
 #include "llfloaterreg.h"
 #include "llalertdialog.h"
+#include "lltoastalertpanel.h"
 
-class URLLoader : public LLAlertDialog::URLLoader
+class URLLoader : public LLAlertURLLoader
 {
 	virtual void load(const std::string& url , bool force_open_externally)
 	{
@@ -65,6 +66,7 @@ static URLLoader sAlertURLLoader;
 void LLWeb::initClass()
 {
 	LLAlertDialog::setURLLoader(&sAlertURLLoader);
+	LLToastAlertPanel::setURLLoader(&sAlertURLLoader);
 }
 
 
