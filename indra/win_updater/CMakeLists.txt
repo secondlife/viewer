@@ -33,3 +33,9 @@ set_target_properties(windows-updater
     LINK_FLAGS "/NODEFAULTLIB:LIBCMT"
     LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
     )
+
+# The windows-updater
+#ll_deploy_sharedlibs_command(
+#  windows-updater
+#  "${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}" 
+#  ".") 
