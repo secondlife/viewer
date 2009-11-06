@@ -228,15 +228,18 @@
      tab_stop="false"
      top_delta="-2"
      width="22" />
-     <check_box
-     height="16"
-	 control_name ="EnableVoiceChat"
-	 disabled_control="CmdLineDisableVoice"
-     label="Enable Voice"
-     layout="topleft"
-     left="22"
+   <check_box
+     label_text.halign="left"
+     follows="right|top"
+    height="16"
+    control_name ="EnableVoiceChat"
+   disabled_control="CmdLineDisableVoice"
+     label="Voice"
+     left="50"
      name="enable_voice_check"
-     width="100">
+     top_pad="5"
+     width="110"
+     >
     </check_box>
     <slider
      control_name="AudioLevelVoice"
@@ -246,16 +249,15 @@
      height="15"
      increment="0.05"
      initial_value="0.5"
-	 label="Voice"
-     label_width="60"
+     label_width="0"
      layout="topleft"
-     left="100"
+     left="165"
+     top_delta="0"
      name="Voice Volume"
      show_text="false"
      slider_label.halign="right"
-     top_pad="-15"
      volume="true"
-     width="250">
+     width="185">
         <slider.commit_callback
          function="Pref.setControlFalse"
          parameter="MuteVoice" />
@@ -289,7 +291,7 @@
     <icon
 	 follows="left"
 	 height="18"
-	 image_name="CameraView_Off"
+	 image_name="Cam_FreeCam_Off"
 	 name="camera_icon"
 	 mouse_opaque="false"
 	 visible="true"
@@ -316,13 +318,13 @@
          height="16"
          label="Camera position"
          left_pad="1"
-		 follows="topleft"
+	follows="topleft"
          name="0"
          top_delta="-30"
          width="200" />
         <radio_item
          height="16"
-		 follows="topleft"
+	follows="topleft"
          label="Avatar position"
          left_delta="0"
          name="1"
@@ -401,7 +403,7 @@
         My volume:
     </text>
       <slider_bar
-        control_name="AudioLevelMic" 
+        control_name="AudioLevelMic"
      follows="left|top"
      height="17"
      increment="0.05"
