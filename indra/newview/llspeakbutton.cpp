@@ -120,6 +120,8 @@ LLSpeakButton::LLSpeakButton(const Params& p)
 
 LLSpeakButton::~LLSpeakButton()
 {
+	LLTransientFloaterMgr::getInstance()->removeControlView(mSpeakBtn);
+	LLTransientFloaterMgr::getInstance()->removeControlView(mShowBtn);
 }
 
 void LLSpeakButton::setSpeakBtnToggleState(bool state)
