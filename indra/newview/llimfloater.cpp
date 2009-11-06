@@ -235,7 +235,7 @@ BOOL LLIMFloater::postBuild()
 
 	std::string session_name(LLIMModel::instance().getName(mSessionID));
 
-	mInputEditor->setLabel(LLTrans::getString("IM_default_text_label"));
+	mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + session_name);
 
 	LLStringUtil::toUpper(session_name);
 	setTitle(session_name);
@@ -608,7 +608,7 @@ void LLIMFloater::processAgentListUpdates(const LLSD& body)
 				if (moderator_muted_text)
 					label = LLTrans::getString("IM_muted_text_label");
 				else
-					label = LLTrans::getString("IM_default_text_label");
+					label = LLTrans::getString("IM_to_label") + " " + LLIMModel::instance().getName(mSessionID);
 				mInputEditor->setLabel(label);
 			}
 		}
