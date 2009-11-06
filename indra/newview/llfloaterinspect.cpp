@@ -88,32 +88,7 @@ LLFloaterInspect::~LLFloaterInspect(void)
 	}
 	//sInstance = NULL;
 }
-/*
-BOOL LLFloaterInspect::isVisible()
-{
-	return (!!sInstance);
-}*/
-/*
-void LLFloaterInspect::show(void* ignored)
-{
-	// setForceSelection ensures that the pie menu does not deselect things when it 
-	// looses the focus (this can happen with "select own objects only" enabled
-	// VWR-1471
-	BOOL forcesel = LLSelectMgr::getInstance()->setForceSelection(TRUE);
 
-	if (!sInstance)	// first use
-	{
-		sInstance = new LLFloaterInspect;
-	}
-
-	sInstance->openFloater();
-	LLToolMgr::getInstance()->setTransientTool(LLToolCompInspect::getInstance());
-	LLSelectMgr::getInstance()->setForceSelection(forcesel);	// restore previouis value
-
-	sInstance->mObjectSelection = LLSelectMgr::getInstance()->getSelection();
-	sInstance->refresh();
-}
-*/
 void LLFloaterInspect::onOpen(const LLSD& key)
 {
 	BOOL forcesel = LLSelectMgr::getInstance()->setForceSelection(TRUE);
