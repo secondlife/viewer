@@ -39,6 +39,7 @@
 #include <windows.h>
 
 #include "llwindow.h"
+#include "lldragdropwin32.h"
 
 // Hack for async host by name
 #define LL_WM_HOST_RESOLVED      (WM_APP + 1)
@@ -111,6 +112,8 @@ public:
 	/*virtual*/ void updateLanguageTextInputArea();
 	/*virtual*/ void interruptLanguageTextInput();
 	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url);
+
+	BOOL completeDropRequest( const LLCoordGL gl_coord, const MASK mask, const std::string url );
 
 	static std::vector<std::string> getDynamicFallbackFontList();
 
@@ -205,6 +208,8 @@ protected:
 	LLRect			mLanguageTextInputAreaGL;
 
 	LLPreeditor		*mPreeditor;
+
+	LLDragDropWin32* mDragDrop;
 
 	friend class LLWindowManager;
 };
