@@ -2845,6 +2845,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Unnamed">(Unnamed)</string>
 	<string name="IM_moderated_chat_label">(Moderated: Voices off by default)</string>
 	<string name="IM_unavailable_text_label">Text chat is not available for this call.</string>
+	<string name="IM_muted_text_label">Your text chat has been disabled by a Group Moderator.</string>
+	<string name="IM_default_text_label">Click here to instant message.</string>
 
 
   <string name="ringing-im">

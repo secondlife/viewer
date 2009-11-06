@@ -1848,6 +1848,29 @@ void LLIMMgr::clearPendingInvitation(const LLUUID& session_id)
 	}
 }
 
+void LLIMMgr::processAgentListUpdates(const LLUUID& session_id, const LLSD& body)
+{
+	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+	if ( im_floater )
+	{
+		im_floater->processAgentListUpdates(body);
+	}
+	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
+	if (speaker_mgr)
+	{
+		speaker_mgr->updateSpeakers(body);
+	}
+	else
+	{
+		//we don't have a speaker manager yet..something went wrong
+		//we are probably receiving an update here before
+		//a start or an acceptance of an invitation.  Race condition.
+		gIMMgr->addPendingAgentListUpdates(
+			session_id,
+			body);
+	}
+}
+
 LLSD LLIMMgr::getPendingAgentListUpdates(const LLUUID& session_id)
 {
 	if ( mPendingAgentListUpdates.has(session_id.asString()) )
@@ -2232,20 +2255,7 @@ public:
 		const LLSD& input) const
 	{
 		const LLUUID& session_id = input["body"]["session_id"].asUUID();
-		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
-		if (speaker_mgr)
-		{
-			speaker_mgr->updateSpeakers(input["body"]);
-		}
-		else
-		{
-			//we don't have a speaker manager yet..something went wrong
-			//we are probably receiving an update here before
-			//a start or an acceptance of an invitation.  Race condition.
-			gIMMgr->addPendingAgentListUpdates(
-				input["body"]["session_id"].asUUID(),
-				input["body"]);
-		}
+		gIMMgr->processAgentListUpdates(session_id, input["body"]);
 	}
 };
 

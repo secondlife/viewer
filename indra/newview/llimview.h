@@ -315,6 +315,7 @@ public:
 
 	void clearPendingInvitation(const LLUUID& session_id);
 
+	void processAgentListUpdates(const LLUUID& session_id, const LLSD& body);
 	LLSD getPendingAgentListUpdates(const LLUUID& session_id);
 	void addPendingAgentListUpdates(
 		const LLUUID& sessioN_id,
