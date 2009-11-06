@@ -47,6 +47,9 @@ def usage():
 Options:
   --version
    Specify the version string to replace current version.
+  --revision
+   Specify the revision to replace the last digit of the version.
+   By default, revision is computed from the version control system.
   --skip-on-branch
    Specify a regular expression against which the current branch
    is matched. If it matches, then leave version strings alone.
@@ -171,12 +174,15 @@ def main():
     update_server = False
     update_viewer = False
     new_version = None
+    new_revision = None
     new_viewer_channel = None
     new_server_channel = None
     skip_on_branch_re = None
     for o,a in opts:
         if o in ('--version'):
             new_version = a
+        if o in ('--revision'):
+            new_revision = a
         if o in ('--skip-on-branch'):
             skip_on_branch_re = re.compile(a)
         if o in ('--channel'):
@@ -243,11 +249,20 @@ def main():
     else:
 
         if llversion.using_svn():
-            revision = llversion.get_svn_revision()
+            if new_revision:
+                revision = new_revision
+            else:
+                revision = llversion.get_svn_revision()
             branch = llversion.get_svn_branch()
         elif llversion.using_hg():
-            revision = llversion.get_hg_changeset()
+            if new_revision:
+                revision = new_revision
+            else:
+                revision = llversion.get_hg_changeset()
             branch = llversion.get_hg_repo()
+        elif new_revision:
+            revision = new_revision
+            branch = "unknown"
         else:
             print >>sys.stderr, "ERROR: could not determine revision and branch"
             return -1
