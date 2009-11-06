@@ -149,11 +149,11 @@ protected:
 /*
  * Class for displaying status of Voice Chat 
 */
-class LLChicletSpeakerCtrl : public LLOutputMonitorCtrl
+class LLChicletSpeakerCtrl : public LLIconCtrl
 {
 public:
 
-	struct Params : public LLInitParam::Block<Params, LLOutputMonitorCtrl::Params>
+	struct Params : public LLInitParam::Block<Params, LLIconCtrl::Params>
 	{
 		Params(){};
 	};
@@ -266,6 +266,8 @@ private:
 * Base class for Instant Message chiclets.
 * IMChiclet displays icon, number of unread messages(optional)
 * and voice chat status(optional).
+* Every chiclet should override LLUICtrl::getRequiredRect and return 
+* desired width.
 */
 class LLIMChiclet : public LLChiclet
 {
@@ -304,24 +306,14 @@ public:
 	virtual LLUUID getOtherParticipantId() { return mOtherParticipantId; }
 
 	/*
-	* Init Speaker Control with speaker's ID
+	 * Shows/hides voice chat status control.
 	*/
-	virtual void initSpeakerControl();
-
-	/*
-	 * set status (Shows/Hide) for voice control.
-	*/
-	virtual void setShowSpeaker(bool show);
+	virtual void setShowSpeaker(bool show) { mShowSpeaker = show; }
 
 	/*
 	 * Returns voice chat status control visibility.
 	*/
 	virtual bool getShowSpeaker() {return mShowSpeaker;};
-
-	/*
-	* Shows/Hides for voice control for a chiclet.
-	*/
-	virtual void toggleSpeakerControl();
 
 	/*
 	* Shows/hides overlay icon concerning new unread messages.
@@ -333,7 +325,10 @@ public:
 	*/
 	virtual bool getShowNewMessagesIcon();
 
-	virtual void draw();
+	/*
+	 * Draws border around chiclet.
+	*/
+	/*virtual*/ void draw();
 
 	/**
 	 * Determine whether given ID refers to a group or an IM chat session.
@@ -368,8 +363,6 @@ protected:
 
 	LLIconCtrl* mNewMessagesIcon;
 	LLChicletNotificationCounterCtrl* mCounterCtrl;
-	LLChicletSpeakerCtrl* mSpeakerCtrl;
-
 
 	/** the id of another participant, either an avatar id or a group id*/
 	LLUUID mOtherParticipantId;
@@ -417,6 +410,8 @@ public:
 
 	/* virtual */ void setOtherParticipantId(const LLUUID& other_participant_id);
 
+	/*virtual*/ void setShowSpeaker(bool show);
+
 	/*
 	* Sets number of unread messages. Will update chiclet's width if number text 
 	* exceeds size of counter and notify it's parent about size change.
@@ -424,14 +419,15 @@ public:
 	/*virtual*/ void setCounter(S32);
 
 	/*
-	* Init Speaker Control with speaker's ID
-	*/
-	/*virtual*/ void initSpeakerControl();
-
-	/*
 	* Returns number of unread messages.
 	*/
 	/*virtual*/ S32 getCounter() { return mCounterCtrl->getCounter(); }
+
+	/*
+	* Returns rect, required to display chiclet.
+	* Width is the only valid value.
+	*/
+	/*virtual*/ LLRect getRequiredRect();
 
 protected:
 	LLIMP2PChiclet(const Params& p);
@@ -461,6 +457,7 @@ protected:
 private:
 
 	LLChicletAvatarIconCtrl* mChicletIconCtrl;
+	LLChicletSpeakerCtrl* mSpeakerCtrl;
 	LLMenuGL* mPopupMenu;
 };
 
@@ -498,19 +495,15 @@ public:
 	/*virtual*/ void setCounter(S32);
 
 	/*
-	* Keep Speaker Control with actual speaker's ID
-	*/
-	/*virtual*/ void draw();
-
-	/*
-	* Init Speaker Control with speaker's ID
-	*/
-	/*virtual*/ void initSpeakerControl();
-
-	/*
 	* Returns number of unread messages.
 	*/
 	/*virtual*/ S32 getCounter() { return mCounterCtrl->getCounter(); }
+
+	/*
+	* Returns rect, required to display chiclet.
+	* Width is the only valid value.
+	*/
+	/*virtual*/ LLRect getRequiredRect();
 
 protected:
 	LLAdHocChiclet(const Params& p);
@@ -524,6 +517,7 @@ protected:
 private:
 
 	LLChicletAvatarIconCtrl* mChicletIconCtrl;
+	LLChicletSpeakerCtrl* mSpeakerCtrl;
 	LLMenuGL* mPopupMenu;
 };
 
@@ -553,16 +547,13 @@ public:
 	 */
 	/*virtual*/ void setSessionId(const LLUUID& session_id);
 
-	/*
-	* Keep Speaker Control with actual speaker's ID
-	*/
-	/*virtual*/ void draw();
-
 	/**
 	 * Callback for LLGroupMgrObserver, we get this when group data is available or changed.
 	 * Sets group icon.
 	 */
 	/*virtual*/ void changed(LLGroupChange gc);
+
+	/*virtual*/ void setShowSpeaker(bool show);
 
 	/*
 	* Sets number of unread messages. Will update chiclet's width if number text 
@@ -571,14 +562,15 @@ public:
 	/*virtual*/ void setCounter(S32);
 
 	/*
-	* Init Speaker Control with speaker's ID
-	*/
-	/*virtual*/ void initSpeakerControl();
-
-	/*
 	* Returns number of unread messages.
 	*/
 	/*virtual*/ S32 getCounter() { return mCounterCtrl->getCounter(); }
+
+	/*
+	* Returns rect, required to display chiclet.
+	* Width is the only valid value.
+	*/
+	/*virtual*/ LLRect getRequiredRect();
 
 	~LLIMGroupChiclet();
 
@@ -605,6 +597,7 @@ protected:
 private:
 
 	LLChicletGroupIconCtrl* mChicletIconCtrl;
+	LLChicletSpeakerCtrl* mSpeakerCtrl;
 	LLMenuGL* mPopupMenu;
 };
 
@@ -741,11 +734,6 @@ public:
 		const commit_callback_t& cb);
 
 	/*virtual*/ BOOL postBuild();
-
-	/*
-	* Handler for the Voice Client's signal. Finds a corresponding chiclet and toggles its SpeakerControl
-	*/
-	void onCurrentVoiceChannelChanged(const LLUUID& session_id);
 
 	/*
 	 * Reshapes controls and rearranges chiclets if needed.
