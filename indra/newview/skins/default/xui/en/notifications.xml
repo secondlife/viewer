@@ -5669,7 +5669,7 @@ An error has occurred while trying to connect to voice chat for [VOICE_CHANNEL_N
    name="ServerVersionChanged"
    priority="high"
    type="notifytip">
-You just entered a region using a different server version, which may affect performance. Click to see the release notes.
+You just entered a region using a different server version, which may affect performance. [[URL] View the release notes.]
   </notification>
 
   <notification
