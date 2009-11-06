@@ -2506,8 +2506,8 @@
                  parameter="RenderAttachedParticles" />
             </menu_item_check>
             <menu_item_check
-             label="Hover Highlight Objects"
-             name="Hover Highlight Objects">
+             label="Hover Glow Objects"
+             name="Hover Glow Objects">
                 <menu_item_check.on_check
                  function="CheckControl"
                  parameter="RenderHighlightEnable" />
