@@ -46,7 +46,6 @@ LLVoiceChannel::voice_channel_map_t LLVoiceChannel::sVoiceChannelMap;
 LLVoiceChannel::voice_channel_map_uri_t LLVoiceChannel::sVoiceChannelURIMap;
 LLVoiceChannel* LLVoiceChannel::sCurrentVoiceChannel = NULL;
 LLVoiceChannel* LLVoiceChannel::sSuspendedVoiceChannel = NULL;
-LLVoiceChannel::channel_changed_signal_t LLVoiceChannel::sCurrentVoiceChannelChanged;
 
 BOOL LLVoiceChannel::sSuspended = FALSE;
 
@@ -321,8 +320,6 @@ void LLVoiceChannel::activate()
 	{
 		setState(STATE_CALL_STARTED);
 	}
-
-	sCurrentVoiceChannelChanged(this->mSessionID);
 }
 
 void LLVoiceChannel::getChannelInfo()
