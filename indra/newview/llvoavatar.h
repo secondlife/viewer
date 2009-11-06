@@ -355,10 +355,8 @@ private:
 	// Morph masks
 	//--------------------------------------------------------------------
 public:
-	void 		invalidateMorphMasks(LLVOAvatarDefines::EBakedTextureIndex index = LLVOAvatarDefines::BAKED_NUM_INDICES);
 	BOOL 		morphMaskNeedsUpdate(LLVOAvatarDefines::EBakedTextureIndex index = LLVOAvatarDefines::BAKED_NUM_INDICES);
 	void 		addMaskedMorph(LLVOAvatarDefines::EBakedTextureIndex index, LLPolyMorphTarget* morph_target, BOOL invert, std::string layer);
-	void 		setMorphMasksValid(BOOL new_status, LLVOAvatarDefines::EBakedTextureIndex index = LLVOAvatarDefines::BAKED_NUM_INDICES);
 	void 		applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLVOAvatarDefines::EBakedTextureIndex index = LLVOAvatarDefines::BAKED_NUM_INDICES);
 
 	//--------------------------------------------------------------------
@@ -489,7 +487,6 @@ protected:
 		// Stores pointers to the joint meshes that this baked texture deals with
 		std::vector< LLViewerJointMesh * > 	mMeshes;  // std::vector<LLViewerJointMesh> mJoints[i]->mMeshParts
 		morph_list_t						mMaskedMorphs;
-		BOOL								mMorphMasksValid;
 	};
 	typedef std::vector<BakedTextureData> 	bakedtexturedata_vec_t;
 	bakedtexturedata_vec_t 					mBakedTextureDatas;
