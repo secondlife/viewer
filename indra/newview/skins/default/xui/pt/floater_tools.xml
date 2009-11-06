@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" title="" short_title="Construir" width="288">
+<floater name="toolbox floater" title="" short_title="CONSTRUIR" width="288">
 	<button label="" label_selected="" name="button focus" tool_tip="Foco"/>
 	<button label="" label_selected="" name="button move" tool_tip="Mover"/>
 	<button label="" label_selected="" name="button edit" tool_tip="Editar"/>

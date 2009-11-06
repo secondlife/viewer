@@ -8,7 +8,7 @@
  save_rect="true"
  save_visibility="true"
  single_instance="true"
- title="Beacons"
+ title="BEACONS"
  width="240">
     <panel
      follows="left|top|right|bottom"

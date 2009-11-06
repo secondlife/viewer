@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="avatarpicker" title="Vælg beboer">
+<floater name="avatarpicker" title="VÆLG BEBOER">
 	<tab_container name="ResidentChooserTabs">
 		<panel label="Søg" name="SearchPanel">
 			<text name="InstructSearchResidentName">

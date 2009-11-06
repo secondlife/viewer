@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_report_abuse" title="Rapportér misbrug">
+<floater name="floater_report_abuse" title="RAPPORTÉR MISBRUG">
 	<texture_picker label="" name="screenshot"/>
 	<check_box label="Inkludér billede" name="screen_check"/>
 	<text name="reporter_title">

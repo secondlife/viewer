@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="inspect" title="Inspecter les objets">
+<floater name="inspect" title="INSPECTER LES OBJETS">
 	<scroll_list name="object_list"
 	     tool_tip="Sélectionner un objet de la liste pour le mettre en surbrillance dans le Monde.">
 		<column label="Nom" name="object_name" />

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="mute by name" title="Ignora l&apos;oggetto dal nome">
+<floater name="mute by name" title="IGNORA L&apos;OGGETTO DAL NOME">
 	<text name="message">
 		Ignora per nome ha effetti sull&apos;oggetto in chat e IM, non
 nei suoni. Devi scrivere esattamente il nome dell&apos;oggetto.

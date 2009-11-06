@@ -61,13 +61,11 @@
 		top_pad="10"
 		width="303">
 		<accordion_tab
-			can_resize="false"
 			layout="topleft"
 			min_height="150"
 			name="jacket_main_tab"
 			title="Jacket">
 			<scrolling_panel_list
-				draw_heading="false"
 				follows="all"
 				left="0"
 				name="jacket_main_param_list"

@@ -116,9 +116,9 @@
              top_pad="0"
              width="102" />
           </panel>
-           <button
+           <icon
            height="18"
-           image_overlay="AddItem_Off"
+           image_name="AddItem_Off"
            layout="topleft"
            name="2nd_life_edit_icon"
            label=""
@@ -171,9 +171,9 @@
              top_pad="0"
              width="102" />
           </panel>
-           <button
+           <icon
            height="18"
-           image_overlay="AddItem_Off"
+           image_name="AddItem_Off"
            layout="topleft"
            name="real_world_edit_icon"
            label=""

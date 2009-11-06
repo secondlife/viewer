@@ -55,6 +55,23 @@
 
 static LLRegisterPanelClassWrapper<LLPanelPlaceProfile> t_place_profile("panel_place_profile");
 
+// Statics for textures filenames
+static std::string icon_pg;
+static std::string icon_m;
+static std::string icon_r;
+static std::string icon_voice;
+static std::string icon_voice_no;
+static std::string icon_fly;
+static std::string icon_fly_no;
+static std::string icon_push;
+static std::string icon_push_no;
+static std::string icon_build;
+static std::string icon_build_no;
+static std::string icon_scripts;
+static std::string icon_scripts_no;
+static std::string icon_damage;
+static std::string icon_damage_no;
+
 LLPanelPlaceProfile::LLPanelPlaceProfile()
 :	LLPanelPlaceInfo(),
 	mForSalePanel(NULL),
@@ -118,6 +135,22 @@ BOOL LLPanelPlaceProfile::postBuild()
 	mSubdivideText = getChild<LLTextEditor>("subdivide");
 	mResaleText = getChild<LLTextEditor>("resale");
 	mSaleToText = getChild<LLTextBox>("sale_to");
+
+	icon_pg = getString("icon_PG");
+	icon_m = getString("icon_M");
+	icon_r = getString("icon_R");
+	icon_voice = getString("icon_Voice");
+	icon_voice_no = getString("icon_VoiceNo");
+	icon_fly = getString("icon_Fly");
+	icon_fly_no = getString("icon_FlyNo");
+	icon_push = getString("icon_Push");
+	icon_push_no = getString("icon_PushNo");
+	icon_build = getString("icon_Build");
+	icon_build_no = getString("icon_BuildNo");
+	icon_scripts = getString("icon_Scripts");
+	icon_scripts_no = getString("icon_ScriptsNo");
+	icon_damage = getString("icon_Damage");
+	icon_damage_no = getString("icon_DamageNo");
 
 	return TRUE;
 }
@@ -231,22 +264,22 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	case SIM_ACCESS_MATURE:
 		parcel_data.flags = 0x1;
 
-		mParcelRatingIcon->setValue("parcel_drk_M");
-		mRegionRatingIcon->setValue("parcel_drk_M");
+		mParcelRatingIcon->setValue(icon_m);
+		mRegionRatingIcon->setValue(icon_m);
 		break;
 
 	case SIM_ACCESS_ADULT:
 		parcel_data.flags = 0x2;
 
-		mParcelRatingIcon->setValue("parcel_drk_R");
-		mRegionRatingIcon->setValue("parcel_drk_R");
+		mParcelRatingIcon->setValue(icon_r);
+		mRegionRatingIcon->setValue(icon_r);
 		break;
 
 	default:
 		parcel_data.flags = 0;
 
-		mParcelRatingIcon->setValue("parcel_drk_PG");
-		mRegionRatingIcon->setValue("parcel_drk_PG");
+		mParcelRatingIcon->setValue(icon_pg);
+		mRegionRatingIcon->setValue(icon_pg);
 	}
 
 	std::string rating = LLViewerRegion::accessToString(sim_access);
@@ -270,45 +303,45 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	// Processing parcel characteristics
 	if (parcel->getParcelFlagAllowVoice())
 	{
-		mVoiceIcon->setValue("parcel_drk_Voice");
+		mVoiceIcon->setValue(icon_voice);
 		mVoiceText->setText(on);
 	}
 	else
 	{
-		mVoiceIcon->setValue("parcel_drk_VoiceNo");
+		mVoiceIcon->setValue(icon_voice_no);
 		mVoiceText->setText(off);
 	}
 
 	if (!region->getBlockFly() && parcel->getAllowFly())
 	{
-		mFlyIcon->setValue("parcel_drk_Fly");
+		mFlyIcon->setValue(icon_fly);
 		mFlyText->setText(on);
 	}
 	else
 	{
-		mFlyIcon->setValue("parcel_drk_FlyNo");
+		mFlyIcon->setValue(icon_fly_no);
 		mFlyText->setText(off);
 	}
 
 	if (region->getRestrictPushObject() || parcel->getRestrictPushObject())
 	{
-		mPushIcon->setValue("parcel_drk_PushNo");
+		mPushIcon->setValue(icon_push_no);
 		mPushText->setText(off);
 	}
 	else
 	{
-		mPushIcon->setValue("parcel_drk_Push");
+		mPushIcon->setValue(icon_push);
 		mPushText->setText(on);
 	}
 
 	if (parcel->getAllowModify())
 	{
-		mBuildIcon->setValue("parcel_drk_Build");
+		mBuildIcon->setValue(icon_build);
 		mBuildText->setText(on);
 	}
 	else
 	{
-		mBuildIcon->setValue("parcel_drk_BuildNo");
+		mBuildIcon->setValue(icon_build_no);
 		mBuildText->setText(off);
 	}
 
@@ -316,23 +349,23 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	   (region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS) ||
 	   !parcel->getAllowOtherScripts())
 	{
-		mScriptsIcon->setValue("parcel_drk_ScriptsNo");
+		mScriptsIcon->setValue(icon_scripts_no);
 		mScriptsText->setText(off);
 	}
 	else
 	{
-		mScriptsIcon->setValue("parcel_drk_Scripts");
+		mScriptsIcon->setValue(icon_scripts);
 		mScriptsText->setText(on);
 	}
 
 	if (region->getAllowDamage() || parcel->getAllowDamage())
 	{
-		mDamageIcon->setValue("parcel_drk_Damage");
+		mDamageIcon->setValue(icon_damage);
 		mDamageText->setText(on);
 	}
 	else
 	{
-		mDamageIcon->setValue("parcel_drk_DamageNo");
+		mDamageIcon->setValue(icon_damage_no);
 		mDamageText->setText(off);
 	}
 
@@ -541,7 +574,7 @@ void LLPanelPlaceProfile::updateYouAreHereBanner(void* userdata)
 	if(!self->getVisible())
 		return;
 
-	if(!gDisconnected)
+	if(!gDisconnected && gAgent.getRegion())
 	{
 		static F32 radius = gSavedSettings.getF32("YouAreHereDistance");
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="floater_about" title="Medie vælger">
+<floater name="floater_about" title="MEDIE VÆLGER">
 	<layout_stack name="stack1">
 		<layout_panel name="nav_controls">
 			<button label="Tilbage" name="back" />

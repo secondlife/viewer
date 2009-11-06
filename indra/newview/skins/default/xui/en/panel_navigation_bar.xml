@@ -7,6 +7,7 @@
  height="65"
  layout="topleft"
  name="navigation_bar"
+ chrome="true" 
  width="600">
 	<icon
 	 follows="all"
@@ -22,7 +23,7 @@
 	<icon
 	 follows="all"
 	 image_name="NavBar_BG_NoFav"
-	 mouse_opaque="true"
+	 mouse_opaque="false"
 	 name="bg_icon_no_fav"
 	 scale_image="true"
 	 visible="false"

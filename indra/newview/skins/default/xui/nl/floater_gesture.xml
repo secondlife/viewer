@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="gestures" title="Actieve gebaren">
+<floater name="gestures" title="ACTIEVE GEBAREN">
 	<text name="help_label">
 		Dubbelklik een gebaar om animaties en geluiden af te spelen
 	</text>

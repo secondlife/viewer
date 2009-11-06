@@ -5,7 +5,7 @@
  layout="topleft"
  name="floater_report_abuse"
  help_topic="floater_report_abuse"
- title="Report Abuse"
+ title="REPORT ABUSE"
  width="333">
     <floater.string
      name="Screenshot">

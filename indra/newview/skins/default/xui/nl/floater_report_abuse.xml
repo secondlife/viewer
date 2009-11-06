@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_report_abuse" title="Misbruik rapporteren">
+<floater name="floater_report_abuse" title="MISBRUIK RAPPORTEREN">
 	<check_box label="Voeg schermafbeelding toe" name="screen_check"/>
 	<text name="reporter_title" width="110">
 		Rapporteur:

@@ -83,7 +83,6 @@ Groups are limited to 200 notices/group daily
        label="Create a new notice"
        left="15"
        name="create_new_notice"
-       picture_style="true"
        tool_tip="Create a new notice"
      top_delta="-5"
        width="18" />
@@ -93,7 +92,6 @@ Groups are limited to 200 notices/group daily
      image_overlay="Refresh_Off"
      layout="topleft"
      name="refresh_notices"
-     picture_style="true"
      right="-5"
      top_delta="5"
      width="23" />

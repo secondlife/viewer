@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
  auto_tile="true"
@@ -7,7 +7,7 @@
  name="event_preview"
  help_topic="event_preview"
  save_rect="true"
- title="Event Information"
+ title="EVENT INFORMATION"
  width="440">
     <floater.string
      name="Title">

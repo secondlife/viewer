@@ -9,7 +9,7 @@
  name="toolbox floater"
  help_topic="toolbox_floater"
  save_rect="true"
- short_title="Build Tools"
+ short_title="BUILD TOOLS"
  single_instance="true"
  sound_flags="0"
  width="280">
