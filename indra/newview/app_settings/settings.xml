@@ -3574,7 +3574,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://www.google.com/search?q=site%3Awiki.secondlife.com+[TOPIC]&amp;ignore_channel=[CHANNEL]&amp;ignore_version=[VERSION]&amp;ignore_os=[OS]&amp;ignore_language=[LANGUAGE]&amp;ignore_version_major=[VERSION_MAJOR]&amp;ignore_version_minor=[VERSION_MINOR]&amp;ignore_version_patch=[VERSION_PATCH]&amp;ignore_version_build=[VERSION_BUILD]</string>
+      <string>http://docs.lindenlab.com/help/helpfloater.php?topic=[TOPIC]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;os=[OS]&amp;language=[LANGUAGE]&amp;version_major=[VERSION_MAJOR]&amp;version_minor=[VERSION_MINOR]&amp;version_patch=[VERSION_PATCH]&amp;version_build=[VERSION_BUILD]</string>
     </map>
     <key>HighResSnapshot</key>
     <map>
