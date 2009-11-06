@@ -831,12 +831,27 @@ BOOL LLViewerWindow::handleDrop( LLWindow *window,  LLCoordGL pos, MASK mask, st
 		LLVOVolume *obj = dynamic_cast<LLVOVolume*>(static_cast<LLViewerObject*>(pick_info.getObject()));
 		if (obj)
 		{
-			LLSD media_data;
-			/// XXX home URL too?
-			media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
-			media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
-			obj->syncMediaData(object_face, media_data, true, true);
-			obj->sendMediaDataUpdate();
+			LLTextureEntry *te = obj->getTE(object_face);
+			if (te)
+			{
+				if (! te->hasMedia())
+				{
+					// Create new media entry
+					LLSD media_data;
+					// XXX Should we really do Home URL too?
+					media_data[LLMediaEntry::HOME_URL_KEY] = url;
+					media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
+					media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
+					obj->syncMediaData(object_face, media_data, true, true);
+					// XXX This shouldn't be necessary, should it ?!?
+					obj->getMediaImpl(object_face)->navigateReload();
+					obj->sendMediaDataUpdate();
+				}
+				else {
+					// just navigate to the URL
+					obj->getMediaImpl(object_face)->navigateTo(url);
+				}
+			}
 		}
 	}
   	// Always handled as far as the OS is concerned.
