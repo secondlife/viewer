@@ -1692,9 +1692,10 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 
 	mLODScaleBias.setVec(1,1,1);
 
+	generate();
+
 	if (mParams.getSculptID().isNull() && params.getSculptType() == LL_SCULPT_TYPE_NONE)
 	{
-		generate();
 		createVolumeFaces();
 	}
 }

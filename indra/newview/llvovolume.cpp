@@ -919,7 +919,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 				{
 					//mesh is not loaded, request pipeline load this mesh
 					LLUUID asset_id = volume_params.getSculptID();
-					gPipeline.loadMesh(this, asset_id);
+					gPipeline.loadMesh(this, asset_id, detail);
 				}
 				else
 				{

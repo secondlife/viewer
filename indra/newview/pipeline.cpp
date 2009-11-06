@@ -8949,6 +8949,7 @@ void LLPipeline::loadMesh(LLVOVolume* vobj, LLUUID mesh_id, S32 detail)
 					group->derefLOD(lod);
 					return;
 				}
+				group->derefLOD(lod);
 			}
 
 			//no lower LOD is a available, is a higher lod available?
@@ -8961,6 +8962,7 @@ void LLPipeline::loadMesh(LLVOVolume* vobj, LLUUID mesh_id, S32 detail)
 					group->derefLOD(lod);
 					return;
 				}
+				group->derefLOD(lod);
 			}
 		}
 	}
