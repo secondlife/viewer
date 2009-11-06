@@ -642,7 +642,7 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 
 			//  Update distance & gpw 
 			objectp->setPixelAreaAndAngle(agent); // Also sets the approx. pixel area
-			objectp->updateTextures(agent);	// Update the image levels of textures for this object.
+			objectp->updateTextures();	// Update the image levels of textures for this object.
 		}
 	}
 
@@ -1074,6 +1074,7 @@ void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 	LLColor4 group_own_below_water_color = 
 						LLUIColorTable::instance().getColor( "NetMapGroupOwnBelowWater" );
 
+	F32 max_radius = gSavedSettings.getF32("MiniMapPrimMaxRadius");
 
 	for (S32 i = 0; i < mMapObjects.count(); i++)
 	{
@@ -1088,6 +1089,11 @@ void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 		// LLWorld::getInstance()->getWaterHeight();
 
 		F32 approx_radius = (scale.mV[VX] + scale.mV[VY]) * 0.5f * 0.5f * 1.3f;  // 1.3 is a fudge
+
+		// Limit the size of megaprims so they don't blot out everything on the minimap.
+		// Attempting to draw very large megaprims also causes client lag.
+		// See DEV-17370 and DEV-29869/SNOW-79 for details.
+		approx_radius = llmin(approx_radius, max_radius);
 
 		LLColor4U color = above_water_color;
 		if( objectp->permYouOwner() )

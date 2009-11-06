@@ -8,7 +8,7 @@
  name="notifications_console"
  help_topic="notifications_console"
  single_instance="true"
- title="Notifications Console"
+ title="NOTIFICATIONS CONSOLE"
  width="500">
     <combo_box
      follows="left|right|top"

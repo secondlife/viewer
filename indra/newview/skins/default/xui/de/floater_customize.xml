@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater customize" title="Aussehen">
+<floater name="floater customize" title="AUSSEHEN">
 	<tab_container name="customize tab container">
 		<placeholder label="Körperteile" name="body_parts_placeholder"/>
 		<panel label="Form" name="Shape">

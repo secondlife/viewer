@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="top_objects" title="In caricamento...">
+<floater name="top_objects" title="IN CARICAMENTO...">
 	<text name="title_text">
 		In caricamento...
 	</text>

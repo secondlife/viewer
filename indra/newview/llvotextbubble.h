@@ -44,7 +44,7 @@ public:
 	/*virtual*/ BOOL    isActive() const; // Whether this object needs to do an idleUpdate.
 	/*virtual*/ BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 
-	/*virtual*/ void updateTextures(LLAgent &agent);
+	/*virtual*/ void updateTextures();
 	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
 	/*virtual*/ BOOL		updateGeometry(LLDrawable *drawable);
 	/*virtual*/ BOOL		updateLOD();

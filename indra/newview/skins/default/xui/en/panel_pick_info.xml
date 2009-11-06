@@ -15,7 +15,6 @@
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back_btn"
-     picture_style="true"
      left="10"
      tab_stop="false"
      top="2"
@@ -30,7 +29,7 @@
      text_color="white"
      top="0"
      value="Pick Info"
-     use_elipsis="true"
+     use_ellipses="true"
      width="275" />
     <scroll_container
      color="DkGray2"

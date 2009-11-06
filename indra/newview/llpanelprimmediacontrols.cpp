@@ -228,6 +228,7 @@ void LLPanelPrimMediaControls::updateShape()
 
 	bool can_navigate = parcel->getMediaAllowNavigate();
 	bool enabled = false;
+	bool is_zoomed = (mCurrentZoom != ZOOM_NONE);
 	// There is no such thing as "has_focus" being different from normal controls set
 	// anymore (as of user feedback from bri 10/09).  So we cheat here and force 'has_focus'
 	// to 'true' (or, actually, we use a setting)
@@ -256,7 +257,7 @@ void LLPanelPrimMediaControls::updateShape()
 		LLUICtrl* stop_ctrl					= getChild<LLUICtrl>("stop");
 		LLUICtrl* media_stop_ctrl			= getChild<LLUICtrl>("media_stop");
 		LLUICtrl* home_ctrl					= getChild<LLUICtrl>("home");
-		LLUICtrl* close_ctrl				= getChild<LLUICtrl>("close");
+		LLUICtrl* unzoom_ctrl				= getChild<LLUICtrl>("close"); // This is actually "unzoom"
 		LLUICtrl* open_ctrl					= getChild<LLUICtrl>("new_window");
         LLUICtrl* zoom_ctrl					= getChild<LLUICtrl>("zoom_frame");
 		LLPanel* media_loading_panel		= getChild<LLPanel>("media_progress_indicator");
@@ -283,7 +284,8 @@ void LLPanelPrimMediaControls::updateShape()
 		reload_ctrl->setVisible(has_focus);
 		stop_ctrl->setVisible(false);
 		home_ctrl->setVisible(has_focus);
-		close_ctrl->setVisible(has_focus);
+		zoom_ctrl->setVisible(!is_zoomed);
+		unzoom_ctrl->setVisible(has_focus && is_zoomed);
 		open_ctrl->setVisible(true);
 		media_address_ctrl->setVisible(has_focus && !mini_controls);
 		media_play_slider_panel->setVisible(has_focus && !mini_controls);
@@ -294,6 +296,7 @@ void LLPanelPrimMediaControls::updateShape()
 		whitelist_icon->setVisible(!mini_controls && (media_data)?media_data->getWhiteListEnable():false);
 		// Disable zoom if HUD
 		zoom_ctrl->setEnabled(!objectp->isHUDAttachment());
+		unzoom_ctrl->setEnabled(!objectp->isHUDAttachment());
 		secure_lock_icon->setVisible(false);
 		mCurrentURL = media_impl->getCurrentMediaURL();
 		
@@ -691,24 +694,31 @@ bool LLPanelPrimMediaControls::isMouseOver()
 		getWindow()->getCursorPosition(&cursor_pos_window);
 		getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
 		
-		LLPanel* controls_panel = NULL;
-		controls_panel = getChild<LLPanel>("media_hover_controls");
-		if(controls_panel && !controls_panel->getVisible())
-		{
-			// The hover controls aren't visible -- use the focused controls instead.
-			controls_panel = getChild<LLPanel>("media_focused_controls");
-		}
+		LLView* controls_view = NULL;
+		controls_view = getChild<LLView>("media_controls");
 		
-		if(controls_panel && controls_panel->getVisible())
+		if(controls_view && controls_view->getVisible())
 		{
-			controls_panel->screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &x, &y);
+			controls_view->screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &x, &y);
 
-			LLView *hit_child = controls_panel->childFromPoint(x, y);
-			if(hit_child)
+			LLView *hit_child = controls_view->childFromPoint(x, y);
+			if(hit_child && hit_child->getVisible())
 			{
 				// This was useful for debugging both coordinate translation and view hieararchy problems...
-//				llinfos << "mouse coords: " << x << ", " << y << " hit child " << hit_child->getName() << llendl;
-				result = true;
+				// llinfos << "mouse coords: " << x << ", " << y << " hit child " << hit_child->getName() << llendl;
+
+				// This will be a direct child of the LLLayoutStack, which should be a layout_panel.
+				// These may not shown/hidden by the logic in updateShape(), so we need to do another hit test on the children of the layout panel,
+				// which are the actual controls.
+				hit_child->screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &x, &y);
+				
+				LLView *hit_child_2 = hit_child->childFromPoint(x, y);
+				if(hit_child_2 && hit_child_2->getVisible())
+				{
+					// This was useful for debugging both coordinate translation and view hieararchy problems...
+					// llinfos << "    mouse coords: " << x << ", " << y << " hit child 2 " << hit_child_2->getName() << llendl;
+					result = true;
+				}
 			}
 		}
 	}

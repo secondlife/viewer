@@ -56,7 +56,7 @@ bool LLLoginHandler::parseDirectLogin(std::string url)
 	LLURI uri(url);
 	parse(uri.queryMap());
 
-	if (mWebLoginKey.isNull() ||
+	if (/*mWebLoginKey.isNull() ||*/
 		mFirstName.empty() ||
 		mLastName.empty())
 	{
@@ -71,7 +71,7 @@ bool LLLoginHandler::parseDirectLogin(std::string url)
 
 void LLLoginHandler::parse(const LLSD& queryMap)
 {
-	mWebLoginKey = queryMap["web_login_key"].asUUID();
+	//mWebLoginKey = queryMap["web_login_key"].asUUID();
 	mFirstName = queryMap["first_name"].asString();
 	mLastName = queryMap["last_name"].asString();
 	
@@ -165,7 +165,15 @@ void LLLoginHandler::parse(const LLSD& queryMap)
 bool LLLoginHandler::handle(const LLSD& tokens,
 							const LLSD& query_map,
 							LLMediaCtrl* web)
-{	
+{
+	if (tokens.size() == 1
+		&& tokens[0].asString() == "show")
+	{
+		// We're using reg-in-client, so show the XUI login widgets
+		LLPanelLogin::showLoginWidgets();
+		return true;
+	}
+
 	parse(query_map);
 	
 	//if we haven't initialized stuff yet, this is 
@@ -200,14 +208,15 @@ bool LLLoginHandler::handle(const LLSD& tokens,
 			LLPanelLogin::setFields(mFirstName, mLastName, password);
 		}
 
-		if (mWebLoginKey.isNull())
-		{
-			LLPanelLogin::loadLoginPage();
-		}
-		else
-		{
-			LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
-		}
+		//if (mWebLoginKey.isNull())
+		//{
+		//	LLPanelLogin::loadLoginPage();
+		//}
+		//else
+		//{
+		//	LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
+		//}
+		LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
 	}
 	return true;
 }

@@ -130,11 +130,11 @@ void LLOutfitObserver::done()
 			{
 				if(LLInventoryType::IT_GESTURE == item->getInventoryType())
 				{
-					pid = gInventory.findCategoryUUIDForType(LLAssetType::AT_GESTURE);
+					pid = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE);
 				}
 				else
 				{
-					pid = gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
+					pid = gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
 				}
 				break;
 			}
@@ -146,7 +146,7 @@ void LLOutfitObserver::done()
 		
 		LLUUID cat_id = gInventory.createNewCategory(
 			pid,
-			LLAssetType::AT_NONE,
+			LLFolderType::FT_NONE,
 			name);
 		mCatID = cat_id;
 		LLPointer<LLInventoryCallback> cb = new LLWearInventoryCategoryCallback(mCatID, mAppend);
@@ -300,14 +300,25 @@ struct LLWearableHoldingPattern
 {
 	LLInventoryModel::item_array_t new_items;
 	std::set<LLUUID> items_seen;
-	for (S32 i=0; i<items.count(); i++)
+	std::deque<LLViewerInventoryItem*> tmp_list;
+	// Traverse from the front and keep the first of each item
+	// encountered, so we actually keep the *last* of each duplicate
+	// item.  This is needed to give the right priority when adding
+	// duplicate items to an existing outfit.
+	for (S32 i=items.count()-1; i>=0; i--)
 	{
 		LLViewerInventoryItem *item = items.get(i);
 		LLUUID item_id = item->getLinkedUUID();
 		if (items_seen.find(item_id)!=items_seen.end())
 			continue;
 		items_seen.insert(item_id);
-		new_items.push_back(item);
+		tmp_list.push_front(item);
+	}
+	for (std::deque<LLViewerInventoryItem*>::iterator it = tmp_list.begin();
+		 it != tmp_list.end();
+		 ++it)
+	{
+		new_items.put(*it);
 	}
 	items = new_items;
 }
@@ -353,7 +364,7 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 /* static */ 
 LLUUID LLAppearanceManager::getCOF()
 {
-	return gInventory.findCategoryUUIDForType(LLAssetType::AT_CURRENT_OUTFIT);
+	return gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
 }
 
 // Update appearance from outfit folder.
@@ -373,12 +384,12 @@ void LLAppearanceManager::changeOutfit(bool proceed, const LLUUID& category, boo
 	else
 	{
 		LLViewerInventoryCategory* catp = gInventory.getCategory(category);
-		if (catp->getPreferredType() == LLAssetType::AT_NONE ||
-			LLAssetType::lookupIsEnsembleCategoryType(catp->getPreferredType()))
+		if (catp->getPreferredType() == LLFolderType::FT_NONE ||
+			LLFolderType::lookupIsEnsembleType(catp->getPreferredType()))
 		{
 			updateCOFFromCategory(category, append);  // append is false - rebuild COF.
 		}
-		else if (catp->getPreferredType() == LLAssetType::AT_OUTFIT)
+		else if (catp->getPreferredType() == LLFolderType::FT_OUTFIT)
 		{
 			rebuildCOFFromOutfit(category);
 		}
@@ -405,7 +416,7 @@ void LLAppearanceManager::updateCOFFromCategory(const LLUUID& category, bool app
 		return;
 	}
 		
-	const LLUUID &current_outfit_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CURRENT_OUTFIT);
+	const LLUUID current_outfit_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
 	// Processes that take time should show the busy cursor
 	//inc_busy_count();
 		
@@ -503,7 +514,7 @@ void LLAppearanceManager::shallowCopyCategory(const LLUUID& src_id, const LLUUID
 		{
 			LLViewerInventoryCategory *catp = item->getLinkedCategory();
 			// Skip copying outfit links.
-			if (catp && catp->getPreferredType() != LLAssetType::AT_OUTFIT)
+			if (catp && catp->getPreferredType() != LLFolderType::FT_OUTFIT)
 			{
 				link_inventory_item(gAgent.getID(),
 									item->getLinkedUUID(),
@@ -641,7 +652,7 @@ void LLAppearanceManager::shallowCopyCategory(const LLUUID& src_id, const LLUUID
 
 	// Add link to outfit if category is an outfit. 
 	LLViewerInventoryCategory* catp = gInventory.getCategory(category);
-	if (!append && catp && catp->getPreferredType() == LLAssetType::AT_OUTFIT)
+	if (!append && catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
 	{
 		link_inventory_item(gAgent.getID(), category, cof, catp->getName(),
 							LLAssetType::AT_LINK_FOLDER, link_waiter);
@@ -732,7 +743,7 @@ void LLAppearanceManager::rebuildCOFFromOutfit(const LLUUID& category)
 		LLNotifications::instance().add("CouldNotPutOnOutfit");
 		return;
 	}
-		
+
 	// Processes that take time should show the busy cursor
 	//inc_busy_count();
 
@@ -750,7 +761,7 @@ void LLAppearanceManager::rebuildCOFFromOutfit(const LLUUID& category)
 
 	// Create a link to the outfit that we wore.
 	LLViewerInventoryCategory* catp = gInventory.getCategory(category);
-	if (catp && catp->getPreferredType() == LLAssetType::AT_OUTFIT)
+	if (catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
 	{
 		link_inventory_item(gAgent.getID(), category, current_outfit_id, catp->getName(),
 							LLAssetType::AT_LINK_FOLDER, link_waiter);
@@ -1068,9 +1079,21 @@ void LLAppearanceManager::wearOutfitByName(const std::string& name)
 	//dec_busy_count();
 }
 
+bool areMatchingWearables(const LLViewerInventoryItem *a, const LLViewerInventoryItem *b)
+{
+	return (a->isWearableType() && b->isWearableType() &&
+			(a->getWearableType() == b->getWearableType()));
+}
 /* static */
 void LLAppearanceManager::wearItem( LLInventoryItem* item, bool do_update )
 {
+	LLViewerInventoryItem *vitem = dynamic_cast<LLViewerInventoryItem*>(item);
+	if (!vitem)
+	{
+		llwarns << "not an llviewerinventoryitem, failed" << llendl;
+		return;
+	}
+		
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
 	gInventory.collectDescendents(LLAppearanceManager::getCOF(),
@@ -1080,11 +1103,20 @@ void LLAppearanceManager::wearItem( LLInventoryItem* item, bool do_update )
 	bool linked_already = false;
 	for (S32 i=0; i<item_array.count(); i++)
 	{
-		const LLInventoryItem* inv_item = item_array.get(i).get();
+		// Are these links to the same object?
+		const LLViewerInventoryItem* inv_item = item_array.get(i).get();
 		if (inv_item->getLinkedUUID() == item->getLinkedUUID())
 		{
 			linked_already = true;
-			break;
+		}
+		// Are these links to different items of the same wearable
+		// type? If so, new item will replace old.
+		// MULTI-WEARABLES: revisit if more than one per type is allowed.
+		else if (areMatchingWearables(vitem,inv_item))
+		{
+			gAgentWearables.removeWearable(inv_item->getWearableType(),true,0);
+			gInventory.purgeObject(inv_item->getUUID());
+			gInventory.notifyObservers();
 		}
 	}
 	if (linked_already)
@@ -1096,9 +1128,9 @@ void LLAppearanceManager::wearItem( LLInventoryItem* item, bool do_update )
 	{
 		LLPointer<LLInventoryCallback> cb = do_update ? new ModifiedCOFCallback : 0;
 		link_inventory_item( gAgent.getID(),
-							 item->getLinkedUUID(),
+							 vitem->getLinkedUUID(),
 							 getCOF(),
-							 item->getName(),
+							 vitem->getName(),
 							 LLAssetType::AT_LINK,
 							 cb);
 	}

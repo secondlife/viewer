@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
  bevel_style="none"
@@ -12,7 +12,7 @@
  name="script ed float"
  help_topic="script_ed_float"
  save_rect="true"
- title="Script: New Script"
+ title="SCRIPT: NEW SCRIPT"
  width="500">
     <floater.string
      name="not_allowed">

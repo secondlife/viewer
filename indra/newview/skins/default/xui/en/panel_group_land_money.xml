@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- border="true"
+ border="false"
  follows="all"
  height="510"
  label="Land &amp; L$"
  layout="topleft"
  left="1"
  name="land_money_tab"
- top="490"
- width="280">
+ top="0"
+ width="313">
     <panel.string
      name="help_text">
-        Parcels owned by the group are listed along with contribution details. A warning appears until the Total Land in Use is less than or equal to the Total Contribution. The Planning, Details, and Sales tabs provide information about the group&apos;s finances.
+        Parcels owned by a group are listed along with contribution details. A warning appears until the Total Land in Use is less than or = to the Total Contribution.
     </panel.string>
     <panel.string
      name="cant_view_group_land_text">
-        You do not have permission to view group owned land.
+        You don&apos;t have permission to view group owned land
     </panel.string>
     <panel.string
      name="cant_view_group_accounting_text">
-        You do not have permission to view the group&apos;s accounting information.
+        You don&apos;t have permission to view the group&apos;s accounting information.
     </panel.string>
     <panel.string
      name="loading_txt">
@@ -27,7 +27,7 @@
     </panel.string>
     <panel.string
      name="land_contrib_error">
-        Unable to set your land contribution.
+        Unable to set your land contribution
     </panel.string>
    <!-- <text
      type="string"
@@ -44,29 +44,29 @@
     <scroll_list
      draw_heading="true"
      follows="top"
-     heading_height="14"
-     height="100"
+     heading_height="20"
+     height="150"
      layout="topleft"
-     left="5"
+     left="0"
      name="group_parcel_list"
-     top_pad="10"
-     width="265">
+     top_pad="0"
+     width="313">
         <scroll_list.columns
          label="Parcel"
          name="name"
-         width="67" />
+         width="78" />
         <scroll_list.columns
          label="Region"
          name="location"
-         width="72" />
+         width="78" />
         <scroll_list.columns
          label="Type"
          name="type"
-         width="60" />
+         width="70" />
         <scroll_list.columns
          label="Area"
          name="area"
-         width="20" />
+         width="50" />
         <scroll_list.columns
          label=""
          name="hidden"
@@ -74,14 +74,14 @@
     </scroll_list>
     <button
      follows="top"
-     height="20"
+     height="23"
      label="Map"
      label_selected="Map"
      layout="topleft"
-     left="150"
      name="map_button"
-     top_pad="10"
-     width="125"
+     right="-10"
+     top_pad="5"
+     width="95"
      enabled="false" />
     <text
      type="string"
@@ -91,11 +91,12 @@
      layout="topleft"
      left="5"
      name="total_contributed_land_label"
-     top_pad="10"
+     top_pad="0"
      width="130">
         Total Contribution:
     </text>
     <text
+    text_color="EmphasisColor"
      type="string"
      follows="left|top"
      height="16"
@@ -119,6 +120,7 @@
         Total Land In Use:
     </text>
     <text
+    text_color="EmphasisColor"
      type="string"
      follows="left|top"
      height="16"
@@ -142,6 +144,7 @@
         Land Available:
     </text>
     <text
+    text_color="EmphasisColor"
      type="string"
      follows="left|top"
      height="16"
@@ -168,19 +171,19 @@
      border_style="line"
      border_thickness="1"
      follows="left|top"
-     height="16"
+     height="19"
      layout="topleft"
      left_pad="5"
      max_length="10"
      name="your_contribution_line_editor"
-     top_delta="-2"
+     top_delta="0"
      width="95" />
     <text
      type="string"
      follows="left|top"
      height="16"
      layout="topleft"
-     left_pad="5"
+     left_pad="3"
      name="your_contribution_units"
      top_delta="2">
         m²
@@ -193,13 +196,13 @@
      layout="topleft"
      left="140"
      name="your_contribution_max_value"
-     top_pad="0"
+     top_pad="2"
      width="95">
         ([AMOUNT] max)
     </text>
     <icon
      height="16"
-     image_name="smicon_warn.tga"
+     image_name="notify_next"
      layout="topleft"
      left="9"
      name="group_over_limit_icon"
@@ -211,14 +214,14 @@
      type="string"
      word_wrap="true"
      font="SansSerifSmall"
-     height="40"
+     height="35"
      layout="topleft"
-     left_pad="5"
+     left_pad="0"
      name="group_over_limit_text"
-     text_color="GroupOverTierColor"
+     text_color="EmphasisColor"
      top_delta="0"
-     width="250">
-        Group members must contribute more land credits to support land in use.
+     width="290">
+        Group members must contribute more land credits to support land in use
     </text>
     <text
      type="string"
@@ -242,128 +245,122 @@
      name="group_money_tab_container"
      tab_position="top"
      tab_height="20"
-     top_pad="10"
-     width="265">
+     top_pad="2"
+     tab_min_width="70"
+     width="300">
         <panel
-         border="true"
+         border="false"
          follows="all"
          height="180"
-         label="Planning"
+         label="PLANNING"
          layout="topleft"
-         left="1"
+         left="0"
          help_topic="group_money_planning_tab"
          name="group_money_planning_tab"
          top="5"
-         width="265">
+         width="300">
             <text_editor
              type="string"
-             bg_readonly_color="0.784314 0.819608 0.8 1"
              follows="all"
-             font="Monospace"
-             height="168"
-             layout="topleft"
-             left="8"
-             max_length="4096"
-             name="group_money_planning_text"
-             top="5"
-             width="250"
-             word_wrap="true">
-                Computing...
-            </text_editor>
-        </panel>
-      <panel
-         border="true"
-         follows="left|top|right|bottom"
-         height="180"
-         label="Details"
-         layout="topleft"
-         left_delta="0"
-         help_topic="group_money_details_tab"
-         name="group_money_details_tab"
-         top_delta="0"
-         width="265">
-          <text_editor
-             type="string"
-             bg_readonly_color="0.784314 0.819608 0.8 1"
-             follows="all"
-             font="Monospace"
+             font="SansSerif"
              height="140"
              layout="topleft"
-             left="8"
+             left="0"
              max_length="4096"
-             name="group_money_details_text"
-             top="7"
-             width="250"
+             name="group_money_planning_text"
+             top="0"
+             width="300"
              word_wrap="true">
-                Computing...
+                Loading...
             </text_editor>
-          <button
-             height="20"
-             label="&lt; Earlier"
-             label_selected="&lt; Earlier"
-             layout="topleft"
-             left="5"
-             name="earlier_details_button"
-             tool_tip="Go back in time"
-             top_pad="10"
-             width="125" />
-            <button
-             height="20"
-             label="Later &gt;"
-             label_selected="Later &gt;"
-             layout="topleft"
-             left_pad="5"
-             name="later_details_button"
-             tool_tip="Go forward in time"
-             top_delta="0"
-             width="125" />
         </panel>
       <panel
-         border="true"
-         follows="left|top|right|bottom"
+         border="false"
+         follows="all"
          height="180"
-         label="Sales"
+         label="DETAILS"
+         layout="topleft"
+         left="0"
+         help_topic="group_money_details_tab"
+         name="group_money_details_tab"
+         top="5"
+         width="300">
+          <text_editor
+             type="string"
+             follows="all"
+             height="140"
+             layout="topleft"
+             left="0"
+             max_length="4096"
+             name="group_money_details_text"
+             top="0"
+             width="300"
+             word_wrap="true">
+                Loading...
+            </text_editor>
+            <button
+	     follows="left|top"
+	     height="23"
+	     image_overlay="Arrow_Left_Off"
+	     layout="topleft"
+	     name="earlier_details_button"
+	     tool_tip="Back"
+	     top_pad="3"
+             right="-35"
+	     width="31" />
+             <button
+	     follows="left|top"
+	     height="23"
+	     image_overlay="Arrow_Right_Off"
+	     layout="topleft"
+	     left_pad="10"
+       name="later_details_button"
+	     tool_tip="Next"
+	     width="31" />
+        </panel>
+      <panel
+         border="false"
+         follows="all"
+         height="180"
+         label="SALES"
          layout="topleft"
          left_delta="0"
          help_topic="group_money_sales_tab"
          name="group_money_sales_tab"
          top_delta="-1"
-         width="265">
+         width="300">
             <text_editor
              type="string"
-             bg_readonly_color="0.784314 0.819608 0.8 1"
              follows="all"
-             font="Monospace"
              height="140"
              layout="topleft"
-             left="8"
+             left="0"
              max_length="4096"
              name="group_money_sales_text"
-             top="7"
-             width="250"
+             top="0"
+             width="300"
              word_wrap="true">
-                Computing...
+                Loading...
             </text_editor>
-            <button
-             height="20"
-             label="&lt; Earlier"
-             label_selected="&lt; Earlier"
-             layout="topleft"
-             left="5"
-             name="earlier_sales_button"
-             tool_tip="Go back in time"
-             top_pad="10"
-             width="125" />
-            <button
-             height="20"
-             label="Later &gt;"
-             label_selected="Later &gt;"
-             layout="topleft"
-             left_pad="5"
+                         <button
+	     follows="left|top"
+	     height="23"
+	     image_overlay="Arrow_Left_Off"
+	     layout="topleft"
+	     name="earlier_sales_button"
+	     tool_tip="Back"
+	     top_pad="3"
+             right="-35"
+	     width="31" />
+             <button
+	     follows="left|top"
+	     height="23"
+	     image_overlay="Arrow_Right_Off"
+	     layout="topleft"
+	     left_pad="10"
              name="later_sales_button"
-             tool_tip="Go forward in time"
-             top_delta="0"
-             width="125" />
+	     tool_tip="Next"
+	     width="31" />
         </panel>
     </tab_container>
 </panel>

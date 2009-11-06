@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_report_abuse" title="Signaler une infraction">
+<floater name="floater_report_abuse" title="SIGNALER UNE INFRACTION">
 	<texture_picker label="" name="screenshot"/>
 	<check_box label="Inclure une capture d&apos;écran" name="screen_check"/>
 	<text name="reporter_title" width="60">

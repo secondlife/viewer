@@ -658,6 +658,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mMediaAutoScale(media_auto_scale),
 	mMediaLoop(media_loop),
 	mNeedsNewTexture(true),
+	mTextureUsedWidth(0),
+	mTextureUsedHeight(0),
 	mSuspendUpdates(false),
 	mVisible(true),
 	mLastSetCursor( UI_CURSOR_ARROW ),
@@ -1568,8 +1570,11 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 	
 	if (mNeedsNewTexture 
 		|| placeholder_image->getUseMipMaps()
-		|| placeholder_image->getWidth() != mMediaSource->getTextureWidth()
-		|| placeholder_image->getHeight() != mMediaSource->getTextureHeight())
+		|| (placeholder_image->getWidth() != mMediaSource->getTextureWidth())
+		|| (placeholder_image->getHeight() != mMediaSource->getTextureHeight())
+		|| (mTextureUsedWidth > mMediaSource->getWidth())
+		|| (mTextureUsedHeight > mMediaSource->getHeight())
+		)
 	{
 		LL_DEBUGS("Media") << "initializing media placeholder" << LL_ENDL;
 		LL_DEBUGS("Media") << "movie image id " << mTextureId << LL_ENDL;
@@ -1601,6 +1606,11 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 		// FIXME
 //		placeholder_image->mIsMediaTexture = true;
 		mNeedsNewTexture = false;
+				
+		// If the amount of the texture being drawn by the media goes down in either width or height, 
+		// recreate the texture to avoid leaving parts of the old image behind.
+		mTextureUsedWidth = mMediaSource->getWidth();
+		mTextureUsedHeight = mMediaSource->getHeight();
 	}
 	
 	return placeholder_image;

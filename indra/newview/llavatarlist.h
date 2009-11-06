@@ -61,6 +61,7 @@ public:
 		Optional<bool> show_last_interaction_time; // show most recent interaction time. *HACK: move this to a derived class
 		Optional<bool> show_info_btn;
 		Optional<bool> show_profile_btn;
+		Optional<bool> show_speaking_indicator;
 		Params();
 	};
 
@@ -76,11 +77,17 @@ public:
 	void setContextMenu(LLAvatarListItem::ContextMenu* menu) { mContextMenu = menu; }
 
 	void toggleIcons();
+	void setSpeakingIndicatorsVisible(bool visible);
 	void sortByName();
 	void setShowIcons(std::string param_name);
 	bool getIconsVisible() const { return mShowIcons; }
 	const std::string getIconParamName() const{return mIconParamName;}
 	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
+	// Return true if filter has at least one match.
+	bool filterHasMatches();
+
+	boost::signals2::connection setRefreshCompleteCallback(const commit_signal_t::slot_type& cb);
 
 protected:
 	void refresh();
@@ -100,6 +107,7 @@ private:
 	bool mShowIcons;
 	bool mShowInfoBtn;
 	bool mShowProfileBtn;
+	bool mShowSpeakingIndicator;
 
 	LLTimer*				mLITUpdateTimer; // last interaction time update timer
 	std::string				mIconParamName;
@@ -107,6 +115,8 @@ private:
 	uuid_vector_t			mIDs;
 
 	LLAvatarListItem::ContextMenu* mContextMenu;
+
+	commit_signal_t mRefreshCompleteSignal;
 };
 
 /** Abstract comparator for avatar items */

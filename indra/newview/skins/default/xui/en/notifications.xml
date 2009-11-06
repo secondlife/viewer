@@ -4982,7 +4982,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
   <notification
    icon="notify.tga"
    name="UserGiveItem"
-   type="notify">
+   type="offer">
 [NAME] has given you a [OBJECTTYPE] named &apos;[OBJECTNAME]&apos;.
     <form name="form">
       <button
@@ -5028,7 +5028,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
   <notification
    icon="notify.tga"
    name="TeleportOffered"
-   type="notify">
+   type="offer">
 [NAME] has offered to teleport you to their location:
 
 [MESSAGE]
@@ -5065,7 +5065,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
   <notification
    icon="notify.tga"
    name="OfferFriendship"
-   type="notify">
+   type="offer">
 [NAME] is offering friendship.
 
 [MESSAGE]
@@ -5105,7 +5105,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
   <notification
    icon="notify.tga"
    name="FriendshipAccepted"
-   type="notify">
+   type="offer">
 [NAME] accepted your friendship offer.
   </notification>
 
@@ -5669,7 +5669,7 @@ An error has occurred while trying to connect to voice chat for [VOICE_CHANNEL_N
    name="ServerVersionChanged"
    priority="high"
    type="notifytip">
-You just entered a region using a different server version, which may affect performance. Click to see the release notes.
+You just entered a region using a different server version, which may affect performance. [[URL] View the release notes.]
   </notification>
 
   <notification

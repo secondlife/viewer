@@ -150,7 +150,7 @@ public:
 protected:
 	F32				getOrbitRate();
 	virtual void	updateSlop();
-	void			drawRotatedImage( LLTexture* image, S32 rotations );
+	void			drawRotatedImage( LLPointer<LLUIImage> image, S32 rotations );
 
 protected:
 	BOOL			mInLeft;

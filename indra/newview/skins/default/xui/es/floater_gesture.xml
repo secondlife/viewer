@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="gestures" title="Gestos disponibles">
+<floater name="gestures" title="GESTOS DISPONIBLES">
 	<text name="help_label">
 		Pulse dos veces en un gesto para reproducir las animaciones
 y sonidos.

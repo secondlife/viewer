@@ -49,12 +49,12 @@ const U32 LLVOWLSky::MAX_SKY_DETAIL = 180;
 
 inline U32 LLVOWLSky::getNumStacks(void)
 {
-	return gSavedSettings.getU32("WLSkyDetail");
+	return llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, gSavedSettings.getU32("WLSkyDetail")));
 }
 
 inline U32 LLVOWLSky::getNumSlices(void)
 {
-	return 2 * gSavedSettings.getU32("WLSkyDetail");
+	return 2 * llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, gSavedSettings.getU32("WLSkyDetail")));
 }
 
 inline U32 LLVOWLSky::getFanNumVerts(void)

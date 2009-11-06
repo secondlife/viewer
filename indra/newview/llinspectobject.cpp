@@ -112,6 +112,7 @@ private:
 	LLUUID				mObjectID;
 	S32					mObjectFace;
 	viewer_media_t		mMediaImpl;
+	LLMediaEntry*       mMediaEntry;
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
 };
 
@@ -120,7 +121,8 @@ LLInspectObject::LLInspectObject(const LLSD& sd)
 	mObjectID(NULL),			// set in onOpen()
 	mObjectFace(0),
 	mObjectSelection(NULL),
-	mMediaImpl(NULL)
+	mMediaImpl(NULL),
+	mMediaEntry(NULL)
 {
 	// can't make the properties request until the widgets are constructed
 	// as it might return immediately, so do it in postBuild.
@@ -231,11 +233,11 @@ void LLInspectObject::onOpen(const LLSD& data)
 		if (!tep)
 			return;
 		
-		const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
-		if(!mep)
+		mMediaEntry = tep->hasMedia() ? tep->getMediaData() : NULL;
+		if(!mMediaEntry)
 			return;
 		
-		mMediaImpl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
+		mMediaImpl = LLViewerMedia::getMediaImplFromTextureID(mMediaEntry->getMediaID());
 	}
 }
 
@@ -282,11 +284,11 @@ void LLInspectObject::update()
 	if (!tep)
 		return;
 	
-	const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
-	if(!mep)
+	mMediaEntry = tep->hasMedia() ? tep->getMediaData() : NULL;
+	if(!mMediaEntry)
 		return;
 	
-	mMediaImpl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
+	mMediaImpl = LLViewerMedia::getMediaImplFromTextureID(mMediaEntry->getMediaID());
 	
 	updateMediaCurrentURL();
 	updateSecureBrowsing();
@@ -430,14 +432,17 @@ void LLInspectObject::updateDescription(LLSelectNode* nodep)
 
 void LLInspectObject::updateMediaCurrentURL()
 {	
+	if(!mMediaEntry)
+		return;
 	LLTextBox* textbox = getChild<LLTextBox>("object_media_url");
 	std::string media_url = "";
 	textbox->setValue(media_url);
 	textbox->setToolTip(media_url);
+	LLStringUtil::format_map_t args;
 	
 	if(mMediaImpl.notNull() && mMediaImpl->hasMedia())
 	{
-		LLStringUtil::format_map_t args;
+		
 		LLPluginClassMedia* media_plugin = NULL;
 		media_plugin = mMediaImpl->getMediaPlugin();
 		if(media_plugin)
@@ -451,15 +456,17 @@ void LLInspectObject::updateMediaCurrentURL()
 				args["[CurrentURL]"] =  media_plugin->getLocation();
 			}
 			media_url = LLTrans::getString("CurrentURL", args);
-			textbox->setText(media_url);
-			textbox->setToolTip(media_url);
+
 		}
 	}
-	else
+	else if(mMediaEntry->getCurrentURL() != "")
 	{
-		textbox->setText(media_url);
-		textbox->setToolTip(media_url);
+		args["[CurrentURL]"] = mMediaEntry->getCurrentURL();
+		media_url = LLTrans::getString("CurrentURL", args);
 	}
+
+	textbox->setText(media_url);
+	textbox->setToolTip(media_url);
 }
 
 void LLInspectObject::updateCreator(LLSelectNode* nodep)

@@ -50,8 +50,9 @@
 #include "llslurl.h"
 #include "llurlsimstring.h"
 #include "llviewerinventory.h"
+#include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
-#include "llworldmap.h"
+#include "llworldmapmessage.h"
 #include "llappviewer.h"
 #include "llviewercontrol.h"
 #include "llfloatermediabrowser.h"
@@ -173,8 +174,6 @@ LLNavigationBar::LLNavigationBar()
 	mSearchComboBox(NULL),
 	mPurgeTPHistoryItems(false)
 {
-	setIsChrome(TRUE);
-	
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_navigation_bar.xml");
 
 	// set a listener function for LoginComplete event
@@ -269,6 +268,18 @@ void LLNavigationBar::draw()
 	}
 
 	LLPanel::draw();
+}
+
+BOOL LLNavigationBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = childrenHandleRightMouseDown( x, y, mask) != NULL;
+	if(!handled && !gMenuHolder->hasVisibleMenu())
+	{
+		show_navbar_context_menu(this,x,y);
+		handled = true;
+	}
+					
+	return handled;
 }
 
 void LLNavigationBar::onBackButtonClicked()
@@ -382,14 +393,13 @@ void LLNavigationBar::onLocationSelection()
 	
 	// Resolve the region name to its global coordinates.
 	// If resolution succeeds we'll teleport.
-	LLWorldMap::url_callback_t cb = boost::bind(
+	LLWorldMapMessage::url_callback_t cb = boost::bind(
 			&LLNavigationBar::onRegionNameResponse, this,
 			typed_location, region_name, local_coords, _1, _2, _3, _4);
 	// connect the callback each time, when user enter new location to get real location of agent after teleport
 	mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
 			setTeleportFinishedCallback(boost::bind(&LLNavigationBar::onTeleportFinished, this, _1,typed_location));
-	
-	LLWorldMap::getInstance()->sendNamedRegionRequest(region_name, cb, std::string("unused"), false);
+	LLWorldMapMessage::getInstance()->sendNamedRegionRequest(region_name, cb, std::string("unused"), false);
 }
 
 void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos, const std::string& typed_location)

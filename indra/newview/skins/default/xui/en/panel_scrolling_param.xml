@@ -56,7 +56,6 @@
      layout="topleft"
      left="2"
      name="less"
-     picture_style="true"
      tab_stop="false"
      top="0"
      width="132" />
@@ -70,7 +69,6 @@
      layout="topleft"
      left_pad="2"
      name="more"
-     picture_style="true"
      tab_stop="false"
      top_delta="0"
      width="132" />

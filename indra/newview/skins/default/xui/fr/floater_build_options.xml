@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="build options floater" title="Options de la grille">
+<floater name="build options floater" title="OPTIONS DE LA GRILLE">
 	<spinner label="Unité (mètres)" name="GridResolution" />
 	<spinner label="Mesures (mètres)" name="GridDrawSize" />
 	<check_box label="Activer la fixation des sous-unités" name="GridSubUnit" />

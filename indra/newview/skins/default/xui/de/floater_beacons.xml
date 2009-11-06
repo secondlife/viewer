@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="beacons" title="Beacons">
+<floater name="beacons" title="BEACONS">
 	<panel name="beacons_panel">
 		<check_box label="Auf Berührung beschränkte Skriptobjekte" name="touch_only"/>
 		<check_box label="Skripting-Objekte" name="scripted"/>

@@ -2679,8 +2679,7 @@ void renderTexturePriority(LLDrawable* drawable)
 		//LLViewerTexture* imagep = facep->getTexture();
 		//if (imagep)
 		{
-	
-			//F32 vsize = LLVOVolume::getTextureVirtualSize(facep);
+				
 			//F32 vsize = imagep->mMaxVirtualSize;
 			F32 vsize = facep->getPixelArea();
 
@@ -2704,7 +2703,7 @@ void renderTexturePriority(LLDrawable* drawable)
 		drawBox(center, size);
 		
 		/*S32 boost = imagep->getBoostLevel();
-		if (boost)
+		if (boost>LLViewerTexture::BOOST_NONE)
 		{
 			F32 t = (F32) boost / (F32) (LLViewerTexture::BOOST_MAX_LEVEL-1);
 			LLVector4 col = lerp(boost_cold, boost_hot, t);

@@ -9,7 +9,7 @@
  name="gui_preview_tool"
  help_topic="gui_preview_tool"
  single_instance="true"
- title="XUI Preview Tool"
+ title="XUI PREVIEW TOOL"
  width="750">
     <panel
      bottom="640"

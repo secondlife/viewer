@@ -2,11 +2,11 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- height="400"
+ height="450"
  layout="topleft"
  name="floater_test_textbox"
  help_topic="floater_test_textbox"
- width="400">
+ width="600">
     <text
      type="string"
      length="1"
@@ -48,6 +48,70 @@
         First line of multiple lines
     Second line of multiple lines
     </text>
+      <text
+       top_pad="10"
+       left="10"
+       right="-10" 
+       follows="top|left"
+       font.name="SansSerifSmall"
+       name="test_text10"
+       tool_tip="text">
+        SansSerifSmall. Русский 中文 (简体) The quick brown fox jumped over the lazy dog.
+      </text>
+      <text
+       top_pad="10"
+       left="10"
+       right="-10" 
+       follows="top|left"
+       font.name="SansSerif"
+       name="test_text11"
+       tool_tip="text">
+        SansSerif.  Русский 中文 (简体) The quick brown fox jumped over the lazy dog.
+      </text>
+      <text
+       top_pad="10"
+       left="10"
+       right="-10" 
+       follows="top|left"
+       font.name="SansSerifLarge"
+       name="test_text12"
+       tool_tip="text">
+        SansSerifLarge.  Русский 中文 (简体) The quick brown fox jumped over the lazy dog.
+      </text>
+      <text
+       top_pad="10"
+       left="10"
+       right="-10" 
+       follows="top|left"
+       font.name="SansSerifHuge"
+       name="test_text13"
+       tool_tip="text">
+        SansSerifHuge.  Русский 中文 (简体) The quick brown fox jumped over the lazy dog.
+      </text>
+    <text
+     type="string"
+     length="1"
+     font="SansSerif"
+     font.style="BOLD"
+     height="10"
+     layout="topleft"
+     left_delta="0"
+     top_pad="40"
+     width="300">
+      SansSerif BOLD
+    </text>
+    <text
+     type="string"
+     length="1"
+     font="SansSerif"
+     font.style="BOLD|UNDERLINE"
+     height="10"
+     layout="topleft"
+     left_delta="0"
+     top_pad="10"
+     width="300">
+      SansSerif BOLD UNDERLINE
+    </text>
     <text
      type="string"
      length="1"
@@ -55,54 +119,9 @@
      height="10"
      layout="topleft"
      left_delta="0"
-     top_pad="30"
-     width="300">
-        font SansSerif
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="bottom|right"
-     height="10"
-     layout="topleft"
-     left_delta="0"
      top_pad="10"
      width="300">
-        follows bottom right
-    </text>
-    <text
-     type="string"
-     length="1"
-     font="SansSerifSmall"
-     font.style="BOLD"
-     height="10"
-     layout="topleft"
-     left_delta="0"
-     top_pad="10"
-     width="300">
-        font style BOLD
-    </text>
-    <text
-     type="string"
-     length="1"
-     font="SansSerifSmall"
-     font.style="BOLD|UNDERLINE"
-     height="10"
-     layout="topleft"
-     left_delta="0"
-     top_pad="10"
-     width="300">
-        font style BOLD UNDERLINE
-    </text>
-    <text
-     type="string"
-     length="1"
-     height="10"
-     layout="topleft"
-     left_delta="0"
-     top_pad="10"
-     width="300">
-        font style UNDERLINE
+      SansSerif UNDERLINE
     </text>
     <text
      type="string"
@@ -145,11 +164,11 @@
   <text
  type="string"
  length="1"
- bottom="390"
+ height="60" 
  label="N"
  layout="topleft"
  left="10"
- name="centered_text"
+ name="left_aligned_text"
  width="380"
  halign="left"
  text_color="1 1 1 0.7"

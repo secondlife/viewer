@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="mute by name" title="Bloker objekt via navn">
+<floater name="mute by name" title="BLOKER OBJEKT VIA NAVN">
 	<text name="message">
 		Blokering via navn har ikke betydning for lyde.
 Du skal skrive det præcise navn på objektet.

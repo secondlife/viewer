@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="mute by name" title="Ignorer les objets par nom">
+<floater name="mute by name" title="IGNORER LES OBJETS PAR NOM">
 	<text name="message">
 		Cette fonction ne marche que pour les chats et les IM,
 pas les sons. Saisissez le nom exact de l&apos;objet.

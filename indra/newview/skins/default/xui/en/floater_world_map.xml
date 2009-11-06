@@ -13,40 +13,17 @@
  save_rect="true"
  save_visibility="true"
  single_instance="true"
- title="World Map"
+ title="WORLD MAP"
  width="800">
-    <tab_container
+    <panel
+     filename="panel_world_map.xml"
      follows="left|top|right|bottom"
      height="565"
      layout="topleft"
      left="15"
-     name="maptab"
-     tab_position="top"
+     name="objects_mapview"
      top="25"
-     width="542">
-        <panel
-         filename="panel_world_map.xml"
-         follows="left|top|right|bottom"
-         height="550"
-         label="Objects"
-         layout="topleft"
-         left="1"
-         help_topic="worldmap_objects_tab"
-         name="objects_mapview"
-         top="19"
-         width="540" />
-        <panel
-         filename="panel_world_map.xml"
-         follows="left|top|right|bottom"
-         height="550"
-         label="Terrain"
-         layout="topleft"
-         left_delta="0"
-         help_topic="worldmap_terrain_tab"
-         name="terrain_mapview"
-         top_delta="3"
-         width="540" />
-    </tab_container>
+     width="542" />
     <icon
      follows="top|right"
      height="16"
@@ -210,7 +187,7 @@
      label="Telehub"
      layout="topleft"
      left_pad="4"
-     name="telehubchk"
+     name="telehub_chk"
      top_delta="0"
      width="110" />
     <icon

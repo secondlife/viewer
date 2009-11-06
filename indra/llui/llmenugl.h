@@ -79,26 +79,7 @@ public:
 								highlight_fg_color;
 
 
-		Params()
-		:	shortcut("shortcut"),
-			jump_key("jump_key", KEY_NONE),
-			use_mac_ctrl("use_mac_ctrl", false),
-			rect("rect"),
-			left("left"),
-			top("top"),
-			right("right"),
-			bottom("bottom"),
-			width("width"),
-			height("height"),
-			bottom_delta("bottom_delta"),
-			left_delta("left_delta"),
-			enabled_color("enabled_color"),
-			disabled_color("disabled_color"),
-			highlight_bg_color("highlight_bg_color"),
-			highlight_fg_color("highlight_fg_color")
-		{	
-			mouse_opaque = true;
-		}
+		Params();
 	};
 
 protected:

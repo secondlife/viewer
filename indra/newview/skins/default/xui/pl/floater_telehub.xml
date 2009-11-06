@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="telehub" title="Obsługa Teleportera" min_height="300" height="300" >
+<floater name="telehub" title="OBSŁUGA TELEPORTERA" min_height="300" height="300" >
 	<text name="status_text_connected" width="250">
 		Teleporter połączony z obiektem [OBJECT]
 	</text>

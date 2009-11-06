@@ -151,7 +151,7 @@ public:
 	virtual void			setAnimating(BOOL is_animating) { mIsAnimating = is_animating && !mIsDummy; }
 	BOOL					getAnimating() const { return mIsAnimating; }
 
-	void					setIsDummy(BOOL is_self) { mIsDummy = is_self; }
+	void					setIsDummy(BOOL is_dummy) { mIsDummy = is_dummy; }
 
 protected:
 	F32					mCurWeight;			// current weight

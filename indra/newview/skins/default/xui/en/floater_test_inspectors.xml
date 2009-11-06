@@ -6,7 +6,7 @@
  layout="topleft"
  name="floater_test_inspectors"
  help_topic="floater_test_inspectors"
- title="Test Inspectors" 
+ title="TEST INSPECTORS" 
  width="400">
   <text
    height="20"

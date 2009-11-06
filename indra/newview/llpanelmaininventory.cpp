@@ -102,8 +102,8 @@ LLPanelMainInventory::LLPanelMainInventory()
 	// Menu Callbacks (non contex menus)
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLPanelMainInventory::doToSelected, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.CloseAllFolders", boost::bind(&LLPanelMainInventory::closeAllFolders, this));
-	mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLAssetType::AT_TRASH));
-	mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLAssetType::AT_LOST_AND_FOUND));
+	mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
+	mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
 	mCommitCallbackRegistrar.add("Inventory.DoCreate", boost::bind(&LLPanelMainInventory::doCreate, this, _2));
  	mCommitCallbackRegistrar.add("Inventory.NewWindow", boost::bind(&LLPanelMainInventory::newWindow, this));
 	mCommitCallbackRegistrar.add("Inventory.ShowFilters", boost::bind(&LLPanelMainInventory::toggleFindOptions, this));
@@ -950,12 +950,12 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 	if (command_name == "empty_trash")
 	{
 		const std::string notification = "ConfirmEmptyTrash";
-		gInventory.emptyFolderType(notification, LLAssetType::AT_TRASH);
+		gInventory.emptyFolderType(notification, LLFolderType::FT_TRASH);
 	}
 	if (command_name == "empty_lostnfound")
 	{
 		const std::string notification = "ConfirmEmptyLostAndFound";
-		gInventory.emptyFolderType(notification, LLAssetType::AT_LOST_AND_FOUND);
+		gInventory.emptyFolderType(notification, LLFolderType::FT_LOST_AND_FOUND);
 	}
 	if (command_name == "save_texture")
 	{

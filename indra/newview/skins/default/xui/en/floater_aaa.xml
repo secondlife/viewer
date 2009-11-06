@@ -7,7 +7,7 @@
  help_topic="floater_aaa"
  save_rect="true"
  can_resize="true" 
- title="About [APP_NAME]"
+ title="ABOUT [APP_NAME]"
  width="470">
     <text_editor
      follows="left|top|right|bottom"

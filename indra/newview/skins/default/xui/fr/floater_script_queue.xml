@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="queue" title="Réinitialiser progression">
+<floater name="queue" title="RÉINITIALISER PROGRESSION">
 	<button label="Fermer" label_selected="Fermer" name="close" />
 </floater>

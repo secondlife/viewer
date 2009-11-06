@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="beacons" title="Segnali luminosi">
+<floater name="beacons" title="SEGNALI LUMINOSI">
 	<panel name="beacons_panel">
 		<check_box label="Oggetti scriptati con solo &apos;tocca&apos; abilitato" name="touch_only"/>
 		<check_box label="Oggetti scriptati" name="scripted"/>

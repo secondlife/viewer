@@ -78,6 +78,7 @@
 #include "lltabcontainer.h"
 #include "lltooldraganddrop.h"
 #include "lluictrlfactory.h"
+#include "llviewerfoldertype.h"
 #include "llviewerinventory.h"
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
@@ -110,8 +111,8 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 
 	// contex menu callbacks
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLInventoryPanel::doToSelected, this, _2));
-	mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLAssetType::AT_TRASH));
-	mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLAssetType::AT_LOST_AND_FOUND));
+	mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
+	mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
 	mCommitCallbackRegistrar.add("Inventory.DoCreate", boost::bind(&LLInventoryPanel::doCreate, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.AttachObject", boost::bind(&LLInventoryPanel::attachObject, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.BeginIMSession", boost::bind(&LLInventoryPanel::beginIMSession, this));
@@ -169,19 +170,19 @@ BOOL LLInventoryPanel::postBuild()
 
 	// determine the root folder, if any, so inventory contents show just the children
 	// of that folder (i.e. not including the folder itself).
-	const LLAssetType::EType preferred_type = LLAssetType::lookupHumanReadable(mStartFolderString);
+	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(mStartFolderString);
 
-	if ("inventory" == mStartFolderString)
+	if ("INVENTORY" == mStartFolderString)
 	{
 		mStartFolderID = gInventory.getRootFolderID();
 	}
-	else if ("library" == mStartFolderString)
+	else if ("LIBRARY" == mStartFolderString)
 	{
 		mStartFolderID = gInventory.getLibraryRootFolderID();
 	}
 	else
 	{
-		mStartFolderID = (preferred_type != LLAssetType::AT_NONE ? gInventory.findCategoryUUIDForType(preferred_type) : LLUUID::null);
+		mStartFolderID = (preferred_type != LLFolderType::FT_NONE ? gInventory.findCategoryUUIDForType(preferred_type) : LLUUID::null);
 	}
 
 	// build view of inventory if we need default full hierarchy and inventory ready, otherwise wait for modelChanged() callback
@@ -192,7 +193,7 @@ BOOL LLInventoryPanel::postBuild()
 	}
 
 	// bit of a hack to make sure the inventory is open.
-	mFolders->openFolder(preferred_type != LLAssetType::AT_NONE ? LLAssetType::lookupCategoryName(preferred_type) : "My Inventory");
+	mFolders->openFolder(preferred_type != LLFolderType::FT_NONE ? LLViewerFolderType::lookupNewCategoryName(preferred_type) : "My Inventory");
 
 	if (mSortOrderSetting != INHERIT_SORT_ORDER)
 	{
@@ -381,6 +382,19 @@ void LLInventoryPanel::modelChanged(U32 mask)
 						{
 							view_item->getParentFolder()->extractItem(view_item);
 							view_item->addToFolder(new_parent, mFolders);
+						}
+/*
+						 on the other side in case Inventory Panel has content of the any folder
+						 it is possible that item moved to some folder which is absent in current
+						 Panel. For ex. removing item (via moving to trash).
+						 In this case we need to check if new parent is other then inventory start folder
+						 and simply remove its View from the hierarchy.
+						 See details in EXT-2098.
+*/
+						// So, let check if item was moved into folder out of this Inventory Panel.
+						else if (mStartFolderID.notNull() && NULL == new_parent && model_item->getParentUUID() != mStartFolderID)
+						{
+							view_item->getParentFolder()->extractItem(view_item);
 						}
 					}
 				}
@@ -650,7 +664,7 @@ void LLInventoryPanel::openAllFolders()
 	mFolders->arrangeAll();
 }
 
-void LLInventoryPanel::openDefaultFolderForType(LLAssetType::EType type)
+void LLInventoryPanel::openDefaultFolderForType(LLFolderType::EType type)
 {
 	LLUUID category_id = mInventory->findCategoryUUIDForType(type);
 	LLOpenFolderByID opener(category_id);

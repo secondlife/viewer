@@ -444,13 +444,11 @@ void LLFloaterPay::onCacheOwnerName(const LLUUID& owner_id,
 {
 	if (is_group)
 	{
-		childSetVisible("payee_group",true);
-		childSetVisible("payee_resident",false);
+		setTitle(getString("payee_group"));
 	}
 	else
 	{
-		childSetVisible("payee_group",false);
-		childSetVisible("payee_resident",true);
+		setTitle(getString("payee_resident"));
 	}
 	
 	childSetTextArg("payee_name", "[FIRST]", firstname);

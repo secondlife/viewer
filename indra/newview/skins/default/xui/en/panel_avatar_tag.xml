@@ -55,7 +55,6 @@
      top="65" 
      left="10" 
      right="-10" 
-     can_resize="true"
      height="100" 
      follows="left|top|bottom|right"
      font="SansSerifSmall" 

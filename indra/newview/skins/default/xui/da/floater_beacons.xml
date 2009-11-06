@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="beacons" title="Pejlelys">
+<floater name="beacons" title="PEJLELYS">
 	<panel name="beacons_panel">
 		<check_box label="Kun scriptede objekter med &quot;rør&quot;" name="touch_only" />
 		<check_box label="Scriptede objekter" name="scripted" />

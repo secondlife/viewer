@@ -75,7 +75,7 @@ public:
 								LLStrider<LLVector2> &texCoords1p,
 								LLStrider<U16> &indicesp);
 
-	/*virtual*/ void updateTextures(LLAgent &agent);
+	/*virtual*/ void updateTextures();
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area
 
 	/*virtual*/ void updateSpatialExtents(LLVector3& newMin, LLVector3& newMax);

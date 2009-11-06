@@ -47,8 +47,6 @@ public:
 
 	virtual void draw();
 
-	const LLColor4& colorFromType(S32 type);
-
 protected:
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 };

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="inspect" title="Objekt prüfen" min_width="450" >
+<floater name="inspect" title="OBJEKT PRÜFEN" min_width="450" >
 	<scroll_list name="object_list"
 	     tool_tip="Wählen Sie ein Objekt aus dieser Liste, um es in der Second Life-Welt zu markieren">
 		<column label="Objektname" name="object_name" />

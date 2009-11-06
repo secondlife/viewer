@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater customize" title="Apparence" width="548">
+<floater name="floater customize" title="APPARENCE" width="548">
 	<tab_container name="customize tab container" tab_min_width="150" width="546">
 		<placeholder label="Parties du corps" name="body_parts_placeholder"/>
 		<panel label="Silhouette" left="154" name="Shape" width="389">

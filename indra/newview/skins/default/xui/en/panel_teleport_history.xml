@@ -10,12 +10,10 @@
      name="history_accordion"
      width="380">
 	    <accordion_tab
-         can_resize="false"
          layout="topleft"
          name="today"
          title="Today">
             <flat_list_view
-             draw_heading="false"
              follows="all"
              height="150"
              layout="topleft"
@@ -26,12 +24,10 @@
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
-         can_resize="false"
          layout="topleft"
          name="yesterday"
          title="Yesterday">
             <flat_list_view
-             draw_heading="false"
              follows="all"
              height="150"
              layout="topleft"
@@ -42,12 +38,10 @@
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
-         can_resize="false"
          layout="topleft"
          name="2_days_ago"
          title="2 days ago">
             <flat_list_view
-             draw_heading="false"
              follows="all"
              height="150"
              layout="topleft"
@@ -58,12 +52,10 @@
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
-         can_resize="false"
          layout="topleft"
          name="3_days_ago"
          title="3 days ago">
             <flat_list_view
-             draw_heading="false"
              follows="all"
              height="150"
              layout="topleft"
@@ -74,12 +66,10 @@
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
-         can_resize="false"
          layout="topleft"
          name="4_days_ago"
          title="4 days ago">
             <flat_list_view
-             draw_heading="false"
              follows="all"
              height="150"
              layout="topleft"
@@ -90,12 +80,10 @@
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
-         can_resize="false"
          layout="topleft"
          name="5_days_ago"
          title="5 days ago">
             <flat_list_view
-             draw_heading="false"
              follows="all"
              height="150"
              layout="topleft"
@@ -106,12 +94,10 @@
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
-         can_resize="false"
          layout="topleft"
          name="6_days_and_older"
          title="6 days and older">
             <flat_list_view
-             draw_heading="false"
              follows="all"
              height="150"
              layout="topleft"
@@ -122,12 +108,10 @@
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
-         can_resize="false"
          layout="topleft"
          name="1_month_and_older"
          title="1 month and older">
             <flat_list_view
-             draw_heading="false"
              follows="all"
              height="150"
              layout="topleft"
@@ -138,12 +122,10 @@
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
-         can_resize="false"
          layout="topleft"
          name="6_months_and_older"
          title="6 months and older">
             <flat_list_view
-             draw_heading="false"
              follows="all"
              height="150"
              layout="topleft"
@@ -176,7 +158,6 @@
          layout="topleft"
          left="10"
          name="gear_btn"
-         picture_style="true"
          top="5"
          width="18" />
     </panel>

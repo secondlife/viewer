@@ -155,7 +155,7 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mTotalTabWidth(0),
 	mTabPosition(p.tab_position),
 	mFontHalign(p.font_halign),
-	mFont(p.font.isProvided() ? p.font() : (mIsVertical ? LLFontGL::getFontSansSerif() : LLFontGL::getFontSansSerifSmall())),
+	mFont(p.font),
 	mFirstTabParams(p.first_tab),
 	mMiddleTabParams(p.middle_tab),
 	mLastTabParams(p.last_tab)
@@ -927,7 +927,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 		textbox = LLUICtrlFactory::create<LLTextBox> (params);
 		
 		LLButton::Params p;
-		p.name("");
+		p.name("placeholder");
 		btn = LLUICtrlFactory::create<LLButton>(p);
 	}
 	else
@@ -946,6 +946,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 			p.scale_image(true);
 			p.font_halign = mFontHalign;
 			p.tab_stop(false);
+			p.label_shadow(false);
 			if (indent)
 			{
 				p.pad_left(indent);
@@ -965,6 +966,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 			p.image_unselected(tab_img);
 			p.image_selected(tab_selected_img);
 			p.tab_stop(false);
+			p.label_shadow(false);
 			// Try to squeeze in a bit more text
 			p.pad_left(4);
 			p.pad_right(2);
@@ -986,7 +988,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 				p.follows.flags = p.follows.flags() | FOLLOWS_BOTTOM;
 			}
 
-			btn = LLUICtrlFactory::create<LLButton>(p);
+++			btn = LLUICtrlFactory::create<LLButton>(p);
 		}
 	}
 	

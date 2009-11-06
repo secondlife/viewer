@@ -92,7 +92,10 @@ std::string LLAgentUI::buildSLURL(const bool escaped /*= true*/)
 //static
 BOOL LLAgentUI::checkAgentDistance(const LLVector3& pole, F32 radius)
 {
-	return  (gAgent.getPositionAgent() - pole).length() < radius;
+	F32 delta_x = gAgent.getPositionAgent().mV[VX] - pole.mV[VX];
+	F32 delta_y = gAgent.getPositionAgent().mV[VY] - pole.mV[VY];
+	
+	return  sqrt( delta_x* delta_x + delta_y* delta_y ) < radius;
 }
 BOOL LLAgentUI::buildLocationString(std::string& str, ELocationFormat fmt,const LLVector3& agent_pos_region)
 {

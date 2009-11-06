@@ -6,7 +6,7 @@
  layout="topleft"
  name="floaterbulkperms"
  help_topic="floaterbulkperms"
- title="Edit Content Permissions"
+ title="EDIT CONTENT PERMISSIONS"
  width="270">
     <floater.string
      name="nothing_to_modify_text">

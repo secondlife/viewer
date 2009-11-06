@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2001-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -71,9 +71,10 @@ public:
 
 	static void showPlaceInfoPanel(S32 index);
 private:
-	void onInfoBtnClick();
+	void onProfileBtnClick();
 
-	LLButton* mInfoBtn;
+	LLButton* mProfileBtn;
+	
 	LLTeleportHistoryPanel::ContextMenu *mContextMenu;
 
 	S32 mIndex;
@@ -95,8 +96,9 @@ BOOL LLTeleportHistoryFlatItem::postBuild()
 	LLTextBox *region = getChild<LLTextBox>("region");
 	region->setValue(mRegionName);
 
-	mInfoBtn = getChild<LLButton>("info_btn");
-	mInfoBtn->setClickedCallback(boost::bind(&LLTeleportHistoryFlatItem::onInfoBtnClick, this));
+	mProfileBtn = getChild<LLButton>("profile_btn");
+        
+	mProfileBtn->setClickedCallback(boost::bind(&LLTeleportHistoryFlatItem::onProfileBtnClick, this));
 
 	return true;
 }
@@ -111,7 +113,7 @@ void LLTeleportHistoryFlatItem::setValue(const LLSD& value)
 void LLTeleportHistoryFlatItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
 	childSetVisible("hovered_icon", true);
-	mInfoBtn->setVisible(true);
+	mProfileBtn->setVisible(true);
 
 	LLPanel::onMouseEnter(x, y, mask);
 }
@@ -119,7 +121,7 @@ void LLTeleportHistoryFlatItem::onMouseEnter(S32 x, S32 y, MASK mask)
 void LLTeleportHistoryFlatItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	childSetVisible("hovered_icon", false);
-	mInfoBtn->setVisible(false);
+	mProfileBtn->setVisible(false);
 
 	LLPanel::onMouseLeave(x, y, mask);
 }
@@ -142,7 +144,7 @@ void LLTeleportHistoryFlatItem::showPlaceInfoPanel(S32 index)
 	LLSideTray::getInstance()->showPanel("panel_places", params);
 }
 
-void LLTeleportHistoryFlatItem::onInfoBtnClick()
+void LLTeleportHistoryFlatItem::onProfileBtnClick()
 {
 	LLTeleportHistoryFlatItem::showPlaceInfoPanel(mIndex);
 }
@@ -357,7 +359,7 @@ void LLTeleportHistoryPanel::onCopySLURL()
 
 	U64 new_region_handle = to_region_handle(global_pos);
 
-	LLWorldMap::url_callback_t cb = boost::bind(
+	LLWorldMapMessage::url_callback_t cb = boost::bind(
 			&LLPanelPlacesTab::onRegionResponse, this,
 			global_pos, _1, _2, _3, _4);
 

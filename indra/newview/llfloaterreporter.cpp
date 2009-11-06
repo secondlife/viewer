@@ -770,7 +770,7 @@ void LLFloaterReporter::takeScreenshot()
 	if (COMPLAINT_REPORT == mReportType)
 	{
 		mResourceDatap->mAssetInfo.mType = LLAssetType::AT_TEXTURE;
-		mResourceDatap->mPreferredLocation = LLAssetType::EType(-2);
+		mResourceDatap->mPreferredLocation = LLFolderType::EType(LLResourceData::INVALID_LOCATION);
 	}
 	else
 	{
@@ -789,8 +789,8 @@ void LLFloaterReporter::takeScreenshot()
 
 	// store in the image list so it doesn't try to fetch from the server
 	LLPointer<LLViewerFetchedTexture> image_in_list = 
-		LLViewerTextureManager::getFetchedTexture(mResourceDatap->mAssetInfo.mUuid, TRUE, FALSE, LLViewerTexture::FETCHED_TEXTURE);
-	image_in_list->createGLTexture(0, raw);
+		LLViewerTextureManager::getFetchedTexture(mResourceDatap->mAssetInfo.mUuid, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::FETCHED_TEXTURE);
+	image_in_list->createGLTexture(0, raw, 0, TRUE, LLViewerTexture::OTHER);
 	
 	// the texture picker then uses that texture
 	LLTexturePicker* texture = getChild<LLTextureCtrl>("screenshot");
@@ -838,7 +838,7 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 	}
 
 	EReportType report_type = UNKNOWN_REPORT;
-	if (data->mPreferredLocation == -2)
+	if (data->mPreferredLocation == LLResourceData::INVALID_LOCATION)
 	{
 		report_type = COMPLAINT_REPORT;
 	}

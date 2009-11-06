@@ -94,7 +94,7 @@ LLPointer<LLInventoryCategory> create_random_inventory_cat()
 	LLPointer<LLInventoryCategory> cat = new LLInventoryCategory(
 		item_id,
 		parent_id,
-		LLAssetType::AT_NONE,
+		LLFolderType::FT_NONE,
 		std::string("Sample category"));
 	return cat;
 }
@@ -452,7 +452,7 @@ namespace tut
 		ensure_equals("4.type::getType() failed", dst->getType(), src->getType());
 		ensure_equals("5.preferred type::getPreferredType() failed", dst->getPreferredType(), src->getPreferredType());
 
-		src->setPreferredType( LLAssetType::AT_TEXTURE);
+		src->setPreferredType( LLFolderType::FT_TEXTURE);
 		sd = ll_create_sd_from_inventory_category(src);
 		dst = ll_create_category_from_sd(sd);
 		ensure_equals("6.preferred type::getPreferredType() failed", dst->getPreferredType(), src->getPreferredType());

@@ -9,7 +9,7 @@
  name="inspect"
  help_topic="inspect"
  save_rect="true"
- title="Inspect Objects"
+ title="INSPECT OBJECTS"
  width="400">
     <floater.string
      name="timeStamp">

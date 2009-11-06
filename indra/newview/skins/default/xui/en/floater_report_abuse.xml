@@ -5,7 +5,7 @@
  layout="topleft"
  name="floater_report_abuse"
  help_topic="floater_report_abuse"
- title="Report Abuse"
+ title="REPORT ABUSE"
  width="333">
     <floater.string
      name="Screenshot">
@@ -126,7 +126,6 @@
      layout="topleft"
      left_delta="0"
      name="pick_btn"
-     picture_style="true"
      image_overlay="Inv_Object"
      tool_tip="Object Picker - Identify an object as the subject of this report"
      top_pad="0"

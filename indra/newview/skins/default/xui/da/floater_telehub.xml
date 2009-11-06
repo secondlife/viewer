@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="telehub" title="Telehub">
+<floater name="telehub" title="TELEHUB">
 	<text name="status_text_connected">
 		Telehub forbundet til objekt [OBJECT]
 	</text>

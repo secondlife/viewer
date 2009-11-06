@@ -40,6 +40,7 @@
 #include "llagent.h"
 #include "llagentpicksinfo.h"
 #include "llbutton.h"
+#include "lliconctrl.h"
 #include "lllineeditor.h"
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
@@ -62,6 +63,7 @@
 #define XML_SNAPSHOT	"pick_snapshot"
 #define XML_LOCATION	"pick_location"
 
+#define XML_BTN_ON_TXTR "edit_icon"
 #define XML_BTN_SAVE "save_changes_btn"
 
 #define SAVE_BTN_LABEL "[WHAT]"
@@ -401,8 +403,6 @@ BOOL LLPanelPickEdit::postBuild()
 	LLPanelPickInfo::postBuild();
 
 	mSnapshotCtrl->setOnSelectCallback(boost::bind(&LLPanelPickEdit::onPickChanged, this, _1));
-	mSnapshotCtrl->setMouseEnterCallback(boost::bind(&LLPanelPickEdit::childSetVisible, this, "edit_icon", true));
-	mSnapshotCtrl->setMouseLeaveCallback(boost::bind(&LLPanelPickEdit::childSetVisible, this, "edit_icon", false));
 
 	LLLineEditor* line_edit = getChild<LLLineEditor>("pick_name");
 	line_edit->setKeystrokeCallback(boost::bind(&LLPanelPickEdit::onPickChanged, this, _1), NULL);
@@ -412,6 +412,8 @@ BOOL LLPanelPickEdit::postBuild()
 
 	childSetAction(XML_BTN_SAVE, boost::bind(&LLPanelPickEdit::onClickSave, this));
 	childSetAction("set_to_curr_location_btn", boost::bind(&LLPanelPickEdit::onClickSetLocation, this));
+
+	initTexturePickerMouseEvents();
 
 	return TRUE;
 }
@@ -546,4 +548,24 @@ void LLPanelPickEdit::processProperties(void* data, EAvatarProcessorType type)
 	{
 		LLPanelPickInfo::processProperties(data, type);
 	}
+}
+
+// PRIVATE AREA
+
+void LLPanelPickEdit::initTexturePickerMouseEvents()
+{
+	text_icon = getChild<LLIconCtrl>(XML_BTN_ON_TXTR);
+	mSnapshotCtrl->setMouseEnterCallback(boost::bind(&LLPanelPickEdit::onTexturePickerMouseEnter, this, _1));
+	mSnapshotCtrl->setMouseLeaveCallback(boost::bind(&LLPanelPickEdit::onTexturePickerMouseLeave, this, _1));
+	text_icon->setVisible(FALSE);
+}
+		
+void LLPanelPickEdit::onTexturePickerMouseEnter(LLUICtrl* ctrl)
+{
+        text_icon->setVisible(TRUE);
+}
+
+void LLPanelPickEdit::onTexturePickerMouseLeave(LLUICtrl* ctrl)
+{
+	text_icon->setVisible(FALSE);
 }

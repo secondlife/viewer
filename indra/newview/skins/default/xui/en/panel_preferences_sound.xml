@@ -40,7 +40,6 @@
      layout="topleft"
      left_pad="16"
      name="mute_audio"
-     picture_style="true"
      tab_stop="false"
      top_delta="-2"
      width="22" />
@@ -86,7 +85,6 @@
      layout="topleft"
      left_pad="16"
      name="mute_wind"
-     picture_style="true"
      tab_stop="false"
      top_delta="-2"
      width="22" />
@@ -122,7 +120,6 @@
      layout="topleft"
      left_pad="16"
      name="mute_ui"
-     picture_style="true"
      tab_stop="false"
      top_delta="-2"
      width="22" />
@@ -158,7 +155,6 @@
      layout="topleft"
      left_pad="16"
      name="mute_media"
-     picture_style="true"
      tab_stop="false"
      top_delta="-2"
      width="22" />
@@ -194,7 +190,6 @@
      layout="topleft"
      left_pad="16"
      name="mute_sfx"
-     picture_style="true"
      tab_stop="false"
      top_delta="-2"
      width="22" />
@@ -230,19 +225,21 @@
      layout="topleft"
      left_pad="16"
      name="mute_music"
-     picture_style="true"
      tab_stop="false"
      top_delta="-2"
      width="22" />
-     <check_box
-     height="16"
-	 control_name ="EnableVoiceChat"
-	 disabled_control="CmdLineDisableVoice"
-     label="Enable Voice"
-     layout="topleft"
-     left="22"
+   <check_box
+     label_text.halign="left"
+     follows="right|top"
+    height="16"
+    control_name ="EnableVoiceChat"
+   disabled_control="CmdLineDisableVoice"
+     label="Voice"
+     left="50"
      name="enable_voice_check"
-     width="100">
+     top_pad="5"
+     width="110"
+     >
     </check_box>
     <slider
      control_name="AudioLevelVoice"
@@ -252,16 +249,15 @@
      height="15"
      increment="0.05"
      initial_value="0.5"
-	 label="Voice"
-     label_width="60"
+     label_width="0"
      layout="topleft"
-     left="100"
+     left="165"
+     top_delta="0"
      name="Voice Volume"
      show_text="false"
      slider_label.halign="right"
-     top_pad="-15"
      volume="true"
-     width="250">
+     width="185">
         <slider.commit_callback
          function="Pref.setControlFalse"
          parameter="MuteVoice" />
@@ -278,7 +274,6 @@
      layout="topleft"
      left_pad="16"
      name="mute_voice"
-     picture_style="true"
      tab_stop="false"
      top_delta="-2"
      width="22" />
@@ -296,7 +291,7 @@
     <icon
 	 follows="left"
 	 height="18"
-	 image_name="CameraView_Off"
+	 image_name="Cam_FreeCam_Off"
 	 name="camera_icon"
 	 mouse_opaque="false"
 	 visible="true"
@@ -323,32 +318,33 @@
          height="16"
          label="Camera position"
          left_pad="1"
-		 follows="topleft"
+	follows="topleft"
          name="0"
          top_delta="-30"
          width="200" />
         <radio_item
          height="16"
-		 follows="topleft"
+	follows="topleft"
          label="Avatar position"
          left_delta="0"
          name="1"
          top_delta="19"
          width="200" />
     </radio_group>
-    <button
-     control_name="ShowDeviceSettings"
-     follows="left|bottom"
-     height="19"
-     is_toggle="true"
-     label="Input / Output  Devices"
-     layout="topleft"
-     left="165"
-     top_pad="12"
-     name="device_settings_btn"
-     width="190" />
+  <button
+   control_name="ShowDeviceSettings"
+   follows="left|bottom"
+   height="19"
+   is_toggle="true"
+   label="Input / Output  Devices"
+   layout="topleft"
+   left="165"
+   top_pad="12"
+   name="device_settings_btn"
+   width="190">
+  </button>
     <panel
-    background_visible="true"
+     background_visible="true"
      bg_alpha_color="DkGray"
      visiblity_control="ShowDeviceSettings"
      border="false"
@@ -357,8 +353,13 @@
      label="DeviceSettings"
      layout="topleft"
      left="0"
-     name="Device Settings"
+     name="device_settings_panel"
+     class="panel_voice_device_settings"
      width="501">
+      <panel.string
+        name="default_text">
+        Default
+      </panel.string>
       <icon
              height="18"
              image_name="Microphone_On"
@@ -382,6 +383,7 @@
     </text>
     <combo_box
      height="19"
+     control_name="VoiceInputAudioDevice"
      layout="topleft"
      left="165"
      max_chars="128"
@@ -400,7 +402,8 @@
      width="200">
         My volume:
     </text>
-      <slider
+      <slider_bar
+        control_name="AudioLevelMic"
      follows="left|top"
      height="17"
      increment="0.05"
@@ -492,6 +495,7 @@
         Output
     </text>
     <combo_box
+     control_name="VoiceOutputAudioDevice"
      height="19"
      layout="topleft"
      left="165"

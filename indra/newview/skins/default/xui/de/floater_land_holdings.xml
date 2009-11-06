@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="land holdings floater" title="Mein Land">
+<floater name="land holdings floater" title="MEIN LAND">
 	<scroll_list name="parcel list">
 		<column label="Parzellenname" name="name"/>
 		<column label="Region" name="location"/>
