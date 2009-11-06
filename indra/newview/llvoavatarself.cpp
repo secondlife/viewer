@@ -1387,8 +1387,8 @@ void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL set_by_u
 	}
 	// llinfos << "LLVOAvatar::invalidComposite() " << layerset->getBodyRegion() << llendl;
 
-	invalidateMorphMasks(layerset->getBakedTexIndex());
 	layerset->requestUpdate();
+	layerset->invalidateMorphMasks();
 
 	if( set_by_user )
 	{

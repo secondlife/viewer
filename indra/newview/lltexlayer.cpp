@@ -670,8 +670,6 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 	LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE);
 	gGL.setColorMask(true, true);
 
-	BOOL render_morph = mAvatar->morphMaskNeedsUpdate(mBakedTexIndex);
-
 	// clear buffer area to ensure we don't pick up UI elements
 	{
 		gGL.flush();
@@ -691,12 +689,8 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		if (layer->getRenderPass() == LLTexLayer::RP_COLOR)
 		{
 			gGL.flush();
-			success &= layer->render(x, y, width, height, render_morph);
+			success &= layer->render(x, y, width, height);
 			gGL.flush();
-			if (layer->isMorphValid())
-			{
-				mAvatar->setMorphMasksValid(TRUE, mBakedTexIndex);
-			}
 		}
 	}
 	
@@ -786,12 +780,10 @@ void LLTexLayerSet::gatherMorphMaskAlpha(U8 *data, S32 width, S32 height)
 {
 	memset(data, 255, width * height);
 
-	BOOL render_morph = mAvatar->morphMaskNeedsUpdate(mBakedTexIndex);
-
 	for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
 	{
 		LLTexLayerInterface* layer = *iter;
-		layer->gatherAlphaMasks(data, mComposite->getOriginX(),mComposite->getOriginY(), width, height, render_morph);
+		layer->gatherAlphaMasks(data, mComposite->getOriginX(),mComposite->getOriginY(), width, height);
 	}
 	
 	// Set alpha back to that of our alpha masks.
@@ -861,6 +853,31 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 void LLTexLayerSet::applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components)
 {
 	mAvatar->applyMorphMask(tex_data, width, height, num_components, mBakedTexIndex);
+}
+
+BOOL LLTexLayerSet::isMorphValid()
+{
+	for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
+	{
+		LLTexLayerInterface* layer = *iter;
+		if (layer && !layer->isMorphValid())
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+void LLTexLayerSet::invalidateMorphMasks()
+{
+	for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
+	{
+		LLTexLayerInterface* layer = *iter;
+		if (layer)
+		{
+			layer->invalidateMorphMasks();
+		}
+	}
 }
 
 
@@ -1282,7 +1299,7 @@ void LLTexLayer::calculateTexLayerColor(const param_color_list_t &param_list, LL
 	}
 }
 
-BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height, BOOL render_morph)
+BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 {
 	LLGLEnable color_mat(GL_COLOR_MATERIAL);
 	gPipeline.disableLights();
@@ -1333,7 +1350,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height, BOOL render_morph)
 			}
 		}//*/
 
-		renderMorphMasks(x, y, width, height, net_color, render_morph);
+		renderMorphMasks(x, y, width, height, net_color);
 		alpha_mask_specified = TRUE;
 		gGL.flush();
 		gGL.blendFunc(LLRender::BF_DEST_ALPHA, LLRender::BF_ONE_MINUS_DEST_ALPHA);
@@ -1534,12 +1551,12 @@ BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 	return success;
 }
 
-/*virtual*/ void LLTexLayer::gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, BOOL render_morph)
+/*virtual*/ void LLTexLayer::gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height)
 {
-	addAlphaMask(data, originX, originY, width, height, render_morph);
+	addAlphaMask(data, originX, originY, width, height);
 }
 
-BOOL LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color, BOOL render_morph)
+BOOL LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color)
 {
 	BOOL success = TRUE;
 
@@ -1578,46 +1595,38 @@ BOOL LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 	// Accumulate the alpha component of the texture
 	if( getInfo()->mLocalTexture != -1 )
 	{
-			LLViewerTexture* tex = mLocalTextureObject->getImage();
-			if( tex && (tex->getComponents() == 4) )
-			{
-				LLGLSNoAlphaTest gls_no_alpha_test;
+		LLViewerTexture* tex = mLocalTextureObject->getImage();
+		if( tex && (tex->getComponents() == 4) )
+		{
+			LLGLSNoAlphaTest gls_no_alpha_test;
 
-				LLTexUnit::eTextureAddressMode old_mode = tex->getAddressMode();
-				
-				gGL.getTexUnit(0)->bind(tex);
-				gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+			LLTexUnit::eTextureAddressMode old_mode = tex->getAddressMode();
+			
+			gGL.getTexUnit(0)->bind(tex);
+			gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
-				gl_rect_2d_simple_tex( width, height );
+			gl_rect_2d_simple_tex( width, height );
 
-				gGL.getTexUnit(0)->setTextureAddressMode(old_mode);
-				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-			}
-			else
-			{
-				success = FALSE;
-			}
+			gGL.getTexUnit(0)->setTextureAddressMode(old_mode);
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		}
+	}
 
 	if( !getInfo()->mStaticImageFileName.empty() )
 	{
-			LLViewerTexture* tex = LLTexLayerStaticImageList::getInstance()->getTexture(getInfo()->mStaticImageFileName, getInfo()->mStaticImageIsMask);
-			if( tex )
+		LLViewerTexture* tex = LLTexLayerStaticImageList::getInstance()->getTexture(getInfo()->mStaticImageFileName, getInfo()->mStaticImageIsMask);
+		if( tex )
+		{
+			if(	(tex->getComponents() == 4) ||
+				( (tex->getComponents() == 1) && getInfo()->mStaticImageIsMask ) )
 			{
-				if(	(tex->getComponents() == 4) ||
-					( (tex->getComponents() == 1) && getInfo()->mStaticImageIsMask ) )
-				{
-					LLGLSNoAlphaTest gls_no_alpha_test;
-					gGL.getTexUnit(0)->bind(tex);
-					gl_rect_2d_simple_tex( width, height );
-					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-				}
-			}
-			else
-			{
-				success = FALSE;
+				LLGLSNoAlphaTest gls_no_alpha_test;
+				gGL.getTexUnit(0)->bind(tex);
+				gl_rect_2d_simple_tex( width, height );
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			}
 		}
+	}
 
 	// Draw a rectangle with the layer color to multiply the alpha by that color's alpha.
 	// Note: we're still using gGL.blendFunc( GL_DST_ALPHA, GL_ZERO );
@@ -1634,7 +1643,7 @@ BOOL LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 
 	gGL.setColorMask(true, true);
 	
-	if (render_morph && mHasMorph && success)
+	if (hasMorph() && success)
 	{
 		LLCRC alpha_mask_crc;
 		const LLUUID& uuid = getUUID();
@@ -1674,7 +1683,7 @@ BOOL LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 	return success;
 }
 
-void LLTexLayer::addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height, BOOL render_morph)
+void LLTexLayer::addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height)
 {
 	S32 size = width * height;
 	U8* alphaData = getAlphaData();
@@ -1684,7 +1693,7 @@ void LLTexLayer::addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32
 		findNetColor( &net_color );
 		// TODO: eliminate need for layer morph mask valid flag
 		invalidateMorphMasks();
-		renderMorphMasks(originX, originY, width, height, net_color, render_morph);
+		renderMorphMasks(originX, originY, width, height, net_color);
 		alphaData = getAlphaData();
 	}
 	if (alphaData)
@@ -1805,7 +1814,7 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i)
 	return layer;
 }
 
-/*virtual*/ BOOL LLTexLayerTemplate::render(S32 x, S32 y, S32 width, S32 height, BOOL render_morph)
+/*virtual*/ BOOL LLTexLayerTemplate::render(S32 x, S32 y, S32 width, S32 height)
 {
 	BOOL success = TRUE;
 	updateWearableCache();
@@ -1827,7 +1836,7 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i)
 		{
 			wearable->writeToAvatar(FALSE, FALSE);
 			layer->setLTO(lto);
-			success &= layer->render(x,y,width,height,render_morph);
+			success &= layer->render(x,y,width,height);
 		}
 	}
 
@@ -1849,7 +1858,7 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i)
 	return success;
 }
 
-/*virtual*/ void LLTexLayerTemplate::gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, BOOL render_morph)
+/*virtual*/ void LLTexLayerTemplate::gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height)
 {
 	U32 num_wearables = updateWearableCache();
 	for (U32 i = 0; i < num_wearables; i++)
@@ -1857,7 +1866,7 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i)
 		LLTexLayer *layer = getLayer(i);
 		if (layer)
 		{
-			layer->addAlphaMask(data, originX, originY, width, height, render_morph);
+			layer->addAlphaMask(data, originX, originY, width, height);
 		}
 	}
 }

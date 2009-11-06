@@ -822,7 +822,7 @@ void LLWorldMapView::draw()
 		else
 		{
 			double value = fmod(current_time, 2);
-			value = 0.5 + 0.5*cos(value * 3.14159f);
+			value = 0.5 + 0.5*cos(value * F_PI);
 			LLColor4 loading_color(0.0, F32(value/2), F32(value), 1.0);
 			drawTracking( LLWorldMap::getInstance()->mUnknownLocation, loading_color, TRUE, getString("Loading"), "");
 		}

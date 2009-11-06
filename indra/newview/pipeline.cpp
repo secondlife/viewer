@@ -1474,7 +1474,7 @@ F32 LLPipeline::calcPixelArea(LLVector3 center, LLVector3 size, LLCamera &camera
 	//get area of circle around node
 	F32 app_angle = atanf(size.length()/dist);
 	F32 radius = app_angle*LLDrawable::sCurPixelAngle;
-	return radius*radius * 3.14159f;
+	return radius*radius * F_PI;
 }
 
 void LLPipeline::grabReferences(LLCullResult& result)

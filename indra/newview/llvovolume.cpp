@@ -739,15 +739,15 @@ F32 LLVOVolume::getTextureVirtualSize(LLFace* face)
 
 	face->setPixelArea(face_area);
 
-	if (face_area <= 0)
+	if (face_area <= 0.f)
 	{
 		return 0.f;
 	}
 
 	//get area of circle in texture space
 	LLVector2 tdim = face->mTexExtents[1] - face->mTexExtents[0];
-	F32 texel_area = (tdim * 0.5f).lengthSquared()*3.14159f;
-	if (texel_area <= 0)
+	F32 texel_area = (tdim * 0.5f).lengthSquared()*F_PI;
+	if (texel_area <= 0.f)
 	{
 		// Probably animated, use default
 		texel_area = 1.f;
@@ -1036,7 +1036,7 @@ BOOL LLVOVolume::calcLOD()
 	}
 	
 	// DON'T Compensate for field of view changing on FOV zoom.
-	distance *= 3.14159f/3.f;
+	distance *= F_PI/3.f;
 
 	cur_detail = computeLODDetail(llround(distance, 0.01f), 
 									llround(radius, 0.01f));
