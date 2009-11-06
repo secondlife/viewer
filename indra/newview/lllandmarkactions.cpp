@@ -49,6 +49,7 @@
 #include "llstring.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
+#include "llworldmapmessage.h"
 #include "llviewerwindow.h"
 #include "llwindow.h"
 #include "llworldmap.h"
@@ -305,13 +306,13 @@ void LLLandmarkActions::getSLURLfromPosGlobal(const LLVector3d& global_pos, slur
 	{
 		U64 new_region_handle = to_region_handle(global_pos);
 
-		LLWorldMap::url_callback_t url_cb = boost::bind(&LLLandmarkActions::onRegionResponseSLURL,
+		LLWorldMapMessage::url_callback_t url_cb = boost::bind(&LLLandmarkActions::onRegionResponseSLURL,
 														cb,
 														global_pos,
 														escaped,
 														_2);
 
-		LLWorldMap::getInstance()->sendHandleRegionRequest(new_region_handle, url_cb, std::string("unused"), false);
+		LLWorldMapMessage::getInstance()->sendHandleRegionRequest(new_region_handle, url_cb, std::string("unused"), false);
 	}
 }
 
@@ -322,18 +323,19 @@ void LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(const LLVector3d& gl
 	if (sim_infop)
 	{
 		LLVector3 pos = sim_infop->getLocalPos(global_pos);
-		cb(sim_infop->mName, llround(pos.mV[VX]), llround(pos.mV[VY]));
+		std::string name = sim_infop->getName() ;
+		cb(name, llround(pos.mV[VX]), llround(pos.mV[VY]));
 	}
 	else
 	{
 		U64 new_region_handle = to_region_handle(global_pos);
 
-		LLWorldMap::url_callback_t url_cb = boost::bind(&LLLandmarkActions::onRegionResponseNameAndCoords,
+		LLWorldMapMessage::url_callback_t url_cb = boost::bind(&LLLandmarkActions::onRegionResponseNameAndCoords,
 														cb,
 														global_pos,
 														_1);
 
-		LLWorldMap::getInstance()->sendHandleRegionRequest(new_region_handle, url_cb, std::string("unused"), false);
+		LLWorldMapMessage::getInstance()->sendHandleRegionRequest(new_region_handle, url_cb, std::string("unused"), false);
 	}
 }
 
@@ -365,7 +367,8 @@ void LLLandmarkActions::onRegionResponseNameAndCoords(region_name_and_coords_cal
 	if (sim_infop)
 	{
 		LLVector3 local_pos = sim_infop->getLocalPos(global_pos);
-		cb(sim_infop->mName, llround(local_pos.mV[VX]), llround(local_pos.mV[VY]));
+		std::string name = sim_infop->getName() ;
+		cb(name, llround(local_pos.mV[VX]), llround(local_pos.mV[VY]));
 	}
 }
 

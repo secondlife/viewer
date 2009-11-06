@@ -189,7 +189,7 @@ bool LLLFSThread::Request::processRequest()
 	{
 		llassert(mOffset >= 0);
 		LLAPRFile infile ;
-		infile.open(mThread->getLocalAPRFilePool(), mFileName, LL_APR_RB);
+		infile.open(mFileName, LL_APR_RB, mThread->getLocalAPRFilePool());
 		if (!infile.getFileHandle())
 		{
 			llwarns << "LLLFS: Unable to read file: " << mFileName << llendl;
@@ -213,7 +213,7 @@ bool LLLFSThread::Request::processRequest()
 		if (mOffset < 0)
 			flags |= APR_APPEND;
 		LLAPRFile outfile ;
-		outfile.open(mThread->getLocalAPRFilePool(), mFileName, flags);
+		outfile.open(mFileName, flags, mThread->getLocalAPRFilePool());
 		if (!outfile.getFileHandle())
 		{
 			llwarns << "LLLFS: Unable to write file: " << mFileName << llendl;

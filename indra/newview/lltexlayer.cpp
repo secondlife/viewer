@@ -1371,7 +1371,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height, BOOL render_morph)
 
 					LLTexUnit::eTextureAddressMode old_mode = tex->getAddressMode();
 					
-					gGL.getTexUnit(0)->bind(tex);
+					gGL.getTexUnit(0)->bind(tex, TRUE);
 					gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
 					gl_rect_2d_simple_tex( width, height );
@@ -1393,7 +1393,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height, BOOL render_morph)
 			LLViewerTexture* tex = LLTexLayerStaticImageList::getInstance()->getTexture(getInfo()->mStaticImageFileName, getInfo()->mStaticImageIsMask);
 			if( tex )
 			{
-				gGL.getTexUnit(0)->bind(tex);
+				gGL.getTexUnit(0)->bind(tex, TRUE);
 				gl_rect_2d_simple_tex( width, height );
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			}
@@ -1506,7 +1506,7 @@ BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 		if( tex )
 		{
 			LLGLSNoAlphaTest gls_no_alpha_test;
-			gGL.getTexUnit(0)->bind(tex);
+			gGL.getTexUnit(0)->bind(tex, TRUE);
 			gl_rect_2d_simple_tex( width, height );
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		}
@@ -1585,7 +1585,7 @@ BOOL LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 
 				LLTexUnit::eTextureAddressMode old_mode = tex->getAddressMode();
 				
-				gGL.getTexUnit(0)->bind(tex);
+				gGL.getTexUnit(0)->bind(tex, TRUE);
 				gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
 				gl_rect_2d_simple_tex( width, height );
@@ -1608,7 +1608,7 @@ BOOL LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 					( (tex->getComponents() == 1) && getInfo()->mStaticImageIsMask ) )
 				{
 					LLGLSNoAlphaTest gls_no_alpha_test;
-					gGL.getTexUnit(0)->bind(tex);
+					gGL.getTexUnit(0)->bind(tex, TRUE);
 					gl_rect_2d_simple_tex( width, height );
 					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				}
@@ -2034,7 +2034,7 @@ LLViewerTexture* LLTexLayerStaticImageList::getTexture(const std::string& file_n
 				// that once an image is a mask it's always a mask.
 				tex->setExplicitFormat( GL_ALPHA8, GL_ALPHA );
 			}
-			tex->createGLTexture(0, image_raw);
+			tex->createGLTexture(0, image_raw, 0, TRUE, LLViewerTexture::LOCAL);
 
 			gGL.getTexUnit(0)->bind(tex);
 			tex->setAddressMode(LLTexUnit::TAM_CLAMP);

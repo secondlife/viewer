@@ -134,7 +134,7 @@ void LLVOSurfacePatch::setPixelAreaAndAngle(LLAgent &agent)
 }
 
 
-void LLVOSurfacePatch::updateTextures(LLAgent &agent)
+void LLVOSurfacePatch::updateTextures()
 {
 }
 

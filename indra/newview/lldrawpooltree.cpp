@@ -253,7 +253,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 	LLGLState normalize(GL_NORMALIZE, TRUE);
 	
 	// Bind the texture for this tree.
-	gGL.getTexUnit(sDiffTex)->bind(mTexturep.get());
+	gGL.getTexUnit(sDiffTex)->bind(mTexturep.get(), TRUE);
 		
 	U32 indices_drawn = 0;
 

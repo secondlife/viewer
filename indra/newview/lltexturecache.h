@@ -48,6 +48,27 @@ class LLTextureCache : public LLWorkerThread
 	friend class LLTextureCacheRemoteWorker;
 	friend class LLTextureCacheLocalFileWorker;
 
+private:
+	// Entries
+	struct EntriesInfo
+	{
+		EntriesInfo() : mVersion(0.f), mEntries(0) {}
+		F32 mVersion;
+		U32 mEntries;
+	};
+	struct Entry
+	{
+		Entry() {}
+		Entry(const LLUUID& id, S32 imagesize, S32 bodysize, U32 time) :
+			mID(id), mImageSize(imagesize), mBodySize(bodysize), mTime(time) {}
+		void init(const LLUUID& id, U32 time) { mID = id, mImageSize = 0; mBodySize = 0; mTime = time; }
+		LLUUID mID; // 16 bytes
+		S32 mImageSize; // total size of image if known
+		S32 mBodySize; // size of body file in body cache
+		U32 mTime; // seconds since 1/1/1970
+	};
+
+	
 public:
 
 	class Responder : public LLResponder
@@ -106,10 +127,16 @@ public:
 	// debug
 	S32 getNumReads() { return mReaders.size(); }
 	S32 getNumWrites() { return mWriters.size(); }
+	S64 getUsage() { return mTexturesSizeTotal; }
+	S64 getMaxUsage() { return sCacheMaxTexturesSize; }
+	U32 getEntries() { return mHeaderEntriesInfo.mEntries; }
+	U32 getMaxEntries() { return sCacheMaxEntries; };
+	BOOL isInCache(const LLUUID& id) ;
+	BOOL isInLocal(const LLUUID& id) ;
 
 protected:
 	// Accessed by LLTextureCacheWorker
-	bool appendToTextureEntryList(const LLUUID& id, S32 size);
+	bool updateTextureEntryList(const LLUUID& id, S32 size);
 	std::string getLocalFileName(const LLUUID& id);
 	std::string getTextureFileName(const LLUUID& id);
 	void addCompleted(Responder* responder, bool success);
@@ -122,7 +149,16 @@ private:
 	void readHeaderCache();
 	void purgeAllTextures(bool purge_directories);
 	void purgeTextures(bool validate);
-	S32 getHeaderCacheEntry(const LLUUID& id, bool touch, S32* imagesize = NULL);
+	LLAPRFile* openHeaderEntriesFile(bool readonly, S32 offset);
+	void closeHeaderEntriesFile();
+	void readEntriesHeader();
+	void writeEntriesHeader();
+	S32 openAndReadEntry(const LLUUID& id, Entry& entry, bool create);
+	void writeEntryAndClose(S32 idx, Entry& entry);
+	U32 openAndReadEntries(std::vector<Entry>& entries);
+	void writeEntriesAndClose(const std::vector<Entry>& entries);
+	S32 getHeaderCacheEntry(const LLUUID& id, S32& imagesize);
+	S32 setHeaderCacheEntry(const LLUUID& id, S32 imagesize);
 	bool removeHeaderCacheEntry(const LLUUID& id);
 	void lockHeaders() { mHeaderMutex.lock(); }
 	void unlockHeaders() { mHeaderMutex.unlock(); }
@@ -132,6 +168,7 @@ private:
 	LLMutex mWorkersMutex;
 	LLMutex mHeaderMutex;
 	LLMutex mListMutex;
+	LLAPRFile* mHeaderAPRFile;
 	
 	typedef std::map<handle_t, LLTextureCacheWorker*> handle_map_t;
 	handle_map_t mReaders;
@@ -145,42 +182,28 @@ private:
 	
 	BOOL mReadOnly;
 	
-	// Entries
-	struct EntriesInfo
-	{
-		F32 mVersion;
-		U32 mEntries;
-	};
-	struct Entry
-	{
-		Entry() {}
-		Entry(const LLUUID& id, S32 size, U32 time) : mID(id), mSize(size), mTime(time) {}
-		LLUUID mID; // 128 bits
-		S32 mSize; // total size of image if known (NOT size cached)
-		U32 mTime; // seconds since 1/1/1970
-	};
-
 	// HEADERS (Include first mip)
 	std::string mHeaderEntriesFileName;
 	std::string mHeaderDataFileName;
 	EntriesInfo mHeaderEntriesInfo;
-	typedef std::map<S32,LLUUID> index_map_t;
-	index_map_t mLRU; // index, id; stored as a map for fast removal
+	std::set<S32> mFreeList; // deleted entries
+	std::set<LLUUID> mLRU;
 	typedef std::map<LLUUID,S32> id_map_t;
 	id_map_t mHeaderIDMap;
 
 	// BODIES (TEXTURES minus headers)
 	std::string mTexturesDirName;
-	std::string mTexturesDirEntriesFileName;
 	typedef std::map<LLUUID,S32> size_map_t;
 	size_map_t mTexturesSizeMap;
 	S64 mTexturesSizeTotal;
 	LLAtomic32<BOOL> mDoPurge;
-	
+
 	// Statics
 	static F32 sHeaderCacheVersion;
 	static U32 sCacheMaxEntries;
 	static S64 sCacheMaxTexturesSize;
 };
+
+extern const S32 TEXTURE_CACHE_ENTRY_SIZE;
 
 #endif // LL_LLTEXTURECACHE_H

@@ -68,7 +68,7 @@ public:
 	/*virtual*/ BOOL        updateGeometry(LLDrawable *drawable);
 	/*virtual*/ void		updateSpatialExtents(LLVector3& newMin, LLVector3& newMax);
 
-	/*virtual*/ void updateTextures(LLAgent &agent);
+	/*virtual*/ void updateTextures();
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area
 
 	virtual U32 getPartitionType() const;
