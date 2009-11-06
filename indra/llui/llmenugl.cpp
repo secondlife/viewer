@@ -118,6 +118,7 @@ const F32 PIE_SHRINK_TIME = 0.2f; // time of transition between unbounded and bo
 
 const F32 ACTIVATE_HIGHLIGHT_TIME = 0.3f;
 
+static MenuRegistry::Register<LLMenuItemGL> register_menu_item("menu_item");
 static MenuRegistry::Register<LLMenuItemSeparatorGL> register_separator("menu_item_separator");
 static MenuRegistry::Register<LLMenuItemCallGL> register_menu_item_call("menu_item_call");
 static MenuRegistry::Register<LLMenuItemCheckGL> register_menu_item_check("menu_item_check");
@@ -132,6 +133,28 @@ static LLDefaultChildRegistry::Register<LLMenuGL> register_menu_default("menu");
 ///============================================================================
 /// Class LLMenuItemGL
 ///============================================================================
+
+LLMenuItemGL::Params::Params()
+:	shortcut("shortcut"),
+	jump_key("jump_key", KEY_NONE),
+	use_mac_ctrl("use_mac_ctrl", false),
+	rect("rect"),
+	left("left"),
+	top("top"),
+	right("right"),
+	bottom("bottom"),
+	width("width"),
+	height("height"),
+	bottom_delta("bottom_delta"),
+	left_delta("left_delta"),
+	enabled_color("enabled_color"),
+	disabled_color("disabled_color"),
+	highlight_bg_color("highlight_bg_color"),
+	highlight_fg_color("highlight_fg_color")
+{	
+	mouse_opaque = true;
+}
+
 // Default constructor
 LLMenuItemGL::LLMenuItemGL(const LLMenuItemGL::Params& p)
 :	LLUICtrl(p),
