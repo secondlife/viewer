@@ -44,6 +44,7 @@
 
 #include "llcachename.h"
 #include "llagentdata.h"
+#include "llimfloater.h"
 
 #define MENU_ITEM_VIEW_PROFILE 0
 #define MENU_ITEM_SEND_IM 1
@@ -354,7 +355,11 @@ void LLAvatarIconCtrl::onAvatarIconContextMenuItemClicked(const LLSD& userdata)
 		name.append(" ");
 		name.append(getLastName());
 
-		gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id);
+		LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id);
+		if (session_id != LLUUID::null)
+		{
+			LLIMFloater::show(session_id);
+		}
 	}
 	else if (level == "add")
 	{

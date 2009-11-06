@@ -210,6 +210,7 @@
 
 #include "lltexlayer.h"
 #include "llappearancemgr.h"
+#include "llimfloater.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -6265,9 +6266,13 @@ class LLAvatarSendIM : public view_listener_t
 
 			//EInstantMessage type = have_agent_callingcard(gLastHitObjectID)
 			//	? IM_SESSION_ADD : IM_SESSION_CARDLESS_START;
-			gIMMgr->addSession(name,
+			LLUUID session_id = gIMMgr->addSession(name,
 								IM_NOTHING_SPECIAL,
 								avatar->getID());
+			if (session_id != LLUUID::null)
+			{
+				LLIMFloater::show(session_id);
+			}
 		}
 		return true;
 	}

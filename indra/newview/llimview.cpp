@@ -1192,10 +1192,14 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 		}
 		else
 		{
-			gIMMgr->addSession(
+			LLUUID session_id = gIMMgr->addSession(
 				mPayload["session_name"].asString(),
 				type,
 				session_id);
+			if (session_id != LLUUID::null)
+			{
+				LLIMFloater::show(session_id);
+			}
 
 			std::string url = gAgent.getRegion()->getCapability(
 				"ChatSessionRequest");
@@ -1279,10 +1283,14 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 			}
 			else
 			{
-				gIMMgr->addSession(
+				LLUUID session_id = gIMMgr->addSession(
 					payload["session_name"].asString(),
 					type,
 					session_id);
+				if (session_id != LLUUID::null)
+				{
+					LLIMFloater::show(session_id);
+				}
 
 				std::string url = gAgent.getRegion()->getCapability(
 					"ChatSessionRequest");
@@ -1548,6 +1556,10 @@ LLUUID LLIMMgr::addP2PSession(const std::string& name,
 							const std::string& caller_uri)
 {
 	LLUUID session_id = addSession(name, IM_NOTHING_SPECIAL, other_participant_id);
+	if (session_id != LLUUID::null)
+	{
+		LLIMFloater::show(session_id);
+	}
 
 	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
 	if (speaker_mgr)
