@@ -150,11 +150,9 @@
 	     comment="Size of large font (points, or 1/72 of an inch)"
 	     size="10.0"
 	     />
-	     <!-- Changed Medium size to address menu font size not matching spec.
-	     May want to revert/update after menu font configuration has been enabled. -->
   <font_size name="Medium"
 	     comment="Size of medium font (points, or 1/72 of an inch)"
-	     size="8.0"
+	     size="9.0"
 	     />
   <font_size name="Small"
 	     comment="Size of small font (points, or 1/72 of an inch)"
