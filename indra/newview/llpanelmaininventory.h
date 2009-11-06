@@ -89,6 +89,7 @@ protected:
 	void startSearch();
 	
 	void toggleFindOptions();
+	void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action);
 
 	static BOOL filtersVisible(void* user_data);
 	void onClearSearch();
@@ -121,7 +122,6 @@ protected:
 	void onCustomAction(const LLSD& command_name);
 	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
 
-	void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action);
 
 private:
 	LLFloaterInventoryFinder* getFinder();

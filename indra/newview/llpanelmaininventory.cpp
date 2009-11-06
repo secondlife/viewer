@@ -34,6 +34,7 @@
 #include "llpanelmaininventory.h"
 
 #include "lldndbutton.h"
+#include "llfilepicker.h"
 #include "llfloaterinventory.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -45,8 +46,17 @@
 #include "llspinctrl.h"
 #include "lltooldraganddrop.h"
 #include "llviewermenu.h"
+#include "llviewertexturelist.h"
 
 static LLRegisterPanelClassWrapper<LLPanelMainInventory> t_inventory("panel_main_inventory"); // Seraph is this redundant with constructor?
+
+void on_file_loaded_for_save(BOOL success, 
+							 LLViewerFetchedTexture *src_vi,
+							 LLImageRaw* src, 
+							 LLImageRaw* aux_src, 
+							 S32 discard_level,
+							 BOOL final,
+							 void* userdata);
 
 ///----------------------------------------------------------------------------
 /// LLFloaterInventoryFinder
@@ -906,6 +916,9 @@ void LLPanelMainInventory::onClipboardAction(const LLSD& userdata)
 
 void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 {
+	if (!isActionEnabled(userdata))
+		return;
+
 	const std::string command_name = userdata.asString();
 	if (command_name == "new_window")
 	{
@@ -945,6 +958,25 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 	}
 	if (command_name == "save_texture")
 	{
+		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		if (!current_item)
+		{
+			return;
+		}
+
+		const LLUUID& item_id = current_item->getListener()->getUUID();
+		LLFilePicker& file_picker = LLFilePicker::instance();
+		const LLInventoryItem* item = gInventory.getItem(item_id);
+		if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_TGA, item ? LLDir::getScrubbedFileName(item->getName()) : LLStringUtil::null) )
+		{
+			// User canceled or we failed to acquire save file.
+			return;
+		}
+		// remember the user-approved/edited file name.
+		const LLUUID& asset_id = item->getAssetUUID();
+		LLPointer<LLViewerFetchedTexture> image = LLViewerTextureManager::getFetchedTexture(asset_id, MIPMAP_TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
+		image->setLoadedCallback( on_file_loaded_for_save, 
+								  0, TRUE, FALSE, new std::string(file_picker.getFirstFile()) );
 	}
 }
 
@@ -971,6 +1003,14 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 			return can_delete;
 		}
 	}
+	if (command_name == "save_texture")
+	{
+		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		if (current_item)
+		{
+			return (current_item->getListener()->getInventoryType() == LLInventoryType::IT_TEXTURE);
+		}
+	}
 	return FALSE;
 }
 
@@ -986,4 +1026,37 @@ bool LLPanelMainInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropType 
 		onClipboardAction("delete");
 	}
 	return true;
+}
+
+void on_file_loaded_for_save(BOOL success, 
+							 LLViewerFetchedTexture *src_vi,
+							 LLImageRaw* src, 
+							 LLImageRaw* aux_src, 
+							 S32 discard_level,
+							 BOOL final,
+							 void* userdata)
+{
+	std::string *filename = (std::string*) userdata;
+
+	if (final && success)
+	{
+		LLPointer<LLImageTGA> image_tga = new LLImageTGA;
+		if( !image_tga->encode( src ) )
+		{
+			LLSD args;
+			args["FILE"] = *filename;
+			LLNotifications::instance().add("CannotEncodeFile", args);
+		}
+		else if( !image_tga->save( *filename ) )
+		{
+			LLSD args;
+			args["FILE"] = *filename;
+			LLNotifications::instance().add("CannotWriteFile", args);
+		}
+	}
+	
+	if(!success )
+	{
+		LLNotifications::instance().add("CannotDownloadFile");
+	}
 }

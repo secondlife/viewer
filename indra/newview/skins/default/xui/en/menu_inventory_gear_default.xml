@@ -76,15 +76,15 @@
          function="Inventory.GearDefault.Custom.Action"
          parameter="empty_lostnfound" />
     </menu_item_call>
-    <menu_item_call
-     label="Save Texture As"
-     layout="topleft"
-     name="save_texture">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="save_texture" />
-        <on_enable
-         function="Inventory.GearDefault.Enable"
-         parameter="save_texture" />
-    </menu_item_call>
+        <menu_item_call
+         label="Save Texture As"
+         layout="topleft"
+         name="Save Texture As">
+            <on_click
+             function="Inventory.GearDefault.Custom.Action"
+             parameter="save_texture" />
+            <on_enable
+			 function="Inventory.GearDefault.Enable"
+			 parameter="save_texture" />
+        </menu_item_call>
 </menu>
