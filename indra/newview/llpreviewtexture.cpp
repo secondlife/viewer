@@ -48,6 +48,7 @@
 #include "lltextbox.h"
 #include "lltextureview.h"
 #include "llui.h"
+#include "llviewerinventory.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
 #include "lluictrlfactory.h"
@@ -63,7 +64,7 @@ const F32 PREVIEW_TEXTURE_MIN_ASPECT = 0.005f;
 
 
 LLPreviewTexture::LLPreviewTexture(const LLSD& key)
-	: LLPreview( key ),
+	: LLPreview(key),
 	  mLoadingFullImage( FALSE ),
 	  mShowKeepDiscard(FALSE),
 	  mCopyToInv(FALSE),
@@ -71,7 +72,8 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 	  mUpdateDimensions(TRUE),
 	  mLastHeight(0),
 	  mLastWidth(0),
-	  mAspectRatio(0.f)
+	  mAspectRatio(0.f),
+	  mPreviewToSave(FALSE)
 {
 	const LLInventoryItem *item = getItem();
 	if(item)
@@ -104,6 +106,10 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 		mIsCopyable = TRUE;
 	}
 
+	if (key.has("save_as"))
+	{
+		mPreviewToSave = TRUE;
+	}
 	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_texture.xml", FALSE);
 }
 
@@ -181,6 +187,12 @@ void LLPreviewTexture::draw()
 
 		if ( mImage.notNull() )
 		{
+			// Automatically bring up SaveAs dialog if we opened this to save the texture.
+			if (mPreviewToSave)
+			{
+				mPreviewToSave = FALSE;
+				saveAs();
+			}
 			// Draw the texture
 			glColor3f( 1.f, 1.f, 1.f );
 			gl_draw_scaled_image(interior.mLeft,
@@ -209,7 +221,7 @@ void LLPreviewTexture::draw()
 
 			if( mLoadingFullImage )
 			{
-				LLFontGL::getFontSansSerif()->renderUTF8(LLTrans::getString("Receiving:"), 0,
+				LLFontGL::getFontSansSerif()->renderUTF8(LLTrans::getString("Receiving"), 0,
 					interior.mLeft + 4, 
 					interior.mBottom + 4,
 					LLColor4::white, LLFontGL::LEFT, LLFontGL::BOTTOM,
@@ -304,6 +316,11 @@ void LLPreviewTexture::onFocusReceived()
 	LLPreview::onFocusReceived();
 }
 
+void LLPreviewTexture::openToSave()
+{
+	mPreviewToSave = TRUE;
+}
+
 // static
 void LLPreviewTexture::onFileLoadedForSave(BOOL success, 
 											LLViewerFetchedTexture *src_vi,
@@ -356,6 +373,7 @@ void LLPreviewTexture::onFileLoadedForSave(BOOL success,
 	{
 		LLNotifications::instance().add("CannotDownloadFile");
 	}
+
 }
 
 

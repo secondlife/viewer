@@ -41,6 +41,7 @@
 #include "llinventorypanel.h"
 #include "llfiltereditor.h"
 #include "llfloaterreg.h"
+#include "llpreviewtexture.h"
 #include "llscrollcontainer.h"
 #include "llsdserialize.h"
 #include "llspinctrl.h"
@@ -965,18 +966,11 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		}
 
 		const LLUUID& item_id = current_item->getListener()->getUUID();
-		LLFilePicker& file_picker = LLFilePicker::instance();
-		const LLInventoryItem* item = gInventory.getItem(item_id);
-		if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_TGA, item ? LLDir::getScrubbedFileName(item->getName()) : LLStringUtil::null) )
+		LLPreviewTexture* preview_texture = LLFloaterReg::showTypedInstance<LLPreviewTexture>("preview_texture", LLSD(item_id), TAKE_FOCUS_YES);
+		if (preview_texture)
 		{
-			// User canceled or we failed to acquire save file.
-			return;
+			preview_texture->openToSave();
 		}
-		// remember the user-approved/edited file name.
-		const LLUUID& asset_id = item->getAssetUUID();
-		LLPointer<LLViewerFetchedTexture> image = LLViewerTextureManager::getFetchedTexture(asset_id, MIPMAP_TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
-		image->setLoadedCallback( on_file_loaded_for_save, 
-								  0, TRUE, FALSE, new std::string(file_picker.getFirstFile()) );
 	}
 }
 
@@ -1002,6 +996,7 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 			}
 			return can_delete;
 		}
+		return FALSE;
 	}
 	if (command_name == "save_texture")
 	{
@@ -1010,8 +1005,9 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 		{
 			return (current_item->getListener()->getInventoryType() == LLInventoryType::IT_TEXTURE);
 		}
+		return FALSE;
 	}
-	return FALSE;
+	return TRUE;
 }
 
 bool LLPanelMainInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept)
@@ -1026,37 +1022,4 @@ bool LLPanelMainInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropType 
 		onClipboardAction("delete");
 	}
 	return true;
-}
-
-void on_file_loaded_for_save(BOOL success, 
-							 LLViewerFetchedTexture *src_vi,
-							 LLImageRaw* src, 
-							 LLImageRaw* aux_src, 
-							 S32 discard_level,
-							 BOOL final,
-							 void* userdata)
-{
-	std::string *filename = (std::string*) userdata;
-
-	if (final && success)
-	{
-		LLPointer<LLImageTGA> image_tga = new LLImageTGA;
-		if( !image_tga->encode( src ) )
-		{
-			LLSD args;
-			args["FILE"] = *filename;
-			LLNotifications::instance().add("CannotEncodeFile", args);
-		}
-		else if( !image_tga->save( *filename ) )
-		{
-			LLSD args;
-			args["FILE"] = *filename;
-			LLNotifications::instance().add("CannotWriteFile", args);
-		}
-	}
-	
-	if(!success )
-	{
-		LLNotifications::instance().add("CannotDownloadFile");
-	}
 }

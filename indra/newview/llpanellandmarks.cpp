@@ -265,7 +265,7 @@ LLLandmark* LLLandmarksPanel::getCurSelectedLandmark() const
 	return NULL;
 }
 
-LLFolderViewItem* LLLandmarksPanel::getCurSelectedItem () const 
+LLFolderViewItem* LLLandmarksPanel::getCurSelectedItem() const 
 {
 	return mCurrentSelectedList ?  mCurrentSelectedList->getRootFolder()->getCurSelectedItem() : NULL;
 }
