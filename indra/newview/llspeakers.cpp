@@ -87,6 +87,21 @@ void LLSpeaker::onAvatarNameLookup(const LLUUID& id, const std::string& first, c
 	mDisplayName = first + " " + last;
 }
 
+LLSpeakerUpdateModeratorEvent::LLSpeakerUpdateModeratorEvent(LLSpeaker* source)
+: LLEvent(source, "Speaker add moderator event"),
+  mSpeakerID (source->mID),
+  mIsModerator (source->mIsModerator)
+{
+}
+
+LLSD LLSpeakerUpdateModeratorEvent::getValue()
+{
+	LLSD ret;
+	ret["id"] = mSpeakerID;
+	ret["is_moderator"] = mIsModerator;
+	return ret;
+}
+
 LLSpeakerTextModerationEvent::LLSpeakerTextModerationEvent(LLSpeaker* source)
 : LLEvent(source, "Speaker text moderation event")
 {
@@ -437,9 +452,13 @@ void LLIMSpeakerMgr::setSpeakers(const LLSD& speakers)
 
 			if ( speaker_it->second.isMap() )
 			{
+				BOOL is_moderator = speakerp->mIsModerator;
 				speakerp->mIsModerator = speaker_it->second["is_moderator"];
 				speakerp->mModeratorMutedText =
 					speaker_it->second["mutes"]["text"];
+				// Fire event only if moderator changed
+				if ( is_moderator != speakerp->mIsModerator )
+					fireEvent(new LLSpeakerUpdateModeratorEvent(speakerp), "update_moderator");
 			}
 		}
 	}
@@ -507,7 +526,11 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 
 				if (agent_info.has("is_moderator"))
 				{
+					BOOL is_moderator = speakerp->mIsModerator;
 					speakerp->mIsModerator = agent_info["is_moderator"];
+					// Fire event only if moderator changed
+					if ( is_moderator != speakerp->mIsModerator )
+						fireEvent(new LLSpeakerUpdateModeratorEvent(speakerp), "update_moderator");
 				}
 
 				if (agent_info.has("mutes"))
