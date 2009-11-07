@@ -1638,6 +1638,45 @@ bool LLVOVolume::hasMedia() const
 	return result;
 }
 
+LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
+{
+	LLVector3 result = LLVector3::zero;
+	
+	LLFace* facep = mDrawable->getFace(face_id);
+	if(facep)
+	{
+		LLStrider<LLVector3> verticesp;
+		LLStrider<LLVector3> normalsp;
+		LLStrider<LLVector2> texCoordsp;
+		LLStrider<U16> indicesp;
+		S32 index_offset;
+		index_offset = facep->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
+		
+		if(index_offset != -1 && (normalsp.get() != NULL))
+		{
+			U16 count = facep->getGeomCount();
+			U16 i;
+			
+			for(i=0; i < count; i++)
+			{
+				LLVector3 normal = *normalsp++;
+//				llinfos << "adding " << normal << llendl;
+				result += normal;
+			}
+		}
+	}
+	
+	if(!result.isNull())
+	{
+//		llinfos << "before conversion: " << result << llendl;
+		result = volumeDirectionToAgent(result);
+		result.normalize();
+//		llinfos << "after conversion: " << result << llendl;
+	}
+	
+	return result;
+}
+
 void LLVOVolume::requestMediaDataUpdate()
 {
     sObjectMediaClient->fetchMedia(new LLMediaDataClientObjectImpl(this));
