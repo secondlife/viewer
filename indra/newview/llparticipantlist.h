@@ -35,6 +35,7 @@
 
 class LLSpeakerMgr;
 class LLAvatarList;
+class LLUICtrl;
 
 class LLParticipantList
 {
@@ -59,6 +60,7 @@ class LLParticipantList
 		bool onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 		bool onRemoveItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 		bool onClearListEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+		bool onModeratorUpdateEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 
 		/**
 		 * Sorts the Avatarlist by stored order
@@ -97,15 +99,27 @@ class LLParticipantList
 			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 		};
 
+		class SpeakerModeratorUpdateListener : public BaseSpeakerListner
+		{
+		public:
+			SpeakerModeratorUpdateListener(LLParticipantList& parent) : BaseSpeakerListner(parent) {}
+			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+		};
+
 	private:
 		void onAvatarListDoubleClicked(LLAvatarList* list);
+		void onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param);
 
 		LLSpeakerMgr*		mSpeakerMgr;
 		LLAvatarList*		mAvatarList;
 
-		LLPointer<SpeakerAddListener>		mSpeakerAddListener;
-		LLPointer<SpeakerRemoveListener>	mSpeakerRemoveListener;
-		LLPointer<SpeakerClearListener>		mSpeakerClearListener;
+		std::set<LLUUID>	mModeratorList;
+		std::set<LLUUID>	mModeratorToRemoveList;
+
+		LLPointer<SpeakerAddListener>				mSpeakerAddListener;
+		LLPointer<SpeakerRemoveListener>			mSpeakerRemoveListener;
+		LLPointer<SpeakerClearListener>				mSpeakerClearListener;
+		LLPointer<SpeakerModeratorUpdateListener>	mSpeakerModeratorListener;
 
 		EParticipantSortOrder	mSortOrder;
 };

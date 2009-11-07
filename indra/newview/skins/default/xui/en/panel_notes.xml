@@ -17,13 +17,16 @@
      left="0"
      top="0"
      height="517"
+     width="313"
      border_size="0">
         <panel
          name="notes_stack"
          follows="all"
          layout="topleft"
          top="0"
-         left="0">
+         left="0"
+         height="475"
+         width="313">
             <scroll_container
              color="DkGray2"
              follows="all"
@@ -31,8 +34,11 @@
              left="0"
              name="profile_scroll"
              opaque="true"
+             height="475"
+             width="313"
              top="0">
               <panel
+               height="450"
                layout="topleft"
                name="profile_scroll_panel"
                top="0"
@@ -104,7 +110,8 @@
          layout="topleft"
          left="0"
          name="notes_buttons_panel"
-         auto_resize="false">
+         auto_resize="false"
+         width="313">
        <button
          follows="bottom|left"
          height="19"

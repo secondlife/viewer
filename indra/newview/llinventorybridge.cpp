@@ -97,6 +97,7 @@
 #include "llfloateropenobject.h"
 #include "lltrans.h"
 #include "llappearancemgr.h"
+#include "llimfloater.h"
 
 using namespace LLOldEvents;
 
@@ -3390,7 +3391,11 @@ void LLCallingCardBridge::performAction(LLFolderView* folder, LLInventoryModel* 
 		{
 			std::string callingcard_name;
 			gCacheName->getFullName(item->getCreatorUUID(), callingcard_name);
-			gIMMgr->addSession(callingcard_name, IM_NOTHING_SPECIAL, item->getCreatorUUID());
+			LLUUID session_id = gIMMgr->addSession(callingcard_name, IM_NOTHING_SPECIAL, item->getCreatorUUID());
+			if (session_id != LLUUID::null)
+			{
+				LLIMFloater::show(session_id);
+			}
 		}
 	}
 	else if ("lure" == action)
