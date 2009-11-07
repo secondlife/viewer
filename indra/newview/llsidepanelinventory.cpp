@@ -95,8 +95,11 @@ BOOL LLSidepanelInventory::postBuild()
 	// UI elements from task panel
 	{
 		mTaskPanel = getChild<LLSidepanelTaskInfo>("sidepanel__task_panel");
-		LLButton* back_btn = mTaskPanel->getChild<LLButton>("back_btn");
-		back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
+		if (mTaskPanel)
+		{
+			LLButton* back_btn = mTaskPanel->getChild<LLButton>("back_btn");
+			back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
+		}
 	}
 	
 	return TRUE;
@@ -120,7 +123,8 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 	}
 	if (key.has("task"))
 	{
-		mTaskPanel->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
+		if (mTaskPanel)
+			mTaskPanel->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
 		showTaskInfoPanel();
 	}
 }
@@ -184,7 +188,8 @@ void LLSidepanelInventory::onSelectionChange(const std::deque<LLFolderViewItem*>
 void LLSidepanelInventory::showItemInfoPanel()
 {
 	mItemPanel->setVisible(TRUE);
-	mTaskPanel->setVisible(FALSE);
+	if (mTaskPanel)
+		mTaskPanel->setVisible(FALSE);
 	mInventoryPanel->setVisible(FALSE);
 
 	mItemPanel->dirty();
@@ -194,17 +199,21 @@ void LLSidepanelInventory::showItemInfoPanel()
 void LLSidepanelInventory::showTaskInfoPanel()
 {
 	mItemPanel->setVisible(FALSE);
-	mTaskPanel->setVisible(TRUE);
 	mInventoryPanel->setVisible(FALSE);
 
-	mTaskPanel->dirty();
-	mTaskPanel->setIsEditing(FALSE);
+	if (mTaskPanel)
+	{
+		mTaskPanel->setVisible(TRUE);
+		mTaskPanel->dirty();
+		mTaskPanel->setIsEditing(FALSE);
+	}
 }
 
 void LLSidepanelInventory::showInventoryPanel()
 {
 	mItemPanel->setVisible(FALSE);
-	mTaskPanel->setVisible(FALSE);
+	if (mTaskPanel)
+		mTaskPanel->setVisible(FALSE);
 	mInventoryPanel->setVisible(TRUE);
 	updateVerbs();
 }
