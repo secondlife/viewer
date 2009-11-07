@@ -7,7 +7,7 @@
  height="65"
  layout="topleft"
  name="navigation_bar"
- chrome="true" 
+ chrome="true"
  width="600">
 	<icon
 	 follows="all"
@@ -145,7 +145,7 @@
 	     top_delta="0"
 	     width="200" >
          <combo_editor
-          label="Search" />
+          label="Search Second Life" />
         </search_combo_box>
 	</panel>
 

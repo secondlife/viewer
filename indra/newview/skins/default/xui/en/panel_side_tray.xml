@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<!-- Side tray cannot show background because it is always 
+<!-- Side tray cannot show background because it is always
 	partially on screen to hold tab buttons. -->
 <side_tray
   name="sidebar"
@@ -10,7 +10,7 @@
 >
   <!-- Individual tabs must show background to have seemless
 	appearance up to tray panel header word like "Home".
-	Embedded panels are inset by a pixel and so their 
+	Embedded panels are inset by a pixel and so their
 	backgrounds will not block the world fully. -->
   <sidetray_tab
     name="sidebar_home"
@@ -70,7 +70,7 @@
 
     </panel_container>
   </sidetray_tab>
-  
+
   <sidetray_tab
     name="sidebar_places"
     help_topic="sidebar_places"
@@ -133,8 +133,8 @@
     help_topic="sidebar_inventory"
     tab_title="Inventory"
     description="Browse your inventory."
-    image="TabIcon_Inventory_Off"
-    image_selected="TabIcon_Inventory_Selected"
+    image="TabIcon_Things_Off"
+    image_selected="TabIcon_Things_Selected"
     mouse_opaque="false"
     background_visible="true"
   >
