@@ -86,6 +86,7 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llwearablelist.h"
+#include "llimfloater.h"
 
 static LLDefaultChildRegistry::Register<LLInventoryPanel> r("inventory_panel");
 
@@ -800,7 +801,11 @@ bool LLInventoryPanel::beginIMSession()
 		name = llformat("Session %d", session_num++);
 	}
 
-	gIMMgr->addSession(name, type, members[0], members);
+	LLUUID session_id = gIMMgr->addSession(name, type, members[0], members);
+	if (session_id != LLUUID::null)
+	{
+		LLIMFloater::show(session_id);
+	}
 		
 	return true;
 }

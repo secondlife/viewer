@@ -667,8 +667,10 @@ void LLPanelPeople::updateButtons()
 	buttonSetEnabled("im_btn",				(selected_uuids.size() >= 1)); // allow starting the friends conference for multiple selection
 	buttonSetEnabled("call_btn",			item_selected && false); // not implemented yet
 	buttonSetEnabled("share_btn",			item_selected && false); // not implemented yet
-	buttonSetEnabled("group_info_btn",		item_selected);
-	buttonSetEnabled("chat_btn",			item_selected);
+
+	bool none_group_selected = item_selected && selected_id.isNull();
+	buttonSetEnabled("group_info_btn", !none_group_selected);
+	buttonSetEnabled("chat_btn", !none_group_selected);
 }
 
 std::string LLPanelPeople::getActiveTabName() const
