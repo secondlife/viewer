@@ -296,6 +296,24 @@
              top_delta="0"
              value="Alex Superduperlongenamenton"
              width="205" />
+            <icon
+             follows="top|left"
+             height="16"
+             image_name="unknown"
+             layout="topleft"
+             left="10"
+             name="maturity_icon"
+             top_delta="0"
+             width="18" />
+            <text
+             follows="right|top"
+             height="16"
+             layout="topleft"
+             left_pad="8"
+             name="maturity_value"
+             top_delta="0"
+             value="unknown"
+             width="268" />
             <accordion
              follows="all"
              height="230"

@@ -293,7 +293,6 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 		mPosGlobal = hist_items[index].mGlobalPos;
 
 		mPlaceProfile->setInfoType(LLPanelPlaceInfo::TELEPORT_HISTORY);
-		mPlaceProfile->updateLastVisitedText(hist_items[index].mDate);
 		mPlaceProfile->displayParcelInfo(LLUUID(), mPosGlobal);
 	}
 
