@@ -8949,6 +8949,7 @@ void LLPipeline::loadMesh(LLVOVolume* vobj, LLUUID mesh_id, S32 detail)
 					group->derefLOD(lod);
 					return;
 				}
+
 				group->derefLOD(lod);
 			}
 
@@ -8962,6 +8963,7 @@ void LLPipeline::loadMesh(LLVOVolume* vobj, LLUUID mesh_id, S32 detail)
 					group->derefLOD(lod);
 					return;
 				}
+
 				group->derefLOD(lod);
 			}
 		}

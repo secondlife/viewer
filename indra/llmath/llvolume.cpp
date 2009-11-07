@@ -1676,7 +1676,8 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 	mFaceMask = 0x0;
 	mDetail = detail;
 	mSculptLevel = -2;
-	
+	mLODScaleBias.setVec(1,1,1);
+
 	// set defaults
 	if (mParams.getPathParams().getCurveType() == LL_PCODE_PATH_FLEXIBLE)
 	{
@@ -1689,8 +1690,6 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 	mProfilep = new LLProfile();
 
 	mGenerateSingleFace = generate_single_face;
-
-	mLODScaleBias.setVec(1,1,1);
 
 	generate();
 
@@ -1899,7 +1898,7 @@ BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 	{
 		if (!LLSDSerialize::deserialize(header, is, 1024*1024*1024))
 		{
-			llwarns << "not a valid mesh asset!" << llendl;
+			llwarns << "Mesh header parse error.  Not a valid mesh asset!" << llendl;
 			return FALSE;
 		}
 	}
@@ -1921,8 +1920,18 @@ BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 
 	if (lod >= 4)
 	{
-		llwarns << "Couldn't load model for given lod" << llendl;
-		return FALSE;
+		lod = llclamp((S32) mDetail, 0, 3);
+
+		while (lod >= 0 && header[nm[lod]]["offset"].asInteger() == -1)
+		{
+			--lod;
+		}
+
+		if (lod < 0)
+		{
+			llwarns << "Mesh header missing LOD offsets.  Not a valid mesh asset!" << llendl;
+			return FALSE;
+		}
 	}
 
 	is.seekg(header[nm[lod]]["offset"].asInteger(), std::ios_base::cur);
