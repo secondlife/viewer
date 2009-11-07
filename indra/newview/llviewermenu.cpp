@@ -5192,7 +5192,7 @@ void show_debug_menus()
 		gMenuBarView->setItemEnabled("Develop", qamode);
 
 		// Server ('Admin') menu hidden when not in godmode.
-		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT);
+		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT || gAgent.getAdminOverride());
 		gMenuBarView->setItemVisible("Admin", show_server_menu);
 		gMenuBarView->setItemEnabled("Admin", show_server_menu);
 	}
