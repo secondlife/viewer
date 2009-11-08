@@ -2,22 +2,29 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="185"
+ height="200"
  layout="topleft"
  name="Give Money"
  help_topic="give_money"
  save_rect="true"
  width="225">
+   <string
+    name="payee_group">
+        Pay Group
+   </string>
+   <string
+    name="payee_resident">
+        Pay Resident
+   </string>
    <text
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerifBold"
      height="18"
      layout="topleft"
      left="12"
      name="payee_label"
-     top="7"
+     top="22"
      width="75">
         Pay:
     </text>
@@ -45,7 +52,6 @@
     </text>
     <button
      height="23"
-     font="SansSerifSmall"  
      label="L$1"
      label_selected="L$1"
      layout="topleft"
@@ -55,8 +61,7 @@
      width="80" />
     <button
      height="23"
-     label="L$1"
-     font="SansSerif"  
+     label="L$5"
      label_selected="L$5"
      layout="topleft"
      left_pad="15"
@@ -65,7 +70,6 @@
     <button
      height="23"
      label="L$10"
-     font="SansSerifHuge"  
      label_selected="L$10"
      layout="topleft"
      left="25"
