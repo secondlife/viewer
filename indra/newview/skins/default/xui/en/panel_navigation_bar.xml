@@ -145,7 +145,8 @@
 	     top_delta="0"
 	     width="200" >
          <combo_editor
-          label="Search Second Life" />
+          label="Search [SECOND_LIFE]"
+          name="search_combo_editor"/>
         </search_combo_box>
 	</panel>
 

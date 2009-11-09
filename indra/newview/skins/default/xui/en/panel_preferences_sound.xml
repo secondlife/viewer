@@ -336,7 +336,7 @@
    follows="left|bottom"
    height="19"
    is_toggle="true"
-   label="Input / Output  Devices"
+   label="Input/Output Devices"
    layout="topleft"
    left="165"
    top_pad="12"
