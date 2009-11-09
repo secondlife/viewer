@@ -204,7 +204,16 @@ typedef std::map<LLUUID,U64,lluuid_less> toxic_asset_map_t;
 typedef void (*LLGetAssetCallback)(LLVFS *vfs, const LLUUID &asset_id,
 										 LLAssetType::EType asset_type, void *user_data, S32 status, LLExtStat ext_status);
 
-class LLAssetStorage
+class LLTempAssetStorage
+{
+public:
+	virtual ~LLTempAssetStorage() =0;
+	virtual void addTempAssetData(const LLUUID& asset_id,
+								  const LLUUID& agent_id,
+								  const std::string& host_name) = 0;
+};
+
+class LLAssetStorage : public LLTempAssetStorage
 {
 public:
 	// VFS member is public because static child methods need it :(

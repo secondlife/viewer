@@ -34,11 +34,11 @@
 
 #include "llpanel.h"
 
-class LLInventoryItem;
-class LLSidepanelObjectInfo;
-class LLTabContainer;
-class LLPanelMainInventory;
 class LLFolderViewItem;
+class LLInventoryItem;
+class LLPanelMainInventory;
+class LLSidepanelItemInfo;
+class LLSidepanelTaskInfo;
 
 class LLSidepanelInventory : public LLPanel
 {
@@ -50,17 +50,26 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 protected:
+	// Tracks highlighted (selected) item in inventory panel.
 	LLInventoryItem *getSelectedItem();
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
-	void onTabSelected();
-	void toggleObjectInfoPanel(BOOL visible);
-	void updateVerbs();
+	// "wear", "teleport", etc.
 	void performActionOnSelection(const std::string &action);
 
-	LLTabContainer*				mTabContainer;
-	LLSidepanelObjectInfo*		mSidepanelObjectInfo;
-	LLPanelMainInventory*		mPanelMainInventory;
+	void showItemInfoPanel();
+	void showTaskInfoPanel();
+	void showInventoryPanel();
+	void updateVerbs();
 
+	//
+	// UI Elements
+	//
+private:
+	LLPanel*					mInventoryPanel; // Main inventory view
+	LLSidepanelItemInfo*		mItemPanel; // Individual item view
+	LLSidepanelTaskInfo*		mTaskPanel; // Individual in-world object view
+
+protected:
 	void 						onInfoButtonClicked();
 	void 						onShareButtonClicked();
 	void 						onWearButtonClicked();
@@ -68,13 +77,14 @@ protected:
 	void 						onTeleportButtonClicked();
 	void 						onOverflowButtonClicked();
 	void 						onBackButtonClicked();
-	
+private:
 	LLButton*					mInfoBtn;
 	LLButton*					mShareBtn;
 	LLButton*					mWearBtn;
 	LLButton*					mPlayBtn;
 	LLButton*					mTeleportBtn;
 	LLButton*					mOverflowBtn;
+
 };
 
 #endif //LL_LLSIDEPANELINVENTORY_H

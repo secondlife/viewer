@@ -27,6 +27,8 @@
   <texture name="BackArrow_Off" file_name="icons/BackArrow_Off.png" preload="false" />
   <texture name="BackArrow_Press" file_name="icons/BackArrow_Press.png" preload="false" />
 
+  <texture name="Blank" file_name="Blank.png" preload="false" />
+
   <texture name="BottomTray_BG" file_name="bottomtray/BottomTray_BG.png" preload="false" />
 
   <texture name="BuyArrow_Off" file_name="navbar/BuyArrow_Off.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0"  />
@@ -49,6 +51,16 @@
   <texture name="Cam_Pan_Off" file_name="bottomtray/Cam_Pan_Off.png" preload="false" />
   <texture name="Cam_Pan_Over" file_name="bottomtray/CCam_Pan_Over.png" preload="false" />
   <texture name="Cam_Pan_Press" file_name="bottomtray/Cam_Pan_Press.png" preload="false" />
+
+  <texture name="Cam_Preset_Back_Off" file_name="bottomtray/Cam_Preset_Back_Off.png" preload="false" />
+  <texture name="Cam_Preset_Back_On" file_name="bottomtray/Cam_Preset_Back_On.png" preload="false" />
+  <texture name="Cam_Preset_Eye_Off" file_name="bottomtray/Cam_Preset_Eye_Off.png" preload="false" />
+  <texture name="Cam_Preset_Eye_On" file_name="bottomtray/Cam_Preset_Eye_On.png" preload="false" />
+  <texture name="Cam_Preset_Front_Off" file_name="bottomtray/Cam_Preset_Front_Off.png" preload="false" />
+  <texture name="Cam_Preset_Front_On" file_name="bottomtray/Cam_Preset_Front_On.png" preload="false" />
+  <texture name="Cam_Preset_Side_Off" file_name="bottomtray/Cam_Preset_Side_Off.png" preload="false" />
+  <texture name="Cam_Preset_Side_On" file_name="bottomtray/Cam_Preset_Side_On.png" preload="false" />
+
   <texture name="Cam_Rotate_In" file_name="bottomtray/Cam_Rotate_In.png" preload="false" />
   <texture name="Cam_Rotate_Out" file_name="bottomtray/Cam_Rotate_Out.png" preload="false" />
   <texture name="Cam_Tracking_In" file_name="bottomtray/Cam_Tracking_In.png" preload="false" />
@@ -496,9 +508,6 @@
   <texture name="YouAreHere_Badge" file_name="icons/YouAreHere_Badge.png" preload="false" />
 
   <!--WARNING OLD ART *do not use*-->
-
- <texture name="Banner_ForSale" file_name="Banner_ForSale.png" preload="false" />
-  <texture name="Banner_YouAreHere" file_name="Banner_YouAreHere.png" preload="false" />
 
   <texture name="btn_chatbar.tga" scale.left="20" scale.top="24" scale.right="44" scale.bottom="0" />
   <texture name="btn_chatbar_selected.tga" scale.left="20" scale.top="24" scale.right="44" scale.bottom="0" />

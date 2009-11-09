@@ -369,7 +369,7 @@ void LLSendTexLayerResponder::uploadComplete(const LLSD& content)
 	std::string result = content["state"];
 	LLUUID new_id = content["new_asset"];
 
-	llinfos << "LLSendTexLayerResponder::result from capabilities: " << result << llendl;
+	llinfos << "result: " << result << "new_id:" << new_id << llendl;
 	if (result == "complete"
 		&& mBakedUploadData != NULL)
 	{	// Invoke 
@@ -383,6 +383,14 @@ void LLSendTexLayerResponder::uploadComplete(const LLSD& content)
 	}
 }
 
+void LLSendTexLayerResponder::error(U32 statusNum, const std::string& reason)
+{
+	llinfos << "status: " << statusNum << " reason: " << reason << llendl;
+	
+	// Invoke the original callback with an error result
+	LLTexLayerSetBuffer::onTextureUploadComplete(LLUUID(), (void*) mBakedUploadData, -1, LL_EXSTAT_NONE);
+	mBakedUploadData = NULL;	// deleted in onTextureUploadComplete()
+}
 
 LLUpdateAgentInventoryResponder::LLUpdateAgentInventoryResponder(const LLSD& post_data,
 																 const LLUUID& vfile_id,

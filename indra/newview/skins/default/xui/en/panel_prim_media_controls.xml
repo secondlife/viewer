@@ -494,11 +494,30 @@ disabled
 		  image_selected="media_btn_optimalzoom.png"
 		  image_unselected="media_btn_optimalzoom.png"
 		  layout="topleft"
-		  tool_tip="Zoom"
+		  tool_tip="Zoom into media"
 		  min_width="22"
 		  width="22">
 		<button.commit_callback
 			function="MediaCtrl.Zoom" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="close"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		min_width="21"
+		width="21" >
+	  <button
+		  height="22"
+		  image_selected="media_btn_done.png"
+		  image_unselected="media_btn_done.png"
+		  layout="topleft"
+		  tool_tip ="Zoom Back"
+		  top_delta="-4"
+		  width="21" >
+		<button.commit_callback
+			function="MediaCtrl.Close" />
 	  </button>
 	</layout_panel>
 <!--
@@ -553,25 +572,6 @@ disabled
 		  width="3" />
 	</panel>
 -->
-	<layout_panel
-		name="close"
-		auto_resize="false"
-		user_resize="false"
-		layout="topleft"
-		min_width="21"
-		width="21" >
-	  <button
-		  height="22"
-		  image_selected="media_btn_done.png"
-		  image_unselected="media_btn_done.png"
-		  layout="topleft"
-		  tool_tip ="Close media control"
-		  top_delta="-4"
-		  width="21" >
-		<button.commit_callback
-			function="MediaCtrl.Close" />
-	  </button>
-	</layout_panel>
 	<layout_panel
 		width="0"
 		layout="topleft"

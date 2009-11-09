@@ -309,7 +309,18 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>AutoAcceptNewInventory</key>
+  <key>AuditTexture</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable texture auditting.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>AutoAcceptNewInventory</key>
     <map>
       <key>Comment</key>
       <string>Automatically accept new notecards/textures/landmarks</string>
@@ -3574,7 +3585,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://www.google.com/search?q=site%3Awiki.secondlife.com+[TOPIC]&amp;ignore_channel=[CHANNEL]&amp;ignore_version=[VERSION]&amp;ignore_os=[OS]&amp;ignore_language=[LANGUAGE]&amp;ignore_version_major=[VERSION_MAJOR]&amp;ignore_version_minor=[VERSION_MINOR]&amp;ignore_version_patch=[VERSION_PATCH]&amp;ignore_version_build=[VERSION_BUILD]</string>
+      <string>http://docs.lindenlab.com/help/helpfloater.php?topic=[TOPIC]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;os=[OS]&amp;language=[LANGUAGE]&amp;version_major=[VERSION_MAJOR]&amp;version_minor=[VERSION_MINOR]&amp;version_patch=[VERSION_PATCH]&amp;version_build=[VERSION_BUILD]</string>
     </map>
     <key>HighResSnapshot</key>
     <map>
@@ -4567,6 +4578,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>MiniMapPrimMaxRadius</key>
+    <map>
+      <key>Comment</key>
+      <string>Radius of the largest prim to show on the MiniMap. Increasing beyond 256 may cause client lag.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>256.0</real>
+    </map>
     <key>MiniMapRotate</key>
     <map>
       <key>Comment</key>
@@ -4581,7 +4603,7 @@
     <key>MiniMapScale</key>
     <map>
       <key>Comment</key>
-      <string>Miniature world map zoom levle (pixels per region)</string>
+      <string>Miniature world map zoom level (pixels per region)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6247,7 +6269,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>0</integer>
+    <integer>1</integer>
   </map>
 
   <key>RenderHighlightFadeTime</key>
@@ -8611,6 +8633,28 @@
       <key>Value</key>
       <real>20.0</real>
     </map>
+    <key>TextureDisable</key>
+    <map>
+      <key>Comment</key>
+      <string>If TRUE, do not load textures for in-world content</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TextureLoadFullRes</key>
+    <map>
+      <key>Comment</key>
+      <string>If TRUE, always load textures at full resolution (discard = 0)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>TextureMemory</key>
     <map>
       <key>Comment</key>
@@ -10669,5 +10713,38 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  </map>
+    <key>LogTextureDownloadsToViewerLog</key>
+    <map>
+      <key>Comment</key>
+      <string>Send texture download details to the viewer log</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>LogTextureDownloadsToSimulator</key>
+    <map>
+      <key>Comment</key>
+      <string>Send a digest of texture info to the sim</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TextureLoggingThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies the byte threshold at which texture download data should be sent to the sim.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+</map>
 </llsd>

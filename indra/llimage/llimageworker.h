@@ -37,49 +37,72 @@
 #include "llpointer.h"
 #include "llworkerthread.h"
 
-class LLImageWorker : public LLWorkerClass
+class LLImageDecodeThread : public LLQueuedThread
 {
 public:
-	static void initImageWorker(LLWorkerThread* workerthread);
-	static void cleanupImageWorker();
+	class Responder : public LLThreadSafeRefCount
+	{
+	protected:
+		virtual ~Responder();
+	public:
+		virtual void completed(bool success, LLImageRaw* raw, LLImageRaw* aux) = 0;
+	};
+
+	class ImageRequest : public LLQueuedThread::QueuedRequest
+	{
+	protected:
+		virtual ~ImageRequest(); // use deleteRequest()
+		
+	public:
+		ImageRequest(handle_t handle, LLImageFormatted* image,
+					 U32 priority, S32 discard, BOOL needs_aux,
+					 LLImageDecodeThread::Responder* responder);
+
+		/*virtual*/ bool processRequest();
+		/*virtual*/ void finishRequest(bool completed);
+
+		// Used by unit tests to check the consitency of the request instance
+		bool tut_isOK();
+		
+	private:
+		// input
+		LLPointer<LLImageFormatted> mFormattedImage;
+		S32 mDiscardLevel;
+		BOOL mNeedsAux;
+		// output
+		LLPointer<LLImageRaw> mDecodedImageRaw;
+		LLPointer<LLImageRaw> mDecodedImageAux;
+		BOOL mDecodedRaw;
+		BOOL mDecodedAux;
+		LLPointer<LLImageDecodeThread::Responder> mResponder;
+	};
 	
 public:
-	static LLWorkerThread* getWorkerThread() { return sWorkerThread; }
+	LLImageDecodeThread(bool threaded = true);
+	handle_t decodeImage(LLImageFormatted* image,
+						 U32 priority, S32 discard, BOOL needs_aux,
+						 Responder* responder);
+	S32 update(U32 max_time_ms);
 
-	// LLWorkerThread
-public:
-	LLImageWorker(LLImageFormatted* image, U32 priority, S32 discard,
-				  LLPointer<LLResponder> responder);
-	~LLImageWorker();
-
-	// called from WORKER THREAD, returns TRUE if done
-	/*virtual*/ bool doWork(S32 param);
+	// Used by unit tests to check the consistency of the thread instance
+	S32 tut_size();
 	
-	BOOL requestDecodedData(LLPointer<LLImageRaw>& raw, S32 discard = -1);
-	BOOL requestDecodedAuxData(LLPointer<LLImageRaw>& raw, S32 channel, S32 discard = -1);
-	void releaseDecodedData();
-	void cancelDecode();
-
 private:
-	// called from MAIN THREAD
-	/*virtual*/ void startWork(S32 param); // called from addWork()
-	/*virtual*/ void endWork(S32 param, bool aborted); // called from doWork()
-
-protected:
-	LLPointer<LLImageFormatted> mFormattedImage;
-	LLPointer<LLImageRaw> mDecodedImage;
-	S32 mDecodedType;
-	S32 mDiscardLevel;
-
-private:
-	U32 mPriority;
-	LLPointer<LLResponder> mResponder;
-	
-protected:
-	static LLWorkerThread* sWorkerThread;
-
-public:
-	static S32 sCount;
+	struct creation_info
+	{
+		handle_t handle;
+		LLPointer<LLImageFormatted> image;
+		U32 priority;
+		S32 discard;
+		BOOL needs_aux;
+		LLPointer<Responder> responder;
+		creation_info(handle_t h, LLImageFormatted* i, U32 p, S32 d, BOOL aux, Responder* r)
+			: handle(h), image(i), priority(p), discard(d), needs_aux(aux), responder(r)
+		{}
+	};
+	typedef std::list<creation_info> creation_list_t;
+	creation_list_t mCreationList;
+	LLMutex* mCreationMutex;
 };
 
 #endif

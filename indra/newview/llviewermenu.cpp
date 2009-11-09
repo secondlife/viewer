@@ -610,6 +610,14 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)((LLView*)gDebugView->mDebugConsolep) );
 		}
+		else if (gTextureSizeView && "texture size" == console_type)
+		{
+			toggle_visibility( (void*)gTextureSizeView );
+		}
+		else if (gTextureCategoryView && "texture category" == console_type)
+		{
+			toggle_visibility( (void*)gTextureCategoryView );
+		}
 		else if ("fast timers" == console_type)
 		{
 			toggle_visibility( (void*)gDebugView->mFastTimerView );
@@ -636,6 +644,14 @@ class LLAdvancedCheckConsole : public view_listener_t
 		else if ("debug" == console_type)
 		{
 			new_value = get_visibility( (void*)((LLView*)gDebugView->mDebugConsolep) );
+		}
+		else if (gTextureSizeView && "texture size" == console_type)
+		{
+			new_value = get_visibility( (void*)gTextureSizeView );
+		}
+		else if (gTextureCategoryView && "texture category" == console_type)
+		{
+			new_value = get_visibility( (void*)gTextureCategoryView );
 		}
 		else if ("fast timers" == console_type)
 		{
@@ -1160,28 +1176,6 @@ class LLAdvancedCheckWireframe : public view_listener_t
 	}
 };
 	
-//////////////////////
-// DISABLE TEXTURES //
-//////////////////////
-
-class LLAdvancedToggleDisableTextures : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLViewerTexture::sDontLoadVolumeTextures = !LLViewerTexture::sDontLoadVolumeTextures;
-		return true;
-	}
-};
-
-class LLAdvancedCheckDisableTextures : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = LLViewerTexture::sDontLoadVolumeTextures; // <-- make this using LLCacheControl
-		return new_value;
-	}
-};
-
 //////////////////////
 // TEXTURE ATLAS //
 //////////////////////
@@ -1885,7 +1879,7 @@ class LLAdvancedRebakeTextures : public view_listener_t
 };
 	
 	
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if 1 //ndef LL_RELEASE_FOR_DOWNLOAD
 ///////////////////////////
 // DEBUG AVATAR TEXTURES //
 ///////////////////////////
@@ -2523,24 +2517,12 @@ class LLObjectEnableTouch : public view_listener_t
 //		label.assign("Touch");
 //	}
 //}
-/*
-bool handle_object_open()
-{
-	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-	if(!obj) return true;
 
-	LLFloaterOpenObject::show();
-	return true;
+void handle_object_open()
+{
+	LLFloaterReg::showInstance("openobject");
 }
 
-class LLObjectOpen : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		return handle_object_open();
-	}
-};
-*/
 bool enable_object_open()
 {
 	// Look for contents in root object, which is all the LLFloaterOpenObject
@@ -2648,8 +2630,22 @@ void handle_object_edit()
 	// Could be first use
 	LLFirstUse::useBuild();
 	return;
-	
 }
+
+void handle_object_inspect()
+{
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	LLViewerObject* selected_objectp = selection->getFirstRootObject();
+	if (selected_objectp)
+	{
+		LLSD key;
+		key["task"] = "task";
+		LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+	}
+
+	LLFloaterReg::showInstance("inspect", LLSD());
+}
+
 //---------------------------------------------------------------------------
 // Land pie menu
 //---------------------------------------------------------------------------
@@ -3484,9 +3480,8 @@ void set_god_level(U8 god_level)
 	gAgent.setGodLevel( god_level );
 	LLViewerParcelMgr::getInstance()->notifyObservers();
 
-	// God mode changes sim visibility
-	LLWorldMap::getInstance()->reset();
-	LLWorldMap::getInstance()->setCurrentLayer(0);
+	// God mode changes region visibility
+	LLWorldMap::getInstance()->reloadItems(true);
 
 	// inventory in items may change in god mode
 	gObjectList.dirtyAllObjectInventory();
@@ -5198,7 +5193,7 @@ void show_debug_menus()
 		gMenuBarView->setItemEnabled("Develop", qamode);
 
 		// Server ('Admin') menu hidden when not in godmode.
-		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT);
+		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT || gAgent.getAdminOverride());
 		gMenuBarView->setItemVisible("Admin", show_server_menu);
 		gMenuBarView->setItemEnabled("Admin", show_server_menu);
 	}
@@ -7782,8 +7777,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedSelectedTextureInfo(), "Advanced.SelectedTextureInfo");
 	view_listener_t::addMenu(new LLAdvancedToggleWireframe(), "Advanced.ToggleWireframe");
 	view_listener_t::addMenu(new LLAdvancedCheckWireframe(), "Advanced.CheckWireframe");
-	view_listener_t::addMenu(new LLAdvancedToggleDisableTextures(), "Advanced.ToggleDisableTextures");
-	view_listener_t::addMenu(new LLAdvancedCheckDisableTextures(), "Advanced.CheckDisableTextures");
 	view_listener_t::addMenu(new LLAdvancedToggleTextureAtlas(), "Advanced.ToggleTextureAtlas");
 	view_listener_t::addMenu(new LLAdvancedCheckTextureAtlas(), "Advanced.CheckTextureAtlas");
 	view_listener_t::addMenu(new LLAdvancedEnableObjectObjectOcclusion(), "Advanced.EnableObjectObjectOcclusion");
@@ -7967,6 +7960,8 @@ void initialize_menus()
 
 	commit.add("Object.Buy", boost::bind(&handle_buy));
 	commit.add("Object.Edit", boost::bind(&handle_object_edit));
+	commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
+	commit.add("Object.Open", boost::bind(&handle_object_open));
 	
 	commit.add("Object.Take", boost::bind(&handle_take));
 

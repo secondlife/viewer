@@ -70,6 +70,11 @@ struct LLWearableArrivedData
 
 LLWearableList::~LLWearableList()
 {
+	llassert_always(mList.empty()) ;
+}
+
+void LLWearableList::cleanup() 
+{
 	for_each(mList.begin(), mList.end(), DeletePairedPointer());
 	mList.clear();
 }

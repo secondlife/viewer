@@ -336,7 +336,7 @@
    follows="left|bottom"
    height="19"
    is_toggle="true"
-   label="Input / Output  Devices"
+   label="Input/Output Devices"
    layout="topleft"
    left="165"
    top_pad="12"
@@ -504,17 +504,4 @@
      top_pad="0"
      width="200" />
     </panel>
-          <!-- Until new panel is hooked up to code, we need to be able to get to
-    the old window to change input devices. James -->
-  <button
-    follows="left|bottom"
-    label="Old"
-    name="legacy_device_window_btn"
-    height="16"
-    left="20"
-    top="-270"
-    width="40"
-    commit_callback.function="Floater.Show"
-    commit_callback.parameter="pref_voicedevicesettings"
-    />
     </panel>

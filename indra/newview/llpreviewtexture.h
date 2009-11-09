@@ -67,8 +67,7 @@ public:
 							S32 discard_level, 
 							BOOL final,
 							void* userdata );
-
-
+	void 				openToSave();
 protected:
 	void				init();
 	/* virtual */ BOOL	postBuild();
@@ -77,14 +76,17 @@ protected:
 	
 private:
 	void				updateDimensions();
-	LLUUID						mImageID;
+	LLUUID				mImageID;
 	LLPointer<LLViewerFetchedTexture>		mImage;
 	BOOL				mLoadingFullImage;
 	std::string			mSaveFileName;
 	LLFrameTimer		mSavedFileTimer;
 	BOOL                mShowKeepDiscard;
 	BOOL                mCopyToInv;
-	
+
+	// Save the image once it's loaded.
+	BOOL                mPreviewToSave;
+
 	// This is stored off in a member variable, because the save-as
 	// button and drag and drop functionality need to know.
 	BOOL mIsCopyable;
@@ -94,6 +96,4 @@ private:
 	F32 mAspectRatio;
 	BOOL mUpdateDimensions;
 };
-
-
 #endif  // LL_LLPREVIEWTEXTURE_H

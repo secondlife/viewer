@@ -109,10 +109,13 @@ LLViewerCamera::LLViewerCamera() : LLCamera()
 {
 	calcProjection(getFar());
 	mCameraFOVDefault = DEFAULT_FIELD_OF_VIEW;
+	mCosHalfCameraFOV = cosf(mCameraFOVDefault * 0.5f);
 	mPixelMeterRatio = 0.f;
 	mScreenPixelArea = 0;
 	mZoomFactor = 1.f;
 	mZoomSubregion = 1;
+	mAverageSpeed = 0.f;
+	mAverageAngularSpeed = 0.f;
 	gSavedSettings.getControl("CameraAngle")->getCommitSignal()->connect(boost::bind(&LLViewerCamera::updateCameraAngle, this, _2));
 }
 
@@ -151,15 +154,22 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center,
 
 	setOriginAndLookAt(origin, up_direction, point_of_interest);
 
-	F32 dpos = (center - last_position).magVec();
+	mVelocityDir = center - last_position ; 
+	F32 dpos = mVelocityDir.normVec() ;
 	LLQuaternion rotation;
 	rotation.shortestArc(last_axis, getAtAxis());
 
 	F32 x, y, z;
 	F32 drot;
 	rotation.getAngleAxis(&drot, &x, &y, &z);
+
 	mVelocityStat.addValue(dpos);
 	mAngularVelocityStat.addValue(drot);
+	
+	mAverageSpeed = mVelocityStat.getMeanPerSec() ;
+	mAverageAngularSpeed = mAngularVelocityStat.getMeanPerSec() ;
+	mCosHalfCameraFOV = cosf(0.5f * getView() * llmax(1.0f, getAspect()));
+
 	// update pixel meter ratio using default fov, not modified one
 	mPixelMeterRatio = getViewHeightInPixels()/ (2.f*tanf(mCameraFOVDefault*0.5));
 	// update screen pixel area
@@ -818,10 +828,12 @@ BOOL LLViewerCamera::areVertsVisible(LLViewerObject* volumep, BOOL all_verts)
 	LLCamera::setView(vertical_fov_rads); // call base implementation
 }
 
-void LLViewerCamera::setDefaultFOV(F32 vertical_fov_rads) {
+void LLViewerCamera::setDefaultFOV(F32 vertical_fov_rads) 
+{
 	vertical_fov_rads = llclamp(vertical_fov_rads, getMinView(), getMaxView());
 	setView(vertical_fov_rads);
 	mCameraFOVDefault = vertical_fov_rads; 
+	mCosHalfCameraFOV = cosf(mCameraFOVDefault * 0.5f);
 }
 
 

@@ -2914,46 +2914,37 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
 	if (!gLastVersionChannel.empty())
 	{
-		LLSD payload;
-		payload["message"] = version_channel;
-		LLNotifications::instance().add("ServerVersionChanged", LLSD(), payload, server_version_changed_callback);
+		// work out the URL for this server's Release Notes
+		std::string url ="http://wiki.secondlife.com/wiki/Release_Notes/";
+		std::string server_version = version_channel;
+		std::vector<std::string> s_vect;
+		boost::algorithm::split(s_vect, server_version, isspace);
+		for(U32 i = 0; i < s_vect.size(); i++)
+		{
+			if (i != (s_vect.size() - 1))
+			{
+				if(i != (s_vect.size() - 2))
+				{
+				   url += s_vect[i] + "_";
+				}
+				else
+				{
+					url += s_vect[i] + "/";
+				}
+			}
+			else
+			{
+				url += s_vect[i].substr(0,4);
+			}
+		}
+
+		LLSD args;
+		args["URL"] = url;
+		LLNotifications::instance().add("ServerVersionChanged", args);
 	}
 
 	gLastVersionChannel = version_channel;
 }
-
-bool server_version_changed_callback(const LLSD& notification, const LLSD& response)
-{
-	if(notification["payload"]["message"].asString() =="")
-		return false;
-	std::string url ="http://wiki.secondlife.com/wiki/Release_Notes/";
-	//parse the msg string
-	std::string server_version = notification["payload"]["message"].asString();
-	std::vector<std::string> s_vect;
-	boost::algorithm::split(s_vect, server_version, isspace);
-	for(U32 i = 0; i < s_vect.size(); i++)
-	{
-    	if (i != (s_vect.size() - 1))
-		{
-			if(i != (s_vect.size() - 2))
-			{
-			   url += s_vect[i] + "_";
-			}
-			else
-			{
-				url += s_vect[i] + "/";
-			}
-		}
-		else
-		{
-			url += s_vect[i].substr(0,4);
-		}
-	}
-	
-	LLWeb::loadURL(url);
-	return false;
-}
-
 
 void process_crossed_region(LLMessageSystem* msg, void**)
 {

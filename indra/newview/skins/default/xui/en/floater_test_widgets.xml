@@ -338,13 +338,13 @@ line to actually fit
    height="400"
    halign="center"
    layout="topleft"
-   left="575"
+   left="525"
    name="group_tab_container"
    tab_position="top"
    tab_height="20"
    tool_tip="tab container"
    top="80"
-   width="250">
+   width="300">
     <!-- "panel" is a container for widgets.  It is automatically resized to
          fit the parent tab_container. -->
     <panel
@@ -380,6 +380,46 @@ line to actually fit
        tool_tip="Color Swatch: Click to open Color Picker"
        top_delta="0"
        width="80" />
+      <text
+       top_pad="10"
+       left="10"
+       width="250" 
+       follows="top|left"
+       font.name="SansSerifSmall"
+       name="test_text10"
+       tool_tip="text">
+        SansSerifSmall.  Русский 中文 (简体)
+      </text>
+      <text
+       top_pad="10"
+       left="10"
+       width="250"
+       follows="top|left"
+       font.name="SansSerif"
+       name="test_text11"
+       tool_tip="text">
+        SansSerif.  Русский 中文 (简体)
+      </text>
+      <text
+       top_pad="10"
+       left="10"
+       width="250" 
+       follows="top|left"
+       font.name="SansSerifLarge"
+       name="test_text12"
+       tool_tip="text">
+        SansSerifLarge.  Русский 中文 (简体)
+      </text>
+      <text
+       top_pad="10"
+       left="10"
+       width="250"
+       follows="top|left"
+       font.name="SansSerifHuge"
+       name="test_text13"
+       tool_tip="text">
+        SansSerifHuge.  Русский 中文 (简体)
+      </text>
     </panel>
     <!-- panels can also refer to other floaters or panels -->
     <panel
