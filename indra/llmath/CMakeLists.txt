@@ -55,6 +55,7 @@ set(llmath_HEADER_FILES
     llplane.h
     llquantize.h
     llquaternion.h
+    llrandgauss.h
     llrect.h
     llsphere.h
     lltreenode.h
