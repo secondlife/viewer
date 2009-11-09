@@ -188,6 +188,7 @@ static	void updatePosition(void);
 		void setUserPTTState(bool ptt);
 		bool getUserPTTState();
 		void toggleUserPTTState(void);
+		void inputUserControlState(bool down); // interpret any sort of up-down mic-open control input according to ptt-toggle prefs
 		void setVoiceEnabled(bool enabled);
 		static bool voiceEnabled();
 		void setUsePTT(bool usePTT);

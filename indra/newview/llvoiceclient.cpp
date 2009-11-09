@@ -5925,8 +5925,6 @@ void LLVoiceClient::setMicGain(F32 volume)
 
 void LLVoiceClient::keyDown(KEY key, MASK mask)
 {	
-//	LL_DEBUGS("Voice") << "key is " << LLKeyboard::stringFromKey(key) << LL_ENDL;
-
 	if (gKeyboard->getKeyRepeated(key))
 	{
 		// ignore auto-repeat keys
@@ -5935,44 +5933,39 @@ void LLVoiceClient::keyDown(KEY key, MASK mask)
 
 	if(!mPTTIsMiddleMouse)
 	{
-		if(mPTTIsToggle)
-		{
-			if(key == mPTTKey)
-			{
-				toggleUserPTTState();
-			}
-		}
-		else if(mPTTKey != KEY_NONE)
-		{
-			setUserPTTState(gKeyboard->getKeyDown(mPTTKey));
-		}
+		bool down = (mPTTKey != KEY_NONE)
+			&& gKeyboard->getKeyDown(mPTTKey);
+		inputUserControlState(down);
 	}
 }
 void LLVoiceClient::keyUp(KEY key, MASK mask)
 {
 	if(!mPTTIsMiddleMouse)
 	{
-		if(!mPTTIsToggle && (mPTTKey != KEY_NONE))
+		bool down = (mPTTKey != KEY_NONE)
+			&& gKeyboard->getKeyDown(mPTTKey);
+		inputUserControlState(down);
+	}
+}
+void LLVoiceClient::inputUserControlState(bool down)
+{
+	if(mPTTIsToggle)
+	{
+		if(down) // toggle open-mic state on 'down'
 		{
-			setUserPTTState(gKeyboard->getKeyDown(mPTTKey));
+			toggleUserPTTState();
 		}
+	}
+	else // set open-mic state as an absolute
+	{
+		setUserPTTState(down);
 	}
 }
 void LLVoiceClient::middleMouseState(bool down)
 {
 	if(mPTTIsMiddleMouse)
 	{
-		if(mPTTIsToggle)
-		{
-			if(down)
-			{
-				toggleUserPTTState();
-			}
-		}
-		else
-		{
-			setUserPTTState(down);
-		}
+		inputUserControlState(down);
 	}
 }
 

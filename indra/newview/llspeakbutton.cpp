@@ -93,7 +93,8 @@ LLSpeakButton::LLSpeakButton(const Params& p)
 	addChild(mSpeakBtn);
 	LLTransientFloaterMgr::getInstance()->addControlView(mSpeakBtn);
 
-	mSpeakBtn->setClickedCallback(boost::bind(&LLSpeakButton::onClick_SpeakBtn, this));
+	mSpeakBtn->setMouseDownCallback(boost::bind(&LLSpeakButton::onMouseDown_SpeakBtn, this));
+	mSpeakBtn->setMouseUpCallback(boost::bind(&LLSpeakButton::onMouseUp_SpeakBtn, this));
 	mSpeakBtn->setToggleState(FALSE);
 
 	LLButton::Params show_params = p.show_button;
@@ -131,15 +132,15 @@ LLSpeakButton::~LLSpeakButton()
 {
 }
 
-void LLSpeakButton::setSpeakBtnToggleState(bool state)
+void LLSpeakButton::onMouseDown_SpeakBtn()
 {
-	mSpeakBtn->setToggleState(state);
+	bool down = true;
+	gVoiceClient->inputUserControlState(down); // this method knows/care about whether this translates into a toggle-to-talk or down-to-talk
 }
-
-void LLSpeakButton::onClick_SpeakBtn()
+void LLSpeakButton::onMouseUp_SpeakBtn()
 {
-	bool speaking = mSpeakBtn->getToggleState();
-	gVoiceClient->setUserPTTState(speaking);
+	bool down = false;
+	gVoiceClient->inputUserControlState(down);
 }
 
 void LLSpeakButton::onClick_ShowBtn()
