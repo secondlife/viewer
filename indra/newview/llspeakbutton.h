@@ -61,6 +61,7 @@ public:
 	};
 
 	/*virtual*/ ~LLSpeakButton();
+	/*virtual*/ void draw();
 
 	void setSpeakBtnToggleState(bool state);
 

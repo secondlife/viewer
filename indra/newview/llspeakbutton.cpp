@@ -62,6 +62,15 @@ LLSpeakButton::Params::Params()
 	// See widgets/talk_button.xml
 }
 
+void LLSpeakButton::draw()
+{
+	// gVoiceClient is the authoritative global source of info regarding our open-mic state, we merely reflect that state.
+	bool openmic = gVoiceClient->getUserPTTState();
+	mSpeakBtn->setToggleState(openmic);
+	llinfos << "mic state " << int(openmic) << llendl;
+	LLUICtrl::draw();
+}
+
 LLSpeakButton::LLSpeakButton(const Params& p)
 : LLUICtrl(p)
 , mPrivateCallPanel(NULL)
