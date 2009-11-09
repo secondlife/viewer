@@ -67,6 +67,11 @@ public:
 	static void startIM(const LLUUID& id);
 
 	/**
+	 * Start an avatar-to-avatar voice call with another user
+	 */
+	static void startCall(const LLUUID& id);
+
+	/**
 	 * Start conference chat with the given avatars.
 	 */
 	static void startConference(const std::vector<LLUUID>& ids);
@@ -95,6 +100,11 @@ public:
 	 * @return true if the avatar is blocked
 	 */
 	static bool isBlocked(const LLUUID& id);
+
+	/**
+	 * Return true if the avatar is in a P2P voice call with a given user
+	 */
+	static bool isCalling(const LLUUID &id);
 
 	/**
 	 * Invite avatar to a group.

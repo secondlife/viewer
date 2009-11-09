@@ -186,6 +186,38 @@ void LLAvatarActions::startIM(const LLUUID& id)
 }
 
 // static
+void LLAvatarActions::startCall(const LLUUID& id)
+{
+	if (id.isNull() || isCalling(id))
+	{
+		return;
+	}
+
+	std::string name;
+	gCacheName->getFullName(id, name);
+	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id);
+	if (session_id != LLUUID::null)
+	{
+		// always open IM window when connecting to voice
+		LLIMFloater::show(session_id);
+		gIMMgr->startCall(session_id);
+	}
+	make_ui_sound("UISndStartIM");
+}
+
+// static
+bool LLAvatarActions::isCalling(const LLUUID &id)
+{
+	if (id.isNull())
+	{
+		return false;
+	}
+
+	LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL, id);
+	return (LLIMModel::getInstance()->findIMSession(session_id) != NULL);
+}
+
+// static
 void LLAvatarActions::startConference(const std::vector<LLUUID>& ids)
 {
 	// *HACK: Copy into dynamic array
