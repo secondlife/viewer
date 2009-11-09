@@ -6,12 +6,12 @@
      label="Mute Text"
      layout="topleft"
      name="MuteText">
-        <menu_item_check.on_click
-         function="ParticipantList.ToggleMuteText" />
-        <menu_item_check.on_check
+        <on_check
          function="ParticipantList.CheckItem"
          parameter="is_muted" />
-        <menu_item_check.on_enable
+        <on_click
+         function="ParticipantList.ToggleMuteText" />
+        <on_enable
          function="ParticipantList.EnableItem"
          parameter="can_mute_text" />
     </menu_item_check>
@@ -19,12 +19,12 @@
      label="Allow text chat"
      layout="topleft"
      name="AllowTextChat">
-        <menu_item_check.on_click
-         function="ParticipantList.ToggleAllowTextChat" />
-        <menu_item_check.on_check
+        <on_check
          function="ParticipantList.CheckItem"
          parameter="is_allowed_text_chat" />
-        <menu_item_check.on_enable
+        <on_click
+         function="ParticipantList.ToggleAllowTextChat" />
+        <on_enable
          function="ParticipantList.EnableItem"
          parameter="can_allow_text_chat" />
     </menu_item_check>

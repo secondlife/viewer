@@ -32,9 +32,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llmenugl.h"
-#include "lluictrlfactory.h"
-
 // common includes
 #include "lltrans.h"
 #include "llavataractions.h"
