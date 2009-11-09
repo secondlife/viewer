@@ -674,8 +674,6 @@ void LLWearable::writeToAvatar( BOOL set_by_user, BOOL update_customize_floater 
 		avatar->updateSexDependentLayerSets( set_by_user );
 	}	
 	
-	avatar->updateMeshTextures();
-
 //	if( set_by_user )
 //	{
 //		gAgent.sendAgentSetAppearance();
@@ -719,7 +717,7 @@ void LLWearable::removeFromAvatar( EWearableType type, BOOL set_by_user )
 	}
 
 	avatar->updateVisualParams();
-	avatar->updateMeshTextures();
+	avatar->wearableUpdated(type);
 
 //	if( set_by_user )
 //	{

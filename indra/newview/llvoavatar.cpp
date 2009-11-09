@@ -5377,7 +5377,6 @@ void LLVOAvatar::updateSexDependentLayerSets( BOOL set_by_user )
 	invalidateComposite( mBakedTextureDatas[BAKED_HEAD].mTexLayerSet, set_by_user );
 	invalidateComposite( mBakedTextureDatas[BAKED_UPPER].mTexLayerSet, set_by_user );
 	invalidateComposite( mBakedTextureDatas[BAKED_LOWER].mTexLayerSet, set_by_user );
-	updateMeshTextures();
 }
 
 //-----------------------------------------------------------------------------
