@@ -198,5 +198,131 @@ private:
 	void* mUserData;
 };
 
+#include "llavatarpropertiesprocessor.h"
+
+class LLPanelClassifiedInfo : public LLPanel, public LLAvatarPropertiesObserver
+{
+public:
+
+	static LLPanelClassifiedInfo* create();
+
+	virtual ~LLPanelClassifiedInfo();
+
+	virtual void setExitCallback(const commit_callback_t& cb);
+
+	/*virtual*/ void onOpen(const LLSD& key);
+
+	/*virtual*/ BOOL postBuild();
+
+	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+
+	virtual void setAvatarId(const LLUUID& avatar_id) { mAvatarId = avatar_id; }
+
+	LLUUID& getAvatarId() { return mAvatarId; }
+
+	virtual void setSnapshotId(const LLUUID& id);
+
+	virtual LLUUID getSnapshotId();
+
+	virtual void setClassifiedId(const LLUUID& id) { mClassifiedId = id; }
+
+	virtual LLUUID& getClassifiedId() { return mClassifiedId; }
+
+	virtual void setClassifiedName(const std::string& name);
+
+	virtual std::string getClassifiedName();
+
+	virtual void setDescription(const std::string& desc);
+
+	virtual std::string getDescription();
+
+	virtual void setClassifiedLocation(const std::string& location);
+
+	virtual void setPosGlobal(const LLVector3d& pos) { mPosGlobal = pos; }
+
+	virtual LLVector3d& getPosGlobal() { return mPosGlobal; }
+
+protected:
+
+	LLPanelClassifiedInfo();
+
+	virtual void resetData();
+
+	virtual void resetControls();
+
+	static std::string createLocationText(
+		const std::string& original_name,
+		const std::string& sim_name, 
+		const LLVector3d& pos_global);
+
+	void onClickMap();
+	void onClickTeleport();
+	void onClickBack();
+	void onExit();
+
+private:
+
+	LLUUID mAvatarId;
+	LLUUID mClassifiedId;
+	LLVector3d mPosGlobal;
+};
+
+class LLPanelClassifiedEdit : public LLPanelClassifiedInfo
+{
+public:
+
+	static LLPanelClassifiedEdit* create();
+
+	virtual ~LLPanelClassifiedEdit();
+
+	BOOL postBuild();
+
+	void onOpen(const LLSD& key);
+
+	void processProperties(void* data, EAvatarProcessorType type);
+
+	BOOL isDirty() const;
+
+	void resetDirty();
+
+	void setSaveCallback(const commit_callback_t& cb);
+
+	void setCancelCallback(const commit_callback_t& cb);
+
+	void resetControls();
+
+	virtual bool isNewClassified() { return mNewClassified; }
+
+protected:
+
+	LLPanelClassifiedEdit();
+
+	void sendUpdate();
+
+	U32 getCategory();
+
+	void enableSaveButton(bool enable);
+
+	std::string makeClassifiedName();
+
+	void setParcelId(const LLUUID& id) { mParcelId = id; }
+
+	LLUUID getParcelId() { return mParcelId; }
+
+	S32 getPriceForListing();
+
+	U8 getClassifiedFlags();
+
+	void onClickSetLocation();
+	void onSnapshotChanged(LLUICtrl* ctrl);
+	void onClassifiedChanged();
+	void onClickSave();
+
+private:
+	LLTextureCtrl* mSnapshotCtrl;
+
+	LLUUID mParcelId;
+	bool mNewClassified;
+};
 
 #endif // LL_LLPANELCLASSIFIED_H

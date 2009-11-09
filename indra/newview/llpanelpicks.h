@@ -53,6 +53,8 @@ class LLFlatListView;
 class LLPanelPickInfo;
 class LLPanelPickEdit;
 class LLToggleableMenu;
+class LLPanelClassifiedInfo;
+class LLPanelClassifiedEdit;
 
 class LLPanelPicks 
 	: public LLPanelProfileTab
@@ -98,7 +100,9 @@ private:
 	void onClickInfo();
 	void onPanelPickClose(LLPanel* panel);
 	void onPanelPickSave(LLPanel* panel);
+	void onPanelClassifiedSave(LLPanelClassifiedEdit* panel);
 	void onPanelPickEdit();
+	void onPanelClassifiedEdit();
 	void onClickMenuEdit();
 
 	void createNewPick();
@@ -125,8 +129,8 @@ private:
 
 	void createPickInfoPanel();
 	void createPickEditPanel();
-// 	void openPickEditPanel(LLPickItem* pick);
-// 	void openPickInfoPanel(LLPickItem* pick);
+	void createClassifiedInfoPanel();
+	void createClassifiedEditPanel();
 
 	LLMenuGL* mPopupMenu;
 	LLPanelProfile* mProfilePanel;
@@ -134,6 +138,8 @@ private:
 	LLFlatListView* mPicksList;
 	LLFlatListView* mClassifiedsList;
 	LLPanelPickInfo* mPanelPickInfo;
+	LLPanelClassifiedInfo* mPanelClassifiedInfo;
+	LLPanelClassifiedEdit* mPanelClassifiedEdit;
 	LLPanelPickEdit* mPanelPickEdit;
 	LLToggleableMenu* mOverflowMenu;
 	LLToggleableMenu* mPlusMenu;

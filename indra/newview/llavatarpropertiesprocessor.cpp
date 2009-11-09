@@ -554,6 +554,36 @@ void LLAvatarPropertiesProcessor::sendPickInfoUpdate(const LLPickData* new_pick)
 	LLAgentPicksInfo::getInstance()->requestNumberOfPicks();
 }
 
+void LLAvatarPropertiesProcessor::sendClassifiedInfoUpdate(const LLAvatarClassifiedInfo* c_data)
+{
+	if(!c_data)
+	{
+		return;
+	}
+
+	LLMessageSystem* msg = gMessageSystem;
+
+	msg->newMessage(_PREHASH_ClassifiedInfoUpdate);
+
+	msg->nextBlock(_PREHASH_AgentData);
+	msg->addUUID(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUID(_PREHASH_SessionID, gAgent.getSessionID());
+
+	msg->nextBlock(_PREHASH_Data);
+	msg->addUUID(_PREHASH_ClassifiedID, c_data->classified_id);
+	msg->addU32(_PREHASH_Category, c_data->category);
+	msg->addString(_PREHASH_Name, c_data->name);
+	msg->addString(_PREHASH_Desc, c_data->description);
+	msg->addUUID(_PREHASH_ParcelID, c_data->parcel_id);
+	msg->addU32(_PREHASH_ParentEstate, 0);
+	msg->addUUID(_PREHASH_SnapshotID, c_data->snapshot_id);
+	msg->addVector3d(_PREHASH_PosGlobal, c_data->pos_global);
+	msg->addU8(_PREHASH_ClassifiedFlags, c_data->flags);
+	msg->addS32(_PREHASH_PriceForListing, c_data->price_for_listing);
+
+	gAgent.sendReliableMessage();
+}
+
 void LLAvatarPropertiesProcessor::sendPickInfoRequest(const LLUUID& creator_id, const LLUUID& pick_id)
 {
 	// Must ask for a pick based on the creator id because

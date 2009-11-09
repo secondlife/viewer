@@ -199,5 +199,10 @@ void LLPanelProfile::notifyParent(const LLSD& info)
 		onOpen(info);
 		return;
 	}
+	else if("save_classified" == action)
+	{
+	//	onOpen(info);
+		return;
+	}
 	LLPanel::notifyParent(info);
 }

@@ -212,6 +212,8 @@ public:
 
 	void sendPickInfoUpdate(const LLPickData* new_pick);
 
+	void sendClassifiedInfoUpdate(const LLAvatarClassifiedInfo* c_data);
+
 	void sendFriendRights(const LLUUID& avatar_id, S32 rights);
 
 	void sendNotes(const LLUUID& avatar_id, const std::string notes);
