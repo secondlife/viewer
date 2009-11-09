@@ -32,14 +32,19 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llmenugl.h"
+#include "lluictrlfactory.h"
+
 // common includes
 #include "lltrans.h"
 #include "llavataractions.h"
 #include "llagent.h"
+#include "llimview.h"
 
 #include "llparticipantlist.h"
 #include "llavatarlist.h"
 #include "llspeakers.h"
+#include "llviewermenu.h"
 
 //LLParticipantList retrieves add, clear and remove events and updates view accordingly 
 #if LL_MSVC
@@ -64,6 +69,9 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	mAvatarList->setDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
 	mAvatarList->setRefreshCompleteCallback(boost::bind(&LLParticipantList::onAvatarListRefreshed, this, _1, _2));
 
+	mParticipantListMenu = new LLParticipantListMenu(*this);
+	mAvatarList->setContextMenu(mParticipantListMenu);
+
 	//Lets fill avatarList with existing speakers
 	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
 
@@ -83,6 +91,8 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 
 LLParticipantList::~LLParticipantList()
 {
+	delete mParticipantListMenu;
+	mParticipantListMenu = NULL;
 }
 
 void LLParticipantList::onAvatarListDoubleClicked(LLAvatarList* list)
@@ -264,4 +274,140 @@ bool LLParticipantList::SpeakerClearListener::handleEvent(LLPointer<LLOldEvents:
 bool LLParticipantList::SpeakerModeratorUpdateListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 		return mParent.onModeratorUpdateEvent(event, userdata);
+}
+
+LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
+{
+	// set up the callbacks for all of the avatar menu items
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+	
+	registrar.add("ParticipantList.ToggleAllowTextChat", boost::bind(&LLParticipantList::LLParticipantListMenu::toggleAllowTextChat, this, _2));
+	registrar.add("ParticipantList.ToggleMuteText", boost::bind(&LLParticipantList::LLParticipantListMenu::toggleMuteText, this, _2));
+
+	enable_registrar.add("ParticipantList.EnableItem", boost::bind(&LLParticipantList::LLParticipantListMenu::enableContextMenuItem,	this, _2));
+	enable_registrar.add("ParticipantList.CheckItem",  boost::bind(&LLParticipantList::LLParticipantListMenu::checkContextMenuItem,	this, _2));
+
+	// create the context menu from the XUI
+	return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
+		"menu_participant_list.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+}
+
+void LLParticipantList::LLParticipantListMenu::toggleAllowTextChat(const LLSD& userdata)
+{
+	const LLUUID speaker_id = mUUIDs.front();
+
+	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+	LLSD data;
+	data["method"] = "mute update";
+	data["session-id"] = mParent.mSpeakerMgr->getSessionID();
+	data["params"] = LLSD::emptyMap();
+	data["params"]["agent_id"] = speaker_id;
+	data["params"]["mute_info"] = LLSD::emptyMap();
+	//current value represents ability to type, so invert
+	data["params"]["mute_info"]["text"] = !mParent.mSpeakerMgr->findSpeaker(speaker_id)->mModeratorMutedText;
+
+	class MuteTextResponder : public LLHTTPClient::Responder
+	{
+	public:
+		MuteTextResponder(const LLUUID& session_id)
+		{
+			mSessionID = session_id;
+		}
+
+		virtual void error(U32 status, const std::string& reason)
+		{
+			llwarns << status << ": " << reason << llendl;
+
+			if ( gIMMgr )
+			{
+				//403 == you're not a mod
+				//should be disabled if you're not a moderator
+				if ( 403 == status )
+				{
+					gIMMgr->showSessionEventError(
+						"mute",
+						"not_a_moderator",
+						mSessionID);
+				}
+				else
+				{
+					gIMMgr->showSessionEventError(
+						"mute",
+						"generic",
+						mSessionID);
+				}
+			}
+		}
+
+	private:
+		LLUUID mSessionID;
+	};
+
+	LLHTTPClient::post(
+		url,
+		data,
+		new MuteTextResponder(mParent.mSpeakerMgr->getSessionID()));
+}
+
+void LLParticipantList::LLParticipantListMenu::toggleMuteText(const LLSD& userdata)
+{
+	const LLUUID speaker_id = mUUIDs.front();
+	BOOL is_muted = LLMuteList::getInstance()->isMuted(speaker_id, LLMute::flagTextChat);
+	std::string name;
+
+	//fill in name using voice client's copy of name cache
+	LLPointer<LLSpeaker> speakerp = mParent.mSpeakerMgr->findSpeaker(speaker_id);
+	if (speakerp.isNull())
+	{
+		return;
+	}
+
+	name = speakerp->mDisplayName;
+
+	LLMute mute(speaker_id, name, speakerp->mType == LLSpeaker::SPEAKER_AGENT ? LLMute::AGENT : LLMute::OBJECT);
+
+	if (!is_muted)
+	{
+		LLMuteList::getInstance()->add(mute, LLMute::flagTextChat);
+	}
+	else
+	{
+		LLMuteList::getInstance()->remove(mute, LLMute::flagTextChat);
+	}
+}
+
+bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD& userdata)
+{
+	std::string item = userdata.asString();
+	if (item == "can_mute_text")
+	{
+		return mUUIDs.front() != gAgentID;
+	}
+	else
+		if (item == "can_allow_text_chat")
+		{
+			LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(mParent.mSpeakerMgr->getSessionID());
+			return im_session->mType == IM_SESSION_GROUP_START && mParent.mSpeakerMgr->findSpeaker(gAgentID)->mIsModerator;
+		}
+	return true;
+}
+
+bool LLParticipantList::LLParticipantListMenu::checkContextMenuItem(const LLSD& userdata)
+{
+	std::string item = userdata.asString();
+	const LLUUID& id = mUUIDs.front();
+	if (item == "is_muted")
+		return LLMuteList::getInstance()->isMuted(id, LLMute::flagTextChat); 
+	else
+		if (item == "is_allowed_text_chat")
+		{
+			LLPointer<LLSpeaker> selected_speakerp = mParent.mSpeakerMgr->findSpeaker(id);
+
+			if (selected_speakerp.notNull())
+			{
+				return !selected_speakerp->mModeratorMutedText;
+			}
+		}
+	return false;
 }
