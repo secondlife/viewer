@@ -1646,7 +1646,7 @@ LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
 	if (volume && face_id < volume->getNumVolumeFaces())
 	{
 		const LLVolumeFace& face = volume->getVolumeFace(face_id);
-		for (S32 i = 0; i < face.mVertices.size(); ++i)
+		for (S32 i = 0; i < (S32)face.mVertices.size(); ++i)
 		{
 			result += face.mVertices[i].mNormal;
 		}
