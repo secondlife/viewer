@@ -2634,6 +2634,8 @@ void handle_object_edit()
 
 void handle_object_inspect()
 {
+	// Disable sidepanel inspector
+	/*
 	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 	LLViewerObject* selected_objectp = selection->getFirstRootObject();
 	if (selected_objectp)
@@ -2642,6 +2644,7 @@ void handle_object_inspect()
 		key["task"] = "task";
 		LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 	}
+	*/
 
 	LLFloaterReg::showInstance("inspect", LLSD());
 }
