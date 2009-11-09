@@ -196,7 +196,7 @@ static	void updatePosition(void);
 		void setEarLocation(S32 loc);
 		void setVoiceVolume(F32 volume);
 		void setMicGain(F32 volume);
-		void setUserVolume(const LLUUID& id, F32 volume); // set's volume for specified agent, from 0-1 (where .5 is nominal)
+		void setUserVolume(const LLUUID& id, F32 volume); // sets volume for specified agent, from 0-1 (where .5 is nominal)
 		void setLipSyncEnabled(BOOL enabled);
 		BOOL lipSyncEnabled();
 
