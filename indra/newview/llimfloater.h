@@ -90,6 +90,7 @@ public:
 
 	void onVisibilityChange(const LLSD& new_visibility);
 	void processIMTyping(const LLIMInfo* im_info, BOOL typing);
+	void processAgentListUpdates(const LLSD& body);
 	void processSessionUpdate(const LLSD& session_update);
 
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,

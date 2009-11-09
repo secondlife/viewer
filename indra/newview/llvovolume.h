@@ -263,6 +263,8 @@ public:
 	F64 getTotalMediaInterest() const;
    
 	bool hasMedia() const;
+	
+	LLVector3 getApproximateFaceNormal(U8 face_id);
 
 protected:
 	S32	computeLODDetail(F32	distance, F32 radius);

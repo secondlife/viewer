@@ -178,7 +178,10 @@ void LLAvatarActions::startIM(const LLUUID& id)
 	std::string name;
 	gCacheName->getFullName(id, name);
 	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id);
-	LLIMFloater::show(session_id);
+	if (session_id != LLUUID::null)
+	{
+		LLIMFloater::show(session_id);
+	}
 	make_ui_sound("UISndStartIM");
 }
 
@@ -191,7 +194,11 @@ void LLAvatarActions::startConference(const std::vector<LLUUID>& ids)
 	{
 		id_array.push_back(*it);
 	}
-	gIMMgr->addSession("Friends Conference", IM_SESSION_CONFERENCE_START, ids[0], id_array);
+	LLUUID session_id = gIMMgr->addSession("Friends Conference", IM_SESSION_CONFERENCE_START, ids[0], id_array);
+	if (session_id != LLUUID::null)
+	{
+		LLIMFloater::show(session_id);
+	}
 	make_ui_sound("UISndStartIM");
 }
 

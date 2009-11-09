@@ -383,7 +383,6 @@ public:
 	F32 getDecodePriority() const { return mDecodePriority; };
 
 	void setAdditionalDecodePriority(F32 priority) ;
-	F32  maxAdditionalDecodePriority() ;
 	
 	void updateVirtualSize() ;
 
@@ -454,7 +453,6 @@ private:
 	void init(bool firstinit) ;
 	void cleanup() ;
 
-	F32 calcDecodePriorityForUnknownTexture(F32 pixel_priority) ;
 	void saveRawImage() ;
 	BOOL forceFetch() ;
 	void setCachedRawImage() ;
@@ -488,8 +486,6 @@ protected:
 	F32 mDownloadProgress;
 	F32 mFetchDeltaTime;
 	F32 mRequestDeltaTime;
-	S32 mDecodeFrame;
-	S32 mVisibleFrame; // decode frame where image was last visible
 	F32 mDecodePriority;			// The priority for decoding this image.
 	S32	mMinDiscardLevel;
 	S8  mDesiredDiscardLevel;			// The discard level we'd LIKE to have - if we have it and there's space	

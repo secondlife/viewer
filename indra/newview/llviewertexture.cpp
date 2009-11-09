@@ -986,8 +986,6 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	mFetchPriority = 0;
 	mDownloadProgress = 0.f;
 	mFetchDeltaTime = 999999.f;
-	mDecodeFrame = 0;
-	mVisibleFrame = 0;
 	mForSculpt = FALSE ;
 	mIsFetched = FALSE ;
 
@@ -1370,16 +1368,6 @@ void LLViewerFetchedTexture::processTextureStats()
 	}
 }
 
-//texture does not have any data, so we don't know the size of the image, treat it like 32 * 32.
-F32 LLViewerFetchedTexture::calcDecodePriorityForUnknownTexture(F32 pixel_priority)
-{
-	F32 desired = (F32)(log(32.0/pixel_priority) / log_2);
-	S32 ddiscard = MAX_DISCARD_LEVEL - (S32)desired + 1;
-	ddiscard = llclamp(ddiscard, 1, 9);
-	
-	return ddiscard*100000.f;
-}
-
 F32 LLViewerFetchedTexture::calcDecodePriority()
 {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -1406,12 +1394,6 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 	S32 cur_discard = getDiscardLevel();
 	bool have_all_data = (cur_discard >= 0 && (cur_discard <= mDesiredDiscardLevel));
 	F32 pixel_priority = fsqrtf(mMaxVirtualSize);
-	const S32 MIN_NOT_VISIBLE_FRAMES = 30; // NOTE: this function is not called every frame
-	mDecodeFrame++;
-	if (pixel_priority > 0.f)
-	{
-		mVisibleFrame = mDecodeFrame;
-	}
 
 	F32 priority;
 	if (mIsMissingAsset)
@@ -1421,10 +1403,6 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 	else if(mDesiredDiscardLevel >= cur_discard && cur_discard > -1)
 	{
 		priority = -1.0f ;
-	}
-	else if (!isJustBound() && mCachedRawImageReady && !mBoostLevel)
-	{
-		priority = -1.0f;
 	}
 	else if(mCachedRawDiscardLevel > -1 && mDesiredDiscardLevel >= mCachedRawDiscardLevel)
 	{
@@ -1447,11 +1425,6 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 			// Always want high boosted images
 			priority = 1.f;
 		}
-		else if (mVisibleFrame == 0 || (mDecodeFrame - mVisibleFrame > MIN_NOT_VISIBLE_FRAMES))
-		{
-			// Don't decode anything that isn't visible unless it's important
-			priority = -2.0f;
-		}
 		else
 		{
 			// Leave the priority as-is
@@ -1460,7 +1433,13 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 	}
 	else if (cur_discard < 0)
 	{
-		priority = calcDecodePriorityForUnknownTexture(pixel_priority) ;
+		//texture does not have any data, so we don't know the size of the image, treat it like 32 * 32.
+		// priority range = 100,000 - 500,000
+		static const F64 log_2 = log(2.0);
+		F32 desired = (F32)(log(32.0/pixel_priority) / log_2);
+		S32 ddiscard = MAX_DISCARD_LEVEL - (S32)desired;
+		ddiscard = llclamp(ddiscard, 0, 4);
+		priority = (ddiscard+1)*100000.f;
 	}
 	else if ((mMinDiscardLevel > 0) && (cur_discard <= mMinDiscardLevel))
 	{
@@ -1473,38 +1452,47 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 	}
 	else
 	{
-		// priority range = 100000-400000
-		S32 ddiscard = cur_discard - mDesiredDiscardLevel;
+		// priority range = 100,000 - 500,000
+		S32 desired_discard = mDesiredDiscardLevel;
 		if (getDontDiscard())
 		{
-			ddiscard+=2;
+			desired_discard -= 2;
 		}
-		else if (ddiscard > 2 && mGLTexturep.notNull() && !mGLTexturep->getBoundRecently() && mBoostLevel == LLViewerTexture::BOOST_NONE)
+		else if (!isJustBound() && mCachedRawImageReady && !mBoostLevel)
 		{
-			ddiscard-=2;
+			// We haven't rendered this in the last half second, and we have a cached raw image, leave the desired discard as-is
+			desired_discard = cur_discard;
 		}
+		else if (mGLTexturep.notNull() && !mGLTexturep->getBoundRecently() && mBoostLevel == LLViewerTexture::BOOST_NONE)
+		{
+			// We haven't rendered this in a while, de-prioritize it
+			desired_discard += 2;
+		}
+		S32 ddiscard = cur_discard - desired_discard;
 		ddiscard = llclamp(ddiscard, 0, 4);
-		priority = ddiscard*100000.f;
+		priority = (ddiscard+1)*100000.f;
 	}
+
+	// Priority Formula:
+	// BOOST_HIGH  +  ADDITIONAL PRI + DELTA DISCARD + BOOST LEVEL + PIXELS
+	// [10,000,000] + [1-9,000,000]  + [1-400,000]   + [1-20,000]  + [0-999]
 	if (priority > 0.0f)
 	{
-		// priority range = 100000-900000
-		pixel_priority = llclamp(pixel_priority, 0.0f, priority-1.f); 
+		pixel_priority = llclamp(pixel_priority, 0.0f, 999.f); 
 
-		// priority range = [100000.f, 2000000.f]
+		priority = pixel_priority + 1000.f * mBoostLevel;
+
 		if ( mBoostLevel > BOOST_HIGH)
 		{
-			priority = 1000000.f + pixel_priority + 1000.f * (mBoostLevel - LLViewerTexture::BOOST_NONE);
+			priority += 10000000.f;
 		}
-		else
+		
+		if(mAdditionalDecodePriority > 0.0f)
 		{
-			priority +=      0.f + pixel_priority + 1000.f * (mBoostLevel - LLViewerTexture::BOOST_NONE);
-		}
-
-		// priority range = [2100000.f, 5000000.f] if mAdditionalDecodePriority > 1.0
-		if(mAdditionalDecodePriority > 1.0f)
-		{
-			priority += 2000000.f + mAdditionalDecodePriority ;
+			// 1-9
+			S32 additional_priority = (S32)(1.0f + mAdditionalDecodePriority*8.0f + .5f); // round
+			// priority range += 0-9,000,000
+			priority += 1000000.f * (F32)additional_priority;
 		}
 	}
 	return priority;
@@ -1517,13 +1505,9 @@ void LLViewerFetchedTexture::setDecodePriority(F32 priority)
 	mDecodePriority = priority;
 }
 
-F32 LLViewerFetchedTexture::maxAdditionalDecodePriority()
-{
-	return 2000000.f;
-}
 void LLViewerFetchedTexture::setAdditionalDecodePriority(F32 priority)
 {
-	priority *= maxAdditionalDecodePriority();
+	priority = llclamp(priority, 0.f, 1.f);
 	if(mAdditionalDecodePriority < priority)
 	{
 		mAdditionalDecodePriority = priority;

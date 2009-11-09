@@ -115,7 +115,7 @@ void LLIMFloater::onClose(bool app_quitting)
 /* static */
 void LLIMFloater::newIMCallback(const LLSD& data){
 	
-	if (data["num_unread"].asInteger() > 0)
+	if (data["num_unread"].asInteger() > 0 || data["from_id"].asUUID().isNull())
 	{
 		LLUUID session_id = data["session_id"].asUUID();
 
@@ -235,7 +235,7 @@ BOOL LLIMFloater::postBuild()
 
 	std::string session_name(LLIMModel::instance().getName(mSessionID));
 
-	mInputEditor->setLabel(mInputEditor->getLabel() + " " + session_name);
+	mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + session_name);
 
 	LLStringUtil::toUpper(session_name);
 	setTitle(session_name);
@@ -498,7 +498,8 @@ void LLIMFloater::onInputEditorFocusReceived( LLFocusableElement* caller, void* 
 	// Allow enabling the LLIMFloater input editor only if session can accept text
 	LLIMModel::LLIMSession* im_session =
 		LLIMModel::instance().findIMSession(self->mSessionID);
-	if( im_session && im_session->mTextIMPossible )
+	//TODO: While disabled lllineeditor can receive focus we need to check if it is enabled (EK)
+	if( im_session && im_session->mTextIMPossible && !self->mInputEditor->getEnabled())
 	{
 		//in disconnected state IM input editor should be disabled
 		self->mInputEditor->setEnabled(!gDisconnected);
@@ -585,6 +586,32 @@ void LLIMFloater::processIMTyping(const LLIMInfo* im_info, BOOL typing)
 	{
 		// other user stopped typing
 		removeTypingIndicator(im_info);
+	}
+}
+
+void LLIMFloater::processAgentListUpdates(const LLSD& body)
+{
+	if ( !body.isMap() ) return;
+
+	if ( body.has("agent_updates") && body["agent_updates"].isMap() )
+	{
+		LLSD agent_data = body["agent_updates"].get(gAgentID.asString());
+		if (agent_data.isMap() && agent_data.has("info"))
+		{
+			LLSD agent_info = agent_data["info"];
+
+			if (agent_info.has("mutes"))
+			{
+				BOOL moderator_muted_text = agent_info["mutes"]["text"].asBoolean(); 
+				mInputEditor->setEnabled(!moderator_muted_text);
+				std::string label;
+				if (moderator_muted_text)
+					label = LLTrans::getString("IM_muted_text_label");
+				else
+					label = LLTrans::getString("IM_to_label") + " " + LLIMModel::instance().getName(mSessionID);
+				mInputEditor->setLabel(label);
+			}
+		}
 	}
 }
 

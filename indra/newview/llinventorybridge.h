@@ -383,6 +383,8 @@ class LLTextureBridge : public LLItemBridge
 public:
 	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
+	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
 
 protected:
 	LLTextureBridge(LLInventoryPanel* inventory, const LLUUID& uuid, LLInventoryType::EType type) :

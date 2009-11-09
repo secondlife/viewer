@@ -141,9 +141,14 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
         LL_INFOS("LLLogin") << "Requesting SRV record from " << uri << LL_ENDL;
 
         // *NOTE:Mani - Completely arbitrary timeout value for SRV request.
-        filter.errorAfter(5, "SRV Request timed out!");
+        // filter.errorAfter(5, "SRV Request timed out!");
+	
+		// 
+		F32 seconds_to_timeout = 5.0f;
+		filter.actionAfter(seconds_to_timeout, 
+			sendProgressEvent("offline", "fail.login", LLSD()));
 
-        // Make request
+		// Make request
         LLSD request;
         request["op"] = "rewriteURI";
         request["uri"] = uri;
