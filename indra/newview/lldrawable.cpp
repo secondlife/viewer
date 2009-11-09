@@ -105,7 +105,7 @@ void LLDrawable::init()
 	mVObjp   = NULL;
 	// mFaces
 	mSpatialGroupp = NULL;
-	mVisible = 0;
+	mVisible = sCurVisible - 2;//invisible for the current frame and the last frame.
 	mRadius = 0.f;
 	
 	mGeneration = -1;

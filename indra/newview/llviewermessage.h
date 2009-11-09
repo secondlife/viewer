@@ -132,7 +132,6 @@ void container_inventory_arrived(LLViewerObject* object,
 // agent movement
 void send_complete_agent_movement(const LLHost& sim_host);
 void process_agent_movement_complete(LLMessageSystem* msg, void**);
-bool server_version_changed_callback(const LLSD& notification, const LLSD& response);
 void process_crossed_region(LLMessageSystem* msg, void**);
 void process_teleport_start(LLMessageSystem* msg, void**);
 void process_teleport_progress(LLMessageSystem* msg, void**);

@@ -41,53 +41,22 @@
 #include "llvoavatarself.h"
 #include "llvoavatar.h"
 
-#include <stdio.h>
-#include <ctype.h>
+#include "pipeline.h"
 
-#include "llaudioengine.h"
-#include "noise.h"
-
-// TODO: Seraph - Remove unnecessary headers.  These are copied from llvoavatar.h.
 #include "llagent.h" //  Get state values from here
 #include "llagentwearables.h"
-#include "llviewercontrol.h"
-#include "lldrawpoolavatar.h"
-#include "lldriverparam.h"
-#include "lleditingmotion.h"
-#include "llemote.h"
-#include "llface.h"
-#include "llfirstuse.h"
-#include "llheadrotmotion.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llkeyframefallmotion.h"
-#include "llkeyframestandmotion.h"
-#include "llkeyframewalkmotion.h"
-#include "llmutelist.h"
 #include "llselectmgr.h"
-#include "llsprite.h"
-#include "lltargetingmotion.h"
-#include "lltexlayer.h"
-#include "lltexglobalcolor.h"
 #include "lltoolgrab.h"	// for needsRenderBeam
 #include "lltoolmgr.h" // for needsRenderBeam
 #include "lltoolmorph.h"
 #include "lltrans.h"
 #include "llviewercamera.h"
-#include "llviewertexturelist.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
-#include "llviewerparcelmgr.h"
 #include "llviewerstats.h"
-#include "llvovolume.h"
-#include "llworld.h"
-#include "pipeline.h"
-#include "llviewershadermgr.h"
-#include "llsky.h"
-#include "llanimstatelabels.h"
-#include "llgesturemgr.h" //needed to trigger the voice gesticulations
-#include "llvoiceclient.h"
-#include "llvoicevisualizer.h" // Ventrella
+#include "llviewerregion.h"
 #include "llappearancemgr.h"
 
 #if LL_MSVC
@@ -205,7 +174,10 @@ void LLVOAvatarSelf::markDead()
 		 param;
 		 param = (LLViewerVisualParam*) getNextVisualParam())
 	{
-		param->setIsDummy(TRUE);
+		if (param->getWearableType() != WT_INVALID)
+		{
+			param->setIsDummy(TRUE);
+		}
 	}
 
 	return success;
@@ -1080,15 +1052,8 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 	if (attachment->isObjectAttached(viewer_object))
 	{
 		const LLUUID& attachment_id = viewer_object->getItemID();
-		LLViewerInventoryItem *item = gInventory.getItem(attachment_id);
-		if (item)
-		{
-			LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Adding attachment link:");
-			LLAppearanceManager::wearItem(item,false);  // Add COF link for item.
-			gInventory.addChangedMask(LLInventoryObserver::LABEL, attachment_id);
-		}
+		LLAppearanceManager::registerAttachment(attachment_id);
 	}
-	gInventory.notifyObservers();
 
 	return attachment;
 }
@@ -1096,12 +1061,12 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 //virtual
 BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 {
-	const LLUUID item_id = viewer_object->getItemID();
+	const LLUUID attachment_id = viewer_object->getItemID();
 	if (LLVOAvatar::detachObject(viewer_object))
 	{
 		// the simulator should automatically handle permission revocation
 		
-		stopMotionFromSource(item_id);
+		stopMotionFromSource(attachment_id);
 		LLFollowCamMgr::setCameraActive(viewer_object->getID(), FALSE);
 		
 		LLViewerObject::const_child_list_t& child_list = viewer_object->getChildren();
@@ -1126,13 +1091,9 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 		}
 		else
 		{
-			LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Removing attachment link:");
-			LLAppearanceManager::removeItemLinks(item_id, false);
+			LLAppearanceManager::unregisterAttachment(attachment_id);
 		}
 		
-		// BAP - needs to change for label to track link.
-		gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
-		gInventory.notifyObservers();
 		return TRUE;
 	}
 	return FALSE;
@@ -1208,26 +1169,6 @@ void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *sr
 		}
 	}
 }
-
-// virtual
-/* //unused
-BOOL LLVOAvatarSelf::getLocalTextureRaw(ETextureIndex index, LLImageRaw* image_raw) const
-{
-	if (!isIndexLocalTexture(index)) return FALSE;
-	if (getLocalTextureID(index) == IMG_DEFAULT_AVATAR)	return TRUE;
-
-	const LocalTextureData *local_tex_data = getLocalTextureData(index)[0];
-	if (local_tex_data->mImage->readBackRaw(-1, image_raw, false))
-	{
-
-		return TRUE;
-	}
-	
-	// No data loaded yet
-	setLocalTexture((ETextureIndex)index, getTEImage(index), FALSE); // <-- non-const, move this elsewhere
-	return FALSE;
-}
-*/
 
 // virtual
 BOOL LLVOAvatarSelf::getLocalTextureGL(ETextureIndex type, LLViewerTexture** tex_pp, U32 index) const
@@ -1426,8 +1367,8 @@ void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL set_by_u
 	}
 	// llinfos << "LLVOAvatar::invalidComposite() " << layerset->getBodyRegion() << llendl;
 
-	invalidateMorphMasks(layerset->getBakedTexIndex());
 	layerset->requestUpdate();
+	layerset->invalidateMorphMasks();
 
 	if( set_by_user )
 	{
@@ -1880,12 +1821,13 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 
 	if (!covered_by_baked)
 	{
-		if (getLocalTextureID(type, index) != IMG_DEFAULT_AVATAR)
+		if (getLocalTextureID(type, index) != IMG_DEFAULT_AVATAR && imagep->getDiscardLevel() != 0)
 		{
 			F32 desired_pixels;
 			desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
 			imagep->setBoostLevel(getAvatarBoostLevel());
 			imagep->addTextureStats( desired_pixels / texel_area_ratio );
+			imagep->forceUpdateBindStats() ;
 			if (imagep->getDiscardLevel() < 0)
 			{
 				mHasGrey = TRUE; // for statistics gathering
@@ -2183,6 +2125,49 @@ BOOL LLVOAvatarSelf::needsRenderBeam()
 // static
 void LLVOAvatarSelf::deleteScratchTextures()
 {
+	if(gAuditTexture)
+	{
+		S32 total_tex_size = sScratchTexBytes ;
+		S32 tex_size = SCRATCH_TEX_WIDTH * SCRATCH_TEX_HEIGHT ;
+
+		if( sScratchTexNames.checkData( GL_LUMINANCE ) )
+		{
+			LLImageGL::decTextureCounter(tex_size, 1, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
+			total_tex_size -= tex_size ;
+		}
+		if( sScratchTexNames.checkData( GL_ALPHA ) )
+		{
+			LLImageGL::decTextureCounter(tex_size, 1, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
+			total_tex_size -= tex_size ;
+		}
+		if( sScratchTexNames.checkData( GL_COLOR_INDEX ) )
+		{
+			LLImageGL::decTextureCounter(tex_size, 1, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
+			total_tex_size -= tex_size ;
+		}
+		if( sScratchTexNames.checkData( GL_LUMINANCE_ALPHA ) )
+		{
+			LLImageGL::decTextureCounter(tex_size, 2, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
+			total_tex_size -= 2 * tex_size ;
+		}
+		if( sScratchTexNames.checkData( GL_RGB ) )
+		{
+			LLImageGL::decTextureCounter(tex_size, 3, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
+			total_tex_size -= 3 * tex_size ;
+		}
+		if( sScratchTexNames.checkData( GL_RGBA ) )
+		{
+			LLImageGL::decTextureCounter(tex_size, 4, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
+			total_tex_size -= 4 * tex_size ;
+		}
+		//others
+		while(total_tex_size > 0)
+		{
+			LLImageGL::decTextureCounter(tex_size, 4, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
+			total_tex_size -= 4 * tex_size ;
+		}
+	}
+
 	for( LLGLuint* namep = sScratchTexNames.getFirstData(); 
 		 namep; 
 		 namep = sScratchTexNames.getNextData() )
@@ -2205,7 +2190,8 @@ void LLVOAvatarSelf::deleteScratchTextures()
 BOOL LLVOAvatarSelf::bindScratchTexture( LLGLenum format )
 {
 	U32 texture_bytes = 0;
-	GLuint gl_name = getScratchTexName( format, &texture_bytes );
+	S32 components = 0; 
+	GLuint gl_name = getScratchTexName( format, components, &texture_bytes );
 	if( gl_name )
 	{
 		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, gl_name);
@@ -2217,12 +2203,12 @@ BOOL LLVOAvatarSelf::bindScratchTexture( LLGLenum format )
 			if( *last_bind_time != LLImageGL::sLastFrameTime )
 			{
 				*last_bind_time = LLImageGL::sLastFrameTime;
-				LLImageGL::updateBoundTexMem(texture_bytes);
+				LLImageGL::updateBoundTexMem(texture_bytes, components, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
 			}
 		}
 		else
 		{
-			LLImageGL::updateBoundTexMem(texture_bytes);
+			LLImageGL::updateBoundTexMem(texture_bytes, components, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
 			sScratchTexLastBindTime.addData( format, new F32(LLImageGL::sLastFrameTime) );
 		}
 		return TRUE;
@@ -2230,9 +2216,8 @@ BOOL LLVOAvatarSelf::bindScratchTexture( LLGLenum format )
 	return FALSE;
 }
 
-LLGLuint LLVOAvatarSelf::getScratchTexName( LLGLenum format, U32* texture_bytes )
-{
-	S32 components;
+LLGLuint LLVOAvatarSelf::getScratchTexName( LLGLenum format, S32& components, U32* texture_bytes )
+{	
 	GLenum internal_format;
 	switch( format )
 	{
@@ -2278,6 +2263,11 @@ LLGLuint LLVOAvatarSelf::getScratchTexName( LLGLenum format, U32* texture_bytes 
 
 	sScratchTexBytes += *texture_bytes;
 	LLImageGL::sGlobalTextureMemoryInBytes += *texture_bytes;
+
+	if(gAuditTexture)
+	{
+		LLImageGL::incTextureCounter(SCRATCH_TEX_WIDTH * SCRATCH_TEX_HEIGHT, components, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
+	}
 	return name;
 }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="inspect" title="Ispeziona oggetti" min_width="450">
+<floater name="inspect" title="ISPEZIONA OGGETTI" min_width="450">
 	<scroll_list name="object_list" tool_tip="Seleziona un oggetto da questo elenco per evidenziarlo inworld">
 		<column label="Nome dell&apos;oggetto" name="object_name"/>
 		<column label="Proprietario" name="owner_name"/>

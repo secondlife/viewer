@@ -92,6 +92,52 @@
      name="acquired_date">
         [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
     </string>
+    <!-- Texture names for parcel permissions icons -->
+    <string
+     name="icon_PG"
+     value="parcel_drk_PG" />
+    <string
+     name="icon_M"
+     value="parcel_drk_M" />
+    <string
+     name="icon_R"
+     value="parcel_drk_R" />
+    <string
+     name="icon_Voice"
+     value="parcel_drk_Voice" />
+    <string
+     name="icon_VoiceNo"
+     value="parcel_drk_VoiceNo" />
+    <string
+     name="icon_Fly"
+     value="parcel_drk_Fly" />
+    <string
+     name="icon_FlyNo"
+     value="parcel_drk_FlyNo" />
+    <string
+     name="icon_Push"
+     value="parcel_drk_Push" />
+    <string
+     name="icon_PushNo"
+     value="parcel_drk_PushNo" />
+    <string
+     name="icon_Build"
+     value="parcel_drk_Build" />
+    <string
+     name="icon_BuildNo"
+     value="parcel_drk_BuildNo" />
+    <string
+     name="icon_Scripts"
+     value="parcel_drk_Scripts" />
+    <string
+     name="icon_ScriptsNo"
+     value="parcel_drk_ScriptsNo" />
+    <string
+     name="icon_Damage"
+     value="parcel_drk_Damage" />
+    <string
+     name="icon_DamageNo"
+     value="parcel_drk_DamageNo" />
     <button
      follows="top|right"
      height="23"
@@ -99,7 +145,6 @@
      layout="topleft"
      left="10"
      name="back_btn"
-     picture_style="true"
      tab_stop="false"
      top="0"
      width="23" />
@@ -127,7 +172,7 @@
      width="313">
         <panel
          bg_alpha_color="DkGray2"
-         follows="all"
+         follows="top|left|right"
          height="533"
          layout="topleft"
          left="0"
@@ -212,15 +257,6 @@
              use_ellipses="true"
              value="SampleRegion"
              width="290" />
-       <!-- <icon
-             follows="top|right"
-             height="16"
-             image_name="Icon_For_Sale"
-             layout="topleft"
-             left="3"
-             mouse_opaque="true"
-             name="icon_for_sale"
-             width="16" />-->
             <text
              follows="left|top|right"
              height="14"
@@ -260,6 +296,24 @@
              top_delta="0"
              value="Alex Superduperlongenamenton"
              width="205" />
+            <icon
+             follows="top|left"
+             height="16"
+             image_name="unknown"
+             layout="topleft"
+             left="10"
+             name="maturity_icon"
+             top_delta="0"
+             width="18" />
+            <text
+             follows="right|top"
+             height="16"
+             layout="topleft"
+             left_pad="8"
+             name="maturity_value"
+             top_delta="0"
+             value="unknown"
+             width="268" />
             <accordion
              follows="all"
              height="230"
@@ -272,222 +326,211 @@
                  layout="topleft"
                  name="parcel_characteristics_tab"
                  title="Parcel">
-                    <scroll_container
-                     color="DkGray2"
+                    <panel
                      follows="all"
-                     height="132"
+                     height="160"
                      layout="topleft"
                      left="0"
-                     name="parcel_scroll"
-                     opaque="true"
                      top="0"
-                     width="290">
-                        <panel
-                         follows="all"
-                         height="165"
+                     width="275">
+                        <icon
+                         follows="top|left"
+                         height="16"
+                         image_name="parcel_drk_PG"
                          layout="topleft"
-                         left="0"
+                         left="20"
+                         name="rating_icon"
                          top="0"
-                         width="275">
-                            <icon
-                             follows="top|left"
-                             height="16"
-                             image_name="parcel_drk_PG"
-                             layout="topleft"
-                             left="20"
-                             name="rating_icon"
-                             top="0"
-                             width="18" />
-                            <text
-                             follows="left|top"
-                             height="16"
-                             layout="topleft"
-                             left_pad="8"
-                             name="rating_label"
-                             value="Rating:"
-                             width="80" />
-                            <text
-                             follows="right|top"
-                             height="16"
-                             layout="topleft"
-                             left_pad="0"
-                             name="rating_value"
-                             top_delta="0"
-                             value="unknown"
-                             width="120" />
-                            <icon
-                             follows="top|left"
-                             height="18"
-                             image_name="parcel_drk_Voice"
-                             layout="topleft"
-                             left="20"
-                             name="voice_icon"
-                             top_pad="5"
-                             width="22" />
-                            <text
-                             follows="left|top"
-                             height="18"
-                             layout="topleft"
-                             left_pad="8"
-                             name="voice_label"
-                             top_delta="0"
-                             value="Voice:"
-                             width="76" />
-                            <text
-                             follows="right|top"
-                             height="18"
-                             layout="topleft"
-                             left_pad="0"
-                             name="voice_value"
-                             top_delta="0"
-                             value="On"
-                             width="60" />
-                            <icon
-                             follows="top|left"
-                             height="18"
-                             image_name="parcel_drk_Fly"
-                             layout="topleft"
-                             left="20"
-                             name="fly_icon"
-                             top_pad="3"
-                             width="22" />
-                            <text
-                             follows="left|top"
-                             height="16"
-                             layout="topleft"
-                             left_pad="8"
-                             name="fly_label"
-                             value="Fly:"
-                             width="76" />
-                            <text
-                             follows="right|top"
-                             height="16"
-                             layout="topleft"
-                             left_pad="0"
-                             name="fly_value"
-                             top_delta="0"
-                             value="On"
-                             width="60" />
-                            <icon
-                             follows="top|left"
-                             height="18"
-                             image_name="parcel_drk_Push"
-                             layout="topleft"
-                             left="20"
-                             name="push_icon"
-                             top_pad="3"
-                             width="22" />
-                            <text
-                             follows="left|top"
-                             height="14"
-                             layout="topleft"
-                             left_pad="8"
-                             name="push_label"
-                             value="Push:"
-                             width="76" />
-                            <text
-                             follows="right|top"
-                             height="14"
-                             layout="topleft"
-                             left_pad="0"
-                             name="push_value"
-                             top_delta="0"
-                             value="Off"
-                             width="60" />
-                            <icon
-                             follows="top|left"
-                             height="18"
-                             image_name="parcel_drk_Build"
-                             layout="topleft"
-                             left="20"
-                             name="build_icon"
-                             top_pad="3"
-                             width="22" />
-                            <text
-                             follows="left|top"
-                             height="14"
-                             layout="topleft"
-                             left_pad="8"
-                             name="build_label"
-                             value="Build:"
-                             width="76" />
-                            <text
-                             follows="right|top"
-                             height="15"
-                             layout="topleft"
-                             left_pad="0"
-                             name="build_value"
-                             top_delta="0"
-                             value="On"
-                             width="60" />
-                            <icon
-                             follows="top|left"
-                             height="18"
-                             image_name="parcel_drk_Scripts"
-                             layout="topleft"
-                             left="20"
-                             name="scripts_icon"
-                             top_pad="3"
-                             width="22" />
-                            <text
-                             follows="left|top"
-                             height="14"
-                             layout="topleft"
-                             left_pad="8"
-                             name="scripts_label"
-                             value="Scripts:"
-                             width="76" />
-                            <text
-                             follows="right|top"
-                             height="14"
-                             layout="topleft"
-                             left_pad="0"
-                             name="scripts_value"
-                             top_delta="0"
-                             value="On"
-                             width="60" />
-                            <icon
-                             follows="top|left"
-                             height="18"
-                             image_name="parcel_drk_Damage"
-                             layout="topleft"
-                             left="20"
-                             name="damage_icon"
-                             top_pad="7"
-                             width="22" />
-                            <text
-                             follows="left|top"
-                             height="14"
-                             layout="topleft"
-                             left_pad="8"
-                             name="damage_label"
-                             value="Damage:"
-                             width="76" />
-                            <text
-                             follows="right|top"
-                             height="14"
-                             layout="topleft"
-                             left_pad="0"
-                             name="damage_value"
-                             top_delta="0"
-                             value="Off"
-                             width="60" />
-                            <button
-                             follows="bottom|right"
-                             height="19"
-                             label="About Land"
-                             layout="topleft"
-                             name="about_land_btn"
-                             right="-5"
-                             tab_stop="false"
-                             top="138"
-                             width="90">
-                                <click_callback
-                                 function="ShowFloater"
-                                 parameter="about_land" />
-                            </button>
-                        </panel>
-                    </scroll_container>
+                         width="18" />
+                        <text
+                         follows="left|top"
+                         height="16"
+                         layout="topleft"
+                         left_pad="8"
+                         name="rating_label"
+                         value="Rating:"
+                         width="80" />
+                        <text
+                         follows="right|top"
+                         height="16"
+                         layout="topleft"
+                         left_pad="0"
+                         name="rating_value"
+                         top_delta="0"
+                         value="unknown"
+                         width="120" />
+                        <icon
+                         follows="top|left"
+                         height="18"
+                         image_name="parcel_drk_Voice"
+                         layout="topleft"
+                         left="20"
+                         name="voice_icon"
+                         top_pad="5"
+                         width="22" />
+                        <text
+                         follows="left|top"
+                         height="18"
+                         layout="topleft"
+                         left_pad="8"
+                         name="voice_label"
+                         top_delta="0"
+                         value="Voice:"
+                         width="76" />
+                        <text
+                         follows="right|top"
+                         height="18"
+                         layout="topleft"
+                         left_pad="0"
+                         name="voice_value"
+                         top_delta="0"
+                         value="On"
+                         width="60" />
+                        <icon
+                         follows="top|left"
+                         height="18"
+                         image_name="parcel_drk_Fly"
+                         layout="topleft"
+                         left="20"
+                         name="fly_icon"
+                         top_pad="3"
+                         width="22" />
+                        <text
+                         follows="left|top"
+                         height="16"
+                         layout="topleft"
+                         left_pad="8"
+                         name="fly_label"
+                         value="Fly:"
+                         width="76" />
+                        <text
+                         follows="right|top"
+                         height="16"
+                         layout="topleft"
+                         left_pad="0"
+                         name="fly_value"
+                         top_delta="0"
+                         value="On"
+                         width="60" />
+                        <icon
+                         follows="top|left"
+                         height="18"
+                         image_name="parcel_drk_Push"
+                         layout="topleft"
+                         left="20"
+                         name="push_icon"
+                         top_pad="3"
+                         width="22" />
+                        <text
+                         follows="left|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="8"
+                         name="push_label"
+                         value="Push:"
+                         width="76" />
+                        <text
+                         follows="right|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="0"
+                         name="push_value"
+                         top_delta="0"
+                         value="Off"
+                         width="60" />
+                        <icon
+                         follows="top|left"
+                         height="18"
+                         image_name="parcel_drk_Build"
+                         layout="topleft"
+                         left="20"
+                         name="build_icon"
+                         top_pad="3"
+                         width="22" />
+                        <text
+                         follows="left|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="8"
+                         name="build_label"
+                         value="Build:"
+                         width="76" />
+                        <text
+                         follows="right|top"
+                         height="15"
+                         layout="topleft"
+                         left_pad="0"
+                         name="build_value"
+                         top_delta="0"
+                         value="On"
+                         width="60" />
+                        <icon
+                         follows="top|left"
+                         height="18"
+                         image_name="parcel_drk_Scripts"
+                         layout="topleft"
+                         left="20"
+                         name="scripts_icon"
+                         top_pad="3"
+                         width="22" />
+                        <text
+                         follows="left|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="8"
+                         name="scripts_label"
+                         value="Scripts:"
+                         width="76" />
+                        <text
+                         follows="right|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="0"
+                         name="scripts_value"
+                         top_delta="0"
+                         value="On"
+                         width="60" />
+                        <icon
+                         follows="top|left"
+                         height="18"
+                         image_name="parcel_drk_Damage"
+                         layout="topleft"
+                         left="20"
+                         name="damage_icon"
+                         top_pad="7"
+                         width="22" />
+                        <text
+                         follows="left|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="8"
+                         name="damage_label"
+                         value="Damage:"
+                         width="76" />
+                        <text
+                         follows="right|top"
+                         height="14"
+                         layout="topleft"
+                         left_pad="0"
+                         name="damage_value"
+                         top_delta="0"
+                         value="Off"
+                         width="60" />
+                        <button
+                         follows="bottom|right"
+                         height="19"
+                         label="About Land"
+                         layout="topleft"
+                         name="about_land_btn"
+                         right="-5"
+                         tab_stop="false"
+                         top="138"
+                         width="90">
+                            <click_callback
+                             function="ShowFloater"
+                             parameter="about_land" />
+                        </button>
+                    </panel>
                 </accordion_tab>
                 <accordion_tab
                  expanded="false"

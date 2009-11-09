@@ -139,7 +139,7 @@ public:
 
 				
 				BOOL	getVolumeChanged() const				{ return mVolumeChanged; }
-				F32		getTextureVirtualSize(LLFace* face);
+				
 	/*virtual*/ F32  	getRadius() const						{ return mVObjRadius; };
 				const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const;
 
@@ -187,8 +187,8 @@ public:
 	/*virtual*/ void	updateFaceSize(S32 idx);
 	/*virtual*/ BOOL	updateLOD();
 				void	updateRadius();
-	/*virtual*/ void	updateTextures(LLAgent &agent);
-				void	updateTextures();
+	/*virtual*/ void	updateTextures();
+				void	updateTextureVirtualSize();
 
 				void	updateFaceFlags();
 				void	regenFaces();
@@ -263,6 +263,8 @@ public:
 	F64 getTotalMediaInterest() const;
    
 	bool hasMedia() const;
+	
+	LLVector3 getApproximateFaceNormal(U8 face_id);
 
 protected:
 	S32	computeLODDetail(F32	distance, F32 radius);
@@ -284,7 +286,6 @@ private:
 	LLFrameTimer mTextureUpdateTimer;
 	S32			mLOD;
 	BOOL		mLODChanged;
-	S32         mSculptLevel;
 	BOOL		mSculptChanged;
 	F32			mSpotLightPriority;
 	LLMatrix4	mRelativeXform;

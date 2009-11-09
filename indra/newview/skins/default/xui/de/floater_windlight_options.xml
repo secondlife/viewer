@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="WindLight floater" title="Erweiterter Himmel-Editor">
+<floater name="WindLight floater" title="ERWEITERTER HIMMEL-EDITOR">
 	<text name="KeyFramePresetsText">
 		Voreinstellungen:
 	</text>

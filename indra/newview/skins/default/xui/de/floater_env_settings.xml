@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="Environment Editor Floater" title="Umwelt-Editor">
+<floater name="Environment Editor Floater" title="UMWELT-EDITOR">
 	<text name="EnvTimeText">
 		Tageszeit
 	</text>

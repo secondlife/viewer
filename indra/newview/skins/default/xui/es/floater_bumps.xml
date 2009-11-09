@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_bumps" title="Choques, empujones, e impactos">
+<floater name="floater_bumps" title="CHOQUES, EMPUJONES, E IMPACTOS">
 	<text name="none_detected">
 		No se han detectado
 	</text>

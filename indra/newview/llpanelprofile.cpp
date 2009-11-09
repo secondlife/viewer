@@ -59,17 +59,61 @@ public:
 			return false;
 		}
 
-		if (params[1].asString() == "about")
+		const std::string verb = params[1].asString();
+		if (verb == "about")
 		{
 			LLAvatarActions::showProfile(avatar_id);
 			return true;
 		}
 
-		if (params[1].asString() == "inspect")
+		if (verb == "inspect")
 		{
 			LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", avatar_id));
 			return true;
 		}
+
+		if (verb == "im")
+		{
+			LLAvatarActions::startIM(avatar_id);
+			return true;
+		}
+
+		if (verb == "pay")
+		{
+			LLAvatarActions::pay(avatar_id);
+			return true;
+		}
+
+		if (verb == "offerteleport")
+		{
+			LLAvatarActions::offerTeleport(avatar_id);
+			return true;
+		}
+
+		if (verb == "requestfriend")
+		{
+			LLAvatarActions::requestFriendshipDialog(avatar_id);
+			return true;
+		}
+
+		if (verb == "mute")
+		{
+			if (! LLAvatarActions::isBlocked(avatar_id))
+			{
+				LLAvatarActions::toggleBlock(avatar_id);
+			}
+			return true;
+		}
+
+		if (verb == "unmute")
+		{
+			if (LLAvatarActions::isBlocked(avatar_id))
+			{
+				LLAvatarActions::toggleBlock(avatar_id);
+			}
+			return true;
+		}
+
 		return false;
 	}
 };

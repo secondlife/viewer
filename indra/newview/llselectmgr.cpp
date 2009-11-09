@@ -67,6 +67,7 @@
 #include "llinventorymodel.h"
 #include "llmenugl.h"
 #include "llmutelist.h"
+#include "llsidepaneltaskinfo.h"
 #include "llslurl.h"
 #include "llstatusbar.h"
 #include "llsurface.h"
@@ -1448,7 +1449,7 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 				// Texture picker defaults aren't inventory items
 				// * Don't need to worry about permissions for them
 				// * Can just apply the texture and be done with it.
-				objectp->setTEImage(te, LLViewerTextureManager::getFetchedTexture(mImageID, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE));
+				objectp->setTEImage(te, LLViewerTextureManager::getFetchedTexture(mImageID, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 			}
 			return true;
 		}
@@ -1604,7 +1605,7 @@ BOOL LLSelectMgr::selectionRevertTextures()
 					}
 					else
 					{
-						object->setTEImage(te, LLViewerTextureManager::getFetchedTexture(id, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE));
+						object->setTEImage(te, LLViewerTextureManager::getFetchedTexture(id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 					}
 				}
 			}
@@ -2827,7 +2828,7 @@ bool LLSelectMgr::confirmDelete(const LLSD& notification, const LLSD& response, 
 	case 0:
 		{
 			// TODO: Make sure you have delete permissions on all of them.
-			LLUUID trash_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
+			const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
 			// attempt to derez into the trash.
 			LLDeRezInfo* info = new LLDeRezInfo(DRD_TRASH, trash_id);
 			LLSelectMgr::getInstance()->sendListToRegions("DeRezObject",
@@ -3406,7 +3407,7 @@ void LLSelectMgr::deselectAll()
 	{
 		return;
 	}
-
+		
 	// Zap the angular velocity, as the sim will set it to zero
 	for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
 		 iter != mSelectedObjects->end(); iter++ )
@@ -3496,6 +3497,7 @@ void LLSelectMgr::deselectAllIfTooFar()
 	LLVector3d selectionCenter = getSelectionCenterGlobal();
 	if (gSavedSettings.getBOOL("LimitSelectDistance")
 		&& (!mSelectedObjects->getPrimaryObject() || !mSelectedObjects->getPrimaryObject()->isAvatar())
+		&& (mSelectedObjects->getPrimaryObject() != LLViewerMediaFocus::getInstance()->getFocusedObject())
 		&& !mSelectedObjects->isAttachment()
 		&& !selectionCenter.isExactlyZero())
 	{
@@ -4604,7 +4606,7 @@ void LLSelectMgr::updateSilhouettes()
 
 	if (!mSilhouetteImagep)
 	{
-		mSilhouetteImagep = LLViewerTextureManager::getFetchedTextureFromFile("silhouette.j2c", TRUE, TRUE);
+		mSilhouetteImagep = LLViewerTextureManager::getFetchedTextureFromFile("silhouette.j2c", TRUE, LLViewerTexture::BOOST_UI);
 	}
 
 	mHighlightedObjects->cleanupNodes();
@@ -4906,12 +4908,21 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	}
 	if (mSelectedObjects->getNumNodes())
 	{
-		LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
 		LLUUID inspect_item_id= LLUUID::null;
+#if 0		
+		LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
 		if(inspect_instance)
 		{
 			inspect_item_id = inspect_instance->getSelectedUUID();
 		}
+#endif
+		LLSidepanelTaskInfo *panel_task_info = LLSidepanelTaskInfo::getActivePanel();
+		if (panel_task_info)
+		{
+			inspect_item_id = panel_task_info->getSelectedUUID();
+		}
+
+		LLUUID focus_item_id = LLViewerMediaFocus::getInstance()->getFocusedObjectID();
 		for (S32 pass = 0; pass < 2; pass++)
 		{
 			for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
@@ -4925,7 +4936,11 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 				{
 					continue;
 				}
-				if(objectp->getID() == inspect_item_id)
+				if (objectp->getID() == focus_item_id)
+				{
+					node->renderOneSilhouette(gFocusMgr.getFocusColor());
+				}
+				else if(objectp->getID() == inspect_item_id)
 				{
 					node->renderOneSilhouette(sHighlightInspectColor);
 				}
@@ -4978,19 +4993,6 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 			}
 		}
 	}
-
-#if 0	
-	// Hilight focused media object
-	{
-		LLViewerObject* objectp = LLViewerMediaFocus::getInstance()->getFocusedObject();
-		if(objectp)
-		{
-			// FIXME: how do I construct a silhouette for an object that's not selected?
-			// Would we need to add another LLObjectSelectionHandle for this purpose?
-			node->renderOneSilhouette(gFocusMgr.getFocusColor());
-		}
-	}
-#endif
 
 	if (for_hud && avatar)
 	{
@@ -5494,11 +5496,18 @@ void dialog_refresh_all()
 	}
 
 	LLFloaterProperties::dirtyAll();
-	
+
+#if 0	
 	LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
 	if(inspect_instance)
 	{
 		inspect_instance->dirty();
+	}
+#endif
+	LLSidepanelTaskInfo *panel_task_info = LLSidepanelTaskInfo::getActivePanel();
+	if (panel_task_info)
+	{
+		panel_task_info->dirty();
 	}
 }
 

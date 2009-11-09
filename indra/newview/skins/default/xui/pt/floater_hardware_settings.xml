@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Hardware Settings Floater" title="Ajustes de Hardware">
+<floater name="Hardware Settings Floater" title="AJUSTES DE HARDWARE">
 	<text name="Filtering:">
 		Filtragem:
 	</text>

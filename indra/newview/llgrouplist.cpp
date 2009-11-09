@@ -183,6 +183,11 @@ void LLGroupList::addNewItem(const LLUUID& id, const std::string& name, const LL
 	item->childSetVisible("info_btn", false);
 	item->setGroupIconVisible(mShowIcons);
 
+	if (id.isNull())
+	{
+		item->childSetVisible("profile_btn", false);
+	}
+
 	addItem(item, id, pos);
 
 //	setCommentVisible(false);

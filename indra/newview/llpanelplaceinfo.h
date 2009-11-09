@@ -41,6 +41,7 @@
 #include "llremoteparcelrequest.h"
 
 class LLExpandableTextBox;
+class LLIconCtrl;
 class LLInventoryItem;
 class LLPanelPickEdit;
 class LLParcel;
@@ -117,6 +118,7 @@ protected:
 	LLTextBox*				mRegionName;
 	LLTextBox*				mParcelName;
 	LLExpandableTextBox*	mDescEditor;
+	LLIconCtrl*				mMaturityRatingIcon;
 	LLTextBox*				mMaturityRatingText;
 };
 

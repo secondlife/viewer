@@ -50,7 +50,8 @@ const S32 MAX_IMAGE_AREA = MAX_IMAGE_SIZE * MAX_IMAGE_SIZE;
 const S32 MAX_IMAGE_COMPONENTS = 8;
 const S32 MAX_IMAGE_DATA_SIZE = MAX_IMAGE_AREA * MAX_IMAGE_COMPONENTS;
 
-// Note!  These CANNOT be changed without invalidating the viewer VFS files, I think?
+// Note!  These CANNOT be changed without modifying simulator code
+// *TODO: change both to 1024 when SIM texture fetching is deprecated
 const S32 FIRST_PACKET_SIZE = 600;
 const S32 MAX_IMG_PACKET_SIZE = 1000;
 
@@ -61,7 +62,6 @@ const S32 MAX_IMG_PACKET_SIZE = 1000;
 class LLImageFormatted;
 class LLImageRaw;
 class LLColor4U;
-class LLWorkerThread;
 
 typedef enum e_image_codec
 {
@@ -82,7 +82,7 @@ typedef enum e_image_codec
 class LLImage
 {
 public:
-	static void initClass(LLWorkerThread* workerthread);
+	static void initClass();
 	static void cleanupClass();
 
 	static const std::string& getLastError();
@@ -131,7 +131,7 @@ public:
 
 protected:
 	// special accessor to allow direct setting of mData and mDataSize by LLImageFormatted
-	void setDataAndSize(U8 *data, S32 size) { mData = data; mDataSize = size; };
+	void setDataAndSize(U8 *data, S32 size) { mData = data; mDataSize = size; }
 	
 public:
 	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
@@ -192,6 +192,7 @@ public:
 	void contractToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE, BOOL scale_image = TRUE);
 	void biasedScaleToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE);
 	BOOL scale( S32 new_width, S32 new_height, BOOL scale_image = TRUE );
+	BOOL scaleDownWithoutBlending( S32 new_width, S32 new_height) ;
 
 	// Fill the buffer with a constant color
 	void fill( const LLColor4U& color );
@@ -239,6 +240,8 @@ protected:
 	void compositeRowScaled4onto3( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len );
 
 	U8	fastFractionalMult(U8 a,U8 b);
+
+	void setDataAndSize(U8 *data, S32 width, S32 height, S8 components) ;
 
 public:
 	static S32 sGlobalRawMemory;
@@ -310,7 +313,7 @@ protected:
 protected:
 	S8 mCodec;
 	S8 mDecoding;
-	S8 mDecoded;
+	S8 mDecoded;  // unused, but changing LLImage layout requires recompiling static Mac/Linux libs. 2009-01-30 JC
 	S8 mDiscardLevel;
 	
 public:

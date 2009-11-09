@@ -82,7 +82,6 @@
              layout="topleft"
              left="0"
              name="gear_menu_btn"
-             picture_style="true"
              top="5"
              width="18" />
             <button
@@ -94,7 +93,6 @@
              layout="topleft"
              left_pad="15"
              name="new_btn"
-             picture_style="true"
              tool_tip="Create new pick at current location"
              top="5"
              width="18" />
@@ -106,7 +104,6 @@
              image_unselected="TrashItem_Off"
              layout="topleft"
              name="trash_btn"
-             picture_style="true"
              right="-10"
              top="5"
              width="18" />

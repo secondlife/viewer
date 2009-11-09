@@ -45,7 +45,7 @@
 #include "llviewerwindow.h"
 #include "llappviewer.h"
 #include "llmemoryview.h"
-
+#include "llviewertexture.h"
 //
 // Globals
 //
@@ -102,17 +102,29 @@ LLDebugView::LLDebugView(const LLDebugView::Params& p)
 	gTextureView = LLUICtrlFactory::create<LLTextureView>(tvp);
 	addChild(gTextureView);
 	//gTextureView->reshape(r.getWidth(), r.getHeight(), TRUE);
-#if !LL_RELEASE_FOR_DOWNLOAD
-	r.set(150, rect.getHeight() - 50, 900 + LLImageGL::sTextureLoadedCounter.size() * 30, 100);
-	LLTextureSizeView::Params tsvp;
-	tsvp.name("gTextureSizeView");
-	tsvp.rect(r);
-	tsvp.follows.flags(FOLLOWS_BOTTOM|FOLLOWS_LEFT);
-	tsvp.visible(false);
-	gTextureSizeView = LLUICtrlFactory::create<LLTextureSizeView>(tsvp);
-	addChild(gTextureSizeView);
-#endif
 
+	if(gAuditTexture)
+	{
+		r.set(150, rect.getHeight() - 50, 900 + LLImageGL::sTextureLoadedCounter.size() * 30, 100);
+		LLTextureSizeView::Params tsv ;
+		tsv.name("gTextureSizeView");
+		tsv.rect(r);
+		tsv.follows.flags(FOLLOWS_BOTTOM|FOLLOWS_LEFT);
+		tsv.visible(false);
+		gTextureSizeView = LLUICtrlFactory::create<LLTextureSizeView>(tsv);
+		addChild(gTextureSizeView);
+		gTextureSizeView->setType(LLTextureSizeView::TEXTURE_MEM_OVER_SIZE) ;
+
+		r.set(150, rect.getHeight() - 50, 900 + LLViewerTexture::getTotalNumOfCategories() * 30, 100);
+		LLTextureSizeView::Params tcv ;
+		tcv.name("gTextureCategoryView");
+		tcv.rect(r);
+		tcv.follows.flags(FOLLOWS_BOTTOM|FOLLOWS_LEFT);
+		tcv.visible(false);
+		gTextureCategoryView = LLUICtrlFactory::create<LLTextureSizeView>(tcv);
+		gTextureCategoryView->setType(LLTextureSizeView::TEXTURE_MEM_OVER_CATEGORY);
+		addChild(gTextureCategoryView);
+	}
 }
 
 
@@ -122,5 +134,6 @@ LLDebugView::~LLDebugView()
 	gDebugView = NULL;
 	gTextureView = NULL;
 	gTextureSizeView = NULL;
+	gTextureCategoryView = NULL;
 }
 

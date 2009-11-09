@@ -7,6 +7,8 @@ syntax: glob
 # Emacs temp files
 *~
 .*.swp
+#OSX image cache file
+*.DS_Store
 LICENSES
 indra/.distcc
 indra/build-darwin-*
@@ -27,7 +29,6 @@ indra/newview/fmod.dll
 indra/newview/mozilla-theme
 indra/newview/mozilla-universal-darwin.tgz
 indra/newview/res-sdl
-indra/newview/skins
 indra/newview/vivox-runtime
 indra/server-linux-*
 indra/test/linden_file.dat
@@ -48,3 +49,7 @@ tarfile_tmp
 ^indra/web/dataservice/lib/shared/vault.*
 ^indra/web/dataservice/vendor.*
 glob:indra/newview/dbghelp.dll
+glob:*.cpp.orig
+glob:*.cpp.bak
+glob:*.h.bak
+glob:*.h.orig

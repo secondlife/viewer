@@ -73,7 +73,6 @@
      layout="topleft"
      left_delta="137"
      name="enable_this_popup"
-     picture_style="true"
      top_pad="10"
      width="43">
         <button.commit_callback
@@ -92,7 +91,6 @@
      layout="topleft"
      left_pad="50"
      name="disable_this_popup"
-     picture_style="true"
      top_delta="0"
      width="43">
         <button.commit_callback

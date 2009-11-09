@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="400"
+ height="430"
  layout="topleft"
  name="land holdings floater"
  help_topic="land_holdings_floater"
- title="My Land"
- width="280">
+ title="MY LAND"
+ width="600">
     <floater.string
      name="area_string">
         [AREA] m²
@@ -15,81 +15,82 @@
      draw_heading="true"
      height="170"
      layout="topleft"
-     left="8"
+     left="10"
      name="parcel list"
-     top="24"
-     width="270">
+     top="28"
+     width="580">
         <scroll_list.columns
          label="Parcel"
          name="name"
-         width="69" />
+         width="167" />
         <scroll_list.columns
          label="Region"
          name="location"
-         width="74" />
+         width="180" />
         <scroll_list.columns
          label="Type"
          name="type"
-         width="55" />
+         width="145" />
         <scroll_list.columns
          label="Area"
          name="area"
-         width="10" />
+         width="88" />
         <scroll_list.columns
          label=""
          name="hidden"
          width="-1" />
     </scroll_list>
     <button
-     height="20"
-     font="SansSerifSmall"
+     height="23"
+     font="SansSerifBold"
      label="Teleport"
      label_selected="Teleport"
      layout="topleft"
-     left_delta="4"
+     top="208"
+     left="10"
      name="Teleport"
      tool_tip="Teleport to the center of this land."
-     top_pad="4"
-     width="100" />
+     width="80" />
     <button
-     height="20"
-     font="SansSerifSmall"
+     height="23"
+     font="SansSerifBold"
      label="Map"
      label_selected="Map"
      layout="topleft"
-     left_pad="4"
+     top="208"
+     left="95"
      name="Show on Map"
      tool_tip="Show this land on the world map"
-     top_delta="0"
-     width="100" />
+     width="80" />
     <text
      type="string"
      length="1"
      follows="left|top"
-     height="16"
      layout="topleft"
-     left="12"
+     top="251"
+     left="10"
      name="contrib_label"
-     top="222"
-     width="480">
+     height="16"
+     width="580">
         Contributions to your groups:
     </text>
     <scroll_list
      draw_heading="true"
      height="75"
      layout="topleft"
-     left_delta="-4"
      name="grant list"
-     top_pad="4"
-     width="270">
+     top="271"
+     left="10"
+     width="580">
         <scroll_list.columns
          label="Group"
          name="group"
-         width="125" />
+         width="290"
+	 left_pad="10" />
         <scroll_list.columns
          label="Area"
          name="area"
-         width="125" />
+         width="290" />
     </scroll_list>
     <text
      type="string"
@@ -97,12 +98,11 @@
      follows="left|top"
      height="16"
      layout="topleft"
-     left_delta="4"
      name="allowed_label"
-     top_pad="4"
-     width="150">
-        Allowed land holdings at
-current payment plan:
+     top="366"
+     left="10"
+     width="290">
+        Allowed land holdings at current payment plan:
     </text>
     <text
      type="string"
@@ -110,10 +110,10 @@ current payment plan:
      follows="left|top"
      height="16"
      layout="topleft"
-     left_pad="5"
      name="allowed_text"
-     top_delta="10"
-     width="132">
+     top="366"
+     left="305"
+     width="290">
         [AREA] m²
     </text>
     <text
@@ -122,10 +122,10 @@ current payment plan:
      follows="left|top"
      height="16"
      layout="topleft"
-     left="12"
+     top="386"
+     left="10"
      name="current_label"
-     top_pad="5"
-     width="150">
+     width="290">
         Current land holdings:
     </text>
     <text
@@ -134,10 +134,10 @@ current payment plan:
      follows="left|top"
      height="16"
      layout="topleft"
-     left_pad="5"
+     top="386"
+     left="305"
      name="current_text"
-     top_delta="0"
-     width="132">
+     width="290">
         [AREA] m²
     </text>
     <text
@@ -147,12 +147,11 @@ current payment plan:
      font="SansSerifBold"
      height="16"
      layout="topleft"
-     left="12"
+     top="406"
+     left="10"
      name="available_label"
-     top_pad="5"
-     width="150">
-        Available for land
-purchases:
+     width="290">
+        Available for land purchases:
     </text>
     <text
      type="string"
@@ -161,10 +160,10 @@ purchases:
      font="SansSerifBold"
      height="16"
      layout="topleft"
-     left_pad="5"
      name="available_text"
-     top_delta="5"
-     width="140">
+     top="406"
+     left="305"
+     width="290">
         [AREA] m²
     </text>
 </floater>

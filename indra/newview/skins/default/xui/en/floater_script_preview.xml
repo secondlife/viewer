@@ -11,7 +11,7 @@
  name="preview lsl text"
  help_topic="preview_lsl_text"
  save_rect="true"
- title="Script: Rotation Script"
+ title="SCRIPT: ROTATION SCRIPT"
  top_delta="0"
  width="500">
     <floater.string

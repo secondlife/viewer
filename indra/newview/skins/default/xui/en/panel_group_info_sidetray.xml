@@ -5,7 +5,7 @@ background_visible="true"
  height="570"
  label="Group Info"
  layout="topleft"
- min_height="350"
+ min_height="425"
  left="0"
  top="20"
  name="GroupInfo"
@@ -32,7 +32,6 @@ background_visible="true"
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back"
-     picture_style="true"
      left="10"
      tab_stop="false"
      top="2"
@@ -60,7 +59,7 @@ background_visible="true"
      top_delta="5"
      width="250"
      height="20"
-     visible="true" />
+     visible="false" />
     <texture_picker
      follows="left|top"
      height="113"
@@ -112,59 +111,92 @@ background_visible="true"
      left_delta="0"
      top_pad="6"
      height="23"
-     label="Join now!"
-     label_selected="Join now!"
+     label="JOIN NOW!"
      name="btn_join"
      visible="true"
      width="120" />
    <accordion
              follows="all"
-             height="405"
+             height="425"
              layout="topleft"
              left="0"
              name="groups_accordion"
-             top_pad="20"
-             width="333">
+             top_pad="15"
+             width="336">
              <accordion_tab
-                 can_resize="false"
+                 expanded="true"
                  layout="topleft"
                  name="group_general_tab"
                  title="General">
-        <panel
-        border="false"
-         class="panel_group_general" 
-         filename="panel_group_general.xml"
+         <scroll_container
+         color="DkGray2"
+         opaque="true"
+         height="323"
+         follows="all"
          layout="topleft"
          left="0"
-         help_topic="group_general_tab"
-         name="group_general_tab_panel"
          top="0"
-         width="333" />
+         name="general_scroll"
+         reserve_scroll_corner="false"
+         width="333">
+            <panel
+            border="false"
+         class="panel_group_general" 
+             filename="panel_group_general.xml"
+             layout="topleft"
+             left="0"
+             help_topic="group_general_tab"
+         name="group_general_tab_panel"
+             top="0"
+             width="303" />
+         </scroll_container>
          </accordion_tab>
          <accordion_tab
-                 can_resize="false"
                  expanded="false"
                  layout="topleft"
                  name="group_roles_tab"
                  title="Roles">
-        <panel
-        border="false"
+               <scroll_container
+                  color="DkGray2"
+                  opaque="true"
+                  height="323"
+                  follows="all"
+                  layout="topleft"
+                  left="0"
+                  top="0"
+                  name="roles_scroll"
+                  reserve_scroll_corner="false"
+                  width="333">
+                 <panel
+                 border="false"
          class="panel_group_roles"
-         filename="panel_group_roles.xml"
-         layout="topleft"
-         left="0"
-         help_topic="group_roles_tab"
+                  filename="panel_group_roles.xml"
+                  layout="topleft"
+                  left="0"
+                  help_topic="group_roles_tab"
          name="group_roles_tab_panel"
-         top="0"
-         width="333" />
+                  top="0"
+             width="303" />
+         </scroll_container>
          </accordion_tab>
          <accordion_tab
-                 can_resize="false"
                  expanded="false"
                  layout="topleft"
                  name="group_notices_tab"
                  title="Notices">
+            <scroll_container
+                  color="DkGray2"
+                  opaque="true"
+                  height="323"
+                  follows="all"
+                  layout="topleft"
+                  left="0"
+                  top="0"
+                  name="notices_scroll"
+                  reserve_scroll_corner="false"
+                  width="333">
         <panel
+        border="false"
          class="panel_group_notices"
          filename="panel_group_notices.xml"
          layout="topleft"
@@ -172,14 +204,25 @@ background_visible="true"
          help_topic="group_notices_tab"
          name="group_notices_tab_panel"
          top="0"
-         width="333" />
+         width="303" />
+         </scroll_container>
          </accordion_tab>
-                  <accordion_tab
-                 can_resize="false"
+        <accordion_tab
                  expanded="false"
                  layout="topleft"
                  name="group_land_tab"
                  title="Land/Assets">
+           <scroll_container
+                  color="DkGray2"
+                  opaque="true"
+                  height="323"
+                  follows="all"
+                  layout="topleft"
+                  left="0"
+                  top="0"
+                  name="land_scroll"
+                  reserve_scroll_corner="false"
+                  width="333">
         <panel
         border="false"
          class="panel_group_land_money"
@@ -189,41 +232,42 @@ background_visible="true"
          help_topic="group_land_money_tab"
          name="group_land_tab_panel"
          top="0"
-         width="333" />
+         width="313" />
+         </scroll_container>
          </accordion_tab>
          </accordion>
-    <button
+   <button
      follows="top|left"
-     height="20"
+     height="22"
      image_overlay="Refresh_Off"
      layout="topleft"
-     name="btn_refresh"
-     picture_style="true"
      left="5"
-     width="20" />
+     name="btn_refresh"
+     top_pad="-15"
+     width="23" />
+         <button
+     height="20"
+     label="Create"
+     label_selected="New group"
+     name="btn_create"
+     left_pad="10"
+     visible="false"
+     width="100" />
+   <!-- <button
+     left_pad="10"
+     height="20"
+     label="Cancel"
+     label_selected="Cancel"
+     name="btn_cancel"
+     visible="false"
+     width="65" />-->
      <button
      height="20"
      font="SansSerifSmall"
      label="Save"
      label_selected="Save"
      name="btn_apply"
-     left_pad="5"
+     left_pad="10"
+     right="-10"
      width="65" />
-    <button
-     height="20"
-     label="Create"
-     label_selected="Create"
-     name="btn_create"
-     left_pad="5"
-     visible="false"
-     width="65" />
-    <button
-     left_pad="5"
-     height="20"
-     label="Cancel"
-     label_selected="Cancel"
-     name="btn_cancel"
-     visible="false"
-     width="65" />
-
 </panel>

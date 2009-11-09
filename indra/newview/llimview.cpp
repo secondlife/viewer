@@ -134,7 +134,6 @@ void LLIMModel::setActiveSessionID(const LLUUID& session_id)
 LLIMModel::LLIMModel() 
 {
 	addNewMsgCallback(LLIMFloater::newIMCallback);
-	addNoUnreadMsgsCallback(LLIMFloater::newIMCallback);
 	addNewMsgCallback(toast_callback);
 }
 
@@ -440,7 +439,8 @@ bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 	addToHistory(session_id, from, from_id, utf8_text);
 	if (log2file) logToFile(session_id, from, from_id, utf8_text);
 
-	session->mNumUnread++;
+	//we do not count system messages
+	if (from_id.notNull()) session->mNumUnread++;
 
 	// notify listeners
 	LLSD arg;
@@ -1192,10 +1192,14 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 		}
 		else
 		{
-			gIMMgr->addSession(
+			LLUUID session_id = gIMMgr->addSession(
 				mPayload["session_name"].asString(),
 				type,
 				session_id);
+			if (session_id != LLUUID::null)
+			{
+				LLIMFloater::show(session_id);
+			}
 
 			std::string url = gAgent.getRegion()->getCapability(
 				"ChatSessionRequest");
@@ -1279,10 +1283,14 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 			}
 			else
 			{
-				gIMMgr->addSession(
+				LLUUID session_id = gIMMgr->addSession(
 					payload["session_name"].asString(),
 					type,
 					session_id);
+				if (session_id != LLUUID::null)
+				{
+					LLIMFloater::show(session_id);
+				}
 
 				std::string url = gAgent.getRegion()->getCapability(
 					"ChatSessionRequest");
@@ -1350,13 +1358,6 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 LLIMMgr::LLIMMgr() :
 	mIMReceived(FALSE)
 {
-	static bool registered_dialog = false;
-	if (!registered_dialog)
-	{
-		LLFloaterReg::add("incoming_call", "floater_incoming_call.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIncomingCallDialog>);
-		registered_dialog = true;
-	}
-
 	mPendingInvitations = LLSD::emptyMap();
 	mPendingAgentListUpdates = LLSD::emptyMap();
 }
@@ -1555,6 +1556,10 @@ LLUUID LLIMMgr::addP2PSession(const std::string& name,
 							const std::string& caller_uri)
 {
 	LLUUID session_id = addSession(name, IM_NOTHING_SPECIAL, other_participant_id);
+	if (session_id != LLUUID::null)
+	{
+		LLIMFloater::show(session_id);
+	}
 
 	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
 	if (speaker_mgr)
@@ -1604,7 +1609,6 @@ LLUUID LLIMMgr::addSession(
 		LLIMModel::getInstance()->newSession(session_id, name, dialog, other_participant_id, ids);
 	}
 
-	LLIMFloater::show(session_id);
 
 	//*TODO remove this "floater" thing when Communicate Floater's gone
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
@@ -1846,6 +1850,29 @@ void LLIMMgr::clearPendingInvitation(const LLUUID& session_id)
 	if ( mPendingInvitations.has(session_id.asString()) )
 	{
 		mPendingInvitations.erase(session_id.asString());
+	}
+}
+
+void LLIMMgr::processAgentListUpdates(const LLUUID& session_id, const LLSD& body)
+{
+	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+	if ( im_floater )
+	{
+		im_floater->processAgentListUpdates(body);
+	}
+	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
+	if (speaker_mgr)
+	{
+		speaker_mgr->updateSpeakers(body);
+	}
+	else
+	{
+		//we don't have a speaker manager yet..something went wrong
+		//we are probably receiving an update here before
+		//a start or an acceptance of an invitation.  Race condition.
+		gIMMgr->addPendingAgentListUpdates(
+			session_id,
+			body);
 	}
 }
 
@@ -2233,20 +2260,7 @@ public:
 		const LLSD& input) const
 	{
 		const LLUUID& session_id = input["body"]["session_id"].asUUID();
-		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
-		if (speaker_mgr)
-		{
-			speaker_mgr->updateSpeakers(input["body"]);
-		}
-		else
-		{
-			//we don't have a speaker manager yet..something went wrong
-			//we are probably receiving an update here before
-			//a start or an acceptance of an invitation.  Race condition.
-			gIMMgr->addPendingAgentListUpdates(
-				input["body"]["session_id"].asUUID(),
-				input["body"]);
-		}
+		gIMMgr->processAgentListUpdates(session_id, input["body"]);
 	}
 };
 

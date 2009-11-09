@@ -3,6 +3,7 @@
 project(llimage)
 
 include(00-Common)
+include(LLAddBuildTest)
 include(LLCommon)
 include(LLImage)
 include(LLMath)
@@ -59,3 +60,6 @@ target_link_libraries(llimage
     ${PNG_LIBRARIES}
     ${ZLIB_LIBRARIES}
     )
+
+# Add tests
+#ADD_BUILD_TEST(llimageworker llimage)

@@ -55,6 +55,8 @@
 #include "llfloatertools.h"
 #include "lltrans.h"
 
+const char *CHECKERBOARD_DATA_URL = "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%%22 height=%22100%%22 %3E%3Cdefs%3E%3Cpattern id=%22checker%22 patternUnits=%22userSpaceOnUse%22 x=%220%22 y=%220%22 width=%22128%22 height=%22128%22 viewBox=%220 0 128 128%22 %3E%3Crect x=%220%22 y=%220%22 width=%2264%22 height=%2264%22 fill=%22#ddddff%22 /%3E%3Crect x=%2264%22 y=%2264%22 width=%2264%22 height=%2264%22 fill=%22#ddddff%22 /%3E%3C/pattern%3E%3C/defs%3E%3Crect x=%220%22 y=%220%22 width=%22100%%22 height=%22100%%22 fill=%22url(#checker)%22 /%3E%3C/svg%3E";
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 LLPanelMediaSettingsGeneral::LLPanelMediaSettingsGeneral() :
@@ -97,7 +99,6 @@ BOOL LLPanelMediaSettingsGeneral::postBuild()
 	childSetCommitCallback( "current_url_reset_btn",onBtnResetCurrentUrl, this);
 	// interrogates controls and updates widgets as required
 	updateMediaPreview();
-	updateCurrentURL();
 
 	return true;
 }
@@ -160,9 +161,9 @@ void LLPanelMediaSettingsGeneral::draw()
 		};
 	};
 
-	// current URL can change over time.
-//	updateCurrentURL();
-
+	// current URL can change over time, update it here
+	updateCurrentUrl();
+	
 	LLPermissions perm;
 	bool user_can_press_reset = mMediaEditable;
 
@@ -215,6 +216,28 @@ void LLPanelMediaSettingsGeneral::clearValues( void* userdata, bool editable)
 	self->updateMediaPreview();
 }
 
+// static
+bool LLPanelMediaSettingsGeneral::isMultiple()
+{
+	// IF all the faces have media (or all dont have media)
+	if ( LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo )
+	{
+		if(LLFloaterMediaSettings::getInstance()->mMultipleMedia) 
+		{
+			return true;
+		}
+		
+	}
+	else
+	{
+		if(LLFloaterMediaSettings::getInstance()->mMultipleValidMedia) 
+		{
+			return true;
+		}
+	}
+	return false;
+}	
+
 ////////////////////////////////////////////////////////////////////////////////
 // static 
 void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_settings ,bool editable)
@@ -226,29 +249,15 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_
 	//llinfos << ll_pretty_print_sd(media_settings) << llendl;
 	//llinfos << "---------------" << llendl;
 
-	// IF all the faces have media (or all dont have media)
-	if ( LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo )
+	if ( LLPanelMediaSettingsGeneral::isMultiple() )
 	{
-		if(LLFloaterMediaSettings::getInstance()->mMultipleMedia) 
-		{
-			self->clearValues(self, self->mMediaEditable);
-			// only show multiple 
-			self->mHomeURL ->setText(LLTrans::getString("Multiple Media"));
-			return;
-		}
-		
+		self->clearValues(self, self->mMediaEditable);
+		// only show multiple 
+		self->mHomeURL->setText(LLTrans::getString("Multiple Media"));
+		self->mCurrentURL->setText(LLTrans::getString("Multiple Media"));
+		return;
 	}
-	else
-	{
-		if(LLFloaterMediaSettings::getInstance()->mMultipleValidMedia) 
-		{
-			self->clearValues(self, self->mMediaEditable);
-			// only show multiple 
-			self->mHomeURL ->setText(LLTrans::getString("Multiple Media"));
-			return;
-		}			
-		
-	}
+	
 	std::string base_key( "" );
 	std::string tentative_key( "" );
 
@@ -305,7 +314,6 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_
 	
 	// interrogates controls and updates widgets as required
 	self->updateMediaPreview();
-	self->updateCurrentURL();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -320,19 +328,8 @@ void LLPanelMediaSettingsGeneral::updateMediaPreview()
 	// new home URL will be empty if media is deleted so display a 
 	// "preview goes here" data url page
 	{
-		mPreviewMedia->navigateTo( "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%%22 height=%22100%%22 %3E%3Cdefs%3E%3Cpattern id=%22checker%22 patternUnits=%22userSpaceOnUse%22 x=%220%22 y=%220%22 width=%22128%22 height=%22128%22 viewBox=%220 0 128 128%22 %3E%3Crect x=%220%22 y=%220%22 width=%2264%22 height=%2264%22 fill=%22#ddddff%22 /%3E%3Crect x=%2264%22 y=%2264%22 width=%2264%22 height=%2264%22 fill=%22#ddddff%22 /%3E%3C/pattern%3E%3C/defs%3E%3Crect x=%220%22 y=%220%22 width=%22100%%22 height=%22100%%22 fill=%22url(#checker)%22 /%3E%3C/svg%3E" );
+		mPreviewMedia->navigateTo( CHECKERBOARD_DATA_URL );
 	};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Helper to set current URL
-void LLPanelMediaSettingsGeneral::updateCurrentURL()
-{
-	if( mCurrentURL->getText().empty() )
-	{
-		childSetText( "current_url", mHomeURL->getText() );
-	}
-	
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -441,6 +438,8 @@ bool LLPanelMediaSettingsGeneral::navigateHomeSelectedFace()
 	LLObjectSelectionHandle selected_objects =LLSelectMgr::getInstance()->getSelection();
 	selected_objects->getSelectedTEValue( &functor_navigate_media, all_face_media_navigated );
 	
+	// Note: we don't update the 'current URL' field until the media data itself changes
+	
 	return all_face_media_navigated;
 }
 
@@ -451,3 +450,31 @@ const std::string LLPanelMediaSettingsGeneral::getHomeUrl()
 	return mHomeURL->getValue().asString(); 
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+void LLPanelMediaSettingsGeneral::updateCurrentUrl()
+{
+	// Get the current URL from the selection
+	
+	const LLMediaEntry default_media_data;
+	std::string value_str = default_media_data.getCurrentURL();
+	struct functor_getter_current_url : public LLSelectedTEGetFunctor< std::string >
+	{
+		functor_getter_current_url(const LLMediaEntry& entry): mMediaEntry(entry) {}
+		
+		std::string get( LLViewerObject* object, S32 face )
+		{
+			if ( object )
+				if ( object->getTE(face) )
+					if ( object->getTE(face)->getMediaData() )
+						return object->getTE(face)->getMediaData()->getCurrentURL();
+			return mMediaEntry.getCurrentURL();
+		};
+		
+		const LLMediaEntry &  mMediaEntry;
+		
+	} func_current_url(default_media_data);
+	bool identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func_current_url, value_str );
+	mCurrentURL->setText(value_str);
+	mCurrentURL->setTentative(identical);
+}	

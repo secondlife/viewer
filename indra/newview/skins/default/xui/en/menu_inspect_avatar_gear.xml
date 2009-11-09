@@ -7,7 +7,6 @@
          name="Gear Menu">
   <menu_item_call
    label="View Profile"
-   layout="topleft"
    enabled="true" 
    name="view_profile">
     <menu_item_call.on_click
@@ -15,49 +14,42 @@
   </menu_item_call>
   <menu_item_call
    label="Add Friend"
-   layout="topleft"
    name="add_friend">
     <menu_item_call.on_click
      function="InspectAvatar.AddFriend"/>
   </menu_item_call>
   <menu_item_call
    label="IM"
-   layout="topleft"
    name="im">
     <menu_item_call.on_click
      function="InspectAvatar.IM"/>
   </menu_item_call>
   <menu_item_call
    label="Call"
-   layout="topleft"
    enabled="true"
    name="call">
   </menu_item_call>
   <menu_item_call
    label="Teleport"
-   layout="topleft"
    name="teleport">
     <menu_item_call.on_click
      function="InspectAvatar.Teleport"/>
   </menu_item_call>
   <menu_item_call
    label="Invite to Group"
-   layout="topleft"
    name="invite_to_group">
     <menu_item_call.on_click
      function="InspectAvatar.InviteToGroup"/>
   </menu_item_call>
-  <menu_item_separator layout="topleft" />
+  <menu_item_separator />
   <menu_item_call
    label="Block"
-   layout="topleft"
    name="block">
     <menu_item_call.on_click
      function="InspectAvatar.Block"/>
   </menu_item_call>
   <menu_item_call
    label="Report"
-   layout="topleft"
    name="report">
     <menu_item_call.on_click
      function="InspectAvatar.Report"/>
@@ -88,7 +80,6 @@
   </menu_item_call>
   <menu_item_call
    label="Find On Map"
-   layout="topleft"
    name="find_on_map">
     <menu_item_call.on_click
      function="InspectAvatar.FindOnMap"/>
@@ -97,14 +88,14 @@
   </menu_item_call>
   <menu_item_call
    label="Zoom In"
-   layout="topleft"
    name="zoom_in">
     <menu_item_call.on_click
      function="InspectAvatar.ZoomIn"/>
+    <menu_item_call.on_visible
+     function="InspectAvatar.VisibleZoomIn"/>
   </menu_item_call>  
   <menu_item_call
    label="Pay"
-   layout="topleft"
    name="pay">
     <menu_item_call.on_click
      function="InspectAvatar.Pay"/>

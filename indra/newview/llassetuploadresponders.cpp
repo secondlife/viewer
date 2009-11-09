@@ -41,6 +41,7 @@
 #include "llfilepicker.h"
 #include "llnotify.h"
 #include "llinventorymodel.h"
+#include "llinventorypanel.h"
 #include "llfloaterinventory.h"
 #include "llpermissionsflags.h"
 #include "llpreviewnotecard.h"
@@ -333,7 +334,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		LLAssetStorage::LLStoreAssetCallback callback = NULL;
 		void *userdata = NULL;
 		upload_new_resource(next_file, asset_name, asset_name,
-				    0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE,
+				    0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
 				    next_owner_perms, group_perms,
 				    everyone_perms, display_name,
 				    callback, expected_upload_cost, userdata);
@@ -368,7 +369,7 @@ void LLSendTexLayerResponder::uploadComplete(const LLSD& content)
 	std::string result = content["state"];
 	LLUUID new_id = content["new_asset"];
 
-	llinfos << "LLSendTexLayerResponder::result from capabilities: " << result << llendl;
+	llinfos << "result: " << result << "new_id:" << new_id << llendl;
 	if (result == "complete"
 		&& mBakedUploadData != NULL)
 	{	// Invoke 
@@ -382,6 +383,14 @@ void LLSendTexLayerResponder::uploadComplete(const LLSD& content)
 	}
 }
 
+void LLSendTexLayerResponder::error(U32 statusNum, const std::string& reason)
+{
+	llinfos << "status: " << statusNum << " reason: " << reason << llendl;
+	
+	// Invoke the original callback with an error result
+	LLTexLayerSetBuffer::onTextureUploadComplete(LLUUID(), (void*) mBakedUploadData, -1, LL_EXSTAT_NONE);
+	mBakedUploadData = NULL;	// deleted in onTextureUploadComplete()
+}
 
 LLUpdateAgentInventoryResponder::LLUpdateAgentInventoryResponder(const LLSD& post_data,
 																 const LLUUID& vfile_id,

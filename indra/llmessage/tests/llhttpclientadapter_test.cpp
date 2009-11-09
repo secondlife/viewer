@@ -50,7 +50,7 @@ std::vector<std::string> put_urls;
 std::vector<LLSD> put_body;
 std::vector<boost::intrusive_ptr<LLCurl::Responder> > put_responders;
 
-void LLHTTPClient::put(std::string const &url, LLSD const &body, boost::intrusive_ptr<LLCurl::Responder> responder,float) 
+void LLHTTPClient::put(const std::string& url, const LLSD& body, boost::intrusive_ptr<LLCurl::Responder> responder, const LLSD& headers, const F32 timeout)
 {
 	put_urls.push_back(url);
 	put_responders.push_back(responder);

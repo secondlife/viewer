@@ -63,7 +63,6 @@ public:
 	
 	bool navigateHomeSelectedFace();
 	void updateMediaPreview();
-	void updateCurrentURL();
 
 	const std::string getHomeUrl();
 	
@@ -72,8 +71,12 @@ protected:
 	bool mMediaEditable;
 
 private:
+	void updateCurrentUrl();
+	
 	static void onBtnResetCurrentUrl(LLUICtrl* ctrl, void *userdata);
 	static void onCommitHomeURL(LLUICtrl* ctrl, void *userdata );
+	
+	static bool isMultiple();
 
 	LLComboBox* mControls;
 	LLCheckBoxCtrl* mAutoLoop;

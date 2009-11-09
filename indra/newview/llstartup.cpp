@@ -60,6 +60,7 @@
 #include "llfocusmgr.h"
 #include "llhttpsender.h"
 #include "lllocationhistory.h"
+#include "llimageworker.h"
 #include "llloginflags.h"
 #include "llmd5.h"
 #include "llmemorystream.h"
@@ -168,7 +169,7 @@
 #include "llvoclouds.h"
 #include "llweb.h"
 #include "llworld.h"
-#include "llworldmap.h"
+#include "llworldmapmessage.h"
 #include "llxfermanager.h"
 #include "pipeline.h"
 #include "llappviewer.h"
@@ -334,7 +335,7 @@ void populate_favorites_bar()
 	S32 count = lib_cats->count();
 	for(S32 i = 0; i < count; ++i)
 	{
-		if(lib_cats->get(i)->getPreferredType() == LLAssetType::AT_LANDMARK)
+		if(lib_cats->get(i)->getPreferredType() == LLFolderType::FT_LANDMARK)
 		{
 			lib_landmarks = lib_cats->get(i)->getUUID();
 			break;
@@ -351,7 +352,7 @@ void populate_favorites_bar()
 	gInventory.getDirectDescendentsOf(lib_landmarks, lm_cats, lm_items);
 	if (!lm_items) return;
 
-	LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+	const LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 	if (favorites_id.isNull())
 	{
 		llerror("My Inventory is missing My Favorites", 0);
@@ -738,11 +739,12 @@ bool idle_startup()
 		}
 		if (!gLoginHandler.getFirstName().empty()
 			|| !gLoginHandler.getLastName().empty()
-			|| !gLoginHandler.getWebLoginKey().isNull() )
+			/*|| !gLoginHandler.getWebLoginKey().isNull()*/ )
 		{
 			// We have at least some login information on a SLURL
 			gFirstname = gLoginHandler.getFirstName();
 			gLastname = gLoginHandler.getLastName();
+			LL_DEBUGS("LLStartup") << "STATE_FIRST: setting gFirstname, gLastname from gLoginHandler: '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
 
 			// Show the login screen if we don't have everything
 			show_connect_box = 
@@ -753,6 +755,7 @@ bool idle_startup()
             LLSD cmd_line_login = gSavedSettings.getLLSD("UserLoginInfo");
 			gFirstname = cmd_line_login[0].asString();
 			gLastname = cmd_line_login[1].asString();
+			LL_DEBUGS("LLStartup") << "Setting gFirstname, gLastname from gSavedSettings(\"UserLoginInfo\"): '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
 
 			LLMD5 pass((unsigned char*)cmd_line_login[2].asString().c_str());
 			char md5pass[33];               /* Flawfinder: ignore */
@@ -770,6 +773,7 @@ bool idle_startup()
 		{
 			gFirstname = gSavedSettings.getString("FirstName");
 			gLastname = gSavedSettings.getString("LastName");
+			LL_DEBUGS("LLStartup") << "AutoLogin: setting gFirstname, gLastname from gSavedSettings(\"First|LastName\"): '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
 			gPassword = LLStartUp::loadPasswordFromDisk();
 			gSavedSettings.setBOOL("RememberPassword", TRUE);
 			
@@ -785,6 +789,7 @@ bool idle_startup()
 			// a valid grid is selected
 			gFirstname = gSavedSettings.getString("FirstName");
 			gLastname = gSavedSettings.getString("LastName");
+			LL_DEBUGS("LLStartup") << "normal login: setting gFirstname, gLastname from gSavedSettings(\"First|LastName\"): '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
 			gPassword = LLStartUp::loadPasswordFromDisk();
 			show_connect_box = true;
 		}
@@ -895,13 +900,16 @@ bool idle_startup()
 		gViewerWindow->moveProgressViewToFront();
 
 		//reset the values that could have come in from a slurl
-		if (!gLoginHandler.getWebLoginKey().isNull())
+		// DEV-42215: Make sure they're not empty -- gFirstname and gLastname
+		// might already have been set from gSavedSettings, and it's too bad
+		// to overwrite valid values with empty strings.
+		if (! gLoginHandler.getFirstName().empty() && ! gLoginHandler.getLastName().empty())
 		{
 			gFirstname = gLoginHandler.getFirstName();
 			gLastname = gLoginHandler.getLastName();
-//			gWebLoginKey = gLoginHandler.getWebLoginKey();
+			LL_DEBUGS("LLStartup") << "STATE_LOGIN_CLEANUP: setting gFirstname, gLastname from gLoginHandler: '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
 		}
-				
+
 		if (show_connect_box)
 		{
 			// TODO if not use viewer auth
@@ -1314,6 +1322,7 @@ bool idle_startup()
 			gViewerWindow->moveProgressViewToFront();
 
 			LLError::logToFixedBuffer(gDebugView->mDebugConsolep);
+			
 			// set initial visibility of debug console
 			gDebugView->mDebugConsolep->setVisible(gSavedSettings.getBOOL("ShowDebugConsole"));
 		}
@@ -1677,7 +1686,7 @@ bool idle_startup()
 		gInventory.buildParentChildMap();
 
 		//all categories loaded. lets create "My Favorites" category
-		gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE,true);
+		gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE,true);
 
 		// lets create "Friends" and "Friends/All" in the Inventory "Calling Cards" and fill it with buddies
 		LLFriendCardsManager::instance().syncFriendsFolder();
@@ -2529,9 +2538,8 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 
 	msg->setHandlerFunc("AvatarPickerReply", LLFloaterAvatarPicker::processAvatarPickerReply);
 
-	msg->setHandlerFunc("MapLayerReply", LLWorldMap::processMapLayerReply);
-	msg->setHandlerFunc("MapBlockReply", LLWorldMap::processMapBlockReply);
-	msg->setHandlerFunc("MapItemReply", LLWorldMap::processMapItemReply);
+	msg->setHandlerFunc("MapBlockReply", LLWorldMapMessage::processMapBlockReply);
+	msg->setHandlerFunc("MapItemReply", LLWorldMapMessage::processMapItemReply);
 
 	msg->setHandlerFunc("EventInfoReply", LLPanelEvent::processEventInfoReply);
 	msg->setHandlerFunc("PickInfoReply", &LLAvatarPropertiesProcessor::processPickInfoReply);

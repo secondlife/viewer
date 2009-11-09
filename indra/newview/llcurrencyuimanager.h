@@ -57,10 +57,15 @@ public:
 	void setZeroMessage(const std::string& message);
 		// sets the gray message to show when zero
 		
-	void setEstimate(int);
-	int getEstimate();
+	void setUSDEstimate(int);  // deprecated in 2.0
+	int getUSDEstimate();      // deprecated in 2.0
 		// the amount in US$ * 100 (in otherwords, in cents)
 		// use set when you get this information from elsewhere
+		
+	void setLocalEstimate(const std::string &local_est);
+	std::string getLocalEstimate() const;
+		// the estimated cost in the user's local currency
+		// for example, "US$ 10.00" or "10.00 Euros"
 		
 	void prepare();
 		// call once after dialog is built, from postBuild()

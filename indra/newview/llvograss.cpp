@@ -106,7 +106,7 @@ void LLVOGrass::updateSpecies()
 		SpeciesMap::const_iterator it = sSpeciesTable.begin();
 		mSpecies = (*it).first;
 	}
-	setTEImage(0, LLViewerTextureManager::getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE));
+	setTEImage(0, LLViewerTextureManager::getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 }
 
 
@@ -322,7 +322,7 @@ void LLVOGrass::setPixelAreaAndAngle(LLAgent &agent)
 
 
 // BUG could speed this up by caching the relative_position and range calculations
-void LLVOGrass::updateTextures(LLAgent &agent)
+void LLVOGrass::updateTextures()
 {
 	if (getTEImage(0))
 	{

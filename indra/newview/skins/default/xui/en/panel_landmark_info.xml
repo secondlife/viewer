@@ -43,6 +43,16 @@
      name="acquired_date">
         [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
     </string>
+    <!-- Texture names for rating icons -->
+    <string
+     name="icon_PG"
+     value="parcel_drk_PG" />
+    <string
+     name="icon_M"
+     value="parcel_drk_M" />
+    <string
+     name="icon_R"
+     value="parcel_drk_R" />
     <button
      follows="top|right"
      height="23"
@@ -50,7 +60,6 @@
      layout="topleft"
      left="10"
      name="back_btn"
-     picture_style="true"
      tab_stop="false"
      top="0"
      width="23" />
@@ -126,6 +135,24 @@
              top_pad="10"
              value="Du waltz die spritz"
              width="300" />
+            <icon
+             follows="top|left"
+             height="16"
+             image_name="unknown"
+             layout="topleft"
+             left="10"
+             name="maturity_icon"
+             top_pad="10"
+             width="18" />
+            <text
+             follows="right|top"
+             height="16"
+             layout="topleft"
+             left_pad="8"
+             name="maturity_value"
+             top_delta="0"
+             value="unknown"
+             width="268" />
             <panel
              follows="left|top|right"
              height="55"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="gestures" title="Aktywne Gesty">
+<floater name="gestures" title="AKTYWNE GESTY">
 	<text name="help_label">
 		Kliknij podwójnie by aktywować głos i animację gestu.
 	</text>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy currency" title="Koop valuta">
+<floater name="buy currency" title="KOOP VALUTA">
 	<text name="info_buying">
 		Valuta kopen
 	</text>

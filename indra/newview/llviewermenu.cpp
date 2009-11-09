@@ -50,6 +50,7 @@
 #include "llfocusmgr.h"
 #include "llfontgl.h"
 #include "llinstantmessage.h"
+#include "llinventorypanel.h"
 #include "llpermissionsflags.h"
 #include "llrect.h"
 #include "llsecondlifeurls.h"
@@ -145,7 +146,6 @@
 #include "llmenucommands.h"
 #include "llmenugl.h"
 #include "llmimetypes.h"
-#include "llmorphview.h"
 #include "llmoveview.h"
 #include "llmutelist.h"
 #include "llnotify.h"
@@ -210,6 +210,7 @@
 
 #include "lltexlayer.h"
 #include "llappearancemgr.h"
+#include "llimfloater.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -609,6 +610,14 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)((LLView*)gDebugView->mDebugConsolep) );
 		}
+		else if (gTextureSizeView && "texture size" == console_type)
+		{
+			toggle_visibility( (void*)gTextureSizeView );
+		}
+		else if (gTextureCategoryView && "texture category" == console_type)
+		{
+			toggle_visibility( (void*)gTextureCategoryView );
+		}
 		else if ("fast timers" == console_type)
 		{
 			toggle_visibility( (void*)gDebugView->mFastTimerView );
@@ -635,6 +644,14 @@ class LLAdvancedCheckConsole : public view_listener_t
 		else if ("debug" == console_type)
 		{
 			new_value = get_visibility( (void*)((LLView*)gDebugView->mDebugConsolep) );
+		}
+		else if (gTextureSizeView && "texture size" == console_type)
+		{
+			new_value = get_visibility( (void*)gTextureSizeView );
+		}
+		else if (gTextureCategoryView && "texture category" == console_type)
+		{
+			new_value = get_visibility( (void*)gTextureCategoryView );
 		}
 		else if ("fast timers" == console_type)
 		{
@@ -1159,28 +1176,6 @@ class LLAdvancedCheckWireframe : public view_listener_t
 	}
 };
 	
-//////////////////////
-// DISABLE TEXTURES //
-//////////////////////
-
-class LLAdvancedToggleDisableTextures : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLViewerTexture::sDontLoadVolumeTextures = !LLViewerTexture::sDontLoadVolumeTextures;
-		return true;
-	}
-};
-
-class LLAdvancedCheckDisableTextures : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = LLViewerTexture::sDontLoadVolumeTextures; // <-- make this using LLCacheControl
-		return new_value;
-	}
-};
-
 //////////////////////
 // TEXTURE ATLAS //
 //////////////////////
@@ -1884,7 +1879,7 @@ class LLAdvancedRebakeTextures : public view_listener_t
 };
 	
 	
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if 1 //ndef LL_RELEASE_FOR_DOWNLOAD
 ///////////////////////////
 // DEBUG AVATAR TEXTURES //
 ///////////////////////////
@@ -2522,24 +2517,12 @@ class LLObjectEnableTouch : public view_listener_t
 //		label.assign("Touch");
 //	}
 //}
-/*
-bool handle_object_open()
-{
-	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-	if(!obj) return true;
 
-	LLFloaterOpenObject::show();
-	return true;
+void handle_object_open()
+{
+	LLFloaterReg::showInstance("openobject");
 }
 
-class LLObjectOpen : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		return handle_object_open();
-	}
-};
-*/
 bool enable_object_open()
 {
 	// Look for contents in root object, which is all the LLFloaterOpenObject
@@ -2647,8 +2630,22 @@ void handle_object_edit()
 	// Could be first use
 	LLFirstUse::useBuild();
 	return;
-	
 }
+
+void handle_object_inspect()
+{
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	LLViewerObject* selected_objectp = selection->getFirstRootObject();
+	if (selected_objectp)
+	{
+		LLSD key;
+		key["task"] = "task";
+		LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+	}
+
+	LLFloaterReg::showInstance("inspect", LLSD());
+}
+
 //---------------------------------------------------------------------------
 // Land pie menu
 //---------------------------------------------------------------------------
@@ -3442,26 +3439,13 @@ void handle_show_side_tray()
 	root->addChild(side_tray);
 }
 
-class LLSelfFriends : public view_listener_t
+class LLShowPanelPeopleTab : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		// Open "Friends" tab of the "People" panel in side tray.
+		// Open tab of the "People" panel in side tray.
 		LLSD param;
-		param["people_panel_tab_name"] = "friends_panel";
-
-		LLSideTray::getInstance()->showPanel("panel_people", param);
-		return true;
-	}
-};
-
-class LLSelfGroups : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		// Open "Groups" tab of the "People" panel in side tray.
-		LLSD param;
-		param["people_panel_tab_name"] = "groups_panel";
+		param["people_panel_tab_name"] = userdata.asString();
 		LLSideTray::getInstance()->showPanel("panel_people", param);
 		return true;
 	}
@@ -3496,9 +3480,8 @@ void set_god_level(U8 god_level)
 	gAgent.setGodLevel( god_level );
 	LLViewerParcelMgr::getInstance()->notifyObservers();
 
-	// God mode changes sim visibility
-	LLWorldMap::getInstance()->reset();
-	LLWorldMap::getInstance()->setCurrentLayer(0);
+	// God mode changes region visibility
+	LLWorldMap::getInstance()->reloadItems(true);
 
 	// inventory in items may change in god mode
 	gObjectList.dirtyAllObjectInventory();
@@ -4175,11 +4158,9 @@ void handle_take_copy()
 {
 	if (LLSelectMgr::getInstance()->getSelection()->isEmpty()) return;
 
-	LLUUID category_id =
-		gInventory.findCategoryUUIDForType(LLAssetType::AT_OBJECT);
+	const LLUUID category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
 	derez_objects(DRD_ACQUIRE_TO_AGENT_INVENTORY, category_id);
 }
-
 
 // You can return an object to its owner if it is on your land.
 class LLObjectReturn : public view_listener_t
@@ -4261,7 +4242,7 @@ class LLObjectEnableReturn : public view_listener_t
 void force_take_copy(void*)
 {
 	if (LLSelectMgr::getInstance()->getSelection()->isEmpty()) return;
-	const LLUUID& category_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_OBJECT);
+	const LLUUID category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
 	derez_objects(DRD_FORCE_TO_GOD_INVENTORY, category_id);
 }
 
@@ -4322,8 +4303,7 @@ void handle_take()
 		if(category_id.notNull())
 		{
 		        // check trash
-			LLUUID trash;
-			trash = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
+			const LLUUID trash = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
 			if(category_id == trash || gInventory.isObjectDescendentOf(category_id, trash))
 			{
 				category_id.setNull();
@@ -4339,7 +4319,7 @@ void handle_take()
 	}
 	if(category_id.isNull())
 	{
-		category_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_OBJECT);
+		category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
 	}
 	LLSD payload;
 	payload["folder_id"] = category_id;
@@ -5213,7 +5193,7 @@ void show_debug_menus()
 		gMenuBarView->setItemEnabled("Develop", qamode);
 
 		// Server ('Admin') menu hidden when not in godmode.
-		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT);
+		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT || gAgent.getAdminOverride());
 		gMenuBarView->setItemVisible("Admin", show_server_menu);
 		gMenuBarView->setItemEnabled("Admin", show_server_menu);
 	}
@@ -6281,9 +6261,13 @@ class LLAvatarSendIM : public view_listener_t
 
 			//EInstantMessage type = have_agent_callingcard(gLastHitObjectID)
 			//	? IM_SESSION_ADD : IM_SESSION_CARDLESS_START;
-			gIMMgr->addSession(name,
+			LLUUID session_id = gIMMgr->addSession(name,
 								IM_NOTHING_SPECIAL,
 								avatar->getID());
+			if (session_id != LLUUID::null)
+			{
+				LLIMFloater::show(session_id);
+			}
 		}
 		return true;
 	}
@@ -6918,7 +6902,7 @@ void handle_grab_texture(void* data)
 		LL_INFOS("texture") << "Adding baked texture " << asset_id << " to inventory." << llendl;
 		LLAssetType::EType asset_type = LLAssetType::AT_TEXTURE;
 		LLInventoryType::EType inv_type = LLInventoryType::IT_TEXTURE;
-		LLUUID folder_id(gInventory.findCategoryUUIDForType(asset_type));
+		const LLUUID folder_id = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(asset_type));
 		if(folder_id.notNull())
 		{
 			std::string name = "Unknown";
@@ -7460,52 +7444,10 @@ class LLEditEnableTakeOff : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string clothing = userdata.asString();
-		bool new_value = false;
-		if (clothing == "shirt")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_SHIRT);
-		}
-		if (clothing == "pants")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_PANTS);
-		}
-		if (clothing == "shoes")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_SHOES);
-		}
-		if (clothing == "socks")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_SOCKS);
-		}
-		if (clothing == "jacket")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_JACKET);
-		}
-		if (clothing == "gloves")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_GLOVES);
-		}
-		if (clothing == "undershirt")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_UNDERSHIRT);
-		}
-		if (clothing == "underpants")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_UNDERPANTS);
-		}
-		if (clothing == "skirt")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_SKIRT);
-		}
-		if (clothing == "alpha")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_ALPHA);
-		}
-		if (clothing == "tattoo")
-		{
-			new_value = LLAgentWearables::selfHasWearable(WT_TATTOO);
-		}
-		return new_value;
+		EWearableType type = LLWearableDictionary::typeNameToType(clothing);
+		if (type >= WT_SHAPE && type < WT_COUNT)
+			return LLAgentWearables::selfHasWearable(type);
+		return false;
 	}
 };
 
@@ -7514,53 +7456,13 @@ class LLEditTakeOff : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string clothing = userdata.asString();
-		if (clothing == "shirt")
+		if (clothing == "all")
+			LLAgentWearables::userRemoveAllClothes();
+		else
 		{
-			LLAgentWearables::userRemoveWearable((void*)WT_SHIRT);
-		}
-		else if (clothing == "pants")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_PANTS);
-		}
-		else if (clothing == "shoes")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_SHOES);
-		}
-		else if (clothing == "socks")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_SOCKS);
-		}
-		else if (clothing == "jacket")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_JACKET);
-		}
-		else if (clothing == "gloves")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_GLOVES);
-		}
-		else if (clothing == "undershirt")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_UNDERSHIRT);
-		}
-		else if (clothing == "underpants")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_UNDERPANTS);
-		}
-		else if (clothing == "skirt")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_SKIRT);
-		}
-		else if (clothing == "alpha")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_ALPHA);
-		}
-		else if (clothing == "tattoo")
-		{
-			LLAgentWearables::userRemoveWearable((void*)WT_TATTOO);
-		}
-		else if (clothing == "all")
-		{
-			LLAgentWearables::userRemoveAllClothes(NULL);
+			EWearableType type = LLWearableDictionary::typeNameToType(clothing);
+			if (type >= WT_SHAPE && type < WT_COUNT)
+				LLAgentWearables::userRemoveWearable(type);
 		}
 		return true;
 	}
@@ -7875,8 +7777,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedSelectedTextureInfo(), "Advanced.SelectedTextureInfo");
 	view_listener_t::addMenu(new LLAdvancedToggleWireframe(), "Advanced.ToggleWireframe");
 	view_listener_t::addMenu(new LLAdvancedCheckWireframe(), "Advanced.CheckWireframe");
-	view_listener_t::addMenu(new LLAdvancedToggleDisableTextures(), "Advanced.ToggleDisableTextures");
-	view_listener_t::addMenu(new LLAdvancedCheckDisableTextures(), "Advanced.CheckDisableTextures");
 	view_listener_t::addMenu(new LLAdvancedToggleTextureAtlas(), "Advanced.ToggleTextureAtlas");
 	view_listener_t::addMenu(new LLAdvancedCheckTextureAtlas(), "Advanced.CheckTextureAtlas");
 	view_listener_t::addMenu(new LLAdvancedEnableObjectObjectOcclusion(), "Advanced.EnableObjectObjectOcclusion");
@@ -8025,8 +7925,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLSelfEnableRemoveAllAttachments(), "Self.EnableRemoveAllAttachments");
 
 	// we don't use boost::bind directly to delay side tray construction
-	view_listener_t::addMenu(new LLSelfFriends(), "Self.Friends");
-	view_listener_t::addMenu(new LLSelfGroups(), "Self.Groups");
+	view_listener_t::addMenu( new LLShowPanelPeopleTab(), "SideTray.PanelPeopleTab");
 
 	 // Avatar pie menu
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");
@@ -8061,6 +7960,8 @@ void initialize_menus()
 
 	commit.add("Object.Buy", boost::bind(&handle_buy));
 	commit.add("Object.Edit", boost::bind(&handle_object_edit));
+	commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
+	commit.add("Object.Open", boost::bind(&handle_object_open));
 	
 	commit.add("Object.Take", boost::bind(&handle_take));
 

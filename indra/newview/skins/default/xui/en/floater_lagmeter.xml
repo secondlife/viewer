@@ -6,7 +6,7 @@
  name="floater_lagmeter"
  help_topic="floater_lagmeter"
  save_rect="true"
- title="Lag Meter"
+ title="LAG METER"
  width="350">
     <floater.string
      name="max_title_msg">
@@ -184,7 +184,6 @@
      layout="topleft"
      left="8"
      name="client_lagmeter"
-     picture_style="true"
      tab_stop="false"
      tool_tip="Client lag status"
      top="24"
@@ -233,7 +232,6 @@
      layout="topleft"
      left="8"
      name="network_lagmeter"
-     picture_style="true"
      tab_stop="false"
      tool_tip="Network lag status"
      top="64"
@@ -282,7 +280,6 @@
      layout="topleft"
      left="8"
      name="server_lagmeter"
-     picture_style="true"
      tab_stop="false"
      tool_tip="Server lag status"
      top="104"

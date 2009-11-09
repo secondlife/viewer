@@ -10,7 +10,7 @@
  help_topic="floater_search"
  save_rect="true"
  single_instance="true"
- title="Search [SECOND_LIFE]"
+ title="SEARCH [SECOND_LIFE]"
  width="620">
     <floater.string
      name="search_url">

@@ -49,6 +49,7 @@
 #include "llstring.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
+#include "llworldmapmessage.h"
 #include "llviewerwindow.h"
 #include "llwindow.h"
 #include "llworldmap.h"
@@ -165,8 +166,7 @@ static void fetch_landmarks(LLInventoryModel::cat_array_t& cats,
 							LLInventoryCollectFunctor& add)
 {
 	// Look in "My Favorites"
-	LLUUID favorites_folder_id =
-		gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+	const LLUUID favorites_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 	gInventory.collectDescendentsIf(favorites_folder_id,
 		cats,
 		items,
@@ -174,8 +174,7 @@ static void fetch_landmarks(LLInventoryModel::cat_array_t& cats,
 		add);
 
 	// Look in "Landmarks"
-	LLUUID landmarks_folder_id = 
-		gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+	const LLUUID landmarks_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
 	gInventory.collectDescendentsIf(landmarks_folder_id,
 		cats,
 		items,
@@ -287,7 +286,7 @@ void LLLandmarkActions::createLandmarkHere()
 
 	LLAgentUI::buildLocationString(landmark_name, LLAgentUI::LOCATION_FORMAT_LANDMARK);
 	LLAgentUI::buildLocationString(landmark_desc, LLAgentUI::LOCATION_FORMAT_FULL);
-	LLUUID folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+	const LLUUID folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
 
 	createLandmarkHere(landmark_name, landmark_desc, folder_id);
 }
@@ -307,13 +306,13 @@ void LLLandmarkActions::getSLURLfromPosGlobal(const LLVector3d& global_pos, slur
 	{
 		U64 new_region_handle = to_region_handle(global_pos);
 
-		LLWorldMap::url_callback_t url_cb = boost::bind(&LLLandmarkActions::onRegionResponseSLURL,
+		LLWorldMapMessage::url_callback_t url_cb = boost::bind(&LLLandmarkActions::onRegionResponseSLURL,
 														cb,
 														global_pos,
 														escaped,
 														_2);
 
-		LLWorldMap::getInstance()->sendHandleRegionRequest(new_region_handle, url_cb, std::string("unused"), false);
+		LLWorldMapMessage::getInstance()->sendHandleRegionRequest(new_region_handle, url_cb, std::string("unused"), false);
 	}
 }
 
@@ -324,18 +323,19 @@ void LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(const LLVector3d& gl
 	if (sim_infop)
 	{
 		LLVector3 pos = sim_infop->getLocalPos(global_pos);
-		cb(sim_infop->mName, llround(pos.mV[VX]), llround(pos.mV[VY]));
+		std::string name = sim_infop->getName() ;
+		cb(name, llround(pos.mV[VX]), llround(pos.mV[VY]));
 	}
 	else
 	{
 		U64 new_region_handle = to_region_handle(global_pos);
 
-		LLWorldMap::url_callback_t url_cb = boost::bind(&LLLandmarkActions::onRegionResponseNameAndCoords,
+		LLWorldMapMessage::url_callback_t url_cb = boost::bind(&LLLandmarkActions::onRegionResponseNameAndCoords,
 														cb,
 														global_pos,
 														_1);
 
-		LLWorldMap::getInstance()->sendHandleRegionRequest(new_region_handle, url_cb, std::string("unused"), false);
+		LLWorldMapMessage::getInstance()->sendHandleRegionRequest(new_region_handle, url_cb, std::string("unused"), false);
 	}
 }
 
@@ -367,7 +367,8 @@ void LLLandmarkActions::onRegionResponseNameAndCoords(region_name_and_coords_cal
 	if (sim_infop)
 	{
 		LLVector3 local_pos = sim_infop->getLocalPos(global_pos);
-		cb(sim_infop->mName, llround(local_pos.mV[VX]), llround(local_pos.mV[VY]));
+		std::string name = sim_infop->getName() ;
+		cb(name, llround(local_pos.mV[VX]), llround(local_pos.mV[VY]));
 	}
 }
 

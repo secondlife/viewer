@@ -7,7 +7,7 @@
  name="item properties"
  help_topic="item_properties"
  save_rect="true"
- title="Inventory Item Properties"
+ title="INVENTORY ITEM PROPERTIES"
  width="350">
     <floater.string
      name="unknown">

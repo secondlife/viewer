@@ -60,7 +60,7 @@ static std::string asset_id_to_filename(const LLUUID &asset_id);
 
 LLWearable::LLWearable(const LLTransactionID& transaction_id) :
 	mDefinitionVersion(LLWearable::sCurrentDefinitionVersion),
-	mType(WT_SHAPE)
+	mType(WT_INVALID)
 {
 	mTransactionID = transaction_id;
 	mAssetID = mTransactionID.makeAssetID(gAgent.getSecureSessionID());
@@ -68,7 +68,7 @@ LLWearable::LLWearable(const LLTransactionID& transaction_id) :
 
 LLWearable::LLWearable(const LLAssetID& asset_id) :
 	mDefinitionVersion( LLWearable::sCurrentDefinitionVersion ),
-	mType(WT_SHAPE)
+	mType(WT_INVALID)
 {
 	mAssetID = asset_id;
 	mTransactionID.setNull();
@@ -181,13 +181,7 @@ void LLWearable::createVisualParams()
 	{
 		if (param->getWearableType() == mType)
 		{
-			if (mVisualParamIndexMap[param->getID()])
-			{
-				delete mVisualParamIndexMap[param->getID()];
-			}
-			LLViewerVisualParam *new_param = param->cloneParam(this);
-			new_param->setIsDummy(FALSE);
-			mVisualParamIndexMap[param->getID()] = new_param;
+			addVisualParam(param->cloneParam(this));
 		}
 	}
 
@@ -661,7 +655,7 @@ void LLWearable::writeToAvatar( BOOL set_by_user, BOOL update_customize_floater 
 			{	
 				image_id = LLVOAvatarDictionary::getDefaultTextureImageID((ETextureIndex) te);
 			}
-			LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE );
+			LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE );
 			// MULTI-WEARABLE: replace hard-coded 0
 			avatar->setLocalTextureTE(te, image, set_by_user, 0);
 		}
@@ -750,7 +744,8 @@ void LLWearable::copyDataFrom(const LLWearable* src)
 	mDescription = src->mDescription;
 	mPermissions = src->mPermissions;
 	mSaleInfo = src->mSaleInfo;
-	mType = src->mType;
+
+	setType(src->mType);
 
 	mSavedVisualParamMap.clear();
 	// Deep copy of mVisualParamMap (copies only those params that are current, filling in defaults where needed)
@@ -763,9 +758,6 @@ void LLWearable::copyDataFrom(const LLWearable* src)
 			S32 id = param->getID();
 			F32 weight = src->getVisualParamWeight(id);
 			mSavedVisualParamMap[id] = weight;
-			
-			// Clones a visual param from src and adds it to this wearable. Value of param is taken from current value of source param, not saved.
-			addVisualParam(param->cloneParam(this));
 		}
 	}
 
@@ -860,6 +852,7 @@ void LLWearable::addVisualParam(LLVisualParam *param)
 	{
 		delete mVisualParamIndexMap[param->getID()];
 	}
+	param->setIsDummy(FALSE);
 	mVisualParamIndexMap[param->getID()] = param;
 }
 
@@ -1123,7 +1116,7 @@ void LLWearable::saveNewAsset() const
 		{
 			llinfos << "Update Agent Inventory via capability" << llendl;
 			LLSD body;
-			body["folder_id"] = gInventory.findCategoryUUIDForType(getAssetType());
+			body["folder_id"] = gInventory.findCategoryUUIDForType(LLFolderType::assetToFolderType(getAssetType()));
 			body["asset_type"] = LLAssetType::lookup(getAssetType());
 			body["inventory_type"] = LLInventoryType::lookup(LLInventoryType::IT_WEARABLE);
 			body["name"] = getName();

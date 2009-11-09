@@ -413,6 +413,8 @@ BOOL LLPanelPickEdit::postBuild()
 	childSetAction(XML_BTN_SAVE, boost::bind(&LLPanelPickEdit::onClickSave, this));
 	childSetAction("set_to_curr_location_btn", boost::bind(&LLPanelPickEdit::onClickSetLocation, this));
 
+	initTexturePickerMouseEvents();
+
 	return TRUE;
 }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="gestures" title="Gestos Ativos">
+<floater name="gestures" title="GESTOS ATIVOS">
 	<text name="help_label">
 		Clicar duas vezes no gesto para executar animações e sons.
 	</text>

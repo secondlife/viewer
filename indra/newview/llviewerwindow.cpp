@@ -121,6 +121,7 @@
 #include "llhudview.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
+#include "llimageworker.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
@@ -160,7 +161,6 @@
 #include "lltoolselectland.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
-#include "lluploaddialog.h"
 #include "llurldispatcher.h"		// SLURL from other app instance
 #include "llvieweraudio.h"
 #include "llviewercamera.h"
@@ -192,6 +192,7 @@
 #include "llbottomtray.h"
 #include "llnearbychatbar.h"
 #include "llagentui.h"
+#include "llwearablelist.h"
 
 #include "llnotificationmanager.h"
 
@@ -330,7 +331,9 @@ public:
 				S32 hours = (S32)(time / (60*60));
 				S32 mins = (S32)((time - hours*(60*60)) / 60);
 				S32 secs = (S32)((time - hours*(60*60) - mins*60));
-				addText(xpos, ypos, llformat(" Debug %d: %d:%02d:%02d", idx, hours,mins,secs)); ypos += y_inc2;
+				std::string label = gDebugTimerLabel[idx];
+				if (label.empty()) label = llformat("Debug: %d", idx);
+				addText(xpos, ypos, llformat(" %s: %d:%02d:%02d", label.c_str(), hours,mins,secs)); ypos += y_inc2;
 			}
 			
 			F32 time = gFrameTimeSeconds;
@@ -1304,6 +1307,7 @@ LLViewerWindow::LLViewerWindow(
 		
 	// Init the image list.  Must happen after GL is initialized and before the images that
 	// LLViewerWindow needs are requested.
+	LLImageGL::initClass(LLViewerTexture::MAX_GL_IMAGE_CATEGORY) ;
 	gTextureList.init();
 	LLViewerTextureManager::init() ;
 	gBumpImageList.init();
@@ -1670,6 +1674,8 @@ void LLViewerWindow::shutdownGL()
 	gSky.cleanup();
 	stop_glerror();
 
+	LLWearableList::instance().cleanup() ;
+
 	gTextureList.shutdown();
 	stop_glerror();
 
@@ -1683,7 +1689,10 @@ void LLViewerWindow::shutdownGL()
 	stop_glerror();
 
 	LLViewerTextureManager::cleanup() ;
-	
+	LLImageGL::cleanupClass() ;
+
+	llinfos << "All texturs and llimagegl images are destroyed!" << llendl ;
+
 	llinfos << "Cleaning up select manager" << llendl;
 	LLSelectMgr::getInstance()->cleanup();
 
@@ -2113,31 +2122,30 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		// arrow keys move avatar while chatting hack
 		if (chat_editor && chat_editor->hasFocus())
 		{
-			if (chat_editor->getText().empty() || gSavedSettings.getBOOL("ArrowKeysMoveAvatar"))
+			// If text field is empty, there's no point in trying to move
+			// cursor with arrow keys, so allow movement
+			if (chat_editor->getText().empty() 
+				|| gSavedSettings.getBOOL("ArrowKeysAlwaysMove"))
 			{
-				switch(key)
+				// let Control-Up and Control-Down through for chat line history,
+				if (!(key == KEY_UP && mask == MASK_CONTROL)
+					&& !(key == KEY_DOWN && mask == MASK_CONTROL))
 				{
-				case KEY_LEFT:
-				case KEY_RIGHT:
-				case KEY_UP:
-					// let CTRL UP through for chat line history
-					if( MASK_CONTROL == mask )
+					switch(key)
 					{
+					case KEY_LEFT:
+					case KEY_RIGHT:
+					case KEY_UP:
+					case KEY_DOWN:
+					case KEY_PAGE_UP:
+					case KEY_PAGE_DOWN:
+					case KEY_HOME:
+						// when chatbar is empty or ArrowKeysAlwaysMove set,
+						// pass arrow keys on to avatar...
+						return FALSE;
+					default:
 						break;
 					}
-				case KEY_DOWN:
-					// let CTRL DOWN through for chat line history
-					if( MASK_CONTROL == mask )
-					{
-						break;
-					}
-				case KEY_PAGE_UP:
-				case KEY_PAGE_DOWN:
-				case KEY_HOME:
-					// when chatbar is empty or ArrowKeysMoveAvatar set, pass arrow keys on to avatar...
-					return FALSE;
-				default:
-					break;
 				}
 			}
 		}

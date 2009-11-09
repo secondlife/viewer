@@ -70,9 +70,9 @@ class LL_COMMON_API LLAPRPool
 {
 public:
 	LLAPRPool(apr_pool_t *parent = NULL, apr_size_t size = 0, BOOL releasePoolFlag = TRUE) ;
-	~LLAPRPool() ;
+	virtual ~LLAPRPool() ;
 
-	apr_pool_t* getAPRPool() ;
+	virtual apr_pool_t* getAPRPool() ;
 	apr_status_t getStatus() {return mStatus ; }
 
 protected:
@@ -95,18 +95,21 @@ protected:
 class LL_COMMON_API LLVolatileAPRPool : public LLAPRPool
 {
 public:
-	LLVolatileAPRPool(apr_pool_t *parent = NULL, apr_size_t size = 0, BOOL releasePoolFlag = TRUE);
-	~LLVolatileAPRPool(){}
+	LLVolatileAPRPool(BOOL is_local = TRUE, apr_pool_t *parent = NULL, apr_size_t size = 0, BOOL releasePoolFlag = TRUE);
+	virtual ~LLVolatileAPRPool();
 
-	apr_pool_t* getVolatileAPRPool() ;
-	
+	/*virtual*/ apr_pool_t* getAPRPool() ; //define this virtual function to avoid any mistakenly calling LLAPRPool::getAPRPool().
+	apr_pool_t* getVolatileAPRPool() ;	
 	void        clearVolatileAPRPool() ;
 
 	BOOL        isFull() ;
-	BOOL        isEmpty() {return !mNumActiveRef ;}
+	
 private:
 	S32 mNumActiveRef ; //number of active pointers pointing to the apr_pool.
-	S32 mNumTotalRef ;  //number of total pointers pointing to the apr_pool since last creating.   
+	S32 mNumTotalRef ;  //number of total pointers pointing to the apr_pool since last creating.  
+
+	apr_thread_mutex_t *mMutexp;
+	apr_pool_t         *mMutexPool;
 } ;
 
 /** 
@@ -192,18 +195,21 @@ typedef LLAtomic32<S32> LLAtomicS32;
 //      1, a temperary pool passed to an APRFile function, which is used within this function and only once.
 //      2, a global pool.
 //
-class LL_COMMON_API LLAPRFile
+
+class LL_COMMON_API LLAPRFile : boost::noncopyable
 {
+	// make this non copyable since a copy closes the file
 private:
 	apr_file_t* mFile ;
 	LLVolatileAPRPool *mCurrentFilePoolp ; //currently in use apr_pool, could be one of them: sAPRFilePoolp, or a temp pool. 
 
 public:
 	LLAPRFile() ;
+	LLAPRFile(const std::string& filename, apr_int32_t flags, LLVolatileAPRPool* pool = NULL);
 	~LLAPRFile() ;
-
-	apr_status_t open(LLVolatileAPRPool* pool, const std::string& filename, apr_int32_t flags, S32* sizep = NULL);
-	apr_status_t open(const std::string& filename, apr_int32_t flags, apr_pool_t* pool = NULL, S32* sizep = NULL);
+	
+	apr_status_t open(const std::string& filename, apr_int32_t flags, LLVolatileAPRPool* pool = NULL, S32* sizep = NULL);
+	apr_status_t open(const std::string& filename, apr_int32_t flags, BOOL use_global_pool); //use gAPRPoolp.
 	apr_status_t close() ;
 
 	// Returns actual offset, -1 if seek fails
@@ -217,8 +223,8 @@ public:
 	apr_file_t* getFileHandle() {return mFile;}	
 
 private:
-	apr_pool_t* getAPRFilePool(apr_pool_t* pool) ;
-
+	apr_pool_t* getAPRFilePool(apr_pool_t* pool) ;	
+	
 //
 //*******************************************************************************************************************************
 //static components

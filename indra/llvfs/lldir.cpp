@@ -580,7 +580,7 @@ void LLDir::setLindenUserDir(const std::string &first, const std::string &last)
 	}
 	else
 	{
-		llerrs << "Invalid name for LLDir::setLindenUserDir" << llendl;
+		llerrs << "Invalid name for LLDir::setLindenUserDir(first='" << first << "', last='" << last << "')" << llendl;
 	}
 
 	dumpCurrentDirectories();	

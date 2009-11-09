@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="contents" title="Schriftart-Test">
+<floater name="contents" title="SCHRIFTART-TEST">
 	<text name="linea">
 		OverrideTest, sollte hier als Times angezeigt werden. (Aus default/xui/en-us)
 	</text>

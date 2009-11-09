@@ -75,7 +75,6 @@ background_visible="true"
              multi_select="true"
              name="avatar_list"
              top="0"
-             volume_column_width="20"
              width="313" />
             <panel
              follows="left|right|bottom"
@@ -95,7 +94,6 @@ background_visible="true"
              layout="topleft"
              left="10"
              name="nearby_view_sort_btn"
-             picture_style="true"
              top="5"
              width="18" />
              <button
@@ -107,7 +105,6 @@ background_visible="true"
                  layout="topleft"
                  left_pad="5"
                  name="add_friend_btn"
-                 picture_style="true"
                  top_delta="0"
                  tool_tip="Add selected resident to your friends List"
                  width="18" />
@@ -132,7 +129,6 @@ background_visible="true"
              top="0"
              width="313">
                 <accordion_tab
-                 can_resize="false"
                  layout="topleft"
                  height="235"
                  min_height="150"
@@ -149,7 +145,6 @@ background_visible="true"
                          width="313" />
                 </accordion_tab>
                 <accordion_tab
-                 can_resize="false"
                  layout="topleft"
                  height="235"
                  name="tab_all"
@@ -183,7 +178,6 @@ background_visible="true"
                layout="topleft"
                left="10"
                name="friends_viewsort_btn"
-               picture_style="true"
                top="5"
                width="18" />
                 <button
@@ -195,7 +189,6 @@ background_visible="true"
                  layout="topleft"
                  left_pad="5"
                  name="add_btn"
-                 picture_style="true"
                  tool_tip="Offer friendship to a resident"
                  top_delta="0"
                  width="18" />
@@ -209,7 +202,6 @@ background_visible="true"
                  left_pad="10"
                  right="-10"
                  name="del_btn"
-                 picture_style="true"
                  tool_tip="Remove selected person from your Friends list"
                  top_delta="0"
                  width="18" />
@@ -252,7 +244,6 @@ background_visible="true"
                layout="topleft"
                left="10"
                name="groups_viewsort_btn"
-               picture_style="true"
                top="7"
                width="18" />
                 <button
@@ -264,7 +255,6 @@ background_visible="true"
                  layout="topleft"
                  left_pad="5"
                  name="plus_btn"
-                 picture_style="true"
                  tool_tip="Join group/Create new group"
                  top_delta="0"
                  width="18" />
@@ -277,23 +267,9 @@ background_visible="true"
                  layout="topleft"
                  left_pad="24"
                  name="activate_btn"
-                 picture_style="true"
                  tool_tip="Activate selected group"
                  top_delta="5"
                  width="10" />
-                <button
-                 follows="bottom|left"
-                 height="18"
-                 image_selected="TrashItem_Press"
-                 image_unselected="TrashItem_Off"
-                 layout="topleft"
-                left_pad="10"
-                 right="-10"
-                 name="minus_btn"
-                 picture_style="true"
-                 tool_tip="Leave selected group"
-                 top_delta="-5"
-                 width="18" />
             </panel>
         </panel>
         <panel
@@ -336,7 +312,6 @@ background_visible="true"
                layout="topleft"
                left="10"
                name="recent_viewsort_btn"
-               picture_style="true"
                top="7"
                width="18" />
               <button
@@ -348,7 +323,6 @@ background_visible="true"
                  layout="topleft"
                  left_pad="5"
                  name="add_friend_btn"
-                 picture_style="true"
                  top_delta="0"
                  tool_tip="Add selected resident to your friends List"
                  width="18" />

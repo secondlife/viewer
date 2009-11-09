@@ -53,7 +53,6 @@ const BOOL GL_TEXTURE_NO = FALSE;
 const BOOL IMMEDIATE_YES = TRUE;
 const BOOL IMMEDIATE_NO = FALSE;
 
-class LLImageJ2C;
 class LLMessageSystem;
 class LLTextureView;
 
@@ -131,7 +130,7 @@ private:
 
 	LLViewerFetchedTexture * getImage(const LLUUID &image_id,									 
 									 BOOL usemipmap = TRUE,
-									 BOOL level_immediate = FALSE,		// Get the requested level immediately upon creation.
+									 S32 boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
 									 LLGLint internal_format = 0,
 									 LLGLenum primary_format = 0,
@@ -139,6 +138,15 @@ private:
 									 );
 	
 	LLViewerFetchedTexture * getImageFromFile(const std::string& filename,									 
+									 BOOL usemipmap = TRUE,
+									 S32 boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
+									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
+									 LLGLint internal_format = 0,
+									 LLGLenum primary_format = 0,
+									 const LLUUID& force_id = LLUUID::null
+									 );
+	
+	LLViewerFetchedTexture* getImageFromUrl(const std::string& url,
 									 BOOL usemipmap = TRUE,
 									 BOOL level_immediate = FALSE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
@@ -149,7 +157,7 @@ private:
 
 	LLViewerFetchedTexture* createImage(const LLUUID &image_id,
 									 BOOL usemipmap = TRUE,
-									 BOOL level_immediate = FALSE,		// Get the requested level immediately upon creation.
+									 S32 boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
 									 LLGLint internal_format = 0,
 									 LLGLenum primary_format = 0,
@@ -159,7 +167,7 @@ private:
 	// Request image from a specific host, used for baked avatar textures.
 	// Implemented in header in case someone changes default params above. JC
 	LLViewerFetchedTexture* getImageFromHost(const LLUUID& image_id, LLHost host)
-	{ return getImage(image_id, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE, 0, 0, host); }
+	{ return getImage(image_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host); }
 
 public:
 	typedef std::set<LLPointer<LLViewerFetchedTexture> > image_list_t;	
@@ -190,11 +198,18 @@ private:
 	LLFrameTimer mForceDecodeTimer;
 	
 public:
-	U32 mTextureBits;
-	U32 mTexturePackets;
+	static U32 sTextureBits;
+	static U32 sTexturePackets;
+
+	static LLStat sNumImagesStat;
+	static LLStat sNumRawImagesStat;
+	static LLStat sGLTexMemStat;
+	static LLStat sGLBoundMemStat;
+	static LLStat sRawMemStat;
+	static LLStat sFormattedMemStat;
 
 private:
-	S32 mNumImages;
+	static S32 sNumImages;
 	static void (*sUUIDCallback)(void**, const LLUUID &);
 };
 
