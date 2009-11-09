@@ -68,9 +68,6 @@
 #include "llfloaterfriends.h"  //VIVOX, inorder to refresh communicate panel
 #include "llfloaterchat.h"		// for LLFloaterChat::addChat()
 
-// for Talk Button's state updating
-#include "llnearbychatbar.h"
-
 // for base64 decoding
 #include "apr_base64.h"
 
