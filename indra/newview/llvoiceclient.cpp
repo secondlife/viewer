@@ -5791,7 +5791,6 @@ bool LLVoiceClient::getMuteMic() const
 void LLVoiceClient::setUserPTTState(bool ptt)
 {
 	mUserPTTState = ptt;
-	if (LLNearbyChatBar::instanceExists()) LLNearbyChatBar::getInstance()->setPTTState(ptt);
 }
 
 bool LLVoiceClient::getUserPTTState()
@@ -5802,7 +5801,6 @@ bool LLVoiceClient::getUserPTTState()
 void LLVoiceClient::toggleUserPTTState(void)
 {
 	mUserPTTState = !mUserPTTState;
-	if (LLNearbyChatBar::instanceExists()) LLNearbyChatBar::getInstance()->setPTTState(mUserPTTState);
 }
 
 void LLVoiceClient::setVoiceEnabled(bool enabled)

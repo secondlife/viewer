@@ -96,7 +96,6 @@ public:
 	std::string getCurrentChat();
 	virtual BOOL handleKeyHere( KEY key, MASK mask );
 
-	void setPTTState(bool state);
 	static void startChat(const char* line);
 	static void stopChat();
 

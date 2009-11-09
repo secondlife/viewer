@@ -695,11 +695,6 @@ LLWString LLNearbyChatBar::stripChannelNumber(const LLWString &mesg, S32* channe
 	}
 }
 
-void LLNearbyChatBar::setPTTState(bool state)
-{
-	mSpeakBtn->setSpeakBtnToggleState(state);
-}
-
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel)
 {
 	LLMessageSystem* msg = gMessageSystem;
