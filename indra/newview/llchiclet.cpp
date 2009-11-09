@@ -1044,11 +1044,11 @@ void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
 		return;
 	
 	LLRect scroll_button_rect = mLeftScrollButton->getRect();
-	mLeftScrollButton->setRect(LLRect(0,height,scroll_button_rect.getWidth(),
-		height - scroll_button_rect.getHeight()));
+	mLeftScrollButton->setRect(LLRect(0,scroll_button_rect.mTop,scroll_button_rect.getWidth(),
+		scroll_button_rect.mBottom));
 	scroll_button_rect = mRightScrollButton->getRect();
-	mRightScrollButton->setRect(LLRect(width - scroll_button_rect.getWidth(),height,
-		width, height - scroll_button_rect.getHeight()));
+	mRightScrollButton->setRect(LLRect(width - scroll_button_rect.getWidth(),scroll_button_rect.mTop,
+		width, scroll_button_rect.mBottom));
 	mScrollArea->setRect(LLRect(scroll_button_rect.getWidth() + SCROLL_BUTTON_PAD,
 		height, width - scroll_button_rect.getWidth() - SCROLL_BUTTON_PAD, 0));
 	mShowControls = width > mMinWidth;
