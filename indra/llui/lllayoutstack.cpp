@@ -137,6 +137,7 @@ LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p)
 	mPanelSpacing(p.border_size),
 	mOrientation((p.orientation() == "vertical") ? VERTICAL : HORIZONTAL),
 	mAnimate(p.animate),
+	mAnimatedThisFrame(false),
 	mClip(p.clip)
 {}
 
@@ -172,6 +173,7 @@ void LLLayoutStack::draw()
 		// only force drawing invisible children if visible amount is non-zero
 		drawChild(panelp, 0, 0, !clip_rect.isEmpty());
 	}
+	mAnimatedThisFrame = false;
 }
 
 void LLLayoutStack::removeChild(LLView* view)
@@ -411,8 +413,10 @@ void LLLayoutStack::updatePanelAutoResize(const std::string& panel_name, BOOL au
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_UPDATE_LAYOUT("Update LayoutStacks");
 void LLLayoutStack::updateLayout(BOOL force_resize)
 {
+	LLFastTimer ft(FTM_UPDATE_LAYOUT);
 	static LLUICachedControl<S32> resize_bar_overlap ("UIResizeBarOverlap", 0);
 	calcMinExtents();
 
@@ -431,10 +435,13 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		{
 			if (mAnimate)
 			{
-				(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 1.f, LLCriticalDamp::getInterpolant(ANIM_OPEN_TIME));
-				if ((*panel_it)->mVisibleAmt > 0.99f)
+				if (!mAnimatedThisFrame)
 				{
-					(*panel_it)->mVisibleAmt = 1.f;
+					(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 1.f, LLCriticalDamp::getInterpolant(ANIM_OPEN_TIME));
+					if ((*panel_it)->mVisibleAmt > 0.99f)
+					{
+						(*panel_it)->mVisibleAmt = 1.f;
+					}
 				}
 			}
 			else
@@ -446,10 +453,13 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		{
 			if (mAnimate)
 			{
-				(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 0.f, LLCriticalDamp::getInterpolant(ANIM_CLOSE_TIME));
-				if ((*panel_it)->mVisibleAmt < 0.001f)
+				if (!mAnimatedThisFrame)
 				{
-					(*panel_it)->mVisibleAmt = 0.f;
+					(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 0.f, LLCriticalDamp::getInterpolant(ANIM_CLOSE_TIME));
+					if ((*panel_it)->mVisibleAmt < 0.001f)
+					{
+						(*panel_it)->mVisibleAmt = 0.f;
+					}
 				}
 			}
 			else
@@ -631,10 +641,10 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		// adjust running headroom count based on new sizes
 		shrink_headroom_total += delta_size;
 
-		panelp->reshape(new_width, new_height);
-		panelp->setOrigin(cur_x, cur_y - new_height);
+		LLRect panel_rect;
+		panel_rect.setLeftTopAndSize(cur_x, cur_y, new_width, new_height);
+		panelp->setShape(panel_rect);
 
-		LLRect panel_rect = panelp->getRect();
 		LLRect resize_bar_rect = panel_rect;
 		if (mOrientation == HORIZONTAL)
 		{
@@ -705,6 +715,8 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		llassert_always(force_resize == FALSE);
 		updateLayout(TRUE);
 	}
+
+	 mAnimatedThisFrame = true;
 } // end LLLayoutStack::updateLayout
 
 
@@ -770,5 +782,18 @@ void LLLayoutStack::calcMinExtents()
 				mMinHeight += mPanelSpacing;
 			}
 		}
+	}
+}
+
+// update layout stack animations, etc. once per frame
+// NOTE: we use this to size world view based on animating UI, *before* we draw the UI
+// we might still need to call updateLayout during UI draw phase, in case UI elements
+// are resizing themselves dynamically
+//static 
+void LLLayoutStack::idle()
+{
+	for (LLInstanceTracker::instance_iter it = beginInstances(); it != endInstances(); ++it)
+	{
+		(*it)->updateLayout();
 	}
 }

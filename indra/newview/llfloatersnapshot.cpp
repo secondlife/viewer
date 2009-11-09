@@ -2044,10 +2044,12 @@ BOOL LLFloaterSnapshot::postBuild()
 	LLSnapshotLivePreview::Params p;
 	p.rect(full_screen_rect);
 	LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
-	getRootView()->removeChild(gSnapshotFloaterView);
+	LLView* parent_view = gSnapshotFloaterView->getParent();
+	
+	parent_view->removeChild(gSnapshotFloaterView);
 	// make sure preview is below snapshot floater
-	getRootView()->addChild(previewp);
-	getRootView()->addChild(gSnapshotFloaterView);
+	parent_view->addChild(previewp);
+	parent_view->addChild(gSnapshotFloaterView);
 	
 	//move snapshot floater to special purpose snapshotfloaterview
 	gFloaterView->removeChild(this);

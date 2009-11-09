@@ -677,7 +677,7 @@ void LLPanelStandStopFlying::updatePosition()
 	//align centers of a button and a floater
 	S32 x = movement_btn->calcScreenRect().getCenterX() - getRect().getWidth()/2;
 
-	S32 y = tray->getRect().getHeight();
+	S32 y = 0;
 
 	LLFloater *move_floater = LLFloaterReg::findInstance("moveview");
 	if (move_floater)

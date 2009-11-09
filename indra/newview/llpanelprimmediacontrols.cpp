@@ -694,6 +694,7 @@ bool LLPanelPrimMediaControls::isMouseOver()
 		LLView* controls_view = NULL;
 		controls_view = getChild<LLView>("media_controls");
 		
+		//FIXME: rewrite as LLViewQuery or get hover set from LLViewerWindow?
 		if(controls_view && controls_view->getVisible())
 		{
 			controls_view->screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &x, &y);

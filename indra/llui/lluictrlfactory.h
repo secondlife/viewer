@@ -188,7 +188,7 @@ public:
 		T* widget = new T(params);
 		widget->initFromParams(params);
 		if (parent)
-			widget->setParent(parent);
+			parent->addChild(widget);
 		return widget;
 	}
 

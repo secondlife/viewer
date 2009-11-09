@@ -1405,6 +1405,9 @@ void LLViewerWindow::initBase()
 	main_view->setShape(full_window);
 	getRootView()->addChild(main_view);
 
+	// placeholder widget that controls where "world" is rendered
+	mWorldViewPlaceholder = main_view->getChildView("world_view_rect");
+
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = getRootView()->getChild<LLFloaterView>("Floater View");
 	gSnapshotFloaterView = getRootView()->getChild<LLSnapshotFloaterView>("Snapshot Floater View");
@@ -1458,9 +1461,6 @@ void LLViewerWindow::initWorldUI()
 
 	gIMMgr = LLIMMgr::getInstance();
 
-	// side tray
-	//getRootView()->addChild(LLSideTray::getInstance());
-
 	getRootView()->sendChildToFront(gFloaterView);
 	getRootView()->sendChildToFront(gSnapshotFloaterView);
 
@@ -1468,7 +1468,7 @@ void LLViewerWindow::initWorldUI()
 	LLPanel* bottom_tray_container = getRootView()->getChild<LLPanel>("bottom_tray_container");
 	LLBottomTray* bottom_tray = LLBottomTray::getInstance();
 	bottom_tray->setShape(bottom_tray_container->getLocalRect());
-	bottom_tray->setFollows(FOLLOWS_ALL);
+	bottom_tray->setFollowsAll();
 	bottom_tray_container->addChild(bottom_tray);
 	bottom_tray_container->setVisible(TRUE);
 
@@ -1498,7 +1498,8 @@ void LLViewerWindow::initWorldUI()
 	// Status bar
 	LLPanel* status_bar_container = getRootView()->getChild<LLPanel>("status_bar_container");
 	gStatusBar = new LLStatusBar(status_bar_container->getLocalRect());
-	gStatusBar->setFollows(FOLLOWS_ALL);
+	gStatusBar->setFollowsAll();
+	gStatusBar->setShape(status_bar_container->getLocalRect());
 	// sync bg color with menu bar
 	gStatusBar->setBackgroundColor( gMenuBarView->getBackgroundColor().get() );
 	status_bar_container->addChild(gStatusBar);
@@ -1559,10 +1560,24 @@ void LLViewerWindow::initWorldUI()
 	LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("stand_stop_flying_container");
 	LLPanelStandStopFlying* panel_stand_stop_flying	= LLPanelStandStopFlying::getInstance();
 	panel_stand_stop_flying->setShape(panel_ssf_container->getLocalRect());
-	panel_stand_stop_flying->setFollows(FOLLOWS_ALL);
+	panel_stand_stop_flying->setFollowsAll();
 	panel_ssf_container->addChild(panel_stand_stop_flying);
 	panel_ssf_container->setVisible(TRUE);
 
+	// put sidetray in container
+	LLPanel* side_tray_container = getRootView()->getChild<LLPanel>("side_tray_container");
+	LLSideTray* sidetrayp = LLSideTray::getInstance();
+	sidetrayp->setShape(side_tray_container->getLocalRect());
+	sidetrayp->setFollowsAll();
+	side_tray_container->addChild(sidetrayp);
+	side_tray_container->setVisible(FALSE);
+	
+	// put sidetray buttons in their own panel
+	LLPanel* buttons_panel = sidetrayp->getButtonsPanel();
+	LLPanel* buttons_panel_container = getRootView()->getChild<LLPanel>("side_bar_tabs");
+	buttons_panel->setShape(buttons_panel_container->getLocalRect());
+	buttons_panel->setFollowsAll();
+	buttons_panel_container->addChild(buttons_panel);
 }
 
 // Destroy the UI
@@ -2272,29 +2287,6 @@ void LLViewerWindow::moveCursorToCenter()
 	LLUI::setMousePositionScreen(x, y);	
 }
 
-void LLViewerWindow::updateBottomTrayRect()
-{
-	//if(LLBottomTray::instanceExists() && LLSideTray::instanceCreated())
-	//{
-	//	S32 side_tray_width = 0;
-	//	if(LLSideTray::getInstance()->getVisible())
-	//	{
-	//		side_tray_width = LLSideTray::getInstance()->getTrayWidth();
-	//	}
-
-	//	LLBottomTray* bottom_tray = LLBottomTray::getInstance();
-	//	S32 right = llround((F32)mWindowRect.mRight / mDisplayScale.mV[VX]) - side_tray_width;
-
-	//	LLRect rc = bottom_tray->getRect();
-	//	if (right != rc.mRight)
-	//	{
-	//		rc.mRight = right;
-	//		bottom_tray->reshape(rc.getWidth(), rc.getHeight(), FALSE);
-	//		bottom_tray->setRect(rc);
-	//		mOnBottomTrayWidthChanged();
-	//	}
-	//}
-}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2336,9 +2328,10 @@ void LLViewerWindow::updateUI()
 {
 	static std::string last_handle_msg;
 
-	updateWorldViewRect();
+	// animate layout stacks so we have up to date rect for world view
+	LLLayoutStack::idle();
 
-	updateBottomTrayRect();
+	updateWorldViewRect();
 
 	LLView::sMouseHandlerMessage.clear();
 
@@ -2838,32 +2831,20 @@ void LLViewerWindow::updateKeyboardFocus()
 		LLSideTray::getInstance()->highlightFocused();
 }
 
+static LLFastTimer::DeclareTimer FTM_UPDATE_WORLD_VIEW("Update World View");
 void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 {
-	if (!LLSideTray::instanceCreated()) return;
+	LLFastTimer ft(FTM_UPDATE_WORLD_VIEW);
 
 	// start off using whole window to render world
 	LLRect new_world_rect = mWindowRect;
 
 	if (use_full_window == false)
 	{
-		// pull in right side of world view based on sidetray
-		LLSideTray* sidetray = LLSideTray::getInstance();
-		if (sidetray->getVisible())
-		{
-			new_world_rect.mRight -= llround((F32)sidetray->getTrayWidth() * mDisplayScale.mV[VX]);
-		}
-
-		// push top of world view below nav bar
-		if (LLNavigationBar::getInstance()->getVisible())
-		{
-			LLNavigationBar* barp = LLNavigationBar::getInstance();
-			LLRect nav_bar_rect;
-			if(barp->localRectToOtherView(barp->getLocalRect(), &nav_bar_rect, mRootView))
-			{
-				new_world_rect.mTop = llround((F32)LLNavigationBar::getInstance()->getRect().mBottom * mDisplayScale.mV[VY]);
-			}
-		}
+		new_world_rect = mWorldViewPlaceholder->calcScreenRect();
+		// clamp to at least a 1x1 rect so we don't try to allocate zero width gl buffers
+		new_world_rect.mTop = llmax(new_world_rect.mTop, new_world_rect.mBottom + 1);
+		new_world_rect.mRight = llmax(new_world_rect.mRight, new_world_rect.mLeft + 1);
 	}
 
 	if (mWorldViewRect != new_world_rect)

@@ -29,7 +29,6 @@ indra/newview/fmod.dll
 indra/newview/mozilla-theme
 indra/newview/mozilla-universal-darwin.tgz
 indra/newview/res-sdl
-indra/newview/skins
 indra/newview/vivox-runtime
 indra/server-linux-*
 indra/test/linden_file.dat

@@ -31,6 +31,7 @@
          height="10"
          image_name="spacer24.tga"
          layout="topleft"
+         min_width="4"
          left="0"
          top="0"
          width="4" />
@@ -44,7 +45,7 @@
          min_height="23"
          width="310"
          top="0"
-         min_width="300"
+         min_width="310"
          name="chat_bar"
          user_resize="false"
          filename="panel_nearby_chat_bar.xml" />
@@ -57,30 +58,31 @@
          min_height="28"
          width="100"
          top_delta="0"
-         min_width="96"
+         min_width="100"
          name="speak_panel"
          user_resize="false">
-         <talk_button
-          follows="right"
-          height="23"
-          speak_button.tab_stop="true"
-          show_button.tab_stop="true"
-          layout="topleft"
-          left="0"
-          name="talk"
-          top="3"
-          width="100" />
+          <talk_button
+           follows="right"
+           height="23"
+           speak_button.tab_stop="true"
+           show_button.tab_stop="true"
+           layout="topleft"
+           left="0"
+           name="talk"
+           top="3"
+           width="100" />
         </layout_panel>
-		 <icon
-         auto_resize="false"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
-         name="DUMMY"
-         top="0"
-         width="4"/>
+        <icon
+            auto_resize="false"
+            follows="left|right"
+            height="10"
+            image_name="spacer24.tga"
+            layout="topleft"
+            left="0"
+            name="DUMMY"
+            min_width="4"
+            top="0"
+            width="4"/>
         <layout_panel
          mouse_opaque="false"
          auto_resize="false"
@@ -112,6 +114,7 @@
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
+         min_width="4" 
          name="DUMMY"
          top="0"
          width="4"/>
@@ -149,6 +152,7 @@
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
+         min_width="4" 
          name="DUMMY"
          top="0"
          width="4"/>
@@ -188,6 +192,7 @@
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
+         min_width="4" 
          name="DUMMY"
          top="0"
          width="4"/>
@@ -243,6 +248,7 @@
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
+         min_width="4" 
          top="0"
          width="5"/>
         <layout_panel
@@ -288,6 +294,7 @@
          height="10"
          image_name="spacer24.tga"
          layout="topleft"
+         min_width="4" 
          right="-1"
          top="0"
          width="26"/>

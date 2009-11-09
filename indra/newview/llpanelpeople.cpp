@@ -198,7 +198,8 @@ public:
 
 	~LLFriendListUpdater()
 	{
-		delete mInvObserver;
+		// will be deleted by ~LLInventoryModel
+		//delete mInvObserver;
 		LLVoiceClient::getInstance()->removeObserver(this);
 		LLAvatarTracker::instance().removeObserver(this);
 	}

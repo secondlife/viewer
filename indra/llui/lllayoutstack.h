@@ -38,7 +38,7 @@
 
 class LLPanel;
 
-class LLLayoutStack : public LLView
+class LLLayoutStack : public LLView, LLInstanceTracker<LLLayoutStack>
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
@@ -81,6 +81,10 @@ public:
 	S32 getNumPanels() { return mPanels.size(); }
 
 	void updatePanelAutoResize(const std::string& panel_name, BOOL auto_resize);
+
+
+	static void idle();
+
 protected:
 	LLLayoutStack(const Params&);
 	friend class LLUICtrlFactory;
@@ -105,6 +109,8 @@ private:
 	S32 mMinHeight;  // calculated by calcMinExtents
 	S32 mPanelSpacing;
 
+	// true if we already applied animation this frame
+	bool mAnimatedThisFrame;
 	bool mAnimate;
 	bool mClip;
 }; // end class LLLayoutStack
