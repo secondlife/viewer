@@ -1031,7 +1031,6 @@ set(viewer_HEADER_FILES
     macmain.h
     noise.h
     pipeline.h
-    randgauss.h
     VertexCache.h
     VorbisFramework.h
     )
