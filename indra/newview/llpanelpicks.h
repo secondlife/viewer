@@ -237,11 +237,17 @@ public:
 
 	const LLVector3d& getPosGlobal() { return mPosGlobal; }
 
-	void setName (const std::string& name);
+	void setClassifiedName (const std::string& name);
+
+	std::string getClassifiedName() { return childGetValue("name").asString(); }
 
 	void setDescription(const std::string& desc);
 
+	std::string getDescription() { return childGetValue("description").asString(); }
+
 	void setSnapshotId(const LLUUID& snapshot_id);
+
+	LLUUID getSnapshotId();
 
 private:
 	LLUUID mAvatarId;

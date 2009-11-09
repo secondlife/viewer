@@ -171,7 +171,7 @@ struct LLAvatarClassifiedInfo
 	std::string sim_name;
 	LLVector3d pos_global;
 	std::string parcel_name;
-	U8 classified_flags;
+	U8 flags;
 	S32 price_for_listing;
 };
 
@@ -206,7 +206,7 @@ public:
 	// Duplicate pick info requests are not suppressed.
 	void sendPickInfoRequest(const LLUUID& creator_id, const LLUUID& pick_id);
 
-	void sendClassifiedInfoRequest(const LLUUID& avatar_id, const LLUUID& classified_id);
+	void sendClassifiedInfoRequest(const LLUUID& classified_id);
 
 	void sendAvatarPropertiesUpdate(const LLAvatarData* avatar_props);
 

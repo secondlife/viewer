@@ -333,13 +333,13 @@ void LLAvatarPropertiesProcessor::processClassifiedInfoReply(LLMessageSystem* ms
 	msg->getString(_PREHASH_Data, _PREHASH_SimName, c_info.sim_name);
 	msg->getVector3d(_PREHASH_Data, _PREHASH_PosGlobal, c_info.pos_global);
 	msg->getString(_PREHASH_Data, _PREHASH_ParcelName, c_info.parcel_name);
-	msg->getU8(_PREHASH_Data, _PREHASH_ClassifiedFlags, c_info.classified_flags);
+	msg->getU8(_PREHASH_Data, _PREHASH_ClassifiedFlags, c_info.flags);
 	msg->getS32(_PREHASH_Data, _PREHASH_PriceForListing, c_info.price_for_listing);
 
 	LLAvatarPropertiesProcessor* self = getInstance();
 	// Request processed, no longer pending
-	self->removePendingRequest(c_info.agent_id, APT_CLASSIFIED_INFO);
-	self->notifyObservers(c_info.agent_id, &c_info, APT_CLASSIFIED_INFO);
+	self->removePendingRequest(c_info.creator_id, APT_CLASSIFIED_INFO);
+	self->notifyObservers(c_info.creator_id, &c_info, APT_CLASSIFIED_INFO);
 }
 
 
@@ -564,7 +564,7 @@ void LLAvatarPropertiesProcessor::sendPickInfoRequest(const LLUUID& creator_id, 
 	send_generic_message("pickinforequest", request_params);
 }
 
-void LLAvatarPropertiesProcessor::sendClassifiedInfoRequest(const LLUUID& avatar_id, const LLUUID& classified_id)
+void LLAvatarPropertiesProcessor::sendClassifiedInfoRequest(const LLUUID& classified_id)
 {
 	LLMessageSystem* msg = gMessageSystem;
 

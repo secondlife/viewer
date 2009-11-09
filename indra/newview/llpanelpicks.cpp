@@ -175,7 +175,7 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 
 				LLClassifiedItem* c_item = new LLClassifiedItem(getAvatarId(), c_data.classified_id);
 				c_item->childSetAction("info_chevron", boost::bind(&LLPanelPicks::onClickInfo, this));
-				c_item->setName(c_data.name);
+				c_item->setClassifiedName(c_data.name);
 
 				LLSD pick_value = LLSD();
 				pick_value.insert(CLASSIFIED_ID, c_data.classified_id);
@@ -364,6 +364,9 @@ void LLPanelPicks::onOpen(const LLSD& key)
 
 	if(getAvatarId() != id)
 	{
+		showAccordion("tab_picks", false);
+		showAccordion("tab_classifieds", false);
+
 		mPicksList->goToTop();
 		// Set dummy value to make panel dirty and make it reload picks
 		setValue(LLSD());
@@ -856,7 +859,7 @@ LLClassifiedItem::LLClassifiedItem(const LLUUID& avatar_id, const LLUUID& classi
 	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_classifieds_list_item.xml");
 
 	LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(), this);
-	LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getAvatarId(), getClassifiedId());
+	LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getClassifiedId());
 }
 
 LLClassifiedItem::~LLClassifiedItem()
@@ -872,13 +875,12 @@ void LLClassifiedItem::processProperties(void* data, EAvatarProcessorType type)
 	}
 
 	LLAvatarClassifiedInfo* c_info = static_cast<LLAvatarClassifiedInfo*>(data);
-	if( !(c_info && c_info->agent_id == getAvatarId() 
-		&& c_info->classified_id == getClassifiedId()) )
+	if( !c_info || c_info->classified_id != getClassifiedId() )
 	{
 		return;
 	}
 
-	setName(c_info->name);
+	setClassifiedName(c_info->name);
 	setDescription(c_info->description);
 	setSnapshotId(c_info->snapshot_id);
 	setPosGlobal(c_info->pos_global);
@@ -900,7 +902,7 @@ void LLClassifiedItem::setValue(const LLSD& value)
 	childSetVisible("selected_icon", value["selected"]);
 }
 
-void LLClassifiedItem::setName(const std::string& name)
+void LLClassifiedItem::setClassifiedName(const std::string& name)
 {
 	childSetValue("name", name);
 }
@@ -913,6 +915,11 @@ void LLClassifiedItem::setDescription(const std::string& desc)
 void LLClassifiedItem::setSnapshotId(const LLUUID& snapshot_id)
 {
 	childSetValue("picture", snapshot_id);
+}
+
+LLUUID LLClassifiedItem::getSnapshotId()
+{
+	return childGetValue("picture");
 }
 
 //EOF
