@@ -1823,17 +1823,25 @@ void LLInventoryModel::addCategory(LLViewerInventoryCategory* category)
 void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 {
 	//llinfos << "LLInventoryModel::addItem()" << llendl;
+
+	
+	// This can happen if assettype enums change.  This can be a backwards compatibility issue 
+	// in some viewer prototypes prior to when the AT_LINK enum changed from 23 to 24.
+	if ((item->getType() == LLAssetType::AT_NONE)
+		|| LLAssetType::lookup(item->getType()) == LLAssetType::badLookup())
+	{
+		llwarns << "Got bad asset type for item ( name: " << item->getName() << " type: " << item->getType() << " inv-type: " << item->getInventoryType() << " ), ignoring." << llendl;
+		return;
+	}
 	if(item)
 	{
 		// This condition means that we tried to add a link without the baseobj being in memory.
 		// The item will show up as a broken link.
 		if (item->getIsBrokenLink())
 		{
-			llwarns << "Add link item without baseobj present ( name: " << item->getName() << " itemID: " << item->getUUID() << " assetID: " << item->getAssetUUID() << " )  parent: " << item->getParentUUID() << llendl;
-//			llassert_always(FALSE); // DO NOT MERGE THIS IN.  This is an AVP debugging line.  If this line triggers, it means that you just loaded in a broken link.  Unless that happens because you actually deleted a baseobj without deleting the link, it's indicative of a serious problem (likely with your inventory) and should be diagnosed.
+			llinfos << "Adding broken link ( name: " << item->getName() << " itemID: " << item->getUUID() << " assetID: " << item->getAssetUUID() << " )  parent: " << item->getParentUUID() << llendl;
 		}
 		mItemMap[item->getUUID()] = item;
-		//mInventory[item->getUUID()] = item;
 	}
 }
 
@@ -2175,7 +2183,7 @@ bool LLInventoryModel::loadSkeleton(
 						// This can happen if the linked object's baseobj is removed from the cache but the linked object is still in the cache.
 						if (item->getIsBrokenLink())
 						{
-							llinfos << "Attempted to cached link item without baseobj present ( itemID: " << item->getUUID() << " assetID: " << item->getAssetUUID() << " ) " << llendl;
+							llinfos << "Attempted to add cached link item without baseobj present ( name: " << item->getName() << " itemID: " << item->getUUID() << " assetID: " << item->getAssetUUID() << " ).  Ignoring and invalidating " << cat->getName() << " . " << llendl;
 							invalid_categories.insert(cit->second);
 							continue;
 						}
