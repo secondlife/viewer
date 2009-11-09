@@ -696,6 +696,12 @@ void LLPanelPeople::buttonSetAction(const std::string& btn_name, const commit_si
 	button->setClickedCallback(cb);
 }
 
+bool LLPanelPeople::isFriendOnline(const LLUUID& id)
+{
+	LLAvatarList::uuid_vector_t ids = mOnlineFriendList->getIDs();
+	return std::find(ids.begin(), ids.end(), id) != ids.end();
+}
+
 void LLPanelPeople::updateButtons()
 {
 	std::string cur_tab		= getActiveTabName();
@@ -746,7 +752,7 @@ void LLPanelPeople::updateButtons()
 		childSetEnabled("add_friend_btn",	!is_friend);
 	}
 
-	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected);
+	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
 	buttonSetEnabled("view_profile_btn",	item_selected);
 	buttonSetEnabled("im_btn",				(selected_uuids.size() >= 1)); // allow starting the friends conference for multiple selection
 	buttonSetEnabled("call_btn",			item_selected && false); // not implemented yet

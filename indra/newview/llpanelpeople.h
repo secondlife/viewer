@@ -71,6 +71,8 @@ private:
 	void					updateNearbyList();
 	void					updateRecentList();
 
+	bool					isFriendOnline(const LLUUID& id);
+
 	void					updateButtons();
 	std::string				getActiveTabName() const;
 	LLUUID					getCurrentItemID() const;
