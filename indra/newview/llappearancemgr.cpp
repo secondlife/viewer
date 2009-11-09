@@ -1243,14 +1243,14 @@ void dumpAttachmentSet(const std::set<LLUUID>& atts, const std::string& msg)
 void LLAppearanceManager::registerAttachment(const LLUUID& item_id)
 {
        sRegisteredAttachments.insert(item_id);
-       dumpAttachmentSet(sRegisteredAttachments,"after register:");
+       //dumpAttachmentSet(sRegisteredAttachments,"after register:");
 
 	   if (sAttachmentInvLinkEnabled)
 	   {
 		   LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		   if (item)
 		   {
-			   LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Adding attachment link:");
+			   //LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Adding attachment link:");
 			   LLAppearanceManager::wearItem(item,false);  // Add COF link for item.
 			   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 			   gInventory.notifyObservers();
@@ -1258,7 +1258,7 @@ void LLAppearanceManager::registerAttachment(const LLUUID& item_id)
 	   }
 	   else
 	   {
-		   llinfos << "no link changes, inv link not enabled" << llendl;
+		   //llinfos << "no link changes, inv link not enabled" << llendl;
 	   }
 }
 
@@ -1266,11 +1266,11 @@ void LLAppearanceManager::registerAttachment(const LLUUID& item_id)
 void LLAppearanceManager::unregisterAttachment(const LLUUID& item_id)
 {
        sRegisteredAttachments.erase(item_id);
-       dumpAttachmentSet(sRegisteredAttachments,"after unregister:");
+       //dumpAttachmentSet(sRegisteredAttachments,"after unregister:");
 
 	   if (sAttachmentInvLinkEnabled)
 	   {
-		   LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Removing attachment link:");
+		   //LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Removing attachment link:");
 		   LLAppearanceManager::removeItemLinks(item_id, false);
 		   // BAP - needs to change for label to track link.
 		   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
@@ -1278,6 +1278,6 @@ void LLAppearanceManager::unregisterAttachment(const LLUUID& item_id)
 	   }
 	   else
 	   {
-		   llinfos << "no link changes, inv link not enabled" << llendl;
+		   //llinfos << "no link changes, inv link not enabled" << llendl;
 	   }
 }
