@@ -677,9 +677,6 @@ public:
 		Optional<S32> chiclet_padding,
 					  scrolling_offset;
 
-		Optional<LLButton::Params> left_scroll_button,
-								   right_scroll_button;
-
 		Optional<S32> min_width;
 
 		Params();

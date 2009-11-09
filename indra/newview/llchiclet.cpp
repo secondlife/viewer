@@ -58,7 +58,6 @@ static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t4("chiclet_im_group")
 static const LLRect CHICLET_RECT(0, 25, 25, 0);
 static const LLRect CHICLET_ICON_RECT(0, 24, 24, 0);
 static const LLRect VOICE_INDICATOR_RECT(25, 25, 45, 0);
-static const LLRect PANEL_SCROLL_BUTTON_RECT(0, 25, 19, 5);
 
 S32 LLNotificationChiclet::mUreadSystemNotifications = 0;
 
@@ -783,8 +782,6 @@ void LLIMGroupChiclet::onMenuItemClicked(const LLSD& user_data)
 LLChicletPanel::Params::Params()
 : chiclet_padding("chiclet_padding")
 , scrolling_offset("scrolling_offset")
-, left_scroll_button("left_scroll_button")
-, right_scroll_button("right_scroll_button")
 , min_width("min_width")
 {
 	chiclet_padding = 3;
@@ -795,22 +792,6 @@ LLChicletPanel::Params::Params()
 		// min_width = 4 chiclets + 3 paddings
 		min_width = 179 + 3*chiclet_padding;
 	}
-
-	left_scroll_button.name("left_scroll");
-	left_scroll_button.label(LLStringUtil::null);
-	left_scroll_button.rect(PANEL_SCROLL_BUTTON_RECT);
-	left_scroll_button.tab_stop(false);
-	left_scroll_button.image_selected(LLUI::getUIImage("bottom_tray_scroll_left.tga"));
-	left_scroll_button.image_unselected(LLUI::getUIImage("bottom_tray_scroll_left.tga"));
-	left_scroll_button.image_hover_selected(LLUI::getUIImage("bottom_tray_scroll_left.tga"));
-
-	right_scroll_button.name("right_scroll");
-	right_scroll_button.label(LLStringUtil::null);
-	right_scroll_button.rect(PANEL_SCROLL_BUTTON_RECT);
-	right_scroll_button.tab_stop(false);
-	right_scroll_button.image_selected(LLUI::getUIImage("bottom_tray_scroll_right.tga"));
-	right_scroll_button.image_unselected(LLUI::getUIImage("bottom_tray_scroll_right.tga"));
-	right_scroll_button.image_hover_selected(LLUI::getUIImage("bottom_tray_scroll_right.tga"));
 };
 
 LLChicletPanel::LLChicletPanel(const Params&p)
@@ -823,23 +804,6 @@ LLChicletPanel::LLChicletPanel(const Params&p)
 , mMinWidth(p.min_width)
 , mShowControls(true)
 {
-	LLButton::Params scroll_button_params = p.left_scroll_button;
-
-	mLeftScrollButton = LLUICtrlFactory::create<LLButton>(scroll_button_params);
-	addChild(mLeftScrollButton);
-	LLTransientFloaterMgr::getInstance()->addControlView(mLeftScrollButton);
-
-	mLeftScrollButton->setClickedCallback(boost::bind(&LLChicletPanel::onLeftScrollClick,this));
-	mLeftScrollButton->setEnabled(false);
-
-	scroll_button_params = p.right_scroll_button;
-	mRightScrollButton = LLUICtrlFactory::create<LLButton>(scroll_button_params);
-	addChild(mRightScrollButton);
-	LLTransientFloaterMgr::getInstance()->addControlView(mRightScrollButton);
-
-	mRightScrollButton->setClickedCallback(boost::bind(&LLChicletPanel::onRightScrollClick,this));
-	mRightScrollButton->setEnabled(false);
-
 	LLPanel::Params panel_params;
 	mScrollArea = LLUICtrlFactory::create<LLPanel>(panel_params,this);
 
@@ -889,6 +853,16 @@ BOOL LLChicletPanel::postBuild()
 	LLIMModel::instance().addNoUnreadMsgsCallback(boost::bind(im_chiclet_callback, this, _1));
 	LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLChicletPanel::findChiclet<LLChiclet>, this, _1));
 	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLChicletPanel::onCurrentVoiceChannelChanged, this, _1));
+
+	mLeftScrollButton=getChild<LLButton>("chicklet_left_scroll_button");
+	LLTransientFloaterMgr::getInstance()->addControlView(mLeftScrollButton);
+	mLeftScrollButton->setClickedCallback(boost::bind(&LLChicletPanel::onLeftScrollClick,this));
+	mLeftScrollButton->setEnabled(false);
+
+	mRightScrollButton=getChild<LLButton>("chicklet_right_scroll_button");
+	LLTransientFloaterMgr::getInstance()->addControlView(mRightScrollButton);
+	mRightScrollButton->setClickedCallback(boost::bind(&LLChicletPanel::onRightScrollClick,this));
+	mRightScrollButton->setEnabled(false);	
 
 	return TRUE;
 }
@@ -1065,23 +1039,24 @@ void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
 
 	static const S32 SCROLL_BUTTON_PAD = 5;
 
+	//Needed once- to avoid error at first call of reshape() before postBuild()
+	if(!mLeftScrollButton||!mRightScrollButton)
+		return;
+	
 	LLRect scroll_button_rect = mLeftScrollButton->getRect();
 	mLeftScrollButton->setRect(LLRect(0,height,scroll_button_rect.getWidth(),
 		height - scroll_button_rect.getHeight()));
-
 	scroll_button_rect = mRightScrollButton->getRect();
 	mRightScrollButton->setRect(LLRect(width - scroll_button_rect.getWidth(),height,
 		width, height - scroll_button_rect.getHeight()));
-
 	mScrollArea->setRect(LLRect(scroll_button_rect.getWidth() + SCROLL_BUTTON_PAD,
 		height, width - scroll_button_rect.getWidth() - SCROLL_BUTTON_PAD, 0));
-
 	mShowControls = width > mMinWidth;
 	mScrollArea->setVisible(mShowControls);
 
 	trimChiclets();
-
 	showScrollButtonsIfNeeded();
+
 }
 
 void LLChicletPanel::arrange()
