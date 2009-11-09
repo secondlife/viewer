@@ -210,6 +210,7 @@
 
 #include "lltexlayer.h"
 #include "llappearancemgr.h"
+#include "llimfloater.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -2516,24 +2517,12 @@ class LLObjectEnableTouch : public view_listener_t
 //		label.assign("Touch");
 //	}
 //}
-/*
-bool handle_object_open()
-{
-	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-	if(!obj) return true;
 
-	LLFloaterOpenObject::show();
-	return true;
+void handle_object_open()
+{
+	LLFloaterReg::showInstance("openobject");
 }
 
-class LLObjectOpen : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		return handle_object_open();
-	}
-};
-*/
 bool enable_object_open()
 {
 	// Look for contents in root object, which is all the LLFloaterOpenObject
@@ -2641,8 +2630,25 @@ void handle_object_edit()
 	// Could be first use
 	LLFirstUse::useBuild();
 	return;
-	
 }
+
+void handle_object_inspect()
+{
+	// Disable sidepanel inspector
+	/*
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	LLViewerObject* selected_objectp = selection->getFirstRootObject();
+	if (selected_objectp)
+	{
+		LLSD key;
+		key["task"] = "task";
+		LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+	}
+	*/
+
+	LLFloaterReg::showInstance("inspect", LLSD());
+}
+
 //---------------------------------------------------------------------------
 // Land pie menu
 //---------------------------------------------------------------------------
@@ -5190,7 +5196,7 @@ void show_debug_menus()
 		gMenuBarView->setItemEnabled("Develop", qamode);
 
 		// Server ('Admin') menu hidden when not in godmode.
-		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT);
+		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT || gAgent.getAdminOverride());
 		gMenuBarView->setItemVisible("Admin", show_server_menu);
 		gMenuBarView->setItemEnabled("Admin", show_server_menu);
 	}
@@ -6258,9 +6264,13 @@ class LLAvatarSendIM : public view_listener_t
 
 			//EInstantMessage type = have_agent_callingcard(gLastHitObjectID)
 			//	? IM_SESSION_ADD : IM_SESSION_CARDLESS_START;
-			gIMMgr->addSession(name,
+			LLUUID session_id = gIMMgr->addSession(name,
 								IM_NOTHING_SPECIAL,
 								avatar->getID());
+			if (session_id != LLUUID::null)
+			{
+				LLIMFloater::show(session_id);
+			}
 		}
 		return true;
 	}
@@ -7953,6 +7963,8 @@ void initialize_menus()
 
 	commit.add("Object.Buy", boost::bind(&handle_buy));
 	commit.add("Object.Edit", boost::bind(&handle_object_edit));
+	commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
+	commit.add("Object.Open", boost::bind(&handle_object_open));
 	
 	commit.add("Object.Take", boost::bind(&handle_take));
 

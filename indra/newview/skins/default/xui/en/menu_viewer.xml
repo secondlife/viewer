@@ -98,6 +98,24 @@
                  function="World.SetBusy"/>
             </menu_item_call>
         </menu>
+        <menu_item_call
+         label="Request Admin Status"
+         layout="topleft"
+         name="Request Admin Options"
+         shortcut="control|alt|G"
+		 visible="false">
+            <menu_item_call.on_click
+             function="Advanced.RequestAdminStatus" />
+        </menu_item_call>
+        <menu_item_call
+         label="Leave Admin Status"
+         layout="topleft"
+         name="Leave Admin Options"
+         shortcut="control|alt|shift|G"
+		 visible="false">
+            <menu_item_call.on_click
+             function="Advanced.LeaveAdminStatus" />
+        </menu_item_call>
         <menu_item_separator
          layout="topleft" />
         <menu_item_call
@@ -2540,10 +2558,10 @@
              name="Texture Atlas">
               <menu_item_check.on_check
                function="CheckControl"
-               parameter="TextureAtlas" />
+               parameter="EnableTextureAtlas" />
               <menu_item_check.on_click
                function="ToggleControl"
-               parameter="TextureAtlas" />
+               parameter="EnableTextureAtlas" />
             </menu_item_check>
               <menu_item_check
              label="Render Attached Lights"

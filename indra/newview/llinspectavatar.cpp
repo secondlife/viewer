@@ -47,6 +47,7 @@
 #include "llstartup.h"
 #include "llviewermenu.h"
 #include "llvoiceclient.h"
+#include "llviewerobjectlist.h"
 
 // Linden libraries
 #include "llfloater.h"
@@ -113,6 +114,7 @@ private:
 	void onClickFindOnMap();
 	bool onVisibleFindOnMap();
 	bool onVisibleFreezeEject();
+	bool onVisibleZoomIn();
 	void onClickMuteVolume();
 	void onVolumeChange(const LLSD& data);
 	
@@ -204,6 +206,8 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleFindOnMap",	boost::bind(&LLInspectAvatar::onVisibleFindOnMap, this));	
 	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleFreezeEject",	
 		boost::bind(&LLInspectAvatar::onVisibleFreezeEject, this));	
+	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleZoomIn", 
+		boost::bind(&LLInspectAvatar::onVisibleZoomIn, this));
 
 	// can't make the properties request until the widgets are constructed
 	// as it might return immediately, so do it in postBuild.
@@ -477,6 +481,11 @@ bool LLInspectAvatar::onVisibleFindOnMap()
 bool LLInspectAvatar::onVisibleFreezeEject()
 {
 	return enable_freeze_eject( LLSD(mAvatarID) );
+}
+
+bool LLInspectAvatar::onVisibleZoomIn()
+{
+	return gObjectList.findObject(mAvatarID);
 }
 
 void LLInspectAvatar::onClickIM()

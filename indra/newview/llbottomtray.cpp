@@ -50,7 +50,6 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	mSpeakBtn(NULL),
 	mNearbyChatBar(NULL),
 	mToolbarStack(NULL)
-
 {
 	mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 

@@ -15,7 +15,7 @@
  min_height="430" 
  min_width="620"
  mouse_opaque="true" 
- name="Medis Settings" 
+ name="Media Settings" 
  help_topic = "media_settings"
  title="MEDIA SETTINGS">
 	<button 

@@ -1,6 +1,6 @@
-/** 
- * @file llfloaterinventory.cpp
- * @brief Implementation of the inventory view and associated stuff.
+/* 
+ * @file llinventorypanel.cpp
+ * @brief Implementation of the inventory panel and associated stuff.
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -86,6 +86,7 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llwearablelist.h"
+#include "llimfloater.h"
 
 static LLDefaultChildRegistry::Register<LLInventoryPanel> r("inventory_panel");
 
@@ -471,8 +472,8 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 			if (objectp->getType() <= LLAssetType::AT_NONE ||
 				objectp->getType() >= LLAssetType::AT_COUNT)
 			{
-				llwarns << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : " << 
-					((S32) objectp->getType()) << llendl;
+				lldebugs << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : " << 
+					((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID() << llendl;
 				return;
 			}
 			
@@ -800,7 +801,11 @@ bool LLInventoryPanel::beginIMSession()
 		name = llformat("Session %d", session_num++);
 	}
 
-	gIMMgr->addSession(name, type, members[0], members);
+	LLUUID session_id = gIMMgr->addSession(name, type, members[0], members);
+	if (session_id != LLUUID::null)
+	{
+		LLIMFloater::show(session_id);
+	}
 		
 	return true;
 }

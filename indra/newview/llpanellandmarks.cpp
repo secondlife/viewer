@@ -267,7 +267,7 @@ LLLandmark* LLLandmarksPanel::getCurSelectedLandmark() const
 	return NULL;
 }
 
-LLFolderViewItem* LLLandmarksPanel::getCurSelectedItem () const 
+LLFolderViewItem* LLLandmarksPanel::getCurSelectedItem() const 
 {
 	return mCurrentSelectedList ?  mCurrentSelectedList->getRootFolder()->getCurSelectedItem() : NULL;
 }
@@ -499,6 +499,7 @@ void LLLandmarksPanel::updateListCommands()
 	// keep Options & Add Landmark buttons always enabled
 	mListCommands->childSetEnabled(ADD_FOLDER_BUTTON_NAME, add_folder_enabled);
 	mListCommands->childSetEnabled(TRASH_BUTTON_NAME, trash_enabled);
+	mListCommands->childSetEnabled(OPTIONS_BUTTON_NAME,getCurSelectedItem() != NULL);
 }
 
 void LLLandmarksPanel::onActionsButtonClick()
@@ -829,17 +830,18 @@ bool LLLandmarksPanel::canSelectedBeModified(const std::string& command_name) co
 	// then ask LLFolderView permissions
 	if (can_be_modified)
 	{
+		LLFolderViewItem* selected =  getCurSelectedItem();
 		if ("cut" == command_name)
 		{
 			can_be_modified = mCurrentSelectedList->getRootFolder()->canCut();
 		}
 		else if ("rename" == command_name)
 		{
-			can_be_modified = getCurSelectedItem()->getListener()->isItemRenameable();
+			can_be_modified = selected? selected->getListener()->isItemRenameable() : false;
 		}
 		else if ("delete" == command_name)
 		{
-			can_be_modified = getCurSelectedItem()->getListener()->isItemRemovable();
+			can_be_modified = selected? selected->getListener()->isItemRemovable(): false;
 		}
 		else if("paste" == command_name)
 		{

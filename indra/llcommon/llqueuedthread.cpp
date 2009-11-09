@@ -113,8 +113,11 @@ S32 LLQueuedThread::update(U32 max_time_ms)
 {
 	if (!mStarted)
 	{
-		startThread();
-		mStarted = TRUE;
+		if (!mThreaded)
+		{
+			startThread();
+			mStarted = TRUE;
+		}
 	}
 	return updateQueue(max_time_ms);
 }

@@ -165,7 +165,9 @@ void LLTaskInvFVBridge::showProperties()
 	key["object"] = mPanel->getTaskUUID();
 	key["id"] = mUUID;
 	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
-	
+
+
+	// Disable old properties floater; this is replaced by the sidepanel.
 	/*
 	LLFloaterProperties* floater = LLFloaterReg::showTypedInstance<LLFloaterProperties>("properties", mUUID);
 	if (floater)

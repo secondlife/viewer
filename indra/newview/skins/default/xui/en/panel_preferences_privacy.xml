@@ -94,6 +94,7 @@
      layout="topleft"
      left="30"
      mouse_opaque="false"
+     name="Logs:"
      top_pad="10"
      width="350">
         Logs:
@@ -184,6 +185,7 @@
      layout="topleft"
      left_delta="0"
      mouse_opaque="false"
+     name="log_path_desc"
      top_pad="1"
      width="128"
      text_color="LtGray_50">
