@@ -438,7 +438,8 @@ void LLPanelPickEdit::resetDirty()
 
 BOOL LLPanelPickEdit::isDirty() const
 {
-	if( LLPanelPickInfo::isDirty()
+	if( mNewPick
+		|| LLPanelPickInfo::isDirty()
 		|| mLocationChanged
 		|| mSnapshotCtrl->isDirty()
 		|| getChild<LLLineEditor>("pick_name")->isDirty()
