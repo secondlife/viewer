@@ -508,6 +508,8 @@ BOOL LLPanelPeople::postBuild()
 
 	mNearbyList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	mRecentList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
+	mAllFriendList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
+	mOnlineFriendList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 
 	setSortOrder(mRecentList,		(ESortOrder)gSavedSettings.getU32("RecentPeopleSortOrder"),	false);
 	setSortOrder(mAllFriendList,	(ESortOrder)gSavedSettings.getU32("FriendsSortOrder"),		false);
