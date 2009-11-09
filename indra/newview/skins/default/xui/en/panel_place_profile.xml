@@ -172,7 +172,7 @@
      width="313">
         <panel
          bg_alpha_color="DkGray2"
-         follows="all"
+         follows="top|left|right"
          height="533"
          layout="topleft"
          left="0"
