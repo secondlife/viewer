@@ -41,7 +41,7 @@ class LLTransactionID;
 
 void init_menu_file();
 
-void upload_new_resource(
+LLUUID upload_new_resource(
 	const std::string& src_filename, 
 	std::string name,
 	std::string desc, 

@@ -42,6 +42,7 @@
 #include "llnotify.h"
 #include "llinventorymodel.h"
 #include "llfloaterinventory.h"
+#include "llfloaterimportcollada.h"
 #include "llpermissionsflags.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewscript.h"
@@ -414,6 +415,8 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 			LLGlobalEconomy::Singleton::getInstance()->getPriceUpload(),
 			userdata);
 	}
+
+	LLImportColladaAssetCache::getInstance()->assetUploaded(mVFileID, content["new_asset"], TRUE);
 }
 
 LLSendTexLayerResponder::LLSendTexLayerResponder(const LLSD& post_data,

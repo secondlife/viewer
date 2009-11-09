@@ -39,6 +39,7 @@
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
 #include "llfloaterbuycurrency.h"
+#include "llfloaterimportcollada.h"
 #include "llfloatermodelpreview.h"
 #include "llfloatersnapshot.h"
 #include "llinventorymodel.h"	// gInventory
@@ -56,7 +57,7 @@
 #include "llappviewer.h"
 #include "lluploaddialog.h"
 #include "lltrans.h"
-
+#include "llfloaterimportcollada.h"
 
 // linden libraries
 #include "llassetuploadresponders.h"
@@ -258,6 +259,19 @@ class LLFileUploadImage : public view_listener_t
 		if (!filename.empty())
 		{
 			LLFloaterReg::showInstance("upload_image", LLSD(filename));
+		}
+		return TRUE;
+	}
+};
+
+class LLFileUploadScene : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string filename = upload_pick((void *)LLFilePicker::FFLOAD_COLLADA);
+		if (!filename.empty())
+		{
+			LLImportCollada::getInstance()->importFile(filename);
 		}
 		return TRUE;
 	}
@@ -517,7 +531,7 @@ void handle_compress_image(void*)
 	}
 }
 
-void upload_new_resource(
+LLUUID upload_new_resource(
 	const std::string& src_filename,
 	std::string name,
 	std::string desc,
@@ -555,7 +569,7 @@ void upload_new_resource(
 				short_name.c_str());
 		args["FILE"] = short_name;
  		upload_error(error_message, "NofileExtension", filename, args);
-		return;
+		return LLUUID();
 	}
 	else if( exten == "bmp")
 	{
@@ -569,7 +583,7 @@ void upload_new_resource(
 			args["FILE"] = src_filename;
 			args["ERROR"] = LLImage::getLastError();
 			upload_error(error_message, "ProblemWithFile", filename, args);
-			return;
+			return LLUUID();
 		}
 	}
 	else if( exten == "tga")
@@ -584,7 +598,7 @@ void upload_new_resource(
 			args["FILE"] = src_filename;
 			args["ERROR"] = LLImage::getLastError();
 			upload_error(error_message, "ProblemWithFile", filename, args);
-			return;
+			return LLUUID();
 		}
 	}
 	else if( exten == "jpg" || exten == "jpeg")
@@ -599,7 +613,7 @@ void upload_new_resource(
 			args["FILE"] = src_filename;
 			args["ERROR"] = LLImage::getLastError();
 			upload_error(error_message, "ProblemWithFile", filename, args);
-			return;
+			return LLUUID();
 		}
 	}
  	else if( exten == "png")
@@ -614,7 +628,7 @@ void upload_new_resource(
  			args["FILE"] = src_filename;
  			args["ERROR"] = LLImage::getLastError();
  			upload_error(error_message, "ProblemWithFile", filename, args);
- 			return;
+ 			return LLUUID();
  		}
  	}
 	else if(exten == "wav")
@@ -642,7 +656,7 @@ void upload_new_resource(
 					upload_error(error_message, "UnknownVorbisEncodeFailure", filename, args);
 					break;	
 			}	
-			return;
+			return LLUUID();
 		}
 	}
 	else if(exten == "tmp")	 	
@@ -682,7 +696,7 @@ void upload_new_resource(
                                                  error_message = llformat("corrupt resource file: %s", src_filename.c_str());
 												 args["FILE"] = src_filename;
 												 upload_error(error_message, "CorruptResourceFile", filename, args);
-                                                 return;
+                                                 return LLUUID();
                                          }	 	
 
                                          if (2 == tokens_read)	 	
@@ -710,7 +724,7 @@ void upload_new_resource(
                                  error_message = llformat("unknown linden resource file version in file: %s", src_filename.c_str());
 								 args["FILE"] = src_filename;
 								 upload_error(error_message, "UnknownResourceFileVersion", filename, args);
-                                 return;
+                                 return LLUUID();
                          }	 	
                  }	 	
                  else	 	
@@ -752,7 +766,7 @@ void upload_new_resource(
                          error_message = llformat( "Unable to create output file: %s", filename.c_str());
 						 args["FILE"] = filename;
 						 upload_error(error_message, "UnableToCreateOutputFile", filename, args);
-                         return;
+                         return LLUUID();
                  }	 	
 
                  fclose(in);	 	
@@ -766,7 +780,7 @@ void upload_new_resource(
 	{
 		error_message = llformat("We do not currently support bulk upload of animation files\n");
 		upload_error(error_message, "DoNotSupportBulkAnimationUpload", filename, args);
-		return;
+		return LLUUID();
 	}
 	else
 	{
@@ -840,6 +854,8 @@ void upload_new_resource(
 		}
 		LLFilePicker::instance().reset();
 	}
+
+	return uuid;
 }
 
 void upload_done_callback(
@@ -1260,6 +1276,7 @@ void init_menu_file()
 	view_listener_t::addCommit(new LLFileUploadSound(), "File.UploadSound");
 	view_listener_t::addCommit(new LLFileUploadAnim(), "File.UploadAnim");
 	view_listener_t::addCommit(new LLFileUploadModel(), "File.UploadModel");
+	view_listener_t::addCommit(new LLFileUploadScene(), "File.UploadScene");
 	view_listener_t::addCommit(new LLFileUploadBulk(), "File.UploadBulk");
 	view_listener_t::addCommit(new LLFileCloseWindow(), "File.CloseWindow");
 	view_listener_t::addCommit(new LLFileCloseAllWindows(), "File.CloseAllWindows");

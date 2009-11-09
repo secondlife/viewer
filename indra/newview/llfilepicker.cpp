@@ -55,6 +55,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define SOUND_FILTER L"Sounds (*.wav)\0*.wav\0"
 #define IMAGE_FILTER L"Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"
 #define ANIM_FILTER L"Animations (*.bvh)\0*.bvh\0"
+#define COLLADA_FILTER L"Scene (*.dae)\0*.dae\0"
 #ifdef _CORY_TESTING
 #define GEOMETRY_FILTER L"SL Geometry (*.slg)\0*.slg\0"
 #endif
@@ -174,6 +175,10 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 		break;
 	case FFLOAD_ANIM:
 		mOFN.lpstrFilter = ANIM_FILTER \
+			L"\0";
+		break;
+	case FFLOAD_COLLADA:
+		mOFN.lpstrFilter = COLLADA_FILTER \
 			L"\0";
 		break;
 #ifdef _CORY_TESTING
@@ -542,6 +547,15 @@ Boolean LLFilePicker::navOpenFilterProc(AEDesc *theItem, void *info, void *callB
 						{
 							if (fileInfo.filetype != 'BVH ' && 
 								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("bvh"), kCFCompareCaseInsensitive) != kCFCompareEqualTo))
+							)
+							{
+								result = false;
+							}
+						}
+						else if (filter == FFLOAD_COLLADA)
+						{
+							if (fileInfo.filetype != 'DAE ' && 
+								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("dae"), kCFCompareCaseInsensitive) != kCFCompareEqualTo))
 							)
 							{
 								result = false;
@@ -1093,6 +1107,12 @@ static std::string add_bvh_filter_to_gtkchooser(GtkWindow *picker)
 						       LLTrans::getString("animation_files") + " (*.bvh)");
 }
 
+static std::string add_collada_filter_to_gtkchooser(GtkWindow *picker)
+{
+	return add_simple_pattern_filter_to_gtkchooser(picker,  "*.dae",
+						       LLTrans::getString("scene_files") + " (*.dae)");
+}
+
 static std::string add_imageload_filter_to_gtkchooser(GtkWindow *picker)
 {
 	GtkFileFilter *gfilter = gtk_file_filter_new();
@@ -1216,6 +1236,9 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter )
 			break;
 		case FFLOAD_ANIM:
 			filtername = add_bvh_filter_to_gtkchooser(picker);
+			break;
+		case FFLOAD_COLLADA:
+			filtername = add_collada_filter_to_gtkchooser(picker);
 			break;
 		case FFLOAD_IMAGE:
 			filtername = add_imageload_filter_to_gtkchooser(picker);
