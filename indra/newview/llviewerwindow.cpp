@@ -600,8 +600,8 @@ void LLViewerWindow::updateDebugText()
 
 BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down)
 {
-	std::string buttonname;
-	std::string buttonstatestr; 
+	const char* buttonname = "";
+	const char* buttonstatestr = "";
 	BOOL handled = FALSE;	
 	S32 x = pos.mX;
 	S32 y = pos.mY;
