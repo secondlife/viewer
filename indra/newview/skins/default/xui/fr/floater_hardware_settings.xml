@@ -8,11 +8,11 @@
 		Anti-aliasing :
 	</text>
 	<combo_box label="Anti-aliasing" name="fsaa" width="84">
-		<combo_box.item name="FSAADisabled" label="Désactivé" />
-		<combo_box.item name="2x" label="2x" />
-		<combo_box.item name="4x" label="4x" />
-		<combo_box.item name="8x" label="8x" />
-		<combo_box.item name="16x" label="16x" />
+		<combo_box.item label="Désactivé" name="FSAADisabled"/>
+		<combo_box.item label="2x" name="2x"/>
+		<combo_box.item label="4x" name="4x"/>
+		<combo_box.item label="8x" name="8x"/>
+		<combo_box.item label="16x" name="16x"/>
 	</combo_box>
 	<spinner label="Gamma :" name="gamma"/>
 	<text left="217" name="(brightness, lower is brighter)">

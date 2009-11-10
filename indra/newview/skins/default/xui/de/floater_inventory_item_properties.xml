@@ -1,5 +1,17 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="item properties" title="INVENTAROBJEKT-EIGENSCHAFTEN">
+	<floater.string name="unknown">
+		(unbekannt)
+	</floater.string>
+	<floater.string name="public">
+		(öffentlich)
+	</floater.string>
+	<floater.string name="you_can">
+		Sie können:
+	</floater.string>
+	<floater.string name="owner_can">
+		Eigentümer kann:
+	</floater.string>
 	<text name="LabelItemNameTitle">
 		Name:
 	</text>
@@ -12,14 +24,14 @@
 	<text name="LabelCreatorName">
 		Nicole Linden
 	</text>
-	<button label="Profil..." label_selected="" name="BtnCreator" />
+	<button label="Profil..." label_selected="" name="BtnCreator"/>
 	<text name="LabelOwnerTitle">
 		Eigentümer:
 	</text>
 	<text name="LabelOwnerName">
 		Thrax Linden
 	</text>
-	<button label="Profil..." label_selected="" name="BtnOwner" />
+	<button label="Profil..." label_selected="" name="BtnOwner"/>
 	<text name="LabelAcquiredTitle">
 		Erworben:
 	</text>
@@ -27,55 +39,29 @@
 		Mittwoch, 24. Mai 2006, 12:50:46
 	</text>
 	<text name="OwnerLabel">
-		Sie können:
+		Sie:
 	</text>
-	<check_box label="Bearbeiten" name="CheckOwnerModify" />
-	<check_box label="Kopieren" name="CheckOwnerCopy" left_delta="85" />
-	<check_box label="Verkaufen/Weggeben" name="CheckOwnerTransfer" />
-	<text name="BaseMaskDebug">
-		B:
+	<check_box label="Bearbeiten" name="CheckOwnerModify"/>
+	<check_box label="Kopieren" left_delta="85" name="CheckOwnerCopy"/>
+	<check_box label="Wiederverkaufen" name="CheckOwnerTransfer"/>
+	<text name="AnyoneLabel">
+		Jeder:
 	</text>
-	<text name="OwnerMaskDebug">
-		O:
+	<check_box label="Kopieren" name="CheckEveryoneCopy"/>
+	<text name="GroupLabel">
+		Gruppe:
 	</text>
-	<text name="GroupMaskDebug">
-		G:
-	</text>
-	<text name="EveryoneMaskDebug">
-		E:
-	</text>
-	<text name="NextMaskDebug">
-		N:
-	</text>
-	<check_box label="Mit Gruppe teilen" name="CheckShareWithGroup" />
-	<check_box label="Kopieren allen erlauben" name="CheckEveryoneCopy" />
+	<check_box label="Teilen" name="CheckShareWithGroup"/>
 	<text name="NextOwnerLabel" width="150">
-		Nächster Eigentümer kann:
+		Nächster Eigentümer:
 	</text>
-	<check_box label="Bearbeiten" name="CheckNextOwnerModify" />
-	<check_box label="Kopieren" name="CheckNextOwnerCopy" left_delta="85" />
-	<check_box label="Verkaufen/Weggeben" name="CheckNextOwnerTransfer" />
-	<text name="SaleLabel">
-		Objekt markieren:
-	</text>
-	<check_box label="Zum Verkauf" name="CheckPurchase" />
-	<radio_group name="RadioSaleType" left_delta="85"  width="245" >
-		<radio_item name="radio" label="Original" />
-		<radio_item name="radio2" label="Kopieren" />
-	</radio_group>
-	<text name="TextPrice">
-		Preis:  L$
-	</text>
-	<text name="unknown">
-		(unbekannt)
-	</text>
-	<text name="public">
-		(öffentlich)
-	</text>
-	<text name="you_can">
-		Sie können:
-	</text>
-	<text name="owner_can">
-		Eigentümer kann:
-	</text>
+	<check_box label="Bearbeiten" name="CheckNextOwnerModify"/>
+	<check_box label="Kopieren" left_delta="85" name="CheckNextOwnerCopy"/>
+	<check_box label="Wiederverkaufen" name="CheckNextOwnerTransfer"/>
+	<check_box label="Zum Verkauf" name="CheckPurchase"/>
+	<combo_box name="combobox sale copy">
+		<combo_box.item label="Kopieren" name="Copy"/>
+		<combo_box.item label="Original" name="Original"/>
+	</combo_box>
+	<spinner label="Preis: L$" name="Edit Cost"/>
 </floater>

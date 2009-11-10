@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_im_control_panel">
+	<button label="プロフィールの表示" name="view_profile_btn"/>
+	<button label="フレンドを追加" name="add_friend_btn"/>
+	<button label="共有" name="share_btn"/>
+	<panel name="panel_call_buttons">
+		<button label="コール" name="call_btn"/>
+	</panel>
+</panel>

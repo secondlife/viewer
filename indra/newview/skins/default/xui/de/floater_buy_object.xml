@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="contents" title="OBJEKTKOPIE KAUFEN">
 	<text name="contents_text">
-		samt Inhalt:
+		Inhalt:
 	</text>
 	<text name="buy_text">
 		[AMOUNT] L$ von [NAME] kaufen?
 	</text>
-	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn" width="73" />
-	<button label="Kaufen" label_selected="Kaufen" name="buy_btn" />
+	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn" width="73"/>
+	<button label="Kaufen" label_selected="Kaufen" name="buy_btn"/>
 	<text name="title_buy_text">
 		Kaufen
 	</text>

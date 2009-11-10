@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_report_abuse" title="嫌がらせの報告">
-	<texture_picker label="" name="screenshot"/>
-	<check_box label="ｽｸﾘｰﾝｼｮｯﾄを含める" name="screen_check"/>
+	<floater.string name="Screenshot">
+		スクリーンショット
+	</floater.string>
+	<check_box label="このスクリーンショットを使用" name="screen_check"/>
 	<text name="reporter_title">
 		報告者：
 	</text>
@@ -21,11 +23,11 @@
 		{128.1, 128.1, 15.4}
 	</text>
 	<text name="select_object_label">
-		ボタンを使ってオブジェクトを選択：
+		ボタンをクリック。悪意のあるオブジェクト：
 	</text>
 	<button label="" label_selected="" name="pick_btn" tool_tip="オブジェクト・ピッカー - この報告の主題となるオブジェクトを特定"/>
 	<text name="object_name_label">
-		名前：
+		オブジェクト：
 	</text>
 	<text name="object_name">
 		Consetetur Sadipscing
@@ -37,90 +39,50 @@
 		Hendrerit Vulputate
 	</text>
 	<combo_box name="category_combo" tool_tip="カテゴリー -- この報告に最も適したカテゴリーを選択してください">
-		<combo_box.item name="Select_category" label="カテゴリーを選択"
-		/>
-		<combo_box.item name="Age__Age_play" label="年齢＞年齢偽証"
-		/>
-		<combo_box.item name="Age__Adult_resident_on_Teen_Second_Life" label="年齢＞成人の住人がTeen Second Life上にいる"
-		/>
-		<combo_box.item name="Age__Underage_resident_outside_of_Teen_Second_Life" label="年齢＞未成年な住人がTeen Second Lifeの外にいる"
-		/>
-		<combo_box.item name="Assault__Combat_sandbox___unsafe_area" label="攻撃＞コンバット・サンドボックス/危険なエリア"
-		/>
-		<combo_box.item name="Assault__Safe_area" label="攻撃＞安全なエリア"
-		/>
-		<combo_box.item name="Assault__Weapons_testing_sandbox" label="攻撃＞武器テスト用サンドボックス"
-		/>
-		<combo_box.item name="Commerce__Failure_to_deliver_product_or_service" label="商取引＞製品またはサービスの提供が行われない"
-		/>
-		<combo_box.item name="Disclosure__Real_world_information" label="開示＞リアルワールドの情報"
-		/>
-		<combo_box.item name="Disclosure__Remotely_monitoring chat" label="開示＞離れたところからチャットをモニターしている"
-		/>
-		<combo_box.item name="Disclosure__Second_Life_information_chat_IMs" label="開示＞Second Lifeの情報/チャット/IM"
-		/>
-		<combo_box.item name="Disturbing_the_peace__Unfair_use_of_region_resources" label="平穏を乱す行為＞地域リソースの使用が不公平"
-		/>
-		<combo_box.item name="Disturbing_the_peace__Excessive_scripted_objects" label="平穏を乱す行為＞スクリプト・オブジェクトの乱用"
-		/>
-		<combo_box.item name="Disturbing_the_peace__Object_littering" label="平穏を乱す行為＞オブジェクトの捨て置き"
-		/>
-		<combo_box.item name="Disturbing_the_peace__Repetitive_spam" label="平穏を乱す行為＞繰り返しスパム"
-		/>
-		<combo_box.item name="Disturbing_the_peace__Unwanted_advert_spam" label="平穏を乱す行為＞不要な広告スパム"
-		/>
-		<combo_box.item name="Fraud__L$" label="詐欺＞ L$"
-		/>
-		<combo_box.item name="Fraud__Land" label="詐欺＞土地"
-		/>
-		<combo_box.item name="Fraud__Pyramid_scheme_or_chain_letter" label="詐欺＞マルチ商法またはチェーン・メール"
-		/>
-		<combo_box.item name="Fraud__US$" label="詐欺＞ US$"
-		/>
-		<combo_box.item name="Harassment__Advert_farms___visual_spam" label="嫌がらせ＞広告委託/視覚的なスパム"
-		/>
-		<combo_box.item name="Harassment__Defaming_individuals_or_groups" label="嫌がらせ＞個人またはグループの中傷"
-		/>
-		<combo_box.item name="Harassment__Impeding_movement" label="嫌がらせ＞移動の妨害"
-		/>
-		<combo_box.item name="Harassment__Sexual_harassment" label="嫌がらせ＞性的な嫌がらせ"
-		/>
-		<combo_box.item name="Harassment__Solicting_inciting_others_to_violate_ToS" label="嫌がらせ＞利用規約（ToS）に違反する行為を行うよう他者を勧誘/扇動"
-		/>
-		<combo_box.item name="Harassment__Verbal_abuse" label="嫌がらせ＞暴言"
-		/>
-		<combo_box.item name="Indecency__Broadly_offensive_content_or_conduct" label="わいせつ＞著しく不快であると見なされるコンテンツまたは行為"
-		/>
-		<combo_box.item name="Indecency__Inappropriate_avatar_name" label="わいせつ＞不適切なアバター名"
-		/>
-		<combo_box.item name="Indecency__Mature_content_in_PG_region" label="わいせつ＞PG地域での不適切なコンテンツまたは行為"
-		/>
-		<combo_box.item name="Indecency__Inappropriate_content_in_Mature_region" label="わいせつ＞Mature地域での不適切なコンテンツまたは行為"
-		/>
-		<combo_box.item name="Intellectual_property_infringement_Content_Removal" label="知的財産の侵害＞コンテンツの撤去"
-		/>
-		<combo_box.item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit" label="知的財産の侵害＞コピーBot及び権限の悪用"
-		/>
-		<combo_box.item name="Intolerance" label="不寛容"
-		/>
-		<combo_box.item name="Land__Abuse_of_sandbox_resources" label="土地＞サンドボックス・リソースの乱用"
-		/>
-		<combo_box.item name="Land__Encroachment__Objects_textures" label="土地＞不法侵入＞オブジェクト/テクスチャー"
-		/>
-		<combo_box.item name="Land__Encroachment__Particles" label="土地＞不法侵入＞パーティクル"
-		/>
-		<combo_box.item name="Land__Encroachment__Trees_plants" label="土地＞不法侵入＞樹木/植物"
-		/>
-		<combo_box.item name="Wagering_gambling" label="賭け/ギャンブル"
-		/>
-		<combo_box.item name="Other" label="その他"
-		/>
+		<combo_box.item label="カテゴリーを選択" name="Select_category"/>
+		<combo_box.item label="年齢＞年齢偽証" name="Age__Age_play"/>
+		<combo_box.item label="年齢＞成人の住人がTeen Second Life上にいる" name="Age__Adult_resident_on_Teen_Second_Life"/>
+		<combo_box.item label="年齢＞未成年な住人がTeen Second Lifeの外にいる" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
+		<combo_box.item label="攻撃＞コンバット・サンドボックス/危険なエリア" name="Assault__Combat_sandbox___unsafe_area"/>
+		<combo_box.item label="攻撃＞安全なエリア" name="Assault__Safe_area"/>
+		<combo_box.item label="攻撃＞武器テスト用サンドボックス" name="Assault__Weapons_testing_sandbox"/>
+		<combo_box.item label="商取引＞製品またはサービスの提供が行われない" name="Commerce__Failure_to_deliver_product_or_service"/>
+		<combo_box.item label="開示＞リアルワールドの情報" name="Disclosure__Real_world_information"/>
+		<combo_box.item label="開示＞離れたところからチャットをモニターしている" name="Disclosure__Remotely_monitoring chat"/>
+		<combo_box.item label="開示＞Second Lifeの情報/チャット/IM" name="Disclosure__Second_Life_information_chat_IMs"/>
+		<combo_box.item label="平穏を乱す行為＞地域リソースの使用が不公平" name="Disturbing_the_peace__Unfair_use_of_region_resources"/>
+		<combo_box.item label="平穏を乱す行為＞スクリプト・オブジェクトの乱用" name="Disturbing_the_peace__Excessive_scripted_objects"/>
+		<combo_box.item label="平穏を乱す行為＞オブジェクトの捨て置き" name="Disturbing_the_peace__Object_littering"/>
+		<combo_box.item label="平穏を乱す行為＞繰り返しスパム" name="Disturbing_the_peace__Repetitive_spam"/>
+		<combo_box.item label="平穏を乱す行為＞不要な広告スパム" name="Disturbing_the_peace__Unwanted_advert_spam"/>
+		<combo_box.item label="詐欺＞ L$" name="Fraud__L$"/>
+		<combo_box.item label="詐欺＞土地" name="Fraud__Land"/>
+		<combo_box.item label="詐欺＞マルチ商法またはチェーン・メール" name="Fraud__Pyramid_scheme_or_chain_letter"/>
+		<combo_box.item label="詐欺＞ US$" name="Fraud__US$"/>
+		<combo_box.item label="嫌がらせ＞広告委託/視覚的なスパム" name="Harassment__Advert_farms___visual_spam"/>
+		<combo_box.item label="嫌がらせ＞個人またはグループの中傷" name="Harassment__Defaming_individuals_or_groups"/>
+		<combo_box.item label="嫌がらせ＞移動の妨害" name="Harassment__Impeding_movement"/>
+		<combo_box.item label="嫌がらせ＞性的な嫌がらせ" name="Harassment__Sexual_harassment"/>
+		<combo_box.item label="嫌がらせ＞利用規約（ToS）に違反する行為を行うよう他者を勧誘/扇動" name="Harassment__Solicting_inciting_others_to_violate_ToS"/>
+		<combo_box.item label="嫌がらせ＞暴言" name="Harassment__Verbal_abuse"/>
+		<combo_box.item label="わいせつ＞著しく不快であると見なされるコンテンツまたは行為" name="Indecency__Broadly_offensive_content_or_conduct"/>
+		<combo_box.item label="わいせつ＞不適切なアバター名" name="Indecency__Inappropriate_avatar_name"/>
+		<combo_box.item label="わいせつ＞PG地域での不適切なコンテンツまたは行為" name="Indecency__Mature_content_in_PG_region"/>
+		<combo_box.item label="わいせつ＞Mature地域での不適切なコンテンツまたは行為" name="Indecency__Inappropriate_content_in_Mature_region"/>
+		<combo_box.item label="知的財産の侵害＞コンテンツの撤去" name="Intellectual_property_infringement_Content_Removal"/>
+		<combo_box.item label="知的財産の侵害＞コピーBot及び権限の悪用" name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"/>
+		<combo_box.item label="不寛容" name="Intolerance"/>
+		<combo_box.item label="土地＞サンドボックス・リソースの乱用" name="Land__Abuse_of_sandbox_resources"/>
+		<combo_box.item label="土地＞不法侵入＞オブジェクト/テクスチャー" name="Land__Encroachment__Objects_textures"/>
+		<combo_box.item label="土地＞不法侵入＞パーティクル" name="Land__Encroachment__Particles"/>
+		<combo_box.item label="土地＞不法侵入＞樹木/植物" name="Land__Encroachment__Trees_plants"/>
+		<combo_box.item label="賭け/ギャンブル" name="Wagering_gambling"/>
+		<combo_box.item label="その他" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">
 		迷惑ユーザーの名前：
 	</text>
-	<button label="住人を選択" label_selected="" name="select_abuser" tool_tip="嫌がらせをした人の名前をリストから選択してください。"/>
-	<check_box label="嫌がらせをした人の名前が不明" name="omit_abuser_name" tool_tip="嫌がらせをした人の名前を提供できないかについて、これを確認"/>
+	<button label="選択" label_selected="" name="select_abuser" tool_tip="嫌がらせをした人の名前をリストから選択してください。"/>
 	<text name="abuser_name_title2">
 		嫌がらせの起きた場所：
 	</text>
@@ -131,13 +93,11 @@
 		詳細：
 	</text>
 	<text name="bug_aviso">
-		日付、場所、嫌がらせの特徴、関連する会話／IMテキス
-トに関し明確に記入し、可能であればオブジェクトを選
-択してください。
+		できるだけ具体的にお願いします。
 	</text>
 	<text name="incomplete_title">
 		注意：不完全なレポートは調査されません。
 	</text>
-	<button label="取り消し" label_selected="取り消し" name="cancel_btn"/>
 	<button label="嫌がらせの報告" label_selected="嫌がらせの報告" name="send_btn"/>
+	<button label="取り消し" label_selected="取り消し" name="cancel_btn"/>
 </floater>

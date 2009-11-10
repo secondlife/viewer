@@ -1,45 +1,19 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<text name="first_name_text" left="20">
-		ファーストネーム：
-	</text>
-	<line_editor left="20" name="first_name_edit" width="126" />
-	<text name="last_name_text" left="158">
-		ラストネーム：
-	</text>
-	<line_editor left="158" name="last_name_edit" width="126" />
-	<text name="password_text">
-		パスワード：
-	</text>
-	<text name="start_location_text" left="20" >
-		ログイン位置：
-	</text>
-	<combo_box name="start_location_combo" left_delta="92" width="172">
-		<combo_box.item name="MyHome" label="自宅（ホーム）" />
-		<combo_box.item name="MyLastLocation" label="最後にログアウトした場所" />
-		<combo_box.item name="Typeregionname" label="&lt; 地域の名前入力 &gt;" />
-	</combo_box>
-	<check_box label="パスワードを記憶" name="remember_check" left_delta="180"/>
-	<text name="full_screen_text">
-		ログイン時にはフルスクリーン表示になります
-	</text>
-	<button label="新規アカウント..." label_selected="新規アカウント..." name="new_account_btn"/>
-	<button label="環境設定..." label_selected="環境設定..." name="preferences_btn"/>
-	<button label="ログイン" label_selected="ログイン" name="connect_btn"/>
-	<button label="終了" label_selected="終了" name="quit_btn"/>
-	<text name="version_text">
-		1.23.4 (5)
-	</text>
-	<text name="create_new_account_text">
-		アカウントを申し込む
-	</text>
-	<text name="channel_text">
-		[VERSION]
-	</text>
-	<text name="forgot_password_text" left="-230" width="220">
-		名前またはパスワードをお忘れですか？
-	</text>
-	<text name="forgot_password_url">
+	<panel.string name="create_account_url">
+		http://jp.secondlife.com/registration/
+	</panel.string>
+	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php
-	</text>
+	</panel.string>
+	<panel name="login_widgets">
+		<line_editor name="first_name_edit" tool_tip="[SECOND_LIFE] ファーストネーム"/>
+		<line_editor name="last_name_edit" tool_tip="[SECOND_LIFE] ラストネーム"/>
+		<text name="start_location_text">
+			開始位置：
+		</text>
+		<text name="create_new_account_text">
+			新規アカウントを作成
+		</text>
+	</panel>
 </panel>

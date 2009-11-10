@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="camera_floater">
 	<floater.string name="rotate_tooltip">
 		Kamera um Fokus drehen
@@ -12,5 +12,12 @@
 	<panel name="controls">
 		<joystick_track name="cam_track_stick" tool_tip="Kamera nach oben, unten, links und rechts bewegen"/>
 		<joystick_zoom name="zoom" tool_tip="Kamera auf Fokus zoomen"/>
+		<joystick_rotate name="cam_rotate_stick" tool_tip="Kamera um Fokus herum kreisen"/>
+	</panel>
+	<panel name="buttons">
+		<button label="" name="orbit_btn" tool_tip="Kamera kreisen"/>
+		<button label="" name="pan_btn" tool_tip="Kamera schwenken"/>
+		<button label="" name="avatarview_btn" tool_tip="Avatarsicht"/>
+		<button label="" name="freecamera_btn" tool_tip="Objekt ansehen"/>
 	</panel>
 </floater>
