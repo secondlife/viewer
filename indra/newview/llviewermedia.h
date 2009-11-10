@@ -165,6 +165,7 @@ public:
 	void navigateForward();
 	void navigateReload();
 	void navigateHome();
+	void unload();
 	void navigateTo(const std::string& url, const std::string& mime_type = "", bool rediscover_type = false, bool server_request = false);
 	void navigateInternal();
 	void navigateStop();
