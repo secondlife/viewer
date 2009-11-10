@@ -45,6 +45,7 @@ class LLParticipantList
 	public:
 		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list);
 		~LLParticipantList();
+		void setSpeakingIndicatorsVisible(BOOL visible);
 
 		typedef enum e_participant_sort_oder {
 			E_SORT_BY_NAME = 0,
