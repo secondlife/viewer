@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Favoris" name="panel_picks">
+	<panel label="bottom_panel" name="edit_panel">
+		<button name="new_btn" tool_tip="Ajouter cet endroit à mes Favoris"/>
+	</panel>
+	<panel name="buttons_cucks">
+		<button label="Carte" name="show_on_map_btn"/>
+	</panel>
+</panel>

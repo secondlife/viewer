@@ -4,8 +4,32 @@
      For example, the strings used in avatar chat bubbles, and strings 
      that are returned from one component and may appear in many places-->
 <strings>
+	<string name="SECOND_LIFE">
+		Second Life
+	</string>
+	<string name="APP_NAME">
+		Second Life
+	</string>
+	<string name="SECOND_LIFE_GRID">
+		Second Life Grid
+	</string>
+	<string name="SUPPORT_SITE">
+		Second Lifeサポートポータル
+	</string>
+	<string name="StartupDetectingHardware">
+		ハードウェアの検出中です...
+	</string>
+	<string name="StartupLoading">
+		ローディング
+	</string>
+	<string name="Fullbright">
+		明るさ全開（レガシー）
+	</string>
 	<string name="LoginInProgress">
 		ログイン中です。[APP_NAME]の表示がフリーズする場合があります。  しばらくお待ちください。
+	</string>
+	<string name="LoginInProgressNoFrozen">
+		ログイン中です...
 	</string>
 	<string name="LoginAuthenticating">
 		認証しています...
@@ -73,38 +97,8 @@
 	<string name="TooltipIsGroup">
 		(グループ)
 	</string>
-	<string name="TooltipFlagScript">
-		スクリプト
-	</string>
-	<string name="TooltipFlagPhysics">
-		物理作用
-	</string>
-	<string name="TooltipFlagTouch">
-		触る
-	</string>
-	<string name="TooltipFlagL$">
-		L$
-	</string>
-	<string name="TooltipFlagDropInventory">
-		持ち物をドロップする
-	</string>
-	<string name="TooltipFlagPhantom">
-		ファントム
-	</string>
-	<string name="TooltipFlagTemporary">
-		一時的
-	</string>
-	<string name="TooltipFlagRightClickMenu">
-		(右クリックでメニューを表示)
-	</string>
-	<string name="TooltipFreeToCopy">
-		コピー可能
-	</string>
 	<string name="TooltipForSaleL$">
 		売り出し中:L$[AMOUNT]
-	</string>
-	<string name="TooltipForSaleMsg">
-		売り出し中: [MESSAGE]
 	</string>
 	<string name="TooltipFlagGroupBuild">
 		グループ作成
@@ -132,6 +126,60 @@
 	</string>
 	<string name="TooltipMustSingleDrop">
 		1つのアイテムのみをここにドラッグできます
+	</string>
+	<string name="TooltipHttpUrl">
+		クリックしてこのWebページを見る
+	</string>
+	<string name="TooltipSLURL">
+		クリックしてこの場所の情報を見る
+	</string>
+	<string name="TooltipAgentUrl">
+		クリックしてこの住人のプロフィールを見る
+	</string>
+	<string name="TooltipGroupUrl">
+		クリックしてこのグループの説明文を見る
+	</string>
+	<string name="TooltipEventUrl">
+		クリックしてこのグループの説明文を見る
+	</string>
+	<string name="TooltipClassifiedUrl">
+		クリックしてこのクラシファイド広告を見る
+	</string>
+	<string name="TooltipParcelUrl">
+		クリックしてこの区画の説明文を見る
+	</string>
+	<string name="TooltipTeleportUrl">
+		クリックしてこの場所にテレポートする
+	</string>
+	<string name="TooltipObjectIMUrl">
+		クリックしてこのオブジェクトの説明文を見る
+	</string>
+	<string name="TooltipSLAPP">
+		クリックして secondlife:// コマンドを出す
+	</string>
+	<string name="BUTTON_CLOSE_DARWIN">
+		閉じる （⌘-W）
+	</string>
+	<string name="BUTTON_CLOSE_WIN">
+		閉じる （Ctrl+W）
+	</string>
+	<string name="BUTTON_RESTORE">
+		復元
+	</string>
+	<string name="BUTTON_MINIMIZE">
+		元に戻す（縮小）
+	</string>
+	<string name="BUTTON_TEAR_OFF">
+		別ウィンドウで開く
+	</string>
+	<string name="BUTTON_DOCK">
+		ドッキング
+	</string>
+	<string name="BUTTON_UNDOCK">
+		切り離す
+	</string>
+	<string name="BUTTON_HELP">
+		ヘルプを表示
 	</string>
 	<string name="RetrievingData">
 		検索中...
@@ -187,8 +235,77 @@
 	<string name="AssetErrorUnknownStatus">
 		ステータスが不明です
 	</string>
-	<string name="AvatarEditingApparance">
-		(容姿の編集)
+	<string name="texture">
+		テクスチャ
+	</string>
+	<string name="sound">
+		サウンド
+	</string>
+	<string name="calling card">
+		コーリングカード
+	</string>
+	<string name="landmark">
+		ランドマーク
+	</string>
+	<string name="legacy script">
+		レガシースクリプト
+	</string>
+	<string name="clothing">
+		衣類
+	</string>
+	<string name="object">
+		オブジェクト
+	</string>
+	<string name="note card">
+		ノートカード
+	</string>
+	<string name="folder">
+		フォルダ
+	</string>
+	<string name="root">
+		ルート
+	</string>
+	<string name="lsl2 script">
+		lsl2 スクリプト
+	</string>
+	<string name="lsl bytecode">
+		LSL バイトコード
+	</string>
+	<string name="tga texture">
+		tga テクスチャ
+	</string>
+	<string name="body part">
+		身体部位
+	</string>
+	<string name="snapshot">
+		スナップショット
+	</string>
+	<string name="lost and found">
+		紛失物
+	</string>
+	<string name="targa image">
+		targa 画像
+	</string>
+	<string name="trash">
+		ゴミ箱
+	</string>
+	<string name="jpeg image">
+		jpeg 画像
+	</string>
+	<string name="animation">
+		アニメーション
+	</string>
+	<string name="gesture">
+		ジェスチャー
+	</string>
+	<string name="simstate">
+		統計
+	</string>
+	<string name="favorite">
+		お気に入り
+	</string>
+	<string name="symbolic link">
+		リンク
 	</string>
 	<string name="AvatarAway">
 		退席中
@@ -412,125 +529,21 @@
 	<string name="worldmap_offline">
 		オフライン
 	</string>
+	<string name="Ok">
+		OK
+	</string>
+	<string name="Premature end of file">
+		不完全なファイル
+	</string>
+	<string name="ST_NO_JOINT">
+		ROOT または JOINT が見つかりません
+	</string>
 	<string name="whisper">
 		のささやき:
 	</string>
 	<string name="shout">
 		の叫び:
 	</string>
-	<string name="SIM_ACCESS_PG">
-		PG
-	</string>
-	<string name="SIM_ACCESS_MATURE">
-		Mature
-	</string>
-	<string name="SIM_ACCESS_ADULT">
-		Adult
-	</string>
-	<string name="SIM_ACCESS_DOWN">
-		オフライン
-	</string>
-	<string name="SIM_ACCESS_MIN">
-		不明
-	</string>
-	<string name="land_type_unknown">
-		（不明）
-	</string>
-	<string name="covenant_never_modified">
-		最終修正： （無）
-	</string>
-	<string name="covenant_modified">
-		最終修正：
-	</string>
-	<string name="all_files">
-		全てのファイル
-	</string>
-	<string name="sound_files">
-		サウンド
-	</string>
-	<string name="animation_files">
-		アニメーション
-	</string>
-	<string name="image_files">
-		画像
-	</string>
-	<string name="save_file_verb">
-		保存
-	</string>
-	<string name="load_file_verb">
-		ロード
-	</string>
-	<string name="targa_image_files">
-		Targa画像
-	</string>
-	<string name="bitmap_image_files">
-		ビットマップ画像
-	</string>
-	<string name="avi_movie_file">
-		AVIムービーファイル
-	</string>
-	<string name="xaf_animation_file">
-		XAFアニメーションファイル
-	</string>
-	<string name="xml_file">
-		XMLファイル
-	</string>
-	<string name="dot_raw_file">
-		RAWファイル
-	</string>
-	<string name="compressed_image_files">
-		圧縮画像
-	</string>
-	<string name="load_files">
-		ファイルのロード
-	</string>
-	<string name="choose_the_directory">
-		参照
-	</string>
-	<string name="accel-mac-control">
-		&#8963;
-	</string>
-	<string name="accel-mac-command">
-		&#8984;
-	</string>
-	<string name="accel-mac-option">
-		&#8997;
-	</string>
-	<string name="accel-mac-shift">
-		&#8679;
-	</string>
-	<string name="accel-win-control">
-		Ctrl+
-	</string>
-	<string name="accel-win-alt">
-		Alt+
-	</string>
-	<string name="accel-win-shift">
-		Shift+
-	</string>
-	<string name="GraphicsQualityLow">
-		低
-	</string>
-	<string name="GraphicsQualityMid">
-		中
-	</string>
-	<string name="GraphicsQualityHigh">
-		高
-	</string>
-	
-	<!-- PARCEL_CATEGORY_UI_STRING -->
-	<string name="Linden Location">Linden所在地</string>
-	<string name="Adult">Adult</string>
-	<string name="Arts&amp;Culture">アートとカルチャー</string>
-	<string name="Business">ビジネス</string>
-	<string name="Educational">教育的</string>
-	<string name="Gaming">ゲーム</string>
-	<string name="Hangout">たまり場</string>
-	<string name="Newcomer Friendly">新住人に好意的</string>
-	<string name="Parks&amp;Nature">公園と自然</string>
-	<string name="Residential">住宅用</string>
-	<string name="Shopping">ショッピング</string>
-	<string name="Other">その他</string>
 	<string name="ringing">
 		インワールドボイスチャットに接続中...
 	</string>
@@ -582,6 +595,2515 @@
 	<string name="ControlYourCamera">
 		カメラのコントロール
 	</string>
+	<string name="SIM_ACCESS_PG">
+		PG
+	</string>
+	<string name="SIM_ACCESS_MATURE">
+		Mature
+	</string>
+	<string name="SIM_ACCESS_ADULT">
+		Adult
+	</string>
+	<string name="SIM_ACCESS_DOWN">
+		オフライン
+	</string>
+	<string name="SIM_ACCESS_MIN">
+		不明
+	</string>
+	<string name="land_type_unknown">
+		（不明）
+	</string>
+	<string name="all_files">
+		全てのファイル
+	</string>
+	<string name="sound_files">
+		サウンド
+	</string>
+	<string name="animation_files">
+		アニメーション
+	</string>
+	<string name="image_files">
+		画像
+	</string>
+	<string name="save_file_verb">
+		保存
+	</string>
+	<string name="load_file_verb">
+		ロード
+	</string>
+	<string name="targa_image_files">
+		Targa画像
+	</string>
+	<string name="bitmap_image_files">
+		ビットマップ画像
+	</string>
+	<string name="avi_movie_file">
+		AVIムービーファイル
+	</string>
+	<string name="xaf_animation_file">
+		XAFアニメーションファイル
+	</string>
+	<string name="xml_file">
+		XMLファイル
+	</string>
+	<string name="dot_raw_file">
+		RAWファイル
+	</string>
+	<string name="compressed_image_files">
+		圧縮画像
+	</string>
+	<string name="load_files">
+		ファイルのロード
+	</string>
+	<string name="choose_the_directory">
+		参照
+	</string>
+	<string name="AvatarSetNotAway">
+		一時退席中を解除
+	</string>
+	<string name="AvatarSetAway">
+		一時退席中
+	</string>
+	<string name="AvatarSetNotBusy">
+		取り込み中を解除
+	</string>
+	<string name="AvatarSetBusy">
+		取り込み中
+	</string>
+	<string name="shape">
+		シェイプ
+	</string>
+	<string name="skin">
+		スキン
+	</string>
+	<string name="hair">
+		髪型
+	</string>
+	<string name="eyes">
+		目
+	</string>
+	<string name="shirt">
+		シャツ
+	</string>
+	<string name="pants">
+		ズボン
+	</string>
+	<string name="shoes">
+		靴
+	</string>
+	<string name="socks">
+		靴下
+	</string>
+	<string name="jacket">
+		上着
+	</string>
+	<string name="gloves">
+		手袋
+	</string>
+	<string name="undershirt">
+		下着シャツ
+	</string>
+	<string name="underpants">
+		下着パンツ
+	</string>
+	<string name="skirt">
+		スカート
+	</string>
+	<string name="invalid">
+		無効
+	</string>
+	<string name="BodyPartsRightArm">
+		右腕
+	</string>
+	<string name="BodyPartsHead">
+		頭
+	</string>
+	<string name="BodyPartsLeftArm">
+		左腕
+	</string>
+	<string name="BodyPartsLeftLeg">
+		左脚
+	</string>
+	<string name="BodyPartsTorso">
+		頭
+	</string>
+	<string name="BodyPartsRightLeg">
+		右脚
+	</string>
+	<string name="GraphicsQualityLow">
+		低
+	</string>
+	<string name="GraphicsQualityMid">
+		中
+	</string>
+	<string name="GraphicsQualityHigh">
+		高
+	</string>
+	<string name="LeaveMouselook">
+		ESC キーを押してワールドビューに戻る
+	</string>
+	<string name="InventoryNoMatchingItems">
+		一致するアイテムが持ち物にありませんでした
+	</string>
+	<string name="InventoryNoTexture">
+		持ち物内にこのテクスチャのコピーがありません
+	</string>
+	<string name="LoadingContents">
+		コンテンツをロード中です...
+	</string>
+	<string name="NoContents">
+		コンテンツなし
+	</string>
+	<string name="InvFolder My Inventory">
+		私の持ち物
+	</string>
+	<string name="InvFolder My Favorites">
+		お気に入り
+	</string>
+	<string name="InvFolder Library">
+		ライブラリ
+	</string>
+	<string name="InvFolder Textures">
+		テクスチャ
+	</string>
+	<string name="InvFolder Sounds">
+		サウンド
+	</string>
+	<string name="InvFolder Calling Cards">
+		コーリングカード
+	</string>
+	<string name="InvFolder Landmarks">
+		ランドマーク
+	</string>
+	<string name="InvFolder Scripts">
+		スクリプト
+	</string>
+	<string name="InvFolder Clothing">
+		衣類
+	</string>
+	<string name="InvFolder Objects">
+		オブジェクト
+	</string>
+	<string name="InvFolder Notecards">
+		ノートカード
+	</string>
+	<string name="InvFolder New Folder">
+		新規フォルダ
+	</string>
+	<string name="InvFolder Inventory">
+		持ち物
+	</string>
+	<string name="InvFolder Uncompressed Images">
+		圧縮されていない画像
+	</string>
+	<string name="InvFolder Body Parts">
+		身体部位
+	</string>
+	<string name="InvFolder Trash">
+		ゴミ箱
+	</string>
+	<string name="InvFolder Photo Album">
+		フォトアルバム
+	</string>
+	<string name="InvFolder Lost And Found">
+		紛失物
+	</string>
+	<string name="InvFolder Uncompressed Sounds">
+		圧縮されていないサウンド
+	</string>
+	<string name="InvFolder Animations">
+		アニメーション
+	</string>
+	<string name="InvFolder Gestures">
+		ジェスチャー
+	</string>
+	<string name="InvFolder favorite">
+		お気に入り
+	</string>
+	<string name="InvFolder Current Outfit">
+		着用中のアウトフィット
+	</string>
+	<string name="InvFolder My Outfits">
+		私のアウトフィット
+	</string>
+	<string name="InvFolder Friends">
+		フレンド
+	</string>
+	<string name="InvFolder All">
+		全員
+	</string>
+	<string name="Buy">
+		買う
+	</string>
+	<string name="BuyforL$">
+		Buy for L$
+	</string>
+	<string name="Stone">
+		石
+	</string>
+	<string name="Metal">
+		金属
+	</string>
+	<string name="Glass">
+		ガラス
+	</string>
+	<string name="Wood">
+		木
+	</string>
+	<string name="Flesh">
+		肌
+	</string>
+	<string name="Plastic">
+		プラスチック
+	</string>
+	<string name="Rubber">
+		ゴム
+	</string>
+	<string name="Light">
+		ライト
+	</string>
+	<string name="KBShift">
+		Shift
+	</string>
+	<string name="KBCtrl">
+		Ctrl
+	</string>
+	<string name="Chest">
+		胸部
+	</string>
+	<string name="Skull">
+		頭蓋
+	</string>
+	<string name="Left Shoulder">
+		左肩
+	</string>
+	<string name="Right Shoulder">
+		右肩
+	</string>
+	<string name="Left Hand">
+		左手
+	</string>
+	<string name="Right Hand">
+		右手
+	</string>
+	<string name="Left Foot">
+		左足
+	</string>
+	<string name="Right Foot">
+		右足
+	</string>
+	<string name="Spine">
+		背骨
+	</string>
+	<string name="Pelvis">
+		骨盤
+	</string>
+	<string name="Mouth">
+		口
+	</string>
+	<string name="Chin">
+		あご
+	</string>
+	<string name="Left Ear">
+		左耳
+	</string>
+	<string name="Right Ear">
+		右耳
+	</string>
+	<string name="Left Eyeball">
+		左目眼球
+	</string>
+	<string name="Right Eyeball">
+		右目眼球
+	</string>
+	<string name="Nose">
+		鼻
+	</string>
+	<string name="R Upper Arm">
+		右上腕
+	</string>
+	<string name="R Forearm">
+		右前腕
+	</string>
+	<string name="L Upper Arm">
+		左上腕
+	</string>
+	<string name="L Forearm">
+		左前腕
+	</string>
+	<string name="Right Hip">
+		右腰
+	</string>
+	<string name="R Upper Leg">
+		右上脚
+	</string>
+	<string name="R Lower Leg">
+		右下脚
+	</string>
+	<string name="Left Hip">
+		左腰
+	</string>
+	<string name="L Upper Leg">
+		左上脚
+	</string>
+	<string name="L Lower Leg">
+		左下脚
+	</string>
+	<string name="Stomach">
+		腹
+	</string>
+	<string name="Left Pec">
+		左胸筋
+	</string>
+	<string name="Right Pec">
+		右胸筋
+	</string>
+	<string name="YearsMonthsOld">
+		[AGEYEARS] [AGEMONTHS]
+	</string>
+	<string name="YearsOld">
+		[AGEYEARS]
+	</string>
+	<string name="MonthsOld">
+		[AGEMONTHS]
+	</string>
+	<string name="WeeksOld">
+		[AGEWEEKS]
+	</string>
+	<string name="DaysOld">
+		[AGEDAYS]
+	</string>
+	<string name="TodayOld">
+		今日参加
+	</string>
+	<string name="AgeYearsA">
+		[COUNT] 年
+	</string>
+	<string name="AgeYearsB">
+		[COUNT] 年
+	</string>
+	<string name="AgeYearsC">
+		[COUNT] 年
+	</string>
+	<string name="AgeMonthsA">
+		[COUNT] ヶ月
+	</string>
+	<string name="AgeMonthsB">
+		[COUNT] ヶ月
+	</string>
+	<string name="AgeMonthsC">
+		[COUNT] ヶ月
+	</string>
+	<string name="AgeWeeksA">
+		[COUNT] 週間
+	</string>
+	<string name="AgeWeeksB">
+		[COUNT] 週間
+	</string>
+	<string name="AgeWeeksC">
+		[COUNT] 週間
+	</string>
+	<string name="AgeDaysA">
+		[COUNT] 日間
+	</string>
+	<string name="AgeDaysB">
+		[COUNT] 日間
+	</string>
+	<string name="AgeDaysC">
+		[COUNT] 日間
+	</string>
+	<string name="AcctTypeResident">
+		住人
+	</string>
+	<string name="AcctTypeTrial">
+		トライアル
+	</string>
+	<string name="AcctTypeCharterMember">
+		特権メンバー
+	</string>
+	<string name="AcctTypeEmployee">
+		Linden Lab従業員
+	</string>
+	<string name="PaymentInfoUsed">
+		支払い情報登録済
+	</string>
+	<string name="PaymentInfoOnFile">
+		支払い情報登録済み
+	</string>
+	<string name="NoPaymentInfoOnFile">
+		支払い情報未登録
+	</string>
+	<string name="AgeVerified">
+		年齢確認済み
+	</string>
+	<string name="NotAgeVerified">
+		年齢未確認
+	</string>
+	<string name="Center 2">
+		中心 2
+	</string>
+	<string name="Top Right">
+		右上
+	</string>
+	<string name="Top">
+		上部
+	</string>
+	<string name="Top Left">
+		左上
+	</string>
+	<string name="Center">
+		中心
+	</string>
+	<string name="Bottom Left">
+		Bottom Left
+	</string>
+	<string name="Bottom">
+		Bottom
+	</string>
+	<string name="Bottom Right">
+		Bottom Right
+	</string>
+	<string name="CompileQueueDownloadedCompiling">
+		ダウンロード完了、コンパイル中
+	</string>
+	<string name="CompileQueueScriptNotFound">
+		サーバー上にスクリプトが見つかりません。
+	</string>
+	<string name="CompileQueueProblemDownloading">
+		ダウンロードに問題があります
+	</string>
+	<string name="CompileQueueInsufficientPermDownload">
+		権限不足のためスクリプトをダウンロードできません。
+	</string>
+	<string name="CompileQueueInsufficientPermFor">
+		権限不足：
+	</string>
+	<string name="CompileQueueUnknownFailure">
+		原因不明の失敗によりダウンロードができません
+	</string>
+	<string name="CompileQueueTitle">
+		リコンパイル進行
+	</string>
+	<string name="CompileQueueStart">
+		リコンパイル
+	</string>
+	<string name="ResetQueueTitle">
+		進行をリセット
+	</string>
+	<string name="ResetQueueStart">
+		リセット
+	</string>
+	<string name="RunQueueTitle">
+		実行を続けるよう設定
+	</string>
+	<string name="RunQueueStart">
+		実行中に設定
+	</string>
+	<string name="NotRunQueueTitle">
+		実行を停止するよう設定
+	</string>
+	<string name="NotRunQueueStart">
+		実行停止に設定
+	</string>
+	<string name="CompileSuccessful">
+		コンパイルが完了しました！
+	</string>
+	<string name="CompileSuccessfulSaving">
+		コンパイル完了、保存中です...
+	</string>
+	<string name="SaveComplete">
+		保存完了。
+	</string>
+	<string name="ObjectOutOfRange">
+		スクリプト（オブジェクトが範囲外にあります）
+	</string>
+	<string name="GodToolsObjectOwnedBy">
+		[OWNER] 所有のオブジェクト「[OBJECT]」
+	</string>
+	<string name="GroupsNone">
+		なし
+	</string>
+	<string name="Unknown">
+		（不明）
+	</string>
+	<string name="Balance">
+		残高
+	</string>
+	<string name="Credits">
+		収入
+	</string>
+	<string name="Debits">
+		支出
+	</string>
+	<string name="Total">
+		合計
+	</string>
+	<string name="NoGroupDataFound">
+		グループのデータが見つかりませんでした
+	</string>
+	<string name="IMParentEstate">
+		parent estate
+	</string>
+	<string name="IMMainland">
+		メインランド
+	</string>
+	<string name="IMTeen">
+		ティーン
+	</string>
+	<string name="RegionInfoError">
+		エラー
+	</string>
+	<string name="RegionInfoAllEstatesOwnedBy">
+		[OWNER] が所有するすべての不動産
+	</string>
+	<string name="RegionInfoAllEstatesYouOwn">
+		あなたが所有するすべての不動産
+	</string>
+	<string name="RegionInfoAllEstatesYouManage">
+		あなたが [OWNER] のために管理するすべての不動産
+	</string>
+	<string name="RegionInfoAllowedResidents">
+		許可された住人： （[ALLOWEDAGENTS] 人、最大 [MAXACCESS] 人）
+	</string>
+	<string name="RegionInfoAllowedGroups">
+		許可されたグループ： （[ALLOWEDGROUPS]、最大 [MAXACCESS] グループ）
+	</string>
+	<string name="CursorPos">
+		[LINE] 行目、[COLUMN] 列目
+	</string>
+	<string name="PanelDirCountFound">
+		[COUNT] 件見つかりました
+	</string>
+	<string name="PanelContentsNewScript">
+		新規スクリプト
+	</string>
+	<string name="MuteByName">
+		（名称別）
+	</string>
+	<string name="MuteAgent">
+		（住人）
+	</string>
+	<string name="MuteObject">
+		（オブジェクト）
+	</string>
+	<string name="MuteGroup">
+		（グループ）
+	</string>
+	<string name="RegionNoCovenant">
+		この不動産には約款がありません。
+	</string>
+	<string name="RegionNoCovenantOtherOwner">
+		この不動産には約款がありません。 この不動産上の土地は不動産所有者により販売され、Linden Lab では販売していません。  販売に関するお問い合わせは、不動産所有者までお願い致します。
+	</string>
+	<string name="covenant_last_modified">
+		最終修正日：
+	</string>
+	<string name="GroupOwned">
+		グループ所有
+	</string>
+	<string name="Public">
+		パブリック
+	</string>
+	<string name="ClassifiedClicksTxt">
+		クリック数： [TELEPORT] テレポート、 [MAP] 地図、 [PROFILE] プロフィール
+	</string>
+	<string name="ClassifiedUpdateAfterPublish">
+		（掲載後更新）
+	</string>
+	<string name="GroupVoteYes">
+		はい
+	</string>
+	<string name="GroupVoteNo">
+		いいえ
+	</string>
+	<string name="GroupVoteNoActiveProposals">
+		継続中の提案は現在ありません
+	</string>
+	<string name="GroupVoteNoArchivedProposals">
+		提案のアーカイブは現在ありません
+	</string>
+	<string name="GroupVoteRetrievingArchivedProposals">
+		提案のアーカイブを取得中です
+	</string>
+	<string name="GroupVoteRetrievingActiveProposals">
+		継続中の提案を取得中です
+	</string>
+	<string name="MultiPreviewTitle">
+		プレビュー
+	</string>
+	<string name="MultiPropertiesTitle">
+		Properties
+	</string>
+	<string name="InvOfferAnObjectNamed">
+		オブジェクト名
+	</string>
+	<string name="InvOfferOwnedByGroup">
+		所有グループ
+	</string>
+	<string name="InvOfferOwnedByUnknownGroup">
+		不明なグループ所有
+	</string>
+	<string name="InvOfferOwnedBy">
+		所有者
+	</string>
+	<string name="InvOfferOwnedByUnknownUser">
+		不明なユーザー所有
+	</string>
+	<string name="InvOfferGaveYou">
+		gave you
+	</string>
+	<string name="InvOfferYouDecline">
+		You decline
+	</string>
+	<string name="InvOfferFrom">
+		from
+	</string>
+	<string name="GroupMoneyTotal">
+		合計
+	</string>
+	<string name="GroupMoneyBought">
+		bought
+	</string>
+	<string name="GroupMoneyPaidYou">
+		paid you
+	</string>
+	<string name="GroupMoneyPaidInto">
+		paid into
+	</string>
+	<string name="GroupMoneyBoughtPassTo">
+		bought pass to
+	</string>
+	<string name="GroupMoneyPaidFeeForEvent">
+		paid fee for event
+	</string>
+	<string name="GroupMoneyPaidPrizeForEvent">
+		paid prize for event
+	</string>
+	<string name="GroupMoneyBalance">
+		残高
+	</string>
+	<string name="GroupMoneyCredits">
+		収入
+	</string>
+	<string name="GroupMoneyDebits">
+		支出
+	</string>
+	<string name="ViewerObjectContents">
+		中身
+	</string>
+	<string name="AcquiredItems">
+		取得アイテム
+	</string>
+	<string name="Cancel">
+		キャンセル
+	</string>
+	<string name="UploadingCosts">
+		%s のアップロード代金：
+	</string>
+	<string name="UnknownFileExtension">
+		不明の拡張子： %s
+使用可能な拡張子： .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
+	</string>
+	<string name="AddLandmarkNavBarMenu">
+		ランドマークを追加...
+	</string>
+	<string name="EditLandmarkNavBarMenu">
+		ランドマークを編集...
+	</string>
+	<string name="accel-mac-control">
+		⌃
+	</string>
+	<string name="accel-mac-command">
+		⌘
+	</string>
+	<string name="accel-mac-option">
+		⌥
+	</string>
+	<string name="accel-mac-shift">
+		⇧
+	</string>
+	<string name="accel-win-control">
+		Ctrl+
+	</string>
+	<string name="accel-win-alt">
+		Alt+
+	</string>
+	<string name="accel-win-shift">
+		Shift+
+	</string>
+	<string name="FileSaved">
+		ファイルが保存されました
+	</string>
+	<string name="Receiving">
+		取得中
+	</string>
+	<string name="AM">
+		AM
+	</string>
+	<string name="PM">
+		PM
+	</string>
+	<string name="PST">
+		米国西部標準時
+	</string>
+	<string name="PDT">
+		米国西部夏時間
+	</string>
+	<string name="Forward">
+		前
+	</string>
+	<string name="Left">
+		左
+	</string>
+	<string name="Right">
+		右
+	</string>
+	<string name="Back">
+		後ろ
+	</string>
+	<string name="North">
+		北
+	</string>
+	<string name="South">
+		南
+	</string>
+	<string name="West">
+		西
+	</string>
+	<string name="East">
+		東
+	</string>
+	<string name="Up">
+		上
+	</string>
+	<string name="Down">
+		下
+	</string>
+	<string name="Any Category">
+		全カテゴリ
+	</string>
+	<string name="Shopping">
+		ショッピング
+	</string>
+	<string name="Land Rental">
+		土地のレンタル
+	</string>
+	<string name="Property Rental">
+		建物のレンタル
+	</string>
+	<string name="Special Attraction">
+		特別アトラクション
+	</string>
+	<string name="New Products">
+		新製品
+	</string>
+	<string name="Employment">
+		雇用
+	</string>
+	<string name="Wanted">
+		求む
+	</string>
+	<string name="Service">
+		サービス
+	</string>
+	<string name="Personal">
+		パーソナル
+	</string>
+	<string name="None">
+		なし
+	</string>
+	<string name="Linden Location">
+		Linden所在地
+	</string>
+	<string name="Adult">
+		Adult
+	</string>
+	<string name="Arts&amp;Culture">
+		アートとカルチャー
+	</string>
+	<string name="Business">
+		ビジネス
+	</string>
+	<string name="Educational">
+		教育的
+	</string>
+	<string name="Gaming">
+		ゲーム
+	</string>
+	<string name="Hangout">
+		たまり場
+	</string>
+	<string name="Newcomer Friendly">
+		新住人に好意的
+	</string>
+	<string name="Parks&amp;Nature">
+		公園と自然
+	</string>
+	<string name="Residential">
+		住宅用
+	</string>
+	<string name="Stage">
+		ステージ
+	</string>
+	<string name="Other">
+		その他
+	</string>
+	<string name="Any">
+		全員
+	</string>
+	<string name="You">
+		あなた
+	</string>
+	<string name=":">
+		:
+	</string>
+	<string name=",">
+		,
+	</string>
+	<string name="...">
+		...
+	</string>
+	<string name="***">
+		***
+	</string>
+	<string name="(">
+		(
+	</string>
+	<string name=")">
+		)
+	</string>
+	<string name=".">
+		.
+	</string>
+	<string name="&apos;">
+		&apos;
+	</string>
+	<string name="---">
+		---
+	</string>
+	<string name="MBCmdLineError">
+		コマンドラインにエラーが見つかりました。
+リンク先を参照してください： http://wiki.secondlife.com/wiki/Client_parameters
+エラー：
+	</string>
+	<string name="MBCmdLineUsg">
+		[APP_NAME] コマンドライン使用：
+	</string>
+	<string name="MBUnableToAccessFile">
+		[APP_NAME] は必要なファイルにアクセスできません。
+
+複数のコピーを実行中か、ファイルが既に開いているとあなたのシステムが誤認識している可能性があります。
+このメッセージが何度も出る場合は、コンピューターを再起動してもう一度お試しください。
+それでも問題が続く場合、[APP_NAME] を完全にアンインストールして、再インストールをしてください。
+	</string>
+	<string name="MBFatalError">
+		致命的なエラー
+	</string>
+	<string name="MBRequiresAltiVec">
+		[APP_NAME] は、AltiVec搭載のプロセッサが必要です。（G4 以降）
+	</string>
+	<string name="MBAlreadyRunning">
+		[APP_NAME] はすでに実行中です。
+最小化されたプログラムのコピーをタスクバーで確認してください。
+このメッセージが何度も出る場合はコンピューターを再起動してください。
+	</string>
+	<string name="MBFrozenCrashed">
+		[APP_NAME] は前回の実行時にフリーズしています。
+クラッシュ報告を送信しますか？
+	</string>
+	<string name="MBAlert">
+		警告
+	</string>
+	<string name="MBNoDirectX">
+		[APP_NAME] は DirectX 9.0b 及びそれ以降のバージョンを検出することができませんでした。
+[APP_NAME] は DirectX を使用して安定性の問題、低パフォーマンス、クラッシュ等悪影響を与えるハードウェアや古いドライバを検出します。  DirectX 9.0b がなくても [APP_NAME] を実行できますが、DirectX 9.0bとのご使用を強く推奨します。
+
+続けますか？
+	</string>
+	<string name="MBWarning">
+		警告
+	</string>
+	<string name="MBNoAutoUpdate">
+		自動更新は現在 Linux には対応していません。
+www.secondlife.com から最新バージョンをダウンロードしてください。
+	</string>
+	<string name="MBRegClassFailed">
+		RegisterClass 失敗
+	</string>
+	<string name="MBError">
+		エラー
+	</string>
+	<string name="MBFullScreenErr">
+		[WIDTH] x [HEIGHT] では全画面で実行することができません。
+ウィンドウモードで実行中です。
+	</string>
+	<string name="MBDestroyWinFailed">
+		シャットダウンエラー（DestroyWindow() 失敗）
+	</string>
+	<string name="MBShutdownErr">
+		シャットダウンエラー
+	</string>
+	<string name="MBDevContextErr">
+		GL ディバイスコンテキストが作れません
+	</string>
+	<string name="MBPixelFmtErr">
+		適切なピクセル形式が見つかりません
+	</string>
+	<string name="MBPixelFmtDescErr">
+		ピクセル形式情報が見つかりません
+	</string>
+	<string name="MBTrueColorWindow">
+		[APP_NAME] をウィンドウで実行するには、True Color（32ビット）が必要です。
+「コントロールパネル」＞「画面」＞「設定」に行き、「最高 （32 ビット)」に設定してください。
+全画面を選択した場合、実行時に [APP_NAME] は自動的にスクリーンを調整します。
+	</string>
+	<string name="MBAlpha">
+		[APP_NAME] は 8 ビットのアルファチャンネルを取得できないため実行できません。  通常ビデオカードのドライバの問題で起こります。
+お使いのコンピューターに最新のビデオカードドライバがインストールされているかご確認ください。
+また、「コントロールパネル」＞「画面」＞「設定」内で、モニターが「最高 （32ビット）」に設定されていることもご確認ください。
+このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
+	</string>
+	<string name="MBPixelFmtSetErr">
+		ピクセル形式が設定できません
+	</string>
+	<string name="MBGLContextErr">
+		GL レンダーコンテキストが作れません
+	</string>
+	<string name="MBGLContextActErr">
+		GL レンダーコンテキストをアクティベートできません
+	</string>
+	<string name="MBVideoDrvErr">
+		お使いのコンピューターのビデオカードドライバが正常にインストールできなかった、または古いかサポート対象外のため、[APP_NAME] は実行できません。 最新のビデオカードドライバがインストールされているのを確認し、されている場合は再インストールをお試しください。
+
+このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
+	</string>
+	<string name="5 O&apos;Clock Shadow">
+		うっすらとしたヒゲ
+	</string>
+	<string name="All White">
+		真っ白
+	</string>
+	<string name="Anime Eyes">
+		アニメ風の目
+	</string>
+	<string name="Arced">
+		アーチ
+	</string>
+	<string name="Arm Length">
+		腕の長さ
+	</string>
+	<string name="Attached">
+		小
+	</string>
+	<string name="Attached Earlobes">
+		耳たぶ
+	</string>
+	<string name="Back Bangs">
+		後ろにかき上げた前髪
+	</string>
+	<string name="Back Bangs Down">
+		後ろにかき上げて下ろした前髪
+	</string>
+	<string name="Back Bangs Up">
+		後ろにかき上げて持ち上げた前髪
+	</string>
+	<string name="Back Fringe">
+		後ろ髪の毛先
+	</string>
+	<string name="Back Hair">
+		後ろ髪
+	</string>
+	<string name="Back Hair Down">
+		下ろした後ろ髪
+	</string>
+	<string name="Back Hair Up">
+		アップにした後ろ髪
+	</string>
+	<string name="Baggy">
+		たるんでいる
+	</string>
+	<string name="Bangs">
+		前髪
+	</string>
+	<string name="Bangs Down">
+		下ろした前髪
+	</string>
+	<string name="Bangs Up">
+		持ち上げた前髪
+	</string>
+	<string name="Beady Eyes">
+		ビーズのような目
+	</string>
+	<string name="Belly Size">
+		お腹の大きさ
+	</string>
+	<string name="Big">
+		大
+	</string>
+	<string name="Big Butt">
+		大
+	</string>
+	<string name="Big Eyeball">
+		大きい眼球
+	</string>
+	<string name="Big Hair Back">
+		髪の大部分： 後ろ
+	</string>
+	<string name="Big Hair Front">
+		髪の大部分： 前
+	</string>
+	<string name="Big Hair Top">
+		髪の大部分： 上部
+	</string>
+	<string name="Big Head">
+		大
+	</string>
+	<string name="Big Pectorals">
+		大
+	</string>
+	<string name="Big Spikes">
+		とげあり
+	</string>
+	<string name="Black">
+		黒
+	</string>
+	<string name="Blonde">
+		ブロンド
+	</string>
+	<string name="Blonde Hair">
+		ブロンドの髪
+	</string>
+	<string name="Blush">
+		チーク
+	</string>
+	<string name="Blush Color">
+		チークカラー
+	</string>
+	<string name="Blush Opacity">
+		チークの濃さ
+	</string>
+	<string name="Body Definition">
+		体の精細度
+	</string>
+	<string name="Body Fat">
+		体脂肪
+	</string>
+	<string name="Body Freckles">
+		体のしみ・そばかす
+	</string>
+	<string name="Body Thick">
+		骨太
+	</string>
+	<string name="Body Thickness">
+		体の厚み
+	</string>
+	<string name="Body Thin">
+		細め
+	</string>
+	<string name="Bow Legged">
+		外股
+	</string>
+	<string name="Breast Buoyancy">
+		胸の重力
+	</string>
+	<string name="Breast Cleavage">
+		胸の谷間
+	</string>
+	<string name="Breast Size">
+		胸の大きさ
+	</string>
+	<string name="Bridge Width">
+		両目の間の幅
+	</string>
+	<string name="Broad">
+		広
+	</string>
+	<string name="Brow Size">
+		眉毛の大きさ
+	</string>
+	<string name="Bug Eyes">
+		Bug Eyes
+	</string>
+	<string name="Bugged Eyes">
+		突き出た目
+	</string>
+	<string name="Bulbous">
+		だんご
+	</string>
+	<string name="Bulbous Nose">
+		だんご鼻
+	</string>
+	<string name="Bushy Eyebrows">
+		太
+	</string>
+	<string name="Bushy Hair">
+		ぼさぼさヘア
+	</string>
+	<string name="Butt Size">
+		お尻の大きさ
+	</string>
+	<string name="bustle skirt">
+		後ろの膨らみ
+	</string>
+	<string name="no bustle">
+		膨らみなし
+	</string>
+	<string name="more bustle">
+		膨らみ大
+	</string>
+	<string name="Chaplin">
+		Chaplin
+	</string>
+	<string name="Cheek Bones">
+		ほお骨
+	</string>
+	<string name="Chest Size">
+		胸部の大きさ
+	</string>
+	<string name="Chin Angle">
+		あごの角度
+	</string>
+	<string name="Chin Cleft">
+		あごの先の割れ具合
+	</string>
+	<string name="Chin Curtains">
+		あごに沿ったひげ
+	</string>
+	<string name="Chin Depth">
+		あごの長さ
+	</string>
+	<string name="Chin Heavy">
+		あごに重点
+	</string>
+	<string name="Chin In">
+		ひいたあご
+	</string>
+	<string name="Chin Out">
+		突き出たあご
+	</string>
+	<string name="Chin-Neck">
+		あごと首
+	</string>
+	<string name="Clear">
+		クリア
+	</string>
+	<string name="Cleft">
+		割れた
+	</string>
+	<string name="Close Set Eyes">
+		顔の中心寄りの目
+	</string>
+	<string name="Closed">
+		クローズ
+	</string>
+	<string name="Closed Back">
+		後ろとじ
+	</string>
+	<string name="Closed Front">
+		前とじ
+	</string>
+	<string name="Closed Left">
+		左とじ
+	</string>
+	<string name="Closed Right">
+		右とじ
+	</string>
+	<string name="Coin Purse">
+		コイン入れ
+	</string>
+	<string name="Collar Back">
+		後ろえり
+	</string>
+	<string name="Collar Front">
+		前えり
+	</string>
+	<string name="Corner Down">
+		ダウン
+	</string>
+	<string name="Corner Normal">
+		ノーマル
+	</string>
+	<string name="Corner Up">
+		アップ
+	</string>
+	<string name="Creased">
+		重いまぶた
+	</string>
+	<string name="Crooked Nose">
+		曲がった鼻
+	</string>
+	<string name="Cropped Hair">
+		短く刈り込んだ髪
+	</string>
+	<string name="Cuff Flare">
+		袖口のフレア
+	</string>
+	<string name="Dark">
+		ダーク
+	</string>
+	<string name="Dark Green">
+		ダークグリーン
+	</string>
+	<string name="Darker">
+		ダーク
+	</string>
+	<string name="Deep">
+		尖った
+	</string>
+	<string name="Default Heels">
+		デフォルトのかかと
+	</string>
+	<string name="Default Toe">
+		デフォルトのつま先
+	</string>
+	<string name="Dense">
+		濃
+	</string>
+	<string name="Dense hair">
+		密度の多い髪
+	</string>
+	<string name="Double Chin">
+		二重あご
+	</string>
+	<string name="Downturned">
+		下向き
+	</string>
+	<string name="Duffle Bag">
+		ダッフルバッグ
+	</string>
+	<string name="Ear Angle">
+		耳の角度
+	</string>
+	<string name="Ear Size">
+		耳の大きさ
+	</string>
+	<string name="Ear Tips">
+		耳の先
+	</string>
+	<string name="Egg Head">
+		たまご頭
+	</string>
+	<string name="Eye Bags">
+		下まぶた
+	</string>
+	<string name="Eye Color">
+		瞳の色
+	</string>
+	<string name="Eye Depth">
+		目のくぼみ
+	</string>
+	<string name="Eye Lightness">
+		瞳の明るさ
+	</string>
+	<string name="Eye Opening">
+		見開き具合
+	</string>
+	<string name="Eye Pop">
+		両目の大きさの対称
+	</string>
+	<string name="Eye Size">
+		目の大きさ
+	</string>
+	<string name="Eye Spacing">
+		目と目のあいだの幅
+	</string>
+	<string name="Eyeball Size">
+		眼球の大きさ
+	</string>
+	<string name="Eyebrow Arc">
+		眉毛のアーチ
+	</string>
+	<string name="Eyebrow Density">
+		眉毛の密集度
+	</string>
+	<string name="Eyebrow Height">
+		眉毛の高さ
+	</string>
+	<string name="Eyebrow Points">
+		眉毛の角
+	</string>
+	<string name="Eyebrow Size">
+		眉毛の大きさ
+	</string>
+	<string name="Eyelash Length">
+		まつげの長さ
+	</string>
+	<string name="Eyeliner">
+		アイライナー
+	</string>
+	<string name="Eyeliner Color">
+		アイライナーの色
+	</string>
+	<string name="Eyes Back">
+		目・戻る
+	</string>
+	<string name="Eyes Bugged">
+		下まぶたがたるんだ目
+	</string>
+	<string name="Eyes Forward">
+		目・次へ
+	</string>
+	<string name="Eyes Long Head">
+		Eyes Long Head
+	</string>
+	<string name="Eyes Shear Left Up">
+		Eyes Shear Left Up
+	</string>
+	<string name="Eyes Shear Right Up">
+		Eyes Shear Right Up
+	</string>
+	<string name="Eyes Short Head">
+		Eyes Short Head
+	</string>
+	<string name="Eyes Spread">
+		離れた目
+	</string>
+	<string name="Eyes Sunken">
+		くぼんだ目
+	</string>
+	<string name="Eyes Together">
+		Eyes Together
+	</string>
+	<string name="Face Shear">
+		顔のゆがみ
+	</string>
+	<string name="Facial Definition">
+		顔の精細度
+	</string>
+	<string name="Far Set Eyes">
+		離れた目
+	</string>
+	<string name="Fat">
+		太った
+	</string>
+	<string name="Fat Head">
+		太めの頭
+	</string>
+	<string name="Fat Lips">
+		大
+	</string>
+	<string name="Fat Lower">
+		Fat Lower
+	</string>
+	<string name="Fat Lower Lip">
+		厚めの下唇
+	</string>
+	<string name="Fat Torso">
+		太めの頭部
+	</string>
+	<string name="Fat Upper">
+		Fat Upper
+	</string>
+	<string name="Fat Upper Lip">
+		厚めの上唇
+	</string>
+	<string name="Female">
+		女性
+	</string>
+	<string name="Fingerless">
+		指なし
+	</string>
+	<string name="Fingers">
+		指あり
+	</string>
+	<string name="Flared Cuffs">
+		広がった袖口
+	</string>
+	<string name="Flat">
+		平ら
+	</string>
+	<string name="Flat Butt">
+		小
+	</string>
+	<string name="Flat Head">
+		絶壁頭
+	</string>
+	<string name="Flat Toe">
+		フラット
+	</string>
+	<string name="Foot Size">
+		足の大きさ
+	</string>
+	<string name="Forehead Angle">
+		ひたいの角度
+	</string>
+	<string name="Forehead Heavy">
+		ひたいに重点
+	</string>
+	<string name="Freckles">
+		しみ・そばかす
+	</string>
+	<string name="Front Bangs Down">
+		下ろした前髪
+	</string>
+	<string name="Front Bangs Up">
+		上げた前髪
+	</string>
+	<string name="Front Fringe">
+		前髪の毛先
+	</string>
+	<string name="Front Hair">
+		前髪
+	</string>
+	<string name="Front Hair Down">
+		下ろした前髪
+	</string>
+	<string name="Front Hair Up">
+		アップにした前髪
+	</string>
+	<string name="Full Back">
+		刈られていない髪
+	</string>
+	<string name="Full Eyeliner">
+		あり
+	</string>
+	<string name="Full Front">
+		刈られていない髪
+	</string>
+	<string name="Full Hair Sides">
+		サイドの髪
+	</string>
+	<string name="Full Sides">
+		生え揃ったサイド
+	</string>
+	<string name="Glossy">
+		あり
+	</string>
+	<string name="Glove Fingers">
+		手袋の指
+	</string>
+	<string name="Glove Length">
+		手袋の長さ
+	</string>
+	<string name="Hair">
+		髪
+	</string>
+	<string name="Hair Back">
+		髪： 後ろ
+	</string>
+	<string name="Hair Front">
+		髪： 前
+	</string>
+	<string name="Hair Sides">
+		髪： サイド
+	</string>
+	<string name="Hair Sweep">
+		流す
+	</string>
+	<string name="Hair Thickess">
+		髪の量
+	</string>
+	<string name="Hair Thickness">
+		髪の量
+	</string>
+	<string name="Hair Tilt">
+		髪の向き
+	</string>
+	<string name="Hair Tilted Left">
+		左向き
+	</string>
+	<string name="Hair Tilted Right">
+		右向き
+	</string>
+	<string name="Hair Volume">
+		髪： ボリューム
+	</string>
+	<string name="Hand Size">
+		手の大きさ
+	</string>
+	<string name="Handlebars">
+		ハンドルバー
+	</string>
+	<string name="Head Length">
+		頭の長さ
+	</string>
+	<string name="Head Shape">
+		頭の形
+	</string>
+	<string name="Head Size">
+		頭の大きさ
+	</string>
+	<string name="Head Stretch">
+		頭の伸び具合
+	</string>
+	<string name="Heel Height">
+		ヒールの高さ
+	</string>
+	<string name="Heel Shape">
+		ヒールの形
+	</string>
+	<string name="Height">
+		身長
+	</string>
+	<string name="High">
+		高
+	</string>
+	<string name="High Heels">
+		ハイヒール
+	</string>
+	<string name="High Jaw">
+		高
+	</string>
+	<string name="High Platforms">
+		厚底
+	</string>
+	<string name="High and Tight">
+		高めでタイト
+	</string>
+	<string name="Higher">
+		高
+	</string>
+	<string name="Hip Length">
+		腰の長さ
+	</string>
+	<string name="Hip Width">
+		腰の幅
+	</string>
+	<string name="In">
+		内向き
+	</string>
+	<string name="In Shdw Color">
+		内側のシャドウカラー
+	</string>
+	<string name="In Shdw Opacity">
+		内側のシャドウの濃さ
+	</string>
+	<string name="Inner Eye Corner">
+		目頭
+	</string>
+	<string name="Inner Eye Shadow">
+		内側のアイシャドウ
+	</string>
+	<string name="Inner Shadow">
+		内側のシャドウ
+	</string>
+	<string name="Jacket Length">
+		ジャケット丈
+	</string>
+	<string name="Jacket Wrinkles">
+		ジャケットのしわ
+	</string>
+	<string name="Jaw Angle">
+		あごの角度
+	</string>
+	<string name="Jaw Jut">
+		あごの突出
+	</string>
+	<string name="Jaw Shape">
+		あごの形
+	</string>
+	<string name="Join">
+		寄せた
+	</string>
+	<string name="Jowls">
+		えら
+	</string>
+	<string name="Knee Angle">
+		膝の角度
+	</string>
+	<string name="Knock Kneed">
+		内股
+	</string>
+	<string name="Large">
+		大
+	</string>
+	<string name="Large Hands">
+		大
+	</string>
+	<string name="Left Part">
+		左分け
+	</string>
+	<string name="Leg Length">
+		脚の長さ
+	</string>
+	<string name="Leg Muscles">
+		脚の筋肉
+	</string>
+	<string name="Less">
+		小
+	</string>
+	<string name="Less Body Fat">
+		少なめ
+	</string>
+	<string name="Less Curtains">
+		少なめ
+	</string>
+	<string name="Less Freckles">
+		少なめ
+	</string>
+	<string name="Less Full">
+		薄い
+	</string>
+	<string name="Less Gravity">
+		少
+	</string>
+	<string name="Less Love">
+		少
+	</string>
+	<string name="Less Muscles">
+		少なめ
+	</string>
+	<string name="Less Muscular">
+		少なめ
+	</string>
+	<string name="Less Rosy">
+		少な目
+	</string>
+	<string name="Less Round">
+		丸み少な目
+	</string>
+	<string name="Less Saddle">
+		小
+	</string>
+	<string name="Less Square">
+		小
+	</string>
+	<string name="Less Volume">
+		ボリューム少な目
+	</string>
+	<string name="Less soul">
+		小
+	</string>
+	<string name="Lighter">
+		ライト
+	</string>
+	<string name="Lip Cleft">
+		唇の山
+	</string>
+	<string name="Lip Cleft Depth">
+		唇の山の高さ
+	</string>
+	<string name="Lip Fullness">
+		唇の厚み
+	</string>
+	<string name="Lip Pinkness">
+		唇の赤み
+	</string>
+	<string name="Lip Ratio">
+		上下唇の大きさ
+	</string>
+	<string name="Lip Thickness">
+		唇の前後幅
+	</string>
+	<string name="Lip Width">
+		口の大きさ
+	</string>
+	<string name="Lipgloss">
+		リップグロス
+	</string>
+	<string name="Lipstick">
+		口紅
+	</string>
+	<string name="Lipstick Color">
+		口紅の色
+	</string>
+	<string name="Long">
+		長
+	</string>
+	<string name="Long Head">
+		前後幅が広い頭
+	</string>
+	<string name="Long Hips">
+		長
+	</string>
+	<string name="Long Legs">
+		長
+	</string>
+	<string name="Long Neck">
+		長
+	</string>
+	<string name="Long Pigtails">
+		長
+	</string>
+	<string name="Long Ponytail">
+		長
+	</string>
+	<string name="Long Torso">
+		長
+	</string>
+	<string name="Long arms">
+		長
+	</string>
+	<string name="Longcuffs">
+		ロングカフス
+	</string>
+	<string name="Loose Pants">
+		ゆったり
+	</string>
+	<string name="Loose Shirt">
+		ゆるめ
+	</string>
+	<string name="Loose Sleeves">
+		ゆるめ
+	</string>
+	<string name="Love Handles">
+		ウエスト周り
+	</string>
+	<string name="Low">
+		低
+	</string>
+	<string name="Low Heels">
+		ローヒール
+	</string>
+	<string name="Low Jaw">
+		低
+	</string>
+	<string name="Low Platforms">
+		低め
+	</string>
+	<string name="Low and Loose">
+		低めでゆったり
+	</string>
+	<string name="Lower">
+		低
+	</string>
+	<string name="Lower Bridge">
+		鼻筋
+	</string>
+	<string name="Lower Cheeks">
+		ほおの下部
+	</string>
+	<string name="Male">
+		男性
+	</string>
+	<string name="Middle Part">
+		真ん中分け
+	</string>
+	<string name="More">
+		大
+	</string>
+	<string name="More Blush">
+		きつめ
+	</string>
+	<string name="More Body Fat">
+		多め
+	</string>
+	<string name="More Curtains">
+		多め
+	</string>
+	<string name="More Eyeshadow">
+		あり
+	</string>
+	<string name="More Freckles">
+		多め
+	</string>
+	<string name="More Full">
+		厚い
+	</string>
+	<string name="More Gravity">
+		大
+	</string>
+	<string name="More Lipstick">
+		あり
+	</string>
+	<string name="More Love">
+		大
+	</string>
+	<string name="More Lower Lip">
+		大
+	</string>
+	<string name="More Muscles">
+		多め
+	</string>
+	<string name="More Muscular">
+		筋骨隆々
+	</string>
+	<string name="More Rosy">
+		多め
+	</string>
+	<string name="More Round">
+		まる
+	</string>
+	<string name="More Saddle">
+		大
+	</string>
+	<string name="More Sloped">
+		なだらか
+	</string>
+	<string name="More Square">
+		四角
+	</string>
+	<string name="More Upper Lip">
+		大
+	</string>
+	<string name="More Vertical">
+		垂直
+	</string>
+	<string name="More Volume">
+		大
+	</string>
+	<string name="More soul">
+		大
+	</string>
+	<string name="Moustache">
+		口ひげ
+	</string>
+	<string name="Mouth Corner">
+		口角
+	</string>
+	<string name="Mouth Position">
+		口の位置
+	</string>
+	<string name="Mowhawk">
+		モヒカン
+	</string>
+	<string name="Muscular">
+		筋骨たくましい
+	</string>
+	<string name="Mutton Chops">
+		マトンチョップス
+	</string>
+	<string name="Nail Polish">
+		マニキュア
+	</string>
+	<string name="Nail Polish Color">
+		マニキュアの色
+	</string>
+	<string name="Narrow">
+		狭
+	</string>
+	<string name="Narrow Back">
+		狭
+	</string>
+	<string name="Narrow Front">
+		狭
+	</string>
+	<string name="Narrow Lips">
+		おちょぼ口
+	</string>
+	<string name="Natural">
+		ナチュラル
+	</string>
+	<string name="Neck Length">
+		首の長さ
+	</string>
+	<string name="Neck Thickness">
+		首の太さ
+	</string>
+	<string name="No Blush">
+		なし
+	</string>
+	<string name="No Eyeliner">
+		なし
+	</string>
+	<string name="No Eyeshadow">
+		なし
+	</string>
+	<string name="No Heels">
+		なし
+	</string>
+	<string name="No Lipgloss">
+		なし
+	</string>
+	<string name="No Lipstick">
+		なし
+	</string>
+	<string name="No Part">
+		なし
+	</string>
+	<string name="No Polish">
+		なし
+	</string>
+	<string name="No Red">
+		なし
+	</string>
+	<string name="No Spikes">
+		なし
+	</string>
+	<string name="No White">
+		なし
+	</string>
+	<string name="No Wrinkles">
+		なし
+	</string>
+	<string name="Normal Lower">
+		Normal Lower
+	</string>
+	<string name="Normal Upper">
+		Normal Upper
+	</string>
+	<string name="Nose Left">
+		左曲がり
+	</string>
+	<string name="Nose Right">
+		右曲がり
+	</string>
+	<string name="Nose Size">
+		鼻の大きさ
+	</string>
+	<string name="Nose Thickness">
+		鼻の厚み
+	</string>
+	<string name="Nose Tip Angle">
+		鼻先の角度
+	</string>
+	<string name="Nose Tip Shape">
+		鼻先の形
+	</string>
+	<string name="Nose Width">
+		鼻の幅
+	</string>
+	<string name="Nostril Division">
+		鼻の穴の高さ
+	</string>
+	<string name="Nostril Width">
+		鼻の穴の幅
+	</string>
+	<string name="Old">
+		Old
+	</string>
+	<string name="Opaque">
+		濃いめ
+	</string>
+	<string name="Open">
+		オープン
+	</string>
+	<string name="Open Back">
+		後ろあき
+	</string>
+	<string name="Open Front">
+		前あき
+	</string>
+	<string name="Open Left">
+		左あき
+	</string>
+	<string name="Open Right">
+		右あき
+	</string>
+	<string name="Orange">
+		オレンジ
+	</string>
+	<string name="Out">
+		外向き
+	</string>
+	<string name="Out Shdw Color">
+		外側のシャドウカラー
+	</string>
+	<string name="Out Shdw Opacity">
+		外側のシャドウの濃さ
+	</string>
+	<string name="Outer Eye Corner">
+		目尻
+	</string>
+	<string name="Outer Eye Shadow">
+		外側のアイシャドウ
+	</string>
+	<string name="Outer Shadow">
+		外側のシャドウ
+	</string>
+	<string name="Overbite">
+		出っ歯
+	</string>
+	<string name="Package">
+		パッケージ
+	</string>
+	<string name="Painted Nails">
+		あり
+	</string>
+	<string name="Pale">
+		悪い
+	</string>
+	<string name="Pants Crotch">
+		パンツの股
+	</string>
+	<string name="Pants Fit">
+		パンツのフィット感
+	</string>
+	<string name="Pants Length">
+		パンツ丈
+	</string>
+	<string name="Pants Waist">
+		ウエスト
+	</string>
+	<string name="Pants Wrinkles">
+		パンツのしわ
+	</string>
+	<string name="Part">
+		あり
+	</string>
+	<string name="Part Bangs">
+		分けた前髪
+	</string>
+	<string name="Pectorals">
+		胸筋
+	</string>
+	<string name="Pigment">
+		色素
+	</string>
+	<string name="Pigtails">
+		下げ髪
+	</string>
+	<string name="Pink">
+		ピンク
+	</string>
+	<string name="Pinker">
+		ピンク
+	</string>
+	<string name="Platform Height">
+		靴底の高さ
+	</string>
+	<string name="Platform Width">
+		靴底の幅
+	</string>
+	<string name="Pointy">
+		尖った
+	</string>
+	<string name="Pointy Heels">
+		幅狭
+	</string>
+	<string name="Pointy Toe">
+		先の細いつま先
+	</string>
+	<string name="Ponytail">
+		ポニーテール
+	</string>
+	<string name="Poofy Skirt">
+		ふんわり
+	</string>
+	<string name="Pop Left Eye">
+		左目を大きく
+	</string>
+	<string name="Pop Right Eye">
+		右目を大きく
+	</string>
+	<string name="Puffy">
+		ふっくら
+	</string>
+	<string name="Puffy Eyelids">
+		目の周りの膨らみ
+	</string>
+	<string name="Rainbow Color">
+		虹色
+	</string>
+	<string name="Red Hair">
+		赤毛
+	</string>
+	<string name="Red Skin">
+		赤い肌
+	</string>
+	<string name="Regular">
+		均整のとれた
+	</string>
+	<string name="Regular Muscles">
+		均整のとれた筋肉
+	</string>
+	<string name="Right Part">
+		右分け
+	</string>
+	<string name="Rosy Complexion">
+		ほおの赤らみ
+	</string>
+	<string name="Round">
+		まるっこい
+	</string>
+	<string name="Round Forehead">
+		丸みを帯びた額
+	</string>
+	<string name="Ruddiness">
+		血色
+	</string>
+	<string name="Ruddy">
+		良い
+	</string>
+	<string name="Rumpled Hair">
+		くしゃくしゃヘア
+	</string>
+	<string name="Saddle Bags">
+		腰回りの肉付き
+	</string>
+	<string name="Saddlebags">
+		腰回りの肉付き
+	</string>
+	<string name="Scrawny">
+		骨張った
+	</string>
+	<string name="Scrawny Leg">
+		骨張った脚
+	</string>
+	<string name="Separate">
+		離れた
+	</string>
+	<string name="Shading">
+		Shading
+	</string>
+	<string name="Shadow hair">
+		Shadow hair
+	</string>
+	<string name="Shallow">
+		なだらか
+	</string>
+	<string name="Shear Back">
+		後方を刈る
+	</string>
+	<string name="Shear Face">
+		顔のゆがみ
+	</string>
+	<string name="Shear Front">
+		前方を刈る
+	</string>
+	<string name="Shear Left">
+		左側
+	</string>
+	<string name="Shear Left Up">
+		左半分を上に
+	</string>
+	<string name="Shear Right">
+		右側
+	</string>
+	<string name="Shear Right Up">
+		右半分を上に
+	</string>
+	<string name="Sheared Back">
+		後ろを刈られた髪
+	</string>
+	<string name="Sheared Front">
+		前を刈られた髪
+	</string>
+	<string name="Shift Left">
+		左向き
+	</string>
+	<string name="Shift Mouth">
+		口の向き
+	</string>
+	<string name="Shift Right">
+		右向き
+	</string>
+	<string name="Shirt Bottom">
+		シャツの裾
+	</string>
+	<string name="Shirt Fit">
+		シャツのフィット感
+	</string>
+	<string name="Shirt Wrinkles">
+		シャツのしわ
+	</string>
+	<string name="Shoe Height">
+		靴の長さ
+	</string>
+	<string name="Short">
+		短
+	</string>
+	<string name="Short Arms">
+		短
+	</string>
+	<string name="Short Legs">
+		短
+	</string>
+	<string name="Short Neck">
+		短
+	</string>
+	<string name="Short Pigtails">
+		短
+	</string>
+	<string name="Short Ponytail">
+		短
+	</string>
+	<string name="Short Sideburns">
+		短め
+	</string>
+	<string name="Short Torso">
+		短
+	</string>
+	<string name="Short hips">
+		短
+	</string>
+	<string name="Shoulders">
+		肩
+	</string>
+	<string name="Side Bangs">
+		サイドに流した前髪
+	</string>
+	<string name="Side Bangs Down">
+		ダウン
+	</string>
+	<string name="Side Bangs Up">
+		アップ
+	</string>
+	<string name="Side Fringe">
+		サイドの毛先
+	</string>
+	<string name="Sideburns">
+		もみあげ
+	</string>
+	<string name="Sides Hair">
+		サイドの髪
+	</string>
+	<string name="Sides Hair Down">
+		ダウン
+	</string>
+	<string name="Sides Hair Up">
+		アップ
+	</string>
+	<string name="Skinny">
+		細身
+	</string>
+	<string name="Skinny Neck">
+		細
+	</string>
+	<string name="Skirt Fit">
+		スカートのフィット感
+	</string>
+	<string name="Skirt Length">
+		スカート丈
+	</string>
+	<string name="Slanted Forehead">
+		傾斜した額
+	</string>
+	<string name="Sleeve Length">
+		袖丈
+	</string>
+	<string name="Sleeve Looseness">
+		袖のフィット感
+	</string>
+	<string name="Slit Back">
+		スリット： 後ろ
+	</string>
+	<string name="Slit Front">
+		スリット： 前
+	</string>
+	<string name="Slit Left">
+		スリット： 左
+	</string>
+	<string name="Slit Right">
+		スリット： 右
+	</string>
+	<string name="Small">
+		小
+	</string>
+	<string name="Small Hands">
+		小
+	</string>
+	<string name="Small Head">
+		小
+	</string>
+	<string name="Smooth">
+		滑らか
+	</string>
+	<string name="Smooth Hair">
+		スムーズ
+	</string>
+	<string name="Socks Length">
+		靴下丈
+	</string>
+	<string name="Some">
+		Some
+	</string>
+	<string name="Soulpatch">
+		ソウルパッチ
+	</string>
+	<string name="Sparse">
+		薄
+	</string>
+	<string name="Spiked Hair">
+		とげとげヘア
+	</string>
+	<string name="Square">
+		角張った
+	</string>
+	<string name="Square Toe">
+		スクエアトゥ
+	</string>
+	<string name="Squash Head">
+		カボチャ型
+	</string>
+	<string name="Squash/Stretch Head">
+		カボチャ/縦長頭
+	</string>
+	<string name="Stretch Head">
+		縦長
+	</string>
+	<string name="Sunken">
+		こけた
+	</string>
+	<string name="Sunken Chest">
+		小
+	</string>
+	<string name="Sunken Eyes">
+		くぼんだ目
+	</string>
+	<string name="Sweep Back">
+		後ろへ
+	</string>
+	<string name="Sweep Forward">
+		前へ
+	</string>
+	<string name="Swept Back">
+		オールバック
+	</string>
+	<string name="Swept Back Hair">
+		オールバックヘア
+	</string>
+	<string name="Swept Forward">
+		前へ
+	</string>
+	<string name="Swept Forward Hair">
+		後ろへ
+	</string>
+	<string name="Tall">
+		高
+	</string>
+	<string name="Taper Back">
+		後ろに先細
+	</string>
+	<string name="Taper Front">
+		前に先細
+	</string>
+	<string name="Thick Heels">
+		幅広
+	</string>
+	<string name="Thick Neck">
+		太
+	</string>
+	<string name="Thick Toe">
+		厚め
+	</string>
+	<string name="Thickness">
+		厚み
+	</string>
+	<string name="Thin">
+		薄い
+	</string>
+	<string name="Thin Eyebrows">
+		細
+	</string>
+	<string name="Thin Lips">
+		小
+	</string>
+	<string name="Thin Nose">
+		細い鼻
+	</string>
+	<string name="Tight Chin">
+		ひきしまったあご
+	</string>
+	<string name="Tight Cuffs">
+		タイト
+	</string>
+	<string name="Tight Pants">
+		タイト
+	</string>
+	<string name="Tight Shirt">
+		タイト
+	</string>
+	<string name="Tight Skirt">
+		タイト
+	</string>
+	<string name="Tight Sleeves">
+		タイト
+	</string>
+	<string name="Tilt Left">
+		左に傾斜
+	</string>
+	<string name="Tilt Right">
+		右に傾斜
+	</string>
+	<string name="Toe Shape">
+		つま先の形
+	</string>
+	<string name="Toe Thickness">
+		つま先の厚み
+	</string>
+	<string name="Torso Length">
+		上半身の長さ
+	</string>
+	<string name="Torso Muscles">
+		上半身の筋肉
+	</string>
+	<string name="Torso Scrawny">
+		上半身の骨張り
+	</string>
+	<string name="Unattached">
+		大
+	</string>
+	<string name="Uncreased">
+		軽いまぶた
+	</string>
+	<string name="Underbite">
+		受け口
+	</string>
+	<string name="Unnatural">
+		ユニーク
+	</string>
+	<string name="Upper Bridge">
+		両目のあいだ
+	</string>
+	<string name="Upper Cheeks">
+		ほおの上部
+	</string>
+	<string name="Upper Chin Cleft">
+		あご上部の割れ具合
+	</string>
+	<string name="Upper Eyelid Fold">
+		二重の幅
+	</string>
+	<string name="Upturned">
+		上向き
+	</string>
+	<string name="Very Red">
+		真っ赤
+	</string>
+	<string name="Waist Height">
+		ウエストの高さ
+	</string>
+	<string name="Well-Fed">
+		つまった
+	</string>
+	<string name="White Hair">
+		白髪
+	</string>
+	<string name="Wide">
+		広
+	</string>
+	<string name="Wide Back">
+		広
+	</string>
+	<string name="Wide Front">
+		広
+	</string>
+	<string name="Wide Lips">
+		大きい口
+	</string>
+	<string name="Wild">
+		ワイルド
+	</string>
+	<string name="Wrinkles">
+		しわあり
+	</string>
+	<string name="LocationCtrlAddLandmarkTooltip">
+		マイ ランドマークに追加
+	</string>
+	<string name="LocationCtrlEditLandmarkTooltip">
+		マイ ランドマークを編集
+	</string>
+	<string name="UpdaterWindowTitle">
+		[APP_NAME] アップデート
+	</string>
+	<string name="UpdaterNowUpdating">
+		只今 [APP_NAME] をアップデート中です...
+	</string>
+	<string name="UpdaterNowInstalling">
+		[APP_NAME] をインストール中です...
+	</string>
+	<string name="UpdaterUpdatingDescriptive">
+		お使いの [APP_NAME] ビューワが最新バージョンにアップデートされています。  数分かかることがありますのでしばらくお待ちください。
+	</string>
+	<string name="UpdaterProgressBarTextWithEllipses">
+		アップデートをダウンロード中です...
+	</string>
+	<string name="UpdaterProgressBarText">
+		アップデートをダウンロード中
+	</string>
+	<string name="UpdaterFailDownloadTitle">
+		アップデートのダウンロードに失敗しました
+	</string>
+	<string name="UpdaterFailUpdateDescriptive">
+		[APP_NAME] をアップデート中にエラーが発生しました。 www.secondlife.com から最新バージョンをダウンロードしてください。
+	</string>
+	<string name="UpdaterFailInstallTitle">
+		アップデートのインストールに失敗しました
+	</string>
+	<string name="UpdaterFailStartTitle">
+		ビューワの起動に失敗しました
+	</string>
 	<string name="only_user_message">
 		このセッションにいるユーザーはあなただけです。
 	</string>
@@ -624,31 +3146,4 @@
 	<string name="close_on_no_ability">
 		このチャット・セッションを継続することはできません
 	</string>
-			<string name="AcctTypeResident">
-				住人
-			</string>
-			<string name="AcctTypeTrial">
-				トライアル
-			</string>
-			<string name="AcctTypeCharterMember">
-				特権メンバー
-			</string>
-			<string name="AcctTypeEmployee">
-				Linden Lab従業員
-			</string>
-			<string name="PaymentInfoUsed">
-				支払い情報登録済
-			</string>
-			<string name="PaymentInfoOnFile">
-				支払い情報登録済み
-			</string>
-			<string name="NoPaymentInfoOnFile">
-				支払い情報未登録
-			</string>
-			<string name="AgeVerified">
-				年齢確認済み
-			</string>
-			<string name="NotAgeVerified">
-				年齢未確認
-			</string>
 </strings>

@@ -45,7 +45,6 @@ class LLOutputMonitorCtrl;
  * clicked.
 */
 class LLSpeakButton : public LLUICtrl
-
 {
 public:
 
@@ -61,14 +60,14 @@ public:
 	};
 
 	/*virtual*/ ~LLSpeakButton();
-
-	void setSpeakBtnToggleState(bool state);
+	/*virtual*/ void draw();
 
 protected:
 	friend class LLUICtrlFactory;
 	LLSpeakButton(const Params& p);
 
-	void onClick_SpeakBtn();
+	void onMouseDown_SpeakBtn();
+	void onMouseUp_SpeakBtn();
 
 	void onClick_ShowBtn();
 

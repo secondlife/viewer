@@ -1,31 +1,46 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="操作とカメラ" name="Input panel">
-	<text name=" Mouselook Options:">
-		一人称視点
-（マウスルック）：
+	<button label="その他のディバイス" name="joystick_setup_button"/>
+	<text name="Mouselook:">
+		一人称視点：
 	</text>
-	<text name=" Mouse Sensitivity:">
-		感度：
+	<text name=" Mouse Sensitivity">
+		マウスの精度
 	</text>
-	<check_box label="上下を反転" name="invert_mouse"/>
-	<text name=" Auto Fly Options:">
-		自動飛行オプション：
+	<check_box label="切り替え" name="invert_mouse"/>
+	<text name="Network:">
+		ネットワーク：
 	</text>
-	<check_box label="上下矢印キーの長押しで飛行／着地" name="automatic_fly"/>
-	<text name=" Camera Options:">
-		カメラ・オプション：
+	<text name="Maximum bandwidth">
+		最大帯域幅
 	</text>
-	<text name="camera_fov_label">
-		カメラ視野角：
+	<text name="text_box2">
+		kbps
 	</text>
-	<text name="Camera Follow Distance:">
-		カメラ追従距離：
+	<check_box label="カスタムポート" name="connection_port_enabled"/>
+	<spinner label="ポート番号：" name="web_proxy_port"/>
+	<text name="cache_size_label_l">
+		キャッシュサイズ
 	</text>
-	<check_box label="編集カメラの自動移動" name="edit_camera_movement" tool_tip="編集モードの開始、終了時はカメラ自動位置調整を使用"/>
-	<check_box label="容姿カメラの自動移動" name="appearance_camera_movement" tool_tip="編集モードでは、カメラ自動位置調整を使用"/>
-	<text name="text2">
-		アバター表示：
+	<text name="text_box5">
+		MB
 	</text>
-	<check_box label="アバターを一人称視点（マウスルック）で表示" name="first_person_avatar_visible"/>
-	<button label="ジョイスティック設定" name="joystick_setup_button"/>
+	<button label="ブラウズ" label_selected="ブラウズ" name="set_cache"/>
+	<button label="リセット" label_selected="設定" name="reset_cache"/>
+	<text name="Cache location">
+		キャッシュの場所
+	</text>
+	<text name="Web:">
+		Web：
+	</text>
+	<radio_group name="use_external_browser">
+		<radio_item label="内蔵ブラウザを使用" name="internal" tool_tip="内蔵ブラウザでヘルプやWebリンクなどを見ます。[APP_NAME] 内に新しいウィンドウでこのブラウザが開きます。"/>
+		<radio_item label="外部ブラウザ（IEやFirefox）を使用" name="external" tool_tip="デフォルトのシステムWebブラウザでヘルプやWebリンク先などを見ます。全画面で起動中にはおすすめしません。"/>
+	</radio_group>
+	<check_box initial_value="false" label="Webプロキシ" name="web_proxy_enabled"/>
+	<line_editor name="web_proxy_editor" tool_tip="使用するプロキシ名またはIPアドレス"/>
+	<button label="ブラウズ" label_selected="ブラウズ" name="set_proxy"/>
+	<text name="Proxy location">
+		プロキシ
+	</text>
 </panel>

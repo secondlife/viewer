@@ -1640,38 +1640,19 @@ bool LLVOVolume::hasMedia() const
 
 LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
 {
-	LLVector3 result = LLVector3::zero;
-	
-	LLFace* facep = mDrawable->getFace(face_id);
-	if(facep)
+	LLVolume* volume = getVolume();
+	LLVector3 result;
+
+	if (volume && face_id < volume->getNumVolumeFaces())
 	{
-		LLStrider<LLVector3> verticesp;
-		LLStrider<LLVector3> normalsp;
-		LLStrider<LLVector2> texCoordsp;
-		LLStrider<U16> indicesp;
-		S32 index_offset;
-		index_offset = facep->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
-		
-		if(index_offset != -1 && (normalsp.get() != NULL))
+		const LLVolumeFace& face = volume->getVolumeFace(face_id);
+		for (S32 i = 0; i < (S32)face.mVertices.size(); ++i)
 		{
-			U16 count = facep->getGeomCount();
-			U16 i;
-			
-			for(i=0; i < count; i++)
-			{
-				LLVector3 normal = *normalsp++;
-//				llinfos << "adding " << normal << llendl;
-				result += normal;
-			}
+			result += face.mVertices[i].mNormal;
 		}
-	}
-	
-	if(!result.isNull())
-	{
-//		llinfos << "before conversion: " << result << llendl;
+
 		result = volumeDirectionToAgent(result);
-		result.normalize();
-//		llinfos << "after conversion: " << result << llendl;
+		result.normVec();
 	}
 	
 	return result;
@@ -1751,6 +1732,10 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
 		viewer_media_t media_impl = LLViewerMedia::updateMediaImpl(mep, previous_url, update_from_self);
 			
 		addMediaImpl(media_impl, texture_index) ;
+	}
+	else
+	{
+		removeMediaImpl(texture_index);
 	}
 
 	//llinfos << "AFTER: texture_index = " << texture_index

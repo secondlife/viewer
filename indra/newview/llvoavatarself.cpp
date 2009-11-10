@@ -757,19 +757,7 @@ void LLVOAvatarSelf::setLocalTextureTE(U8 te, LLViewerTexture* image, BOOL set_b
 		return;
 	}
 
-	LLTexLayerSet* layer_set = getLayerSet((ETextureIndex)te);
-	if (layer_set)
-	{
-		invalidateComposite(layer_set, set_by_user);
-	}
-
 	setTEImage(te, image);
-	updateMeshTextures();
-
-	if (gAgent.cameraCustomizeAvatar())
-	{
-		LLVisualParamHint::requestHintUpdates();
-	}
 }
 
 //virtual
@@ -1377,6 +1365,7 @@ void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL set_by_u
 		ETextureIndex baked_te = getBakedTE( layerset );
 		setTEImage( baked_te, LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR) );
 		layerset->requestUpload();
+		updateMeshTextures();
 	}
 }
 
@@ -1386,7 +1375,6 @@ void LLVOAvatarSelf::invalidateAll()
 	{
 		invalidateComposite(mBakedTextureDatas[i].mTexLayerSet, TRUE);
 	}
-	updateMeshTextures();
 }
 
 //-----------------------------------------------------------------------------
