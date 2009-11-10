@@ -480,7 +480,7 @@ void LLNavigationBar::rebuildTeleportHistoryMenu()
 			type = LLTeleportHistoryMenuItem::TYPE_CURRENT;
 
 		LLTeleportHistoryMenuItem::Params item_params;
-		item_params.label = item_params.name = hist_items[i].getTitle();
+		item_params.label = item_params.name = hist_items[i].mTitle;
 		item_params.item_type = type;
 		item_params.on_click.function(boost::bind(&LLNavigationBar::onTeleportHistoryMenuItemClicked, this, i));
 		LLTeleportHistoryMenuItem* new_itemp = LLUICtrlFactory::create<LLTeleportHistoryMenuItem>(item_params);
