@@ -212,8 +212,9 @@ public:
 
 	// Window in raw pixels as seen on screen.
 	const LLRect&	getWindowRect()		const	{ return mWindowRect; };
-	// portion of window that shows 3d world
+	// portion of window that shows 3d world, in raw unscaled pixels
 	const LLRect&	getWorldViewRect()		const	{ return mWorldViewRect; };
+	// Use this rect for most UI computations, it accounts for UI size scaling
 	LLRect			getVirtualWorldViewRect()	const;
 	S32 			getWorldViewHeight() const;
 	S32 			getWorldViewWidth() const;

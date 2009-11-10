@@ -493,8 +493,9 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 			mProjectedManipulators.insert(projManipulator);
 		}
 
-		F32 half_width = (F32)gViewerWindow->getWorldViewWidth() / 2.f;
-		F32 half_height = (F32)gViewerWindow->getWorldViewHeight() / 2.f;
+		LLRect world_view_rect = gViewerWindow->getVirtualWorldViewRect();
+		F32 half_width = (F32)world_view_rect.getWidth() / 2.f;
+		F32 half_height = (F32)world_view_rect.getHeight() / 2.f;
 		LLVector2 manip2d;
 		LLVector2 mousePos((F32)x - half_width, (F32)y - half_height);
 		LLVector2 delta;
