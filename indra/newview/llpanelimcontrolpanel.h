@@ -100,10 +100,11 @@ public:
 protected:
 	LLUUID mGroupID;
 	LLSpeakerMgr* mSpeakerManager;
-	LLAvatarList* mAvatarList;
+
 	LLParticipantList* mParticipantList;
 
 private:
+	void onVisibilityChange(const LLSD& new_visibility);
 	void onGroupInfoButtonClicked();
 	void onSortMenuItemClicked(const LLSD& userdata);
 	/*virtual*/ void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);

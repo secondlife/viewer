@@ -34,9 +34,9 @@
 #include "llevent.h"
 #include "llpanelpeoplemenus.h"
 #include "llimview.h"
+#include "llavatarlist.h"
 
 class LLSpeakerMgr;
-class LLAvatarList;
 class LLUICtrl;
 
 class LLParticipantList
@@ -45,6 +45,7 @@ class LLParticipantList
 	public:
 		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list);
 		~LLParticipantList();
+		void setSpeakingIndicatorsVisible(BOOL visible){ mAvatarList->setSpeakingIndicatorsVisible(visible); };
 
 		typedef enum e_participant_sort_oder {
 			E_SORT_BY_NAME = 0,
