@@ -101,6 +101,8 @@ S32 BORDER_WIDTH = 6;
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
 
+static LLDefaultChildRegistry::Register<LLSnapshotFloaterView> r("snapshot_floater_view");
+
 ///----------------------------------------------------------------------------
 /// Class LLSnapshotLivePreview 
 ///----------------------------------------------------------------------------
@@ -2042,10 +2044,12 @@ BOOL LLFloaterSnapshot::postBuild()
 	LLSnapshotLivePreview::Params p;
 	p.rect(full_screen_rect);
 	LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
-	getRootView()->removeChild(gSnapshotFloaterView);
+	LLView* parent_view = gSnapshotFloaterView->getParent();
+	
+	parent_view->removeChild(gSnapshotFloaterView);
 	// make sure preview is below snapshot floater
-	getRootView()->addChild(previewp);
-	getRootView()->addChild(gSnapshotFloaterView);
+	parent_view->addChild(previewp);
+	parent_view->addChild(gSnapshotFloaterView);
 	
 	//move snapshot floater to special purpose snapshotfloaterview
 	gFloaterView->removeChild(this);

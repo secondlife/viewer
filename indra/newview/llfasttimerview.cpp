@@ -256,7 +256,8 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 
 			LLToolTipMgr::instance().show(LLToolTip::Params()
 				.message(mHoverTimer->getToolTip(LLFastTimer::NamedTimer::HISTORY_NUM - mScrollIndex - mHoverBarIndex))
-				.sticky_rect(screen_rect));
+				.sticky_rect(screen_rect)
+				.delay_time(0.f));
 
 			return TRUE;
 		}

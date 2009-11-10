@@ -506,8 +506,10 @@ void LLPipeline::destroyGL()
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_RESIZE_SCREEN_TEXTURE("Resize Screen Texture");
 void LLPipeline::resizeScreenTexture()
 {
+	LLFastTimer ft(FTM_RESIZE_SCREEN_TEXTURE);
 	if (gPipeline.canUseVertexShaders() && assertInitialized())
 	{
 		GLuint resX = gViewerWindow->getWorldViewWidth();

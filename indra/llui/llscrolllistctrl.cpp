@@ -2624,7 +2624,7 @@ void LLScrollListCtrl::addColumn(const LLScrollListColumn::Params& column_params
 
 			LLRect temp_rect = LLRect(left,top+mHeadingHeight,right,top);
 
-			LLScrollColumnHeader::Params params;
+			LLScrollColumnHeader::Params params(LLUICtrlFactory::getDefaultParams<LLScrollColumnHeader>());
 			params.name = "btn_" + name;
 			params.rect = temp_rect;
 			params.column = new_column;
