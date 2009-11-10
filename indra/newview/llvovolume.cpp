@@ -1733,6 +1733,10 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
 			
 		addMediaImpl(media_impl, texture_index) ;
 	}
+	else
+	{
+		removeMediaImpl(texture_index);
+	}
 
 	//llinfos << "AFTER: texture_index = " << texture_index
 	//	<< " hasMedia = " << te->hasMedia() << " : " 
