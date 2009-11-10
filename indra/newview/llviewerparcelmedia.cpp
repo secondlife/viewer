@@ -226,6 +226,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 				media_height, 
 				media_auto_scale,
 				media_loop);
+			sMediaImpl->setIsParcelMedia(true);
 			sMediaImpl->navigateTo(media_url, mime_type, true);
 		}
 	}
@@ -240,6 +241,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 			media_height, 
 			media_auto_scale,
 			media_loop);
+		sMediaImpl->setIsParcelMedia(true);
 		sMediaImpl->navigateTo(media_url, mime_type, true);
 	}
 

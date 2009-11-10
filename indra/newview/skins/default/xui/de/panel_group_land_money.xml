@@ -17,13 +17,13 @@
 		Land in Gruppenbesitz
 	</text>
 	<scroll_list name="group_parcel_list">
-		<column label="Parzellenname" name="name"/>
+		<column label="Parzelle" name="name"/>
 		<column label="Region" name="location"/>
 		<column label="Typ" name="type"/>
 		<column label="Gebiet" name="area"/>
 		<column label="" name="hidden"/>
 	</scroll_list>
-	<button label="Auf Karte" label_selected="Auf Karte" name="map_button"/>
+	<button label="Karte" label_selected="Karte" name="map_button"/>
 	<text name="total_contributed_land_label">
 		Gesamtbeitrag:
 	</text>
@@ -82,7 +82,6 @@
 		</panel>
 	</tab_container>
 </panel>
-
 <!--
 
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>

@@ -1,9 +1,17 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview_texture">
+	<floater.string name="Title">
+		Texture : [NAME]
+	</floater.string>
+	<floater.string name="Copy">
+		Copier dans l&apos;inventaire
+	</floater.string>
 	<text name="desc txt">
 		Description :
 	</text>
+	<button label="Enregistrer" name="Keep"/>
+	<button label="Supprimer" name="Discard"/>
 	<text name="dimensions">
-		Dimensions : [WIDTH] x [HEIGHT]
+		[WIDTH]px x [HEIGHT]px
 	</text>
 </floater>

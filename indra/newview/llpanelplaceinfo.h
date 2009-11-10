@@ -110,7 +110,6 @@ protected:
 	LLUUID					mRequestedID;
 	LLVector3				mPosRegion;
 	std::string				mCurrentTitle;
-	S32						mMinHeight;
 	INFO_TYPE 				mInfoType;
 
 	LLTextBox*				mTitle;

@@ -849,6 +849,7 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		{
 			LLUICtrlFactory::getInstance()->buildFloater(*floaterp, path, NULL);	// just build it
 			(*floaterp)->openFloater((*floaterp)->getKey());
+			(*floaterp)->setCanResize((*floaterp)->isResizable());
 		}
 
 	}

@@ -81,6 +81,11 @@ private:
 
 	void savePersistentNotifications()
 	{
+		/* NOTE: As of 2009-11-09 the reload of notifications on startup does not
+		work, and has not worked for months.  Skip saving notifications until the
+		read can be fixed, because this hits the disk once per notification and
+		causes log spam.  James
+
 		llinfos << "Saving open notifications to " << mFileName << llendl;
 
 		llofstream notify_file(mFileName.c_str());
@@ -107,6 +112,7 @@ private:
 
 		LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
 		formatter->format(output, notify_file, LLSDFormatter::OPTIONS_PRETTY);
+		*/
 	}
 
 	void loadPersistentNotifications()

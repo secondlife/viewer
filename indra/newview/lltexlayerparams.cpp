@@ -183,7 +183,6 @@ void LLTexLayerParamAlpha::setWeight(F32 weight, BOOL set_by_user)
 			}
 			mAvatar->invalidateComposite(mTexLayer->getTexLayerSet(), set_by_user);
 			mTexLayer->invalidateMorphMasks();
-			mAvatar->updateMeshTextures();
 		}
 	}
 }
@@ -479,7 +478,6 @@ void LLTexLayerParamColor::setWeight(F32 weight, BOOL set_by_user)
 			if (mTexLayer)
 			{
 				mAvatar->invalidateComposite(mTexLayer->getTexLayerSet(), set_by_user);
-				mAvatar->updateMeshTextures();
 			}
 		}
 

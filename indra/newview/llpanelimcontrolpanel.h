@@ -100,7 +100,7 @@ public:
 protected:
 	LLUUID mGroupID;
 	LLSpeakerMgr* mSpeakerManager;
-	LLAvatarList* mAvatarList;
+
 	LLParticipantList* mParticipantList;
 
 private:

@@ -69,7 +69,9 @@
           left="0"
           name="talk"
           top="3"
-          width="100" />
+          width="100"
+          speak_button.tool_tip="Turns microphone on/off"
+          show_button.tool_tip="Shows/hides voice control panel" />
         </layout_panel>
 		 <icon
          auto_resize="false"
@@ -102,7 +104,8 @@
           left="0"
           top="3"
          use_ellipses="true"
-          width="80" />
+          width="80"
+          tool_tip="Shows/hides gestures"/>
         </layout_panel>
 		 <icon
          auto_resize="false"
@@ -133,7 +136,7 @@
              label="Move"
              layout="topleft"
              name="movement_btn"
-             tool_tip="Show/hide movement controls"
+             tool_tip="Shows/hides movement controls"
              top="3"
              width="80">
                 <button.init_callback
@@ -171,7 +174,7 @@
              label="View"
              layout="topleft"
              left="0"
-             tool_tip="Show/hide camera controls"
+             tool_tip="Shows/hides camera controls"
              top="3"
              name="camera_btn"
              width="80">
@@ -233,7 +236,32 @@
              top="0"
              chiclet_padding="3"
              scrolling_offset="40"
-             width="189" />
+             width="189">
+                <button
+                 auto_resize="true"
+                 follows="right"
+                 height="23"
+                 image_selected="BottomTray_Scroll_Left"
+                 image_unselected="BottomTray_Scroll_Left"
+                 layout="topleft"
+                 name="chicklet_left_scroll_button"
+                 tab_stop="false"
+                 top="3"
+                 visible="false"
+                 width="20" />
+                <button
+                 auto_resize="true"
+                 follows="right"
+                 height="23"
+                 image_selected="BottomTray_Scroll_Right"
+                 image_unselected="BottomTray_Scroll_Right"
+                 layout="topleft"
+                 name="chicklet_right_scroll_button"
+                 tab_stop="false"
+                 top="3"
+                 visible="false"
+                 width="20" />
+            </chiclet_panel>
         </layout_panel>
         <icon
          auto_resize="false"

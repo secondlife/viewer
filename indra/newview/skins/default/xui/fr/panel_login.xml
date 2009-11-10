@@ -1,43 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<string name="forgot_password_url">
+	<panel.string name="create_account_url">
+		http://secondlife.com/registration/
+	</panel.string>
+	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php
-	</string>
-	<text name="first_name_text">
-		Prénom :
-	</text>
-	<text name="last_name_text">
-		Nom :
-	</text>
-	<text name="password_text">
-		Mot de passe :
-	</text>
-	<text name="start_location_text">
-		Lieu de départ :
-	</text>
-	<combo_box name="start_location_combo">
-		<combo_box.item name="MyHome" label="Domicile" />
-		<combo_box.item name="MyLastLocation" label="Dernier emplacement" />
-		<combo_box.item name="Typeregionname" label="&lt;Nom de la région&gt;" />
-	</combo_box>
-	<check_box label="Mémoriser" name="remember_check"/>
-	<text name="full_screen_text">
-		Le plein écran sera activé après identification.
-	</text>
-	<button label="Nouveau Compte..." label_selected="Nouveau Compte..." name="new_account_btn"/>
-	<button label="Me connecter" label_selected="Me connecter" name="connect_btn"/>
-	<button label="Préférences..." label_selected="Préférences..." name="preferences_btn"/>
-	<button label="Quitter" label_selected="Quitter" name="quit_btn"/>
-	<text name="version_text">
-		1.23.4 (5)
-	</text>
-	<text name="create_new_account_text">
-		Créer un compte
-	</text>
-	<text name="forgot_password_text">
-		Nom ou mot de passe oublié ?
-	</text>
-	<text name="channel_text">
-		[VERSION]
-	</text>
+	</panel.string>
+	<panel name="login_widgets">
+		<line_editor name="first_name_edit" tool_tip="Prénom sur [SECOND_LIFE]"/>
+		<line_editor name="last_name_edit" tool_tip="Nom sur [SECOND_LIFE]"/>
+		<text name="start_location_text">
+			Lieu de départ :
+		</text>
+		<text name="create_new_account_text">
+			Créer un compte
+		</text>
+	</panel>
 </panel>

@@ -1,30 +1,46 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Kamera" name="Input panel">
-	<text name=" Mouselook Options:">
-		Mouselook-Optionen:
+	<button label="Andere Geräte" name="joystick_setup_button"/>
+	<text name="Mouselook:">
+		Mouselook:
 	</text>
-	<text name=" Mouse Sensitivity:">
+	<text name=" Mouse Sensitivity">
 		Mausempfindlichkeit:
 	</text>
-	<check_box label="Maus umkehren" name="invert_mouse"/>
-	<text name=" Auto Fly Options:">
-		Auto-Flug-Optionen:
+	<check_box label="Umkehren" name="invert_mouse"/>
+	<text name="Network:">
+		Netzwerk:
 	</text>
-	<check_box label="Zum Fliegen/Landen nach oben/unten halten" name="automatic_fly"/>
-	<text name=" Camera Options:">
-		Kameraoptionen:
+	<text name="Maximum bandwidth">
+		Maximale Bandbreite
 	</text>
-	<text name="camera_fov_label">
-		Kamera-Sichtwinkel:
+	<text name="text_box2">
+		kbps
 	</text>
-	<text name="Camera Follow Distance:">
-		Kameraabstand:
+	<check_box label="Benutzerdefinierter Port" name="connection_port_enabled"/>
+	<spinner label="Port-Nummer:" name="web_proxy_port"/>
+	<text name="cache_size_label_l">
+		Cache
 	</text>
-	<check_box label="Automatischer Kameraschwenk im Bearbeiten-Modus" name="edit_camera_movement" tool_tip="Automatische Kamerapositionierung bei Wechsel in und aus dem Bearbeitungsmodus verwenden"/>
-	<check_box label="Automatischer Kameraschwenk im Aussehen-Modus" name="appearance_camera_movement" tool_tip="Automatische Kamerapositionierung im Bearbeitenmodus verwenden"/>
-	<text name="text2">
-		Avatar-Anzeigeoptionen:
+	<text name="text_box5">
+		MB
 	</text>
-	<check_box label="Avatar in Mouselook anzeigen" name="first_person_avatar_visible"/>
-	<button label="Joystick-Einrichtung" name="joystick_setup_button"/>
+	<button label="Durchsuchen" label_selected="Durchsuchen" name="set_cache"/>
+	<button label="Zurücksetzen" label_selected="Festlegen" name="reset_cache"/>
+	<text name="Cache location">
+		Cache-Ordner
+	</text>
+	<text name="Web:">
+		Internet:
+	</text>
+	<radio_group name="use_external_browser">
+		<radio_item label="Integrierten Browser verwenden" name="internal" tool_tip="Den integrierten Browser für Hilfe, Internetlinks, usw. verwenden. Der Browser wird als eigenständiges Fenster in [APP_NAME] geöffnet."/>
+		<radio_item label="Meinen Browser verwenden (IE, Firefox)" name="external" tool_tip="Standard-Browser für Hilfe, Weblinks usw. verwenden. Im Vollbildmodus nicht empfohlen."/>
+	</radio_group>
+	<check_box initial_value="false" label="Web-Proxy:" name="web_proxy_enabled"/>
+	<line_editor name="web_proxy_editor" tool_tip="Name oder IP-Adresse des Proxys"/>
+	<button label="Durchsuchen" label_selected="Durchsuchen" name="set_proxy"/>
+	<text name="Proxy location">
+		Proxy-Standort
+	</text>
 </panel>

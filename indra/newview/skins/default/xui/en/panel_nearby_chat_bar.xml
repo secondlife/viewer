@@ -50,7 +50,7 @@
      label="Log"
      height="23"
      name="show_nearby_chat"
-     tool_tip="Show/hide nearby chat log">
+     tool_tip="Shows/hides nearby chat log">
         <button.init_callback
            function="Button.SetDockableFloaterToggle"
            parameter="nearby_chat" />

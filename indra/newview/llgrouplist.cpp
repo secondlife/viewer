@@ -181,12 +181,8 @@ void LLGroupList::addNewItem(const LLUUID& id, const std::string& name, const LL
 //	item->setContextMenu(mContextMenu);
 
 	item->childSetVisible("info_btn", false);
+	item->childSetVisible("profile_btn", false);
 	item->setGroupIconVisible(mShowIcons);
-
-	if (id.isNull())
-	{
-		item->childSetVisible("profile_btn", false);
-	}
 
 	addItem(item, id, pos);
 
@@ -254,7 +250,10 @@ void LLGroupListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
 	childSetVisible("hovered_icon", true);
 	if (mGroupID.notNull()) // don't show the info button for the "none" group
+	{
 		mInfoBtn->setVisible(true);
+		childSetVisible("profile_btn", true);
+	}
 
 	LLPanel::onMouseEnter(x, y, mask);
 }
@@ -263,6 +262,7 @@ void LLGroupListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	childSetVisible("hovered_icon", false);
 	mInfoBtn->setVisible(false);
+	childSetVisible("profile_btn", false);
 
 	LLPanel::onMouseLeave(x, y, mask);
 }

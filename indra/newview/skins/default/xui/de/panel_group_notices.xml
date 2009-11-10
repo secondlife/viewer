@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Mitteilungen" name="notices_tab">
 	<text name="help_text">
 		Mitteilungen sind eine schnelle Möglichkeit, 
@@ -11,7 +11,7 @@ gesendet. Mitteilungen können unter
 	<text name="no_notices_text">
 		Keine älteren Mitteilungen.
 	</text>
-	<button label="?" label_selected="?" name="help_button" />
+	<button label="?" label_selected="?" name="help_button"/>
 	<text name="lbl">
 		Gruppenmitteilungsarchiv
 	</text>
@@ -19,24 +19,22 @@ gesendet. Mitteilungen können unter
 		Mitteilungen werden 14 Tage lang aufbewahrt. Eine Mitteilungsliste speichert maximal 200 Mitteilungen pro Gruppe täglich.
 	</text>
 	<scroll_list name="notice_list">
-		<column label="" name="icon" />
-		<column label="Thema" name="subject" />
-		<column label="Von" name="from" />
-		<column label="Datum" name="date" />
+		<column label="" name="icon"/>
+		<column label="Thema" name="subject"/>
+		<column label="Von" name="from"/>
+		<column label="Datum" name="date"/>
 	</scroll_list>
 	<text name="notice_list_none_found">
 		Nicht gefunden.
 	</text>
-	<button label="Neue Mitteilung" label_selected="Neue Mitteilung"
-	     name="create_new_notice" />
-	<button label="Aktualisieren" label_selected="Liste aktualisieren"
-	     name="refresh_notices" />
+	<button label="Neue Mitteilung" label_selected="Neue Mitteilung" name="create_new_notice"/>
+	<button label="Aktualisieren" label_selected="Liste aktualisieren" name="refresh_notices"/>
 	<panel label="Neue Mitteilung" name="panel_create_new_notice">
 		<text name="lbl">
 			Mitteilung schreiben
 		</text>
 		<text name="lbl2">
-			Sie können der Mitteilung ein Objekt anfügen, indem Sie es aus dem Inventar in dieses Feld ziehen. Angehängte Objekte müssen kopier-und transferierbar sein. Ordner können nicht gesendet werden.
+			Sie können ein Objekt zu einer Mitteilung hinzufügen, wenn Sie es aus Ihrem Inventar auf dieses Feld ziehen. Die angehängten Objekte müssen kopier- und übertragbar sein. Ordner können nicht verschickt werden.
 		</text>
 		<text name="lbl3">
 			Betreff:
@@ -47,11 +45,9 @@ gesendet. Mitteilungen können unter
 		<text name="lbl5">
 			Anhängen:
 		</text>
-		<button label="Anhang entfernen" label_selected="Anhang entfernen"
-		     name="remove_attachment" />
-		<button label="Senden" label_selected="Senden" name="send_notice" />
-		<panel name="drop_target"
-		     tool_tip="Drag an inventory item onto the message box to send it with the notice. You must have permission to copy and transfer the object to send it with the notice." />
+		<button label="Anhang entfernen" label_selected="Anhang entfernen" name="remove_attachment"/>
+		<button label="Senden" label_selected="Senden" name="send_notice"/>
+		<panel name="drop_target" tool_tip="Drag an inventory item onto the message box to send it with the notice. You must have permission to copy and transfer the object to send it with the notice."/>
 	</panel>
 	<panel label="Ältere Notiz anzeigen" name="panel_view_past_notice">
 		<text name="lbl">
@@ -66,11 +62,9 @@ gesendet. Mitteilungen können unter
 		<text name="lbl4">
 			Nachricht:
 		</text>
-		<button label="Anlage öffnen" label_selected="Anlage öffnen" name="open_attachment" />
+		<button label="Anlage öffnen" label_selected="Anlage öffnen" name="open_attachment"/>
 	</panel>
 </panel>
-
-
 <!-- original file
 
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
@@ -151,6 +145,3 @@ und transferierbar sein. Ordner können nicht gesendet werden.
 </panel>
 
 -->
-
-
-

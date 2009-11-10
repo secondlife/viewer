@@ -315,7 +315,7 @@ void LLIMModel::testMessages()
 	bot2_id.generate(from);
 	LLUUID bot2_session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, bot2_id);
 	newSession(bot2_session_id, from, IM_NOTHING_SPECIAL, bot2_id);
-	addMessage(bot2_session_id, from, bot2_id, "Test Message: Can I haz bear? ");
+	addMessage(bot2_session_id, from, bot2_id, "Test Message: Hello there, I have a question. Can I bother you for a second? ");
 	addMessage(bot2_session_id, from, bot2_id, "Test Message: OMGWTFBBQ.");
 }
 
@@ -1157,6 +1157,9 @@ void LLIncomingCallDialog::onStartIM(void* user_data)
 
 void LLIncomingCallDialog::processCallResponse(S32 response)
 {
+	if (!gIMMgr)
+		return;
+
 	LLUUID session_id = mPayload["session_id"].asUUID();
 	EInstantMessage type = (EInstantMessage)mPayload["type"].asInteger();
 	LLIMMgr::EInvitationType inv_type = (LLIMMgr::EInvitationType)mPayload["inv_type"].asInteger();
@@ -1254,6 +1257,9 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 
 bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 {
+	if (!gIMMgr)
+		return false;
+
 	const LLSD& payload = notification["payload"];
 	LLUUID session_id = payload["session_id"].asUUID();
 	EInstantMessage type = (EInstantMessage)payload["type"].asInteger();

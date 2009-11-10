@@ -4,5 +4,5 @@
 	<menu_item_call label="ズーム（中）" name="Zoom Medium"/>
 	<menu_item_call label="ズーム（遠）" name="Zoom Far"/>
 	<menu_item_call label="追跡をやめる" name="Stop Tracking"/>
-	<menu_item_call label="プロフィール..." name="Profile"/>
+	<menu_item_call label="世界地図" name="World Map"/>
 </menu>

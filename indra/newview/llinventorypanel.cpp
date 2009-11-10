@@ -371,7 +371,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 						// this object was probably moved, check its parent
 						if ((mask & LLInventoryObserver::STRUCTURE) != LLInventoryObserver::STRUCTURE)
 						{
-							llwarns << *id_it << " is in model and in view, but STRUCTURE flag not set" << llendl;
+							llwarns << *id_it << " is in model and in view, but STRUCTURE flag not set" << " for model (Name :" << model_item->getName() << " )" << llendl;
 						}
 
 						LLFolderViewFolder* new_parent = (LLFolderViewFolder*)mFolders->getItemByID(model_item->getParentUUID());
@@ -472,7 +472,7 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 			if (objectp->getType() <= LLAssetType::AT_NONE ||
 				objectp->getType() >= LLAssetType::AT_COUNT)
 			{
-				lldebugs << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : " << 
+				llwarns << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : " << 
 					((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID() << llendl;
 				return;
 			}

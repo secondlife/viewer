@@ -41,7 +41,6 @@
 #include "llsdutil_math.h"
 
 #include "lliconctrl.h"
-#include "llscrollcontainer.h"
 #include "lltextbox.h"
 
 #include "llagent.h"
@@ -58,8 +57,7 @@ LLPanelPlaceInfo::LLPanelPlaceInfo()
 :	LLPanel(),
 	mParcelID(),
 	mRequestedID(),
-	mPosRegion(),
-	mMinHeight(0)
+	mPosRegion()
 {}
 
 //virtual
@@ -84,10 +82,6 @@ BOOL LLPanelPlaceInfo::postBuild()
 
 	mMaturityRatingIcon = getChild<LLIconCtrl>("maturity_icon");
 	mMaturityRatingText = getChild<LLTextBox>("maturity_value");
-
-	LLScrollContainer* scroll_container = getChild<LLScrollContainer>("place_scroll");
-	scroll_container->setBorderVisible(FALSE);
-	mMinHeight = scroll_container->getScrolledViewRect().getHeight();
 
 	return TRUE;
 }
