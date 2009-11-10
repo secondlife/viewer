@@ -75,7 +75,6 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/mac-crash-logger.app/Contents/Resources/CrashReporter.nib
   )
 
-ll_deploy_sharedlibs_command(
-  mac-crash-logger
-  "${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR};${ARCH_PREBUILT_DIRS}" 
-  "../Resources") 
+ll_deploy_sharedlibs_command(mac-crash-logger)
+
+

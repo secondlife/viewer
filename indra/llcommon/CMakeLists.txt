@@ -1,3 +1,4 @@
+
 # -*- cmake -*-
 
 project(llcommon)
@@ -6,11 +7,9 @@ include(00-Common)
 include(LLCommon)
 include(Linking)
 include(Boost)
-include (Pth)
-
-if (WINDOWS)
-    include(CopyWinLibs)
-endif (WINDOWS)
+include(Pth)
+include(LLSharedLibs)
+include(Copy3rdPartyLibs)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
@@ -243,35 +242,7 @@ list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
 if(LLCOMMON_LINK_SHARED)
     add_library (llcommon SHARED ${llcommon_SOURCE_FILES})
-
-    if(SHARED_LIB_STAGING_DIR)
-        # *FIX:Mani ---
-        # llcommon.dll get written to the DLL staging directory.
-        # Also this directory is shared with RunBuildTest.cmake, y'know, for the tests.
-        set_target_properties(llcommon PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${SHARED_LIB_STAGING_DIR})
-        if(NOT WINDOWS)
-          get_target_property(LLCOMMON_PATH llcommon LOCATION)
-          get_filename_component(LLCOMMON_FILE ${LLCOMMON_PATH} NAME)
-          add_custom_command(
-            TARGET llcommon POST_BUILD
-            COMMAND ${CMAKE_COMMAND}
-            ARGS
-              -E
-              copy_if_different
-              ${LLCOMMON_PATH}
-              ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/${LLCOMMON_FILE}
-            COMMENT "Copying llcommon to the staging folder."
-            )
-        endif(NOT WINDOWS)
-    endif(SHARED_LIB_STAGING_DIR)
-
-    if (DARWIN)
-      set_target_properties(llcommon PROPERTIES
-        BUILD_WITH_INSTALL_RPATH 1
-        INSTALL_NAME_DIR "@executable_path/../Resources"
-        )
-    endif(DARWIN)
-
+	ll_stage_sharedlib(llcommon)
 else(LLCOMMON_LINK_SHARED)
     add_library (llcommon ${llcommon_SOURCE_FILES})
 endif(LLCOMMON_LINK_SHARED)
