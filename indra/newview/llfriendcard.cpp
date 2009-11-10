@@ -519,7 +519,7 @@ bool LLFriendCardsManager::addFriendCardToInventory(const LLUUID& avatarID)
 	}
 
 	LLUUID friendListFolderID = findFriendAllSubfolderUUIDImpl();
-	if (shouldBeAdded && !invModel->isCategoryComplete(friendListFolderID))
+	if (friendListFolderID.notNull() && shouldBeAdded && !invModel->isCategoryComplete(friendListFolderID))
 	{
 		mFriendsAllFolderCompleted = false;
 		shouldBeAdded = false;
