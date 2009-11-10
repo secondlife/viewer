@@ -55,6 +55,7 @@ LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner *owner)
 	mBoundPort = 0;
 	mState = STATE_UNINITIALIZED;
 	mDisableTimeout = false;
+	mDebug = false;
 
 	// initialize timer - heartbeat test (mHeartbeat.hasExpired()) 
 	// can sometimes return true immediately otherwise and plugins 
@@ -96,11 +97,12 @@ void LLPluginProcessParent::errorState(void)
 		setState(STATE_ERROR);
 }
 
-void LLPluginProcessParent::init(const std::string &launcher_filename, const std::string &plugin_filename)
+void LLPluginProcessParent::init(const std::string &launcher_filename, const std::string &plugin_filename, bool debug)
 {	
 	mProcess.setExecutable(launcher_filename);
 	mPluginFile = plugin_filename;
 	mCPUUsage = 0.0f;
+	mDebug = debug;
 	
 	setState(STATE_INITIALIZED);
 }
@@ -291,6 +293,31 @@ void LLPluginProcessParent::idle(void)
 				}
 				else
 				{
+					if(mDebug)
+					{
+						#if LL_DARWIN
+						// If we're set to debug, start up a gdb instance in a new terminal window and have it attach to the plugin process and continue.
+						
+						// The command we're constructing would look like this on the command line:
+						// osascript -e 'tell application "Terminal"' -e 'set win to do script "gdb -pid 12345"' -e 'do script "continue" in win' -e 'end tell'
+
+						std::stringstream cmd;
+						
+						mDebugger.setExecutable("/usr/bin/osascript");
+						mDebugger.addArgument("-e");
+						mDebugger.addArgument("tell application \"Terminal\"");
+						mDebugger.addArgument("-e");
+						cmd << "set win to do script \"gdb -pid " << mProcess.getProcessID() << "\"";
+						mDebugger.addArgument(cmd.str());
+						mDebugger.addArgument("-e");
+						mDebugger.addArgument("do script \"continue\" in win");
+						mDebugger.addArgument("-e");
+						mDebugger.addArgument("end tell");
+						mDebugger.launch();
+
+						#endif
+					}
+					
 					// This will allow us to time out if the process never starts.
 					mHeartbeat.start();
 					mHeartbeat.setTimerExpirySec(PLUGIN_LAUNCH_SECONDS);
@@ -661,7 +688,7 @@ bool LLPluginProcessParent::pluginLockedUpOrQuit()
 {
 	bool result = false;
 	
-	if(!mDisableTimeout)
+	if(!mDisableTimeout && !mDebug)
 	{
 		if(!mProcess.isRunning())
 		{

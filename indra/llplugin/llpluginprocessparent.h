@@ -56,7 +56,7 @@ public:
 	LLPluginProcessParent(LLPluginProcessParentOwner *owner);
 	~LLPluginProcessParent();
 		
-	void init(const std::string &launcher_filename, const std::string &plugin_filename);
+	void init(const std::string &launcher_filename, const std::string &plugin_filename, bool debug = false);
 	void idle(void);
 	
 	// returns true if the plugin is on its way to steady state
@@ -150,6 +150,9 @@ private:
 	F64		mCPUUsage;
 	
 	bool mDisableTimeout;
+	bool mDebug;
+
+	LLProcessLauncher mDebugger;
 };
 
 #endif // LL_LLPLUGINPROCESSPARENT_H
