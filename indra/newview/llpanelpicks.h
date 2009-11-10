@@ -55,6 +55,7 @@ class LLPanelPickEdit;
 class LLToggleableMenu;
 class LLPanelClassifiedInfo;
 class LLPanelClassifiedEdit;
+class LLClassifiedClickThrough;
 
 class LLPanelPicks 
 	: public LLPanelProfileTab
@@ -101,6 +102,7 @@ private:
 	void onPanelPickClose(LLPanel* panel);
 	void onPanelPickSave(LLPanel* panel);
 	void onPanelClassifiedSave(LLPanelClassifiedEdit* panel);
+	void onPanelClassifiedClose(LLPanelClassifiedInfo* panel);
 	void onPanelPickEdit();
 	void onPanelClassifiedEdit();
 	void onClickMenuEdit();
@@ -146,6 +148,8 @@ private:
 
 	LLAccordionCtrlTab* mPicksAccTab;
 	LLAccordionCtrlTab* mClassifiedsAccTab;
+
+	LLClassifiedClickThrough* mClickThroughDisp;
 };
 
 class LLPickItem : public LLPanel, public LLAvatarPropertiesObserver

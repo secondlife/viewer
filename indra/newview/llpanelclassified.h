@@ -208,8 +208,6 @@ public:
 
 	virtual ~LLPanelClassifiedInfo();
 
-	virtual void setExitCallback(const commit_callback_t& cb);
-
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	/*virtual*/ BOOL postBuild();
@@ -218,7 +216,7 @@ public:
 
 	virtual void setAvatarId(const LLUUID& avatar_id) { mAvatarId = avatar_id; }
 
-	LLUUID& getAvatarId() { return mAvatarId; }
+	virtual LLUUID& getAvatarId() { return mAvatarId; }
 
 	virtual void setSnapshotId(const LLUUID& id);
 
@@ -241,6 +239,16 @@ public:
 	virtual void setPosGlobal(const LLVector3d& pos) { mPosGlobal = pos; }
 
 	virtual LLVector3d& getPosGlobal() { return mPosGlobal; }
+
+	virtual void setParcelId(const LLUUID& id) { mParcelId = id; }
+
+	virtual LLUUID getParcelId() { return mParcelId; }
+
+	virtual bool getInfoLoaded() { return mInfoLoaded; }
+
+	virtual void setInfoLoaded(bool loaded) { mInfoLoaded = loaded; }
+
+	virtual void setExitCallback(const commit_callback_t& cb);
 
 protected:
 
@@ -265,6 +273,8 @@ private:
 	LLUUID mAvatarId;
 	LLUUID mClassifiedId;
 	LLVector3d mPosGlobal;
+	LLUUID mParcelId;
+	bool mInfoLoaded;
 };
 
 class LLPanelClassifiedEdit : public LLPanelClassifiedInfo
@@ -305,23 +315,15 @@ protected:
 
 	std::string makeClassifiedName();
 
-	void setParcelId(const LLUUID& id) { mParcelId = id; }
-
-	LLUUID getParcelId() { return mParcelId; }
-
 	S32 getPriceForListing();
 
 	U8 getClassifiedFlags();
 
 	void onClickSetLocation();
-	void onSnapshotChanged(LLUICtrl* ctrl);
 	void onClassifiedChanged();
 	void onClickSave();
 
 private:
-	LLTextureCtrl* mSnapshotCtrl;
-
-	LLUUID mParcelId;
 	bool mNewClassified;
 };
 

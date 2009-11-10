@@ -1147,11 +1147,9 @@ void LLPanelClassified::setDefaultAccessCombo()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-
-std::string SET_LOCATION_NOTICE1("(will update after save)");
-
 LLPanelClassifiedInfo::LLPanelClassifiedInfo()
  : LLPanel()
+ , mInfoLoaded(false)
 {
 }
 
@@ -1204,6 +1202,7 @@ void LLPanelClassifiedInfo::onOpen(const LLSD& key)
 
 	LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(), this);
 	LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getClassifiedId());
+	setInfoLoaded(false);
 }
 
 void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType type)
@@ -1211,19 +1210,25 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 	if(APT_CLASSIFIED_INFO == type)
 	{
 		LLAvatarClassifiedInfo* c_info = static_cast<LLAvatarClassifiedInfo*>(data);
-		if(data && getClassifiedId() == c_info->classified_id)
+		if(c_info && getClassifiedId() == c_info->classified_id)
 		{
 			setClassifiedName(c_info->name);
 			setDescription(c_info->description);
 			setSnapshotId(c_info->snapshot_id);
+			setParcelId(c_info->parcel_id);
 			setClassifiedLocation(createLocationText(c_info->parcel_name, c_info->sim_name, c_info->pos_global));
 			childSetValue("category", LLClassifiedInfo::sCategories[c_info->category]);
 
+			static std::string mature_str = getString("type_mature");
+			static std::string pg_str = getString("type_pg");
+
 			bool mature = is_cf_mature(c_info->flags);
-			childSetValue("content_type", mature ? "Mature" : "PG Content");
+			childSetValue("content_type", mature ? mature_str : pg_str);
 			childSetValue("auto_renew", is_cf_auto_renew(c_info->flags));
 
 			childSetTextArg("price_for_listing", "[PRICE]", llformat("%d", c_info->price_for_listing));
+
+			setInfoLoaded(true);
 		}
 	}
 }
@@ -1240,6 +1245,9 @@ void LLPanelClassifiedInfo::resetData()
 
 void LLPanelClassifiedInfo::resetControls()
 {
+	childSetValue("category", LLStringUtil::null);
+	childSetValue("content_type", LLStringUtil::null);
+
 	if(getAvatarId() == gAgent.getID())
 	{
 		childSetEnabled("edit_btn", TRUE);
@@ -1327,9 +1335,12 @@ void LLPanelClassifiedInfo::onExit()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+static const S32 CB_ITEM_MATURE = 0;
+static const S32 CB_ITEM_PG	   = 1;
+static std::string SET_LOCATION_NOTICE("(will update after save)");
+
 LLPanelClassifiedEdit::LLPanelClassifiedEdit()
  : LLPanelClassifiedInfo()
- , mSnapshotCtrl(NULL)
  , mNewClassified(false)
 {
 }
@@ -1350,8 +1361,8 @@ BOOL LLPanelClassifiedEdit::postBuild()
 {
 	LLPanelClassifiedInfo::postBuild();
 
-	mSnapshotCtrl = getChild<LLTextureCtrl>("classified_snapshot");
-	mSnapshotCtrl->setOnSelectCallback(boost::bind(&LLPanelClassifiedEdit::onSnapshotChanged, this, _1));
+	LLTextureCtrl* snapshot = getChild<LLTextureCtrl>("classified_snapshot");
+	snapshot->setOnSelectCallback(boost::bind(&LLPanelClassifiedEdit::onClassifiedChanged, this));
 
 	LLLineEditor* line_edit = getChild<LLLineEditor>("classified_name");
 	line_edit->setKeystrokeCallback(boost::bind(&LLPanelClassifiedEdit::onClassifiedChanged, this), NULL);
@@ -1365,15 +1376,12 @@ BOOL LLPanelClassifiedEdit::postBuild()
 		iter != LLClassifiedInfo::sCategories.end();
 		iter++)
 	{
-		combobox->add(LLTrans::getString(iter->second), (void *)((intptr_t)iter->first), ADD_BOTTOM);
+		combobox->add(LLTrans::getString(iter->second));
 	}
-	
-	combobox->setCurrentByIndex(0);
+
 	combobox->setCommitCallback(boost::bind(&LLPanelClassifiedEdit::onClassifiedChanged, this));
 
-	combobox = getChild<LLComboBox>("content_type");
-	combobox->setCommitCallback(boost::bind(&LLPanelClassifiedEdit::onClassifiedChanged, this));
-
+	childSetCommitCallback("content_type", boost::bind(&LLPanelClassifiedEdit::onClassifiedChanged, this), NULL);
 	childSetCommitCallback("price_for_listing", boost::bind(&LLPanelClassifiedEdit::onClassifiedChanged, this), NULL);
 	childSetCommitCallback("auto_renew", boost::bind(&LLPanelClassifiedEdit::onClassifiedChanged, this), NULL);
 
@@ -1417,7 +1425,8 @@ void LLPanelClassifiedEdit::onOpen(const LLSD& key)
 		childSetValue("classified_name", makeClassifiedName());
 		childSetValue("classified_desc", desc);
 		setSnapshotId(snapshot_id);
-		setClassifiedLocation(createLocationText(region_name, LLStringUtil::null, getPosGlobal()));
+		setClassifiedLocation(createLocationText(SET_LOCATION_NOTICE, region_name, getPosGlobal()));
+		// server will set valid parcel id
 		setParcelId(LLUUID::null);
 
 		enableSaveButton(true);
@@ -1431,6 +1440,7 @@ void LLPanelClassifiedEdit::onOpen(const LLSD& key)
 	}
 
 	resetDirty();
+	setInfoLoaded(false);
 }
 
 void LLPanelClassifiedEdit::processProperties(void* data, EAvatarProcessorType type)
@@ -1438,11 +1448,14 @@ void LLPanelClassifiedEdit::processProperties(void* data, EAvatarProcessorType t
 	if(APT_CLASSIFIED_INFO == type)
 	{
 		LLAvatarClassifiedInfo* c_info = static_cast<LLAvatarClassifiedInfo*>(data);
-		if(data && getClassifiedId() == c_info->classified_id)
+		if(c_info && getClassifiedId() == c_info->classified_id)
 		{
 			setClassifiedName(c_info->name);
 			setDescription(c_info->description);
 			setSnapshotId(c_info->snapshot_id);
+		//	setParcelId(c_info->parcel_id);
+			setPosGlobal(c_info->pos_global);
+
 			setClassifiedLocation(createLocationText(c_info->parcel_name, c_info->sim_name, c_info->pos_global));
 			getChild<LLComboBox>("category")->setCurrentByIndex(c_info->category + 1);
 			getChild<LLComboBox>("category")->resetDirty();
@@ -1450,11 +1463,12 @@ void LLPanelClassifiedEdit::processProperties(void* data, EAvatarProcessorType t
 			bool mature = is_cf_mature(c_info->flags);
 			bool auto_renew = is_cf_auto_renew(c_info->flags);
 
-			getChild<LLComboBox>("content_type")->setCurrentByIndex(mature ? 0 : 1);
+			getChild<LLComboBox>("content_type")->setCurrentByIndex(mature ? CB_ITEM_MATURE : CB_ITEM_PG);
 			childSetValue("auto_renew", auto_renew);
 			childSetValue("price_for_listing", c_info->price_for_listing);
 
 			resetDirty();
+			setInfoLoaded(true);
 		}
 	}
 }
@@ -1467,11 +1481,11 @@ BOOL LLPanelClassifiedEdit::isDirty() const
 	BOOL dirty = false;
 
 	dirty |= LLPanelClassifiedInfo::isDirty();
-	dirty |= mSnapshotCtrl->isDirty();
-	dirty |= getChild<LLLineEditor>("classified_name")->isDirty();
-	dirty |= getChild<LLTextEditor>("classified_desc")->isDirty();
-	dirty |= getChild<LLComboBox>("category")->isDirty();
-	dirty |= getChild<LLComboBox>("content_type")->isDirty();
+	dirty |= getChild<LLUICtrl>("classified_snapshot")->isDirty();
+	dirty |= getChild<LLUICtrl>("classified_name")->isDirty();
+	dirty |= getChild<LLUICtrl>("classified_desc")->isDirty();
+	dirty |= getChild<LLUICtrl>("category")->isDirty();
+	dirty |= getChild<LLUICtrl>("content_type")->isDirty();
 	dirty |= getChild<LLUICtrl>("auto_renew")->isDirty();
 	dirty |= getChild<LLUICtrl>("price_for_listing")->isDirty();
 
@@ -1481,7 +1495,7 @@ BOOL LLPanelClassifiedEdit::isDirty() const
 void LLPanelClassifiedEdit::resetDirty()
 {
 	LLPanelClassifiedInfo::resetDirty();
-	mSnapshotCtrl->resetDirty();
+	getChild<LLUICtrl>("classified_snapshot")->resetDirty();
 	getChild<LLUICtrl>("classified_name")->resetDirty();
 	getChild<LLUICtrl>("classified_desc")->resetDirty();
 	getChild<LLUICtrl>("category")->resetDirty();
@@ -1546,7 +1560,7 @@ U8 LLPanelClassifiedEdit::getClassifiedFlags()
 	bool auto_renew = childGetValue("auto_renew").asBoolean();
 
 	LLComboBox* content_cb = getChild<LLComboBox>("content_type");
-	bool mature = content_cb->getCurrentIndex() == 0;
+	bool mature = content_cb->getCurrentIndex() == CB_ITEM_MATURE;
 	
 	return pack_classified_flags_request(auto_renew, false, mature, false);;
 }
@@ -1595,17 +1609,12 @@ void LLPanelClassifiedEdit::onClickSetLocation()
 		region_name = region->getName();
 	}
 
-	setClassifiedLocation(createLocationText(region_name, LLStringUtil::null, getPosGlobal()));
+	setClassifiedLocation(createLocationText(SET_LOCATION_NOTICE, region_name, getPosGlobal()));
 
 	// mark classified as dirty
 	setValue(LLSD());
 
 	onClassifiedChanged();
-}
-
-void LLPanelClassifiedEdit::onSnapshotChanged(LLUICtrl* ctrl)
-{
-
 }
 
 void LLPanelClassifiedEdit::onClassifiedChanged()
@@ -1623,12 +1632,6 @@ void LLPanelClassifiedEdit::onClassifiedChanged()
 void LLPanelClassifiedEdit::onClickSave()
 {
 	sendUpdate();
-
-//	LLAvatarPropertiesProcessor::getInstance()->sendAvatarClassifiedsRequest(getAvatarId());
-
-	LLSD params;
-	params["action"] = "save_classified";
-	notifyParent(params);
 }
 
 //EOF

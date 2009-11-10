@@ -73,9 +73,19 @@ static LLRegisterPanelClassWrapper<LLPanelPicks> t_panel_picks("panel_picks");
 
 //////////////////////////////////////////////////////////////////////////
 
+/**
+ * Copy&Pasted from old LLPanelClassified. This class does nothing at the moment.
+ * Subscribing to "classifiedclickthrough" removes a few warnings.
+ */
 class LLClassifiedClickThrough : public LLDispatchHandler
 {
 public:
+
+	// "classifiedclickthrough"
+	// strings[0] = classified_id
+	// strings[1] = teleport_clicks
+	// strings[2] = map_clicks
+	// strings[3] = profile_clicks
 	virtual bool operator()(
 		const LLDispatcher* dispatcher,
 		const std::string& key,
@@ -84,15 +94,6 @@ public:
 	{
 		if (strings.size() != 4) 
 			return false;
-
-		// 		LLUUID classified_id(strings[0]);
-		// 		S32 teleport_clicks = atoi(strings[1].c_str());
-		// 		S32 map_clicks = atoi(strings[2].c_str());
-		// 		S32 profile_clicks = atoi(strings[3].c_str());
-		// 		LLPanelClassified::setClickThrough(classified_id, teleport_clicks,
-		// 			map_clicks,
-		// 			profile_clicks,
-		// 			false);
 
 		return true;
 	}
@@ -115,10 +116,11 @@ LLPanelPicks::LLPanelPicks()
 	mPicksAccTab(NULL),
 	mClassifiedsAccTab(NULL),
 	mPanelClassifiedInfo(NULL),
-	mPanelClassifiedEdit(NULL)
+	mPanelClassifiedEdit(NULL),
+	mClickThroughDisp(NULL)
 {
-	gGenericDispatcher.addHandler("classifiedclickthrough", 
-		new LLClassifiedClickThrough());
+	mClickThroughDisp = new LLClassifiedClickThrough();
+	gGenericDispatcher.addHandler("classifiedclickthrough", mClickThroughDisp);
 }
 
 LLPanelPicks::~LLPanelPicks()
@@ -127,6 +129,8 @@ LLPanelPicks::~LLPanelPicks()
 	{
 		LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
 	}
+
+	delete mClickThroughDisp;
 }
 
 void* LLPanelPicks::create(void* data /* = NULL */)
@@ -693,14 +697,26 @@ void LLPanelPicks::onPanelClassifiedSave(LLPanelClassifiedEdit* panel)
 		LLSD c_value;
 		c_value.insert(CLASSIFIED_ID, c_item->getClassifiedId());
 		c_value.insert(CLASSIFIED_NAME, c_item->getClassifiedName());
-		mClassifiedsList->addItem(c_item, c_value);
+		mClassifiedsList->addItem(c_item, c_value, ADD_TOP);
 
 		c_item->setDoubleClickCallback(boost::bind(&LLPanelPicks::onDoubleClickClassifiedItem, this, _1));
 		c_item->setRightMouseUpCallback(boost::bind(&LLPanelPicks::onRightMouseUpItem, this, _1, _2, _3, _4));
 		c_item->setMouseUpCallback(boost::bind(&LLPanelPicks::updateButtons, this));
 		c_item->childSetAction("info_chevron", boost::bind(&LLPanelPicks::onClickInfo, this));
 	}
-	else
+	else 
+	{
+		onPanelClassifiedClose(panel);
+		return;
+	}
+
+	onPanelPickClose(panel);
+	updateButtons();
+}
+
+void LLPanelPicks::onPanelClassifiedClose(LLPanelClassifiedInfo* panel)
+{
+	if(panel->getInfoLoaded())
 	{
 		std::vector<LLSD> values;
 		mClassifiedsList->getValues(values);
@@ -739,7 +755,7 @@ void LLPanelPicks::createClassifiedInfoPanel()
 	if(!mPanelClassifiedInfo)
 	{
 		mPanelClassifiedInfo = LLPanelClassifiedInfo::create();
-		mPanelClassifiedInfo->setExitCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelClassifiedInfo));
+		mPanelClassifiedInfo->setExitCallback(boost::bind(&LLPanelPicks::onPanelClassifiedClose, this, mPanelClassifiedInfo));
 		mPanelClassifiedInfo->setVisible(FALSE);
 	}
 }
@@ -749,9 +765,9 @@ void LLPanelPicks::createClassifiedEditPanel()
 	if(!mPanelClassifiedEdit)
 	{
 		mPanelClassifiedEdit = LLPanelClassifiedEdit::create();
-		mPanelClassifiedEdit->setExitCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelClassifiedEdit));
+		mPanelClassifiedEdit->setExitCallback(boost::bind(&LLPanelPicks::onPanelClassifiedClose, this, mPanelClassifiedEdit));
 		mPanelClassifiedEdit->setSaveCallback(boost::bind(&LLPanelPicks::onPanelClassifiedSave, this, mPanelClassifiedEdit));
-		mPanelClassifiedEdit->setCancelCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelClassifiedEdit));
+		mPanelClassifiedEdit->setCancelCallback(boost::bind(&LLPanelPicks::onPanelClassifiedClose, this, mPanelClassifiedEdit));
 		mPanelClassifiedEdit->setVisible(FALSE);
 	}
 }

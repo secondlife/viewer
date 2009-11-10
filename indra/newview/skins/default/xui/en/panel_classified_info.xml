@@ -9,6 +9,14 @@
  name="panel_classified_info"
  top="0"
  width="333">
+ <panel.string
+  name="type_mature">
+    Mature
+ </panel.string>
+ <panel.string
+  name="type_pg">
+    PG Content
+ </panel.string>
     <button
      follows="top|right"
      height="23"
