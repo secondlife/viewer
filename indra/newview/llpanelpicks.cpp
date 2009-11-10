@@ -332,22 +332,6 @@ void LLPanelPicks::onPlusMenuItemClicked(const LLSD& param)
 
 void LLPanelPicks::onAccordionStateChanged(const LLAccordionCtrlTab* acc_tab)
 {
-	if(acc_tab->getDisplayChildren())
-	{
-		if(acc_tab != mPicksAccTab && mPicksAccTab->getDisplayChildren())
-		{
-			mPicksAccTab->setDisplayChildren(false);
-		}
-
-		if(acc_tab != mClassifiedsAccTab && mClassifiedsAccTab->getDisplayChildren())
-		{
-			mClassifiedsAccTab->setDisplayChildren(false);
-		}
-
-		LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("accordion");
-		accordion->arrange();
-	}
-
 	if(!mPicksAccTab->getDisplayChildren())
 	{
 		mPicksList->resetSelection(true);
