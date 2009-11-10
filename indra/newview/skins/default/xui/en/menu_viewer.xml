@@ -1994,6 +1994,7 @@
                  function="Advanced.ToggleConsole"
                  parameter="memory view" />
             </menu_item_check>
+<!-- Delete this duplicate menu entry
             <menu_item_check
              label="Notifications Console"
              layout="topleft"
@@ -2007,6 +2008,7 @@
                  function="Floater.Show"
                  parameter="notifications_console" />
             </menu_item_check>
+-->
             <menu_item_separator
              layout="topleft" />
             <menu_item_call
