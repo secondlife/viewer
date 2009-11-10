@@ -208,7 +208,7 @@
          name="snapshot_panel"
          width="40">
             <button
-         follows="left|right"
+			 follows="left|right"
              height="23"
              left="0"
              label=""
@@ -217,9 +217,12 @@
              width="36"
              top="3"
              image_overlay="Snapshot_Off"
-            tool_tip="Take snapshot"
-                 />
-        </layout_panel>
+             tool_tip="Take snapshot">
+				<button.commit_callback
+				 function="Floater.Toggle"
+				 parameter="snapshot" />
+			</button>
+		</layout_panel>
         <layout_panel
          mouse_opaque="false"
          follows="left|right"
