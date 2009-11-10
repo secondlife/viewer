@@ -1386,7 +1386,7 @@ bool idle_startup()
 
 		// Make sure agent knows correct aspect ratio
 		// FOV limits depend upon aspect ratio so this needs to happen before initializing the FOV below
-		LLViewerCamera::getInstance()->setViewHeightInPixels(gViewerWindow->getWorldViewHeight());
+		LLViewerCamera::getInstance()->setViewHeightInPixels(gViewerWindow->getWorldViewHeightRaw());
 		LLViewerCamera::getInstance()->setAspect(gViewerWindow->getWorldViewAspectRatio());
 		// Initialize FOV
 		LLViewerCamera::getInstance()->setDefaultFOV(gSavedSettings.getF32("CameraAngle")); 
@@ -2122,7 +2122,7 @@ void login_show()
 	BOOL bUseDebugLogin = TRUE;
 #endif
 
-	LLPanelLogin::show(	gViewerWindow->getVirtualWindowRect(),
+	LLPanelLogin::show(	gViewerWindow->getWindowRectScaled(),
 						bUseDebugLogin,
 						login_callback, NULL );
 

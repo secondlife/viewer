@@ -50,8 +50,8 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
 #undef  tp
     // Our add() call should ensure that the incoming LLSD does in fact
     // contain our required arguments. Deal with the optional ones.
-    S32 width (mViewerWindow->getWindowDisplayWidth());
-    S32 height(mViewerWindow->getWindowDisplayHeight());
+    S32 width (mViewerWindow->getWindowWidthRaw());
+    S32 height(mViewerWindow->getWindowHeightRaw());
     if (event.has("width"))
         width = event["width"].asInteger();
     if (event.has("height"))

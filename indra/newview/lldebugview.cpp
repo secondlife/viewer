@@ -79,16 +79,16 @@ void LLDebugView::init()
 
 	r.set(150 - 25, rect.getHeight() - 50, rect.getWidth()/2 - 25, rect.getHeight() - 450);
 
-	r.set(25, rect.getHeight() - 50, (S32) (gViewerWindow->getVirtualWindowRect().getWidth() * 0.75f), 
-  									 (S32) (gViewerWindow->getVirtualWindowRect().getHeight() * 0.75f));
+	r.set(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
+  									 (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
 	mFastTimerView = new LLFastTimerView(r);
 	mFastTimerView->setFollowsTop();
 	mFastTimerView->setFollowsLeft();
 	mFastTimerView->setVisible(FALSE);			// start invisible
 	addChild(mFastTimerView);
 
-	r.set(25, rect.getHeight() - 50, (S32) (gViewerWindow->getVirtualWindowRect().getWidth() * 0.75f), 
-									 (S32) (gViewerWindow->getVirtualWindowRect().getHeight() * 0.75f));
+	r.set(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
+									 (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
 	LLMemoryView::Params mp;
 	mp.name("memory");
 	mp.rect(r);

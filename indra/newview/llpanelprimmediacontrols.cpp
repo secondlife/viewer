@@ -561,12 +561,12 @@ void LLPanelPrimMediaControls::updateShape()
 		}
 
         LLCoordGL screen_min;
-		screen_min.mX = llround((F32)gViewerWindow->getWorldViewWidth() * (min.mV[VX] + 1.f) * 0.5f);
-		screen_min.mY = llround((F32)gViewerWindow->getWorldViewHeight() * (min.mV[VY] + 1.f) * 0.5f);
+		screen_min.mX = llround((F32)gViewerWindow->getWorldViewWidthRaw() * (min.mV[VX] + 1.f) * 0.5f);
+		screen_min.mY = llround((F32)gViewerWindow->getWorldViewHeightRaw() * (min.mV[VY] + 1.f) * 0.5f);
 
 		LLCoordGL screen_max;
-		screen_max.mX = llround((F32)gViewerWindow->getWorldViewWidth() * (max.mV[VX] + 1.f) * 0.5f);
-		screen_max.mY = llround((F32)gViewerWindow->getWorldViewHeight() * (max.mV[VY] + 1.f) * 0.5f);
+		screen_max.mX = llround((F32)gViewerWindow->getWorldViewWidthRaw() * (max.mV[VX] + 1.f) * 0.5f);
+		screen_max.mY = llround((F32)gViewerWindow->getWorldViewHeightRaw() * (max.mV[VY] + 1.f) * 0.5f);
 
 		// grow panel so that screenspace bounding box fits inside "media_region" element of HUD
 		LLRect media_controls_rect;

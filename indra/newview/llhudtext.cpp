@@ -156,8 +156,8 @@ BOOL LLHUDText::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 	
 	if (mOnHUDAttachment)
 	{
-		x_pixel_vec = LLVector3::y_axis / (F32)gViewerWindow->getWindowWidth();
-		y_pixel_vec = LLVector3::z_axis / (F32)gViewerWindow->getWindowHeight();
+		x_pixel_vec = LLVector3::y_axis / (F32)gViewerWindow->getWindowWidthScaled();
+		y_pixel_vec = LLVector3::z_axis / (F32)gViewerWindow->getWindowHeightScaled();
 	}
 	else
 	{
@@ -316,8 +316,8 @@ void LLHUDText::renderText(BOOL for_select)
 	
 	if (mOnHUDAttachment)
 	{
-		x_pixel_vec = LLVector3::y_axis / (F32)gViewerWindow->getWorldViewWidth();
-		y_pixel_vec = LLVector3::z_axis / (F32)gViewerWindow->getWorldViewHeight();
+		x_pixel_vec = LLVector3::y_axis / (F32)gViewerWindow->getWorldViewWidthRaw();
+		y_pixel_vec = LLVector3::z_axis / (F32)gViewerWindow->getWorldViewHeightRaw();
 	}
 	else
 	{
@@ -351,8 +351,8 @@ void LLHUDText::renderText(BOOL for_select)
 
 	//if (mOnHUD)
 	//{
-	//	render_position.mV[VY] -= fmodf(render_position.mV[VY], 1.f / (F32)gViewerWindow->getWindowWidth());
-	//	render_position.mV[VZ] -= fmodf(render_position.mV[VZ], 1.f / (F32)gViewerWindow->getWindowHeight());
+	//	render_position.mV[VY] -= fmodf(render_position.mV[VY], 1.f / (F32)gViewerWindow->getWindowWidthScaled());
+	//	render_position.mV[VZ] -= fmodf(render_position.mV[VZ], 1.f / (F32)gViewerWindow->getWindowHeightScaled());
 	//}
 	//else
 	//{
@@ -800,7 +800,7 @@ LLVector2 LLHUDText::updateScreenPos(LLVector2 &offset)
 
 	screen_pos_vec.setVec((F32)screen_pos.mX, (F32)screen_pos.mY);
 
-	LLRect world_rect = gViewerWindow->getVirtualWorldViewRect();
+	LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
 	S32 bottom = world_rect.mBottom + STATUS_BAR_HEIGHT;
 
 	LLVector2 screen_center;
@@ -897,7 +897,7 @@ void LLHUDText::updateAll()
 	std::sort(sVisibleHUDTextObjects.begin(), sVisibleHUDTextObjects.end(), lltextobject_further_away());
 
 	// iterate from front to back, and set LOD based on current screen coverage
-	F32 screen_area = (F32)(gViewerWindow->getWindowWidth() * gViewerWindow->getWindowHeight());
+	F32 screen_area = (F32)(gViewerWindow->getWindowWidthScaled() * gViewerWindow->getWindowHeightScaled());
 	F32 current_screen_area = 0.f;
 	std::vector<LLPointer<LLHUDText> >::reverse_iterator r_it;
 	for (r_it = sVisibleTextObjects.rbegin(); r_it != sVisibleTextObjects.rend(); ++r_it)
