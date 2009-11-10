@@ -2863,6 +2863,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="answering-im">
     Connecting...
   </string>
+  <string name="conference-title">
+    Friends Conference
+  </string>
   <string name="inventory_item_offered-im">
     Inventory item offered
   </string>
