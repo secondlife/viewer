@@ -44,7 +44,7 @@
          min_height="23"
          width="310"
          top="0"
-         min_width="300"
+         min_width="192"
          name="chat_bar"
          user_resize="false"
          filename="panel_nearby_chat_bar.xml" />
@@ -57,7 +57,7 @@
          min_height="28"
          width="100"
          top_delta="0"
-         min_width="96"
+         min_width="100"
          name="speak_panel"
          user_resize="false">
          <talk_button
@@ -90,11 +90,11 @@
          min_height="28"
          width="80"
          top_delta="0"
-         min_width="76"
+         min_width="80"
          name="gesture_panel"
          user_resize="false">
          <button
-           follows="right"
+          follows="left|right"
           height="23"
           label="Gesture"
           layout="topleft"
@@ -123,8 +123,9 @@
          layout="topleft"
          min_height="28"
          name="movement_panel"
+         user_resize="false"
          width="80"
-         min_width="76">
+         min_width="80">
             <button
              follows="left|right"
              height="23"
@@ -159,10 +160,10 @@
          height="28"
          layout="topleft"
          min_height="28"
-         min_width="76"
+         min_width="80"
          name="cam_panel"
-         top_delta="-10"
-         width="100">
+         user_resize="false"
+         width="80">
             <button
              follows="left|right"
              height="23"
@@ -197,6 +198,7 @@
          follows="left|right"
          height="28"
          layout="topleft"
+         min_width="40"
          name="snapshot_panel"
          width="40">
             <button
@@ -213,6 +215,8 @@
                  />
         </layout_panel>
         <layout_panel
+background_visible="true"
+bg_alpha_color="green"  
          mouse_opaque="false"
          follows="left|right"
          height="28"
@@ -229,6 +233,7 @@
              height="28"
              layout="topleft"
              left="0"
+             min_width="129"
              name="chiclet_list"
              top="0"
              chiclet_padding="3"

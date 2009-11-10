@@ -52,6 +52,7 @@ class LLBottomTray
 	, public LLPanel
 	, public LLIMSessionObserver
 {
+	LOG_CLASS(LLBottomTray);
 	friend class LLSingleton<LLBottomTray>;
 public:
 	~LLBottomTray();
@@ -83,17 +84,13 @@ public:
 
 private:
 
-	enum EResizeState
-	{
-		STATE_CHICLET_PANEL = 1,
-		STATE_CHATBAR_INPUT,
-		STATE_BUTTONS
-	};
-
 	void updateResizeState(S32 width, S32 height);
 	void verifyChildControlsSizes();
+	void log(LLView* panel, const std::string& descr);
+	bool processShowButton(LLPanel* panel, S32* available_width);
+	bool canButtonBeShown(LLPanel* panel) const;
 
-	EResizeState mResizeState;
+	MASK mResizeState;
 
 protected:
 

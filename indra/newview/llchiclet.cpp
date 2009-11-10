@@ -787,11 +787,13 @@ LLChicletPanel::Params::Params()
 	chiclet_padding = 3;
 	scrolling_offset = 40;
 
+/*
 	if (!min_width.isProvided())
 	{
 		// min_width = 4 chiclets + 3 paddings
-		min_width = 179 + 3*chiclet_padding;
+		min_width = 180 + 3*chiclet_padding;
 	}
+*/
 };
 
 LLChicletPanel::LLChicletPanel(const Params&p)
@@ -805,6 +807,10 @@ LLChicletPanel::LLChicletPanel(const Params&p)
 , mShowControls(true)
 {
 	LLPanel::Params panel_params;
+// *TODO: remove color settings 
+panel_params.background_visible(true);
+panel_params.bg_alpha_color(LLColor4::red);
+	panel_params.follows.flags(FOLLOWS_LEFT | FOLLOWS_RIGHT);
 	mScrollArea = LLUICtrlFactory::create<LLPanel>(panel_params,this);
 
 	// important for Show/Hide Camera and Move controls menu in bottom tray to work properly
@@ -1051,7 +1057,7 @@ void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
 		width, scroll_button_rect.mBottom));
 	mScrollArea->setRect(LLRect(scroll_button_rect.getWidth() + SCROLL_BUTTON_PAD,
 		height, width - scroll_button_rect.getWidth() - SCROLL_BUTTON_PAD, 0));
-	mShowControls = width > mMinWidth;
+	mShowControls = width >= mMinWidth;
 	mScrollArea->setVisible(mShowControls);
 
 	trimChiclets();
