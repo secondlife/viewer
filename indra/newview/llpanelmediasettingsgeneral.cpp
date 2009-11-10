@@ -366,21 +366,15 @@ void LLPanelMediaSettingsGeneral::onCommitHomeURL( LLUICtrl* ctrl, void *userdat
 void LLPanelMediaSettingsGeneral::onBtnResetCurrentUrl(LLUICtrl* ctrl, void *userdata)
 {
 	LLPanelMediaSettingsGeneral* self =(LLPanelMediaSettingsGeneral *)userdata;
-	self->navigateHomeSelectedFace();
+	self->navigateHomeSelectedFace(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// static
-void LLPanelMediaSettingsGeneral::apply( void* userdata )
+// 
+void LLPanelMediaSettingsGeneral::preApply()
 {
-	LLPanelMediaSettingsGeneral *self =(LLPanelMediaSettingsGeneral *)userdata;
-	self->mHomeURL->onCommit();
-	// build LLSD Fragment
-	LLSD media_data_general;
-	self->getValues(media_data_general);
-
-	// this merges contents of LLSD passed in with what's there so this is ok
-	LLSelectMgr::getInstance()->selectionSetMediaData( media_data_general );
+	// Make sure the home URL entry is committed
+	mHomeURL->onCommit();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -392,12 +386,23 @@ void LLPanelMediaSettingsGeneral::getValues( LLSD &fill_me_in )
     fill_me_in[LLMediaEntry::AUTO_SCALE_KEY] = mAutoScale->getValue();
     fill_me_in[LLMediaEntry::AUTO_ZOOM_KEY] = mAutoZoom->getValue();
     fill_me_in[LLMediaEntry::CONTROLS_KEY] = mControls->getCurrentIndex();
-    fill_me_in[LLMediaEntry::CURRENT_URL_KEY] = mCurrentURL->getValue();
+    //Don't fill in current URL: this is only supposed to get changed via navigate
+	// fill_me_in[LLMediaEntry::CURRENT_URL_KEY] = mCurrentURL->getValue();
     fill_me_in[LLMediaEntry::HEIGHT_PIXELS_KEY] = mHeightPixels->getValue();
     fill_me_in[LLMediaEntry::HOME_URL_KEY] = mHomeURL->getValue();
     fill_me_in[LLMediaEntry::FIRST_CLICK_INTERACT_KEY] = mFirstClick->getValue();
     fill_me_in[LLMediaEntry::WIDTH_PIXELS_KEY] = mWidthPixels->getValue();
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// 
+void LLPanelMediaSettingsGeneral::postApply()
+{	
+	// Make sure to navigate to the home URL if the current URL is empty and 
+	// autoplay is on
+	navigateHomeSelectedFace(true);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -406,33 +411,37 @@ void LLPanelMediaSettingsGeneral::setParent( LLFloaterMediaSettings* parent )
 	mParent = parent;
 };
 
-bool LLPanelMediaSettingsGeneral::navigateHomeSelectedFace()
+////////////////////////////////////////////////////////////////////////////////
+//
+bool LLPanelMediaSettingsGeneral::navigateHomeSelectedFace(bool only_if_current_is_empty)
 {
-	// HACK: This is directly referencing an impl name.  BAD!
-	// This can be removed when we have a truly generic media browser that only 
-	// builds an impl based on the type of url it is passed.
 	struct functor_navigate_media : public LLSelectedTEGetFunctor< bool>
 	{
+		functor_navigate_media(bool flag) : only_if_current_is_empty(flag) {}
 		bool get( LLViewerObject* object, S32 face )
 		{
-			if ( object )
-				if ( object->getTE(face) )
-					if ( object->getTE(face)->getMediaData() )
+			if ( object && object->getTE(face) && object->permModify() )
+			{
+				const LLMediaEntry *media_data = object->getTE(face)->getMediaData();
+				if ( media_data )
+				{	
+					if (!only_if_current_is_empty || (media_data->getCurrentURL().empty() && media_data->getAutoPlay()))
 					{
-						if(object->permModify())
+						viewer_media_t media_impl =
+							LLViewerMedia::getMediaImplFromTextureID(object->getTE(face)->getMediaData()->getMediaID());
+						if(media_impl)
 						{
-							viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(object->getTE(face)->getMediaData()->getMediaID());
-							if(media_impl)
-							{
-								media_impl->navigateHome();
-								return true;
-							}
-						}	
+							media_impl->navigateHome();
+							return true;
+						}
 					}
-		   return false;
-		 };
+				}
+			}
+			return false;
+		};
+		bool only_if_current_is_empty;
 				
-	} functor_navigate_media;
+	} functor_navigate_media(only_if_current_is_empty);
 	
 	bool all_face_media_navigated = false;
 	LLObjectSelectionHandle selected_objects =LLSelectMgr::getInstance()->getSelection();

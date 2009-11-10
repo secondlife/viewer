@@ -198,17 +198,12 @@ void LLPanelMediaSettingsSecurity::clearValues( void* userdata , bool editable)
 	self->mEnableWhiteList->setEnabled(editable);
 	self->mWhiteListList->setEnabled(editable);
 }
-////////////////////////////////////////////////////////////////////////////////
-// static
-void LLPanelMediaSettingsSecurity::apply( void* userdata )
-{
-	LLPanelMediaSettingsSecurity *self =(LLPanelMediaSettingsSecurity *)userdata;
 
-	// build LLSD Fragment
-	LLSD media_data_security;
-	self->getValues(media_data_security);
-	// this merges contents of LLSD passed in with what's there so this is ok
-	LLSelectMgr::getInstance()->selectionSetMediaData( media_data_security );
+////////////////////////////////////////////////////////////////////////////////
+// 
+void LLPanelMediaSettingsSecurity::preApply()
+{
+	// no-op
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -220,13 +215,20 @@ void LLPanelMediaSettingsSecurity::getValues( LLSD &fill_me_in )
     // iterate over white list and extract items
     std::vector< LLScrollListItem* > white_list_items = mWhiteListList->getAllData();
     std::vector< LLScrollListItem* >::iterator iter = white_list_items.begin();
-    fill_me_in[LLMediaEntry::WHITELIST_KEY].clear();
+    fill_me_in.erase(LLMediaEntry::WHITELIST_KEY);
     while( iter != white_list_items.end() )
     {
         std::string white_list_url = (*iter)->getValue().asString();
         fill_me_in[ LLMediaEntry::WHITELIST_KEY ].append( white_list_url );
         ++iter;
     };
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// 
+void LLPanelMediaSettingsSecurity::postApply()
+{
+	// no-op
 }
 
 ///////////////////////////////////////////////////////////////////////////////
