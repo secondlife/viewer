@@ -45,10 +45,12 @@
 #include "llsingleton.h"
 #include "lldependencies.h"
 
+/*==========================================================================*|
 // override this to allow binding free functions with more parameters
 #ifndef LLEVENTS_LISTENER_ARITY
 #define LLEVENTS_LISTENER_ARITY 10
 #endif
+|*==========================================================================*/
 
 // hack for testing
 #ifndef testable
