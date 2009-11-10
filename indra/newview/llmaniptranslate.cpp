@@ -413,7 +413,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 	}
 	
 	// Handle auto-rotation if necessary.
-	LLRect world_rect = gViewerWindow->getVirtualWorldViewRect();
+	LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
 	const F32 ROTATE_ANGLE_PER_SECOND = 30.f * DEG_TO_RAD;
 	const S32 ROTATE_H_MARGIN = world_rect.getWidth() / 20;
 	const F32 rotate_angle = ROTATE_ANGLE_PER_SECOND / gFPSClamped;
@@ -961,7 +961,7 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 	LLVector2 manip_start_2d;
 	LLVector2 manip_end_2d;
 	LLVector2 manip_dir;
-	LLRect world_view_rect = gViewerWindow->getVirtualWorldViewRect();
+	LLRect world_view_rect = gViewerWindow->getWorldViewRectScaled();
 	F32 half_width = (F32)world_view_rect.getWidth() / 2.f;
 	F32 half_height = (F32)world_view_rect.getHeight() / 2.f;
 	LLVector2 mousePos((F32)x - half_width, (F32)y - half_height);
@@ -1227,7 +1227,7 @@ void LLManipTranslate::renderSnapGuides()
 		{
 			LLVector3 cam_to_selection = getPivotPoint() - LLViewerCamera::getInstance()->getOrigin();
 			F32 current_range = cam_to_selection.normVec();
-			guide_size_meters = SNAP_GUIDE_SCREEN_SIZE * gViewerWindow->getWorldViewHeight() * current_range / LLViewerCamera::getInstance()->getPixelMeterRatio();
+			guide_size_meters = SNAP_GUIDE_SCREEN_SIZE * gViewerWindow->getWorldViewHeightRaw() * current_range / LLViewerCamera::getInstance()->getPixelMeterRatio();
 	
 			F32 fraction_of_fov = mAxisArrowLength / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
 			F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView();  // radians
@@ -1802,7 +1802,7 @@ void LLManipTranslate::renderTranslationHandles()
 	// Drag handles 	
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
-		mArrowLengthMeters = mAxisArrowLength / gViewerWindow->getWorldViewHeight();
+		mArrowLengthMeters = mAxisArrowLength / gViewerWindow->getWorldViewHeightRaw();
 		mArrowLengthMeters /= gAgent.mHUDCurZoom;
 	}
 	else

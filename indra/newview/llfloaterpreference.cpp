@@ -1332,8 +1332,8 @@ void LLFloaterPreference::initWindowSizeControls(LLPanel* panelp)
 	
 	// Look to see if current window size matches existing window sizes, if so then
 	// just set the selection value...
-	const U32 height = gViewerWindow->getWindowDisplayHeight();
-	const U32 width = gViewerWindow->getWindowDisplayWidth();
+	const U32 height = gViewerWindow->getWindowHeightRaw();
+	const U32 width = gViewerWindow->getWindowWidthRaw();
 	for (S32 i=0; i < ctrl_window_size->getItemCount(); i++)
 	{
 		U32 height_test = 0;

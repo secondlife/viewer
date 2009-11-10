@@ -2174,7 +2174,7 @@ void LLFolderView::updateRenamerPosition()
 		screenPointToLocal( x, y, &x, &y );
 		mRenamer->setOrigin( x, y );
 
-		LLRect scroller_rect(0, 0, gViewerWindow->getWindowWidth(), 0);
+		LLRect scroller_rect(0, 0, gViewerWindow->getWindowWidthScaled(), 0);
 		if (mScrollContainer)
 		{
 			scroller_rect = mScrollContainer->getContentWindowRect();

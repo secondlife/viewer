@@ -243,10 +243,10 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 // 	gIdleCallbacks.addFunction( &LLSnapshotLivePreview::onIdle, (void*)this );
 	sList.insert(this);
 	setFollowsAll();
-	mWidth[0] = gViewerWindow->getWindowDisplayWidth();
-	mWidth[1] = gViewerWindow->getWindowDisplayWidth();
-	mHeight[0] = gViewerWindow->getWindowDisplayHeight();
-	mHeight[1] = gViewerWindow->getWindowDisplayHeight();
+	mWidth[0] = gViewerWindow->getWindowWidthRaw();
+	mWidth[1] = gViewerWindow->getWindowWidthRaw();
+	mHeight[0] = gViewerWindow->getWindowHeightRaw();
+	mHeight[1] = gViewerWindow->getWindowHeightRaw();
 	mImageScaled[0] = FALSE;
 	mImageScaled[1] = FALSE;
 
@@ -492,27 +492,27 @@ void LLSnapshotLivePreview::draw()
 			LLLocalClipRect clip(getLocalRect());
 			{
 				// draw diagonal stripe with gradient that passes over screen
-				S32 x1 = gViewerWindow->getWindowWidth() * llround((clamp_rescale(shine_interp, 0.f, 1.f, -1.f - SHINE_WIDTH, 1.f)));
-				S32 x2 = x1 + llround(gViewerWindow->getWindowWidth() * SHINE_WIDTH);
-				S32 x3 = x2 + llround(gViewerWindow->getWindowWidth() * SHINE_WIDTH);
+				S32 x1 = gViewerWindow->getWindowWidthScaled() * llround((clamp_rescale(shine_interp, 0.f, 1.f, -1.f - SHINE_WIDTH, 1.f)));
+				S32 x2 = x1 + llround(gViewerWindow->getWindowWidthScaled() * SHINE_WIDTH);
+				S32 x3 = x2 + llround(gViewerWindow->getWindowWidthScaled() * SHINE_WIDTH);
 				S32 y1 = 0;
-				S32 y2 = gViewerWindow->getWindowHeight();
+				S32 y2 = gViewerWindow->getWindowHeightScaled();
 
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				gGL.begin(LLRender::QUADS);
 				{
 					gGL.color4f(1.f, 1.f, 1.f, 0.f);
 					gGL.vertex2i(x1, y1);
-					gGL.vertex2i(x1 + gViewerWindow->getWindowWidth(), y2);
+					gGL.vertex2i(x1 + gViewerWindow->getWindowWidthScaled(), y2);
 					gGL.color4f(1.f, 1.f, 1.f, SHINE_OPACITY);
-					gGL.vertex2i(x2 + gViewerWindow->getWindowWidth(), y2);
+					gGL.vertex2i(x2 + gViewerWindow->getWindowWidthScaled(), y2);
 					gGL.vertex2i(x2, y1);
 
 					gGL.color4f(1.f, 1.f, 1.f, SHINE_OPACITY);
 					gGL.vertex2i(x2, y1);
-					gGL.vertex2i(x2 + gViewerWindow->getWindowWidth(), y2);
+					gGL.vertex2i(x2 + gViewerWindow->getWindowWidthScaled(), y2);
 					gGL.color4f(1.f, 1.f, 1.f, 0.f);
-					gGL.vertex2i(x3 + gViewerWindow->getWindowWidth(), y2);
+					gGL.vertex2i(x3 + gViewerWindow->getWindowWidthScaled(), y2);
 					gGL.vertex2i(x3, y1);
 				}
 				gGL.end();
@@ -615,8 +615,8 @@ BOOL LLSnapshotLivePreview::setThumbnailImageSize()
 	{
 		return FALSE ;
 	}
-	S32 window_width = gViewerWindow->getWindowDisplayWidth() ;
-	S32 window_height = gViewerWindow->getWindowDisplayHeight() ;
+	S32 window_width = gViewerWindow->getWindowWidthRaw() ;
+	S32 window_height = gViewerWindow->getWindowHeightRaw() ;
 
 	F32 window_aspect_ratio = ((F32)window_width) / ((F32)window_height);
 
@@ -1166,7 +1166,7 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 		gSavedSettings.setS32("SnapshotLocalLastResolution", 0);
 
 		LLSnapshotLivePreview* previewp = getPreviewView(floaterp);
-		previewp->setSize(gViewerWindow->getWindowDisplayWidth(), gViewerWindow->getWindowDisplayHeight());
+		previewp->setSize(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
 	}
 
 	bool use_freeze_frame = floaterp->childGetValue("freeze_frame_check").asBoolean();
@@ -1691,7 +1691,7 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 		if (width == 0 || height == 0)
 		{
 			// take resolution from current window size
-			previewp->setSize(gViewerWindow->getWindowDisplayWidth(), gViewerWindow->getWindowDisplayHeight());
+			previewp->setSize(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
 		}
 		else if (width == -1 || height == -1)
 		{
@@ -1844,13 +1844,13 @@ BOOL LLFloaterSnapshot::Impl::checkImageSize(LLSnapshotLivePreview* previewp, S3
 #endif
 	if(previewp && previewp->mKeepAspectRatio)
 	{
-		if(gViewerWindow->getWindowDisplayWidth() < 1 || gViewerWindow->getWindowDisplayHeight() < 1)
+		if(gViewerWindow->getWindowWidthRaw() < 1 || gViewerWindow->getWindowHeightRaw() < 1)
 		{
 			return FALSE ;
 		}
 
 		//aspect ratio of the current window
-		F32 aspect_ratio = (F32)gViewerWindow->getWindowDisplayWidth() / gViewerWindow->getWindowDisplayHeight() ;
+		F32 aspect_ratio = (F32)gViewerWindow->getWindowWidthRaw() / gViewerWindow->getWindowHeightRaw() ;
 
 		//change another value proportionally
 		if(isWidthChanged)

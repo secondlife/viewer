@@ -302,8 +302,8 @@ void LLFastTimerView::draw()
 	F64 iclock_freq = 1000.0 / clock_freq;
 	
 	S32 margin = 10;
-	S32 height = (S32) (gViewerWindow->getVirtualWindowRect().getHeight()*0.75f);
-	S32 width = (S32) (gViewerWindow->getVirtualWindowRect().getWidth() * 0.75f);
+	S32 height = (S32) (gViewerWindow->getWindowRectScaled().getHeight()*0.75f);
+	S32 width = (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f);
 	
 	// HACK: casting away const. Should use setRect or some helper function instead.
 		const_cast<LLRect&>(getRect()).setLeftTopAndSize(getRect().mLeft, getRect().mTop, width, height);

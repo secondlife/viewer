@@ -2619,9 +2619,9 @@ void LLAgent::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 		{
 			// range from -.5 to .5
 			F32 x_from_center = 
-				((F32) mouse_x / (F32) gViewerWindow->getWindowWidth() ) - 0.5f;
+				((F32) mouse_x / (F32) gViewerWindow->getWindowWidthScaled() ) - 0.5f;
 			F32 y_from_center = 
-				((F32) mouse_y / (F32) gViewerWindow->getWindowHeight() ) - 0.5f;
+				((F32) mouse_y / (F32) gViewerWindow->getWindowHeightScaled() ) - 0.5f;
 
 			frameCamera.yaw( - x_from_center * gSavedSettings.getF32("YawFromMousePosition") * DEG_TO_RAD);
 			frameCamera.pitch( - y_from_center * gSavedSettings.getF32("PitchFromMousePosition") * DEG_TO_RAD);
@@ -3436,11 +3436,11 @@ F32 LLAgent::calcCustomizeAvatarUIOffset( const LLVector3d& camera_pos_global )
 		const LLRect& rect = gFloaterCustomize->getRect();
 
 		// Move the camera so that the avatar isn't covered up by this floater.
-		F32 fraction_of_fov = 0.5f - (0.5f * (1.f - llmin(1.f, ((F32)rect.getWidth() / (F32)gViewerWindow->getWindowWidth()))));
+		F32 fraction_of_fov = 0.5f - (0.5f * (1.f - llmin(1.f, ((F32)rect.getWidth() / (F32)gViewerWindow->getWindowWidthScaled()))));
 		F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect();  // radians
 		F32 offset = tan(apparent_angle);
 
-		if( rect.mLeft < (gViewerWindow->getWindowWidth() - rect.mRight) )
+		if( rect.mLeft < (gViewerWindow->getWindowWidthScaled() - rect.mRight) )
 		{
 			// Move the avatar to the right (camera to the left)
 			ui_offset = offset;

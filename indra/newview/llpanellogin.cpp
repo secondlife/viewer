@@ -310,7 +310,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 void LLPanelLogin::reshapeBrowser()
 {
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
-	LLRect rect = gViewerWindow->getVirtualWindowRect();
+	LLRect rect = gViewerWindow->getWindowRectScaled();
 	LLRect html_rect;
 #if USE_VIEWER_AUTH
 	html_rect.setCenterAndSize( 

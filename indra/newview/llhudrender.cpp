@@ -77,8 +77,8 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 	LLVector3 up_axis;
 	if (orthographic)
 	{
-		right_axis.setVec(0.f, -1.f / gViewerWindow->getWorldViewWidth(), 0.f);
-		up_axis.setVec(0.f, 0.f, 1.f / gViewerWindow->getWorldViewHeight());
+		right_axis.setVec(0.f, -1.f / gViewerWindow->getWorldViewWidthRaw(), 0.f);
+		up_axis.setVec(0.f, 0.f, 1.f / gViewerWindow->getWorldViewHeightRaw());
 	}
 	else
 	{
@@ -106,7 +106,7 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 	//get the render_pos in screen space
 	
 	F64 winX, winY, winZ;
-	LLRect world_view_rect = gViewerWindow->getWorldViewRect();
+	LLRect world_view_rect = gViewerWindow->getWorldViewRectRaw();
 	S32	viewport[4];
 	viewport[0] = world_view_rect.mLeft;
 	viewport[1] = world_view_rect.mBottom;
