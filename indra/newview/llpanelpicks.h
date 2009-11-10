@@ -57,6 +57,10 @@ class LLPanelClassifiedInfo;
 class LLPanelClassifiedEdit;
 class LLClassifiedClickThrough;
 
+// *TODO
+// Panel Picks has been consolidated with Classifieds (EXT-2095), give LLPanelPicks
+// and corresponding files (cpp, h, xml) a new name. (new name is TBD at the moment)
+
 class LLPanelPicks 
 	: public LLPanelProfileTab
 {

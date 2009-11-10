@@ -1241,13 +1241,12 @@ void LLPanelClassifiedInfo::resetData()
 	setClassifiedId(LLUUID::null);
 	setSnapshotId(LLUUID::null);
 	mPosGlobal.clearVec();
+	childSetValue("category", LLStringUtil::null);
+	childSetValue("content_type", LLStringUtil::null);
 }
 
 void LLPanelClassifiedInfo::resetControls()
 {
-	childSetValue("category", LLStringUtil::null);
-	childSetValue("content_type", LLStringUtil::null);
-
 	if(getAvatarId() == gAgent.getID())
 	{
 		childSetEnabled("edit_btn", TRUE);
@@ -1337,11 +1336,10 @@ void LLPanelClassifiedInfo::onExit()
 
 static const S32 CB_ITEM_MATURE = 0;
 static const S32 CB_ITEM_PG	   = 1;
-static std::string SET_LOCATION_NOTICE("(will update after save)");
 
 LLPanelClassifiedEdit::LLPanelClassifiedEdit()
  : LLPanelClassifiedInfo()
- , mNewClassified(false)
+ , mIsNew(false)
 {
 }
 
@@ -1362,13 +1360,18 @@ BOOL LLPanelClassifiedEdit::postBuild()
 	LLPanelClassifiedInfo::postBuild();
 
 	LLTextureCtrl* snapshot = getChild<LLTextureCtrl>("classified_snapshot");
-	snapshot->setOnSelectCallback(boost::bind(&LLPanelClassifiedEdit::onClassifiedChanged, this));
+	snapshot->setOnSelectCallback(boost::bind(&LLPanelClassifiedEdit::onChange, this));
+
+	LLUICtrl* edit_icon = getChild<LLUICtrl>("edit_icon");
+	snapshot->setMouseEnterCallback(boost::bind(&LLPanelClassifiedEdit::onTexturePickerMouseEnter, this, edit_icon));
+	snapshot->setMouseLeaveCallback(boost::bind(&LLPanelClassifiedEdit::onTexturePickerMouseLeave, this, edit_icon));
+	edit_icon->setVisible(false);
 
 	LLLineEditor* line_edit = getChild<LLLineEditor>("classified_name");
-	line_edit->setKeystrokeCallback(boost::bind(&LLPanelClassifiedEdit::onClassifiedChanged, this), NULL);
+	line_edit->setKeystrokeCallback(boost::bind(&LLPanelClassifiedEdit::onChange, this), NULL);
 
 	LLTextEditor* text_edit = getChild<LLTextEditor>("classified_desc");
-	text_edit->setKeystrokeCallback(boost::bind(&LLPanelClassifiedEdit::onClassifiedChanged, this));
+	text_edit->setKeystrokeCallback(boost::bind(&LLPanelClassifiedEdit::onChange, this));
 
 	LLComboBox* combobox = getChild<LLComboBox>( "category");
 	LLClassifiedInfo::cat_map::iterator iter;
@@ -1379,14 +1382,14 @@ BOOL LLPanelClassifiedEdit::postBuild()
 		combobox->add(LLTrans::getString(iter->second));
 	}
 
-	combobox->setCommitCallback(boost::bind(&LLPanelClassifiedEdit::onClassifiedChanged, this));
+	combobox->setCommitCallback(boost::bind(&LLPanelClassifiedEdit::onChange, this));
 
-	childSetCommitCallback("content_type", boost::bind(&LLPanelClassifiedEdit::onClassifiedChanged, this), NULL);
-	childSetCommitCallback("price_for_listing", boost::bind(&LLPanelClassifiedEdit::onClassifiedChanged, this), NULL);
-	childSetCommitCallback("auto_renew", boost::bind(&LLPanelClassifiedEdit::onClassifiedChanged, this), NULL);
+	childSetCommitCallback("content_type", boost::bind(&LLPanelClassifiedEdit::onChange, this), NULL);
+	childSetCommitCallback("price_for_listing", boost::bind(&LLPanelClassifiedEdit::onChange, this), NULL);
+	childSetCommitCallback("auto_renew", boost::bind(&LLPanelClassifiedEdit::onChange, this), NULL);
 
-	childSetAction("save_changes_btn", boost::bind(&LLPanelClassifiedEdit::onClickSave, this));
-	childSetAction("set_to_curr_location_btn", boost::bind(&LLPanelClassifiedEdit::onClickSetLocation, this));
+	childSetAction("save_changes_btn", boost::bind(&LLPanelClassifiedEdit::onSaveClick, this));
+	childSetAction("set_to_curr_location_btn", boost::bind(&LLPanelClassifiedEdit::onSetLocationClick, this));
 
 	return TRUE;
 }
@@ -1395,9 +1398,10 @@ void LLPanelClassifiedEdit::onOpen(const LLSD& key)
 {
 	LLUUID classified_id = key["classified_id"];
 
-	if(classified_id.isNull())
+	mIsNew = classified_id.isNull();
+
+	if(mIsNew)
 	{
-		mNewClassified = true;
 		setAvatarId(gAgent.getID());
 
 		resetData();
@@ -1425,18 +1429,20 @@ void LLPanelClassifiedEdit::onOpen(const LLSD& key)
 		childSetValue("classified_name", makeClassifiedName());
 		childSetValue("classified_desc", desc);
 		setSnapshotId(snapshot_id);
-		setClassifiedLocation(createLocationText(SET_LOCATION_NOTICE, region_name, getPosGlobal()));
+		
+		setClassifiedLocation(createLocationText(getLocationNotice(), region_name, getPosGlobal()));
+		
 		// server will set valid parcel id
 		setParcelId(LLUUID::null);
 
-		enableSaveButton(true);
+		enableVerbs(true);
+		enableEditing(true);
 	}
 	else
 	{
-		mNewClassified = false;
-
 		LLPanelClassifiedInfo::onOpen(key);
-		enableSaveButton(false);
+		enableVerbs(false);
+		enableEditing(false);
 	}
 
 	resetDirty();
@@ -1450,10 +1456,11 @@ void LLPanelClassifiedEdit::processProperties(void* data, EAvatarProcessorType t
 		LLAvatarClassifiedInfo* c_info = static_cast<LLAvatarClassifiedInfo*>(data);
 		if(c_info && getClassifiedId() == c_info->classified_id)
 		{
+			enableEditing(true);
+
 			setClassifiedName(c_info->name);
 			setDescription(c_info->description);
 			setSnapshotId(c_info->snapshot_id);
-		//	setParcelId(c_info->parcel_id);
 			setPosGlobal(c_info->pos_global);
 
 			setClassifiedLocation(createLocationText(c_info->parcel_name, c_info->sim_name, c_info->pos_global));
@@ -1475,8 +1482,10 @@ void LLPanelClassifiedEdit::processProperties(void* data, EAvatarProcessorType t
 
 BOOL LLPanelClassifiedEdit::isDirty() const
 {
-	if(mNewClassified)
+	if(mIsNew) 
+	{
 		return TRUE;
+	}
 
 	BOOL dirty = false;
 
@@ -1530,7 +1539,7 @@ void LLPanelClassifiedEdit::sendUpdate()
 
 	if(getClassifiedId().isNull())
 	{
-		LLUUID id = getClassifiedId();
+		LLUUID id;
 		id.generate();
 		setClassifiedId(id);
 	}
@@ -1543,7 +1552,7 @@ void LLPanelClassifiedEdit::sendUpdate()
 	c_data.parcel_id = getParcelId();
 	c_data.snapshot_id = getSnapshotId();
 	c_data.pos_global = getPosGlobal();
-	c_data.flags = getClassifiedFlags();
+	c_data.flags = getFlags();
 	c_data.price_for_listing = getPriceForListing();
 
 	LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoUpdate(&c_data);
@@ -1555,19 +1564,31 @@ U32 LLPanelClassifiedEdit::getCategory()
 	return cat_cb->getCurrentIndex() + 1;
 }
 
-U8 LLPanelClassifiedEdit::getClassifiedFlags()
+U8 LLPanelClassifiedEdit::getFlags()
 {
 	bool auto_renew = childGetValue("auto_renew").asBoolean();
 
 	LLComboBox* content_cb = getChild<LLComboBox>("content_type");
 	bool mature = content_cb->getCurrentIndex() == CB_ITEM_MATURE;
 	
-	return pack_classified_flags_request(auto_renew, false, mature, false);;
+	return pack_classified_flags_request(auto_renew, false, mature, false);
 }
 
-void LLPanelClassifiedEdit::enableSaveButton(bool enable)
+void LLPanelClassifiedEdit::enableVerbs(bool enable)
 {
 	childSetEnabled("save_changes_btn", enable);
+}
+
+void LLPanelClassifiedEdit::enableEditing(bool enable)
+{
+	childSetEnabled("classified_snapshot", enable);
+	childSetEnabled("classified_name", enable);
+	childSetEnabled("classified_desc", enable);
+	childSetEnabled("set_to_curr_location_btn", enable);
+	childSetEnabled("category", enable);
+	childSetEnabled("content_type", enable);
+	childSetEnabled("price_for_listing", enable);
+	childSetEnabled("auto_renew", enable);
 }
 
 std::string LLPanelClassifiedEdit::makeClassifiedName()
@@ -1581,7 +1602,9 @@ std::string LLPanelClassifiedEdit::makeClassifiedName()
 	}
 
 	if(!name.empty())
+	{
 		return name;
+	}
 
 	LLViewerRegion* region = gAgent.getRegion();
 	if(region)
@@ -1597,7 +1620,7 @@ S32 LLPanelClassifiedEdit::getPriceForListing()
 	return childGetValue("price_for_listing").asInteger();
 }
 
-void LLPanelClassifiedEdit::onClickSetLocation()
+void LLPanelClassifiedEdit::onSetLocationClick()
 {
 	setPosGlobal(gAgent.getPositionGlobal());
 	setParcelId(LLUUID::null);
@@ -1609,29 +1632,39 @@ void LLPanelClassifiedEdit::onClickSetLocation()
 		region_name = region->getName();
 	}
 
-	setClassifiedLocation(createLocationText(SET_LOCATION_NOTICE, region_name, getPosGlobal()));
+	setClassifiedLocation(createLocationText(getLocationNotice(), region_name, getPosGlobal()));
 
 	// mark classified as dirty
 	setValue(LLSD());
 
-	onClassifiedChanged();
+	onChange();
 }
 
-void LLPanelClassifiedEdit::onClassifiedChanged()
+void LLPanelClassifiedEdit::onChange()
 {
-	if(isDirty())
-	{
-		enableSaveButton(true);
-	}
-	else
-	{
-		enableSaveButton(false);
-	}
+	enableVerbs(isDirty());
 }
 
-void LLPanelClassifiedEdit::onClickSave()
+void LLPanelClassifiedEdit::onSaveClick()
 {
 	sendUpdate();
+	resetDirty();
+}
+
+std::string LLPanelClassifiedEdit::getLocationNotice()
+{
+	static std::string location_notice = getString("location_notice");
+	return location_notice;
+}
+
+void LLPanelClassifiedEdit::onTexturePickerMouseEnter(LLUICtrl* ctrl)
+{
+	ctrl->setVisible(TRUE);
+}
+
+void LLPanelClassifiedEdit::onTexturePickerMouseLeave(LLUICtrl* ctrl)
+{
+	ctrl->setVisible(FALSE);
 }
 
 //EOF

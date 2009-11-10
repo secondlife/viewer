@@ -37,6 +37,7 @@
 #ifndef LL_LLPANELCLASSIFIED_H
 #define LL_LLPANELCLASSIFIED_H
 
+#include "llavatarpropertiesprocessor.h"
 #include "llpanel.h"
 #include "llclassifiedinfo.h"
 #include "v3dmath.h"
@@ -55,6 +56,8 @@ class LLTextureCtrl;
 class LLUICtrl;
 class LLMessageSystem;
 
+// *TODO deprecated, should be removed.
+// New class implemented in ticket EXT-2095
 class LLPanelClassified : public LLPanel
 {
 public:
@@ -198,8 +201,6 @@ private:
 	void* mUserData;
 };
 
-#include "llavatarpropertiesprocessor.h"
-
 class LLPanelClassifiedInfo : public LLPanel, public LLAvatarPropertiesObserver
 {
 public:
@@ -214,39 +215,39 @@ public:
 
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
 
-	virtual void setAvatarId(const LLUUID& avatar_id) { mAvatarId = avatar_id; }
+	void setAvatarId(const LLUUID& avatar_id) { mAvatarId = avatar_id; }
 
-	virtual LLUUID& getAvatarId() { return mAvatarId; }
+	LLUUID& getAvatarId() { return mAvatarId; }
 
-	virtual void setSnapshotId(const LLUUID& id);
+	void setSnapshotId(const LLUUID& id);
 
-	virtual LLUUID getSnapshotId();
+	LLUUID getSnapshotId();
 
-	virtual void setClassifiedId(const LLUUID& id) { mClassifiedId = id; }
+	void setClassifiedId(const LLUUID& id) { mClassifiedId = id; }
 
-	virtual LLUUID& getClassifiedId() { return mClassifiedId; }
+	LLUUID& getClassifiedId() { return mClassifiedId; }
 
-	virtual void setClassifiedName(const std::string& name);
+	void setClassifiedName(const std::string& name);
 
-	virtual std::string getClassifiedName();
+	std::string getClassifiedName();
 
-	virtual void setDescription(const std::string& desc);
+	void setDescription(const std::string& desc);
 
-	virtual std::string getDescription();
+	std::string getDescription();
 
-	virtual void setClassifiedLocation(const std::string& location);
+	void setClassifiedLocation(const std::string& location);
 
-	virtual void setPosGlobal(const LLVector3d& pos) { mPosGlobal = pos; }
+	void setPosGlobal(const LLVector3d& pos) { mPosGlobal = pos; }
 
-	virtual LLVector3d& getPosGlobal() { return mPosGlobal; }
+	LLVector3d& getPosGlobal() { return mPosGlobal; }
 
-	virtual void setParcelId(const LLUUID& id) { mParcelId = id; }
+	void setParcelId(const LLUUID& id) { mParcelId = id; }
 
-	virtual LLUUID getParcelId() { return mParcelId; }
+	LLUUID getParcelId() { return mParcelId; }
 
-	virtual bool getInfoLoaded() { return mInfoLoaded; }
+	bool getInfoLoaded() { return mInfoLoaded; }
 
-	virtual void setInfoLoaded(bool loaded) { mInfoLoaded = loaded; }
+	void setInfoLoaded(bool loaded) { mInfoLoaded = loaded; }
 
 	virtual void setExitCallback(const commit_callback_t& cb);
 
@@ -285,23 +286,23 @@ public:
 
 	virtual ~LLPanelClassifiedEdit();
 
-	BOOL postBuild();
+	/*virtual*/ BOOL postBuild();
 
-	void onOpen(const LLSD& key);
+	/*virtual*/ void onOpen(const LLSD& key);
 
-	void processProperties(void* data, EAvatarProcessorType type);
+	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
 
-	BOOL isDirty() const;
+	/*virtual*/ BOOL isDirty() const;
 
-	void resetDirty();
+	/*virtual*/ void resetDirty();
 
 	void setSaveCallback(const commit_callback_t& cb);
 
 	void setCancelCallback(const commit_callback_t& cb);
 
-	void resetControls();
+	/*virtual*/ void resetControls();
 
-	virtual bool isNewClassified() { return mNewClassified; }
+	bool isNew() { return mIsNew; }
 
 protected:
 
@@ -311,20 +312,27 @@ protected:
 
 	U32 getCategory();
 
-	void enableSaveButton(bool enable);
+	void enableVerbs(bool enable);
+
+	void enableEditing(bool enable);
 
 	std::string makeClassifiedName();
 
 	S32 getPriceForListing();
 
-	U8 getClassifiedFlags();
+	U8 getFlags();
 
-	void onClickSetLocation();
-	void onClassifiedChanged();
-	void onClickSave();
+	std::string getLocationNotice();
+
+	void onSetLocationClick();
+	void onChange();
+	void onSaveClick();
+
+	void onTexturePickerMouseEnter(LLUICtrl* ctrl);
+	void onTexturePickerMouseLeave(LLUICtrl* ctrl);
 
 private:
-	bool mNewClassified;
+	bool mIsNew;
 };
 
 #endif // LL_LLPANELCLASSIFIED_H

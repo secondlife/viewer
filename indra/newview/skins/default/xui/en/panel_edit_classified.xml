@@ -11,6 +11,10 @@
  name="panel_edit_classified"
  top="0"
  width="333">
+ <panel.string
+  name="location_notice">
+    (will update after save)
+ </panel.string>
   <button
      follows="top|right"
      height="23"
@@ -65,9 +69,9 @@
      top="20"
      left="10"
      name="classified_snapshot" />
-          <button
+          <icon
            height="18"
-           image_overlay="AddItem_Off"
+           image_name="AddItem_Off"
            layout="topleft"
            right="-5"
            name="edit_icon"

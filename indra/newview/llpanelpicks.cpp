@@ -686,7 +686,7 @@ void LLPanelPicks::onPanelPickSave(LLPanel* panel)
 
 void LLPanelPicks::onPanelClassifiedSave(LLPanelClassifiedEdit* panel)
 {
-	if(panel->isNewClassified())
+	if(panel->isNew())
 	{
 		LLClassifiedItem* c_item = new LLClassifiedItem(getAvatarId(), panel->getClassifiedId());
 		
@@ -716,7 +716,7 @@ void LLPanelPicks::onPanelClassifiedSave(LLPanelClassifiedEdit* panel)
 
 void LLPanelPicks::onPanelClassifiedClose(LLPanelClassifiedInfo* panel)
 {
-	if(panel->getInfoLoaded())
+	if(panel->getInfoLoaded() && !panel->isDirty())
 	{
 		std::vector<LLSD> values;
 		mClassifiedsList->getValues(values);
