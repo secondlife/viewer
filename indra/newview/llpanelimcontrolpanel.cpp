@@ -249,8 +249,7 @@ void LLPanelGroupControlPanel::setSessionId(const LLUUID& session_id)
 	mGroupID = LLIMModel::getInstance()->getOtherParticipantID(session_id);
 
 	if(!mParticipantList)
-		mParticipantList = new LLParticipantList(LLIMModel::getInstance()->getSpeakerManager(session_id),
-													getChild<LLAvatarList>("speakers_list"));
+		mParticipantList = new LLParticipantList(mSpeakerManager, getChild<LLAvatarList>("speakers_list"));
 }
 
 

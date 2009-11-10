@@ -92,6 +92,11 @@ LLParticipantList::~LLParticipantList()
 	mParticipantListMenu = NULL;
 }
 
+void LLParticipantList::setSpeakingIndicatorsVisible(BOOL visible)
+{
+	mAvatarList->setSpeakingIndicatorsVisible(visible);
+};
+
 void LLParticipantList::onAvatarListDoubleClicked(LLAvatarList* list)
 {
 	LLUUID clicked_id = list->getSelectedUUID();
