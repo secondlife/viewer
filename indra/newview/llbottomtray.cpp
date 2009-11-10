@@ -320,21 +320,26 @@ void LLBottomTray::log(LLView* panel, const std::string& descr)
 void LLBottomTray::verifyChildControlsSizes()
 {
 	LLRect rect = mChicletPanel->getRect();
+	/*
 	if (rect.getWidth() < mChicletPanel->getMinWidth())
 	{
 		llwarns << "QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ: chiclet panel less then min" << llendl;
 		mChicletPanel->reshape(mChicletPanel->getMinWidth(), rect.getHeight());
 	}
-
+*/
 	rect = mNearbyChatBar->getRect();
+/*
 	if (rect.getWidth() < mNearbyChatBar->getMinWidth())
 	{
 		llwarns << "WWWWWWWWWWWWWWWWWWWWWWWWWWWWW: near chat panel less then min" << llendl;
 		mNearbyChatBar->reshape(mNearbyChatBar->getMinWidth(), rect.getHeight());
 	}
 	else 
+*/
 		if (rect.getWidth() > mNearbyChatBar->getMaxWidth())
 	{
+		llerrs << "WWWWWWWWWWWWWWWWWWWWWWWWWWWWW: near chat panel more then max width" << llendl;
+
 		rect.setLeftTopAndSize(rect.mLeft, rect.mTop, mNearbyChatBar->getMaxWidth(), rect.getHeight());
 		mNearbyChatBar->reshape(mNearbyChatBar->getMaxWidth(), rect.getHeight());
 		mNearbyChatBar->setRect(rect);
@@ -346,11 +351,12 @@ void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
 	static S32 depth = 0;
 if (0 == depth) lldebugs << "****************************************" << llendl;
 
+	S32 prev_width = getRect().getWidth();
 	lldebugs << "Reshaping: depth: " << ++depth
 		<< ", width: " << width
 		<< ", height: " << height
 		<< ", called_from_parent: " << called_from_parent
-		<< ", cur width: " << getRect().getWidth()
+		<< ", cur width: " << prev_width
 		<< ", cur height: " << getRect().getHeight()
 		<< llendl;
 
@@ -359,19 +365,8 @@ if (0 == depth) lldebugs << "****************************************" << llendl
 
 	if (mChicletPanel && mToolbarStack && mNearbyChatBar)
 	{
-//		S32 delta_width = width - getRect().getWidth();
-		BOOL shrink = width < getRect().getWidth();
-
-
-
  		verifyChildControlsSizes();
- 		updateResizeState(width, height);
-		if (RS_NORESIZE == mResizeState && !called_from_parent)
-		{
-			// this can be in case nearby
-			lldebugs << "width was not changed & !called_from_parent" << llendl;
-
-		}
+ 		updateResizeState(width, prev_width);
 
 		if (RS_NORESIZE != mResizeState)
 		{
@@ -380,23 +375,11 @@ if (0 == depth) lldebugs << "****************************************" << llendl
 		mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, TRUE);
 
 //		mToolbarStack->updatePanelAutoResize(PANEL_CHATBAR_NAME, mResizeState & RS_CHATBAR_INPUT);
-
-
-		bool show_button = !shrink;
-		if (width != getRect().getWidth() && show_button)
-		{
-			if (mResizeState & RS_BUTTON_SNAPSHOT)	showSnapshotButton(show_button);
-			if (mResizeState & RS_BUTTON_CAMERA)	showCameraButton(show_button);
-			if (mResizeState & RS_BUTTON_MOVEMENT)	showMoveButton(show_button);
-			if (mResizeState & RS_BUTTON_GESTURES)	showGestureButton(show_button);
-		}
-
 		}
 	}
 
 	LLPanel::reshape(width, height, called_from_parent);
 
-	// *TODO: проверить ширину nearby после ресайза на предмет выхода за максимальный предел
 
 	if (mNearbyChatBar)			log(mNearbyChatBar, "after");
 	if (mChicletPanel)			log(mChicletPanel, "after");
@@ -412,7 +395,7 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 	LLPanel* compansative_view = mNearbyChatBar;
 	S32 compensative_delta_width = 0;
 
-	S32 delta_width = width - getRect().getWidth();
+	S32 delta_width = width - height;
 //	if (delta_width == 0) return;
 
 	const S32 chiclet_panel_width = mChicletPanel->getParent()->getRect().getWidth();
@@ -431,7 +414,7 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 
 	bool still_should_be_processed = true;
 	// bottom tray is narrowed
-	if (width < getRect().getWidth())
+	if (width < height)
 	{
 		if (chiclet_panel_width > chiclet_panel_min_width)
 		{
@@ -579,6 +562,7 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 				<< ", compensative_delta_width: " << compensative_delta_width
 				<< ", delta_width: " << delta_width
 				<< llendl;
+			showGestureButton(true);
 		}
 
 		if (available_width > 0 && processShowButton(mMovementPanel, &available_width))
@@ -591,6 +575,7 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 				<< ", compensative_delta_width: " << compensative_delta_width
 				<< ", delta_width: " << delta_width
 				<< llendl;
+			showMoveButton(true);
 		}
 
 		if (available_width > 0 && processShowButton(mCamPanel, &available_width))
@@ -603,6 +588,7 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 				<< ", compensative_delta_width: " << compensative_delta_width
 				<< ", delta_width: " << delta_width
 				<< llendl;
+			showCameraButton(true);
 		}
 
 		if (available_width > 0 && processShowButton(mSnapshotPanel, &available_width))
@@ -615,12 +601,13 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 				<< ", compensative_delta_width: " << compensative_delta_width
 				<< ", delta_width: " << delta_width
 				<< llendl;
+			showSnapshotButton(true);
 		}
 
 		if (compensative_delta_width != 0)
 		{
 			S32 required_to_process_width = -compensative_delta_width;
-			S32 total_delta_width = width - getRect().getWidth();
+			S32 total_delta_width = width - height;
 
 			// 1. use delta width of resizing
 			required_to_process_width -= total_delta_width;

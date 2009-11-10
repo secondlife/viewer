@@ -224,16 +224,18 @@ bg_alpha_color="green"
          top="0"
          name="chiclet_list_panel"
          width="189"
-         min_width="189"
+         min_width="180"
          user_resize="false"
          auto_resize="true">
+<!--*NOTE: min_width of the chiclet_panel (chiclet_list) must be the same 
+as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. EXT-991-->
             <chiclet_panel
 	    mouse_opaque="false"
              follows="left|right"
              height="28"
              layout="topleft"
              left="0"
-             min_width="129"
+             min_width="180"
              name="chiclet_list"
              top="0"
              chiclet_padding="3"
