@@ -284,7 +284,10 @@ void LLInvFVBridge::showProperties()
 	key["id"] = mUUID;
 	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 
+	// Disable old properties floater; this is replaced by the sidepanel.
+	/*
 	LLFloaterReg::showInstance("properties", mUUID);
+	*/
 }
 
 void LLInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch)
@@ -2127,6 +2130,7 @@ void LLFolderBridge::openItem()
 	lldebugs << "LLFolderBridge::openItem()" << llendl;
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return;
+	if(mUUID.isNull()) return;
 	bool fetching_inventory = model->fetchDescendentsOf(mUUID);
 	// Only change folder type if we have the folder contents.
 	if (!fetching_inventory)
@@ -3912,6 +3916,7 @@ void LLObjectBridge::openItem()
 	key["id"] = mUUID;
 	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 
+	// Disable old properties floater; this is replaced by the sidepanel.
 	/*
 	LLFloaterReg::showInstance("properties", mUUID);
 	*/

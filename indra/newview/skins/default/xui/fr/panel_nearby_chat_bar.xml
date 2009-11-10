@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="chat_bar">
+	<line_editor label="Cliquer ici pour chatter." name="chat_box" tool_tip="Appuyer sur Entrée pour dire, Ctrl-Entrée pour crier"/>
+</panel>

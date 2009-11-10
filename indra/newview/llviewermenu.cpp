@@ -2634,6 +2634,8 @@ void handle_object_edit()
 
 void handle_object_inspect()
 {
+	// Disable sidepanel inspector
+	/*
 	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 	LLViewerObject* selected_objectp = selection->getFirstRootObject();
 	if (selected_objectp)
@@ -2642,6 +2644,7 @@ void handle_object_inspect()
 		key["task"] = "task";
 		LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 	}
+	*/
 
 	LLFloaterReg::showInstance("inspect", LLSD());
 }
@@ -6249,25 +6252,20 @@ class LLAvatarSendIM : public view_listener_t
 		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 		if(avatar)
 		{
-			std::string name("IM");
-			LLNameValue *first = avatar->getNVPair("FirstName");
-			LLNameValue *last = avatar->getNVPair("LastName");
-			if (first && last)
-			{
-				name.assign( first->getString() );
-				name.append(" ");
-				name.append( last->getString() );
-			}
+			LLAvatarActions::startIM(avatar->getID());
+		}
+		return true;
+	}
+};
 
-			//EInstantMessage type = have_agent_callingcard(gLastHitObjectID)
-			//	? IM_SESSION_ADD : IM_SESSION_CARDLESS_START;
-			LLUUID session_id = gIMMgr->addSession(name,
-								IM_NOTHING_SPECIAL,
-								avatar->getID());
-			if (session_id != LLUUID::null)
-			{
-				LLIMFloater::show(session_id);
-			}
+class LLAvatarCall : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if(avatar)
+		{
+			LLAvatarActions::startCall(avatar->getID());
 		}
 		return true;
 	}
@@ -7938,6 +7936,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAvatarGiveCard(), "Avatar.GiveCard");
 	commit.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
 	view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
+	view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call");
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	
 	view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");

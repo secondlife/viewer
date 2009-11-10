@@ -315,7 +315,7 @@ void LLIMModel::testMessages()
 	bot2_id.generate(from);
 	LLUUID bot2_session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, bot2_id);
 	newSession(bot2_session_id, from, IM_NOTHING_SPECIAL, bot2_id);
-	addMessage(bot2_session_id, from, bot2_id, "Test Message: Can I haz bear? ");
+	addMessage(bot2_session_id, from, bot2_id, "Test Message: Hello there, I have a question. Can I bother you for a second? ");
 	addMessage(bot2_session_id, from, bot2_id, "Test Message: OMGWTFBBQ.");
 }
 

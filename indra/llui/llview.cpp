@@ -40,7 +40,6 @@
 
 #include "llrender.h"
 #include "llevent.h"
-#include "llfontgl.h"
 #include "llfocusmgr.h"
 #include "llrect.h"
 #include "llstl.h"

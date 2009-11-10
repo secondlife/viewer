@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="chat_bar">
+	<line_editor label="Zum Chatten hier klicken." name="chat_box" tool_tip="Eingabe drücken, um zu sprechen, Strg-Eingabe drücken, um zu Rufen."/>
+</panel>

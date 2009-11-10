@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <teleport_messages name="">
 	<message_set name="errors">
 		<message name="invalid_tport">
-			Nous avons rencontré des problèmes en essayant de vous téléporter. Vous devrez peut-être vous reconnecter avant de pouvoir être téléporté. Si vous continuez à recevoir ce message, veuillez consulter le Support à la page suivante :
-www.secondlife.com/support
+			Nous avons rencontré des problèmes en essayant de vous téléporter. Vous devrez peut-être vous reconnecter avant de pouvoir vous téléporter.
+Si ce message persiste, veuillez consulter la page [SUPPORT_SITE].
 		</message>
 		<message name="invalid_region_handoff">
-			Nous avons rencontré des problèmes en essayant de vous téléporter. Vous devrez peut-être vous reconnecter avant de pouvoir être téléporté. Si vous continuez à recevoir ce message, veuillez consulter le Support à la page suivante :
-www.secondlife.com/support
+			Nous avons rencontré des problèmes en essayant de vous téléporter. Vous devrez peut-être vous reconnecter avant de pouvoir traverser des régions.
+Si ce message persiste, veuillez consulter la page [SUPPORT_SITE].
 		</message>
 		<message name="blocked_tport">
 			Désolé, la téléportation est bloquée actuellement. Veuillez réessayer dans un moment.

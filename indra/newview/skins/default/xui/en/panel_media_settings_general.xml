@@ -16,7 +16,7 @@
    follows="top|left" 
    height="15" 
    left="10" 
-   name="">
+   name="home_label">
     Home URL:
   </text>
   <line_editor 
@@ -49,7 +49,7 @@
    follows="top|left"
    height="15"
    left="164"
-   name="">
+   name="preview_label">
     Preview
   </text>
   
@@ -88,7 +88,7 @@
    follows="top|left" 
    height="15"
    left="10" 
-   name="">
+   name="controls_label">
     Controls:
   </text>
   <combo_box 
@@ -207,7 +207,7 @@
    follows="top|left" 
    height="15" 
    left="30" 
-   name="">
+   name="size_label">
     Size:
   </text>
   
@@ -228,7 +228,7 @@
    name="width_pixels" 
    width="50" />
    
-  <text bottom_delta="0" follows="top|left" height="15" left_delta="60" name="">
+  <text bottom_delta="0" follows="top|left" height="15" left_delta="60" name="X_label">
     X
   </text>
   <spinner bottom_delta="0"

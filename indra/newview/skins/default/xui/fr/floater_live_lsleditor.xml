@@ -1,12 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="script ed float" title="SCRIPT : NOUVEAU SCRIPT">
-	<button label="Réinitialiser" label_selected="Réinitialiser" name="Reset" width="100" left="390"/>
-	<check_box label="Exécution en cours" name="running" left="4"/>
-	<check_box label="Mono" name="mono" left="130"/>
-	<string name="not_allowed">
-		Vous n&apos;êtes pas autorisé à afficher ce script.
-	</string>
-	<string name="script_running">
+	<floater.string name="not_allowed">
+		Ce scipt ne peut pas être copié, visualisé ou modifié.  Pour visualiser ou modifier un script à l&apos;intérieur d&apos;un objet, vous devez avoir les permissions requises.
+	</floater.string>
+	<floater.string name="script_running">
 		Exécution en cours
-	</string>
+	</floater.string>
+	<floater.string name="Title">
+		Script : [NAME]
+	</floater.string>
+	<button label="Réinitialiser" label_selected="Réinitialiser" left="390" name="Reset" width="100"/>
+	<check_box initial_value="true" label="Exécution en cours" left="4" name="running"/>
+	<check_box initial_value="true" label="Mono" left="130" name="mono"/>
 </floater>

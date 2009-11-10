@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="chat_bar">
+	<line_editor label="ここをクリックしてチャットを開始します。" name="chat_box" tool_tip="エンターを押して発言、Ctrl+エンターで叫ぶ。"/>
+</panel>

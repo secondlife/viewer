@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="avatarpicker" title="住人を選択" min_width="275" width="275">
+<floater min_width="275" name="avatarpicker" title="住人を選択" width="275">
 	<tab_container name="ResidentChooserTabs" width="265">
 		<panel label="検索" name="SearchPanel" width="145">
 			<text name="InstructSearchResidentName">
-				住人の名前の一部を入力：
+				名前の一部を入力：
 			</text>
 			<button label="検索" label_selected="検索" name="Find"/>
 		</panel>
@@ -14,7 +14,7 @@
 		</panel>
 		<panel label="自分の近く" name="NearMePanel" width="145">
 			<text name="InstructSelectResident">
-				近くの住人を選択：
+				近くの人を選択：
 			</text>
 			<button label="リスト更新" label_selected="リスト更新" name="Refresh"/>
 			<slider label="範囲" name="near_me_range"/>
@@ -23,7 +23,7 @@
 			</text>
 		</panel>
 	</tab_container>
-	<button label="選択" label_selected="選択" name="Select"/>
+	<button label="OK" label_selected="OK" name="Select"/>
 	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
 	<string name="not_found">
 		「[TEXT]」は見つかりませんでした

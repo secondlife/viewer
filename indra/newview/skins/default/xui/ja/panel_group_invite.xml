@@ -1,30 +1,30 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="メンバーを招待" name="invite_panel">
-	<text name="help_text" font="SansSerifSmall" height="72" bottom_delta="-96">
+	<panel.string name="confirm_invite_owner_str">
+		本当に新しい所有者を招待しますか?この操作は取り消しできません。
+	</panel.string>
+	<panel.string name="loading">
+		(ローディング．．．)
+	</panel.string>
+	<panel.string name="already_in_group">
+		何人かのアバターは既にグループに入っているため招待されませんでした。
+	</panel.string>
+	<text bottom_delta="-96" font="SansSerifSmall" height="72" name="help_text">
 		あなたのグループに一度に複数の
 住人を招待することができます。
 「リストから住人を選択」
 をクリックしてください。
 	</text>
 	<button bottom_delta="-10" label="リストから住人を選択" name="add_button" tool_tip=""/>
-	<name_list name="invitee_list" height="156" bottom_delta="-160"
-	     tool_tip="複数の住人を選択するには、Ctrlキーを押しながら住人名をクリックします。" />
-	<button label="リストから選択したものを削除" name="remove_button"
-	     tool_tip="上で選択した居住者を招待リストから削除します。" />
-	<text>
-		割り当て先の役割を選択：
-	</text>
+	<name_list bottom_delta="-160" height="156" name="invitee_list" tool_tip="複数の住人を選択するには、Ctrlキーを押しながら住人名をクリックします。"/>
+	<button label="リストから選択したものを削除" name="remove_button" tool_tip="上で選択した居住者を招待リストから削除します。"/>
 	<text name="role_text">
 		割り当て先の役割を選択：
 	</text>
-	<combo_box name="role_name"
-	     tool_tip="メンバーに割り当て可能な役割をリストから選択。" />
-	<button label="招待を送信" name="ok_button" />
-	<button label="取り消し" name="cancel_button" />
-	<string name="confirm_invite_owner_str">
-		本当に新しい所有者を招待しますか?この操作は取り消しできません。
+	<combo_box name="role_name" tool_tip="メンバーに割り当て可能な役割をリストから選択。"/>
+	<button label="招待を送信" name="ok_button"/>
+	<button label="取り消し" name="cancel_button"/>
+	<string name="GroupInvitation">
+		グループへの招待
 	</string>
-	<text name="loading">
-		(ローディング．．．)
-	</text>
 </panel>
