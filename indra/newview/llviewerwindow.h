@@ -451,7 +451,7 @@ protected:
 
 	std::string		mInitAlert;			// Window / GL initialization requires an alert
 
-	LLView*			mWorldViewPlaceholder;	// widget that spans the portion of screen dedicated to rendering the 3d world
+	LLHandle<LLView> mWorldViewPlaceholder;	// widget that spans the portion of screen dedicated to rendering the 3d world
 	
 	class LLDebugText* mDebugText; // Internal class for debug text
 	

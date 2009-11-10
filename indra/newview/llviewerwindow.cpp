@@ -1406,7 +1406,7 @@ void LLViewerWindow::initBase()
 	getRootView()->addChild(main_view);
 
 	// placeholder widget that controls where "world" is rendered
-	mWorldViewPlaceholder = main_view->getChildView("world_view_rect");
+	mWorldViewPlaceholder = main_view->getChildView("world_view_rect")->getHandle();
 
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = getRootView()->getChild<LLFloaterView>("Floater View");
@@ -2329,7 +2329,7 @@ void LLViewerWindow::updateUI()
 	static std::string last_handle_msg;
 
 	// animate layout stacks so we have up to date rect for world view
-	LLLayoutStack::idle();
+	LLLayoutStack::updateClass();
 
 	updateWorldViewRect();
 
@@ -2839,9 +2839,9 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 	// start off using whole window to render world
 	LLRect new_world_rect = mWindowRect;
 
-	if (use_full_window == false)
+	if (use_full_window == false && mWorldViewPlaceholder.get())
 	{
-		new_world_rect = mWorldViewPlaceholder->calcScreenRect();
+		new_world_rect = mWorldViewPlaceholder.get()->calcScreenRect();
 		// clamp to at least a 1x1 rect so we don't try to allocate zero width gl buffers
 		new_world_rect.mTop = llmax(new_world_rect.mTop, new_world_rect.mBottom + 1);
 		new_world_rect.mRight = llmax(new_world_rect.mRight, new_world_rect.mLeft + 1);

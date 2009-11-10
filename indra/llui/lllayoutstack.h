@@ -83,7 +83,7 @@ public:
 	void updatePanelAutoResize(const std::string& panel_name, BOOL auto_resize);
 
 
-	static void idle();
+	static void updateClass();
 
 protected:
 	LLLayoutStack(const Params&);

@@ -56,9 +56,9 @@
          height="28"
          layout="topleft"
          min_height="28"
-         width="100"
+         width="104"
          top_delta="0"
-         min_width="100"
+         min_width="104"
          name="speak_panel"
          user_resize="false">
           <talk_button

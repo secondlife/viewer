@@ -455,7 +455,7 @@ void		LLSideTray::onToggleCollapse()
 
 void LLSideTray::reflectCollapseChange()
 {
-	setPanelRect();
+	updateSidetrayVisibility();
 
 	if(mCollapsed)
 	{
@@ -475,7 +475,7 @@ void LLSideTray::arrange()
 {
 	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
 
-	setPanelRect();
+	updateSidetrayVisibility();
 	
 	LLRect ctrl_rect;
 	ctrl_rect.setLeftTopAndSize(0,
@@ -637,7 +637,7 @@ LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& para
 static const S32	fake_offset = 132;
 static const S32	fake_top_offset = 18;
 
-void	LLSideTray::setPanelRect	()
+void	LLSideTray::updateSidetrayVisibility()
 {
 	// set visibility of parent container based on collapsed state
 	if (getParent())

@@ -134,9 +134,6 @@ public:
 	
 	void		reshape			(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
-	void		resetPanelRect	();
-	
-
 protected:
 	LLSideTrayTab* getTab		(const std::string& name);
 
@@ -147,7 +144,7 @@ protected:
 
 	void		toggleTabButton	(LLSideTrayTab* tab);
 
-	void		setPanelRect	();
+	void		updateSidetrayVisibility();
 
 	
 

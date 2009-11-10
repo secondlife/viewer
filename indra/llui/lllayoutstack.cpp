@@ -790,7 +790,7 @@ void LLLayoutStack::calcMinExtents()
 // we might still need to call updateLayout during UI draw phase, in case UI elements
 // are resizing themselves dynamically
 //static 
-void LLLayoutStack::idle()
+void LLLayoutStack::updateClass()
 {
 	for (LLInstanceTracker::instance_iter it = beginInstances(); it != endInstances(); ++it)
 	{
