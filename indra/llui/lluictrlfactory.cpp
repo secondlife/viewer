@@ -449,3 +449,9 @@ const std::string* LLUICtrlFactory::getWidgetTag(const std::type_info* widget_ty
 {
 	return LLWidgetNameRegistry::instance().getValue(widget_type);
 }
+
+// static
+void LLUICtrlFactory::connect(LLView* parent, LLView* child)
+{
+	parent->addChild(child);
+}

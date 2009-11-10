@@ -188,10 +188,15 @@ public:
 		T* widget = new T(params);
 		widget->initFromParams(params);
 		if (parent)
-			parent->addChild(widget);
+		{
+			connect(parent, widget);
+		}
 		return widget;
 	}
 
+	// fix for gcc template instantiation annoyance
+	static void connect(LLView* parent, LLView* child);
+	
 	LLView* createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename, const widget_registry_t&, LLXMLNodePtr output_node );
 
 	template<typename T>
