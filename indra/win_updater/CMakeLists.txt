@@ -33,3 +33,6 @@ set_target_properties(windows-updater
     LINK_FLAGS "/NODEFAULTLIB:LIBCMT"
     LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
     )
+
+# The windows-updater doesn't link against anything non-system, apparently
+#ll_deploy_sharedlibs_command(windows-updater)
