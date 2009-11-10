@@ -472,22 +472,11 @@ protected:
 	cat_array_t* getUnlockedCatArray(const LLUUID& id);
 	item_array_t* getUnlockedItemArray(const LLUUID& id);
 	
-protected:
+private:
 	// Variables used to track what has changed since the last notify.
 	U32 mModifyMask;
 	typedef std::set<LLUUID> changed_items_t;
 	changed_items_t mChangedItemIDs;
-
-	// Information for tracking the actual inventory. We index this
-	// information in a lot of different ways so we can access
-	// the inventory using several different identifiers.
-	// mInventory member data is the 'master' list of inventory, and
-	// mCategoryMap and mItemMap store uuid->object mappings. 
-	typedef std::map<LLUUID, LLPointer<LLViewerInventoryCategory> > cat_map_t;
-	typedef std::map<LLUUID, LLPointer<LLViewerInventoryItem> > item_map_t;
-	//inv_map_t mInventory;
-	cat_map_t mCategoryMap;
-	item_map_t mItemMap;
 
 	std::map<LLUUID, bool> mCategoryLock;
 	std::map<LLUUID, bool> mItemLock;
@@ -521,6 +510,21 @@ protected:
 	// This flag is used to handle an invalid inventory state.
 	bool mIsAgentInvUsable;
 
+private:
+	// Information for tracking the actual inventory. We index this
+	// information in a lot of different ways so we can access
+	// the inventory using several different identifiers.
+	// mInventory member data is the 'master' list of inventory, and
+	// mCategoryMap and mItemMap store uuid->object mappings. 
+	typedef std::map<LLUUID, LLPointer<LLViewerInventoryCategory> > cat_map_t;
+	typedef std::map<LLUUID, LLPointer<LLViewerInventoryItem> > item_map_t;
+	//inv_map_t mInventory;
+	cat_map_t mCategoryMap;
+	item_map_t mItemMap;
+
+	// Flag set when notifyObservers is being called, to look for bugs
+	// where it's called recursively.
+	BOOL mIsNotifyObservers;
 public:
 	// *NOTE: DEBUG functionality
 	void dumpInventory() const;
