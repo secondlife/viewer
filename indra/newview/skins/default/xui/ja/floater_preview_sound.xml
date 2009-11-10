@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview_sound">
+	<floater.string name="Title">
+		サウンド： [NAME]
+	</floater.string>
 	<text name="desc txt">
 		説明：
 	</text>
-	<button label="世界で再生" label_selected="世界で再生" name="Sound play btn"
-	     tool_tip="このサウンドを他の人も聞くことができるように再生します。" />
-	<button label="ローカルに再生" label_selected="ローカルに再生"
-	     name="Sound audition btn"
-	     tool_tip="このサウンドを自分専用に再生します。" />
+	<button label="世界で再生" label_selected="世界で再生" name="Sound play btn" tool_tip="このサウンドを他の人も聞くことができるように再生します。"/>
+	<button label="ローカルに再生" label_selected="ローカルに再生" name="Sound audition btn" tool_tip="このサウンドを自分専用に再生します。"/>
 </floater>

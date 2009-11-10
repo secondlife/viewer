@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <teleport_messages name="">
 	<message_set name="errors">
 		<message name="invalid_tport">
-			テレポート・リクエストの処理中に問題が発生しました。テレポートするには、再度ログインする必要があります。
-このメッセージが引き続き表示される場合は、技術サポートFAQ（www.secondlife.com/support）を参照してください。
+			テレポート処理中に問題が発生しました。 ログインし直す必要があるかもしれません。
+このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
 		</message>
 		<message name="invalid_region_handoff">
-			地域間の移動の処理中に問題が発生しました。地域間を移動するには、再度ログインする必要があります。
-このメッセージが引き続き表示される場合は、技術サポートFAQ（www.secondlife.com/support）を参照してください。
+			リージョン間の移動中に問題が発生しました。 ログインし直す必要があるかもしれません。
+このメッセージが何度も出る場合は、[SUPPORT_SITE] へご連絡ください。
 		</message>
 		<message name="blocked_tport">
 			申し訳ございません。テレポートは現在、ブロックされています。もう少し後でやり直してください。

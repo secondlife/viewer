@@ -24,6 +24,9 @@
 	<floater.string name="mini_map_northwest">
 		北西
 	</floater.string>
+	<floater.string name="ToolTipMsg">
+		[AGENT][REGION] （ダブルクリックで地図を開く）
+	</floater.string>
 	<text label="北" name="floater_map_north" text="北">
 		北
 	</text>

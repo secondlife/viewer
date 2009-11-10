@@ -440,7 +440,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          layout="topleft"
          follows="left|top"
          left="0"
-         name="static"
+         name="static4"
          top_pad="5"
          width="295">
             Assigned Roles
@@ -467,7 +467,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          layout="topleft"
          follows="left|top"
          left="0"
-         name="static2"
+         name="static5"
          top_pad="5"
          width="295">
             Allowed Abilities

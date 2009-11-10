@@ -4,5 +4,5 @@
 	<menu_item_call label="Zoom moyen" name="Zoom Medium"/>
 	<menu_item_call label="Zoom éloigné" name="Zoom Far"/>
 	<menu_item_call label="Arrêter de suivre" name="Stop Tracking"/>
-	<menu_item_call label="Profil..." name="Profile"/>
+	<menu_item_call label="Carte du monde" name="World Map"/>
 </menu>

@@ -1271,6 +1271,8 @@ void LLInventoryModel::fetchInventoryResponder::error(U32 status, const std::str
 
 bool LLInventoryModel::fetchDescendentsOf(const LLUUID& folder_id)
 {
+	if(folder_id.isNull()) return false;
+	
 	LLViewerInventoryCategory* cat = getCategory(folder_id);
 	if(!cat)
 	{

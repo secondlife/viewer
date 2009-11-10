@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Auswahl" name="panel_picks">
+	<panel label="bottom_panel" name="edit_panel">
+		<button name="new_btn" tool_tip="Aktuellen Standort zur Auswahl hinzufügen"/>
+	</panel>
+	<panel name="buttons_cucks">
+		<button label="Karte" name="show_on_map_btn"/>
+	</panel>
+</panel>

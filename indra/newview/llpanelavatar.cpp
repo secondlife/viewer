@@ -255,7 +255,7 @@ void LLPanelAvatarNotes::onTeleportButtonClick()
 
 void LLPanelAvatarNotes::onCallButtonClick()
 {
-	//*TODO not implemented.
+	LLAvatarActions::startCall(getAvatarId());
 }
 
 void LLPanelAvatarNotes::onShareButtonClick()
@@ -544,7 +544,7 @@ void LLPanelAvatarProfile::onTeleportButtonClick()
 
 void LLPanelAvatarProfile::onCallButtonClick()
 {
-	//*TODO not implemented
+	LLAvatarActions::startCall(getAvatarId());
 }
 
 void LLPanelAvatarProfile::onShareButtonClick()

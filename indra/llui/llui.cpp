@@ -43,7 +43,6 @@
 #include "llrender.h"
 #include "llrect.h"
 #include "lldir.h"
-#include "llfontgl.h"
 #include "llgl.h"
 
 // Project includes

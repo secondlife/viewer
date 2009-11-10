@@ -24,6 +24,9 @@
 	<floater.string name="mini_map_northwest">
 		NW
 	</floater.string>
+	<floater.string name="ToolTipMsg">
+		[AGENT][REGION](Karte mit Doppelklick öffnen)
+	</floater.string>
 	<text label="N" name="floater_map_north" text="N">
 		N
 	</text>

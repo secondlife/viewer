@@ -1,4 +1,19 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="queue" title="RÉINITIALISER PROGRESSION">
-	<button label="Fermer" label_selected="Fermer" name="close" />
+	<floater.string name="Starting">
+		Début du [START] sur [COUNT] objets.
+	</floater.string>
+	<floater.string name="Done">
+		Fini.
+	</floater.string>
+	<floater.string name="Resetting">
+		Réinitialisation
+	</floater.string>
+	<floater.string name="Running">
+		Exécution en cours
+	</floater.string>
+	<floater.string name="NotRunning">
+		Arrêt
+	</floater.string>
+	<button label="Fermer" label_selected="Fermer" name="close"/>
 </floater>
