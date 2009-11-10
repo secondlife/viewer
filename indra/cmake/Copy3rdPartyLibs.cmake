@@ -154,10 +154,8 @@ elseif(DARWIN)
     set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release")
     set(release_files
         libapr-1.0.3.7.dylib
-        libapr-1.0.3.8.dylib
         libapr-1.dylib
         libaprutil-1.0.3.8.dylib
-        libaprutil-1.0.3.9.dylib
         libaprutil-1.dylib
         libexpat.0.5.0.dylib
         libexpat.dylib
