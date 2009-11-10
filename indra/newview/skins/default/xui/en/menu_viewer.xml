@@ -1932,18 +1932,15 @@
                  function="Advanced.ToggleConsole"
                  parameter="debug" />
             </menu_item_check>
-            <menu_item_check
+            <menu_item_call
              label="Notifications Console"
              layout="topleft"
              name="Notifications"
              shortcut="control|shift|5">
-              <menu_item_check.on_check
-               function="Advanced.CheckConsole"
-               parameter="notifications" />
-              <menu_item_check.on_click
-               function="Floater.Show"
+              <menu_item_call.on_click
+               function="Floater.Toggle"
                parameter="notifications_console" />
-            </menu_item_check>
+            </menu_item_call>
             <menu_item_check
                label="Texture Size Console"
                layout="topleft"
@@ -1994,21 +1991,6 @@
                  function="Advanced.ToggleConsole"
                  parameter="memory view" />
             </menu_item_check>
-<!-- Delete this duplicate menu entry
-            <menu_item_check
-             label="Notifications Console"
-             layout="topleft"
-             name="Notifications"
-             shortcut="control|shift|5"
-             use_mac_ctrl="true">
-                <menu_item_check.on_check
-                 function="Advanced.CheckConsole"
-                 parameter="notifications" />
-                <menu_item_check.on_click
-                 function="Floater.Show"
-                 parameter="notifications_console" />
-            </menu_item_check>
--->
             <menu_item_separator
              layout="topleft" />
             <menu_item_call
