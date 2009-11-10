@@ -7,6 +7,7 @@ include(FindOpenGL)
 include(LLCommon)
 include(LLPlugin)
 include(Linking)
+include(LLSharedLibs)
 include(PluginAPI)
 include(LLImage)
 include(LLMath)
@@ -324,27 +325,7 @@ if (DARWIN)
       make_directory
       ${PLUGINS_DESTINATION_DIR}
     COMMENT "Creating Resources directory in app bundle."
-  )
-
-  # copy the llcommon dylib and its dependencies to Contents/Resources.
-  get_target_property(BUILT_LLCOMMON llcommon LOCATION)
-  add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_LLCOMMON}  ${PLUGINS_DESTINATION_DIR}
-    DEPENDS ${BUILT_LLCOMMON}
-  )
-  # FIXME: these paths should come from somewhere reliable.  The canonical list seems to be in indra/newview/viewer_manifest.py
-  add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${ARCH_PREBUILT_DIRS_RELEASE}/libapr-1.0.3.7.dylib  ${PLUGINS_DESTINATION_DIR}
-    DEPENDS ${ARCH_PREBUILT_DIRS_RELEASE}/libapr-1.0.3.7.dylib
-  )
-  add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${ARCH_PREBUILT_DIRS_RELEASE}/libaprutil-1.0.3.8.dylib  ${PLUGINS_DESTINATION_DIR}
-    DEPENDS ${ARCH_PREBUILT_DIRS_RELEASE}/libaprutil-1.0.3.8.dylib
-  )
-  add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${ARCH_PREBUILT_DIRS_RELEASE}/libexpat.0.5.0.dylib  ${PLUGINS_DESTINATION_DIR}
-    DEPENDS ${ARCH_PREBUILT_DIRS_RELEASE}/libexpat.0.5.0.dylib
-  )
+  ) 
 else (DARWIN)
   set(PLUGINS_DESTINATION_DIR
     ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
@@ -497,22 +478,14 @@ if(WINDOWS)
     ${plugintest_release_files}
     )
   set(plugin_test_targets ${plugin_test_targets} ${out_targets})
-
-  copy_if_different(
-    "${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}"
-    "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}"
-    out_targets
-    llcommon.dll libapr-1.dll libaprutil-1.dll libapriconv-1.dll
-    )
-  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
-
-  add_custom_target(copy_plugintest_libs ALL
-    DEPENDS 
-      ${plugin_test_targets}
-      llcommon
-    )
+ 
+   add_custom_target(copy_plugintest_libs ALL
+     DEPENDS 
+     ${plugin_test_targets}
+     )
 
   add_dependencies(llmediaplugintest copy_plugintest_libs)
 
 endif(WINDOWS)
 
+ll_deploy_sharedlibs_command(llmediaplugintest) 

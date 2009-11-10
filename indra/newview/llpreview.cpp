@@ -454,7 +454,7 @@ LLMultiPreview::LLMultiPreview()
 	{
 		// start with a rect in the top-left corner ; will get resized
 		LLRect rect;
-		rect.setLeftTopAndSize(0, gViewerWindow->getWindowHeight(), 200, 200);
+		rect.setLeftTopAndSize(0, gViewerWindow->getWindowHeightScaled(), 200, 200);
 		setRect(rect);
 	}
 	setTitle(LLTrans::getString("MultiPreviewTitle"));

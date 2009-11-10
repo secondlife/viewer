@@ -394,8 +394,8 @@ void LLPreviewTexture::updateDimensions()
 	S32 client_height = image_height;
 	S32 horiz_pad = 2 * (LLPANEL_BORDER_WIDTH + PREVIEW_PAD) + PREVIEW_RESIZE_HANDLE_SIZE;
 	S32 vert_pad = PREVIEW_HEADER_SIZE + 2 * CLIENT_RECT_VPAD + LLPANEL_BORDER_WIDTH;	
-	S32 max_client_width = gViewerWindow->getWindowWidth() - horiz_pad;
-	S32 max_client_height = gViewerWindow->getWindowHeight() - vert_pad;
+	S32 max_client_width = gViewerWindow->getWindowWidthScaled() - horiz_pad;
+	S32 max_client_height = gViewerWindow->getWindowHeightScaled() - vert_pad;
 
 	if (mAspectRatio > 0.f)
 	{

@@ -206,7 +206,7 @@ void LLToolBar::layoutButtons()
 {
 #if LL_DARWIN
 	const S32 FUDGE_WIDTH_OF_SCREEN = 4;                                    
-	S32 width = gViewerWindow->getWindowWidth() + FUDGE_WIDTH_OF_SCREEN;   
+	S32 width = gViewerWindow->getWindowWidthScaled() + FUDGE_WIDTH_OF_SCREEN;   
 	S32 pad = 2;
 
 	// this function may be called before postBuild(), in which case mResizeHandle won't have been set up yet.

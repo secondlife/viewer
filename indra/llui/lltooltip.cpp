@@ -57,6 +57,8 @@ LLToolTipView *gToolTipView = NULL;
 // Member functions
 //
 
+static LLDefaultChildRegistry::Register<LLToolTipView> register_tooltip_view("tooltip_view");
+
 LLToolTipView::Params::Params()
 {
 	mouse_opaque = false;
@@ -142,7 +144,7 @@ void LLToolTipView::drawStickyRect()
 //
 
 
-static LLDefaultChildRegistry::Register<LLToolTip> r("tool_tip");
+static LLDefaultChildRegistry::Register<LLToolTip> register_tooltip("tool_tip");
 
 
 LLToolTip::Params::Params()

@@ -208,7 +208,7 @@
     <button
      follows="left|bottom"
      height="20"
-     label="Block List"
+     label="Block list"
      layout="topleft"
      left="30"
      name="block_list"

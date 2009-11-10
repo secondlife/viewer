@@ -163,7 +163,6 @@ void LLTeleportHistoryPanel::ContextMenu::show(LLView* spawning_view, S32 index,
 		if (parent)
 		{
 			parent->removeChild(mMenu);
-			mMenu->setParent(NULL);
 		}
 		delete mMenu;
 	}
@@ -658,7 +657,6 @@ void LLTeleportHistoryPanel::onAccordionTabRightClick(LLView *view, S32 x, S32 y
 		if (parent)
 		{
 			parent->removeChild(mAccordionTabMenu);
-			mAccordionTabMenu->setParent(NULL);
 		}
 		delete mAccordionTabMenu;
 	}

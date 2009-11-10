@@ -130,8 +130,8 @@ void LLMemoryView::draw()
 	curUpdate++;
 
 	// setup window properly
-	S32 height = (S32) (gViewerWindow->getVirtualWindowRect().getHeight()*0.75f);
-	S32 width = (S32) (gViewerWindow->getVirtualWindowRect().getWidth() * 0.9f);
+	S32 height = (S32) (gViewerWindow->getWindowRectScaled().getHeight()*0.75f);
+	S32 width = (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.9f);
 	setRect(LLRect().setLeftTopAndSize(getRect().mLeft, getRect().mTop, width, height));
 	
 	// setup window color

@@ -404,8 +404,8 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 	{
 		LLPointer<LLImageRaw> raw = new LLImageRaw;
 
-		S32 width = gViewerWindow->getWindowDisplayWidth();
-		S32 height = gViewerWindow->getWindowDisplayHeight();
+		S32 width = gViewerWindow->getWindowWidthRaw();
+		S32 height = gViewerWindow->getWindowHeightRaw();
 
 		if (gSavedSettings.getBOOL("HighResSnapshot"))
 		{

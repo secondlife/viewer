@@ -103,8 +103,8 @@ void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect ne
 
 void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 {
-	S32 channel_top = gViewerWindow->getWorldViewRect().getHeight();
-	S32 channel_bottom = gViewerWindow->getWorldViewRect().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
+	S32 channel_top = gViewerWindow->getWorldViewRectRaw().getHeight();
+	S32 channel_bottom = gViewerWindow->getWorldViewRectRaw().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
 	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
 	setVisible(TRUE);
 }
@@ -706,7 +706,7 @@ void LLScreenChannel::updateShowToastsState()
 	// for Message Well floater showed in a docked state - adjust channel's height
 	if(dynamic_cast<LLSysWellWindow*>(floater))
 	{
-		S32 channel_bottom = gViewerWindow->getWorldViewRect().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
+		S32 channel_bottom = gViewerWindow->getWorldViewRectRaw().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
 		LLRect this_rect = getRect();
 		if(floater->getVisible() && floater->isDocked())
 		{

@@ -16,7 +16,7 @@ set(cmake_SOURCE_FILES
     CARes.cmake
     CURL.cmake
     CMakeCopyIfDifferent.cmake
-    CopyWinLibs.cmake
+    Copy3rdPartyLibs.cmake
     CSharpMacros.cmake
     DBusGlib.cmake
     DirectX.cmake
