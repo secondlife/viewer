@@ -323,8 +323,8 @@ void LLNameListCtrl::refreshAll(const LLUUID& id, const std::string& first,
 	LLInstanceTracker<LLNameListCtrl>::instance_iter it;
 	for (it = beginInstances(); it != endInstances(); ++it)
 	{
-		LLNameListCtrl* ctrl = *it;
-		ctrl->refresh(id, first, last, is_group);
+		LLNameListCtrl& ctrl = *it;
+		ctrl.refresh(id, first, last, is_group);
 	}
 }
 
