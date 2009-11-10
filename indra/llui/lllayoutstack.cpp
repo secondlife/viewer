@@ -792,7 +792,7 @@ void LLLayoutStack::calcMinExtents()
 //static 
 void LLLayoutStack::updateClass()
 {
-	for (LLInstanceTracker::instance_iter it = beginInstances(); it != endInstances(); ++it)
+	for (LLInstanceTracker<LLLayoutStack>::instance_iter it = beginInstances(); it != endInstances(); ++it)
 	{
 		(*it)->updateLayout();
 	}
