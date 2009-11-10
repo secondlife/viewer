@@ -59,6 +59,9 @@ static const LLRect CHICLET_RECT(0, 25, 25, 0);
 static const LLRect CHICLET_ICON_RECT(0, 24, 24, 0);
 static const LLRect VOICE_INDICATOR_RECT(25, 25, 45, 0);
 
+// static
+const S32 LLChicletPanel::s_scroll_ratio = 10;
+
 S32 LLNotificationChiclet::mUreadSystemNotifications = 0;
 
 boost::signals2::signal<LLChiclet* (const LLUUID&),
@@ -856,12 +859,14 @@ BOOL LLChicletPanel::postBuild()
 
 	mLeftScrollButton=getChild<LLButton>("chicklet_left_scroll_button");
 	LLTransientFloaterMgr::getInstance()->addControlView(mLeftScrollButton);
-	mLeftScrollButton->setClickedCallback(boost::bind(&LLChicletPanel::onLeftScrollClick,this));
+	mLeftScrollButton->setMouseDownCallback(boost::bind(&LLChicletPanel::onLeftScrollClick,this));
+	mLeftScrollButton->setHeldDownCallback(boost::bind(&LLChicletPanel::onLeftScrollHeldDown,this));
 	mLeftScrollButton->setEnabled(false);
 
 	mRightScrollButton=getChild<LLButton>("chicklet_right_scroll_button");
 	LLTransientFloaterMgr::getInstance()->addControlView(mRightScrollButton);
-	mRightScrollButton->setClickedCallback(boost::bind(&LLChicletPanel::onRightScrollClick,this));
+	mRightScrollButton->setMouseDownCallback(boost::bind(&LLChicletPanel::onRightScrollClick,this));
+	mRightScrollButton->setHeldDownCallback(boost::bind(&LLChicletPanel::onRightScrollHeldDown,this));
 	mRightScrollButton->setEnabled(false);	
 
 	return TRUE;
@@ -1218,6 +1223,22 @@ void LLChicletPanel::onLeftScrollClick()
 void LLChicletPanel::onRightScrollClick()
 {
 	scrollRight();
+}
+
+void LLChicletPanel::onLeftScrollHeldDown()
+{
+	S32 offset = mScrollingOffset;
+	mScrollingOffset = mScrollingOffset / s_scroll_ratio;
+	scrollLeft();
+	mScrollingOffset = offset;
+}
+
+void LLChicletPanel::onRightScrollHeldDown()
+{
+	S32 offset = mScrollingOffset;
+	mScrollingOffset = mScrollingOffset / s_scroll_ratio;
+	scrollRight();
+	mScrollingOffset = offset;
 }
 
 boost::signals2::connection LLChicletPanel::setChicletClickedCallback(
