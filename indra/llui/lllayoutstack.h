@@ -38,7 +38,7 @@
 
 class LLPanel;
 
-class LLLayoutStack : public LLView, LLInstanceTracker<LLLayoutStack>
+class LLLayoutStack : public LLView, public LLInstanceTracker<LLLayoutStack>
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
