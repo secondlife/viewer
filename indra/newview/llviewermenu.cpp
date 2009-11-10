@@ -468,16 +468,6 @@ void set_underclothes_menu_options()
 void init_menus()
 {
 	S32 top = gViewerWindow->getRootView()->getRect().getHeight();
-	S32 width = gViewerWindow->getRootView()->getRect().getWidth();
-
-	//
-	// Main menu bar
-	//
-	gMenuHolder = new LLViewerMenuHolderGL();
-	gMenuHolder->setRect(LLRect(0, top, width, 0));
-	gMenuHolder->setFollowsAll();
-
-	LLMenuGL::sMenuContainer = gMenuHolder;
 
 	// Initialize actions
 	initialize_menus();
@@ -7078,6 +7068,11 @@ void handle_test_load_url(void*)
 //
 // LLViewerMenuHolderGL
 //
+static LLDefaultChildRegistry::Register<LLViewerMenuHolderGL> r("menu_holder");
+
+LLViewerMenuHolderGL::LLViewerMenuHolderGL(const LLViewerMenuHolderGL::Params& p)
+: LLMenuHolderGL(p)
+{}
 
 BOOL LLViewerMenuHolderGL::hideMenus()
 {
@@ -7087,8 +7082,11 @@ BOOL LLViewerMenuHolderGL::hideMenus()
 	mParcelSelection = NULL;
 	mObjectSelection = NULL;
 
-	gMenuBarView->clearHoverItem();
-	gMenuBarView->resetMenuTrigger();
+	if (gMenuBarView)
+	{
+		gMenuBarView->clearHoverItem();
+		gMenuBarView->resetMenuTrigger();
+	}
 
 	return handled;
 }

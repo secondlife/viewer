@@ -1377,6 +1377,10 @@ void LLViewerWindow::initGLDefaults()
 	gCylinder.prerender();
 }
 
+struct MainPanel : public LLPanel
+{
+};
+
 void LLViewerWindow::initBase()
 {
 	S32 height = getWindowHeight();
@@ -1400,30 +1404,18 @@ void LLViewerWindow::initBase()
 	// Create the floater view at the start so that other views can add children to it. 
 	// (But wait to add it as a child of the root view so that it will be in front of the 
 	// other views.)
+	MainPanel* main_view = new MainPanel();
+	LLUICtrlFactory::instance().buildPanel(main_view, "main_view.xml");
+	main_view->setShape(full_window);
+	getRootView()->addChild(main_view);
+
+	// placeholder widget that controls where "world" is rendered
+	mWorldViewPlaceholder = main_view->getChildView("world_view_rect")->getHandle();
 
 	// Constrain floaters to inside the menu and status bar regions.
-	LLRect floater_view_rect = full_window;
-	// make space for menu bar
-	floater_view_rect.mTop -= MENU_BAR_HEIGHT;
-
-	LLFloaterView::Params fvparams;
-	fvparams.name("Floater View");
-	fvparams.rect(floater_view_rect);
-	fvparams.mouse_opaque(false);
-	fvparams.follows.flags(FOLLOWS_ALL);
-	fvparams.tab_stop(false);
-	gFloaterView = LLUICtrlFactory::create<LLFloaterView> (fvparams);
-
-	LLSnapshotFloaterView::Params snapParams;
-	snapParams.name("Snapshot Floater View");
-	snapParams.rect(full_window);
-	snapParams.enabled(false);
-	gSnapshotFloaterView = LLUICtrlFactory::create<LLSnapshotFloaterView> (snapParams);
+	gFloaterView = getRootView()->getChild<LLFloaterView>("Floater View");
+	gSnapshotFloaterView = getRootView()->getChild<LLSnapshotFloaterView>("Snapshot Floater View");
 	
-	// Snapshot floater must start invisible otherwise it eats all
-	// the tooltips. JC
-	gSnapshotFloaterView->setVisible(FALSE);
-
 	// Console
 	llassert( !gConsole );
 	LLConsole::Params cp;
@@ -1447,43 +1439,21 @@ void LLViewerWindow::initBase()
 	}
 #endif
 
-	// Debug view over the console
-	LLDebugView::Params debug_p;
-	debug_p.name("DebugView");
-	debug_p.rect(full_window);
-	debug_p.follows.flags(FOLLOWS_ALL);
-	debug_p.visible(true);
-	gDebugView = LLUICtrlFactory::create<LLDebugView>(debug_p);
-	getRootView()->addChild(gDebugView);
-
-	// Add floater view at the end so it will be on top, and give it tab priority over others
-	getRootView()->addChild(gFloaterView, -1);
-	getRootView()->addChild(gSnapshotFloaterView);
-
-	// notify above floaters!
-	LLRect notify_rect = floater_view_rect;
-	LLNotifyBoxView::Params p;
-	p.name("notify_container");
-	p.rect(notify_rect);
-	p.mouse_opaque(false);
-	p.follows.flags(FOLLOWS_ALL);
-	gNotifyBoxView = LLUICtrlFactory::create<LLNotifyBoxView> (p);
-	getRootView()->addChild(gNotifyBoxView, -2);
-
-	// View for tooltips
-	LLToolTipView::Params hvp;
-	hvp.name("tooltip view");
-	hvp.rect(full_window);
-	hvp.follows.flags(FOLLOWS_ALL);
-	gToolTipView = LLUICtrlFactory::create<LLToolTipView>(hvp);
-	gToolTipView->setFollowsAll();
-	getRootView()->addChild(gToolTipView);
+	gDebugView = getRootView()->getChild<LLDebugView>("DebugView");
+	gDebugView->init();
+	gNotifyBoxView = getRootView()->getChild<LLNotifyBoxView>("notify_container");
+	gToolTipView = getRootView()->getChild<LLToolTipView>("tooltip view");
 
 	// Add the progress bar view (startup view), which overrides everything
 	mProgressView = new LLProgressView(full_window);
 	getRootView()->addChild(mProgressView);
 	setShowProgress(FALSE);
 	setProgressCancelButtonVisible(FALSE);
+
+	gMenuHolder = getRootView()->getChild<LLViewerMenuHolderGL>("Menu Holder");
+
+	LLMenuGL::sMenuContainer = gMenuHolder;
+
 }
 
 void LLViewerWindow::initWorldUI()
@@ -1492,20 +1462,19 @@ void LLViewerWindow::initWorldUI()
 	S32 width = mRootView->getRect().getWidth();
 	LLRect full_window(0, height, width, 0);
 
-	gIMMgr = LLIMMgr::getInstance();
 
-	// side tray
-	getRootView()->addChild(LLSideTray::getInstance());
+	gIMMgr = LLIMMgr::getInstance();
 
 	getRootView()->sendChildToFront(gFloaterView);
 	getRootView()->sendChildToFront(gSnapshotFloaterView);
 
 	// new bottom panel
-	LLRect rc = LLBottomTray::getInstance()->getRect();
-	rc.mLeft = 0;
-	rc.mRight = mRootView->getRect().getWidth();
-	LLBottomTray::getInstance()->reshape(rc.getWidth(),rc.getHeight(),FALSE);
-	LLBottomTray::getInstance()->setRect(rc);
+	LLPanel* bottom_tray_container = getRootView()->getChild<LLPanel>("bottom_tray_container");
+	LLBottomTray* bottom_tray = LLBottomTray::getInstance();
+	bottom_tray->setShape(bottom_tray_container->getLocalRect());
+	bottom_tray->setFollowsAll();
+	bottom_tray_container->addChild(bottom_tray);
+	bottom_tray_container->setVisible(TRUE);
 
 	// Pre initialize instance communicate instance;
 	//  currently needs to happen before initializing chat or IM
@@ -1521,17 +1490,6 @@ void LLViewerWindow::initWorldUI()
 	gMorphView = LLUICtrlFactory::create<LLMorphView>(mvp);
 	getRootView()->addChild(gMorphView);
 
-	// Make space for nav bar.
-	LLNavigationBar* navbar = LLNavigationBar::getInstance();
-	LLRect floater_view_rect = gFloaterView->getRect();
-	LLRect notify_view_rect = gNotifyBoxView->getRect();
-	floater_view_rect.mTop -= navbar->getDefNavBarHeight();
-	floater_view_rect.mBottom += LLBottomTray::getInstance()->getRect().getHeight();
-	notify_view_rect.mTop -= navbar->getDefNavBarHeight();
-	notify_view_rect.mBottom += LLBottomTray::getInstance()->getRect().getHeight();
-	gFloaterView->setRect(floater_view_rect);
-	gNotifyBoxView->setRect(notify_view_rect);
-
 	LLWorldMapView::initClass();
 	
 	// Force gFloaterWorldMap to initialize
@@ -1542,22 +1500,23 @@ void LLViewerWindow::initWorldUI()
 	LLFloaterReg::hideInstance("build");
 
 	// Status bar
-	S32 menu_bar_height = gMenuBarView->getRect().getHeight();
-	LLRect root_rect = getRootView()->getRect();
-	LLRect status_rect(0, root_rect.getHeight(), root_rect.getWidth(), root_rect.getHeight() - menu_bar_height);
-	gStatusBar = new LLStatusBar(status_rect);
-	gStatusBar->setFollows(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_TOP);
-
-	gStatusBar->reshape(root_rect.getWidth(), gStatusBar->getRect().getHeight(), TRUE);
-	gStatusBar->translate(0, root_rect.getHeight() - gStatusBar->getRect().getHeight());
+	LLPanel* status_bar_container = getRootView()->getChild<LLPanel>("status_bar_container");
+	gStatusBar = new LLStatusBar(status_bar_container->getLocalRect());
+	gStatusBar->setFollowsAll();
+	gStatusBar->setShape(status_bar_container->getLocalRect());
 	// sync bg color with menu bar
 	gStatusBar->setBackgroundColor( gMenuBarView->getBackgroundColor().get() );
+	status_bar_container->addChild(gStatusBar);
+	status_bar_container->setVisible(TRUE);
 
 	// Navigation bar
-	navbar->reshape(root_rect.getWidth(), navbar->getRect().getHeight(), TRUE); // *TODO: redundant?
-	navbar->translate(0, root_rect.getHeight() - menu_bar_height - navbar->getRect().getHeight()); // FIXME
-	navbar->setBackgroundColor(gMenuBarView->getBackgroundColor().get());
+	LLPanel* nav_bar_container = getRootView()->getChild<LLPanel>("nav_bar_container");
 
+	LLNavigationBar* navbar = LLNavigationBar::getInstance();
+	navbar->setShape(nav_bar_container->getLocalRect());
+	navbar->setBackgroundColor(gMenuBarView->getBackgroundColor().get());
+	nav_bar_container->addChild(navbar);
+	nav_bar_container->setVisible(TRUE);
 	
 	if (!gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
 	{
@@ -1589,19 +1548,6 @@ void LLViewerWindow::initWorldUI()
 		LLBottomTray::getInstance()->showGestureButton(FALSE);
 	}
 
-	getRootView()->addChild(gStatusBar);
-	getRootView()->addChild(navbar);
-
-
-	//sidetray
-	//then notify area
-	//then menu
-	//getRootView()->sendChildToFront(LLSideTray::getInstance());
-
-	getRootView()->sendChildToFront(gNotifyBoxView);
-	// menu holder appears on top to get first pass at all mouse events
-	getRootView()->sendChildToFront(gMenuHolder);
-
 	if ( gHUDView == NULL )
 	{
 		LLRect hud_rect = full_window;
@@ -1615,11 +1561,27 @@ void LLViewerWindow::initWorldUI()
 		getRootView()->addChildInBack(gHUDView);
 	}
 
-	// this allows not to see UI elements created while UI initializing after Alt+Tab was pressed during login. EXT-744.
-	moveProgressViewToFront();
+	LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("stand_stop_flying_container");
+	LLPanelStandStopFlying* panel_stand_stop_flying	= LLPanelStandStopFlying::getInstance();
+	panel_stand_stop_flying->setShape(panel_ssf_container->getLocalRect());
+	panel_stand_stop_flying->setFollowsAll();
+	panel_ssf_container->addChild(panel_stand_stop_flying);
+	panel_ssf_container->setVisible(TRUE);
 
-	// tooltips are always on top
-	getRootView()->sendChildToFront(gToolTipView);
+	// put sidetray in container
+	LLPanel* side_tray_container = getRootView()->getChild<LLPanel>("side_tray_container");
+	LLSideTray* sidetrayp = LLSideTray::getInstance();
+	sidetrayp->setShape(side_tray_container->getLocalRect());
+	sidetrayp->setFollowsAll();
+	side_tray_container->addChild(sidetrayp);
+	side_tray_container->setVisible(FALSE);
+	
+	// put sidetray buttons in their own panel
+	LLPanel* buttons_panel = sidetrayp->getButtonsPanel();
+	LLPanel* buttons_panel_container = getRootView()->getChild<LLPanel>("side_bar_tabs");
+	buttons_panel->setShape(buttons_panel_container->getLocalRect());
+	buttons_panel->setFollowsAll();
+	buttons_panel_container->addChild(buttons_panel);
 }
 
 // Destroy the UI
@@ -2334,29 +2296,6 @@ void LLViewerWindow::moveCursorToCenter()
 	LLUI::setMousePositionScreen(x, y);	
 }
 
-void LLViewerWindow::updateBottomTrayRect()
-{
-	if(LLBottomTray::instanceExists() && LLSideTray::instanceCreated())
-	{
-		S32 side_tray_width = 0;
-		if(LLSideTray::getInstance()->getVisible())
-		{
-			side_tray_width = LLSideTray::getInstance()->getTrayWidth();
-		}
-
-		LLBottomTray* bottom_tray = LLBottomTray::getInstance();
-		S32 right = llround((F32)mWindowRect.mRight / mDisplayScale.mV[VX]) - side_tray_width;
-
-		LLRect rc = bottom_tray->getRect();
-		if (right != rc.mRight)
-		{
-			rc.mRight = right;
-			bottom_tray->reshape(rc.getWidth(), rc.getHeight(), FALSE);
-			bottom_tray->setRect(rc);
-			mOnBottomTrayWidthChanged();
-		}
-	}
-}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2398,9 +2337,10 @@ void LLViewerWindow::updateUI()
 {
 	static std::string last_handle_msg;
 
-	updateWorldViewRect();
+	// animate layout stacks so we have up to date rect for world view
+	LLLayoutStack::updateClass();
 
-	updateBottomTrayRect();
+	updateWorldViewRect();
 
 	LLView::sMouseHandlerMessage.clear();
 
@@ -2900,32 +2840,20 @@ void LLViewerWindow::updateKeyboardFocus()
 		LLSideTray::getInstance()->highlightFocused();
 }
 
+static LLFastTimer::DeclareTimer FTM_UPDATE_WORLD_VIEW("Update World View");
 void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 {
-	if (!LLSideTray::instanceCreated()) return;
+	LLFastTimer ft(FTM_UPDATE_WORLD_VIEW);
 
 	// start off using whole window to render world
 	LLRect new_world_rect = mWindowRect;
 
-	if (use_full_window == false)
+	if (use_full_window == false && mWorldViewPlaceholder.get())
 	{
-		// pull in right side of world view based on sidetray
-		LLSideTray* sidetray = LLSideTray::getInstance();
-		if (sidetray->getVisible())
-		{
-			new_world_rect.mRight -= llround((F32)sidetray->getTrayWidth() * mDisplayScale.mV[VX]);
-		}
-
-		// push top of world view below nav bar
-		if (LLNavigationBar::getInstance()->getVisible())
-		{
-			LLNavigationBar* barp = LLNavigationBar::getInstance();
-			LLRect nav_bar_rect;
-			if(barp->localRectToOtherView(barp->getLocalRect(), &nav_bar_rect, mRootView))
-			{
-				new_world_rect.mTop = llround((F32)LLNavigationBar::getInstance()->getRect().mBottom * mDisplayScale.mV[VY]);
-			}
-		}
+		new_world_rect = mWorldViewPlaceholder.get()->calcScreenRect();
+		// clamp to at least a 1x1 rect so we don't try to allocate zero width gl buffers
+		new_world_rect.mTop = llmax(new_world_rect.mTop, new_world_rect.mBottom + 1);
+		new_world_rect.mRight = llmax(new_world_rect.mRight, new_world_rect.mLeft + 1);
 	}
 
 	if (mWorldViewRect != new_world_rect)
