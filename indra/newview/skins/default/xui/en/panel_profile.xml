@@ -294,7 +294,6 @@
          left_pad="5"
          width="45" />
         <button
-         enabled="false"
          follows="bottom|left"
          height="19"
          label="Call"

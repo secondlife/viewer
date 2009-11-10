@@ -588,14 +588,9 @@ void LLPanelPeople::updateRecentList()
 
 void LLPanelPeople::buttonSetVisible(std::string btn_name, BOOL visible)
 {
-	// Currently all bottom buttons are wrapped with layout panels.
-	// Hiding a button has no effect: the panel still occupies its space.
-	// So we have to hide the whole panel (along with its button)
-	// to free some space up.
-	LLButton* btn = getChild<LLView>("button_bar")->getChild<LLButton>(btn_name);
-	LLPanel* btn_parent = dynamic_cast<LLPanel*>(btn->getParent());
-	if (btn_parent)
-		btn_parent->setVisible(visible);
+	// To make sure we're referencing the right widget (a child of the button bar).
+	LLButton* button = getChild<LLView>("button_bar")->getChild<LLButton>(btn_name);
+	button->setVisible(visible);
 }
 
 void LLPanelPeople::buttonSetEnabled(const std::string& btn_name, bool enabled)
@@ -624,14 +619,16 @@ void LLPanelPeople::updateButtons()
 	std::vector<LLUUID> selected_uuids;
 	getCurrentItemIDs(selected_uuids);
 	bool item_selected = (selected_uuids.size() == 1);
+	bool multiple_selected = (selected_uuids.size() >= 1);
 
 	buttonSetVisible("group_info_btn",		group_tab_active);
 	buttonSetVisible("chat_btn",			group_tab_active);
 	buttonSetVisible("add_friend_btn",		nearby_tab_active || recent_tab_active);
 	buttonSetVisible("view_profile_btn",	!group_tab_active);
 	buttonSetVisible("im_btn",				!group_tab_active);
+	buttonSetVisible("call_btn",			!group_tab_active);
 	buttonSetVisible("teleport_btn",		friends_tab_active);
-	buttonSetVisible("share_btn",			!recent_tab_active && false); // not implemented yet
+	buttonSetVisible("share_btn",			nearby_tab_active || friends_tab_active);
 
 	if (group_tab_active)
 	{
@@ -664,8 +661,8 @@ void LLPanelPeople::updateButtons()
 
 	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected);
 	buttonSetEnabled("view_profile_btn",	item_selected);
-	buttonSetEnabled("im_btn",				(selected_uuids.size() >= 1)); // allow starting the friends conference for multiple selection
-	buttonSetEnabled("call_btn",			item_selected && false); // not implemented yet
+	buttonSetEnabled("im_btn",				multiple_selected); // allow starting the friends conference for multiple selection
+	buttonSetEnabled("call_btn",			item_selected);
 	buttonSetEnabled("share_btn",			item_selected && false); // not implemented yet
 
 	bool none_group_selected = item_selected && selected_id.isNull();
@@ -1071,7 +1068,18 @@ bool LLPanelPeople::onRecentViewSortMenuItemCheck(const LLSD& userdata)
 
 void LLPanelPeople::onCallButtonClicked()
 {
-	// *TODO: not implemented yet
+	std::vector<LLUUID> selected_uuids;
+	getCurrentItemIDs(selected_uuids);
+
+	if (selected_uuids.size() == 1)
+	{
+		// initiate a P2P voice chat with the selected user
+		LLAvatarActions::startCall(getCurrentItemID());
+	}
+	else if (selected_uuids.size() > 1)
+	{
+		// *NOTE: ad-hoc voice chat not implemented yet
+	}
 }
 
 void LLPanelPeople::onTeleportButtonClicked()
