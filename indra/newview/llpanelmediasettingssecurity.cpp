@@ -215,7 +215,9 @@ void LLPanelMediaSettingsSecurity::getValues( LLSD &fill_me_in )
     // iterate over white list and extract items
     std::vector< LLScrollListItem* > white_list_items = mWhiteListList->getAllData();
     std::vector< LLScrollListItem* >::iterator iter = white_list_items.begin();
-    fill_me_in.erase(LLMediaEntry::WHITELIST_KEY);
+	// *NOTE: need actually set the key to be an emptyArray(), or the merge
+	// we do with this LLSD will think there's nothing to change.
+    fill_me_in[LLMediaEntry::WHITELIST_KEY] = LLSD::emptyArray();
     while( iter != white_list_items.end() )
     {
         std::string white_list_url = (*iter)->getValue().asString();

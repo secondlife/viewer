@@ -108,6 +108,11 @@ public:
 				if (te->getMediaData() != NULL)
 				{
 					result = te->getMediaData()->asLLSD();
+					// XXX HACK: workaround bug in asLLSD() where whitelist is not set properly
+					if (!result.has(LLMediaEntry::WHITELIST_KEY))
+					{
+						result[LLMediaEntry::WHITELIST_KEY] = LLSD::emptyArray();
+					}
 				}
 			}
 			return result;
