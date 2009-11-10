@@ -191,14 +191,17 @@ public:
 	bool isMediaPlaying();
 	bool isMediaPaused();
 	bool hasMedia();
-	bool isMediaFailed() { return mMediaSourceFailed; };
+	bool isMediaFailed() const { return mMediaSourceFailed; };
 	void resetPreviousMediaState();
 	
 	void setDisabled(bool disabled) { mIsDisabled = disabled; };
-	bool isMediaDisabled() { return mIsDisabled; };
+	bool isMediaDisabled() const { return mIsDisabled; };
 
 	// returns true if this instance should not be loaded (disabled, muted object, crashed, etc.)
 	bool isForcedUnloaded() const;
+	
+	void setIsParcelMedia(bool is_parcel_media) { mIsParcelMedia = is_parcel_media; };
+	bool isParcelMedia() const { return mIsParcelMedia; };
 
 	ECursorType getLastSetCursor() { return mLastSetCursor; };
 	
@@ -326,6 +329,7 @@ public:
 	int mPreviousMediaState;
 	F64 mPreviousMediaTime;
 	bool mIsDisabled;
+	bool mIsParcelMedia;
 	S32 mProximity;
 
 private:

@@ -459,12 +459,12 @@ LLViewerMedia::impl_list &LLViewerMedia::getPriorityList()
 // This is the predicate function used to sort sViewerMediaImplList by priority.
 bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
 {
-	if(i1->isForcedUnloaded())
+	if(i1->isForcedUnloaded() && !i2->isForcedUnloaded())
 	{
 		// Muted or failed items always go to the end of the list, period.
 		return false;
 	}
-	else if(i2->isForcedUnloaded())
+	else if(i2->isForcedUnloaded() && !i1->isForcedUnloaded())
 	{
 		// Muted or failed items always go to the end of the list, period.
 		return true;
@@ -487,6 +487,16 @@ bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLView
 	else if(i2->getUsedInUI() && !i1->getUsedInUI())
 	{
 		// i2 is a UI element, i1 is not.  This makes i2 "less than" i1, so it sorts earlier in our list.
+		return false;
+	}
+	else if(i1->isParcelMedia())
+	{
+		// The parcel media impl sorts above all other inworld media, unless one has focus.
+		return true;
+	}
+	else if(i2->isParcelMedia())
+	{
+		// The parcel media impl sorts above all other inworld media, unless one has focus.
 		return false;
 	}
 	else
@@ -686,6 +696,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mPreviousMediaState(MEDIA_NONE),
 	mPreviousMediaTime(0.0f),
 	mIsDisabled(false),
+	mIsParcelMedia(false),
 	mProximity(-1),
 	mIsUpdated(false)
 { 
