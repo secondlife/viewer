@@ -687,6 +687,10 @@ void LLPanelPicks::onPanelClassifiedSave(LLPanelClassifiedEdit* panel)
 		c_item->setRightMouseUpCallback(boost::bind(&LLPanelPicks::onRightMouseUpItem, this, _1, _2, _3, _4));
 		c_item->setMouseUpCallback(boost::bind(&LLPanelPicks::updateButtons, this));
 		c_item->childSetAction("info_chevron", boost::bind(&LLPanelPicks::onClickInfo, this));
+
+		// order does matter, showAccordion will invoke arrange for accordions.
+		mClassifiedsAccTab->changeOpenClose(false);
+		showAccordion("tab_classifieds", true);
 	}
 	else 
 	{

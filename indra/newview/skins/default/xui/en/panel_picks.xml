@@ -46,7 +46,7 @@
      layout="topleft"
      height="235"
      name="tab_classifieds"
-     title="Classified"
+     title="Classifieds"
      visible="false">
             <flat_list_view
              color="DkGray2"
