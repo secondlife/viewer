@@ -2383,12 +2383,8 @@ BOOL LLPanelGroupActionsSubTab::postBuildSubTab(LLView* root)
 void LLPanelGroupActionsSubTab::activate()
 {
 	LLPanelGroupSubTab::activate();
-	lldebugs << "LLPanelGroupActionsSubTab::activate()" << llendl;
 
-	mActionList->deselectAllItems();
-	mActionMembers->deleteAllItems();
-	mActionRoles->deleteAllItems();
-	mActionDescription->clear();
+	update(GC_ALL);
 }
 
 void LLPanelGroupActionsSubTab::deactivate()
