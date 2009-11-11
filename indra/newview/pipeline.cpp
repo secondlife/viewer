@@ -512,10 +512,10 @@ void LLPipeline::resizeScreenTexture()
 	LLFastTimer ft(FTM_RESIZE_SCREEN_TEXTURE);
 	if (gPipeline.canUseVertexShaders() && assertInitialized())
 	{
-		GLuint resX = gViewerWindow->getWorldViewWidthRaw();
-		GLuint resY = gViewerWindow->getWorldViewHeightRaw();
-		GLuint view_width = gViewerWindow->getWorldViewWidth();
-		GLuint view_height = gViewerWindow->getWorldViewHeight();
+		GLuint resX = gViewerWindow->getWindowWidthRaw();
+		GLuint resY = gViewerWindow->getWindowHeightRaw();
+		GLuint view_width = gViewerWindow->getWorldViewWidthRaw();
+		GLuint view_height = gViewerWindow->getWorldViewHeightRaw();
 	
 		allocateScreenBuffer(resX, resY, view_width, view_height);
 
@@ -711,10 +711,10 @@ void LLPipeline::createGLBuffers()
 
 	stop_glerror();
 
-	GLuint resX = gViewerWindow->getWorldViewWidthRaw();
-	GLuint resY = gViewerWindow->getWorldViewHeightRaw();
-	GLuint viewport_width = gViewerWindow->getWorldViewWidth();
-	GLuint viewport_height = gViewerWindow->getWorldViewHeight();
+	GLuint resX = gViewerWindow->getWindowWidthRaw();
+	GLuint resY = gViewerWindow->getWindowHeightRaw();
+	GLuint viewport_width = gViewerWindow->getWorldViewWidthRaw();
+	GLuint viewport_height = gViewerWindow->getWorldViewHeightRaw();
 	
 	if (LLPipeline::sRenderGlow)
 	{ //screen space glow buffers
