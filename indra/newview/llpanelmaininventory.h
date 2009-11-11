@@ -58,19 +58,7 @@ class LLPanelMainInventory : public LLPanel, LLInventoryObserver
 public:
 	friend class LLFloaterInventoryFinder;
 
-	struct Params 
-	:	public LLInitParam::Block<Params, LLPanel::Params>
-	{
-		Optional<bool>						hide_top_menu;
-		Optional<bool>						hide_bottom_menu;
-
-		Params() :
-			hide_top_menu("hide_top_menu", false),
-			hide_bottom_menu("hide_bottom_menu", false)
-		{}
-	};
-
-	LLPanelMainInventory(const Params&);
+	LLPanelMainInventory();
 	~LLPanelMainInventory();
 
 	BOOL postBuild();

@@ -103,17 +103,6 @@
          width="18" />
     </panel>
 
-    <panel
-     background_visible="true"
-     bevel_style="none"
-     bottom="0"
-     follows="left|right|bottom"
-     height="30"
-     layout="bottomleft"
-     left="0"
-	 visible="true"
-     name="top_panel"
-     width="330">
     <menu_bar
      bg_visible="false"
      follows="left|top|right"
@@ -475,5 +464,4 @@
             </menu_item_check>
         </menu>
     </menu_bar>
-	</panel>
 </panel>
