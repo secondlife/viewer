@@ -159,19 +159,19 @@ BOOL LLAgentUI::buildLocationString(std::string& str, ELocationFormat fmt,const 
 			buffer = llformat("%.100s", parcel_name.c_str());
 			break;
 		case LOCATION_FORMAT_NORMAL:
-			buffer = llformat("%s, %s", region_name.c_str(), parcel_name.c_str());
+			buffer = llformat("%s, %s", parcel_name.c_str(), region_name.c_str());
 			break;
 		case LOCATION_FORMAT_WITHOUT_SIM:
 			buffer = llformat("%s, %s (%d, %d, %d)",
-				region_name.c_str(),
 				parcel_name.c_str(),
+				region_name.c_str(),
 				pos_x, pos_y, pos_z);
 			break;
 		case LOCATION_FORMAT_FULL:
 			std::string sim_access_string = region->getSimAccessString();
 			buffer = llformat("%s, %s (%d, %d, %d)%s%s",
-				region_name.c_str(),
 				parcel_name.c_str(),
+				region_name.c_str(),
 				pos_x, pos_y, pos_z,
 				sim_access_string.empty() ? "" : " - ",
 				sim_access_string.c_str());

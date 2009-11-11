@@ -107,6 +107,7 @@ public:
 		{
 			draw_tooltip(FALSE);
 			mouse_opaque(FALSE);
+			default_icon_name("Generic_Person");
 		};
 	};
 
@@ -128,7 +129,7 @@ public:
 		Optional<std::string> default_icon;
 
 		Params()
-		 : default_icon("default_icon", "default_land_picture.j2c")
+		 : default_icon("default_icon", "Generic_Group")
 		{
 		};
 	};
@@ -831,6 +832,16 @@ protected:
 	void onRightScrollClick();
 
 	/*
+	* Callback for right scroll button held down event
+	*/
+	void onLeftScrollHeldDown();
+
+	/*
+	 * Callback for left scroll button held down event
+	 */
+	void onRightScrollHeldDown();
+
+	/*
 	 * Callback for mouse wheel scrolled, calls scrollRight() or scrollLeft()
 	*/
 	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
@@ -870,6 +881,7 @@ protected:
 	S32 mScrollingOffset;
 	S32 mMinWidth;
 	bool mShowControls;
+	static const S32 s_scroll_ratio;
 };
 
 template<class T> 

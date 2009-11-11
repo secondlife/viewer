@@ -135,6 +135,8 @@ public:
 	S32			getTrayWidth();
 
 	void		resetPanelRect	();
+
+	void		processTriState ();
 	
 
 protected:
