@@ -130,7 +130,7 @@ private:
 
 	LLViewerFetchedTexture * getImage(const LLUUID &image_id,									 
 									 BOOL usemipmap = TRUE,
-									 S32 boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
+									 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
 									 LLGLint internal_format = 0,
 									 LLGLenum primary_format = 0,
@@ -139,7 +139,7 @@ private:
 	
 	LLViewerFetchedTexture * getImageFromFile(const std::string& filename,									 
 									 BOOL usemipmap = TRUE,
-									 S32 boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
+									 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
 									 LLGLint internal_format = 0,
 									 LLGLenum primary_format = 0,
@@ -148,7 +148,7 @@ private:
 	
 	LLViewerFetchedTexture* getImageFromUrl(const std::string& url,
 									 BOOL usemipmap = TRUE,
-									 BOOL level_immediate = FALSE,		// Get the requested level immediately upon creation.
+									 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
 									 LLGLint internal_format = 0,
 									 LLGLenum primary_format = 0,
@@ -157,7 +157,7 @@ private:
 
 	LLViewerFetchedTexture* createImage(const LLUUID &image_id,
 									 BOOL usemipmap = TRUE,
-									 S32 boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
+									 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
 									 LLGLint internal_format = 0,
 									 LLGLenum primary_format = 0,
@@ -228,9 +228,11 @@ public:
 	static void onUIImageLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 private:
 	LLUIImagePtr loadUIImageByName(const std::string& name, const std::string& filename,
-								   BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, S32 boost_priority = 0);
+		                           BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, 
+		                           LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_UI);
 	LLUIImagePtr loadUIImageByID(const LLUUID& id,
-								 BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, S32 boost_priority = 0);
+								 BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, 
+								 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_UI);
 
 	LLUIImagePtr loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null);
 

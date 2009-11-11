@@ -206,33 +206,31 @@ LLPointer<LLViewerTexture> LLViewerTextureManager::getLocalTexture(const U32 wid
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(
 	                                               const LLUUID &image_id,											       
 												   BOOL usemipmaps,
-												   S32 boost_priority,
+												   LLViewerTexture::EBoostLevel boost_priority,
 												   S8 texture_type,
 												   LLGLint internal_format,
 												   LLGLenum primary_format,
 												   LLHost request_from_host)
 {
-	llassert_always(boost_priority >= LLViewerTexture::BOOST_NONE) ;
 	return gTextureList.getImage(image_id, usemipmaps, boost_priority, texture_type, internal_format, primary_format, request_from_host) ;
 }
 	
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromFile(
 	                                               const std::string& filename,												   
 												   BOOL usemipmaps,
-												   S32 boost_priority,
+												   LLViewerTexture::EBoostLevel boost_priority,
 												   S8 texture_type,
 												   LLGLint internal_format,
 												   LLGLenum primary_format, 
 												   const LLUUID& force_id)
 {
-	llassert_always(boost_priority >= LLViewerTexture::BOOST_NONE) ;
 	return gTextureList.getImageFromFile(filename, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id) ;
 }
 
 //static 
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromUrl(const std::string& url,									 
 									 BOOL usemipmaps,
-									 S32 boost_priority,
+									 LLViewerTexture::EBoostLevel boost_priority,
 									 S8 texture_type,
 									 LLGLint internal_format,
 									 LLGLenum primary_format,
