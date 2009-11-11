@@ -160,7 +160,7 @@ BOOL LLTexLayerParamAlpha::getMultiplyBlend() const
 	return ((LLTexLayerParamAlphaInfo *)getInfo())->mMultiplyBlend; 	
 }
 
-void LLTexLayerParamAlpha::setWeight(F32 weight, BOOL set_by_user)
+void LLTexLayerParamAlpha::setWeight(F32 weight, BOOL upload_bake)
 {
 	if (mIsAnimating || mTexLayer == NULL)
 	{
@@ -179,37 +179,37 @@ void LLTexLayerParamAlpha::setWeight(F32 weight, BOOL set_by_user)
 		{
 			if (gAgent.cameraCustomizeAvatar())
 			{
-				set_by_user = FALSE;
+				upload_bake = FALSE;
 			}
-			mAvatar->invalidateComposite(mTexLayer->getTexLayerSet(), set_by_user);
+			mAvatar->invalidateComposite(mTexLayer->getTexLayerSet(), upload_bake);
 			mTexLayer->invalidateMorphMasks();
 		}
 	}
 }
 
-void LLTexLayerParamAlpha::setAnimationTarget(F32 target_value, BOOL set_by_user)
+void LLTexLayerParamAlpha::setAnimationTarget(F32 target_value, BOOL upload_bake)
 { 
 	// do not animate dummy parameters
 	if (mIsDummy)
 	{
-		setWeight(target_value, set_by_user);
+		setWeight(target_value, upload_bake);
 		return;
 	}
 
 	mTargetWeight = target_value; 
-	setWeight(target_value, set_by_user); 
+	setWeight(target_value, upload_bake); 
 	mIsAnimating = TRUE;
 	if (mNext)
 	{
-		mNext->setAnimationTarget(target_value, set_by_user);
+		mNext->setAnimationTarget(target_value, upload_bake);
 	}
 }
 
-void LLTexLayerParamAlpha::animate(F32 delta, BOOL set_by_user)
+void LLTexLayerParamAlpha::animate(F32 delta, BOOL upload_bake)
 {
 	if (mNext)
 	{
-		mNext->animate(delta, set_by_user);
+		mNext->animate(delta, upload_bake);
 	}
 }
 
@@ -449,7 +449,7 @@ LLColor4 LLTexLayerParamColor::getNetColor() const
 	}
 }
 
-void LLTexLayerParamColor::setWeight(F32 weight, BOOL set_by_user)
+void LLTexLayerParamColor::setWeight(F32 weight, BOOL upload_bake)
 {
 	if (mIsAnimating)
 	{
@@ -474,10 +474,10 @@ void LLTexLayerParamColor::setWeight(F32 weight, BOOL set_by_user)
 
 		if ((mAvatar->getSex() & getSex()) && (mAvatar->isSelf() && !mIsDummy)) // only trigger a baked texture update if we're changing a wearable's visual param.
 		{
-			onGlobalColorChanged(set_by_user);
+			onGlobalColorChanged(upload_bake);
 			if (mTexLayer)
 			{
-				mAvatar->invalidateComposite(mTexLayer->getTexLayerSet(), set_by_user);
+				mAvatar->invalidateComposite(mTexLayer->getTexLayerSet(), upload_bake);
 			}
 		}
 
@@ -485,23 +485,23 @@ void LLTexLayerParamColor::setWeight(F32 weight, BOOL set_by_user)
 	}
 }
 
-void LLTexLayerParamColor::setAnimationTarget(F32 target_value, BOOL set_by_user)
+void LLTexLayerParamColor::setAnimationTarget(F32 target_value, BOOL upload_bake)
 { 
 	// set value first then set interpolating flag to ignore further updates
 	mTargetWeight = target_value; 
-	setWeight(target_value, set_by_user);
+	setWeight(target_value, upload_bake);
 	mIsAnimating = TRUE;
 	if (mNext)
 	{
-		mNext->setAnimationTarget(target_value, set_by_user);
+		mNext->setAnimationTarget(target_value, upload_bake);
 	}
 }
 
-void LLTexLayerParamColor::animate(F32 delta, BOOL set_by_user)
+void LLTexLayerParamColor::animate(F32 delta, BOOL upload_bake)
 {
 	if (mNext)
 	{
-		mNext->animate(delta, set_by_user);
+		mNext->animate(delta, upload_bake);
 	}
 }
 
