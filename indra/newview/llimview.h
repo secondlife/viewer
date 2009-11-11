@@ -418,6 +418,19 @@ private:
 	LLSD mPayload;
 };
 
+class LLOutgoingCallDialog : public LLModalDialog
+{
+public:
+	LLOutgoingCallDialog(const LLSD& payload);
+
+	/*virtual*/ BOOL postBuild();
+
+private:
+	void processCallResponse(S32 response);
+
+	LLSD mPayload;
+};
+
 // Globals
 extern LLIMMgr *gIMMgr;
 
