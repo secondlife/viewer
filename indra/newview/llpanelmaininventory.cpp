@@ -49,7 +49,7 @@
 #include "llviewermenu.h"
 #include "llviewertexturelist.h"
 
-static LLRegisterPanelClassWrapper<LLPanelMainInventory> t_inventory("panel_main_inventory"); // Seraph is this redundant with constructor?
+static LLDefaultChildRegistry::Register<LLPanelMainInventory> r("panel_main_inventory");
 
 void on_file_loaded_for_save(BOOL success, 
 							 LLViewerFetchedTexture *src_vi,
@@ -90,8 +90,8 @@ private:
 /// LLPanelMainInventory
 ///----------------------------------------------------------------------------
 
-LLPanelMainInventory::LLPanelMainInventory()
-	: LLPanel(),
+LLPanelMainInventory::LLPanelMainInventory(const LLPanelMainInventory::Params& p)
+	: LLPanel(p),
 	  mActivePanel(NULL),
 	  mSavedFolderState(NULL),
 	  mFilterText(""),
@@ -124,6 +124,24 @@ LLPanelMainInventory::LLPanelMainInventory()
 	
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
+
+	if (p.hide_top_menu)
+	{
+		LLInventoryPanel *top_panel = getChild<LLInventoryPanel>("top_panel");
+		if (top_panel)
+		{
+			top_panel->setVisible(FALSE);
+		}
+	}
+
+	if (p.hide_bottom_menu)
+	{
+		LLInventoryPanel *bottom_panel = getChild<LLInventoryPanel>("bottom_panel");
+		if (bottom_panel)
+		{
+			bottom_panel->setVisible(FALSE);
+		}
+	}
 }
 
 BOOL LLPanelMainInventory::postBuild()
