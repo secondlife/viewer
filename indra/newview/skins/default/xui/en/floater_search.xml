@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- height="400"
+ height="512"
  layout="topleft"
  min_height="140"
  min_width="467"
