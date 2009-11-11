@@ -378,9 +378,15 @@ void LLVoiceChannel::setURI(std::string uri)
 
 void LLVoiceChannel::setState(EState state)
 {
+	LLSD payload;
+	payload["session_id"] = mSessionID;
+	payload["session_name"] = mSessionName;
+
 	switch(state)
 	{
 	case STATE_RINGING:
+		LLFloaterReg::showInstance("outgoing_call", payload, TRUE);
+		llinfos << "RINGINGGGGGGGG " << mSessionName << llendl;
 		gIMMgr->addSystemMessage(mSessionID, "ringing", mNotifyArgs);
 		break;
 	case STATE_CONNECTED:
