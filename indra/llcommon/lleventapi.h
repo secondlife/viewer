@@ -23,7 +23,7 @@
  * from LLDispatchListener -- it also gives us event API introspection.
  * Deriving from LLInstanceTracker lets us enumerate instances.
  */
-class LLEventAPI: public LLDispatchListener,
+class LL_COMMON_API LLEventAPI: public LLDispatchListener,
                   public LLInstanceTracker<LLEventAPI, std::string>
 {
     typedef LLDispatchListener lbase;
