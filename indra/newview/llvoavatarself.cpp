@@ -2043,7 +2043,6 @@ void LLVOAvatarSelf::onCustomizeEnd()
 	if (avatarp)
 	{
 		avatarp->invalidateAll();
-		avatarp->requestLayerSetUploads();
 	}
 }
 
@@ -2080,7 +2079,6 @@ void LLVOAvatarSelf::setInvisible(BOOL newvalue)
 	{
 		setCompositeUpdatesEnabled(TRUE);
 		invalidateAll();
-		requestLayerSetUploads();
 		gAgent.sendAgentSetAppearance();
 	}
 }
