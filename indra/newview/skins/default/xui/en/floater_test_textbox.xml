@@ -10,83 +10,64 @@
     <text
      type="string"
      length="1"
-     height="10"
+     height="90"
      layout="topleft"
      left="10"
-     top="30"
-     width="300">
-        Bottom and left specified
-    </text>
-    <text
-     type="string"
-     length="1"
-     height="10"
-     layout="topleft"
-     left_delta="200"
-     top_delta="0"
-     width="300">
-        Bottom delta left delta
-    </text>
-    <text
-     type="string"
-     length="1"
-     height="10"
-     layout="topleft"
-     left="10"
-     top="50"
-     width="300">
-        Bottom delta -20
-    </text>
-    <text
-     type="string"
-     length="1"
-     height="10"
-     layout="topleft"
-     left_delta="0"
      top_pad="30"
      width="300">
         First line of multiple lines
-    Second line of multiple lines
+Second line of multiple lines
+Third line of multiple lines
+Fourth line of multiple lines
+Fifth line of multiple lines
     </text>
       <text
        top_pad="10"
        left="10"
-       right="-10" 
+       right="-10"
+       height="20"
        follows="top|left"
        font.name="SansSerifSmall"
        name="test_text10"
        tool_tip="text">
-        SansSerifSmall. Русский 中文 (简体) The quick brown fox jumped over the lazy dog.
+        SansSerifSmall
+The 华文细黑 brown fox ヒラキjumped over the lazy dog.
       </text>
       <text
        top_pad="10"
        left="10"
-       right="-10" 
+       right="-10"
+       height="25"
        follows="top|left"
-       font.name="SansSerif"
+       font.name="SansSerifMedium"
        name="test_text11"
        tool_tip="text">
-        SansSerif.  Русский 中文 (简体) The quick brown fox jumped over the lazy dog.
+        SansSerif
+The 华文细黑 brown fox ヒラキjumped over the lazy dog.
       </text>
       <text
        top_pad="10"
        left="10"
-       right="-10" 
+       right="-10"
        follows="top|left"
+       height="26"
        font.name="SansSerifLarge"
        name="test_text12"
        tool_tip="text">
-        SansSerifLarge.  Русский 中文 (简体) The quick brown fox jumped over the lazy dog.
+        SansSerifLarge
+The 华文细黑 brown fox ヒラキjumped over the lazy dog.
       </text>
       <text
        top_pad="10"
        left="10"
-       right="-10" 
+       height="35"
+       right="-10"
        follows="top|left"
        font.name="SansSerifHuge"
        name="test_text13"
        tool_tip="text">
-        SansSerifHuge.  Русский 中文 (简体) The quick brown fox jumped over the lazy dog.
+        SansSerifHuge
+The 华文细黑 brown fox ヒラキjumped over the lazy dog.
       </text>
     <text
      type="string"
@@ -113,27 +94,6 @@
       SansSerif BOLD UNDERLINE
     </text>
     <text
-     type="string"
-     length="1"
-     font="SansSerif"
-     height="10"
-     layout="topleft"
-     left_delta="0"
-     top_pad="10"
-     width="300">
-      SansSerif UNDERLINE
-    </text>
-    <text
-     type="string"
-     length="1"
-     height="10"
-     layout="topleft"
-     left_delta="0"
-     top_pad="10"
-     width="300">
-        Escaped greater than &gt;
-    </text>
-    <text
    type="string"
    length="1"
    bottom="390"
@@ -142,8 +102,7 @@
    left="10"
    name="right_aligned_text"
    width="380"
-   halign="right" 
-   text_color="1 1 1 0.7"
+   halign="right"
    top_pad="10">
     Right aligned text
   </text>
@@ -157,21 +116,19 @@
  name="centered_text"
  width="380"
  halign="center"
- text_color="1 1 1 0.7"
  top_pad="10">
     Centered text
   </text>
   <text
  type="string"
  length="1"
- height="60" 
+ height="60"
  label="N"
  layout="topleft"
  left="10"
  name="left_aligned_text"
  width="380"
  halign="left"
- text_color="1 1 1 0.7"
  top_pad="10">
     Left aligned text
   </text>
@@ -184,7 +141,6 @@
    left="10"
    name="floater_map_north"
    right="30"
-   text_color="1 1 1 0.7"
    top="370">
     N
   </text>
