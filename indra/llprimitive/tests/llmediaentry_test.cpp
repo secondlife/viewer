@@ -9,7 +9,14 @@
 
 #include "linden_common.h"
 #include "lltut.h"
-#include "boost/lexical_cast.hpp"
+#if LL_WINDOWS
+#pragma warning (push)
+#pragma warning (disable : 4702) // boost::lexical_cast generates this warning
+#endif
+#include <boost/lexical_cast.hpp>
+#if LL_WINDOWS
+#pragma warning (pop)
+#endif
 #include "llstring.h"
 #include "llsdutil.h"
 #include "llsdserialize.h"
