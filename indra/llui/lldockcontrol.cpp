@@ -256,7 +256,6 @@ void LLDockControl::on()
 {
 	 if (isDockVisible())
 	{
-		mDockableFloater->setCanDrag(false);
 		mEnabled = true;
 		mRecalculateDocablePosition = true;
 	}
@@ -264,7 +263,6 @@ void LLDockControl::on()
 
 void LLDockControl::off()
 {
-	mDockableFloater->setCanDrag(true);
 	mEnabled = false;
 }
 

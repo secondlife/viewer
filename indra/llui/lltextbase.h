@@ -118,6 +118,8 @@ public:
 	// LLUICtrl interface
 	/*virtual*/ BOOL		acceptsTextInput() const { return !mReadOnly; }
 	/*virtual*/ void		setColor( const LLColor4& c );
+	virtual     void 		setReadOnlyColor(const LLColor4 &c);
+
 	/*virtual*/ void		setValue(const LLSD& value );
 	/*virtual*/ LLTextViewModel* getViewModel() const;
 

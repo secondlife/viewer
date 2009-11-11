@@ -439,8 +439,11 @@ bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 	addToHistory(session_id, from, from_id, utf8_text);
 	if (log2file) logToFile(session_id, from, from_id, utf8_text);
 
-	//we do not count system messages
-	if (from_id.notNull()) session->mNumUnread++;
+	//we do not count system messages and our messages
+	if (from_id.notNull() && from_id != gAgentID && SYSTEM_FROM != from)
+	{
+		session->mNumUnread++;
+	}
 
 	// notify listeners
 	LLSD arg;

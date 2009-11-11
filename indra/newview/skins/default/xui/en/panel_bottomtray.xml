@@ -45,7 +45,7 @@
          min_height="23"
          width="310"
          top="0"
-         min_width="310"
+         min_width="192"
          name="chat_bar"
          user_resize="false"
          filename="panel_nearby_chat_bar.xml" />
@@ -94,11 +94,11 @@
          min_height="28"
          width="82"
          top_delta="0"
-         min_width="76"
+         min_width="82"
          name="gesture_panel"
          user_resize="false">
          <gesture_combo_box
-           follows="right"
+          follows="left|right"
           height="23"
           label="Gesture"
           layout="topleft"
@@ -129,8 +129,9 @@
          layout="topleft"
          min_height="28"
          name="movement_panel"
+         user_resize="false"
          width="80"
-         min_width="76">
+         min_width="80">
             <button
              follows="left|right"
              height="23"
@@ -166,10 +167,10 @@
          height="28"
          layout="topleft"
          min_height="28"
-         min_width="76"
+         min_width="80"
          name="cam_panel"
-         top_delta="-10"
-         width="100">
+         user_resize="false"
+         width="80">
             <button
              follows="left|right"
              height="23"
@@ -205,6 +206,7 @@
          follows="left|right"
          height="28"
          layout="topleft"
+         min_width="40"
          name="snapshot_panel"
          width="40">
             <button
@@ -231,15 +233,18 @@
          top="0"
          name="chiclet_list_panel"
          width="189"
-         min_width="189"
+         min_width="180"
          user_resize="false"
          auto_resize="true">
+<!--*NOTE: min_width of the chiclet_panel (chiclet_list) must be the same 
+as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. EXT-991-->
             <chiclet_panel
 	    mouse_opaque="false"
              follows="left|right"
              height="28"
              layout="topleft"
              left="0"
+             min_width="180"
              name="chiclet_list"
              top="0"
              chiclet_padding="3"
@@ -313,9 +318,9 @@
                />
                <unread_notifications
                width="34"
-               height="23"
-               left="22"
-               top="23" />
+               height="20"
+               left="0"
+               top="19" />
 	    </chiclet_notification>
         </layout_panel>
        <icon

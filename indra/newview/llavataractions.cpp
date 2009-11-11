@@ -54,6 +54,7 @@
 #include "llmutelist.h"
 #include "llrecentpeople.h"
 #include "llsidetray.h"
+#include "lltrans.h"
 #include "llviewerobjectlist.h"
 #include "llviewermessage.h"	// for handle_lure
 #include "llviewerregion.h"
