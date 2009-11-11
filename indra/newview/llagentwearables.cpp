@@ -887,9 +887,8 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 			lldebugs << "       " << LLWearableDictionary::getTypeLabel(type) << llendl;
 		}
 		
-		// What we do here is get the complete information on the items in
-		// the inventory, and set up an observer that will wait for that to
-		// happen.
+		// Get the complete information on the items in the inventory and set up an observer
+		// that will trigger when the complete information is fetched.
 		LLInventoryFetchDescendentsObserver::folder_ref_t folders;
 		folders.push_back(current_outfit_id);
 		outfit->fetchDescendents(folders);
