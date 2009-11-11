@@ -2023,6 +2023,8 @@ void LLInitialWearablesFetch::done()
 	else
 	{
 		processWearablesMessage();
+		// Create links for attachments that may have arrived before the COF existed.
+		LLAppearanceManager::linkRegisteredAttachments();
 	}
 	delete this;
 }

@@ -1123,6 +1123,7 @@ void LLAppearanceManager::wearItem( LLInventoryItem* item, bool do_update )
 	{
 		if (do_update)
 			LLAppearanceManager::updateAppearanceFromCOF();
+		return;
 	}
 	else
 	{
@@ -1134,6 +1135,7 @@ void LLAppearanceManager::wearItem( LLInventoryItem* item, bool do_update )
 							 LLAssetType::AT_LINK,
 							 cb);
 	}
+	return;
 }
 
 /* static */
@@ -1280,4 +1282,23 @@ void LLAppearanceManager::unregisterAttachment(const LLUUID& item_id)
 	   {
 		   //llinfos << "no link changes, inv link not enabled" << llendl;
 	   }
+}
+
+/* static */
+void LLAppearanceManager::linkRegisteredAttachments()
+{
+	for (std::set<LLUUID>::iterator it = sRegisteredAttachments.begin();
+		 it != sRegisteredAttachments.end();
+		 ++it)
+	{
+		LLUUID item_id = *it;
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		if (item)
+		{
+			wearItem(item, false);
+			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+			gInventory.notifyObservers();
+		}
+	}
+	sRegisteredAttachments.clear();
 }
