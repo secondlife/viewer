@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_close="false"
+ can_minimize="false"
+ can_tear_off="false"
+ height="200"
+ layout="topleft"
+ name="outgoing call"
+ help_topic="outgoing_call"
+ title="CALLING"
+ width="240">
+     <floater.string
+     name="anonymous">
+        anonymous
+    </floater.string>
+    <floater.string
+     name="VoiceInviteP2P">
+        is calling.
+    </floater.string>
+    <floater.string
+     name="VoiceInviteAdHoc">
+        has joined a Voice Chat call with a conference chat.
+    </floater.string>
+    <avatar_icon
+     enabled="false"
+     follows="left|top"
+     height="36"
+     image_name="icon_avatar_online.tga"
+     layout="topleft"
+     left_delta="19"
+     top="35"
+     width="36" />
+    <text_editor
+     font="SansSerif"
+     height="64"
+     border_visible="false"
+     layout="topleft"
+     left="77"
+     max_length="2147483647"
+     name="caller name"
+     read_only="true"
+     top="21"
+     width="163"
+     word_wrap="true" />
+    <button
+     height="24"
+     label="Accept"
+     label_selected="Accept"
+     layout="topleft"
+     left="70"
+     name="Accept"
+     top="92"
+     width="100" />
+    <button
+     height="24"
+     label="Reject"
+     label_selected="Reject"
+     layout="topleft"
+     left_delta="0"
+     name="Reject"
+     top_pad="12"
+     width="100" />
+    <button
+     height="24"
+     label="Start IM"
+     layout="topleft"
+     left_delta="0"
+     name="Start IM"
+     top_pad="12"
+     width="100" />
+</floater>
