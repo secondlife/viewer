@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="build options floater" title="Opcje Siatki">
+<floater name="build options floater" title="OPCJE SIATKI">
 	<spinner label="Jednostka Siatki (metry)" name="GridResolution" />
 	<spinner label="Rozmiary Siatki (metry)" name="GridDrawSize" />
 	<check_box label="Udostępnij Podjednostkowe Dopasowywanie" name="GridSubUnit" />

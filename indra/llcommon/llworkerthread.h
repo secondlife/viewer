@@ -52,6 +52,7 @@ class LLWorkerClass;
 
 class LL_COMMON_API LLWorkerThread : public LLQueuedThread
 {
+	friend class LLWorkerClass;
 public:
 	class WorkRequest : public LLQueuedThread::QueuedRequest
 	{
@@ -92,8 +93,11 @@ public:
 	
 	handle_t addWorkRequest(LLWorkerClass* workerclass, S32 param, U32 priority = PRIORITY_NORMAL);
 	
-	void deleteWorker(LLWorkerClass* workerclass); // schedule for deletion
 	S32 getNumDeletes() { return (S32)mDeleteList.size(); } // debug
+
+private:
+	void deleteWorker(LLWorkerClass* workerclass); // schedule for deletion
+	
 };
 
 //============================================================================

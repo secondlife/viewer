@@ -145,13 +145,18 @@ LLFloaterMediaSettings* LLFloaterMediaSettings::getInstance()
 //static 
 void LLFloaterMediaSettings::apply()
 {
-	
     LLSD settings;
+	sInstance->mPanelMediaSettingsGeneral->preApply();
     sInstance->mPanelMediaSettingsGeneral->getValues( settings );
-    sInstance->mPanelMediaSettingsSecurity->getValues( settings );
+	sInstance->mPanelMediaSettingsSecurity->preApply();
+	sInstance->mPanelMediaSettingsSecurity->getValues( settings );
+	sInstance->mPanelMediaSettingsPermissions->preApply();
     sInstance->mPanelMediaSettingsPermissions->getValues( settings );
 	LLSelectMgr::getInstance()->selectionSetMedia( LLTextureEntry::MF_HAS_MEDIA );
     LLSelectMgr::getInstance()->selectionSetMediaData(settings);
+	sInstance->mPanelMediaSettingsGeneral->postApply();
+	sInstance->mPanelMediaSettingsSecurity->postApply();
+	sInstance->mPanelMediaSettingsPermissions->postApply();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

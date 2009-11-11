@@ -77,6 +77,10 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 	{
 		old_media_impl->focus(false);
 	}
+	
+	// Always clear the current selection.  If we're setting focus on a face, we'll reselect the correct object below.
+	LLSelectMgr::getInstance()->deselectAll();
+	mSelection = NULL;
 
 	if (media_impl.notNull() && objectp.notNull())
 	{
@@ -86,6 +90,12 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 		mFocusedObjectID = objectp->getID();
 		mFocusedObjectFace = face;
 		mFocusedObjectNormal = pick_normal;
+		
+		// Set the selection in the selection manager so we can draw the focus ring.
+		mSelection = LLSelectMgr::getInstance()->selectObjectOnly(objectp, face);
+
+		// Focusing on a media face clears its disable flag.
+		media_impl->setDisabled(false);
 
 		LLTextureEntry* tep = objectp->getTE(face);
 		if(tep->hasMedia())
@@ -489,8 +499,14 @@ void LLViewerMediaFocus::focusZoomOnMedia(LLUUID media_id)
 			S32 face = obj->getFaceIndexWithMediaImpl(impl, -1);
 			
 			// We don't have a proper pick normal here, and finding a face's real normal is... complicated.
-			// For now, use +z to look at the top of the object.
-			LLVector3 normal(0.0f, 0.0f, 1.0f);
+			LLVector3 normal = obj->getApproximateFaceNormal(face);
+			if(normal.isNull())
+			{
+				// If that didn't work, use the inverse of the camera "look at" axis, which should keep the camera pointed in the same direction.
+//				llinfos << "approximate face normal invalid, using camera direction." << llendl;
+				normal = LLViewerCamera::getInstance()->getAtAxis();
+				normal *= (F32)-1.0f;
+			}
 			
 			// Attempt to focus/zoom on that face.
 			setFocusFace(obj, face, impl, normal);

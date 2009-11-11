@@ -1108,7 +1108,7 @@ void LLTextBase::reflow(S32 start_index)
 														S32_MAX);
 
 			S32 segment_width, segment_height;
-			segment->getDimensions(seg_offset, character_count, segment_width, segment_height);
+			bool force_newline = segment->getDimensions(seg_offset, character_count, segment_width, segment_height);
 			// grow line height as necessary based on reported height of this segment
 			line_height = llmax(line_height, segment_height);
 			remaining_pixels -= segment_width;
@@ -1153,6 +1153,18 @@ void LLTextBase::reflow(S32 start_index)
 			else
 			{
 				// subtract pixels used and increment segment
+				if (force_newline)
+				{
+					mLineInfoList.push_back(line_info(
+												line_start_index, 
+												last_segment_char_on_line, 
+												line_rect, 
+												line_count));
+					line_start_index = segment->getStart() + seg_offset;
+					cur_top -= llround((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
+					line_height = 0;
+					remaining_pixels = text_width;
+				}
 				++seg_iter;
 				seg_offset = 0;
 			}
@@ -1419,6 +1431,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	registrar.add("Url.OpenExternal", boost::bind(&LLUrlAction::openURLExternal, url));
 	registrar.add("Url.Execute", boost::bind(&LLUrlAction::executeSLURL, url));
 	registrar.add("Url.Teleport", boost::bind(&LLUrlAction::teleportToLocation, url));
+	registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
 	registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
 	registrar.add("Url.CopyUrl", boost::bind(&LLUrlAction::copyURLToClipboard, url));
 
@@ -1450,9 +1463,7 @@ void LLTextBase::setText(const LLStringExplicit &utf8str)
 
 	appendText(text, false);
 
-	//resetDirty();
 	onValueChange(0, getLength());
-	needsReflow();
 }
 
 //virtual
@@ -1630,8 +1641,6 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepen
 		insertStringNoUndo(getLength(), wide_text, &segments);
 	}
 
-	needsReflow();
-	
 	// Set the cursor and scroll position
 	if( selection_start != selection_end )
 	{
@@ -2115,7 +2124,7 @@ LLRect LLTextBase::getVisibleDocumentRect() const
 		LLRect doc_rect = mDocumentView->getLocalRect();
 		doc_rect.mLeft -= mDocumentView->getRect().mLeft;
 		// adjust for height of text above widget baseline
-		doc_rect.mBottom = llmin(0, doc_rect.getHeight() - mTextRect.getHeight());
+		doc_rect.mBottom = doc_rect.getHeight() - mTextRect.getHeight();
 		return doc_rect;
 	}
 }
@@ -2127,7 +2136,7 @@ LLRect LLTextBase::getVisibleDocumentRect() const
 LLTextSegment::~LLTextSegment()
 {}
 
-void LLTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const { width = 0; height = 0; }
+bool LLTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const { width = 0; height = 0; return false;}
 S32	LLTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const { return 0; }
 S32	LLTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const { return 0; }
 void LLTextSegment::updateLayout(const LLTextBase& editor) {}
@@ -2355,12 +2364,13 @@ void LLNormalTextSegment::setToolTip(const std::string& tooltip)
 	mTooltip = tooltip;
 }
 
-void LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
+bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 {
 	LLWString text = mEditor.getWText();
 
 	height = mFontHeight;
 	width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
+	return num_chars >= 1 && text[mStart + num_chars - 1] == '\n';
 }
 
 S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const
@@ -2407,8 +2417,9 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	// but not both
 	S32 last_char_in_run = mStart + segment_offset + num_chars;
 	// check length first to avoid indexing off end of string
-	if (last_char_in_run >= mEditor.getLength() 
-		|| text[last_char_in_run] == '\n')
+	if (last_char_in_run < mEnd 
+		&& (last_char_in_run >= mEditor.getLength() 
+			|| text[last_char_in_run] == '\n'))
 	{
 		num_chars++;
 	}
@@ -2447,7 +2458,7 @@ LLInlineViewSegment::~LLInlineViewSegment()
 	mView->die();
 }
 
-void	LLInlineViewSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
+bool LLInlineViewSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 {
 	if (first_char == 0 && num_chars == 0) 
 	{
@@ -2461,6 +2472,8 @@ void	LLInlineViewSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 		width = mLeftPad + mRightPad + mView->getRect().getWidth();
 		height = mBottomPad + mTopPad + mView->getRect().getHeight();
 	}
+
+	return false;
 }
 
 S32	LLInlineViewSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const

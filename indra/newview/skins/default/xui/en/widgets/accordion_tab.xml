@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <accordion_tab
+    font="SansSerifBold"
     header_bg_color="DkGray2"
-    header_txt_color="LtGray"
     header_collapse_img="Accordion_ArrowClosed_Off"
     header_collapse_img_pressed="Accordion_ArrowClosed_Press"
     header_expand_img="Accordion_ArrowOpened_Off"
@@ -9,5 +9,6 @@
     header_image="Accordion_Off"
     header_image_over="Accordion_Over"
     header_image_pressed="Accordion_Press"
-    header_image_selected="Accordion_Selected"
+    header_image_expanded="Accordion_Selected"
+    header_text_color="LtGray" 
     />

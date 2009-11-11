@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  *
- * Copyright (c) 2001-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  *
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -47,6 +47,7 @@
 #include "lldndbutton.h"
 #include "llfloaterworldmap.h"
 #include "llfolderviewitem.h"
+#include "llinventorypanel.h"
 #include "llinventorysubtreepanel.h"
 #include "lllandmarkactions.h"
 #include "llplacesinventorybridge.h"
@@ -100,6 +101,8 @@ BOOL LLLandmarksPanel::postBuild()
 	initLandmarksInventroyPanel();
 	initMyInventroyPanel();
 	initLibraryInventroyPanel();
+	getChild<LLAccordionCtrlTab>("tab_favorites")->setDisplayChildren(true);
+	getChild<LLAccordionCtrlTab>("tab_landmarks")->setDisplayChildren(true);
 
 	gIdleCallbacks.addFunction(LLLandmarksPanel::doIdle, this);
 	return TRUE;
@@ -264,7 +267,7 @@ LLLandmark* LLLandmarksPanel::getCurSelectedLandmark() const
 	return NULL;
 }
 
-LLFolderViewItem* LLLandmarksPanel::getCurSelectedItem () const 
+LLFolderViewItem* LLLandmarksPanel::getCurSelectedItem() const 
 {
 	return mCurrentSelectedList ?  mCurrentSelectedList->getRootFolder()->getCurSelectedItem() : NULL;
 }
@@ -421,6 +424,7 @@ void LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLIn
 	mAccordionTabs.push_back(accordion_tab);
 	accordion_tab->setDropDownStateChangedCallback(
 		boost::bind(&LLLandmarksPanel::onAccordionExpandedCollapsed, this, _2, inventory_list));
+	accordion_tab->setDisplayChildren(false);
 }
 
 void LLLandmarksPanel::onAccordionExpandedCollapsed(const LLSD& param, LLInventorySubTreePanel* inventory_list)
@@ -495,6 +499,7 @@ void LLLandmarksPanel::updateListCommands()
 	// keep Options & Add Landmark buttons always enabled
 	mListCommands->childSetEnabled(ADD_FOLDER_BUTTON_NAME, add_folder_enabled);
 	mListCommands->childSetEnabled(TRASH_BUTTON_NAME, trash_enabled);
+	mListCommands->childSetEnabled(OPTIONS_BUTTON_NAME,getCurSelectedItem() != NULL);
 }
 
 void LLLandmarksPanel::onActionsButtonClick()
@@ -552,14 +557,16 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 	std::string command_name = userdata.asString();
 	if("add_landmark" == command_name)
 	{
-		if(LLLandmarkActions::landmarkAlreadyExists())
+		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
+		if(landmark)
 		{
-			std::string location;
-			LLAgentUI::buildLocationString(location, LLAgentUI::LOCATION_FORMAT_FULL);
-			llwarns<<" Landmark already exists at location:  "<< location<<llendl;
-			return;
+			LLSideTray::getInstance()->showPanel("panel_places", 
+								LLSD().insert("type", "landmark").insert("id",landmark->getUUID()));
 		}
-		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+		else
+		{
+			LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+		}
 	} 
 	else if ("category" == command_name)
 	{
@@ -583,7 +590,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 			menu_create_inventory_item(mCurrentSelectedList->getRootFolder(),
 					dynamic_cast<LLFolderBridge*> (folder_bridge), LLSD(
 							"category"), gInventory.findCategoryUUIDForType(
-							LLAssetType::AT_LANDMARK));
+							LLFolderType::FT_LANDMARK));
 		}
 	}
 }
@@ -823,17 +830,18 @@ bool LLLandmarksPanel::canSelectedBeModified(const std::string& command_name) co
 	// then ask LLFolderView permissions
 	if (can_be_modified)
 	{
+		LLFolderViewItem* selected =  getCurSelectedItem();
 		if ("cut" == command_name)
 		{
 			can_be_modified = mCurrentSelectedList->getRootFolder()->canCut();
 		}
 		else if ("rename" == command_name)
 		{
-			can_be_modified = getCurSelectedItem()->getListener()->isItemRenameable();
+			can_be_modified = selected? selected->getListener()->isItemRenameable() : false;
 		}
 		else if ("delete" == command_name)
 		{
-			can_be_modified = getCurSelectedItem()->getListener()->isItemRemovable();
+			can_be_modified = selected? selected->getListener()->isItemRemovable(): false;
 		}
 		else if("paste" == command_name)
 		{

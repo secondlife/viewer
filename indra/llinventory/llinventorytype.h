@@ -67,7 +67,7 @@ public:
 		IT_WEARABLE = 18,
 		IT_ANIMATION = 19,
 		IT_GESTURE = 20,
-		IT_FAVORITE = 21,
+
 		IT_MESH = 22,
 		IT_COUNT = 23,
 

@@ -1,30 +1,29 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
-	<text name="payee_group">
+	<string name="payee_group">
 		グループへの支払い：
-	</text>
-	<text name="payee_resident">
+	</string>
+	<string name="payee_resident">
 		住人への支払い：
-	</text>
+	</string>
+	<icon name="icon_person" tool_tip="住人"/>
 	<text name="payee_name">
 		[FIRST] [LAST]
 	</text>
 	<text name="object_name_label">
 		オブジェクトを介して：
 	</text>
+	<icon name="icon_object" tool_tip="オブジェクト"/>
 	<text name="object_name_text">
 		...
 	</text>
-	<text name="fastpay text">
-		一括払い：
-	</text>
+	<button label="L$1" label_selected="L$1" name="fastpay 1"/>
+	<button label="L$5" label_selected="L$5" name="fastpay 5"/>
+	<button label="L$10" label_selected="L$10" name="fastpay 10"/>
+	<button label="L$20" label_selected="L$20" name="fastpay 20"/>
 	<text name="amount text">
-		金額：
+		金額を指定：
 	</text>
-	<button label="L$1" label_selected="L$1" name="fastpay 1" />
-	<button label="L$5" label_selected="L$5" name="fastpay 5" />
-	<button label="L$10" label_selected="L$10" name="fastpay 10" />
-	<button label="L$20" label_selected="L$20" name="fastpay 20" />
-	<button label="支払い" label_selected="支払い" name="pay btn" />
-	<button label="取り消し" label_selected="取り消し" name="cancel btn" />
+	<button label="支払い" label_selected="支払い" name="pay btn"/>
+	<button label="取り消し" label_selected="取り消し" name="cancel btn"/>
 </floater>

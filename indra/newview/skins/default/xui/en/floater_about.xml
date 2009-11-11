@@ -6,7 +6,7 @@
  name="floater_about"
  help_topic="floater_about"
  save_rect="true"
- title="About [APP_NAME]"
+ title="ABOUT [APP_NAME]"
  width="470">
   <floater.string
      name="AboutHeader">
@@ -69,7 +69,7 @@ Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number
     tab_position="top">
     <panel
       border="true" 
-      label="Support"
+      label="Info"
       help_topic="about_support_tab"
       name="support_panel">
       <text_editor

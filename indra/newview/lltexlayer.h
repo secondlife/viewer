@@ -81,13 +81,14 @@ public:
 
 	const LLTexLayerInfo* 	getInfo() const { return mInfo; }
 	virtual BOOL			setInfo(const LLTexLayerInfo *info, LLWearable* wearable ); // This sets mInfo and calls initialization functions
-	virtual BOOL			render(S32 x, S32 y, S32 width, S32 height, BOOL render_morph) = 0;
+	virtual BOOL			render(S32 x, S32 y, S32 width, S32 height) = 0;
 	void					requestUpdate();
 	LLTexLayerSet*			const getTexLayerSet() const { return mTexLayerSet; }
 
 	virtual void			deleteCaches() = 0;
 	void					invalidateMorphMasks();
 	virtual void			setHasMorph(BOOL newval) { mHasMorph = newval; }
+	BOOL					hasMorph()				 { return mHasMorph; }
 	BOOL					isMorphValid()			 { return mMorphMasksValid; }
 
 	const std::string&		getName() const;
@@ -95,7 +96,7 @@ public:
 	const std::string&		getGlobalColor() const;
 
 	virtual BOOL			blendAlphaTexture( S32 x, S32 y, S32 width, S32 height) = 0;
-	virtual void			gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, BOOL render_morph) = 0;
+	virtual void			gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height) = 0;
 	BOOL					hasAlphaParams() const { return !mParamAlphaList.empty(); }
 	BOOL					isVisibilityMask() const;
 
@@ -134,10 +135,10 @@ public:
 	LLTexLayerTemplate(const LLTexLayerTemplate &layer);
 	/*virtual*/ ~LLTexLayerTemplate();
 
-	/*virtual*/ BOOL		render(S32 x, S32 y, S32 width, S32 height, BOOL render_morph);
+	/*virtual*/ BOOL		render(S32 x, S32 y, S32 width, S32 height);
 	/*virtual*/ BOOL		setInfo(const LLTexLayerInfo *info, LLWearable* wearable ); // This sets mInfo and calls initialization functions
 	/*virtual*/ BOOL		blendAlphaTexture( S32 x, S32 y, S32 width, S32 height); // Multiplies a single alpha texture against the frame buffer
-	/*virtual*/ void		gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, BOOL render_morph);
+	/*virtual*/ void		gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height);
 	/*virtual*/ void		setHasMorph(BOOL newval);
 	/*virtual*/ void		deleteCaches();
 private:
@@ -162,16 +163,16 @@ public:
 	/*virtual*/ ~LLTexLayer();
 
 	/*virtual*/ BOOL		setInfo(const LLTexLayerInfo *info, LLWearable* wearable ); // This sets mInfo and calls initialization functions
-	/*virtual*/ BOOL		render(S32 x, S32 y, S32 width, S32 height, BOOL render_morph);
+	/*virtual*/ BOOL		render(S32 x, S32 y, S32 width, S32 height);
 
 	/*virtual*/ void		deleteCaches();
 	U8*						getAlphaData();
 
 	BOOL					findNetColor(LLColor4* color) const;
 	/*virtual*/ BOOL		blendAlphaTexture( S32 x, S32 y, S32 width, S32 height); // Multiplies a single alpha texture against the frame buffer
-	/*virtual*/ void		gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, BOOL render_morph);
-	BOOL					renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color, BOOL render_morph);
-	void					addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height, BOOL render_morph);
+	/*virtual*/ void		gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height);
+	BOOL					renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color);
+	void					addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height);
 
 	void					setLTO(LLLocalTextureObject *lto) { mLocalTextureObject = lto; }
 	LLLocalTextureObject* 	getLTO() { return mLocalTextureObject; }
@@ -261,6 +262,8 @@ public:
 	void					deleteCaches();
 	void					gatherMorphMaskAlpha(U8 *data, S32 width, S32 height);
 	void					applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components);
+	BOOL					isMorphValid();
+	void					invalidateMorphMasks();
 	LLTexLayerInterface*	findLayerByName(const std::string& name);
 	void					cloneTemplates(LLLocalTextureObject *lto, LLVOAvatarDefines::ETextureIndex tex_index, LLWearable* wearable);
 	

@@ -49,24 +49,13 @@
      width="242" />
     <button
      follows="right"
-     height="16"
-     image_pressed="Info_Press"
-     image_unselected="Info_Over"
-     left_pad="3"
-     right="-31"
-     name="info_btn"
-     picture_style="true"
-     top_delta="-2"
-     width="16" />
-    <button
-     follows="right"
      height="20"
      image_overlay="ForwardArrow_Off"
      layout="topleft"
      left_pad="5"
      right="-3"
      name="profile_btn"
-     picture_style="true"
      top_delta="-2"
+     visible="false"
      width="20" />
 </panel>

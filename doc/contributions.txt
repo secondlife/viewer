@@ -139,6 +139,7 @@ Blakar Ogre
 blino Nakamura
 	VWR-17
 Boroondas Gupte
+	SNOW-278
 	VWR-233
 	WEB-262
 Bulli Schumann
@@ -296,6 +297,7 @@ Jacek Antonelli
 	VWR-2947
 	VWR-2948
 	VWR-3605
+	VWR-8617
 JB Kraft
 	VWR-5283
 	VWR-7802
@@ -372,6 +374,7 @@ Michelle2 Zenovka
 	VWR-8310
 	VWR-9499
 Mm Alder
+	VWR-197
 	VWR-3777
 	VWR-4794
 	VWR-13578

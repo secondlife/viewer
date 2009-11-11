@@ -1,62 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Graphiques" name="Display panel">
-	<button label="?" name="GraphicsPreferencesHelpButton"/>
-	<text_editor bottom="-56" height="40" left="25" name="FullScreenInfo" width="460">
-		Décochez cette option pour passer en mode plein écran.
-	</text_editor>
 	<text name="WindowSizeLabel">
 		Taille de la fenêtre :
 	</text>
+	<check_box label="Utiliser le plein écran" name="windowed mode"/>
 	<combo_box name="windowsize combo">
-		<combo_box.item name="640x480" label="640 x 480" />
-		<combo_box.item name="800x600" label="800 x 600" />
-		<combo_box.item name="720x480" label="720 x 480 (NTSC)" />
-		<combo_box.item name="768x576" label="768 x 576 (PAL)" />
-		<combo_box.item name="1024x768" label="1024 x 768" />
+		<combo_box.item label="640 x 480" name="640x480"/>
+		<combo_box.item label="800 x 600" name="800x600"/>
+		<combo_box.item label="720 x 480 (NTSC)" name="720x480"/>
+		<combo_box.item label="768 x 576 (PAL)" name="768x576"/>
+		<combo_box.item label="1024 x 768" name="1024x768"/>
 	</combo_box>
-	<text name="DisplayResLabel" width="165">
-		Résolution de l&apos;affichage :
-	</text>
-	<text name="AspectRatioLabel1" tool_tip="largeur/hauteur">
-		Rapport hauteur/largeur :
-	</text>
-	<combo_box name="aspect_ratio" tool_tip="largeur/hauteur">
-		<combo_box.item name="4:3(StandardCRT)" label="4:3 (Standard CRT)" />
-		<combo_box.item name="5:4(1280x1024LCD)" label="5:4 (1280 x 1024 LCD)" />
-		<combo_box.item name="8:5(Widescreen)" label="8:5 (écran large)" />
-		<combo_box.item name="16:9(Widescreen)" label="16:9 (plein écran)" />
-	</combo_box>
-	<text name="text">
-		Résolution d&apos;affichage :
-	</text>
-	<text name="Fullscreen Aspect Ratio:">
-		Format de plein écran :
-	</text>
-	<text name="(width / height)">
-		(largeur / hauteur)
-	</text>
 	<text name="UI Size:">
 		Taille de l&apos;IU :
 	</text>
-	<text name="(meters, lower is faster)">
-		(mètres, moins = plus rapide)
-	</text>
-	<text name="text2">
-		Options d&apos;affichage :
-	</text>
-	<check_box label="Lancer Second Life en mode fenêtré" name="windowed mode"/>
-	<check_box label="Auto-détection du ratio" left="350" name="aspect_auto_detect"/>
-	<check_box label="Utiliser échelle de résolution indépendante" name="ui_auto_scale"/>
-	<check_box label="Montrer l&apos;avatar en vue subjective" name="avfp"/>
-	<spinner label="Distance d&apos;affichage :" name="draw_distance"/>
-	<text name="HigherText">
-		Qualité et
-	</text>
-	<text name="QualityText">
-		Performance :
+	<text name="QualitySpeed">
+		Qualité et vitesse :
 	</text>
 	<text left="105" name="FasterText">
 		Plus rapide
+	</text>
+	<text name="BetterText">
+		Mieux
 	</text>
 	<text name="ShadersPrefText">
 		Faible
@@ -70,94 +35,82 @@
 	<text name="ShadersPrefText4">
 		Ultra
 	</text>
-	<text bottom="-86" left="325" name="HigherText2">
-		Plus élevée
-	</text>
-	<text name="QualityText2" visible="false"/>
-	<check_box label="Personnaliser" left="395" name="CustomSettings"/>
-	<panel name="CustomGraphics Panel">
-	<text name="ShadersText">
-		Effets :
-	</text>
-	<check_box label="Placage de relief et brillance" name="BumpShiny"/>
-	<check_box label="Effets de base" name="BasicShaders" tool_tip="Désactiver cette option peut empêcher certains drivers de cartes graphiques de planter."/>
-	<check_box label="Effets atmosphériques" name="WindLightUseAtmosShaders"/>
-	<check_box label="Reflets de l&apos;eau" name="Reflections"/>
-	<text name="ReflectionDetailText">
-		Objets reflétés :
-	</text>
-	<radio_group name="ReflectionDetailRadio">
-		<radio_item name="0" label="Terrain et Arbres" />
-		<radio_item name="1" label="Objets statiques" />
-		<radio_item name="2" label="Objets et avatars" />
-		<radio_item name="3" label="Tout" />
-	</radio_group>
-	<text name="AvatarRenderingText">
-		Rendu de l&apos;avatar :
-	</text>
-	<check_box label="Avatars éloignés en 2D" name="AvatarImpostors"/>
-	<check_box label="Accélération du rendu" name="AvatarVertexProgram"/>
-	<check_box label="Mouvement des habits" name="AvatarCloth"/>
-	<text name="DrawDistanceMeterText1">
-		m
-	</text>
-	<text name="DrawDistanceMeterText2">
-		m
-	</text>
-	<slider label="Limite d&apos;affichage :" name="DrawDistance"/>
-	<slider label="Nombre de particules max. :" label_width="143" name="MaxParticleCount"/>
-	<slider label="Qualité post-traitement :" name="RenderPostProcess"/>
-	<text name="MeshDetailText">
-		Détails des rendus :
-	</text>
-	<slider label="  Objets :" name="ObjectMeshDetail"/>
-	<slider label="  Flexiprims :" name="FlexibleMeshDetail"/>
-	<slider label="  Arbres :" name="TreeMeshDetail"/>
-	<slider label="  Avatars :" name="AvatarMeshDetail"/>
-	<slider label="  Relief :" name="TerrainMeshDetail"/>
-	<slider label="  Ciel :" name="SkyMeshDetail"/>
-	<text name="PostProcessText">
-		Faible
-	</text>
-	<text name="ObjectMeshDetailText">
-		Faible
-	</text>
-	<text name="FlexibleMeshDetailText">
-		Faible
-	</text>
-	<text name="TreeMeshDetailText">
-		Faible
-	</text>
-	<text name="AvatarMeshDetailText">
-		Faible
-	</text>
-	<text name="TerrainMeshDetailText">
-		Faible
-	</text>
-	<text name="SkyMeshDetailText">
-		Faible
-	</text>
-	<text name="LightingDetailText">
-		Sources lumineuses :
-	</text>
-	<radio_group name="LightingDetailRadio">
-		<radio_item name="SunMoon" label="Soleil et lune uniquement" />
-		<radio_item name="LocalLights" label="Lumières à proximité" />
-	</radio_group>
-	<text left="380" name="TerrainDetailText">
-		Rendu du terrain :
-	</text>
-	<radio_group name="TerrainDetailRadio">
-		<radio_item name="0" label="Faible" />
-		<radio_item name="2" label="Élevé" />
-	</radio_group>
+	<panel label="CustomGraphics" name="CustomGraphics Panel">
+		<text name="ShadersText">
+			Effets :
+		</text>
+		<check_box initial_value="true" label="Placage de relief et brillance" name="BumpShiny"/>
+		<check_box initial_value="true" label="Effets de base" name="BasicShaders" tool_tip="Désactiver cette option peut empêcher certains drivers de cartes graphiques de planter."/>
+		<check_box initial_value="true" label="Effets atmosphériques" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="true" label="Reflets de l&apos;eau" name="Reflections"/>
+		<text name="ReflectionDetailText">
+			Objets reflétés :
+		</text>
+		<radio_group name="ReflectionDetailRadio">
+			<radio_item label="Terrain et Arbres" name="0"/>
+			<radio_item label="Objets statiques" name="1"/>
+			<radio_item label="Objets et avatars" name="2"/>
+			<radio_item label="Tout" name="3"/>
+		</radio_group>
+		<text name="AvatarRenderingText">
+			Rendu de l&apos;avatar :
+		</text>
+		<check_box initial_value="true" label="Avatars éloignés en 2D" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="Accélération du rendu" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="Mouvement des habits" name="AvatarCloth"/>
+		<slider label="Limite d&apos;affichage :" name="DrawDistance"/>
+		<text name="DrawDistanceMeterText2">
+			m
+		</text>
+		<slider label="Nombre de particules max. :" label_width="143" name="MaxParticleCount"/>
+		<slider label="Qualité post-traitement :" name="RenderPostProcess"/>
+		<text name="MeshDetailText">
+			Détails des rendus :
+		</text>
+		<slider label="  Objets :" name="ObjectMeshDetail"/>
+		<slider label="  Flexiprims :" name="FlexibleMeshDetail"/>
+		<slider label="  Arbres :" name="TreeMeshDetail"/>
+		<slider label="  Avatars :" name="AvatarMeshDetail"/>
+		<slider label="  Relief :" name="TerrainMeshDetail"/>
+		<slider label="  Ciel :" name="SkyMeshDetail"/>
+		<text name="PostProcessText">
+			Faible
+		</text>
+		<text name="ObjectMeshDetailText">
+			Faible
+		</text>
+		<text name="FlexibleMeshDetailText">
+			Faible
+		</text>
+		<text name="TreeMeshDetailText">
+			Faible
+		</text>
+		<text name="AvatarMeshDetailText">
+			Faible
+		</text>
+		<text name="TerrainMeshDetailText">
+			Faible
+		</text>
+		<text name="SkyMeshDetailText">
+			Faible
+		</text>
+		<text name="LightingDetailText">
+			Sources lumineuses :
+		</text>
+		<radio_group name="LightingDetailRadio">
+			<radio_item label="Soleil et lune uniquement" name="SunMoon"/>
+			<radio_item label="Lumières à proximité" name="LocalLights"/>
+		</radio_group>
+		<text left="380" name="TerrainDetailText">
+			Rendu du terrain :
+		</text>
+		<radio_group name="TerrainDetailRadio">
+			<radio_item label="Faible" name="0"/>
+			<radio_item label="Élevé" name="2"/>
+		</radio_group>
 	</panel>
-	<button label="Paramètres recommandés" name="Defaults"/>
-	<button label="Configuration du matériel" label_selected="Configuration du matériel" name="GraphicsHardwareButton"/>
-	<panel.string name="resolution_format">
-		[RES_X] x [RES_Y]
-	</panel.string>
-	<panel.string name="aspect_ratio_text">
-		[NUM]:[DEN]
-	</panel.string>
+	<button label="Appliquer" label_selected="Appliquer" name="Apply"/>
+	<button label="Réinitialiser" name="Defaults"/>
+	<button label="Avancé" name="Advanced"/>
+	<button label="Matériel" label_selected="Matériel" name="GraphicsHardwareButton"/>
 </panel>

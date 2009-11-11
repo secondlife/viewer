@@ -148,12 +148,6 @@ public:
 	// Triggered when group information changes in the group manager.
 	virtual void update(LLGroupChange gc) { }
 
-	// This is the text to be displayed when a help button is pressed.
-	virtual std::string getHelpText() const { return mHelpText; }
-
-	// Display anything returned by getHelpText
-	void handleClickHelp();
-
 	// This just connects the help button callback.
 	virtual BOOL postBuild();
 
@@ -171,11 +165,8 @@ public:
 
 protected:
 	LLUUID	mGroupID;
-	std::string	mHelpText;
-
 	BOOL mAllowEdit;
 	BOOL mHasModal;
-
 };
 
 #endif // LL_LLPANELGROUP_H

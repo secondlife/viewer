@@ -6,7 +6,7 @@
  name="Day Cycle Floater"
  help_topic="day_cycle_floater"
  save_rect="true"
- title="Day Cycle Editor"
+ title="DAY CYCLE EDITOR"
  width="646">
     <tab_container
      follows="left|top"
@@ -28,16 +28,6 @@
          name="Day Cycle"
          top="0"
          width="642">
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="15"
-             label="?"
-             layout="topleft"
-             left="612"
-             name="WLDayCycleHelp"
-             top="3"
-             width="18" />
             <multi_slider
              can_edit_text="true"
              control_name="WLTimeSlider"

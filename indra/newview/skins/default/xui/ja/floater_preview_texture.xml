@@ -1,9 +1,17 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview_texture">
+	<floater.string name="Title">
+		テクスチャ： [NAME]
+	</floater.string>
+	<floater.string name="Copy">
+		持ち物にコピー
+	</floater.string>
 	<text name="desc txt">
 		説明：
 	</text>
+	<button label="保存" name="Keep"/>
+	<button label="削除" name="Discard"/>
 	<text name="dimensions">
-		寸法：[HEIGHT]x[WIDTH]
+		[WIDTH]px x [HEIGHT]px
 	</text>
 </floater>

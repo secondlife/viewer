@@ -11,7 +11,7 @@
  min_width="234"
  name="preview notecard"
  help_topic="preview_notecard"
- title="Note:"
+ title="NOTE:"
  width="400">
     <floater.string
      name="no_object">
@@ -75,7 +75,7 @@
      left="4"
      max_length="65536"
      name="Notecard Editor"
-     allow_html="true" 
+     allow_html="false" 
      handle_edit_keys_directly="true"
      tab_group="1"
      top="46"

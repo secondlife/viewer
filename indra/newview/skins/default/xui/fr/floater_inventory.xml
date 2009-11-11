@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Inventory" title="Inventaire">
+<floater name="Inventory" title="INVENTAIRE">
 	<search_editor label="Saisissez votre recherche ici" name="inventory search editor"/>
 	<tab_container name="inventory filter tabs">
 		<inventory_panel label="Tous les objets" name="All Items"/>

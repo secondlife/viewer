@@ -115,7 +115,7 @@ BOOL LLVOTextBubble::idleUpdate(LLAgent &agent, LLWorld	&world, const F64 &time)
 }
 
 
-void LLVOTextBubble::updateTextures(LLAgent &agent)
+void LLVOTextBubble::updateTextures()
 {
 	// Update the image levels of all textures...
 

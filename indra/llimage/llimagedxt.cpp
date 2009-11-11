@@ -264,6 +264,8 @@ void LLImageDXT::setFormat()
 // virtual
 BOOL LLImageDXT::decode(LLImageRaw* raw_image, F32 time)
 {
+	// *TODO: Test! This has been tweaked since its intial inception,
+	//  but we don't use it any more!
 	llassert_always(raw_image);
 	
 	if (mFileFormat >= FORMAT_DXT1 && mFileFormat <= FORMAT_DXR5)
@@ -274,8 +276,17 @@ BOOL LLImageDXT::decode(LLImageRaw* raw_image, F32 time)
 	
 	S32 width = getWidth(), height = getHeight();
 	S32 ncomponents = getComponents();
+	U8* data = NULL;
+	if (mDiscardLevel >= 0)
+	{
+		data = getData() + getMipOffset(mDiscardLevel);
+		calcDiscardWidthHeight(mDiscardLevel, mFileFormat, width, height);
+	}
+	else
+	{
+		data = getData() + getMipOffset(0);
+	}
 	S32 image_size = formatBytes(mFileFormat, width, height);
-	U8* data = getData() + getMipOffset(0);
 	
 	if ((!getData()) || (data + image_size > getData() + getDataSize()))
 	{
@@ -300,10 +311,8 @@ BOOL LLImageDXT::getMipData(LLPointer<LLImageRaw>& raw, S32 discard)
 		llerrs << "Request for invalid discard level" << llendl;
 	}
 	U8* data = getData() + getMipOffset(discard);
-	// I'm not sure these are the correct initial values for height and width,
-	// but previously they were being used uninitialized. JC
-	S32 width = raw->getWidth();
-	S32 height = raw->getHeight();
+	S32 width = 0;
+	S32 height = 0;
 	calcDiscardWidthHeight(discard, mFileFormat, width, height);
 	raw = new LLImageRaw(data, width, height, getComponents());
 	return TRUE;

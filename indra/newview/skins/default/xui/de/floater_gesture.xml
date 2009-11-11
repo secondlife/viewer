@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="gestures" title="Aktive Gesten">
+<floater name="gestures" title="AKTIVE GESTEN">
 	<text name="help_label">
 		Doppelklicken Sie auf eine Geste, um Animationen und Sound &#10;abzuspielen.
 	</text>

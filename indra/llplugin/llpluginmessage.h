@@ -40,6 +40,7 @@ class LLPluginMessage
 	LOG_CLASS(LLPluginMessage);
 public:
 	LLPluginMessage();
+	LLPluginMessage(const LLPluginMessage &p);
 	LLPluginMessage(const std::string &message_class, const std::string &message_name);
 	~LLPluginMessage();
 	

@@ -15,27 +15,34 @@
      name="real_url">
         http://secondlife.com/app/login/
     </panel.string>
+    <string name="reg_in_client_url">
+      http://secondlife.eniac15.lindenlab.com/reg-in-client/
+    </string>
     <panel.string
      name="forgot_password_url">
         http://secondlife.com/account/request.php
     </panel.string>
+  <!-- *NOTE: Custom resize logic for login_html in llpanellogin.cpp -->
     <web_browser
      border_visible="false"
      bottom="600"
      follows="all"
-     layout="topleft"
      left="0"
      name="login_html"
-     right="-1"
      start_url=""
-     top="1" />
+     top="0"
+     height="600"
+     width="800"/>
+    <panel
+     follows="left|bottom|right"
+     name="login_widgets"
+     layout="topleft"
+     left="0"
+     top="0">
     <text
-     type="string"
-     length="1"
      follows="left|bottom"
      font="SansSerif"
      height="16"
-     layout="topleft"
      left="32"
      name="first_name_text"
      top="530"
@@ -44,9 +51,9 @@
     </text>
     <line_editor
      follows="left|bottom"
+     font="SansSerif"
      handle_edit_keys_directly="true"
      height="20"
-     layout="topleft"
      left_delta="0"
      max_length="31"
      name="first_name_edit"
@@ -55,12 +62,9 @@
      top_pad="2"
      width="120" />
     <text
-     type="string"
-     length="1"
      follows="left|bottom"
      font="SansSerif"
      height="16"
-     layout="topleft"
      left="164"
      name="last_name_text"
      top="530"
@@ -72,7 +76,6 @@
      font="SansSerif"
      handle_edit_keys_directly="true"
      height="20"
-     layout="topleft"
      left_delta="0"
      max_length="31"
      name="last_name_edit"
@@ -81,12 +84,9 @@
      top_pad="2"
      width="120" />
     <text
-     type="string"
-     length="1"
      follows="left|bottom"
      font="SansSerif"
      height="16"
-     layout="topleft"
      left="296"
      name="password_text"
      top="530"
@@ -98,7 +98,6 @@
      font="SansSerif"
      handle_edit_keys_directly="true"
      height="20"
-     layout="topleft"
      left_delta="0"
      max_length="16"
      name="password_edit"
@@ -124,12 +123,9 @@
      name="server_combo"
      width="100" />
     <text
-     type="string"
-     length="1"
      follows="left|bottom"
      font="SansSerif"
      height="16"
-     layout="topleft"
      left="32"
      name="start_location_text"
      top="576"
@@ -141,7 +137,6 @@
      control_name="LoginLocation"
      follows="left|bottom"
      height="23"
-     layout="topleft"
      left_pad="0"
      max_chars="128"
      name="start_location_combo"
@@ -165,20 +160,14 @@
      follows="left|bottom"
      height="16"
      label="Remember password"
-     layout="topleft"
      left_pad="10"
      name="remember_check"
      top_delta="3"
      width="138" />
     <text
-     type="string"
-     length="1"
      follows="right|bottom"
      halign="right"
      height="16"
-     hover="true"
-     hover_color="0.2 0.45 0.72 1"
-     layout="topleft"
      left="-210"
      name="create_new_account_text"
      top="539"
@@ -186,14 +175,9 @@
         Create a new account
     </text>
     <text
-     type="string"
-     length="1"
      follows="right|bottom"
      halign="right"
      height="16"
-     hover="true"
-     hover_color="0.2 0.45 0.72 1"
-     layout="topleft"
      left_delta="0"
      name="forgot_password_text"
      top_pad="4"
@@ -201,18 +185,14 @@
         Forgot your name or password?
     </text>
     <text
-     type="string"
-     length="1"
      follows="right|bottom"
      halign="right"
      height="16"
-     hover="true"
-     hover_color="0.2 0.45 0.72 1"
-     layout="topleft"
      left="-310"
      name="channel_text"
      top="579"
      width="300">
         [VERSION]
     </text>
+  </panel>
 </panel>

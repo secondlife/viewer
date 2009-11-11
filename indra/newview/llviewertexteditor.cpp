@@ -62,6 +62,7 @@
 #include "lltooltip.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
+#include "llviewerassettype.h"
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewertexturelist.h"
@@ -170,7 +171,7 @@ public:
 		mToolTip = inv_item->getName() + '\n' + inv_item->getDescription();
 	}
 
-	/*virtual*/ void getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
+	/*virtual*/ bool getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 	{
 		if (num_chars == 0)
 		{
@@ -182,12 +183,29 @@ public:
 			width = EMBEDDED_ITEM_LABEL_PADDING + mImage->getWidth() + mStyle->getFont()->getWidth(mLabel.c_str());
 			height = llmax(mImage->getHeight(), llceil(mStyle->getFont()->getLineHeight()));
 		}
-
+		return false;
 	}
 
 	/*virtual*/ S32				getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const 
 	{
-		return 1;
+		// always draw at beginning of line
+		if (line_offset == 0)
+		{
+			return 1;
+		}
+		else
+		{
+			S32 width, height;
+			getDimensions(mStart, 1, width, height);
+			if (width > num_pixels) 
+			{
+				return 0;
+			}
+			else
+			{
+				return 1;
+			}
+		}
 	}
 	/*virtual*/ F32				draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
 	{
@@ -207,7 +225,7 @@ public:
 		}
 
 		F32 right_x;
-		mStyle->getFont()->render(mLabel, 0, image_rect.mRight + EMBEDDED_ITEM_LABEL_PADDING, draw_rect.mBottom, color, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::UNDERLINE, LLFontGL::NO_SHADOW, mLabel.length(), S32_MAX, &right_x);
+		mStyle->getFont()->render(mLabel, 0, image_rect.mRight + EMBEDDED_ITEM_LABEL_PADDING, draw_rect.mTop, color, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::UNDERLINE, LLFontGL::NO_SHADOW, mLabel.length(), S32_MAX, &right_x);
 		return right_x;
 	}
 	
@@ -505,20 +523,18 @@ LLUIImagePtr LLEmbeddedItems::getItemImage(llwchar ext_char) const
 				}
 
 				break;
-			case LLAssetType::AT_SOUND:			img_name = "Inv_Sound";	break;
+			case LLAssetType::AT_SOUND:			img_name = "Inv_Sound";		break;
 			case LLAssetType::AT_CLOTHING:		img_name = "Inv_Clothing";	break;
-			case LLAssetType::AT_OBJECT:		img_name = "Inv_Object"; break;
+			case LLAssetType::AT_OBJECT:		img_name = "Inv_Object"; 	break;
 			case LLAssetType::AT_CALLINGCARD:	img_name = "Inv_CallingCard"; break;
-			case LLAssetType::AT_LANDMARK:		img_name = "Inv_Landmark"; break;
+			case LLAssetType::AT_LANDMARK:		img_name = "Inv_Landmark"; 	break;
 			case LLAssetType::AT_NOTECARD:		img_name = "Inv_Notecard";	break;
 			case LLAssetType::AT_LSL_TEXT:		img_name = "Inv_Script";	break;
-			case LLAssetType::AT_BODYPART:		img_name = "Inv_Skin";	break;
-			case LLAssetType::AT_ANIMATION:		img_name = "Inv_Animation";break;
-			case LLAssetType::AT_GESTURE:			img_name = "Inv_Gesture";	break;
-				//TODO need img_name
-			case LLAssetType::AT_FAVORITE:		img_name = "Inv_Landmark";	 break;
+			case LLAssetType::AT_BODYPART:		img_name = "Inv_Skin";		break;
+			case LLAssetType::AT_ANIMATION:		img_name = "Inv_Animation";	break;
+			case LLAssetType::AT_GESTURE:		img_name = "Inv_Gesture";	break;
 			case LLAssetType::AT_MESH:            img_name = "inv_item_mesh.tga";	 break;
-			default: llassert(0); 
+			default: llassert(0);
 		}
 
 		return LLUI::getUIImage(img_name);
@@ -733,11 +749,10 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 		if( LLToolDragAndDrop::getInstance()->isOverThreshold( screen_x, screen_y ) )
 		{
 			LLToolDragAndDrop::getInstance()->beginDrag(
-				LLAssetType::lookupDragAndDropType( mDragItem->getType() ),
+				LLViewerAssetType::lookupDragAndDropType( mDragItem->getType() ),
 				mDragItem->getUUID(),
 				LLToolDragAndDrop::SOURCE_NOTECARD,
 				mPreviewID, mObjectID);
-
 			return LLToolDragAndDrop::getInstance()->handleHover( x, y, mask );
 		}
 		getWindow()->setCursor(UI_CURSOR_HAND);

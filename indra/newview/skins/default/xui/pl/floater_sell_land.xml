@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="sell land" title="Sell Land">
+<floater name="sell land" title="SELL LAND">
     <scroll_container name="profile_scroll">
     <panel name="scroll_content_panel">
 	<text name="info_parcel_label">

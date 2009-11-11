@@ -144,7 +144,7 @@ void LLStandardBumpmap::restoreGL()
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage = 
 			LLViewerTextureManager::getFetchedTexture(LLUUID(bump_image_id),
 										TRUE, 
-										FALSE, 
+										LLViewerTexture::BOOST_NONE, 
 										LLViewerTexture::LOD_TEXTURE,
 										0, 
 										0);																								

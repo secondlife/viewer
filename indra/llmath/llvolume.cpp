@@ -3901,7 +3901,7 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 	if (face == -1) // ALL_SIDES
 	{
 		start_face = 0;
-		end_face = getNumFaces() - 1;
+		end_face = getNumVolumeFaces() - 1;
 	}
 	else
 	{

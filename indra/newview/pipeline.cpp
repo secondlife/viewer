@@ -512,8 +512,10 @@ void LLPipeline::destroyGL()
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_RESIZE_SCREEN_TEXTURE("Resize Screen Texture");
 void LLPipeline::resizeScreenTexture()
 {
+	LLFastTimer ft(FTM_RESIZE_SCREEN_TEXTURE);
 	if (gPipeline.canUseVertexShaders() && assertInitialized())
 	{
 		GLuint resX = gViewerWindow->getWorldViewWidth();
@@ -1470,6 +1472,7 @@ F32 LLPipeline::calcPixelArea(LLVector3 center, LLVector3 size, LLCamera &camera
 	F32 dist = lookAt.length();
 
 	//ramp down distance for nearby objects
+	//shrink dist by dist/16.
 	if (dist < 16.f)
 	{
 		dist /= 16.f;
@@ -1480,7 +1483,7 @@ F32 LLPipeline::calcPixelArea(LLVector3 center, LLVector3 size, LLCamera &camera
 	//get area of circle around node
 	F32 app_angle = atanf(size.length()/dist);
 	F32 radius = app_angle*LLDrawable::sCurPixelAngle;
-	return radius*radius * 3.14159f;
+	return radius*radius * F_PI;
 }
 
 void LLPipeline::grabReferences(LLCullResult& result)
@@ -3011,15 +3014,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:ForceVBO");
 	
-	//by bao
-	//fake vertex buffer updating
-	//to guaranttee at least updating one VBO buffer every frame
-	//to walk around the bug caused by ATI card --> DEV-3855
-	//
-	if(forceVBOUpdate)
-		gSky.mVOSkyp->updateDummyVertexBuffer() ;
-
-
 	// Initialize lots of GL state to "safe" values
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();

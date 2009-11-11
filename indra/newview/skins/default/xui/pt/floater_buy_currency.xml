@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy currency" title="Comprar Dinheiro">
+<floater name="buy currency" title="COMPRAR DINHEIRO">
 	<text name="info_buying">
 		Comprando Dinheiro:
 	</text>

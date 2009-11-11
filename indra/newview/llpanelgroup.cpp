@@ -86,23 +86,6 @@ BOOL LLPanelGroupTab::postBuild()
 	return TRUE;
 }
 
-
-
-void LLPanelGroupTab::handleClickHelp()
-{
-	// Display the help text.
-	std::string help_text( getHelpText() );
-	if ( !help_text.empty() )
-	{
-		LLSD args;
-		args["MESSAGE"] = help_text;
-		LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-		LLNotification::Params params(parent_floater->contextualNotification("GenericAlert"));
-		params.substitutions(args);
-		LLNotifications::instance().add(params);
-	}
-}
-
 LLPanelGroup::LLPanelGroup()
 :	LLPanel(),
 	LLGroupMgrObserver( LLUUID() ),
@@ -308,6 +291,7 @@ void LLPanelGroup::update(LLGroupChange gc)
 	if(gdatap)
 	{
 		childSetValue("group_name", gdatap->mName);
+		childSetToolTip("group_name",gdatap->mName);
 
 		LLButton* btn_join = getChild<LLButton>("btn_join");
 		LLUICtrl* join_text = getChild<LLUICtrl>("join_cost_text");
@@ -354,7 +338,10 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mID);
 	if(gdatap)
+	{
 		childSetValue("group_name", gdatap->mName);
+		childSetToolTip("group_name",gdatap->mName);
+	}
 
 	LLButton* button_apply = findChild<LLButton>("btn_apply");
 	LLButton* button_refresh = findChild<LLButton>("btn_refresh");

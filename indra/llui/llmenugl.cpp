@@ -118,6 +118,7 @@ const F32 PIE_SHRINK_TIME = 0.2f; // time of transition between unbounded and bo
 
 const F32 ACTIVATE_HIGHLIGHT_TIME = 0.3f;
 
+static MenuRegistry::Register<LLMenuItemGL> register_menu_item("menu_item");
 static MenuRegistry::Register<LLMenuItemSeparatorGL> register_separator("menu_item_separator");
 static MenuRegistry::Register<LLMenuItemCallGL> register_menu_item_call("menu_item_call");
 static MenuRegistry::Register<LLMenuItemCheckGL> register_menu_item_check("menu_item_check");
@@ -132,6 +133,28 @@ static LLDefaultChildRegistry::Register<LLMenuGL> register_menu_default("menu");
 ///============================================================================
 /// Class LLMenuItemGL
 ///============================================================================
+
+LLMenuItemGL::Params::Params()
+:	shortcut("shortcut"),
+	jump_key("jump_key", KEY_NONE),
+	use_mac_ctrl("use_mac_ctrl", false),
+	rect("rect"),
+	left("left"),
+	top("top"),
+	right("right"),
+	bottom("bottom"),
+	width("width"),
+	height("height"),
+	bottom_delta("bottom_delta"),
+	left_delta("left_delta"),
+	enabled_color("enabled_color"),
+	disabled_color("disabled_color"),
+	highlight_bg_color("highlight_bg_color"),
+	highlight_fg_color("highlight_fg_color")
+{	
+	mouse_opaque = true;
+}
+
 // Default constructor
 LLMenuItemGL::LLMenuItemGL(const LLMenuItemGL::Params& p)
 :	LLUICtrl(p),
@@ -459,12 +482,6 @@ void LLMenuItemGL::draw( void )
 
 	LLColor4 color;
 
-	LLFontGL::ShadowType shadow_style = LLFontGL::NO_SHADOW;
-	if (getEnabled() && !mDrawTextDisabled )
-	{
-		shadow_style = LLFontGL::DROP_SHADOW_SOFT;
-	}
-
 	if ( getEnabled() && getHighlight() )
 	{
 		color = mHighlightForeground.get();
@@ -482,26 +499,26 @@ void LLMenuItemGL::draw( void )
 	if (mBriefItem)
 	{
 		mFont->render( mLabel, 0, BRIEF_PAD_PIXELS / 2, 0, color,
-					   LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, shadow_style );
+					   LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL);
 	}
 	else
 	{
 		if( !mDrawBoolLabel.empty() )
 		{
 			mFont->render( mDrawBoolLabel.getWString(), 0, (F32)LEFT_PAD_PIXELS, ((F32)MENU_ITEM_PADDING / 2.f) + 1.f, color,
-						   LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, shadow_style, S32_MAX, S32_MAX, NULL, FALSE );
+						   LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 		mFont->render( mLabel.getWString(), 0, (F32)LEFT_PLAIN_PIXELS, ((F32)MENU_ITEM_PADDING / 2.f) + 1.f, color,
-					   LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, shadow_style, S32_MAX, S32_MAX, NULL, FALSE );
+					   LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 		if( !mDrawAccelLabel.empty() )
 		{
 			mFont->render( mDrawAccelLabel.getWString(), 0, (F32)getRect().mRight - (F32)RIGHT_PLAIN_PIXELS, ((F32)MENU_ITEM_PADDING / 2.f) + 1.f, color,
-						   LLFontGL::RIGHT, LLFontGL::BOTTOM, LLFontGL::NORMAL, shadow_style, S32_MAX, S32_MAX, NULL, FALSE );
+						   LLFontGL::RIGHT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 		if( !mDrawBranchLabel.empty() )
 		{
 			mFont->render( mDrawBranchLabel.getWString(), 0, (F32)getRect().mRight - (F32)RIGHT_PAD_PIXELS, ((F32)MENU_ITEM_PADDING / 2.f) + 1.f, color,
-						   LLFontGL::RIGHT, LLFontGL::BOTTOM, LLFontGL::NORMAL, shadow_style, S32_MAX, S32_MAX, NULL, FALSE );
+						   LLFontGL::RIGHT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 	}
 
@@ -1460,12 +1477,6 @@ void LLMenuItemBranchDownGL::draw( void )
 		gl_rect_2d( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	}
 
-	LLFontGL::ShadowType shadow_style = LLFontGL::NO_SHADOW;
-	if (getEnabled() && !getDrawTextDisabled() )
-	{
-		shadow_style = LLFontGL::DROP_SHADOW_SOFT;
-	}
-
 	LLColor4 color;
 	if (getHighlight())
 	{
@@ -1480,7 +1491,7 @@ void LLMenuItemBranchDownGL::draw( void )
 		color = mDisabledColor.get();
 	}
 	getFont()->render( mLabel.getWString(), 0, (F32)getRect().getWidth() / 2.f, (F32)LABEL_BOTTOM_PAD_PIXELS, color,
-				   LLFontGL::HCENTER, LLFontGL::BOTTOM, LLFontGL::NORMAL, shadow_style );
+				   LLFontGL::HCENTER, LLFontGL::BOTTOM, LLFontGL::NORMAL);
 
 
 	// underline navigation key only when keyboard navigation has been initiated
@@ -1555,8 +1566,6 @@ LLMenuScrollItem::LLMenuScrollItem(const Params& p)
 	}
 
 	LLButton::Params bparams;
-	bparams.label("");
-	bparams.label_selected("");
 	bparams.mouse_opaque(true);
 	bparams.scale_image(false);
 	bparams.click_callback(p.scroll_callback);
@@ -3261,11 +3270,9 @@ BOOL LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
 ///============================================================================
 LLCoordGL LLMenuHolderGL::sContextMenuSpawnPos(S32_MAX, S32_MAX);
 
-LLMenuHolderGL::LLMenuHolderGL()
-	: LLPanel()
+LLMenuHolderGL::LLMenuHolderGL(const LLMenuHolderGL::Params& p)
+	: LLPanel(p)
 {
-	setName("Menu Holder");
-	setMouseOpaque(FALSE);
 	sItemActivationTimer.stop();
 	mCanHide = TRUE;
 }

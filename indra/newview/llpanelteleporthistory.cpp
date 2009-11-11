@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2001-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -71,9 +71,10 @@ public:
 
 	static void showPlaceInfoPanel(S32 index);
 private:
-	void onInfoBtnClick();
+	void onProfileBtnClick();
 
-	LLButton* mInfoBtn;
+	LLButton* mProfileBtn;
+	
 	LLTeleportHistoryPanel::ContextMenu *mContextMenu;
 
 	S32 mIndex;
@@ -95,8 +96,9 @@ BOOL LLTeleportHistoryFlatItem::postBuild()
 	LLTextBox *region = getChild<LLTextBox>("region");
 	region->setValue(mRegionName);
 
-	mInfoBtn = getChild<LLButton>("info_btn");
-	mInfoBtn->setClickedCallback(boost::bind(&LLTeleportHistoryFlatItem::onInfoBtnClick, this));
+	mProfileBtn = getChild<LLButton>("profile_btn");
+        
+	mProfileBtn->setClickedCallback(boost::bind(&LLTeleportHistoryFlatItem::onProfileBtnClick, this));
 
 	return true;
 }
@@ -111,7 +113,7 @@ void LLTeleportHistoryFlatItem::setValue(const LLSD& value)
 void LLTeleportHistoryFlatItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
 	childSetVisible("hovered_icon", true);
-	mInfoBtn->setVisible(true);
+	mProfileBtn->setVisible(true);
 
 	LLPanel::onMouseEnter(x, y, mask);
 }
@@ -119,7 +121,7 @@ void LLTeleportHistoryFlatItem::onMouseEnter(S32 x, S32 y, MASK mask)
 void LLTeleportHistoryFlatItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	childSetVisible("hovered_icon", false);
-	mInfoBtn->setVisible(false);
+	mProfileBtn->setVisible(false);
 
 	LLPanel::onMouseLeave(x, y, mask);
 }
@@ -142,7 +144,7 @@ void LLTeleportHistoryFlatItem::showPlaceInfoPanel(S32 index)
 	LLSideTray::getInstance()->showPanel("panel_places", params);
 }
 
-void LLTeleportHistoryFlatItem::onInfoBtnClick()
+void LLTeleportHistoryFlatItem::onProfileBtnClick()
 {
 	LLTeleportHistoryFlatItem::showPlaceInfoPanel(mIndex);
 }
@@ -161,7 +163,6 @@ void LLTeleportHistoryPanel::ContextMenu::show(LLView* spawning_view, S32 index,
 		if (parent)
 		{
 			parent->removeChild(mMenu);
-			mMenu->setParent(NULL);
 		}
 		delete mMenu;
 	}
@@ -357,7 +358,7 @@ void LLTeleportHistoryPanel::onCopySLURL()
 
 	U64 new_region_handle = to_region_handle(global_pos);
 
-	LLWorldMap::url_callback_t cb = boost::bind(
+	LLWorldMapMessage::url_callback_t cb = boost::bind(
 			&LLPanelPlacesTab::onRegionResponse, this,
 			global_pos, _1, _2, _3, _4);
 
@@ -404,6 +405,7 @@ void LLTeleportHistoryPanel::getNextTab(const LLDate& item_date, S32& tab_idx, L
 
 		if (tab_idx <= tabs_cnt - 4)
 		{
+			// All tabs, except last three, are tabs for one day, so just push tab_date back by one day
 			tab_date.secondsSinceEpoch(tab_date.secondsSinceEpoch() - seconds_in_day);
 		}
 		else if (tab_idx == tabs_cnt - 3) // 6 day and older, low boundary is 1 month
@@ -440,6 +442,7 @@ void LLTeleportHistoryPanel::getNextTab(const LLDate& item_date, S32& tab_idx, L
 	}
 }
 
+// Called to add items, no more, than ADD_LIMIT at time
 void LLTeleportHistoryPanel::refresh()
 {
 	if (!mHistoryAccordion)
@@ -450,12 +453,16 @@ void LLTeleportHistoryPanel::refresh()
 
 	const LLTeleportHistoryStorage::slurl_list_t& items = mTeleportHistory->getItems();
 
+	// Setting tab_boundary_date to "now", so date from any item would be earlier, than boundary.
+	// That leads to call to getNextTab to get right tab_idx in first pass
 	LLDate tab_boundary_date =  LLDate::now();
+
 	LLFlatListView* curr_flat_view = NULL;
 
 	U32 added_items = 0;
 	while (mCurrentItem >= 0)
 	{
+		// Filtering
 		std::string landmark_title = items[mCurrentItem].mTitle;
 		LLStringUtil::toUpper(landmark_title);
 
@@ -468,10 +475,14 @@ void LLTeleportHistoryPanel::refresh()
 			continue;
 		}
 
+		// Checking whether date of item is earlier, than tab_boundary_date.
+		// In that case, item should be added to another tab
 		const LLDate &date = items[mCurrentItem].mDate;
 
 		if (date < tab_boundary_date)
 		{
+			// Getting apropriate tab_idx for this and subsequent items,
+			// tab_boundary_date would be earliest possible date for this tab
 			S32 tab_idx = 0;
 			getNextTab(date, tab_idx, tab_boundary_date);
 
@@ -578,6 +589,9 @@ void LLTeleportHistoryPanel::replaceItem(S32 removed_index)
 void LLTeleportHistoryPanel::showTeleportHistory()
 {
 	mDirty = true;
+
+	// Starting to add items from last one, in reverse order,
+	// since TeleportHistory keeps most recent item at the end
 	mCurrentItem = mTeleportHistory->getItems().size() - 1;
 
 	for (S32 n = mItemContainers.size() - 1; n >= 0; --n)
@@ -643,7 +657,6 @@ void LLTeleportHistoryPanel::onAccordionTabRightClick(LLView *view, S32 x, S32 y
 		if (parent)
 		{
 			parent->removeChild(mAccordionTabMenu);
-			mAccordionTabMenu->setParent(NULL);
 		}
 		delete mAccordionTabMenu;
 	}

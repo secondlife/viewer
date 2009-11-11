@@ -37,10 +37,13 @@
 #include "llcombobox.h"
 #include "llgesturemgr.h"
 #include "llchat.h"
-#include "llchiclet.h"
 #include "llvoiceclient.h"
 #include "lloutputmonitorctrl.h"
 #include "llspeakers.h"
+
+
+class LLSpeakButton;
+
 
 class LLGestureComboBox
 	: public LLComboBox
@@ -93,7 +96,6 @@ public:
 	std::string getCurrentChat();
 	virtual BOOL handleKeyHere( KEY key, MASK mask );
 
-	void setPTTState(bool state);
 	static void startChat(const char* line);
 	static void stopChat();
 
@@ -125,9 +127,9 @@ protected:
 	static S32 sLastSpecialChatChannel;
 
 	LLLineEditor*		mChatBox;
-	LLTalkButton*		mTalkBtn;
+	LLSpeakButton*		mSpeakBtn;
 	LLOutputMonitorCtrl* mOutputMonitor;
-	LLActiveSpeakerMgr  mSpeakerMgr;
+	LLLocalSpeakerMgr*  mSpeakerMgr;
 };
 
 #endif

@@ -50,10 +50,11 @@
 LLPanelMediaSettingsSecurity::LLPanelMediaSettingsSecurity() :
 	mParent( NULL )
 {
-	// build dialog from XML
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_media_settings_security.xml");
 	mCommitCallbackRegistrar.add("Media.whitelistAdd",		boost::bind(&LLPanelMediaSettingsSecurity::onBtnAdd, this));
 	mCommitCallbackRegistrar.add("Media.whitelistDelete",	boost::bind(&LLPanelMediaSettingsSecurity::onBtnDel, this));	
+	// build dialog from XML
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_media_settings_security.xml");
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,10 +63,7 @@ BOOL LLPanelMediaSettingsSecurity::postBuild()
 {
 	mEnableWhiteList = getChild< LLCheckBoxCtrl >( LLMediaEntry::WHITELIST_ENABLE_KEY );
 	mWhiteListList = getChild< LLScrollListCtrl >( LLMediaEntry::WHITELIST_KEY );
-
-	childSetAction("whitelist_add", onBtnAdd, this);
-	childSetAction("whitelist_del", onBtnDel, this);
-
+	
 	setDefaultBtn("whitelist_add");
 
 	return true;
@@ -200,17 +198,12 @@ void LLPanelMediaSettingsSecurity::clearValues( void* userdata , bool editable)
 	self->mEnableWhiteList->setEnabled(editable);
 	self->mWhiteListList->setEnabled(editable);
 }
-////////////////////////////////////////////////////////////////////////////////
-// static
-void LLPanelMediaSettingsSecurity::apply( void* userdata )
-{
-	LLPanelMediaSettingsSecurity *self =(LLPanelMediaSettingsSecurity *)userdata;
 
-	// build LLSD Fragment
-	LLSD media_data_security;
-	self->getValues(media_data_security);
-	// this merges contents of LLSD passed in with what's there so this is ok
-	LLSelectMgr::getInstance()->selectionSetMediaData( media_data_security );
+////////////////////////////////////////////////////////////////////////////////
+// 
+void LLPanelMediaSettingsSecurity::preApply()
+{
+	// no-op
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -222,13 +215,22 @@ void LLPanelMediaSettingsSecurity::getValues( LLSD &fill_me_in )
     // iterate over white list and extract items
     std::vector< LLScrollListItem* > white_list_items = mWhiteListList->getAllData();
     std::vector< LLScrollListItem* >::iterator iter = white_list_items.begin();
-    fill_me_in[LLMediaEntry::WHITELIST_KEY].clear();
+	// *NOTE: need actually set the key to be an emptyArray(), or the merge
+	// we do with this LLSD will think there's nothing to change.
+    fill_me_in[LLMediaEntry::WHITELIST_KEY] = LLSD::emptyArray();
     while( iter != white_list_items.end() )
     {
         std::string white_list_url = (*iter)->getValue().asString();
         fill_me_in[ LLMediaEntry::WHITELIST_KEY ].append( white_list_url );
         ++iter;
     };
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// 
+void LLPanelMediaSettingsSecurity::postApply()
+{
+	// no-op
 }
 
 ///////////////////////////////////////////////////////////////////////////////

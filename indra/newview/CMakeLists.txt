@@ -222,7 +222,6 @@ set(viewer_SOURCE_FILES
     llfloaterwhitelistentry.cpp
     llfloaterwindlight.cpp
     llfloaterworldmap.cpp
-    llfoldertype.cpp
     llfolderview.cpp
     llfolderviewitem.cpp
     llfollowcam.cpp
@@ -245,7 +244,6 @@ set(viewer_SOURCE_FILES
     llhudrender.cpp
     llhudtext.cpp
     llhudview.cpp
-    llimcontrolpanel.cpp
     llimfloater.cpp
     llimhandler.cpp
     llimpanel.cpp
@@ -257,7 +255,9 @@ set(viewer_SOURCE_FILES
     llinventorybridge.cpp
     llinventoryclipboard.cpp
     llinventoryfilter.cpp
+    llinventoryfunctions.cpp
     llinventorymodel.cpp
+    llinventorypanel.cpp
     llinventorysubtreepanel.cpp
     lljoystickbutton.cpp
     lllandmarkactions.cpp
@@ -274,7 +274,6 @@ set(viewer_SOURCE_FILES
     llmaniprotate.cpp
     llmanipscale.cpp
     llmaniptranslate.cpp
-    llmapresponders.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
     llmediaremotectrl.cpp
@@ -296,6 +295,7 @@ set(viewer_SOURCE_FILES
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
     llnotificationmanager.cpp
+    llnotificationofferhandler.cpp
     llnotificationscripthandler.cpp
     llnotificationtiphandler.cpp
     llnotify.cpp
@@ -319,20 +319,21 @@ set(viewer_SOURCE_FILES
     llpanelgroupnotices.cpp
     llpanelgrouproles.cpp
     llpanelimcontrolpanel.cpp
-    llpanelinventory.cpp
     llpanelland.cpp
     llpanellandaudio.cpp
+    llpanellandmarkinfo.cpp
     llpanellandmarks.cpp
     llpanellandmedia.cpp
     llpanellogin.cpp
     llpanellookinfo.cpp
     llpanellooks.cpp
-    llpanelmedia.cpp
+    llpanelmaininventory.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
     llpanelmeprofile.cpp
     llpanelobject.cpp
+    llpanelobjectinventory.cpp
     llpanelpeople.cpp
     llpanelpeoplemenus.cpp
     llpanelpermissions.cpp
@@ -340,6 +341,7 @@ set(viewer_SOURCE_FILES
     llpanelpicks.cpp
     llpanelplace.cpp
     llpanelplaceinfo.cpp
+    llpanelplaceprofile.cpp
     llpanelplaces.cpp
     llpanelplacestab.cpp
     llpanelprimmediacontrols.cpp
@@ -372,11 +374,16 @@ set(viewer_SOURCE_FILES
     llsearchcombobox.cpp
     llsearchhistory.cpp
     llselectmgr.cpp
+    llsidepanelinventory.cpp
+    llsidepanelinventorysubpanel.cpp
+    llsidepaneliteminfo.cpp
+    llsidepaneltaskinfo.cpp
     llsidetray.cpp
     llsidetraypanelcontainer.cpp
     llsky.cpp
     llslurl.cpp
     llspatialpartition.cpp
+    llspeakbutton.cpp
     llspeakers.cpp
     llsplitbutton.cpp
     llsprite.cpp
@@ -397,6 +404,10 @@ set(viewer_SOURCE_FILES
     lltexturecache.cpp
     lltexturectrl.cpp
     lltexturefetch.cpp
+    lltextureinfo.cpp
+    lltextureinfodetails.cpp
+    lltexturestats.cpp
+    lltexturestatsuploader.cpp
     lltextureview.cpp
     lltoast.cpp
     lltoastalertpanel.cpp
@@ -437,12 +448,14 @@ set(viewer_SOURCE_FILES
     llvectorperfoptions.cpp
     llviewchildren.cpp
     llviewerassetstorage.cpp
+    llviewerassettype.cpp
     llvieweraudio.cpp
     llviewercamera.cpp
     llviewercontrol.cpp
     llviewercontrollistener.cpp
     llviewerdisplay.cpp
     llviewerfloaterreg.cpp
+    llviewerfoldertype.cpp
     llviewergenericmessage.cpp
     llviewergesture.cpp    
     llviewerhelp.cpp
@@ -520,6 +533,8 @@ set(viewer_SOURCE_FILES
     llwlparamset.cpp
     llworld.cpp
     llworldmap.cpp
+    llworldmapmessage.cpp
+    llworldmipmap.cpp
     llworldmapview.cpp
     llxmlrpclistener.cpp
     llxmlrpctransaction.cpp
@@ -705,7 +720,6 @@ set(viewer_HEADER_FILES
     llfloaterwhitelistentry.h
     llfloaterwindlight.h
     llfloaterworldmap.h
-    llfoldertype.h
     llfolderview.h
     llfoldervieweventlistener.h
     llfolderviewitem.h
@@ -728,7 +742,6 @@ set(viewer_HEADER_FILES
     llhudrender.h
     llhudtext.h
     llhudview.h
-    llimcontrolpanel.h
     llimfloater.h
     llimpanel.h
     llimview.h
@@ -739,7 +752,9 @@ set(viewer_HEADER_FILES
     llinventorybridge.h
     llinventoryclipboard.h
     llinventoryfilter.h
+    llinventoryfunctions.h
     llinventorymodel.h
+    llinventorypanel.h
     llinventorysubtreepanel.h
     lljoystickbutton.h
     lllandmarkactions.h
@@ -757,7 +772,6 @@ set(viewer_HEADER_FILES
     llmaniprotate.h
     llmanipscale.h
     llmaniptranslate.h
-    llmapresponders.h
     llmediactrl.h
     llmediadataclient.h
     llmediaremotectrl.h
@@ -799,20 +813,21 @@ set(viewer_HEADER_FILES
     llpanelgroupnotices.h
     llpanelgrouproles.h
     llpanelimcontrolpanel.h
-    llpanelinventory.h
     llpanelland.h
     llpanellandaudio.h
+    llpanellandmarkinfo.h
     llpanellandmarks.h
     llpanellandmedia.h
     llpanellogin.h
     llpanellookinfo.h
     llpanellooks.h
-    llpanelmedia.h
+    llpanelmaininventory.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h
     llpanelmeprofile.h
     llpanelobject.h
+    llpanelobjectinventory.h
     llpanelpeople.h
     llpanelpeoplemenus.h
     llpanelpermissions.h
@@ -820,6 +835,7 @@ set(viewer_HEADER_FILES
     llpanelpicks.h
     llpanelplace.h
     llpanelplaceinfo.h
+    llpanelplaceprofile.h
     llpanelplaces.h
     llpanelplacestab.h
     llpanelprimmediacontrols.h
@@ -854,11 +870,16 @@ set(viewer_HEADER_FILES
     llsearchcombobox.h
     llsearchhistory.h
     llselectmgr.h
+    llsidepanelinventory.h
+    llsidepanelinventorysubpanel.h
+    llsidepaneliteminfo.h
+    llsidepaneltaskinfo.h
     llsidetray.h
     llsidetraypanelcontainer.h
     llsky.h
     llslurl.h
     llspatialpartition.h
+    llspeakbutton.h
     llspeakers.h
     llsplitbutton.h
     llsprite.h
@@ -880,6 +901,10 @@ set(viewer_HEADER_FILES
     lltexturecache.h
     lltexturectrl.h
     lltexturefetch.h
+    lltextureinfo.h
+    lltextureinfodetails.h
+    lltexturestats.h
+    lltexturestatsuploader.h
     lltextureview.h
     lltoast.h
     lltoastalertpanel.h
@@ -921,6 +946,7 @@ set(viewer_HEADER_FILES
     llvectorperfoptions.h
     llviewchildren.h
     llviewerassetstorage.h
+    llviewerassettype.h
     llvieweraudio.h
     llviewerbuild.h
     llviewercamera.h
@@ -928,6 +954,7 @@ set(viewer_HEADER_FILES
     llviewercontrollistener.h
     llviewerdisplay.h
     llviewerfloaterreg.h
+    llviewerfoldertype.h
     llviewergenericmessage.h
     llviewergesture.h    
     llviewerhelp.h
@@ -1004,13 +1031,14 @@ set(viewer_HEADER_FILES
     llwlparamset.h
     llworld.h
     llworldmap.h
+    llworldmapmessage.h
+    llworldmipmap.h
     llworldmapview.h
     llxmlrpclistener.h
     llxmlrpctransaction.h
     macmain.h
     noise.h
     pipeline.h
-    randgauss.h
     VertexCache.h
     VorbisFramework.h
     )
@@ -1658,6 +1686,12 @@ LL_ADD_INTEGRATION_TEST(llcapabilitylistener
   )
 
 #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
+#ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
+#ADD_VIEWER_BUILD_TEST(llworldmap viewer)
+#ADD_VIEWER_BUILD_TEST(llworldmipmap viewer)
+#ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
+#ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
+#ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)
 
 
 # Don't do these for DARWIN or LINUX here -- they're taken care of by viewer_manifest.py

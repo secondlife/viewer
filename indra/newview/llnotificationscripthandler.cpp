@@ -37,6 +37,7 @@
 #include "lltoastnotifypanel.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
+#include "llnotificationmanager.h"
 
 using namespace LLNotificationsUI;
 
@@ -129,7 +130,9 @@ void LLScriptHandler::onRejectToast(LLUUID& id)
 {
 	LLNotificationPtr notification = LLNotifications::instance().find(id);
 
-	if(notification)
+	if (notification
+			&& LLNotificationManager::getInstance()->getHandlerForNotification(
+					notification->getType()) == this)
 	{
 		LLNotifications::instance().cancel(notification);
 	}

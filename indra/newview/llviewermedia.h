@@ -165,6 +165,7 @@ public:
 	void navigateForward();
 	void navigateReload();
 	void navigateHome();
+	void unload();
 	void navigateTo(const std::string& url, const std::string& mime_type = "", bool rediscover_type = false, bool server_request = false);
 	void navigateInternal();
 	void navigateStop();
@@ -190,14 +191,17 @@ public:
 	bool isMediaPlaying();
 	bool isMediaPaused();
 	bool hasMedia();
-	bool isMediaFailed() { return mMediaSourceFailed; };
+	bool isMediaFailed() const { return mMediaSourceFailed; };
 	void resetPreviousMediaState();
 	
 	void setDisabled(bool disabled) { mIsDisabled = disabled; };
-	bool isMediaDisabled() { return mIsDisabled; };
+	bool isMediaDisabled() const { return mIsDisabled; };
 
 	// returns true if this instance should not be loaded (disabled, muted object, crashed, etc.)
 	bool isForcedUnloaded() const;
+	
+	void setIsParcelMedia(bool is_parcel_media) { mIsParcelMedia = is_parcel_media; };
+	bool isParcelMedia() const { return mIsParcelMedia; };
 
 	ECursorType getLastSetCursor() { return mLastSetCursor; };
 	
@@ -258,7 +262,7 @@ public:
 	void calculateInterest();
 	F64 getInterest() const { return mInterest; };
 	F64 getApproximateTextureInterest();
-	S32 getProximity() { return mProximity; };
+	S32 getProximity() const { return mProximity; };
 	
 	// Mark this object as being used in a UI panel instead of on a prim
 	// This will be used as part of the interest sorting algorithm.
@@ -306,6 +310,8 @@ public:
 	bool mMediaAutoScale;
 	bool mMediaLoop;
 	bool mNeedsNewTexture;
+	S32 mTextureUsedWidth;
+	S32 mTextureUsedHeight;
 	bool mSuspendUpdates;
 	bool mVisible;
 	ECursorType mLastSetCursor;
@@ -323,6 +329,7 @@ public:
 	int mPreviousMediaState;
 	F64 mPreviousMediaTime;
 	bool mIsDisabled;
+	bool mIsParcelMedia;
 	S32 mProximity;
 
 private:

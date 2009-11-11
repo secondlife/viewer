@@ -94,12 +94,21 @@ void handle_sit_down(void*);
 void handle_object_build(void*);
 void handle_object_touch();
 bool enable_object_open();
+void handle_object_open();
 
 // Buy either contents or object itself
 void handle_buy();
 void handle_take_copy();
 void handle_look_at_selection(const LLSD& param);
 void handle_zoom_to_object(LLUUID object_id);
+
+// Takes avatar UUID, or if no UUID passed, uses last selected object
+void handle_avatar_freeze(const LLSD& avatar_id);
+
+// Takes avatar UUID, or if no UUID passed, uses last selected object
+void handle_avatar_eject(const LLSD& avatar_id);
+
+bool enable_freeze_eject(const LLSD& avatar_id);
 
 // Can anyone take a free copy of the object?
 // *TODO: Move to separate file
@@ -124,6 +133,11 @@ void handle_export_selected( void * );
 class LLViewerMenuHolderGL : public LLMenuHolderGL
 {
 public:
+	struct Params : public LLInitParam::Block<Params, LLMenuHolderGL::Params>
+	{};
+
+	LLViewerMenuHolderGL(const Params& p);
+
 	virtual BOOL hideMenus();
 	
 	void setParcelSelection(LLSafeHandle<LLParcelSelection> selection);

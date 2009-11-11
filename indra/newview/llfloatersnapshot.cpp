@@ -101,6 +101,8 @@ S32 BORDER_WIDTH = 6;
 const S32 MAX_POSTCARD_DATASIZE = 1024 * 1024; // one megabyte
 const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
 
+static LLDefaultChildRegistry::Register<LLSnapshotFloaterView> r("snapshot_floater_view");
+
 ///----------------------------------------------------------------------------
 /// Class LLSnapshotLivePreview 
 ///----------------------------------------------------------------------------
@@ -980,7 +982,7 @@ void LLSnapshotLivePreview::saveTexture()
 				    "Snapshot : " + pos_string,
 				    "Taken by " + who_took_it + " at " + pos_string,
 				    0,
-				    LLAssetType::AT_SNAPSHOT_CATEGORY,
+				    LLFolderType::FT_SNAPSHOT_CATEGORY,
 				    LLInventoryType::IT_SNAPSHOT,
 				    PERM_ALL,  // Note: Snapshots to inventory is a special case of content upload
 				    PERM_NONE, // that ignores the user's premissions preferences and continues to
@@ -1373,8 +1375,10 @@ void LLFloaterSnapshot::Impl::checkAutoSnapshot(LLSnapshotLivePreview* previewp,
 void LLFloaterSnapshot::Impl::onClickDiscard(void* data)
 {
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
+	
 	if (view)
 	{
+		view->getParent()->setMouseOpaque(FALSE);
 		view->closeFloater();
 	}
 }
@@ -2040,10 +2044,12 @@ BOOL LLFloaterSnapshot::postBuild()
 	LLSnapshotLivePreview::Params p;
 	p.rect(full_screen_rect);
 	LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
-	getRootView()->removeChild(gSnapshotFloaterView);
+	LLView* parent_view = gSnapshotFloaterView->getParent();
+	
+	parent_view->removeChild(gSnapshotFloaterView);
 	// make sure preview is below snapshot floater
-	getRootView()->addChild(previewp);
-	getRootView()->addChild(gSnapshotFloaterView);
+	parent_view->addChild(previewp);
+	parent_view->addChild(gSnapshotFloaterView);
 	
 	//move snapshot floater to special purpose snapshotfloaterview
 	gFloaterView->removeChild(this);

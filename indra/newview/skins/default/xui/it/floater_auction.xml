@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_auction" title="Inizia a vendere terra Linden">
+<floater name="floater_auction" title="INIZIA A VENDERE TERRA LINDEN">
 	<check_box label="Includi barriere di selezione gialle" name="fence_check"/>
 	<button label="Fotografia" label_selected="Fotografia" name="snapshot_btn"/>
 	<button label="OK" label_selected="OK" name="ok_btn"/>

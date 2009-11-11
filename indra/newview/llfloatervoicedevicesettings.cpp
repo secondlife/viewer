@@ -49,6 +49,9 @@
 #include "lluictrlfactory.h"
 
 
+static LLRegisterPanelClassWrapper<LLPanelVoiceDeviceSettings> t_panel_group_general("panel_voice_device_settings");
+
+
 LLPanelVoiceDeviceSettings::LLPanelVoiceDeviceSettings()
 	: LLPanel()
 {
@@ -82,8 +85,25 @@ BOOL LLPanelVoiceDeviceSettings::postBuild()
 	return TRUE;
 }
 
+// virtual
+void LLPanelVoiceDeviceSettings::handleVisibilityChange ( BOOL new_visibility )
+{
+	if (new_visibility)
+	{
+		initialize();	
+	}
+	else
+	{
+		cleanup();
+		// when closing this window, turn of visiblity control so that 
+		// next time preferences is opened we don't suspend voice
+		gSavedSettings.setBOOL("ShowDeviceSettings", FALSE);
+	}
+}
 void LLPanelVoiceDeviceSettings::draw()
 {
+	refresh();
+
 	// let user know that volume indicator is not yet available
 	bool is_in_tuning_mode = gVoiceClient->inTuningMode();
 	childSetVisible("wait_text", !is_in_tuning_mode);

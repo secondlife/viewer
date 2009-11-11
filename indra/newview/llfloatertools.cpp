@@ -54,7 +54,7 @@
 #include "llpanelcontents.h"
 #include "llpanelface.h"
 #include "llpanelland.h"
-#include "llpanelinventory.h"
+#include "llpanelobjectinventory.h"
 #include "llpanelobject.h"
 #include "llpanelvolume.h"
 #include "llpanelpermissions.h"

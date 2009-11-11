@@ -70,10 +70,6 @@ BOOL LLFloaterEnvSettings::postBuild()
 	syncMenu();
 	return TRUE;
 }
-void LLFloaterEnvSettings::onClickHelp()
-{
-	LLNotifications::instance().add(contextualNotification("EnvSettingsHelpButton"));
-}
 
 void LLFloaterEnvSettings::initCallbacks(void) 
 {
@@ -89,9 +85,7 @@ void LLFloaterEnvSettings::initCallbacks(void)
 	getChild<LLUICtrl>("EnvAdvancedSkyButton")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onOpenAdvancedSky, this));
  	getChild<LLUICtrl>("EnvAdvancedWaterButton")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onOpenAdvancedWater, this));
 	getChild<LLUICtrl>("EnvUseEstateTimeButton")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onUseEstateTime, this));
-	getChild<LLUICtrl>("EnvSettingsHelpButton")->setCommitCallback(boost::bind(&LLFloaterEnvSettings::onClickHelp, this));
 }
-
 
 // menu maintenance functions
 

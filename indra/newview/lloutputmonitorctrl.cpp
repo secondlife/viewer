@@ -80,7 +80,8 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 	mImageLevel2(p.image_level_2),
 	mImageLevel3(p.image_level_3),
 	mAutoUpdate(p.auto_update),
-	mSpeakerId(p.speaker_id)
+	mSpeakerId(p.speaker_id),
+	mIsAgentControl(false)
 {
 	//static LLUIColor output_monitor_muted_color = LLUIColorTable::instance().getColor("OutputMonitorMutedColor", LLColor4::orange);
 	//static LLUIColor output_monitor_overdriven_color = LLUIColorTable::instance().getColor("OutputMonitorOverdrivenColor", LLColor4::red);
@@ -132,7 +133,14 @@ void LLOutputMonitorCtrl::draw()
 	if (getVisible() && mAutoUpdate && !mIsMuted && mSpeakerId.notNull())
 	{
 		setPower(gVoiceClient->getCurrentPower(mSpeakerId));
-		setIsTalking(gVoiceClient->getIsSpeaking(mSpeakerId));
+		if(mIsAgentControl)
+		{
+			setIsTalking(gVoiceClient->getUserPTTState());
+		}
+		else
+		{
+			setIsTalking(gVoiceClient->getIsSpeaking(mSpeakerId));
+		}
 	}
 
 	LLPointer<LLUIImage> icon;

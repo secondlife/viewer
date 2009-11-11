@@ -279,7 +279,7 @@ S32 LLFacePool::drawLoopSetTex(face_array_t& face_list, S32 stage)
 			 iter != face_list.end(); iter++)
 		{
 			LLFace *facep = *iter;
-			gGL.getTexUnit(stage)->bind(facep->getTexture());
+			gGL.getTexUnit(stage)->bind(facep->getTexture(), TRUE) ;
 			gGL.getTexUnit(0)->activate();
 			res += facep->renderIndexed();
 		}
@@ -475,16 +475,12 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 	{
 		if (params.mTexture.notNull())
 		{
-			gGL.getTexUnit(0)->bind(params.mTexture.get());
+			gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
 			if (params.mTextureMatrix)
 			{
 				glMatrixMode(GL_TEXTURE);
 				glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
 				gPipeline.mTextureMatrixOps++;
-			}
-			if(params.mTexture.notNull())//will be removed.
-			{
-				params.mTexture->addTextureStats(params.mVSize);
 			}
 		}
 		else

@@ -57,6 +57,8 @@
 #include "llallocator.h"
 #include "llares.h" 
 #include "llcurl.h"
+#include "lltexturestats.h"
+#include "lltexturestats.h"
 #include "llviewerwindow.h"
 #include "llviewerdisplay.h"
 #include "llviewermedia.h"
@@ -255,9 +257,6 @@ F32 gLogoutMaxTime = LOGOUT_REQUEST_TIME;
 
 BOOL				gDisconnected = FALSE;
 
-// Map scale in pixels per region
-F32 				gMapScale = 128.f;
-
 // used to restore texture state after a mode switch
 LLFrameTimer	gRestoreGLTimer;
 BOOL			gRestoreGL = FALSE;
@@ -419,7 +418,7 @@ static void settings_to_globals()
 
 	gDebugWindowProc = gSavedSettings.getBOOL("DebugWindowProc");
 	gShowObjectUpdates = gSavedSettings.getBOOL("ShowObjectUpdates");
-	gMapScale = gSavedSettings.getF32("MapScale");
+	LLWorldMapView::sMapScale = gSavedSettings.getF32("MapScale");
 
 	LLCubeMap::sUseCubeMaps = LLFeatureManager::getInstance()->isFeatureAvailable("RenderCubeMap");
 }
@@ -432,7 +431,7 @@ static void settings_modify()
 	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //square lod factor to get exponential range of [1,4]
 	gDebugGL = gSavedSettings.getBOOL("RenderDebugGL") || gDebugSession;
 	gDebugPipeline = gSavedSettings.getBOOL("RenderDebugPipeline");
-	
+	gAuditTexture = gSavedSettings.getBOOL("AuditTexture");
 #if LL_VECTORIZE
 	if (gSysCPU.hasAltivec())
 	{
@@ -553,7 +552,7 @@ LLAppViewer* LLAppViewer::sInstance = NULL;
 const std::string LLAppViewer::sGlobalSettingsName = "Global"; 
 
 LLTextureCache* LLAppViewer::sTextureCache = NULL; 
-LLWorkerThread* LLAppViewer::sImageDecodeThread = NULL; 
+LLImageDecodeThread* LLAppViewer::sImageDecodeThread = NULL; 
 LLTextureFetch* LLAppViewer::sTextureFetch = NULL; 
 
 LLAppViewer::LLAppViewer() : 
@@ -620,7 +619,19 @@ bool LLAppViewer::init()
 	
 	if (!initConfiguration())
 		return false;
-	
+
+	// Although initLogging() is the right place to mess with
+	// setFatalFunction(), we can't query gSavedSettings until after
+	// initConfiguration().
+	S32 rc(gSavedSettings.getS32("QAModeTermCode"));
+	if (rc >= 0)
+	{
+		// QAModeTermCode set, terminate with that rc on LL_ERRS. Use _exit()
+		// rather than exit() because normal cleanup depends too much on
+		// successful startup!
+		LLError::setFatalFunction(boost::bind(_exit, rc));
+	}
+
     mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
 
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
@@ -645,6 +656,9 @@ bool LLAppViewer::init()
 	//////////////////////////////////////////////////////////////////////////////
 	// *FIX: The following code isn't grouped into functions yet.
 
+	// Statistics / debug timer initialization
+	init_statistics();
+	
 	//
 	// Various introspection concerning the libs we're using - particularly
         // the libs involved in getting to a full login screen.
@@ -1625,14 +1639,14 @@ bool LLAppViewer::initThreads()
 		LLWatchdog::getInstance()->init(watchdog_killer_callback);
 	}
 
-	LLVFSThread::initClass(enable_threads && true);
-	LLLFSThread::initClass(enable_threads && true);
+	LLVFSThread::initClass(enable_threads && false);
+	LLLFSThread::initClass(enable_threads && false);
 
 	// Image decoding
-	LLAppViewer::sImageDecodeThread = new LLWorkerThread("ImageDecode", enable_threads && true);
+	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
 	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), enable_threads && false);
-	LLImage::initClass(LLAppViewer::getImageDecodeThread());
+	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), sImageDecodeThread, enable_threads && true);
+	LLImage::initClass();
 
 	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
 	{
@@ -1665,7 +1679,7 @@ bool LLAppViewer::initLogging()
 	LLError::initForApplication(
 				gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
 	LLError::setFatalFunction(errorCallback);
-	
+
 	// Remove the last ".old" log file.
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
 							     "SecondLife.old");
@@ -2425,7 +2439,7 @@ void LLAppViewer::cleanupSavedSettings()
 		}
 	}
 
-	gSavedSettings.setF32("MapScale", gMapScale );
+	gSavedSettings.setF32("MapScale", LLWorldMapView::sMapScale );
 
 	// Some things are cached in LLAgent.
 	if (gAgent.mInitialized)
@@ -2751,7 +2765,7 @@ void LLAppViewer::initMarkerFile()
 	
 	// Create the marker file for this execution & lock it
 	apr_status_t s;
-	s = mMarkerFile.open(mMarkerFileName, LL_APR_W, gAPRPoolp);	
+	s = mMarkerFile.open(mMarkerFileName, LL_APR_W, TRUE);	
 
 	if (s == APR_SUCCESS && mMarkerFile.getFileHandle())
 	{

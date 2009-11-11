@@ -43,6 +43,7 @@
 #include "llimview.h" // for gIMMgr
 #include "llsidetray.h"
 #include "llstatusbar.h"	// can_afford_transaction()
+#include "llimfloater.h"
 
 //
 // Globals
@@ -279,10 +280,14 @@ void LLGroupActions::startChat(const LLUUID& group_id)
 	LLGroupData group_data;
 	if (gAgent.getGroupData(group_id, group_data))
 	{
-		gIMMgr->addSession(
+		LLUUID session_id = gIMMgr->addSession(
 			group_data.mName,
 			IM_SESSION_GROUP_START,
 			group_id);
+		if (session_id != LLUUID::null)
+		{
+			LLIMFloater::show(session_id);
+		}
 		make_ui_sound("UISndStartIM");
 	}
 	else

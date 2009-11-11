@@ -64,6 +64,9 @@ const LLUUID CATEGORIZE_LOST_AND_FOUND_ID(std::string("00000000-0000-0000-0000-0
 
 const U64 TOXIC_ASSET_LIFETIME = (120 * 1000000);		// microseconds
 
+LLTempAssetStorage::~LLTempAssetStorage()
+{
+}
 
 ///----------------------------------------------------------------------------
 /// LLAssetInfo

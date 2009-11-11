@@ -65,7 +65,7 @@ public:
 	/*virtual*/ BOOL    isActive() const; // Whether this object needs to do an idleUpdate.
 	F32 getPartSize(S32 idx);
 
-	/*virtual*/ void updateTextures(LLAgent &agent);
+	/*virtual*/ void updateTextures();
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area
 	
 	void updateFaceSize(S32 idx) { }

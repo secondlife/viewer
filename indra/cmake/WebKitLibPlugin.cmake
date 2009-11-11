@@ -51,6 +51,7 @@ elseif (LINUX)
         QtGui
         QtCore
 
+        jpeg
         fontconfig
         X11
         Xrender

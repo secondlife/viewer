@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="Masse-ændring af rettigheder på indhold">
+<floater name="floaterbulkperms" title="MASSE-ÆNDRING AF RETTIGHEDER PÅ INDHOLD">
 	<text name="applyto">
 		Indholdstyper
 	</text>

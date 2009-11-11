@@ -70,7 +70,7 @@
 	 value="1 1 0 1" />
 	<color
 	 name="Unused?"
-	 value="1 0 1 1" />
+	 value="1 0.5 0 1" />
 	<color
 	 name="Transparent"
 	 value="0 0 0 0" />
@@ -651,7 +651,7 @@
 	 value="0 0 0 .33" />
     <color
      name="TimeTextColor"
-     reference="LtGray_50" />
+     reference="LtGray" />
     <color
      name="TitleBarFocusColor"
      reference="White_10" />

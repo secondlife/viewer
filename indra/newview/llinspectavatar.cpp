@@ -47,6 +47,7 @@
 #include "llstartup.h"
 #include "llviewermenu.h"
 #include "llvoiceclient.h"
+#include "llviewerobjectlist.h"
 
 // Linden libraries
 #include "llfloater.h"
@@ -107,9 +108,13 @@ private:
 	void onClickPay();
 	void onClickBlock();
 	void onClickReport();
+	void onClickFreeze();
+	void onClickEject();
 	void onClickZoomIn();  
 	void onClickFindOnMap();
 	bool onVisibleFindOnMap();
+	bool onVisibleFreezeEject();
+	bool onVisibleZoomIn();
 	void onClickMuteVolume();
 	void onVolumeChange(const LLSD& data);
 	
@@ -185,16 +190,24 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 {
 	mCommitCallbackRegistrar.add("InspectAvatar.ViewProfile",	boost::bind(&LLInspectAvatar::onClickViewProfile, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.AddFriend",	boost::bind(&LLInspectAvatar::onClickAddFriend, this));	
-	mCommitCallbackRegistrar.add("InspectAvatar.IM",	boost::bind(&LLInspectAvatar::onClickIM, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.IM",
+		boost::bind(&LLInspectAvatar::onClickIM, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Teleport",	boost::bind(&LLInspectAvatar::onClickTeleport, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.InviteToGroup",	boost::bind(&LLInspectAvatar::onClickInviteToGroup, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Pay",	boost::bind(&LLInspectAvatar::onClickPay, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Block",	boost::bind(&LLInspectAvatar::onClickBlock, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.Freeze",
+		boost::bind(&LLInspectAvatar::onClickFreeze, this));	
+	mCommitCallbackRegistrar.add("InspectAvatar.Eject",
+		boost::bind(&LLInspectAvatar::onClickEject, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.Report",	boost::bind(&LLInspectAvatar::onClickReport, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.FindOnMap",	boost::bind(&LLInspectAvatar::onClickFindOnMap, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.ZoomIn", boost::bind(&LLInspectAvatar::onClickZoomIn, this));
 	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleFindOnMap",	boost::bind(&LLInspectAvatar::onVisibleFindOnMap, this));	
-
+	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleFreezeEject",	
+		boost::bind(&LLInspectAvatar::onVisibleFreezeEject, this));	
+	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleZoomIn", 
+		boost::bind(&LLInspectAvatar::onVisibleZoomIn, this));
 
 	// can't make the properties request until the widgets are constructed
 	// as it might return immediately, so do it in postBuild.
@@ -298,7 +311,21 @@ void LLInspectAvatar::requestUpdate()
 	// You can't re-add someone as a friend if they are already your friend
 	bool is_friend = LLAvatarTracker::instance().getBuddyInfo(mAvatarID) != NULL;
 	bool is_self = (mAvatarID == gAgentID);
-	childSetEnabled("add_friend_btn", !is_friend && !is_self);
+	if (is_self)
+	{
+		getChild<LLUICtrl>("add_friend_btn")->setVisible(false);
+		getChild<LLUICtrl>("im_btn")->setVisible(false);
+	}
+	else if (is_friend)
+	{
+		getChild<LLUICtrl>("add_friend_btn")->setVisible(false);
+		getChild<LLUICtrl>("im_btn")->setVisible(true);
+	}
+	else
+	{
+		getChild<LLUICtrl>("add_friend_btn")->setVisible(true);
+		getChild<LLUICtrl>("im_btn")->setVisible(false);
+	}
 
 	// Use an avatar_icon even though the image id will come down with the
 	// avatar properties because the avatar_icon code maintains a cache of icons
@@ -437,13 +464,13 @@ void LLInspectAvatar::nameUpdatedCallback(
 void LLInspectAvatar::onClickAddFriend()
 {
 	LLAvatarActions::requestFriendshipDialog(mAvatarID, mAvatarName);
+	closeFloater();
 }
 
 void LLInspectAvatar::onClickViewProfile()
 {
-	// hide inspector when showing profile
-	setFocus(FALSE);
 	LLAvatarActions::showProfile(mAvatarID);
+	closeFloater();
 }
 
 bool LLInspectAvatar::onVisibleFindOnMap()
@@ -451,24 +478,38 @@ bool LLInspectAvatar::onVisibleFindOnMap()
 	return gAgent.isGodlike() || is_agent_mappable(mAvatarID);
 }
 
+bool LLInspectAvatar::onVisibleFreezeEject()
+{
+	return enable_freeze_eject( LLSD(mAvatarID) );
+}
+
+bool LLInspectAvatar::onVisibleZoomIn()
+{
+	return gObjectList.findObject(mAvatarID);
+}
+
 void LLInspectAvatar::onClickIM()
 { 
 	LLAvatarActions::startIM(mAvatarID);
+	closeFloater();
 }
 
 void LLInspectAvatar::onClickTeleport()
 {
 	LLAvatarActions::offerTeleport(mAvatarID);
+	closeFloater();
 }
 
 void LLInspectAvatar::onClickInviteToGroup()
 {
 	LLAvatarActions::inviteToGroup(mAvatarID);
+	closeFloater();
 }
 
 void LLInspectAvatar::onClickPay()
 {
 	LLAvatarActions::pay(mAvatarID);
+	closeFloater();
 }
 
 void LLInspectAvatar::onClickBlock()
@@ -476,11 +517,25 @@ void LLInspectAvatar::onClickBlock()
 	LLMute mute(mAvatarID, mAvatarName, LLMute::AGENT);
 	LLMuteList::getInstance()->add(mute);
 	LLPanelBlockedList::showPanelAndSelect(mute.mID);
+	closeFloater();
 }
 
 void LLInspectAvatar::onClickReport()
 {
 	LLFloaterReporter::showFromObject(mAvatarID);
+	closeFloater();
+}
+
+void LLInspectAvatar::onClickFreeze()
+{
+	handle_avatar_freeze( LLSD(mAvatarID) );
+	closeFloater();
+}
+
+void LLInspectAvatar::onClickEject()
+{
+	handle_avatar_eject( LLSD(mAvatarID) );
+	closeFloater();
 }
 
 void LLInspectAvatar::onClickZoomIn() 

@@ -98,6 +98,24 @@
                  function="World.SetBusy"/>
             </menu_item_call>
         </menu>
+        <menu_item_call
+         label="Request Admin Status"
+         layout="topleft"
+         name="Request Admin Options"
+         shortcut="control|alt|G"
+		 visible="false">
+            <menu_item_call.on_click
+             function="Advanced.RequestAdminStatus" />
+        </menu_item_call>
+        <menu_item_call
+         label="Leave Admin Status"
+         layout="topleft"
+         name="Leave Admin Options"
+         shortcut="control|alt|shift|G"
+		 visible="false">
+            <menu_item_call.on_click
+             function="Advanced.LeaveAdminStatus" />
+        </menu_item_call>
         <menu_item_separator
          layout="topleft" />
         <menu_item_call
@@ -114,25 +132,22 @@
      layout="topleft"
      name="Communicate"
      tear_off="true">
-        <menu_item_check
+        <menu_item_call
          label="My Friends"
          layout="topleft"
          name="My Friends"
          shortcut="control|shift|F">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="contacts.friends" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="contacts.friends" />
-        </menu_item_check>
+            <menu_item_call.on_click
+             function="SideTray.PanelPeopleTab"
+             parameter="friends_panel" />
+            </menu_item_call>
         <menu_item_call
          label="My Groups"
          layout="topleft"
          name="My Groups">
             <menu_item_call.on_click
-             function="Floater.Show"
-             parameter="contacts.groups" />
+             function="SideTray.PanelPeopleTab"
+             parameter="groups_panel" />
         </menu_item_call>
         <menu_item_separator
          layout="topleft" />
@@ -155,18 +170,15 @@
              function="Floater.Toggle"
              parameter="nearby_chat" />
         </menu_item_check>
-        <menu_item_check
-         label="Nearby Speakers"
+        <menu_item_call
+         label="Nearby People"
          layout="topleft"
          name="Active Speakers"
          shortcut="control|shift|A">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="active_speakers" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="active_speakers" />
-        </menu_item_check>
+            <menu_item_call.on_click
+             function="SideTray.PanelPeopleTab"
+             parameter="nearby_panel" />
+            </menu_item_call>
         <menu_item_check
          label="Nearby Media"
          layout="topleft"
@@ -1920,6 +1932,39 @@
                  function="Advanced.ToggleConsole"
                  parameter="debug" />
             </menu_item_check>
+            <menu_item_call
+             label="Notifications Console"
+             layout="topleft"
+             name="Notifications"
+             shortcut="control|shift|5">
+              <menu_item_call.on_click
+               function="Floater.Toggle"
+               parameter="notifications_console" />
+            </menu_item_call>
+            <menu_item_check
+               label="Texture Size Console"
+               layout="topleft"
+               name="Texture Size"
+               shortcut="control|shift|6">
+              <menu_item_check.on_check
+               function="Advanced.CheckConsole"
+               parameter="texture size" />
+              <menu_item_check.on_click
+               function="Advanced.ToggleConsole"
+               parameter="texture size" />
+            </menu_item_check>
+            <menu_item_check
+               label="Texture Category Console"
+               layout="topleft"
+               name="Texture Category"
+               shortcut="control|shift|7">
+              <menu_item_check.on_check
+               function="Advanced.CheckConsole"
+               parameter="texture category" />
+              <menu_item_check.on_click
+               function="Advanced.ToggleConsole"
+               parameter="texture category" />
+            </menu_item_check>
             <menu_item_check
              label="Fast Timers"
              layout="topleft"
@@ -1945,19 +1990,6 @@
                 <menu_item_check.on_click
                  function="Advanced.ToggleConsole"
                  parameter="memory view" />
-            </menu_item_check>
-            <menu_item_check
-             label="Notifications Console"
-             layout="topleft"
-             name="Notifications"
-             shortcut="control|shift|5"
-             use_mac_ctrl="true">
-                <menu_item_check.on_check
-                 function="Advanced.CheckConsole"
-                 parameter="notifications" />
-                <menu_item_check.on_click
-                 function="Floater.Show"
-                 parameter="notifications_console" />
             </menu_item_check>
             <menu_item_separator
              layout="topleft" />
@@ -2477,19 +2509,43 @@
              label="Disable Textures"
              name="Disable Textures">
                 <menu_item_check.on_check
-                 function="Advanced.CheckDisableTextures"
-                 parameter="DisableTextures" />
+                 function="CheckControl"
+                 parameter="TextureDisable" />
                 <menu_item_check.on_click
-                 function="Advanced.ToggleDisableTextures" />
+                 function="ToggleControl" 
+                 parameter="TextureDisable" />
+            </menu_item_check>
+            <menu_item_check
+              label="Full Res Textures"
+             layout="topleft"
+             name="Rull Res Textures">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="TextureLoadFullRes" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="TextureLoadFullRes" />
+            </menu_item_check>
+            <menu_item_check
+               label="Audit Textures"
+               layout="topleft"
+               name="Audit Textures">
+              <menu_item_check.on_check
+               function="CheckControl"
+               parameter="AuditTexture" />
+              <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="AuditTexture" />
             </menu_item_check>
             <menu_item_check
              label="Texture Atlas"
              name="Texture Atlas">
               <menu_item_check.on_check
-               function="Advanced.CheckTextureAtlas"
-               parameter="TextureAtlas" />
+               function="CheckControl"
+               parameter="EnableTextureAtlas" />
               <menu_item_check.on_click
-               function="Advanced.ToggleTextureAtlas" />
+               function="ToggleControl"
+               parameter="EnableTextureAtlas" />
             </menu_item_check>
               <menu_item_check
              label="Render Attached Lights"
@@ -2512,8 +2568,8 @@
                  parameter="RenderAttachedParticles" />
             </menu_item_check>
             <menu_item_check
-             label="Hover Highlight Objects"
-             name="Hover Highlight Objects">
+             label="Hover Glow Objects"
+             name="Hover Glow Objects">
                 <menu_item_check.on_check
                  function="CheckControl"
                  parameter="RenderHighlightEnable" />

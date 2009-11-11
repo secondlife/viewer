@@ -34,7 +34,7 @@
      mouse_opaque="false"
      name="controls"
      width="148">
-        <joystick_track
+    <joystick_track
          follows="top|left"
          height="78"
          image_selected="Cam_Tracking_In"
@@ -42,7 +42,6 @@
          layout="topleft"
          left="45"
          name="cam_track_stick"
-         picture_style="true"
          quadrant="left"
          scale_image="false"
          sound_flags="3"
@@ -51,7 +50,7 @@
          visible="false"
          width="78" />
          <!--TODO: replace with slider, + - images -->
-        <joystick_zoom
+ <joystick_zoom
          follows="top|left"
          height="78"
          image_unselected="ScrollThumb_Vert"
@@ -59,7 +58,6 @@
          left="7"
          minus_image="ScrollThumb_Vert"
          name="zoom"
-         picture_style="true"
          plus_image="ScrollThumb_Vert"
          quadrant="left"
          scale_image="false"
@@ -75,7 +73,6 @@
          layout="topleft"
          left="45"
          name="cam_rotate_stick"
-         picture_style="true"
          quadrant="left"
          scale_image="false"
          sound_flags="3"
@@ -83,70 +80,65 @@
          tool_tip="Orbit camera around focus"
          top="22"
          width="78" />
-        <panel
+            <panel
          height="78"
          layout="topleft"
          left="36"
          name="camera_presets"
-         top="30"
+         top="20"
          visible="false"
          width="78">
             <button
-             height="30"
-             image_selected="CameraPreset_Rear"
-             image_unselected="CameraPreset_Rear"
+             height="40"
+             image_selected="Cam_Preset_Back_On"
+             image_unselected="Cam_Preset_Back_Off"
              layout="topleft"
-             left="5"
+             left="0"
              name="rear_view"
-             picture_style="true"
              tool_tip="Rear View"
              top="2"
-             width="30">
+             width="40">
                 <click_callback
                  function="CameraPresets.ChangeView"
                  parameter="rear_view" />
             </button>
             <button
-             height="30"
-             image_selected="CameraPreset_3_4"
-             image_unselected="CameraPreset_3_4"
+             height="40"
+             image_selected="Cam_Preset_Side_On"
+             image_unselected="Cam_Preset_Side_Off"
              layout="topleft"
              left_pad="5"
              name="group_view"
-             picture_style="true"
              tool_tip="Group View"
              top="2"
-             width="30">
+             width="40">
                 <click_callback
                  function="CameraPresets.ChangeView"
                  parameter="group_view" />
             </button>
             <button
-             height="30"
-             image_selected="CameraPreset_Front"
-             image_unselected="CameraPreset_Front"
+             height="40"
+             image_selected="Cam_Preset_Front_On"
+             image_unselected="Cam_Preset_Front_Off"
              layout="topleft"
-             left="5"
+             left="0"
              name="front_view"
-             picture_style="true"
              tool_tip="Front View"
              top_pad="5"
-             width="30">
+             width="40">
                 <click_callback
                  function="CameraPresets.ChangeView"
                  parameter="front_view" />
             </button>
             <button
-             height="30"
-             image_selected="CameraPreset_Mouselook"
-             image_unselected="CameraPreset_Mouselook"
+             height="40"
+             image_selected="Cam_Preset_Eye_Off"
+             image_unselected="Cam_Preset_Eye_Off"
              layout="topleft"
              left_pad="5"
              name="mouselook_view"
-             picture_style="true"
              tool_tip="Mouselook View"
-             top_pad="-30"
-             width="30">
+             width="40">
                 <click_callback
                  function="CameraPresets.ChangeView"
                  parameter="mouselook_view" />
@@ -172,7 +164,6 @@
          name="orbit_btn"
          tab_stop="false"
          tool_tip="Orbit camera"
-         value="true"
          width="25">
         </button>
         <button

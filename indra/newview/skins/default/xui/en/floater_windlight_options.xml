@@ -6,7 +6,7 @@
  name="WindLight floater"
  help_topic="windlight_floater"
  save_rect="true"
- title="Advanced Sky Editor"
+ title="ADVANCED SKY EDITOR"
  width="700">
     <floater.string
      name="WLDefaultSkyNames">
@@ -104,16 +104,6 @@
              width="355">
                 Blue Horizon
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLBlueHorizonHelp"
-             top_delta="-2"
-             width="18" />
             <text
              type="string"
              length="1"
@@ -227,16 +217,6 @@
              width="355">
                 Haze Horizon
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLHazeHorizonHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WLHazeHorizon"
              decimal_digits="2"
@@ -262,16 +242,6 @@
              width="355">
                 Blue Density
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLBlueDensityHelp"
-             top_delta="-2"
-             width="18" />
             <text
              type="string"
              length="1"
@@ -385,16 +355,6 @@
              width="355">
                 Haze Density
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLHazeDensityHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WLHazeDensity"
              decimal_digits="2"
@@ -421,16 +381,6 @@
              width="355">
                 Density Multiplier
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLDensityMultHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WLDensityMult"
              decimal_digits="2"
@@ -457,16 +407,6 @@
              width="355">
                 Distance Multiplier
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLDistanceMultHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WLDistancMult"
              decimal_digits="1"
@@ -492,16 +432,6 @@
              width="355">
                 Max Altitude
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLMaxAltitudeHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WLMaxAltitude"
              decimal_digits="0"
@@ -540,16 +470,6 @@
              width="355">
                 Sun/Moon Color
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLSunlightColorHelp"
-             top_delta="-2"
-             width="18" />
             <text
              type="string"
              length="1"
@@ -663,16 +583,6 @@
              width="355">
                 Sun/Moon Position
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLTimeOfDayHelp"
-             top_delta="-2"
-             width="18" />
             <icon
              height="20"
              image_name="icon_diurnal.tga"
@@ -705,16 +615,6 @@
              width="355">
                 Ambient
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLAmbientHelp"
-             top_delta="-2"
-             width="18" />
             <text
              type="string"
              length="1"
@@ -828,16 +728,6 @@
              width="355">
                 East Angle
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLEastAngleHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WLEastAngle"
              decimal_digits="2"
@@ -863,16 +753,6 @@
              width="355">
                 Sun Glow
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLSunGlowHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WLGlowB"
              decimal_digits="2"
@@ -915,16 +795,6 @@
              width="200">
                 Scene Gamma
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLSceneGammaHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WLGamma"
              decimal_digits="2"
@@ -951,16 +821,6 @@
              width="355">
                 Star Brightness
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLStarBrightnessHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WLStarAlpha"
              decimal_digits="2"
@@ -1000,16 +860,6 @@
              width="355">
                 Cloud Color
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLCloudColorHelp"
-             top_delta="-2"
-             width="18" />
             <text
              type="string"
              length="1"
@@ -1123,16 +973,6 @@
              width="355">
                 Cloud XY/Density
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLCloudDensityHelp"
-             top_delta="-2"
-             width="18" />
             <text
              type="string"
              length="1"
@@ -1221,16 +1061,6 @@
              width="355">
                 Cloud Coverage
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLCloudCoverageHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WLCloudCoverage"
              decimal_digits="2"
@@ -1256,16 +1086,6 @@
              width="355">
                 Cloud Scale
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLCloudScaleHelp"
-             top_delta="-2"
-             width="18" />
             <slider
              control_name="WLCloudScale"
              decimal_digits="2"
@@ -1292,16 +1112,6 @@
              width="355">
                 Cloud Detail (XY/Density)
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="150"
-             name="WLCloudDetailHelp"
-             top_delta="-2"
-             width="18" />
             <text
              type="string"
              length="1"
@@ -1390,16 +1200,6 @@
              width="355">
                 Cloud Scroll X
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="125"
-             name="WLCloudScrollXHelp"
-             top_delta="-2"
-             width="18" />
             <check_box
              control_name="WLCloudLockX"
              follows="left"
@@ -1436,16 +1236,6 @@
              width="355">
                 Cloud Scroll Y
             </text>
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left_delta="125"
-             name="WLCloudScrollYHelp"
-             top_delta="-2"
-             width="18" />
             <check_box
              control_name="WLCloudLockY"
              follows="left"
@@ -1479,16 +1269,6 @@
              name="DrawClassicClouds"
              top="104"
              width="200" />
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="18"
-             label="?"
-             layout="topleft"
-             left="608"
-             name="WLClassicCloudsHelp"
-             top="84"
-             width="18" />
         </panel>
     </tab_container>
 </floater>

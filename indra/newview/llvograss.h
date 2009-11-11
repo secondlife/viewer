@@ -72,7 +72,7 @@ public:
 								LLStrider<U16>& indicesp);
 
 	void updateFaceSize(S32 idx) { }
-	/*virtual*/ void updateTextures(LLAgent &agent);											
+	/*virtual*/ void updateTextures();											
 	/*virtual*/ BOOL updateLOD();
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area
 

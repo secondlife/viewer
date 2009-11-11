@@ -70,6 +70,7 @@
 #include "llpanelimcontrolpanel.h"
 #include "llrecentpeople.h"
 #include "llresmgr.h"
+#include "lltooldraganddrop.h"
 #include "lltrans.h"
 #include "lltabcontainer.h"
 #include "llviewertexteditor.h"
@@ -320,6 +321,9 @@ void LLFloaterIMPanel::draw()
 
 	// hide/show start call and end call buttons
 	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionUUID);
+	if (!voice_channel)
+		return;
+
 	childSetVisible("end_call_btn", LLVoiceClient::voiceEnabled() && voice_channel->getState() >= LLVoiceChannel::STATE_CALL_STARTED);
 	childSetVisible("start_call_btn", LLVoiceClient::voiceEnabled() && voice_channel->getState() < LLVoiceChannel::STATE_CALL_STARTED);
 	childSetEnabled("start_call_btn", enable_connect);
@@ -769,10 +773,13 @@ void LLFloaterIMPanel::onVisibilityChange(const LLSD& new_visibility)
 	}
 	
 	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionUUID);
-	if (new_visibility.asBoolean() && voice_channel->getState() == LLVoiceChannel::STATE_CONNECTED)
-		LLFloaterReg::showInstance("voice_call", mSessionUUID);
-	else
-		LLFloaterReg::hideInstance("voice_call", mSessionUUID);
+	if (voice_channel && voice_channel->getState() == LLVoiceChannel::STATE_CONNECTED)
+	{
+		if (new_visibility.asBoolean())
+			LLFloaterReg::showInstance("voice_call", mSessionUUID);
+		else
+			LLFloaterReg::hideInstance("voice_call", mSessionUUID);
+	}
 }
 
 void LLFloaterIMPanel::sendMsg()

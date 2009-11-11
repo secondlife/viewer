@@ -5,7 +5,7 @@
  layout="topleft"
  name="avatar_texture_debug"
  help_topic="avatar_texture_debug"
- title="Avatar Textures"
+ title="AVATAR TEXTURES"
  width="1250">
     <floater.string
      name="InvalidAvatar">

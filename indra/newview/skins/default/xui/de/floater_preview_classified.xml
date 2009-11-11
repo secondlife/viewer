@@ -1,2 +1,6 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="classified_preview" title="Vertrauliche Informationen" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="classified_preview" title="VERTRAULICHE INFORMATIONEN">
+	<floater.string name="Title">
+		Anzeige: [NAME]
+	</floater.string>
+</floater>

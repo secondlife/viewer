@@ -7,7 +7,7 @@
  name="buy land"
  help_topic="buy_land"
  single_instance="true"
- title="Buy Land"
+ title="BUY LAND"
  width="740">
     <floater.string
      name="can_resell">
@@ -115,7 +115,7 @@ Try selecting a smaller area.
     </floater.string>
     <floater.string
      name="buy_for_US">
-        Buy L$ [AMOUNT] for approx. US$ [AMOUNT2],
+        Buy L$ [AMOUNT] for approx. [LOCAL_AMOUNT],
     </floater.string>
     <floater.string
      name="parcel_meters">
@@ -171,10 +171,6 @@ supports [AMOUNT2] objects
     <floater.string
      name="no_parcel_selected">
         (no parcel selected)
-    </floater.string>
-    <floater.string
-     name="buy_currency">
-        Buy L$ [LINDENS] for approx. US$ [USD]
     </floater.string>
     <text
      type="string"
@@ -667,7 +663,7 @@ This parcel is 512 m² of land.
      name="currency_est"
      top="409"
      width="178">
-        for approx. US$ [AMOUNT2]
+        for approx. [LOCAL_AMOUNT]
     </text>
     <text
      type="string"

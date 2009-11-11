@@ -354,7 +354,7 @@ class LLFileUploadBulk : public view_listener_t
 				asset_name,
 				asset_name,
 				0,
-				LLAssetType::AT_NONE,
+				LLFolderType::FT_NONE,
 				LLInventoryType::IT_NONE,
 				LLFloaterPerms::getNextOwnerPerms(),
 				LLFloaterPerms::getGroupPerms(),
@@ -536,7 +536,7 @@ LLUUID upload_new_resource(
 	std::string name,
 	std::string desc,
 	S32 compression_info,
-	LLAssetType::EType destination_folder_type,
+	LLFolderType::EType destination_folder_type,
 	LLInventoryType::EType inv_type,
 	U32 next_owner_perms,
 	U32 group_perms,
@@ -871,7 +871,7 @@ void upload_done_callback(
 
 	if(result >= 0)
 	{
-		LLAssetType::EType dest_loc = (data->mPreferredLocation == LLAssetType::AT_NONE) ? data->mAssetInfo.mType : data->mPreferredLocation;
+		LLFolderType::EType dest_loc = (data->mPreferredLocation == LLFolderType::FT_NONE) ? LLFolderType::assetTypeToFolderType(data->mAssetInfo.mType) : data->mPreferredLocation;
 
 		if (LLAssetType::AT_SOUND == data->mAssetInfo.mType ||
 			LLAssetType::AT_TEXTURE == data->mAssetInfo.mType ||
@@ -917,7 +917,7 @@ void upload_done_callback(
 		{
 			// Actually add the upload to inventory
 			llinfos << "Adding " << uuid << " to inventory." << llendl;
-			LLUUID folder_id(gInventory.findCategoryUUIDForType(dest_loc));
+			const LLUUID folder_id = gInventory.findCategoryUUIDForType(dest_loc);
 			if(folder_id.notNull())
 			{
 				U32 next_owner_perms = data->mNextOwnerPerm;
@@ -968,7 +968,7 @@ void upload_done_callback(
 			asset_name,
 			asset_name,	// file
 			0,
-			LLAssetType::AT_NONE,
+			LLFolderType::FT_NONE,
 			LLInventoryType::IT_NONE,
 			PERM_NONE,
 			PERM_NONE,
@@ -1006,7 +1006,7 @@ LLSD generate_new_resource_upload_capability_body(
 	LLAssetType::EType asset_type,
 	const std::string& name,
 	const std::string& desc,
-	LLAssetType::EType destination_folder_type,
+	LLFolderType::EType destination_folder_type,
 	LLInventoryType::EType inv_type,
 	U32 next_owner_perms,
 	U32 group_perms,
@@ -1015,8 +1015,8 @@ LLSD generate_new_resource_upload_capability_body(
 	LLSD body;
 
 	body["folder_id"] = gInventory.findCategoryUUIDForType(
-		(destination_folder_type == LLAssetType::AT_NONE) ?
-		asset_type :
+		(destination_folder_type == LLFolderType::FT_NONE) ?
+		(LLFolderType::EType) asset_type :
 		destination_folder_type);
 
 	body["asset_type"] = LLAssetType::lookup(asset_type);
@@ -1036,7 +1036,7 @@ void upload_new_resource(
 	std::string name,
 	std::string desc,
 	S32 compression_info,
-	LLAssetType::EType destination_folder_type,
+	LLFolderType::EType destination_folder_type,
 	LLInventoryType::EType inv_type,
 	U32 next_owner_perms,
 	U32 group_perms,
@@ -1061,7 +1061,7 @@ void upload_new_resource(
 	llinfos << "Name: " << name << llendl;
 	llinfos << "Desc: " << desc << llendl;
 	llinfos << "Expected Upload Cost: " << expected_upload_cost << llendl;
-	lldebugs << "Folder: " << gInventory.findCategoryUUIDForType((destination_folder_type == LLAssetType::AT_NONE) ? asset_type : destination_folder_type) << llendl;
+	lldebugs << "Folder: " << gInventory.findCategoryUUIDForType((destination_folder_type == LLFolderType::FT_NONE) ? LLFolderType::assetTypeToFolderType(asset_type) : destination_folder_type) << llendl;
 	lldebugs << "Asset Type: " << LLAssetType::lookup(asset_type) << llendl;
 
 	std::string url = gAgent.getRegion()->getCapability(
@@ -1140,7 +1140,7 @@ BOOL upload_new_variable_price_resource(
 	LLAssetType::EType asset_type,
 	std::string name,
 	std::string desc, 
-	LLAssetType::EType destination_folder_type,
+	LLFolderType::EType destination_folder_type,
 	LLInventoryType::EType inv_type,
 	U32 next_owner_perms,
 	U32 group_perms,
@@ -1163,7 +1163,7 @@ BOOL upload_new_variable_price_resource(
 	llinfos << "Name: " << name << llendl;
 	llinfos << "Desc: " << desc << llendl;
 	lldebugs << "Folder: "
- << gInventory.findCategoryUUIDForType((destination_folder_type == LLAssetType::AT_NONE) ? asset_type : destination_folder_type) << llendl;
+		<< gInventory.findCategoryUUIDForType((destination_folder_type == LLFolderType::FT_NONE) ? (LLFolderType::EType)asset_type : destination_folder_type) << llendl;
 	lldebugs << "Asset Type: " << LLAssetType::lookup(asset_type) << llendl;
 
 	std::string url = gAgent.getRegion()->getCapability(

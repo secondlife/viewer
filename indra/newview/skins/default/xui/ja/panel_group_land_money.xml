@@ -17,13 +17,13 @@
 		グループの保有地
 	</text>
 	<scroll_list name="group_parcel_list">
-		<column label="区画名" name="name"/>
+		<column label="区画" name="name"/>
 		<column label="地域（リージョン）" name="location"/>
 		<column label="種類" name="type"/>
 		<column label="面積" name="area"/>
 		<column label="" name="hidden"/>
 	</scroll_list>
-	<button label="地図上に表示" label_selected="地図上に表示" name="map_button"/>
+	<button label="地図" label_selected="地図" name="map_button"/>
 	<text name="total_contributed_land_label">
 		寄付総額：
 	</text>

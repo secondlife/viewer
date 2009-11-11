@@ -45,6 +45,7 @@
 #include "llagent.h"			// for agent id
 #include "llalertdialog.h"
 #include "llcheckboxctrl.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodel.h"	// for gInventory
 #include "llfloaterreg.h"
 #include "llfloaterinventory.h"	// for get_item_icon
@@ -280,12 +281,12 @@ void LLFloaterBuyContents::onClickBuy()
 	// We may want to wear this item
 	if (childGetValue("wear_check"))
 	{
-		LLFloaterInventory::sWearNewClothing = TRUE;
+		LLInventoryState::sWearNewClothing = TRUE;
 	}
 
 	// Put the items where we put new folders.
 	LLUUID category_id;
-	category_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CATEGORY);
+	category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CATEGORY);
 
 	// *NOTE: doesn't work for multiple object buy, which UI does not
 	// currently support sale info is used for verification only, if

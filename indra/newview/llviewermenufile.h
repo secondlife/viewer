@@ -33,7 +33,7 @@
 #ifndef LLVIEWERMENUFILE_H
 #define LLVIEWERMENUFILE_H
 
-#include "llassettype.h"
+#include "llfoldertype.h"
 #include "llinventorytype.h"
 
 class LLTransactionID;
@@ -46,7 +46,7 @@ LLUUID upload_new_resource(
 	std::string name,
 	std::string desc, 
 	S32 compression_info,
-	LLAssetType::EType destination_folder_type,
+	LLFolderType::EType destination_folder_type,
 	LLInventoryType::EType inv_type,
 	U32 next_owner_perms,
 	U32 group_perms,
@@ -62,7 +62,7 @@ void upload_new_resource(
 	std::string name,
 	std::string desc, 
 	S32 compression_info,
-	LLAssetType::EType destination_folder_type,
+	LLFolderType::EType destination_folder_type,
 	LLInventoryType::EType inv_type,
 	U32 next_owner_perms,
 	U32 group_perms,
@@ -82,7 +82,7 @@ BOOL upload_new_variable_price_resource(
 	LLAssetType::EType type,
 	std::string name,
 	std::string desc, 
-	LLAssetType::EType destination_folder_type,
+	LLFolderType::EType destination_folder_type,
 	LLInventoryType::EType inv_type,
 	U32 next_owner_perms,
 	U32 group_perms,

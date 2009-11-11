@@ -55,13 +55,9 @@ std::string LLImage::sLastErrorMessage;
 LLMutex* LLImage::sMutex = NULL;
 
 //static
-void LLImage::initClass(LLWorkerThread* workerthread)
+void LLImage::initClass()
 {
 	sMutex = new LLMutex(NULL);
-	if (workerthread)
-	{
-		LLImageWorker::initImageWorker(workerthread);
-	}
 	LLImageJ2C::openDSO();
 }
 
@@ -69,7 +65,6 @@ void LLImage::initClass(LLWorkerThread* workerthread)
 void LLImage::cleanupClass()
 {
 	LLImageJ2C::closeDSO();
-	LLImageWorker::cleanupImageWorker();
 	delete sMutex;
 	sMutex = NULL;
 }
@@ -314,6 +309,21 @@ void LLImageRaw::deleteData()
 {
 	sGlobalRawMemory -= getDataSize();
 	LLImageBase::deleteData();
+}
+
+void LLImageRaw::setDataAndSize(U8 *data, S32 width, S32 height, S8 components) 
+{ 
+	if(data == getData())
+	{
+		return ;
+	}
+
+	deleteData();
+
+	LLImageBase::setSize(width, height, components) ;
+	LLImageBase::setDataAndSize(data, width * height * components) ;
+	
+	sGlobalRawMemory += getDataSize();
 }
 
 BOOL LLImageRaw::resize(U16 width, U16 height, S8 components)
@@ -816,6 +826,51 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 	}
 }
 
+//scale down image by not blending a pixel with its neighbors.
+BOOL LLImageRaw::scaleDownWithoutBlending( S32 new_width, S32 new_height)
+{
+	LLMemType mt1(mMemType);
+
+	S8 c = getComponents() ;
+	llassert((1 == c) || (3 == c) || (4 == c) );
+
+	S32 old_width = getWidth();
+	S32 old_height = getHeight();
+	
+	S32 new_data_size = old_width * new_height * c ;
+	llassert_always(new_data_size > 0);
+
+	F32 ratio_x = (F32)old_width / new_width ;
+	F32 ratio_y = (F32)old_height / new_height ;
+	if( ratio_x < 1.0f || ratio_y < 1.0f )
+	{
+		return TRUE;  // Nothing to do.
+	}
+	ratio_x -= 1.0f ;
+	ratio_y -= 1.0f ;
+
+	U8* new_data = new U8[new_data_size] ;
+	llassert_always(new_data != NULL) ;
+
+	U8* old_data = getData() ;
+	S32 i, j, k, s, t;
+	for(i = 0, s = 0, t = 0 ; i < new_height ; i++)
+	{
+		for(j = 0 ; j < new_width ; j++)
+		{
+			for(k = 0 ; k < c ; k++)
+			{
+				new_data[s++] = old_data[t++] ;
+			}
+			t += (S32)(ratio_x * c + 0.1f) ;
+		}
+		t += (S32)(ratio_y * old_width * c + 0.1f) ;
+	}
+
+	setDataAndSize(new_data, new_width, new_height, c) ;
+	
+	return TRUE ;
+}
 
 BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 {
@@ -1223,25 +1278,28 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 	ifs.read ((char*)buffer, length);
 	ifs.close();
 	
-	image->updateData();
-	
-	if (j2c_lowest_mip_only && codec == IMG_CODEC_J2C)
-	{
-		S32 width = image->getWidth();
-		S32 height = image->getHeight();
-		S32 discard_level = 0;
-		while (width > 1 && height > 1 && discard_level < MAX_DISCARD_LEVEL)
-		{
-			width >>= 1;
-			height >>= 1;
-			discard_level++;
-		}
-		((LLImageJ2C *)((LLImageFormatted*)image))->setDiscardLevel(discard_level);
-	}
-	
-	BOOL success = image->decode(this, 100000.0f);
-	image = NULL; // deletes image
+	BOOL success;
 
+	success = image->updateData();
+	if (success)
+	{
+		if (j2c_lowest_mip_only && codec == IMG_CODEC_J2C)
+		{
+			S32 width = image->getWidth();
+			S32 height = image->getHeight();
+			S32 discard_level = 0;
+			while (width > 1 && height > 1 && discard_level < MAX_DISCARD_LEVEL)
+			{
+				width >>= 1;
+				height >>= 1;
+				discard_level++;
+			}
+			((LLImageJ2C *)((LLImageFormatted*)image))->setDiscardLevel(discard_level);
+		}
+		success = image->decode(this, 100000.0f);
+	}
+
+	image = NULL; // deletes image
 	if (!success)
 	{
 		deleteData();

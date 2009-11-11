@@ -40,7 +40,6 @@
 
 #include "llrender.h"
 #include "llevent.h"
-#include "llfontgl.h"
 #include "llfocusmgr.h"
 #include "llrect.h"
 #include "llstl.h"
@@ -1698,8 +1697,11 @@ LLView* LLView::getChildView(const std::string& name, BOOL recurse) const
 	return child;
 }
 
+static LLFastTimer::DeclareTimer FTM_FIND_VIEWS("Find Widgets");
+
 LLView* LLView::findChildView(const std::string& name, BOOL recurse) const
 {
+	LLFastTimer ft(FTM_FIND_VIEWS);
 	//richard: should we allow empty names?
 	//if(name.empty())
 	//	return NULL;

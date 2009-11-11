@@ -3,7 +3,7 @@
  background_opaque="true"
  background_visible="true"
  bg_opaque_color="MouseGray"
- follows="top|left|right"
+ follows="all"
  height="19"
  layout="topleft"
  left="0"

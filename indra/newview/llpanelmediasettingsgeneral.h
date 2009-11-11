@@ -47,23 +47,31 @@ class LLFloaterMediaSettings;
 class LLPanelMediaSettingsGeneral : public LLPanel
 {
 public:
+	LLPanelMediaSettingsGeneral();
+	~LLPanelMediaSettingsGeneral();
+	
+	// XXX TODO: put these into a common parent class?
+	// Hook that the floater calls before applying changes from the panel
+	void preApply();
+	// Function that asks the panel to fill in values associated with the panel
+    void getValues(LLSD &fill_me_in);
+	// Hook that the floater calls after applying changes to the panel
+	void postApply();
+	
 	BOOL postBuild();
 	/*virtual*/ void draw();
 	/*virtual*/ void onClose(bool app_quitting);
-
-	static void apply(void*);
-    void getValues(LLSD &fill_me_in);
-
-	LLPanelMediaSettingsGeneral();
-	~LLPanelMediaSettingsGeneral();
 
 	void setParent( LLFloaterMediaSettings* parent );
 	static void initValues( void* userdata, const LLSD& media_settings ,bool editable);
 	static void clearValues( void* userdata, bool editable);
 	
-	bool navigateHomeSelectedFace();
+	// Navigates the current selected face to the Home URL.
+	// If 'only_if_current_is_empty' is "true", it only performs
+	// the operation if: 1) the current URL is empty, and 2) auto play is true.
+	bool navigateHomeSelectedFace(bool only_if_current_is_empty);
+	
 	void updateMediaPreview();
-	void updateCurrentURL();
 
 	const std::string getHomeUrl();
 	
@@ -72,8 +80,12 @@ protected:
 	bool mMediaEditable;
 
 private:
+	void updateCurrentUrl();
+	
 	static void onBtnResetCurrentUrl(LLUICtrl* ctrl, void *userdata);
 	static void onCommitHomeURL(LLUICtrl* ctrl, void *userdata );
+	
+	static bool isMultiple();
 
 	LLComboBox* mControls;
 	LLCheckBoxCtrl* mAutoLoop;

@@ -62,6 +62,7 @@ LLAvatarListItem::LLAvatarListItem()
 	mIconWidth = mAvatarName->getRect().mLeft - mAvatarIcon->getRect().mLeft;
 	mInfoBtnWidth = mInfoBtn->getRect().mRight - mSpeakingIndicator->getRect().mRight;
 	mProfileBtnWidth = mProfileBtn->getRect().mRight - mInfoBtn->getRect().mRight;
+	mSpeakingIndicatorWidth = mSpeakingIndicator->getRect().mRight - mAvatarName->getRect().mRight; 
 }
 
 LLAvatarListItem::~LLAvatarListItem()
@@ -226,6 +227,18 @@ void LLAvatarListItem::setShowProfileBtn(bool show)
 
 	//Translating speaking indicator
 	mSpeakingIndicator->translate(width_delta, 0);
+	//Reshaping avatar name
+	mAvatarName->reshape(mAvatarName->getRect().getWidth() + width_delta, mAvatarName->getRect().getHeight());
+}
+
+void LLAvatarListItem::setSpeakingIndicatorVisible(bool visible)
+{
+	// Already done? Then do nothing.
+	if (mSpeakingIndicator->getVisible() == (BOOL)visible)
+		return;
+	mSpeakingIndicator->setVisible(visible);
+	S32 width_delta = visible ? - mSpeakingIndicatorWidth : mSpeakingIndicatorWidth;
+
 	//Reshaping avatar name
 	mAvatarName->reshape(mAvatarName->getRect().getWidth() + width_delta, mAvatarName->getRect().getHeight());
 }

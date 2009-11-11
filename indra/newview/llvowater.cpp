@@ -55,8 +55,6 @@ const BOOL gUseRoam = FALSE;
 
 ///////////////////////////////////
 
-#include "randgauss.h"
-
 template<class T> inline T LERP(T a, T b, F32 factor)
 {
 	return a + (b - a) * factor;
@@ -100,7 +98,7 @@ void LLVOWater::setPixelAreaAndAngle(LLAgent &agent)
 
 
 // virtual
-void LLVOWater::updateTextures(LLAgent &agent)
+void LLVOWater::updateTextures()
 {
 }
 

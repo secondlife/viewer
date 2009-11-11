@@ -124,6 +124,7 @@ LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarTy
 
 	LLButton::Params p;
 	p.name(std::string("Animate"));
+	p.label(std::string("Animate"));
 	p.rect(LLRect(20, 45, 180, 25));
 	p.click_callback.function(boost::bind(&LLDebugVarMessageBox::onAnimateClicked, this, _2));
 	mAnimateButton = LLUICtrlFactory::create<LLButton>(p);

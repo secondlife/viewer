@@ -17,7 +17,6 @@
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back_btn"
-     picture_style="true"
      left="10"
      tab_stop="false"
      top="2"
@@ -65,9 +64,9 @@
      top="20"
      left="10"
      name="pick_snapshot" />
-          <button
+          <icon
            height="18"
-           image_overlay="AddItem_Off"
+           image_name="AddItem_Off"
            layout="topleft"
            right="-5"
            name="edit_icon"

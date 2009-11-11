@@ -7,8 +7,8 @@
  layout="topleft"
  name="script"
  help_topic="script"
- short_title="[All scripts]"
- title="[All scripts]"
+ short_title="[ALL SCRIPTS]"
+ title="[ALL SCRIPTS]"
  width="440">
     <text_editor
      bottom="197"

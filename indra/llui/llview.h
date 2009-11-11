@@ -267,9 +267,6 @@ public:
 	// remove the specified child from the view, and set it's parent to NULL.
 	virtual void	removeChild(LLView* view);
 
-	// helper function for lluictrlfactory.h create<> template
-	void setParent(LLView* parent) { if (parent) parent->addChild(this); }
-
 	virtual BOOL	postBuild() { return TRUE; }
 
 	child_tab_order_t getCtrlOrder() const		{ return mCtrlOrder; }

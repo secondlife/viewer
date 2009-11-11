@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater customize" title="Appearance" width="509">
+<floater name="floater customize" title="APPEARANCE" width="509">
 	<tab_container name="customize tab container" width="507">
 		<placeholder label="Krops Dele" name="body_parts_placeholder"/>
 		<panel label="Kropsbygning" name="Shape">

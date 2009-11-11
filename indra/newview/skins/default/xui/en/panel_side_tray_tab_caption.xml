@@ -19,16 +19,17 @@
      top="4"
      value="Side Panel"
      width="255" />
-    <button
+     <button
      follows="left|right|top"
-     font="SansSerif"
-     height="23"
-     label="?"
+     height="16"
+     image_selected="Icon_Help_Press"
+     image_unselected="Icon_Help_Foreground"
+     image_disabled="Icon_Help_Press"
      layout="topleft"
      name="show_help"
-     top="5"
-     right="-8"
-     width="28"
+     top="10"
+     right="-11"
+     width="16"
      tool_tip="Show Help">
         <button.commit_callback
          function="Button.ShowHelp" />

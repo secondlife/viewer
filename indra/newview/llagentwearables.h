@@ -191,9 +191,9 @@ public:
 	//--------------------------------------------------------------------
 public:
 	// MULTI-WEARABLE: assuming one wearable per type.  Need upstream changes.
-	static void		userRemoveWearable(void* userdata);	// userdata is EWearableType
-	static void		userRemoveAllClothes(void* userdata);	// userdata is NULL
-
+	static void		userRemoveWearable(EWearableType& type);
+	static void		userRemoveAllClothes();	
+	
 	typedef std::vector<LLViewerObject*> llvo_vec_t;
 
 	static void 	userUpdateAttachments(LLInventoryModel::item_array_t& obj_item_array);

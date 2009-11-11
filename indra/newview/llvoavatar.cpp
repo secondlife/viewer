@@ -689,7 +689,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 		mBakedTextureDatas[i].mIsUsed = false;
 		mBakedTextureDatas[i].mMaskTexName = 0;
 		mBakedTextureDatas[i].mTextureIndex = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)i);
-		mBakedTextureDatas[i].mMorphMasksValid = FALSE;
 	}
 
 	mDirtyMesh = TRUE;	// Dirty geometry, need to regenerate.
@@ -999,7 +998,7 @@ void LLVOAvatar::resetImpostors()
 
 // static
 void LLVOAvatar::deleteCachedImages(bool clearAll)
-{
+{	
 	if (LLTexLayerSet::sHasCaches)
 	{
 		lldebugs << "Deleting layer set caches" << llendl;
@@ -2385,7 +2384,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 			F32 old_angle = mImpostorAngle.mV[i];
 			F32 angle_diff = fabsf(cur_angle-old_angle);
 		
-			if (angle_diff > 3.14159f/512.f*distance*mUpdatePeriod)
+			if (angle_diff > F_PI/512.f*distance*mUpdatePeriod)
 			{
 				mNeedsImpostorUpdate = TRUE;
 			}
@@ -2557,7 +2556,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 			particle_parameters.mPartImageID                 = cloud->getID();
 			particle_parameters.mMaxAge                      = 0.f;
 			particle_parameters.mPattern                     = LLPartSysData::LL_PART_SRC_PATTERN_ANGLE_CONE;
-			particle_parameters.mInnerAngle                  = 3.14159f;
+			particle_parameters.mInnerAngle                  = F_PI;
 			particle_parameters.mOuterAngle                  = 0.f;
 			particle_parameters.mBurstRate                   = 0.02f;
 			particle_parameters.mBurstRadius                 = 0.0f;
@@ -3919,7 +3918,7 @@ U32 LLVOAvatar::renderFootShadows()
 	LLGLDepthTest test(GL_TRUE, GL_FALSE);
 	//render foot shadows
 	LLGLEnable blend(GL_BLEND);
-	gGL.getTexUnit(0)->bind(mShadowImagep.get());
+	gGL.getTexUnit(0)->bind(mShadowImagep, TRUE);
 	glColor4fv(mShadow0Facep->getRenderColor().mV);
 	mShadow0Facep->renderIndexed(foot_mask);
 	glColor4fv(mShadow1Facep->getRenderColor().mV);
@@ -3967,7 +3966,7 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
 //------------------------------------------------------------------------
 // LLVOAvatar::updateTextures()
 //------------------------------------------------------------------------
-void LLVOAvatar::updateTextures(LLAgent &agent)
+void LLVOAvatar::updateTextures()
 {
 	BOOL render_avatar = TRUE;
 
@@ -5378,7 +5377,6 @@ void LLVOAvatar::updateSexDependentLayerSets( BOOL set_by_user )
 	invalidateComposite( mBakedTextureDatas[BAKED_HEAD].mTexLayerSet, set_by_user );
 	invalidateComposite( mBakedTextureDatas[BAKED_UPPER].mTexLayerSet, set_by_user );
 	invalidateComposite( mBakedTextureDatas[BAKED_LOWER].mTexLayerSet, set_by_user );
-	updateMeshTextures();
 }
 
 //-----------------------------------------------------------------------------
@@ -6091,28 +6089,6 @@ void LLVOAvatar::addMaskedMorph(EBakedTextureIndex index, LLPolyMorphTarget* mor
 	}
 }
 
-// invalidates morph masks for a given layer. Don't pass a parameter to invalidate all morph masks.
-void LLVOAvatar::invalidateMorphMasks(LLVOAvatarDefines::EBakedTextureIndex index)
-{
-	setMorphMasksValid(FALSE, index);
-}
-
-// updates morph masks to be a value for a given layer. Don't pass an argument to set value for all morph masks
-void LLVOAvatar::setMorphMasksValid(BOOL new_status, LLVOAvatarDefines::EBakedTextureIndex index)
-{
-	if (index == BAKED_NUM_INDICES)
-	{
-		for (U8 tex = 0; tex < (U8)BAKED_NUM_INDICES; tex++)
-		{
-			mBakedTextureDatas[tex].mMorphMasksValid = new_status;
-		}
-	} 
-	else if (index < BAKED_NUM_INDICES) 
-	{
-		mBakedTextureDatas[index].mMorphMasksValid = new_status;
-	}
-}
-
 // returns TRUE if morph masks are present and not valid for a given baked texture, FALSE otherwise
 BOOL LLVOAvatar::morphMaskNeedsUpdate(LLVOAvatarDefines::EBakedTextureIndex index)
 {
@@ -6121,9 +6097,20 @@ BOOL LLVOAvatar::morphMaskNeedsUpdate(LLVOAvatarDefines::EBakedTextureIndex inde
 		return FALSE;
 	}
 
-	if (!mBakedTextureDatas[index].mMaskedMorphs.empty() && !mBakedTextureDatas[index].mMorphMasksValid)
+	if (!mBakedTextureDatas[index].mMaskedMorphs.empty())
 	{
-		return TRUE;
+		if (isSelf())
+		{
+			LLTexLayerSet *layer_set = mBakedTextureDatas[index].mTexLayerSet;
+			if (layer_set)
+			{
+				return !layer_set->isMorphValid();
+			}
+		}
+		else
+		{
+			return FALSE;
+		}
 	}
 
 	return FALSE;
@@ -6520,7 +6507,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			&& baked_index != BAKED_SKIRT)
 		{
 			setTEImage(mBakedTextureDatas[baked_index].mTextureIndex, 
-				LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[baked_index].mLastTextureIndex, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE));
+				LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[baked_index].mLastTextureIndex, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 		}
 	}
 
