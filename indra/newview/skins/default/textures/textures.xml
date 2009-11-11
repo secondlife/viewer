@@ -532,7 +532,7 @@
   <texture name="Toolbar_Right_Press" file_name="containers/Toolbar_Right_Press.png" preload="false" />
   <texture name="Toolbar_Right_Selected" file_name="containers/Toolbar_Right_Selected.png" preload="false" />
   
-  <texture name="Tooltip" file_name="widgets/Tooltip.png" preload="true" scale.left="2" scale.top="1" scale.right="99" scale.bottom="14"
+  <texture name="Tooltip" file_name="widgets/Tooltip.png" preload="true" scale.left="2" scale.top="1" scale.right="99" scale.bottom="14" />
 
   <texture name="TrashItem_Disabled" file_name="icons/TrashItem_Disabled.png" preload="false" />
   <texture name="TrashItem_Off" file_name="icons/TrashItem_Off.png" preload="false" />
