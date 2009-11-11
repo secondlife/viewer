@@ -1379,7 +1379,7 @@ if (WINDOWS)
               ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.sln
               --workingdir
               ${VIEWER_BINARY_NAME}
-              "./${CMAKE_CFG_INTDIR}"
+              "${CMAKE_CURRENT_SOURCE_DIR}"
             COMMENT "Setting the ${VIEWER_BINARY_NAME} working directory for debugging."
             )
     endif (NOT UNATTENDED)
