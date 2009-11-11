@@ -54,6 +54,7 @@
 #include "llmutelist.h"
 #include "llrecentpeople.h"
 #include "llsidetray.h"
+#include "lltrans.h"
 #include "llviewerobjectlist.h"
 #include "llviewermessage.h"	// for handle_lure
 #include "llviewerregion.h"
@@ -226,7 +227,7 @@ void LLAvatarActions::startConference(const std::vector<LLUUID>& ids)
 	{
 		id_array.push_back(*it);
 	}
-	LLUUID session_id = gIMMgr->addSession("Friends Conference", IM_SESSION_CONFERENCE_START, ids[0], id_array);
+	LLUUID session_id = gIMMgr->addSession(LLTrans::getString("IM_adhoc_title"), IM_SESSION_CONFERENCE_START, ids[0], id_array);
 	if (session_id != LLUUID::null)
 	{
 		LLIMFloater::show(session_id);

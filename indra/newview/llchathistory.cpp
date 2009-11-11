@@ -375,5 +375,4 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& sty
 
 	mLastFromName = chat.mFromName;
 	blockUndo();
-	setCursorAndScrollToEnd();
 }
