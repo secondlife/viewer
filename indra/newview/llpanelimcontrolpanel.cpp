@@ -92,6 +92,14 @@ void LLPanelChatControlPanel::draw()
 		&& callback_enabled;
 	childSetEnabled("call_btn", enable_connect);
 
+	// send a signal when the floater is fully initialized
+	// this lets LLAvatarActions::startAdhocCall() start the call
+	if (enable_connect && !mInitialized)
+	{
+		LLIMModel::sendSessionInitialized(mSessionId);
+		mInitialized = true;
+	}
+
 	LLPanel::draw();
 }
 

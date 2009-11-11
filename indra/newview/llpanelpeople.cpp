@@ -755,7 +755,7 @@ void LLPanelPeople::updateButtons()
 	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
 	buttonSetEnabled("view_profile_btn",	item_selected);
 	buttonSetEnabled("im_btn",				multiple_selected); // allow starting the friends conference for multiple selection
-	buttonSetEnabled("call_btn",			item_selected);
+	buttonSetEnabled("call_btn",			multiple_selected);
 	buttonSetEnabled("share_btn",			item_selected && false); // not implemented yet
 
 	bool none_group_selected = item_selected && selected_id.isNull();
@@ -1193,11 +1193,12 @@ void LLPanelPeople::onCallButtonClicked()
 	if (selected_uuids.size() == 1)
 	{
 		// initiate a P2P voice chat with the selected user
-		LLAvatarActions::startCall(getCurrentItemID());
+		LLAvatarActions::startCall(selected_uuids[0]);
 	}
 	else if (selected_uuids.size() > 1)
 	{
-		// *NOTE: ad-hoc voice chat not implemented yet
+		// initiate an ad-hoc voice chat with multiple users
+		LLAvatarActions::startAdhocCall(selected_uuids);
 	}
 }
 

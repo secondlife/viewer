@@ -58,7 +58,10 @@
 #include "llviewermessage.h"	// for handle_lure
 #include "llviewerregion.h"
 #include "llimfloater.h"
+#include "lltrans.h"
 
+// callback connection to auto-call when the IM floater initializes
+boost::signals2::connection gAdhocAutoCall;
 
 // static
 void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::string& name)
@@ -206,6 +209,39 @@ void LLAvatarActions::startCall(const LLUUID& id)
 }
 
 // static
+void LLAvatarActions::startAdhocCall(const std::vector<LLUUID>& ids)
+{
+	if (ids.size() == 0)
+	{
+		return;
+	}
+
+	// convert vector into LLDynamicArray for addSession
+	LLDynamicArray<LLUUID> id_array;
+	for (std::vector<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	{
+		id_array.push_back(*it);
+	}
+
+	// create the new ad hoc voice session
+	const std::string title = LLTrans::getString("conference-title");
+	LLUUID session_id = gIMMgr->addSession(title, IM_SESSION_CONFERENCE_START,
+										   ids[0], id_array);
+	if (session_id == LLUUID::null)
+	{
+		return;
+	}
+
+	// always open IM window when connecting to voice
+	LLIMFloater::show(session_id);
+
+	// start the call once the floater has fully initialized
+	gAdhocAutoCall = LLIMModel::getInstance()->addSessionInitializedCallback(callbackAutoStartCall);
+
+	make_ui_sound("UISndStartIM");
+}
+
+// static
 bool LLAvatarActions::isCalling(const LLUUID &id)
 {
 	if (id.isNull())
@@ -226,7 +262,8 @@ void LLAvatarActions::startConference(const std::vector<LLUUID>& ids)
 	{
 		id_array.push_back(*it);
 	}
-	LLUUID session_id = gIMMgr->addSession("Friends Conference", IM_SESSION_CONFERENCE_START, ids[0], id_array);
+	const std::string title = LLTrans::getString("conference-title");
+	LLUUID session_id = gIMMgr->addSession(title, IM_SESSION_CONFERENCE_START, ids[0], id_array);
 	if (session_id != LLUUID::null)
 	{
 		LLIMFloater::show(session_id);
@@ -391,6 +428,17 @@ bool LLAvatarActions::callbackAddFriend(const LLSD& notification, const LLSD& re
 		    message);
 	}
     return false;
+}
+
+// static
+void LLAvatarActions::callbackAutoStartCall(const LLSD& data)
+{
+	// start the adhoc voice call now the IM panel has initialized
+	LLUUID session_id = data["session_id"].asUUID();
+	gIMMgr->startCall(session_id);
+
+	// and deschedule this callback as its work is done now
+	gAdhocAutoCall.disconnect();
 }
 
 // static
