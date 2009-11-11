@@ -306,9 +306,9 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
                />
                <unread_notifications
                width="34"
-               height="23"
-               left="22"
-               top="23" />
+               height="20"
+               left="0"
+               top="19" />
 	    </chiclet_notification>
         </layout_panel>
        <icon
