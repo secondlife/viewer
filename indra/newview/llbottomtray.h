@@ -33,7 +33,7 @@
 #ifndef LL_LLBOTTOMPANEL_H
 #define LL_LLBOTTOMPANEL_H
 
-#include <llmenugl.h>
+#include "llmenugl.h"
 
 #include "llpanel.h"
 #include "llimview.h"
@@ -51,6 +51,7 @@ class LLBottomTray
 	: public LLSingleton<LLBottomTray>
 	, public LLPanel
 	, public LLIMSessionObserver
+	, public LLVoiceClientStatusObserver
 {
 	friend class LLSingleton<LLBottomTray>;
 public:
@@ -73,6 +74,10 @@ public:
 
 	virtual void onFocusLost();
 	virtual void setVisible(BOOL visible);
+
+	// Implements LLVoiceClientStatusObserver::onChange() to enable the speak
+	// button when voice is available
+	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
 
 	void showBottomTrayContextMenu(S32 x, S32 y, MASK mask);
 
