@@ -84,10 +84,10 @@ public:
 
 private:
 
-	void updateResizeState(S32 width, S32 height);
+	void updateResizeState(S32 new_width, S32 cur_width);
 	void verifyChildControlsSizes();
 	void log(LLView* panel, const std::string& descr);
-	bool processShowButton(LLPanel* panel, S32* available_width);
+	bool processShowButton(LLPanel* panel, S32* available_width, S32* buttons_required_width);
 	bool canButtonBeShown(LLPanel* panel) const;
 
 	MASK mResizeState;

@@ -348,15 +348,14 @@ void LLBottomTray::verifyChildControlsSizes()
 #define __FEATURE_EXT_991
 void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	static S32 depth = 0;
-if (0 == depth) lldebugs << "****************************************" << llendl;
+	lldebugs << "****************************************" << llendl;
 
-	S32 prev_width = getRect().getWidth();
-	lldebugs << "Reshaping: depth: " << ++depth
+	S32 current_width = getRect().getWidth();
+	lldebugs << "Reshaping: " 
 		<< ", width: " << width
 		<< ", height: " << height
 		<< ", called_from_parent: " << called_from_parent
-		<< ", cur width: " << prev_width
+		<< ", cur width: " << current_width
 		<< ", cur height: " << getRect().getHeight()
 		<< llendl;
 
@@ -365,17 +364,9 @@ if (0 == depth) lldebugs << "****************************************" << llendl
 
 	if (mChicletPanel && mToolbarStack && mNearbyChatBar)
 	{
- 		verifyChildControlsSizes();
- 		updateResizeState(width, prev_width);
-
-		if (RS_NORESIZE != mResizeState)
-		{
-
-//		mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, mResizeState & RS_CHICLET_PANEL);
 		mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, TRUE);
-
-//		mToolbarStack->updatePanelAutoResize(PANEL_CHATBAR_NAME, mResizeState & RS_CHATBAR_INPUT);
-		}
+ 		verifyChildControlsSizes();
+ 		updateResizeState(width, current_width);
 	}
 
 	LLPanel::reshape(width, height, called_from_parent);
@@ -383,20 +374,18 @@ if (0 == depth) lldebugs << "****************************************" << llendl
 
 	if (mNearbyChatBar)			log(mNearbyChatBar, "after");
 	if (mChicletPanel)			log(mChicletPanel, "after");
-
-	--depth;
 }
 
-void LLBottomTray::updateResizeState(S32 width, S32 height)
+void LLBottomTray::updateResizeState(S32 new_width, S32 cur_width)
 {
 	mResizeState = RS_NORESIZE;
 	static MASK prev_resize_state = mResizeState;
 	MASK compensative_view_item_mask = RS_CHATBAR_INPUT;
 	LLPanel* compansative_view = mNearbyChatBar;
 
-	S32 delta_width = width - height;
+	S32 delta_width = new_width - cur_width;
 //	if (delta_width == 0) return;
-	bool shrink = width < height;
+	bool shrink = new_width < cur_width;
 
 	const S32 chiclet_panel_width = mChicletPanel->getParent()->getRect().getWidth();
 	const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
@@ -554,58 +543,46 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 		S32 available_width_chiclet = chiclet_panel_width - chiclet_panel_min_width;
 		S32 available_width = delta_width + chatbar_available_shrink_width + available_width_chiclet;
 		S32 buttons_required_width = 0; //How many room will take shown buttons
-		if (available_width > 0 && processShowButton(mGesturePanel, &available_width))
+		if (available_width > 0 && processShowButton(mGesturePanel, &available_width, &buttons_required_width))
 		{
 			mResizeState |= RS_BUTTON_GESTURES | compensative_view_item_mask;
-			delta_width -= mGesturePanel->getRect().getWidth();
-			buttons_required_width += mGesturePanel->getRect().getWidth();
 			lldebugs << "RS_BUTTON_GESTURES"
 				<< ", buttons_required_width: " << buttons_required_width
-				<< ", delta_width: " << delta_width
 				<< llendl;
 			showGestureButton(true);
 		}
 
-		if (available_width > 0 && processShowButton(mMovementPanel, &available_width))
+		if (available_width > 0 && processShowButton(mMovementPanel, &available_width, &buttons_required_width))
 		{
 			mResizeState |= RS_BUTTON_MOVEMENT | compensative_view_item_mask;
-			delta_width -= mMovementPanel->getRect().getWidth();
-			buttons_required_width += mMovementPanel->getRect().getWidth();
 
 			lldebugs << "RS_BUTTON_MOVEMENT"
 				<< ", buttons_required_width: " << buttons_required_width
-				<< ", delta_width: " << delta_width
 				<< llendl;
 			showMoveButton(true);
 		}
 
-		if (available_width > 0 && processShowButton(mCamPanel, &available_width))
+		if (available_width > 0 && processShowButton(mCamPanel, &available_width, &buttons_required_width))
 		{
 			mResizeState |= RS_BUTTON_CAMERA | compensative_view_item_mask;
-			delta_width -= mCamPanel->getRect().getWidth();
-			buttons_required_width += mCamPanel->getRect().getWidth();
 
 			lldebugs << "RS_BUTTON_CAMERA "
 				<< ", buttons_required_width: " << buttons_required_width
-				<< ", delta_width: " << delta_width
 				<< llendl;
 			showCameraButton(true);
 		}
 
-		if (available_width > 0 && processShowButton(mSnapshotPanel, &available_width))
+		if (available_width > 0 && processShowButton(mSnapshotPanel, &available_width, &buttons_required_width))
 		{
 			mResizeState |= RS_BUTTON_SNAPSHOT | compensative_view_item_mask;
-			delta_width -= mSnapshotPanel->getRect().getWidth();
-			buttons_required_width += mSnapshotPanel->getRect().getWidth();
 
 			lldebugs << "RS_BUTTON_SNAPSHOT"
 				<< ", buttons_required_width: " << buttons_required_width
-				<< ", delta_width: " << delta_width
 				<< llendl;
 			showSnapshotButton(true);
 		}
 
-		S32 total_delta_width = width - height;
+		S32 total_delta_width = new_width - cur_width;
 
 		// if we have to show some buttons but whidth increasing is not enough...
 		if (buttons_required_width > 0 && total_delta_width < buttons_required_width)
@@ -639,8 +616,11 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 			}
 
 		}
-// TODO: mantipov: probably need delta_width -= buttons_required_width & remove calculating from the buttons processing
-		// how many space can nearby chat take?
+
+		// shown buttons take some space, rest should be processed by nearby chatbar & chiclet panels
+		delta_width -= buttons_required_width;
+
+		// how many space can nearby chatbar take?
 		S32 chatbar_panel_width_ = mNearbyChatBar->getRect().getWidth();
 		if (delta_width > 0 && chatbar_panel_width_ < chatbar_panel_max_width)
 		{
@@ -661,7 +641,7 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 	lldebugs << "New resize state: " << mResizeState << llendl;
 }
 
-bool LLBottomTray::processShowButton(LLPanel* panel, S32* available_width)
+bool LLBottomTray::processShowButton(LLPanel* panel, S32* available_width, S32* buttons_required_width)
 {
 	bool can_be_shown = canButtonBeShown(panel);
 	if (can_be_shown)
@@ -672,6 +652,7 @@ bool LLBottomTray::processShowButton(LLPanel* panel, S32* available_width)
 		if (can_be_shown)
 		{
 			*available_width -= required_width;
+			*buttons_required_width += required_width;
 		}
 
 	}
