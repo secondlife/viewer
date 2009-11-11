@@ -37,6 +37,7 @@
 #include "llsingleton.h"
 #include "llinitparam.h"
 #include "llpanel.h"
+#include "llstyle.h"
 
 //
 // Classes
@@ -65,11 +66,19 @@ public:
 class LLToolTip : public LLPanel
 {
 public:
+
+	struct StyledText : public LLInitParam::Block<StyledText>
+	{
+		Mandatory<std::string>		text;
+		Optional<LLStyle::Params>	style;
+	};
+
 	struct Params : public LLInitParam::Block<Params, LLPanel::Params> 
 	{
 		typedef boost::function<void(void)> click_callback_t;
 
-		Mandatory<std::string>		message;
+		Optional<std::string>		message;
+		Multiple<StyledText>		styled_message;
 
 		Optional<LLCoordGL>			pos;
 		Optional<F32>				delay_time,
@@ -85,8 +94,8 @@ public:
 		Optional<click_callback_t>	click_callback,
 									click_playmedia_callback,
 									click_homepage_callback;
-		Optional<S32>				max_width;
-		Optional<S32>				padding;
+		Optional<S32>				max_width,
+									padding;
 		Optional<bool>				wrap;
 
 		Params();
@@ -94,7 +103,6 @@ public:
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
-	/*virtual*/ void setValue(const LLSD& value);
 	/*virtual*/ void setVisible(BOOL visible);
 
 	bool isFading();
@@ -102,6 +110,7 @@ public:
 	bool hasClickCallback();
 
 	LLToolTip(const Params& p);
+	void initFromParams(const LLToolTip::Params& params);
 
 private:
 	class LLTextBox*	mTextBox;
@@ -111,7 +120,6 @@ private:
 
 	LLFrameTimer	mFadeTimer;
 	LLFrameTimer	mVisibleTimer;
-	S32				mMaxWidth;
 	bool			mHasClickCallback;
 	S32				mPadding;	// pixels
 };

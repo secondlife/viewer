@@ -2302,13 +2302,13 @@ void LLViewerWindow::moveCursorToCenter()
 // Hover handlers
 //
 
-void append_xui_tooltip(LLView* viewp, std::string& tool_tip_msg)
+void append_xui_tooltip(LLView* viewp, LLToolTip::Params& params)
 {
 	if (viewp) 
 	{
-		if (!tool_tip_msg.empty())
+		if (!params.styled_message().empty())
 		{
-			tool_tip_msg.append("\n---------\n");
+			params.styled_message.add().text("\n---------\n"); 
 		}
 		LLView::root_to_view_iterator_t end_tooltip_it = viewp->endRootToView();
 		// NOTE: we skip "root" since it is assumed
@@ -2318,15 +2318,16 @@ void append_xui_tooltip(LLView* viewp, std::string& tool_tip_msg)
 		{
 			LLView* viewp = *tooltip_it;
 		
-			tool_tip_msg.append(viewp->getName());
+			params.styled_message.add().text(viewp->getName());
+
 			LLPanel* panelp = dynamic_cast<LLPanel*>(viewp);
 			if (panelp && !panelp->getXMLFilename().empty())
 			{
-				tool_tip_msg.append("(");
-				tool_tip_msg.append(panelp->getXMLFilename());
-				tool_tip_msg.append(")");
+				params.styled_message.add()
+					.text("(" + panelp->getXMLFilename() + ")")
+					.style.color(LLColor4(0.7f, 0.7f, 1.f, 1.f));
 			}
-			tool_tip_msg.append("/");
+			params.styled_message.add().text("/");
 		}
 	}
 }
@@ -2567,6 +2568,8 @@ void LLViewerWindow::updateUI()
 
 		if (gSavedSettings.getBOOL("DebugShowXUINames"))
 		{
+			LLToolTip::Params params;
+
 			LLView* tooltip_view = mRootView;
 			LLView::tree_iterator_t end_it = mRootView->endTreeDFS();
 			for (LLView::tree_iterator_t it = mRootView->beginTreeDFS(); it != end_it; ++it)
@@ -2599,20 +2602,20 @@ void LLViewerWindow::updateUI()
 					// NOTE: this emulates visiting only the leaf nodes that meet our criteria
 					if (!viewp->hasAncestor(tooltip_view))
 					{
-						append_xui_tooltip(tooltip_view, tool_tip_msg);
+						append_xui_tooltip(tooltip_view, params);
 						screen_sticky_rect.intersectWith(tooltip_view->calcScreenRect());
 					}
 					tooltip_view = viewp;
 				}
 			}
 
-			append_xui_tooltip(tooltip_view, tool_tip_msg);
+			append_xui_tooltip(tooltip_view, params);
 			screen_sticky_rect.intersectWith(tooltip_view->calcScreenRect());
 			
-			LLToolTipMgr::instance().show(LLToolTip::Params()
-				.message(tool_tip_msg)
-				.sticky_rect(screen_sticky_rect)
-				.max_width(400));
+			params.sticky_rect = screen_sticky_rect;
+			params.max_width = 400;
+
+			LLToolTipMgr::instance().show(params);
 		}
 		// if there is a mouse captor, nothing else gets a tooltip
 		else if (mouse_captor)
