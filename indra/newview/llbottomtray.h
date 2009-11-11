@@ -98,6 +98,8 @@ private:
 
 	void updateResizeState(S32 new_width, S32 cur_width);
 	void verifyChildControlsSizes();
+	void processWidthDecreased(S32 delta_width);
+	void processWidthIncreased(S32 delta_width);
 	void log(LLView* panel, const std::string& descr);
 	bool processShowButton(EResizeState shown_object_type, S32* available_width, S32* buttons_required_width);
 	bool canButtonBeShown(LLPanel* panel) const;
