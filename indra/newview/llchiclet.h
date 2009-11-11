@@ -107,6 +107,7 @@ public:
 		{
 			draw_tooltip(FALSE);
 			mouse_opaque(FALSE);
+			default_icon_name("Generic_Person");
 		};
 	};
 
@@ -128,7 +129,7 @@ public:
 		Optional<std::string> default_icon;
 
 		Params()
-		 : default_icon("default_icon", "default_land_picture.j2c")
+		 : default_icon("default_icon", "Generic_Group")
 		{
 		};
 	};

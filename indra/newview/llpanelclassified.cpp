@@ -1167,7 +1167,9 @@ LLPanelClassifiedInfo* LLPanelClassifiedInfo::create()
 
 BOOL LLPanelClassifiedInfo::postBuild()
 {
-	childSetAction("back_btn", boost::bind(&LLPanelClassifiedInfo::onExit, this), NULL);
+	childSetAction("back_btn", boost::bind(&LLPanelClassifiedInfo::onExit, this));
+	childSetAction("show_on_map_btn", boost::bind(&LLPanelClassifiedInfo::onMapClick, this));
+	childSetAction("teleport_btn", boost::bind(&LLPanelClassifiedInfo::onTeleportClick, this));
 
 	return TRUE;
 }
@@ -1175,6 +1177,11 @@ BOOL LLPanelClassifiedInfo::postBuild()
 void LLPanelClassifiedInfo::setExitCallback(const commit_callback_t& cb)
 {
 	getChild<LLButton>("back_btn")->setClickedCallback(cb);
+}
+
+void LLPanelClassifiedInfo::setEditClassifiedCallback(const commit_callback_t& cb)
+{
+	getChild<LLButton>("edit_btn")->setClickedCallback(cb);
 }
 
 void LLPanelClassifiedInfo::onOpen(const LLSD& key)
@@ -1216,6 +1223,7 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 			setDescription(c_info->description);
 			setSnapshotId(c_info->snapshot_id);
 			setParcelId(c_info->parcel_id);
+			setPosGlobal(c_info->pos_global);
 			setClassifiedLocation(createLocationText(c_info->parcel_name, c_info->sim_name, c_info->pos_global));
 			childSetValue("category", LLClassifiedInfo::sCategories[c_info->category]);
 
@@ -1323,6 +1331,21 @@ std::string LLPanelClassifiedInfo::createLocationText(
 	}
 
 	return location_text;
+}
+
+void LLPanelClassifiedInfo::onMapClick()
+{
+	LLFloaterWorldMap::getInstance()->trackLocation(getPosGlobal());
+	LLFloaterReg::showInstance("world_map", "center");
+}
+
+void LLPanelClassifiedInfo::onTeleportClick()
+{
+	if (!getPosGlobal().isExactlyZero())
+	{
+		gAgent.teleportViaLocation(getPosGlobal());
+		LLFloaterWorldMap::getInstance()->trackLocation(getPosGlobal());
+	}
 }
 
 void LLPanelClassifiedInfo::onExit()

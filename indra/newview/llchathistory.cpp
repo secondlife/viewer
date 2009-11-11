@@ -47,7 +47,6 @@
 #include "llmutelist.h"
 
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
-static const std::string MESSAGE_USERNAME_DATE_SEPARATOR(" ----- ");
 
 std::string formatCurrentTime()
 {
@@ -333,7 +332,7 @@ LLView* LLChatHistory::getHeader(const LLChat& chat)
 void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& style_params)
 {
 	LLView* view = NULL;
-	std::string view_text;
+	std::string view_text = "\n[" + formatCurrentTime() + "]:[" + chat.mFromName + "] ";;
 
 	LLInlineViewSegment::Params p;
 	p.force_newline = true;
@@ -343,14 +342,12 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& sty
 	if (mLastFromName == chat.mFromName)
 	{
 		view = getSeparator();
-		view_text = "\n";
 		p.top_pad = mTopSeparatorPad;
 		p.bottom_pad = mBottomSeparatorPad;
 	}
 	else
 	{
 		view = getHeader(chat);
-		view_text = chat.mFromName + MESSAGE_USERNAME_DATE_SEPARATOR + formatCurrentTime() + '\n';
 		if (getText().size() == 0)
 			p.top_pad = 0;
 		else
@@ -370,8 +367,7 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& sty
 	appendWidget(p, view_text, false);
 
 	//Append the text message
-	std::string message = chat.mText + '\n';
-	appendText(message, FALSE, style_params);
+	appendText(chat.mText, FALSE, style_params);
 
 	mLastFromName = chat.mFromName;
 	blockUndo();

@@ -249,7 +249,9 @@ public:
 
 	void setInfoLoaded(bool loaded) { mInfoLoaded = loaded; }
 
-	virtual void setExitCallback(const commit_callback_t& cb);
+	void setExitCallback(const commit_callback_t& cb);
+
+	void setEditClassifiedCallback(const commit_callback_t& cb);
 
 protected:
 
@@ -264,9 +266,8 @@ protected:
 		const std::string& sim_name, 
 		const LLVector3d& pos_global);
 
-	void onClickMap();
-	void onClickTeleport();
-	void onClickBack();
+	void onMapClick();
+	void onTeleportClick();
 	void onExit();
 
 private:

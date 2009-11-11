@@ -143,7 +143,8 @@ void LLAvatarIconIDCache::remove	(const LLUUID& avatar_id)
 
 LLAvatarIconCtrl::Params::Params()
 :	avatar_id("avatar_id"),
-	draw_tooltip("draw_tooltip", true)
+	draw_tooltip("draw_tooltip", true),
+	default_icon_name("default_icon_name")
 {
 	name = "avatar_icon";
 }
@@ -151,7 +152,8 @@ LLAvatarIconCtrl::Params::Params()
 
 LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 :	LLIconCtrl(p),
-	mDrawTooltip(p.draw_tooltip)
+	mDrawTooltip(p.draw_tooltip),
+	mDefaultIconName(p.default_icon_name)
 {
 	mPriority = LLViewerFetchedTexture::BOOST_ICON;
 	
@@ -193,7 +195,7 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 	}
 	else
 	{
-		LLIconCtrl::setValue("default_profile_picture.j2c");
+		LLIconCtrl::setValue(mDefaultIconName);
 	}
 }
 
@@ -260,7 +262,7 @@ bool LLAvatarIconCtrl::updateFromCache()
 	}
 	else
 	{
-		LLIconCtrl::setValue("default_profile_picture.j2c");
+		LLIconCtrl::setValue(mDefaultIconName);
 	}
 
 	return true;

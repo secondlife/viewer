@@ -103,6 +103,7 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 	// connect counter handlers to the signals
 	connectCounterUpdatersToSignal("notify");
 	connectCounterUpdatersToSignal("groupnotify");
+	connectCounterUpdatersToSignal("offer");
 }
 
 LLNotificationChiclet::~LLNotificationChiclet()
