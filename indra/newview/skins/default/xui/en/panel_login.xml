@@ -51,6 +51,7 @@
     </text>
     <line_editor
      follows="left|bottom"
+     font="SansSerif"
      handle_edit_keys_directly="true"
      height="20"
      left_delta="0"

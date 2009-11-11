@@ -238,7 +238,7 @@ void LLSysWellWindow::initChannel()
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRect();
+	rect = gViewerWindow->getWorldViewRectRaw();
 }
 
 //---------------------------------------------------------------------------------

@@ -1403,7 +1403,7 @@ F32 LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 //the projection of the face partially overlaps with the screen
 F32 LLFace::adjustPartialOverlapPixelArea(F32 cos_angle_to_view_dir, F32 radius )
 {
-	F32 screen_radius = (F32)llmax(gViewerWindow->getWindowDisplayWidth(), gViewerWindow->getWindowDisplayHeight()) ;
+	F32 screen_radius = (F32)llmax(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw()) ;
 	F32 center_angle = acosf(cos_angle_to_view_dir) ;
 	F32 d = center_angle * LLDrawable::sCurPixelAngle ;
 

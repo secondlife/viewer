@@ -18,12 +18,22 @@
 LLViewerControlListener gSavedSettingsListener;
 
 LLViewerControlListener::LLViewerControlListener()
-	: LLDispatchListener("LLViewerControl",  "group")
+	: LLEventAPI("LLViewerControl",
+                 "LLViewerControl listener: set, toggle or set default for various controls",
+                 "group")
 {
-	add("Global", boost::bind(&LLViewerControlListener::set, &gSavedSettings, _1));
-	add("PerAccount", boost::bind(&LLViewerControlListener::set, &gSavedPerAccountSettings, _1));
-	add("Warning", boost::bind(&LLViewerControlListener::set, &gWarningSettings, _1));
-	add("Crash", boost::bind(&LLViewerControlListener::set, &gCrashSettings, _1));
+	add("Global",
+        "Set gSavedSettings control [\"key\"] to value [\"value\"]",
+        boost::bind(&LLViewerControlListener::set, &gSavedSettings, _1));
+	add("PerAccount",
+        "Set gSavedPerAccountSettings control [\"key\"] to value [\"value\"]",
+        boost::bind(&LLViewerControlListener::set, &gSavedPerAccountSettings, _1));
+	add("Warning",
+        "Set gWarningSettings control [\"key\"] to value [\"value\"]",
+        boost::bind(&LLViewerControlListener::set, &gWarningSettings, _1));
+	add("Crash",
+        "Set gCrashSettings control [\"key\"] to value [\"value\"]",
+        boost::bind(&LLViewerControlListener::set, &gCrashSettings, _1));
 
 #if 0
 	add(/*"toggleControl",*/ "Global", boost::bind(&LLViewerControlListener::toggleControl, &gSavedSettings, _1));

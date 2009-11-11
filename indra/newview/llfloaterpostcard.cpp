@@ -291,7 +291,7 @@ void LLFloaterPostcard::uploadCallback(const LLUUID& asset_id, void *user_data, 
 // static
 void LLFloaterPostcard::updateUserInfo(const std::string& email)
 {
-	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
+	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("postcard");
 	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
 		 iter != inst_list.end(); ++iter)
 	{

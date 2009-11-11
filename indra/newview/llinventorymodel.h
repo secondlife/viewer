@@ -446,7 +446,8 @@ protected:
 	// file import/export.
 	static bool loadFromFile(const std::string& filename,
 							 cat_array_t& categories,
-							 item_array_t& items); 
+							 item_array_t& items,
+							 bool& is_cache_obsolete); 
 	static bool saveToFile(const std::string& filename,
 						   const cat_array_t& categories,
 						   const item_array_t& items); 
@@ -507,6 +508,9 @@ private:
 	static F32 sMaxTimeBetweenFetches;
 	static S16 sBulkFetchCount;
 
+	// Expected inventory cache version
+	const static S32 sCurrentInvCacheVersion;
+	
 	// This flag is used to handle an invalid inventory state.
 	bool mIsAgentInvUsable;
 

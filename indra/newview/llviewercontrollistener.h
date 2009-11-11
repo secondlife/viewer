@@ -12,12 +12,12 @@
 #ifndef LL_LLVIEWERCONTROLLISTENER_H
 #define LL_LLVIEWERCONTROLLISTENER_H
 
-#include "lleventdispatcher.h"
+#include "lleventapi.h"
 
 class LLControlGroup;
 class LLSD;
 
-class  LLViewerControlListener : public LLDispatchListener
+class  LLViewerControlListener : public LLEventAPI
 {
 public:
 	LLViewerControlListener();

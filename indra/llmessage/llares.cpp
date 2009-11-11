@@ -106,7 +106,7 @@ void LLAres::QueryResponder::queryError(int code)
 LLAres::LLAres() :
     chan_(NULL),
     mInitSuccess(false),
-    mListener(new LLAresListener("LLAres", this))
+    mListener(new LLAresListener(this))
 {
 	if (ares_init(&chan_) != ARES_SUCCESS)
 	{

@@ -900,7 +900,7 @@ LLMultiProperties::LLMultiProperties()
 	{
 		// start with a small rect in the top-left corner ; will get resized
 		LLRect rect;
-		rect.setLeftTopAndSize(0, gViewerWindow->getWindowHeight(), 20, 20);
+		rect.setLeftTopAndSize(0, gViewerWindow->getWindowHeightScaled(), 20, 20);
 		setRect(rect);
 	}
 	setTitle(LLTrans::getString("MultiPropertiesTitle"));

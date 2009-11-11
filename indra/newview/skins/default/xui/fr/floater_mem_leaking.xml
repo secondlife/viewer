@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="MemLeak" title="SIMULATION FUITE MÉMOIRE">
-	<spinner label="Vitesse de la fuite (octets) :" name="leak_speed" />
-	<spinner label="Max mémoire perdue (Mo) :" name="max_leak" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="MemLeak" title="Simuler une fuite de mémoire">
+	<spinner label="Vitesse de la fuite (octets) :" name="leak_speed"/>
+	<spinner label="Max mémoire perdue (Mo) :" name="max_leak"/>
 	<text name="total_leaked_label">
 		Mémoire perdue actuelle : [SIZE] Ko
 	</text>
@@ -12,7 +12,7 @@
 		[NOTE2]
 	</text>
 	<button label="Commencer" name="start_btn" width="85"/>
-	<button label="Stop" name="stop_btn" left="100"/>
-	<button label="Libérer" name="release_btn"  left="177"/>
-	<button label="Fermer" name="close_btn" />
+	<button label="Stop" left="100" name="stop_btn"/>
+	<button label="Libérer" left="177" name="release_btn"/>
+	<button label="Fermer" name="close_btn"/>
 </floater>

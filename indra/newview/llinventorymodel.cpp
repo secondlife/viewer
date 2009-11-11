@@ -81,6 +81,10 @@ BOOL LLInventoryModel::sTimelyFetchPending = FALSE;
 LLFrameTimer LLInventoryModel::sFetchTimer;
 S16 LLInventoryModel::sBulkFetchCount = 0;
 
+// Increment this if the inventory contents change in a non-backwards-compatible way.
+// For viewer 2, the addition of link items makes a pre-viewer-2 cache incorrect.
+const S32 LLInventoryModel::sCurrentInvCacheVersion = 2;
+
 // RN: for some reason, using std::queue in the header file confuses the compiler which things it's an xmlrpc_queue
 static std::deque<LLUUID> sFetchQueue;
 
@@ -1291,6 +1295,11 @@ void LLInventoryModel::fetchInventoryResponder::error(U32 status, const std::str
 
 bool LLInventoryModel::fetchDescendentsOf(const LLUUID& folder_id)
 {
+	if(folder_id.isNull()) 
+	{
+		llwarns << "Calling fetch descendents on NULL folder id!" << llendl;
+		return false;
+	}
 	LLViewerInventoryCategory* cat = getCategory(folder_id);
 	if(!cat)
 	{
@@ -2133,7 +2142,8 @@ bool LLInventoryModel::loadSkeleton(
 				llinfos << "Unable to gunzip " << gzip_filename << llendl;
 			}
 		}
-		if(loadFromFile(inventory_filename, categories, items))
+		bool is_cache_obsolete = false;
+		if(loadFromFile(inventory_filename, categories, items, is_cache_obsolete))
 		{
 			// We were able to find a cache of files. So, use what we
 			// found to generate a set of categories we should add. We
@@ -2267,6 +2277,12 @@ bool LLInventoryModel::loadSkeleton(
 		{
 			// clean up the gunzipped file.
 			LLFile::remove(inventory_filename);
+		}
+		if(is_cache_obsolete)
+		{
+			// If out of date, remove the gzipped file too.
+			llwarns << "Inv cache out of date, removing" << llendl;
+			LLFile::remove(gzip_filename);
 		}
 		categories.clear(); // will unref and delete entries
 	}
@@ -2666,7 +2682,8 @@ bool LLUUIDAndName::operator>(const LLUUIDAndName& rhs) const
 // static
 bool LLInventoryModel::loadFromFile(const std::string& filename,
 									LLInventoryModel::cat_array_t& categories,
-									LLInventoryModel::item_array_t& items)
+									LLInventoryModel::item_array_t& items,
+									bool &is_cache_obsolete)
 {
 	if(filename.empty())
 	{
@@ -2683,11 +2700,32 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 	// *NOTE: This buffer size is hard coded into scanf() below.
 	char buffer[MAX_STRING];		/*Flawfinder: ignore*/
 	char keyword[MAX_STRING];		/*Flawfinder: ignore*/
+	char value[MAX_STRING];			/*Flawfinder: ignore*/
+	is_cache_obsolete = true;  		// Obsolete until proven current
 	while(!feof(file) && fgets(buffer, MAX_STRING, file)) 
 	{
-		sscanf(buffer, " %254s", keyword);	/* Flawfinder: ignore */
-		if(0 == strcmp("inv_category", keyword))
+		sscanf(buffer, " %126s %126s", keyword, value);	/* Flawfinder: ignore */
+		if(0 == strcmp("inv_cache_version", keyword))
 		{
+			S32 version;
+			int succ = sscanf(value,"%d",&version);
+			if ((1 == succ) && (version == sCurrentInvCacheVersion))
+			{
+				// Cache is up to date
+				is_cache_obsolete = false;
+				continue;
+			}
+			else
+			{
+				// Cache is out of date
+				break;
+			}
+		}
+		else if(0 == strcmp("inv_category", keyword))
+		{
+			if (is_cache_obsolete)
+				break;
+			
 			LLPointer<LLViewerInventoryCategory> inv_cat = new LLViewerInventoryCategory(LLUUID::null);
 			if(inv_cat->importFileLocal(file))
 			{
@@ -2701,6 +2739,9 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 		}
 		else if(0 == strcmp("inv_item", keyword))
 		{
+			if (is_cache_obsolete)
+				break;
+
 			LLPointer<LLViewerInventoryItem> inv_item = new LLViewerInventoryItem;
 			if( inv_item->importFileLocal(file) )
 			{
@@ -2732,6 +2773,8 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 		}
 	}
 	fclose(file);
+	if (is_cache_obsolete)
+		return false;
 	return true;
 }
 
@@ -2753,6 +2796,7 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
 		return false;
 	}
 
+	fprintf(file, "\tinv_cache_version\t%d\n",sCurrentInvCacheVersion);
 	S32 count = categories.count();
 	S32 i;
 	for(i = 0; i < count; ++i)

@@ -218,17 +218,10 @@ void LLPanelMediaSettingsPermissions::initValues( void* userdata, const LLSD& me
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// static
-void LLPanelMediaSettingsPermissions::apply( void* userdata )
+// 
+void LLPanelMediaSettingsPermissions::preApply()
 {
-    LLPanelMediaSettingsPermissions *self =(LLPanelMediaSettingsPermissions *)userdata;
-
-    // build LLSD Fragment
-    LLSD media_data_permissions;
-    self->getValues(media_data_permissions);
-
-    // this merges contents of LLSD passed in with what's there so this is ok
-    LLSelectMgr::getInstance()->selectionSetMediaData( media_data_permissions );
+    // no-op
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -253,4 +246,12 @@ void LLPanelMediaSettingsPermissions::getValues( LLSD &fill_me_in )
         (mPermsWorldInteract->getValue() ? none : anyone ));
     fill_me_in[LLMediaEntry::PERMS_CONTROL_KEY] = control;
     fill_me_in[LLMediaEntry::PERMS_INTERACT_KEY] = interact;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// 
+void LLPanelMediaSettingsPermissions::postApply()
+{
+    // no-op
 }

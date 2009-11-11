@@ -25,7 +25,7 @@
      name="subject"
      text_color="GroupNotifyTextColor"
      font="SansSerifBig"
-     top="60"
+     top="40"
      use_ellipses="true"
      value="subject"
      width="300"

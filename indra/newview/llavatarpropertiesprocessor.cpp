@@ -158,6 +158,11 @@ void LLAvatarPropertiesProcessor::sendAvatarTexturesRequest(const LLUUID& avatar
 	removePendingRequest(avatar_id, APT_TEXTURES);
 }
 
+void LLAvatarPropertiesProcessor::sendAvatarClassifiedsRequest(const LLUUID& avatar_id)
+{
+	sendGenericRequest(avatar_id, APT_CLASSIFIEDS, "avatarclassifiedsrequest");
+}
+
 void LLAvatarPropertiesProcessor::sendAvatarPropertiesUpdate(const LLAvatarData* avatar_props)
 {
 	llinfos << "Sending avatarinfo update" << llendl;
@@ -284,11 +289,59 @@ void LLAvatarPropertiesProcessor::processAvatarInterestsReply(LLMessageSystem* m
 */
 }
 
-void LLAvatarPropertiesProcessor::processAvatarClassifiedReply(LLMessageSystem* msg, void**)
+void LLAvatarPropertiesProcessor::processAvatarClassifiedsReply(LLMessageSystem* msg, void**)
 {
-	// avatarclassifiedsrequest is not sent according to new UI design but
-	// keep this method according to resolved issues. 
+	LLAvatarClassifieds classifieds;
+
+	msg->getUUID(_PREHASH_AgentData, _PREHASH_AgentID, classifieds.agent_id);
+	msg->getUUID(_PREHASH_AgentData, _PREHASH_TargetID, classifieds.target_id);
+
+	S32 block_count = msg->getNumberOfBlocks(_PREHASH_Data);
+
+	for(int n = 0; n < block_count; ++n)
+	{
+		LLAvatarClassifieds::classified_data data;
+
+		msg->getUUID(_PREHASH_Data, _PREHASH_ClassifiedID, data.classified_id, n);
+		msg->getString(_PREHASH_Data, _PREHASH_Name, data.name, n);
+
+		classifieds.classifieds_list.push_back(data);
+	}
+
+	LLAvatarPropertiesProcessor* self = getInstance();
+	// Request processed, no longer pending
+	self->removePendingRequest(classifieds.target_id, APT_CLASSIFIEDS);
+	self->notifyObservers(classifieds.target_id,&classifieds,APT_CLASSIFIEDS);
 }
+
+void LLAvatarPropertiesProcessor::processClassifiedInfoReply(LLMessageSystem* msg, void**)
+{
+	LLAvatarClassifiedInfo c_info;
+
+	msg->getUUID(_PREHASH_AgentData, _PREHASH_AgentID, c_info.agent_id);
+
+	msg->getUUID(_PREHASH_Data, _PREHASH_ClassifiedID, c_info.classified_id);
+	msg->getUUID(_PREHASH_Data, _PREHASH_CreatorID, c_info.creator_id);
+	msg->getU32(_PREHASH_Data, _PREHASH_CreationDate, c_info.creation_date);
+	msg->getU32(_PREHASH_Data, _PREHASH_ExpirationDate, c_info.expiration_date);
+	msg->getU32(_PREHASH_Data, _PREHASH_Category, c_info.category);
+	msg->getString(_PREHASH_Data, _PREHASH_Name, c_info.name);
+	msg->getString(_PREHASH_Data, _PREHASH_Desc, c_info.description);
+	msg->getUUID(_PREHASH_Data, _PREHASH_ParcelID, c_info.parcel_id);
+	msg->getU32(_PREHASH_Data, _PREHASH_ParentEstate, c_info.parent_estate);
+	msg->getUUID(_PREHASH_Data, _PREHASH_SnapshotID, c_info.snapshot_id);
+	msg->getString(_PREHASH_Data, _PREHASH_SimName, c_info.sim_name);
+	msg->getVector3d(_PREHASH_Data, _PREHASH_PosGlobal, c_info.pos_global);
+	msg->getString(_PREHASH_Data, _PREHASH_ParcelName, c_info.parcel_name);
+	msg->getU8(_PREHASH_Data, _PREHASH_ClassifiedFlags, c_info.flags);
+	msg->getS32(_PREHASH_Data, _PREHASH_PriceForListing, c_info.price_for_listing);
+
+	LLAvatarPropertiesProcessor* self = getInstance();
+	// Request processed, no longer pending
+	self->removePendingRequest(c_info.creator_id, APT_CLASSIFIED_INFO);
+	self->notifyObservers(c_info.creator_id, &c_info, APT_CLASSIFIED_INFO);
+}
+
 
 void LLAvatarPropertiesProcessor::processAvatarNotesReply(LLMessageSystem* msg, void**)
 {
@@ -451,6 +504,22 @@ void LLAvatarPropertiesProcessor::sendPickDelete( const LLUUID& pick_id )
 	LLAgentPicksInfo::getInstance()->decrementNumberOfPicks();
 }
 
+void LLAvatarPropertiesProcessor::sendClassifiedDelete(const LLUUID& classified_id)
+{
+	LLMessageSystem* msg = gMessageSystem; 
+
+	msg->newMessage(_PREHASH_ClassifiedDelete);
+
+	msg->nextBlock(_PREHASH_AgentData);
+	msg->addUUID(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUID(_PREHASH_SessionID, gAgent.getSessionID());
+
+	msg->nextBlock(_PREHASH_Data);
+	msg->addUUID(_PREHASH_ClassifiedID, classified_id);
+
+	gAgent.sendReliableMessage();
+}
+
 void LLAvatarPropertiesProcessor::sendPickInfoUpdate(const LLPickData* new_pick)
 {
 	if (!new_pick) return;
@@ -485,6 +554,36 @@ void LLAvatarPropertiesProcessor::sendPickInfoUpdate(const LLPickData* new_pick)
 	LLAgentPicksInfo::getInstance()->requestNumberOfPicks();
 }
 
+void LLAvatarPropertiesProcessor::sendClassifiedInfoUpdate(const LLAvatarClassifiedInfo* c_data)
+{
+	if(!c_data)
+	{
+		return;
+	}
+
+	LLMessageSystem* msg = gMessageSystem;
+
+	msg->newMessage(_PREHASH_ClassifiedInfoUpdate);
+
+	msg->nextBlock(_PREHASH_AgentData);
+	msg->addUUID(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUID(_PREHASH_SessionID, gAgent.getSessionID());
+
+	msg->nextBlock(_PREHASH_Data);
+	msg->addUUID(_PREHASH_ClassifiedID, c_data->classified_id);
+	msg->addU32(_PREHASH_Category, c_data->category);
+	msg->addString(_PREHASH_Name, c_data->name);
+	msg->addString(_PREHASH_Desc, c_data->description);
+	msg->addUUID(_PREHASH_ParcelID, c_data->parcel_id);
+	msg->addU32(_PREHASH_ParentEstate, 0);
+	msg->addUUID(_PREHASH_SnapshotID, c_data->snapshot_id);
+	msg->addVector3d(_PREHASH_PosGlobal, c_data->pos_global);
+	msg->addU8(_PREHASH_ClassifiedFlags, c_data->flags);
+	msg->addS32(_PREHASH_PriceForListing, c_data->price_for_listing);
+
+	gAgent.sendReliableMessage();
+}
+
 void LLAvatarPropertiesProcessor::sendPickInfoRequest(const LLUUID& creator_id, const LLUUID& pick_id)
 {
 	// Must ask for a pick based on the creator id because
@@ -495,6 +594,21 @@ void LLAvatarPropertiesProcessor::sendPickInfoRequest(const LLUUID& creator_id, 
 	send_generic_message("pickinforequest", request_params);
 }
 
+void LLAvatarPropertiesProcessor::sendClassifiedInfoRequest(const LLUUID& classified_id)
+{
+	LLMessageSystem* msg = gMessageSystem;
+
+	msg->newMessage(_PREHASH_ClassifiedInfoRequest);
+	msg->nextBlock(_PREHASH_AgentData);
+	
+	msg->addUUID(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUID(_PREHASH_SessionID, gAgent.getSessionID());
+
+	msg->nextBlock(_PREHASH_Data);
+	msg->addUUID(_PREHASH_ClassifiedID, classified_id);
+
+	gAgent.sendReliableMessage();
+}
 
 bool LLAvatarPropertiesProcessor::isPendingRequest(const LLUUID& avatar_id, EAvatarProcessorType type)
 {

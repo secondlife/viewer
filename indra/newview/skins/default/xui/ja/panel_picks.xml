@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="ピック" name="panel_picks">
+	<panel label="bottom_panel" name="edit_panel">
+		<button name="new_btn" tool_tip="現在地を新規ピックに追加"/>
+	</panel>
+	<panel name="buttons_cucks">
+		<button label="地図" name="show_on_map_btn"/>
+	</panel>
+</panel>

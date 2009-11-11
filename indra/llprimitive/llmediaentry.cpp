@@ -389,8 +389,12 @@ U32 LLMediaEntry::setWhiteList( const std::vector<std::string> &whitelist )
 
 U32 LLMediaEntry::setWhiteList( const LLSD &whitelist )
 {
-    // If whitelist is undef, this is a no-op.
-    if (whitelist.isUndefined()) return LSL_STATUS_OK;
+    // If whitelist is undef, the whitelist is cleared
+    if (whitelist.isUndefined()) 
+	{
+		mWhiteList.clear();
+		return LSL_STATUS_OK;
+	}
 
     // However, if the whitelist is an empty array, erase it.
     if (whitelist.isArray()) 

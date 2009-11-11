@@ -41,6 +41,7 @@
 #include "llremoteparcelrequest.h"
 
 class LLExpandableTextBox;
+class LLIconCtrl;
 class LLInventoryItem;
 class LLPanelPickEdit;
 class LLParcel;
@@ -109,7 +110,6 @@ protected:
 	LLUUID					mRequestedID;
 	LLVector3				mPosRegion;
 	std::string				mCurrentTitle;
-	S32						mMinHeight;
 	INFO_TYPE 				mInfoType;
 
 	LLTextBox*				mTitle;
@@ -117,6 +117,7 @@ protected:
 	LLTextBox*				mRegionName;
 	LLTextBox*				mParcelName;
 	LLExpandableTextBox*	mDescEditor;
+	LLIconCtrl*				mMaturityRatingIcon;
 	LLTextBox*				mMaturityRatingText;
 };
 

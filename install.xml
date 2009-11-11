@@ -1269,7 +1269,7 @@ anguage Infrstructure (CLI) international standard</string>
       <key>quicktime</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (C) 1990-2006 by Apple Computer, Inc., all rights reserved.</string>
+        <string>Copyright (C) 1990-2007 by Apple Computer, Inc., all rights reserved.</string>
         <key>description</key>
         <string>Separate download. Used to play in-world video clips on a prim. </string>
         <key>license</key>
@@ -1279,9 +1279,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>7a2e6fc89b1ef027f3a36ebb46fb0c8a</string>
+            <string>be45825cc14ede53790ac93c58307dcb</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/quicktime-windows-20080611.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/quicktime-sdk-windows-7.3-20091110.tar.bz2</uri>
           </map>
         </map>
       </map>

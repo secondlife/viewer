@@ -43,14 +43,16 @@
     <button
      follows="right"
      is_toggle="true"
-     width="45"
+     width="20"
      top="0"
      layout="topleft"
-     left_pad="8"
-     label="Log"
+     left_pad="4           "
+     image_disabled="ComboButton_UpOff"
+     image_unselected="ComboButton_UpOff"
+     image_selected="ComboButton_UpSelected"
      height="23"
      name="show_nearby_chat"
-     tool_tip="Show/hide nearby chat log">
+     tool_tip="Shows/hides nearby chat log">
         <button.init_callback
            function="Button.SetDockableFloaterToggle"
            parameter="nearby_chat" />

@@ -415,7 +415,7 @@ public:
 
 static LLMenuParcelObserver* gMenuParcelObserver = NULL;
 
-static LLUIListener sUIListener("UI");
+static LLUIListener sUIListener;
 
 LLMenuParcelObserver::LLMenuParcelObserver()
 {
@@ -468,16 +468,6 @@ void set_underclothes_menu_options()
 void init_menus()
 {
 	S32 top = gViewerWindow->getRootView()->getRect().getHeight();
-	S32 width = gViewerWindow->getRootView()->getRect().getWidth();
-
-	//
-	// Main menu bar
-	//
-	gMenuHolder = new LLViewerMenuHolderGL();
-	gMenuHolder->setRect(LLRect(0, top, width, 0));
-	gMenuHolder->setFollowsAll();
-
-	LLMenuGL::sMenuContainer = gMenuHolder;
 
 	// Initialize actions
 	initialize_menus();
@@ -3807,7 +3797,7 @@ class LLViewDefaultUISize : public view_listener_t
 	{
 		gSavedSettings.setF32("UIScaleFactor", 1.0f);
 		gSavedSettings.setBOOL("UIAutoScale", FALSE);	
-		gViewerWindow->reshape(gViewerWindow->getWindowDisplayWidth(), gViewerWindow->getWindowDisplayHeight());
+		gViewerWindow->reshape(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
 		return true;
 	}
 };
@@ -6252,25 +6242,20 @@ class LLAvatarSendIM : public view_listener_t
 		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 		if(avatar)
 		{
-			std::string name("IM");
-			LLNameValue *first = avatar->getNVPair("FirstName");
-			LLNameValue *last = avatar->getNVPair("LastName");
-			if (first && last)
-			{
-				name.assign( first->getString() );
-				name.append(" ");
-				name.append( last->getString() );
-			}
+			LLAvatarActions::startIM(avatar->getID());
+		}
+		return true;
+	}
+};
 
-			//EInstantMessage type = have_agent_callingcard(gLastHitObjectID)
-			//	? IM_SESSION_ADD : IM_SESSION_CARDLESS_START;
-			LLUUID session_id = gIMMgr->addSession(name,
-								IM_NOTHING_SPECIAL,
-								avatar->getID());
-			if (session_id != LLUUID::null)
-			{
-				LLIMFloater::show(session_id);
-			}
+class LLAvatarCall : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if(avatar)
+		{
+			LLAvatarActions::startCall(avatar->getID());
 		}
 		return true;
 	}
@@ -7083,6 +7068,11 @@ void handle_test_load_url(void*)
 //
 // LLViewerMenuHolderGL
 //
+static LLDefaultChildRegistry::Register<LLViewerMenuHolderGL> r("menu_holder");
+
+LLViewerMenuHolderGL::LLViewerMenuHolderGL(const LLViewerMenuHolderGL::Params& p)
+: LLMenuHolderGL(p)
+{}
 
 BOOL LLViewerMenuHolderGL::hideMenus()
 {
@@ -7092,8 +7082,11 @@ BOOL LLViewerMenuHolderGL::hideMenus()
 	mParcelSelection = NULL;
 	mObjectSelection = NULL;
 
-	gMenuBarView->clearHoverItem();
-	gMenuBarView->resetMenuTrigger();
+	if (gMenuBarView)
+	{
+		gMenuBarView->clearHoverItem();
+		gMenuBarView->resetMenuTrigger();
+	}
 
 	return handled;
 }
@@ -7941,6 +7934,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAvatarGiveCard(), "Avatar.GiveCard");
 	commit.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
 	view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
+	view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call");
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	
 	view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");

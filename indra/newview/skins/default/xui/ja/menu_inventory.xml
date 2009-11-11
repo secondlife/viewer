@@ -12,7 +12,7 @@
 	<menu_item_call label="新しいスクリプト" name="New Script"/>
 	<menu_item_call label="新しいノート" name="New Note"/>
 	<menu_item_call label="新しいジェスチャー" name="New Gesture"/>
-	<menu name="New Clothes">
+	<menu label="新規衣類" name="New Clothes">
 		<menu_item_call label="新しいシャツ" name="New Shirt"/>
 		<menu_item_call label="新しいズボン" name="New Pants"/>
 		<menu_item_call label="新しい靴" name="New Shoes"/>
@@ -23,11 +23,23 @@
 		<menu_item_call label="新しい下着" name="New Undershirt"/>
 		<menu_item_call label="新しいパンツ" name="New Underpants"/>
 	</menu>
-	<menu name="New Body Parts">
+	<menu label="新規身体部位" name="New Body Parts">
 		<menu_item_call label="新しいシェイプ(体型)" name="New Shape"/>
 		<menu_item_call label="新しいスキン" name="New Skin"/>
 		<menu_item_call label="新しい髪" name="New Hair"/>
 		<menu_item_call label="新しい眼" name="New Eyes"/>
+	</menu>
+	<menu label="種類を変更" name="Change Type">
+		<menu_item_call label="デフォルト" name="Default"/>
+		<menu_item_call label="手袋" name="Gloves"/>
+		<menu_item_call label="ジャケット" name="Jacket"/>
+		<menu_item_call label="パンツ" name="Pants"/>
+		<menu_item_call label="シェイプ" name="Shape"/>
+		<menu_item_call label="靴" name="Shoes"/>
+		<menu_item_call label="シャツ" name="Shirt"/>
+		<menu_item_call label="スカート" name="Skirt"/>
+		<menu_item_call label="下着パンツ" name="Underpants"/>
+		<menu_item_call label="下着シャツ" name="Undershirt"/>
 	</menu>
 	<menu_item_call label="テレポート" name="Landmark Open"/>
 	<menu_item_call label="開く" name="Animation Open"/>
@@ -46,7 +58,6 @@
 	<menu_item_call label="服装を置換" name="Replace Outfit"/>
 	<menu_item_call label="会議チャット開始" name="Conference Chat Folder"/>
 	<menu_item_call label="再生" name="Sound Play"/>
-	<menu_item_call label="ランドマーク情報" name="Teleport To Landmark"/>
 	<menu_item_call label="世界で再生" name="Animation Play"/>
 	<menu_item_call label="ローカルに再生" name="Animation Audition"/>
 	<menu_item_call label="インスタント・メッセージを送信" name="Send Instant Message"/>
@@ -55,7 +66,6 @@
 	<menu_item_call label="アクティブ" name="Activate"/>
 	<menu_item_call label="非アクティブ" name="Deactivate"/>
 	<menu_item_call label="自分から取り外す" name="Detach From Yourself"/>
-	<menu_item_call label="前回あった位置に戻す" name="Restore to Last Position"/>
 	<menu_item_call label="装着" name="Object Wear"/>
 	<menu label="装着先" name="Attach To"/>
 	<menu label="HUD装着先" name="Attach To HUD"/>

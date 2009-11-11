@@ -57,6 +57,8 @@ LLToolTipView *gToolTipView = NULL;
 // Member functions
 //
 
+static LLDefaultChildRegistry::Register<LLToolTipView> register_tooltip_view("tooltip_view");
+
 LLToolTipView::Params::Params()
 {
 	mouse_opaque = false;
@@ -137,12 +139,16 @@ void LLToolTipView::drawStickyRect()
 {
 	gl_rect_2d(LLToolTipMgr::instance().getMouseNearRect(), LLColor4::white, false);
 }
+
+// defaults for floater param block pulled from widgets/floater.xml
+static LLWidgetNameRegistry::StaticRegistrar sRegisterInspectorParams(&typeid(LLInspector::Params), "inspector");
+
 //
 // LLToolTip
 //
 
 
-static LLDefaultChildRegistry::Register<LLToolTip> r("tool_tip");
+static LLDefaultChildRegistry::Register<LLToolTip> register_tooltip("tool_tip");
 
 
 LLToolTip::Params::Params()

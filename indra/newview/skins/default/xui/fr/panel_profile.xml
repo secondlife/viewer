@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Profil" name="panel_profile">
+	<string name="CaptionTextAcctInfo">
+		[ACCTTYPE] [PAYMENTINFO] [AGEVERIFICATION]
+	</string>
+	<string name="payment_update_link_url">
+		http://www.secondlife.com/account/billing.php?lang=en
+	</string>
+	<string name="my_account_link_url" value="http://secondlife.com/account"/>
+	<string name="no_partner_text" value="Aucun"/>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<panel name="second_life_image_panel">
+				<text name="title_sl_descr_text" value="[SECOND_LIFE] :"/>
+			</panel>
+			<panel name="first_life_image_panel">
+				<text name="title_rw_descr_text" value="Monde physique :"/>
+			</panel>
+			<text name="me_homepage_text">
+				Page d&apos;accueil :
+			</text>
+			<text name="title_member_text" value="Membre depuis :"/>
+			<text name="title_acc_status_text" value="Statut du compte :"/>
+			<text name="title_partner_text" value="Partenaire :"/>
+			<panel name="partner_data_panel">
+				<text name="partner_text" value="[FIRST] [LAST]"/>
+			</panel>
+			<text name="title_groups_text" value="Groupes :"/>
+		</panel>
+	</scroll_container>
+	<panel name="profile_buttons_panel">
+		<button label="Devenir amis" name="add_friend"/>
+		<button label="IM" name="im"/>
+		<button label="Appeler" name="call"/>
+		<button label="Téléporter" name="teleport"/>
+	</panel>
+	<panel name="profile_me_buttons_panel">
+		<button label="Modifier le profil" name="edit_profile_btn"/>
+		<button label="Changer d&apos;apparence" name="edit_appearance_btn"/>
+	</panel>
+</panel>

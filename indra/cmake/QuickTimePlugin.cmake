@@ -12,13 +12,13 @@ elseif (WINDOWS)
   set(QUICKTIME_SDK_DIR "$ENV{PROGRAMFILES}/QuickTime SDK"
       CACHE PATH "Location of the QuickTime SDK.")
 
-  find_library(DEBUG_QUICKTIME_LIBRARY qtmlclient
+  find_library(DEBUG_QUICKTIME_LIBRARY qtmlclient.lib
                PATHS
                ${ARCH_PREBUILT_DIRS_DEBUG}
                "${QUICKTIME_SDK_DIR}\\libraries"
                )
 
-  find_library(RELEASE_QUICKTIME_LIBRARY qtmlclient
+  find_library(RELEASE_QUICKTIME_LIBRARY qtmlclient.lib
                PATHS
                ${ARCH_PREBUILT_DIRS_RELEASE}
                "${QUICKTIME_SDK_DIR}\\libraries"

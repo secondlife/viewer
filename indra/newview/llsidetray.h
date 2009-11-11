@@ -118,6 +118,8 @@ public:
 		LLPanel::setVisible(visible);
 	}
 
+	LLPanel*	getButtonsPanel() { return mButtonsPanel; }
+
 public:
 	virtual ~LLSideTray(){};
 
@@ -129,12 +131,10 @@ public:
 	bool		addChild		(LLView* view, S32 tab_group);
 
 	BOOL		handleMouseDown	(S32 x, S32 y, MASK mask);
-	BOOL		handleScrollWheel(S32 x, S32 y, S32 mask);
 	
 	void		reshape			(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	S32			getTrayWidth();
 
-	void		resetPanelRect	();
+	void		processTriState ();
 	
 
 protected:
@@ -147,7 +147,7 @@ protected:
 
 	void		toggleTabButton	(LLSideTrayTab* tab);
 
-	void		setPanelRect	();
+	void		updateSidetrayVisibility();
 
 	
 
@@ -163,15 +163,15 @@ private:
 
 private:
 
-	std::map<std::string,LLButton*>	mTabButtons;
+	LLPanel*						mButtonsPanel;
+	typedef std::map<std::string,LLButton*> button_map_t;
+	button_map_t					mTabButtons;
 	child_vector_t					mTabs;
 	LLSideTrayTab*					mActiveTab;	
 	
 	LLButton*						mCollapseButton;
 	bool							mCollapsed;
 	
-	S32								mMaxBarWidth;
-
 	static LLSideTray*				sInstance;
 };
 

@@ -70,6 +70,14 @@ public:
 	
 	// This needs to be called periodically on Mac/Linux to clean up zombie processes.
 	static void reap(void);
+	
+	// Accessors for platform-specific process ID
+#if LL_WINDOWS
+	HANDLE getProcessHandle() { return mProcessHandle; };
+#else
+	pid_t getProcessID() { return mProcessID; };
+#endif	
+	
 private:
 	std::string mExecutable;
 	std::string mWorkingDir;

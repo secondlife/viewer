@@ -5,7 +5,7 @@
  layout="topleft"
  name="panel_stand_stop_flying"
  mouse_opaque="false"
- visible="false"
+ visible="true"
  width="115">
     <button
      follows="left|bottom"

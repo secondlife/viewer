@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llrecentpeople.h"
+#include "llgroupmgr.h"
 
 #include "llagent.h"
 
@@ -43,12 +44,18 @@ bool LLRecentPeople::add(const LLUUID& id)
 	if (id == gAgent.getID())
 		return false;
 
-	LLDate date_added = LLDate::now();
+	bool is_not_group_id = LLGroupMgr::getInstance()->getGroupData(id) == NULL;
 
-	//[] instead of insert to replace existing id->date with new date value
-	mPeople[id] = date_added;
-	mChangedSignal();
-	return true;
+	if (is_not_group_id)
+	{
+		LLDate date_added = LLDate::now();
+
+		//[] instead of insert to replace existing id->date with new date value
+		mPeople[id] = date_added;
+		mChangedSignal();
+	}
+
+	return is_not_group_id;
 }
 
 bool LLRecentPeople::contains(const LLUUID& id) const

@@ -40,6 +40,7 @@
 #include "llpanelavatar.h"
 #include "llregistry.h"
 
+class LLAccordionCtrlTab;
 class LLPanelProfile;
 class LLMessageSystem;
 class LLVector3d;
@@ -47,10 +48,18 @@ class LLPanelProfileTab;
 class LLAgent;
 class LLMenuGL;
 class LLPickItem;
+class LLClassifiedItem;
 class LLFlatListView;
 class LLPanelPickInfo;
 class LLPanelPickEdit;
 class LLToggleableMenu;
+class LLPanelClassifiedInfo;
+class LLPanelClassifiedEdit;
+class LLClassifiedClickThrough;
+
+// *TODO
+// Panel Picks has been consolidated with Classifieds (EXT-2095), give LLPanelPicks
+// and corresponding files (cpp, h, xml) a new name. (new name is TBD at the moment)
 
 class LLPanelPicks 
 	: public LLPanelProfileTab
@@ -71,6 +80,7 @@ public:
 
 	// returns the selected pick item
 	LLPickItem* getSelectedPickItem();
+	LLClassifiedItem* getSelectedClassifiedItem();
 
 	//*NOTE top down approch when panel toggling is done only by 
 	// parent panels failed to work (picks related code was in me profile panel)
@@ -83,41 +93,67 @@ private:
 
 	void onOverflowMenuItemClicked(const LLSD& param);
 	void onOverflowButtonClicked();
+	void onPlusMenuItemClicked(const LLSD& param);
+
+	void onListCommit(const LLFlatListView* f_list);
+	void onAccordionStateChanged(const LLAccordionCtrlTab* acc_tab);
 
 	//------------------------------------------------
 	// Callbacks which require panel toggling
 	//------------------------------------------------
-	void onClickNew();
+	void onClickPlusBtn();
 	void onClickInfo();
 	void onPanelPickClose(LLPanel* panel);
 	void onPanelPickSave(LLPanel* panel);
+	void onPanelClassifiedSave(LLPanelClassifiedEdit* panel);
+	void onPanelClassifiedClose(LLPanelClassifiedInfo* panel);
 	void onPanelPickEdit();
+	void onPanelClassifiedEdit();
 	void onClickMenuEdit();
+
+	void createNewPick();
+	void createNewClassified();
+
+	void openPickInfo();
+	void openClassifiedInfo();
+
+	void showAccordion(const std::string& name, bool show);
 
 	void buildPickPanel();
 
-	bool callbackDelete(const LLSD& notification, const LLSD& response);
+	bool callbackDeletePick(const LLSD& notification, const LLSD& response);
+	bool callbackDeleteClassified(const LLSD& notification, const LLSD& response);
 	bool callbackTeleport(const LLSD& notification, const LLSD& response);
 
 	void updateButtons();
 
-	virtual void onDoubleClickItem(LLUICtrl* item);
+	virtual void onDoubleClickPickItem(LLUICtrl* item);
+	virtual void onDoubleClickClassifiedItem(LLUICtrl* item);
 	virtual void onRightMouseUpItem(LLUICtrl* item, S32 x, S32 y, MASK mask);
 
 	LLPanelProfile* getProfilePanel();
 
 	void createPickInfoPanel();
 	void createPickEditPanel();
-// 	void openPickEditPanel(LLPickItem* pick);
-// 	void openPickInfoPanel(LLPickItem* pick);
+	void createClassifiedInfoPanel();
+	void createClassifiedEditPanel();
 
 	LLMenuGL* mPopupMenu;
 	LLPanelProfile* mProfilePanel;
 	LLPanelPickInfo* mPickPanel;
 	LLFlatListView* mPicksList;
+	LLFlatListView* mClassifiedsList;
 	LLPanelPickInfo* mPanelPickInfo;
+	LLPanelClassifiedInfo* mPanelClassifiedInfo;
+	LLPanelClassifiedEdit* mPanelClassifiedEdit;
 	LLPanelPickEdit* mPanelPickEdit;
 	LLToggleableMenu* mOverflowMenu;
+	LLToggleableMenu* mPlusMenu;
+
+	LLAccordionCtrlTab* mPicksAccTab;
+	LLAccordionCtrlTab* mClassifiedsAccTab;
+
+	LLClassifiedClickThrough* mClickThroughDisp;
 };
 
 class LLPickItem : public LLPanel, public LLAvatarPropertiesObserver
@@ -187,6 +223,50 @@ protected:
 	std::string mOriginalName;
 	std::string mPickDescription;
 	std::string mSimName;
+};
+
+class LLClassifiedItem : public LLPanel, public LLAvatarPropertiesObserver
+{
+public:
+
+	LLClassifiedItem(const LLUUID& avatar_id, const LLUUID& classified_id);
+	
+	virtual ~LLClassifiedItem();
+
+	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+
+	/*virtual*/ BOOL postBuild();
+
+	/*virtual*/ void setValue(const LLSD& value);
+
+	LLUUID getAvatarId() {return mAvatarId;}
+	
+	void setAvatarId(const LLUUID& avatar_id) {mAvatarId = avatar_id;}
+
+	LLUUID getClassifiedId() {return mClassifiedId;}
+
+	void setClassifiedId(const LLUUID& classified_id) {mClassifiedId = classified_id;}
+
+	void setPosGlobal(const LLVector3d& pos) { mPosGlobal = pos; }
+
+	const LLVector3d& getPosGlobal() { return mPosGlobal; }
+
+	void setClassifiedName (const std::string& name);
+
+	std::string getClassifiedName() { return childGetValue("name").asString(); }
+
+	void setDescription(const std::string& desc);
+
+	std::string getDescription() { return childGetValue("description").asString(); }
+
+	void setSnapshotId(const LLUUID& snapshot_id);
+
+	LLUUID getSnapshotId();
+
+private:
+	LLUUID mAvatarId;
+	LLUUID mClassifiedId;
+	LLVector3d mPosGlobal;
 };
 
 #endif // LL_LLPANELPICKS_H

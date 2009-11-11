@@ -256,7 +256,8 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 
 			LLToolTipMgr::instance().show(LLToolTip::Params()
 				.message(mHoverTimer->getToolTip(LLFastTimer::NamedTimer::HISTORY_NUM - mScrollIndex - mHoverBarIndex))
-				.sticky_rect(screen_rect));
+				.sticky_rect(screen_rect)
+				.delay_time(0.f));
 
 			return TRUE;
 		}
@@ -302,8 +303,8 @@ void LLFastTimerView::draw()
 	F64 iclock_freq = 1000.0 / clock_freq;
 	
 	S32 margin = 10;
-	S32 height = (S32) (gViewerWindow->getVirtualWindowRect().getHeight()*0.75f);
-	S32 width = (S32) (gViewerWindow->getVirtualWindowRect().getWidth() * 0.75f);
+	S32 height = (S32) (gViewerWindow->getWindowRectScaled().getHeight()*0.75f);
+	S32 width = (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f);
 	
 	// HACK: casting away const. Should use setRect or some helper function instead.
 		const_cast<LLRect&>(getRect()).setLeftTopAndSize(getRect().mLeft, getRect().mTop, width, height);

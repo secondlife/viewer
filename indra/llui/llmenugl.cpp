@@ -3270,11 +3270,9 @@ BOOL LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
 ///============================================================================
 LLCoordGL LLMenuHolderGL::sContextMenuSpawnPos(S32_MAX, S32_MAX);
 
-LLMenuHolderGL::LLMenuHolderGL()
-	: LLPanel()
+LLMenuHolderGL::LLMenuHolderGL(const LLMenuHolderGL::Params& p)
+	: LLPanel(p)
 {
-	setName("Menu Holder");
-	setMouseOpaque(FALSE);
 	sItemActivationTimer.stop();
 	mCanHide = TRUE;
 }

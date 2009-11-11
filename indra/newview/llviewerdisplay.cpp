@@ -782,10 +782,10 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//		LLRect floater_rect = frontmost_floaterp->calcScreenRect();
 		//		// deflate by one pixel so rounding errors don't occlude outside of floater extents
 		//		floater_rect.stretch(-1);
-		//		LLRectf floater_3d_rect((F32)floater_rect.mLeft / (F32)gViewerWindow->getWindowWidth(), 
-		//								(F32)floater_rect.mTop / (F32)gViewerWindow->getWindowHeight(),
-		//								(F32)floater_rect.mRight / (F32)gViewerWindow->getWindowWidth(),
-		//								(F32)floater_rect.mBottom / (F32)gViewerWindow->getWindowHeight());
+		//		LLRectf floater_3d_rect((F32)floater_rect.mLeft / (F32)gViewerWindow->getWindowWidthScaled(), 
+		//								(F32)floater_rect.mTop / (F32)gViewerWindow->getWindowHeightScaled(),
+		//								(F32)floater_rect.mRight / (F32)gViewerWindow->getWindowWidthScaled(),
+		//								(F32)floater_rect.mBottom / (F32)gViewerWindow->getWindowHeightScaled());
 		//		floater_3d_rect.translate(-0.5f, -0.5f);
 		//		glTranslatef(0.f, 0.f, -LLViewerCamera::getInstance()->getNear());
 		//		glScalef(LLViewerCamera::getInstance()->getNear() * LLViewerCamera::getInstance()->getAspect() / sinf(LLViewerCamera::getInstance()->getView()), LLViewerCamera::getInstance()->getNear() / sinf(LLViewerCamera::getInstance()->getView()), 1.f);
@@ -874,7 +874,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		/// and then display it again with compositor effects.
 		/// Using render to texture would be faster/better, but I don't have a 
 		/// grasp of their full display stack just yet.
-		// gPostProcess->apply(gViewerWindow->getWindowDisplayWidth(), gViewerWindow->getWindowDisplayHeight());
+		// gPostProcess->apply(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
 		
 		if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
 		{
@@ -1011,7 +1011,7 @@ void render_hud_attachments()
 
 BOOL setup_hud_matrices()
 {
-	LLRect whole_screen = gViewerWindow->getVirtualWindowRect();
+	LLRect whole_screen = gViewerWindow->getWindowRectScaled();
 
 	// apply camera zoom transform (for high res screenshots)
 	F32 zoom_factor = LLViewerCamera::getInstance()->getZoomFactor();
@@ -1019,13 +1019,13 @@ BOOL setup_hud_matrices()
 	if (zoom_factor > 1.f)
 	{
 		S32 num_horizontal_tiles = llceil(zoom_factor);
-		S32 tile_width = llround((F32)gViewerWindow->getWindowWidth() / zoom_factor);
-		S32 tile_height = llround((F32)gViewerWindow->getWindowHeight() / zoom_factor);
+		S32 tile_width = llround((F32)gViewerWindow->getWindowWidthScaled() / zoom_factor);
+		S32 tile_height = llround((F32)gViewerWindow->getWindowHeightScaled() / zoom_factor);
 		int tile_y = sub_region / num_horizontal_tiles;
 		int tile_x = sub_region - (tile_y * num_horizontal_tiles);
 		glh::matrix4f mat;
 
-		whole_screen.setLeftTopAndSize(tile_x * tile_width, gViewerWindow->getWindowHeight() - (tile_y * tile_height), tile_width, tile_height);
+		whole_screen.setLeftTopAndSize(tile_x * tile_width, gViewerWindow->getWindowHeightScaled() - (tile_y * tile_height), tile_width, tile_height);
 	}
 
 	return setup_hud_matrices(whole_screen);
@@ -1048,12 +1048,12 @@ BOOL setup_hud_matrices(const LLRect& screen_region)
 		F32 aspect_ratio = LLViewerCamera::getInstance()->getAspect();
 
 		glh::matrix4f mat;
-		F32 scale_x = (F32)gViewerWindow->getWindowWidth() / (F32)screen_region.getWidth();
-		F32 scale_y = (F32)gViewerWindow->getWindowHeight() / (F32)screen_region.getHeight();
+		F32 scale_x = (F32)gViewerWindow->getWindowWidthScaled() / (F32)screen_region.getWidth();
+		F32 scale_y = (F32)gViewerWindow->getWindowHeightScaled() / (F32)screen_region.getHeight();
 		mat.set_scale(glh::vec3f(scale_x, scale_y, 1.f));
 		mat.set_translate(
-			glh::vec3f(clamp_rescale((F32)screen_region.getCenterX(), 0.f, (F32)gViewerWindow->getWindowWidth(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
-						clamp_rescale((F32)screen_region.getCenterY(), 0.f, (F32)gViewerWindow->getWindowHeight(), 0.5f * scale_y, -0.5f * scale_y),
+			glh::vec3f(clamp_rescale((F32)screen_region.getCenterX(), 0.f, (F32)gViewerWindow->getWindowWidthScaled(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
+						clamp_rescale((F32)screen_region.getCenterY(), 0.f, (F32)gViewerWindow->getWindowHeightScaled(), 0.5f * scale_y, -0.5f * scale_y),
 						0.f));
 		proj *= mat;
 
@@ -1269,8 +1269,8 @@ void render_ui_2d()
 		int pos_y = sub_region / llceil(zoom_factor);
 		int pos_x = sub_region - (pos_y*llceil(zoom_factor));
 		// offset for this tile
-		LLFontGL::sCurOrigin.mX -= llround((F32)gViewerWindow->getWindowWidth() * (F32)pos_x / zoom_factor);
-		LLFontGL::sCurOrigin.mY -= llround((F32)gViewerWindow->getWindowHeight() * (F32)pos_y / zoom_factor);
+		LLFontGL::sCurOrigin.mX -= llround((F32)gViewerWindow->getWindowWidthScaled() * (F32)pos_x / zoom_factor);
+		LLFontGL::sCurOrigin.mY -= llround((F32)gViewerWindow->getWindowHeightScaled() * (F32)pos_y / zoom_factor);
 	}
 
 	stop_glerror();
@@ -1280,8 +1280,8 @@ void render_ui_2d()
 	if (gAgent.getAvatarObject() && gAgent.mHUDCurZoom < 0.98f)
 	{
 		glPushMatrix();
-		S32 half_width = (gViewerWindow->getWindowWidth() / 2);
-		S32 half_height = (gViewerWindow->getWindowHeight() / 2);
+		S32 half_width = (gViewerWindow->getWindowWidthScaled() / 2);
+		S32 half_height = (gViewerWindow->getWindowHeightScaled() / 2);
 		glScalef(LLUI::sGLScaleFactor.mV[0], LLUI::sGLScaleFactor.mV[1], 1.f);
 		glTranslatef((F32)half_width, (F32)half_height, 0.f);
 		F32 zoom = gAgent.mHUDCurZoom;
@@ -1341,8 +1341,8 @@ void render_ui_2d()
 
 		LLGLDisable cull(GL_CULL_FACE);
 		LLGLDisable blend(GL_BLEND);
-		S32 width = gViewerWindow->getWindowWidth();
-		S32 height = gViewerWindow->getWindowHeight();
+		S32 width = gViewerWindow->getWindowWidthScaled();
+		S32 height = gViewerWindow->getWindowHeightScaled();
 		gGL.getTexUnit(0)->bind(&gPipeline.mUIScreen);
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.color4f(1,1,1,1);
@@ -1411,8 +1411,8 @@ void render_disconnected_background()
 	}
 
 	// Make sure the progress view always fills the entire window.
-	S32 width = gViewerWindow->getWindowWidth();
-	S32 height = gViewerWindow->getWindowHeight();
+	S32 width = gViewerWindow->getWindowWidthScaled();
+	S32 height = gViewerWindow->getWindowHeightScaled();
 
 	if (gDisconnectedImagep)
 	{
