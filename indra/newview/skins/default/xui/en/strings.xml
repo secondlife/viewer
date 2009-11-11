@@ -2849,7 +2849,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_default_text_label">Click here to instant message.</string>
 	<string name="IM_to_label">To</string>
 	<string name="IM_moderator_label">(Moderator)</string>
-
+	<string name="IM_adhoc_title">Ad-Hoc Conference</string>
 
   <string name="ringing-im">
     Joining Voice Chat...
