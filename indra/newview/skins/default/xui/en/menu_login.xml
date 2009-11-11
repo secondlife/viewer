@@ -185,6 +185,14 @@
         <menu_item_call.on_click
          function="Advanced.ShowSideTray" />
       </menu_item_call>
+        <menu_item_call
+         label="Widget Test"
+         name="Widget Test"
+         shortcut="control|shift|T">
+            <menu_item_call.on_click
+             function="ShowFloater"
+             parameter="test_widgets" />
+        </menu_item_call>
       <menu_item_check
          label="Reg In Client Test (restart)"
          name="Reg In Client Test (restart)">
