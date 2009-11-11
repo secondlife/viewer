@@ -101,6 +101,7 @@ LLSideTray* LLSideTray::getInstance()
 	if (!sInstance)
 	{
 		sInstance = LLUICtrlFactory::createFromFile<LLSideTray>("panel_side_tray.xml",NULL, LLRootView::child_registry_t::instance());
+		sInstance->setXMLFilename("panel_side_tray.xml");
 	}
 
 	return sInstance;
