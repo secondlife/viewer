@@ -61,46 +61,46 @@ public:
 
 	static T* getInstance(const KEY& k)
 	{
-		typename InstanceMap::const_iterator found = getMap().find(k);
-		return (found == getMap().end()) ? NULL : found->second;
+		typename InstanceMap::const_iterator found = getMap_().find(k);
+		return (found == getMap_().end()) ? NULL : found->second;
 	}
 
 	static key_iter beginKeys()
 	{
-		return boost::make_transform_iterator(getMap().begin(),
+		return boost::make_transform_iterator(getMap_().begin(),
 											  boost::bind(&InstanceMap::value_type::first, _1));
 	}
 	static key_iter endKeys()
 	{
-		return boost::make_transform_iterator(getMap().end(),
+		return boost::make_transform_iterator(getMap_().end(),
 											  boost::bind(&InstanceMap::value_type::first, _1));
 	}
 	static instance_iter beginInstances()
 	{
-		return instance_iter(boost::make_transform_iterator(getMap().begin(),
+		return instance_iter(boost::make_transform_iterator(getMap_().begin(),
 															boost::bind(&InstanceMap::value_type::second, _1)));
 	}
 	static instance_iter endInstances()
 	{
-		return instance_iter(boost::make_transform_iterator(getMap().end(),
+		return instance_iter(boost::make_transform_iterator(getMap_().end(),
 															boost::bind(&InstanceMap::value_type::second, _1)));
 	}
-	static S32 instanceCount() { return getMap().size(); }
+	static S32 instanceCount() { return getMap_().size(); }
 protected:
-	LLInstanceTracker(KEY key) { add(key); }
-	virtual ~LLInstanceTracker() { remove(); }
-	virtual void setKey(KEY key) { remove(); add(key); }
+	LLInstanceTracker(KEY key) { add_(key); }
+	virtual ~LLInstanceTracker() { remove_(); }
+	virtual void setKey(KEY key) { remove_(); add_(key); }
 	virtual const KEY& getKey() const { return mKey; }
 
 private:
-	void add(KEY key) 
+	void add_(KEY key) 
 	{ 
 		mKey = key; 
-		getMap()[key] = static_cast<T*>(this); 
+		getMap_()[key] = static_cast<T*>(this); 
 	}
-	void remove() { getMap().erase(mKey); }
+	void remove_() { getMap_().erase(mKey); }
 
-    static InstanceMap& getMap()
+    static InstanceMap& getMap_()
     {
         if (! sInstances)
         {
@@ -129,19 +129,19 @@ public:
 
 	/// for completeness of analogy with the generic implementation
 	static T* getInstance(T* k) { return k; }
-	static key_iter beginKeys() { return getSet().begin(); }
-	static key_iter endKeys()   { return getSet().end(); }
-	static instance_iter beginInstances() { return instance_iter(getSet().begin()); }
-	static instance_iter endInstances()   { return instance_iter(getSet().end()); }
-	static S32 instanceCount() { return getSet().size(); }
+	static key_iter beginKeys() { return getSet_().begin(); }
+	static key_iter endKeys()   { return getSet_().end(); }
+	static instance_iter beginInstances() { return instance_iter(getSet_().begin()); }
+	static instance_iter endInstances()   { return instance_iter(getSet_().end()); }
+	static S32 instanceCount() { return getSet_().size(); }
 
 protected:
-	LLInstanceTracker() { getSet().insert(static_cast<T*>(this)); }
-	virtual ~LLInstanceTracker() { getSet().erase(static_cast<T*>(this)); }
+	LLInstanceTracker() { getSet_().insert(static_cast<T*>(this)); }
+	virtual ~LLInstanceTracker() { getSet_().erase(static_cast<T*>(this)); }
 
-	LLInstanceTracker(const LLInstanceTracker& other) { getSet().insert(static_cast<T*>(this)); }
+	LLInstanceTracker(const LLInstanceTracker& other) { getSet_().insert(static_cast<T*>(this)); }
 
-    static InstanceSet& getSet()   // called after getReady() but before go()
+    static InstanceSet& getSet_()   // called after getReady() but before go()
     {
         if (! sInstances)
         {
