@@ -807,9 +807,6 @@ LLChicletPanel::LLChicletPanel(const Params&p)
 , mShowControls(true)
 {
 	LLPanel::Params panel_params;
-// *TODO: remove color settings 
-panel_params.background_visible(true);
-panel_params.bg_alpha_color(LLColor4::red);
 	panel_params.follows.flags(FOLLOWS_LEFT | FOLLOWS_RIGHT);
 	mScrollArea = LLUICtrlFactory::create<LLPanel>(panel_params,this);
 

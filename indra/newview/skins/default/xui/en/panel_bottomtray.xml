@@ -215,8 +215,6 @@
                  />
         </layout_panel>
         <layout_panel
-background_visible="true"
-bg_alpha_color="green"  
          mouse_opaque="false"
          follows="left|right"
          height="28"
