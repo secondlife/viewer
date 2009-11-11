@@ -286,8 +286,7 @@ bool LLTextBase::truncate()
 
 LLStyle::Params LLTextBase::getDefaultStyle()
 {
-	LLColor4 text_color = ( mReadOnly ? mReadOnlyFgColor.get() : mFgColor.get() );
-	return LLStyle::Params().color(text_color).font(mDefaultFont).drop_shadow(mFontShadow);
+	return LLStyle::Params().color(mFgColor.get()).readonly_color(mReadOnlyFgColor.get()).font(mDefaultFont).drop_shadow(mFontShadow);
 }
 
 void LLTextBase::onValueChange(S32 start, S32 end)
@@ -2232,7 +2231,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 
 	const LLFontGL* font = mStyle->getFont();
 
-	LLColor4 color = mStyle->getColor() % alpha;
+	LLColor4 color = (mEditor.getReadOnly() ? mStyle->getReadOnlyColor() : mStyle->getColor())  % alpha;
 
 	font = mStyle->getFont();
 

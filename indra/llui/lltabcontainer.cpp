@@ -346,7 +346,13 @@ void LLTabContainer::draw()
 		}
 	}
 
-	LLPanel::draw();
+	{
+		LLRect clip_rect = getLocalRect();
+		clip_rect.mLeft+=(LLPANEL_BORDER_WIDTH + 2);
+		clip_rect.mRight-=(LLPANEL_BORDER_WIDTH + 2);
+		LLLocalClipRect clip(clip_rect);
+		LLPanel::draw();
+	}
 
 	// if tabs are hidden, don't draw them and leave them in the invisible state
 	if (!getTabsHidden())
@@ -357,24 +363,6 @@ void LLTabContainer::draw()
 			LLTabTuple* tuple = *iter;
 			tuple->mButton->setVisible( TRUE );
 		}
-
-		// Draw some of the buttons...
-		LLRect clip_rect = getLocalRect();
-		if (has_scroll_arrows)
-		{
-			// ...but clip them.
-			if (mIsVertical)
-			{
-				clip_rect.mBottom = mNextArrowBtn->getRect().mTop + 3*tabcntrv_pad;
-				clip_rect.mTop = mPrevArrowBtn->getRect().mBottom - 3*tabcntrv_pad;
-			}
-			else
-			{
-				clip_rect.mLeft = mPrevArrowBtn->getRect().mRight;
-				clip_rect.mRight = mNextArrowBtn->getRect().mLeft;
-			}
-		}
-		LLLocalClipRect clip(clip_rect);
 
 		S32 max_scroll_visible = getTabCount() - getMaxScrollPos() + getScrollPos();
 		S32 idx = 0;
@@ -1039,6 +1027,11 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	{
 		LLUICtrl::addChild(child, 1);
 	}
+
+	sendChildToFront(mPrevArrowBtn);
+	sendChildToFront(mNextArrowBtn);
+	sendChildToFront(mJumpPrevArrowBtn);
+	sendChildToFront(mJumpNextArrowBtn);
 	
 	if( select )
 	{
@@ -1672,23 +1665,23 @@ void LLTabContainer::initButtons()
 		S32 btn_top = (getTabPosition() == TOP ) ? getRect().getHeight() - getTopBorderHeight() : tabcntr_arrow_btn_size + 1;
 
 		LLRect left_arrow_btn_rect;
-		left_arrow_btn_rect.setLeftTopAndSize( LLPANEL_BORDER_WIDTH+1+tabcntr_arrow_btn_size, btn_top + arrow_fudge, tabcntr_arrow_btn_size, tabcntr_arrow_btn_size );
+		left_arrow_btn_rect.setLeftTopAndSize( LLPANEL_BORDER_WIDTH+1+tabcntr_arrow_btn_size, btn_top + arrow_fudge, tabcntr_arrow_btn_size, mTabHeight );
 
 		LLRect jump_left_arrow_btn_rect;
-		jump_left_arrow_btn_rect.setLeftTopAndSize( LLPANEL_BORDER_WIDTH+1, btn_top + arrow_fudge, tabcntr_arrow_btn_size, tabcntr_arrow_btn_size );
+		jump_left_arrow_btn_rect.setLeftTopAndSize( LLPANEL_BORDER_WIDTH+1, btn_top + arrow_fudge, tabcntr_arrow_btn_size, mTabHeight );
 
 		S32 right_pad = tabcntr_arrow_btn_size + LLPANEL_BORDER_WIDTH + 1;
 
 		LLRect right_arrow_btn_rect;
 		right_arrow_btn_rect.setLeftTopAndSize( getRect().getWidth() - mRightTabBtnOffset - right_pad - tabcntr_arrow_btn_size,
 												btn_top + arrow_fudge,
-												tabcntr_arrow_btn_size, tabcntr_arrow_btn_size );
+												tabcntr_arrow_btn_size, mTabHeight );
 
 
 		LLRect jump_right_arrow_btn_rect;
 		jump_right_arrow_btn_rect.setLeftTopAndSize( getRect().getWidth() - mRightTabBtnOffset - right_pad,
 													 btn_top + arrow_fudge,
-													 tabcntr_arrow_btn_size, tabcntr_arrow_btn_size );
+													 tabcntr_arrow_btn_size, mTabHeight );
 
 		LLButton::Params p;
 		p.name(std::string("Jump Left Arrow"));
