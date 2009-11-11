@@ -740,6 +740,7 @@ void LLPanelPicks::createClassifiedInfoPanel()
 	{
 		mPanelClassifiedInfo = LLPanelClassifiedInfo::create();
 		mPanelClassifiedInfo->setExitCallback(boost::bind(&LLPanelPicks::onPanelClassifiedClose, this, mPanelClassifiedInfo));
+		mPanelClassifiedInfo->setEditClassifiedCallback(boost::bind(&LLPanelPicks::onPanelClassifiedEdit, this));
 		mPanelClassifiedInfo->setVisible(FALSE);
 	}
 }
