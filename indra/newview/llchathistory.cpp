@@ -370,8 +370,7 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& sty
 	appendWidget(p, view_text, false);
 
 	//Append the text message
-	std::string message = chat.mText + '\n';
-	appendText(message, FALSE, style_params);
+	appendText(chat.mText, FALSE, style_params);
 
 	mLastFromName = chat.mFromName;
 	blockUndo();
