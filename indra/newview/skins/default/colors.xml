@@ -513,7 +513,7 @@
      reference="White" />
     <color
      name="ObjectChatColor"
-     reference="LtGray" />
+     reference="0.7 0.8 0.9 1" />
     <color
      name="OverdrivenColor"
      value="1 0 0 1" />

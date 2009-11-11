@@ -50,7 +50,19 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	mMessage = getChild<LLTextBox>("message");
 	mReplyBtn = getChild<LLButton>("reply");	
 
-	mMessage->setValue(p.message);
+	LLStyle::Params style_params;
+	//Handle IRC styled /me messages.
+	std::string prefix = p.message.substr(0, 4);
+	if (prefix == "/me " || prefix == "/me'")
+	{
+		mMessage->clear();
+		style_params.font.style= "ITALIC";
+		mMessage->appendText(p.from + " ", FALSE, style_params);
+		style_params.font.style= "UNDERLINE";
+		mMessage->appendText(p.message.substr(3), FALSE, style_params);
+	}
+	else
+		mMessage->setValue(p.message);
 	mUserName->setValue(p.from);
 	mTime->setValue(p.time);
 	mSessionID = p.session_id;

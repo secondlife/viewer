@@ -479,11 +479,29 @@ void LLIMFloater::updateMessages()
 			LLStyle::Params style_params;
 			style_params.color(chat_color);
 
-			LLChat chat(message);
+			LLChat chat;
 			chat.mFromID = from_id;
 			chat.mFromName = from;
 
-			mChatHistory->appendWidgetMessage(chat, style_params);
+			//Handle IRC styled /me messages.
+			std::string prefix = message.substr(0, 4);
+			if (prefix == "/me " || prefix == "/me'")
+			{
+				if (from.size() > 0)
+				{
+					style_params.font.style = "ITALIC";
+					chat.mText = from + " ";
+					mChatHistory->appendWidgetMessage(chat, style_params);
+				}
+				message = message.substr(3);
+				style_params.font.style = "UNDERLINE";
+				mChatHistory->appendText(message, FALSE, style_params);
+			}
+			else
+			{
+				chat.mText = message;
+				mChatHistory->appendWidgetMessage(chat, style_params);
+			}
 
 			mLastMessageIndex = msg["index"].asInteger();
 		}
@@ -499,7 +517,7 @@ void LLIMFloater::onInputEditorFocusReceived( LLFocusableElement* caller, void* 
 	LLIMModel::LLIMSession* im_session =
 		LLIMModel::instance().findIMSession(self->mSessionID);
 	//TODO: While disabled lllineeditor can receive focus we need to check if it is enabled (EK)
-	if( im_session && im_session->mTextIMPossible && !self->mInputEditor->getEnabled())
+	if( im_session && im_session->mTextIMPossible && self->mInputEditor->getEnabled())
 	{
 		//in disconnected state IM input editor should be disabled
 		self->mInputEditor->setEnabled(!gDisconnected);

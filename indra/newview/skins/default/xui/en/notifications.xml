@@ -5013,6 +5013,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
    name="GodMessage"
    type="notify">
 [NAME]
+
 [MESSAGE]
   </notification>
 

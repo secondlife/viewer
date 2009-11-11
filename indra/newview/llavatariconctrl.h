@@ -74,6 +74,7 @@ public:
 	{
 		Optional <LLUUID> avatar_id;
 		Optional <bool> draw_tooltip;
+		Optional <std::string> default_icon_name;
 		Params();
 	};
 	
@@ -106,7 +107,7 @@ protected:
 	std::string			mFirstName;
 	std::string			mLastName;
 	bool				mDrawTooltip;
-
+	std::string			mDefaultIconName;
 
 	bool updateFromCache();
 };

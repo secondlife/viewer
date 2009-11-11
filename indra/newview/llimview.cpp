@@ -439,8 +439,11 @@ bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 	addToHistory(session_id, from, from_id, utf8_text);
 	if (log2file) logToFile(session_id, from, from_id, utf8_text);
 
-	//we do not count system messages
-	if (from_id.notNull()) session->mNumUnread++;
+	//we do not count system messages and our messages
+	if (from_id.notNull() && from_id != gAgentID && SYSTEM_FROM != from)
+	{
+		session->mNumUnread++;
+	}
 
 	// notify listeners
 	LLSD arg;
@@ -651,22 +654,10 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 
 		//local echo for the legacy communicate panel
 		std::string history_echo;
-		std::string utf8_copy = utf8_text;
 		LLAgentUI::buildFullname(history_echo);
 
-		// Look for IRC-style emotes here.
+		history_echo += ": " + utf8_text;
 
-		std::string prefix = utf8_copy.substr(0, 4);
-		if (prefix == "/me " || prefix == "/me'")
-		{
-			utf8_copy.replace(0,3,"");
-		}
-		else
-		{
-			history_echo += ": ";
-		}
-		history_echo += utf8_copy;
-		
 		LLFloaterIMPanel* floater = gIMMgr->findFloaterBySession(im_session_id);
 		if (floater) floater->addHistoryLine(history_echo, LLUIColorTable::instance().getColor("IMChatColor"), true, gAgent.getID());
 
@@ -2347,15 +2338,6 @@ public:
 
 			BOOL is_linden = LLMuteList::getInstance()->isLinden(name);
 			std::string separator_string(": ");
-			int message_offset=0;
-
-			//Handle IRC styled /me messages.
-			std::string prefix = message.substr(0, 4);
-			if (prefix == "/me " || prefix == "/me'")
-			{
-				separator_string = "";
-				message_offset = 3;
-			}
 			
 			chat.mMuted = is_muted && !is_linden;
 			chat.mFromID = from_id;
@@ -2372,7 +2354,7 @@ public:
 			{
 				saved = llformat("(Saved %s) ", formatted_time(timestamp).c_str());
 			}
-			std::string buffer = saved + message.substr(message_offset);
+			std::string buffer = saved + message;
 
 			BOOL is_this_agent = FALSE;
 			if(from_id == gAgentID)
@@ -2391,7 +2373,7 @@ public:
 				ll_vector3_from_sd(message_params["position"]),
 				true);
 
-			chat.mText = std::string("IM: ") + name + separator_string + saved + message.substr(message_offset);
+			chat.mText = std::string("IM: ") + name + separator_string + saved + message;
 			LLFloaterChat::addChat(chat, TRUE, is_this_agent);
 
 			//K now we want to accept the invitation
