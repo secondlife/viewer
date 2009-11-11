@@ -295,11 +295,21 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 		}
 	}
 	
-	if(media_impl && needs_navigate)
+	if(media_impl)
 	{
 		std::string url = media_entry->getCurrentURL();
-			
-		media_impl->navigateTo(url, "", true, true);
+		if(needs_navigate)
+		{
+			media_impl->navigateTo(url, "", true, true);
+		}
+		else if(!media_impl->mMediaURL.empty() && (media_impl->mMediaURL != url))
+		{
+			// If we already have a non-empty media URL set and we aren't doing a navigate, update the media URL to match the media entry.
+			media_impl->mMediaURL = url;
+
+			// If this causes a navigate at some point (such as after a reload), it should be considered server-driven so it isn't broadcast.
+			media_impl->mNavigateServerRequest = true;
+		}
 	}
 	
 	return media_impl;
