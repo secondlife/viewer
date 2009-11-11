@@ -15,8 +15,8 @@
         anonymous
     </floater.string>
     <floater.string
-     name="VoiceInviteP2P">
-        is calling.
+     name="calling">
+        Calling [CALLEE]
     </floater.string>
     <floater.string
      name="VoiceInviteAdHoc">
@@ -38,35 +38,35 @@
      layout="topleft"
      left="77"
      max_length="2147483647"
-     name="caller name"
+     name="callee name"
      read_only="true"
      top="21"
      width="163"
      word_wrap="true" />
     <button
      height="24"
-     label="Accept"
-     label_selected="Accept"
+     label="Bar"
+     label_selected="Bar"
      layout="topleft"
      left="70"
-     name="Accept"
+     name="Bar"
      top="92"
      width="100" />
     <button
      height="24"
-     label="Reject"
-     label_selected="Reject"
+     label="Foo"
+     label_selected="Foo"
      layout="topleft"
      left_delta="0"
-     name="Reject"
+     name="Foo"
      top_pad="12"
      width="100" />
     <button
      height="24"
-     label="Start IM"
+     label="Baz"
      layout="topleft"
      left_delta="0"
-     name="Start IM"
+     name="Baz"
      top_pad="12"
      width="100" />
 </floater>

@@ -1103,39 +1103,35 @@ LLIMMgr::onConfirmForceCloseError(
 // Class LLOutgoingCallDialog
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 LLOutgoingCallDialog::LLOutgoingCallDialog(const LLSD& payload) :
-	LLModalDialog(payload),
+	LLDockableFloater(NULL, payload),
 	mPayload(payload)
 {
 }
 
 BOOL LLOutgoingCallDialog::postBuild()
 {
-	LLSD caller_id = mPayload["caller_id"];
-	EInstantMessage type = (EInstantMessage)mPayload["type"].asInteger();
+	BOOL success = LLFloater::postBuild();
 
-	std::string call_type = getString("VoiceInviteP2P");
-	std::string caller_name = mPayload["caller_name"].asString();
-	if (caller_name == "anonymous")
+	LLSD callee_id = mPayload["session_id"];//mPayload["caller_id"];
+
+	std::string calling_str = getString("calling");
+	std::string callee_name = mPayload["session_name"].asString();//mPayload["caller_name"].asString();
+	if (callee_name == "anonymous")
 	{
-		caller_name = getString("anonymous");
+		callee_name = getString("anonymous");
 	}
 	
-	setTitle(caller_name + " " + call_type);
-	
-	// If it is not a P2P invite, then it's an AdHoc invite
-	if ( type != IM_SESSION_P2P_INVITE )
-	{
-		call_type = getString("VoiceInviteAdHoc");
-	}
+	setTitle(callee_name);
 
-	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
-	caller_name_widget->setValue(caller_name + " " + call_type);
+	LLUICtrl* callee_name_widget = getChild<LLUICtrl>("callee name");
+	// *TODO: substitute callee name properly
+	callee_name_widget->setValue(calling_str + " " + callee_name);
 	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
-	icon->setValue(caller_id);
+	icon->setValue(callee_id);
 
 	//childSetAction("Reject", onReject, this);
 
-	return TRUE;
+	return success;
 }
 
 void LLOutgoingCallDialog::processCallResponse(S32 response)

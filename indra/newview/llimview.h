@@ -37,6 +37,7 @@
 #include "llspeakers.h" //for LLIMSpeakerMgr
 #include "llimpanel.h" //for voice channels
 #include "llmodaldialog.h"
+#include "lldockablefloater.h"
 #include "llinstantmessage.h"
 #include "lluuid.h"
 #include "llmultifloater.h"
@@ -418,7 +419,7 @@ private:
 	LLSD mPayload;
 };
 
-class LLOutgoingCallDialog : public LLModalDialog
+class LLOutgoingCallDialog : public LLDockableFloater
 {
 public:
 	LLOutgoingCallDialog(const LLSD& payload);

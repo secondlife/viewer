@@ -385,8 +385,11 @@ void LLVoiceChannel::setState(EState state)
 	switch(state)
 	{
 	case STATE_RINGING:
-		LLFloaterReg::showInstance("outgoing_call", payload, TRUE);
 		llinfos << "RINGINGGGGGGGG " << mSessionName << llendl;
+		if (!mSessionName.empty())
+		{
+			LLFloaterReg::showInstance("outgoing_call", payload, TRUE);
+		}		
 		gIMMgr->addSystemMessage(mSessionID, "ringing", mNotifyArgs);
 		break;
 	case STATE_CONNECTED:
