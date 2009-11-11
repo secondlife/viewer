@@ -393,10 +393,10 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 	static MASK prev_resize_state = mResizeState;
 	MASK compensative_view_item_mask = RS_CHATBAR_INPUT;
 	LLPanel* compansative_view = mNearbyChatBar;
-	S32 compensative_delta_width = 0;
 
 	S32 delta_width = width - height;
 //	if (delta_width == 0) return;
+	bool shrink = width < height;
 
 	const S32 chiclet_panel_width = mChicletPanel->getParent()->getRect().getWidth();
 	const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
@@ -414,8 +414,9 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 
 	bool still_should_be_processed = true;
 	// bottom tray is narrowed
-	if (width < height)
+	if (shrink)
 	{
+		S32 compensative_delta_width = 0;
 		if (chiclet_panel_width > chiclet_panel_min_width)
 		{
 			// we have some space to decrease chiclet panel
@@ -549,17 +550,17 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 	// bottom tray is widen
 	else
 	{
-		S32 available_width_chat = chatbar_panel_width - chatbar_panel_min_width;
+		S32 chatbar_available_shrink_width = chatbar_panel_width - chatbar_panel_min_width;
 		S32 available_width_chiclet = chiclet_panel_width - chiclet_panel_min_width;
-		S32 available_width = delta_width + available_width_chat + available_width_chiclet;
-		
+		S32 available_width = delta_width + chatbar_available_shrink_width + available_width_chiclet;
+		S32 buttons_required_width = 0; //How many room will take shown buttons
 		if (available_width > 0 && processShowButton(mGesturePanel, &available_width))
 		{
 			mResizeState |= RS_BUTTON_GESTURES | compensative_view_item_mask;
 			delta_width -= mGesturePanel->getRect().getWidth();
-			compensative_delta_width -= mGesturePanel->getRect().getWidth();
+			buttons_required_width += mGesturePanel->getRect().getWidth();
 			lldebugs << "RS_BUTTON_GESTURES"
-				<< ", compensative_delta_width: " << compensative_delta_width
+				<< ", buttons_required_width: " << buttons_required_width
 				<< ", delta_width: " << delta_width
 				<< llendl;
 			showGestureButton(true);
@@ -569,10 +570,10 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 		{
 			mResizeState |= RS_BUTTON_MOVEMENT | compensative_view_item_mask;
 			delta_width -= mMovementPanel->getRect().getWidth();
-			compensative_delta_width -= mMovementPanel->getRect().getWidth();
+			buttons_required_width += mMovementPanel->getRect().getWidth();
 
 			lldebugs << "RS_BUTTON_MOVEMENT"
-				<< ", compensative_delta_width: " << compensative_delta_width
+				<< ", buttons_required_width: " << buttons_required_width
 				<< ", delta_width: " << delta_width
 				<< llendl;
 			showMoveButton(true);
@@ -582,10 +583,10 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 		{
 			mResizeState |= RS_BUTTON_CAMERA | compensative_view_item_mask;
 			delta_width -= mCamPanel->getRect().getWidth();
-			compensative_delta_width -= mCamPanel->getRect().getWidth();
+			buttons_required_width += mCamPanel->getRect().getWidth();
 
 			lldebugs << "RS_BUTTON_CAMERA "
-				<< ", compensative_delta_width: " << compensative_delta_width
+				<< ", buttons_required_width: " << buttons_required_width
 				<< ", delta_width: " << delta_width
 				<< llendl;
 			showCameraButton(true);
@@ -595,51 +596,55 @@ void LLBottomTray::updateResizeState(S32 width, S32 height)
 		{
 			mResizeState |= RS_BUTTON_SNAPSHOT | compensative_view_item_mask;
 			delta_width -= mSnapshotPanel->getRect().getWidth();
-			compensative_delta_width -= mSnapshotPanel->getRect().getWidth();
+			buttons_required_width += mSnapshotPanel->getRect().getWidth();
 
 			lldebugs << "RS_BUTTON_SNAPSHOT"
-				<< ", compensative_delta_width: " << compensative_delta_width
+				<< ", buttons_required_width: " << buttons_required_width
 				<< ", delta_width: " << delta_width
 				<< llendl;
 			showSnapshotButton(true);
 		}
 
-		if (compensative_delta_width != 0)
+		S32 total_delta_width = width - height;
+
+		// if we have to show some buttons but whidth increasing is not enough...
+		if (buttons_required_width > 0 && total_delta_width < buttons_required_width)
 		{
-			S32 required_to_process_width = -compensative_delta_width;
-			S32 total_delta_width = width - height;
+			// ... let's shrink nearby chat & chiclet panels
+			S32 required_to_process_width = buttons_required_width;
 
 			// 1. use delta width of resizing
 			required_to_process_width -= total_delta_width;
 
-			// 2. use delta width of chatbar
-
-
-			S32 chatbar_compensative_delta_width = required_to_process_width;
-			if (available_width_chat < chatbar_compensative_delta_width)
+			// 2. use delta width available via decreasing of nearby chat panel
+			S32 chatbar_shrink_width = required_to_process_width;
+			if (chatbar_available_shrink_width < chatbar_shrink_width)
 			{
-				chatbar_compensative_delta_width = available_width_chat;
+				chatbar_shrink_width = chatbar_available_shrink_width;
 			}
 
 			log(compansative_view, "increase width: before applying compensative width: ");
-			compansative_view->reshape(compansative_view->getRect().getWidth() - chatbar_compensative_delta_width, compansative_view->getRect().getHeight() );
+			compansative_view->reshape(compansative_view->getRect().getWidth() - chatbar_shrink_width, compansative_view->getRect().getHeight() );
 			if (compansative_view)			log(compansative_view, "after applying compensative width: ");
-			lldebugs << chatbar_compensative_delta_width << llendl;
+			lldebugs << chatbar_shrink_width << llendl;
 
-			// 3. use delta width of chiclet panel
-			required_to_process_width -= chatbar_compensative_delta_width;
+			// 3. use delta width available via decreasing of chiclet panel
+			required_to_process_width -= chatbar_shrink_width;
 
-			mChicletPanel->getParent()->reshape(mChicletPanel->getParent()->getRect().getWidth() - required_to_process_width, mChicletPanel->getParent()->getRect().getHeight());
-			log(mChicletPanel, "after applying compensative width for chiclets: ");
-			lldebugs << required_to_process_width << llendl;
+			if (required_to_process_width > 0)
+			{
+				mChicletPanel->getParent()->reshape(mChicletPanel->getParent()->getRect().getWidth() - required_to_process_width, mChicletPanel->getParent()->getRect().getHeight());
+				log(mChicletPanel, "after applying compensative width for chiclets: ");
+				lldebugs << required_to_process_width << llendl;
+			}
 
 		}
-
-		if (delta_width > 0 && chatbar_panel_width < chatbar_panel_max_width)
+// TODO: mantipov: probably need delta_width -= buttons_required_width & remove calculating from the buttons processing
+		// how many space can nearby chat take?
+		S32 chatbar_panel_width_ = mNearbyChatBar->getRect().getWidth();
+		if (delta_width > 0 && chatbar_panel_width_ < chatbar_panel_max_width)
 		{
 			mResizeState |= RS_CHATBAR_INPUT;
-			// how many space can nearby chat take?
-			S32 chatbar_panel_width_ = mNearbyChatBar->getRect().getWidth();
 			S32 delta_panel_max = chatbar_panel_max_width - chatbar_panel_width_;
 			S32 delta_panel = llmin(delta_width, delta_panel_max);
 			delta_width -= delta_panel_max;
