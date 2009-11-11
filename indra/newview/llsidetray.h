@@ -143,7 +143,8 @@ protected:
 	LLSideTrayTab* getTab		(const std::string& name);
 
 	void		createButtons	();
-	LLButton*	createButton	(const std::string& name,const std::string& image,LLUICtrl::commit_callback_t callback);
+	LLButton*	createButton	(const std::string& name,const std::string& image,const std::string& tooltip,
+									LLUICtrl::commit_callback_t callback);
 	void		arrange			();
 	void		reflectCollapseChange();
 

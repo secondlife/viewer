@@ -389,7 +389,8 @@ bool LLSideTray::selectTabByName	(const std::string& name)
 	return true;
 }
 
-LLButton* LLSideTray::createButton	(const std::string& name,const std::string& image,LLUICtrl::commit_callback_t callback)
+LLButton* LLSideTray::createButton	(const std::string& name,const std::string& image,const std::string& tooltip,
+									 LLUICtrl::commit_callback_t callback)
 {
 	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
 	
@@ -410,6 +411,9 @@ LLButton* LLSideTray::createButton	(const std::string& name,const std::string& i
 	LLButton* button = LLUICtrlFactory::create<LLButton> (bparams);
 	button->setLabel(name);
 	button->setClickedCallback(callback);
+
+	if(tooltip!="Home")
+		button->setToolTip(tooltip);
 	
 	if(image.length())
 	{
@@ -448,12 +452,12 @@ void	LLSideTray::createButtons	()
 		// change if the home screen becomes its own tab.
 		if (name == "sidebar_home")
 		{
-			mCollapseButton = createButton("",sidebar_tab->mImage,
+			mCollapseButton = createButton("",sidebar_tab->mImage,sidebar_tab->getTabTitle(),
 				boost::bind(&LLSideTray::onToggleCollapse, this));
 		}
 		else
 		{
-			LLButton* button = createButton("",sidebar_tab->mImage,
+			LLButton* button = createButton("",sidebar_tab->mImage,sidebar_tab->getTabTitle(),
 				boost::bind(&LLSideTray::onTabButtonClick, this, name));
 			mTabButtons[name] = button;
 		}
