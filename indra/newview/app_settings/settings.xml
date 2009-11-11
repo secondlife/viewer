@@ -4248,7 +4248,29 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>LogMessages</key>
+  <key>LoginSRVTimeout</key>
+  <map>
+    <key>Comment</key>
+    <string>Duration in seconds of the login SRV request timeout</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>10.0</real>
+  </map>
+  <key>LoginSRVPump</key>
+  <map>
+    <key>Comment</key>
+    <string>Name of the message pump that handles SRV request</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>LLAres</string>
+  </map>
+  <key>LogMessages</key>
     <map>
       <key>Comment</key>
       <string>Log network traffic</string>
