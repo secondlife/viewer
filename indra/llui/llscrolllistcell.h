@@ -66,6 +66,7 @@ public:
 
 		Optional<void*>				userdata;
 		Optional<LLSD>				value;
+		Optional<std::string>		tool_tip;
 
 		Optional<const LLFontGL*>	font;
 		Optional<LLColor4>			font_color;
@@ -80,6 +81,7 @@ public:
 			enabled("enabled", true),
 			visible("visible", true),
 			value("value"),
+			tool_tip("tool_tip", ""),
 			font("font", LLFontGL::getFontSansSerifSmall()),
 			font_color("font_color", LLColor4::black),
 			color("color", LLColor4::white),
@@ -87,6 +89,7 @@ public:
 		{
 			addSynonym(column, "name");
 			addSynonym(font_color, "font-color");
+			addSynonym(tool_tip, "tooltip");
 		}
 	};
 
@@ -101,11 +104,13 @@ public:
 	virtual S32				getHeight() const { return 0; }
 	virtual const LLSD		getValue() const;
 	virtual void			setValue(const LLSD& value) { }
+	virtual const std::string &getToolTip() const { return mToolTip; }
+	virtual void			setToolTip(const std::string &str) { mToolTip = str; }
 	virtual BOOL			getVisible() const { return TRUE; }
 	virtual void			setWidth(S32 width) { mWidth = width; }
 	virtual void			highlightText(S32 offset, S32 num_chars) {}
 	virtual BOOL			isText() const { return FALSE; }
-	virtual BOOL			needsToolTip() const { return FALSE; }
+	virtual BOOL			needsToolTip() const { return ! mToolTip.empty(); }
 	virtual void			setColor(const LLColor4&) {}
 	virtual void			onCommit() {};
 
@@ -114,6 +119,7 @@ public:
 
 private:
 	S32 mWidth;
+	std::string mToolTip;
 };
 
 class LLScrollListSpacer : public LLScrollListCell
@@ -143,6 +149,7 @@ public:
 
 	/*virtual*/ void	setColor(const LLColor4&);
 	/*virtual*/ BOOL	isText() const;
+	/*virtual*/ const std::string &	getToolTip() const;
 	/*virtual*/ BOOL	needsToolTip() const;
 
 	void			setText(const LLStringExplicit& text);
