@@ -2005,7 +2005,8 @@ void LLTextEditor::setEnabled(BOOL enabled)
 	bool read_only = !enabled;
 	if (read_only != mReadOnly)
 	{
-		mReadOnly = read_only;
+		//mReadOnly = read_only;
+		LLTextBase::setReadOnly(read_only);
 		updateSegments();
 		updateAllowingLanguageInput();
 	}
