@@ -139,6 +139,7 @@ BOOL LLInventoryPanel::postBuild()
 		p.name = getName();
 		p.rect = folder_rect;
 		p.parent_panel = this;
+		p.tool_tip = p.name;
 		mFolders = LLUICtrlFactory::create<LLFolderView>(p);
 		mFolders->setAllowMultiSelect(mAllowMultiSelect);
 	}
@@ -493,6 +494,7 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 					p.icon = new_listener->getIcon();
 					p.root = mFolders;
 					p.listener = new_listener;
+					p.tool_tip = p.name;
 					LLFolderViewFolder* folderp = LLUICtrlFactory::create<LLFolderViewFolder>(p);
 				
 					folderp->setItemSortOrder(mFolders->getSortOrder());
@@ -519,6 +521,7 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 					params.root(mFolders);
 					params.listener(new_listener);
 					params.rect(LLRect (0, 0, 0, 0));
+					params.tool_tip = params.name;
 					itemp = LLUICtrlFactory::create<LLFolderViewItem> (params);
 				}
 			}
