@@ -862,7 +862,17 @@ bool LLIMModel::sendStartSession(
 	return false;
 }
 
-
+// static
+void LLIMModel::sendSessionInitialized(const LLUUID &session_id)
+{
+	LLIMSession* session = getInstance()->findIMSession(session_id);
+	if (session)
+	{
+		LLSD arg;
+		arg["session_id"] = session_id;
+		getInstance()->mSessionInitializedSignal(arg);
+	}
+}
 
 //
 // Helper Functions

@@ -33,6 +33,13 @@
 #ifndef LL_LLAVATARACTIONS_H
 #define LL_LLAVATARACTIONS_H
 
+#include "lldarray.h"
+#include "llsd.h"
+#include "lluuid.h"
+
+#include <string>
+#include <vector>
+
 /**
  * Friend-related actions (add, remove, offer teleport, etc)
  */
@@ -70,6 +77,11 @@ public:
 	 * Start an avatar-to-avatar voice call with another user
 	 */
 	static void startCall(const LLUUID& id);
+
+	/**
+	 * Start an ad-hoc conference voice call with multiple users
+	 */
+	static void startAdhocCall(const std::vector<LLUUID>& ids);
 
 	/**
 	 * Start conference chat with the given avatars.
@@ -117,6 +129,7 @@ private:
 	static bool handleRemove(const LLSD& notification, const LLSD& response);
 	static bool handlePay(const LLSD& notification, const LLSD& response, LLUUID avatar_id);
 	static void callback_invite_to_group(LLUUID group_id, LLUUID id);
+	static void callbackAutoStartCall(const LLSD& data);
 
 	// Just request friendship, no dialog.
 	static void requestFriendship(const LLUUID& target_id, const std::string& target_name, const std::string& message);
