@@ -265,7 +265,10 @@ public:
 	bool hasMedia() const;
 	
 	LLVector3 getApproximateFaceNormal(U8 face_id);
-
+	
+	// Returns 'true' iff the media data for this object is in flight
+	bool isMediaDataBeingFetched() const;
+	
 protected:
 	S32	computeLODDetail(F32	distance, F32 radius);
 	BOOL calcLOD();

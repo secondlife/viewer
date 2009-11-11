@@ -109,6 +109,7 @@ public:
 				{
 					result = te->getMediaData()->asLLSD();
 					// XXX HACK: workaround bug in asLLSD() where whitelist is not set properly
+					// See DEV-41949
 					if (!result.has(LLMediaEntry::WHITELIST_KEY))
 					{
 						result[LLMediaEntry::WHITELIST_KEY] = LLSD::emptyArray();
@@ -1666,6 +1667,13 @@ LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
 void LLVOVolume::requestMediaDataUpdate()
 {
     sObjectMediaClient->fetchMedia(new LLMediaDataClientObjectImpl(this));
+}
+
+bool LLVOVolume::isMediaDataBeingFetched() const
+{
+	// I know what I'm doing by const_casting this away: this is just 
+	// a wrapper class that is only going to do a lookup.
+	return sObjectMediaClient->isInQueue(new LLMediaDataClientObjectImpl(const_cast<LLVOVolume*>(this)));
 }
 
 void LLVOVolume::cleanUpMediaImpls()
