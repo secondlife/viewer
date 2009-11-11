@@ -73,9 +73,9 @@ LLLoginInstance::LLLoginInstance() :
 {
 	mLoginModule->getEventPump().listen("lllogininstance", 
 		boost::bind(&LLLoginInstance::handleLoginEvent, this, _1));
-	mDispatcher.add("fail.login", boost::bind(&LLLoginInstance::handleLoginFailure, this, _1));
-	mDispatcher.add("connect",    boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
-	mDispatcher.add("disconnect", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
+	mDispatcher.add("fail.login", "", boost::bind(&LLLoginInstance::handleLoginFailure, this, _1));
+	mDispatcher.add("connect",    "", boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
+	mDispatcher.add("disconnect", "", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
 }
 
 LLLoginInstance::~LLLoginInstance()

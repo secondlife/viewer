@@ -415,7 +415,7 @@ public:
 
 static LLMenuParcelObserver* gMenuParcelObserver = NULL;
 
-static LLUIListener sUIListener("UI");
+static LLUIListener sUIListener;
 
 LLMenuParcelObserver::LLMenuParcelObserver()
 {

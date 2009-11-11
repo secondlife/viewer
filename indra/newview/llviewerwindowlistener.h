@@ -12,18 +12,17 @@
 #if ! defined(LL_LLVIEWERWINDOWLISTENER_H)
 #define LL_LLVIEWERWINDOWLISTENER_H
 
-#include "lleventdispatcher.h"
+#include "lleventapi.h"
 
 class LLViewerWindow;
 class LLSD;
 
 /// Listen on an LLEventPump with specified name for LLViewerWindow request events.
-class LLViewerWindowListener: public LLDispatchListener
+class LLViewerWindowListener: public LLEventAPI
 {
 public:
-    /// Specify the pump name on which to listen, and bind the LLViewerWindow
-    /// instance to use (e.g. gViewerWindow).
-    LLViewerWindowListener(const std::string& pumpname, LLViewerWindow* llviewerwindow);
+    /// Bind the LLViewerWindow instance to use (e.g. gViewerWindow).
+    LLViewerWindowListener(LLViewerWindow* llviewerwindow);
 
 private:
     void saveSnapshot(const LLSD& event) const;

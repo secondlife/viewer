@@ -12,15 +12,15 @@
 #if ! defined(LL_LLUILISTENER_H)
 #define LL_LLUILISTENER_H
 
-#include "lleventdispatcher.h"
+#include "lleventapi.h"
 #include <string>
 
 class LLSD;
 
-class LLUIListener: public LLDispatchListener
+class LLUIListener: public LLEventAPI
 {
 public:
-    LLUIListener(const std::string& name);
+    LLUIListener();
 
 private:
     void call(const LLSD& event) const;

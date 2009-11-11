@@ -41,6 +41,7 @@ set(llcommon_SOURCE_FILES
     llerror.cpp
     llerrorthread.cpp
     llevent.cpp
+    lleventapi.cpp
     lleventcoro.cpp
     lleventdispatcher.cpp
     lleventfilter.cpp
@@ -140,6 +141,7 @@ set(llcommon_HEADER_FILES
     llerrorlegacy.h
     llerrorthread.h
     llevent.h
+    lleventapi.h
     lleventcoro.h
     lleventdispatcher.h
     lleventfilter.h

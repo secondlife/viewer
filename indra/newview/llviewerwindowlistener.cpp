@@ -20,8 +20,9 @@
 // other Linden headers
 #include "llviewerwindow.h"
 
-LLViewerWindowListener::LLViewerWindowListener(const std::string& pumpname, LLViewerWindow* llviewerwindow):
-    LLDispatchListener(pumpname, "op"),
+LLViewerWindowListener::LLViewerWindowListener(LLViewerWindow* llviewerwindow):
+    LLEventAPI("LLViewerWindow",
+               "LLViewerWindow listener to (e.g.) save a screenshot"),
     mViewerWindow(llviewerwindow)
 {
     // add() every method we want to be able to invoke via this event API.
@@ -34,8 +35,15 @@ LLViewerWindowListener::LLViewerWindowListener(const std::string& pumpname, LLVi
 //  saveSnapshotArgs["showui"] = LLSD::Boolean();
 //  saveSnapshotArgs["rebuild"] = LLSD::Boolean();
 //  saveSnapshotArgs["type"] = LLSD::String();
-    add("saveSnapshot", &LLViewerWindowListener::saveSnapshot, saveSnapshotArgs);
-    add("requestReshape", &LLViewerWindowListener::requestReshape);
+    add("saveSnapshot",
+        "Save screenshot: [\"filename\"], [\"width\"], [\"height\"], [\"showui\"], [\"rebuild\"], [\"type\"]\n"
+        "type: \"COLOR\", \"DEPTH\", \"OBJECT_ID\"\n"
+        "Post on [\"reply\"] an event containing [\"ok\"]",
+        &LLViewerWindowListener::saveSnapshot,
+        saveSnapshotArgs);
+    add("requestReshape",
+        "Resize the window: [\"w\"], [\"h\"]",
+        &LLViewerWindowListener::requestReshape);
 }
 
 void LLViewerWindowListener::saveSnapshot(const LLSD& event) const

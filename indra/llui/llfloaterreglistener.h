@@ -12,18 +12,18 @@
 #if ! defined(LL_LLFLOATERREGLISTENER_H)
 #define LL_LLFLOATERREGLISTENER_H
 
-#include "lleventdispatcher.h"
+#include "lleventapi.h"
 #include <string>
 
 class LLSD;
 
 /// Event API wrapper for LLFloaterReg
-class LLFloaterRegListener: public LLDispatchListener
+class LLFloaterRegListener: public LLEventAPI
 {
 public:
     /// As all public LLFloaterReg methods are static, there's no point in
     /// binding an LLFloaterReg instance.
-    LLFloaterRegListener(const std::string& pumpName);
+    LLFloaterRegListener();
 
 private:
     void getBuildMap(const LLSD& event) const;

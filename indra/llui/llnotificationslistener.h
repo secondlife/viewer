@@ -12,12 +12,12 @@
 #ifndef LL_LLNOTIFICATIONSLISTENER_H
 #define LL_LLNOTIFICATIONSLISTENER_H
 
-#include "lleventdispatcher.h"
+#include "lleventapi.h"
 
 class LLNotifications;
 class LLSD;
 
-class LLNotificationsListener : public LLDispatchListener
+class LLNotificationsListener : public LLEventAPI
 {
 public:
     LLNotificationsListener(LLNotifications & notifications);

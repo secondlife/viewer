@@ -1212,7 +1212,7 @@ LLViewerWindow::LLViewerWindow(
 	mStatesDirty(false),
 	mIsFullscreenChecked(false),
 	mCurrResolutionIndex(0),
-    mViewerWindowListener(new LLViewerWindowListener("LLViewerWindow", this))
+    mViewerWindowListener(new LLViewerWindowListener(this))
 {
 	LLNotificationChannel::buildChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert"));
 	LLNotificationChannel::buildChannel("VW_alertmodal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal"));
