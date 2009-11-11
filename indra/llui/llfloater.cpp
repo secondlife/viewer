@@ -2172,16 +2172,16 @@ void LLFloaterView::getMinimizePosition(S32 *left, S32 *bottom)
 	const LLFloater::Params& default_params = LLFloater::getDefaultParams();
 	S32 floater_header_size = default_params.header_height;
 	static LLUICachedControl<S32> minimized_width ("UIMinimizedWidth", 0);
-	S32 col = 0;
 	LLRect snap_rect_local = getLocalSnapRect();
-	for(S32 row = snap_rect_local.mBottom;
-		row < snap_rect_local.getHeight() - floater_header_size;
-		row += floater_header_size ) //loop rows
-	{
-		for(col = snap_rect_local.mLeft;
-			col < snap_rect_local.getWidth() - minimized_width;
-			col += minimized_width)
+	for(S32 col = snap_rect_local.mLeft;
+		col < snap_rect_local.getWidth() - minimized_width;
+		col += minimized_width)
+	{	
+		for(S32 row = snap_rect_local.mTop - floater_header_size;
+		row > floater_header_size;
+		row -= floater_header_size ) //loop rows
 		{
+
 			bool foundGap = TRUE;
 			for(child_list_const_iter_t child_it = getChildList()->begin();
 				child_it != getChildList()->end();
