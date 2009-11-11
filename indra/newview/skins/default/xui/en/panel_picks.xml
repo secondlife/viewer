@@ -22,6 +22,7 @@
   left="0"
   name="accordion"
   top="0"
+  single_expansion="true"
   width="313">
     <accordion_tab
      can_resize="false"
