@@ -332,7 +332,7 @@ LLView* LLChatHistory::getHeader(const LLChat& chat)
 void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& style_params)
 {
 	LLView* view = NULL;
-	std::string view_text = '[' + formatCurrentTime() + "]:[" + chat.mFromName + "] ";;
+	std::string view_text = "\n[" + formatCurrentTime() + "]:[" + chat.mFromName + "] ";;
 
 	LLInlineViewSegment::Params p;
 	p.force_newline = true;
