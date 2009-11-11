@@ -75,6 +75,8 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	//destroyed LLBottomTray requires some subsystems that are long gone
 	LLUI::getRootView()->addChild(this);
 
+	initStateProcessedObjectMap();
+
 	// Necessary for focus movement among child controls
 	setFocusRoot(TRUE);
 }
@@ -255,21 +257,6 @@ void LLBottomTray::showSnapshotButton(BOOL visible)
 	mSnapshotPanel->setVisible(visible);
 }
 
-typedef enum e_resize_status_type
-{
-	RS_NORESIZE			= 0x0000
-	, RS_CHICLET_PANEL		= 0x0001
-	, RS_CHATBAR_INPUT		= 0x0002
-	, RS_BUTTON_SNAPSHOT	= 0x0004
-	, RS_BUTTON_CAMERA		= 0x0008
-	, RS_BUTTON_MOVEMENT	= 0x0010
-	, RS_BUTTON_GESTURES	= 0x0020
-	, RS_BUTTON_SPEAK		= 0x0040
-	, RS_RESIZABLE_BUTTONS			= /*RS_BUTTON_SNAPSHOT | */RS_BUTTON_CAMERA | RS_BUTTON_MOVEMENT | RS_BUTTON_GESTURES
-}EResizeState;
-
-
-
 namespace
 {
 	const std::string& PANEL_CHICLET_NAME	= "chiclet_list_panel";
@@ -306,7 +293,7 @@ void LLBottomTray::log(LLView* panel, const std::string& descr)
 {
 	if (NULL == panel) return;
 	LLView* layout = panel->getParent();
-	llwarns << descr << ": "
+	lldebugs << descr << ": "
 		<< "panel: " << panel->getName()
 		<< ", rect: " << panel->getRect()
  
@@ -379,7 +366,6 @@ void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
 void LLBottomTray::updateResizeState(S32 new_width, S32 cur_width)
 {
 	mResizeState = RS_NORESIZE;
-	static MASK prev_resize_state = mResizeState;
 	MASK compensative_view_item_mask = RS_CHATBAR_INPUT;
 	LLPanel* compansative_view = mNearbyChatBar;
 
@@ -543,43 +529,28 @@ void LLBottomTray::updateResizeState(S32 new_width, S32 cur_width)
 		S32 available_width_chiclet = chiclet_panel_width - chiclet_panel_min_width;
 		S32 available_width = delta_width + chatbar_available_shrink_width + available_width_chiclet;
 		S32 buttons_required_width = 0; //How many room will take shown buttons
-		if (available_width > 0 && processShowButton(mGesturePanel, &available_width, &buttons_required_width))
+		if (available_width > 0)
 		{
-			mResizeState |= RS_BUTTON_GESTURES | compensative_view_item_mask;
-			lldebugs << "RS_BUTTON_GESTURES"
-				<< ", buttons_required_width: " << buttons_required_width
-				<< llendl;
-			showGestureButton(true);
+			lldebugs << "Trying to process: RS_BUTTON_GESTURES" << llendl;
+			processShowButton(RS_BUTTON_GESTURES, &available_width, &buttons_required_width);
 		}
 
-		if (available_width > 0 && processShowButton(mMovementPanel, &available_width, &buttons_required_width))
+		if (available_width > 0)
 		{
-			mResizeState |= RS_BUTTON_MOVEMENT | compensative_view_item_mask;
-
-			lldebugs << "RS_BUTTON_MOVEMENT"
-				<< ", buttons_required_width: " << buttons_required_width
-				<< llendl;
-			showMoveButton(true);
+			lldebugs << "Trying to process: RS_BUTTON_MOVEMENT" << llendl;
+			processShowButton(RS_BUTTON_MOVEMENT, &available_width, &buttons_required_width);
 		}
 
-		if (available_width > 0 && processShowButton(mCamPanel, &available_width, &buttons_required_width))
+		if (available_width > 0)
 		{
-			mResizeState |= RS_BUTTON_CAMERA | compensative_view_item_mask;
-
-			lldebugs << "RS_BUTTON_CAMERA "
-				<< ", buttons_required_width: " << buttons_required_width
-				<< llendl;
-			showCameraButton(true);
+			lldebugs << "Trying to process: RS_BUTTON_CAMERA" << llendl;
+			processShowButton(RS_BUTTON_CAMERA, &available_width, &buttons_required_width);
 		}
 
-		if (available_width > 0 && processShowButton(mSnapshotPanel, &available_width, &buttons_required_width))
+		if (available_width > 0)
 		{
-			mResizeState |= RS_BUTTON_SNAPSHOT | compensative_view_item_mask;
-
-			lldebugs << "RS_BUTTON_SNAPSHOT"
-				<< ", buttons_required_width: " << buttons_required_width
-				<< llendl;
-			showSnapshotButton(true);
+			lldebugs << "Trying to process: RS_BUTTON_SNAPSHOT" << llendl;
+			processShowButton(RS_BUTTON_SNAPSHOT, &available_width, &buttons_required_width);
 		}
 
 		S32 total_delta_width = new_width - cur_width;
@@ -587,6 +558,8 @@ void LLBottomTray::updateResizeState(S32 new_width, S32 cur_width)
 		// if we have to show some buttons but whidth increasing is not enough...
 		if (buttons_required_width > 0 && total_delta_width < buttons_required_width)
 		{
+			mResizeState |= compensative_view_item_mask;
+
 			// ... let's shrink nearby chat & chiclet panels
 			S32 required_to_process_width = buttons_required_width;
 
@@ -630,19 +603,19 @@ void LLBottomTray::updateResizeState(S32 new_width, S32 cur_width)
 			delta_width -= delta_panel_max;
 			mNearbyChatBar->reshape(chatbar_panel_width_ + delta_panel, mNearbyChatBar->getRect().getHeight());
 		}
-
-		if (delta_width > 0)
-		{
-			mResizeState |= RS_CHICLET_PANEL;
-		}
 	}
 
-	prev_resize_state = mResizeState;
 	lldebugs << "New resize state: " << mResizeState << llendl;
 }
 
-bool LLBottomTray::processShowButton(LLPanel* panel, S32* available_width, S32* buttons_required_width)
+bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* available_width, S32* buttons_required_width)
 {
+	LLPanel* panel = mStateProcessedObjectMap[shown_object_type];
+	if (NULL == panel)
+	{
+		lldebugs << "There is no object to process for state: " << shown_object_type << llendl;
+		return false;
+	}
 	bool can_be_shown = canButtonBeShown(panel);
 	if (can_be_shown)
 	{
@@ -653,8 +626,21 @@ bool LLBottomTray::processShowButton(LLPanel* panel, S32* available_width, S32* 
 		{
 			*available_width -= required_width;
 			*buttons_required_width += required_width;
-		}
 
+			switch (shown_object_type)
+			{
+			case RS_BUTTON_GESTURES:	showGestureButton(true);				break;
+			case RS_BUTTON_MOVEMENT:	showMoveButton(true);					break;
+			case RS_BUTTON_CAMERA:		showCameraButton(true);					break;
+			case RS_BUTTON_SNAPSHOT:	showSnapshotButton(true);				break;
+			default:
+				llwarns << "Unexpected type of button to be shown: " << shown_object_type << llendl;
+			}
+
+			lldebugs << "processing object type: " << shown_object_type
+				<< ", buttons_required_width: " << buttons_required_width
+				<< llendl;
+		}
 	}
 	return can_be_shown;
 }
@@ -667,5 +653,13 @@ bool LLBottomTray::canButtonBeShown(LLPanel* panel) const
 		// *TODO: mantipov: synchronize with situation when button was hidden via context menu;
 	}
 	return can_be_shown;
+}
+
+void LLBottomTray::initStateProcessedObjectMap()
+{
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_GESTURES, mGesturePanel));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_MOVEMENT, mMovementPanel));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_CAMERA, mCamPanel));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SNAPSHOT, mSnapshotPanel));
 }
 //EOF
