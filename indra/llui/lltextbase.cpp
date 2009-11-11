@@ -995,6 +995,12 @@ void LLTextBase::setColor( const LLColor4& c )
 	mFgColor = c;
 }
 
+//virtual 
+void LLTextBase::setReadOnlyColor(const LLColor4 &c)
+{
+	mReadOnlyFgColor = c;
+}
+
 //virtual
 void LLTextBase::setValue(const LLSD& value )
 {

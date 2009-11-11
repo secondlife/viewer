@@ -174,7 +174,7 @@ public:
 	const std::string&	getFirstName() const { return mFirstName; }
 	const std::string&	getLastName	() const { return mLastName; }
 
-	void setup(const LLChat& chat) 
+	void setup(const LLChat& chat,const LLStyle::Params& style_params) 
 	{
 		mAvatarID = chat.mFromID;
 		mSourceType = chat.mSourceType;
@@ -184,8 +184,11 @@ public:
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}
 
-
 		LLTextBox* userName = getChild<LLTextBox>("user_name");
+
+		LLUIColor color = style_params.color;
+		userName->setReadOnlyColor(color);
+		userName->setColor(color);
 		
 		if(!chat.mFromName.empty())
 		{
@@ -197,6 +200,7 @@ public:
 			std::string SL = LLTrans::getString("SECOND_LIFE");
 			userName->setValue(SL);
 		}
+
 		
 		LLTextBox* timeBox = getChild<LLTextBox>("time_box");
 		timeBox->setValue(formatCurrentTime());
@@ -322,10 +326,10 @@ LLView* LLChatHistory::getSeparator()
 	return separator;
 }
 
-LLView* LLChatHistory::getHeader(const LLChat& chat)
+LLView* LLChatHistory::getHeader(const LLChat& chat,const LLStyle::Params& style_params)
 {
 	LLChatHistoryHeader* header = LLChatHistoryHeader::createInstance(mMessageHeaderFilename);
-	header->setup(chat);
+	header->setup(chat,style_params);
 	return header;
 }
 
@@ -347,7 +351,7 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& sty
 	}
 	else
 	{
-		view = getHeader(chat);
+		view = getHeader(chat,style_params);
 		if (getText().size() == 0)
 			p.top_pad = 0;
 		else
