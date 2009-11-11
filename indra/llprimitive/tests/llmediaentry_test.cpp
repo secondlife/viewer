@@ -9,7 +9,14 @@
 
 #include "linden_common.h"
 #include "lltut.h"
-#include "boost/lexical_cast.hpp"
+#if LL_WINDOWS
+#pragma warning (push)
+#pragma warning (disable : 4702) // boost::lexical_cast generates this warning
+#endif
+#include <boost/lexical_cast.hpp>
+#if LL_WINDOWS
+#pragma warning (pop)
+#endif
 #include "llstring.h"
 #include "llsdutil.h"
 #include "llsdserialize.h"
@@ -190,9 +197,9 @@ namespace tut
         entry.setWhiteList(tokens);
     }
 
-    void whitelist_test(bool enable, const char *whitelist, const char *candidate_url, bool expected_pass)
+    void whitelist_test(int num, bool enable, const char *whitelist, const char *candidate_url, bool expected_pass)
     {
-        std::string message = "Whitelist test";
+        std::string message = "Whitelist test " + boost::lexical_cast<std::string>(num);
         LLMediaEntry entry;
         entry.setWhiteListEnable(enable);
         set_whitelist(entry, whitelist);
@@ -209,13 +216,13 @@ namespace tut
         ensure(message, expected_pass == passed_whitelist);
     }
 
-    void whitelist_test(const char *whitelist, const char *candidate_url, bool expected_pass)
+    void whitelist_test(int num, const char *whitelist, const char *candidate_url, bool expected_pass)
     {
-        whitelist_test(true, whitelist, candidate_url, expected_pass);
+        whitelist_test(num, true, whitelist, candidate_url, expected_pass);
     }
-    void whitelist_test(const char *whitelist, const char *candidate_url)
+    void whitelist_test(int num, const char *whitelist, const char *candidate_url)
     {
-        whitelist_test(true, whitelist, candidate_url, true);
+        whitelist_test(num, true, whitelist, candidate_url, true);
     }
 
 	template<> template<>
@@ -265,12 +272,30 @@ namespace tut
         ensure_llsd_equals(get_test_name() + " failed", defaultMediaEntryLLSD, sd);
     }
 
+	
+    template<> template<>
+    void object::test<5>()
+    {
+        set_test_name("Test LLMediaEntry::asLLSD() -> LLMediaEntry::fromLLSD()");
+        LLMediaEntry entry1, entry2;
+		// Add a whitelist to entry2
+		std::vector<std::string> whitelist;
+		whitelist.push_back("*.example.com");
+        entry2.setWhiteList(whitelist);
+		// Render entry1 (which has no whitelist) as an LLSD
+        LLSD sd;
+		entry1.asLLSD(sd);
+		// "read" that LLSD into entry 2
+		entry2.fromLLSD(sd);
+        ensure_llsd_equals(get_test_name() + " failed", defaultMediaEntryLLSD, entry2.asLLSD());
+    }
+	
     // limit tests
     const char *URL_OK = "http://www.example.com";
     const char *URL_TOO_BIG = "http://www.example.com.qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq";
 
     template<> template<>
-    void object::test<5>()
+    void object::test<6>()
     {
         set_test_name("Test Limits on setting current URL");
         LLMediaEntry entry;
@@ -281,7 +306,7 @@ namespace tut
     }    
 
     template<> template<>
-    void object::test<6>()
+    void object::test<7>()
     {
         set_test_name("Test Limits on setting home URL");
         LLMediaEntry entry;
@@ -292,7 +317,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<7>()
+    void object::test<8>()
     {
         set_test_name("Test Limits on setting whitelist");
         
@@ -306,7 +331,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<8>()
+    void object::test<9>()
     {
         set_test_name("Test Limits on setting whitelist too big");
         
@@ -321,7 +346,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<9>()
+    void object::test<10>()
     {
         set_test_name("Test Limits on setting whitelist too many");
         
@@ -337,7 +362,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<10>()
+    void object::test<11>()
     {
         set_test_name("Test to make sure both setWhiteList() functions behave the same");
         
@@ -355,7 +380,7 @@ namespace tut
     }
     
     template<> template<>
-    void object::test<11>()
+    void object::test<12>()
     {
         set_test_name("Test to make sure both setWhiteList() functions behave the same");
 
@@ -376,7 +401,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<12>()
+    void object::test<13>()
     {
         set_test_name("Test to make sure both setWhiteList() functions behave the same");
 
@@ -396,103 +421,70 @@ namespace tut
                empty == entry2.getWhiteList());
     }
     
-    // Whitelist check tests
-    
-    // Check the "empty whitelist" case
     template<> template<>
-    void object::test<13>() { whitelist_test("", "http://www.example.com", true); }
+    void object::test<14>() 
+	{
+		// Whitelist check tests
+		int n=0;
+		
+		// Check the "empty whitelist" case
+		whitelist_test(++n, "", "http://www.example.com", true); 
 
-    // Check the "missing scheme" case
-    template<> template<>
-    void object::test<14>() { whitelist_test("www.example.com", "http://www.example.com", true); }
+		// Check the "missing scheme" case
+		whitelist_test(++n, "www.example.com", "http://www.example.com", true);
 
-    // Check the "exactly the same" case
-    template<> template<>
-    void object::test<15>() { whitelist_test("http://example.com", "http://example.com", true); }
+		// Check the "exactly the same" case
+		whitelist_test(++n, "http://example.com", "http://example.com", true);
 
-    // Check the enable flag
-    template<> template<>
-    void object::test<16>() { whitelist_test(false, "www.example.com", "http://www.secondlife.com", true); }
-    template<> template<>
-    void object::test<17>() { whitelist_test(true, "www.example.com", "http://www.secondlife.com", false); }
+		// Check the enable flag
+		whitelist_test(++n, false, "www.example.com", "http://www.secondlife.com", true);
+		whitelist_test(++n, true, "www.example.com", "http://www.secondlife.com", false);
 
-    // Check permutations of trailing slash:
-    template<> template<>
-    void object::test<18>() { whitelist_test("http://www.example.com", "http://www.example.com/", true); }
-    template<> template<>
-    void object::test<19>() { whitelist_test("http://www.example.com/", "http://www.example.com/", true); }
-    template<> template<>
-    void object::test<20>() { whitelist_test("http://www.example.com/", "http://www.example.com", false); }
-    template<> template<>
-    void object::test<21>() { whitelist_test("http://www.example.com", "http://www.example.com/foobar", true); }
-    template<> template<>
-    void object::test<22>() { whitelist_test("http://www.example.com/", "http://www.example.com/foobar", false); }
+		// Check permutations of trailing slash:
+		whitelist_test(++n, "http://www.example.com", "http://www.example.com/", true);
+		whitelist_test(++n, "http://www.example.com/", "http://www.example.com/", true);
+		whitelist_test(++n, "http://www.example.com/", "http://www.example.com", false);
+		whitelist_test(++n, "http://www.example.com", "http://www.example.com/foobar", true);
+		whitelist_test(++n, "http://www.example.com/", "http://www.example.com/foobar", false);
 
     
-    // More cases...
-    template<> template<>
-    void object::test<23>() { whitelist_test("http://example.com", "http://example.com/wiki", true); }
-    template<> template<>
-    void object::test<24>() { whitelist_test("www.example.com", "http://www.example.com/help", true); }
-    template<> template<>
-    void object::test<25>() { whitelist_test("http://www.example.com", "http://wwwexample.com", false); }
-    template<> template<>
-    void object::test<26>() { whitelist_test("http://www.example.com", "http://www.example.com/wiki", true); }
-    template<> template<>
-    void object::test<27>() { whitelist_test("example.com", "http://wwwexample.com", false); }
-    template<> template<>
-    void object::test<28>() { whitelist_test("http://www.example.com/", "http://www.amazon.com/wiki", false); }
-    template<> template<>
-    void object::test<29>() { whitelist_test("www.example.com", "http://www.amazon.com", false); }
+		// More cases...
+		whitelist_test(++n, "http://example.com", "http://example.com/wiki", true);
+		whitelist_test(++n, "www.example.com", "http://www.example.com/help", true);
+		whitelist_test(++n, "http://www.example.com", "http://wwwexample.com", false);
+		whitelist_test(++n, "http://www.example.com", "http://www.example.com/wiki", true);
+		whitelist_test(++n, "example.com", "http://wwwexample.com", false);
+		whitelist_test(++n, "http://www.example.com/", "http://www.amazon.com/wiki", false);
+		whitelist_test(++n, "www.example.com", "http://www.amazon.com", false);
 
-    // regexp cases
-    template<> template<>
-    void object::test<30>() { whitelist_test("*.example.com", "http://www.example.com", true); }
-    template<> template<>
-    void object::test<31>() { whitelist_test("*.example.com", "http://www.amazon.com", false); }
-    template<> template<>
-    void object::test<32>() { whitelist_test("*.example.com", "http://www.example.com/foo/bar", true); }
-    template<> template<>
-    void object::test<33>() { whitelist_test("*.example.com", "http:/example.com/foo/bar", false); }
-    template<> template<>
-    void object::test<34>() { whitelist_test("*example.com", "http://example.com/foo/bar", true); }
-    template<> template<>
-    void object::test<35>() { whitelist_test("*example.com", "http://my.virus.com/foo/bar?example.com", false); }
-    template<> template<>
-    void object::test<36>() { whitelist_test("example.com", "http://my.virus.com/foo/bar?example.com", false); }
-    template<> template<>
-    void object::test<37>() { whitelist_test("*example.com", "http://my.virus.com/foo/bar?*example.com", false); }
-    template<> template<>
-    void object::test<38>() { whitelist_test("http://*example.com", "http://www.example.com", true); }
-    template<> template<>
-    void object::test<39>() { whitelist_test("http://*.example.com", "http://www.example.com", true); }
-    template<> template<>
-    void object::test<40>() { whitelist_test("http://*.e$?^.com", "http://www.e$?^.com", true); }
-    template<> template<>
-    void object::test<41>() { whitelist_test("*.example.com/foo/bar", "http://www.example.com/", false); }
-    template<> template<>
-    void object::test<42>() { whitelist_test("*.example.com/foo/bar", "http://example.com/foo/bar", false); }
-    template<> template<>
-    void object::test<43>() { whitelist_test("http://*.example.com/foo/bar", "http://www.example.com", false); }
-    template<> template<>
-    void object::test<44>() { whitelist_test("http://*.example.com", "https://www.example.com", false); }
-    template<> template<>
-    void object::test<45>() { whitelist_test("http*://*.example.com", "rtsp://www.example.com", false); }
-    template<> template<>
-    void object::test<46>() { whitelist_test("http*://*.example.com", "https://www.example.com", true); }
-    template<> template<>
-    void object::test<47>() { whitelist_test("example.com", "http://www.example.com", false); }
-    template<> template<>
-    void object::test<48>() { whitelist_test("www.example.com", "http://www.example.com:80", false); }
-    template<> template<>
-    void object::test<49>() { whitelist_test("www.example.com", "http://www.example.com", true); }
-    template<> template<>
-    void object::test<50>() { whitelist_test("www.example.com/", "http://www.example.com", false); }
-    template<> template<>
-    void object::test<51>() { whitelist_test("www.example.com/foo/bar/*", "http://www.example.com/foo/bar/baz", true); }
-    // Path only
-    template<> template<>
-    void object::test<52>() { whitelist_test("/foo/*/baz", "http://www.example.com/foo/bar/baz", true); }
-    template<> template<>
-    void object::test<53>() { whitelist_test("/foo/*/baz", "http://www.example.com/foo/bar/", false); }
+		// regexp cases
+		whitelist_test(++n, "*.example.com", "http://www.example.com", true);
+		whitelist_test(++n, "*.example.com", "http://www.amazon.com", false);
+		whitelist_test(++n, "*.example.com", "http://www.example.com/foo/bar", true);
+		whitelist_test(++n, "*.example.com", "http:/example.com/foo/bar", false);
+		whitelist_test(++n, "*example.com", "http://example.com/foo/bar", true);
+		whitelist_test(++n, "*example.com", "http://my.virus.com/foo/bar?example.com", false);
+		whitelist_test(++n, "example.com", "http://my.virus.com/foo/bar?example.com", false);
+		whitelist_test(++n, "*example.com", "http://my.virus.com/foo/bar?*example.com", false);
+		whitelist_test(++n, "http://*example.com", "http://www.example.com", true);
+		whitelist_test(++n, "http://*.example.com", "http://www.example.com", true);
+		whitelist_test(++n, "http://*.e$?^.com", "http://www.e$?^.com", true);
+		whitelist_test(++n, "*.example.com/foo/bar", "http://www.example.com/", false);
+		whitelist_test(++n, "*.example.com/foo/bar", "http://example.com/foo/bar", false);
+		whitelist_test(++n, "http://*.example.com/foo/bar", "http://www.example.com", false);
+		whitelist_test(++n, "http://*.example.com", "https://www.example.com", false);
+		whitelist_test(++n, "http*://*.example.com", "rtsp://www.example.com", false);
+		whitelist_test(++n, "http*://*.example.com", "https://www.example.com", true);
+		whitelist_test(++n, "example.com", "http://www.example.com", false);
+		whitelist_test(++n, "www.example.com", "http://www.example.com:80", false);
+		whitelist_test(++n, "www.example.com", "http://www.example.com", true);
+		whitelist_test(++n, "www.example.com/", "http://www.example.com", false);
+		whitelist_test(++n, "www.example.com/foo/bar/*", "http://www.example.com/foo/bar/baz", true);
+
+        // Path only
+		whitelist_test(++n, "/foo/*/baz", "http://www.example.com/foo/bar/baz", true);
+		whitelist_test(++n, "/foo/*/baz", "http://www.example.com/foo/bar/", false);
+	}
+	
 }
+

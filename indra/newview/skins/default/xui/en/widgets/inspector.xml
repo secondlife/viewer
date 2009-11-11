@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- See also settings.xml UIFloater* settings for configuration -->
+<inspector name="inspector"
+          bg_opaque_color="ToolTipBgColor"
+          background_visible="true"
+          bg_opaque_image="none"
+          bg_alpha_image="none"
+ />

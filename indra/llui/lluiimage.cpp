@@ -142,6 +142,13 @@ namespace LLInitParam
 {
 	LLUIImage* TypedParam<LLUIImage*>::getValueFromBlock() const
 	{
+		// The keyword "none" is specifically requesting a null image
+		// do not default to current value. Used to overwrite template images. 
+		if (name() == "none")
+		{
+			return NULL;
+		}
+
 		LLUIImage* imagep =  LLUI::getUIImage(name());
 		if (!imagep)
 		{

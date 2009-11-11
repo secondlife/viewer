@@ -305,7 +305,7 @@
      name="effects_color_textbox"
      top_pad="5"
      width="400">
-        My Effects:
+        My effects:
     </text>
     <color_swatch
      border_color="0.45098 0.517647 0.607843 1"

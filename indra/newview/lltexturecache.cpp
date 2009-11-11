@@ -1543,6 +1543,8 @@ bool LLTextureCache::readComplete(handle_t handle, bool abort)
 	handle_map_t::iterator iter = mReaders.find(handle);
 	llassert_always(iter != mReaders.end() || abort);
 	LLTextureCacheWorker* worker = iter->second;
+	if (!worker)
+		return false;
 	bool res = worker->complete();
 	if (res || abort)
 	{

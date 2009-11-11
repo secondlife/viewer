@@ -1,24 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- legacy_header_height="18"
- height="440"
+ height="768"
  layout="topleft"
  name="floater_aaa"
- help_topic="floater_aaa"
- save_rect="true"
  can_resize="true" 
- title="ABOUT [APP_NAME]"
- width="470">
-    <text_editor
-     follows="left|top|right|bottom"
-     height="400"
-     layout="topleft"
-     left="6"
-     max_length="65536"
-     name="credits_editor"
-     top="25"
-     width="458"
-     word_wrap="true">
-This is line 4
-    </text_editor>
+ width="1024">
+  <panel filename="main_view.xml" follows="all" width="1024" height="768" top="0"/>
 </floater>

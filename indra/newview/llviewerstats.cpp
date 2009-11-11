@@ -822,8 +822,8 @@ void send_stats()
 	// Screen size so the UI team can figure out how big the widgets
 	// appear and use a "typical" size for end user tests.
 
-	S32 window_width = gViewerWindow->getWindowDisplayWidth();
-	S32 window_height = gViewerWindow->getWindowDisplayHeight();
+	S32 window_width = gViewerWindow->getWindowWidthRaw();
+	S32 window_height = gViewerWindow->getWindowHeightRaw();
 	S32 window_size = (window_width * window_height) / 1024;
 	misc["string_1"] = llformat("%d", window_size);
 	// misc["string_2"] = 

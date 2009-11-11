@@ -401,10 +401,10 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 	
 	if (for_selection && (width > 1 || height > 1))
 	{
-		calculateFrustumPlanesFromWindow((F32)(x - width / 2) / (F32)gViewerWindow->getWindowWidth() - 0.5f,
-								(F32)(y_from_bot - height / 2) / (F32)gViewerWindow->getWindowHeight() - 0.5f,
-								(F32)(x + width / 2) / (F32)gViewerWindow->getWindowWidth() - 0.5f,
-								(F32)(y_from_bot + height / 2) / (F32)gViewerWindow->getWindowHeight() - 0.5f);
+		calculateFrustumPlanesFromWindow((F32)(x - width / 2) / (F32)gViewerWindow->getWindowWidthScaled() - 0.5f,
+								(F32)(y_from_bot - height / 2) / (F32)gViewerWindow->getWindowHeightScaled() - 0.5f,
+								(F32)(x + width / 2) / (F32)gViewerWindow->getWindowWidthScaled() - 0.5f,
+								(F32)(y_from_bot + height / 2) / (F32)gViewerWindow->getWindowHeightScaled() - 0.5f);
 
 	}
 
@@ -469,7 +469,7 @@ BOOL LLViewerCamera::projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoord
 		}
 	}
 
-	LLRect world_view_rect = gViewerWindow->getWorldViewRect();
+	LLRect world_view_rect = gViewerWindow->getWorldViewRectRaw();
 	S32	viewport[4];
 	viewport[0] = world_view_rect.mLeft;
 	viewport[1] = world_view_rect.mBottom;
@@ -485,7 +485,7 @@ BOOL LLViewerCamera::projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoord
 		y /= gViewerWindow->getDisplayScale().mV[VY];
 
 		// should now have the x,y coords of grab_point in screen space
-		LLRect world_view_rect = gViewerWindow->getVirtualWorldViewRect();
+		LLRect world_view_rect = gViewerWindow->getWorldViewRectScaled();
 
 		// convert to pixel coordinates
 		S32 int_x = lltrunc(x);
@@ -572,7 +572,7 @@ BOOL LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
 		in_front = FALSE;
 	}
 
-	LLRect world_view_rect = gViewerWindow->getWorldViewRect();
+	LLRect world_view_rect = gViewerWindow->getWorldViewRectRaw();
 	S32	viewport[4];
 	viewport[0] = world_view_rect.mLeft;
 	viewport[1] = world_view_rect.mBottom;
@@ -587,7 +587,7 @@ BOOL LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
 		x /= gViewerWindow->getDisplayScale().mV[VX];
 		y /= gViewerWindow->getDisplayScale().mV[VY];
 		// should now have the x,y coords of grab_point in screen space
-		const LLRect& world_rect = gViewerWindow->getVirtualWorldViewRect();
+		const LLRect& world_rect = gViewerWindow->getWorldViewRectScaled();
 
 		// ...sanity check
 		S32 int_x = lltrunc(x);

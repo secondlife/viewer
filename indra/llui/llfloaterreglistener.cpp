@@ -21,19 +21,35 @@
 #include "llfloater.h"
 #include "llbutton.h"
 
-LLFloaterRegListener::LLFloaterRegListener(const std::string& pumpName):
-    LLDispatchListener(pumpName, "op")
+LLFloaterRegListener::LLFloaterRegListener():
+    LLEventAPI("LLFloaterReg",
+               "LLFloaterReg listener to (e.g.) show/hide LLFloater instances")
 {
-    add("getBuildMap",  &LLFloaterRegListener::getBuildMap,  LLSD().insert("reply", LLSD()));
+    add("getBuildMap",
+        "Return on [\"reply\"] data about all registered LLFloaterReg floater names",
+        &LLFloaterRegListener::getBuildMap,
+        LLSD().insert("reply", LLSD()));
     LLSD requiredName;
     requiredName["name"] = LLSD();
-    add("showInstance", &LLFloaterRegListener::showInstance, requiredName);
-    add("hideInstance", &LLFloaterRegListener::hideInstance, requiredName);
-    add("toggleInstance", &LLFloaterRegListener::toggleInstance, requiredName);
+    add("showInstance",
+        "Ask to display the floater specified in [\"name\"]",
+        &LLFloaterRegListener::showInstance,
+        requiredName);
+    add("hideInstance",
+        "Ask to hide the floater specified in [\"name\"]",
+        &LLFloaterRegListener::hideInstance,
+        requiredName);
+    add("toggleInstance",
+        "Ask to toggle the state of the floater specified in [\"name\"]",
+        &LLFloaterRegListener::toggleInstance,
+        requiredName);
     LLSD requiredNameButton;
     requiredNameButton["name"] = LLSD();
     requiredNameButton["button"] = LLSD();
-    add("clickButton", &LLFloaterRegListener::clickButton, requiredNameButton);
+    add("clickButton",
+        "Simulate clicking the named [\"button\"] in the visible floater named in [\"name\"]",
+        &LLFloaterRegListener::clickButton,
+        requiredNameButton);
 }
 
 void LLFloaterRegListener::getBuildMap(const LLSD& event) const

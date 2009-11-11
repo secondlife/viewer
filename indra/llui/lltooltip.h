@@ -116,6 +116,12 @@ private:
 	S32				mPadding;	// pixels
 };
 
+// used for the inspector tooltips which need different background images etc.
+class LLInspector : public LLToolTip
+{
+public:
+	struct Params : public LLInitParam::Block<Params, LLToolTip::Params> {};
+};
 
 class LLToolTipMgr : public LLSingleton<LLToolTipMgr>
 {

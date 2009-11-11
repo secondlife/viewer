@@ -13,12 +13,12 @@
 #ifndef LL_LLAGENTLISTENER_H
 #define LL_LLAGENTLISTENER_H
 
-#include "lleventdispatcher.h"
+#include "lleventapi.h"
 
 class LLAgent;
 class LLSD;
 
-class LLAgentListener : public LLDispatchListener
+class LLAgentListener : public LLEventAPI
 {
 public:
 	LLAgentListener(LLAgent &agent);

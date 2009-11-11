@@ -36,6 +36,7 @@
 #include "llmediactrl.h"
 #include "lllogininstance.h"
 #include "lluri.h"
+#include "llagent.h"
 
 LLFloaterSearch::LLFloaterSearch(const LLSD& key) :
 	LLFloater(key),
@@ -121,6 +122,12 @@ void LLFloaterSearch::search(const LLSD &key)
 	// append the permissions token that login.cgi gave us
 	LLSD search_token = LLLoginInstance::getInstance()->getResponse("search_token");
 	url += "&p=" + search_token.asString();
+
+	// also append the user's preferred maturity (can be changed via prefs)
+	std::string maturity = "pg";
+	if (gAgent.prefersMature()) maturity += ",mature";
+	if (gAgent.prefersAdult()) maturity += ",adult";
+	url += "&r=" + maturity;
 
 	// and load the URL in the web view
 	mBrowser->navigateTo(url);

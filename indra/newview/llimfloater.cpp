@@ -363,7 +363,7 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 
 void LLIMFloater::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRect();
+	rect = gViewerWindow->getWorldViewRectRaw();
 }
 
 void LLIMFloater::setDocked(bool docked, bool pop_on_undock)

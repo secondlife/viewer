@@ -60,6 +60,8 @@ public:
 	LLDebugView(const Params&);
 	~LLDebugView();
 
+	void init();
+
 	void setStatsVisible(BOOL visible);
 	
 	LLFastTimerView* mFastTimerView;

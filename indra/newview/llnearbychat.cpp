@@ -290,7 +290,7 @@ void LLNearbyChat::setRect	(const LLRect &rect)
 
 void LLNearbyChat::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRect();
+	rect = gViewerWindow->getWorldViewRectRaw();
 }
 
 

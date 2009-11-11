@@ -64,7 +64,6 @@ void ContextMenu::show(LLView* spawning_view, const std::vector<LLUUID>& uuids, 
 		if (parent)
 		{
 			parent->removeChild(mMenu);
-			mMenu->setParent(NULL);
 		}
 		delete mMenu;
 		mMenu = NULL;

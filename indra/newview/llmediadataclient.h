@@ -89,7 +89,10 @@ public:
 	F32 getRetryTimerDelay() const { return mRetryTimerDelay; }
 	
 	// Returns true iff the queue is empty
-	bool isEmpty() const; 
+	bool isEmpty() const;
+	
+	// Returns true iff the given object is in the queue
+	bool isInQueue(const LLMediaDataClientObject::ptr_t &object) const;
 	
 protected:
 	// Destructor
@@ -206,6 +209,9 @@ private:
 		Comparator >
 	{
 	public:
+		// Return whether the given object is in the queue
+		bool find(const LLMediaDataClientObject::ptr_t &obj) const;
+		
 		friend std::ostream& operator<<(std::ostream &s, const PriorityQueue &q);
 	};
     

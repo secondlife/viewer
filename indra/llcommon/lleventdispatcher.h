@@ -44,7 +44,10 @@ public:
      * is used to validate the structure of each incoming event (see
      * llsd_matches()).
      */
-    void add(const std::string& name, const Callable& callable, const LLSD& required=LLSD());
+    void add(const std::string& name,
+             const std::string& desc,
+             const Callable& callable,
+             const LLSD& required=LLSD());
 
     /**
      * Special case: a subclass of this class can pass an unbound member
@@ -52,18 +55,22 @@ public:
      * <tt>boost::bind()</tt> expression.
      */
     template <class CLASS>
-    void add(const std::string& name, void (CLASS::*method)(const LLSD&),
+    void add(const std::string& name,
+             const std::string& desc,
+             void (CLASS::*method)(const LLSD&),
              const LLSD& required=LLSD())
     {
-        addMethod<CLASS>(name, method, required);
+        addMethod<CLASS>(name, desc, method, required);
     }
 
     /// Overload for both const and non-const methods
     template <class CLASS>
-    void add(const std::string& name, void (CLASS::*method)(const LLSD&) const,
+    void add(const std::string& name,
+             const std::string& desc,
+             void (CLASS::*method)(const LLSD&) const,
              const LLSD& required=LLSD())
     {
-        addMethod<CLASS>(name, method, required);
+        addMethod<CLASS>(name, desc, method, required);
     }
 
     /// Unregister a callable
@@ -86,7 +93,8 @@ public:
 
 private:
     template <class CLASS, typename METHOD>
-    void addMethod(const std::string& name, const METHOD& method, const LLSD& required)
+    void addMethod(const std::string& name, const std::string& desc,
+                   const METHOD& method, const LLSD& required)
     {
         CLASS* downcast = dynamic_cast<CLASS*>(this);
         if (! downcast)
@@ -95,7 +103,7 @@ private:
         }
         else
         {
-            add(name, boost::bind(method, downcast, _1), required);
+            add(name, desc, boost::bind(method, downcast, _1), required);
         }
     }
     void addFail(const std::string& name, const std::string& classname) const;
@@ -103,7 +111,18 @@ private:
     bool attemptCall(const std::string& name, const LLSD& event) const;
 
     std::string mDesc, mKey;
-    typedef std::map<std::string, std::pair<Callable, LLSD> > DispatchMap;
+    struct DispatchEntry
+    {
+        DispatchEntry(const Callable& func, const std::string& desc, const LLSD& required):
+            mFunc(func),
+            mDesc(desc),
+            mRequired(required)
+        {}
+        Callable mFunc;
+        std::string mDesc;
+        LLSD mRequired;
+    };
+    typedef std::map<std::string, DispatchEntry> DispatchMap;
     DispatchMap mDispatch;
 };
 
