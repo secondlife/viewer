@@ -109,19 +109,7 @@
      name="ui_scale_slider"
      top_pad="2"
      width="180" />
-    <spinner
-     control_name="UIScaleFactor"
-     height="16"
-     increment="0.025"
-     initial_value="1"
-     layout="topleft"
-     left_pad="10"
-     max_val="1.4"
-     min_val="0.75"
-     name="ui_scale_slider"
-     top_delta="0"
-     width="58" />
-     <text
+    <text
      type="string"
      length="1"
      follows="left|top"

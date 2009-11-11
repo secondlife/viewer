@@ -60,6 +60,7 @@
 #include "llviewermenu.h"			// for gMenuHolder
 #include "llvoiceclient.h"
 #include "llworld.h"
+#include "llspeakers.h"
 
 #define FRIEND_LIST_UPDATE_TIMEOUT	0.5
 #define NEARBY_LIST_UPDATE_INTERVAL 1
@@ -119,8 +120,84 @@ protected:
 	}
 };
 
+/** Compares avatar items by distance between you and them */
+class LLAvatarItemDistanceComparator : public LLAvatarItemComparator
+{
+public:
+	typedef std::map < LLUUID, LLVector3d > id_to_pos_map_t;
+	LLAvatarItemDistanceComparator() {};
+
+	void updateAvatarsPositions(std::vector<LLVector3d>& positions, std::vector<LLUUID>& uuids)
+	{
+		std::vector<LLVector3d>::const_iterator
+			pos_it = positions.begin(),
+			pos_end = positions.end();
+
+		std::vector<LLUUID>::const_iterator
+			id_it = uuids.begin(),
+			id_end = uuids.end();
+
+		LLAvatarItemDistanceComparator::id_to_pos_map_t pos_map;
+
+		mAvatarsPositions.clear();
+
+		for (;pos_it != pos_end && id_it != id_end; ++pos_it, ++id_it )
+		{
+			mAvatarsPositions[*id_it] = *pos_it;
+		}
+	};
+
+protected:
+	virtual bool doCompare(const LLAvatarListItem* item1, const LLAvatarListItem* item2) const
+	{
+		const LLVector3d& me_pos = gAgent.getPositionGlobal();
+		const LLVector3d& item1_pos = mAvatarsPositions.find(item1->getAvatarId())->second;
+		const LLVector3d& item2_pos = mAvatarsPositions.find(item2->getAvatarId())->second;
+		F32 dist1 = dist_vec(item1_pos, me_pos);
+		F32 dist2 = dist_vec(item2_pos, me_pos);
+		return dist1 < dist2;
+	}
+private:
+	id_to_pos_map_t mAvatarsPositions;
+};
+
+/** Comparator for comparing nearby avatar items by last spoken time */
+class LLAvatarItemRecentSpeakerComparator : public  LLAvatarItemNameComparator
+{
+public:
+	LLAvatarItemRecentSpeakerComparator() {};
+	virtual ~LLAvatarItemRecentSpeakerComparator() {};
+
+protected:
+	virtual bool doCompare(const LLAvatarListItem* item1, const LLAvatarListItem* item2) const
+	{
+		LLPointer<LLSpeaker> lhs = LLLocalSpeakerMgr::instance().findSpeaker(item1->getAvatarId());
+		LLPointer<LLSpeaker> rhs = LLLocalSpeakerMgr::instance().findSpeaker(item2->getAvatarId());
+		if ( lhs.notNull() && rhs.notNull() )
+		{
+			// Compare by last speaking time
+			if( lhs->mLastSpokeTime != rhs->mLastSpokeTime )
+				return ( lhs->mLastSpokeTime > rhs->mLastSpokeTime );
+		}
+		else if ( lhs.notNull() )
+		{
+			// True if only item1 speaker info available
+			return true;
+		}
+		else if ( rhs.notNull() )
+		{
+			// False if only item2 speaker info available
+			return false;
+		}
+		// By default compare by name.
+		return LLAvatarItemNameComparator::doCompare(item1, item2);
+	}
+};
+
 static const LLAvatarItemRecentComparator RECENT_COMPARATOR;
 static const LLAvatarItemStatusComparator STATUS_COMPARATOR;
+static LLAvatarItemDistanceComparator DISTANCE_COMPARATOR;
+static const LLAvatarItemRecentSpeakerComparator RECENT_SPEAKER_COMPARATOR;
 
 static LLRegisterPanelClassWrapper<LLPanelPeople> t_people("panel_people");
 
@@ -432,9 +509,12 @@ BOOL LLPanelPeople::postBuild()
 
 	mNearbyList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	mRecentList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
+	mAllFriendList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
+	mOnlineFriendList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 
 	setSortOrder(mRecentList,		(ESortOrder)gSavedSettings.getU32("RecentPeopleSortOrder"),	false);
 	setSortOrder(mAllFriendList,	(ESortOrder)gSavedSettings.getU32("FriendsSortOrder"),		false);
+	setSortOrder(mNearbyList,		(ESortOrder)gSavedSettings.getU32("NearbyPeopleSortOrder"),	false);
 
 	LLPanel* groups_panel = getChild<LLPanel>(GROUP_TAB_NAME);
 	groups_panel->childSetAction("activate_btn", boost::bind(&LLPanelPeople::onActivateButtonClicked,	this));
@@ -495,7 +575,8 @@ BOOL LLPanelPeople::postBuild()
 
 	enable_registrar.add("People.Friends.ViewSort.CheckItem",	boost::bind(&LLPanelPeople::onFriendsViewSortMenuItemCheck,	this, _2));
 	enable_registrar.add("People.Recent.ViewSort.CheckItem",	boost::bind(&LLPanelPeople::onRecentViewSortMenuItemCheck,	this, _2));
-	
+	enable_registrar.add("People.Nearby.ViewSort.CheckItem",	boost::bind(&LLPanelPeople::onNearbyViewSortMenuItemCheck,	this, _2));
+
 	LLMenuGL* plus_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_group_plus.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGroupPlusMenuHandle  = plus_menu->getHandle();
 
@@ -574,8 +655,13 @@ void LLPanelPeople::updateNearbyList()
 	if (!mNearbyList)
 		return;
 
-	LLWorld::getInstance()->getAvatars(&mNearbyList->getIDs(), NULL, gAgent.getPositionGlobal(), gSavedSettings.getF32("NearMeRange"));
+	std::vector<LLVector3d> positions;
+
+	LLWorld::getInstance()->getAvatars(&mNearbyList->getIDs(), &positions, gAgent.getPositionGlobal(), gSavedSettings.getF32("NearMeRange"));
 	mNearbyList->setDirty();
+
+	DISTANCE_COMPARATOR.updateAvatarsPositions(positions, mNearbyList->getIDs());
+	LLLocalSpeakerMgr::instance().update(TRUE);
 }
 
 void LLPanelPeople::updateRecentList()
@@ -606,6 +692,12 @@ void LLPanelPeople::buttonSetAction(const std::string& btn_name, const commit_si
 	// To make sure we're referencing the right widget (a child of the button bar).
 	LLButton* button = getChild<LLView>("button_bar")->getChild<LLButton>(btn_name);
 	button->setClickedCallback(cb);
+}
+
+bool LLPanelPeople::isFriendOnline(const LLUUID& id)
+{
+	LLAvatarList::uuid_vector_t ids = mOnlineFriendList->getIDs();
+	return std::find(ids.begin(), ids.end(), id) != ids.end();
 }
 
 void LLPanelPeople::updateButtons()
@@ -660,7 +752,7 @@ void LLPanelPeople::updateButtons()
 		childSetEnabled("add_friend_btn",	!is_friend);
 	}
 
-	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected);
+	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
 	buttonSetEnabled("view_profile_btn",	item_selected);
 	buttonSetEnabled("im_btn",				multiple_selected); // allow starting the friends conference for multiple selection
 	buttonSetEnabled("call_btn",			item_selected);
@@ -758,6 +850,14 @@ void LLPanelPeople::setSortOrder(LLAvatarList* list, ESortOrder order, bool save
 		list->setComparator(&RECENT_COMPARATOR);
 		list->sort();
 		break;
+	case E_SORT_BY_RECENT_SPEAKERS:
+		list->setComparator(&RECENT_SPEAKER_COMPARATOR);
+		list->sort();
+		break;
+	case E_SORT_BY_DISTANCE:
+		list->setComparator(&DISTANCE_COMPARATOR);
+		list->sort();
+		break;
 	default:
 		llwarns << "Unrecognized people sort order for " << list->getName() << llendl;
 		return;
@@ -772,7 +872,7 @@ void LLPanelPeople::setSortOrder(LLAvatarList* list, ESortOrder order, bool save
 		else if (list == mRecentList)
 			setting = "RecentPeopleSortOrder";
 		else if (list == mNearbyList)
-			setting = "NearbyPeopleSortOrder"; // *TODO: unused by current implementation
+			setting = "NearbyPeopleSortOrder";
 
 		if (!setting.empty())
 			gSavedSettings.setU32(setting, order);
@@ -1008,12 +1108,13 @@ void LLPanelPeople::onNearbyViewSortMenuItemClicked(const LLSD& userdata)
 {
 	std::string chosen_item = userdata.asString();
 
-	if (chosen_item == "sort_recent")
+	if (chosen_item == "sort_by_recent_speakers")
 	{
+		setSortOrder(mNearbyList, E_SORT_BY_RECENT_SPEAKERS);
 	}
 	else if (chosen_item == "sort_name")
 	{
-		mNearbyList->sortByName();
+		setSortOrder(mNearbyList, E_SORT_BY_NAME);
 	}
 	else if (chosen_item == "view_icons")
 	{
@@ -1021,8 +1122,25 @@ void LLPanelPeople::onNearbyViewSortMenuItemClicked(const LLSD& userdata)
 	}
 	else if (chosen_item == "sort_distance")
 	{
+		setSortOrder(mNearbyList, E_SORT_BY_DISTANCE);
 	}
 }
+
+bool LLPanelPeople::onNearbyViewSortMenuItemCheck(const LLSD& userdata)
+{
+	std::string item = userdata.asString();
+	U32 sort_order = gSavedSettings.getU32("NearbyPeopleSortOrder");
+
+	if (item == "sort_by_recent_speakers")
+		return sort_order == E_SORT_BY_RECENT_SPEAKERS;
+	if (item == "sort_name")
+		return sort_order == E_SORT_BY_NAME;
+	if (item == "sort_distance")
+		return sort_order == E_SORT_BY_DISTANCE;
+
+	return false;
+}
+
 void LLPanelPeople::onRecentViewSortMenuItemClicked(const LLSD& userdata)
 {
 	std::string chosen_item = userdata.asString();

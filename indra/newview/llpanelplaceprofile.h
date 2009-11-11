@@ -50,6 +50,8 @@ public:
 
 	/*virtual*/ void setInfoType(INFO_TYPE type);
 
+	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
+
 	// Displays information about the currently selected parcel
 	// without sending a request to the server.
 	// If is_current_parcel true shows "You Are Here" banner.
@@ -61,7 +63,6 @@ public:
 	void updateEstateName(const std::string& name);
 	void updateEstateOwnerName(const std::string& name);
 	void updateCovenantText(const std::string &text);
-	void updateLastVisitedText(const LLDate &date);
 
 private:
 	void onForSaleBannerClick();
@@ -78,7 +79,6 @@ private:
 	LLPanel*			mYouAreHerePanel;
 
 	LLTextBox*			mParcelOwner;
-	LLTextBox*			mLastVisited;
 
 	LLIconCtrl*			mParcelRatingIcon;
 	LLTextBox*			mParcelRatingText;

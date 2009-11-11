@@ -243,5 +243,6 @@ void LLPanelProfile::notifyParent(const LLSD& info)
 		onOpen(info);
 		return;
 	}
+
 	LLPanel::notifyParent(info);
 }

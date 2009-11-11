@@ -40,7 +40,7 @@
 
 #include "llsdutil_math.h"
 
-#include "llscrollcontainer.h"
+#include "lliconctrl.h"
 #include "lltextbox.h"
 
 #include "llagent.h"
@@ -57,8 +57,7 @@ LLPanelPlaceInfo::LLPanelPlaceInfo()
 :	LLPanel(),
 	mParcelID(),
 	mRequestedID(),
-	mPosRegion(),
-	mMinHeight(0)
+	mPosRegion()
 {}
 
 //virtual
@@ -81,11 +80,8 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mParcelName = getChild<LLTextBox>("parcel_title");
 	mDescEditor = getChild<LLExpandableTextBox>("description");
 
+	mMaturityRatingIcon = getChild<LLIconCtrl>("maturity_icon");
 	mMaturityRatingText = getChild<LLTextBox>("maturity_value");
-
-	LLScrollContainer* scroll_container = getChild<LLScrollContainer>("place_scroll");
-	scroll_container->setBorderVisible(FALSE);
-	mMinHeight = scroll_container->getScrolledViewRect().getHeight();
 
 	return TRUE;
 }
@@ -98,6 +94,7 @@ void LLPanelPlaceInfo::resetLocation()
 	mPosRegion.clearVec();
 
 	std::string not_available = getString("not_available");
+	mMaturityRatingIcon->setValue(not_available);
 	mMaturityRatingText->setValue(not_available);
 	mRegionName->setText(not_available);
 	mParcelName->setText(not_available);
@@ -203,20 +200,6 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 	{
 		mDescEditor->setText(parcel_data.desc);
 	}
-
-	// HACK: Flag 0x2 == adult region,
-	// Flag 0x1 == mature region, otherwise assume PG
-	std::string rating = LLViewerRegion::accessToString(SIM_ACCESS_PG);
-	if (parcel_data.flags & 0x2)
-	{
-		rating = LLViewerRegion::accessToString(SIM_ACCESS_ADULT);
-	}
-	else if (parcel_data.flags & 0x1)
-	{
-		rating = LLViewerRegion::accessToString(SIM_ACCESS_MATURE);
-	}
-
-	mMaturityRatingText->setValue(rating);
 
 	S32 region_x;
 	S32 region_y;

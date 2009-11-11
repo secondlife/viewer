@@ -4,19 +4,24 @@
  bevel_style="in"
  follows="left|top|right|bottom"
  height="570"
- label="Edit Pick"
+ label="Edit Classified"
  layout="topleft"
  left="0"
  min_height="350"
- name="panel_edit_pick"
+ name="panel_edit_classified"
  top="0"
  width="333">
+ <panel.string
+  name="location_notice">
+    (will update after save)
+ </panel.string>
   <button
      follows="top|right"
      height="23"
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back_btn"
+     picture_style="true"
      left="10"
      tab_stop="false"
      top="2"
@@ -33,7 +38,7 @@
      text_color="white"
      top="5"
      width="250">
-        Edit Pick
+        Edit Classified
     </text>
    <scroll_container
      color="DkGray2"
@@ -53,7 +58,7 @@
      layout="topleft"
      top="0"
      background_visible="false"
-     height="510"
+     height="600"
      left="0"
      width="295">
     <texture_picker
@@ -63,7 +68,7 @@
      layout="topleft"
      top="20"
      left="10"
-     name="pick_snapshot" />
+     name="classified_snapshot" />
           <icon
            height="18"
            image_name="AddItem_Off"
@@ -97,7 +102,7 @@
          left="10"
          top_pad="2"
          max_length="63"
-         name="pick_name"
+         name="classified_name"
          text_color="black"
          width="290" />
         <text
@@ -124,7 +129,7 @@
          left="10"
          top_pad="2"
          max_length="1023"
-         name="pick_desc"
+         name="classified_desc"
          text_color="black"
          word_wrap="true" />
         <text
@@ -149,7 +154,7 @@
          height="50"
          layout="topleft"
          left="10"
-         name="pick_location"
+         name="classified_location"
          right="-10"
          top_pad="2"
          width="290"
@@ -162,9 +167,61 @@
          label="Set to Current Location"
          layout="topleft"
          left="8"
-         top_pad="0"
+         top_pad="5"
          name="set_to_curr_location_btn"
          width="200" />
+        <combo_box
+         follows="left|top" 
+         height="18" 
+         label=""
+	     left="10" 
+         name="category" 
+         top_pad="5"
+         width="200" />
+        <combo_box 
+         allow_text_entry="false" 
+         follows="left|top" 
+         height="18" 
+         left="10"
+         name="content_type" 
+         top_pad="5"
+         width="200">
+         <combo_item 
+          name="mature_ci" 
+          value="Mature">
+           Mature Content
+         </combo_item>
+         <combo_item 
+          name="pg_ci" 
+          value="PG">
+           PG Content
+         </combo_item>
+        </combo_box>
+        <spinner
+         decimal_digits="0"
+         follows="left|top"
+         halign="left"
+         height="16"
+         increment="1"
+         label_width="20"
+         label="L$"
+         layout="topleft"
+         left="10"
+         value="50"
+         min_val="50"
+         max_val="99999"
+         name="price_for_listing"
+         top_pad="5"
+         tool_tip="Price for listing."
+         width="105" />
+        <check_box
+         height="16"
+         label="Auto renew each week"
+         layout="topleft"
+         left="10"
+         name="auto_renew"
+         top_pad="5"
+         width="250" />
     </panel>
     </scroll_container>
     <panel
@@ -179,7 +236,7 @@
         <button
          follows="bottom|left"
          height="19"
-         label="Save [WHAT]"
+         label="Save"
          layout="topleft"
          name="save_changes_btn"
          left="0"

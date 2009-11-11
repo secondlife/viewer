@@ -38,6 +38,8 @@
   <texture name="Blank" file_name="Blank.png" preload="false" />
 
   <texture name="BottomTray_BG" file_name="bottomtray/BottomTray_BG.png" preload="false" />
+  <texture name="BottomTray_Scroll_Right" file_name="navbar/Arrow_Right_Off.png" preload="false" />
+  <texture name="BottomTray_Scroll_Left" file_name="navbar/Arrow_Left_Off.png" preload="false" />
 
   <texture name="BuyArrow_Off" file_name="navbar/BuyArrow_Off.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0"  />
   <texture name="BuyArrow_Over" file_name="navbar/BuyArrow_Over.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0"  />
