@@ -171,6 +171,22 @@ class LLDragDropWin32Target:
 		STDMETHOD (DragOver)(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 		{
 			HRESULT hr = S_OK;
+			// XXX MAJOR MAJOR HACK!
+			LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(mWindowHandle, GWL_USERDATA);
+			if (NULL != window_imp)
+			{
+				LLCoordGL gl_coord( 0, 0 );
+
+				POINT pt2;
+				pt2.x = pt.x;
+				pt2.y = pt.y;
+				ScreenToClient( mWindowHandle, &pt2 );
+
+				LLCoordWindow cursor_coord_window( pt2.x, pt2.y );
+				window_imp->convertCoords(cursor_coord_window, &gl_coord);
+				MASK mask = gKeyboard->currentMask(TRUE);
+				bDropTargetValid = window_imp->completeDragNDropRequest( gl_coord, mask, FALSE, std::string( "" ) );
+			}
 			if (bDropTargetValid) 
 				*pdwEffect=DROPEFFECT_COPY;
 
@@ -225,7 +241,7 @@ class LLDragDropWin32Target:
 						llinfos << llendl;
 
 						MASK mask = gKeyboard->currentMask(TRUE);
-						window_imp->completeDropRequest( gl_coord, mask, std::string( lpszText ) );
+						window_imp->completeDragNDropRequest( gl_coord, mask, TRUE, std::string( lpszText ) );
 					};
 
 					GlobalUnlock(hText);

@@ -819,8 +819,9 @@ BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MAS
 	return TRUE;
 }
 
-BOOL LLViewerWindow::handleDrop( LLWindow *window,  LLCoordGL pos, MASK mask, std::string data )
+BOOL LLViewerWindow::handleDragNDrop( LLWindow *window,  LLCoordGL pos, MASK mask, BOOL drop, std::string data )
 {
+	BOOL result = FALSE;
 	if (gSavedSettings.getBOOL("PrimMediaDragNDrop"))
 	{
 		LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/ );
@@ -837,28 +838,34 @@ BOOL LLViewerWindow::handleDrop( LLWindow *window,  LLCoordGL pos, MASK mask, st
 			LLTextureEntry *te = obj->getTE(object_face);
 			if (te)
 			{
-				if (! te->hasMedia())
+				if (drop)
 				{
-					// Create new media entry
-					LLSD media_data;
-					// XXX Should we really do Home URL too?
-					media_data[LLMediaEntry::HOME_URL_KEY] = url;
-					media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
-					media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
-					obj->syncMediaData(object_face, media_data, true, true);
-					// XXX This shouldn't be necessary, should it ?!?
-					obj->getMediaImpl(object_face)->navigateReload();
-					obj->sendMediaDataUpdate();
+					if (! te->hasMedia())
+					{
+						// Create new media entry
+						LLSD media_data;
+						// XXX Should we really do Home URL too?
+						media_data[LLMediaEntry::HOME_URL_KEY] = url;
+						media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
+						media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
+						obj->syncMediaData(object_face, media_data, true, true);
+						// XXX This shouldn't be necessary, should it ?!?
+						obj->getMediaImpl(object_face)->navigateReload();
+						obj->sendMediaDataUpdate();
+					}
+					else {
+						// just navigate to the URL
+						obj->getMediaImpl(object_face)->navigateTo(url);
+					}
 				}
 				else {
-					// just navigate to the URL
-					obj->getMediaImpl(object_face)->navigateTo(url);
+					// XXX TODO: make object glow?  Hard because how do we "unglow?"
 				}
+				result = TRUE;
 			}
 		}
 	}
-  	// Always handled as far as the OS is concerned.
-	return TRUE;
+	return result;
 }
   
 BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)

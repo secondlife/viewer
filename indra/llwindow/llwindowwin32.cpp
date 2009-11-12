@@ -2401,7 +2401,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 				MASK mask = gKeyboard->currentMask(TRUE);
 
-				if ( window_imp->completeDropRequest( gl_coord, mask, (char*)url ) )
+				if ( window_imp->completeDragNDropRequest( gl_coord, mask, true, (char*)url ) )
 				{
 					return 0;
 				};
@@ -3578,15 +3578,10 @@ static LLWString find_context(const LLWString & wtext, S32 focus, S32 focus_leng
 
 // final stage of handling drop requests - both from WM_DROPFILES message
 // for files and via IDropTarget interface requests.
-BOOL LLWindowWin32::completeDropRequest( const LLCoordGL gl_coord, const MASK mask, const std::string url )
+BOOL LLWindowWin32::completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, BOOL drop, const std::string url )
 {
-	if ( mCallbacks->handleDrop( this, gl_coord, mask, url ) )
-	{
-		return TRUE;
-	};
-
-	return FALSE;
-};
+	return mCallbacks->handleDragNDrop( this, gl_coord, mask, drop, url );
+}
 
 // Handle WM_IME_REQUEST message.
 // If it handled the message, returns TRUE.  Otherwise, FALSE.
