@@ -512,50 +512,6 @@ std::string LLUrlEntryTeleport::getLocation(const std::string &url) const
 	return ::getStringAfterToken(url, "app/teleport/");
 }
 
-///
-/// LLUrlEntryObjectIM Describes a Second Life object instant msg Url, e.g.,
-/// secondlife:///app/objectim/<sessionid>
-///
-LLUrlEntryObjectIM::LLUrlEntryObjectIM()
-{
-	mPattern = boost::regex("secondlife:///app/objectim/[\\da-f-]+\\??\\S*",
-							boost::regex::perl|boost::regex::icase);
-	mMenuName = "menu_url_objectim.xml";
-	mTooltip = LLTrans::getString("TooltipObjectIMUrl");
-}
-
-std::string LLUrlEntryObjectIM::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
-{
-	LLURI uri(url);
-	LLSD params = uri.queryMap();
-	if (params.has("name"))
-	{
-		// look for a ?name=<obj-name> param in the url
-		// and use that as the label if present.
-		std::string name = params.get("name");
-		LLStringUtil::trim(name);
-		if (name.empty())
-		{
-			name = LLTrans::getString("Unnamed");
-		}
-		return name;
-	}
-
-	return unescapeUrl(url);
-}
-
-std::string LLUrlEntryObjectIM::getLocation(const std::string &url) const
-{
-	LLURI uri(url);
-	LLSD params = uri.queryMap();
-	if (params.has("slurl"))
-	{
-		return params.get("slurl");
-	}
-
-	return "";
-}
-
 //
 // LLUrlEntrySL Describes a generic SLURL, e.g., a Url that starts
 // with secondlife:// (used as a catch-all for cases not matched above)
