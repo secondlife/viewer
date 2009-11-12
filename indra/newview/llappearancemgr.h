@@ -48,13 +48,9 @@ public:
 	void updateAppearanceFromCOF();
 	bool needToSaveCOF();
 	void updateCOF(const LLUUID& category, bool append = false);
-	void updateCOFFromCategory(const LLUUID& category, bool append);
-	void rebuildCOFFromOutfit(const LLUUID& category);
 	void wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append);
 	void wearInventoryCategoryOnAvatar(LLInventoryCategory* category, bool append);
 	void wearOutfitByName(const std::string& name);
-	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
-									LLPointer<LLInventoryCallback> cb);
 	void changeOutfit(bool proceed, const LLUUID& category, bool append);
 
 	// Add COF link to individual item.
@@ -62,19 +58,28 @@ public:
 
 	// Add COF link to ensemble folder.
 	void wearEnsemble(LLInventoryCategory* item, bool do_update = true);
+
+	// Copy all items in a category.
+	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
+							 LLPointer<LLInventoryCallback> cb);
+
+	// Find the Current Outfit folder.
 	LLUUID getCOF();
 
 	// Remove COF entries
 	void removeItemLinks(const LLUUID& item_id, bool do_update = true);
 
+	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
+
 	// For debugging - could be moved elsewhere.
 	void dumpCat(const LLUUID& cat_id, const std::string& msg);
 	void dumpItemArray(const LLInventoryModel::item_array_t& items, const std::string& msg);
+
+	// Attachment link management
 	void unregisterAttachment(const LLUUID& item_id);
 	void registerAttachment(const LLUUID& item_id);
 	void setAttachmentInvLinkEnable(bool val);
 	void linkRegisteredAttachments();
-	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
 
 protected:
 	LLAppearanceManager();
@@ -92,17 +97,12 @@ private:
 										  LLAssetType::EType type,
 										  bool follow_folder_links);
 
-	void getCOFValidDescendents(const LLUUID& category, 
-									   LLInventoryModel::item_array_t& items);
-									   
 	void getUserDescendents(const LLUUID& category, 
 								   LLInventoryModel::item_array_t& wear_items,
 								   LLInventoryModel::item_array_t& obj_items,
 								   LLInventoryModel::item_array_t& gest_items,
 								   bool follow_folder_links);
-	bool isMandatoryWearableType(EWearableType type);
-	void checkMandatoryWearableTypes(const LLUUID& category, std::set<EWearableType>& types_found);
-	void purgeCOFBeforeRebuild(const LLUUID& category);
+
 	void purgeCategory(const LLUUID& category, bool keep_outfit_links);
 
 	std::set<LLUUID> mRegisteredAttachments;
