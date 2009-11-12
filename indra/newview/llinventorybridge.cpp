@@ -1687,7 +1687,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
-					LLAppearanceManager::wearEnsemble(inv_cat);
+					LLAppearanceManager::instance().wearEnsemble(inv_cat);
 				}
 				else
 				{
@@ -2044,7 +2044,7 @@ void LLInventoryCopyAndWearObserver::changed(U32 mask)
 				    mContentsCount)
 				{
 					gInventory.removeObserver(this);
-					LLAppearanceManager::wearInventoryCategory(category, FALSE, TRUE);
+					LLAppearanceManager::instance().wearInventoryCategory(category, FALSE, TRUE);
 					delete this;
 				}
 			}
@@ -2089,7 +2089,7 @@ void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 		if(!model) return;
 		LLViewerInventoryCategory* cat = getCategory();
 		if(!cat) return;
-		LLAppearanceManager::wearEnsemble(cat,true);
+		LLAppearanceManager::instance().wearEnsemble(cat,true);
 		return;
 	}
 #endif
@@ -2730,7 +2730,7 @@ void LLFolderBridge::modifyOutfit(BOOL append)
 
 	// BAP - was:
 	// wear_inventory_category_on_avatar( cat, append );
-	LLAppearanceManager::wearInventoryCategory( cat, FALSE, append );
+	LLAppearanceManager::instance().wearInventoryCategory( cat, FALSE, append );
 }
 
 // helper stuff
@@ -2953,7 +2953,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
-					LLAppearanceManager::wearItem(inv_item);
+					LLAppearanceManager::instance().wearItem(inv_item);
 				}
 				else
 				{
@@ -4206,7 +4206,7 @@ void wear_inventory_item_on_avatar( LLInventoryItem* item )
 		lldebugs << "wear_inventory_item_on_avatar( " << item->getName()
 				 << " )" << llendl;
 
-		LLAppearanceManager::wearItem(item);
+		LLAppearanceManager::instance().wearItem(item);
 	}
 }
 
@@ -4771,7 +4771,7 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 	}
 
 	// Find and remove this item from the COF.
-	LLInventoryModel::item_array_t items = gInventory.collectLinkedItems(item_id, LLAppearanceManager::getCOF());
+	LLInventoryModel::item_array_t items = gInventory.collectLinkedItems(item_id, LLAppearanceManager::instance().getCOF());
 	llassert(items.size() == 1); // Should always have one and only one item linked to this in the COF.
 	for (LLInventoryModel::item_array_t::const_iterator iter = items.begin();
 		 iter != items.end();
