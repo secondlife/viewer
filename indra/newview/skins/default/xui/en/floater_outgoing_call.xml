@@ -61,6 +61,7 @@ Leaving [CURRENT_CHAT].
      height="24"
      label="Cancel"
      label_selected="Cancel"
+     left="70"
      layout="topleft"
      name="Cancel"
      left_pad="10"
