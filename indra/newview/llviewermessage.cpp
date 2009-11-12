@@ -1964,8 +1964,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 
 			// Build a link to open the object IM info window.
-			std::string location = ll_safe_string((char*)binary_bucket,binary_bucket_size);
-			LLStringUtil::trim(location);
+			std::string location = ll_safe_string((char*)binary_bucket, binary_bucket_size-1);
 
 			LLSD substitutions;
 			substitutions["NAME"] = name;
