@@ -62,6 +62,11 @@ public:
 	/*virtual*/ ~LLSpeakButton();
 	/*virtual*/ void draw();
 
+	// *HACK: Need to put tooltips in a translatable location,
+	// the panel that contains this button.
+	void setSpeakToolTip(const std::string& msg);
+	void setShowToolTip(const std::string& msg);
+
 protected:
 	friend class LLUICtrlFactory;
 	LLSpeakButton(const Params& p);

@@ -25,7 +25,7 @@
         Done
     </floater.string>
     <layout_stack
-     bottom="400"
+     bottom="512"
      follows="left|right|top|bottom"
      layout="topleft"
      left="10"
@@ -54,7 +54,7 @@
              layout="topleft"
              left_delta="0"
              name="status_text"
-             top_pad="4"
+             top_pad="5"
              width="150" />
         </layout_panel>
     </layout_stack>

@@ -41,40 +41,27 @@
 #include "lluuid.h"
 #include "llpermissionsflags.h"
 #include "llstring.h"
-
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryObserver
-//
-// This class is designed to be a simple abstract base class which can
-// relay messages when the inventory changes.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ! REFACTOR ! Remove llinventoryobservers.h and have other files that need it explicitly 
+// include llinventoryobservers.h instead of llinventorymodel.h .  This will reduce dependency on
+// llinventorymodel.h.
+#include "llinventoryobserver.h" 
 
-class LLInventoryObserver
-{
-public:
-	// This enumeration is a way to refer to what changed in a more
-	// human readable format. You can mask the value provided by
-	// chaged() to see if the observer is interested in the change.
-	enum 
-	{
-		NONE = 0,
-		LABEL = 1,			// name changed
-		INTERNAL = 2,		// internal change, eg, asset uuid different
-		ADD = 4,			// something added
-		REMOVE = 8,			// something deleted
-		STRUCTURE = 16,		// structural change, eg, item or folder moved
-		CALLING_CARD = 32,	// online, grant status, cancel, etc change
-		ALL = 0xffffffff
-	};
-	virtual ~LLInventoryObserver() {};
-	virtual void changed(U32 mask) = 0;
-	std::string mMessageName; // used by Agent Inventory Service only. [DEV-20328]
-};
+class LLInventoryObserver;
+class LLInventoryObject;
+class LLInventoryItem;
+class LLInventoryCategory;
+class LLViewerInventoryItem;
+class LLViewerInventoryCategory;
+class LLViewerInventoryItem;
+class LLViewerInventoryCategory;
+class LLMessageSystem;
+class LLInventoryCollectFunctor;
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryModel
@@ -86,16 +73,6 @@ public:
 // making it inappropriate for use on tasks.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-class LLInventoryObject;
-class LLInventoryItem;
-class LLInventoryCategory;
-class LLViewerInventoryItem;
-class LLViewerInventoryCategory;
-class LLViewerInventoryItem;
-class LLViewerInventoryCategory;
-class LLMessageSystem;
-class LLInventoryCollectFunctor;
 
 class LLInventoryModel
 {
@@ -473,22 +450,11 @@ protected:
 	cat_array_t* getUnlockedCatArray(const LLUUID& id);
 	item_array_t* getUnlockedItemArray(const LLUUID& id);
 	
-protected:
+private:
 	// Variables used to track what has changed since the last notify.
 	U32 mModifyMask;
 	typedef std::set<LLUUID> changed_items_t;
 	changed_items_t mChangedItemIDs;
-
-	// Information for tracking the actual inventory. We index this
-	// information in a lot of different ways so we can access
-	// the inventory using several different identifiers.
-	// mInventory member data is the 'master' list of inventory, and
-	// mCategoryMap and mItemMap store uuid->object mappings. 
-	typedef std::map<LLUUID, LLPointer<LLViewerInventoryCategory> > cat_map_t;
-	typedef std::map<LLUUID, LLPointer<LLViewerInventoryItem> > item_map_t;
-	//inv_map_t mInventory;
-	cat_map_t mCategoryMap;
-	item_map_t mItemMap;
 
 	std::map<LLUUID, bool> mCategoryLock;
 	std::map<LLUUID, bool> mItemLock;
@@ -525,6 +491,21 @@ protected:
 	// This flag is used to handle an invalid inventory state.
 	bool mIsAgentInvUsable;
 
+private:
+	// Information for tracking the actual inventory. We index this
+	// information in a lot of different ways so we can access
+	// the inventory using several different identifiers.
+	// mInventory member data is the 'master' list of inventory, and
+	// mCategoryMap and mItemMap store uuid->object mappings. 
+	typedef std::map<LLUUID, LLPointer<LLViewerInventoryCategory> > cat_map_t;
+	typedef std::map<LLUUID, LLPointer<LLViewerInventoryItem> > item_map_t;
+	//inv_map_t mInventory;
+	cat_map_t mCategoryMap;
+	item_map_t mItemMap;
+
+	// Flag set when notifyObservers is being called, to look for bugs
+	// where it's called recursively.
+	BOOL mIsNotifyObservers;
 public:
 	// *NOTE: DEBUG functionality
 	void dumpInventory() const;
@@ -766,184 +747,6 @@ public:
 	virtual bool operator()(LLInventoryCategory* cat,
 							LLInventoryItem* item);
 };
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryCompletionObserver
-//
-// Class which can be used as a base class for doing something when
-// when all observed items are locally complete. This class implements
-// the changed() method of LLInventoryObserver and declares a new
-// method named done() which is called when all watched items have
-// complete information in the inventory model.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class LLInventoryCompletionObserver : public LLInventoryObserver
-{
-public:
-	LLInventoryCompletionObserver() {}
-	virtual void changed(U32 mask);
-
-	void watchItem(const LLUUID& id);
-
-protected:
-	virtual void done() = 0;
-
-	typedef std::vector<LLUUID> item_ref_t;
-	item_ref_t mComplete;
-	item_ref_t mIncomplete;
-};
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryFetchObserver
-//
-// This class is much like the LLInventoryCompletionObserver, except
-// that it handles all the the fetching necessary. Override the done()
-// method to do the thing you want.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class LLInventoryFetchObserver : public LLInventoryObserver
-{
-public:
-	LLInventoryFetchObserver() {}
-	virtual void changed(U32 mask);
-
-	typedef std::vector<LLUUID> item_ref_t;
-
-	bool isEverythingComplete() const;
-	void fetchItems(const item_ref_t& ids);
-	virtual void done() = 0;
-
-protected:
-	item_ref_t mComplete;
-	item_ref_t mIncomplete;
-};
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryFetchDescendentsObserver
-//
-// This class is much like the LLInventoryCompletionObserver, except
-// that it handles fetching based on category. Override the done()
-// method to do the thing you want.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLInventoryFetchDescendentsObserver : public LLInventoryObserver
-{
-public:
-	LLInventoryFetchDescendentsObserver() {}
-	virtual void changed(U32 mask);
-
-	typedef std::vector<LLUUID> folder_ref_t;
-	void fetchDescendents(const folder_ref_t& ids);
-	bool isEverythingComplete() const;
-	virtual void done() = 0;
-
-protected:
-	bool isComplete(LLViewerInventoryCategory* cat);
-	folder_ref_t mIncompleteFolders;
-	folder_ref_t mCompleteFolders;
-};
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryFetchComboObserver
-//
-// This class does an appropriate combination of fetch descendents and
-// item fetches based on completion of categories and items. Much like
-// the fetch and fetch descendents, this will call done() when everything
-// has arrived.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLInventoryFetchComboObserver : public LLInventoryObserver
-{
-public:
-	LLInventoryFetchComboObserver() : mDone(false) {}
-	virtual void changed(U32 mask);
-
-	typedef std::vector<LLUUID> folder_ref_t;
-	typedef std::vector<LLUUID> item_ref_t;
-	void fetch(const folder_ref_t& folder_ids, const item_ref_t& item_ids);
-
-	virtual void done() = 0;
-
-protected:
-	bool mDone;
-	folder_ref_t mCompleteFolders;
-	folder_ref_t mIncompleteFolders;
-	item_ref_t mCompleteItems;
-	item_ref_t mIncompleteItems;
-};
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryExistenceObserver
-//
-// This class is used as a base class for doing somethign when all the
-// observed item ids exist in the inventory somewhere. You can derive
-// a class from this class and implement the done() method to do
-// something useful.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class LLInventoryExistenceObserver : public LLInventoryObserver
-{
-public:
-	LLInventoryExistenceObserver() {}
-	virtual void changed(U32 mask);
-
-	void watchItem(const LLUUID& id);
-
-protected:
-	virtual void done() = 0;
-
-	typedef std::vector<LLUUID> item_ref_t;
-	item_ref_t mExist;
-	item_ref_t mMIA;
-};
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryAddedObserver
-//
-// This class is used as a base class for doing something when 
-// a new item arrives in inventory.
-// It does not watch for a certain UUID, rather it acts when anything is added
-// Derive a class from this class and implement the done() method to do
-// something useful.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class LLInventoryAddedObserver : public LLInventoryObserver
-{
-public:
-	LLInventoryAddedObserver() : mAdded() {}
-	virtual void changed(U32 mask);
-
-protected:
-	virtual void done() = 0;
-
-	typedef std::vector<LLUUID> item_ref_t;
-	item_ref_t mAdded;
-};
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryTransactionObserver
-//
-// Class which can be used as a base class for doing something when an
-// inventory transaction completes.
-//
-// *NOTE: This class is not quite complete. Avoid using unless you fix up it's
-// functionality gaps.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class LLInventoryTransactionObserver : public LLInventoryObserver
-{
-public:
-	LLInventoryTransactionObserver(const LLTransactionID& transaction_id);
-	virtual void changed(U32 mask);
-
-protected:
-	typedef std::vector<LLUUID> folder_ref_t;
-	typedef std::vector<LLUUID> item_ref_t;
-	virtual void done(const folder_ref_t& folders, const item_ref_t& items) = 0;
-
-	LLTransactionID mTransactionID;
-};
-
 
 #endif // LL_LLINVENTORYMODEL_H
 

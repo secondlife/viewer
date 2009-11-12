@@ -246,11 +246,13 @@ set(viewer_SOURCE_FILES
     llinspectavatar.cpp
     llinspectgroup.cpp
     llinspectobject.cpp
+    llinspectremoteobject.cpp
     llinventorybridge.cpp
     llinventoryclipboard.cpp
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
     llinventorymodel.cpp
+    llinventoryobserver.cpp
     llinventorypanel.cpp
     llinventorysubtreepanel.cpp
     lljoystickbutton.cpp
@@ -741,11 +743,13 @@ set(viewer_HEADER_FILES
     llinspectavatar.h
     llinspectgroup.h
     llinspectobject.h
+    llinspectremoteobject.h
     llinventorybridge.h
     llinventoryclipboard.h
     llinventoryfilter.h
     llinventoryfunctions.h
     llinventorymodel.h
+    llinventoryobserver.h
     llinventorypanel.h
     llinventorysubtreepanel.h
     lljoystickbutton.h

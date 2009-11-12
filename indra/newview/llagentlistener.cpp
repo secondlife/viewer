@@ -48,7 +48,7 @@ void LLAgentListener::requestTeleport(LLSD const & event_data) const
 		params.append(event_data["y"]);
 		params.append(event_data["z"]);
 		LLCommandDispatcher::dispatch("teleport", params, LLSD(), NULL, true);
-		// *TODO - lookup other LLCommandHandlers for "agent", "classified", "event", "group", "floater", "objectim", "parcel", "login", login_refresh", "balance", "chat"
+		// *TODO - lookup other LLCommandHandlers for "agent", "classified", "event", "group", "floater", "parcel", "login", login_refresh", "balance", "chat"
 		// should we just compose LLCommandHandler and LLDispatchListener?
 	}
 	else
