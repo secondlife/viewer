@@ -102,8 +102,10 @@ private:
 	void processWidthIncreased(S32 delta_width);
 	void log(LLView* panel, const std::string& descr);
 	bool processShowButton(EResizeState shown_object_type, S32* available_width, S32* buttons_required_width);
+	void processHideButton(EResizeState shown_object_type, S32* required_width, S32* buttons_freed_width);
 	bool canButtonBeShown(LLPanel* panel) const;
 	void initStateProcessedObjectMap();
+	void showTrayButton(EResizeState shown_object_type, bool visible);
 
 	MASK mResizeState;
 
