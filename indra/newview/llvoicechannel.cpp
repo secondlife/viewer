@@ -792,9 +792,6 @@ void LLVoiceChannelP2P::activate()
 {
 	if (callStarted()) return;
 
-	LLVoiceChannel *voice = LLVoiceChannel::getCurrentVoiceChannel();
-	if (voice && !voice->getSessionName().empty())
-
 	LLVoiceChannel::activate();
 
 	if (callStarted())
