@@ -35,6 +35,7 @@
 #include "llagent.h" 
 #include "llagentwearables.h"
 
+#include "llcallbacklist.h"
 #include "llfloatercustomize.h"
 #include "llfloaterinventory.h"
 #include "llinventorybridge.h"
@@ -82,6 +83,8 @@ public:
 
 protected:
 	void processWearablesMessage();
+	void processContents();
+	static void onIdle(void *userdata);
 };
 
 LLAgentWearables gAgentWearables;
@@ -2002,11 +2005,34 @@ void LLAgentWearables::updateServer()
 	gAgent.sendAgentSetAppearance();
 }
 
+//--------------------------------------------------------------------
+// InitialWearablesFetch
+// 
+// This grabs contents from the COF and processes them.
+// The processing is handled in idle(), i.e. outside of done(),
+// to avoid gInventory.notifyObservers recursion.
+//--------------------------------------------------------------------
+
+// virtual
 void LLInitialWearablesFetch::done()
 {
-	// No longer need this observer hanging around.
+	// Delay processing the actual results of this so it's not handled within
+	// gInventory.notifyObservers.  The results will be handled in the next
+	// idle tick instead.
 	gInventory.removeObserver(this);
+	gIdleCallbacks.addFunction(onIdle, this);
+}
 
+// static
+void LLInitialWearablesFetch::onIdle(void *data)
+{
+	gIdleCallbacks.deleteFunction(onIdle, data);
+	LLInitialWearablesFetch *self = reinterpret_cast<LLInitialWearablesFetch*>(data);
+	self->processContents();
+}
+
+void LLInitialWearablesFetch::processContents()
+{
 	// Fetch the wearable items from the Current Outfit Folder
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
