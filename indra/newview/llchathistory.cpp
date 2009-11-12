@@ -167,7 +167,15 @@ public:
 
 	void onHeaderPanelClick(S32 x, S32 y, MASK mask)
 	{
-		LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", mAvatarID));
+		if (mSourceType == CHAT_SOURCE_OBJECT)
+		{
+			LLFloaterReg::showInstance("inspect_object", LLSD().insert("object_id", mAvatarID));
+		}
+		else if (mSourceType == CHAT_SOURCE_AGENT)
+		{
+			LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", mAvatarID));
+		}
+		//if chat source is system, you may add "else" here to define behaviour.
 	}
 
 	const LLUUID&		getAvatarId () const { return mAvatarID;}
