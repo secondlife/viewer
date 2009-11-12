@@ -463,7 +463,7 @@ void LLIMFloater::updateMessages()
 
 	if (messages.size())
 	{
-		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
+//		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
 
 		std::ostringstream message;
 		std::list<LLSD>::const_reverse_iterator iter = messages.rbegin();
@@ -476,14 +476,11 @@ void LLIMFloater::updateMessages()
 			LLUUID from_id = msg["from_id"].asUUID();
 			std::string from = from_id != gAgentID ? msg["from"].asString() : LLTrans::getString("You");
 			std::string message = msg["message"].asString();
-			LLStyle::Params style_params;
-			style_params.color(chat_color);
 
 			LLChat chat(message);
 			chat.mFromID = from_id;
 			chat.mFromName = from;
-
-			mChatHistory->appendWidgetMessage(chat, style_params);
+			mChatHistory->appendWidgetMessage(chat);
 
 			mLastMessageIndex = msg["index"].asInteger();
 		}

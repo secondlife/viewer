@@ -330,7 +330,7 @@ LLView* LLChatHistory::getHeader(const LLChat& chat)
 	return header;
 }
 
-void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& style_params)
+void LLChatHistory::appendWidgetMessage(const LLChat& chat)
 {
 	LLView* view = NULL;
 	std::string view_text;
@@ -370,7 +370,17 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& sty
 	appendWidget(p, view_text, false);
 
 	//Append the text message
+	
+	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
+	LLViewerChat::getChatColor(chat,txt_color);
+	LLFontGL* fontp = LLViewerChat::getChatFont();
+	
 	std::string message = chat.mText + '\n';
+	
+	LLStyle::Params style_params;
+	style_params.color(txt_color);
+	style_params.font(fontp);
+	
 	appendText(message, FALSE, style_params);
 
 	mLastFromName = chat.mFromName;
