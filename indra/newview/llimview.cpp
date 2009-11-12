@@ -46,6 +46,7 @@
 
 #include "llagent.h"
 #include "llavatariconctrl.h"
+#include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llchat.h"
 #include "llresmgr.h"
@@ -73,6 +74,7 @@
 #include "llvoicechannel.h"
 #include "lltrans.h"
 #include "llrecentpeople.h"
+#include "llsyswellwindow.h"
 
 #include "llfirstuse.h"
 #include "llagentui.h"
@@ -1240,13 +1242,15 @@ void LLOutgoingCallDialog::processCallResponse(S32 response)
 // Class LLIncomingCallDialog
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 LLIncomingCallDialog::LLIncomingCallDialog(const LLSD& payload) :
-	LLModalDialog(payload),
+	LLDockableFloater(NULL, false, payload),
 	mPayload(payload)
 {
 }
 
 BOOL LLIncomingCallDialog::postBuild()
 {
+	LLDockableFloater::postBuild();
+
 	LLSD caller_id = mPayload["caller_id"];
 	EInstantMessage type = (EInstantMessage)mPayload["type"].asInteger();
 
@@ -1276,6 +1280,30 @@ BOOL LLIncomingCallDialog::postBuild()
 	childSetFocus("Accept");
 
 	return TRUE;
+}
+
+void LLIncomingCallDialog::getAllowedRect(LLRect& rect)
+{
+	rect = gViewerWindow->getWorldViewRectRaw();
+}
+
+void LLIncomingCallDialog::onOpen(const LLSD& key)
+{
+	// tell the user which voice channel they would be leaving
+	LLVoiceChannel *voice = LLVoiceChannel::getCurrentVoiceChannel();
+	if (voice && !voice->getSessionName().empty())
+	{
+		childSetTextArg("question", "[CURRENT_CHAT]", voice->getSessionName());
+	}
+	else
+	{
+		childSetTextArg("question", "[CURRENT_CHAT]", getString("localchat"));
+	}
+
+	// dock the dialog to the sys well, where other sys messages appear
+	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getSysWell(),
+									 this, getDockTongue(), LLDockControl::TOP,
+									 boost::bind(&LLIncomingCallDialog::getAllowedRect, this, _1)));
 }
 
 //static
