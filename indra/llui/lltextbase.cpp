@@ -1445,7 +1445,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	}
 }
 
-void LLTextBase::setText(const LLStringExplicit &utf8str)
+void LLTextBase::setText(const LLStringExplicit &utf8str ,const LLStyle::Params& input_params)
 {
 	// clear out the existing text and segments
 	getViewModel()->setDisplay(LLWStringUtil::null);
@@ -1460,7 +1460,7 @@ void LLTextBase::setText(const LLStringExplicit &utf8str)
 	std::string text(utf8str);
 	LLStringUtil::removeCRLF(text);
 
-	appendText(text, false);
+	appendText(text, false, input_params);
 
 	onValueChange(0, getLength());
 }

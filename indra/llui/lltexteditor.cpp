@@ -311,12 +311,12 @@ LLTextEditor::~LLTextEditor()
 // LLTextEditor
 // Public methods
 
-void LLTextEditor::setText(const LLStringExplicit &utf8str)
+void LLTextEditor::setText(const LLStringExplicit &utf8str, const LLStyle::Params& input_params)
 {
 	blockUndo();
 	deselect();
 
-	LLTextBase::setText(utf8str);
+	LLTextBase::setText(utf8str, input_params);
 
 	resetDirty();
 }
