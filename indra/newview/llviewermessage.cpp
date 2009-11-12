@@ -1431,6 +1431,17 @@ bool goto_url_callback(const LLSD& notification, const LLSD& response)
 }
 static LLNotificationFunctorRegistration goto_url_callback_reg("GotoURL", goto_url_callback);
 
+bool inspect_remote_object_callback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	if (0 == option)
+	{
+		LLFloaterReg::showInstance("inspect_remote_object", notification["payload"]);
+	}
+	return false;
+}
+static LLNotificationFunctorRegistration inspect_remote_object_callback_reg("ServerObjectMessage", inspect_remote_object_callback);
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
 	if (gNoRender)
@@ -1943,9 +1954,23 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				return;
 			}
 
+			// Build a link to open the object IM info window.
+			std::string location = ll_safe_string((char*)binary_bucket, binary_bucket_size-1);
+
 			LLSD substitutions;
+			substitutions["NAME"] = name;
 			substitutions["MSG"] = message;
-			LLNotifications::instance().add("ServerObjectMessage", substitutions);
+
+			LLSD payload;
+			payload["object_id"] = session_id;
+			payload["owner_id"] = from_id;
+			payload["slurl"] = location;
+			payload["name"] = name;
+			if (from_group)
+			{
+				payload["groupowned"] = "true";
+			}
+			LLNotifications::instance().add("ServerObjectMessage", substitutions, payload);
 		}
 		break;
 	case IM_FROM_TASK_AS_ALERT:

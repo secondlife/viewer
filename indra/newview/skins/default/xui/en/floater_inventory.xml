@@ -36,10 +36,10 @@
 	 filename="panel_main_inventory.xml"
 	 follows="all"
 	 layout="topleft"
+	 hide_top_panel="true"
 	 left="0"
 	 label="Inventory Panel"
 	 name="Inventory Panel"
 	 top="15"
-	 width="467">
-</panel>
+	 width="467" />
 </floater>

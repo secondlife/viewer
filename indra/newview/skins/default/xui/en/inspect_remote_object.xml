@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater
+ legacy_header_height="18"
+ bevel_style="in"
+ bg_opaque_image="Inspector_Background" 
+ can_close="false"
+ can_minimize="false"
+ height="145"
+ layout="topleft"
+ name="inspect_remote_object"
+ single_instance="true"
+ sound_flags="0"
+ visible="true"
+ width="300">
+  <text
+   follows="all"
+   font="SansSerifLargeBold"
+   height="16"
+   left="8"
+   name="object_name"
+   text_color="White"
+   top="5"
+   use_ellipses="true"
+   width="290">
+     Test Object Name That Is Really Long
+  </text>
+  <text
+   follows="all"
+   font="SansSerif"
+   height="20"
+   left="8"
+   name="object_owner_label"
+   width="55"
+   top_pad="20">
+     Owner:
+  </text>
+  <text
+   follows="top|left"
+   font="SansSerif"
+   height="20"
+   left_pad="10"
+   name="object_owner"
+   use_ellipses="true"
+   width="200"
+   word_wrap="false">
+     Longavatarname Johnsonlongstonnammer
+  </text>
+  <text
+   follows="top|left"
+   font="SansSerif"
+   height="20"
+   left="8"
+   name="object_slurl_label"
+   top_pad="10"
+   width="55">
+     Location:
+  </text>
+  <text
+   follows="top|left"
+   height="20"
+   left_pad="10"
+   name="object_slurl"
+   width="240"
+   use_ellipses="true"
+   word_wrap="false">
+     http://slurl.com/Ahern/50/50/50
+  </text>
+  <button
+   follows="top|left"
+   font="SansSerif"
+   height="20"
+   label="Map"
+   left="10"
+   name="map_btn"
+   top="114"
+   width="75" />
+  <button
+   follows="top|left"
+   font="SansSerif"
+   height="20"
+   label="Block"
+   left_pad="5"
+   name="block_btn"
+   top_delta="0"
+   width="75" />
+  <button
+   follows="top|left"
+   font="SansSerif"
+   height="20"
+   label="Close"
+   right="-10"
+   name="close_btn"
+   top_delta="0"
+   width="75" />
+</floater>

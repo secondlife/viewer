@@ -124,9 +124,19 @@ void LLFloaterSearch::search(const LLSD &key)
 	url += "&p=" + search_token.asString();
 
 	// also append the user's preferred maturity (can be changed via prefs)
-	std::string maturity = "pg";
-	if (gAgent.prefersMature()) maturity += ",mature";
-	if (gAgent.prefersAdult()) maturity += ",adult";
+	std::string maturity;
+	if (gAgent.prefersAdult())
+	{
+		maturity = "42";  // PG,Mature,Adult
+	}
+	else if (gAgent.prefersMature())
+	{
+		maturity = "21";  // PG,Mature
+	}
+	else
+	{
+		maturity = "13";  // PG
+	}
 	url += "&r=" + maturity;
 
 	// and load the URL in the web view

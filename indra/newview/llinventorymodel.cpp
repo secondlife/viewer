@@ -176,6 +176,7 @@ LLInventoryModel::LLInventoryModel()
 	mRootFolderID(),
 	mLibraryRootFolderID(),
 	mLibraryOwnerID(),
+	mIsNotifyObservers(FALSE),
 	mIsAgentInvUsable(false)
 {
 }
@@ -537,7 +538,10 @@ void LLInventoryModel::updateLinkedItems(const LLUUID& object_id)
 						 item_array,
 						 LLInventoryModel::INCLUDE_TRASH,
 						 is_linked_item_match);
-
+	if (cat_array.empty() && item_array.empty())
+	{
+		return;
+	}
 	for (LLInventoryModel::cat_array_t::iterator cat_iter = cat_array.begin();
 		 cat_iter != cat_array.end();
 		 cat_iter++)
@@ -639,6 +643,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 		new_item = old_item;
 		LLUUID old_parent_id = old_item->getParentUUID();
 		LLUUID new_parent_id = item->getParentUUID();
+			
 		if(old_parent_id != new_parent_id)
 		{
 			// need to update the parent-child tree
@@ -1133,6 +1138,15 @@ BOOL LLInventoryModel::containsObserver(LLInventoryObserver* observer) const
 // The optional argument 'service_name' is used by Agent Inventory Service [DEV-20328]
 void LLInventoryModel::notifyObservers(const std::string service_name)
 {
+	if (mIsNotifyObservers)
+	{
+		// Within notifyObservers, something called notifyObservers
+		// again.  This type of recursion is unsafe because it causes items to be 
+		// processed twice, and this can easily lead to infinite loops.
+		llwarns << "Call was made to notifyObservers within notifyObservers!" << llendl;
+		return;
+	}
+	mIsNotifyObservers = TRUE;
 	for (observer_list_t::iterator iter = mObservers.begin();
 		 iter != mObservers.end(); )
 	{
@@ -1154,12 +1168,21 @@ void LLInventoryModel::notifyObservers(const std::string service_name)
 
 	mModifyMask = LLInventoryObserver::NONE;
 	mChangedItemIDs.clear();
+	mIsNotifyObservers = FALSE;
 }
 
 // store flag for change
 // and id of object change applies to
 void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent) 
 { 
+	if (mIsNotifyObservers)
+	{
+		// Something marked an item for change within a call to notifyObservers
+		// (which is in the process of processing the list of items marked for change).
+		// This means the change may fail to be processed.
+		llwarns << "Adding changed mask within notify observers!  Change will likely be lost." << llendl;
+	}
+	
 	mModifyMask |= mask; 
 	if (referent.notNull())
 	{
@@ -1833,13 +1856,13 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 {
 	//llinfos << "LLInventoryModel::addItem()" << llendl;
 
-	
-	// This can happen if assettype enums change.  This can be a backwards compatibility issue 
-	// in some viewer prototypes prior to when the AT_LINK enum changed from 23 to 24.
+	// This can happen if assettype enums from llassettype.h ever change.
+	// For example, there is a known backwards compatibility issue in some viewer prototypes prior to when 
+	// the AT_LINK enum changed from 23 to 24.
 	if ((item->getType() == LLAssetType::AT_NONE)
 		|| LLAssetType::lookup(item->getType()) == LLAssetType::badLookup())
 	{
-		llwarns << "Got bad asset type for item ( name: " << item->getName() << " type: " << item->getType() << " inv-type: " << item->getInventoryType() << " ), ignoring." << llendl;
+		llwarns << "Got bad asset type for item [ name: " << item->getName() << " type: " << item->getType() << " inv-type: " << item->getInventoryType() << " ], ignoring." << llendl;
 		return;
 	}
 	if(item)
@@ -1848,7 +1871,7 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 		// The item will show up as a broken link.
 		if (item->getIsBrokenLink())
 		{
-			llinfos << "Adding broken link ( name: " << item->getName() << " itemID: " << item->getUUID() << " assetID: " << item->getAssetUUID() << " )  parent: " << item->getParentUUID() << llendl;
+			llinfos << "Adding broken link [ name: " << item->getName() << " itemID: " << item->getUUID() << " assetID: " << item->getAssetUUID() << " )  parent: " << item->getParentUUID() << llendl;
 		}
 		mItemMap[item->getUUID()] = item;
 	}
@@ -2176,7 +2199,7 @@ bool LLInventoryModel::loadSkeleton(
 
 			// Add all the items loaded which are parented to a
 			// category with a correctly cached parent
-			count = items.count();
+			S32 bad_link_count = 0;
 			cat_map_t::iterator unparented = mCategoryMap.end();
 			for(item_array_t::const_iterator item_iter = items.begin();
 				item_iter != items.end();
@@ -2193,7 +2216,11 @@ bool LLInventoryModel::loadSkeleton(
 						// This can happen if the linked object's baseobj is removed from the cache but the linked object is still in the cache.
 						if (item->getIsBrokenLink())
 						{
-							llinfos << "Attempted to add cached link item without baseobj present ( name: " << item->getName() << " itemID: " << item->getUUID() << " assetID: " << item->getAssetUUID() << " ).  Ignoring and invalidating " << cat->getName() << " . " << llendl;
+							bad_link_count++;
+							lldebugs << "Attempted to add cached link item without baseobj present ( name: "
+									 << item->getName() << " itemID: " << item->getUUID()
+									 << " assetID: " << item->getAssetUUID()
+									 << " ).  Ignoring and invalidating " << cat->getName() << " . " << llendl;
 							invalid_categories.insert(cit->second);
 							continue;
 						}
@@ -2202,6 +2229,12 @@ bool LLInventoryModel::loadSkeleton(
 						++child_counts[cat->getUUID()];
 					}
 				}
+			}
+			if (bad_link_count > 0)
+			{
+				llinfos << "Attempted to add " << bad_link_count
+						<< " cached link items without baseobj present. "
+						<< "The corresponding categories were invalidated." << llendl;
 			}
 		}
 		else
@@ -3307,6 +3340,12 @@ void LLInventoryModel::processInventoryDescendents(LLMessageSystem* msg,void**)
 	for(i = 0; i < count; ++i)
 	{
 		titem->unpackMessage(msg, _PREHASH_ItemData, i);
+		// If the item has already been added (e.g. from link prefetch), then it doesn't need to be re-added.
+		if (gInventory.getItem(titem->getUUID()))
+		{
+			llinfos << "Skipping prefetched item [ Name: " << titem->getName() << " | Type: " << titem->getActualType() << " | ItemUUID: " << titem->getUUID() << " ] " << llendl;
+			continue;
+		}
 		gInventory.updateItem(titem);
 	}
 

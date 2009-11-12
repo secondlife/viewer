@@ -209,18 +209,6 @@ public:
 };
 
 ///
-/// LLUrlEntryObjectIM Describes a Second Life object instant msg Url, e.g.,
-/// secondlife:///app/objectim/<sessionid>?name=Foo
-///
-class LLUrlEntryObjectIM : public LLUrlEntryBase
-{
-public:
-	LLUrlEntryObjectIM();
-	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-	/*virtual*/ std::string getLocation(const std::string &url) const;
-};
-
-///
 /// LLUrlEntrySL Describes a generic SLURL, e.g., a Url that starts
 /// with secondlife:// (used as a catch-all for cases not matched above)
 ///

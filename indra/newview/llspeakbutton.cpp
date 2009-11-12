@@ -133,6 +133,16 @@ LLSpeakButton::~LLSpeakButton()
 	LLTransientFloaterMgr::getInstance()->removeControlView(mShowBtn);
 }
 
+void LLSpeakButton::setSpeakToolTip(const std::string& msg)
+{
+	mSpeakBtn->setToolTip(msg);
+}
+
+void LLSpeakButton::setShowToolTip(const std::string& msg)
+{
+	mShowBtn->setToolTip(msg);
+}
+
 void LLSpeakButton::onMouseDown_SpeakBtn()
 {
 	bool down = true;
