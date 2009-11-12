@@ -1096,14 +1096,27 @@ LLIMMgr::onConfirmForceCloseError(
 // Class LLOutgoingCallDialog
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 LLOutgoingCallDialog::LLOutgoingCallDialog(const LLSD& payload) :
-	LLDockableFloater(NULL, payload),
+	LLDockableFloater(NULL, false, payload),
 	mPayload(payload)
 {
 }
 
+void LLOutgoingCallDialog::getAllowedRect(LLRect& rect)
+{
+	rect = gViewerWindow->getWorldViewRectRaw();
+}
+
+void LLOutgoingCallDialog::onOpen(const LLSD& key)
+{
+	// dock the dialog to the sys well, where other sys messages appear
+	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getSysWell(),
+					 this, getDockTongue(), LLDockControl::TOP,
+					 boost::bind(&LLOutgoingCallDialog::getAllowedRect, this, _1)));
+}
+
 BOOL LLOutgoingCallDialog::postBuild()
 {
-	BOOL success = LLFloater::postBuild();
+	BOOL success = LLDockableFloater::postBuild();
 
 	LLSD callee_id = mPayload["session_id"];//mPayload["caller_id"];
 
@@ -1125,106 +1138,6 @@ BOOL LLOutgoingCallDialog::postBuild()
 	//childSetAction("Reject", onReject, this);
 
 	return success;
-}
-
-void LLOutgoingCallDialog::processCallResponse(S32 response)
-{
-	if (!gIMMgr)
-		return;
-
-	LLUUID session_id = mPayload["session_id"].asUUID();
-	EInstantMessage type = (EInstantMessage)mPayload["type"].asInteger();
-	LLIMMgr::EInvitationType inv_type = (LLIMMgr::EInvitationType)mPayload["inv_type"].asInteger();
-	bool voice = true;
-	switch(response)
-	{
-	case 2: // start IM: just don't start the voice chat
-	{
-		voice = false;
-		/* FALLTHROUGH */
-	}
-	case 0: // accept
-	{
-		if (type == IM_SESSION_P2P_INVITE)
-		{
-			// create a normal IM session
-			session_id = gIMMgr->addP2PSession(
-				mPayload["session_name"].asString(),
-				mPayload["caller_id"].asUUID(),
-				mPayload["session_handle"].asString());
-
-			if (voice)
-			{
-				if (gIMMgr->startCall(session_id))
-				{
-					// always open IM window when connecting to voice
-					LLIMFloater::show(session_id);
-				}
-			}
-
-			gIMMgr->clearPendingAgentListUpdates(session_id);
-			gIMMgr->clearPendingInvitation(session_id);
-		}
-		else
-		{
-			LLUUID session_id = gIMMgr->addSession(
-				mPayload["session_name"].asString(),
-				type,
-				session_id);
-			if (session_id != LLUUID::null)
-			{
-				LLIMFloater::show(session_id);
-			}
-
-			std::string url = gAgent.getRegion()->getCapability(
-				"ChatSessionRequest");
-
-			if (voice)
-			{
-				LLSD data;
-				data["method"] = "accept invitation";
-				data["session-id"] = session_id;
-				LLHTTPClient::post(
-					url,
-					data,
-					new LLViewerChatterBoxInvitationAcceptResponder(
-						session_id,
-						inv_type));
-			}
-		}
-		if (voice)
-		{
-			break;
-		}
-	}
-	case 1: // decline
-	{
-		if (type == IM_SESSION_P2P_INVITE)
-		{
-			if(gVoiceClient)
-			{
-				std::string s = mPayload["session_handle"].asString();
-				gVoiceClient->declineInvite(s);
-			}
-		}
-		else
-		{
-			std::string url = gAgent.getRegion()->getCapability(
-				"ChatSessionRequest");
-
-			LLSD data;
-			data["method"] = "decline invitation";
-			data["session-id"] = session_id;
-			LLHTTPClient::post(
-				url,
-				data,
-				NULL);
-		}
-	}
-
-	gIMMgr->clearPendingAgentListUpdates(session_id);
-	gIMMgr->clearPendingInvitation(session_id);
-	}
 }
 
 

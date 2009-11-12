@@ -44,7 +44,7 @@
      height="20"
      layout="topleft"
      left="77"
-     name="caller name"
+     name="callee name"
      top="27"
      width="315"
      word_wrap="true" />

@@ -428,9 +428,10 @@ public:
 	LLOutgoingCallDialog(const LLSD& payload);
 
 	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
 
 private:
-	void processCallResponse(S32 response);
+	void getAllowedRect(LLRect& rect);
 
 	LLSD mPayload;
 };
