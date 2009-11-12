@@ -1260,6 +1260,11 @@ BOOL LLIncomingCallDialog::postBuild()
 		call_type = getString("VoiceInviteAdHoc");
 	}
 
+	// check to see if this is an Avaline call
+	LLUUID session_id = mPayload["session_id"].asUUID();
+	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
+	childSetVisible("Start IM", is_avatar); // no IM for avaline
+
 	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
 	caller_name_widget->setValue(caller_name + " " + call_type);
 	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
