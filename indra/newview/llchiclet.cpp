@@ -54,10 +54,12 @@ static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
 static LLDefaultChildRegistry::Register<LLNotificationChiclet> t2("chiclet_notification");
 static LLDefaultChildRegistry::Register<LLIMP2PChiclet> t3("chiclet_im_p2p");
 static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t4("chiclet_im_group");
+static LLDefaultChildRegistry::Register<LLAdHocChiclet> t5("chiclet_im_adhoc");
 
 static const LLRect CHICLET_RECT(0, 25, 25, 0);
-static const LLRect CHICLET_ICON_RECT(0, 24, 24, 0);
+static const LLRect CHICLET_ICON_RECT(0, 22, 22, 0);
 static const LLRect VOICE_INDICATOR_RECT(25, 25, 45, 0);
+static const S32	OVERLAY_ICON_SHIFT = 2;	// used for shifting of an overlay icon for new massages in a chiclet
 
 // static
 const S32 LLChicletPanel::s_scroll_ratio = 10;
@@ -217,13 +219,15 @@ LLIMChiclet::LLIMChiclet(const LLIMChiclet::Params& p)
 	icon_params.visible = false;
 	icon_params.image = LLUI::getUIImage(p.new_messages_icon_name);
 	mNewMessagesIcon = LLUICtrlFactory::create<LLIconCtrl>(icon_params);
+	addChild(mNewMessagesIcon);
+
 	// adjust size and position of an icon
 	LLRect chiclet_rect = p.rect;
-	LLRect overlay_icon_rect = LLRect(chiclet_rect.getWidth()/2, chiclet_rect.mTop, chiclet_rect.mRight, chiclet_rect.getHeight()/2); 
-	// shift an icon a little bit to the right and up corner of a chiclet
-	overlay_icon_rect.translate(overlay_icon_rect.getWidth()/5, overlay_icon_rect.getHeight()/5);
+	LLRect overlay_icon_rect = LLRect(chiclet_rect.getWidth()/2, chiclet_rect.getHeight(), chiclet_rect.getWidth(), chiclet_rect.getHeight()/2); 
 	mNewMessagesIcon->setRect(overlay_icon_rect);
-	addChild(mNewMessagesIcon);
+	
+	// shift an icon a little bit to the right and up corner of a chiclet
+	overlay_icon_rect.translate(OVERLAY_ICON_SHIFT, OVERLAY_ICON_SHIFT);
 
 	setShowCounter(false);
 }
@@ -602,6 +606,9 @@ BOOL LLAdHocChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 LLIMGroupChiclet::Params::Params()
 : group_icon("group_icon")
+, unread_notifications("unread_notifications")
+, speaker("speaker")
+, show_speaker("show_speaker")
 {
 	rect(CHICLET_RECT);
 
@@ -880,19 +887,34 @@ BOOL LLChicletPanel::postBuild()
 
 void LLChicletPanel::onCurrentVoiceChannelChanged(const LLUUID& session_id)
 {
-	for(chiclet_list_t::iterator it = mChicletList.begin(); it != mChicletList.end(); ++it)
+	static LLUUID s_previous_active_voice_session_id;
+
+	std::list<LLChiclet*> chiclets = LLIMChiclet::sFindChicletsSignal(session_id);
+
+	for(std::list<LLChiclet *>::iterator it = chiclets.begin(); it != chiclets.end(); ++it)
 	{
 		LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(*it);
 		if(chiclet)
 		{
-			if(chiclet->getSessionId() == session_id)
-			{
-				chiclet->setShowSpeaker(true);
-				continue;
-			}
-			chiclet->setShowSpeaker(false);
+			chiclet->setShowSpeaker(true);
 		}
 	}
+
+	if(!s_previous_active_voice_session_id.isNull() && s_previous_active_voice_session_id != session_id)
+	{
+		chiclets = LLIMChiclet::sFindChicletsSignal(s_previous_active_voice_session_id);
+
+		for(std::list<LLChiclet *>::iterator it = chiclets.begin(); it != chiclets.end(); ++it)
+		{
+			LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(*it);
+			if(chiclet)
+			{
+				chiclet->setShowSpeaker(false);
+			}
+		}		
+	}
+
+	s_previous_active_voice_session_id = session_id;
 }
 
 S32 LLChicletPanel::calcChickletPanleWidth()
