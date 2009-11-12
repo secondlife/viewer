@@ -1147,7 +1147,6 @@ void LLInventoryModel::notifyObservers(const std::string service_name)
 		return;
 	}
 	mIsNotifyObservers = TRUE;
-	llinfos << "Start process notifyObservers for " << this << llendl;
 	for (observer_list_t::iterator iter = mObservers.begin();
 		 iter != mObservers.end(); )
 	{
