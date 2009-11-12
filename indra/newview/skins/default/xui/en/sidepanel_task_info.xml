@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+	 auto_tile="true"
+	 height="570"
+	 layout="topleft"
+	 name="object properties"
+	 help_topic="object_properties"
+	 save_rect="true"
+	 title="Object Properties"
+	 width="333">
+	 <panel.string
+	  name="text deed continued">
+		Deed
+	 </panel.string>
+	<panel.string
+	 name="text deed">
+		Deed
+	</panel.string>
+            <panel.string
+             name="text modify info 1">
+                You can modify this object
+            </panel.string>
+            <panel.string
+             name="text modify info 2">
+                You can modify these objects
+            </panel.string>
+            <panel.string
+             name="text modify info 3">
+                You can't modify this object
+            </panel.string>
+            <panel.string
+             name="text modify info 4">
+                You can't modify these objects
+            </panel.string>
+            <panel.string
+             name="text modify warning">
+                This object has linked parts
+            </panel.string>
+            <panel.string
+             name="Cost Default">
+                Price: L$
+            </panel.string>
+            <panel.string
+             name="Cost Total">
+                Total Price: L$
+            </panel.string>
+            <panel.string
+             name="Cost Per Unit">
+                Price Per: L$
+            </panel.string>
+            <panel.string
+             name="Cost Mixed">
+                Mixed Price
+            </panel.string>
+            <panel.string
+             name="Sale Mixed">
+                Mixed Sale
+            </panel.string>
+    <button
+	     follows="top|right"
+	     height="25"
+	     image_overlay="BackArrow_Off"
+	     layout="topleft"
+	     name="back_btn"
+	     picture_style="true"
+	     right="-5"
+	     tab_stop="false"
+	     top="0"
+	     width="25" />
+	<panel
+         follows="all"
+         height="500"
+         label=""
+         layout="topleft"
+         left="5"
+         help_topic=""
+         top="30"
+		 border="1"
+         width="313">
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="10"
+             layout="topleft"
+             left="10"
+             name="Name:"
+             top_pad="5"
+             width="90">
+                Name:
+            </text>
+            <line_editor
+             follows="left|top|right"
+             height="19"
+             layout="topleft"
+             left_pad="0"
+             max_length="63"
+             name="Object Name"
+             select_on_focus="true"
+             top_delta="0"
+             width="170" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="10"
+             layout="topleft"
+             left="10"
+             name="Description:"
+             top_pad="3"
+             width="90">
+                Description:
+            </text>
+            <line_editor
+             follows="left|top|right"
+             height="19"
+             layout="topleft"
+             left_pad="0"
+             max_length="127"
+             name="Object Description"
+             select_on_focus="true"
+             top_delta="0"
+             width="170" />
+            <text
+             type="string"
+             left="10"
+             length="1"
+             follows="left|top"
+             height="19"
+             layout="topleft"
+             name="Creator:"
+             width="90">
+                Creator:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             left_pad="0"
+             height="19"
+             layout="topleft"
+             name="Creator Name"
+             width="175">
+                Esbee Linden
+            </text>
+            <text
+             type="string"
+             length="1"
+             left="10"
+             follows="left|top"
+             height="19"
+             layout="topleft"
+             name="Owner:"
+             width="90">
+                Owner:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="19"
+             layout="topleft"
+             name="Owner Name"
+             left_pad="0"
+             width="175">
+                Erica Linden
+            </text>
+           <text
+             type="string"
+             length="1"
+             follows="left|top"
+             layout="topleft"
+             left="10"
+             height="18"
+             name="Group:"
+             top_pad="4"
+             width="75">
+                Group:
+            </text>
+            <button
+			 follows="top|left"
+			 height="10"
+			 image_disabled="Activate_Checkmark"
+			 image_selected="Activate_Checkmark"
+			 image_unselected="Activate_Checkmark"
+			 image_color="White_50"
+			 layout="topleft"
+			 left_pad="0"
+			 top_delta="0"
+			 name="button set group"
+			 picture_style="true"
+			 tab_stop="false"
+			 tool_tip="Choose a group to share this object's permissions"
+			 width="10" />
+            <name_box
+             follows="left|top"
+             height="18"
+             initial_value="Loading..."
+             layout="topleft"
+             left_pad="5"
+             top_delta="-1"
+             name="Group Name Proxy"
+             width="150" />
+            <button
+             follows="top|left"
+             font="SansSerifSmall"
+             height="20"
+             label="Deed"
+             label_selected="Deed"
+             layout="topleft"
+             name="button deed"
+             top_pad="0"
+             left="100"
+             tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."
+             width="80" />
+            <check_box
+             height="19"
+             follows="left|top"
+             label="Share"
+             layout="topleft"
+             name="checkbox share with group"
+             tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."
+             left_pad="3"
+             width="100" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             top_pad="15"
+             left="10"
+             name="label click action"
+             width="90">
+                Click to:
+            </text>
+            <combo_box
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             name="clickaction"
+             width="168"
+             left_pad="0">
+                <combo_box.item
+                 label="Touch  (default)"
+                 name="Touch/grab(default)"
+                 value="Touch/grab (default)" />
+                <combo_box.item
+                 label="Sit on object"
+                 name="Sitonobject"
+                 value="Sit on object" />
+                <combo_box.item
+                 label="Buy object"
+                 name="Buyobject"
+                 value="Buy object" />
+                <combo_box.item
+                 label="Pay object"
+                 name="Payobject"
+                 value="Pay object" />
+                <combo_box.item
+                 label="Open"
+                 name="Open"
+                 value="Open" />
+            </combo_box>
+            <check_box
+             height="16"
+             top_pad="15"
+             label="For Sale:"
+             layout="topleft"
+             name="checkbox for sale"
+             left="10"
+             width="90" />
+<!-- NEW SALE TYPE COMBO BOX -->
+      <combo_box
+            left_pad="0"
+            layout="topleft"
+            follows="left|top"
+            allow_text_entry="false"
+            height="20"
+            intial_value="2"
+            max_chars="20"
+            mouse_opaque="true"
+            name="sale type"
+            width="158">
+        <combo_box.item
+           name="Copy"
+           label="Copy"
+           value="2" />
+        <combo_box.item
+           name="Contents"
+           label="Contents"
+           value="3" />
+        <combo_box.item
+           name="Original"
+           label="Original"
+           value="1" />
+      </combo_box>
+<!-- NEW PRICE SPINNER -->
+      <spinner
+        follows="left|top"
+        decimal_digits="0"
+        increment="1"
+        top_pad="8"
+        left="100"
+        control_name="Edit Cost"
+        name="Edit Cost"
+        label="Price: L$"
+        label_width="65"
+        width="150"
+        min_val="1"
+        height="20"
+        max_val="999999999" />
+      <check_box
+	   height="15"
+	   width="110"
+	   top_pad="3"
+	   label="Show in search"
+       layout="topleft"
+	   left="100"
+       name="search_check"
+       tool_tip="Let people see this object in search results" />
+		<panel
+         border="false"
+         follows="left|top"
+         layout="topleft"
+         mouse_opaque="false"
+         background_visible="true"
+         bg_alpha_color="DkGray"
+         name="perms_build"
+         left="0"
+         top="241"
+         height="120"
+         width="278">
+            <text
+             type="string"
+             length="1"
+             left="10"
+             top_pad="9"
+             text_color="EmphasisColor"
+             height="16"
+             follows="left|top|right"
+             layout="topleft"
+             name="perm_modify"
+             width="250">
+                You can modify this object
+            </text>
+            <text
+               type="string"
+               follows="left|top"
+               name="Anyone can:"
+               width="250"
+               left="10">
+                 Anyone:
+            </text>
+            <check_box
+             height="19"
+             label="Move"
+             layout="topleft"
+             name="checkbox allow everyone move"
+             left="15"
+             width="85" />
+            <check_box
+             height="19"
+             label="Copy"
+             layout="topleft"
+             left_pad="0"
+             name="checkbox allow everyone copy"
+             width="90" />
+            <text
+               type="string"
+               follows="left|top"
+               height="19"
+               name="Next owner can:"
+               width="250"
+               left="10">
+                  Next owner:
+            </text>
+            <check_box
+             follows="left|top|right"
+             label="Modify"
+             layout="topleft"
+             left="15"
+             name="checkbox next owner can modify"
+             width="85" />
+            <check_box
+             follows="left|top|right"
+             height="19"
+             label="Copy"
+             layout="topleft"
+             left_pad="0"
+             name="checkbox next owner can copy"
+             width="90" />
+            <check_box
+             follows="left|top|right"
+             height="19"
+             label="Transfer"
+             layout="topleft"
+             name="checkbox next owner can transfer"
+             left_pad="0"
+             top_delta="0"
+             tool_tip="Next owner can give away or resell this object"
+             width="90" />
+            <text
+             type="string"
+             text_color="EmphasisColor"
+             length="1"
+             top_pad="5"
+             follows="left|top"
+             layout="topleft"
+             left="10"
+             name="B:"
+             height="10"
+             width="45">
+                B:
+            </text>
+            <text
+             type="string"
+             text_color="White"
+             length="1"
+             follows="left|top"
+             layout="topleft"
+             left_pad="0"
+             name="O:"
+             height="10"
+             width="44">
+                O:
+            </text>
+            <text
+             type="string"
+             text_color="EmphasisColor"
+             length="1"
+             follows="left|top"
+             layout="topleft"
+             left_pad="0"
+             name="G:"
+             height="10"
+             width="43">
+                G:
+            </text>
+            <text
+             type="string"
+             text_color="White"
+             length="1"
+             follows="left|top"
+             left_pad="0"
+             layout="topleft"
+             name="E:"
+             height="10"
+             width="43">
+                E:
+            </text>
+            <text
+             type="string"
+             text_color="EmphasisColor"
+             length="1"
+             follows="left|top"
+             layout="topleft"
+             left_pad="0"
+             name="N:"
+             height="10"
+             width="48">
+                N:
+            </text>
+            <text
+             type="string"
+             text_color="White"
+             length="1"
+             follows="left|top"
+             layout="topleft"
+             left_pad="0"
+             name="F:"
+             height="10"
+             width="50">
+                F:
+            </text>
+		</panel>
+ </panel>
+    <panel
+		 height="25"
+		 layout="bottomright"
+		 help_topic="button_tab"
+		 name="button_panel"
+		 left="5"
+		 bottom="5"
+		 width="313">
+	    <button
+		     follows="bottom|left"
+		     font="SansSerifSmallBold"
+		     height="25"
+		     label="Edit"
+		     layout="topleft"
+		     left="0"
+		     name="edit_btn"
+		     top="0"
+		     width="50" />
+	    <button
+		     follows="bottom|left"
+		     font="SansSerifSmallBold"
+		     height="25"
+		     label="Open"
+		     layout="topleft"
+		     left_pad="5"
+		     name="open_btn"
+		     top="0"
+		     width="60" />
+	    <button
+		     follows="bottom|left"
+		     font="SansSerifSmallBold"
+		     height="25"
+		     label="Pay"
+		     layout="topleft"
+		     left_pad="5"
+		     name="pay_btn"
+		     top="0"
+		     width="50" />
+	    <button
+		     follows="bottom|left"
+		     font="SansSerifSmallBold"
+		     height="25"
+		     label="Buy"
+		     layout="topleft"
+		     left_pad="5"
+		     name="buy_btn"
+		     top="0"
+		     width="60" />
+	    <button
+		     follows="bottom|right"
+		     font="SansSerifSmallBold"
+		     height="25"
+		     label="Cancel"
+		     layout="topleft"
+		     name="cancel_btn"
+		     right="-1"
+		     top="0"
+		     width="70" />
+	    <button
+		     follows="bottom|right"
+		     font="SansSerifSmallBold"
+		     height="25"
+		     label="Save"
+		     layout="topleft"
+		     name="save_btn"
+		     left_pad="-135"
+		     top="0"
+		     width="60" />
+	</panel>
+</panel>

@@ -480,7 +480,7 @@ void LLNavigationBar::rebuildTeleportHistoryMenu()
 			type = LLTeleportHistoryMenuItem::TYPE_CURRENT;
 
 		LLTeleportHistoryMenuItem::Params item_params;
-		item_params.label = item_params.name = hist_items[i].getTitle();
+		item_params.label = item_params.name = hist_items[i].mTitle;
 		item_params.item_type = type;
 		item_params.on_click.function(boost::bind(&LLNavigationBar::onTeleportHistoryMenuItemClicked, this, i));
 		LLTeleportHistoryMenuItem* new_itemp = LLUICtrlFactory::create<LLTeleportHistoryMenuItem>(item_params);
@@ -586,6 +586,8 @@ void LLNavigationBar::showNavigationPanel(BOOL visible)
 			// this is duplicated in 'else' section because it should be called BEFORE fb->reshape
 			reshape(nbRect.getWidth(), nbRect.getHeight());
 			setRect(nbRect);
+			// propagate size to parent container
+			getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
 
 			fb->reshape(fbRect.getWidth(), fbRect.getHeight());
 			fb->setRect(fbRect);
@@ -599,6 +601,7 @@ void LLNavigationBar::showNavigationPanel(BOOL visible)
 
 			reshape(nbRect.getWidth(), nbRect.getHeight());
 			setRect(nbRect);
+			getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
 		}
 	}
 	else
@@ -613,6 +616,7 @@ void LLNavigationBar::showNavigationPanel(BOOL visible)
 			// this is duplicated in 'else' section because it should be called BEFORE fb->reshape
 			reshape(nbRect.getWidth(), nbRect.getHeight());
 			setRect(nbRect);
+			getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
 
 			fb->reshape(fbRect.getWidth(), fbRect.getHeight());
 			fb->setRect(fbRect);
@@ -625,16 +629,12 @@ void LLNavigationBar::showNavigationPanel(BOOL visible)
 
 			reshape(nbRect.getWidth(), nbRect.getHeight());
 			setRect(nbRect);
+			getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
 		}
 	}
 
 	childSetVisible("bg_icon", fpVisible);
 	childSetVisible("bg_icon_no_fav", !fpVisible);
-
-	if(LLSideTray::instanceCreated())
-	{
-		LLSideTray::getInstance()->resetPanelRect();
-	}
 }
 
 void LLNavigationBar::showFavoritesPanel(BOOL visible)
@@ -669,6 +669,7 @@ void LLNavigationBar::showFavoritesPanel(BOOL visible)
 
 		reshape(nbRect.getWidth(), nbRect.getHeight());
 		setRect(nbRect);
+		getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
 
 		fb->reshape(fbRect.getWidth(), fbRect.getHeight());
 		fb->setRect(fbRect);
@@ -693,14 +694,11 @@ void LLNavigationBar::showFavoritesPanel(BOOL visible)
 
 		reshape(nbRect.getWidth(), nbRect.getHeight());
 		setRect(nbRect);
+		getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
 	}
 
 	childSetVisible("bg_icon", visible);
 	childSetVisible("bg_icon_no_fav", !visible);
 
 	fb->setVisible(visible);
-	if(LLSideTray::instanceCreated())
-	{
-		LLSideTray::getInstance()->resetPanelRect();
-	}
 }

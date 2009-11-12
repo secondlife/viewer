@@ -79,7 +79,7 @@
      text_color="white"
      top="33"
      use_ellipses="true"
-     value="MESSAGE"
+     value=""
      width="285"
      word_wrap="true"
      max_length="350" />

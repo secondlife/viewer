@@ -74,14 +74,13 @@ public:
 	{
 		Optional <LLUUID> avatar_id;
 		Optional <bool> draw_tooltip;
+		Optional <std::string> default_icon_name;
 		Params();
 	};
 	
 protected:
 	LLAvatarIconCtrl(const Params&);
 	friend class LLUICtrlFactory;
-
-	void onAvatarIconContextMenuItemClicked(const LLSD& userdata);
 
 public:
 	virtual ~LLAvatarIconCtrl();
@@ -90,8 +89,6 @@ public:
 
 	// LLAvatarPropertiesProcessor observer trigger
 	virtual void processProperties(void* data, EAvatarProcessorType type);
-
-	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 	void nameUpdatedCallback(
 		const LLUUID& id,
@@ -109,9 +106,8 @@ protected:
 	LLUUID				mAvatarId;
 	std::string			mFirstName;
 	std::string			mLastName;
-	LLHandle<LLView>	mPopupMenuHandle;
 	bool				mDrawTooltip;
-
+	std::string			mDefaultIconName;
 
 	bool updateFromCache();
 };

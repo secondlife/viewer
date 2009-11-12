@@ -7,7 +7,7 @@
  left="0"
  top="0"
  name="roles_tab"
- width="313">
+ width="310">
     <panel.string
      name="default_needs_apply_text">
         There are unsaved changes to the current tab
@@ -28,9 +28,9 @@
      name="roles_tab_container"
      tab_position="top"
      tab_height="20"
-     tab_min_width="96"
+     tab_min_width="75"
      top="3"
-     width="303">
+     width="300">
         <panel
          border="false"
          height="220"
@@ -51,23 +51,13 @@ clicking on their names.
          <filter_editor
          layout="topleft"
          top="10"
-         left="4"
+         left="5"
          width="280"
          height="20"
          follows="left|top|right"
          max_length="250"
          label="Filter Members"
          name="filter_input" />
-          <!--  <button
-             enabled="false"
-             font="SansSerifSmall"
-             height="20"
-             label="Show All"
-             layout="topleft"
-             left_pad="-90"
-             name="show_all_button"
-             top_delta="-6"
-             width="80" />-->
             <name_list
              column_padding="0"
              draw_heading="true"
@@ -111,14 +101,6 @@ clicking on their names.
              right="-5"
              name="member_eject"
              width="100" />
-             <!--What is this?-->
-            <icon
-             height="16"
-             image_name="Inv_FolderClosed"
-             layout="topleft"
-             name="power_folder_icon"
-             visible="false"
-             width="16" />
         </panel>
         <panel
          border="false"
@@ -156,7 +138,7 @@ including the Everyone and Owner Roles.
          <filter_editor
          layout="topleft"
          top="10"
-         left="4"
+         left="5"
          width="280"
          height="20"
          follows="left|top|right"
@@ -179,12 +161,12 @@ including the Everyone and Owner Roles.
              draw_stripes="false"
              follows="left|top"
              heading_height="20"
-             height="150"
+             height="160"
              layout="topleft"
              search_column="1"
              left="0"
              name="role_list"
-             top_pad="4"
+             top_pad="2"
              width="300">
                 <scroll_list.columns
                  label="Role"
@@ -238,24 +220,13 @@ things in this group. There&apos;s a broad variety of Abilities.
          <filter_editor
          layout="topleft"
          top="10"
-         left="4"
+         left="5"
          width="280"
          height="20"
          follows="left|top|right"
          max_length="250"
          label="Filter Abilities"
          name="filter_input" />
-            <!--
-            <button
-             enabled="false"
-             font="SansSerifSmall"
-             height="20"
-             label="Show All"
-             layout="topleft"
-             left_pad="0"
-             name="show_all_button"
-             top_delta="0"
-             width="80" /> -->
             <scroll_list
              column_padding="0"
              draw_stripes="false"
@@ -267,14 +238,14 @@ things in this group. There&apos;s a broad variety of Abilities.
              name="action_list"
              search_column="1"
              tool_tip="Select an Ability to view more details"
-             top_pad="6"
+             top_pad="2"
              width="300">
                 <scroll_list.columns
                  label=""
                  name="icon"
                  width="16" />
                 <scroll_list.columns
-                 label=""
+                 label="Action"
                  name="action"
                  width="247" />
             </scroll_list>
@@ -293,9 +264,9 @@ things in this group. There&apos;s a broad variety of Abilities.
      follows="left|top"
      left="10"
      name="members_footer"
-     top_pad="10"
+     top="245"
      top_delta="0"
-     width="300">
+     width="290">
         <text
          type="string"
          height="16"
@@ -304,7 +275,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          left="0"
          name="static"
          top_pad="5"
-         width="295">
+         width="285">
             Assigned Roles
         </text>
         <scroll_list
@@ -315,7 +286,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          left="0"
          name="member_assigned_roles"
          top_pad="0"
-         width="295">
+         width="285">
             <scroll_list.columns
              label=""
              name="checkbox"
@@ -323,7 +294,7 @@ things in this group. There&apos;s a broad variety of Abilities.
             <scroll_list.columns
              label=""
              name="role"
-             width="265" />
+             width="255" />
         </scroll_list>
                  <text
          type="string"
@@ -333,7 +304,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          left="0"
          name="static2"
          top_pad="5"
-         width="295">
+         width="285">
             Allowed Abilities
         </text>
          <scroll_list
@@ -345,7 +316,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          search_column="2"
          tool_tip="For details of each allowed ability see the abilities tab"
          top_pad="0"
-         width="295">
+         width="285">
             <scroll_list.columns
              label=""
              name="icon"
@@ -353,7 +324,7 @@ things in this group. There&apos;s a broad variety of Abilities.
             <scroll_list.columns
              label=""
              name="action"
-             width="275" />
+             width="265" />
         </scroll_list>
     </panel>
     <panel
@@ -364,7 +335,7 @@ things in this group. There&apos;s a broad variety of Abilities.
      top_delta="0"
      top="245"
      visible="false"
-     width="300">
+     width="290">
         <text
          type="string"
          height="16"
@@ -386,7 +357,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          max_length="295"
          name="role_name"
          top_pad="0"
-         width="295">
+         width="290">
             Employees
         </line_editor>
         <text
@@ -395,7 +366,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          layout="topleft"
          name="static3"
          top_pad="5"
-         width="295">
+         width="290">
             Title
         </text>
         <line_editor
@@ -408,7 +379,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          max_length="295"
          name="role_title"
          top_pad="0"
-         width="295">
+         width="290">
           (waiting)
         </line_editor>
                 <text
@@ -440,9 +411,9 @@ things in this group. There&apos;s a broad variety of Abilities.
          layout="topleft"
          follows="left|top"
          left="0"
-         name="static"
+         name="static4"
          top_pad="5"
-         width="295">
+         width="290">
             Assigned Roles
         </text>
         <name_list
@@ -452,7 +423,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          left="0"
          name="role_assigned_members"
          top_pad="0"
-         width="295" />
+         width="290" />
         <check_box
          height="15"
          label="Reveal members"
@@ -467,9 +438,9 @@ things in this group. There&apos;s a broad variety of Abilities.
          layout="topleft"
          follows="left|top"
          left="0"
-         name="static2"
+         name="static5"
          top_pad="5"
-         width="295">
+         width="290">
             Allowed Abilities
         </text>
         <scroll_list
@@ -504,7 +475,7 @@ things in this group. There&apos;s a broad variety of Abilities.
      top_delta="0"
      top="245"
      visible="false"
-     width="300">
+     width="290">
         <text
          type="string"
          height="16"
@@ -550,7 +521,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          layout="topleft"
          name="static3"
          top_pad="5"
-         width="295">
+         width="290">
             Members with this ability
         </text>
         <name_list
@@ -558,6 +529,6 @@ things in this group. There&apos;s a broad variety of Abilities.
          layout="topleft"
          name="action_members"
          top_pad="0"
-         width="295" />
+         width="290" />
     </panel>
 </panel>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ bevel_style="none"
+ follows="top|left|right"
+ height="85"
+ layout="topleft"
+ left="0"
+ name="classified_item"
+ top="0"
+ width="313">
+    <icon
+     follows="all"
+     height="85"
+     image_name="ListItem_Over"
+     right="-3"
+     mouse_opaque="false"
+     name="hovered_icon"
+     top="1"
+     scale_image="true"
+     visible="false"
+     width="307"/>
+    <icon
+     follows="all"
+     height="85"
+     image_name="ListItem_Select"
+     right="-3"
+     mouse_opaque="false"
+     name="selected_icon"
+     top="1"
+     scale_image="true"
+     visible="false"
+     width="307"/>
+    <texture_picker
+     allow_no_texture="true"
+     border_enabled="true"
+     default_image_name="TabIcon_Places_Large"
+     enabled="false"
+     follows="left|top"
+     height="80"
+     layout="topleft"
+     left="10"
+     mouse_opaque="false"
+     name="picture"
+     tab_stop="false"
+     top="10"
+     top_pad="10"
+     width="90" />
+    <text
+     follows="top|left|right"
+     font="SansSerifSmallBold"
+     height="16"
+     layout="topleft"
+     left="110"
+     name="name"
+     text_color="white"
+     top="9"
+     use_ellipses="false"
+     width="197"
+     word_wrap="false" />
+    <expandable_text
+     follows="top|left|right"
+     font="SansSerifSmall"
+     height="40"
+     layout="topleft"
+     left="110"
+     name="description"
+     top_pad="3"
+     width="178"
+     word_wrap="true" />
+    <button
+     follows="top|right"
+     height="16"
+     image_selected="BuyArrow_Press"
+     image_pressed="BuyArrow_Press"
+     image_unselected="BuyArrow_Press"
+     layout="topleft"
+     name="info_chevron"
+     picture_style="true"
+     right="-7"
+     tab_stop="false"
+     top="27"
+     width="16" />
+</panel>

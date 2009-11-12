@@ -42,9 +42,6 @@
 #include "llspeakers.h"
 
 
-class LLSpeakButton;
-
-
 class LLGestureComboBox
 	: public LLComboBox
 	, public LLGestureManagerObserver
@@ -76,7 +73,6 @@ protected:
 
 class LLNearbyChatBar
 :	public LLPanel
-,   public LLVoiceClientStatusObserver
 {
 public:
 	// constructor for inline chat-bars (e.g. hosted in chat history window)
@@ -96,7 +92,6 @@ public:
 	std::string getCurrentChat();
 	virtual BOOL handleKeyHere( KEY key, MASK mask );
 
-	void setPTTState(bool state);
 	static void startChat(const char* line);
 	static void stopChat();
 
@@ -105,11 +100,6 @@ public:
 
 	S32 getMinWidth() const;
 	S32 getMaxWidth() const;
-
-	/**
-	 * Implements LLVoiceClientStatusObserver::onChange()
-	 */
-	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
 
 protected:
 	static BOOL matchChatTypeTrigger(const std::string& in_str, std::string* out_str);
@@ -128,7 +118,6 @@ protected:
 	static S32 sLastSpecialChatChannel;
 
 	LLLineEditor*		mChatBox;
-	LLSpeakButton*		mSpeakBtn;
 	LLOutputMonitorCtrl* mOutputMonitor;
 	LLLocalSpeakerMgr*  mSpeakerMgr;
 };

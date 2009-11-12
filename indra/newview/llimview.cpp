@@ -134,7 +134,6 @@ void LLIMModel::setActiveSessionID(const LLUUID& session_id)
 LLIMModel::LLIMModel() 
 {
 	addNewMsgCallback(LLIMFloater::newIMCallback);
-	addNoUnreadMsgsCallback(LLIMFloater::newIMCallback);
 	addNewMsgCallback(toast_callback);
 }
 
@@ -316,7 +315,7 @@ void LLIMModel::testMessages()
 	bot2_id.generate(from);
 	LLUUID bot2_session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, bot2_id);
 	newSession(bot2_session_id, from, IM_NOTHING_SPECIAL, bot2_id);
-	addMessage(bot2_session_id, from, bot2_id, "Test Message: Can I haz bear? ");
+	addMessage(bot2_session_id, from, bot2_id, "Test Message: Hello there, I have a question. Can I bother you for a second? ");
 	addMessage(bot2_session_id, from, bot2_id, "Test Message: OMGWTFBBQ.");
 }
 
@@ -440,7 +439,11 @@ bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 	addToHistory(session_id, from, from_id, utf8_text);
 	if (log2file) logToFile(session_id, from, from_id, utf8_text);
 
-	session->mNumUnread++;
+	//we do not count system messages and our messages
+	if (from_id.notNull() && from_id != gAgentID && SYSTEM_FROM != from)
+	{
+		session->mNumUnread++;
+	}
 
 	// notify listeners
 	LLSD arg;
@@ -651,22 +654,10 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 
 		//local echo for the legacy communicate panel
 		std::string history_echo;
-		std::string utf8_copy = utf8_text;
 		LLAgentUI::buildFullname(history_echo);
 
-		// Look for IRC-style emotes here.
+		history_echo += ": " + utf8_text;
 
-		std::string prefix = utf8_copy.substr(0, 4);
-		if (prefix == "/me " || prefix == "/me'")
-		{
-			utf8_copy.replace(0,3,"");
-		}
-		else
-		{
-			history_echo += ": ";
-		}
-		history_echo += utf8_copy;
-		
 		LLFloaterIMPanel* floater = gIMMgr->findFloaterBySession(im_session_id);
 		if (floater) floater->addHistoryLine(history_echo, LLUIColorTable::instance().getColor("IMChatColor"), true, gAgent.getID());
 
@@ -862,7 +853,17 @@ bool LLIMModel::sendStartSession(
 	return false;
 }
 
-
+// static
+void LLIMModel::sendSessionInitialized(const LLUUID &session_id)
+{
+	LLIMSession* session = getInstance()->findIMSession(session_id);
+	if (session)
+	{
+		LLSD arg;
+		arg["session_id"] = session_id;
+		getInstance()->mSessionInitializedSignal(arg);
+	}
+}
 
 //
 // Helper Functions
@@ -1157,6 +1158,9 @@ void LLIncomingCallDialog::onStartIM(void* user_data)
 
 void LLIncomingCallDialog::processCallResponse(S32 response)
 {
+	if (!gIMMgr)
+		return;
+
 	LLUUID session_id = mPayload["session_id"].asUUID();
 	EInstantMessage type = (EInstantMessage)mPayload["type"].asInteger();
 	LLIMMgr::EInvitationType inv_type = (LLIMMgr::EInvitationType)mPayload["inv_type"].asInteger();
@@ -1192,10 +1196,14 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 		}
 		else
 		{
-			gIMMgr->addSession(
+			LLUUID session_id = gIMMgr->addSession(
 				mPayload["session_name"].asString(),
 				type,
 				session_id);
+			if (session_id != LLUUID::null)
+			{
+				LLIMFloater::show(session_id);
+			}
 
 			std::string url = gAgent.getRegion()->getCapability(
 				"ChatSessionRequest");
@@ -1250,6 +1258,9 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 
 bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 {
+	if (!gIMMgr)
+		return false;
+
 	const LLSD& payload = notification["payload"];
 	LLUUID session_id = payload["session_id"].asUUID();
 	EInstantMessage type = (EInstantMessage)payload["type"].asInteger();
@@ -1279,10 +1290,14 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 			}
 			else
 			{
-				gIMMgr->addSession(
+				LLUUID session_id = gIMMgr->addSession(
 					payload["session_name"].asString(),
 					type,
 					session_id);
+				if (session_id != LLUUID::null)
+				{
+					LLIMFloater::show(session_id);
+				}
 
 				std::string url = gAgent.getRegion()->getCapability(
 					"ChatSessionRequest");
@@ -1350,13 +1365,6 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 LLIMMgr::LLIMMgr() :
 	mIMReceived(FALSE)
 {
-	static bool registered_dialog = false;
-	if (!registered_dialog)
-	{
-		LLFloaterReg::add("incoming_call", "floater_incoming_call.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIncomingCallDialog>);
-		registered_dialog = true;
-	}
-
 	mPendingInvitations = LLSD::emptyMap();
 	mPendingAgentListUpdates = LLSD::emptyMap();
 }
@@ -1555,6 +1563,10 @@ LLUUID LLIMMgr::addP2PSession(const std::string& name,
 							const std::string& caller_uri)
 {
 	LLUUID session_id = addSession(name, IM_NOTHING_SPECIAL, other_participant_id);
+	if (session_id != LLUUID::null)
+	{
+		LLIMFloater::show(session_id);
+	}
 
 	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
 	if (speaker_mgr)
@@ -1845,6 +1857,29 @@ void LLIMMgr::clearPendingInvitation(const LLUUID& session_id)
 	if ( mPendingInvitations.has(session_id.asString()) )
 	{
 		mPendingInvitations.erase(session_id.asString());
+	}
+}
+
+void LLIMMgr::processAgentListUpdates(const LLUUID& session_id, const LLSD& body)
+{
+	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
+	if ( im_floater )
+	{
+		im_floater->processAgentListUpdates(body);
+	}
+	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
+	if (speaker_mgr)
+	{
+		speaker_mgr->updateSpeakers(body);
+	}
+	else
+	{
+		//we don't have a speaker manager yet..something went wrong
+		//we are probably receiving an update here before
+		//a start or an acceptance of an invitation.  Race condition.
+		gIMMgr->addPendingAgentListUpdates(
+			session_id,
+			body);
 	}
 }
 
@@ -2232,20 +2267,7 @@ public:
 		const LLSD& input) const
 	{
 		const LLUUID& session_id = input["body"]["session_id"].asUUID();
-		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
-		if (speaker_mgr)
-		{
-			speaker_mgr->updateSpeakers(input["body"]);
-		}
-		else
-		{
-			//we don't have a speaker manager yet..something went wrong
-			//we are probably receiving an update here before
-			//a start or an acceptance of an invitation.  Race condition.
-			gIMMgr->addPendingAgentListUpdates(
-				input["body"]["session_id"].asUUID(),
-				input["body"]);
-		}
+		gIMMgr->processAgentListUpdates(session_id, input["body"]);
 	}
 };
 
@@ -2316,15 +2338,6 @@ public:
 
 			BOOL is_linden = LLMuteList::getInstance()->isLinden(name);
 			std::string separator_string(": ");
-			int message_offset=0;
-
-			//Handle IRC styled /me messages.
-			std::string prefix = message.substr(0, 4);
-			if (prefix == "/me " || prefix == "/me'")
-			{
-				separator_string = "";
-				message_offset = 3;
-			}
 			
 			chat.mMuted = is_muted && !is_linden;
 			chat.mFromID = from_id;
@@ -2341,7 +2354,7 @@ public:
 			{
 				saved = llformat("(Saved %s) ", formatted_time(timestamp).c_str());
 			}
-			std::string buffer = saved + message.substr(message_offset);
+			std::string buffer = saved + message;
 
 			BOOL is_this_agent = FALSE;
 			if(from_id == gAgentID)
@@ -2360,7 +2373,7 @@ public:
 				ll_vector3_from_sd(message_params["position"]),
 				true);
 
-			chat.mText = std::string("IM: ") + name + separator_string + saved + message.substr(message_offset);
+			chat.mText = std::string("IM: ") + name + separator_string + saved + message;
 			LLFloaterChat::addChat(chat, TRUE, is_this_agent);
 
 			//K now we want to accept the invitation

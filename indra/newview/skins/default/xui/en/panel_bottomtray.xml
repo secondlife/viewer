@@ -13,6 +13,8 @@
  chrome="true"
  border_visible="false"
  width="1000">
+  <string name="SpeakBtnToolTip">Turns microphone on/off</string>
+  <string name="VoiceControlBtnToolTip">Shows/hides voice control panel</string>
     <layout_stack
      mouse_opaque="false"
      border_size="0"
@@ -31,6 +33,7 @@
          height="10"
          image_name="spacer24.tga"
          layout="topleft"
+         min_width="4"
          left="0"
          top="0"
          width="4" />
@@ -44,7 +47,7 @@
          min_height="23"
          width="310"
          top="0"
-         min_width="300"
+         min_width="192"
          name="chat_bar"
          user_resize="false"
          filename="panel_nearby_chat_bar.xml" />
@@ -55,32 +58,33 @@
          height="28"
          layout="topleft"
          min_height="28"
-         width="100"
+         width="104"
          top_delta="0"
-         min_width="96"
+         min_width="104"
          name="speak_panel"
          user_resize="false">
-         <talk_button
-          follows="right"
-          height="23"
-          speak_button.tab_stop="true"
-          show_button.tab_stop="true"
-          layout="topleft"
-          left="0"
-          name="talk"
-          top="3"
+          <talk_button
+           follows="right"
+           height="23"
+           speak_button.tab_stop="true"
+           show_button.tab_stop="true"
+           layout="topleft"
+           left="0"
+           name="talk"
+           top="3"
           width="100" />
         </layout_panel>
-		 <icon
-         auto_resize="false"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
-         name="DUMMY"
-         top="0"
-         width="4"/>
+        <icon
+            auto_resize="false"
+            follows="left|right"
+            height="10"
+            image_name="spacer24.tga"
+            layout="topleft"
+            left="0"
+            name="DUMMY"
+            min_width="4"
+            top="0"
+            width="4"/>
         <layout_panel
          mouse_opaque="false"
          auto_resize="false"
@@ -88,13 +92,13 @@
          height="28"
          layout="topleft"
          min_height="28"
-         width="80"
+         width="82"
          top_delta="0"
-         min_width="76"
+         min_width="82"
          name="gesture_panel"
          user_resize="false">
-         <button
-           follows="right"
+         <gesture_combo_box
+          follows="left|right"
           height="23"
           label="Gesture"
           layout="topleft"
@@ -102,7 +106,8 @@
           left="0"
           top="3"
          use_ellipses="true"
-          width="80" />
+          width="82"
+          tool_tip="Shows/hides gestures"/>
         </layout_panel>
 		 <icon
          auto_resize="false"
@@ -112,6 +117,7 @@
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
+         min_width="4" 
          name="DUMMY"
          top="0"
          width="4"/>
@@ -123,8 +129,9 @@
          layout="topleft"
          min_height="28"
          name="movement_panel"
+         user_resize="false"
          width="80"
-         min_width="76">
+         min_width="80">
             <button
              follows="left|right"
              height="23"
@@ -133,7 +140,7 @@
              label="Move"
              layout="topleft"
              name="movement_btn"
-             tool_tip="Show/hide movement controls"
+             tool_tip="Shows/hides movement controls"
              top="3"
              width="80">
                 <button.init_callback
@@ -149,6 +156,7 @@
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
+         min_width="4" 
          name="DUMMY"
          top="0"
          width="4"/>
@@ -159,10 +167,10 @@
          height="28"
          layout="topleft"
          min_height="28"
-         min_width="76"
+         min_width="80"
          name="cam_panel"
-         top_delta="-10"
-         width="100">
+         user_resize="false"
+         width="80">
             <button
              follows="left|right"
              height="23"
@@ -171,7 +179,7 @@
              label="View"
              layout="topleft"
              left="0"
-             tool_tip="Show/hide camera controls"
+             tool_tip="Shows/hides camera controls"
              top="3"
              name="camera_btn"
              width="80">
@@ -188,6 +196,7 @@
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
+         min_width="4" 
          name="DUMMY"
          top="0"
          width="4"/>
@@ -197,10 +206,11 @@
          follows="left|right"
          height="28"
          layout="topleft"
+         min_width="40"
          name="snapshot_panel"
          width="40">
             <button
-         follows="left|right"
+			 follows="left|right"
              height="23"
              left="0"
              label=""
@@ -209,9 +219,12 @@
              width="36"
              top="3"
              image_overlay="Snapshot_Off"
-            tool_tip="Take snapshot"
-                 />
-        </layout_panel>
+             tool_tip="Take snapshot">
+				<button.commit_callback
+				 function="Floater.Toggle"
+				 parameter="snapshot" />
+			</button>
+		</layout_panel>
         <layout_panel
          mouse_opaque="false"
          follows="left|right"
@@ -220,20 +233,48 @@
          top="0"
          name="chiclet_list_panel"
          width="189"
-         min_width="189"
+         min_width="180"
          user_resize="false"
          auto_resize="true">
+<!--*NOTE: min_width of the chiclet_panel (chiclet_list) must be the same 
+as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. EXT-991-->
             <chiclet_panel
 	    mouse_opaque="false"
              follows="left|right"
              height="28"
              layout="topleft"
              left="0"
+             min_width="180"
              name="chiclet_list"
              top="0"
              chiclet_padding="3"
              scrolling_offset="40"
-             width="189" />
+             width="189">
+                <button
+                 auto_resize="true"
+                 follows="right"
+                 height="23"
+                 image_selected="BottomTray_Scroll_Left"
+                 image_unselected="BottomTray_Scroll_Left"
+                 layout="topleft"
+                 name="chicklet_left_scroll_button"
+                 tab_stop="false"
+                 top="3"
+                 visible="false"
+                 width="20" />
+                <button
+                 auto_resize="true"
+                 follows="right"
+                 height="23"
+                 image_selected="BottomTray_Scroll_Right"
+                 image_unselected="BottomTray_Scroll_Right"
+                 layout="topleft"
+                 name="chicklet_right_scroll_button"
+                 tab_stop="false"
+                 top="3"
+                 visible="false"
+                 width="20" />
+            </chiclet_panel>
         </layout_panel>
         <icon
          auto_resize="false"
@@ -243,6 +284,7 @@
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
+         min_width="4" 
          top="0"
          width="5"/>
         <layout_panel
@@ -276,9 +318,9 @@
                />
                <unread_notifications
                width="34"
-               height="23"
-               left="22"
-               top="23" />
+               height="20"
+               left="0"
+               top="19" />
 	    </chiclet_notification>
         </layout_panel>
        <icon
@@ -288,6 +330,7 @@
          height="10"
          image_name="spacer24.tga"
          layout="topleft"
+         min_width="4" 
          right="-1"
          top="0"
          width="26"/>

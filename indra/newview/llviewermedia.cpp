@@ -261,9 +261,18 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 			media_impl->mMediaSource->setSize(media_entry->getWidthPixels(), media_entry->getHeightPixels());
 		}
 		
-		if((was_loaded || (media_entry->getAutoPlay() && gSavedSettings.getBOOL("AutoPlayMedia"))) && !update_from_self)
+		if(media_entry->getCurrentURL().empty())
 		{
-			if(!media_entry->getCurrentURL().empty())
+			// The current media URL is now empty.  Unload the media source.
+			media_impl->unload();
+		}
+		else
+		{
+			// The current media URL is not empty.
+			// If (the media was already loaded OR the media was set to autoplay) AND this update didn't come from this agent,
+			// do a navigate.
+			
+			if((was_loaded || (media_entry->getAutoPlay() && gSavedSettings.getBOOL("AutoPlayMedia"))) && !update_from_self)
 			{
 				needs_navigate = (media_entry->getCurrentURL() != previous_url);
 			}
@@ -286,11 +295,21 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 		}
 	}
 	
-	if(media_impl && needs_navigate)
+	if(media_impl)
 	{
 		std::string url = media_entry->getCurrentURL();
-			
-		media_impl->navigateTo(url, "", true, true);
+		if(needs_navigate)
+		{
+			media_impl->navigateTo(url, "", true, true);
+		}
+		else if(!media_impl->mMediaURL.empty() && (media_impl->mMediaURL != url))
+		{
+			// If we already have a non-empty media URL set and we aren't doing a navigate, update the media URL to match the media entry.
+			media_impl->mMediaURL = url;
+
+			// If this causes a navigate at some point (such as after a reload), it should be considered server-driven so it isn't broadcast.
+			media_impl->mNavigateServerRequest = true;
+		}
 	}
 	
 	return media_impl;
@@ -450,12 +469,12 @@ LLViewerMedia::impl_list &LLViewerMedia::getPriorityList()
 // This is the predicate function used to sort sViewerMediaImplList by priority.
 bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
 {
-	if(i1->isForcedUnloaded())
+	if(i1->isForcedUnloaded() && !i2->isForcedUnloaded())
 	{
 		// Muted or failed items always go to the end of the list, period.
 		return false;
 	}
-	else if(i2->isForcedUnloaded())
+	else if(i2->isForcedUnloaded() && !i1->isForcedUnloaded())
 	{
 		// Muted or failed items always go to the end of the list, period.
 		return true;
@@ -478,6 +497,16 @@ bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLView
 	else if(i2->getUsedInUI() && !i1->getUsedInUI())
 	{
 		// i2 is a UI element, i1 is not.  This makes i2 "less than" i1, so it sorts earlier in our list.
+		return false;
+	}
+	else if(i1->isParcelMedia())
+	{
+		// The parcel media impl sorts above all other inworld media, unless one has focus.
+		return true;
+	}
+	else if(i2->isParcelMedia())
+	{
+		// The parcel media impl sorts above all other inworld media, unless one has focus.
 		return false;
 	}
 	else
@@ -677,6 +706,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mPreviousMediaState(MEDIA_NONE),
 	mPreviousMediaTime(0.0f),
 	mIsDisabled(false),
+	mIsParcelMedia(false),
 	mProximity(-1),
 	mIsUpdated(false)
 { 
@@ -827,7 +857,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		{
 			LLPluginClassMedia* media_source = new LLPluginClassMedia(owner);
 			media_source->setSize(default_width, default_height);
-			if (media_source->init(launcher_name, plugin_name))
+			if (media_source->init(launcher_name, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))
 			{
 				return media_source;
 			}
@@ -1113,11 +1143,15 @@ void LLViewerMediaImpl::mouseMove(S32 x, S32 y, MASK mask)
 void LLViewerMediaImpl::mouseDown(const LLVector2& texture_coords, MASK mask, S32 button)
 {
 	if(mMediaSource)
-	{		
-		mouseDown(
-			llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth()),
-			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()),
-			mask, button);
+	{
+		// scale x and y to texel units.
+		S32 x = llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth());
+		S32 y = llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight());
+
+		// Adjust for the difference between the actual texture height and the amount of the texture in use.
+		y -= (mMediaSource->getTextureHeight() - mMediaSource->getHeight());
+
+		mouseDown(x, y, mask, button);
 	}
 }
 
@@ -1125,10 +1159,14 @@ void LLViewerMediaImpl::mouseUp(const LLVector2& texture_coords, MASK mask, S32 
 {
 	if(mMediaSource)
 	{		
-		mouseUp(
-			llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth()),
-			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()),
-			mask, button);
+		// scale x and y to texel units.
+		S32 x = llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth());
+		S32 y = llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight());
+
+		// Adjust for the difference between the actual texture height and the amount of the texture in use.
+		y -= (mMediaSource->getTextureHeight() - mMediaSource->getHeight());
+
+		mouseUp(x, y, mask, button);
 	}
 }
 
@@ -1136,10 +1174,14 @@ void LLViewerMediaImpl::mouseMove(const LLVector2& texture_coords, MASK mask)
 {
 	if(mMediaSource)
 	{		
-		mouseMove(
-			llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth()),
-			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()),
-			mask);
+		// scale x and y to texel units.
+		S32 x = llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth());
+		S32 y = llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight());
+
+		// Adjust for the difference between the actual texture height and the amount of the texture in use.
+		y -= (mMediaSource->getTextureHeight() - mMediaSource->getHeight());
+
+		mouseMove(x, y, mask);
 	}
 }
 
@@ -1258,6 +1300,17 @@ void LLViewerMediaImpl::navigateReload()
 void LLViewerMediaImpl::navigateHome()
 {
 	navigateTo(mHomeURL, "", true, false);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::unload()
+{
+	// Unload the media impl and clear its state.
+	destroyMediaSource();
+	resetPreviousMediaState();
+	mMediaURL.clear();
+	mMimeType.clear();
+	mCurrentMediaURL.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

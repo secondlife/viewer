@@ -36,7 +36,6 @@
 #include "lltrans.h"
 
 #include "llnearbychatbar.h"
-#include "llspeakbutton.h"
 #include "llbottomtray.h"
 #include "llagent.h"
 #include "llgesturemgr.h"
@@ -234,14 +233,6 @@ BOOL LLNearbyChatBar::postBuild()
 
 	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
 	mOutputMonitor->setVisible(FALSE);
-	mSpeakBtn = getParent()->getChild<LLSpeakButton>("talk");
-
-	// Speak button should be initially disabled because
-	// it takes some time between logging in to world and connecting to voice channel.
-	mSpeakBtn->setEnabled(FALSE);
-
-	// Registering Chat Bar to receive Voice client status change notifications.
-	gVoiceClient->addObserver(this);
 
 	return TRUE;
 }
@@ -260,6 +251,8 @@ bool LLNearbyChatBar::instanceExists()
 
 void LLNearbyChatBar::draw()
 {
+// TODO: mantipov: remove
+/*
 	LLRect rect = getRect();
 	S32 max_width = getMaxWidth();
 
@@ -269,6 +262,7 @@ void LLNearbyChatBar::draw()
 		reshape(rect.getWidth(), rect.getHeight(), FALSE);
 		setRect(rect);
 	}
+*/
 
 	displaySpeakingIndicator();
 	LLPanel::draw();
@@ -695,11 +689,6 @@ LLWString LLNearbyChatBar::stripChannelNumber(const LLWString &mesg, S32* channe
 	}
 }
 
-void LLNearbyChatBar::setPTTState(bool state)
-{
-	mSpeakBtn->setSpeakBtnToggleState(state);
-}
-
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel)
 {
 	LLMessageSystem* msg = gMessageSystem;
@@ -734,27 +723,6 @@ public:
 		return true;
 	}
 };
-
-void LLNearbyChatBar::onChange(EStatusType status, const std::string &channelURI, bool proximal)
-{
-	// Time it takes to connect to voice channel might be pretty long,
-	// so don't expect user login or STATUS_VOICE_ENABLED to be followed by STATUS_JOINED.
-	BOOL enable = FALSE;
-
-	switch (status)
-	{
-	// Do not add STATUS_VOICE_ENABLED because voice chat is 
-	// inactive until STATUS_JOINED
-	case STATUS_JOINED:
-		enable = TRUE;
-		break;
-	default:
-		enable = FALSE;
-		break;
-	}
-
-	mSpeakBtn->setEnabled(enable);
-}
 
 // Creating the object registers with the dispatcher.
 LLChatHandler gChatHandler;

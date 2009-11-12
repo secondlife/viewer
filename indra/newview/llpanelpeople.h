@@ -62,12 +62,16 @@ private:
 		E_SORT_BY_NAME = 0,
 		E_SORT_BY_STATUS = 1,
 		E_SORT_BY_MOST_RECENT = 2,
+		E_SORT_BY_DISTANCE = 3,
+		E_SORT_BY_RECENT_SPEAKERS = 4,
 	} ESortOrder;
 
 	// methods indirectly called by the updaters
 	void					updateFriendList();
 	void					updateNearbyList();
 	void					updateRecentList();
+
+	bool					isFriendOnline(const LLUUID& id);
 
 	void					updateButtons();
 	std::string				getActiveTabName() const;
@@ -115,6 +119,7 @@ private:
 
 	bool					onFriendsViewSortMenuItemCheck(const LLSD& userdata);
 	bool					onRecentViewSortMenuItemCheck(const LLSD& userdata);
+	bool					onNearbyViewSortMenuItemCheck(const LLSD& userdata);
 
 	// misc callbacks
 	static void				onAvatarPicked(

@@ -22,12 +22,20 @@
 #include "llviewerregion.h"
 
 LLAgentListener::LLAgentListener(LLAgent &agent)
-  : LLDispatchListener("LLAgent", "op"),
+  : LLEventAPI("LLAgent",
+               "LLAgent listener to (e.g.) teleport, sit, stand, etc."),
     mAgent(agent)
 {
-	add("requestTeleport", &LLAgentListener::requestTeleport);
-	add("requestSit", &LLAgentListener::requestSit);
-	add("requestStand", &LLAgentListener::requestStand);
+	add("requestTeleport",
+        "Teleport: [\"regionname\"], [\"x\"], [\"y\"], [\"z\"]\n"
+        "If [\"skip_confirmation\"] is true, use LLURLDispatcher rather than LLCommandDispatcher.",
+        &LLAgentListener::requestTeleport);
+	add("requestSit",
+        "Ask to sit on the object specified in [\"obj_uuid\"]",
+        &LLAgentListener::requestSit);
+	add("requestStand",
+        "Ask to stand up",
+        &LLAgentListener::requestStand);
 }
 
 void LLAgentListener::requestTeleport(LLSD const & event_data) const
@@ -40,7 +48,7 @@ void LLAgentListener::requestTeleport(LLSD const & event_data) const
 		params.append(event_data["y"]);
 		params.append(event_data["z"]);
 		LLCommandDispatcher::dispatch("teleport", params, LLSD(), NULL, true);
-		// *TODO - lookup other LLCommandHandlers for "agent", "classified", "event", "group", "floater", "objectim", "parcel", "login", login_refresh", "balance", "chat"
+		// *TODO - lookup other LLCommandHandlers for "agent", "classified", "event", "group", "floater", "parcel", "login", login_refresh", "balance", "chat"
 		// should we just compose LLCommandHandler and LLDispatchListener?
 	}
 	else

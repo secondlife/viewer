@@ -39,6 +39,11 @@ LLPluginMessage::LLPluginMessage()
 {
 }
 
+LLPluginMessage::LLPluginMessage(const LLPluginMessage &p)
+{
+	mMessage = p.mMessage;
+}
+
 LLPluginMessage::LLPluginMessage(const std::string &message_class, const std::string &message_name)
 {
 	setMessage(message_class, message_name);

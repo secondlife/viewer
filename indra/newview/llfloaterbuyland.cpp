@@ -685,7 +685,14 @@ void LLFloaterBuyLandUI::finishWebSiteInfo()
 	mSiteLandUseAction = landUse["action"].asString();
 
 	LLXMLRPCValue currency = result["currency"];
-	mCurrency.setEstimate(currency["estimatedCost"].asInt());
+	if (currency["estimatedCost"].isValid())
+	{
+		mCurrency.setUSDEstimate(currency["estimatedCost"].asInt());
+	}
+	if (currency["estimatedLocalCost"].isValid())
+	{
+		mCurrency.setLocalEstimate(currency["estimatedLocalCost"].asString());
+	}
 
 	mSiteConfirm = result["confirm"].asString();
 }
@@ -733,7 +740,8 @@ void LLFloaterBuyLandUI::runWebSitePrep(const std::string& password)
 	keywordArgs.appendInt("billableArea",
 		mIsForGroup ? 0 : mParcelBillableArea);
 	keywordArgs.appendInt("currencyBuy", mCurrency.getAmount());
-	keywordArgs.appendInt("estimatedCost", mCurrency.getEstimate());
+	keywordArgs.appendInt("estimatedCost", mCurrency.getUSDEstimate());
+	keywordArgs.appendString("estimatedLocalCost", mCurrency.getLocalEstimate());
 	keywordArgs.appendString("confirm", mSiteConfirm);
 	if (!password.empty())
 	{
@@ -1217,7 +1225,7 @@ void LLFloaterBuyLandUI::refreshUI()
 			
 			childSetText("currency_reason", getString("not_enough_lindens", string_args));
 
-			childSetTextArg("currency_est", "[AMOUNT2]", llformat("%#.2f", mCurrency.getEstimate() / 100.0));
+			childSetTextArg("currency_est", "[LOCAL_AMOUNT]", mCurrency.getLocalEstimate());
 		}
 		
 		if (willHaveEnough)
@@ -1297,7 +1305,7 @@ void LLFloaterBuyLandUI::startBuyPreConfirm()
 	{
 		LLStringUtil::format_map_t string_args;
 		string_args["[AMOUNT]"] = llformat("%d", mCurrency.getAmount());
-		string_args["[AMOUNT2]"] = llformat("%#.2f", mCurrency.getEstimate() / 100.0);
+		string_args["[LOCAL_AMOUNT]"] = mCurrency.getLocalEstimate();
 		
 		action += getString("buy_for_US", string_args);
 	}

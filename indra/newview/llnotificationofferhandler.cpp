@@ -65,7 +65,7 @@ LLOfferHandler::~LLOfferHandler()
 //--------------------------------------------------------------------------
 void LLOfferHandler::initChannel()
 {
-	S32 channel_right_bound = gViewerWindow->getWorldViewRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin");
+	S32 channel_right_bound = gViewerWindow->getWorldViewRectRaw().mRight - gSavedSettings.getS32("NotificationChannelRightMargin");
 	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
 	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
 }
@@ -95,7 +95,6 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 		LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, notification->getPayload()["from_id"]);
 		if (!LLIMMgr::instance().hasSession(session_id))
 		{
-			// create session with faked type to avoid creating chicklets
 			session_id = LLIMMgr::instance().addSession(
 					notification->getSubstitutions()["NAME"], IM_NOTHING_SPECIAL,
 					notification->getPayload()["from_id"]);

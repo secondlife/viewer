@@ -9,7 +9,7 @@ background_visible="true"
  left="0"
  top="20"
  name="GroupInfo"
- width="333">
+ width="323">
     <panel.string
      name="default_needs_apply_text">
         There are unsaved changes to the current tab
@@ -117,28 +117,17 @@ background_visible="true"
      width="120" />
    <accordion
              follows="all"
-             height="425"
+             height="405"
              layout="topleft"
              left="0"
              name="groups_accordion"
              top_pad="15"
-             width="336">
+             width="323">
              <accordion_tab
                  expanded="true"
                  layout="topleft"
                  name="group_general_tab"
                  title="General">
-         <scroll_container
-         color="DkGray2"
-         opaque="true"
-         height="323"
-         follows="all"
-         layout="topleft"
-         left="0"
-         top="0"
-         name="general_scroll"
-         reserve_scroll_corner="false"
-         width="333">
             <panel
             border="false"
          class="panel_group_general" 
@@ -146,27 +135,15 @@ background_visible="true"
              layout="topleft"
              left="0"
              help_topic="group_general_tab"
-         name="group_general_tab_panel"
+             name="group_general_tab_panel"
              top="0"
-             width="303" />
-         </scroll_container>
+             width="300" />
          </accordion_tab>
          <accordion_tab
                  expanded="false"
                  layout="topleft"
                  name="group_roles_tab"
                  title="Roles">
-               <scroll_container
-                  color="DkGray2"
-                  opaque="true"
-                  height="323"
-                  follows="all"
-                  layout="topleft"
-                  left="0"
-                  top="0"
-                  name="roles_scroll"
-                  reserve_scroll_corner="false"
-                  width="333">
                  <panel
                  border="false"
          class="panel_group_roles"
@@ -177,24 +154,12 @@ background_visible="true"
          name="group_roles_tab_panel"
                   top="0"
              width="303" />
-         </scroll_container>
          </accordion_tab>
          <accordion_tab
                  expanded="false"
                  layout="topleft"
                  name="group_notices_tab"
                  title="Notices">
-            <scroll_container
-                  color="DkGray2"
-                  opaque="true"
-                  height="323"
-                  follows="all"
-                  layout="topleft"
-                  left="0"
-                  top="0"
-                  name="notices_scroll"
-                  reserve_scroll_corner="false"
-                  width="333">
         <panel
         border="false"
          class="panel_group_notices"
@@ -205,24 +170,12 @@ background_visible="true"
          name="group_notices_tab_panel"
          top="0"
          width="303" />
-         </scroll_container>
          </accordion_tab>
         <accordion_tab
                  expanded="false"
                  layout="topleft"
                  name="group_land_tab"
                  title="Land/Assets">
-           <scroll_container
-                  color="DkGray2"
-                  opaque="true"
-                  height="323"
-                  follows="all"
-                  layout="topleft"
-                  left="0"
-                  top="0"
-                  name="land_scroll"
-                  reserve_scroll_corner="false"
-                  width="333">
         <panel
         border="false"
          class="panel_group_land_money"
@@ -232,8 +185,7 @@ background_visible="true"
          help_topic="group_land_money_tab"
          name="group_land_tab_panel"
          top="0"
-         width="313" />
-         </scroll_container>
+         width="300" />
          </accordion_tab>
          </accordion>
    <button

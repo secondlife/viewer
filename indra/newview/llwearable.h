@@ -89,9 +89,9 @@ public:
 	BOOL				isDirty() const;
 	BOOL				isOldVersion() const;
 
-	void				writeToAvatar( BOOL set_by_user, BOOL update_customize_floater = TRUE );
-	void				removeFromAvatar( BOOL set_by_user )	{ LLWearable::removeFromAvatar( mType, set_by_user ); }
-	static void			removeFromAvatar( EWearableType type, BOOL set_by_user ); 
+	void				writeToAvatar();
+	void				removeFromAvatar( BOOL upload_bake )	{ LLWearable::removeFromAvatar( mType, upload_bake ); }
+	static void			removeFromAvatar( EWearableType type, BOOL upload_bake ); 
 
 	BOOL				exportFile(LLFILE* file) const;
 	BOOL				importFile(LLFILE* file);
@@ -115,14 +115,14 @@ public:
 	void				setLocalTextureObject(S32 index, LLLocalTextureObject *lto);
 	void				addVisualParam(LLVisualParam *param);
 	void				setVisualParams();
-	void 				setVisualParamWeight(S32 index, F32 value, BOOL set_by_user);
+	void 				setVisualParamWeight(S32 index, F32 value, BOOL upload_bake);
 	F32					getVisualParamWeight(S32 index) const;
 	LLVisualParam*		getVisualParam(S32 index) const;
 	void				getVisualParams(visual_param_vec_t &list);
-	void				animateParams(F32 delta, BOOL set_by_user);
+	void				animateParams(F32 delta, BOOL upload_bake);
 
 	LLColor4			getClothesColor(S32 te) const;
-	void 				setClothesColor( S32 te, const LLColor4& new_color, BOOL set_by_user );
+	void 				setClothesColor( S32 te, const LLColor4& new_color, BOOL upload_bake );
 
 	void				revertValues();
 

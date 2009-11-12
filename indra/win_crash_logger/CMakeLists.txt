@@ -11,6 +11,7 @@ include(LLVFS)
 include(LLWindow)
 include(LLXML)
 include(Linking)
+include(LLSharedLibs)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -87,3 +88,5 @@ if (WINDOWS)
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
         )
 endif (WINDOWS)
+
+ll_deploy_sharedlibs_command(windows-crash-logger)

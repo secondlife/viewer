@@ -512,6 +512,8 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 			// add children using dimensions from referenced xml for consistent layout
 			setShape(params.rect);
 			LLUICtrlFactory::createChildren(this, referenced_xml, child_registry_t::instance());
+
+			setXMLFilename(xml_filename);
 		}
 
 		// ask LLUICtrlFactory for filename, since xml_filename might be empty

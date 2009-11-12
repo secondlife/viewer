@@ -1,2 +1,6 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="classified_preview" title="INFORMATIONS SUR LA PETITE ANNONCE" />
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="classified_preview" title="INFORMATIONS SUR LA PETITE ANNONCE">
+	<floater.string name="Title">
+		Petite annonce : [NAME]
+	</floater.string>
+</floater>

@@ -24,7 +24,7 @@ financières de ce groupe.
 		<column label="Surface" name="area"/>
 		<column label="" name="hidden"/>
 	</scroll_list>
-	<button label="Voir sur la carte" label_selected="Voir sur la carte" name="map_button"/>
+	<button label="Carte" label_selected="Carte" name="map_button"/>
 	<text name="total_contributed_land_label">
 		Total des contributions :
 	</text>

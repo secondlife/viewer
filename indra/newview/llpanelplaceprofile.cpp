@@ -97,7 +97,6 @@ BOOL LLPanelPlaceProfile::postBuild()
 				setMouseDownCallback(boost::bind(&LLPanelPlaceProfile::onForSaleBannerClick, this));
 
 	mParcelOwner = getChild<LLTextBox>("owner_value");
-	mLastVisited = getChild<LLTextBox>("last_visited_value");
 
 	mParcelRatingIcon = getChild<LLIconCtrl>("rating_icon");
 	mParcelRatingText = getChild<LLTextBox>("rating_value");
@@ -165,7 +164,6 @@ void LLPanelPlaceProfile::resetLocation()
 
 	std::string not_available = getString("not_available");
 	mParcelOwner->setValue(not_available);
-	mLastVisited->setValue(not_available);
 
 	mParcelRatingIcon->setValue(not_available);
 	mParcelRatingText->setText(not_available);
@@ -209,16 +207,12 @@ void LLPanelPlaceProfile::resetLocation()
 void LLPanelPlaceProfile::setInfoType(INFO_TYPE type)
 {
 	bool is_info_type_agent = type == AGENT;
-	bool is_info_type_teleport_history = type == TELEPORT_HISTORY;
 
-	getChild<LLTextBox>("maturity_label")->setVisible(!is_info_type_agent);
+	mMaturityRatingIcon->setVisible(!is_info_type_agent);
 	mMaturityRatingText->setVisible(!is_info_type_agent);
 
 	getChild<LLTextBox>("owner_label")->setVisible(is_info_type_agent);
 	mParcelOwner->setVisible(is_info_type_agent);
-
-	getChild<LLTextBox>("last_visited_label")->setVisible(is_info_type_teleport_history);
-	mLastVisited->setVisible(is_info_type_teleport_history);
 
 	getChild<LLAccordionCtrl>("advanced_info_accordion")->setVisible(is_info_type_agent);
 
@@ -236,6 +230,30 @@ void LLPanelPlaceProfile::setInfoType(INFO_TYPE type)
 	}
 
 	LLPanelPlaceInfo::setInfoType(type);
+}
+
+// virtual
+void LLPanelPlaceProfile::processParcelInfo(const LLParcelData& parcel_data)
+{
+	LLPanelPlaceInfo::processParcelInfo(parcel_data);
+
+	// HACK: Flag 0x2 == adult region,
+	// Flag 0x1 == mature region, otherwise assume PG
+	if (parcel_data.flags & 0x2)
+	{
+		mMaturityRatingIcon->setValue(icon_r);
+		mMaturityRatingText->setText(LLViewerRegion::accessToString(SIM_ACCESS_ADULT));
+	}
+	else if (parcel_data.flags & 0x1)
+	{
+		mMaturityRatingIcon->setValue(icon_m);
+		mMaturityRatingText->setText(LLViewerRegion::accessToString(SIM_ACCESS_MATURE));
+	}
+	else
+	{
+		mMaturityRatingIcon->setValue(icon_pg);
+		mMaturityRatingText->setText(LLViewerRegion::accessToString(SIM_ACCESS_PG));
+	}
 }
 
 void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
@@ -519,22 +537,6 @@ void LLPanelPlaceProfile::updateEstateOwnerName(const std::string& name)
 void LLPanelPlaceProfile::updateCovenantText(const std::string &text)
 {
 	mCovenantText->setText(text);
-}
-
-void LLPanelPlaceProfile::updateLastVisitedText(const LLDate &date)
-{
-	if (date.isNull())
-	{
-		mLastVisited->setText(getString("unknown"));
-	}
-	else
-	{
-		std::string timeStr = getString("acquired_date");
-		LLSD substitution;
-		substitution["datetime"] = (S32) date.secondsSinceEpoch();
-		LLStringUtil::format (timeStr, substitution);
-		mLastVisited->setText(timeStr);
-	}
 }
 
 void LLPanelPlaceProfile::onForSaleBannerClick()

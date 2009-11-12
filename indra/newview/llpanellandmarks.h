@@ -69,7 +69,7 @@ protected:
 	bool isLandmarkSelected() const;
 	bool isReceivedFolderSelected() const;
 	LLLandmark* getCurSelectedLandmark() const;
-	LLFolderViewItem* getCurSelectedItem () const;
+	LLFolderViewItem* getCurSelectedItem() const;
 	void updateSortOrder(LLInventoryPanel* panel, bool byDate);
 
 	//LLRemoteParcelInfoObserver interface

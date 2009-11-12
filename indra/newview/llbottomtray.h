@@ -33,7 +33,7 @@
 #ifndef LL_LLBOTTOMPANEL_H
 #define LL_LLBOTTOMPANEL_H
 
-#include <llmenugl.h>
+#include "llmenugl.h"
 
 #include "llpanel.h"
 #include "llimview.h"
@@ -51,7 +51,9 @@ class LLBottomTray
 	: public LLSingleton<LLBottomTray>
 	, public LLPanel
 	, public LLIMSessionObserver
+	, public LLVoiceClientStatusObserver
 {
+	LOG_CLASS(LLBottomTray);
 	friend class LLSingleton<LLBottomTray>;
 public:
 	~LLBottomTray();
@@ -74,6 +76,10 @@ public:
 	virtual void onFocusLost();
 	virtual void setVisible(BOOL visible);
 
+	// Implements LLVoiceClientStatusObserver::onChange() to enable the speak
+	// button when voice is available
+	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
+
 	void showBottomTrayContextMenu(S32 x, S32 y, MASK mask);
 
 	void showGestureButton(BOOL visible);
@@ -82,18 +88,32 @@ public:
 	void showSnapshotButton(BOOL visible);
 
 private:
-
-	enum EResizeState
+	typedef enum e_resize_status_type
 	{
-		STATE_CHICLET_PANEL = 1,
-		STATE_CHATBAR_INPUT,
-		STATE_BUTTONS
-	};
+		  RS_NORESIZE			= 0x0000
+		, RS_CHICLET_PANEL		= 0x0001
+		, RS_CHATBAR_INPUT		= 0x0002
+		, RS_BUTTON_SNAPSHOT	= 0x0004
+		, RS_BUTTON_CAMERA		= 0x0008
+		, RS_BUTTON_MOVEMENT	= 0x0010
+		, RS_BUTTON_GESTURES	= 0x0020
+		, RS_BUTTON_SPEAK		= 0x0040
+		, RS_RESIZABLE_BUTTONS			= /*RS_BUTTON_SNAPSHOT | */RS_BUTTON_CAMERA | RS_BUTTON_MOVEMENT | RS_BUTTON_GESTURES
+	}EResizeState;
 
-	void updateResizeState(S32 width, S32 height);
+	void updateResizeState(S32 new_width, S32 cur_width);
 	void verifyChildControlsSizes();
+	void processWidthDecreased(S32 delta_width);
+	void processWidthIncreased(S32 delta_width);
+	void log(LLView* panel, const std::string& descr);
+	bool processShowButton(EResizeState shown_object_type, S32* available_width, S32* buttons_required_width);
+	bool canButtonBeShown(LLPanel* panel) const;
+	void initStateProcessedObjectMap();
 
-	EResizeState mResizeState;
+	MASK mResizeState;
+
+	typedef std::map<EResizeState, LLPanel*> state_object_map_t;
+	state_object_map_t mStateProcessedObjectMap;
 
 protected:
 

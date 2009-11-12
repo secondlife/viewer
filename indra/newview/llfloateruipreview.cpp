@@ -670,6 +670,15 @@ void LLFloaterUIPreview::refreshList()
 		}
 	}
 
+	found = TRUE;
+	while(found)				// for every sidepanel file that matches the pattern
+	{
+		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "sidepanel_*.xml", name, FALSE)))	// get next file matching pattern
+		{
+			addFloaterEntry(name.c_str());	// and add it to the list (file name only; localization code takes care of rest of path)
+		}
+	}
+
 	if(!mFileList->isEmpty())	// if there were any matching files, just select the first one (so we don't have to worry about disabling buttons when no entry is selected)
 	{
 		mFileList->selectFirstItem();
@@ -840,6 +849,7 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		{
 			LLUICtrlFactory::getInstance()->buildFloater(*floaterp, path, NULL);	// just build it
 			(*floaterp)->openFloater((*floaterp)->getKey());
+			(*floaterp)->setCanResize((*floaterp)->isResizable());
 		}
 
 	}

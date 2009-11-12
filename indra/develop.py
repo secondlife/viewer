@@ -239,6 +239,7 @@ class UnixSetup(PlatformSetup):
 
     def run(self, command, name=None):
         '''Run a program.  If the program fails, raise an exception.'''
+        sys.stdout.flush()
         ret = os.system(command)
         if ret:
             if name is None:
@@ -456,7 +457,7 @@ class DarwinSetup(UnixSetup):
             targets = ' '.join(['-target ' + repr(t) for t in targets])
         else:
             targets = ''
-        cmd = ('xcodebuild -configuration %s %s %s' %
+        cmd = ('xcodebuild -configuration %s %s %s | grep -v "^[[:space:]]*setenv" ; exit ${PIPESTATUS[0]}' %
                (self.build_type, ' '.join(opts), targets))
         for d in self.build_dirs():
             try:

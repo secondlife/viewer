@@ -7,7 +7,7 @@
  left="0"
  name="notices_tab"
  top="0"
- width="313">
+ width="310">
     <panel.string
      name="help_text">
         Notices are a quick way to communicate across a 
@@ -27,7 +27,7 @@ the General tab.
      word_wrap="true"
      height="30"
      layout="topleft"
-     left="10"
+     left="5"
      name="lbl2"
      top="5"
      width="300">
@@ -41,10 +41,10 @@ Groups are limited to 200 notices/group daily
      heading_height="16"
      height="125"
      layout="topleft"
-     left="0"
+     left="2"
      name="notice_list"
      top_pad="0"
-     width="303">
+     width="305">
         <scroll_list.columns
          label=""
          name="icon"
@@ -81,10 +81,10 @@ Groups are limited to 200 notices/group daily
        image_disabled="AddItem_Disabled"
        layout="topleft"
        label="Create a new notice"
-       left="15"
+       left="5"
        name="create_new_notice"
        tool_tip="Create a new notice"
-     top_delta="-5"
+     top_delta="0"
        width="18" />
      <button
      follows="top|left"
@@ -93,7 +93,7 @@ Groups are limited to 200 notices/group daily
      layout="topleft"
      name="refresh_notices"
      right="-5"
-     top_delta="5"
+     top_delta="0"
      width="23" />
     <panel
      follows="left|top"
@@ -219,7 +219,7 @@ Groups are limited to 200 notices/group daily
          label_selected="Send Notice"
          layout="topleft"
          right="-10"
-         top_pad="20"
+         top_pad="10"
          name="send_notice"
          width="100" />
       <group_drop_target

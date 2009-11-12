@@ -1565,7 +1565,7 @@ BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 
 			// display tooltip exactly over original cell, in same font
 			LLToolTipMgr::instance().show(LLToolTip::Params()
-										.message(hit_cell->getValue().asString())
+										.message(hit_cell->getToolTip())
 										.font(LLFontGL::getFontSansSerifSmall())
 										.pos(LLCoordGL(sticky_rect.mLeft - 5, sticky_rect.mTop + 6))
 										.delay_time(0.2f)
@@ -2624,7 +2624,7 @@ void LLScrollListCtrl::addColumn(const LLScrollListColumn::Params& column_params
 
 			LLRect temp_rect = LLRect(left,top+mHeadingHeight,right,top);
 
-			LLScrollColumnHeader::Params params;
+			LLScrollColumnHeader::Params params(LLUICtrlFactory::getDefaultParams<LLScrollColumnHeader>());
 			params.name = "btn_" + name;
 			params.rect = temp_rect;
 			params.column = new_column;

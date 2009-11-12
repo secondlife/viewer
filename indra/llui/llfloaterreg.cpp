@@ -46,7 +46,7 @@ LLFloaterReg::instance_map_t LLFloaterReg::sInstanceMap;
 LLFloaterReg::build_map_t LLFloaterReg::sBuildMap;
 std::map<std::string,std::string> LLFloaterReg::sGroupMap;
 
-static LLFloaterRegListener sFloaterRegListener("LLFloaterReg");
+static LLFloaterRegListener sFloaterRegListener;
 
 //*******************************************************
 

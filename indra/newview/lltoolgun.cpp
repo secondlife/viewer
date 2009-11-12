@@ -140,7 +140,7 @@ void LLToolGun::draw()
 	{
 		LLUIImagePtr crosshair = LLUI::getUIImage("crosshairs.tga");
 		crosshair->draw(
-			( gViewerWindow->getVirtualWorldViewRect().getWidth() - crosshair->getWidth() ) / 2,
-			( gViewerWindow->getVirtualWorldViewRect().getHeight() - crosshair->getHeight() ) / 2);
+			( gViewerWindow->getWorldViewRectScaled().getWidth() - crosshair->getWidth() ) / 2,
+			( gViewerWindow->getWorldViewRectScaled().getHeight() - crosshair->getHeight() ) / 2);
 	}
 }

@@ -286,8 +286,7 @@ bool LLTextBase::truncate()
 
 LLStyle::Params LLTextBase::getDefaultStyle()
 {
-	LLColor4 text_color = ( mReadOnly ? mReadOnlyFgColor.get() : mFgColor.get() );
-	return LLStyle::Params().color(text_color).font(mDefaultFont).drop_shadow(mFontShadow);
+	return LLStyle::Params().color(mFgColor.get()).readonly_color(mReadOnlyFgColor.get()).font(mDefaultFont).drop_shadow(mFontShadow);
 }
 
 void LLTextBase::onValueChange(S32 start, S32 end)
@@ -993,6 +992,12 @@ void LLTextBase::draw()
 void LLTextBase::setColor( const LLColor4& c )
 {
 	mFgColor = c;
+}
+
+//virtual 
+void LLTextBase::setReadOnlyColor(const LLColor4 &c)
+{
+	mReadOnlyFgColor = c;
 }
 
 //virtual
@@ -2232,7 +2237,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 
 	const LLFontGL* font = mStyle->getFont();
 
-	LLColor4 color = mStyle->getColor() % alpha;
+	LLColor4 color = (mEditor.getReadOnly() ? mStyle->getReadOnlyColor() : mStyle->getColor())  % alpha;
 
 	font = mStyle->getFont();
 
@@ -2370,7 +2375,9 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 
 	height = mFontHeight;
 	width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
-	return num_chars >= 1 && text[mStart + num_chars - 1] == '\n';
+	// if last character is a newline, then return true, forcing line break
+	llwchar last_char = text[mStart + first_char + num_chars - 1];
+	return num_chars >= 1 && last_char == '\n';
 }
 
 S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const

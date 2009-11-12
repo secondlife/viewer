@@ -1142,3 +1142,552 @@ void LLPanelClassified::setDefaultAccessCombo()
 			break;
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+LLPanelClassifiedInfo::LLPanelClassifiedInfo()
+ : LLPanel()
+ , mInfoLoaded(false)
+{
+}
+
+LLPanelClassifiedInfo::~LLPanelClassifiedInfo()
+{
+}
+
+// static
+LLPanelClassifiedInfo* LLPanelClassifiedInfo::create()
+{
+	LLPanelClassifiedInfo* panel = new LLPanelClassifiedInfo();
+	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_classified_info.xml");
+	return panel;
+}
+
+BOOL LLPanelClassifiedInfo::postBuild()
+{
+	childSetAction("back_btn", boost::bind(&LLPanelClassifiedInfo::onExit, this));
+	childSetAction("show_on_map_btn", boost::bind(&LLPanelClassifiedInfo::onMapClick, this));
+	childSetAction("teleport_btn", boost::bind(&LLPanelClassifiedInfo::onTeleportClick, this));
+
+	return TRUE;
+}
+
+void LLPanelClassifiedInfo::setExitCallback(const commit_callback_t& cb)
+{
+	getChild<LLButton>("back_btn")->setClickedCallback(cb);
+}
+
+void LLPanelClassifiedInfo::setEditClassifiedCallback(const commit_callback_t& cb)
+{
+	getChild<LLButton>("edit_btn")->setClickedCallback(cb);
+}
+
+void LLPanelClassifiedInfo::onOpen(const LLSD& key)
+{
+	LLUUID avatar_id = key["avatar_id"];
+	if(avatar_id.isNull())
+	{
+		return;
+	}
+
+	if(getAvatarId().notNull())
+	{
+		LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(), this);
+	}
+
+	setAvatarId(avatar_id);
+
+	resetData();
+	resetControls();
+
+	setClassifiedId(key["classified_id"]);
+	setClassifiedName(key["name"]);
+	setDescription(key["desc"]);
+	setSnapshotId(key["snapshot_id"]);
+
+	LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(), this);
+	LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getClassifiedId());
+	setInfoLoaded(false);
+}
+
+void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType type)
+{
+	if(APT_CLASSIFIED_INFO == type)
+	{
+		LLAvatarClassifiedInfo* c_info = static_cast<LLAvatarClassifiedInfo*>(data);
+		if(c_info && getClassifiedId() == c_info->classified_id)
+		{
+			setClassifiedName(c_info->name);
+			setDescription(c_info->description);
+			setSnapshotId(c_info->snapshot_id);
+			setParcelId(c_info->parcel_id);
+			setPosGlobal(c_info->pos_global);
+			setClassifiedLocation(createLocationText(c_info->parcel_name, c_info->sim_name, c_info->pos_global));
+			childSetValue("category", LLClassifiedInfo::sCategories[c_info->category]);
+
+			static std::string mature_str = getString("type_mature");
+			static std::string pg_str = getString("type_pg");
+
+			bool mature = is_cf_mature(c_info->flags);
+			childSetValue("content_type", mature ? mature_str : pg_str);
+			childSetValue("auto_renew", is_cf_auto_renew(c_info->flags));
+
+			childSetTextArg("price_for_listing", "[PRICE]", llformat("%d", c_info->price_for_listing));
+
+			setInfoLoaded(true);
+		}
+	}
+}
+
+void LLPanelClassifiedInfo::resetData()
+{
+	setClassifiedName(LLStringUtil::null);
+	setDescription(LLStringUtil::null);
+	setClassifiedLocation(LLStringUtil::null);
+	setClassifiedId(LLUUID::null);
+	setSnapshotId(LLUUID::null);
+	mPosGlobal.clearVec();
+	childSetValue("category", LLStringUtil::null);
+	childSetValue("content_type", LLStringUtil::null);
+}
+
+void LLPanelClassifiedInfo::resetControls()
+{
+	if(getAvatarId() == gAgent.getID())
+	{
+		childSetEnabled("edit_btn", TRUE);
+		childSetVisible("edit_btn", TRUE);
+	}
+	else
+	{
+		childSetEnabled("edit_btn", FALSE);
+		childSetVisible("edit_btn", FALSE);
+	}
+}
+
+void LLPanelClassifiedInfo::setClassifiedName(const std::string& name)
+{
+	childSetValue("classified_name", name);
+}
+
+std::string LLPanelClassifiedInfo::getClassifiedName()
+{
+	return childGetValue("classified_name").asString();
+}
+
+void LLPanelClassifiedInfo::setDescription(const std::string& desc)
+{
+	childSetValue("classified_desc", desc);
+}
+
+std::string LLPanelClassifiedInfo::getDescription()
+{
+	return childGetValue("classified_desc").asString();
+}
+
+void LLPanelClassifiedInfo::setClassifiedLocation(const std::string& location)
+{
+	childSetValue("classified_location", location);
+}
+
+void LLPanelClassifiedInfo::setSnapshotId(const LLUUID& id)
+{
+	childSetValue("classified_snapshot", id);
+}
+
+LLUUID LLPanelClassifiedInfo::getSnapshotId()
+{
+	return childGetValue("classified_snapshot").asUUID();
+}
+
+// static
+std::string LLPanelClassifiedInfo::createLocationText(
+	const std::string& original_name, 
+	const std::string& sim_name, 
+	const LLVector3d& pos_global)
+{
+	std::string location_text;
+	
+	location_text.append(original_name);
+
+	if (!sim_name.empty())
+	{
+		if (!location_text.empty()) 
+			location_text.append(", ");
+		location_text.append(sim_name);
+	}
+
+	if (!location_text.empty()) 
+		location_text.append(" ");
+
+	if (!pos_global.isNull())
+	{
+		S32 region_x = llround((F32)pos_global.mdV[VX]) % REGION_WIDTH_UNITS;
+		S32 region_y = llround((F32)pos_global.mdV[VY]) % REGION_WIDTH_UNITS;
+		S32 region_z = llround((F32)pos_global.mdV[VZ]);
+		location_text.append(llformat(" (%d, %d, %d)", region_x, region_y, region_z));
+	}
+
+	return location_text;
+}
+
+void LLPanelClassifiedInfo::onMapClick()
+{
+	LLFloaterWorldMap::getInstance()->trackLocation(getPosGlobal());
+	LLFloaterReg::showInstance("world_map", "center");
+}
+
+void LLPanelClassifiedInfo::onTeleportClick()
+{
+	if (!getPosGlobal().isExactlyZero())
+	{
+		gAgent.teleportViaLocation(getPosGlobal());
+		LLFloaterWorldMap::getInstance()->trackLocation(getPosGlobal());
+	}
+}
+
+void LLPanelClassifiedInfo::onExit()
+{
+	LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(), this);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+static const S32 CB_ITEM_MATURE = 0;
+static const S32 CB_ITEM_PG	   = 1;
+
+LLPanelClassifiedEdit::LLPanelClassifiedEdit()
+ : LLPanelClassifiedInfo()
+ , mIsNew(false)
+{
+}
+
+LLPanelClassifiedEdit::~LLPanelClassifiedEdit()
+{
+}
+
+//static
+LLPanelClassifiedEdit* LLPanelClassifiedEdit::create()
+{
+	LLPanelClassifiedEdit* panel = new LLPanelClassifiedEdit();
+	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_edit_classified.xml");
+	return panel;
+}
+
+BOOL LLPanelClassifiedEdit::postBuild()
+{
+	LLPanelClassifiedInfo::postBuild();
+
+	LLTextureCtrl* snapshot = getChild<LLTextureCtrl>("classified_snapshot");
+	snapshot->setOnSelectCallback(boost::bind(&LLPanelClassifiedEdit::onChange, this));
+
+	LLUICtrl* edit_icon = getChild<LLUICtrl>("edit_icon");
+	snapshot->setMouseEnterCallback(boost::bind(&LLPanelClassifiedEdit::onTexturePickerMouseEnter, this, edit_icon));
+	snapshot->setMouseLeaveCallback(boost::bind(&LLPanelClassifiedEdit::onTexturePickerMouseLeave, this, edit_icon));
+	edit_icon->setVisible(false);
+
+	LLLineEditor* line_edit = getChild<LLLineEditor>("classified_name");
+	line_edit->setKeystrokeCallback(boost::bind(&LLPanelClassifiedEdit::onChange, this), NULL);
+
+	LLTextEditor* text_edit = getChild<LLTextEditor>("classified_desc");
+	text_edit->setKeystrokeCallback(boost::bind(&LLPanelClassifiedEdit::onChange, this));
+
+	LLComboBox* combobox = getChild<LLComboBox>( "category");
+	LLClassifiedInfo::cat_map::iterator iter;
+	for (iter = LLClassifiedInfo::sCategories.begin();
+		iter != LLClassifiedInfo::sCategories.end();
+		iter++)
+	{
+		combobox->add(LLTrans::getString(iter->second));
+	}
+
+	combobox->setCommitCallback(boost::bind(&LLPanelClassifiedEdit::onChange, this));
+
+	childSetCommitCallback("content_type", boost::bind(&LLPanelClassifiedEdit::onChange, this), NULL);
+	childSetCommitCallback("price_for_listing", boost::bind(&LLPanelClassifiedEdit::onChange, this), NULL);
+	childSetCommitCallback("auto_renew", boost::bind(&LLPanelClassifiedEdit::onChange, this), NULL);
+
+	childSetAction("save_changes_btn", boost::bind(&LLPanelClassifiedEdit::onSaveClick, this));
+	childSetAction("set_to_curr_location_btn", boost::bind(&LLPanelClassifiedEdit::onSetLocationClick, this));
+
+	return TRUE;
+}
+
+void LLPanelClassifiedEdit::onOpen(const LLSD& key)
+{
+	LLUUID classified_id = key["classified_id"];
+
+	mIsNew = classified_id.isNull();
+
+	if(mIsNew)
+	{
+		setAvatarId(gAgent.getID());
+
+		resetData();
+		resetControls();
+
+		setPosGlobal(gAgent.getPositionGlobal());
+
+		LLUUID snapshot_id = LLUUID::null;
+		std::string desc;
+		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+
+		if(parcel)
+		{
+			desc = parcel->getDesc();
+			snapshot_id = parcel->getSnapshotID();
+		}
+
+		std::string region_name = LLTrans::getString("ClassifiedUpdateAfterPublish");
+		LLViewerRegion* region = gAgent.getRegion();
+		if (region)
+		{
+			region_name = region->getName();
+		}
+
+		childSetValue("classified_name", makeClassifiedName());
+		childSetValue("classified_desc", desc);
+		setSnapshotId(snapshot_id);
+		
+		setClassifiedLocation(createLocationText(getLocationNotice(), region_name, getPosGlobal()));
+		
+		// server will set valid parcel id
+		setParcelId(LLUUID::null);
+
+		enableVerbs(true);
+		enableEditing(true);
+	}
+	else
+	{
+		LLPanelClassifiedInfo::onOpen(key);
+		enableVerbs(false);
+		enableEditing(false);
+	}
+
+	resetDirty();
+	setInfoLoaded(false);
+}
+
+void LLPanelClassifiedEdit::processProperties(void* data, EAvatarProcessorType type)
+{
+	if(APT_CLASSIFIED_INFO == type)
+	{
+		LLAvatarClassifiedInfo* c_info = static_cast<LLAvatarClassifiedInfo*>(data);
+		if(c_info && getClassifiedId() == c_info->classified_id)
+		{
+			enableEditing(true);
+
+			setClassifiedName(c_info->name);
+			setDescription(c_info->description);
+			setSnapshotId(c_info->snapshot_id);
+			setPosGlobal(c_info->pos_global);
+
+			setClassifiedLocation(createLocationText(c_info->parcel_name, c_info->sim_name, c_info->pos_global));
+			getChild<LLComboBox>("category")->setCurrentByIndex(c_info->category + 1);
+			getChild<LLComboBox>("category")->resetDirty();
+
+			bool mature = is_cf_mature(c_info->flags);
+			bool auto_renew = is_cf_auto_renew(c_info->flags);
+
+			getChild<LLComboBox>("content_type")->setCurrentByIndex(mature ? CB_ITEM_MATURE : CB_ITEM_PG);
+			childSetValue("auto_renew", auto_renew);
+			childSetValue("price_for_listing", c_info->price_for_listing);
+
+			resetDirty();
+			setInfoLoaded(true);
+		}
+	}
+}
+
+BOOL LLPanelClassifiedEdit::isDirty() const
+{
+	if(mIsNew) 
+	{
+		return TRUE;
+	}
+
+	BOOL dirty = false;
+
+	dirty |= LLPanelClassifiedInfo::isDirty();
+	dirty |= getChild<LLUICtrl>("classified_snapshot")->isDirty();
+	dirty |= getChild<LLUICtrl>("classified_name")->isDirty();
+	dirty |= getChild<LLUICtrl>("classified_desc")->isDirty();
+	dirty |= getChild<LLUICtrl>("category")->isDirty();
+	dirty |= getChild<LLUICtrl>("content_type")->isDirty();
+	dirty |= getChild<LLUICtrl>("auto_renew")->isDirty();
+	dirty |= getChild<LLUICtrl>("price_for_listing")->isDirty();
+
+	return dirty;
+}
+
+void LLPanelClassifiedEdit::resetDirty()
+{
+	LLPanelClassifiedInfo::resetDirty();
+	getChild<LLUICtrl>("classified_snapshot")->resetDirty();
+	getChild<LLUICtrl>("classified_name")->resetDirty();
+	getChild<LLUICtrl>("classified_desc")->resetDirty();
+	getChild<LLUICtrl>("category")->resetDirty();
+	getChild<LLUICtrl>("content_type")->resetDirty();
+	getChild<LLUICtrl>("auto_renew")->resetDirty();
+	getChild<LLUICtrl>("price_for_listing")->resetDirty();
+}
+
+void LLPanelClassifiedEdit::setSaveCallback(const commit_callback_t& cb)
+{
+	getChild<LLButton>("save_changes_btn")->setClickedCallback(cb);
+}
+
+void LLPanelClassifiedEdit::setCancelCallback(const commit_callback_t& cb)
+{
+	getChild<LLButton>("cancel_btn")->setClickedCallback(cb);
+}
+
+void LLPanelClassifiedEdit::resetControls()
+{
+	LLPanelClassifiedInfo::resetControls();
+
+	getChild<LLComboBox>("category")->setCurrentByIndex(0);
+	getChild<LLComboBox>("content_type")->setCurrentByIndex(0);
+	childSetValue("auto_renew", false);
+	childSetValue("price_for_listing", MINIMUM_PRICE_FOR_LISTING);
+}
+
+void LLPanelClassifiedEdit::sendUpdate()
+{
+	LLAvatarClassifiedInfo c_data;
+
+	if(getClassifiedId().isNull())
+	{
+		LLUUID id;
+		id.generate();
+		setClassifiedId(id);
+	}
+
+	c_data.agent_id = gAgent.getID();
+	c_data.classified_id = getClassifiedId();
+	c_data.category = getCategory();
+	c_data.name = getClassifiedName();
+	c_data.description = getDescription();
+	c_data.parcel_id = getParcelId();
+	c_data.snapshot_id = getSnapshotId();
+	c_data.pos_global = getPosGlobal();
+	c_data.flags = getFlags();
+	c_data.price_for_listing = getPriceForListing();
+
+	LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoUpdate(&c_data);
+}
+
+U32 LLPanelClassifiedEdit::getCategory()
+{
+	LLComboBox* cat_cb = getChild<LLComboBox>("category");
+	return cat_cb->getCurrentIndex() + 1;
+}
+
+U8 LLPanelClassifiedEdit::getFlags()
+{
+	bool auto_renew = childGetValue("auto_renew").asBoolean();
+
+	LLComboBox* content_cb = getChild<LLComboBox>("content_type");
+	bool mature = content_cb->getCurrentIndex() == CB_ITEM_MATURE;
+	
+	return pack_classified_flags_request(auto_renew, false, mature, false);
+}
+
+void LLPanelClassifiedEdit::enableVerbs(bool enable)
+{
+	childSetEnabled("save_changes_btn", enable);
+}
+
+void LLPanelClassifiedEdit::enableEditing(bool enable)
+{
+	childSetEnabled("classified_snapshot", enable);
+	childSetEnabled("classified_name", enable);
+	childSetEnabled("classified_desc", enable);
+	childSetEnabled("set_to_curr_location_btn", enable);
+	childSetEnabled("category", enable);
+	childSetEnabled("content_type", enable);
+	childSetEnabled("price_for_listing", enable);
+	childSetEnabled("auto_renew", enable);
+}
+
+std::string LLPanelClassifiedEdit::makeClassifiedName()
+{
+	std::string name;
+
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	if(parcel)
+	{
+		name = parcel->getName();
+	}
+
+	if(!name.empty())
+	{
+		return name;
+	}
+
+	LLViewerRegion* region = gAgent.getRegion();
+	if(region)
+	{
+		name = region->getName();
+	}
+
+	return name;
+}
+
+S32 LLPanelClassifiedEdit::getPriceForListing()
+{
+	return childGetValue("price_for_listing").asInteger();
+}
+
+void LLPanelClassifiedEdit::onSetLocationClick()
+{
+	setPosGlobal(gAgent.getPositionGlobal());
+	setParcelId(LLUUID::null);
+
+	std::string region_name = LLTrans::getString("ClassifiedUpdateAfterPublish");
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region)
+	{
+		region_name = region->getName();
+	}
+
+	setClassifiedLocation(createLocationText(getLocationNotice(), region_name, getPosGlobal()));
+
+	// mark classified as dirty
+	setValue(LLSD());
+
+	onChange();
+}
+
+void LLPanelClassifiedEdit::onChange()
+{
+	enableVerbs(isDirty());
+}
+
+void LLPanelClassifiedEdit::onSaveClick()
+{
+	sendUpdate();
+	resetDirty();
+}
+
+std::string LLPanelClassifiedEdit::getLocationNotice()
+{
+	static std::string location_notice = getString("location_notice");
+	return location_notice;
+}
+
+void LLPanelClassifiedEdit::onTexturePickerMouseEnter(LLUICtrl* ctrl)
+{
+	ctrl->setVisible(TRUE);
+}
+
+void LLPanelClassifiedEdit::onTexturePickerMouseLeave(LLUICtrl* ctrl)
+{
+	ctrl->setVisible(FALSE);
+}
+
+//EOF

@@ -98,6 +98,24 @@
                  function="World.SetBusy"/>
             </menu_item_call>
         </menu>
+        <menu_item_call
+         label="Request Admin Status"
+         layout="topleft"
+         name="Request Admin Options"
+         shortcut="control|alt|G"
+		 visible="false">
+            <menu_item_call.on_click
+             function="Advanced.RequestAdminStatus" />
+        </menu_item_call>
+        <menu_item_call
+         label="Leave Admin Status"
+         layout="topleft"
+         name="Leave Admin Options"
+         shortcut="control|alt|shift|G"
+		 visible="false">
+            <menu_item_call.on_click
+             function="Advanced.LeaveAdminStatus" />
+        </menu_item_call>
         <menu_item_separator
          layout="topleft" />
         <menu_item_call
@@ -825,18 +843,18 @@
                 <menu_item_call.on_click
                  function="Floater.Toggle"
                  parameter="perm_prefs" />
-         <menu_item_check
-         label="Show Advanced Permissions"
-         layout="topleft"
-         name="DebugPermissions">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="DebugPermissions" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="DebugPermissions" />
-        </menu_item_check>
             </menu_item_call>
+			<menu_item_check
+			   label="Show Advanced Permissions"
+			   layout="topleft"
+			   name="DebugPermissions">
+			  <menu_item_check.on_check
+				 function="CheckControl"
+				 parameter="DebugPermissions" />
+			  <menu_item_check.on_click
+				 function="ToggleControl"
+				 parameter="DebugPermissions" />
+			</menu_item_check>
             <!--menu_item_call
              label="Show Script Warning/Error Window"
              layout="topleft"
@@ -1914,18 +1932,15 @@
                  function="Advanced.ToggleConsole"
                  parameter="debug" />
             </menu_item_check>
-            <menu_item_check
+            <menu_item_call
              label="Notifications Console"
              layout="topleft"
              name="Notifications"
              shortcut="control|shift|5">
-              <menu_item_check.on_check
-               function="Advanced.CheckConsole"
-               parameter="notifications" />
-              <menu_item_check.on_click
-               function="Floater.Show"
+              <menu_item_call.on_click
+               function="Floater.Toggle"
                parameter="notifications_console" />
-            </menu_item_check>
+            </menu_item_call>
             <menu_item_check
                label="Texture Size Console"
                layout="topleft"
@@ -1975,19 +1990,6 @@
                 <menu_item_check.on_click
                  function="Advanced.ToggleConsole"
                  parameter="memory view" />
-            </menu_item_check>
-            <menu_item_check
-             label="Notifications Console"
-             layout="topleft"
-             name="Notifications"
-             shortcut="control|shift|5"
-             use_mac_ctrl="true">
-                <menu_item_check.on_check
-                 function="Advanced.CheckConsole"
-                 parameter="notifications" />
-                <menu_item_check.on_click
-                 function="Floater.Show"
-                 parameter="notifications_console" />
             </menu_item_check>
             <menu_item_separator
              layout="topleft" />
@@ -2540,10 +2542,10 @@
              name="Texture Atlas">
               <menu_item_check.on_check
                function="CheckControl"
-               parameter="TextureAtlas" />
+               parameter="EnableTextureAtlas" />
               <menu_item_check.on_click
                function="ToggleControl"
-               parameter="TextureAtlas" />
+               parameter="EnableTextureAtlas" />
             </menu_item_check>
               <menu_item_check
              label="Render Attached Lights"

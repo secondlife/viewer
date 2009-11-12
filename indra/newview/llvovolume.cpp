@@ -108,6 +108,12 @@ public:
 				if (te->getMediaData() != NULL)
 				{
 					result = te->getMediaData()->asLLSD();
+					// XXX HACK: workaround bug in asLLSD() where whitelist is not set properly
+					// See DEV-41949
+					if (!result.has(LLMediaEntry::WHITELIST_KEY))
+					{
+						result[LLMediaEntry::WHITELIST_KEY] = LLSD::emptyArray();
+					}
 				}
 			}
 			return result;
@@ -1638,9 +1644,36 @@ bool LLVOVolume::hasMedia() const
 	return result;
 }
 
+LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
+{
+	LLVolume* volume = getVolume();
+	LLVector3 result;
+
+	if (volume && face_id < volume->getNumVolumeFaces())
+	{
+		const LLVolumeFace& face = volume->getVolumeFace(face_id);
+		for (S32 i = 0; i < (S32)face.mVertices.size(); ++i)
+		{
+			result += face.mVertices[i].mNormal;
+		}
+
+		result = volumeDirectionToAgent(result);
+		result.normVec();
+	}
+	
+	return result;
+}
+
 void LLVOVolume::requestMediaDataUpdate()
 {
     sObjectMediaClient->fetchMedia(new LLMediaDataClientObjectImpl(this));
+}
+
+bool LLVOVolume::isMediaDataBeingFetched() const
+{
+	// I know what I'm doing by const_casting this away: this is just 
+	// a wrapper class that is only going to do a lookup.
+	return sObjectMediaClient->isInQueue(new LLMediaDataClientObjectImpl(const_cast<LLVOVolume*>(this)));
 }
 
 void LLVOVolume::cleanUpMediaImpls()
@@ -1712,6 +1745,10 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
 		viewer_media_t media_impl = LLViewerMedia::updateMediaImpl(mep, previous_url, update_from_self);
 			
 		addMediaImpl(media_impl, texture_index) ;
+	}
+	else
+	{
+		removeMediaImpl(texture_index);
 	}
 
 	//llinfos << "AFTER: texture_index = " << texture_index

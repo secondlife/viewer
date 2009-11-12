@@ -133,7 +133,9 @@ public:
 	void onCommitAutoDetectAspect();
 	void applyResolution();
 	void applyWindowSize();
-
+	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
+	void getUIColor(LLUICtrl* ctrl, const LLSD& param);	
+	
 	static void initWindowSizeControls(LLPanel* panelp);
 	
 	static void buildLists(void* data);
@@ -159,6 +161,7 @@ public:
 	virtual void apply();
 	virtual void cancel();
 	void setControlFalse(const LLSD& user_data);
+
 private:
 	typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
 	control_values_map_t mSavedValues;

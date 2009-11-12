@@ -16,7 +16,7 @@ background_visible="true"
      value="No people" />
     <string
      name="no_one_near"
-     value="No-one near" />
+     value="No one near" />
     <string
      name="no_friends_online"
      value="No friends online" />
@@ -329,156 +329,88 @@ background_visible="true"
             </panel>
         </panel>
     </tab_container>
-    <layout_stack
-     animate="false"
-     border_size="0"
-     follows="left|right|bottom"
+    <panel
+     follows="bottom|left"
      height="25"
      layout="topleft"
      left="10"
      name="button_bar"
-     orientation="horizontal"
      width="313">
-        <layout_panel
-         default_tab_group="1"
-         follows="left|top"
-         height="25"
-         layout="topleft"
+        <button
+         follows="bottom|left"
+         font="SansSerifSmall"
+         top="4"
          left="0"
-         name="view_profile_btn_panel"
-         top="-25"
-         width="100">
-            <button
-             follows="top|left"
-             font="SansSerifSmall"
-             height="19"
-             label="Profile"
-             layout="topleft"
-             name="view_profile_btn"
-             tool_tip="Show picture, groups, and other residents information"
-             width="100" />
-        </layout_panel>
-        <layout_panel
-         default_tab_group="1"
-         follows="left|top"
          height="19"
+         label="Profile"
          layout="topleft"
+         name="view_profile_btn"
+         tool_tip="Show picture, groups, and other residents information"
+         width="70" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmall"
+         top="4"
+         left_pad="2"
+         height="19"
+         label="IM"
+         layout="topleft"
+         name="im_btn"
+         tool_tip="Open instant message session"
+         width="45" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmall"
+         top="4"
+         left_pad="2"
+         height="19"
+         label="Call"
+         layout="topleft"
+         name="call_btn"
+         tool_tip="Call this resident"
+         width="50" />
+        <button
+         follows="left|top"
+         font="SansSerifSmall"
+         top="4"
+         left_pad="2"
+         height="19"
+         label="Share"
+         layout="topleft"
+         name="share_btn"
+         width="60" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmall"
+         top="4"
+         left_pad="2"
+         height="19"
+         label="Teleport"
+         layout="topleft"
+         name="teleport_btn"
+         tool_tip="Offer teleport"
+         width="75" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmall"
+         top="4"
          left="0"
-         min_width="80"
-         name="group_info_btn_panel"
-         width="100">
-            <button
-             follows="top|left"
-             font="SansSerifSmall"
-             height="19"
-             label="Group Profile"
-             layout="topleft"
-             name="group_info_btn"
-             tool_tip="Show group information"
-             width="100" />
-        </layout_panel>
-        <layout_panel
-         default_tab_group="1"
-         follows="left|top"
-         height="25"
+         height="19"
+         label="Group Profile"
          layout="topleft"
-         left_pad="5"
-         min_width="45"
-         name="chat_btn_panel"
-         top_delta="0"
-         width="100">
-            <button
-             follows="top|left"
-             font="SansSerifSmall"
-             height="19"
-             label="Group Chat"
-             layout="topleft"
-             name="chat_btn"
-             tool_tip="Open chat session"
-             width="100" />
-        </layout_panel>
-        <layout_panel
-         default_tab_group="1"
-         follows="left|top|"
-         height="25"
+         name="group_info_btn"
+         tool_tip="Show group information"
+         width="110" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmall"
+         top="4"
+         left_pad="2"
+         height="19"
+         label="Group Chat"
          layout="topleft"
-         left_pad="5"
-         min_width="35"
-         name="im_btn_panel"
-         top_delta="0"
-         width="50">
-            <button
-             follows="top|left"
-             font="SansSerifSmall"
-             height="19"
-             label="IM"
-             layout="topleft"
-             name="im_btn"
-             tool_tip="Open instant message session"
-             width="50" />
-        </layout_panel>
-        <layout_panel
-         default_tab_group="1"
-         follows="left|top|right"
-         height="25"
-         layout="topleft"
-         left_pad="5"
-         min_width="40"
-         name="call_btn_panel"
-         top_delta="0"
-         visible="false"
-         width="40">
-            <button
-             enabled="false"
-             follows="top|left"
-             font="SansSerifSmall"
-             height="19"
-             label="Call"
-             layout="topleft"
-             name="call_btn"
-             width="50" />
-        </layout_panel>
-        <layout_panel
-         default_tab_group="1"
-         follows="left|top"
-         height="25"
-         layout="topleft"
-         left_pad="5"
-         min_width="65"
-         name="teleport_btn_panel"
-         top_delta="0"
-         width="100">
-            <button
-             follows="left|top"
-             font="SansSerifSmall"
-             height="19"
-             label="Teleport"
-             layout="topleft"
-             name="teleport_btn"
-             tool_tip="Offer teleport"
-             width="100" />
-        </layout_panel>
-      <layout_panel
-         default_tab_group="1"
-         enabled="false"
-         follows="left|top"
-         height="25"
-         layout="topleft"
-         left_pad="5"
-         min_width="50"
-         name="share_btn_panel"
-         top_delta="0"
-         visible="false"
-         width="80">
-            <button
-             enabled="false"
-             follows="top|left"
-             font="SansSerifSmall"
-             height="19"
-             label="Share"
-             layout="topleft"
-             name="share_btn"
-             width="80" />
-        </layout_panel>
-    </layout_stack>
+         name="chat_btn"
+         tool_tip="Open chat session"
+         width="110" />
+    </panel>
 </panel>

@@ -1,6 +1,6 @@
-/** 
- * @file llfloaterinventory.cpp
- * @brief Implementation of the inventory view and associated stuff.
+/* 
+ * @file llinventorypanel.cpp
+ * @brief Implementation of the inventory panel and associated stuff.
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -86,6 +86,7 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llwearablelist.h"
+#include "llimfloater.h"
 
 static LLDefaultChildRegistry::Register<LLInventoryPanel> r("inventory_panel");
 
@@ -190,10 +191,8 @@ BOOL LLInventoryPanel::postBuild()
 	{
 		rebuildViewsFor(mStartFolderID);
 		mHasInventoryConnection = true;
+		defaultOpenInventory();
 	}
-
-	// bit of a hack to make sure the inventory is open.
-	mFolders->openFolder(preferred_type != LLFolderType::FT_NONE ? LLViewerFolderType::lookupNewCategoryName(preferred_type) : "My Inventory");
 
 	if (mSortOrderSetting != INHERIT_SORT_ORDER)
 	{
@@ -299,6 +298,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 	{
 		rebuildViewsFor(mStartFolderID);
 		mHasInventoryConnection = true;
+		defaultOpenInventory();
 		return;
 	}
 
@@ -370,7 +370,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 						// this object was probably moved, check its parent
 						if ((mask & LLInventoryObserver::STRUCTURE) != LLInventoryObserver::STRUCTURE)
 						{
-							llwarns << *id_it << " is in model and in view, but STRUCTURE flag not set" << llendl;
+							llwarns << *id_it << " is in model and in view, but STRUCTURE flag not set" << " for model (Name :" << model_item->getName() << " )" << llendl;
 						}
 
 						LLFolderViewFolder* new_parent = (LLFolderViewFolder*)mFolders->getItemByID(model_item->getParentUUID());
@@ -472,7 +472,7 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 				objectp->getType() >= LLAssetType::AT_COUNT)
 			{
 				llwarns << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : " << 
-					((S32) objectp->getType()) << llendl;
+					((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID() << llendl;
 				return;
 			}
 			
@@ -557,6 +557,25 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 			}
 		}
 		mInventory->unlockDirectDescendentArrays(id);
+	}
+}
+
+// bit of a hack to make sure the inventory is open.
+void LLInventoryPanel::defaultOpenInventory()
+{
+	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(mStartFolderString);
+	if (preferred_type != LLFolderType::FT_NONE)
+	{
+		const std::string& top_level_folder_name = LLViewerFolderType::lookupNewCategoryName(preferred_type);
+		mFolders->openFolder(top_level_folder_name);
+	}
+	else
+	{
+		// Get the first child (it should be "My Inventory") and
+		// open it up by name (just to make sure the first child is actually a folder).
+		LLView* first_child = mFolders->getFirstChild();
+		const std::string& first_child_name = first_child->getName();
+		mFolders->openFolder(first_child_name);
 	}
 }
 
@@ -800,7 +819,11 @@ bool LLInventoryPanel::beginIMSession()
 		name = llformat("Session %d", session_num++);
 	}
 
-	gIMMgr->addSession(name, type, members[0], members);
+	LLUUID session_id = gIMMgr->addSession(name, type, members[0], members);
+	if (session_id != LLUUID::null)
+	{
+		LLIMFloater::show(session_id);
+	}
 		
 	return true;
 }

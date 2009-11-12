@@ -94,6 +94,7 @@ void handle_sit_down(void*);
 void handle_object_build(void*);
 void handle_object_touch();
 bool enable_object_open();
+void handle_object_open();
 
 // Buy either contents or object itself
 void handle_buy();
@@ -132,6 +133,11 @@ void handle_export_selected( void * );
 class LLViewerMenuHolderGL : public LLMenuHolderGL
 {
 public:
+	struct Params : public LLInitParam::Block<Params, LLMenuHolderGL::Params>
+	{};
+
+	LLViewerMenuHolderGL(const Params& p);
+
 	virtual BOOL hideMenus();
 	
 	void setParcelSelection(LLSafeHandle<LLParcelSelection> selection);

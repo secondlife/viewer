@@ -210,6 +210,7 @@
 
 #include "lltexlayer.h"
 #include "llappearancemgr.h"
+#include "llimfloater.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -414,7 +415,7 @@ public:
 
 static LLMenuParcelObserver* gMenuParcelObserver = NULL;
 
-static LLUIListener sUIListener("UI");
+static LLUIListener sUIListener;
 
 LLMenuParcelObserver::LLMenuParcelObserver()
 {
@@ -467,16 +468,6 @@ void set_underclothes_menu_options()
 void init_menus()
 {
 	S32 top = gViewerWindow->getRootView()->getRect().getHeight();
-	S32 width = gViewerWindow->getRootView()->getRect().getWidth();
-
-	//
-	// Main menu bar
-	//
-	gMenuHolder = new LLViewerMenuHolderGL();
-	gMenuHolder->setRect(LLRect(0, top, width, 0));
-	gMenuHolder->setFollowsAll();
-
-	LLMenuGL::sMenuContainer = gMenuHolder;
 
 	// Initialize actions
 	initialize_menus();
@@ -1888,7 +1879,9 @@ class LLAdvancedDebugAvatarTextures : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 		handle_debug_avatar_textures(NULL);
+#endif
 		return true;
 	}
 };
@@ -1902,7 +1895,9 @@ class LLAdvancedDumpAvatarLocalTextures : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 		handle_dump_avatar_local_textures(NULL);
+#endif
 		return true;
 	}
 };
@@ -2516,24 +2511,12 @@ class LLObjectEnableTouch : public view_listener_t
 //		label.assign("Touch");
 //	}
 //}
-/*
-bool handle_object_open()
-{
-	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-	if(!obj) return true;
 
-	LLFloaterOpenObject::show();
-	return true;
+void handle_object_open()
+{
+	LLFloaterReg::showInstance("openobject");
 }
 
-class LLObjectOpen : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		return handle_object_open();
-	}
-};
-*/
 bool enable_object_open()
 {
 	// Look for contents in root object, which is all the LLFloaterOpenObject
@@ -2641,8 +2624,25 @@ void handle_object_edit()
 	// Could be first use
 	LLFirstUse::useBuild();
 	return;
-	
 }
+
+void handle_object_inspect()
+{
+	// Disable sidepanel inspector
+	/*
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	LLViewerObject* selected_objectp = selection->getFirstRootObject();
+	if (selected_objectp)
+	{
+		LLSD key;
+		key["task"] = "task";
+		LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+	}
+	*/
+
+	LLFloaterReg::showInstance("inspect", LLSD());
+}
+
 //---------------------------------------------------------------------------
 // Land pie menu
 //---------------------------------------------------------------------------
@@ -3801,7 +3801,7 @@ class LLViewDefaultUISize : public view_listener_t
 	{
 		gSavedSettings.setF32("UIScaleFactor", 1.0f);
 		gSavedSettings.setBOOL("UIAutoScale", FALSE);	
-		gViewerWindow->reshape(gViewerWindow->getWindowDisplayWidth(), gViewerWindow->getWindowDisplayHeight());
+		gViewerWindow->reshape(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
 		return true;
 	}
 };
@@ -5190,7 +5190,7 @@ void show_debug_menus()
 		gMenuBarView->setItemEnabled("Develop", qamode);
 
 		// Server ('Admin') menu hidden when not in godmode.
-		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT);
+		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT || gAgent.getAdminOverride());
 		gMenuBarView->setItemVisible("Admin", show_server_menu);
 		gMenuBarView->setItemEnabled("Admin", show_server_menu);
 	}
@@ -6246,21 +6246,20 @@ class LLAvatarSendIM : public view_listener_t
 		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 		if(avatar)
 		{
-			std::string name("IM");
-			LLNameValue *first = avatar->getNVPair("FirstName");
-			LLNameValue *last = avatar->getNVPair("LastName");
-			if (first && last)
-			{
-				name.assign( first->getString() );
-				name.append(" ");
-				name.append( last->getString() );
-			}
+			LLAvatarActions::startIM(avatar->getID());
+		}
+		return true;
+	}
+};
 
-			//EInstantMessage type = have_agent_callingcard(gLastHitObjectID)
-			//	? IM_SESSION_ADD : IM_SESSION_CARDLESS_START;
-			gIMMgr->addSession(name,
-								IM_NOTHING_SPECIAL,
-								avatar->getID());
+class LLAvatarCall : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if(avatar)
+		{
+			LLAvatarActions::startCall(avatar->getID());
 		}
 		return true;
 	}
@@ -7073,6 +7072,11 @@ void handle_test_load_url(void*)
 //
 // LLViewerMenuHolderGL
 //
+static LLDefaultChildRegistry::Register<LLViewerMenuHolderGL> r("menu_holder");
+
+LLViewerMenuHolderGL::LLViewerMenuHolderGL(const LLViewerMenuHolderGL::Params& p)
+: LLMenuHolderGL(p)
+{}
 
 BOOL LLViewerMenuHolderGL::hideMenus()
 {
@@ -7082,8 +7086,11 @@ BOOL LLViewerMenuHolderGL::hideMenus()
 	mParcelSelection = NULL;
 	mObjectSelection = NULL;
 
-	gMenuBarView->clearHoverItem();
-	gMenuBarView->resetMenuTrigger();
+	if (gMenuBarView)
+	{
+		gMenuBarView->clearHoverItem();
+		gMenuBarView->resetMenuTrigger();
+	}
 
 	return handled;
 }
@@ -7857,10 +7864,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckDebugCharacterVis(), "Advanced.CheckDebugCharacterVis");
 	view_listener_t::addMenu(new LLAdvancedDumpAttachments(), "Advanced.DumpAttachments");
 	view_listener_t::addMenu(new LLAdvancedRebakeTextures(), "Advanced.RebakeTextures");
-	#ifndef LL_RELEASE_FOR_DOWNLOAD
 	view_listener_t::addMenu(new LLAdvancedDebugAvatarTextures(), "Advanced.DebugAvatarTextures");
 	view_listener_t::addMenu(new LLAdvancedDumpAvatarLocalTextures(), "Advanced.DumpAvatarLocalTextures");
-	#endif
 	// Advanced > Network
 	view_listener_t::addMenu(new LLAdvancedEnableMessageLog(), "Advanced.EnableMessageLog");
 	view_listener_t::addMenu(new LLAdvancedDisableMessageLog(), "Advanced.DisableMessageLog");
@@ -7931,6 +7936,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAvatarGiveCard(), "Avatar.GiveCard");
 	commit.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
 	view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
+	view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call");
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	
 	view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
@@ -7953,6 +7959,8 @@ void initialize_menus()
 
 	commit.add("Object.Buy", boost::bind(&handle_buy));
 	commit.add("Object.Edit", boost::bind(&handle_object_edit));
+	commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
+	commit.add("Object.Open", boost::bind(&handle_object_open));
 	
 	commit.add("Object.Take", boost::bind(&handle_take));
 

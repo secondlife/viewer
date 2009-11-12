@@ -86,13 +86,19 @@ void LLPanelChatControlPanel::draw()
 
 	bool session_initialized = session->mSessionInitialized;
 	bool callback_enabled = session->mCallBackEnabled;
-	LLViewerRegion* region = gAgent.getRegion();
 
-	BOOL enable_connect = (region && region->getCapability("ChatSessionRequest") != "")
-		&& session_initialized
+	BOOL enable_connect = session_initialized
 		&& voice_enabled
 		&& callback_enabled;
 	childSetEnabled("call_btn", enable_connect);
+
+	// send a signal when the floater is fully initialized
+	// this lets LLAvatarActions::startAdhocCall() start the call
+	if (enable_connect && !mInitialized)
+	{
+		LLIMModel::sendSessionInitialized(mSessionId);
+		mInitialized = true;
+	}
 
 	LLPanel::draw();
 }
@@ -175,7 +181,14 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 	LLIMModel::LLIMSession* im_session =
 		im_model.findIMSession(session_id);
 	if( im_session && !im_session->mOtherParticipantIsAvatar )
+	{
 		childSetEnabled("view_profile_btn", FALSE);
+		childSetEnabled("add_friend_btn", FALSE);
+
+		childSetEnabled("share_btn", FALSE);
+		childSetEnabled("teleport_btn", FALSE);
+		childSetEnabled("pay_btn", FALSE);
+	}
 }
 
 void LLPanelIMControlPanel::nameUpdatedCallback(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
@@ -190,7 +203,8 @@ void LLPanelIMControlPanel::nameUpdatedCallback(const LLUUID& id, const std::str
 	}
 }
 
-LLPanelGroupControlPanel::LLPanelGroupControlPanel(const LLUUID& session_id)
+LLPanelGroupControlPanel::LLPanelGroupControlPanel(const LLUUID& session_id):
+mParticipantList(NULL)
 {
 	mSpeakerManager = LLIMModel::getInstance()->getSpeakerManager(session_id);
 }
@@ -198,9 +212,6 @@ LLPanelGroupControlPanel::LLPanelGroupControlPanel(const LLUUID& session_id)
 BOOL LLPanelGroupControlPanel::postBuild()
 {
 	childSetAction("group_info_btn", boost::bind(&LLPanelGroupControlPanel::onGroupInfoButtonClicked, this));
-
-	mAvatarList = getChild<LLAvatarList>("speakers_list");
-	mParticipantList = new LLParticipantList(mSpeakerManager, mAvatarList);
 
 	return LLPanelChatControlPanel::postBuild();
 }
@@ -214,6 +225,8 @@ LLPanelGroupControlPanel::~LLPanelGroupControlPanel()
 // virtual
 void LLPanelGroupControlPanel::draw()
 {
+	//Remove event does not raised until speakerp->mActivityTimer.hasExpired() is false, see LLSpeakerManager::update()
+	//so we need update it to raise needed event
 	mSpeakerManager->update(true);
 	LLPanelChatControlPanel::draw();
 }
@@ -241,7 +254,7 @@ void LLPanelGroupControlPanel::onSortMenuItemClicked(const LLSD& userdata)
 void LLPanelGroupControlPanel::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
 {
 	LLPanelChatControlPanel::onVoiceChannelStateChanged(old_state, new_state);
-	mAvatarList->setSpeakingIndicatorsVisible(new_state >= LLVoiceChannel::STATE_CALL_STARTED);
+	mParticipantList->setSpeakingIndicatorsVisible(new_state >= LLVoiceChannel::STATE_CALL_STARTED);
 }
 
 void LLPanelGroupControlPanel::setSessionId(const LLUUID& session_id)
@@ -249,6 +262,9 @@ void LLPanelGroupControlPanel::setSessionId(const LLUUID& session_id)
 	LLPanelChatControlPanel::setSessionId(session_id);
 
 	mGroupID = LLIMModel::getInstance()->getOtherParticipantID(session_id);
+
+	if(!mParticipantList)
+		mParticipantList = new LLParticipantList(mSpeakerManager, getChild<LLAvatarList>("speakers_list"));
 }
 
 
@@ -258,9 +274,7 @@ LLPanelAdHocControlPanel::LLPanelAdHocControlPanel(const LLUUID& session_id):LLP
 
 BOOL LLPanelAdHocControlPanel::postBuild()
 {
-	mAvatarList = getChild<LLAvatarList>("speakers_list");
-	mParticipantList = new LLParticipantList(mSpeakerManager, mAvatarList);
-
+	//We don't need LLPanelGroupControlPanel::postBuild() to be executed as there is no group_info_btn at AdHoc chat
 	return LLPanelChatControlPanel::postBuild();
 }
 

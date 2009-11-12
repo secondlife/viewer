@@ -11,7 +11,6 @@
     label_selected="Speak"
     font="SansSerifSmall"
     tab_stop="false"
-    is_toggle="true"
     />
   <show_button
     name="right"

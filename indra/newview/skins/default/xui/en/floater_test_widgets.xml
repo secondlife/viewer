@@ -385,6 +385,16 @@ line to actually fit
        left="10"
        width="250" 
        follows="top|left"
+       font.name="Monospace"
+       name="test_text10"
+       tool_tip="text">
+        Monospace Button Flyout Checkbox
+      </text>
+      <text
+       top_pad="10"
+       left="10"
+       width="250" 
+       follows="top|left"
        font.name="SansSerifSmall"
        name="test_text10"
        tool_tip="text">

@@ -45,7 +45,6 @@ class LLOutputMonitorCtrl;
  * clicked.
 */
 class LLSpeakButton : public LLUICtrl
-
 {
 public:
 
@@ -61,14 +60,19 @@ public:
 	};
 
 	/*virtual*/ ~LLSpeakButton();
+	/*virtual*/ void draw();
 
-	void setSpeakBtnToggleState(bool state);
+	// *HACK: Need to put tooltips in a translatable location,
+	// the panel that contains this button.
+	void setSpeakToolTip(const std::string& msg);
+	void setShowToolTip(const std::string& msg);
 
 protected:
 	friend class LLUICtrlFactory;
 	LLSpeakButton(const Params& p);
 
-	void onClick_SpeakBtn();
+	void onMouseDown_SpeakBtn();
+	void onMouseUp_SpeakBtn();
 
 	void onClick_ShowBtn();
 

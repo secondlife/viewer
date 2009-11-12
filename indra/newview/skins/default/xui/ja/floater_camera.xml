@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="camera_floater">
 	<floater.string name="rotate_tooltip">
 		フォーカスを中心にカメラを回転
@@ -11,6 +11,13 @@
 	</floater.string>
 	<panel name="controls">
 		<joystick_track name="cam_track_stick" tool_tip="カメラを上下左右に移動"/>
-		<joystick_zoom name="zoom" tool_tip="フォーカスに向けてカメラをズーム"/>
+		<joystick_zoom name="zoom" tool_tip="向いてる方法にカメラをズーム"/>
+		<joystick_rotate name="cam_rotate_stick" tool_tip="自分を軸にカメラを回す"/>
+	</panel>
+	<panel name="buttons">
+		<button label="" name="orbit_btn" tool_tip="カメラを旋回"/>
+		<button label="" name="pan_btn" tool_tip="カメラを水平・垂直移動"/>
+		<button label="" name="avatarview_btn" tool_tip="アバター視点"/>
+		<button label="" name="freecamera_btn" tool_tip="オブジェクトを見る"/>
 	</panel>
 </floater>

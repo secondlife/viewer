@@ -44,6 +44,7 @@
 
 #include "llcachename.h"
 #include "llagentdata.h"
+#include "llimfloater.h"
 
 #define MENU_ITEM_VIEW_PROFILE 0
 #define MENU_ITEM_SEND_IM 1
@@ -142,7 +143,8 @@ void LLAvatarIconIDCache::remove	(const LLUUID& avatar_id)
 
 LLAvatarIconCtrl::Params::Params()
 :	avatar_id("avatar_id"),
-	draw_tooltip("draw_tooltip", true)
+	draw_tooltip("draw_tooltip", true),
+	default_icon_name("default_icon_name")
 {
 	name = "avatar_icon";
 }
@@ -150,7 +152,8 @@ LLAvatarIconCtrl::Params::Params()
 
 LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 :	LLIconCtrl(p),
-	mDrawTooltip(p.draw_tooltip)
+	mDrawTooltip(p.draw_tooltip),
+	mDefaultIconName(p.default_icon_name)
 {
 	mPriority = LLViewerFetchedTexture::BOOST_ICON;
 	
@@ -192,16 +195,8 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 	}
 	else
 	{
-		LLIconCtrl::setValue("default_profile_picture.j2c");
+		LLIconCtrl::setValue(mDefaultIconName);
 	}
-
-	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-
-	registrar.add("AvatarIcon.Action", boost::bind(&LLAvatarIconCtrl::onAvatarIconContextMenuItemClicked, this, _2));
-
-	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_avatar_icon.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-
-	mPopupMenuHandle = menu->getHandle();
 }
 
 LLAvatarIconCtrl::~LLAvatarIconCtrl()
@@ -211,8 +206,6 @@ LLAvatarIconCtrl::~LLAvatarIconCtrl()
 		LLAvatarPropertiesProcessor::getInstance()->removeObserver(mAvatarId, this);
 		// Name callbacks will be automatically disconnected since LLUICtrl is trackable
 	}
-
-	LLView::deleteViewByHandle(mPopupMenuHandle);
 }
 
 //virtual
@@ -269,7 +262,7 @@ bool LLAvatarIconCtrl::updateFromCache()
 	}
 	else
 	{
-		LLIconCtrl::setValue("default_profile_picture.j2c");
+		LLIconCtrl::setValue(mDefaultIconName);
 	}
 
 	return true;
@@ -294,32 +287,6 @@ void LLAvatarIconCtrl::processProperties(void* data, EAvatarProcessorType type)
 	}
 }
 
-BOOL LLAvatarIconCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
-{
-	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
-
-	if(menu)
-	{
-		bool is_friend = LLAvatarTracker::instance().getBuddyInfo(mAvatarId) != NULL;
-		
-		menu->setItemEnabled("Add Friend", !is_friend);
-		menu->setItemEnabled("Remove Friend", is_friend);
-
-		if(gAgentID == mAvatarId)
-		{
-			menu->setItemEnabled("Add Friend", false);
-			menu->setItemEnabled("Send IM", false);
-			menu->setItemEnabled("Remove Friend", false);
-		}
-
-		menu->buildDrawLabels();
-		menu->updateParent(LLMenuGL::sMenuContainer);
-		LLMenuGL::showPopup(this, menu, x, y);
-	}
-
-	return TRUE;
-}
-
 void LLAvatarIconCtrl::nameUpdatedCallback(
 	const LLUUID& id,
 	const std::string& first,
@@ -335,38 +302,5 @@ void LLAvatarIconCtrl::nameUpdatedCallback(
 		{
 			setToolTip(mFirstName + " " + mLastName);
 		}
-	}
-}
-
-void LLAvatarIconCtrl::onAvatarIconContextMenuItemClicked(const LLSD& userdata)
-{
-	std::string level = userdata.asString();
-	LLUUID id = getAvatarId();
-
-	if (level == "profile")
-	{
-		LLAvatarActions::showProfile(id);
-	}
-	else if (level == "im")
-	{
-		std::string name;
-		name.assign(getFirstName());
-		name.append(" ");
-		name.append(getLastName());
-
-		gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id);
-	}
-	else if (level == "add")
-	{
-		std::string name;
-		name.assign(getFirstName());
-		name.append(" ");
-		name.append(getLastName());
-
-		LLAvatarActions::requestFriendshipDialog(id, name);
-	}
-	else if (level == "remove")
-	{
-		LLAvatarActions::removeFriendDialog(id);
 	}
 }

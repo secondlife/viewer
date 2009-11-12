@@ -68,9 +68,6 @@
 #include "llfloaterfriends.h"  //VIVOX, inorder to refresh communicate panel
 #include "llfloaterchat.h"		// for LLFloaterChat::addChat()
 
-// for Talk Button's state updating
-#include "llnearbychatbar.h"
-
 // for base64 decoding
 #include "apr_base64.h"
 
@@ -5791,7 +5788,6 @@ bool LLVoiceClient::getMuteMic() const
 void LLVoiceClient::setUserPTTState(bool ptt)
 {
 	mUserPTTState = ptt;
-	if (LLNearbyChatBar::instanceExists()) LLNearbyChatBar::getInstance()->setPTTState(ptt);
 }
 
 bool LLVoiceClient::getUserPTTState()
@@ -5802,7 +5798,6 @@ bool LLVoiceClient::getUserPTTState()
 void LLVoiceClient::toggleUserPTTState(void)
 {
 	mUserPTTState = !mUserPTTState;
-	if (LLNearbyChatBar::instanceExists()) LLNearbyChatBar::getInstance()->setPTTState(mUserPTTState);
 }
 
 void LLVoiceClient::setVoiceEnabled(bool enabled)
@@ -5930,8 +5925,6 @@ void LLVoiceClient::setMicGain(F32 volume)
 
 void LLVoiceClient::keyDown(KEY key, MASK mask)
 {	
-//	LL_DEBUGS("Voice") << "key is " << LLKeyboard::stringFromKey(key) << LL_ENDL;
-
 	if (gKeyboard->getKeyRepeated(key))
 	{
 		// ignore auto-repeat keys
@@ -5940,44 +5933,39 @@ void LLVoiceClient::keyDown(KEY key, MASK mask)
 
 	if(!mPTTIsMiddleMouse)
 	{
-		if(mPTTIsToggle)
-		{
-			if(key == mPTTKey)
-			{
-				toggleUserPTTState();
-			}
-		}
-		else if(mPTTKey != KEY_NONE)
-		{
-			setUserPTTState(gKeyboard->getKeyDown(mPTTKey));
-		}
+		bool down = (mPTTKey != KEY_NONE)
+			&& gKeyboard->getKeyDown(mPTTKey);
+		inputUserControlState(down);
 	}
 }
 void LLVoiceClient::keyUp(KEY key, MASK mask)
 {
 	if(!mPTTIsMiddleMouse)
 	{
-		if(!mPTTIsToggle && (mPTTKey != KEY_NONE))
+		bool down = (mPTTKey != KEY_NONE)
+			&& gKeyboard->getKeyDown(mPTTKey);
+		inputUserControlState(down);
+	}
+}
+void LLVoiceClient::inputUserControlState(bool down)
+{
+	if(mPTTIsToggle)
+	{
+		if(down) // toggle open-mic state on 'down'
 		{
-			setUserPTTState(gKeyboard->getKeyDown(mPTTKey));
+			toggleUserPTTState();
 		}
+	}
+	else // set open-mic state as an absolute
+	{
+		setUserPTTState(down);
 	}
 }
 void LLVoiceClient::middleMouseState(bool down)
 {
 	if(mPTTIsMiddleMouse)
 	{
-		if(mPTTIsToggle)
-		{
-			if(down)
-			{
-				toggleUserPTTState();
-			}
-		}
-		else
-		{
-			setUserPTTState(down);
-		}
+		inputUserControlState(down);
 	}
 }
 

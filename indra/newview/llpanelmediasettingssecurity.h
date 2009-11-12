@@ -41,31 +41,37 @@ class LLFloaterMediaSettings;
 
 class LLPanelMediaSettingsSecurity : public LLPanel
 {
-	public:
-		BOOL postBuild();
-		virtual void draw();
-		static void apply(void*);
-        void getValues(LLSD &fill_me_in);
-
-		LLPanelMediaSettingsSecurity();
-		~LLPanelMediaSettingsSecurity();
-
-		static void initValues( void* userdata, const LLSD& media_settings,bool editable );
-		static void clearValues( void* userdata, bool editable);
-		void addWhiteListItem(const std::string& url);
-		void setParent( LLFloaterMediaSettings* parent );
-		const std::string makeValidUrl( const std::string& src_url );
-		bool passesWhiteList( const std::string& added_url, const std::string& test_url );
-
-	protected:
-		LLFloaterMediaSettings* mParent;
-
-	private:
-		LLCheckBoxCtrl* mEnableWhiteList;
-		LLScrollListCtrl* mWhiteListList;
-
-		static void onBtnAdd(void*);
-		static void onBtnDel(void*);
+public:
+	LLPanelMediaSettingsSecurity();
+	~LLPanelMediaSettingsSecurity();
+	
+	BOOL postBuild();
+	virtual void draw();	
+	
+	// XXX TODO: put these into a common parent class?
+	// Hook that the floater calls before applying changes from the panel
+	void preApply();
+	// Function that asks the panel to fill in values associated with the panel
+    void getValues(LLSD &fill_me_in);
+	// Hook that the floater calls after applying changes to the panel
+	void postApply();
+	
+	static void initValues( void* userdata, const LLSD& media_settings,bool editable );
+	static void clearValues( void* userdata, bool editable);
+	void addWhiteListItem(const std::string& url);
+	void setParent( LLFloaterMediaSettings* parent );
+	const std::string makeValidUrl( const std::string& src_url );
+	bool passesWhiteList( const std::string& added_url, const std::string& test_url );
+	
+protected:
+	LLFloaterMediaSettings* mParent;
+	
+private:
+	LLCheckBoxCtrl* mEnableWhiteList;
+	LLScrollListCtrl* mWhiteListList;
+	
+	static void onBtnAdd(void*);
+	static void onBtnDel(void*);
 };
 
 #endif  // LL_LLPANELMEDIAMEDIASETTINGSSECURITY_H

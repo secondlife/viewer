@@ -62,6 +62,14 @@ LLSpeakButton::Params::Params()
 	// See widgets/talk_button.xml
 }
 
+void LLSpeakButton::draw()
+{
+	// gVoiceClient is the authoritative global source of info regarding our open-mic state, we merely reflect that state.
+	bool openmic = gVoiceClient->getUserPTTState();
+	mSpeakBtn->setToggleState(openmic);
+	LLUICtrl::draw();
+}
+
 LLSpeakButton::LLSpeakButton(const Params& p)
 : LLUICtrl(p)
 , mPrivateCallPanel(NULL)
@@ -84,7 +92,8 @@ LLSpeakButton::LLSpeakButton(const Params& p)
 	addChild(mSpeakBtn);
 	LLTransientFloaterMgr::getInstance()->addControlView(mSpeakBtn);
 
-	mSpeakBtn->setClickedCallback(boost::bind(&LLSpeakButton::onClick_SpeakBtn, this));
+	mSpeakBtn->setMouseDownCallback(boost::bind(&LLSpeakButton::onMouseDown_SpeakBtn, this));
+	mSpeakBtn->setMouseUpCallback(boost::bind(&LLSpeakButton::onMouseUp_SpeakBtn, this));
 	mSpeakBtn->setToggleState(FALSE);
 
 	LLButton::Params show_params = p.show_button;
@@ -120,17 +129,29 @@ LLSpeakButton::LLSpeakButton(const Params& p)
 
 LLSpeakButton::~LLSpeakButton()
 {
+	LLTransientFloaterMgr::getInstance()->removeControlView(mSpeakBtn);
+	LLTransientFloaterMgr::getInstance()->removeControlView(mShowBtn);
 }
 
-void LLSpeakButton::setSpeakBtnToggleState(bool state)
+void LLSpeakButton::setSpeakToolTip(const std::string& msg)
 {
-	mSpeakBtn->setToggleState(state);
+	mSpeakBtn->setToolTip(msg);
 }
 
-void LLSpeakButton::onClick_SpeakBtn()
+void LLSpeakButton::setShowToolTip(const std::string& msg)
 {
-	bool speaking = mSpeakBtn->getToggleState();
-	gVoiceClient->setUserPTTState(speaking);
+	mShowBtn->setToolTip(msg);
+}
+
+void LLSpeakButton::onMouseDown_SpeakBtn()
+{
+	bool down = true;
+	gVoiceClient->inputUserControlState(down); // this method knows/care about whether this translates into a toggle-to-talk or down-to-talk
+}
+void LLSpeakButton::onMouseUp_SpeakBtn()
+{
+	bool down = false;
+	gVoiceClient->inputUserControlState(down);
 }
 
 void LLSpeakButton::onClick_ShowBtn()

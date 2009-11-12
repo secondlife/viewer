@@ -43,7 +43,9 @@ class LLParticipantList;
 class LLPanelChatControlPanel : public LLPanel
 {
 public:
-	LLPanelChatControlPanel() {};
+	LLPanelChatControlPanel() :
+		mSessionId(LLUUID()),
+		mInitialized(false) {};
 	~LLPanelChatControlPanel() {};
 
 	virtual BOOL postBuild();
@@ -59,6 +61,7 @@ public:
 
 private:
 	LLUUID mSessionId;
+	bool   mInitialized;
 };
 
 
@@ -100,7 +103,7 @@ public:
 protected:
 	LLUUID mGroupID;
 	LLSpeakerMgr* mSpeakerManager;
-	LLAvatarList* mAvatarList;
+
 	LLParticipantList* mParticipantList;
 
 private:

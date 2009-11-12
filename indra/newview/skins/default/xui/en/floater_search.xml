@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- height="400"
+ height="512"
  layout="topleft"
  min_height="140"
  min_width="467"
@@ -10,7 +10,7 @@
  help_topic="floater_search"
  save_rect="true"
  single_instance="true"
- title="SEARCH [SECOND_LIFE]"
+ title="FIND"
  width="620">
     <floater.string
      name="search_url">
@@ -25,7 +25,7 @@
         Done
     </floater.string>
     <layout_stack
-     bottom="400"
+     bottom="512"
      follows="left|right|top|bottom"
      layout="topleft"
      left="10"
@@ -54,7 +54,7 @@
              layout="topleft"
              left_delta="0"
              name="status_text"
-             top_pad="4"
+             top_pad="5"
              width="150" />
         </layout_panel>
     </layout_stack>

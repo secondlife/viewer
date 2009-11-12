@@ -324,6 +324,22 @@ std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::PriorityQueue
 	return s;
 }
 
+// find the given object in the queue.
+bool LLMediaDataClient::PriorityQueue::find(const LLMediaDataClientObject::ptr_t &obj) const
+{
+	std::vector<LLMediaDataClient::request_ptr_t>::const_iterator iter = c.begin();
+	std::vector<LLMediaDataClient::request_ptr_t>::const_iterator end = c.end();
+	while (iter < end)
+	{
+		if (obj->getID() == (*iter)->getObject()->getID())
+		{
+			return true;
+		}
+		iter++;
+	}
+	return false;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // LLMediaDataClient::QueueTimer
@@ -489,6 +505,11 @@ LLMediaDataClient::~LLMediaDataClient()
 bool LLMediaDataClient::isEmpty() const
 {
 	return (NULL == pRequestQueue) ? true : pRequestQueue->empty();
+}
+
+bool LLMediaDataClient::isInQueue(const LLMediaDataClientObject::ptr_t &object) const
+{
+	return (NULL == pRequestQueue) ? false : pRequestQueue->find(object);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

@@ -744,6 +744,7 @@ bool idle_startup()
 			// We have at least some login information on a SLURL
 			gFirstname = gLoginHandler.getFirstName();
 			gLastname = gLoginHandler.getLastName();
+			LL_DEBUGS("LLStartup") << "STATE_FIRST: setting gFirstname, gLastname from gLoginHandler: '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
 
 			// Show the login screen if we don't have everything
 			show_connect_box = 
@@ -754,6 +755,7 @@ bool idle_startup()
             LLSD cmd_line_login = gSavedSettings.getLLSD("UserLoginInfo");
 			gFirstname = cmd_line_login[0].asString();
 			gLastname = cmd_line_login[1].asString();
+			LL_DEBUGS("LLStartup") << "Setting gFirstname, gLastname from gSavedSettings(\"UserLoginInfo\"): '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
 
 			LLMD5 pass((unsigned char*)cmd_line_login[2].asString().c_str());
 			char md5pass[33];               /* Flawfinder: ignore */
@@ -771,6 +773,7 @@ bool idle_startup()
 		{
 			gFirstname = gSavedSettings.getString("FirstName");
 			gLastname = gSavedSettings.getString("LastName");
+			LL_DEBUGS("LLStartup") << "AutoLogin: setting gFirstname, gLastname from gSavedSettings(\"First|LastName\"): '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
 			gPassword = LLStartUp::loadPasswordFromDisk();
 			gSavedSettings.setBOOL("RememberPassword", TRUE);
 			
@@ -786,6 +789,7 @@ bool idle_startup()
 			// a valid grid is selected
 			gFirstname = gSavedSettings.getString("FirstName");
 			gLastname = gSavedSettings.getString("LastName");
+			LL_DEBUGS("LLStartup") << "normal login: setting gFirstname, gLastname from gSavedSettings(\"First|LastName\"): '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
 			gPassword = LLStartUp::loadPasswordFromDisk();
 			show_connect_box = true;
 		}
@@ -896,8 +900,15 @@ bool idle_startup()
 		gViewerWindow->moveProgressViewToFront();
 
 		//reset the values that could have come in from a slurl
-		gFirstname = gLoginHandler.getFirstName();
-		gLastname = gLoginHandler.getLastName();
+		// DEV-42215: Make sure they're not empty -- gFirstname and gLastname
+		// might already have been set from gSavedSettings, and it's too bad
+		// to overwrite valid values with empty strings.
+		if (! gLoginHandler.getFirstName().empty() && ! gLoginHandler.getLastName().empty())
+		{
+			gFirstname = gLoginHandler.getFirstName();
+			gLastname = gLoginHandler.getLastName();
+			LL_DEBUGS("LLStartup") << "STATE_LOGIN_CLEANUP: setting gFirstname, gLastname from gLoginHandler: '" << gFirstname << "' '" << gLastname << "'" << LL_ENDL;
+		}
 
 		if (show_connect_box)
 		{
@@ -1375,7 +1386,7 @@ bool idle_startup()
 
 		// Make sure agent knows correct aspect ratio
 		// FOV limits depend upon aspect ratio so this needs to happen before initializing the FOV below
-		LLViewerCamera::getInstance()->setViewHeightInPixels(gViewerWindow->getWorldViewHeight());
+		LLViewerCamera::getInstance()->setViewHeightInPixels(gViewerWindow->getWorldViewHeightRaw());
 		LLViewerCamera::getInstance()->setAspect(gViewerWindow->getWorldViewAspectRatio());
 		// Initialize FOV
 		LLViewerCamera::getInstance()->setDefaultFOV(gSavedSettings.getF32("CameraAngle")); 
@@ -2111,7 +2122,7 @@ void login_show()
 	BOOL bUseDebugLogin = TRUE;
 #endif
 
-	LLPanelLogin::show(	gViewerWindow->getVirtualWindowRect(),
+	LLPanelLogin::show(	gViewerWindow->getWindowRectScaled(),
 						bUseDebugLogin,
 						login_callback, NULL );
 
@@ -2467,7 +2478,7 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFunc("AvatarPicksReply",
 						&LLAvatarPropertiesProcessor::processAvatarPicksReply);
  	msg->setHandlerFunc("AvatarClassifiedReply",
- 						&LLAvatarPropertiesProcessor::processAvatarClassifiedReply);
+ 						&LLAvatarPropertiesProcessor::processAvatarClassifiedsReply);
 
 	msg->setHandlerFuncFast(_PREHASH_CreateGroupReply,
 						LLGroupMgr::processCreateGroupReply);
@@ -2532,7 +2543,8 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 
 	msg->setHandlerFunc("EventInfoReply", LLPanelEvent::processEventInfoReply);
 	msg->setHandlerFunc("PickInfoReply", &LLAvatarPropertiesProcessor::processPickInfoReply);
-	msg->setHandlerFunc("ClassifiedInfoReply", LLPanelClassified::processClassifiedInfoReply);
+//	msg->setHandlerFunc("ClassifiedInfoReply", LLPanelClassified::processClassifiedInfoReply);
+	msg->setHandlerFunc("ClassifiedInfoReply", LLAvatarPropertiesProcessor::processClassifiedInfoReply);
 	msg->setHandlerFunc("ParcelInfoReply", LLRemoteParcelInfoProcessor::processParcelInfoReply);
 	msg->setHandlerFunc("ScriptDialog", process_script_dialog);
 	msg->setHandlerFunc("LoadURL", process_load_url);

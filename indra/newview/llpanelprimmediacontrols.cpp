@@ -118,21 +118,33 @@ LLPanelPrimMediaControls::~LLPanelPrimMediaControls()
 BOOL LLPanelPrimMediaControls::postBuild()
 {
 	LLButton* scroll_up_ctrl = getChild<LLButton>("scrollup");
-	scroll_up_ctrl->setClickedCallback(onScrollUp, this);
-	scroll_up_ctrl->setHeldDownCallback(onScrollUpHeld, this);
-	scroll_up_ctrl->setMouseUpCallback(onScrollStop, this);
+	if (scroll_up_ctrl)
+	{
+		scroll_up_ctrl->setClickedCallback(onScrollUp, this);
+		scroll_up_ctrl->setHeldDownCallback(onScrollUpHeld, this);
+		scroll_up_ctrl->setMouseUpCallback(onScrollStop, this);
+	}
 	LLButton* scroll_left_ctrl = getChild<LLButton>("scrollleft");
-	scroll_left_ctrl->setClickedCallback(onScrollLeft, this);
-	scroll_left_ctrl->setHeldDownCallback(onScrollLeftHeld, this);
-	scroll_left_ctrl->setMouseUpCallback(onScrollStop, this);
+	if (scroll_left_ctrl)
+	{
+		scroll_left_ctrl->setClickedCallback(onScrollLeft, this);
+		scroll_left_ctrl->setHeldDownCallback(onScrollLeftHeld, this);
+		scroll_left_ctrl->setMouseUpCallback(onScrollStop, this);
+	}
 	LLButton* scroll_right_ctrl = getChild<LLButton>("scrollright");
-	scroll_right_ctrl->setClickedCallback(onScrollRight, this);
-	scroll_right_ctrl->setHeldDownCallback(onScrollRightHeld, this);
-	scroll_right_ctrl->setMouseUpCallback(onScrollStop, this);
+	if (scroll_right_ctrl)
+	{
+		scroll_right_ctrl->setClickedCallback(onScrollRight, this);
+		scroll_right_ctrl->setHeldDownCallback(onScrollRightHeld, this);
+		scroll_right_ctrl->setMouseUpCallback(onScrollStop, this);
+	}
 	LLButton* scroll_down_ctrl = getChild<LLButton>("scrolldown");
-	scroll_down_ctrl->setClickedCallback(onScrollDown, this);
-	scroll_down_ctrl->setHeldDownCallback(onScrollDownHeld, this);
-	scroll_down_ctrl->setMouseUpCallback(onScrollStop, this);
+	if (scroll_down_ctrl)
+	{
+		scroll_down_ctrl->setClickedCallback(onScrollDown, this);
+		scroll_down_ctrl->setHeldDownCallback(onScrollDownHeld, this);
+		scroll_down_ctrl->setMouseUpCallback(onScrollStop, this);
+	}
 	
 	LLUICtrl* media_address	= getChild<LLUICtrl>("media_address");
 	media_address->setFocusReceivedCallback(boost::bind(&LLPanelPrimMediaControls::onInputURL, _1, this ));
@@ -326,11 +338,14 @@ void LLPanelPrimMediaControls::updateShape()
 
 			whitelist_icon->setVisible(false);
 			secure_lock_icon->setVisible(false);
-			scroll_up_ctrl->setVisible(false);
-			scroll_left_ctrl->setVisible(false);
-			scroll_right_ctrl->setVisible(false);
-			scroll_down_ctrl->setVisible(false);
-			media_panel_scroll->setVisible(false);
+			if (media_panel_scroll)
+			{
+				media_panel_scroll->setVisible(false);
+				scroll_up_ctrl->setVisible(false);
+				scroll_left_ctrl->setVisible(false);
+				scroll_right_ctrl->setVisible(false);
+				scroll_down_ctrl->setVisible(false);
+			}
 				
 			F32 volume = media_impl->getVolume();
 			// movie's url changed
@@ -422,12 +437,15 @@ void LLPanelPrimMediaControls::updateShape()
 			volume_ctrl->setEnabled(FALSE);
 			volume_up_ctrl->setEnabled(FALSE);
 			volume_down_ctrl->setEnabled(FALSE);
-				
-			scroll_up_ctrl->setVisible(has_focus);
-			scroll_left_ctrl->setVisible(has_focus);
-			scroll_right_ctrl->setVisible(has_focus);
-			scroll_down_ctrl->setVisible(has_focus);
-			media_panel_scroll->setVisible(has_focus);
+			
+			if (media_panel_scroll)
+			{
+				media_panel_scroll->setVisible(has_focus);
+				scroll_up_ctrl->setVisible(has_focus);
+				scroll_left_ctrl->setVisible(has_focus);
+				scroll_right_ctrl->setVisible(has_focus);
+				scroll_down_ctrl->setVisible(has_focus);
+			}
 			// TODO: get the secure lock bool from media plug in
 			std::string prefix =  std::string("https://");
 			std::string test_prefix = mCurrentURL.substr(0, prefix.length());
@@ -561,12 +579,12 @@ void LLPanelPrimMediaControls::updateShape()
 		}
 
         LLCoordGL screen_min;
-		screen_min.mX = llround((F32)gViewerWindow->getWorldViewWidth() * (min.mV[VX] + 1.f) * 0.5f);
-		screen_min.mY = llround((F32)gViewerWindow->getWorldViewHeight() * (min.mV[VY] + 1.f) * 0.5f);
+		screen_min.mX = llround((F32)gViewerWindow->getWorldViewWidthRaw() * (min.mV[VX] + 1.f) * 0.5f);
+		screen_min.mY = llround((F32)gViewerWindow->getWorldViewHeightRaw() * (min.mV[VY] + 1.f) * 0.5f);
 
 		LLCoordGL screen_max;
-		screen_max.mX = llround((F32)gViewerWindow->getWorldViewWidth() * (max.mV[VX] + 1.f) * 0.5f);
-		screen_max.mY = llround((F32)gViewerWindow->getWorldViewHeight() * (max.mV[VY] + 1.f) * 0.5f);
+		screen_max.mX = llround((F32)gViewerWindow->getWorldViewWidthRaw() * (max.mV[VX] + 1.f) * 0.5f);
+		screen_max.mY = llround((F32)gViewerWindow->getWorldViewHeightRaw() * (max.mV[VY] + 1.f) * 0.5f);
 
 		// grow panel so that screenspace bounding box fits inside "media_region" element of HUD
 		LLRect media_controls_rect;
@@ -697,6 +715,7 @@ bool LLPanelPrimMediaControls::isMouseOver()
 		LLView* controls_view = NULL;
 		controls_view = getChild<LLView>("media_controls");
 		
+		//FIXME: rewrite as LLViewQuery or get hover set from LLViewerWindow?
 		if(controls_view && controls_view->getVisible())
 		{
 			controls_view->screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &x, &y);

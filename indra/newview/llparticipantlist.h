@@ -32,9 +32,12 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llevent.h"
+#include "llpanelpeoplemenus.h"
+#include "llimview.h"
 
 class LLSpeakerMgr;
 class LLAvatarList;
+class LLUICtrl;
 
 class LLParticipantList
 {
@@ -42,6 +45,7 @@ class LLParticipantList
 	public:
 		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list);
 		~LLParticipantList();
+		void setSpeakingIndicatorsVisible(BOOL visible);
 
 		typedef enum e_participant_sort_oder {
 			E_SORT_BY_NAME = 0,
@@ -59,6 +63,7 @@ class LLParticipantList
 		bool onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 		bool onRemoveItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 		bool onClearListEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+		bool onModeratorUpdateEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 
 		/**
 		 * Sorts the Avatarlist by stored order
@@ -97,15 +102,48 @@ class LLParticipantList
 			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 		};
 
+		class SpeakerModeratorUpdateListener : public BaseSpeakerListner
+		{
+		public:
+			SpeakerModeratorUpdateListener(LLParticipantList& parent) : BaseSpeakerListner(parent) {}
+			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+		};
+		
+		/**
+		 * Menu used in the participant list.
+		 */
+		class LLParticipantListMenu : public LLPanelPeopleMenus::ContextMenu
+		{
+		public:
+			LLParticipantListMenu(LLParticipantList& parent):mParent(parent){};
+			/*virtual*/ LLContextMenu* createMenu();
+		protected:
+			LLParticipantList& mParent;
+		private:
+			bool enableContextMenuItem(const LLSD& userdata);
+			bool checkContextMenuItem(const LLSD& userdata);
+
+			void toggleAllowTextChat(const LLSD& userdata);
+			void toggleMuteText(const LLSD& userdata);
+		
+		};
+
 	private:
 		void onAvatarListDoubleClicked(LLAvatarList* list);
+		void onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param);
 
 		LLSpeakerMgr*		mSpeakerMgr;
 		LLAvatarList*		mAvatarList;
 
-		LLPointer<SpeakerAddListener>		mSpeakerAddListener;
-		LLPointer<SpeakerRemoveListener>	mSpeakerRemoveListener;
-		LLPointer<SpeakerClearListener>		mSpeakerClearListener;
+		std::set<LLUUID>	mModeratorList;
+		std::set<LLUUID>	mModeratorToRemoveList;
+
+		LLPointer<SpeakerAddListener>				mSpeakerAddListener;
+		LLPointer<SpeakerRemoveListener>			mSpeakerRemoveListener;
+		LLPointer<SpeakerClearListener>				mSpeakerClearListener;
+		LLPointer<SpeakerModeratorUpdateListener>	mSpeakerModeratorListener;
+
+		LLParticipantListMenu*    mParticipantListMenu;
 
 		EParticipantSortOrder	mSortOrder;
 };
