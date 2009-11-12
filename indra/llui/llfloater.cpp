@@ -1888,41 +1888,50 @@ void LLFloaterView::reshapeFloater(S32 width, S32 height, BOOL called_from_paren
 			// dependents use same follow flags as their "dependee"
 			continue;
 		}
-		LLRect r = floaterp->getRect();
-
-		// Compute absolute distance from each edge of screen
-		S32 left_offset = llabs(r.mLeft - 0);
-		S32 right_offset = llabs(old_width - r.mRight);
-
-		S32 top_offset = llabs(old_height - r.mTop);
-		S32 bottom_offset = llabs(r.mBottom - 0);
 
 		// Make if follow the edge it is closest to
 		U32 follow_flags = 0x0;
 
-		if (left_offset < right_offset)
+		if (floaterp->isMinimized())
 		{
-			follow_flags |= FOLLOWS_LEFT;
+			follow_flags |= (FOLLOWS_LEFT | FOLLOWS_TOP);
 		}
 		else
 		{
-			follow_flags |= FOLLOWS_RIGHT;
-		}
+			LLRect r = floaterp->getRect();
 
-		// "No vertical adjustment" usually means that the bottom of the view
-		// has been pushed up or down.  Hence we want the floaters to follow
-		// the top.
-		if (!adjust_vertical)
-		{
-			follow_flags |= FOLLOWS_TOP;
-		}
-		else if (top_offset < bottom_offset)
-		{
-			follow_flags |= FOLLOWS_TOP;
-		}
-		else
-		{
-			follow_flags |= FOLLOWS_BOTTOM;
+			// Compute absolute distance from each edge of screen
+			S32 left_offset = llabs(r.mLeft - 0);
+			S32 right_offset = llabs(old_width - r.mRight);
+
+			S32 top_offset = llabs(old_height - r.mTop);
+			S32 bottom_offset = llabs(r.mBottom - 0);
+
+
+			if (left_offset < right_offset)
+			{
+				follow_flags |= FOLLOWS_LEFT;
+			}
+			else
+			{
+				follow_flags |= FOLLOWS_RIGHT;
+			}
+
+			// "No vertical adjustment" usually means that the bottom of the view
+			// has been pushed up or down.  Hence we want the floaters to follow
+			// the top.
+			if (!adjust_vertical)
+			{
+				follow_flags |= FOLLOWS_TOP;
+			}
+			else if (top_offset < bottom_offset)
+			{
+				follow_flags |= FOLLOWS_TOP;
+			}
+			else
+			{
+				follow_flags |= FOLLOWS_BOTTOM;
+			}
 		}
 
 		floaterp->setFollows(follow_flags);
