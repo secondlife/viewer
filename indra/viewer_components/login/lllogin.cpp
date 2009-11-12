@@ -70,7 +70,7 @@ public:
 	LLEventPump& getEventPump() { return mPump; }
 
 private:
-	void sendProgressEvent(const std::string& state, const std::string& change,
+	LLSD getProgressEventLLSD(const std::string& state, const std::string& change,
 						   const LLSD& data = LLSD())
 	{
 		LLSD status_data;
@@ -87,7 +87,13 @@ private:
 		{
 			status_data["data"] = data;
 		}
+		return status_data;
+	}
 
+	void sendProgressEvent(const std::string& state, const std::string& change,
+						   const LLSD& data = LLSD())
+	{
+		LLSD status_data = getProgressEventLLSD(state, change, data);
 		mPump.post(status_data);
 	}
 
@@ -140,15 +146,28 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
         // Request SRV record.
         LL_INFOS("LLLogin") << "Requesting SRV record from " << uri << LL_ENDL;
 
-        // *NOTE:Mani - Completely arbitrary timeout value for SRV request.
-        filter.errorAfter(5, "SRV Request timed out!");
+        // *NOTE:Mani - Completely arbitrary default timeout value for SRV request.
+		F32 seconds_to_timeout = 5.0f;
+		if(credentials.has("cfg_srv_timeout"))
+		{
+			seconds_to_timeout = credentials["cfg_srv_timeout"].asReal();
+		}
 
-        // Make request
+		filter.eventAfter(seconds_to_timeout, 
+			getProgressEventLLSD("offline", "fail.login"));
+
+		std::string srv_pump_name = "LLAres";
+		if(credentials.has("cfg_srv_pump"))
+		{
+			srv_pump_name = credentials["cfg_srv_pump"].asString();
+		}
+
+		// Make request
         LLSD request;
         request["op"] = "rewriteURI";
         request["uri"] = uri;
         request["reply"] = replyPump.getName();
-        rewrittenURIs = postAndWait(self, request, "LLAres", filter);
+        rewrittenURIs = postAndWait(self, request, srv_pump_name, filter);
     } // we no longer need the filter
 
     LLEventPump& xmlrpcPump(LLEventPumps::instance().obtain("LLXMLRPCTransaction"));

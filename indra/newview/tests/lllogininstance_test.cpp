@@ -76,6 +76,7 @@ LLControlGroup::LLControlGroup(const std::string& name) :
 LLControlGroup::~LLControlGroup() {}
 void LLControlGroup::setBOOL(const std::string& name, BOOL val) {}
 BOOL LLControlGroup::getBOOL(const std::string& name) { return FALSE; }
+F32 LLControlGroup::getF32(const std::string& name) { return 0.0f; }
 U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only) { return 1; }
 void LLControlGroup::setString(const std::string& name, const std::string& val) {}
 std::string LLControlGroup::getString(const std::string& name) { return "test_string"; }

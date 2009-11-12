@@ -182,6 +182,9 @@ void LLLoginInstance::constructAuthParams(const LLSD& credentials)
 	mRequestData["method"] = "login_to_simulator";
 	mRequestData["params"] = request_params;
 	mRequestData["options"] = requested_options;
+
+	mRequestData["cfg_srv_timeout"] = gSavedSettings.getF32("LoginSRVTimeout");
+	mRequestData["cfg_srv_pump"] = gSavedSettings.getString("LoginSRVPump");
 }
 
 bool LLLoginInstance::handleLoginEvent(const LLSD& event)
