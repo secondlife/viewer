@@ -306,8 +306,10 @@ void LLVoiceChannel::activate()
 		// activating the proximal channel between IM calls
 		LLVoiceChannel* old_channel = sCurrentVoiceChannel;
 		sCurrentVoiceChannel = this;
+		mCallDialogPayload["old_channel_name"] = "";
 		if (old_channel)
 		{
+			mCallDialogPayload["old_channel_name"] = old_channel->getSessionName();
 			old_channel->deactivate();
 		}
 	}
@@ -790,6 +792,9 @@ void LLVoiceChannelP2P::activate()
 {
 	if (callStarted()) return;
 
+	LLVoiceChannel *voice = LLVoiceChannel::getCurrentVoiceChannel();
+	if (voice && !voice->getSessionName().empty())
+
 	LLVoiceChannel::activate();
 
 	if (callStarted())
@@ -872,16 +877,15 @@ void LLVoiceChannelP2P::setState(EState state)
 	toggleCallWindowIfNeeded(state);
 	
 	// *HACK: open outgoing call floater if needed, might be better done elsewhere.
-	LLSD payload;
-	payload["session_id"] = mSessionID;
-	payload["session_name"] = mSessionName;
-	payload["other_user_id"] = mOtherUserID;
+	mCallDialogPayload["session_id"] = mSessionID;
+	mCallDialogPayload["session_name"] = mSessionName;
+	mCallDialogPayload["other_user_id"] = mOtherUserID;
 	if (!mReceivedCall && state == STATE_RINGING)
 	{
 		llinfos << "RINGINGGGGGGGG " << mSessionName << llendl;
 		if (!mSessionName.empty())
 		{
-			LLFloaterReg::showInstance("outgoing_call", payload, TRUE);
+			LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE);
 		}
 	}
 

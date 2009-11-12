@@ -1108,11 +1108,10 @@ void LLOutgoingCallDialog::getAllowedRect(LLRect& rect)
 
 void LLOutgoingCallDialog::onOpen(const LLSD& key)
 {
-	// prepare to tell the user which voice channel they would be leaving
-	LLVoiceChannel *voice = LLVoiceChannel::getCurrentVoiceChannel();
-	if (voice && !voice->getSessionName().empty())
+	// tell the user which voice channel they are leaving
+	if (!mPayload["old_channel_name"].asString().empty())
 	{
-		childSetTextArg("leaving", "[CURRENT_CHAT]", voice->getSessionName());
+		childSetTextArg("leaving", "[CURRENT_CHAT]", mPayload["old_channel_name"].asString());
 	}
 	else
 	{
@@ -1138,11 +1137,27 @@ void LLOutgoingCallDialog::onOpen(const LLSD& key)
 					 boost::bind(&LLOutgoingCallDialog::getAllowedRect, this, _1)));
 }
 
+
+//static
+void LLOutgoingCallDialog::onCancel(void* user_data)
+{
+	LLOutgoingCallDialog* self = (LLOutgoingCallDialog*)user_data;
+
+	if (!gIMMgr)
+		return;
+
+	LLUUID session_id = self->mPayload["session_id"].asUUID();
+	gIMMgr->endCall(session_id);
+	
+	self->closeFloater();
+}
+
+
 BOOL LLOutgoingCallDialog::postBuild()
 {
 	BOOL success = LLDockableFloater::postBuild();
 
-	//childSetAction("Reject", onReject, this);
+	childSetAction("Cancel", onCancel, this);
 
 	return success;
 }

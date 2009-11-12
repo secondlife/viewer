@@ -430,6 +430,8 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
+	static void onCancel(void* user_data);
+
 private:
 	void getAllowedRect(LLRect& rect);
 

@@ -109,6 +109,7 @@ protected:
 	EState		mState;
 	std::string	mSessionName;
 	LLSD mNotifyArgs;
+	LLSD mCallDialogPayload;
 	BOOL		mIgnoreNextSessionLeave;
 	LLHandle<LLPanel> mLoginNotificationHandle;
 

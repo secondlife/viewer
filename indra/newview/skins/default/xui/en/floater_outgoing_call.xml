@@ -59,26 +59,9 @@ Leaving [CURRENT_CHAT].
     </text>
     <button
      height="24"
-     label="Foo"
-     label_selected="Foo"
+     label="Cancel"
      layout="topleft"
-     left="70"
-     name="Foo"
-     top="92"
-     width="100" />
-    <button
-     height="24"
-     label="Bar"
-     label_selected="Bar"
-     layout="topleft"
-     name="Bar"
-     left_pad="10"
-     width="100" />
-    <button
-     height="24"
-     label="Baz"
-     layout="topleft"
-     name="Baz"
+     name="Cancel"
      left_pad="10"
      width="100" />
 </floater>
