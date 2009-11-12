@@ -441,6 +441,14 @@ namespace tut
 
 		login.connect("login.bar.com", credentials);
 
-		ensure_equals("Failed to offline", listener.lastEvent()["change"].asString(), "srvrequest"); 
+		ensure_equals("SRV State", listener.lastEvent()["change"].asString(), "srvrequest"); 
+
+		// Get the mainloop eventpump, which needs a pinging in order to drive the 
+		// SRV timeout.
+		LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
+		LLSD frame_event;
+		mainloop.post(frame_event);
+
+		ensure_equals("SRV Failure", listener.lastEvent()["change"].asString(), "fail.login"); 
 	}
 }
