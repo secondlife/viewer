@@ -2199,7 +2199,7 @@ bool LLInventoryModel::loadSkeleton(
 
 			// Add all the items loaded which are parented to a
 			// category with a correctly cached parent
-			count = items.count();
+			S32 bad_link_count = 0;
 			cat_map_t::iterator unparented = mCategoryMap.end();
 			for(item_array_t::const_iterator item_iter = items.begin();
 				item_iter != items.end();
@@ -2216,7 +2216,11 @@ bool LLInventoryModel::loadSkeleton(
 						// This can happen if the linked object's baseobj is removed from the cache but the linked object is still in the cache.
 						if (item->getIsBrokenLink())
 						{
-							llinfos << "Attempted to add cached link item without baseobj present ( name: " << item->getName() << " itemID: " << item->getUUID() << " assetID: " << item->getAssetUUID() << " ).  Ignoring and invalidating " << cat->getName() << " . " << llendl;
+							bad_link_count++;
+							lldebugs << "Attempted to add cached link item without baseobj present ( name: "
+									 << item->getName() << " itemID: " << item->getUUID()
+									 << " assetID: " << item->getAssetUUID()
+									 << " ).  Ignoring and invalidating " << cat->getName() << " . " << llendl;
 							invalid_categories.insert(cit->second);
 							continue;
 						}
@@ -2225,6 +2229,12 @@ bool LLInventoryModel::loadSkeleton(
 						++child_counts[cat->getUUID()];
 					}
 				}
+			}
+			if (bad_link_count > 0)
+			{
+				llinfos << "Attempted to add " << bad_link_count
+						<< " cached link items without baseobj present. "
+						<< "The corresponding categories were invalidated." << llendl;
 			}
 		}
 		else
