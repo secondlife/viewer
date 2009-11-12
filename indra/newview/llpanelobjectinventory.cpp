@@ -1570,6 +1570,7 @@ void LLPanelObjectInventory::reset()
 	p.name = "task inventory";
 	p.task_id = getTaskUUID();
 	p.parent_panel = this;
+	p.tool_tip= p.name;
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
 	// this ensures that we never say "searching..." or "no items found"
 	mFolders->getFilter()->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
@@ -1711,6 +1712,7 @@ void LLPanelObjectInventory::createFolderViews(LLInventoryObject* inventory_root
 		p.icon_open = LLUI::getUIImage("Inv_FolderOpen");
 		p.root = mFolders;
 		p.listener = bridge;
+		p.tool_tip = p.name;
 		new_folder = LLUICtrlFactory::create<LLFolderViewFolder>(p);
 		new_folder->addToFolder(mFolders, mFolders);
 		new_folder->toggleOpen();
@@ -1751,6 +1753,7 @@ void LLPanelObjectInventory::createViewsForCategory(InventoryObjectList* invento
 				p.icon_open = LLUI::getUIImage("Inv_FolderOpen");
 				p.root = mFolders;
 				p.listener = bridge;
+				p.tool_tip = p.name;
 				view = LLUICtrlFactory::create<LLFolderViewFolder>(p);
 				child_categories.put(new obj_folder_pair(obj,
 														 (LLFolderViewFolder*)view));
@@ -1764,6 +1767,7 @@ void LLPanelObjectInventory::createViewsForCategory(InventoryObjectList* invento
 				params.root(mFolders);
 				params.listener(bridge);
 				params.rect(LLRect());
+				params.tool_tip = params.name;
 				view = LLUICtrlFactory::create<LLFolderViewItem> (params);
 			}
 			view->addToFolder(folder, mFolders);

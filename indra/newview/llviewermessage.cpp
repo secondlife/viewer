@@ -43,7 +43,7 @@
 #include "llfloaterbump.h"
 #include "llassetstorage.h"
 #include "llcachename.h"
-#include "llchat.h"
+
 #include "lldbstrings.h"
 #include "lleconomy.h"
 #include "llfilepicker.h"
@@ -115,6 +115,7 @@
 #include "llui.h"			// for make_ui_sound
 #include "lluploaddialog.h"
 #include "llviewercamera.h"
+#include "llviewerchat.h"
 #include "llviewergenericmessage.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
@@ -2223,7 +2224,7 @@ void process_decline_callingcard(LLMessageSystem* msg, void**)
 
 void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 {
-	LLChat		chat;
+	LLChat	chat;
 	std::string		mesg;
 	std::string		from_name;
 	U8			source_temp;
@@ -2823,7 +2824,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 			// Chat the "back" SLURL. (DEV-4907)
 			LLChat chat("Teleport completed from " + gAgent.getTeleportSourceSLURL());
 			chat.mSourceType = CHAT_SOURCE_SYSTEM;
- 			LLFloaterChat::addChatHistory(chat);
+ 		    LLFloaterChat::addChatHistory(chat);
 
 			// Set the new position
 			avatarp->setPositionAgent(agent_pos);
@@ -4595,7 +4596,7 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 		if (caution)
 		{
 			LLChat chat(notice.getString());
-			LLFloaterChat::addChat(chat, FALSE, FALSE);
+	//		LLFloaterChat::addChat(chat, FALSE, FALSE);
 		}
 	}
 }
