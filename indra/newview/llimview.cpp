@@ -46,6 +46,7 @@
 
 #include "llagent.h"
 #include "llavatariconctrl.h"
+#include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llchat.h"
 #include "llresmgr.h"
@@ -73,6 +74,7 @@
 #include "llvoicechannel.h"
 #include "lltrans.h"
 #include "llrecentpeople.h"
+#include "llsyswellwindow.h"
 
 #include "llfirstuse.h"
 #include "llagentui.h"
@@ -1091,16 +1093,155 @@ LLIMMgr::onConfirmForceCloseError(
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLOutgoingCallDialog
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+LLOutgoingCallDialog::LLOutgoingCallDialog(const LLSD& payload) :
+	LLDockableFloater(NULL, payload),
+	mPayload(payload)
+{
+}
+
+BOOL LLOutgoingCallDialog::postBuild()
+{
+	BOOL success = LLFloater::postBuild();
+
+	LLSD callee_id = mPayload["session_id"];//mPayload["caller_id"];
+
+	std::string calling_str = getString("calling");
+	std::string callee_name = mPayload["session_name"].asString();//mPayload["caller_name"].asString();
+	if (callee_name == "anonymous")
+	{
+		callee_name = getString("anonymous");
+	}
+	
+	setTitle(callee_name);
+
+	LLUICtrl* callee_name_widget = getChild<LLUICtrl>("callee name");
+	// *TODO: substitute callee name properly
+	callee_name_widget->setValue(calling_str + " " + callee_name);
+	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
+	icon->setValue(callee_id);
+
+	//childSetAction("Reject", onReject, this);
+
+	return success;
+}
+
+void LLOutgoingCallDialog::processCallResponse(S32 response)
+{
+	if (!gIMMgr)
+		return;
+
+	LLUUID session_id = mPayload["session_id"].asUUID();
+	EInstantMessage type = (EInstantMessage)mPayload["type"].asInteger();
+	LLIMMgr::EInvitationType inv_type = (LLIMMgr::EInvitationType)mPayload["inv_type"].asInteger();
+	bool voice = true;
+	switch(response)
+	{
+	case 2: // start IM: just don't start the voice chat
+	{
+		voice = false;
+		/* FALLTHROUGH */
+	}
+	case 0: // accept
+	{
+		if (type == IM_SESSION_P2P_INVITE)
+		{
+			// create a normal IM session
+			session_id = gIMMgr->addP2PSession(
+				mPayload["session_name"].asString(),
+				mPayload["caller_id"].asUUID(),
+				mPayload["session_handle"].asString());
+
+			if (voice)
+			{
+				if (gIMMgr->startCall(session_id))
+				{
+					// always open IM window when connecting to voice
+					LLIMFloater::show(session_id);
+				}
+			}
+
+			gIMMgr->clearPendingAgentListUpdates(session_id);
+			gIMMgr->clearPendingInvitation(session_id);
+		}
+		else
+		{
+			LLUUID session_id = gIMMgr->addSession(
+				mPayload["session_name"].asString(),
+				type,
+				session_id);
+			if (session_id != LLUUID::null)
+			{
+				LLIMFloater::show(session_id);
+			}
+
+			std::string url = gAgent.getRegion()->getCapability(
+				"ChatSessionRequest");
+
+			if (voice)
+			{
+				LLSD data;
+				data["method"] = "accept invitation";
+				data["session-id"] = session_id;
+				LLHTTPClient::post(
+					url,
+					data,
+					new LLViewerChatterBoxInvitationAcceptResponder(
+						session_id,
+						inv_type));
+			}
+		}
+		if (voice)
+		{
+			break;
+		}
+	}
+	case 1: // decline
+	{
+		if (type == IM_SESSION_P2P_INVITE)
+		{
+			if(gVoiceClient)
+			{
+				std::string s = mPayload["session_handle"].asString();
+				gVoiceClient->declineInvite(s);
+			}
+		}
+		else
+		{
+			std::string url = gAgent.getRegion()->getCapability(
+				"ChatSessionRequest");
+
+			LLSD data;
+			data["method"] = "decline invitation";
+			data["session-id"] = session_id;
+			LLHTTPClient::post(
+				url,
+				data,
+				NULL);
+		}
+	}
+
+	gIMMgr->clearPendingAgentListUpdates(session_id);
+	gIMMgr->clearPendingInvitation(session_id);
+	}
+}
+
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLIncomingCallDialog
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 LLIncomingCallDialog::LLIncomingCallDialog(const LLSD& payload) :
-	LLModalDialog(payload),
+	LLDockableFloater(NULL, false, payload),
 	mPayload(payload)
 {
 }
 
 BOOL LLIncomingCallDialog::postBuild()
 {
+	LLDockableFloater::postBuild();
+
 	LLSD caller_id = mPayload["caller_id"];
 	EInstantMessage type = (EInstantMessage)mPayload["type"].asInteger();
 
@@ -1130,6 +1271,30 @@ BOOL LLIncomingCallDialog::postBuild()
 	childSetFocus("Accept");
 
 	return TRUE;
+}
+
+void LLIncomingCallDialog::getAllowedRect(LLRect& rect)
+{
+	rect = gViewerWindow->getWorldViewRectRaw();
+}
+
+void LLIncomingCallDialog::onOpen(const LLSD& key)
+{
+	// tell the user which voice channel they would be leaving
+	LLVoiceChannel *voice = LLVoiceChannel::getCurrentVoiceChannel();
+	if (voice && !voice->getSessionName().empty())
+	{
+		childSetTextArg("question", "[CURRENT_CHAT]", voice->getSessionName());
+	}
+	else
+	{
+		childSetTextArg("question", "[CURRENT_CHAT]", getString("localchat"));
+	}
+
+	// dock the dialog to the sys well, where other sys messages appear
+	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getSysWell(),
+									 this, getDockTongue(), LLDockControl::TOP,
+									 boost::bind(&LLIncomingCallDialog::getAllowedRect, this, _1)));
 }
 
 //static

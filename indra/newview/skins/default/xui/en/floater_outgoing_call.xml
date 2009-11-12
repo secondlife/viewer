@@ -4,23 +4,19 @@
  can_close="false"
  can_minimize="false"
  can_tear_off="false"
- height="125"
+ height="200"
  layout="topleft"
- name="incoming call"
- help_topic="incoming_call"
- title="UNKNOWN PERSON IS CALLING"
- width="410">
-    <floater.string
-     name="localchat">
-        Local Voice Chat
-    </floater.string>
-    <floater.string
+ name="outgoing call"
+ help_topic="outgoing_call"
+ title="CALLING"
+ width="240">
+     <floater.string
      name="anonymous">
         anonymous
     </floater.string>
     <floater.string
-     name="VoiceInviteP2P">
-        is calling.
+     name="calling">
+        Calling [CALLEE]
     </floater.string>
     <floater.string
      name="VoiceInviteAdHoc">
@@ -35,48 +31,42 @@
      left_delta="19"
      top="35"
      width="36" />
-    <text
-     font="SansSerifLarge"
-     height="20"
-     layout="topleft"
-     left="77"
-     name="caller name"
-     top="27"
-     width="315"
-     word_wrap="true" />
-    <text
+    <text_editor
      font="SansSerif"
-     height="50"
+     height="64"
+     border_visible="false"
      layout="topleft"
      left="77"
-     name="question"
-     top="52"
-     width="315"
-     word_wrap="true">
-     Do you want to leave [CURRENT_CHAT] and join this voice chat?
-    </text>
+     max_length="2147483647"
+     name="callee name"
+     read_only="true"
+     top="21"
+     width="163"
+     word_wrap="true" />
     <button
      height="24"
-     label="Accept"
-     label_selected="Accept"
+     label="Bar"
+     label_selected="Bar"
      layout="topleft"
      left="70"
-     name="Accept"
+     name="Bar"
      top="92"
      width="100" />
     <button
      height="24"
-     label="Reject"
-     label_selected="Reject"
+     label="Foo"
+     label_selected="Foo"
      layout="topleft"
-     name="Reject"
-     left_pad="10"
+     left_delta="0"
+     name="Foo"
+     top_pad="12"
      width="100" />
     <button
      height="24"
-     label="Start IM"
+     label="Baz"
      layout="topleft"
-     name="Start IM"
-     left_pad="10"
+     left_delta="0"
+     name="Baz"
+     top_pad="12"
      width="100" />
 </floater>
