@@ -1119,6 +1119,19 @@ void LLOutgoingCallDialog::onOpen(const LLSD& key)
 		childSetTextArg("leaving", "[CURRENT_CHAT]", getString("localchat"));
 	}
 
+	std::string callee_name = mPayload["session_name"].asString();
+	if (callee_name == "anonymous")
+	{
+		callee_name = getString("anonymous");
+	}
+	
+	setTitle(callee_name);
+
+	LLSD callee_id = mPayload["other_user_id"];
+	childSetTextArg("calling", "[CALLEE_NAME]", callee_name);
+	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
+	icon->setValue(callee_id);
+
 	// dock the dialog to the sys well, where other sys messages appear
 	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getSysWell(),
 					 this, getDockTongue(), LLDockControl::TOP,
@@ -1128,20 +1141,6 @@ void LLOutgoingCallDialog::onOpen(const LLSD& key)
 BOOL LLOutgoingCallDialog::postBuild()
 {
 	BOOL success = LLDockableFloater::postBuild();
-
-	LLSD callee_id = mPayload["other_user_id"];
-
-	std::string callee_name = mPayload["session_name"].asString();
-	if (callee_name == "anonymous")
-	{
-		callee_name = getString("anonymous");
-	}
-	
-	setTitle(callee_name);
-
-	childSetTextArg("calling", "[CALLEE_NAME]", callee_name);
-	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
-	icon->setValue(callee_id);
 
 	//childSetAction("Reject", onReject, this);
 
