@@ -456,7 +456,6 @@ void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 	mOverflowToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::closeOverflowToastPanel, this));
 
 	LLTextBox* text_box = mOverflowToastPanel->getChild<LLTextBox>("toast_text");
-	LLIconCtrl* icon = mOverflowToastPanel->getChild<LLIconCtrl>("icon");
 	std::string	text = llformat(mOverflowFormatString.c_str(),mHiddenToastsNum);
 	if(mHiddenToastsNum == 1)
 	{
@@ -474,7 +473,6 @@ void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 
 	text_box->setValue(text);
 	text_box->setVisible(TRUE);
-	icon->setVisible(TRUE);
 
 	mOverflowToastPanel->setVisible(TRUE);
 }
@@ -532,7 +530,6 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 	mStartUpToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::onStartUpToastHide, this));
 
 	LLTextBox* text_box = mStartUpToastPanel->getChild<LLTextBox>("toast_text");
-	LLIconCtrl* icon = mStartUpToastPanel->getChild<LLIconCtrl>("icon");
 
 	std::string mStartUpFormatString;
 
@@ -555,8 +552,6 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 
 	text_box->setValue(text);
 	text_box->setVisible(TRUE);
-	icon->setVisible(TRUE);
-
 	addChild(mStartUpToastPanel);
 	
 	mStartUpToastPanel->setVisible(TRUE);
