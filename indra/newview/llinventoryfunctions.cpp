@@ -323,6 +323,9 @@ const std::string& get_item_icon_name(LLAssetType::EType asset_type,
 	case LLAssetType::AT_LINK_FOLDER:
 		idx = LINKFOLDER_ICON_NAME;
 		break;
+	case LLAssetType::AT_MESH:
+		idx = MESH_ICON_NAME;
+		break;
 	default:
 		break;
 	}

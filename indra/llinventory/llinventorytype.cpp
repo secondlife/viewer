@@ -125,7 +125,33 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
 
 	LLInventoryType::IT_NONE,			// AT_LINK
 	LLInventoryType::IT_NONE,			// AT_LINK_FOLDER
-	LLInventoryType::IT_MESH,           // AT_MESH
+
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	LLInventoryType::IT_NONE,			// AT_NONE
+	
+	LLInventoryType::IT_MESH            // AT_MESH
 };
 
 // static
