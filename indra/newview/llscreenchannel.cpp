@@ -655,6 +655,10 @@ void LLScreenChannel::onToastHover(LLToast* toast, bool mouse_enter)
 	{
 		mHoveredToast = toast;
 	}
+	else
+	{
+		mHoveredToast = NULL;
+	}
 
 	switch(stack_size)
 	{
