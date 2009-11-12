@@ -512,16 +512,18 @@ void LLPipeline::resizeScreenTexture()
 	LLFastTimer ft(FTM_RESIZE_SCREEN_TEXTURE);
 	if (gPipeline.canUseVertexShaders() && assertInitialized())
 	{
-		GLuint resX = gViewerWindow->getWorldViewWidthRaw();
-		GLuint resY = gViewerWindow->getWorldViewHeightRaw();
+		GLuint resX = gViewerWindow->getWindowWidthRaw();
+		GLuint resY = gViewerWindow->getWindowHeightRaw();
+		GLuint view_width = gViewerWindow->getWorldViewWidthRaw();
+		GLuint view_height = gViewerWindow->getWorldViewHeightRaw();
 	
-		allocateScreenBuffer(resX,resY);
+		allocateScreenBuffer(resX, resY, view_width, view_height);
 
 		llinfos << "RESIZED SCREEN TEXTURE: " << resX << "x" << resY << llendl;
 	}
 }
 
-void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
+void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 viewport_width, U32 viewport_height)
 {
 	U32 samples = gSavedSettings.getU32("RenderFSAASamples");
 
@@ -542,18 +544,24 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		//allocate deferred rendering color buffers
 		mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 		mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		mDeferredScreen.setViewport(viewport_width, viewport_height);
+		mDeferredDepth.setViewport(viewport_width, viewport_height);
 		addDeferredAttachments(mDeferredScreen);
 		mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
 		mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		mScreen.setViewport(viewport_width, viewport_height);
+		mEdgeMap.setViewport(viewport_width, viewport_height);
 
 		for (U32 i = 0; i < 3; i++)
 		{
 			mDeferredLight[i].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			mDeferredLight[i].setViewport(viewport_width, viewport_height);
 		}
 
 		for (U32 i = 0; i < 2; i++)
 		{
 			mGIMapPost[i].allocate(resX,resY, GL_RGB, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			mGIMapPost[i].setViewport(viewport_width, viewport_height);
 		}
 
 		F32 scale = gSavedSettings.getF32("RenderShadowResolutionScale");
@@ -561,6 +569,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		for (U32 i = 0; i < 4; i++)
 		{
 			mShadow[i].allocate(U32(resX*scale),U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			mShadow[i].setViewport(viewport_width, viewport_height);
 		}
 
 
@@ -570,6 +579,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		for (U32 i = 4; i < 6; i++)
 		{
 			mShadow[i].allocate(width, height, 0, TRUE, FALSE);
+			mShadow[i].setViewport(viewport_width, viewport_height);
 		}
 
 
@@ -577,16 +587,19 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		width = nhpo2(resX)/2;
 		height = nhpo2(resY)/2;
 		mLuminanceMap.allocate(width,height, GL_RGBA, FALSE, FALSE);
+		mLuminanceMap.setViewport(viewport_width, viewport_height);
 	}
 	else
 	{
 		mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
+		mScreen.setViewport(viewport_width, viewport_height);
 	}
 	
 
 	if (gGLManager.mHasFramebufferMultisample && samples > 1)
 	{
 		mSampleBuffer.allocate(resX,resY,GL_RGBA,TRUE,TRUE,LLTexUnit::TT_RECT_TEXTURE,FALSE,samples);
+		mSampleBuffer.setViewport(viewport_width, viewport_height);
 		mScreen.setSampleBuffer(&mSampleBuffer);
 
 		if (LLPipeline::sRenderDeferred)
@@ -698,8 +711,10 @@ void LLPipeline::createGLBuffers()
 
 	stop_glerror();
 
-	GLuint resX = gViewerWindow->getWorldViewWidthRaw();
-	GLuint resY = gViewerWindow->getWorldViewHeightRaw();
+	GLuint resX = gViewerWindow->getWindowWidthRaw();
+	GLuint resY = gViewerWindow->getWindowHeightRaw();
+	GLuint viewport_width = gViewerWindow->getWorldViewWidthRaw();
+	GLuint viewport_height = gViewerWindow->getWorldViewHeightRaw();
 	
 	if (LLPipeline::sRenderGlow)
 	{ //screen space glow buffers
@@ -711,7 +726,7 @@ void LLPipeline::createGLBuffers()
 			mGlow[i].allocate(512,glow_res,GL_RGBA,FALSE,FALSE);
 		}
 
-		allocateScreenBuffer(resX,resY);
+		allocateScreenBuffer(resX,resY, viewport_width, viewport_height);
 	}
 	
 	if (sRenderDeferred)

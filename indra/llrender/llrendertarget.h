@@ -107,6 +107,9 @@ public:
 	//uses scissor rect if in copy-to-texture mode
 	void clear(U32 mask = 0xFFFFFFFF);
 	
+	// override default viewport to a smaller size
+	void setViewport(U32 width, U32 height);
+
 	//get applied viewport
 	void getViewport(S32* viewport);
 
@@ -150,12 +153,16 @@ protected:
 	friend class LLMultisampleBuffer;
 	U32 mResX;
 	U32 mResY;
+	U32 mViewportWidth;
+	U32 mViewportHeight;
 	std::vector<U32> mTex;
 	U32 mFBO;
+	U32 mColorFmt;
 	U32 mDepth;
 	BOOL mStencil;
 	BOOL mUseDepth;
 	BOOL mRenderDepth;
+
 	LLTexUnit::eTextureType mUsage;
 	U32 mSamples;
 	LLMultisampleBuffer* mSampleBuffer;

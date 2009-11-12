@@ -94,11 +94,9 @@ class LLChatHistory : public LLTextEditor
 		LLView* getSeparator();
 		/**
 		 * Builds a message header.
-		 * @param from owner of a message.
-		 * @param time time of a message.
 		 * @return pointer to LLView header object.
 		 */
-		LLView* getHeader(const LLChat& chat);
+		LLView* getHeader(const LLChat& chat,const LLStyle::Params& style_params);
 
 	public:
 		~LLChatHistory();

@@ -994,6 +994,12 @@ void LLTextBase::setColor( const LLColor4& c )
 	mFgColor = c;
 }
 
+//virtual 
+void LLTextBase::setReadOnlyColor(const LLColor4 &c)
+{
+	mReadOnlyFgColor = c;
+}
+
 //virtual
 void LLTextBase::setValue(const LLSD& value )
 {
@@ -2369,7 +2375,9 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 
 	height = mFontHeight;
 	width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
-	return num_chars >= 1 && text[mStart + num_chars - 1] == '\n';
+	// if last character is a newline, then return true, forcing line break
+	llwchar last_char = text[mStart + first_char + num_chars - 1];
+	return num_chars >= 1 && last_char == '\n';
 }
 
 S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const

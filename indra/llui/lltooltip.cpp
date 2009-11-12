@@ -172,7 +172,6 @@ LLToolTip::Params::Params()
 
 LLToolTip::LLToolTip(const LLToolTip::Params& p)
 :	LLPanel(p),
-	mMaxWidth(p.max_width),
 	mHasClickCallback(p.click_callback.isProvided()),
 	mPadding(p.padding),
 	mTextBox(NULL),
@@ -181,11 +180,9 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	mHomePageButton(NULL)
 {
 	LLTextBox::Params params;
-	params.initial_value = "tip_text";
 	params.name = params.initial_value().asString();
 	// bake textbox padding into initial rect
 	params.rect = LLRect (mPadding, mPadding + 1, mPadding + 1, mPadding);
-	params.follows.flags = FOLLOWS_ALL;
 	params.h_pad = 0;
 	params.v_pad = 0;
 	params.mouse_opaque = false;
@@ -210,7 +207,6 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 		TOOLTIP_ICON_SIZE = (imagep ? imagep->getWidth() : 16);
 		icon_rect.setOriginAndSize(mPadding, mPadding, TOOLTIP_ICON_SIZE, TOOLTIP_ICON_SIZE);
 		icon_params.rect = icon_rect;
-		//icon_params.follows.flags = FOLLOWS_LEFT | FOLLOWS_BOTTOM;
 		icon_params.image_unselected(imagep);
 		icon_params.image_selected(imagep);
 
@@ -281,15 +277,30 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	}
 }
 
-void LLToolTip::setValue(const LLSD& value)
+void LLToolTip::initFromParams(const LLToolTip::Params& p)
 {
-	const S32 REALLY_LARGE_HEIGHT = 10000;
-	reshape(mMaxWidth, REALLY_LARGE_HEIGHT);
+	LLPanel::initFromParams(p);
 
-	mTextBox->setValue(value);
+	// do this *after* we've had our size set in LLPanel::initFromParams();
+	const S32 REALLY_LARGE_HEIGHT = 10000;
+	mTextBox->reshape(p.max_width, REALLY_LARGE_HEIGHT);
+
+	if (p.styled_message.isProvided())
+	{
+		for (LLInitParam::ParamIterator<LLToolTip::StyledText>::const_iterator text_it = p.styled_message().begin();
+			text_it != p.styled_message().end();
+			++text_it)
+		{
+			mTextBox->appendText(text_it->text(), false, text_it->style);
+		}
+	}
+	else
+	{
+		mTextBox->setText(p.message());
+	}
 
 	LLRect text_contents_rect = mTextBox->getContentsRect();
-	S32 text_width = llmin(mMaxWidth, text_contents_rect.getWidth());
+	S32 text_width = llmin(p.max_width(), text_contents_rect.getWidth());
 	S32 text_height = text_contents_rect.getHeight();
 	mTextBox->reshape(text_width, text_height);
 
@@ -300,7 +311,7 @@ void LLToolTip::setValue(const LLSD& value)
 	tooltip_rect.mBottom = 0;
 	tooltip_rect.mLeft = 0;
 
-	setRect(tooltip_rect);
+	setShape(tooltip_rect);
 }
 
 void LLToolTip::setVisible(BOOL visible)
@@ -411,9 +422,8 @@ void LLToolTipMgr::createToolTip(const LLToolTip::Params& params)
 	}
 	tooltip_params.rect = LLRect (0, 1, 1, 0);
 
-
 	mToolTip = LLUICtrlFactory::create<LLToolTip> (tooltip_params);
-	mToolTip->setValue(params.message());
+
 	gToolTipView->addChild(mToolTip);
 
 	if (params.pos.isProvided())

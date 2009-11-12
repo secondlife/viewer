@@ -95,14 +95,9 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 		LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, notification->getPayload()["from_id"]);
 		if (!LLIMMgr::instance().hasSession(session_id))
 		{
-			// create session with faked type to avoid creating chicklets
 			session_id = LLIMMgr::instance().addSession(
 					notification->getSubstitutions()["NAME"], IM_NOTHING_SPECIAL,
 					notification->getPayload()["from_id"]);
-			if (session_id != LLUUID::null)
-			{
-				LLIMFloater::show(session_id);
-			}
 		}
 		LLIMMgr::instance().addMessage(session_id, LLUUID(),
 				notification->getSubstitutions()["NAME"],

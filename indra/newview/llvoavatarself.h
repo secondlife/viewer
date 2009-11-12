@@ -86,15 +86,15 @@ public:
 	/*virtual*/ void 		requestStopMotion(LLMotion* motion);
 	/*virtual*/ LLJoint*	getJoint(const std::string &name);
 
-	/*virtual*/ BOOL setVisualParamWeight(LLVisualParam *which_param, F32 weight, BOOL set_by_user = FALSE );
-	/*virtual*/ BOOL setVisualParamWeight(const char* param_name, F32 weight, BOOL set_by_user = FALSE );
-	/*virtual*/ BOOL setVisualParamWeight(S32 index, F32 weight, BOOL set_by_user = FALSE );
+	/*virtual*/ BOOL setVisualParamWeight(LLVisualParam *which_param, F32 weight, BOOL upload_bake = FALSE );
+	/*virtual*/ BOOL setVisualParamWeight(const char* param_name, F32 weight, BOOL upload_bake = FALSE );
+	/*virtual*/ BOOL setVisualParamWeight(S32 index, F32 weight, BOOL upload_bake = FALSE );
 	/*virtual*/ void updateVisualParams();
 	/*virtual*/ void idleUpdateAppearanceAnimation();
 
 private:
 	// helper function. Passed in param is assumed to be in avatar's parameter list.
-	BOOL setParamWeight(LLViewerVisualParam *param, F32 weight, BOOL set_by_user = FALSE );
+	BOOL setParamWeight(LLViewerVisualParam *param, F32 weight, BOOL upload_bake = FALSE );
 
 
 /**                    Initialization
@@ -186,7 +186,7 @@ public:
 	BOOL				getLocalTextureGL(LLVOAvatarDefines::ETextureIndex type, LLViewerTexture** image_gl_pp, U32 index) const;
 	LLViewerFetchedTexture*	getLocalTextureGL(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	const LLUUID&		getLocalTextureID(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
-	void				setLocalTextureTE(U8 te, LLViewerTexture* image, BOOL set_by_user, U32 index);
+	void				setLocalTextureTE(U8 te, LLViewerTexture* image, U32 index);
 	const LLUUID&		grabLocalTexture(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	BOOL				canGrabLocalTexture(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	/*virtual*/ void	setLocalTexture(LLVOAvatarDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index);
@@ -228,7 +228,7 @@ public:
 	// Composites
 	//--------------------------------------------------------------------
 public:
-	/* virtual */ void	invalidateComposite(LLTexLayerSet* layerset, BOOL set_by_user);
+	/* virtual */ void	invalidateComposite(LLTexLayerSet* layerset, BOOL upload_result);
 	/* virtual */ void	invalidateAll();
 	/* virtual */ void	setCompositeUpdatesEnabled(BOOL b); // only works for self
 	void				setupComposites();

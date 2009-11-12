@@ -1984,14 +1984,14 @@ bool LLAgentWearables::canWearableBeRemoved(const LLWearable* wearable) const
 	return !(((type == WT_SHAPE) || (type == WT_SKIN) || (type == WT_HAIR) || (type == WT_EYES))
 			 && (getWearableCount(type) <= 1) );		  
 }
-void LLAgentWearables::animateAllWearableParams(F32 delta, BOOL set_by_user)
+void LLAgentWearables::animateAllWearableParams(F32 delta, BOOL upload_bake)
 {
 	for( S32 type = 0; type < WT_COUNT; ++type )
 	{
 		for (S32 count = 0; count < (S32)getWearableCount((EWearableType)type); ++count)
 		{
 			LLWearable *wearable = getWearable((EWearableType)type,count);
-			wearable->animateParams(delta, set_by_user);
+			wearable->animateParams(delta, upload_bake);
 		}
 	}
 }

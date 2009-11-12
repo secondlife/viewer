@@ -155,11 +155,9 @@ void LLNetMap::draw()
 	F32 rotation = 0;
 
 	{
-		LLGLEnable scissor(GL_SCISSOR_TEST);
-		
+		LLLocalClipRect clip(getLocalRect());
 		{
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-			LLLocalClipRect clip(getLocalRect());
 
 			glMatrixMode(GL_MODELVIEW);
 
