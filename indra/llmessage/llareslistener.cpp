@@ -22,13 +22,18 @@
 #include "llevents.h"
 #include "llsdutil.h"
 
-LLAresListener::LLAresListener(const std::string& pumpname, LLAres* llares):
-    LLDispatchListener(pumpname, "op"),
+LLAresListener::LLAresListener(LLAres* llares):
+    LLEventAPI("LLAres",
+               "LLAres listener to request DNS operations"),
     mAres(llares)
 {
     // add() every method we want to be able to invoke via this event API.
-    // Optional third parameter validates expected LLSD request structure.
-    add("rewriteURI", &LLAresListener::rewriteURI,
+    // Optional last parameter validates expected LLSD request structure.
+    add("rewriteURI",
+        "Given [\"uri\"], return on [\"reply\"] an array of alternative URIs.\n"
+        "On failure, returns an array containing only the original URI, so\n"
+        "failure case can be processed like success case.",
+        &LLAresListener::rewriteURI,
         LLSD().insert("uri", LLSD()).insert("reply", LLSD()));
 }
 

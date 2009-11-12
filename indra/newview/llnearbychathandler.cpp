@@ -122,8 +122,8 @@ protected:
 
 void LLNearbyChatScreenChannel::init(S32 channel_left, S32 channel_right)
 {
-	S32 channel_top = gViewerWindow->getWorldViewRect().getHeight();
-	S32 channel_bottom = gViewerWindow->getWorldViewRect().mBottom;
+	S32 channel_top = gViewerWindow->getWorldViewRectRaw().getHeight();
+	S32 channel_bottom = gViewerWindow->getWorldViewRectRaw().mBottom;
 	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
 	setVisible(TRUE);
 }
@@ -223,7 +223,7 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 
 void LLNearbyChatScreenChannel::arrangeToasts()
 {
-	if(m_active_toasts.size() == 0 || mIsHovering)
+	if(m_active_toasts.size() == 0 || isHovering())
 		return;
 
 	hideToastsFromScreen();

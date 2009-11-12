@@ -69,7 +69,14 @@ void LLUIColorTable::insertFromParams(const Params& p)
 		ColorEntryParams color_entry = *it;
 		if(color_entry.color.value.isChosen())
 		{
-			setColor(color_entry.name, color_entry.color.value, mLoadedColors);
+			if(mUserSetColors.find(color_entry.name)!=mUserSetColors.end())
+			{
+				setColor(color_entry.name, color_entry.color.value);
+			}
+			else
+			{
+				setColor(color_entry.name, color_entry.color.value, mLoadedColors);
+			}
 		}
 		else
 		{
@@ -213,7 +220,7 @@ bool LLUIColorTable::loadFromSettings()
 		result |= loadFromFilename(current_filename);
 	}
 
-	std::string user_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SKIN, "colors.xml");
+	std::string user_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "colors.xml");
 	loadFromFilename(user_filename);
 
 	return result;
@@ -239,7 +246,7 @@ void LLUIColorTable::saveUserSettings() const
 
 	if(!output_node->isNull())
 	{
-		const std::string& filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SKIN, "colors.xml");
+		const std::string& filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "colors.xml");
 		LLFILE *fp = LLFile::fopen(filename, "w");
 
 		if(fp != NULL)

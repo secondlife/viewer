@@ -100,7 +100,8 @@ LLSideTray* LLSideTray::getInstance()
 {
 	if (!sInstance)
 	{
-		sInstance = LLUICtrlFactory::createFromFile<LLSideTray>("panel_side_tray.xml",gViewerWindow->getRootView(), LLRootView::child_registry_t::instance());
+		sInstance = LLUICtrlFactory::createFromFile<LLSideTray>("panel_side_tray.xml",NULL, LLRootView::child_registry_t::instance());
+		sInstance->setXMLFilename("panel_side_tray.xml");
 	}
 
 	return sInstance;
@@ -148,15 +149,12 @@ public:
 	/*virtual*/ bool	addChild	(LLView* view, S32 tab_group);
 	
 	
-	void			arrange		(S32 width, S32 height);
 	void			reshape		(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	
 	static LLSideTrayTab*  createInstance	();
 	
 	const std::string& getDescription () const { return mDescription;}
 	const std::string& getTabTitle() const { return mTabTitle;}
-	
-	void draw();
 	
 	void			onOpen		(const LLSD& key);
 	
@@ -209,60 +207,24 @@ BOOL LLSideTrayTab::postBuild()
 
 static const S32 splitter_margin = 1;
 
-//virtual 
-void	LLSideTrayTab::arrange(S32 width, S32 height )
-{
-	if(!mMainPanel)
-		return;
-	
-	S32 offset = 0;
-
-	LLView* title_panel = findChildView(TAB_PANEL_CAPTION_NAME, true);
-
-	if(title_panel)
-	{
-		title_panel->setOrigin( 0, height - title_panel->getRect().getHeight() );
-		offset = title_panel->getRect().getHeight();
-	}
-
-	LLRect sRect = mMainPanel->getRect();
-	sRect.setLeftTopAndSize( splitter_margin, height - offset - splitter_margin, width - 2*splitter_margin, height - offset - 2*splitter_margin);
-	mMainPanel->reshape(sRect.getWidth(),sRect.getHeight());
-	mMainPanel->setRect(sRect);
-	
-
-	
-}
-
 void LLSideTrayTab::reshape		(S32 width, S32 height, BOOL called_from_parent )
 {
-	if(!mMainPanel)
-		return;
-	S32 offset = 0;
-
+	LLPanel::reshape(width, height, called_from_parent);
 	LLView* title_panel = findChildView(TAB_PANEL_CAPTION_NAME, true);
-
-	if(title_panel)
+	if (!title_panel)
 	{
-		title_panel->setOrigin( 0, height - title_panel->getRect().getHeight() );
-		title_panel->reshape(width,title_panel->getRect().getHeight());
-		offset = title_panel->getRect().getHeight();
+		// not fully constructed yet
+		return;
 	}
 
-	
+	S32 title_height = title_panel->getRect().getHeight();
+	title_panel->setOrigin( 0, height - title_height );
+	title_panel->reshape(width,title_height);
 
-	LLRect sRect = mMainPanel->getRect();
-	sRect.setLeftTopAndSize( splitter_margin, height - offset - splitter_margin, width - 2*splitter_margin, height - offset - 2*splitter_margin);
-	//mMainPanel->setMaxWidth(sRect.getWidth());
-	mMainPanel->reshape(sRect.getWidth(), sRect.getHeight());
-	
-	mMainPanel->setRect(sRect);
-
-}
-
-void LLSideTrayTab::draw()
-{
-	LLPanel::draw();
+	LLRect sRect;
+	sRect.setLeftTopAndSize( splitter_margin, height - title_height - splitter_margin, 
+							width - 2*splitter_margin, height - title_height - 2*splitter_margin);
+	mMainPanel->setShape(sRect);
 }
 
 void	LLSideTrayTab::onOpen		(const LLSD& key)
@@ -300,10 +262,8 @@ LLSideTray::LLSideTray(Params& params)
 	    ,mActiveTab(0)
 		,mCollapsed(false)
 		,mCollapseButton(0)
-	    ,mMaxBarWidth(params.rect.width)
 {
 	mCollapsed=params.collapsed;
-
 
 	LLUICtrl::CommitCallbackRegistry::Registrar& commit = LLUICtrl::CommitCallbackRegistry::currentRegistrar();
 
@@ -311,6 +271,11 @@ LLSideTray::LLSideTray(Params& params)
 	// panel_name should be specified via "parameter" attribute.
 	commit.add("SideTray.ShowPanel", boost::bind(&LLSideTray::showPanel, this, _2, LLUUID::null));
 	LLTransientFloaterMgr::getInstance()->addControlView(this);
+
+	LLPanel::Params p;
+	p.name = "buttons_panel";
+	p.mouse_opaque = false;
+	mButtonsPanel = LLUICtrlFactory::create<LLPanel>(p);
 }
 
 
@@ -389,7 +354,8 @@ bool LLSideTray::selectTabByName	(const std::string& name)
 	return true;
 }
 
-LLButton* LLSideTray::createButton	(const std::string& name,const std::string& image,LLUICtrl::commit_callback_t callback)
+LLButton* LLSideTray::createButton	(const std::string& name,const std::string& image,const std::string& tooltip,
+									 LLUICtrl::commit_callback_t callback)
 {
 	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
 	
@@ -399,7 +365,7 @@ LLButton* LLSideTray::createButton	(const std::string& name,const std::string& i
 	rect.setOriginAndSize(0, 0, sidetray_params.default_button_width, sidetray_params.default_button_height); 
 
 	bparams.name(name);
-	bparams.follows.flags (FOLLOWS_LEFT | FOLLOWS_BOTTOM);
+	bparams.follows.flags (FOLLOWS_LEFT | FOLLOWS_TOP);
 	bparams.rect (rect);
 	bparams.tab_stop(false);
 	bparams.image_unselected.name(sidetray_params.tab_btn_image_normal);
@@ -410,13 +376,16 @@ LLButton* LLSideTray::createButton	(const std::string& name,const std::string& i
 	LLButton* button = LLUICtrlFactory::create<LLButton> (bparams);
 	button->setLabel(name);
 	button->setClickedCallback(callback);
+
+	if(tooltip!="Home")
+		button->setToolTip(tooltip);
 	
 	if(image.length())
 	{
 		button->setImageOverlay(image);
 	}
 
-	addChildInBack(button);
+	mButtonsPanel->addChildInBack(button);
 
 	return button;
 }
@@ -448,12 +417,12 @@ void	LLSideTray::createButtons	()
 		// change if the home screen becomes its own tab.
 		if (name == "sidebar_home")
 		{
-			mCollapseButton = createButton("",sidebar_tab->mImage,
+			mCollapseButton = createButton("",sidebar_tab->mImage,sidebar_tab->getTabTitle(),
 				boost::bind(&LLSideTray::onToggleCollapse, this));
 		}
 		else
 		{
-			LLButton* button = createButton("",sidebar_tab->mImage,
+			LLButton* button = createButton("",sidebar_tab->mImage,sidebar_tab->getTabTitle(),
 				boost::bind(&LLSideTray::onTabButtonClick, this, name));
 			mTabButtons[name] = button;
 		}
@@ -526,7 +495,7 @@ void		LLSideTray::onToggleCollapse()
 
 void LLSideTray::reflectCollapseChange()
 {
-	setPanelRect();
+	updateSidetrayVisibility();
 
 	if(mCollapsed)
 	{
@@ -535,23 +504,24 @@ void LLSideTray::reflectCollapseChange()
 	}
 	else
 	{
-		gFloaterView->setSnapOffsetRight(mMaxBarWidth);
+		gFloaterView->setSnapOffsetRight(getRect().getWidth());
 		setFocus(TRUE);
 	}
 
 	gFloaterView->refresh();
 }
 
-void LLSideTray::arrange			()
+void LLSideTray::arrange()
 {
 	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
 
-	setPanelRect();
+	updateSidetrayVisibility();
 	
 	LLRect ctrl_rect;
-	ctrl_rect.setLeftTopAndSize(0,getRect().getHeight()-sidetray_params.default_button_width
-							,sidetray_params.default_button_width
-							,sidetray_params.default_button_height);
+	ctrl_rect.setLeftTopAndSize(0,
+								mButtonsPanel->getRect().getHeight() - sidetray_params.default_button_width,
+								sidetray_params.default_button_width,
+								sidetray_params.default_button_height);
 
 	mCollapseButton->setRect(ctrl_rect);
 
@@ -563,9 +533,10 @@ void LLSideTray::arrange			()
 	{
 		LLSideTrayTab* sidebar_tab = *child_it;
 		
-		ctrl_rect.setLeftTopAndSize(0,getRect().getHeight()-offset
-								,sidetray_params.default_button_width
-								,sidetray_params.default_button_height);
+		ctrl_rect.setLeftTopAndSize(0,
+									mButtonsPanel->getRect().getHeight()-offset,
+									sidetray_params.default_button_width,
+									sidetray_params.default_button_height);
 
 		if(mTabButtons.find(sidebar_tab->getName()) == mTabButtons.end())
 			continue;
@@ -579,14 +550,11 @@ void LLSideTray::arrange			()
 		btn->setVisible(ctrl_rect.mBottom > 0);
 	}
 
-	ctrl_rect.setLeftTopAndSize(sidetray_params.default_button_width,getRect().getHeight(),mMaxBarWidth,getRect().getHeight());
-
 	//arrange tabs
-	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
+	for ( child_vector_t::iterator child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
 	{
 		LLSideTrayTab* sidebar_tab = *child_it;
-		sidebar_tab->setRect(ctrl_rect);
-		sidebar_tab->arrange(mMaxBarWidth,getRect().getHeight());
+		sidebar_tab->setShape(getLocalRect());
 	}
 }
 
@@ -615,7 +583,7 @@ void LLSideTray::collapseSideBar()
 	{
 		mCollapseButton->setImageOverlay( home_tab->mImage );
 	}
-	mActiveTab->setVisible(FALSE);
+	//mActiveTab->setVisible(FALSE);
 	reflectCollapseChange();
 	setFocus( FALSE );
 
@@ -631,7 +599,6 @@ void LLSideTray::expandSideBar()
 	}
 	LLSD key;//empty
 	mActiveTab->onOpen(key);
-	mActiveTab->setVisible(TRUE);
 
 	reflectCollapseChange();
 }
@@ -647,15 +614,6 @@ void LLSideTray::highlightFocused()
 	*/
 }
 
-BOOL	LLSideTray::handleScrollWheel(S32 x, S32 y, S32 mask)
-{
-	BOOL ret = LLPanel::handleScrollWheel(x,y,mask);
-
-	if(!ret && childFromPoint(x,y) != 0 )
-		return TRUE;//mouse wheel over sidetray buttons, eat mouse wheel
-	return ret;
-}
-
 //virtual
 BOOL		LLSideTray::handleMouseDown	(S32 x, S32 y, MASK mask)
 {
@@ -665,58 +623,13 @@ BOOL		LLSideTray::handleMouseDown	(S32 x, S32 y, MASK mask)
 	return ret;
 }
 
-void LLSideTray::reshape			(S32 width, S32 height, BOOL called_from_parent)
+void LLSideTray::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	
 	LLPanel::reshape(width, height, called_from_parent);
 	if(!mActiveTab)
 		return;
 	
-	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
-
-	setPanelRect();
-
-	LLRect ctrl_rect;
-	ctrl_rect.setLeftTopAndSize(0
-							,getRect().getHeight()-sidetray_params.default_button_width
-							,sidetray_params.default_button_width
-							,sidetray_params.default_button_height);
-	
-	mCollapseButton->setRect(ctrl_rect);
-
-	//arrange tab buttons
-	child_vector_const_iter_t child_it;
-	int offset = (sidetray_params.default_button_height+sidetray_params.default_button_margin)*2;
-	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)	
-	{
-		LLSideTrayTab* sidebar_tab = *child_it;
-		
-		ctrl_rect.setLeftTopAndSize(0,getRect().getHeight()-offset
-								,sidetray_params.default_button_width
-								,sidetray_params.default_button_height);
-
-		if(mTabButtons.find(sidebar_tab->getName()) == mTabButtons.end())
-			continue;
-
-		LLButton* btn = mTabButtons[sidebar_tab->getName()];
-
-		btn->setRect(ctrl_rect);
-		offset+=sidetray_params.default_button_height;
-		offset+=sidetray_params.default_button_margin;
-
-		btn->setVisible(ctrl_rect.mBottom > 0);
-	}
-
-	//arrange tabs
-	
-	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
-	{
-		LLSideTrayTab* sidebar_tab = *child_it;
-		sidebar_tab->reshape(mMaxBarWidth,getRect().getHeight());
-		ctrl_rect.setLeftTopAndSize(sidetray_params.default_button_width,getRect().getHeight(),mMaxBarWidth,getRect().getHeight());
-		sidebar_tab->setRect(ctrl_rect);
-		
-	}
+	arrange();
 }
 
 /**
@@ -764,42 +677,12 @@ LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& para
 static const S32	fake_offset = 132;
 static const S32	fake_top_offset = 18;
 
-void LLSideTray::resetPanelRect	()
+void	LLSideTray::updateSidetrayVisibility()
 {
-	const LLRect& parent_rect = gViewerWindow->getRootView()->getRect();
-
-	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
-
-	S32 panel_width = sidetray_params.default_button_width;
-	panel_width += mCollapsed ? 0 : mMaxBarWidth;
-
-	S32 panel_height = parent_rect.getHeight()-fake_top_offset;
-
-	reshape(panel_width,panel_height);
+	// set visibility of parent container based on collapsed state
+	if (getParent())
+	{
+		getParent()->setVisible(!mCollapsed);
+	}
 }
 
-void	LLSideTray::setPanelRect	()
-{
-	LLNavigationBar* nav_bar = LLNavigationBar::getInstance();
-	LLRect nav_rect = nav_bar->getRect();
-	
-	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
-
-	const LLRect& parent_rect = gViewerWindow->getRootView()->getRect();
-
-	S32 panel_width = sidetray_params.default_button_width;
-	panel_width += mCollapsed ? 0 : mMaxBarWidth;
-
-	S32 panel_height = parent_rect.getHeight()-fake_top_offset - nav_rect.getHeight();
-	S32 panel_top = parent_rect.mTop-fake_top_offset - nav_rect.getHeight();
-
-	LLRect panel_rect;
-	panel_rect.setLeftTopAndSize( parent_rect.mRight-panel_width, panel_top, panel_width, panel_height);
-	setRect(panel_rect);
-}
-
-S32	LLSideTray::getTrayWidth()
-{
-	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
-	return getRect().getWidth() - (sidetray_params.default_button_width + sidetray_params.default_button_margin);
-}

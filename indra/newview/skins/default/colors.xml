@@ -70,7 +70,7 @@
 	 value="1 1 0 1" />
 	<color
 	 name="Unused?"
-	 value="1 0 1 1" />
+	 value="1 0.5 0 1" />
 	<color
 	 name="Transparent"
 	 value="0 0 0 0" />
@@ -513,7 +513,7 @@
      reference="White" />
     <color
      name="ObjectChatColor"
-     reference="LtGray" />
+     reference="0.7 0.8 0.9 1" />
     <color
      name="OverdrivenColor"
      value="1 0 0 1" />

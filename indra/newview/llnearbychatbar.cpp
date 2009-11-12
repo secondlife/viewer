@@ -260,6 +260,8 @@ bool LLNearbyChatBar::instanceExists()
 
 void LLNearbyChatBar::draw()
 {
+// TODO: mantipov: remove
+/*
 	LLRect rect = getRect();
 	S32 max_width = getMaxWidth();
 
@@ -269,6 +271,7 @@ void LLNearbyChatBar::draw()
 		reshape(rect.getWidth(), rect.getHeight(), FALSE);
 		setRect(rect);
 	}
+*/
 
 	displaySpeakingIndicator();
 	LLPanel::draw();

@@ -16,7 +16,7 @@ background_visible="true"
      value="No people" />
     <string
      name="no_one_near"
-     value="No-one near" />
+     value="No one near" />
     <string
      name="no_friends_online"
      value="No friends online" />

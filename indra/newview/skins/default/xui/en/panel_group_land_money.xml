@@ -5,10 +5,10 @@
  height="510"
  label="Land &amp; L$"
  layout="topleft"
- left="1"
+ left="0"
  name="land_money_tab"
  top="0"
- width="313">
+ width="310">
     <panel.string
      name="help_text">
         Parcels owned by a group are listed along with contribution details. A warning appears until the Total Land in Use is less than or = to the Total Contribution.
@@ -47,10 +47,10 @@
      heading_height="20"
      height="150"
      layout="topleft"
-     left="0"
+     left="2"
      name="group_parcel_list"
      top_pad="0"
-     width="313">
+     width="305">
         <scroll_list.columns
          label="Parcel"
          name="name"
@@ -79,7 +79,7 @@
      label_selected="Map"
      layout="topleft"
      name="map_button"
-     right="-10"
+     right="-5"
      top_pad="5"
      width="95"
      enabled="false" />
@@ -185,7 +185,9 @@
      layout="topleft"
      left_pad="3"
      name="your_contribution_units"
-     top_delta="2">
+     top_delta="2"
+     width="40"
+      >
         m²
     </text>
      <text
@@ -210,17 +212,17 @@
      visible="false"
      width="16" />
     <text
-      follows="left|top"
+     follows="left|top"
      type="string"
      word_wrap="true"
      font="SansSerifSmall"
      height="35"
      layout="topleft"
-     left_pad="0"
+     left_pad="5"
      name="group_over_limit_text"
      text_color="EmphasisColor"
      top_delta="0"
-     width="290">
+     width="260">
         Group members must contribute more land credits to support land in use
     </text>
     <text
@@ -241,7 +243,7 @@
      height="200"
      halign="center"
      layout="topleft"
-     left="10"
+     left="5"
      name="group_money_tab_container"
      tab_position="top"
      tab_height="20"
@@ -268,7 +270,7 @@
              left="0"
              max_length="4096"
              name="group_money_planning_text"
-             top="0"
+             top="2"
              width="300"
              word_wrap="true">
                 Loading...
@@ -293,7 +295,7 @@
              left="0"
              max_length="4096"
              name="group_money_details_text"
-             top="0"
+             top="2"
              width="300"
              word_wrap="true">
                 Loading...
@@ -305,8 +307,8 @@
 	     layout="topleft"
 	     name="earlier_details_button"
 	     tool_tip="Back"
-	     top_pad="3"
-             right="-35"
+	     top_pad="5"
+             right="-45"
 	     width="31" />
              <button
 	     follows="left|top"
@@ -327,7 +329,7 @@
          left_delta="0"
          help_topic="group_money_sales_tab"
          name="group_money_sales_tab"
-         top_delta="-1"
+         top="5"
          width="300">
             <text_editor
              type="string"
@@ -337,7 +339,7 @@
              left="0"
              max_length="4096"
              name="group_money_sales_text"
-             top="0"
+             top="2"
              width="300"
              word_wrap="true">
                 Loading...
@@ -349,8 +351,8 @@
 	     layout="topleft"
 	     name="earlier_sales_button"
 	     tool_tip="Back"
-	     top_pad="3"
-             right="-35"
+	     top_pad="5"
+         right="-45"
 	     width="31" />
              <button
 	     follows="left|top"
@@ -358,7 +360,7 @@
 	     image_overlay="Arrow_Right_Off"
 	     layout="topleft"
 	     left_pad="10"
-             name="later_sales_button"
+         name="later_sales_button"
 	     tool_tip="Next"
 	     width="31" />
         </panel>

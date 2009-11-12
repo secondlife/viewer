@@ -700,13 +700,17 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 
 				// *HACK: We may select this object, so pretend it was clicked
 				mPick = mHoverPick;
-				LLToolTipMgr::instance().show(LLToolTip::Params()
-					.message(avatar_name)
-					.image(LLUI::getUIImage("Info"))
-					.click_callback(boost::bind(showAvatarInspector, hover_object->getID()))
-					.visible_time_near(6.f)
-					.visible_time_far(3.f)
-					.wrap(false));
+				LLInspector::Params p;
+				p.message(avatar_name);
+				p.image(LLUI::getUIImage("Info"));
+				p.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
+				p.visible_time_near(6.f);
+				p.visible_time_far(3.f);
+				p.wrap(false);
+
+				p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
+				
+				LLToolTipMgr::instance().show(p);
 			}
 		}
 		else
@@ -787,18 +791,22 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 				{
 					// We may select this object, so pretend it was clicked
 					mPick = mHoverPick;
-					LLToolTipMgr::instance().show(LLToolTip::Params()
-						.message(tooltip_msg)
-						.image(LLUI::getUIImage("Info_Off"))
-						.click_callback(boost::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace))
-						.time_based_media(is_time_based_media)
-						.web_based_media(is_web_based_media)						  
-						.media_playing(is_media_playing)						  
-						.click_playmedia_callback(boost::bind(playCurrentMedia, mHoverPick))
-						.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick))						
-						.visible_time_near(6.f)
-						.visible_time_far(3.f)
-						.wrap(false));
+					LLInspector::Params p;
+					p.message(tooltip_msg);
+					p.image(LLUI::getUIImage("Info_Off"));
+					p.click_callback(boost::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace));
+					p.time_based_media(is_time_based_media);
+					p.web_based_media(is_web_based_media);
+					p.media_playing(is_media_playing);
+					p.click_playmedia_callback(boost::bind(playCurrentMedia, mHoverPick));
+					p.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick));
+					p.visible_time_near(6.f);
+					p.visible_time_far(3.f);
+					p.wrap(false);
+
+					p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
+					
+					LLToolTipMgr::instance().show(p);
 				}
 			}
 		}

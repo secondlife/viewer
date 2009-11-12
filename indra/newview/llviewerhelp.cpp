@@ -39,6 +39,7 @@
 #include "llviewercontrol.h"
 #include "llversionviewer.h"
 #include "llappviewer.h"
+#include "lllogininstance.h"
 
 #include "llviewerhelputil.h"
 #include "llviewerhelp.h"
@@ -51,23 +52,37 @@ void LLViewerHelp::showTopic(const std::string &topic)
 {
 	showHelp();
 	
+	// allow overriding the help server with a local help file
 	if( gSavedSettings.getBOOL("HelpUseLocal") )
 	{
 		LLFloaterHelpBrowser* helpbrowser = dynamic_cast<LLFloaterHelpBrowser*>(LLFloaterReg::getInstance("help_browser"));
 		helpbrowser->navigateToLocalPage( "help-offline" , "index.html" );
+		return;
 	}
-	else 
+
+	// use a special login topic before the user logs in
+	std::string help_topic = topic;
+	if (! LLLoginInstance::getInstance()->authSuccess())
 	{
-		const LLOSInfo& osinfo = LLAppViewer::instance()->getOSInfo();
-		std::string helpURL = LLViewerHelpUtil::buildHelpURL( topic, gSavedSettings, osinfo );
-		setRawURL( helpURL );
+		help_topic = preLoginTopic();
 	}
+
+	// work out the URL for this topic and display it 
+	const LLOSInfo& osinfo = LLAppViewer::instance()->getOSInfo();
+	std::string helpURL = LLViewerHelpUtil::buildHelpURL( help_topic, gSavedSettings, osinfo );
+	setRawURL( helpURL );
 }
 
 std::string LLViewerHelp::defaultTopic()
 {
 	// *hack: to be done properly
 	return "this_is_fallbacktopic";
+}
+
+std::string LLViewerHelp::preLoginTopic()
+{
+	// *hack: to be done properly
+	return "pre_login_help";
 }
 
 //////////////////////////////

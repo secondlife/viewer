@@ -295,11 +295,21 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 		}
 	}
 	
-	if(media_impl && needs_navigate)
+	if(media_impl)
 	{
 		std::string url = media_entry->getCurrentURL();
-			
-		media_impl->navigateTo(url, "", true, true);
+		if(needs_navigate)
+		{
+			media_impl->navigateTo(url, "", true, true);
+		}
+		else if(!media_impl->mMediaURL.empty() && (media_impl->mMediaURL != url))
+		{
+			// If we already have a non-empty media URL set and we aren't doing a navigate, update the media URL to match the media entry.
+			media_impl->mMediaURL = url;
+
+			// If this causes a navigate at some point (such as after a reload), it should be considered server-driven so it isn't broadcast.
+			media_impl->mNavigateServerRequest = true;
+		}
 	}
 	
 	return media_impl;
@@ -847,7 +857,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		{
 			LLPluginClassMedia* media_source = new LLPluginClassMedia(owner);
 			media_source->setSize(default_width, default_height);
-			if (media_source->init(launcher_name, plugin_name))
+			if (media_source->init(launcher_name, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))
 			{
 				return media_source;
 			}
@@ -1133,11 +1143,15 @@ void LLViewerMediaImpl::mouseMove(S32 x, S32 y, MASK mask)
 void LLViewerMediaImpl::mouseDown(const LLVector2& texture_coords, MASK mask, S32 button)
 {
 	if(mMediaSource)
-	{		
-		mouseDown(
-			llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth()),
-			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()),
-			mask, button);
+	{
+		// scale x and y to texel units.
+		S32 x = llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth());
+		S32 y = llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight());
+
+		// Adjust for the difference between the actual texture height and the amount of the texture in use.
+		y -= (mMediaSource->getTextureHeight() - mMediaSource->getHeight());
+
+		mouseDown(x, y, mask, button);
 	}
 }
 
@@ -1145,10 +1159,14 @@ void LLViewerMediaImpl::mouseUp(const LLVector2& texture_coords, MASK mask, S32 
 {
 	if(mMediaSource)
 	{		
-		mouseUp(
-			llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth()),
-			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()),
-			mask, button);
+		// scale x and y to texel units.
+		S32 x = llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth());
+		S32 y = llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight());
+
+		// Adjust for the difference between the actual texture height and the amount of the texture in use.
+		y -= (mMediaSource->getTextureHeight() - mMediaSource->getHeight());
+
+		mouseUp(x, y, mask, button);
 	}
 }
 
@@ -1156,10 +1174,14 @@ void LLViewerMediaImpl::mouseMove(const LLVector2& texture_coords, MASK mask)
 {
 	if(mMediaSource)
 	{		
-		mouseMove(
-			llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth()),
-			llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight()),
-			mask);
+		// scale x and y to texel units.
+		S32 x = llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth());
+		S32 y = llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight());
+
+		// Adjust for the difference between the actual texture height and the amount of the texture in use.
+		y -= (mMediaSource->getTextureHeight() - mMediaSource->getHeight());
+
+		mouseMove(x, y, mask);
 	}
 }
 

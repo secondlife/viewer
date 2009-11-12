@@ -4696,7 +4696,12 @@ The objects on the selected parcel that are NOT owned by you have been returned 
    icon="notify.tga"
    name="ServerObjectMessage"
    type="notify">
+Message from [NAME]:
 [MSG]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="OK"
+     yestext="Inspect"/>
   </notification>
 
   <notification
@@ -5013,6 +5018,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
    name="GodMessage"
    type="notify">
 [NAME]
+
 [MESSAGE]
   </notification>
 

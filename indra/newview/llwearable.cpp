@@ -602,7 +602,7 @@ void LLWearable::setTexturesToDefaults()
 }
 
 // Updates the user's avatar's appearance
-void LLWearable::writeToAvatar( BOOL set_by_user, BOOL update_customize_floater )
+void LLWearable::writeToAvatar()
 {
 	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 	llassert( avatar );
@@ -622,22 +622,8 @@ void LLWearable::writeToAvatar( BOOL set_by_user, BOOL update_customize_floater 
 			S32 param_id = param->getID();
 			F32 weight = getVisualParamWeight(param_id);
 
-			// only animate with user-originated changes
-			if (set_by_user)
-			{
-				param->setAnimationTarget(weight, set_by_user);
-			}
-			else
-			{
-				avatar->setVisualParamWeight( param_id, weight, set_by_user );
-			}
+			avatar->setVisualParamWeight( param_id, weight, FALSE );
 		}
-	}
-
-	// only interpolate with user-originated changes
-	if (set_by_user)
-	{
-		avatar->startAppearanceAnimation(TRUE, TRUE);
 	}
 
 	// Pull texture entries
@@ -657,24 +643,17 @@ void LLWearable::writeToAvatar( BOOL set_by_user, BOOL update_customize_floater 
 			}
 			LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE );
 			// MULTI-WEARABLE: replace hard-coded 0
-			avatar->setLocalTextureTE(te, image, set_by_user, 0);
+			avatar->setLocalTextureTE(te, image, 0);
 		}
-	}
-
-
-	if( gFloaterCustomize && update_customize_floater )
-	{
-		gFloaterCustomize->setWearable(mType, 0);
-		gFloaterCustomize->setCurrentWearableType( mType );
 	}
 
 	ESex new_sex = avatar->getSex();
 	if( old_sex != new_sex )
 	{
-		avatar->updateSexDependentLayerSets( set_by_user );
+		avatar->updateSexDependentLayerSets( FALSE );
 	}	
 	
-//	if( set_by_user )
+//	if( upload_bake )
 //	{
 //		gAgent.sendAgentSetAppearance();
 //	}
@@ -683,7 +662,7 @@ void LLWearable::writeToAvatar( BOOL set_by_user, BOOL update_customize_floater 
 
 // Updates the user's avatar's appearance, replacing this wearables' parameters and textures with default values.
 // static 
-void LLWearable::removeFromAvatar( EWearableType type, BOOL set_by_user )
+void LLWearable::removeFromAvatar( EWearableType type, BOOL upload_bake )
 {
 	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 	llassert( avatar );
@@ -707,7 +686,7 @@ void LLWearable::removeFromAvatar( EWearableType type, BOOL set_by_user )
 		if( (((LLViewerVisualParam*)param)->getWearableType() == type) && (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE ) )
 		{
 			S32 param_id = param->getID();
-			avatar->setVisualParamWeight( param_id, param->getDefaultWeight(), set_by_user );
+			avatar->setVisualParamWeight( param_id, param->getDefaultWeight(), upload_bake );
 		}
 	}
 
@@ -719,7 +698,7 @@ void LLWearable::removeFromAvatar( EWearableType type, BOOL set_by_user )
 	avatar->updateVisualParams();
 	avatar->wearableUpdated(type);
 
-//	if( set_by_user )
+//	if( upload_bake )
 //	{
 //		gAgent.sendAgentSetAppearance();
 //	}
@@ -868,12 +847,12 @@ void LLWearable::setVisualParams()
 }
 
 
-void LLWearable::setVisualParamWeight(S32 param_index, F32 value, BOOL set_by_user)
+void LLWearable::setVisualParamWeight(S32 param_index, F32 value, BOOL upload_bake)
 {
 	if( is_in_map(mVisualParamIndexMap, param_index ) )
 	{
 		LLVisualParam *wearable_param = mVisualParamIndexMap[param_index];
-		wearable_param->setWeight(value, set_by_user);
+		wearable_param->setWeight(value, upload_bake);
 	}
 	else
 	{
@@ -914,14 +893,14 @@ void LLWearable::getVisualParams(visual_param_vec_t &list)
 	}
 }
 
-void LLWearable::animateParams(F32 delta, BOOL set_by_user)
+void LLWearable::animateParams(F32 delta, BOOL upload_bake)
 {
 	for(visual_param_index_map_t::iterator iter = mVisualParamIndexMap.begin();
 		 iter != mVisualParamIndexMap.end();
 		 ++iter)
 	{
 		LLVisualParam *param = (LLVisualParam*) iter->second;
-		param->animate(delta, set_by_user);
+		param->animate(delta, upload_bake);
 	}
 }
 
@@ -939,14 +918,14 @@ LLColor4 LLWearable::getClothesColor(S32 te) const
 	return color;
 }
 
-void LLWearable::setClothesColor( S32 te, const LLColor4& new_color, BOOL set_by_user )
+void LLWearable::setClothesColor( S32 te, const LLColor4& new_color, BOOL upload_bake )
 {
 	U32 param_name[3];
 	if( LLVOAvatar::teToColorParams( (LLVOAvatarDefines::ETextureIndex)te, param_name ) )
 	{
 		for( U8 index = 0; index < 3; index++ )
 		{
-			setVisualParamWeight(param_name[index], new_color.mV[index], set_by_user);
+			setVisualParamWeight(param_name[index], new_color.mV[index], upload_bake);
 		}
 	}
 }

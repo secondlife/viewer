@@ -1541,21 +1541,24 @@ bool LLTextureCache::readComplete(handle_t handle, bool abort)
 {
 	lockWorkers();
 	handle_map_t::iterator iter = mReaders.find(handle);
-	llassert_always(iter != mReaders.end() || abort);
-	LLTextureCacheWorker* worker = iter->second;
-	bool res = worker->complete();
-	if (res || abort)
+	LLTextureCacheWorker* worker = NULL;
+	bool complete = false;
+	if (iter != mReaders.end())
 	{
-		mReaders.erase(handle);
+		worker = iter->second;
+		complete = worker->complete();
+	}
+	if (worker && (complete || abort))
+	{
+		mReaders.erase(iter);
 		unlockWorkers();
 		worker->scheduleDelete();
-		return true;
 	}
 	else
 	{
 		unlockWorkers();
-		return false;
 	}
+	return (complete || abort);
 }
 
 LLTextureCache::handle_t LLTextureCache::writeToCache(const LLUUID& id, U32 priority,

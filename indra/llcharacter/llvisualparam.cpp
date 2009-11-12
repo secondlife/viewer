@@ -225,7 +225,7 @@ BOOL LLVisualParam::parseData(LLXmlTreeNode *node)
 //-----------------------------------------------------------------------------
 // setWeight()
 //-----------------------------------------------------------------------------
-void LLVisualParam::setWeight(F32 weight, BOOL set_by_user)
+void LLVisualParam::setWeight(F32 weight, BOOL upload_bake)
 {
 	if (mIsAnimating)
 	{
@@ -243,19 +243,19 @@ void LLVisualParam::setWeight(F32 weight, BOOL set_by_user)
 	
 	if (mNext)
 	{
-		mNext->setWeight(weight, set_by_user);
+		mNext->setWeight(weight, upload_bake);
 	}
 }
 
 //-----------------------------------------------------------------------------
 // setAnimationTarget()
 //-----------------------------------------------------------------------------
-void LLVisualParam::setAnimationTarget(F32 target_value, BOOL set_by_user)
+void LLVisualParam::setAnimationTarget(F32 target_value, BOOL upload_bake)
 {
 	// don't animate dummy parameters
 	if (mIsDummy)
 	{
-		setWeight(target_value, set_by_user);
+		setWeight(target_value, upload_bake);
 		return;
 	}
 
@@ -274,7 +274,7 @@ void LLVisualParam::setAnimationTarget(F32 target_value, BOOL set_by_user)
 
 	if (mNext)
 	{
-		mNext->setAnimationTarget(target_value, set_by_user);
+		mNext->setAnimationTarget(target_value, upload_bake);
 	}
 }
 
@@ -291,24 +291,24 @@ void LLVisualParam::setNextParam( LLVisualParam *next )
 //-----------------------------------------------------------------------------
 // animate()
 //-----------------------------------------------------------------------------
-void LLVisualParam::animate( F32 delta, BOOL set_by_user )
+void LLVisualParam::animate( F32 delta, BOOL upload_bake )
 {
 	if (mIsAnimating)
 	{
 		F32 new_weight = ((mTargetWeight - mCurWeight) * delta) + mCurWeight;
-		setWeight(new_weight, set_by_user);
+		setWeight(new_weight, upload_bake);
 	}
 }
 
 //-----------------------------------------------------------------------------
 // stopAnimating()
 //-----------------------------------------------------------------------------
-void LLVisualParam::stopAnimating(BOOL set_by_user)
+void LLVisualParam::stopAnimating(BOOL upload_bake)
 { 
 	if (mIsAnimating && getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
 	{
 		mIsAnimating = FALSE; 
-		setWeight(mTargetWeight, set_by_user);
+		setWeight(mTargetWeight, upload_bake);
 	}
 }
 

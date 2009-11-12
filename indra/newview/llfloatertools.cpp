@@ -86,6 +86,7 @@
 #include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
+#include "llvovolume.h"
 #include "lluictrlfactory.h"
 
 // Globals
@@ -1079,21 +1080,45 @@ void LLFloaterTools::getMediaState()
 	}
 	
 	bool editable = (first_object->permModify() || selectedMediaEditable());
-	
-	// Media settings
-	U8 has_media = (U8)0;
-	struct media_functor : public LLSelectedTEGetFunctor<U8>
+
+	// Check modify permissions and whether any selected objects are in
+	// the process of being fetched.  If they are, then we're not editable
+	if (editable)
 	{
-		U8 get(LLViewerObject* object, S32 face)
+		LLObjectSelection::iterator iter = selected_objects->begin(); 
+		LLObjectSelection::iterator end = selected_objects->end();
+		for ( ; iter != end; ++iter)
 		{
-			return (object->getTE(face)->getMediaTexGen());
+			LLSelectNode* node = *iter;
+			LLVOVolume* object = dynamic_cast<LLVOVolume*>(node->getObject());
+			if (NULL != object)
+			{
+				if (!object->permModify() || object->isMediaDataBeingFetched())
+				{
+					editable = false;
+					break;
+				}
+			}
+		}
+	}
+
+	// Media settings
+	bool bool_has_media = false;
+	struct media_functor : public LLSelectedTEGetFunctor<bool>
+	{
+		bool get(LLViewerObject* object, S32 face)
+		{
+			LLTextureEntry *te = object->getTE(face);
+			if (te)
+			{
+				return te->hasMedia();
+			}
+			return false;
 		}
 	} func;
 	
 	// check if all faces have media(or, all dont have media)
-	LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo = selected_objects->getSelectedTEValue( &func, has_media );
-	bool bool_has_media = (has_media & LLTextureEntry::MF_HAS_MEDIA);
-
+	LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo = selected_objects->getSelectedTEValue( &func, bool_has_media );
 	
 	const LLMediaEntry default_media_data;
 	

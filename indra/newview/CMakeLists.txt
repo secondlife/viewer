@@ -185,7 +185,7 @@ set(viewer_SOURCE_FILES
     llfloatermediasettings.cpp
     llfloatermemleak.cpp
     llfloaternamedesc.cpp
-	llfloaternearbymedia.cpp
+        llfloaternearbymedia.cpp
     llfloaternotificationsconsole.cpp
     llfloateropenobject.cpp
     llfloaterparcel.cpp
@@ -246,6 +246,7 @@ set(viewer_SOURCE_FILES
     llinspectavatar.cpp
     llinspectgroup.cpp
     llinspectobject.cpp
+    llinspectremoteobject.cpp
     llinventorybridge.cpp
     llinventoryclipboard.cpp
     llinventoryfilter.cpp
@@ -681,7 +682,7 @@ set(viewer_HEADER_FILES
     llfloatermediasettings.h
     llfloatermemleak.h
     llfloaternamedesc.h
-	llfloaternearbymedia.h
+        llfloaternearbymedia.h
     llfloaternotificationsconsole.h
     llfloateropenobject.h
     llfloaterparcel.h
@@ -741,6 +742,7 @@ set(viewer_HEADER_FILES
     llinspectavatar.h
     llinspectgroup.h
     llinspectobject.h
+    llinspectremoteobject.h
     llinventorybridge.h
     llinventoryclipboard.h
     llinventoryfilter.h
@@ -1168,7 +1170,7 @@ if (WINDOWS)
 
     if (NOT STANDALONE)
         list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
-    endif (NOT STANDALONE)	
+    endif (NOT STANDALONE)      
 
     find_library(DINPUT_LIBRARY dinput8 ${DIRECTX_LIBRARY_DIR})
     find_library(DXGUID_LIBRARY dxguid ${DIRECTX_LIBRARY_DIR})
@@ -1350,7 +1352,7 @@ file(GLOB EVENT_HOST_SCRIPT_GLOB_LIST
      ${CMAKE_CURRENT_SOURCE_DIR}/../viewer_components/*.py)
 list(APPEND EVENT_HOST_SCRIPTS ${EVENT_HOST_SCRIPT_GLOB_LIST})
 
-set(PACKAGE OFF CACHE BOOL
+set(PACKAGE ON CACHE BOOL
     "Add a package target that builds an installer package.")
 
 if (WINDOWS)
@@ -1379,7 +1381,7 @@ if (WINDOWS)
               ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.sln
               --workingdir
               ${VIEWER_BINARY_NAME}
-              ${CMAKE_CURRENT_SOURCE_DIR}
+              "${CMAKE_CURRENT_SOURCE_DIR}"
             COMMENT "Setting the ${VIEWER_BINARY_NAME} working directory for debugging."
             )
     endif (NOT UNATTENDED)
@@ -1396,85 +1398,87 @@ if (WINDOWS)
         )
 
     add_custom_command(
-        TARGET ${VIEWER_BINARY_NAME} PRE_BUILD
-        COMMAND ${CMAKE_COMMAND}
-        ARGS
-          -E
-          copy_if_different
-          ${CMAKE_CURRENT_SOURCE_DIR}/../../etc/message.xml
-          ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/app_settings/message.xml
-        COMMENT "Copying message.xml to the runtime folder."
-        )
+      TARGET ${VIEWER_BINARY_NAME} PRE_BUILD
+      COMMAND ${CMAKE_COMMAND}
+      ARGS
+        -E
+        copy_if_different
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../etc/message.xml
+        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/app_settings/message.xml
+      COMMENT "Copying message.xml to the runtime folder."
+      )
        
-    if(WINDOWS)
-      # Copy Win Libs...
-      # This happens at build time, not config time. We can't glob files in this cmake.
-      # *FIX:Mani Write a sub script to glob the files...
-      # *FIX:Mani Use actually dependencies rather than bulk copy.
-      add_custom_command(
-        TARGET ${VIEWER_BINARY_NAME} PRE_BUILD
-        COMMAND ${CMAKE_COMMAND}
-        ARGS
-          -E
-          copy_directory
-          ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}
-          ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-        COMMENT "Copying staged dlls."
-        )
+    add_custom_command(
+      TARGET ${VIEWER_BINARY_NAME} POST_BUILD
+      COMMAND ${PYTHON_EXECUTABLE}
+      ARGS
+        ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+        --actions=copy
+        --artwork=${ARTWORK_DIR}
+        --build=${CMAKE_CURRENT_BINARY_DIR}
+        --configuration=${CMAKE_CFG_INTDIR}
+        --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+        --grid=${GRID}
+        --source=${CMAKE_CURRENT_SOURCE_DIR}
+      DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+      COMMENT "Performing viewer_manifest copy"
+      )
 
-      add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon)
-      if(LLKDU_LIBRARY)
-	# kdu may not exist!
-	add_dependencies(${VIEWER_BINARY_NAME} llkdu)
-      endif(LLKDU_LIBRARY)
-    endif(WINDOWS)    
+    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon)
+    
+    if(LLKDU_LIBRARY)
+      # kdu may not exist!
+      add_dependencies(${VIEWER_BINARY_NAME} llkdu)
+    endif(LLKDU_LIBRARY)
 
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
         
-    add_custom_command(
+    add_dependencies(${VIEWER_BINARY_NAME} 
+      SLPlugin 
+      media_plugin_quicktime 
+      media_plugin_webkit
+      windows-updater 
+      windows-crash-logger
+      )
+
+    if (PACKAGE)
+      add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2
+        COMMAND ${PYTHON_EXECUTABLE}
+        ARGS
+          ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
+          ${CMAKE_CURRENT_SOURCE_DIR}/..
+          ${CMAKE_CURRENT_BINARY_DIR}
+          ${CMAKE_CFG_INTDIR}
+        DEPENDS 
+          lleventhost 
+          ${EVENT_HOST_SCRIPTS}
+          ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
+        )
+
+      add_custom_command(
         OUTPUT ${CMAKE_CFG_INTDIR}/touched.bat
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-          --configuration=${CMAKE_CFG_INTDIR}
+          --artwork=${ARTWORK_DIR}
+          --build=${CMAKE_CURRENT_BINARY_DIR}
           --channel=${VIEWER_CHANNEL}
-          --login_channel=${VIEWER_LOGIN_CHANNEL}
+          --configuration=${CMAKE_CFG_INTDIR}
+          --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
           --grid=${GRID}
+          --login_channel=${VIEWER_LOGIN_CHANNEL}
           --source=${CMAKE_CURRENT_SOURCE_DIR}
-              --artwork=${ARTWORK_DIR}
-              --build=${CMAKE_CURRENT_BINARY_DIR}
-              --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-              --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/touched.bat
+          --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/touched.bat
         DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         )
 
-    add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_webkit)
-
-    if (PACKAGE)
-      add_custom_command(
-          OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2
-          COMMAND ${PYTHON_EXECUTABLE}
-          ARGS
-            ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
-            ${CMAKE_CURRENT_SOURCE_DIR}/..
-            ${CMAKE_CURRENT_BINARY_DIR}
-            ${CMAKE_CFG_INTDIR}
-
-          DEPENDS 
-            lleventhost 
-            ${EVENT_HOST_SCRIPTS}
-            ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py)
-
-      add_custom_target(package ALL 
-          DEPENDS 
-            ${CMAKE_CFG_INTDIR}/touched.bat)
-            # temporarily disable packaging of event_host until hg subrepos get
-            # sorted out on the parabuild cluster...
-            #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
-      add_dependencies(package windows-updater windows-crash-logger)
-
+      add_custom_target(package ALL DEPENDS ${CMAKE_CFG_INTDIR}/touched.bat)
+        # temporarily disable packaging of event_host until hg subrepos get
+        # sorted out on the parabuild cluster...
+        #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
 
     endif (PACKAGE)
 endif (WINDOWS)
@@ -1537,15 +1541,16 @@ if (LINUX)
       COMMAND ${PYTHON_EXECUTABLE}
       ARGS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-        --grid=${GRID}
-        --channel=${VIEWER_CHANNEL}
-        --login_channel=${VIEWER_LOGIN_CHANNEL}
-        --installer_name=${product}
         --arch=${ARCH}
-        --source=${CMAKE_CURRENT_SOURCE_DIR}
         --artwork=${ARTWORK_DIR}
         --build=${CMAKE_CURRENT_BINARY_DIR}
+        --channel=${VIEWER_CHANNEL}
+        --configuration=${CMAKE_CFG_INTDIR}
         --dest=${CMAKE_CURRENT_BINARY_DIR}/packaged
+        --grid=${GRID}
+        --installer_name=${product}
+        --login_channel=${VIEWER_LOGIN_CHANNEL}
+        --source=${CMAKE_CURRENT_SOURCE_DIR}
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
       DEPENDS secondlife-stripped ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       )
@@ -1580,13 +1585,13 @@ if (DARWIN)
     COMMAND ${PYTHON_EXECUTABLE}
     ARGS
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-      --grid=${GRID}
       --actions=copy
-      --configuration=${CMAKE_CFG_INTDIR}
-      --source=${CMAKE_CURRENT_SOURCE_DIR}
       --artwork=${ARTWORK_DIR}
       --build=${CMAKE_CURRENT_BINARY_DIR}
+      --configuration=${CMAKE_CFG_INTDIR}
       --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app
+      --grid=${GRID}
+      --source=${CMAKE_CURRENT_SOURCE_DIR}
     DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 

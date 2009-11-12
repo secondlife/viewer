@@ -80,7 +80,7 @@ public:
 	LLTexParamGlobalColor(LLTexGlobalColor *tex_color);
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 protected:
-	/*virtual*/ void onGlobalColorChanged(bool set_by_user);
+	/*virtual*/ void onGlobalColorChanged(bool upload_bake);
 private:
 	LLTexGlobalColor*		mTexGlobalColor;
 };

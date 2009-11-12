@@ -348,6 +348,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.AutoDetectAspect",       boost::bind(&LLFloaterPreference::onCommitAutoDetectAspect, this));	
 	mCommitCallbackRegistrar.add("Pref.onSelectAspectRatio",    boost::bind(&LLFloaterPreference::onKeystrokeAspectRatio, this));	
 	mCommitCallbackRegistrar.add("Pref.QualityPerformance",     boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));	
+	mCommitCallbackRegistrar.add("Pref.applyUIColor",			boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2));
+	mCommitCallbackRegistrar.add("Pref.getUIColor",				boost::bind(&LLFloaterPreference::getUIColor, this ,_1, _2));
 	
 	sSkin = gSavedSettings.getString("SkinCurrent");
 	
@@ -1332,8 +1334,8 @@ void LLFloaterPreference::initWindowSizeControls(LLPanel* panelp)
 	
 	// Look to see if current window size matches existing window sizes, if so then
 	// just set the selection value...
-	const U32 height = gViewerWindow->getWindowDisplayHeight();
-	const U32 width = gViewerWindow->getWindowDisplayWidth();
+	const U32 height = gViewerWindow->getWindowHeightRaw();
+	const U32 width = gViewerWindow->getWindowWidthRaw();
 	for (S32 i=0; i < ctrl_window_size->getItemCount(); i++)
 	{
 		U32 height_test = 0;
@@ -1356,18 +1358,24 @@ void LLFloaterPreference::initWindowSizeControls(LLPanel* panelp)
 }
 
 
+void LLFloaterPreference::applyUIColor(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLUIColorTable::instance().setColor(param.asString(), LLColor4(ctrl->getValue()));
+}
+
+void LLFloaterPreference::getUIColor(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLColorSwatchCtrl* color_swatch = (LLColorSwatchCtrl*) ctrl;
+	color_swatch->setOriginal(LLUIColorTable::instance().getColor(param.asString()));
+}
+
 
 //----------------------------------------------------------------------------
 static LLRegisterPanelClassWrapper<LLPanelPreference> t_places("panel_preference");
 LLPanelPreference::LLPanelPreference()
 : LLPanel()
 {
-	mCommitCallbackRegistrar.add("Pref.setControlFalse",		boost::bind(&LLPanelPreference::setControlFalse,this, _2));
-}
-
-static void applyUIColor(const std::string& color_name, LLUICtrl* ctrl, const LLSD& param)
-{
-	LLUIColorTable::instance().setColor(color_name, LLColor4(param));
+	mCommitCallbackRegistrar.add("Pref.setControlFalse",	boost::bind(&LLPanelPreference::setControlFalse,this, _2));
 }
 
 //virtual
@@ -1496,55 +1504,6 @@ BOOL LLPanelPreference::postBuild()
 		refresh();
 	}
 	
-
-	if(hasChild("user") && hasChild("agent") && hasChild("im") 
-	&& hasChild("system") && hasChild("script_error") && hasChild("objects") 
-	&& hasChild("owner") && hasChild("background") && hasChild("links"))
-	{
-		LLColorSwatchCtrl* color_swatch = getChild<LLColorSwatchCtrl>("user");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "UserChatColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("UserChatColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("agent");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "AgentChatColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("AgentChatColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("im");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "IMChatColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("IMChatColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("system");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "SystemChatColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("SystemChatColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("script_error");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "ScriptErrorColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("ScriptErrorColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("objects");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "ObjectChatColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("ObjectChatColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("owner");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "llOwnerSayChatColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("llOwnerSayChatColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("background");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "BackgroundChatColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("BackgroundChatColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("links");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "HTMLLinkColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("HTMLLinkColor"));
-	}
-
-	if(hasChild("effect_color_swatch"))
-	{
-		LLColorSwatchCtrl* color_swatch = getChild<LLColorSwatchCtrl>("effect_color_swatch");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "EffectColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("EffectColor"));
-	}
-
 	apply();
 	return true;
 }

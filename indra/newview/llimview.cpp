@@ -439,8 +439,7 @@ bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 	addToHistory(session_id, from, from_id, utf8_text);
 	if (log2file) logToFile(session_id, from, from_id, utf8_text);
 
-	//we do not count system messages
-	if (from_id.notNull()) session->mNumUnread++;
+	session->mNumUnread++;
 
 	// notify listeners
 	LLSD arg;
@@ -850,7 +849,17 @@ bool LLIMModel::sendStartSession(
 	return false;
 }
 
-
+// static
+void LLIMModel::sendSessionInitialized(const LLUUID &session_id)
+{
+	LLIMSession* session = getInstance()->findIMSession(session_id);
+	if (session)
+	{
+		LLSD arg;
+		arg["session_id"] = session_id;
+		getInstance()->mSessionInitializedSignal(arg);
+	}
+}
 
 //
 // Helper Functions

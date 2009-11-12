@@ -242,7 +242,7 @@ BOOL LLDriverParam::parseData(LLXmlTreeNode* node)
 }
 #endif
 
-void LLDriverParam::setWeight(F32 weight, BOOL set_by_user)
+void LLDriverParam::setWeight(F32 weight, BOOL upload_bake)
 {
 	F32 min_weight = getMinWeight();
 	F32 max_weight = getMaxWeight();
@@ -301,7 +301,7 @@ void LLDriverParam::setWeight(F32 weight, BOOL set_by_user)
 					driven_weight = driven_min;
 				}
 				
-				setDrivenWeight(driven,driven_weight,set_by_user);
+				setDrivenWeight(driven,driven_weight,upload_bake);
 				continue;
 			}
 			else 
@@ -325,13 +325,13 @@ void LLDriverParam::setWeight(F32 weight, BOOL set_by_user)
 					driven_weight = driven_min;
 				}
 
-				setDrivenWeight(driven,driven_weight,set_by_user);
+				setDrivenWeight(driven,driven_weight,upload_bake);
 				continue;
 			}
 		}
 
 		driven_weight = getDrivenWeight(driven, mCurWeight);
-		setDrivenWeight(driven,driven_weight,set_by_user);
+		setDrivenWeight(driven,driven_weight,upload_bake);
 	}
 }
 
@@ -455,9 +455,9 @@ const LLVector3*	LLDriverParam::getNextDistortion(U32 *index, LLPolyMesh **poly_
 //-----------------------------------------------------------------------------
 // setAnimationTarget()
 //-----------------------------------------------------------------------------
-void LLDriverParam::setAnimationTarget( F32 target_value, BOOL set_by_user )
+void LLDriverParam::setAnimationTarget( F32 target_value, BOOL upload_bake )
 {
-	LLVisualParam::setAnimationTarget(target_value, set_by_user);
+	LLVisualParam::setAnimationTarget(target_value, upload_bake);
 
 	for( entry_list_t::iterator iter = mDriven.begin(); iter != mDriven.end(); iter++ )
 	{
@@ -466,16 +466,16 @@ void LLDriverParam::setAnimationTarget( F32 target_value, BOOL set_by_user )
 
 		// this isn't normally necessary, as driver params handle interpolation of their driven params
 		// but texture params need to know to assume their final value at beginning of interpolation
-		driven->mParam->setAnimationTarget(driven_weight, set_by_user);
+		driven->mParam->setAnimationTarget(driven_weight, upload_bake);
 	}
 }
 
 //-----------------------------------------------------------------------------
 // stopAnimating()
 //-----------------------------------------------------------------------------
-void LLDriverParam::stopAnimating(BOOL set_by_user)
+void LLDriverParam::stopAnimating(BOOL upload_bake)
 {
-	LLVisualParam::stopAnimating(set_by_user);
+	LLVisualParam::stopAnimating(upload_bake);
 
 	for( entry_list_t::iterator iter = mDriven.begin(); iter != mDriven.end(); iter++ )
 	{
@@ -585,7 +585,7 @@ F32 LLDriverParam::getDrivenWeight(const LLDrivenEntry* driven, F32 input_weight
 	return driven_weight;
 }
 
-void LLDriverParam::setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bool set_by_user)
+void LLDriverParam::setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bool upload_bake)
 {
 	LLVOAvatarSelf *avatar_self = gAgent.getAvatarObject();
 	if(mWearablep && 
@@ -593,10 +593,10 @@ void LLDriverParam::setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bo
 	   mWearablep->isOnTop())
 	{
 		// call setWeight through LLVOAvatarSelf so other wearables can be updated with the correct values
-		avatar_self->setVisualParamWeight( (LLVisualParam*)driven->mParam, driven_weight, set_by_user );
+		avatar_self->setVisualParamWeight( (LLVisualParam*)driven->mParam, driven_weight, upload_bake );
 	}
 	else
 	{
-		driven->mParam->setWeight( driven_weight, set_by_user );
+		driven->mParam->setWeight( driven_weight, upload_bake );
 	}
 }

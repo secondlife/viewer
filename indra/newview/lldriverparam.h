@@ -99,9 +99,9 @@ public:
 	// LLVisualParam Virtual functions
 	///*virtual*/ BOOL				parseData(LLXmlTreeNode* node);
 	/*virtual*/ void				apply( ESex sex ) {} // apply is called separately for each driven param.
-	/*virtual*/ void				setWeight(F32 weight, BOOL set_by_user);
-	/*virtual*/ void				setAnimationTarget( F32 target_value, BOOL set_by_user );
-	/*virtual*/ void				stopAnimating(BOOL set_by_user);
+	/*virtual*/ void				setWeight(F32 weight, BOOL upload_bake);
+	/*virtual*/ void				setAnimationTarget( F32 target_value, BOOL upload_bake );
+	/*virtual*/ void				stopAnimating(BOOL upload_bake);
 	/*virtual*/ BOOL				linkDrivenParams(visual_param_mapper mapper, BOOL only_cross_params);
 	/*virtual*/ void				resetDrivenParams();
 	
@@ -114,7 +114,7 @@ public:
 	/*virtual*/ const LLVector3*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh);
 protected:
 	F32 getDrivenWeight(const LLDrivenEntry* driven, F32 input_weight);
-	void setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bool set_by_user);
+	void setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bool upload_bake);
 
 
 	LLVector3	mDefaultVec; // temp holder

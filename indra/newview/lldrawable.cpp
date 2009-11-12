@@ -89,7 +89,7 @@ LLDynamicArrayPtr<LLPointer<LLDrawable> > LLDrawable::sDeadList;
 void LLDrawable::incrementVisible() 
 {
 	sCurVisible++;
-	sCurPixelAngle = (F32) gViewerWindow->getWindowDisplayHeight()/LLViewerCamera::getInstance()->getView();
+	sCurPixelAngle = (F32) gViewerWindow->getWindowHeightRaw()/LLViewerCamera::getInstance()->getView();
 }
 void LLDrawable::init()
 {

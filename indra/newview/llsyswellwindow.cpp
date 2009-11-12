@@ -238,7 +238,7 @@ void LLSysWellWindow::initChannel()
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRect();
+	rect = gViewerWindow->getWorldViewRectRaw();
 }
 
 //---------------------------------------------------------------------------------
@@ -501,14 +501,14 @@ LLSysWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID&
 	switch (im_chiclet_type)
 	{
 	case LLIMChiclet::TYPE_GROUP:
+		mChiclet = getChild<LLIMGroupChiclet>("group_chiclet");
+		break;
 	case LLIMChiclet::TYPE_AD_HOC:
-		mChiclet = getChild<LLIMChiclet>("group_chiclet");
-		childSetVisible("p2p_chiclet", false);
+		mChiclet = getChild<LLAdHocChiclet>("adhoc_chiclet");		
 		break;
 	case LLIMChiclet::TYPE_UNKNOWN: // assign mChiclet a non-null value anyway
 	case LLIMChiclet::TYPE_IM:
-		mChiclet = getChild<LLIMChiclet>("p2p_chiclet");
-		childSetVisible("group_chiclet", false);
+		mChiclet = getChild<LLIMP2PChiclet>("p2p_chiclet");
 		break;
 	}
 
@@ -517,6 +517,7 @@ LLSysWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID&
 	mChiclet->setSessionId(sessionId);
 	mChiclet->setIMSessionName(name);
 	mChiclet->setOtherParticipantId(otherParticipantId);
+	mChiclet->setVisible(true);
 
 	LLTextBox* contactName = getChild<LLTextBox>("contact_name");
 	contactName->setValue(name);

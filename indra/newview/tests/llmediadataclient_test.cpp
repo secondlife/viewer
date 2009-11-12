@@ -497,5 +497,38 @@ namespace tut
 		ensure("REF COUNT", o->getNumRefs(), 1);
     }
 
-	
+	template<> template<>
+    void mediadataclient_object_t::test<7>()
+    {
+		// Test LLMediaDataClient::isInQueue()
+		LOG_TEST(7);
+		
+		LLMediaDataClientObject::ptr_t o1 = new LLMediaDataClientObjectTest(
+			_DATA(VALID_OBJECT_ID_1,"3.0","1.0"));
+		LLMediaDataClientObject::ptr_t o2 = new LLMediaDataClientObjectTest(
+			_DATA(VALID_OBJECT_ID_2,"1.0","1.0"));
+		int num_refs_start = o1->getNumRefs();
+		{
+			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);
+			
+			ensure("not in queue yet 1", ! mdc->isInQueue(o1));
+			ensure("not in queue yet 2", ! mdc->isInQueue(o2));
+			
+			mdc->fetchMedia(o1);
+			
+			ensure("is in queue", mdc->isInQueue(o1));
+			ensure("is not in queue", ! mdc->isInQueue(o2));
+			
+			::pump_timers();
+			
+			ensure("not in queue anymore", ! mdc->isInQueue(o1));
+			ensure("still is not in queue", ! mdc->isInQueue(o2));
+			
+			ensure("queue empty", mdc->isEmpty());
+		}
+		
+		// Make sure everyone's destroyed properly
+		ensure("REF COUNT", o1->getNumRefs(), num_refs_start);
+		
+	}
 }

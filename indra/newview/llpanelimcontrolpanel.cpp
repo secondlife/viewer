@@ -92,6 +92,14 @@ void LLPanelChatControlPanel::draw()
 		&& callback_enabled;
 	childSetEnabled("call_btn", enable_connect);
 
+	// send a signal when the floater is fully initialized
+	// this lets LLAvatarActions::startAdhocCall() start the call
+	if (enable_connect && !mInitialized)
+	{
+		LLIMModel::sendSessionInitialized(mSessionId);
+		mInitialized = true;
+	}
+
 	LLPanel::draw();
 }
 
@@ -173,7 +181,14 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 	LLIMModel::LLIMSession* im_session =
 		im_model.findIMSession(session_id);
 	if( im_session && !im_session->mOtherParticipantIsAvatar )
+	{
 		childSetEnabled("view_profile_btn", FALSE);
+		childSetEnabled("add_friend_btn", FALSE);
+
+		childSetEnabled("share_btn", FALSE);
+		childSetEnabled("teleport_btn", FALSE);
+		childSetEnabled("pay_btn", FALSE);
+	}
 }
 
 void LLPanelIMControlPanel::nameUpdatedCallback(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
