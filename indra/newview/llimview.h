@@ -34,6 +34,7 @@
 #define LL_LLIMVIEW_H
 
 #include "lldarray.h"
+#include "lldockablefloater.h"
 #include "llspeakers.h" //for LLIMSpeakerMgr
 #include "llimpanel.h" //for voice channels
 #include "llmodaldialog.h"
@@ -401,12 +402,13 @@ private:
 	LLSD mPendingAgentListUpdates;
 };
 
-class LLIncomingCallDialog : public LLModalDialog
+class LLIncomingCallDialog : public LLDockableFloater
 {
 public:
 	LLIncomingCallDialog(const LLSD& payload);
 
 	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
 
 	static void onAccept(void* user_data);
 	static void onReject(void* user_data);
@@ -414,6 +416,7 @@ public:
 
 private:
 	void processCallResponse(S32 response);
+	void getAllowedRect(LLRect& rect);
 
 	LLSD mPayload;
 };
