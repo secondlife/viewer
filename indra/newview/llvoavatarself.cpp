@@ -1578,7 +1578,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 			llinfos << "LocTex " << name << ": Baked " << getTEImage(baked_equiv)->getID() << llendl;
 #endif
 		}
-		else if (local_tex_obj->getImage() != NULL)
+		else if (local_tex_obj && local_tex_obj->getImage() != NULL)
 		{
 			if (local_tex_obj->getImage()->getID() == IMG_DEFAULT_AVATAR)
 			{
