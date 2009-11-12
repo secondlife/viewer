@@ -275,13 +275,12 @@ public:
 
 	// findCategoryUUIDForType() returns the uuid of the category that
 	// specifies 'type' as what it defaults to containing. The
-	// category is not necessarily only for that type. *NOTE: This
-	// will create a new inventory category on the fly if one does not
-	// exist.
-
+	// category is not necessarily only for that type. *NOTE: If create_folder is true, this
+	// will create a new inventory category on the fly if one does not exist. *NOTE: if find_in_library is
+	// true it will search in the user's library folder instead of "My Inventory"
 	// SDK: Added flag to specify whether the folder should be created if not found.  This fixes the horrible
 	// multiple trash can bug.
-	const LLUUID findCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder = true);
+	const LLUUID findCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder = true, bool find_in_library = false);
 
 	// Call this method when it's time to update everyone on a new
 	// state, by default, the inventory model will not update
@@ -432,7 +431,7 @@ protected:
 	// 
 	// Internal method which looks for a category with the specified
 	// preferred type. Returns LLUUID::null if not found
- 	const LLUUID &findCatUUID(LLFolderType::EType preferred_type) const;
+ 	const LLUUID &findCatUUID(LLFolderType::EType preferred_type, bool find_in_library = false) const;
 
 	// Empty the entire contents
 	void empty();

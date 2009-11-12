@@ -322,10 +322,10 @@ void LLInventoryModel::unlockDirectDescendentArrays(const LLUUID& cat_id)
 // specifies 'type' as what it defaults to containing. The category is
 // not necessarily only for that type. *NOTE: This will create a new
 // inventory category on the fly if one does not exist.
-const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType t, bool create_folder)
+const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType t, bool create_folder, bool find_in_library)
 {
-	const LLUUID &rv = findCatUUID(t);
-	if(rv.isNull() && isInventoryUsable() && create_folder)
+	const LLUUID &rv = findCatUUID(t, find_in_library);
+	if(rv.isNull() && isInventoryUsable() && (create_folder && !find_in_library))
 	{
 		const LLUUID &root_id = gInventory.getRootFolderID();
 		if(root_id.notNull())
@@ -338,9 +338,9 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType t, bo
 
 // Internal method which looks for a category with the specified
 // preferred type. Returns LLUUID::null if not found.
-const LLUUID &LLInventoryModel::findCatUUID(LLFolderType::EType preferred_type) const
+const LLUUID &LLInventoryModel::findCatUUID(LLFolderType::EType preferred_type, bool find_in_library) const
 {
-	const LLUUID &root_id = gInventory.getRootFolderID();
+	const LLUUID &root_id = (find_in_library) ? gInventory.getLibraryRootFolderID() : gInventory.getRootFolderID();
 	if(LLFolderType::FT_CATEGORY == preferred_type)
 	{
 		return root_id;
