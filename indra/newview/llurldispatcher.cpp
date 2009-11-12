@@ -364,9 +364,9 @@ bool LLURLDispatcher::dispatchRightClick(const std::string& url)
 bool LLURLDispatcher::dispatchFromTextEditor(const std::string& url)
 {
 	// *NOTE: Text editors are considered sources of trusted URLs
-	// in order to make objectim and avatar profile links in chat
-	// history work.  While a malicious resident could chat an app
-	// SLURL, the receiving resident will see it and must affirmatively
+	// in order to make avatar profile links in chat history work.
+	// While a malicious resident could chat an app SLURL, the
+	// receiving resident will see it and must affirmatively
 	// click on it.
 	// *TODO: Make this trust model more refined.  JC
 	const bool trusted_browser = true;
