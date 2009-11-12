@@ -55,6 +55,7 @@ public:
 	void wearOutfitByName(const std::string& name);
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
 									LLPointer<LLInventoryCallback> cb);
+	void changeOutfit(bool proceed, const LLUUID& category, bool append);
 
 	// Add COF link to individual item.
 	void wearItem(LLInventoryItem* item, bool do_update = true);
@@ -73,6 +74,7 @@ public:
 	void registerAttachment(const LLUUID& item_id);
 	void setAttachmentInvLinkEnable(bool val);
 	void linkRegisteredAttachments();
+	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
 
 protected:
 	LLAppearanceManager();
@@ -98,7 +100,6 @@ private:
 								   LLInventoryModel::item_array_t& obj_items,
 								   LLInventoryModel::item_array_t& gest_items,
 								   bool follow_folder_links);
-	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
 	bool isMandatoryWearableType(EWearableType type);
 	void checkMandatoryWearableTypes(const LLUUID& category, std::set<EWearableType>& types_found);
 	void purgeCOFBeforeRebuild(const LLUUID& category);
@@ -106,10 +107,6 @@ private:
 
 	std::set<LLUUID> mRegisteredAttachments;
 	bool mAttachmentInvLinkEnabled;
-
-	// Static callbacks
-	static void onWearableAssetFetch(LLWearable* wearable, void* data);
-	static void changeOutfit(bool proceed, const LLUUID& category, bool append);
 };
 
 #define SUPPORT_ENSEMBLES 0

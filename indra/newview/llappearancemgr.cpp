@@ -361,6 +361,31 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLIn
 	dst = new_dst;
 }
 
+static void onWearableAssetFetch(LLWearable* wearable, void* data)
+{
+	LLWearableHoldingPattern* holder = (LLWearableHoldingPattern*)data;
+	bool append = holder->append;
+	
+	if(wearable)
+	{
+		for (LLWearableHoldingPattern::found_list_t::iterator iter = holder->mFoundList.begin();
+			 iter != holder->mFoundList.end(); ++iter)
+		{
+			LLFoundData* data = *iter;
+			if(wearable->getAssetID() == data->mAssetID)
+			{
+				data->mWearable = wearable;
+				break;
+			}
+		}
+	}
+	holder->mResolved += 1;
+	if(holder->mResolved >= (S32)holder->mFoundList.size())
+	{
+		LLAppearanceManager::instance().updateAgentWearables(holder, append);
+	}
+}
+
 LLUUID LLAppearanceManager::getCOF()
 {
 	return gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
@@ -760,32 +785,6 @@ void LLAppearanceManager::rebuildCOFFromOutfit(const LLUUID& category)
 	}
 }
 
-/* static */
-void LLAppearanceManager::onWearableAssetFetch(LLWearable* wearable, void* data)
-{
-	LLWearableHoldingPattern* holder = (LLWearableHoldingPattern*)data;
-	bool append = holder->append;
-	
-	if(wearable)
-	{
-		for (LLWearableHoldingPattern::found_list_t::iterator iter = holder->mFoundList.begin();
-			 iter != holder->mFoundList.end(); ++iter)
-		{
-			LLFoundData* data = *iter;
-			if(wearable->getAssetID() == data->mAssetID)
-			{
-				data->mWearable = wearable;
-				break;
-			}
-		}
-	}
-	holder->mResolved += 1;
-	if(holder->mResolved >= (S32)holder->mFoundList.size())
-	{
-		LLAppearanceManager::instance().updateAgentWearables(holder, append);
-	}
-}
-
 void LLAppearanceManager::updateAgentWearables(LLWearableHoldingPattern* holder, bool append)
 {
 	lldebugs << "updateAgentWearables()" << llendl;
@@ -893,7 +892,7 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 			LLWearableList::instance().getAsset(found->mAssetID,
 												found->mName,
 												found->mAssetType,
-												LLAppearanceManager::onWearableAssetFetch,
+												onWearableAssetFetch,
 												(void*)holder);
 		}
 	}
@@ -1009,7 +1008,9 @@ void LLAppearanceManager::wearInventoryCategoryOnAvatar( LLInventoryCategory* ca
 			 	
 	if( gFloaterCustomize )
 	{
-		gFloaterCustomize->askToSaveIfDirty(boost::bind(LLAppearanceManager::changeOutfit, _1, category->getUUID(), append));
+		gFloaterCustomize->askToSaveIfDirty(boost::bind(&LLAppearanceManager::changeOutfit,
+														&LLAppearanceManager::instance(),
+														_1, category->getUUID(), append));
 	}
 	else
 	{
