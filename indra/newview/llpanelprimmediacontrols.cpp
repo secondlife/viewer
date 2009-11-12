@@ -283,7 +283,7 @@ void LLPanelPrimMediaControls::updateShape()
 		LLIconCtrl* whitelist_icon			= getChild<LLIconCtrl>("media_whitelist_flag");
 		LLIconCtrl* secure_lock_icon		= getChild<LLIconCtrl>("media_secure_lock_flag");
 		
-//		LLUICtrl* media_panel_scroll		= getChild<LLUICtrl>("media_panel_scroll");
+		LLUICtrl* media_panel_scroll		= getChild<LLUICtrl>("media_panel_scroll");
 		LLUICtrl* scroll_up_ctrl			= getChild<LLUICtrl>("scrollup");
 		LLUICtrl* scroll_left_ctrl			= getChild<LLUICtrl>("scrollleft");
 		LLUICtrl* scroll_right_ctrl			= getChild<LLUICtrl>("scrollright");
