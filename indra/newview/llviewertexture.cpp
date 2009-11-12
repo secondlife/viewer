@@ -1483,9 +1483,8 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		if ( mBoostLevel > BOOST_HIGH)
 		{
 			priority += 10000000.f;
-		}
-		
-		if(mAdditionalDecodePriority > 0.0f)
+		}		
+		else if(mAdditionalDecodePriority > 0.0f)
 		{
 			// 1-9
 			S32 additional_priority = (S32)(1.0f + mAdditionalDecodePriority*8.0f + .5f); // round
@@ -3145,8 +3144,7 @@ F32 LLViewerMediaTexture::getMaxVirtualSize()
 
 	if(mNeedsResetMaxVirtualSize)
 	{
-		mMaxVirtualSize = 0.f ;//reset
-		mNeedsResetMaxVirtualSize = FALSE ;
+		addTextureStats(0.f, FALSE) ;//reset
 	}
 
 	if(mIsPlaying) //media is playing
