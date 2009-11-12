@@ -281,7 +281,11 @@ class LLFileUploadModel : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterReg::showInstance("upload_model");
+		LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) LLFloaterReg::showInstance("upload_model");
+		if (fmp)
+		{
+			fmp->loadModel(3);
+		}
 		
 		return TRUE;
 	}
