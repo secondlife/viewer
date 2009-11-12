@@ -15,10 +15,6 @@
         Local Voice Chat
     </floater.string>
     <floater.string
-     name="calling">
-        Calling [CALLEE]
-    </floater.string>
-    <floater.string
      name="anonymous">
         anonymous
     </floater.string>
@@ -44,20 +40,22 @@
      height="20"
      layout="topleft"
      left="77"
-     name="callee name"
+     name="calling"
      top="27"
      width="315"
-     word_wrap="true" />
+     word_wrap="true">
+Calling [CALLEE_NAME]
+    </text>
     <text
      font="SansSerif"
      height="50"
      layout="topleft"
      left="77"
-     name="question"
+     name="leaving"
      top="52"
      width="315"
      word_wrap="true">
-     Do you want to leave [CURRENT_CHAT] and join this voice chat?
+Leaving [CURRENT_CHAT].
     </text>
     <button
      height="24"

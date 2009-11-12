@@ -378,18 +378,9 @@ void LLVoiceChannel::setURI(std::string uri)
 
 void LLVoiceChannel::setState(EState state)
 {
-	LLSD payload;
-	payload["session_id"] = mSessionID;
-	payload["session_name"] = mSessionName;
-
 	switch(state)
 	{
 	case STATE_RINGING:
-		llinfos << "RINGINGGGGGGGG " << mSessionName << llendl;
-		if (!mSessionName.empty())
-		{
-			LLFloaterReg::showInstance("outgoing_call", payload, TRUE);
-		}		
 		gIMMgr->addSystemMessage(mSessionID, "ringing", mNotifyArgs);
 		break;
 	case STATE_CONNECTED:
@@ -879,6 +870,20 @@ void LLVoiceChannelP2P::setState(EState state)
 {
 	// HACK: Open/close the call window if needed.
 	toggleCallWindowIfNeeded(state);
+	
+	// *HACK: open outgoing call floater if needed, might be better done elsewhere.
+	LLSD payload;
+	payload["session_id"] = mSessionID;
+	payload["session_name"] = mSessionName;
+	payload["other_user_id"] = mOtherUserID;
+	if (!mReceivedCall && state == STATE_RINGING)
+	{
+		llinfos << "RINGINGGGGGGGG " << mSessionName << llendl;
+		if (!mSessionName.empty())
+		{
+			LLFloaterReg::showInstance("outgoing_call", payload, TRUE);
+		}
+	}
 
 	// you only "answer" voice invites in p2p mode
 	// so provide a special purpose message here

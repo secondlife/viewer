@@ -1108,6 +1108,17 @@ void LLOutgoingCallDialog::getAllowedRect(LLRect& rect)
 
 void LLOutgoingCallDialog::onOpen(const LLSD& key)
 {
+	// prepare to tell the user which voice channel they would be leaving
+	LLVoiceChannel *voice = LLVoiceChannel::getCurrentVoiceChannel();
+	if (voice && !voice->getSessionName().empty())
+	{
+		childSetTextArg("leaving", "[CURRENT_CHAT]", voice->getSessionName());
+	}
+	else
+	{
+		childSetTextArg("leaving", "[CURRENT_CHAT]", getString("localchat"));
+	}
+
 	// dock the dialog to the sys well, where other sys messages appear
 	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getSysWell(),
 					 this, getDockTongue(), LLDockControl::TOP,
@@ -1118,10 +1129,9 @@ BOOL LLOutgoingCallDialog::postBuild()
 {
 	BOOL success = LLDockableFloater::postBuild();
 
-	LLSD callee_id = mPayload["session_id"];//mPayload["caller_id"];
+	LLSD callee_id = mPayload["other_user_id"];
 
-	std::string calling_str = getString("calling");
-	std::string callee_name = mPayload["session_name"].asString();//mPayload["caller_name"].asString();
+	std::string callee_name = mPayload["session_name"].asString();
 	if (callee_name == "anonymous")
 	{
 		callee_name = getString("anonymous");
@@ -1129,9 +1139,7 @@ BOOL LLOutgoingCallDialog::postBuild()
 	
 	setTitle(callee_name);
 
-	LLUICtrl* callee_name_widget = getChild<LLUICtrl>("callee name");
-	// *TODO: substitute callee name properly
-	callee_name_widget->setValue(calling_str + " " + callee_name);
+	childSetTextArg("calling", "[CALLEE_NAME]", callee_name);
 	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 	icon->setValue(callee_id);
 
