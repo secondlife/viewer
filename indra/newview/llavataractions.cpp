@@ -192,7 +192,7 @@ void LLAvatarActions::startIM(const LLUUID& id)
 // static
 void LLAvatarActions::startCall(const LLUUID& id)
 {
-	if (id.isNull() || isCalling(id))
+	if (id.isNull())
 	{
 		return;
 	}

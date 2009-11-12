@@ -197,7 +197,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("notifications_console", "floater_notifications_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNotificationConsole>);
 
 	LLFloaterReg::add("openobject", "floater_openobject.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterOpenObject>);
-	
+	LLFloaterReg::add("outgoing_call", "floater_outgoing_call.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLOutgoingCallDialog>);
 	LLFloaterReg::add("parcel_info", "floater_preview_url.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterParcelInfo>);
 	LLFloaterPayUtil::registerFloater();
 

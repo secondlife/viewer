@@ -6,9 +6,9 @@
  can_tear_off="false"
  height="125"
  layout="topleft"
- name="incoming call"
- help_topic="incoming_call"
- title="UNKNOWN PERSON IS CALLING"
+ name="outgoing call"
+ help_topic="outgoing_call"
+ title="CALLING"
  width="410">
     <floater.string
      name="localchat">
@@ -40,43 +40,28 @@
      height="20"
      layout="topleft"
      left="77"
-     name="caller name"
+     name="calling"
      top="27"
      width="315"
-     word_wrap="true" />
+     word_wrap="true">
+Calling [CALLEE_NAME]
+    </text>
     <text
      font="SansSerif"
      height="50"
      layout="topleft"
      left="77"
-     name="question"
+     name="leaving"
      top="52"
      width="315"
      word_wrap="true">
-     Do you want to leave [CURRENT_CHAT] and join this voice chat?
+Leaving [CURRENT_CHAT].
     </text>
     <button
      height="24"
-     label="Accept"
-     label_selected="Accept"
+     label="Cancel"
      layout="topleft"
-     left="70"
-     name="Accept"
-     top="92"
-     width="100" />
-    <button
-     height="24"
-     label="Reject"
-     label_selected="Reject"
-     layout="topleft"
-     name="Reject"
-     left_pad="10"
-     width="100" />
-    <button
-     height="24"
-     label="Start IM"
-     layout="topleft"
-     name="Start IM"
+     name="Cancel"
      left_pad="10"
      width="100" />
 </floater>
