@@ -830,8 +830,13 @@ LLChicletPanel::~LLChicletPanel()
 void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	
 	LLUUID session_id = data["session_id"].asUUID();
-	S32 unread = data["num_unread"].asInteger();
+	LLUUID from_id = data["from_id"].asUUID();
+	const std::string from = data["from"].asString();
 
+	//we do not show balloon (indicator of new messages) for system messages and our own messages
+	if (from_id.isNull() || from_id == gAgentID || SYSTEM_FROM == from) return;
+
+	S32 unread = data["num_unread"].asInteger();
 	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
 	if (im_floater && im_floater->getVisible())
 	{
