@@ -71,7 +71,8 @@ LLScrollListCell* LLScrollListCell::create(const LLScrollListCell::Params& cell_
 
 
 LLScrollListCell::LLScrollListCell(const LLScrollListCell::Params& p)
-:	mWidth(p.width), mToolTip(p.tool_tip)
+:	mWidth(p.width), 
+	mToolTip(p.tool_tip)
 {}
 
 // virtual

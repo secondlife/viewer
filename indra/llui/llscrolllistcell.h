@@ -89,7 +89,6 @@ public:
 		{
 			addSynonym(column, "name");
 			addSynonym(font_color, "font-color");
-			addSynonym(tool_tip, "tooltip");
 		}
 	};
 
