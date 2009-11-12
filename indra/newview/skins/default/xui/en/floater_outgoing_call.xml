@@ -60,6 +60,7 @@ Leaving [CURRENT_CHAT].
     <button
      height="24"
      label="Cancel"
+     label_selected="Cancel"
      layout="topleft"
      name="Cancel"
      left_pad="10"
