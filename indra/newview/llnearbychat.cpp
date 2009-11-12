@@ -132,120 +132,31 @@ void    LLNearbyChat::applySavedVariables()
 	}
 }
 
-LLColor4 nearbychat_get_text_color(const LLChat& chat)
-{
-	LLColor4 text_color;
-
-	if(chat.mMuted)
-	{
-		text_color.setVec(0.8f, 0.8f, 0.8f, 1.f);
-	}
-	else
-	{
-		switch(chat.mSourceType)
-		{
-		case CHAT_SOURCE_SYSTEM:
-			text_color = LLUIColorTable::instance().getColor("SystemChatColor"); 
-			break;
-		case CHAT_SOURCE_AGENT:
-		    if (chat.mFromID.isNull())
-			{
-				text_color = LLUIColorTable::instance().getColor("SystemChatColor");
-			}
-			else
-			{
-				if(gAgentID == chat.mFromID)
-				{
-					text_color = LLUIColorTable::instance().getColor("UserChatColor");
-				}
-				else
-				{
-					text_color = LLUIColorTable::instance().getColor("AgentChatColor");
-				}
-			}
-			break;
-		case CHAT_SOURCE_OBJECT:
-			if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
-			{
-				text_color = LLUIColorTable::instance().getColor("ScriptErrorColor");
-			}
-			else if ( chat.mChatType == CHAT_TYPE_OWNER )
-			{
-				text_color = LLUIColorTable::instance().getColor("llOwnerSayChatColor");
-			}
-			else
-			{
-				text_color = LLUIColorTable::instance().getColor("ObjectChatColor");
-			}
-			break;
-		default:
-			text_color.setToWhite();
-		}
-
-		if (!chat.mPosAgent.isExactlyZero())
-		{
-			LLVector3 pos_agent = gAgent.getPositionAgent();
-			F32 distance = dist_vec(pos_agent, chat.mPosAgent);
-			if (distance > gAgent.getNearChatRadius())
-			{
-				// diminish far-off chat
-				text_color.mV[VALPHA] = 0.8f;
-			}
-		}
-	}
-
-	return text_color;
-}
-
-void LLNearbyChat::add_timestamped_line(const LLChat& chat, const LLColor4& color)
-{
-	S32 font_size = gSavedSettings.getS32("ChatFontSize");
-
-	const LLFontGL* fontp = NULL;
-	switch(font_size)
-	{
-	case 0:
-		fontp = LLFontGL::getFontSansSerifSmall();
-		break;
-	default:
-	case 1:
-		fontp = LLFontGL::getFontSansSerif();
-		break;
-	case 2:
-		fontp = LLFontGL::getFontSansSerifBig();
-		break;
-	}
-
-	LLStyle::Params style_params;
-	style_params.color(color);
-	style_params.font(fontp);
-	LLUUID uuid = chat.mFromID;
-	std::string from = chat.mFromName;
-	std::string message = chat.mText;
-	mChatHistory->appendWidgetMessage(chat, style_params);
-}
-
 void	LLNearbyChat::addMessage(const LLChat& chat)
 {
-	LLColor4 color = nearbychat_get_text_color(chat);
-	
 	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 	{
 		if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE)
 			return;
 		if (gSavedSettings.getS32("ShowScriptErrorsLocation")== 1)// show error in window //("ScriptErrorsAsChat"))
 		{
+
+			LLColor4 txt_color;
+
+			LLViewerChat::getChatColor(chat,txt_color);
+			
 			LLFloaterScriptDebug::addScriptLine(chat.mText,
 												chat.mFromName, 
-												color, 
+												txt_color, 
 												chat.mFromID);
 			return;
 		}
 	}
 	
-	// could flash the chat button in the status bar here. JC
 	if (!chat.mMuted)
-		add_timestamped_line(chat, color);
+	{
+		mChatHistory->appendWidgetMessage(chat);
+	}
 }
 
 void LLNearbyChat::onNearbySpeakers()
