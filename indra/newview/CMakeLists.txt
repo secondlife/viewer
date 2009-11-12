@@ -252,6 +252,7 @@ set(viewer_SOURCE_FILES
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
     llinventorymodel.cpp
+    llinventoryobservers.cpp
     llinventorypanel.cpp
     llinventorysubtreepanel.cpp
     lljoystickbutton.cpp
@@ -748,6 +749,7 @@ set(viewer_HEADER_FILES
     llinventoryfilter.h
     llinventoryfunctions.h
     llinventorymodel.h
+    llinventoryobservers.h
     llinventorypanel.h
     llinventorysubtreepanel.h
     lljoystickbutton.h
