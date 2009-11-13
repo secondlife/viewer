@@ -52,6 +52,7 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	mNearbyChatBar(NULL),
 	mToolbarStack(NULL)
 ,	mMovementButton(NULL)
+,	mResizeState(RS_NORESIZE)
 // Add more members
 {
 	mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
@@ -261,22 +262,22 @@ void LLBottomTray::showBottomTrayContextMenu(S32 x, S32 y, MASK mask)
 
 void LLBottomTray::showGestureButton(BOOL visible)
 {
-	showTrayButton(RS_BUTTON_GESTURES, visible);
+	setTrayButtonVisibleIfPossible(RS_BUTTON_GESTURES, visible);
 }
 
 void LLBottomTray::showMoveButton(BOOL visible)
 {
-	showTrayButton(RS_BUTTON_MOVEMENT, visible);
+	setTrayButtonVisibleIfPossible(RS_BUTTON_MOVEMENT, visible);
 }
 
 void LLBottomTray::showCameraButton(BOOL visible)
 {
-	showTrayButton(RS_BUTTON_CAMERA, visible);
+	setTrayButtonVisibleIfPossible(RS_BUTTON_CAMERA, visible);
 }
 
 void LLBottomTray::showSnapshotButton(BOOL visible)
 {
-	showTrayButton(RS_BUTTON_SNAPSHOT, visible);
+	setTrayButtonVisibleIfPossible(RS_BUTTON_SNAPSHOT, visible);
 }
 
 namespace
@@ -640,7 +641,7 @@ bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* availa
 		lldebugs << "There is no object to process for state: " << shown_object_type << llendl;
 		return false;
 	}
-	bool can_be_shown = canButtonBeShown(panel);
+	bool can_be_shown = canButtonBeShown(shown_object_type);
 	if (can_be_shown)
 	{
 		//validate if we have enough room to show this button
@@ -651,22 +652,23 @@ bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* availa
 			*available_width -= required_width;
 			*buttons_required_width += required_width;
 
-			showTrayButton(shown_object_type, true);
+			setTrayButtonVisible(shown_object_type, true);
 
 			lldebugs << "processing object type: " << shown_object_type
 				<< ", buttons_required_width: " << *buttons_required_width
 				<< llendl;
+			mResizeState &= ~shown_object_type;
 		}
 	}
 	return can_be_shown;
 }
 
-void LLBottomTray::processHideButton(EResizeState shown_object_type, S32* required_width, S32* buttons_freed_width)
+void LLBottomTray::processHideButton(EResizeState processed_object_type, S32* required_width, S32* buttons_freed_width)
 {
-	LLPanel* panel = mStateProcessedObjectMap[shown_object_type];
+	LLPanel* panel = mStateProcessedObjectMap[processed_object_type];
 	if (NULL == panel)
 	{
-		lldebugs << "There is no object to process for state: " << shown_object_type << llendl;
+		lldebugs << "There is no object to process for state: " << processed_object_type << llendl;
 		return;
 	}
 
@@ -679,17 +681,19 @@ void LLBottomTray::processHideButton(EResizeState shown_object_type, S32* requir
 			*buttons_freed_width += *required_width;
 		}
 
-		showTrayButton(shown_object_type, false);
+		setTrayButtonVisible(processed_object_type, false);
 
-		lldebugs << "processing object type: " << shown_object_type
+		mResizeState |= processed_object_type;
+
+		lldebugs << "processing object type: " << processed_object_type
 			<< ", buttons_freed_width: " << *buttons_freed_width
 			<< llendl;
 	}
 }
 
-bool LLBottomTray::canButtonBeShown(LLPanel* panel) const
+bool LLBottomTray::canButtonBeShown(EResizeState processed_object_type) const
 {
-	bool can_be_shown = !panel->getVisible();
+	bool can_be_shown = mResizeState & processed_object_type;
 	if (can_be_shown)
 	{
 		// *TODO: mantipov: synchronize with situation when button was hidden via context menu;
@@ -705,7 +709,7 @@ void LLBottomTray::initStateProcessedObjectMap()
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SNAPSHOT, mSnapshotPanel));
 }
 
-void LLBottomTray::showTrayButton(EResizeState shown_object_type, bool visible)
+void LLBottomTray::setTrayButtonVisible(EResizeState shown_object_type, bool visible)
 {
 	LLPanel* panel = mStateProcessedObjectMap[shown_object_type];
 	if (NULL == panel)
@@ -716,4 +720,48 @@ void LLBottomTray::showTrayButton(EResizeState shown_object_type, bool visible)
 
 	panel->setVisible(visible);
 }
+
+void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type, bool visible)
+{
+	bool can_be_set = true;
+
+	if (visible)
+	{
+		LLPanel* panel = mStateProcessedObjectMap[shown_object_type];
+		if (NULL == panel)
+		{
+			lldebugs << "There is no object to process for state: " << shown_object_type << llendl;
+			return;
+		}
+
+		const S32 chatbar_panel_width = mNearbyChatBar->getRect().getWidth();
+		const S32 chatbar_panel_min_width = mNearbyChatBar->getMinWidth();
+
+		const S32 chiclet_panel_width = mChicletPanel->getParent()->getRect().getWidth();
+		const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
+
+		const S32 available_width = (chatbar_panel_width - chatbar_panel_min_width)
+			+ (chiclet_panel_width - chiclet_panel_min_width);
+
+		const S32 required_width = panel->getRect().getWidth();
+		can_be_set = available_width >= required_width;
+	}
+
+	if (can_be_set)
+	{
+		setTrayButtonVisible(shown_object_type, visible);
+
+		// if we hide the button mark it NOT to show while future bottom tray extending
+		if (!visible)
+		{
+			mResizeState &= ~shown_object_type;
+		}
+	}
+	else
+	{
+		// mark this button to show it while future bottom tray extending
+		mResizeState |= shown_object_type;
+	}
+}
+
 //EOF
