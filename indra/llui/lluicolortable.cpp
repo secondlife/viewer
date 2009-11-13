@@ -192,19 +192,27 @@ void LLUIColorTable::clear()
 LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& default_color) const
 {
 	string_color_map_t::const_iterator iter = mUserSetColors.find(name);
+	
 	if(iter != mUserSetColors.end())
 	{
 		return LLUIColor(&iter->second);
 	}
 
 	iter = mLoadedColors.find(name);
-	return (iter != mLoadedColors.end() ? LLUIColor(&iter->second) : LLUIColor(default_color));
+	
+	if(iter != mLoadedColors.end())
+	{
+		return LLUIColor(&iter->second);
+	}
+	
+	return  LLUIColor(default_color);
 }
 
 // update user color, loaded colors are parsed on initialization
 void LLUIColorTable::setColor(const std::string& name, const LLColor4& color)
 {
 	setColor(name, color, mUserSetColors);
+	setColor(name, color, mLoadedColors);
 }
 
 bool LLUIColorTable::loadFromSettings()

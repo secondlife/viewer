@@ -216,7 +216,8 @@ void LLInspectGroup::requestUpdate()
 	getChild<LLUICtrl>("group_details")->setValue("");
 	getChild<LLUICtrl>("group_cost")->setValue("");
 	// Must have a visible button so the inspector can take focus
-	getChild<LLUICtrl>("leave_btn")->setVisible(true);
+	getChild<LLUICtrl>("view_profile_btn")->setVisible(true);
+	getChild<LLUICtrl>("leave_btn")->setVisible(false);
 	getChild<LLUICtrl>("join_btn")->setVisible(false);
 	
 	// Make a new request for properties
