@@ -873,6 +873,9 @@ bool idle_startup()
 		gViewerWindow->getWindow()->show();
 		display_startup();
 
+		//DEV-10530.  do cleanup.  remove at some later date.  jan-2009
+		LLFloaterPreference::cleanupBadSetting();
+
 		// DEV-16927.  The following code removes errant keystrokes that happen while the window is being 
 		// first made visible.
 #ifdef _WIN32
@@ -1902,9 +1905,6 @@ bool idle_startup()
 
         //DEV-17797.  get null folder.  Any items found here moved to Lost and Found
         LLInventoryModel::findLostItems();
-
-		//DEV-10530.  do cleanup.  remove at some later date.  jan-2009
-		LLFloaterPreference::cleanupBadSetting();
 
 		LLStartUp::setStartupState( STATE_PRECACHE );
 		timeout.reset();

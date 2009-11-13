@@ -135,9 +135,19 @@ public:
 	LLMimeDiscoveryResponder( viewer_media_t media_impl)
 		: mMediaImpl(media_impl),
 		  mInitialized(false)
-	{}
+	{
+		if(mMediaImpl->mMimeTypeProbe != NULL)
+		{
+			llerrs << "impl already has an outstanding responder" << llendl;
+		}
+		
+		mMediaImpl->mMimeTypeProbe = this;
+	}
 
-
+	~LLMimeDiscoveryResponder()
+	{
+		disconnectOwner();
+	}
 
 	virtual void completedHeader(U32 status, const std::string& reason, const LLSD& content)
 	{
@@ -149,23 +159,54 @@ public:
 
 	virtual void error( U32 status, const std::string& reason )
 	{
+		llwarns << "responder failed with status " << status << ", reason " << reason << llendl;
+		if(mMediaImpl)
+		{
+			mMediaImpl->mMediaSourceFailed = true;
+		}
 		// completeAny(status, "none/none");
 	}
 
 	void completeAny(U32 status, const std::string& mime_type)
 	{
-		if(!mInitialized && ! mime_type.empty())
+		// the call to initializeMedia may disconnect the responder, which will clear mMediaImpl.
+		// Make a local copy so we can call loadURI() afterwards.
+		LLViewerMediaImpl *impl = mMediaImpl;
+		
+		if(impl && !mInitialized && ! mime_type.empty())
 		{
-			if(mMediaImpl->initializeMedia(mime_type))
+			if(impl->initializeMedia(mime_type))
 			{
 				mInitialized = true;
-				mMediaImpl->loadURI();
+				impl->loadURI();
+				disconnectOwner();
 			}
 		}
 	}
+	
+	void cancelRequest()
+	{
+		disconnectOwner();
+	}
+	
+private:
+	void disconnectOwner()
+	{
+		if(mMediaImpl)
+		{
+			if(mMediaImpl->mMimeTypeProbe != this)
+			{
+				llerrs << "internal error: mMediaImpl->mMimeTypeProbe != this" << llendl;
+			}
 
-	public:
-		viewer_media_t mMediaImpl;
+			mMediaImpl->mMimeTypeProbe = NULL;
+		}
+		mMediaImpl = NULL;
+	}
+	
+	
+public:
+		LLViewerMediaImpl *mMediaImpl;
 		bool mInitialized;
 };
 static LLViewerMedia::impl_list sViewerMediaImplList;
@@ -708,6 +749,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mIsDisabled(false),
 	mIsParcelMedia(false),
 	mProximity(-1),
+	mMimeTypeProbe(NULL),
 	mIsUpdated(false)
 { 
 
@@ -811,7 +853,9 @@ void LLViewerMediaImpl::destroyMediaSource()
 	{
 		oldImage->setPlaying(FALSE) ;
 	}
-
+	
+	cancelMimeTypeProbe();
+	
 	if(mMediaSource)
 	{
 		delete mMediaSource;
@@ -1316,6 +1360,8 @@ void LLViewerMediaImpl::unload()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mime_type,  bool rediscover_type, bool server_request)
 {
+	cancelMimeTypeProbe();
+
 	if(mMediaURL != url)
 	{
 		// Don't carry media play state across distinct URLs.
@@ -1358,6 +1404,12 @@ void LLViewerMediaImpl::navigateInternal()
 	// Helpful to have media urls in log file. Shouldn't be spammy.
 	llinfos << "media id= " << mTextureId << " url=" << mMediaURL << " mime_type=" << mMimeType << llendl;
 
+	if(mMimeTypeProbe != NULL)
+	{
+		llwarns << "MIME type probe already in progress -- bailing out." << llendl;
+		return;
+	}
+	
 	if(mNavigateServerRequest)
 	{
 		setNavState(MEDIANAVSTATE_SERVER_SENT);
@@ -1390,7 +1442,7 @@ void LLViewerMediaImpl::navigateInternal()
 
 		if(scheme.empty() || "http" == scheme || "https" == scheme)
 		{
-			LLHTTPClient::getHeaderOnly( mMediaURL, new LLMimeDiscoveryResponder(this));
+			LLHTTPClient::getHeaderOnly( mMediaURL, new LLMimeDiscoveryResponder(this), 10.0f);
 		}
 		else if("data" == scheme || "file" == scheme || "about" == scheme)
 		{
@@ -1521,7 +1573,15 @@ void LLViewerMediaImpl::update()
 {
 	if(mMediaSource == NULL)
 	{
-		if(mPriority != LLPluginClassMedia::PRIORITY_UNLOADED)
+		if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
+		{
+			// This media source should not be loaded.
+		}
+		else if(mMimeTypeProbe != NULL)
+		{
+			// this media source is doing a MIME type probe -- don't try loading it again.
+		}
+		else
 		{
 			// This media may need to be loaded.
 			if(sMediaCreateTimer.hasExpired())
@@ -2120,6 +2180,21 @@ void LLViewerMediaImpl::setNavState(EMediaNavState state)
 	}
 }
 
+void LLViewerMediaImpl::cancelMimeTypeProbe()
+{
+	if(mMimeTypeProbe != NULL)
+	{
+		// There doesn't seem to be a way to actually cancel an outstanding request.
+		// Simulate it by telling the LLMimeDiscoveryResponder not to write back any results.
+		mMimeTypeProbe->cancelRequest();
+		
+		// The above should already have set mMimeTypeProbe to NULL.
+		if(mMimeTypeProbe != NULL)
+		{
+			llerrs << "internal error: mMimeTypeProbe is not NULL after cancelling request." << llendl;
+		}
+	}
+}
 
 void LLViewerMediaImpl::addObject(LLVOVolume* obj) 
 {

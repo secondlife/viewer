@@ -71,6 +71,7 @@ public:
 	static void unregisterAttachment(const LLUUID& item_id);
 	static void registerAttachment(const LLUUID& item_id);
 	static void setAttachmentInvLinkEnable(bool val);
+	static void linkRegisteredAttachments();
 
 private:
 	static void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type);

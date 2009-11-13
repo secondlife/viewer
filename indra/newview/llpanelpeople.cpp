@@ -1193,7 +1193,7 @@ void LLPanelPeople::onCallButtonClicked()
 	if (selected_uuids.size() == 1)
 	{
 		// initiate a P2P voice chat with the selected user
-		LLAvatarActions::startCall(selected_uuids[0]);
+		LLAvatarActions::startCall(getCurrentItemID());
 	}
 	else if (selected_uuids.size() > 1)
 	{

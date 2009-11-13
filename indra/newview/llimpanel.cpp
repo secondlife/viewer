@@ -848,9 +848,11 @@ void LLFloaterIMPanel::processSessionUpdate(const LLSD& session_update)
 		}
 
 
-		//update the speakers dropdown too
+		//update the speakers dropdown too, if it's available
 		if (mSpeakerPanel)
+		{
 			mSpeakerPanel->setVoiceModerationCtrlMode(voice_moderated);
+		}
 	}
 }
 

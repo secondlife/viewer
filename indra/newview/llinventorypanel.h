@@ -165,7 +165,7 @@ protected:
 	// Given the id and the parent, build all of the folder views.
 	void rebuildViewsFor(const LLUUID& id);
 	virtual void buildNewViews(const LLUUID& id); // made virtual to support derived classes. EXT-719
-
+	void defaultOpenInventory(); // open the first level of inventory
 protected:
 	LLInventoryModel*			mInventory;
 	LLInventoryObserver*		mInventoryObserver;
