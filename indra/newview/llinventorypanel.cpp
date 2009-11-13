@@ -302,7 +302,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		return;
 	}
 
-	if(mask & LLInventoryObserver::LABEL)
+	if (mask & LLInventoryObserver::LABEL)
 	{
 		handled = true;
 		// label change - empty out the display name for each object
@@ -327,9 +327,15 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			}
 		}
 	}
-	if((mask & (LLInventoryObserver::STRUCTURE
-				| LLInventoryObserver::ADD
-				| LLInventoryObserver::REMOVE)) != 0)
+
+	// We don't really care which of these masks the item is actually flagged with, since the masks
+	// may not be accurate (e.g. in the main inventory panel, I move an item from My Inventory into
+	// Landmarks; this is a STRUCTURE change for that panel but is an ADD change for the Landmarks
+	// panel).  What's relevant is that the item and UI are probably out of sync and thus need to be
+	// resynchronized.
+	if (mask & (LLInventoryObserver::STRUCTURE |
+				LLInventoryObserver::ADD |
+				LLInventoryObserver::REMOVE))
 	{
 		handled = true;
 		// Record which folders are open by uuid.
@@ -346,76 +352,55 @@ void LLInventoryPanel::modelChanged(U32 mask)
 				LLInventoryObject* model_item = model->getObject(*id_it);
 				LLFolderViewItem* view_item = mFolders->getItemByID(*id_it);
 
-				// ADD operation
+				// Item exists in memory but a UI element hasn't been created for it.
 				if (model_item && !view_item)
 				{
-					// this object was just created, need to build a view for it
-					if ((mask & LLInventoryObserver::ADD) != LLInventoryObserver::ADD)
-					{
-						llwarns << "( Operation: " << mask << " panel name: " << mStartFolderString << " ) Item in model but not in view, but ADD flag not set [ Name: " << model_item->getName() << " UUID: " << *id_it << " ]" << llendl;
-					}
+					// Add the UI element for this item.
 					buildNewViews(*id_it);
-					
-					// select any newly created object
-					// that has the auto rename at top of folder
-					// root set
+					// Select any newly created object that has the auto rename at top of folder root set.
 					if(mFolders->getRoot()->needsAutoRename())
 					{
 						setSelection(*id_it, FALSE);
 					}
 				}
 
-				// STRUCTURE operation
+				// This item already exists in both memory and UI.  It was probably moved
+				// around in the panel's directory structure (i.e. reparented).
 				if (model_item && view_item)
 				{
-					// this object was probably moved, check its parent
-					if ((mask & LLInventoryObserver::STRUCTURE) != LLInventoryObserver::STRUCTURE)
-					{
-						llwarns << "( Operation: " << mask << " panel name: " << mStartFolderString << " ) Item in model and in view, but STRUCTURE flag not set [ Name:" << model_item->getName() << " UUID: " << *id_it << " ]" << llendl;
-					}
-					
 					LLFolderViewFolder* new_parent = (LLFolderViewFolder*)mFolders->getItemByID(model_item->getParentUUID());
-					
-					// added check against NULL for cases when Inventory panel contains startFolder.
-					// in this case parent is LLFolderView (LLInventoryPanel::mFolders) itself.
-					// this check is a fix for bug EXT-1859.
-					if (NULL != new_parent && view_item->getParentFolder() != new_parent)
+
+					// Item has been moved.
+					if (view_item->getParentFolder() != new_parent)
 					{
-						view_item->getParentFolder()->extractItem(view_item);
-						view_item->addToFolder(new_parent, mFolders);
+						if (new_parent != NULL)
+						{
+							// Item is to be moved and we found its new parent in the panel's directory, so move the item's UI.
+							view_item->getParentFolder()->extractItem(view_item);
+							view_item->addToFolder(new_parent, mFolders);
+						}
+						else 
+						{
+							// Item is to be moved outside the panel's directory (e.g. moved to trash for a panel that 
+							// doesn't include trash).  Just remove the item's UI.
+							view_item->destroyView();
+						}
 					}
-					/*
-					  on the other side in case Inventory Panel has content of the any folder
-					  it is possible that item moved to some folder which is absent in current
-					  Panel. For ex. removing item (via moving to trash).
-					  In this case we need to check if new parent is other then inventory start folder
-					  and simply remove its View from the hierarchy.
-					  See details in EXT-2098.
-					*/
-					// So, let check if item was moved into folder out of this Inventory Panel.
-					else if (mStartFolderID.notNull() && NULL == new_parent && model_item->getParentUUID() != mStartFolderID)
+					else
 					{
-						view_item->getParentFolder()->extractItem(view_item);
+						// Hmm, we got an ADD/REMOVE/STRUCTURE notification for this item but there's nothing to be done to it.
+						llwarns << "Notification triggered for item that isn't changing.  "
+								<< "Operation: ( mask: " << mask << " panel name: " << mStartFolderString << " ) "
+								<< "Item: [ Name:" << model_item->getName() << " UUID: " << *id_it << " ]" << llendl;
+						
 					}
 				}
 
-				// REMOVE operation
+				// This item has been removed from memory, but its associated UI element still exists.
 				if (!model_item && view_item)
 				{
-					if ((mask & LLInventoryObserver::REMOVE) != LLInventoryObserver::REMOVE)
-					{
-						llwarns << "( Operation: " << mask << " panel name: " << mStartFolderString << " ) Item is not in model but in view, but REMOVE flag not set [ UUID: " << *id_it << " ] " << llendl;
-					}
-					// item in view but not model, need to delete view
+					// Remove the item's UI.
 					view_item->destroyView();
-				}
-
-				// False positive.  This item probably just doesn't exist in the 
-				// particular inventory panel (e.g. is outside the root folder of the inventory panel).
-				// Ignore the operation.
-				if (!model_item && !view_item)
-				{
-					// llwarns << "( Operation: " << mask << " panel name: " << mStartFolderString << " ) Item does not exist in either view or model, but notification triggered [ UUID: " << *id_it << " ] " << llendl;
 				}
 			}
 		}
