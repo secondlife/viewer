@@ -870,7 +870,7 @@ void LLVoiceChannelP2P::setSessionHandle(const std::string& handle, const std::s
 
 void LLVoiceChannelP2P::setState(EState state)
 {
-	// HACK: Open/close the call window if needed.
+	// *HACK: Open/close the call window if needed.
 	toggleCallWindowIfNeeded(state);
 	
 	// *HACK: open outgoing call floater if needed, might be better done elsewhere.
