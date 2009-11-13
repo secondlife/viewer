@@ -1686,7 +1686,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
-					LLAppearanceManager::instance().wearEnsemble(inv_cat);
+					LLAppearanceManager::instance().addEnsembleLink(inv_cat);
 				}
 				else
 				{
@@ -2088,7 +2088,7 @@ void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 		if(!model) return;
 		LLViewerInventoryCategory* cat = getCategory();
 		if(!cat) return;
-		LLAppearanceManager::instance().wearEnsemble(cat,true);
+		LLAppearanceManager::instance().addEnsembleLink(cat,true);
 		return;
 	}
 #endif
@@ -2336,7 +2336,7 @@ void LLFolderBridge::pasteLinkFromClipboard()
 			{
 				link_inventory_item(
 					gAgent.getID(),
-					item->getUUID(),
+					item->getLinkedUUID(),
 					parent_id,
 					item->getName(),
 					LLAssetType::AT_LINK,
@@ -2948,16 +2948,16 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
-					LLAppearanceManager::instance().wearItem(inv_item);
+					LLAppearanceManager::instance().addItemLink(inv_item);
 				}
 				else
 				{
 					LLPointer<LLInventoryCallback> cb = NULL;
 					link_inventory_item(
 						gAgent.getID(),
-						inv_item->getUUID(),
+						inv_item->getLinkedUUID(),
 						mUUID,
-						std::string(),
+						inv_item->getName(),
 						LLAssetType::AT_LINK,
 						cb);
 				}
@@ -4043,7 +4043,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		LLInventoryItem* item = getItem();
 		if (item && item->getIsLinkType())
 		{
-			items.push_back(std::string("Goto Link"));
+			items.push_back(std::string("Find Original"));
 		}
 
 		items.push_back(std::string("Properties"));
@@ -4196,7 +4196,7 @@ void wear_inventory_item_on_avatar( LLInventoryItem* item )
 		lldebugs << "wear_inventory_item_on_avatar( " << item->getName()
 				 << " )" << llendl;
 
-		LLAppearanceManager::instance().wearItem(item);
+		LLAppearanceManager::instance().addItemLink(item);
 	}
 }
 
@@ -4479,7 +4479,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		if (item && item->getIsLinkType())
 		{
-			items.push_back(std::string("Goto Link"));
+			items.push_back(std::string("Find Original"));
 		}
 
 		items.push_back(std::string("Properties"));
@@ -5143,7 +5143,7 @@ void LLLinkFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
-		items.push_back(std::string("Goto Link"));
+		items.push_back(std::string("Find Original"));
 		items.push_back(std::string("Delete"));
 		if (!isItemRemovable())
 		{
