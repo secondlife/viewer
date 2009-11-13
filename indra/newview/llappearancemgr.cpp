@@ -323,44 +323,6 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
 	items = new_items;
 }
 
-static void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventoryModel::item_array_t& src)
-{
-	LLInventoryModel::item_array_t new_dst;
-	std::set<LLUUID> mark_inventory;
-
-	S32 inventory_dups = 0;
-	
-	for (LLInventoryModel::item_array_t::const_iterator src_pos = src.begin();
-		  src_pos != src.end();
-		  ++src_pos)
-	{
-		LLUUID src_item_id = (*src_pos)->getLinkedUUID();
-		mark_inventory.insert(src_item_id);
-	}
-
-	for (LLInventoryModel::item_array_t::const_iterator dst_pos = dst.begin();
-		  dst_pos != dst.end();
-		  ++dst_pos)
-	{
-		LLUUID dst_item_id = (*dst_pos)->getLinkedUUID();
-
-		if (mark_inventory.find(dst_item_id) == mark_inventory.end())
-		{
-			// Item is not already present in COF.
-			new_dst.put(*dst_pos);
-			mark_inventory.insert(dst_item_id);
-		}
-		else
-		{
-			inventory_dups++;
-		}
-	}
-	llinfos << "removeDups, original " << dst.count() << " final " << new_dst.count()
-			<< " inventory dups " << inventory_dups << llendl;
-	
-	dst = new_dst;
-}
-
 static void onWearableAssetFetch(LLWearable* wearable, void* data)
 {
 	LLWearableHoldingPattern* holder = (LLWearableHoldingPattern*)data;
