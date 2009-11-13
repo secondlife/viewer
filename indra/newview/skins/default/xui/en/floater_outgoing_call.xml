@@ -12,7 +12,7 @@
  width="410">
     <floater.string
      name="localchat">
-        Local Voice Chat
+        Nearby Voice Chat
     </floater.string>
     <floater.string
      name="anonymous">
