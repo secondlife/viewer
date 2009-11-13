@@ -53,6 +53,8 @@ LLFloaterTestInspectors::~LLFloaterTestInspectors()
 
 BOOL LLFloaterTestInspectors::postBuild()
 {
+	getChild<LLUICtrl>("intentionally-not-found");
+
 //	getChild<LLUICtrl>("avatar_2d_btn")->setCommitCallback(
 //		boost::bind(&LLFloaterTestInspectors::onClickAvatar2D, this));
 	getChild<LLUICtrl>("avatar_3d_btn")->setCommitCallback(
