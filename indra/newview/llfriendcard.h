@@ -58,14 +58,6 @@ public:
 	}
 
 	/**
-	 *	Ensures that all necessary folders are created in Inventory.
-	 * 
-	 *	For now it processes Calling Card, Calling Card/Friends & Calling Card/Friends/All folders
-	 */
-	void ensureFriendFoldersExist();
-
-
-	/**
 	 *	Determines if specified Inventory Calling Card exists in any of lists 
 	 *	in the Calling Card/Friends/ folder (Default, or Custom)
 	 */
@@ -88,11 +80,10 @@ public:
 	bool isAnyFriendCategory(const LLUUID& catID) const;
 
 	/**
-	 *	Synchronizes content of the Calling Card/Friends/All Global Inventory folder with Agent's Friend List
-	 *
-	 *	@return true - if folder is already synchronized, false otherwise.
+	 *	Checks whether "Friends" and "Friends/All" folders exist in "Calling Cards" category
+	 *	(creates them otherwise) and fetches their contents to synchronize with Agent's Friends List.
 	 */
-	bool syncFriendsFolder();
+	void syncFriendCardsFolders();
 
 	/*!
 	 * \brief
@@ -108,6 +99,8 @@ public:
 	void collectFriendsLists(folderid_buddies_map_t& folderBuddiesMap) const;
 
 private:
+	typedef boost::function<void()> callback_t;
+
 	LLFriendCardsManager();
 	~LLFriendCardsManager();
 
@@ -133,10 +126,29 @@ private:
 	const LLUUID& findFriendCardInventoryUUIDImpl(const LLUUID& avatarID);
 	void findMatchedFriendCards(const LLUUID& avatarID, LLInventoryModel::item_array_t& items) const;
 
+	void fetchAndCheckFolderDescendents(const LLUUID& folder_id, callback_t cb);
+
+	/**
+	 *	Checks whether "Calling Cards/Friends" folder exists. If not, creates it with "All"
+	 *	sub-folder and synchronizes its contents with buddies list.
+	 */
+	void ensureFriendsFolderExists();
+
+	/**
+	 *	Checks whether "Calling Cards/Friends/All" folder exists. If not, creates it and
+	 *	synchronizes its contents with buddies list.
+	 */
+	void ensureFriendsAllFolderExists();
+
+	/**
+	 *	Synchronizes content of the Calling Card/Friends/All Global Inventory folder with Agent's Friend List
+	 */
+	void syncFriendsFolder();
+
 	/**
 	 *	Adds avatar specified by its UUID into the Calling Card/Friends/All Global Inventory folder
 	 */
-	bool addFriendCardToInventory(const LLUUID& avatarID);
+	void addFriendCardToInventory(const LLUUID& avatarID);
 
 	/**
 	 *	Removes an avatar specified by its UUID from the Calling Card/Friends/All Global Inventory folder
@@ -146,20 +158,11 @@ private:
 
 	void onFriendListUpdate(U32 changed_mask);
 
-	/**
-	 * Force fetching of the Inventory folder specified by passed folder's LLUUID.
-	 *
-	 * It only sends request to server, server reply should be processed in other place.
-	 * Because request can be sent via UDP we need to periodically check if request was completed with success.
-	 */
-	void forceFriendListIsLoaded(const LLUUID& folder_id) const;
-
 
 private:
 	typedef std::set<LLUUID> avatar_uuid_set_t;
 
 	avatar_uuid_set_t mBuddyIDSet;
-	bool mFriendsAllFolderCompleted;
 };
 
 #endif // LL_LLFRIENDCARD_H

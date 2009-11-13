@@ -1688,8 +1688,11 @@ bool idle_startup()
 		//all categories loaded. lets create "My Favorites" category
 		gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE,true);
 
-		// lets create "Friends" and "Friends/All" in the Inventory "Calling Cards" and fill it with buddies
-		LLFriendCardsManager::instance().syncFriendsFolder();
+		// Checks whether "Friends" and "Friends/All" folders exist in "Calling Cards" folder,
+		// fetches their contents if needed and synchronizes it with buddies list.
+		// If the folders are not found they are created.
+		LLFriendCardsManager::instance().syncFriendCardsFolders();
+
 
 		// set up callbacks
 		llinfos << "Registering Callbacks" << llendl;
