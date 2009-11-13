@@ -262,6 +262,18 @@
 		  <check_box.commit_callback
 			function="BuildTool.selectComponent"/>
 	</check_box>
+
+   <text
+   text_color="LtGray_50"
+   follows="top|left"
+   halign="left"
+   left="13"
+   name="RenderingCost"
+   top_pad="9"
+   type="string"
+   width="100">
+   þ: [COUNT]
+   </text>
 	<check_box
      control_name="ScaleUniform"
      height="19"
@@ -325,7 +337,7 @@
 	 <button.commit_callback
 	     function="BuildTool.gridOptions"/>
 	</button>
-    <button
+   <button
      follows="left|top"
      height="20"
      image_disabled="Object_Cube"
@@ -701,6 +713,7 @@
 	     function="BuildTool.applyToSelection"/>
     </button>
     <text
+    text_color="LtGray_50"
      type="string"
      length="1"
      height="12"
@@ -714,6 +727,7 @@
         Objects: [COUNT]
     </text>
     <text
+    text_color="LtGray_50"
      type="string"
      length="1"
      follows="left|top"
@@ -730,7 +744,7 @@
      halign="center"
      left="0"
      name="Object Info Tabs"
-     tab_max_width="55"
+     tab_max_width="54"
      tab_min_width="40"
      tab_position="top"
      tab_height="25"
