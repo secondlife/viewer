@@ -1704,7 +1704,7 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 		// MEDIAOPT: seems insane that we actually have to make an imageraw then
 		// immediately discard it
 		LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
-		raw->clear(0x0f, 0x0f, 0x0f, 0xff);
+		raw->clear(0x00, 0x00, 0x00, 0xff);
 		int discard_level = 0;
 
 		// ask media source for correct GL image format constants
