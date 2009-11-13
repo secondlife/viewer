@@ -7644,7 +7644,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 		ETextureIndex tex_index = baked_dict->mTextureIndex;
 		if (isTextureVisible(tex_index))
 		{
-			shame +=25;
+			shame +=20;
 		}
 	}
 

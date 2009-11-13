@@ -425,13 +425,14 @@ void LLFloaterTools::refresh()
 	// calculate selection rendering cost
 	std::string prim_cost_string;
 	LLResMgr::getInstance()->getIntegerString(prim_cost_string, calcRenderCost());
-	childSetTextArg("render_cost", "[COUNT]", prim_cost_string);
+	childSetTextArg("RenderingCost", "[COUNT]", prim_cost_string);
 
 
 	// disable the object and prim counts if nothing selected
 	bool have_selection = ! LLSelectMgr::getInstance()->getSelection()->isEmpty();
 	childSetEnabled("obj_count", have_selection);
 	childSetEnabled("prim_count", have_selection);
+	childSetEnabled("RenderingCost", have_selection);
 
 	// Refresh child tabs
 	mPanelPermissions->refresh();
@@ -562,6 +563,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 
 	mBtnEdit	->setToggleState( edit_visible );
 	mRadioGroupEdit->setVisible( edit_visible );
+	childSetVisible("RenderingCost", edit_visible || focus_visible || move_visible);
 
 	if (mCheckSelectIndividual)
 	{
@@ -983,7 +985,7 @@ S32 LLFloaterTools::calcRenderCost()
 			LLVOVolume *viewer_volume = (LLVOVolume*)select_node->getObject();
 			if (viewer_volume)
 			{
-					cost += viewer_volume->getRenderCost();
+				cost += viewer_volume->getRenderCost();
 			}
 		}
 	}
