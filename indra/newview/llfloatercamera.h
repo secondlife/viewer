@@ -39,6 +39,7 @@ class LLJoystickCameraRotate;
 class LLJoystickCameraZoom;
 class LLJoystickCameraTrack;
 class LLFloaterReg;
+class LLPanelCameraZoom;
 
 enum ECameraControlMode
 {
@@ -74,7 +75,7 @@ public:
 	virtual void onClose(bool app_quitting);
 
 	LLJoystickCameraRotate* mRotate;
-	LLJoystickCameraZoom*	mZoom;
+	LLPanelCameraZoom*	mZoom;
 	LLJoystickCameraTrack*	mTrack;
 
 private:

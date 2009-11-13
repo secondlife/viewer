@@ -27,7 +27,7 @@
      name="chat_box"
      tool_tip="Press Enter to say, Ctrl+Enter to shout"
      top="0"
-     width="250" />
+     width="279" />
     <output_monitor
      auto_update="true"
      follows="right"

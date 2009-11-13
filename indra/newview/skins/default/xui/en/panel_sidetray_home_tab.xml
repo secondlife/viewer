@@ -227,7 +227,7 @@
          right="-10"
          top="10"
          width="20"
-         image_name="TabIcon_Inventory_Selected"/>
+         image_name="TabIcon_Things_Selected"/>
         <text
          follows="all"
          height="90"

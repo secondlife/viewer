@@ -131,7 +131,7 @@ public:
 		menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_object_icon.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 		mPopupMenuHandleObject = menu->getHandle();
 
-		setMouseDownCallback(boost::bind(&LLChatHistoryHeader::onHeaderPanelClick, this, _2, _3, _4));
+		setDoubleClickCallback(boost::bind(&LLChatHistoryHeader::onHeaderPanelClick, this, _2, _3, _4));
 
 		return LLPanel::postBuild();
 	}
@@ -167,7 +167,15 @@ public:
 
 	void onHeaderPanelClick(S32 x, S32 y, MASK mask)
 	{
-		LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", mAvatarID));
+		if (mSourceType == CHAT_SOURCE_OBJECT)
+		{
+			LLFloaterReg::showInstance("inspect_object", LLSD().insert("object_id", mAvatarID));
+		}
+		else if (mSourceType == CHAT_SOURCE_AGENT)
+		{
+			LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", mAvatarID));
+		}
+		//if chat source is system, you may add "else" here to define behaviour.
 	}
 
 	const LLUUID&		getAvatarId () const { return mAvatarID;}

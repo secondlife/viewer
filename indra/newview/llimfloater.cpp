@@ -211,6 +211,7 @@ BOOL LLIMFloater::postBuild()
 	}
 
 	mControlPanel->setSessionId(mSessionID);
+	mControlPanel->setVisible(gSavedSettings.getBOOL("IMShowControlPanel"));
 
 	LLButton* slide_left = getChild<LLButton>("slide_left_btn");
 	slide_left->setVisible(mControlPanel->getVisible());
@@ -355,8 +356,6 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 		floater->setDockControl(new LLDockControl(chiclet, floater, floater->getDockTongue(),
 				LLDockControl::TOP,  boost::bind(&LLIMFloater::getAllowedRect, floater, _1)));
 	}
-
-	floater->childSetVisible("panel_im_control_panel", gSavedSettings.getBOOL("IMShowControlPanel"));
 
 	return floater;
 }
