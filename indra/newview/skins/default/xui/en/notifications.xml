@@ -5580,7 +5580,7 @@ We&apos;re sorry.  This area has reached maximum capacity for voice conversation
    icon="notifytip.tga"
    name="VoiceChannelDisconnected"
    type="notifytip">
-You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to spatial voice chat.
+You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -5590,7 +5590,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="VoiceChannelDisconnectedP2P"
    type="notifytip">
-[VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to spatial voice chat.
+[VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -5600,7 +5600,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="P2PCallDeclined"
    type="notifytip">
-[VOICE_CHANNEL_NAME] has declined your call.  You will now be reconnected to spatial voice chat.
+[VOICE_CHANNEL_NAME] has declined your call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -5610,7 +5610,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="P2PCallNoAnswer"
    type="notifytip">
-[VOICE_CHANNEL_NAME] is not available to take your call.  You will now be reconnected to spatial voice chat.
+[VOICE_CHANNEL_NAME] is not available to take your call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -5620,7 +5620,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="VoiceChannelJoinFailed"
    type="notifytip">
-Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now be reconnected to spatial voice chat.
+Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
