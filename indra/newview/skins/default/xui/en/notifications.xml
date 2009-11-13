@@ -5739,6 +5739,15 @@ Are you sure you want to delete your teleport history?
      yestext="OK"/>
   </notification>
 
+  <notification
+   icon="alert.tga"
+   name="BottomTrayButtonCanNotBeShown"
+   type="alert">
+Selected button can not be shown right now.
+The button will be shown when there is enough space for it.
+  </notification>
+
+
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
   </global>

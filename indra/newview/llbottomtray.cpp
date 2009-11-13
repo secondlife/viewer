@@ -761,6 +761,7 @@ void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type
 	{
 		// mark this button to show it while future bottom tray extending
 		mResizeState |= shown_object_type;
+		LLNotifications::instance().add("BottomTrayButtonCanNotBeShown");
 	}
 }
 
