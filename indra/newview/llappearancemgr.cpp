@@ -1167,7 +1167,6 @@ void LLAppearanceManager::removeItemLinks(const LLUUID& item_id, bool do_update)
 		const LLInventoryItem* item = item_array.get(i).get();
 		if (item->getLinkedUUID() == item_id)
 		{
-			llinfos << "Purging object " << item->getUUID() << "for linked item " << item->getLinkedUUID() << llendl;
 			gInventory.purgeObject(item_array.get(i)->getUUID());
 		}
 	}

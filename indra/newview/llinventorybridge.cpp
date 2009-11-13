@@ -3889,10 +3889,15 @@ void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 			gMessageSystem->sendReliable( gAgent.getRegion()->getHost());
 		}
 		// this object might have been selected, so let the selection manager know it's gone now
-		LLViewerObject *found_obj = gObjectList.findObject(item->getLinkedUUID());
+		LLViewerObject *found_obj =
+			gObjectList.findObject(item->getUUID());
 		if (found_obj)
 		{
 			LLSelectMgr::getInstance()->remove(found_obj);
+		}
+		else
+		{
+			llwarns << "object not found - ignoring" << llendl;
 		}
 	}
 	else LLItemBridge::performAction(folder, model, action);

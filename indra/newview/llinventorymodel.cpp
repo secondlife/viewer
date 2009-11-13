@@ -886,7 +886,7 @@ void LLInventoryModel::moveObject(const LLUUID& object_id, const LLUUID& cat_id)
 // Delete a particular inventory object by ID.
 void LLInventoryModel::deleteObject(const LLUUID& id)
 {
-	//purgeLinkedObjects(id);
+	purgeLinkedObjects(id);
 	lldebugs << "LLInventoryModel::deleteObject()" << llendl;
 	LLPointer<LLInventoryObject> obj = getObject(id);
 	if(obj)
@@ -923,14 +923,13 @@ void LLInventoryModel::deleteObject(const LLUUID& id)
 		}
 		addChangedMask(LLInventoryObserver::REMOVE, id);
 		obj = NULL; // delete obj
-		gInventory.notifyObservers();
 	}
 }
 
 // Delete a particular inventory item by ID, and remove it from the server.
 void LLInventoryModel::purgeObject(const LLUUID &id)
 {
-	lldebugs << "LLInventoryModel::purgeObject() id:" << id << llendl;
+	lldebugs << "LLInventoryModel::purgeObject()" << llendl;
 	LLPointer<LLInventoryObject> obj = getObject(id);
 	if(obj)
 	{
