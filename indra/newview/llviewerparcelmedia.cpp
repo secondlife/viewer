@@ -324,10 +324,36 @@ std::string LLViewerParcelMedia::getMimeType()
 {
 	return sMediaImpl.notNull() ? sMediaImpl->getMimeType() : "none/none";
 }
+
+//static 
+std::string LLViewerParcelMedia::getURL()
+{
+	std::string url;
+	if(sMediaImpl.notNull())
+		url = sMediaImpl->getMediaURL();
+	
+	if (url.empty())
+		url = LLViewerParcelMgr::getInstance()->getAgentParcel()->getMediaCurrentURL();
+	
+	if (url.empty())
+		url = LLViewerParcelMgr::getInstance()->getAgentParcel()->getMediaURL();
+	
+	return url;
+}
+
+//static 
+std::string LLViewerParcelMedia::getName()
+{
+	if(sMediaImpl.notNull())
+		return sMediaImpl->getName();
+	return "";
+}
+
 viewer_media_t LLViewerParcelMedia::getParcelMedia()
 {
 	return sMediaImpl;
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
 void LLViewerParcelMedia::processParcelMediaCommandMessage( LLMessageSystem *msg, void ** )
