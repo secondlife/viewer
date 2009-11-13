@@ -223,7 +223,7 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 
 void LLNearbyChatScreenChannel::arrangeToasts()
 {
-	if(m_active_toasts.size() == 0 || mIsHovering)
+	if(m_active_toasts.size() == 0 || isHovering())
 		return;
 
 	hideToastsFromScreen();

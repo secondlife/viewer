@@ -311,3 +311,18 @@ void LLAvatarListItem::onNameCache(const std::string& first_name, const std::str
 	mAvatarName->setValue(name);
 	mAvatarName->setToolTip(name);
 }
+
+void LLAvatarListItem::reshapeAvatarName()
+{
+	S32 width_delta = 0;
+	width_delta += mShowProfileBtn ? mProfileBtnWidth : 0;
+	width_delta += mSpeakingIndicator->getVisible() ? mSpeakingIndicatorWidth : 0;
+	width_delta += mAvatarIcon->getVisible() ? mIconWidth : 0;
+	width_delta += mShowInfoBtn ? mInfoBtnWidth : 0;
+	width_delta += mLastInteractionTime->getVisible() ? mLastInteractionTime->getRect().getWidth() : 0;
+
+	S32 height = mAvatarName->getRect().getHeight();
+	S32 width  = getRect().getWidth() - width_delta;
+
+	mAvatarName->reshape(width, height);
+}
