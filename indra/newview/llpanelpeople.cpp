@@ -519,7 +519,6 @@ BOOL LLPanelPeople::postBuild()
 	LLPanel* groups_panel = getChild<LLPanel>(GROUP_TAB_NAME);
 	groups_panel->childSetAction("activate_btn", boost::bind(&LLPanelPeople::onActivateButtonClicked,	this));
 	groups_panel->childSetAction("plus_btn",	boost::bind(&LLPanelPeople::onGroupPlusButtonClicked,	this));
-	groups_panel->childSetAction("minus_btn",	boost::bind(&LLPanelPeople::onGroupMinusButtonClicked,	this));
 
 	LLPanel* friends_panel = getChild<LLPanel>(FRIENDS_TAB_NAME);
 	friends_panel->childSetAction("add_btn",	boost::bind(&LLPanelPeople::onAddFriendWizButtonClicked,	this));
@@ -568,6 +567,7 @@ BOOL LLPanelPeople::postBuild()
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 	
 	registrar.add("People.Group.Plus.Action",  boost::bind(&LLPanelPeople::onGroupPlusMenuItemClicked,  this, _2));
+	registrar.add("People.Group.Minus.Action", boost::bind(&LLPanelPeople::onGroupMinusButtonClicked,  this));
 	registrar.add("People.Friends.ViewSort.Action",  boost::bind(&LLPanelPeople::onFriendsViewSortMenuItemClicked,  this, _2));
 	registrar.add("People.Nearby.ViewSort.Action",  boost::bind(&LLPanelPeople::onNearbyViewSortMenuItemClicked,  this, _2));
 	registrar.add("People.Groups.ViewSort.Action",  boost::bind(&LLPanelPeople::onGroupsViewSortMenuItemClicked,  this, _2));
