@@ -351,6 +351,7 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat)
 	
 	LLStyle::Params style_params;
 	style_params.color(txt_color);
+	style_params.readonly_color(txt_color);
 	style_params.font(fontp);
 
 	
@@ -383,7 +384,6 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat)
 	appendWidget(p, view_text, false);
 
 	//Append the text message
-	
 	appendText(chat.mText, FALSE, style_params);
 
 	mLastFromName = chat.mFromName;
