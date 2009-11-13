@@ -1124,6 +1124,7 @@ void LLOutgoingCallDialog::onOpen(const LLSD& key)
 
 	LLSD callee_id = mPayload["other_user_id"];
 	childSetTextArg("calling", "[CALLEE_NAME]", callee_name);
+	childSetTextArg("connecting", "[CALLEE_NAME]", callee_name);
 	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 	icon->setValue(callee_id);
 

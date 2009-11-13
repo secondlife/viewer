@@ -892,10 +892,36 @@ void LLVoiceChannelP2P::setState(EState state)
 		if (state == STATE_RINGING)
 		{
 			// *HACK: open outgoing call floater if needed, might be better done elsewhere.
+			// *TODO: should move this squirrelly ui-fudging crap into LLOutgoingCallDialog itself
 			if (!mSessionName.empty())
 			{
-				LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE);
+				LLOutgoingCallDialog *ocd = dynamic_cast<LLOutgoingCallDialog*>(LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE));
+				if (ocd)
+				{
+					ocd->getChild<LLTextBox>("calling")->setVisible(true);
+					ocd->getChild<LLTextBox>("leaving")->setVisible(true);
+					ocd->getChild<LLTextBox>("connecting")->setVisible(false);
+				}
 			}
+		}
+		/*else if (state == STATE_CONNECTED)
+		{
+				LLOutgoingCallDialog *ocd = dynamic_cast<LLOutgoingCallDialog*>(LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE));
+				if (ocd)
+				{
+					ocd->getChild<LLTextBox>("calling")->setVisible(false);
+					ocd->getChild<LLTextBox>("leaving")->setVisible(false);
+					ocd->getChild<LLTextBox>("connecting")->setVisible(true);
+				}			
+				}*/
+		else if (state == STATE_HUNG_UP ||
+			 state == STATE_CONNECTED)
+		{
+				LLOutgoingCallDialog *ocd = dynamic_cast<LLOutgoingCallDialog*>(LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE));
+				if (ocd)
+				{
+					ocd->closeFloater();
+				}			
 		}
 	}
 
