@@ -892,7 +892,6 @@ void LLVoiceChannelP2P::setState(EState state)
 		if (state == STATE_RINGING)
 		{
 			// *HACK: open outgoing call floater if needed, might be better done elsewhere.
-			llinfos << "RINGINGGGGGGGG " << mSessionName << llendl;
 			if (!mSessionName.empty())
 			{
 				LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE);
