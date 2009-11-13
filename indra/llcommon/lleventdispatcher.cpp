@@ -121,6 +121,20 @@ LLEventDispatcher::Callable LLEventDispatcher::get(const std::string& name) cons
     return found->second.mFunc;
 }
 
+LLSD LLEventDispatcher::getMetadata(const std::string& name) const
+{
+    DispatchMap::const_iterator found = mDispatch.find(name);
+    if (found == mDispatch.end())
+    {
+        return LLSD();
+    }
+    LLSD meta;
+    meta["name"] = name;
+    meta["desc"] = found->second.mDesc;
+    meta["required"] = found->second.mRequired;
+    return meta;
+}
+
 LLDispatchListener::LLDispatchListener(const std::string& pumpname, const std::string& key):
     LLEventDispatcher(pumpname, key),
     mPump(pumpname, true),          // allow tweaking for uniqueness
