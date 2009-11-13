@@ -3879,8 +3879,7 @@ void god_force_inv_owner_permissive(LLViewerObject* object,
 	InventoryObjectList::const_iterator inv_end = inventory->end();
 	for ( ; inv_it != inv_end; ++inv_it)
 	{
-		if(((*inv_it)->getType() != LLAssetType::AT_CATEGORY)
-		   && ((*inv_it)->getType() != LLAssetType::AT_ROOT_CATEGORY))
+		if(((*inv_it)->getType() != LLAssetType::AT_CATEGORY))
 		{
 			LLInventoryObject* obj = *inv_it;
 			LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem((LLViewerInventoryItem*)obj);

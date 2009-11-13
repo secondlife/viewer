@@ -341,7 +341,7 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType t, bo
 const LLUUID &LLInventoryModel::findCatUUID(LLFolderType::EType preferred_type) const
 {
 	const LLUUID &root_id = gInventory.getRootFolderID();
-	if(LLFolderType::FT_CATEGORY == preferred_type)
+	if(LLFolderType::FT_ROOT_INVENTORY == preferred_type)
 	{
 		return root_id;
 	}
@@ -2465,7 +2465,7 @@ void LLInventoryModel::buildParentChildMap()
 			{
 				cat->setParent(findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
 			}
-			else if(LLFolderType::FT_CATEGORY == pref)
+			else if(LLFolderType::FT_ROOT_INVENTORY == pref)
 			{
 				// it's the root
 				cat->setParent(LLUUID::null);

@@ -892,7 +892,6 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			new_listener = new LLWearableBridge(inventory, uuid, asset_type, inv_type, (EWearableType)flags);
 			break;
 		case LLAssetType::AT_CATEGORY:
-		case LLAssetType::AT_ROOT_CATEGORY:
 			if (actual_asset_type == LLAssetType::AT_LINK_FOLDER)
 			{
 				// Create a link folder handler instead.
@@ -2847,10 +2846,6 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		BOOL is_movable = TRUE;
 		switch( inv_item->getActualType() )
 		{
-		case LLAssetType::AT_ROOT_CATEGORY:
-			is_movable = FALSE;
-			break;
-
 		case LLAssetType::AT_CATEGORY:
 			is_movable = !LLFolderType::lookupIsProtectedType(((LLInventoryCategory*)inv_item)->getPreferredType());
 			break;
