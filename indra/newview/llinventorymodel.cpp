@@ -31,40 +31,24 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llinventorymodel.h"
-
-#include "llassetstorage.h"
-#include "llcrc.h"
-#include "lldir.h"
-#include "llsys.h"
-#include "llxfermanager.h"
-#include "message.h"
 
 #include "llagent.h"
 #include "llagentwearables.h"
-#include "llfloater.h"
-#include "llfocusmgr.h"
-#include "llinventorybridge.h"
-#include "llinventoryfunctions.h"
 #include "llinventorypanel.h"
 #include "llfloaterinventory.h"
-#include "llviewerfoldertype.h"
-#include "llviewerinventory.h"
-#include "llviewermessage.h"
-#include "llviewerwindow.h"
-#include "llviewerregion.h"
-#include "llappviewer.h"
-#include "lldbstrings.h"
-#include "llviewerstats.h"
-#include "llmutelist.h"
-#include "llnotifications.h"
-#include "llcallbacklist.h"
-#include "llpreview.h"
+#include "llinventorybridge.h"
+#include "llinventoryfunctions.h"
+#include "llwindow.h"
 #include "llviewercontrol.h"
+#include "llpreview.h" 
+#include "llviewermessage.h"
+#include "llviewerfoldertype.h"
+#include "llviewerwindow.h"
+#include "llappviewer.h"
+#include "llviewerregion.h"
+#include "llcallbacklist.h"
 #include "llvoavatarself.h"
-#include "llsdutil.h"
-#include <deque>
 
 //#define DIFF_INVENTORY_FILES
 #ifdef DIFF_INVENTORY_FILES
