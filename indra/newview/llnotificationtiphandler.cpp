@@ -91,6 +91,7 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 		if(nearby_chat)
 		{
 			LLChat chat_msg(notification->getMessage());
+			chat_msg.mSourceType = CHAT_SOURCE_SYSTEM;
 			nearby_chat->addMessage(chat_msg);
 
 			// don't show toast if Nearby Chat is opened

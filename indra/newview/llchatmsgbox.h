@@ -61,7 +61,7 @@ protected:
 	friend class LLUICtrlFactory;
 
 public:
-	void				addText(const LLStringExplicit &text);
+	void				addText(const LLStringExplicit &text, const LLStyle::Params& input_params = LLStyle::Params());
 	
 private:
 	S32					mBlockSpacing;
