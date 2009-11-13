@@ -32,18 +32,20 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llagent.h"
+#include "llagentwearables.h"
 #include "llappearancemgr.h"
-#include "llinventorymodel.h"
-#include "llnotifications.h"
+#include "llfloatercustomize.h"
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
-#include "llwearablelist.h"
-#include "llagentwearables.h"
-#include "llagent.h"
+#include "llinventorymodel.h"
+#include "llnotifications.h"
+#include "llpanelappearance.h"
+#include "llsidetray.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llviewerregion.h"
-#include "llfloatercustomize.h"
+#include "llwearablelist.h"
 
 class LLWearInventoryCategoryCallback : public LLInventoryCallback
 {
@@ -564,6 +566,13 @@ void LLAppearanceManager::updateCOF(const LLUUID& category, bool append)
 	{
 		link_inventory_item(gAgent.getID(), category, cof, catp->getName(),
 							LLAssetType::AT_LINK_FOLDER, link_waiter);
+
+		// Update the current outfit name of the appearance sidepanel.
+		LLPanelAppearance* panel_appearance = dynamic_cast<LLPanelAppearance *>(LLSideTray::getInstance()->getPanel("panel_appearance"));
+		if (panel_appearance)
+		{
+			panel_appearance->refreshCurrentLookName(catp->getName());
+		}
 	}
 							  
 }
