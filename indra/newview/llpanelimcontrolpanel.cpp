@@ -43,6 +43,7 @@
 #include "llparticipantlist.h"
 #include "llimview.h"
 #include "llvoicechannel.h"
+#include "llsidetray.h"
 
 void LLPanelChatControlPanel::onCallButtonClicked()
 {
@@ -158,7 +159,8 @@ void LLPanelIMControlPanel::onAddFriendButtonClicked()
 
 void LLPanelIMControlPanel::onShareButtonClicked()
 {
-	// *TODO: Implement
+	LLSD key;
+	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 }
 
 void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
