@@ -23,7 +23,7 @@
      layout="topleft"
      left_delta="7"
      left="0"
-     max_length="254"
+     max_length="512"
      name="chat_box"
      tool_tip="Press Enter to say, Ctrl+Enter to shout"
      top="0"
