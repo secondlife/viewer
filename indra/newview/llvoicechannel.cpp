@@ -873,26 +873,32 @@ void LLVoiceChannelP2P::setState(EState state)
 	// *HACK: Open/close the call window if needed.
 	toggleCallWindowIfNeeded(state);
 	
-	// *HACK: open outgoing call floater if needed, might be better done elsewhere.
-	mCallDialogPayload["session_id"] = mSessionID;
-	mCallDialogPayload["session_name"] = mSessionName;
-	mCallDialogPayload["other_user_id"] = mOtherUserID;
-	if (!mReceivedCall && state == STATE_RINGING)
+	if (mReceivedCall) // incoming call
 	{
-		llinfos << "RINGINGGGGGGGG " << mSessionName << llendl;
-		if (!mSessionName.empty())
+		// you only "answer" voice invites in p2p mode
+		// so provide a special purpose message here
+		if (mReceivedCall && state == STATE_RINGING)
 		{
-			LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE);
+			gIMMgr->addSystemMessage(mSessionID, "answering", mNotifyArgs);
+			doSetState(state);
+			return;
+		}
+	}
+	else // outgoing call
+	{
+		mCallDialogPayload["session_id"] = mSessionID;
+		mCallDialogPayload["session_name"] = mSessionName;
+		mCallDialogPayload["other_user_id"] = mOtherUserID;
+		if (state == STATE_RINGING)
+		{
+			// *HACK: open outgoing call floater if needed, might be better done elsewhere.
+			llinfos << "RINGINGGGGGGGG " << mSessionName << llendl;
+			if (!mSessionName.empty())
+			{
+				LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE);
+			}
 		}
 	}
 
-	// you only "answer" voice invites in p2p mode
-	// so provide a special purpose message here
-	if (mReceivedCall && state == STATE_RINGING)
-	{
-		gIMMgr->addSystemMessage(mSessionID, "answering", mNotifyArgs);
-		doSetState(state);
-		return;
-	}
 	LLVoiceChannel::setState(state);
 }
