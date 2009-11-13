@@ -475,6 +475,7 @@ void LLIMFloater::updateMessages()
 			LLChat chat;
 			chat.mFromID = from_id;
 			chat.mFromName = from;
+			chat.mText = message;
 
 			mChatHistory->appendWidgetMessage(chat);
 
