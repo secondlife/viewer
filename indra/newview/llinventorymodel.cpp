@@ -3345,7 +3345,7 @@ void LLInventoryModel::processInventoryDescendents(LLMessageSystem* msg,void**)
 		// If the item has already been added (e.g. from link prefetch), then it doesn't need to be re-added.
 		if (gInventory.getItem(titem->getUUID()))
 		{
-			llinfos << "Skipping prefetched item [ Name: " << titem->getName() << " | Type: " << titem->getActualType() << " | ItemUUID: " << titem->getUUID() << " ] " << llendl;
+			lldebugs << "Skipping prefetched item [ Name: " << titem->getName() << " | Type: " << titem->getActualType() << " | ItemUUID: " << titem->getUUID() << " ] " << llendl;
 			continue;
 		}
 		gInventory.updateItem(titem);
