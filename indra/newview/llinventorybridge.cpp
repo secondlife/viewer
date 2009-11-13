@@ -2337,7 +2337,7 @@ void LLFolderBridge::pasteLinkFromClipboard()
 			{
 				link_inventory_item(
 					gAgent.getID(),
-					item->getUUID(),
+					item->getLinkedUUID(),
 					parent_id,
 					item->getName(),
 					LLAssetType::AT_LINK,
@@ -2960,9 +2960,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 					LLPointer<LLInventoryCallback> cb = NULL;
 					link_inventory_item(
 						gAgent.getID(),
-						inv_item->getUUID(),
+						inv_item->getLinkedUUID(),
 						mUUID,
-						std::string(),
+						inv_item->getName(),
 						LLAssetType::AT_LINK,
 						cb);
 				}
