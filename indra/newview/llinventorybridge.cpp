@@ -162,16 +162,6 @@ std::string ICON_NAME[ICON_NAME_COUNT] =
 	"inv_item_linkfolder.tga"
 };
 
-
-// +=================================================+
-// |        LLInventoryPanelObserver                 |
-// +=================================================+
-void LLInventoryPanelObserver::changed(U32 mask)
-{
-	mIP->modelChanged(mask);
-}
-
-
 // +=================================================+
 // |        LLInvFVBridge                            |
 // +=================================================+
