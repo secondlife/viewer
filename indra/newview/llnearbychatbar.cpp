@@ -97,9 +97,10 @@ void LLGestureComboBox::refreshGestures()
 	clearRows();
 	mGestures.clear();
 
-	LLGestureManager::item_map_t::iterator it;
+	LLGestureManager::item_map_t::const_iterator it;
+	const LLGestureManager::item_map_t& active_gestures = LLGestureManager::instance().getActiveGestures();
 	LLSD::Integer idx(0);
-	for (it = LLGestureManager::instance().mActive.begin(); it != LLGestureManager::instance().mActive.end(); ++it)
+	for (it = active_gestures.begin(); it != active_gestures.end(); ++it)
 	{
 		LLMultiGesture* gesture = (*it).second;
 		if (gesture)
