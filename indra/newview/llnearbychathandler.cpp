@@ -332,7 +332,8 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 	//only messages from AGENTS
 	if(CHAT_SOURCE_OBJECT == chat_msg.mSourceType)
 	{
-		return;//dn't show toast for messages from objects
+		if(chat_msg.mChatType == CHAT_TYPE_DEBUG_MSG)
+			return;//ok for now we don't skip messeges from object, so skip only debug messages
 	}
 
 	LLUUID id;

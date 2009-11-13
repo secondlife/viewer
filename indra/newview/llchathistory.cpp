@@ -53,7 +53,7 @@ std::string formatCurrentTime()
 	time_t utc_time;
 	utc_time = time_corrected();
 	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
-		+LLTrans::getString("TimeMin")+"] ";
+		+LLTrans::getString("TimeMin")+"]";
 
 	LLSD substitution;
 
@@ -84,6 +84,10 @@ public:
 
 		if (level == "profile")
 		{
+			LLSD params;
+			params["object_id"] = getAvatarId();
+
+			LLFloaterReg::showInstance("inspect_object", params);
 		}
 		else if (level == "block")
 		{
@@ -344,7 +348,9 @@ LLView* LLChatHistory::getHeader(const LLChat& chat,const LLStyle::Params& style
 void LLChatHistory::appendWidgetMessage(const LLChat& chat)
 {
 	LLView* view = NULL;
-	std::string view_text = "\n[" + formatCurrentTime() + "] " + chat.mFromName + ": ";
+	std::string view_text = "\n[" + formatCurrentTime() + "] ";
+	if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
+		view_text += chat.mFromName + ": ";
 
 
 	LLInlineViewSegment::Params p;

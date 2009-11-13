@@ -120,11 +120,7 @@ void LLIMFloater::newIMCallback(const LLSD& data){
 		LLUUID session_id = data["session_id"].asUUID();
 
 		LLIMFloater* floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
-		if (floater == NULL)
-		{
-			llwarns << "new_im_callback for non-existent session_id " << session_id << llendl;
-			return;
-		}
+		if (floater == NULL) return;
 
         // update if visible, otherwise will be updated when opened
 		if (floater->getVisible())

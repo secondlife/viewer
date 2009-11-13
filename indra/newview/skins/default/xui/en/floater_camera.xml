@@ -107,6 +107,7 @@
          image_unselected="Cam_Rotate_Out"
          layout="topleft"
          left="45"
+         mouse_opaque="false" 
          name="cam_rotate_stick"
          quadrant="left"
          scale_image="false"

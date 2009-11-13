@@ -78,6 +78,8 @@ public:
 
 	static void		onBtnHeldDown(void *userdata);		// called by llbutton callback handler
 	void            setInitialQuadrant(EJoystickQuadrant initial) { mInitialQuadrant = initial; };
+
+	BOOL			pointInCircle(S32 x, S32 y) const;
 	
 	static std::string nameFromQuadrant(const EJoystickQuadrant quadrant);
 	static EJoystickQuadrant quadrantFromName(const std::string& name);
