@@ -333,6 +333,6 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          min_width="4" 
          right="-1"
          top="0"
-         width="26"/>
+         width="4"/>
     </layout_stack>
 </panel>

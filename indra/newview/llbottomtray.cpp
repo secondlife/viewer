@@ -331,74 +331,87 @@ void LLBottomTray::verifyChildControlsSizes()
 		mNearbyChatBar->setRect(rect);
 	}
 }
-#define __FEATURE_EXT_991
+
 void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	lldebugs << "****************************************" << llendl;
+	static S32 debug_calling_number = 0;
+	lldebugs << "**************************************** " << ++debug_calling_number << llendl;
 
 	S32 current_width = getRect().getWidth();
+	S32 delta_width = width - current_width;
 	lldebugs << "Reshaping: " 
 		<< ", width: " << width
-		<< ", height: " << height
-		<< ", called_from_parent: " << called_from_parent
 		<< ", cur width: " << current_width
-		<< ", cur height: " << getRect().getHeight()
+		<< ", delta_width: " << delta_width
+		<< ", called_from_parent: " << called_from_parent
 		<< llendl;
 
 	if (mNearbyChatBar)			log(mNearbyChatBar, "before");
 	if (mChicletPanel)			log(mChicletPanel, "before");
 
+	// stores width size on which bottom tray is less than width required by its children. EXT-991
+	static S32 extra_shrink_width = 0;
+	bool should_be_reshaped = true;
+
 	if (mChicletPanel && mToolbarStack && mNearbyChatBar)
 	{
 		mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, TRUE);
  		verifyChildControlsSizes();
- 		updateResizeState(width, current_width);
+
+		// bottom tray is narrowed
+		if (delta_width < 0)
+		{
+			if (extra_shrink_width > 0)
+			{
+				// is world rect was extra shrunk and decreasing again only update this value
+				// to delta_width negative
+				extra_shrink_width -= delta_width; // use "-=" because delta_width is negative
+				should_be_reshaped = false;
+			}
+			else
+			{
+				extra_shrink_width = processWidthDecreased(delta_width);
+
+				// increase new width to extra_shrink_width value to not reshape less than bottom tray minimum
+				width += extra_shrink_width;
+			}
+		}
+		// bottom tray is widen
+		else
+		{
+			if (extra_shrink_width > delta_width)
+			{
+				// Less than minimum width is more than increasing (delta_width) 
+				// only reduce it value and make no reshape
+				extra_shrink_width -= delta_width;
+				should_be_reshaped = false;
+			}
+			else 
+			{
+				if (extra_shrink_width > 0)
+				{
+					// If we have some extra shrink width let's reduce delta_width & width
+					delta_width -= extra_shrink_width;
+					width -= extra_shrink_width;
+					extra_shrink_width = 0;
+				}
+				processWidthIncreased(delta_width);
+			}
+		}
 	}
 
-	LLPanel::reshape(width, height, called_from_parent);
-
+	lldebugs << "There is no enough width to reshape all children: " << extra_shrink_width << llendl;
+	if (should_be_reshaped)
+	{
+		lldebugs << "Reshape all children with width: " << width << llendl;
+		LLPanel::reshape(width, height, called_from_parent);
+	}
 
 	if (mNearbyChatBar)			log(mNearbyChatBar, "after");
 	if (mChicletPanel)			log(mChicletPanel, "after");
 }
 
-void LLBottomTray::updateResizeState(S32 new_width, S32 cur_width)
-{
-	mResizeState = RS_NORESIZE;
-
-	S32 delta_width = new_width - cur_width;
-//	if (delta_width == 0) return;
-	bool shrink = new_width < cur_width;
-
-	const S32 chiclet_panel_width = mChicletPanel->getParent()->getRect().getWidth();
-	const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
-
-	const S32 chatbar_panel_width = mNearbyChatBar->getRect().getWidth();
-	const S32 chatbar_panel_min_width = mNearbyChatBar->getMinWidth();
-	const S32 chatbar_panel_max_width = mNearbyChatBar->getMaxWidth();
-
-	lldebugs << "chatbar_panel_width: " << chatbar_panel_width
-		<< ", chatbar_panel_min_width: " << chatbar_panel_min_width
-		<< ", chatbar_panel_max_width: " << chatbar_panel_max_width
-		<< ", chiclet_panel_width: " << chiclet_panel_width
-		<< ", chiclet_panel_min_width: " << chiclet_panel_min_width
-		<< llendl;
-
-	// bottom tray is narrowed
-	if (shrink)
-	{
-		processWidthDecreased(delta_width);
-	}
-	// bottom tray is widen
-	else
-	{
-		processWidthIncreased(delta_width);
-	}
-
-	lldebugs << "New resize state: " << mResizeState << llendl;
-}
-
-void LLBottomTray::processWidthDecreased(S32 delta_width)
+S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 {
 	bool still_should_be_processed = true;
 
@@ -409,7 +422,6 @@ void LLBottomTray::processWidthDecreased(S32 delta_width)
 	{
 		// we have some space to decrease chiclet panel
 		S32 panel_delta_min = chiclet_panel_width - chiclet_panel_min_width;
-		mResizeState |= RS_CHICLET_PANEL;
 
 		S32 delta_panel = llmin(-delta_width, panel_delta_min);
 
@@ -437,27 +449,25 @@ void LLBottomTray::processWidthDecreased(S32 delta_width)
 	{
 		// we have some space to decrease chatbar panel
 		S32 panel_delta_min = chatbar_panel_width - chatbar_panel_min_width;
-		mResizeState |= RS_CHATBAR_INPUT;
 
 		S32 delta_panel = llmin(-delta_width, panel_delta_min);
 
-		// is chatbar panel width enough to process resizing?
+		// whether chatbar panel width is enough to process resizing?
 		delta_width += panel_delta_min;
-
 
 		still_should_be_processed = delta_width < 0;
 
 		mNearbyChatBar->reshape(mNearbyChatBar->getRect().getWidth() - delta_panel, mNearbyChatBar->getRect().getHeight());
 
+		log(mChicletPanel, "after processing panel decreasing via nearby chatbar panel");
+
 		lldebugs << "RS_CHATBAR_INPUT"
 			<< ", delta_panel: " << delta_panel
 			<< ", delta_width: " << delta_width
 			<< llendl;
-
-		log(mChicletPanel, "after nearby was processed");
-
 	}
 
+	S32 extra_shrink_width = 0;
 	S32 buttons_freed_width = 0;
 	if (still_should_be_processed)
 	{
@@ -480,7 +490,9 @@ void LLBottomTray::processWidthDecreased(S32 delta_width)
 
 		if (delta_width < 0)
 		{
-			llwarns << "WARNING: there is no enough room for bottom tray, resizing still should be processed" << llendl;
+			extra_shrink_width = -delta_width;
+			lldebugs << "There is no enough room for bottom tray, resizing still should be processed: " 
+				<< extra_shrink_width << llendl;
 		}
 
 		if (buttons_freed_width > 0)
@@ -491,10 +503,14 @@ void LLBottomTray::processWidthDecreased(S32 delta_width)
 			lldebugs << buttons_freed_width << llendl;
 		}
 	}
+
+	return extra_shrink_width;
 }
 
 void LLBottomTray::processWidthIncreased(S32 delta_width)
 {
+	if (delta_width <= 0) return;
+
 	const S32 chiclet_panel_width = mChicletPanel->getParent()->getRect().getWidth();
 	const S32 chiclet_panel_min_width = mChicletPanel->getMinWidth();
 
@@ -573,7 +589,6 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 	S32 chatbar_panel_width_ = mNearbyChatBar->getRect().getWidth();
 	if (delta_width > 0 && chatbar_panel_width_ < chatbar_panel_max_width)
 	{
-		mResizeState |= RS_CHATBAR_INPUT;
 		S32 delta_panel_max = chatbar_panel_max_width - chatbar_panel_width_;
 		S32 delta_panel = llmin(delta_width, delta_panel_max);
 		delta_width -= delta_panel_max;
