@@ -2404,7 +2404,7 @@ void LLFolderBridge::folderOptionsMenu()
 		{
 			mItems.push_back(std::string("Wear As Ensemble"));
 		}
-		mItems.push_back(std::string("Take Off Items"));
+		mItems.push_back(std::string("Remove From Outfit"));
 	}
 	hide_context_entries(*mMenu, mItems, disabled_items);
 }
