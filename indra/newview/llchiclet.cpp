@@ -427,7 +427,6 @@ void LLIMP2PChiclet::updateMenuItems()
 	bool is_friend = LLAvatarActions::isFriend(getOtherParticipantId());
 
 	mPopupMenu->getChild<LLUICtrl>("Add Friend")->setEnabled(!is_friend);
-	mPopupMenu->getChild<LLUICtrl>("Remove Friend")->setEnabled(is_friend);
 }
 
 BOOL LLIMP2PChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)

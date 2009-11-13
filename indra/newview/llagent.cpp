@@ -3080,10 +3080,6 @@ void LLAgent::updateCamera()
 		mOrbitLeftKey > 0.f,	// right
 		mOrbitDownKey > 0.f);	// bottom
 
-		camera_floater->mZoom->setToggleState( 
-		mOrbitInKey > 0.f,		// top
-		mOrbitOutKey > 0.f);	// bottom
-
 		camera_floater->mTrack->setToggleState(
 		mPanLeftKey > 0.f,		// left
 		mPanUpKey > 0.f,		// top

@@ -71,7 +71,8 @@ LLScrollListCell* LLScrollListCell::create(const LLScrollListCell::Params& cell_
 
 
 LLScrollListCell::LLScrollListCell(const LLScrollListCell::Params& p)
-:	mWidth(p.width)
+:	mWidth(p.width), 
+	mToolTip(p.tool_tip)
 {}
 
 // virtual
@@ -204,12 +205,27 @@ BOOL LLScrollListText::isText() const
 	return TRUE;
 }
 
-BOOL LLScrollListText::needsToolTip() const
+// virtual
+const std::string &LLScrollListText::getToolTip() const
 {
-	// show tooltips for truncated text
-	return mFont->getWidth(mText.getString()) > getWidth();
+	// If base class has a tooltip, return that
+	if (! LLScrollListCell::getToolTip().empty())
+		return LLScrollListCell::getToolTip();
+	
+	// ...otherwise, return the value itself as the tooltip
+	return mText.getString();
 }
 
+// virtual
+BOOL LLScrollListText::needsToolTip() const
+{
+	// If base class has a tooltip, return that
+	if (LLScrollListCell::needsToolTip())
+		return LLScrollListCell::needsToolTip();
+	
+	// ...otherwise, show tooltips for truncated text
+	return mFont->getWidth(mText.getString()) > getWidth();
+}
 
 //virtual 
 BOOL LLScrollListText::getVisible() const

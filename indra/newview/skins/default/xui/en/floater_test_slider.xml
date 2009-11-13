@@ -57,6 +57,13 @@
      width="200" />
     <slider_bar
      bottom="320"
+     height="100"
+     left="20"
+     name="slider_bar_vertical"
+     orientation="vertical"
+     width="20" />
+    <slider_bar
+     bottom="300"
      height="20"
      increment="1"
      initial_value="2.0"
@@ -64,6 +71,7 @@
      layout="topleft"
      max_val="5"
      min_val="1"
+     left_pad="20"
      name="slider_bar"
      width="300" />
     <slider

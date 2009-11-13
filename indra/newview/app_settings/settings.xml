@@ -3563,7 +3563,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>400</integer>
+      <integer>305</integer>
     </map>
     <key>HelpUseLocal</key>
     <map>
@@ -4895,7 +4895,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>350</integer>
+      <integer>305</integer>
     </map>
     <key>NotificationToastLifeTime</key>
     <map>

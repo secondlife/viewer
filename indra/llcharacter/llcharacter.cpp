@@ -273,13 +273,13 @@ void LLCharacter::removeAnimationData(std::string name)
 //-----------------------------------------------------------------------------
 // setVisualParamWeight()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::setVisualParamWeight(LLVisualParam* which_param, F32 weight, BOOL set_by_user)
+BOOL LLCharacter::setVisualParamWeight(LLVisualParam* which_param, F32 weight, BOOL upload_bake)
 {
 	S32 index = which_param->getID();
 	visual_param_index_map_t::iterator index_iter = mVisualParamIndexMap.find(index);
 	if (index_iter != mVisualParamIndexMap.end())
 	{
-		index_iter->second->setWeight(weight, set_by_user);
+		index_iter->second->setWeight(weight, upload_bake);
 		return TRUE;
 	}
 	return FALSE;
@@ -288,7 +288,7 @@ BOOL LLCharacter::setVisualParamWeight(LLVisualParam* which_param, F32 weight, B
 //-----------------------------------------------------------------------------
 // setVisualParamWeight()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::setVisualParamWeight(const char* param_name, F32 weight, BOOL set_by_user)
+BOOL LLCharacter::setVisualParamWeight(const char* param_name, F32 weight, BOOL upload_bake)
 {
 	std::string tname(param_name);
 	LLStringUtil::toLower(tname);
@@ -296,7 +296,7 @@ BOOL LLCharacter::setVisualParamWeight(const char* param_name, F32 weight, BOOL 
 	visual_param_name_map_t::iterator name_iter = mVisualParamNameMap.find(tableptr);
 	if (name_iter != mVisualParamNameMap.end())
 	{
-		name_iter->second->setWeight(weight, set_by_user);
+		name_iter->second->setWeight(weight, upload_bake);
 		return TRUE;
 	}
 	llwarns << "LLCharacter::setVisualParamWeight() Invalid visual parameter: " << param_name << llendl;
@@ -306,12 +306,12 @@ BOOL LLCharacter::setVisualParamWeight(const char* param_name, F32 weight, BOOL 
 //-----------------------------------------------------------------------------
 // setVisualParamWeight()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::setVisualParamWeight(S32 index, F32 weight, BOOL set_by_user)
+BOOL LLCharacter::setVisualParamWeight(S32 index, F32 weight, BOOL upload_bake)
 {
 	visual_param_index_map_t::iterator index_iter = mVisualParamIndexMap.find(index);
 	if (index_iter != mVisualParamIndexMap.end())
 	{
-		index_iter->second->setWeight(weight, set_by_user);
+		index_iter->second->setWeight(weight, upload_bake);
 		return TRUE;
 	}
 	llwarns << "LLCharacter::setVisualParamWeight() Invalid visual parameter index: " << index << llendl;
