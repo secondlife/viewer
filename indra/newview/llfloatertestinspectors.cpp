@@ -53,7 +53,8 @@ LLFloaterTestInspectors::~LLFloaterTestInspectors()
 
 BOOL LLFloaterTestInspectors::postBuild()
 {
-	getChild<LLUICtrl>("intentionally-not-found");
+	// Test the dummy widget construction code
+	getChild<LLUICtrl>("intentionally-not-found")->setEnabled(true);
 
 //	getChild<LLUICtrl>("avatar_2d_btn")->setCommitCallback(
 //		boost::bind(&LLFloaterTestInspectors::onClickAvatar2D, this));
