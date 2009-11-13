@@ -120,7 +120,7 @@ public:
 	const LLMatrix4&	getRelativeXform() const				{ return mRelativeXform; }
 	const LLMatrix3&	getRelativeXformInvTrans() const		{ return mRelativeXformInvTrans; }
 	/*virtual*/	const LLMatrix4	getRenderMatrix() const;
-
+				U32 	getRenderCost() const;
 
 	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
