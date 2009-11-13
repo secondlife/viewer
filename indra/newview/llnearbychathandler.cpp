@@ -63,8 +63,6 @@ class LLNearbyChatScreenChannel: public LLScreenChannelBase
 public:
 	LLNearbyChatScreenChannel(const LLUUID& id):LLScreenChannelBase(id) { mStopProcessing = false;};
 
-	void init				(S32 channel_left, S32 channel_right);
-
 	void addNotification	(LLSD& notification);
 	void arrangeToasts		();
 	void showToastsBottom	();
@@ -119,15 +117,6 @@ protected:
 
 	bool	mStopProcessing;
 };
-
-void LLNearbyChatScreenChannel::init(S32 channel_left, S32 channel_right)
-{
-	S32 channel_top = gViewerWindow->getWorldViewRectRaw().getHeight();
-	S32 channel_bottom = gViewerWindow->getWorldViewRectRaw().mBottom;
-	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
-	setVisible(TRUE);
-}
-
 
 void	LLNearbyChatScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 {
