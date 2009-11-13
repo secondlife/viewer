@@ -1687,7 +1687,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
-					LLAppearanceManager::instance().wearEnsemble(inv_cat);
+					LLAppearanceManager::instance().addEnsembleLink(inv_cat);
 				}
 				else
 				{
@@ -2089,7 +2089,7 @@ void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 		if(!model) return;
 		LLViewerInventoryCategory* cat = getCategory();
 		if(!cat) return;
-		LLAppearanceManager::instance().wearEnsemble(cat,true);
+		LLAppearanceManager::instance().addEnsembleLink(cat,true);
 		return;
 	}
 #endif
@@ -2953,7 +2953,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
-					LLAppearanceManager::instance().wearItem(inv_item);
+					LLAppearanceManager::instance().addItemLink(inv_item);
 				}
 				else
 				{
@@ -4206,7 +4206,7 @@ void wear_inventory_item_on_avatar( LLInventoryItem* item )
 		lldebugs << "wear_inventory_item_on_avatar( " << item->getName()
 				 << " )" << llendl;
 
-		LLAppearanceManager::instance().wearItem(item);
+		LLAppearanceManager::instance().addItemLink(item);
 	}
 }
 
