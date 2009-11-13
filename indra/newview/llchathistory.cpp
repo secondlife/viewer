@@ -84,6 +84,10 @@ public:
 
 		if (level == "profile")
 		{
+			LLSD params;
+			params["object_id"] = getAvatarId();
+
+			LLFloaterReg::showInstance("inspect_object", params);
 		}
 		else if (level == "block")
 		{
