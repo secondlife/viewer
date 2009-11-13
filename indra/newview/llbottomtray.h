@@ -108,6 +108,13 @@ private:
 	void log(LLView* panel, const std::string& descr);
 	bool processShowButton(EResizeState shown_object_type, S32* available_width, S32* buttons_required_width);
 	void processHideButton(EResizeState processed_object_type, S32* required_width, S32* buttons_freed_width);
+
+	/**
+	 * Determines if specified by type object can be shown. It should be hidden by shrink before.
+	 *
+	 * Processes buttons a such way to show buttons in constant order:
+	 *   - Gestures, Move, View, Snapshot
+	 */
 	bool canButtonBeShown(EResizeState processed_object_type) const;
 	void initStateProcessedObjectMap();
 
@@ -121,6 +128,8 @@ private:
 	 *
 	 * If it is impossible to show required button due to there is no enough room in bottom tray
 	 * it will no be shown. Is called via context menu commands.
+	 * In this case Alert Dialog will be shown to notify user about that.
+	 *
 	 * Method also stores resize state to be processed while future bottom tray extending:
 	 *  - if hidden while resizing button should be hidden it will not be shown while extending;
 	 *  - if hidden via context menu button should be shown but there is no enough room for now

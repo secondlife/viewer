@@ -696,7 +696,26 @@ bool LLBottomTray::canButtonBeShown(EResizeState processed_object_type) const
 	bool can_be_shown = mResizeState & processed_object_type;
 	if (can_be_shown)
 	{
-		// *TODO: mantipov: synchronize with situation when button was hidden via context menu;
+		static MASK MOVEMENT_PREVIOUS_BUTTONS_MASK = RS_BUTTON_GESTURES;
+		static MASK CAMERA_PREVIOUS_BUTTONS_MASK = RS_BUTTON_GESTURES | RS_BUTTON_MOVEMENT;
+		static MASK SNAPSHOT_PREVIOUS_BUTTONS_MASK = RS_BUTTON_GESTURES | RS_BUTTON_MOVEMENT | RS_BUTTON_CAMERA;
+
+		switch(processed_object_type)
+		{
+		case RS_BUTTON_GESTURES: // Gestures should be shown first
+			break;
+		case RS_BUTTON_MOVEMENT: // Move only if gesture is shown
+			can_be_shown = !(MOVEMENT_PREVIOUS_BUTTONS_MASK & mResizeState);
+			break;
+		case RS_BUTTON_CAMERA:
+			can_be_shown = !(CAMERA_PREVIOUS_BUTTONS_MASK & mResizeState);
+			break;
+		case RS_BUTTON_SNAPSHOT:
+			can_be_shown = !(SNAPSHOT_PREVIOUS_BUTTONS_MASK & mResizeState);
+			break;
+		default: // nothing to do here
+			break;
+		}
 	}
 	return can_be_shown;
 }
