@@ -23,13 +23,13 @@
   <texture name="Arrow_Up" file_name="widgets/Arrow_Up.png" preload="true" />
   <texture name="Arrow_Down" file_name="widgets/Arrow_Down.png" preload="true" />
 
-  <texture name="AudioMute_Off.png" file_name="icons/AudioMute_Off.png" preload="false" />
-  <texture name="AudioMute_Over.png" file_name="icons/AudioMute_Over.png" preload="false" />
-  <texture name="AudioMute_Press.png" file_name="icons/AudioMute_Press.png" preload="false" />
+  <texture name="AudioMute_Off" file_name="icons/AudioMute_Off.png" preload="false" />
+  <texture name="AudioMute_Over" file_name="icons/AudioMute_Over.png" preload="false" />
+  <texture name="AudioMute_Press" file_name="icons/AudioMute_Press.png" preload="false" />
 
-  <texture name="Audio_Off.png" file_name="icons/Audio_Off.png" preload="false" />
-  <texture name="Audio_Over.png" file_name="icons/Audio_Over.png" preload="false" />
-  <texture name="Audio_Press.png" file_name="icons/Audio_Press.png" preload="false" />
+  <texture name="Audio_Off" file_name="icons/Audio_Off.png" preload="false" />
+  <texture name="Audio_Over" file_name="icons/Audio_Over.png" preload="false" />
+  <texture name="Audio_Press" file_name="icons/Audio_Press.png" preload="false" />
 
   <texture name="BackArrow_Disabled" file_name="icons/BackArrow_Disabled.png" preload="false" />
   <texture name="BackArrow_Off" file_name="icons/BackArrow_Off.png" preload="false" />
@@ -109,9 +109,9 @@
 
   <texture name="DropTarget" file_name="widgets/DropTarget.png" preload="false" />
 
-  <texture name="ExternalBrowser_Off.png" file_name="icons/ExternalBrowser_Off.png" preload="false" />
-  <texture name="ExternalBrowser_Over.png" file_name="icons/ExternalBrowser_Over.png" preload="false" />
-  <texture name="ExternalBrowser_Press.png" file_name="icons/ExternalBrowser_Press.png" preload="false" />
+  <texture name="ExternalBrowser_Off" file_name="icons/ExternalBrowser_Off.png" preload="false" />
+  <texture name="ExternalBrowser_Over" file_name="icons/ExternalBrowser_Over.png" preload="false" />
+  <texture name="ExternalBrowser_Press" file_name="icons/ExternalBrowser_Press.png" preload="false" />
 
   <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
   <texture name="Favorite_Star_Off" file_name="navbar/Favorite_Star_Off.png" preload="false" />
@@ -338,12 +338,12 @@
  <texture name="parcel_lght_Voice" file_name="icons/parcel_lght_Voice.png" preload="false" />
  <texture name="parcel_lght_VoiceNo" file_name="icons/parcel_lght_VoiceNo.png" preload="false" />
 
-  <texture name="Pause_Off.png" file_name="icons/Pause_Off.png" preload="false" />
-  <texture name="Pause_Over.png" file_name="icons/Pause_Over.png" preload="false" />
-  <texture name="Pause_Press.png" file_name="icons/Pause_Press.png" preload="false" />
-  <texture name="Play_Off.png" file_name="icons/Play_Off.png" preload="false" />
-  <texture name="Play_Over.png" file_name="icons/Play_Over.png" preload="false" />
-  <texture name="Play_Press.png" file_name="icons/Play_Press.png" preload="false" />
+  <texture name="Pause_Off" file_name="icons/Pause_Off.png" preload="false" />
+  <texture name="Pause_Over" file_name="icons/Pause_Over.png" preload="false" />
+  <texture name="Pause_Press" file_name="icons/Pause_Press.png" preload="false" />
+  <texture name="Play_Off" file_name="icons/Play_Off.png" preload="false" />
+  <texture name="Play_Over" file_name="icons/Play_Over.png" preload="false" />
+  <texture name="Play_Press" file_name="icons/Play_Press.png" preload="false" />
 
   <texture name="Progress_1" file_name="icons/Progress_1.png" preload="false" />
   <texture name="Progress_2" file_name="icons/Progress_2.png" preload="false" />
@@ -425,12 +425,12 @@
   <texture name="SegmentedBtn_Right_Selected_Press" file_name="widgets/SegmentedBtn_Right_Selected_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Right_Selected_Disabled" file_name="widgets/SegmentedBtn_Right_Selected_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
 
-  <texture name="SkipBackward_Off.png" file_name="icons/SkipBackward_Off.png" preload="false" />
-  <texture name="SkipBackward_Over.png" file_name="icons/SkipBackward_Over.png" preload="false" />
-  <texture name="SkipBackward_Press.png" file_name="icons/SkipBackward_Press.png" preload="false" />
-  <texture name="SkipForward_Off.png" file_name="icons/SkipForward_Off.png" preload="false" />
-  <texture name="SkipForward_Over.png" file_name="icons/SkipForward_Over.png" preload="false" />
-  <texture name="SkipForward_Press.png" file_name="icons/SkipForward_Press.png" preload="false" />
+  <texture name="SkipBackward_Off" file_name="icons/SkipBackward_Off.png" preload="false" />
+  <texture name="SkipBackward_Over" file_name="icons/SkipBackward_Over.png" preload="false" />
+  <texture name="SkipBackward_Press" file_name="icons/SkipBackward_Press.png" preload="false" />
+  <texture name="SkipForward_Off" file_name="icons/SkipForward_Off.png" preload="false" />
+  <texture name="SkipForward_Over" file_name="icons/SkipForward_Over.png" preload="false" />
+  <texture name="SkipForward_Press" file_name="icons/SkipForward_Press.png" preload="false" />
 
   <texture name="SliderTrack_Horiz" file_name="widgets/SliderTrack_Horiz.png" scale.left="4" scale.top="4" scale.right="100" scale.bottom="2" />
   <texture name="SliderTrack_Vert" file_name="widgets/SliderTrack_Vert.png" scale.left="2" scale.top="100" scale.right="4" scale.bottom="4" />
@@ -449,9 +449,9 @@
   <texture name="Stepper_Up_Off" file_name="widgets/Stepper_Up_Off.png" preload="true" />
   <texture name="Stepper_Up_Press" file_name="widgets/Stepper_Up_Press.png" preload="true" />
 
-  <texture name="StopReload_Off.png" file_name="icons/StopReload_Off.png" preload="false" />
-  <texture name="StopReload_Over.png" file_name="icons/StopReload_Over.png" preload="false" />
-  <texture name="StopReload_Press.png" file_name="icons/StopReload_Press.png" preload="false" />
+  <texture name="StopReload_Off" file_name="icons/StopReload_Off.png" preload="false" />
+  <texture name="StopReload_Over" file_name="icons/StopReload_Over.png" preload="false" />
+  <texture name="StopReload_Press" file_name="icons/StopReload_Press.png" preload="false" />
 
   <texture name="TabIcon_Appearance_Large" file_name="taskpanel/TabIcon_Appearance_Large.png" preload="false" />
   <texture name="TabIcon_Appearance_Off" file_name="taskpanel/TabIcon_Appearance_Off.png" preload="false" />
@@ -531,7 +531,7 @@
   <texture name="Toolbar_Right_Off" file_name="containers/Toolbar_Right_Off.png" preload="false" />
   <texture name="Toolbar_Right_Press" file_name="containers/Toolbar_Right_Press.png" preload="false" />
   <texture name="Toolbar_Right_Selected" file_name="containers/Toolbar_Right_Selected.png" preload="false" />
-  
+
   <texture name="Tooltip" file_name="widgets/Tooltip.png" preload="true" scale.left="2" scale.top="16" scale.right="100" scale.bottom="3" />
 
   <texture name="TrashItem_Disabled" file_name="icons/TrashItem_Disabled.png" preload="false" />
@@ -563,9 +563,9 @@
 
   <texture name="YouAreHere_Badge" file_name="icons/YouAreHere_Badge.png" preload="false" />
 
-  <texture name="Zoom_Off.png" file_name="icons/Zoom_Off.png" preload="false" />
-  <texture name="Zoom_Over.png" file_name="icons/Zoom_Over.png" preload="false" />
-  <texture name="Zoom_Press.png" file_name="icons/Zoom_Press.png" preload="false" />
+  <texture name="Zoom_Off" file_name="icons/Zoom_Off.png" preload="false" />
+  <texture name="Zoom_Over" file_name="icons/Zoom_Over.png" preload="false" />
+  <texture name="Zoom_Press" file_name="icons/Zoom_Press.png" preload="false" />
 
   <!--WARNING OLD ART *do not use*-->
 
