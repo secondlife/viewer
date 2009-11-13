@@ -422,6 +422,12 @@ void LLFloaterTools::refresh()
 	LLResMgr::getInstance()->getIntegerString(prim_count_string, LLSelectMgr::getInstance()->getSelection()->getObjectCount());
 	childSetTextArg("prim_count", "[COUNT]", prim_count_string);
 
+	// calculate selection rendering cost
+	std::string prim_cost_string;
+	LLResMgr::getInstance()->getIntegerString(prim_cost_string, calcRenderCost());
+	childSetTextArg("render_cost", "[COUNT]", prim_cost_string);
+
+
 	// disable the object and prim counts if nothing selected
 	bool have_selection = ! LLSelectMgr::getInstance()->getSelection()->isEmpty();
 	childSetEnabled("obj_count", have_selection);
@@ -962,6 +968,27 @@ void LLFloaterTools::onClickGridOptions()
 	LLFloaterReg::showInstance("build_options");
 	// RN: this makes grid options dependent on build tools window
 	//floaterp->addDependentFloater(LLFloaterBuildOptions::getInstance(), FALSE);
+}
+
+S32 LLFloaterTools::calcRenderCost()
+{
+	S32 cost = 0;
+	for (LLObjectSelection::iterator selection_iter = LLSelectMgr::getInstance()->getSelection()->begin();
+		  selection_iter != LLSelectMgr::getInstance()->getSelection()->end();
+		  ++selection_iter)
+	{
+		LLSelectNode *select_node = *selection_iter;
+		if (select_node)
+		{
+			LLVOVolume *viewer_volume = (LLVOVolume*)select_node->getObject();
+			if (viewer_volume)
+			{
+					cost += viewer_volume->getRenderCost();
+			}
+		}
+	}
+
+	return cost;
 }
 
 // static
