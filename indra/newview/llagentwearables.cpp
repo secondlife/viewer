@@ -39,7 +39,7 @@
 #include "llfloatercustomize.h"
 #include "llfloaterinventory.h"
 #include "llinventorybridge.h"
-#include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llnotify.h"
 #include "llviewerregion.h"

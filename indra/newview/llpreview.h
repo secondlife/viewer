@@ -37,7 +37,7 @@
 #include "llresizehandle.h"
 #include "llpointer.h"
 #include "lluuid.h"
-#include "llinventorymodel.h"	// LLInventoryObserver
+#include "llinventoryobserver.h"
 #include <map>
 
 class LLInventoryItem;

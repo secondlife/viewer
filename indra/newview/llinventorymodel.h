@@ -46,11 +46,6 @@
 #include <string>
 #include <vector>
 
-// ! REFACTOR ! Remove llinventoryobservers.h and have other files that need it explicitly 
-// include llinventoryobservers.h instead of llinventorymodel.h .  This will reduce dependency on
-// llinventorymodel.h.
-#include "llinventoryobserver.h" 
-
 class LLInventoryObserver;
 class LLInventoryObject;
 class LLInventoryItem;

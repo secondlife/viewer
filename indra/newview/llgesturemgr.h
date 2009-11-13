@@ -38,7 +38,7 @@
 #include <vector>
 
 #include "llassetstorage.h"	// LLAssetType
-#include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "llsingleton.h"
 #include "llviewerinventory.h"
 

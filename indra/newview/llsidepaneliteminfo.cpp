@@ -41,6 +41,7 @@
 #include "llfloaterreg.h"
 #include "llgroupactions.h"
 #include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "lllineeditor.h"
 #include "llradiogroup.h"
 #include "llviewercontrol.h"

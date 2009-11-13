@@ -38,7 +38,7 @@
 #include "llfloatercustomize.h"
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
-#include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "llnotifications.h"
 #include "llpanelappearance.h"
 #include "llsidetray.h"

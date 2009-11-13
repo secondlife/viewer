@@ -35,7 +35,8 @@
 #define LL_LLPANELMAININVENTORY_H
 
 #include "llpanel.h"
-#include "llinventorymodel.h"
+#include "llinventoryobserver.h"
+
 #include "llfolderview.h"
 
 class LLFolderViewItem;
