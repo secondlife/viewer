@@ -36,7 +36,7 @@
 #include "llpanel.h"
 #include "llscrollbar.h"
 #include "string"
-#include "llchat.h"
+#include "llviewerchat.h"
 #include "lltoastpanel.h"
 
 typedef enum e_show_item_header
@@ -59,7 +59,7 @@ public:
 
 	const LLUUID& getFromID() const { return mFromID;}
 	
-	void	addText		(const std::string& message);
+	void	addText		(const std::string& message ,  const LLStyle::Params& input_params = LLStyle::Params());
 	void	setMessage	(const LLChat& msg);
 	void	setWidth		(S32 width);
 	void	snapToMessageHeight	();
@@ -89,6 +89,8 @@ private:
 	std::string		mFromName;	// agent or object name
 	LLUUID			mFromID;	// agent id or object id
 	EChatSourceType	mSourceType;
+	LLColor4        mTextColor;
+	LLFontGL*       mFont;
 
 
 	std::vector<std::string> mMessages;
