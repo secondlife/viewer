@@ -1127,11 +1127,6 @@ void LLOutgoingCallDialog::onOpen(const LLSD& key)
 	childSetTextArg("connecting", "[CALLEE_NAME]", callee_name);
 	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 	icon->setValue(callee_id);
-
-	// dock the dialog to the sys well, where other sys messages appear
-	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getSysWell(),
-					 this, getDockTongue(), LLDockControl::TOP,
-					 boost::bind(&LLOutgoingCallDialog::getAllowedRect, this, _1)));
 }
 
 
@@ -1155,6 +1150,11 @@ BOOL LLOutgoingCallDialog::postBuild()
 	BOOL success = LLDockableFloater::postBuild();
 
 	childSetAction("Cancel", onCancel, this);
+
+	// dock the dialog to the sys well, where other sys messages appear
+	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getSysWell(),
+					 this, getDockTongue(), LLDockControl::TOP,
+					 boost::bind(&LLOutgoingCallDialog::getAllowedRect, this, _1)));
 
 	return success;
 }
