@@ -4053,7 +4053,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		LLInventoryItem* item = getItem();
 		if (item && item->getIsLinkType())
 		{
-			items.push_back(std::string("Goto Link"));
+			items.push_back(std::string("Find Original"));
 		}
 
 		items.push_back(std::string("Properties"));
@@ -4493,7 +4493,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		if (item && item->getIsLinkType())
 		{
-			items.push_back(std::string("Goto Link"));
+			items.push_back(std::string("Find Original"));
 		}
 
 		items.push_back(std::string("Properties"));
@@ -5157,7 +5157,7 @@ void LLLinkFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
-		items.push_back(std::string("Goto Link"));
+		items.push_back(std::string("Find Original"));
 		items.push_back(std::string("Delete"));
 		if (!isItemRemovable())
 		{
