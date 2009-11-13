@@ -159,12 +159,21 @@ public:
 
 	virtual void error( U32 status, const std::string& reason )
 	{
-		llwarns << "responder failed with status " << status << ", reason " << reason << llendl;
-		if(mMediaImpl)
+		if(status == 401)
 		{
-			mMediaImpl->mMediaSourceFailed = true;
+			// This is the "you need to authenticate" status.  
+			// Treat this like an html page.
+			completeAny(status, "text/html");
 		}
-		// completeAny(status, "none/none");
+		else
+		{
+			llwarns << "responder failed with status " << status << ", reason " << reason << llendl;
+		
+			if(mMediaImpl)
+			{
+				mMediaImpl->mMediaSourceFailed = true;
+			}
+		}
 	}
 
 	void completeAny(U32 status, const std::string& mime_type)
