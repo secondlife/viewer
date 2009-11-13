@@ -75,7 +75,9 @@
       top="10"
       visible="false"
       width="285"
-      wrap="true"/>
+      wrap="true"
+      parse_highlights="true"
+      allow_html="true"/>
   </panel>
   <panel
     background_visible="false"
