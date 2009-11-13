@@ -36,8 +36,6 @@
 
 #include "llinventorypanel.h"
 
-// Seraph TODO: Remove unnecessary headers
-
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
@@ -55,6 +53,22 @@ const std::string LLInventoryPanel::DEFAULT_SORT_ORDER = std::string("InventoryS
 const std::string LLInventoryPanel::RECENTITEMS_SORT_ORDER = std::string("RecentItemsSortOrder");
 const std::string LLInventoryPanel::INHERIT_SORT_ORDER = std::string("");
 static const LLInventoryFVBridgeBuilder INVENTORY_BRIDGE_BUILDER;
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLInventoryPanelObserver
+//
+// Bridge to support knowing when the inventory has changed.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLInventoryPanelObserver : public LLInventoryObserver
+{
+public:
+	LLInventoryPanelObserver(LLInventoryPanel* ip) : mIP(ip) {}
+	virtual ~LLInventoryPanelObserver() {}
+	virtual void changed(U32 mask);
+protected:
+	LLInventoryPanel* mIP;
+};
 
 LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :	
 	LLPanel(p),
@@ -871,4 +885,12 @@ void example_param_block_usage()
 	//LLInitParam::LLSDParser(param_block_sd).parse(param_block);
 
 	LLUICtrlFactory::create<LLInventoryPanel>(param_block);
+}
+
+// +=================================================+
+// |        LLInventoryPanelObserver                 |
+// +=================================================+
+void LLInventoryPanelObserver::changed(U32 mask)
+{
+	mIP->modelChanged(mask);
 }
