@@ -69,7 +69,7 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	mNotification = p.notification;
 
 	// if message comes from the system - there shouldn't be a reply btn
-	if(p.from == "Second Life")
+	if(p.from == SYSTEM_FROM)
 	{
 		mAvatar->setVisible(FALSE);
 		sys_msg_icon->setVisible(TRUE);
