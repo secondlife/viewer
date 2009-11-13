@@ -134,16 +134,31 @@ void LLJoystick::updateSlop()
 	return;
 }
 
+BOOL LLJoystick::pointInCircle(S32 x, S32 y) const 
+{ 
+	//cnt is x and y coordinates of center of joystick circle, and also its radius,
+	//because area is not just rectangular, it's a square!
+	//Make sure to change method if this changes.
+	int cnt = this->getLocalRect().mTop/2;
+	if((x-cnt)*(x-cnt)+(y-cnt)*(y-cnt)<=cnt*cnt)
+		return TRUE;
+	return FALSE;
+}
 
 BOOL LLJoystick::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	//llinfos << "joystick mouse down " << x << ", " << y << llendl;
+	bool handles = false;
 
-	mLastMouse.set(x, y);
-	mFirstMouse.set(x, y);
+	if(handles = pointInCircle(x, y))
+	{
+		mLastMouse.set(x, y);
+		mFirstMouse.set(x, y);
+		mMouseDownTimer.reset();
+		handles = LLButton::handleMouseDown(x, y, mask);
+	}
 
-	mMouseDownTimer.reset();
-	return LLButton::handleMouseDown(x, y, mask);
+	return handles;
 }
 
 
