@@ -117,34 +117,34 @@ LLPanelPrimMediaControls::~LLPanelPrimMediaControls()
 
 BOOL LLPanelPrimMediaControls::postBuild()
 {
-	mMediaRegion			= getChild<LLView>("media_region"); assert(mMediaRegion);
-	mBackCtrl				= getChild<LLUICtrl>("back"); assert(mBackCtrl);
-	mFwdCtrl				= getChild<LLUICtrl>("fwd"); assert(mFwdCtrl);
-	mReloadCtrl				= getChild<LLUICtrl>("reload"); assert(mReloadCtrl);
-	mPlayCtrl				= getChild<LLUICtrl>("play"); assert(mPlayCtrl);
-	mPauseCtrl				= getChild<LLUICtrl>("pause"); assert(mPauseCtrl);
-	mStopCtrl				= getChild<LLUICtrl>("stop"); assert(mStopCtrl);
-	mMediaStopCtrl			= getChild<LLUICtrl>("media_stop"); assert(mMediaStopCtrl);
-	mHomeCtrl				= getChild<LLUICtrl>("home"); assert(mHomeCtrl);
-	mUnzoomCtrl				= getChild<LLUICtrl>("close"); assert(mUnzoomCtrl); // This is actually "unzoom" 
-	mOpenCtrl				= getChild<LLUICtrl>("new_window"); assert(mOpenCtrl);
-	mZoomCtrl				= getChild<LLUICtrl>("zoom_frame"); assert(mZoomCtrl);
-	mMediaProgressPanel		= getChild<LLPanel>("media_progress_indicator"); assert(mMediaProgressPanel);
-	mMediaProgressBar		= getChild<LLProgressBar>("media_progress_bar"); assert(mMediaProgressBar);
-	mMediaAddressCtrl		= getChild<LLUICtrl>("media_address"); assert(mMediaAddressCtrl);
-	mMediaAddress			= getChild<LLUICtrl>("media_address_url"); assert(mMediaAddress);
-	mMediaPlaySliderPanel	= getChild<LLUICtrl>("media_play_position"); assert(mMediaPlaySliderPanel);
-	mMediaPlaySliderCtrl	= getChild<LLUICtrl>("media_play_slider"); assert(mMediaPlaySliderCtrl);
-	mVolumeCtrl				= getChild<LLUICtrl>("media_volume"); assert(mVolumeCtrl);
-	mVolumeBtn				= getChild<LLButton>("media_volume_button"); assert(mVolumeBtn);
-	mVolumeUpCtrl			= getChild<LLUICtrl>("volume_up"); assert(mVolumeUpCtrl);
-	mVolumeDownCtrl			= getChild<LLUICtrl>("volume_down"); assert(mVolumeDownCtrl);
-	mWhitelistIcon			= getChild<LLIconCtrl>("media_whitelist_flag"); assert(mWhitelistIcon);
-	mSecureLockIcon			= getChild<LLIconCtrl>("media_secure_lock_flag"); assert(mSecureLockIcon);
-	mMediaControlsStack		= getChild<LLLayoutStack>("media_controls"); assert(mMediaControlsStack);
-	mLeftBookend			= getChild<LLUICtrl>("left_bookend"); assert(mLeftBookend);
-	mRightBookend			= getChild<LLUICtrl>("right_bookend"); assert(mRightBookend);
-	mBackgroundImage		= LLUI::getUIImage(getString("control_background_image_name")); assert(mBackgroundImage);
+	mMediaRegion			= getChild<LLView>("media_region");
+	mBackCtrl				= getChild<LLUICtrl>("back");
+	mFwdCtrl				= getChild<LLUICtrl>("fwd");
+	mReloadCtrl				= getChild<LLUICtrl>("reload");
+	mPlayCtrl				= getChild<LLUICtrl>("play");
+	mPauseCtrl				= getChild<LLUICtrl>("pause");
+	mStopCtrl				= getChild<LLUICtrl>("stop");
+	mMediaStopCtrl			= getChild<LLUICtrl>("media_stop");
+	mHomeCtrl				= getChild<LLUICtrl>("home");
+	mUnzoomCtrl				= getChild<LLUICtrl>("close"); // This is actually "unzoom" 
+	mOpenCtrl				= getChild<LLUICtrl>("new_window");
+	mZoomCtrl				= getChild<LLUICtrl>("zoom_frame");
+	mMediaProgressPanel		= getChild<LLPanel>("media_progress_indicator");
+	mMediaProgressBar		= getChild<LLProgressBar>("media_progress_bar");
+	mMediaAddressCtrl		= getChild<LLUICtrl>("media_address");
+	mMediaAddress			= getChild<LLUICtrl>("media_address_url");
+	mMediaPlaySliderPanel	= getChild<LLUICtrl>("media_play_position");
+	mMediaPlaySliderCtrl	= getChild<LLUICtrl>("media_play_slider");
+	mVolumeCtrl				= getChild<LLUICtrl>("media_volume");
+	mVolumeBtn				= getChild<LLButton>("media_volume_button");
+	mVolumeUpCtrl			= getChild<LLUICtrl>("volume_up");
+	mVolumeDownCtrl			= getChild<LLUICtrl>("volume_down");
+	mWhitelistIcon			= getChild<LLIconCtrl>("media_whitelist_flag");
+	mSecureLockIcon			= getChild<LLIconCtrl>("media_secure_lock_flag");
+	mMediaControlsStack		= getChild<LLLayoutStack>("media_controls");
+	mLeftBookend			= getChild<LLUICtrl>("left_bookend");
+	mRightBookend			= getChild<LLUICtrl>("right_bookend");
+	mBackgroundImage		= LLUI::getUIImage(getString("control_background_image_name"));
 
 	// These are currently removed...but getChild creates a "dummy" widget.
 	// This class handles them missing.
@@ -729,8 +729,7 @@ bool LLPanelPrimMediaControls::isMouseOver()
 		getWindow()->getCursorPosition(&cursor_pos_window);
 		getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
 				
-		//FIXME: rewrite as LLViewQuery or get hover set from LLViewerWindow?
-		if(mMediaControlsStack && mMediaControlsStack->getVisible())
+		if(mMediaControlsStack->getVisible())
 		{
 			mMediaControlsStack->screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &x, &y);
 
