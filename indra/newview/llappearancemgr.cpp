@@ -811,7 +811,7 @@ bool areMatchingWearables(const LLViewerInventoryItem *a, const LLViewerInventor
 			(a->getWearableType() == b->getWearableType()));
 }
 
-void LLAppearanceManager::wearItem( LLInventoryItem* item, bool do_update )
+void LLAppearanceManager::addItemLink( LLInventoryItem* item, bool do_update )
 {
 	LLViewerInventoryItem *vitem = dynamic_cast<LLViewerInventoryItem*>(item);
 	if (!vitem)
@@ -864,7 +864,7 @@ void LLAppearanceManager::wearItem( LLInventoryItem* item, bool do_update )
 	return;
 }
 
-void LLAppearanceManager::wearEnsemble( LLInventoryCategory* cat, bool do_update )
+void LLAppearanceManager::addEnsembleLink( LLInventoryCategory* cat, bool do_update )
 {
 #if SUPPORT_ENSEMBLES
 	// BAP add check for already in COF.
@@ -978,7 +978,7 @@ void LLAppearanceManager::registerAttachment(const LLUUID& item_id)
 		   if (item)
 		   {
 			   //LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Adding attachment link:");
-			   LLAppearanceManager::wearItem(item,false);  // Add COF link for item.
+			   LLAppearanceManager::addItemLink(item,false);  // Add COF link for item.
 			   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 			   gInventory.notifyObservers();
 		   }
@@ -1018,7 +1018,7 @@ void LLAppearanceManager::linkRegisteredAttachments()
 		LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		if (item)
 		{
-			wearItem(item, false);
+			addItemLink(item, false);
 			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 			gInventory.notifyObservers();
 		}

@@ -54,10 +54,10 @@ public:
 	void changeOutfit(bool proceed, const LLUUID& category, bool append);
 
 	// Add COF link to individual item.
-	void wearItem(LLInventoryItem* item, bool do_update = true);
+	void addItemLink(LLInventoryItem* item, bool do_update = true);
 
 	// Add COF link to ensemble folder.
-	void wearEnsemble(LLInventoryCategory* item, bool do_update = true);
+	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);
 
 	// Copy all items in a category.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
