@@ -1264,7 +1264,7 @@ LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
 		LLFolderType::FT_OUTFIT,
 		new_folder_name);
 
-	LLAppearanceManager::shallowCopyCategory(LLAppearanceManager::getCOF(),folder_id, NULL);
+	LLAppearanceManager::instance().shallowCopyCategory(LLAppearanceManager::instance().getCOF(),folder_id, NULL);
 	
 #if 0  // BAP - fix to go into rename state automatically after outfit is created.
 	LLViewerInventoryCategory *parent_category = gInventory.getCategory(parent_id);
@@ -1394,7 +1394,7 @@ void LLAgentWearables::removeWearableFinal(const EWearableType type, bool do_rem
 			const LLUUID &item_id = getWearableItemID(type,i);
 			popWearable(type,i);
 			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
-			LLAppearanceManager::removeItemLinks(item_id,false);
+			LLAppearanceManager::instance().removeItemLinks(item_id,false);
 
 			//queryWearableCache(); // moved below
 			if (old_wearable)
@@ -1411,7 +1411,7 @@ void LLAgentWearables::removeWearableFinal(const EWearableType type, bool do_rem
 		const LLUUID &item_id = getWearableItemID(type,index);
 		popWearable(type, index);
 		gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
-		LLAppearanceManager::removeItemLinks(item_id,false);
+		LLAppearanceManager::instance().removeItemLinks(item_id,false);
 
 		//queryWearableCache(); // moved below
 
@@ -2040,7 +2040,7 @@ void LLInitialWearablesFetch::processContents()
 	gInventory.collectDescendentsIf(mCompleteFolders.front(), cat_array, wearable_array, 
 									LLInventoryModel::EXCLUDE_TRASH, is_wearable);
 
-	LLAppearanceManager::setAttachmentInvLinkEnable(true);
+	LLAppearanceManager::instance().setAttachmentInvLinkEnable(true);
 	if (wearable_array.count() > 0)
 	{
 		LLAppearanceManager::instance().updateAppearanceFromCOF();
@@ -2049,7 +2049,7 @@ void LLInitialWearablesFetch::processContents()
 	{
 		processWearablesMessage();
 		// Create links for attachments that may have arrived before the COF existed.
-		LLAppearanceManager::linkRegisteredAttachments();
+		LLAppearanceManager::instance().linkRegisteredAttachments();
 	}
 	delete this;
 }

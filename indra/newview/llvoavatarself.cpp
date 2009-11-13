@@ -487,18 +487,10 @@ BOOL LLVOAvatarSelf::buildMenus()
 		}
 
 		// add in requested order to pie menu, inserting separators as necessary
-		S32 cur_pie_slice = 0;
 		for (std::multimap<S32, S32>::iterator attach_it = attachment_pie_menu_map.begin();
 			 attach_it != attachment_pie_menu_map.end(); ++attach_it)
 		{
-			S32 requested_pie_slice = attach_it->first;
 			S32 attach_index = attach_it->second;
-			while (cur_pie_slice < requested_pie_slice)
-			{
-				gAttachBodyPartPieMenus[group]->addSeparator();
-				gDetachBodyPartPieMenus[group]->addSeparator();
-				cur_pie_slice++;
-			}
 
 			LLViewerJointAttachment* attachment = get_if_there(mAttachmentPoints, attach_index, (LLViewerJointAttachment*)NULL);
 			if (attachment)
@@ -520,7 +512,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 				item_params.on_enable.parameter = attach_index;
 				item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 				gDetachBodyPartPieMenus[group]->addChild(item);
-				cur_pie_slice++;
 			}
 		}
 	}
@@ -1039,7 +1030,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 	if (attachment->isObjectAttached(viewer_object))
 	{
 		const LLUUID& attachment_id = viewer_object->getItemID();
-		LLAppearanceManager::registerAttachment(attachment_id);
+		LLAppearanceManager::instance().registerAttachment(attachment_id);
 	}
 
 	return attachment;
@@ -1078,7 +1069,7 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 		}
 		else
 		{
-			LLAppearanceManager::unregisterAttachment(attachment_id);
+			LLAppearanceManager::instance().unregisterAttachment(attachment_id);
 		}
 		
 		return TRUE;
@@ -1587,7 +1578,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 			llinfos << "LocTex " << name << ": Baked " << getTEImage(baked_equiv)->getID() << llendl;
 #endif
 		}
-		else if (local_tex_obj->getImage() != NULL)
+		else if (local_tex_obj && local_tex_obj->getImage() != NULL)
 		{
 			if (local_tex_obj->getImage()->getID() == IMG_DEFAULT_AVATAR)
 			{

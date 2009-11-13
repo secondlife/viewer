@@ -6424,13 +6424,13 @@ void handle_selected_texture_info(void*)
 
 void handle_test_male(void*)
 {
-	LLAppearanceManager::wearOutfitByName("Male Shape & Outfit");
+	LLAppearanceManager::instance().wearOutfitByName("Male Shape & Outfit");
 	//gGestureList.requestResetFromServer( TRUE );
 }
 
 void handle_test_female(void*)
 {
-	LLAppearanceManager::wearOutfitByName("Female Shape & Outfit");
+	LLAppearanceManager::instance().wearOutfitByName("Female Shape & Outfit");
 	//gGestureList.requestResetFromServer( FALSE );
 }
 
