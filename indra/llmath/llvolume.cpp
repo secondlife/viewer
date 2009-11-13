@@ -1876,6 +1876,18 @@ bool LLVolumeFace::VertexData::operator==(const LLVolumeFace::VertexData& rhs)co
 	return true;
 }
 
+bool LLVolumeFace::VertexData::compareNormal(const LLVolumeFace::VertexData& rhs, F32 angle_cutoff) const
+{
+	bool retval = false;
+	if (rhs.mPosition == mPosition && rhs.mTexCoord == mTexCoord)
+	{
+		F32 cur_angle = rhs.mNormal*mNormal;
+		
+		retval = cur_angle > angle_cutoff;
+	}
+
+	return retval;
+}
 
 BOOL LLVolume::createVolumeFacesFromFile(const std::string& file_name)
 {

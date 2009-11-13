@@ -814,6 +814,7 @@ public:
 
 		bool operator<(const VertexData& rhs) const;
 		bool operator==(const VertexData& rhs) const;
+		bool compareNormal(const VertexData& rhs, F32 angle_cutoff) const;
 	};
 
 	enum
