@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llinventory.h"
+#include "llinventoryobserver.h"
 #include "lltrans.h"
 
 #include "llfriendcard.h"
