@@ -2145,7 +2145,7 @@ void LLLibraryOutfitsFetch::contentsDone(void)
 														LLFolderType::FT_OUTFIT,
 														mOutfits[i].second);
 		
-		LLAppearanceManager::shallowCopyCategory(mOutfits[i].first, folder_id, NULL);
+		LLAppearanceManager::getInstance()->shallowCopyCategory(mOutfits[i].first, folder_id, NULL);
 		gInventory.notifyObservers();
 	}
 	mOutfitsPopulated = true;
