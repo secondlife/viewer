@@ -5369,7 +5369,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.0</real>
+      <real>1.0</real>
     </map>
     <key>PluginInstancesLow</key>
     <map>
@@ -5385,24 +5385,24 @@
     <key>PluginInstancesNormal</key>
     <map>
       <key>Comment</key>
-      <string>Limit on the number of inworld media plugins that will run at "normal" priority</string>
+      <string>Limit on the number of inworld media plugins that will run at "normal" or higher priority</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>4</integer>
+      <integer>2</integer>
     </map>
     <key>PluginInstancesTotal</key>
     <map>
       <key>Comment</key>
-      <string>Hard limit on the number of plugins that will be instantiated at once</string>
+      <string>Hard limit on the number of plugins that will be instantiated at once for inworld media</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>16</integer>
+      <integer>8</integer>
     </map>
     <key>PrecachingDelay</key>
     <map>

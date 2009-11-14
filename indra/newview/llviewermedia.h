@@ -194,7 +194,7 @@ public:
 
 	bool isMediaPlaying();
 	bool isMediaPaused();
-	bool hasMedia();
+	bool hasMedia() const;
 	bool isMediaFailed() const { return mMediaSourceFailed; };
 	void resetPreviousMediaState();
 	
@@ -203,6 +203,9 @@ public:
 
 	// returns true if this instance should not be loaded (disabled, muted object, crashed, etc.)
 	bool isForcedUnloaded() const;
+	
+	// returns true if this instance could be playable based on autoplay setting, current load state, etc.
+	bool isPlayable() const;
 	
 	void setIsParcelMedia(bool is_parcel_media) { mIsParcelMedia = is_parcel_media; };
 	bool isParcelMedia() const { return mIsParcelMedia; };
