@@ -41,6 +41,7 @@
 #include "llimview.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
+#include "lltoggleablemenu.h"
 #include "lltooldraganddrop.h"
 #include "llscrollcontainer.h"
 #include "llavatariconctrl.h"
@@ -333,7 +334,13 @@ BOOL LLPanelAvatarProfile::postBuild()
 	childSetCommitCallback("im",(boost::bind(&LLPanelAvatarProfile::onIMButtonClick,this)),NULL);
 	childSetCommitCallback("call",(boost::bind(&LLPanelAvatarProfile::onCallButtonClick,this)),NULL);
 	childSetCommitCallback("teleport",(boost::bind(&LLPanelAvatarProfile::onTeleportButtonClick,this)),NULL);
+	childSetCommitCallback("overflow_btn", boost::bind(&LLPanelAvatarProfile::onOverflowButtonClicked, this), NULL);
 	childSetCommitCallback("share",(boost::bind(&LLPanelAvatarProfile::onShareButtonClick,this)),NULL);
+
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+	registrar.add("Profile.Pay",  boost::bind(&LLPanelAvatarProfile::pay, this));
+
+	mProfileMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
 	LLTextureCtrl* pic = getChild<LLTextureCtrl>("2nd_life_pic");
 	pic->setFallbackImageName("default_profile_picture.j2c");
@@ -513,6 +520,11 @@ void LLPanelAvatarProfile::fillAccountStatus(const LLAvatarData* avatar_data)
 	childSetValue("acc_status_text", caption_text);
 }
 
+void LLPanelAvatarProfile::pay()
+{
+	LLAvatarActions::pay(getAvatarId());
+}
+
 void LLPanelAvatarProfile::onUrlTextboxClicked(const std::string& url)
 {
 	LLWeb::loadURL(url);
@@ -550,6 +562,19 @@ void LLPanelAvatarProfile::onCallButtonClick()
 void LLPanelAvatarProfile::onShareButtonClick()
 {
 	//*TODO not implemented
+}
+
+void LLPanelAvatarProfile::onOverflowButtonClicked()
+{
+	if (!mProfileMenu->toggleVisibility())
+		return;
+
+	LLView* btn = getChild<LLView>("overflow_btn");
+	LLRect rect = btn->getRect();
+
+	mProfileMenu->updateParent(LLMenuGL::sMenuContainer);
+	mProfileMenu->setButtonRect(btn->getLocalRect(), btn);
+	LLMenuGL::showPopup(this, mProfileMenu, rect.mRight, rect.mTop);
 }
 
 //////////////////////////////////////////////////////////////////////////

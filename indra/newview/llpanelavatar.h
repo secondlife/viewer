@@ -38,6 +38,7 @@
 
 class LLComboBox;
 class LLLineEditor;
+class LLToggleableMenu;
 
 enum EOnlineStatus
 {
@@ -160,11 +161,16 @@ protected:
 	 * Fills Avatar's online status.
 	 */
 	virtual void fillOnlineStatus(const LLAvatarData* avatar_data);
-	
+
 	/**
 	 * Fills account status.
 	 */
 	virtual void fillAccountStatus(const LLAvatarData* avatar_data);
+
+	/**
+	 * Opens "Pay Resident" dialog.
+	 */
+	void pay();
 
 	void onUrlTextboxClicked(const std::string& url);
 	void onHomepageTextboxClicked();
@@ -173,10 +179,12 @@ protected:
 	void onCallButtonClick();
 	void onTeleportButtonClick();
 	void onShareButtonClick();
+	void onOverflowButtonClicked();
 
 private:
 
-	std::string mGroups;
+	std::string 			mGroups;
+	LLToggleableMenu*		mProfileMenu;
 };
 
 /**
