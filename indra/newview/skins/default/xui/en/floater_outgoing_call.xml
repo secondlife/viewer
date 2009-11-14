@@ -12,7 +12,7 @@
  width="410">
     <floater.string
      name="localchat">
-        Local Voice Chat
+        Nearby Voice Chat
     </floater.string>
     <floater.string
      name="anonymous">
@@ -35,6 +35,18 @@
      left_delta="19"
      top="35"
      width="36" />
+    <text
+     font="SansSerifLarge"
+     height="20"
+     layout="topleft"
+     left="77"
+     name="connecting"
+     top="27"
+     visible="false"
+     width="315"
+     word_wrap="true">
+Connecting to [CALLEE_NAME]
+    </text>
     <text
      font="SansSerifLarge"
      height="20"

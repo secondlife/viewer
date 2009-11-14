@@ -84,21 +84,21 @@
                  top_delta="0"
                  width="18" />
                 <button
-                 follows="bottom|left"
+                 follows="bottom|right"
                  font="SansSerifBigBold"
                  height="18"
                  image_selected="TrashItem_Press"
                  image_unselected="TrashItem_Off"
                  image_disabled="TrashItem_Disabled"
                  layout="topleft"
-                 left_pad="230"
                  name="del_btn"
+                 right="-5"
                  tool_tip="Delete this gesture"
                  top_delta="0"
                  width="18" />
             </panel>
     <button
-     follows="bottom|right"
+     follows="left|bottom"
      height="23"
      label="Edit"
      layout="topleft"
@@ -107,7 +107,7 @@
      top_pad="5"
      width="83" />
     <button
-     follows="bottom|right"
+     follows="left|bottom"
      height="23"
      label="Play"
      layout="topleft"
@@ -116,7 +116,7 @@
      top_delta="0"
      width="83" />
     <button
-     follows="bottom|right"
+     follows="left|bottom"
      height="23"
      label="Stop"
      layout="topleft"

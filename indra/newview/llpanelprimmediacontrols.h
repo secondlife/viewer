@@ -35,7 +35,11 @@
 #include "llpanel.h"
 #include "llviewermedia.h"
 
+class LLButton;
 class LLCoordWindow;
+class LLIconCtrl;
+class LLLayoutStack;
+class LLProgressBar;
 class LLViewerMediaImpl;
 
 class LLPanelPrimMediaControls : public LLPanel
@@ -119,6 +123,44 @@ private:
 	LLViewerMediaImpl* getTargetMediaImpl();
 	LLViewerObject* getTargetObject();
 	LLPluginClassMedia* getTargetMediaPlugin();
+	
+private:
+	
+	LLView *mMediaRegion;
+	LLUICtrl *mBackCtrl;
+	LLUICtrl *mFwdCtrl;
+	LLUICtrl *mReloadCtrl;
+	LLUICtrl *mPlayCtrl;
+	LLUICtrl *mPauseCtrl;
+	LLUICtrl *mStopCtrl;
+	LLUICtrl *mMediaStopCtrl;
+	LLUICtrl *mHomeCtrl;
+	LLUICtrl *mUnzoomCtrl;
+	LLUICtrl *mOpenCtrl;
+	LLUICtrl *mZoomCtrl;
+	LLPanel  *mMediaProgressPanel;
+	LLProgressBar *mMediaProgressBar;
+	LLUICtrl *mMediaAddressCtrl;
+	LLUICtrl *mMediaAddress;
+	LLUICtrl *mMediaPlaySliderPanel;
+	LLUICtrl *mMediaPlaySliderCtrl;
+	LLUICtrl *mVolumeCtrl;
+	LLButton *mVolumeBtn;
+	LLUICtrl *mVolumeUpCtrl;
+	LLUICtrl *mVolumeDownCtrl;
+	LLIconCtrl *mWhitelistIcon;
+	LLIconCtrl *mSecureLockIcon;
+	LLLayoutStack *mMediaControlsStack;
+	LLUICtrl *mLeftBookend;
+	LLUICtrl *mRightBookend;
+	LLUIImage* mBackgroundImage;
+	
+	LLUICtrl *mMediaPanelScroll;
+	LLButton *mScrollUpCtrl;
+	LLButton *mScrollLeftCtrl;
+	LLButton *mScrollRightCtrl;
+	LLButton *mScrollDownCtrl;
+	
 	bool mPauseFadeout;
 	bool mUpdateSlider;
 	bool mClearFaceOnFade;
@@ -137,8 +179,7 @@ private:
 	std::string mPreviousURL;
 	F64 mCurrentRate;
 	F64 mMovieDuration;
-	int mUpdatePercent;
-
+	
 	LLUUID mTargetObjectID;
 	S32 mTargetObjectFace;
 	LLUUID mTargetImplID;

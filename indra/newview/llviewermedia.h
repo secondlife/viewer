@@ -74,6 +74,9 @@ class LLViewerMedia
 	LOG_CLASS(LLViewerMedia);
 	public:
 
+		// String to get/set media autoplay in gSavedSettings
+		static const char *AUTO_PLAY_MEDIA_SETTING;
+	
 		typedef std::vector<LLViewerMediaImpl*> impl_list;
 
 		// Special case early init for just web browser component

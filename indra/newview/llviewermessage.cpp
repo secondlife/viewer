@@ -1366,7 +1366,9 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 
 	payload["from_id"] = info->mFromID;
 	args["OBJECTFROMNAME"] = info->mFromName;
-	args["NAME"] = info->mFromName;
+	args["NAME"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
+	std::string verb = "highlight?name=" + msg;
+	args["ITEM_SLURL"] = LLSLURL::buildCommand("inventory", info->mObjectID, verb.c_str());
 
 	LLNotification::Params p("ObjectGiveItem");
 	p.substitutions(args).payload(payload).functor.function(boost::bind(&LLOfferInfo::inventory_offer_callback, info, _1, _2));

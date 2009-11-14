@@ -54,6 +54,8 @@
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
 
+/*static*/ const char* LLViewerMedia::AUTO_PLAY_MEDIA_SETTING = "AutoPlayMedia";
+
 // Move this to its own file.
 
 LLViewerMediaEventEmitter::~LLViewerMediaEventEmitter()
@@ -159,12 +161,21 @@ public:
 
 	virtual void error( U32 status, const std::string& reason )
 	{
-		llwarns << "responder failed with status " << status << ", reason " << reason << llendl;
-		if(mMediaImpl)
+		if(status == 401)
 		{
-			mMediaImpl->mMediaSourceFailed = true;
+			// This is the "you need to authenticate" status.  
+			// Treat this like an html page.
+			completeAny(status, "text/html");
 		}
-		// completeAny(status, "none/none");
+		else
+		{
+			llwarns << "responder failed with status " << status << ", reason " << reason << llendl;
+		
+			if(mMediaImpl)
+			{
+				mMediaImpl->mMediaSourceFailed = true;
+			}
+		}
 	}
 
 	void completeAny(U32 status, const std::string& mime_type)
@@ -313,7 +324,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 			// If (the media was already loaded OR the media was set to autoplay) AND this update didn't come from this agent,
 			// do a navigate.
 			
-			if((was_loaded || (media_entry->getAutoPlay() && gSavedSettings.getBOOL("AutoPlayMedia"))) && !update_from_self)
+			if((was_loaded || (media_entry->getAutoPlay() && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING))) && !update_from_self)
 			{
 				needs_navigate = (media_entry->getCurrentURL() != previous_url);
 			}
@@ -330,7 +341,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 		
 		media_impl->setHomeURL(media_entry->getHomeURL());
 		
-		if(media_entry->getAutoPlay() && gSavedSettings.getBOOL("AutoPlayMedia"))
+		if(media_entry->getAutoPlay() && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING))
 		{
 			needs_navigate = true;
 		}
@@ -1704,7 +1715,7 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 		// MEDIAOPT: seems insane that we actually have to make an imageraw then
 		// immediately discard it
 		LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
-		raw->clear(0x0f, 0x0f, 0x0f, 0xff);
+		raw->clear(0x00, 0x00, 0x00, 0xff);
 		int discard_level = 0;
 
 		// ask media source for correct GL image format constants
