@@ -570,10 +570,14 @@ void LLPanelAvatarProfile::onOverflowButtonClicked()
 		return;
 
 	LLView* btn = getChild<LLView>("overflow_btn");
-	LLRect rect = btn->getRect();
 
+	if (mProfileMenu->getButtonRect().isEmpty())
+	{
+		mProfileMenu->setButtonRect(btn);
+	}
 	mProfileMenu->updateParent(LLMenuGL::sMenuContainer);
-	mProfileMenu->setButtonRect(btn->getLocalRect(), btn);
+
+	LLRect rect = btn->getRect();
 	LLMenuGL::showPopup(this, mProfileMenu, rect.mRight, rect.mTop);
 }
 
