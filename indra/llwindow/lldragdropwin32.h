@@ -33,10 +33,10 @@
 #ifndef LL_LLDRAGDROP32_H
 #define LL_LLDRAGDROP32_H
 
+#if LL_WINDOWS
+
 #include <windows.h>
 #include <ole2.h>
-#include <shlobj.h>
-#include <shlwapi.h>
 
 class LLDragDropWin32
 {
@@ -52,4 +52,6 @@ class LLDragDropWin32
 		HWND mDropWindowHandle;
 };
 
-#endif
+#endif // LL_WINDOWS
+
+#endif // LL_LLDRAGDROP32_H
