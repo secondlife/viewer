@@ -39,6 +39,7 @@
 
 #include "llfloater.h"
 #include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "lldarray.h"
 
 class LLScrollContainer;

@@ -45,7 +45,7 @@
 #include "lltooltip.h"
 
 // newview includes
-#include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
 #include "lllocationhistory.h"

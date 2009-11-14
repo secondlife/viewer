@@ -38,7 +38,6 @@
 #include "llfoldervieweventlistener.h"
 #include "llinventorybridge.h"	// for LLItemBridge in LLInventorySort::operator()
 #include "llinventoryfilter.h"
-#include "llinventorymodel.h"	// *TODO: make it take a pointer to an inventory-model interface
 #include "llviewercontrol.h"	// gSavedSettings
 #include "llviewerwindow.h"		// Argh, only for setCursor()
 

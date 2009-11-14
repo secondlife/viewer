@@ -2633,10 +2633,10 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	}
 	else
 	{
-		LLAppearanceManager::wearOutfitByName(outfit_folder_name);
+		LLAppearanceManager::instance().wearOutfitByName(outfit_folder_name);
 	}
-	LLAppearanceManager::wearOutfitByName(gestures);
-	LLAppearanceManager::wearOutfitByName(COMMON_GESTURES_FOLDER);
+	LLAppearanceManager::instance().wearOutfitByName(gestures);
+	LLAppearanceManager::instance().wearOutfitByName(COMMON_GESTURES_FOLDER);
 
 	// This is really misnamed -- it means we have started loading
 	// an outfit/shape that will give the avatar a gender eventually. JC
