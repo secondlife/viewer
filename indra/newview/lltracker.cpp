@@ -55,6 +55,7 @@
 #include "llhudtext.h"
 #include "llhudview.h"
 #include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "lllandmarklist.h"
 #include "llsky.h"
 #include "llui.h"

@@ -892,7 +892,6 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			new_listener = new LLWearableBridge(inventory, uuid, asset_type, inv_type, (EWearableType)flags);
 			break;
 		case LLAssetType::AT_CATEGORY:
-		case LLAssetType::AT_ROOT_CATEGORY:
 			if (actual_asset_type == LLAssetType::AT_LINK_FOLDER)
 			{
 				// Create a link folder handler instead.
@@ -1687,7 +1686,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
-					LLAppearanceManager::wearEnsemble(inv_cat);
+					LLAppearanceManager::instance().addEnsembleLink(inv_cat);
 				}
 				else
 				{
@@ -2044,7 +2043,7 @@ void LLInventoryCopyAndWearObserver::changed(U32 mask)
 				    mContentsCount)
 				{
 					gInventory.removeObserver(this);
-					LLAppearanceManager::wearInventoryCategory(category, FALSE, TRUE);
+					LLAppearanceManager::instance().wearInventoryCategory(category, FALSE, TRUE);
 					delete this;
 				}
 			}
@@ -2089,7 +2088,7 @@ void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 		if(!model) return;
 		LLViewerInventoryCategory* cat = getCategory();
 		if(!cat) return;
-		LLAppearanceManager::wearEnsemble(cat,true);
+		LLAppearanceManager::instance().addEnsembleLink(cat,true);
 		return;
 	}
 #endif
@@ -2337,7 +2336,7 @@ void LLFolderBridge::pasteLinkFromClipboard()
 			{
 				link_inventory_item(
 					gAgent.getID(),
-					item->getUUID(),
+					item->getLinkedUUID(),
 					parent_id,
 					item->getName(),
 					LLAssetType::AT_LINK,
@@ -2404,7 +2403,7 @@ void LLFolderBridge::folderOptionsMenu()
 		{
 			mItems.push_back(std::string("Wear As Ensemble"));
 		}
-		mItems.push_back(std::string("Take Off Items"));
+		mItems.push_back(std::string("Remove From Outfit"));
 	}
 	hide_context_entries(*mMenu, mItems, disabled_items);
 }
@@ -2730,7 +2729,7 @@ void LLFolderBridge::modifyOutfit(BOOL append)
 
 	// BAP - was:
 	// wear_inventory_category_on_avatar( cat, append );
-	LLAppearanceManager::wearInventoryCategory( cat, FALSE, append );
+	LLAppearanceManager::instance().wearInventoryCategory( cat, FALSE, append );
 }
 
 // helper stuff
@@ -2847,10 +2846,6 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		BOOL is_movable = TRUE;
 		switch( inv_item->getActualType() )
 		{
-		case LLAssetType::AT_ROOT_CATEGORY:
-			is_movable = FALSE;
-			break;
-
 		case LLAssetType::AT_CATEGORY:
 			is_movable = !LLFolderType::lookupIsProtectedType(((LLInventoryCategory*)inv_item)->getPreferredType());
 			break;
@@ -2953,16 +2948,16 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
-					LLAppearanceManager::wearItem(inv_item);
+					LLAppearanceManager::instance().addItemLink(inv_item);
 				}
 				else
 				{
 					LLPointer<LLInventoryCallback> cb = NULL;
 					link_inventory_item(
 						gAgent.getID(),
-						inv_item->getUUID(),
+						inv_item->getLinkedUUID(),
 						mUUID,
-						std::string(),
+						inv_item->getName(),
 						LLAssetType::AT_LINK,
 						cb);
 				}
@@ -3889,15 +3884,10 @@ void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 			gMessageSystem->sendReliable( gAgent.getRegion()->getHost());
 		}
 		// this object might have been selected, so let the selection manager know it's gone now
-		LLViewerObject *found_obj =
-			gObjectList.findObject(item->getUUID());
+		LLViewerObject *found_obj = gObjectList.findObject(item->getLinkedUUID());
 		if (found_obj)
 		{
 			LLSelectMgr::getInstance()->remove(found_obj);
-		}
-		else
-		{
-			llwarns << "object not found - ignoring" << llendl;
 		}
 	}
 	else LLItemBridge::performAction(folder, model, action);
@@ -4053,7 +4043,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		LLInventoryItem* item = getItem();
 		if (item && item->getIsLinkType())
 		{
-			items.push_back(std::string("Goto Link"));
+			items.push_back(std::string("Find Original"));
 		}
 
 		items.push_back(std::string("Properties"));
@@ -4206,7 +4196,7 @@ void wear_inventory_item_on_avatar( LLInventoryItem* item )
 		lldebugs << "wear_inventory_item_on_avatar( " << item->getName()
 				 << " )" << llendl;
 
-		LLAppearanceManager::wearItem(item);
+		LLAppearanceManager::instance().addItemLink(item);
 	}
 }
 
@@ -4324,10 +4314,6 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 				if (found_obj)
 				{
 					LLSelectMgr::getInstance()->remove(found_obj);
-				}
-				else
-				{
-					llwarns << "object not found, ignoring" << llendl;
 				}
 			}
 		}
@@ -4493,7 +4479,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		if (item && item->getIsLinkType())
 		{
-			items.push_back(std::string("Goto Link"));
+			items.push_back(std::string("Find Original"));
 		}
 
 		items.push_back(std::string("Properties"));
@@ -4771,7 +4757,7 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 	}
 
 	// Find and remove this item from the COF.
-	LLInventoryModel::item_array_t items = gInventory.collectLinkedItems(item_id, LLAppearanceManager::getCOF());
+	LLInventoryModel::item_array_t items = gInventory.collectLinkedItems(item_id, LLAppearanceManager::instance().getCOF());
 	llassert(items.size() == 1); // Should always have one and only one item linked to this in the COF.
 	for (LLInventoryModel::item_array_t::const_iterator iter = items.begin();
 		 iter != items.end();
@@ -5157,7 +5143,7 @@ void LLLinkFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
-		items.push_back(std::string("Goto Link"));
+		items.push_back(std::string("Find Original"));
 		items.push_back(std::string("Delete"));
 		if (!isItemRemovable())
 		{

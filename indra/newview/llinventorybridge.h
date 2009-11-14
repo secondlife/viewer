@@ -33,14 +33,16 @@
 #ifndef LL_LLINVENTORYBRIDGE_H
 #define LL_LLINVENTORYBRIDGE_H
 
-#include "llfloaterproperties.h"
-#include "llwearable.h"
-#include "llviewercontrol.h"
 #include "llcallingcard.h"
-#include "llinventorymodel.h"
+#include "llfloaterproperties.h"
 #include "llfoldervieweventlistener.h"
+#include "llinventorymodel.h"
+#include "llinventoryobserver.h"
+#include "llviewercontrol.h"
+#include "llwearable.h"
 
 class LLInventoryPanel;
+class LLInventoryModel;
 class LLMenuGL;
 
 enum EInventoryIcon

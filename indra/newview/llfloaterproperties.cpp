@@ -44,6 +44,7 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llavataractions.h"
+#include "llinventoryobserver.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
 //#include "llspinctrl.h"
