@@ -2137,7 +2137,7 @@ void LLLibraryOutfitsFetch::outfitsDone(void)
 
 void LLLibraryOutfitsFetch::contentsDone(void)
 {
-	for(S32 i = 0; i < mOutfits.size(); ++i)
+	for(S32 i = 0; i < (S32)mOutfits.size(); ++i)
 	{
 		// First, make a folder in the My Outfits directory.
 		const LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
