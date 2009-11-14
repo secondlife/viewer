@@ -46,6 +46,7 @@ class LLScrollListItem;
 class LLButton;
 class LLGestureStep;
 class LLRadioGroup;
+class LLVFS;
 
 class LLPreviewGesture : public LLPreview
 {

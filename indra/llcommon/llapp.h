@@ -34,7 +34,6 @@
 #define LL_LLAPP_H
 
 #include <map>
-#include "llapr.h"
 #include "llrun.h"
 #include "llsd.h"
 #include "lloptioninterface.h"
@@ -202,8 +201,6 @@ public:
 #if !LL_WINDOWS
 	static U32  getSigChildCount();
 	static void incSigChildCount();
-#else
-#define getpid GetCurrentProcessId
 #endif
 	static int getPid();
 

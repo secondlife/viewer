@@ -40,6 +40,7 @@
 #include "llsecondlifeurls.h"
 #include "llfloater.h"
 #include "llfloaterreg.h"
+#include "llregionhandle.h"
 
 #include "llagent.h"
 #include "llviewerwindow.h"

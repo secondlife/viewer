@@ -32,13 +32,14 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "linden_common.h"
-
-#include "llagent.h"
 #include "llviewerassetstorage.h"
-#include "llviewerbuild.h"
+
 #include "llvfile.h"
 #include "llvfs.h"
+#include "message.h"
+
+#include "llagent.h"
+#include "llviewerbuild.h"
 
 LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
 										   LLVFS *vfs, const LLHost &upstream_host)
