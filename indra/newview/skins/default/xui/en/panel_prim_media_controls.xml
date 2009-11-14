@@ -2,19 +2,18 @@
 <panel
 	follows="left|right|top|bottom"
 	name="MediaControls"
-	bg_alpha_color="1 1 1 0"
+	background_visible="false"
 	height="160"
 	layout="topleft"
 	mouse_opaque="false"
 	width="800">
+  <string name="control_background_image_name">Inspector_Background</string>
   <panel
 	  name="media_region"
 	  bottom="125"
 	  follows="left|right|top|bottom"
 	  layout="topleft"
-	  left="20"
 	  mouse_opaque="false"
-	  right="-20"
 	  top="20" />
   <layout_stack
 	  follows="left|right|bottom"
@@ -33,6 +32,7 @@
 		name="media_progress_indicator"
 		height="22"
 		layout="topleft"
+		visible="false"
 		left="0"
 		top="0"
 		auto_resize="false"
@@ -64,6 +64,7 @@
 	  top="128">
 	<!-- outer layout_panels center the inner one -->
 	<layout_panel
+		name="left_bookend"
 		width="0"
 		layout="topleft"
 		user_resize="false" />
@@ -83,6 +84,7 @@
 		  layout="topleft"
 		  tool_tip="Step back"
 		  width="22"
+		  left="0"
 		  top_delta="4">
 		<button.commit_callback
 			function="MediaCtrl.Back" />
@@ -109,22 +111,22 @@
 			function="MediaCtrl.Forward" />
 	  </button>
 	</layout_panel>
-<!--
-	<panel
+	<!--
+		<panel
 		height="22"
 		layout="topleft"
 		auto_resize="false"
 		min_width="3"
 		width="3">
-	  <icon
-		  height="22"
-		  image_name="media_panel_divider.png"
-		  layout="topleft"
-		  top="0"
-		  min_width="3"
-		  width="3" />
-	</panel>
--->
+		<icon
+		height="22"
+		image_name="media_panel_divider.png"
+		layout="topleft"
+		top="0"
+		min_width="3"
+		width="3" />
+		</panel>
+	-->
 	<layout_panel
 		name="home"
 		auto_resize="false"
@@ -165,22 +167,22 @@
 			function="MediaCtrl.Stop" />
 	  </button>
 	</layout_panel>
-<!--
-	<panel
+	<!--
+		<panel
 		height="22"
 		layout="topleft"
 		auto_resize="false"
 		min_width="3"
 		width="3">
-	  <icon
-		  height="22"
-		  image_name="media_panel_divider.png"
-		  layout="topleft"
-		  top="0"
-		  min_width="3"
-		  width="3" />
-	</panel>
--->
+		<icon
+		height="22"
+		image_name="media_panel_divider.png"
+		layout="topleft"
+		top="0"
+		min_width="3"
+		width="3" />
+		</panel>
+	-->
 	<layout_panel
 		name="reload"
 		auto_resize="false"
@@ -294,31 +296,43 @@ function="MediaCtrl.CommitURL" />
 			function="MediaCtrl.CommitURL"/>
 	  </line_editor>
 	  <layout_stack
+		  name="media_address_url_icons"
 		  animate="false"
 		  follows="right"
-		  width="32"
-		  min_width="32"
-		  height="16"
-		  top="3"
-		  orientation="horizontal"
-		  left_pad="-38">
-		<icon
-			name="media_whitelist_flag"
-			follows="top|right"
-			height="16"
-			image_name="smicon_warn.tga"
+		  height="20"
+		  width="38"
+		  right="-2"
+		  top="-1"
+		  orientation="horizontal">
+		<layout_panel
 			layout="topleft"
-			tool_tip="White List enabled"
-			min_width="16"
-			width="16" />
-		<icon
-			name="media_secure_lock_flag"
-			height="16"
-			image_name="inv_item_eyes.tga"
+			width="16"
+			auto_resize="false"
+			user_resize="false">
+		  <icon
+			  name="media_whitelist_flag"
+			  follows="top|right"
+			  height="16"
+			  image_name="smicon_warn.tga"
+			  layout="topleft"
+			  tool_tip="White List enabled"
+			  min_width="16"
+			  width="16" />
+		</layout_panel>
+		<layout_panel
 			layout="topleft"
-			tool_tip="Secured Browsing"
-			min_width="16"
-			width="16" />
+			width="16"
+			auto_resize="false"
+			user_resize="false">
+		  <icon
+			  name="media_secure_lock_flag"
+			  height="16"
+			  image_name="icon_lock.tga"
+			  layout="topleft"
+			  tool_tip="Secured Browsing"
+			  min_width="16"
+			  width="16" />
+		</layout_panel>
 	  </layout_stack>
 	</layout_panel>
 	<layout_panel
@@ -412,9 +426,9 @@ function="MediaCtrl.CommitURL" />
 	  </button>
 	</layout_panel>
 	<!-- Scroll pad -->
-<!--
-disabled
-	<layout_panel
+	<!--
+		disabled
+		<layout_panel
 		name="media_panel_scroll"
 		auto_resize="false"
 		user_resize="false"
@@ -423,64 +437,64 @@ disabled
 		layout="topleft"
 		min_width="32"
 		width="32">
-	  <icon
-		  height="32"
-		  image_name="media_panel_scrollbg.png"
-		  layout="topleft"
-		  top="0"
-		  min_width="32"
-		  width="32" />
-	  <button
-		  name="scrollup"
-		  height="8"
-		  image_selected="media_btn_scrollup.png"
-		  image_unselected="media_btn_scrollup.png"
-		  layout="topleft"
-		  tool_tip="Scroll up"
-		  scale_image="false"
-		  left="12"
-		  top_delta="4"
-		  min_width="8"
-		  width="8" />
-	  <button
-		  name="scrollleft"
-		  height="8"
-		  image_selected="media_btn_scrollleft.png"
-		  image_unselected="media_btn_scrollleft.png"
-		  layout="topleft"
-		  left="3"
-		  tool_tip="Scroll left"
-		  scale_image="false"
-		  top="12"
-		  min_width="8"
-		  width="8" />
-	  <button
-		  name="scrollright"
-		  height="8"
-		  image_selected="media_btn_scrollright.png"
-		  image_unselected="media_btn_scrollright.png"
-		  layout="topleft"
-		  left_pad="9"
-		  tool_tip="Scroll right"
-		  scale_image="false"
-		  top_delta="0"
-		  min_width="8"
-		  width="8" />
-	  <button
-		  name="scrolldown"
-		  height="8"
-		  image_selected="media_btn_scrolldown.png"
-		  image_unselected="media_btn_scrolldown.png"
-		  layout="topleft"
-		  left="12"
-		  tool_tip="Scroll down"
-		  scale_image="false"
-		  top="20"
-		  min_width="8"
-		  width="8" />
-	</layout_panel>
-disabled
--->
+		<icon
+		height="32"
+		image_name="media_panel_scrollbg.png"
+		layout="topleft"
+		top="0"
+		min_width="32"
+		width="32" />
+		<button
+		name="scrollup"
+		height="8"
+		image_selected="media_btn_scrollup.png"
+		image_unselected="media_btn_scrollup.png"
+		layout="topleft"
+		tool_tip="Scroll up"
+		scale_image="false"
+		left="12"
+		top_delta="4"
+		min_width="8"
+		width="8" />
+		<button
+		name="scrollleft"
+		height="8"
+		image_selected="media_btn_scrollleft.png"
+		image_unselected="media_btn_scrollleft.png"
+		layout="topleft"
+		left="3"
+		tool_tip="Scroll left"
+		scale_image="false"
+		top="12"
+		min_width="8"
+		width="8" />
+		<button
+		name="scrollright"
+		height="8"
+		image_selected="media_btn_scrollright.png"
+		image_unselected="media_btn_scrollright.png"
+		layout="topleft"
+		left_pad="9"
+		tool_tip="Scroll right"
+		scale_image="false"
+		top_delta="0"
+		min_width="8"
+		width="8" />
+		<button
+		name="scrolldown"
+		height="8"
+		image_selected="media_btn_scrolldown.png"
+		image_unselected="media_btn_scrolldown.png"
+		layout="topleft"
+		left="12"
+		tool_tip="Scroll down"
+		scale_image="false"
+		top="20"
+		min_width="8"
+		width="8" />
+		</layout_panel>
+		disabled
+	-->
 	<layout_panel
 		name="zoom_frame"
 		auto_resize="false"
@@ -520,22 +534,22 @@ disabled
 			function="MediaCtrl.Close" />
 	  </button>
 	</layout_panel>
-<!--
-	<panel
+	<!--
+		<panel
 		height="22"
 		layout="topleft"
 		auto_resize="false"
 		min_width="3"
 		width="3">
-	  <icon
-		  height="22"
-		  image_name="media_panel_divider.png"
-		  layout="topleft"
-		  top="0"
-		  min_width="3"
-		  width="3" />
-	</panel>
--->
+		<icon
+		height="22"
+		image_name="media_panel_divider.png"
+		layout="topleft"
+		top="0"
+		min_width="3"
+		width="3" />
+		</panel>
+	-->
 	<layout_panel
 		name="new_window"
 		auto_resize="false"
@@ -556,23 +570,25 @@ disabled
 			function="MediaCtrl.Open" />
 	  </button>
 	</layout_panel>
-<!--
-	<panel
+	<!--
+		<panel
 		height="22"
 		layout="topleft"
 		auto_resize="false"
 		min_width="3"
 		width="3">
-	  <icon
-		  height="22"
-		  image_name="media_panel_divider.png"
-		  layout="topleft"
-		  top="0"
-		  min_width="3"
-		  width="3" />
-	</panel>
--->
+		<icon
+		height="22"
+		image_name="media_panel_divider.png"
+		layout="topleft"
+		top="0"
+		min_width="3"
+		width="3" />
+		</panel>
+	-->
+	<!-- bookend panel -->
 	<layout_panel
+		name="right_bookend"
 		width="0"
 		layout="topleft"
 		user_resize="false" />

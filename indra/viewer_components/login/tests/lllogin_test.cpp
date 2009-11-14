@@ -416,6 +416,7 @@ namespace tut
 		ensure_equals("Failed to offline", listener.lastEvent()["state"].asString(), "offline");
 	}
 
+/*
     template<> template<>
     void llviewerlogin_object::test<5>()
     {
@@ -451,4 +452,5 @@ namespace tut
 
 		ensure_equals("SRV Failure", listener.lastEvent()["change"].asString(), "fail.login"); 
 	}
+*/
 }

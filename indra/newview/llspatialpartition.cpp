@@ -435,7 +435,7 @@ void LLSpatialGroup::clearDrawMap()
 
 BOOL LLSpatialGroup::isRecentlyVisible() const
 {
-	return (LLDrawable::getCurrentFrame() - (S32)mVisible) < LLDrawable::getMinVisFrameRange() ;
+	return (LLDrawable::getCurrentFrame() - mVisible[LLViewerCamera::sCurCameraID]) < LLDrawable::getMinVisFrameRange() ;
 }
 
 BOOL LLSpatialGroup::isVisible() const

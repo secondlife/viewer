@@ -112,12 +112,12 @@ BOOL LLTextBox::handleHover(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
-void LLTextBox::setText(const LLStringExplicit& text)
+void LLTextBox::setText(const LLStringExplicit& text , const LLStyle::Params& input_params )
 {
 	// does string argument insertion
 	mText.assign(text);
 	
-	LLTextBase::setText(mText.getString());
+	LLTextBase::setText(mText.getString(), input_params );
 }
 
 void LLTextBox::setClickedCallback( boost::function<void (void*)> cb, void* userdata /*= NULL */ )

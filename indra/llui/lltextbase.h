@@ -137,7 +137,7 @@ public:
 
 	// Text accessors
 	// TODO: add optional style parameter
-	virtual void			setText(const LLStringExplicit &utf8str); // uses default style
+	virtual void			setText(const LLStringExplicit &utf8str , const LLStyle::Params& input_params = LLStyle::Params()); // uses default style
 	virtual std::string		getText() const;
 
 	// wide-char versions

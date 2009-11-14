@@ -359,6 +359,9 @@ void LLSpeakerMgr::updateSpeakerList()
 
 LLPointer<LLSpeaker> LLSpeakerMgr::findSpeaker(const LLUUID& speaker_id)
 {
+	//In some conditions map causes crash if it is empty(Windows only), adding check (EK)
+	if (mSpeakers.size() == 0)
+		return NULL;
 	speaker_map_t::iterator found_it = mSpeakers.find(speaker_id);
 	if (found_it == mSpeakers.end())
 	{

@@ -37,7 +37,6 @@
 // system
 #include <functional>
 #include <algorithm>
-#include <boost/tokenizer.hpp>
 
 // library
 #include "lldatapacker.h"
@@ -206,6 +205,9 @@ struct LLLoadInfo
 
 // If inform_server is true, will send a message upstream to update
 // the user_gesture_active table.
+/**
+ * It will load a gesture from remote storage
+ */
 void LLGestureManager::activateGestureWithAsset(const LLUUID& item_id,
 												const LLUUID& asset_id,
 												BOOL inform_server,
@@ -921,8 +923,8 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 
 	delete info;
 	info = NULL;
-
-	LLGestureManager::instance().mLoadingCount--;
+	LLGestureManager& self = LLGestureManager::instance();
+	self.mLoadingCount--;
 
 	if (0 == status)
 	{
@@ -944,15 +946,15 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 		{
 			if (deactivate_similar)
 			{
-				LLGestureManager::instance().deactivateSimilarGestures(gesture, item_id);
+				self.deactivateSimilarGestures(gesture, item_id);
 
 				// Display deactivation message if this was the last of the bunch.
-				if (LLGestureManager::instance().mLoadingCount == 0
-					&& LLGestureManager::instance().mDeactivateSimilarNames.length() > 0)
+				if (self.mLoadingCount == 0
+					&& self.mDeactivateSimilarNames.length() > 0)
 				{
 					// we're done with this set of deactivations
 					LLSD args;
-					args["NAMES"] = LLGestureManager::instance().mDeactivateSimilarNames;
+					args["NAMES"] = self.mDeactivateSimilarNames;
 					LLNotifications::instance().add("DeactivatedGesturesTrigger", args);
 				}
 			}
@@ -965,9 +967,9 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 			else
 			{
 				// Watch this item and set gesture name when item exists in inventory
-				LLGestureManager::instance().watchItem(item_id);
+				self.watchItem(item_id);
 			}
-			LLGestureManager::instance().mActive[item_id] = gesture;
+			self.mActive[item_id] = gesture;
 
 			// Everything has been successful.  Add to the active list.
 			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
@@ -989,14 +991,21 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 
 				gAgent.sendReliableMessage();
 			}
+			callback_map_t::iterator i_cb = self.mCallbackMap.find(item_id);
+			
+			if(i_cb != self.mCallbackMap.end())
+			{
+				i_cb->second(gesture);
+				self.mCallbackMap.erase(i_cb);
+			}
 
-			LLGestureManager::instance().notifyObservers();
+			self.notifyObservers();
 		}
 		else
 		{
 			llwarns << "Unable to load gesture" << llendl;
 
-			LLGestureManager::instance().mActive.erase(item_id);
+			self.mActive.erase(item_id);
 			
 			delete gesture;
 			gesture = NULL;

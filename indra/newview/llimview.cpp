@@ -441,11 +441,7 @@ bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 	addToHistory(session_id, from, from_id, utf8_text);
 	if (log2file) logToFile(session_id, from, from_id, utf8_text);
 
-	//we do not count system messages and our messages
-	if (from_id.notNull() && from_id != gAgentID && SYSTEM_FROM != from)
-	{
-		session->mNumUnread++;
-	}
+	session->mNumUnread++;
 
 	// notify listeners
 	LLSD arg;
@@ -1128,13 +1124,9 @@ void LLOutgoingCallDialog::onOpen(const LLSD& key)
 
 	LLSD callee_id = mPayload["other_user_id"];
 	childSetTextArg("calling", "[CALLEE_NAME]", callee_name);
+	childSetTextArg("connecting", "[CALLEE_NAME]", callee_name);
 	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 	icon->setValue(callee_id);
-
-	// dock the dialog to the sys well, where other sys messages appear
-	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getSysWell(),
-					 this, getDockTongue(), LLDockControl::TOP,
-					 boost::bind(&LLOutgoingCallDialog::getAllowedRect, this, _1)));
 }
 
 
@@ -1158,6 +1150,11 @@ BOOL LLOutgoingCallDialog::postBuild()
 	BOOL success = LLDockableFloater::postBuild();
 
 	childSetAction("Cancel", onCancel, this);
+
+	// dock the dialog to the sys well, where other sys messages appear
+	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getSysWell(),
+					 this, getDockTongue(), LLDockControl::TOP,
+					 boost::bind(&LLOutgoingCallDialog::getAllowedRect, this, _1)));
 
 	return success;
 }
@@ -1194,6 +1191,11 @@ BOOL LLIncomingCallDialog::postBuild()
 	{
 		call_type = getString("VoiceInviteAdHoc");
 	}
+
+	// check to see if this is an Avaline call
+	LLUUID session_id = mPayload["session_id"].asUUID();
+	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
+	childSetVisible("Start IM", is_avatar); // no IM for avaline
 
 	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
 	caller_name_widget->setValue(caller_name + " " + call_type);

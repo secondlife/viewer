@@ -93,9 +93,10 @@ public:
 	// Channel's behavior-functions
 	// set whether a channel will control hovering inside itself or not
 	virtual void setControlHovering(bool control) { mControlHovering = control; }
-	// set Hovering flag for a channel
-	virtual void setHovering(bool hovering) { mIsHovering = hovering; }
 	
+
+	bool isHovering() { return mHoveredToast != NULL; }
+
 	void setCanStoreToasts(bool store) { mCanStoreToasts = store; }
 
 	void setDisplayToastsAlways(bool display_toasts) { mDisplayToastsAlways = display_toasts; }
@@ -117,7 +118,7 @@ public:
 protected:
 	// Channel's flags
 	bool		mControlHovering;
-	bool		mIsHovering;
+	LLToast*		mHoveredToast;
 	bool		mCanStoreToasts;
 	bool		mDisplayToastsAlways;
 	bool		mOverflowToastHidden;
