@@ -901,7 +901,10 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 				menu->buildDrawLabels();
 				menu->updateParent(LLMenuGL::sMenuContainer);
 
-				menu->setButtonRect(mChevronRect, this);
+				if (menu->getButtonRect().isEmpty())
+				{
+					menu->setButtonRect(mChevronRect, this);
+				}
 
 				LLMenuGL::showPopup(this, menu, getRect().getWidth() - menu->getRect().getWidth(), 0);
 				return;

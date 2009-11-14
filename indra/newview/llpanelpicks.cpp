@@ -346,11 +346,18 @@ void LLPanelPicks::onAccordionStateChanged(const LLAccordionCtrlTab* acc_tab)
 
 void LLPanelPicks::onOverflowButtonClicked()
 {
-	LLRect rect;
-	childGetRect(XML_BTN_OVERFLOW, rect);
+	if (!mOverflowMenu->toggleVisibility())
+		return;
 
+	LLView* btn = getChild<LLView>(XML_BTN_OVERFLOW);
+
+	if (mOverflowMenu->getButtonRect().isEmpty())
+	{
+		mOverflowMenu->setButtonRect(btn);
+	}
 	mOverflowMenu->updateParent(LLMenuGL::sMenuContainer);
-	mOverflowMenu->setButtonRect(rect, this);
+
+	LLRect rect = btn->getRect();
 	LLMenuGL::showPopup(this, mOverflowMenu, rect.mRight, rect.mTop);
 }
 
