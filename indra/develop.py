@@ -585,7 +585,9 @@ class WindowsSetup(PlatformSetup):
         '''Run a program.  If the program fails, raise an exception.'''
         while retries:
             retries = retries - 1
+            print "develop.py tries to run:", command
             ret = os.system(command)
+            print "got ret", ret, "from", command
             if ret:
                 if name is None:
                     name = command.split(None, 1)[0]
