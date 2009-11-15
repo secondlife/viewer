@@ -576,8 +576,10 @@ class WindowsSetup(PlatformSetup):
             return "buildconsole %s.sln /build %s" % (self.project_name, config)
 
         # devenv.com is CLI friendly, devenv.exe... not so much.
-        return ('"%sdevenv.com" %s.sln /build %s' % 
-                (self.find_visual_studio(), self.project_name, self.build_type))
+        #return ('"%sdevenv.com" %s.sln /build %s' % 
+        #        (self.find_visual_studio(), self.project_name, self.build_type))
+        return ('devenv.com %s.sln /build %s' % 
+                (self.project_name, self.build_type))
 
     def run(self, command, name=None, retry_on=None, retries=1):
         '''Run a program.  If the program fails, raise an exception.'''
