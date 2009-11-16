@@ -225,7 +225,7 @@ void LLToast::setVisible(BOOL show)
 		{
 			mTimer.start();
 		}
-		LLModalDialog::setFrontmost(TRUE);
+		LLModalDialog::setFrontmost(FALSE);
 	}
 	LLPanel::setVisible(show);
 	if(mPanel)
