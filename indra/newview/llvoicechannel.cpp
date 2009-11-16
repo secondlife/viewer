@@ -747,6 +747,8 @@ LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID& session_id, const std::string
 
 void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
 {
+	llinfos << "CALL CHANNEL STATUS CHANGE: " << type << llendl;
+
 	// status updates
 	switch(type)
 	{
@@ -904,6 +906,7 @@ void LLVoiceChannelP2P::setState(EState state)
 					ocd->getChild<LLTextBox>("calling")->setVisible(true);
 					ocd->getChild<LLTextBox>("leaving")->setVisible(true);
 					ocd->getChild<LLTextBox>("connecting")->setVisible(false);
+					ocd->getChild<LLTextBox>("noanswer")->setVisible(false);
 				}
 			}
 		}
@@ -915,16 +918,29 @@ void LLVoiceChannelP2P::setState(EState state)
 					ocd->getChild<LLTextBox>("calling")->setVisible(false);
 					ocd->getChild<LLTextBox>("leaving")->setVisible(false);
 					ocd->getChild<LLTextBox>("connecting")->setVisible(true);
+					ocd->getChild<LLTextBox>("noanswer")->setVisible(false);
 				}			
 				}*/
+		else if (state == STATE_ERROR)
+		{
+			LLOutgoingCallDialog *ocd = dynamic_cast<LLOutgoingCallDialog*>(LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE));
+			if (ocd)
+			{
+				ocd->getChild<LLTextBox>("calling")->setVisible(false);
+				ocd->getChild<LLTextBox>("leaving")->setVisible(false);
+				ocd->getChild<LLTextBox>("connecting")->setVisible(false);
+				ocd->getChild<LLTextBox>("noanswer")->setVisible(true);
+			}			
+		}
 		else if (state == STATE_HUNG_UP ||
 			 state == STATE_CONNECTED)
 		{
-				LLOutgoingCallDialog *ocd = dynamic_cast<LLOutgoingCallDialog*>(LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE));
-				if (ocd)
-				{
-					ocd->closeFloater();
-				}			
+			// hide popup
+			LLOutgoingCallDialog *ocd = dynamic_cast<LLOutgoingCallDialog*>(LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE));
+			if (ocd)
+			{
+				ocd->closeFloater();
+			}			
 		}
 	}
 
