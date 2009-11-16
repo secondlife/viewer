@@ -2572,10 +2572,10 @@
              name="Hover Glow Objects">
                 <menu_item_check.on_check
                  function="CheckControl"
-                 parameter="RenderHighlightEnable" />
+                 parameter="RenderHoverGlowEnable" />
                 <menu_item_check.on_click
                  function="ToggleControl"
-                 parameter="RenderHighlightEnable" />
+                 parameter="RenderHoverGlowEnable" />
             </menu_item_check>
         </menu>
 

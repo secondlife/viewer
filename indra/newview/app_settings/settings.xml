@@ -6304,7 +6304,7 @@
     <real>1.0</real>
   </map>
 
-  <key>RenderHighlightEnable</key>
+  <key>RenderHoverGlowEnable</key>
   <map>
     <key>Comment</key>
     <string>Show glow effect when hovering on interactive objects.</string>
@@ -6313,7 +6313,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>1</integer>
+    <integer>0</integer>
   </map>
 
   <key>RenderHighlightFadeTime</key>
