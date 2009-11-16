@@ -158,7 +158,7 @@ protected:
 	LLUIImagePtr				mBoxImage;
 	BOOL                            mIsLoading;
 	LLTimer                         mTimeSinceRequestStart;
-	bool						mDontShowInHierarhy;
+	bool						mDontShowInHierarchy;
 
 	// helper function to change the selection from the root.
 	void changeSelectionFromRoot(LLFolderViewItem* selection, BOOL selected);
@@ -201,8 +201,8 @@ public:
 	// makes sure that this view and it's children are the right size.
 	virtual S32 arrange( S32* width, S32* height, S32 filter_generation );
 	virtual S32 getItemHeight();
-	void setDontShowInHierarchy(bool dont_show) { mDontShowInHierarhy = dont_show; }
-	bool getDontShowInHierarchy() { return mDontShowInHierarhy; }
+	void setDontShowInHierarchy(bool dont_show) { mDontShowInHierarchy = dont_show; }
+	bool getDontShowInHierarchy() { return mDontShowInHierarchy; }
 
 	// applies filters to control visibility of inventory items
 	virtual void filter( LLInventoryFilter& filter);
@@ -343,7 +343,7 @@ typedef bool (*sort_order_f)(LLFolderViewItem* a, LLFolderViewItem* b);
 //
 // An instance of an LLFolderViewFolder represents a collection of
 // more folders and items. This is used to build the hierarchy of
-// items found in the folder view. :)
+// items found in the folder view.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LLFolderViewFolder : public LLFolderViewItem

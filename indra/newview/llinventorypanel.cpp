@@ -406,88 +406,86 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 {
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_BUILD_NEW_VIEWS);
 	LLFolderViewItem* itemp = NULL;
-	LLInventoryObject* objectp = NULL;
-
-	// Don't add the start folder (the inventory panel will show contents
-	// beginning with the children of the starting folder, excluding the starting folder itself).
-	if (id != mStartFolderID)
+	LLInventoryObject* objectp = gInventory.getObject(id);
+	if (objectp)
 	{
-		objectp = gInventory.getObject(id);
-		if (objectp)
-		{		
-			const LLUUID &parent_id = objectp->getParentUUID();
-			// If this item's parent is the starting folder, then just add it to the top level (recall that 
-			// the starting folder isn't actually represented in the view, parent_folder would be NULL in
-			// this case otherwise).
-			LLFolderViewFolder* parent_folder = (parent_id == mStartFolderID ?
-				mFolders : (LLFolderViewFolder*)mFolders->getItemByID(parent_id));
-
+		const LLUUID &parent_id = objectp->getParentUUID();
+		LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)mFolders->getItemByID(parent_id);
+		if (id == mStartFolderID)
+			parent_folder = mFolders;
+		
+		if (!parent_folder)
+		{
 			// This item exists outside the inventory's hierarchy, so don't add it.
-			if (!parent_folder)
-			{
-				return;
-			}
-
-			if (objectp->getType() <= LLAssetType::AT_NONE ||
-				objectp->getType() >= LLAssetType::AT_COUNT)
-			{
-				llwarns << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : " << 
-					((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID() << llendl;
-				return;
-			}
+			return;
+		}
+		
+		if (objectp->getType() <= LLAssetType::AT_NONE ||
+			objectp->getType() >= LLAssetType::AT_COUNT)
+		{
+			llwarns << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : " << 
+				((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID() << llendl;
+			return;
+		}
+		
+		if (objectp->getType() == LLAssetType::AT_CATEGORY &&
+			objectp->getActualType() != LLAssetType::AT_LINK_FOLDER) 
+		{
+			LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(objectp->getType(),
+																			objectp->getType(),
+																			LLInventoryType::IT_CATEGORY,
+																			this,
+																			objectp->getUUID());
 			
-			if (objectp->getType() == LLAssetType::AT_CATEGORY &&
-					 objectp->getActualType() != LLAssetType::AT_LINK_FOLDER) 
+			if (new_listener)
 			{
-				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(objectp->getType(),
-																				objectp->getType(),
-																				LLInventoryType::IT_CATEGORY,
-																				this,
-																				objectp->getUUID());
+				LLFolderViewFolder::Params p;
+				p.name = new_listener->getDisplayName();
+				p.icon = new_listener->getIcon();
+				p.root = mFolders;
+				p.listener = new_listener;
+				p.tool_tip = p.name;
+				LLFolderViewFolder* folderp = LLUICtrlFactory::create<LLFolderViewFolder>(p);
+				folderp->setItemSortOrder(mFolders->getSortOrder());
+				itemp = folderp;
 
-				if (new_listener)
+				// Hide the root folder, so we can show the contents of a folder
+				// flat but still have the parent folder present for listener-related
+				// operations.
+				if (id == mStartFolderID)
 				{
-					LLFolderViewFolder::Params p;
-					p.name = new_listener->getDisplayName();
-					p.icon = new_listener->getIcon();
-					p.root = mFolders;
-					p.listener = new_listener;
-					p.tool_tip = p.name;
-					LLFolderViewFolder* folderp = LLUICtrlFactory::create<LLFolderViewFolder>(p);
-				
-					folderp->setItemSortOrder(mFolders->getSortOrder());
-					itemp = folderp;
+					folderp->setDontShowInHierarchy(TRUE);
 				}
 			}
-			else 
-			{
-				// Build new view for item
-				LLInventoryItem* item = (LLInventoryItem*)objectp;
-				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(item->getType(),
-																				item->getActualType(),
-																				item->getInventoryType(),
-																				this,
-																				item->getUUID(),
-																				item->getFlags());
+		}
+		else 
+		{
+			// Build new view for item
+			LLInventoryItem* item = (LLInventoryItem*)objectp;
+			LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(item->getType(),
+																			item->getActualType(),
+																			item->getInventoryType(),
+																			this,
+																			item->getUUID(),
+																			item->getFlags());
 
-				if (new_listener)
-				{
-					LLFolderViewItem::Params params;
-					params.name(new_listener->getDisplayName());
-					params.icon(new_listener->getIcon());
-					params.creation_date(new_listener->getCreationDate());
-					params.root(mFolders);
-					params.listener(new_listener);
-					params.rect(LLRect (0, 0, 0, 0));
-					params.tool_tip = params.name;
-					itemp = LLUICtrlFactory::create<LLFolderViewItem> (params);
-				}
-			}
-
-			if (itemp)
+			if (new_listener)
 			{
-				itemp->addToFolder(parent_folder, mFolders);
+				LLFolderViewItem::Params params;
+				params.name(new_listener->getDisplayName());
+				params.icon(new_listener->getIcon());
+				params.creation_date(new_listener->getCreationDate());
+				params.root(mFolders);
+				params.listener(new_listener);
+				params.rect(LLRect (0, 0, 0, 0));
+				params.tool_tip = params.name;
+				itemp = LLUICtrlFactory::create<LLFolderViewItem> (params);
 			}
+		}
+
+		if (itemp)
+		{
+			itemp->addToFolder(parent_folder, mFolders);
 		}
 	}
 
