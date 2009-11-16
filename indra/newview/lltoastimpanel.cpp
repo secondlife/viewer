@@ -56,9 +56,9 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	if (prefix == "/me " || prefix == "/me'")
 	{
 		mMessage->clear();
-		style_params.font.style= "ITALIC";
+		style_params.italic = true;
 		mMessage->appendText(p.from + " ", FALSE, style_params);
-		style_params.font.style= "UNDERLINE";
+		style_params.underline = true;
 		mMessage->appendText(p.message.substr(3), FALSE, style_params);
 	}
 	else

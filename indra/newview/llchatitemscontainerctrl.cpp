@@ -173,10 +173,28 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 	
 	caption->getChild<LLTextBox>("msg_time", false)->setText(appendTime() , style_params );
 
-
 	LLChatMsgBox* msg_text = getChild<LLChatMsgBox>("msg_text", false);
-	msg_text->setText(mText, style_params);
 
+
+	if(notification["chat_style"].asInteger()== CHAT_STYLE_IRC)
+	{
+		if (mFromName.size() > 0)
+		{
+			style_params.italic= true;
+			
+			msg_text->setText(mFromName, style_params);
+		}
+		mText = mText.substr(3);
+		style_params.underline = true;
+		msg_text->addText(mText,style_params);
+	}
+	else 
+	{
+		msg_text->setText(mText, style_params);
+	}
+
+
+	
 	LLUICtrl* msg_inspector = caption->getChild<LLUICtrl>("msg_inspector");
 	if(mSourceType != CHAT_SOURCE_AGENT)
 		msg_inspector->setVisible(false);
@@ -196,6 +214,8 @@ void	LLNearbyChatToastPanel::setMessage	(const LLChat& chat_msg)
 	notification["from_id"] = chat_msg.mFromID;
 	notification["time"] = chat_msg.mTime;
 	notification["source"] = (S32)chat_msg.mSourceType;
+	notification["chat_type"] = (S32)chat_msg.mChatType;
+	notification["chat_style"] = (S32)chat_msg.mChatStyle;
 	
 	std::string r_color_name="White";
 	F32 r_color_alpha = 1.0f; 
