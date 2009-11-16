@@ -2377,6 +2377,14 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 	width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
 	// if last character is a newline, then return true, forcing line break
 	llwchar last_char = text[mStart + first_char + num_chars - 1];
+
+	LLUIImagePtr image = mStyle->getImage();
+	if( image.notNull())
+	{
+		width += image->getWidth();
+		height = llmax(height, image->getHeight());
+	}
+
 	return num_chars >= 1 && last_char == '\n';
 }
 

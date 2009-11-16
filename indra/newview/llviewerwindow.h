@@ -212,6 +212,8 @@ public:
 
 	// 3D world area in scaled pixels (via UI scale), use for most UI computations
 	LLRect			getWorldViewRectScaled() const;
+	S32				getWorldViewHeightScaled() const;
+	S32				getWorldViewWidthScaled() const;
 
 	// 3D world area, in raw unscaled pixels
 	LLRect			getWorldViewRectRaw() const		{ return mWorldViewRectRaw; }
@@ -415,6 +417,7 @@ protected:
 	LLRect			mWindowRectRaw;				// whole window, including UI
 	LLRect			mWindowRectScaled;			// whole window, scaled by UI size
 	LLRect			mWorldViewRectRaw;			// area of screen for 3D world
+	LLRect			mWorldViewRectScaled;		// area of screen for 3D world scaled by UI size
 	LLRootView*		mRootView;					// a view of size mWindowRectRaw, containing all child views
 	LLVector2		mDisplayScale;
 

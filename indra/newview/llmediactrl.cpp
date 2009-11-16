@@ -101,17 +101,17 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 		setCaretColor( (unsigned int)color.mV[0], (unsigned int)color.mV[1], (unsigned int)color.mV[2] );
 	}
 
-	setIgnoreUIScale(p.ignore_ui_scale());
+	setIgnoreUIScale(p.ignore_ui_scale);
 	
-	setHomePageUrl(p.start_url());
+	setHomePageUrl(p.start_url);
 	
-	setBorderVisible(p.border_visible());
+	setBorderVisible(p.border_visible);
 	
-	mHideLoading = p.hide_loading();
+	mHideLoading = p.hide_loading;
 	
-	setDecoupleTextureSize(p.decouple_texture_size());
+	setDecoupleTextureSize(p.decouple_texture_size);
 	
-	setTextureSize(p.texture_width(), p.texture_height());
+	setTextureSize(p.texture_width, p.texture_height);
 
 	if(!getDecoupleTextureSize())
 	{
@@ -723,13 +723,13 @@ void LLMediaCtrl::draw()
 				{
 					// max width, adjusted height
 					width = r.getWidth();
-					height = llmin(llmax(S32(width / media_aspect), 0), r.getHeight());
+					height = llmin(llmax(llround(width / media_aspect), 0), r.getHeight());
 				}
 				else
 				{
 					// max height, adjusted width
 					height = r.getHeight();
-					width = llmin(llmax(S32(height * media_aspect), 0), r.getWidth());
+					width = llmin(llmax(llround(height * media_aspect), 0), r.getWidth());
 				}
 			}
 			else
@@ -746,6 +746,14 @@ void LLMediaCtrl::draw()
 		
 		x_offset = (r.getWidth() - width) / 2;
 		y_offset = (r.getHeight() - height) / 2;		
+
+		if(mIgnoreUIScale)
+		{
+			x_offset = llround((F32)x_offset * LLUI::sGLScaleFactor.mV[VX]);
+			y_offset = llround((F32)y_offset * LLUI::sGLScaleFactor.mV[VY]);
+			width = llround((F32)width * LLUI::sGLScaleFactor.mV[VX]);
+			height = llround((F32)height * LLUI::sGLScaleFactor.mV[VY]);
+		}
 
 		// draw the browser
 		gGL.setSceneBlendType(LLRender::BT_REPLACE);

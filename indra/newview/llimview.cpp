@@ -1099,7 +1099,7 @@ LLOutgoingCallDialog::LLOutgoingCallDialog(const LLSD& payload) :
 
 void LLOutgoingCallDialog::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectRaw();
+	rect = gViewerWindow->getWorldViewRectScaled();
 }
 
 void LLOutgoingCallDialog::onOpen(const LLSD& key)
@@ -1212,7 +1212,7 @@ BOOL LLIncomingCallDialog::postBuild()
 
 void LLIncomingCallDialog::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectRaw();
+	rect = gViewerWindow->getWorldViewRectScaled();
 }
 
 void LLIncomingCallDialog::onOpen(const LLSD& key)
