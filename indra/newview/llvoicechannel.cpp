@@ -873,6 +873,8 @@ void LLVoiceChannelP2P::setState(EState state)
 	// *HACK: Open/close the call window if needed.
 	toggleCallWindowIfNeeded(state);
 	
+	llinfos << "CALL STATE CHANGE: incoming=" << int(mReceivedCall) << " oldstate=" << mState << " newstate=" << state << llendl;
+
 	if (mReceivedCall) // incoming call
 	{
 		// you only "answer" voice invites in p2p mode
@@ -889,7 +891,8 @@ void LLVoiceChannelP2P::setState(EState state)
 		mCallDialogPayload["session_id"] = mSessionID;
 		mCallDialogPayload["session_name"] = mSessionName;
 		mCallDialogPayload["other_user_id"] = mOtherUserID;
-		if (state == STATE_RINGING)
+		if (state == STATE_RINGING ||
+		    state == STATE_CALL_STARTED)
 		{
 			// *HACK: open outgoing call floater if needed, might be better done elsewhere.
 			// *TODO: should move this squirrelly ui-fudging crap into LLOutgoingCallDialog itself
