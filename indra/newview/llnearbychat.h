@@ -57,6 +57,7 @@ public:
 	/*virtual*/ void	onOpen	(const LLSD& key);
 
 	virtual void setRect		(const LLRect &rect);
+	virtual void setMinimized	(BOOL minimize);
 
 private:
 	virtual void    applySavedVariables();
