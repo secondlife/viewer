@@ -448,6 +448,7 @@ LLPanelPeople::LLPanelPeople()
 	mFriendListUpdater = new LLFriendListUpdater(boost::bind(&LLPanelPeople::updateFriendList,	this));
 	mNearbyListUpdater = new LLNearbyListUpdater(boost::bind(&LLPanelPeople::updateNearbyList,	this));
 	mRecentListUpdater = new LLRecentListUpdater(boost::bind(&LLPanelPeople::updateRecentList,	this));
+	mCommitCallbackRegistrar.add("People.addFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
 }
 
 LLPanelPeople::~LLPanelPeople()
@@ -547,7 +548,6 @@ BOOL LLPanelPeople::postBuild()
 		boost::bind(&LLPanelPeople::onFriendsAccordionExpandedCollapsed, this, _2, mOnlineFriendList));
 
 	buttonSetAction("view_profile_btn",	boost::bind(&LLPanelPeople::onViewProfileButtonClicked,	this));
-	buttonSetAction("add_friend_btn",	boost::bind(&LLPanelPeople::onAddFriendButtonClicked,	this));
 	buttonSetAction("group_info_btn",	boost::bind(&LLPanelPeople::onGroupInfoButtonClicked,	this));
 	buttonSetAction("chat_btn",			boost::bind(&LLPanelPeople::onChatButtonClicked,		this));
 	buttonSetAction("im_btn",			boost::bind(&LLPanelPeople::onImButtonClicked,			this));
@@ -707,7 +707,7 @@ void LLPanelPeople::updateButtons()
 	bool nearby_tab_active	= (cur_tab == NEARBY_TAB_NAME);
 	bool friends_tab_active = (cur_tab == FRIENDS_TAB_NAME);
 	bool group_tab_active	= (cur_tab == GROUP_TAB_NAME);
-	bool recent_tab_active	= (cur_tab == RECENT_TAB_NAME);
+	//bool recent_tab_active	= (cur_tab == RECENT_TAB_NAME);
 	LLUUID selected_id;
 
 	std::vector<LLUUID> selected_uuids;
@@ -717,7 +717,6 @@ void LLPanelPeople::updateButtons()
 
 	buttonSetVisible("group_info_btn",		group_tab_active);
 	buttonSetVisible("chat_btn",			group_tab_active);
-	buttonSetVisible("add_friend_btn",		nearby_tab_active || recent_tab_active);
 	buttonSetVisible("view_profile_btn",	!group_tab_active);
 	buttonSetVisible("im_btn",				!group_tab_active);
 	buttonSetVisible("call_btn",			!group_tab_active);
@@ -750,7 +749,9 @@ void LLPanelPeople::updateButtons()
 			is_friend = LLAvatarTracker::instance().getBuddyInfo(selected_id) != NULL;
 		}
 
-		childSetEnabled("add_friend_btn",	!is_friend);
+		LLPanel* cur_panel = mTabContainer->getCurrentPanel();
+		if (cur_panel)
+			cur_panel->childSetEnabled("add_friend_btn", !is_friend);
 	}
 
 	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
