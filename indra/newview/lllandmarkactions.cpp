@@ -324,7 +324,7 @@ void LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(const LLVector3d& gl
 	{
 		LLVector3 pos = sim_infop->getLocalPos(global_pos);
 		std::string name = sim_infop->getName() ;
-		cb(name, llround(pos.mV[VX]), llround(pos.mV[VY]));
+		cb(name, llround(pos.mV[VX]), llround(pos.mV[VY]),llround(pos.mV[VZ]));
 	}
 	else
 	{
@@ -368,7 +368,7 @@ void LLLandmarkActions::onRegionResponseNameAndCoords(region_name_and_coords_cal
 	{
 		LLVector3 local_pos = sim_infop->getLocalPos(global_pos);
 		std::string name = sim_infop->getName() ;
-		cb(name, llround(local_pos.mV[VX]), llround(local_pos.mV[VY]));
+		cb(name, llround(local_pos.mV[VX]), llround(local_pos.mV[VY]), llround(local_pos.mV[VZ]));
 	}
 }
 
