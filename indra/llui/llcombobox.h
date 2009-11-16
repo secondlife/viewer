@@ -204,7 +204,8 @@ public:
 
 	void			setButtonVisible(BOOL visible);
 
-	void			onButtonDown();
+	void			onButtonMouseDown();
+	void			onListMouseUp();
 	void			onItemSelected(const LLSD& data);
 	void			onTextCommit(const LLSD& data);
 
