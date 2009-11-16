@@ -4,48 +4,46 @@
   Single instance - only have one at a time, recycle it each spawn
 -->
 <floater
- legacy_header_height="18"
+ legacy_header_height="25"
  bevel_style="in"
- bg_opaque_image="Inspector_Background" 
+ bg_opaque_image="Inspector_Background"
  can_close="false"
  can_minimize="false"
- height="145"
+ height="148"
  layout="topleft"
  name="inspect_object"
  single_instance="true"
  sound_flags="0"
  visible="true"
- width="300">
+ width="228">
   <string name="Creator">By [CREATOR]</string>
   <string name="CreatorAndOwner">
 by [CREATOR]
 owner [OWNER]
   </string>
-  <!-- *TODO: Might need to change to [AMOUNT] if icon contains "L$" -->
   <string name="Price">L$[AMOUNT]</string>
   <string name="PriceFree">Free!</string>
   <string name="Touch">Touch</string>
   <string name="Sit">Sit</string>
   <text
      follows="all"
-     font="SansSerifLargeBold"
+     font="SansSerifLarge"
      height="16"
      left="8"
      name="object_name"
      text_color="White"
-     top="5"
+     top="10"
      use_ellipses="true"
      value="Test Object Name That Is Really Long"
-     width="291" />
+     width="220" />
   <text
    follows="all"
-   font="SansSerif"
    height="30"
    left="8"
    name="object_creator"
    top_pad="0"
    use_ellipses="true"
-   width="275">
+   width="220">
 by Longavatarname Johnsonlongstonnammer
 owner James Linden
   </text>
@@ -53,32 +51,34 @@ owner James Linden
   <icon
   name="price_icon"
   image_name="Icon_For_Sale"
-  left="7"
+  right="-5"
   width="16"
   height="16"
-  top="52"
+  top="50"
   follows="left|top"
   />
   <text
    follows="all"
-   font="SansSerifSmallBold"
+   font="SansSerifSmall"
+   font.style="BOLD"
    height="16"
-   left_pad="5"
+   halign="right"
+   left="5"
    name="price_text"
    text_color="white"
-   top="54"
+   top="53"
    font_shadow="none"
-   width="150">
+   width="196">
 L$300,000
   </text>
    <text
    follows="all"
-   height="30"
+   font="SansSerifSmall"
+   height="36"
    left="8"
    name="object_description"
    top_pad="0"
-   width="291"
-   use_ellipses="true"
+   width="220"
    word_wrap="true">
 This is a really long description for an object being as how it is at least 80 characters in length and maybe more like 120 at this point. Who knows, really?
   </text>
@@ -86,69 +86,64 @@ This is a really long description for an object being as how it is at least 80 c
   for sale, "Sit" if can sit, etc. -->
    <text
    follows="all"
-   height="15"
+   font="SansSerifSmall"
+   height="13"
    left_delta="0"
    name="object_media_url"
-   top_pad="-5"
+   top_pad="0"
    width="291"
-   max_length = "50" 
-   use_ellipses="true"
-   word_wrap="true"/>   
-    
+   max_length = "50"
+   use_ellipses="true">
+   http://www.superdupertest.com
+</text>
   <button
    follows="top|left"
-   font="SansSerif"
    height="20"
    label="Buy"
-   left="10"
+   left="8"
    name="buy_btn"
-   top="114"
-   width="75" />
+   top="119"
+   width="80" />
   <button
    follows="top|left"
-   font="SansSerif"
    height="20"
    label="Pay"
    left_delta="0"
    name="pay_btn"
    top_delta="0"
-   width="75" />
+   width="80" />
   <button
    follows="top|left"
-   font="SansSerif"
-   height="23"
+   height="20"
    label="Take Copy"
    left_delta="0"
    name="take_free_copy_btn"
    top_delta="0"
-   width="75" />
+   width="80" />
   <button
    follows="top|left"
-   font="SansSerifSmall"
    height="20"
    label="Touch"
    left_delta="0"
    name="touch_btn"
    top_delta="0"
-   width="75" />
+   width="80" />
   <button
    follows="top|left"
-   font="SansSerif"
-   height="23"
+   height="20"
    label="Sit"
    left_delta="0"
    name="sit_btn"
    top_delta="0"
-   width="75" />
+   width="80" />
   <button
    follows="top|left"
-   font="SansSerifSmall"
    height="20"
    label="Open"
    left_delta="0"
    name="open_btn"
    top_delta="0"
-   width="75" />
+   width="80" />
   <icon
    name="secure_browsing"
    image_name="Lock"
@@ -156,33 +151,28 @@ This is a really long description for an object being as how it is at least 80 c
    visible="false"
    width="18"
    height="18"
-   top_delta="2"
+   top_delta="0"
    tool_tip="Secure Browsing"
-   follows="left|top"/> 
-   
+   follows="left|top" />
+
  <!--  non-overlapping buttons here -->
-    <menu_button
+     <button
      follows="top|left"
-     height="18"
-     image_disabled="OptionsMenu_Disabled"
-     image_selected="OptionsMenu_Press"
-     image_unselected="OptionsMenu_Off"
-     menu_filename="menu_inspect_object_gear.xml"
-     name="gear_btn"
-     right="-10"
-     top_delta="5"
-     width="18" />
-   <button
-     follows="top|left"
-     height="18"
-     image_disabled="ForwardArrow_Disabled"
-     image_selected="ForwardArrow_Press"
-     image_unselected="ForwardArrow_Off"
+     height="20"
+     label="More"
      layout="topleft"
      name="more_info_btn"
-     right="-5"
-     top="20"
-     left_delta="110"
+     left_delta="10"
+     top_delta="0"
      tab_stop="false"
-     width="18" />
+     width="80" />
+         <menu_button
+     follows="top|left"
+     height="20"
+     image_overlay="OptionsMenu_Off"
+     menu_filename="menu_inspect_object_gear.xml"
+     name="gear_btn"
+     right="-5"
+     top_delta="0"
+     width="35" />
 </floater>
