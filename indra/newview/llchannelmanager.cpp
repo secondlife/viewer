@@ -220,5 +220,12 @@ void LLChannelManager::removeChannelByID(const LLUUID id)
 }
 
 //--------------------------------------------------------------------------
-
+void LLChannelManager::muteAllChannels(bool mute)
+{
+	for (std::vector<ChannelElem>::iterator it = mChannelList.begin();
+			it != mChannelList.end(); it++)
+	{
+		it->channel->setShowToasts(!mute);
+	}
+}
 
