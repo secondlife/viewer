@@ -1506,7 +1506,7 @@ S32 LLTextureCache::getHeaderCacheEntry(const LLUUID& id, S32& imagesize)
 // Writes imagesize to the header, updates timestamp
 S32 LLTextureCache::setHeaderCacheEntry(const LLUUID& id, S32 imagesize)
 {
-	LLMutexLock lock(&mHeaderMutex);
+	mHeaderMutex.lock();
 	llassert_always(imagesize >= 0);
 	Entry entry;
 	S32 idx = openAndReadEntry(id, entry, true);
@@ -1514,11 +1514,15 @@ S32 LLTextureCache::setHeaderCacheEntry(const LLUUID& id, S32 imagesize)
 	{
 		entry.mImageSize = imagesize;
 		writeEntryAndClose(idx, entry);
+		mHeaderMutex.unlock();
 	}
 	else // retry
 	{
+		mHeaderMutex.unlock();
 		readHeaderCache(); // We couldn't write an entry, so refresh the LRU
+		mHeaderMutex.lock();
 		llassert_always(!mLRU.empty() || mHeaderEntriesInfo.mEntries < sCacheMaxEntries);
+		mHeaderMutex.unlock();
 		idx = setHeaderCacheEntry(id, imagesize); // assert above ensures no inf. recursion
 	}
 	return idx;
@@ -1644,7 +1648,7 @@ void LLTextureCache::addCompleted(Responder* responder, bool success)
 //////////////////////////////////////////////////////////////////////////////
 
 // Called from MAIN thread (endWork())
-// Ensuere that mHeaderMutex is locked first!
+// Ensure that mHeaderMutex is locked first!
 bool LLTextureCache::removeHeaderCacheEntry(const LLUUID& id)
 {
 	Entry entry;
