@@ -98,7 +98,7 @@ void LLFloaterGesture::done()
 		// we load only gesture folder without childred.
 		LLInventoryModel::cat_array_t* categories;
 		LLInventoryModel::item_array_t* items;
-		folder_ref_t unloaded_folders;
+		LLInventoryFetchDescendentsObserver::folder_ref_t unloaded_folders;
 		LL_DEBUGS("Gesture")<< "Get subdirs of Gesture Folder...." << LL_ENDL;
 		gInventory.getDirectDescendentsOf(mGestureFolderID, categories, items);
 		if (categories->empty())

@@ -51,6 +51,13 @@
                name="main_view"
                user_resize="true"
                width="500">
+          <view bottom="500"
+                follows="all"
+                height="500"
+                left="0"
+                mouse_opaque="false"
+                name="world_view_rect"
+                width="500"/>
           <layout_stack border_size="0"
                         bottom="500"
                         follows="all"
@@ -66,13 +73,6 @@
                    mouse_opaque="false"
                    name="hud container"
                    width="500">
-              <view bottom="500"
-                    follows="all"
-                    height="500"
-                    left="0"
-                    mouse_opaque="false"
-                    name="world_view_rect"
-                    width="500"/>
               <panel follows="right|top|bottom"
                      height="500"
                      mouse_opaque="false"

@@ -51,6 +51,7 @@
 #include "llfloaterreg.h"		// getTypedInstance()
 #include "llfocusmgr.h"
 #include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "lllandmarklist.h"
 #include "lllineeditor.h"
 #include "llregionhandle.h"

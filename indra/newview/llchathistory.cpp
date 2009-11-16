@@ -345,18 +345,30 @@ LLView* LLChatHistory::getHeader(const LLChat& chat,const LLStyle::Params& style
 	return header;
 }
 
-void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& style_params)
+void LLChatHistory::appendWidgetMessage(const LLChat& chat)
 {
 	LLView* view = NULL;
 	std::string view_text = "\n[" + formatCurrentTime() + "] ";
 	if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
 		view_text += chat.mFromName + ": ";
 
+
 	LLInlineViewSegment::Params p;
 	p.force_newline = true;
 	p.left_pad = mLeftWidgetPad;
 	p.right_pad = mRightWidgetPad;
 
+	
+	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
+	LLViewerChat::getChatColor(chat,txt_color);
+	LLFontGL* fontp = LLViewerChat::getChatFont();
+	
+	LLStyle::Params style_params;
+	style_params.color(txt_color);
+	style_params.readonly_color(txt_color);
+	style_params.font(fontp);
+
+	
 	if (mLastFromName == chat.mFromName)
 	{
 		view = getSeparator();
@@ -371,6 +383,7 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& sty
 		else
 			p.top_pad = mTopHeaderPad;
 		p.bottom_pad = mBottomHeaderPad;
+		
 	}
 	p.view = view;
 

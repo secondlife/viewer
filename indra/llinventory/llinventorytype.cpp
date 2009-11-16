@@ -106,7 +106,7 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
 	LLInventoryType::IT_OBJECT,			// AT_OBJECT
 	LLInventoryType::IT_NOTECARD,		// AT_NOTECARD
 	LLInventoryType::IT_CATEGORY,		// AT_CATEGORY
-	LLInventoryType::IT_ROOT_CATEGORY,	// AT_ROOT_CATEGORY
+	LLInventoryType::IT_NONE,			// (null entry)
 	LLInventoryType::IT_LSL,			// AT_LSL_TEXT
 	LLInventoryType::IT_LSL,			// AT_LSL_BYTECODE
 	LLInventoryType::IT_TEXTURE,		// AT_TEXTURE_TGA

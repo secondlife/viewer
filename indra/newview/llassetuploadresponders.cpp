@@ -40,7 +40,7 @@
 #include "llfloaterbuycurrency.h"
 #include "llfilepicker.h"
 #include "llnotify.h"
-#include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llfloaterinventory.h"
 #include "llpermissionsflags.h"

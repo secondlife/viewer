@@ -34,6 +34,8 @@
 #include "lldarray.h"	// JAMESDEBUG convert to std::vector
 #include "llfoldertype.h"
 #include "llfontgl.h"	// just for StyleFlags enum
+#include "llinventorytype.h"
+#include "llpermissionsflags.h"
 #include "llpointer.h"
 
 

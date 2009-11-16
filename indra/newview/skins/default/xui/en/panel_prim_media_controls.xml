@@ -2,19 +2,18 @@
 <panel
 	follows="left|right|top|bottom"
 	name="MediaControls"
-	bg_alpha_color="1 1 1 0"
+	background_visible="false"
 	height="160"
 	layout="topleft"
 	mouse_opaque="false"
 	width="800">
+  <string name="control_background_image_name">Inspector_Background</string>
   <panel
 	  name="media_region"
 	  bottom="125"
 	  follows="left|right|top|bottom"
 	  layout="topleft"
-	  left="20"
 	  mouse_opaque="false"
-	  right="-20"
 	  top="20" />
   <layout_stack
 	  follows="left|right|bottom"
@@ -33,6 +32,7 @@
 		name="media_progress_indicator"
 		height="22"
 		layout="topleft"
+		visible="false"
 		left="0"
 		top="0"
 		auto_resize="false"
@@ -64,6 +64,7 @@
 	  top="128">
 	<!-- outer layout_panels center the inner one -->
 	<layout_panel
+		name="left_bookend"
 		width="0"
 		layout="topleft"
 		user_resize="false" />
@@ -76,13 +77,18 @@
 		width="22"
 		top="4">
 	  <button
+		  image_overlay="Arrow_Left_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
 		  auto_resize="false"
 		  height="22"
-		  image_selected="media_btn_back.png"
-		  image_unselected="media_btn_back.png"
 		  layout="topleft"
 		  tool_tip="Step back"
 		  width="22"
+		  left="0"
 		  top_delta="4">
 		<button.commit_callback
 			function="MediaCtrl.Back" />
@@ -94,37 +100,25 @@
 		user_resize="false"
 		layout="topleft"
 		top="10"
-		min_width="17"
-		width="17">
+		min_width="22"
+		width="22">
 	  <button
+		  image_overlay="Arrow_Right_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
 		  height="22"
-		  image_selected="media_btn_forward.png"
-		  image_unselected="media_btn_forward.png"
 		  layout="topleft"
 		  tool_tip="Step forward"
 		  top_delta="0"
-		  min_width="17"
-		  width="17">
+		  min_width="22"
+		  width="22">
 		<button.commit_callback
 			function="MediaCtrl.Forward" />
 	  </button>
 	</layout_panel>
-<!--
-	<panel
-		height="22"
-		layout="topleft"
-		auto_resize="false"
-		min_width="3"
-		width="3">
-	  <icon
-		  height="22"
-		  image_name="media_panel_divider.png"
-		  layout="topleft"
-		  top="0"
-		  min_width="3"
-		  width="3" />
-	</panel>
--->
 	<layout_panel
 		name="home"
 		auto_resize="false"
@@ -134,11 +128,15 @@
 		min_width="22"
 		width="22">
 	  <button
-		  height="22"
-		  image_selected="media_btn_home.png"
-		  image_unselected="media_btn_home.png"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_overlay="Home_Off"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
 		  layout="topleft"
 		  tool_tip="Home page"
+		  height="22"
 		  min_width="22"
 		  width="22">
 		<button.commit_callback
@@ -153,10 +151,15 @@
 		top="2"
 		min_width="22"
 		width="22">
+	  <!-- The stop button here is temporary artwork -->
 	  <button
+		  image_overlay="media_btn_stoploading.png"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
 		  height="22"
-		  image_selected="button_anim_stop.tga"
-		  image_unselected="button_anim_stop.tga"
 		  layout="topleft"
 		  tool_tip="Stop media"
 		  min_width="22"
@@ -165,22 +168,6 @@
 			function="MediaCtrl.Stop" />
 	  </button>
 	</layout_panel>
-<!--
-	<panel
-		height="22"
-		layout="topleft"
-		auto_resize="false"
-		min_width="3"
-		width="3">
-	  <icon
-		  height="22"
-		  image_name="media_panel_divider.png"
-		  layout="topleft"
-		  top="0"
-		  min_width="3"
-		  width="3" />
-	</panel>
--->
 	<layout_panel
 		name="reload"
 		auto_resize="false"
@@ -191,8 +178,12 @@
 		width="22">
 	  <button
 		  height="22"
-		  image_selected="media_btn_reload.png"
-		  image_unselected="media_btn_reload.png"
+		  image_overlay="Refresh_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
 		  layout="topleft"
 		  tool_tip="Reload"
 		  min_width="22"
@@ -211,8 +202,12 @@
 		width="22">
 	  <button
 		  height="22"
-		  image_selected="media_btn_stoploading.png"
-		  image_unselected="media_btn_stoploading.png"
+		  image_overlay="StopReload_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
 		  layout="topleft"
 		  tool_tip = "Stop loading"
 		  min_width="22"
@@ -230,11 +225,15 @@
 		min_width="22"
 		width="22">
 	  <button
-		  height="22"
-		  image_selected="button_anim_play.tga"
-		  image_unselected="button_anim_play.tga"
+		  image_overlay="Play_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
 		  layout="topleft"
 		  tool_tip = "Play media"
+		  height="22"
 		  min_width="22"
 		  width="22">
 		<button.commit_callback
@@ -250,10 +249,14 @@
 		min_width="22"
 		width="22">
 	  <button
-		  height="22"
-		  image_selected="button_anim_pause.tga"
-		  image_unselected="button_anim_pause.tga"
+		  image_overlay="Pause_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
 		  layout="topleft"
+		  height="22"
 		  tool_tip = "Pause media">
 		<button.commit_callback
 			function="MediaCtrl.Pause" />
@@ -264,7 +267,7 @@
 		name="media_address"
 		auto_resize="true"
 		user_resize="false"
-		height="22"
+		height="24"
 		follows="left|right|bottom"
 		layout="topleft"
 		width="190"
@@ -294,31 +297,43 @@ function="MediaCtrl.CommitURL" />
 			function="MediaCtrl.CommitURL"/>
 	  </line_editor>
 	  <layout_stack
+		  name="media_address_url_icons"
 		  animate="false"
 		  follows="right"
-		  width="32"
-		  min_width="32"
-		  height="16"
-		  top="3"
-		  orientation="horizontal"
-		  left_pad="-38">
-		<icon
-			name="media_whitelist_flag"
-			follows="top|right"
-			height="16"
-			image_name="smicon_warn.tga"
+		  height="20"
+		  width="38"
+		  right="-2"
+		  top="-1"
+		  orientation="horizontal">
+		<layout_panel
 			layout="topleft"
-			tool_tip="White List enabled"
-			min_width="16"
-			width="16" />
-		<icon
-			name="media_secure_lock_flag"
-			height="16"
-			image_name="inv_item_eyes.tga"
+			width="16"
+			auto_resize="false"
+			user_resize="false">
+		  <icon
+			  name="media_whitelist_flag"
+			  follows="top|right"
+			  height="16"
+			  image_name="Flag"
+			  layout="topleft"
+			  tool_tip="White List enabled"
+			  min_width="16"
+			  width="16" />
+		</layout_panel>
+		<layout_panel
 			layout="topleft"
-			tool_tip="Secured Browsing"
-			min_width="16"
-			width="16" />
+			width="16"
+			auto_resize="false"
+			user_resize="false">
+		  <icon
+			  name="media_secure_lock_flag"
+			  height="16"
+			  image_name="Lock2"
+			  layout="topleft"
+			  tool_tip="Secured Browsing"
+			  min_width="16"
+			  width="16" />
+		</layout_panel>
 	  </layout_stack>
 	</layout_panel>
 	<layout_panel
@@ -337,6 +352,7 @@ function="MediaCtrl.CommitURL" />
 		  initial_value="0.5"
 		  layout="topleft"
 		  tool_tip="Movie play progress"
+		  top="8"
 		  min_width="100"
 		  width="200">
 		<slider_bar.commit_callback
@@ -348,43 +364,55 @@ function="MediaCtrl.CommitURL" />
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
-		height="24"
-		min_width="24"
-		width="24">
+		height="22"
+		min_width="22"
+		width="22">
+	  <!-- Note: this isn't quite right either...the mute button is not the -->
+	  <!-- same as the others because it can't have the "image_overlay" be  -->
+	  <!-- two different images.  -->
 	  <button
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="AudioMute_Off"
+		  image_unselected="Audio_Off"
+		  hover_glow_amount="0.15"
 		  name="media_volume_button"
 		  height="22"
-		  image_selected="icn_speaker-muted_dark.tga"
-		  image_unselected="icn_speaker_dark.tga"
 		  is_toggle="true"
 		  layout="topleft"
 		  scale_image="false" 
 		  tool_tip="Mute This Media"
-		  top_delta="22"
-		  min_width="24"
-		  width="24" >
+		  top_delta="18"
+		  min_width="22"
+		  width="22" >
 		<button.commit_callback
 			function="MediaCtrl.ToggleMute" />
 	  </button>
 	</layout_panel>
+	<!-- We don't have a design yet for "volume", so this is a temporary -->
+	<!-- solution.  See DEV-42827. -->
 	<layout_panel
 		name="volume_up"
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
-		min_width="20"
+		min_width="14"
 		height="14"
-		width="20">
+		width="14">
 	  <button
-		  top="-3"
+		  image_overlay="media_btn_scrollup.png"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  top="-5"
 		  height="14"
-		  image_selected="media_btn_scrollup.png"
-		  image_unselected="media_btn_scrollup.png"
 		  layout="topleft"
 		  tool_tip="Volume up"
 		  scale_image="true"
-		  min_width="20"
-		  width="20" >
+		  min_width="14"
+		  width="14" >
 		<button.commit_callback
 			function="MediaCtrl.CommitVolumeUp" />
 	  </button>
@@ -394,26 +422,32 @@ function="MediaCtrl.CommitURL" />
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
-		min_width="20"
+		min_width="14"
 		height="14"
-		width="20">
+		width="14">
 	  <button
-		  top="-5"
-		  height="14"
-		  image_selected="media_btn_scrolldown.png"
-		  image_unselected="media_btn_scrolldown.png"
+		  image_overlay="media_btn_scrolldown.png"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
 		  layout="topleft"
 		  tool_tip="Volume down"
 		  scale_image="true"
-		  min_width="20"
-		  width="20">
+		  top="-5"
+		  height="14"
+		  min_width="14"
+		  width="14">
 		<button.commit_callback
 			function="MediaCtrl.CommitVolumeDown" />
 	  </button>
 	</layout_panel>
 	<!-- Scroll pad -->
-<!--
-disabled
+	<!-- This was removed from the design, but is still here because it is --> 
+	<!-- complex, and recreating it would be hard.  In case the design -->
+	<!-- changes, here it lies: --> 
+	<!--
 	<layout_panel
 		name="media_panel_scroll"
 		auto_resize="false"
@@ -479,8 +513,21 @@ disabled
 		  min_width="8"
 		  width="8" />
 	</layout_panel>
-disabled
--->
+	-->
+	<panel
+		height="28"
+		layout="topleft"
+		auto_resize="false"
+		min_width="3"
+		width="3">
+	  <icon
+		  height="26"
+		  image_name="media_panel_divider.png"
+		  layout="topleft"
+		  top="0"
+		  min_width="3"
+		  width="3" />
+	</panel>
 	<layout_panel
 		name="zoom_frame"
 		auto_resize="false"
@@ -490,9 +537,13 @@ disabled
 		min_width="22"
 		width="22">
 	  <button
+		  image_overlay="Zoom_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
 		  height="22"
-		  image_selected="media_btn_optimalzoom.png"
-		  image_unselected="media_btn_optimalzoom.png"
 		  layout="topleft"
 		  tool_tip="Zoom into media"
 		  min_width="22"
@@ -508,10 +559,15 @@ disabled
 		layout="topleft"
 		min_width="21"
 		width="21" >
+	  <!-- There is no "Zoom out" icon, so we use this temporarily -->
 	  <button
+		  image_overlay="ForwardArrow_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
 		  height="22"
-		  image_selected="media_btn_done.png"
-		  image_unselected="media_btn_done.png"
 		  layout="topleft"
 		  tool_tip ="Zoom Back"
 		  top_delta="-4"
@@ -520,22 +576,6 @@ disabled
 			function="MediaCtrl.Close" />
 	  </button>
 	</layout_panel>
-<!--
-	<panel
-		height="22"
-		layout="topleft"
-		auto_resize="false"
-		min_width="3"
-		width="3">
-	  <icon
-		  height="22"
-		  image_name="media_panel_divider.png"
-		  layout="topleft"
-		  top="0"
-		  min_width="3"
-		  width="3" />
-	</panel>
--->
 	<layout_panel
 		name="new_window"
 		auto_resize="false"
@@ -544,35 +584,25 @@ disabled
 		min_width="22"
 		width="22">
 	  <button
+		  image_overlay="ExternalBrowser_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
 		  height="22"
-		  image_selected="media_btn_newwindow.png"
-		  image_unselected="media_btn_newwindow.png"
 		  layout="topleft"
 		  tool_tip = "Open URL in browser"
-		  top_delta="-3"
+		  top_delta="-4"
 		  min_width="24"
 		  width="24" >
 		<button.commit_callback
 			function="MediaCtrl.Open" />
 	  </button>
 	</layout_panel>
-<!--
-	<panel
-		height="22"
-		layout="topleft"
-		auto_resize="false"
-		min_width="3"
-		width="3">
-	  <icon
-		  height="22"
-		  image_name="media_panel_divider.png"
-		  layout="topleft"
-		  top="0"
-		  min_width="3"
-		  width="3" />
-	</panel>
--->
+	<!-- bookend panel -->
 	<layout_panel
+		name="right_bookend"
 		width="0"
 		layout="topleft"
 		user_resize="false" />

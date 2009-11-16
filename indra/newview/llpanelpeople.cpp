@@ -54,6 +54,7 @@
 #include "llfriendcard.h"
 #include "llgroupactions.h"
 #include "llgrouplist.h"
+#include "llinventoryobserver.h"
 #include "llpanelpeoplemenus.h"
 #include "llrecentpeople.h"
 #include "llviewercontrol.h"		// for gSavedSettings

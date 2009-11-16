@@ -43,7 +43,7 @@
 #include "llfloaterbump.h"
 #include "llassetstorage.h"
 #include "llcachename.h"
-#include "llchat.h"
+
 #include "lldbstrings.h"
 #include "lleconomy.h"
 #include "llfilepicker.h"
@@ -89,6 +89,7 @@
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llfloaterinventory.h"
 #include "llmenugl.h"
@@ -115,6 +116,7 @@
 #include "llui.h"			// for make_ui_sound
 #include "lluploaddialog.h"
 #include "llviewercamera.h"
+#include "llviewerchat.h"
 #include "llviewergenericmessage.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
@@ -2250,7 +2252,7 @@ void process_decline_callingcard(LLMessageSystem* msg, void**)
 
 void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 {
-	LLChat		chat;
+	LLChat	chat;
 	std::string		mesg;
 	std::string		from_name;
 	U8			source_temp;
@@ -2850,7 +2852,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 			// Chat the "back" SLURL. (DEV-4907)
 			LLChat chat("Teleport completed from " + gAgent.getTeleportSourceSLURL());
 			chat.mSourceType = CHAT_SOURCE_SYSTEM;
- 			LLFloaterChat::addChatHistory(chat);
+ 		    LLFloaterChat::addChatHistory(chat);
 
 			// Set the new position
 			avatarp->setPositionAgent(agent_pos);
@@ -4622,7 +4624,7 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 		if (caution)
 		{
 			LLChat chat(notice.getString());
-			LLFloaterChat::addChat(chat, FALSE, FALSE);
+	//		LLFloaterChat::addChat(chat, FALSE, FALSE);
 		}
 	}
 }
@@ -4835,8 +4837,7 @@ void container_inventory_arrived(LLViewerObject* object,
 		InventoryObjectList::const_iterator end = inventory->end();
 		for ( ; it != end; ++it)
 		{
-			if ((*it)->getType() != LLAssetType::AT_CATEGORY &&
-				(*it)->getType() != LLAssetType::AT_ROOT_CATEGORY)
+			if ((*it)->getType() != LLAssetType::AT_CATEGORY)
 			{
 				LLInventoryObject* obj = (LLInventoryObject*)(*it);
 				LLInventoryItem* item = (LLInventoryItem*)(obj);
@@ -4871,8 +4872,7 @@ void container_inventory_arrived(LLViewerObject* object,
 		// one actual object
 		InventoryObjectList::iterator it = inventory->begin();
 
-		if ((*it)->getType() == LLAssetType::AT_CATEGORY ||
-			(*it)->getType() == LLAssetType::AT_ROOT_CATEGORY)
+		if ((*it)->getType() == LLAssetType::AT_CATEGORY)
 		{
 			++it;
 		}

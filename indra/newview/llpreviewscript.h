@@ -41,7 +41,6 @@
 #include "lliconctrl.h"
 #include "llframetimer.h"
 
-
 class LLMessageSystem;
 class LLTextEditor;
 class LLButton;
@@ -52,6 +51,7 @@ struct 	LLEntryAndEdCore;
 class LLMenuBarGL;
 class LLFloaterScriptSearch;
 class LLKeywordToken;
+class LLViewerInventoryItem;
 
 // Inner, implementation class.  LLPreviewScript and LLLiveLSLEditor each own one of these.
 class LLScriptEdCore : public LLPanel
