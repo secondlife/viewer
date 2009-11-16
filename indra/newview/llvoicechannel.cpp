@@ -747,7 +747,7 @@ LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID& session_id, const std::string
 
 void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
 {
-	llinfos << "CALL CHANNEL STATUS CHANGE: " << type << llendl;
+	llinfos << "P2P CALL CHANNEL STATUS CHANGE: incoming=" << int(mReceivedCall) << " newstatus=" << LLVoiceClientStatusObserver::status2string(type) << " (mState=" << mState << ")" << llendl;
 
 	// status updates
 	switch(type)
@@ -875,7 +875,7 @@ void LLVoiceChannelP2P::setState(EState state)
 	// *HACK: Open/close the call window if needed.
 	toggleCallWindowIfNeeded(state);
 	
-	llinfos << "CALL STATE CHANGE: incoming=" << int(mReceivedCall) << " oldstate=" << mState << " newstate=" << state << llendl;
+	llinfos << "P2P CALL STATE CHANGE: incoming=" << int(mReceivedCall) << " oldstate=" << mState << " newstate=" << state << llendl;
 
 	if (mReceivedCall) // incoming call
 	{
