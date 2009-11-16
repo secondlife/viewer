@@ -201,3 +201,20 @@ S32 LLViewerChat::getChatFontSize()
 {
 	return gSavedSettings.getS32("ChatFontSize");
 }
+
+
+//static
+void LLViewerChat::formatChatMsg(const LLChat& chat, std::string& formated_msg)
+{
+	std::string tmpmsg = chat.mText;
+	
+	if(chat.mChatStyle == CHAT_STYLE_IRC)
+	{
+		formated_msg = chat.mFromName + tmpmsg.substr(3);
+	}
+	else 
+	{
+		formated_msg = tmpmsg;
+	}
+
+}
