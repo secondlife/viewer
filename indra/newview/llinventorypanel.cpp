@@ -149,11 +149,7 @@ BOOL LLInventoryPanel::postBuild()
 	// of that folder (i.e. not including the folder itself).
 	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(mStartFolderString);
 
-	if ("INVENTORY" == mStartFolderString)
-	{
-		mStartFolderID = gInventory.getRootFolderID();
-	}
-	else if ("LIBRARY" == mStartFolderString)
+	if ("LIBRARY" == mStartFolderString)
 	{
 		mStartFolderID = gInventory.getLibraryRootFolderID();
 	}
