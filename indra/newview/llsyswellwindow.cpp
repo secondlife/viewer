@@ -90,9 +90,9 @@ BOOL LLSysWellWindow::postBuild()
 void LLSysWellWindow::setMinimized(BOOL minimize)
 {
 	// we don't show empty Message Well window
-	if (!minimize)
+	if (!minimize && isWindowEmpty())
 	{
-		setVisible(!isWindowEmpty());
+		return;
 	}
 
 	LLDockableFloater::setMinimized(minimize);
@@ -268,8 +268,11 @@ void LLSysWellWindow::toggleWindow()
 	{
 		setVisible(FALSE);
 	}
-	//set window in foreground
-	setFocus(getVisible());
+	else if(!isDocked())
+	{
+		// bring to front undocked floater
+		setVisible(TRUE);
+	}
 }
 
 //---------------------------------------------------------------------------------

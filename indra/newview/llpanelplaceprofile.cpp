@@ -542,16 +542,16 @@ void LLPanelPlaceProfile::updateCovenantText(const std::string &text)
 void LLPanelPlaceProfile::onForSaleBannerClick()
 {
 	LLViewerParcelMgr* mgr = LLViewerParcelMgr::getInstance();
-	LLParcelSelectionHandle hParcel = mgr->getFloatingParcelSelection();
+	LLParcel* parcel = mgr->getFloatingParcelSelection()->getParcel();
 	LLViewerRegion* selected_region =  mgr->getSelectionRegion();
-	if(!hParcel.isNull() && selected_region)
+	if(parcel && selected_region)
 	{
-		if(hParcel->getParcel()->getLocalID() == mSelectedParcelID &&
+		if(parcel->getLocalID() == mSelectedParcelID &&
 				mLastSelectedRegionID ==selected_region->getRegionID())
 		{
-			if(hParcel->getParcel()->getSalePrice() - gStatusBar->getBalance() > 0)
+			if(parcel->getSalePrice() - gStatusBar->getBalance() > 0)
 			{
-				LLFloaterBuyCurrency::buyCurrency("Buying selected land ", hParcel->getParcel()->getSalePrice());
+				LLFloaterBuyCurrency::buyCurrency("Buying selected land ", parcel->getSalePrice());
 			}
 			else
 			{

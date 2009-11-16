@@ -203,5 +203,12 @@ void LLNearbyChat::getAllowedRect(LLRect& rect)
 {
 	rect = gViewerWindow->getWorldViewRectRaw();
 }
-
+void LLNearbyChat::setMinimized	(BOOL minimize)
+{
+	if(minimize && !isDocked())
+	{
+		setVisible(FALSE);
+	}
+	LLDockableFloater::setMinimized(minimize);
+}
 
