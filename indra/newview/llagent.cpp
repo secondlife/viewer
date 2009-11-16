@@ -31,82 +31,52 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llagent.h" 
-#include "llagentwearables.h"
+
+#include "pipeline.h"
 
 #include "llagentlistener.h"
+#include "llagentwearables.h"
+#include "llagentui.h"
+
 #include "llanimationstates.h"
+#include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llconsole.h"
-#include "lldrawable.h"
 #include "llfirstuse.h"
-#include "llfloaterreg.h"
-#include "llspeakers.h"
 #include "llfloatercamera.h"
 #include "llfloatercustomize.h"
-
-#include "llfloaterland.h"
-#include "llfloatersnapshot.h"
+#include "llfloaterreg.h"
 #include "llfloatertools.h"
-#include "llfloaterworldmap.h"
-
 #include "llgroupactions.h"
-
-#include "llfocusmgr.h"
 #include "llgroupmgr.h"
 #include "llhomelocationresponder.h"
-#include "llimview.h"
 #include "llhudmanager.h"
 #include "lljoystickbutton.h"
-#include "llmenugl.h"
 #include "llmorphview.h"
 #include "llmoveview.h"
+#include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
+#include "llnearbychatbar.h"
 #include "llparcel.h"
-#include "llquantize.h"
-#include "llrand.h"
-#include "llregionhandle.h"
 #include "llsdutil.h"
-#include "llselectmgr.h"
-#include "llsky.h"
-#include "llslurl.h"
-#include "llsmoothstep.h"
 #include "llsidetray.h"
+#include "llsky.h"
+#include "llsmoothstep.h"
 #include "llstatusbar.h"
-#include "llteleportflags.h"
-#include "llteleporthistory.h"
-#include "lltexturestats.h"
-#include "lltexturestats.h"
 #include "lltool.h"
-#include "lltoolcomp.h"
 #include "lltoolmgr.h"
-#include "lluictrlfactory.h"
-#include "llurldispatcher.h"
-
-#include "llviewercamera.h"
+#include "lltrans.h"
+#include "llviewercontrol.h"
 #include "llviewerdisplay.h"
+#include "llviewerjoystick.h"
 #include "llviewermediafocus.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerstats.h"
-#include "llviewerwindow.h"
-#include "llviewercontrol.h"
-#include "llviewerjoystick.h"
-
 #include "llvoavatarself.h"
 #include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
-
-#include "pipeline.h"
-#include "lltrans.h"
-#include "llbottomtray.h"
-#include "llnearbychatbar.h"
-#include "stringize.h"
-#include "llcapabilitylistener.h"
-
-#include "llnavigationbar.h" //to show/hide navigation bar when changing mouse look state
-#include "llagentui.h"
 
 using namespace LLVOAvatarDefines;
 
