@@ -265,8 +265,8 @@ BOOL LLManip::getMousePointOnPlaneGlobal(LLVector3d& point, S32 x, S32 y, LLVect
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		BOOL result = FALSE;
-		F32 mouse_x = ((F32)x / gViewerWindow->getWindowWidthScaled() - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgent.mHUDCurZoom;
-		F32 mouse_y = ((F32)y / gViewerWindow->getWindowHeightScaled() - 0.5f) / gAgent.mHUDCurZoom;
+		F32 mouse_x = ((F32)x / gViewerWindow->getWorldViewWidthScaled() - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgent.mHUDCurZoom;
+		F32 mouse_y = ((F32)y / gViewerWindow->getWorldViewHeightScaled() - 0.5f) / gAgent.mHUDCurZoom;
 
 		LLVector3 origin_agent = gAgent.getPosAgentFromGlobal(origin);
 		LLVector3 mouse_pos = LLVector3(0.f, -mouse_x, mouse_y);
