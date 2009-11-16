@@ -1879,7 +1879,9 @@ class LLAdvancedDebugAvatarTextures : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 		handle_debug_avatar_textures(NULL);
+#endif
 		return true;
 	}
 };
@@ -1893,7 +1895,9 @@ class LLAdvancedDumpAvatarLocalTextures : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 		handle_dump_avatar_local_textures(NULL);
+#endif
 		return true;
 	}
 };
@@ -7860,10 +7864,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckDebugCharacterVis(), "Advanced.CheckDebugCharacterVis");
 	view_listener_t::addMenu(new LLAdvancedDumpAttachments(), "Advanced.DumpAttachments");
 	view_listener_t::addMenu(new LLAdvancedRebakeTextures(), "Advanced.RebakeTextures");
-	#ifndef LL_RELEASE_FOR_DOWNLOAD
 	view_listener_t::addMenu(new LLAdvancedDebugAvatarTextures(), "Advanced.DebugAvatarTextures");
 	view_listener_t::addMenu(new LLAdvancedDumpAvatarLocalTextures(), "Advanced.DumpAvatarLocalTextures");
-	#endif
 	// Advanced > Network
 	view_listener_t::addMenu(new LLAdvancedEnableMessageLog(), "Advanced.EnableMessageLog");
 	view_listener_t::addMenu(new LLAdvancedDisableMessageLog(), "Advanced.DisableMessageLog");

@@ -838,11 +838,15 @@ void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	LLUUID session_id = data["session_id"].asUUID();
 	LLUUID from_id = data["from_id"].asUUID();
 	const std::string from = data["from"].asString();
-
-	//we do not show balloon (indicator of new messages) for system messages and our own messages
-	if (from_id.isNull() || from_id == gAgentID || SYSTEM_FROM == from) return;
-
 	S32 unread = data["num_unread"].asInteger();
+
+	// if new message came
+	if(unread != 0)
+	{
+		//we do not show balloon (indicator of new messages) for system messages and our own messages
+		if (from_id.isNull() || from_id == gAgentID || SYSTEM_FROM == from) return;
+	}
+
 	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
 	if (im_floater && im_floater->getVisible())
 	{
@@ -862,7 +866,6 @@ void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	    	llwarns << "Unable to set counter for chiclet " << session_id << llendl;
 	    }
 	}
-
 }
 
 

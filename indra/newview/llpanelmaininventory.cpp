@@ -204,11 +204,6 @@ void LLPanelMainInventory::initListCommandsHandlers()
 	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelMainInventory::onGearButtonClick, this));
 	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelMainInventory::onTrashButtonClick, this));
 	mListCommands->childSetAction("add_btn", boost::bind(&LLPanelMainInventory::onAddButtonClick, this));
-	/*
-	mListCommands->getChild<LLButton>("add_btn")->setHeldDownCallback(boost::bind(&LLPanelMainInventory::onAddButtonHeldDown, this));
-	static const LLSD add_landmark_command("add_landmark");
-	mListCommands->childSetAction("add_btn", boost::bind(&LLPanelMainInventory::onAddAction, this, add_landmark_command));
-	*/
 
 	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>("trash_btn");
 	trash_btn->setDragAndDropHandler(boost::bind(&LLPanelMainInventory::handleDragAndDropToTrash, this

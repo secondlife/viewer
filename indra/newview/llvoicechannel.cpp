@@ -306,8 +306,10 @@ void LLVoiceChannel::activate()
 		// activating the proximal channel between IM calls
 		LLVoiceChannel* old_channel = sCurrentVoiceChannel;
 		sCurrentVoiceChannel = this;
+		mCallDialogPayload["old_channel_name"] = "";
 		if (old_channel)
 		{
+			mCallDialogPayload["old_channel_name"] = old_channel->getSessionName();
 			old_channel->deactivate();
 		}
 	}
@@ -870,6 +872,19 @@ void LLVoiceChannelP2P::setState(EState state)
 {
 	// HACK: Open/close the call window if needed.
 	toggleCallWindowIfNeeded(state);
+	
+	// *HACK: open outgoing call floater if needed, might be better done elsewhere.
+	mCallDialogPayload["session_id"] = mSessionID;
+	mCallDialogPayload["session_name"] = mSessionName;
+	mCallDialogPayload["other_user_id"] = mOtherUserID;
+	if (!mReceivedCall && state == STATE_RINGING)
+	{
+		llinfos << "RINGINGGGGGGGG " << mSessionName << llendl;
+		if (!mSessionName.empty())
+		{
+			LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE);
+		}
+	}
 
 	// you only "answer" voice invites in p2p mode
 	// so provide a special purpose message here

@@ -13,6 +13,8 @@
  chrome="true"
  border_visible="false"
  width="1000">
+  <string name="SpeakBtnToolTip">Turns microphone on/off</string>
+  <string name="VoiceControlBtnToolTip">Shows/hides voice control panel</string>
     <layout_stack
      mouse_opaque="false"
      border_size="0"
@@ -70,9 +72,7 @@
            left="0"
            name="talk"
            top="3"
-          width="100"
-          speak_button.tool_tip="Turns microphone on/off"
-          show_button.tool_tip="Shows/hides voice control panel" />
+          width="100" />
         </layout_panel>
         <icon
             auto_resize="false"
@@ -333,6 +333,6 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          min_width="4" 
          right="-1"
          top="0"
-         width="26"/>
+         width="4"/>
     </layout_stack>
 </panel>

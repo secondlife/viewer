@@ -48,6 +48,7 @@ class LLUUID;
 class LLViewerMediaTexture;
 class LLMediaEntry;
 class LLVOVolume ;
+class LLMimeDiscoveryResponder;
 
 typedef LLPointer<LLViewerMediaImpl> viewer_media_t;
 ///////////////////////////////////////////////////////////////////////////////
@@ -294,6 +295,7 @@ public:
 	EMediaNavState getNavState() { return mMediaNavState; }
 	void setNavState(EMediaNavState state);
 	
+	void cancelMimeTypeProbe();
 public:
 	// a single media url with some data and an impl.
 	LLPluginClassMedia* mMediaSource;
@@ -331,7 +333,8 @@ public:
 	bool mIsDisabled;
 	bool mIsParcelMedia;
 	S32 mProximity;
-
+	LLMimeDiscoveryResponder *mMimeTypeProbe;
+	
 private:
 	BOOL mIsUpdated ;
 	std::list< LLVOVolume* > mObjectList ;

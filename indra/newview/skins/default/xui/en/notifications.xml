@@ -4957,8 +4957,9 @@ No valid parcel could be found.
   <notification
    icon="notify.tga"
    name="ObjectGiveItem"
-   type="notify">
-An object named [OBJECTFROMNAME] owned by [FIRST] [LAST] has given you a [OBJECTTYPE] named [OBJECTNAME].
+   type="offer">
+An object named [OBJECTFROMNAME] owned by [NAME] has offered you [OBJECTTYPE]:
+[ITEM_SLURL]
     <form name="form">
       <button
        index="0"
@@ -5000,7 +5001,8 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
    icon="notify.tga"
    name="UserGiveItem"
    type="offer">
-[NAME] has given you a [OBJECTTYPE] named &apos;[OBJECTNAME]&apos;.
+[NAME] has offered you [OBJECTTYPE]:
+[ITEM_SLURL]
     <form name="form">
       <button
        index="0"
@@ -5738,6 +5740,15 @@ Are you sure you want to delete your teleport history?
      notext="Cancel"
      yestext="OK"/>
   </notification>
+
+  <notification
+   icon="alert.tga"
+   name="BottomTrayButtonCanNotBeShown"
+   type="alert">
+Selected button can not be shown right now.
+The button will be shown when there is enough space for it.
+  </notification>
+
 
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.

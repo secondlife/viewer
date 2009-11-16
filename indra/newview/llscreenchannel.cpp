@@ -455,7 +455,7 @@ void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 	if(!mOverflowToastPanel)
 		return;
 
-	mOverflowToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::closeOverflowToastPanel, this));
+	mOverflowToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::onOverflowToastHide, this));
 
 	LLTextBox* text_box = mOverflowToastPanel->getChild<LLTextBox>("toast_text");
 	std::string	text = llformat(mOverflowFormatString.c_str(),mHiddenToastsNum);

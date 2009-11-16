@@ -40,10 +40,12 @@
 // Viewer includes
 #include "lljoystickbutton.h"
 #include "llviewercontrol.h"
+#include "llviewercamera.h"
 #include "llbottomtray.h"
 #include "llagent.h"
 #include "lltoolmgr.h"
 #include "lltoolfocus.h"
+#include "llslider.h"
 
 // Constants
 const F32 CAMERA_BUTTON_DELAY = 0.0f;
@@ -54,6 +56,93 @@ const F32 CAMERA_BUTTON_DELAY = 0.0f;
 #define PRESETS "camera_presets"
 #define CONTROLS "controls"
 
+// Zoom the camera in and out
+class LLPanelCameraZoom
+:	public LLPanel
+{
+	LOG_CLASS(LLPanelCameraZoom);
+public:
+	LLPanelCameraZoom();
+
+	/* virtual */ BOOL	postBuild();
+	/* virtual */ void	onOpen(const LLSD& key);
+
+protected:
+	void	onZoomPlusHeldDown();
+	void	onZoomMinusHeldDown();
+	void	onSliderValueChanged();
+
+private:
+	F32			mSavedSliderVal;
+	LLButton*	mPlusBtn;
+	LLButton*	mMinusBtn;
+	LLSlider*	mSlider;
+};
+
+static LLRegisterPanelClassWrapper<LLPanelCameraZoom> t_camera_zoom_panel("camera_zoom_panel");
+
+//-------------------------------------------------------------------------------
+// LLPanelCameraZoom
+//-------------------------------------------------------------------------------
+
+LLPanelCameraZoom::LLPanelCameraZoom()
+:	mPlusBtn( NULL ),
+	mMinusBtn( NULL ),
+	mSlider( NULL ),
+	mSavedSliderVal(0.f)
+{
+	mCommitCallbackRegistrar.add("Zoom.minus", boost::bind(&LLPanelCameraZoom::onZoomPlusHeldDown, this));
+	mCommitCallbackRegistrar.add("Zoom.plus", boost::bind(&LLPanelCameraZoom::onZoomMinusHeldDown, this));
+	mCommitCallbackRegistrar.add("Slider.value_changed", boost::bind(&LLPanelCameraZoom::onSliderValueChanged, this));
+}
+
+BOOL LLPanelCameraZoom::postBuild()
+{
+	mPlusBtn  = getChild <LLButton> ("zoom_plus_btn");
+	mMinusBtn = getChild <LLButton> ("zoom_minus_btn");
+	mSlider   = getChild <LLSlider> ("zoom_slider");
+	mSlider->setMinValue(.0f);
+	mSlider->setMaxValue(8.f);
+	return LLPanel::postBuild();
+}
+
+void LLPanelCameraZoom::onOpen(const LLSD& key)
+{
+	LLVector3d to_focus = gAgent.getPosGlobalFromAgent(LLViewerCamera::getInstance()->getOrigin()) - gAgent.calcFocusPositionTargetGlobal();
+	mSavedSliderVal = 8.f - (F32)to_focus.magVec(); // maximum minus current
+	mSlider->setValue( mSavedSliderVal );
+}
+
+void LLPanelCameraZoom::onZoomPlusHeldDown()
+{
+	F32 val = mSlider->getValueF32();
+	F32 inc = mSlider->getIncrement();
+	mSlider->setValue(val - inc);
+	// commit only if value changed
+	if (val != mSlider->getValueF32())
+		mSlider->onCommit();
+}
+
+void LLPanelCameraZoom::onZoomMinusHeldDown()
+{
+	F32 val = mSlider->getValueF32();
+	F32 inc = mSlider->getIncrement();
+	mSlider->setValue(val + inc);
+	// commit only if value changed
+	if (val != mSlider->getValueF32())
+		mSlider->onCommit();
+}
+
+void  LLPanelCameraZoom::onSliderValueChanged()
+{
+	F32 val	 = mSlider->getValueF32();
+	F32 rate = val - mSavedSliderVal;
+
+	gAgent.unlockView();
+	gAgent.cameraOrbitIn(rate);
+
+	mSavedSliderVal = val;
+}
 
 //
 // Member functions
@@ -125,6 +214,7 @@ void LLFloaterCamera::onOpen(const LLSD& key)
 		anchor_panel, this,
 		getDockTongue(), LLDockControl::TOP));
 
+	mZoom->onOpen(key);
 }
 
 void LLFloaterCamera::onClose(bool app_quitting)
@@ -147,7 +237,7 @@ BOOL LLFloaterCamera::postBuild()
 	setIsChrome(TRUE);
 
 	mRotate = getChild<LLJoystickCameraRotate>(ORBIT);
-	mZoom = getChild<LLJoystickCameraZoom>(ZOOM);
+	mZoom = getChild<LLPanelCameraZoom>(ZOOM);
 	mTrack = getChild<LLJoystickCameraTrack>(PAN);
 
 	assignButton2Mode(CAMERA_CTRL_MODE_ORBIT,			"orbit_btn");

@@ -107,12 +107,11 @@ public:
 
 	enum EBoostLevel
 	{
-		//skip 0 and 1 to avoid mistakenly mixing boost level with boolean numbers.
-		BOOST_NONE 			= 2,
-		BOOST_AVATAR_BAKED	= 3,
-		BOOST_AVATAR		= 4,
-		BOOST_CLOUDS		= 5,
-		BOOST_SCULPTED      = 6,
+		BOOST_NONE 			= 0,
+		BOOST_AVATAR_BAKED	= 1,
+		BOOST_AVATAR		= 2,
+		BOOST_CLOUDS		= 3,
+		BOOST_SCULPTED      = 4,
 		
 		BOOST_HIGH 			= 10,
 		BOOST_TERRAIN		= 11, // has to be high priority for minimap / low detail
@@ -668,7 +667,7 @@ public:
 
 	static LLViewerFetchedTexture* getFetchedTexture(const LLUUID &image_id,									 
 									 BOOL usemipmap = TRUE,
-									 S32 boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
+									 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_NONE,		// Get the requested level immediately upon creation.
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
 									 LLGLint internal_format = 0,
 									 LLGLenum primary_format = 0,
@@ -677,7 +676,7 @@ public:
 	
 	static LLViewerFetchedTexture* getFetchedTextureFromFile(const std::string& filename,									 
 									 BOOL usemipmap = TRUE,
-									 S32 boost_priority = LLViewerTexture::BOOST_NONE,
+									 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_NONE,
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
 									 LLGLint internal_format = 0,
 									 LLGLenum primary_format = 0,
@@ -686,7 +685,7 @@ public:
 
 	static LLViewerFetchedTexture* getFetchedTextureFromUrl(const std::string& url,									 
 									 BOOL usemipmap = TRUE,
-									 S32 boost_priority = LLViewerTexture::BOOST_NONE,
+									 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_NONE,
 									 S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
 									 LLGLint internal_format = 0,
 									 LLGLenum primary_format = 0,

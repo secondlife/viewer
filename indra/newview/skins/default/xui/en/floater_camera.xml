@@ -49,22 +49,57 @@
          top="22"
          visible="false"
          width="78" />
-         <!--TODO: replace with slider, + - images -->
- <joystick_zoom
-         follows="top|left"
-         height="78"
-         image_unselected="ScrollThumb_Vert"
-         layout="topleft"
-         left="7"
-         minus_image="ScrollThumb_Vert"
-         name="zoom"
-         plus_image="ScrollThumb_Vert"
-         quadrant="left"
-         scale_image="false"
-         sound_flags="3"
-         tool_tip="Zoom camera toward focus"
-         top="22"
-         width="20" />
+         <!--TODO: replace + - images -->
+         <panel
+            border="false"
+            class="camera_zoom_panel"
+            height="94"
+            layout="topleft"
+            left="7"
+            mouse_opaque="false"
+            name="zoom"
+            top="22"
+            width="18">
+           <button
+              follows="top|left"
+              height="18"
+              image_disabled="AddItem_Disabled"
+              image_selected="AddItem_Press"
+              image_unselected="AddItem_Off"
+              layout="topleft"
+              name="zoom_plus_btn"
+              width="18">
+             <commit_callback
+                function="Zoom.plus" />
+             <mouse_held_callback
+                function="Zoom.plus" />
+           </button>
+           <slider_bar
+              height="48"
+              layout="topleft"
+              name="zoom_slider"
+              orientation="vertical"
+              tool_tip="Zoom camera toward focus"
+              top_pad="0"
+              width="18">
+             <commit_callback function="Slider.value_changed"/>
+           </slider_bar>
+           <button
+              follows="top|left"
+              height="18"
+              image_disabled="AddItem_Disabled"
+              image_selected="AddItem_Press"
+              image_unselected="AddItem_Off"
+              layout="topleft"
+              name="zoom_minus_btn"
+              top_pad="0"
+              width="18">
+             <commit_callback
+                function="Zoom.minus" />
+             <mouse_held_callback
+                function="Zoom.minus" />
+           </button>
+         </panel>
          <joystick_rotate
          follows="top|left"
          height="78"
@@ -72,6 +107,7 @@
          image_unselected="Cam_Rotate_Out"
          layout="topleft"
          left="45"
+         mouse_opaque="false" 
          name="cam_rotate_stick"
          quadrant="left"
          scale_image="false"
@@ -80,7 +116,7 @@
          tool_tip="Orbit camera around focus"
          top="22"
          width="78" />
-            <panel
+         <panel
          height="78"
          layout="topleft"
          left="36"
