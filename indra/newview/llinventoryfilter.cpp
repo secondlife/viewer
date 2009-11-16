@@ -108,6 +108,10 @@ BOOL LLInventoryFilter::check(LLFolderViewItem* item)
 				passed_type |= ((1LL << cat->getPreferredType() & mFilterOps.mFilterTypes) != U64(0));
 			}
 		}
+		else
+		{
+			passed_type = TRUE;
+		}
 	}
 	else
 	{
