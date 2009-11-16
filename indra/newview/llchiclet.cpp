@@ -797,13 +797,11 @@ LLChicletPanel::Params::Params()
 	chiclet_padding = 3;
 	scrolling_offset = 40;
 
-/*
 	if (!min_width.isProvided())
 	{
 		// min_width = 4 chiclets + 3 paddings
 		min_width = 180 + 3*chiclet_padding;
 	}
-*/
 };
 
 LLChicletPanel::LLChicletPanel(const Params&p)
