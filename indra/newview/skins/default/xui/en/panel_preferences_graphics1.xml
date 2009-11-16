@@ -28,7 +28,7 @@
      follows="left|top"
      height="15"
      increment="0.025"
-     initial_value="1"
+     initial_valu="1"
      layout="topleft"
      left_delta="52"
      max_val="1.4"
