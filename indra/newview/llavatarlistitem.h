@@ -82,6 +82,8 @@ public:
 
 	void setContextMenu(ContextMenu* menu) { mContextMenu = menu; }
 
+	void reshapeAvatarName();
+
 private:
 
 	typedef enum e_online_status {

@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llinventory.h"
+#include "llinventoryobserver.h"
 #include "lltrans.h"
 
 #include "llfriendcard.h"
@@ -91,44 +92,39 @@ const LLUUID& get_folder_uuid(const LLUUID& parentFolderUUID, LLInventoryCollect
 	return LLUUID::null;
 }
 
-
-// LLViewerInventoryCategory::fetchDescendents has it own period of fetching.
-// for now it is FETCH_TIMER_EXPIRY = 10.0f; So made our period a bit more.
-const F32 FETCH_FRIENDS_DESCENDENTS_PERIOD = 11.0f;
-
-
 /**
- * Intended to call passed callback after the specified period of time.
+ * Class for fetching initial friend cards data
  *
- * Implemented to fix an issue when Inventory folders are in incomplete state. See EXT-2061, EXT-1935, EXT-813.
- * For now it uses to periodically sync Inventory Friends/All folder with a Agent's Friends List
- * until it is complete.
- */ 
-class FriendListUpdater : public LLEventTimer
+ * Implemented to fix an issue when Inventory folders are in incomplete state.
+ * See EXT-2320, EXT-2061, EXT-1935, EXT-813.
+ * Uses a callback to sync Inventory Friends/All folder with agent's Friends List.
+ */
+class LLInitialFriendCardsFetch : public LLInventoryFetchDescendentsObserver
 {
 public:
-	typedef boost::function<bool()> callback_t;
+	typedef boost::function<void()> callback_t;
 
-	FriendListUpdater(callback_t cb, F32 period)
-		:	LLEventTimer(period)
-		,	mCallback(cb)
-	{
-		mEventTimer.start();
-	}
+	LLInitialFriendCardsFetch(callback_t cb)
+		:	mCheckFolderCallback(cb)	{}
 
-	virtual BOOL tick() // from LLEventTimer
-	{
-		return mCallback();
-	}
+	/* virtual */ void done();
 
 private:
-	callback_t		mCallback;
+	callback_t		mCheckFolderCallback;
 };
 
+void LLInitialFriendCardsFetch::done()
+{
+	// This observer is no longer needed.
+	gInventory.removeObserver(this);
+
+	mCheckFolderCallback();
+
+	delete this;
+}
 
 // LLFriendCardsManager Constructor / Destructor
 LLFriendCardsManager::LLFriendCardsManager()
-: mFriendsAllFolderCompleted(true)
 {
 	LLAvatarTracker::instance().addObserver(this);
 }
@@ -166,30 +162,6 @@ const LLUUID LLFriendCardsManager::extractAvatarID(const LLUUID& avatarID)
 	}
 	return rv;
 }
-
-// be sure LLInventoryModel::buildParentChildMap() has been called before it.
-// and this method must be called before any actions with friend list
-void LLFriendCardsManager::ensureFriendFoldersExist()
-{
-	const LLUUID callingCardsFolderID = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
-
-	LLUUID friendFolderUUID = findFriendFolderUUIDImpl();
-
-	if (friendFolderUUID.isNull())
-	{
-		friendFolderUUID = gInventory.createNewCategory(callingCardsFolderID,
-			LLFolderType::FT_CALLINGCARD, get_friend_folder_name());
-	}
-
-	LLUUID friendAllSubfolderUUID = findFriendAllSubfolderUUIDImpl();
-
-	if (friendAllSubfolderUUID.isNull())
-	{
-		friendAllSubfolderUUID = gInventory.createNewCategory(friendFolderUUID,
-			LLFolderType::FT_CALLINGCARD, get_friend_all_subfolder_name());
-	}
-}
-
 
 bool LLFriendCardsManager::isItemInAnyFriendsList(const LLViewerInventoryItem* item)
 {
@@ -305,63 +277,12 @@ bool LLFriendCardsManager::isAnyFriendCategory(const LLUUID& catID) const
 	return TRUE == gInventory.isObjectDescendentOf(catID, friendFolderID);
 }
 
-bool LLFriendCardsManager::syncFriendsFolder()
+void LLFriendCardsManager::syncFriendCardsFolders()
 {
-	//lets create "Friends" and "Friends/All" in the Inventory "Calling Cards" if they are absent
-	LLFriendCardsManager::instance().ensureFriendFoldersExist();
+	const LLUUID callingCardsFolderID = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
 
-	LLAvatarTracker::buddy_map_t all_buddies;
-	LLAvatarTracker::instance().copyBuddyList(all_buddies);
-
-	// 1. Remove Friend Cards for non-friends
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-
-	gInventory.collectDescendents(findFriendAllSubfolderUUIDImpl(), cats, items, LLInventoryModel::EXCLUDE_TRASH);
-	
-	LLInventoryModel::item_array_t::const_iterator it;
-	for (it = items.begin(); it != items.end(); ++it)
-	{
-		lldebugs << "Check if buddy is in list: " << (*it)->getName() << " " << (*it)->getCreatorUUID() << llendl;
-		if (NULL == get_ptr_in_map(all_buddies, (*it)->getCreatorUUID()))
-		{
-			lldebugs << "NONEXISTS, so remove it" << llendl;
-			removeFriendCardFromInventory((*it)->getCreatorUUID());
-		}
-	}
-
-	// 2. Add missing Friend Cards for friends
-	LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();
-	llinfos << "try to build friends, count: " << all_buddies.size() << llendl; 
-	mFriendsAllFolderCompleted = true;
-	for(; buddy_it != all_buddies.end(); ++buddy_it)
-	{
-		const LLUUID& buddy_id = (*buddy_it).first;
-		addFriendCardToInventory(buddy_id);
-	}
-
-	if (!mFriendsAllFolderCompleted)
-	{
-		forceFriendListIsLoaded(findFriendAllSubfolderUUIDImpl());
-
-		static bool timer_started = false;
-		if (!timer_started)
-		{
-			lldebugs << "Create and start timer to sync Inventory Friends All folder with Friends list" << llendl;
-
-			// do not worry about destruction of the FriendListUpdater. 
-			// It will be deleted by LLEventTimer::updateClass when FriendListUpdater::tick() returns true.
-			new FriendListUpdater(boost::bind(&LLFriendCardsManager::syncFriendsFolder, this),
-				FETCH_FRIENDS_DESCENDENTS_PERIOD);
-		}
-		timer_started = true;
-	}
-	else
-	{
-		lldebugs << "Friends/All Inventory folder is synchronized with the Agent's Friends List" << llendl;
-	}
-
-	return mFriendsAllFolderCompleted;
+	fetchAndCheckFolderDescendents(callingCardsFolderID,
+			boost::bind(&LLFriendCardsManager::ensureFriendsFolderExists, this));
 }
 
 void LLFriendCardsManager::collectFriendsLists(folderid_buddies_map_t& folderBuddiesMap) const
@@ -482,6 +403,122 @@ void LLFriendCardsManager::findMatchedFriendCards(const LLUUID& avatarID, LLInve
 	}
 }
 
+void LLFriendCardsManager::fetchAndCheckFolderDescendents(const LLUUID& folder_id,  callback_t cb)
+{
+	// This instance will be deleted in LLInitialFriendCardsFetch::done().
+	LLInitialFriendCardsFetch* fetch = new LLInitialFriendCardsFetch(cb);
+
+	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+	folders.push_back(folder_id);
+
+	fetch->fetchDescendents(folders);
+	if(fetch->isEverythingComplete())
+	{
+		// everything is already here - call done.
+		fetch->done();
+	}
+	else
+	{
+		// it's all on it's way - add an observer, and the inventory
+		// will call done for us when everything is here.
+		gInventory.addObserver(fetch);
+	}
+}
+
+// Make sure LLInventoryModel::buildParentChildMap() has been called before it.
+// This method must be called before any actions with friends list.
+void LLFriendCardsManager::ensureFriendsFolderExists()
+{
+	const LLUUID calling_cards_folder_ID = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
+
+	// If "Friends" folder exists in "Calling Cards" we should check if "All" sub-folder
+	// exists in "Friends", otherwise we create it.
+	LLUUID friends_folder_ID = findFriendFolderUUIDImpl();
+	if (friends_folder_ID.notNull())
+	{
+		fetchAndCheckFolderDescendents(friends_folder_ID,
+				boost::bind(&LLFriendCardsManager::ensureFriendsAllFolderExists, this));
+	}
+	else
+	{
+		if (!gInventory.isCategoryComplete(calling_cards_folder_ID))
+		{
+			LLViewerInventoryCategory* cat = gInventory.getCategory(calling_cards_folder_ID);
+			std::string cat_name = cat ? cat->getName() : "unknown";
+			llwarns << "Failed to find \"" << cat_name << "\" category descendents in Category Tree." << llendl;
+		}
+
+		friends_folder_ID = gInventory.createNewCategory(calling_cards_folder_ID,
+			LLFolderType::FT_CALLINGCARD, get_friend_folder_name());
+
+		gInventory.createNewCategory(friends_folder_ID,
+			LLFolderType::FT_CALLINGCARD, get_friend_all_subfolder_name());
+
+		// Now when we have all needed folders we can sync their contents with buddies list.
+		syncFriendsFolder();
+	}
+}
+
+// Make sure LLFriendCardsManager::ensureFriendsFolderExists() has been called before it.
+void LLFriendCardsManager::ensureFriendsAllFolderExists()
+{
+	LLUUID friends_all_folder_ID = findFriendAllSubfolderUUIDImpl();
+	if (friends_all_folder_ID.notNull())
+	{
+		fetchAndCheckFolderDescendents(friends_all_folder_ID,
+				boost::bind(&LLFriendCardsManager::syncFriendsFolder, this));
+	}
+	else
+	{
+		LLUUID friends_folder_ID = findFriendFolderUUIDImpl();
+
+		if (!gInventory.isCategoryComplete(friends_folder_ID))
+		{
+			LLViewerInventoryCategory* cat = gInventory.getCategory(friends_folder_ID);
+			std::string cat_name = cat ? cat->getName() : "unknown";
+			llwarns << "Failed to find \"" << cat_name << "\" category descendents in Category Tree." << llendl;
+		}
+
+		friends_all_folder_ID = gInventory.createNewCategory(friends_folder_ID,
+			LLFolderType::FT_CALLINGCARD, get_friend_all_subfolder_name());
+
+		// Now when we have all needed folders we can sync their contents with buddies list.
+		syncFriendsFolder();
+	}
+}
+
+void LLFriendCardsManager::syncFriendsFolder()
+{
+	LLAvatarTracker::buddy_map_t all_buddies;
+	LLAvatarTracker::instance().copyBuddyList(all_buddies);
+
+	// 1. Remove Friend Cards for non-friends
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+
+	gInventory.collectDescendents(findFriendAllSubfolderUUIDImpl(), cats, items, LLInventoryModel::EXCLUDE_TRASH);
+
+	LLInventoryModel::item_array_t::const_iterator it;
+	for (it = items.begin(); it != items.end(); ++it)
+	{
+		lldebugs << "Check if buddy is in list: " << (*it)->getName() << " " << (*it)->getCreatorUUID() << llendl;
+		if (NULL == get_ptr_in_map(all_buddies, (*it)->getCreatorUUID()))
+		{
+			lldebugs << "NONEXISTS, so remove it" << llendl;
+			removeFriendCardFromInventory((*it)->getCreatorUUID());
+		}
+	}
+
+	// 2. Add missing Friend Cards for friends
+	LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();
+	llinfos << "try to build friends, count: " << all_buddies.size() << llendl;
+	for(; buddy_it != all_buddies.end(); ++buddy_it)
+	{
+		const LLUUID& buddy_id = (*buddy_it).first;
+		addFriendCardToInventory(buddy_id);
+	}
+}
+
 class CreateFriendCardCallback : public LLInventoryCallback
 {
 public:
@@ -494,9 +531,8 @@ public:
 	}
 };
 
-bool LLFriendCardsManager::addFriendCardToInventory(const LLUUID& avatarID)
+void LLFriendCardsManager::addFriendCardToInventory(const LLUUID& avatarID)
 {
-	LLInventoryModel* invModel = &gInventory;
 
 	bool shouldBeAdded = true;
 	std::string name;
@@ -518,13 +554,6 @@ bool LLFriendCardsManager::addFriendCardToInventory(const LLUUID& avatarID)
 		lldebugs << "is found in sentRequests: " << name << llendl; 
 	}
 
-	LLUUID friendListFolderID = findFriendAllSubfolderUUIDImpl();
-	if (friendListFolderID.notNull() && shouldBeAdded && !invModel->isCategoryComplete(friendListFolderID))
-	{
-		mFriendsAllFolderCompleted = false;
-		shouldBeAdded = false;
-		lldebugs << "Friends/All category is not completed" << llendl; 
-	}
 	if (shouldBeAdded)
 	{
 		putAvatarData(avatarID);
@@ -533,10 +562,8 @@ bool LLFriendCardsManager::addFriendCardToInventory(const LLUUID& avatarID)
 		// TODO: mantipov: Is CreateFriendCardCallback really needed? Probably not
 		LLPointer<LLInventoryCallback> cb = new CreateFriendCardCallback();
 
-		create_inventory_callingcard(avatarID, friendListFolderID, cb);
+		create_inventory_callingcard(avatarID, findFriendAllSubfolderUUIDImpl(), cb);
 	}
-
-	return shouldBeAdded;
 }
 
 void LLFriendCardsManager::removeFriendCardFromInventory(const LLUUID& avatarID)
@@ -580,13 +607,6 @@ void LLFriendCardsManager::onFriendListUpdate(U32 changed_mask)
 
 	default:;
 	}
-}
-
-void LLFriendCardsManager::forceFriendListIsLoaded(const LLUUID& folder_id) const
-{
-	bool fetching_inventory = gInventory.fetchDescendentsOf(folder_id);
-	lldebugs << "Trying to fetch descendants of Friends/All Inventory folder, fetched: "
-		<< fetching_inventory << llendl;
 }
 
 // EOF

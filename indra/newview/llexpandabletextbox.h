@@ -60,7 +60,7 @@ protected:
 
 		// adds or removes "More" link as needed
 		/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-		/*virtual*/ void setText(const LLStringExplicit& text);
+		/*virtual*/ void setText(const LLStringExplicit& text, const LLStyle::Params& input_params = LLStyle::Params());
 
 		/**
 		 * Returns difference between text box height and text height.

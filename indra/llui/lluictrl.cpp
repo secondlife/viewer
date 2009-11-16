@@ -38,10 +38,6 @@
 #include "llpanel.h"
 #include "lluictrlfactory.h"
 
-// This breaks the ability to construct dummy LLUICtrls for calls like
-// getChild<LLUICtrl>("not-there")
-//static LLWidgetNameRegistry::StaticRegistrar r(&typeid(LLUICtrl::Params), "ui_ctrl");
-// This doesn't appear to read/apply ui_ctrl.xml
 static LLDefaultChildRegistry::Register<LLUICtrl> r("ui_ctrl");
 
 LLUICtrl::Params::Params()

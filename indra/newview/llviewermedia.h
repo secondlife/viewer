@@ -48,6 +48,7 @@ class LLUUID;
 class LLViewerMediaTexture;
 class LLMediaEntry;
 class LLVOVolume ;
+class LLMimeDiscoveryResponder;
 
 typedef LLPointer<LLViewerMediaImpl> viewer_media_t;
 ///////////////////////////////////////////////////////////////////////////////
@@ -73,6 +74,9 @@ class LLViewerMedia
 	LOG_CLASS(LLViewerMedia);
 	public:
 
+		// String to get/set media autoplay in gSavedSettings
+		static const char *AUTO_PLAY_MEDIA_SETTING;
+	
 		typedef std::vector<LLViewerMediaImpl*> impl_list;
 
 		// Special case early init for just web browser component
@@ -294,6 +298,7 @@ public:
 	EMediaNavState getNavState() { return mMediaNavState; }
 	void setNavState(EMediaNavState state);
 	
+	void cancelMimeTypeProbe();
 public:
 	// a single media url with some data and an impl.
 	LLPluginClassMedia* mMediaSource;
@@ -331,7 +336,8 @@ public:
 	bool mIsDisabled;
 	bool mIsParcelMedia;
 	S32 mProximity;
-
+	LLMimeDiscoveryResponder *mMimeTypeProbe;
+	
 private:
 	BOOL mIsUpdated ;
 	std::list< LLVOVolume* > mObjectList ;

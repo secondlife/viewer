@@ -54,6 +54,8 @@
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
 
+/*static*/ const char* LLViewerMedia::AUTO_PLAY_MEDIA_SETTING = "AutoPlayMedia";
+
 // Move this to its own file.
 
 LLViewerMediaEventEmitter::~LLViewerMediaEventEmitter()
@@ -135,9 +137,19 @@ public:
 	LLMimeDiscoveryResponder( viewer_media_t media_impl)
 		: mMediaImpl(media_impl),
 		  mInitialized(false)
-	{}
+	{
+		if(mMediaImpl->mMimeTypeProbe != NULL)
+		{
+			llerrs << "impl already has an outstanding responder" << llendl;
+		}
+		
+		mMediaImpl->mMimeTypeProbe = this;
+	}
 
-
+	~LLMimeDiscoveryResponder()
+	{
+		disconnectOwner();
+	}
 
 	virtual void completedHeader(U32 status, const std::string& reason, const LLSD& content)
 	{
@@ -149,23 +161,63 @@ public:
 
 	virtual void error( U32 status, const std::string& reason )
 	{
-		// completeAny(status, "none/none");
-	}
-
-	void completeAny(U32 status, const std::string& mime_type)
-	{
-		if(!mInitialized && ! mime_type.empty())
+		if(status == 401)
 		{
-			if(mMediaImpl->initializeMedia(mime_type))
+			// This is the "you need to authenticate" status.  
+			// Treat this like an html page.
+			completeAny(status, "text/html");
+		}
+		else
+		{
+			llwarns << "responder failed with status " << status << ", reason " << reason << llendl;
+		
+			if(mMediaImpl)
 			{
-				mInitialized = true;
-				mMediaImpl->loadURI();
+				mMediaImpl->mMediaSourceFailed = true;
 			}
 		}
 	}
 
-	public:
-		viewer_media_t mMediaImpl;
+	void completeAny(U32 status, const std::string& mime_type)
+	{
+		// the call to initializeMedia may disconnect the responder, which will clear mMediaImpl.
+		// Make a local copy so we can call loadURI() afterwards.
+		LLViewerMediaImpl *impl = mMediaImpl;
+		
+		if(impl && !mInitialized && ! mime_type.empty())
+		{
+			if(impl->initializeMedia(mime_type))
+			{
+				mInitialized = true;
+				impl->loadURI();
+				disconnectOwner();
+			}
+		}
+	}
+	
+	void cancelRequest()
+	{
+		disconnectOwner();
+	}
+	
+private:
+	void disconnectOwner()
+	{
+		if(mMediaImpl)
+		{
+			if(mMediaImpl->mMimeTypeProbe != this)
+			{
+				llerrs << "internal error: mMediaImpl->mMimeTypeProbe != this" << llendl;
+			}
+
+			mMediaImpl->mMimeTypeProbe = NULL;
+		}
+		mMediaImpl = NULL;
+	}
+	
+	
+public:
+		LLViewerMediaImpl *mMediaImpl;
 		bool mInitialized;
 };
 static LLViewerMedia::impl_list sViewerMediaImplList;
@@ -272,7 +324,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 			// If (the media was already loaded OR the media was set to autoplay) AND this update didn't come from this agent,
 			// do a navigate.
 			
-			if((was_loaded || (media_entry->getAutoPlay() && gSavedSettings.getBOOL("AutoPlayMedia"))) && !update_from_self)
+			if((was_loaded || (media_entry->getAutoPlay() && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING))) && !update_from_self)
 			{
 				needs_navigate = (media_entry->getCurrentURL() != previous_url);
 			}
@@ -289,7 +341,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 		
 		media_impl->setHomeURL(media_entry->getHomeURL());
 		
-		if(media_entry->getAutoPlay() && gSavedSettings.getBOOL("AutoPlayMedia"))
+		if(media_entry->getAutoPlay() && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING))
 		{
 			needs_navigate = true;
 		}
@@ -708,6 +760,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mIsDisabled(false),
 	mIsParcelMedia(false),
 	mProximity(-1),
+	mMimeTypeProbe(NULL),
 	mIsUpdated(false)
 { 
 
@@ -811,7 +864,9 @@ void LLViewerMediaImpl::destroyMediaSource()
 	{
 		oldImage->setPlaying(FALSE) ;
 	}
-
+	
+	cancelMimeTypeProbe();
+	
 	if(mMediaSource)
 	{
 		delete mMediaSource;
@@ -1316,6 +1371,8 @@ void LLViewerMediaImpl::unload()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mime_type,  bool rediscover_type, bool server_request)
 {
+	cancelMimeTypeProbe();
+
 	if(mMediaURL != url)
 	{
 		// Don't carry media play state across distinct URLs.
@@ -1358,6 +1415,12 @@ void LLViewerMediaImpl::navigateInternal()
 	// Helpful to have media urls in log file. Shouldn't be spammy.
 	llinfos << "media id= " << mTextureId << " url=" << mMediaURL << " mime_type=" << mMimeType << llendl;
 
+	if(mMimeTypeProbe != NULL)
+	{
+		llwarns << "MIME type probe already in progress -- bailing out." << llendl;
+		return;
+	}
+	
 	if(mNavigateServerRequest)
 	{
 		setNavState(MEDIANAVSTATE_SERVER_SENT);
@@ -1390,7 +1453,7 @@ void LLViewerMediaImpl::navigateInternal()
 
 		if(scheme.empty() || "http" == scheme || "https" == scheme)
 		{
-			LLHTTPClient::getHeaderOnly( mMediaURL, new LLMimeDiscoveryResponder(this));
+			LLHTTPClient::getHeaderOnly( mMediaURL, new LLMimeDiscoveryResponder(this), 10.0f);
 		}
 		else if("data" == scheme || "file" == scheme || "about" == scheme)
 		{
@@ -1521,7 +1584,15 @@ void LLViewerMediaImpl::update()
 {
 	if(mMediaSource == NULL)
 	{
-		if(mPriority != LLPluginClassMedia::PRIORITY_UNLOADED)
+		if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
+		{
+			// This media source should not be loaded.
+		}
+		else if(mMimeTypeProbe != NULL)
+		{
+			// this media source is doing a MIME type probe -- don't try loading it again.
+		}
+		else
 		{
 			// This media may need to be loaded.
 			if(sMediaCreateTimer.hasExpired())
@@ -1644,7 +1715,7 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 		// MEDIAOPT: seems insane that we actually have to make an imageraw then
 		// immediately discard it
 		LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
-		raw->clear(0x0f, 0x0f, 0x0f, 0xff);
+		raw->clear(0x00, 0x00, 0x00, 0xff);
 		int discard_level = 0;
 
 		// ask media source for correct GL image format constants
@@ -2120,6 +2191,21 @@ void LLViewerMediaImpl::setNavState(EMediaNavState state)
 	}
 }
 
+void LLViewerMediaImpl::cancelMimeTypeProbe()
+{
+	if(mMimeTypeProbe != NULL)
+	{
+		// There doesn't seem to be a way to actually cancel an outstanding request.
+		// Simulate it by telling the LLMimeDiscoveryResponder not to write back any results.
+		mMimeTypeProbe->cancelRequest();
+		
+		// The above should already have set mMimeTypeProbe to NULL.
+		if(mMimeTypeProbe != NULL)
+		{
+			llerrs << "internal error: mMimeTypeProbe is not NULL after cancelling request." << llendl;
+		}
+	}
+}
 
 void LLViewerMediaImpl::addObject(LLVOVolume* obj) 
 {

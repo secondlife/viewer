@@ -118,7 +118,7 @@ if [ -n "$LL_TCMALLOC" ]; then
     fi
 fi
 
-export SL_ENV='LD_LIBRARY_PATH="`pwd`"/lib:"`pwd`"/app_settings/mozilla-runtime-linux-i686:"${LD_LIBRARY_PATH}"'
+export SL_ENV='LD_LIBRARY_PATH="`pwd`"/lib:"${LD_LIBRARY_PATH}"'
 export SL_CMD='$LL_WRAPPER bin/do-not-directly-run-secondlife-bin'
 export SL_OPT="`cat etc/gridargs.dat` $@"
 

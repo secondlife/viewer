@@ -322,13 +322,19 @@ void LLPanelMediaSettingsGeneral::updateMediaPreview()
 {
 	if ( mHomeURL->getValue().asString().length() > 0 )
 	{
-		mPreviewMedia->navigateTo( mHomeURL->getValue().asString() );
+		if(mPreviewMedia->getCurrentNavUrl() != mHomeURL->getValue().asString())
+		{
+			mPreviewMedia->navigateTo( mHomeURL->getValue().asString() );
+		}
 	}
 	else
 	// new home URL will be empty if media is deleted so display a 
 	// "preview goes here" data url page
 	{
-		mPreviewMedia->navigateTo( CHECKERBOARD_DATA_URL );
+		if(mPreviewMedia->getCurrentNavUrl() != CHECKERBOARD_DATA_URL)
+		{
+			mPreviewMedia->navigateTo( CHECKERBOARD_DATA_URL );
+		}
 	};
 }
 

@@ -38,7 +38,8 @@
 #define LL_LLFLOATERGESTURE_H
 
 #include "llfloater.h"
-
+#include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "lldarray.h"
 
 class LLScrollContainer;
@@ -51,31 +52,35 @@ class LLGestureOptions;
 class LLScrollListCtrl;
 class LLFloaterGestureObserver;
 class LLFloaterGestureInventoryObserver;
+class LLMultiGesture;
 
 class LLFloaterGesture
-:	public LLFloater
+:	public LLFloater, LLInventoryFetchDescendentsObserver
 {
+	LOG_CLASS(LLFloaterGesture);
 public:
 	LLFloaterGesture(const LLSD& key);
 	virtual ~LLFloaterGesture();
 
 	virtual BOOL postBuild();
-
+	virtual void done ();
 	void refreshAll();
 
 protected:
 	// Reads from the gesture manager's list of active gestures
 	// and puts them in this list.
 	void buildGestureList();
-
+	void addGesture(const LLUUID& item_id, LLMultiGesture* gesture, LLCtrlListInterface * list);
 	void onClickInventory();
 	void onClickEdit();
 	void onClickPlay();
 	void onClickNew();
 	void onCommitList();
+	void playGesture(LLUUID item_id);
 
 protected:
 	LLUUID mSelectedID;
+	LLUUID mGestureFolderID;
 
 	LLFloaterGestureObserver* mObserver;
 };

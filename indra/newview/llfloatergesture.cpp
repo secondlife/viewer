@@ -89,6 +89,52 @@ LLFloaterGesture::LLFloaterGesture(const LLSD& key)
 	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_gesture.xml");
 }
 
+void LLFloaterGesture::done()
+{
+	//this method can be called twice: for GestureFolder and once after loading all sudir of GestureFolder
+	if (gInventory.isCategoryComplete(mGestureFolderID))
+	{
+		LL_DEBUGS("Gesture")<< "mGestureFolderID loaded" << LL_ENDL;
+		// we load only gesture folder without childred.
+		LLInventoryModel::cat_array_t* categories;
+		LLInventoryModel::item_array_t* items;
+		LLInventoryFetchDescendentsObserver::folder_ref_t unloaded_folders;
+		LL_DEBUGS("Gesture")<< "Get subdirs of Gesture Folder...." << LL_ENDL;
+		gInventory.getDirectDescendentsOf(mGestureFolderID, categories, items);
+		if (categories->empty())
+		{
+			gInventory.removeObserver(this);
+			LL_INFOS("Gesture")<< "Gesture dos NOT contains sub-directories."<< LL_ENDL;
+			return;
+		}
+		LL_DEBUGS("Gesture")<< "There are " << categories->size() << " Folders "<< LL_ENDL;
+		for (LLInventoryModel::cat_array_t::iterator it = categories->begin(); it != categories->end(); it++)
+		{
+			if (!gInventory.isCategoryComplete(it->get()->getUUID()))
+			{
+				unloaded_folders.push_back(it->get()->getUUID());
+				LL_DEBUGS("Gesture")<< it->get()->getName()<< " Folder added to fetchlist"<< LL_ENDL;
+			}
+
+		}
+		if (!unloaded_folders.empty())
+		{
+			LL_DEBUGS("Gesture")<< "Fetching subdirectories....." << LL_ENDL;
+			fetchDescendents(unloaded_folders);
+		}
+		else
+		{
+			LL_DEBUGS("Gesture")<< "All Gesture subdirectories have been loaded."<< LL_ENDL;
+			gInventory.removeObserver(this);
+			buildGestureList();
+		}
+	}
+	else
+	{
+		LL_WARNS("Gesture")<< "Gesture list was NOT loaded"<< LL_ENDL;
+	}
+}
+
 // virtual
 LLFloaterGesture::~LLFloaterGesture()
 {
@@ -121,7 +167,14 @@ BOOL LLFloaterGesture::postBuild()
 	childSetVisible("play_btn", true);
 	childSetVisible("stop_btn", false);
 	setDefaultBtn("play_btn");
-	
+	mGestureFolderID = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE, false);
+
+	folder_ref_t folders;
+	folders.push_back(mGestureFolderID);
+	//perform loading Gesture directory anyway to make sure that all subdirectory are loaded too. See method done() for details.
+	gInventory.addObserver(this);
+	fetchDescendents(folders);
+
 	buildGestureList();
 	
 	childSetFocus("gesture_list");
@@ -171,101 +224,125 @@ void LLFloaterGesture::buildGestureList()
 
 	if (! (list && scroll)) return;
 
-	// attempt to preserve scroll position through re-builds
-	// since we do re-build any time anything dirties
-	S32 current_scroll_pos = scroll->getScrollPos();
-	
+	LLUUID selected_item = list->getCurrentID();
+	LL_DEBUGS("Gesture")<< "Rebuilding gesture list "<< LL_ENDL;
 	list->operateOnAll(LLCtrlListInterface::OP_DELETE);
 
-	LLGestureManager::item_map_t::iterator it;
-	for (it = LLGestureManager::instance().mActive.begin(); it != LLGestureManager::instance().mActive.end(); ++it)
+	LLGestureManager::item_map_t::const_iterator it;
+	const LLGestureManager::item_map_t& active_gestures = LLGestureManager::instance().getActiveGestures();
+	for (it = active_gestures.begin(); it != active_gestures.end(); ++it)
 	{
-		const LLUUID& item_id = (*it).first;
-		LLMultiGesture* gesture = (*it).second;
+		addGesture(it->first,it->second, list);
+	}
+	if (gInventory.isCategoryComplete(mGestureFolderID))
+	{
+		LLIsType is_gesture(LLAssetType::AT_GESTURE);
+		LLInventoryModel::cat_array_t categories;
+		LLInventoryModel::item_array_t items;
+		gInventory.collectDescendentsIf(mGestureFolderID, categories, items,
+				LLInventoryModel::EXCLUDE_TRASH, is_gesture);
 
-		// Note: Can have NULL item if inventory hasn't arrived yet.
-		std::string item_name = getString("loading");
-		LLInventoryItem* item = gInventory.getItem(item_id);
-		if (item)
+		for (LLInventoryModel::item_array_t::iterator it = items.begin(); it!= items.end(); ++it)
 		{
-			item_name = item->getName();
+			LLInventoryItem* item = it->get();
+			if (active_gestures.find(item->getUUID()) == active_gestures.end())
+			{
+				// if gesture wasn't loaded yet, we can display only name
+				addGesture(item->getUUID(), NULL, list);
+			}
+		}
+	}
+	// attempt to preserve scroll position through re-builds
+	// since we do re-build any time anything dirties
+	if(list->selectByValue(LLSD(selected_item)))
+	{
+		scroll->scrollToShowSelected();
+	}
+}
+
+void LLFloaterGesture::addGesture(const LLUUID& item_id , LLMultiGesture* gesture,LLCtrlListInterface * list )
+{
+	// Note: Can have NULL item if inventory hasn't arrived yet.
+	static std::string item_name = getString("loading");
+	LLInventoryItem* item = gInventory.getItem(item_id);
+	if (item)
+	{
+		item_name = item->getName();
+	}
+
+	static std::string font_style = "NORMAL";
+	// If gesture is playing, bold it
+
+	LLSD element;
+	element["id"] = item_id;
+
+	if (gesture)
+	{
+		if (gesture->mPlaying)
+		{
+			font_style = "BOLD";
 		}
 
-		std::string font_style = "NORMAL";
-		// If gesture is playing, bold it
+		element["columns"][0]["column"] = "trigger";
+		element["columns"][0]["value"] = gesture->mTrigger;
+		element["columns"][0]["font"]["name"] = "SANSSERIF";
+		element["columns"][0]["font"]["style"] = font_style;
 
-		LLSD element;
-		element["id"] = item_id;
+		std::string key_string = LLKeyboard::stringFromKey(gesture->mKey);
+		std::string buffer;
 
-		if (gesture)
+		if (gesture->mKey == KEY_NONE)
 		{
-			if (gesture->mPlaying)
-			{
-				font_style = "BOLD";
-			}
-
-			element["columns"][0]["column"] = "trigger";
-			element["columns"][0]["value"] = gesture->mTrigger;
-			element["columns"][0]["font"]["name"] = "SANSSERIF";
-			element["columns"][0]["font"]["style"] = font_style;
-
-			std::string key_string = LLKeyboard::stringFromKey(gesture->mKey);
-			std::string buffer;
-
-			if (gesture->mKey == KEY_NONE)
-			{
-				buffer = "---";
-				key_string = "~~~";		// alphabetize to end
-			}
-			else
-			{
-				buffer = LLKeyboard::stringFromAccelerator( gesture->mMask, gesture->mKey );
-			}
-
-			element["columns"][1]["column"] = "shortcut";
-			element["columns"][1]["value"] = buffer;
-			element["columns"][1]["font"]["name"] = "SANSSERIF";
-			element["columns"][1]["font"]["style"] = font_style;
-
-			// hidden column for sorting
-			element["columns"][2]["column"] = "key";
-			element["columns"][2]["value"] = key_string;
-			element["columns"][2]["font"]["name"] = "SANSSERIF";
-			element["columns"][2]["font"]["style"] = font_style;
-
-			// Only add "playing" if we've got the name, less confusing. JC
-			if (item && gesture->mPlaying)
-			{
-				item_name += " " + getString("playing");
-			}
-			element["columns"][3]["column"] = "name";
-			element["columns"][3]["value"] = item_name;
-			element["columns"][3]["font"]["name"] = "SANSSERIF";
-			element["columns"][3]["font"]["style"] = font_style;
+			buffer = "---";
+			key_string = "~~~"; // alphabetize to end
 		}
 		else
 		{
-			element["columns"][0]["column"] = "trigger";
-			element["columns"][0]["value"] = "";
-			element["columns"][0]["font"]["name"] = "SANSSERIF";
-			element["columns"][0]["font"]["style"] = font_style;
-			element["columns"][0]["column"] = "trigger";
-			element["columns"][0]["value"] = "---";
-			element["columns"][0]["font"]["name"] = "SANSSERIF";
-			element["columns"][0]["font"]["style"] = font_style;
-			element["columns"][2]["column"] = "key";
-			element["columns"][2]["value"] = "~~~";
-			element["columns"][2]["font"]["name"] = "SANSSERIF";
-			element["columns"][2]["font"]["style"] = font_style;
-			element["columns"][3]["column"] = "name";
-			element["columns"][3]["value"] = item_name;
-			element["columns"][3]["font"]["name"] = "SANSSERIF";
-			element["columns"][3]["font"]["style"] = font_style;
+			buffer = LLKeyboard::stringFromAccelerator(gesture->mMask,
+					gesture->mKey);
 		}
-		list->addElement(element, ADD_BOTTOM);
+
+		element["columns"][1]["column"] = "shortcut";
+		element["columns"][1]["value"] = buffer;
+		element["columns"][1]["font"]["name"] = "SANSSERIF";
+		element["columns"][1]["font"]["style"] = font_style;
+
+		// hidden column for sorting
+		element["columns"][2]["column"] = "key";
+		element["columns"][2]["value"] = key_string;
+		element["columns"][2]["font"]["name"] = "SANSSERIF";
+		element["columns"][2]["font"]["style"] = font_style;
+
+		// Only add "playing" if we've got the name, less confusing. JC
+		if (item && gesture->mPlaying)
+		{
+			item_name += " " + getString("playing");
+		}
+		element["columns"][3]["column"] = "name";
+		element["columns"][3]["value"] = item_name;
+		element["columns"][3]["font"]["name"] = "SANSSERIF";
+		element["columns"][3]["font"]["style"] = font_style;
 	}
-	
-	scroll->setScrollPos(current_scroll_pos);
+	else
+	{
+		element["columns"][0]["column"] = "trigger";
+		element["columns"][0]["value"] = "";
+		element["columns"][0]["font"]["name"] = "SANSSERIF";
+		element["columns"][0]["font"]["style"] = font_style;
+		element["columns"][0]["column"] = "trigger";
+		element["columns"][0]["value"] = "---";
+		element["columns"][0]["font"]["name"] = "SANSSERIF";
+		element["columns"][0]["font"]["style"] = font_style;
+		element["columns"][2]["column"] = "key";
+		element["columns"][2]["value"] = "~~~";
+		element["columns"][2]["font"]["name"] = "SANSSERIF";
+		element["columns"][2]["font"]["style"] = font_style;
+		element["columns"][3]["column"] = "name";
+		element["columns"][3]["value"] = item_name;
+		element["columns"][3]["font"]["name"] = "SANSSERIF";
+		element["columns"][3]["font"]["style"] = font_style;
+	}
+	list->addElement(element, ADD_BOTTOM);
 }
 
 void LLFloaterGesture::onClickInventory()
@@ -284,14 +361,21 @@ void LLFloaterGesture::onClickPlay()
 	LLCtrlListInterface *list = childGetListInterface("gesture_list");
 	if (!list) return;
 	const LLUUID& item_id = list->getCurrentID();
+	if(item_id.isNull()) return;
 
-	if (LLGestureManager::instance().isGesturePlaying(item_id))
+	LL_DEBUGS("Gesture")<<" Trying to play gesture id: "<< item_id <<LL_ENDL;
+	if(!LLGestureManager::instance().isGestureActive(item_id))
 	{
-		LLGestureManager::instance().stopGesture(item_id);
+		// we need to inform server about gesture activating to be consistent with LLPreviewGesture.
+		BOOL inform_server = TRUE;
+		BOOL deactivate_similar = FALSE;
+		LLGestureManager::instance().activateGestureWithAsset(item_id, gInventory.getItem(item_id)->getAssetUUID(), inform_server, deactivate_similar);
+		LL_DEBUGS("Gesture")<< "Activating gesture with inventory ID: " << item_id <<LL_ENDL;
+		LLGestureManager::instance().setGestureLoadedCallback(item_id, boost::bind(&LLFloaterGesture::playGesture, this, item_id));
 	}
 	else
 	{
-		LLGestureManager::instance().playGesture(item_id);
+		playGesture(item_id);
 	}
 }
 
@@ -343,5 +427,16 @@ void LLFloaterGesture::onCommitList()
 	{
 		childSetVisible("play_btn", true);
 		childSetVisible("stop_btn", false);
+	}
+}
+void LLFloaterGesture::playGesture(LLUUID item_id)
+{
+	if (LLGestureManager::instance().isGesturePlaying(item_id))
+	{
+		LLGestureManager::instance().stopGesture(item_id);
+	}
+	else
+	{
+		LLGestureManager::instance().playGesture(item_id);
 	}
 }

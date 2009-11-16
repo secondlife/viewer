@@ -120,11 +120,7 @@ void LLIMFloater::newIMCallback(const LLSD& data){
 		LLUUID session_id = data["session_id"].asUUID();
 
 		LLIMFloater* floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
-		if (floater == NULL)
-		{
-			llwarns << "new_im_callback for non-existent session_id " << session_id << llendl;
-			return;
-		}
+		if (floater == NULL) return;
 
         // update if visible, otherwise will be updated when opened
 		if (floater->getVisible())
@@ -211,6 +207,7 @@ BOOL LLIMFloater::postBuild()
 	}
 
 	mControlPanel->setSessionId(mSessionID);
+	mControlPanel->setVisible(gSavedSettings.getBOOL("IMShowControlPanel"));
 
 	LLButton* slide_left = getChild<LLButton>("slide_left_btn");
 	slide_left->setVisible(mControlPanel->getVisible());
@@ -356,8 +353,6 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 				LLDockControl::TOP,  boost::bind(&LLIMFloater::getAllowedRect, floater, _1)));
 	}
 
-	floater->childSetVisible("panel_im_control_panel", gSavedSettings.getBOOL("IMShowControlPanel"));
-
 	return floater;
 }
 
@@ -463,7 +458,7 @@ void LLIMFloater::updateMessages()
 
 	if (messages.size())
 	{
-		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
+//		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
 
 		std::ostringstream message;
 		std::list<LLSD>::const_reverse_iterator iter = messages.rbegin();
@@ -476,32 +471,13 @@ void LLIMFloater::updateMessages()
 			LLUUID from_id = msg["from_id"].asUUID();
 			std::string from = from_id != gAgentID ? msg["from"].asString() : LLTrans::getString("You");
 			std::string message = msg["message"].asString();
-			LLStyle::Params style_params;
-			style_params.color(chat_color);
 
 			LLChat chat;
 			chat.mFromID = from_id;
 			chat.mFromName = from;
+			chat.mText = message;
 
-			//Handle IRC styled /me messages.
-			std::string prefix = message.substr(0, 4);
-			if (prefix == "/me " || prefix == "/me'")
-			{
-				if (from.size() > 0)
-				{
-					style_params.font.style = "ITALIC";
-					chat.mText = from + " ";
-					mChatHistory->appendWidgetMessage(chat, style_params);
-				}
-				message = message.substr(3);
-				style_params.font.style = "UNDERLINE";
-				mChatHistory->appendText(message, FALSE, style_params);
-			}
-			else
-			{
-				chat.mText = message;
-				mChatHistory->appendWidgetMessage(chat, style_params);
-			}
+			mChatHistory->appendWidgetMessage(chat);
 
 			mLastMessageIndex = msg["index"].asInteger();
 		}

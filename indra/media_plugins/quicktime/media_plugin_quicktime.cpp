@@ -528,11 +528,17 @@ private:
 		if ( ! mMovieController )
 			return;
 
-		// service QuickTime
-		// Calling it this way doesn't have good behavior on Windows...
-//		MoviesTask( mMovieHandle, milliseconds );
-		// This was the original, but I think using both MoviesTask and MCIdle is redundant.  Trying with only MCIdle.
-//		MoviesTask( mMovieHandle, 0 );
+		// this wasn't required in 1.xx viewer but we have to manually 
+		// work the Windows message pump now
+		#if defined( LL_WINDOWS )
+		MSG msg;
+		while ( PeekMessage( &msg, NULL, 0, 0, PM_NOREMOVE ) ) 
+		{
+			GetMessage( &msg, NULL, 0, 0 );
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
+		};
+		#endif
 
 		MCIdle( mMovieController );
 
