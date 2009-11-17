@@ -718,7 +718,7 @@ private:
 		// find the size of the title
 		ByteCount size;
 		result = QTMetaDataGetItemValue( media_data_ref, item, NULL, 0, &size );
-		if ( noErr != result || size <= 0 /*|| size > 1024 /* FIXME: arbitrary limit */ ) 
+		if ( noErr != result || size <= 0 /*|| size > 1024  FIXME: arbitrary limit */ ) 
 			return false;
 
 		// allocate some space and grab it
