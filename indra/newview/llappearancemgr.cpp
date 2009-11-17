@@ -95,7 +95,7 @@ public:
 		mCopyItems(copy_items),
 		mAppend(append)
 	{}
-	~LLOutfitObserver();
+	~LLOutfitObserver() {}
 	virtual void done();
 	void doWearCategory();
 
@@ -105,12 +105,6 @@ protected:
 	bool mAppend;
 };
 
-LLOutfitObserver::~LLOutfitObserver()
-{
-	llinfos << "~LLOutfitObserver" << llendl;
-}
-
-// BAP is LLOutfitObserver getting deleted here?
 void LLOutfitObserver::done()
 {
 	gInventory.removeObserver(this);
@@ -236,7 +230,6 @@ void LLOutfitFetch::done()
 	// loop.
 	//dec_busy_count();
 	gInventory.removeObserver(this);
-	delete this;
 
 	// increment busy count and either tell the inventory to check &
 	// call done, or add this object to the inventory for observation.
@@ -255,6 +248,7 @@ void LLOutfitFetch::done()
 		// will call done for us when everything is here.
 		gInventory.addObserver(outfit_observer);
 	}
+	delete this;
 }
 
 class LLUpdateAppearanceOnDestroy: public LLInventoryCallback
@@ -471,7 +465,7 @@ void LLAppearanceManager::filterWearableItems(
 // Create links to all listed items.
 void LLAppearanceManager::linkAll(const LLUUID& category,
 								  LLInventoryModel::item_array_t& items,
-											   LLPointer<LLInventoryCallback> cb)
+								  LLPointer<LLInventoryCallback> cb)
 {
 	for (S32 i=0; i<items.count(); i++)
 	{
