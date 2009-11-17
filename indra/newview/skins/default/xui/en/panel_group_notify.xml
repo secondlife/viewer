@@ -104,7 +104,8 @@
      name="attachment"
      text_color="GroupNotifyTextColor"
      value="Attachment"
-     width="280" />
+     use_ellipses="true"
+     width="250" />
     <button
      bottom="130"
      follows="bottom"
