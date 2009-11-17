@@ -3937,7 +3937,6 @@ std::string LLObjectBridge::getLabelSuffix() const
 	if( avatar && avatar->isWearingAttachment( mUUID ) )
 	{
 		std::string attachment_point_name = avatar->getAttachedPointName(mUUID);
-		LLStringUtil::toLower(attachment_point_name);
 
 		LLStringUtil::format_map_t args;
 		args["[ATTACHMENT_POINT]"] =  attachment_point_name.c_str();

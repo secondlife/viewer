@@ -146,7 +146,7 @@ LLButton::LLButton(const LLButton::Params& p)
 	mHoverGlowStrength(p.hover_glow_amount),
 	mCommitOnReturn(p.commit_on_return),
 	mFadeWhenDisabled(FALSE),
-	mForcePressedState(FALSE),
+	mForcePressedState(false),
 	mLastDrawCharsCount(0)
 {
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);

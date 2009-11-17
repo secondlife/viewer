@@ -429,9 +429,10 @@ void LLManip::renderXYZ(const LLVector3 &vec)
 	const S32 PAD = 10;
 	std::string feedback_string;
 	LLVector3 camera_pos = LLViewerCamera::getInstance()->getOrigin() + LLViewerCamera::getInstance()->getAtAxis();
-	S32 vertical_offset = gViewerWindow->getWindowHeightScaled() / 2 - VERTICAL_OFFSET;
-	S32 window_center_x = gViewerWindow->getWindowWidthScaled() / 2;
-	S32 window_center_y = gViewerWindow->getWindowHeightScaled() / 2;
+	S32 window_center_x = gViewerWindow->getWorldViewRectScaled().getWidth() / 2;
+	S32 window_center_y = gViewerWindow->getWorldViewRectScaled().getHeight() / 2;
+	S32 vertical_offset = window_center_y - VERTICAL_OFFSET;
+
 
 	glPushMatrix();
 	{

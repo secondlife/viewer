@@ -163,6 +163,7 @@ LLToolTip::Params::Params()
 	visible_time_far("visible_time_far", LLUI::sSettingGroups["config"]->getF32( "ToolTipVisibleTimeFar" )),
 	sticky_rect("sticky_rect"),
 	image("image"),
+	text_color("text_color"),
 	time_based_media("time_based_media", false),
 	web_based_media("web_based_media", false),
 	media_playing("media_playing", false)
@@ -186,7 +187,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	params.h_pad = 0;
 	params.v_pad = 0;
 	params.mouse_opaque = false;
-	params.text_color = LLUIColorTable::instance().getColor( "ToolTipTextColor" );
+	params.text_color = p.text_color;
 	params.bg_visible = false;
 	params.font = p.font;
 	params.use_ellipses = true;

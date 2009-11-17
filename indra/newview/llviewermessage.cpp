@@ -2343,14 +2343,14 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		std::string prefix = mesg.substr(0, 4);
 		if (prefix == "/me " || prefix == "/me'")
 		{
-			chat.mText = from_name;
-			chat.mText += mesg.substr(3);
+//			chat.mText = from_name;
+//			chat.mText += mesg.substr(3);
 			ircstyle = TRUE;
 		}
-		else
-		{
+//		else
+//		{
 			chat.mText = mesg;
-		}
+//		}
 
 		// Look for the start of typing so we can put "..." in the bubbles.
 		if (CHAT_TYPE_START == chat.mChatType)
@@ -2374,19 +2374,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 				((LLVOAvatar*)chatter)->stopTyping();
 			}
 			return;
-		}
-
-		// We have a real utterance now, so can stop showing "..." and proceed.
-		if (chatter && chatter->isAvatar())
-		{
-			LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, FALSE);
-			((LLVOAvatar*)chatter)->stopTyping();
-
-			if (!is_muted && !is_busy)
-			{
-				visible_in_chat_bubble = gSavedSettings.getBOOL("UseChatBubbles");
-				((LLVOAvatar*)chatter)->addChat(chat);
-			}
 		}
 
 		// Look for IRC-style emotes
@@ -2426,6 +2413,23 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			chat.mText = "";
 			chat.mText += verb;
 			chat.mText += mesg;
+		}
+		
+		// We have a real utterance now, so can stop showing "..." and proceed.
+		if (chatter && chatter->isAvatar())
+		{
+			LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, FALSE);
+			((LLVOAvatar*)chatter)->stopTyping();
+			
+			if (!is_muted && !is_busy)
+			{
+				visible_in_chat_bubble = gSavedSettings.getBOOL("UseChatBubbles");
+				std::string formated_msg = "";
+				LLViewerChat::formatChatMsg(chat, formated_msg);
+				LLChat chat_bubble = chat;
+				chat_bubble.mText = formated_msg;
+				((LLVOAvatar*)chatter)->addChat(chat_bubble);
+			}
 		}
 		
 		if (chatter)

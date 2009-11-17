@@ -4,18 +4,18 @@
   Single instance - only have one at a time, recycle it each spawn
 -->
 <floater
- legacy_header_height="18"
+ legacy_header_height="25"
  bevel_style="in"
- bg_opaque_image="Inspector_Background" 
+ bg_opaque_image="Inspector_Background"
  can_close="false"
  can_minimize="false"
- height="138"
+ height="148"
  layout="topleft"
  name="inspect_avatar"
  single_instance="true"
  sound_flags="0"
  visible="true"
- width="245">
+ width="228">
   <!-- Allowed fields include:
 	[BORN_ON] ("12/3/2008")
 	[SL_PROFILE] (Second Life profile),
@@ -30,7 +30,7 @@
   </string>
   <string
      name="Details">
-[ACCTTYPE][COMMA] [PAYMENTINFO]
+[SL_PROFILE]
     </string>
   <string
      name="Partner">
@@ -38,45 +38,45 @@
   </string>
   <text
      follows="all"
-     font="SansSerifLargeBold"
-     height="18"
+     font="SansSerifLarge"
+     height="16"
      left="8"
      name="user_name"
-     top="5"
-     text_color="white"
+     top="10"
+     text_color="White"
      use_ellipses="true"
      value="Grumpity ProductEngine"
-     width="240"
-     word_wrap="false" />
+     width="175" />
     <text
      follows="all"
      height="16"
      left="8"
-     value="Grumpity ProductEngine moose moose"
-     name="user_details"
-     top_pad="0"
-     width="170"
-     use_ellipses="true"
-     word_wrap="false" />
-    <text
-     follows="all"
-   font="SansSerifSmallBold"
-   text_color="White"
-   height="18"
-   left="8"
      name="user_subtitle"
-     use_ellipses="true"
-     top_pad="0"
-     width="170" />
+   font="SansSerifSmall"
+   text_color="White"
+     value="11 Months, 3 days old"
+     width="175"
+     use_ellipses="true" />
+     <text
+     follows="all"
+   height="25"
+   left="8"
+     name="user_details"
+     word_wrap="true"
+     top_pad="6"
+     width="220">This is my second life description and I really think it is great.
+    </text>
     <text
      follows="all"
-     height="16"
+     height="13"
      left="8"
      name="user_partner"
-     top_pad="8"
-     width="240"
+     top_pad="3"
+     width="220"
      use_ellipses="true"
-     word_wrap="false" />
+     word_wrap="false">
+    Erica Linden
+  </text>
     <slider
      follows="top|left"
      height="23"
@@ -89,15 +89,15 @@
      tool_tip="Voice volume"
      top_pad="0"
      value="0.5"
-     width="150" />
+     width="195" />
     <button
      follows="all"
      height="16"
-     image_disabled="Inv_Sound"
-     image_disabled_selected="Inv_Sound"
-     image_hover_selected="Inv_Sound"
-     image_selected="Inv_Sound"
-     image_unselected="Inv_Sound"
+     image_disabled="Audio_Off"
+     image_disabled_selected="AudioMute_Off"
+     image_hover_selected="AudioMute_Over"
+     image_selected="AudioMute_Off"
+     image_unselected="Audio_Off"
      is_toggle="true"
      left_pad="0"
      top_delta="4"
@@ -106,67 +106,60 @@
     <avatar_icon
      follows="all"
      height="38"
-     right="-25"
+     right="-10"
      bevel_style="in"
      border_style="line"
      mouse_opaque="true"
      name="avatar_icon"
-     top="24"
+     top="10"
      width="38" />
-    <button
-     follows="top|left"
-     height="18"
-     image_disabled="ForwardArrow_Disabled"
-     image_selected="ForwardArrow_Press"
-     image_unselected="ForwardArrow_Off"
-     layout="topleft"
-     name="view_profile_btn"
-     right="-8"
-     top="35"
-     left_delta="110"
-     tab_stop="false"
-     width="18" />
   <!-- Overlapping buttons for default actions
     llinspectavatar.cpp makes visible the most likely default action -->
     <button
      follows="bottom|left"
-     height="23"
+     height="20"
      label="Add Friend"
      left="8"
-     top="246"
+     top="119"
      name="add_friend_btn"
-     width="100" />
+     width="90" />
     <button
      follows="bottom|left"
-     height="23"
+     height="20"
      label="IM"
      left_delta="0"
      top_delta="0"
      name="im_btn"
-     width="100"
+     width="80"
      commit_callback.function="InspectAvatar.IM"
      />
-    <menu_button
+          <button
      follows="top|left"
-     height="18"
-     image_disabled="OptionsMenu_Disabled"
-     image_selected="OptionsMenu_Press"
-     image_unselected="OptionsMenu_Off"
+     height="20"
+     label="More"
+     layout="topleft"
+     name="view_profile_btn"
+     left_delta="96"
+     top_delta="0"
+     tab_stop="false"
+     width="80" />
+      <!--  gear buttons here -->
+     <menu_button
+     height="20"
+     layout="topleft"
+     image_overlay="OptionsMenu_Off"
      menu_filename="menu_inspect_avatar_gear.xml"
      name="gear_btn"
-     right="-10"
-     top="249"
-     width="18" />
-  <menu_button
-     visible="false" 
+     right="-5"
+     top_delta="0"
+     width="35" />
+         <menu_button
      follows="top|left"
-     height="18"
-     image_disabled="OptionsMenu_Disabled"
-     image_selected="OptionsMenu_Press"
-     image_unselected="OptionsMenu_Off"
+     height="20"
+     image_overlay="OptionsMenu_Off"
      menu_filename="menu_inspect_self_gear.xml"
      name="gear_self_btn"
-     right="-10"
-     top="249"
-     width="18" />
+     right="-5"
+     top_delta="0"
+     width="35" />
 </floater>

@@ -160,10 +160,14 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 	
 	LLStyle::Params style_params;
 	style_params.color(mTextColor);
-	style_params.font(mFont);
-	
-	std::string str_sender;
+//	style_params.font(mFont);
+	std::string font_name = LLFontGL::nameFromFont(mFont);
+	std::string font_style_size = LLFontGL::sizeFromFont(mFont);
+	style_params.font.name(font_name);
+	style_params.font.size(font_style_size);
 
+	std::string str_sender;
+	
 	if(gAgentID != mFromID)
 		str_sender = mFromName;
 	else
@@ -173,10 +177,28 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 	
 	caption->getChild<LLTextBox>("msg_time", false)->setText(appendTime() , style_params );
 
-
 	LLChatMsgBox* msg_text = getChild<LLChatMsgBox>("msg_text", false);
-	msg_text->setText(mText, style_params);
 
+
+	if(notification["chat_style"].asInteger()== CHAT_STYLE_IRC)
+	{
+		if (mFromName.size() > 0)
+		{
+			style_params.font.style = "ITALIC";
+			
+			msg_text->setText(mFromName, style_params);
+		}
+		mText = mText.substr(3);
+		style_params.font.style = "UNDERLINE";
+		msg_text->addText(mText,style_params);
+	}
+	else 
+	{
+		msg_text->setText(mText, style_params);
+	}
+
+
+	
 	LLUICtrl* msg_inspector = caption->getChild<LLUICtrl>("msg_inspector");
 	if(mSourceType != CHAT_SOURCE_AGENT)
 		msg_inspector->setVisible(false);
@@ -196,6 +218,8 @@ void	LLNearbyChatToastPanel::setMessage	(const LLChat& chat_msg)
 	notification["from_id"] = chat_msg.mFromID;
 	notification["time"] = chat_msg.mTime;
 	notification["source"] = (S32)chat_msg.mSourceType;
+	notification["chat_type"] = (S32)chat_msg.mChatType;
+	notification["chat_style"] = (S32)chat_msg.mChatStyle;
 	
 	std::string r_color_name="White";
 	F32 r_color_alpha = 1.0f; 
