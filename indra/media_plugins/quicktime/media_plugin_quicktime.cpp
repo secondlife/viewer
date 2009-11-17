@@ -552,7 +552,7 @@ private:
 		processState();
 
 		// see if title arrived and if so, update member variable with contents
-		//checkTitle();
+		checkTitle();
 		
 		// QT call to see if we are at the end - can't do with controller
 		if ( IsMovieDone( mMovieHandle ) )
