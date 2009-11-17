@@ -237,7 +237,7 @@ void LLBottomTray::setVisible(BOOL visible)
 			LLView* viewp = *child_it;
 			std::string name = viewp->getName();
 			
-			if ("chat_bar" == name || "movement_panel" == name || "cam_panel" == name || "snapshot_panel" == name)
+			if ("chat_bar" == name || "movement_panel" == name || "cam_panel" == name || "snapshot_panel" == name || "gesture_panel" == name)
 				continue;
 			else 
 			{
