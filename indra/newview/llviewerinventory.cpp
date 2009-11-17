@@ -1215,11 +1215,6 @@ void LLViewerInventoryItem::rename(const std::string& n)
 
 const LLPermissions& LLViewerInventoryItem::getPermissions() const
 {
-	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
-	{
-		return linked_item->getPermissions();
-	}
-
 	// Use the actual permissions of the symlink, not its parent.
 	return LLInventoryItem::getPermissions();	
 }
