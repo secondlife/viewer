@@ -221,9 +221,9 @@ void audio_update_wind(bool force_update)
 			}
 		}
 		// this line rotates the wind vector to be listener (agent) relative
-		// unfortunately we have to pre-translate to undo the translation that
-		// occurs in the transform call
-		gRelativeWindVec = gAgent.getFrameAgent().rotateToLocal(gWindVec - gAgent.getVelocity());
+		// Only use the agent's motion to compute wind noise, otherwise the world
+		// feels desolate on login when you are standing still.
+		gRelativeWindVec = gAgent.getFrameAgent().rotateToLocal( -gAgent.getVelocity() );
 
 		// don't use the setter setMaxWindGain() because we don't
 		// want to screw up the fade-in on startup by setting actual source gain
