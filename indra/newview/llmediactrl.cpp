@@ -92,6 +92,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mStretchToFill( true ),
 	mMaintainAspectRatio ( true ),
 	mHideLoading (false),
+	mHidingInitialLoad (false),
 	mDecoupleTextureSize ( false ),
 	mTextureWidth ( 1024 ),
 	mTextureHeight ( 1024 )
@@ -616,6 +617,11 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 			mMediaSource->setHomeURL(mHomePageUrl);
 			mMediaSource->setVisible( getVisible() );
 			mMediaSource->addObserver( this );
+
+			if(mHideLoading)
+			{
+				mHidingInitialLoad = true;
+			}
 		}
 		else
 		{
@@ -685,7 +691,13 @@ void LLMediaCtrl::draw()
 	{
 		setFrequentUpdates( false );
 	};
-
+	
+	if(mHidingInitialLoad)
+	{
+		// If we're hiding loading, don't draw at all.
+		return;
+	}
+	
 	// alpha off for this
 	LLGLSUIDefault gls_ui;
 	LLGLDisable gls_alphaTest( GL_ALPHA_TEST );
@@ -865,19 +877,15 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 		case MEDIA_EVENT_NAVIGATE_BEGIN:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_BEGIN, url is " << self->getNavigateURI() << LL_ENDL;
-			if(mMediaSource && mHideLoading)
-			{
-				mMediaSource->suspendUpdates(true);
-			}
 		};
 		break;
 		
 		case MEDIA_EVENT_NAVIGATE_COMPLETE:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_COMPLETE, result string is: " << self->getNavigateResultString() << LL_ENDL;
-			if(mMediaSource && mHideLoading)
+			if(mHidingInitialLoad)
 			{
-				mMediaSource->suspendUpdates(false);
+				mHidingInitialLoad = false;
 			}
 		};
 		break;

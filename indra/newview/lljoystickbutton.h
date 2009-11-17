@@ -79,7 +79,13 @@ public:
 	static void		onBtnHeldDown(void *userdata);		// called by llbutton callback handler
 	void            setInitialQuadrant(EJoystickQuadrant initial) { mInitialQuadrant = initial; };
 
-	BOOL			pointInCircle(S32 x, S32 y) const;
+	/**
+	 * Checks if click location is inside joystick circle.
+	 *
+	 * Image containing circle is square and this square has adherent points with joystick
+	 * circle. Make sure to change method according to shape other than square. 
+	 */
+	bool			pointInCircle(S32 x, S32 y) const;
 	
 	static std::string nameFromQuadrant(const EJoystickQuadrant quadrant);
 	static EJoystickQuadrant quadrantFromName(const std::string& name);

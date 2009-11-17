@@ -909,11 +909,7 @@ void LLFolderView::finishRenamingItem( void )
 		mRenameItem->rename( mRenamer->getText() );
 	}
 
-	mRenamer->setCommitOnFocusLost( FALSE );
-	mRenamer->setFocus( FALSE );
-	mRenamer->setVisible( FALSE );
-	mRenamer->setCommitOnFocusLost( TRUE );
-	gFocusMgr.setTopCtrl( NULL );
+	gFocusMgr.setTopCtrl( NULL );	
 
 	if( mRenameItem )
 	{

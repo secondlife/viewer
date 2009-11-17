@@ -32,6 +32,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llagent.h"
 #include "llviewermedia.h"
 #include "llviewermediafocus.h"
 #include "llmimetypes.h"
@@ -571,11 +572,21 @@ bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLView
 		// Playable items sort above ones that wouldn't play even if they got high enough priority
 		return false;
 	}
+	else if(i1->getInterest() == i2->getInterest())
+	{
+		// Generally this will mean both objects have zero interest.  In this case, sort on distance.
+		return (i1->getProximityDistance() < i2->getProximityDistance());
+	}
 	else
 	{
 		// The object with the larger interest value should be earlier in the list, so we reverse the sense of the comparison here.
 		return (i1->getInterest() > i2->getInterest());
 	}
+}
+
+static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
+{
+	return (i1->getProximityDistance() < i2->getProximityDistance());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -603,12 +614,9 @@ void LLViewerMedia::updateMedia()
 	int impl_count_total = 0;
 	int impl_count_interest_low = 0;
 	int impl_count_interest_normal = 0;
-	int i = 0;
-
-#if 0	
-	LL_DEBUGS("PluginPriority") << "Sorted impls:" << llendl;
-#endif
-
+	
+	std::vector<LLViewerMediaImpl*> proximity_order;
+	
 	U32 max_instances = gSavedSettings.getU32("PluginInstancesTotal");
 	U32 max_normal = gSavedSettings.getU32("PluginInstancesNormal");
 	U32 max_low = gSavedSettings.getU32("PluginInstancesLow");
@@ -714,23 +722,27 @@ void LLViewerMedia::updateMedia()
 		}
 		else
 		{
-			// Other impls just get the same ordering as the priority list (for now).
-			pimpl->mProximity = i;
+			proximity_order.push_back(pimpl);
 		}
 
-#if 0		
-		LL_DEBUGS("PluginPriority") << "    " << pimpl 
-			<< ", setting priority to " << new_priority
-			<< (pimpl->hasFocus()?", HAS FOCUS":"") 
-			<< (pimpl->getUsedInUI()?", is UI":"") 
-			<< ", cpu " << pimpl->getCPUUsage() 
-			<< ", interest " << pimpl->getInterest() 
-			<< ", media url " << pimpl->getMediaURL() << llendl;
-#endif
-
 		total_cpu += pimpl->getCPUUsage();
-		
-		i++;
+	}
+	
+	if(gSavedSettings.getBOOL("MediaPerformanceManagerDebug"))
+	{
+		// Give impls the same ordering as the priority list
+		// they're already in the right order for this.
+	}
+	else
+	{
+		// Use a distance-based sort for proximity values.  
+		std::stable_sort(proximity_order.begin(), proximity_order.end(), proximity_comparitor);
+	}
+
+	// Transfer the proximity order to the proximity fields in the objects.
+	for(int i = 0; i < (int)proximity_order.size(); i++)
+	{
+		proximity_order[i]->mProximity = i;
 	}
 	
 	LL_DEBUGS("PluginPriority") << "Total reported CPU usage is " << total_cpu << llendl;
@@ -782,6 +794,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mIsDisabled(false),
 	mIsParcelMedia(false),
 	mProximity(-1),
+	mProximityDistance(0.0f),
 	mMimeTypeProbe(NULL),
 	mIsUpdated(false)
 { 
@@ -2107,6 +2120,15 @@ void LLViewerMediaImpl::calculateInterest()
 	{
 		// This will be a relatively common case now, since it will always be true for unloaded media.
 		mInterest = 0.0f;
+	}
+	
+	// Calculate distance from the avatar, for use in the proximity calculation.
+	mProximityDistance = 0.0f;
+	if(!mObjectList.empty())
+	{
+		// Just use the first object in the list.  We could go through the list and find the closest object, but this should work well enough.
+		LLVector3d global_delta = gAgent.getPositionGlobal() - (*mObjectList.begin())->getPositionGlobal();
+		mProximityDistance = global_delta.magVecSquared();  // use distance-squared because it's cheaper and sorts the same.
 	}
 	
 	if(mNeedsMuteCheck)

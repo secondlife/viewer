@@ -317,11 +317,6 @@ BOOL LLBottomTray::postBuild()
 	// Registering Chat Bar to receive Voice client status change notifications.
 	gVoiceClient->addObserver(this);
 
-	if (mChicletPanel && mToolbarStack && mNearbyChatBar)
-	{
-		verifyChildControlsSizes();
-	}
-
 	return TRUE;
 }
 
@@ -338,35 +333,6 @@ void LLBottomTray::log(LLView* panel, const std::string& descr)
 		<< ", rect: " << layout->getRect()
 		<< llendl
 		; 
-}
-
-void LLBottomTray::verifyChildControlsSizes()
-{
-	LLRect rect = mChicletPanel->getRect();
-	/*
-	if (rect.getWidth() < mChicletPanel->getMinWidth())
-	{
-		llwarns << "QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ: chiclet panel less then min" << llendl;
-		mChicletPanel->reshape(mChicletPanel->getMinWidth(), rect.getHeight());
-	}
-*/
-	rect = mNearbyChatBar->getRect();
-/*
-	if (rect.getWidth() < mNearbyChatBar->getMinWidth())
-	{
-		llwarns << "WWWWWWWWWWWWWWWWWWWWWWWWWWWWW: near chat panel less then min" << llendl;
-		mNearbyChatBar->reshape(mNearbyChatBar->getMinWidth(), rect.getHeight());
-	}
-	else 
-*/
-		if (rect.getWidth() > mNearbyChatBar->getMaxWidth())
-	{
-		llerrs << "WWWWWWWWWWWWWWWWWWWWWWWWWWWWW: near chat panel more then max width" << llendl;
-
-		rect.setLeftTopAndSize(rect.mLeft, rect.mTop, mNearbyChatBar->getMaxWidth(), rect.getHeight());
-		mNearbyChatBar->reshape(mNearbyChatBar->getMaxWidth(), rect.getHeight());
-		mNearbyChatBar->setRect(rect);
-	}
 }
 
 void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -393,7 +359,6 @@ void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
 	if (mChicletPanel && mToolbarStack && mNearbyChatBar)
 	{
 		mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, TRUE);
- 		verifyChildControlsSizes();
 
 		// bottom tray is narrowed
 		if (delta_width < 0)
