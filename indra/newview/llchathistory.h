@@ -109,7 +109,7 @@ class LLChatHistory : public LLTextEditor
 		 * @param time time of a message.
 		 * @param message message itself.
 		 */
-		void appendWidgetMessage(const LLChat& chat);
+		void appendWidgetMessage(const LLChat& chat, const LLStyle::Params& input_append_params = LLStyle::Params());
 
 	private:
 		std::string mLastFromName;

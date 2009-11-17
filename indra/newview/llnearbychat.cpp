@@ -155,7 +155,33 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 	
 	if (!chat.mMuted)
 	{
-		mChatHistory->appendWidgetMessage(chat);
+		std::string message = chat.mText;
+		std::string prefix = message.substr(0, 4);
+		if (chat.mChatStyle == CHAT_STYLE_IRC)
+		{
+			LLStyle::Params append_style_params;
+			if (chat.mFromName.size() > 0)
+			{
+				append_style_params.italic= true;
+				LLChat add_chat=chat;
+				add_chat.mText = chat.mFromName + " ";
+				mChatHistory->appendWidgetMessage(add_chat, append_style_params);
+			}
+			message = message.substr(3);
+			
+			LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
+			LLViewerChat::getChatColor(chat,txt_color);
+			LLFontGL* fontp = LLViewerChat::getChatFont();
+			append_style_params.color(txt_color);
+			append_style_params.readonly_color(txt_color);
+			append_style_params.font(fontp);
+			append_style_params.underline = true;
+			mChatHistory->appendText(message, FALSE, append_style_params);
+		}
+		else
+		{
+			mChatHistory->appendWidgetMessage(chat);
+		}
 	}
 }
 

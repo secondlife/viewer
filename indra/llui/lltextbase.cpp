@@ -1506,9 +1506,8 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 			LLStyle::Params link_params = style_params;
 			link_params.color = match.getColor();
 			// apply font name from requested style_params
-			std::string font_name = LLFontGL::nameFromFont(style_params.font());
-			link_params.font.name.setIfNotProvided(font_name);
-			link_params.font.style = "UNDERLINE";
+			std::string font_name = LLFontGL::nameFromFont(style_params.font());			
+			link_params.underline = true;
 			link_params.link_href = match.getUrl();
 
 			// output the text before the Url
@@ -2251,7 +2250,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 					rect.mLeft, rect.mTop, 
 					color, 
 					LLFontGL::LEFT, LLFontGL::TOP, 
-					0, 
+					mStyle->getFontStyle(), 
 					mStyle->getShadowType(), 
 					length, rect.getWidth(), 
 					&right_x, 
@@ -2270,7 +2269,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 					rect.mLeft, rect.mTop,
 					LLColor4( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], 1.f ),
 					LLFontGL::LEFT, LLFontGL::TOP, 
-					0, 
+					mStyle->getFontStyle(), 
 					LLFontGL::NO_SHADOW, 
 					length, rect.mRight, 
 					&right_x, 
@@ -2287,7 +2286,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 					rect.mLeft, rect.mTop, 
 					color, 
 					LLFontGL::LEFT, LLFontGL::TOP, 
-					0, 
+					mStyle->getFontStyle(), 
 					mStyle->getShadowType(), 
 					length, rect.mRight, 
 					&right_x, 
