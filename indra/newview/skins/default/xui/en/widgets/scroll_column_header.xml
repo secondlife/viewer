@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<scroll_column_header image_unselected="square_btn_32x128.tga"
-                      image_selected="square_btn_selected_32x128.tga"
-                      image_disabled="square_btn_32x128.tga"
-                      image_disabled_selected="square_btn_selected_32x128.tga"
-                      image_overlay="combobox_arrow.tga"
+<scroll_column_header
+		    image_unselected="SegmentedBtn_Middle_Selected"
+                      image_selected="SegmentedBtn_Middle_Selected"
+		      image_pressed="SegmentedBtn_Middle_Selected_Press"
+                      image_disabled="SegmentedBtn_Middle_Disabled"
+                      image_disabled_selected="SegmentedBtn_Middle_Selected_Disabled"
+                      image_overlay="DisclosureArrow_Opened_Off"
                       image_overlay_alignment="right"
                       halign="left"
-                      scale_image="true"/>
+                      scale_image="true" />
