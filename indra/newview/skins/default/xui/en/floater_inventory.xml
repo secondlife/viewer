@@ -30,7 +30,7 @@
      name="Fetched">
         Fetched
     </floater.string>
-<panel
+    <panel
      bottom="560"
 	 class="panel_main_inventory"
 	 filename="panel_main_inventory.xml"

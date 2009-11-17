@@ -49,7 +49,7 @@
 #include "llviewermenu.h"
 #include "llviewertexturelist.h"
 
-static LLRegisterPanelClassWrapper<LLPanelMainInventory> t_inventory("panel_main_inventory"); // Seraph is this redundant with constructor?
+static LLRegisterPanelClassWrapper<LLPanelMainInventory> t_inventory("panel_main_inventory");
 
 void on_file_loaded_for_save(BOOL success, 
 							 LLViewerFetchedTexture *src_vi,

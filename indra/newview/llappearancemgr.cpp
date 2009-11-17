@@ -40,7 +40,7 @@
 #include "llinventorybridge.h"
 #include "llinventoryobserver.h"
 #include "llnotifications.h"
-#include "llpanelappearance.h"
+#include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
@@ -530,10 +530,10 @@ void LLAppearanceManager::updateCOF(const LLUUID& category, bool append)
 							LLAssetType::AT_LINK_FOLDER, link_waiter);
 
 		// Update the current outfit name of the appearance sidepanel.
-		LLPanelAppearance* panel_appearance = dynamic_cast<LLPanelAppearance *>(LLSideTray::getInstance()->getPanel("panel_appearance"));
+		LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance *>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
 		if (panel_appearance)
 		{
-			panel_appearance->refreshCurrentLookName(catp->getName());
+			panel_appearance->refreshCurrentOutfitName(catp->getName());
 		}
 	}
 							  

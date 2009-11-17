@@ -145,23 +145,10 @@ BOOL LLInventoryPanel::postBuild()
 	mInventoryObserver = new LLInventoryPanelObserver(this);
 	mInventory->addObserver(mInventoryObserver);
 
-	// determine the root folder, if any, so inventory contents show just the children
-	// of that folder (i.e. not including the folder itself).
-	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(mStartFolderString);
-
-	if ("LIBRARY" == mStartFolderString)
-	{
-		mStartFolderID = gInventory.getLibraryRootFolderID();
-	}
-	else
-	{
-		mStartFolderID = (preferred_type != LLFolderType::FT_NONE ? gInventory.findCategoryUUIDForType(preferred_type) : LLUUID::null);
-	}
-
 	// build view of inventory if we need default full hierarchy and inventory ready, otherwise wait for modelChanged() callback
 	if (mBuildDefaultHierarchy && mInventory->isInventoryUsable() && !mHasInventoryConnection)
 	{
-		rebuildViewsFor(mStartFolderID);
+		rebuildViews();
 		mHasInventoryConnection = true;
 		defaultOpenInventory();
 	}
@@ -268,7 +255,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 	// inventory just initialized, do complete build
 	if ((mask & LLInventoryObserver::ADD) && gInventory.getChangedIDs().empty() && !mHasInventoryConnection)
 	{
-		rebuildViewsFor(mStartFolderID);
+		rebuildViews();
 		mHasInventoryConnection = true;
 		defaultOpenInventory();
 		return;
@@ -387,6 +374,24 @@ void LLInventoryPanel::modelChanged(U32 mask)
 	}
 }
 
+
+void LLInventoryPanel::rebuildViews()
+{
+	// Determine the root folder and rebuild the views starting
+	// at that folder.
+	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(mStartFolderString);
+
+	if ("LIBRARY" == mStartFolderString)
+	{
+		mStartFolderID = gInventory.getLibraryRootFolderID();
+	}
+	else
+	{
+		mStartFolderID = (preferred_type != LLFolderType::FT_NONE ? gInventory.findCategoryUUIDForType(preferred_type) : LLUUID::null);
+	}
+	
+	rebuildViewsFor(mStartFolderID);
+}
 
 void LLInventoryPanel::rebuildViewsFor(const LLUUID& id)
 {
