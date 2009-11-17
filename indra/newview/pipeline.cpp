@@ -342,6 +342,8 @@ LLPipeline::LLPipeline() :
 	mGlowPool(NULL),
 	mBumpPool(NULL),
 	mWLSkyPool(NULL),
+	mMeshMutex(NULL),
+	mMeshThreadCount(0),
 	mLightMask(0),
 	mLightMovingMask(0),
 	mLightingDetail(0)
@@ -399,6 +401,7 @@ void LLPipeline::init()
 
 	stop_glerror();
 
+	mMeshMutex = new LLMutex(NULL);
 	for (U32 i = 0; i < 2; ++i)
 	{
 		mSpotLightFade[i] = 1.f;
@@ -472,6 +475,9 @@ void LLPipeline::cleanup()
 	// don't delete wl sky pool it was handled above in the for loop
 	//delete mWLSkyPool;
 	mWLSkyPool = NULL;
+
+	delete mMeshMutex;
+	mMeshMutex = NULL;
 
 	releaseGLBuffers();
 
@@ -1801,6 +1807,8 @@ void LLPipeline::rebuildPriorityGroups()
 	
 	assertInitialized();
 
+	notifyLoadedMeshes();
+
 	// Iterate through all drawables on the priority build queue,
 	for (LLSpatialGroup::sg_list_t::iterator iter = mGroupQ1.begin();
 		 iter != mGroupQ1.end(); ++iter)
@@ -1811,6 +1819,7 @@ void LLPipeline::rebuildPriorityGroups()
 	}
 
 	mGroupQ1.clear();
+
 }
 		
 void LLPipeline::rebuildGroups()
@@ -3429,27 +3438,14 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 	gGLLastMatrix = NULL;
 	glLoadMatrixd(gGLModelView);
 
-	renderHighlights();
-	mHighlightFaces.clear();
-
-	renderDebug();
-
-	LLVertexBuffer::unbind();
-
-	if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
-	{
-		// Render debugging beacons.
-		gObjectList.renderObjectBeacons();
-		LLHUDObject::renderAll();
-		gObjectList.resetObjectBeacons();
-	}
-
 	if (occlude)
 	{
 		occlude = FALSE;
 		gGLLastMatrix = NULL;
 		glLoadMatrixd(gGLModelView);
 		doOcclusion(camera);
+		gGLLastMatrix = NULL;
+		glLoadMatrixd(gGLModelView);
 	}
 }
 
@@ -5846,6 +5842,12 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 		gGL.getTexUnit(0)->activate();
 		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+
+		if (LLRenderTarget::sUseFBO)
+		{ //copy depth buffer from mScreen to framebuffer
+			LLRenderTarget::copyContentsToFramebuffer(mScreen, 0, 0, mScreen.getWidth(), mScreen.getHeight(), 
+				0, 0, mScreen.getWidth(), mScreen.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		}
 	}
 	
 
@@ -6922,6 +6924,24 @@ void LLPipeline::renderDeferredLighting()
 		mRenderTypeMask = render_mask;
 	}
 
+	{
+		//render highlights, etc.
+		renderHighlights();
+		mHighlightFaces.clear();
+
+		renderDebug();
+
+		LLVertexBuffer::unbind();
+
+		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+		{
+			// Render debugging beacons.
+			gObjectList.renderObjectBeacons();
+			LLHUDObject::renderAll();
+			gObjectList.resetObjectBeacons();
+		}
+	}
+
 	mScreen.flush();
 						
 }
@@ -7251,18 +7271,12 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					LLGLDisable cull(GL_CULL_FACE);
 					updateCull(camera, ref_result, 1);
 					stateSort(camera, ref_result);
-					gGL.setColorMask(true, true);
-					mWaterRef.clear();
-					gGL.setColorMask(true, false);
-
-				}
-				else
-				{
-					gGL.setColorMask(true, true);
-					mWaterRef.clear();
-					gGL.setColorMask(true, false);
-				}
-
+				}	
+				
+				gGL.setColorMask(true, true);
+				mWaterRef.clear();
+				gGL.setColorMask(true, false);
+			
 				ref_mask = mRenderTypeMask;
 				mRenderTypeMask = mask;
 			}
@@ -8896,4 +8910,216 @@ LLCullResult::sg_list_t::iterator LLPipeline::endAlphaGroups()
 	return sCull->endAlphaGroups();
 }
 
+
+void LLPipeline::loadMesh(LLVOVolume* vobj, LLUUID mesh_id, S32 detail)
+{
+	{
+		LLMutexLock lock(mMeshMutex);
+		//add volume to list of loading meshes
+		mesh_load_map::iterator iter = mLoadingMeshes.find(mesh_id);
+		if (iter != mLoadingMeshes.end())
+		{ //request pending for this mesh, append volume id to list
+			iter->second.insert(vobj->getID());
+			return;
+		}
+
+		//first request for this mesh
+		mLoadingMeshes[mesh_id].insert(vobj->getID());
+	}
+
+	if (gAssetStorage->hasLocalAsset(mesh_id, LLAssetType::AT_MESH))
+	{ //already have asset, load desired LOD in background
+		mPendingMeshes.push_back(new LLMeshThread(mesh_id, vobj->getVolume()));
+	}
+	else
+	{ //fetch asset and load when done
+		gAssetStorage->getAssetData(mesh_id, LLAssetType::AT_MESH,
+									getMeshAssetCallback, vobj->getVolume(), TRUE);
+	}
+
+	//do a quick search to see if we can't display something while we wait for this mesh to load
+	LLVolume* volume = vobj->getVolume();
+
+	if (volume)
+	{
+		LLVolumeParams params = volume->getParams();
+
+		LLVolumeLODGroup* group = LLPrimitive::getVolumeManager()->getGroup(params);
+
+		if (group)
+		{
+			//first see what the next lowest LOD available might be
+			for (S32 i = detail-1; i >= 0; --i)
+			{
+				LLVolume* lod = group->refLOD(i);
+				if (lod && lod->getNumVolumeFaces() > 0)
+				{
+					volume->copyVolumeFaces(lod);
+					group->derefLOD(lod);
+					return;
+				}
+
+				group->derefLOD(lod);
+			}
+
+			//no lower LOD is a available, is a higher lod available?
+			for (S32 i = detail+1; i < 4; ++i)
+			{
+				LLVolume* lod = group->refLOD(i);
+				if (lod && lod->getNumVolumeFaces() > 0)
+				{
+					volume->copyVolumeFaces(lod);
+					group->derefLOD(lod);
+					return;
+				}
+
+				group->derefLOD(lod);
+			}
+		}
+	}
+}
+
+//static
+void LLPipeline::getMeshAssetCallback(LLVFS *vfs,
+										  const LLUUID& asset_uuid,
+										  LLAssetType::EType type,
+										  void* user_data, S32 status, LLExtStat ext_status)
+{
+	gPipeline.mPendingMeshes.push_back(new LLMeshThread(asset_uuid, (LLVolume*) user_data));
+}
+
+
+LLPipeline::LLMeshThread::LLMeshThread(LLUUID mesh_id, LLVolume* target)
+: LLThread("mesh_loading_thread")
+{
+	mMeshID = mesh_id;
+	mVolume = NULL;
+	mDetail = target->getDetail();
+	mTargetVolume = target;
+}
+
+LLPipeline::LLMeshThread::~LLMeshThread()
+{
+
+}
+
+void LLPipeline::LLMeshThread::run()
+{
+	if (!gAssetStorage || LLApp::instance()->isQuitting())
+	{
+		return;
+	}
+
+	char* buffer = NULL;
+	S32 size = 0;
+	
+	LLVFS* vfs = gAssetStorage->mVFS;
+
+	{
+		LLVFile file(vfs, mMeshID, LLAssetType::AT_MESH, LLVFile::READ);
+		file.waitForLock(VFSLOCK_READ);
+		size = file.getSize();
+		
+		if (size == 0)
+		{
+			gPipeline.meshLoaded(this);
+			return;
+		}
+		
+		buffer = new char[size];
+		file.read((U8*)&buffer[0], size);
+	}
+
+	{
+		std::string buffer_string(buffer, size);
+		std::istringstream buffer_stream(buffer_string);
+
+		{
+			LLVolumeParams volume_params;
+			volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
+			volume_params.setSculptID(mMeshID, LL_SCULPT_TYPE_MESH);
+			mVolume = new LLVolume(volume_params, mDetail);
+			mVolume->createVolumeFacesFromStream(buffer_stream);
+		}
+	}
+	delete[] buffer;
+	
+	gPipeline.meshLoaded(this);
+}
+
+void LLPipeline::meshLoaded(LLPipeline::LLMeshThread* mesh_thread)
+{
+	LLMutexLock lock(mMeshMutex);
+	mLoadedMeshes.push_back(mesh_thread);
+}
+
+void LLPipeline::notifyLoadedMeshes()
+{ //called from main thread
+
+	U32 max_thread_count = llmax(gSavedSettings.getU32("MeshThreadCount"), (U32) 1);
+	while (mMeshThreadCount < max_thread_count && !mPendingMeshes.empty())
+	{
+		LLMeshThread* mesh_thread = mPendingMeshes.front();
+		mesh_thread->start();
+		++mMeshThreadCount;
+		mPendingMeshes.pop_front();
+	}
+
+	LLMutexLock lock(mMeshMutex);
+	std::list<LLMeshThread*> stopping_threads;
+
+	for (std::list<LLMeshThread*>::iterator iter = mLoadedMeshes.begin(); iter != mLoadedMeshes.end(); ++iter)
+	{ //for each mesh done loading
+		LLMeshThread* mesh = *iter;
+		
+		if (!mesh->isStopped())
+		{ //don't process a LLMeshThread until it's stopped
+			stopping_threads.push_back(mesh);
+			continue;
+		}
+
+		//get list of objects waiting to be notified this mesh is loaded
+		mesh_load_map::iterator obj_iter = mLoadingMeshes.find(mesh->mMeshID);
+
+		if (mesh->mVolume && obj_iter != mLoadingMeshes.end())
+		{
+			//make sure target volume is still valid
+			BOOL valid = FALSE;
+
+			for (std::set<LLUUID>::iterator vobj_iter = obj_iter->second.begin(); vobj_iter != obj_iter->second.end(); ++vobj_iter)
+			{
+				LLVOVolume* vobj = (LLVOVolume*) gObjectList.findObject(*vobj_iter);
+
+				if (vobj)
+				{
+					if (vobj->getVolume() == mesh->mTargetVolume)
+					{
+						valid = TRUE;
+					}
+				}
+			}
+
+
+			if (valid)
+			{
+				mesh->mTargetVolume->copyVolumeFaces(mesh->mVolume);
+				for (std::set<LLUUID>::iterator vobj_iter = obj_iter->second.begin(); vobj_iter != obj_iter->second.end(); ++vobj_iter)
+				{
+					LLVOVolume* vobj = (LLVOVolume*) gObjectList.findObject(*vobj_iter);
+					if (vobj)
+					{
+						vobj->notifyMeshLoaded();
+					}
+				}
+			}
+
+			mLoadingMeshes.erase(mesh->mMeshID);
+		}
+
+		delete mesh;
+		--mMeshThreadCount;
+	}
+
+	mLoadedMeshes = stopping_threads;
+}
 

@@ -224,11 +224,11 @@ void main()
 	
 	//spotlight shadow 1
 	vec4 lpos = shadow_matrix[4]*spos;
-	gl_FragColor[2] = pcfShadow(shadowMap4, lpos, 0.1).x; 
+	gl_FragColor[2] = pcfShadow(shadowMap4, lpos, 0.8).x; 
 	
 	//spotlight shadow 2
 	lpos = shadow_matrix[5]*spos;
-	gl_FragColor[3] = pcfShadow(shadowMap5, lpos, 0.1).x; 
+	gl_FragColor[3] = pcfShadow(shadowMap5, lpos, 0.8).x; 
 
 	//gl_FragColor.rgb = pos.xyz;
 	//gl_FragColor.b = shadow;

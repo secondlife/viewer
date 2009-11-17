@@ -37,11 +37,13 @@ include(UnixInstall)
 include(LLKDU)
 include(ViewerMiscLibs)
 include(LLLogin)
+include(GLOD)
 include(CMakeCopyIfDifferent)
 
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
     ${ELFIO_INCLUDE_DIR}
+    ${GLOD_INCLUDE_DIR}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
@@ -60,6 +62,8 @@ include_directories(
     ${LSCRIPT_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}/lscript_compile
     ${LLLOGIN_INCLUDE_DIRS}
+    ${LIBS_PREBUILT_DIR}/include/collada
+    ${LIBS_PREBUILT_DIR}/include/collada/1.4
     )
 
 set(viewer_SOURCE_FILES
@@ -174,6 +178,7 @@ set(viewer_SOURCE_FILES
     llfloaterhelpbrowser.cpp
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
+    llfloaterimportcollada.cpp
     llfloaterinspect.cpp
     llfloaterinventory.cpp
     llfloaterjoystick.cpp
@@ -184,6 +189,7 @@ set(viewer_SOURCE_FILES
     llfloatermediabrowser.cpp
     llfloatermediasettings.cpp
     llfloatermemleak.cpp
+    llfloatermodelpreview.cpp
     llfloaternamedesc.cpp
         llfloaternearbymedia.cpp
     llfloaternotificationsconsole.cpp
@@ -673,6 +679,7 @@ set(viewer_HEADER_FILES
     llfloaterhelpbrowser.h
     llfloaterhud.h
     llfloaterimagepreview.h
+    llfloaterimportcollada.h
     llfloaterinspect.h
     llfloaterinventory.h
     llfloaterjoystick.h
@@ -683,6 +690,7 @@ set(viewer_HEADER_FILES
     llfloatermediabrowser.h
     llfloatermediasettings.h
     llfloatermemleak.h
+    llfloatermodelpreview.h
     llfloaternamedesc.h
         llfloaternearbymedia.h
     llfloaternotificationsconsole.h
@@ -1189,6 +1197,7 @@ if (WINDOWS)
         ${DINPUT_LIBRARY}
         ${DXGUID_LIBRARY}
         kernel32
+        libboost_system
         odbc32
         odbccp32
         ole32
@@ -1513,6 +1522,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${DBUSGLIB_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${FMODWRAPPER_LIBRARY}
+    ${GLOD_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${SDL_LIBRARY}
     ${SMARTHEAP_LIBRARY}

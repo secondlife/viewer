@@ -4548,6 +4548,7 @@ void process_economy_data(LLMessageSystem *msg, void** /*user_data*/)
 
 	gMenuHolder->childSetLabelArg("Upload Image", "[COST]", llformat("%d", upload_cost));
 	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", llformat("%d", upload_cost));
+	gMenuHolder->childSetLabelArg("Upload Model", "[COST]", llformat("%d", upload_cost));
 	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", llformat("%d", upload_cost));
 	gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", llformat("%d", upload_cost));
 }

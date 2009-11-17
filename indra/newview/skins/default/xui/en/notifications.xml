@@ -5720,7 +5720,7 @@ Attachment has been saved.
 Unable to find the help topic for this element.
   </notification>
 
-    <notification
+     <notification
  icon="alertmodal.tga"
  name="ObjectMediaFailure"
  type="alertmodal">
@@ -5730,6 +5730,29 @@ Server Error: Media update or get failed.
          name="okbutton"
          yestext="OK"/>
     </notification>
+
+    
+ <notification
+   icon="alertmodal.tga"
+   name="ConfirmClearTeleportHistory"
+   type="alertmodal">
+Are you sure you want to delete your teleport history?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+    </notification>
+
+     <notification
+   icon="alertmodal.tga"
+   name="UploadCostConfirmation"
+   type="alertmodal">
+This upload will cost L$[PRICE], do you wish to continue with the upload?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Upload"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"

@@ -186,6 +186,9 @@ const U8 LL_SCULPT_TYPE_CYLINDER  = 4;
 
 const U8 LL_SCULPT_TYPE_MASK      = LL_SCULPT_TYPE_SPHERE | LL_SCULPT_TYPE_TORUS | LL_SCULPT_TYPE_PLANE | LL_SCULPT_TYPE_CYLINDER;
 
+// need to change this (these) names
+const U8 LL_SCULPT_TYPE_MESH      = 5;
+
 const U8 LL_SCULPT_FLAG_INVERT    = 64;
 const U8 LL_SCULPT_FLAG_MIRROR    = 128;
 
@@ -575,6 +578,9 @@ public:
 	BOOL importLegacyStream(std::istream& input_stream);
 	BOOL exportLegacyStream(std::ostream& output_stream) const;
 
+	LLSD sculptAsLLSD() const;
+	bool sculptFromLLSD(LLSD& sd);
+	
 	LLSD asLLSD() const;
 	operator LLSD() const { return asLLSD(); }
 	bool fromLLSD(LLSD& sd);
@@ -634,7 +640,6 @@ public:
 	const F32&  getSkew() const			{ return mPathParams.getSkew();			}
 	const LLUUID& getSculptID() const	{ return mSculptID;						}
 	const U8& getSculptType() const     { return mSculptType;                   }
-
 	BOOL isConvex() const;
 
 	// 'begin' and 'end' should be in range [0, 1] (they will be clamped)
@@ -798,7 +803,7 @@ public:
 
 	BOOL create(LLVolume* volume, BOOL partial_build = FALSE);
 	void createBinormals();
-
+	
 	class VertexData
 	{
 	public:
@@ -806,6 +811,10 @@ public:
 		LLVector3 mNormal;
 		LLVector3 mBinormal;
 		LLVector2 mTexCoord;
+
+		bool operator<(const VertexData& rhs) const;
+		bool operator==(const VertexData& rhs) const;
+		bool compareNormal(const VertexData& rhs, F32 angle_cutoff) const;
 	};
 
 	enum
@@ -851,8 +860,7 @@ class LLVolume : public LLRefCount
 {
 	friend class LLVolumeLODGroup;
 
-private:
-	LLVolume(const LLVolume&);  // Don't implement
+protected:
 	~LLVolume(); // use unref
 
 public:
@@ -874,7 +882,7 @@ public:
 	
 	U8 getProfileType()	const								{ return mParams.getProfileParams().getCurveType(); }
 	U8 getPathType() const									{ return mParams.getPathParams().getCurveType(); }
-	S32	getNumFaces() const									{ return (S32)mProfilep->mFaces.size(); }
+	S32	getNumFaces() const;
 	S32 getNumVolumeFaces() const							{ return mVolumeFaces.size(); }
 	F32 getDetail() const									{ return mDetail; }
 	const LLVolumeParams& getParams() const					{ return mParams; }
@@ -946,6 +954,8 @@ public:
 	LLVector3			mLODScaleBias;		// vector for biasing LOD based on scale
 	
 	void sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level);
+	void copyVolumeFaces(LLVolume* volume);
+
 private:
 	void sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, U8 sculpt_type);
 	F32 sculptGetSurfaceArea();
@@ -956,6 +966,9 @@ private:
 protected:
 	BOOL generate();
 	void createVolumeFaces();
+public:
+	virtual BOOL createVolumeFacesFromFile(const std::string& file_name);
+	virtual BOOL createVolumeFacesFromStream(std::istream& is);
 
  protected:
 	BOOL mUnique;

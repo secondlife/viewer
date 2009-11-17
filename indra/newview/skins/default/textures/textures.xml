@@ -678,6 +678,8 @@
   <texture name="icon_popular.tga" />
   <texture name="icon_top_pick.tga" />
 
+  <texture name="inv_folder_mesh.tga"/>
+  <texture name="inv_item_mesh.tga"/>
   <texture name="lag_status_critical.tga" />
   <texture name="lag_status_good.tga" />
   <texture name="lag_status_warning.tga" />
