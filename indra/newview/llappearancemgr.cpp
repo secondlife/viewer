@@ -95,8 +95,9 @@ public:
 		mCopyItems(copy_items),
 		mAppend(append)
 	{}
-	~LLOutfitObserver() {}
-	virtual void done(); //public
+	~LLOutfitObserver();
+	virtual void done();
+	void doWearCategory();
 
 protected:
 	LLUUID mCatID;
@@ -104,7 +105,19 @@ protected:
 	bool mAppend;
 };
 
+LLOutfitObserver::~LLOutfitObserver()
+{
+	llinfos << "~LLOutfitObserver" << llendl;
+}
+
+// BAP is LLOutfitObserver getting deleted here?
 void LLOutfitObserver::done()
+{
+	gInventory.removeObserver(this);
+	doOnIdle(boost::bind(&LLOutfitObserver::doWearCategory,this));
+}
+
+void LLOutfitObserver::doWearCategory()
 {
 	// We now have an outfit ready to be copied to agent inventory. Do
 	// it, and wear that outfit normally.
@@ -175,6 +188,7 @@ void LLOutfitObserver::done()
 		// Wear the inventory category.
 		LLAppearanceManager::instance().wearInventoryCategoryOnAvatar(gInventory.getCategory(mCatID), mAppend);
 	}
+	delete this;
 }
 
 class LLOutfitFetch : public LLInventoryFetchDescendentsObserver

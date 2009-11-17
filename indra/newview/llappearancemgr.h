@@ -36,6 +36,7 @@
 #include "llsingleton.h"
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
+#include "llcallbacklist.h"
 
 class LLWearable;
 struct LLWearableHoldingPattern;
@@ -110,5 +111,37 @@ private:
 };
 
 #define SUPPORT_ENSEMBLES 0
+
+// Shim class and template function to allow arbitrary boost::bind
+// expressions to be run as one-time idle callbacks.
+template <typename T>
+class OnIdleCallback
+{
+public:
+	OnIdleCallback(T callable):
+		mCallable(callable)
+	{
+	}
+	static void onIdle(void *data)
+	{
+		gIdleCallbacks.deleteFunction(onIdle, data);
+		OnIdleCallback<T>* self = reinterpret_cast<OnIdleCallback<T>*>(data);
+		self->call();
+		delete self;
+	}
+	void call()
+	{
+		mCallable();
+	}
+private:
+	T mCallable;
+};
+
+template <typename T>
+void doOnIdle(T callable)
+{
+	OnIdleCallback<T>* cb_functor = new OnIdleCallback<T>(callable);
+	gIdleCallbacks.addFunction(&OnIdleCallback<T>::onIdle,cb_functor);
+}
 
 #endif
