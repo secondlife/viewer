@@ -218,3 +218,4 @@ void LLViewerChat::formatChatMsg(const LLChat& chat, std::string& formated_msg)
 	}
 
 }
+
