@@ -3,7 +3,7 @@
  background_visible="true"
  bevel_style="in"
  bg_alpha_color="0 0 0 0"
- height="135"
+ height="90"
  label="instant_message"
  layout="topleft"
  left="0"
@@ -12,7 +12,13 @@
  width="305">
     <string
      name="message_max_lines_count"
-     value="4" />
+     value="7" />
+    <string
+     name="subject_font"
+     value="SANSSERIF_BIG" />
+    <string
+     name="date_font"
+     value="SANSSERIF" />
     <panel
      background_visible="true"
      bevel_style="in"
@@ -47,46 +53,27 @@
          value="Sender Name / Group Name"
          width="230" />
     </panel>
-    <text
-     follows="top"
-     font="SansSerifBig"
-     height="20"
-     layout="topleft"
-     left="25"
-     name="subject"
-     text_color="GroupNotifyTextColor"
-     top="40"
-     use_ellipses="true"
-     value="subject"
-     width="270"
-     wrap="true" />
-    <text
-     follows="top"
-     font="SansSerif"
-     height="20"
-     layout="topleft"
-     left="25"
-     name="datetime"
-     text_color="GroupNotifyTextColor"
-     top="80"
-     use_ellipses="true"
-     value="datetime"
-     width="270"
-     wrap="true" />
-    <text
+    <text_editor
+     allow_html="true"
+     enabled="true"
      follows="left|top|bottom|right"
      height="0"
      layout="topleft"
      left="25"
+     max_length="2147483647"
      name="message"
+     parse_highlights="true"
+     read_only="true"
      text_color="GroupNotifyTextColor"
-     top="100"
+     top="40"
+     type="string"
      use_ellipses="true"
      value="message"
-     width="270"
-     wrap="true" />
+     width="270" 
+	 word_wrap="true" >
+    </text_editor>
     <icon
-     bottom="122"
+     bottom="60"
      follows="left|bottom|right"
      height="15"
      layout="topleft"
@@ -95,7 +82,7 @@
      name="attachment_icon"
      width="15" />
     <text
-     bottom="122"
+     bottom="60"
      follows="left|bottom|right"
      font="SansSerif"
      height="15"
@@ -107,7 +94,7 @@
      use_ellipses="true"
      width="250" />
     <button
-     bottom="130"
+     bottom="85"
      follows="bottom"
      height="20"
      label="OK"
