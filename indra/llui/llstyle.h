@@ -51,17 +51,12 @@ public:
 		Optional<const LLFontGL*>		font;
 		Optional<LLUIImage*>			image;
 		Optional<std::string>			link_href;
-		Optional<bool>					italic;
-		Optional<bool>					bold;
-		Optional<bool>					underline;
 		Params();
 	};
 	LLStyle(const Params& p = Params());
 public:
 	const LLColor4& getColor() const { return mColor; }
 	void setColor(const LLColor4 &color) { mColor = color; }
-	
-	const S32 getFontStyle() const;
 
 	const LLColor4& getReadOnlyColor() const { return mReadOnlyColor; }
 

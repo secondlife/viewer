@@ -160,10 +160,14 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 	
 	LLStyle::Params style_params;
 	style_params.color(mTextColor);
-	style_params.font(mFont);
-	
-	std::string str_sender;
+//	style_params.font(mFont);
+	std::string font_name = LLFontGL::nameFromFont(mFont);
+	std::string font_style_size = LLFontGL::sizeFromFont(mFont);
+	style_params.font.name(font_name);
+	style_params.font.size(font_style_size);
 
+	std::string str_sender;
+	
 	if(gAgentID != mFromID)
 		str_sender = mFromName;
 	else
@@ -180,12 +184,12 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 	{
 		if (mFromName.size() > 0)
 		{
-			style_params.italic= true;
+			style_params.font.style = "ITALIC";
 			
 			msg_text->setText(mFromName, style_params);
 		}
 		mText = mText.substr(3);
-		style_params.underline = true;
+		style_params.font.style = "UNDERLINE";
 		msg_text->addText(mText,style_params);
 	}
 	else 

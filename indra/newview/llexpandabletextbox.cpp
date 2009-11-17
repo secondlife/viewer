@@ -80,7 +80,7 @@ public:
 									draw_rect.mRight, draw_rect.mTop, 
 									mStyle->getColor(), 
 									LLFontGL::RIGHT, LLFontGL::TOP, 
-									mStyle->getFontStyle(), 
+									0, 
 									mStyle->getShadowType(), 
 									end - start, draw_rect.getWidth(), 
 									&right_x, 
@@ -164,7 +164,8 @@ void LLExpandableTextBox::LLTextBoxEx::showExpandText()
 		S32 last_line = visible_lines.second - 1;
 
 		LLStyle::Params expander_style = getDefaultStyle();
-		expander_style.underline = true;
+		expander_style.font.name(LLFontGL::nameFromFont(expander_style.font));
+		expander_style.font.style = "UNDERLINE";
 		expander_style.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 		LLExpanderSegment* expanderp = new LLExpanderSegment(new LLStyle(expander_style), getLineStart(last_line), getLength() + 1, mExpanderLabel, *this);
 		insertSegment(expanderp);

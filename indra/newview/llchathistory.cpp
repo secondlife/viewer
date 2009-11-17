@@ -361,15 +361,17 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat, const LLStyle::Param
 	
 	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
 	LLViewerChat::getChatColor(chat,txt_color);
-	LLFontGL* fontp = LLViewerChat::getChatFont();
-	
+	LLFontGL* fontp = LLViewerChat::getChatFont();	
+	std::string font_name = LLFontGL::nameFromFont(fontp);
+	std::string font_size = LLFontGL::sizeFromFont(fontp);	
 	LLStyle::Params style_params;
 	style_params.color(txt_color);
 	style_params.readonly_color(txt_color);
-	style_params.font(fontp);
-	style_params.italic = input_append_params.italic;
-	style_params.underline = input_append_params.underline;
-	style_params.bold = input_append_params.bold;
+	style_params.font.name(font_name);
+	style_params.font.size(font_size);	
+	style_params.font.style(input_append_params.font.style);
+	
+
 	
 	if (mLastFromName == chat.mFromName)
 	{

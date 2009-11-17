@@ -51,14 +51,20 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	mReplyBtn = getChild<LLButton>("reply");	
 
 	LLStyle::Params style_params;
+	style_params.font.name(LLFontGL::nameFromFont(style_params.font));
+	style_params.font.size(LLFontGL::sizeFromFont(style_params.font));
+	style_params.font.style = "UNDERLINE";
+	
 	//Handle IRC styled /me messages.
 	std::string prefix = p.message.substr(0, 4);
 	if (prefix == "/me " || prefix == "/me'")
 	{
 		mMessage->clear();
-		style_params.italic = true;
+		
+		style_params.font.style ="ITALIC";
 		mMessage->appendText(p.from + " ", FALSE, style_params);
-		style_params.underline = true;
+
+		style_params.font.style = "UNDERLINE";
 		mMessage->appendText(p.message.substr(3), FALSE, style_params);
 	}
 	else

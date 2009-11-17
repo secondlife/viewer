@@ -44,10 +44,7 @@ LLStyle::Params::Params()
 	color("color", LLColor4::black),
 	font("font", LLFontGL::getFontMonospace()),
 	image("image"),
-	link_href("href"),
-	italic("italic", false ),
-	bold("bold", false),
-    underline("bold", false)
+	link_href("href")
 {}
 
 
@@ -58,10 +55,7 @@ LLStyle::LLStyle(const LLStyle::Params& p)
 	mFont(p.font()),
 	mLink(p.link_href),
 	mDropShadow(p.drop_shadow),
-	mImagep(p.image()),
-	mItalic(p.italic()),
-	mBold(p.bold),
-	mUnderline(p.underline)
+	mImagep(p.image())
 {}
 
 void LLStyle::setFont(const LLFontGL* font)
@@ -74,25 +68,6 @@ const LLFontGL* LLStyle::getFont() const
 {
 	return mFont;
 }
-
-const S32 LLStyle::getFontStyle() const
-{
-	S32 ret = 0;
-	if (mBold)
-	{
-		ret |= LLFontGL::BOLD;
-	}
-	if (mItalic)
-	{
-		ret |= LLFontGL::ITALIC;
-	}
-	if (mUnderline)
-	{
-		ret |= LLFontGL::UNDERLINE;
-	}
-	return ret;
-}
-
 
 void LLStyle::setLinkHREF(const std::string& href)
 {
