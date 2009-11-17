@@ -1680,6 +1680,14 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 						BOOL append = true;
 						LLAppearanceManager::instance().wearInventoryCategory(inv_cat, false, append);
 					}
+					else
+					{
+						// Recursively create links in target outfit.
+						LLInventoryModel::cat_array_t cats;
+						LLInventoryModel::item_array_t items;
+						gInventory.collectDescendents(inv_cat->getUUID(), cats, items, LLInventoryModel::EXCLUDE_TRASH);
+						LLAppearanceManager::instance().linkAll(mUUID,items,NULL);
+					}
 				}
 				else
 				{

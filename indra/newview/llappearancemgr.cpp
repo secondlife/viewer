@@ -465,7 +465,7 @@ void LLAppearanceManager::filterWearableItems(
 // Create links to all listed items.
 void LLAppearanceManager::linkAll(const LLUUID& category,
 								  LLInventoryModel::item_array_t& items,
-											   LLPointer<LLInventoryCallback> cb)
+								  LLPointer<LLInventoryCallback> cb)
 {
 	for (S32 i=0; i<items.count(); i++)
 	{

@@ -82,6 +82,11 @@ public:
 	void setAttachmentInvLinkEnable(bool val);
 	void linkRegisteredAttachments();
 
+	// utility function for bulk linking.
+	void linkAll(const LLUUID& category,
+				 LLInventoryModel::item_array_t& items,
+				 LLPointer<LLInventoryCallback> cb);
+
 protected:
 	LLAppearanceManager();
 	~LLAppearanceManager();
@@ -89,9 +94,6 @@ protected:
 private:
 
 	void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type);
-	void linkAll(const LLUUID& category,
-						LLInventoryModel::item_array_t& items,
-						LLPointer<LLInventoryCallback> cb);
 	
 	void getDescendentsOfAssetType(const LLUUID& category, 
 										  LLInventoryModel::item_array_t& items,
