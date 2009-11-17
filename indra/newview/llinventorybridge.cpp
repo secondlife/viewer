@@ -1672,6 +1672,17 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			// if target is an outfit or current outfit folder we use link
 			if (move_is_into_current_outfit || move_is_into_outfit)
 			{
+				if (inv_cat->getPreferredType() == LLFolderType::FT_NONE)
+				{
+					if (move_is_into_current_outfit)
+					{
+						// traverse category and add all contents to currently worn.
+						BOOL append = true;
+						LLAppearanceManager::instance().wearInventoryCategory(inv_cat, false, append);
+					}
+				}
+				else
+				{
 #if SUPPORT_ENSEMBLES
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
@@ -1690,6 +1701,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 						cb);
 				}
 #endif
+				}
 			}
 			else
 			{

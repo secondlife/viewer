@@ -62,7 +62,7 @@ class LLInitialWearablesFetch : public LLInventoryFetchDescendentsObserver
 {
 public:
 	LLInitialWearablesFetch() {}
-	~LLInitialWearablesFetch() {}
+	~LLInitialWearablesFetch();
 	virtual void done();
 
 	struct InitialWearableData
@@ -84,7 +84,6 @@ public:
 protected:
 	void processWearablesMessage();
 	void processContents();
-	static void onIdle(void *userdata);
 };
 
 LLAgentWearables gAgentWearables;
@@ -2013,6 +2012,11 @@ void LLAgentWearables::updateServer()
 // to avoid gInventory.notifyObservers recursion.
 //--------------------------------------------------------------------
 
+LLInitialWearablesFetch::~LLInitialWearablesFetch()
+{
+	llinfos << "~LLInitialWearablesFetch" << llendl;
+}
+
 // virtual
 void LLInitialWearablesFetch::done()
 {
@@ -2020,15 +2024,7 @@ void LLInitialWearablesFetch::done()
 	// gInventory.notifyObservers.  The results will be handled in the next
 	// idle tick instead.
 	gInventory.removeObserver(this);
-	gIdleCallbacks.addFunction(onIdle, this);
-}
-
-// static
-void LLInitialWearablesFetch::onIdle(void *data)
-{
-	gIdleCallbacks.deleteFunction(onIdle, data);
-	LLInitialWearablesFetch *self = reinterpret_cast<LLInitialWearablesFetch*>(data);
-	self->processContents();
+	doOnIdle(boost::bind(&LLInitialWearablesFetch::processContents,this));
 }
 
 void LLInitialWearablesFetch::processContents()
