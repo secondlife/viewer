@@ -552,7 +552,7 @@ private:
 		processState();
 
 		// see if title arrived and if so, update member variable with contents
-		checkTitle();
+		//checkTitle();
 		
 		// QT call to see if we are at the end - can't do with controller
 		if ( IsMovieDone( mMovieHandle ) )
@@ -718,18 +718,24 @@ private:
 		// find the size of the title
 		ByteCount size;
 		result = QTMetaDataGetItemValue( media_data_ref, item, NULL, 0, &size );
-		if ( noErr != result || size <= 0 ) 
+		if ( noErr != result || size <= 0 /*|| size > 1024 /* FIXME: arbitrary limit */ ) 
 			return false;
 
 		// allocate some space and grab it
-		UInt8* item_data = new UInt8( size );
-		memset( item_data, 0, size * sizeof( UInt8* ) );
+		UInt8* item_data = new UInt8( size + 1 );
+		memset( item_data, 0, ( size + 1 ) * sizeof( UInt8* ) );
 		result = QTMetaDataGetItemValue( media_data_ref, item, item_data, size, NULL );
 		if ( noErr != result ) 
+		{
+			delete [] item_data;
 			return false;
+		};
 
 		// save it
-		mMovieTitle = std::string( (char* )item_data );
+		if ( strlen( (char*)item_data ) )
+			mMovieTitle = std::string( (char* )item_data );
+		else
+			mMovieTitle = "";
 
 		// clean up
 		delete [] item_data;

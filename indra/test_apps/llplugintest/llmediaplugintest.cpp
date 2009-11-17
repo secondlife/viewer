@@ -223,13 +223,16 @@ LLMediaPluginTest::LLMediaPluginTest( int app_window, int window_width, int wind
 	resetView();
 
 	// initial media panel
+	//const int num_initial_panels = 1;
+	//for( int i = 0; i < num_initial_panels; ++i )
+	//{
+	//	//addMediaPanel( mBookmarks[ rand() % ( mBookmarks.size() - 1 ) + 1 ].second );
+	//	addMediaPanel( mHomeWebUrl );
+	//};
 
-	const int num_initial_panels = 1;
-	for( int i = 0; i < num_initial_panels; ++i )
-	{
-		//addMediaPanel( mBookmarks[ rand() % ( mBookmarks.size() - 1 ) + 1 ].second );
-		addMediaPanel( mHomeWebUrl );
-	};
+addMediaPanel( "http://chemicaljump.com/wp-content/uploads/2009/10/lth34/Proxy-8000.mp3" );
+addMediaPanel( "http://movies.apple.com/movies/sony_pictures/zombieland/zombieland-inttlr_h.320.mov" );
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1458,6 +1461,9 @@ std::string LLMediaPluginTest::mimeTypeFromUrl( std::string& url )
 		mime_type = "video/quicktime";
 	else
 	if ( url.find( ".txt" ) != std::string::npos )	// Apple Text descriptors
+		mime_type = "video/quicktime";
+	else
+	if ( url.find( ".mp3" ) != std::string::npos )	// Apple Text descriptors
 		mime_type = "video/quicktime";
 	else
 	if ( url.find( "example://" ) != std::string::npos )	// Example plugin
