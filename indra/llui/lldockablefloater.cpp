@@ -217,6 +217,16 @@ void LLDockableFloater::draw()
 	LLFloater::draw();
 }
 
+void LLDockableFloater::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	if (isDocked())
+	{
+		setDocked(false);
+	}
+
+	LLFloater::reshape(width, height, called_from_parent);
+}
+
 void LLDockableFloater::setDockControl(LLDockControl* dockControl)
 {
 	mDockControl.reset(dockControl);

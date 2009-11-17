@@ -3,7 +3,7 @@
  legacy_header_height="18"
  can_minimize="true"
  can_tear_off="false"
- can_resize="false"
+ can_resize="true"
  can_drag_on_left="false"
  can_close="false"
  can_dock="true"
