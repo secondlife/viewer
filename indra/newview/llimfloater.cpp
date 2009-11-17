@@ -377,15 +377,6 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 	}
 }
 
-void LLIMFloater::setMinimized(BOOL minimize)
-{
-	if(minimize && !isDocked())
-	{
-		setVisible(FALSE);
-	}
-	LLDockableFloater::setMinimized(minimize);
-}
-
 void LLIMFloater::setVisible(BOOL visible)
 {
 	LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>

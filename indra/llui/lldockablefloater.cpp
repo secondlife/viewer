@@ -136,21 +136,10 @@ void LLDockableFloater::setVisible(BOOL visible)
 
 void LLDockableFloater::setMinimized(BOOL minimize)
 {
-	if(minimize && isDocked())
+	if(minimize)
 	{
 		setVisible(FALSE);
 	}
-
-	if (minimize)
-	{
-		setCanDock(false);
-	}
-	else if (!minimize && mDockControl.get() != NULL && mDockControl.get()->isDockVisible())
-	{
-		setCanDock(true);
-	}
-
-	LLFloater::setMinimized(minimize);
 }
 
 LLView * LLDockableFloater::getDockWidget()
