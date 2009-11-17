@@ -148,12 +148,16 @@ void LLPanelOutfitsInventory::onNew()
 {
 	const std::string& outfit_name = LLViewerFolderType::lookupNewCategoryName(LLFolderType::FT_OUTFIT);
 	LLUUID outfit_folder = gAgentWearables.makeNewOutfitLinks(outfit_name);
+	/*
 	getRootFolder()->setSelectionByID(outfit_folder, TRUE);
 	getRootFolder()->setNeedsAutoRename(TRUE);
+	getRootFolder()->startRenamingSelectedItem();
+	*/
 }
 
 void LLPanelOutfitsInventory::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
 {
+	updateListCommands();
 	updateParent();
 }
 

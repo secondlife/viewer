@@ -140,6 +140,7 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 {
 	fetchInventory();
 	refreshCurrentOutfitName();
+	updateVerbs();
 
 	if(key.size() == 0)
 		return;
