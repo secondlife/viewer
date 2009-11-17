@@ -197,7 +197,7 @@ LLMediaPluginTest::LLMediaPluginTest( int app_window, int window_width, int wind
 	{
 		LLError::initForApplication(".");
 		LLError::setDefaultLevel(LLError::LEVEL_INFO);
-//		LLError::setTagLevel("Plugin", LLError::LEVEL_DEBUG);
+		//LLError::setTagLevel("Plugin", LLError::LEVEL_DEBUG);
 	}
 
 	// lots of randomness in this app
@@ -223,7 +223,6 @@ LLMediaPluginTest::LLMediaPluginTest( int app_window, int window_width, int wind
 	resetView();
 
 	// initial media panel
-
 	const int num_initial_panels = 1;
 	for( int i = 0; i < num_initial_panels; ++i )
 	{
@@ -1458,6 +1457,9 @@ std::string LLMediaPluginTest::mimeTypeFromUrl( std::string& url )
 		mime_type = "video/quicktime";
 	else
 	if ( url.find( ".txt" ) != std::string::npos )	// Apple Text descriptors
+		mime_type = "video/quicktime";
+	else
+	if ( url.find( ".mp3" ) != std::string::npos )	// Apple Text descriptors
 		mime_type = "video/quicktime";
 	else
 	if ( url.find( "example://" ) != std::string::npos )	// Example plugin

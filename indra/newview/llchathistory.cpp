@@ -349,7 +349,7 @@ LLView* LLChatHistory::getHeader(const LLChat& chat,const LLStyle::Params& style
 	return header;
 }
 
-void LLChatHistory::appendWidgetMessage(const LLChat& chat)
+void LLChatHistory::appendWidgetMessage(const LLChat& chat, const LLStyle::Params& input_append_params)
 {
 	LLView* view = NULL;
 	std::string view_text = "\n[" + formatCurrentTime() + "] ";
@@ -365,12 +365,16 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat)
 	
 	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
 	LLViewerChat::getChatColor(chat,txt_color);
-	LLFontGL* fontp = LLViewerChat::getChatFont();
-	
+	LLFontGL* fontp = LLViewerChat::getChatFont();	
+	std::string font_name = LLFontGL::nameFromFont(fontp);
+	std::string font_size = LLFontGL::sizeFromFont(fontp);	
 	LLStyle::Params style_params;
 	style_params.color(txt_color);
 	style_params.readonly_color(txt_color);
-	style_params.font(fontp);
+	style_params.font.name(font_name);
+	style_params.font.size(font_size);	
+	style_params.font.style(input_append_params.font.style);
+	
 
 	
 	if (mLastFromName == chat.mFromName)

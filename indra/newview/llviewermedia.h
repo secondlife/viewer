@@ -270,6 +270,7 @@ public:
 	F64 getInterest() const { return mInterest; };
 	F64 getApproximateTextureInterest();
 	S32 getProximity() const { return mProximity; };
+	F64 getProximityDistance() const { return mProximityDistance; };
 	
 	// Mark this object as being used in a UI panel instead of on a prim
 	// This will be used as part of the interest sorting algorithm.
@@ -339,6 +340,7 @@ public:
 	bool mIsDisabled;
 	bool mIsParcelMedia;
 	S32 mProximity;
+	F64 mProximityDistance;
 	LLMimeDiscoveryResponder *mMimeTypeProbe;
 	
 private:

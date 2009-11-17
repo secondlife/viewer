@@ -4545,6 +4545,17 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+  <key>MediaPerformanceManagerDebug</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether to show debug data for the media performance manager in the nearby media list.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>MemoryLogFrequency</key>
         <map>
         <key>Comment</key>
@@ -6304,7 +6315,7 @@
     <real>1.0</real>
   </map>
 
-  <key>RenderHighlightEnable</key>
+  <key>RenderHoverGlowEnable</key>
   <map>
     <key>Comment</key>
     <string>Show glow effect when hovering on interactive objects.</string>
@@ -6313,7 +6324,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>1</integer>
+    <integer>0</integer>
   </map>
 
   <key>RenderHighlightFadeTime</key>

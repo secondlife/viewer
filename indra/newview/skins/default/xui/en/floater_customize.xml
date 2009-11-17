@@ -3383,6 +3383,16 @@ scratch and wear it.
      bottom="536"
      follows="right|bottom"
      height="20"
+     label="Make Outfit"
+     label_selected="Make Outfit"
+     layout="topleft"
+     name="make_outfit_btn"
+     right="-216"
+     width="100" />
+    <button
+     bottom="536"
+     follows="right|bottom"
+     height="20"
      label="Cancel"
      label_selected="Cancel"
      layout="topleft"
