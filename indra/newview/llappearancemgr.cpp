@@ -536,6 +536,7 @@ void LLAppearanceManager::updateCOF(const LLUUID& category, bool append)
 	linkAll(cof, obj_items, link_waiter);
 	linkAll(cof, gest_items, link_waiter);
 
+	LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance *>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
 	// Add link to outfit if category is an outfit. 
 	LLViewerInventoryCategory* catp = gInventory.getCategory(category);
 	if (!append && catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
@@ -544,13 +545,18 @@ void LLAppearanceManager::updateCOF(const LLUUID& category, bool append)
 							LLAssetType::AT_LINK_FOLDER, link_waiter);
 
 		// Update the current outfit name of the appearance sidepanel.
-		LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance *>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
 		if (panel_appearance)
 		{
 			panel_appearance->refreshCurrentOutfitName(catp->getName());
 		}
 	}
-							  
+	else
+	{
+		if (panel_appearance)
+		{
+			panel_appearance->refreshCurrentOutfitName("");
+		}
+	}
 }
 
 void LLAppearanceManager::updateAgentWearables(LLWearableHoldingPattern* holder, bool append)
