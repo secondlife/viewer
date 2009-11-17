@@ -1509,7 +1509,7 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 			std::string font_name = LLFontGL::nameFromFont(style_params.font());
 			std::string font_size = LLFontGL::sizeFromFont(style_params.font());
 			link_params.font.name(font_name);
-			link_params.font.size(font_name);
+			link_params.font.size(font_size);
 			link_params.font.style("UNDERLINE");
 			
 			link_params.link_href = match.getUrl();
