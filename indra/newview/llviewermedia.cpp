@@ -740,7 +740,7 @@ void LLViewerMedia::updateMedia()
 	}
 
 	// Transfer the proximity order to the proximity fields in the objects.
-	for(int i = 0; i < proximity_order.size(); i++)
+	for(int i = 0; i < (int)proximity_order.size(); i++)
 	{
 		proximity_order[i]->mProximity = i;
 	}
