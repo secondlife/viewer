@@ -102,7 +102,6 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	mMaxChars(p.max_chars),
 	mPrearrangeCallback(p.prearrange_callback()),
 	mTextEntryCallback(p.text_entry_callback()),
-	mSelectionCallback(p.selection_callback()),
 	mListPosition(p.list_position),
 	mLastSelectedIndex(-1)
 {
@@ -706,12 +705,6 @@ void LLComboBox::onItemSelected(const LLSD& data)
 
 	// commit does the reverse, asserting the value in the list
 	onCommit();
-
-	// call the callback if it exists
-	if(mSelectionCallback)
-	{
-		mSelectionCallback(this, data);
-	}
 }
 
 BOOL LLComboBox::handleToolTip(S32 x, S32 y, MASK mask)
