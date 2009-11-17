@@ -1253,6 +1253,10 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 			// filter self only on first pass through
 			LLFolderViewItem::filter( filter );
 		}
+		if (mDontShowInHierarchy)
+		{
+			setOpen();
+		}
 	}
 
 	if (getRoot()->getDebugFilters())
@@ -1286,9 +1290,10 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 
 	// now query children
 	for (folders_t::iterator iter = mFolders.begin();
-		iter != mFolders.end();)
+		 iter != mFolders.end();
+		 ++iter)
 	{
-		folders_t::iterator fit = iter++;
+		LLFolderViewFolder* folder = (*iter);
 		// have we run out of iterations this frame?
 		if (filter.getFilterCount() < 0)
 		{
@@ -1298,15 +1303,15 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 		// mMostFilteredDescendantGeneration might have been reset
 		// in which case we need to update it even for folders that
 		// don't need to be filtered anymore
-		if ((*fit)->getCompletedFilterGeneration() >= filter_generation)
+		if (folder->getCompletedFilterGeneration() >= filter_generation)
 		{
 			// track latest generation to pass any child items
-			if ((*fit)->getFiltered() || (*fit)->hasFilteredDescendants(filter.getMinRequiredGeneration()))
+			if (folder->getFiltered() || folder->hasFilteredDescendants(filter.getMinRequiredGeneration()))
 			{
 				mMostFilteredDescendantGeneration = filter_generation;
 				if (getRoot()->needsAutoSelect() && autoopen_folders)
 				{
-					(*fit)->setOpenArrangeRecursively(TRUE);
+					folder->setOpenArrangeRecursively(TRUE);
 				}
 			}
 			// just skip it, it has already been filtered
@@ -1314,48 +1319,49 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 		}
 
 		// update this folders filter status (and children)
-		(*fit)->filter( filter );
+		folder->filter( filter );
 
 		// track latest generation to pass any child items
-		if ((*fit)->getFiltered() || (*fit)->hasFilteredDescendants(filter_generation))
+		if (folder->getFiltered() || folder->hasFilteredDescendants(filter_generation))
 		{
 			mMostFilteredDescendantGeneration = filter_generation;
 			if (getRoot()->needsAutoSelect() && autoopen_folders)
 			{
-				(*fit)->setOpenArrangeRecursively(TRUE);
+				folder->setOpenArrangeRecursively(TRUE);
 			}
 		}
 	}
 
 	for (items_t::iterator iter = mItems.begin();
-		iter != mItems.end();)
+		 iter != mItems.end();
+		 ++iter)
 	{
-		items_t::iterator iit = iter++;
+		LLFolderViewItem* item = (*iter);
 		if (filter.getFilterCount() < 0)
 		{
 			break;
 		}
-		if ((*iit)->getLastFilterGeneration() >= filter_generation)
+		if (item->getLastFilterGeneration() >= filter_generation)
 		{
-			if ((*iit)->getFiltered())
+			if (item->getFiltered())
 			{
 				mMostFilteredDescendantGeneration = filter_generation;
 			}
 			continue;
 		}
 
-		if ((*iit)->getLastFilterGeneration() >= must_pass_generation && 
-			!(*iit)->getFiltered(must_pass_generation))
+		if (item->getLastFilterGeneration() >= must_pass_generation && 
+			!item->getFiltered(must_pass_generation))
 		{
 			// failed to pass an earlier filter that was a subset of the current one
 			// go ahead and flag this item as done
-			(*iit)->setFiltered(FALSE, filter_generation);
+			item->setFiltered(FALSE, filter_generation);
 			continue;
 		}
 
-		(*iit)->filter( filter );
+		item->filter( filter );
 
-		if ((*iit)->getFiltered(filter.getMinRequiredGeneration()))
+		if (item->getFiltered(filter.getMinRequiredGeneration()))
 		{
 			mMostFilteredDescendantGeneration = filter_generation;
 		}
