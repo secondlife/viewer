@@ -197,7 +197,7 @@ LLMediaPluginTest::LLMediaPluginTest( int app_window, int window_width, int wind
 	{
 		LLError::initForApplication(".");
 		LLError::setDefaultLevel(LLError::LEVEL_INFO);
-//		LLError::setTagLevel("Plugin", LLError::LEVEL_DEBUG);
+		//LLError::setTagLevel("Plugin", LLError::LEVEL_DEBUG);
 	}
 
 	// lots of randomness in this app
@@ -223,16 +223,12 @@ LLMediaPluginTest::LLMediaPluginTest( int app_window, int window_width, int wind
 	resetView();
 
 	// initial media panel
-	//const int num_initial_panels = 1;
-	//for( int i = 0; i < num_initial_panels; ++i )
-	//{
-	//	//addMediaPanel( mBookmarks[ rand() % ( mBookmarks.size() - 1 ) + 1 ].second );
-	//	addMediaPanel( mHomeWebUrl );
-	//};
-
-addMediaPanel( "http://chemicaljump.com/wp-content/uploads/2009/10/lth34/Proxy-8000.mp3" );
-addMediaPanel( "http://movies.apple.com/movies/sony_pictures/zombieland/zombieland-inttlr_h.320.mov" );
-
+	const int num_initial_panels = 1;
+	for( int i = 0; i < num_initial_panels; ++i )
+	{
+		//addMediaPanel( mBookmarks[ rand() % ( mBookmarks.size() - 1 ) + 1 ].second );
+		addMediaPanel( mHomeWebUrl );
+	};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
