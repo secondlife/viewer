@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu
+ bottom="806"
+ layout="topleft"
+ left="0"
+ mouse_opaque="false"
+ name="menu_gear_default"
+ visible="false">
+    <menu_item_call
+     label="New Outfit"
+     layout="topleft"
+     name="new">
+        <on_click
+         function="panel_outfits_inventory_gear_default.Custom.Action"
+         parameter="new" />
+        <on_enable
+		 function="panel_outfits_inventory_gear_default.Enable"
+		 parameter="new" />
+    </menu_item_call>
+    <menu_item_call
+     label="Wear Outfit"
+     layout="topleft"
+     name="wear">
+        <on_click
+         function="panel_outfits_inventory_gear_default.Custom.Action"
+         parameter="wear" />
+        <on_enable
+		 function="panel_outfits_inventory_gear_default.Enable"
+		 parameter="wear" />
+    </menu_item_call>
+    <menu_item_call
+     label="Delete Outfit"
+     layout="topleft"
+     name="delete">
+        <on_click
+         function="panel_outfits_inventory_gear_default.Custom.Action"
+         parameter="delete" />
+        <on_enable
+		 function="panel_outfits_inventory_gear_default.Enable"
+		 parameter="delete" />
+    </menu_item_call>
+</menu>
