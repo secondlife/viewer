@@ -128,6 +128,7 @@ mAddedDefaultBtn(false)
 	// *TODO: magic numbers(???) - copied from llnotify.cpp(250)
 	const S32 MAX_LENGTH = 512 + 20 + DB_FIRST_NAME_BUF_SIZE + DB_LAST_NAME_BUF_SIZE + DB_INV_ITEM_NAME_BUF_SIZE; 
 
+	mTextBox->setMaxTextLength(MAX_LENGTH);
 	mTextBox->setVisible(TRUE);
 	mTextBox->setValue(notification->getMessage());
 

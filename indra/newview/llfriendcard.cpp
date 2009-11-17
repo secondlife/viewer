@@ -44,27 +44,24 @@
 
 // Constants;
 
-static const std::string INVENTORY_STRING_FRIENDS_SUBFOLDER = "Friends";
-static const std::string INVENTORY_STRING_FRIENDS_ALL_SUBFOLDER = "All";
+static const std::string INVENTORY_STRING_FRIENDS_SUBFOLDER = "InvFolder Friends";
+static const std::string INVENTORY_STRING_FRIENDS_ALL_SUBFOLDER = "InvFolder All";
 
 // helper functions
 
-/*
-mantipov *NOTE: unable to use 
-LLTrans::getString("InvFolder Friends"); or
-LLTrans::getString("InvFolder FriendsAll");
-in next two functions to set localized folders' names because of there is a hack in the
-LLFolderViewItem::refreshFromListener() method for protected asset types.
-So, localized names will be got from the strings with "InvFolder LABEL_NAME" in the strings.xml
-*/
-inline const std::string& get_friend_folder_name()
+// NOTE: Usage of LLTrans::getString(); in next two functions to set localized
+// folders' names is caused by a hack in the LLFolderViewItem::refreshFromListener()
+// method for protected asset types.
+// So, localized names will be got from the strings with "InvFolder LABEL_NAME"
+// in the strings.xml
+inline const std::string get_friend_folder_name()
 {
-	return INVENTORY_STRING_FRIENDS_SUBFOLDER;
+	return LLTrans::getString(INVENTORY_STRING_FRIENDS_SUBFOLDER);
 }
 
-inline const std::string& get_friend_all_subfolder_name()
+inline const std::string get_friend_all_subfolder_name()
 {
-	return INVENTORY_STRING_FRIENDS_ALL_SUBFOLDER;
+	return LLTrans::getString(INVENTORY_STRING_FRIENDS_ALL_SUBFOLDER);
 }
 
 void move_from_to_arrays(LLInventoryModel::cat_array_t& from, LLInventoryModel::cat_array_t& to)
@@ -81,15 +78,20 @@ const LLUUID& get_folder_uuid(const LLUUID& parentFolderUUID, LLInventoryCollect
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
 
-	gInventory.collectDescendentsIf(parentFolderUUID, cats, items, 
+	gInventory.collectDescendentsIf(parentFolderUUID, cats, items,
 		LLInventoryModel::EXCLUDE_TRASH, matchFunctor);
 
-	if (cats.count() == 1)
+	S32 cats_count = cats.count();
+
+	if (cats_count > 1)
 	{
-		return cats.get(0)->getUUID();
+		LL_WARNS("LLFriendCardsManager")
+			<< "There is more than one Friend card folder."
+			<< "The first folder will be used."
+			<< LL_ENDL;
 	}
 
-	return LLUUID::null;
+	return (cats_count >= 1) ? cats.get(0)->getUUID() : LLUUID::null;
 }
 
 /**
@@ -348,13 +350,8 @@ const LLUUID& LLFriendCardsManager::findFriendAllSubfolderUUIDImpl() const
 	return findChildFolderUUID(friendFolderUUID, friendAllSubfolderName);
 }
 
-const LLUUID& LLFriendCardsManager::findChildFolderUUID(const LLUUID& parentFolderUUID, const std::string& folderLabel) const
+const LLUUID& LLFriendCardsManager::findChildFolderUUID(const LLUUID& parentFolderUUID, const std::string& localizedName) const
 {
-	// mantipov *HACK: get localaized name in the same way like in the LLFolderViewItem::refreshFromListener() method.
-	// be sure these both methods are synchronized.
-	// see also get_friend_folder_name() and get_friend_all_subfolder_name() functions
-	std::string localizedName = LLTrans::getString("InvFolder " + folderLabel);
-
 	LLNameCategoryCollector matchFolderFunctor(localizedName);
 
 	return get_folder_uuid(parentFolderUUID, matchFolderFunctor);

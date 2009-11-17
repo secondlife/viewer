@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- Additional attributes:
+  image_pressed
+	image_pressed_selected
+   -->
 <button image_unselected="PushButton_Off"
         image_selected="PushButton_Selected"
         image_disabled_selected="PushButton_Selected_Disabled"

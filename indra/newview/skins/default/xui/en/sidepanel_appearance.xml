@@ -11,7 +11,7 @@
 	  width="333">
      <string
 		 name="looks_tab_title"
-		 value="Looks" />
+		 value="Outfits" />
      <panel
 		 left="5" width="320" height="55"
 		 background_visible="true"
@@ -23,13 +23,13 @@
 			 top="-5" width="200" left="5" height="10" follows="left|right|top"
         	 font="SansSerif" text_color="LtGray" word_wrap="true"
         	 mouse_opaque="false" name="currentlook_title">
-					Current Look
+					Current Outfit
     	</text>
   		<text
 			 top="-30" left="8" height="10" follows="left|right|top"
       		 font="SansSerifBold" text_color="white" word_wrap="true"
       		 mouse_opaque="false" name="currentlook_name" >
-					MyLook
+					MyOutfit
   		</text>
   	    <button
   	     	 follows="left|right|top"
@@ -74,7 +74,7 @@
     	 follows="bottom|left"
   	     font="SansSerifSmallBold"
   	     height="25"
-  	     label="New Look"
+  	     label="New Outfit"
   	     layout="topleft"
   	     left_pad="0"
   	     name="newlook_btn"

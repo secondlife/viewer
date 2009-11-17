@@ -754,6 +754,13 @@ std::string LLFontGL::nameFromFont(const LLFontGL* fontp)
 	return fontp->mFontDescriptor.getName();
 }
 
+
+// static
+std::string LLFontGL::sizeFromFont(const LLFontGL* fontp)
+{
+	return fontp->mFontDescriptor.getSize();
+}
+
 // static
 std::string LLFontGL::nameFromHAlign(LLFontGL::HAlign align)
 {

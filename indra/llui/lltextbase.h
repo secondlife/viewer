@@ -139,6 +139,7 @@ public:
 	// TODO: add optional style parameter
 	virtual void			setText(const LLStringExplicit &utf8str , const LLStyle::Params& input_params = LLStyle::Params()); // uses default style
 	virtual std::string		getText() const;
+	void					setMaxTextLength(S32 length) { mMaxTextByteLength = length; }
 
 	// wide-char versions
 	void					setWText(const LLWString& text);

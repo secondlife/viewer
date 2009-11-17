@@ -2,66 +2,63 @@
 <floater
  legacy_header_height="18"
  background_visible="true"
- follows="left|top|right|bottom"
- height="369"
+ follows="all"
+ height="350"
  layout="topleft"
  left="0"
  name="panel_im"
- help_topic="panel_im"
  top="0"
  can_dock="true"
- can_minimize="true"
- visible="true" 
- width="520"
+ can_minimize="false"
+ visible="true"
+ width="320"
  can_resize="true"
- min_width="350"
- min_height="369">
-  <layout_stack follows="left|top|right|bottom"
-                height="354"
-                width="520"
+ min_width="300"
+ min_height="350">
+  <layout_stack follows="all"
+                height="350"
+                width="300"
                 layout="topleft"
                 orientation="horizontal"
                 name="im_panels"
-                top="16"
-                left="2">
+                top="20"
+                left="0">
     <layout_panel
       name="panel_im_control_panel"
       layout="topleft"
       top_delta="-3"
-      height="354"
+      height="350"
       follows="left"
       label="IM Control Panel"
       auto_resize="false"
       user_resize="false" />
-    <layout_panel height="354"
-                  width="355"
-                  left_delta="146" 
+    <layout_panel height="350"
+                  width=""
+                  left_delta="110"
                   top="0"
                   user_resize="false">
-      <button height="12"
-      		  follows="left|top"
-              top="8" 
-              label="&lt;&lt;"
+      <button height="20"
+      	      follows="left|top"
+              top="0"
+              image_overlay="TabIcon_Open_Off"
               layout="topleft"
-              width="35"
+              width="25"
               name="slide_left_btn" />
-      <button height="12"
-      		  follows="left|top"
-              top="8"
-              label="&gt;&gt;"
-              layout="topleft"
-              width="35"
+      <button height="20"
+      	      follows="left|top"
+              top="0"
+              image_overlay="TabIcon_Close_Off"
+              width="25"
               name="slide_right_btn" />
       <chat_history
        length="1"
-       follows="left|top|right|bottom"
-       font="SansSerif"
-       height="300"
+       follows="all"
+       height="275"
        layout="topleft"
        name="chat_history"
        parse_highlights="true"
-       allow_html="true" 
-       width="350">
+       allow_html="true"
+       width="160">
       </chat_history>
       <line_editor
        follows="left|right"
@@ -69,7 +66,7 @@
        label="To"
        layout="topleft"
        name="chat_editor"
-       width="345">
+       width="160">
       </line_editor>
     </layout_panel>
   </layout_stack>

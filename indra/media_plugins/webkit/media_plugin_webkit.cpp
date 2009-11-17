@@ -296,7 +296,7 @@ private:
 	// virtual
 	void onNavigateBegin(const EventType& event)
 	{
-		if(mInitState > INIT_STATE_NAVIGATE_COMPLETE)
+		if(mInitState >= INIT_STATE_NAVIGATE_COMPLETE)
 		{
 			LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_begin");
 			message.setValue("uri", event.getEventUri());
@@ -304,7 +304,8 @@ private:
 		
 			setStatus(STATUS_LOADING);
 		}
-		else if(mInitState == INIT_STATE_NAVIGATE_COMPLETE)
+
+		if(mInitState == INIT_STATE_NAVIGATE_COMPLETE)
 		{
 			mInitState = INIT_STATE_WAIT_REDRAW;
 		}
@@ -315,7 +316,7 @@ private:
 	// virtual
 	void onNavigateComplete(const EventType& event)
 	{
-		if(mInitState > INIT_STATE_NAVIGATE_COMPLETE)
+		if(mInitState >= INIT_STATE_NAVIGATE_COMPLETE)
 		{
 			LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_complete");
 			message.setValue("uri", event.getEventUri());
@@ -338,7 +339,7 @@ private:
 	// virtual
 	void onUpdateProgress(const EventType& event)
 	{
-		if(mInitState > INIT_STATE_NAVIGATE_COMPLETE)
+		if(mInitState >= INIT_STATE_NAVIGATE_COMPLETE)
 		{
 			LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "progress");
 			message.setValueS32("percent", event.getIntValue());
@@ -350,7 +351,7 @@ private:
 	// virtual
 	void onStatusTextChange(const EventType& event)
 	{
-		if(mInitState > INIT_STATE_NAVIGATE_COMPLETE)
+		if(mInitState >= INIT_STATE_NAVIGATE_COMPLETE)
 		{
 			LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "status_text");
 			message.setValue("status", event.getStringValue());
@@ -362,7 +363,7 @@ private:
 	// virtual
 	void onTitleChange(const EventType& event)
 	{
-		if(mInitState > INIT_STATE_NAVIGATE_COMPLETE)
+		if(mInitState >= INIT_STATE_NAVIGATE_COMPLETE)
 		{
 			LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "name_text");
 			message.setValue("name", event.getStringValue());
@@ -374,7 +375,7 @@ private:
 	// virtual
 	void onLocationChange(const EventType& event)
 	{
-		if(mInitState > INIT_STATE_NAVIGATE_COMPLETE)
+		if(mInitState >= INIT_STATE_NAVIGATE_COMPLETE)
 		{
 			LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "location_changed");
 			message.setValue("uri", event.getEventUri());

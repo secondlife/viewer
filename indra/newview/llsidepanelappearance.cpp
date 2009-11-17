@@ -234,9 +234,16 @@ void LLSidepanelAppearance::toggleLookInfoPanel(BOOL visible)
 	mNewLookBtn->setVisible(!visible);
 	mOverflowBtn->setVisible(!visible);
 	mCurrLookPanel->setVisible(!visible);
+
+	if (visible)
+	{
+		LLRect rect = getRect();
+		LLRect new_rect = LLRect(rect.mLeft, rect.mTop, rect.mRight, mTabContainer->getRect().mBottom);
+		mLookInfo->reshape(new_rect.getWidth(),new_rect.getHeight());
+	}
 }
 
-void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *wearable)
+void LLPanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *wearable)
 {
 	if (!wearable)
 	{

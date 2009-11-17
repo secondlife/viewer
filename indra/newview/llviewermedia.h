@@ -194,7 +194,7 @@ public:
 
 	bool isMediaPlaying();
 	bool isMediaPaused();
-	bool hasMedia();
+	bool hasMedia() const;
 	bool isMediaFailed() const { return mMediaSourceFailed; };
 	void resetPreviousMediaState();
 	
@@ -203,6 +203,9 @@ public:
 
 	// returns true if this instance should not be loaded (disabled, muted object, crashed, etc.)
 	bool isForcedUnloaded() const;
+	
+	// returns true if this instance could be playable based on autoplay setting, current load state, etc.
+	bool isPlayable() const;
 	
 	void setIsParcelMedia(bool is_parcel_media) { mIsParcelMedia = is_parcel_media; };
 	bool isParcelMedia() const { return mIsParcelMedia; };
@@ -267,6 +270,7 @@ public:
 	F64 getInterest() const { return mInterest; };
 	F64 getApproximateTextureInterest();
 	S32 getProximity() const { return mProximity; };
+	F64 getProximityDistance() const { return mProximityDistance; };
 	
 	// Mark this object as being used in a UI panel instead of on a prim
 	// This will be used as part of the interest sorting algorithm.
@@ -336,6 +340,7 @@ public:
 	bool mIsDisabled;
 	bool mIsParcelMedia;
 	S32 mProximity;
+	F64 mProximityDistance;
 	LLMimeDiscoveryResponder *mMimeTypeProbe;
 	
 private:
