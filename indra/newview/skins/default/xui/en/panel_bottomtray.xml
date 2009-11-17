@@ -94,7 +94,7 @@
          min_height="28"
          width="82"
          top_delta="0"
-         min_width="82"
+         min_width="52"
          name="gesture_panel"
          user_resize="false">
          <gesture_combo_box
@@ -105,9 +105,13 @@
           name="Gesture"
           left="0"
           top="3"
-         use_ellipses="true"
           width="82"
-          tool_tip="Shows/hides gestures"/>
+          tool_tip="Shows/hides gestures">
+             <gesture_combo_box.drop_down_button
+              font="SansSerifSmall"
+              pad_right="10" 
+              use_ellipses="true" />
+         </gesture_combo_box>
         </layout_panel>
 		 <icon
          auto_resize="false"
@@ -131,7 +135,7 @@
          name="movement_panel"
          user_resize="false"
          width="80"
-         min_width="80">
+         min_width="49">
             <button
              follows="left|right"
              height="23"
@@ -167,7 +171,7 @@
          height="28"
          layout="topleft"
          min_height="28"
-         min_width="80"
+         min_width="49"
          name="cam_panel"
          user_resize="false"
          width="80">

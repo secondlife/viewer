@@ -10,7 +10,7 @@
   <layout_stack border_size="0"
                 follows="all"
                 mouse_opaque="false"
-                height="772"
+                height="768"
                 name="menu_stack"
                 orientation="vertical"
                 top="0">

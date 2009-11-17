@@ -237,7 +237,7 @@ void LLBottomTray::setVisible(BOOL visible)
 			LLView* viewp = *child_it;
 			std::string name = viewp->getName();
 			
-			if ("chat_bar" == name || "movement_panel" == name || "cam_panel" == name || "snapshot_panel" == name)
+			if ("chat_bar" == name || "movement_panel" == name || "cam_panel" == name || "snapshot_panel" == name || "gesture_panel" == name)
 				continue;
 			else 
 			{
@@ -316,6 +316,10 @@ BOOL LLBottomTray::postBuild()
 
 	// Registering Chat Bar to receive Voice client status change notifications.
 	gVoiceClient->addObserver(this);
+
+	mObjectDefaultWidthMap[RS_BUTTON_GESTURES] = mGesturePanel->getRect().getWidth();
+	mObjectDefaultWidthMap[RS_BUTTON_MOVEMENT] = mMovementPanel->getRect().getWidth();
+	mObjectDefaultWidthMap[RS_BUTTON_CAMERA]   = mCamPanel->getRect().getWidth();
 
 	return TRUE;
 }
@@ -402,7 +406,6 @@ void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
 		}
 	}
 
-	lldebugs << "There is no enough width to reshape all children: " << extra_shrink_width << llendl;
 	if (should_be_reshaped)
 	{
 		lldebugs << "Reshape all children with width: " << width << llendl;
@@ -473,7 +476,12 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 	S32 buttons_freed_width = 0;
 	if (still_should_be_processed)
 	{
-		processHideButton(RS_BUTTON_SNAPSHOT, &delta_width, &buttons_freed_width);
+		processShrinkButtons(&delta_width);
+
+		if (delta_width < 0)
+		{
+			processHideButton(RS_BUTTON_SNAPSHOT, &delta_width, &buttons_freed_width);
+		}
 
 		if (delta_width < 0)
 		{
@@ -493,7 +501,7 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 		if (delta_width < 0)
 		{
 			extra_shrink_width = -delta_width;
-			lldebugs << "There is no enough room for bottom tray, resizing still should be processed: " 
+			llwarns << "There is no enough width to reshape all children: " 
 				<< extra_shrink_width << llendl;
 		}
 
@@ -551,7 +559,7 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 		processShowButton(RS_BUTTON_SNAPSHOT, &available_width, &buttons_required_width);
 	}
 
-	// if we have to show some buttons but whidth increasing is not enough...
+	// if we have to show some buttons but width increasing is not enough...
 	if (buttons_required_width > 0 && delta_width < buttons_required_width)
 	{
 		// ... let's shrink nearby chat & chiclet panels
@@ -586,6 +594,8 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 
 	// shown buttons take some space, rest should be processed by nearby chatbar & chiclet panels
 	delta_width -= buttons_required_width;
+
+	processExtendButtons(&delta_width);
 
 	// how many space can nearby chatbar take?
 	S32 chatbar_panel_width_ = mNearbyChatBar->getRect().getWidth();
@@ -652,6 +662,119 @@ void LLBottomTray::processHideButton(EResizeState processed_object_type, S32* re
 
 		lldebugs << "processing object type: " << processed_object_type
 			<< ", buttons_freed_width: " << *buttons_freed_width
+			<< llendl;
+	}
+}
+
+void LLBottomTray::processShrinkButtons(S32* required_width)
+{
+	processShrinkButton(RS_BUTTON_CAMERA, required_width);
+
+	if (*required_width < 0)
+	{
+		processShrinkButton(RS_BUTTON_MOVEMENT, required_width);
+	}
+	if (*required_width < 0)
+	{
+		processShrinkButton(RS_BUTTON_GESTURES, required_width);
+	}
+}
+
+void LLBottomTray::processShrinkButton(EResizeState processed_object_type, /*const std::string& panel_name, */S32* required_width)
+{
+	LLPanel* panel = mStateProcessedObjectMap[processed_object_type];
+	if (NULL == panel)
+	{
+		lldebugs << "There is no object to process for type: " << processed_object_type << llendl;
+		return;
+	}
+
+	if (panel->getVisible())
+	{
+		S32 panel_width = panel->getRect().getWidth();
+		S32 panel_min_width = 0;
+		std::string panel_name = panel->getName();
+		bool success = mToolbarStack->getPanelMinSize(panel_name, &panel_min_width, NULL);
+		S32 possible_shrink_width = panel_width - panel_min_width;
+
+		if (!success)
+		{
+			lldebugs << "Panel was not found to get its min width: " << panel_name << llendl;
+		}
+		// we have some space to free by shrinking the button
+		else if (possible_shrink_width > 0)
+		{
+			// let calculate real width to shrink
+
+			// 1. apply all possible width
+			*required_width += possible_shrink_width;
+
+			// 2. it it is too much... 
+			if (*required_width > 0)
+			{
+				// reduce applied shrunk width to the excessive value.
+				possible_shrink_width -= *required_width;
+				*required_width = 0;
+			}
+			panel->reshape(panel_width - possible_shrink_width, panel->getRect().getHeight());
+
+			lldebugs << "Shrunk panel: " << panel_name
+				<< ", shrunk width: " << possible_shrink_width
+				<< ", rest width to process: " << *required_width
+				<< llendl;
+		}
+	}
+}
+
+
+void LLBottomTray::processExtendButtons(S32* available_width)
+{
+	processExtendButton(RS_BUTTON_GESTURES, available_width);
+
+	if (*available_width > 0)
+	{
+		processExtendButton(RS_BUTTON_CAMERA, available_width);
+	}
+	if (*available_width > 0)
+	{
+		processExtendButton(RS_BUTTON_MOVEMENT, available_width);
+	}
+}
+
+void LLBottomTray::processExtendButton(EResizeState processed_object_type, S32* available_width)
+{
+	LLPanel* panel = mStateProcessedObjectMap[processed_object_type];
+	if (NULL == panel)
+	{
+		lldebugs << "There is no object to process for type: " << processed_object_type << llendl;
+		return;
+	}
+
+	if (!panel->getVisible()) return;
+
+	S32 panel_max_width = mObjectDefaultWidthMap[processed_object_type];
+	S32 panel_width = panel->getRect().getWidth();
+	S32 possible_extend_width = panel_max_width - panel_width;
+
+	if (possible_extend_width > 0)
+	{
+		// let calculate real width to extend
+
+		// 1. apply all possible width
+		*available_width -= possible_extend_width;
+
+		// 2. it it is too much... 
+		if (*available_width < 0)
+		{
+			// reduce applied extended width to the excessive value.
+			possible_extend_width += *available_width;
+			*available_width = 0;
+		}
+		panel->reshape(panel_width + possible_extend_width, panel->getRect().getHeight());
+
+		lldebugs << "Extending panel: " << panel->getName()
+			<< ", extended width: " << possible_extend_width
+			<< ", rest width to process: " << *available_width
 			<< llendl;
 	}
 }

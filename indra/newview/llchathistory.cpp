@@ -46,6 +46,8 @@
 #include "llfloaterreg.h"
 #include "llmutelist.h"
 
+#include "llsidetray.h"//for blocked objects panel
+
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
 std::string formatCurrentTime()
@@ -92,6 +94,8 @@ public:
 		else if (level == "block")
 		{
 			LLMuteList::getInstance()->add(LLMute(getAvatarId(), mFrom, LLMute::OBJECT));
+
+			LLSideTray::getInstance()->showPanel("panel_block_list_sidetray", LLSD().insert("blocked_to_select", getAvatarId()));
 		}
 	}
 
