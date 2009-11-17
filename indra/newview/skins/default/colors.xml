@@ -665,6 +665,9 @@
      name="ToolTipTextColor"
      reference="DkGray2" />
     <color
+     name="InspectorTipTextColor"
+     reference="LtGray" />
+    <color
      name="UserChatColor"
      reference="LtGray" />
     <color

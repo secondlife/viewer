@@ -8,4 +8,5 @@
           bg_opaque_image="Tooltip"
           background_opaque="true"
           background_visible="true"
+		  text_color="ToolTipTextColor"
  />

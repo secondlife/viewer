@@ -6,4 +6,5 @@
           bg_opaque_image="none"
           background_opaque="true"
           bg_alpha_image="none"
+		  text_color="InspectorTipTextColor"
  />

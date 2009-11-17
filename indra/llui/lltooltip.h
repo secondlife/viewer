@@ -88,6 +88,7 @@ public:
 		Optional<LLRect>			sticky_rect;
 		Optional<const LLFontGL*>	font;
 		Optional<LLUIImage*>		image;
+		Optional<LLUIColor>			text_color;
 		Optional<bool>				time_based_media,
 									web_based_media,
 									media_playing;
