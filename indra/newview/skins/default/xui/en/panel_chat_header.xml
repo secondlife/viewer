@@ -7,7 +7,8 @@
      height="24"
  label="im_header"
  layout="topleft"
- name="im_header" >
+ name="im_header"
+ width="300">
              <avatar_icon
          follows="left"
          height="18"
@@ -33,11 +34,12 @@
     <text
             font="SansSerifSmall"
          follows="right"
+         halign="right"
          height="13"
          layout="topleft"
          left_pad="5"
      name="time_box"
-     right="0"
+     right="-10"
      top="8"
          value="23:30"
          width="50" />
