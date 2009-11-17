@@ -120,7 +120,7 @@
        <button
          enabled="false"
          follows="bottom|left"
-         font="SansSerifSmallBold"
+         font="SansSerifSmall"
          height="25"
          label="Info"
          layout="topleft"
@@ -132,7 +132,7 @@
         <button
          enabled="false"
          follows="bottom|left"
-         font="SansSerifSmallBold"
+         font="SansSerifSmall"
          height="25"
          label="Teleport"
          layout="topleft"
@@ -144,7 +144,7 @@
         <button
          enabled="false"
          follows="bottom|left"
-         font="SansSerifSmallBold"
+         font="SansSerifSmall"
          height="25"
          label="Map"
          layout="topleft"
@@ -156,7 +156,7 @@
         <button
          enabled="false"
          follows="bottom|right"
-         font="SansSerifSmallBold"
+         font="SansSerifSmall"
          height="25"
          label="▼"
          layout="topleft"
