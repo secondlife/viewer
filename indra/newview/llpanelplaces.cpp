@@ -80,7 +80,6 @@ static const std::string TELEPORT_HISTORY_INFO_TYPE	= "teleport_history";
 // Helper functions
 static bool is_agent_in_selected_parcel(LLParcel* parcel);
 static void onSLURLBuilt(std::string& slurl);
-static void setAllChildrenVisible(LLView* view, BOOL visible);
 
 //Observer classes
 class LLPlacesParcelObserver : public LLParcelObserver
@@ -700,8 +699,6 @@ void LLPanelPlaces::onBackButtonClicked()
 
 void LLPanelPlaces::togglePickPanel(BOOL visible)
 {
-	setAllChildrenVisible(this, !visible);
-
 	if (mPickPanel)
 		mPickPanel->setVisible(visible);
 }
@@ -910,17 +907,4 @@ static void onSLURLBuilt(std::string& slurl)
 	args["SLURL"] = slurl;
 
 	LLNotifications::instance().add("CopySLURL", args);
-}
-
-static void setAllChildrenVisible(LLView* view, BOOL visible)
-{
-	const LLView::child_list_t* children = view->getChildList();
-	for (LLView::child_list_const_iter_t child_it = children->begin(); child_it != children->end(); ++child_it)
-	{
-		LLView* child = *child_it;
-		if (child->getParent() == view)
-		{
-			child->setVisible(visible);
-		}
-	}
 }

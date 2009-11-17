@@ -161,6 +161,7 @@ BOOL LLFloaterGesture::postBuild()
 
 	getChild<LLUICtrl>("play_btn")->setCommitCallback(boost::bind(&LLFloaterGesture::onClickPlay, this));
 	getChild<LLUICtrl>("stop_btn")->setCommitCallback(boost::bind(&LLFloaterGesture::onClickPlay, this));
+	getChild<LLButton>("activate_btn")->setClickedCallback(boost::bind(&LLFloaterGesture::onActivateBtnClick, this));
 
 	getChild<LLUICtrl>("new_gesture_btn")->setCommitCallback(boost::bind(&LLFloaterGesture::onClickNew, this));
 
@@ -179,7 +180,7 @@ BOOL LLFloaterGesture::postBuild()
 	
 	childSetFocus("gesture_list");
 
-	LLCtrlListInterface *list = childGetListInterface("gesture_list");
+	LLCtrlListInterface *list = getGestureList();
 	if (list)
 	{
 		const BOOL ascending = TRUE;
@@ -198,7 +199,7 @@ void LLFloaterGesture::refreshAll()
 {
 	buildGestureList();
 
-	LLCtrlListInterface *list = childGetListInterface("gesture_list");
+	LLCtrlListInterface *list = getGestureList();
 	if (!list) return;
 
 	if (mSelectedID.isNull())
@@ -219,7 +220,7 @@ void LLFloaterGesture::refreshAll()
 
 void LLFloaterGesture::buildGestureList()
 {
-	LLCtrlListInterface *list = childGetListInterface("gesture_list");
+	LLCtrlListInterface *list = getGestureList();
 	LLCtrlScrollInterface *scroll = childGetScrollInterface("gesture_list");
 
 	if (! (list && scroll)) return;
@@ -347,7 +348,7 @@ void LLFloaterGesture::addGesture(const LLUUID& item_id , LLMultiGesture* gestur
 
 void LLFloaterGesture::onClickInventory()
 {
-	LLCtrlListInterface *list = childGetListInterface("gesture_list");
+	LLCtrlListInterface *list = getGestureList();
 	if (!list) return;
 	const LLUUID& item_id = list->getCurrentID();
 
@@ -358,7 +359,7 @@ void LLFloaterGesture::onClickInventory()
 
 void LLFloaterGesture::onClickPlay()
 {
-	LLCtrlListInterface *list = childGetListInterface("gesture_list");
+	LLCtrlListInterface *list = getGestureList();
 	if (!list) return;
 	const LLUUID& item_id = list->getCurrentID();
 	if(item_id.isNull()) return;
@@ -396,10 +397,27 @@ void LLFloaterGesture::onClickNew()
 		LLInventoryType::IT_GESTURE, NOT_WEARABLE, PERM_MOVE | PERM_TRANSFER, cb);
 }
 
+void LLFloaterGesture::onActivateBtnClick()
+{
+	LLCtrlListInterface* list = getGestureList();
+	
+	LLUUID gesture_inv_id = list->getSelectedValue();
+	LLGestureManager* gm = LLGestureManager::getInstance();
+	
+	if(gm->isGestureActive(gesture_inv_id))
+	{
+		gm->deactivateGesture(gesture_inv_id);
+	}
+	else
+	{
+		gm->activateGesture(gesture_inv_id);
+	}
+}
+
 
 void LLFloaterGesture::onClickEdit()
 {
-	LLCtrlListInterface *list = childGetListInterface("gesture_list");
+	LLCtrlListInterface *list = getGestureList();
 	if (!list) return;
 	const LLUUID& item_id = list->getCurrentID();
 
