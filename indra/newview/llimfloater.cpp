@@ -476,8 +476,39 @@ void LLIMFloater::updateMessages()
 			chat.mFromID = from_id;
 			chat.mFromName = from;
 			chat.mText = message;
-
-			mChatHistory->appendWidgetMessage(chat);
+			
+			//Handle IRC styled /me messages.
+			std::string prefix = message.substr(0, 4);
+			if (prefix == "/me " || prefix == "/me'")
+			{
+				
+				LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
+				LLViewerChat::getChatColor(chat,txt_color);
+				LLFontGL* fontp = LLViewerChat::getChatFont();
+				std::string font_name = LLFontGL::nameFromFont(fontp);
+				std::string font_size = LLFontGL::sizeFromFont(fontp);
+				LLStyle::Params append_style_params;
+				append_style_params.color(txt_color);
+				append_style_params.readonly_color(txt_color);
+				append_style_params.font.name(font_name);
+				append_style_params.font.size(font_size);
+				
+				if (from.size() > 0)
+				{
+					append_style_params.font.style = "ITALIC";
+					chat.mText = from + " ";
+					mChatHistory->appendWidgetMessage(chat, append_style_params);
+				}
+				
+				message = message.substr(3);
+				append_style_params.font.style = "UNDERLINE";
+				mChatHistory->appendText(message, FALSE, append_style_params);
+			}
+			else
+			{
+				chat.mText = message;
+				mChatHistory->appendWidgetMessage(chat);
+			}
 
 			mLastMessageIndex = msg["index"].asInteger();
 		}
