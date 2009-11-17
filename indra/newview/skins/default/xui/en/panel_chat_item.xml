@@ -15,19 +15,13 @@
       		color="1 1 1 1" enabled="true" name="avatar_icon"
 		  />
     	<text
-        	width="130" top="25" left="40" height="20" follows="left|right|top"
+        	width="150" top="25" left="40" height="20" follows="left|right|top"
         	font="SansSerifBigBold" text_color="white" word_wrap="false" use_ellipses="true"
         	mouse_opaque="true" name="sender_name" >
 	      Jerry Knight
     	</text>
-    	<icon top="22" left="170" width="15" height="15" follows="top|right"
+    	<icon top="22" left="215" width="15" height="15" follows="top|right"
       		image_name="icn_voice-pvtfocus.tga" visible="false" name="msg_inspector"/>
-    	<icon top="22" left="190" width="10" height="10" follows="top|right"
-      		image_name="speaking_indicator.tga"	name="msg_icon"/>
-    	<text width="35" top="22" left="205" height="20" follows="right|top"
-        		text_color="white" word_wrap="true" mouse_opaque="true" name="msg_time" >
-      		10:32
-		</text>
 	</panel>
 	<text_chat
       top="-35" left="10" right="-10" height="120" follows="left|right|bottom"
