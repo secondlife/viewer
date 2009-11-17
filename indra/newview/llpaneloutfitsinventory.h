@@ -42,6 +42,8 @@ class LLFolderViewEventListener;
 class LLInventoryPanel;
 class LLSaveFolderState;
 class LLButton;
+class LLMenuGL;
+class LLSidepanelAppearance;
 
 class LLPanelOutfitsInventory : public LLPanel
 {
@@ -55,22 +57,46 @@ public:
 	void onWear();
 	void onEdit();
 	void onNew();
-	void updateVerbs();
 
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();
 
+	LLInventoryPanel* getActivePanel() { return mInventoryPanel; }
+
+	// If a compatible listener type is selected, then return a pointer to that.
+	// Otherwise, return NULL.
+	LLFolderViewEventListener* getCorrectListenerForAction();
+	void setParent(LLSidepanelAppearance *parent);
+protected:
+	void updateParent();
+	bool getIsCorrectType(const LLFolderViewEventListener *listenerp) const;
 	LLFolderView* getRootFolder();
 
 private:
-	bool getIsCorrectType(const LLFolderViewEventListener *listenerp) const;
+	LLSidepanelAppearance*      mParent;
 	LLInventoryPanel*			mInventoryPanel;
 	LLSaveFolderState*			mSavedFolderState;
 
-	LLButton*					mActionBtn;
-	LLButton*					mWearBtn;
-	LLButton*					mEditBtn;
 
+	//////////////////////////////////////////////////////////////////////////////////
+	// List Commands                                                                //
+protected:
+	void initListCommandsHandlers();
+	void updateListCommands();
+	void onGearButtonClick();
+	void onAddButtonClick();
+	void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
+	void onTrashButtonClick();
+	void onClipboardAction(const LLSD& userdata);
+	BOOL isActionEnabled(const LLSD& command_name);
+	void onCustomAction(const LLSD& command_name);
+	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
+private:
+	LLPanel*					mListCommands;
+	LLMenuGL*					mMenuGearDefault;
+	LLMenuGL*					mMenuAdd;
+	//                                                                            //
+	////////////////////////////////////////////////////////////////////////////////
 };
 
 #endif //LL_LLPANELOUTFITSINVENTORY_H

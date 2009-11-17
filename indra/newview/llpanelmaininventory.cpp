@@ -197,28 +197,6 @@ BOOL LLPanelMainInventory::postBuild()
 	return TRUE;
 }
 
-void LLPanelMainInventory::initListCommandsHandlers()
-{
-	mListCommands = getChild<LLPanel>("bottom_panel");
-
-	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelMainInventory::onGearButtonClick, this));
-	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelMainInventory::onTrashButtonClick, this));
-	mListCommands->childSetAction("add_btn", boost::bind(&LLPanelMainInventory::onAddButtonClick, this));
-
-	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>("trash_btn");
-	trash_btn->setDragAndDropHandler(boost::bind(&LLPanelMainInventory::handleDragAndDropToTrash, this
-			,	_4 // BOOL drop
-			,	_5 // EDragAndDropType cargo_type
-			,	_7 // EAcceptance* accept
-			));
-
-	mCommitCallbackRegistrar.add("Inventory.GearDefault.Custom.Action", boost::bind(&LLPanelMainInventory::onCustomAction, this, _2));
-	mEnableCallbackRegistrar.add("Inventory.GearDefault.Enable", boost::bind(&LLPanelMainInventory::isActionEnabled, this, _2));
-	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	mMenuAdd = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory_add.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	
-}
-
 // Destroys the object
 LLPanelMainInventory::~LLPanelMainInventory( void )
 {
@@ -863,9 +841,30 @@ void LLFloaterInventoryFinder::selectNoTypes(void* user_data)
 	self->childSetValue("check_snapshot", FALSE);
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+// List Commands                                                                //
 
+void LLPanelMainInventory::initListCommandsHandlers()
+{
+	mListCommands = getChild<LLPanel>("bottom_panel");
 
+	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelMainInventory::onGearButtonClick, this));
+	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelMainInventory::onTrashButtonClick, this));
+	mListCommands->childSetAction("add_btn", boost::bind(&LLPanelMainInventory::onAddButtonClick, this));
 
+	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>("trash_btn");
+	trash_btn->setDragAndDropHandler(boost::bind(&LLPanelMainInventory::handleDragAndDropToTrash, this
+			,	_4 // BOOL drop
+			,	_5 // EDragAndDropType cargo_type
+			,	_7 // EAcceptance* accept
+			));
+
+	mCommitCallbackRegistrar.add("Inventory.GearDefault.Custom.Action", boost::bind(&LLPanelMainInventory::onCustomAction, this, _2));
+	mEnableCallbackRegistrar.add("Inventory.GearDefault.Enable", boost::bind(&LLPanelMainInventory::isActionEnabled, this, _2));
+	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mMenuAdd = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory_add.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	
+}
 
 void LLPanelMainInventory::updateListCommands()
 {
@@ -1018,3 +1017,6 @@ bool LLPanelMainInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropType 
 	}
 	return true;
 }
+
+// List Commands                                                              //
+////////////////////////////////////////////////////////////////////////////////

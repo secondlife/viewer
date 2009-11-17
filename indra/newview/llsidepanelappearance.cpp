@@ -103,6 +103,7 @@ BOOL LLSidepanelAppearance::postBuild()
 	}
 
 	mPanelOutfitsInventory = dynamic_cast<LLPanelOutfitsInventory *>(getChild<LLPanel>("panel_outfits_inventory"));
+	mPanelOutfitsInventory->setParent(this);
 
 	mLookInfo = dynamic_cast<LLPanelLookInfo*>(getChild<LLPanel>("panel_look_info"));
 	if (mLookInfo)
@@ -172,10 +173,7 @@ void LLSidepanelAppearance::onFilterEdit(const std::string& search_string)
 
 void LLSidepanelAppearance::onWearButtonClicked()
 {
-	if (mLookInfo->getVisible())
-	{
-	}
-	else
+	if (!mLookInfo->getVisible())
 	{
 		mPanelOutfitsInventory->onWear();
 	}
@@ -204,10 +202,7 @@ void LLSidepanelAppearance::onEditButtonClicked()
 
 void LLSidepanelAppearance::onNewOutfitButtonClicked()
 {
-	if (mLookInfo->getVisible())
-	{
-	}
-	else
+	if (!mLookInfo->getVisible())
 	{
 		mPanelOutfitsInventory->onNew();
 	}
@@ -262,12 +257,16 @@ void LLSidepanelAppearance::updateVerbs()
 	bool is_look_info_visible = mLookInfo->getVisible();
 	mOverflowBtn->setEnabled(false);
 
-	if (is_look_info_visible)
+	if (!is_look_info_visible)
 	{
+		const bool is_correct_type = (mPanelOutfitsInventory->getCorrectListenerForAction() != NULL);
+		mEditBtn->setEnabled(is_correct_type);
+		mWearBtn->setEnabled(is_correct_type);
 	}
 	else
 	{
-		mPanelOutfitsInventory->updateVerbs();
+		mEditBtn->setEnabled(FALSE);
+		mWearBtn->setEnabled(FALSE);
 	}
 }
 

@@ -59,6 +59,8 @@ public:
 
 	void fetchInventory();
 	void inventoryFetched();
+	void updateVerbs();
+
 private:
 	void onFilterEdit(const std::string& search_string);
 
@@ -70,8 +72,6 @@ private:
 	void onEditWearBackClicked();
 	void toggleLookInfoPanel(BOOL visible);
 	void toggleWearableEditPanel(BOOL visible, LLWearable* wearable);
-
-	void updateVerbs();
 
 	LLFilterEditor*			mFilterEditor;
 	LLPanelOutfitsInventory* mPanelOutfitsInventory;
