@@ -65,6 +65,7 @@ public:
 	/* virtula */BOOL postBuild();
 	/* virtual */void setDocked(bool docked, bool pop_on_undock = true);
 	/* virtual */void draw();
+	/* virtual */void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	/**
 	 *  If descendant class overrides setVisible() then it must still invoke its

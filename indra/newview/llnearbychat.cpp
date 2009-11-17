@@ -89,8 +89,6 @@ BOOL LLNearbyChat::postBuild()
 
 	mChatHistory = getChild<LLChatHistory>("chat_history");
 
-	setCanResize(true);
-
 	if(!LLDockableFloater::postBuild())
 		return false;
 
@@ -98,7 +96,7 @@ BOOL LLNearbyChat::postBuild()
 	{
 		setDockControl(new LLDockControl(
 			LLBottomTray::getInstance()->getNearbyChatBar(), this,
-			getDockTongue(), LLDockControl::LEFT, boost::bind(&LLNearbyChat::getAllowedRect, this, _1)));
+			getDockTongue(), LLDockControl::TOP, boost::bind(&LLNearbyChat::getAllowedRect, this, _1)));
 	}
 
 	return true;
@@ -185,13 +183,6 @@ void	LLNearbyChat::onOpen(const LLSD& key )
 	{
 		chat_channel->removeToastsFromChannel();
 	}
-}
-
-void	LLNearbyChat::setDocked			(bool docked, bool pop_on_undock)
-{
-	LLDockableFloater::setDocked(docked, pop_on_undock);
-
-	setCanResize(!docked);
 }
 
 void LLNearbyChat::setRect	(const LLRect &rect)
