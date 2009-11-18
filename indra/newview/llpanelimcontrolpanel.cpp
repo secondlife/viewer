@@ -44,6 +44,7 @@
 #include "llimview.h"
 #include "llvoicechannel.h"
 #include "llsidetray.h"
+#include "lltrans.h"
 
 void LLPanelChatControlPanel::onCallButtonClicked()
 {
@@ -161,6 +162,11 @@ void LLPanelIMControlPanel::onShareButtonClicked()
 {
 	LLSD key;
 	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+
+	if (gIMMgr->hasSession(getSessionId()))
+	{
+		LLIMModel::getInstance()->addMessage(getSessionId(), SYSTEM_FROM, LLUUID::null, LLTrans::getString("share_alert"), false);
+	}
 }
 
 void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)

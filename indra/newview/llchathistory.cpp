@@ -50,21 +50,6 @@
 
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
-std::string formatCurrentTime()
-{
-	time_t utc_time;
-	utc_time = time_corrected();
-	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
-		+LLTrans::getString("TimeMin")+"]";
-
-	LLSD substitution;
-
-	substitution["datetime"] = (S32) utc_time;
-	LLStringUtil::format (timeStr, substitution);
-
-	return timeStr;
-}
-
 class LLChatHistoryHeader: public LLPanel
 {
 public:
@@ -219,7 +204,7 @@ public:
 
 		
 		LLTextBox* timeBox = getChild<LLTextBox>("time_box");
-		timeBox->setValue(formatCurrentTime());
+		timeBox->setValue(chat.mTimeStr);
 
 		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 
@@ -352,7 +337,7 @@ LLView* LLChatHistory::getHeader(const LLChat& chat,const LLStyle::Params& style
 void LLChatHistory::appendWidgetMessage(const LLChat& chat, const LLStyle::Params& input_append_params)
 {
 	LLView* view = NULL;
-	std::string view_text = "\n[" + formatCurrentTime() + "] ";
+	std::string view_text = "\n[" + chat.mTimeStr + "] ";
 	if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
 		view_text += chat.mFromName + ": ";
 
