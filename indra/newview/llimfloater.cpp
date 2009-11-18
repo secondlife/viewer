@@ -494,12 +494,12 @@ void LLIMFloater::updateMessages()
 				if (from.size() > 0)
 				{
 					append_style_params.font.style = "ITALIC";
-					chat.mText = from + " ";
+					chat.mText = from;
 					mChatHistory->appendWidgetMessage(chat, append_style_params);
 				}
 				
 				message = message.substr(3);
-				append_style_params.font.style = "UNDERLINE";
+				append_style_params.font.style = "ITALIC";
 				mChatHistory->appendText(message, FALSE, append_style_params);
 			}
 			else

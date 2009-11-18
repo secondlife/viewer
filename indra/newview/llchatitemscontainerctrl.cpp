@@ -187,7 +187,7 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 			msg_text->setText(mFromName, style_params);
 		}
 		mText = mText.substr(3);
-		style_params.font.style = "UNDERLINE";
+		style_params.font.style = "ITALIC";
 #define INFINITE_REFLOW_BUG 0
 #if INFINITE_REFLOW_BUG
 		// This causes LLTextBase::reflow() to infinite loop until the viewer
