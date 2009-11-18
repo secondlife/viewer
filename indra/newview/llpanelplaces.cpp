@@ -222,7 +222,7 @@ BOOL LLPanelPlaces::postBuild()
 	notes_editor->setKeystrokeCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this));
 
 	LLComboBox* folder_combo = mLandmarkInfo->getChild<LLComboBox>("folder_combo");
-	folder_combo->setSelectionCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this));
+	folder_combo->setCommitCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this));
 
 	return TRUE;
 }
