@@ -18,7 +18,7 @@
      visible="false"
      width="380" />
     <icon
-     height="24"
+     height="20"
      follows="top|right|left"
      image_name="ListItem_Select"
      layout="topleft"
@@ -55,7 +55,7 @@
      left_pad="5"
      right="-3"
      name="profile_btn"
-     top_delta="-2"
+     top="1"
      visible="false"
      width="20" />
 </panel>
