@@ -74,6 +74,11 @@ public:
 	static void startIM(const LLUUID& id);
 
 	/**
+	 * End instant messaging session.
+	 */
+	static void endIM(const LLUUID& id);
+
+	/**
 	 * Start an avatar-to-avatar voice call with another user
 	 */
 	static void startCall(const LLUUID& id);

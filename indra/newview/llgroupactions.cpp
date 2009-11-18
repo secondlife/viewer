@@ -272,7 +272,7 @@ void LLGroupActions::closeGroup(const LLUUID& group_id)
 
 
 // static
-void LLGroupActions::startChat(const LLUUID& group_id)
+void LLGroupActions::startIM(const LLUUID& group_id)
 {
 	if (group_id.isNull())
 		return;
@@ -295,6 +295,19 @@ void LLGroupActions::startChat(const LLUUID& group_id)
 		// this should never happen, as starting a group IM session
 		// relies on you belonging to the group and hence having the group data
 		make_ui_sound("UISndInvalidOp");
+	}
+}
+
+// static
+void LLGroupActions::endIM(const LLUUID& group_id)
+{
+	if (group_id.isNull())
+		return;
+	
+	LLUUID session_id = gIMMgr->computeSessionID(IM_SESSION_GROUP_START, group_id);
+	if (session_id != LLUUID::null)
+	{
+		gIMMgr->leaveSession(session_id);
 	}
 }
 
