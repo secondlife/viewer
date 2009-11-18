@@ -2852,9 +2852,11 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		}
 
 		const LLUUID& favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-
+		const LLUUID& landmarks_id = model->findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
+		const BOOL folder_allows_reorder = ((mUUID == landmarks_id) || (mUUID == favorites_id));
+	   
 		// we can move item inside a folder only if this folder is Favorites. See EXT-719
-		accept = is_movable && ((mUUID != inv_item->getParentUUID()) || (mUUID == favorites_id));
+		accept = is_movable && ((mUUID != inv_item->getParentUUID()) || folder_allows_reorder);
 		if(accept && drop)
 		{
 			if (inv_item->getType() == LLAssetType::AT_GESTURE
@@ -2877,12 +2879,12 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			}
 
 			// if dragging from/into favorites folder only reorder items
-			if ((mUUID == inv_item->getParentUUID()) && (favorites_id == mUUID))
+			if ((mUUID == inv_item->getParentUUID()) && folder_allows_reorder)
 			{
 				LLInventoryModel::cat_array_t cats;
 				LLInventoryModel::item_array_t items;
 				LLIsType is_type(LLAssetType::AT_LANDMARK);
-				model->collectDescendentsIf(favorites_id, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
+				model->collectDescendentsIf(mUUID, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
 
 				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
 				LLFolderViewItem* itemp = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
