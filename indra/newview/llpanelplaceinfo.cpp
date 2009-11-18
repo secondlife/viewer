@@ -57,7 +57,11 @@ LLPanelPlaceInfo::LLPanelPlaceInfo()
 :	LLPanel(),
 	mParcelID(),
 	mRequestedID(),
-	mPosRegion()
+	mPosRegion(),
+	mScrollingPanelMinHeight(0),
+	mScrollingPanelWidth(0),
+	mScrollingPanel(NULL),
+	mScrollContainer(NULL)
 {}
 
 //virtual
@@ -82,6 +86,12 @@ BOOL LLPanelPlaceInfo::postBuild()
 
 	mMaturityRatingIcon = getChild<LLIconCtrl>("maturity_icon");
 	mMaturityRatingText = getChild<LLTextBox>("maturity_value");
+
+	mScrollingPanel = getChild<LLPanel>("scrolling_panel");
+	mScrollContainer = getChild<LLScrollContainer>("place_scroll");
+
+	mScrollingPanelMinHeight = mScrollContainer->getScrolledViewRect().getHeight();
+	mScrollingPanelWidth = mScrollingPanel->getRect().getWidth();
 
 	return TRUE;
 }
@@ -227,6 +237,27 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 	else
 	{
 		mParcelName->setText(getString("not_available"));
+	}
+}
+
+// virtual
+void LLPanelPlaceInfo::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	LLPanel::reshape(width, height, called_from_parent);
+
+	if (!mScrollContainer || !mScrollingPanel)
+		return;
+
+	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+
+	S32 scroll_height = mScrollContainer->getRect().getHeight();
+	if (mScrollingPanelMinHeight >= scroll_height)
+	{
+		mScrollingPanel->reshape(mScrollingPanelWidth, mScrollingPanelMinHeight);
+	}
+	else
+	{
+		mScrollingPanel->reshape(mScrollingPanelWidth + scrollbar_size, scroll_height);
 	}
 }
 

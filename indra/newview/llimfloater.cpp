@@ -474,6 +474,7 @@ void LLIMFloater::updateMessages()
 			chat.mFromID = from_id;
 			chat.mFromName = from;
 			chat.mText = message;
+			chat.mTimeStr = time;
 			
 			//Handle IRC styled /me messages.
 			std::string prefix = message.substr(0, 4);

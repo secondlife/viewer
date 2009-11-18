@@ -939,6 +939,11 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 		   !from_name.empty())
 		{
 			view = LLFloaterInventory::showAgentInventory();
+			//TODO:this should be moved to the end of method after all the checks,
+			//but first decide what to do with active inventory if any (EK)
+			LLSD key;
+			key["select"] = item->getUUID();
+			LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 		}
 		else
 		{

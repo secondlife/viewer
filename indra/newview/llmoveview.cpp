@@ -83,11 +83,6 @@ LLFloaterMove::LLFloaterMove(const LLSD& key)
 {
 }
 
-LLFloaterMove::~LLFloaterMove()
-{
-	LLPanelStandStopFlying::getInstance()->reparent(NULL);
-}
-
 // virtual
 BOOL LLFloaterMove::postBuild()
 {
@@ -159,6 +154,31 @@ void LLFloaterMove::setEnabled(BOOL enabled)
 	if (panel_actions) panel_actions->setEnabled(enabled);
 
 	showModeButtons(enabled);
+}
+
+// *NOTE: we assume that setVisible() is called on floater close.
+// virtual
+void LLFloaterMove::setVisible(BOOL visible)
+{
+	// Ignore excessive calls of this method (from LLTransientFloaterMgr?).
+	if (getVisible() == visible)
+		return;
+
+	if (visible)
+	{
+		// Attach the Stand/Stop Flying panel.
+		LLPanelStandStopFlying* ssf_panel = LLPanelStandStopFlying::getInstance();
+		ssf_panel->reparent(this);
+		const LLRect& mode_actions_rect = mModeActionsPanel->getRect();
+		ssf_panel->setOrigin(mode_actions_rect.mLeft, mode_actions_rect.mBottom);
+	}
+	else
+	{
+		// Detach the Stand/Stop Flying panel.
+		LLPanelStandStopFlying::getInstance()->reparent(NULL);
+	}
+
+	LLTransientDockableFloater::setVisible(visible);
 }
 
 // static 
@@ -429,16 +449,6 @@ void LLFloaterMove::showModeButtons(BOOL bShow)
 	if (NULL == mModeActionsPanel || mModeActionsPanel->getVisible() == bShow)
 		return;
 	mModeActionsPanel->setVisible(bShow);
-
-	if (bShow)
-		LLPanelStandStopFlying::getInstance()->reparent(NULL);
-	else
-	{
-		LLPanelStandStopFlying* ssf_panel = LLPanelStandStopFlying::getInstance();
-		ssf_panel->reparent(this);
-		const LLRect& mode_actions_rect = mModeActionsPanel->getRect();
-		ssf_panel->setOrigin(mode_actions_rect.mLeft, mode_actions_rect.mBottom);
-	}
 }
 
 //static
