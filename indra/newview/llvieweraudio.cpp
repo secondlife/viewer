@@ -86,16 +86,6 @@ void init_audio()
 		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndObjectDelete")));
 		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndObjectRezIn")));
 		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndObjectRezOut")));
-		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuAppear")));
-		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuHide")));
-		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight0")));
-		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight1")));
-		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight2")));
-		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight3")));
-		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight4")));
-		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight5")));
-		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight6")));
-		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight7")));
 		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndSnapshot")));
 		//gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndStartAutopilot")));
 		//gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndStartFollowpilot")));
@@ -231,9 +221,9 @@ void audio_update_wind(bool force_update)
 			}
 		}
 		// this line rotates the wind vector to be listener (agent) relative
-		// unfortunately we have to pre-translate to undo the translation that
-		// occurs in the transform call
-		gRelativeWindVec = gAgent.getFrameAgent().rotateToLocal(gWindVec - gAgent.getVelocity());
+		// Only use the agent's motion to compute wind noise, otherwise the world
+		// feels desolate on login when you are standing still.
+		gRelativeWindVec = gAgent.getFrameAgent().rotateToLocal( -gAgent.getVelocity() );
 
 		// don't use the setter setMaxWindGain() because we don't
 		// want to screw up the fade-in on startup by setting actual source gain
