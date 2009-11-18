@@ -579,7 +579,6 @@ void LLAppearanceManager::updateAgentWearables(LLWearableHoldingPattern* holder,
 	if(wearables.count() > 0)
 	{
 		gAgentWearables.setWearableOutfit(items, wearables, !append);
-		gInventory.notifyObservers();
 	}
 
 	delete holder;
@@ -819,15 +818,23 @@ bool areMatchingWearables(const LLViewerInventoryItem *a, const LLViewerInventor
 			(a->getWearableType() == b->getWearableType()));
 }
 
-void LLAppearanceManager::addItemLink( LLInventoryItem* item, bool do_update )
+void LLAppearanceManager::addCOFItemLink(const LLUUID &item_id, bool do_update )
 {
-	LLViewerInventoryItem *vitem = dynamic_cast<LLViewerInventoryItem*>(item);
+	const LLInventoryItem *item = gInventory.getItem(item_id);
+	addCOFItemLink(item);
+}
+
+void LLAppearanceManager::addCOFItemLink(const LLInventoryItem *item, bool do_update )
+{		
+	const LLViewerInventoryItem *vitem = dynamic_cast<const LLViewerInventoryItem*>(item);
 	if (!vitem)
 	{
 		llwarns << "not an llviewerinventoryitem, failed" << llendl;
 		return;
 	}
-		
+
+	gInventory.addChangedMask(LLInventoryObserver::LABEL, vitem->getLinkedUUID());
+
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
 	gInventory.collectDescendents(LLAppearanceManager::getCOF(),
@@ -839,7 +846,7 @@ void LLAppearanceManager::addItemLink( LLInventoryItem* item, bool do_update )
 	{
 		// Are these links to the same object?
 		const LLViewerInventoryItem* inv_item = item_array.get(i).get();
-		if (inv_item->getLinkedUUID() == item->getLinkedUUID())
+		if (inv_item->getLinkedUUID() == vitem->getLinkedUUID())
 		{
 			linked_already = true;
 		}
@@ -850,7 +857,6 @@ void LLAppearanceManager::addItemLink( LLInventoryItem* item, bool do_update )
 		{
 			gAgentWearables.removeWearable(inv_item->getWearableType(),true,0);
 			gInventory.purgeObject(inv_item->getUUID());
-			gInventory.notifyObservers();
 		}
 	}
 	if (linked_already)
@@ -886,8 +892,10 @@ void LLAppearanceManager::addEnsembleLink( LLInventoryCategory* cat, bool do_upd
 #endif
 }
 
-void LLAppearanceManager::removeItemLinks(const LLUUID& item_id, bool do_update)
+void LLAppearanceManager::removeCOFItemLinks(const LLUUID& item_id, bool do_update)
 {
+	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
 	gInventory.collectDescendents(LLAppearanceManager::getCOF(),
@@ -899,7 +907,8 @@ void LLAppearanceManager::removeItemLinks(const LLUUID& item_id, bool do_update)
 		const LLInventoryItem* item = item_array.get(i).get();
 		if (item->getLinkedUUID() == item_id)
 		{
-			gInventory.purgeObject(item_array.get(i)->getUUID());
+			const LLUUID& item_id = item_array.get(i)->getUUID();
+			gInventory.purgeObject(item_id);
 		}
 	}
 	if (do_update)
@@ -978,18 +987,13 @@ void dumpAttachmentSet(const std::set<LLUUID>& atts, const std::string& msg)
 void LLAppearanceManager::registerAttachment(const LLUUID& item_id)
 {
        mRegisteredAttachments.insert(item_id);
+	   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
        //dumpAttachmentSet(mRegisteredAttachments,"after register:");
 
 	   if (mAttachmentInvLinkEnabled)
 	   {
-		   LLViewerInventoryItem *item = gInventory.getItem(item_id);
-		   if (item)
-		   {
-			   //LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Adding attachment link:");
-			   LLAppearanceManager::addItemLink(item,false);  // Add COF link for item.
-			   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
-			   gInventory.notifyObservers();
-		   }
+		   //LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Adding attachment link:");
+		   LLAppearanceManager::addCOFItemLink(item_id, false);  // Add COF link for item.
 	   }
 	   else
 	   {
@@ -1000,15 +1004,14 @@ void LLAppearanceManager::registerAttachment(const LLUUID& item_id)
 void LLAppearanceManager::unregisterAttachment(const LLUUID& item_id)
 {
        mRegisteredAttachments.erase(item_id);
+	   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+
        //dumpAttachmentSet(mRegisteredAttachments,"after unregister:");
 
 	   if (mAttachmentInvLinkEnabled)
 	   {
 		   //LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Removing attachment link:");
-		   LLAppearanceManager::removeItemLinks(item_id, false);
-		   // BAP - needs to change for label to track link.
-		   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
-		   gInventory.notifyObservers();
+		   LLAppearanceManager::removeCOFItemLinks(item_id, false);
 	   }
 	   else
 	   {
@@ -1023,13 +1026,7 @@ void LLAppearanceManager::linkRegisteredAttachments()
 		 ++it)
 	{
 		LLUUID item_id = *it;
-		LLViewerInventoryItem *item = gInventory.getItem(item_id);
-		if (item)
-		{
-			addItemLink(item, false);
-			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
-			gInventory.notifyObservers();
-		}
+		addCOFItemLink(item_id, false);
 	}
 	mRegisteredAttachments.clear();
 }

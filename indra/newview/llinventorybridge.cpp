@@ -183,37 +183,6 @@ BOOL LLInvFVBridge::isItemRemovable()
 	return FALSE;
 }
 
-// Sends an update to all link items that point to the base item.
-void LLInvFVBridge::renameLinkedItems(const LLUUID &item_id, const std::string& new_name)
-{
-	LLInventoryModel* model = getInventoryModel();
-	if(!model) return;
-
-	LLInventoryItem* itemp = model->getItem(mUUID);
-	if (!itemp) return;
-
-	if (itemp->getIsLinkType())
-	{
-		return;
-	}
-
-	LLInventoryModel::item_array_t item_array = model->collectLinkedItems(item_id);
-	for (LLInventoryModel::item_array_t::iterator iter = item_array.begin();
-		 iter != item_array.end();
-		 iter++)
-	{
-		LLViewerInventoryItem *linked_item = (*iter);
-		if (linked_item->getUUID() == item_id) continue;
-
-		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(linked_item);
-		new_item->rename(new_name);
-		new_item->updateServer(FALSE);
-		model->updateItem(new_item);
-		// model->addChangedMask(LLInventoryObserver::LABEL, linked_item->getUUID());
-	}
-	model->notifyObservers();
-}
-
 // Can be moved to another folder
 BOOL LLInvFVBridge::isItemMovable() const
 {
@@ -2924,7 +2893,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
-					LLAppearanceManager::instance().addItemLink(inv_item);
+					LLAppearanceManager::instance().addCOFItemLink(inv_item);
 				}
 				else
 				{
@@ -4171,7 +4140,7 @@ void wear_inventory_item_on_avatar( LLInventoryItem* item )
 		lldebugs << "wear_inventory_item_on_avatar( " << item->getName()
 				 << " )" << llendl;
 
-		LLAppearanceManager::instance().addItemLink(item);
+		LLAppearanceManager::instance().addCOFItemLink(item);
 	}
 }
 

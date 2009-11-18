@@ -509,7 +509,7 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 	}
 }
 
-void LLInventoryModel::updateLinkedItems(const LLUUID& object_id)
+void LLInventoryModel::addChangedMaskForLinks(const LLUUID& object_id, U32 mask)
 {
 	const LLInventoryObject *obj = getObject(object_id);
 	if (!obj || obj->getIsLinkType())
@@ -532,7 +532,7 @@ void LLInventoryModel::updateLinkedItems(const LLUUID& object_id)
 		 cat_iter++)
 	{
 		LLViewerInventoryCategory *linked_cat = (*cat_iter);
-		addChangedMask(LLInventoryObserver::LABEL, linked_cat->getUUID());
+		addChangedMask(mask, linked_cat->getUUID());
 	};
 
 	for (LLInventoryModel::item_array_t::iterator iter = item_array.begin();
@@ -540,9 +540,8 @@ void LLInventoryModel::updateLinkedItems(const LLUUID& object_id)
 		 iter++)
 	{
 		LLViewerInventoryItem *linked_item = (*iter);
-		addChangedMask(LLInventoryObserver::LABEL, linked_item->getUUID());
+		addChangedMask(mask, linked_item->getUUID());
 	};
-	notifyObservers();
 }
 
 const LLUUID& LLInventoryModel::getLinkedItemID(const LLUUID& object_id) const
@@ -1133,6 +1132,14 @@ void LLInventoryModel::notifyObservers(const std::string service_name)
 		llwarns << "Call was made to notifyObservers within notifyObservers!" << llendl;
 		return;
 	}
+
+	if ((mModifyMask == LLInventoryObserver::NONE) && (service_name == ""))
+	{
+		mModifyMask = LLInventoryObserver::NONE;
+		mChangedItemIDs.clear();
+		return;
+	}
+
 	mIsNotifyObservers = TRUE;
 	for (observer_list_t::iterator iter = mObservers.begin();
 		 iter != mObservers.end(); )
@@ -1180,7 +1187,7 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 	// not sure what else might need to be accounted for this.
 	if (mModifyMask & LLInventoryObserver::LABEL)
 	{
-		updateLinkedItems(referent);
+		addChangedMaskForLinks(referent, LLInventoryObserver::LABEL);
 	}
 }
 
