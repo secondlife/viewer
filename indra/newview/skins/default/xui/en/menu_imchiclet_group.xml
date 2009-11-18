@@ -9,15 +9,7 @@
  visible="false"
  width="128">
     <menu_item_call
-     label="Chat..."
-     layout="topleft"
-     name="Chat">
-        <menu_item_call.on_click
-         function="IMChicletMenu.Action"
-         parameter="group chat" />
-    </menu_item_call>
-    <menu_item_call
-     label="Info..."
+     label="Group Info"
      layout="topleft"
      name="Show Profile">
         <menu_item_call.on_click
@@ -25,11 +17,19 @@
          parameter="info" />
     </menu_item_call>
     <menu_item_call
-     label="Close Session"
+     label="Show Session"
      layout="topleft"
-     name="Close Session">
+     name="Chat">
         <menu_item_call.on_click
          function="IMChicletMenu.Action"
-         parameter="close" />
+         parameter="group chat" />
+    </menu_item_call>
+    <menu_item_call
+     label="End Session"
+     layout="topleft"
+     name="End Session">
+        <menu_item_call.on_click
+         function="IMChicletMenu.Action"
+         parameter="end" />
     </menu_item_call>
 </menu>

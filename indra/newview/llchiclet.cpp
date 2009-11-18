@@ -474,7 +474,7 @@ void LLIMP2PChiclet::onMenuItemClicked(const LLSD& user_data)
 	{
 		LLAvatarActions::requestFriendshipDialog(other_participant_id);
 	}
-	else if("close" == level)
+	else if("end" == level)
 	{
 		LLAvatarActions::endIM(other_participant_id);
 	}
@@ -778,7 +778,7 @@ void LLIMGroupChiclet::onMenuItemClicked(const LLSD& user_data)
 	{
 		LLGroupActions::show(group_id);
 	}
-	else if("close" == level)
+	else if("end" == level)
 	{
 		LLGroupActions::endIM(group_id);
 	}
