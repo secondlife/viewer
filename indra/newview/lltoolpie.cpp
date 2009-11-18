@@ -209,6 +209,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			// touch behavior down below...
 			break;
 		case CLICK_ACTION_SIT:
+
 			if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // agent not already sitting
 			{
 				handle_object_sit_or_stand();
@@ -253,6 +254,11 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 				}
 			}
 			return TRUE;
+		case CLICK_ACTION_ZOOM:
+				gAgent.setFocusOnAvatar(FALSE, FALSE);	
+				gAgent.setFocusGlobal(mPick);
+				gAgent.setCameraZoomFraction(0.9);
+				return TRUE;		
 		case CLICK_ACTION_PLAY:
 			handle_click_action_play();
 			return TRUE;
@@ -413,6 +419,9 @@ ECursorType cursor_from_object(LLViewerObject* object)
 			cursor = UI_CURSOR_HAND;
 		}
 		break;
+	case CLICK_ACTION_ZOOM:
+			cursor = UI_CURSOR_TOOLZOOMIN;
+			break;			
 	case CLICK_ACTION_PLAY:
 	case CLICK_ACTION_OPEN_MEDIA: 
 		cursor = cursor_from_parcel_media(click_action);
@@ -551,6 +560,9 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 		case CLICK_ACTION_BUY:
 		case CLICK_ACTION_PAY:
 		case CLICK_ACTION_OPEN:
+		case CLICK_ACTION_ZOOM:
+		case CLICK_ACTION_PLAY:
+		case CLICK_ACTION_OPEN_MEDIA:
 			// Because these actions open UI dialogs, we won't change
 			// the cursor again until the next hover and GL pick over
 			// the world.  Keep the cursor an arrow, assuming that 

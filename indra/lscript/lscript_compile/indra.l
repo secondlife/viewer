@@ -611,6 +611,7 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "CLICK_ACTION_BUY"        { count(); yylval.ival = CLICK_ACTION_BUY; return(INTEGER_CONSTANT); }
 "CLICK_ACTION_PAY"        { count(); yylval.ival = CLICK_ACTION_PAY; return(INTEGER_CONSTANT); }
 "CLICK_ACTION_OPEN"       { count(); yylval.ival = CLICK_ACTION_OPEN; return(INTEGER_CONSTANT); }
+"CLICK_ACTION_ZOOM"       { count(); yylval.ival = CLICK_ACTION_ZOOM; return(INTEGER_CONSTANT); }
 "CLICK_ACTION_PLAY"       { count(); yylval.ival = CLICK_ACTION_PLAY; return(INTEGER_CONSTANT); }
 "CLICK_ACTION_OPEN_MEDIA" { count(); yylval.ival = CLICK_ACTION_OPEN_MEDIA; return(INTEGER_CONSTANT); }
 
