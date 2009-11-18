@@ -66,7 +66,7 @@ LLAlertHandler::~LLAlertHandler()
 //--------------------------------------------------------------------------
 void LLAlertHandler::initChannel()
 {
-	S32 channel_right_bound = gViewerWindow->getWorldViewRectRaw().getWidth() / 2;
+	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().getWidth() / 2;
 	mChannel->init(channel_right_bound, channel_right_bound);
 }
 

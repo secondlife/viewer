@@ -222,5 +222,5 @@ void LLNearbyChat::setRect	(const LLRect &rect)
 
 void LLNearbyChat::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectRaw();
+	rect = gViewerWindow->getWorldViewRectScaled();
 }

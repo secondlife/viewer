@@ -41,7 +41,7 @@
 			<button
 				 enabled="true"
 				 follows="bottom|left"
-				 font="SansSerifSmallBold"
+				 font="SansSerifSmall"
 				 height="25"
 				 label="Info"
 				 layout="topleft"
@@ -52,7 +52,7 @@
 			<button
 				 enabled="true"
 				 follows="bottom|left"
-				 font="SansSerifSmallBold"
+				 font="SansSerifSmall"
 				 height="25"
 				 label="Share"
 				 layout="topleft"
@@ -63,7 +63,7 @@
 			<button
 				 enabled="false"
 				 follows="bottom|left"
-				 font="SansSerifSmallBold"
+				 font="SansSerifSmall"
 				 height="25"
 				 label="Wear"
 				 layout="topleft"
@@ -74,7 +74,7 @@
 			<button
 				 enabled="false"
 				 follows="bottom|left"
-				 font="SansSerifSmallBold"
+				 font="SansSerifSmall"
 				 height="25"
 				 label="Play"
 				 layout="topleft"
@@ -85,7 +85,7 @@
 			<button
 				 enabled="false"
 				 follows="bottom|left"
-				 font="SansSerifSmallBold"
+				 font="SansSerifSmall"
 				 height="25"
 				 label="Teleport"
 				 layout="topleft"

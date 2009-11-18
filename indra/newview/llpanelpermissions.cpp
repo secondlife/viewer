@@ -80,9 +80,9 @@ LLPanelPermissions::LLPanelPermissions() :
 BOOL LLPanelPermissions::postBuild()
 {
 	childSetCommitCallback("Object Name",LLPanelPermissions::onCommitName,this);
-	childSetPrevalidate("Object Name",LLLineEditor::prevalidatePrintableNotPipe);
+	childSetPrevalidate("Object Name",LLLineEditor::prevalidateASCIIPrintableNoPipe);
 	childSetCommitCallback("Object Description",LLPanelPermissions::onCommitDesc,this);
-	childSetPrevalidate("Object Description",LLLineEditor::prevalidatePrintableNotPipe);
+	childSetPrevalidate("Object Description",LLLineEditor::prevalidateASCIIPrintableNoPipe);
 
 	
 	getChild<LLUICtrl>("button set group")->setCommitCallback(boost::bind(&LLPanelPermissions::onClickGroup,this));
