@@ -2074,6 +2074,49 @@ void LLVOAvatarSelf::setInvisible(BOOL newvalue)
 	}
 }
 
+// HACK: this will null out the avatar's local texture IDs before the TE message is sent
+//       to ensure local texture IDs are not sent to other clients in the area.
+//       this is a short-term solution. The long term solution will be to not set the texture
+//       IDs in the avatar object, and keep them only in the wearable.
+//       This will involve further refactoring that is too risky for the initial release of 2.0.
+bool LLVOAvatarSelf::sendAppearanceMessage(LLMessageSystem *mesgsys) const
+{
+	LLUUID texture_id[TEX_NUM_INDICES];
+	// pack away current TEs to make sure we don't send them out
+	for (LLVOAvatarDictionary::Textures::const_iterator iter = LLVOAvatarDictionary::getInstance()->getTextures().begin();
+		 iter != LLVOAvatarDictionary::getInstance()->getTextures().end();
+		 ++iter)
+	{
+		const ETextureIndex index = iter->first;
+		const LLVOAvatarDictionary::TextureEntry *texture_dict = iter->second;
+		if (!texture_dict->mIsBakedTexture)
+		{
+			LLTextureEntry* entry = getTE((U8) index);
+			texture_id[index] = entry->getID();
+			entry->setID(IMG_DEFAULT_AVATAR);
+		}
+	}
+
+	bool success = packTEMessage(mesgsys);
+
+	// unpack TEs to make sure we don't re-trigger a bake
+	for (LLVOAvatarDictionary::Textures::const_iterator iter = LLVOAvatarDictionary::getInstance()->getTextures().begin();
+		 iter != LLVOAvatarDictionary::getInstance()->getTextures().end();
+		 ++iter)
+	{
+		const ETextureIndex index = iter->first;
+		const LLVOAvatarDictionary::TextureEntry *texture_dict = iter->second;
+		if (!texture_dict->mIsBakedTexture)
+		{
+			LLTextureEntry* entry = getTE((U8) index);
+			entry->setID(texture_id[index]);
+		}
+	}
+
+	return success;
+}
+
+
 //------------------------------------------------------------------------
 // needsRenderBeam()
 //------------------------------------------------------------------------
