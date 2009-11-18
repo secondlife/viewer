@@ -96,7 +96,7 @@ BOOL LLPreviewNotecard::postBuild()
 	childSetCommitCallback("desc", LLPreview::onText, this);
 	if (item)
 		childSetText("desc", item->getDescription());
-	childSetPrevalidate("desc", &LLLineEditor::prevalidatePrintableNotPipe);
+	childSetPrevalidate("desc", &LLLineEditor::prevalidateASCIIPrintableNoPipe);
 
 	return LLPreview::postBuild();
 }
