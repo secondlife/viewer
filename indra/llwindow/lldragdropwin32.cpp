@@ -34,143 +34,95 @@
 
 #include "linden_common.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
 #include "llwindowwin32.h"
 #include "llkeyboardwin32.h"
-#include "lldragdropwin32.h"
-
 #include "llwindowcallbacks.h"
-
-#include <windows.h>
-#include <ole2.h>
-#include <shlobj.h>
-#include <shellapi.h>
-#include <shlwapi.h>
-
-// FIXME: this should be done in CMake
-#pragma comment( lib, "shlwapi.lib" )
+#include "lldragdropwin32.h"
 
 class LLDragDropWin32Target: 
 	public IDropTarget
 {
 	public:
+		////////////////////////////////////////////////////////////////////////////////
+		//
 		LLDragDropWin32Target( HWND  hWnd ) :
-		  mWindowHandle( hWnd ),
-		  mRefCount( 0 )
+			mRefCount( 1 ),
+			mAppWindowHandle( hWnd ),
+			mAllowDrop( false)
 		{
-			strcpy(szFileDropped,"");
-			bDropTargetValid = false;
-			bTextDropped = false;		
 		};
 
-		/* IUnknown methods */
-		STDMETHOD_( ULONG, AddRef )( void )
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		ULONG __stdcall AddRef( void )
 		{
-			return ++mRefCount;
+			return InterlockedIncrement( &mRefCount );
 		};
 
-		STDMETHOD_( ULONG, Release )( void )
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		ULONG __stdcall Release( void )
 		{
-			if ( --mRefCount == 0 )
+			LONG count = InterlockedDecrement( &mRefCount );
+				
+			if ( count == 0 )
 			{
 				delete this;
 				return 0;
 			}
-			return mRefCount;
+			else
+			{
+				return count;
+			};
 		};
 
-		STDMETHOD ( QueryInterface )( REFIID iid, void ** ppvObject )
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		HRESULT __stdcall QueryInterface( REFIID iid, void** ppvObject )
 		{
 			if ( iid == IID_IUnknown || iid == IID_IDropTarget )
 			{
-				*ppvObject = this;
 				AddRef();
+				*ppvObject = this;
 				return S_OK;
+			}
+			else
+			{
+				*ppvObject = 0;
+				return E_NOINTERFACE;
+			};
+		};
+
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		HRESULT __stdcall DragEnter( IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
+		{
+			FORMATETC fmtetc = { CF_TEXT, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+
+			// support CF_TEXT using a HGLOBAL?
+			if ( S_OK == pDataObject->QueryGetData( &fmtetc ) )
+			{
+				mAllowDrop = true;
+
+				*pdwEffect = DROPEFFECT_COPY;
+
+				SetFocus( mAppWindowHandle );
+			}
+			else
+			{
+				mAllowDrop = false;
+				*pdwEffect = DROPEFFECT_NONE;
 			};
 
-			*ppvObject = NULL;
-			return E_NOINTERFACE;
-		};
-		
-		/* IDropTarget methods */
-		STDMETHOD (DragEnter)(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
-		{
-			HRESULT hr = E_INVALIDARG;
-			bDropTargetValid = false;
-			bTextDropped = false;
-			*pdwEffect=DROPEFFECT_NONE;
-			
-			FORMATETC fmte = {CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
-			STGMEDIUM medium;
-				
-			if (pDataObj && SUCCEEDED (pDataObj->GetData (&fmte, &medium)))
-			{
-				// We can Handle Only one File At a time !!!
-				if (1 == DragQueryFile ((HDROP)medium.hGlobal,0xFFFFFFFF,NULL,0 ))
-				{
-					// Get the File Name
-					if (DragQueryFileA((HDROP)medium.hGlobal, 0, szFileDropped,MAX_PATH))
-					{
-						if (!PathIsDirectoryA(szFileDropped))
-						{
-							char szTempFile[MAX_PATH];
-							_splitpath(szFileDropped,NULL,NULL,NULL,szTempFile);
-
-//							if (!stricmp(szTempFile,".lnk"))
-//							{
-//								if (ResolveLink(szFileDropped,szTempFile))
-//								{
-//									strcpy(szFileDropped,szTempFile);
-//									*pdwEffect=DROPEFFECT_COPY;
-//									We Want to Create a Copy
-//									bDropTargetValid = true;
-//									hr = S_OK;
-//								}
-//							}
-//							else
-//							{
-								*pdwEffect=DROPEFFECT_COPY;
-								//We Want to Create a Copy
-								bDropTargetValid = true;
-								hr = S_OK;
-//							}
-						}
-					}
-				}
-
-				if (medium.pUnkForRelease)
-					medium.pUnkForRelease->Release ();
-				else
-					GlobalFree (medium.hGlobal);
-			}
-			else 
-			{
-				fmte.cfFormat = CF_TEXT;
-				fmte.ptd = NULL;
-				fmte.dwAspect = DVASPECT_CONTENT;
-				fmte.lindex = -1;
-				fmte.tymed = TYMED_HGLOBAL; 
-
-				// Does the drag source provide CF_TEXT ?    
-				if (NOERROR == pDataObj->QueryGetData(&fmte))
-				{
-					bDropTargetValid = true;
-					bTextDropped = true;
-					*pdwEffect=DROPEFFECT_COPY;
-					hr = S_OK;
-				}
-			}
-				return hr;
-
-
-
+			return S_OK;
 		};
 
-		STDMETHOD (DragOver)(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		HRESULT __stdcall DragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
 		{
-			HRESULT hr = S_OK;
+			if ( mAllowDrop )
+			{
 			// XXX MAJOR MAJOR HACK!
 			LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(mWindowHandle, GWL_USERDATA);
 			if (NULL != window_imp)
@@ -187,79 +139,94 @@ class LLDragDropWin32Target:
 				MASK mask = gKeyboard->currentMask(TRUE);
 				bDropTargetValid = window_imp->completeDragNDropRequest( gl_coord, mask, FALSE, std::string( "" ) );
 			}
-			if (bDropTargetValid) 
-				*pdwEffect=DROPEFFECT_COPY;
-
-			return hr;
-		};
-
-		STDMETHOD (DragLeave)(void)
-		{
-			HRESULT hr = S_OK;
-			strcpy(szFileDropped,"");
-			return hr;
-		};
-
-		STDMETHOD (Drop)(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
-		{
-			HRESULT hr = S_OK;
-			if (bDropTargetValid) 
-			{
-				*pdwEffect=DROPEFFECT_COPY;
-			
-				FORMATETC fmte;
-				STGMEDIUM medium;
-
-				if (bTextDropped)
-				{
-					fmte.cfFormat = CF_TEXT;
-					fmte.ptd = NULL;
-					fmte.dwAspect = DVASPECT_CONTENT;  
-					fmte.lindex = -1;
-					fmte.tymed = TYMED_HGLOBAL;       
-
-					hr = pDataObj->GetData(&fmte, &medium);
-					HGLOBAL hText = medium.hGlobal;
-					LPSTR lpszText = (LPSTR)GlobalLock(hText);
-
-					LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(mWindowHandle, GWL_USERDATA);
-					if (NULL != window_imp)
-					{
-						LLCoordGL gl_coord( 0, 0 );
-
-						POINT pt2;
-						pt2.x = pt.x;
-						pt2.y = pt.y;
-						ScreenToClient( mWindowHandle, &pt2 );
-
-						LLCoordWindow cursor_coord_window( pt2.x, pt2.y );
-						window_imp->convertCoords(cursor_coord_window, &gl_coord);
-						llinfos << "### (Drop) URL is: " << lpszText << llendl;
-						llinfos << "###        raw coords are: " << pt.x << " x " << pt.y << llendl;
-						llinfos << "###	    window coords are: " << pt2.x << " x " << pt2.y << llendl;
-						llinfos << "###         GL coords are: " << gl_coord.mX << " x " << gl_coord.mY << llendl;
-						llinfos << llendl;
-
-						MASK mask = gKeyboard->currentMask(TRUE);
-						window_imp->completeDragNDropRequest( gl_coord, mask, TRUE, std::string( lpszText ) );
-					};
-
-					GlobalUnlock(hText);
-					ReleaseStgMedium(&medium);
-				}
+				*pdwEffect = DROPEFFECT_COPY;
 			}
-			return hr;
+			else
+			{
+				*pdwEffect = DROPEFFECT_NONE;
+			};
+
+			return S_OK;
 		};
-	   
+
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		HRESULT __stdcall DragLeave( void )
+		{
+			return S_OK;
+		};
+
+		////////////////////////////////////////////////////////////////////////////////
+		//
+		HRESULT __stdcall Drop( IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
+		{
+			if ( mAllowDrop )
+			{
+				// construct a FORMATETC object
+				FORMATETC fmtetc = { CF_TEXT, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+
+				// do we have text?
+				if( S_OK == pDataObject->QueryGetData( &fmtetc ) )
+				{
+					STGMEDIUM stgmed;
+					if( S_OK == pDataObject->GetData( &fmtetc, &stgmed ) )
+					{
+						// note: data is in an HGLOBAL - not 'regular' memory
+						PVOID data = GlobalLock( stgmed.hGlobal );
+
+						// window impl stored in Window data (neat!)
+						LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong( mAppWindowHandle, GWL_USERDATA );
+						if ( NULL != window_imp )
+						{
+							LLCoordGL gl_coord( 0, 0 );
+
+							POINT pt_client;
+							pt_client.x = pt.x;
+							pt_client.y = pt.y;
+							ScreenToClient( mAppWindowHandle, &pt_client );
+
+							LLCoordWindow cursor_coord_window( pt_client.x, pt_client.y );
+							window_imp->convertCoords(cursor_coord_window, &gl_coord);
+							llinfos << "### (Drop) URL is: " << data << llendl;
+							llinfos << "###        raw coords are: " << pt.x << " x " << pt.y << llendl;
+							llinfos << "###	    client coords are: " << pt_client.x << " x " << pt_client.y << llendl;
+							llinfos << "###         GL coords are: " << gl_coord.mX << " x " << gl_coord.mY << llendl;
+							llinfos << llendl;
+
+							// no keyboard modifier option yet but we could one day
+							MASK mask = gKeyboard->currentMask( TRUE );
+
+							// actually do the drop
+							window_imp->completeDragNDropRequest( gl_coord, mask, TRUE, std::string( (char*)data ) );
+						};
+
+						GlobalUnlock( stgmed.hGlobal );
+
+						ReleaseStgMedium( &stgmed );
+					};
+				};
+
+				*pdwEffect = DROPEFFECT_COPY;
+			}
+			else
+			{
+				*pdwEffect = DROPEFFECT_NONE;
+			};
+
+			return S_OK;
+		};
+
+	////////////////////////////////////////////////////////////////////////////////
+	//
 	private:
-		ULONG mRefCount;
-		HWND mWindowHandle;
-		char szFileDropped[1024];
-		bool bDropTargetValid;
-		bool bTextDropped;
+		LONG mRefCount;
+		HWND mAppWindowHandle;
+		bool mAllowDrop;
 		friend class LLWindowWin32;
 };
 
+////////////////////////////////////////////////////////////////////////////////
+//
 LLDragDropWin32::LLDragDropWin32() :
 	mDropTarget( NULL ),
 	mDropWindowHandle( NULL )
@@ -267,19 +234,23 @@ LLDragDropWin32::LLDragDropWin32() :
 {
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
 LLDragDropWin32::~LLDragDropWin32()
 {
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
 bool LLDragDropWin32::init( HWND hWnd )
 {
-	if (NOERROR != OleInitialize(NULL))
+	if ( NOERROR != OleInitialize( NULL ) )
 		return FALSE; 
 
 	mDropTarget = new LLDragDropWin32Target( hWnd );
 	if ( mDropTarget )
 	{
-		HRESULT result = CoLockObjectExternal( mDropTarget, TRUE, TRUE );
+		HRESULT result = CoLockObjectExternal( mDropTarget, TRUE, FALSE );
 		if ( S_OK == result )
 		{
 			result = RegisterDragDrop( hWnd, mDropTarget );
@@ -303,12 +274,14 @@ bool LLDragDropWin32::init( HWND hWnd )
 	return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
 void LLDragDropWin32::reset()
 {
 	if ( mDropTarget )
 	{
-		CoLockObjectExternal( mDropTarget, FALSE, TRUE );
 		RevokeDragDrop( mDropWindowHandle );
+		CoLockObjectExternal( mDropTarget, FALSE, TRUE );
 		mDropTarget->Release();  
 	};
 	
