@@ -87,8 +87,8 @@
      width="313">
         <panel
          bg_alpha_color="DkGray2"
-         follows="all"
-         height="533"
+         follows="left|top|right"
+         height="610"
          layout="topleft"
          left="0"
          min_height="300"
@@ -145,7 +145,7 @@
              top_pad="10"
              width="18" />
             <text
-             follows="right|top"
+             follows="left|top|right"
              height="16"
              layout="topleft"
              left_pad="8"

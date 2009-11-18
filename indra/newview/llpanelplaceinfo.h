@@ -45,6 +45,7 @@ class LLIconCtrl;
 class LLInventoryItem;
 class LLPanelPickEdit;
 class LLParcel;
+class LLScrollContainer;
 class LLTextBox;
 class LLTextureCtrl;
 class LLViewerRegion;
@@ -92,6 +93,7 @@ public:
 
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	/*virtual*/ void handleVisibilityChange (BOOL new_visibility);
 
 	// Create a pick for the location specified
@@ -110,8 +112,12 @@ protected:
 	LLUUID					mRequestedID;
 	LLVector3				mPosRegion;
 	std::string				mCurrentTitle;
+	S32						mScrollingPanelMinHeight;
+	S32						mScrollingPanelWidth;
 	INFO_TYPE 				mInfoType;
 
+	LLScrollContainer*		mScrollContainer;
+	LLPanel*				mScrollingPanel;
 	LLTextBox*				mTitle;
 	LLTextureCtrl*			mSnapshotCtrl;
 	LLTextBox*				mRegionName;
