@@ -60,6 +60,9 @@
 // Longest time, in seconds, to wait for all animations to stop playing
 const F32 MAX_WAIT_ANIM_SECS = 30.f;
 
+// If this gesture is a link, get the base gesture that this link points to,
+// otherwise just return this id.
+static const LLUUID& get_linked_uuid(const LLUUID& item_id);
 
 // Lightweight constructor.
 // init() does the heavy lifting.
@@ -213,6 +216,8 @@ void LLGestureManager::activateGestureWithAsset(const LLUUID& item_id,
 												BOOL inform_server,
 												BOOL deactivate_similar)
 {
+	const LLUUID& base_item_id = get_linked_uuid(item_id);
+
 	if( !gAssetStorage )
 	{
 		llwarns << "LLGestureManager::activateGestureWithAsset without valid gAssetStorage" << llendl;
@@ -233,13 +238,13 @@ void LLGestureManager::activateGestureWithAsset(const LLUUID& item_id,
 
 	// For now, put NULL into the item map.  We'll build a gesture
 	// class object when the asset data arrives.
-	mActive[item_id] = NULL;
+	mActive[base_item_id] = NULL;
 
 	// Copy the UUID
 	if (asset_id.notNull())
 	{
 		LLLoadInfo* info = new LLLoadInfo;
-		info->mItemID = item_id;
+		info->mItemID = base_item_id;
 		info->mInformServer = inform_server;
 		info->mDeactivateSimilar = deactivate_similar;
 
@@ -259,7 +264,8 @@ void LLGestureManager::activateGestureWithAsset(const LLUUID& item_id,
 
 void LLGestureManager::deactivateGesture(const LLUUID& item_id)
 {
-	item_map_t::iterator it = mActive.find(item_id);
+	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end())
 	{
 		llwarns << "deactivateGesture for inactive gesture " << item_id << llendl;
@@ -279,7 +285,7 @@ void LLGestureManager::deactivateGesture(const LLUUID& item_id)
 	}
 
 	mActive.erase(it);
-	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+	gInventory.addChangedMask(LLInventoryObserver::LABEL, base_item_id);
 
 	// Inform the database of this change
 	LLMessageSystem* msg = gMessageSystem;
@@ -301,6 +307,7 @@ void LLGestureManager::deactivateGesture(const LLUUID& item_id)
 
 void LLGestureManager::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& in_item_id)
 {
+	const LLUUID& base_in_item_id = get_linked_uuid(in_item_id);
 	std::vector<LLUUID> gest_item_ids;
 
 	// Deactivate all gestures that match
@@ -312,7 +319,7 @@ void LLGestureManager::deactivateSimilarGestures(LLMultiGesture* in, const LLUUI
 
 		// Don't deactivate the gesture we are looking for duplicates of
 		// (for replaceGesture)
-		if (!gest || item_id == in_item_id) 
+		if (!gest || item_id == base_in_item_id) 
 		{
 			// legal, can have null pointers in list
 			++it;
@@ -387,14 +394,17 @@ void LLGestureManager::deactivateSimilarGestures(LLMultiGesture* in, const LLUUI
 
 BOOL LLGestureManager::isGestureActive(const LLUUID& item_id)
 {
-	item_map_t::iterator it = mActive.find(item_id);
+	const LLUUID& base_item_id = get_linked_uuid(item_id);
+	item_map_t::iterator it = mActive.find(base_item_id);
 	return (it != mActive.end());
 }
 
 
 BOOL LLGestureManager::isGesturePlaying(const LLUUID& item_id)
 {
-	item_map_t::iterator it = mActive.find(item_id);
+	const LLUUID& base_item_id = get_linked_uuid(item_id);
+
+	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end()) return FALSE;
 
 	LLMultiGesture* gesture = (*it).second;
@@ -405,19 +415,21 @@ BOOL LLGestureManager::isGesturePlaying(const LLUUID& item_id)
 
 void LLGestureManager::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_gesture, const LLUUID& asset_id)
 {
-	item_map_t::iterator it = mActive.find(item_id);
+	const LLUUID& base_item_id = get_linked_uuid(item_id);
+
+	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end())
 	{
-		llwarns << "replaceGesture for inactive gesture " << item_id << llendl;
+		llwarns << "replaceGesture for inactive gesture " << base_item_id << llendl;
 		return;
 	}
 
 	LLMultiGesture* old_gesture = (*it).second;
 	stopGesture(old_gesture);
 
-	mActive.erase(item_id);
+	mActive.erase(base_item_id);
 
-	mActive[item_id] = new_gesture;
+	mActive[base_item_id] = new_gesture;
 
 	delete old_gesture;
 	old_gesture = NULL;
@@ -428,7 +440,7 @@ void LLGestureManager::replaceGesture(const LLUUID& item_id, LLMultiGesture* new
 		mDeactivateSimilarNames.clear();
 
 		LLLoadInfo* info = new LLLoadInfo;
-		info->mItemID = item_id;
+		info->mItemID = base_item_id;
 		info->mInformServer = TRUE;
 		info->mDeactivateSimilar = FALSE;
 
@@ -445,16 +457,18 @@ void LLGestureManager::replaceGesture(const LLUUID& item_id, LLMultiGesture* new
 
 void LLGestureManager::replaceGesture(const LLUUID& item_id, const LLUUID& new_asset_id)
 {
-	item_map_t::iterator it = LLGestureManager::instance().mActive.find(item_id);
+	const LLUUID& base_item_id = get_linked_uuid(item_id);
+
+	item_map_t::iterator it = LLGestureManager::instance().mActive.find(base_item_id);
 	if (it == mActive.end())
 	{
-		llwarns << "replaceGesture for inactive gesture " << item_id << llendl;
+		llwarns << "replaceGesture for inactive gesture " << base_item_id << llendl;
 		return;
 	}
 
 	// mActive owns this gesture pointer, so clean up memory.
 	LLMultiGesture* gesture = (*it).second;
-	LLGestureManager::instance().replaceGesture(item_id, gesture, new_asset_id);
+	LLGestureManager::instance().replaceGesture(base_item_id, gesture, new_asset_id);
 }
 
 void LLGestureManager::playGesture(LLMultiGesture* gesture)
@@ -478,7 +492,9 @@ void LLGestureManager::playGesture(LLMultiGesture* gesture)
 // Convenience function that looks up the item_id for you.
 void LLGestureManager::playGesture(const LLUUID& item_id)
 {
-	item_map_t::iterator it = mActive.find(item_id);
+	const LLUUID& base_item_id = get_linked_uuid(item_id);
+
+	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end()) return;
 
 	LLMultiGesture* gesture = (*it).second;
@@ -1074,7 +1090,9 @@ void LLGestureManager::stopGesture(LLMultiGesture* gesture)
 
 void LLGestureManager::stopGesture(const LLUUID& item_id)
 {
-	item_map_t::iterator it = mActive.find(item_id);
+	const LLUUID& base_item_id = get_linked_uuid(item_id);
+
+	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end()) return;
 
 	LLMultiGesture* gesture = (*it).second;
@@ -1171,3 +1189,15 @@ void LLGestureManager::done()
 	}
 	notifyObservers();
 }
+
+// static
+const LLUUID& get_linked_uuid(const LLUUID &item_id)
+{
+	LLViewerInventoryItem* item = gInventory.getItem(item_id);
+	if (item && item->getIsLinkType())
+	{
+		return item->getLinkedUUID();
+	}
+	return item_id;
+}
+

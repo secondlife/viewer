@@ -3658,6 +3658,11 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
+		LLInventoryItem* item = getItem();
+		if (item && item->getIsLinkType())
+		{
+			items.push_back(std::string("Find Original"));
+		}
 		items.push_back(std::string("Open"));
 		items.push_back(std::string("Properties"));
 
@@ -3883,6 +3888,7 @@ std::string LLObjectBridge::getLabelSuffix() const
 	{
 		std::string attachment_point_name = avatar->getAttachedPointName(mUUID);
 
+		// e.g. "(worn on ...)" / "(attached to ...)"
 		LLStringUtil::format_map_t args;
 		args["[ATTACHMENT_POINT]"] =  attachment_point_name.c_str();
 		return LLItemBridge::getLabelSuffix() + LLTrans::getString("WornOnAttachmentPoint", args);
@@ -4297,6 +4303,7 @@ std::string LLWearableBridge::getLabelSuffix() const
 {
 	if( gAgentWearables.isWearingItem( mUUID ) )
 	{
+		// e.g. "(worn)" 
 		return LLItemBridge::getLabelSuffix() + LLTrans::getString("worn");
 	}
 	else
