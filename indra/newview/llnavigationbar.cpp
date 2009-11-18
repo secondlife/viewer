@@ -186,7 +186,6 @@ LLNavigationBar::LLNavigationBar()
 LLNavigationBar::~LLNavigationBar()
 {
 	mTeleportFinishConnection.disconnect();
-	LLSearchHistory::getInstance()->save();
 }
 
 BOOL LLNavigationBar::postBuild()
