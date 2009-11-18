@@ -83,7 +83,20 @@
                  tool_tip="Make new gesture"
                  top_delta="0"
                  width="18" />
-                <button
+              <button
+                 follows="bottom|left"
+                 font="SansSerifBigBold"
+                 height="10"
+                 image_hover_selected="Activate_Checkmark"
+                 image_selected="Activate_Checkmark"
+                 image_unselected="Activate_Checkmark"
+                 layout="topleft"
+                 left_pad="5"
+                 name="activate_btn"
+                 tool_tip="Activate/Deactivate selected gesture"
+                 top="10"
+                 width="10" />
+              <button
                  follows="bottom|right"
                  font="SansSerifBigBold"
                  height="18"

@@ -175,8 +175,6 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 
 	caption->getChild<LLTextBox>("sender_name", false)->setText(str_sender , style_params);
 	
-	caption->getChild<LLTextBox>("msg_time", false)->setText(appendTime() , style_params );
-
 	LLChatMsgBox* msg_text = getChild<LLChatMsgBox>("msg_text", false);
 
 

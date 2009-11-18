@@ -367,8 +367,6 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 	LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
 		(LLNotificationsUI::LLChannelManager::getInstance()->
 											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
-
-	setCanResize(!docked);
 	
 	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
 

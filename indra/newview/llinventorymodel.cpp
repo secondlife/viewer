@@ -1199,7 +1199,7 @@ void LLInventoryModel::mock(const LLUUID& root_id)
 		root_id,
 		LLUUID::null,
 		LLAssetType::AT_CATEGORY,
-		LLFolderType::lookupNewCategoryName(LLFolderType::FT_ROOT_CATEGORY),
+		LLFolderType::lookupNewCategoryName(LLFolderType::FT_ROOT_INVENTORY),
 		gAgent.getID());
 	addCategory(cat);
 	gInventory.buildParentChildMap();

@@ -35,7 +35,6 @@
 
 #include <functional>
 
-#include "llassetstorage.h"
 #include "lldarray.h"
 #include "llfoldertype.h"
 #include "llinventorytype.h"
@@ -45,7 +44,6 @@
 #include "llsaleinfo.h"
 #include "llsd.h"
 #include "lluuid.h"
-#include "llxmlnode.h"
 
 // consts for Key field in the task inventory update message
 extern const U8 TASK_INVENTORY_ITEM_KEY;
@@ -357,7 +355,7 @@ protected:
 
 typedef std::list<LLPointer<LLInventoryObject> > InventoryObjectList;
 
-// These functions convert between structured data and an inventroy
+// These functions convert between structured data and an inventory
 // item, appropriate for serialization.
 LLSD ll_create_sd_from_inventory_item(LLPointer<LLInventoryItem> item);
 //LLPointer<LLInventoryItem> ll_create_item_from_sd(const LLSD& sd_item);

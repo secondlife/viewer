@@ -7,6 +7,24 @@
  layout="topleft"
  name="home_tab"
  width="333">
+  <scroll_container
+   color="DkGray"
+   follows="all"
+   layout="topleft"
+   left="0"
+   name="profile_scroll"
+   opaque="true"
+   height="560"
+   width="333"
+   top="0">
+  <panel
+   background_visible="true"
+   height="560"
+   layout="topleft"
+   name="profile_scroll_panel"
+   top="0"
+   left="0"
+   width="311">
     <panel
      background_visible="true"
      bg_alpha_color="DkGray2"
@@ -242,4 +260,6 @@
             Browse your inventory.
         </text>
     </panel>
+  </panel>
+  </scroll_container>
 </panel>

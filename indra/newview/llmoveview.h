@@ -46,11 +46,12 @@ class LLJoystickAgentSlide;
 class LLFloaterMove
 :	public LLTransientDockableFloater
 {
+	LOG_CLASS(LLFloaterMove);
 	friend class LLFloaterReg;
 
 private:
 	LLFloaterMove(const LLSD& key);
-	~LLFloaterMove() {}
+	~LLFloaterMove();
 public:
 
 	/*virtual*/	BOOL	postBuild();
@@ -96,7 +97,6 @@ private:
 	void updateButtonsWithMovementMode(const EMovementMode newMode);
 	void updatePosition();
 	void showModeButtons(BOOL bShow);
-	void updateHeight(bool show_mode_buttons);
 
 public:
 
@@ -126,12 +126,26 @@ private:
  */
 class LLPanelStandStopFlying : public LLPanel
 {
+	LOG_CLASS(LLPanelStandStopFlying);
 public:
 	typedef enum stand_stop_flying_mode_t
 	{
 		SSFM_STAND,
 		SSFM_STOP_FLYING
 	} EStandStopFlyingMode;
+
+	/**
+	 * Attach or detach the panel to/from the movement controls floater.
+	 * 
+	 * Called when the floater gets opened/closed, user sits, stands up or starts/stops flying.
+	 * 
+	 * @param move_view The floater to attach to (not always accessible via floater registry).
+	 *        If NULL is passed, the panel gets reparented to its original container.
+	 *
+	 * @see mAttached
+	 * @see mOriginalParent 
+	 */
+	void reparent(LLFloaterMove* move_view);
 
 	static LLPanelStandStopFlying* getInstance();
 	static void setStandStopFlyingMode(EStandStopFlyingMode mode);
@@ -157,6 +171,23 @@ private:
 
 	LLButton* mStandButton;
 	LLButton* mStopFlyingButton;
+
+	/**
+	 * The original parent of the panel.
+	 *  
+	 * Makes it possible to move (reparent) the panel to the movement controls floater and back.
+	 * 
+	 * @see reparent()
+	 */
+	LLHandle<LLPanel> mOriginalParent;
+
+	/**
+	 * True if the panel is currently attached to the movement controls floater.
+	 * 
+	 * @see reparent()
+	 * @see updatePosition()
+	 */
+	bool	mAttached;
 };
 
 
