@@ -133,11 +133,11 @@ void LLMenuButton::draw()
 	
 	if (mMenuVisibleLastFrame)
 	{
-		setForcePressedState(TRUE);
+		setForcePressedState(true);
 	}
 
 	LLButton::draw();
 
-	setForcePressedState(FALSE);
+	setForcePressedState(false);
 }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
- can_minimize="true"
+ can_minimize="false"
  can_tear_off="false"
  can_resize="true"
  can_drag_on_left="false"
@@ -11,7 +11,6 @@
  height="300"
  layout="topleft"
  name="nearby_chat"
- help_topic="nearby_chat"
  save_rect="true"
  title="NEARBY CHAT"
  save_dock_state="true"
@@ -19,19 +18,17 @@
  single_instance="true"
  width="320">
             <chat_history
-             allow_html="true" 
+             allow_html="true"
              bg_readonly_color="ChatHistoryBgColor"
              bg_writeable_color="ChatHistoryBgColor"
              follows="all"
-			 left="1"
+	    left="1"
              top="20"
-             font="SansSerif"
              layout="topleft"
-			 height="280"
+	    height="280"
              name="chat_history"
-             parse_highlights="true" 
+             parse_highlights="true"
              text_color="ChatHistoryTextColor"
              text_readonly_color="ChatHistoryTextColor"
-             width="320"/>
-
+             width="320" />
 </floater>

@@ -63,7 +63,7 @@
              left="0"
              mouse_opaque="true"
              name="my_inventory_list"
-             start_folder="INVENTORY"
+             start_folder="My Inventory"
              width="380"/>
           </accordion_tab>
           <accordion_tab

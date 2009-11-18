@@ -217,7 +217,7 @@ BOOL LLNavigationBar::postBuild()
 
 	mBtnHome->setClickedCallback(boost::bind(&LLNavigationBar::onHomeButtonClicked, this));
 
-	mCmbLocation->setSelectionCallback(boost::bind(&LLNavigationBar::onLocationSelection, this));
+	mCmbLocation->setCommitCallback(boost::bind(&LLNavigationBar::onLocationSelection, this));
 	
 	mSearchComboBox->setCommitCallback(boost::bind(&LLNavigationBar::onSearchCommit, this));
 

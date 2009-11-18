@@ -1,101 +1,86 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  border="false"
- height="350"
+ height="300"
  name="panel_im_control_panel"
- width="131">
-
+ width="110">
     <avatar_icon
      follows="left|top"
-     height="125"
-     left_delta="3"
+     height="100"
+     left_delta="5"
      name="avatar_icon"
-     top="-10"
-     width="125"/>
-
+     top="-5"
+     width="100"/>
     <text
      follows="top|left|right"
-     font="SansSerifBig"
-     height="16"
+     font="SansSerifLarge"
+     height="22"
      layout="topleft"
      name="avatar_name"
      use_ellipses="true"
      value="Unknown"
-     width="125" />
-
+     width="100" />
     <button
-     follows="left|bottom"
+     follows="left|top"
      height="20"
-     label="View Profile"
+     label="Profile"
      name="view_profile_btn"
-     width="125"/>
-
+     width="100" />
     <button
-     follows="left|bottom"
+     follows="left|top"
      height="20"
      label="Add Friend"
      name="add_friend_btn"
-     width="125"/>
-
+     width="100" />
     <button
-     follows="left|bottom"
+     follows="left|top"
      height="20"
      label="Teleport"
      name="teleport_btn"
-     width="125"/>
-
+     width="100" />
     <button
-     follows="left|bottom"
+     follows="left|top"
      height="20"
      label="Share"
      name="share_btn"
-     width="125"/>
-
+     width="100" />
     <button
-     follows="left|bottom"
+     follows="left|top"
      height="20"
      label="Pay"
      name="pay_btn"
-     width="125"/>
-
+     width="100" />
     <panel
      background_visible="true"
-     bg_alpha_color="0.2 0.2 0.2 1"
+     bg_alpha_color="DkGray2"
      border="false"
-     bottom="1"
-     follows="left|bottom"
+     follows="left|top"
      height="70"
      left="0"
      left_pad="0"
      name="panel_call_buttons"
-     top_pad="0"
-     width="131">
-
+     width="110">
         <button
          bottom="10"
          height="20"
          label="Call"
-         left_delta="3"
+         left_delta="5"
          name="call_btn"
-         width="125"/>
-
+         width="100" />
         <button
-         bottom="40"
+         bottom="35"
          height="20"
          label="Leave Call"
          name="end_call_btn"
          visible="false"
-         width="125"/>
-
+         width="100" />
         <button
          enabled="false"
          bottom="10"
          height="20"
-         label="Open Voice Controls"
+         label="Voice Controls"
          name="voice_ctrls_btn"
          visible="false"
-         width="125"/>
-
+         width="100" />
     </panel>
-
 </panel>

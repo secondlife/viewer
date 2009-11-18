@@ -1,32 +1,71 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- All our XML is utf-8 encoded. -->
-
 <panel
   name="instant_message"
   width="300"
   height="180"
-  background_opaque="true"
-  background_visible="false"
-  follows="left|top|right|bottom"
-  bg_alpha_color="0.3 0.3 0.3 0">
-	<panel width="250" height="30" background_visible="true" background_opaque="false" bg_alpha_color="0.0 0.0 0.0 1.0" name="msg_caption">
-  		<avatar_icon
-      		top="25" left="10" width="20" height="20" follows="left|top"
-      		color="1 1 1 1" enabled="true" name="avatar_icon"
-		  />
+  follows="all">
+	<panel
+	width="290"
+	height="24"
+	background_visible="true"
+	background_opaque="false"
+	bg_alpha_color="Black"
+	left="5"
+	name="msg_caption">
+             <avatar_icon
+         follows="left"
+         height="18"
+         image_name="Generic_Person"
+         layout="topleft"
+         left="3"
+         mouse_opaque="true"
+         name="avatar_icon"
+         top="3"
+         width="18" />
     	<text
-        	width="150" top="25" left="40" height="20" follows="left|right|top"
-        	font="SansSerifBigBold" text_color="white" word_wrap="false" use_ellipses="true"
-        	mouse_opaque="true" name="sender_name" >
+                font.style="BOLD"
+                height="12"
+	    layout="topleft"
+	    left_pad="5"
+	    top="7"
+		text_color="white"
+		word_wrap="false"
+		use_ellipses="true"
+        	mouse_opaque="true"
+		name="sender_name"
+        	width="150">
 	      Jerry Knight
     	</text>
-    	<icon top="22" left="215" width="15" height="15" follows="top|right"
-      		image_name="icn_voice-pvtfocus.tga" visible="false" name="msg_inspector"/>
+   <!-- 	<icon top="22" left="215" width="15" height="15" follows="top|right"
+      		image_name="icn_voice-pvtfocus.tga" visible="false" name="msg_inspector" />-->
+    	<!--<icon top="22" left="215" width="10" height="10" follows="top|right"
+      		image_name="speaking_indicator.tga"	name="msg_icon"/>-->
+	 <text
+            font="SansSerifSmall"
+         follows="right|top"
+	 halign="right"
+         height="13"
+         layout="topleft"
+         right="-10"
+	 left="205"
+	 mouse_opaque="true"
+      name="msg_time"
+        top="8"
+         value="23:30"
+         width="50"
+	 word_wrap="true" />
 	</panel>
 	<text_chat
-      top="-35" left="10" right="-10" height="120" follows="left|right|bottom"
-      font="SansSerifSmall" text_color="white" word_wrap="true"
-      mouse_opaque="true" name="msg_text" >    
+      top="-35"
+      left="10"
+      right="-10"
+      height="120"
+      follows="left|right|bottom"
+      text_color="white"
+      word_wrap="true"
+      mouse_opaque="true"
+      name="msg_text">
+      To be or not to be, that is the question. Tis a far far better thing I do than I have ever done. Tis a far far better place I go, than I have ever been.
 	</text_chat>
 </panel>
-

@@ -40,7 +40,7 @@
 #include "llinventorybridge.h"
 #include "llinventoryobserver.h"
 #include "llnotifications.h"
-#include "llpanelappearance.h"
+#include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
@@ -96,7 +96,8 @@ public:
 		mAppend(append)
 	{}
 	~LLOutfitObserver() {}
-	virtual void done(); //public
+	virtual void done();
+	void doWearCategory();
 
 protected:
 	LLUUID mCatID;
@@ -105,6 +106,12 @@ protected:
 };
 
 void LLOutfitObserver::done()
+{
+	gInventory.removeObserver(this);
+	doOnIdle(boost::bind(&LLOutfitObserver::doWearCategory,this));
+}
+
+void LLOutfitObserver::doWearCategory()
 {
 	// We now have an outfit ready to be copied to agent inventory. Do
 	// it, and wear that outfit normally.
@@ -175,6 +182,7 @@ void LLOutfitObserver::done()
 		// Wear the inventory category.
 		LLAppearanceManager::instance().wearInventoryCategoryOnAvatar(gInventory.getCategory(mCatID), mAppend);
 	}
+	delete this;
 }
 
 class LLOutfitFetch : public LLInventoryFetchDescendentsObserver
@@ -222,7 +230,6 @@ void LLOutfitFetch::done()
 	// loop.
 	//dec_busy_count();
 	gInventory.removeObserver(this);
-	delete this;
 
 	// increment busy count and either tell the inventory to check &
 	// call done, or add this object to the inventory for observation.
@@ -241,6 +248,7 @@ void LLOutfitFetch::done()
 		// will call done for us when everything is here.
 		gInventory.addObserver(outfit_observer);
 	}
+	delete this;
 }
 
 class LLUpdateAppearanceOnDestroy: public LLInventoryCallback
@@ -457,7 +465,7 @@ void LLAppearanceManager::filterWearableItems(
 // Create links to all listed items.
 void LLAppearanceManager::linkAll(const LLUUID& category,
 								  LLInventoryModel::item_array_t& items,
-											   LLPointer<LLInventoryCallback> cb)
+								  LLPointer<LLInventoryCallback> cb)
 {
 	for (S32 i=0; i<items.count(); i++)
 	{
@@ -530,10 +538,10 @@ void LLAppearanceManager::updateCOF(const LLUUID& category, bool append)
 							LLAssetType::AT_LINK_FOLDER, link_waiter);
 
 		// Update the current outfit name of the appearance sidepanel.
-		LLPanelAppearance* panel_appearance = dynamic_cast<LLPanelAppearance *>(LLSideTray::getInstance()->getPanel("panel_appearance"));
+		LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance *>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
 		if (panel_appearance)
 		{
-			panel_appearance->refreshCurrentLookName(catp->getName());
+			panel_appearance->refreshCurrentOutfitName(catp->getName());
 		}
 	}
 							  
