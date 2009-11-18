@@ -241,7 +241,7 @@ class WindowsManifest(ViewerManifest):
             
             # Get kdu dll, continue if missing.
             try:
-                self.path('%s/llkdu.dll' % self.args['configuration'], dst='llkdu.dll')
+                self.path('llkdu.dll', dst='llkdu.dll')
             except RuntimeError:
                 print "Skipping llkdu.dll"
 
