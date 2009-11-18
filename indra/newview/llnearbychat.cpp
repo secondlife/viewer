@@ -177,7 +177,7 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 			}
 			
 			message = message.substr(3);
-			append_style_params.font.style = "UNDERLINE";
+			append_style_params.font.style = "ITALIC";
 			mChatHistory->appendText(message, FALSE, append_style_params);
 		}
 		else
