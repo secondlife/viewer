@@ -23,12 +23,11 @@ else (STANDALONE)
 endif (STANDALONE)
 
 if (GOOGLE_PERFTOOLS_FOUND)
-  set(USE_GOOGLE_PERFTOOLS ON CACHE BOOL "Build with Google PerfTools support.")
+  # XXX Disable temporarily, until we have compilation issues on 64-bit
+  # Etch sorted.
+  set(USE_GOOGLE_PERFTOOLS OFF CACHE BOOL "Build with Google PerfTools support.")
 endif (GOOGLE_PERFTOOLS_FOUND)
 
-# XXX Disable temporarily, until we have compilation issues on 64-bit
-# Etch sorted.
-set(USE_GOOGLE_PERFTOOLS OFF)
 if (WINDOWS)
     # *TODO -reenable this once we get server usage sorted out
     #set(USE_GOOGLE_PERFTOOLS ON)
