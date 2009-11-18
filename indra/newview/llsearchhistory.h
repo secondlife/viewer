@@ -34,12 +34,15 @@
 #define LL_LLSEARCHHISTORY_H
 
 #include "llsingleton.h"
+#include "llui.h"
+
 /**
  * Search history container able to save and load history from file.
  * History is stored in chronological order, most recent at the beginning.
  */
-class LLSearchHistory : public LLSingleton<LLSearchHistory>
+class LLSearchHistory : public LLSingleton<LLSearchHistory>, private LLDestroyClass<LLSearchHistory>
 {
+	friend class LLDestroyClass<LLSearchHistory>;
 public:
 
 	// Forward declaration
@@ -129,6 +132,12 @@ protected:
 	static std::string SEARCH_QUERY;
 
 private:
+
+	// Implementation of LLDestroyClass<LLSearchHistory>
+	static void destroyClass()
+	{
+		LLSearchHistory::getInstance()->save();
+	}
 
 	search_history_list_t mSearchHistory;
 };
