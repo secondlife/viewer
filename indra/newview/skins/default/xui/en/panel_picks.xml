@@ -14,7 +14,18 @@
  <string
   name="no_classifieds"
   value="No Classifieds" />
-     
+ <text
+  type="string"
+  follows="all"
+  height="535"
+  layout="topleft"
+  left="6"
+  name="empty_picks_panel_text"
+  top="10"
+  visible="false" 
+  width="313">
+   There are no any picks/classifieds here
+ </text>
  <accordion
   follows="all"
   height="465"

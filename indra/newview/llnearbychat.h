@@ -51,12 +51,9 @@ public:
 	void	onNearbyChatContextMenuItemClicked(const LLSD& userdata);
 	bool	onNearbyChatCheckContextMenuItem(const LLSD& userdata);
 
-	void	setDocked			(bool docked, bool pop_on_undock = true);
-
 	/*virtual*/ void	onOpen	(const LLSD& key);
 
 	virtual void setRect		(const LLRect &rect);
-	virtual void setMinimized	(BOOL minimize);
 
 private:
 	virtual void    applySavedVariables();

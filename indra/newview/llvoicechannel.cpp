@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h"
+#include "llfloatercall.h"
 #include "llfloaterreg.h"
 #include "llimview.h"
 #include "llnotifications.h"
@@ -408,9 +409,14 @@ void LLVoiceChannel::doSetState(const EState& new_state)
 
 void LLVoiceChannel::toggleCallWindowIfNeeded(EState state)
 {
+	LLFloaterCall* floater = dynamic_cast<LLFloaterCall*>(LLFloaterReg::getInstance("voice_call", mSessionID));
+	if (!floater)
+		return;
+
 	if (state == STATE_CONNECTED)
 	{
-		LLFloaterReg::showInstance("voice_call", mSessionID);
+		floater->init(mSessionID);
+		floater->openFloater(mSessionID);
 	}
 	// By checking that current state is CONNECTED we make sure that the call window
 	// has been shown, hence there's something to hide. This helps when user presses
@@ -418,7 +424,8 @@ void LLVoiceChannel::toggleCallWindowIfNeeded(EState state)
 	// *TODO: move this check to LLFloaterCall?
 	else if (state == STATE_HUNG_UP && mState == STATE_CONNECTED)
 	{
-		LLFloaterReg::hideInstance("voice_call", mSessionID);
+		floater->reset();
+		floater->closeFloater();
 	}
 }
 

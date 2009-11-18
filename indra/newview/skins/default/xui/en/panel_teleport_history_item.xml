@@ -26,7 +26,7 @@
      name="selected_icon"
      top="0"
      visible="false"
-     width="320" />
+     width="380" />
     <icon
      height="16"
      follows="top|left"
@@ -46,7 +46,7 @@
      text_color="white"
      top="4"
      value="..."
-     width="242" />
+     width="330" />
     <button
      follows="right"
      height="20"

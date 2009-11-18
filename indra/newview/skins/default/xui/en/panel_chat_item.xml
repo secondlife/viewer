@@ -34,12 +34,12 @@
 		use_ellipses="true"
         	mouse_opaque="true"
 		name="sender_name"
-        	width="175">
+        	width="150">
 	      Jerry Knight
     	</text>
-   <!-- 	<icon top="22" left="170" width="15" height="15" follows="top|right"
+   <!-- 	<icon top="22" left="215" width="15" height="15" follows="top|right"
       		image_name="icn_voice-pvtfocus.tga" visible="false" name="msg_inspector" />-->
-    	<!--<icon top="22" left="190" width="10" height="10" follows="top|right"
+    	<!--<icon top="22" left="215" width="10" height="10" follows="top|right"
       		image_name="speaking_indicator.tga"	name="msg_icon"/>-->
 	 <text
             font="SansSerifSmall"
