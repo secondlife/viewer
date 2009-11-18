@@ -809,11 +809,8 @@
                 Mixed Sale
             </panel.string>
             <text
-             type="string"
-             length="1"
              follows="left|top"
              height="10"
-             layout="topleft"
              left="10"
              name="Name:"
              top="0"
@@ -823,7 +820,6 @@
             <line_editor
              follows="left|top|right"
              height="19"
-             layout="topleft"
              left_pad="0"
              max_length="63"
              name="Object Name"
@@ -831,11 +827,8 @@
              top_delta="0"
              width="170" />
             <text
-             type="string"
-             length="1"
              follows="left|top"
              height="10"
-             layout="topleft"
              left="10"
              name="Description:"
              top_pad="3"
@@ -845,7 +838,6 @@
             <line_editor
              follows="left|top|right"
              height="19"
-             layout="topleft"
              left_pad="0"
              max_length="127"
              name="Object Description"

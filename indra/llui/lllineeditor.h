@@ -235,8 +235,8 @@ public:
 	static BOOL		prevalidateNonNegativeS32(const LLWString &str);
 	static BOOL		prevalidateAlphaNum(const LLWString &str );
 	static BOOL		prevalidateAlphaNumSpace(const LLWString &str );
-	static BOOL		prevalidatePrintableNotPipe(const LLWString &str); 
-	static BOOL		prevalidatePrintableNoSpace(const LLWString &str);
+	static BOOL		prevalidateASCIIPrintableNoPipe(const LLWString &str); 
+	static BOOL		prevalidateASCIIPrintableNoSpace(const LLWString &str);
 	static BOOL		prevalidateASCII(const LLWString &str);
 
 	static BOOL		postvalidateFloat(const std::string &str);
