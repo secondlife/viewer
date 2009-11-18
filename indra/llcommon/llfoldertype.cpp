@@ -120,8 +120,6 @@ const std::string &LLFolderType::lookup(LLFolderType::EType folder_type)
 // you can't change certain properties such as their type.
 bool LLFolderType::lookupIsProtectedType(EType folder_type)
 {
-	return FALSE;
-	/*
 	const LLFolderDictionary *dict = LLFolderDictionary::getInstance();
 	const FolderEntry *entry = dict->lookup(folder_type);
 	if (entry)
@@ -129,7 +127,6 @@ bool LLFolderType::lookupIsProtectedType(EType folder_type)
 		return entry->mIsProtected;
 	}
 	return true;
-	*/
 }
 
 // static
