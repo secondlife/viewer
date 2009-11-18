@@ -299,8 +299,8 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          min_height="28"
          top="0"
          name="sys_well_panel"
-         width="34"
-         min_width="34"
+         width="54"
+         min_width="54"
          user_resize="false">
             <chiclet_notification
              follows="right"
@@ -309,22 +309,21 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              left="0"
              name="sys_well"
              top="4"
-             width="34">
+             width="54">
               <button
               auto_resize="true"
                halign="right"
                height="23"
                follows="right"
                flash_color="EmphasisColor"
+               left="0"
                name="Unread"
                image_overlay="Notices_Unread"
-               width="20"
+               image_overlay_alignment="right" 
+               pad_right="6"
+               pad_left="6"
+               width="54"
                />
-               <unread_notifications
-               width="34"
-               height="20"
-               left="0"
-               top="19" />
 	    </chiclet_notification>
         </layout_panel>
        <icon
