@@ -348,14 +348,6 @@ void LLInventoryPanel::modelChanged(U32 mask)
 							view_item->destroyView();
 						}
 					}
-					else
-					{
-						// Hmm, we got an ADD/REMOVE/STRUCTURE notification for this item but there's nothing to be done to it.
-						llwarns << "Notification triggered for item that isn't changing.  "
-								<< "Operation: ( mask: " << mask << " panel name: " << mStartFolderString << " ) "
-								<< "Item: [ Name:" << model_item->getName() << " UUID: " << *id_it << " ]" << llendl;
-						
-					}
 				}
 
 				// This item has been removed from memory, but its associated UI element still exists.
