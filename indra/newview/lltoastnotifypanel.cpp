@@ -48,7 +48,6 @@ const LLFontGL* LLToastNotifyPanel::sFontSmall = NULL;
 LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification) : 
 LLToastPanel(notification),
 mTextBox(NULL),
-mIcon(NULL),
 mInfoPanel(NULL),
 mControlPanel(NULL),
 mNumOptions(0),
@@ -58,7 +57,6 @@ mAddedDefaultBtn(false)
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_notification.xml");
 	mInfoPanel = getChild<LLPanel>("info_panel");
 	mControlPanel = getChild<LLPanel>("control_panel");
-	mIcon = getChild<LLIconCtrl>("info_icon");
 
 	// customize panel's attributes
 	// is it intended for displaying a tip
@@ -93,26 +91,6 @@ mAddedDefaultBtn(false)
 	// customize panel's outfit
 	// preliminary adjust panel's layout
 	mIsTip ? adjustPanelForTipNotice() : adjustPanelForScriptNotice(form);
-
-	// choose a right icon
-	if (mIsTip)
-	{
-		// use the tip notification icon
-		mIcon->setValue("notify_tip_icon.tga");
-		LLRect icon_rect = mIcon->getRect();
-		icon_rect.setLeftTopAndSize(icon_rect.mLeft, getRect().getHeight() - VPAD, icon_rect.getWidth(), icon_rect.getHeight());
-		mIcon->setRect(icon_rect);
-	}
-	else if (mIsCaution)
-	{
-		// use the caution notification icon
-		mIcon->setValue("notify_caution_icon.tga");
-	}
-	else
-	{
-		// use the default notification icon
-		mIcon->setValue("notify_box_icon.tga");
-	}
 
 	// adjust text options according to the notification type
 	// add a caution textbox at the top of a caution notification

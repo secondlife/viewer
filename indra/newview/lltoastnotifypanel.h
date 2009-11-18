@@ -73,7 +73,6 @@ private:
 
 	// panel elements
 	LLTextBase*		mTextBox;
-	LLIconCtrl*		mIcon;
 	LLPanel*		mInfoPanel;		// a panel, that contains an information
 	LLPanel*		mControlPanel;	// a panel, that contains buttons (if present)
 
