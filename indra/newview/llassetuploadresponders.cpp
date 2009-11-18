@@ -676,18 +676,32 @@ class LLNewAgentInventoryVariablePriceResponder::Impl
 public:
 	Impl(
 		const LLUUID& vfile_id,
+		LLAssetType::EType asset_type,
 		const LLSD& inventory_data) :
 		mVFileID(vfile_id),
-		mInventoryData(inventory_data)
+		mAssetType(asset_type),
+		mInventoryData(inventory_data),
+		mFileName("")
 	{
+		if (!gVFS->getExists(vfile_id, asset_type))
+		{
+			llwarns
+				<< "LLAssetUploadResponder called with nonexistant "
+				<< "vfile_id " << vfile_id << llendl;
+			mVFileID.setNull();
+			mAssetType = LLAssetType::AT_NONE;
+		}
 	}
 
 	Impl(
 		const std::string& file_name,
+		LLAssetType::EType asset_type,
 		const LLSD& inventory_data) :
 		mFileName(file_name),
+		mAssetType(asset_type),
 		mInventoryData(inventory_data)
 	{
+		mVFileID.setNull();
 	}
 
 	std::string getFilenameOrIDString() const
@@ -707,8 +721,7 @@ public:
 
 	LLAssetType::EType getAssetType() const
 	{
-		return LLAssetType::lookup(
-			mInventoryData["asset_type"].asString());
+		return mAssetType;
 	}
 
 	LLInventoryType::EType getInventoryType() const
@@ -898,22 +911,7 @@ public:
 		{
 		case 0:
 		    {
-				if ( getFilename().empty() )
-				{
-					// we have no filename, use virtual file ID instead
-					LLHTTPClient::postFile(
-						confirmation_url,
-						getVFileID(),
-						getAssetType(),
-						responder);
-				}
-				else
-				{
-					LLHTTPClient::postFile(
-						confirmation_url,
-						getFilename(),
-						responder);
-				}
+				confirmUpload(confirmation_url, responder);
 			}
 			break;
 		case 1:
@@ -923,11 +921,35 @@ public:
 
 		return false;
 	}
-	
+
+	void confirmUpload(
+		const std::string& confirmation_url,
+		boost::intrusive_ptr<LLNewAgentInventoryVariablePriceResponder> responder)
+	{
+		if ( getFilename().empty() )
+		{
+			// we have no filename, use virtual file ID instead
+			LLHTTPClient::postFile(
+				confirmation_url,
+				getVFileID(),
+				getAssetType(),
+				responder);
+		}
+		else
+		{
+			LLHTTPClient::postFile(
+				confirmation_url,
+				getFilename(),
+				responder);
+		}
+	}
+
+
 private:
 	std::string mFileName;
 
 	LLSD mInventoryData;
+	LLAssetType::EType mAssetType;
 	LLUUID mVFileID;
 };
 
@@ -936,19 +958,23 @@ private:
 ///////////////////////////////////////////////
 LLNewAgentInventoryVariablePriceResponder::LLNewAgentInventoryVariablePriceResponder(
 	const LLUUID& vfile_id,
+	LLAssetType::EType asset_type,
 	const LLSD& inventory_info)
 {
 	mImpl = new Impl(
 		vfile_id,
+		asset_type,
 		inventory_info);
 }
 
 LLNewAgentInventoryVariablePriceResponder::LLNewAgentInventoryVariablePriceResponder(
 	const std::string& file_name,
+	LLAssetType::EType asset_type,
 	const LLSD& inventory_info)
 {
 	mImpl = new Impl(
 		file_name,
+		asset_type,
 		inventory_info);
 }
 
@@ -962,8 +988,9 @@ void LLNewAgentInventoryVariablePriceResponder::errorWithContent(
 	const std::string& reason,
 	const LLSD& content)
 {
-	llinfos << "LLNewAgentInventoryVariablePrice::error " << statusNum 
-			<< " reason: " << reason << llendl;
+	lldebugs 
+		<< "LLNewAgentInventoryVariablePrice::error " << statusNum 
+		<< " reason: " << reason << llendl;
 
 	if ( content.has("error") )
 	{
@@ -988,6 +1015,7 @@ void LLNewAgentInventoryVariablePriceResponder::result(const LLSD& content)
 	static const std::string _CONFIRM_UPLOAD = "confirm_upload";
 
 	static const std::string _UPLOAD_PRICE = "upload_price";
+	static const std::string _RESOURCE_COST = "resource_cost";
 	static const std::string _RSVP = "rsvp";
 
 	// Check for application level errors
@@ -1022,7 +1050,7 @@ void LLNewAgentInventoryVariablePriceResponder::result(const LLSD& content)
 			mImpl->getItemName(),
 			mImpl->getItemDescription(),
 			content,
-			content["upload_price"].asInteger());
+			content[_UPLOAD_PRICE].asInteger());
 
 		// TODO* Add bulk (serial) uploading or add
 		// a super class of this that does so
@@ -1031,6 +1059,7 @@ void LLNewAgentInventoryVariablePriceResponder::result(const LLSD& content)
 	{
 		showConfirmationDialog(
 			content[_UPLOAD_PRICE].asInteger(),
+			content[_RESOURCE_COST].asInteger(),
 			content[_RSVP].asString());
 	}
 	else
@@ -1047,17 +1076,30 @@ void LLNewAgentInventoryVariablePriceResponder::onApplicationLevelError(
 
 void LLNewAgentInventoryVariablePriceResponder::showConfirmationDialog(
 	S32 upload_price,
+	S32 resource_cost,
 	const std::string& confirmation_url)
 {
-	if ( 0 == upload_price ) 
+	if ( 0 == upload_price )
 	{
 		// don't show confirmation dialog for free uploads, I mean,
 		// they're free!
-		LLSD body;
-		body["confirm_upload"] = true;
-		body["expected_upload_price"] = upload_price;
 
-		LLHTTPClient::post(confirmation_url, body, this);
+		// The creating of a new instrusive_ptr(this)
+		// creates a new boost::intrusive_ptr
+		// which is a copy of this.  This code is required because
+		// 'this' is always of type Class* and not the intrusive_ptr,
+		// and thus, a reference to 'this' is not registered
+		// by using just plain 'this'.
+
+		// Since LLNewAgentInventoryVariablePriceResponder is a
+		// reference counted class, it is possible (since the
+		// reference to a plain 'this' would be missed here) that,
+		// when using plain ol' 'this', that this object
+		// would be deleted before the callback is triggered
+		// and cause sadness.
+		mImpl->confirmUpload(
+			confirmation_url,
+			boost::intrusive_ptr<LLNewAgentInventoryVariablePriceResponder>(this));
 	}
 	else
 	{

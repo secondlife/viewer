@@ -1175,9 +1175,9 @@ BOOL upload_new_variable_price_resource(
 
 	if ( !url.empty() )
 	{
-		llinfos << "New Agent Inventory variable price upload"
-				<< llendl;
-
+		lldebugs
+			<< "New Agent Inventory variable price upload" << llendl;
+		
 		// Each of the two capabilities has similar data, so
 		// let's reuse that code
 
@@ -1200,6 +1200,7 @@ BOOL upload_new_variable_price_resource(
 			body,
 			new LLNewAgentInventoryVariablePriceResponder(
 				uuid,
+				asset_type,
 				body));
 
 		return TRUE;

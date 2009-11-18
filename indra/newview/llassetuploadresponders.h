@@ -87,10 +87,12 @@ class LLNewAgentInventoryVariablePriceResponder :
 public:
 	LLNewAgentInventoryVariablePriceResponder(
 		const LLUUID& vfile_id,
+		LLAssetType::EType asset_type,
 		const LLSD& inventory_info);
 
 	LLNewAgentInventoryVariablePriceResponder(
 		const std::string& file_name,
+		LLAssetType::EType asset_type,
 		const LLSD& inventory_info);
 
 	virtual ~LLNewAgentInventoryVariablePriceResponder();
@@ -105,6 +107,7 @@ public:
 		const LLSD& error);
 	virtual void showConfirmationDialog(
 		S32 upload_price,
+		S32 resource_cost,
 		const std::string& confirmation_url);
 
 private:
