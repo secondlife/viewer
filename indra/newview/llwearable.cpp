@@ -831,6 +831,7 @@ void LLWearable::addVisualParam(LLVisualParam *param)
 	}
 	param->setIsDummy(FALSE);
 	mVisualParamIndexMap[param->getID()] = param;
+	mSavedVisualParamMap[param->getID()] = param->getDefaultWeight();
 }
 
 void LLWearable::setVisualParams()
@@ -933,11 +934,39 @@ void LLWearable::setClothesColor( S32 te, const LLColor4& new_color, BOOL upload
 void LLWearable::revertValues()
 {
 	//update saved settings so wearable is no longer dirty
+	// non-driver params first
 	for (param_map_t::const_iterator iter = mSavedVisualParamMap.begin(); iter != mSavedVisualParamMap.end(); iter++)
 	{
 		S32 id = iter->first;
 		F32 value = iter->second;
-		setVisualParamWeight(id, value, TRUE);
+		LLVisualParam *param = getVisualParam(id);
+		if(param &&  !dynamic_cast<LLDriverParam*>(param) )
+		{
+			setVisualParamWeight(id, value, TRUE);
+		}
+	}
+
+	//then driver params
+	for (param_map_t::const_iterator iter = mSavedVisualParamMap.begin(); iter != mSavedVisualParamMap.end(); iter++)
+	{
+		S32 id = iter->first;
+		F32 value = iter->second;
+		LLVisualParam *param = getVisualParam(id);
+		if(param &&  dynamic_cast<LLDriverParam*>(param) )
+		{
+			setVisualParamWeight(id, value, TRUE);
+		}
+	}
+
+	// make sure that saved values are sane
+	for (param_map_t::const_iterator iter = mSavedVisualParamMap.begin(); iter != mSavedVisualParamMap.end(); iter++)
+	{
+		S32 id = iter->first;
+		LLVisualParam *param = getVisualParam(id);
+		if( param )
+		{
+			mSavedVisualParamMap[id] = param->getWeight();
+		}
 	}
 
 	syncImages(mSavedTEMap, mTEMap);

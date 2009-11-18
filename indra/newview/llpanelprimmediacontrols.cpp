@@ -44,6 +44,7 @@
 #include "llbutton.h"
 #include "llface.h"
 #include "llcombobox.h"
+#include "lllayoutstack.h"
 #include "llslider.h"
 #include "llhudview.h"
 #include "lliconctrl.h"
@@ -84,8 +85,7 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mUpdateSlider(true),
 	mClearFaceOnFade(false),
 	mCurrentRate(0.0),
-	mMovieDuration(0.0),
-	mUpdatePercent(0)
+	mMovieDuration(0.0)
 {
 	mCommitCallbackRegistrar.add("MediaCtrl.Close",		boost::bind(&LLPanelPrimMediaControls::onClickClose, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Back",		boost::bind(&LLPanelPrimMediaControls::onClickBack, this));
@@ -117,37 +117,69 @@ LLPanelPrimMediaControls::~LLPanelPrimMediaControls()
 
 BOOL LLPanelPrimMediaControls::postBuild()
 {
-	LLButton* scroll_up_ctrl = getChild<LLButton>("scrollup");
-	if (scroll_up_ctrl)
+	mMediaRegion			= getChild<LLView>("media_region");
+	mBackCtrl				= getChild<LLUICtrl>("back");
+	mFwdCtrl				= getChild<LLUICtrl>("fwd");
+	mReloadCtrl				= getChild<LLUICtrl>("reload");
+	mPlayCtrl				= getChild<LLUICtrl>("play");
+	mPauseCtrl				= getChild<LLUICtrl>("pause");
+	mStopCtrl				= getChild<LLUICtrl>("stop");
+	mMediaStopCtrl			= getChild<LLUICtrl>("media_stop");
+	mHomeCtrl				= getChild<LLUICtrl>("home");
+	mUnzoomCtrl				= getChild<LLUICtrl>("close"); // This is actually "unzoom" 
+	mOpenCtrl				= getChild<LLUICtrl>("new_window");
+	mZoomCtrl				= getChild<LLUICtrl>("zoom_frame");
+	mMediaProgressPanel		= getChild<LLPanel>("media_progress_indicator");
+	mMediaProgressBar		= getChild<LLProgressBar>("media_progress_bar");
+	mMediaAddressCtrl		= getChild<LLUICtrl>("media_address");
+	mMediaAddress			= getChild<LLUICtrl>("media_address_url");
+	mMediaPlaySliderPanel	= getChild<LLUICtrl>("media_play_position");
+	mMediaPlaySliderCtrl	= getChild<LLUICtrl>("media_play_slider");
+	mVolumeCtrl				= getChild<LLUICtrl>("media_volume");
+	mVolumeBtn				= getChild<LLButton>("media_volume_button");
+	mVolumeUpCtrl			= getChild<LLUICtrl>("volume_up");
+	mVolumeDownCtrl			= getChild<LLUICtrl>("volume_down");
+	mWhitelistIcon			= getChild<LLIconCtrl>("media_whitelist_flag");
+	mSecureLockIcon			= getChild<LLIconCtrl>("media_secure_lock_flag");
+	mMediaControlsStack		= getChild<LLLayoutStack>("media_controls");
+	mLeftBookend			= getChild<LLUICtrl>("left_bookend");
+	mRightBookend			= getChild<LLUICtrl>("right_bookend");
+	mBackgroundImage		= LLUI::getUIImage(getString("control_background_image_name"));
+
+	// These are currently removed...but getChild creates a "dummy" widget.
+	// This class handles them missing.
+	mMediaPanelScroll		= findChild<LLUICtrl>("media_panel_scroll");
+	mScrollUpCtrl			= findChild<LLButton>("scrollup");
+	mScrollLeftCtrl			= findChild<LLButton>("scrollleft");
+	mScrollRightCtrl		= findChild<LLButton>("scrollright");
+	mScrollDownCtrl			= findChild<LLButton>("scrolldown");	
+	
+	if (mScrollUpCtrl)
 	{
-		scroll_up_ctrl->setClickedCallback(onScrollUp, this);
-		scroll_up_ctrl->setHeldDownCallback(onScrollUpHeld, this);
-		scroll_up_ctrl->setMouseUpCallback(onScrollStop, this);
+		mScrollUpCtrl->setClickedCallback(onScrollUp, this);
+		mScrollUpCtrl->setHeldDownCallback(onScrollUpHeld, this);
+		mScrollUpCtrl->setMouseUpCallback(onScrollStop, this);
 	}
-	LLButton* scroll_left_ctrl = getChild<LLButton>("scrollleft");
-	if (scroll_left_ctrl)
+	if (mScrollLeftCtrl)
 	{
-		scroll_left_ctrl->setClickedCallback(onScrollLeft, this);
-		scroll_left_ctrl->setHeldDownCallback(onScrollLeftHeld, this);
-		scroll_left_ctrl->setMouseUpCallback(onScrollStop, this);
+		mScrollLeftCtrl->setClickedCallback(onScrollLeft, this);
+		mScrollLeftCtrl->setHeldDownCallback(onScrollLeftHeld, this);
+		mScrollLeftCtrl->setMouseUpCallback(onScrollStop, this);
 	}
-	LLButton* scroll_right_ctrl = getChild<LLButton>("scrollright");
-	if (scroll_right_ctrl)
+	if (mScrollRightCtrl)
 	{
-		scroll_right_ctrl->setClickedCallback(onScrollRight, this);
-		scroll_right_ctrl->setHeldDownCallback(onScrollRightHeld, this);
-		scroll_right_ctrl->setMouseUpCallback(onScrollStop, this);
+		mScrollRightCtrl->setClickedCallback(onScrollRight, this);
+		mScrollRightCtrl->setHeldDownCallback(onScrollRightHeld, this);
+		mScrollRightCtrl->setMouseUpCallback(onScrollStop, this);
 	}
-	LLButton* scroll_down_ctrl = getChild<LLButton>("scrolldown");
-	if (scroll_down_ctrl)
+	if (mScrollDownCtrl)
 	{
-		scroll_down_ctrl->setClickedCallback(onScrollDown, this);
-		scroll_down_ctrl->setHeldDownCallback(onScrollDownHeld, this);
-		scroll_down_ctrl->setMouseUpCallback(onScrollStop, this);
+		mScrollDownCtrl->setClickedCallback(onScrollDown, this);
+		mScrollDownCtrl->setHeldDownCallback(onScrollDownHeld, this);
+		mScrollDownCtrl->setMouseUpCallback(onScrollStop, this);
 	}
 	
-	LLUICtrl* media_address	= getChild<LLUICtrl>("media_address");
-	media_address->setFocusReceivedCallback(boost::bind(&LLPanelPrimMediaControls::onInputURL, _1, this ));
+	mMediaAddress->setFocusReceivedCallback(boost::bind(&LLPanelPrimMediaControls::onInputURL, _1, this ));
 	mInactiveTimeout = gSavedSettings.getF32("MediaControlTimeout");
 	mControlFadeTime = gSavedSettings.getF32("MediaControlFadeTime");
 
@@ -261,90 +293,63 @@ void LLPanelPrimMediaControls::updateShape()
 		//
 		// Set the state of the buttons
 		//
-		LLUICtrl* back_ctrl					= getChild<LLUICtrl>("back");
-		LLUICtrl* fwd_ctrl					= getChild<LLUICtrl>("fwd");
-		LLUICtrl* reload_ctrl				= getChild<LLUICtrl>("reload");
-		LLUICtrl* play_ctrl					= getChild<LLUICtrl>("play");
-		LLUICtrl* pause_ctrl				= getChild<LLUICtrl>("pause");
-		LLUICtrl* stop_ctrl					= getChild<LLUICtrl>("stop");
-		LLUICtrl* media_stop_ctrl			= getChild<LLUICtrl>("media_stop");
-		LLUICtrl* home_ctrl					= getChild<LLUICtrl>("home");
-		LLUICtrl* unzoom_ctrl				= getChild<LLUICtrl>("close"); // This is actually "unzoom"
-		LLUICtrl* open_ctrl					= getChild<LLUICtrl>("new_window");
-        LLUICtrl* zoom_ctrl					= getChild<LLUICtrl>("zoom_frame");
-		LLPanel* media_loading_panel		= getChild<LLPanel>("media_progress_indicator");
-		LLUICtrl* media_address_ctrl		= getChild<LLUICtrl>("media_address");
-		LLUICtrl* media_play_slider_panel	= getChild<LLUICtrl>("media_play_position");
-		LLUICtrl* media_play_slider_ctrl	= getChild<LLUICtrl>("media_play_slider");
-		LLUICtrl* volume_ctrl				= getChild<LLUICtrl>("media_volume");
-		LLButton* volume_btn				= getChild<LLButton>("media_volume_button");
-		LLUICtrl* volume_up_ctrl			= getChild<LLUICtrl>("volume_up");
-		LLUICtrl* volume_down_ctrl			= getChild<LLUICtrl>("volume_down");
-		LLIconCtrl* whitelist_icon			= getChild<LLIconCtrl>("media_whitelist_flag");
-		LLIconCtrl* secure_lock_icon		= getChild<LLIconCtrl>("media_secure_lock_flag");
-		
-		LLUICtrl* media_panel_scroll		= getChild<LLUICtrl>("media_panel_scroll");
-		LLUICtrl* scroll_up_ctrl			= getChild<LLUICtrl>("scrollup");
-		LLUICtrl* scroll_left_ctrl			= getChild<LLUICtrl>("scrollleft");
-		LLUICtrl* scroll_right_ctrl			= getChild<LLUICtrl>("scrollright");
-		LLUICtrl* scroll_down_ctrl			= getChild<LLUICtrl>("scrolldown");		
 				
 		// XXX RSP: TODO: FIXME: clean this up so that it is clearer what mode we are in,
 		// and that only the proper controls get made visible/enabled according to that mode. 
-		back_ctrl->setVisible(has_focus);
-		fwd_ctrl->setVisible(has_focus);
-		reload_ctrl->setVisible(has_focus);
-		stop_ctrl->setVisible(false);
-		home_ctrl->setVisible(has_focus);
-		zoom_ctrl->setVisible(!is_zoomed);
-		unzoom_ctrl->setVisible(has_focus && is_zoomed);
-		open_ctrl->setVisible(true);
-		media_address_ctrl->setVisible(has_focus && !mini_controls);
-		media_play_slider_panel->setVisible(has_focus && !mini_controls);
-		volume_ctrl->setVisible(false);
-		volume_up_ctrl->setVisible(false);
-		volume_down_ctrl->setVisible(false);
+		mBackCtrl->setVisible(has_focus);
+		mFwdCtrl->setVisible(has_focus);
+		mReloadCtrl->setVisible(has_focus);
+		mStopCtrl->setVisible(false);
+		mHomeCtrl->setVisible(has_focus);
+		mZoomCtrl->setVisible(!is_zoomed);
+		mUnzoomCtrl->setVisible(has_focus && is_zoomed);
+		mOpenCtrl->setVisible(true);
+		mMediaAddressCtrl->setVisible(has_focus && !mini_controls);
+		mMediaPlaySliderPanel->setVisible(has_focus && !mini_controls);
+		mVolumeCtrl->setVisible(false);
+		mVolumeUpCtrl->setVisible(false);
+		mVolumeDownCtrl->setVisible(false);
 		
-		whitelist_icon->setVisible(!mini_controls && (media_data)?media_data->getWhiteListEnable():false);
+		mWhitelistIcon->setVisible(!mini_controls && (media_data)?media_data->getWhiteListEnable():false);
 		// Disable zoom if HUD
-		zoom_ctrl->setEnabled(!objectp->isHUDAttachment());
-		unzoom_ctrl->setEnabled(!objectp->isHUDAttachment());
-		secure_lock_icon->setVisible(false);
+		mZoomCtrl->setEnabled(!objectp->isHUDAttachment());
+		mUnzoomCtrl->setEnabled(!objectp->isHUDAttachment());
+		mSecureLockIcon->setVisible(false);
 		mCurrentURL = media_impl->getCurrentMediaURL();
 		
-		back_ctrl->setEnabled((media_impl != NULL) && media_impl->canNavigateBack() && can_navigate);
-		fwd_ctrl->setEnabled((media_impl != NULL) && media_impl->canNavigateForward() && can_navigate);
-		stop_ctrl->setEnabled(has_focus && can_navigate);
-		home_ctrl->setEnabled(has_focus && can_navigate);
+		mBackCtrl->setEnabled((media_impl != NULL) && media_impl->canNavigateBack() && can_navigate);
+		mFwdCtrl->setEnabled((media_impl != NULL) && media_impl->canNavigateForward() && can_navigate);
+		mStopCtrl->setEnabled(has_focus && can_navigate);
+		mHomeCtrl->setEnabled(has_focus && can_navigate);
 		LLPluginClassMediaOwner::EMediaStatus result = ((media_impl != NULL) && media_impl->hasMedia()) ? media_plugin->getStatus() : LLPluginClassMediaOwner::MEDIA_NONE;
 
 		if(media_plugin && media_plugin->pluginSupportsMediaTime())
 		{
-			reload_ctrl->setEnabled(FALSE);
-			reload_ctrl->setVisible(FALSE);
-			media_stop_ctrl->setVisible(has_focus);
-			home_ctrl->setVisible(FALSE);
-			back_ctrl->setEnabled(has_focus);
-			fwd_ctrl->setEnabled(has_focus);
-			media_address_ctrl->setVisible(false);
-			media_address_ctrl->setEnabled(false);
-			media_play_slider_panel->setVisible(has_focus && !mini_controls);
-			media_play_slider_panel->setEnabled(has_focus && !mini_controls);
+			mReloadCtrl->setEnabled(FALSE);
+			mReloadCtrl->setVisible(FALSE);
+			mMediaStopCtrl->setVisible(has_focus);
+			mHomeCtrl->setVisible(FALSE);
+			mBackCtrl->setEnabled(has_focus);
+			mFwdCtrl->setEnabled(has_focus);
+			mMediaAddressCtrl->setVisible(false);
+			mMediaAddressCtrl->setEnabled(false);
+			mMediaPlaySliderPanel->setVisible(has_focus && !mini_controls);
+			mMediaPlaySliderPanel->setEnabled(has_focus && !mini_controls);
 				
-			volume_ctrl->setVisible(has_focus);
-			volume_up_ctrl->setVisible(has_focus);
-			volume_down_ctrl->setVisible(has_focus);
-			volume_ctrl->setEnabled(has_focus);
+			mVolumeCtrl->setVisible(has_focus);
+			mVolumeUpCtrl->setVisible(has_focus);
+			mVolumeDownCtrl->setVisible(has_focus);
+			mVolumeCtrl->setEnabled(has_focus);
 
-			whitelist_icon->setVisible(false);
-			secure_lock_icon->setVisible(false);
-			if (media_panel_scroll)
+			mWhitelistIcon->setVisible(false);
+			mSecureLockIcon->setVisible(false);
+			if (mMediaPanelScroll)
 			{
-				media_panel_scroll->setVisible(false);
-				scroll_up_ctrl->setVisible(false);
-				scroll_left_ctrl->setVisible(false);
-				scroll_right_ctrl->setVisible(false);
-				scroll_down_ctrl->setVisible(false);
+				mMediaPanelScroll->setVisible(false);
+				mScrollUpCtrl->setVisible(false);
+				mScrollDownCtrl->setVisible(false);
+				mScrollRightCtrl->setVisible(false);
+				mScrollDownCtrl->setVisible(false);
 			}
 				
 			F32 volume = media_impl->getVolume();
@@ -358,8 +363,8 @@ void LLPanelPrimMediaControls::updateShape()
 			if(mMovieDuration == 0) 
 			{
 				mMovieDuration = media_plugin->getDuration();
-				media_play_slider_ctrl->setValue(0);
-				media_play_slider_ctrl->setEnabled(false);
+				mMediaPlaySliderCtrl->setValue(0);
+				mMediaPlaySliderCtrl->setEnabled(false);
 			}
 			// TODO: What if it's not fully loaded
 					
@@ -367,48 +372,48 @@ void LLPanelPrimMediaControls::updateShape()
 			{
 				F64 current_time =  media_plugin->getCurrentTime();
 				F32 percent = current_time / mMovieDuration;
-				media_play_slider_ctrl->setValue(percent);
-				media_play_slider_ctrl->setEnabled(true);
+				mMediaPlaySliderCtrl->setValue(percent);
+				mMediaPlaySliderCtrl->setEnabled(true);
 			}
 				
 			// video vloume
 			if(volume <= 0.0)
 			{
-				volume_up_ctrl->setEnabled(TRUE);
-				volume_down_ctrl->setEnabled(FALSE);
+				mVolumeUpCtrl->setEnabled(TRUE);
+				mVolumeDownCtrl->setEnabled(FALSE);
 				media_impl->setVolume(0.0);
-				volume_btn->setToggleState(true);
+				mVolumeBtn->setToggleState(true);
 			}
 			else if (volume >= 1.0)
 			{
-				volume_up_ctrl->setEnabled(FALSE);
-				volume_down_ctrl->setEnabled(TRUE);
+				mVolumeUpCtrl->setEnabled(FALSE);
+				mVolumeDownCtrl->setEnabled(TRUE);
 				media_impl->setVolume(1.0);
-				volume_btn->setToggleState(false);
+				mVolumeBtn->setToggleState(false);
 			}
 			else
 			{
-				volume_up_ctrl->setEnabled(TRUE);
-				volume_down_ctrl->setEnabled(TRUE);
+				mVolumeUpCtrl->setEnabled(TRUE);
+				mVolumeDownCtrl->setEnabled(TRUE);
 			}
 				
 			switch(result)
 			{
 				case LLPluginClassMediaOwner::MEDIA_PLAYING:
-					play_ctrl->setEnabled(FALSE);
-					play_ctrl->setVisible(FALSE);
-					pause_ctrl->setEnabled(TRUE);
-					pause_ctrl->setVisible(has_focus);
-					media_stop_ctrl->setEnabled(TRUE);
+					mPlayCtrl->setEnabled(FALSE);
+					mPlayCtrl->setVisible(FALSE);
+					mPauseCtrl->setEnabled(TRUE);
+					mPauseCtrl->setVisible(has_focus);
+					mMediaStopCtrl->setEnabled(TRUE);
 					
 					break;
 				case LLPluginClassMediaOwner::MEDIA_PAUSED:
 				default:
-					pause_ctrl->setEnabled(FALSE);
-					pause_ctrl->setVisible(FALSE);
-					play_ctrl->setEnabled(TRUE);
-					play_ctrl->setVisible(has_focus);
-					media_stop_ctrl->setEnabled(FALSE);
+					mPauseCtrl->setEnabled(FALSE);
+					mPauseCtrl->setVisible(FALSE);
+					mPlayCtrl->setEnabled(TRUE);
+					mPlayCtrl->setVisible(has_focus);
+					mMediaStopCtrl->setEnabled(FALSE);
 					break;
 			}
 		}
@@ -423,28 +428,28 @@ void LLPanelPrimMediaControls::updateShape()
 				mCurrentURL.clear();
 			}
 				
-			play_ctrl->setVisible(FALSE);
-			pause_ctrl->setVisible(FALSE);
-			media_stop_ctrl->setVisible(FALSE);
-			media_address_ctrl->setVisible(has_focus && !mini_controls);
-			media_address_ctrl->setEnabled(has_focus && !mini_controls);
-			media_play_slider_panel->setVisible(FALSE);
-			media_play_slider_panel->setEnabled(FALSE);
+			mPlayCtrl->setVisible(FALSE);
+			mPauseCtrl->setVisible(FALSE);
+			mMediaStopCtrl->setVisible(FALSE);
+			mMediaAddressCtrl->setVisible(has_focus && !mini_controls);
+			mMediaAddressCtrl->setEnabled(has_focus && !mini_controls);
+			mMediaPlaySliderPanel->setVisible(FALSE);
+			mMediaPlaySliderPanel->setEnabled(FALSE);
 				
-			volume_ctrl->setVisible(FALSE);
-			volume_up_ctrl->setVisible(FALSE);
-			volume_down_ctrl->setVisible(FALSE);
-			volume_ctrl->setEnabled(FALSE);
-			volume_up_ctrl->setEnabled(FALSE);
-			volume_down_ctrl->setEnabled(FALSE);
+			mVolumeCtrl->setVisible(FALSE);
+			mVolumeUpCtrl->setVisible(FALSE);
+			mVolumeDownCtrl->setVisible(FALSE);
+			mVolumeCtrl->setEnabled(FALSE);
+			mVolumeUpCtrl->setEnabled(FALSE);
+			mVolumeDownCtrl->setEnabled(FALSE);
 			
-			if (media_panel_scroll)
+			if (mMediaPanelScroll)
 			{
-				media_panel_scroll->setVisible(has_focus);
-				scroll_up_ctrl->setVisible(has_focus);
-				scroll_left_ctrl->setVisible(has_focus);
-				scroll_right_ctrl->setVisible(has_focus);
-				scroll_down_ctrl->setVisible(has_focus);
+				mMediaPanelScroll->setVisible(has_focus);
+				mScrollUpCtrl->setVisible(has_focus);
+				mScrollDownCtrl->setVisible(has_focus);
+				mScrollRightCtrl->setVisible(has_focus);
+				mScrollDownCtrl->setVisible(has_focus);
 			}
 			// TODO: get the secure lock bool from media plug in
 			std::string prefix =  std::string("https://");
@@ -452,7 +457,7 @@ void LLPanelPrimMediaControls::updateShape()
 			LLStringUtil::toLower(test_prefix);
 			if(test_prefix == prefix)
 			{
-				secure_lock_icon->setVisible(has_focus);
+				mSecureLockIcon->setVisible(has_focus);
 			}
 				
 			if(mCurrentURL!=mPreviousURL)
@@ -463,17 +468,17 @@ void LLPanelPrimMediaControls::updateShape()
 
 			if(result == LLPluginClassMediaOwner::MEDIA_LOADING)
 			{
-				reload_ctrl->setEnabled(FALSE);
-				reload_ctrl->setVisible(FALSE);
-				stop_ctrl->setEnabled(TRUE);
-				stop_ctrl->setVisible(has_focus);
+				mReloadCtrl->setEnabled(FALSE);
+				mReloadCtrl->setVisible(FALSE);
+				mStopCtrl->setEnabled(TRUE);
+				mStopCtrl->setVisible(has_focus);
 			}
 			else
 			{
-				reload_ctrl->setEnabled(TRUE);
-				reload_ctrl->setVisible(has_focus);
-				stop_ctrl->setEnabled(FALSE);
-				stop_ctrl->setVisible(FALSE);
+				mReloadCtrl->setEnabled(TRUE);
+				mReloadCtrl->setVisible(has_focus);
+				mStopCtrl->setEnabled(FALSE);
+				mStopCtrl->setVisible(FALSE);
 			}
 		}
 
@@ -483,16 +488,15 @@ void LLPanelPrimMediaControls::updateShape()
 			//
 			// Handle progress bar
 			//
-			mUpdatePercent = media_plugin->getProgressPercent();
-			if(mUpdatePercent<100.0f)
-			{
-				media_loading_panel->setVisible(true);
-				getChild<LLProgressBar>("media_progress_bar")->setPercent(mUpdatePercent);
-				gFocusMgr.setTopCtrl(media_loading_panel);
+			if(LLPluginClassMediaOwner::MEDIA_LOADING == media_plugin->getStatus())
+			{	
+				mMediaProgressPanel->setVisible(true);
+				mMediaProgressBar->setPercent(media_plugin->getProgressPercent());
+				gFocusMgr.setTopCtrl(mMediaProgressPanel);
 			}
 			else
 			{
-				media_loading_panel->setVisible(false);
+				mMediaProgressPanel->setVisible(false);
 				gFocusMgr.setTopCtrl(NULL);
 			}
 		}
@@ -589,11 +593,10 @@ void LLPanelPrimMediaControls::updateShape()
 		// grow panel so that screenspace bounding box fits inside "media_region" element of HUD
 		LLRect media_controls_rect;
 		getParent()->screenRectToLocal(LLRect(screen_min.mX, screen_max.mY, screen_max.mX, screen_min.mY), &media_controls_rect);
-		LLView* media_region = getChild<LLView>("media_region");
-		media_controls_rect.mLeft -= media_region->getRect().mLeft;
-		media_controls_rect.mBottom -= media_region->getRect().mBottom;
-		media_controls_rect.mTop += getRect().getHeight() - media_region->getRect().mTop;
-		media_controls_rect.mRight += getRect().getWidth() - media_region->getRect().mRight;
+		media_controls_rect.mLeft -= mMediaRegion->getRect().mLeft;
+		media_controls_rect.mBottom -= mMediaRegion->getRect().mBottom;
+		media_controls_rect.mTop += getRect().getHeight() - mMediaRegion->getRect().mTop;
+		media_controls_rect.mRight += getRect().getWidth() - mMediaRegion->getRect().mRight;
 
 		LLRect old_hud_rect = media_controls_rect;
 		// keep all parts of HUD on-screen
@@ -669,6 +672,20 @@ void LLPanelPrimMediaControls::draw()
 		}
 	}
 	
+	// Build rect for icon area in coord system of this panel
+	// Assumes layout_stack is a direct child of this panel
+	mMediaControlsStack->updateLayout();
+	LLRect icon_area = mMediaControlsStack->getRect();
+	
+	// adjust to ignore space from left bookend padding
+	icon_area.mLeft += mLeftBookend->getRect().getWidth();
+	
+	// ignore space from right bookend padding
+	icon_area.mRight -= mRightBookend->getRect().getWidth();
+	
+	// get UI image
+	mBackgroundImage->draw( icon_area, UI_VERTEX_COLOR % alpha);
+	
 	{
 		LLViewDrawContext context(alpha);
 		LLPanel::draw();
@@ -711,16 +728,12 @@ bool LLPanelPrimMediaControls::isMouseOver()
 		S32 x, y;
 		getWindow()->getCursorPosition(&cursor_pos_window);
 		getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
-		
-		LLView* controls_view = NULL;
-		controls_view = getChild<LLView>("media_controls");
-		
-		//FIXME: rewrite as LLViewQuery or get hover set from LLViewerWindow?
-		if(controls_view && controls_view->getVisible())
+				
+		if(mMediaControlsStack->getVisible())
 		{
-			controls_view->screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &x, &y);
+			mMediaControlsStack->screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &x, &y);
 
-			LLView *hit_child = controls_view->childFromPoint(x, y);
+			LLView *hit_child = mMediaControlsStack->childFromPoint(x, y);
 			if(hit_child && hit_child->getVisible())
 			{
 				// This was useful for debugging both coordinate translation and view hieararchy problems...
@@ -1002,8 +1015,7 @@ void LLPanelPrimMediaControls::onCommitURL()
 {
 	focusOnTarget();
 
-	LLUICtrl *media_address_ctrl = getChild<LLUICtrl>("media_address_url");
-	std::string url = media_address_ctrl->getValue().asString();
+	std::string url = mMediaAddress->getValue().asString();
 	if(getTargetMediaImpl() && !url.empty())
 	{
 		getTargetMediaImpl()->navigateTo( url, "", true);
@@ -1032,19 +1044,18 @@ void LLPanelPrimMediaControls::onInputURL(LLFocusableElement* caller, void *user
 void LLPanelPrimMediaControls::setCurrentURL()
 {	
 #ifdef USE_COMBO_BOX_FOR_MEDIA_URL
-	LLComboBox* media_address_combo	= getChild<LLComboBox>("media_address_combo");
-	// redirects will navigate momentarily to about:blank, don't add to history
-	if (media_address_combo && mCurrentURL != "about:blank")
-	{
-		media_address_combo->remove(mCurrentURL);
-		media_address_combo->add(mCurrentURL, ADD_SORTED);
-		media_address_combo->selectByValue(mCurrentURL);
-	}
+//	LLComboBox* media_address_combo	= getChild<LLComboBox>("media_address_combo");
+//	// redirects will navigate momentarily to about:blank, don't add to history
+//	if (media_address_combo && mCurrentURL != "about:blank")
+//	{
+//		media_address_combo->remove(mCurrentURL);
+//		media_address_combo->add(mCurrentURL, ADD_SORTED);
+//		media_address_combo->selectByValue(mCurrentURL);
+//	}
 #else   // USE_COMBO_BOX_FOR_MEDIA_URL
-	LLLineEditor* media_address_url = getChild<LLLineEditor>("media_address_url");
-	if (media_address_url && mCurrentURL != "about:blank")
+	if (mMediaAddress && mCurrentURL != "about:blank")
 	{
-		media_address_url->setValue(mCurrentURL);
+		mMediaAddress->setValue(mCurrentURL);
 	}
 #endif	// USE_COMBO_BOX_FOR_MEDIA_URL
 }
@@ -1053,12 +1064,11 @@ void LLPanelPrimMediaControls::onCommitSlider()
 {
 	focusOnTarget();
 
-	LLSlider* media_play_slider_ctrl	= getChild<LLSlider>("media_play_slider");
 	LLViewerMediaImpl* media_impl = getTargetMediaImpl();
 	if (media_impl) 
 	{
 		// get slider value
-		F64 slider_value = media_play_slider_ctrl->getValue().asReal();
+		F64 slider_value = mMediaPlaySliderCtrl->getValue().asReal();
 		if(slider_value <= 0.0)
 		{	
 			media_impl->stop();
@@ -1087,7 +1097,7 @@ void LLPanelPrimMediaControls::onCommitVolumeUp()
 		}
 		
 		media_impl->setVolume(volume);
-		getChild<LLButton>("media_volume")->setToggleState(false);
+		mVolumeBtn->setToggleState(false);
 	}
 }		
 
@@ -1107,7 +1117,7 @@ void LLPanelPrimMediaControls::onCommitVolumeDown()
 		}
 
 		media_impl->setVolume(volume);
-		getChild<LLButton>("media_volume")->setToggleState(false);
+		mVolumeBtn->setToggleState(false);
 	}
 }		
 

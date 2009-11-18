@@ -89,6 +89,8 @@
 #include "llvfsthread.h"
 #include "llvolumemgr.h"
 
+#include "llnotificationmanager.h"
+
 // Third party library includes
 #include <boost/bind.hpp>
 
@@ -2340,6 +2342,8 @@ bool LLAppViewer::initWindow()
 		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
 		FALSE, ignorePixelDepth);
+
+	LLNotificationsUI::LLNotificationManager::getInstance();
 		
 	if (gSavedSettings.getBOOL("WindowFullScreen"))
 	{

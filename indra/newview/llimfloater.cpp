@@ -367,8 +367,6 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 	LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
 		(LLNotificationsUI::LLChannelManager::getInstance()->
 											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
-
-	setCanResize(!docked);
 	
 	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
 
@@ -458,7 +456,7 @@ void LLIMFloater::updateMessages()
 
 	if (messages.size())
 	{
-		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
+//		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
 
 		std::ostringstream message;
 		std::list<LLSD>::const_reverse_iterator iter = messages.rbegin();
@@ -471,31 +469,43 @@ void LLIMFloater::updateMessages()
 			LLUUID from_id = msg["from_id"].asUUID();
 			std::string from = from_id != gAgentID ? msg["from"].asString() : LLTrans::getString("You");
 			std::string message = msg["message"].asString();
-			LLStyle::Params style_params;
-			style_params.color(chat_color);
 
 			LLChat chat;
 			chat.mFromID = from_id;
 			chat.mFromName = from;
-
+			chat.mText = message;
+			
 			//Handle IRC styled /me messages.
 			std::string prefix = message.substr(0, 4);
 			if (prefix == "/me " || prefix == "/me'")
 			{
+				
+				LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
+				LLViewerChat::getChatColor(chat,txt_color);
+				LLFontGL* fontp = LLViewerChat::getChatFont();
+				std::string font_name = LLFontGL::nameFromFont(fontp);
+				std::string font_size = LLFontGL::sizeFromFont(fontp);
+				LLStyle::Params append_style_params;
+				append_style_params.color(txt_color);
+				append_style_params.readonly_color(txt_color);
+				append_style_params.font.name(font_name);
+				append_style_params.font.size(font_size);
+				
 				if (from.size() > 0)
 				{
-					style_params.font.style = "ITALIC";
+					append_style_params.font.style = "ITALIC";
 					chat.mText = from + " ";
-					mChatHistory->appendWidgetMessage(chat, style_params);
+					mChatHistory->appendWidgetMessage(chat, append_style_params);
 				}
+				
 				message = message.substr(3);
-				style_params.font.style = "UNDERLINE";
-				mChatHistory->appendText(message, FALSE, style_params);
+				append_style_params.font.style = "UNDERLINE";
+				mChatHistory->appendText(message, FALSE, append_style_params);
 			}
 			else
 			{
 				chat.mText = message;
-				mChatHistory->appendWidgetMessage(chat, style_params);
+				mChatHistory->appendWidgetMessage(chat);
 			}
 
 			mLastMessageIndex = msg["index"].asInteger();

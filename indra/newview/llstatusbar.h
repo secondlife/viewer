@@ -91,9 +91,10 @@ private:
 	// simple method to setup the part that holds the date
 	void setupDate();
 
-	static void onCommitSearch(LLUICtrl*, void* data);
-	static void onClickSearch(void* data);
+	void onVolumeChanged(const LLSD& newvalue);
+
 	static void onClickStatGraph(void* data);
+	
 
 private:
 	LLTextBox	*mTextHealth;
@@ -103,6 +104,7 @@ private:
 	LLStatGraph *mSGPacketLoss;
 
 	LLButton	*mBtnBuyCurrency;
+	LLButton	*mBtnVolume;
 
 	S32				mBalance;
 	S32				mHealth;

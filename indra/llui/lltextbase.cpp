@@ -1451,7 +1451,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	}
 }
 
-void LLTextBase::setText(const LLStringExplicit &utf8str)
+void LLTextBase::setText(const LLStringExplicit &utf8str ,const LLStyle::Params& input_params)
 {
 	// clear out the existing text and segments
 	getViewModel()->setDisplay(LLWStringUtil::null);
@@ -1466,7 +1466,7 @@ void LLTextBase::setText(const LLStringExplicit &utf8str)
 	std::string text(utf8str);
 	LLStringUtil::removeCRLF(text);
 
-	appendText(text, false);
+	appendText(text, false, input_params);
 
 	onValueChange(0, getLength());
 }
@@ -1507,8 +1507,11 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 			link_params.color = match.getColor();
 			// apply font name from requested style_params
 			std::string font_name = LLFontGL::nameFromFont(style_params.font());
-			link_params.font.name.setIfNotProvided(font_name);
-			link_params.font.style = "UNDERLINE";
+			std::string font_size = LLFontGL::sizeFromFont(style_params.font());
+			link_params.font.name(font_name);
+			link_params.font.size(font_name);
+			link_params.font.style("UNDERLINE");
+			
 			link_params.link_href = match.getUrl();
 
 			// output the text before the Url

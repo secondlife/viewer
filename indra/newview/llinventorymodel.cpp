@@ -31,40 +31,25 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llinventorymodel.h"
-
-#include "llassetstorage.h"
-#include "llcrc.h"
-#include "lldir.h"
-#include "llsys.h"
-#include "llxfermanager.h"
-#include "message.h"
 
 #include "llagent.h"
 #include "llagentwearables.h"
-#include "llfloater.h"
-#include "llfocusmgr.h"
-#include "llinventorybridge.h"
-#include "llinventoryfunctions.h"
 #include "llinventorypanel.h"
 #include "llfloaterinventory.h"
-#include "llviewerfoldertype.h"
-#include "llviewerinventory.h"
-#include "llviewermessage.h"
-#include "llviewerwindow.h"
-#include "llviewerregion.h"
-#include "llappviewer.h"
-#include "lldbstrings.h"
-#include "llviewerstats.h"
-#include "llmutelist.h"
-#include "llnotifications.h"
-#include "llcallbacklist.h"
-#include "llpreview.h"
+#include "llinventorybridge.h"
+#include "llinventoryfunctions.h"
+#include "llinventoryobserver.h"
+#include "llwindow.h"
 #include "llviewercontrol.h"
+#include "llpreview.h" 
+#include "llviewermessage.h"
+#include "llviewerfoldertype.h"
+#include "llviewerwindow.h"
+#include "llappviewer.h"
+#include "llviewerregion.h"
+#include "llcallbacklist.h"
 #include "llvoavatarself.h"
-#include "llsdutil.h"
-#include <deque>
 
 //#define DIFF_INVENTORY_FILES
 #ifdef DIFF_INVENTORY_FILES
@@ -322,10 +307,10 @@ void LLInventoryModel::unlockDirectDescendentArrays(const LLUUID& cat_id)
 // specifies 'type' as what it defaults to containing. The category is
 // not necessarily only for that type. *NOTE: This will create a new
 // inventory category on the fly if one does not exist.
-const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType t, bool create_folder)
+const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType t, bool create_folder, bool find_in_library)
 {
-	const LLUUID &rv = findCatUUID(t);
-	if(rv.isNull() && isInventoryUsable() && create_folder)
+	const LLUUID &rv = findCatUUID(t, find_in_library);
+	if(rv.isNull() && isInventoryUsable() && (create_folder && !find_in_library))
 	{
 		const LLUUID &root_id = gInventory.getRootFolderID();
 		if(root_id.notNull())
@@ -338,10 +323,10 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType t, bo
 
 // Internal method which looks for a category with the specified
 // preferred type. Returns LLUUID::null if not found.
-const LLUUID &LLInventoryModel::findCatUUID(LLFolderType::EType preferred_type) const
+const LLUUID &LLInventoryModel::findCatUUID(LLFolderType::EType preferred_type, bool find_in_library) const
 {
-	const LLUUID &root_id = gInventory.getRootFolderID();
-	if(LLFolderType::FT_CATEGORY == preferred_type)
+	const LLUUID &root_id = (find_in_library) ? gInventory.getLibraryRootFolderID() : gInventory.getRootFolderID();
+	if(LLFolderType::FT_ROOT_INVENTORY == preferred_type)
 	{
 		return root_id;
 	}
@@ -886,7 +871,8 @@ void LLInventoryModel::moveObject(const LLUUID& object_id, const LLUUID& cat_id)
 // Delete a particular inventory object by ID.
 void LLInventoryModel::deleteObject(const LLUUID& id)
 {
-	purgeLinkedObjects(id);
+	// Disabling this; let users manually purge linked objects.
+	// purgeLinkedObjects(id);
 	lldebugs << "LLInventoryModel::deleteObject()" << llendl;
 	LLPointer<LLInventoryObject> obj = getObject(id);
 	if(obj)
@@ -923,13 +909,14 @@ void LLInventoryModel::deleteObject(const LLUUID& id)
 		}
 		addChangedMask(LLInventoryObserver::REMOVE, id);
 		obj = NULL; // delete obj
+		gInventory.notifyObservers();
 	}
 }
 
 // Delete a particular inventory item by ID, and remove it from the server.
 void LLInventoryModel::purgeObject(const LLUUID &id)
 {
-	lldebugs << "LLInventoryModel::purgeObject()" << llendl;
+	lldebugs << "LLInventoryModel::purgeObject() [ id: " << id << " ] " << llendl;
 	LLPointer<LLInventoryObject> obj = getObject(id);
 	if(obj)
 	{
@@ -2463,7 +2450,7 @@ void LLInventoryModel::buildParentChildMap()
 			{
 				cat->setParent(findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
 			}
-			else if(LLFolderType::FT_CATEGORY == pref)
+			else if(LLFolderType::FT_ROOT_INVENTORY == pref)
 			{
 				// it's the root
 				cat->setParent(LLUUID::null);
@@ -3343,7 +3330,7 @@ void LLInventoryModel::processInventoryDescendents(LLMessageSystem* msg,void**)
 		// If the item has already been added (e.g. from link prefetch), then it doesn't need to be re-added.
 		if (gInventory.getItem(titem->getUUID()))
 		{
-			llinfos << "Skipping prefetched item [ Name: " << titem->getName() << " | Type: " << titem->getActualType() << " | ItemUUID: " << titem->getUUID() << " ] " << llendl;
+			lldebugs << "Skipping prefetched item [ Name: " << titem->getName() << " | Type: " << titem->getActualType() << " | ItemUUID: " << titem->getUUID() << " ] " << llendl;
 			continue;
 		}
 		gInventory.updateItem(titem);

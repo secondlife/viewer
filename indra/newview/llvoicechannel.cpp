@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h"
+#include "llfloatercall.h"
 #include "llfloaterreg.h"
 #include "llimview.h"
 #include "llnotifications.h"
@@ -408,9 +409,14 @@ void LLVoiceChannel::doSetState(const EState& new_state)
 
 void LLVoiceChannel::toggleCallWindowIfNeeded(EState state)
 {
+	LLFloaterCall* floater = dynamic_cast<LLFloaterCall*>(LLFloaterReg::getInstance("voice_call", mSessionID));
+	if (!floater)
+		return;
+
 	if (state == STATE_CONNECTED)
 	{
-		LLFloaterReg::showInstance("voice_call", mSessionID);
+		floater->init(mSessionID);
+		floater->openFloater(mSessionID);
 	}
 	// By checking that current state is CONNECTED we make sure that the call window
 	// has been shown, hence there's something to hide. This helps when user presses
@@ -418,7 +424,8 @@ void LLVoiceChannel::toggleCallWindowIfNeeded(EState state)
 	// *TODO: move this check to LLFloaterCall?
 	else if (state == STATE_HUNG_UP && mState == STATE_CONNECTED)
 	{
-		LLFloaterReg::hideInstance("voice_call", mSessionID);
+		floater->reset();
+		floater->closeFloater();
 	}
 }
 
@@ -870,29 +877,60 @@ void LLVoiceChannelP2P::setSessionHandle(const std::string& handle, const std::s
 
 void LLVoiceChannelP2P::setState(EState state)
 {
-	// HACK: Open/close the call window if needed.
+	// *HACK: Open/close the call window if needed.
 	toggleCallWindowIfNeeded(state);
 	
-	// *HACK: open outgoing call floater if needed, might be better done elsewhere.
-	mCallDialogPayload["session_id"] = mSessionID;
-	mCallDialogPayload["session_name"] = mSessionName;
-	mCallDialogPayload["other_user_id"] = mOtherUserID;
-	if (!mReceivedCall && state == STATE_RINGING)
+	if (mReceivedCall) // incoming call
 	{
-		llinfos << "RINGINGGGGGGGG " << mSessionName << llendl;
-		if (!mSessionName.empty())
+		// you only "answer" voice invites in p2p mode
+		// so provide a special purpose message here
+		if (mReceivedCall && state == STATE_RINGING)
 		{
-			LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE);
+			gIMMgr->addSystemMessage(mSessionID, "answering", mNotifyArgs);
+			doSetState(state);
+			return;
+		}
+	}
+	else // outgoing call
+	{
+		mCallDialogPayload["session_id"] = mSessionID;
+		mCallDialogPayload["session_name"] = mSessionName;
+		mCallDialogPayload["other_user_id"] = mOtherUserID;
+		if (state == STATE_RINGING)
+		{
+			// *HACK: open outgoing call floater if needed, might be better done elsewhere.
+			// *TODO: should move this squirrelly ui-fudging crap into LLOutgoingCallDialog itself
+			if (!mSessionName.empty())
+			{
+				LLOutgoingCallDialog *ocd = dynamic_cast<LLOutgoingCallDialog*>(LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE));
+				if (ocd)
+				{
+					ocd->getChild<LLTextBox>("calling")->setVisible(true);
+					ocd->getChild<LLTextBox>("leaving")->setVisible(true);
+					ocd->getChild<LLTextBox>("connecting")->setVisible(false);
+				}
+			}
+		}
+		/*else if (state == STATE_CONNECTED)
+		{
+				LLOutgoingCallDialog *ocd = dynamic_cast<LLOutgoingCallDialog*>(LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE));
+				if (ocd)
+				{
+					ocd->getChild<LLTextBox>("calling")->setVisible(false);
+					ocd->getChild<LLTextBox>("leaving")->setVisible(false);
+					ocd->getChild<LLTextBox>("connecting")->setVisible(true);
+				}			
+				}*/
+		else if (state == STATE_HUNG_UP ||
+			 state == STATE_CONNECTED)
+		{
+				LLOutgoingCallDialog *ocd = dynamic_cast<LLOutgoingCallDialog*>(LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE));
+				if (ocd)
+				{
+					ocd->closeFloater();
+				}			
 		}
 	}
 
-	// you only "answer" voice invites in p2p mode
-	// so provide a special purpose message here
-	if (mReceivedCall && state == STATE_RINGING)
-	{
-		gIMMgr->addSystemMessage(mSessionID, "answering", mNotifyArgs);
-		doSetState(state);
-		return;
-	}
 	LLVoiceChannel::setState(state);
 }

@@ -35,9 +35,6 @@
 // Precompiled header
 #include "linden_common.h"
 
-#if LL_WINDOWS
-#pragma warning (disable : 4180) // qualifier applied to function type has no meaning; ignored
-#endif
 
 // STL headers
 // std headers

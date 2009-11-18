@@ -209,6 +209,9 @@ public:
 protected:
 	virtual void onDeleteToast(LLToast* toast);
 	virtual void initChannel();
+
+	// own handlers
+	void onRejectToast(LLUUID& id);
 };
 
 /**

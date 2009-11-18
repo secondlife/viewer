@@ -528,11 +528,17 @@ private:
 		if ( ! mMovieController )
 			return;
 
-		// service QuickTime
-		// Calling it this way doesn't have good behavior on Windows...
-//		MoviesTask( mMovieHandle, milliseconds );
-		// This was the original, but I think using both MoviesTask and MCIdle is redundant.  Trying with only MCIdle.
-//		MoviesTask( mMovieHandle, 0 );
+		// this wasn't required in 1.xx viewer but we have to manually 
+		// work the Windows message pump now
+		#if defined( LL_WINDOWS )
+		MSG msg;
+		while ( PeekMessage( &msg, NULL, 0, 0, PM_NOREMOVE ) ) 
+		{
+			GetMessage( &msg, NULL, 0, 0 );
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
+		};
+		#endif
 
 		MCIdle( mMovieController );
 
@@ -712,18 +718,24 @@ private:
 		// find the size of the title
 		ByteCount size;
 		result = QTMetaDataGetItemValue( media_data_ref, item, NULL, 0, &size );
-		if ( noErr != result || size <= 0 ) 
+		if ( noErr != result || size <= 0 /*|| size > 1024  FIXME: arbitrary limit */ ) 
 			return false;
 
 		// allocate some space and grab it
-		UInt8* item_data = new UInt8( size );
-		memset( item_data, 0, size * sizeof( UInt8* ) );
+		UInt8* item_data = new UInt8( size + 1 );
+		memset( item_data, 0, ( size + 1 ) * sizeof( UInt8* ) );
 		result = QTMetaDataGetItemValue( media_data_ref, item, item_data, size, NULL );
 		if ( noErr != result ) 
+		{
+			delete [] item_data;
 			return false;
+		};
 
 		// save it
-		mMovieTitle = std::string( (char* )item_data );
+		if ( strlen( (char*)item_data ) )
+			mMovieTitle = std::string( (char* )item_data );
+		else
+			mMovieTitle = "";
 
 		// clean up
 		delete [] item_data;

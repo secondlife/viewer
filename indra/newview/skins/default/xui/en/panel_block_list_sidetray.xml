@@ -61,6 +61,7 @@
      layout="topleft"
      left_delta="0"
      name="Block object by name..."
+     tool_tip="Pick an object to block by name"
      top_pad="4"
      width="210" >
         <button.commit_callback

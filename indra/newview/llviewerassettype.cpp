@@ -71,7 +71,6 @@ LLViewerAssetDictionary::LLViewerAssetDictionary()
 	addEntry(LLViewerAssetType::AT_OBJECT, 				new ViewerAssetEntry(DAD_OBJECT));
 	addEntry(LLViewerAssetType::AT_NOTECARD, 			new ViewerAssetEntry(DAD_NOTECARD));
 	addEntry(LLViewerAssetType::AT_CATEGORY, 			new ViewerAssetEntry(DAD_CATEGORY));
-	addEntry(LLViewerAssetType::AT_ROOT_CATEGORY, 		new ViewerAssetEntry(DAD_ROOT_CATEGORY));
 	addEntry(LLViewerAssetType::AT_LSL_TEXT, 			new ViewerAssetEntry(DAD_SCRIPT));
 	addEntry(LLViewerAssetType::AT_LSL_BYTECODE, 		new ViewerAssetEntry(DAD_NONE));
 	addEntry(LLViewerAssetType::AT_TEXTURE_TGA, 		new ViewerAssetEntry(DAD_NONE));

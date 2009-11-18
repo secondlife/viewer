@@ -46,6 +46,8 @@
 #include "llfloaterreg.h"
 #include "llmutelist.h"
 
+#include "llsidetray.h"//for blocked objects panel
+
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
 std::string formatCurrentTime()
@@ -92,6 +94,8 @@ public:
 		else if (level == "block")
 		{
 			LLMuteList::getInstance()->add(LLMute(getAvatarId(), mFrom, LLMute::OBJECT));
+
+			LLSideTray::getInstance()->showPanel("panel_block_list_sidetray", LLSD().insert("blocked_to_select", getAvatarId()));
 		}
 	}
 
@@ -345,18 +349,34 @@ LLView* LLChatHistory::getHeader(const LLChat& chat,const LLStyle::Params& style
 	return header;
 }
 
-void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& style_params)
+void LLChatHistory::appendWidgetMessage(const LLChat& chat, const LLStyle::Params& input_append_params)
 {
 	LLView* view = NULL;
 	std::string view_text = "\n[" + formatCurrentTime() + "] ";
 	if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
 		view_text += chat.mFromName + ": ";
 
+
 	LLInlineViewSegment::Params p;
 	p.force_newline = true;
 	p.left_pad = mLeftWidgetPad;
 	p.right_pad = mRightWidgetPad;
 
+	
+	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
+	LLViewerChat::getChatColor(chat,txt_color);
+	LLFontGL* fontp = LLViewerChat::getChatFont();	
+	std::string font_name = LLFontGL::nameFromFont(fontp);
+	std::string font_size = LLFontGL::sizeFromFont(fontp);	
+	LLStyle::Params style_params;
+	style_params.color(txt_color);
+	style_params.readonly_color(txt_color);
+	style_params.font.name(font_name);
+	style_params.font.size(font_size);	
+	style_params.font.style(input_append_params.font.style);
+	
+
+	
 	if (mLastFromName == chat.mFromName)
 	{
 		view = getSeparator();
@@ -371,6 +391,7 @@ void LLChatHistory::appendWidgetMessage(const LLChat& chat, LLStyle::Params& sty
 		else
 			p.top_pad = mTopHeaderPad;
 		p.bottom_pad = mBottomHeaderPad;
+		
 	}
 	p.view = view;
 

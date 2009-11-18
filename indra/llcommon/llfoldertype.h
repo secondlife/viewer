@@ -52,22 +52,17 @@ public:
 
 		FT_LANDMARK = 3,
 
-		// FT_SCRIPT = 4,
-
 		FT_CLOTHING = 5,
 
 		FT_OBJECT = 6,
 
 		FT_NOTECARD = 7,
 
-		FT_CATEGORY = 8,
-
-		FT_ROOT_CATEGORY = 9,
+		FT_ROOT_INVENTORY = 8,
+			// We'd really like to change this to 9 since AT_CATEGORY is 8,
+			// but "My Inventory" has been type 8 for a long time.
 
 		FT_LSL_TEXT = 10,
-
-		// FT_LSL_BYTECODE = 11,
-		// FT_TEXTURE_TGA = 12,
 
 		FT_BODYPART = 13,
 
@@ -77,15 +72,9 @@ public:
 
 		FT_LOST_AND_FOUND = 16,
 
-		// FT_SOUND_WAV = 17,
-		// FT_IMAGE_TGA = 18,
-		// FT_IMAGE_JPEG = 19,
-
 		FT_ANIMATION = 20,
 
 		FT_GESTURE = 21,
-
-		// FT_SIMSTATE = 22,
 
 		FT_FAVORITE = 23,
 

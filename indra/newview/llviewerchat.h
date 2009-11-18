@@ -1,10 +1,10 @@
 /** 
- * @file llnearbychat.h
- * @brief nearby chat history scrolling panel implementation
+ * @file llviewerchat.h
+ * @brief wrapper of LLChat in viewer
  *
- * $LicenseInfo:firstyear=2004&license=viewergpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
- * Copyright (c) 2004-2009, Linden Research, Inc.
+ * Copyright (c) 2002-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,44 +30,23 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNEARBYCHAT_H_
-#define LL_LLNEARBYCHAT_H_
+#ifndef LL_LLVIEWERCHAT_H
+#define LL_LLVIEWERCHAT_H
 
-#include "lldockablefloater.h"
-#include "llscrollbar.h"
-#include "llviewerchat.h"
+#include "llchat.h"
+#include "llfontgl.h"
+#include "v4color.h"
 
-class LLResizeBar;
-class LLChatHistory;
 
-class LLNearbyChat: public LLDockableFloater
+class LLViewerChat 
 {
 public:
-	LLNearbyChat(const LLSD& key);
-	~LLNearbyChat();
+	static void getChatColor(const LLChat& chat, LLColor4& r_color);
+	static void getChatColor(const LLChat& chat, std::string& r_color_name, F32& r_color_alpha);
+	static LLFontGL* getChatFont();
+	static S32 getChatFontSize();
+	static void formatChatMsg(const LLChat& chat, std::string& formated_msg);
 
-	BOOL	postBuild			();
-	void	addMessage			(const LLChat& message);	
-	void	onNearbyChatContextMenuItemClicked(const LLSD& userdata);
-	bool	onNearbyChatCheckContextMenuItem(const LLSD& userdata);
-
-	/*virtual*/ void	onOpen	(const LLSD& key);
-
-	virtual void setRect		(const LLRect &rect);
-
-private:
-	virtual void    applySavedVariables();
-
-	void	getAllowedRect		(LLRect& rect);
-
-	void	onNearbySpeakers	();
-	
-
-private:
-	LLHandle<LLView>	mPopupMenuHandle;
-	LLChatHistory*		mChatHistory;
 };
 
 #endif
-
-

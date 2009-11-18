@@ -673,6 +673,24 @@ LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& para
 	return NULL;
 }
 
+LLPanel*	LLSideTray::getPanel		(const std::string& panel_name)
+{
+	child_vector_const_iter_t child_it;
+	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
+	{
+		LLView* view = (*child_it)->findChildView(panel_name,true);
+		if(view)
+		{
+			LLPanel* panel = dynamic_cast<LLPanel*>(view);
+			if(panel)
+			{
+				return panel;
+			}
+		}
+	}
+	return NULL;
+}
+
 // *TODO: Eliminate magic constants.
 static const S32	fake_offset = 132;
 static const S32	fake_top_offset = 18;

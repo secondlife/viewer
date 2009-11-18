@@ -36,8 +36,8 @@
 #include "llpanel.h"
 #include "string"
 
-class LLSideTrayTab;
 class LLAccordionCtrl;
+class LLSideTrayTab;
 
 // added inheritance from LLDestroyClass<LLSideTray> to enable Side Tray perform necessary actions 
 // while disconnecting viewer in LLAppViewer::disconnectViewer().
@@ -95,6 +95,11 @@ public:
 	 * Pass params as array, or they may be overwritten(example - params["name"]="nearby")
 	 */
     LLPanel*	showPanel		(const std::string& panel_name, const LLSD& params);
+
+	/*
+	 * get the panel (don't show it or do anything else with it)
+	 */
+    LLPanel*	getPanel		(const std::string& panel_name);
 
 	/*
      * collapse SideBar, hiding visible tab and moving tab buttons

@@ -102,6 +102,13 @@ public:
 	// remove channel methods
 	void	removeChannelByID(const LLUUID id);
 
+	/**
+	 * Manages toasts showing for all channels.
+	 *
+	 * @param mute Flag to disable/enable toasts showing.
+	 */
+	void muteAllChannels(bool mute);
+
 private:
 
 	LLScreenChannel* createChannel(LLChannelManager::Params& p);

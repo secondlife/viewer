@@ -39,6 +39,7 @@
 
 #include "llfloater.h"
 #include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "lldarray.h"
 
 class LLScrollContainer;
@@ -76,7 +77,11 @@ protected:
 	void onClickNew();
 	void onCommitList();
 	void playGesture(LLUUID item_id);
-
+	LLCtrlListInterface* getGestureList() const 
+	{
+		return childGetListInterface("gesture_list");
+	}
+	void onActivateBtnClick();
 protected:
 	LLUUID mSelectedID;
 	LLUUID mGestureFolderID;
