@@ -14,7 +14,18 @@
  <string
   name="no_classifieds"
   value="No Classifieds" />
-     
+ <text
+  type="string"
+  follows="all"
+  height="535"
+  layout="topleft"
+  left="6"
+  name="empty_picks_panel_text"
+  top="10"
+  visible="false" 
+  width="313">
+   There are no any picks/classifieds here
+ </text>
  <accordion
   follows="all"
   height="465"
@@ -120,7 +131,7 @@
        <button
          enabled="false"
          follows="bottom|left"
-         font="SansSerifSmallBold"
+         font="SansSerifSmall"
          height="25"
          label="Info"
          layout="topleft"
@@ -132,7 +143,7 @@
         <button
          enabled="false"
          follows="bottom|left"
-         font="SansSerifSmallBold"
+         font="SansSerifSmall"
          height="25"
          label="Teleport"
          layout="topleft"
@@ -144,7 +155,7 @@
         <button
          enabled="false"
          follows="bottom|left"
-         font="SansSerifSmallBold"
+         font="SansSerifSmall"
          height="25"
          label="Map"
          layout="topleft"
@@ -156,7 +167,7 @@
         <button
          enabled="false"
          follows="bottom|right"
-         font="SansSerifSmallBold"
+         font="SansSerifSmall"
          height="25"
          label="▼"
          layout="topleft"

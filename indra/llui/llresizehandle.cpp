@@ -135,6 +135,12 @@ BOOL LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
 		LLView* resizing_view = getParent();
 		if( resizing_view )
 		{
+			// undock floater when user resize it
+			if (((LLFloater*)getParent())->isDocked())
+			{
+				((LLFloater*)getParent())->setDocked(false, false);
+			}
+
 			// Resize the parent
 			LLRect orig_rect = resizing_view->getRect();
 			LLRect scaled_rect = orig_rect;

@@ -82,6 +82,14 @@ public:
 
 	void updatePanelAutoResize(const std::string& panel_name, BOOL auto_resize);
 	
+	/**
+	 * Gets minimal width and/or height of the specified by name panel.
+	 *
+	 * If it is necessary to get only the one dimension pass NULL for another one.
+	 * @returns true if specified by panel_name internal panel exists, false otherwise.
+	 */
+	bool getPanelMinSize(const std::string& panel_name, S32* min_widthp, S32* min_heightp);
+	
 	void updateLayout(BOOL force_resize = FALSE);
 	static void updateClass();
 

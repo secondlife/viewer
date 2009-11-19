@@ -36,7 +36,6 @@
 	 filename="panel_main_inventory.xml"
 	 follows="all"
 	 layout="topleft"
-	 hide_top_panel="true"
 	 left="0"
 	 label="Inventory Panel"
 	 name="Inventory Panel"

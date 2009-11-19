@@ -310,6 +310,7 @@ public:
 public:
 	static void		onChangeSelfInvisible(BOOL newvalue);
 	void			setInvisible(BOOL newvalue);
+	bool			sendAppearanceMessage(LLMessageSystem *mesgsys) const;
 
 /**                    Appearance
  **                                                                            **

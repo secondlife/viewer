@@ -49,6 +49,7 @@
 #include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llchat.h"
+#include "llchiclet.h"
 #include "llresmgr.h"
 #include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"
@@ -394,21 +395,15 @@ bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, 
 
 bool LLIMModel::logToFile(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
 {
-	S32 im_log_option =  gSavedPerAccountSettings.getS32("IMLogOptions");
-	if (im_log_option != LOG_CHAT)
+	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
 	{
-		if(im_log_option == LOG_BOTH_TOGETHER)
-		{
-			LLLogChat::saveHistory(std::string("chat"), from, from_id, utf8_text);
-			return true;
-		}
-		else
-		{
-			LLLogChat::saveHistory(LLIMModel::getInstance()->getName(session_id), from, from_id, utf8_text);
-			return true;
-		}
+		LLLogChat::saveHistory(LLIMModel::getInstance()->getName(session_id), from, from_id, utf8_text);
+		return true;
 	}
-	return false;
+	else
+	{
+		return false;
+	}
 }
 
 bool LLIMModel::proccessOnlineOfflineNotification(
@@ -1099,7 +1094,7 @@ LLOutgoingCallDialog::LLOutgoingCallDialog(const LLSD& payload) :
 
 void LLOutgoingCallDialog::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectRaw();
+	rect = gViewerWindow->getWorldViewRectScaled();
 }
 
 void LLOutgoingCallDialog::onOpen(const LLSD& key)
@@ -1212,7 +1207,7 @@ BOOL LLIncomingCallDialog::postBuild()
 
 void LLIncomingCallDialog::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectRaw();
+	rect = gViewerWindow->getWorldViewRectScaled();
 }
 
 void LLIncomingCallDialog::onOpen(const LLSD& key)

@@ -42,7 +42,7 @@
     </scroll_list>
     <button
      height="23"
-     font="SansSerifBold"
+     font="SansSerif"
      label="Teleport"
      label_selected="Teleport"
      layout="topleft"
@@ -53,7 +53,7 @@
      width="80" />
     <button
      height="23"
-     font="SansSerifBold"
+     font="SansSerif"
      label="Map"
      label_selected="Map"
      layout="topleft"

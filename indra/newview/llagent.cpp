@@ -6326,7 +6326,7 @@ void LLAgent::sendAgentSetAppearance()
 			msg->addU8Fast(_PREHASH_TextureIndex, (U8)texture_index);
 		}
 		msg->nextBlockFast(_PREHASH_ObjectData);
-		mAvatarObject->packTEMessage( gMessageSystem );
+		mAvatarObject->sendAppearanceMessage( gMessageSystem );
 	}
 	else
 	{
