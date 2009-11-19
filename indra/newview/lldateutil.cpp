@@ -66,23 +66,82 @@ static S32 age_days_from_date(const std::string& date_string,
 	return age_days;
 }
 
+static S32 DAYS_PER_MONTH_NOLEAP[] =
+	{ 31, 28, 21, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+static S32 DAYS_PER_MONTH_LEAP[] =
+	{ 31, 29, 21, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+static S32 days_from_month(S32 year, S32 month)
+{
+	if (year % 4 == 0 
+		&& year % 100 != 0)
+	{
+		// leap year
+		return DAYS_PER_MONTH_LEAP[month];
+	}
+	else
+	{
+		return DAYS_PER_MONTH_NOLEAP[month];
+	}
+}
+
 std::string LLDateUtil::ageFromDate(const std::string& date_string,
 									const LLDate& now)
 {
+#define BAD_DATE_MATH 0
+#if BAD_DATE_MATH
 	S32 age_days = age_days_from_date(date_string, now);
 	if (age_days == S32_MIN) return "???";
-
-	// Noun pluralization depends on language
-	std::string lang = LLUI::getLanguage();
-
-	// Try for age in round number of years
-	LLStringUtil::format_map_t args;
 	S32 age_years = age_days / 365;
 	age_days = age_days % 365;
 	// *NOTE: This is wrong.  Not all months have 30 days, but we don't have a library
 	// for relative date arithmetic. :-(  JC
 	S32 age_months = age_days / 30;
 	age_days = age_days % 30;
+#else
+	S32 born_month, born_day, born_year;
+	S32 matched = sscanf(date_string.c_str(), "%d/%d/%d", &born_month, &born_day, &born_year);
+	if (matched != 3) return "???";
+	LLDate born_date;
+	born_date.fromYMDHMS(born_year, born_month, born_day);
+	F64 born_date_secs_since_epoch = born_date.secondsSinceEpoch();
+	// Correct for the fact that account creation dates are in Pacific time,
+	// == UTC - 8
+	born_date_secs_since_epoch += 8.0 * 60.0 * 60.0;
+	born_date.secondsSinceEpoch(born_date_secs_since_epoch);
+	// explode out to month/day/year again
+	born_date.split(&born_year, &born_month, &born_day);
+
+	S32 now_year, now_month, now_day;
+	now.split(&now_year, &now_month, &now_day);
+
+	// Do grade-school subtraction, from right-to-left, borrowing from the left
+	// when things go negative
+	S32 age_days = (now_day - born_day);
+	if (age_days < 0)
+	{
+		now_month -= 1;
+		if (now_month == 0)
+		{
+			now_year -= 1;
+			now_month = 12;
+		}
+		age_days += days_from_month(now_year, now_month);
+	}
+	S32 age_months = (now_month - born_month);
+	if (age_months < 0)
+	{
+		now_year -= 1;
+		age_months += 12;
+	}
+	S32 age_years = (now_year - born_year);
+#endif
+
+	// Noun pluralization depends on language
+	std::string lang = LLUI::getLanguage();
+
+	// Try for age in round number of years
+	LLStringUtil::format_map_t args;
 
 	if (age_months > 0 || age_years > 0)
 	{
