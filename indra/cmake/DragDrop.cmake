@@ -4,7 +4,7 @@ if (VIEWER)
 
   OPTION (OS_DRAG_DROP
   "Build the viewer with OS level drag and drop turned on or off"
-  OFF)
+  ON)
 
   if (OS_DRAG_DROP)
 
