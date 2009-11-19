@@ -86,9 +86,8 @@ LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_param
 	childSetEnabled("param slider", mAllowModify);
 	childSetCommitCallback("param slider", LLScrollingPanelParam::onSliderMoved, this);
 
-	// *TODO: Translate
-	std::string min_name = param->getMinDisplayName();
-	std::string max_name = param->getMaxDisplayName();
+	std::string min_name = LLTrans::getString(param->getMinDisplayName());
+	std::string max_name = LLTrans::getString(param->getMaxDisplayName());
 	childSetValue("min param text", min_name);
 	childSetValue("max param text", max_name);
 
