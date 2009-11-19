@@ -769,16 +769,23 @@ protected:
 	LLChicletPanel(const Params&p);
 	friend class LLUICtrlFactory;
 
-	S32 calcChickletPanleWidth();
-
-	/*
-	 * Adds chiclet to list and rearranges all chiclets.
-	*/
+	/**
+	 * Adds chiclet to list and rearranges all chiclets. 
+	 * They should be right aligned, most recent right. See EXT-1293
+	 *
+	 * It calculates position of the first chiclet in the list. Other chiclets are placed in arrange().
+	 *
+	 * @see arrange()
+	 */
 	bool addChiclet(LLChiclet*, S32 index);
 
-	/*
-	 * Arranges chiclets.
-	*/
+	/**
+	 * Arranges chiclets to have them in correct positions.
+	 *
+	 * Method bases on assumption that first chiclet has correct rect and starts from the its position.
+	 *
+	 * @see addChiclet()
+	 */
 	void arrange();
 
 	/*

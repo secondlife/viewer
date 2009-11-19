@@ -914,34 +914,45 @@ void LLChicletPanel::onCurrentVoiceChannelChanged(const LLUUID& session_id)
 	s_previous_active_voice_session_id = session_id;
 }
 
-S32 LLChicletPanel::calcChickletPanleWidth()
-{
-	S32 res = 0;
-
-	for (chiclet_list_t::iterator it = mChicletList.begin(); it
-			!= mChicletList.end(); it++)
-	{
-		res = (*it)->getRect().getWidth() + getChicletPadding();
-	}
-	return res;
-}
-
 bool LLChicletPanel::addChiclet(LLChiclet* chiclet, S32 index)
 {
 	if(mScrollArea->addChild(chiclet))
 	{
-		// chicklets should be aligned to right edge of scroll panel
-		S32 offset = 0;
+		// chiclets should be aligned to right edge of scroll panel
+		S32 left_shift = 0;
 
 		if (!canScrollLeft())
 		{
-			offset = mScrollArea->getRect().getWidth()
-					- chiclet->getRect().getWidth() - calcChickletPanleWidth();
+			// init left shift for the first chiclet in the list...
+			if (mChicletList.empty())
+			{
+				// ...start from the right border of the scroll area for the first added chiclet 
+				left_shift = mScrollArea->getRect().getWidth();
+			}
+			else
+			{
+				// ... start from the left border of the first chiclet minus padding
+				left_shift = getChiclet(0)->getRect().mLeft - getChicletPadding();
+			}
+
+			// take into account width of the being added chiclet
+			left_shift -= chiclet->getRequiredRect().getWidth();
+
+			// if we overflow the scroll area we do not need to shift chiclets
+			if (left_shift < 0)
+			{
+				left_shift = 0;
+			}
 		}
 
 		mChicletList.insert(mChicletList.begin() + index, chiclet);
 
-		getChiclet(0)->translate(offset, 0);
+		// shift first chiclet to place it in correct position. 
+		// rest ones will be placed in arrange()
+		if (!canScrollLeft())
+		{
+			getChiclet(0)->translate(left_shift - getChiclet(0)->getRect().mLeft, 0);
+		}
 
 		chiclet->setLeftButtonClickCallback(boost::bind(&LLChicletPanel::onChicletClick, this, _1, _2));
 		chiclet->setChicletSizeChangedCallback(boost::bind(&LLChicletPanel::onChicletSizeChanged, this, _1, index));
