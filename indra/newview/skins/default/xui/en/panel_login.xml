@@ -27,6 +27,7 @@
      border_visible="false"
      bottom="600"
      follows="all"
+	 hide_loading="true"
      left="0"
      name="login_html"
      start_url=""

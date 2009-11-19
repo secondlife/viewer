@@ -22,17 +22,6 @@
         <key>Value</key>
             <string>|TOKEN COPY BusyModeResponse|</string>
         </map>
-    <key>IMLogOptions</key>
-        <map>
-        <key>Comment</key>
-            <string>Log options for Instant Messages</string>
-        <key>Persist</key>
-            <integer>1</integer>
-        <key>Type</key>
-            <string>S32</string>
-        <key>Value</key>
-            <integer>2</integer>
-        </map>
     <key>InstantMessageLogFolder</key>
         <map>
         <key>Comment</key>
@@ -75,18 +64,7 @@
         <key>Type</key>
             <string>Boolean</string>
         <key>Value</key>
-            <integer>0</integer>
-        </map>
-    <key>LogChatIM</key>
-        <map>
-        <key>Comment</key>
-            <string>Log Incoming Instant Messages with Chat</string>
-        <key>Persist</key>
             <integer>1</integer>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <integer>0</integer>
         </map>
     <key>LogTimestamp</key>
         <map>
@@ -97,7 +75,7 @@
         <key>Type</key>
             <string>Boolean</string>
         <key>Value</key>
-            <integer>0</integer>
+            <integer>1</integer>
         </map>
     <key>LogInstantMessages</key>
         <map>

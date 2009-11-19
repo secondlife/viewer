@@ -74,6 +74,7 @@ public:
 		mName("(Loading...)"),
 		mPosX(0),
 		mPosY(0),
+		mPosZ(0),
 		mLoaded(false) 
 	{}
 
@@ -101,6 +102,14 @@ public:
 			requestNameAndPos();
 		return mPosY;
 	}
+
+	S32 getPosZ()
+	{
+		if (!mLoaded)
+			requestNameAndPos();
+		return mPosZ;
+	}
+
 private:
 	/**
 	 * Requests landmark data from server.
@@ -114,14 +123,15 @@ private:
 		if(LLLandmarkActions::getLandmarkGlobalPos(mLandmarkID, g_pos))
 		{
 			LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(g_pos,
-				boost::bind(&LLLandmarkInfoGetter::landmarkNameCallback, this, _1, _2, _3));
+				boost::bind(&LLLandmarkInfoGetter::landmarkNameCallback, this, _1, _2, _3, _4));
 		}
 	}
 
-	void landmarkNameCallback(const std::string& name, S32 x, S32 y)
+	void landmarkNameCallback(const std::string& name, S32 x, S32 y, S32 z)
 	{
 		mPosX = x;
 		mPosY = y;
+		mPosZ = z;
 		mName = name;
 		mLoaded = true;
 	}
@@ -130,6 +140,7 @@ private:
 	std::string mName;
 	S32 mPosX;
 	S32 mPosY;
+	S32 mPosZ;
 	bool mLoaded;
 };
 
@@ -151,7 +162,8 @@ public:
 		if (!region_name.empty())
 		{
 			LLToolTip::Params params;
-			params.message = llformat("%s\n%s (%d, %d)", getLabelSelected().c_str(), region_name.c_str(), mLandmarkInfoGetter.getPosX(), mLandmarkInfoGetter.getPosY());
+			params.message = llformat("%s\n%s (%d, %d, %d)", getLabelSelected().c_str(), region_name.c_str(), 
+				mLandmarkInfoGetter.getPosX(), mLandmarkInfoGetter.getPosY(), mLandmarkInfoGetter.getPosZ());
 			params.sticky_rect = calcScreenRect();
 			LLToolTipMgr::instance().show(params);
 		}
@@ -901,7 +913,10 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 				menu->buildDrawLabels();
 				menu->updateParent(LLMenuGL::sMenuContainer);
 
-				menu->setButtonRect(mChevronRect, this);
+				if (menu->getButtonRect().isEmpty())
+				{
+					menu->setButtonRect(mChevronRect, this);
+				}
 
 				LLMenuGL::showPopup(this, menu, getRect().getWidth() - menu->getRect().getWidth(), 0);
 				return;

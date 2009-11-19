@@ -2508,7 +2508,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 		if(drop)
 		{
 		    BOOL append = ( (mask & MASK_SHIFT) ? TRUE : FALSE );
-			LLAppearanceManager::wearInventoryCategory(category, false, append);
+			LLAppearanceManager::instance().wearInventoryCategory(category, false, append);
 		}
 		return ACCEPT_YES_MULTI;
 	}
@@ -2516,7 +2516,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 	{
 		if(drop)
 		{
-			LLAppearanceManager::wearInventoryCategory(category, true, false);
+			LLAppearanceManager::instance().wearInventoryCategory(category, true, false);
 		}
 		return ACCEPT_YES_MULTI;
 	}

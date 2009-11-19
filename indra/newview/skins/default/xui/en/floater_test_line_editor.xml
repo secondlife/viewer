@@ -18,7 +18,18 @@
     Enabled line editor
   </line_editor>
   <line_editor
-    enabled="false"
+   height="20"
+   layout="topleft"
+   left_delta="0"
+   name="ascii_line_editor"
+   prevalidate_callback="ascii"
+   tool_tip="ascii line editor"
+   top_pad="10" 
+   width="200">
+    ASCII only line editor
+  </line_editor>
+  <line_editor
+   enabled="false"
    height="20"
    layout="topleft"
    left_delta="0"

@@ -96,6 +96,7 @@ void LLQueuedThread::shutdown()
 		if (req->getStatus() == STATUS_QUEUED || req->getStatus() == STATUS_INPROGRESS)
 		{
 			++active_count;
+			req->setStatus(STATUS_ABORTED); // avoid assert in deleteRequest
 		}
 		req->deleteRequest();
 	}

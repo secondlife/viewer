@@ -90,9 +90,9 @@ BOOL LLSysWellWindow::postBuild()
 void LLSysWellWindow::setMinimized(BOOL minimize)
 {
 	// we don't show empty Message Well window
-	if (!minimize)
+	if (!minimize && isWindowEmpty())
 	{
-		setVisible(!isWindowEmpty());
+		return;
 	}
 
 	LLDockableFloater::setMinimized(minimize);
@@ -238,7 +238,7 @@ void LLSysWellWindow::initChannel()
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectRaw();
+	rect = gViewerWindow->getWorldViewRectScaled();
 }
 
 //---------------------------------------------------------------------------------
@@ -268,8 +268,11 @@ void LLSysWellWindow::toggleWindow()
 	{
 		setVisible(FALSE);
 	}
-	//set window in foreground
-	setFocus(getVisible());
+	else if(!isDocked())
+	{
+		// bring to front undocked floater
+		setVisible(TRUE);
+	}
 }
 
 //---------------------------------------------------------------------------------
@@ -329,7 +332,9 @@ void LLSysWellWindow::reshapeWindow()
 		new_window_height = MAX_WINDOW_HEIGHT;
 	}
 	S32 newY = curRect.mTop + new_window_height - curRect.getHeight();
-	curRect.setLeftTopAndSize(curRect.mLeft, newY, MIN_WINDOW_WIDTH, new_window_height);
+	S32 newWidth = curRect.getWidth() < MIN_WINDOW_WIDTH ? MIN_WINDOW_WIDTH
+			: curRect.getWidth();
+	curRect.setLeftTopAndSize(curRect.mLeft, newY, newWidth, new_window_height);
 	reshape(curRect.getWidth(), curRect.getHeight(), TRUE);
 	setRect(curRect);
 
@@ -501,14 +506,14 @@ LLSysWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID&
 	switch (im_chiclet_type)
 	{
 	case LLIMChiclet::TYPE_GROUP:
+		mChiclet = getChild<LLIMGroupChiclet>("group_chiclet");
+		break;
 	case LLIMChiclet::TYPE_AD_HOC:
-		mChiclet = getChild<LLIMChiclet>("group_chiclet");
-		childSetVisible("p2p_chiclet", false);
+		mChiclet = getChild<LLAdHocChiclet>("adhoc_chiclet");		
 		break;
 	case LLIMChiclet::TYPE_UNKNOWN: // assign mChiclet a non-null value anyway
 	case LLIMChiclet::TYPE_IM:
-		mChiclet = getChild<LLIMChiclet>("p2p_chiclet");
-		childSetVisible("group_chiclet", false);
+		mChiclet = getChild<LLIMP2PChiclet>("p2p_chiclet");
 		break;
 	}
 
@@ -517,6 +522,7 @@ LLSysWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID&
 	mChiclet->setSessionId(sessionId);
 	mChiclet->setIMSessionName(name);
 	mChiclet->setOtherParticipantId(otherParticipantId);
+	mChiclet->setVisible(true);
 
 	LLTextBox* contactName = getChild<LLTextBox>("contact_name");
 	contactName->setValue(name);

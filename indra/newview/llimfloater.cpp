@@ -106,10 +106,10 @@ void LLIMFloater::onFocusReceived()
 // virtual
 void LLIMFloater::onClose(bool app_quitting)
 {
-	if (!gIMMgr->hasSession(mSessionID)) return;
-	
 	setTyping(false);
-	gIMMgr->leaveSession(mSessionID);
+	// SJB: We want the close button to hide the session window, not end it
+	// *NOTE: Yhis is functional, but not ideal - it's still closing the floater; we really want to change the behavior of the X button instead.
+	//gIMMgr->leaveSession(mSessionID);
 }
 
 /* static */
@@ -120,11 +120,7 @@ void LLIMFloater::newIMCallback(const LLSD& data){
 		LLUUID session_id = data["session_id"].asUUID();
 
 		LLIMFloater* floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
-		if (floater == NULL)
-		{
-			llwarns << "new_im_callback for non-existent session_id " << session_id << llendl;
-			return;
-		}
+		if (floater == NULL) return;
 
         // update if visible, otherwise will be updated when opened
 		if (floater->getVisible())
@@ -211,6 +207,7 @@ BOOL LLIMFloater::postBuild()
 	}
 
 	mControlPanel->setSessionId(mSessionID);
+	mControlPanel->setVisible(gSavedSettings.getBOOL("IMShowControlPanel"));
 
 	LLButton* slide_left = getChild<LLButton>("slide_left_btn");
 	slide_left->setVisible(mControlPanel->getVisible());
@@ -356,14 +353,12 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 				LLDockControl::TOP,  boost::bind(&LLIMFloater::getAllowedRect, floater, _1)));
 	}
 
-	floater->childSetVisible("panel_im_control_panel", gSavedSettings.getBOOL("IMShowControlPanel"));
-
 	return floater;
 }
 
 void LLIMFloater::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectRaw();
+	rect = gViewerWindow->getWorldViewRectScaled();
 }
 
 void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
@@ -372,8 +367,6 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 	LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
 		(LLNotificationsUI::LLChannelManager::getInstance()->
 											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
-
-	setCanResize(!docked);
 	
 	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
 
@@ -463,7 +456,7 @@ void LLIMFloater::updateMessages()
 
 	if (messages.size())
 	{
-		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
+//		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
 
 		std::ostringstream message;
 		std::list<LLSD>::const_reverse_iterator iter = messages.rbegin();
@@ -476,31 +469,44 @@ void LLIMFloater::updateMessages()
 			LLUUID from_id = msg["from_id"].asUUID();
 			std::string from = from_id != gAgentID ? msg["from"].asString() : LLTrans::getString("You");
 			std::string message = msg["message"].asString();
-			LLStyle::Params style_params;
-			style_params.color(chat_color);
 
 			LLChat chat;
 			chat.mFromID = from_id;
 			chat.mFromName = from;
-
+			chat.mText = message;
+			chat.mTimeStr = time;
+			
 			//Handle IRC styled /me messages.
 			std::string prefix = message.substr(0, 4);
 			if (prefix == "/me " || prefix == "/me'")
 			{
+				
+				LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
+				LLViewerChat::getChatColor(chat,txt_color);
+				LLFontGL* fontp = LLViewerChat::getChatFont();
+				std::string font_name = LLFontGL::nameFromFont(fontp);
+				std::string font_size = LLFontGL::sizeFromFont(fontp);
+				LLStyle::Params append_style_params;
+				append_style_params.color(txt_color);
+				append_style_params.readonly_color(txt_color);
+				append_style_params.font.name(font_name);
+				append_style_params.font.size(font_size);
+				
 				if (from.size() > 0)
 				{
-					style_params.font.style = "ITALIC";
-					chat.mText = from + " ";
-					mChatHistory->appendWidgetMessage(chat, style_params);
+					append_style_params.font.style = "ITALIC";
+					chat.mText = from;
+					mChatHistory->appendWidgetMessage(chat, append_style_params);
 				}
+				
 				message = message.substr(3);
-				style_params.font.style = "UNDERLINE";
-				mChatHistory->appendText(message, FALSE, style_params);
+				append_style_params.font.style = "ITALIC";
+				mChatHistory->appendText(message, FALSE, append_style_params);
 			}
 			else
 			{
 				chat.mText = message;
-				mChatHistory->appendWidgetMessage(chat, style_params);
+				mChatHistory->appendWidgetMessage(chat);
 			}
 
 			mLastMessageIndex = msg["index"].asInteger();

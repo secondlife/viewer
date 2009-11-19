@@ -92,6 +92,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mStretchToFill( true ),
 	mMaintainAspectRatio ( true ),
 	mHideLoading (false),
+	mHidingInitialLoad (false),
 	mDecoupleTextureSize ( false ),
 	mTextureWidth ( 1024 ),
 	mTextureHeight ( 1024 )
@@ -101,17 +102,17 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 		setCaretColor( (unsigned int)color.mV[0], (unsigned int)color.mV[1], (unsigned int)color.mV[2] );
 	}
 
-	setIgnoreUIScale(p.ignore_ui_scale());
+	setIgnoreUIScale(p.ignore_ui_scale);
 	
-	setHomePageUrl(p.start_url());
+	setHomePageUrl(p.start_url);
 	
-	setBorderVisible(p.border_visible());
+	setBorderVisible(p.border_visible);
 	
-	mHideLoading = p.hide_loading();
+	mHideLoading = p.hide_loading;
 	
-	setDecoupleTextureSize(p.decouple_texture_size());
+	setDecoupleTextureSize(p.decouple_texture_size);
 	
-	setTextureSize(p.texture_width(), p.texture_height());
+	setTextureSize(p.texture_width, p.texture_height);
 
 	if(!getDecoupleTextureSize())
 	{
@@ -616,6 +617,11 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 			mMediaSource->setHomeURL(mHomePageUrl);
 			mMediaSource->setVisible( getVisible() );
 			mMediaSource->addObserver( this );
+
+			if(mHideLoading)
+			{
+				mHidingInitialLoad = true;
+			}
 		}
 		else
 		{
@@ -685,7 +691,13 @@ void LLMediaCtrl::draw()
 	{
 		setFrequentUpdates( false );
 	};
-
+	
+	if(mHidingInitialLoad)
+	{
+		// If we're hiding loading, don't draw at all.
+		return;
+	}
+	
 	// alpha off for this
 	LLGLSUIDefault gls_ui;
 	LLGLDisable gls_alphaTest( GL_ALPHA_TEST );
@@ -723,13 +735,13 @@ void LLMediaCtrl::draw()
 				{
 					// max width, adjusted height
 					width = r.getWidth();
-					height = llmin(llmax(S32(width / media_aspect), 0), r.getHeight());
+					height = llmin(llmax(llround(width / media_aspect), 0), r.getHeight());
 				}
 				else
 				{
 					// max height, adjusted width
 					height = r.getHeight();
-					width = llmin(llmax(S32(height * media_aspect), 0), r.getWidth());
+					width = llmin(llmax(llround(height * media_aspect), 0), r.getWidth());
 				}
 			}
 			else
@@ -746,6 +758,14 @@ void LLMediaCtrl::draw()
 		
 		x_offset = (r.getWidth() - width) / 2;
 		y_offset = (r.getHeight() - height) / 2;		
+
+		if(mIgnoreUIScale)
+		{
+			x_offset = llround((F32)x_offset * LLUI::sGLScaleFactor.mV[VX]);
+			y_offset = llround((F32)y_offset * LLUI::sGLScaleFactor.mV[VY]);
+			width = llround((F32)width * LLUI::sGLScaleFactor.mV[VX]);
+			height = llround((F32)height * LLUI::sGLScaleFactor.mV[VY]);
+		}
 
 		// draw the browser
 		gGL.setSceneBlendType(LLRender::BT_REPLACE);
@@ -865,19 +885,15 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 		case MEDIA_EVENT_NAVIGATE_BEGIN:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_BEGIN, url is " << self->getNavigateURI() << LL_ENDL;
-			if(mMediaSource && mHideLoading)
-			{
-				mMediaSource->suspendUpdates(true);
-			}
 		};
 		break;
 		
 		case MEDIA_EVENT_NAVIGATE_COMPLETE:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_COMPLETE, result string is: " << self->getNavigateResultString() << LL_ENDL;
-			if(mMediaSource && mHideLoading)
+			if(mHidingInitialLoad)
 			{
-				mMediaSource->suspendUpdates(false);
+				mHidingInitialLoad = false;
 			}
 		};
 		break;

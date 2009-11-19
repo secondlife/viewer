@@ -80,9 +80,7 @@ public:
 	/*virtual*/ void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	
 	void			setScale( F32 scale );
-	void			setRotateMap( BOOL b ) { mRotateMap = b; }
 	void			setToolTipMsg(const std::string& msg) { mToolTipMsg = msg; }
-	BOOL			getRotateMap( ) { return mRotateMap; }
 	void			renderScaledPointGlobal( const LLVector3d& pos, const LLColor4U &color, F32 radius );
 	
 private:
@@ -122,7 +120,6 @@ private:
 	LLUUID			mClosestAgentToCursor;
 	LLUUID			mClosestAgentAtLastRightClick;
 
-	BOOL			mRotateMap;
 	std::string		mToolTipMsg;
 };
 

@@ -32,6 +32,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llagent.h"
 #include "llviewermedia.h"
 #include "llviewermediafocus.h"
 #include "llmimetypes.h"
@@ -53,6 +54,8 @@
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
+
+/*static*/ const char* LLViewerMedia::AUTO_PLAY_MEDIA_SETTING = "AutoPlayMedia";
 
 // Move this to its own file.
 
@@ -135,9 +138,19 @@ public:
 	LLMimeDiscoveryResponder( viewer_media_t media_impl)
 		: mMediaImpl(media_impl),
 		  mInitialized(false)
-	{}
+	{
+		if(mMediaImpl->mMimeTypeProbe != NULL)
+		{
+			llerrs << "impl already has an outstanding responder" << llendl;
+		}
+		
+		mMediaImpl->mMimeTypeProbe = this;
+	}
 
-
+	~LLMimeDiscoveryResponder()
+	{
+		disconnectOwner();
+	}
 
 	virtual void completedHeader(U32 status, const std::string& reason, const LLSD& content)
 	{
@@ -149,23 +162,63 @@ public:
 
 	virtual void error( U32 status, const std::string& reason )
 	{
-		// completeAny(status, "none/none");
-	}
-
-	void completeAny(U32 status, const std::string& mime_type)
-	{
-		if(!mInitialized && ! mime_type.empty())
+		if(status == 401)
 		{
-			if(mMediaImpl->initializeMedia(mime_type))
+			// This is the "you need to authenticate" status.  
+			// Treat this like an html page.
+			completeAny(status, "text/html");
+		}
+		else
+		{
+			llwarns << "responder failed with status " << status << ", reason " << reason << llendl;
+		
+			if(mMediaImpl)
 			{
-				mInitialized = true;
-				mMediaImpl->loadURI();
+				mMediaImpl->mMediaSourceFailed = true;
 			}
 		}
 	}
 
-	public:
-		viewer_media_t mMediaImpl;
+	void completeAny(U32 status, const std::string& mime_type)
+	{
+		// the call to initializeMedia may disconnect the responder, which will clear mMediaImpl.
+		// Make a local copy so we can call loadURI() afterwards.
+		LLViewerMediaImpl *impl = mMediaImpl;
+		
+		if(impl && !mInitialized && ! mime_type.empty())
+		{
+			if(impl->initializeMedia(mime_type))
+			{
+				mInitialized = true;
+				impl->loadURI();
+				disconnectOwner();
+			}
+		}
+	}
+	
+	void cancelRequest()
+	{
+		disconnectOwner();
+	}
+	
+private:
+	void disconnectOwner()
+	{
+		if(mMediaImpl)
+		{
+			if(mMediaImpl->mMimeTypeProbe != this)
+			{
+				llerrs << "internal error: mMediaImpl->mMimeTypeProbe != this" << llendl;
+			}
+
+			mMediaImpl->mMimeTypeProbe = NULL;
+		}
+		mMediaImpl = NULL;
+	}
+	
+	
+public:
+		LLViewerMediaImpl *mMediaImpl;
 		bool mInitialized;
 };
 static LLViewerMedia::impl_list sViewerMediaImplList;
@@ -272,7 +325,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 			// If (the media was already loaded OR the media was set to autoplay) AND this update didn't come from this agent,
 			// do a navigate.
 			
-			if((was_loaded || (media_entry->getAutoPlay() && gSavedSettings.getBOOL("AutoPlayMedia"))) && !update_from_self)
+			if((was_loaded || (media_entry->getAutoPlay() && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING))) && !update_from_self)
 			{
 				needs_navigate = (media_entry->getCurrentURL() != previous_url);
 			}
@@ -289,7 +342,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 		
 		media_impl->setHomeURL(media_entry->getHomeURL());
 		
-		if(media_entry->getAutoPlay() && gSavedSettings.getBOOL("AutoPlayMedia"))
+		if(media_entry->getAutoPlay() && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING))
 		{
 			needs_navigate = true;
 		}
@@ -489,16 +542,6 @@ bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLView
 		// The item with user focus always comes to the front of the list, period.
 		return false;
 	}
-	else if(i1->getUsedInUI() && !i2->getUsedInUI())
-	{
-		// i1 is a UI element, i2 is not.  This makes i1 "less than" i2, so it sorts earlier in our list.
-		return true;
-	}
-	else if(i2->getUsedInUI() && !i1->getUsedInUI())
-	{
-		// i2 is a UI element, i1 is not.  This makes i2 "less than" i1, so it sorts earlier in our list.
-		return false;
-	}
 	else if(i1->isParcelMedia())
 	{
 		// The parcel media impl sorts above all other inworld media, unless one has focus.
@@ -509,11 +552,41 @@ bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLView
 		// The parcel media impl sorts above all other inworld media, unless one has focus.
 		return false;
 	}
+	else if(i1->getUsedInUI() && !i2->getUsedInUI())
+	{
+		// i1 is a UI element, i2 is not.  This makes i1 "less than" i2, so it sorts earlier in our list.
+		return true;
+	}
+	else if(i2->getUsedInUI() && !i1->getUsedInUI())
+	{
+		// i2 is a UI element, i1 is not.  This makes i2 "less than" i1, so it sorts earlier in our list.
+		return false;
+	}
+	else if(i1->isPlayable() && !i2->isPlayable())
+	{
+		// Playable items sort above ones that wouldn't play even if they got high enough priority
+		return true;
+	}
+	else if(!i1->isPlayable() && i2->isPlayable())
+	{
+		// Playable items sort above ones that wouldn't play even if they got high enough priority
+		return false;
+	}
+	else if(i1->getInterest() == i2->getInterest())
+	{
+		// Generally this will mean both objects have zero interest.  In this case, sort on distance.
+		return (i1->getProximityDistance() < i2->getProximityDistance());
+	}
 	else
 	{
 		// The object with the larger interest value should be earlier in the list, so we reverse the sense of the comparison here.
 		return (i1->getInterest() > i2->getInterest());
 	}
+}
+
+static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
+{
+	return (i1->getProximityDistance() < i2->getProximityDistance());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -541,12 +614,9 @@ void LLViewerMedia::updateMedia()
 	int impl_count_total = 0;
 	int impl_count_interest_low = 0;
 	int impl_count_interest_normal = 0;
-	int i = 0;
-
-#if 0	
-	LL_DEBUGS("PluginPriority") << "Sorted impls:" << llendl;
-#endif
-
+	
+	std::vector<LLViewerMediaImpl*> proximity_order;
+	
 	U32 max_instances = gSavedSettings.getU32("PluginInstancesTotal");
 	U32 max_normal = gSavedSettings.getU32("PluginInstancesNormal");
 	U32 max_low = gSavedSettings.getU32("PluginInstancesLow");
@@ -577,10 +647,12 @@ void LLViewerMedia::updateMedia()
 		else if(pimpl->hasFocus())
 		{
 			new_priority = LLPluginClassMedia::PRIORITY_HIGH;
+			impl_count_interest_normal++;	// count this against the count of "normal" instances for priority purposes
 		}
 		else if(pimpl->getUsedInUI())
 		{
 			new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
+			impl_count_interest_normal++;
 		}
 		else
 		{
@@ -588,7 +660,17 @@ void LLViewerMedia::updateMedia()
 			
 			// Heuristic -- if the media texture's approximate screen area is less than 1/4 of the native area of the texture,
 			// turn it down to low instead of normal.  This may downsample for plugins that support it.
-			bool media_is_small = pimpl->getInterest() < (pimpl->getApproximateTextureInterest() / 4);
+			bool media_is_small = false;
+			F64 approximate_interest = pimpl->getApproximateTextureInterest();
+			if(approximate_interest == 0.0f)
+			{
+				// this media has no current size, which probably means it's not loaded.
+				media_is_small = true;
+			}
+			else if(pimpl->getInterest() < (approximate_interest / 4))
+			{
+				media_is_small = true;
+			}
 			
 			if(pimpl->getInterest() == 0.0f)
 			{
@@ -626,7 +708,7 @@ void LLViewerMedia::updateMedia()
 			}
 		}
 		
-		if(new_priority != LLPluginClassMedia::PRIORITY_UNLOADED)
+		if(!pimpl->getUsedInUI() && (new_priority != LLPluginClassMedia::PRIORITY_UNLOADED))
 		{
 			impl_count_total++;
 		}
@@ -640,23 +722,27 @@ void LLViewerMedia::updateMedia()
 		}
 		else
 		{
-			// Other impls just get the same ordering as the priority list (for now).
-			pimpl->mProximity = i;
+			proximity_order.push_back(pimpl);
 		}
 
-#if 0		
-		LL_DEBUGS("PluginPriority") << "    " << pimpl 
-			<< ", setting priority to " << new_priority
-			<< (pimpl->hasFocus()?", HAS FOCUS":"") 
-			<< (pimpl->getUsedInUI()?", is UI":"") 
-			<< ", cpu " << pimpl->getCPUUsage() 
-			<< ", interest " << pimpl->getInterest() 
-			<< ", media url " << pimpl->getMediaURL() << llendl;
-#endif
-
 		total_cpu += pimpl->getCPUUsage();
-		
-		i++;
+	}
+	
+	if(gSavedSettings.getBOOL("MediaPerformanceManagerDebug"))
+	{
+		// Give impls the same ordering as the priority list
+		// they're already in the right order for this.
+	}
+	else
+	{
+		// Use a distance-based sort for proximity values.  
+		std::stable_sort(proximity_order.begin(), proximity_order.end(), proximity_comparitor);
+	}
+
+	// Transfer the proximity order to the proximity fields in the objects.
+	for(int i = 0; i < (int)proximity_order.size(); i++)
+	{
+		proximity_order[i]->mProximity = i;
 	}
 	
 	LL_DEBUGS("PluginPriority") << "Total reported CPU usage is " << total_cpu << llendl;
@@ -708,6 +794,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mIsDisabled(false),
 	mIsParcelMedia(false),
 	mProximity(-1),
+	mProximityDistance(0.0f),
+	mMimeTypeProbe(NULL),
 	mIsUpdated(false)
 { 
 
@@ -811,7 +899,9 @@ void LLViewerMediaImpl::destroyMediaSource()
 	{
 		oldImage->setPlaying(FALSE) ;
 	}
-
+	
+	cancelMimeTypeProbe();
+	
 	if(mMediaSource)
 	{
 		delete mMediaSource;
@@ -1316,6 +1406,8 @@ void LLViewerMediaImpl::unload()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mime_type,  bool rediscover_type, bool server_request)
 {
+	cancelMimeTypeProbe();
+
 	if(mMediaURL != url)
 	{
 		// Don't carry media play state across distinct URLs.
@@ -1358,6 +1450,12 @@ void LLViewerMediaImpl::navigateInternal()
 	// Helpful to have media urls in log file. Shouldn't be spammy.
 	llinfos << "media id= " << mTextureId << " url=" << mMediaURL << " mime_type=" << mMimeType << llendl;
 
+	if(mMimeTypeProbe != NULL)
+	{
+		llwarns << "MIME type probe already in progress -- bailing out." << llendl;
+		return;
+	}
+	
 	if(mNavigateServerRequest)
 	{
 		setNavState(MEDIANAVSTATE_SERVER_SENT);
@@ -1390,7 +1488,7 @@ void LLViewerMediaImpl::navigateInternal()
 
 		if(scheme.empty() || "http" == scheme || "https" == scheme)
 		{
-			LLHTTPClient::getHeaderOnly( mMediaURL, new LLMimeDiscoveryResponder(this));
+			LLHTTPClient::getHeaderOnly( mMediaURL, new LLMimeDiscoveryResponder(this), 10.0f);
 		}
 		else if("data" == scheme || "file" == scheme || "about" == scheme)
 		{
@@ -1521,7 +1619,19 @@ void LLViewerMediaImpl::update()
 {
 	if(mMediaSource == NULL)
 	{
-		if(mPriority != LLPluginClassMedia::PRIORITY_UNLOADED)
+		if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
+		{
+			// This media source should not be loaded.
+		}
+		else if(mPriority <= LLPluginClassMedia::PRIORITY_SLIDESHOW)
+		{
+			// Don't load new instances that are at PRIORITY_SLIDESHOW or below.  They're just kept around to preserve state.
+		}
+		else if(mMimeTypeProbe != NULL)
+		{
+			// this media source is doing a MIME type probe -- don't try loading it again.
+		}
+		else
 		{
 			// This media may need to be loaded.
 			if(sMediaCreateTimer.hasExpired())
@@ -1644,7 +1754,7 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 		// MEDIAOPT: seems insane that we actually have to make an imageraw then
 		// immediately discard it
 		LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
-		raw->clear(0x0f, 0x0f, 0x0f, 0xff);
+		raw->clear(0x00, 0x00, 0x00, 0xff);
 		int discard_level = 0;
 
 		// ask media source for correct GL image format constants
@@ -1745,7 +1855,7 @@ bool LLViewerMediaImpl::isMediaPaused()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-bool LLViewerMediaImpl::hasMedia()
+bool LLViewerMediaImpl::hasMedia() const
 {
 	return mMediaSource != NULL;
 }
@@ -1774,6 +1884,31 @@ bool LLViewerMediaImpl::isForcedUnloaded() const
 		{
 			return true;
 		}
+	}
+	
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+bool LLViewerMediaImpl::isPlayable() const
+{
+	if(isForcedUnloaded())
+	{
+		// All of the forced-unloaded criteria also imply not playable.
+		return false;
+	}
+	
+	if(hasMedia())
+	{
+		// Anything that's already playing is, by definition, playable.
+		return true;
+	}
+	
+	if(!mMediaURL.empty())
+	{
+		// If something has navigated the instance, it's ready to be played.
+		return true;
 	}
 	
 	return false;
@@ -1987,6 +2122,15 @@ void LLViewerMediaImpl::calculateInterest()
 		mInterest = 0.0f;
 	}
 	
+	// Calculate distance from the avatar, for use in the proximity calculation.
+	mProximityDistance = 0.0f;
+	if(!mObjectList.empty())
+	{
+		// Just use the first object in the list.  We could go through the list and find the closest object, but this should work well enough.
+		LLVector3d global_delta = gAgent.getPositionGlobal() - (*mObjectList.begin())->getPositionGlobal();
+		mProximityDistance = global_delta.magVecSquared();  // use distance-squared because it's cheaper and sorts the same.
+	}
+	
 	if(mNeedsMuteCheck)
 	{
 		// Check all objects this instance is associated with, and those objects' owners, against the mute list
@@ -2023,7 +2167,13 @@ F64 LLViewerMediaImpl::getApproximateTextureInterest()
 		result = mMediaSource->getFullWidth();
 		result *= mMediaSource->getFullHeight();
 	}
-	
+	else
+	{
+		// No media source is loaded -- all we have to go on is the texture size that has been set on the impl, if any.
+		result = mMediaWidth;
+		result *= mMediaHeight;
+	}
+
 	return result;
 }
 
@@ -2064,7 +2214,7 @@ void LLViewerMediaImpl::setPriority(LLPluginClassMedia::EPriority priority)
 {
 	if(mPriority != priority)
 	{
-		LL_INFOS("PluginPriority")
+		LL_DEBUGS("PluginPriority")
 			<< "changing priority of media id " << mTextureId
 			<< " from " << LLPluginClassMedia::priorityToString(mPriority)
 			<< " to " << LLPluginClassMedia::priorityToString(priority)
@@ -2120,6 +2270,21 @@ void LLViewerMediaImpl::setNavState(EMediaNavState state)
 	}
 }
 
+void LLViewerMediaImpl::cancelMimeTypeProbe()
+{
+	if(mMimeTypeProbe != NULL)
+	{
+		// There doesn't seem to be a way to actually cancel an outstanding request.
+		// Simulate it by telling the LLMimeDiscoveryResponder not to write back any results.
+		mMimeTypeProbe->cancelRequest();
+		
+		// The above should already have set mMimeTypeProbe to NULL.
+		if(mMimeTypeProbe != NULL)
+		{
+			llerrs << "internal error: mMimeTypeProbe is not NULL after cancelling request." << llendl;
+		}
+	}
+}
 
 void LLViewerMediaImpl::addObject(LLVOVolume* obj) 
 {

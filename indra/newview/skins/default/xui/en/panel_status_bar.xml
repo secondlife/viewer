@@ -46,30 +46,42 @@
      font="SansSerifSmall"
      image_selected="BuyArrow_Over"
      image_unselected="BuyArrow_Off"
-	image_pressed="BuyArrow_Press"
+     image_pressed="BuyArrow_Press"
      height="16"
-     left="-220"
+     left="-200"
      name="buycurrency"
-     pad_right="22px"
+     pad_right="20px"
      tool_tip="My Balance: Click to buy more L$"
      top="1"
-     width="117" />
+     width="90" />
     <text
      type="string"
      length="1"
+     font="SansSerifSmall"
      text_readonly_color="TimeTextColor"
      follows="right|bottom"
      halign="right"
      height="16"
-     top="3"
+     top="5"
      layout="topleft"
-     left_pad="15"
+     left_pad="-5"
      name="TimeText"
      text_color="TimeTextColor"
      tool_tip="Current time (Pacific)"
      width="80">
         12:00 AM
     </text>
+    <button
+     follows="right|bottom"
+     height="16"
+     image_selected="parcel_drk_VoiceNo"
+     image_unselected="parcel_drk_Voice"
+     is_toggle="true"
+     left_pad="5"
+     top="1"
+     name="volume_btn"
+     tool_tip="Global Volume Control"
+     width="16" />
     <text
      enabled="true"
      follows="right|bottom"

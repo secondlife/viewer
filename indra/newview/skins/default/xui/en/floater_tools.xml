@@ -262,6 +262,19 @@
 		  <check_box.commit_callback
 			function="BuildTool.selectComponent"/>
 	</check_box>
+
+   <text
+   text_color="LtGray_50"
+   follows="top|left"
+   halign="left"
+   left="13"
+   name="RenderingCost"
+   tool_tip="Shows the rendering cost calculated for this object"
+   top_pad="9"
+   type="string"
+   width="100">
+   þ: [COUNT]
+   </text>
 	<check_box
      control_name="ScaleUniform"
      height="19"
@@ -294,6 +307,7 @@
      layout="topleft"
      follows="left|top"
      name="combobox grid mode"
+     tool_tip="Choose the type of grid ruler for positioning the object"
      width="108">
         <combo_box.item
          label="World grid"
@@ -317,7 +331,7 @@
      image_unselected="ForwardArrow_Off"
      layout="topleft"
      name="Options..."
-     tool_tip="Grid options"
+     tool_tip="See more grid options"
      top_delta="0"
      right="-10"
      width="18"
@@ -325,7 +339,7 @@
 	 <button.commit_callback
 	     function="BuildTool.gridOptions"/>
 	</button>
-    <button
+   <button
      follows="left|top"
      height="20"
      image_disabled="Object_Cube"
@@ -701,6 +715,7 @@
 	     function="BuildTool.applyToSelection"/>
     </button>
     <text
+    text_color="LtGray_50"
      type="string"
      length="1"
      height="12"
@@ -714,6 +729,7 @@
         Objects: [COUNT]
     </text>
     <text
+    text_color="LtGray_50"
      type="string"
      length="1"
      follows="left|top"
@@ -730,7 +746,7 @@
      halign="center"
      left="0"
      name="Object Info Tabs"
-     tab_max_width="55"
+     tab_max_width="54"
      tab_min_width="40"
      tab_position="top"
      tab_height="25"
@@ -772,7 +788,7 @@
             </panel.string>
             <panel.string
              name="text modify warning">
-                This object has linked parts
+                You must select entire object to set permissions
             </panel.string>
             <panel.string
              name="Cost Default">
@@ -795,11 +811,8 @@
                 Mixed Sale
             </panel.string>
             <text
-             type="string"
-             length="1"
              follows="left|top"
              height="10"
-             layout="topleft"
              left="10"
              name="Name:"
              top="0"
@@ -809,7 +822,6 @@
             <line_editor
              follows="left|top|right"
              height="19"
-             layout="topleft"
              left_pad="0"
              max_length="63"
              name="Object Name"
@@ -817,11 +829,8 @@
              top_delta="0"
              width="170" />
             <text
-             type="string"
-             length="1"
              follows="left|top"
              height="10"
-             layout="topleft"
              left="10"
              name="Description:"
              top_pad="3"
@@ -831,7 +840,6 @@
             <line_editor
              follows="left|top|right"
              height="19"
-             layout="topleft"
              left_pad="0"
              max_length="127"
              name="Object Description"
@@ -1060,7 +1068,7 @@ even though the user gets a free copy.
              follows="left|top|right"
              layout="topleft"
              name="perm_modify"
-             width="250">
+             width="264">
                 You can modify this object
             </text>
             <text

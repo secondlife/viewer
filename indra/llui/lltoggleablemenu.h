@@ -49,8 +49,11 @@ protected:
 public:
 	virtual void handleVisibilityChange (BOOL curVisibilityIn);
 
+	const LLRect& getButtonRect() const { return mButtonRect; }
+
 	// Converts the given local button rect to a screen rect
 	void setButtonRect(const LLRect& rect, LLView* current_view);
+	void setButtonRect(LLView* current_view);
 
 	// Returns "true" if menu was not closed by button click
 	// and is not still visible. If menu is visible toggles

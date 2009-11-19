@@ -51,14 +51,20 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	mReplyBtn = getChild<LLButton>("reply");	
 
 	LLStyle::Params style_params;
+	style_params.font.name(LLFontGL::nameFromFont(style_params.font));
+	style_params.font.size(LLFontGL::sizeFromFont(style_params.font));
+	style_params.font.style = "UNDERLINE";
+	
 	//Handle IRC styled /me messages.
 	std::string prefix = p.message.substr(0, 4);
 	if (prefix == "/me " || prefix == "/me'")
 	{
 		mMessage->clear();
-		style_params.font.style= "ITALIC";
+		
+		style_params.font.style ="ITALIC";
 		mMessage->appendText(p.from + " ", FALSE, style_params);
-		style_params.font.style= "UNDERLINE";
+
+		style_params.font.style = "ITALIC";
 		mMessage->appendText(p.message.substr(3), FALSE, style_params);
 	}
 	else
@@ -69,7 +75,7 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	mNotification = p.notification;
 
 	// if message comes from the system - there shouldn't be a reply btn
-	if(p.from == "Second Life")
+	if(p.from == SYSTEM_FROM)
 	{
 		mAvatar->setVisible(FALSE);
 		sys_msg_icon->setVisible(TRUE);

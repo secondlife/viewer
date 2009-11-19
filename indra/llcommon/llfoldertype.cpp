@@ -72,8 +72,7 @@ LLFolderDictionary::LLFolderDictionary()
 	addEntry(LLFolderType::FT_CLOTHING, 			new FolderEntry("clothing",	TRUE));
 	addEntry(LLFolderType::FT_OBJECT, 				new FolderEntry("object",	TRUE));
 	addEntry(LLFolderType::FT_NOTECARD, 			new FolderEntry("notecard",	TRUE));
-	addEntry(LLFolderType::FT_CATEGORY, 			new FolderEntry("category",	TRUE));
-	addEntry(LLFolderType::FT_ROOT_CATEGORY, 		new FolderEntry("root",		TRUE));
+	addEntry(LLFolderType::FT_ROOT_INVENTORY, 		new FolderEntry("root_inv",	TRUE));
 	addEntry(LLFolderType::FT_LSL_TEXT, 			new FolderEntry("lsltext",	TRUE));
 	addEntry(LLFolderType::FT_BODYPART, 			new FolderEntry("bodypart",	TRUE));
 	addEntry(LLFolderType::FT_TRASH, 				new FolderEntry("trash",	TRUE));

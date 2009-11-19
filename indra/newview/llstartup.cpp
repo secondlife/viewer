@@ -873,6 +873,9 @@ bool idle_startup()
 		gViewerWindow->getWindow()->show();
 		display_startup();
 
+		//DEV-10530.  do cleanup.  remove at some later date.  jan-2009
+		LLFloaterPreference::cleanupBadSetting();
+
 		// DEV-16927.  The following code removes errant keystrokes that happen while the window is being 
 		// first made visible.
 #ifdef _WIN32
@@ -1688,8 +1691,11 @@ bool idle_startup()
 		//all categories loaded. lets create "My Favorites" category
 		gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE,true);
 
-		// lets create "Friends" and "Friends/All" in the Inventory "Calling Cards" and fill it with buddies
-		LLFriendCardsManager::instance().syncFriendsFolder();
+		// Checks whether "Friends" and "Friends/All" folders exist in "Calling Cards" folder,
+		// fetches their contents if needed and synchronizes it with buddies list.
+		// If the folders are not found they are created.
+		LLFriendCardsManager::instance().syncFriendCardsFolders();
+
 
 		// set up callbacks
 		llinfos << "Registering Callbacks" << llendl;
@@ -1899,9 +1905,6 @@ bool idle_startup()
 
         //DEV-17797.  get null folder.  Any items found here moved to Lost and Found
         LLInventoryModel::findLostItems();
-
-		//DEV-10530.  do cleanup.  remove at some later date.  jan-2009
-		LLFloaterPreference::cleanupBadSetting();
 
 		LLStartUp::setStartupState( STATE_PRECACHE );
 		timeout.reset();
@@ -2630,10 +2633,10 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	}
 	else
 	{
-		LLAppearanceManager::wearOutfitByName(outfit_folder_name);
+		LLAppearanceManager::instance().wearOutfitByName(outfit_folder_name);
 	}
-	LLAppearanceManager::wearOutfitByName(gestures);
-	LLAppearanceManager::wearOutfitByName(COMMON_GESTURES_FOLDER);
+	LLAppearanceManager::instance().wearOutfitByName(gestures);
+	LLAppearanceManager::instance().wearOutfitByName(COMMON_GESTURES_FOLDER);
 
 	// This is really misnamed -- it means we have started loading
 	// an outfit/shape that will give the avatar a gender eventually. JC

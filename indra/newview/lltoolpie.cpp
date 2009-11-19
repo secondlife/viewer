@@ -526,7 +526,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	}
 
 	static LLCachedControl<bool> enable_highlight(
-		gSavedSettings, "RenderHighlightEnable", false);
+		gSavedSettings, "RenderHoverGlowEnable", false);
 	LLDrawable* drawable = NULL;
 	if (enable_highlight && show_highlight && object)
 	{

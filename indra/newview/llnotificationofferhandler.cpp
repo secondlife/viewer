@@ -65,7 +65,7 @@ LLOfferHandler::~LLOfferHandler()
 //--------------------------------------------------------------------------
 void LLOfferHandler::initChannel()
 {
-	S32 channel_right_bound = gViewerWindow->getWorldViewRectRaw().mRight - gSavedSettings.getS32("NotificationChannelRightMargin");
+	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin");
 	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
 	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
 }
@@ -96,11 +96,11 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 		if (!LLIMMgr::instance().hasSession(session_id))
 		{
 			session_id = LLIMMgr::instance().addSession(
-					notification->getSubstitutions()["NAME"], IM_NOTHING_SPECIAL,
+					notification->getSubstitutions()["OBJECTFROMNAME"], IM_NOTHING_SPECIAL,
 					notification->getPayload()["from_id"]);
 		}
 		LLIMMgr::instance().addMessage(session_id, LLUUID(),
-				notification->getSubstitutions()["NAME"],
+				notification->getSubstitutions()["OBJECTFROMNAME"],
 				notification->getMessage());
 
 		LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);

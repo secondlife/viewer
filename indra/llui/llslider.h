@@ -39,8 +39,12 @@
 class LLSlider : public LLF32UICtrl
 {
 public:
+	enum ORIENTATION { HORIZONTAL, VERTICAL };
+
 	struct Params : public LLInitParam::Block<Params, LLF32UICtrl::Params>
 	{
+		Optional<std::string> orientation;
+
 		Optional<LLUIColor>	track_color,
 							thumb_outline_color,
 							thumb_center_color;
@@ -48,8 +52,10 @@ public:
 		Optional<LLUIImage*>	thumb_image,
 								thumb_image_pressed,
 								thumb_image_disabled,
-								track_image,
-								track_highlight_image;
+								track_image_horizontal,
+								track_image_vertical,
+								track_highlight_horizontal_image,
+								track_highlight_vertical_image;
 
 		Optional<CommitCallbackParam>	mouse_down_callback,
 										mouse_up_callback;
@@ -77,6 +83,7 @@ public:
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);
+	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual void	draw();
 
 private:
@@ -90,10 +97,14 @@ private:
 	LLPointer<LLUIImage>	mThumbImage;
 	LLPointer<LLUIImage>	mThumbImagePressed;
 	LLPointer<LLUIImage>	mThumbImageDisabled;
-	LLPointer<LLUIImage>	mTrackImage;
-	LLPointer<LLUIImage>	mTrackHighlightImage;
+	LLPointer<LLUIImage>	mTrackImageHorizontal;
+	LLPointer<LLUIImage>	mTrackImageVertical;
+	LLPointer<LLUIImage>	mTrackHighlightHorizontalImage;
+	LLPointer<LLUIImage>	mTrackHighlightVerticalImage;
 
-	LLRect			mThumbRect;
+	const ORIENTATION	mOrientation;
+
+	LLRect		mThumbRect;
 	LLUIColor	mTrackColor;
 	LLUIColor	mThumbOutlineColor;
 	LLUIColor	mThumbCenterColor;

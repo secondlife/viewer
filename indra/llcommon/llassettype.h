@@ -78,11 +78,6 @@ public:
 			// Holds a collection of inventory items.
 			// It's treated as an item in the inventory and therefore needs a type.
 
-		AT_ROOT_CATEGORY = 9,
-			// A user's root inventory category.
-			// We decided to expose it visually, so it seems logical to fold
-			// it into the asset types.
-
 		AT_LSL_TEXT = 10,
 		AT_LSL_BYTECODE = 11,
 			// The LSL is the scripting language. 

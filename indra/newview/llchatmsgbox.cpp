@@ -84,7 +84,7 @@ LLChatMsgBox::LLChatMsgBox(const Params& p) :
 	mBlockSpacing(p.block_spacing)
 {}
 
-void LLChatMsgBox::addText( const LLStringExplicit& text )
+void LLChatMsgBox::addText( const LLStringExplicit& text , const LLStyle::Params& input_params )
 {
 	S32 length = getLength();
 	// if there is existing text, add a separator
@@ -94,5 +94,5 @@ void LLChatMsgBox::addText( const LLStringExplicit& text )
 		insertSegment(new ChatSeparator(length - 1, length - 1));
 	}
 	// prepend newline only if there is some existing text
-	appendText(text, length > 0);
+	appendText(text, length > 0, input_params);
 }

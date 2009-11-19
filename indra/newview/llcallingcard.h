@@ -45,6 +45,7 @@
 //class LLInventoryObserver;
 class LLMessageSystem;
 class LLTrackingData;
+
 class LLFriendObserver
 {
 public:

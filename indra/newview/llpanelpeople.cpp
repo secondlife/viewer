@@ -54,6 +54,7 @@
 #include "llfriendcard.h"
 #include "llgroupactions.h"
 #include "llgrouplist.h"
+#include "llinventoryobserver.h"
 #include "llpanelpeoplemenus.h"
 #include "llrecentpeople.h"
 #include "llviewercontrol.h"		// for gSavedSettings
@@ -447,6 +448,7 @@ LLPanelPeople::LLPanelPeople()
 	mFriendListUpdater = new LLFriendListUpdater(boost::bind(&LLPanelPeople::updateFriendList,	this));
 	mNearbyListUpdater = new LLNearbyListUpdater(boost::bind(&LLPanelPeople::updateNearbyList,	this));
 	mRecentListUpdater = new LLRecentListUpdater(boost::bind(&LLPanelPeople::updateRecentList,	this));
+	mCommitCallbackRegistrar.add("People.addFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
 }
 
 LLPanelPeople::~LLPanelPeople()
@@ -519,7 +521,6 @@ BOOL LLPanelPeople::postBuild()
 	LLPanel* groups_panel = getChild<LLPanel>(GROUP_TAB_NAME);
 	groups_panel->childSetAction("activate_btn", boost::bind(&LLPanelPeople::onActivateButtonClicked,	this));
 	groups_panel->childSetAction("plus_btn",	boost::bind(&LLPanelPeople::onGroupPlusButtonClicked,	this));
-	groups_panel->childSetAction("minus_btn",	boost::bind(&LLPanelPeople::onGroupMinusButtonClicked,	this));
 
 	LLPanel* friends_panel = getChild<LLPanel>(FRIENDS_TAB_NAME);
 	friends_panel->childSetAction("add_btn",	boost::bind(&LLPanelPeople::onAddFriendWizButtonClicked,	this));
@@ -547,7 +548,6 @@ BOOL LLPanelPeople::postBuild()
 		boost::bind(&LLPanelPeople::onFriendsAccordionExpandedCollapsed, this, _2, mOnlineFriendList));
 
 	buttonSetAction("view_profile_btn",	boost::bind(&LLPanelPeople::onViewProfileButtonClicked,	this));
-	buttonSetAction("add_friend_btn",	boost::bind(&LLPanelPeople::onAddFriendButtonClicked,	this));
 	buttonSetAction("group_info_btn",	boost::bind(&LLPanelPeople::onGroupInfoButtonClicked,	this));
 	buttonSetAction("chat_btn",			boost::bind(&LLPanelPeople::onChatButtonClicked,		this));
 	buttonSetAction("im_btn",			boost::bind(&LLPanelPeople::onImButtonClicked,			this));
@@ -568,6 +568,7 @@ BOOL LLPanelPeople::postBuild()
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 	
 	registrar.add("People.Group.Plus.Action",  boost::bind(&LLPanelPeople::onGroupPlusMenuItemClicked,  this, _2));
+	registrar.add("People.Group.Minus.Action", boost::bind(&LLPanelPeople::onGroupMinusButtonClicked,  this));
 	registrar.add("People.Friends.ViewSort.Action",  boost::bind(&LLPanelPeople::onFriendsViewSortMenuItemClicked,  this, _2));
 	registrar.add("People.Nearby.ViewSort.Action",  boost::bind(&LLPanelPeople::onNearbyViewSortMenuItemClicked,  this, _2));
 	registrar.add("People.Groups.ViewSort.Action",  boost::bind(&LLPanelPeople::onGroupsViewSortMenuItemClicked,  this, _2));
@@ -706,7 +707,7 @@ void LLPanelPeople::updateButtons()
 	bool nearby_tab_active	= (cur_tab == NEARBY_TAB_NAME);
 	bool friends_tab_active = (cur_tab == FRIENDS_TAB_NAME);
 	bool group_tab_active	= (cur_tab == GROUP_TAB_NAME);
-	bool recent_tab_active	= (cur_tab == RECENT_TAB_NAME);
+	//bool recent_tab_active	= (cur_tab == RECENT_TAB_NAME);
 	LLUUID selected_id;
 
 	std::vector<LLUUID> selected_uuids;
@@ -716,7 +717,6 @@ void LLPanelPeople::updateButtons()
 
 	buttonSetVisible("group_info_btn",		group_tab_active);
 	buttonSetVisible("chat_btn",			group_tab_active);
-	buttonSetVisible("add_friend_btn",		nearby_tab_active || recent_tab_active);
 	buttonSetVisible("view_profile_btn",	!group_tab_active);
 	buttonSetVisible("im_btn",				!group_tab_active);
 	buttonSetVisible("call_btn",			!group_tab_active);
@@ -749,7 +749,9 @@ void LLPanelPeople::updateButtons()
 			is_friend = LLAvatarTracker::instance().getBuddyInfo(selected_id) != NULL;
 		}
 
-		childSetEnabled("add_friend_btn",	!is_friend);
+		LLPanel* cur_panel = mTabContainer->getCurrentPanel();
+		if (cur_panel)
+			cur_panel->childSetEnabled("add_friend_btn", !is_friend);
 	}
 
 	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
@@ -1015,7 +1017,7 @@ void LLPanelPeople::onChatButtonClicked()
 {
 	LLUUID group_id = getCurrentItemID();
 	if (group_id.notNull())
-		LLGroupActions::startChat(group_id);
+		LLGroupActions::startIM(group_id);
 }
 
 void LLPanelPeople::onImButtonClicked()
@@ -1193,7 +1195,7 @@ void LLPanelPeople::onCallButtonClicked()
 	if (selected_uuids.size() == 1)
 	{
 		// initiate a P2P voice chat with the selected user
-		LLAvatarActions::startCall(selected_uuids[0]);
+		LLAvatarActions::startCall(getCurrentItemID());
 	}
 	else if (selected_uuids.size() > 1)
 	{

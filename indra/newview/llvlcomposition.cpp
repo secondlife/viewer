@@ -287,17 +287,22 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 				min_dim /= 2;
 			}
 
-			mDetailTextures[i]->reloadRawImage(ddiscard) ;
+			BOOL delete_raw = (mDetailTextures[i]->reloadRawImage(ddiscard) != NULL) ;
 			if(mDetailTextures[i]->getRawImageLevel() != ddiscard)//raw iamge is not ready, will enter here again later.
 			{
-				mDetailTextures[i]->destroyRawImage() ;
+				if(delete_raw)
+				{
+					mDetailTextures[i]->destroyRawImage() ;
+				}
 				lldebugs << "cached raw data for terrain detail texture is not ready yet: " << mDetailTextures[i]->getID() << llendl;
 				return FALSE;
 			}
 
 			mRawImages[i] = mDetailTextures[i]->getRawImage() ;
-			mDetailTextures[i]->destroyRawImage() ;
-
+			if(delete_raw)
+			{
+				mDetailTextures[i]->destroyRawImage() ;
+			}
 			if (mDetailTextures[i]->getWidth(ddiscard) != BASE_SIZE ||
 				mDetailTextures[i]->getHeight(ddiscard) != BASE_SIZE ||
 				mDetailTextures[i]->getComponents() != 3)

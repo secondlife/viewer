@@ -60,7 +60,7 @@ LLTipHandler::~LLTipHandler()
 //--------------------------------------------------------------------------
 void LLTipHandler::initChannel()
 {
-	S32 channel_right_bound = gViewerWindow->getWorldViewRectRaw().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
+	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
 	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
 	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
 }
@@ -91,6 +91,7 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 		if(nearby_chat)
 		{
 			LLChat chat_msg(notification->getMessage());
+			chat_msg.mSourceType = CHAT_SOURCE_SYSTEM;
 			nearby_chat->addMessage(chat_msg);
 
 			// don't show toast if Nearby Chat is opened

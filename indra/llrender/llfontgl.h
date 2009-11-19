@@ -146,6 +146,7 @@ public:
 	static U8 getStyleFromString(const std::string &style);
 
 	static std::string nameFromFont(const LLFontGL* fontp);
+	static std::string sizeFromFont(const LLFontGL* fontp);
 
 	static std::string nameFromHAlign(LLFontGL::HAlign align);
 	static LLFontGL::HAlign hAlignFromName(const std::string& name);

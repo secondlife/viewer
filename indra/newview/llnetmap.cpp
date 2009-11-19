@@ -92,7 +92,6 @@ LLNetMap::LLNetMap (const Params & p)
 	mObjectImagep(),
 	mClosestAgentToCursor(),
 	mClosestAgentAtLastRightClick(),
-	mRotateMap(FALSE),
 	mToolTipMsg()
 {
 	mDotRadius = llmax(DOT_SCALE * mPixelsPerMeter, MIN_DOT_RADIUS);
@@ -175,7 +174,8 @@ void LLNetMap::draw()
 
 		gGL.translatef( (F32) center_sw_left, (F32) center_sw_bottom, 0.f);
 
-		if( mRotateMap )
+		static LLUICachedControl<bool> rotate_map("MiniMapRotate", true);
+		if( rotate_map )
 		{
 			// rotate subsequent draws to agent rotation
 			rotation = atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] );
@@ -408,7 +408,7 @@ void LLNetMap::draw()
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-		if( mRotateMap )
+		if( rotate_map )
 		{
 			gGL.color4fv((map_frustum_color()).mV);
 
@@ -454,7 +454,8 @@ LLVector3 LLNetMap::globalPosToView( const LLVector3d& global_pos )
 	pos_local.mV[VY] *= mPixelsPerMeter;
 	// leave Z component in meters
 
-	if( mRotateMap )
+	static LLUICachedControl<bool> rotate_map("MiniMapRotate", true);
+	if( rotate_map )
 	{
 		F32 radians = atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] );
 		LLQuaternion rot(radians, LLVector3(0.f, 0.f, 1.f));
@@ -502,7 +503,8 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 
 	F32 radians = - atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] );
 
-	if( mRotateMap )
+	static LLUICachedControl<bool> rotate_map("MiniMapRotate", true);
+	if( rotate_map )
 	{
 		LLQuaternion rot(radians, LLVector3(0.f, 0.f, 1.f));
 		pos_local.rotVec( rot );

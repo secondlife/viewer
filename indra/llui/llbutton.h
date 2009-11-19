@@ -238,7 +238,7 @@ public:
 	static void		setDockableFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname);
 	static void		showHelp(LLUICtrl* ctrl, const LLSD& sdname);
 
-	void		setForcePressedState(BOOL b) { mForcePressedState = b; }
+	void		setForcePressedState(bool b) { mForcePressedState = b; }
 	
 protected:
 	LLPointer<LLUIImage> getImageUnselected() const	{ return mImageUnselected; }
@@ -315,7 +315,7 @@ private:
 	BOOL						mNeedsHighlight;
 	BOOL						mCommitOnReturn;
 	BOOL						mFadeWhenDisabled;
-	BOOL						mForcePressedState;
+	bool						mForcePressedState;
 
 	LLFrameTimer				mFlashingTimer;
 };
