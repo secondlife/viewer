@@ -4132,7 +4132,7 @@ void LLViewerWindow::drawMouselookInstructions()
 {
 	// Draw instructions for mouselook ("Press ESC to return to World View" partially transparent at the bottom of the screen.)
 	const std::string instructions = LLTrans::getString("LeaveMouselook");
-	const LLFontGL* font = LLFontGL::getFont(LLFontDescriptor("SansSerif", "Huge", LLFontGL::BOLD));
+	const LLFontGL* font = LLFontGL::getFont(LLFontDescriptor("SansSerif", "Large", LLFontGL::BOLD));
 	
 	//to be on top of Bottom bar when it is opened
 	const S32 INSTRUCTIONS_PAD = 50;

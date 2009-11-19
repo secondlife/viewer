@@ -42,6 +42,7 @@
 #include "llanimationstates.h"
 #include "llbottomtray.h"
 #include "llcallingcard.h"
+#include "llchannelmanager.h"
 #include "llconsole.h"
 #include "llfirstuse.h"
 #include "llfloatercamera.h"
@@ -2136,6 +2137,7 @@ void LLAgent::setBusy()
 	{
 		gBusyMenu->setLabel(LLTrans::getString("AvatarSetNotBusy"));
 	}
+	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -2149,6 +2151,7 @@ void LLAgent::clearBusy()
 	{
 		gBusyMenu->setLabel(LLTrans::getString("AvatarSetBusy"));
 	}
+	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(false);
 }
 
 //-----------------------------------------------------------------------------

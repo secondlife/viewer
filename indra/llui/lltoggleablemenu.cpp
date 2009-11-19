@@ -40,6 +40,7 @@ static LLDefaultChildRegistry::Register<LLToggleableMenu> r("toggleable_menu");
 
 LLToggleableMenu::LLToggleableMenu(const LLToggleableMenu::Params& p)
 :	LLMenuGL(p),
+	mButtonRect(),
 	mClosedByButtonClick(false)
 {
 }
@@ -56,11 +57,17 @@ void LLToggleableMenu::handleVisibilityChange (BOOL curVisibilityIn)
 	}
 }
 
-void LLToggleableMenu::setButtonRect(const LLRect& rect, LLView* current_view) 
+void LLToggleableMenu::setButtonRect(const LLRect& rect, LLView* current_view)
 {
 	LLRect screen;
 	current_view->localRectToScreen(rect, &screen);
 	mButtonRect = screen;
+}
+
+void LLToggleableMenu::setButtonRect(LLView* current_view)
+{
+	LLRect rect = current_view->getLocalRect();
+	setButtonRect(rect, current_view);
 }
 
 bool LLToggleableMenu::toggleVisibility() 

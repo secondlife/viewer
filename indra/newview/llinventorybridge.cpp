@@ -1680,6 +1680,14 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 						BOOL append = true;
 						LLAppearanceManager::instance().wearInventoryCategory(inv_cat, false, append);
 					}
+					else
+					{
+						// Recursively create links in target outfit.
+						LLInventoryModel::cat_array_t cats;
+						LLInventoryModel::item_array_t items;
+						gInventory.collectDescendents(inv_cat->getUUID(), cats, items, LLInventoryModel::EXCLUDE_TRASH);
+						LLAppearanceManager::instance().linkAll(mUUID,items,NULL);
+					}
 				}
 				else
 				{
@@ -3939,7 +3947,6 @@ std::string LLObjectBridge::getLabelSuffix() const
 	if( avatar && avatar->isWearingAttachment( mUUID ) )
 	{
 		std::string attachment_point_name = avatar->getAttachedPointName(mUUID);
-		LLStringUtil::toLower(attachment_point_name);
 
 		LLStringUtil::format_map_t args;
 		args["[ATTACHMENT_POINT]"] =  attachment_point_name.c_str();
@@ -4287,32 +4294,37 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 		{
 			for(i = 0; i  < wearable_count; ++i)
 			{
-				if( gAgentWearables.isWearingItem (item_array.get(i)->getUUID()) )
+				LLViewerInventoryItem *item = item_array.get(i);
+				if (item->getType() == LLAssetType::AT_BODYPART)
+					continue;
+				if (gAgent.isTeen() && item->isWearableType() &&
+					(item->getWearableType() == WT_UNDERPANTS || item->getWearableType() == WT_UNDERSHIRT))
+					continue;
+				if( gAgentWearables.isWearingItem (item->getLinkedUUID()) )
 				{
-					LLWearableList::instance().getAsset(item_array.get(i)->getAssetUUID(),
-														item_array.get(i)->getName(),
-														item_array.get(i)->getType(),
+					LLWearableList::instance().getAsset(item->getAssetUUID(),
+														item->getName(),
+														item->getType(),
 														LLWearableBridge::onRemoveFromAvatarArrived,
-														new OnRemoveStruct(item_array.get(i)->getUUID()));
-
+														new OnRemoveStruct(item->getLinkedUUID()));
 				}
 			}
 		}
-
 
 		if (obj_count > 0)
 		{
 			for(i = 0; i  < obj_count; ++i)
 			{
+				LLViewerInventoryItem *obj_item = obj_item_array.get(i);
 				gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
 				gMessageSystem->nextBlockFast(_PREHASH_ObjectData );
 				gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-				gMessageSystem->addUUIDFast(_PREHASH_ItemID, obj_item_array.get(i)->getUUID() );
+				gMessageSystem->addUUIDFast(_PREHASH_ItemID, obj_item->getLinkedUUID() );
 
 				gMessageSystem->sendReliable( gAgent.getRegion()->getHost() );
 
 				// this object might have been selected, so let the selection manager know it's gone now
-				LLViewerObject *found_obj = gObjectList.findObject( obj_item_array.get(i)->getUUID());
+				LLViewerObject *found_obj = gObjectList.findObject( obj_item->getLinkedUUID());
 				if (found_obj)
 				{
 					LLSelectMgr::getInstance()->remove(found_obj);
@@ -4324,10 +4336,11 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 		{
 			for(i = 0; i  < gest_count; ++i)
 			{
-				if ( LLGestureManager::instance().isGestureActive( gest_item_array.get(i)->getUUID()) )
+				LLViewerInventoryItem *gest_item = gest_item_array.get(i);
+				if ( LLGestureManager::instance().isGestureActive( gest_item->getLinkedUUID()) )
 				{
-					LLGestureManager::instance().deactivateGesture( gest_item_array.get(i)->getUUID() );
-					gInventory.updateItem( gest_item_array.get(i) );
+					LLGestureManager::instance().deactivateGesture( gest_item->getLinkedUUID() );
+					gInventory.updateItem( gest_item );
 					gInventory.notifyObservers();
 				}
 

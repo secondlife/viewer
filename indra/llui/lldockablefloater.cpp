@@ -127,6 +127,10 @@ void LLDockableFloater::setVisible(BOOL visible)
 		mDockControl.get()->repositionDockable();
 	}
 
+	if (visible)
+	{
+		LLFloater::setFrontmost(TRUE);
+	}
 	LLFloater::setVisible(visible);
 }
 

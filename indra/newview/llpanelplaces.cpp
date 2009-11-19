@@ -601,9 +601,12 @@ void LLPanelPlaces::onOverflowButtonClicked()
 	if (!menu->toggleVisibility())
 		return;
 
+	if (menu->getButtonRect().isEmpty())
+	{
+		menu->setButtonRect(mOverflowBtn);
+	}
 	menu->updateParent(LLMenuGL::sMenuContainer);
 	LLRect rect = mOverflowBtn->getRect();
-	menu->setButtonRect(rect, this);
 	LLMenuGL::showPopup(this, menu, rect.mRight, rect.mTop);
 }
 

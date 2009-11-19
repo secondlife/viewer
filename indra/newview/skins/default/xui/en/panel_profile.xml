@@ -283,7 +283,7 @@
          mouse_opaque="false"
          name="add_friend"
          top="5"
-         width="75" />
+         width="76" />
         <button
          follows="bottom|left"
          height="19"
@@ -292,7 +292,7 @@
          name="im"
          top="5"
          left_pad="5"
-         width="45" />
+         width="31" />
         <button
          follows="bottom|left"
          height="19"
@@ -301,7 +301,7 @@
          name="call"
          left_pad="5"
          top="5"
-         width="45" />
+         width="40" />
         <button
          enabled="false"
          follows="bottom|left"
@@ -311,7 +311,7 @@
          name="show_on_map_btn"
          top="5"
          left_pad="5"
-         width="45" />
+         width="42" />
         <button
          follows="bottom|left"
          height="19"
@@ -320,7 +320,17 @@
          name="teleport"
          left_pad="5"
          top="5"
-         width="80" />
+         width="64" />
+        <button
+         follows="bottom|right"
+         font="SansSerifSmall"
+         height="19"
+         label="▼"
+         layout="topleft"
+         name="overflow_btn"
+         right="-1"
+         top="5"
+         width="21" />
  </panel>
  <panel
      follows="bottom|left"

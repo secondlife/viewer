@@ -2121,10 +2121,11 @@ LLImageRaw* LLViewerFetchedTexture::reloadRawImage(S8 discard_level)
 	llassert_always(mGLTexturep.notNull()) ;
 	llassert_always(discard_level >= 0);
 	llassert_always(mComponents > 0);
+
 	if (mRawImage.notNull())
 	{
-		llerrs << "called with existing mRawImage" << llendl;
-		mRawImage = NULL;
+		//mRawImage is in use by somebody else, do not delete it.
+		return NULL ;
 	}
 
 	if(mSavedRawDiscardLevel >= 0 && mSavedRawDiscardLevel <= discard_level)

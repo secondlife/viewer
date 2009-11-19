@@ -107,7 +107,10 @@ background_visible="true"
                  name="add_friend_btn"
                  top_delta="0"
                  tool_tip="Add selected resident to your friends List"
-                 width="18" />
+                 width="18">
+               <commit_callback
+                  function="People.addFriend" />
+             </button>
             </panel>
         </panel>
         <panel
@@ -325,7 +328,10 @@ background_visible="true"
                  name="add_friend_btn"
                  top_delta="0"
                  tool_tip="Add selected resident to your friends List"
-                 width="18" />
+                 width="18">
+                <commit_callback
+                   function="People.addFriend" />
+              </button>
             </panel>
         </panel>
     </tab_container>

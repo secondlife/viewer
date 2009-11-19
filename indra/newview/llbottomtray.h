@@ -101,8 +101,6 @@ private:
 		, RS_RESIZABLE_BUTTONS			= /*RS_BUTTON_SNAPSHOT | */RS_BUTTON_CAMERA | RS_BUTTON_MOVEMENT | RS_BUTTON_GESTURES
 	}EResizeState;
 
-	void updateResizeState(S32 new_width, S32 cur_width);
-	void verifyChildControlsSizes();
 	S32 processWidthDecreased(S32 delta_width);
 	void processWidthIncreased(S32 delta_width);
 	void log(LLView* panel, const std::string& descr);

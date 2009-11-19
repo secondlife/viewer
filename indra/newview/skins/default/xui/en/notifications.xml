@@ -581,9 +581,10 @@ Multiple faces are currently selected.
 If you continue this action, separate instances of media will be set on multiple faces of the object.
 To place the media on only one face, choose Select Texture and click on the desired face of that object then click Add.
     <usetemplate
-	 name="okcancelignore"
-     notext="Cancel"
-     yestext="OK"/>
+      ignoretext="Media will be set on multiple selected faces"
+      name="okcancelignore"
+      notext="Cancel"
+      yestext="OK"/>
   </notification>
 
   <notification

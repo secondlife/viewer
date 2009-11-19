@@ -341,6 +341,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 		notification["time"] = chat_msg.mTime;
 		notification["source"] = (S32)chat_msg.mSourceType;
 		notification["chat_type"] = (S32)chat_msg.mChatType;
+		notification["chat_style"] = (S32)chat_msg.mChatStyle;
 		
 		std::string r_color_name = "White";
 		F32 r_color_alpha = 1.0f; 
