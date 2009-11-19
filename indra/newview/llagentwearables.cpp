@@ -2190,8 +2190,6 @@ void LLInitialWearablesFetch::processContents()
 	else
 	{
 		processWearablesMessage();
-		// Create links for attachments that may have arrived before the COF existed.
-		LLAppearanceManager::instance().linkRegisteredAttachments();
 	}
 	delete this;
 }
@@ -2200,7 +2198,8 @@ class LLFetchAndLinkObserver: public LLInventoryFetchObserver
 {
 public:
 	LLFetchAndLinkObserver(LLInventoryFetchObserver::item_ref_t& ids):
-		m_ids(ids)
+		m_ids(ids),
+		LLInventoryFetchObserver(true)
 	{
 		llwarns << "LLFetchAndLinkObserver" << llendl;
 	}
@@ -2220,13 +2219,12 @@ public:
 			LLViewerInventoryItem *item = gInventory.getItem(*it);
 			if (!item)
 			{
-				llwarns << "LLFetchAndLinkObserver fetch failed!" << llendl;
+				llwarns << "fetch failed!" << llendl;
 				continue;
 			}
 			link_inventory_item(gAgent.getID(), item->getLinkedUUID(), LLAppearanceManager::instance().getCOF(), item->getName(),
 								LLAssetType::AT_LINK, LLPointer<LLInventoryCallback>(NULL));
 		}
-
 	}
 private:
 	LLInventoryFetchObserver::item_ref_t m_ids;
@@ -2258,6 +2256,28 @@ void LLInitialWearablesFetch::processWearablesMessage()
 			{
 				llinfos << "Invalid wearable, type " << wearable_data->mType << " itemID "
 				<< wearable_data->mItemID << " assetID " << wearable_data->mAssetID << llendl;
+			}
+		}
+
+		// Add all current attachments to the requested items as well.
+		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
+		if( avatar )
+		{
+			for (LLVOAvatar::attachment_map_t::const_iterator iter = avatar->mAttachmentPoints.begin(); 
+				 iter != avatar->mAttachmentPoints.end(); ++iter)
+			{
+				LLViewerJointAttachment* attachment = iter->second;
+				if (!attachment) continue;
+				for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+					 attachment_iter != attachment->mAttachedObjects.end();
+					 ++attachment_iter)
+				{
+					LLViewerObject* attached_object = (*attachment_iter);
+					if (!attached_object) continue;
+					const LLUUID& item_id = attached_object->getItemID();
+					if (item_id.isNull()) continue;
+					ids.push_back(item_id);
+				}
 			}
 		}
 

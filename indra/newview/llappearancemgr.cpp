@@ -990,6 +990,10 @@ void LLAppearanceManager::registerAttachment(const LLUUID& item_id)
 			   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 			   gInventory.notifyObservers();
 		   }
+		   else
+		   {
+			   llwarns << "missing item, can't link" << llendl;
+		   }
 	   }
 	   else
 	   {
