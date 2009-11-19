@@ -124,7 +124,7 @@ class LLDragDropWin32Target:
 			if ( mAllowDrop )
 			{
 			// XXX MAJOR MAJOR HACK!
-			LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(mWindowHandle, GWL_USERDATA);
+			LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(mAppWindowHandle, GWL_USERDATA);
 			if (NULL != window_imp)
 			{
 				LLCoordGL gl_coord( 0, 0 );
@@ -132,12 +132,12 @@ class LLDragDropWin32Target:
 				POINT pt2;
 				pt2.x = pt.x;
 				pt2.y = pt.y;
-				ScreenToClient( mWindowHandle, &pt2 );
+				ScreenToClient( mAppWindowHandle, &pt2 );
 
 				LLCoordWindow cursor_coord_window( pt2.x, pt2.y );
 				window_imp->convertCoords(cursor_coord_window, &gl_coord);
 				MASK mask = gKeyboard->currentMask(TRUE);
-				bDropTargetValid = window_imp->completeDragNDropRequest( gl_coord, mask, FALSE, std::string( "" ) );
+				window_imp->completeDragNDropRequest( gl_coord, mask, FALSE, std::string( "" ) );
 			}
 				*pdwEffect = DROPEFFECT_COPY;
 			}
