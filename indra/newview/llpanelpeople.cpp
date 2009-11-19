@@ -1017,7 +1017,7 @@ void LLPanelPeople::onChatButtonClicked()
 {
 	LLUUID group_id = getCurrentItemID();
 	if (group_id.notNull())
-		LLGroupActions::startChat(group_id);
+		LLGroupActions::startIM(group_id);
 }
 
 void LLPanelPeople::onImButtonClicked()

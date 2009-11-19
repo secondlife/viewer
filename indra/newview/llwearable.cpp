@@ -38,6 +38,7 @@
 #include "lllocaltextureobject.h"
 #include "llviewertexturelist.h"
 #include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "llviewerregion.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
@@ -1096,6 +1097,12 @@ void LLWearable::destroyTextures()
 		delete lto;
 	}
 	mSavedTEMap.clear();
+}
+
+
+void LLWearable::setLabelUpdated() const
+{ 
+	gInventory.addChangedMask(LLInventoryObserver::LABEL, getItemID());
 }
 
 struct LLWearableSaveData

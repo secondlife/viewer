@@ -653,11 +653,13 @@ LLWearable* LLAgentWearables::getWearable(const EWearableType type, U32 index)
 
 void LLAgentWearables::setWearable(const EWearableType type, U32 index, LLWearable *wearable)
 {
-	if (!getWearable(type,index))
+	LLWearable *old_wearable = getWearable(type,index);
+	if (!old_wearable)
 	{
 		pushWearable(type,wearable);
 		return;
 	}
+	
 	wearableentry_map_t::iterator wearable_iter = mWearableDatas.find(type);
 	if (wearable_iter == mWearableDatas.end())
 	{
@@ -672,6 +674,7 @@ void LLAgentWearables::setWearable(const EWearableType type, U32 index, LLWearab
 	else
 	{
 		wearable_vec[index] = wearable;
+		old_wearable->setLabelUpdated();
 		mAvatarObject->wearableUpdated(wearable->getType());
 	}
 }
@@ -688,6 +691,7 @@ U32 LLAgentWearables::pushWearable(const EWearableType type, LLWearable *wearabl
 	{
 		mWearableDatas[type].push_back(wearable);
 		mAvatarObject->wearableUpdated(wearable->getType());
+		wearable->setLabelUpdated();
 		return mWearableDatas[type].size()-1;
 	}
 	return MAX_WEARABLES_PER_TYPE;
@@ -717,6 +721,7 @@ void LLAgentWearables::popWearable(const EWearableType type, U32 index)
 	{
 		mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
 		mAvatarObject->wearableUpdated(wearable->getType());
+		wearable->setLabelUpdated();
 	}
 }
 
@@ -1412,14 +1417,10 @@ void LLAgentWearables::removeWearableFinal(const EWearableType type, bool do_rem
 		for (S32 i=max_entry; i>=0; i--)
 		{
 			LLWearable* old_wearable = getWearable(type,i);
-			const LLUUID &item_id = getWearableItemID(type,i);
-			popWearable(type,i);
-			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
-			LLAppearanceManager::instance().removeItemLinks(item_id,false);
-
 			//queryWearableCache(); // moved below
 			if (old_wearable)
 			{
+				popWearable(old_wearable);
 				old_wearable->removeFromAvatar(TRUE);
 			}
 		}
@@ -1428,16 +1429,11 @@ void LLAgentWearables::removeWearableFinal(const EWearableType type, bool do_rem
 	else
 	{
 		LLWearable* old_wearable = getWearable(type, index);
-
-		const LLUUID &item_id = getWearableItemID(type,index);
-		popWearable(type, index);
-		gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
-		LLAppearanceManager::instance().removeItemLinks(item_id,false);
-
 		//queryWearableCache(); // moved below
 
 		if (old_wearable)
 		{
+			popWearable(old_wearable);
 			old_wearable->removeFromAvatar(TRUE);
 		}
 	}
@@ -1499,7 +1495,6 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 				continue;
 			}
 
-			gInventory.addChangedMask(LLInventoryObserver::LABEL, old_item_id);
 			// Assumes existing wearables are not dirty.
 			if (old_wearable->isDirty())
 			{
@@ -1508,9 +1503,9 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 			}
 		}
 
-		setWearable(type,0,new_wearable);
 		if (new_wearable)
 			new_wearable->setItemID(new_item->getUUID());
+		setWearable(type,0,new_wearable);
 	}
 
 	std::vector<LLWearable*> wearables_being_removed;

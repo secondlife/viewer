@@ -1253,6 +1253,10 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 			// filter self only on first pass through
 			LLFolderViewItem::filter( filter );
 		}
+		if (mDontShowInHierarchy)
+		{
+			setOpen();
+		}
 	}
 
 	if (getRoot()->getDebugFilters())

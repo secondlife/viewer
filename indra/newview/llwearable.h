@@ -128,6 +128,8 @@ public:
 
 	BOOL				isOnTop() const;
 
+	// Something happened that requires the wearable's label to be updated (e.g. worn/unworn).
+	void				setLabelUpdated() const;
 
 private:
 	typedef std::map<S32, LLLocalTextureObject*> te_map_t;

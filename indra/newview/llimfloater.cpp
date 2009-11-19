@@ -106,10 +106,10 @@ void LLIMFloater::onFocusReceived()
 // virtual
 void LLIMFloater::onClose(bool app_quitting)
 {
-	if (!gIMMgr->hasSession(mSessionID)) return;
-	
 	setTyping(false);
-	gIMMgr->leaveSession(mSessionID);
+	// SJB: We want the close button to hide the session window, not end it
+	// *NOTE: Yhis is functional, but not ideal - it's still closing the floater; we really want to change the behavior of the X button instead.
+	//gIMMgr->leaveSession(mSessionID);
 }
 
 /* static */
@@ -358,7 +358,7 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 
 void LLIMFloater::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectRaw();
+	rect = gViewerWindow->getWorldViewRectScaled();
 }
 
 void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
@@ -495,12 +495,12 @@ void LLIMFloater::updateMessages()
 				if (from.size() > 0)
 				{
 					append_style_params.font.style = "ITALIC";
-					chat.mText = from + " ";
+					chat.mText = from;
 					mChatHistory->appendWidgetMessage(chat, append_style_params);
 				}
 				
 				message = message.substr(3);
-				append_style_params.font.style = "UNDERLINE";
+				append_style_params.font.style = "ITALIC";
 				mChatHistory->appendText(message, FALSE, append_style_params);
 			}
 			else

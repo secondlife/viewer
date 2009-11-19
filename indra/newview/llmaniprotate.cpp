@@ -1107,8 +1107,11 @@ BOOL LLManipRotate::updateVisiblity()
 		mCenterToProfilePlaneMag = mRadiusMeters * mRadiusMeters / mCenterToCamMag;
 		mCenterToProfilePlane = -mCenterToProfilePlaneMag * mCenterToCamNorm;
 
-		mCenterScreen.set((S32)((0.5f - mRotationCenter.mdV[VY]) / gAgent.mHUDCurZoom * gViewerWindow->getWorldViewWidthRaw()),
-							(S32)((mRotationCenter.mdV[VZ] + 0.5f) / gAgent.mHUDCurZoom * gViewerWindow->getWorldViewHeightRaw()));
+		// x axis range is (-aspect * 0.5f, +aspect * 0.5)
+		// y axis range is (-0.5, 0.5)
+		// so use getWorldViewHeightRaw as scale factor when converting to pixel coordinates
+		mCenterScreen.set((S32)((0.5f - center.mV[VY]) / gAgent.mHUDCurZoom * gViewerWindow->getWorldViewHeightScaled()),
+							(S32)((center.mV[VZ] + 0.5f) / gAgent.mHUDCurZoom * gViewerWindow->getWorldViewHeightScaled()));
 		visible = TRUE;
 	}
 	else
@@ -1624,8 +1627,8 @@ void LLManipRotate::mouseToRay( S32 x, S32 y, LLVector3* ray_pt, LLVector3* ray_
 {
 	if (LLSelectMgr::getInstance()->getSelection()->getSelectType() == SELECT_TYPE_HUD)
 	{
-		F32 mouse_x = (((F32)x / gViewerWindow->getWorldViewWidthRaw()) - 0.5f) / gAgent.mHUDCurZoom;
-		F32 mouse_y = ((((F32)y) / gViewerWindow->getWorldViewHeightRaw()) - 0.5f) / gAgent.mHUDCurZoom;
+		F32 mouse_x = (((F32)x / gViewerWindow->getWorldViewRectScaled().getWidth()) - 0.5f) / gAgent.mHUDCurZoom;
+		F32 mouse_y = ((((F32)y) / gViewerWindow->getWorldViewRectScaled().getHeight()) - 0.5f) / gAgent.mHUDCurZoom;
 
 		*ray_pt = LLVector3(-1.f, -mouse_x, mouse_y);
 		*ray_dir = LLVector3(1.f, 0.f, 0.f);
@@ -1699,7 +1702,7 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
 	F32 dist_y = mouse_dir_y.normVec();
 	F32 dist_z = mouse_dir_z.normVec();
 
-	F32 distance_threshold = (MAX_MANIP_SELECT_DISTANCE * mRadiusMeters) / gViewerWindow->getWorldViewHeightRaw();
+	F32 distance_threshold = (MAX_MANIP_SELECT_DISTANCE * mRadiusMeters) / gViewerWindow->getWorldViewHeightScaled();
 
 	if (llabs(dist_x - mRadiusMeters) * llmax(0.05f, proj_rot_x_axis) < distance_threshold)
 	{

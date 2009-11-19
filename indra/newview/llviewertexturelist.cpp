@@ -1467,14 +1467,14 @@ struct UIImageDeclaration : public LLInitParam::Block<UIImageDeclaration>
 	Mandatory<std::string>	name;
 	Optional<std::string>	file_name;
 	Optional<bool>			preload;
-	Optional<LLRect>		scale_rect;
+	Optional<LLRect>		scale;
 	Optional<bool>			use_mips;
 
 	UIImageDeclaration()
 	:	name("name"),
 		file_name("file_name"),
 		preload("preload", false),
-		scale_rect("scale"),
+		scale("scale"),
 		use_mips("use_mips", false)
 	{}
 };
@@ -1564,7 +1564,7 @@ bool LLUIImageList::initFromFile()
 			{
 				continue;
 			}
-			preloadUIImage(image_it->name, file_name, image_it->use_mips, image_it->scale_rect);
+			preloadUIImage(image_it->name, file_name, image_it->use_mips, image_it->scale);
 		}
 
 		if (cur_pass == PASS_DECODE_NOW && !gSavedSettings.getBOOL("NoPreload"))

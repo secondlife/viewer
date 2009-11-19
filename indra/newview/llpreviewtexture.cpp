@@ -152,7 +152,7 @@ BOOL LLPreviewTexture::postBuild()
 		{
 			childSetCommitCallback("desc", LLPreview::onText, this);
 			childSetText("desc", item->getDescription());
-			childSetPrevalidate("desc", &LLLineEditor::prevalidatePrintableNotPipe);
+			childSetPrevalidate("desc", &LLLineEditor::prevalidateASCIIPrintableNoPipe);
 		}
 	}
 	
