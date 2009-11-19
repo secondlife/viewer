@@ -4959,7 +4959,7 @@ No valid parcel could be found.
    icon="notify.tga"
    name="ObjectGiveItem"
    type="offer">
-An object named [OBJECTFROMNAME] owned by [NAME] has offered you [OBJECTTYPE]:
+An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has offered you [OBJECTTYPE]:
 [ITEM_SLURL]
     <form name="form">
       <button
@@ -4980,8 +4980,9 @@ An object named [OBJECTFROMNAME] owned by [NAME] has offered you [OBJECTTYPE]:
   <notification
    icon="notify.tga"
    name="ObjectGiveItemUnknownUser"
-   type="notify">
-An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a [OBJECTTYPE] named [OBJECTNAME].
+   type="offer">
+An object named [OBJECTFROMNAME] owned by (an unknown Resident) has offered you [OBJECTTYPE]:
+[ITEM_SLURL]
     <form name="form">
       <button
        index="0"
@@ -5002,7 +5003,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
    icon="notify.tga"
    name="UserGiveItem"
    type="offer">
-[NAME] has offered you [OBJECTTYPE]:
+[NAME_SLURL] has offered you [OBJECTTYPE]:
 [ITEM_SLURL]
     <form name="form">
       <button
