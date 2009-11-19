@@ -253,12 +253,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 					selectionPropertiesReceived();
 				}
 			}
-			return TRUE;
-		case CLICK_ACTION_ZOOM:
-				gAgent.setFocusOnAvatar(FALSE, FALSE);	
-				gAgent.setFocusGlobal(mPick);
-				gAgent.setCameraZoomFraction(0.9);
-				return TRUE;		
+			return TRUE;	
 		case CLICK_ACTION_PLAY:
 			handle_click_action_play();
 			return TRUE;
@@ -266,6 +261,29 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			// mClickActionObject = object;
 			handle_click_action_open_media(object);
 			return TRUE;
+		case CLICK_ACTION_ZOOM:
+			{	
+				const F32 PADDING_FACTOR = 2.f;
+				LLViewerObject* object = gObjectList.findObject(mPick.mObjectID);
+				
+				if (object)
+				{
+					gAgent.setFocusOnAvatar(FALSE, ANIMATE);
+					
+					LLBBox bbox = object->getBoundingBoxAgent() ;
+					F32 angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getAspect() > 1.f ? LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect() : LLViewerCamera::getInstance()->getView());
+					F32 distance = bbox.getExtentLocal().magVec() * PADDING_FACTOR / atan(angle_of_view);
+				
+					LLVector3 obj_to_cam = LLViewerCamera::getInstance()->getOrigin() - bbox.getCenterAgent();
+					obj_to_cam.normVec();
+					
+					LLVector3d object_center_global = gAgent.getPosGlobalFromAgent(bbox.getCenterAgent());
+					gAgent.setCameraPosAndFocusGlobal(object_center_global + LLVector3d(obj_to_cam * distance), 
+													  object_center_global, 
+													  mPick.mObjectID );
+				}
+			}
+			return TRUE;			
 		default:
 			// nothing
 			break;
