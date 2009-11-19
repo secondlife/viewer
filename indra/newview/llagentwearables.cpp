@@ -2160,7 +2160,6 @@ void LLLibraryOutfitsFetch::contentsDone(void)
 
 LLInitialWearablesFetch::~LLInitialWearablesFetch()
 {
-	llinfos << "~LLInitialWearablesFetch" << llendl;
 }
 
 // virtual
@@ -2201,11 +2200,9 @@ public:
 		m_ids(ids),
 		LLInventoryFetchObserver(true)
 	{
-		llwarns << "LLFetchAndLinkObserver" << llendl;
 	}
 	~LLFetchAndLinkObserver()
 	{
-		llwarns << "~LLFetchAndLinkObserver" << llendl;
 	}
 	virtual void done()
 	{
