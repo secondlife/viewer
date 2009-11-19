@@ -969,6 +969,7 @@ protected:
 public:
 	virtual BOOL createVolumeFacesFromFile(const std::string& file_name);
 	virtual BOOL createVolumeFacesFromStream(std::istream& is);
+	virtual void makeTetrahedron();
 
  protected:
 	BOOL mUnique;

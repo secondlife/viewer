@@ -1925,7 +1925,9 @@ BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 
 	S32 lod = llclamp((S32) mDetail, 0, 3);
 
-	while (lod < 4 && header[nm[lod]]["offset"].asInteger() == -1)
+	while (lod < 4 && 
+		(header[nm[lod]]["offset"].asInteger() == -1 || 
+		header[nm[lod]]["size"].asInteger() == 0 ))
 	{
 		++lod;
 	}
@@ -1934,7 +1936,9 @@ BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 	{
 		lod = llclamp((S32) mDetail, 0, 3);
 
-		while (lod >= 0 && header[nm[lod]]["offset"].asInteger() == -1)
+		while (lod >= 0 && 
+				(header[nm[lod]]["offset"].asInteger() == -1 ||
+				header[nm[lod]]["size"].asInteger() == 0) )
 		{
 			--lod;
 		}
@@ -2133,6 +2137,94 @@ BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 
 	mSculptLevel = 0;  // success!
 	return TRUE;
+}
+
+void tetrahedron_set_normal(LLVolumeFace::VertexData* cv)
+{
+	LLVector3 nrm = (cv[1].mPosition-cv[0].mPosition)%(cv[2].mPosition-cv[0].mPosition);
+
+	nrm.normVec();
+
+	cv[0].mNormal = nrm;
+	cv[1].mNormal = nrm;
+	cv[2].mNormal = nrm;
+}
+
+void LLVolume::makeTetrahedron()
+{
+	mVolumeFaces.clear();
+
+	LLVolumeFace face;
+
+	F32 x = 0.5f;
+	LLVector3 p[] = 
+	{ //unit tetrahedron corners
+		LLVector3(x,x,x),
+		LLVector3(-x,-x,x),
+		LLVector3(-x,x,-x),
+		LLVector3(x,-x,-x)
+	};
+
+	LLVolumeFace::VertexData cv[3];
+
+	//set texture coordinates
+	cv[0].mTexCoord = LLVector2(0,0);
+	cv[1].mTexCoord = LLVector2(1,0);
+	cv[2].mTexCoord = LLVector2(0.5f, 0.5f*F_SQRT3);
+
+
+	//side 1
+	cv[0].mPosition = p[1];
+	cv[1].mPosition = p[0];
+	cv[2].mPosition = p[2];
+
+	tetrahedron_set_normal(cv);
+
+	face.mVertices.push_back(cv[0]);
+	face.mVertices.push_back(cv[1]);
+	face.mVertices.push_back(cv[2]);
+	
+	//side 2
+	cv[0].mPosition = p[3];
+	cv[1].mPosition = p[0];
+	cv[2].mPosition = p[1];
+
+	tetrahedron_set_normal(cv);
+
+	face.mVertices.push_back(cv[0]);
+	face.mVertices.push_back(cv[1]);
+	face.mVertices.push_back(cv[2]);
+	
+	//side 3
+	cv[0].mPosition = p[3];
+	cv[1].mPosition = p[1];
+	cv[2].mPosition = p[2];
+
+	tetrahedron_set_normal(cv);
+
+	face.mVertices.push_back(cv[0]);
+	face.mVertices.push_back(cv[1]);
+	face.mVertices.push_back(cv[2]);
+	
+	//side 4
+	cv[0].mPosition = p[2];
+	cv[1].mPosition = p[0];
+	cv[2].mPosition = p[3];
+
+	tetrahedron_set_normal(cv);
+
+	face.mVertices.push_back(cv[0]);
+	face.mVertices.push_back(cv[1]);
+	face.mVertices.push_back(cv[2]);
+	
+	//set index buffer
+	for (U32 i = 0; i < 12; i++)
+	{
+		face.mIndices.push_back(i);
+	}
+	
+	mVolumeFaces.push_back(face);
+	mSculptLevel = 0;
 }
 
 void LLVolume::copyVolumeFaces(LLVolume* volume)
