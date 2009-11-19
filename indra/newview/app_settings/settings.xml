@@ -3620,21 +3620,10 @@
       <key>Value</key>
       <string />
     </map>
-    <key>IMInChatConsole</key>
+    <key>IMInChat</key>
     <map>
       <key>Comment</key>
       <string>Copy IM into chat console</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>IMInChatHistory</key>
-    <map>
-      <key>Comment</key>
-      <string>Copy IM into chat history</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

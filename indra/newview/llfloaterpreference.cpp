@@ -338,7 +338,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",		boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
 	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
-	mCommitCallbackRegistrar.add("Pref.Logging",				boost::bind(&LLFloaterPreference::onCommitLogging, this));
 	mCommitCallbackRegistrar.add("Pref.UpdateMeterText",		boost::bind(&LLFloaterPreference::updateMeterText, this, _1));	
 	mCommitCallbackRegistrar.add("Pref.HardwareSettings",       boost::bind(&LLFloaterPreference::onOpenHardwareSettings, this));	
 	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",       boost::bind(&LLFloaterPreference::setHardwareDefaults, this));	
@@ -1133,27 +1132,6 @@ void LLFloaterPreference::onClickLogPath()
 	gSavedPerAccountSettings.setString("InstantMessageLogFolder",chat_log_top_folder);
 }
 
-void LLFloaterPreference::onCommitLogging()
-{
-	enableHistory();
-}
-
-void LLFloaterPreference::enableHistory()
-{
-	if (childGetValue("log_instant_messages").asBoolean())
-	{
-		childEnable("ChatIMLogs");
-		childEnable("log_path_button");
-		childEnable("show_timestamps_check_im");
-	}
-	else
-	{
-		childDisable("ChatIMLogs");
-		childDisable("log_path_button");
-		childDisable("show_timestamps_check_im");
-	}
-}
-
 void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string& email)
 {
 	mGotPersonalInfo = true;
@@ -1193,7 +1171,12 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	
 //	childSetText("busy_response", gSavedSettings.getString("BusyModeResponse2"));
 	
-	enableHistory();
+	childEnable("log_nearby_chat");
+	childEnable("log_instant_messages");
+	childEnable("show_timestamps_check_im");
+	childEnable("log_path_string");
+	childEnable("log_path_button");
+	
 	std::string display_email(email);
 	childSetText("email_address",display_email);
 
