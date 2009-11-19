@@ -12,6 +12,7 @@ project(llwindow)
 
 include(00-Common)
 include(DirectX)
+include(DragDrop)
 include(LLCommon)
 include(LLImage)
 include(LLMath)
