@@ -10,7 +10,6 @@
  width="128">
     <menu_item_call
      label="Zoom Close"
-     layout="topleft"
      name="Zoom Close">
         <menu_item_call.on_click
          function="Minimap.Zoom"
@@ -18,7 +17,6 @@
     </menu_item_call>
     <menu_item_call
      label="Zoom Medium"
-     layout="topleft"
      name="Zoom Medium">
         <menu_item_call.on_click
          function="Minimap.Zoom"
@@ -26,29 +24,31 @@
     </menu_item_call>
     <menu_item_call
      label="Zoom Far"
-     layout="topleft"
      name="Zoom Far">
         <menu_item_call.on_click
          function="Minimap.Zoom"
          parameter="far" />
     </menu_item_call>
-    <menu_item_separator
-     layout="topleft"
-     name="Tracking Separator" />
+    <menu_item_check
+       label="Rotate Map"
+       name="Rotate Map">
+          <menu_item_check.on_check
+             control="MiniMapRotate" />
+          <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="MiniMapRotate" />
+    </menu_item_check>
+    <menu_item_separator />
     <menu_item_call
      label="Stop Tracking"
-     layout="topleft"
      name="Stop Tracking">
         <menu_item_call.on_click
          function="Minimap.Tracker"
          parameter="task_properties" />
     </menu_item_call>
-    <menu_item_separator
-     layout="topleft"
-     name="Tracking Separator" />
+    <menu_item_separator />
     <menu_item_call
      label="World Map"
-     layout="topleft"
      name="World Map">
         <menu_item_call.on_click
          function="ShowFloater"

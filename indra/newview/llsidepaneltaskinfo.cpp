@@ -100,8 +100,8 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	mBuyBtn = getChild<LLButton>("buy_btn");
 	mBuyBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onBuyButtonClicked, this));
 
-	childSetPrevalidate("Object Name",LLLineEditor::prevalidatePrintableNotPipe);
-	childSetPrevalidate("Object Description",LLLineEditor::prevalidatePrintableNotPipe);
+	childSetPrevalidate("Object Name",LLLineEditor::prevalidateASCIIPrintableNoPipe);
+	childSetPrevalidate("Object Description",LLLineEditor::prevalidateASCIIPrintableNoPipe);
 
 //	getChild<LLUICtrl>("button set group")->setCommitCallback(boost::bind(&LLSidepanelTaskInfo::onClickGroup,this));
 //	childSetAction("button deed",LLSidepanelTaskInfo::onClickDeedToGroup,this);

@@ -415,7 +415,7 @@ LLPanelRegionTools::LLPanelRegionTools()
 BOOL LLPanelRegionTools::postBuild()
 {
 	getChild<LLLineEditor>("region name")->setKeystrokeCallback(onChangeSimName, this);
-	childSetPrevalidate("region name", &LLLineEditor::prevalidatePrintableNotPipe);
+	childSetPrevalidate("region name", &LLLineEditor::prevalidateASCIIPrintableNoPipe);
 	childSetPrevalidate("estate", &LLLineEditor::prevalidatePositiveS32);
 	childSetPrevalidate("parentestate", &LLLineEditor::prevalidatePositiveS32);
 	childDisable("parentestate");

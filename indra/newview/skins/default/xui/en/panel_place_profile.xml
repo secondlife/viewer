@@ -172,7 +172,7 @@
      width="313">
         <panel
          bg_alpha_color="DkGray2"
-         follows="all"
+         follows="left|top|right"
          height="533"
          layout="topleft"
          left="0"
@@ -192,7 +192,7 @@
             <layout_stack
              border_size="0"
              clip="false"
-             follows="all"
+             follows="left|top|right"
              height="50"
              layout="topleft"
              mouse_opaque="false"
@@ -305,7 +305,7 @@
              top_delta="0"
              width="18" />
             <text
-             follows="right|top"
+             follows="left|top|right"
              height="16"
              layout="topleft"
              left_pad="8"

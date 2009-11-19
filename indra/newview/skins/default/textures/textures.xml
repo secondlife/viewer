@@ -1,3 +1,33 @@
+<!--
+This file contains metadata about how to load, display, and scale textures for rendering in the UI.
+Images do *NOT* have to appear in this file in order to use them as textures in the UI...simply refer 
+to them by filename (relative to textures directory).
+NOTE: if you want to reuse an image file with different metadata, simply create a new texture entry 
+with the same filename but different name
+
+<texture
+  name="MyTexture" (mandatory)
+    - this is the name you reference the texture by in XUI.  For example, <button image_unselected="MyTexture"/>
+  file_name="images/my_texture.png" (optional)
+    - this is the path to the actual file asset, relative to the current skins "textures" directory.  
+      If not supplied, the filename will be taken from the texture name itself, "MyTexture" in this case.  
+      NOTE: you need to provide an extension on the filename (".png", ".tga", ".jpg") for us to decode the image properly
+  preload="true" (optional, false by default)
+    - If true, we will attempt to load the image before displaying any UI.  
+      If false, we will load in the background after initializing the UI.
+  use_mips="true" (currently unused)
+  scale.left="1"
+  scale.bottom="1"
+  scale.top="15"
+  scale.right="31"
+    - Specifies the segmentation for 9-slice image scaling.  Specifically, the pixel offsets from the LOWER LEFT corner
+      that define the region of the image that is stretched to make the whole image fit in the required space.
+      In this example, if the source image is 32x16 pixels, we have defined a center region that starts one pixel up
+      and to the right from the bottom left corner and extends to 31 pixels right and 15 pixels up from the bottom left 
+      corner.  The end result is that the image will keep a 1 pixel border all around while stretching to fit the required 
+      region.
+-->
+
 <textures version="101">
   <!-- Please add new files alphabetically to prevent merge conflicts. JC -->
   <texture name="Accordion_ArrowClosed_Off" file_name="containers/Accordion_ArrowClosed_Off.png" preload="false" />
@@ -106,7 +136,6 @@
   <texture name="DropDown_Press" file_name="widgets/DropDown_Press.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Selected" file_name="widgets/DropDown_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Off" file_name="widgets/DropDown_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  <texture name="DropDown_On" file_name="widgets/DropDown_On.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
 
   <texture name="DropTarget" file_name="widgets/DropTarget.png" preload="false" />
 
@@ -230,6 +259,10 @@
 
   <texture name="Microphone_Mute" file_name="icons/Microphone_Mute.png" preload="false" />
   <texture name="Microphone_On" file_name="icons/Microphone_On.png" preload="false" />
+
+  <texture name="MinusItem_Disabled" file_name="icons/MinusItem_Disabled.png" preload="false" />
+  <texture name="MinusItem_Off" file_name="icons/MinusItem_Off.png" preload="false" />
+  <texture name="MinusItem_Press" file_name="icons/MinusItem_Press.png" preload="false" />
 
   <texture name="menu_separator" file_name="navbar/FileMenu_Divider.png" scale.left="4" scale.top="166" scale.right="0" scale.bottom="0" />
 
