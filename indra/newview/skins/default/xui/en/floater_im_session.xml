@@ -10,9 +10,9 @@
  top="0"
  can_close="true"
  can_dock="true"
- can_minimize="true"
+ can_minimize="false"
  visible="true"
- width="350"
+ width="300"
  can_resize="true"
  min_width="300"
  min_height="350">

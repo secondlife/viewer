@@ -106,8 +106,6 @@ void LLIMFloater::onFocusReceived()
 // virtual
 void LLIMFloater::onClose(bool app_quitting)
 {
-	if (!gIMMgr->hasSession(mSessionID)) return;
-	
 	setTyping(false);
 	gIMMgr->leaveSession(mSessionID);
 }
