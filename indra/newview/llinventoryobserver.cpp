@@ -115,7 +115,8 @@ void LLInventoryFetchObserver::changed(U32 mask)
 				// BUG: This can cause done() to get called prematurely below.
 				// This happens with the LLGestureInventoryFetchObserver that
 				// loads gestures at startup. JC
-				it = mIncomplete.erase(it);
+				//it = mIncomplete.erase(it);
+				++it;
 				continue;
 			}
 			if(item->isComplete())

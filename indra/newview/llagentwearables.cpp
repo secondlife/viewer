@@ -2196,11 +2196,48 @@ void LLInitialWearablesFetch::processContents()
 	delete this;
 }
 
+class LLFetchAndLinkObserver: public LLInventoryFetchObserver
+{
+public:
+	LLFetchAndLinkObserver(LLInventoryFetchObserver::item_ref_t& ids):
+		m_ids(ids)
+	{
+		llwarns << "LLFetchAndLinkObserver" << llendl;
+	}
+	~LLFetchAndLinkObserver()
+	{
+		llwarns << "~LLFetchAndLinkObserver" << llendl;
+	}
+	virtual void done()
+	{
+		gInventory.removeObserver(this);
+		// Link to all fetched items in COF.
+		for (LLInventoryFetchObserver::item_ref_t::iterator it = m_ids.begin();
+			 it != m_ids.end();
+			 ++it)
+		{
+			LLUUID id = *it;
+			LLViewerInventoryItem *item = gInventory.getItem(*it);
+			if (!item)
+			{
+				llwarns << "LLFetchAndLinkObserver fetch failed!" << llendl;
+				continue;
+			}
+			link_inventory_item(gAgent.getID(), item->getLinkedUUID(), LLAppearanceManager::instance().getCOF(), item->getName(),
+								LLAssetType::AT_LINK, LLPointer<LLInventoryCallback>(NULL));
+		}
+
+	}
+private:
+	LLInventoryFetchObserver::item_ref_t m_ids;
+};
+
 void LLInitialWearablesFetch::processWearablesMessage()
 {
 	if (!mAgentInitialWearables.empty()) // We have an empty current outfit folder, use the message data instead.
 	{
-		const LLUUID current_outfit_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+		const LLUUID current_outfit_id = LLAppearanceManager::instance().getCOF();
+		LLInventoryFetchObserver::item_ref_t ids;
 		for (U8 i = 0; i < mAgentInitialWearables.size(); ++i)
 		{
 			// Populate the current outfit folder with links to the wearables passed in the message
@@ -2209,9 +2246,7 @@ void LLInitialWearablesFetch::processWearablesMessage()
 			if (wearable_data->mAssetID.notNull())
 			{
 #ifdef USE_CURRENT_OUTFIT_FOLDER
-				const std::string link_name = "WearableLink"; // Unimportant what this is named, it isn't exposed.
-				link_inventory_item(gAgent.getID(), wearable_data->mItemID, current_outfit_id, link_name,
-									LLAssetType::AT_LINK, LLPointer<LLInventoryCallback>(NULL));
+				ids.push_back(wearable_data->mItemID);
 #endif
 				// Fetch the wearables
 				LLWearableList::instance().getAsset(wearable_data->mAssetID,
@@ -2224,6 +2259,20 @@ void LLInitialWearablesFetch::processWearablesMessage()
 				llinfos << "Invalid wearable, type " << wearable_data->mType << " itemID "
 				<< wearable_data->mItemID << " assetID " << wearable_data->mAssetID << llendl;
 			}
+		}
+
+		// Need to fetch the inventory items for ids, then create links to them after they arrive.
+		LLFetchAndLinkObserver *fetcher = new LLFetchAndLinkObserver(ids);
+		fetcher->fetchItems(ids);
+		// If no items to be fetched, done will never be triggered.
+		// TODO: Change LLInventoryFetchObserver::fetchItems to trigger done() on this condition.
+		if (fetcher->isEverythingComplete())
+		{
+			fetcher->done();
+		}
+		else
+		{
+			gInventory.addObserver(fetcher);
 		}
 	}
 	else
