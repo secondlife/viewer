@@ -171,16 +171,33 @@ time_t LLInvFVBridge::getCreationDate() const
 	return 0;
 }
 
-// Can be destoryed (or moved to trash)
+// Can be destroyed (or moved to trash)
 BOOL LLInvFVBridge::isItemRemovable()
 {
-	LLInventoryModel* model = getInventoryModel();
-	if(!model) return FALSE;
-	if(model->isObjectDescendentOf(mUUID, gInventory.getRootFolderID()))
+	const LLInventoryModel* model = getInventoryModel();
+	if(!model) 
+	{
+		return FALSE;
+	}
+	if(!model->isObjectDescendentOf(mUUID, gInventory.getRootFolderID()))
+	{
+		return FALSE;
+	}
+	const LLInventoryObject *obj = model->getItem(mUUID);
+	if (obj && obj->getIsLinkType())
 	{
 		return TRUE;
 	}
-	return FALSE;
+	if (gAgentWearables.isWearingItem(mUUID))
+	{
+		return FALSE;
+	}
+	const LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
+	if (avatar && avatar->isWearingAttachment(mUUID))
+	{
+		return FALSE;
+	}
+	return TRUE;
 }
 
 // Can be moved to another folder
@@ -1303,6 +1320,23 @@ void LLFolderBridge::selectItem()
 }
 
 
+// Iterate through a folder's children to determine if
+// all the children are removable.
+class LLIsItemRemovable : public LLFolderViewFunctor
+{
+public:
+	LLIsItemRemovable() : mPassed(TRUE) {}
+	virtual void doFolder(LLFolderViewFolder* folder)
+	{
+		mPassed &= folder->getListener()->isItemRemovable();
+	}
+	virtual void doItem(LLFolderViewItem* item)
+	{
+		mPassed &= item->getListener()->isItemRemovable();
+	}
+	BOOL mPassed;
+};
+
 // Can be destroyed (or moved to trash)
 BOOL LLFolderBridge::isItemRemovable()
 {
@@ -1334,41 +1368,17 @@ BOOL LLFolderBridge::isItemRemovable()
 		return FALSE;
 	}
 
-	LLInventoryModel::cat_array_t	descendent_categories;
-	LLInventoryModel::item_array_t	descendent_items;
-	gInventory.collectDescendents( mUUID, descendent_categories, descendent_items, FALSE );
-
-	S32 i;
-	for( i = 0; i < descendent_categories.count(); i++ )
+	LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
+	LLFolderViewFolder* folderp = dynamic_cast<LLFolderViewFolder*>(panel ? panel->getRootFolder()->getItemByID(mUUID) : NULL);
+	if (folderp)
 	{
-		LLInventoryCategory* category = descendent_categories[i];
-		if(LLFolderType::lookupIsProtectedType(category->getPreferredType()))
+		LLIsItemRemovable folder_test;
+		folderp->applyFunctorToChildren(folder_test);
+		if (!folder_test.mPassed)
 		{
 			return FALSE;
 		}
 	}
-
-	for( i = 0; i < descendent_items.count(); i++ )
-	{
-		LLInventoryItem* item = descendent_items[i];
-		if( (item->getType() == LLAssetType::AT_CLOTHING) ||
-			(item->getType() == LLAssetType::AT_BODYPART) )
-		{
-			if(gAgentWearables.isWearingItem(item->getUUID()))
-			{
-				return FALSE;
-			}
-		}
-		else
-		if( item->getType() == LLAssetType::AT_OBJECT )
-		{
-			if(avatar->isWearingAttachment(item->getUUID()))
-			{
-				return FALSE;
-			}
-		}
-	}
-
 	return TRUE;
 }
 
@@ -3772,14 +3782,6 @@ LLItemBridge(inventory, uuid), mInvType(type)
 	mIsMultiObject = ( flags & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS ) ?  TRUE: FALSE;
 }
 
-BOOL LLObjectBridge::isItemRemovable()
-{
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if(!avatar) return FALSE;
-	if(avatar->isWearingAttachment(mUUID)) return FALSE;
-	return LLInvFVBridge::isItemRemovable();
-}
-
 LLUIImagePtr LLObjectBridge::getIcon() const
 {
 	return get_item_icon(LLAssetType::AT_OBJECT, mInvType, mAttachPt, mIsMultiObject );
@@ -4297,12 +4299,6 @@ BOOL LLWearableBridge::renameItem(const std::string& new_name)
 		gAgentWearables.setWearableName( mUUID, new_name );
 	}
 	return LLItemBridge::renameItem(new_name);
-}
-
-BOOL LLWearableBridge::isItemRemovable()
-{
-	if (gAgentWearables.isWearingItem(mUUID)) return FALSE;
-	return LLInvFVBridge::isItemRemovable();
 }
 
 std::string LLWearableBridge::getLabelSuffix() const

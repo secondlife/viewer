@@ -501,6 +501,9 @@ public:
 	void applyFunctorRecursively(LLFolderViewFunctor& functor);
 	virtual void applyListenerFunctorRecursively(LLFolderViewListenerFunctor& functor);
 
+	// Just apply this functor to the folder's immediate children.
+	void applyFunctorToChildren(LLFolderViewFunctor& functor);
+
 	virtual void openItem( void );
 	virtual BOOL addItem(LLFolderViewItem* item);
 	virtual BOOL addFolder( LLFolderViewFolder* folder);

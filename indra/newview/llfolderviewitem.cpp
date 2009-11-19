@@ -2030,6 +2030,22 @@ void LLFolderViewFolder::openItem( void )
 	toggleOpen();
 }
 
+void LLFolderViewFolder::applyFunctorToChildren(LLFolderViewFunctor& functor)
+{
+	for (folders_t::iterator iter = mFolders.begin();
+		iter != mFolders.end();)
+	{
+		folders_t::iterator fit = iter++;
+		functor.doItem((*fit));
+	}
+	for (items_t::iterator iter = mItems.begin();
+		iter != mItems.end();)
+	{
+		items_t::iterator iit = iter++;
+		functor.doItem((*iit));
+	}
+}
+
 void LLFolderViewFolder::applyFunctorRecursively(LLFolderViewFunctor& functor)
 {
 	functor.doFolder(this);
