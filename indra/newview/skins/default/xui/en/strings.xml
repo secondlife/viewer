@@ -1747,10 +1747,10 @@ Clears (deletes) the media and all params from the given face.
   </string>
 
   <!-- Avatar busy/away mode -->
-	<string name="AvatarSetNotAway">Set Not Away</string>
-	<string name="AvatarSetAway">Set Away</string>
-	<string name="AvatarSetNotBusy">Set Not Busy</string>
-	<string name="AvatarSetBusy">Set Busy</string>
+	<string name="AvatarSetNotAway">Not Away</string>
+	<string name="AvatarSetAway">Away</string>
+	<string name="AvatarSetNotBusy">Not Busy</string>
+	<string name="AvatarSetBusy">Busy</string>
 	
 	<!-- Wearable Types -->
 	<string name="shape">Shape</string>
@@ -2867,6 +2867,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   </string>
   <string name="inventory_item_offered-im">
     Inventory item offered
+  </string>
+  <string name="share_alert">
+    Drag items from inventory here
   </string>
 
   <string name="only_user_message">

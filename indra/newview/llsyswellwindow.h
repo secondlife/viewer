@@ -39,12 +39,13 @@
 #include "llbutton.h"
 #include "llscreenchannel.h"
 #include "llscrollcontainer.h"
-#include "llchiclet.h"
 #include "llimview.h"
 
 #include "boost/shared_ptr.hpp"
 
 class LLFlatListView;
+class LLChiclet;
+class LLIMChiclet;
 
 class LLSysWellWindow : public LLDockableFloater, LLIMSessionObserver
 {

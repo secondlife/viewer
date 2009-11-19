@@ -16,7 +16,9 @@
                               scale_image="true"
                               pad_right="24"
                               image_unselected="DropDown_Off"
-                              image_selected="DropDown_Selected"
+                              image_selected="DropDown_On"
+                              image_pressed="DropDown_Press" 
+                              image_pressed_selected="DropDown_Press"
                               image_disabled="DropDown_Disabled" />
   <combo_box.combo_list bg_writeable_color="MenuDefaultBgColor"
                         background_visible="true"

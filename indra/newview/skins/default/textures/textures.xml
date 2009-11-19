@@ -106,6 +106,7 @@
   <texture name="DropDown_Press" file_name="widgets/DropDown_Press.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Selected" file_name="widgets/DropDown_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Off" file_name="widgets/DropDown_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
+  <texture name="DropDown_On" file_name="widgets/DropDown_On.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
 
   <texture name="DropTarget" file_name="widgets/DropTarget.png" preload="false" />
 

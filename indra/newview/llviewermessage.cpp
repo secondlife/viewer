@@ -939,6 +939,11 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 		   !from_name.empty())
 		{
 			view = LLFloaterInventory::showAgentInventory();
+			//TODO:this should be moved to the end of method after all the checks,
+			//but first decide what to do with active inventory if any (EK)
+			LLSD key;
+			key["select"] = item->getUUID();
+			LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 		}
 		else
 		{
@@ -1367,7 +1372,8 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 
 	payload["from_id"] = info->mFromID;
 	args["OBJECTFROMNAME"] = info->mFromName;
-	args["NAME"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
+	args["NAME"] = info->mFromName;
+	args["NAME_SLURL"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
 	std::string verb = "highlight?name=" + msg;
 	args["ITEM_SLURL"] = LLSLURL::buildCommand("inventory", info->mObjectID, verb.c_str());
 
@@ -2110,7 +2116,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			send_generic_message("requestonlinenotification", strings);
 			
 			args["NAME"] = name;
-			LLNotifications::instance().add("FriendshipAccepted", args);
+			LLSD payload;
+			payload["from_id"] = from_id;
+			LLNotifications::instance().add("FriendshipAccepted", args, payload);
 		}
 		break;
 

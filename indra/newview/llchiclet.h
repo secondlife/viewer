@@ -638,13 +638,14 @@ public:
 
 	/*virtual*/ void setCounter(S32 counter);
 
-	/*virtual*/S32 getCounter() { return mCounterCtrl->getCounter(); }
-
-	/*virtual*/ void setShowCounter(bool show);
+	// *TODO: mantipov: seems getCounter is not necessary for LLNotificationChiclet
+	// but inherited interface requires it to implement. 
+	// Probably it can be safe removed.
+	/*virtual*/S32 getCounter() { return mCounter; }
 
 	boost::signals2::connection setClickCallback(const commit_callback_t& cb);
 
-	/*virtual*/ ~ LLNotificationChiclet();
+	/*virtual*/ ~LLNotificationChiclet();
 
 	// methods for updating a number of unread System notifications
 	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications); }
@@ -662,7 +663,7 @@ protected:
 
 protected:
 	LLButton* mButton;
-	LLChicletNotificationCounterCtrl* mCounterCtrl;
+	S32 mCounter;
 };
 
 /*
