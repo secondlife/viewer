@@ -49,6 +49,7 @@
 #include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llchat.h"
+#include "llchiclet.h"
 #include "llresmgr.h"
 #include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"

@@ -94,7 +94,7 @@
          min_height="28"
          width="82"
          top_delta="0"
-         min_width="82"
+         min_width="52"
          name="gesture_panel"
          user_resize="false">
          <gesture_combo_box
@@ -105,9 +105,13 @@
           name="Gesture"
           left="0"
           top="3"
-         use_ellipses="true"
           width="82"
-          tool_tip="Shows/hides gestures"/>
+          tool_tip="Shows/hides gestures">
+             <gesture_combo_box.drop_down_button
+              font="SansSerifSmall"
+              pad_right="10" 
+              use_ellipses="true" />
+         </gesture_combo_box>
         </layout_panel>
 		 <icon
          auto_resize="false"
@@ -131,7 +135,7 @@
          name="movement_panel"
          user_resize="false"
          width="80"
-         min_width="80">
+         min_width="49">
             <button
              follows="left|right"
              height="23"
@@ -167,7 +171,7 @@
          height="28"
          layout="topleft"
          min_height="28"
-         min_width="80"
+         min_width="49"
          name="cam_panel"
          user_resize="false"
          width="80">
@@ -295,8 +299,8 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          min_height="28"
          top="0"
          name="sys_well_panel"
-         width="34"
-         min_width="34"
+         width="54"
+         min_width="54"
          user_resize="false">
             <chiclet_notification
              follows="right"
@@ -305,22 +309,21 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              left="0"
              name="sys_well"
              top="4"
-             width="34">
+             width="54">
               <button
               auto_resize="true"
                halign="right"
                height="23"
                follows="right"
                flash_color="EmphasisColor"
+               left="0"
                name="Unread"
                image_overlay="Notices_Unread"
-               width="20"
+               image_overlay_alignment="right" 
+               pad_right="6"
+               pad_left="6"
+               width="54"
                />
-               <unread_notifications
-               width="34"
-               height="20"
-               left="0"
-               top="19" />
 	    </chiclet_notification>
         </layout_panel>
        <icon

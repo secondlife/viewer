@@ -81,26 +81,16 @@ LLNotificationChiclet::Params::Params()
 	button.tab_stop(FALSE);
 	button.label(LLStringUtil::null);
 
-	unread_notifications.name("unread");
-	unread_notifications.font(LLFontGL::getFontSansSerif());
-	unread_notifications.text_color=(LLColor4::white);
-	unread_notifications.font_halign(LLFontGL::HCENTER);
-	unread_notifications.mouse_opaque(FALSE);
 }
 
 LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 : LLChiclet(p)
 , mButton(NULL)
-, mCounterCtrl(NULL)
+, mCounter(0)
 {
 	LLButton::Params button_params = p.button;
-	button_params.rect(p.rect());
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
 	addChild(mButton);
-
- 	LLChicletNotificationCounterCtrl::Params unread_params = p.unread_notifications;
-	mCounterCtrl = LLUICtrlFactory::create<LLChicletNotificationCounterCtrl>(unread_params);
-	addChild(mCounterCtrl);
 
 	// connect counter handlers to the signals
 	connectCounterUpdatersToSignal("notify");
@@ -126,13 +116,15 @@ void LLNotificationChiclet::connectCounterUpdatersToSignal(std::string notificat
 
 void LLNotificationChiclet::setCounter(S32 counter)
 {
-	mCounterCtrl->setCounter(counter);
-}
+	std::string s_count;
+	if(counter != 0)
+	{
+		s_count = llformat("%d", counter);
+	}
 
-void LLNotificationChiclet::setShowCounter(bool show)
-{
-	LLChiclet::setShowCounter(show);
-	mCounterCtrl->setVisible(getShowCounter());
+	mButton->setLabel(s_count);
+
+	mCounter = counter;
 }
 
 boost::signals2::connection LLNotificationChiclet::setClickCallback(

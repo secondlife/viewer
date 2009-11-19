@@ -269,6 +269,7 @@
    halign="left"
    left="13"
    name="RenderingCost"
+   tool_tip="Shows the rendering cost calculated for this object"
    top_pad="9"
    type="string"
    width="100">
@@ -306,6 +307,7 @@
      layout="topleft"
      follows="left|top"
      name="combobox grid mode"
+     tool_tip="Choose the type of grid ruler for positioning the object"
      width="108">
         <combo_box.item
          label="World grid"
@@ -329,7 +331,7 @@
      image_unselected="ForwardArrow_Off"
      layout="topleft"
      name="Options..."
-     tool_tip="Grid options"
+     tool_tip="See more grid options"
      top_delta="0"
      right="-10"
      width="18"
@@ -786,7 +788,7 @@
             </panel.string>
             <panel.string
              name="text modify warning">
-                This object has linked parts
+                You must select entire object to set permissions
             </panel.string>
             <panel.string
              name="Cost Default">
@@ -1070,7 +1072,7 @@ even though the user gets a free copy.
              follows="left|top|right"
              layout="topleft"
              name="perm_modify"
-             width="250">
+             width="264">
                 You can modify this object
             </text>
             <text

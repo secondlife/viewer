@@ -38,6 +38,7 @@
 #include "lllocaltextureobject.h"
 #include "llviewertexturelist.h"
 #include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "llviewerregion.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
@@ -225,7 +226,13 @@ BOOL LLWearable::importFile( LLFILE* file )
 		return FALSE;
 	}
 
-	if( mDefinitionVersion > LLWearable::sCurrentDefinitionVersion )
+
+	// Temoprary hack to allow wearables with definition version 24 to still load.
+	// This should only affect lindens and NDA'd testers who have saved wearables in 2.0
+	// the extra check for version == 24 can be removed before release, once internal testers
+	// have loaded these wearables again. See hack pt 2 at bottom of function to ensure that
+	// these wearables get re-saved with version definition 22.
+	if( mDefinitionVersion > LLWearable::sCurrentDefinitionVersion && mDefinitionVersion != 24 )
 	{
 		llwarns << "Wearable asset has newer version (" << mDefinitionVersion << ") than XML (" << LLWearable::sCurrentDefinitionVersion << ")" << llendl;
 		return FALSE;
@@ -413,6 +420,18 @@ BOOL LLWearable::importFile( LLFILE* file )
 
 	// copy all saved param values to working params
 	revertValues();
+
+	// Hack pt 2. If the wearable we just loaded has definition version 24,
+	// then force a re-save of this wearable after slamming the version number to 22.
+	// This number was incorrectly incremented for internal builds before release, and
+	// this fix will ensure that the affected wearables are re-saved with the right version number.
+	// the versions themselves are compatible. This code can be removed before release.
+	if( mDefinitionVersion == 24 )
+	{
+		mDefinitionVersion = 22;
+		U32 index = gAgentWearables.getWearableIndex(this);
+		gAgentWearables.saveWearable(mType,index,TRUE);
+	}
 
 	return TRUE;
 }
@@ -1078,6 +1097,12 @@ void LLWearable::destroyTextures()
 		delete lto;
 	}
 	mSavedTEMap.clear();
+}
+
+
+void LLWearable::setLabelUpdated() const
+{ 
+	gInventory.addChangedMask(LLInventoryObserver::LABEL, getItemID());
 }
 
 struct LLWearableSaveData

@@ -36,8 +36,6 @@
 
 #include "llinventorypanel.h"
 
-// Seraph TODO: Remove unnecessary headers
-
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
@@ -55,6 +53,22 @@ const std::string LLInventoryPanel::DEFAULT_SORT_ORDER = std::string("InventoryS
 const std::string LLInventoryPanel::RECENTITEMS_SORT_ORDER = std::string("RecentItemsSortOrder");
 const std::string LLInventoryPanel::INHERIT_SORT_ORDER = std::string("");
 static const LLInventoryFVBridgeBuilder INVENTORY_BRIDGE_BUILDER;
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLInventoryPanelObserver
+//
+// Bridge to support knowing when the inventory has changed.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLInventoryPanelObserver : public LLInventoryObserver
+{
+public:
+	LLInventoryPanelObserver(LLInventoryPanel* ip) : mIP(ip) {}
+	virtual ~LLInventoryPanelObserver() {}
+	virtual void changed(U32 mask);
+protected:
+	LLInventoryPanel* mIP;
+};
 
 LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :	
 	LLPanel(p),
@@ -131,27 +145,10 @@ BOOL LLInventoryPanel::postBuild()
 	mInventoryObserver = new LLInventoryPanelObserver(this);
 	mInventory->addObserver(mInventoryObserver);
 
-	// determine the root folder, if any, so inventory contents show just the children
-	// of that folder (i.e. not including the folder itself).
-	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(mStartFolderString);
-
-	if ("INVENTORY" == mStartFolderString)
-	{
-		mStartFolderID = gInventory.getRootFolderID();
-	}
-	else if ("LIBRARY" == mStartFolderString)
-	{
-		mStartFolderID = gInventory.getLibraryRootFolderID();
-	}
-	else
-	{
-		mStartFolderID = (preferred_type != LLFolderType::FT_NONE ? gInventory.findCategoryUUIDForType(preferred_type) : LLUUID::null);
-	}
-
 	// build view of inventory if we need default full hierarchy and inventory ready, otherwise wait for modelChanged() callback
 	if (mBuildDefaultHierarchy && mInventory->isInventoryUsable() && !mHasInventoryConnection)
 	{
-		rebuildViewsFor(mStartFolderID);
+		rebuildViews();
 		mHasInventoryConnection = true;
 		defaultOpenInventory();
 	}
@@ -258,7 +255,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 	// inventory just initialized, do complete build
 	if ((mask & LLInventoryObserver::ADD) && gInventory.getChangedIDs().empty() && !mHasInventoryConnection)
 	{
-		rebuildViewsFor(mStartFolderID);
+		rebuildViews();
 		mHasInventoryConnection = true;
 		defaultOpenInventory();
 		return;
@@ -348,14 +345,6 @@ void LLInventoryPanel::modelChanged(U32 mask)
 							view_item->destroyView();
 						}
 					}
-					else
-					{
-						// Hmm, we got an ADD/REMOVE/STRUCTURE notification for this item but there's nothing to be done to it.
-						llwarns << "Notification triggered for item that isn't changing.  "
-								<< "Operation: ( mask: " << mask << " panel name: " << mStartFolderString << " ) "
-								<< "Item: [ Name:" << model_item->getName() << " UUID: " << *id_it << " ]" << llendl;
-						
-					}
 				}
 
 				// This item has been removed from memory, but its associated UI element still exists.
@@ -378,6 +367,24 @@ void LLInventoryPanel::modelChanged(U32 mask)
 }
 
 
+void LLInventoryPanel::rebuildViews()
+{
+	// Determine the root folder and rebuild the views starting
+	// at that folder.
+	const LLFolderType::EType preferred_type = LLViewerFolderType::lookupTypeFromNewCategoryName(mStartFolderString);
+
+	if ("LIBRARY" == mStartFolderString)
+	{
+		mStartFolderID = gInventory.getLibraryRootFolderID();
+	}
+	else
+	{
+		mStartFolderID = (preferred_type != LLFolderType::FT_NONE ? gInventory.findCategoryUUIDForType(preferred_type) : LLUUID::null);
+	}
+	
+	rebuildViewsFor(mStartFolderID);
+}
+
 void LLInventoryPanel::rebuildViewsFor(const LLUUID& id)
 {
 	LLFolderViewItem* old_view = NULL;
@@ -396,88 +403,86 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 {
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_BUILD_NEW_VIEWS);
 	LLFolderViewItem* itemp = NULL;
-	LLInventoryObject* objectp = NULL;
-
-	// Don't add the start folder (the inventory panel will show contents
-	// beginning with the children of the starting folder, excluding the starting folder itself).
-	if (id != mStartFolderID)
+	LLInventoryObject* objectp = gInventory.getObject(id);
+	if (objectp)
 	{
-		objectp = gInventory.getObject(id);
-		if (objectp)
-		{		
-			const LLUUID &parent_id = objectp->getParentUUID();
-			// If this item's parent is the starting folder, then just add it to the top level (recall that 
-			// the starting folder isn't actually represented in the view, parent_folder would be NULL in
-			// this case otherwise).
-			LLFolderViewFolder* parent_folder = (parent_id == mStartFolderID ?
-				mFolders : (LLFolderViewFolder*)mFolders->getItemByID(parent_id));
-
+		const LLUUID &parent_id = objectp->getParentUUID();
+		LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)mFolders->getItemByID(parent_id);
+		if (id == mStartFolderID)
+			parent_folder = mFolders;
+		
+		if (!parent_folder)
+		{
 			// This item exists outside the inventory's hierarchy, so don't add it.
-			if (!parent_folder)
-			{
-				return;
-			}
-
-			if (objectp->getType() <= LLAssetType::AT_NONE ||
-				objectp->getType() >= LLAssetType::AT_COUNT)
-			{
-				llwarns << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : " << 
-					((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID() << llendl;
-				return;
-			}
+			return;
+		}
+		
+		if (objectp->getType() <= LLAssetType::AT_NONE ||
+			objectp->getType() >= LLAssetType::AT_COUNT)
+		{
+			llwarns << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : " << 
+				((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID() << llendl;
+			return;
+		}
+		
+		if (objectp->getType() == LLAssetType::AT_CATEGORY &&
+			objectp->getActualType() != LLAssetType::AT_LINK_FOLDER) 
+		{
+			LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(objectp->getType(),
+																			objectp->getType(),
+																			LLInventoryType::IT_CATEGORY,
+																			this,
+																			objectp->getUUID());
 			
-			if (objectp->getType() == LLAssetType::AT_CATEGORY &&
-					 objectp->getActualType() != LLAssetType::AT_LINK_FOLDER) 
+			if (new_listener)
 			{
-				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(objectp->getType(),
-																				objectp->getType(),
-																				LLInventoryType::IT_CATEGORY,
-																				this,
-																				objectp->getUUID());
+				LLFolderViewFolder::Params p;
+				p.name = new_listener->getDisplayName();
+				p.icon = new_listener->getIcon();
+				p.root = mFolders;
+				p.listener = new_listener;
+				p.tool_tip = p.name;
+				LLFolderViewFolder* folderp = LLUICtrlFactory::create<LLFolderViewFolder>(p);
+				folderp->setItemSortOrder(mFolders->getSortOrder());
+				itemp = folderp;
 
-				if (new_listener)
+				// Hide the root folder, so we can show the contents of a folder
+				// flat but still have the parent folder present for listener-related
+				// operations.
+				if (id == mStartFolderID)
 				{
-					LLFolderViewFolder::Params p;
-					p.name = new_listener->getDisplayName();
-					p.icon = new_listener->getIcon();
-					p.root = mFolders;
-					p.listener = new_listener;
-					p.tool_tip = p.name;
-					LLFolderViewFolder* folderp = LLUICtrlFactory::create<LLFolderViewFolder>(p);
-				
-					folderp->setItemSortOrder(mFolders->getSortOrder());
-					itemp = folderp;
+					folderp->setDontShowInHierarchy(TRUE);
 				}
 			}
-			else 
-			{
-				// Build new view for item
-				LLInventoryItem* item = (LLInventoryItem*)objectp;
-				LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(item->getType(),
-																				item->getActualType(),
-																				item->getInventoryType(),
-																				this,
-																				item->getUUID(),
-																				item->getFlags());
+		}
+		else 
+		{
+			// Build new view for item
+			LLInventoryItem* item = (LLInventoryItem*)objectp;
+			LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(item->getType(),
+																			item->getActualType(),
+																			item->getInventoryType(),
+																			this,
+																			item->getUUID(),
+																			item->getFlags());
 
-				if (new_listener)
-				{
-					LLFolderViewItem::Params params;
-					params.name(new_listener->getDisplayName());
-					params.icon(new_listener->getIcon());
-					params.creation_date(new_listener->getCreationDate());
-					params.root(mFolders);
-					params.listener(new_listener);
-					params.rect(LLRect (0, 0, 0, 0));
-					params.tool_tip = params.name;
-					itemp = LLUICtrlFactory::create<LLFolderViewItem> (params);
-				}
-			}
-
-			if (itemp)
+			if (new_listener)
 			{
-				itemp->addToFolder(parent_folder, mFolders);
+				LLFolderViewItem::Params params;
+				params.name(new_listener->getDisplayName());
+				params.icon(new_listener->getIcon());
+				params.creation_date(new_listener->getCreationDate());
+				params.root(mFolders);
+				params.listener(new_listener);
+				params.rect(LLRect (0, 0, 0, 0));
+				params.tool_tip = params.name;
+				itemp = LLUICtrlFactory::create<LLFolderViewItem> (params);
 			}
+		}
+
+		if (itemp)
+		{
+			itemp->addToFolder(parent_folder, mFolders);
 		}
 	}
 
@@ -874,4 +879,12 @@ void example_param_block_usage()
 	//LLInitParam::LLSDParser(param_block_sd).parse(param_block);
 
 	LLUICtrlFactory::create<LLInventoryPanel>(param_block);
+}
+
+// +=================================================+
+// |        LLInventoryPanelObserver                 |
+// +=================================================+
+void LLInventoryPanelObserver::changed(U32 mask)
+{
+	mIP->modelChanged(mask);
 }

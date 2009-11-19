@@ -340,6 +340,8 @@
          label="Landmarks"
          name="item1"
          value="None" />
+		<combo_box.commit_callback
+		function="WMap.Landmark"/>
     </combo_box>
     <icon
      color="0.5 0 0 1"

@@ -367,8 +367,6 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 	LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
 		(LLNotificationsUI::LLChannelManager::getInstance()->
 											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
-
-	setCanResize(!docked);
 	
 	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
 
@@ -476,6 +474,7 @@ void LLIMFloater::updateMessages()
 			chat.mFromID = from_id;
 			chat.mFromName = from;
 			chat.mText = message;
+			chat.mTimeStr = time;
 			
 			//Handle IRC styled /me messages.
 			std::string prefix = message.substr(0, 4);
@@ -496,12 +495,12 @@ void LLIMFloater::updateMessages()
 				if (from.size() > 0)
 				{
 					append_style_params.font.style = "ITALIC";
-					chat.mText = from + " ";
+					chat.mText = from;
 					mChatHistory->appendWidgetMessage(chat, append_style_params);
 				}
 				
 				message = message.substr(3);
-				append_style_params.font.style = "UNDERLINE";
+				append_style_params.font.style = "ITALIC";
 				mChatHistory->appendText(message, FALSE, append_style_params);
 			}
 			else

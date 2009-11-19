@@ -100,13 +100,18 @@ BOOL LLInventoryFilter::check(LLFolderViewItem* item)
 	bool passed_type = false;
 	if (mFilterOps.mFilterForCategories)
 	{
-		if (listener->getInventoryType() == LLInventoryType::IT_CATEGORY)
+		// Pass if this item is a category of the filter type, or
+		// if its parent is a category of the filter type.
+		LLUUID uuid = listener->getUUID();
+		if (listener->getInventoryType() != LLInventoryType::IT_CATEGORY)
 		{
-			LLViewerInventoryCategory *cat = gInventory.getCategory(listener->getUUID());
-			if (cat)
-			{
-				passed_type |= ((1LL << cat->getPreferredType() & mFilterOps.mFilterTypes) != U64(0));
-			}
+			const LLInventoryObject *obj = gInventory.getObject(uuid);
+			uuid = obj->getParentUUID();
+		}
+		LLViewerInventoryCategory *cat = gInventory.getCategory(uuid);
+		if (cat)
+		{
+			passed_type |= ((1LL << cat->getPreferredType() & mFilterOps.mFilterTypes) != U64(0));
 		}
 	}
 	else

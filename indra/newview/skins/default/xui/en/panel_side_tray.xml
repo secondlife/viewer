@@ -120,9 +120,9 @@
     background_visible="true"
   >
       <panel
-        class="panel_appearance"
-        name="panel_appearance"
-        filename="panel_appearance.xml"
+        class="sidepanel_appearance"
+        name="sidepanel_appearance"
+        filename="sidepanel_appearance.xml"
         label="Edit Appearance"
         font="SansSerifBold"
       />

@@ -40,7 +40,7 @@
 #include "lliconctrl.h"
 #include "llinventoryfunctions.h"
 #include "llnotify.h"
-#include "lltextbox.h"
+#include "llviewertexteditor.h"
 
 #include "lluiconstants.h"
 #include "llui.h"
@@ -54,7 +54,7 @@
 #include "llfloaterinventory.h"
 #include "llinventorytype.h"
 
-const S32 LLToastGroupNotifyPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 4;
+const S32 LLToastGroupNotifyPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 7;
 
 LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification)
 :	LLToastPanel(notification),
@@ -84,11 +84,6 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	//message body
 	const std::string& message = payload["message"].asString();
 
-
-	LLTextBox* pSubjectText = getChild<LLTextBox>("subject");
-	pSubjectText->setValue(subject);
-
-	LLTextBox* pDateTimeText = getChild<LLTextBox>("datetime");
 	std::string timeStr = "["+LLTrans::getString("UTCTimeWeek")+"],["
 							+LLTrans::getString("UTCTimeDay")+"] ["
 							+LLTrans::getString("UTCTimeMth")+"] ["
@@ -102,20 +97,23 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	LLSD substitution;
 	substitution["datetime"] = (S32) notice_date.secondsSinceEpoch();
 	LLStringUtil::format(timeStr, substitution);
-	pDateTimeText->setValue(timeStr);
 
-	LLTextBox* pMessageText = getChild<LLTextBox>("message");
+	LLViewerTextEditor* pMessageText = getChild<LLViewerTextEditor>("message");
+	pMessageText->clear();
 
-	//If message is empty let it be invisible and not take place at the panel
-	if(message.size() != 0)
-	{
-		pMessageText->setVisible(TRUE);
-		pMessageText->setValue(message);
-	}
-	else
-	{
-		pMessageText->setVisible(FALSE);
-	}
+	LLStyle::Params style;
+	LLFontGL* subject_font = LLFontGL::getFontByName(getString("subject_font"));
+	if (subject_font) 
+		style.font = subject_font;
+	pMessageText->appendText(subject, FALSE, style);
+
+	LLFontGL* date_font = LLFontGL::getFontByName(getString("date_font"));
+	if (date_font)
+		style.font = date_font;
+	pMessageText->appendText(timeStr + "\n", TRUE, style);
+	
+	style.font = pMessageText->getDefaultFont();
+	pMessageText->appendText(message, TRUE, style);
 
 	//attachment
 	BOOL hasInventory = payload["inventory_offer"].isDefined();

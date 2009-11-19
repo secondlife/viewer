@@ -3,13 +3,13 @@
       background_visible="true"
      bevel_style="in"
      bg_alpha_color="black"
-     follows="top"
+     follows="top|left|right"
      height="24"
- label="im_header"
- layout="topleft"
- name="im_header"
- width="300">
-             <avatar_icon
+     label="im_header"
+     layout="topleft"
+     name="im_header"
+     width="300">
+            <avatar_icon
          follows="left"
          height="18"
          image_name="Generic_Person"

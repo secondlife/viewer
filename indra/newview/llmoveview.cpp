@@ -156,6 +156,31 @@ void LLFloaterMove::setEnabled(BOOL enabled)
 	showModeButtons(enabled);
 }
 
+// *NOTE: we assume that setVisible() is called on floater close.
+// virtual
+void LLFloaterMove::setVisible(BOOL visible)
+{
+	// Ignore excessive calls of this method (from LLTransientFloaterMgr?).
+	if (getVisible() == visible)
+		return;
+
+	if (visible)
+	{
+		// Attach the Stand/Stop Flying panel.
+		LLPanelStandStopFlying* ssf_panel = LLPanelStandStopFlying::getInstance();
+		ssf_panel->reparent(this);
+		const LLRect& mode_actions_rect = mModeActionsPanel->getRect();
+		ssf_panel->setOrigin(mode_actions_rect.mLeft, mode_actions_rect.mBottom);
+	}
+	else
+	{
+		// Detach the Stand/Stop Flying panel.
+		LLPanelStandStopFlying::getInstance()->reparent(NULL);
+	}
+
+	LLTransientDockableFloater::setVisible(visible);
+}
+
 // static 
 F32 LLFloaterMove::getYawRate( F32 time )
 {
@@ -424,43 +449,6 @@ void LLFloaterMove::showModeButtons(BOOL bShow)
 	if (NULL == mModeActionsPanel || mModeActionsPanel->getVisible() == bShow)
 		return;
 	mModeActionsPanel->setVisible(bShow);
-
-	if (isDocked())
-	{
-		return;
-	}
-
-	updateHeight(bShow);
-}
-
-void LLFloaterMove::updateHeight(bool show_mode_buttons)
-{
-	static bool size_changed = false;
-	static S32 origin_height = getRect().getHeight();
-	LLRect rect = getRect();
-
-	static S32 mode_panel_height = mModeActionsPanel->getRect().getHeight();
-
-	S32 newHeight = getRect().getHeight();
-
-	if (!show_mode_buttons && origin_height == newHeight)
-	{
-		newHeight -= mode_panel_height;
-		size_changed = true;
-	}
-	else if (show_mode_buttons && origin_height > newHeight)
-	{
-		newHeight += mode_panel_height;
-		size_changed = true;
-	}
-
-	if (!size_changed)
-		return;
-
-	rect.setLeftTopAndSize(rect.mLeft, rect.mTop, rect.getWidth(), newHeight);
-	reshape(rect.getWidth(), rect.getHeight());
-	setRect(rect);
-	size_changed = false;
 }
 
 //static
@@ -504,14 +492,6 @@ void LLFloaterMove::onOpen(const LLSD& key)
 //virtual
 void LLFloaterMove::setDocked(bool docked, bool pop_on_undock/* = true*/)
 {
-	LLDockableFloater::setDocked(docked, pop_on_undock);
-	bool show_mode_buttons = isDocked() || !gAgent.getFlying();
-
-	if (!isMinimized())
-	{
-		updateHeight(show_mode_buttons);
-	}
-
 	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
 }
 
@@ -535,7 +515,8 @@ void LLFloaterMove::setModeButtonToggleState(const EMovementMode mode)
 /************************************************************************/
 LLPanelStandStopFlying::LLPanelStandStopFlying() :
 	mStandButton(NULL),
-	mStopFlyingButton(NULL)
+	mStopFlyingButton(NULL),
+	mAttached(false)
 {
 	// make sure we have the only instance of this class
 	static bool b = true;
@@ -624,6 +605,45 @@ BOOL LLPanelStandStopFlying::handleToolTip(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
+void LLPanelStandStopFlying::reparent(LLFloaterMove* move_view)
+{
+	LLPanel* parent = dynamic_cast<LLPanel*>(getParent());
+	if (!parent)
+	{
+		llwarns << "Stand/stop flying panel parent is unset" << llendl;
+		return;
+	}
+
+	if (move_view != NULL)
+	{
+		llassert(move_view != parent); // sanity check
+	
+		// Save our original container.
+		if (!mOriginalParent.get())
+			mOriginalParent = parent->getHandle();
+
+		// Attach to movement controls.
+		parent->removeChild(this);
+		move_view->addChild(this);
+		// Origin must be set by movement controls.
+		mAttached = true;
+	}
+	else
+	{
+		if (!mOriginalParent.get())
+		{
+			llwarns << "Original parent of the stand / stop flying panel not found" << llendl;
+			return;
+		}
+
+		// Detach from movement controls. 
+		parent->removeChild(this);
+		mOriginalParent.get()->addChild(this);
+		mAttached = false;
+		updatePosition(); // don't defer until next draw() to avoid flicker
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Private Section
 //////////////////////////////////////////////////////////////////////////
@@ -668,27 +688,14 @@ void LLPanelStandStopFlying::onStopFlyingButtonClick()
  */
 void LLPanelStandStopFlying::updatePosition()
 {
-
 	LLBottomTray* tray = LLBottomTray::getInstance();
-	if (!tray) return;
+	if (!tray || mAttached) return;
 
 	LLButton* movement_btn = tray->getChild<LLButton>(BOTTOM_TRAY_BUTTON_NAME);
 
-	//align centers of a button and a floater
+	// Align centers of the button and the panel.
 	S32 x = movement_btn->calcScreenRect().getCenterX() - getRect().getWidth()/2;
-
-	S32 y = 0;
-
-	LLFloater *move_floater = LLFloaterReg::findInstance("moveview");
-	if (move_floater)
-	{
-		if (move_floater->isDocked())
-		{
-			y = move_floater->getRect().mBottom + getRect().getHeight();
-		}
-	}
-
-	setOrigin(x, y);
+	setOrigin(x, 0);
 }
 
 

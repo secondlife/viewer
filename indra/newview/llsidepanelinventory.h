@@ -68,6 +68,7 @@ private:
 	LLPanel*					mInventoryPanel; // Main inventory view
 	LLSidepanelItemInfo*		mItemPanel; // Individual item view
 	LLSidepanelTaskInfo*		mTaskPanel; // Individual in-world object view
+	LLPanelMainInventory*		mPanelMainInventory;
 
 protected:
 	void 						onInfoButtonClicked();
