@@ -8976,6 +8976,9 @@ void LLPipeline::loadMesh(LLVOVolume* vobj, LLUUID mesh_id, S32 detail)
 				group->derefLOD(lod);
 			}
 		}
+
+		//nothing found, so make a tetrahedron
+		volume->makeTetrahedron();
 	}
 }
 
@@ -9102,7 +9105,11 @@ void LLPipeline::notifyLoadedMeshes()
 
 			if (valid)
 			{
-				mesh->mTargetVolume->copyVolumeFaces(mesh->mVolume);
+				if (mesh->mVolume->getNumVolumeFaces() > 0)
+				{
+					mesh->mTargetVolume->copyVolumeFaces(mesh->mVolume);
+				}
+
 				for (std::set<LLUUID>::iterator vobj_iter = obj_iter->second.begin(); vobj_iter != obj_iter->second.end(); ++vobj_iter)
 				{
 					LLVOVolume* vobj = (LLVOVolume*) gObjectList.findObject(*vobj_iter);
