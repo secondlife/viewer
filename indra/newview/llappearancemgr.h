@@ -61,6 +61,9 @@ public:
 	// Find the Current Outfit folder.
 	LLUUID getCOF();
 
+	// Finds the folder link to the currently worn outfit
+	const LLViewerInventoryItem *getCurrentOutfitLink();
+
 	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
 
 	// For debugging - could be moved elsewhere.

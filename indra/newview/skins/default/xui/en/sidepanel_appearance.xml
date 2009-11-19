@@ -9,9 +9,9 @@
 	  min_width="240"
 	  name="appearance panel"
 	  width="333">
-     <string
-		 name="looks_tab_title"
-		 value="Outfits" />
+	 <string
+      name="No Outfit"
+	  value="No Outfit" />
      <panel
 		 left="5" width="320" height="55"
 		 background_visible="true"
@@ -19,25 +19,34 @@
 		 bg_alpha_color="0.2 0.2 0.2 1.0"
 		 name="panel_currentlook"
 		 follows="left|top|right">
+  	    <button
+  	     	 follows="left|right|top"
+  	     	 font="SansSerif"
+  	     	 top="28" right="-10" width="60" height="20"
+  	     	 layout="topleft"
+  		 	 label="Edit"
+  	     	 name="editappearance_btn"/>
+        <button
+	     follows="left|right|top"
+		 top="28" left="5" width="25" height="22"
+	     image_overlay="Inv_LookFolderOpen"
+	     layout="topleft"
+		 name="openoutfit_btn"
+	     picture_style="true" />
 		<text
-			 top="-5" width="200" left="5" height="10" follows="left|right|top"
+			 top="10" width="150" left="5" height="15" follows="left|right|top"
+			 layout="topleft"
         	 font="SansSerif" text_color="LtGray" word_wrap="true"
         	 mouse_opaque="false" name="currentlook_title">
-					Current Outfit
+					Current Outfit:
     	</text>
   		<text
-			 top="-30" left="8" height="10" follows="left|right|top"
+			 top="32" width="150" left="32" height="15" follows="left|right|top"
+			 layout="topleft"
       		 font="SansSerifBold" text_color="white" word_wrap="true"
       		 mouse_opaque="false" name="currentlook_name" >
 					MyOutfit
   		</text>
-  	    <button
-  	     	 follows="left|right|top"
-  	     	 font="SansSerif"
-  	     	 top="28" right="-105" width="60" height="20"
-  	     	 layout="topleft"
-  		 	 label="Edit"
-  	     	 name="editappearance_btn"/>
 	</panel>
 
     <filter_editor

@@ -363,6 +363,35 @@ LLUUID LLAppearanceManager::getCOF()
 	return gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
 }
 
+
+const LLViewerInventoryItem* LLAppearanceManager::getCurrentOutfitLink()
+{
+	const LLUUID& current_outfit_cat = getCOF();
+	LLInventoryModel::cat_array_t cat_array;
+	LLInventoryModel::item_array_t item_array;
+	// Can't search on FT_OUTFIT since links to categories return FT_CATEGORY for type since they don't
+	// return preferred type.
+	LLIsType is_category( LLAssetType::AT_CATEGORY ); 
+	gInventory.collectDescendentsIf(current_outfit_cat,
+									cat_array,
+									item_array,
+									false,
+									is_category,
+									false);
+	for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
+		 iter != item_array.end();
+		 iter++)
+	{
+		const LLViewerInventoryItem *item = (*iter);
+		const LLViewerInventoryCategory *cat = item->getLinkedCategory();
+		if (cat && cat->getPreferredType() == LLFolderType::FT_OUTFIT)
+		{
+			return item;
+		}
+	}
+	return NULL;
+}
+
 // Update appearance from outfit folder.
 void LLAppearanceManager::changeOutfit(bool proceed, const LLUUID& category, bool append)
 {
@@ -531,20 +560,28 @@ void LLAppearanceManager::updateCOF(const LLUUID& category, bool append)
 	linkAll(cof, gest_items, link_waiter);
 
 	// Add link to outfit if category is an outfit. 
-	LLViewerInventoryCategory* catp = gInventory.getCategory(category);
+	const LLViewerInventoryCategory* catp = gInventory.getCategory(category);
+	LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance *>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+	
 	if (!append && catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
 	{
 		link_inventory_item(gAgent.getID(), category, cof, catp->getName(),
 							LLAssetType::AT_LINK_FOLDER, link_waiter);
 
 		// Update the current outfit name of the appearance sidepanel.
-		LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance *>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
 		if (panel_appearance)
 		{
 			panel_appearance->refreshCurrentOutfitName(catp->getName());
 		}
 	}
-							  
+	else
+	{
+		// Update the current outfit name of the appearance sidepanel.
+		if (panel_appearance)
+		{
+			panel_appearance->refreshCurrentOutfitName();
+		}
+	}
 }
 
 void LLAppearanceManager::updateAgentWearables(LLWearableHoldingPattern* holder, bool append)

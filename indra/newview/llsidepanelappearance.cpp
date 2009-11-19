@@ -34,9 +34,12 @@
 
 #include "llagent.h"
 #include "llagentwearables.h"
+#include "llappearancemgr.h"
+#include "llinventorypanel.h"
 #include "llfiltereditor.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
+#include "llfoldervieweventlistener.h"
 #include "llpaneleditwearable.h"
 #include "llpaneloutfitsinventory.h"
 #include "lltextbox.h"
@@ -68,7 +71,7 @@ LLSidepanelAppearance::LLSidepanelAppearance() :
 	mFilterSubString(LLStringUtil::null),
 	mFilterEditor(NULL),
 	mLookInfo(NULL),
-	mCurrLookPanel(NULL)
+	mCurrOutfitPanel(NULL)
 {
 	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_appearance.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 	mFetchWorn = new LLCurrentlyWornFetchObserver(this);
@@ -81,6 +84,9 @@ LLSidepanelAppearance::~LLSidepanelAppearance()
 // virtual
 BOOL LLSidepanelAppearance::postBuild()
 {
+	mOpenOutfitBtn = getChild<LLButton>("openoutfit_btn");
+	mOpenOutfitBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onOpenOutfitButtonClicked, this));
+
 	mEditAppearanceBtn = getChild<LLButton>("editappearance_btn");
 	mEditAppearanceBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onEditAppearanceButtonClicked, this));
 
@@ -90,11 +96,9 @@ BOOL LLSidepanelAppearance::postBuild()
 	mEditBtn = getChild<LLButton>("edit_btn");
 	mEditBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onEditButtonClicked, this));
 
-	mNewLookBtn = getChild<LLButton>("newlook_btn");
-	mNewLookBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onNewOutfitButtonClicked, this));
-	mNewLookBtn->setEnabled(false);
-
-	mOverflowBtn = getChild<LLButton>("overflow_btn");
+	mNewOutfitBtn = getChild<LLButton>("newlook_btn");
+	mNewOutfitBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onNewOutfitButtonClicked, this));
+	mNewOutfitBtn->setEnabled(false);
 
 	mFilterEditor = getChild<LLFilterEditor>("Filter");
 	if (mFilterEditor)
@@ -114,8 +118,6 @@ BOOL LLSidepanelAppearance::postBuild()
 			back_btn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onBackButtonClicked, this));
 		}
 
-		// *TODO: Assign the action to an appropriate event.
-		// mOverflowBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::toggleMediaPanel, this));
 	}
 
 	mEditWearable = dynamic_cast<LLPanelEditWearable*>(getChild<LLPanel>("panel_edit_wearable"));
@@ -130,7 +132,7 @@ BOOL LLSidepanelAppearance::postBuild()
 
 	mCurrentLookName = getChild<LLTextBox>("currentlook_name");
 	
-	mCurrLookPanel = getChild<LLPanel>("panel_currentlook");
+	mCurrOutfitPanel = getChild<LLPanel>("panel_currentlook");
 
 	return TRUE;
 }
@@ -176,6 +178,27 @@ void LLSidepanelAppearance::onWearButtonClicked()
 	if (!mLookInfo->getVisible())
 	{
 		mPanelOutfitsInventory->onWear();
+	}
+}
+
+void LLSidepanelAppearance::onOpenOutfitButtonClicked()
+{
+	const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getCurrentOutfitLink();
+	if (!outfit_link)
+		return;
+	if (!outfit_link->getIsLinkType())
+		return;
+	LLInventoryPanel *inventory_panel = mPanelOutfitsInventory->getActivePanel();
+	if (inventory_panel)
+	{
+		LLFolderView *folder = inventory_panel->getRootFolder();
+		LLFolderViewItem *outfit_folder = folder->getItemByID(outfit_link->getLinkedUUID());
+		if (outfit_folder)
+		{
+			outfit_folder->setOpen(!outfit_folder->isOpen());
+			folder->setSelectionFromRoot(outfit_folder,TRUE);
+			folder->scrollToShowSelection();
+		}
 	}
 }
 
@@ -231,9 +254,8 @@ void LLSidepanelAppearance::toggleLookInfoPanel(BOOL visible)
 	mFilterEditor->setVisible(!visible);
 	mWearBtn->setVisible(!visible);
 	mEditBtn->setVisible(!visible);
-	mNewLookBtn->setVisible(!visible);
-	mOverflowBtn->setVisible(!visible);
-	mCurrLookPanel->setVisible(!visible);
+	mNewOutfitBtn->setVisible(!visible);
+	mCurrOutfitPanel->setVisible(!visible);
 }
 
 void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *wearable)
@@ -255,7 +277,6 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 void LLSidepanelAppearance::updateVerbs()
 {
 	bool is_look_info_visible = mLookInfo->getVisible();
-	mOverflowBtn->setEnabled(false);
 
 	if (!is_look_info_visible)
 	{
@@ -274,35 +295,24 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string name)
 {
 	if (name == "")
 	{
-		const LLUUID current_outfit_cat = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-		LLInventoryModel::cat_array_t cat_array;
-		LLInventoryModel::item_array_t item_array;
-		// Can't search on AT_OUTFIT since links to categories return AT_CATEGORY for type since they don't
-		// return preferred type.
-		LLIsType is_category( LLAssetType::AT_CATEGORY ); 
-		gInventory.collectDescendentsIf(current_outfit_cat,
-										cat_array,
-										item_array,
-										false,
-										is_category,
-										false);
-		for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
-			 iter != item_array.end();
-			 iter++)
+		const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getCurrentOutfitLink();
+		if (outfit_link)
 		{
-			const LLViewerInventoryItem *item = (*iter);
-			const LLViewerInventoryCategory *cat = item->getLinkedCategory();
+			const LLViewerInventoryCategory *cat = outfit_link->getLinkedCategory();
 			if (cat && cat->getPreferredType() == LLFolderType::FT_OUTFIT)
 			{
 				mCurrentLookName->setText(cat->getName());
 				return;
 			}
 		}
-		mCurrentLookName->setText(std::string(""));
+		mCurrentLookName->setText(getString("No Outfit"));
+		mOpenOutfitBtn->setEnabled(FALSE);
 	}
 	else
 	{
 		mCurrentLookName->setText(name);
+		// Can't just call update verbs since the folder link may not have been created yet.
+		mOpenOutfitBtn->setEnabled(TRUE);
 	}
 }
 
@@ -319,7 +329,7 @@ void LLSidepanelAppearance::editWearable(LLWearable *wearable, void *data)
 void LLSidepanelAppearance::fetchInventory()
 {
 
-	mNewLookBtn->setEnabled(false);
+	mNewOutfitBtn->setEnabled(false);
 	LLInventoryFetchObserver::item_ref_t ids;
 	LLUUID item_id;
 	for(S32 type = (S32)WT_SHAPE; type < (S32)WT_COUNT; ++type)
@@ -368,5 +378,5 @@ void LLSidepanelAppearance::fetchInventory()
 
 void LLSidepanelAppearance::inventoryFetched()
 {
-	mNewLookBtn->setEnabled(true);
+	mNewOutfitBtn->setEnabled(true);
 }
