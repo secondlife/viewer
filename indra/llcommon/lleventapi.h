@@ -46,6 +46,19 @@ public:
     /// Get the documentation string
     std::string getDesc() const { return mDesc; }
 
+    /**
+     * Publish only selected add() methods from LLEventDispatcher.
+     * Every LLEventAPI add() @em must have a description string.
+     */
+    template <typename CALLABLE>
+    void add(const std::string& name,
+             const std::string& desc,
+             CALLABLE callable,
+             const LLSD& required=LLSD())
+    {
+        LLEventDispatcher::add(name, desc, callable, required);
+    }
+
 private:
     std::string mDesc;
 };

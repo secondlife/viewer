@@ -819,8 +819,9 @@ BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MAS
 	return TRUE;
 }
 
-BOOL LLViewerWindow::handleDrop( LLWindow *window,  LLCoordGL pos, MASK mask, std::string data )
+BOOL LLViewerWindow::handleDragNDrop( LLWindow *window,  LLCoordGL pos, MASK mask, BOOL drop, std::string data )
 {
+	BOOL result = FALSE;
 	if (gSavedSettings.getBOOL("PrimMediaDragNDrop"))
 	{
 		LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/ );
@@ -837,28 +838,34 @@ BOOL LLViewerWindow::handleDrop( LLWindow *window,  LLCoordGL pos, MASK mask, st
 			LLTextureEntry *te = obj->getTE(object_face);
 			if (te)
 			{
-				if (! te->hasMedia())
+				if (drop)
 				{
-					// Create new media entry
-					LLSD media_data;
-					// XXX Should we really do Home URL too?
-					media_data[LLMediaEntry::HOME_URL_KEY] = url;
-					media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
-					media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
-					obj->syncMediaData(object_face, media_data, true, true);
-					// XXX This shouldn't be necessary, should it ?!?
-					obj->getMediaImpl(object_face)->navigateReload();
-					obj->sendMediaDataUpdate();
+					if (! te->hasMedia())
+					{
+						// Create new media entry
+						LLSD media_data;
+						// XXX Should we really do Home URL too?
+						media_data[LLMediaEntry::HOME_URL_KEY] = url;
+						media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
+						media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
+						obj->syncMediaData(object_face, media_data, true, true);
+						// XXX This shouldn't be necessary, should it ?!?
+						obj->getMediaImpl(object_face)->navigateReload();
+						obj->sendMediaDataUpdate();
+					}
+					else {
+						// just navigate to the URL
+						obj->getMediaImpl(object_face)->navigateTo(url);
+					}
 				}
 				else {
-					// just navigate to the URL
-					obj->getMediaImpl(object_face)->navigateTo(url);
+					// XXX TODO: make object glow?  Hard because how do we "unglow?"
 				}
+				result = TRUE;
 			}
 		}
 	}
-  	// Always handled as far as the OS is concerned.
-	return TRUE;
+	return result;
 }
   
 BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
@@ -1058,7 +1065,10 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 		}
 		
 		// SL-53351: Make sure we're not in mouselook when minimised, to prevent control issues
-		gAgent.changeCameraToDefault();
+		if (gAgent.getCameraMode() == CAMERA_MODE_MOUSELOOK)
+		{
+			gAgent.changeCameraToDefault();
+		}
 		
 		send_agent_pause();
 		
@@ -1606,8 +1616,6 @@ void LLViewerWindow::initWorldUI()
 
 	LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("stand_stop_flying_container");
 	LLPanelStandStopFlying* panel_stand_stop_flying	= LLPanelStandStopFlying::getInstance();
-	panel_stand_stop_flying->setShape(panel_ssf_container->getLocalRect());
-	panel_stand_stop_flying->setFollowsAll();
 	panel_ssf_container->addChild(panel_stand_stop_flying);
 	panel_ssf_container->setVisible(TRUE);
 
@@ -2320,7 +2328,7 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 
 	// Zoom the camera in and out behavior
 
-	if(top_ctrl == 0 && mWorldViewRectRaw.pointInRect(mCurrentMousePoint.mX, mCurrentMousePoint.mY) )
+	if(top_ctrl == 0 && getWorldViewRectScaled().pointInRect(mCurrentMousePoint.mX, mCurrentMousePoint.mY) )
 		gAgent.handleScrollWheel(clicks);
 
 	return;
@@ -2328,8 +2336,8 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 
 void LLViewerWindow::moveCursorToCenter()
 {
-	S32 x = mWorldViewRectRaw.getWidth() / 2;
-	S32 y = mWorldViewRectRaw.getHeight() / 2;
+	S32 x = getWorldViewWidthScaled() / 2;
+	S32 y = getWorldViewHeightScaled() / 2;
 	
 	//on a forced move, all deltas get zeroed out to prevent jumping
 	mCurrentMousePoint.set(x,y);
@@ -2900,6 +2908,11 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 		// clamp to at least a 1x1 rect so we don't try to allocate zero width gl buffers
 		new_world_rect.mTop = llmax(new_world_rect.mTop, new_world_rect.mBottom + 1);
 		new_world_rect.mRight = llmax(new_world_rect.mRight, new_world_rect.mLeft + 1);
+
+		new_world_rect.mLeft = llround((F32)new_world_rect.mLeft * mDisplayScale.mV[VX]);
+		new_world_rect.mRight = llround((F32)new_world_rect.mRight * mDisplayScale.mV[VX]);
+		new_world_rect.mBottom = llround((F32)new_world_rect.mBottom * mDisplayScale.mV[VY]);
+		new_world_rect.mTop = llround((F32)new_world_rect.mTop * mDisplayScale.mV[VY]);
 	}
 
 	if (mWorldViewRectRaw != new_world_rect)
@@ -2911,6 +2924,12 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 		gResizeScreenTexture = TRUE;
 		LLViewerCamera::getInstance()->setViewHeightInPixels( mWorldViewRectRaw.getHeight() );
 		LLViewerCamera::getInstance()->setAspect( getWorldViewAspectRatio() );
+
+		mWorldViewRectScaled = mWorldViewRectRaw;
+		mWorldViewRectScaled.mLeft = llround((F32)mWorldViewRectScaled.mLeft / mDisplayScale.mV[VX]);
+		mWorldViewRectScaled.mRight = llround((F32)mWorldViewRectScaled.mRight / mDisplayScale.mV[VX]);
+		mWorldViewRectScaled.mBottom = llround((F32)mWorldViewRectScaled.mBottom / mDisplayScale.mV[VY]);
+		mWorldViewRectScaled.mTop = llround((F32)mWorldViewRectScaled.mTop / mDisplayScale.mV[VY]);
 	}
 }
 
@@ -3182,10 +3201,10 @@ void LLViewerWindow::pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback
 	{
 		mPickScreenRegion.setCenterAndSize(x, y_from_bot, PICK_DIAMETER, PICK_DIAMETER);
 
-		if (mPickScreenRegion.mLeft < mWorldViewRectRaw.mLeft) mPickScreenRegion.translate(mWorldViewRectRaw.mLeft - mPickScreenRegion.mLeft, 0);
-		if (mPickScreenRegion.mBottom < mWorldViewRectRaw.mBottom) mPickScreenRegion.translate(0, mWorldViewRectRaw.mBottom - mPickScreenRegion.mBottom);
-		if (mPickScreenRegion.mRight > mWorldViewRectRaw.mRight ) mPickScreenRegion.translate(mWorldViewRectRaw.mRight - mPickScreenRegion.mRight, 0);
-		if (mPickScreenRegion.mTop > mWorldViewRectRaw.mTop ) mPickScreenRegion.translate(0, mWorldViewRectRaw.mTop - mPickScreenRegion.mTop);
+		if (mPickScreenRegion.mLeft < mWorldViewRectScaled.mLeft) mPickScreenRegion.translate(mWorldViewRectScaled.mLeft - mPickScreenRegion.mLeft, 0);
+		if (mPickScreenRegion.mBottom < mWorldViewRectScaled.mBottom) mPickScreenRegion.translate(0, mWorldViewRectScaled.mBottom - mPickScreenRegion.mBottom);
+		if (mPickScreenRegion.mRight > mWorldViewRectScaled.mRight ) mPickScreenRegion.translate(mWorldViewRectScaled.mRight - mPickScreenRegion.mRight, 0);
+		if (mPickScreenRegion.mTop > mWorldViewRectScaled.mTop ) mPickScreenRegion.translate(0, mWorldViewRectScaled.mTop - mPickScreenRegion.mTop);
 	}
 
 	// set frame buffer region for picking results
@@ -3391,11 +3410,11 @@ LLVector3 LLViewerWindow::mouseDirectionGlobal(const S32 x, const S32 y) const
 	F32			fov = LLViewerCamera::getInstance()->getView();
 
 	// find world view center in scaled ui coordinates
-	F32			center_x = (F32)getWorldViewRectRaw().getCenterX() / mDisplayScale.mV[VX];
-	F32			center_y = (F32)getWorldViewRectRaw().getCenterY() / mDisplayScale.mV[VY];
+	F32			center_x = getWorldViewRectScaled().getCenterX();
+	F32			center_y = getWorldViewRectScaled().getCenterY();
 
 	// calculate pixel distance to screen
-	F32			distance = ((F32)getWorldViewHeightRaw() / (mDisplayScale.mV[VY] * 2.f)) / (tan(fov / 2.f));
+	F32			distance = ((F32)getWorldViewHeightScaled() * 0.5f) / (tan(fov / 2.f));
 
 	// calculate click point relative to middle of screen
 	F32			click_x = x - center_x;
@@ -3414,11 +3433,11 @@ LLVector3 LLViewerWindow::mouseDirectionGlobal(const S32 x, const S32 y) const
 LLVector3 LLViewerWindow::mousePointHUD(const S32 x, const S32 y) const
 {
 	// find screen resolution
-	S32			height = llround((F32)getWorldViewHeightRaw() / mDisplayScale.mV[VY]);
+	S32			height = getWorldViewHeightScaled();
 
 	// find world view center
-	F32			center_x = (F32)getWorldViewRectRaw().getCenterX() / mDisplayScale.mV[VX];
-	F32			center_y = (F32)getWorldViewRectRaw().getCenterY() / mDisplayScale.mV[VY];
+	F32			center_x = getWorldViewRectScaled().getCenterX();
+	F32			center_y = getWorldViewRectScaled().getCenterY();
 
 	// remap with uniform scale (1/height) so that top is -0.5, bottom is +0.5
 	F32 hud_x = -((F32)x - center_x)  / height;
@@ -3436,12 +3455,12 @@ LLVector3 LLViewerWindow::mouseDirectionCamera(const S32 x, const S32 y) const
 	F32			fov_width = fov_height * LLViewerCamera::getInstance()->getAspect();
 
 	// find screen resolution
-	S32			height = llround((F32)getWorldViewHeightRaw() / mDisplayScale.mV[VY]);
-	S32			width = llround((F32)getWorldViewWidthRaw() / mDisplayScale.mV[VX]);
+	S32			height = getWorldViewHeightScaled();
+	S32			width = getWorldViewWidthScaled();
 
 	// find world view center
-	F32			center_x = (F32)getWorldViewRectRaw().getCenterX() / mDisplayScale.mV[VX];
-	F32			center_y = (F32)getWorldViewRectRaw().getCenterY() / mDisplayScale.mV[VY];
+	F32			center_x = getWorldViewRectScaled().getCenterX();
+	F32			center_y = getWorldViewRectScaled().getCenterY();
 
 	// calculate click point relative to middle of screen
 	F32			click_x = (((F32)x - center_x) / (F32)width) * fov_width * -1.f;
@@ -3984,7 +4003,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		return FALSE ;
 	}
 
-	BOOL high_res = scale_factor > 1.f;
+	BOOL high_res = scale_factor >= 2.f; // Font scaling is slow, only do so if rez is much higher
 	if (high_res)
 	{
 		send_agent_pause();
@@ -4172,7 +4191,7 @@ void LLViewerWindow::drawMouselookInstructions()
 {
 	// Draw instructions for mouselook ("Press ESC to return to World View" partially transparent at the bottom of the screen.)
 	const std::string instructions = LLTrans::getString("LeaveMouselook");
-	const LLFontGL* font = LLFontGL::getFont(LLFontDescriptor("SansSerif", "Huge", LLFontGL::BOLD));
+	const LLFontGL* font = LLFontGL::getFont(LLFontDescriptor("SansSerif", "Large", LLFontGL::BOLD));
 	
 	//to be on top of Bottom bar when it is opened
 	const S32 INSTRUCTIONS_PAD = 50;
@@ -4208,13 +4227,19 @@ LLRootView*	LLViewerWindow::getRootView() const
 
 LLRect LLViewerWindow::getWorldViewRectScaled() const
 {
-	LLRect world_view_rect = mWorldViewRectRaw;
-	world_view_rect.mLeft = llround((F32)world_view_rect.mLeft / mDisplayScale.mV[VX]);
-	world_view_rect.mRight = llround((F32)world_view_rect.mRight / mDisplayScale.mV[VX]);
-	world_view_rect.mBottom = llround((F32)world_view_rect.mBottom / mDisplayScale.mV[VY]);
-	world_view_rect.mTop = llround((F32)world_view_rect.mTop / mDisplayScale.mV[VY]);
-	return world_view_rect;
+	return mWorldViewRectScaled;
 }
+
+S32 LLViewerWindow::getWorldViewHeightScaled() const
+{
+	return mWorldViewRectScaled.getHeight();
+}
+
+S32 LLViewerWindow::getWorldViewWidthScaled() const
+{
+	return mWorldViewRectScaled.getWidth();
+}
+
 
 S32 LLViewerWindow::getWorldViewHeightRaw() const
 {

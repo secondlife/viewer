@@ -46,8 +46,10 @@
 
 #include "llagent.h"
 #include "llavatariconctrl.h"
+#include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llchat.h"
+#include "llchiclet.h"
 #include "llresmgr.h"
 #include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"
@@ -73,6 +75,7 @@
 #include "llvoicechannel.h"
 #include "lltrans.h"
 #include "llrecentpeople.h"
+#include "llsyswellwindow.h"
 
 #include "llfirstuse.h"
 #include "llagentui.h"
@@ -392,21 +395,15 @@ bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, 
 
 bool LLIMModel::logToFile(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
 {
-	S32 im_log_option =  gSavedPerAccountSettings.getS32("IMLogOptions");
-	if (im_log_option != LOG_CHAT)
+	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
 	{
-		if(im_log_option == LOG_BOTH_TOGETHER)
-		{
-			LLLogChat::saveHistory(std::string("chat"), from, from_id, utf8_text);
-			return true;
-		}
-		else
-		{
-			LLLogChat::saveHistory(LLIMModel::getInstance()->getName(session_id), from, from_id, utf8_text);
-			return true;
-		}
+		LLLogChat::saveHistory(LLIMModel::getInstance()->getName(session_id), from, from_id, utf8_text);
+		return true;
 	}
-	return false;
+	else
+	{
+		return false;
+	}
 }
 
 bool LLIMModel::proccessOnlineOfflineNotification(
@@ -439,11 +436,7 @@ bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 	addToHistory(session_id, from, from_id, utf8_text);
 	if (log2file) logToFile(session_id, from, from_id, utf8_text);
 
-	//we do not count system messages and our messages
-	if (from_id.notNull() && from_id != gAgentID && SYSTEM_FROM != from)
-	{
-		session->mNumUnread++;
-	}
+	session->mNumUnread++;
 
 	// notify listeners
 	LLSD arg;
@@ -1091,16 +1084,91 @@ LLIMMgr::onConfirmForceCloseError(
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLOutgoingCallDialog
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+LLOutgoingCallDialog::LLOutgoingCallDialog(const LLSD& payload) :
+	LLDockableFloater(NULL, false, payload),
+	mPayload(payload)
+{
+}
+
+void LLOutgoingCallDialog::getAllowedRect(LLRect& rect)
+{
+	rect = gViewerWindow->getWorldViewRectScaled();
+}
+
+void LLOutgoingCallDialog::onOpen(const LLSD& key)
+{
+	// tell the user which voice channel they are leaving
+	if (!mPayload["old_channel_name"].asString().empty())
+	{
+		childSetTextArg("leaving", "[CURRENT_CHAT]", mPayload["old_channel_name"].asString());
+	}
+	else
+	{
+		childSetTextArg("leaving", "[CURRENT_CHAT]", getString("localchat"));
+	}
+
+	std::string callee_name = mPayload["session_name"].asString();
+	if (callee_name == "anonymous")
+	{
+		callee_name = getString("anonymous");
+	}
+	
+	setTitle(callee_name);
+
+	LLSD callee_id = mPayload["other_user_id"];
+	childSetTextArg("calling", "[CALLEE_NAME]", callee_name);
+	childSetTextArg("connecting", "[CALLEE_NAME]", callee_name);
+	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
+	icon->setValue(callee_id);
+}
+
+
+//static
+void LLOutgoingCallDialog::onCancel(void* user_data)
+{
+	LLOutgoingCallDialog* self = (LLOutgoingCallDialog*)user_data;
+
+	if (!gIMMgr)
+		return;
+
+	LLUUID session_id = self->mPayload["session_id"].asUUID();
+	gIMMgr->endCall(session_id);
+	
+	self->closeFloater();
+}
+
+
+BOOL LLOutgoingCallDialog::postBuild()
+{
+	BOOL success = LLDockableFloater::postBuild();
+
+	childSetAction("Cancel", onCancel, this);
+
+	// dock the dialog to the sys well, where other sys messages appear
+	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getSysWell(),
+					 this, getDockTongue(), LLDockControl::TOP,
+					 boost::bind(&LLOutgoingCallDialog::getAllowedRect, this, _1)));
+
+	return success;
+}
+
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLIncomingCallDialog
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 LLIncomingCallDialog::LLIncomingCallDialog(const LLSD& payload) :
-	LLModalDialog(payload),
+	LLDockableFloater(NULL, false, payload),
 	mPayload(payload)
 {
 }
 
 BOOL LLIncomingCallDialog::postBuild()
 {
+	LLDockableFloater::postBuild();
+
 	LLSD caller_id = mPayload["caller_id"];
 	EInstantMessage type = (EInstantMessage)mPayload["type"].asInteger();
 
@@ -1119,6 +1187,11 @@ BOOL LLIncomingCallDialog::postBuild()
 		call_type = getString("VoiceInviteAdHoc");
 	}
 
+	// check to see if this is an Avaline call
+	LLUUID session_id = mPayload["session_id"].asUUID();
+	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
+	childSetVisible("Start IM", is_avatar); // no IM for avaline
+
 	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
 	caller_name_widget->setValue(caller_name + " " + call_type);
 	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
@@ -1130,6 +1203,30 @@ BOOL LLIncomingCallDialog::postBuild()
 	childSetFocus("Accept");
 
 	return TRUE;
+}
+
+void LLIncomingCallDialog::getAllowedRect(LLRect& rect)
+{
+	rect = gViewerWindow->getWorldViewRectScaled();
+}
+
+void LLIncomingCallDialog::onOpen(const LLSD& key)
+{
+	// tell the user which voice channel they would be leaving
+	LLVoiceChannel *voice = LLVoiceChannel::getCurrentVoiceChannel();
+	if (voice && !voice->getSessionName().empty())
+	{
+		childSetTextArg("question", "[CURRENT_CHAT]", voice->getSessionName());
+	}
+	else
+	{
+		childSetTextArg("question", "[CURRENT_CHAT]", getString("localchat"));
+	}
+
+	// dock the dialog to the sys well, where other sys messages appear
+	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getSysWell(),
+									 this, getDockTongue(), LLDockControl::TOP,
+									 boost::bind(&LLIncomingCallDialog::getAllowedRect, this, _1)));
 }
 
 //static

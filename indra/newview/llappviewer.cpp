@@ -89,6 +89,8 @@
 #include "llvfsthread.h"
 #include "llvolumemgr.h"
 
+#include "llnotificationmanager.h"
+
 // Third party library includes
 #include <boost/bind.hpp>
 
@@ -2340,6 +2342,8 @@ bool LLAppViewer::initWindow()
 		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
 		FALSE, ignorePixelDepth);
+
+	LLNotificationsUI::LLNotificationManager::getInstance();
 		
 	if (gSavedSettings.getBOOL("WindowFullScreen"))
 	{
@@ -3530,6 +3534,7 @@ void LLAppViewer::idle()
 		gEventNotifier.update();
 		
 		gIdleCallbacks.callFunctions();
+		gInventory.notifyObservers();
 	}
 	
 	if (gDisconnected)
@@ -4181,7 +4186,7 @@ void LLAppViewer::loadEventHostModule(S32 listen_port)
 
 	if(dso_path == "")
 	{
-		llwarns << "QAModeEventHost requested but module \"" << dso_name << "\" not found!" << llendl;
+		llerrs << "QAModeEventHost requested but module \"" << dso_name << "\" not found!" << llendl;
 		return;
 	}
 
@@ -4209,7 +4214,7 @@ void LLAppViewer::loadEventHostModule(S32 listen_port)
 
 	if(status != 0)
 	{
-		llwarns << "problem loading eventhost plugin, status: " << status << llendl;
+		llerrs << "problem loading eventhost plugin, status: " << status << llendl;
 	}
 
 	mPlugins.insert(eventhost_dso_handle);

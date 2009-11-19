@@ -187,10 +187,6 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 		if (asset_type == LLAssetType::AT_CATEGORY)
 			continue;
 
-		// Skip root folders, so we know we have inventory items only
-		if (asset_type == LLAssetType::AT_ROOT_CATEGORY) 
-			continue;
-
 		LLInventoryItem* inv_item = (LLInventoryItem*)((LLInventoryObject*)(*it));
 		inv_type = inv_item->getInventoryType();
 
@@ -286,7 +282,7 @@ void LLFloaterBuyContents::onClickBuy()
 
 	// Put the items where we put new folders.
 	LLUUID category_id;
-	category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CATEGORY);
+	category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_ROOT_INVENTORY);
 
 	// *NOTE: doesn't work for multiple object buy, which UI does not
 	// currently support sale info is used for verification only, if

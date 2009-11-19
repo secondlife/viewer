@@ -54,10 +54,12 @@ static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
 static LLDefaultChildRegistry::Register<LLNotificationChiclet> t2("chiclet_notification");
 static LLDefaultChildRegistry::Register<LLIMP2PChiclet> t3("chiclet_im_p2p");
 static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t4("chiclet_im_group");
+static LLDefaultChildRegistry::Register<LLAdHocChiclet> t5("chiclet_im_adhoc");
 
 static const LLRect CHICLET_RECT(0, 25, 25, 0);
-static const LLRect CHICLET_ICON_RECT(0, 24, 24, 0);
+static const LLRect CHICLET_ICON_RECT(0, 22, 22, 0);
 static const LLRect VOICE_INDICATOR_RECT(25, 25, 45, 0);
+static const S32	OVERLAY_ICON_SHIFT = 2;	// used for shifting of an overlay icon for new massages in a chiclet
 
 // static
 const S32 LLChicletPanel::s_scroll_ratio = 10;
@@ -79,26 +81,16 @@ LLNotificationChiclet::Params::Params()
 	button.tab_stop(FALSE);
 	button.label(LLStringUtil::null);
 
-	unread_notifications.name("unread");
-	unread_notifications.font(LLFontGL::getFontSansSerif());
-	unread_notifications.text_color=(LLColor4::white);
-	unread_notifications.font_halign(LLFontGL::HCENTER);
-	unread_notifications.mouse_opaque(FALSE);
 }
 
 LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 : LLChiclet(p)
 , mButton(NULL)
-, mCounterCtrl(NULL)
+, mCounter(0)
 {
 	LLButton::Params button_params = p.button;
-	button_params.rect(p.rect());
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
 	addChild(mButton);
-
- 	LLChicletNotificationCounterCtrl::Params unread_params = p.unread_notifications;
-	mCounterCtrl = LLUICtrlFactory::create<LLChicletNotificationCounterCtrl>(unread_params);
-	addChild(mCounterCtrl);
 
 	// connect counter handlers to the signals
 	connectCounterUpdatersToSignal("notify");
@@ -124,13 +116,15 @@ void LLNotificationChiclet::connectCounterUpdatersToSignal(std::string notificat
 
 void LLNotificationChiclet::setCounter(S32 counter)
 {
-	mCounterCtrl->setCounter(counter);
-}
+	std::string s_count;
+	if(counter != 0)
+	{
+		s_count = llformat("%d", counter);
+	}
 
-void LLNotificationChiclet::setShowCounter(bool show)
-{
-	LLChiclet::setShowCounter(show);
-	mCounterCtrl->setVisible(getShowCounter());
+	mButton->setLabel(s_count);
+
+	mCounter = counter;
 }
 
 boost::signals2::connection LLNotificationChiclet::setClickCallback(
@@ -217,13 +211,15 @@ LLIMChiclet::LLIMChiclet(const LLIMChiclet::Params& p)
 	icon_params.visible = false;
 	icon_params.image = LLUI::getUIImage(p.new_messages_icon_name);
 	mNewMessagesIcon = LLUICtrlFactory::create<LLIconCtrl>(icon_params);
+	addChild(mNewMessagesIcon);
+
 	// adjust size and position of an icon
 	LLRect chiclet_rect = p.rect;
-	LLRect overlay_icon_rect = LLRect(chiclet_rect.getWidth()/2, chiclet_rect.mTop, chiclet_rect.mRight, chiclet_rect.getHeight()/2); 
-	// shift an icon a little bit to the right and up corner of a chiclet
-	overlay_icon_rect.translate(overlay_icon_rect.getWidth()/5, overlay_icon_rect.getHeight()/5);
+	LLRect overlay_icon_rect = LLRect(chiclet_rect.getWidth()/2, chiclet_rect.getHeight(), chiclet_rect.getWidth(), chiclet_rect.getHeight()/2); 
 	mNewMessagesIcon->setRect(overlay_icon_rect);
-	addChild(mNewMessagesIcon);
+	
+	// shift an icon a little bit to the right and up corner of a chiclet
+	overlay_icon_rect.translate(OVERLAY_ICON_SHIFT, OVERLAY_ICON_SHIFT);
 
 	setShowCounter(false);
 }
@@ -423,7 +419,6 @@ void LLIMP2PChiclet::updateMenuItems()
 	bool is_friend = LLAvatarActions::isFriend(getOtherParticipantId());
 
 	mPopupMenu->getChild<LLUICtrl>("Add Friend")->setEnabled(!is_friend);
-	mPopupMenu->getChild<LLUICtrl>("Remove Friend")->setEnabled(is_friend);
 }
 
 BOOL LLIMP2PChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
@@ -478,6 +473,10 @@ void LLIMP2PChiclet::onMenuItemClicked(const LLSD& user_data)
 	else if("add" == level)
 	{
 		LLAvatarActions::requestFriendshipDialog(other_participant_id);
+	}
+	else if("end" == level)
+	{
+		LLAvatarActions::endIM(other_participant_id);
 	}
 }
 
@@ -602,6 +601,9 @@ BOOL LLAdHocChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 LLIMGroupChiclet::Params::Params()
 : group_icon("group_icon")
+, unread_notifications("unread_notifications")
+, speaker("speaker")
+, show_speaker("show_speaker")
 {
 	rect(CHICLET_RECT);
 
@@ -770,11 +772,15 @@ void LLIMGroupChiclet::onMenuItemClicked(const LLSD& user_data)
 
 	if("group chat" == level)
 	{
-		LLGroupActions::startChat(group_id);
+		LLGroupActions::startIM(group_id);
 	}
 	else if("info" == level)
 	{
 		LLGroupActions::show(group_id);
+	}
+	else if("end" == level)
+	{
+		LLGroupActions::endIM(group_id);
 	}
 }
 
@@ -791,13 +797,11 @@ LLChicletPanel::Params::Params()
 	chiclet_padding = 3;
 	scrolling_offset = 40;
 
-/*
 	if (!min_width.isProvided())
 	{
 		// min_width = 4 chiclets + 3 paddings
 		min_width = 180 + 3*chiclet_padding;
 	}
-*/
 };
 
 LLChicletPanel::LLChicletPanel(const Params&p)
@@ -830,7 +834,16 @@ LLChicletPanel::~LLChicletPanel()
 void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	
 	LLUUID session_id = data["session_id"].asUUID();
+	LLUUID from_id = data["from_id"].asUUID();
+	const std::string from = data["from"].asString();
 	S32 unread = data["num_unread"].asInteger();
+
+	// if new message came
+	if(unread != 0)
+	{
+		//we do not show balloon (indicator of new messages) for system messages and our own messages
+		if (from_id.isNull() || from_id == gAgentID || SYSTEM_FROM == from) return;
+	}
 
 	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
 	if (im_floater && im_floater->getVisible())
@@ -851,7 +864,6 @@ void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	    	llwarns << "Unable to set counter for chiclet " << session_id << llendl;
 	    }
 	}
-
 }
 
 
@@ -880,19 +892,34 @@ BOOL LLChicletPanel::postBuild()
 
 void LLChicletPanel::onCurrentVoiceChannelChanged(const LLUUID& session_id)
 {
-	for(chiclet_list_t::iterator it = mChicletList.begin(); it != mChicletList.end(); ++it)
+	static LLUUID s_previous_active_voice_session_id;
+
+	std::list<LLChiclet*> chiclets = LLIMChiclet::sFindChicletsSignal(session_id);
+
+	for(std::list<LLChiclet *>::iterator it = chiclets.begin(); it != chiclets.end(); ++it)
 	{
 		LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(*it);
 		if(chiclet)
 		{
-			if(chiclet->getSessionId() == session_id)
-			{
-				chiclet->setShowSpeaker(true);
-				continue;
-			}
-			chiclet->setShowSpeaker(false);
+			chiclet->setShowSpeaker(true);
 		}
 	}
+
+	if(!s_previous_active_voice_session_id.isNull() && s_previous_active_voice_session_id != session_id)
+	{
+		chiclets = LLIMChiclet::sFindChicletsSignal(s_previous_active_voice_session_id);
+
+		for(std::list<LLChiclet *>::iterator it = chiclets.begin(); it != chiclets.end(); ++it)
+		{
+			LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(*it);
+			if(chiclet)
+			{
+				chiclet->setShowSpeaker(false);
+			}
+		}		
+	}
+
+	s_previous_active_voice_session_id = session_id;
 }
 
 S32 LLChicletPanel::calcChickletPanleWidth()

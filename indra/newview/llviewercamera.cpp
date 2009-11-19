@@ -485,7 +485,7 @@ BOOL LLViewerCamera::projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoord
 		y /= gViewerWindow->getDisplayScale().mV[VY];
 
 		// should now have the x,y coords of grab_point in screen space
-		LLRect world_view_rect = gViewerWindow->getWorldViewRectScaled();
+		LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
 
 		// convert to pixel coordinates
 		S32 int_x = lltrunc(x);
@@ -495,14 +495,14 @@ BOOL LLViewerCamera::projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoord
 
 		if (clamp)
 		{
-			if (int_x < world_view_rect.mLeft)
+			if (int_x < world_rect.mLeft)
 			{
-				out_point.mX = world_view_rect.mLeft;
+				out_point.mX = world_rect.mLeft;
 				valid = FALSE;
 			}
-			else if (int_x > world_view_rect.mRight)
+			else if (int_x > world_rect.mRight)
 			{
-				out_point.mX = world_view_rect.mRight;
+				out_point.mX = world_rect.mRight;
 				valid = FALSE;
 			}
 			else
@@ -510,14 +510,14 @@ BOOL LLViewerCamera::projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoord
 				out_point.mX = int_x;
 			}
 
-			if (int_y < world_view_rect.mBottom)
+			if (int_y < world_rect.mBottom)
 			{
-				out_point.mY = world_view_rect.mBottom;
+				out_point.mY = world_rect.mBottom;
 				valid = FALSE;
 			}
-			else if (int_y > world_view_rect.mTop)
+			else if (int_y > world_rect.mTop)
 			{
-				out_point.mY = world_view_rect.mTop;
+				out_point.mY = world_rect.mTop;
 				valid = FALSE;
 			}
 			else
@@ -531,19 +531,19 @@ BOOL LLViewerCamera::projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoord
 			out_point.mX = int_x;
 			out_point.mY = int_y;
 
-			if (int_x < world_view_rect.mLeft)
+			if (int_x < world_rect.mLeft)
 			{
 				valid = FALSE;
 			}
-			else if (int_x > world_view_rect.mRight)
+			else if (int_x > world_rect.mRight)
 			{
 				valid = FALSE;
 			}
-			if (int_y < world_view_rect.mBottom)
+			if (int_y < world_rect.mBottom)
 			{
 				valid = FALSE;
 			}
-			else if (int_y > world_view_rect.mTop)
+			else if (int_y > world_rect.mTop)
 			{
 				valid = FALSE;
 			}

@@ -1,44 +1,46 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- background_visible="true"
- bevel_style="in"
- bg_alpha_color="black"
- follows="left|top|right"
- height="20"
- label="im_header"
- layout="topleft"
- name="im_header" >
-    <avatar_icon
-     follows="left"
-     height="16"
-     image_name="icon_avatar_online.tga"
+      background_visible="true"
+     bevel_style="in"
+     bg_alpha_color="black"
+     follows="top|left|right"
+     height="24"
+     label="im_header"
      layout="topleft"
-     left="2"
-     mouse_opaque="true"
-     name="avatar_icon"
-     top="2"
-     width="16" />
+     name="im_header"
+     width="300">
+            <avatar_icon
+         follows="left"
+         height="18"
+         image_name="Generic_Person"
+         layout="topleft"
+         left="3"
+         mouse_opaque="true"
+         name="avatar_icon"
+         top="3"
+         width="18" />
     <text
      follows="left|right"
-     font="SansSerifBigBold"
-     height="20"
-     layout="topleft"
-     left_pad="6"
+      font.style="BOLD"
+         height="12"
+         layout="topleft"
+         left_pad="5"
      right="-50"
      name="user_name"
      text_color="white"
-     top="3"
-     value="Darth Vader"
-     use_ellipses="true" />
+         top="8"
+         use_ellipses="true"
+         value="Erica Vader" />
     <text
-     follows="right"
-     font="SansSerifBig"
-     height="20"
-     layout="topleft"
+            font="SansSerifSmall"
+         follows="right"
+         halign="right"
+         height="13"
+         layout="topleft"
+         left_pad="5"
      name="time_box"
-     right="0"
-     text_color="white"
-     top="3"
-     value="23:30"
-     width="50" />
+     right="-10"
+     top="8"
+         value="23:30"
+         width="50" />
 </panel>

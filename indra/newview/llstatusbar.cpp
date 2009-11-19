@@ -109,6 +109,7 @@ const S32 TEXT_HEIGHT = 18;
 static void onClickBuyCurrency(void*);
 static void onClickHealth(void*);
 static void onClickScriptDebug(void*);
+static void onClickVolume(void*);
 
 std::vector<std::string> LLStatusBar::sDays;
 std::vector<std::string> LLStatusBar::sMonths;
@@ -116,6 +117,12 @@ const U32 LLStatusBar::MAX_DATE_STRING_LENGTH = 2000;
 
 LLStatusBar::LLStatusBar(const LLRect& rect)
 :	LLPanel(),
+	mTextHealth(NULL),
+	mTextTime(NULL),
+	mSGBandwidth(NULL),
+	mSGPacketLoss(NULL),
+	mBtnBuyCurrency(NULL),
+	mBtnVolume(NULL),
 	mBalance(0),
 	mHealth(100),
 	mSquareMetersCredit(0),
@@ -147,6 +154,11 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	
 	mBtnBuyCurrency = getChild<LLButton>( "buycurrency" );
 	mBtnBuyCurrency->setClickedCallback( onClickBuyCurrency, this );
+
+	mBtnVolume = getChild<LLButton>( "volume_btn" );
+	mBtnVolume->setClickedCallback( onClickVolume, this );
+
+	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 
 	childSetAction("scriptout", onClickScriptDebug, this);
 	childSetAction("health", onClickHealth, this);
@@ -333,6 +345,10 @@ void LLStatusBar::refresh()
 	mSGBandwidth->setVisible(net_stats_visible);
 	mSGPacketLoss->setVisible(net_stats_visible);
 	childSetEnabled("stat_btn", net_stats_visible);
+
+	// update the master volume button state
+	BOOL mute_audio = gSavedSettings.getBOOL("MuteAudio");
+	mBtnVolume->setToggleState(mute_audio);
 }
 
 void LLStatusBar::setVisibleForMouselook(bool visible)
@@ -488,6 +504,13 @@ static void onClickScriptDebug(void*)
 	LLFloaterScriptDebug::show(LLUUID::null);
 }
 
+static void onClickVolume(void* data)
+{
+	// toggle the master mute setting
+	BOOL mute_audio = gSavedSettings.getBOOL("MuteAudio");
+	gSavedSettings.setBOOL("MuteAudio", !mute_audio);
+}
+
 // sets the static variables necessary for the date
 void LLStatusBar::setupDate()
 {
@@ -562,6 +585,10 @@ BOOL can_afford_transaction(S32 cost)
 	return((cost <= 0)||((gStatusBar) && (gStatusBar->getBalance() >=cost)));
 }
 
+void LLStatusBar::onVolumeChanged(const LLSD& newvalue)
+{
+	refresh();
+}
 
 // Implements secondlife:///app/balance/request to request a L$ balance
 // update via UDP message system. JC

@@ -129,12 +129,12 @@ void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, BOOL calle
 	}
 }
 
-void LLExpandableTextBox::LLTextBoxEx::setText(const LLStringExplicit& text)
+void LLExpandableTextBox::LLTextBoxEx::setText(const LLStringExplicit& text,const LLStyle::Params& input_params)
 {
 	// LLTextBox::setText will obliterate the expander segment, so make sure
 	// we generate it again by clearing mExpanderVisible
 	mExpanderVisible = false;
-	LLTextBox::setText(text);
+	LLTextBox::setText(text, input_params);
 
 	// text contents have changed, segments are cleared out
 	// so hide the expander and determine if we need it
@@ -164,7 +164,7 @@ void LLExpandableTextBox::LLTextBoxEx::showExpandText()
 		S32 last_line = visible_lines.second - 1;
 
 		LLStyle::Params expander_style = getDefaultStyle();
-		expander_style.font.name.setIfNotProvided(LLFontGL::nameFromFont(expander_style.font));
+		expander_style.font.name(LLFontGL::nameFromFont(expander_style.font));
 		expander_style.font.style = "UNDERLINE";
 		expander_style.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 		LLExpanderSegment* expanderp = new LLExpanderSegment(new LLStyle(expander_style), getLineStart(last_line), getLength() + 1, mExpanderLabel, *this);

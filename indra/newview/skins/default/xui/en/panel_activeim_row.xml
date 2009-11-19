@@ -7,7 +7,9 @@
 	left="0"
 	height="35"
 	width="318"
-	background_visible="false">
+  background_opaque="false"
+  background_visible="true"
+  bg_alpha_color="0.0 0.0 0.0 0.0" >
   <chiclet_im_p2p
 		name="p2p_chiclet"
 		layout="topleft"
@@ -15,7 +17,16 @@
 		top="3"
 		left="5"
 		height="25"
-		width="25">
+		width="25"
+    visible="false"
+    speaker.name="speaker_p2p"
+    speaker.width="20"
+    speaker.height="25"
+    speaker.left="25"
+    speaker.top="25"
+    speaker.auto_update="true"
+    speaker.draw_border="false"
+    speaker.visible="false">
   </chiclet_im_p2p>
   <chiclet_im_group
 		name="group_chiclet"
@@ -24,14 +35,41 @@
 		top="3"
 		left="5"
 		height="25"
-		width="25">
+		width="25"
+    visible="false"
+    speaker.name="speaker_grp"
+    speaker.width="20"
+    speaker.height="25"
+    speaker.left="25"
+    speaker.top="25"
+    speaker.auto_update="true"
+    speaker.draw_border="false"
+    speaker.visible="false">
   </chiclet_im_group>
+  <chiclet_im_adhoc
+		name="adhoc_chiclet"
+		layout="topleft"
+		follows="left"
+		top="3"
+		left="5"
+		height="25"
+		width="25"
+    visible="false"
+    speaker.name="speaker_hoc"
+    speaker.width="20"
+    speaker.height="25"
+    speaker.left="25"
+    speaker.top="25"
+    speaker.auto_update="true"
+    speaker.draw_border="false"
+    speaker.visible="false">
+  </chiclet_im_adhoc>
 	<text
 		type="string"
 		name="contact_name"
 		layout="topleft"
 		top="10"
-		left_pad="0"
+		left_pad="20"
 		height="14"
 		width="245"
 		length="1"

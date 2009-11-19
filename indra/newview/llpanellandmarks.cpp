@@ -97,10 +97,10 @@ BOOL LLLandmarksPanel::postBuild()
 
 	U32 sort_order = gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER);
 	mSortByDate = sort_order & LLInventoryFilter::SO_DATE;
-	initFavoritesInventroyPanel();
-	initLandmarksInventroyPanel();
-	initMyInventroyPanel();
-	initLibraryInventroyPanel();
+	initFavoritesInventoryPanel();
+	initLandmarksInventoryPanel();
+	initMyInventoryPanel();
+	initLibraryInventoryPanel();
 	getChild<LLAccordionCtrlTab>("tab_favorites")->setDisplayChildren(true);
 	getChild<LLAccordionCtrlTab>("tab_landmarks")->setDisplayChildren(true);
 
@@ -357,7 +357,7 @@ void LLLandmarksPanel::setErrorStatus(U32 status, const std::string& reason)
 // PRIVATE METHODS
 //////////////////////////////////////////////////////////////////////////
 
-void LLLandmarksPanel::initFavoritesInventroyPanel()
+void LLLandmarksPanel::initFavoritesInventoryPanel()
 {
 	mFavoritesInventoryPanel = getChild<LLInventorySubTreePanel>("favorites_list");
 
@@ -366,7 +366,7 @@ void LLLandmarksPanel::initFavoritesInventroyPanel()
 	initAccordion("tab_favorites", mFavoritesInventoryPanel);
 }
 
-void LLLandmarksPanel::initLandmarksInventroyPanel()
+void LLLandmarksPanel::initLandmarksInventoryPanel()
 {
 	mLandmarksInventoryPanel = getChild<LLInventorySubTreePanel>("landmarks_list");
 
@@ -380,7 +380,7 @@ void LLLandmarksPanel::initLandmarksInventroyPanel()
 	initAccordion("tab_landmarks", mLandmarksInventoryPanel);
 }
 
-void LLLandmarksPanel::initMyInventroyPanel()
+void LLLandmarksPanel::initMyInventoryPanel()
 {
 	mMyInventoryPanel= getChild<LLInventorySubTreePanel>("my_inventory_list");
 
@@ -389,7 +389,7 @@ void LLLandmarksPanel::initMyInventroyPanel()
 	initAccordion("tab_inventory", mMyInventoryPanel);
 }
 
-void LLLandmarksPanel::initLibraryInventroyPanel()
+void LLLandmarksPanel::initLibraryInventoryPanel()
 {
 	mLibraryInventoryPanel = getChild<LLInventorySubTreePanel>("library_list");
 

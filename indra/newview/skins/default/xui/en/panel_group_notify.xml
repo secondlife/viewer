@@ -1,77 +1,105 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel background_visible="true" bevel_style="in" bg_alpha_color="0 0 0 0"
-	height="155" label="instant_message" layout="topleft" left="0"
-	name="panel_group_notify" top="0" width="350">
+<panel
+ background_visible="true"
+ bevel_style="in"
+ bg_alpha_color="0 0 0 0"
+ height="90"
+ label="instant_message"
+ layout="topleft"
+ left="0"
+ name="panel_group_notify"
+ top="0"
+ width="305">
     <string
-     name="message_max_lines_count">
-        4
-    </string>
-	<panel follows="top" background_visible="true" bevel_style="in" bg_alpha_color="black"
-		height="30" label="header" layout="topleft" left="0" name="header"
-		top="0" width="350">
-		<icon follows="left|top|right|bottom" height="20"  width="20" layout="topleft"
-			top="5"  left="5" mouse_opaque="true" name="group_icon"/>
-		<text type="string" length="1" follows="left|top|right|bottom"
-			font="SansSerifBigBold" height="20" layout="topleft" left_pad="10" name="title"
-			text_color="GroupNotifyTextColor" top="5" width="275" use_ellipses="true">
-			Sender Name / Group Name
-        </text>
-	</panel>
-	<text
+     name="message_max_lines_count"
+     value="7" />
+    <string
+     name="subject_font"
+     value="SANSSERIF_BIG" />
+    <string
+     name="date_font"
+     value="SANSSERIF" />
+    <panel
+     background_visible="true"
+     bevel_style="in"
+     bg_alpha_color="black"
      follows="top"
-     height="20"
+     height="30"
+     label="header"
      layout="topleft"
-     left="25"
-     name="subject"
-     text_color="GroupNotifyTextColor"
-     font="SansSerifBig"
-     top="40"
-     use_ellipses="true"
-     value="subject"
-     width="300"
-     word_wrap="true">
-     subject 
-    </text>
-    <text
-     follows="top"
-     height="20"
-     layout="topleft"
-     left="25"
-     name="datetime"
-     text_color="GroupNotifyTextColor"
-     font="SansSerif"
-     top="80"
-     use_ellipses="true"
-     value="datetime"
-     width="300"
-     word_wrap="true">
-     datetime
-    </text>
-    <text
+     left="0"
+     name="header"
+     top="0"
+     width="305">
+        <icon
+         follows="left|top|right|bottom"
+         height="20"
+         layout="topleft"
+         left="5"
+         mouse_opaque="true"
+         name="group_icon"
+         top="5"
+         width="20" />
+        <text
+         follows="left|top|right|bottom"
+         font="SansSerifBigBold"
+         height="20"
+         layout="topleft"
+         left_pad="10"
+         name="title"
+         text_color="GroupNotifyTextColor"
+         top="5"
+         use_ellipses="true"
+         value="Sender Name / Group Name"
+         width="230" />
+    </panel>
+    <text_editor
+     allow_html="true"
+     enabled="true"
      follows="left|top|bottom|right"
      height="0"
      layout="topleft"
      left="25"
+     max_length="2147483647"
      name="message"
+     parse_highlights="true"
+     read_only="true"
      text_color="GroupNotifyTextColor"
-     top="100"
+     top="40"
+     type="string"
      use_ellipses="true"
      value="message"
-     width="300"
-     word_wrap="true"
-     visible="true" >
-    </text>
+     width="270" 
+	 word_wrap="true" >
+    </text_editor>
     <icon
-	  follows="left|bottom|right" height="15" width="15"
-		layout="topleft" bottom="122" left="25" mouse_opaque="true" name="attachment_icon" visible="true"
-	/>
-	<text font="SansSerif" font.style="UNDERLINE" font_shadow="none"
-		type="string" length="1" follows="left|bottom|right" layout="topleft"
-		left="45" bottom="122" height="15" width="280" name="attachment"
-		text_color="GroupNotifyTextColor" visible="true">
-		Attachment
-     </text>
-
-	<button label="OK" layout="topleft" bottom="145" left="140" height="20"
-		width="70" name="btn_ok" follows="bottom" />
+     bottom="60"
+     follows="left|bottom|right"
+     height="15"
+     layout="topleft"
+     left="25"
+     mouse_opaque="true"
+     name="attachment_icon"
+     width="15" />
+    <text
+     bottom="60"
+     follows="left|bottom|right"
+     font="SansSerif"
+     height="15"
+     layout="topleft"
+     left="45"
+     name="attachment"
+     text_color="GroupNotifyTextColor"
+     value="Attachment"
+     use_ellipses="true"
+     width="250" />
+    <button
+     bottom="85"
+     follows="bottom"
+     height="20"
+     label="OK"
+     layout="topleft"
+     left="25"
+     name="btn_ok"
+     width="70" />
 </panel>

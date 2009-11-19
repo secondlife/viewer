@@ -125,6 +125,22 @@ class LLDragDropWin32Target:
 		{
 			if ( mAllowDrop )
 			{
+			// XXX MAJOR MAJOR HACK!
+			LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(mAppWindowHandle, GWL_USERDATA);
+			if (NULL != window_imp)
+			{
+				LLCoordGL gl_coord( 0, 0 );
+
+				POINT pt2;
+				pt2.x = pt.x;
+				pt2.y = pt.y;
+				ScreenToClient( mAppWindowHandle, &pt2 );
+
+				LLCoordWindow cursor_coord_window( pt2.x, pt2.y );
+				window_imp->convertCoords(cursor_coord_window, &gl_coord);
+				MASK mask = gKeyboard->currentMask(TRUE);
+				window_imp->completeDragNDropRequest( gl_coord, mask, FALSE, std::string( "" ) );
+			}
 				*pdwEffect = DROPEFFECT_COPY;
 			}
 			else
@@ -183,7 +199,7 @@ class LLDragDropWin32Target:
 							MASK mask = gKeyboard->currentMask( TRUE );
 
 							// actually do the drop
-							window_imp->completeDropRequest( gl_coord, mask, std::string( (char*)data ) );
+							window_imp->completeDragNDropRequest( gl_coord, mask, TRUE, std::string( (char*)data ) );
 						};
 
 						GlobalUnlock( stgmed.hGlobal );

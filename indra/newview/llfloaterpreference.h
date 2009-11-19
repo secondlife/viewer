@@ -115,7 +115,6 @@ public:
 	void setAllIgnored();
 	void onClickLogPath();	
 	void enableHistory();
-	void onCommitLogging();
 	void setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string& email);
 	void refreshEnabledState();
 	void disableUnavailableSettings();

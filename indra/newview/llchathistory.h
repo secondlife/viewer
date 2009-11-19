@@ -34,7 +34,7 @@
 #define LLCHATHISTORY_H_
 
 #include "lltexteditor.h"
-#include "llchat.h"
+#include "llviewerchat.h"
 
 //Chat log widget allowing addition of a message as a widget 
 class LLChatHistory : public LLTextEditor
@@ -109,7 +109,7 @@ class LLChatHistory : public LLTextEditor
 		 * @param time time of a message.
 		 * @param message message itself.
 		 */
-		void appendWidgetMessage(const LLChat& chat, LLStyle::Params& style_params);
+		void appendWidgetMessage(const LLChat& chat, const LLStyle::Params& input_append_params = LLStyle::Params());
 
 	private:
 		std::string mLastFromName;

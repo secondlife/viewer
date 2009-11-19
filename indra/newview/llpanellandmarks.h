@@ -78,10 +78,10 @@ protected:
 	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason);
 	
 private:
-	void initFavoritesInventroyPanel();
-	void initLandmarksInventroyPanel();
-	void initMyInventroyPanel();
-	void initLibraryInventroyPanel();
+	void initFavoritesInventoryPanel();
+	void initLandmarksInventoryPanel();
+	void initMyInventoryPanel();
+	void initLibraryInventoryPanel();
 	void initLandmarksPanel(LLInventorySubTreePanel* inventory_list);
 	void initAccordion(const std::string& accordion_tab_name, LLInventorySubTreePanel* inventory_list);
 	void onAccordionExpandedCollapsed(const LLSD& param, LLInventorySubTreePanel* inventory_list);

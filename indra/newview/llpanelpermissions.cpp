@@ -80,9 +80,9 @@ LLPanelPermissions::LLPanelPermissions() :
 BOOL LLPanelPermissions::postBuild()
 {
 	childSetCommitCallback("Object Name",LLPanelPermissions::onCommitName,this);
-	childSetPrevalidate("Object Name",LLLineEditor::prevalidatePrintableNotPipe);
+	childSetPrevalidate("Object Name",LLLineEditor::prevalidateASCIIPrintableNoPipe);
 	childSetCommitCallback("Object Description",LLPanelPermissions::onCommitDesc,this);
-	childSetPrevalidate("Object Description",LLLineEditor::prevalidatePrintableNotPipe);
+	childSetPrevalidate("Object Description",LLLineEditor::prevalidateASCIIPrintableNoPipe);
 
 	
 	getChild<LLUICtrl>("button set group")->setCommitCallback(boost::bind(&LLPanelPermissions::onClickGroup,this));
@@ -970,19 +970,32 @@ void LLPanelPermissions::setAllSaleInfo()
 	if (price < 0)
 		sale_type = LLSaleInfo::FS_NOT;
 
-	LLSaleInfo sale_info(sale_type, price);
-	LLSelectMgr::getInstance()->selectionSetObjectSaleInfo(sale_info);
+	LLSaleInfo old_sale_info;
+	LLSelectMgr::getInstance()->selectGetSaleInfo(old_sale_info);
+
+	LLSaleInfo new_sale_info(sale_type, price);
+	LLSelectMgr::getInstance()->selectionSetObjectSaleInfo(new_sale_info);
 	
-	// If turned off for-sale, make sure click-action buy is turned
-	// off as well
-	if (sale_type == LLSaleInfo::FS_NOT)
+	U8 old_click_action = 0;
+	LLSelectMgr::getInstance()->selectionGetClickAction(&old_click_action);
+
+	if (old_sale_info.isForSale()
+		&& !new_sale_info.isForSale()
+		&& old_click_action == CLICK_ACTION_BUY)
 	{
-		U8 click_action = 0;
-		LLSelectMgr::getInstance()->selectionGetClickAction(&click_action);
-		if (click_action == CLICK_ACTION_BUY)
-		{
-			LLSelectMgr::getInstance()->selectionSetClickAction(CLICK_ACTION_TOUCH);
-		}
+		// If turned off for-sale, make sure click-action buy is turned
+		// off as well
+		LLSelectMgr::getInstance()->
+			selectionSetClickAction(CLICK_ACTION_TOUCH);
+	}
+	else if (new_sale_info.isForSale()
+		&& !old_sale_info.isForSale()
+		&& old_click_action == CLICK_ACTION_TOUCH)
+	{
+		// If just turning on for-sale, preemptively turn on one-click buy
+		// unless user have a different click action set
+		LLSelectMgr::getInstance()->
+			selectionSetClickAction(CLICK_ACTION_BUY);
 	}
 }
 

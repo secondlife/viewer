@@ -51,7 +51,7 @@
 
 #include "llagent.h"
 #include "llbutton.h"
-//#include "llinventory.h"
+#include "llinventoryobserver.h"
 #include "llinventorymodel.h"
 #include "llnotify.h"
 #include "llresmgr.h"

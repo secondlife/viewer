@@ -206,33 +206,31 @@ LLPointer<LLViewerTexture> LLViewerTextureManager::getLocalTexture(const U32 wid
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(
 	                                               const LLUUID &image_id,											       
 												   BOOL usemipmaps,
-												   S32 boost_priority,
+												   LLViewerTexture::EBoostLevel boost_priority,
 												   S8 texture_type,
 												   LLGLint internal_format,
 												   LLGLenum primary_format,
 												   LLHost request_from_host)
 {
-	llassert_always(boost_priority >= LLViewerTexture::BOOST_NONE) ;
 	return gTextureList.getImage(image_id, usemipmaps, boost_priority, texture_type, internal_format, primary_format, request_from_host) ;
 }
 	
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromFile(
 	                                               const std::string& filename,												   
 												   BOOL usemipmaps,
-												   S32 boost_priority,
+												   LLViewerTexture::EBoostLevel boost_priority,
 												   S8 texture_type,
 												   LLGLint internal_format,
 												   LLGLenum primary_format, 
 												   const LLUUID& force_id)
 {
-	llassert_always(boost_priority >= LLViewerTexture::BOOST_NONE) ;
 	return gTextureList.getImageFromFile(filename, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id) ;
 }
 
 //static 
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromUrl(const std::string& url,									 
 									 BOOL usemipmaps,
-									 S32 boost_priority,
+									 LLViewerTexture::EBoostLevel boost_priority,
 									 S8 texture_type,
 									 LLGLint internal_format,
 									 LLGLenum primary_format,
@@ -1485,9 +1483,8 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		if ( mBoostLevel > BOOST_HIGH)
 		{
 			priority += 10000000.f;
-		}
-		
-		if(mAdditionalDecodePriority > 0.0f)
+		}		
+		else if(mAdditionalDecodePriority > 0.0f)
 		{
 			// 1-9
 			S32 additional_priority = (S32)(1.0f + mAdditionalDecodePriority*8.0f + .5f); // round
@@ -2124,10 +2121,11 @@ LLImageRaw* LLViewerFetchedTexture::reloadRawImage(S8 discard_level)
 	llassert_always(mGLTexturep.notNull()) ;
 	llassert_always(discard_level >= 0);
 	llassert_always(mComponents > 0);
+
 	if (mRawImage.notNull())
 	{
-		llerrs << "called with existing mRawImage" << llendl;
-		mRawImage = NULL;
+		//mRawImage is in use by somebody else, do not delete it.
+		return NULL ;
 	}
 
 	if(mSavedRawDiscardLevel >= 0 && mSavedRawDiscardLevel <= discard_level)
@@ -3147,8 +3145,7 @@ F32 LLViewerMediaTexture::getMaxVirtualSize()
 
 	if(mNeedsResetMaxVirtualSize)
 	{
-		mMaxVirtualSize = 0.f ;//reset
-		mNeedsResetMaxVirtualSize = FALSE ;
+		addTextureStats(0.f, FALSE) ;//reset
 	}
 
 	if(mIsPlaying) //media is playing

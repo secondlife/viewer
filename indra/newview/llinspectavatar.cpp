@@ -117,6 +117,9 @@ private:
 	bool onVisibleZoomIn();
 	void onClickMuteVolume();
 	void onVolumeChange(const LLSD& data);
+
+	// Is used to determine if "Add friend" option should be enabled in gear menu
+	bool isNotFriend();
 	
 	// Callback for gCacheName to look up avatar name
 	void nameUpdatedCallback(
@@ -208,6 +211,7 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 		boost::bind(&LLInspectAvatar::onVisibleFreezeEject, this));	
 	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleZoomIn", 
 		boost::bind(&LLInspectAvatar::onVisibleZoomIn, this));
+	mEnableCallbackRegistrar.add("InspectAvatar.Gear.Enable", boost::bind(&LLInspectAvatar::isNotFriend, this));
 
 	// can't make the properties request until the widgets are constructed
 	// as it might return immediately, so do it in postBuild.
@@ -471,6 +475,11 @@ void LLInspectAvatar::onClickViewProfile()
 {
 	LLAvatarActions::showProfile(mAvatarID);
 	closeFloater();
+}
+
+bool LLInspectAvatar::isNotFriend()
+{
+	return !LLAvatarActions::isFriend(mAvatarID);
 }
 
 bool LLInspectAvatar::onVisibleFindOnMap()

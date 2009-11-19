@@ -38,7 +38,7 @@
 #include <vector>
 
 #include "llassetstorage.h"	// LLAssetType
-#include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "llsingleton.h"
 #include "llviewerinventory.h"
 
@@ -57,6 +57,12 @@ public:
 class LLGestureManager : public LLSingleton<LLGestureManager>, public LLInventoryCompletionObserver
 {
 public:
+
+	typedef boost::function<void (LLMultiGesture* loaded_gesture)> gesture_loaded_callback_t;
+	// Maps inventory item_id to gesture
+	typedef std::map<LLUUID, LLMultiGesture*> item_map_t;
+	typedef std::map<LLUUID, gesture_loaded_callback_t> callback_map_t;
+
 	LLGestureManager();
 	~LLGestureManager();
 
@@ -97,6 +103,7 @@ public:
 
 	BOOL isGesturePlaying(const LLUUID& item_id);
 
+	const item_map_t& getActiveGestures() const { return mActive; }
 	// Force a gesture to be played, for example, if it is being
 	// previewed.
 	void playGesture(LLMultiGesture* gesture);
@@ -106,7 +113,15 @@ public:
 	// Also remove from playing list
 	void stopGesture(LLMultiGesture* gesture);
 	void stopGesture(const LLUUID& item_id);
-
+	/**
+	 * Add cb into callbackMap.
+	 * Note:
+	 * Manager will call cb after gesture will be loaded and will remove cb automatically. 
+	 */
+	void setGestureLoadedCallback(LLUUID inv_item_id, gesture_loaded_callback_t cb)
+	{
+		mCallbackMap[inv_item_id] = cb;
+	}
 	// Trigger the first gesture that matches this key.
 	// Returns TRUE if it finds a gesture bound to that key.
 	BOOL triggerGesture(KEY key, MASK mask);
@@ -144,13 +159,7 @@ protected:
 						   LLAssetType::EType type,
 						   void* user_data, S32 status, LLExtStat ext_status);
 
-public:
-	BOOL mValid;
-	std::vector<LLMultiGesture*> mPlaying;
-
-	// Maps inventory item_id to gesture
-	typedef std::map<LLUUID, LLMultiGesture*> item_map_t;
-
+private:
 	// Active gestures.
 	// NOTE: The gesture pointer CAN BE NULL.  This means that
 	// there is a gesture with that item_id, but the asset data
@@ -159,8 +168,11 @@ public:
 
 	S32 mLoadingCount;
 	std::string mDeactivateSimilarNames;
-
+	
 	std::vector<LLGestureManagerObserver*> mObservers;
+	callback_map_t mCallbackMap;
+	std::vector<LLMultiGesture*> mPlaying;	
+	BOOL mValid;
 };
 
 #endif

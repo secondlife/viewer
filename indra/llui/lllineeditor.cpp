@@ -84,8 +84,8 @@ void LLLineEditor::PrevalidateNamedFuncs::declareValues()
 	declare("non_negative_s32", LLLineEditor::prevalidateNonNegativeS32);
 	declare("alpha_num", LLLineEditor::prevalidateAlphaNum);
 	declare("alpha_num_space", LLLineEditor::prevalidateAlphaNumSpace);
-	declare("printable_not_pipe", LLLineEditor::prevalidatePrintableNotPipe);
-	declare("printable_no_space", LLLineEditor::prevalidatePrintableNoSpace);
+	declare("ascii_printable_no_pipe", LLLineEditor::prevalidateASCIIPrintableNoPipe);
+	declare("ascii_printable_no_space", LLLineEditor::prevalidateASCIIPrintableNoSpace);
 }
 
 LLLineEditor::Params::Params()
@@ -2186,20 +2186,28 @@ BOOL LLLineEditor::prevalidateAlphaNumSpace(const LLWString &str)
 	return rv;
 }
 
+// Used for most names of things stored on the server, due to old file-formats
+// that used the pipe (|) for multiline text storage.  Examples include
+// inventory item names, parcel names, object names, etc.
 // static
-BOOL LLLineEditor::prevalidatePrintableNotPipe(const LLWString &str)
+BOOL LLLineEditor::prevalidateASCIIPrintableNoPipe(const LLWString &str)
 {
 	BOOL rv = TRUE;
 	S32 len = str.length();
 	if(len == 0) return rv;
 	while(len--)
 	{
-		if('|' == str[len])
+		llwchar wc = str[len];
+		if (wc < 0x20
+			|| wc > 0x7f
+			|| wc == '|')
 		{
 			rv = FALSE;
 			break;
 		}
-		if(!((' ' == str[len]) || LLStringOps::isAlnum((char)str[len]) || LLStringOps::isPunct((char)str[len])))
+		if(!(wc == ' '
+			 || LLStringOps::isAlnum((char)wc)
+			 || LLStringOps::isPunct((char)wc) ) )
 		{
 			rv = FALSE;
 			break;
@@ -2209,15 +2217,19 @@ BOOL LLLineEditor::prevalidatePrintableNotPipe(const LLWString &str)
 }
 
 
+// Used for avatar names
 // static
-BOOL LLLineEditor::prevalidatePrintableNoSpace(const LLWString &str)
+BOOL LLLineEditor::prevalidateASCIIPrintableNoSpace(const LLWString &str)
 {
 	BOOL rv = TRUE;
 	S32 len = str.length();
 	if(len == 0) return rv;
 	while(len--)
 	{
-		if(LLStringOps::isSpace(str[len]))
+		llwchar wc = str[len];
+		if (wc < 0x20
+			|| wc > 0x7f
+			|| LLStringOps::isSpace(wc))
 		{
 			rv = FALSE;
 			break;
@@ -2231,6 +2243,7 @@ BOOL LLLineEditor::prevalidatePrintableNoSpace(const LLWString &str)
 	}
 	return rv;
 }
+
 
 // static
 BOOL LLLineEditor::prevalidateASCII(const LLWString &str)

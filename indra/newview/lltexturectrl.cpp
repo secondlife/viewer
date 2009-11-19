@@ -48,7 +48,7 @@
 #include "llfoldervieweventlistener.h"
 #include "llinventory.h"
 #include "llinventoryfunctions.h"
-#include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llfloaterinventory.h"
 #include "lllineeditor.h"

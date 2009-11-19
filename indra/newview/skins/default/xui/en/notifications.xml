@@ -581,9 +581,10 @@ Multiple faces are currently selected.
 If you continue this action, separate instances of media will be set on multiple faces of the object.
 To place the media on only one face, choose Select Texture and click on the desired face of that object then click Add.
     <usetemplate
-	 name="okcancelignore"
-     notext="Cancel"
-     yestext="OK"/>
+      ignoretext="Media will be set on multiple selected faces"
+      name="okcancelignore"
+      notext="Cancel"
+      yestext="OK"/>
   </notification>
 
   <notification
@@ -4957,8 +4958,9 @@ No valid parcel could be found.
   <notification
    icon="notify.tga"
    name="ObjectGiveItem"
-   type="notify">
-An object named [OBJECTFROMNAME] owned by [FIRST] [LAST] has given you a [OBJECTTYPE] named [OBJECTNAME].
+   type="offer">
+An object named [OBJECTFROMNAME] owned by [NAME] has offered you [OBJECTTYPE]:
+[ITEM_SLURL]
     <form name="form">
       <button
        index="0"
@@ -5000,7 +5002,8 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
    icon="notify.tga"
    name="UserGiveItem"
    type="offer">
-[NAME] has given you a [OBJECTTYPE] named &apos;[OBJECTNAME]&apos;.
+[NAME] has offered you [OBJECTTYPE]:
+[ITEM_SLURL]
     <form name="form">
       <button
        index="0"
@@ -5585,7 +5588,7 @@ We&apos;re sorry.  This area has reached maximum capacity for voice conversation
    icon="notifytip.tga"
    name="VoiceChannelDisconnected"
    type="notifytip">
-You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to spatial voice chat.
+You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -5595,7 +5598,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="VoiceChannelDisconnectedP2P"
    type="notifytip">
-[VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to spatial voice chat.
+[VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -5605,7 +5608,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="P2PCallDeclined"
    type="notifytip">
-[VOICE_CHANNEL_NAME] has declined your call.  You will now be reconnected to spatial voice chat.
+[VOICE_CHANNEL_NAME] has declined your call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -5615,7 +5618,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="P2PCallNoAnswer"
    type="notifytip">
-[VOICE_CHANNEL_NAME] is not available to take your call.  You will now be reconnected to spatial voice chat.
+[VOICE_CHANNEL_NAME] is not available to take your call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -5625,7 +5628,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="VoiceChannelJoinFailed"
    type="notifytip">
-Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now be reconnected to spatial voice chat.
+Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -5738,6 +5741,15 @@ Are you sure you want to delete your teleport history?
      notext="Cancel"
      yestext="OK"/>
   </notification>
+
+  <notification
+   icon="alert.tga"
+   name="BottomTrayButtonCanNotBeShown"
+   type="alert">
+Selected button can not be shown right now.
+The button will be shown when there is enough space for it.
+  </notification>
+
 
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.

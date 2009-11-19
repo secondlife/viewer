@@ -10,7 +10,7 @@
   left="0"
   name="notification_panel"
   top="0"
-  	height="10"
+  	height="140"
   width="305">
   <!-- THIS PANEL CONTROLS TOAST HEIGHT? -->
   <panel
@@ -20,18 +20,18 @@
   bg_alpha_color="0.3 0.3 0.3 0"
   bg_opaque_color="0.3 0.3 0.3 0"
     follows="left|right|top"
-    height="10"
+    height="100"
     label="info_panel"
     layout="topleft"
     left="0"
     name="info_panel"
     top="0"
     width="305">
-  <!--  <text
+    <text
       border_visible="false"
       follows="left|right|top|bottom"
       font="SansSerif"
-      height="90"
+      height="85"
       layout="topleft"
       left="10"
       name="text_box"
@@ -39,21 +39,21 @@
       text_color="white"
       top="10"
       visible="false" 
-      width="300"
+      width="285"
       wrap="true"/>
     <text
       border_visible="false"
       follows="left|right|top|bottom"
       font="SansSerifBold"
-      height="90"
+      height="85"
       layout="topleft"
-      left="45"
+      left="10"
       name="caution_text_box"
       text_color="1 0.82 0.46 1"
-      top="5"
+      top="10"
       visible="false"
-      width="300"
-      wrap="true"/>  -->
+      width="285"
+      wrap="true"/>
     <text_editor
     	h_pad="0"
 	v_pad="0"
@@ -63,6 +63,7 @@
       enabled="false"
       follows="left|right|top|bottom"
       font="SansSerif"
+      height="85" 
       layout="topleft"
       left="10"
       mouse_opaque="false"
@@ -74,27 +75,19 @@
       top="10"
       visible="false"
       width="285"
-      wrap="true"/>
+      wrap="true"
+      parse_highlights="true"
+      allow_html="true"/>
   </panel>
   <panel
     background_visible="false"
     follows="left|right|bottom"
+    height="40" 
     label="control_panel"
     layout="topleft"
     left="0"
     left_delta="-38"
     name="control_panel"
-    top="20">
+    top_pad="0">
   </panel>
-  <!--
-  <icon
-    follows="left|top"
-    height="32"
-    image_name="notify_tip_icon.tga"
-    layout="topleft"
-    left="8"
-    mouse_opaque="false"
-    name="info_icon"
-    top="20"
-    width="32" />  -->
 </panel>

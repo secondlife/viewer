@@ -4,13 +4,17 @@
  can_close="false"
  can_minimize="false"
  can_tear_off="false"
- height="200"
+ height="125"
  layout="topleft"
  name="incoming call"
  help_topic="incoming_call"
  title="UNKNOWN PERSON IS CALLING"
- width="240">
-     <floater.string
+ width="410">
+    <floater.string
+     name="localchat">
+        Nearby Voice Chat
+    </floater.string>
+    <floater.string
      name="anonymous">
         anonymous
     </floater.string>
@@ -31,18 +35,26 @@
      left_delta="19"
      top="35"
      width="36" />
-    <text_editor
-     font="SansSerif"
-     height="64"
-     border_visible="false"
+    <text
+     font="SansSerifLarge"
+     height="20"
      layout="topleft"
      left="77"
-     max_length="2147483647"
      name="caller name"
-     read_only="true"
-     top="21"
-     width="163"
+     top="27"
+     width="315"
      word_wrap="true" />
+    <text
+     font="SansSerif"
+     height="50"
+     layout="topleft"
+     left="77"
+     name="question"
+     top="52"
+     width="315"
+     word_wrap="true">
+     Do you want to leave [CURRENT_CHAT] and join this voice chat?
+    </text>
     <button
      height="24"
      label="Accept"
@@ -57,16 +69,14 @@
      label="Reject"
      label_selected="Reject"
      layout="topleft"
-     left_delta="0"
      name="Reject"
-     top_pad="12"
+     left_pad="10"
      width="100" />
     <button
      height="24"
      label="Start IM"
      layout="topleft"
-     left_delta="0"
      name="Start IM"
-     top_pad="12"
+     left_pad="10"
      width="100" />
 </floater>

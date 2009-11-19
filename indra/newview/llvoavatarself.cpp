@@ -487,18 +487,10 @@ BOOL LLVOAvatarSelf::buildMenus()
 		}
 
 		// add in requested order to pie menu, inserting separators as necessary
-		S32 cur_pie_slice = 0;
 		for (std::multimap<S32, S32>::iterator attach_it = attachment_pie_menu_map.begin();
 			 attach_it != attachment_pie_menu_map.end(); ++attach_it)
 		{
-			S32 requested_pie_slice = attach_it->first;
 			S32 attach_index = attach_it->second;
-			while (cur_pie_slice < requested_pie_slice)
-			{
-				gAttachBodyPartPieMenus[group]->addSeparator();
-				gDetachBodyPartPieMenus[group]->addSeparator();
-				cur_pie_slice++;
-			}
 
 			LLViewerJointAttachment* attachment = get_if_there(mAttachmentPoints, attach_index, (LLViewerJointAttachment*)NULL);
 			if (attachment)
@@ -520,7 +512,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 				item_params.on_enable.parameter = attach_index;
 				item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 				gDetachBodyPartPieMenus[group]->addChild(item);
-				cur_pie_slice++;
 			}
 		}
 	}
@@ -1039,7 +1030,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 	if (attachment->isObjectAttached(viewer_object))
 	{
 		const LLUUID& attachment_id = viewer_object->getItemID();
-		LLAppearanceManager::registerAttachment(attachment_id);
+		LLAppearanceManager::instance().registerAttachment(attachment_id);
 	}
 
 	return attachment;
@@ -1078,7 +1069,7 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 		}
 		else
 		{
-			LLAppearanceManager::unregisterAttachment(attachment_id);
+			LLAppearanceManager::instance().unregisterAttachment(attachment_id);
 		}
 		
 		return TRUE;
@@ -1587,7 +1578,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 			llinfos << "LocTex " << name << ": Baked " << getTEImage(baked_equiv)->getID() << llendl;
 #endif
 		}
-		else if (local_tex_obj->getImage() != NULL)
+		else if (local_tex_obj && local_tex_obj->getImage() != NULL)
 		{
 			if (local_tex_obj->getImage()->getID() == IMG_DEFAULT_AVATAR)
 			{
@@ -2082,6 +2073,49 @@ void LLVOAvatarSelf::setInvisible(BOOL newvalue)
 		gAgent.sendAgentSetAppearance();
 	}
 }
+
+// HACK: this will null out the avatar's local texture IDs before the TE message is sent
+//       to ensure local texture IDs are not sent to other clients in the area.
+//       this is a short-term solution. The long term solution will be to not set the texture
+//       IDs in the avatar object, and keep them only in the wearable.
+//       This will involve further refactoring that is too risky for the initial release of 2.0.
+bool LLVOAvatarSelf::sendAppearanceMessage(LLMessageSystem *mesgsys) const
+{
+	LLUUID texture_id[TEX_NUM_INDICES];
+	// pack away current TEs to make sure we don't send them out
+	for (LLVOAvatarDictionary::Textures::const_iterator iter = LLVOAvatarDictionary::getInstance()->getTextures().begin();
+		 iter != LLVOAvatarDictionary::getInstance()->getTextures().end();
+		 ++iter)
+	{
+		const ETextureIndex index = iter->first;
+		const LLVOAvatarDictionary::TextureEntry *texture_dict = iter->second;
+		if (!texture_dict->mIsBakedTexture)
+		{
+			LLTextureEntry* entry = getTE((U8) index);
+			texture_id[index] = entry->getID();
+			entry->setID(IMG_DEFAULT_AVATAR);
+		}
+	}
+
+	bool success = packTEMessage(mesgsys);
+
+	// unpack TEs to make sure we don't re-trigger a bake
+	for (LLVOAvatarDictionary::Textures::const_iterator iter = LLVOAvatarDictionary::getInstance()->getTextures().begin();
+		 iter != LLVOAvatarDictionary::getInstance()->getTextures().end();
+		 ++iter)
+	{
+		const ETextureIndex index = iter->first;
+		const LLVOAvatarDictionary::TextureEntry *texture_dict = iter->second;
+		if (!texture_dict->mIsBakedTexture)
+		{
+			LLTextureEntry* entry = getTE((U8) index);
+			entry->setID(texture_id[index]);
+		}
+	}
+
+	return success;
+}
+
 
 //------------------------------------------------------------------------
 // needsRenderBeam()

@@ -73,9 +73,9 @@ LLLoginInstance::LLLoginInstance() :
 {
 	mLoginModule->getEventPump().listen("lllogininstance", 
 		boost::bind(&LLLoginInstance::handleLoginEvent, this, _1));
-	mDispatcher.add("fail.login", "", boost::bind(&LLLoginInstance::handleLoginFailure, this, _1));
-	mDispatcher.add("connect",    "", boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
-	mDispatcher.add("disconnect", "", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
+	mDispatcher.add("fail.login", boost::bind(&LLLoginInstance::handleLoginFailure, this, _1));
+	mDispatcher.add("connect",    boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
+	mDispatcher.add("disconnect", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
 }
 
 LLLoginInstance::~LLLoginInstance()
@@ -182,6 +182,9 @@ void LLLoginInstance::constructAuthParams(const LLSD& credentials)
 	mRequestData["method"] = "login_to_simulator";
 	mRequestData["params"] = request_params;
 	mRequestData["options"] = requested_options;
+
+	mRequestData["cfg_srv_timeout"] = gSavedSettings.getF32("LoginSRVTimeout");
+	mRequestData["cfg_srv_pump"] = gSavedSettings.getString("LoginSRVPump");
 }
 
 bool LLLoginInstance::handleLoginEvent(const LLSD& event)

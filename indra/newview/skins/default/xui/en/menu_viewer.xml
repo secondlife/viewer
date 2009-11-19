@@ -1642,6 +1642,17 @@
              function="ToggleControl"
              parameter="MouseSmooth" />
         </menu_item_check>
+        <menu_item_check
+         label="Show IMs in Nearby Chat"
+         layout="topleft"
+         name="IMInChat">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="IMInChat" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="IMInChat" />
+        </menu_item_check>
         <menu_item_separator
          layout="topleft" />
         <menu
@@ -2176,7 +2187,7 @@
                  function="Advanced.ForceErrorDisconnectViewer" />
             </menu_item_call>
             <menu_item_call
-             label="Simulate a Memory Leak..."
+             label="Simulate a Memory Leak"
              layout="topleft"
              name="Memory Leaking Simulation">
                <menu_item_call.on_click
@@ -2453,7 +2464,7 @@
                  function="Advanced.EnableRenderDeferred" />
           </menu_item_check>
           <menu_item_check
-                   label="Global Illumintation"
+                   label="Global Illumination"
                    name="Global Illumination">
             <menu_item_check.on_check
              function="CheckControl"
@@ -2572,10 +2583,10 @@
              name="Hover Glow Objects">
                 <menu_item_check.on_check
                  function="CheckControl"
-                 parameter="RenderHighlightEnable" />
+                 parameter="RenderHoverGlowEnable" />
                 <menu_item_check.on_click
                  function="ToggleControl"
-                 parameter="RenderHighlightEnable" />
+                 parameter="RenderHoverGlowEnable" />
             </menu_item_check>
         </menu>
 
@@ -2944,14 +2955,14 @@
                  parameter="font_test" />
             </menu_item_call>
             <menu_item_call
-             label="Load from XML..."
+             label="Load from XML"
              layout="topleft"
              name="Load from XML">
                 <menu_item_call.on_click
                  function="Advanced.LoadUIFromXML" />
             </menu_item_call>
             <menu_item_call
-             label="Save to XML..."
+             label="Save to XML"
              layout="topleft"
              name="Save to XML">
                 <menu_item_call.on_click

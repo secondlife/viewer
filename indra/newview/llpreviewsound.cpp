@@ -75,7 +75,7 @@ BOOL	LLPreviewSound::postBuild()
 	button->setSoundFlags(LLView::SILENT);
 
 	childSetCommitCallback("desc", LLPreview::onText, this);
-	childSetPrevalidate("desc", &LLLineEditor::prevalidatePrintableNotPipe);	
+	childSetPrevalidate("desc", &LLLineEditor::prevalidateASCIIPrintableNoPipe);	
 
 	return LLPreview::postBuild();
 }

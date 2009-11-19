@@ -253,6 +253,7 @@ set(viewer_SOURCE_FILES
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
     llinventorymodel.cpp
+    llinventoryobserver.cpp
     llinventorypanel.cpp
     llinventorysubtreepanel.cpp
     lljoystickbutton.cpp
@@ -297,8 +298,6 @@ set(viewer_SOURCE_FILES
     llnotify.cpp
     lloutputmonitorctrl.cpp
     lloverlaybar.cpp
-    llpanelappearance.cpp
-    llpanelappearancetab.cpp
     llpanelavatar.cpp
     llpanelavatarrow.cpp
     llpanelavatartag.cpp
@@ -322,7 +321,6 @@ set(viewer_SOURCE_FILES
     llpanellandmedia.cpp
     llpanellogin.cpp
     llpanellookinfo.cpp
-    llpanellooks.cpp
     llpanelmaininventory.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
@@ -330,6 +328,7 @@ set(viewer_SOURCE_FILES
     llpanelmeprofile.cpp
     llpanelobject.cpp
     llpanelobjectinventory.cpp
+    llpaneloutfitsinventory.cpp
     llpanelpeople.cpp
     llpanelpeoplemenus.cpp
     llpanelpermissions.cpp
@@ -370,6 +369,7 @@ set(viewer_SOURCE_FILES
     llsearchcombobox.cpp
     llsearchhistory.cpp
     llselectmgr.cpp
+    llsidepanelappearance.cpp
     llsidepanelinventory.cpp
     llsidepanelinventorysubpanel.cpp
     llsidepaneliteminfo.cpp
@@ -447,6 +447,7 @@ set(viewer_SOURCE_FILES
     llviewerassettype.cpp
     llvieweraudio.cpp
     llviewercamera.cpp
+	llviewerchat.cpp
     llviewercontrol.cpp
     llviewercontrollistener.cpp
     llviewerdisplay.cpp
@@ -749,6 +750,7 @@ set(viewer_HEADER_FILES
     llinventoryfilter.h
     llinventoryfunctions.h
     llinventorymodel.h
+    llinventoryobserver.h
     llinventorypanel.h
     llinventorysubtreepanel.h
     lljoystickbutton.h
@@ -790,8 +792,6 @@ set(viewer_HEADER_FILES
     llnotify.h
     lloutputmonitorctrl.h
     lloverlaybar.h
-    llpanelappearance.h
-    llpanelappearancetab.h
     llpanelavatar.h
     llpanelavatarrow.h
     llpanelavatartag.h
@@ -815,7 +815,6 @@ set(viewer_HEADER_FILES
     llpanellandmedia.h
     llpanellogin.h
     llpanellookinfo.h
-    llpanellooks.h
     llpanelmaininventory.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
@@ -823,6 +822,7 @@ set(viewer_HEADER_FILES
     llpanelmeprofile.h
     llpanelobject.h
     llpanelobjectinventory.h
+    llpaneloutfitsinventory.h
     llpanelpeople.h
     llpanelpeoplemenus.h
     llpanelpermissions.h
@@ -865,6 +865,7 @@ set(viewer_HEADER_FILES
     llsearchcombobox.h
     llsearchhistory.h
     llselectmgr.h
+    llsidepanelappearance.h
     llsidepanelinventory.h
     llsidepanelinventorysubpanel.h
     llsidepaneliteminfo.h
@@ -945,6 +946,7 @@ set(viewer_HEADER_FILES
     llvieweraudio.h
     llviewerbuild.h
     llviewercamera.h
+	llviewerchat.h
     llviewercontrol.h
     llviewercontrollistener.h
     llviewerdisplay.h

@@ -663,7 +663,10 @@
      value="0.812 0.753 0.451 1" />
     <color
      name="ToolTipTextColor"
-     value="0.749 0.749 0.749 1" />
+     reference="DkGray2" />
+    <color
+     name="InspectorTipTextColor"
+     reference="LtGray" />
     <color
      name="UserChatColor"
      reference="LtGray" />

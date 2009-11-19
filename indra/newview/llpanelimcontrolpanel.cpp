@@ -43,6 +43,8 @@
 #include "llparticipantlist.h"
 #include "llimview.h"
 #include "llvoicechannel.h"
+#include "llsidetray.h"
+#include "lltrans.h"
 
 void LLPanelChatControlPanel::onCallButtonClicked()
 {
@@ -158,7 +160,13 @@ void LLPanelIMControlPanel::onAddFriendButtonClicked()
 
 void LLPanelIMControlPanel::onShareButtonClicked()
 {
-	// *TODO: Implement
+	LLSD key;
+	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+
+	if (gIMMgr->hasSession(getSessionId()))
+	{
+		LLIMModel::getInstance()->addMessage(getSessionId(), SYSTEM_FROM, LLUUID::null, LLTrans::getString("share_alert"), false);
+	}
 }
 
 void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
@@ -174,10 +182,8 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 
 	getChild<LLAvatarIconCtrl>("avatar_icon")->setValue(mAvatarID);
 
-	// Fetch the currect name
-	gCacheName->get(mAvatarID, FALSE, boost::bind(&LLPanelIMControlPanel::nameUpdatedCallback, this, _1, _2, _3, _4));
-
-	// Disable profile button if participant is not realy SL avatar
+	// Disable most profile buttons if the participant is
+	// not really an SL avatar (e.g., an Avaline caller).
 	LLIMModel::LLIMSession* im_session =
 		im_model.findIMSession(session_id);
 	if( im_session && !im_session->mOtherParticipantIsAvatar )
@@ -188,6 +194,13 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 		childSetEnabled("share_btn", FALSE);
 		childSetEnabled("teleport_btn", FALSE);
 		childSetEnabled("pay_btn", FALSE);
+
+        getChild<LLTextBox>("avatar_name")->setValue(im_session->mName);
+	}
+	else
+	{
+		// If the participant is an avatar, fetch the currect name
+		gCacheName->get(mAvatarID, FALSE, boost::bind(&LLPanelIMControlPanel::nameUpdatedCallback, this, _1, _2, _3, _4));
 	}
 }
 

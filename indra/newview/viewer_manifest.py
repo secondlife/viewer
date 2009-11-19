@@ -221,10 +221,12 @@ class WindowsManifest(ViewerManifest):
 
     def construct(self):
         super(WindowsManifest, self).construct()
+
+        self.enable_crt_manifest_check()
+
         # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
         self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
-        self.enable_crt_manifest_check()
 
         # Plugin host application
         self.path(os.path.join(os.pardir,
@@ -241,7 +243,7 @@ class WindowsManifest(ViewerManifest):
             
             # Get kdu dll, continue if missing.
             try:
-                self.path('%s/llkdu.dll' % self.args['configuration'], dst='llkdu.dll')
+                self.path('llkdu.dll', dst='llkdu.dll')
             except RuntimeError:
                 print "Skipping llkdu.dll"
 

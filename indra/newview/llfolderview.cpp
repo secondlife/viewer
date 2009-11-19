@@ -220,7 +220,7 @@ LLFolderView::LLFolderView(const Params& p)
 	params.font(getLabelFontForStyle(LLFontGL::NORMAL));
 	params.max_length_bytes(DB_INV_ITEM_NAME_STR_LEN);
 	params.commit_callback.function(boost::bind(&LLFolderView::commitRename, this, _2));
-	params.prevalidate_callback(&LLLineEditor::prevalidatePrintableNotPipe);
+	params.prevalidate_callback(&LLLineEditor::prevalidateASCIIPrintableNoPipe);
 	params.commit_on_focus_lost(true);
 	params.visible(false);
 	mRenamer = LLUICtrlFactory::create<LLLineEditor> (params);
@@ -909,11 +909,7 @@ void LLFolderView::finishRenamingItem( void )
 		mRenameItem->rename( mRenamer->getText() );
 	}
 
-	mRenamer->setCommitOnFocusLost( FALSE );
-	mRenamer->setFocus( FALSE );
-	mRenamer->setVisible( FALSE );
-	mRenamer->setCommitOnFocusLost( TRUE );
-	gFocusMgr.setTopCtrl( NULL );
+	gFocusMgr.setTopCtrl( NULL );	
 
 	if( mRenameItem )
 	{

@@ -82,7 +82,7 @@ LLSearchComboBox::LLSearchComboBox(const Params&p)
 	setButtonVisible(p.dropdown_button_visible);
 	mTextEntry->setCommitCallback(boost::bind(&LLComboBox::onTextCommit, this, _2));
 	mTextEntry->setKeystrokeCallback(boost::bind(&LLComboBox::onTextEntry, this, _1), NULL);
-	setSelectionCallback(boost::bind(&LLSearchComboBox::onSelectionCommit, this));
+	setCommitCallback(boost::bind(&LLSearchComboBox::onSelectionCommit, this));
 	setPrearrangeCallback(boost::bind(&LLSearchComboBox::onSearchPrearrange, this, _2));
 	mSearchButton->setCommitCallback(boost::bind(&LLSearchComboBox::onTextCommit, this, _2));
 }

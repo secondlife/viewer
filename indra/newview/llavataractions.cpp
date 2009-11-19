@@ -190,9 +190,22 @@ void LLAvatarActions::startIM(const LLUUID& id)
 }
 
 // static
+void LLAvatarActions::endIM(const LLUUID& id)
+{
+	if (id.isNull())
+		return;
+	
+	LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL, id);
+	if (session_id != LLUUID::null)
+	{
+		gIMMgr->leaveSession(session_id);
+	}
+}
+
+// static
 void LLAvatarActions::startCall(const LLUUID& id)
 {
-	if (id.isNull() || isCalling(id))
+	if (id.isNull())
 	{
 		return;
 	}
