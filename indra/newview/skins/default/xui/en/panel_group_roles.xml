@@ -244,9 +244,9 @@ things in this group. There&apos;s a broad variety of Abilities.
      layout="topleft"
      follows="left|top"
      left="0"
+     mouse_opaque="false" 
      name="members_footer"
      top="300"
-     top_delta="0"
      visible="false"
      width="310">
         <text
