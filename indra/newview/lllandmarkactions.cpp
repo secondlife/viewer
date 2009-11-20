@@ -376,7 +376,7 @@ bool LLLandmarkActions::getLandmarkGlobalPos(const LLUUID& landmarkInventoryItem
 {
 	LLViewerInventoryItem* item = gInventory.getItem(landmarkInventoryItemID);
 	if (NULL == item)
-		return NULL;
+		return false;
 
 	const LLUUID& asset_id = item->getAssetUUID();
 
