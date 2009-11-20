@@ -324,6 +324,12 @@ void LLAvatarActions::pay(const LLUUID& id)
 	}
 }
 
+//static 
+void LLAvatarActions::share(const LLUUID& id)
+{
+	// TODO: share items with selected avatar
+}
+
 // static
 void LLAvatarActions::toggleBlock(const LLUUID& id)
 {
