@@ -352,6 +352,8 @@ void LLPanelLandmarkInfo::createLandmark(const LLUUID& folder_id)
 	}
 
 	LLStringUtil::replaceChar(desc, '\n', ' ');
+	LLViewerInventoryItem::insertDefaultSortField(name);
+
 	// If no folder chosen use the "Landmarks" folder.
 	LLLandmarkActions::createLandmarkHere(name, desc,
 		folder_id.notNull() ? folder_id : gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK));

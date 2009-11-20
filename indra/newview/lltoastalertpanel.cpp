@@ -53,6 +53,7 @@
 #include "lluictrlfactory.h"
 #include "llnotifications.h"
 #include "llfunctorregistry.h"
+#include "llrootview.h"
 
 const S32 MAX_ALLOWED_MSG_WIDTH = 400;
 const F32 DEFAULT_BUTTON_DELAY = 0.5f;
@@ -220,16 +221,13 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	static LLUIColor alert_text_color = LLUIColorTable::instance().getColor("AlertTextColor");
 	if (mCaution)
 	{
-		LLIconCtrl::Params params;
-		params.name("icon");
-		params.rect(LLRect(msg_x, msg_y, msg_x+32, msg_y-32));
-		params.mouse_opaque(false);
-		params.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
-		params.tab_stop(false);
-		LLIconCtrl * icon = LLUICtrlFactory::create<LLIconCtrl> (params);
-		icon->setValue ("notify_caution_icon.tga");
-		icon->setMouseOpaque(FALSE);
-		LLToastPanel::addChild(icon);
+		LLIconCtrl* icon = LLUICtrlFactory::getInstance()->createFromFile<LLIconCtrl>("alert_icon.xml", this, LLPanel::child_registry_t::instance());
+		if(icon)
+		{
+			icon->setRect(LLRect(msg_x, msg_y, msg_x+32, msg_y-32));
+			LLToastPanel::addChild(icon);
+		}
+		
 		msg_x += 32 + HPAD;
 		msg_box->setColor( alert_caution_text_color );
 	}
@@ -245,29 +243,30 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 
 	// Buttons	
 	S32 button_left = (LLToastPanel::getRect().getWidth() - btn_total_width) / 2;
-
+	
 	for( S32 i = 0; i < num_options; i++ )
 	{
 		LLRect button_rect;
-		button_rect.setOriginAndSize( button_left, VPAD, button_width, BTN_HEIGHT );
-
-		LLButton::Params p;
-		p.name(options[i].first);
-		p.rect(button_rect);
-		p.click_callback.function(boost::bind(&LLToastAlertPanel::onButtonPressed, this, _2, i));
-		p.font(font);
-		p.label(options[i].second);
-
-		LLButton* btn = LLUICtrlFactory::create<LLButton>(p);
-		mButtonData[i].mButton = btn;
-
-		LLToastPanel::addChild(btn);
-
-		if( i == mDefaultOption )
+		
+		LLButton* btn = LLUICtrlFactory::getInstance()->createFromFile<LLButton>("alert_button.xml", this, LLPanel::child_registry_t::instance());
+		if(btn)
 		{
-			btn->setFocus(TRUE);
-		}
+			btn->setName(options[i].first);
+			btn->setRect(button_rect.setOriginAndSize( button_left, VPAD, button_width, BTN_HEIGHT ));
+			btn->setLabel(options[i].second);
+			btn->setFont(font);
+			
+			btn->setClickedCallback(boost::bind(&LLToastAlertPanel::onButtonPressed, this, _2, i));
 
+			mButtonData[i].mButton = btn;
+
+			LLToastPanel::addChild(btn);
+
+			if( i == mDefaultOption )
+			{
+				btn->setFocus(TRUE);
+			}
+		}
 		button_left += button_width + BTN_HPAD;
 	}
 
@@ -275,25 +274,26 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	if (!edit_text_name.empty())
 	{
 		S32 y = VPAD + BTN_HEIGHT + VPAD/2;
-
-		LLLineEditor::Params params;
-		params.name(edit_text_name);
-		params.rect(LLRect( HPAD, y+EDITOR_HEIGHT, dialog_width-HPAD, y));
-		params.default_text(edit_text_contents);
-		params.max_length_bytes(STD_STRING_STR_LEN);
-		mLineEditor = LLUICtrlFactory::create<LLLineEditor> (params);
-
-		// make sure all edit keys get handled properly (DEV-22396)
-		mLineEditor->setHandleEditKeysDirectly(TRUE);
-
-		LLToastPanel::addChild(mLineEditor);
-	}
+		mLineEditor = LLUICtrlFactory::getInstance()->createFromFile<LLLineEditor>("alert_line_editor.xml", this, LLPanel::child_registry_t::instance());
 	
-	if (mLineEditor)
-	{
-		mLineEditor->setDrawAsterixes(is_password);
+		if (mLineEditor)
+		{
+			LLRect leditor_rect = LLRect( HPAD, y+EDITOR_HEIGHT, dialog_width-HPAD, y);
+			mLineEditor->setName(edit_text_name);
+			mLineEditor->reshape(leditor_rect.getWidth(), leditor_rect.getHeight());
+			mLineEditor->setRect(leditor_rect);
+			mLineEditor->setText(edit_text_contents);
+			mLineEditor->setMaxTextLength(STD_STRING_STR_LEN);
 
-		setEditTextArgs(notification->getSubstitutions());
+			// make sure all edit keys get handled properly (DEV-22396)
+			mLineEditor->setHandleEditKeysDirectly(TRUE);
+
+			LLToastPanel::addChild(mLineEditor);
+
+			mLineEditor->setDrawAsterixes(is_password);
+
+			setEditTextArgs(notification->getSubstitutions());
+		}
 	}
 
 	std::string ignore_label;
@@ -323,7 +323,14 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 
 bool LLToastAlertPanel::setCheckBox( const std::string& check_title, const std::string& check_control )
 {
-	const LLFontGL* font = LLFontGL::getFontSansSerif();
+	mCheck = LLUICtrlFactory::getInstance()->createFromFile<LLCheckBoxCtrl>("alert_check_box.xml", this, LLPanel::child_registry_t::instance());
+
+	if(!mCheck)
+	{
+		return false;
+	}
+
+	const LLFontGL* font =  mCheck->getFont();
 	const S32 LINE_HEIGHT = llfloor(font->getLineHeight() + 0.99f);
 	
 	// Extend dialog for "check next time"
@@ -339,14 +346,13 @@ bool LLToastAlertPanel::setCheckBox( const std::string& check_title, const std::
 	LLToastPanel::reshape( dialog_width, dialog_height, FALSE );
 
 	S32 msg_x = (LLToastPanel::getRect().getWidth() - max_msg_width) / 2;
+
+	// set check_box's attributes
+	LLRect check_rect;
+	mCheck->setRect(check_rect.setOriginAndSize(msg_x, VPAD+BTN_HEIGHT+LINE_HEIGHT/2, max_msg_width, LINE_HEIGHT));
+	mCheck->setLabel(check_title);
+	mCheck->setCommitCallback(boost::bind(&LLToastAlertPanel::onClickIgnore, this, _1));
 	
-	LLCheckBoxCtrl::Params p;
-	p.name("check");
-	p.rect.left(msg_x).bottom(VPAD+BTN_HEIGHT+LINE_HEIGHT/2).width(max_msg_width).height(LINE_HEIGHT);
-	p.label(check_title);
-	p.font(font);
-	p.commit_callback.function(boost::bind(&LLToastAlertPanel::onClickIgnore, this, _1));
-	mCheck = LLUICtrlFactory::create<LLCheckBoxCtrl>(p);
 	LLToastPanel::addChild(mCheck);
 
 	return true;

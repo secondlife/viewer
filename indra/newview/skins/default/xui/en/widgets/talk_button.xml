@@ -6,6 +6,7 @@
     image_unselected="SegmentedBtn_Left_Off"
   -->
   <speak_button
+    follows="left|right" 
     name="left"
     label="Speak"
     label_selected="Speak"
@@ -13,6 +14,7 @@
     tab_stop="false"
     />
   <show_button
+    follows="right" 
     name="right"
     label=""
     left="0"
@@ -25,6 +27,7 @@
     image_unselected="ComboButton_UpOff"
     />
   <monitor
+    follows="right" 
     name="monitor"
     left="0"
     top="18"
