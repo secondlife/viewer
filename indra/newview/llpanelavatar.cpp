@@ -38,6 +38,7 @@
 #include "llavatarconstants.h"	// AVATAR_ONLINE
 #include "llcallingcard.h"
 #include "llcombobox.h"
+#include "lldateutil.h"			// ageFromDate()
 #include "llimview.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
@@ -466,8 +467,11 @@ void LLPanelAvatarProfile::fillCommonData(const LLAvatarData* avatar_data)
 	//remove avatar id from cache to get fresh info
 	LLAvatarIconIDCache::getInstance()->remove(avatar_data->avatar_id);
 
-
-	childSetValue("register_date", avatar_data->born_on );
+	LLStringUtil::format_map_t args;
+	args["[REG_DATE]"] = avatar_data->born_on;
+	args["[AGE]"] = LLDateUtil::ageFromDate( avatar_data->born_on, LLDate::now());
+	std::string register_date = getString("RegisterDateFormat", args);
+	childSetValue("register_date", register_date );
 	childSetValue("sl_description_edit", avatar_data->about_text);
 	childSetValue("fl_description_edit",avatar_data->fl_about_text);
 	childSetValue("2nd_life_pic", avatar_data->image_id);
