@@ -87,9 +87,9 @@
            <button
               follows="top|left"
               height="18"
-              image_disabled="AddItem_Disabled"
-              image_selected="AddItem_Press"
-              image_unselected="AddItem_Off"
+              image_disabled="MinusItem_Disabled"
+              image_selected="MinusItem_Press"
+              image_unselected="MinusItem_Off"
               layout="topleft"
               name="zoom_minus_btn"
               top_pad="0"

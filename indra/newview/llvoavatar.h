@@ -889,7 +889,7 @@ public:
 	static void			dumpArchetypeXML(void*);
 	static void			dumpBakedStatus();
 	const std::string 	getBakedStatusForPrintout() const;
-	void				dumpAvatarTEs(const std::string& context);
+	void				dumpAvatarTEs(const std::string& context) const;
 
 	static F32 			sUnbakedTime; // Total seconds with >=1 unbaked avatars
 	static F32 			sUnbakedUpdateTime; // Last time stats were updated (to prevent multiple updates per frame) 

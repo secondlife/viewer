@@ -54,12 +54,6 @@ public:
 	void wearOutfitByName(const std::string& name);
 	void changeOutfit(bool proceed, const LLUUID& category, bool append);
 
-	// Add COF link to individual item.
-	void addItemLink(LLInventoryItem* item, bool do_update = true);
-
-	// Add COF link to ensemble folder.
-	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);
-
 	// Copy all items in a category.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
 							 LLPointer<LLInventoryCallback> cb);
@@ -67,8 +61,8 @@ public:
 	// Find the Current Outfit folder.
 	LLUUID getCOF();
 
-	// Remove COF entries
-	void removeItemLinks(const LLUUID& item_id, bool do_update = true);
+	// Finds the folder link to the currently worn outfit
+	const LLViewerInventoryItem *getCurrentOutfitLink();
 
 	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
 
@@ -86,6 +80,16 @@ public:
 	void linkAll(const LLUUID& category,
 				 LLInventoryModel::item_array_t& items,
 				 LLPointer<LLInventoryCallback> cb);
+
+	// Add COF link to individual item.
+	void addCOFItemLink(const LLUUID& item_id, bool do_update = true);
+	void addCOFItemLink(const LLInventoryItem *item, bool do_update = true);
+
+	// Remove COF entries
+	void removeCOFItemLinks(const LLUUID& item_id, bool do_update = true);
+
+	// Add COF link to ensemble folder.
+	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);
 
 protected:
 	LLAppearanceManager();

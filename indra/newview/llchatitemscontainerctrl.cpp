@@ -187,8 +187,18 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 			msg_text->setText(mFromName, style_params);
 		}
 		mText = mText.substr(3);
-		style_params.font.style = "UNDERLINE";
+		style_params.font.style = "ITALIC";
+#define INFINITE_REFLOW_BUG 0
+#if INFINITE_REFLOW_BUG
+		// This causes LLTextBase::reflow() to infinite loop until the viewer
+		// runs out of memory, throws a bad_alloc exception from std::vector
+		// in mLineInfoList, and the main loop catches it and continues.
+		// It appears to be caused by addText() adding a line separator in the
+		// middle of a line.  See EXT-2579, EXT-1949
 		msg_text->addText(mText,style_params);
+#else
+		msg_text->appendText(mText, FALSE, style_params);
+#endif
 	}
 	else 
 	{

@@ -140,6 +140,9 @@ public:
 	virtual std::string getCapabilityUrl(const std::string &name) const
 		{ return mObject->getRegion()->getCapability(name); }
 	
+	virtual bool isDead() const
+		{ return mObject->isDead(); }
+	
 private:
 	LLPointer<LLVOVolume> mObject;
 };
@@ -181,6 +184,22 @@ LLVOVolume::~LLVOVolume()
 			}
 		}
 	}
+}
+
+void LLVOVolume::markDead()
+{
+	if (!mDead)
+	{
+		// TODO: tell LLMediaDataClient to remove this object from its queue
+		
+		// Detach all media impls from this object
+		for(U32 i = 0 ; i < mMediaImplList.size() ; i++)
+		{
+			removeMediaImpl(i);
+		}
+	}
+	
+	LLViewerObject::markDead();
 }
 
 
@@ -1708,6 +1727,12 @@ void LLVOVolume::updateObjectMediaData(const LLSD &media_data_array)
 
 void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool merge, bool ignore_agent)
 {
+	if(mDead)
+	{
+		// If the object has been marked dead, don't process media updates.
+		return;
+	}
+	
 	LLTextureEntry *te = getTE(texture_index);
 	//llinfos << "BEFORE: texture_index = " << texture_index
 	//	<< " hasMedia = " << te->hasMedia() << " : " 

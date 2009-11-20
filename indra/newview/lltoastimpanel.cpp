@@ -64,7 +64,7 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 		style_params.font.style ="ITALIC";
 		mMessage->appendText(p.from + " ", FALSE, style_params);
 
-		style_params.font.style = "UNDERLINE";
+		style_params.font.style = "ITALIC";
 		mMessage->appendText(p.message.substr(3), FALSE, style_params);
 	}
 	else

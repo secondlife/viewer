@@ -31,73 +31,37 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
-#include <utility> // for std::pair<>
-
-#include "llfloaterinventory.h"
 #include "llinventorybridge.h"
-
-#include "message.h"
 
 #include "llagent.h"
 #include "llagentwearables.h"
-#include "llcallingcard.h"
-#include "llcheckboxctrl.h"		// for radio buttons
-#include "llfloaterreg.h"
-#include "llradiogroup.h"
-#include "llspinctrl.h"
-#include "lltextbox.h"
-#include "llui.h"
-
-#include "llviewercontrol.h"
-#include "llfirstuse.h"
-#include "llfoldertype.h"
-#include "llfloaterchat.h"
-#include "llfloatercustomize.h"
-#include "llfloaterproperties.h"
-#include "llfloaterworldmap.h"
-#include "llfocusmgr.h"
-#include "llfolderview.h"
-#include "llfriendcard.h"
+#include "llappearancemgr.h"
 #include "llavataractions.h"
+#include "llfloatercustomize.h"
+#include "llfloaterinventory.h"
+#include "llfloateropenobject.h"
+#include "llfloaterreg.h"
+#include "llfloaterworldmap.h"
+#include "llfriendcard.h"
 #include "llgesturemgr.h"
-#include "lliconctrl.h"
+#include "llimfloater.h"
+#include "llimview.h"
+#include "llinventoryclipboard.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorypanel.h"
-#include "llinventoryclipboard.h"
-#include "lllineeditor.h"
-#include "llmenugl.h"
 #include "llpreviewanim.h"
 #include "llpreviewgesture.h"
-#include "llpreviewnotecard.h"
-#include "llpreviewscript.h"
-#include "llpreviewsound.h"
 #include "llpreviewtexture.h"
-#include "llresmgr.h"
-#include "llscrollcontainer.h"
-#include "llimview.h"
-#include "lltooldraganddrop.h"
-#include "llviewerfoldertype.h"
-#include "llviewertexturelist.h"
-#include "llviewerinventory.h"
-#include "llviewerobjectlist.h"
-#include "llviewerwindow.h"
-#include "llvoavatar.h"
-#include "llwearable.h"
-#include "llwearablelist.h"
-#include "llviewerassettype.h"
-#include "llviewermessage.h"
-#include "llviewerregion.h"
-#include "llvoavatarself.h"
-#include "lltabcontainer.h"
-#include "lluictrlfactory.h"
 #include "llselectmgr.h"
 #include "llsidetray.h"
-#include "llfloateropenobject.h"
 #include "lltrans.h"
-#include "llappearancemgr.h"
-#include "llimfloater.h"
+#include "llviewerassettype.h"
+#include "llviewermessage.h"
+#include "llviewerobjectlist.h"
+#include "llviewerwindow.h"
+#include "llvoavatarself.h"
+#include "llwearablelist.h"
 
 using namespace LLOldEvents;
 
@@ -217,37 +181,6 @@ BOOL LLInvFVBridge::isItemRemovable()
 		return TRUE;
 	}
 	return FALSE;
-}
-
-// Sends an update to all link items that point to the base item.
-void LLInvFVBridge::renameLinkedItems(const LLUUID &item_id, const std::string& new_name)
-{
-	LLInventoryModel* model = getInventoryModel();
-	if(!model) return;
-
-	LLInventoryItem* itemp = model->getItem(mUUID);
-	if (!itemp) return;
-
-	if (itemp->getIsLinkType())
-	{
-		return;
-	}
-
-	LLInventoryModel::item_array_t item_array = model->collectLinkedItems(item_id);
-	for (LLInventoryModel::item_array_t::iterator iter = item_array.begin();
-		 iter != item_array.end();
-		 iter++)
-	{
-		LLViewerInventoryItem *linked_item = (*iter);
-		if (linked_item->getUUID() == item_id) continue;
-
-		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(linked_item);
-		new_item->rename(new_name);
-		new_item->updateServer(FALSE);
-		model->updateItem(new_item);
-		// model->addChangedMask(LLInventoryObserver::LABEL, linked_item->getUUID());
-	}
-	model->notifyObservers();
 }
 
 // Can be moved to another folder
@@ -2898,9 +2831,11 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		}
 
 		const LLUUID& favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-
+		const LLUUID& landmarks_id = model->findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
+		const BOOL folder_allows_reorder = ((mUUID == landmarks_id) || (mUUID == favorites_id));
+	   
 		// we can move item inside a folder only if this folder is Favorites. See EXT-719
-		accept = is_movable && ((mUUID != inv_item->getParentUUID()) || (mUUID == favorites_id));
+		accept = is_movable && ((mUUID != inv_item->getParentUUID()) || folder_allows_reorder);
 		if(accept && drop)
 		{
 			if (inv_item->getType() == LLAssetType::AT_GESTURE
@@ -2923,12 +2858,12 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			}
 
 			// if dragging from/into favorites folder only reorder items
-			if ((mUUID == inv_item->getParentUUID()) && (favorites_id == mUUID))
+			if ((mUUID == inv_item->getParentUUID()) && folder_allows_reorder)
 			{
 				LLInventoryModel::cat_array_t cats;
 				LLInventoryModel::item_array_t items;
 				LLIsType is_type(LLAssetType::AT_LANDMARK);
-				model->collectDescendentsIf(favorites_id, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
+				model->collectDescendentsIf(mUUID, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
 
 				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
 				LLFolderViewItem* itemp = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
@@ -2958,7 +2893,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
-					LLAppearanceManager::instance().addItemLink(inv_item);
+					LLAppearanceManager::instance().addCOFItemLink(inv_item);
 				}
 				else
 				{
@@ -3723,6 +3658,11 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
+		LLInventoryItem* item = getItem();
+		if (item && item->getIsLinkType())
+		{
+			items.push_back(std::string("Find Original"));
+		}
 		items.push_back(std::string("Open"));
 		items.push_back(std::string("Properties"));
 
@@ -3948,6 +3888,7 @@ std::string LLObjectBridge::getLabelSuffix() const
 	{
 		std::string attachment_point_name = avatar->getAttachedPointName(mUUID);
 
+		// e.g. "(worn on ...)" / "(attached to ...)"
 		LLStringUtil::format_map_t args;
 		args["[ATTACHMENT_POINT]"] =  attachment_point_name.c_str();
 		return LLItemBridge::getLabelSuffix() + LLTrans::getString("WornOnAttachmentPoint", args);
@@ -4205,7 +4146,7 @@ void wear_inventory_item_on_avatar( LLInventoryItem* item )
 		lldebugs << "wear_inventory_item_on_avatar( " << item->getName()
 				 << " )" << llendl;
 
-		LLAppearanceManager::instance().addItemLink(item);
+		LLAppearanceManager::instance().addCOFItemLink(item);
 	}
 }
 
@@ -4362,6 +4303,7 @@ std::string LLWearableBridge::getLabelSuffix() const
 {
 	if( gAgentWearables.isWearingItem( mUUID ) )
 	{
+		// e.g. "(worn)" 
 		return LLItemBridge::getLabelSuffix() + LLTrans::getString("worn");
 	}
 	else

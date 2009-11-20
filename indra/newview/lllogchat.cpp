@@ -96,9 +96,6 @@ void LLLogChat::saveHistory(const std::string& filename,
 			    const LLUUID& from_id,
 			    const std::string& line)
 {
-	if (!gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
-		return;
-
 	if(!filename.size())
 	{
 		llinfos << "Filename is Empty!" << llendl;

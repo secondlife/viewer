@@ -1215,11 +1215,6 @@ void LLViewerInventoryItem::rename(const std::string& n)
 
 const LLPermissions& LLViewerInventoryItem::getPermissions() const
 {
-	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
-	{
-		return linked_item->getPermissions();
-	}
-
 	// Use the actual permissions of the symlink, not its parent.
 	return LLInventoryItem::getPermissions();	
 }
@@ -1340,6 +1335,12 @@ BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& na
 
 	return result;
 }
+
+void LLViewerInventoryItem::insertDefaultSortField(std::string& name)
+{
+	name.insert(0, std::string("1") + getSeparator());
+}
+
 
 // This returns true if the item that this item points to 
 // doesn't exist in memory (i.e. LLInventoryModel).  The baseitem

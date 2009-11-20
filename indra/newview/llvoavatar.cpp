@@ -6267,7 +6267,7 @@ LLColor4 LLVOAvatar::getDummyColor()
 	return DUMMY_COLOR;
 }
 
-void LLVOAvatar::dumpAvatarTEs( const std::string& context )
+void LLVOAvatar::dumpAvatarTEs( const std::string& context ) const
 {	
 	/* const char* te_name[] = {
 			"TEX_HEAD_BODYPAINT   ",

@@ -104,8 +104,8 @@ void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect ne
 
 void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 {
-	S32 channel_top = gViewerWindow->getWorldViewRectRaw().getHeight();
-	S32 channel_bottom = gViewerWindow->getWorldViewRectRaw().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
+	S32 channel_top = gViewerWindow->getWorldViewRectScaled().getHeight();
+	S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
 	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
 	setVisible(TRUE);
 }
@@ -534,19 +534,7 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 
 	LLTextBox* text_box = mStartUpToastPanel->getChild<LLTextBox>("toast_text");
 
-	std::string mStartUpFormatString;
-
-	if(notif_num == 1)
-	{
-		mStartUpFormatString = LLTrans::getString("StartUpNotification");
-	}
-	else
-	{
-		mStartUpFormatString = LLTrans::getString("StartUpNotifications");
-	}
-	
-
-	std::string	text = llformat(mStartUpFormatString.c_str(), notif_num);
+	std::string	text = LLTrans::getString("StartUpNotifications");
 
 	toast_rect = mStartUpToastPanel->getRect();
 	mStartUpToastPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
@@ -712,7 +700,7 @@ void LLScreenChannel::updateShowToastsState()
 	// for Message Well floater showed in a docked state - adjust channel's height
 	if(dynamic_cast<LLSysWellWindow*>(floater))
 	{
-		S32 channel_bottom = gViewerWindow->getWorldViewRectRaw().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
+		S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
 		LLRect this_rect = getRect();
 		if(floater->getVisible() && floater->isDocked())
 		{

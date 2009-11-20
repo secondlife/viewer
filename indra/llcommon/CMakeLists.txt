@@ -9,6 +9,7 @@ include(Linking)
 include(Boost)
 include(Pth)
 include(LLSharedLibs)
+include(GooglePerfTools)
 include(Copy3rdPartyLibs)
 
 include_directories(
@@ -259,6 +260,7 @@ target_link_libraries(
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
     ${PTH_LIBRARIES}
+    ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
 
 add_dependencies(llcommon stage_third_party_libs)

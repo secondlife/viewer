@@ -204,8 +204,6 @@ protected:
 									 const LLUUID& new_parent,
 									 BOOL restamp);
 	void removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*>& batch);
-	void renameLinkedItems(const LLUUID &item_id, const std::string& new_name);
-
 protected:
 	LLHandle<LLPanel> mInventoryPanel;
 	const LLUUID mUUID;	// item id
