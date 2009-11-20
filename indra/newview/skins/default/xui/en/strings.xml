@@ -1782,8 +1782,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="GroupNotifySaveAttachment">Save Attachment</string>
   <string name="TeleportOffer">Teleport offering</string>
   <!-- start-up toast's string-->
-  <string name="StartUpNotification">%d new notification arrived while you were away...</string>
-  <string name="StartUpNotifications">%d new notifications arrived while you were away...</string>
+  <string name="StartUpNotifications">New notifications arrived while you were away.</string>
   <!-- overflow toast's string-->
   <string name="OverflowInfoChannelString">You have %d more notification</string>
   
