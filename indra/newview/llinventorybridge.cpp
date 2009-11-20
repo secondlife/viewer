@@ -1363,11 +1363,13 @@ BOOL LLFolderBridge::isItemRemovable()
 	{
 		return FALSE;
 	}
-
+	// Allow protected types to be removed, but issue a warning.
+	/*
 	if(LLFolderType::lookupIsProtectedType(category->getPreferredType()))
 	{
 		return FALSE;
 	}
+	*/
 
 	LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
 	LLFolderViewFolder* folderp = dynamic_cast<LLFolderViewFolder*>(panel ? panel->getRootFolder()->getItemByID(mUUID) : NULL);
@@ -2191,38 +2193,70 @@ BOOL LLFolderBridge::removeItem()
 	{
 		return FALSE;
 	}
-	// move it to the trash
-	LLPreview::hide(mUUID);
-	LLInventoryModel* model = getInventoryModel();
-	if(!model) return FALSE;
+	const LLViewerInventoryCategory *cat = getCategory();
+	
+	LLSD payload;
+	LLSD args;
+	args["FOLDERNAME"] = cat->getName();
 
-	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
-
-	// Look for any gestures and deactivate them
-	LLInventoryModel::cat_array_t	descendent_categories;
-	LLInventoryModel::item_array_t	descendent_items;
-	gInventory.collectDescendents( mUUID, descendent_categories, descendent_items, FALSE );
-
-	S32 i;
-	for (i = 0; i < descendent_items.count(); i++)
+	LLNotification::Params params("ConfirmDeleteProtectedCategory");
+	params.payload(payload).substitutions(args).functor.function(boost::bind(&LLFolderBridge::removeItemResponse, this, _1, _2));
+	//params.functor.function(boost::bind(&LLFolderBridge::removeItemResponse, this, _1, _2));
+	/*
+	LLNotification::Params params("ChangeLindenEstate");
+	params.functor.function(boost::bind(&LLPanelEstateInfo::callbackChangeLindenEstate, this, _1, _2));
+	*/
+	if (LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
 	{
-		LLInventoryItem* item = descendent_items[i];
-		if (item->getType() == LLAssetType::AT_GESTURE
-			&& LLGestureManager::instance().isGestureActive(item->getUUID()))
-		{
-			LLGestureManager::instance().deactivateGesture(item->getUUID());
-		}
+		LLNotifications::instance().add(params);
 	}
-
-	// go ahead and do the normal remove if no 'last calling
-	// cards' are being removed.
-	LLViewerInventoryCategory* cat = getCategory();
-	if(cat)
+	else
 	{
-		LLInvFVBridge::changeCategoryParent(model, cat, trash_id, TRUE);
+		LLNotifications::instance().forceResponse(params, 0);
 	}
-
 	return TRUE;
+}
+
+bool LLFolderBridge::removeItemResponse(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+
+	// if they choose delete, do it.  Otherwise, don't do anything
+	if(option == 0) 
+	{
+		// move it to the trash
+		LLPreview::hide(mUUID);
+		LLInventoryModel* model = getInventoryModel();
+		if(!model) return FALSE;
+		
+		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
+		
+		// Look for any gestures and deactivate them
+		LLInventoryModel::cat_array_t	descendent_categories;
+		LLInventoryModel::item_array_t	descendent_items;
+		gInventory.collectDescendents( mUUID, descendent_categories, descendent_items, FALSE );
+		
+		S32 i;
+		for (i = 0; i < descendent_items.count(); i++)
+		{
+			LLInventoryItem* item = descendent_items[i];
+			if (item->getType() == LLAssetType::AT_GESTURE
+				&& LLGestureManager::instance().isGestureActive(item->getUUID()))
+			{
+				LLGestureManager::instance().deactivateGesture(item->getUUID());
+			}
+		}
+		
+		// go ahead and do the normal remove if no 'last calling
+		// cards' are being removed.
+		LLViewerInventoryCategory* cat = getCategory();
+		if(cat)
+		{
+			LLInvFVBridge::changeCategoryParent(model, cat, trash_id, TRUE);
+		}
+		return TRUE;
+	}
+	return FALSE;
 }
 
 void LLFolderBridge::pasteFromClipboard()

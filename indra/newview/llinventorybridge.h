@@ -288,6 +288,8 @@ public:
 
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL removeItem();
+	bool removeItemResponse(const LLSD& notification, const LLSD& response);
+
 	virtual void pasteFromClipboard();
 	virtual void pasteLinkFromClipboard();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
