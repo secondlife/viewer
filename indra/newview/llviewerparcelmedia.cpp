@@ -218,7 +218,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 			LL_DEBUGS("Media") << "new media impl with mime type " << mime_type << ", url " << media_url << LL_ENDL;
 
 			// Delete the old one first so they don't fight over the texture.
-			sMediaImpl->unload();
+			sMediaImpl = NULL;
 
 			sMediaImpl = LLViewerMedia::newMediaImpl(
 				placeholder_texture_id,
