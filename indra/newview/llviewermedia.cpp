@@ -278,7 +278,7 @@ viewer_media_t LLViewerMedia::newMediaImpl(
 	}
 	else
 	{
-		media_impl->stop();
+		media_impl->unload();
 		media_impl->mTextureId = texture_id;
 		media_impl->mMediaWidth = media_width;
 		media_impl->mMediaHeight = media_height;
@@ -1092,15 +1092,7 @@ void LLViewerMediaImpl::stop()
 {
 	if(mMediaSource)
 	{
-		if(mMediaSource->pluginSupportsMediaBrowser())
-		{
-			mMediaSource->browse_stop();
-		}
-		else
-		{
-			mMediaSource->stop();
-		}
-
+		mMediaSource->stop();
 		// destroyMediaSource();
 	}
 }
@@ -1129,6 +1121,40 @@ void LLViewerMediaImpl::seek(F32 time)
 	if(mMediaSource)
 	{
 		mMediaSource->seek(time);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::skipBack(F32 step_scale)
+{
+	if(mMediaSource)
+	{
+		if(mMediaSource->pluginSupportsMediaTime())
+		{
+			F64 back_step = mMediaSource->getCurrentTime() - (mMediaSource->getDuration()*step_scale);
+			if(back_step < 0.0)
+			{
+				back_step = 0.0;
+			}
+			mMediaSource->seek(back_step);
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::skipForward(F32 step_scale)
+{
+	if(mMediaSource)
+	{
+		if(mMediaSource->pluginSupportsMediaTime())
+		{
+			F64 forward_step = mMediaSource->getCurrentTime() + (mMediaSource->getDuration()*step_scale);
+			if(forward_step > mMediaSource->getDuration())
+			{
+				forward_step = mMediaSource->getDuration();
+			}
+			mMediaSource->seek(forward_step);
+		}
 	}
 }
 
@@ -1339,21 +1365,7 @@ void LLViewerMediaImpl::navigateBack()
 {
 	if (mMediaSource)
 	{
-		if(mMediaSource->pluginSupportsMediaTime())
-		{
-			F64 step_scale = 0.02; // temp , can be changed
-			F64 back_step = mMediaSource->getCurrentTime() - (mMediaSource->getDuration()*step_scale);
-			if(back_step < 0.0)
-			{
-				back_step = 0.0;
-			}
-			mMediaSource->seek(back_step);
-			//mMediaSource->start(-2.0);
-		}
-		else
-		{
-			mMediaSource->browse_back();
-		}
+		mMediaSource->browse_back();
 	}
 }
 
@@ -1362,21 +1374,7 @@ void LLViewerMediaImpl::navigateForward()
 {
 	if (mMediaSource)
 	{
-		if(mMediaSource->pluginSupportsMediaTime())
-		{
-			F64 step_scale = 0.02; // temp , can be changed
-			F64 forward_step = mMediaSource->getCurrentTime() + (mMediaSource->getDuration()*step_scale);
-			if(forward_step > mMediaSource->getDuration())
-			{
-				forward_step = mMediaSource->getDuration();
-			}
-			mMediaSource->seek(forward_step);
-			//mMediaSource->start(2.0);
-		}
-		else
-		{
-			mMediaSource->browse_forward();
-		}
+		mMediaSource->browse_forward();
 	}
 }
 
@@ -1525,7 +1523,6 @@ void LLViewerMediaImpl::navigateStop()
 	{
 		mMediaSource->browse_stop();
 	}
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
