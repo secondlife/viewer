@@ -50,7 +50,7 @@ class LLTextBox;
  * is ignored. The option "keep_one_selected" forces at least one item to be selected at any time (only for mouse events on items)
  * since any item of the list was selected.
  *
- * Examples of using this control are presented in Picks panel (Me Profile and Profile View), where this control is used to 
+ * Examples of using this control are presented in Picks panel (My Profile and Profile View), where this control is used to 
  * manage the list of pick items.
  *
  * ASSUMPTIONS AND STUFF

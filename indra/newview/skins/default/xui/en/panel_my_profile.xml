@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ follows="all"
+ height="535"
+ label="Profile"
+ layout="topleft"
+ left="0"
+ name="panel_profile"
+ top="0"
+ width="313">
+    <string
+     name="CaptionTextAcctInfo">
+        [ACCTTYPE]
+[PAYMENTINFO] [AGEVERIFICATION]
+    </string>
+    <string
+     name="payment_update_link_url">
+        http://www.secondlife.com/account/billing.php?lang=en
+    </string>
+    <string
+     name="partner_edit_link_url">
+        http://www.secondlife.com/account/partners.php?lang=en
+    </string>
+    <string
+     name="my_account_link_url"
+     value="http://secondlife.com/account" />
+    <string
+     name="no_partner_text"
+     value="None" />
+ <scroll_container
+     color="DkGray2"
+     follows="all"
+     height="485"
+     layout="topleft"
+     name="profile_scroll"
+     reserve_scroll_corner="true"
+     opaque="true"
+     top="0"
+     width="313">
+      <panel
+         name="scroll_content_panel"
+         follows="left|top|right"
+          height="485"
+         layout="topleft"
+         top="0"
+         left="0"
+         width="313">
+	 <panel
+         follows="left|top"
+         height="117"
+         layout="topleft"
+         left="10"
+         name="second_life_image_panel"
+         top="0"
+         width="280">
+            <texture_picker
+             allow_no_texture="true"
+             default_image_name="None"
+             enabled="false"
+             follows="top|left"
+             height="117"
+             layout="topleft"
+             left="0"
+             name="2nd_life_pic"
+             top="10"
+             width="102" />
+           <icon
+           height="102"
+           image_name="Blank"
+           layout="topleft"
+           name="2nd_life_edit_icon"
+           label=""
+           left="0"
+           tool_tip="Click the Edit Profile button below to change image"
+           top="10"
+           width="102" />
+            <text
+             follows="left|top|right"
+	     font.style="BOLD"
+             height="15"
+             layout="topleft"
+             left_pad="10"
+             name="title_sl_descr_text"
+             text_color="white"
+             top_delta="0"
+             value="[SECOND_LIFE]:"
+             width="165" />
+            <expandable_text
+             follows="left|top|right"
+             height="95"
+             layout="topleft"
+             left="107"
+             textbox.max_length="512"
+             name="sl_description_edit"
+             top_pad="-3"
+             width="173"
+             expanded_bg_visible="true"
+             expanded_bg_color="DkGray">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+            </expandable_text>
+        </panel>
+        <panel
+         follows="left|top"
+         height="117"
+         layout="topleft"
+	 top_pad="10"
+         left="10"
+         name="first_life_image_panel"
+         width="280">
+            <texture_picker
+             allow_no_texture="true"
+             default_image_name="None"
+             enabled="false"
+             follows="top|left"
+             height="117"
+             layout="topleft"
+             left="0"
+             name="real_world_pic"
+             width="102" />
+           <icon
+           height="102"
+           image_name="Blank"
+           layout="topleft"
+           name="real_world_edit_icon"
+           label=""
+           left="0"
+           tool_tip="Click the Edit Profile button below to change image"
+           top="4"
+           width="102" />
+            <text
+             follows="left|top|right"
+	     font.style="BOLD"
+             height="15"
+             layout="topleft"
+             left_pad="10"
+             name="title_rw_descr_text"
+             text_color="white"
+             top_delta="0"
+             value="Real World:"
+             width="165" />
+            <expandable_text
+             follows="left|top|right"
+             height="95"
+             layout="topleft"
+             left="107"
+             textbox.max_length="512"
+             name="fl_description_edit"
+             top_pad="-3"
+             width="173"
+             expanded_bg_visible="true"
+             expanded_bg_color="DkGray">
+                Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+            </expandable_text>
+        </panel>
+	
+	
+	<!-- <panel
+       name="lifes_images_panel"
+         follows="left|top|right"
+         height="244"
+         layout="topleft"
+         top="0"
+         left="0"
+         width="285">
+	 <panel
+         follows="left|top"
+         height="117"
+         layout="topleft"
+         left="10"
+         name="second_life_image_panel"
+         top="0"
+         width="285">
+          <text
+             follows="left|top|right"
+	     font.style="BOLD"
+             height="15"
+             layout="topleft"
+             left="0"
+            name="second_life_photo_title_text"
+             text_color="white"
+             value="[SECOND_LIFE]:"
+             width="170" />
+            <texture_picker
+             allow_no_texture="true"
+             default_image_name="None"
+             enabled="false"
+             follows="top|left"
+             height="117"
+             layout="topleft"
+             left="0"
+             name="2nd_life_pic"
+             top_pad="0"
+             width="102" />
+          </panel>
+           <icon
+           height="18"
+           image_name="AddItem_Off"
+           layout="topleft"
+           name="2nd_life_edit_icon"
+           label=""
+           left="87"
+           tool_tip="Click to select an image"
+           top="25"
+           width="18" />
+      </panel> -->
+	
+	
+	
+	
+        <text
+         type="string"
+         follows="left|top"
+         font="SansSerifSmall"
+	 font.style="BOLD"
+         height="15"
+         layout="topleft"
+         left="10"
+         name="me_homepage_text"
+         text_color="white"
+         top_pad="0"
+         width="280">
+             Homepage:
+        </text>
+        <text
+         follows="left|top"
+         height="15"
+         layout="topleft"
+         left="10"
+         name="homepage_edit"
+         top_pad="0"
+         value="http://librarianavengers.org"
+         width="280"
+         word_wrap="false"
+         use_ellipses="true"
+         />
+        <text
+         follows="left|top"
+	 font.style="BOLD"
+         height="10"
+         layout="topleft"
+         left="10"
+         name="title_member_text"
+         text_color="white"
+         top_pad="10"
+         value="Member Since:"
+         width="280" />
+        <text
+         follows="left|top"
+         height="15"
+         layout="topleft"
+         left="10"
+         name="register_date"
+         value="05/31/1976"
+         width="280"
+         word_wrap="true" />
+        <text
+         follows="left|top"
+	 font.style="BOLD"
+         height="15"
+         layout="topleft"
+         left="10"
+         name="title_acc_status_text"
+         text_color="white"
+         top_pad="10"
+         value="Account Status:"
+         width="280" />
+       <!-- <text
+         type="string"
+         follows="left|top"
+         font="SansSerifSmall"
+         height="15"
+         layout="topleft"
+         left_pad="10"
+         name="my_account_link"
+         top_delta="0"
+	 value="Go to Dashboard"
+         width="100"/> -->
+        <text
+         follows="left|top"
+         height="20"
+         layout="topleft"
+         left="10"
+         name="acc_status_text"
+         top_pad="0"
+         value="Resident. No payment info on file."
+         width="280"
+         word_wrap="true" />
+        <text
+         follows="left|top"
+	 font.style="BOLD"
+         height="15"
+         layout="topleft"
+         left="10"
+         name="title_partner_text"
+         text_color="white"
+         top_pad="5"
+         value="Partner:"
+         width="280" />
+        <panel
+         follows="left|top"
+         height="15"
+         layout="topleft"
+         left="10"
+         name="partner_data_panel"
+         top_pad="0"
+         width="280">
+            <text
+             follows="left|top"
+             height="10"
+             layout="topleft"
+             left="0"
+             name="partner_text"
+             top="0"
+             value="[FIRST] [LAST]"
+         width="280"
+             word_wrap="true" />
+         </panel>
+        <text
+         follows="left|top"
+	 font.style="BOLD"
+         height="15"
+         layout="topleft"
+         left="10"
+         name="title_groups_text"
+         text_color="white"
+         top_pad="8"
+         value="Groups:"
+         width="280" />
+                     <expandable_text
+         follows="left|top|bottom"
+         height="60"
+         layout="topleft"
+         left="10"
+             name="sl_groups"
+       top_pad="0"
+         width="280"
+             expanded_bg_visible="true"
+             expanded_bg_color="DkGray">
+            Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+        </expandable_text>
+      </panel>
+ </scroll_container>
+ <panel
+     follows="bottom|left"
+     layout="topleft"
+     left="0"
+     name="profile_buttons_panel"
+     top_pad="2"
+     bottom="10"
+     height="19"
+     width="303">
+        <button
+         follows="bottom|left"
+         height="19"
+         label="Add Friend"
+         layout="topleft"
+         left="0"
+         mouse_opaque="false"
+         name="add_friend"
+         top="5"
+         width="75" />
+        <button
+         follows="bottom|left"
+         height="19"
+         label="IM"
+         layout="topleft"
+         name="im"
+         top="5"
+         left_pad="5"
+         width="45" />
+        <button
+         follows="bottom|left"
+         height="19"
+         label="Call"
+         layout="topleft"
+         name="call"
+         left_pad="5"
+         top="5"
+         width="45" />
+        <button
+         enabled="false"
+         follows="bottom|left"
+         height="19"
+         label="Map"
+         layout="topleft"
+         name="show_on_map_btn"
+         top="5"
+         left_pad="5"
+         width="45" />
+        <button
+         follows="bottom|left"
+         height="19"
+         label="Teleport"
+         layout="topleft"
+         name="teleport"
+         left_pad="5"
+         top="5"
+         width="80" />
+ </panel>
+ <panel
+     follows="bottom|left"
+     layout="topleft"
+     left="0"
+     top_pad="-17"
+     name="profile_me_buttons_panel"
+     visible="false"
+     height="19"
+     width="303">
+        <button
+         follows="bottom|right"
+         font="SansSerifSmall"
+         height="19"
+         left="10"
+         label="Edit Profile"
+         name="edit_profile_btn"
+         width="130" />
+        <button
+         follows="bottom|right"
+         height="19"
+         label="Edit Appearance"
+         left_pad="10"
+         name="edit_appearance_btn"
+         right="-10"
+         width="130" />
+ </panel>
+</panel>

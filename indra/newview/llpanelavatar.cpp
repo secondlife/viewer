@@ -119,7 +119,7 @@ BOOL LLDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 static LLDefaultChildRegistry::Register<LLDropTarget> r("drop_target");
 
 static LLRegisterPanelClassWrapper<LLPanelAvatarProfile> t_panel_profile("panel_profile");
-static LLRegisterPanelClassWrapper<LLPanelAvatarMeProfile> t_panel_me_profile("panel_me_profile");
+static LLRegisterPanelClassWrapper<LLPanelMyProfile> t_panel_my_profile("panel_my_profile");
 static LLRegisterPanelClassWrapper<LLPanelAvatarNotes> t_panel_notes("panel_notes");
 
 //-----------------------------------------------------------------------------
@@ -585,19 +585,19 @@ void LLPanelAvatarProfile::onOverflowButtonClicked()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-LLPanelAvatarMeProfile::LLPanelAvatarMeProfile()
+LLPanelMyProfile::LLPanelMyProfile()
 : LLPanelAvatarProfile()
 {
 }
 
-BOOL LLPanelAvatarMeProfile::postBuild()
+BOOL LLPanelMyProfile::postBuild()
 {
 	LLPanelAvatarProfile::postBuild();
 
 	mStatusCombobox = getChild<LLComboBox>("status_combo");
 
-	childSetCommitCallback("status_combo", boost::bind(&LLPanelAvatarMeProfile::onStatusChanged, this), NULL);
-	childSetCommitCallback("status_me_message_text", boost::bind(&LLPanelAvatarMeProfile::onStatusMessageChanged, this), NULL);
+	childSetCommitCallback("status_combo", boost::bind(&LLPanelMyProfile::onStatusChanged, this), NULL);
+	childSetCommitCallback("status_me_message_text", boost::bind(&LLPanelMyProfile::onStatusMessageChanged, this), NULL);
 
 	resetControls();
 	resetData();
@@ -605,12 +605,12 @@ BOOL LLPanelAvatarMeProfile::postBuild()
 	return TRUE;
 }
 
-void LLPanelAvatarMeProfile::onOpen(const LLSD& key)
+void LLPanelMyProfile::onOpen(const LLSD& key)
 {
 	LLPanelProfileTab::onOpen(key);
 }
 
-void LLPanelAvatarMeProfile::processProfileProperties(const LLAvatarData* avatar_data)
+void LLPanelMyProfile::processProfileProperties(const LLAvatarData* avatar_data)
 {
 	fillCommonData(avatar_data);
 
@@ -621,7 +621,7 @@ void LLPanelAvatarMeProfile::processProfileProperties(const LLAvatarData* avatar
 	fillAccountStatus(avatar_data);
 }
 
-void LLPanelAvatarMeProfile::fillStatusData(const LLAvatarData* avatar_data)
+void LLPanelMyProfile::fillStatusData(const LLAvatarData* avatar_data)
 {
 	std::string status;
 	if (gAgent.getAFK())
@@ -640,7 +640,7 @@ void LLPanelAvatarMeProfile::fillStatusData(const LLAvatarData* avatar_data)
 	mStatusCombobox->setValue(status);
 }
 
-void LLPanelAvatarMeProfile::resetControls()
+void LLPanelMyProfile::resetControls()
 {
 	childSetVisible("status_panel", false);
 	childSetVisible("profile_buttons_panel", false);
@@ -650,7 +650,7 @@ void LLPanelAvatarMeProfile::resetControls()
 	childSetVisible("profile_me_buttons_panel", true);
 }
 
-void LLPanelAvatarMeProfile::onStatusChanged()
+void LLPanelMyProfile::onStatusChanged()
 {
 	LLSD::String status = mStatusCombobox->getValue().asString();
 
@@ -672,7 +672,7 @@ void LLPanelAvatarMeProfile::onStatusChanged()
 	}
 }
 
-void LLPanelAvatarMeProfile::onStatusMessageChanged()
+void LLPanelMyProfile::onStatusMessageChanged()
 {
 	updateData();
 }

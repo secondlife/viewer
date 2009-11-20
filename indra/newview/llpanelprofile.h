@@ -40,7 +40,7 @@
 class LLTabContainer;
 
 /**
-* Base class for Profile View and Me Profile.
+* Base class for Profile View and My Profile.
 */
 class LLPanelProfile : public LLPanel
 {
