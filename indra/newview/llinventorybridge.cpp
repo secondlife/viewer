@@ -492,6 +492,7 @@ void hide_context_entries(LLMenuGL& menu,
 		}
 		else
 		{
+			(*itor)->setVisible(TRUE);
 			for (itor2 = disabled_entries.begin(); itor2 != disabled_entries.end(); ++itor2)
 			{
 				if (*itor2 == name)
@@ -2359,6 +2360,10 @@ void LLFolderBridge::folderOptionsMenu()
 		mItems.push_back(std::string("Remove From Outfit"));
 	}
 	hide_context_entries(*mMenu, mItems, disabled_items);
+
+	// Reposition the menu, in case we're adding items to an existing menu.
+	mMenu->needsArrange();
+	mMenu->arrangeAndClear();
 }
 
 BOOL LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& is_type)
