@@ -86,7 +86,7 @@
 		  auto_resize="false"
 		  height="22"
 		  layout="topleft"
-		  tool_tip="Step back"
+		  tool_tip="Navigate back"
 		  width="22"
 		  left="0"
 		  top_delta="4">
@@ -111,7 +111,7 @@
 		  hover_glow_amount="0.15"
 		  height="22"
 		  layout="topleft"
-		  tool_tip="Step forward"
+		  tool_tip="Navigate forward"
 		  top_delta="0"
 		  min_width="22"
 		  width="22">
@@ -358,6 +358,55 @@ function="MediaCtrl.CommitURL" />
 		<slider_bar.commit_callback
 			function="MediaCtrl.JumpProgress" />
 	  </slider_bar>
+	</layout_panel>
+	<layout_panel
+		name="skip_back"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		min_width="22"
+		width="22">
+	  <button
+		  image_overlay="SkipBackward_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  auto_resize="false"
+		  height="22"
+		  layout="topleft"
+		  tool_tip="Step back"
+		  top="-14"
+		  width="22"
+		  left="0">
+		<button.commit_callback
+			function="MediaCtrl.SkipBack" />
+	  </button>
+	</layout_panel>
+	<layout_panel
+		name="skip_forward"
+		auto_resize="false"
+		user_resize="false"
+		layout="topleft"
+		min_width="22"
+		width="22">
+	  <button
+		  image_overlay="SkipForward_Off"
+		  image_disabled="PushButton_Disabled"
+		  image_disabled_selected="PushButton_Disabled"
+		  image_selected="PushButton_Selected"
+		  image_unselected="PushButton_Off"
+		  hover_glow_amount="0.15"
+		  height="22"
+		  layout="topleft"
+		  tool_tip="Step forward"
+		  top="-14"
+		  min_width="22"
+		  width="22">
+		<button.commit_callback
+			function="MediaCtrl.SkipForward" />
+	  </button>
 	</layout_panel>
 	<layout_panel
 		name="media_volume"
