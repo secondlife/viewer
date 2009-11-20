@@ -206,7 +206,7 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 	script_notification_map_t::iterator it = mNotifications.find(object_id);
 	if(it != mNotifications.end())
 	{
-		removeNotification(notification_id);
+		onRemoveNotification(notification_id);
 	}
 
 	LLNotificationData nd = {notification_id};
@@ -275,7 +275,7 @@ void LLScriptFloaterManager::closeScriptFloater(const LLUUID& object_id)
 		getNotificationId(object_id));
 	if(notification)
 	{
-		removeNotification(notification->getID());
+		onRemoveNotification(notification->getID());
 	}
 }
 

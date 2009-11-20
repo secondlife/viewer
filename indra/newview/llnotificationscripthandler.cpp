@@ -120,7 +120,7 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 		mChannel->killToastByNotificationID(notification->getID());
 		if("ScriptDialog" == notification->getName())
 		{
-			LLScriptFloaterManager::getInstance()->removeNotification(notification->getID());
+			LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
 		}
 	}
 	return true;
