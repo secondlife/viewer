@@ -827,7 +827,7 @@ bool areMatchingWearables(const LLViewerInventoryItem *a, const LLViewerInventor
 void LLAppearanceManager::addCOFItemLink(const LLUUID &item_id, bool do_update )
 {
 	const LLInventoryItem *item = gInventory.getItem(item_id);
-	addCOFItemLink(item);
+	addCOFItemLink(item, do_update);
 }
 
 void LLAppearanceManager::addCOFItemLink(const LLInventoryItem *item, bool do_update )
@@ -998,7 +998,6 @@ void LLAppearanceManager::registerAttachment(const LLUUID& item_id)
 
 	   if (mAttachmentInvLinkEnabled)
 	   {
-		   //LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Adding attachment link:");
 		   LLAppearanceManager::addCOFItemLink(item_id, false);  // Add COF link for item.
 	   }
 	   else
