@@ -1378,7 +1378,7 @@ if (WINDOWS)
     # sets the 'working directory' for debugging from visual studio.
     if (NOT UNATTENDED)
         add_custom_command(
-            TARGET ${VIEWER_BINARY_NAME} PRE_BUILD
+            TARGET ${VIEWER_BINARY_NAME} POST_BUILD
             COMMAND ${CMAKE_SOURCE_DIR}/tools/vstool/vstool.exe
             ARGS
               --solution 
