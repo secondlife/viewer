@@ -536,7 +536,6 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 
 	// how many room we have to show hidden buttons
 	S32 total_available_width = delta_width + chatbar_available_shrink_width + available_width_chiclet;
-	S32 buttons_required_width = 0; //How many room will take shown buttons
 
 	lldebugs << "Processing extending, available width:"
 		<< ", chatbar - " << chatbar_available_shrink_width
@@ -547,26 +546,22 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 	S32 available_width = total_available_width;
 	if (available_width > 0)
 	{
-		lldebugs << "Trying to process: RS_BUTTON_GESTURES" << llendl;
-		processShowButton(RS_BUTTON_GESTURES, &available_width, &buttons_required_width);
+		processShowButton(RS_BUTTON_GESTURES, &available_width);
 	}
 
 	if (available_width > 0)
 	{
-		lldebugs << "Trying to process: RS_BUTTON_MOVEMENT" << llendl;
-		processShowButton(RS_BUTTON_MOVEMENT, &available_width, &buttons_required_width);
+		processShowButton(RS_BUTTON_MOVEMENT, &available_width);
 	}
 
 	if (available_width > 0)
 	{
-		lldebugs << "Trying to process: RS_BUTTON_CAMERA" << llendl;
-		processShowButton(RS_BUTTON_CAMERA, &available_width, &buttons_required_width);
+		processShowButton(RS_BUTTON_CAMERA, &available_width);
 	}
 
 	if (available_width > 0)
 	{
-		lldebugs << "Trying to process: RS_BUTTON_SNAPSHOT" << llendl;
-		processShowButton(RS_BUTTON_SNAPSHOT, &available_width, &buttons_required_width);
+		processShowButton(RS_BUTTON_SNAPSHOT, &available_width);
 	}
 
 	processExtendButtons(&available_width);
@@ -626,8 +621,10 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 	}
 }
 
-bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* available_width, S32* buttons_required_width)
+bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* available_width)
 {
+	lldebugs << "Trying to show object type: " << shown_object_type << llendl;
+
 	LLPanel* panel = mStateProcessedObjectMap[shown_object_type];
 	if (NULL == panel)
 	{
@@ -643,12 +640,11 @@ bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* availa
 		if (can_be_shown)
 		{
 			*available_width -= required_width;
-			*buttons_required_width += required_width;
 
 			setTrayButtonVisible(shown_object_type, true);
 
-			lldebugs << "processing object type: " << shown_object_type
-				<< ", buttons_required_width: " << *buttons_required_width
+			lldebugs << "processed object type: " << shown_object_type
+				<< ", rest available width: " << *available_width
 				<< llendl;
 			mResizeState &= ~shown_object_type;
 		}
@@ -658,6 +654,8 @@ bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* availa
 
 void LLBottomTray::processHideButton(EResizeState processed_object_type, S32* required_width, S32* buttons_freed_width)
 {
+	lldebugs << "Trying to hide object type: " << processed_object_type << llendl;
+
 	LLPanel* panel = mStateProcessedObjectMap[processed_object_type];
 	if (NULL == panel)
 	{
