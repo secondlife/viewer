@@ -1,34 +1,34 @@
 /** 
-* @file llchiclet.cpp
-* @brief LLChiclet class implementation
-*
-* $LicenseInfo:firstyear=2002&license=viewergpl$
-* 
-* Copyright (c) 2002-2009, Linden Research, Inc.
-* 
-* Second Life Viewer Source Code
-* The source code in this file ("Source Code") is provided by Linden Lab
-* to you under the terms of the GNU General Public License, version 2.0
-* ("GPL"), unless you have obtained a separate licensing agreement
-* ("Other License"), formally executed by you and Linden Lab.  Terms of
-* the GPL can be found in doc/GPL-license.txt in this distribution, or
-* online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
-* 
-* There are special exceptions to the terms and conditions of the GPL as
-* it is applied to this Source Code. View the full text of the exception
-* in the file doc/FLOSS-exception.txt in this software distribution, or
-* online at
-* http://secondlifegrid.net/programs/open_source/licensing/flossexception
-* 
-* By copying, modifying or distributing this software, you acknowledge
-* that you have read and understood your obligations described above,
-* and agree to abide by those obligations.
-* 
-* ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
-* WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
-* COMPLETENESS OR PERFORMANCE.
-* $/LicenseInfo$
-*/
+ * @file llchiclet.cpp
+ * @brief LLChiclet class implementation
+ *
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
+ * Second Life Viewer Source Code
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+ * 
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * 
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ * 
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
+ * $/LicenseInfo$
+ */
 
 #include "llviewerprecompiledheaders.h" // must be first include
 #include "llchiclet.h"
@@ -922,34 +922,45 @@ void LLChicletPanel::onCurrentVoiceChannelChanged(const LLUUID& session_id)
 	s_previous_active_voice_session_id = session_id;
 }
 
-S32 LLChicletPanel::calcChickletPanleWidth()
-{
-	S32 res = 0;
-
-	for (chiclet_list_t::iterator it = mChicletList.begin(); it
-			!= mChicletList.end(); it++)
-	{
-		res = (*it)->getRect().getWidth() + getChicletPadding();
-	}
-	return res;
-}
-
 bool LLChicletPanel::addChiclet(LLChiclet* chiclet, S32 index)
 {
 	if(mScrollArea->addChild(chiclet))
 	{
-		// chicklets should be aligned to right edge of scroll panel
-		S32 offset = 0;
+		// chiclets should be aligned to right edge of scroll panel
+		S32 left_shift = 0;
 
 		if (!canScrollLeft())
 		{
-			offset = mScrollArea->getRect().getWidth()
-					- chiclet->getRect().getWidth() - calcChickletPanleWidth();
+			// init left shift for the first chiclet in the list...
+			if (mChicletList.empty())
+			{
+				// ...start from the right border of the scroll area for the first added chiclet 
+				left_shift = mScrollArea->getRect().getWidth();
+			}
+			else
+			{
+				// ... start from the left border of the first chiclet minus padding
+				left_shift = getChiclet(0)->getRect().mLeft - getChicletPadding();
+			}
+
+			// take into account width of the being added chiclet
+			left_shift -= chiclet->getRequiredRect().getWidth();
+
+			// if we overflow the scroll area we do not need to shift chiclets
+			if (left_shift < 0)
+			{
+				left_shift = 0;
+			}
 		}
 
 		mChicletList.insert(mChicletList.begin() + index, chiclet);
 
-		getChiclet(0)->translate(offset, 0);
+		// shift first chiclet to place it in correct position. 
+		// rest ones will be placed in arrange()
+		if (!canScrollLeft())
+		{
+			getChiclet(0)->translate(left_shift - getChiclet(0)->getRect().mLeft, 0);
+		}
 
 		chiclet->setLeftButtonClickCallback(boost::bind(&LLChicletPanel::onChicletClick, this, _1, _2));
 		chiclet->setChicletSizeChangedCallback(boost::bind(&LLChicletPanel::onChicletSizeChanged, this, _1, index));

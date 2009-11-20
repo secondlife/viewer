@@ -37,6 +37,7 @@
 
 // newview
 #include "llinventorymodel.h"
+#include "lllandmarklist.h"
 #include "llpanelplacestab.h"
 #include "llpanelpick.h"
 #include "llremoteparcelrequest.h"
@@ -68,7 +69,7 @@ protected:
 	 */
 	bool isLandmarkSelected() const;
 	bool isReceivedFolderSelected() const;
-	LLLandmark* getCurSelectedLandmark() const;
+	void doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb);
 	LLFolderViewItem* getCurSelectedItem() const;
 	void updateSortOrder(LLInventoryPanel* panel, bool byDate);
 
@@ -126,6 +127,16 @@ private:
 	 * It hides accordion for empty lists
 	 */
 	void updateFilteredAccordions();
+
+	/**
+	 * Landmark actions callbacks. Fire when a landmark is loaded from the list.
+	 */
+	void doShowOnMap(LLLandmark* landmark);
+	void doProcessParcelInfo(LLLandmark* landmark,
+							 LLFolderViewItem* cur_item,
+							 LLInventoryItem* inv_item,
+							 const LLParcelData& parcel_data);
+	void doCreatePick(LLLandmark* landmark);
 
 private:
 	LLInventorySubTreePanel*	mFavoritesInventoryPanel;
