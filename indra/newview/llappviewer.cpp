@@ -985,7 +985,8 @@ bool LLAppViewer::mainLoop()
 			
 #endif
 			//memory leaking simulation
-			LLFloaterMemLeak* mem_leak_instance = LLFloaterReg::getTypedInstance<LLFloaterMemLeak>("mem_leaking");
+			LLFloaterMemLeak* mem_leak_instance =
+				LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
 			if(mem_leak_instance)
 			{
 				mem_leak_instance->idle() ;				
@@ -1171,7 +1172,8 @@ bool LLAppViewer::mainLoop()
 		catch(std::bad_alloc)
 		{			
 			//stop memory leaking simulation
-			LLFloaterMemLeak* mem_leak_instance = LLFloaterReg::getTypedInstance<LLFloaterMemLeak>("mem_leaking");
+			LLFloaterMemLeak* mem_leak_instance =
+				LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
 			if(mem_leak_instance)
 			{
 				mem_leak_instance->stop() ;				
@@ -1199,7 +1201,8 @@ bool LLAppViewer::mainLoop()
 			llwarns << "Bad memory allocation when saveFinalSnapshot() is called!" << llendl ;
 
 			//stop memory leaking simulation
-			LLFloaterMemLeak* mem_leak_instance = LLFloaterReg::getTypedInstance<LLFloaterMemLeak>("mem_leaking");
+			LLFloaterMemLeak* mem_leak_instance =
+				LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
 			if(mem_leak_instance)
 			{
 				mem_leak_instance->stop() ;				
