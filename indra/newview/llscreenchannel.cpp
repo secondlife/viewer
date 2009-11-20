@@ -533,8 +533,6 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 
 	LLTextBox* text_box = mStartUpToastPanel->getChild<LLTextBox>("toast_text");
 
-	std::string mStartUpFormatString;
-
 	std::string	text = LLTrans::getString("StartUpNotifications");
 
 	toast_rect = mStartUpToastPanel->getRect();
