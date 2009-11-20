@@ -613,6 +613,7 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "CLICK_ACTION_OPEN"       { count(); yylval.ival = CLICK_ACTION_OPEN; return(INTEGER_CONSTANT); }
 "CLICK_ACTION_PLAY"       { count(); yylval.ival = CLICK_ACTION_PLAY; return(INTEGER_CONSTANT); }
 "CLICK_ACTION_OPEN_MEDIA" { count(); yylval.ival = CLICK_ACTION_OPEN_MEDIA; return(INTEGER_CONSTANT); }
+"CLICK_ACTION_ZOOM"       { count(); yylval.ival = CLICK_ACTION_ZOOM; return(INTEGER_CONSTANT); }
 
 "TEXTURE_BLANK"           { yylval.sval = new char[UUID_STR_LENGTH]; strcpy(yylval.sval, "5748decc-f629-461c-9a36-a35a221fe21f"); return(STRING_CONSTANT); }
 "TEXTURE_DEFAULT"         { yylval.sval = new char[UUID_STR_LENGTH]; strcpy(yylval.sval, "89556747-24cb-43ed-920b-47caed15465f"); return(STRING_CONSTANT); }

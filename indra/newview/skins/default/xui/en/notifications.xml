@@ -1436,6 +1436,13 @@ Select objects with scripts that you have permission to modify.
 
   <notification
    icon="alertmodal.tga"
+   name="CannotOpenScriptObjectNoMod"
+   type="alertmodal">
+    Unable to open script in object without modify permissions.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CannotSetRunningSelectObjectsNoScripts"
    type="alertmodal">
 Not able to set any scripts to &apos;running&apos;.
