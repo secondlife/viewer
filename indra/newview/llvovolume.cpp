@@ -140,6 +140,9 @@ public:
 	virtual std::string getCapabilityUrl(const std::string &name) const
 		{ return mObject->getRegion()->getCapability(name); }
 	
+	virtual bool isDead() const
+		{ return mObject->isDead(); }
+	
 private:
 	LLPointer<LLVOVolume> mObject;
 };

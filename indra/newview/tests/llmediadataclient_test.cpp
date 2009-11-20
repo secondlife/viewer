@@ -152,12 +152,13 @@ public:
 			std::istringstream d(data);
 			LLSDSerialize::fromXML(mRep, d);
 			mNumBounceBacks = 0;
+			mDead = false;
             
            // std::cout << ll_pretty_print_sd(mRep) << std::endl;
            // std::cout << "ID: " << getID() << std::endl;
 		}
 	LLMediaDataClientObjectTest(const LLSD &rep) 
-		: mRep(rep), mNumBounceBacks(0) {}
+		: mRep(rep), mNumBounceBacks(0), mDead(false) {}
 	~LLMediaDataClientObjectTest()
 		{ LL_DEBUGS("LLMediaDataClient") << "~LLMediaDataClientObjectTest" << LL_ENDL; }
 	
@@ -187,12 +188,18 @@ public:
 	virtual std::string getCapabilityUrl(const std::string &name) const 
 		{ return mRep["cap_urls"][name]; }
 
+	virtual bool isDead() const
+		{ return mDead; }
+
 	int getNumBounceBacks() const
 		{ return mNumBounceBacks; }
 	
+	void markDead()
+		{ mDead = true; }
 private:
 	LLSD mRep;
 	int mNumBounceBacks;
+	bool mDead;
 };
 
 // This special timer delay should ensure that the timer will fire on the very
@@ -529,6 +536,63 @@ namespace tut
 		
 		// Make sure everyone's destroyed properly
 		ensure("REF COUNT", o1->getNumRefs(), num_refs_start);
+		
+	}
+
+	template<> template<>
+    void mediadataclient_object_t::test<8>()
+    {
+		// Test queue handling of objects that are marked dead.
+		LOG_TEST(8);
+		
+		LLMediaDataClientObject::ptr_t o1 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_1,"1.0","1.0"));
+		LLMediaDataClientObject::ptr_t o2 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_2,"2.0","1.0"));
+		LLMediaDataClientObject::ptr_t o3 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_3,"3.0","1.0"));
+		LLMediaDataClientObject::ptr_t o4 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_4,"4.0","1.0"));
+		{
+			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);
+			
+			// queue up all 4 objects
+			mdc->fetchMedia(o1);
+			mdc->fetchMedia(o2);
+			mdc->fetchMedia(o3);
+			mdc->fetchMedia(o4);
+			
+			// and mark the second and fourth ones dead.
+			dynamic_cast<LLMediaDataClientObjectTest*>(static_cast<LLMediaDataClientObject*>(o2))->markDead();
+			dynamic_cast<LLMediaDataClientObjectTest*>(static_cast<LLMediaDataClientObject*>(o4))->markDead();
+
+			ensure("is in queue 1", mdc->isInQueue(o1));
+			ensure("is in queue 2", mdc->isInQueue(o2));
+			ensure("is in queue 3", mdc->isInQueue(o3));
+			ensure("is in queue 4", mdc->isInQueue(o4));
+			ensure("post records", gPostRecords->size(), 0);
+			
+			::pump_timers();
+			
+			// The first tick should remove the first one 
+			ensure("is not in queue 1", !mdc->isInQueue(o1));
+			ensure("is in queue 2", mdc->isInQueue(o2));
+			ensure("is in queue 3", mdc->isInQueue(o3));
+			ensure("is in queue 4", mdc->isInQueue(o4));
+			ensure("post records", gPostRecords->size(), 1);
+			
+			::pump_timers();
+			
+			// The second tick should skip the second and remove the third
+			ensure("is not in queue 2", !mdc->isInQueue(o2));
+			ensure("is not in queue 3", !mdc->isInQueue(o3));
+			ensure("is in queue 4", mdc->isInQueue(o4));
+			ensure("post records", gPostRecords->size(), 2);
+
+			::pump_timers();
+
+			// The third tick should skip the fourth one and empty the queue.
+			ensure("is not in queue 4", !mdc->isInQueue(o4));
+			ensure("post records", gPostRecords->size(), 2);
+
+			ensure("queue empty", mdc->isEmpty());
+		}
 		
 	}
 }
