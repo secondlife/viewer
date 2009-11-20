@@ -218,7 +218,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 			LL_DEBUGS("Media") << "new media impl with mime type " << mime_type << ", url " << media_url << LL_ENDL;
 
 			// Delete the old one first so they don't fight over the texture.
-			sMediaImpl->stop();
+			sMediaImpl->unload();
 
 			sMediaImpl = LLViewerMedia::newMediaImpl(
 				placeholder_texture_id,
@@ -261,8 +261,7 @@ void LLViewerParcelMedia::stop()
 	// We need to remove the media HUD if it is up.
 	LLViewerMediaFocus::getInstance()->clearFocus();
 
-	// This will kill the media instance.
-	sMediaImpl->stop();
+	// This will unload & kill the media instance.
 	sMediaImpl = NULL;
 }
 

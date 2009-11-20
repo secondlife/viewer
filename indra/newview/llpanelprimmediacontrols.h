@@ -97,6 +97,7 @@ private:
 	void onClickZoom();
 	void onClickSkipBack();
 	void onClickSkipForward();
+	void onClickMediaStop();
 	void onCommitURL();
 	
 	void updateZoom();
@@ -158,6 +159,7 @@ private:
 	LLUICtrl *mLeftBookend;
 	LLUICtrl *mRightBookend;
 	LLUIImage* mBackgroundImage;
+	F32 mSkipStep;
 	
 	LLUICtrl *mMediaPanelScroll;
 	LLButton *mScrollUpCtrl;

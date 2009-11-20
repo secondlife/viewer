@@ -54,6 +54,7 @@
 #include "llpanelprimmediacontrols.h"
 #include "llpluginclassmedia.h"
 #include "llprogressbar.h"
+#include "llstring.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
 #include "llviewermedia.h"
@@ -92,6 +93,7 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mCommitCallbackRegistrar.add("MediaCtrl.Forward",	boost::bind(&LLPanelPrimMediaControls::onClickForward, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Home",		boost::bind(&LLPanelPrimMediaControls::onClickHome, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Stop",		boost::bind(&LLPanelPrimMediaControls::onClickStop, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.MediaStop",		boost::bind(&LLPanelPrimMediaControls::onClickMediaStop, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Reload",	boost::bind(&LLPanelPrimMediaControls::onClickReload, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Play",		boost::bind(&LLPanelPrimMediaControls::onClickPlay, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Pause",		boost::bind(&LLPanelPrimMediaControls::onClickPause, this));
@@ -149,6 +151,7 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	mLeftBookend			= getChild<LLUICtrl>("left_bookend");
 	mRightBookend			= getChild<LLUICtrl>("right_bookend");
 	mBackgroundImage		= LLUI::getUIImage(getString("control_background_image_name"));
+	LLStringUtil::convertToF32(getString("skip_step"), mSkipStep);
 
 	// These are currently removed...but getChild creates a "dummy" widget.
 	// This class handles them missing.
@@ -875,6 +878,18 @@ void LLPanelPrimMediaControls::onClickStop()
 
 	if(impl)
 	{
+		impl->navigateStop();
+	}
+}
+
+void LLPanelPrimMediaControls::onClickMediaStop()
+{
+	focusOnTarget();
+
+	LLViewerMediaImpl* impl = getTargetMediaImpl();
+
+	if(impl)
+	{
 		impl->stop();
 	}
 }
@@ -887,8 +902,7 @@ void LLPanelPrimMediaControls::onClickSkipBack()
 	
 	if (impl)
 	{
-		// XXX Oddly, the impl has the policy that "skipping" is really navigating
-		impl->navigateBack();
+		impl->skipBack(mSkipStep);
 	}
 }
 
@@ -900,8 +914,7 @@ void LLPanelPrimMediaControls::onClickSkipForward()
 
 	if (impl)
 	{
-		// XXX Oddly, the impl has the policy that "skipping" is really navigating
-		impl->navigateForward();
+		impl->skipForward(mSkipStep);
 	}
 }
 
