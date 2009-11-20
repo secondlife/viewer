@@ -1158,10 +1158,17 @@ void LLTaskLSLBridge::openItem()
 	{
 		return;
 	}
-	LLLiveLSLEditor* preview = LLFloaterReg::showTypedInstance<LLLiveLSLEditor>("preview_scriptedit", LLSD(mUUID), TAKE_FOCUS_YES);
-	if (preview && (object->permModify() || gAgent.isGodlike()))
+	if (object->permModify() || gAgent.isGodlike())
 	{
-		preview->setObjectID(mPanel->getTaskUUID());
+		LLLiveLSLEditor* preview = LLFloaterReg::showTypedInstance<LLLiveLSLEditor>("preview_scriptedit", LLSD(mUUID), TAKE_FOCUS_YES);
+		if (preview)
+		{
+			preview->setObjectID(mPanel->getTaskUUID());
+		}
+	}
+	else
+	{	
+		LLNotifications::instance().add("CannotOpenScriptObjectNoMod");
 	}
 }
 

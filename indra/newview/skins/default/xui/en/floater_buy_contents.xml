@@ -56,7 +56,7 @@
     <text
      type="string"
      length="1"
-     follows="left|top"
+     follows="left|bottom"
      font="SansSerif"
      height="16"
      layout="topleft"
@@ -68,7 +68,7 @@
         Buy for L$[AMOUNT] from [NAME]?
     </text>
     <check_box
-     follows="left|top"
+     follows="left|bottom"
      height="16"
      label="Wear clothing now"
      layout="topleft"

@@ -18,7 +18,7 @@
      height="150"
      layout="topleft"
      left="60"
-     name=""
+     name="screenshot"
      top="15"
      width="220" />
     <check_box

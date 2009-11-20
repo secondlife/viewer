@@ -2526,8 +2526,12 @@ void LLFloaterView::pushVisibleAll(BOOL visible, const skip_list_t& skip_list)
 
 void LLFloaterView::popVisibleAll(const skip_list_t& skip_list)
 {
-	for (child_list_const_iter_t child_iter = getChildList()->begin();
-		 child_iter != getChildList()->end(); ++child_iter)
+	// make a copy of the list since some floaters change their
+	// order in the childList when changing visibility.
+	child_list_t child_list_copy = *getChildList();
+
+	for (child_list_const_iter_t child_iter = child_list_copy.begin();
+		 child_iter != child_list_copy.end(); ++child_iter)
 	{
 		LLView *view = *child_iter;
 		if (skip_list.find(view) == skip_list.end())
