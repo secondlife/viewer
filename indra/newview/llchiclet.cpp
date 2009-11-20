@@ -43,6 +43,7 @@
 #include "lllocalcliprect.h"
 #include "llmenugl.h"
 #include "lloutputmonitorctrl.h"
+#include "llscriptfloater.h"
 #include "lltextbox.h"
 #include "llvoiceclient.h"
 #include "llvoicecontrolpanel.h"
@@ -1391,4 +1392,59 @@ void LLChicletGroupIconCtrl::setValue(const LLSD& value )
 LLChicletSpeakerCtrl::LLChicletSpeakerCtrl(const Params&p)
  : LLOutputMonitorCtrl(p)
 {
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+LLScriptChiclet::Params::Params()
+ : avatar_icon("avatar_icon")
+{
+	// *TODO Vadim: Get rid of hardcoded values.
+	rect(CHICLET_RECT);
+	name("dialog_chiclet");
+
+	avatar_icon.name("avatar_icon");
+	avatar_icon.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
+
+	avatar_icon.rect(CHICLET_ICON_RECT);
+	avatar_icon.mouse_opaque(false);
+}
+
+LLScriptChiclet::LLScriptChiclet(const Params&p)
+ : LLIMChiclet(p)
+ , mChicletIconCtrl(NULL)
+{
+	mImage = LLUI::getUIImage("Generic_Object_Small");
+}
+
+void LLScriptChiclet::setSessionId(const LLUUID& session_id)
+{
+	setShowNewMessagesIcon( getSessionId() != session_id );
+
+	LLIMChiclet::setSessionId(session_id);
+	LLNotificationPtr notification = LLNotifications::getInstance()->find(
+		LLScriptFloaterManager::getInstance()->getNotificationId(session_id));
+	if(notification)
+	{
+		setToolTip(notification->getSubstitutions()["TITLE"].asString());
+	}
+}
+
+void LLScriptChiclet::draw()
+{
+	mImage->draw(getLocalRect());
+	LLIMChiclet::draw();
+}
+
+void LLScriptChiclet::onMouseDown()
+{
+	LLScriptFloaterManager::getInstance()->toggleScriptFloater(getSessionId());
+}
+
+BOOL LLScriptChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	onMouseDown();
+	return LLChiclet::handleMouseDown(x, y, mask);
 }

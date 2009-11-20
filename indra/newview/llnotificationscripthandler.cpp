@@ -38,6 +38,7 @@
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 #include "llnotificationmanager.h"
+#include "llscriptfloater.h"
 
 using namespace LLNotificationsUI;
 
@@ -90,25 +91,37 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 	
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
-		LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
+		if("ScriptDialog" == notification->getName() || "ScriptDialogGroup" == notification->getName())
+		{
+			LLScriptFloaterManager::getInstance()->onAddNotification(notification->getID());
+		}
+		else
+		{
+			LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
 
-		LLToast::Params p;
-		p.notif_id = notification->getID();
-		p.notification = notification;
-		p.panel = notify_box;	
-		p.on_delete_toast = boost::bind(&LLScriptHandler::onDeleteToast, this, _1);
+			LLToast::Params p;
+			p.notif_id = notification->getID();
+			p.notification = notification;
+			p.panel = notify_box;	
+			p.on_delete_toast = boost::bind(&LLScriptHandler::onDeleteToast, this, _1);
 
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
-		if(channel)
-			channel->addToast(p);
+			LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+			if(channel)
+			{
+				channel->addToast(p);
+			}
 
-		// send a signal to the counter manager
-		mNewNotificationSignal();
-
+			// send a signal to the counter manager
+			mNewNotificationSignal();
+		}
 	}
 	else if (notify["sigtype"].asString() == "delete")
 	{
 		mChannel->killToastByNotificationID(notification->getID());
+		if("ScriptDialog" == notification->getName())
+		{
+			LLScriptFloaterManager::getInstance()->removeNotification(notification->getID());
+		}
 	}
 	return true;
 }
@@ -123,6 +136,14 @@ void LLScriptHandler::onDeleteToast(LLToast* toast)
 	// send a signal to a listener to let him perform some action
 	// in this case listener is a SysWellWindow and it will remove a corresponding item from its list
 	mNotificationIDSignal(toast->getNotificationID());
+
+	LLNotificationPtr notification = LLNotifications::getInstance()->find(toast->getNotificationID());
+	
+	if( notification && ("ScriptDialog" == notification->getName() 
+		|| "ScriptDialogGroup" == notification->getName()) )
+	{
+		LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
+	}
 }
 
 //--------------------------------------------------------------------------

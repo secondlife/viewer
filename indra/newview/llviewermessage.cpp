@@ -101,6 +101,7 @@
 #include "llpanelgrouplandmoney.h"
 #include "llpanelplaces.h"
 #include "llrecentpeople.h"
+#include "llscriptfloater.h"
 #include "llselectmgr.h"
 #include "llsidetray.h"
 #include "llstartup.h"
@@ -5380,6 +5381,15 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 		notification = LLNotifications::instance().add(
 			LLNotification::Params("ScriptDialogGroup").substitutions(args).payload(payload).form_elements(form.asLLSD()));
 	}
+
+	LLNotification::Params p("ScriptToast");
+	p.substitutions(args).payload(payload).functor.function(boost::bind(
+		LLScriptFloaterManager::onToastButtonClick, _1, _2));
+
+	notification = LLNotifications::instance().add(p);
+
+	LLScriptFloaterManager::getInstance()->setToastNotificationId(
+		object_id, notification->getID());
 }
 
 //---------------------------------------------------------------------------

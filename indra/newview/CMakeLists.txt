@@ -364,6 +364,7 @@ set(viewer_SOURCE_FILES
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
     llscreenchannel.cpp
+    llscriptfloater.cpp
     llscrollingpanelparam.cpp
     llsearchcombobox.cpp
     llsearchhistory.cpp
@@ -860,6 +861,7 @@ set(viewer_HEADER_FILES
     llrootview.h
     llsavedsettingsglue.h
     llscreenchannel.h
+    llscriptfloater.h
     llscrollingpanelparam.h
     llsearchcombobox.h
     llsearchhistory.h

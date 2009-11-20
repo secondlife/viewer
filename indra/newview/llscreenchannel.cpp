@@ -46,6 +46,7 @@
 #include "lldockablefloater.h"
 #include "llsyswellwindow.h"
 #include "llimfloater.h"
+#include "llscriptfloater.h"
 
 #include <algorithm>
 
@@ -698,7 +699,8 @@ void LLScreenChannel::updateShowToastsState()
 	}
 
 	// for IM floaters showed in a docked state - prohibit showing of ani toast
-	if(dynamic_cast<LLIMFloater*>(floater))
+	if(dynamic_cast<LLIMFloater*>(floater)
+		|| dynamic_cast<LLScriptFloater*>(floater) )
 	{
 		setShowToasts(!(floater->getVisible() && floater->isDocked()));
 		if (!getShowToasts())
