@@ -120,10 +120,20 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 		// We must do this before  processing the media HUD zoom, or it may zoom to the wrong face. 
 		update();
 
-		if(mMediaControls.get() && face_auto_zoom && ! parcel->getMediaPreventCameraZoom())
+		if(mMediaControls.get())
 		{
-			mMediaControls.get()->resetZoomLevel();
-			mMediaControls.get()->nextZoomLevel();
+			if(face_auto_zoom && ! parcel->getMediaPreventCameraZoom())
+			{
+				// Zoom in on this face
+				mMediaControls.get()->resetZoomLevel();
+				mMediaControls.get()->nextZoomLevel();
+			}
+			else
+			{
+				// Reset the controls' zoom level without moving the camera.
+				// This fixes the case where clicking focus between two non-autozoom faces doesn't change the zoom-out button back to a zoom-in button.
+				mMediaControls.get()->resetZoomLevel(false);
+			}
 		}
 	}
 	else
@@ -132,7 +142,8 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 		{
 			if(mMediaControls.get())
 			{
-				mMediaControls.get()->resetZoomLevel();
+				// Don't reset camera zoom by default, just tell the controls they're no longer controlling zoom.
+				mMediaControls.get()->resetZoomLevel(false);
 			}
 		}
 
@@ -292,6 +303,15 @@ BOOL LLViewerMediaFocus::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 
 		if (key == KEY_ESCAPE)
 		{
+			// Reset camera zoom in this case.
+			if(mFocusedImplID.notNull())
+			{
+				if(mMediaControls.get())
+				{
+					mMediaControls.get()->resetZoomLevel(true);
+				}
+			}
+			
 			clearFocus();
 		}
 	}

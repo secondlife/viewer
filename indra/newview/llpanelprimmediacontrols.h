@@ -58,7 +58,7 @@ public:
 	void updateShape();
 	bool isMouseOver();
 	void nextZoomLevel();
-	void resetZoomLevel();
+	void resetZoomLevel(bool reset_camera = true);
 	void close();
 
 	LLHandle<LLPanelPrimMediaControls>	getHandle() const { return mPanelHandle; }

@@ -782,8 +782,8 @@ void LLPanelPrimMediaControls::onClickClose()
 
 void LLPanelPrimMediaControls::close()
 {
+	resetZoomLevel(true);
 	LLViewerMediaFocus::getInstance()->clearFocus();
-	resetZoomLevel();
 	setVisible(FALSE);
 }
 
@@ -921,8 +921,11 @@ void LLPanelPrimMediaControls::onClickSkipForward()
 void LLPanelPrimMediaControls::onClickZoom()
 {
 	focusOnTarget();
-
-	nextZoomLevel();
+	
+	if(mCurrentZoom == ZOOM_NONE)
+	{
+		nextZoomLevel();
+	}
 }
 
 void LLPanelPrimMediaControls::nextZoomLevel()
@@ -941,12 +944,15 @@ void LLPanelPrimMediaControls::nextZoomLevel()
 	updateZoom();
 }
 
-void LLPanelPrimMediaControls::resetZoomLevel()
+void LLPanelPrimMediaControls::resetZoomLevel(bool reset_camera)
 {
 	if(mCurrentZoom != ZOOM_NONE)
 	{
 		mCurrentZoom = ZOOM_NONE;
-		updateZoom();
+		if(reset_camera)
+		{
+			updateZoom();
+		}
 	}
 }
 
