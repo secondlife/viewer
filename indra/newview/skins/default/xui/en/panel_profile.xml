@@ -27,7 +27,8 @@
     <string
      name="no_partner_text"
      value="None" />
- <scroll_container
+    <string name="RegisterDateFormat">[REG_DATE] ([AGE])</string>
+  <scroll_container
      color="DkGray2"
      follows="all"
      height="485"

@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  background_visible="true"
- bevel_style="in"
- bg_alpha_color="0 0 0 0"
  height="90"
  label="instant_message"
  layout="topleft"
@@ -21,8 +19,6 @@
      value="SANSSERIF" />
     <panel
      background_visible="true"
-     bevel_style="in"
-     bg_alpha_color="black"
      follows="top"
      height="30"
      label="header"
@@ -32,7 +28,7 @@
      top="0"
      width="305">
         <icon
-         follows="left|top|right|bottom"
+         follows="all"
          height="20"
          layout="topleft"
          left="5"
@@ -41,8 +37,8 @@
          top="5"
          width="20" />
         <text
-         follows="left|top|right|bottom"
-         font="SansSerifBigBold"
+         follows="all"
+         font="SansSerifBig"
          height="20"
          layout="topleft"
          left_pad="10"
@@ -56,7 +52,7 @@
     <text_editor
      allow_html="true"
      enabled="true"
-     follows="left|top|bottom|right"
+     follows="all"
      height="0"
      layout="topleft"
      left="25"
@@ -69,7 +65,7 @@
      type="string"
      use_ellipses="true"
      value="message"
-     width="270" 
+     width="270"
 	 word_wrap="true" >
     </text_editor>
     <icon
@@ -97,9 +93,9 @@
      bottom="85"
      follows="bottom"
      height="20"
-     label="OK"
+     label="Ok"
      layout="topleft"
-     left="25"
+     right="-10"
      name="btn_ok"
      width="70" />
 </panel>

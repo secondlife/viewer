@@ -1104,7 +1104,8 @@ void LLFloaterTools::getMediaState()
 		childSetEnabled("edit_media", FALSE);
 		childSetEnabled("media_info", FALSE);
 		media_info->setEnabled(FALSE);
-		media_info->clear();*/	
+		media_info->clear();*/
+		LL_WARNS("LLFloaterTools: media") << "Media not enabled (no capability) in this region!" << LL_ENDL;
 		clearMediaSettings();
 		return;
 	}
