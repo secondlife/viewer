@@ -4,7 +4,7 @@
 		http://jp.secondlife.com/registration/
 	</panel.string>
 	<panel.string name="forgot_password_url">
-		http://secondlife.com/account/request.php
+		http://secondlife.com/account/request.php?lang=ja
 	</panel.string>
 	<panel name="login_widgets">
 		<line_editor name="first_name_edit" tool_tip="[SECOND_LIFE] ファーストネーム"/>

@@ -722,7 +722,7 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
    icon="alertmodal.tga"
    name="AddClassified"
    type="alertmodal">
-Classified ads appear in the &apos;Classified&apos; section of the Search directory and on [http://www.secondlife.com secondlife.com] for one week.
+Classified ads appear in the &apos;Classified&apos; section of the Search directory and on [http://secondlife.com/community/classifieds secondlife.com] for one week.
 Fill out your ad, then click &apos;Publish...&apos; to add it to the directory.
 You&apos;ll be asked for a price to pay when clicking Publish.
 Paying more makes your ad appear higher in the list, and also appear higher when people search for keywords.
@@ -3261,7 +3261,7 @@ You are not allowed in that region due to your maturity Rating.
 
 Go to the Knowledge Base for more information about maturity Ratings?
     <url option="0" name="url">
-		https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+		http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
     </url>
     <usetemplate
      name="okcancelignore"
@@ -3318,7 +3318,7 @@ You cannot claim this land due to your maturity Rating.
 
 Go to the Knowledge Base for more information about maturity Ratings?
     <url option="0" name="url">
-		https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+		http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
     </url>
     <usetemplate
      name="okcancelignore"
@@ -3368,7 +3368,7 @@ You cannot buy this land due to your maturity Rating.
 
 Go to the Knowledge Base for more information about maturity Ratings?
     <url option="0" name="url">
-		https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+		http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
     </url>
     <usetemplate
      name="okcancelignore"
@@ -3765,7 +3765,7 @@ There are no items in this object that you are allowed to copy.
    icon="alertmodal.tga"
    name="WebLaunchAccountHistory"
    type="alertmodal">
-Go to  your [http://secondlife.com/account/ Dashboard] to see your account history?
+Go to your [http://secondlife.com/account/ Dashboard] to see your account history?
     <usetemplate
      ignoretext="Launch my browser to see my account history"
      name="okcancelignore"

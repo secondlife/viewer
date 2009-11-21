@@ -285,7 +285,7 @@ Vous devez saisir le nom et le prénom de votre avatar.
 
 Pour entrer dans [SECOND_LIFE], vous devez avoir un compte. Voulez-vous en créer un maintenant ?
 		<url name="url">
-			http://join.secondlife.com/
+			https://join.secondlife.com/index.php?lang=fr-FR
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Réessayer" yestext="Créer un compte"/>
 	</notification>
@@ -312,7 +312,7 @@ Une fois payés, les frais ne sont pas remboursables.
 	<notification name="PromptGoToEventsPage">
 		Aller à la page web de [SECOND_LIFE] réservée aux événements ?
 		<url name="url">
-			http://secondlife.com/events/
+			http://secondlife.com/events/?lang=fr-FR
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
@@ -493,7 +493,7 @@ Veuillez mettre tous les objets que vous souhaitez acquérir dans la même régi
 
 Aller sur [_URL] pour obtenir des informations sur l&apos;achat de L$ ?
 		<url name="url">
-			http://secondlife.com/app/currency/
+			http://secondlife.com/app/currency/?lang=fr-FR
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
@@ -1038,7 +1038,7 @@ Vous pouvez utiliser [SECOND_LIFE] normalement, les autres résidents vous voien
 		L&apos;installation de [APP_NAME] est terminée.
 
 S&apos;il s&apos;agit de la première fois que vous utilisez [SECOND_LIFE], vous devrez créer un compte avant de pouvoir vous connecter.
-Retourner sur www.secondlife.com pour créer un nouveau compte ?
+Retourner sur [https://join.secondlife.com/index.php?lang=fr-FR secondlife.com] pour créer un nouveau compte ?
 		<usetemplate name="okcancelbuttons" notext="Continuer" yestext="Nouveau compte..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
@@ -1046,7 +1046,7 @@ Retourner sur www.secondlife.com pour créer un nouveau compte ?
 
 Vérifiez votre connextion Internet et réessayez dans quelques minutes, cliquez sur Aide pour consulter la page [SUPPORT_SITE] ou bien sur Téléporter pour essayer d&apos;aller chez vous.
 		<url name="url">
-			http://secondlife.com/support/
+			http://fr.secondlife.com/support/
 		</url>
 		<form name="form">
 			<button name="OK" text="OK"/>
@@ -1436,7 +1436,7 @@ Vérifiez que vous avez la toute dernière version du client et consultez les pa
 
 Souhaitez-vous en savoir plus sur les différentes catégories d&apos;accès ?
 		<url name="url">
-			http://wiki.secondlife.com/wiki/Pr%C3%A9sentation_des_cat%C3%A9gories_de_contenu_(KB)
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/fr
 		</url>
 		<usetemplate ignoretext="Je ne peux pas pénétrer dans cette région car je n&apos;ai pas accès à cette catégorie de contenu" name="okcancelignore" notext="Fermer" yestext="Consulter les pages d&apos;aide"/>
 	</notification>
@@ -1464,7 +1464,7 @@ Vérifiez que vous avez la toute dernière version du client et consultez les pa
 
 Souhaitez-vous en savoir plus sur les différentes catégories d&apos;accès ?
 		<url name="url">
-			http://wiki.secondlife.com/wiki/Pr%C3%A9sentation_des_cat%C3%A9gories_de_contenu_(KB)
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/fr
 		</url>
 		<usetemplate ignoretext="Je ne peux pas réclamer cette région car je n&apos;ai pas accès à cette catégorie de contenu" name="okcancelignore" notext="Fermer" yestext="Consulter les pages d&apos;aide"/>
 	</notification>
@@ -1488,7 +1488,7 @@ Vérifiez que vous avez la toute dernière version du client et consultez les pa
 
 Souhaitez-vous en savoir plus sur les différentes catégories d&apos;accès ?
 		<url name="url">
-			http://wiki.secondlife.com/wiki/Pr%C3%A9sentation_des_cat%C3%A9gories_de_contenu_(KB)
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/fr
 		</url>
 		<usetemplate ignoretext="Je ne peux pas acheter ce terrain car je n&apos;ai pas accès à cette catégorie de contenu" name="okcancelignore" notext="Fermer" yestext="Consulter les pages d&apos;aide"/>
 	</notification>
@@ -1672,10 +1672,7 @@ Déplacer les objets de l&apos;inventaire ?
 		<usetemplate ignoretext="Confirmer avant de quitter" name="okcancelignore" notext="Ne pas quitter" yestext="Quitter"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		Utilisez cet outil pour signaler des infractions aux Conditions d&apos;utilisation et aux Règles de la communauté. Voir :
-
-http://secondlife.com/corporate/tos.php
-http://secondlife.com/corporate/cs.php
+		Utilisez cet outil pour signaler des infractions aux [http://secondlife.com/corporate/tos.php?lang=fr-FR Conditions d&apos;utilisation] et aux [http://secondlife.com/corporate/cs.php?lang=fr-FR Règles de la communauté].
 
 Lorsqu&apos;elles sont signalées, toutes les infractions aux Conditions d&apos;utilisation et aux Règles de la communauté font l&apos;objet d&apos;une enquête et sont résolues. Pour accéder aux détails de la résolution d&apos;un incident, allez sur :
 
