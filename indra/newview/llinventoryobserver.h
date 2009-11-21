@@ -113,7 +113,7 @@ public:
 
 	bool isEverythingComplete() const;
 	void fetchItems(const item_ref_t& ids);
-	virtual void done() = 0;
+	virtual void done() {};
 
 protected:
 	item_ref_t mComplete;
