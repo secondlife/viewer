@@ -143,6 +143,12 @@ BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 		
 		if( valid_rect.localPointInRect( screen_x, screen_y ) && mResizingView )
 		{
+			// undock floater when user resize it
+			if (((LLFloater*)getParent())->isDocked())
+			{
+				((LLFloater*)getParent())->setDocked(false, false);
+			}
+
 			// Resize the parent
 			LLRect orig_rect = mResizingView->getRect();
 			LLRect scaled_rect = orig_rect;

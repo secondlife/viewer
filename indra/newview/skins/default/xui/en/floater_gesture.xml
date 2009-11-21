@@ -21,12 +21,16 @@
      name="playing">
         (Playing)
     </floater.string>
+    <!-- It's used to build new name for gesture created by "Copy" menu item -->
+    <floater.string
+     name="copy_name">Copy of [COPY_NAME]</floater.string>
     <scroll_list
      bottom_delta="400"
      draw_heading="true"
      follows="all"
      layout="topleft"
      left="0"
+     multi_select="true"
      top="20"
      name="gesture_list">
         <scroll_list.columns
@@ -57,18 +61,18 @@
              left="0"
              name="bottom_panel"
              width="313">
-               <button
+              <menu_button
                follows="bottom|left"
-               font="SansSerifBigBold"
-               tool_tip="Change sort and view of recent residents list"
                height="18"
                image_disabled="OptionsMenu_Disabled"
                image_selected="OptionsMenu_Press"
                image_unselected="OptionsMenu_Off"
                layout="topleft"
                left="10"
-               name="recent_viewsort_btn"
+               menu_filename="menu_gesture_gear.xml"
+               name="gear_btn"
                top="5"
+               tool_tip="More options"
                width="18" />
               <button
                  follows="bottom|left"

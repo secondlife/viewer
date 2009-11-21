@@ -148,20 +148,13 @@ void LLLandmarksPanel::onShowOnMap()
 		llwarns << "There are no selected list. No actions are performed." << llendl;
 		return;
 	}
-	LLLandmark* landmark = getCurSelectedLandmark();
-	if (!landmark)
-		return;
 
-	LLVector3d landmark_global_pos;
-	if (!landmark->getGlobalPos(landmark_global_pos))
-		return;
-	
-	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
-	if (!landmark_global_pos.isExactlyZero() && worldmap_instance)
-	{
-		worldmap_instance->trackLocation(landmark_global_pos);
-		LLFloaterReg::showInstance("world_map", "center");
-	}
+	// Disable the "Map" button because loading landmark can take some time.
+	// During this time the button is useless. It will be enabled on callback finish
+	// or upon switching to other item.
+	mShowOnMapBtn->setEnabled(FALSE);
+
+	doActionOnCurSelectedLandmark(boost::bind(&LLLandmarksPanel::doShowOnMap, this, _1));
 }
 
 // virtual
@@ -256,15 +249,18 @@ bool LLLandmarksPanel::isReceivedFolderSelected() const
 
 	return false;
 }
-LLLandmark* LLLandmarksPanel::getCurSelectedLandmark() const
-{
 
+void LLLandmarksPanel::doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb)
+{
 	LLFolderViewItem* cur_item = getCurSelectedItem();
 	if(cur_item && cur_item->getListener()->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{ 
-		return LLLandmarkActions::getLandmark(cur_item->getListener()->getUUID());
+		LLLandmark* landmark = LLLandmarkActions::getLandmark(cur_item->getListener()->getUUID(), cb);
+		if (landmark)
+		{
+			cb(landmark);
+		}
 	}
-	return NULL;
 }
 
 LLFolderViewItem* LLLandmarksPanel::getCurSelectedItem() const 
@@ -294,45 +290,11 @@ void LLLandmarksPanel::processParcelInfo(const LLParcelData& parcel_data)
 	// We have to make request to sever to get parcel_id and snaption_id. 
 	if(isLandmarkSelected())
 	{
-		LLLandmark* landmark  =  getCurSelectedLandmark();
 		LLFolderViewItem* cur_item = getCurSelectedItem();
 		LLUUID id = cur_item->getListener()->getUUID();
-		LLInventoryItem* inv_item =  mCurrentSelectedList->getModel()->getItem(id);
-		if(landmark)
-		{
-			LLPanelPickEdit* panel_pick = LLPanelPickEdit::create();
-			LLVector3d landmark_global_pos;
-			landmark->getGlobalPos(landmark_global_pos);
-
-			// let's toggle pick panel into  panel places
-			LLPanel* panel_places =  LLSideTray::getInstance()->getChild<LLPanel>("panel_places");//-> sidebar_places
-			panel_places->addChild(panel_pick);
-			LLRect paren_rect(panel_places->getRect());
-			panel_pick->reshape(paren_rect.getWidth(),paren_rect.getHeight(), TRUE);
-			panel_pick->setRect(paren_rect);
-			panel_pick->onOpen(LLSD());
-
-			LLPickData data;
-			data.pos_global = landmark_global_pos;
-			data.name = cur_item->getName();
-			data.desc = inv_item->getDescription();
-			data.snapshot_id = parcel_data.snapshot_id;
-			data.parcel_id = parcel_data.parcel_id;
-			panel_pick->setPickData(&data);
-
-			LLSD params;
-			params["parcel_id"] =parcel_data.parcel_id;
-			/* set exit callback to get back onto panel places  
-			 in callback we will make cleaning up( delete pick_panel instance, 
-			 remove landmark panel from observer list
-			*/ 
-			panel_pick->setExitCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
-					panel_pick, panel_places,params));
-			panel_pick->setSaveCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
-				panel_pick, panel_places,params));
-			panel_pick->setCancelCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
-							panel_pick, panel_places,params));
-		}
+		LLInventoryItem* inv_item = mCurrentSelectedList->getModel()->getItem(id);
+		doActionOnCurSelectedLandmark(boost::bind(
+				&LLLandmarksPanel::doProcessParcelInfo, this, _1, cur_item, inv_item, parcel_data));
 	}
 }
 
@@ -747,42 +709,7 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
 	}
 	else if ("create_pick" == command_name)
 	{
-		LLLandmark* landmark = getCurSelectedLandmark();
-		if(!landmark) return;
-		
-		LLViewerRegion* region = gAgent.getRegion();
-		if (!region) return;
-
-		LLGlobalVec pos_global;
-		LLUUID region_id;
-		landmark->getGlobalPos(pos_global);
-		landmark->getRegionID(region_id);
-		LLVector3 region_pos((F32)fmod(pos_global.mdV[VX], (F64)REGION_WIDTH_METERS),
-						  (F32)fmod(pos_global.mdV[VY], (F64)REGION_WIDTH_METERS),
-						  (F32)pos_global.mdV[VZ]);
-
-		LLSD body;
-		std::string url = region->getCapability("RemoteParcelRequest");
-		if (!url.empty())
-		{
-			body["location"] = ll_sd_from_vector3(region_pos);
-			if (!region_id.isNull())
-			{
-				body["region_id"] = region_id;
-			}
-			if (!pos_global.isExactlyZero())
-			{
-				U64 region_handle = to_region_handle(pos_global);
-				body["region_handle"] = ll_sd_from_U64(region_handle);
-			}
-			LLHTTPClient::post(url, body, new LLRemoteParcelRequestResponder(getObserverHandle()));
-		}
-		else 
-		{
-			llwarns << "Can't create pick for landmark for region" << region_id 
-					<< ". Region: "	<< region->getName() 
-					<< " does not support RemoteParcelRequest" << llendl; 
-		}
+		doActionOnCurSelectedLandmark(boost::bind(&LLLandmarksPanel::doCreatePick, this, _1));
 	}
 }
 
@@ -931,6 +858,97 @@ void LLLandmarksPanel::updateFilteredAccordions()
 	mDirtyFilter = false;
 }
 
+void LLLandmarksPanel::doShowOnMap(LLLandmark* landmark)
+{
+	LLVector3d landmark_global_pos;
+	if (!landmark->getGlobalPos(landmark_global_pos))
+		return;
+
+	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+	if (!landmark_global_pos.isExactlyZero() && worldmap_instance)
+	{
+		worldmap_instance->trackLocation(landmark_global_pos);
+		LLFloaterReg::showInstance("world_map", "center");
+	}
+
+	mShowOnMapBtn->setEnabled(TRUE);
+}
+
+void LLLandmarksPanel::doProcessParcelInfo(LLLandmark* landmark,
+										   LLFolderViewItem* cur_item,
+										   LLInventoryItem* inv_item,
+										   const LLParcelData& parcel_data)
+{
+	LLPanelPickEdit* panel_pick = LLPanelPickEdit::create();
+	LLVector3d landmark_global_pos;
+	landmark->getGlobalPos(landmark_global_pos);
+
+	// let's toggle pick panel into  panel places
+	LLPanel* panel_places =  LLSideTray::getInstance()->getChild<LLPanel>("panel_places");//-> sidebar_places
+	panel_places->addChild(panel_pick);
+	LLRect paren_rect(panel_places->getRect());
+	panel_pick->reshape(paren_rect.getWidth(),paren_rect.getHeight(), TRUE);
+	panel_pick->setRect(paren_rect);
+	panel_pick->onOpen(LLSD());
+
+	LLPickData data;
+	data.pos_global = landmark_global_pos;
+	data.name = cur_item->getName();
+	data.desc = inv_item->getDescription();
+	data.snapshot_id = parcel_data.snapshot_id;
+	data.parcel_id = parcel_data.parcel_id;
+	panel_pick->setPickData(&data);
+
+	LLSD params;
+	params["parcel_id"] = parcel_data.parcel_id;
+	/* set exit callback to get back onto panel places
+	 in callback we will make cleaning up( delete pick_panel instance,
+	 remove landmark panel from observer list
+	*/
+	panel_pick->setExitCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
+			panel_pick, panel_places,params));
+	panel_pick->setSaveCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
+		panel_pick, panel_places,params));
+	panel_pick->setCancelCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
+					panel_pick, panel_places,params));
+}
+
+void LLLandmarksPanel::doCreatePick(LLLandmark* landmark)
+{
+	LLViewerRegion* region = gAgent.getRegion();
+	if (!region) return;
+
+	LLGlobalVec pos_global;
+	LLUUID region_id;
+	landmark->getGlobalPos(pos_global);
+	landmark->getRegionID(region_id);
+	LLVector3 region_pos((F32)fmod(pos_global.mdV[VX], (F64)REGION_WIDTH_METERS),
+					  (F32)fmod(pos_global.mdV[VY], (F64)REGION_WIDTH_METERS),
+					  (F32)pos_global.mdV[VZ]);
+
+	LLSD body;
+	std::string url = region->getCapability("RemoteParcelRequest");
+	if (!url.empty())
+	{
+		body["location"] = ll_sd_from_vector3(region_pos);
+		if (!region_id.isNull())
+		{
+			body["region_id"] = region_id;
+		}
+		if (!pos_global.isExactlyZero())
+		{
+			U64 region_handle = to_region_handle(pos_global);
+			body["region_handle"] = ll_sd_from_U64(region_handle);
+		}
+		LLHTTPClient::post(url, body, new LLRemoteParcelRequestResponder(getObserverHandle()));
+	}
+	else
+	{
+		llwarns << "Can't create pick for landmark for region" << region_id
+				<< ". Region: "	<< region->getName()
+				<< " does not support RemoteParcelRequest" << llendl;
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////
 // HELPER FUNCTIONS
