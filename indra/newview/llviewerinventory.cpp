@@ -56,10 +56,42 @@
 #include "lltrans.h"
 #include "llappearancemgr.h"
 #include "llfloatercustomize.h"
+#include "llcommandhandler.h"
+#include "llviewermessage.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
+
+class LLInventoryHandler : public LLCommandHandler
+{
+public:
+	// requires trusted browser to trigger
+	LLInventoryHandler() : LLCommandHandler("inventory", UNTRUSTED_THROTTLE) { }
+	
+	bool handle(const LLSD& params, const LLSD& query_map,
+				LLMediaCtrl* web)
+	{
+		if (params.size() < 2) return false;
+		LLUUID inventory_id;
+		if (!inventory_id.set(params[0], FALSE))
+		{
+			return false;
+		}
+		
+		const std::string verb = params[1].asString();
+		if (verb == "select")
+		{
+			std::vector<LLUUID> items_to_open;
+			items_to_open.push_back(inventory_id);
+			open_inventory_offer(items_to_open, "");
+			return true;
+		}
+		
+		return false;
+	}
+};
+LLInventoryHandler gInventoryHandler;
 
 ///----------------------------------------------------------------------------
 /// Class LLViewerInventoryItem

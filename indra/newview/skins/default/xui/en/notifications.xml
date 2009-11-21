@@ -4494,7 +4494,7 @@ You don&apos;t have permission to copy this.
    icon="notifytip.tga"
    name="InventoryAccepted"
    type="notifytip">
-[NAME] accepted your inventory offer.
+[NAME] received your inventory offer.
   </notification>
 
   <notification
@@ -4966,17 +4966,21 @@ No valid parcel could be found.
    icon="notify.tga"
    name="ObjectGiveItem"
    type="offer">
-An object named [OBJECTFROMNAME] owned by [NAME] has offered you [OBJECTTYPE]:
+An object named [OBJECTFROMNAME] owned by [NAME] has given you [OBJECTTYPE]:
 [ITEM_SLURL]
     <form name="form">
       <button
        index="0"
        name="Keep"
-       text="OK"/>
+       text="Keep"/>
+	  <button
+       index="4"
+       name="Show"
+       text="Show"/> 
       <button
        index="1"
        name="Discard"
-       text="Cancel"/>
+       text="Discard"/>
       <button
        index="2"
        name="Mute"
@@ -4993,11 +4997,15 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
       <button
        index="0"
        name="Keep"
-       text="OK"/>
+       text="Keep"/>
+	  <button
+       index="4"
+       name="Show"
+       text="Show"/> 
       <button
        index="1"
        name="Discard"
-       text="Cancel"/>
+       text="Discard"/>
       <button
        index="2"
        name="Mute"
@@ -5009,17 +5017,21 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
    icon="notify.tga"
    name="UserGiveItem"
    type="offer">
-[NAME] has offered you [OBJECTTYPE]:
+[NAME] has given you [OBJECTTYPE]:
 [ITEM_SLURL]
     <form name="form">
       <button
        index="0"
        name="Keep"
-       text="Accept"/>
+       text="Keep"/>
+      <button
+       index="4"
+       name="Show"
+       text="Show"/> 
       <button
        index="1"
        name="Discard"
-       text="No, thanks"/>
+       text="Discard"/>
     </form>
   </notification>
 
