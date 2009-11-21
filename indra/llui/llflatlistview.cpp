@@ -94,6 +94,9 @@ bool LLFlatListView::addItem(LLPanel * item, const LLSD& value /*= LLUUID::null*
 	item->setMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, new_pair, _4));
 	item->setRightMouseDownCallback(boost::bind(&LLFlatListView::onItemRightMouseClick, this, new_pair, _4));
 
+	// Children don't accept the focus
+	item->setTabStop(false);
+
 	rearrangeItems();
 	notifyParentItemsRectChanged();
 	return true;
@@ -282,6 +285,9 @@ void LLFlatListView::resetSelection(bool no_commit_on_deselection /*= false*/)
 	{
 		onCommit();
 	}
+
+	// Stretch selected items rect to ensure it won't be clipped
+	mSelectedItemsBorder->setRect(getSelectedItemsRect().stretch(-1));
 }
 
 void LLFlatListView::setNoItemsCommentText(const std::string& comment_text)
@@ -381,7 +387,33 @@ LLFlatListView::LLFlatListView(const LLFlatListView::Params& p)
 	//we don't need to stretch in vertical direction on reshaping by a parent
 	//no bottom following!
 	mItemsPanel->setFollows(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_TOP);
+
+	LLViewBorder::Params params;
+	params.name("scroll border");
+	params.rect(getSelectedItemsRect());
+	params.visible(false);
+	params.bevel_style(LLViewBorder::BEVEL_IN);
+	mSelectedItemsBorder = LLUICtrlFactory::create<LLViewBorder> (params);
+	mItemsPanel->addChild( mSelectedItemsBorder );
 };
+
+// virtual
+void LLFlatListView::draw()
+{
+	// Highlight border if a child of this container has keyboard focus
+	if( mSelectedItemsBorder->getVisible() )
+	{
+		mSelectedItemsBorder->setKeyboardFocusHighlight( hasFocus() );
+	}
+	LLScrollContainer::draw();
+}
+
+// virtual
+BOOL LLFlatListView::postBuild()
+{
+	setTabStop(true);
+	return LLScrollContainer::postBuild();
+}
 
 void LLFlatListView::rearrangeItems()
 {
@@ -444,6 +476,9 @@ void LLFlatListView::rearrangeItems()
 		// move top for next item in list
 		item_new_top -= (rc.getHeight() + mItemPad);
 	}
+
+	// Stretch selected items rect to ensure it won't be clipped
+	mSelectedItemsBorder->setRect(getSelectedItemsRect().stretch(-1));
 }
 
 void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
@@ -471,6 +506,64 @@ void LLFlatListView::onItemRightMouseClick(item_pair_t* item_pair, MASK mask)
 
 	// else got same behavior as at onItemMouseClick
 	onItemMouseClick(item_pair, mask);
+}
+
+BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
+{
+	BOOL reset_selection = (mask != MASK_SHIFT);
+	BOOL handled = FALSE;
+	switch (key)
+	{
+		case KEY_RETURN:
+		{
+			if (mSelectedItemPairs.size() && mask == MASK_NONE)
+			{
+				mOnReturnSignal(this, getValue());
+				handled = TRUE;
+			}
+			break;
+		}
+		case KEY_UP:
+		{
+			if ( !selectNextItemPair(true, reset_selection) && reset_selection)
+			{
+				// If case we are in accordion tab notify parent to go to the previous accordion
+				notifyParent(LLSD().insert("action","select_prev"));
+			}
+			break;
+		}
+		case KEY_DOWN:
+		{
+			if ( !selectNextItemPair(false, reset_selection) && reset_selection)
+			{
+				// If case we are in accordion tab notify parent to go to the next accordion
+				notifyParent(LLSD().insert("action","select_next"));
+			}
+			break;
+		}
+		case 'A':
+		{
+			if(MASK_CONTROL & mask)
+			{
+				selectAll();
+				handled = TRUE;
+			}
+			break;
+		}
+		default:
+			break;
+	}
+
+	if ( key == KEY_UP || key == KEY_DOWN )
+	{
+		LLRect selcted_rect = getLastSelectedItemRect().stretch(1);
+		LLRect visible_rect = getVisibleContentRect();
+		if ( !visible_rect.contains (selcted_rect) )
+			scrollToShowRect(selcted_rect);
+		handled = TRUE;
+	}
+
+	return handled ? handled : LLScrollContainer::handleKeyHere(key, mask);
 }
 
 LLFlatListView::item_pair_t* LLFlatListView::getItemPair(LLPanel* item) const
@@ -551,6 +644,143 @@ bool LLFlatListView::selectItemPair(item_pair_t* item_pair, bool select)
 	{
 		onCommit();
 	}
+
+	setFocus(TRUE);
+
+	// Stretch selected items rect to ensure it won't be clipped
+	mSelectedItemsBorder->setRect(getSelectedItemsRect().stretch(-1));
+
+	return true;
+}
+
+LLRect LLFlatListView::getLastSelectedItemRect()
+{
+	if (!mSelectedItemPairs.size())
+	{
+		return LLRect::null;
+	}
+
+	return mSelectedItemPairs.back()->first->getRect();
+}
+
+LLRect LLFlatListView::getSelectedItemsRect()
+{
+	if (!mSelectedItemPairs.size())
+	{
+		return LLRect::null;
+	}
+	LLRect rc = getLastSelectedItemRect();
+	for ( pairs_const_iterator_t
+			  it = mSelectedItemPairs.begin(),
+			  it_end = mSelectedItemPairs.end();
+		  it != it_end; ++it )
+	{
+		rc.unionWith((*it)->first->getRect());
+	}
+	return rc;
+}
+
+// virtual
+bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selection)
+{
+	// No items - no actions!
+	if ( !mItemPairs.size() )
+		return false;
+
+	item_pair_t* cur_sel_pair = NULL;
+	item_pair_t* to_sel_pair = NULL;
+
+	if ( mSelectedItemPairs.size() )
+	{
+		// Take the last selected pair
+		cur_sel_pair = mSelectedItemPairs.back();
+	}
+	else
+	{
+		// If there weren't selected items then choose the first one bases on given direction
+		cur_sel_pair = (is_up_direction) ? mItemPairs.back() : mItemPairs.front();
+		// Force selection to first item
+		to_sel_pair = cur_sel_pair;
+	}
+
+	// Bases on given direction choose next item to select
+	if ( is_up_direction )
+	{
+		// Find current selected item position in mItemPairs list
+		pairs_list_t::reverse_iterator sel_it = std::find(mItemPairs.rbegin(), mItemPairs.rend(), cur_sel_pair);
+
+		for (;++sel_it != mItemPairs.rend();)
+		{
+			// skip invisible items
+			if ( (*sel_it)->first->getVisible() )
+			{
+				to_sel_pair = *sel_it;
+				break;
+			}
+		}
+	}
+	else
+	{
+		// Find current selected item position in mItemPairs list
+		pairs_list_t::iterator sel_it = std::find(mItemPairs.begin(), mItemPairs.end(), cur_sel_pair);
+
+		for (;++sel_it != mItemPairs.end();)
+		{
+			// skip invisible items
+			if ( (*sel_it)->first->getVisible() )
+			{
+				to_sel_pair = *sel_it;
+				break;
+			}
+		}
+	}
+
+	if ( to_sel_pair )
+	{
+		bool select = true;
+
+		if ( reset_selection )
+		{
+			// Reset current selection if we were asked about it
+			resetSelection();
+		}
+		else
+		{
+			// If item already selected and no reset request than we should deselect last selected item.
+			select = (mSelectedItemPairs.end() == std::find(mSelectedItemPairs.begin(), mSelectedItemPairs.end(), to_sel_pair));
+		}
+
+		// Select/Deselect next item
+		selectItemPair(select ? to_sel_pair : cur_sel_pair, select);
+
+		return true;
+	}
+	return false;
+}
+
+bool LLFlatListView::selectAll()
+{
+	if (!mAllowSelection)
+		return false;
+
+	mSelectedItemPairs.clear();
+
+	for (pairs_const_iterator_t it= mItemPairs.begin(); it != mItemPairs.end(); ++it)
+	{
+		item_pair_t* item_pair = *it;
+		mSelectedItemPairs.push_back(item_pair);
+		//a way of notifying panel of selection state changes
+		LLPanel* item = item_pair->first;
+		item->setValue(SELECTED_EVENT);
+	}
+
+	if (mCommitOnSelectionChange)
+	{
+		onCommit();
+	}
+
+	// Stretch selected items rect to ensure it won't be clipped
+	mSelectedItemsBorder->setRect(getSelectedItemsRect().stretch(-1));
 
 	return true;
 }
@@ -668,6 +898,17 @@ void LLFlatListView::getValues(std::vector<LLSD>& values) const
 	{
 		values.push_back((*it)->second);
 	}
+}
+
+// virtual
+void LLFlatListView::onFocusReceived()
+{
+	mSelectedItemsBorder->setVisible(TRUE);
+}
+// virtual
+void LLFlatListView::onFocusLost()
+{
+	mSelectedItemsBorder->setVisible(FALSE);
 }
 
 //EOF
