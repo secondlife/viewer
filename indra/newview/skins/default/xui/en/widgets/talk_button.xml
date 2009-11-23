@@ -13,7 +13,6 @@
     name="left"
     label="Speak"
     label_selected="Speak"
-    font="SansSerifSmall"
     tab_stop="false"
     />
   <show_button

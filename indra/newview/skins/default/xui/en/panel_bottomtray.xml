@@ -108,7 +108,6 @@
           width="82"
           tool_tip="Shows/hides gestures">
              <gesture_combo_box.drop_down_button
-              font="SansSerifSmall"
               pad_right="10" 
               use_ellipses="true" />
          </gesture_combo_box>
