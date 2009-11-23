@@ -172,6 +172,11 @@ protected:
 	 */
 	void pay();
 
+	/**
+	 * opens inventory and IM for sharing items
+	 */
+	void share();
+
 	void onUrlTextboxClicked(const std::string& url);
 	void onHomepageTextboxClicked();
 	void onAddFriendButtonClick();

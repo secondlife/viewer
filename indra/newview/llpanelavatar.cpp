@@ -528,7 +528,7 @@ void LLPanelAvatarProfile::pay()
 
 void LLPanelAvatarProfile::share()
 {
-	LLAvatarActions::share(getAvatarID());
+	LLAvatarActions::share(getAvatarId());
 }
 
 void LLPanelAvatarProfile::onUrlTextboxClicked(const std::string& url)
