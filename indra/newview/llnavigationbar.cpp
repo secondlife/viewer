@@ -230,6 +230,16 @@ BOOL LLNavigationBar::postBuild()
 	return TRUE;
 }
 
+void LLNavigationBar::setVisible(BOOL visible)
+{
+	// change visibility of grandparent layout_panel to animate in and out
+	if (getParent() && getParent()->getParent()) 
+	{
+		getParent()->getParent()->setVisible(visible);	
+	}
+}
+
+
 void LLNavigationBar::fillSearchComboBox()
 {
 	if(!mSearchComboBox)
