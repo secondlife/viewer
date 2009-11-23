@@ -34,6 +34,7 @@
 #include "llchathistory.h"
 #include "llpanel.h"
 #include "lltextbox.h"
+#include "lltexteditor.h"
 #include "lluictrlfactory.h"
 #include "llscrollcontainer.h"
 #include "llavatariconctrl.h"
@@ -185,7 +186,7 @@ public:
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}
 
-		LLTextBox* userName = getChild<LLTextBox>("user_name");
+		LLTextEditor* userName = getChild<LLTextEditor>("user_name");
 
 		LLUIColor color = style_params.color;
 		userName->setReadOnlyColor(color);
