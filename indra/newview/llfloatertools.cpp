@@ -563,7 +563,8 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 
 	mBtnEdit	->setToggleState( edit_visible );
 	mRadioGroupEdit->setVisible( edit_visible );
-	childSetVisible("RenderingCost", edit_visible || focus_visible || move_visible);
+	bool linked_parts = gSavedSettings.getBOOL("EditLinkedParts");
+	childSetVisible("RenderingCost", !linked_parts && (edit_visible || focus_visible || move_visible));
 
 	if (mCheckSelectIndividual)
 	{
@@ -988,11 +989,12 @@ S32 LLFloaterTools::calcRenderCost()
 			if (viewer_volume)
 			{
 				cost += viewer_volume->getRenderCost(textures);
+				cost += textures.size() * 5;
+				textures.clear();
 			}
 		}
 	}
 
-	cost += textures.size() * 5;
 
 	return cost;
 }
