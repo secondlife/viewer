@@ -13,8 +13,6 @@ bg_color="yellow"
  title="Instant Messages"
  width="392">
     <tab_container
-background_visible="true"
-bg_alpha_color="green" 
      follows="left|right|top|bottom"
      height="390"
      layout="topleft"
@@ -25,7 +23,7 @@ bg_alpha_color="green"
      top="0"
      width="390" />
     <icon
-     color="red"
+     color="DefaultShadowLight"
      enabled="false"
      follows="left|right|bottom"
      height="17"
@@ -33,6 +31,6 @@ bg_alpha_color="green"
      layout="bottomleft"
      left="1"
      name="im_box_tab_container_icon"
-     bottom="0"
+     bottom="10"
      width="390" />
 </multi_floater>

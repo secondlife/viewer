@@ -35,9 +35,6 @@
 
 #include "llimfloatercontainer.h"
 
-// TODO: mantipov: replace with floater_im_session
-#include "llimpanel.h"
-
 //
 // LLIMFloaterContainer
 //
@@ -54,22 +51,24 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 
 BOOL LLIMFloaterContainer::postBuild()
 {
-	// TODO: mantipov: verify if it is needed
-	mTabContainer->lockTabs();
+	// Do not call base postBuild to not connect to mCloseSignal to not close all floaters via Close button
+	// mTabContainer will be initialized in LLMultiFloater::addChild()
 	return TRUE;
 }
 
 void LLIMFloaterContainer::onOpen(const LLSD& key)
 {
-	// TODO: mantipov: verify if it is needed
+	LLMultiFloater::onOpen(key);
+/*
 	if (key.isDefined())
 	{
-		LLFloaterIMPanel* impanel = gIMMgr->findFloaterBySession(key.asUUID());
-		if (impanel)
+		LLIMFloater* im_floater = LLIMFloater::findInstance(key.asUUID());
+		if (im_floater)
 		{
-			impanel->openFloater();
+			im_floater->openFloater();
 		}
 	}
+*/
 }
 
 void LLIMFloaterContainer::addFloater(LLFloater* floaterp, 

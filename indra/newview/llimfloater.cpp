@@ -53,6 +53,10 @@
 #include "lltransientfloatermgr.h"
 #include "llinventorymodel.h"
 
+#ifdef USE_IM_CONTAINER
+	#include "llimfloatercontainer.h" // to replace separate IM Floaters with multifloater container
+#endif
+
 
 
 LLIMFloater::LLIMFloater(const LLUUID& session_id)
@@ -257,7 +261,11 @@ BOOL LLIMFloater::postBuild()
 	//*TODO if session is not initialized yet, add some sort of a warning message like "starting session...blablabla"
 	//see LLFloaterIMPanel for how it is done (IB)
 
+#ifdef USE_IM_CONTAINER
+	return LLFloater::postBuild();
+#else
 	return LLDockableFloater::postBuild();
+#endif
 }
 
 // virtual
@@ -318,6 +326,7 @@ void LLIMFloater::onSlide()
 //static
 LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 {
+#ifndef USE_IM_CONTAINER
 	//hide all
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
 	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
@@ -329,12 +338,23 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 			floater->setVisible(false);
 		}
 	}
+#endif
 
 	LLIMFloater* floater = LLFloaterReg::showTypedInstance<LLIMFloater>("impanel", session_id);
 
 	floater->updateMessages();
 	floater->mInputEditor->setFocus(TRUE);
 
+#ifdef USE_IM_CONTAINER
+
+//		LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
+	// TODO: mantipov: use LLTabContainer::RIGHT_OF_CURRENT if it exists
+	LLTabContainer::eInsertionPoint i_pt = LLTabContainer::END;
+
+	// *TODO: mantipov: validate if floater was torn off. In this case it's no necessary to show container
+	LLIMFloaterContainer* floater_container = LLFloaterReg::showTypedInstance<LLIMFloaterContainer>("im_container");
+	floater_container->addFloater(floater, TRUE, i_pt);
+#else
 	if (floater->getDockControl() == NULL)
 	{
 		LLChiclet* chiclet =
@@ -352,6 +372,7 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 		floater->setDockControl(new LLDockControl(chiclet, floater, floater->getDockTongue(),
 				LLDockControl::TOP,  boost::bind(&LLIMFloater::getAllowedRect, floater, _1)));
 	}
+#endif
 
 	return floater;
 }
@@ -368,7 +389,9 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 		(LLNotificationsUI::LLChannelManager::getInstance()->
 											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
 	
+#ifndef USE_IM_CONTAINER
 	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
+#endif
 
 	// update notification channel state
 	if(channel)
@@ -394,6 +417,7 @@ void LLIMFloater::setVisible(BOOL visible)
 //static
 bool LLIMFloater::toggle(const LLUUID& session_id)
 {
+#ifndef USE_IM_CONTAINER
 	LLIMFloater* floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
 	if (floater && floater->getVisible() && floater->isDocked())
 	{
@@ -409,6 +433,7 @@ bool LLIMFloater::toggle(const LLUUID& session_id)
 		return true;
 	}
 	else
+#endif
 	{
 		// ensure the list of messages is updated when floater is made visible
 		show(session_id);
