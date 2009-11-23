@@ -105,6 +105,7 @@
 #include "llfloateruipreview.h"
 #include "llfloaterurldisplay.h"
 #include "llfloatervoicedevicesettings.h"
+#include "llfloatervolumepulldown.h"
 #include "llfloaterwater.h"
 #include "llfloaterwhitelistentry.h"
 #include "llfloaterwindlight.h"
