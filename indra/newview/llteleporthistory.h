@@ -57,7 +57,8 @@ public:
 	{}
 
 	/**
-	 * @return title formatted according to the current value of the ShowCoordinatesOption setting.
+	 * @return title formatted according to the current value of the 
+	 * NavBarShowCoordinates setting.
 	 */
 	const std::string& getTitle() const;
 	
