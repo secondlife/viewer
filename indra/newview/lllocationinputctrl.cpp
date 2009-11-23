@@ -596,6 +596,16 @@ void LLLocationInputCtrl::refreshLocation()
 
 void LLLocationInputCtrl::refreshParcelIcons()
 {
+	static LLUICachedControl<bool> show_properties("NavBarShowParcelProperties", false);
+	if (!show_properties)
+	{
+		for (S32 i = 0; i < ICON_COUNT; ++i)
+		{
+			mParcelIcon[i]->setVisible(false);
+		}
+		return;
+	}
+	
 	LLViewerParcelMgr* vpm = LLViewerParcelMgr::getInstance();
 	// *TODO buy
 	//bool allow_buy      = vpm->canAgentBuyParcel( vpm->getAgentParcel(), false);
@@ -754,11 +764,17 @@ void LLLocationInputCtrl::onLocationContextMenuItemClicked(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
 
-	if (item == std::string("show_coordinates"))
+	if (item == "show_coordinates")
 	{
 		gSavedSettings.setBOOL("NavBarShowCoordinates",!gSavedSettings.getBOOL("NavBarShowCoordinates"));
 	}
-	else if (item == std::string("landmark"))
+	else if (item == "show_properties")
+	{
+		gSavedSettings.setBOOL("NavBarShowParcelProperties",
+			!gSavedSettings.getBOOL("NavBarShowParcelProperties"));
+		refreshParcelIcons();
+	}
+	else if (item == "landmark")
 	{
 		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
 		
@@ -772,23 +788,23 @@ void LLLocationInputCtrl::onLocationContextMenuItemClicked(const LLSD& userdata)
 					LLSD().insert("type", "landmark").insert("id",landmark->getUUID()));
 		}
 	}
-	else if (item == std::string("cut"))
+	else if (item == "cut")
 	{
 		mTextEntry->cut();
 	}
-	else if (item == std::string("copy"))
+	else if (item == "copy")
 	{
 		mTextEntry->copy();
 	}
-	else if (item == std::string("paste"))
+	else if (item == "paste")
 	{
 		mTextEntry->paste();
 	}
-	else if (item == std::string("delete"))
+	else if (item == "delete")
 	{
 		mTextEntry->deleteSelection();
 	}
-	else if (item == std::string("select_all"))
+	else if (item == "select_all")
 	{
 		mTextEntry->selectAll();
 	}
@@ -798,28 +814,28 @@ bool LLLocationInputCtrl::onLocationContextMenuItemEnabled(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
 	
-	if (item == std::string("can_cut"))
+	if (item == "can_cut")
 	{
 		return mTextEntry->canCut();
 	}
-	else if (item == std::string("can_copy"))
+	else if (item == "can_copy")
 	{
 		return mTextEntry->canCopy();
 	}
-	else if (item == std::string("can_paste"))
+	else if (item == "can_paste")
 	{
 		return mTextEntry->canPaste();
 	}
-	else if (item == std::string("can_delete"))
+	else if (item == "can_delete")
 	{
 		return mTextEntry->canDeselect();
 	}
-	else if (item == std::string("can_select_all"))
+	else if (item == "can_select_all")
 	{
 		return mTextEntry->canSelectAll();
 	}
-	else if(item == std::string("show_coordinates")){
-	
+	else if(item == "show_coordinates")
+	{
 		return gSavedSettings.getBOOL("NavBarShowCoordinates");
 	}
 
