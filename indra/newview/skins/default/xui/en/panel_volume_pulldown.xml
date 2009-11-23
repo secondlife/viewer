@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ background_opaque="false"
+ border_visible="false"
+ background_visible="true"
+ bg_alpha_color="0.3 0.3 0.3 0"
+ bg_opaque_color="0.3 0.3 0.3 0"
+
+ legacy_header_height="0"
+ can_dock="false"
+ can_minimize="false"
+ can_close="false"
+ follows="bottom"
+ height="52"
+ layout="topleft"
+ name="volumepulldown_floater"
+ save_rect="false"
+ save_visibility="false"
+ width="152">
+  <panel
+   border="false"
+   follows="all"
+   height="50"
+   label="xSounds"
+   layout="topleft"
+   left="1"
+   name="xPreference Media panel"
+   top="1"
+   width="150">
+    <slider
+     control_name="AudioLevelMaster"
+     follows="left|top"
+     font.style="BOLD"
+     height="15"
+     increment="0.05"
+     initial_value="0.5"
+     layout="topleft"
+     left="0"
+     name="xSystem Volume"
+     show_text="false"
+     slider_label.halign="right"
+     top_pad="5"
+     volume="true"
+     width="120">
+        <slider.commit_callback
+         function="Pref.setControlFalse"
+         parameter="MuteAudio" />
+    </slider>
+  </panel>
+</floater>
