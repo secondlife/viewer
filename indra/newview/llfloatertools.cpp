@@ -43,6 +43,7 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldraghandle.h"
+#include "llerror.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloatermediasettings.h"
 #include "llfloateropenobject.h"
@@ -1103,7 +1104,8 @@ void LLFloaterTools::getMediaState()
 		childSetEnabled("edit_media", FALSE);
 		childSetEnabled("media_info", FALSE);
 		media_info->setEnabled(FALSE);
-		media_info->clear();*/	
+		media_info->clear();*/
+		LL_WARNS("LLFloaterTools: media") << "Media not enabled (no capability) in this region!" << LL_ENDL;
 		clearMediaSettings();
 		return;
 	}
@@ -1122,11 +1124,27 @@ void LLFloaterTools::getMediaState()
 			LLVOVolume* object = dynamic_cast<LLVOVolume*>(node->getObject());
 			if (NULL != object)
 			{
-				if (!object->permModify() || object->isMediaDataBeingFetched())
+				if (!object->permModify())
 				{
+					LL_INFOS("LLFloaterTools: media")
+						<< "Selection not editable due to lack of modify permissions on object id "
+						<< object->getID() << LL_ENDL;
+					
 					editable = false;
 					break;
 				}
+				// XXX DISABLE this for now, because when the fetch finally 
+				// does come in, the state of this floater doesn't properly
+				// update.  This needs more thought.
+//				if (object->isMediaDataBeingFetched())
+//				{
+//					LL_INFOS("LLFloaterTools: media")
+//						<< "Selection not editable due to media data being fetched for object id "
+//						<< object->getID() << LL_ENDL;
+//						
+//					editable = false;
+//					break;
+//				}
 			}
 		}
 	}

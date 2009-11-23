@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
-     height="380"
+     height="378"
  label="General"
  class="panel_group_general"
  layout="topleft"
@@ -40,13 +40,13 @@ Hover your mouse over the options for more help.
      column_padding="0"
      draw_heading="true"
      follows="left|top"
-     heading_height="16"
+     heading_height="20"
      height="130"
      layout="topleft"
-     left="5"
+     left="0"
      name="visible_members"
      top_pad="2"
-     width="305">
+     width="310">
         <name_list.columns
          label="Member"
          name="name"
@@ -59,9 +59,9 @@ Hover your mouse over the options for more help.
          <text
          follows="left|top"
          type="string"
-         height="14"
+         height="12"
          layout="topleft"
-         left_delta="0"
+         left="5"
          name="active_title_label"
          top_pad="5"
          width="300">
@@ -75,7 +75,7 @@ Hover your mouse over the options for more help.
          name="active_title"
          tool_tip="Sets the title that appears in your avatar&apos;s name tag when this group is active."
          top_pad="2"
-         width="305" />
+         width="300" />
         <check_box
          height="16"
          font="SansSerifSmall"
@@ -101,12 +101,12 @@ Hover your mouse over the options for more help.
          border="true"
          bg_alpha_color="FloaterUnfocusBorderColor"
          follows="left|top"
-         height="93"
+         height="90"
          layout="topleft"
          left="5"
          name="preferences_container"
          top_pad="5"
-         width="305">
+         width="300">
         <check_box
          follows="right|top"
          height="16"
@@ -140,7 +140,7 @@ Hover your mouse over the options for more help.
          left_pad="2"
          name="spin_enrollment_fee"
          tool_tip="New members must pay this fee to join the group when Enrollment Fee is checked."
-         width="105" />
+         width="100" />
         <check_box
          height="16"
          initial_value="true"
@@ -157,7 +157,7 @@ Hover your mouse over the options for more help.
          left_delta="0"
          name="group_mature_check"
          tool_tip="Sets whether your group information is considered mature"
-         top_pad="5"
+         top_pad="2"
          width="190">
             <combo_box.item
              label="PG Content"

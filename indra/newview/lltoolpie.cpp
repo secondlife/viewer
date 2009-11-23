@@ -209,6 +209,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			// touch behavior down below...
 			break;
 		case CLICK_ACTION_SIT:
+
 			if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // agent not already sitting
 			{
 				handle_object_sit_or_stand();
@@ -252,7 +253,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 					selectionPropertiesReceived();
 				}
 			}
-			return TRUE;
+			return TRUE;	
 		case CLICK_ACTION_PLAY:
 			handle_click_action_play();
 			return TRUE;
@@ -260,6 +261,29 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			// mClickActionObject = object;
 			handle_click_action_open_media(object);
 			return TRUE;
+		case CLICK_ACTION_ZOOM:
+			{	
+				const F32 PADDING_FACTOR = 2.f;
+				LLViewerObject* object = gObjectList.findObject(mPick.mObjectID);
+				
+				if (object)
+				{
+					gAgent.setFocusOnAvatar(FALSE, ANIMATE);
+					
+					LLBBox bbox = object->getBoundingBoxAgent() ;
+					F32 angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getAspect() > 1.f ? LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect() : LLViewerCamera::getInstance()->getView());
+					F32 distance = bbox.getExtentLocal().magVec() * PADDING_FACTOR / atan(angle_of_view);
+				
+					LLVector3 obj_to_cam = LLViewerCamera::getInstance()->getOrigin() - bbox.getCenterAgent();
+					obj_to_cam.normVec();
+					
+					LLVector3d object_center_global = gAgent.getPosGlobalFromAgent(bbox.getCenterAgent());
+					gAgent.setCameraPosAndFocusGlobal(object_center_global + LLVector3d(obj_to_cam * distance), 
+													  object_center_global, 
+													  mPick.mObjectID );
+				}
+			}
+			return TRUE;			
 		default:
 			// nothing
 			break;
@@ -413,6 +437,9 @@ ECursorType cursor_from_object(LLViewerObject* object)
 			cursor = UI_CURSOR_HAND;
 		}
 		break;
+	case CLICK_ACTION_ZOOM:
+			cursor = UI_CURSOR_TOOLZOOMIN;
+			break;			
 	case CLICK_ACTION_PLAY:
 	case CLICK_ACTION_OPEN_MEDIA: 
 		cursor = cursor_from_parcel_media(click_action);
@@ -551,6 +578,9 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 		case CLICK_ACTION_BUY:
 		case CLICK_ACTION_PAY:
 		case CLICK_ACTION_OPEN:
+		case CLICK_ACTION_ZOOM:
+		case CLICK_ACTION_PLAY:
+		case CLICK_ACTION_OPEN_MEDIA:
 			// Because these actions open UI dialogs, we won't change
 			// the cursor again until the next hover and GL pick over
 			// the world.  Keep the cursor an arrow, assuming that 
