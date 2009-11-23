@@ -84,16 +84,29 @@ LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
 	mThumbCenterSelectedColor(p.thumb_center_selected_color()),
 	mDisabledThumbColor(p.thumb_disabled_color()),
 	mTriangleColor(p.triangle_color()),
-	mThumbWidth(p.thumb_width)
+	mThumbWidth(p.thumb_width),
+	mMouseDownSignal(NULL),
+	mMouseUpSignal(NULL)
 {
 	mValue.emptyMap();
 	mCurSlider = LLStringUtil::null;
 	
 	if (p.mouse_down_callback.isProvided())
-		initCommitCallback(p.mouse_down_callback, mMouseDownSignal);
+	{
+		setMouseDownCallback(initCommitCallback(p.mouse_down_callback));
+	}
 	if (p.mouse_up_callback.isProvided())
-		initCommitCallback(p.mouse_up_callback, mMouseUpSignal);
+	{
+		setMouseUpCallback(initCommitCallback(p.mouse_up_callback));
+	}
 }
+
+LLMultiSlider::~LLMultiSlider()
+{
+	delete mMouseDownSignal;
+	delete mMouseUpSignal;
+}
+
 
 void LLMultiSlider::setSliderValue(const std::string& name, F32 value, BOOL from_event)
 {
@@ -325,7 +338,8 @@ BOOL LLMultiSlider::handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		gFocusMgr.setMouseCapture( NULL );
 
-		mMouseUpSignal( this, LLSD() );
+		if (mMouseUpSignal)
+			(*mMouseUpSignal)( this, LLSD() );
 
 		handled = TRUE;
 		make_ui_sound("UISndClickRelease");
@@ -345,7 +359,8 @@ BOOL LLMultiSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 	{
 		setFocus(TRUE);
 	}
-	mMouseDownSignal( this, LLSD() );
+	if (mMouseDownSignal)
+		(*mMouseDownSignal)( this, LLSD() );
 
 	if (MASK_CONTROL & mask) // if CTRL is modifying
 	{
@@ -556,4 +571,16 @@ void LLMultiSlider::draw()
 	}
 
 	LLF32UICtrl::draw();
+}
+
+boost::signals2::connection LLMultiSlider::setMouseDownCallback( const commit_signal_t::slot_type& cb ) 
+{ 
+	if (!mMouseDownSignal) mMouseDownSignal = new commit_signal_t();
+	return mMouseDownSignal->connect(cb); 
+}
+
+boost::signals2::connection LLMultiSlider::setMouseUpCallback(	const commit_signal_t::slot_type& cb )   
+{ 
+	if (!mMouseUpSignal) mMouseUpSignal = new commit_signal_t();
+	return mMouseUpSignal->connect(cb); 
 }

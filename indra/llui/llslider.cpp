@@ -77,7 +77,9 @@ LLSlider::LLSlider(const LLSlider::Params& p)
 	mTrackImageHorizontal(p.track_image_horizontal),
 	mTrackImageVertical(p.track_image_vertical),
 	mTrackHighlightHorizontalImage(p.track_highlight_horizontal_image),
-	mTrackHighlightVerticalImage(p.track_highlight_vertical_image)
+	mTrackHighlightVerticalImage(p.track_highlight_vertical_image),
+	mMouseDownSignal(NULL),
+	mMouseUpSignal(NULL)
 {
     mViewModel->setValue(p.initial_value);
 	updateThumbRect();
@@ -86,9 +88,19 @@ LLSlider::LLSlider(const LLSlider::Params& p)
 	setValue(getValueF32());
 	
 	if (p.mouse_down_callback.isProvided())
-		initCommitCallback(p.mouse_down_callback, mMouseDownSignal);
+	{
+		setMouseDownCallback(initCommitCallback(p.mouse_down_callback));
+	}
 	if (p.mouse_up_callback.isProvided())
-		initCommitCallback(p.mouse_up_callback, mMouseUpSignal);
+	{
+		setMouseUpCallback(initCommitCallback(p.mouse_up_callback));
+	}
+}
+
+LLSlider::~LLSlider()
+{
+	delete mMouseDownSignal;
+	delete mMouseUpSignal;
 }
 
 void LLSlider::setValue(F32 value, BOOL from_event)
@@ -202,7 +214,8 @@ BOOL LLSlider::handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		gFocusMgr.setMouseCapture( NULL );
 
-		mMouseUpSignal( this, getValueF32() );
+		if (mMouseUpSignal)
+			(*mMouseUpSignal)( this, getValueF32() );
 
 		handled = TRUE;
 		make_ui_sound("UISndClickRelease");
@@ -222,7 +235,8 @@ BOOL LLSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 	{
 		setFocus(TRUE);
 	}
-	mMouseDownSignal( this, getValueF32() );
+	if (mMouseDownSignal)
+		(*mMouseDownSignal)( this, getValueF32() );
 
 	if (MASK_CONTROL & mask) // if CTRL is modifying
 	{
@@ -363,4 +377,16 @@ void LLSlider::draw()
 	}
 	
 	LLUICtrl::draw();
+}
+
+boost::signals2::connection LLSlider::setMouseDownCallback( const commit_signal_t::slot_type& cb ) 
+{ 
+	if (!mMouseDownSignal) mMouseDownSignal = new commit_signal_t();
+	return mMouseDownSignal->connect(cb); 
+}
+
+boost::signals2::connection LLSlider::setMouseUpCallback(	const commit_signal_t::slot_type& cb )   
+{ 
+	if (!mMouseUpSignal) mMouseUpSignal = new commit_signal_t();
+	return mMouseUpSignal->connect(cb); 
 }

@@ -163,7 +163,7 @@ LLChiclet::~LLChiclet()
 boost::signals2::connection LLChiclet::setLeftButtonClickCallback(
 	const commit_callback_t& cb)
 {
-	return mCommitSignal.connect(cb);
+	return setCommitCallback(cb);
 }
 
 BOOL LLChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -972,7 +972,10 @@ void LLChicletPanel::onChicletSizeChanged(LLChiclet* ctrl, const LLSD& param)
 
 void LLChicletPanel::onChicletClick(LLUICtrl*ctrl,const LLSD&param)
 {
-	mCommitSignal(ctrl,param);
+	if (mCommitSignal)
+	{
+		(*mCommitSignal)(ctrl,param);
+	}
 }
 
 void LLChicletPanel::removeChiclet(chiclet_list_t::iterator it)
@@ -1277,7 +1280,7 @@ void LLChicletPanel::onRightScrollHeldDown()
 boost::signals2::connection LLChicletPanel::setChicletClickedCallback(
 	const commit_callback_t& cb)
 {
-	return mCommitSignal.connect(cb);
+	return setCommitCallback(cb);
 }
 
 BOOL LLChicletPanel::handleScrollWheel(S32 x, S32 y, S32 clicks)
