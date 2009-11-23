@@ -164,7 +164,6 @@ BOOL LLVoiceSetKeyDialog::handleKeyHere(KEY key, MASK mask)
 	{
 		mParent->setKey(key);
 	}
-	
 	closeFloater();
 	return result;
 }
@@ -310,7 +309,8 @@ F32 LLFloaterPreference::sAspectRatio = 0.0;
 LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	: LLFloater(key),
 	mGotPersonalInfo(false),
-	mOriginalIMViaEmail(false)
+	mOriginalIMViaEmail(false),
+	mCancelOnClose(true)
 {
 	//Build Floater is now Called from 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
 	
@@ -389,6 +389,20 @@ void LLFloaterPreference::draw()
 	
 	LLFloater::draw();
 }
+
+void LLFloaterPreference::saveSettings()
+{
+	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
+	child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
+	child_list_t::const_iterator end = tabcontainer->getChildList()->end();
+	for ( ; iter != end; ++iter)
+	{
+		LLView* view = *iter;
+		LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view);
+		if (panel)
+			panel->saveSettings();
+	}
+}	
 
 void LLFloaterPreference::apply()
 {
@@ -551,6 +565,11 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	
 	LLPanelLogin::setAlwaysRefresh(true);
 	refresh();
+	
+	// Make sure the current state of prefs are saved away when
+	// when the floater is opened.  That will make cancel do its
+	// job
+	saveSettings();
 }
 
 void LLFloaterPreference::onVertexShaderEnable()
@@ -569,7 +588,7 @@ void LLFloaterPreference::onClose(bool app_quitting)
 {
 	gSavedSettings.setS32("LastPrefTab", getChild<LLTabContainer>("pref core")->getCurrentPanelIndex());
 	LLPanelLogin::setAlwaysRefresh(false);
-	cancel(); // will be a no-op if OK or apply was performed just prior.
+	if (mCancelOnClose) cancel();
 }
 
 void LLFloaterPreference::onOpenHardwareSettings()
@@ -592,7 +611,11 @@ void LLFloaterPreference::onBtnOK()
 	if (canClose())
 	{
 		apply();
+		// Here we do not want to cancel on close, so we do this funny thing
+		// that prevents cancel from undoing our changes when we hit OK
+		mCancelOnClose = false;
 		closeFloater(false);
+		mCancelOnClose = true;
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 		LLUIColorTable::instance().saveUserSettings();
 		std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
@@ -620,6 +643,7 @@ void LLFloaterPreference::onBtnApply( )
 		}
 	}
 	apply();
+	saveSettings();
 
 	LLPanelLogin::refreshLocation( false );
 }
@@ -636,7 +660,8 @@ void LLFloaterPreference::onBtnCancel()
 		}
 		refresh();
 	}
-	closeFloater(); // side effect will also cancel any unsaved changes.
+	cancel();
+	closeFloater();
 }
 
 // static 
@@ -1492,6 +1517,11 @@ BOOL LLPanelPreference::postBuild()
 }
 
 void LLPanelPreference::apply()
+{
+	// no-op
+}
+
+void LLPanelPreference::saveSettings()
 {
 	// Save the value of all controls in the hierarchy
 	mSavedValues.clear();
