@@ -122,7 +122,6 @@ public:
 
 	// Call this method to set the selection.
 	void openAllFolders();
-	void openDefaultFolderForType(LLFolderType::EType);
 	void setSelection(const LLUUID& obj_id, BOOL take_keyboard_focus);
 	void setSelectCallback(const LLFolderView::signal_t::slot_type& cb) { if (mFolders) mFolders->setSelectCallback(cb); }
 	void clearSelection();
@@ -161,16 +160,17 @@ public:
 	void openSelected();
 	void unSelectAll()	{ mFolders->setSelection(NULL, FALSE, FALSE); }
 	
-protected:
+private:
 	// Destroys the old views, and regenerates them based on the
 	// start folder ID.
-	void rebuildViews();
+	void generateViews();
 
 	// Given the id and the parent, build all of the folder views.
 	void rebuildViewsFor(const LLUUID& id);
 	virtual void buildNewViews(const LLUUID& id); // made virtual to support derived classes. EXT-719
-	void defaultOpenInventory(); // open the first level of inventory
 protected:
+	void defaultOpenInventory(); // open the first level of inventory
+
 	LLInventoryModel*			mInventory;
 	LLInventoryObserver*		mInventoryObserver;
 	BOOL 						mAllowMultiSelect;

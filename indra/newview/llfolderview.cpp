@@ -2014,6 +2014,12 @@ static LLFastTimer::DeclareTimer FTM_INVENTORY("Inventory");
 // Main idle routine
 void LLFolderView::doIdle()
 {
+	// Don't do anything until the inventory is loaded up.
+	if (!gInventory.isInventoryUsable())
+	{
+		return;
+	}
+
 	LLFastTimer t2(FTM_INVENTORY);
 
 	BOOL debug_filters = gSavedSettings.getBOOL("DebugInventoryFilters");

@@ -61,8 +61,6 @@ public:
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();
 
-	LLInventoryPanel* getActivePanel() { return mInventoryPanel; }
-
 	// If a compatible listener type is selected, then return a pointer to that.
 	// Otherwise, return NULL.
 	LLFolderViewEventListener* getCorrectListenerForAction();
@@ -74,9 +72,25 @@ protected:
 
 private:
 	LLSidepanelAppearance*      mParent;
-	LLInventoryPanel*			mInventoryPanel;
 	LLSaveFolderState*			mSavedFolderState;
 
+public:
+	//////////////////////////////////////////////////////////////////////////////////
+	// Accordion                                                                    //
+	LLInventoryPanel* 	getActivePanel();
+	
+protected:
+	void 				initAccordionPanels();
+	void 				onAccordionSelectionChange(LLInventoryPanel* accordion_panel, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
+	
+private:
+	LLInventoryPanel* 	mActivePanel;
+	typedef std::vector<LLInventoryPanel *> accordionpanels_vec_t;
+	accordionpanels_vec_t 		mAccordionPanels;
+
+	// Accordion                                                                  //
+	////////////////////////////////////////////////////////////////////////////////
+	
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// List Commands                                                                //
@@ -95,7 +109,7 @@ private:
 	LLPanel*					mListCommands;
 	LLMenuGL*					mMenuGearDefault;
 	LLMenuGL*					mMenuAdd;
-	//                                                                            //
+	// List Commands                                                              //
 	////////////////////////////////////////////////////////////////////////////////
 };
 
