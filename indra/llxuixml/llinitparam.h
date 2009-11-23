@@ -300,14 +300,14 @@ namespace LLInitParam
 			const U8* my_addr = reinterpret_cast<const U8*>(this);
 			// get address of enclosing BLOCK class using stored offset to enclosing BaseBlock class
 			return *const_cast<BaseBlock*>(
-							reinterpret_cast<const BaseBlock*>(my_addr + (ptrdiff_t)mEnclosingBlockOffset));
+							reinterpret_cast<const BaseBlock*>(my_addr - (ptrdiff_t)mEnclosingBlockOffset));
 		}
 
 	private:
 		friend class BaseBlock;
 
 		bool		mIsProvided;
-		S16			mEnclosingBlockOffset;
+		U16			mEnclosingBlockOffset;
 	};
 
 	// various callbacks and constraints associated with an individual param
