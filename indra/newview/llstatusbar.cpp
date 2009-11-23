@@ -42,6 +42,7 @@
 #include "llfloaterbuycurrency.h"
 #include "llfloaterchat.h"
 #include "llfloaterlagmeter.h"
+#include "llfloatervolumepulldown.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterscriptdebug.h"
 #include "llhudicon.h"
@@ -201,7 +202,6 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	addChild(mSGPacketLoss);
 
 	childSetActionTextbox("stat_btn", onClickStatGraph);
-
 }
 
 LLStatusBar::~LLStatusBar()
@@ -511,7 +511,9 @@ static void onClickVolume(void* data)
 	gSavedSettings.setBOOL("MuteAudio", !mute_audio);
 	
 	// toggle the master volume pull-down
-	LLFloaterReg::showInstance("volume_pulldown"); //tmp
+	//LLFloaterReg::showInstance("volume_pulldown"); //tmp
+	//LLPanelVolumePulldown *foo=
+	new LLPanelVolumePulldown();
 }
 
 // sets the static variables necessary for the date

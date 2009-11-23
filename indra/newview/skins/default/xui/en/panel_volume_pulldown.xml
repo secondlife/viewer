@@ -1,23 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater
- background_opaque="false"
- border_visible="false"
- background_visible="true"
- bg_alpha_color="0.3 0.3 0.3 0"
- bg_opaque_color="0.3 0.3 0.3 0"
-
- legacy_header_height="0"
- can_dock="false"
- can_minimize="false"
- can_close="false"
- follows="bottom"
- height="52"
- layout="topleft"
- name="volumepulldown_floater"
- save_rect="false"
- save_visibility="false"
- width="152">
-  <panel
+<panel
+   chrome="true"
    border="false"
    follows="all"
    height="50"
@@ -46,5 +29,4 @@
          function="Pref.setControlFalse"
          parameter="MuteAudio" />
     </slider>
-  </panel>
-</floater>
+</panel>
