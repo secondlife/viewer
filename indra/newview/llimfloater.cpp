@@ -326,7 +326,11 @@ void LLIMFloater::onSlide()
 //static
 LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 {
-#ifndef USE_IM_CONTAINER
+#ifdef USE_IM_CONTAINER
+	LLIMFloater* target_floater = findInstance(session_id);
+	bool not_existed = NULL == target_floater;
+
+#else
 	//hide all
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
 	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
@@ -346,14 +350,16 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 	floater->mInputEditor->setFocus(TRUE);
 
 #ifdef USE_IM_CONTAINER
+	// do not add existed floaters to avoid adding torn off instances
+	if (not_existed)
+	{
+		//		LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
+		// TODO: mantipov: use LLTabContainer::RIGHT_OF_CURRENT if it exists
+		LLTabContainer::eInsertionPoint i_pt = LLTabContainer::END;
 
-//		LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
-	// TODO: mantipov: use LLTabContainer::RIGHT_OF_CURRENT if it exists
-	LLTabContainer::eInsertionPoint i_pt = LLTabContainer::END;
-
-	// *TODO: mantipov: validate if floater was torn off. In this case it's no necessary to show container
-	LLIMFloaterContainer* floater_container = LLFloaterReg::showTypedInstance<LLIMFloaterContainer>("im_container");
-	floater_container->addFloater(floater, TRUE, i_pt);
+		LLIMFloaterContainer* floater_container = LLFloaterReg::showTypedInstance<LLIMFloaterContainer>("im_container");
+		floater_container->addFloater(floater, TRUE, i_pt);
+	}
 #else
 	if (floater->getDockControl() == NULL)
 	{
