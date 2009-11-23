@@ -344,7 +344,6 @@ background_visible="true"
      width="313">
         <button
          follows="bottom|left"
-         font="SansSerifSmall"
          top="4"
          left="0"
          height="19"
@@ -355,7 +354,6 @@ background_visible="true"
          width="70" />
         <button
          follows="bottom|left"
-         font="SansSerifSmall"
          top="4"
          left_pad="2"
          height="19"
@@ -366,7 +364,6 @@ background_visible="true"
          width="45" />
         <button
          follows="bottom|left"
-         font="SansSerifSmall"
          top="4"
          left_pad="2"
          height="19"
@@ -377,7 +374,6 @@ background_visible="true"
          width="50" />
         <button
          follows="left|top"
-         font="SansSerifSmall"
          top="4"
          left_pad="2"
          height="19"
@@ -387,7 +383,6 @@ background_visible="true"
          width="60" />
         <button
          follows="bottom|left"
-         font="SansSerifSmall"
          top="4"
          left_pad="2"
          height="19"
@@ -398,7 +393,6 @@ background_visible="true"
          width="75" />
         <button
          follows="bottom|left"
-         font="SansSerifSmall"
          top="4"
          left="0"
          height="19"
@@ -409,7 +403,6 @@ background_visible="true"
          width="110" />
         <button
          follows="bottom|left"
-         font="SansSerifSmall"
          top="4"
          left_pad="2"
          height="19"

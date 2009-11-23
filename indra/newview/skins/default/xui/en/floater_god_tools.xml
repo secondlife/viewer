@@ -191,7 +191,6 @@
 			</check_box>
             <button
              follows="top|right"
-             font="SansSerifSmall"
              height="22"
              label="Bake Terrain"
              label_selected="Bake Terrain"
@@ -206,7 +205,6 @@
 			</button>
             <button
              follows="top|right"
-             font="SansSerifSmall"
              height="22"
              label="Revert Terrain"
              label_selected="Revert Terrain"
@@ -220,7 +218,6 @@
 			</button>
             <button
              follows="top|right"
-             font="SansSerifSmall"
              height="22"
              label="Swap Terrain"
              label_selected="Swap Terrain"
@@ -419,7 +416,6 @@
 
             <button
              follows="top|right"
-             font="SansSerifSmall"
              height="22"
              label="Refresh"
              label_selected="Refresh"
@@ -434,7 +430,6 @@
 			</button>
             <button
              follows="top|right"
-             font="SansSerifSmall"
              height="22"
              label="Apply"
              label_selected="Apply"
@@ -449,7 +444,6 @@
 			</button>
             <button
              follows="top|right"
-             font="SansSerifSmall"
              height="22"
              label="Select Region"
              label_selected="Select Region"
@@ -464,7 +458,6 @@
 			</button>
             <button
              follows="top|right"
-             font="SansSerifSmall"
              height="22"
              label="Autosave now"
              label_selected="Autosave now"
@@ -556,7 +549,6 @@
 			</check_box>
             <button
              follows="top|right"
-             font="SansSerifSmall"
              height="22"
              label="Apply"
              label_selected="Apply"
@@ -571,7 +563,6 @@
 			</button>
 			<button
              follows="top|right"
-             font="SansSerifSmall"
              height="22"
              label="Set Target"
              label_selected="Set Target"
@@ -598,7 +589,6 @@
             </text>
             <button
              follows="top|right"
-             font="SansSerifSmall"
              height="22"
              label="Delete Target&apos;s Scripted Objects On Others Land"
              label_selected="Delete Target&apos;s Scripted Objects On Others Land"
@@ -613,7 +603,6 @@
 			</button>
             <button
              follows="top|right"
-             font="SansSerifSmall"
              height="22"
              label="Delete Target&apos;s Scripted Objects On *Any* Land"
              label_selected="Delete Target&apos;s Scripted Objects On *Any* Land"
@@ -628,7 +617,6 @@
 			</button>
             <button
              follows="top|right"
-             font="SansSerifSmall"
              height="22"
              label="Delete *ALL* Of Target&apos;s Objects"
              label_selected="Delete *ALL* Of Target&apos;s Objects"
@@ -643,7 +631,6 @@
 			</button>
 			<button
              follows="top|right"
-             font="SansSerifSmall"
              height="20"
              label="Get Top Colliders"
              label_selected="Get Top Colliders"
@@ -658,7 +645,6 @@
 			</button>
             <button
              follows="top|right"
-             font="SansSerifSmall"
              height="20"
              label="Get Top Scripts"
              label_selected="Get Top Scripts"
@@ -673,7 +659,6 @@
 			</button>
             <button
              follows="top|right"
-             font="SansSerifSmall"
              height="20"
              label="Scripts digest"
              label_selected="Scripts digest"

@@ -50,7 +50,6 @@
     <button
      follows="left|top"
      height="22"
-     font="SansSerifSmall"
      label="Play Locally"
      label_selected="Play Locally"
      layout="topleft"

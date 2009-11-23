@@ -111,7 +111,6 @@
     </text>
     <button
      follows="top|right"
-     font="SansSerifSmall"
      height="16"
      label="Profile..."
      layout="topleft"
@@ -145,7 +144,6 @@
     </text>
     <button
      follows="top|right"
-     font="SansSerifSmall"
      height="16"
      label="Profile..."
      layout="topleft"

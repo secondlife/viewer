@@ -131,7 +131,6 @@
 	     </text>
 	     <button
 			 follows="top|right"
-			 font="SansSerifSmall"
 			 height="16"
 			 label="Profile..."
 			 layout="topleft"
@@ -165,7 +164,6 @@
 	     </text>
 	     <button
 			 follows="top|right"
-			 font="SansSerifSmall"
 			 height="16"
 			 label="Profile..."
 			 layout="topleft"
@@ -479,7 +477,6 @@
 		 width="313">
 	    <button
 		     follows="bottom|left"
-		     font="SansSerifSmall"
 		     height="25"
 		     label="Edit"
 		     layout="topleft"
@@ -489,7 +486,6 @@
 		     width="50" />
 	    <button
 		     follows="bottom|right"
-		     font="SansSerifSmall"
 		     height="25"
 		     label="Cancel"
 		     layout="topleft"
@@ -499,7 +495,6 @@
 		     width="70" />
 	    <button
 		     follows="bottom|right"
-		     font="SansSerifSmall"
 		     height="25"
 		     label="Save"
 		     layout="topleft"

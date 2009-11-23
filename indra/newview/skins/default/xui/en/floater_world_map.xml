@@ -116,7 +116,6 @@
     </text>
     <button
      follows="top|right"
-     font="SansSerifSmall"
      height="16"
      label="Go Home"
      label_selected="Go Home"

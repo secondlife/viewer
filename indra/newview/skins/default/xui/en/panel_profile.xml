@@ -324,7 +324,6 @@
          width="64" />
         <button
          follows="bottom|right"
-         font="SansSerifSmall"
          height="19"
          label="▼"
          layout="topleft"
@@ -344,7 +343,6 @@
      width="303">
         <button
          follows="bottom|right"
-         font="SansSerifSmall"
          height="19"
          left="10"
          label="Edit Profile"
