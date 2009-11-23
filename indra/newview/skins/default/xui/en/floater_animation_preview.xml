@@ -163,7 +163,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      follows="top|left|right"
      height="23"
      layout="topleft"
-     left="85"
+     left="100"
      name="name_form"
      right="-10" />
     <text
@@ -182,7 +182,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      follows="top|left|right"
      height="23"
      layout="topleft"
-     left="85"
+     left="100"
      name="description_form"
      right="-10" />
     <spinner
@@ -192,7 +192,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      increment="1"
      initial_value="0"
      label="Priority"
-     label_width="90"
+     label_width="88"
      layout="topleft"
      left="10"
      max_val="4"
@@ -214,14 +214,14 @@ Maximum animation length is [MAX_LENGTH] seconds.
      increment="1"
      initial_value="0"
      label="In(%)"
-     label_width="35"
+     label_width="49"
      layout="topleft"
      top_pad="5"
      left="30"
      max_val="100"
      name="loop_in_point"
      tool_tip="Sets point in animation that looping returns to"
-     width="110" />
+     width="115" />
     <spinner
      bottom_delta="0"
      follows="left|top"
@@ -234,8 +234,8 @@ Maximum animation length is [MAX_LENGTH] seconds.
      max_val="100"
      name="loop_out_point"
      tool_tip="Sets point in animation that ends a loop"
-     label_width="45"
-     width="120" />
+     label_width="49"
+     width="115" />
     <text
      type="string"
      length="1"
@@ -243,6 +243,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      follows="top|left"
      height="23"
      width="110"
+     word_wrap="true"
      layout="topleft"
      left="10"
      name="hand_label">
@@ -315,6 +316,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      follows="top|left"
      height="23"
      width="110"
+     word_wrap="true"
      layout="topleft"
      left="10"
      name="emote_label">
@@ -395,6 +397,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      follows="top|left"
      height="23"
      width="110"
+     word_wrap="true"
      layout="topleft"
      left="10"
      name="preview_label">
@@ -482,6 +485,8 @@ Maximum animation length is [MAX_LENGTH] seconds.
     <text
      type="string"
      length="1"
+     height="72"
+     word_wrap="true"
      top_pad="5"
      text_color="EmphasisColor"
      follows="top|left"
