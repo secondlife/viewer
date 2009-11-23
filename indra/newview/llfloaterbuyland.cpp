@@ -903,7 +903,7 @@ void LLFloaterBuyLandUI::tellUserError(
 // virtual
 BOOL LLFloaterBuyLandUI::postBuild()
 {
-	mVisibleSignal.connect(boost::bind(&LLFloaterBuyLandUI::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLFloaterBuyLandUI::onVisibilityChange, this, _2));
 	
 	mCurrency.prepare();
 	

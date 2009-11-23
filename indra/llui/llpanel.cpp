@@ -106,7 +106,8 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 	mHelpTopic(p.help_topic),
 	mCommitCallbackRegistrar(false),
 	mEnableCallbackRegistrar(false),
-	mXMLFilename(p.filename)
+	mXMLFilename(p.filename),
+	mVisibleSignal(NULL)
 	// *NOTE: Be sure to also change LLPanel::initFromParams().  We have too
 	// many classes derived from LLPanel to retrofit them all to pass in params.
 {
@@ -116,6 +117,11 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 	}
 	
 	mPanelHandle.bind(this);
+}
+
+LLPanel::~LLPanel()
+{
+	delete mVisibleSignal;
 }
 
 // virtual
@@ -332,7 +338,8 @@ BOOL LLPanel::handleKeyHere( KEY key, MASK mask )
 void LLPanel::handleVisibilityChange ( BOOL new_visibility )
 {
 	LLUICtrl::handleVisibilityChange ( new_visibility );
-	mVisibleSignal(this, LLSD(new_visibility) ); // Pass BOOL as LLSD
+	if (mVisibleSignal)
+		(*mVisibleSignal)(this, LLSD(new_visibility) ); // Pass BOOL as LLSD
 }
 
 void LLPanel::setFocus(BOOL b)
@@ -424,7 +431,9 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 	
 	// visible callback 
 	if (p.visible_callback.isProvided())
-		initCommitCallback(p.visible_callback, mVisibleSignal);
+	{
+		setVisibleCallback(initCommitCallback(p.visible_callback));
+	}
 	
 	for (LLInitParam::ParamIterator<LocalizedString>::const_iterator it = p.strings().begin();
 		it != p.strings().end();
@@ -906,4 +915,14 @@ void LLPanel::childSetControlName(const std::string& id, const std::string& cont
 	{
 		view->setControlName(control_name, NULL);
 	}
+}
+
+boost::signals2::connection LLPanel::setVisibleCallback( const commit_signal_t::slot_type& cb )
+{
+	if (!mVisibleSignal)
+	{
+		mVisibleSignal = new commit_signal_t();
+	}
+
+	return mVisibleSignal->connect(cb);
 }

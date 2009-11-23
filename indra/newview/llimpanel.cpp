@@ -216,7 +216,7 @@ LLFloaterIMPanel::~LLFloaterIMPanel()
 
 BOOL LLFloaterIMPanel::postBuild() 
 {
-	mVisibleSignal.connect(boost::bind(&LLFloaterIMPanel::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLFloaterIMPanel::onVisibilityChange, this, _2));
 	
 	mInputEditor = getChild<LLLineEditor>("chat_editor");
 	mInputEditor->setFocusReceivedCallback( boost::bind(onInputEditorFocusReceived, _1, this) );

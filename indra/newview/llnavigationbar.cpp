@@ -230,6 +230,16 @@ BOOL LLNavigationBar::postBuild()
 	return TRUE;
 }
 
+void LLNavigationBar::setVisible(BOOL visible)
+{
+	// change visibility of grandparent layout_panel to animate in and out
+	if (getParent() && getParent()->getParent()) 
+	{
+		getParent()->getParent()->setVisible(visible);	
+	}
+}
+
+
 void LLNavigationBar::fillSearchComboBox()
 {
 	if(!mSearchComboBox)
@@ -413,7 +423,7 @@ void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos, con
 	 * At this moment gAgent.getPositionAgent() contains previous coordinates.
 	 * according to EXT-65 agent position is being reseted on each frame.  
 	 */
-		LLAgentUI::buildLocationString(location, LLAgentUI::LOCATION_FORMAT_WITHOUT_SIM,
+		LLAgentUI::buildLocationString(location, LLAgentUI::LOCATION_FORMAT_NO_MATURITY,
 					gAgent.getPosAgentFromGlobal(global_agent_pos));
 	std::string tooltip (LLSLURL::buildSLURLfromPosGlobal(gAgent.getRegion()->getName(), global_agent_pos, false));
 	

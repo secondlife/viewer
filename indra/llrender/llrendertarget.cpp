@@ -89,19 +89,6 @@ void LLRenderTarget::setSampleBuffer(LLMultisampleBuffer* buffer)
 
 void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, BOOL stencil, LLTexUnit::eTextureType usage, BOOL use_fbo)
 {
-	// only reallocate if something changed
-	if (mResX == resx
-		&& mResY == resy
-		&& mUseDepth == depth
-		&& mStencil == stencil
-		&& mUsage == usage
-		&& (mFBO != 0) == ((sUseFBO || use_fbo) && gGLManager.mHasFramebufferObject)
-		&& mColorFmt == color_fmt)
-	{
-		// nothing to do
-		return;
-	}
-		
 	stop_glerror();
 	mResX = resx;
 	mResY = resy;
@@ -620,19 +607,6 @@ void LLMultisampleBuffer::allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth
 
 void LLMultisampleBuffer::allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, BOOL stencil,  LLTexUnit::eTextureType usage, BOOL use_fbo, U32 samples )
 {
-	if (mResX == resx
-		&& mResY == resy
-		&& mUseDepth == depth
-		&& mStencil == stencil
-		&& mUsage == usage
-		&& (mFBO != 0) == ((sUseFBO || use_fbo) && gGLManager.mHasFramebufferObject)
-		&& mColorFmt == color_fmt
-		&& mSamples == samples)
-	{
-		// nothing to do
-		return;
-	}
-
 	stop_glerror();
 	mResX = resx;
 	mResY = resy;

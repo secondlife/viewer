@@ -7709,7 +7709,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowCoordinatesOption</key>
+    <key>NavBarShowCoordinates</key>
     <map>
       <key>Comment</key>
       <string>Show Coordinates in  Location Input Field</string>
