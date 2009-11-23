@@ -50,17 +50,6 @@
 				 top="0"
 				 width="60" />
 			<button
-				 enabled="true"
-				 follows="bottom|left"
-				 font="SansSerifSmall"
-				 height="25"
-				 label="Share"
-				 layout="topleft"
-				 left_pad="5"
-				 name="share_btn"
-				 top="0"
-				 width="60" />
-			<button
 				 enabled="false"
 				 follows="bottom|left"
 				 font="SansSerifSmall"

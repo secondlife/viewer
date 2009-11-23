@@ -2541,7 +2541,11 @@ const LLMatrix4 LLVOVolume::getRenderMatrix() const
 	return mDrawable->getWorldMatrix();
 }
 
-U32 LLVOVolume::getRenderCost() const
+// Returns a base cost and adds textures to passed in set.
+// total cost is returned value + 5 * size of the resulting set.
+// Cannot include cost of textures, as they may be re-used in linked
+// children, and cost should only be increased for unique textures  -Nyx
+U32 LLVOVolume::getRenderCost(std::set<LLUUID> &textures) const
 {
 	U32 shame = 0;
 
@@ -2574,7 +2578,7 @@ U32 LLVOVolume::getRenderCost() const
 	{
 		const LLSculptParams *sculpt_params = (LLSculptParams *) getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 		LLUUID sculpt_id = sculpt_params->getSculptTexture();
-		shame += 5;
+		textures.insert(sculpt_id);
 	}
 
 	for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
@@ -2583,7 +2587,7 @@ U32 LLVOVolume::getRenderCost() const
 		const LLTextureEntry* te = face->getTextureEntry();
 		const LLViewerTexture* img = face->getTexture();
 
-		shame += 5;
+		textures.insert(img->getID());
 
 		if (face->getPoolType() == LLDrawPool::POOL_ALPHA)
 		{
@@ -2633,7 +2637,7 @@ U32 LLVOVolume::getRenderCost() const
 			const LLVOVolume* child_volumep = child_drawablep->getVOVolume();
 			if (child_volumep)
 			{
-				shame += child_volumep->getRenderCost();
+				shame += child_volumep->getRenderCost(textures);
 			}
 		}
 	}
