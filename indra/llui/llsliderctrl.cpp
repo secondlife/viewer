@@ -122,7 +122,8 @@ LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
 	slider_p.min_value.setIfNotProvided(p.min_value);
 	slider_p.max_value.setIfNotProvided(p.max_value);
 	slider_p.increment.setIfNotProvided(p.increment);
-
+	slider_p.orientation.setIfNotProvided(p.orientation);
+	
 	slider_p.commit_callback.function(&LLSliderCtrl::onSliderCommit);
 	slider_p.control_name(p.control_name);
 	slider_p.mouse_down_callback( p.mouse_down_callback );
