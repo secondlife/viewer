@@ -106,7 +106,7 @@
      left_delta="78"
      name="LabelCreatorName"
      top_delta="0"
-     width="200">
+     width="170">
         Nicole Linden
     </text>
     <button
@@ -140,7 +140,7 @@
      left_delta="78"
      name="LabelOwnerName"
      top_delta="0"
-     width="200">
+     width="170">
         Thrax Linden
     </text>
     <button
@@ -257,12 +257,13 @@
      type="string"
      length="1"
      follows="left|top"
-     height="10"
+     height="25"
      layout="topleft"
      left="10"
      name="NextOwnerLabel"
      top_pad="5"
-     width="78">
+     width="78"
+     word_wrap="true">
         Next owner:
     </text>
     <check_box
@@ -303,7 +304,7 @@
      layout="topleft"
      follows="left|top"
      name="combobox sale copy"
-     width="90">
+     width="110">
         <combo_box.item
          label="Copy"
          name="Copy"
@@ -320,13 +321,25 @@
         control_name="Edit Cost"
         name="Edit Cost"
         label="Price: L$"
-        label_width="60"
+        label_width="100"
         left="10"
-        width="180"
+        width="192"
         min_val="1"
         height="19"
         max_val="999999999"
         top_pad="5"/>
+    <text
+        type="string"
+        length="1"
+        height="15"
+        follows="left|top"
+        layout="topleft"
+        left_delta="82"
+        name="CurrencySymbol"
+        top_delta="1"
+        width="18">
+      L$
+    </text>
 
     <!--line_editor
      border_style="line"
