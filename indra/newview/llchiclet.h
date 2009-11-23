@@ -533,28 +533,35 @@ private:
 	LLMenuGL* mPopupMenu;
 };
 
+/**
+ * Chiclet for script floaters.
+ */
 class LLScriptChiclet : public LLIMChiclet
 {
 public:
 
 	struct Params : public LLInitParam::Block<Params, LLIMChiclet::Params>
 	{
-		Optional<LLChicletAvatarIconCtrl::Params> avatar_icon;
+		Optional<LLIconCtrl::Params> icon;
 
 		Params();
 	};
 
-	void setSessionId(const LLUUID& session_id);
+	/*virtual*/ void setSessionId(const LLUUID& session_id);
 
-	void setCounter(S32 counter){}
+	/*virtual*/ void setCounter(S32 counter){}
 
-	S32 getCounter() { return 0; }
+	/*virtual*/ S32 getCounter() { return 0; }
 
-	void onMouseDown();
+	/**
+	 * Toggle script floater
+	 */
+	/*virtual*/ void onMouseDown();
 
-	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-
-	void draw();
+	/**
+	 * Override default handler
+	 */
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 
 protected:
 
@@ -563,8 +570,7 @@ protected:
 
 private:
 
-	LLPointer<LLUIImage> mImage;
-	LLChicletAvatarIconCtrl* mChicletIconCtrl;
+	LLIconCtrl* mChicletIconCtrl;
 };
 
 /**

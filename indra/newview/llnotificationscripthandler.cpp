@@ -42,6 +42,9 @@
 
 using namespace LLNotificationsUI;
 
+static const std::string SCRIPT_DIALOG				("ScriptDialog");
+static const std::string SCRIPT_DIALOG_GROUP		("ScriptDialogGroup");
+
 //--------------------------------------------------------------------------
 LLScriptHandler::LLScriptHandler(e_notification_type type, const LLSD& id)
 {
@@ -91,7 +94,7 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 	
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
-		if("ScriptDialog" == notification->getName() || "ScriptDialogGroup" == notification->getName())
+		if(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName())
 		{
 			LLScriptFloaterManager::getInstance()->onAddNotification(notification->getID());
 		}
@@ -117,10 +120,13 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 	}
 	else if (notify["sigtype"].asString() == "delete")
 	{
-		mChannel->killToastByNotificationID(notification->getID());
-		if("ScriptDialog" == notification->getName())
+		if(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName())
 		{
 			LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
+		}
+		else
+		{
+			mChannel->killToastByNotificationID(notification->getID());
 		}
 	}
 	return true;
@@ -139,8 +145,8 @@ void LLScriptHandler::onDeleteToast(LLToast* toast)
 
 	LLNotificationPtr notification = LLNotifications::getInstance()->find(toast->getNotificationID());
 	
-	if( notification && ("ScriptDialog" == notification->getName() 
-		|| "ScriptDialogGroup" == notification->getName()) )
+	if( notification && 
+		(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName()) )
 	{
 		LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
 	}

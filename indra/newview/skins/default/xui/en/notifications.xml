@@ -5314,8 +5314,8 @@ Grant this request?
        text="Ignore"/>
       <button
        index="2"
-       name="Mute"
-       text="Mute"/>
+       name="Block"
+       text="Block"/>
     </form>
   </notification>
 

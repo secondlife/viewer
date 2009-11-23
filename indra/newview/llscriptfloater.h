@@ -35,27 +35,52 @@
 
 #include "lltransientdockablefloater.h"
 
+class LLToastNotifyPanel;
+
 /**
- * This class manages Object script floaters.
+ * Handles script notifications ("ScriptDialog" and "ScriptDialogGroup")
+ * and manages Script Floaters.
  */
 class LLScriptFloaterManager : public LLSingleton<LLScriptFloaterManager>
 {
 public:
 
+	/**
+	 * Handles new notifications.
+	 * Saves notification and object ids, removes old notification if needed, creates script chiclet
+	 * Note that one object can spawn one script floater.
+	 */
 	void onAddNotification(const LLUUID& notification_id);
 
+	/**
+	 * Handles notification removal.
+	 * Removes script notification toast, removes script chiclet, closes script floater
+	 */
 	void onRemoveNotification(const LLUUID& notification_id);
 
+	/**
+	 * Wrapper for onRemoveNotification, removes notification by object id.
+	 */
+	void removeNotificationByObjectId(const LLUUID& object_id);
+
+	/**
+	 * Toggles script floater.
+	 * Removes "new message" icon from chiclet and removes notification toast.
+	 */
 	void toggleScriptFloater(const LLUUID& object_id);
 
-	void closeScriptFloater(const LLUUID& object_id);
+	LLUUID findNotificationId(const LLUUID& object_id);
 
-	const LLUUID& getNotificationId(const LLUUID& object_id);
+	LLUUID findNotificationToastId(const LLUUID& object_id);
 
-	const LLUUID& getToastNotificationId(const LLUUID& object_id);
+	/**
+	 * Associate notification toast id with object id.
+	 */
+	void setNotificationToastId(const LLUUID& object_id, const LLUUID& notification_id);
 
-	void setToastNotificationId(const LLUUID& object_id, const LLUUID& notification_id);
-
+	/**
+	* Callback for notification toast buttons.
+	*/
 	static void onToastButtonClick(const LLSD&notification, const LLSD&response);
 
 private:
@@ -66,13 +91,16 @@ private:
 		LLUUID toast_notification_id;
 	};
 
+	// <object_id, notification_data>
 	typedef std::map<LLUUID, LLNotificationData> script_notification_map_t;
 
 	script_notification_map_t mNotifications;
 };
 
 /**
- * Floater for displaying script forms
+ * Floater script forms.
+ * LLScriptFloater will create script form based on notification data and 
+ * will auto fit the form.
  */
 class LLScriptFloater : public LLTransientDockableFloater
 {
@@ -85,29 +113,51 @@ public:
 
 	virtual ~LLScriptFloater(){};
 
+	/**
+	 * Toggle existing floater or create and show a new one.
+	 */
 	static bool toggle(const LLUUID& object_id);
 
+	/**
+	 * Creates and shows floater
+	 */
 	static LLScriptFloater* show(const LLUUID& object_id);
 
 	const LLUUID& getObjectId() { return mObjectId; }
 
+	/**
+	 * Close notification if script floater is closed.
+	 */
 	/*virtual*/ void onClose(bool app_quitting);
 
+	/**
+	 * Hide all notification toasts when we show dockable floater
+	 */
 	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
 
+	/**
+	 * Hide all notification toasts when we show dockable floater
+	 */
 	/*virtual*/ void setVisible(BOOL visible);
 
 protected:
 
+	/**
+	 * Creates script form, will delete old form if floater is shown for same object.
+	 */
 	void createForm(const LLUUID& object_id);
 
 	/*virtual*/ void getAllowedRect(LLRect& rect);
 
-	static void updateToasts();
+	/**
+	 * Hide all notification toasts.
+	 */
+	static void hideToastsIfNeeded();
 
 	void setObjectId(const LLUUID& id) { mObjectId = id; }
 
 private:
+	LLToastNotifyPanel* mScriptForm;
 	LLUUID mObjectId;
 };
 
