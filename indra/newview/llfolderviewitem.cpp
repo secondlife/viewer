@@ -38,12 +38,12 @@
 #include "llfoldervieweventlistener.h"
 #include "llinventorybridge.h"	// for LLItemBridge in LLInventorySort::operator()
 #include "llinventoryfilter.h"
+#include "llpanel.h"
 #include "llviewercontrol.h"	// gSavedSettings
 #include "llviewerwindow.h"		// Argh, only for setCursor()
 
 // linden library includes
 #include "llfocusmgr.h"		// gFocusMgr
-#include "llpanel.h"		// panel->hasFocus()
 #include "lltrans.h"
 
 ///----------------------------------------------------------------------------

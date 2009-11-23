@@ -41,25 +41,27 @@
 #ifndef LL_LLFOLDERVIEW_H
 #define LL_LLFOLDERVIEW_H
 
-// JAMESDEBUG - trim this list
-#include <vector>
-#include <map>
-#include <deque>
-#include <boost/function.hpp>
-#include <boost/signals2.hpp>
+#include "llfolderviewitem.h"	// because LLFolderView is-a LLFolderViewFolder
 
 #include "lluictrl.h"
 #include "v4color.h"
 #include "lldarray.h"
-//#include "llviewermenu.h"
 #include "stdenums.h"
-#include "llfontgl.h"
-#include "lleditmenuhandler.h"
-#include "llviewertexture.h"
 #include "lldepthstack.h"
+#include "lleditmenuhandler.h"
+#include "llfontgl.h"
 #include "lltooldraganddrop.h"
-// JAMESDEBUG - move this up
-#include "llfolderviewitem.h"	// because LLFolderView is-a LLFolderViewFolder
+#include "llviewertexture.h"
+
+class LLFolderViewEventListener;
+class LLFolderViewFolder;
+class LLFolderViewItem;
+class LLInventoryModel;
+class LLPanel;
+class LLLineEditor;
+class LLMenuGL;
+class LLScrollContainer;
+class LLUICtrl;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFolderViewFunctor
@@ -70,8 +72,7 @@
 // that later when it's determined to be too slow.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLFolderViewItem;
-class LLFolderViewFolder;
+
 
 class LLFolderViewFunctor
 {
@@ -88,13 +89,6 @@ public:
 // Th LLFolderView represents the root level folder view object. It
 // manages the screen region of the folder view.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class LLFolderViewEventListener;
-class LLInventoryModel;
-class LLLineEditor;
-class LLMenuGL;
-class LLScrollContainer;
-class LLUICtrl;
 
 class LLFolderView : public LLFolderViewFolder, public LLEditMenuHandler
 {
@@ -330,7 +324,7 @@ protected:
 	
 	LLUUID							mSelectThisID; // if non null, select this item
 	
-	LLPanel*						mParentPanel;
+	LLPanel*				mParentPanel;
 
 	/**
 	 * Is used to determine if we need to cut text In LLFolderViewItem to avoid horizontal scroll.

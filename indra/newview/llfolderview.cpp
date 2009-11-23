@@ -44,6 +44,7 @@
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
+#include "llpanel.h"
 #include "llpreview.h"
 #include "llscrollcontainer.h" // hack to allow scrolling
 #include "lltooldraganddrop.h"
@@ -2014,12 +2015,13 @@ static LLFastTimer::DeclareTimer FTM_INVENTORY("Inventory");
 // Main idle routine
 void LLFolderView::doIdle()
 {
-	// Don't do anything until the inventory is loaded up.
+	// Don't do anything until the inventory is usable and loaded up.
+	// Seraph: Change this to calling mParentPanel->isViewsInitialized
 	if (!gInventory.isInventoryUsable())
 	{
 		return;
 	}
-
+	
 	LLFastTimer t2(FTM_INVENTORY);
 
 	BOOL debug_filters = gSavedSettings.getBOOL("DebugInventoryFilters");
