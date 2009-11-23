@@ -110,10 +110,10 @@ void LLIMFloater::onFocusReceived()
 // virtual
 void LLIMFloater::onClose(bool app_quitting)
 {
+	if (!gIMMgr->hasSession(mSessionID)) return;
+	
 	setTyping(false);
-	// SJB: We want the close button to hide the session window, not end it
-	// *NOTE: Yhis is functional, but not ideal - it's still closing the floater; we really want to change the behavior of the X button instead.
-	//gIMMgr->leaveSession(mSessionID);
+	gIMMgr->leaveSession(mSessionID);
 }
 
 /* static */
@@ -385,7 +385,7 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 
 void LLIMFloater::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectScaled();
+	rect = gViewerWindow->getWorldViewRectRaw();
 }
 
 void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
@@ -482,6 +482,8 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 
 void LLIMFloater::updateMessages()
 {
+	bool use_plain_text_chat_history = gSavedSettings.getBOOL("PlainTextChatHistory");
+
 	std::list<LLSD> messages;
 	LLIMModel::instance().getMessages(mSessionID, messages, mLastMessageIndex+1);
 
@@ -507,39 +509,7 @@ void LLIMFloater::updateMessages()
 			chat.mText = message;
 			chat.mTimeStr = time;
 			
-			//Handle IRC styled /me messages.
-			std::string prefix = message.substr(0, 4);
-			if (prefix == "/me " || prefix == "/me'")
-			{
-				
-				LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
-				LLViewerChat::getChatColor(chat,txt_color);
-				LLFontGL* fontp = LLViewerChat::getChatFont();
-				std::string font_name = LLFontGL::nameFromFont(fontp);
-				std::string font_size = LLFontGL::sizeFromFont(fontp);
-				LLStyle::Params append_style_params;
-				append_style_params.color(txt_color);
-				append_style_params.readonly_color(txt_color);
-				append_style_params.font.name(font_name);
-				append_style_params.font.size(font_size);
-				
-				if (from.size() > 0)
-				{
-					append_style_params.font.style = "ITALIC";
-					chat.mText = from;
-					mChatHistory->appendWidgetMessage(chat, append_style_params);
-				}
-				
-				message = message.substr(3);
-				append_style_params.font.style = "ITALIC";
-				mChatHistory->appendText(message, FALSE, append_style_params);
-			}
-			else
-			{
-				chat.mText = message;
-				mChatHistory->appendWidgetMessage(chat);
-			}
-
+			mChatHistory->appendMessage(chat, use_plain_text_chat_history);
 			mLastMessageIndex = msg["index"].asInteger();
 		}
 	}
@@ -668,6 +638,28 @@ void LLIMFloater::processAgentListUpdates(const LLSD& body)
 			}
 		}
 	}
+}
+
+void LLIMFloater::updateChatHistoryStyle()
+{
+	mChatHistory->clear();
+	mLastMessageIndex = -1;
+	updateMessages();
+}
+
+void LLIMFloater::processChatHistoryStyleUpdate(const LLSD& newvalue)
+{
+	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
+	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
+		 iter != inst_list.end(); ++iter)
+	{
+		LLIMFloater* floater = dynamic_cast<LLIMFloater*>(*iter);
+		if (floater)
+		{
+			floater->updateChatHistoryStyle();
+		}
+	}
+
 }
 
 void LLIMFloater::processSessionUpdate(const LLSD& session_update)

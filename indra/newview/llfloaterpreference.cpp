@@ -56,6 +56,7 @@
 #include "llfloaterabout.h"
 #include "llfloaterhardwaresettings.h"
 #include "llfloatervoicedevicesettings.h"
+#include "llimfloater.h"
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
 #include "llnavigationbar.h"
@@ -357,6 +358,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 
 BOOL LLFloaterPreference::postBuild()
 {
+	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate, _2));
+
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
@@ -444,6 +447,8 @@ void LLFloaterPreference::apply()
 	
 //	LLWString busy_response = utf8str_to_wstring(getChild<LLUICtrl>("busy_response")->getValue().asString());
 //	LLWStringUtil::replaceTabsWithSpaces(busy_response, 4);
+
+	gSavedSettings.setBOOL("PlainTextChatHistory", childGetValue("plain_text_chat_history").asBoolean());
 	
 	if(mGotPersonalInfo)
 	{ 
@@ -1161,6 +1166,8 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	childSetLabelArg("online_visibility", "[DIR_VIS]", mDirectoryVisibility);
 	childEnable("send_im_to_email");
 	childSetValue("send_im_to_email", im_via_email);
+	childEnable("plain_text_chat_history");
+	childSetValue("plain_text_chat_history", gSavedSettings.getBOOL("PlainTextChatHistory"));
 	childEnable("log_instant_messages");
 //	childEnable("log_chat");
 //	childEnable("busy_response");

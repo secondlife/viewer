@@ -97,6 +97,9 @@ public:
 	void processAgentListUpdates(const LLSD& body);
 	void processSessionUpdate(const LLSD& session_update);
 
+	void updateChatHistoryStyle();
+	static void processChatHistoryStyleUpdate(const LLSD& newvalue);
+
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 							   BOOL drop, EDragAndDropType cargo_type,
 							   void *cargo_data, EAcceptance *accept,
