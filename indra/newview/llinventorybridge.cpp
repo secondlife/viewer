@@ -509,28 +509,39 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 										std::vector<std::string> &items,
 										std::vector<std::string> &disabled_items, U32 flags)
 {
-	items.push_back(std::string("Rename"));
-	if (!isItemRenameable() || (flags & FIRST_SELECTED_ITEM) == 0)
+	const LLInventoryObject *obj = getInventoryObject();
+	if (obj && obj->getIsLinkType())
 	{
-		disabled_items.push_back(std::string("Rename"));
-	}
-
-	if (show_asset_id)
-	{
-		items.push_back(std::string("Copy Asset UUID"));
-		if ( (! ( isItemPermissive() || gAgent.isGodlike() ) )
-			  || (flags & FIRST_SELECTED_ITEM) == 0)
+		items.push_back(std::string("Find Original"));
+		if (LLAssetType::lookupIsLinkType(obj->getType()))
 		{
-			disabled_items.push_back(std::string("Copy Asset UUID"));
+			disabled_items.push_back(std::string("Find Original"));
 		}
 	}
-
-	items.push_back(std::string("Copy Separator"));
-
-	items.push_back(std::string("Copy"));
-	if (!isItemCopyable())
+	else
 	{
-		disabled_items.push_back(std::string("Copy"));
+		items.push_back(std::string("Rename"));
+		if (!isItemRenameable() || (flags & FIRST_SELECTED_ITEM) == 0)
+		{
+			disabled_items.push_back(std::string("Rename"));
+		}
+		
+		if (show_asset_id)
+		{
+			items.push_back(std::string("Copy Asset UUID"));
+			if ( (! ( isItemPermissive() || gAgent.isGodlike() ) )
+				 || (flags & FIRST_SELECTED_ITEM) == 0)
+			{
+				disabled_items.push_back(std::string("Copy Asset UUID"));
+			}
+		}
+		items.push_back(std::string("Copy Separator"));
+		
+		items.push_back(std::string("Copy"));
+		if (!isItemCopyable())
+		{
+			disabled_items.push_back(std::string("Copy"));
+		}
 	}
 
 	items.push_back(std::string("Paste"));
@@ -3707,11 +3718,6 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
-		LLInventoryItem* item = getItem();
-		if (item && item->getIsLinkType())
-		{
-			items.push_back(std::string("Find Original"));
-		}
 		items.push_back(std::string("Open"));
 		items.push_back(std::string("Properties"));
 
@@ -4031,14 +4037,9 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
-		LLInventoryItem* item = getItem();
-		if (item && item->getIsLinkType())
-		{
-			items.push_back(std::string("Find Original"));
-		}
-
 		items.push_back(std::string("Properties"));
 
+		LLInventoryItem *item = getItem();
 		getClipboardEntries(true, items, disabled_items, flags);
 
 		LLObjectBridge::sContextMenuItemID = mUUID;
@@ -4467,11 +4468,6 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		if (!no_open)
 		{
 			items.push_back(std::string("Open"));
-		}
-
-		if (item && item->getIsLinkType())
-		{
-			items.push_back(std::string("Find Original"));
 		}
 
 		items.push_back(std::string("Properties"));
