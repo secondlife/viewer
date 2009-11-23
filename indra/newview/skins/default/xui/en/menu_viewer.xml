@@ -1709,6 +1709,8 @@
              layout="topleft"
              name="Fly"
              shortcut="Home">
+                <menu_item_check.on_check
+                 function="Agent.getFlying" />
                 <menu_item_check.on_click
                  function="Agent.toggleFlying" />
                 <menu_item_check.on_enable
