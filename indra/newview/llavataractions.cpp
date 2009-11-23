@@ -327,7 +327,22 @@ void LLAvatarActions::pay(const LLUUID& id)
 //static 
 void LLAvatarActions::share(const LLUUID& id)
 {
-	// TODO: share items with selected avatar
+	LLSD key;
+	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+
+
+	LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL,id);
+
+	if (!gIMMgr->hasSession(session_id))
+	{
+		startIM(id);
+	}
+
+	if (gIMMgr->hasSession(session_id))
+	{
+		// we should always get here, but check to verify anyways
+		LLIMModel::getInstance()->addMessage(session_id, SYSTEM_FROM, LLUUID::null, LLTrans::getString("share_alert"), false);
+	}
 }
 
 // static

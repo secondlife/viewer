@@ -1211,7 +1211,7 @@ void LLPanelPeople::onTeleportButtonClicked()
 
 void LLPanelPeople::onShareButtonClicked()
 {
-	// *TODO: not implemented yet
+	LLAvatarActions::share(getCurrentItemID());
 }
 
 void LLPanelPeople::onMoreButtonClicked()
