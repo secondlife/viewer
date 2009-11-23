@@ -82,6 +82,8 @@ public:
 	const std::string&			getTypeName() const;
 	LLAssetType::EType			getAssetType() const;
 	LLLocalTextureObject*		getLocalTextureObject(S32 index) const;
+	S32							getDefinitionVersion() const { return mDefinitionVersion; }
+	void						setDefinitionVersion( S32 new_version ) { mDefinitionVersion = new_version; }
 
 public:
 	typedef std::vector<LLVisualParam*> visual_param_vec_t;

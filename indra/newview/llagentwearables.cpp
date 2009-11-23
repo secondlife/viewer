@@ -675,7 +675,7 @@ void LLAgentWearables::setWearable(const EWearableType type, U32 index, LLWearab
 	{
 		wearable_vec[index] = wearable;
 		old_wearable->setLabelUpdated();
-		mAvatarObject->wearableUpdated(wearable->getType());
+		wearableUpdated(wearable);
 	}
 }
 
@@ -690,11 +690,30 @@ U32 LLAgentWearables::pushWearable(const EWearableType type, LLWearable *wearabl
 	if (type < WT_COUNT || mWearableDatas[type].size() < MAX_WEARABLES_PER_TYPE)
 	{
 		mWearableDatas[type].push_back(wearable);
-		mAvatarObject->wearableUpdated(wearable->getType());
-		wearable->setLabelUpdated();
+		wearableUpdated(wearable);
 		return mWearableDatas[type].size()-1;
 	}
 	return MAX_WEARABLES_PER_TYPE;
+}
+
+void LLAgentWearables::wearableUpdated(LLWearable *wearable)
+{
+	mAvatarObject->wearableUpdated(wearable->getType());
+	wearable->setLabelUpdated();
+
+	// Hack pt 2. If the wearable we just loaded has definition version 24,
+	// then force a re-save of this wearable after slamming the version number to 22.
+	// This number was incorrectly incremented for internal builds before release, and
+	// this fix will ensure that the affected wearables are re-saved with the right version number.
+	// the versions themselves are compatible. This code can be removed before release.
+	if( wearable->getDefinitionVersion() == 24 )
+	{
+		wearable->setDefinitionVersion(22);
+		U32 index = getWearableIndex(wearable);
+		llinfos << "forcing werable type " << wearable->getType() << " to version 22 from 24" << llendl;
+		saveWearable(wearable->getType(),index,TRUE);
+	}
+
 }
 
 void LLAgentWearables::popWearable(LLWearable *wearable)
