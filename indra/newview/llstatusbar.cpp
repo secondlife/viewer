@@ -509,6 +509,9 @@ static void onClickVolume(void* data)
 	// toggle the master mute setting
 	BOOL mute_audio = gSavedSettings.getBOOL("MuteAudio");
 	gSavedSettings.setBOOL("MuteAudio", !mute_audio);
+	
+	// toggle the master volume pull-down
+	LLFloaterReg::showInstance("volume_pulldown"); //tmp
 }
 
 // sets the static variables necessary for the date
