@@ -46,7 +46,7 @@
 #define PANEL_PROFILE "panel_profile"
 
 static LLRegisterPanelClassWrapper<LLPanelMyProfileEdit> t_panel_me_profile_edit("edit_profile_panel");
-static LLRegisterPanelClassWrapper<LLPanelMe> t_panel_me_profile("panel_me_profile_view");
+static LLRegisterPanelClassWrapper<LLPanelMe> t_panel_me_profile("panel_me");
 
 LLPanelMe::LLPanelMe(void) 
  : LLPanelProfile()
