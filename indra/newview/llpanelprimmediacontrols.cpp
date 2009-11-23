@@ -54,6 +54,7 @@
 #include "llpanelprimmediacontrols.h"
 #include "llpluginclassmedia.h"
 #include "llprogressbar.h"
+#include "llstring.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
 #include "llviewermedia.h"
@@ -92,6 +93,7 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mCommitCallbackRegistrar.add("MediaCtrl.Forward",	boost::bind(&LLPanelPrimMediaControls::onClickForward, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Home",		boost::bind(&LLPanelPrimMediaControls::onClickHome, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Stop",		boost::bind(&LLPanelPrimMediaControls::onClickStop, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.MediaStop",		boost::bind(&LLPanelPrimMediaControls::onClickMediaStop, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Reload",	boost::bind(&LLPanelPrimMediaControls::onClickReload, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Play",		boost::bind(&LLPanelPrimMediaControls::onClickPlay, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Pause",		boost::bind(&LLPanelPrimMediaControls::onClickPause, this));
@@ -102,6 +104,8 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mCommitCallbackRegistrar.add("MediaCtrl.CommitVolumeUp",	boost::bind(&LLPanelPrimMediaControls::onCommitVolumeUp, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.CommitVolumeDown",	boost::bind(&LLPanelPrimMediaControls::onCommitVolumeDown, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.ToggleMute",		boost::bind(&LLPanelPrimMediaControls::onToggleMute, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.SkipBack",		boost::bind(&LLPanelPrimMediaControls::onClickSkipBack, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.SkipForward",	boost::bind(&LLPanelPrimMediaControls::onClickSkipForward, this));
 	
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_prim_media_controls.xml");
 	mInactivityTimer.reset();
@@ -135,6 +139,8 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	mMediaAddress			= getChild<LLUICtrl>("media_address_url");
 	mMediaPlaySliderPanel	= getChild<LLUICtrl>("media_play_position");
 	mMediaPlaySliderCtrl	= getChild<LLUICtrl>("media_play_slider");
+	mSkipFwdCtrl			= getChild<LLUICtrl>("skip_forward");
+	mSkipBackCtrl			= getChild<LLUICtrl>("skip_back");
 	mVolumeCtrl				= getChild<LLUICtrl>("media_volume");
 	mVolumeBtn				= getChild<LLButton>("media_volume_button");
 	mVolumeUpCtrl			= getChild<LLUICtrl>("volume_up");
@@ -145,6 +151,7 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	mLeftBookend			= getChild<LLUICtrl>("left_bookend");
 	mRightBookend			= getChild<LLUICtrl>("right_bookend");
 	mBackgroundImage		= LLUI::getUIImage(getString("control_background_image_name"));
+	LLStringUtil::convertToF32(getString("skip_step"), mSkipStep);
 
 	// These are currently removed...but getChild creates a "dummy" widget.
 	// This class handles them missing.
@@ -329,12 +336,17 @@ void LLPanelPrimMediaControls::updateShape()
 			mReloadCtrl->setVisible(FALSE);
 			mMediaStopCtrl->setVisible(has_focus);
 			mHomeCtrl->setVisible(FALSE);
-			mBackCtrl->setEnabled(has_focus);
-			mFwdCtrl->setEnabled(has_focus);
+			// No nav controls
+			mBackCtrl->setVisible(FALSE);
+			mFwdCtrl->setEnabled(FALSE);
 			mMediaAddressCtrl->setVisible(false);
 			mMediaAddressCtrl->setEnabled(false);
 			mMediaPlaySliderPanel->setVisible(has_focus && !mini_controls);
 			mMediaPlaySliderPanel->setEnabled(has_focus && !mini_controls);
+			mSkipFwdCtrl->setVisible(has_focus && !mini_controls);
+			mSkipFwdCtrl->setEnabled(has_focus && !mini_controls);
+			mSkipBackCtrl->setVisible(has_focus && !mini_controls);
+			mSkipBackCtrl->setEnabled(has_focus && !mini_controls);
 				
 			mVolumeCtrl->setVisible(has_focus);
 			mVolumeUpCtrl->setVisible(has_focus);
@@ -435,6 +447,10 @@ void LLPanelPrimMediaControls::updateShape()
 			mMediaAddressCtrl->setEnabled(has_focus && !mini_controls);
 			mMediaPlaySliderPanel->setVisible(FALSE);
 			mMediaPlaySliderPanel->setEnabled(FALSE);
+			mSkipFwdCtrl->setVisible(FALSE);
+			mSkipFwdCtrl->setEnabled(FALSE);
+			mSkipBackCtrl->setVisible(FALSE);
+			mSkipBackCtrl->setEnabled(FALSE);
 				
 			mVolumeCtrl->setVisible(FALSE);
 			mVolumeUpCtrl->setVisible(FALSE);
@@ -766,8 +782,8 @@ void LLPanelPrimMediaControls::onClickClose()
 
 void LLPanelPrimMediaControls::close()
 {
+	resetZoomLevel(true);
 	LLViewerMediaFocus::getInstance()->clearFocus();
-	resetZoomLevel();
 	setVisible(FALSE);
 }
 
@@ -789,7 +805,7 @@ void LLPanelPrimMediaControls::onClickForward()
 	focusOnTarget();
 
 	LLViewerMediaImpl* impl = getTargetMediaImpl();
-	
+
 	if (impl)
 	{
 		impl->navigateForward();
@@ -862,16 +878,56 @@ void LLPanelPrimMediaControls::onClickStop()
 
 	if(impl)
 	{
+		impl->navigateStop();
+	}
+}
+
+void LLPanelPrimMediaControls::onClickMediaStop()
+{
+	focusOnTarget();
+
+	LLViewerMediaImpl* impl = getTargetMediaImpl();
+
+	if(impl)
+	{
 		impl->stop();
+	}
+}
+
+void LLPanelPrimMediaControls::onClickSkipBack()
+{
+	focusOnTarget();
+
+	LLViewerMediaImpl* impl =getTargetMediaImpl();
+	
+	if (impl)
+	{
+		impl->skipBack(mSkipStep);
+	}
+}
+
+void LLPanelPrimMediaControls::onClickSkipForward()
+{
+	focusOnTarget();
+
+	LLViewerMediaImpl* impl = getTargetMediaImpl();
+
+	if (impl)
+	{
+		impl->skipForward(mSkipStep);
 	}
 }
 
 void LLPanelPrimMediaControls::onClickZoom()
 {
 	focusOnTarget();
-
-	nextZoomLevel();
+	
+	if(mCurrentZoom == ZOOM_NONE)
+	{
+		nextZoomLevel();
+	}
 }
+
 void LLPanelPrimMediaControls::nextZoomLevel()
 {
 	int index = 0;
@@ -888,12 +944,15 @@ void LLPanelPrimMediaControls::nextZoomLevel()
 	updateZoom();
 }
 
-void LLPanelPrimMediaControls::resetZoomLevel()
+void LLPanelPrimMediaControls::resetZoomLevel(bool reset_camera)
 {
 	if(mCurrentZoom != ZOOM_NONE)
 	{
 		mCurrentZoom = ZOOM_NONE;
-		updateZoom();
+		if(reset_camera)
+		{
+			updateZoom();
+		}
 	}
 }
 

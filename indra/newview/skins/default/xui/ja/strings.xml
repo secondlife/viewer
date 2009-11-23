@@ -4,6 +4,7 @@
      For example, the strings used in avatar chat bubbles, and strings 
      that are returned from one component and may appear in many places-->
 <strings>
+	<string name="create_account_url">http://join.secondlife.com/index.php?lang=ja-JP</string>
 	<string name="SECOND_LIFE">
 		Second Life
 	</string>
@@ -158,7 +159,7 @@
 		クリックして secondlife:// コマンドを出す
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
-		閉じる （⌘-W）
+		閉じる （&#8984;W）
 	</string>
 	<string name="BUTTON_CLOSE_WIN">
 		閉じる （Ctrl+W）
@@ -1311,16 +1312,16 @@
 		ランドマークを編集...
 	</string>
 	<string name="accel-mac-control">
-		⌃
+		&#8963;
 	</string>
 	<string name="accel-mac-command">
-		⌘
+		&#8984;
 	</string>
 	<string name="accel-mac-option">
-		⌥
+		&#8997;
 	</string>
 	<string name="accel-mac-shift">
-		⇧
+		&#8679;
 	</string>
 	<string name="accel-win-control">
 		Ctrl+

@@ -2,10 +2,10 @@
 <panel
 background_visible="true"
  follows="all"
- height="570"
+ height="635"
  label="Group Info"
  layout="topleft"
- min_height="425"
+ min_height="460"
  left="0"
  top="20"
  name="GroupInfo"
@@ -116,44 +116,43 @@ background_visible="true"
      visible="true"
      width="120" />
    <accordion
+           single_expansion="true"
              follows="all"
-             height="405"
+             height="478"
              layout="topleft"
              left="0"
              name="groups_accordion"
-             top_pad="15"
+             top_pad="10"
              width="323">
              <accordion_tab
-                 expanded="true"
-                 layout="topleft"
-                 name="group_general_tab"
-                 title="General">
+            expanded="false"
+            layout="topleft"
+            name="group_general_tab"
+            title="General">
             <panel
-            border="false"
-         class="panel_group_general" 
+             border="false"
+             class="panel_group_general"
              filename="panel_group_general.xml"
              layout="topleft"
              left="0"
              help_topic="group_general_tab"
              name="group_general_tab_panel"
-             top="0"
-             width="300" />
+             top="0" />
          </accordion_tab>
          <accordion_tab
-                 expanded="false"
-                 layout="topleft"
-                 name="group_roles_tab"
-                 title="Roles">
-                 <panel
-                 border="false"
-         class="panel_group_roles"
-                  filename="panel_group_roles.xml"
-                  layout="topleft"
-                  left="0"
-                  help_topic="group_roles_tab"
-         name="group_roles_tab_panel"
-                  top="0"
-             width="303" />
+            expanded="true"
+            layout="topleft"
+            name="group_roles_tab"
+            title="Roles">
+            <panel
+            border="false"
+            class="panel_group_roles"
+             filename="panel_group_roles.xml"
+             layout="topleft"
+             left="0"
+             help_topic="group_roles_tab"
+             name="group_roles_tab_panel"
+             top="0" />
          </accordion_tab>
          <accordion_tab
                  expanded="false"
@@ -168,8 +167,7 @@ background_visible="true"
          left="0"
          help_topic="group_notices_tab"
          name="group_notices_tab_panel"
-         top="0"
-         width="303" />
+         top="0" />
          </accordion_tab>
         <accordion_tab
                  expanded="false"
@@ -184,21 +182,25 @@ background_visible="true"
          left="0"
          help_topic="group_land_money_tab"
          name="group_land_tab_panel"
-         top="0"
-         width="300" />
+         top="0" />
          </accordion_tab>
          </accordion>
+   <panel
+   name="button_row"
+   height="23"
+   follows="bottom|left"
+   top_pad="-1"
+   width="323">
    <button
      follows="top|left"
      height="22"
      image_overlay="Refresh_Off"
      layout="topleft"
-     left="5"
+     left="10"
      name="btn_refresh"
-     top_pad="-15"
      width="23" />
-         <button
-     height="20"
+    <button
+     height="22"
      label="Create"
      label_selected="New group"
      name="btn_create"
@@ -214,12 +216,12 @@ background_visible="true"
      visible="false"
      width="65" />-->
      <button
-     height="20"
-     font="SansSerifSmall"
+     height="22"
      label="Save"
      label_selected="Save"
      name="btn_apply"
      left_pad="10"
      right="-10"
-     width="65" />
+     width="100" />
+     </panel>
 </panel>

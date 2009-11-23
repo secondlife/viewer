@@ -1336,6 +1336,12 @@ BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& na
 	return result;
 }
 
+void LLViewerInventoryItem::insertDefaultSortField(std::string& name)
+{
+	name.insert(0, std::string("1") + getSeparator());
+}
+
+
 // This returns true if the item that this item points to 
 // doesn't exist in memory (i.e. LLInventoryModel).  The baseitem
 // might still be in the database but just not loaded yet.

@@ -35,7 +35,10 @@
 
 #include "llinventorymodel.h"
 
+#include "lllandmarklist.h"
+
 class LLLandmark;
+
 /**
  * @brief Provides helper functions to manage landmarks
  */
@@ -112,10 +115,11 @@ public:
 
     /**
      * @brief Retrieve a landmark from gLandmarkList by inventory item's id
+     * If a landmark is not currently in the gLandmarkList a callback "cb" is called when it is loaded.
      * 
      * @return pointer to loaded landmark from gLandmarkList or NULL if landmark does not exist or wasn't loaded.
      */
-    static LLLandmark* getLandmark(const LLUUID& landmarkInventoryItemID);
+    static LLLandmark* getLandmark(const LLUUID& landmarkInventoryItemID, LLLandmarkList::loaded_callback_t cb = NULL);
 
     /**
      * @brief  Performs standard action of copying of SLURL from landmark to user's clipboard.

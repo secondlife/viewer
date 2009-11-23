@@ -278,7 +278,7 @@ viewer_media_t LLViewerMedia::newMediaImpl(
 	}
 	else
 	{
-		media_impl->stop();
+		media_impl->unload();
 		media_impl->mTextureId = texture_id;
 		media_impl->mMediaWidth = media_width;
 		media_impl->mMediaHeight = media_height;
@@ -293,7 +293,12 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 {	
 	// Try to find media with the same media ID
 	viewer_media_t media_impl = getMediaImplFromTextureID(media_entry->getMediaID());
-
+	
+	lldebugs << "called, current URL is \"" << media_entry->getCurrentURL() 
+			<< "\", previous URL is \"" << previous_url 
+			<< "\", update_from_self is " << (update_from_self?"true":"false")
+			<< llendl;
+			
 	bool was_loaded = false;
 	bool needs_navigate = false;
 	
@@ -314,21 +319,32 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 			media_impl->mMediaSource->setSize(media_entry->getWidthPixels(), media_entry->getHeightPixels());
 		}
 		
+		bool url_changed = (media_entry->getCurrentURL() != previous_url);
 		if(media_entry->getCurrentURL().empty())
 		{
-			// The current media URL is now empty.  Unload the media source.
-			media_impl->unload();
+			if(url_changed)
+			{
+				// The current media URL is now empty.  Unload the media source.
+				media_impl->unload();
+			
+				lldebugs << "Unloading media instance (new current URL is empty)." << llendl;
+			}
 		}
 		else
 		{
 			// The current media URL is not empty.
 			// If (the media was already loaded OR the media was set to autoplay) AND this update didn't come from this agent,
 			// do a navigate.
+			bool auto_play = (media_entry->getAutoPlay() && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING));
 			
-			if((was_loaded || (media_entry->getAutoPlay() && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING))) && !update_from_self)
+			if((was_loaded || auto_play) && !update_from_self)
 			{
-				needs_navigate = (media_entry->getCurrentURL() != previous_url);
+				needs_navigate = url_changed;
 			}
+			
+			lldebugs << "was_loaded is " << (was_loaded?"true":"false") 
+					<< ", auto_play is " << (auto_play?"true":"false") 
+					<< ", needs_navigate is " << (needs_navigate?"true":"false") << llendl;
 		}
 	}
 	else
@@ -354,6 +370,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 		if(needs_navigate)
 		{
 			media_impl->navigateTo(url, "", true, true);
+			lldebugs << "navigating to URL " << url << llendl;
 		}
 		else if(!media_impl->mMediaURL.empty() && (media_impl->mMediaURL != url))
 		{
@@ -362,6 +379,8 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 
 			// If this causes a navigate at some point (such as after a reload), it should be considered server-driven so it isn't broadcast.
 			media_impl->mNavigateServerRequest = true;
+
+			lldebugs << "updating URL in the media impl to " << url << llendl;
 		}
 	}
 	
@@ -1092,15 +1111,7 @@ void LLViewerMediaImpl::stop()
 {
 	if(mMediaSource)
 	{
-		if(mMediaSource->pluginSupportsMediaBrowser())
-		{
-			mMediaSource->browse_stop();
-		}
-		else
-		{
-			mMediaSource->stop();
-		}
-
+		mMediaSource->stop();
 		// destroyMediaSource();
 	}
 }
@@ -1129,6 +1140,40 @@ void LLViewerMediaImpl::seek(F32 time)
 	if(mMediaSource)
 	{
 		mMediaSource->seek(time);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::skipBack(F32 step_scale)
+{
+	if(mMediaSource)
+	{
+		if(mMediaSource->pluginSupportsMediaTime())
+		{
+			F64 back_step = mMediaSource->getCurrentTime() - (mMediaSource->getDuration()*step_scale);
+			if(back_step < 0.0)
+			{
+				back_step = 0.0;
+			}
+			mMediaSource->seek(back_step);
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::skipForward(F32 step_scale)
+{
+	if(mMediaSource)
+	{
+		if(mMediaSource->pluginSupportsMediaTime())
+		{
+			F64 forward_step = mMediaSource->getCurrentTime() + (mMediaSource->getDuration()*step_scale);
+			if(forward_step > mMediaSource->getDuration())
+			{
+				forward_step = mMediaSource->getDuration();
+			}
+			mMediaSource->seek(forward_step);
+		}
 	}
 }
 
@@ -1339,21 +1384,7 @@ void LLViewerMediaImpl::navigateBack()
 {
 	if (mMediaSource)
 	{
-		if(mMediaSource->pluginSupportsMediaTime())
-		{
-			F64 step_scale = 0.02; // temp , can be changed
-			F64 back_step = mMediaSource->getCurrentTime() - (mMediaSource->getDuration()*step_scale);
-			if(back_step < 0.0)
-			{
-				back_step = 0.0;
-			}
-			mMediaSource->seek(back_step);
-			//mMediaSource->start(-2.0);
-		}
-		else
-		{
-			mMediaSource->browse_back();
-		}
+		mMediaSource->browse_back();
 	}
 }
 
@@ -1362,21 +1393,7 @@ void LLViewerMediaImpl::navigateForward()
 {
 	if (mMediaSource)
 	{
-		if(mMediaSource->pluginSupportsMediaTime())
-		{
-			F64 step_scale = 0.02; // temp , can be changed
-			F64 forward_step = mMediaSource->getCurrentTime() + (mMediaSource->getDuration()*step_scale);
-			if(forward_step > mMediaSource->getDuration())
-			{
-				forward_step = mMediaSource->getDuration();
-			}
-			mMediaSource->seek(forward_step);
-			//mMediaSource->start(2.0);
-		}
-		else
-		{
-			mMediaSource->browse_forward();
-		}
+		mMediaSource->browse_forward();
 	}
 }
 
@@ -1525,7 +1542,6 @@ void LLViewerMediaImpl::navigateStop()
 	{
 		mMediaSource->browse_stop();
 	}
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

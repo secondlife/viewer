@@ -42,6 +42,7 @@
 #include "llworld.h"
 
 // Linden libraries
+#include "llbutton.h"
 #include "lllineeditor.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
@@ -56,7 +57,8 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(callback_t callback,
 												   BOOL closeOnSelect)
 {
 	// *TODO: Use a key to allow this not to be an effective singleton
-	LLFloaterAvatarPicker* floater = LLFloaterReg::showTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
+	LLFloaterAvatarPicker* floater = 
+		LLFloaterReg::showTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
 	
 	floater->mCallback = callback;
 	floater->mCallbackUserdata = userdata;
@@ -64,6 +66,15 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(callback_t callback,
 	floater->mNearMeListComplete = FALSE;
 	floater->mCloseOnSelect = closeOnSelect;
 	
+	if (!closeOnSelect)
+	{
+		// Use Select/Close
+		std::string select_string = floater->getString("Select");
+		std::string close_string = floater->getString("Close");
+		floater->getChild<LLButton>("ok_btn")->setLabel(select_string);
+		floater->getChild<LLButton>("cancel_btn")->setLabel(close_string);
+	}
+
 	return floater;
 }
 
@@ -102,10 +113,9 @@ BOOL LLFloaterAvatarPicker::postBuild()
 	friends->setDoubleClickCallback(onBtnSelect, this);
 	childSetCommitCallback("Friends", onList, this);
 
-	childSetAction("Select", onBtnSelect, this);
-	childDisable("Select");
-
-	childSetAction("Cancel", onBtnClose, this);
+	childSetAction("ok_btn", onBtnSelect, this);
+	childDisable("ok_btn");
+	childSetAction("cancel_btn", onBtnClose, this);
 
 	childSetFocus("Edit");
 
@@ -132,7 +142,7 @@ BOOL LLFloaterAvatarPicker::postBuild()
 
 void LLFloaterAvatarPicker::onTabChanged()
 {
-	childSetEnabled("Select", visibleItemsSelected());
+	childSetEnabled("ok_btn", visibleItemsSelected());
 }
 
 // Destroys the object
@@ -234,7 +244,7 @@ void LLFloaterAvatarPicker::onList(LLUICtrl* ctrl, void* userdata)
 	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)userdata;
 	if (self)
 	{
-		self->childSetEnabled("Select", self->visibleItemsSelected());
+		self->childSetEnabled("ok_btn", self->visibleItemsSelected());
 	}
 }
 
@@ -270,13 +280,13 @@ void LLFloaterAvatarPicker::populateNearMe()
 	if (empty)
 	{
 		childDisable("NearMe");
-		childDisable("Select");
+		childDisable("ok_btn");
 		near_me_scroller->setCommentText(getString("no_one_near"));
 	}
 	else 
 	{
 		childEnable("NearMe");
-		childEnable("Select");
+		childEnable("ok_btn");
 		near_me_scroller->selectFirstItem();
 		onList(near_me_scroller, this);
 		near_me_scroller->setFocus(TRUE);
@@ -357,7 +367,7 @@ void LLFloaterAvatarPicker::find()
 	getChild<LLScrollListCtrl>("SearchResults")->deleteAllItems();
 	getChild<LLScrollListCtrl>("SearchResults")->setCommentText(getString("searching"));
 	
-	childSetEnabled("Select", FALSE);
+	childSetEnabled("ok_btn", FALSE);
 	mNumResultsReturned = 0;
 }
 
@@ -414,7 +424,7 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 			map["[TEXT]"] = floater->childGetText("Edit");
 			avatar_name = floater->getString("not_found", map);
 			search_results->setEnabled(FALSE);
-			floater->childDisable("Select");
+			floater->childDisable("ok_btn");
 		}
 		else
 		{
@@ -430,7 +440,7 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 
 	if (found_one)
 	{
-		floater->childEnable("Select");
+		floater->childEnable("ok_btn");
 		search_results->selectFirstItem();
 		floater->onList(search_results, floater);
 		search_results->setFocus(TRUE);

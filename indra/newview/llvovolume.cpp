@@ -1734,9 +1734,9 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
 	}
 	
 	LLTextureEntry *te = getTE(texture_index);
-	//llinfos << "BEFORE: texture_index = " << texture_index
-	//	<< " hasMedia = " << te->hasMedia() << " : " 
-	//	<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << llendl;
+	LL_DEBUGS("MediaOnAPrim") << "BEFORE: texture_index = " << texture_index
+		<< " hasMedia = " << te->hasMedia() << " : " 
+		<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << llendl;
 
 	std::string previous_url;
 	LLMediaEntry* mep = te->getMediaData();
@@ -1776,9 +1776,9 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
 		removeMediaImpl(texture_index);
 	}
 
-	//llinfos << "AFTER: texture_index = " << texture_index
-	//	<< " hasMedia = " << te->hasMedia() << " : " 
-	//	<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << llendl;
+	LL_DEBUGS("MediaOnAPrim") << "AFTER: texture_index = " << texture_index
+		<< " hasMedia = " << te->hasMedia() << " : " 
+		<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << llendl;
 }
 
 void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
@@ -1801,7 +1801,7 @@ void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
         }
         if (! url.empty())
         {
-            LL_INFOS("LLMediaDataClient") << "bouncing back to URL: " << url << LL_ENDL;
+            LL_INFOS("MediaOnAPrim") << "bouncing back to URL: " << url << LL_ENDL;
             impl->navigateTo(url, "", false, true);
         }
     }

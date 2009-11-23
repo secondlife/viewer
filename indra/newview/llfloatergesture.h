@@ -36,11 +36,10 @@
 
 #ifndef LL_LLFLOATERGESTURE_H
 #define LL_LLFLOATERGESTURE_H
+#include <vector> 
 
 #include "llfloater.h"
-#include "llinventorymodel.h"
 #include "llinventoryobserver.h"
-#include "lldarray.h"
 
 class LLScrollContainer;
 class LLView;
@@ -53,6 +52,7 @@ class LLScrollListCtrl;
 class LLFloaterGestureObserver;
 class LLFloaterGestureInventoryObserver;
 class LLMultiGesture;
+class LLMenuGL;
 
 class LLFloaterGesture
 :	public LLFloater, LLInventoryFetchDescendentsObserver
@@ -65,26 +65,46 @@ public:
 	virtual BOOL postBuild();
 	virtual void done ();
 	void refreshAll();
+	/**
+	 * @brief Add new scrolllistitem into gesture_list.
+	 * @param  item_id inventory id of gesture
+	 * @param  gesture can be NULL , if item was not loaded yet
+	 */
+	void addGesture(const LLUUID& item_id, LLMultiGesture* gesture, LLCtrlListInterface * list);
 
 protected:
 	// Reads from the gesture manager's list of active gestures
 	// and puts them in this list.
 	void buildGestureList();
-	void addGesture(const LLUUID& item_id, LLMultiGesture* gesture, LLCtrlListInterface * list);
-	void onClickInventory();
+	void playGesture(LLUUID item_id);
+private:
+	void addToCurrentOutFit();
+	/**
+	 * @brief  This method is using to collect selected items. 
+	 * In some places gesture_list can be rebuilt by gestureObservers during  iterating data from LLScrollListCtrl::getAllSelected().
+	 * Therefore we have to copy these items to avoid viewer crash.
+	 * @see LLFloaterGesture::onActivateBtnClick
+	 */
+	void getSelectedIds(std::vector<LLUUID>& ids);
+	bool isActionEnabled(const LLSD& command);
+	/**
+	 * @brief Activation rules:
+	 *  According to Gesture Spec:
+	 *  1. If all selected gestures are active: set to inactive
+	 *  2. If all selected gestures are inactive: set to active
+	 *  3. If selected gestures are in a mixed state: set all to active
+	 */
+	void onActivateBtnClick();
 	void onClickEdit();
 	void onClickPlay();
 	void onClickNew();
 	void onCommitList();
-	void playGesture(LLUUID item_id);
-	LLCtrlListInterface* getGestureList() const 
-	{
-		return childGetListInterface("gesture_list");
-	}
-	void onActivateBtnClick();
-protected:
+	void onCopyPastAction(const LLSD& command);
+	void onDeleteSelected();
+
 	LLUUID mSelectedID;
 	LLUUID mGestureFolderID;
+	LLScrollListCtrl* mGestureList;
 
 	LLFloaterGestureObserver* mObserver;
 };

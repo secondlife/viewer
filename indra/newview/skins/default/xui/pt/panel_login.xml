@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
+	<panel.string name="create_account_url">
+		http://join.secondlife.com/index.php?lang=pt-BR
+	</panel.string>
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php?lang=pt
+	</panel.string>
+<panel name="login_widgets">
 	<text name="first_name_text">
 		Primeiro nome:
 	</text>
@@ -28,4 +35,5 @@
 	<text name="channel_text">
 		[VERSION]
 	</text>
+</panel>
 </panel>

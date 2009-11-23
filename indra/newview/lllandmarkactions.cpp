@@ -374,22 +374,34 @@ void LLLandmarkActions::onRegionResponseNameAndCoords(region_name_and_coords_cal
 
 bool LLLandmarkActions::getLandmarkGlobalPos(const LLUUID& landmarkInventoryItemID, LLVector3d& posGlobal)
 {
-	LLLandmark* landmark = LLLandmarkActions::getLandmark(landmarkInventoryItemID);
+	LLViewerInventoryItem* item = gInventory.getItem(landmarkInventoryItemID);
+	if (NULL == item)
+		return false;
 
+	const LLUUID& asset_id = item->getAssetUUID();
+
+	LLLandmark* landmark = gLandmarkList.getAsset(asset_id, NULL);
 	if (NULL == landmark)
 		return false;
 
 	return landmark->getGlobalPos(posGlobal);
 }
 
-LLLandmark* LLLandmarkActions::getLandmark(const LLUUID& landmarkInventoryItemID)
+LLLandmark* LLLandmarkActions::getLandmark(const LLUUID& landmarkInventoryItemID, LLLandmarkList::loaded_callback_t cb)
 {
 	LLViewerInventoryItem* item = gInventory.getItem(landmarkInventoryItemID);
 	if (NULL == item)
 		return NULL;
 
 	const LLUUID& asset_id = item->getAssetUUID();
-	return gLandmarkList.getAsset(asset_id, NULL);
+
+	LLLandmark* landmark = gLandmarkList.getAsset(asset_id, cb);
+	if (landmark)
+	{
+		return landmark;
+	}
+
+	return NULL;
 }
 
 void LLLandmarkActions::copySLURLtoClipboard(const LLUUID& landmarkInventoryItemID)

@@ -340,7 +340,7 @@ L$が不足しているのでこのグループに参加することができま
 	<notification name="PromptGoToEventsPage">
 		[SECOND_LIFE]イベント・ウェブ・ページに移動しますか？
 		<url name="url">
-			http://jp.secondlife.com/events/
+			http://secondlife.com/events/?lang=ja-JP
 		</url>
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
@@ -530,7 +530,7 @@ L$が不足しているのでこのグループに参加することができま
 
 [_URL] でリンデンドル購入に関する情報を確認しますか？
 		<url name="url">
-			http://jp.secondlife.com/currency/
+			http://secondlife.com/app/currency/?lang=ja-JP
 		</url>
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
@@ -1113,7 +1113,7 @@ L$は返金されません。
 
 [SECOND_LIFE] の使用が初めての方は、
 ログイン前にアカウントの作成が必要です。
-www.secondlife.comに移動し、新規アカウントの作成を行いますか？
+[https://join.secondlife.com/index.php?lang=ja-JP secondlife.com]に移動し、新規アカウントの作成を行いますか？
 		<usetemplate name="okcancelbuttons" notext="続行" yestext="新規アカウント..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
@@ -1524,7 +1524,7 @@ F1キーを押してください。
 
 ナレッジベースを開きレーティング区分について学びますか？
 		<url name="url">
-			http://wiki.secondlife.com/wiki/レーティング区分概要_(KB)
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/ja
 		</url>
 		<usetemplate ignoretext="レーティング区分の制限のため、このリージョンに入ることができません" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く"/>
 	</notification>
@@ -1553,7 +1553,7 @@ F1キーを押してください。
 
 ナレッジベースを開きレーティング区分について学びますか？
 		<url name="url">
-			http://wiki.secondlife.com/wiki/レーティング区分概要_(KB)
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/ja
 		</url>
 		<usetemplate ignoretext="レーティング区分の制限のため、この土地を取得できません" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く"/>
 	</notification>
@@ -1578,7 +1578,7 @@ F1キーを押してください。
 
 ナレッジベースを開きレーティング区分について学びますか？
 		<url name="url">
-			http://wiki.secondlife.com/wiki/レーティング区分概要_(KB)
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/ja
 		</url>
 		<usetemplate ignoretext="レーティング区分の制限のため、この土地を購入できません" name="okcancelignore" notext="閉じる" yestext="ナレッジベースを開く"/>
 	</notification>
