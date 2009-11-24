@@ -637,6 +637,9 @@ void LLObjectMediaNavigateClient::navigate(LLMediaDataClientObject *object, U8 t
 	sd_payload[LLTextureEntry::OBJECT_ID_KEY] = object->getID();
 	sd_payload[LLMediaEntry::CURRENT_URL_KEY] = url;
 	sd_payload[LLTextureEntry::TEXTURE_INDEX_KEY] = (LLSD::Integer)texture_index;
+	
+	LL_INFOS("LLMediaDataClient") << "navigate() initiated: " << ll_print_sd(sd_payload) << LL_ENDL;
+	
 	request(object, sd_payload);
 }
 

@@ -149,6 +149,8 @@ public:
 	void pause();
 	void start();
 	void seek(F32 time);
+	void skipBack(F32 step_scale);
+	void skipForward(F32 step_scale);
 	void setVolume(F32 volume);
 	void updateVolume();
 	F32 getVolume();

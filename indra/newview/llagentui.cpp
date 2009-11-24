@@ -130,6 +130,7 @@ BOOL LLAgentUI::buildLocationString(std::string& str, ELocationFormat fmt,const 
 	// create a default name and description for the landmark
 	std::string parcel_name = LLViewerParcelMgr::getInstance()->getAgentParcelName();
 	std::string region_name = region->getName();
+	std::string sim_access_string = region->getSimAccessString();
 	std::string buffer;
 	if( parcel_name.empty() )
 	{
@@ -142,7 +143,13 @@ BOOL LLAgentUI::buildLocationString(std::string& str, ELocationFormat fmt,const 
 		case LOCATION_FORMAT_NORMAL:
 			buffer = llformat("%s", region_name.c_str());
 			break;
-		case LOCATION_FORMAT_WITHOUT_SIM:
+		case LOCATION_FORMAT_NO_COORDS:
+			buffer = llformat("%s%s%s",
+				region_name.c_str(),
+				sim_access_string.empty() ? "" : " - ",
+				sim_access_string.c_str());
+			break;
+		case LOCATION_FORMAT_NO_MATURITY:
 		case LOCATION_FORMAT_FULL:
 			buffer = llformat("%s (%d, %d, %d)",
 				region_name.c_str(),
@@ -161,14 +168,20 @@ BOOL LLAgentUI::buildLocationString(std::string& str, ELocationFormat fmt,const 
 		case LOCATION_FORMAT_NORMAL:
 			buffer = llformat("%s, %s", parcel_name.c_str(), region_name.c_str());
 			break;
-		case LOCATION_FORMAT_WITHOUT_SIM:
+		case LOCATION_FORMAT_NO_MATURITY:
 			buffer = llformat("%s, %s (%d, %d, %d)",
 				parcel_name.c_str(),
 				region_name.c_str(),
 				pos_x, pos_y, pos_z);
 			break;
+		case LOCATION_FORMAT_NO_COORDS:
+			buffer = llformat("%s, %s%s%s",
+							  parcel_name.c_str(),
+							  region_name.c_str(),
+							  sim_access_string.empty() ? "" : " - ",
+							  sim_access_string.c_str());
+				break;
 		case LOCATION_FORMAT_FULL:
-			std::string sim_access_string = region->getSimAccessString();
 			buffer = llformat("%s, %s (%d, %d, %d)%s%s",
 				parcel_name.c_str(),
 				region_name.c_str(),

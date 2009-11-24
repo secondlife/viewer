@@ -38,10 +38,11 @@ class LLAgentUI
 public:
 	enum ELocationFormat
 	{
-		LOCATION_FORMAT_NORMAL,
-		LOCATION_FORMAT_LANDMARK,
-		LOCATION_FORMAT_WITHOUT_SIM,
-		LOCATION_FORMAT_FULL,
+		LOCATION_FORMAT_NORMAL,			// Parcel
+		LOCATION_FORMAT_LANDMARK,		// Parcel, Region
+		LOCATION_FORMAT_NO_MATURITY,	// Parcel, Region (x, y, z)
+		LOCATION_FORMAT_NO_COORDS,		// Parcel, Region - Maturity
+		LOCATION_FORMAT_FULL,			// Parcel, Region (x, y, z) - Maturity
 	};
 
 	static void buildName(std::string& name);

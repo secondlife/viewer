@@ -143,6 +143,27 @@ void LLSpeakButton::setShowToolTip(const std::string& msg)
 	mShowBtn->setToolTip(msg);
 }
 
+void LLSpeakButton::setLabelVisible(bool visible)
+{
+	static std::string label_selected = mSpeakBtn->getLabelSelected();
+	static std::string label_unselected = mSpeakBtn->getLabelUnselected();
+
+	if (visible)
+	{
+		mSpeakBtn->setLabelSelected(label_selected);
+		mSpeakBtn->setLabelUnselected(label_unselected);
+	}
+	else
+	{
+		static LLStringExplicit empty_string("");
+		mSpeakBtn->setLabelSelected(empty_string);
+		mSpeakBtn->setLabelUnselected(empty_string);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+/// PROTECTED SECTION
+//////////////////////////////////////////////////////////////////////////
 void LLSpeakButton::onMouseDown_SpeakBtn()
 {
 	bool down = true;

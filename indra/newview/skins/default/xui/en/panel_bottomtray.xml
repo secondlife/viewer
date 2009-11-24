@@ -60,11 +60,11 @@
          min_height="28"
          width="100"
          top_delta="0"
-         min_width="100"
+         min_width="54"
          name="speak_panel"
          user_resize="false">
           <talk_button
-           follows="right"
+           follows="left|right"
            height="23"
            speak_button.tab_stop="true"
            show_button.tab_stop="true"

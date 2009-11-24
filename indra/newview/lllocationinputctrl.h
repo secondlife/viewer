@@ -33,7 +33,8 @@
 #ifndef LL_LLLOCATIONINPUTCTRL_H
 #define LL_LLLOCATIONINPUTCTRL_H
 
-#include <llcombobox.h>
+#include "llcombobox.h"
+#include "lliconctrl.h"		// Params
 
 class LLLandmark;
 
@@ -63,9 +64,15 @@ public:
 											add_landmark_image_disabled,
 											add_landmark_image_hover,
 											add_landmark_image_selected;
-		Optional<S32>						add_landmark_hpad;
+		Optional<S32>						icon_hpad;
 		Optional<LLButton::Params>			add_landmark_button,
 											info_button;
+		Optional<LLIconCtrl::Params>		voice_icon,
+											fly_icon,
+											push_icon,
+											build_icon,
+											scripts_icon,
+											damage_icon;
 		Params();
 	};
 
@@ -103,6 +110,7 @@ private:
 	void					enableAddLandmarkButton(bool val);
 	void					refresh();
 	void					refreshLocation();
+	void					refreshParcelIcons();
 	void					rebuildLocationHistory(std::string filter = "");
 	bool 					findTeleportItemsByTitle(const LLTeleportHistoryItem& item, const std::string& filter);
 	void					setText(const LLStringExplicit& text);
@@ -126,7 +134,20 @@ private:
 	LLMenuGL*				mLocationContextMenu;
 	LLButton*				mAddLandmarkBtn;
 	LLButton*				mInfoBtn;
-	S32						mAddLandmarkHPad;
+	S32						mIconHPad;
+	
+	enum EParcelIcon
+	{
+		VOICE_ICON = 0,
+		FLY_ICON,
+		PUSH_ICON,
+		BUILD_ICON,
+		SCRIPTS_ICON,
+		DAMAGE_ICON,
+		ICON_COUNT
+	};
+	LLIconCtrl*	mParcelIcon[ICON_COUNT];
+	// TODO: Health meter?
 
 	LLAddLandmarkObserver*		mAddLandmarkObserver;
 	LLRemoveLandmarkObserver*	mRemoveLandmarkObserver;
