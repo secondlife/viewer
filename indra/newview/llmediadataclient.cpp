@@ -260,7 +260,8 @@ void LLMediaDataClient::Responder::result(const LLSD& content)
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-bool LLMediaDataClient::Comparator::operator() (const request_ptr_t &o1, const request_ptr_t &o2) const
+// static
+bool LLMediaDataClient::compareRequests(const request_ptr_t &o1, const request_ptr_t &o2)
 {
 	if (o2.isNull()) return true;
 	if (o1.isNull()) return false;
@@ -277,20 +278,13 @@ bool LLMediaDataClient::Comparator::operator() (const request_ptr_t &o1, const r
 	// 3: One item with an impl, another without: item with impl wins 
 	//	  (XXX is that what we want?)		 
 	// Calculate the scores for each.  
-	F64 o1_score = Comparator::getObjectScore(o1->getObject());
-	F64 o2_score = Comparator::getObjectScore(o2->getObject());
-
-    // XXX Weird: a higher score should go earlier, but by observation I notice
-    // that this causes further-away objects load first.  This is counterintuitive
-    // to the priority_queue Comparator, which states that this function should
-    // return 'true' if o1 should be *before* o2.
-    // In other words, I'd have expected that the following should return
-    // ( o1_score > o2_score).
-	return ( o1_score < o2_score );
+	F64 o1_score = getObjectScore(o1->getObject());
+	F64 o2_score = getObjectScore(o2->getObject());
+	return ( o1_score > o2_score );
 }
-	
+
 // static
-F64 LLMediaDataClient::Comparator::getObjectScore(const LLMediaDataClientObject::ptr_t &obj)
+F64 LLMediaDataClient::getObjectScore(const LLMediaDataClientObject::ptr_t &obj)
 {
 	// *TODO: make this less expensive?
 	F64 dist = obj->getDistanceFromAvatar() + 0.1;	 // avoids div by 0
@@ -310,12 +304,12 @@ F64 LLMediaDataClient::Comparator::getObjectScore(const LLMediaDataClientObject:
 //////////////////////////////////////////////////////////////////////////////////////
 
 // dump the queue
-std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::PriorityQueue &q)
+std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::request_queue_t &q)
 {
 	int i = 0;
-	std::vector<LLMediaDataClient::request_ptr_t>::const_iterator iter = q.c.begin();
-	std::vector<LLMediaDataClient::request_ptr_t>::const_iterator end = q.c.end();
-	while (iter < end)
+	LLMediaDataClient::request_queue_t::const_iterator iter = q.begin();
+	LLMediaDataClient::request_queue_t::const_iterator end = q.end();
+	while (iter != end)
 	{
 		s << "\t" << i << "]: " << (*iter)->getObject()->getID().asString();
 		iter++;
@@ -325,11 +319,11 @@ std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::PriorityQueue
 }
 
 // find the given object in the queue.
-bool LLMediaDataClient::PriorityQueue::find(const LLMediaDataClientObject::ptr_t &obj) const
+bool LLMediaDataClient::find(const LLMediaDataClientObject::ptr_t &obj) const
 {
-	std::vector<LLMediaDataClient::request_ptr_t>::const_iterator iter = c.begin();
-	std::vector<LLMediaDataClient::request_ptr_t>::const_iterator end = c.end();
-	while (iter < end)
+	request_queue_t::const_iterator iter = pRequestQueue->begin();
+	request_queue_t::const_iterator end = pRequestQueue->end();
+	while (iter != end)
 	{
 		if (obj->getID() == (*iter)->getObject()->getID())
 		{
@@ -370,13 +364,17 @@ BOOL LLMediaDataClient::QueueTimer::tick()
 		return TRUE;
 	}
 	
-	LLMediaDataClient::PriorityQueue &queue = *(mMDC->pRequestQueue);
+	request_queue_t &queue = *(mMDC->pRequestQueue);
 
 	if(!queue.empty())
 	{
 		LL_INFOS("LLMediaDataClient") << "QueueTimer::tick() started, queue is:	  " << queue << LL_ENDL;
-	}
 
+		// Re-sort the list every time...
+		// XXX Is this really what we want?
+		queue.sort(LLMediaDataClient::compareRequests);
+	}
+	
 	// quick retry loop for cases where we shouldn't wait for the next timer tick
 	while(true)
 	{
@@ -387,7 +385,7 @@ BOOL LLMediaDataClient::QueueTimer::tick()
 		}
 	
 		// Peel one off of the items from the queue, and execute request
-		request_ptr_t request = queue.top();
+		request_ptr_t request = queue.front();
 		llassert(!request.isNull());
 		const LLMediaDataClientObject *object = (request.isNull()) ? NULL : request->getObject();
 		bool performed_request = false;
@@ -398,7 +396,7 @@ BOOL LLMediaDataClient::QueueTimer::tick()
 		{
 			// This object has been marked dead.  Pop it and move on to the next item in the queue immediately.
 			LL_INFOS("LLMediaDataClient") << "Skipping " << *request << ": object is dead!" << LL_ENDL;
-			queue.pop();
+			queue.pop_front();
 			continue;	// jump back to the start of the quick retry loop
 		}
 
@@ -442,7 +440,7 @@ BOOL LLMediaDataClient::QueueTimer::tick()
 											  << mMDC->mMaxNumRetries << " tries...popping object id " << object->getID() << LL_ENDL; 
 				// XXX Should we bring up a warning dialog??
 			}
-			queue.pop();
+			queue.pop_front();
 		}
 		else {
 			request->incRetryCount();
@@ -451,7 +449,7 @@ BOOL LLMediaDataClient::QueueTimer::tick()
  		// end of quick retry loop -- any cases where we want to loop will use 'continue' to jump back to the start.
  		break;
 	}  
-	
+
 	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() finished, queue is now: " << (*(mMDC->pRequestQueue)) << LL_ENDL;
 
 	return queue.empty();
@@ -488,7 +486,9 @@ void LLMediaDataClient::enqueue(const Request *request)
 	LL_INFOS("LLMediaDataClient") << "Queuing request for " << *request << LL_ENDL;
 	// Push the request on the priority queue
 	// Sadly, we have to const-cast because items put into the queue are not const
-	pRequestQueue->push(const_cast<LLMediaDataClient::Request*>(request));
+	pRequestQueue->push_back(const_cast<LLMediaDataClient::Request*>(request));
+	// sort the list
+	pRequestQueue->sort(LLMediaDataClient::compareRequests);
 	LL_DEBUGS("LLMediaDataClient") << "Queue:" << (*pRequestQueue) << LL_ENDL;
 	// Start the timer if not already running
 	startQueueTimer();
@@ -508,7 +508,7 @@ LLMediaDataClient::LLMediaDataClient(F32 queue_timer_delay,
 	  mMaxNumRetries(max_retries),
 	  mQueueTimerIsRunning(false)
 {
-	pRequestQueue = new PriorityQueue();
+	pRequestQueue = new request_queue_t();
 }
 
 LLMediaDataClient::~LLMediaDataClient()
@@ -529,7 +529,7 @@ bool LLMediaDataClient::isEmpty() const
 
 bool LLMediaDataClient::isInQueue(const LLMediaDataClientObject::ptr_t &object) const
 {
-	return (NULL == pRequestQueue) ? false : pRequestQueue->find(object);
+	return (NULL == pRequestQueue) ? false : find(object);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
