@@ -80,7 +80,7 @@ public:
 		}
 		
 		const std::string verb = params[1].asString();
-		if (verb == "select")
+		//if (verb == "select")
 		{
 			std::vector<LLUUID> items_to_open;
 			items_to_open.push_back(inventory_id);
