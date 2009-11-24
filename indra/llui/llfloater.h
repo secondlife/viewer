@@ -144,13 +144,6 @@ public:
 								dock_pressed_image,
 								undock_pressed_image,
 								help_pressed_image;
-		Optional<std::string>	close_tooltip,
-								restore_tooltip,
-								minimize_tooltip,
-								tear_off_tooltip,
-								dock_tooltip,
-								undock_tooltip,
-								heap_tooltip;
 		
 		Optional<CommitCallbackParam> open_callback,
 									  close_callback;
