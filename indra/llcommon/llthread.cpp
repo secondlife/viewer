@@ -291,8 +291,8 @@ LLMutex::LLMutex(apr_pool_t *poolp) :
 
 LLMutex::~LLMutex()
 {
-#if _DEBUG
-	llassert(!isLocked()); // better not be locked!
+#if MUTEX_DEBUG
+	llassert_always(!isLocked()); // better not be locked!
 #endif
 	apr_thread_mutex_destroy(mAPRMutexp);
 	mAPRMutexp = NULL;
@@ -306,10 +306,24 @@ LLMutex::~LLMutex()
 void LLMutex::lock()
 {
 	apr_thread_mutex_lock(mAPRMutexp);
+#if MUTEX_DEBUG
+	// Have to have the lock before we can access the debug info
+	U32 id = LLThread::currentID();
+	if (mIsLocked[id] != FALSE)
+		llerrs << "Already locked in Thread: " << id << llendl;
+	mIsLocked[id] = TRUE;
+#endif
 }
 
 void LLMutex::unlock()
 {
+#if MUTEX_DEBUG
+	// Access the debug info while we have the lock
+	U32 id = LLThread::currentID();
+	if (mIsLocked[id] != TRUE)
+		llerrs << "Not locked in Thread: " << id << llendl;	
+	mIsLocked[id] = FALSE;
+#endif
 	apr_thread_mutex_unlock(mAPRMutexp);
 }
 
