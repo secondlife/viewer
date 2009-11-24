@@ -298,7 +298,6 @@ private:
 	LLFrameTimer mTextureUpdateTimer;
 	S32			mLOD;
 	BOOL		mLODChanged;
-	S32         mMeshSculptLevel;
 	BOOL		mSculptChanged;
 	F32			mSpotLightPriority;
 	LLMatrix4	mRelativeXform;

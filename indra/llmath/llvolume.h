@@ -904,7 +904,8 @@ public:
 	BOOL isUnique() const									{ return mUnique; }
 
 	S32 getSculptLevel() const                              { return mSculptLevel; }
-	
+	void setSculptLevel(S32 level)							{ mSculptLevel = level; }
+
 	S32 *getTriangleIndices(U32 &num_indices) const;
 
 	// returns number of triangle indeces required for path/profile mesh
@@ -970,11 +971,13 @@ public:
 	virtual BOOL createVolumeFacesFromFile(const std::string& file_name);
 	virtual BOOL createVolumeFacesFromStream(std::istream& is);
 	virtual void makeTetrahedron();
+	virtual BOOL isTetrahedron();
 
  protected:
 	BOOL mUnique;
 	F32 mDetail;
 	S32 mSculptLevel;
+	BOOL mIsTetrahedron;
 	
 	LLVolumeParams mParams;
 	LLPath *mPathp;

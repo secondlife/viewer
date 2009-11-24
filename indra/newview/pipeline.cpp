@@ -8913,23 +8913,29 @@ LLCullResult::sg_list_t::iterator LLPipeline::endAlphaGroups()
 
 void LLPipeline::loadMesh(LLVOVolume* vobj, LLUUID mesh_id, S32 detail)
 {
+
+	if (detail < 0 || detail > 4)
+	{
+		return;
+	}
+
 	{
 		LLMutexLock lock(mMeshMutex);
 		//add volume to list of loading meshes
-		mesh_load_map::iterator iter = mLoadingMeshes.find(mesh_id);
-		if (iter != mLoadingMeshes.end())
+		mesh_load_map::iterator iter = mLoadingMeshes[detail].find(mesh_id);
+		if (iter != mLoadingMeshes[detail].end())
 		{ //request pending for this mesh, append volume id to list
 			iter->second.insert(vobj->getID());
 			return;
 		}
 
 		//first request for this mesh
-		mLoadingMeshes[mesh_id].insert(vobj->getID());
+		mLoadingMeshes[detail][mesh_id].insert(vobj->getID());
 	}
 
 	if (gAssetStorage->hasLocalAsset(mesh_id, LLAssetType::AT_MESH))
 	{ //already have asset, load desired LOD in background
-		mPendingMeshes.push_back(new LLMeshThread(mesh_id, vobj->getVolume()));
+		mPendingMeshes.push_back(new LLMeshThread(mesh_id, vobj->getVolume(), detail));
 	}
 	else
 	{ //fetch asset and load when done
@@ -8952,7 +8958,7 @@ void LLPipeline::loadMesh(LLVOVolume* vobj, LLUUID mesh_id, S32 detail)
 			for (S32 i = detail-1; i >= 0; --i)
 			{
 				LLVolume* lod = group->refLOD(i);
-				if (lod && lod->getNumVolumeFaces() > 0)
+				if (lod && !lod->isTetrahedron() && lod->getNumVolumeFaces() > 0)
 				{
 					volume->copyVolumeFaces(lod);
 					group->derefLOD(lod);
@@ -8966,7 +8972,7 @@ void LLPipeline::loadMesh(LLVOVolume* vobj, LLUUID mesh_id, S32 detail)
 			for (S32 i = detail+1; i < 4; ++i)
 			{
 				LLVolume* lod = group->refLOD(i);
-				if (lod && lod->getNumVolumeFaces() > 0)
+				if (lod && !lod->isTetrahedron() && lod->getNumVolumeFaces() > 0)
 				{
 					volume->copyVolumeFaces(lod);
 					group->derefLOD(lod);
@@ -8975,6 +8981,10 @@ void LLPipeline::loadMesh(LLVOVolume* vobj, LLUUID mesh_id, S32 detail)
 
 				group->derefLOD(lod);
 			}
+		}
+		else
+		{
+			llerrs << "WTF?" << llendl;
 		}
 
 		//nothing found, so make a tetrahedron
@@ -8992,12 +9002,22 @@ void LLPipeline::getMeshAssetCallback(LLVFS *vfs,
 }
 
 
-LLPipeline::LLMeshThread::LLMeshThread(LLUUID mesh_id, LLVolume* target)
+LLPipeline::LLMeshThread::LLMeshThread(LLUUID mesh_id, LLVolume* target, S32 detail)
 : LLThread("mesh_loading_thread")
 {
 	mMeshID = mesh_id;
 	mVolume = NULL;
 	mDetail = target->getDetail();
+
+	if (detail == -1)
+	{
+		mDetailIndex = LLVolumeLODGroup::getVolumeDetailFromScale(target->getDetail());
+	}
+	else
+	{
+		mDetailIndex = detail;
+	}
+
 	mTargetVolume = target;
 }
 
@@ -9073,6 +9093,10 @@ void LLPipeline::notifyLoadedMeshes()
 
 	for (std::list<LLMeshThread*>::iterator iter = mLoadedMeshes.begin(); iter != mLoadedMeshes.end(); ++iter)
 	{ //for each mesh done loading
+
+
+
+
 		LLMeshThread* mesh = *iter;
 		
 		if (!mesh->isStopped())
@@ -9081,10 +9105,12 @@ void LLPipeline::notifyLoadedMeshes()
 			continue;
 		}
 
-		//get list of objects waiting to be notified this mesh is loaded
-		mesh_load_map::iterator obj_iter = mLoadingMeshes.find(mesh->mMeshID);
+		S32 detail = mesh->mDetailIndex;
 
-		if (mesh->mVolume && obj_iter != mLoadingMeshes.end())
+		//get list of objects waiting to be notified this mesh is loaded
+		mesh_load_map::iterator obj_iter = mLoadingMeshes[detail].find(mesh->mMeshID);
+
+		if (mesh->mVolume && obj_iter != mLoadingMeshes[detail].end())
 		{
 			//make sure target volume is still valid
 			BOOL valid = FALSE;
@@ -9109,6 +9135,10 @@ void LLPipeline::notifyLoadedMeshes()
 				{
 					mesh->mTargetVolume->copyVolumeFaces(mesh->mVolume);
 				}
+				else
+				{
+					llwarns << "Mesh loading returned empty volume." << llendl;
+				}
 
 				for (std::set<LLUUID>::iterator vobj_iter = obj_iter->second.begin(); vobj_iter != obj_iter->second.end(); ++vobj_iter)
 				{
@@ -9120,7 +9150,7 @@ void LLPipeline::notifyLoadedMeshes()
 				}
 			}
 
-			mLoadingMeshes.erase(mesh->mMeshID);
+			mLoadingMeshes[detail].erase(mesh->mMeshID);
 		}
 
 		delete mesh;

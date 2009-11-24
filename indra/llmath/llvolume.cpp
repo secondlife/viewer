@@ -1676,6 +1676,7 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 	mFaceMask = 0x0;
 	mDetail = detail;
 	mSculptLevel = -2;
+	mIsTetrahedron = FALSE;
 	mLODScaleBias.setVec(1,1,1);
 
 	// set defaults
@@ -1905,7 +1906,7 @@ BOOL LLVolume::createVolumeFacesFromFile(const std::string& file_name)
 BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 {
 	mSculptLevel = -1;  // default is an error occured
-	
+
 	LLSD header;
 	{
 		if (!LLSDSerialize::deserialize(header, is, 1024*1024*1024))
@@ -2048,6 +2049,11 @@ BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 	{
 		U32 face_count = mdl.size();
 
+		if (face_count == 0)
+		{
+			llerrs << "WTF?" << llendl;
+		}
+
 		mVolumeFaces.resize(face_count);
 
 		for (U32 i = 0; i < face_count; ++i)
@@ -2063,8 +2069,9 @@ BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 
 			//copy out indices
 			face.mIndices.resize(idx.size()/2);
-			if (idx.empty())
+			if (idx.empty() || face.mIndices.size() < 3)
 			{ //why is there an empty index list?
+				llerrs <<"WTF?" << llendl;
 				continue;
 			}
 
@@ -2150,6 +2157,11 @@ void tetrahedron_set_normal(LLVolumeFace::VertexData* cv)
 	cv[2].mNormal = nrm;
 }
 
+BOOL LLVolume::isTetrahedron()
+{
+	return mIsTetrahedron;
+}
+
 void LLVolume::makeTetrahedron()
 {
 	mVolumeFaces.clear();
@@ -2165,6 +2177,9 @@ void LLVolume::makeTetrahedron()
 		LLVector3(x,-x,-x)
 	};
 
+	face.mExtents[0].setVec(-x,-x,-x);
+	face.mExtents[1].setVec(x,x,x);
+	
 	LLVolumeFace::VertexData cv[3];
 
 	//set texture coordinates
@@ -2225,12 +2240,19 @@ void LLVolume::makeTetrahedron()
 	
 	mVolumeFaces.push_back(face);
 	mSculptLevel = 0;
+	mIsTetrahedron = TRUE;
 }
 
 void LLVolume::copyVolumeFaces(LLVolume* volume)
 {
+	if (volume->isTetrahedron())
+	{
+		llerrs << "WTF?" << llendl;
+	}
+
 	mVolumeFaces = volume->mVolumeFaces;
 	mSculptLevel = 0;
+	mIsTetrahedron = FALSE;
 }
 
 S32 const LL_SCULPT_MESH_MAX_FACES = 8;
@@ -2614,6 +2636,11 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 {
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
     U8 sculpt_type = mParams.getSculptType();
+
+	if (sculpt_type & LL_SCULPT_TYPE_MASK == LL_SCULPT_TYPE_MESH)
+	{
+		llerrs << "WTF?" << llendl;
+	}
 
 	BOOL data_is_empty = FALSE;
 

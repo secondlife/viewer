@@ -163,7 +163,6 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	mRelativeXformInvTrans.setIdentity();
 
 	mLOD = MIN_LOD;
-	mMeshSculptLevel = -2;
 	mTextureAnimp = NULL;
 	mVObjRadius = LLVector3(1,1,0.5f).length();
 	mNumFaces = 0;
@@ -682,25 +681,7 @@ void LLVOVolume::updateTextureVirtualSize()
 		LLUUID id =  sculpt_params->getSculptTexture();
 		U8 sculpt_type = sculpt_params->getSculptType();
 
-		if ((sculpt_type & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
-			// mesh is a mesh
-		{
-			if (mMeshSculptLevel == -2)
-			{
-				// get the asset please
-				gPipeline.loadMesh(this, id);
-				/*gAssetStorage->getAssetData(id,	LLAssetType::AT_MESH, (LLGetAssetCallback)NULL, NULL, TRUE);
-
-				if (gAssetStorage->hasLocalAsset(id, LLAssetType::AT_MESH))
-				{
-					gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
-					mSculptChanged = TRUE;
-				}*/
-			}
-		}
-
-		else
-			// mesh is a sculptie
+		if ((sculpt_type & LL_SCULPT_TYPE_MASK) != LL_SCULPT_TYPE_MESH)
 		{
 			mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 
@@ -902,14 +883,10 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 			if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 			{
 				if (getVolume()->getNumVolumeFaces() == 0)
-				{
-					//mesh is not loaded, request pipeline load this mesh
+				{ 
+					//load request not yet issued, request pipeline load this mesh
 					LLUUID asset_id = volume_params.getSculptID();
-					gPipeline.loadMesh(this, asset_id, detail);
-				}
-				else
-				{
-					mMeshSculptLevel = 1;
+					gPipeline.loadMesh(this, asset_id, LLVolumeLODGroup::getVolumeDetailFromScale(getVolume()->getDetail()));
 				}
 			}
 			else // otherwise is sculptie

@@ -676,8 +676,9 @@ public:
 protected:
 	std::vector<LLFace*>		mSelectedFaces;
 
+
 	typedef std::map<LLUUID, std::set<LLUUID> > mesh_load_map;
-	mesh_load_map mLoadingMeshes;
+	mesh_load_map mLoadingMeshes[4];
 	
 	LLMutex*					mMeshMutex;
 
@@ -688,7 +689,8 @@ protected:
 		LLVolume* mTargetVolume;
 		LLUUID mMeshID;
 		F32 mDetail;
-		LLMeshThread(LLUUID mesh_id, LLVolume* target);
+		S32 mDetailIndex;
+		LLMeshThread(LLUUID mesh_id, LLVolume* target, S32 detail = -1);
 		~LLMeshThread();
 		void run();
 	};

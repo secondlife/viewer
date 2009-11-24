@@ -375,6 +375,19 @@ F32 LLVolumeLODGroup::getVolumeScaleFromDetail(const S32 detail)
 	return mDetailScales[detail];
 }
 
+S32 LLVolumeLODGroup::getVolumeDetailFromScale(const F32 detail)
+{
+	for (S32 i = 1; i < 4; i++)
+	{
+		if (mDetailScales[i] > detail)
+		{
+			return i-1;
+		}
+	}
+
+	return 3;
+}
+
 F32 LLVolumeLODGroup::dump()
 {
 	F32 usage = 0.f;
