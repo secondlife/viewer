@@ -80,6 +80,7 @@ public:
 private:
 
 	void onDoubleClickItem();
+	void onReturnKeyPressed();
 	void onAccordionTabRightClick(LLView *view, S32 x, S32 y, MASK mask);
 	void onAccordionTabOpen(LLAccordionCtrlTab *tab);
 	void onAccordionTabClose(LLAccordionCtrlTab *tab);
