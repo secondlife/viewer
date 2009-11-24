@@ -66,27 +66,6 @@
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
 
-std::string	LLFloater::sButtonActiveImageNames[BUTTON_COUNT] = 
-{
-	"Icon_Close_Foreground",	//BUTTON_CLOSE
-	"Icon_Restore_Foreground",	//BUTTON_RESTORE
-	"Icon_Minimize_Foreground",	//BUTTON_MINIMIZE
-	"tearoffbox.tga",			//BUTTON_TEAR_OFF
-	"Icon_Dock_Foreground",		//BUTTON_DOCK
-	"Icon_Undock_Foreground",	//BUTTON_UNDOCK
-	"Icon_Help_Foreground"		//BUTTON_HELP
-};
-
-std::string	LLFloater::sButtonPressedImageNames[BUTTON_COUNT] = 
-{
-	"Icon_Close_Press",			//BUTTON_CLOSE
-	"Icon_Restore_Press",		//BUTTON_RESTORE
-	"Icon_Minimize_Press",		//BUTTON_MINIMIZE
-	"tearoff_pressed.tga",		//BUTTON_TEAR_OFF
-	"Icon_Dock_Press",			//BUTTON_DOCK
-	"Icon_Undock_Press",		//BUTTON_UNDOCK
-	"Icon_Help_Press"			//BUTTON_HELP
-};
 
 std::string	LLFloater::sButtonNames[BUTTON_COUNT] = 
 {
@@ -195,6 +174,20 @@ LLFloater::Params::Params()
 	can_dock("can_dock", false),
 	header_height("header_height", 0),
 	legacy_header_height("legacy_header_height", 0),
+	close_image("close_image"),
+	restore_image("restore_image"),
+	minimize_image("minimize_image"),
+	tear_off_image("tear_off_image"),
+	dock_image("dock_image"),
+	undock_image("undock_image"),
+	help_image("help_image"),
+	close_pressed_image("close_pressed_image"),
+	restore_pressed_image("restore_pressed_image"),
+	minimize_pressed_image("minimize_pressed_image"),
+	tear_off_pressed_image("tear_off_pressed_image"),
+	dock_pressed_image("dock_pressed_image"),
+	undock_pressed_image("undock_pressed_image"),
+	help_pressed_image("help_pressed_image"),
 	open_callback("open_callback"),
 	close_callback("close_callback")
 {
@@ -263,11 +256,9 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	// prior rectangle to be used on restore.
 	mExpandedRect.set(0,0,0,0);
 	
-	for (S32 i = 0; i < BUTTON_COUNT; i++)
-	{
-		mButtonsEnabled[i] = FALSE;
-		mButtons[i] = NULL;
-	}
+	memset(mButtonsEnabled, 0, BUTTON_COUNT * sizeof(bool));
+	memset(mButtons, 0, BUTTON_COUNT * sizeof(LLButton*));
+	
 	addDragHandle();
 	addResizeCtrls();
 	
@@ -276,11 +267,11 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	// chrome floaters don't take focus at all
 	setFocusRoot(!getIsChrome());
 
-	initFloater();
+	initFloater(p);
 }
 
 // Note: Floaters constructed from XML call init() twice!
-void LLFloater::initFloater()
+void LLFloater::initFloater(const Params& p)
 {
 	// Close button.
 	if (mCanClose)
@@ -305,7 +296,7 @@ void LLFloater::initFloater()
 		mButtonsEnabled[BUTTON_DOCK] = TRUE;
 	}
 
-	buildButtons();
+	buildButtons(p);
 
 	// Floaters are created in the invisible state	
 	setVisible(FALSE);
@@ -1280,7 +1271,7 @@ void LLFloater::removeDependentFloater(LLFloater* floaterp)
 	floaterp->mDependeeHandle = LLHandle<LLFloater>();
 }
 
-BOOL LLFloater::offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButtons index)
+BOOL LLFloater::offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButton index)
 {
 	if( mButtonsEnabled[index] )
 	{
@@ -1798,7 +1789,7 @@ void LLFloater::updateButtons()
 		mDragHandle->setMaxTitleWidth(getRect().getWidth() - (button_count * (floater_close_box_size + 1)));
 }
 
-void LLFloater::buildButtons()
+void LLFloater::buildButtons(const Params& floater_params)
 {
 	static LLUICachedControl<S32> floater_close_box_size ("UIFloaterCloseBoxSize", 0);
 	static LLUICachedControl<S32> close_box_from_top ("UICloseBoxFromTop", 0);
@@ -1832,17 +1823,18 @@ void LLFloater::buildButtons()
 		LLButton::Params p;
 		p.name(sButtonNames[i]);
 		p.rect(btn_rect);
-		p.image_unselected.name(sButtonActiveImageNames[i]);
+		p.image_unselected = getButtonImage(floater_params, (EFloaterButton)i);
 		// Selected, no matter if hovered or not, is "pressed"
-		p.image_selected.name(sButtonPressedImageNames[i]);
-		p.image_hover_selected.name(sButtonPressedImageNames[i]);
+		LLUIImage* pressed_image = getButtonPressedImage(floater_params, (EFloaterButton)i);
+		p.image_selected = pressed_image;
+		p.image_hover_selected = pressed_image;
 		// Use a glow effect when the user hovers over the button
 		// These icons are really small, need glow amount increased
 		p.hover_glow_amount( 0.33f );
 		p.click_callback.function(boost::bind(sButtonCallbacks[i], this));
 		p.tab_stop(false);
 		p.follows.flags(FOLLOWS_TOP|FOLLOWS_RIGHT);
-		p.tool_tip(sButtonToolTips[i]);
+		p.tool_tip = getButtonTooltip(floater_params, (EFloaterButton)i);
 		p.scale_image(true);
 		p.chrome(true);
 
@@ -1852,6 +1844,59 @@ void LLFloater::buildButtons()
 	}
 
 	updateButtons();
+}
+
+// static
+LLUIImage* LLFloater::getButtonImage(const Params& p, EFloaterButton e)
+{
+	switch(e)
+	{
+		default:
+		case BUTTON_CLOSE:
+			return p.close_image;
+		case BUTTON_RESTORE:
+			return p.restore_image;
+		case BUTTON_MINIMIZE:
+			return p.minimize_image;
+		case BUTTON_TEAR_OFF:
+			return p.tear_off_image;
+		case BUTTON_DOCK:
+			return p.dock_image;
+		case BUTTON_UNDOCK:
+			return p.undock_image;
+		case BUTTON_HELP:
+			return p.help_image;
+	}
+}
+
+// static
+LLUIImage* LLFloater::getButtonPressedImage(const Params& p, EFloaterButton e)
+{
+	switch(e)
+	{
+		default:
+		case BUTTON_CLOSE:
+			return p.close_pressed_image;
+		case BUTTON_RESTORE:
+			return p.restore_pressed_image;
+		case BUTTON_MINIMIZE:
+			return p.minimize_pressed_image;
+		case BUTTON_TEAR_OFF:
+			return p.tear_off_pressed_image;
+		case BUTTON_DOCK:
+			return p.dock_pressed_image;
+		case BUTTON_UNDOCK:
+			return p.undock_pressed_image;
+		case BUTTON_HELP:
+			return p.help_pressed_image;
+	}
+}
+
+// static
+std::string LLFloater::getButtonTooltip(const Params& p, EFloaterButton e)
+{
+	// TODO: per-floater localizable tooltips set in XML
+	return sButtonToolTips[e];
 }
 
 /////////////////////////////////////////////////////
@@ -2672,7 +2717,7 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 	setupParams(params, parent);
  	initFromParams(params);
 	
-	initFloater();
+	initFloater(params);
 	
 	LLMultiFloater* last_host = LLFloater::getFloaterHost();
 	if (node->hasName("multi_floater"))
