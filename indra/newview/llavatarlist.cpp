@@ -363,37 +363,6 @@ void LLAvatarList::computeDifference(
 	vadded.erase(it, vadded.end());
 }
 
-static std::string format_secs(S32 secs)
-{
-	// *TODO: reinventing the wheel?
-	// *TODO: i18n
-	static const int LL_AL_MIN		= 60;
-	static const int LL_AL_HOUR		= LL_AL_MIN * 60;
-	static const int LL_AL_DAY		= LL_AL_HOUR * 24;
-	static const int LL_AL_WEEK		= LL_AL_DAY * 7;
-	static const int LL_AL_MONTH	= LL_AL_DAY * 31;
-	static const int LL_AL_YEAR		= LL_AL_DAY * 365;
-
-    std::string s;
-
-    if (secs >= LL_AL_YEAR)
-        s = llformat("%dy", secs / LL_AL_YEAR);
-    else if (secs >= LL_AL_MONTH)
-        s = llformat("%dmon", secs / LL_AL_MONTH);
-    else if (secs >= LL_AL_WEEK)
-        s = llformat("%dw", secs / LL_AL_WEEK);
-    else if (secs >= LL_AL_DAY)
-        s = llformat("%dd", secs / LL_AL_DAY);
-    else if (secs >= LL_AL_HOUR)
-        s = llformat("%dh", secs / LL_AL_HOUR);
-    else if (secs >= LL_AL_MIN)
-        s = llformat("%dm", secs / LL_AL_MIN);
-    else
-        s = llformat("%ds", secs);
-
-    return s;
-}
-
 // Refresh shown time of our last interaction with all listed avatars.
 void LLAvatarList::updateLastInteractionTimes()
 {
@@ -407,7 +376,7 @@ void LLAvatarList::updateLastInteractionTimes()
 		LLAvatarListItem* item = static_cast<LLAvatarListItem*>(*it);
 		S32 secs_since = now - (S32) LLRecentPeople::instance().getDate(item->getAvatarId()).secondsSinceEpoch();
 		if (secs_since >= 0)
-			item->setLastInteractionTime(format_secs(secs_since));
+			item->setLastInteractionTime(secs_since);
 	}
 }
 
