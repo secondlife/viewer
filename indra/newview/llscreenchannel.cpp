@@ -115,7 +115,9 @@ void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 // LLScreenChannel
 //////////////////////
 //--------------------------------------------------------------------------
-LLScreenChannel::LLScreenChannel(LLUUID& id):	LLScreenChannelBase(id)
+LLScreenChannel::LLScreenChannel(LLUUID& id):	
+LLScreenChannelBase(id)
+,mStartUpToastPanel(NULL)
 {	
 }
 
