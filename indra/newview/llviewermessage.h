@@ -222,6 +222,7 @@ struct LLOfferInfo
 	LLSD asLLSD();
 	void send_auto_receive_response(void);
 	bool inventory_offer_callback(const LLSD& notification, const LLSD& response);
+	bool inventory_task_offer_callback(const LLSD& notification, const LLSD& response);
 
 };
 

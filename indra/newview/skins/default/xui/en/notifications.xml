@@ -4973,10 +4973,6 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you [OBJECTTYPE
        index="0"
        name="Keep"
        text="Keep"/>
-	  <button
-       index="4"
-       name="Show"
-       text="Show"/> 
       <button
        index="1"
        name="Discard"
@@ -4999,10 +4995,6 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
        index="0"
        name="Keep"
        text="Keep"/>
-	  <button
-       index="4"
-       name="Show"
-       text="Show"/> 
       <button
        index="1"
        name="Discard"
