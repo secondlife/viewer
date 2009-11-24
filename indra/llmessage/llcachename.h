@@ -87,8 +87,8 @@ public:
 	BOOL getFullName(const LLUUID& id, std::string& fullname);
 	
 	// Reverse lookup of UUID from name
-	BOOL LLCacheName::getUUID(const std::string& first, const std::string& last, LLUUID& id);
-	BOOL LLCacheName::getUUID(const std::string& fullname, LLUUID& id);
+	BOOL getUUID(const std::string& first, const std::string& last, LLUUID& id);
+	BOOL getUUID(const std::string& fullname, LLUUID& id);
 	
 	// If available, this method copies the group name into the string
 	// provided. The caller must allocate at least
