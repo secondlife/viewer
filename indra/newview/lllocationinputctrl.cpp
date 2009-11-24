@@ -158,6 +158,7 @@ LLLocationInputCtrl::Params::Params()
 	add_landmark_image_disabled("add_landmark_image_disabled"),
 	add_landmark_image_hover("add_landmark_image_hover"),
 	add_landmark_image_selected("add_landmark_image_selected"),
+	add_landmark_hpad("add_landmark_hpad", 0),
 	icon_hpad("icon_hpad", 0),
 	add_landmark_button("add_landmark_button"),
 	info_button("info_button"),
@@ -174,6 +175,7 @@ LLLocationInputCtrl::Params::Params()
 LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 :	LLComboBox(p),
 	mIconHPad(p.icon_hpad),
+	mAddLandmarkHPad(p.add_landmark_hpad),
 	mInfoBtn(NULL),
 	mLocationContextMenu(NULL),
 	mAddLandmarkBtn(NULL),
@@ -608,7 +610,7 @@ void LLLocationInputCtrl::refreshLocation()
 void LLLocationInputCtrl::refreshParcelIcons()
 {
 	// Our "cursor" moving right to left
-	S32 x = mAddLandmarkBtn->getRect().mLeft - mIconHPad;
+	S32 x = mAddLandmarkBtn->getRect().mLeft - mAddLandmarkHPad;
 	
 	static LLUICachedControl<bool> show_properties("NavBarShowParcelProperties", false);
 	if (show_properties)
