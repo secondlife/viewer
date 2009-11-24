@@ -64,10 +64,7 @@ BOOL LLFloaterInventory::postBuild()
 
 void LLFloaterInventory::draw()
 {
- 	if (LLInventoryModel::isEverythingFetched())
-	{
-		updateTitle();
-	}
+	updateTitle();
 	LLFloater::draw();
 }
 
@@ -85,9 +82,13 @@ void LLFloaterInventory::updateTitle()
 	{
 		setTitle(getString("TitleFetching", string_args));
 	}
-	else
+	else if (LLInventoryModel::isEverythingFetched())
 	{
 		setTitle(getString("TitleCompleted", string_args));
+	}
+	else
+	{
+		setTitle(getString("Title"));
 	}
 }
 

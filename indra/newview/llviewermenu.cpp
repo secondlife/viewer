@@ -2733,13 +2733,24 @@ bool enable_object_edit()
 	// there.  Eventually this needs to be replaced with code that only 
 	// lets you edit objects if you have permission to do so (edit perms,
 	// group edit, god).  See also lltoolbar.cpp.  JC
-	bool enable = true;
+	bool enable = false;
 	if (gAgent.inPrelude())
 	{
 		enable = LLViewerParcelMgr::getInstance()->agentCanBuild()
 			|| LLSelectMgr::getInstance()->getSelection()->isAttachment();
+	} 
+	else if (LLSelectMgr::getInstance()->selectGetModify())
+	{
+		enable = true;
 	}
+
 	return enable;
+}
+
+// mutually exclusive - show either edit option or build in menu
+bool enable_object_build()
+{
+	return !enable_object_edit();
 }
 
 class LLSelfRemoveAllAttachments : public view_listener_t
@@ -5667,6 +5678,16 @@ class LLFloaterVisible : public view_listener_t
 	}
 };
 
+class LLShowSidetrayPanel : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string panel_name = userdata.asString();
+		LLSideTray::getInstance()->showPanel(panel_name, LLSD());
+		return true;
+	}
+};
+
 bool callback_show_url(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotification::getSelectedOption(notification, response);
@@ -8023,9 +8044,12 @@ void initialize_menus()
 	visible.add("VisiblePayObject", boost::bind(&enable_pay_object));
 	enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));
 	enable.add("EnableEdit", boost::bind(&enable_object_edit));
+	visible.add("VisibleBuild", boost::bind(&enable_object_build));
+	visible.add("VisibleEdit", boost::bind(&enable_object_edit));
 	visible.add("Object.VisibleEdit", boost::bind(&enable_object_edit));
 
 	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
+	view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");
 	view_listener_t::addMenu(new LLSomethingSelected(), "SomethingSelected");
 	view_listener_t::addMenu(new LLSomethingSelectedNoHUD(), "SomethingSelectedNoHUD");
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");

@@ -101,6 +101,7 @@
 #include "llpanelgrouplandmoney.h"
 #include "llpanelplaces.h"
 #include "llrecentpeople.h"
+#include "llscriptfloater.h"
 #include "llselectmgr.h"
 #include "llsidetray.h"
 #include "llstartup.h"
@@ -1372,7 +1373,8 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 
 	payload["from_id"] = info->mFromID;
 	args["OBJECTFROMNAME"] = info->mFromName;
-	args["NAME"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
+	args["NAME"] = info->mFromName;
+	args["NAME_SLURL"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
 	std::string verb = "highlight?name=" + msg;
 	args["ITEM_SLURL"] = LLSLURL::buildCommand("inventory", info->mObjectID, verb.c_str());
 
@@ -2115,7 +2117,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			send_generic_message("requestonlinenotification", strings);
 			
 			args["NAME"] = name;
-			LLNotifications::instance().add("FriendshipAccepted", args);
+			LLSD payload;
+			payload["from_id"] = from_id;
+			LLNotifications::instance().add("FriendshipAccepted", args, payload);
 		}
 		break;
 
@@ -5377,6 +5381,17 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 		notification = LLNotifications::instance().add(
 			LLNotification::Params("ScriptDialogGroup").substitutions(args).payload(payload).form_elements(form.asLLSD()));
 	}
+
+	// "ScriptDialog" and "ScriptDialogGroup" are handles by LLScriptFloaterManager.
+	// We want to inform user that there is a script floater, lets add "ScriptToast"
+	LLNotification::Params p("ScriptToast");
+	p.substitutions(args).payload(payload).functor.function(boost::bind(
+		LLScriptFloaterManager::onToastButtonClick, _1, _2));
+
+	notification = LLNotifications::instance().add(p);
+
+	LLScriptFloaterManager::getInstance()->setNotificationToastId(
+		object_id, notification->getID());
 }
 
 //---------------------------------------------------------------------------

@@ -2814,7 +2814,11 @@ void LLAgent::endAnimationUpdateUI()
 			LLFloaterReg::restoreVisibleInstances();
 #else // Use this for now
 			LLFloaterView::skip_list_t skip_list;
-			skip_list.insert(LLFloaterReg::findInstance("mini_map"));
+			if (LLFloaterReg::findInstance("mini_map"))
+			{
+				skip_list.insert(LLFloaterReg::findInstance("mini_map"));
+			}
+		
 			gFloaterView->popVisibleAll(skip_list);
 #endif
 			mViewsPushed = FALSE;

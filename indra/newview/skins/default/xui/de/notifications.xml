@@ -317,7 +317,7 @@ Gebühren werden nicht rückerstattet.
 	<notification name="PromptGoToEventsPage">
 		Zur [SECOND_LIFE] Events-Webseite?
 		<url name="url">
-			http://de.secondlife.com/events/
+			http://secondlife.com/events/?lang=de-DE
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
@@ -498,7 +498,7 @@ Verschieben Sie alle betreffenden Objekte in dieselbe Region.
 
 [_URL] für Informationen zum Kauf von L$ öffnen?
 		<url name="url">
-			http://de.secondlife.com/app/currency/
+			http://secondlife.com/app/currency/?lang=de-DE
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
@@ -1055,7 +1055,7 @@ Sie können [SECOND_LIFE] normal verwenden. Andere Benutzer können Sie korrekt 
 		Die Installation von [APP_NAME] ist abgeschlossen.
 
 Wenn Sie [SECOND_LIFE] das erste Mal verwenden, müssen Sie ein Konto anlegen, bevor Sie sich anmelden können.
-Möchten Sie auf www.secondlife.com ein Konto erstellen?
+Möchten Sie auf [https://join.secondlife.com/index.php?lang=de-DE secondlife.com] ein Konto erstellen?
 		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Neues Konto..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
@@ -1452,7 +1452,7 @@ Bitte vergewissern Sie sich, dass Sie den aktuellsten Viewer installiert haben u
 
 Möchten Sie unsere Knowledgebase besuchen, um mehr Informationen über Altereinstufung zu erhalten?
 		<url name="url">
-			http://wiki.secondlife.com/wiki/Alterseinstufung:_Ein_%C3%9Cberblick_(KB)
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/de
 		</url>
 		<usetemplate ignoretext="Ich kann diese Region aufgrund der Alterseinstufung nicht betreten" name="okcancelignore" notext="Schließen" yestext="Zur Knowledgbase"/>
 	</notification>
@@ -1480,7 +1480,7 @@ Bitte vergewissern Sie sich, dass Sie den aktuellsten Viewer installiert haben u
 
 Möchten Sie unsere Knowledgebase besuchen, um mehr Informationen über Altereinstufung zu erhalten?
 		<url name="url">
-			http://wiki.secondlife.com/wiki/Alterseinstufung:_Ein_%C3%9Cberblick_(KB)
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/de
 		</url>
 		<usetemplate ignoretext="Ich habe aufgrund der Alterseinstufung keinen Anspruch auf dieses Land" name="okcancelignore" notext="Schließen" yestext="Zur Knowledgbase"/>
 	</notification>
@@ -1504,7 +1504,7 @@ Bitte vergewissern Sie sich, dass Sie den aktuellsten Viewer installiert haben u
 
 Möchten Sie unsere Knowledgebase besuchen, um mehr Informationen über Altereinstufung zu erhalten?
 		<url name="url">
-			http://wiki.secondlife.com/wiki/Alterseinstufung:_Ein_%C3%9Cberblick_(KB)
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/de
 		</url>
 		<usetemplate ignoretext="Ich kann aufgrund der Alterseinstufung dieses Land nicht kaufen" name="okcancelignore" notext="Schließen" yestext="Zur Knowledgbase"/>
 	</notification>
@@ -1690,10 +1690,7 @@ Inventarobjekt(e) verschieben?
 		<usetemplate ignoretext="Bestätigen, bevor Sitzung beendet wird" name="okcancelignore" notext="Nicht beenden" yestext="Beenden"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		Verwenden Sie dieses Tool, um Verletzungen der Servicebedingungen und Community-Standards zu melden. Siehe:
-
-http://secondlife.com/corporate/tos.php
-http://secondlife.com/corporate/cs.php
+		Verwenden Sie dieses Tool, um Verletzungen der [http://secondlife.com/corporate/tos.php?lang=de-DE Servicebedingungen] und [http://secondlife.com/corporate/cs.php?lang=de-DE Community-Standards] zu melden.
 
 Alle gemeldeten Verletzungen der Servicebedingungen und Community-Standards werden geprüft und geklärt Sie können den Prozess im Incident Report (Vorfallsbericht) verfolgen:
 

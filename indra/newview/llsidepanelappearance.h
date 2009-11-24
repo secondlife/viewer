@@ -64,6 +64,7 @@ public:
 private:
 	void onFilterEdit(const std::string& search_string);
 
+	void onOpenOutfitButtonClicked();
 	void onEditAppearanceButtonClicked();
 	void onWearButtonClicked();
 	void onEditButtonClicked();
@@ -78,12 +79,12 @@ private:
 	LLPanelLookInfo*		mLookInfo;
 	LLPanelEditWearable*	mEditWearable;
 
+	LLButton*					mOpenOutfitBtn;
 	LLButton*					mEditAppearanceBtn;
 	LLButton*					mWearBtn;
 	LLButton*					mEditBtn;
-	LLButton*					mNewLookBtn;
-	LLButton*					mOverflowBtn;
-	LLPanel*					mCurrLookPanel;
+	LLButton*					mNewOutfitBtn;
+	LLPanel*					mCurrOutfitPanel;
 
 	LLTextBox*					mCurrentLookName;
 

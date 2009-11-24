@@ -92,16 +92,26 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
 		// add message to IM
-		LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, notification->getPayload()["from_id"]);
-		if (!LLIMMgr::instance().hasSession(session_id))
+		const std::string
+				name =
+						notification->getSubstitutions().has("NAME") ? notification->getSubstitutions()["NAME"]
+								: notification->getSubstitutions()["[NAME]"];
+
+		// don't create IM session with objects
+		if (notification->getName() != "ObjectGiveItem"
+				&& notification->getName() != "ObjectGiveItemUnknownUser")
 		{
-			session_id = LLIMMgr::instance().addSession(
-					notification->getSubstitutions()["OBJECTFROMNAME"], IM_NOTHING_SPECIAL,
-					notification->getPayload()["from_id"]);
+			LLUUID from_id = notification->getPayload()["from_id"];
+			LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL,
+					from_id);
+			if (!LLIMMgr::instance().hasSession(session_id))
+			{
+				session_id = LLIMMgr::instance().addSession(name,
+						IM_NOTHING_SPECIAL, from_id);
+			}
+			LLIMMgr::instance().addMessage(session_id, LLUUID(), name,
+					notification->getMessage());
 		}
-		LLIMMgr::instance().addMessage(session_id, LLUUID(),
-				notification->getSubstitutions()["OBJECTFROMNAME"],
-				notification->getMessage());
 
 		LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
 

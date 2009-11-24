@@ -78,7 +78,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mSortOrderSetting(p.sort_order_setting),
 	mInventory(p.inventory),
 	mAllowMultiSelect(p.allow_multi_select),
-	mHasInventoryConnection(false),
+	mViewsInitialized(false),
 	mStartFolderString(p.start_folder),	
 	mBuildDefaultHierarchy(true),
 	mInvFVBridgeBuilder(NULL)
@@ -151,11 +151,9 @@ BOOL LLInventoryPanel::postBuild()
 	mInventory->addObserver(mInventoryObserver);
 
 	// build view of inventory if we need default full hierarchy and inventory ready, otherwise wait for modelChanged() callback
-	if (mBuildDefaultHierarchy && mInventory->isInventoryUsable() && !mHasInventoryConnection)
+	if (mBuildDefaultHierarchy && mInventory->isInventoryUsable() && !mViewsInitialized)
 	{
-		generateViews();
-		mHasInventoryConnection = true;
-		defaultOpenInventory();
+		initializeViews();
 	}
 
 	if (mSortOrderSetting != INHERIT_SORT_ORDER)
@@ -258,11 +256,9 @@ void LLInventoryPanel::modelChanged(U32 mask)
 	bool handled = false;
 
 	// inventory just initialized, do complete build
-	if ((mask & LLInventoryObserver::ADD) && mInventory->isInventoryUsable() && gInventory.getChangedIDs().empty() && !mHasInventoryConnection)
+	if ((mask & LLInventoryObserver::ADD) && mInventory->isInventoryUsable() && gInventory.getChangedIDs().empty() && !mViewsInitialized)
 	{
-		generateViews();
-		mHasInventoryConnection = true;
-		defaultOpenInventory();
+		initializeViews();
 		return;
 	}
 
@@ -372,11 +368,10 @@ void LLInventoryPanel::modelChanged(U32 mask)
 }
 
 
-void LLInventoryPanel::generateViews()
+void LLInventoryPanel::initializeViews()
 {
-
-	// Blow away the entire previous UI tree.
-	mFolders->getRoot()->destroyView();
+	if (!gInventory.isInventoryUsable())
+		return;
 
 	// Determine the root folder in case specified, and
 	// build the views starting with that folder.
@@ -392,6 +387,9 @@ void LLInventoryPanel::generateViews()
 	}
 	llinfos << this << " Generating views for start folder " << mStartFolderString << llendl;
 	rebuildViewsFor(mStartFolderID);
+
+	mViewsInitialized = true;
+	defaultOpenInventory();
 }
 
 void LLInventoryPanel::rebuildViewsFor(const LLUUID& id)
@@ -426,10 +424,6 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 			return;
 		}
 		
-		if (objectp->getName() == "My Inventory")
-		{
-			llinfos << this << " Adding MyInventory for start folder " << mStartFolderString << llendl;
-		}
 		if (objectp->getType() <= LLAssetType::AT_NONE ||
 			objectp->getType() >= LLAssetType::AT_COUNT)
 		{

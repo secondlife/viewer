@@ -62,6 +62,8 @@ public:
 	virtual F64 getTotalMediaInterest() const = 0;
 	// Return the given cap url
 	virtual std::string getCapabilityUrl(const std::string &name) const = 0;
+	// Return whether the object has been marked dead
+	virtual bool isDead() const = 0;
 
 	// smart pointer
 	typedef LLPointer<LLMediaDataClientObject> ptr_t;

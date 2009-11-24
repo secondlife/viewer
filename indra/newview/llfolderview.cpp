@@ -39,11 +39,13 @@
 #include "llinventoryclipboard.h" // *TODO: remove this once hack below gone.
 #include "llinventoryfilter.h"
 #include "llinventoryfunctions.h"
+#include "llinventorypanel.h"
 #include "llfoldertype.h"
 #include "llfloaterinventory.h"// hacked in for the bonus context menu items.
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
+#include "llpanel.h"
 #include "llpreview.h"
 #include "llscrollcontainer.h" // hack to allow scrolling
 #include "lltooldraganddrop.h"
@@ -2014,12 +2016,14 @@ static LLFastTimer::DeclareTimer FTM_INVENTORY("Inventory");
 // Main idle routine
 void LLFolderView::doIdle()
 {
-	// Don't do anything until the inventory is loaded up.
-	if (!gInventory.isInventoryUsable())
+	// If this is associated with the user's inventory, don't do anything
+	// until that inventory is loaded up.
+	const LLInventoryPanel *inventory_panel = dynamic_cast<LLInventoryPanel*>(mParentPanel);
+	if (inventory_panel && !inventory_panel->getIsViewsInitialized())
 	{
 		return;
 	}
-
+	
 	LLFastTimer t2(FTM_INVENTORY);
 
 	BOOL debug_filters = gSavedSettings.getBOOL("DebugInventoryFilters");

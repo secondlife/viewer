@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
- height="485"
+ height="463"
  label="Notices"
  layout="topleft"
  left="0"
@@ -10,11 +10,10 @@
  width="310">
     <panel.string
      name="help_text">
-        Notices are a quick way to communicate across a 
-group by broadcasting a message and delivering 
+        Notices let you send a message and
 an optionally attached item. Notices only go to
-group members in Roles granted the ability to 
-receive Notices. You can turn off Notices on 
+group members in Roles with the ability to
+receive Notices. You can turn off Notices on
 the General tab.
     </panel.string>
     <panel.string
@@ -25,14 +24,15 @@ the General tab.
       follows="left|top"
      type="string"
      word_wrap="true"
-     height="30"
+     height="24"
+     halign="right"
      layout="topleft"
      left="5"
      name="lbl2"
      top="5"
      width="300">
      Notices are kept for 14 days
-Groups are limited to 200 notices/group daily
+Maximum 200 per group daily
     </text>
     <scroll_list
       follows="left|top"
@@ -44,7 +44,7 @@ Groups are limited to 200 notices/group daily
      left="2"
      name="notice_list"
      top_pad="0"
-     width="305">
+     width="300">
         <scroll_list.columns
          label=""
          name="icon"
@@ -52,15 +52,15 @@ Groups are limited to 200 notices/group daily
         <scroll_list.columns
          label="Subject"
          name="subject"
-         width="125" />
+         width="110" />
         <scroll_list.columns
          label="From"
          name="from"
-         width="90" />
+         width="100" />
         <scroll_list.columns
          label="Date"
          name="date"
-         width="30" />
+         width="60" />
         <scroll_list.columns
          name="sort"
          width="-1" />
@@ -84,7 +84,7 @@ Groups are limited to 200 notices/group daily
        left="5"
        name="create_new_notice"
        tool_tip="Create a new notice"
-     top_delta="0"
+     top_delta="-3"
        width="18" />
      <button
      follows="top|left"
@@ -97,14 +97,14 @@ Groups are limited to 200 notices/group daily
      width="23" />
     <panel
      follows="left|top"
-     height="300"
+     height="280"
      label="Create New Notice"
      layout="topleft"
      left="0"
-     top_pad="10"
-     visible="false"
+     top_pad="0"
+     visible="true"
      name="panel_create_new_notice"
-     width="303">
+     width="300">
         <text
          follows="left|top"
          type="string"
@@ -216,31 +216,31 @@ Groups are limited to 200 notices/group daily
          follows="left|top"
          height="23"
          label="Send"
-         label_selected="Send Notice"
+         label_selected="Send"
          layout="topleft"
          right="-10"
          top_pad="10"
          name="send_notice"
          width="100" />
       <group_drop_target
-         height="466"
-         top="0"
-         left="0"
+         height="95"
+         top="160"
+         left="10"
          layout="topleft"
          name="drop_target"
          tool_tip="Drag an inventory item onto the message box to send it with the notice. You must have permission to copy and transfer the object to send it with the notice."
-         width="295" />
-   </panel> 
+         width="280" />
+   </panel>
     <panel
      follows="left|top"
-     height="300"
+     height="280"
      label="View Past Notice"
      layout="topleft"
      left="0"
-     visible="true"
+     visible="false"
      name="panel_view_past_notice"
      top="180"
-     width="303">
+     width="300">
         <text
          type="string"
          font="SansSerifBig"
@@ -303,7 +303,7 @@ Groups are limited to 200 notices/group daily
         </text>
         <text_editor
          enabled="false"
-         height="205"
+         height="160"
          layout="topleft"
          left="10"
          max_length="511"
@@ -319,7 +319,7 @@ Groups are limited to 200 notices/group daily
          max_length="63"
          mouse_opaque="false"
          name="view_inventory_name"
-         top_pad="10"
+         top_pad="8"
          width="285" />
         <icon
          height="16"

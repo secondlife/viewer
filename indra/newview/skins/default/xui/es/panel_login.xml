@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<string name="real_url">
-		http://secondlife.com/app/login/
-	</string>
-	<string name="forgot_password_url">
-		http://secondlife.com/account/request.php
-	</string>
+	<panel.string name="create_account_url">
+		http://join.secondlife.com/index.php?lang=es-ES
+	</panel.string>
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php?lang=es
+	</panel.string>
+<panel name="login_widgets">
 	<text name="first_name_text">
 		Nombre:
 	</text>
@@ -34,4 +35,5 @@
 	<text name="channel_text">
 		[VERSION]
 	</text>
+</panel>
 </panel>

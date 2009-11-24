@@ -161,9 +161,6 @@ public:
 	void unSelectAll()	{ mFolders->setSelection(NULL, FALSE, FALSE); }
 	
 private:
-	// Destroys the old views, and regenerates them based on the
-	// start folder ID.
-	void generateViews();
 
 	// Given the id and the parent, build all of the folder views.
 	void rebuildViewsFor(const LLUUID& id);
@@ -176,25 +173,8 @@ protected:
 	BOOL 						mAllowMultiSelect;
 	std::string					mSortOrderSetting;
 
-//private: // Can not make these private - needed by llinventorysubtreepanel
 	LLFolderView*				mFolders;
-	std::string                 mStartFolderString;
-
-	/**
-	 * Contains UUID of Inventory item from which hierarchy should be built.
-	 * Can be set with the "start_folder" xml property.
-	 * Default is LLUUID::null that means total Inventory hierarchy.
-	 */
-	LLUUID						mStartFolderID;
 	LLScrollContainer*			mScroller;
-	bool						mHasInventoryConnection;
-
-	/**
-	 * Flag specified if default inventory hierarchy should be created in postBuild()
-	 */
-	bool						mBuildDefaultHierarchy;
-
-	LLUUID						mRootInventoryItemUUID;
 
 	/**
 	 * Pointer to LLInventoryFVBridgeBuilder.
@@ -205,6 +185,21 @@ protected:
 	 */
 	const LLInventoryFVBridgeBuilder* mInvFVBridgeBuilder;
 
+	//--------------------------------------------------------------------
+	// Initialization routines for building up the UI ("views")
+	//--------------------------------------------------------------------
+public:
+	BOOL 				getIsViewsInitialized() const { return mViewsInitialized; }
+private:
+	// Builds the UI.  Call this once the inventory is usable.
+	void 				initializeViews();
+	BOOL				mBuildDefaultHierarchy; // default inventory hierarchy should be created in postBuild()
+	BOOL				mViewsInitialized; // Views have been generated
+	
+	// UUID of category from which hierarchy should be built.  Set with the 
+	// "start_folder" xml property.  Default is LLUUID::null that means total Inventory hierarchy. 
+	std::string         mStartFolderString;
+	LLUUID				mStartFolderID;
 };
 
 #endif // LL_LLINVENTORYPANEL_H

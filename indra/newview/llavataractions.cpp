@@ -368,9 +368,9 @@ void LLAvatarActions::inviteToGroup(const LLUUID& id)
 	LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(id));
 	if (widget)
 	{
-		widget->removeNoneOption();
 		widget->center();
 		widget->setPowersMask(GP_MEMBER_INVITE);
+		widget->removeNoneOption();
 		widget->setSelectGroupCallback(boost::bind(callback_invite_to_group, _1, id));
 	}
 }
