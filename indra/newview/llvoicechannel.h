@@ -52,7 +52,7 @@ public:
 		STATE_CONNECTED
 	} EState;
 
-	typedef boost::function<void(const EState& old_state, const EState& new_state)> state_changed_callback_t;
+	typedef boost::signals2::signal<void(const EState& old_state, const EState& new_state)> state_changed_signal_t;
 
 	// on current channel changed signal
 	typedef boost::function<void(const LLUUID& session_id)> channel_changed_callback_t;
@@ -78,7 +78,8 @@ public:
 	virtual BOOL callStarted();
 	const std::string& getSessionName() const { return mSessionName; }
 
-	void setStateChangedCallback(state_changed_callback_t callback) { mStateChangedCallback = callback; }
+	boost::signals2::connection setStateChangedCallback(const state_changed_signal_t::slot_type& callback)
+	{ return mStateChangedCallback.connect(callback); }
 
 	const LLUUID getSessionID() { return mSessionID; }
 	EState getState() { return mState; }
@@ -124,7 +125,7 @@ protected:
 	static BOOL sSuspended;
 
 private:
-	state_changed_callback_t mStateChangedCallback;
+	state_changed_signal_t mStateChangedCallback;
 };
 
 class LLVoiceChannelGroup : public LLVoiceChannel
