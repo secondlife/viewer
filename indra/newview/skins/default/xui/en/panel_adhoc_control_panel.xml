@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  border="false"
+ follows="all"
  height="215"
  name="panel_im_control_panel"
  width="180">
@@ -23,7 +24,7 @@
      bg_alpha_color="DkGray2"
      border="false"
      bottom="1"
-     follows="left|bottom"
+     follows="left|right|bottom"
      height="70"
      left="0"
      left_pad="0"
@@ -32,6 +33,7 @@
      width="180">
         <button
          bottom="10"
+         follows="all"
          height="20"
          label="Call"
          left_delta="40"
@@ -39,6 +41,7 @@
          width="100" />
         <button
          bottom="40"
+         follows="all"
          height="20"
          label="Leave Call"
          name="end_call_btn"
@@ -46,6 +49,7 @@
          width="100" />
         <button
          enabled="false"
+         follows="all"
          bottom="10"
          height="20"
          label="Voice Controls"

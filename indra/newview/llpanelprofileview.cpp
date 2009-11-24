@@ -193,8 +193,10 @@ void LLPanelProfileView::onAvatarNameCached(const LLUUID& id, const std::string&
 	getChild<LLUICtrl>("user_name", FALSE)->setValue(first_name + " " + last_name);
 }
 
-void LLPanelProfileView::togglePanel(LLPanel* panel)
+void LLPanelProfileView::togglePanel(LLPanel* panel, const LLSD& key)
 {
+	// *TODO: unused method?
+
 	LLPanelProfile::togglePanel(panel);
 	if(FALSE == panel->getVisible())
 	{

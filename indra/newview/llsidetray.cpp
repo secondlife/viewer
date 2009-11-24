@@ -436,35 +436,16 @@ void		LLSideTray::processTriState ()
 		expandSideBar();
 	else
 	{
-		//!!!!!!!!!!!!!!!!!
-		//** HARDCODED!!!!!
-		//!!!!!!!!!!!!!!!!!
-
-		//there is no common way to determine "default" panel for tab
-		//so default panels for now will be hardcoded
-
-		//hardcoded for people tab and profile tab
-
-		/*if(mActiveTab == getTab("sidebar_people"))
-		{
-			LLSideTrayPanelContainer* container = findChild<LLSideTrayPanelContainer>("panel_container");
-			if(container && container->getCurrentPanelIndex()>0)
-			{
-				container->onOpen(LLSD().insert("sub_panel_name","panel_people"));
-			}
-			else
-				collapseSideBar();
-		}
-		else if(mActiveTab == getTab("sidebar_me"))
-		{
-			LLTabContainer* tab_container = findChild<LLTabContainer>("tabs");
-			if(tab_container && tab_container->getCurrentPanelIndex()>0)
-				tab_container->selectFirstTab();
-			else
-				collapseSideBar();
-		}
-		else*/
-			collapseSideBar();
+#if 0 // *TODO: EXT-2092
+		
+		// Tell the active task panel to switch to its default view
+		// or collapse side tray if already on the default view.
+		LLSD info;
+		info["task-panel-action"] = "handle-tri-state";
+		mActiveTab->notifyChildren(info);
+#else
+		collapseSideBar();
+#endif
 	}
 }
 

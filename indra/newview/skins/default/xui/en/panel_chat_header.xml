@@ -27,7 +27,7 @@
 	 height="12"
 	 layout="topleft"
 	 left_pad="5"
-     right="-50"
+     right="-60"
      name="user_name"
      text_color="white"
 	 top="8"
@@ -41,7 +41,7 @@
          layout="topleft"
          left_pad="5"
      name="time_box"
-     right="-10"
+     right="-5"
      top="8"
          value="23:30"
          width="50" />

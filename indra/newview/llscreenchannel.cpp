@@ -115,7 +115,9 @@ void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 // LLScreenChannel
 //////////////////////
 //--------------------------------------------------------------------------
-LLScreenChannel::LLScreenChannel(LLUUID& id):	LLScreenChannelBase(id)
+LLScreenChannel::LLScreenChannel(LLUUID& id):	
+LLScreenChannelBase(id)
+,mStartUpToastPanel(NULL)
 {	
 }
 
@@ -358,8 +360,6 @@ void LLScreenChannel::redrawToasts()
 	if(mToastList.size() == 0 || isHovering())
 		return;
 
-	hideToastsFromScreen();
-
 	switch(mToastAlignment)
 	{
 	case NA_TOP : 
@@ -382,6 +382,8 @@ void LLScreenChannel::showToastsBottom()
 	S32		bottom = getRect().mBottom - gFloaterView->getRect().mBottom;
 	S32		toast_margin = 0;
 	std::vector<ToastElem>::reverse_iterator it;
+
+	closeOverflowToastPanel();
 
 	for(it = mToastList.rbegin(); it != mToastList.rend(); ++it)
 	{
@@ -408,7 +410,20 @@ void LLScreenChannel::showToastsBottom()
 		if(stop_showing_toasts)
 			break;
 
-		(*it).toast->setVisible(TRUE);	
+		if( !(*it).toast->getVisible() )
+		{
+			if((*it).toast->isFirstLook())
+			{
+				(*it).toast->setVisible(TRUE);
+			}
+			else
+			{
+				// HACK
+				// EXT-2653: it is necessary to prevent overlapping for secondary showed toasts
+				(*it).toast->setVisible(TRUE);
+				gFloaterView->sendChildToBack((*it).toast);
+			}
+		}		
 	}
 
 	if(it != mToastList.rend() && !mOverflowToastHidden)
@@ -417,6 +432,7 @@ void LLScreenChannel::showToastsBottom()
 		for(; it != mToastList.rend(); it++)
 		{
 			(*it).toast->stopTimer();
+			(*it).toast->setVisible(FALSE);
 			mHiddenToastsNum++;
 		}
 		createOverflowToast(bottom, gSavedSettings.getS32("NotificationTipToastLifeTime"));
