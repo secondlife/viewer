@@ -522,7 +522,6 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		if (mTSMDocument)
 		{
 			ActivateTSMDocument(mTSMDocument);
-			UseInputWindow(mTSMDocument, FALSE);
 			allowLanguageTextInput(NULL, FALSE);
 		}
 	}
@@ -3317,6 +3316,8 @@ void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 		return;
 	}
 
+	UseInputWindow(mTSMDocument, !b);
+	
 	// Take care of old and new preeditors.
 	if (preeditor != mPreeditor || !b)
 	{

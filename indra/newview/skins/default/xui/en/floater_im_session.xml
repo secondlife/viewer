@@ -9,7 +9,7 @@
  name="panel_im"
  top="0"
  can_close="true"
- can_dock="true"
+ can_dock="false"
  can_minimize="false"
  visible="true"
  width="300"
@@ -35,6 +35,7 @@
     <layout_panel
        left="0"
        top="0"
+	   width="180"
        user_resize="false">
         <button
           height="20"

@@ -2,7 +2,7 @@
 <panel
  border="false"
  follows="all"
- height="510"
+ height="380"
  label="Land &amp; L$"
  layout="topleft"
  left="0"
@@ -11,7 +11,7 @@
  width="310">
     <panel.string
      name="help_text">
-        Parcels owned by a group are listed along with contribution details. A warning appears until the Total Land in Use is less than or = to the Total Contribution.
+   A warning appears until the Total Land in Use is less than or = to the Total Contribution.
     </panel.string>
     <panel.string
      name="cant_view_group_land_text">
@@ -43,14 +43,14 @@
     </text> -->
     <scroll_list
      draw_heading="true"
-     follows="top"
+     follows="top|left|right"
      heading_height="20"
-     height="150"
+     height="130"
      layout="topleft"
-     left="2"
+     left="0"
+     top="0"
      name="group_parcel_list"
-     top_pad="0"
-     width="305">
+     width="310">
         <scroll_list.columns
          label="Parcel"
          name="name"
@@ -72,34 +72,22 @@
          name="hidden"
          width="-1" />
     </scroll_list>
-    <button
-     follows="top"
-     height="23"
-     label="Map"
-     label_selected="Map"
-     layout="topleft"
-     name="map_button"
-     right="-5"
-     top_pad="5"
-     width="95"
-     enabled="false" />
     <text
      type="string"
      follows="left|top"
      halign="right"
-     height="16"
+     height="15"
      layout="topleft"
-     left="5"
+     left="0"
      name="total_contributed_land_label"
-     top_pad="0"
      width="130">
-        Total Contribution:
+        Total contribution:
     </text>
     <text
     text_color="EmphasisColor"
      type="string"
      follows="left|top"
-     height="16"
+     height="15"
      layout="topleft"
      left_pad="5"
      name="total_contributed_land_value"
@@ -107,23 +95,34 @@
      width="120">
         [AREA] m²
     </text>
+    <button
+     follows="top"
+     height="20"
+     label="Map"
+     label_selected="Map"
+     layout="topleft"
+     name="map_button"
+     right="-5"
+     left_pad="0"
+     width="95"
+     enabled="false" />
     <text
      type="string"
      follows="left|top"
      halign="right"
-     height="16"
+     height="15"
      layout="topleft"
-     left="5"
+     left="0"
      name="total_land_in_use_label"
      top_pad="0"
      width="130">
-        Total Land In Use:
+        Total land in use:
     </text>
     <text
     text_color="EmphasisColor"
      type="string"
      follows="left|top"
-     height="16"
+     height="15"
      layout="topleft"
      left_pad="5"
      name="total_land_in_use_value"
@@ -135,19 +134,19 @@
      type="string"
      follows="left|top"
      halign="right"
-     height="16"
+     height="15"
      layout="topleft"
-     left="5"
+     left="0"
      name="land_available_label"
      top_pad="0"
      width="130">
-        Land Available:
+        Land available:
     </text>
     <text
     text_color="EmphasisColor"
      type="string"
      follows="left|top"
-     height="16"
+     height="15"
      layout="topleft"
      left_pad="5"
      name="land_available_value"
@@ -159,17 +158,15 @@
      type="string"
      follows="left|top"
      halign="right"
-     height="16"
+     height="15"
      layout="topleft"
-     left="5"
+     left="0"
      name="your_contribution_label"
      top_pad="0"
      width="130">
-        Your Contribution:
+        Your contribution:
     </text>
     <line_editor
-     border_style="line"
-     border_thickness="1"
      follows="left|top"
      height="19"
      layout="topleft"
@@ -177,7 +174,7 @@
      max_length="10"
      name="your_contribution_line_editor"
      top_delta="0"
-     width="95" />
+     width="80" />
     <text
      type="string"
      follows="left|top"
@@ -194,7 +191,7 @@
      type="string"
      follows="left|top"
      halign="right"
-     height="16"
+     height="12"
      layout="topleft"
      left="140"
      name="your_contribution_max_value"
@@ -203,27 +200,27 @@
         ([AMOUNT] max)
     </text>
     <icon
-     height="16"
-     image_name="notify_next"
+     height="18"
+     image_name="BuyArrow_Over"
      layout="topleft"
-     left="9"
+     left="75"
      name="group_over_limit_icon"
      top_pad="0"
-     visible="false"
-     width="16" />
+     visible="true"
+     width="18" />
     <text
      follows="left|top"
      type="string"
      word_wrap="true"
      font="SansSerifSmall"
-     height="35"
+     height="20"
      layout="topleft"
-     left_pad="5"
+     left_pad="2"
      name="group_over_limit_text"
      text_color="EmphasisColor"
      top_delta="0"
-     width="260">
-        Group members must contribute more land credits to support land in use
+     width="213">
+        More land credits are needed to support land in use
     </text>
     <text
      type="string"
@@ -231,29 +228,29 @@
      font="SansSerifBig"
      height="16"
      layout="topleft"
-     left="10"
+     left="0"
      name="group_money_heading"
      text_color="EmphasisColor"
-     top_pad="0"
-     width="150">
+     top_pad="-15"
+     width="100">
         Group L$
     </text>
     <tab_container
      follows="all"
-     height="200"
+     height="173"
      halign="center"
      layout="topleft"
-     left="5"
+     left="0"
      name="group_money_tab_container"
      tab_position="top"
      tab_height="20"
      top_pad="2"
-     tab_min_width="70"
-     width="300">
+     tab_min_width="75"
+     width="310">
         <panel
          border="false"
          follows="all"
-         height="180"
+         height="173"
          label="PLANNING"
          layout="topleft"
          left="0"
@@ -264,7 +261,6 @@
             <text_editor
              type="string"
              follows="all"
-             font="SansSerif"
              height="140"
              layout="topleft"
              left="0"
@@ -279,13 +275,13 @@
       <panel
          border="false"
          follows="all"
-         height="180"
+         height="173"
          label="DETAILS"
          layout="topleft"
          left="0"
          help_topic="group_money_details_tab"
          name="group_money_details_tab"
-         top="5"
+         top="0"
          width="300">
           <text_editor
              type="string"
@@ -302,34 +298,34 @@
             </text_editor>
             <button
 	     follows="left|top"
-	     height="23"
+	     height="18"
 	     image_overlay="Arrow_Left_Off"
 	     layout="topleft"
 	     name="earlier_details_button"
 	     tool_tip="Back"
-	     top_pad="5"
              right="-45"
-	     width="31" />
+             bottom="0"
+	     width="25" />
              <button
 	     follows="left|top"
-	     height="23"
+	     height="18"
 	     image_overlay="Arrow_Right_Off"
 	     layout="topleft"
 	     left_pad="10"
        name="later_details_button"
 	     tool_tip="Next"
-	     width="31" />
+	     width="25" />
         </panel>
       <panel
          border="false"
          follows="all"
-         height="180"
+         height="173"
          label="SALES"
          layout="topleft"
          left_delta="0"
          help_topic="group_money_sales_tab"
          name="group_money_sales_tab"
-         top="5"
+         top="0"
          width="300">
             <text_editor
              type="string"
@@ -345,24 +341,24 @@
                 Loading...
             </text_editor>
                          <button
+             bottom="0"
 	     follows="left|top"
-	     height="23"
+	     height="18"
 	     image_overlay="Arrow_Left_Off"
 	     layout="topleft"
 	     name="earlier_sales_button"
 	     tool_tip="Back"
-	     top_pad="5"
          right="-45"
-	     width="31" />
+	     width="25" />
              <button
 	     follows="left|top"
-	     height="23"
+	     height="18"
 	     image_overlay="Arrow_Right_Off"
 	     layout="topleft"
 	     left_pad="10"
          name="later_sales_button"
 	     tool_tip="Next"
-	     width="31" />
+	     width="25" />
         </panel>
     </tab_container>
 </panel>

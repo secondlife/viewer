@@ -380,6 +380,9 @@ De outfit folder bevat geen kleding, lichaamsdelen of externe bevestigingen.
 U moet zowel de voornaam als de achternaam van uw avatar opgeven.
 
 U heeft een account nodig om [SECOND_LIFE] binnen te gaan. Wilt u er nu een maken?
+		<url name="url">
+			https://join.secondlife.com/index.php?lang=nl-NL
+		</url>
 		<usetemplate name="okcancelbuttons" notext="Probeer het opnieuw" yestext="Maak een nieuw account"/>
 	</notification>
 	<notification name="AddClassified">
@@ -1131,7 +1134,7 @@ U kunt [SECOND_LIFE] normaal gebruiken en anderen zullen u correct zien.
 		[APP_NAME] installatie compleet.
 
 Als dit de eerste keer is dat u [SECOND_LIFE] gebruikt, zult u een account aan moeten maken voordat u in kan loggen.
-Terugkeren naar www.secondlife.com om een nieuw account aan te maken?
+Terugkeren naar [https://join.secondlife.com/index.php?lang=nl-NL secondlife.com] om een nieuw account aan te maken?
 		<usetemplate name="okcancelbuttons" notext="Doorgaan" yestext="Nieuw Account..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">

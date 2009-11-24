@@ -173,7 +173,7 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 				append_style_params.font.style = "ITALIC";
 				LLChat add_chat=chat;
 				add_chat.mText = chat.mFromName + " ";
-				mChatHistory->appendWidgetMessage(add_chat, append_style_params);
+				mChatHistory->appendMessage(add_chat, false, append_style_params);
 			}
 			
 			message = message.substr(3);
@@ -182,7 +182,7 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 		}
 		else
 		{
-			mChatHistory->appendWidgetMessage(chat);
+			mChatHistory->appendMessage(chat);
 		}
 	}
 }

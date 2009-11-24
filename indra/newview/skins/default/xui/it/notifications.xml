@@ -379,10 +379,13 @@ La cartella equipaggiamento non contiene abbigliamento, parti del corpo o attach
 Devi inserire sia il nome che il cognome del tuo avatar.
 
 Hai bisogno di un account per entrare in [SECOND_LIFE]. Ne vuoi creare uno adesso?
+		<url name="url">
+			https://join.secondlife.com/index.php?lang=it-IT
+		</url>
 		<usetemplate name="okcancelbuttons" notext="Riprova" yestext="Crea un nuovo account"/>
 	</notification>
 	<notification name="AddClassified">
-		Gli annunci appaiono nella sezione &apos;Annunci&apos; della ricerca nel database e su www.secondlife.com per una settimana.
+		Gli annunci appaiono nella sezione &apos;Annunci&apos; della ricerca nel database e su [http://secondlife.com/community/classifieds/?lang=it-IT secondlife.com] per una settimana.
 Compila il tuo annuncio e clicca &apos;Pubblica...&apos; per aggiungerlo al database.
 Ti verrà chiesto un prezzo da pagare quando clicchi su Pubblica.
 Pagare un prezzo più alto fa sì che il tuo annuncio compaia più in alto nella lista, e che sia più facile da trovare quando la gente ricerca per parole chiavi.
@@ -403,6 +406,9 @@ Non ci sono rimborsi per la tariffa pagata.
 	</notification>
 	<notification name="PromptGoToEventsPage">
 		Vai alla pagina degli eventi di [SECOND_LIFE]?
+		<url name="url">
+			http://secondlife.com/events/?lang=it-IT
+		</url>
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="SelectProposalToView">
@@ -575,6 +581,9 @@ Sposta tutti gli oggetti che vuoi acquisire su una sola regione.
 		[EXTRA]
 
 Vuoi andare su [_URL] per maggiori informazioni su come acquistare L$?
+		<url name="url">
+			http://secondlife.com/app/currency/?lang=it-IT
+		</url>
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="UnableToLinkObjects">
@@ -1128,13 +1137,16 @@ Puoi usare [SECOND_LIFE] normalmente e gli altri utenti ti vedranno correttament
 		L&apos;installazione di [APP_NAME] è completata.
 
 Se questa è la prima volta che usi [SECOND_LIFE], avari bisogno di creare un account prima di poterti collegare.
-Vai su www.secondlife.com per creare un nuovo account?
+Vai su [https://join.secondlife.com/index.php?lang=it-IT secondlife.com] per creare un nuovo account?
 		<usetemplate name="okcancelbuttons" notext="Continua" yestext="Nuovo Account..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
 		Ci sono stati problemi durante la connessione. Potrebbero esserci problemi con la tua connessione ad internet oppure con i server di [SECOND_LIFE].
 
 Puoi controllare la tua connessione internet e riprovare fra qualche minuto, oppure cliccare su Aiuto per collegarti al nostro sito di supporto, oppure cliccare teleporta per cercare di teleportarti a casa.
+		<url name="url">
+			http://it.secondlife.com/support/
+		</url>
 		<form name="form">
 			<button name="OK" text="OK"/>
 			<button name="Help" text="Aiuto"/>
@@ -1510,7 +1522,7 @@ Verifica di avere installato l&apos;ultima versione del programma e vai alla Kno
 
 Vuoi andare alla Knowledge Base per ulteriori informazioni sulle categorie di accesso?
 		<url name="url">
-			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/it
 		</url>
     <usetemplate
      name="okcancelignore"
@@ -1549,7 +1561,7 @@ Verifica di avere installato l&apos;ultima versione del programma e vai alla Kno
 
 Vuoi andare alla Knowledge Base per maggiori informazioni sulle categorie di accesso?
 		<url name="url">
-			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/it
 		</url>
     <usetemplate
      name="okcancelignore"
@@ -1583,7 +1595,7 @@ Verifica di avere installato l&apos;ultima versione del programma e vai alla Kno
 
 Vuoi andare alla Knowledge Base per maggiori informazioni sulle categorie di accesso?
 		<url name="url">
-			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/it
 		</url>
     <usetemplate
      name="okcancelignore"
@@ -2008,10 +2020,7 @@ Trasferisci gli elementi nell&apos;inventario?
 		<usetemplate ignoretext="Quando esci da [APP_NAME]." name="okcancelignore" notext="Continua" yestext="Esci"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		Usa questo strumento per segnalare violazioni ai Termini di Servizio e agli standard della Comunità. Vedi:
-
-http://secondlife.com/corporate/tos.php
-http://secondlife.com/corporate/cs.php
+		Usa questo strumento per segnalare violazioni ai [http://secondlife.com/corporate/tos.php?lang=it-IT Termini di Servizio] e agli [http://secondlife.com/corporate/cs.php?lang=it-IT standard della Comunità].
 
 Tutte gli abusi ai Termini di Servizio e agli Standard della Comunità segnalati, sono indagati e risolti. Puoi controllare la risoluzione degli abusi visitando la pagina delle Risoluzioni degli Incidenti:
 
@@ -2366,7 +2375,7 @@ Vuoi visitare il sito di [SECOND_LIFE] per verificare la tua eta?
 
 [_URL]
 		<url name="url" option="0">
-			https://secondlife.com/account/verification.php
+			https://secondlife.com/account/verification.php?lang=it
 		</url>
 		<usetemplate ignoretext="Quando hai un avviso per mancanza della verifica dell&apos;età." name="okcancelignore" notext="No" yestext="Si"/>
 	</notification>
