@@ -55,6 +55,7 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntryPlace());
 	registerUrl(new LLUrlEntrySL());
 	registerUrl(new LLUrlEntrySLLabel());
+	registerUrl(new LLUrlEntryInventory());
 }
 
 LLUrlRegistry::~LLUrlRegistry()
