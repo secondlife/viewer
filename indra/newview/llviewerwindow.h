@@ -474,6 +474,9 @@ protected:
 	static std::string sSnapshotDir;
 
 	static std::string sMovieBaseName;
+	
+private:
+	LLPointer<LLViewerObject>	mDragHoveredObject;
 };	
 
 void toggle_flying(void*);

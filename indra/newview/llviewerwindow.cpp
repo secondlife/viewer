@@ -833,7 +833,8 @@ BOOL LLViewerWindow::handleDragNDrop( LLWindow *window,  LLCoordGL pos, MASK mas
 		llinfos << "### Object: picked at " << pos.mX << ", " << pos.mY << " - face = " << object_face << " - URL = " << url << llendl;
 
 		LLVOVolume *obj = dynamic_cast<LLVOVolume*>(static_cast<LLViewerObject*>(pick_info.getObject()));
-		if (obj)
+		gPipeline.setHighlightObject(NULL);
+		if (obj && obj->permModify())
 		{
 			LLTextureEntry *te = obj->getTE(object_face);
 			if (te)
@@ -859,10 +860,15 @@ BOOL LLViewerWindow::handleDragNDrop( LLWindow *window,  LLCoordGL pos, MASK mas
 					}
 				}
 				else {
-					// XXX TODO: make object glow?  Hard because how do we "unglow?"
+					mDragHoveredObject = obj;
+					// Make the object glow
+					gPipeline.setHighlightObject(mDragHoveredObject->mDrawable);
 				}
 				result = TRUE;
 			}
+		}
+		else {
+			mDragHoveredObject = NULL;
 		}
 	}
 	return result;
