@@ -128,6 +128,8 @@ protected:
 
 //============================================================================
 
+#define MUTEX_DEBUG (LL_DEBUG || LL_RELEASE_WITH_DEBUG_INFO)
+
 class LL_COMMON_API LLMutex
 {
 public:
@@ -142,6 +144,9 @@ protected:
 	apr_thread_mutex_t *mAPRMutexp;
 	apr_pool_t			*mAPRPoolp;
 	BOOL				mIsLocalPool;
+#if MUTEX_DEBUG
+	std::map<U32, BOOL> mIsLocked;
+#endif
 };
 
 // Actually a condition/mutex pair (since each condition needs to be associated with a mutex).

@@ -190,7 +190,7 @@ void LLSpinCtrl::onUpBtn( const LLSD& data )
 		
 			F32 saved_val = (F32)getValue().asReal();
 			setValue(val);
-			if( !mValidateSignal( this, val ) )
+			if( mValidateSignal && !(*mValidateSignal)( this, val ) )
 			{
 				setValue( saved_val );
 				reportInvalidData();
@@ -224,7 +224,7 @@ void LLSpinCtrl::onDownBtn( const LLSD& data )
 			
 			F32 saved_val = (F32)getValue().asReal();
 			setValue(val);
-			if( !mValidateSignal( this, val ) )
+			if( mValidateSignal && !(*mValidateSignal)( this, val ) )
 			{
 				setValue( saved_val );
 				reportInvalidData();
@@ -316,7 +316,7 @@ void LLSpinCtrl::onEditorCommit( const LLSD& data )
 
 		F32 saved_val = getValueF32();
 		setValue(val);
-		if( mValidateSignal( this, val ) )
+		if( !mValidateSignal || (*mValidateSignal)( this, val ) )
 		{
 			success = TRUE;
 			onCommit();

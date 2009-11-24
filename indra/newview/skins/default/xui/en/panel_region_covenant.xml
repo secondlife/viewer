@@ -119,7 +119,6 @@
     </text_editor>
     <button
      follows="left|top"
-     font="SansSerifSmall"
      height="18"
      label="Reset"
      layout="topleft"

@@ -355,7 +355,7 @@ LLPreviewGesture::~LLPreviewGesture()
 
 BOOL LLPreviewGesture::postBuild()
 {
-	mVisibleSignal.connect(boost::bind(&LLPreviewGesture::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLPreviewGesture::onVisibilityChange, this, _2));
 	
 	LLLineEditor* edit;
 	LLComboBox* combo;

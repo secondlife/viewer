@@ -38,7 +38,6 @@
      width="170" />
     <button
      height="20"
-     font="SansSerifSmall"
      label="Play in World"
      label_selected="Stop"
      layout="topleft"
@@ -49,7 +48,6 @@
      width="125" />
     <button
      height="20"
-     font="SansSerifSmall"
      label="Play Locally"
      label_selected="Stop"
      layout="topleft"

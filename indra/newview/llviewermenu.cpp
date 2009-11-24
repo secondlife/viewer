@@ -2736,7 +2736,7 @@ bool enable_object_edit()
 	bool enable = false;
 	if (gAgent.inPrelude())
 	{
-		enable = LLViewerParcelMgr::getInstance()->agentCanBuild()
+		enable = LLViewerParcelMgr::getInstance()->allowAgentBuild()
 			|| LLSelectMgr::getInstance()->getSelection()->isAttachment();
 	} 
 	else if (LLSelectMgr::getInstance()->selectGetModify())
@@ -5678,6 +5678,16 @@ class LLFloaterVisible : public view_listener_t
 	}
 };
 
+class LLShowSidetrayPanel : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string panel_name = userdata.asString();
+		LLSideTray::getInstance()->showPanel(panel_name, LLSD());
+		return true;
+	}
+};
+
 bool callback_show_url(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotification::getSelectedOption(notification, response);
@@ -6096,7 +6106,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		BOOL can_build   = gAgent.isGodlike() || (LLViewerParcelMgr::getInstance()->agentCanBuild());
+		BOOL can_build   = gAgent.isGodlike() || (LLViewerParcelMgr::getInstance()->allowAgentBuild());
 
 		//Add an inventory observer to only allow dropping the newly attached item
 		//once it exists in your inventory.  Look at Jira 2422.
@@ -8039,6 +8049,7 @@ void initialize_menus()
 	visible.add("Object.VisibleEdit", boost::bind(&enable_object_edit));
 
 	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
+	view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");
 	view_listener_t::addMenu(new LLSomethingSelected(), "SomethingSelected");
 	view_listener_t::addMenu(new LLSomethingSelectedNoHUD(), "SomethingSelectedNoHUD");
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");

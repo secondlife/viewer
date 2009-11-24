@@ -344,7 +344,12 @@ LLPipeline::LLPipeline() :
 	mWLSkyPool(NULL),
 	mLightMask(0),
 	mLightMovingMask(0),
-	mLightingDetail(0)
+	mLightingDetail(0),
+	mScreenWidth(0),
+	mScreenHeight(0),
+	mViewportWidth(0),
+	mViewportHeight(0)
+
 {
 	mNoiseMap = 0;
 	mTrueNoiseMap = 0;
@@ -518,13 +523,29 @@ void LLPipeline::resizeScreenTexture()
 		GLuint view_height = gViewerWindow->getWorldViewHeightRaw();
 	
 		allocateScreenBuffer(resX, resY, view_width, view_height);
-
-		llinfos << "RESIZED SCREEN TEXTURE: " << resX << "x" << resY << llendl;
 	}
 }
 
 void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 viewport_width, U32 viewport_height)
 {
+	bool screen_size_changed = resX != mScreenWidth || resY != mScreenHeight;
+	bool viewport_size_changed = viewport_width != mViewportWidth || viewport_height != mViewportHeight;
+
+	if (!screen_size_changed
+		&& !viewport_size_changed)
+	{
+		// nothing to do
+		return;
+	}
+
+	// remember these dimensions
+	mScreenWidth = resX;
+	mScreenHeight = resY;
+	mViewportWidth = viewport_width;
+	mViewportHeight = viewport_height;
+
+	llinfos << "RESIZED SCREEN TEXTURE: " << resX << "x" << resY << llendl;
+
 	U32 samples = gSavedSettings.getU32("RenderFSAASamples");
 
 	U32 res_mod = gSavedSettings.getU32("RenderResolutionDivisor");
@@ -534,7 +555,8 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 viewport_width, U3
 		resY /= res_mod;
 	}
 
-	if (gSavedSettings.getBOOL("RenderUIBuffer"))
+	if (gSavedSettings.getBOOL("RenderUIBuffer") 
+		&& screen_size_changed)
 	{
 		mUIScreen.allocate(resX,resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 	}	
@@ -542,25 +564,39 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 viewport_width, U3
 	if (LLPipeline::sRenderDeferred)
 	{
 		//allocate deferred rendering color buffers
-		mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
-		mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		if (screen_size_changed)
+		{
+			mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+			mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+			addDeferredAttachments(mDeferredScreen);
+		}
+		// always set viewport to desired size, since allocate resets the viewport
 		mDeferredScreen.setViewport(viewport_width, viewport_height);
 		mDeferredDepth.setViewport(viewport_width, viewport_height);
-		addDeferredAttachments(mDeferredScreen);
-		mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
-		mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+
+		if (screen_size_changed)
+		{
+			mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
+			mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		}
 		mScreen.setViewport(viewport_width, viewport_height);
 		mEdgeMap.setViewport(viewport_width, viewport_height);
 
 		for (U32 i = 0; i < 3; i++)
 		{
-			mDeferredLight[i].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			if (screen_size_changed)
+			{
+				mDeferredLight[i].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			}
 			mDeferredLight[i].setViewport(viewport_width, viewport_height);
 		}
 
 		for (U32 i = 0; i < 2; i++)
 		{
-			mGIMapPost[i].allocate(resX,resY, GL_RGB, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			if (screen_size_changed)
+			{
+				mGIMapPost[i].allocate(resX,resY, GL_RGB, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			}
 			mGIMapPost[i].setViewport(viewport_width, viewport_height);
 		}
 
@@ -568,7 +604,10 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 viewport_width, U3
 
 		for (U32 i = 0; i < 4; i++)
 		{
-			mShadow[i].allocate(U32(resX*scale),U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			if (screen_size_changed)
+			{
+				mShadow[i].allocate(U32(resX*scale),U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			}
 			mShadow[i].setViewport(viewport_width, viewport_height);
 		}
 
@@ -578,7 +617,10 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 viewport_width, U3
 
 		for (U32 i = 4; i < 6; i++)
 		{
-			mShadow[i].allocate(width, height, 0, TRUE, FALSE);
+			if (screen_size_changed)
+			{
+				mShadow[i].allocate(width, height, 0, TRUE, FALSE);
+			}
 			mShadow[i].setViewport(viewport_width, viewport_height);
 		}
 
@@ -586,32 +628,41 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 viewport_width, U3
 
 		width = nhpo2(resX)/2;
 		height = nhpo2(resY)/2;
-		mLuminanceMap.allocate(width,height, GL_RGBA, FALSE, FALSE);
+		if (screen_size_changed)
+		{
+			mLuminanceMap.allocate(width,height, GL_RGBA, FALSE, FALSE);
+		}
 		mLuminanceMap.setViewport(viewport_width, viewport_height);
 	}
 	else
 	{
-		mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
+		if (screen_size_changed)
+		{
+			mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
+		}
 		mScreen.setViewport(viewport_width, viewport_height);
 	}
 	
 
 	if (gGLManager.mHasFramebufferMultisample && samples > 1)
 	{
-		mSampleBuffer.allocate(resX,resY,GL_RGBA,TRUE,TRUE,LLTexUnit::TT_RECT_TEXTURE,FALSE,samples);
+		if (screen_size_changed)
+		{
+			mSampleBuffer.allocate(resX,resY,GL_RGBA,TRUE,TRUE,LLTexUnit::TT_RECT_TEXTURE,FALSE,samples);
+			if (LLPipeline::sRenderDeferred)
+			{
+				addDeferredAttachments(mSampleBuffer);
+				mDeferredScreen.setSampleBuffer(&mSampleBuffer);
+			}
+		}
 		mSampleBuffer.setViewport(viewport_width, viewport_height);
 		mScreen.setSampleBuffer(&mSampleBuffer);
-
-		if (LLPipeline::sRenderDeferred)
-		{
-			addDeferredAttachments(mSampleBuffer);
-			mDeferredScreen.setSampleBuffer(&mSampleBuffer);
-		}
 
 		stop_glerror();
 	}
 	
-	if (LLPipeline::sRenderDeferred)
+	if (LLPipeline::sRenderDeferred 
+		&& screen_size_changed)
 	{ //share depth buffer between deferred targets
 		mDeferredScreen.shareDepthBuffer(mScreen);
 		for (U32 i = 0; i < 3; i++)
@@ -725,6 +776,10 @@ void LLPipeline::createGLBuffers()
 		{
 			mGlow[i].allocate(512,glow_res,GL_RGBA,FALSE,FALSE);
 		}
+
+		// force reallocation of buffers by clearing known dimensions
+		mScreenWidth = 0;
+		mScreenHeight = 0;
 
 		allocateScreenBuffer(resX,resY, viewport_width, viewport_height);
 	}

@@ -56,10 +56,10 @@ public:
 
 	typedef boost::signals2::signal<void(LLFocusableElement*)> focus_signal_t;
 	
-	boost::signals2::connection setFocusLostCallback( const focus_signal_t::slot_type& cb)	{ return mFocusLostCallback.connect(cb);}
-	boost::signals2::connection	setFocusReceivedCallback(const focus_signal_t::slot_type& cb)	{ return mFocusReceivedCallback.connect(cb);}
-	boost::signals2::connection	setFocusChangedCallback(const focus_signal_t::slot_type& cb)	{ return mFocusChangedCallback.connect(cb);}
-	void	setTopLostCallback(const focus_signal_t::slot_type& cb)	{ mTopLostCallback.connect(cb);}
+	boost::signals2::connection setFocusLostCallback( const focus_signal_t::slot_type& cb);
+	boost::signals2::connection	setFocusReceivedCallback(const focus_signal_t::slot_type& cb);
+	boost::signals2::connection	setFocusChangedCallback(const focus_signal_t::slot_type& cb);
+	boost::signals2::connection	setTopLostCallback(const focus_signal_t::slot_type& cb);
 
 	// These were brought up the hierarchy from LLView so that we don't have to use dynamic_cast when dealing with keyboard focus.
 	virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
@@ -69,10 +69,10 @@ protected:
 	virtual void	onFocusReceived();
 	virtual void	onFocusLost();
 	virtual void	onTopLost();	// called when registered as top ctrl and user clicks elsewhere
-	focus_signal_t  mFocusLostCallback;
-	focus_signal_t  mFocusReceivedCallback;
-	focus_signal_t  mFocusChangedCallback;
-	focus_signal_t  mTopLostCallback;
+	focus_signal_t*  mFocusLostCallback;
+	focus_signal_t*  mFocusReceivedCallback;
+	focus_signal_t*  mFocusChangedCallback;
+	focus_signal_t*  mTopLostCallback;
 };
 
 

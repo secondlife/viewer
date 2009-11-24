@@ -129,7 +129,7 @@ void LLFloaterChat::draw()
 BOOL LLFloaterChat::postBuild()
 {
 	// Hide the chat overlay when our history is visible.
-	mVisibleSignal.connect(boost::bind(&LLFloaterChat::updateConsoleVisibility, this));
+	setVisibleCallback(boost::bind(&LLFloaterChat::updateConsoleVisibility, this));
 	
 	mPanel = (LLPanelActiveSpeakers*)getChild<LLPanel>("active_speakers_panel");
 

@@ -50,8 +50,12 @@ with the same filename but different name
   <texture name="Arrow_Right_Off" file_name="navbar/Arrow_Right_Off.png" preload="true" />
   <texture name="Arrow_Right_Press" file_name="navbar/Arrow_Right_Press.png" preload="true" />
 
-  <texture name="Arrow_Up" file_name="widgets/Arrow_Up.png" preload="true" />
-  <texture name="Arrow_Down" file_name="widgets/Arrow_Down.png" preload="true" />
+  <texture name="Arrow_Left" file_name="widgets/Arrow_Left.png" preload="true" />
+  <texture name="Arrow_Right" file_name="widgets/Arrow_Right.png" preload="true" />
+
+  <texture name="Arrow_Small_Up" file_name="widgets/Arrow_Small_Up.png" preload="true" />
+  <texture name="Arrow_Small_Left" file_name="widgets/Arrow_Small_Left.png" preload="true" />
+  <texture name="Arrow_Small_Right" file_name="widgets/Arrow_Small_Right.png" preload="true" />
 
   <texture name="AudioMute_Off" file_name="icons/AudioMute_Off.png" preload="false" />
   <texture name="AudioMute_Over" file_name="icons/AudioMute_Over.png" preload="false" />
@@ -120,6 +124,7 @@ with the same filename but different name
   <texture name="ComboButton_Press" file_name="widgets/ComboButton_Press.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_Selected" file_name="widgets/ComboButton_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_UpSelected" file_name="widgets/ComboButton_UpSelected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
+  <texture name="ComboButton_Up_On_Selected" file_name="widgets/ComboButton_Up_On_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_Off" file_name="widgets/ComboButton_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_UpOff" file_name="widgets/ComboButton_UpOff.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="Container" file_name="containers/Container.png" preload="false" />
@@ -161,7 +166,7 @@ with the same filename but different name
   <texture name="Generic_Group" file_name="icons/Generic_Group.png" preload="false" />
   <texture name="Generic_Group_Large" file_name="icons/Generic_Group_Large.png" preload="false" />
   <texture name="Generic_Object_Medium" file_name="icons/Generic_Object_Medium.png" preload="false" />
-  <texture name="Generic_Object_Small" file_name="icons/ Generic_Object_Small.png" preload="false" />
+  <texture name="Generic_Object_Small" file_name="icons/Generic_Object_Small.png" preload="false" />
   <texture name="Generic_Object_Large" file_name="icons/Generic_Object_Large.png" preload="false" />
   <texture name="Generic_Person" file_name="icons/Generic_Person.png" preload="false" />
   <texture name="Generic_Person_Large" file_name="icons/Generic_Person_Large.png" preload="false" />
@@ -439,6 +444,7 @@ with the same filename but different name
   <texture name="Search" file_name="navbar/Search.png" preload="false" />
 
   <texture name="SegmentedBtn_Left_Off" file_name="widgets/SegmentedBtn_Left_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
+  <texture name="SegmentedBtn_Left_Over" file_name="widgets/SegmentedBtn_Left_Over.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Left_Press" file_name="widgets/SegmentedBtn_Left_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Left_Disabled" file_name="widgets/SegmentedBtn_Left_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Left_Selected" file_name="widgets/SegmentedBtn_Left_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
@@ -453,6 +459,7 @@ with the same filename but different name
   <texture name="SegmentedBtn_Middle_Selected_Disabled" file_name="widgets/SegmentedBtn_Middle_Selected_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
 
   <texture name="SegmentedBtn_Right_Off" file_name="widgets/SegmentedBtn_Right_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
+  <texture name="SegmentedBtn_Right_Over" file_name="widgets/SegmentedBtn_Right_Over.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Right_Press" file_name="widgets/SegmentedBtn_Right_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Right_Disabled" file_name="widgets/SegmentedBtn_Right_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Right_Selected" file_name="widgets/SegmentedBtn_Right_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />

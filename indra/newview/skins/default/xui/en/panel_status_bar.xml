@@ -43,7 +43,6 @@
      auto_resize="true"
      halign="right"
      follows="right|bottom"
-     font="SansSerifSmall"
      image_selected="BuyArrow_Over"
      image_unselected="BuyArrow_Off"
      image_pressed="BuyArrow_Press"
