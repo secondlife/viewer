@@ -56,6 +56,7 @@
 #include "llfloaterabout.h"
 #include "llfloaterhardwaresettings.h"
 #include "llfloatervoicedevicesettings.h"
+#include "llimfloater.h"
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
 #include "llnavigationbar.h"
@@ -164,7 +165,6 @@ BOOL LLVoiceSetKeyDialog::handleKeyHere(KEY key, MASK mask)
 	{
 		mParent->setKey(key);
 	}
-	
 	closeFloater();
 	return result;
 }
@@ -310,7 +310,8 @@ F32 LLFloaterPreference::sAspectRatio = 0.0;
 LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	: LLFloater(key),
 	mGotPersonalInfo(false),
-	mOriginalIMViaEmail(false)
+	mOriginalIMViaEmail(false),
+	mCancelOnClose(true)
 {
 	//Build Floater is now Called from 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
 	
@@ -357,6 +358,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 
 BOOL LLFloaterPreference::postBuild()
 {
+	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate, _2));
+
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
@@ -389,6 +392,20 @@ void LLFloaterPreference::draw()
 	
 	LLFloater::draw();
 }
+
+void LLFloaterPreference::saveSettings()
+{
+	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
+	child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
+	child_list_t::const_iterator end = tabcontainer->getChildList()->end();
+	for ( ; iter != end; ++iter)
+	{
+		LLView* view = *iter;
+		LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view);
+		if (panel)
+			panel->saveSettings();
+	}
+}	
 
 void LLFloaterPreference::apply()
 {
@@ -444,6 +461,8 @@ void LLFloaterPreference::apply()
 	
 //	LLWString busy_response = utf8str_to_wstring(getChild<LLUICtrl>("busy_response")->getValue().asString());
 //	LLWStringUtil::replaceTabsWithSpaces(busy_response, 4);
+
+	gSavedSettings.setBOOL("PlainTextChatHistory", childGetValue("plain_text_chat_history").asBoolean());
 	
 	if(mGotPersonalInfo)
 	{ 
@@ -551,6 +570,11 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	
 	LLPanelLogin::setAlwaysRefresh(true);
 	refresh();
+	
+	// Make sure the current state of prefs are saved away when
+	// when the floater is opened.  That will make cancel do its
+	// job
+	saveSettings();
 }
 
 void LLFloaterPreference::onVertexShaderEnable()
@@ -569,7 +593,7 @@ void LLFloaterPreference::onClose(bool app_quitting)
 {
 	gSavedSettings.setS32("LastPrefTab", getChild<LLTabContainer>("pref core")->getCurrentPanelIndex());
 	LLPanelLogin::setAlwaysRefresh(false);
-	cancel(); // will be a no-op if OK or apply was performed just prior.
+	if (mCancelOnClose) cancel();
 }
 
 void LLFloaterPreference::onOpenHardwareSettings()
@@ -592,7 +616,11 @@ void LLFloaterPreference::onBtnOK()
 	if (canClose())
 	{
 		apply();
+		// Here we do not want to cancel on close, so we do this funny thing
+		// that prevents cancel from undoing our changes when we hit OK
+		mCancelOnClose = false;
 		closeFloater(false);
+		mCancelOnClose = true;
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 		LLUIColorTable::instance().saveUserSettings();
 		std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
@@ -620,6 +648,7 @@ void LLFloaterPreference::onBtnApply( )
 		}
 	}
 	apply();
+	saveSettings();
 
 	LLPanelLogin::refreshLocation( false );
 }
@@ -636,7 +665,8 @@ void LLFloaterPreference::onBtnCancel()
 		}
 		refresh();
 	}
-	closeFloater(); // side effect will also cancel any unsaved changes.
+	cancel();
+	closeFloater();
 }
 
 // static 
@@ -1161,6 +1191,8 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	childSetLabelArg("online_visibility", "[DIR_VIS]", mDirectoryVisibility);
 	childEnable("send_im_to_email");
 	childSetValue("send_im_to_email", im_via_email);
+	childEnable("plain_text_chat_history");
+	childSetValue("plain_text_chat_history", gSavedSettings.getBOOL("PlainTextChatHistory"));
 	childEnable("log_instant_messages");
 //	childEnable("log_chat");
 //	childEnable("busy_response");
@@ -1492,6 +1524,11 @@ BOOL LLPanelPreference::postBuild()
 }
 
 void LLPanelPreference::apply()
+{
+	// no-op
+}
+
+void LLPanelPreference::saveSettings()
 {
 	// Save the value of all controls in the hierarchy
 	mSavedValues.clear();

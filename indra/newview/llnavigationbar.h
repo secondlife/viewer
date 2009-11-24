@@ -81,7 +81,8 @@ private:
 	void onLocationSelection();
 	void onLocationPrearrange(const LLSD& data);
 	void onSearchCommit();
-	void onTeleportFinished(const LLVector3d& global_agent_pos, const std::string& typed_location);
+	void onTeleportFinished(const LLVector3d& global_agent_pos);
+	void onTeleportFailed();
 	void onRegionNameResponse(
 			std::string typed_location,
 			std::string region_name,
@@ -99,8 +100,11 @@ private:
 	LLLocationInputCtrl*		mCmbLocation;
 	LLRect						mDefaultNbRect;
 	LLRect						mDefaultFpRect;
+	boost::signals2::connection	mTeleportFailedConnection;
 	boost::signals2::connection	mTeleportFinishConnection;
 	bool						mPurgeTPHistoryItems;
+	// if true, save location to location history when teleport finishes
+	bool						mSaveToLocationHistory;
 };
 
 #endif
