@@ -19,14 +19,14 @@
      initial_value="0.5"
      layout="topleft"
      left="0"
-     name="xSystem Volume"
+     name="System Volume"
      show_text="false"
      slider_label.halign="right"
      top_pad="5"
      volume="true"
      width="120">
         <slider.commit_callback
-         function="Pref.setControlFalse"
+         function="Vol.setControlFalse"
          parameter="MuteAudio" />
     </slider>
 </panel>

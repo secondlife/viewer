@@ -512,8 +512,9 @@ static void onClickVolume(void* data)
 	
 	// toggle the master volume pull-down
 	//LLFloaterReg::showInstance("volume_pulldown"); //tmp
-	//LLPanelVolumePulldown *foo=
-	new LLPanelVolumePulldown();
+	LLPanelVolumePulldown *foo=
+		new LLPanelVolumePulldown();
+	foo->setVisible(TRUE);
 }
 
 // sets the static variables necessary for the date
