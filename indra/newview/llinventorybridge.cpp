@@ -2346,8 +2346,12 @@ bool isInOutfitsSidePanel(LLPanel *panel)
 	LLInventoryPanel *my_panel = dynamic_cast<LLInventoryPanel*>(panel);
 	LLPanelOutfitsInventory *outfit_panel =
 		dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
-	LLInventoryPanel *outfit_inv_panel = outfit_panel ? outfit_panel->getActivePanel(): NULL;
-	return (my_panel && (my_panel == outfit_inv_panel));
+	if (!outfit_panel)
+		return false;
+	return outfit_panel->isAccordionPanel(my_panel);
+
+	//LLInventoryPanel *outfit_inv_panel = outfit_panel ? outfit_panel->getActivePanel(): NULL;
+	//return (my_panel && (my_panel == outfit_inv_panel));
 }
 
 void LLFolderBridge::folderOptionsMenu()

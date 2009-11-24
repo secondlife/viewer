@@ -398,3 +398,14 @@ LLInventoryPanel* LLPanelOutfitsInventory::getActivePanel()
 	return mActivePanel;
 }
 
+bool LLPanelOutfitsInventory::isAccordionPanel(LLInventoryPanel *panel)
+{
+	for(accordionpanels_vec_t::iterator it = mAccordionPanels.begin();
+		it != mAccordionPanels.end();
+		++it)
+	{
+		if (*it == panel)
+			return true;
+	}
+	return false;
+}
