@@ -71,7 +71,6 @@
   	     width="313" />
     <button
   	     follows="bottom|left"
-     font="SansSerifSmall"
   	     height="25"
   	     label="Wear"
   	     layout="topleft"
@@ -81,7 +80,6 @@
        	 width="80" />
     <button
     	 follows="bottom|left"
-     font="SansSerifSmall"
   	     height="25"
   	     label="New Outfit"
   	     layout="topleft"

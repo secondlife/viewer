@@ -2736,7 +2736,7 @@ bool enable_object_edit()
 	bool enable = false;
 	if (gAgent.inPrelude())
 	{
-		enable = LLViewerParcelMgr::getInstance()->agentCanBuild()
+		enable = LLViewerParcelMgr::getInstance()->allowAgentBuild()
 			|| LLSelectMgr::getInstance()->getSelection()->isAttachment();
 	} 
 	else if (LLSelectMgr::getInstance()->selectGetModify())
@@ -6106,7 +6106,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		BOOL can_build   = gAgent.isGodlike() || (LLViewerParcelMgr::getInstance()->agentCanBuild());
+		BOOL can_build   = gAgent.isGodlike() || (LLViewerParcelMgr::getInstance()->allowAgentBuild());
 
 		//Add an inventory observer to only allow dropping the newly attached item
 		//once it exists in your inventory.  Look at Jira 2422.

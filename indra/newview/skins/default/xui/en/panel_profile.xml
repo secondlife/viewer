@@ -27,7 +27,10 @@
     <string
      name="no_partner_text"
      value="None" />
-    <string name="RegisterDateFormat">[REG_DATE] ([AGE])</string>
+    <string 
+	 name="RegisterDateFormat">
+	 [REG_DATE] ([AGE])
+	</string>
   <scroll_container
      color="DkGray2"
      follows="all"
@@ -324,7 +327,6 @@
          width="64" />
         <button
          follows="bottom|right"
-         font="SansSerifSmall"
          height="19"
          label="▼"
          layout="topleft"
@@ -344,7 +346,6 @@
      width="303">
         <button
          follows="bottom|right"
-         font="SansSerifSmall"
          height="19"
          left="10"
          label="Edit Profile"

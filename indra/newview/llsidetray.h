@@ -120,7 +120,7 @@ public:
 
 	void		setVisible(BOOL visible)
 	{
-		LLPanel::setVisible(visible);
+		if (getParent()) getParent()->setVisible(visible);
 	}
 
 	LLPanel*	getButtonsPanel() { return mButtonsPanel; }
@@ -141,6 +141,7 @@ public:
 
 	void		processTriState ();
 	
+	void		updateSidetrayVisibility();
 
 protected:
 	LLSideTrayTab* getTab		(const std::string& name);
@@ -153,10 +154,6 @@ protected:
 
 	void		toggleTabButton	(LLSideTrayTab* tab);
 
-	void		updateSidetrayVisibility();
-
-	
-
 private:
 	// Implementation of LLDestroyClass<LLSideTray>
 	static void destroyClass()
@@ -166,7 +163,6 @@ private:
 			LLSideTray::getInstance()->setEnabled(FALSE);
 	}
 	
-
 private:
 
 	LLPanel*						mButtonsPanel;

@@ -26,7 +26,7 @@
      max_length="512"
      name="chat_box"
      tool_tip="Press Enter to say, Ctrl+Enter to shout"
-     top="0"
+     top="1"
      width="279" />
     <output_monitor
      auto_update="true"
@@ -37,19 +37,21 @@
      left_pad="-24"
      mouse_opaque="true"
      name="chat_zone_indicator"
-     top="4"
+     top="1"
      visible="true"
      width="20" />
     <button
      follows="right"
      is_toggle="true"
      width="20"
-     top="0"
+     top="1"
      layout="topleft"
-     left_pad="4           "
+     left_pad="4"
      image_disabled="ComboButton_UpOff"
      image_unselected="ComboButton_UpOff"
-     image_selected="ComboButton_UpSelected"
+     image_selected="ComboButton_Up_On_Selected"
+     image_pressed="ComboButton_UpSelected"
+     image_pressed_selected="ComboButton_Up_On_Selected"
      height="23"
      name="show_nearby_chat"
      tool_tip="Shows/hides nearby chat log">

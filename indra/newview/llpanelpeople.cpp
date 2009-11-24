@@ -483,7 +483,7 @@ void LLPanelPeople::onFriendsAccordionExpandedCollapsed(const LLSD& param, LLAva
 
 BOOL LLPanelPeople::postBuild()
 {
-	mVisibleSignal.connect(boost::bind(&LLPanelPeople::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLPanelPeople::onVisibilityChange, this, _2));
 	
 	mFilterEditor = getChild<LLFilterEditor>("filter_input");
 	mFilterEditor->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));

@@ -1573,7 +1573,8 @@ void LLViewerWindow::initWorldUI()
 	LLPanel* side_tray_container = getRootView()->getChild<LLPanel>("side_tray_container");
 	LLSideTray* sidetrayp = LLSideTray::getInstance();
 	sidetrayp->setShape(side_tray_container->getLocalRect());
-	sidetrayp->setFollowsAll();
+	// don't follow right edge to avoid spurious resizes, since we are using a fixed width layout
+	sidetrayp->setFollows(FOLLOWS_LEFT|FOLLOWS_TOP|FOLLOWS_BOTTOM);
 	side_tray_container->addChild(sidetrayp);
 	side_tray_container->setVisible(FALSE);
 	

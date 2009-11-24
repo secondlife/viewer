@@ -10,7 +10,6 @@
  width="128">
     <menu_item_check
          label="Show Coordinates"
-         layout="topleft"
          name="Show Coordinates">
            <menu_item_check.on_click
              function="Navbar.Action"
@@ -19,22 +18,28 @@
              function="Navbar.EnableMenuItem"
              parameter="show_coordinates" />
     </menu_item_check>
+    <menu_item_check
+      label="Show Parcel Properties"
+      name="Show Parcel Properties">
+      <menu_item_check.on_click
+        function="Navbar.Action"
+        parameter="show_properties" />
+      <menu_item_check.on_check
+        control="NavBarShowParcelProperties" />
+    </menu_item_check>
     <!-- Label of 'Landmark' item is changing in runtime, 
     see  AddLandmarkNavBarMenu/EditLandmarkNavBarMenu in strings.xml -->
     <menu_item_call
      label="Landmark"
-     layout="topleft"
      name="Landmark">
         <menu_item_call.on_click
          function="Navbar.Action"
          parameter="landmark" />
     </menu_item_call>
     <menu_item_separator
-     layout="topleft"
      name="Separator" />
     <menu_item_call
      label="Cut"
-     layout="topleft"
      name="Cut">
         <menu_item_call.on_click
          function="Navbar.Action"
@@ -45,7 +50,6 @@
     </menu_item_call>
     <menu_item_call
      label="Copy"
-     layout="topleft"
      name="Copy">
         <menu_item_call.on_click
          function="Navbar.Action"
@@ -56,7 +60,6 @@
     </menu_item_call>
     <menu_item_call
      label="Paste"
-     layout="topleft"
      name="Paste">
         <menu_item_call.on_click
          function="Navbar.Action"
@@ -67,7 +70,6 @@
     </menu_item_call>
     <menu_item_call
      label="Delete"
-     layout="topleft"
      name="Delete">
         <menu_item_call.on_click
          function="Navbar.Action"
@@ -78,7 +80,6 @@
     </menu_item_call>
     <menu_item_call
      label="Select All"
-     layout="topleft"
      name="Select All">
         <menu_item_call.on_click
          function="Navbar.Action"

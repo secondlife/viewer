@@ -226,6 +226,9 @@ public:
 	void			setKeystrokeCallback(callback_t callback, void* user_data);
 
 	void			setMaxTextLength(S32 max_text_length);
+	// Manipulate left and right padding for text
+	void getTextPadding(S32 *left, S32 *right);
+	void setTextPadding(S32 left, S32 right);
 
 	// Prevalidation controls which keystrokes can affect the editor
 	void			setPrevalidate( LLLinePrevalidateFunc func );
