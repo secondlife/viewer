@@ -318,7 +318,7 @@
         increment="1"
         control_name="Edit Cost"
         name="Edit Cost"
-        label="Price: L$"
+        label="Price:"
         label_width="100"
         left="10"
         width="192"
