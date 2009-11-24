@@ -417,8 +417,8 @@ function="MediaCtrl.CommitURL" />
 		height="22"
 		min_width="22"
 		width="22">
-	  <!-- Note: this isn't quite right either...the mute button is not the -->
-	  <!-- same as the others because it can't have the "image_overlay" be  -->
+	  <!-- Note: this is not quite right either...the mute button is not the -->
+	  <!-- same as the others because it cannot have the "image_overlay" be  -->
 	  <!-- two different images.  -->
 	  <button
 		  image_disabled="PushButton_Disabled"
@@ -439,7 +439,7 @@ function="MediaCtrl.CommitURL" />
 			function="MediaCtrl.ToggleMute" />
 	  </button>
 	</layout_panel>
-	<!-- We don't have a design yet for "volume", so this is a temporary -->
+	<!-- We do not have a design yet for "volume", so this is a temporary -->
 	<!-- solution.  See DEV-42827. -->
 	<layout_panel
 		name="volume_up"
