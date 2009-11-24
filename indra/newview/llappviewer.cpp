@@ -1357,19 +1357,25 @@ bool LLAppViewer::cleanup()
 		llinfos << "Waiting for pending IO to finish: " << pending << llendflush;
 		ms_sleep(100);
 	}
-	llinfos << "Shutting down." << llendflush;
+	llinfos << "Shutting down Views" << llendflush;
 
 	// Destroy the UI
 	if( gViewerWindow)
 		gViewerWindow->shutdownViews();
+
+	llinfos << "Cleaning up Inevntory" << llendflush;
 	
 	// Cleanup Inventory after the UI since it will delete any remaining observers
 	// (Deleted observers should have already removed themselves)
 	gInventory.cleanupInventory();
+
+	llinfos << "Cleaning up Selections" << llendflush;
 	
 	// Clean up selection managers after UI is destroyed, as UI may be observing them.
 	// Clean up before GL is shut down because we might be holding on to objects with texture references
 	LLSelectMgr::cleanupGlobals();
+	
+	llinfos << "Shutting down OpenGL" << llendflush;
 
 	// Shut down OpenGL
 	if( gViewerWindow)
@@ -1383,11 +1389,18 @@ bool LLAppViewer::cleanup()
 		gViewerWindow = NULL;
 		llinfos << "ViewerWindow deleted" << llendflush;
 	}
+
+	llinfos << "Cleaning up Keyboard & Joystick" << llendflush;
 	
 	// viewer UI relies on keyboard so keep it aound until viewer UI isa gone
 	delete gKeyboard;
 	gKeyboard = NULL;
 
+	// Turn off Space Navigator and similar devices
+	LLViewerJoystick::getInstance()->terminate();
+	
+	llinfos << "Cleaning up Objects" << llendflush;
+	
 	LLViewerObject::cleanupVOClasses();
 
 	LLWaterParamManager::cleanupClass();
@@ -1410,6 +1423,8 @@ bool LLAppViewer::cleanup()
 	}
 	LLPrimitive::cleanupVolumeManager();
 
+	llinfos << "Additional Cleanup..." << llendflush;	
+	
 	LLViewerParcelMgr::cleanupGlobals();
 
 	// *Note: this is where gViewerStats used to be deleted.
@@ -1429,9 +1444,11 @@ bool LLAppViewer::cleanup()
 	// Also after shutting down the messaging system since it has VFS dependencies
 
 	//
+	llinfos << "Cleaning up VFS" << llendflush;
 	LLVFile::cleanupClass();
-	llinfos << "VFS cleaned up" << llendflush;
 
+	llinfos << "Saving Data" << llendflush;
+	
 	// Quitting with "Remember Password" turned off should always stomp your
 	// saved password, whether or not you successfully logged in.  JC
 	if (!gSavedSettings.getBOOL("RememberPassword"))
@@ -1473,13 +1490,16 @@ bool LLAppViewer::cleanup()
 		gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""),mask);
 	}
 
-	// Turn off Space Navigator and similar devices
-	LLViewerJoystick::getInstance()->terminate();
-
 	removeMarkerFile(); // Any crashes from here on we'll just have to ignore
 	
 	writeDebugInfo();
 
+	LLLocationHistory::getInstance()->save();
+
+	LLAvatarIconIDCache::getInstance()->save();
+
+	llinfos << "Shutting down Threads" << llendflush;
+	
 	// Let threads finish
 	LLTimer idleTimer;
 	idleTimer.reset();
@@ -1512,14 +1532,9 @@ bool LLAppViewer::cleanup()
     sTextureFetch = NULL;
 	delete sImageDecodeThread;
     sImageDecodeThread = NULL;
-
-	LLLocationHistory::getInstance()->save();
-
-	LLAvatarIconIDCache::getInstance()->save();
-
 	delete mFastTimerLogThread;
 	mFastTimerLogThread = NULL;
-
+	
 	if (LLFastTimerView::sAnalyzePerformance)
 	{
 		llinfos << "Analyzing performance" << llendl;
@@ -1541,6 +1556,8 @@ bool LLAppViewer::cleanup()
 	}
 	LLMetricPerformanceTester::cleanClass() ;
 
+	llinfos << "Cleaning up Media and Textures" << llendflush;
+
 	//Note:
 	//LLViewerMedia::cleanupClass() has to be put before gTextureList.shutdown()
 	//because some new image might be generated during cleaning up media. --bao
@@ -1554,13 +1571,13 @@ bool LLAppViewer::cleanup()
 	LLVFSThread::cleanupClass();
 	LLLFSThread::cleanupClass();
 
-	llinfos << "VFS Thread finished" << llendflush;
-
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	llinfos << "Auditing VFS" << llendl;
 	gVFS->audit();
 #endif
 
+	llinfos << "Misc Cleanup" << llendflush;
+	
 	// For safety, the LLVFS has to be deleted *after* LLVFSThread. This should be cleaned up.
 	// (LLVFS doesn't know about LLVFSThread so can't kill pending requests) -Steve
 	delete gStaticVFS;
@@ -1574,12 +1591,11 @@ bool LLAppViewer::cleanup()
 
 	LLWatchdog::getInstance()->cleanup();
 
+	llinfos << "Shutting down message system" << llendflush;
 	end_messaging_system();
-	llinfos << "Message system deleted." << llendflush;
 
 	// *NOTE:Mani - The following call is not thread safe. 
 	LLCurl::cleanupClass();
-	llinfos << "LLCurl cleaned up." << llendflush;
 
 	// If we're exiting to launch an URL, do that here so the screen
 	// is at the right resolution before we launch IE.
@@ -1600,7 +1616,7 @@ bool LLAppViewer::cleanup()
 
 	ll_close_fail_log();
 
-    llinfos << "Goodbye" << llendflush;
+    llinfos << "Goodbye!" << llendflush;
 
 	// return 0;
 	return true;

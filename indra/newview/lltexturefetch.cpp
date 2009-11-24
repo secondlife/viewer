@@ -931,6 +931,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == DECODE_IMAGE)
 	{
+		if (mDesiredDiscard < 0)
+		{
+			// We aborted, don't decode
+			mState = DONE;
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
+			return true;
+		}
+		
 		if (mFormattedImage->getDataSize() <= 0)
 		{
 			llerrs << "Decode entered with invalid mFormattedImage. ID = " << mID << llendl;
