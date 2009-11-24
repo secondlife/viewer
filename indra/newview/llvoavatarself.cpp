@@ -318,11 +318,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 
 				}
 			}
-
-			if (!attachment_found)
-			{
-				gAttachPieMenu->addSeparator();
-			}
 		}
 
 		if (gDetachBodyPartPieMenus[i])
@@ -361,11 +356,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 					attachment_found = TRUE;
 					break;
 				}
-			}
-
-			if (!attachment_found)
-			{
-				gDetachPieMenu->addSeparator();
 			}
 		}
 	}

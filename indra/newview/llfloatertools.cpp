@@ -563,7 +563,8 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 
 	mBtnEdit	->setToggleState( edit_visible );
 	mRadioGroupEdit->setVisible( edit_visible );
-	childSetVisible("RenderingCost", edit_visible || focus_visible || move_visible);
+	bool linked_parts = gSavedSettings.getBOOL("EditLinkedParts");
+	childSetVisible("RenderingCost", !linked_parts && (edit_visible || focus_visible || move_visible));
 
 	if (mCheckSelectIndividual)
 	{
@@ -975,6 +976,8 @@ void LLFloaterTools::onClickGridOptions()
 S32 LLFloaterTools::calcRenderCost()
 {
 	S32 cost = 0;
+	std::set<LLUUID> textures;
+
 	for (LLObjectSelection::iterator selection_iter = LLSelectMgr::getInstance()->getSelection()->begin();
 		  selection_iter != LLSelectMgr::getInstance()->getSelection()->end();
 		  ++selection_iter)
@@ -985,10 +988,13 @@ S32 LLFloaterTools::calcRenderCost()
 			LLVOVolume *viewer_volume = (LLVOVolume*)select_node->getObject();
 			if (viewer_volume)
 			{
-				cost += viewer_volume->getRenderCost();
+				cost += viewer_volume->getRenderCost(textures);
+				cost += textures.size() * 5;
+				textures.clear();
 			}
 		}
 	}
+
 
 	return cost;
 }
