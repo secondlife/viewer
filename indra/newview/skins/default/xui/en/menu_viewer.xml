@@ -373,17 +373,17 @@
                 <menu_item_call.on_enable
                  function="World.EnableSetHomeLocation" />
             </menu_item_call>
-            <menu_item_call
-             label="Teleport Home"
-             layout="topleft"
-             name="Teleport Home"
-             shortcut="control|shift|H">
-                <menu_item_call.on_click
-                 function="World.TeleportHome" />
-                <menu_item_call.on_enable
-                 function="World.EnableTeleportHome" />
-            </menu_item_call>
         </menu>
+	    <menu_item_call
+	     label="Home"
+	     layout="topleft"
+	     name="Teleport Home"
+	     shortcut="control|shift|H">
+		<menu_item_call.on_click
+		 function="World.TeleportHome" />
+		<menu_item_call.on_enable
+		 function="World.EnableTeleportHome" />
+	    </menu_item_call>
       <menu_item_check
          label="Mini-Map"
          layout="topleft"
