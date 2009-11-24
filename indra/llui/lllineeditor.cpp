@@ -338,7 +338,7 @@ void LLLineEditor::setTextPadding(S32 left, S32 right)
 
 void LLLineEditor::updateTextPadding()
 {
-	mTextLeftEdge = llclamp(mTextPadLeft, 0, getRect().getWidth());;
+	mTextLeftEdge = llclamp(mTextPadLeft, 0, getRect().getWidth());
 	mTextRightEdge = getRect().getWidth() - llclamp(mTextPadRight, 0, getRect().getWidth());
 }
 
