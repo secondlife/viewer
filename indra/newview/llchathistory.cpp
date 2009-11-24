@@ -282,7 +282,6 @@ private:
 		LLRect rect_after = time_box->getRect();
 
 		// move rect to the left to correct position...
-		llinfos << "WWW: " << rect_before << rect_after << llendl;
 		S32 delta_pos_x = rect_before.getWidth() - rect_after.getWidth();
 		S32 delta_pos_y = rect_before.getHeight() - rect_after.getHeight();
 		time_box->translate(delta_pos_x, delta_pos_y);
