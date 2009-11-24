@@ -43,7 +43,6 @@
 #include "llpanelpicks.h"
 #include "llpanelprofile.h"
 #include "llsidetraypanelcontainer.h"
-#include "lltexteditor.h"
 
 static LLRegisterPanelClassWrapper<LLPanelProfileView> t_panel_target_profile("panel_profile_view");
 
@@ -191,7 +190,7 @@ void LLPanelProfileView::processOnlineStatus(bool online)
 void LLPanelProfileView::onAvatarNameCached(const LLUUID& id, const std::string& first_name, const std::string& last_name, BOOL is_group)
 {
 	llassert(getAvatarId() == id);
-	getChild<LLTextEditor>("user_name", FALSE)->setValue(first_name + " " + last_name);
+	getChild<LLUICtrl>("user_name", FALSE)->setValue(first_name + " " + last_name);
 }
 
 void LLPanelProfileView::togglePanel(LLPanel* panel)

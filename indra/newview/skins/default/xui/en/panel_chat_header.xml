@@ -20,18 +20,19 @@
          top="3"
          width="18" />
     <text_editor
+	 v_pad = "0"
 	 read_only = "true"
      follows="left|right"
 	 font.style="BOLD"
-	 height="18"
+	 height="12"
 	 layout="topleft"
 	 left_pad="5"
      right="-50"
      name="user_name"
      text_color="white"
-	 top="5"
+	 top="8"
 	 use_ellipses="true"
-	 value="Erica Vader" />
+	 value="Ericag Vader" />
     <text
             font="SansSerifSmall"
          follows="right"

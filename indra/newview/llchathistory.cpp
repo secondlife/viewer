@@ -33,12 +33,10 @@
 #include "llviewerprecompiledheaders.h"
 #include "llchathistory.h"
 #include "llpanel.h"
-#include "lltextbox.h"
-#include "lltexteditor.h"
 #include "lluictrlfactory.h"
 #include "llscrollcontainer.h"
 #include "llavatariconctrl.h"
-
+#include "lltexteditor.h"
 #include "llimview.h"
 #include "llcallingcard.h" //for LLAvatarTracker
 #include "llagentdata.h"
@@ -188,9 +186,8 @@ public:
 
 		LLTextEditor* userName = getChild<LLTextEditor>("user_name");
 
-		LLUIColor color = style_params.color;
-		userName->setReadOnlyColor(color);
-		userName->setColor(color);
+		userName->setReadOnlyColor(style_params.readonly_color());
+		userName->setColor(style_params.color());
 		
 		if(!chat.mFromName.empty())
 		{
@@ -204,7 +201,7 @@ public:
 		}
 
 		
-		LLTextBox* timeBox = getChild<LLTextBox>("time_box");
+		LLUICtrl* timeBox = getChild<LLUICtrl>("time_box");
 		timeBox->setValue(chat.mTimeStr);
 
 		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
