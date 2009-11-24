@@ -5678,6 +5678,16 @@ class LLFloaterVisible : public view_listener_t
 	}
 };
 
+class LLShowSidetrayPanel : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string panel_name = userdata.asString();
+		LLSideTray::getInstance()->showPanel(panel_name, LLSD());
+		return true;
+	}
+};
+
 bool callback_show_url(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotification::getSelectedOption(notification, response);
@@ -8039,6 +8049,7 @@ void initialize_menus()
 	visible.add("Object.VisibleEdit", boost::bind(&enable_object_edit));
 
 	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
+	view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");
 	view_listener_t::addMenu(new LLSomethingSelected(), "SomethingSelected");
 	view_listener_t::addMenu(new LLSomethingSelectedNoHUD(), "SomethingSelectedNoHUD");
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");

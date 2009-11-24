@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<multi_floater
+background_visible="true"
+bg_color="yellow" 
+ can_resize="true"
+ height="390"
+ layout="topleft"
+ name="floater_im_box"
+ help_topic="floater_im_box"
+ save_rect="true"
+ save_visibility="true"
+ single_instance="true"
+ title="Instant Messages"
+ width="392">
+    <tab_container
+     follows="left|right|top|bottom"
+     height="390"
+     layout="topleft"
+     left="1"
+     name="im_box_tab_container"
+     tab_position="bottom"
+     tab_width="80"
+     top="0"
+     width="390" />
+    <icon
+     color="DefaultShadowLight"
+     enabled="false"
+     follows="left|right|bottom"
+     height="17"
+     image_name="tabarea.tga"
+     layout="bottomleft"
+     left="1"
+     name="im_box_tab_container_icon"
+     bottom="10"
+     width="390" />
+</multi_floater>

@@ -240,6 +240,7 @@ set(viewer_SOURCE_FILES
     llhudtext.cpp
     llhudview.cpp
     llimfloater.cpp
+    llimfloatercontainer.cpp
     llimhandler.cpp
     llimpanel.cpp
     llimview.cpp
@@ -365,6 +366,7 @@ set(viewer_SOURCE_FILES
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
     llscreenchannel.cpp
+    llscriptfloater.cpp
     llscrollingpanelparam.cpp
     llsearchcombobox.cpp
     llsearchhistory.cpp
@@ -738,6 +740,7 @@ set(viewer_HEADER_FILES
     llhudtext.h
     llhudview.h
     llimfloater.h
+    llimfloatercontainer.h
     llimpanel.h
     llimview.h
     llinspect.h
@@ -861,6 +864,7 @@ set(viewer_HEADER_FILES
     llrootview.h
     llsavedsettingsglue.h
     llscreenchannel.h
+    llscriptfloater.h
     llscrollingpanelparam.h
     llsearchcombobox.h
     llsearchhistory.h

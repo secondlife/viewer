@@ -43,6 +43,7 @@
 #include "lllocalcliprect.h"
 #include "llmenugl.h"
 #include "lloutputmonitorctrl.h"
+#include "llscriptfloater.h"
 #include "lltextbox.h"
 #include "llvoiceclient.h"
 #include "llvoicecontrolpanel.h"
@@ -55,6 +56,7 @@ static LLDefaultChildRegistry::Register<LLNotificationChiclet> t2("chiclet_notif
 static LLDefaultChildRegistry::Register<LLIMP2PChiclet> t3("chiclet_im_p2p");
 static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t4("chiclet_im_group");
 static LLDefaultChildRegistry::Register<LLAdHocChiclet> t5("chiclet_im_adhoc");
+static LLDefaultChildRegistry::Register<LLScriptChiclet> t6("chiclet_script");
 
 static const LLRect CHICLET_RECT(0, 25, 25, 0);
 static const LLRect CHICLET_ICON_RECT(0, 22, 22, 0);
@@ -1411,3 +1413,51 @@ LLChicletSpeakerCtrl::LLChicletSpeakerCtrl(const Params&p)
  : LLOutputMonitorCtrl(p)
 {
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+LLScriptChiclet::Params::Params()
+ : icon("icon")
+{
+	// *TODO Vadim: Get rid of hardcoded values.
+ 	rect(CHICLET_RECT);
+	icon.rect(CHICLET_ICON_RECT);
+}
+
+LLScriptChiclet::LLScriptChiclet(const Params&p)
+ : LLIMChiclet(p)
+ , mChicletIconCtrl(NULL)
+{
+	LLIconCtrl::Params icon_params = p.icon;
+	mChicletIconCtrl = LLUICtrlFactory::create<LLIconCtrl>(icon_params);
+	// Let "new message" icon be on top, else it will be hidden behind chiclet icon.
+	addChildInBack(mChicletIconCtrl);
+}
+
+void LLScriptChiclet::setSessionId(const LLUUID& session_id)
+{
+	setShowNewMessagesIcon( getSessionId() != session_id );
+
+	LLIMChiclet::setSessionId(session_id);
+	LLUUID notification_id = LLScriptFloaterManager::getInstance()->findNotificationId(session_id);
+	LLNotificationPtr notification = LLNotifications::getInstance()->find(notification_id);
+	if(notification)
+	{
+		setToolTip(notification->getSubstitutions()["TITLE"].asString());
+	}
+}
+
+void LLScriptChiclet::onMouseDown()
+{
+	LLScriptFloaterManager::getInstance()->toggleScriptFloater(getSessionId());
+}
+
+BOOL LLScriptChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	onMouseDown();
+	return LLChiclet::handleMouseDown(x, y, mask);
+}
+
+// EOF

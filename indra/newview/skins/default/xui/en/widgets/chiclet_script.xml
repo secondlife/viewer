@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<chiclet_script
+ name="script_chiclet">
+ <icon
+  name="chiclet_icon"
+  follows="all"
+  mouse_opaque="false"
+  image_name="Generic_Object_Small" />
+</expandable_text>

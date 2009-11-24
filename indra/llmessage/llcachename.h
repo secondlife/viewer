@@ -86,6 +86,10 @@ public:
 	BOOL getName(const LLUUID& id, std::string& first, std::string& last);
 	BOOL getFullName(const LLUUID& id, std::string& fullname);
 	
+	// Reverse lookup of UUID from name
+	BOOL getUUID(const std::string& first, const std::string& last, LLUUID& id);
+	BOOL getUUID(const std::string& fullname, LLUUID& id);
+	
 	// If available, this method copies the group name into the string
 	// provided. The caller must allocate at least
 	// DB_GROUP_NAME_BUF_SIZE characters. If not available, this
