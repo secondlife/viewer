@@ -323,6 +323,19 @@ void LLLineEditor::setMaxTextLength(S32 max_text_length)
 	mMaxLengthBytes = max_len;
 } 
 
+void LLLineEditor::getTextPadding(S32 *left, S32 *right)
+{
+	*left = mTextPadLeft;
+	*right = mTextPadRight;
+}
+
+void LLLineEditor::setTextPadding(S32 left, S32 right)
+{
+	mTextPadLeft = left;
+	mTextPadRight = right;
+	updateTextPadding();
+}
+
 void LLLineEditor::updateTextPadding()
 {
 	static LLUICachedControl<S32> line_editor_hpad ("UILineEditorHPad", 0);

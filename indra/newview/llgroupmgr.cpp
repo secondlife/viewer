@@ -52,6 +52,7 @@
 #include "llviewerwindow.h"
 #include "llpanelgroup.h"
 #include "llgroupactions.h"
+#include "llnotifications.h"
 #include "lluictrlfactory.h"
 #include <boost/regex.hpp>
 
