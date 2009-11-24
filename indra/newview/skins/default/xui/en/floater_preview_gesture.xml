@@ -173,7 +173,6 @@
     <button
      follows="top|left"
      height="20"
-     font="SansSerifSmall"
      label="Add &gt;&gt;"
      layout="topleft"
      left_pad="10"
@@ -205,7 +204,6 @@
     <button
      follows="top|left"
      height="20"
-     font="SansSerifSmall"
      label="Up"
      layout="topleft"
      left_pad="10"
@@ -215,7 +213,6 @@
     <button
      follows="top|left"
      height="20"
-     font="SansSerifSmall"
      label="Down"
      layout="topleft"
      left_delta="0"
@@ -225,7 +222,6 @@
     <button
      follows="top|left"
      height="20"
-     font="SansSerifSmall"
      label="Remove"
      layout="topleft"
      left_delta="0"
