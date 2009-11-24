@@ -38,6 +38,7 @@
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "lliconctrl.h"
+#include "llsidetray.h"
 #include "lltabcontainer.h"
 #include "lltexturectrl.h"
 
@@ -70,6 +71,45 @@ void LLPanelMe::onOpen(const LLSD& key)
 	LLPanelProfile::onOpen(key);
 }
 
+void LLPanelMe::notifyChildren(const LLSD& info)
+{
+	if (info.has("task-panel-action") && info["task-panel-action"].asString() == "handle-tri-state")
+	{
+		// Implement task panel tri-state behavior.
+		//
+		// When the button of an active open task panel is clicked, side tray
+		// calls notifyChildren() on the panel, passing task-panel-action=>handle-tri-state as an argument.
+		// The task panel is supposed to handle this by reverting to the default view,
+		// i.e. closing any dependent panels like "pick info" or "profile edit".
+
+		bool on_default_view = true;
+
+		const LLRect& task_panel_rect = getRect();
+		for (LLView* child = getFirstChild(); child; child = findNextSibling(child))
+		{
+			LLPanel* panel = dynamic_cast<LLPanel*>(child);
+			if (!panel)
+				continue;
+
+			// *HACK: implement panel stack instead (e.g. me->pick_info->pick_edit).
+			if (panel->getRect().getWidth()  == task_panel_rect.getWidth()  &&
+				panel->getRect().getHeight() == task_panel_rect.getHeight() &&
+				panel->getVisible())
+			{
+				panel->setVisible(FALSE);
+				on_default_view = false;
+			}
+		}
+		
+		if (on_default_view)
+			LLSideTray::getInstance()->collapseSideBar();
+
+		return; // this notification is only supposed to be handled by task panels 
+	}
+
+	LLPanel::notifyChildren(info);
+}
+
 void LLPanelMe::buildEditPanel()
 {
 	if (NULL == mEditPanel)
@@ -84,8 +124,7 @@ void LLPanelMe::buildEditPanel()
 void LLPanelMe::onEditProfileClicked()
 {
 	buildEditPanel();
-	togglePanel(mEditPanel);
-	mEditPanel->onOpen(getAvatarId());
+	togglePanel(mEditPanel, getAvatarId()); // open
 }
 
 void LLPanelMe::onEditAppearanceClicked()
@@ -108,13 +147,13 @@ void LLPanelMe::onSaveChangesClicked()
 	data.allow_publish = mEditPanel->childGetValue("show_in_search_checkbox");
 
 	LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesUpdate(&data);
-	togglePanel(mEditPanel);
+	togglePanel(mEditPanel); // close
 	onOpen(getAvatarId());
 }
 
 void LLPanelMe::onCancelClicked()
 {
-	togglePanel(mEditPanel);
+	togglePanel(mEditPanel); // close
 }
 
 //////////////////////////////////////////////////////////////////////////
