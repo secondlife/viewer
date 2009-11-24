@@ -52,6 +52,7 @@
 #include "llteleporthistory.h"
 #include "llsidetray.h"
 #include "llslurl.h"
+#include "llstatusbar.h"			// getHealth()
 #include "lltrans.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
@@ -165,7 +166,8 @@ LLLocationInputCtrl::Params::Params()
 	push_icon("push_icon"),
 	build_icon("build_icon"),
 	scripts_icon("scripts_icon"),
-	damage_icon("damage_icon")
+	damage_icon("damage_icon"),
+	damage_text("damage_text")
 {
 }
 
@@ -200,7 +202,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	params.commit_on_focus_lost(false);
 	params.follows.flags(FOLLOWS_ALL);
 	mTextEntry = LLUICtrlFactory::create<LLURLLineEditor>(params);
-	this->addChild(mTextEntry);
+	addChild(mTextEntry);
 	// LLLineEditor is replaced with LLLocationLineEditor
 
 	// "Place information" button.
@@ -261,7 +263,10 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	LLIconCtrl::Params damage_icon = p.damage_icon;
 	mParcelIcon[DAMAGE_ICON] = LLUICtrlFactory::create<LLIconCtrl>(damage_icon);
 	addChild(mParcelIcon[DAMAGE_ICON]);
-	// TODO: health number?
+	
+	LLTextBox::Params damage_text = p.damage_text;
+	mDamageText = LLUICtrlFactory::create<LLTextBox>(damage_text);
+	addChild(mDamageText);
 	
 	// Register callbacks and load the location field context menu (NB: the order matters).
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Navbar.Action", boost::bind(&LLLocationInputCtrl::onLocationContextMenuItemClicked, this, _2));
@@ -405,11 +410,8 @@ void LLLocationInputCtrl::onTextEntry(LLLineEditor* line_editor)
  */
 void LLLocationInputCtrl::setText(const LLStringExplicit& text)
 {
-	if (mTextEntry)
-	{
-		mTextEntry->setText(text);
-		mHasAutocompletedText = FALSE;
-	}
+	mTextEntry->setText(text);
+	mHasAutocompletedText = FALSE;
 }
 
 void LLLocationInputCtrl::setFocus(BOOL b)
@@ -444,9 +446,17 @@ void LLLocationInputCtrl::onFocusLost()
 }
 
 void LLLocationInputCtrl::draw()
-{	
-	if(!hasFocus() && gSavedSettings.getBOOL("NavBarShowCoordinates")){
+{
+	static LLUICachedControl<bool> show_coords("NavBarShowCoordinates", false);
+	if(!hasFocus() && show_coords)
+	{
 		refreshLocation();
+	}
+	
+	static LLUICachedControl<bool> show_icons("NavBarShowParcelProperties", false);
+	if (show_icons)
+	{
+		refreshHealth();
 	}
 	LLComboBox::draw();
 }
@@ -544,10 +554,12 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
 	
 	mList->mouseOverHighlightNthItem(-1); // Clear highlight on the last selected item.
 }
+
 bool LLLocationInputCtrl::findTeleportItemsByTitle(const LLTeleportHistoryItem& item, const std::string& filter)
 {
 	return item.mTitle.find(filter) != std::string::npos;
 }
+
 void LLLocationInputCtrl::onTextEditorRightClicked(S32 x, S32 y, MASK mask)
 {
 	if (mLocationContextMenu)
@@ -596,41 +608,82 @@ void LLLocationInputCtrl::refreshLocation()
 
 void LLLocationInputCtrl::refreshParcelIcons()
 {
-	LLViewerParcelMgr* vpm = LLViewerParcelMgr::getInstance();
-	// *TODO buy
-	//bool allow_buy      = vpm->canAgentBuyParcel( vpm->getAgentParcel(), false);
-	bool allow_voice	= vpm->allowAgentVoice();
-	bool allow_fly		= vpm->allowAgentFly();
-	bool allow_push		= vpm->allowAgentPush();
-	bool allow_build	= vpm->allowAgentBuild();
-	bool allow_scripts	= vpm->allowAgentScripts();
-	bool allow_damage	= vpm->allowAgentDamage();
-
-	// Most icons are "block this ability"
-	mParcelIcon[VOICE_ICON]->setVisible(   !allow_voice );
-	mParcelIcon[FLY_ICON]->setVisible(     !allow_fly );
-	mParcelIcon[PUSH_ICON]->setVisible(    !allow_push );
-	mParcelIcon[BUILD_ICON]->setVisible(   !allow_build );
-	mParcelIcon[SCRIPTS_ICON]->setVisible( !allow_scripts );
-	mParcelIcon[DAMAGE_ICON]->setVisible(  allow_damage );
-	// *TODO damage meter
-
-	// Slide the parcel icons rect from right to left, adjusting rectangles of
-	// visible icons.  Assumes all icon rects are the same.
-	LLRect icon_rect = mParcelIcon[0]->getRect();
-	S32 icon_width = icon_rect.getWidth();
-	icon_rect.mRight = mAddLandmarkBtn->getRect().mLeft - mIconHPad;
-	icon_rect.mLeft = icon_rect.mRight - icon_width;
+	// Our "cursor" moving right to left
+	S32 x = mAddLandmarkBtn->getRect().mLeft - mIconHPad;
 	
-	for (S32 i = 0; i < ICON_COUNT; ++i)
+	static LLUICachedControl<bool> show_properties("NavBarShowParcelProperties", false);
+	if (show_properties)
 	{
-		if (mParcelIcon[i]->getVisible())
+		LLViewerParcelMgr* vpm = LLViewerParcelMgr::getInstance();
+		// *TODO buy
+		//bool allow_buy      = vpm->canAgentBuyParcel( vpm->getAgentParcel(), false);
+		bool allow_voice	= vpm->allowAgentVoice();
+		bool allow_fly		= vpm->allowAgentFly();
+		bool allow_push		= vpm->allowAgentPush();
+		bool allow_build	= vpm->allowAgentBuild();
+		bool allow_scripts	= vpm->allowAgentScripts();
+		bool allow_damage	= vpm->allowAgentDamage();
+		
+		// Most icons are "block this ability"
+		mParcelIcon[VOICE_ICON]->setVisible(   !allow_voice );
+		mParcelIcon[FLY_ICON]->setVisible(     !allow_fly );
+		mParcelIcon[PUSH_ICON]->setVisible(    !allow_push );
+		mParcelIcon[BUILD_ICON]->setVisible(   !allow_build );
+		mParcelIcon[SCRIPTS_ICON]->setVisible( !allow_scripts );
+		mParcelIcon[DAMAGE_ICON]->setVisible(  allow_damage );
+		mDamageText->setVisible(allow_damage);
+		
+		// Slide the parcel icons rect from right to left, adjusting rectangles of
+		// visible icons.  Assumes all icon rects are the same.
+		for (S32 i = 0; i < ICON_COUNT; ++i)
 		{
-			mParcelIcon[i]->setRect( icon_rect );
-			icon_rect.translate( -icon_width - mIconHPad, 0);
+			LLIconCtrl* icon = mParcelIcon[i];
+			if (icon->getVisible())
+			{
+				LLRect r = icon->getRect();
+				r.mLeft = x - r.getWidth();
+				r.mRight = x;
+				icon->setRect( r );
+				x -= r.getWidth() + mIconHPad;
+			}
+		}
+		LLRect text_rect = mDamageText->getRect();
+		text_rect.mLeft = x - text_rect.getWidth();
+		text_rect.mRight = x;
+		mDamageText->setRect(text_rect);
+		x -= text_rect.getWidth() + mIconHPad;
+	}
+	else
+	{
+		for (S32 i = 0; i < ICON_COUNT; ++i)
+		{
+			mParcelIcon[i]->setVisible(false);
+		}
+		mDamageText->setVisible(false);
+	}
+	
+	S32 left_pad, right_pad;
+	mTextEntry->getTextPadding(&left_pad, &right_pad);
+	right_pad = mTextEntry->getRect().mRight - x;
+	llinfos << "JAMESDEBUG text entry rect " << mTextEntry->getRect()
+	<< " x " << x << " left_pad " << left_pad << " right_pad " << right_pad << llendl;
+	mTextEntry->setTextPadding(left_pad, right_pad);
+}
+
+void LLLocationInputCtrl::refreshHealth()
+{
+	// *FIXME: Status bar owns health information, should be in agent
+	if (gStatusBar)
+	{
+		static S32 last_health = -1;
+		S32 health = gStatusBar->getHealth();
+		if (health != last_health)
+		{
+			std::string text = llformat("%d%%", health);
+			mDamageText->setText(text);
+			last_health = health;
 		}
 	}
-	// *TODO: health meter
 }
 
 void LLLocationInputCtrl::rebuildLocationHistory(std::string filter)
@@ -754,11 +807,17 @@ void LLLocationInputCtrl::onLocationContextMenuItemClicked(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
 
-	if (item == std::string("show_coordinates"))
+	if (item == "show_coordinates")
 	{
 		gSavedSettings.setBOOL("NavBarShowCoordinates",!gSavedSettings.getBOOL("NavBarShowCoordinates"));
 	}
-	else if (item == std::string("landmark"))
+	else if (item == "show_properties")
+	{
+		gSavedSettings.setBOOL("NavBarShowParcelProperties",
+			!gSavedSettings.getBOOL("NavBarShowParcelProperties"));
+		refreshParcelIcons();
+	}
+	else if (item == "landmark")
 	{
 		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
 		
@@ -772,23 +831,23 @@ void LLLocationInputCtrl::onLocationContextMenuItemClicked(const LLSD& userdata)
 					LLSD().insert("type", "landmark").insert("id",landmark->getUUID()));
 		}
 	}
-	else if (item == std::string("cut"))
+	else if (item == "cut")
 	{
 		mTextEntry->cut();
 	}
-	else if (item == std::string("copy"))
+	else if (item == "copy")
 	{
 		mTextEntry->copy();
 	}
-	else if (item == std::string("paste"))
+	else if (item == "paste")
 	{
 		mTextEntry->paste();
 	}
-	else if (item == std::string("delete"))
+	else if (item == "delete")
 	{
 		mTextEntry->deleteSelection();
 	}
-	else if (item == std::string("select_all"))
+	else if (item == "select_all")
 	{
 		mTextEntry->selectAll();
 	}
@@ -798,28 +857,28 @@ bool LLLocationInputCtrl::onLocationContextMenuItemEnabled(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
 	
-	if (item == std::string("can_cut"))
+	if (item == "can_cut")
 	{
 		return mTextEntry->canCut();
 	}
-	else if (item == std::string("can_copy"))
+	else if (item == "can_copy")
 	{
 		return mTextEntry->canCopy();
 	}
-	else if (item == std::string("can_paste"))
+	else if (item == "can_paste")
 	{
 		return mTextEntry->canPaste();
 	}
-	else if (item == std::string("can_delete"))
+	else if (item == "can_delete")
 	{
 		return mTextEntry->canDeselect();
 	}
-	else if (item == std::string("can_select_all"))
+	else if (item == "can_select_all")
 	{
 		return mTextEntry->canSelectAll();
 	}
-	else if(item == std::string("show_coordinates")){
-	
+	else if(item == "show_coordinates")
+	{
 		return gSavedSettings.getBOOL("NavBarShowCoordinates");
 	}
 

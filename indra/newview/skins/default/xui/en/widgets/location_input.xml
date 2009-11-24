@@ -81,8 +81,18 @@
 	top="21"
     image_name="parcel_lght_Damage"
     />
+  <!-- Default text color is invisible on top of nav bar background -->
+  <damage_text
+    name="damage_text"
+	width="50"
+	height="18"
+	top="16"
+	halign="right"
+	font="SansSerifSmall"
+	text_color="TextFgColor"
+	/>
 
-    <combo_button name="Location History"
+  <combo_button name="Location History"
                           label=""
                           pad_right="0"/>
   <combo_list bg_writeable_color="MenuDefaultBgColor" page_lines="10"

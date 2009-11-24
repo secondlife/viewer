@@ -35,6 +35,7 @@
 
 #include "llcombobox.h"
 #include "lliconctrl.h"		// Params
+#include "lltextbox.h"		// Params
 
 class LLLandmark;
 
@@ -73,6 +74,7 @@ public:
 											build_icon,
 											scripts_icon,
 											damage_icon;
+		Optional<LLTextBox::Params>			damage_text;
 		Params();
 	};
 
@@ -111,6 +113,9 @@ private:
 	void					refresh();
 	void					refreshLocation();
 	void					refreshParcelIcons();
+	// Refresh the value in the health percentage text field
+	void					refreshHealth();
+	
 	void					rebuildLocationHistory(std::string filter = "");
 	bool 					findTeleportItemsByTitle(const LLTeleportHistoryItem& item, const std::string& filter);
 	void					setText(const LLStringExplicit& text);
@@ -147,7 +152,7 @@ private:
 		ICON_COUNT
 	};
 	LLIconCtrl*	mParcelIcon[ICON_COUNT];
-	// TODO: Health meter?
+	LLTextBox* mDamageText;
 
 	LLAddLandmarkObserver*		mAddLandmarkObserver;
 	LLRemoveLandmarkObserver*	mRemoveLandmarkObserver;
