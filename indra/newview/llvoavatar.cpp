@@ -3832,7 +3832,7 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 		}
 		// Can't test for baked hair being defined, since that won't always be the case (not all viewers send baked hair)
 		// TODO: 1.25 will be able to switch this logic back to calling isTextureVisible();
-		if (getImage(TEX_HAIR_BAKED, 0)->getID() != IMG_INVISIBLE || LLDrawPoolAlpha::sShowDebugAlpha)
+		if ((getImage(TEX_HAIR_ALPHA, 0)->getID() != IMG_INVISIBLE && getImage(TEX_HAIR_BAKED, 0)->getID() != IMG_INVISIBLE) || LLDrawPoolAlpha::sShowDebugAlpha)
 		{
 			num_indices += mMeshLOD[MESH_ID_HAIR]->render(mAdjustedPixelArea, first_pass, mIsDummy);
 			first_pass = FALSE;
@@ -3868,7 +3868,7 @@ U32 LLVOAvatar::renderRigid()
 		return 0;
 	}
 
-	if (isTextureVisible(TEX_EYES_BAKED) || mIsDummy)
+	if ((isTextureVisible(TEX_EYES_ALPHA) && isTextureVisible(TEX_EYES_BAKED))  || mIsDummy)
 	{
 		num_indices += mMeshLOD[MESH_ID_EYEBALL_LEFT]->render(mAdjustedPixelArea, TRUE, mIsDummy);
 		num_indices += mMeshLOD[MESH_ID_EYEBALL_RIGHT]->render(mAdjustedPixelArea, TRUE, mIsDummy);
@@ -3898,7 +3898,7 @@ U32 LLVOAvatar::renderFootShadows()
 	
 	// Don't render foot shadows if your lower body is completely invisible.
 	// (non-humanoid avatars rule!)
-	if (!isTextureVisible(TEX_LOWER_BAKED))
+	if (!isTextureVisible(TEX_LOWER_BAKED) || ! isTextureVisible(TEX_LOWER_ALPHA))
 	{
 		return 0;
 	}
