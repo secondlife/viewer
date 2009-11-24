@@ -487,8 +487,6 @@ void LLMediaDataClient::enqueue(const Request *request)
 	// Push the request on the priority queue
 	// Sadly, we have to const-cast because items put into the queue are not const
 	pRequestQueue->push_back(const_cast<LLMediaDataClient::Request*>(request));
-	// sort the list
-	pRequestQueue->sort(LLMediaDataClient::compareRequests);
 	LL_DEBUGS("LLMediaDataClient") << "Queue:" << (*pRequestQueue) << LL_ENDL;
 	// Start the timer if not already running
 	startQueueTimer();
