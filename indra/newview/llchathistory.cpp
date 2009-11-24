@@ -36,7 +36,6 @@
 #include "lluictrlfactory.h"
 #include "llscrollcontainer.h"
 #include "llavatariconctrl.h"
-#include "lltexteditor.h"
 #include "llimview.h"
 #include "llcallingcard.h" //for LLAvatarTracker
 #include "llagentdata.h"
