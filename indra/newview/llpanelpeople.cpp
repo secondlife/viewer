@@ -56,6 +56,8 @@
 #include "llgrouplist.h"
 #include "llinventoryobserver.h"
 #include "llpanelpeoplemenus.h"
+#include "llsidetray.h"
+#include "llsidetraypanelcontainer.h"
 #include "llrecentpeople.h"
 #include "llviewercontrol.h"		// for gSavedSettings
 #include "llviewermenu.h"			// for gMenuHolder
@@ -1268,6 +1270,31 @@ void	LLPanelPeople::onOpen(const LLSD& key)
 		mTabContainer->selectTabByName(tab_name);
 	else
 		reSelectedCurrentTab();
+}
+
+void LLPanelPeople::notifyChildren(const LLSD& info)
+{
+	if (info.has("task-panel-action") && info["task-panel-action"].asString() == "handle-tri-state")
+	{
+		LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(getParent());
+		if (!container)
+		{
+			llwarns << "Cannot find People panel container" << llendl;
+			return;
+		}
+
+		if (container->getCurrentPanelIndex() > 0) 
+		{
+			// if not on the default panel, switch to it
+			container->onOpen(LLSD().insert(LLSideTrayPanelContainer::PARAM_SUB_PANEL_NAME, getName()));
+		}
+		else
+			LLSideTray::getInstance()->collapseSideBar();
+
+		return; // this notification is only supposed to be handled by task panels
+	}
+
+	LLPanel::notifyChildren(info);
 }
 
 void LLPanelPeople::showAccordion(const std::string name, bool show)

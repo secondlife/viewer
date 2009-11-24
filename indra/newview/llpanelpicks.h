@@ -83,7 +83,7 @@ public:
 	LLClassifiedItem* getSelectedClassifiedItem();
 
 	//*NOTE top down approch when panel toggling is done only by 
-	// parent panels failed to work (picks related code was in me profile panel)
+	// parent panels failed to work (picks related code was in my profile panel)
 	void setProfilePanel(LLPanelProfile* profile_panel);
 
 private:
