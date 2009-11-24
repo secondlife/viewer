@@ -1547,7 +1547,6 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 
 	gInventory.notifyObservers();
 
-	queryWearableCache();
 
 	std::vector<LLWearable*>::iterator wearable_iter;
 
@@ -1570,6 +1569,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	// Start rendering & update the server
 	mWearablesLoaded = TRUE; 
 	checkWearablesLoaded();
+	queryWearableCache();
 	updateServer();
 
 	lldebugs << "setWearableOutfit() end" << llendl;
