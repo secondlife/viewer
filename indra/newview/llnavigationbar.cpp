@@ -172,7 +172,8 @@ LLNavigationBar::LLNavigationBar()
 	mBtnHome(NULL),
 	mCmbLocation(NULL),
 	mSearchComboBox(NULL),
-	mPurgeTPHistoryItems(false)
+	mPurgeTPHistoryItems(false),
+	mSaveToLocationHistory(false)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_navigation_bar.xml");
 
@@ -186,6 +187,7 @@ LLNavigationBar::LLNavigationBar()
 LLNavigationBar::~LLNavigationBar()
 {
 	mTeleportFinishConnection.disconnect();
+	mTeleportFailedConnection.disconnect();
 }
 
 BOOL LLNavigationBar::postBuild()
@@ -220,6 +222,12 @@ BOOL LLNavigationBar::postBuild()
 	
 	mSearchComboBox->setCommitCallback(boost::bind(&LLNavigationBar::onSearchCommit, this));
 
+	mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
+		setTeleportFinishedCallback(boost::bind(&LLNavigationBar::onTeleportFinished, this, _1));
+
+	mTeleportFailedConnection = LLViewerParcelMgr::getInstance()->
+		setTeleportFailedCallback(boost::bind(&LLNavigationBar::onTeleportFailed, this));
+	
 	mDefaultNbRect = getRect();
 	mDefaultFpRect = getChild<LLFavoritesBarCtrl>("favorite")->getRect();
 
@@ -395,15 +403,19 @@ void LLNavigationBar::onLocationSelection()
 	LLWorldMapMessage::url_callback_t cb = boost::bind(
 			&LLNavigationBar::onRegionNameResponse, this,
 			typed_location, region_name, local_coords, _1, _2, _3, _4);
-	// connect the callback each time, when user enter new location to get real location of agent after teleport
-	mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
-			setTeleportFinishedCallback(boost::bind(&LLNavigationBar::onTeleportFinished, this, _1,typed_location));
+	mSaveToLocationHistory = true;
 	LLWorldMapMessage::getInstance()->sendNamedRegionRequest(region_name, cb, std::string("unused"), false);
 }
 
-void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos, const std::string& typed_location)
+void LLNavigationBar::onTeleportFailed()
 {
-	// Location is valid. Add it to the typed locations history.
+	mSaveToLocationHistory = false;
+}
+
+void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos)
+{
+	if (!mSaveToLocationHistory)
+		return;
 	LLLocationHistory* lh = LLLocationHistory::getInstance();
 
 	//TODO*: do we need convert surl into readable format?
@@ -426,8 +438,7 @@ void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos, con
 
 	lh->save();
 	
-	if(mTeleportFinishConnection.connected())
-		mTeleportFinishConnection.disconnect();
+	mSaveToLocationHistory = false;
 	
 }
 

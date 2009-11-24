@@ -46,6 +46,7 @@ class LLAccordionCtrlTab;
 class LLFolderViewItem;
 class LLMenuGL;
 class LLInventoryPanel;
+class LLInventoryObserver;
 class LLInventorySubTreePanel;
 
 class LLLandmarksPanel : public LLPanelPlacesTab, LLRemoteParcelInfoObserver
@@ -62,7 +63,14 @@ public:
 
 	void onSelectionChange(LLInventorySubTreePanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();
-	
+
+	/**
+	 * Updates accordions according to filtered items in lists.
+	 *
+	 * It hides accordion for empty lists
+	 */
+	void updateFilteredAccordions();
+
 protected:
 	/**
 	 * @return true - if current selected panel is not null and selected item is a landmark
@@ -122,13 +130,6 @@ private:
 	static void doIdle(void* landmarks_panel);
 
 	/**
-	 * Updates accordions according to filtered items in lists.
-	 *
-	 * It hides accordion for empty lists
-	 */
-	void updateFilteredAccordions();
-
-	/**
 	 * Landmark actions callbacks. Fire when a landmark is loaded from the list.
 	 */
 	void doShowOnMap(LLLandmark* landmark);
@@ -147,6 +148,7 @@ private:
 	LLMenuGL*					mGearFolderMenu;
 	LLMenuGL*					mMenuAdd;
 	LLInventorySubTreePanel*	mCurrentSelectedList;
+	LLInventoryObserver*		mInventoryObserver;
 
 	LLPanel*					mListCommands;
 	bool 						mSortByDate;
