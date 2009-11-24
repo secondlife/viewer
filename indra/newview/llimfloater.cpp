@@ -110,10 +110,10 @@ void LLIMFloater::onFocusReceived()
 // virtual
 void LLIMFloater::onClose(bool app_quitting)
 {
-	if (!gIMMgr->hasSession(mSessionID)) return;
-	
 	setTyping(false);
-	gIMMgr->leaveSession(mSessionID);
+	// SJB: We want the close button to hide the session window, not end it
+	// *NOTE: Yhis is functional, but not ideal - it's still closing the floater; we really want to change the behavior of the X button instead.
+	//gIMMgr->leaveSession(mSessionID);
 }
 
 /* static */
