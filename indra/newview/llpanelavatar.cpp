@@ -359,7 +359,7 @@ void LLPanelAvatarProfile::onOpen(const LLSD& key)
 {
 	LLPanelProfileTab::onOpen(key);
 
-	mGroups.erase();
+	mGroups.clear();
 
 	//Disable "Add Friend" button for friends.
 	childSetEnabled("add_friend", !LLAvatarActions::isFriend(getAvatarId()));
@@ -391,7 +391,7 @@ void LLPanelAvatarProfile::resetControls()
 
 void LLPanelAvatarProfile::resetData()
 {
-	mGroups.erase();
+	mGroups.clear();
 	childSetValue("2nd_life_pic",LLUUID::null);
 	childSetValue("real_world_pic",LLUUID::null);
 	childSetValue("online_status",LLStringUtil::null);
@@ -443,23 +443,29 @@ void LLPanelAvatarProfile::processGroupProperties(const LLAvatarGroups* avatar_g
 	// Group properties may arrive in two callbacks, we need to save them across
 	// different calls. We can't do that in textbox as textbox may change the text.
 
-	std::string groups = mGroups;
 	LLAvatarGroups::group_list_t::const_iterator it = avatar_groups->group_list.begin();
 	const LLAvatarGroups::group_list_t::const_iterator it_end = avatar_groups->group_list.end();
 
-	if(groups.empty() && it_end != it)
-	{
-		groups = (*it).group_name;
-		++it;
-	}
 	for(; it_end != it; ++it)
 	{
 		LLAvatarGroups::LLGroupData group_data = *it;
-		groups += ", ";
-		groups += group_data.group_name;
+
+		// Check if there is no duplicates for this group
+		if (std::find(mGroups.begin(), mGroups.end(), group_data.group_name) == mGroups.end())
+			mGroups.push_back(group_data.group_name);
 	}
-	mGroups = groups;
-	childSetValue("sl_groups",mGroups);
+
+	// Creating string, containing group list
+	std::string groups = "";
+	for (group_list_t::const_iterator it = mGroups.begin(); it != mGroups.end(); ++it)
+	{
+		if (it != mGroups.begin())
+			groups += ", ";
+
+		groups += *it;
+	}
+
+	childSetValue("sl_groups", groups);
 }
 
 void LLPanelAvatarProfile::fillCommonData(const LLAvatarData* avatar_data)

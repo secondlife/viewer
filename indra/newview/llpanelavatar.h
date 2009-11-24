@@ -183,7 +183,9 @@ protected:
 
 private:
 
-	std::string 			mGroups;
+	typedef std::list<std::string>	group_list_t;
+	group_list_t 			mGroups;
+
 	LLToggleableMenu*		mProfileMenu;
 };
 
