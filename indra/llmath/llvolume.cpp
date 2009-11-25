@@ -2245,11 +2245,6 @@ void LLVolume::makeTetrahedron()
 
 void LLVolume::copyVolumeFaces(LLVolume* volume)
 {
-	if (volume->isTetrahedron())
-	{
-		llerrs << "WTF?" << llendl;
-	}
-
 	mVolumeFaces = volume->mVolumeFaces;
 	mSculptLevel = 0;
 	mIsTetrahedron = FALSE;

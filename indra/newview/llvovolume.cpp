@@ -882,7 +882,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 			// if it's a mesh
 			if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 			{
-				if (getVolume()->getNumVolumeFaces() == 0)
+				if (getVolume()->getNumVolumeFaces() == 0 || getVolume()->isTetrahedron())
 				{ 
 					//load request not yet issued, request pipeline load this mesh
 					LLUUID asset_id = volume_params.getSculptID();
@@ -924,7 +924,8 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 void LLVOVolume::notifyMeshLoaded()
 { 
 	mSculptChanged = TRUE;
-	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY);
+	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, TRUE);
+	dirtySpatialGroup(TRUE);
 }
 
 // sculpt replaces generate() for sculpted surfaces

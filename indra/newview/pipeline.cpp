@@ -1807,8 +1807,6 @@ void LLPipeline::rebuildPriorityGroups()
 	
 	assertInitialized();
 
-	notifyLoadedMeshes();
-
 	// Iterate through all drawables on the priority build queue,
 	for (LLSpatialGroup::sg_list_t::iterator iter = mGroupQ1.begin();
 		 iter != mGroupQ1.end(); ++iter)
@@ -1887,6 +1885,8 @@ void LLPipeline::updateGeom(F32 max_dtime)
 	// notify various object types to reset internal cost metrics, etc.
 	// for now, only LLVOVolume does this to throttle LOD changes
 	LLVOVolume::preUpdateGeom();
+
+	notifyLoadedMeshes();
 
 	// Iterate through all drawables on the priority build queue,
 	for (LLDrawable::drawable_list_t::iterator iter = mBuildQ1.begin();
@@ -8913,7 +8913,6 @@ LLCullResult::sg_list_t::iterator LLPipeline::endAlphaGroups()
 
 void LLPipeline::loadMesh(LLVOVolume* vobj, LLUUID mesh_id, S32 detail)
 {
-
 	if (detail < 0 || detail > 4)
 	{
 		return;
@@ -9093,10 +9092,6 @@ void LLPipeline::notifyLoadedMeshes()
 
 	for (std::list<LLMeshThread*>::iterator iter = mLoadedMeshes.begin(); iter != mLoadedMeshes.end(); ++iter)
 	{ //for each mesh done loading
-
-
-
-
 		LLMeshThread* mesh = *iter;
 		
 		if (!mesh->isStopped())
@@ -9131,14 +9126,13 @@ void LLPipeline::notifyLoadedMeshes()
 
 			if (valid)
 			{
-				if (mesh->mVolume->getNumVolumeFaces() > 0)
-				{
-					mesh->mTargetVolume->copyVolumeFaces(mesh->mVolume);
-				}
-				else
+				if (mesh->mVolume->getNumVolumeFaces() <= 0)
 				{
 					llwarns << "Mesh loading returned empty volume." << llendl;
+					mesh->mVolume->makeTetrahedron();
 				}
+				
+				mesh->mTargetVolume->copyVolumeFaces(mesh->mVolume);
 
 				for (std::set<LLUUID>::iterator vobj_iter = obj_iter->second.begin(); vobj_iter != obj_iter->second.end(); ++vobj_iter)
 				{
