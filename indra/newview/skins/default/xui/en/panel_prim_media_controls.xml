@@ -3,7 +3,7 @@
 	follows="left|right|top|bottom"
 	name="MediaControls"
 	background_visible="false"
-	height="160"
+	height="192"
 	layout="topleft"
 	mouse_opaque="false"
 	width="800">
@@ -16,44 +16,6 @@
 	  layout="topleft"
 	  mouse_opaque="false"
 	  top="20" />
-  <layout_stack
-	  follows="left|right|bottom"
-	  height="32"
-	  layout="topleft"
-	  animate="false"
-	  left="0"
-	  orientation="horizontal"
-	  top="96">
-	<!-- outer layout_panels center the inner one -->
-	<layout_panel
-		width="0"
-		layout="topleft"
-		user_resize="false" />
-	<panel
-		name="media_progress_indicator"
-		height="22"
-		layout="topleft"
-		visible="false"
-		left="0"
-		top="0"
-		auto_resize="false"
-		user_resize="false"
-		min_width="100"
-		width="200">
-	  <progress_bar
-		  name="media_progress_bar"
-		  color_bar="1 1 1 0.96"
-		  follows="left|right|top"
-		  height="16"
-		  layout="topleft"
-		  left="0"
-		  tool_tip="Media is Loading"/>
-	</panel>
-	<layout_panel
-		width="0"
-		layout="topleft"
-		user_resize="false" />
-  </layout_stack>
   <layout_stack
 	  name="media_controls"
 	  follows="left|right"
@@ -152,9 +114,8 @@
 		top="2"
 		min_width="22"
 		width="22">
-	  <!-- The stop button here is temporary artwork -->
 	  <button
-		  image_overlay="media_btn_stoploading.png"
+		  image_overlay="Stop_Off"
 		  image_disabled="PushButton_Disabled"
 		  image_disabled_selected="PushButton_Disabled"
 		  image_selected="PushButton_Selected"
@@ -417,8 +378,8 @@ function="MediaCtrl.CommitURL" />
 		height="22"
 		min_width="22"
 		width="22">
-	  <!-- Note: this isn't quite right either...the mute button is not the -->
-	  <!-- same as the others because it can't have the "image_overlay" be  -->
+	  <!-- Note: this is not quite right either...the mute button is not the -->
+	  <!-- same as the others because it cannot have the "image_overlay" be  -->
 	  <!-- two different images.  -->
 	  <button
 		  image_disabled="PushButton_Disabled"
@@ -439,7 +400,7 @@ function="MediaCtrl.CommitURL" />
 			function="MediaCtrl.ToggleMute" />
 	  </button>
 	</layout_panel>
-	<!-- We don't have a design yet for "volume", so this is a temporary -->
+	<!-- We do not have a design yet for "volume", so this is a temporary -->
 	<!-- solution.  See DEV-42827. -->
 	<layout_panel
 		name="volume_up"
@@ -609,9 +570,8 @@ function="MediaCtrl.CommitURL" />
 		layout="topleft"
 		min_width="21"
 		width="21" >
-	  <!-- There is no "Zoom out" icon, so we use this temporarily -->
 	  <button
-		  image_overlay="ForwardArrow_Off"
+		  image_overlay="UnZoom_Off"
 		  image_disabled="PushButton_Disabled"
 		  image_disabled_selected="PushButton_Disabled"
 		  image_selected="PushButton_Selected"
@@ -653,6 +613,43 @@ function="MediaCtrl.CommitURL" />
 	<!-- bookend panel -->
 	<layout_panel
 		name="right_bookend"
+		width="0"
+		layout="topleft"
+		user_resize="false" />
+  </layout_stack>
+  <layout_stack
+	  follows="left|right|bottom"
+	  height="32"
+	  layout="topleft"
+	  animate="false"
+	  left="0"
+	  orientation="horizontal"
+	  top="150">
+	<!-- outer layout_panels center the inner one -->
+	<layout_panel
+		width="0"
+		layout="topleft"
+		user_resize="false" />
+	<panel
+		name="media_progress_indicator"
+		height="22"
+		layout="topleft"
+		left="0"
+		top="0"
+		auto_resize="false"
+		user_resize="false"
+		min_width="100"
+		width="200">
+	  <progress_bar
+		  name="media_progress_bar"
+		  color_bar="1 1 1 0.96"
+		  follows="left|right|top"
+		  height="8"
+		  layout="topleft"
+		  left="0"
+		  tool_tip="Media is Loading"/>
+	</panel>
+	<layout_panel
 		width="0"
 		layout="topleft"
 		user_resize="false" />
