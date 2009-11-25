@@ -2385,6 +2385,8 @@ void LLFolderBridge::folderOptionsMenu()
 	if (is_sidepanel)
 	{
 		mItems.clear();
+		mItems.push_back("Rename");
+		mItems.push_back("Delete");
 	}
 
 	// Only enable calling-card related options for non-default folders.

@@ -49,6 +49,9 @@
 #include "llgesturemgr.h"
 #include "llappearancemgr.h"
 #include "lltexlayer.h"
+#include "llsidetray.h"
+#include "llpaneloutfitsinventory.h"
+#include "llfolderview.h"
 
 #include <boost/scoped_ptr.hpp>
 
@@ -1295,6 +1298,33 @@ void LLAgentWearables::makeNewOutfit(const std::string& new_folder_name,
 	} 
 }
 
+class LLAutoRenameFolder: public LLInventoryCallback
+{
+public:
+	LLAutoRenameFolder(LLUUID& folder_id):
+		mFolderID(folder_id)
+	{
+	}
+
+	virtual ~LLAutoRenameFolder()
+	{
+		LLSD key;
+		LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
+		LLPanelOutfitsInventory *outfit_panel =
+			dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
+		outfit_panel->getRootFolder()->clearSelection();
+		outfit_panel->getRootFolder()->setSelectionByID(mFolderID, TRUE);
+		outfit_panel->getRootFolder()->setNeedsAutoRename(TRUE);
+	}
+	
+	virtual void fire(const LLUUID&)
+	{
+	}
+	
+private:
+	LLUUID mFolderID;
+};
+
 LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
 {
 	if (mAvatarObject.isNull())
@@ -1309,17 +1339,9 @@ LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
 		LLFolderType::FT_OUTFIT,
 		new_folder_name);
 
-	LLAppearanceManager::instance().shallowCopyCategory(LLAppearanceManager::instance().getCOF(),folder_id, NULL);
+	LLPointer<LLInventoryCallback> cb = new LLAutoRenameFolder(folder_id);
+	LLAppearanceManager::instance().shallowCopyCategory(LLAppearanceManager::instance().getCOF(),folder_id, cb);
 	
-#if 0  // BAP - fix to go into rename state automatically after outfit is created.
-	LLViewerInventoryCategory *parent_category = gInventory.getCategory(parent_id);
-	if (parent_category)
-	{
-		parent_category->setSelectionByID(folder_id,TRUE);
-		parent_category->setNeedsAutoRename(TRUE);
-	}
-#endif
-
 	return folder_id;
 }
 
