@@ -1839,6 +1839,13 @@ ETextureIndex LLVOAvatarSelf::getBakedTE( const LLTexLayerSet* layerset ) const
 }
 
 
+void LLVOAvatarSelf::setNewBakedTexture(LLVOAvatarDefines::EBakedTextureIndex i, const LLUUID &uuid)
+{
+	ETextureIndex index = LLVOAvatarDictionary::bakedToLocalTextureIndex(i);
+	setNewBakedTexture(index, uuid);
+}
+
+
 //-----------------------------------------------------------------------------
 // setNewBakedTexture()
 // A new baked texture has been successfully uploaded and we can start using it now.

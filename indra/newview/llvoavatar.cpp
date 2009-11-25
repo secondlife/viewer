@@ -3868,7 +3868,7 @@ U32 LLVOAvatar::renderRigid()
 		return 0;
 	}
 
-	if (isTextureVisible(TEX_EYES_BAKED) || mIsDummy)
+	if (isTextureVisible(TEX_EYES_BAKED)  || mIsDummy)
 	{
 		num_indices += mMeshLOD[MESH_ID_EYEBALL_LEFT]->render(mAdjustedPixelArea, TRUE, mIsDummy);
 		num_indices += mMeshLOD[MESH_ID_EYEBALL_RIGHT]->render(mAdjustedPixelArea, TRUE, mIsDummy);
