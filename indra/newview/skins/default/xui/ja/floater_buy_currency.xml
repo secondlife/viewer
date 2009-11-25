@@ -29,7 +29,7 @@
 		1234
 	</line_editor>
 	<text name="currency_est">
-		約US$ [USD]
+		約[LOCALAMOUNT]
 	</text>
 	<text name="getting_data" left_delta="3">
 		データを取得しています...
@@ -63,6 +63,6 @@
 	<button label="購入" name="buy_btn" />
 	<button label="取り消し" name="cancel_btn" />
 	<text name="buy_currency">
-		約US$ [USD]でL$ [LINDENS]を購入
+		約[LOCALAMOUNT]でL$ [LINDENS]を購入
 	</text>
 </floater>
