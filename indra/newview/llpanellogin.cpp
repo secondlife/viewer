@@ -225,6 +225,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
 
+	LLURLSimString::setString(gSavedSettings.getString("LoginLocation"));
 	std::string sim_string = LLURLSimString::sInstance.mSimString;
 	if (!sim_string.empty())
 	{
@@ -892,12 +893,27 @@ void LLPanelLogin::onClickConnect(void *)
 		LLComboBox* combo = sInstance->getChild<LLComboBox>("start_location_combo");
 		std::string combo_text = combo->getSimple();
 		
-		if (first.empty() || last.empty())
+		bool has_first_and_last = !(first.empty() || last.empty());
+		bool has_location = false;
+
+		if(combo_text=="<Type region name>" || combo_text =="")
+		{
+			// *NOTE: Mani - Location field is not always committed by this point!
+			// This may be duplicate work, but better than not doing the work!
+			LLURLSimString::sInstance.setString("");
+		}
+		else 
+		{
+			// *NOTE: Mani - Location field is not always committed by this point!
+			LLURLSimString::sInstance.setString(combo_text);
+			has_location = true;
+		}
+
+		if(!has_first_and_last)
 		{
 			LLNotifications::instance().add("MustHaveAccountToLogIn");
 		}
-		else if( (combo_text=="<Type region name>" || combo_text =="")
-				&& LLURLSimString::sInstance.mSimString =="")
+		else if(!has_location)
 		{
 			LLNotifications::instance().add("StartRegionEmpty");
 		}
