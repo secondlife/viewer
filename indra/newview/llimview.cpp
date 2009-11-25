@@ -70,6 +70,7 @@
 #include "lltoolbar.h"
 #include "llviewermessage.h"
 #include "llviewerwindow.h"
+#include "llnotifications.h"
 #include "llnotify.h"
 #include "llviewerregion.h"
 #include "llvoicechannel.h"

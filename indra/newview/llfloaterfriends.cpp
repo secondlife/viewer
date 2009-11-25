@@ -49,6 +49,7 @@
 #include "llavataractions.h"
 #include "llinventorymodel.h"
 #include "llnamelistctrl.h"
+#include "llnotifications.h"
 #include "llnotify.h"
 #include "llresmgr.h"
 #include "llscrolllistctrl.h"

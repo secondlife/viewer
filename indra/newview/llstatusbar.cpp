@@ -72,12 +72,14 @@
 #include "llfocusmgr.h"
 #include "llappviewer.h"
 #include "lltrans.h"
+
 // library includes
 #include "imageids.h"
 #include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llrect.h"
 #include "llerror.h"
+#include "llnotifications.h"
 #include "llparcel.h"
 #include "llstring.h"
 #include "message.h"

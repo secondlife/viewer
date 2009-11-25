@@ -147,6 +147,7 @@ set(llui_HEADER_FILES
     llmultifloater.h 
     llmultisliderctrl.h
     llmultislider.h
+    llnotificationptr.h
     llnotifications.h
     llnotificationslistener.h
     llpanel.h

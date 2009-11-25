@@ -40,6 +40,7 @@
 #include "llimfloater.h" // for LLIMFloater
 #include "lllayoutstack.h"
 #include "llnearbychatbar.h"
+#include "llnotifications.h"
 #include "llspeakbutton.h"
 #include "llsplitbutton.h"
 #include "llsyswellwindow.h"

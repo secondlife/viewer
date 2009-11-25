@@ -34,6 +34,7 @@
 
 #include "lleventnotifier.h"
 
+#include "llnotifications.h"
 #include "message.h"
 
 #include "llnotify.h"

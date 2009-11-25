@@ -48,6 +48,7 @@
 #include "llframetimer.h"
 #include "lliconctrl.h"
 #include "lllineeditor.h"
+#include "llnotifications.h"
 #include "llnotify.h"
 #include "llparcel.h"
 #include "llslurl.h"

@@ -51,6 +51,7 @@
 #include "llfontgl.h"
 #include "llinstantmessage.h"
 #include "llinventorypanel.h"
+#include "llnotifications.h"
 #include "llpermissionsflags.h"
 #include "llrect.h"
 #include "llsecondlifeurls.h"

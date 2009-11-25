@@ -63,6 +63,7 @@
 #include "lleconomy.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
+#include "llnotifications.h"
 #include "llscrolllistctrl.h"
 #include "llsdserialize.h"
 #include "llvfs.h"

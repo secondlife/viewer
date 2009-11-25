@@ -36,7 +36,7 @@
 
 #include "llwindow.h"
 
-#include "llnotifications.h"
+//#include "llnotifications.h"
 #include "llchannelmanager.h"
 #include "llchat.h"
 

@@ -36,6 +36,7 @@
 
 // library includes
 #include "indra_constants.h"
+#include "llnotifications.h"
 
 // viewer includes
 #include "llagent.h"	// for gAgent.inPrelude()

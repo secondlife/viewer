@@ -39,6 +39,7 @@
 #include "indra_constants.h"
 #include "llcachename.h"
 #include "llgl.h"
+#include "llnotifications.h"
 #include "llparcel.h"
 #include "llsecondlifeurls.h"
 #include "message.h"

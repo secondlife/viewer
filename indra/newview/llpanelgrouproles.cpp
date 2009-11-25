@@ -42,6 +42,7 @@
 #include "lliconctrl.h"
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
+#include "llnotifications.h"
 #include "llnotify.h"
 #include "llpanelgrouproles.h"
 #include "llscrolllistctrl.h"

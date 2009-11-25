@@ -42,6 +42,7 @@
 #include "lldatapacker.h"
 #include "llinventory.h"
 #include "llmultigesture.h"
+#include "llnotifications.h"
 #include "llstl.h"
 #include "llstring.h"	// todo: remove
 #include "llvfile.h"

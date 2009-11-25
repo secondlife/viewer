@@ -39,6 +39,7 @@
 
 #include "llcachename.h"
 #include "llfocusmgr.h"
+#include "llnotifications.h"
 #include "llparcel.h"
 #include "message.h"
 #include "lluserauth.h"

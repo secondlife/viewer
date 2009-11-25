@@ -45,7 +45,7 @@
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llhelp.h"
-
+#include "llnotifications.h"
 #include "llresmgr.h"
 #include "llscrollbar.h"
 #include "llscrollcontainer.h"

@@ -66,6 +66,7 @@
 #include "llmemorystream.h"
 #include "llmessageconfig.h"
 #include "llmoveview.h"
+#include "llnotifications.h"
 #include "llteleporthistory.h"
 #include "llregionhandle.h"
 #include "llsd.h"

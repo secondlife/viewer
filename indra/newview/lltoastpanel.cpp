@@ -34,6 +34,8 @@
 
 #include "lltoastpanel.h"
 
+#include "llnotifications.h"
+
 //static
 const S32 LLToastPanel::MIN_PANEL_HEIGHT = 40; // VPAD(4)*2 + ICON_HEIGHT(32)
 
@@ -46,10 +48,17 @@ LLToastPanel::~LLToastPanel()
 {
 }
 
+//virtual
 std::string LLToastPanel::getTitle()
 {
 	// *TODO: create Title and localize it. If it will be required.
 	return mNotification->getMessage();
+}
+
+//virtual
+const LLUUID& LLToastPanel::getID()
+{
+	return mNotification->id();
 }
 
 //snap to the message height if it is visible

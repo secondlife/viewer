@@ -58,6 +58,7 @@
 #include "llmoveview.h"
 #include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
 #include "llnearbychatbar.h"
+#include "llnotifications.h"
 #include "llparcel.h"
 #include "llsdutil.h"
 #include "llsidetray.h"

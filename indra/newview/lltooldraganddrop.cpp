@@ -35,10 +35,13 @@
 #include "message.h"
 #include "lltooldraganddrop.h"
 
+// library headers
 #include "llfloaterreg.h"
 #include "llinstantmessage.h"
 #include "lldir.h"
+#include "llnotifications.h"
 
+// project headers
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llviewercontrol.h"

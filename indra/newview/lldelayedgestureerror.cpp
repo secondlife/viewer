@@ -33,7 +33,9 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "lldelayedgestureerror.h"
+
 #include <list>
+#include "llnotifications.h"
 #include "llnotify.h"
 #include "llcallbacklist.h"
 #include "llinventory.h"

@@ -35,13 +35,14 @@
 
 #include "llpanel.h"
 #include "llfontgl.h"
-#include "llnotifications.h"
+#include "llnotificationptr.h"
 #include "llbutton.h"
 #include "lltoastpanel.h"
 #include "lliconctrl.h"
 #include "lltexteditor.h"
 #include "lltextbox.h"
 
+class LLNotificationForm;
 
 /**
  * Toast panel for notification.
@@ -68,7 +69,7 @@ protected:
 
 private:
 
-	void adjustPanelForScriptNotice(const LLNotificationFormPtr form);
+	void adjustPanelForScriptNotice(const boost::shared_ptr<LLNotificationForm> form);
 	void adjustPanelForTipNotice();
 
 	// panel elements

@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewerinventory.h"
 
+#include "llnotifications.h"
 #include "message.h"
 #include "indra_constants.h"
 

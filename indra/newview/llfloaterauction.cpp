@@ -46,6 +46,7 @@
 
 #include "llagent.h"
 #include "llcombobox.h"
+#include "llnotifications.h"
 #include "llnotify.h"
 #include "llsavedsettingsglue.h"
 #include "llviewertexturelist.h"

@@ -51,6 +51,7 @@
 #include "llfloaterpreference.h"
 #include "llfocusmgr.h"
 #include "lllineeditor.h"
+#include "llnotifications.h"
 #include "llstartup.h"
 #include "lltextbox.h"
 #include "llui.h"

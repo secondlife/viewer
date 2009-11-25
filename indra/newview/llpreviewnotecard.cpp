@@ -43,6 +43,7 @@
 #include "llfloaterreg.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
+#include "llnotifications.h"
 #include "llnotify.h"
 #include "llresmgr.h"
 #include "roles_constants.h"

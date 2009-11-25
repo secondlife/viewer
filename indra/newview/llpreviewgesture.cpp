@@ -43,6 +43,7 @@
 #include "lldir.h"
 #include "llfloaterreg.h"
 #include "llmultigesture.h"
+#include "llnotifications.h"
 #include "llvfile.h"
 
 // newview

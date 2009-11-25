@@ -41,6 +41,7 @@
 #include "llinventorybridge.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
+#include "llnotifications.h"
 #include "llnotify.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"

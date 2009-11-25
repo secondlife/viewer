@@ -103,9 +103,7 @@
 #include "llpointer.h"
 #include "llinitparam.h"
 #include "llnotificationslistener.h"
-
-class LLNotification;
-typedef boost::shared_ptr<LLNotification> LLNotificationPtr;
+#include "llnotificationptr.h"
 
 	
 typedef enum e_notification_priority

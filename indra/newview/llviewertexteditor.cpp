@@ -50,6 +50,7 @@
 #include "llmemorystream.h"
 #include "llmenugl.h"
 #include "llnotecard.h"
+#include "llnotifications.h"
 #include "llnotify.h"
 #include "llpanelplaces.h"
 #include "llpreview.h"

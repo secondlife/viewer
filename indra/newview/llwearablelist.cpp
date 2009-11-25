@@ -40,6 +40,7 @@
 #include "llvoavatar.h"
 #include "llviewerinventory.h"
 #include "llviewerstats.h"
+#include "llnotifications.h"
 #include "llnotify.h"
 #include "llinventorymodel.h"
 #include "lltrans.h"

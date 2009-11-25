@@ -36,7 +36,9 @@
 
 
 #include "llnotificationmanager.h"
+
 #include "llnearbychathandler.h"
+#include "llnotifications.h"
 
 #include "boost/bind.hpp"
 
