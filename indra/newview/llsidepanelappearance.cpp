@@ -32,6 +32,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llsidepanelappearance.h"
 
+#include "llaccordionctrltab.h"
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
@@ -189,16 +190,22 @@ void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 		return;
 	if (!outfit_link->getIsLinkType())
 		return;
-	LLInventoryPanel *inventory_panel = mPanelOutfitsInventory->getActivePanel();
-	if (inventory_panel)
+
+	LLAccordionCtrlTab* tab_outfits = mPanelOutfitsInventory->findChild<LLAccordionCtrlTab>("tab_outfits");
+	if (tab_outfits)
 	{
-		LLFolderView *folder = inventory_panel->getRootFolder();
-		LLFolderViewItem *outfit_folder = folder->getItemByID(outfit_link->getLinkedUUID());
-		if (outfit_folder)
+		tab_outfits->changeOpenClose(FALSE);
+		LLInventoryPanel *inventory_panel = tab_outfits->findChild<LLInventoryPanel>("outfitslist_accordionpanel");
+		if (inventory_panel)
 		{
-			outfit_folder->setOpen(!outfit_folder->isOpen());
-			folder->setSelectionFromRoot(outfit_folder,TRUE);
-			folder->scrollToShowSelection();
+			LLFolderView *folder = inventory_panel->getRootFolder();
+			LLFolderViewItem *outfit_folder = folder->getItemByID(outfit_link->getLinkedUUID());
+			if (outfit_folder)
+			{
+				outfit_folder->setOpen(!outfit_folder->isOpen());
+				folder->setSelectionFromRoot(outfit_folder,TRUE);
+				folder->scrollToShowSelection();
+			}
 		}
 	}
 }
