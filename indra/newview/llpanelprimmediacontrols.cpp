@@ -332,13 +332,12 @@ void LLPanelPrimMediaControls::updateShape()
 
 		if(media_plugin && media_plugin->pluginSupportsMediaTime())
 		{
-			mReloadCtrl->setEnabled(FALSE);
-			mReloadCtrl->setVisible(FALSE);
+			mReloadCtrl->setEnabled(false);
+			mReloadCtrl->setVisible(false);
 			mMediaStopCtrl->setVisible(has_focus);
-			mHomeCtrl->setVisible(FALSE);
-			// No nav controls
-			mBackCtrl->setVisible(FALSE);
-			mFwdCtrl->setEnabled(FALSE);
+			mHomeCtrl->setVisible(has_focus);
+			mBackCtrl->setVisible(false);
+			mFwdCtrl->setVisible(false);
 			mMediaAddressCtrl->setVisible(false);
 			mMediaAddressCtrl->setEnabled(false);
 			mMediaPlaySliderPanel->setVisible(has_focus && !mini_controls);
@@ -416,7 +415,6 @@ void LLPanelPrimMediaControls::updateShape()
 					mPlayCtrl->setVisible(FALSE);
 					mPauseCtrl->setEnabled(TRUE);
 					mPauseCtrl->setVisible(has_focus);
-					mMediaStopCtrl->setEnabled(TRUE);
 					
 					break;
 				case LLPluginClassMediaOwner::MEDIA_PAUSED:
@@ -425,7 +423,6 @@ void LLPanelPrimMediaControls::updateShape()
 					mPauseCtrl->setVisible(FALSE);
 					mPlayCtrl->setEnabled(TRUE);
 					mPlayCtrl->setVisible(has_focus);
-					mMediaStopCtrl->setEnabled(FALSE);
 					break;
 			}
 		}
