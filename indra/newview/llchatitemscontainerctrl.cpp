@@ -182,7 +182,7 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 	{
 		LLStyle::Params style_params_name;
 
-		LLColor4 userNameColor = LLUIColorTable::instance().getColor("ChatToastUserNameColor");
+		LLColor4 userNameColor = LLUIColorTable::instance().getColor("ChatToastAgentNameColor");
 
 		style_params_name.color(userNameColor);
 		

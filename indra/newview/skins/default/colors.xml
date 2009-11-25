@@ -81,7 +81,7 @@
 
 	<color
      name="AgentChatColor"
-     reference="LtGray" />
+     reference="White" />
     <color
      name="AlertBoxColor"
      value="0.24 0.24 0.24 1" />
@@ -669,7 +669,7 @@
      reference="LtGray" />
     <color
      name="UserChatColor"
-     reference="LtGray" />
+     reference="White" />
     <color
      name="llOwnerSayChatColor"
      reference="LtGray" />
@@ -685,7 +685,7 @@
      name="SysWellItemSelected"
      value="0.3 0.3 0.3 1.0" />
 	<color
-     name="ChatToastUserNameColor"
+     name="ChatToastAgentNameColor"
      value="1.0 0.3 1.0 1.0" />
 
 </colors>
