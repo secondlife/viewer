@@ -288,6 +288,8 @@ public:
 
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL removeItem();
+	bool removeItemResponse(const LLSD& notification, const LLSD& response);
+
 	virtual void pasteFromClipboard();
 	virtual void pasteLinkFromClipboard();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
@@ -508,7 +510,6 @@ public:
 	virtual LLFontGL::StyleFlags getLabelStyle() const;
 	virtual std::string getLabelSuffix() const;
 	virtual void			buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual BOOL			isItemRemovable();
 	virtual BOOL renameItem(const std::string& new_name);
 
 	LLInventoryObject* getObject() const;
@@ -546,7 +547,6 @@ public:
 	virtual void	openItem();
 	virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual std::string getLabelSuffix() const;
-	virtual BOOL	isItemRemovable();
 	virtual BOOL renameItem(const std::string& new_name);
 
 	static void		onWearOnAvatar( void* userdata );	// Access to wearOnAvatar() from menu

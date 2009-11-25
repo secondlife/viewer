@@ -340,6 +340,7 @@ BOOL LLPanelAvatarProfile::postBuild()
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	registrar.add("Profile.Pay",  boost::bind(&LLPanelAvatarProfile::pay, this));
+	registrar.add("Profile.Share", boost::bind(&LLPanelAvatarProfile::share, this));
 
 	mProfileMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
@@ -533,6 +534,11 @@ void LLPanelAvatarProfile::fillAccountStatus(const LLAvatarData* avatar_data)
 void LLPanelAvatarProfile::pay()
 {
 	LLAvatarActions::pay(getAvatarId());
+}
+
+void LLPanelAvatarProfile::share()
+{
+	LLAvatarActions::share(getAvatarId());
 }
 
 void LLPanelAvatarProfile::onUrlTextboxClicked(const std::string& url)

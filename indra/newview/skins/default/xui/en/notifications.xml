@@ -3939,6 +3939,18 @@ Would you like to leave Busy Mode before completing this transaction?
 
   <notification
    icon="alertmodal.tga"
+   name="ConfirmDeleteProtectedCategory"
+   type="alertmodal">
+The folder &apos;[FOLDERNAME]&apos; is a system folder. Deleting system folders can cause instability.  Are you sure you want to delete it?
+    <usetemplate
+     ignoretext="Confirm before I delete a system folder"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ConfirmEmptyTrash"
    type="alertmodal">
 Are you sure you want to permanently delete the contents of your Trash?

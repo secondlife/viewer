@@ -160,13 +160,7 @@ void LLPanelIMControlPanel::onAddFriendButtonClicked()
 
 void LLPanelIMControlPanel::onShareButtonClicked()
 {
-	LLSD key;
-	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
-
-	if (gIMMgr->hasSession(getSessionId()))
-	{
-		LLIMModel::getInstance()->addMessage(getSessionId(), SYSTEM_FROM, LLUUID::null, LLTrans::getString("share_alert"), false);
-	}
+	LLAvatarActions::share(mAvatarID);
 }
 
 void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)

@@ -38,12 +38,12 @@
      label="Teleport"
      name="teleport_btn"
      width="100" />
-  <!--  <button
+   <button
      follows="left|top"
      height="20"
      label="Share"
      name="share_btn"
-     width="100" />-->
+     width="100" />
      <!--Removing pay button to save space - will update spec - verified by Erica/Steve -->
  <!--   <button
      follows="left|top"
