@@ -160,6 +160,11 @@ private:
 	LLUICtrl *mRightBookend;
 	LLUIImage* mBackgroundImage;
 	F32 mSkipStep;
+	S32 mMinWidth;
+	S32 mMinHeight;
+	F32 mZoomNearPadding;
+	F32 mZoomMediumPadding;
+	F32 mZoomFarPadding;
 	
 	LLUICtrl *mMediaPanelScroll;
 	LLButton *mScrollUpCtrl;

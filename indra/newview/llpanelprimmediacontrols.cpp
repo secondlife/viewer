@@ -66,10 +66,6 @@
 glh::matrix4f glh_get_current_modelview();
 glh::matrix4f glh_get_current_projection();
 
-const F32 ZOOM_NEAR_PADDING		= 1.0f;
-const F32 ZOOM_MEDIUM_PADDING	= 1.15f;
-const F32 ZOOM_FAR_PADDING		= 1.5f;
-
 // Warning: make sure these two match!
 const LLPanelPrimMediaControls::EZoomLevel LLPanelPrimMediaControls::kZoomLevels[] = { ZOOM_NONE, ZOOM_MEDIUM };
 const int LLPanelPrimMediaControls::kNumZoomLevels = 2;
@@ -152,6 +148,11 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	mRightBookend			= getChild<LLUICtrl>("right_bookend");
 	mBackgroundImage		= LLUI::getUIImage(getString("control_background_image_name"));
 	LLStringUtil::convertToF32(getString("skip_step"), mSkipStep);
+	LLStringUtil::convertToS32(getString("min_width"), mMinWidth);
+	LLStringUtil::convertToS32(getString("min_height"), mMinHeight);
+	LLStringUtil::convertToF32(getString("zoom_near_padding"), mZoomNearPadding);
+	LLStringUtil::convertToF32(getString("zoom_medium_padding"), mZoomMediumPadding);
+	LLStringUtil::convertToF32(getString("zoom_far_padding"), mZoomFarPadding);
 
 	// These are currently removed...but getChild creates a "dummy" widget.
 	// This class handles them missing.
@@ -257,9 +258,6 @@ LLPluginClassMedia* LLPanelPrimMediaControls::getTargetMediaPlugin()
 
 void LLPanelPrimMediaControls::updateShape()
 {
-	const S32 MIN_HUD_WIDTH=400;
-	const S32 MIN_HUD_HEIGHT=120;
-
 	LLViewerMediaImpl* media_impl = getTargetMediaImpl();
 	LLViewerObject* objectp = getTargetObject();
 	
@@ -596,12 +594,12 @@ void LLPanelPrimMediaControls::updateShape()
 		}
 
         LLCoordGL screen_min;
-		screen_min.mX = llround((F32)gViewerWindow->getWorldViewWidthRaw() * (min.mV[VX] + 1.f) * 0.5f);
-		screen_min.mY = llround((F32)gViewerWindow->getWorldViewHeightRaw() * (min.mV[VY] + 1.f) * 0.5f);
+		screen_min.mX = llround((F32)gViewerWindow->getWorldViewWidthScaled() * (min.mV[VX] + 1.f) * 0.5f);
+		screen_min.mY = llround((F32)gViewerWindow->getWorldViewHeightScaled() * (min.mV[VY] + 1.f) * 0.5f);
 
 		LLCoordGL screen_max;
-		screen_max.mX = llround((F32)gViewerWindow->getWorldViewWidthRaw() * (max.mV[VX] + 1.f) * 0.5f);
-		screen_max.mY = llround((F32)gViewerWindow->getWorldViewHeightRaw() * (max.mV[VY] + 1.f) * 0.5f);
+		screen_max.mX = llround((F32)gViewerWindow->getWorldViewWidthScaled() * (max.mV[VX] + 1.f) * 0.5f);
+		screen_max.mY = llround((F32)gViewerWindow->getWorldViewHeightScaled() * (max.mV[VY] + 1.f) * 0.5f);
 
 		// grow panel so that screenspace bounding box fits inside "media_region" element of HUD
 		LLRect media_controls_rect;
@@ -610,14 +608,15 @@ void LLPanelPrimMediaControls::updateShape()
 		media_controls_rect.mBottom -= mMediaRegion->getRect().mBottom;
 		media_controls_rect.mTop += getRect().getHeight() - mMediaRegion->getRect().mTop;
 		media_controls_rect.mRight += getRect().getWidth() - mMediaRegion->getRect().mRight;
-
-		LLRect old_hud_rect = media_controls_rect;
+		
 		// keep all parts of HUD on-screen
 		media_controls_rect.intersectWith(getParent()->getLocalRect());
+		if (mCurrentZoom != ZOOM_NONE)
+			media_controls_rect.mBottom -= mMediaControlsStack->getRect().getHeight() + mMediaProgressPanel->getRect().getHeight();
 
 		// clamp to minimum size, keeping centered
 		media_controls_rect.setCenterAndSize(media_controls_rect.getCenterX(), media_controls_rect.getCenterY(),
-			llmax(MIN_HUD_WIDTH, media_controls_rect.getWidth()), llmax(MIN_HUD_HEIGHT, media_controls_rect.getHeight()));
+			llmax(mMinWidth, media_controls_rect.getWidth()), llmax(mMinHeight, media_controls_rect.getHeight()));
 
 		setShape(media_controls_rect, true);
 
@@ -965,17 +964,17 @@ void LLPanelPrimMediaControls::updateZoom()
 		}
 	case ZOOM_FAR:
 		{
-			zoom_padding = ZOOM_FAR_PADDING;
+			zoom_padding = mZoomFarPadding;
 			break;
 		}
 	case ZOOM_MEDIUM:
 		{
-			zoom_padding = ZOOM_MEDIUM_PADDING;
+			zoom_padding = mZoomMediumPadding;
 			break;
 		}
 	case ZOOM_NEAR:
 		{
-			zoom_padding = ZOOM_NEAR_PADDING;
+			zoom_padding = mZoomNearPadding;
 			break;
 		}
 	default:
