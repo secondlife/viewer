@@ -60,7 +60,7 @@
 #include "llbutton.h"
 #include "lldir.h"
 #include "llfloaterchat.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llviewerstats.h"
 #include "llvfile.h"
 #include "lluictrlfactory.h"
@@ -481,7 +481,7 @@ void LLFloaterCompileQueue::onSaveTextComplete(const LLUUID& asset_id, void* use
 		llwarns << "Unable to save text for script." << llendl;
 		LLSD args;
 		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
-		LLNotifications::instance().add("CompileQueueSaveText", args);
+		LLNotificationsUtil::add("CompileQueueSaveText", args);
 	}
 }
 
@@ -501,7 +501,7 @@ void LLFloaterCompileQueue::onSaveBytecodeComplete(const LLUUID& asset_id, void*
 		llwarns << "Unable to save bytecode for script." << llendl;
 		LLSD args;
 		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
-		LLNotifications::instance().add("CompileQueueSaveBytecode", args);
+		LLNotificationsUtil::add("CompileQueueSaveBytecode", args);
 	}
 	delete data;
 	data = NULL;

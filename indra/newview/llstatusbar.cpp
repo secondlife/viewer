@@ -79,7 +79,7 @@
 #include "llfontgl.h"
 #include "llrect.h"
 #include "llerror.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llparcel.h"
 #include "llstring.h"
 #include "message.h"
@@ -498,7 +498,7 @@ static void onClickBuyCurrency(void* data)
 
 static void onClickHealth(void* )
 {
-	LLNotifications::instance().add("NotSafe");
+	LLNotificationsUtil::add("NotSafe");
 }
 
 static void onClickScriptDebug(void*)

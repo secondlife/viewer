@@ -48,7 +48,7 @@
 #include "lllineeditor.h"
 #include "llnamebox.h"
 #include "llnamelistctrl.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llscrolllistitem.h"
 #include "llspinctrl.h"
 #include "lltextbox.h"
@@ -361,7 +361,7 @@ bool LLPanelGroupGeneral::apply(std::string& mesg)
 		if(mComboMature &&
 		   mComboMature->getCurrentIndex() == DECLINE_TO_STATE)
 		{
-			LLNotifications::instance().add("SetGroupMature", LLSD(), LLSD(), 
+			LLNotificationsUtil::add("SetGroupMature", LLSD(), LLSD(), 
 											boost::bind(&LLPanelGroupGeneral::confirmMatureApply, this, _1, _2));
 			return false;
 		}
@@ -380,7 +380,7 @@ bool LLPanelGroupGeneral::apply(std::string& mesg)
 				return false;
 			}
 
-			LLNotifications::instance().add("CreateGroupCost",  LLSD(), LLSD(), boost::bind(&LLPanelGroupGeneral::createGroupCallback, this, _1, _2));
+			LLNotificationsUtil::add("CreateGroupCost",  LLSD(), LLSD(), boost::bind(&LLPanelGroupGeneral::createGroupCallback, this, _1, _2));
 
 			return false;
 		}
@@ -460,7 +460,7 @@ void LLPanelGroupGeneral::cancel()
 // invoked from callbackConfirmMature
 bool LLPanelGroupGeneral::confirmMatureApply(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	// 0 == Yes
 	// 1 == No
 	// 2 == Cancel
@@ -483,7 +483,7 @@ bool LLPanelGroupGeneral::confirmMatureApply(const LLSD& notification, const LLS
 	{
 		LLSD args;
 		args["MESSAGE"] = mesg;
-		LLNotifications::instance().add("GenericAlert", args);
+		LLNotificationsUtil::add("GenericAlert", args);
 	}
 
 	return ret;
@@ -492,7 +492,7 @@ bool LLPanelGroupGeneral::confirmMatureApply(const LLSD& notification, const LLS
 // static
 bool LLPanelGroupGeneral::createGroupCallback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch(option)
 	{
 	case 0:

@@ -52,6 +52,7 @@
 #include "llinstantmessage.h"
 #include "llinventorypanel.h"
 #include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llpermissionsflags.h"
 #include "llrect.h"
 #include "llsecondlifeurls.h"
@@ -2939,7 +2940,7 @@ class LLAvatarReportAbuse : public view_listener_t
 bool callback_freeze(const LLSD& notification, const LLSD& response)
 {
 	LLUUID avatar_id = notification["payload"]["avatar_id"].asUUID();
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if (0 == option || 1 == option)
 	{
@@ -2993,14 +2994,14 @@ void handle_avatar_freeze(const LLSD& avatar_id)
 			{
 				LLSD args;
 				args["AVATAR_NAME"] = fullname;
-				LLNotifications::instance().add("FreezeAvatarFullname",
+				LLNotificationsUtil::add("FreezeAvatarFullname",
 							args,
 							payload,
 							callback_freeze);
 			}
 			else
 			{
-				LLNotifications::instance().add("FreezeAvatar",
+				LLNotificationsUtil::add("FreezeAvatar",
 							LLSD(),
 							payload,
 							callback_freeze);
@@ -3040,7 +3041,7 @@ class LLAvatarDebug : public view_listener_t
 
 bool callback_eject(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (2 == option)
 	{
 		// Cancel button.
@@ -3122,14 +3123,14 @@ void handle_avatar_eject(const LLSD& avatar_id)
 				{
     				LLSD args;
     				args["AVATAR_NAME"] = fullname;
-    				LLNotifications::instance().add("EjectAvatarFullname",
+    				LLNotificationsUtil::add("EjectAvatarFullname",
     							args,
     							payload,
     							callback_eject);
 				}
 				else
 				{
-    				LLNotifications::instance().add("EjectAvatarFullname",
+    				LLNotificationsUtil::add("EjectAvatarFullname",
     							LLSD(),
     							payload,
     							callback_eject);
@@ -3142,14 +3143,14 @@ void handle_avatar_eject(const LLSD& avatar_id)
 				{
     				LLSD args;
     				args["AVATAR_NAME"] = fullname;
-    				LLNotifications::instance().add("EjectAvatarFullnameNoBan",
+    				LLNotificationsUtil::add("EjectAvatarFullnameNoBan",
     							args,
     							payload,
     							callback_eject);
 				}
 				else
 				{
-    				LLNotifications::instance().add("EjectAvatarNoBan",
+    				LLNotificationsUtil::add("EjectAvatarNoBan",
     							LLSD(),
     							payload,
     							callback_eject);
@@ -3232,11 +3233,11 @@ class LLAvatarGiveCard : public view_listener_t
 				transaction_id.generate();
 				msg->addUUIDFast(_PREHASH_TransactionID, transaction_id);
 				msg->sendReliable(dest_host);
-				LLNotifications::instance().add("OfferedCard", args);
+				LLNotificationsUtil::add("OfferedCard", args);
 			}
 			else
 			{
-				LLNotifications::instance().add("CantOfferCallingCard", old_args);
+				LLNotificationsUtil::add("CantOfferCallingCard", old_args);
 			}
 		}
 		return true;
@@ -3255,7 +3256,7 @@ void login_done(S32 which, void *user)
 
 bool callback_leave_group(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
 	{
 		LLMessageSystem *msg = gMessageSystem;
@@ -3322,7 +3323,7 @@ void handle_buy_object(LLSaleInfo sale_info)
 {
 	if(!LLSelectMgr::getInstance()->selectGetAllRootsValid())
 	{
-		LLNotifications::instance().add("UnableToBuyWhileDownloading");
+		LLNotificationsUtil::add("UnableToBuyWhileDownloading");
 		return;
 	}
 
@@ -3331,7 +3332,7 @@ void handle_buy_object(LLSaleInfo sale_info)
 	BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 	if (!owners_identical)
 	{
-		LLNotifications::instance().add("CannotBuyObjectsFromDifferentOwners");
+		LLNotificationsUtil::add("CannotBuyObjectsFromDifferentOwners");
 		return;
 	}
 
@@ -3341,7 +3342,7 @@ void handle_buy_object(LLSaleInfo sale_info)
 	valid &= LLSelectMgr::getInstance()->selectGetAggregatePermissions(ag_perm);
 	if(!valid || !sale_info.isForSale() || !perm.allowTransferTo(gAgent.getID()))
 	{
-		LLNotifications::instance().add("ObjectNotForSale");
+		LLNotificationsUtil::add("ObjectNotForSale");
 		return;
 	}
 
@@ -3505,12 +3506,12 @@ void set_god_level(U8 god_level)
 	if(god_level > GOD_NOT)
 	{
 		args["LEVEL"] = llformat("%d",(S32)god_level);
-		LLNotifications::instance().add("EnteringGodMode", args);
+		LLNotificationsUtil::add("EnteringGodMode", args);
 	}
 	else
 	{
 		args["LEVEL"] = llformat("%d",(S32)old_god_level);
-		LLNotifications::instance().add("LeavingGodMode", args);
+		LLNotificationsUtil::add("LeavingGodMode", args);
 	}
 
 	// changing god-level can affect which menus we see
@@ -3631,7 +3632,7 @@ void request_friendship(const LLUUID& dest_id)
 		}
 		else
 		{
-			LLNotifications::instance().add("CantOfferFriendship");
+			LLNotificationsUtil::add("CantOfferFriendship");
 		}
 	}
 }
@@ -3962,7 +3963,7 @@ void handle_claim_public_land(void*)
 {
 	if (LLViewerParcelMgr::getInstance()->getSelectionRegion() != gAgent.getRegion())
 	{
-		LLNotifications::instance().add("ClaimPublicLand");
+		LLNotificationsUtil::add("ClaimPublicLand");
 		return;
 	}
 
@@ -4158,7 +4159,7 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 	}
 	else if(!error.empty())
 	{
-		LLNotifications::instance().add(error);
+		LLNotificationsUtil::add(error);
 	}
 }
 
@@ -4179,13 +4180,13 @@ class LLObjectReturn : public view_listener_t
 		
 		mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 
-		LLNotifications::instance().add("ReturnToOwner", LLSD(), LLSD(), boost::bind(&LLObjectReturn::onReturnToOwner, this, _1, _2));
+		LLNotificationsUtil::add("ReturnToOwner", LLSD(), LLSD(), boost::bind(&LLObjectReturn::onReturnToOwner, this, _1, _2));
 		return true;
 	}
 
 	bool onReturnToOwner(const LLSD& notification, const LLSD& response)
 	{
-		S32 option = LLNotification::getSelectedOption(notification, response);
+		S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 		if (0 == option)
 		{
 			// Ignore category ID for this derez destination.
@@ -4362,7 +4363,7 @@ void handle_take()
 
 bool confirm_take(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if(enable_take() && (option == 0))
 	{
 		derez_objects(DRD_TAKE_INTO_AGENT_INVENTORY, notification["payload"]["folder_id"].asUUID());
@@ -4537,7 +4538,7 @@ S32 selection_price()
 /*
 bool callback_show_buy_currency(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		llinfos << "Loading page " << LLNotifications::instance().getGlobalString("BUY_CURRENCY_URL") << llendl;
@@ -4563,7 +4564,7 @@ void show_buy_currency(const char* extra)
 	{
 		args["EXTRA"] = extra;
 	}
-	LLNotifications::instance().add("PromptGoToCurrencyPage", args);//, LLSD(), callback_show_buy_currency);
+	LLNotificationsUtil::add("PromptGoToCurrencyPage", args);//, LLSD(), callback_show_buy_currency);
 }
 
 void handle_buy()
@@ -4833,7 +4834,7 @@ class LLToolsLink : public view_listener_t
 	{
 		if(!LLSelectMgr::getInstance()->selectGetAllRootsValid())
 		{
-			LLNotifications::instance().add("UnableToLinkWhileDownloading");
+			LLNotificationsUtil::add("UnableToLinkWhileDownloading");
 			return true;
 		}
 
@@ -4844,18 +4845,18 @@ class LLToolsLink : public view_listener_t
 			args["COUNT"] = llformat("%d", object_count);
 			int max = MAX_CHILDREN_PER_TASK+1;
 			args["MAX"] = llformat("%d", max);
-			LLNotifications::instance().add("UnableToLinkObjects", args);
+			LLNotificationsUtil::add("UnableToLinkObjects", args);
 			return true;
 		}
 
 		if(LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() < 2)
 		{
-			LLNotifications::instance().add("CannotLinkIncompleteSet");
+			LLNotificationsUtil::add("CannotLinkIncompleteSet");
 			return true;
 		}
 		if(!LLSelectMgr::getInstance()->selectGetRootsModify())
 		{
-			LLNotifications::instance().add("CannotLinkModify");
+			LLNotificationsUtil::add("CannotLinkModify");
 			return true;
 		}
 		LLUUID owner_id;
@@ -4865,7 +4866,7 @@ class LLToolsLink : public view_listener_t
 			// we don't actually care if you're the owner, but novices are
 			// the most likely to be stumped by this one, so offer the
 			// easiest and most likely solution.
-			LLNotifications::instance().add("CannotLinkDifferentOwners");
+			LLNotificationsUtil::add("CannotLinkDifferentOwners");
 			return true;
 		}
 		LLSelectMgr::getInstance()->sendLink();
@@ -5349,7 +5350,7 @@ class LLWorldSetBusy : public view_listener_t
 		else
 		{
 			gAgent.setBusy();
-			LLNotifications::instance().add("BusyModeSet");
+			LLNotificationsUtil::add("BusyModeSet");
 		}
 		return true;
 	}
@@ -5465,7 +5466,7 @@ class LLAvatarAddContact : public view_listener_t
 
 bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle selection)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
 	{
 		gAgent.clearBusy();
@@ -5691,7 +5692,7 @@ class LLShowSidetrayPanel : public view_listener_t
 
 bool callback_show_url(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		LLWeb::loadURL(notification["payload"]["url"].asString());
@@ -5714,7 +5715,7 @@ class LLPromptShowURL : public view_listener_t
 			{ 
     			LLSD payload;
     			payload["url"] = url;
-    			LLNotifications::instance().add(alert, LLSD(), payload, callback_show_url);
+    			LLNotificationsUtil::add(alert, LLSD(), payload, callback_show_url);
 			}
 			else
 			{
@@ -5731,7 +5732,7 @@ class LLPromptShowURL : public view_listener_t
 
 bool callback_show_file(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		LLWeb::loadURL(notification["payload"]["url"]);
@@ -5752,7 +5753,7 @@ class LLPromptShowFile : public view_listener_t
 
 			LLSD payload;
 			payload["url"] = file;
-			LLNotifications::instance().add(alert, LLSD(), payload, callback_show_file);
+			LLNotificationsUtil::add(alert, LLSD(), payload, callback_show_file);
 		}
 		else
 		{
@@ -6323,12 +6324,12 @@ void queue_actions(LLFloaterScriptQueue* q, const std::string& msg)
 		if ( !func.scripted )
 		{
 			std::string noscriptmsg = std::string("Cannot") + msg + "SelectObjectsNoScripts";
-			LLNotifications::instance().add(noscriptmsg);
+			LLNotificationsUtil::add(noscriptmsg);
 		}
 		else if ( !func.modifiable )
 		{
 			std::string nomodmsg = std::string("Cannot") + msg + "SelectObjectsNoPermission";
-			LLNotifications::instance().add(nomodmsg);
+			LLNotificationsUtil::add(nomodmsg);
 		}
 		else
 		{
@@ -7137,7 +7138,7 @@ void handle_save_to_xml(void*)
 	LLFloater* frontmost = gFloaterView->getFrontmost();
 	if (!frontmost)
 	{
-        LLNotifications::instance().add("NoFrontmostFloater");
+        LLNotificationsUtil::add("NoFrontmostFloater");
 		return;
 	}
 

@@ -1395,10 +1395,9 @@ void LLNotifications::addFromCallback(const LLSD& name)
 	add(LLNotification::Params().name(name.asString()));	
 }
 
-// we provide a couple of simple add notification functions so that it's reasonable to create notifications in one line
 LLNotificationPtr LLNotifications::add(const std::string& name, 
-										const LLSD& substitutions, 
-										const LLSD& payload)
+									   const LLSD& substitutions, 
+									   const LLSD& payload)
 {
 	LLNotification::Params::Functor functor_p;
 	functor_p.name = name;
@@ -1406,15 +1405,16 @@ LLNotificationPtr LLNotifications::add(const std::string& name,
 }
 
 LLNotificationPtr LLNotifications::add(const std::string& name, 
-										const LLSD& substitutions, 
-										const LLSD& payload, 
-										const std::string& functor_name)
+									   const LLSD& substitutions, 
+									   const LLSD& payload, 
+									   const std::string& functor_name)
 {
 	LLNotification::Params::Functor functor_p;
 	functor_p.name = functor_name;
 	return add(LLNotification::Params().name(name).substitutions(substitutions).payload(payload).functor(functor_p));	
 }
-
+							  
+//virtual
 LLNotificationPtr LLNotifications::add(const std::string& name, 
 										const LLSD& substitutions, 
 										const LLSD& payload, 

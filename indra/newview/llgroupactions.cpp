@@ -40,7 +40,7 @@
 #include "llfloaterreg.h"
 #include "llgroupmgr.h"
 #include "llimview.h" // for gIMMgr
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llsidetray.h"
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "llimfloater.h"
@@ -132,11 +132,11 @@ void LLGroupActions::join(const LLUUID& group_id)
 
 		if (can_afford_transaction(cost))
 		{
-			LLNotifications::instance().add("JoinGroupCanAfford", args, payload, onJoinGroup);
+			LLNotificationsUtil::add("JoinGroupCanAfford", args, payload, onJoinGroup);
 		}
 		else
 		{
-			LLNotifications::instance().add("JoinGroupCannotAfford", args, payload);
+			LLNotificationsUtil::add("JoinGroupCannotAfford", args, payload);
 		}
 	}
 	else
@@ -149,7 +149,7 @@ void LLGroupActions::join(const LLUUID& group_id)
 // static
 bool LLGroupActions::onJoinGroup(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if (option == 1)
 	{
@@ -181,7 +181,7 @@ void LLGroupActions::leave(const LLUUID& group_id)
 		args["GROUP"] = gAgent.mGroups.get(i).mName;
 		LLSD payload;
 		payload["group_id"] = group_id;
-		LLNotifications::instance().add("GroupLeaveConfirmMember", args, payload, onLeaveGroup);
+		LLNotificationsUtil::add("GroupLeaveConfirmMember", args, payload, onLeaveGroup);
 	}
 }
 
@@ -346,7 +346,7 @@ bool LLGroupActions::isAvatarMemberOfGroup(const LLUUID& group_id, const LLUUID&
 // static
 bool LLGroupActions::onLeaveGroup(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLUUID group_id = notification["payload"]["group_id"].asUUID();
 	if(option == 0)
 	{

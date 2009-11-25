@@ -36,7 +36,7 @@
 
 #include "llsliderctrl.h"
 #include "llcheckboxctrl.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "lluictrlfactory.h"
 #include "llviewerdisplay.h"
 #include "llpostprocess.h"
@@ -161,7 +161,7 @@ void LLFloaterPostProcess::onSaveEffect(LLLineEditor* editBox)
 	{
 		LLSD payload;
 		payload["effect_name"] = effectName;
-		LLNotifications::instance().add("PPSaveEffectAlert", LLSD(), payload, boost::bind(&LLFloaterPostProcess::saveAlertCallback, this, _1, _2));
+		LLNotificationsUtil::add("PPSaveEffectAlert", LLSD(), payload, boost::bind(&LLFloaterPostProcess::saveAlertCallback, this, _1, _2));
 	}
 	else
 	{
@@ -181,7 +181,7 @@ void LLFloaterPostProcess::onChangeEffectName(LLUICtrl* ctrl)
 
 bool LLFloaterPostProcess::saveAlertCallback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	// if they choose save, do it.  Otherwise, don't do anything
 	if (option == 0)

@@ -48,7 +48,7 @@
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llwindow.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llrender.h"
 #include "lluictrlfactory.h"
 #include "llhelp.h"
@@ -1106,7 +1106,7 @@ void LLButton::showHelp(LLUICtrl* ctrl, const LLSD& sdname)
 
 	// display an error if we can't find a help_topic string.
 	// fix this by adding a help_topic attribute to the xui file
-	LLNotifications::instance().add("UnableToFindHelpTopic");
+	LLNotificationsUtil::add("UnableToFindHelpTopic");
 }
 
 void LLButton::resetMouseDownTimer()

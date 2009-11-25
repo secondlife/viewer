@@ -43,7 +43,7 @@
 #include "llfloaterreg.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llnotify.h"
 #include "llresmgr.h"
 #include "roles_constants.h"
@@ -154,7 +154,7 @@ BOOL LLPreviewNotecard::canClose()
 	else
 	{
 		// Bring up view-modal dialog: Save changes? Yes, No, Cancel
-		LLNotifications::instance().add("SaveChanges", LLSD(), LLSD(), boost::bind(&LLPreviewNotecard::handleSaveChangesDialog,this, _1, _2));
+		LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), boost::bind(&LLPreviewNotecard::handleSaveChangesDialog,this, _1, _2));
 								  
 		return FALSE;
 	}
@@ -331,15 +331,15 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 				LL_ERR_FILE_EMPTY == status)
 			{
-				LLNotifications::instance().add("NotecardMissing");
+				LLNotificationsUtil::add("NotecardMissing");
 			}
 			else if (LL_ERR_INSUFFICIENT_PERMISSIONS == status)
 			{
-				LLNotifications::instance().add("NotecardNoPermissions");
+				LLNotificationsUtil::add("NotecardNoPermissions");
 			}
 			else
 			{
-				LLNotifications::instance().add("UnableToLoadNotecard");
+				LLNotificationsUtil::add("UnableToLoadNotecard");
 			}
 
 			llwarns << "Problem loading notecard: " << status << llendl;
@@ -494,7 +494,7 @@ void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data
 			}
 			else
 			{
-				LLNotifications::instance().add("SaveNotecardFailObjectNotFound");
+				LLNotificationsUtil::add("SaveNotecardFailObjectNotFound");
 			}
 		}
 		// Perform item copy to inventory
@@ -520,7 +520,7 @@ void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data
 		llwarns << "Problem saving notecard: " << status << llendl;
 		LLSD args;
 		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
-		LLNotifications::instance().add("SaveNotecardFailReason", args);
+		LLNotificationsUtil::add("SaveNotecardFailReason", args);
 	}
 
 	std::string uuid_string;
@@ -533,7 +533,7 @@ void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data
 
 bool LLPreviewNotecard::handleSaveChangesDialog(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch(option)
 	{
 	case 0:  // "Yes"

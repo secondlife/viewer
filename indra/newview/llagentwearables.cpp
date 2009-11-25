@@ -41,7 +41,7 @@
 #include "llinventorybridge.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llnotify.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
@@ -999,7 +999,7 @@ void LLAgentWearables::onInitialWearableAssetArrived(LLWearable* wearable, void*
 void LLAgentWearables::recoverMissingWearable(const EWearableType type, U32 index)
 {
 	// Try to recover by replacing missing wearable with a new one.
-	LLNotifications::instance().add("ReplacedMissingWearable");
+	LLNotificationsUtil::add("ReplacedMissingWearable");
 	lldebugs << "Wearable " << LLWearableDictionary::getTypeLabel(type) << " could not be downloaded.  Replaced inventory item with default wearable." << llendl;
 	LLWearable* new_wearable = LLWearableList::instance().createNewWearable(type);
 
@@ -1368,7 +1368,7 @@ void LLAgentWearables::removeWearable(const EWearableType type, bool do_remove_a
 				LLSD payload;
 				payload["wearable_type"] = (S32)type;
 				// Bring up view-modal dialog: Save changes? Yes, No, Cancel
-				LLNotifications::instance().add("WearableSave", LLSD(), payload, &LLAgentWearables::onRemoveWearableDialog);
+				LLNotificationsUtil::add("WearableSave", LLSD(), payload, &LLAgentWearables::onRemoveWearableDialog);
 				return;
 			}
 			else
@@ -1385,7 +1385,7 @@ void LLAgentWearables::removeWearable(const EWearableType type, bool do_remove_a
 // static 
 bool LLAgentWearables::onRemoveWearableDialog(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	EWearableType type = (EWearableType)notification["payload"]["wearable_type"].asInteger();
 	switch(option)
 	{
@@ -1590,7 +1590,7 @@ void LLAgentWearables::setWearableItem(LLInventoryItem* new_item, LLWearable* ne
 				// Bring up modal dialog: Save changes? Yes, No, Cancel
 				LLSD payload;
 				payload["item_id"] = new_item->getUUID();
-				LLNotifications::instance().add("WearableSave", LLSD(), payload, boost::bind(onSetWearableDialog, _1, _2, new_wearable));
+				LLNotificationsUtil::add("WearableSave", LLSD(), payload, boost::bind(onSetWearableDialog, _1, _2, new_wearable));
 				return;
 			}
 		}
@@ -1602,7 +1602,7 @@ void LLAgentWearables::setWearableItem(LLInventoryItem* new_item, LLWearable* ne
 // static 
 bool LLAgentWearables::onSetWearableDialog(const LLSD& notification, const LLSD& response, LLWearable* wearable)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLInventoryItem* new_item = gInventory.getItem(notification["payload"]["item_id"].asUUID());
 	if (!new_item)
 	{

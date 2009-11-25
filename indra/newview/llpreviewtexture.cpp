@@ -43,7 +43,7 @@
 #include "llfloaterreg.h"
 #include "llimagetga.h"
 #include "llinventory.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llresmgr.h"
 #include "lltrans.h"
 #include "lltextbox.h"
@@ -353,13 +353,13 @@ void LLPreviewTexture::onFileLoadedForSave(BOOL success,
 		{
 			LLSD args;
 			args["FILE"] = self->mSaveFileName;
-			LLNotifications::instance().add("CannotEncodeFile", args);
+			LLNotificationsUtil::add("CannotEncodeFile", args);
 		}
 		else if( !image_tga->save( self->mSaveFileName ) )
 		{
 			LLSD args;
 			args["FILE"] = self->mSaveFileName;
-			LLNotifications::instance().add("CannotWriteFile", args);
+			LLNotificationsUtil::add("CannotWriteFile", args);
 		}
 		else
 		{
@@ -372,7 +372,7 @@ void LLPreviewTexture::onFileLoadedForSave(BOOL success,
 
 	if( self && !success )
 	{
-		LLNotifications::instance().add("CannotDownloadFile");
+		LLNotificationsUtil::add("CannotDownloadFile");
 	}
 
 }

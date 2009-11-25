@@ -40,7 +40,7 @@
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llwindow.h"
 #include "llviewercontrol.h"
 #include "llpreview.h" 
@@ -3417,7 +3417,7 @@ void LLInventoryModel::processMoveInventoryItem(LLMessageSystem* msg, void**)
 
 bool LLInventoryModel::callbackEmptyFolderType(const LLSD& notification, const LLSD& response, LLFolderType::EType preferred_type)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0) // YES
 	{
 		const LLUUID folder_id = findCategoryUUIDForType(preferred_type);
@@ -3431,7 +3431,7 @@ void LLInventoryModel::emptyFolderType(const std::string notification, LLFolderT
 {
 	if (!notification.empty())
 	{
-		LLNotifications::instance().add(notification, LLSD(), LLSD(),
+		LLNotificationsUtil::add(notification, LLSD(), LLSD(),
 										boost::bind(&LLInventoryModel::callbackEmptyFolderType, this, _1, _2, preferred_type));
 	}
 	else

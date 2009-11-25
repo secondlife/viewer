@@ -76,7 +76,7 @@
 #include "llimagebmp.h"
 #include "llimagej2c.h"
 #include "lllocalcliprect.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llresmgr.h"		// LLLocale
 #include "llvfile.h"
 #include "llvfs.h"
@@ -994,7 +994,7 @@ void LLSnapshotLivePreview::saveTexture()
 	}
 	else
 	{
-		LLNotifications::instance().add("ErrorEncodingSnapshot");
+		LLNotificationsUtil::add("ErrorEncodingSnapshot");
 		llwarns << "Error encoding snapshot" << llendl;
 	}
 

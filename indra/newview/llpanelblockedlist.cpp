@@ -37,7 +37,7 @@
 // library include
 #include "llfloater.h"
 #include "llfloaterreg.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llscrolllistctrl.h"
 
 // project include
@@ -201,7 +201,7 @@ void LLPanelBlockedList::callbackBlockByName(const std::string& text)
 	BOOL success = LLMuteList::getInstance()->add(mute);
 	if (!success)
 	{
-		LLNotifications::instance().add("MuteByNameFailed");
+		LLNotificationsUtil::add("MuteByNameFailed");
 	}
 }
 

@@ -40,7 +40,7 @@
 #include "llvoavatar.h"
 #include "llviewerinventory.h"
 #include "llviewerstats.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llnotify.h"
 #include "llinventorymodel.h"
 #include "lltrans.h"
@@ -188,16 +188,16 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 		args["TYPE"] =LLTrans::getString(LLAssetType::lookupHumanReadable(data->mAssetType));
 		if (isNewWearable)
 		{
-			LLNotifications::instance().add("InvalidWearable");
+			LLNotificationsUtil::add("InvalidWearable");
 		}
 		else if (data->mName.empty())
 		{
-			LLNotifications::instance().add("FailedToFindWearableUnnamed", args);
+			LLNotificationsUtil::add("FailedToFindWearableUnnamed", args);
 		}
 		else
 		{
 			args["DESC"] = data->mName;
-			LLNotifications::instance().add("FailedToFindWearable", args);
+			LLNotificationsUtil::add("FailedToFindWearable", args);
 		}
 	}
 	// Always call callback; wearable will be NULL if we failed

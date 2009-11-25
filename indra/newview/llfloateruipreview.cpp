@@ -49,7 +49,7 @@
 // XUI
 #include "lluictrlfactory.h"
 #include "llcombobox.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llresizebar.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistctrl.h"
@@ -608,7 +608,7 @@ void LLFloaterUIPreview::popupAndPrintWarning(std::string& warning)
 	llwarns << warning << llendl;
 	LLSD args;
 	args["MESSAGE"] = warning;
-	LLNotifications::instance().add("GenericAlert", args);
+	LLNotificationsUtil::add("GenericAlert", args);
 }
 
 // Get localization string from drop-down menu

@@ -45,7 +45,7 @@
 #include "llviewermedia.h"
 #include "llviewertexture.h"
 #include "llviewerwindow.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llweb.h"
 #include "llrender.h"
 #include "llpluginclassmedia.h"
@@ -839,7 +839,7 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
 // static 
 bool LLMediaCtrl::onClickLinkExternalTarget(const LLSD& notification, const LLSD& response )
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if ( 0 == option )
 	{
 		// open in external browser because we don't support 
@@ -969,7 +969,7 @@ void LLMediaCtrl::onClickLinkHref( LLPluginClassMedia* self )
 			mExternalUrl = url;
 			LLSD payload;
 			payload["external_url"] = mExternalUrl;
-			LLNotifications::instance().add( "WebLaunchExternalTarget", LLSD(), payload, onClickLinkExternalTarget);
+			LLNotificationsUtil::add( "WebLaunchExternalTarget", LLSD(), payload, onClickLinkExternalTarget);
 			return;
 		}
 	}

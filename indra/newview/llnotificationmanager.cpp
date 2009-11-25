@@ -40,7 +40,7 @@
 #include "llnearbychathandler.h"
 #include "llnotifications.h"
 
-#include "boost/bind.hpp"
+#include <boost/bind.hpp>
 
 using namespace LLNotificationsUI;
 

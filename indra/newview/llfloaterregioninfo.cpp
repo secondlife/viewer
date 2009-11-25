@@ -64,6 +64,8 @@
 #include "lllineeditor.h"
 #include "llalertdialog.h"
 #include "llnamelistctrl.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llscrolllistitem.h"
 #include "llsliderctrl.h"
 #include "llslurl.h"
@@ -635,7 +637,7 @@ void LLPanelRegionGeneralInfo::onKickCommit(const std::vector<std::string>& name
 void LLPanelRegionGeneralInfo::onClickKickAll(void* userdata)
 {
 	llinfos << "LLPanelRegionGeneralInfo::onClickKickAll" << llendl;
-	LLNotifications::instance().add("KickUsersFromRegion", 
+	LLNotificationsUtil::add("KickUsersFromRegion", 
 									LLSD(), 
 									LLSD(), 
 									boost::bind(&LLPanelRegionGeneralInfo::onKickAllCommit, (LLPanelRegionGeneralInfo*)userdata, _1, _2));
@@ -643,7 +645,7 @@ void LLPanelRegionGeneralInfo::onClickKickAll(void* userdata)
 
 bool LLPanelRegionGeneralInfo::onKickAllCommit(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
 	{
 		strings_t strings;
@@ -663,7 +665,7 @@ bool LLPanelRegionGeneralInfo::onKickAllCommit(const LLSD& notification, const L
 void LLPanelRegionGeneralInfo::onClickMessage(void* userdata)
 {
 	llinfos << "LLPanelRegionGeneralInfo::onClickMessage" << llendl;
-	LLNotifications::instance().add("MessageRegion", 
+	LLNotificationsUtil::add("MessageRegion", 
 		LLSD(), 
 		LLSD(), 
 		boost::bind(&LLPanelRegionGeneralInfo::onMessageCommit, (LLPanelRegionGeneralInfo*)userdata, _1, _2));
@@ -672,7 +674,7 @@ void LLPanelRegionGeneralInfo::onClickMessage(void* userdata)
 // static
 bool LLPanelRegionGeneralInfo::onMessageCommit(const LLSD& notification, const LLSD& response)
 {
-	if(LLNotification::getSelectedOption(notification, response) != 0) return false;
+	if(LLNotificationsUtil::getSelectedOption(notification, response) != 0) return false;
 
 	std::string text = response["message"].asString();
 	if (text.empty()) return false;
@@ -775,7 +777,7 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region && (childGetValue("access_combo").asInteger() != region->getSimAccess()) )
 	{
-		LLNotifications::instance().add("RegionMaturityChange");
+		LLNotificationsUtil::add("RegionMaturityChange");
 	}	
 
 	return TRUE;
@@ -882,13 +884,13 @@ void LLPanelRegionDebugInfo::onClickReturn(void* data)
 	}
 	payload["flags"] = int(flags);
 	payload["return_estate_wide"] = panelp->childGetValue("return_estate_wide").asBoolean();
-	LLNotifications::instance().add("EstateObjectReturn", args, payload, 
+	LLNotificationsUtil::add("EstateObjectReturn", args, payload, 
 									boost::bind(&LLPanelRegionDebugInfo::callbackReturn, panelp, _1, _2));
 }
 
 bool LLPanelRegionDebugInfo::callbackReturn(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option != 0) return false;
 
 	LLUUID target_avatar = notification["payload"]["avatar_id"].asUUID();
@@ -948,13 +950,13 @@ void LLPanelRegionDebugInfo::onClickTopScripts(void* data)
 // static
 void LLPanelRegionDebugInfo::onClickRestart(void* data)
 {
-	LLNotifications::instance().add("ConfirmRestart", LLSD(), LLSD(), 
+	LLNotificationsUtil::add("ConfirmRestart", LLSD(), LLSD(), 
 		boost::bind(&LLPanelRegionDebugInfo::callbackRestart, (LLPanelRegionDebugInfo*)data, _1, _2));
 }
 
 bool LLPanelRegionDebugInfo::callbackRestart(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option != 0) return false;
 
 	strings_t strings;
@@ -1122,7 +1124,7 @@ BOOL LLPanelRegionTextureInfo::validateTextureSizes()
 			LLSD args;
 			args["TEXTURE_NUM"] = i+1;
 			args["TEXTURE_BIT_DEPTH"] = llformat("%d",components * 8);
-			LLNotifications::instance().add("InvalidTerrainBitDepth", args);
+			LLNotificationsUtil::add("InvalidTerrainBitDepth", args);
 			return FALSE;
 		}
 
@@ -1133,7 +1135,7 @@ BOOL LLPanelRegionTextureInfo::validateTextureSizes()
 			args["TEXTURE_NUM"] = i+1;
 			args["TEXTURE_SIZE_X"] = width;
 			args["TEXTURE_SIZE_Y"] = height;
-			LLNotifications::instance().add("InvalidTerrainSize", args);
+			LLNotificationsUtil::add("InvalidTerrainSize", args);
 			return FALSE;
 			
 		}
@@ -1311,21 +1313,18 @@ void LLPanelRegionTerrainInfo::onClickUploadRaw(void* data)
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 	self->sendEstateOwnerMessage(gMessageSystem, "terrain", invoice, strings);
 
-	LLNotifications::instance().add("RawUploadStarted");
+	LLNotificationsUtil::add("RawUploadStarted");
 }
 
 // static
 void LLPanelRegionTerrainInfo::onClickBakeTerrain(void* data)
 {
-	LLNotification::Params::Functor functor_params;
-	functor_params.function(boost::bind(&LLPanelRegionTerrainInfo::callbackBakeTerrain, (LLPanelRegionTerrainInfo*)data, _1, _2));
-
-	LLNotifications::instance().add(LLNotification::Params("ConfirmBakeTerrain").functor(functor_params));
+	LLNotificationsUtil::add("ConfirmBakeTerrain", LLSD(), LLSD(), boost::bind(&LLPanelRegionTerrainInfo::callbackBakeTerrain, (LLPanelRegionTerrainInfo*)data, _1, _2));
 }
 
 bool LLPanelRegionTerrainInfo::callbackBakeTerrain(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option != 0) return false;
 
 	strings_t strings;
@@ -1412,7 +1411,7 @@ void LLPanelEstateInfo::onClickAddAllowedAgent(void* user_data)
 
 		LLSD args;
 		args["MAX_AGENTS"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
-		LLNotifications::instance().add("MaxAllowedAgentOnRegion", args);
+		LLNotificationsUtil::add("MaxAllowedAgentOnRegion", args);
 		return;
 	}
 	accessAddCore(ESTATE_ACCESS_ALLOWED_AGENT_ADD, "EstateAllowedAgentAdd");
@@ -1432,7 +1431,7 @@ void LLPanelEstateInfo::onClickAddAllowedGroup()
 	{
 		LLSD args;
 		args["MAX_GROUPS"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
-		LLNotifications::instance().add("MaxAllowedGroupsOnRegion", args);
+		LLNotificationsUtil::add("MaxAllowedGroupsOnRegion", args);
 		return;
 	}
 
@@ -1450,7 +1449,7 @@ void LLPanelEstateInfo::onClickAddAllowedGroup()
 
 bool LLPanelEstateInfo::addAllowedGroup(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option != 0) return false;
 
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
@@ -1487,7 +1486,7 @@ void LLPanelEstateInfo::onClickAddBannedAgent(void* user_data)
 	{
 		LLSD args;
 		args["MAX_BANNED"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
-		LLNotifications::instance().add("MaxBannedAgentsOnRegion", args);
+		LLNotificationsUtil::add("MaxBannedAgentsOnRegion", args);
 		return;
 	}
 	accessAddCore(ESTATE_ACCESS_BANNED_AGENT_ADD, "EstateBannedAgentAdd");
@@ -1509,7 +1508,7 @@ void LLPanelEstateInfo::onClickAddEstateManager(void* user_data)
 	{	// Tell user they can't add more managers
 		LLSD args;
 		args["MAX_MANAGER"] = llformat("%d",ESTATE_MAX_MANAGERS);
-		LLNotifications::instance().add("MaxManagersOnRegion", args);
+		LLNotificationsUtil::add("MaxManagersOnRegion", args);
 	}
 	else
 	{	// Go pick managers to add
@@ -1567,13 +1566,13 @@ void LLPanelEstateInfo::onKickUserCommit(const std::vector<std::string>& names, 
 	args["EVIL_USER"] = names[0];
 	LLSD payload;
 	payload["agent_id"] = ids[0];
-	LLNotifications::instance().add("EstateKickUser", args, payload, boost::bind(&LLPanelEstateInfo::kickUserConfirm, self, _1, _2));
+	LLNotificationsUtil::add("EstateKickUser", args, payload, boost::bind(&LLPanelEstateInfo::kickUserConfirm, self, _1, _2));
 
 }
 
 bool LLPanelEstateInfo::kickUserConfirm(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch(option)
 	{
 	case 0:
@@ -1722,7 +1721,7 @@ void LLPanelEstateInfo::accessAddCore(U32 operation_flag, const std::string& dia
 // static
 bool LLPanelEstateInfo::accessAddCore2(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option != 0)
 	{
 		// abort change
@@ -1766,7 +1765,7 @@ void LLPanelEstateInfo::accessAddCore3(const std::vector<std::string>& names, co
 			args["MAX_AGENTS"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
 			args["LIST_TYPE"] = "Allowed Residents";
 			args["NUM_EXCESS"] = llformat("%d",(ids.size()+currentCount)-ESTATE_MAX_ACCESS_IDS);
-			LLNotifications::instance().add("MaxAgentOnRegionBatch", args);
+			LLNotificationsUtil::add("MaxAgentOnRegionBatch", args);
 			delete change_info;
 			return;
 		}
@@ -1782,7 +1781,7 @@ void LLPanelEstateInfo::accessAddCore3(const std::vector<std::string>& names, co
 			args["MAX_AGENTS"] = llformat("%d",ESTATE_MAX_ACCESS_IDS);
 			args["LIST_TYPE"] = "Banned Residents";
 			args["NUM_EXCESS"] = llformat("%d",(ids.size()+currentCount)-ESTATE_MAX_ACCESS_IDS);
-			LLNotifications::instance().add("MaxAgentOnRegionBatch", args);
+			LLNotificationsUtil::add("MaxAgentOnRegionBatch", args);
 			delete change_info;
 			return;
 		}
@@ -1851,7 +1850,7 @@ void LLPanelEstateInfo::accessRemoveCore(U32 operation_flag, const std::string& 
 // static
 bool LLPanelEstateInfo::accessRemoveCore2(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option != 0)
 	{
 		// abort
@@ -1868,7 +1867,7 @@ bool LLPanelEstateInfo::accessRemoveCore2(const LLSD& notification, const LLSD& 
 	{
 		LLSD args;
 		args["ALL_ESTATES"] = all_estates_text();
-		LLNotifications::instance().add(notification["payload"]["dialog_name"], 
+		LLNotificationsUtil::add(notification["payload"]["dialog_name"], 
 										args,
 										notification["payload"],
 										accessCoreConfirm);
@@ -1881,7 +1880,7 @@ bool LLPanelEstateInfo::accessRemoveCore2(const LLSD& notification, const LLSD& 
 // static
 bool LLPanelEstateInfo::accessCoreConfirm(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	const U32 originalFlags = (U32)notification["payload"]["operation"].asInteger();
 
 	LLViewerRegion* region = gAgent.getRegion();
@@ -1900,7 +1899,7 @@ bool LLPanelEstateInfo::accessCoreConfirm(const LLSD& notification, const LLSD& 
 		if (((U32)notification["payload"]["operation"].asInteger() & ESTATE_ACCESS_BANNED_AGENT_ADD)
 		    && region && (region->getOwner() == id))
 		{
-			LLNotifications::instance().add("OwnerCanNotBeDenied");
+			LLNotificationsUtil::add("OwnerCanNotBeDenied");
 			break;
 		}
 		switch(option)
@@ -2162,7 +2161,7 @@ BOOL LLPanelEstateInfo::sendUpdate()
 
 bool LLPanelEstateInfo::callbackChangeLindenEstate(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch(option)
 	{
 	case 0:
@@ -2551,12 +2550,12 @@ BOOL LLPanelEstateInfo::checkSunHourSlider(LLUICtrl* child_ctrl)
 void LLPanelEstateInfo::onClickMessageEstate(void* userdata)
 {
 	llinfos << "LLPanelEstateInfo::onClickMessageEstate" << llendl;
-	LLNotifications::instance().add("MessageEstate", LLSD(), LLSD(), boost::bind(&LLPanelEstateInfo::onMessageCommit, (LLPanelEstateInfo*)userdata, _1, _2));
+	LLNotificationsUtil::add("MessageEstate", LLSD(), LLSD(), boost::bind(&LLPanelEstateInfo::onMessageCommit, (LLPanelEstateInfo*)userdata, _1, _2));
 }
 
 bool LLPanelEstateInfo::onMessageCommit(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	std::string text = response["message"].asString();
 	if(option != 0) return false;
 	if(text.empty()) return false;
@@ -2685,7 +2684,7 @@ BOOL LLPanelEstateCovenant::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop
 		{
 			LLSD payload;
 			payload["item_id"] = item->getUUID();
-			LLNotifications::instance().add("EstateChangeCovenant", LLSD(), payload,
+			LLNotificationsUtil::add("EstateChangeCovenant", LLSD(), payload,
 									LLPanelEstateCovenant::confirmChangeCovenantCallback);
 		}
 		break;
@@ -2700,7 +2699,7 @@ BOOL LLPanelEstateCovenant::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop
 // static 
 bool LLPanelEstateCovenant::confirmChangeCovenantCallback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLInventoryItem* item = gInventory.getItem(notification["payload"]["item_id"].asUUID());
 	LLPanelEstateCovenant* self = LLFloaterRegionInfo::getPanelCovenant();
 
@@ -2720,7 +2719,7 @@ bool LLPanelEstateCovenant::confirmChangeCovenantCallback(const LLSD& notificati
 // static
 void LLPanelEstateCovenant::resetCovenantID(void* userdata)
 {
-	LLNotifications::instance().add("EstateChangeCovenant", LLSD(), LLSD(), confirmResetCovenantCallback);
+	LLNotificationsUtil::add("EstateChangeCovenant", LLSD(), LLSD(), confirmResetCovenantCallback);
 }
 
 // static
@@ -2729,7 +2728,7 @@ bool LLPanelEstateCovenant::confirmResetCovenantCallback(const LLSD& notificatio
 	LLPanelEstateCovenant* self = LLFloaterRegionInfo::getPanelCovenant();
 	if (!self) return false;
 
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch(option)
 	{
 	case 0:		
@@ -2793,7 +2792,7 @@ void LLPanelEstateCovenant::onLoadComplete(LLVFS *vfs,
 				if( !panelp->mEditor->importBuffer( &buffer[0], file_length+1 ) )
 				{
 					llwarns << "Problem importing estate covenant." << llendl;
-					LLNotifications::instance().add("ProblemImportingEstateCovenant");
+					LLNotificationsUtil::add("ProblemImportingEstateCovenant");
 				}
 				else
 				{
@@ -2813,15 +2812,15 @@ void LLPanelEstateCovenant::onLoadComplete(LLVFS *vfs,
 			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 				LL_ERR_FILE_EMPTY == status)
 			{
-				LLNotifications::instance().add("MissingNotecardAssetID");
+				LLNotificationsUtil::add("MissingNotecardAssetID");
 			}
 			else if (LL_ERR_INSUFFICIENT_PERMISSIONS == status)
 			{
-				LLNotifications::instance().add("NotAllowedToViewNotecard");
+				LLNotificationsUtil::add("NotAllowedToViewNotecard");
 			}
 			else
 			{
-				LLNotifications::instance().add("UnableToLoadNotecardAsset");
+				LLNotificationsUtil::add("UnableToLoadNotecardAsset");
 			}
 
 			llwarns << "Problem loading notecard: " << status << llendl;

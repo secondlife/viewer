@@ -33,7 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewerinventory.h"
 
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "message.h"
 #include "indra_constants.h"
 
@@ -420,7 +420,7 @@ void LLViewerInventoryCategory::updateServer(BOOL is_new) const
 
 	if (LLFolderType::lookupIsProtectedType(mPreferredType))
 	{
-		LLNotifications::instance().add("CannotModifyProtectedCategories");
+		LLNotificationsUtil::add("CannotModifyProtectedCategories");
 		return;
 	}
 
@@ -444,7 +444,7 @@ void LLViewerInventoryCategory::removeFromServer( void )
 	// communicate that change with the server.
 	if(LLFolderType::lookupIsProtectedType(mPreferredType))
 	{
-		LLNotifications::instance().add("CannotRemoveProtectedCategories");
+		LLNotificationsUtil::add("CannotRemoveProtectedCategories");
 		return;
 	}
 

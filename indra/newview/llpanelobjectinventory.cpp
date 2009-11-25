@@ -42,7 +42,7 @@
 #include "llpanelobjectinventory.h"
 
 #include "llmenugl.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "roles_constants.h"
 
 #include "llagent.h"
@@ -208,7 +208,7 @@ void LLTaskInvFVBridge::buyItem()
 	LLViewerObject* obj;
 	if( ( obj = gObjectList.findObject( mPanel->getTaskUUID() ) ) && obj->isAttachment() )
 	{
-		LLNotifications::instance().add("Cannot_Purchase_an_Attachment");
+		LLNotificationsUtil::add("Cannot_Purchase_an_Attachment");
 		llinfos << "Attempt to purchase an attachment" << llendl;
 		delete inv;
 	}
@@ -220,9 +220,9 @@ void LLTaskInvFVBridge::buyItem()
         if (sale_info.getSaleType() != LLSaleInfo::FS_CONTENTS)
         {
         	U32 next_owner_mask = perm.getMaskNextOwner();
-        	args["MODIFYPERM"] = LLNotifications::instance().getGlobalString((next_owner_mask & PERM_MODIFY) ? "PermYes" : "PermNo");
-        	args["COPYPERM"] = LLNotifications::instance().getGlobalString((next_owner_mask & PERM_COPY) ? "PermYes" : "PermNo");
-        	args["RESELLPERM"] = LLNotifications::instance().getGlobalString((next_owner_mask & PERM_TRANSFER) ? "PermYes" : "PermNo");
+        	args["MODIFYPERM"] = LLTrans::getString((next_owner_mask & PERM_MODIFY) ? "PermYes" : "PermNo");
+        	args["COPYPERM"] = LLTrans::getString((next_owner_mask & PERM_COPY) ? "PermYes" : "PermNo");
+        	args["RESELLPERM"] = LLTrans::getString((next_owner_mask & PERM_TRANSFER) ? "PermYes" : "PermNo");
         }
 
 		std::string alertdesc;
@@ -244,7 +244,7 @@ void LLTaskInvFVBridge::buyItem()
 		payload["task_id"] = inv->mTaskID;
 		payload["item_id"] = inv->mItemID;
 		payload["type"] = inv->mType;
-		LLNotifications::instance().add(alertdesc, args, payload, LLTaskInvFVBridge::commitBuyItem);
+		LLNotificationsUtil::add(alertdesc, args, payload, LLTaskInvFVBridge::commitBuyItem);
 	}
 }
 
@@ -264,7 +264,7 @@ S32 LLTaskInvFVBridge::getPrice()
 // static
 bool LLTaskInvFVBridge::commitBuyItem(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if(0 == option)
 	{
 		LLViewerObject* object = gObjectList.findObject(notification["payload"]["task_id"].asUUID());
@@ -424,7 +424,7 @@ BOOL LLTaskInvFVBridge::isItemRemovable()
 
 bool remove_task_inventory_callback(const LLSD& notification, const LLSD& response, LLPanelObjectInventory* panel)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLViewerObject* object = gObjectList.findObject(notification["payload"]["task_id"].asUUID());
 	if(option == 0 && object)
 	{
@@ -469,7 +469,7 @@ BOOL LLTaskInvFVBridge::removeItem()
 				LLSD payload;
 				payload["task_id"] = mPanel->getTaskUUID();
 				payload["inventory_ids"].append(mUUID);
-				LLNotifications::instance().add("RemoveItemWarn", LLSD(), payload, boost::bind(&remove_task_inventory_callback, _1, _2, mPanel));
+				LLNotificationsUtil::add("RemoveItemWarn", LLSD(), payload, boost::bind(&remove_task_inventory_callback, _1, _2, mPanel));
 				return FALSE;
 			}
 		}
@@ -499,7 +499,7 @@ void LLTaskInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewEventListener*>& 
 			LLTaskInvFVBridge* itemp = (LLTaskInvFVBridge*)batch[i];
 			payload["inventory_ids"].append(itemp->getUUID());
 		}
-		LLNotifications::instance().add("RemoveItemWarn", LLSD(), payload, boost::bind(&remove_task_inventory_callback, _1, _2, mPanel));
+		LLNotificationsUtil::add("RemoveItemWarn", LLSD(), payload, boost::bind(&remove_task_inventory_callback, _1, _2, mPanel));
 		
 	}
 	else
@@ -1170,7 +1170,7 @@ void LLTaskLSLBridge::openItem()
 	}
 	else
 	{	
-		LLNotifications::instance().add("CannotOpenScriptObjectNoMod");
+		LLNotificationsUtil::add("CannotOpenScriptObjectNoMod");
 	}
 }
 

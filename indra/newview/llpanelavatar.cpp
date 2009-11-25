@@ -40,7 +40,7 @@
 #include "llcombobox.h"
 #include "lldateutil.h"			// ageFromDate()
 #include "llimview.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
 #include "lltoggleablemenu.h"
@@ -673,7 +673,7 @@ void LLPanelAvatarMeProfile::onStatusChanged()
 	{
 		gAgent.clearAFK();
 		gAgent.setBusy();
-		LLNotifications::instance().add("BusyModeSet");
+		LLNotificationsUtil::add("BusyModeSet");
 	}
 }
 

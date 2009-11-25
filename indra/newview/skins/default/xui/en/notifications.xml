@@ -5806,13 +5806,6 @@ If you continue to have problems, please visit the [SUPPORT_SITE].
 - Your system memory does not meet the minimum requirements.
   </global>
 
-  <global name="PermYes">
-Yes
-  </global>
-
-  <global name="PermNo">
-No
-  </global>
 <!-- this is alert string from server. the name needs to match entire the server string, and needs to be changed
 	whenever the server string changes -->
    <global name="You can only set your 'Home Location' on your land or at a mainland Infohub.">

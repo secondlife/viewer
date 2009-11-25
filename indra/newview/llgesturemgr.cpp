@@ -42,7 +42,7 @@
 #include "lldatapacker.h"
 #include "llinventory.h"
 #include "llmultigesture.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llstl.h"
 #include "llstring.h"	// todo: remove
 #include "llvfile.h"
@@ -972,7 +972,7 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 					// we're done with this set of deactivations
 					LLSD args;
 					args["NAMES"] = self.mDeactivateSimilarNames;
-					LLNotifications::instance().add("DeactivatedGesturesTrigger", args);
+					LLNotificationsUtil::add("DeactivatedGesturesTrigger", args);
 				}
 			}
 

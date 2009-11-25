@@ -40,7 +40,7 @@
 #include "llgroupactions.h"
 #include "llgroupmgr.h"
 #include "llnamelistctrl.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llscrolllistitem.h"
 #include "llspinctrl.h"
 #include "lltextbox.h"
@@ -165,7 +165,7 @@ void LLPanelGroupInvite::impl::submitInvitations()
 		{
 			LLSD args;
 			args["MESSAGE"] = mOwnerWarning;
-			LLNotifications::instance().add("GenericAlertYesCancel", args, LLSD(), boost::bind(&LLPanelGroupInvite::impl::inviteOwnerCallback, this, _1, _2));
+			LLNotificationsUtil::add("GenericAlertYesCancel", args, LLSD(), boost::bind(&LLPanelGroupInvite::impl::inviteOwnerCallback, this, _1, _2));
 			return; // we'll be called again if user confirms
 		}
 	}
@@ -191,7 +191,7 @@ void LLPanelGroupInvite::impl::submitInvitations()
 	{
 		LLSD msg;
 		msg["MESSAGE"] = mAlreadyInGroup;
-		LLNotifications::instance().add("GenericAlert", msg);
+		LLNotificationsUtil::add("GenericAlert", msg);
 	}
 
 	//then close
@@ -200,7 +200,7 @@ void LLPanelGroupInvite::impl::submitInvitations()
 
 bool LLPanelGroupInvite::impl::inviteOwnerCallback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	switch(option)
 	{

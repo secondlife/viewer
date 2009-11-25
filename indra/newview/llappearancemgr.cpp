@@ -39,7 +39,7 @@
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
 #include "llinventoryobserver.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "llvoavatar.h"
@@ -639,7 +639,7 @@ void LLAppearanceManager::updateAppearanceFromCOF()
 	
 	if( !wear_items.count() && !obj_items.count() && !gest_items.count())
 	{
-		LLNotifications::instance().add("CouldNotPutOnOutfit");
+		LLNotificationsUtil::add("CouldNotPutOnOutfit");
 		return;
 	}
 		

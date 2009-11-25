@@ -44,6 +44,7 @@
 #include "lllocalcliprect.h"
 #include "llmenugl.h"
 #include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "lloutputmonitorctrl.h"
 #include "llscriptfloater.h"
 #include "lltextbox.h"

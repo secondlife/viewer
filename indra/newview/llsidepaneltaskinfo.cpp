@@ -41,7 +41,7 @@
 #include "llcategory.h"
 #include "llclickaction.h"
 #include "llfocusmgr.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llstring.h"
 
 #include "llviewerwindow.h"
@@ -866,7 +866,7 @@ void LLSidepanelTaskInfo::cbGroupID(LLUUID group_id)
 
 static bool callback_deed_to_group(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		LLUUID group_id;
@@ -882,7 +882,7 @@ static bool callback_deed_to_group(const LLSD& notification, const LLSD& respons
 
 void LLSidepanelTaskInfo::onClickDeedToGroup()
 {
-	LLNotifications::instance().add( "DeedObjectToGroup", LLSD(), LLSD(), callback_deed_to_group);
+	LLNotificationsUtil::add( "DeedObjectToGroup", LLSD(), LLSD(), callback_deed_to_group);
 }
 
 ///----------------------------------------------------------------------------
@@ -1015,7 +1015,7 @@ void LLSidepanelTaskInfo::onCommitClickAction(U8 click_action)
 		LLSelectMgr::getInstance()->selectGetSaleInfo(sale_info);
 		if (!sale_info.isForSale())
 		{
-			LLNotifications::instance().add("CantSetBuyObject");
+			LLNotificationsUtil::add("CantSetBuyObject");
 
 			// Set click action back to its old value
 			U8 click_action = 0;
@@ -1033,7 +1033,7 @@ void LLSidepanelTaskInfo::onCommitClickAction(U8 click_action)
 		if (!can_pay)
 		{
 			// Warn, but do it anyway.
-			LLNotifications::instance().add("ClickActionNotPayable");
+			LLNotificationsUtil::add("ClickActionNotPayable");
 		}
 	}
 	LLSelectMgr::getInstance()->selectionSetClickAction(click_action);

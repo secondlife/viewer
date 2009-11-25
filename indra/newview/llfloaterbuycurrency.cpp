@@ -38,7 +38,7 @@
 #include "llcurrencyuimanager.h"
 #include "llfloater.h"
 #include "llfloaterreg.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llstatusbar.h"
 #include "lltextbox.h"
 #include "llviewchildren.h"
@@ -153,7 +153,7 @@ void LLFloaterBuyCurrencyUI::draw()
 	{
 		if (mManager.bought())
 		{
-			LLNotifications::instance().add("BuyLindenDollarSuccess");
+			LLNotificationsUtil::add("BuyLindenDollarSuccess");
 			closeFloater();
 			return;
 		}

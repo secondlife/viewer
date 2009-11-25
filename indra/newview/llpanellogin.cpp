@@ -51,7 +51,7 @@
 #include "llfloaterpreference.h"
 #include "llfocusmgr.h"
 #include "lllineeditor.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llstartup.h"
 #include "lltextbox.h"
 #include "llui.h"
@@ -893,12 +893,12 @@ void LLPanelLogin::onClickConnect(void *)
 		
 		if (first.empty() || last.empty())
 		{
-			LLNotifications::instance().add("MustHaveAccountToLogIn");
+			LLNotificationsUtil::add("MustHaveAccountToLogIn");
 		}
 		else if( (combo_text=="<Type region name>" || combo_text =="")
 				&& LLURLSimString::sInstance.mSimString =="")
 		{
-			LLNotifications::instance().add("StartRegionEmpty");
+			LLNotificationsUtil::add("StartRegionEmpty");
 		}
 		else
 		{
@@ -912,7 +912,7 @@ void LLPanelLogin::onClickConnect(void *)
 // static
 bool LLPanelLogin::newAccountAlertCallback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		llinfos << "Going to account creation URL" << llendl;
@@ -953,7 +953,7 @@ void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
 {
 	if (gKeyboard->getKeyDown(KEY_CAPSLOCK) && sCapslockDidNotification == FALSE)
 	{
-		LLNotifications::instance().add("CapsKeyOn");
+		LLNotificationsUtil::add("CapsKeyOn");
 		sCapslockDidNotification = TRUE;
 	}
 }

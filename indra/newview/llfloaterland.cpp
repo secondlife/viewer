@@ -39,7 +39,7 @@
 
 #include "llcachename.h"
 #include "llfocusmgr.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llparcel.h"
 #include "message.h"
 #include "lluserauth.h"
@@ -915,7 +915,7 @@ void LLPanelLandGeneral::onClickBuyPass(void* data)
 	args["PARCEL_NAME"] = parcel_name;
 	args["TIME"] = time;
 	
-	LLNotifications::instance().add("LandBuyPass", args, LLSD(), cbBuyPass);
+	LLNotificationsUtil::add("LandBuyPass", args, LLSD(), cbBuyPass);
 }
 
 // static
@@ -927,7 +927,7 @@ void LLPanelLandGeneral::onClickStartAuction(void* data)
 	{
 		if(parcelp->getForSale())
 		{
-			LLNotifications::instance().add("CannotStartAuctionAlreadyForSale");
+			LLNotificationsUtil::add("CannotStartAuctionAlreadyForSale");
 		}
 		else
 		{
@@ -940,7 +940,7 @@ void LLPanelLandGeneral::onClickStartAuction(void* data)
 // static
 bool LLPanelLandGeneral::cbBuyPass(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		// User clicked OK
@@ -1286,7 +1286,7 @@ void send_return_objects_message(S32 parcel_local_id, S32 return_type,
 
 bool LLPanelLandObjects::callbackReturnOwnerObjects(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLParcel *parcel = mParcel->getParcel();
 	if (0 == option)
 	{
@@ -1296,7 +1296,7 @@ bool LLPanelLandObjects::callbackReturnOwnerObjects(const LLSD& notification, co
 			LLSD args;
 			if (owner_id == gAgentID)
 			{
-				LLNotifications::instance().add("OwnedObjectsReturned");
+				LLNotificationsUtil::add("OwnedObjectsReturned");
 			}
 			else
 			{
@@ -1304,7 +1304,7 @@ bool LLPanelLandObjects::callbackReturnOwnerObjects(const LLSD& notification, co
 				gCacheName->getName(owner_id, first, last);
 				args["FIRST"] = first;
 				args["LAST"] = last;
-				LLNotifications::instance().add("OtherObjectsReturned", args);
+				LLNotificationsUtil::add("OtherObjectsReturned", args);
 			}
 			send_return_objects_message(parcel->getLocalID(), RT_OWNER);
 		}
@@ -1318,7 +1318,7 @@ bool LLPanelLandObjects::callbackReturnOwnerObjects(const LLSD& notification, co
 
 bool LLPanelLandObjects::callbackReturnGroupObjects(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLParcel *parcel = mParcel->getParcel();
 	if (0 == option)
 	{
@@ -1328,7 +1328,7 @@ bool LLPanelLandObjects::callbackReturnGroupObjects(const LLSD& notification, co
 			gCacheName->getGroupName(parcel->getGroupID(), group_name);
 			LLSD args;
 			args["GROUPNAME"] = group_name;
-			LLNotifications::instance().add("GroupObjectsReturned", args);
+			LLNotificationsUtil::add("GroupObjectsReturned", args);
 			send_return_objects_message(parcel->getLocalID(), RT_GROUP);
 		}
 	}
@@ -1340,13 +1340,13 @@ bool LLPanelLandObjects::callbackReturnGroupObjects(const LLSD& notification, co
 
 bool LLPanelLandObjects::callbackReturnOtherObjects(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLParcel *parcel = mParcel->getParcel();
 	if (0 == option)
 	{
 		if (parcel)
 		{
-			LLNotifications::instance().add("UnOwnedObjectsReturned");
+			LLNotificationsUtil::add("UnOwnedObjectsReturned");
 			send_return_objects_message(parcel->getLocalID(), RT_OTHER);
 		}
 	}
@@ -1358,7 +1358,7 @@ bool LLPanelLandObjects::callbackReturnOtherObjects(const LLSD& notification, co
 
 bool LLPanelLandObjects::callbackReturnOwnerList(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLParcel *parcel = mParcel->getParcel();
 	if (0 == option)
 	{
@@ -1372,12 +1372,12 @@ bool LLPanelLandObjects::callbackReturnOwnerList(const LLSD& notification, const
 				if (mSelectedIsGroup)
 				{
 					args["GROUPNAME"] = mSelectedName;
-					LLNotifications::instance().add("GroupObjectsReturned", args);
+					LLNotificationsUtil::add("GroupObjectsReturned", args);
 				}
 				else
 				{
 					args["NAME"] = mSelectedName;
-					LLNotifications::instance().add("OtherObjectsReturned2", args);
+					LLNotificationsUtil::add("OtherObjectsReturned2", args);
 				}
 
 				send_return_objects_message(parcel->getLocalID(), RT_LIST, &(mSelectedOwners));
@@ -1414,11 +1414,11 @@ void LLPanelLandObjects::onClickReturnOwnerList(void* userdata)
 	args["N"] = llformat("%d",self->mSelectedCount);
 	if (self->mSelectedIsGroup)
 	{
-		LLNotifications::instance().add("ReturnObjectsDeededToGroup", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerList, self, _1, _2));	
+		LLNotificationsUtil::add("ReturnObjectsDeededToGroup", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerList, self, _1, _2));	
 	}
 	else 
 	{
-		LLNotifications::instance().add("ReturnObjectsOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerList, self, _1, _2));	
+		LLNotificationsUtil::add("ReturnObjectsOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerList, self, _1, _2));	
 	}
 }
 
@@ -1628,14 +1628,14 @@ void LLPanelLandObjects::onClickReturnOwnerObjects(void* userdata)
 
 	if (owner_id == gAgent.getID())
 	{
-		LLNotifications::instance().add("ReturnObjectsOwnedBySelf", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerObjects, panelp, _1, _2));
+		LLNotificationsUtil::add("ReturnObjectsOwnedBySelf", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerObjects, panelp, _1, _2));
 	}
 	else
 	{
 		std::string name;
 		gCacheName->getFullName(owner_id, name);
 		args["NAME"] = name;
-		LLNotifications::instance().add("ReturnObjectsOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerObjects, panelp, _1, _2));
+		LLNotificationsUtil::add("ReturnObjectsOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerObjects, panelp, _1, _2));
 	}
 }
 
@@ -1656,7 +1656,7 @@ void LLPanelLandObjects::onClickReturnGroupObjects(void* userdata)
 	args["N"] = llformat("%d", parcel->getGroupPrimCount());
 
 	// create and show confirmation textbox
-	LLNotifications::instance().add("ReturnObjectsDeededToGroup", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnGroupObjects, panelp, _1, _2));
+	LLNotificationsUtil::add("ReturnObjectsDeededToGroup", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnGroupObjects, panelp, _1, _2));
 }
 
 // static
@@ -1681,7 +1681,7 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 		gCacheName->getGroupName(parcel->getGroupID(), group_name);
 		args["NAME"] = group_name;
 
-		LLNotifications::instance().add("ReturnObjectsNotOwnedByGroup", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
+		LLNotificationsUtil::add("ReturnObjectsNotOwnedByGroup", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
 	}
 	else
 	{
@@ -1689,7 +1689,7 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 
 		if (owner_id == gAgent.getID())
 		{
-			LLNotifications::instance().add("ReturnObjectsNotOwnedBySelf", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
+			LLNotificationsUtil::add("ReturnObjectsNotOwnedBySelf", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
 		}
 		else
 		{
@@ -1697,7 +1697,7 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 			gCacheName->getFullName(owner_id, name);
 			args["NAME"] = name;
 
-			LLNotifications::instance().add("ReturnObjectsNotOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
+			LLNotificationsUtil::add("ReturnObjectsNotOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
 		}
 	}
 }
@@ -2166,7 +2166,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	if (!allow_other_scripts && region && region->getAllowDamage())
 	{
 
-		LLNotifications::instance().add("UnableToDisableOutsideScripts");
+		LLNotificationsUtil::add("UnableToDisableOutsideScripts");
 		return;
 	}
 
@@ -2210,7 +2210,7 @@ void LLPanelLandOptions::onClickSet(void* userdata)
 
 	if (agent_parcel->getLocalID() != selected_parcel->getLocalID())
 	{
-		LLNotifications::instance().add("MustBeInParcel");
+		LLNotificationsUtil::add("MustBeInParcel");
 		return;
 	}
 

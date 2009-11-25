@@ -37,7 +37,7 @@
 // library includes
 #include "llcombobox.h"
 #include "llcheckboxctrl.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llspinctrl.h"
 #include "lluictrlfactory.h"
 
@@ -365,7 +365,7 @@ void LLPanelMediaSettingsGeneral::onCommitHomeURL( LLUICtrl* ctrl, void *userdat
 	std::string home_url = self->mHomeURL->getValue().asString();
 	if ( ! self->mParent->passesWhiteList( home_url ) )
 	{
-		LLNotifications::instance().add("WhiteListInvalidatesHomeUrl");		
+		LLNotificationsUtil::add("WhiteListInvalidatesHomeUrl");		
 		return;
 	};
 	

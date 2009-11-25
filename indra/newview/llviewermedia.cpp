@@ -47,7 +47,7 @@
 #include "llpluginclassmedia.h"
 
 #include "llevent.h"		// LLSimpleListener
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "lluuid.h"
 #include "llkeyboard.h"
 #include "llmutelist.h"
@@ -981,7 +981,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 	LL_WARNS("Plugin") << "plugin intialization failed for mime type: " << media_type << LL_ENDL;
 	LLSD args;
 	args["MIME_TYPE"] = media_type;
-	LLNotifications::instance().add("NoPlugin", args);
+	LLNotificationsUtil::add("NoPlugin", args);
 
 	return NULL;
 }							
@@ -1947,7 +1947,7 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			// TODO: may want a different message for this case?
 			LLSD args;
 			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
-			LLNotifications::instance().add("MediaPluginFailed", args);
+			LLNotificationsUtil::add("MediaPluginFailed", args);
 		}
 		break;
 
@@ -1962,7 +1962,7 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			LLSD args;
 			args["PLUGIN"] = LLMIMETypes::implType(mMimeType);
 			// SJB: This is getting called every frame if the plugin fails to load, continuously respawining the alert!
-			//LLNotifications::instance().add("MediaPluginFailed", args);
+			//LLNotificationsUtil::add("MediaPluginFailed", args);
 		}
 		break;
 		

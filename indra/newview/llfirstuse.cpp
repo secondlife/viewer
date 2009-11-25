@@ -36,7 +36,7 @@
 
 // library includes
 #include "indra_constants.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 
 // viewer includes
 #include "llagent.h"	// for gAgent.inPrelude()
@@ -87,7 +87,7 @@ void LLFirstUse::useBalanceIncrease(S32 delta)
 
 		LLSD args;
 		args["AMOUNT"] = llformat("%d",delta);
-		LLNotifications::instance().add("FirstBalanceIncrease", args);
+		LLNotificationsUtil::add("FirstBalanceIncrease", args);
 	}
 }
 
@@ -101,7 +101,7 @@ void LLFirstUse::useBalanceDecrease(S32 delta)
 
 		LLSD args;
 		args["AMOUNT"] = llformat("%d",-delta);
-		LLNotifications::instance().add("FirstBalanceDecrease", args);
+		LLNotificationsUtil::add("FirstBalanceDecrease", args);
 	}
 }
 
@@ -115,7 +115,7 @@ void LLFirstUse::useSit()
 	//{
 	//	gWarningSettings.setBOOL("FirstSit", FALSE);
         //
-	//	LLNotifications::instance().add("FirstSit");
+	//	LLNotificationsUtil::add("FirstSit");
 	//}
 }
 
@@ -126,7 +126,7 @@ void LLFirstUse::useMap()
 	{
 		gWarningSettings.setBOOL("FirstMap", FALSE);
 
-		LLNotifications::instance().add("FirstMap");
+		LLNotificationsUtil::add("FirstMap");
 	}
 }
 
@@ -143,7 +143,7 @@ void LLFirstUse::useBuild()
 	{
 		gWarningSettings.setBOOL("FirstBuild", FALSE);
 
-		LLNotifications::instance().add("FirstBuild");
+		LLNotificationsUtil::add("FirstBuild");
 	}
 }
 /*
@@ -154,7 +154,7 @@ void LLFirstUse::useLeftClickNoHit()
 	{
 		gWarningSettings.setBOOL("FirstLeftClickNoHit", FALSE);
 
-		LLNotifications::instance().add("FirstLeftClickNoHit");
+		LLNotificationsUtil::add("FirstLeftClickNoHit");
 	}
 }
 */
@@ -168,7 +168,7 @@ void LLFirstUse::useTeleport()
 		{
 			gWarningSettings.setBOOL("FirstTeleport", FALSE);
 
-		        LLNotifications::instance().add("FirstTeleport");
+		        LLNotificationsUtil::add("FirstTeleport");
 		}
 	}
 }
@@ -184,7 +184,7 @@ void LLFirstUse::useOverrideKeys()
 		{
 			gWarningSettings.setBOOL("FirstOverrideKeys", FALSE);
 
-			LLNotifications::instance().add("FirstOverrideKeys");
+			LLNotificationsUtil::add("FirstOverrideKeys");
 		}
 	}
 }
@@ -202,7 +202,7 @@ void LLFirstUse::useAppearance()
 	{
 		gWarningSettings.setBOOL("FirstAppearance", FALSE);
 
-		LLNotifications::instance().add("FirstAppearance");
+		LLNotificationsUtil::add("FirstAppearance");
 	}
 }
 
@@ -213,7 +213,7 @@ void LLFirstUse::useInventory()
 	{
 		gWarningSettings.setBOOL("FirstInventory", FALSE);
 
-		LLNotifications::instance().add("FirstInventory");
+		LLNotificationsUtil::add("FirstInventory");
 	}
 }
 
@@ -228,7 +228,7 @@ void LLFirstUse::useSandbox()
 		LLSD args;
 		args["HOURS"] = llformat("%d",SANDBOX_CLEAN_FREQ);
 		args["TIME"] = llformat("%d",SANDBOX_FIRST_CLEAN_HOUR);
-		LLNotifications::instance().add("FirstSandbox", args);
+		LLNotificationsUtil::add("FirstSandbox", args);
 	}
 }
 
@@ -239,7 +239,7 @@ void LLFirstUse::useFlexible()
 	{
 		gWarningSettings.setBOOL("FirstFlexible", FALSE);
 
-		LLNotifications::instance().add("FirstFlexible");
+		LLNotificationsUtil::add("FirstFlexible");
 	}
 }
 
@@ -250,7 +250,7 @@ void LLFirstUse::useDebugMenus()
 	{
 		gWarningSettings.setBOOL("FirstDebugMenus", FALSE);
 
-		LLNotifications::instance().add("FirstDebugMenus");
+		LLNotificationsUtil::add("FirstDebugMenus");
 	}
 }
 
@@ -261,7 +261,7 @@ void LLFirstUse::useSculptedPrim()
 	{
 		gWarningSettings.setBOOL("FirstSculptedPrim", FALSE);
 
-		LLNotifications::instance().add("FirstSculptedPrim");
+		LLNotificationsUtil::add("FirstSculptedPrim");
 		
 	}
 }
@@ -275,6 +275,6 @@ void LLFirstUse::useMedia()
 
 		// Popup removed as a short-term fix for EXT-1643.
 		// Ultimately, the plan is to kill all First Use dialogs
-		//LLNotifications::instance().add("FirstMedia");
+		//LLNotificationsUtil::add("FirstMedia");
 	}
 }
