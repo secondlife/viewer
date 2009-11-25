@@ -36,6 +36,7 @@
 #include "llagentwearables.h"
 #include "llfloatercustomize.h"
 #include "lllocaltextureobject.h"
+#include "llnotifications.h"
 #include "llviewertexturelist.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"

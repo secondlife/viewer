@@ -61,6 +61,7 @@
 #include "llassetuploadresponders.h"
 #include "lleconomy.h"
 #include "llhttpclient.h"
+#include "llnotifications.h"
 #include "llsdserialize.h"
 #include "llstring.h"
 #include "lltransactiontypes.h"

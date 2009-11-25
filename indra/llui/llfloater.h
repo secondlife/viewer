@@ -39,7 +39,7 @@
 
 #include "llpanel.h"
 #include "lluuid.h"
-#include "llnotifications.h"
+//#include "llnotifications.h"
 #include <set>
 
 class LLDragHandle;
@@ -64,20 +64,6 @@ const BOOL CLOSE_NO = FALSE;
 
 const BOOL ADJUST_VERTICAL_YES = TRUE;
 const BOOL ADJUST_VERTICAL_NO = FALSE;
-
-// associates a given notification instance with a particular floater
-class LLFloaterNotificationContext : 
-	public LLNotificationContext
-{
-public:
-	LLFloaterNotificationContext(LLHandle<LLFloater> floater_handle) :
-		mFloaterHandle(floater_handle)
-	{}
-
-	LLFloater* getFloater() { return mFloaterHandle.get(); }
-private:
-	LLHandle<LLFloater> mFloaterHandle;
-};
 
 class LLFloater : public LLPanel
 {
@@ -279,10 +265,10 @@ public:
 	// handle refocusing.
 	static void		closeFocusedFloater();
 
-	LLNotification::Params contextualNotification(const std::string& name) 
-	{ 
-	    return LLNotification::Params(name).context(mNotificationContext); 
-	}
+//	LLNotification::Params contextualNotification(const std::string& name) 
+//	{ 
+//	    return LLNotification::Params(name).context(mNotificationContext); 
+//	}
 
 	static void		onClickClose(LLFloater* floater);
 	static void		onClickMinimize(LLFloater* floater);
@@ -421,7 +407,7 @@ private:
 	S32				mPreviousMinimizedBottom;
 	S32				mPreviousMinimizedLeft;
 
-	LLFloaterNotificationContext* mNotificationContext;
+//	LLFloaterNotificationContext* mNotificationContext;
 	LLRootHandle<LLFloater>		mHandle;	
 };
 

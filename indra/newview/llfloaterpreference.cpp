@@ -60,6 +60,7 @@
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
 #include "llnavigationbar.h"
+#include "llnotifications.h"
 #include "llpanellogin.h"
 #include "llradiogroup.h"
 #include "llsearchcombobox.h"

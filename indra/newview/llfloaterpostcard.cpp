@@ -46,6 +46,7 @@
 #include "llbutton.h"
 #include "lltexteditor.h"
 #include "llfloaterreg.h"
+#include "llnotifications.h"
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
 #include "lluictrlfactory.h"

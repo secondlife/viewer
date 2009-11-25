@@ -31,10 +31,13 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llfloaterreg.h"
+
 #include "llpanelmediasettingssecurity.h"
+
+#include "llfloaterreg.h"
 #include "llpanelcontents.h"
 #include "llcheckboxctrl.h"
+#include "llnotifications.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "lluictrlfactory.h"

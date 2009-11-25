@@ -43,6 +43,7 @@
 #include "llfloaterreg.h"
 #include "llimagetga.h"
 #include "llinventory.h"
+#include "llnotifications.h"
 #include "llresmgr.h"
 #include "lltrans.h"
 #include "lltextbox.h"

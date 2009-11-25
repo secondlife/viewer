@@ -41,6 +41,7 @@
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llflatlistview.h"
+#include "llnotifications.h"
 #include "lltextbox.h"
 #include "llviewermenu.h"
 #include "llviewerinventory.h"

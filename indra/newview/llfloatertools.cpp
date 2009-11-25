@@ -52,6 +52,7 @@
 #include "llmediaentry.h"
 #include "llmediactrl.h"
 #include "llmenugl.h"
+#include "llnotifications.h"
 #include "llpanelcontents.h"
 #include "llpanelface.h"
 #include "llpanelland.h"

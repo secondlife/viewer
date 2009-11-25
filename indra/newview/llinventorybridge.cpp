@@ -50,6 +50,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorypanel.h"
+#include "llnotifications.h"
 #include "llpreviewanim.h"
 #include "llpreviewgesture.h"
 #include "llpreviewtexture.h"

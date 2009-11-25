@@ -36,7 +36,7 @@
 
 #include "llsliderctrl.h"
 #include "llcheckboxctrl.h"
-#include "llcombobox.h"
+#include "llnotifications.h"
 #include "lluictrlfactory.h"
 #include "llviewerdisplay.h"
 #include "llpostprocess.h"

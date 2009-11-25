@@ -49,6 +49,7 @@
 #include "llworldmapmessage.h"
 
 // library includes
+#include "llnotifications.h"
 #include "llsd.h"
 
 class LLURLDispatcherImpl

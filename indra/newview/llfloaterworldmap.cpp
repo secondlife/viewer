@@ -54,6 +54,7 @@
 #include "llinventoryobserver.h"
 #include "lllandmarklist.h"
 #include "lllineeditor.h"
+#include "llnotifications.h"
 #include "llregionhandle.h"
 #include "llscrolllistctrl.h"
 #include "llslurl.h"

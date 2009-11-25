@@ -45,11 +45,11 @@
 #include "llsdutil.h"
 #include "llxmltree.h"
 #include "llviewerwindow.h"
-#include "lllivefile.h"
 
 // XUI
 #include "lluictrlfactory.h"
 #include "llcombobox.h"
+#include "llnotifications.h"
 #include "llresizebar.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistctrl.h"

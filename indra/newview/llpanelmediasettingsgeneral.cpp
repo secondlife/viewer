@@ -32,12 +32,17 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llagent.h"
 #include "llpanelmediasettingsgeneral.h"
+
+// library includes
 #include "llcombobox.h"
 #include "llcheckboxctrl.h"
+#include "llnotifications.h"
 #include "llspinctrl.h"
 #include "lluictrlfactory.h"
+
+// project includes
+#include "llagent.h"
 #include "llviewerwindow.h"
 #include "llviewermedia.h"
 #include "llsdutil.h"

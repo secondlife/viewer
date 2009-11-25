@@ -40,6 +40,7 @@
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
+#include "llnotifications.h"
 #include "llwindow.h"
 #include "llviewercontrol.h"
 #include "llpreview.h" 

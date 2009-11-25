@@ -35,8 +35,11 @@
 
 #include <boost/tokenizer.hpp>
 
+// library includes
+#include "llnotifications.h"
 #include "llsdutil.h"
 
+// project includes
 #include "llvoavatar.h"
 #include "llbufferstream.h"
 #include "llfile.h"

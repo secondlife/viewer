@@ -32,11 +32,13 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llpanelblockedlist.h"
+
+// library include
 #include "llfloater.h"
 #include "llfloaterreg.h"
+#include "llnotifications.h"
 #include "llscrolllistctrl.h"
-
-#include "llpanelblockedlist.h"
 
 // project include
 #include "llfloateravatarpicker.h"

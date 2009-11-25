@@ -47,6 +47,7 @@
 #include "llviewercamera.h"
 #include "llcombobox.h"
 #include "lllineeditor.h"
+#include "llnotifications.h"
 #include "llfloaterdaycycle.h"
 #include "llboost.h"
 #include "llmultisliderctrl.h"

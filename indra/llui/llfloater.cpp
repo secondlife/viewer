@@ -240,11 +240,11 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mDocked(false),
 	mHasBeenDraggedWhileMinimized(FALSE),
 	mPreviousMinimizedBottom(0),
-	mPreviousMinimizedLeft(0),
-	mNotificationContext(NULL)
+	mPreviousMinimizedLeft(0)
+//	mNotificationContext(NULL)
 {
 	mHandle.bind(this);
-	mNotificationContext = new LLFloaterNotificationContext(getHandle());
+//	mNotificationContext = new LLFloaterNotificationContext(getHandle());
 
 	// Clicks stop here.
 	setMouseOpaque(TRUE);
@@ -459,8 +459,8 @@ LLFloater::~LLFloater()
 {
 	LLFloaterReg::removeInstance(mInstanceName, mKey);
 	
-	delete mNotificationContext;
-	mNotificationContext = NULL;
+//	delete mNotificationContext;
+//	mNotificationContext = NULL;
 
 	//// am I not hosted by another floater?
 	//if (mHostHandle.isDead())

@@ -37,8 +37,8 @@
 #include "llpanellandmedia.h"
 #include "llpanelface.h"
 
-// project includes
 #include "llcombobox.h"
+#include "llnotifications.h"
 #include "llurlhistory.h"
 #include "lluictrlfactory.h"
 #include "llwindow.h"

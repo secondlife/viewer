@@ -60,6 +60,7 @@
 #include "llbutton.h"
 #include "lldir.h"
 #include "llfloaterchat.h"
+#include "llnotifications.h"
 #include "llviewerstats.h"
 #include "llvfile.h"
 #include "lluictrlfactory.h"

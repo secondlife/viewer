@@ -41,6 +41,7 @@
 #include "llbutton.h"
 #include "llfloatergodtools.h"
 #include "llfloaterreg.h"
+#include "llnotifications.h"
 #include "llparcel.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"

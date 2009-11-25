@@ -40,6 +40,7 @@
 #include "llcombobox.h"
 #include "lldateutil.h"			// ageFromDate()
 #include "llimview.h"
+#include "llnotifications.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
 #include "lltoggleablemenu.h"

@@ -38,6 +38,7 @@
 #include "lldatapacker.h"
 #include "lldir.h"
 #include "lleconomy.h"
+#include "llnotifications.h"
 #include "llvfile.h"
 #include "llapr.h"
 #include "llstring.h"

@@ -38,6 +38,7 @@
 #include "llcurrencyuimanager.h"
 #include "llfloater.h"
 #include "llfloaterreg.h"
+#include "llnotifications.h"
 #include "llstatusbar.h"
 #include "lltextbox.h"
 #include "llviewchildren.h"

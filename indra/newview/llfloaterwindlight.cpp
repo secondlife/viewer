@@ -41,6 +41,7 @@
 #include "llsliderctrl.h"
 #include "llmultislider.h"
 #include "llmultisliderctrl.h"
+#include "llnotifications.h"
 #include "llspinctrl.h"
 #include "llcheckboxctrl.h"
 #include "lluictrlfactory.h"

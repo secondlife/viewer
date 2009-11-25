@@ -35,12 +35,12 @@
 
 #include "llgroupactions.h"
 
-// Viewer includes
 #include "llagent.h"
 #include "llcommandhandler.h"
 #include "llfloaterreg.h"
 #include "llgroupmgr.h"
 #include "llimview.h" // for gIMMgr
+#include "llnotifications.h"
 #include "llsidetray.h"
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "llimfloater.h"

@@ -41,6 +41,7 @@
 #include "llcategory.h"
 #include "llclickaction.h"
 #include "llfocusmgr.h"
+#include "llnotifications.h"
 #include "llstring.h"
 
 #include "llviewerwindow.h"

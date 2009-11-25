@@ -48,6 +48,7 @@
 #include "lllineeditor.h"
 #include "llnamebox.h"
 #include "llnamelistctrl.h"
+#include "llnotifications.h"
 #include "llscrolllistitem.h"
 #include "llspinctrl.h"
 #include "lltextbox.h"

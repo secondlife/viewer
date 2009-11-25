@@ -36,13 +36,16 @@
 
 #include "llpanelpermissions.h"
 
+// library includes
 #include "lluuid.h"
 #include "llpermissions.h"
 #include "llcategory.h"
 #include "llclickaction.h"
 #include "llfocusmgr.h"
+#include "llnotifications.h"
 #include "llstring.h"
 
+// project includes
 #include "llviewerwindow.h"
 #include "llresmgr.h"
 #include "lltextbox.h"

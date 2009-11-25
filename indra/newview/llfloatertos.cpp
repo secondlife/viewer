@@ -42,6 +42,7 @@
 #include "llbutton.h"
 #include "llhttpclient.h"
 #include "llhttpstatuscodes.h"	// for HTTP_FOUND
+#include "llnotifications.h"
 #include "llradiogroup.h"
 #include "lltextbox.h"
 #include "llui.h"

@@ -46,6 +46,7 @@
 #include "llbutton.h"
 #include "llfloaterworldmap.h"
 #include "lllineeditor.h"
+#include "llnotifications.h"
 #include "lluiconstants.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"

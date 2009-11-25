@@ -32,12 +32,15 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llpanelpicks.h"
+
 #include "llagent.h"
 #include "llagentpicksinfo.h"
 #include "llavatarconstants.h"
 #include "llflatlistview.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
+#include "llnotifications.h"
 #include "lltexturectrl.h"
 #include "lltoggleablemenu.h"
 #include "llviewergenericmessage.h"	// send_generic_message
@@ -47,7 +50,6 @@
 
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
-#include "llpanelpicks.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llpanelavatar.h"
 #include "llpanelprofile.h"
