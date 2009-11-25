@@ -90,6 +90,7 @@ set(viewer_SOURCE_FILES
     llbox.cpp
     llbreadcrumbview.cpp
     llcallbacklist.cpp
+    llcallfloater.cpp
     llcallingcard.cpp
     llcapabilitylistener.cpp
     llcaphttpsender.cpp
@@ -588,6 +589,7 @@ set(viewer_HEADER_FILES
     llbox.h
     llbreadcrumbview.h
     llcallbacklist.h
+    llcallfloater.h
     llcallingcard.h
     llcapabilitylistener.h
     llcapabilityprovider.h
