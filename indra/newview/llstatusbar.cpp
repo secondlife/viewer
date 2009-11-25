@@ -124,6 +124,7 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mSGPacketLoss(NULL),
 	mBtnBuyCurrency(NULL),
 	mBtnVolume(NULL),
+	mPanelVolume(NULL),
 	mBalance(0),
 	mHealth(100),
 	mSquareMetersCredit(0),
@@ -158,6 +159,8 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 
 	mBtnVolume = getChild<LLButton>( "volume_btn" );
 	mBtnVolume->setClickedCallback( onClickVolume, this );
+
+	mPanelVolume = getChild<LLPanel>( "volume_pulldown" );
 
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 
@@ -511,10 +514,17 @@ static void onClickVolume(void* data)
 	gSavedSettings.setBOOL("MuteAudio", !mute_audio);
 	
 	// toggle the master volume pull-down
+
 	//LLFloaterReg::showInstance("volume_pulldown"); //tmp
-	LLPanelVolumePulldown *foo=
-		new LLPanelVolumePulldown();
-	foo->setVisible(TRUE);
+	//LLPanelVolumePulldown *foo=
+		//new LLPanelVolumePulldown();
+	//LLPanel* container = getRootView();//->getChild<LLPanel>("nav_bar_container");
+	//container->addChild(foo);
+	LLStatusBar *sb = (LLStatusBar*)(data);
+	llassert_always(sb);
+	sb->mPanelVolume->setRect(LLRect(1,1,100,100));
+	sb->mPanelVolume->setVisible(TRUE);
+	sb->mPanelVolume->setEnabled(TRUE);
 }
 
 // sets the static variables necessary for the date

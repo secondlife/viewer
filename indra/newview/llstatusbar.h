@@ -87,6 +87,8 @@ public:
 	S32 getSquareMetersCommitted() const;
 	S32 getSquareMetersLeft() const;
 
+	LLPanel         *mPanelVolume;	
+
 private:
 	// simple method to setup the part that holds the date
 	void setupDate();
@@ -94,7 +96,6 @@ private:
 	void onVolumeChanged(const LLSD& newvalue);
 
 	static void onClickStatGraph(void* data);
-	
 
 private:
 	LLTextBox	*mTextHealth;
