@@ -735,6 +735,10 @@ BOOL LLAgent::canFly()
 	return parcel->getAllowFly();
 }
 
+BOOL LLAgent::getFlying() const
+{ 
+	return mControlFlags & AGENT_CONTROL_FLY; 
+}
 
 //-----------------------------------------------------------------------------
 // setFlying()
@@ -792,7 +796,7 @@ void LLAgent::setFlying(BOOL fly)
 // static
 void LLAgent::toggleFlying()
 {
-	BOOL fly = !(gAgent.mControlFlags & AGENT_CONTROL_FLY);
+	BOOL fly = !gAgent.getFlying();
 
 	gAgent.setFlying( fly );
 	gAgent.resetView();

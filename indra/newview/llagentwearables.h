@@ -107,6 +107,7 @@ private:
 	// Low-level data structure setter - public access is via setWearableItem, etc.
 	void 			setWearable(const EWearableType type, U32 index, LLWearable *wearable);
 	U32 			pushWearable(const EWearableType type, LLWearable *wearable);
+	void			wearableUpdated(LLWearable *wearable);
 	void 			popWearable(LLWearable *wearable);
 	void			popWearable(const EWearableType type, U32 index);
 	

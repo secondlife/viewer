@@ -111,7 +111,7 @@ public:
 	void resizeScreenTexture();
 	void releaseGLBuffers();
 	void createGLBuffers();
-	void allocateScreenBuffer(U32 resX, U32 resY, U32 viewport_width, U32 viewport_height);
+	void allocateScreenBuffer(U32 resX, U32 resY);
 
 	void resetVertexBuffers(LLDrawable* drawable);
 	void setUseVBO(BOOL use_vbo);
@@ -469,9 +469,7 @@ public:
 	//screen texture
 	U32 					mScreenWidth;
 	U32 					mScreenHeight;
-	U32 					mViewportWidth;
-	U32 					mViewportHeight;
-
+	
 	LLRenderTarget			mScreen;
 	LLRenderTarget			mUIScreen;
 	LLRenderTarget			mDeferredScreen;

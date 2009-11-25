@@ -263,6 +263,7 @@ BOOL LLTeleportHistoryPanel::postBuild()
 					fl->setCommitOnSelectionChange(true);
 					fl->setDoubleClickCallback(boost::bind(&LLTeleportHistoryPanel::onDoubleClickItem, this));
 					fl->setCommitCallback(boost::bind(&LLTeleportHistoryPanel::handleItemSelect, this, fl));
+					fl->setReturnCallback(boost::bind(&LLTeleportHistoryPanel::onReturnKeyPressed, this));
 				}
 			}
 		}
@@ -635,6 +636,12 @@ void LLTeleportHistoryPanel::handleItemSelect(LLFlatListView* selected)
 	}
 
 	updateVerbs();
+}
+
+void LLTeleportHistoryPanel::onReturnKeyPressed()
+{
+	// Teleport to selected region as default action on return key pressed
+	onTeleport();
 }
 
 void LLTeleportHistoryPanel::onDoubleClickItem()

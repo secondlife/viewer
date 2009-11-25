@@ -559,10 +559,9 @@ void LLAppearanceManager::updateCOF(const LLUUID& category, bool append)
 	linkAll(cof, obj_items, link_waiter);
 	linkAll(cof, gest_items, link_waiter);
 
-	// Add link to outfit if category is an outfit. 
-	const LLViewerInventoryCategory* catp = gInventory.getCategory(category);
 	LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance *>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
-	
+	// Add link to outfit if category is an outfit. 
+	LLViewerInventoryCategory* catp = gInventory.getCategory(category);
 	if (!append && catp && catp->getPreferredType() == LLFolderType::FT_OUTFIT)
 	{
 		link_inventory_item(gAgent.getID(), category, cof, catp->getName(),
@@ -576,10 +575,9 @@ void LLAppearanceManager::updateCOF(const LLUUID& category, bool append)
 	}
 	else
 	{
-		// Update the current outfit name of the appearance sidepanel.
 		if (panel_appearance)
 		{
-			panel_appearance->refreshCurrentOutfitName();
+			panel_appearance->refreshCurrentOutfitName("");
 		}
 	}
 }
@@ -858,7 +856,7 @@ bool areMatchingWearables(const LLViewerInventoryItem *a, const LLViewerInventor
 void LLAppearanceManager::addCOFItemLink(const LLUUID &item_id, bool do_update )
 {
 	const LLInventoryItem *item = gInventory.getItem(item_id);
-	addCOFItemLink(item);
+	addCOFItemLink(item, do_update);
 }
 
 void LLAppearanceManager::addCOFItemLink(const LLInventoryItem *item, bool do_update )
@@ -1029,7 +1027,6 @@ void LLAppearanceManager::registerAttachment(const LLUUID& item_id)
 
 	   if (mAttachmentInvLinkEnabled)
 	   {
-		   //LLAppearanceManager::dumpCat(LLAppearanceManager::getCOF(),"Adding attachment link:");
 		   LLAppearanceManager::addCOFItemLink(item_id, false);  // Add COF link for item.
 	   }
 	   else

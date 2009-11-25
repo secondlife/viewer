@@ -2065,16 +2065,16 @@ void LLTextBase::updateRects()
 			mContentsRect.unionWith(line_iter->mRect);
 		}
 
-		mContentsRect.mLeft = 0;
+		S32 delta_pos_x = -mContentsRect.mLeft;
 		mContentsRect.mTop += mVPad;
 
 		S32 delta_pos = -mContentsRect.mBottom;
 		// move line segments to fit new document rect
 		for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
 		{
-			it->mRect.translate(0, delta_pos);
+			it->mRect.translate(delta_pos_x, delta_pos);
 		}
-		mContentsRect.translate(0, delta_pos);
+		mContentsRect.translate(delta_pos_x, delta_pos);
 	}
 
 	// update document container dimensions according to text contents

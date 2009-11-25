@@ -325,7 +325,7 @@ set(viewer_SOURCE_FILES
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
-    llpanelmeprofile.cpp
+    llpanelme.cpp
     llpanelobject.cpp
     llpanelobjectinventory.cpp
     llpaneloutfitsinventory.cpp
@@ -821,7 +821,7 @@ set(viewer_HEADER_FILES
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h
-    llpanelmeprofile.h
+    llpanelme.h
     llpanelobject.h
     llpanelobjectinventory.h
     llpaneloutfitsinventory.h

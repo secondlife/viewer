@@ -223,7 +223,16 @@ BOOL LLTexLayerSetBuffer::render()
 		}
 		else
 		{
-			readBackAndUpload();
+			if (mTexLayerSet->isVisible())
+			{
+				readBackAndUpload();
+			}
+			else
+			{
+				mUploadPending = FALSE;
+				mNeedsUpload = FALSE;
+				mTexLayerSet->getAvatar()->setNewBakedTexture(mTexLayerSet->getBakedTexIndex(),IMG_INVISIBLE);
+			}
 		}
 	}
 
@@ -551,6 +560,7 @@ LLTexLayerSet::LLTexLayerSet(LLVOAvatarSelf* const avatar) :
 	mComposite( NULL ),
 	mAvatar( avatar ),
 	mUpdatesEnabled( FALSE ),
+	mIsVisible( TRUE ),
 	mInfo( NULL )
 {
 }
@@ -665,38 +675,54 @@ BOOL LLTexLayerSet::isLocalTextureDataFinal() const
 BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 {
 	BOOL success = TRUE;
+	mIsVisible = TRUE;
 
-	LLGLSUIDefault gls_ui;
-	LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE);
-	gGL.setColorMask(true, true);
-
-	// clear buffer area to ensure we don't pick up UI elements
+	if (mMaskLayerList.size() > 0)
 	{
-		gGL.flush();
-		LLGLDisable no_alpha(GL_ALPHA_TEST);
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gGL.color4f( 0.f, 0.f, 0.f, 1.f );
-		
-		gl_rect_2d_simple( width, height );
-		
-		gGL.flush();
-	}
-
-	// composite color layers
-	for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
-	{
-		LLTexLayerInterface* layer = *iter;
-		if (layer->getRenderPass() == LLTexLayer::RP_COLOR)
+		for (layer_list_t::iterator iter = mMaskLayerList.begin(); iter != mMaskLayerList.end(); iter++)
 		{
-			gGL.flush();
-			success &= layer->render(x, y, width, height);
-			gGL.flush();
+			LLTexLayerInterface* layer = *iter;
+			if (layer->isInvisibleAlphaMask())
+			{
+				mIsVisible = FALSE;
+			}
 		}
 	}
-	
-	renderAlphaMaskTextures(x, y, width, height, false);
 
-	stop_glerror();
+	if (mIsVisible)
+	{
+		LLGLSUIDefault gls_ui;
+		LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE);
+		gGL.setColorMask(true, true);
+	
+		// clear buffer area to ensure we don't pick up UI elements
+		{
+			gGL.flush();
+			LLGLDisable no_alpha(GL_ALPHA_TEST);
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+			gGL.color4f( 0.f, 0.f, 0.f, 1.f );
+			
+			gl_rect_2d_simple( width, height );
+			
+			gGL.flush();
+		}
+	
+		// composite color layers
+		for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
+		{
+			LLTexLayerInterface* layer = *iter;
+			if (layer->getRenderPass() == LLTexLayer::RP_COLOR)
+			{
+				gGL.flush();
+				success &= layer->render(x, y, width, height);
+				gGL.flush();
+			}
+		}
+		
+		renderAlphaMaskTextures(x, y, width, height, false);
+	
+		stop_glerror();
+	}
 
 	return success;
 }
@@ -1709,6 +1735,19 @@ void LLTexLayer::addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32
 	}
 }
 
+/*virtual*/ BOOL LLTexLayer::isInvisibleAlphaMask()
+{
+	if (mLocalTextureObject)
+	{
+		if (mLocalTextureObject->getID() == IMG_INVISIBLE)
+		{
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 // private helper function
 LLUUID LLTexLayer::getUUID()
 {
@@ -1898,6 +1937,23 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i)
 	}
 }
 
+/*virtual*/ BOOL LLTexLayerTemplate::isInvisibleAlphaMask()
+{
+	U32 num_wearables = updateWearableCache();
+	for (U32 i = 0; i < num_wearables; i++)
+	{
+		LLTexLayer *layer = getLayer(i);
+		if (layer)
+		{
+			 if (layer->isInvisibleAlphaMask())
+			 {
+				 return TRUE;
+			 }
+		}
+	}
+
+	return FALSE;
+}
 
 
 //-----------------------------------------------------------------------------

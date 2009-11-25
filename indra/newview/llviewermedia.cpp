@@ -169,6 +169,12 @@ public:
 			completeAny(status, "text/html");
 		}
 		else
+		if(status == 404)
+		{
+			// Treat 404s like an html page.
+			completeAny(status, "text/html");
+		}
+		else
 		{
 			llwarns << "responder failed with status " << status << ", reason " << reason << llendl;
 		

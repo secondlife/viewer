@@ -298,7 +298,7 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 		//Show own profile
 		if(gAgent.getID() == id)
 		{
-			LLSideTray::getInstance()->showPanel("panel_me_profile", params);
+			LLSideTray::getInstance()->showPanel("panel_me", params);
 		}
 		//Show other user profile
 		else
@@ -322,6 +322,27 @@ void LLAvatarActions::pay(const LLUUID& id)
 	else
 	{
 		LLNotifications::instance().forceResponse(params, 1);
+	}
+}
+
+//static 
+void LLAvatarActions::share(const LLUUID& id)
+{
+	LLSD key;
+	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+
+
+	LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL,id);
+
+	if (!gIMMgr->hasSession(session_id))
+	{
+		startIM(id);
+	}
+
+	if (gIMMgr->hasSession(session_id))
+	{
+		// we should always get here, but check to verify anyways
+		LLIMModel::getInstance()->addMessage(session_id, SYSTEM_FROM, LLUUID::null, LLTrans::getString("share_alert"), false);
 	}
 }
 

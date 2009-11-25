@@ -6,6 +6,18 @@
 	  width="310"
 	  border="true"
 	  follows="left|top|right|bottom">
+    <accordion
+     follows="left|top|right|bottom"
+     height="315"
+     layout="topleft"
+     left="0"
+     name="outfits_accordion"
+     top="2"
+     width="310">
+        <accordion_tab
+         layout="topleft"
+         name="tab_outfits"
+         title="Outfits bar">
 	 <inventory_panel 
 	 	 allow_multi_select="true" 
 		 border="true" 
@@ -14,9 +26,28 @@
 		 height="326" 
 		 left="0" 
 		 mouse_opaque="true"
-	     name="outfits_list"
+	     name="outfitslist_accordionpanel"
 		 width="310"
 		 start_folder="My Outfits"/>
+        </accordion_tab>
+        <accordion_tab
+         layout="topleft"
+         name="tab_cof"
+         title="Current Outfit bar">
+	 <inventory_panel 
+	 	 allow_multi_select="true" 
+		 border="true" 
+		 bottom="0"
+	     follows="left|top|right|bottom" 
+		 height="326" 
+		 left="0" 
+		 mouse_opaque="true"
+	     name="cof_accordionpanel"
+		 width="310"
+		 start_folder="Current Outfit"/>
+        </accordion_tab>
+	</accordion>
+
 	<button bottom="0"
 		 halign="center"
 		 height="16"

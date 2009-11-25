@@ -73,6 +73,7 @@
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llnotify.h"
+#include "llnearbychat.h"
 #include "llviewerregion.h"
 #include "llvoicechannel.h"
 #include "lltrans.h"
@@ -1613,6 +1614,12 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 		LLChat chat(message);
 		chat.mSourceType = CHAT_SOURCE_SYSTEM;
 		LLFloaterChat::addChatHistory(chat);
+
+		LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+		if(nearby_chat)
+		{
+			nearby_chat->addMessage(chat);
+		}
 	}
 	else // going to IM session
 	{

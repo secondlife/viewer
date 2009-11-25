@@ -2155,7 +2155,7 @@ void login_callback(S32 option, void *userdata)
 		LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
 		return;
 	}
-	else if (QUIT_OPTION == option)
+	else if (QUIT_OPTION == option) // *TODO: THIS CODE SEEMS TO BE UNREACHABLE!!!!! login_callback is never called with option equal to QUIT_OPTION
 	{
 		// Make sure we don't save the password if the user is trying to clear it.
 		std::string first, last, password;

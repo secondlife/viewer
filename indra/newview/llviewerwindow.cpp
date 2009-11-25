@@ -1349,6 +1349,7 @@ LLViewerWindow::LLViewerWindow(
 
 	mDebugText = new LLDebugText(this);
 
+	mWorldViewRectScaled = calcScaledRect(mWorldViewRectRaw, mDisplayScale);
 }
 
 void LLViewerWindow::initGLDefaults()
@@ -2870,19 +2871,17 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 
 	if (mWorldViewRectRaw != new_world_rect)
 	{
-		// sending a signal with a new WorldView rect
-		mOnWorldViewRectUpdated(mWorldViewRectRaw, new_world_rect);
-
+		LLRect old_world_rect = mWorldViewRectRaw;
 		mWorldViewRectRaw = new_world_rect;
 		gResizeScreenTexture = TRUE;
 		LLViewerCamera::getInstance()->setViewHeightInPixels( mWorldViewRectRaw.getHeight() );
 		LLViewerCamera::getInstance()->setAspect( getWorldViewAspectRatio() );
 
-		mWorldViewRectScaled = mWorldViewRectRaw;
-		mWorldViewRectScaled.mLeft = llround((F32)mWorldViewRectScaled.mLeft / mDisplayScale.mV[VX]);
-		mWorldViewRectScaled.mRight = llround((F32)mWorldViewRectScaled.mRight / mDisplayScale.mV[VX]);
-		mWorldViewRectScaled.mBottom = llround((F32)mWorldViewRectScaled.mBottom / mDisplayScale.mV[VY]);
-		mWorldViewRectScaled.mTop = llround((F32)mWorldViewRectScaled.mTop / mDisplayScale.mV[VY]);
+		mWorldViewRectScaled = calcScaledRect(mWorldViewRectRaw, mDisplayScale);
+
+		// sending a signal with a new WorldView rect
+		old_world_rect = calcScaledRect(old_world_rect, mDisplayScale);
+		mOnWorldViewRectUpdated(old_world_rect, mWorldViewRectScaled);
 	}
 }
 
@@ -4755,7 +4754,6 @@ F32	LLViewerWindow::getWorldViewAspectRatio() const
 	}
 	else
 	{
-		llinfos << "World aspect ratio: " << world_aspect << llendl;
 		return world_aspect;
 	}
 }
@@ -4795,6 +4793,18 @@ void LLViewerWindow::calcDisplayScale()
 		// Init default fonts
 		initFonts();
 	}
+}
+
+//static
+LLRect 	LLViewerWindow::calcScaledRect(const LLRect & rect, const LLVector2& display_scale)
+{
+	LLRect res = rect;
+	res.mLeft = llround((F32)res.mLeft / display_scale.mV[VX]);
+	res.mRight = llround((F32)res.mRight / display_scale.mV[VX]);
+	res.mBottom = llround((F32)res.mBottom / display_scale.mV[VY]);
+	res.mTop = llround((F32)res.mTop / display_scale.mV[VY]);
+
+	return res;
 }
 
 S32 LLViewerWindow::getChatConsoleBottomPad()

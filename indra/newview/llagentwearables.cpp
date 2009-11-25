@@ -676,7 +676,7 @@ void LLAgentWearables::setWearable(const EWearableType type, U32 index, LLWearab
 	{
 		wearable_vec[index] = wearable;
 		old_wearable->setLabelUpdated();
-		mAvatarObject->wearableUpdated(wearable->getType());
+		wearableUpdated(wearable);
 	}
 }
 
@@ -691,11 +691,30 @@ U32 LLAgentWearables::pushWearable(const EWearableType type, LLWearable *wearabl
 	if (type < WT_COUNT || mWearableDatas[type].size() < MAX_WEARABLES_PER_TYPE)
 	{
 		mWearableDatas[type].push_back(wearable);
-		mAvatarObject->wearableUpdated(wearable->getType());
-		wearable->setLabelUpdated();
+		wearableUpdated(wearable);
 		return mWearableDatas[type].size()-1;
 	}
 	return MAX_WEARABLES_PER_TYPE;
+}
+
+void LLAgentWearables::wearableUpdated(LLWearable *wearable)
+{
+	mAvatarObject->wearableUpdated(wearable->getType());
+	wearable->setLabelUpdated();
+
+	// Hack pt 2. If the wearable we just loaded has definition version 24,
+	// then force a re-save of this wearable after slamming the version number to 22.
+	// This number was incorrectly incremented for internal builds before release, and
+	// this fix will ensure that the affected wearables are re-saved with the right version number.
+	// the versions themselves are compatible. This code can be removed before release.
+	if( wearable->getDefinitionVersion() == 24 )
+	{
+		wearable->setDefinitionVersion(22);
+		U32 index = getWearableIndex(wearable);
+		llinfos << "forcing werable type " << wearable->getType() << " to version 22 from 24" << llendl;
+		saveWearable(wearable->getType(),index,TRUE);
+	}
+
 }
 
 void LLAgentWearables::popWearable(LLWearable *wearable)
@@ -1529,7 +1548,6 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 
 	gInventory.notifyObservers();
 
-	queryWearableCache();
 
 	std::vector<LLWearable*>::iterator wearable_iter;
 
@@ -1552,6 +1570,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	// Start rendering & update the server
 	mWearablesLoaded = TRUE; 
 	checkWearablesLoaded();
+	queryWearableCache();
 	updateServer();
 
 	lldebugs << "setWearableOutfit() end" << llendl;
@@ -2156,7 +2175,6 @@ void LLLibraryOutfitsFetch::contentsDone(void)
 
 LLInitialWearablesFetch::~LLInitialWearablesFetch()
 {
-	llinfos << "~LLInitialWearablesFetch" << llendl;
 }
 
 // virtual
@@ -2186,17 +2204,50 @@ void LLInitialWearablesFetch::processContents()
 	else
 	{
 		processWearablesMessage();
-		// Create links for attachments that may have arrived before the COF existed.
-		LLAppearanceManager::instance().linkRegisteredAttachments();
 	}
 	delete this;
 }
+
+class LLFetchAndLinkObserver: public LLInventoryFetchObserver
+{
+public:
+	LLFetchAndLinkObserver(LLInventoryFetchObserver::item_ref_t& ids):
+		m_ids(ids),
+		LLInventoryFetchObserver(true)
+	{
+	}
+	~LLFetchAndLinkObserver()
+	{
+	}
+	virtual void done()
+	{
+		gInventory.removeObserver(this);
+		// Link to all fetched items in COF.
+		for (LLInventoryFetchObserver::item_ref_t::iterator it = m_ids.begin();
+			 it != m_ids.end();
+			 ++it)
+		{
+			LLUUID id = *it;
+			LLViewerInventoryItem *item = gInventory.getItem(*it);
+			if (!item)
+			{
+				llwarns << "fetch failed!" << llendl;
+				continue;
+			}
+			link_inventory_item(gAgent.getID(), item->getLinkedUUID(), LLAppearanceManager::instance().getCOF(), item->getName(),
+								LLAssetType::AT_LINK, LLPointer<LLInventoryCallback>(NULL));
+		}
+	}
+private:
+	LLInventoryFetchObserver::item_ref_t m_ids;
+};
 
 void LLInitialWearablesFetch::processWearablesMessage()
 {
 	if (!mAgentInitialWearables.empty()) // We have an empty current outfit folder, use the message data instead.
 	{
-		const LLUUID current_outfit_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+		const LLUUID current_outfit_id = LLAppearanceManager::instance().getCOF();
+		LLInventoryFetchObserver::item_ref_t ids;
 		for (U8 i = 0; i < mAgentInitialWearables.size(); ++i)
 		{
 			// Populate the current outfit folder with links to the wearables passed in the message
@@ -2205,9 +2256,7 @@ void LLInitialWearablesFetch::processWearablesMessage()
 			if (wearable_data->mAssetID.notNull())
 			{
 #ifdef USE_CURRENT_OUTFIT_FOLDER
-				const std::string link_name = "WearableLink"; // Unimportant what this is named, it isn't exposed.
-				link_inventory_item(gAgent.getID(), wearable_data->mItemID, current_outfit_id, link_name,
-									LLAssetType::AT_LINK, LLPointer<LLInventoryCallback>(NULL));
+				ids.push_back(wearable_data->mItemID);
 #endif
 				// Fetch the wearables
 				LLWearableList::instance().getAsset(wearable_data->mAssetID,
@@ -2220,6 +2269,42 @@ void LLInitialWearablesFetch::processWearablesMessage()
 				llinfos << "Invalid wearable, type " << wearable_data->mType << " itemID "
 				<< wearable_data->mItemID << " assetID " << wearable_data->mAssetID << llendl;
 			}
+		}
+
+		// Add all current attachments to the requested items as well.
+		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
+		if( avatar )
+		{
+			for (LLVOAvatar::attachment_map_t::const_iterator iter = avatar->mAttachmentPoints.begin(); 
+				 iter != avatar->mAttachmentPoints.end(); ++iter)
+			{
+				LLViewerJointAttachment* attachment = iter->second;
+				if (!attachment) continue;
+				for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+					 attachment_iter != attachment->mAttachedObjects.end();
+					 ++attachment_iter)
+				{
+					LLViewerObject* attached_object = (*attachment_iter);
+					if (!attached_object) continue;
+					const LLUUID& item_id = attached_object->getItemID();
+					if (item_id.isNull()) continue;
+					ids.push_back(item_id);
+				}
+			}
+		}
+
+		// Need to fetch the inventory items for ids, then create links to them after they arrive.
+		LLFetchAndLinkObserver *fetcher = new LLFetchAndLinkObserver(ids);
+		fetcher->fetchItems(ids);
+		// If no items to be fetched, done will never be triggered.
+		// TODO: Change LLInventoryFetchObserver::fetchItems to trigger done() on this condition.
+		if (fetcher->isEverythingComplete())
+		{
+			fetcher->done();
+		}
+		else
+		{
+			gInventory.addObserver(fetcher);
 		}
 	}
 	else

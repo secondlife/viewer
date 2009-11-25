@@ -171,7 +171,6 @@ static const F32 LLREQUEST_PERMISSION_THROTTLE_INTERVAL	= 10.0f; // seconds
 extern BOOL gDebugClicks;
 
 // function prototypes
-void open_offer(const std::vector<LLUUID>& items, const std::string& from_name);
 bool check_offer_throttle(const std::string& from_name, bool check_only);
 
 //inventory offer throttle globals
@@ -728,7 +727,7 @@ public:
 	LLOpenAgentOffer(const std::string& from_name) : mFromName(from_name) {}
 	/*virtual*/ void done()
 	{
-		open_offer(mComplete, mFromName);
+		open_inventory_offer(mComplete, mFromName);
 		gInventory.removeObserver(this);
 		delete this;
 	}
@@ -746,7 +745,7 @@ class LLOpenTaskOffer : public LLInventoryAddedObserver
 protected:
 	/*virtual*/ void done()
 	{
-		open_offer(mAdded, "");
+		open_inventory_offer(mAdded, "");
 		mAdded.clear();
 	}
  };
@@ -877,7 +876,7 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 	}
 }
  
-void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
+void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 {
 	std::vector<LLUUID>::const_iterator it = items.begin();
 	std::vector<LLUUID>::const_iterator end = items.end();
@@ -1067,12 +1066,60 @@ LLSD LLOfferInfo::asLLSD()
 	return sd;
 }
 
+void LLOfferInfo::send_auto_receive_response(void)
+{	
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->nextBlockFast(_PREHASH_MessageBlock);
+	msg->addBOOLFast(_PREHASH_FromGroup, FALSE);
+	msg->addUUIDFast(_PREHASH_ToAgentID, mFromID);
+	msg->addU8Fast(_PREHASH_Offline, IM_ONLINE);
+	msg->addUUIDFast(_PREHASH_ID, mTransactionID);
+	msg->addU32Fast(_PREHASH_Timestamp, NO_TIMESTAMP); // no timestamp necessary
+	std::string name;
+	LLAgentUI::buildFullname(name);
+	msg->addStringFast(_PREHASH_FromAgentName, name);
+	msg->addStringFast(_PREHASH_Message, ""); 
+	msg->addU32Fast(_PREHASH_ParentEstateID, 0);
+	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
+	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
+	
+	// Auto Receive Message. The math for the dialog works, because the accept
+	// for inventory_offered, task_inventory_offer or
+	// group_notice_inventory is 1 greater than the offer integer value.
+	// Generates IM_INVENTORY_ACCEPTED, IM_TASK_INVENTORY_ACCEPTED, 
+	// or IM_GROUP_NOTICE_INVENTORY_ACCEPTED
+	msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 1));
+	msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(mFolderID.mData),
+						   sizeof(mFolderID.mData));
+	// send the message
+	msg->sendReliable(mHost);
+	
+	if(IM_INVENTORY_OFFERED == mIM)
+	{
+		// add buddy to recent people list
+		LLRecentPeople::instance().add(mFromID);
+	}
+}
+
 bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD& response)
- {
+{
 	LLChat chat;
 	std::string log_message;
 	S32 button = LLNotificationsUtil::getSelectedOption(notification, response);
-
+	
+	LLInventoryObserver* opener = NULL;
+	LLViewerInventoryCategory* catp = NULL;
+	catp = (LLViewerInventoryCategory*)gInventory.getCategory(mObjectID);
+	LLViewerInventoryItem* itemp = NULL;
+	if(!catp)
+	{
+		itemp = (LLViewerInventoryItem*)gInventory.getItem(mObjectID);
+	}
+	 
 	// For muting, we need to add the mute, then decline the offer.
 	// This must be done here because:
 	// * callback may be called immediately,
@@ -1083,6 +1130,136 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		gCacheName->get(mFromID, mFromGroup, &inventory_offer_mute_callback);
 	}
 
+	std::string from_string; // Used in the pop-up.
+	std::string chatHistory_string;  // Used in chat history.
+	
+	// TODO: when task inventory offers can also be handled the new way, migrate the code that sets these strings here:
+	from_string = chatHistory_string = mFromName;
+	
+	bool busy=FALSE;
+	
+	switch(button)
+	{
+	case IOR_SHOW:
+		// we will want to open this item when it comes back.
+		LL_DEBUGS("Messaging") << "Initializing an opener for tid: " << mTransactionID
+				 << LL_ENDL;
+		switch (mIM)
+		{
+		case IM_INVENTORY_OFFERED:
+			{
+				// This is an offer from an agent. In this case, the back
+				// end has already copied the items into your inventory,
+				// so we can fetch it out of our inventory.
+				LLInventoryFetchObserver::item_ref_t items;
+				items.push_back(mObjectID);
+				LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(from_string);
+				open_agent_offer->fetchItems(items);
+				if(catp || (itemp && itemp->isComplete()))
+				{
+					open_agent_offer->done();
+				}
+				else
+				{
+					opener = open_agent_offer;
+				}
+			}
+			break;
+		case IM_TASK_INVENTORY_OFFERED:
+		case IM_GROUP_NOTICE:
+		case IM_GROUP_NOTICE_REQUESTED:
+			// This is an offer from a task or group.
+			// We don't use a new instance of an opener
+			// We instead use the singular observer gOpenTaskOffer
+			// Since it already exists, we don't need to actually do anything
+			break;
+		default:
+			LL_WARNS("Messaging") << "inventory_offer_callback: unknown offer type" << LL_ENDL;
+			break;
+		}	// end switch (mIM)
+			
+		// Show falls through to accept.
+			
+	case IOR_ACCEPT:
+		//don't spam them if they are getting flooded
+		if (check_offer_throttle(mFromName, true))
+		{
+			log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
+			chat.mText = log_message;
+			LLFloaterChat::addChatHistory(chat);
+		}
+		break;
+
+	case IOR_BUSY:
+		//Busy falls through to decline.  Says to make busy message.
+		busy=TRUE;
+	case IOR_MUTE:
+		// MUTE falls through to decline
+	case IOR_DECLINE:
+		{
+			log_message = LLTrans::getString("InvOfferYouDecline") + " " + mDesc + " " + LLTrans::getString("InvOfferFrom") + " " + mFromName +".";
+			chat.mText = log_message;
+			if( LLMuteList::getInstance()->isMuted(mFromID ) && ! LLMuteList::getInstance()->isLinden(mFromName) )  // muting for SL-42269
+			{
+				chat.mMuted = TRUE;
+			}
+			LLFloaterChat::addChatHistory(chat);
+			
+			LLInventoryFetchComboObserver::folder_ref_t folders;
+			LLInventoryFetchComboObserver::item_ref_t items;
+			items.push_back(mObjectID);
+			LLDiscardAgentOffer* discard_agent_offer;
+			discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
+			discard_agent_offer->fetch(folders, items);
+			if(catp || (itemp && itemp->isComplete()))
+			{
+				discard_agent_offer->done();
+			}
+			else
+			{
+				opener = discard_agent_offer;
+			}
+			
+			
+			if (busy &&	(!mFromGroup && !mFromObject))
+			{
+				busy_message(gMessageSystem, mFromID);
+			}
+			break;
+		}
+	default:
+		// close button probably
+		// The item has already been fetched and is in your inventory, we simply won't highlight it
+		// OR delete it if the notification gets killed, since we don't want that to be a vector for 
+		// losing inventory offers.
+		break;
+	}
+
+	if(opener)
+	{
+		gInventory.addObserver(opener);
+	}
+
+	delete this;
+	return false;
+}
+
+bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const LLSD& response)
+{
+	LLChat chat;
+	std::string log_message;
+	S32 button = LLNotification::getSelectedOption(notification, response);
+	
+	// For muting, we need to add the mute, then decline the offer.
+	// This must be done here because:
+	// * callback may be called immediately,
+	// * adding the mute sends a message,
+	// * we can't build two messages at once.
+	if (2 == button)
+	{
+		gCacheName->get(mFromID, mFromGroup, &inventory_offer_mute_callback);
+	}
+	
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -1109,7 +1286,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	{
 		itemp = (LLViewerInventoryItem*)gInventory.getItem(mObjectID);
 	}
-
+	
 	std::string from_string; // Used in the pop-up.
 	std::string chatHistory_string;  // Used in chat history.
 	if (mFromObject == TRUE)
@@ -1120,16 +1297,16 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			if (gCacheName->getGroupName(mFromID, group_name))
 			{
 				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " "+"'" 
-							+ mFromName + LLTrans::getString("'") +" " + LLTrans::getString("InvOfferOwnedByGroup") 
-				            + " "+ "'" + group_name + "'";
+				+ mFromName + LLTrans::getString("'") +" " + LLTrans::getString("InvOfferOwnedByGroup") 
+				+ " "+ "'" + group_name + "'";
 				
 				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedByGroup") 
-								   + " " + group_name + "'";
+				+ " " + group_name + "'";
 			}
 			else
 			{
 				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " "+"'"
-				            + mFromName +"'"+ " " + LLTrans::getString("InvOfferOwnedByUnknownGroup");
+				+ mFromName +"'"+ " " + LLTrans::getString("InvOfferOwnedByUnknownGroup");
 				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedByUnknownGroup");
 			}
 		}
@@ -1139,13 +1316,13 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			if (gCacheName->getName(mFromID, first_name, last_name))
 			{
 				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " "+ LLTrans::getString("'") + mFromName 
-							+ LLTrans::getString("'")+" " + LLTrans::getString("InvOfferOwnedBy") + first_name + " " + last_name;
+				+ LLTrans::getString("'")+" " + LLTrans::getString("InvOfferOwnedBy") + first_name + " " + last_name;
 				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedBy") + " " + first_name + " " + last_name;
 			}
 			else
 			{
 				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " "+LLTrans::getString("'") 
-				            + mFromName + LLTrans::getString("'")+" " + LLTrans::getString("InvOfferOwnedByUnknownUser");
+				+ mFromName + LLTrans::getString("'")+" " + LLTrans::getString("InvOfferOwnedByUnknownUser");
 				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedByUnknownUser");
 			}
 		}
@@ -1159,137 +1336,90 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	
 	switch(button)
 	{
-	case IOR_ACCEPT:
-		// ACCEPT. The math for the dialog works, because the accept
-		// for inventory_offered, task_inventory_offer or
-		// group_notice_inventory is 1 greater than the offer integer value.
-		// Generates IM_INVENTORY_ACCEPTED, IM_TASK_INVENTORY_ACCEPTED, 
-		// or IM_GROUP_NOTICE_INVENTORY_ACCEPTED
-		msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 1));
-		msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(mFolderID.mData),
-					 sizeof(mFolderID.mData));
-		// send the message
-		msg->sendReliable(mHost);
-
-		//don't spam them if they are getting flooded
-		if (check_offer_throttle(mFromName, true))
-		{
-			log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
- 			chat.mText = log_message;
- 			LLFloaterChat::addChatHistory(chat);
-		}
-
-		// we will want to open this item when it comes back.
-		LL_DEBUGS("Messaging") << "Initializing an opener for tid: " << mTransactionID
-				 << LL_ENDL;
-		switch (mIM)
-		{
-		case IM_INVENTORY_OFFERED:
-		{
-			// This is an offer from an agent. In this case, the back
-			// end has already copied the items into your inventory,
-			// so we can fetch it out of our inventory.
-			LLInventoryFetchObserver::item_ref_t items;
-			items.push_back(mObjectID);
-			LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(from_string);
-			open_agent_offer->fetchItems(items);
-			if(catp || (itemp && itemp->isComplete()))
+		case IOR_ACCEPT:
+			// ACCEPT. The math for the dialog works, because the accept
+			// for inventory_offered, task_inventory_offer or
+			// group_notice_inventory is 1 greater than the offer integer value.
+			// Generates IM_INVENTORY_ACCEPTED, IM_TASK_INVENTORY_ACCEPTED, 
+			// or IM_GROUP_NOTICE_INVENTORY_ACCEPTED
+			msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 1));
+			msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(mFolderID.mData),
+								   sizeof(mFolderID.mData));
+			// send the message
+			msg->sendReliable(mHost);
+			
+			//don't spam them if they are getting flooded
+			if (check_offer_throttle(mFromName, true))
 			{
-				open_agent_offer->done();
-			}
-			else
-			{
-				opener = open_agent_offer;
-			}
-		}
-			break;
-		case IM_TASK_INVENTORY_OFFERED:
-		case IM_GROUP_NOTICE:
-		case IM_GROUP_NOTICE_REQUESTED:
-		{
-			// This is an offer from a task or group.
-			// We don't use a new instance of an opener
-			// We instead use the singular observer gOpenTaskOffer
-			// Since it already exists, we don't need to actually do anything
-		}
-		break;
-		default:
-			LL_WARNS("Messaging") << "inventory_offer_callback: unknown offer type" << LL_ENDL;
-			break;
-		}	// end switch (mIM)
-		break;
-
-	case IOR_BUSY:
-		//Busy falls through to decline.  Says to make busy message.
-		busy=TRUE;
-	case IOR_MUTE:
-		// MUTE falls through to decline
-	case IOR_DECLINE:
-		// DECLINE. The math for the dialog works, because the decline
-		// for inventory_offered, task_inventory_offer or
-		// group_notice_inventory is 2 greater than the offer integer value.
-		// Generates IM_INVENTORY_DECLINED, IM_TASK_INVENTORY_DECLINED,
-		// or IM_GROUP_NOTICE_INVENTORY_DECLINED
-	default:
-		// close button probably (or any of the fall-throughs from above)
-		msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 2));
-		msg->addBinaryDataFast(_PREHASH_BinaryBucket, EMPTY_BINARY_BUCKET, EMPTY_BINARY_BUCKET_SIZE);
-		// send the message
-		msg->sendReliable(mHost);
-
-		log_message = LLTrans::getString("InvOfferYouDecline") + " " + mDesc + " " + LLTrans::getString("InvOfferFrom") + " " + mFromName +".";
-		chat.mText = log_message;
-		if( LLMuteList::getInstance()->isMuted(mFromID ) && ! LLMuteList::getInstance()->isLinden(mFromName) )  // muting for SL-42269
-		{
-			chat.mMuted = TRUE;
-		}
-		LLFloaterChat::addChatHistory(chat);
-
-		// If it's from an agent, we have to fetch the item to throw
-		// it away. If it's from a task or group, just denying the 
-		// request will suffice to discard the item.
-		if(IM_INVENTORY_OFFERED == mIM)
-		{
-			LLInventoryFetchComboObserver::folder_ref_t folders;
-			LLInventoryFetchComboObserver::item_ref_t items;
-			items.push_back(mObjectID);
-			LLDiscardAgentOffer* discard_agent_offer;
-			discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
-			discard_agent_offer->fetch(folders, items);
-			if(catp || (itemp && itemp->isComplete()))
-			{
-				discard_agent_offer->done();
-			}
-			else
-			{
-				opener = discard_agent_offer;
+				log_message = chatHistory_string + " " + LLTrans::getString("InvOfferGaveYou") + " " + mDesc + LLTrans::getString(".");
+				chat.mText = log_message;
+				LLFloaterChat::addChatHistory(chat);
 			}
 			
-		}
-		if (busy &&	(!mFromGroup && !mFromObject))
+			// we will want to open this item when it comes back.
+			LL_DEBUGS("Messaging") << "Initializing an opener for tid: " << mTransactionID
+			<< LL_ENDL;
+			switch (mIM)
 		{
-			busy_message(msg,mFromID);
-		}
-		break;
+			case IM_TASK_INVENTORY_OFFERED:
+			case IM_GROUP_NOTICE:
+			case IM_GROUP_NOTICE_REQUESTED:
+			{
+				// This is an offer from a task or group.
+				// We don't use a new instance of an opener
+				// We instead use the singular observer gOpenTaskOffer
+				// Since it already exists, we don't need to actually do anything
+			}
+				break;
+			default:
+				LL_WARNS("Messaging") << "inventory_offer_callback: unknown offer type" << LL_ENDL;
+				break;
+		}	// end switch (mIM)
+			break;
+			
+		case IOR_BUSY:
+			//Busy falls through to decline.  Says to make busy message.
+			busy=TRUE;
+		case IOR_MUTE:
+			// MUTE falls through to decline
+		case IOR_DECLINE:
+			// DECLINE. The math for the dialog works, because the decline
+			// for inventory_offered, task_inventory_offer or
+			// group_notice_inventory is 2 greater than the offer integer value.
+			// Generates IM_INVENTORY_DECLINED, IM_TASK_INVENTORY_DECLINED,
+			// or IM_GROUP_NOTICE_INVENTORY_DECLINED
+		default:
+			// close button probably (or any of the fall-throughs from above)
+			msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 2));
+			msg->addBinaryDataFast(_PREHASH_BinaryBucket, EMPTY_BINARY_BUCKET, EMPTY_BINARY_BUCKET_SIZE);
+			// send the message
+			msg->sendReliable(mHost);
+			
+			log_message = LLTrans::getString("InvOfferYouDecline") + " " + mDesc + " " + LLTrans::getString("InvOfferFrom") + " " + mFromName +".";
+			chat.mText = log_message;
+			if( LLMuteList::getInstance()->isMuted(mFromID ) && ! LLMuteList::getInstance()->isLinden(mFromName) )  // muting for SL-42269
+			{
+				chat.mMuted = TRUE;
+			}
+			LLFloaterChat::addChatHistory(chat);
+			
+			if (busy &&	(!mFromGroup && !mFromObject))
+			{
+				busy_message(msg,mFromID);
+			}
+			break;
 	}
-
-	if(IM_INVENTORY_OFFERED == mIM)
-	{
-		// add buddy to recent people list
-		LLRecentPeople::instance().add(mFromID);
-	}
-
+	
 	if(opener)
 	{
 		gInventory.addObserver(opener);
 	}
-
+	
 	delete this;
 	return false;
 }
 
-
-void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
+void inventory_offer_handler(LLOfferInfo* info)
 {
 	//Until throttling is implmented, busy mode should reject inventory instead of silently
 	//accepting it.  SEE SL-39554
@@ -1376,21 +1506,45 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 	args["OBJECTFROMNAME"] = info->mFromName;
 	args["NAME"] = info->mFromName;
 	args["NAME_SLURL"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
-	std::string verb = "highlight?name=" + msg;
+	std::string verb = "select?name=" + msg;
 	args["ITEM_SLURL"] = LLSLURL::buildCommand("inventory", info->mObjectID, verb.c_str());
 
 	LLNotification::Params p("ObjectGiveItem");
-	p.substitutions(args).payload(payload).functor.function(boost::bind(&LLOfferInfo::inventory_offer_callback, info, _1, _2));
 
-	if (from_task)
+	// Object -> Agent Inventory Offer
+	if (info->mFromObject)
 	{
+		// Inventory Slurls don't currently work for non agent transfers, so only display the object name.
+		args["ITEM_SLURL"] = msg;
+		// Note: sets inventory_task_offer_callback as the callback
+		p.substitutions(args).payload(payload).functor.function(boost::bind(&LLOfferInfo::inventory_task_offer_callback, info, _1, _2));
 		p.name = name_found ? "ObjectGiveItem" : "ObjectGiveItemUnknownUser";
 	}
-	else
+	else // Agent -> Agent Inventory Offer
 	{
+		// Note: sets inventory_offer_callback as the callback
+		p.substitutions(args).payload(payload).functor.function(boost::bind(&LLOfferInfo::inventory_offer_callback, info, _1, _2));
 		p.name = "UserGiveItem";
+		
+		// Prefetch the item into your local inventory.
+		LLInventoryFetchObserver::item_ref_t items;
+		items.push_back(info->mObjectID);
+		LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
+		fetch_item->fetchItems(items);
+		if(fetch_item->isEverythingComplete())
+		{
+			fetch_item->done();
+		}
+		else
+		{
+			gInventory.addObserver(fetch_item);
+		}
+		
+		// In viewer 2 we're now auto receiving inventory offers and messaging as such (not sending reject messages).
+		info->send_auto_receive_response();
 	}
-
+	
+	// Pop up inv offer notification and let the user accept (keep), or reject (and silently delete) the inventory.
 	LLNotifications::instance().add(p);
 }
 
@@ -1886,7 +2040,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
-				inventory_offer_handler(info, dialog == IM_TASK_INVENTORY_OFFERED);
+				inventory_offer_handler(info);
 			}
 		}
 		break;

@@ -106,16 +106,17 @@ protected:
 class LLInventoryFetchObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryFetchObserver() {}
+	LLInventoryFetchObserver(bool retry_if_missing = false): mRetryIfMissing(retry_if_missing) {}
 	virtual void changed(U32 mask);
 
 	typedef std::vector<LLUUID> item_ref_t;
 
 	bool isEverythingComplete() const;
 	void fetchItems(const item_ref_t& ids);
-	virtual void done() = 0;
+	virtual void done() {};
 
 protected:
+	bool mRetryIfMissing;
 	item_ref_t mComplete;
 	item_ref_t mIncomplete;
 };

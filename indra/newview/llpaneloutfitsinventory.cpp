@@ -59,7 +59,7 @@
 static LLRegisterPanelClassWrapper<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
 
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
-	mInventoryPanel(NULL),
+	mActivePanel(NULL),
 	mParent(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
@@ -74,12 +74,8 @@ LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
 // virtual
 BOOL LLPanelOutfitsInventory::postBuild()
 {
-	mInventoryPanel = getChild<LLInventoryPanel>("outfits_list");
-	mInventoryPanel->setFilterTypes(1LL << LLFolderType::FT_OUTFIT, TRUE);
-	mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mInventoryPanel->openDefaultFolderForType(LLFolderType::FT_MY_OUTFITS);
-	mInventoryPanel->setSelectCallback(boost::bind(&LLPanelOutfitsInventory::onSelectionChange, this, _1, _2));
 	
+	initAccordionPanels();
 	initListCommandsHandlers();
 	return TRUE;
 }
@@ -102,7 +98,7 @@ void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 {
 	if (string == "")
 	{
-		mInventoryPanel->setFilterSubString(LLStringUtil::null);
+		mActivePanel->setFilterSubString(LLStringUtil::null);
 
 		// re-open folders that were initially open
 		mSavedFolderState->setApply(TRUE);
@@ -114,7 +110,7 @@ void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 
 	gInventory.startBackgroundFetch();
 
-	if (mInventoryPanel->getFilterSubString().empty() && string.empty())
+	if (mActivePanel->getFilterSubString().empty() && string.empty())
 	{
 		// current filter and new filter empty, do nothing
 		return;
@@ -128,7 +124,7 @@ void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 	}
 
 	// set new filter string
-	mInventoryPanel->setFilterSubString(string);
+	mActivePanel->setFilterSubString(string);
 }
 
 void LLPanelOutfitsInventory::onWear()
@@ -148,13 +144,20 @@ void LLPanelOutfitsInventory::onNew()
 {
 	const std::string& outfit_name = LLViewerFolderType::lookupNewCategoryName(LLFolderType::FT_OUTFIT);
 	LLUUID outfit_folder = gAgentWearables.makeNewOutfitLinks(outfit_name);
+
 	getRootFolder()->setSelectionByID(outfit_folder, TRUE);
 	getRootFolder()->setNeedsAutoRename(TRUE);
 }
 
 void LLPanelOutfitsInventory::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
 {
+	updateListCommands();
 	updateParent();
+	if (getRootFolder()->needsAutoRename())
+	{
+		getRootFolder()->startRenamingSelectedItem();
+		getRootFolder()->setNeedsAutoRename(FALSE);
+	}
 }
 
 void LLPanelOutfitsInventory::onSelectorButtonClicked()
@@ -203,7 +206,7 @@ bool LLPanelOutfitsInventory::getIsCorrectType(const LLFolderViewEventListener *
 
 LLFolderView *LLPanelOutfitsInventory::getRootFolder()
 {
-	return mInventoryPanel->getRootFolder();
+	return mActivePanel->getRootFolder();
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -345,3 +348,67 @@ bool LLPanelOutfitsInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropTy
 // List Commands                                                              //
 ////////////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////////////
+// Accordion                                                                    //
+
+void LLPanelOutfitsInventory::initAccordionPanels()
+{
+	mAccordionPanels.resize(2);
+	
+	LLInventoryPanel *myoutfits_panel = getChild<LLInventoryPanel>("outfitslist_accordionpanel");
+	myoutfits_panel->setFilterTypes(1LL << LLFolderType::FT_OUTFIT, TRUE);
+	myoutfits_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+	mAccordionPanels[0] = myoutfits_panel;
+	mActivePanel = myoutfits_panel;
+
+	LLInventoryPanel *cof_panel = getChild<LLInventoryPanel>("cof_accordionpanel");
+	cof_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+	mAccordionPanels[1] = cof_panel;
+
+	for (accordionpanels_vec_t::iterator iter = mAccordionPanels.begin();
+		 iter != mAccordionPanels.end();
+		 ++iter)
+	{
+		LLInventoryPanel *panel = (*iter);
+		panel->setSelectCallback(boost::bind(&LLPanelOutfitsInventory::onAccordionSelectionChange, this, panel, _1, _2));
+	}
+}
+
+void LLPanelOutfitsInventory::onAccordionSelectionChange(LLInventoryPanel* accordion_panel, const std::deque<LLFolderViewItem*> &items, BOOL user_action)
+{
+	if (user_action && items.size() > 0)
+	{
+		for (accordionpanels_vec_t::iterator iter = mAccordionPanels.begin();
+			 iter != mAccordionPanels.end();
+			 ++iter)
+		{
+			LLInventoryPanel *panel = (*iter);
+			if (panel == accordion_panel)
+			{
+				mActivePanel = panel;
+			}
+			else
+			{
+				panel->getRootFolder()->clearSelection();
+			}
+		}
+	}
+	onSelectionChange(items, user_action);
+}
+
+LLInventoryPanel* LLPanelOutfitsInventory::getActivePanel()
+{
+	return mActivePanel;
+}
+
+bool LLPanelOutfitsInventory::isAccordionPanel(LLInventoryPanel *panel)
+{
+	for(accordionpanels_vec_t::iterator it = mAccordionPanels.begin();
+		it != mAccordionPanels.end();
+		++it)
+	{
+		if (*it == panel)
+			return true;
+	}
+	return false;
+}

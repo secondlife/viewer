@@ -102,9 +102,9 @@
     background_visible="true"
   >
       <panel
-        class="panel_me_profile_view"
-        name="panel_me_profile"
-        filename="panel_me_profile.xml"
+        class="panel_me"
+        name="panel_me"
+        filename="panel_me.xml"
         label="Me"
       />
   </sidetray_tab>
