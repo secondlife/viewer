@@ -1888,41 +1888,50 @@ void LLFloaterView::reshapeFloater(S32 width, S32 height, BOOL called_from_paren
 			// dependents use same follow flags as their "dependee"
 			continue;
 		}
-		LLRect r = floaterp->getRect();
-
-		// Compute absolute distance from each edge of screen
-		S32 left_offset = llabs(r.mLeft - 0);
-		S32 right_offset = llabs(old_width - r.mRight);
-
-		S32 top_offset = llabs(old_height - r.mTop);
-		S32 bottom_offset = llabs(r.mBottom - 0);
 
 		// Make if follow the edge it is closest to
 		U32 follow_flags = 0x0;
 
-		if (left_offset < right_offset)
+		if (floaterp->isMinimized())
 		{
-			follow_flags |= FOLLOWS_LEFT;
+			follow_flags |= (FOLLOWS_LEFT | FOLLOWS_TOP);
 		}
 		else
 		{
-			follow_flags |= FOLLOWS_RIGHT;
-		}
+			LLRect r = floaterp->getRect();
 
-		// "No vertical adjustment" usually means that the bottom of the view
-		// has been pushed up or down.  Hence we want the floaters to follow
-		// the top.
-		if (!adjust_vertical)
-		{
-			follow_flags |= FOLLOWS_TOP;
-		}
-		else if (top_offset < bottom_offset)
-		{
-			follow_flags |= FOLLOWS_TOP;
-		}
-		else
-		{
-			follow_flags |= FOLLOWS_BOTTOM;
+			// Compute absolute distance from each edge of screen
+			S32 left_offset = llabs(r.mLeft - 0);
+			S32 right_offset = llabs(old_width - r.mRight);
+
+			S32 top_offset = llabs(old_height - r.mTop);
+			S32 bottom_offset = llabs(r.mBottom - 0);
+
+
+			if (left_offset < right_offset)
+			{
+				follow_flags |= FOLLOWS_LEFT;
+			}
+			else
+			{
+				follow_flags |= FOLLOWS_RIGHT;
+			}
+
+			// "No vertical adjustment" usually means that the bottom of the view
+			// has been pushed up or down.  Hence we want the floaters to follow
+			// the top.
+			if (!adjust_vertical)
+			{
+				follow_flags |= FOLLOWS_TOP;
+			}
+			else if (top_offset < bottom_offset)
+			{
+				follow_flags |= FOLLOWS_TOP;
+			}
+			else
+			{
+				follow_flags |= FOLLOWS_BOTTOM;
+			}
 		}
 
 		floaterp->setFollows(follow_flags);
@@ -2172,16 +2181,16 @@ void LLFloaterView::getMinimizePosition(S32 *left, S32 *bottom)
 	const LLFloater::Params& default_params = LLFloater::getDefaultParams();
 	S32 floater_header_size = default_params.header_height;
 	static LLUICachedControl<S32> minimized_width ("UIMinimizedWidth", 0);
-	S32 col = 0;
 	LLRect snap_rect_local = getLocalSnapRect();
-	for(S32 row = snap_rect_local.mBottom;
-		row < snap_rect_local.getHeight() - floater_header_size;
-		row += floater_header_size ) //loop rows
-	{
-		for(col = snap_rect_local.mLeft;
-			col < snap_rect_local.getWidth() - minimized_width;
-			col += minimized_width)
+	for(S32 col = snap_rect_local.mLeft;
+		col < snap_rect_local.getWidth() - minimized_width;
+		col += minimized_width)
+	{	
+		for(S32 row = snap_rect_local.mTop - floater_header_size;
+		row > floater_header_size;
+		row -= floater_header_size ) //loop rows
 		{
+
 			bool foundGap = TRUE;
 			for(child_list_const_iter_t child_it = getChildList()->begin();
 				child_it != getChildList()->end();
@@ -2517,8 +2526,12 @@ void LLFloaterView::pushVisibleAll(BOOL visible, const skip_list_t& skip_list)
 
 void LLFloaterView::popVisibleAll(const skip_list_t& skip_list)
 {
-	for (child_list_const_iter_t child_iter = getChildList()->begin();
-		 child_iter != getChildList()->end(); ++child_iter)
+	// make a copy of the list since some floaters change their
+	// order in the childList when changing visibility.
+	child_list_t child_list_copy = *getChildList();
+
+	for (child_list_const_iter_t child_iter = child_list_copy.begin();
+		 child_iter != child_list_copy.end(); ++child_iter)
 	{
 		LLView *view = *child_iter;
 		if (skip_list.find(view) == skip_list.end())
@@ -2629,10 +2642,14 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	
 	// open callback 
 	if (p.open_callback.isProvided())
-		initCommitCallback(p.open_callback, mOpenSignal);
+	{
+		mOpenSignal.connect(initCommitCallback(p.open_callback));
+	}
 	// close callback 
 	if (p.close_callback.isProvided())
-		initCommitCallback(p.close_callback, mCloseSignal);
+	{
+		mCloseSignal.connect(initCommitCallback(p.close_callback));
+	}
 }
 
 LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");

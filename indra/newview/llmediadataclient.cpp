@@ -324,6 +324,22 @@ std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::PriorityQueue
 	return s;
 }
 
+// find the given object in the queue.
+bool LLMediaDataClient::PriorityQueue::find(const LLMediaDataClientObject::ptr_t &obj) const
+{
+	std::vector<LLMediaDataClient::request_ptr_t>::const_iterator iter = c.begin();
+	std::vector<LLMediaDataClient::request_ptr_t>::const_iterator end = c.end();
+	while (iter < end)
+	{
+		if (obj->getID() == (*iter)->getObject()->getID())
+		{
+			return true;
+		}
+		iter++;
+	}
+	return false;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // LLMediaDataClient::QueueTimer
@@ -355,67 +371,87 @@ BOOL LLMediaDataClient::QueueTimer::tick()
 	}
 	
 	LLMediaDataClient::PriorityQueue &queue = *(mMDC->pRequestQueue);
-	
-	if (queue.empty())
+
+	if(!queue.empty())
 	{
-		LL_DEBUGS("LLMediaDataClient") << "queue empty: " << queue << LL_ENDL;
-		return TRUE;
+		LL_INFOS("LLMediaDataClient") << "QueueTimer::tick() started, queue is:	  " << queue << LL_ENDL;
 	}
 
-	LL_INFOS("LLMediaDataClient") << "QueueTimer::tick() started, queue is:	  " << queue << LL_ENDL;
-
-	// Peel one off of the items from the queue, and execute request
-	request_ptr_t request = queue.top();
-	llassert(!request.isNull());
-	const LLMediaDataClientObject *object = (request.isNull()) ? NULL : request->getObject();
-	bool performed_request = false;
-	bool error = false;
-	llassert(NULL != object);
-	if (NULL != object && object->hasMedia())
+	// quick retry loop for cases where we shouldn't wait for the next timer tick
+	while(true)
 	{
-		std::string url = request->getCapability();
-		if (!url.empty())
+		if (queue.empty())
 		{
-			const LLSD &sd_payload = request->getPayload();
-			LL_INFOS("LLMediaDataClient") << "Sending request for " << *request << LL_ENDL;
+			LL_DEBUGS("LLMediaDataClient") << "queue empty: " << queue << LL_ENDL;
+			return TRUE;
+		}
+	
+		// Peel one off of the items from the queue, and execute request
+		request_ptr_t request = queue.top();
+		llassert(!request.isNull());
+		const LLMediaDataClientObject *object = (request.isNull()) ? NULL : request->getObject();
+		bool performed_request = false;
+		bool error = false;
+		llassert(NULL != object);
 
-			// Call the subclass for creating the responder
-			LLHTTPClient::post(url, sd_payload, mMDC->createResponder(request));
-			performed_request = true;
+		if(object->isDead())
+		{
+			// This object has been marked dead.  Pop it and move on to the next item in the queue immediately.
+			LL_INFOS("LLMediaDataClient") << "Skipping " << *request << ": object is dead!" << LL_ENDL;
+			queue.pop();
+			continue;	// jump back to the start of the quick retry loop
+		}
+
+		if (NULL != object && object->hasMedia())
+		{
+			std::string url = request->getCapability();
+			if (!url.empty())
+			{
+				const LLSD &sd_payload = request->getPayload();
+				LL_INFOS("LLMediaDataClient") << "Sending request for " << *request << LL_ENDL;
+
+				// Call the subclass for creating the responder
+				LLHTTPClient::post(url, sd_payload, mMDC->createResponder(request));
+				performed_request = true;
+			}
+			else {
+				LL_INFOS("LLMediaDataClient") << "NOT Sending request for " << *request << ": empty cap url!" << LL_ENDL;
+			}
 		}
 		else {
-			LL_INFOS("LLMediaDataClient") << "NOT Sending request for " << *request << ": empty cap url!" << LL_ENDL;
+			if (request.isNull()) 
+			{
+				LL_WARNS("LLMediaDataClient") << "Not Sending request: NULL request!" << LL_ENDL;
+			}
+			else if (NULL == object) 
+			{
+				LL_WARNS("LLMediaDataClient") << "Not Sending request for " << *request << " NULL object!" << LL_ENDL;
+			}
+			else if (!object->hasMedia())
+			{
+				LL_WARNS("LLMediaDataClient") << "Not Sending request for " << *request << " hasMedia() is false!" << LL_ENDL;
+			}
+			error = true;
 		}
-	}
-	else {
-		if (request.isNull()) 
+		bool exceeded_retries = request->getRetryCount() > mMDC->mMaxNumRetries;
+		if (performed_request || exceeded_retries || error) // Try N times before giving up 
 		{
-			LL_WARNS("LLMediaDataClient") << "Not Sending request: NULL request!" << LL_ENDL;
+			if (exceeded_retries)
+			{
+				LL_WARNS("LLMediaDataClient") << "Could not send request " << *request << " for " 
+											  << mMDC->mMaxNumRetries << " tries...popping object id " << object->getID() << LL_ENDL; 
+				// XXX Should we bring up a warning dialog??
+			}
+			queue.pop();
 		}
-		else if (NULL == object) 
-		{
-			LL_WARNS("LLMediaDataClient") << "Not Sending request for " << *request << " NULL object!" << LL_ENDL;
+		else {
+			request->incRetryCount();
 		}
-		else if (!object->hasMedia())
-		{
-			LL_WARNS("LLMediaDataClient") << "Not Sending request for " << *request << " hasMedia() is false!" << LL_ENDL;
-		}
-		error = true;
-	}
-	bool exceeded_retries = request->getRetryCount() > mMDC->mMaxNumRetries;
-	if (performed_request || exceeded_retries || error) // Try N times before giving up 
-	{
-		if (exceeded_retries)
-		{
-			LL_WARNS("LLMediaDataClient") << "Could not send request " << *request << " for " 
-										  << mMDC->mMaxNumRetries << " tries...popping object id " << object->getID() << LL_ENDL; 
-			// XXX Should we bring up a warning dialog??
-		}
-		queue.pop();
-	}
-	else {
-		request->incRetryCount();
-	}
+		
+ 		// end of quick retry loop -- any cases where we want to loop will use 'continue' to jump back to the start.
+ 		break;
+	}  
+	
 	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() finished, queue is now: " << (*(mMDC->pRequestQueue)) << LL_ENDL;
 
 	return queue.empty();
@@ -489,6 +525,11 @@ LLMediaDataClient::~LLMediaDataClient()
 bool LLMediaDataClient::isEmpty() const
 {
 	return (NULL == pRequestQueue) ? true : pRequestQueue->empty();
+}
+
+bool LLMediaDataClient::isInQueue(const LLMediaDataClientObject::ptr_t &object) const
+{
+	return (NULL == pRequestQueue) ? false : pRequestQueue->find(object);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -596,6 +637,9 @@ void LLObjectMediaNavigateClient::navigate(LLMediaDataClientObject *object, U8 t
 	sd_payload[LLTextureEntry::OBJECT_ID_KEY] = object->getID();
 	sd_payload[LLMediaEntry::CURRENT_URL_KEY] = url;
 	sd_payload[LLTextureEntry::TEXTURE_INDEX_KEY] = (LLSD::Integer)texture_index;
+	
+	LL_INFOS("LLMediaDataClient") << "navigate() initiated: " << ll_print_sd(sd_payload) << LL_ENDL;
+	
 	request(object, sd_payload);
 }
 

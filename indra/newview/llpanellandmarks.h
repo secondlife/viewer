@@ -37,6 +37,7 @@
 
 // newview
 #include "llinventorymodel.h"
+#include "lllandmarklist.h"
 #include "llpanelplacestab.h"
 #include "llpanelpick.h"
 #include "llremoteparcelrequest.h"
@@ -45,6 +46,7 @@ class LLAccordionCtrlTab;
 class LLFolderViewItem;
 class LLMenuGL;
 class LLInventoryPanel;
+class LLInventoryObserver;
 class LLInventorySubTreePanel;
 
 class LLLandmarksPanel : public LLPanelPlacesTab, LLRemoteParcelInfoObserver
@@ -61,14 +63,21 @@ public:
 
 	void onSelectionChange(LLInventorySubTreePanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();
-	
+
+	/**
+	 * Updates accordions according to filtered items in lists.
+	 *
+	 * It hides accordion for empty lists
+	 */
+	void updateFilteredAccordions();
+
 protected:
 	/**
 	 * @return true - if current selected panel is not null and selected item is a landmark
 	 */
 	bool isLandmarkSelected() const;
 	bool isReceivedFolderSelected() const;
-	LLLandmark* getCurSelectedLandmark() const;
+	void doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb);
 	LLFolderViewItem* getCurSelectedItem() const;
 	void updateSortOrder(LLInventoryPanel* panel, bool byDate);
 
@@ -78,10 +87,10 @@ protected:
 	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason);
 	
 private:
-	void initFavoritesInventroyPanel();
-	void initLandmarksInventroyPanel();
-	void initMyInventroyPanel();
-	void initLibraryInventroyPanel();
+	void initFavoritesInventoryPanel();
+	void initLandmarksInventoryPanel();
+	void initMyInventoryPanel();
+	void initLibraryInventoryPanel();
 	void initLandmarksPanel(LLInventorySubTreePanel* inventory_list);
 	void initAccordion(const std::string& accordion_tab_name, LLInventorySubTreePanel* inventory_list);
 	void onAccordionExpandedCollapsed(const LLSD& param, LLInventorySubTreePanel* inventory_list);
@@ -121,11 +130,14 @@ private:
 	static void doIdle(void* landmarks_panel);
 
 	/**
-	 * Updates accordions according to filtered items in lists.
-	 *
-	 * It hides accordion for empty lists
+	 * Landmark actions callbacks. Fire when a landmark is loaded from the list.
 	 */
-	void updateFilteredAccordions();
+	void doShowOnMap(LLLandmark* landmark);
+	void doProcessParcelInfo(LLLandmark* landmark,
+							 LLFolderViewItem* cur_item,
+							 LLInventoryItem* inv_item,
+							 const LLParcelData& parcel_data);
+	void doCreatePick(LLLandmark* landmark);
 
 private:
 	LLInventorySubTreePanel*	mFavoritesInventoryPanel;
@@ -136,6 +148,7 @@ private:
 	LLMenuGL*					mGearFolderMenu;
 	LLMenuGL*					mMenuAdd;
 	LLInventorySubTreePanel*	mCurrentSelectedList;
+	LLInventoryObserver*		mInventoryObserver;
 
 	LLPanel*					mListCommands;
 	bool 						mSortByDate;

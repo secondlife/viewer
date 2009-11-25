@@ -239,6 +239,7 @@ class UnixSetup(PlatformSetup):
 
     def run(self, command, name=None):
         '''Run a program.  If the program fails, raise an exception.'''
+        sys.stdout.flush()
         ret = os.system(command)
         if ret:
             if name is None:
@@ -456,7 +457,7 @@ class DarwinSetup(UnixSetup):
             targets = ' '.join(['-target ' + repr(t) for t in targets])
         else:
             targets = ''
-        cmd = ('xcodebuild -configuration %s %s %s' %
+        cmd = ('xcodebuild -configuration %s %s %s | grep -v "^[[:space:]]*setenv" ; exit ${PIPESTATUS[0]}' %
                (self.build_type, ' '.join(opts), targets))
         for d in self.build_dirs():
             try:
@@ -577,12 +578,16 @@ class WindowsSetup(PlatformSetup):
         # devenv.com is CLI friendly, devenv.exe... not so much.
         return ('"%sdevenv.com" %s.sln /build %s' % 
                 (self.find_visual_studio(), self.project_name, self.build_type))
+        #return ('devenv.com %s.sln /build %s' % 
+        #        (self.project_name, self.build_type))
 
     def run(self, command, name=None, retry_on=None, retries=1):
         '''Run a program.  If the program fails, raise an exception.'''
         while retries:
             retries = retries - 1
+            print "develop.py tries to run:", command
             ret = os.system(command)
+            print "got ret", ret, "from", command
             if ret:
                 if name is None:
                     name = command.split(None, 1)[0]

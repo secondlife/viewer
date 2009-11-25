@@ -413,6 +413,19 @@ void LLLayoutStack::updatePanelAutoResize(const std::string& panel_name, BOOL au
 	}
 }
 
+bool LLLayoutStack::getPanelMinSize(const std::string& panel_name, S32* min_widthp, S32* min_heightp)
+{
+	LayoutPanel* panel = findEmbeddedPanelByName(panel_name);
+
+	if (panel)
+	{
+		if (min_widthp) *min_widthp = panel->mMinWidth;
+		if (min_heightp) *min_heightp = panel->mMinHeight;
+	}
+
+	return NULL != panel;
+}
+
 static LLFastTimer::DeclareTimer FTM_UPDATE_LAYOUT("Update LayoutStacks");
 void LLLayoutStack::updateLayout(BOOL force_resize)
 {
@@ -792,8 +805,8 @@ void LLLayoutStack::calcMinExtents()
 //static 
 void LLLayoutStack::updateClass()
 {
-	for (LLInstanceTracker::instance_iter it = beginInstances(); it != endInstances(); ++it)
+	for (LLLayoutStack::instance_iter it = beginInstances(); it != endInstances(); ++it)
 	{
-		(*it)->updateLayout();
+		it->updateLayout();
 	}
 }

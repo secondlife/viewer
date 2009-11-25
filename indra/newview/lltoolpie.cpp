@@ -209,6 +209,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			// touch behavior down below...
 			break;
 		case CLICK_ACTION_SIT:
+
 			if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // agent not already sitting
 			{
 				handle_object_sit_or_stand();
@@ -252,7 +253,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 					selectionPropertiesReceived();
 				}
 			}
-			return TRUE;
+			return TRUE;	
 		case CLICK_ACTION_PLAY:
 			handle_click_action_play();
 			return TRUE;
@@ -260,6 +261,29 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			// mClickActionObject = object;
 			handle_click_action_open_media(object);
 			return TRUE;
+		case CLICK_ACTION_ZOOM:
+			{	
+				const F32 PADDING_FACTOR = 2.f;
+				LLViewerObject* object = gObjectList.findObject(mPick.mObjectID);
+				
+				if (object)
+				{
+					gAgent.setFocusOnAvatar(FALSE, ANIMATE);
+					
+					LLBBox bbox = object->getBoundingBoxAgent() ;
+					F32 angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getAspect() > 1.f ? LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect() : LLViewerCamera::getInstance()->getView());
+					F32 distance = bbox.getExtentLocal().magVec() * PADDING_FACTOR / atan(angle_of_view);
+				
+					LLVector3 obj_to_cam = LLViewerCamera::getInstance()->getOrigin() - bbox.getCenterAgent();
+					obj_to_cam.normVec();
+					
+					LLVector3d object_center_global = gAgent.getPosGlobalFromAgent(bbox.getCenterAgent());
+					gAgent.setCameraPosAndFocusGlobal(object_center_global + LLVector3d(obj_to_cam * distance), 
+													  object_center_global, 
+													  mPick.mObjectID );
+				}
+			}
+			return TRUE;			
 		default:
 			// nothing
 			break;
@@ -413,6 +437,9 @@ ECursorType cursor_from_object(LLViewerObject* object)
 			cursor = UI_CURSOR_HAND;
 		}
 		break;
+	case CLICK_ACTION_ZOOM:
+			cursor = UI_CURSOR_TOOLZOOMIN;
+			break;			
 	case CLICK_ACTION_PLAY:
 	case CLICK_ACTION_OPEN_MEDIA: 
 		cursor = cursor_from_parcel_media(click_action);
@@ -526,7 +553,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	}
 
 	static LLCachedControl<bool> enable_highlight(
-		gSavedSettings, "RenderHighlightEnable", false);
+		gSavedSettings, "RenderHoverGlowEnable", false);
 	LLDrawable* drawable = NULL;
 	if (enable_highlight && show_highlight && object)
 	{
@@ -551,6 +578,9 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 		case CLICK_ACTION_BUY:
 		case CLICK_ACTION_PAY:
 		case CLICK_ACTION_OPEN:
+		case CLICK_ACTION_ZOOM:
+		case CLICK_ACTION_PLAY:
+		case CLICK_ACTION_OPEN_MEDIA:
 			// Because these actions open UI dialogs, we won't change
 			// the cursor again until the next hover and GL pick over
 			// the world.  Keep the cursor an arrow, assuming that 
@@ -700,13 +730,17 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 
 				// *HACK: We may select this object, so pretend it was clicked
 				mPick = mHoverPick;
-				LLToolTipMgr::instance().show(LLToolTip::Params()
-					.message(avatar_name)
-					.image(LLUI::getUIImage("Info"))
-					.click_callback(boost::bind(showAvatarInspector, hover_object->getID()))
-					.visible_time_near(6.f)
-					.visible_time_far(3.f)
-					.wrap(false));
+				LLInspector::Params p;
+				p.message(avatar_name);
+				p.image(LLUI::getUIImage("Info"));
+				p.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
+				p.visible_time_near(6.f);
+				p.visible_time_far(3.f);
+				p.wrap(false);
+
+				p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
+				
+				LLToolTipMgr::instance().show(p);
 			}
 		}
 		else
@@ -787,18 +821,22 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 				{
 					// We may select this object, so pretend it was clicked
 					mPick = mHoverPick;
-					LLToolTipMgr::instance().show(LLToolTip::Params()
-						.message(tooltip_msg)
-						.image(LLUI::getUIImage("Info_Off"))
-						.click_callback(boost::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace))
-						.time_based_media(is_time_based_media)
-						.web_based_media(is_web_based_media)						  
-						.media_playing(is_media_playing)						  
-						.click_playmedia_callback(boost::bind(playCurrentMedia, mHoverPick))
-						.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick))						
-						.visible_time_near(6.f)
-						.visible_time_far(3.f)
-						.wrap(false));
+					LLInspector::Params p;
+					p.message(tooltip_msg);
+					p.image(LLUI::getUIImage("Info_Off"));
+					p.click_callback(boost::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace));
+					p.time_based_media(is_time_based_media);
+					p.web_based_media(is_web_based_media);
+					p.media_playing(is_media_playing);
+					p.click_playmedia_callback(boost::bind(playCurrentMedia, mHoverPick));
+					p.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick));
+					p.visible_time_near(6.f);
+					p.visible_time_far(3.f);
+					p.wrap(false);
+
+					p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
+					
+					LLToolTipMgr::instance().show(p);
 				}
 			}
 		}

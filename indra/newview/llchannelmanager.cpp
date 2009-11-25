@@ -37,7 +37,6 @@
 #include "llappviewer.h"
 #include "llviewercontrol.h"
 #include "llimview.h"
-#include "llbottomtray.h"
 #include "llviewerwindow.h"
 #include "llrootview.h"
 #include "llsyswellwindow.h"
@@ -127,7 +126,7 @@ void LLChannelManager::onLoginCompleted()
 	gViewerWindow->getRootView()->addChild(mStartUpChannel);
 
 	// init channel's position and size
-	S32 channel_right_bound = gViewerWindow->getWorldViewRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
+	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
 	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
 	mStartUpChannel->init(channel_right_bound - channel_width, channel_right_bound);
 	mStartUpChannel->setMouseDownCallback(boost::bind(&LLSysWellWindow::onStartUpToastClick, LLFloaterReg::getTypedInstance<LLSysWellWindow>("syswell_window"), _2, _3, _4));
@@ -220,5 +219,12 @@ void LLChannelManager::removeChannelByID(const LLUUID id)
 }
 
 //--------------------------------------------------------------------------
-
+void LLChannelManager::muteAllChannels(bool mute)
+{
+	for (std::vector<ChannelElem>::iterator it = mChannelList.begin();
+			it != mChannelList.end(); it++)
+	{
+		it->channel->setShowToasts(!mute);
+	}
+}
 

@@ -20,10 +20,16 @@
 #include "lluictrl.h"
 #include "llerror.h"
 
-LLUIListener::LLUIListener(const std::string& name):
-    LLDispatchListener(name, "op")
+LLUIListener::LLUIListener():
+    LLEventAPI("UI",
+               "LLUICtrl::CommitCallbackRegistry listener.\n"
+               "Capable of invoking any function (with parameter) you can specify in XUI.")
 {
-    add("call", &LLUIListener::call, LLSD().insert("function", LLSD()));
+    add("call",
+        "Invoke the operation named by [\"function\"], passing [\"parameter\"],\n"
+        "as if from a user gesture on a menu -- or a button click.",
+        &LLUIListener::call,
+        LLSD().insert("function", LLSD()));
 }
 
 void LLUIListener::call(const LLSD& event) const

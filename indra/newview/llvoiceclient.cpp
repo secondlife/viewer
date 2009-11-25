@@ -1598,7 +1598,7 @@ void LLVoiceClient::stateMachine()
 				}
 				else
 				{
-					LL_WARNS("Voice") << "region doesn't have ParcelVoiceInfoRequest capability.  This is normal for a short time after teleporting, but bad if it persists for very long." << LL_ENDL;
+					LL_WARNS_ONCE("Voice") << "region doesn't have ParcelVoiceInfoRequest capability.  This is normal for a short time after teleporting, but bad if it persists for very long." << LL_ENDL;
 				}
 			}
 		}
@@ -1867,7 +1867,7 @@ void LLVoiceClient::stateMachine()
 					}
 					else
 					{
-						LL_WARNS("Voice") << "region doesn't have ProvisionVoiceAccountRequest capability!" << LL_ENDL;
+						LL_WARNS_ONCE("Voice") << "region doesn't have ProvisionVoiceAccountRequest capability!" << LL_ENDL;
 					}
 				}
 			}
@@ -4273,7 +4273,7 @@ void LLVoiceClient::mediaStreamUpdatedEvent(
 				if(incoming)
 				{
 					// Send the voice chat invite to the GUI layer
-					// TODO: Question: Should we correlate with the mute list here?
+					// *TODO: Question: Should we correlate with the mute list here?
 					session->mIMSessionID = LLIMMgr::computeSessionID(IM_SESSION_P2P_INVITE, session->mCallerID);
 					session->mVoiceInvitePending = true;
 					if(session->mName.empty())

@@ -31,82 +31,53 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llagent.h" 
-#include "llagentwearables.h"
+
+#include "pipeline.h"
 
 #include "llagentlistener.h"
+#include "llagentwearables.h"
+#include "llagentui.h"
+
 #include "llanimationstates.h"
+#include "llbottomtray.h"
 #include "llcallingcard.h"
+#include "llchannelmanager.h"
 #include "llconsole.h"
-#include "lldrawable.h"
 #include "llfirstuse.h"
-#include "llfloaterreg.h"
-#include "llspeakers.h"
 #include "llfloatercamera.h"
 #include "llfloatercustomize.h"
-
-#include "llfloaterland.h"
-#include "llfloatersnapshot.h"
+#include "llfloaterreg.h"
 #include "llfloatertools.h"
-#include "llfloaterworldmap.h"
-
 #include "llgroupactions.h"
-
-#include "llfocusmgr.h"
 #include "llgroupmgr.h"
 #include "llhomelocationresponder.h"
-#include "llimview.h"
 #include "llhudmanager.h"
 #include "lljoystickbutton.h"
-#include "llmenugl.h"
 #include "llmorphview.h"
 #include "llmoveview.h"
+#include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
+#include "llnearbychatbar.h"
 #include "llparcel.h"
-#include "llquantize.h"
-#include "llrand.h"
-#include "llregionhandle.h"
 #include "llsdutil.h"
-#include "llselectmgr.h"
-#include "llsky.h"
-#include "llslurl.h"
-#include "llsmoothstep.h"
 #include "llsidetray.h"
+#include "llsky.h"
+#include "llsmoothstep.h"
 #include "llstatusbar.h"
-#include "llteleportflags.h"
-#include "llteleporthistory.h"
-#include "lltexturestats.h"
-#include "lltexturestats.h"
 #include "lltool.h"
-#include "lltoolcomp.h"
 #include "lltoolmgr.h"
-#include "lluictrlfactory.h"
-#include "llurldispatcher.h"
-
-#include "llviewercamera.h"
+#include "lltrans.h"
+#include "llviewercontrol.h"
 #include "llviewerdisplay.h"
+#include "llviewerjoystick.h"
 #include "llviewermediafocus.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerstats.h"
-#include "llviewerwindow.h"
-#include "llviewercontrol.h"
-#include "llviewerjoystick.h"
-
 #include "llvoavatarself.h"
 #include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
-
-#include "pipeline.h"
-#include "lltrans.h"
-#include "llbottomtray.h"
-#include "llnearbychatbar.h"
-#include "stringize.h"
-#include "llcapabilitylistener.h"
-
-#include "llnavigationbar.h" //to show/hide navigation bar when changing mouse look state
-#include "llagentui.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -2166,6 +2137,7 @@ void LLAgent::setBusy()
 	{
 		gBusyMenu->setLabel(LLTrans::getString("AvatarSetNotBusy"));
 	}
+	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -2179,6 +2151,7 @@ void LLAgent::clearBusy()
 	{
 		gBusyMenu->setLabel(LLTrans::getString("AvatarSetBusy"));
 	}
+	LLNotificationsUI::LLChannelManager::getInstance()->muteAllChannels(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -2619,9 +2592,9 @@ void LLAgent::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 		{
 			// range from -.5 to .5
 			F32 x_from_center = 
-				((F32) mouse_x / (F32) gViewerWindow->getWindowWidth() ) - 0.5f;
+				((F32) mouse_x / (F32) gViewerWindow->getWindowWidthScaled() ) - 0.5f;
 			F32 y_from_center = 
-				((F32) mouse_y / (F32) gViewerWindow->getWindowHeight() ) - 0.5f;
+				((F32) mouse_y / (F32) gViewerWindow->getWindowHeightScaled() ) - 0.5f;
 
 			frameCamera.yaw( - x_from_center * gSavedSettings.getF32("YawFromMousePosition") * DEG_TO_RAD);
 			frameCamera.pitch( - y_from_center * gSavedSettings.getF32("PitchFromMousePosition") * DEG_TO_RAD);
@@ -2822,7 +2795,8 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLBottomTray::getInstance()->setVisible(TRUE);
 
-		LLSideTray::getInstance()->setVisible(TRUE);
+		LLSideTray::getInstance()->getButtonsPanel()->setVisible(TRUE);
+		LLSideTray::getInstance()->updateSidetrayVisibility();
 
 		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
 
@@ -2837,7 +2811,11 @@ void LLAgent::endAnimationUpdateUI()
 			LLFloaterReg::restoreVisibleInstances();
 #else // Use this for now
 			LLFloaterView::skip_list_t skip_list;
-			skip_list.insert(LLFloaterReg::findInstance("mini_map"));
+			if (LLFloaterReg::findInstance("mini_map"))
+			{
+				skip_list.insert(LLFloaterReg::findInstance("mini_map"));
+			}
+		
 			gFloaterView->popVisibleAll(skip_list);
 #endif
 			mViewsPushed = FALSE;
@@ -2916,7 +2894,8 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLBottomTray::getInstance()->setVisible(FALSE);
 
-		LLSideTray::getInstance()->setVisible(FALSE);
+		LLSideTray::getInstance()->getButtonsPanel()->setVisible(FALSE);
+		LLSideTray::getInstance()->updateSidetrayVisibility();
 
 		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
 
@@ -3079,10 +3058,6 @@ void LLAgent::updateCamera()
 		mOrbitUpKey > 0.f,		// top
 		mOrbitLeftKey > 0.f,	// right
 		mOrbitDownKey > 0.f);	// bottom
-
-		camera_floater->mZoom->setToggleState( 
-		mOrbitInKey > 0.f,		// top
-		mOrbitOutKey > 0.f);	// bottom
 
 		camera_floater->mTrack->setToggleState(
 		mPanLeftKey > 0.f,		// left
@@ -3436,11 +3411,11 @@ F32 LLAgent::calcCustomizeAvatarUIOffset( const LLVector3d& camera_pos_global )
 		const LLRect& rect = gFloaterCustomize->getRect();
 
 		// Move the camera so that the avatar isn't covered up by this floater.
-		F32 fraction_of_fov = 0.5f - (0.5f * (1.f - llmin(1.f, ((F32)rect.getWidth() / (F32)gViewerWindow->getWindowWidth()))));
+		F32 fraction_of_fov = 0.5f - (0.5f * (1.f - llmin(1.f, ((F32)rect.getWidth() / (F32)gViewerWindow->getWindowWidthScaled()))));
 		F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect();  // radians
 		F32 offset = tan(apparent_angle);
 
-		if( rect.mLeft < (gViewerWindow->getWindowWidth() - rect.mRight) )
+		if( rect.mLeft < (gViewerWindow->getWindowWidthScaled() - rect.mRight) )
 		{
 			// Move the avatar to the right (camera to the left)
 			ui_offset = offset;
@@ -6357,7 +6332,7 @@ void LLAgent::sendAgentSetAppearance()
 			msg->addU8Fast(_PREHASH_TextureIndex, (U8)texture_index);
 		}
 		msg->nextBlockFast(_PREHASH_ObjectData);
-		mAvatarObject->packTEMessage( gMessageSystem );
+		mAvatarObject->sendAppearanceMessage( gMessageSystem );
 	}
 	else
 	{

@@ -210,21 +210,25 @@ public:
 	//
 	LLRootView*			getRootView()		const;
 
-	// Window in raw pixels as seen on screen.
-	const LLRect&	getWindowRect()		const	{ return mWindowRect; };
-	// portion of window that shows 3d world
-	const LLRect&	getWorldViewRect()		const	{ return mWorldViewRect; };
-	LLRect			getVirtualWorldViewRect()	const;
-	S32 			getWorldViewHeight() const;
-	S32 			getWorldViewWidth() const;
-	S32				getWindowDisplayHeight()	const;
-	S32				getWindowDisplayWidth()	const;
+	// 3D world area in scaled pixels (via UI scale), use for most UI computations
+	LLRect			getWorldViewRectScaled() const;
+	S32				getWorldViewHeightScaled() const;
+	S32				getWorldViewWidthScaled() const;
 
-	// Window in scaled pixels (via UI scale), use this for
-	// UI elements checking size.
-	const LLRect&	getVirtualWindowRect()		const	{ return mVirtualWindowRect; };
-	S32				getWindowHeight()	const;
-	S32				getWindowWidth()	const;
+	// 3D world area, in raw unscaled pixels
+	LLRect			getWorldViewRectRaw() const		{ return mWorldViewRectRaw; }
+	S32 			getWorldViewHeightRaw() const;
+	S32 			getWorldViewWidthRaw() const;
+
+	// Window in scaled pixels (via UI scale), use for most UI computations
+	LLRect			getWindowRectScaled() const		{ return mWindowRectScaled; }
+	S32				getWindowHeightScaled() const;
+	S32				getWindowWidthScaled() const;
+
+	// Window in raw pixels as seen on screen.
+	LLRect			getWindowRectRaw() const		{ return mWindowRectRaw; }
+	S32				getWindowHeightRaw() const;
+	S32				getWindowWidthRaw() const;
 
 	LLWindow*		getWindow()			const	{ return mWindow; }
 	void*			getPlatformWindow() const;
@@ -387,6 +391,7 @@ public:
 	F32				getWorldViewAspectRatio() const;
 	const LLVector2& getDisplayScale() const { return mDisplayScale; }
 	void			calcDisplayScale();
+	static LLRect 	calcScaledRect(const LLRect & rect, const LLVector2& display_scale);
 
 private:
 	bool                    shouldShowToolTipFor(LLMouseHandler *mh);
@@ -409,10 +414,12 @@ protected:
 	BOOL			mActive;
 	BOOL			mWantFullscreen;
 	BOOL			mShowFullscreenProgress;
-	LLRect			mWindowRect;
-	LLRect			mVirtualWindowRect;
-	LLRect			mWorldViewRect;					// specifies area of screen where we render the 3D world
-	LLRootView*		mRootView;					// a view of size mWindowRect, containing all child views
+
+	LLRect			mWindowRectRaw;				// whole window, including UI
+	LLRect			mWindowRectScaled;			// whole window, scaled by UI size
+	LLRect			mWorldViewRectRaw;			// area of screen for 3D world
+	LLRect			mWorldViewRectScaled;		// area of screen for 3D world scaled by UI size
+	LLRootView*		mRootView;					// a view of size mWindowRectRaw, containing all child views
 	LLVector2		mDisplayScale;
 
 	LLCoordGL		mCurrentMousePoint;			// last mouse position in GL coords

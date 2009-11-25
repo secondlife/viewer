@@ -40,7 +40,7 @@
 
 #include "llsdutil_math.h"
 
-#include "llscrollcontainer.h"
+#include "lliconctrl.h"
 #include "lltextbox.h"
 
 #include "llagent.h"
@@ -58,7 +58,10 @@ LLPanelPlaceInfo::LLPanelPlaceInfo()
 	mParcelID(),
 	mRequestedID(),
 	mPosRegion(),
-	mMinHeight(0)
+	mScrollingPanelMinHeight(0),
+	mScrollingPanelWidth(0),
+	mScrollingPanel(NULL),
+	mScrollContainer(NULL)
 {}
 
 //virtual
@@ -81,11 +84,14 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mParcelName = getChild<LLTextBox>("parcel_title");
 	mDescEditor = getChild<LLExpandableTextBox>("description");
 
+	mMaturityRatingIcon = getChild<LLIconCtrl>("maturity_icon");
 	mMaturityRatingText = getChild<LLTextBox>("maturity_value");
 
-	LLScrollContainer* scroll_container = getChild<LLScrollContainer>("place_scroll");
-	scroll_container->setBorderVisible(FALSE);
-	mMinHeight = scroll_container->getScrolledViewRect().getHeight();
+	mScrollingPanel = getChild<LLPanel>("scrolling_panel");
+	mScrollContainer = getChild<LLScrollContainer>("place_scroll");
+
+	mScrollingPanelMinHeight = mScrollContainer->getScrolledViewRect().getHeight();
+	mScrollingPanelWidth = mScrollingPanel->getRect().getWidth();
 
 	return TRUE;
 }
@@ -98,6 +104,7 @@ void LLPanelPlaceInfo::resetLocation()
 	mPosRegion.clearVec();
 
 	std::string not_available = getString("not_available");
+	mMaturityRatingIcon->setValue(not_available);
 	mMaturityRatingText->setValue(not_available);
 	mRegionName->setText(not_available);
 	mParcelName->setText(not_available);
@@ -204,20 +211,6 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 		mDescEditor->setText(parcel_data.desc);
 	}
 
-	// HACK: Flag 0x2 == adult region,
-	// Flag 0x1 == mature region, otherwise assume PG
-	std::string rating = LLViewerRegion::accessToString(SIM_ACCESS_PG);
-	if (parcel_data.flags & 0x2)
-	{
-		rating = LLViewerRegion::accessToString(SIM_ACCESS_ADULT);
-	}
-	else if (parcel_data.flags & 0x1)
-	{
-		rating = LLViewerRegion::accessToString(SIM_ACCESS_MATURE);
-	}
-
-	mMaturityRatingText->setValue(rating);
-
 	S32 region_x;
 	S32 region_y;
 	S32 region_z;
@@ -244,6 +237,27 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 	else
 	{
 		mParcelName->setText(getString("not_available"));
+	}
+}
+
+// virtual
+void LLPanelPlaceInfo::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	LLPanel::reshape(width, height, called_from_parent);
+
+	if (!mScrollContainer || !mScrollingPanel)
+		return;
+
+	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+
+	S32 scroll_height = mScrollContainer->getRect().getHeight();
+	if (mScrollingPanelMinHeight >= scroll_height)
+	{
+		mScrollingPanel->reshape(mScrollingPanelWidth, mScrollingPanelMinHeight);
+	}
+	else
+	{
+		mScrollingPanel->reshape(mScrollingPanelWidth + scrollbar_size, scroll_height);
 	}
 }
 

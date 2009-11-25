@@ -60,6 +60,11 @@ std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::
 
 std::string LLTrans::getCountString(const std::string& language, const std::string& xml_desc, S32 count)
 {
+	count_string_t key(xml_desc, count);
+	if (gCountString.find(key) == gCountString.end())
+	{
+		return std::string("Couldn't find ") + xml_desc;
+	}
 	return gCountString[ count_string_t(xml_desc, count) ];
 }
 
@@ -91,8 +96,11 @@ namespace tut
 			gCountString[ count_string_t("AgeYears", 2) ]  = "2 years";
 			gCountString[ count_string_t("AgeMonths", 1) ] = "1 month";
 			gCountString[ count_string_t("AgeMonths", 2) ] = "2 months";
+			gCountString[ count_string_t("AgeMonths", 11) ]= "11 months";
 			gCountString[ count_string_t("AgeWeeks", 1) ]  = "1 week";
 			gCountString[ count_string_t("AgeWeeks", 2) ]  = "2 weeks";
+			gCountString[ count_string_t("AgeWeeks", 3) ]  = "3 weeks";
+			gCountString[ count_string_t("AgeWeeks", 4) ]  = "4 weeks";
 			gCountString[ count_string_t("AgeDays", 1) ]   = "1 day";
 			gCountString[ count_string_t("AgeDays", 2) ]   = "2 days";
 		}
@@ -113,11 +121,17 @@ namespace tut
 		ensure_equals("years",
 			LLDateUtil::ageFromDate("12/31/2007", mNow),
 			"2 years old" );
-		ensure_equals("single year",
-			LLDateUtil::ageFromDate("12/31/2008", mNow),
-			"1 year old" );
+		ensure_equals("years",
+			LLDateUtil::ageFromDate("1/1/2008", mNow),
+			"1 year 11 months old" );
+		ensure_equals("single year + one month",
+			LLDateUtil::ageFromDate("11/30/2008", mNow),
+			"1 year 1 month old" );
 		ensure_equals("single year + a bit",
 			LLDateUtil::ageFromDate("12/12/2008", mNow),
+			"1 year old" );
+		ensure_equals("single year",
+			LLDateUtil::ageFromDate("12/31/2008", mNow),
 			"1 year old" );
     }
 
@@ -128,6 +142,9 @@ namespace tut
 		ensure_equals("months",
 			LLDateUtil::ageFromDate("10/30/2009", mNow),
 			"2 months old" );
+		ensure_equals("months 2",
+			LLDateUtil::ageFromDate("10/31/2009", mNow),
+			"2 months old" );
 		ensure_equals("single month",
 			LLDateUtil::ageFromDate("11/30/2009", mNow),
 			"1 month old" );
@@ -137,6 +154,9 @@ namespace tut
 	void dateutil_object_t::test<3>()
 	{
 		set_test_name("Weeks");
+		ensure_equals("4 weeks",
+			LLDateUtil::ageFromDate("12/1/2009", mNow),
+			"4 weeks old" );
 		ensure_equals("weeks",
 			LLDateUtil::ageFromDate("12/17/2009", mNow),
 			"2 weeks old" );

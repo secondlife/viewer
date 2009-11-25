@@ -377,10 +377,13 @@ Scripts devem ser permitidos para fazer as armas funcionarem.
 Você precisa entrar com ambos os Nome e Sobrenome do seu avatar.
 
 Você precisa de uma conta para entrar no [SECOND_LIFE]. Você gostaria de criar uma conta agora?
+		<url name="url">
+			https://join.secondlife.com/index.php?lang=pt-BR
+		</url>
 		<usetemplate name="okcancelbuttons" notext="Tentar novamente" yestext="Criar uma nova conta"/>
 	</notification>
 	<notification name="AddClassified">
-		Anúncios classificados aparecem na seção &apos;Classificados&apos; do diretório de Busca e no www.secondlife.com por uma semana.
+		Anúncios classificados aparecem na seção &apos;Classificados&apos; do diretório de Busca e no [http://secondlife.com/community/classifieds/?lang=pt-BR secondlife.com] por uma semana.
 Preencha seu anúncio e então clique &apos;Publicar...&apos; para adicioná-lo ao diretório.
 Será solicitado a você um preço a ser pago, quando você clicar Publicar.
 Pagando mais, faz com que seu anúncio apareça em posição mais alta na lista e também em posição mais alta, quando as pessoas buscarem por palavras-chave.
@@ -401,6 +404,9 @@ Não há reembolso por taxas já pagas.
 	</notification>
 	<notification name="PromptGoToEventsPage">
 		Ir até a página web de enventos [SECOND_LIFE] ?
+		<url name="url">
+			http://secondlife.com/events/?lang=pt-BR
+		</url>
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Ir à página"/>
 	</notification>
 	<notification name="SelectProposalToView">
@@ -492,7 +498,7 @@ O objeto pode estar fora de alcance ou ter sido deletado.
 MINSPECS
 Você deseja visitar [_URL] para maiores informações?
 		<url name="url" option="0">
-			http://www.secondlife.com/corporate/sysreqs.php
+			http://secondlife.com/support/sysreqs.php?lang=pt
 		</url>
 		<usetemplate ignoretext="Ao detectar hardware não suportado" name="okcancelignore" notext="Não" yestext="Sim"/>
 	</notification>
@@ -571,6 +577,9 @@ Por favor, mova todos os objetos a serem adquiridos para uma mesma região.
 		[EXTRA]
 
 Vá para [_URL] para informação sobre compra de L$.
+		<url name="url">
+			http://secondlife.com/app/currency/?lang=pt-BR
+		</url>
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Ir até a página"/>
 	</notification>
 	<notification name="UnableToLinkObjects">
@@ -1115,13 +1124,16 @@ Você pode usar o [SECOND_LIFE] normalmente e os outros o visualizarão corretam
 		A instalação do [APP_NAME] está completa.
 
 Se esta é a primeira vez usando o[SECOND_LIFE], será necessário que você crie uma conta antes de poder se logar.
-Retornar a www.secondlife.com para criar uma nova conta?
+Retornar a [https://join.secondlife.com/index.php?lang=pt-BR secondlife.com] para criar uma nova conta?
 		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Nova conta.."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
 		Estamos com problemas de conexão. Pode ser problema com a conexão de sua internet ou com os servidores do [SECOND_LIFE].
 
 Voce tanto pode checar a conexão de sua internet e tentar novamente em alguns minutos, ou clicar em Teletransporte para tentar teletransportar-se para sua casa.
+		<url name="url">
+			http://br.secondlife.com/support/
+		</url>
 		<form name="form">
 			<button name="OK" text="OK"/>
 			<button name="Help" text="Ajuda"/>
@@ -1492,7 +1504,7 @@ Por favor, verifique se você está com o último Visualizador instalado e vá a
 
 Ir para o Banco de Conhecimento para maiores informações sobre Classificações de maturidade?
 		<url name="url">
-			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/pt
 		</url>
     <usetemplate
      name="okcancelignore"
@@ -1531,7 +1543,7 @@ Por favor, verifique se você tem o último Visualizador instalado e vá para o 
 
 Ir para a o Banco de Conhecimento para maiores informações sobre Classificações de maturidade?
 		<url name="url">
-			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/pt
 		</url>
     <usetemplate
      name="okcancelignore"
@@ -1565,7 +1577,7 @@ Por favor, verifique se você tem o último Visualizador instalado e vá para o 
 
 Ir para o Banco de Conhecimento para maiores informações sobre Classificações de Maturidade?
 		<url name="url">
-			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/pt
 		</url>
     <usetemplate
      name="okcancelignore"
@@ -1975,10 +1987,7 @@ Mover para o inventário o(s) item(s)?
 		<usetemplate ignoretext="Quando Saindo do [APP_NAME]." name="okcancelignore" notext="Continuar" yestext="Sair"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		Use esta ferramenta para reportar violações aos Termos de Serviço e aos Padrões da Comunidade. Veja:
-
-http://secondlife.com/corporate/tos.php
-http://secondlife.com/corporate/cs.php
+		Use esta ferramenta para reportar violações aos [http://secondlife.com/corporate/tos.php?lang=pt-BR Termos de Serviço] e aos [http://secondlife.com/corporate/cs.php?lang=pt-BR Padrões da Comunidade].
 
 Todos os abusos aos Termos de Serviço e aos Padrões da Comunidade reportados, são investigados e resolvidos. Você pode ver a resolução do incidente na Reportagem de Incidentes em:
 

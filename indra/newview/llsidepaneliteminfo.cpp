@@ -41,6 +41,7 @@
 #include "llfloaterreg.h"
 #include "llgroupactions.h"
 #include "llinventorymodel.h"
+#include "llinventoryobserver.h"
 #include "lllineeditor.h"
 #include "llradiogroup.h"
 #include "llviewercontrol.h"
@@ -110,9 +111,9 @@ BOOL LLSidepanelItemInfo::postBuild()
 
 	// build the UI
 	// item name & description
-	childSetPrevalidate("LabelItemName",&LLLineEditor::prevalidatePrintableNotPipe);
+	childSetPrevalidate("LabelItemName",&LLLineEditor::prevalidateASCIIPrintableNoPipe);
 	//getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitName,this));
-	childSetPrevalidate("LabelItemDesc",&LLLineEditor::prevalidatePrintableNotPipe);
+	childSetPrevalidate("LabelItemDesc",&LLLineEditor::prevalidateASCIIPrintableNoPipe);
 	//getChild<LLUICtrl>("LabelItemDesc")->setCommitCallback(boost::bind(&LLSidepanelItemInfo:: onCommitDescription, this));
 
 	// Creator information

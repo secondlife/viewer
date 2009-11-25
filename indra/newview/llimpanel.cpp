@@ -216,7 +216,7 @@ LLFloaterIMPanel::~LLFloaterIMPanel()
 
 BOOL LLFloaterIMPanel::postBuild() 
 {
-	mVisibleSignal.connect(boost::bind(&LLFloaterIMPanel::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLFloaterIMPanel::onVisibilityChange, this, _2));
 	
 	mInputEditor = getChild<LLLineEditor>("chat_editor");
 	mInputEditor->setFocusReceivedCallback( boost::bind(onInputEditorFocusReceived, _1, this) );
@@ -848,8 +848,11 @@ void LLFloaterIMPanel::processSessionUpdate(const LLSD& session_update)
 		}
 
 
-		//update the speakers dropdown too
-		mSpeakerPanel->setVoiceModerationCtrlMode(voice_moderated);
+		//update the speakers dropdown too, if it's available
+		if (mSpeakerPanel)
+		{
+			mSpeakerPanel->setVoiceModerationCtrlMode(voice_moderated);
+		}
 	}
 }
 

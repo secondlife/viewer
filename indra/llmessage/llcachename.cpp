@@ -189,6 +189,7 @@ typedef std::set<LLUUID>					AskQueue;
 typedef std::list<PendingReply*>			ReplyQueue;
 typedef std::map<LLUUID,U32>				PendingQueue;
 typedef std::map<LLUUID, LLCacheNameEntry*> Cache;
+typedef std::map<std::string, LLUUID> 		ReverseCache;
 
 class LLCacheName::Impl
 {
@@ -198,7 +199,9 @@ public:
 
 	Cache				mCache;
 		// the map of UUIDs to names
-
+	ReverseCache   	  	mReverseCache;
+		// map of names to UUIDs
+	
 	AskQueue			mAskNameQueue;
 	AskQueue			mAskGroupQueue;
 		// UUIDs to ask our upstream host about
@@ -371,7 +374,9 @@ void LLCacheName::importFile(LLFILE* fp)
 		entry->mFirstName = firstname;
 		entry->mLastName = lastname;
 		impl.mCache[id] = entry;
-
+		std::string fullname = entry->mFirstName + " " + entry->mLastName;
+		impl.mReverseCache[fullname] = id;
+		
 		count++;
 	}
 
@@ -407,6 +412,8 @@ bool LLCacheName::importFile(std::istream& istr)
 		entry->mFirstName = agent[FIRST].asString();
 		entry->mLastName = agent[LAST].asString();
 		impl.mCache[id] = entry;
+		std::string fullname = entry->mFirstName + " " + entry->mLastName;
+		impl.mReverseCache[fullname] = id;
 
 		++count;
 	}
@@ -428,6 +435,7 @@ bool LLCacheName::importFile(std::istream& istr)
 		entry->mCreateTime = ctime;
 		entry->mGroupName = group[NAME].asString();
 		impl.mCache[id] = entry;
+		impl.mReverseCache[entry->mGroupName] = id;
 		++count;
 	}
 	llinfos << "LLCacheName loaded " << count << " group names" << llendl;
@@ -548,6 +556,27 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 		return FALSE;
 	}
 }
+
+BOOL LLCacheName::getUUID(const std::string& first, const std::string& last, LLUUID& id)
+{
+	std::string fullname = first + " " + last;
+	return getUUID(fullname, id);
+}
+
+BOOL LLCacheName::getUUID(const std::string& fullname, LLUUID& id)
+{
+	ReverseCache::iterator iter = impl.mReverseCache.find(fullname);
+	if (iter != impl.mReverseCache.end())
+	{
+		id = iter->second;
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
+	}
+}
+
 // This is a little bit kludgy. LLCacheNameCallback is a slot instead of a function pointer.
 //  The reason it is a slot is so that the legacy get() function below can bind an old callback
 //  and pass it as a slot. The reason it isn't a boost::function is so that trackable behavior
@@ -897,10 +926,13 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 		if (!isGroup)
 		{
 			mSignal(id, entry->mFirstName, entry->mLastName, FALSE);
+			std::string fullname = entry->mFirstName + " " + entry->mLastName;
+			mReverseCache[fullname] = id;
 		}
 		else
 		{
 			mSignal(id, entry->mGroupName, "", TRUE);
+			mReverseCache[entry->mGroupName] = id;
 		}
 	}
 }

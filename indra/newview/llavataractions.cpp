@@ -54,11 +54,15 @@
 #include "llmutelist.h"
 #include "llrecentpeople.h"
 #include "llsidetray.h"
+#include "lltrans.h"
 #include "llviewerobjectlist.h"
 #include "llviewermessage.h"	// for handle_lure
 #include "llviewerregion.h"
 #include "llimfloater.h"
+#include "lltrans.h"
 
+// callback connection to auto-call when the IM floater initializes
+boost::signals2::connection gAdhocAutoCall;
 
 // static
 void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::string& name)
@@ -186,9 +190,22 @@ void LLAvatarActions::startIM(const LLUUID& id)
 }
 
 // static
+void LLAvatarActions::endIM(const LLUUID& id)
+{
+	if (id.isNull())
+		return;
+	
+	LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL, id);
+	if (session_id != LLUUID::null)
+	{
+		gIMMgr->leaveSession(session_id);
+	}
+}
+
+// static
 void LLAvatarActions::startCall(const LLUUID& id)
 {
-	if (id.isNull() || isCalling(id))
+	if (id.isNull())
 	{
 		return;
 	}
@@ -202,6 +219,39 @@ void LLAvatarActions::startCall(const LLUUID& id)
 		LLIMFloater::show(session_id);
 		gIMMgr->startCall(session_id);
 	}
+	make_ui_sound("UISndStartIM");
+}
+
+// static
+void LLAvatarActions::startAdhocCall(const std::vector<LLUUID>& ids)
+{
+	if (ids.size() == 0)
+	{
+		return;
+	}
+
+	// convert vector into LLDynamicArray for addSession
+	LLDynamicArray<LLUUID> id_array;
+	for (std::vector<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	{
+		id_array.push_back(*it);
+	}
+
+	// create the new ad hoc voice session
+	const std::string title = LLTrans::getString("conference-title");
+	LLUUID session_id = gIMMgr->addSession(title, IM_SESSION_CONFERENCE_START,
+										   ids[0], id_array);
+	if (session_id == LLUUID::null)
+	{
+		return;
+	}
+
+	// always open IM window when connecting to voice
+	LLIMFloater::show(session_id);
+
+	// start the call once the floater has fully initialized
+	gAdhocAutoCall = LLIMModel::getInstance()->addSessionInitializedCallback(callbackAutoStartCall);
+
 	make_ui_sound("UISndStartIM");
 }
 
@@ -226,7 +276,8 @@ void LLAvatarActions::startConference(const std::vector<LLUUID>& ids)
 	{
 		id_array.push_back(*it);
 	}
-	LLUUID session_id = gIMMgr->addSession("Friends Conference", IM_SESSION_CONFERENCE_START, ids[0], id_array);
+	const std::string title = LLTrans::getString("conference-title");
+	LLUUID session_id = gIMMgr->addSession(title, IM_SESSION_CONFERENCE_START, ids[0], id_array);
 	if (session_id != LLUUID::null)
 	{
 		LLIMFloater::show(session_id);
@@ -246,7 +297,7 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 		//Show own profile
 		if(gAgent.getID() == id)
 		{
-			LLSideTray::getInstance()->showPanel("panel_me_profile", params);
+			LLSideTray::getInstance()->showPanel("panel_me", params);
 		}
 		//Show other user profile
 		else
@@ -296,9 +347,9 @@ void LLAvatarActions::inviteToGroup(const LLUUID& id)
 	LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(id));
 	if (widget)
 	{
-		widget->removeNoneOption();
 		widget->center();
 		widget->setPowersMask(GP_MEMBER_INVITE);
+		widget->removeNoneOption();
 		widget->setSelectGroupCallback(boost::bind(callback_invite_to_group, _1, id));
 	}
 }
@@ -391,6 +442,17 @@ bool LLAvatarActions::callbackAddFriend(const LLSD& notification, const LLSD& re
 		    message);
 	}
     return false;
+}
+
+// static
+void LLAvatarActions::callbackAutoStartCall(const LLSD& data)
+{
+	// start the adhoc voice call now the IM panel has initialized
+	LLUUID session_id = data["session_id"].asUUID();
+	gIMMgr->startCall(session_id);
+
+	// and deschedule this callback as its work is done now
+	gAdhocAutoCall.disconnect();
 }
 
 // static

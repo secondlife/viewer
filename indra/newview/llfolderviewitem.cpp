@@ -38,7 +38,6 @@
 #include "llfoldervieweventlistener.h"
 #include "llinventorybridge.h"	// for LLItemBridge in LLInventorySort::operator()
 #include "llinventoryfilter.h"
-#include "llinventorymodel.h"	// *TODO: make it take a pointer to an inventory-model interface
 #include "llviewercontrol.h"	// gSavedSettings
 #include "llviewerwindow.h"		// Argh, only for setCursor()
 
@@ -134,8 +133,8 @@ LLFolderViewItem::LLFolderViewItem(LLFolderViewItem::Params p)
 	mIconOpen(p.icon_open),
 	mListener(p.listener),
 	mArrowImage(p.folder_arrow_image),
-	mBoxImage(p.selection_image)
-,	mDontShowInHierarhy(false)
+	mBoxImage(p.selection_image),
+	mDontShowInHierarchy(false)
 {
 	refresh();
 }
@@ -388,7 +387,9 @@ BOOL LLFolderViewItem::addToFolder(LLFolderViewFolder* folder, LLFolderView* roo
 // makes sure that this view and it's children are the right size.
 S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
 {
-	mIndentation = mParentFolder ? mParentFolder->getIndentation() + LEFT_INDENTATION : 0;
+	mIndentation = getParentFolder() && getParentFolder()->getParentFolder() 
+		? mParentFolder->getIndentation() + LEFT_INDENTATION 
+		: 0;
 	if (mLabelWidthDirty)
 	{
 		mLabelWidth = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + getLabelFontForStyle(mLabelStyle)->getWidth(mSearchableLabel); 
@@ -410,7 +411,7 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
 
 S32 LLFolderViewItem::getItemHeight()
 {
-	if (mDontShowInHierarhy) return 0;
+	if (mDontShowInHierarchy) return 0;
 
 	S32 icon_height = mIcon->getHeight();
 	S32 label_height = llround(getLabelFontForStyle(mLabelStyle)->getLineHeight());
@@ -818,7 +819,7 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 void LLFolderViewItem::draw()
 {
-	if (mDontShowInHierarhy) return;
+	if (mDontShowInHierarchy) return;
 
 	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
 	static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
@@ -994,14 +995,14 @@ void LLFolderViewItem::draw()
 				S32 right = left + font->getWidth(combined_string, mStringMatchOffset, filter_string_length) + 2;
 				S32 bottom = llfloor(getRect().getHeight() - font->getLineHeight() - 3);
 				S32 top = getRect().getHeight();
-
+				
 				LLRect box_rect(left, top, right, bottom);
 				sBoxImage->draw(box_rect, sFilterBGColor);
 				F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mStringMatchOffset);
 				F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD;
 				font->renderUTF8( combined_string, mStringMatchOffset, match_string_left, y,
-						   sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-					filter_string_length, S32_MAX, &right_x, FALSE );
+								  sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+								  filter_string_length, S32_MAX, &right_x, FALSE );
 			}
 		}
 	}
@@ -1251,6 +1252,10 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 		{
 			// filter self only on first pass through
 			LLFolderViewItem::filter( filter );
+		}
+		if (mDontShowInHierarchy)
+		{
+			setOpen();
 		}
 	}
 
@@ -2165,6 +2170,7 @@ BOOL LLFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
+	/* Disable outfit double click to wear
 	const LLUUID &cat_uuid = getListener()->getUUID();
 	const LLViewerInventoryCategory *cat = gInventory.getCategory(cat_uuid);
 	if (cat && cat->getPreferredType() == LLFolderType::FT_OUTFIT)
@@ -2172,6 +2178,7 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 		getListener()->performAction(NULL, NULL,"replaceoutfit");
 		return TRUE;
 	}
+	*/
 
 	BOOL handled = FALSE;
 	if( mIsOpen )
@@ -2491,11 +2498,13 @@ bool LLInventorySort::operator()(const LLFolderViewItem* const& a, const LLFolde
 	{
 
 		static const LLUUID& favorites_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+		static const LLUUID& landmarks_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
 
 		LLUUID a_uuid = a->getParentFolder()->getListener()->getUUID();
 		LLUUID b_uuid = b->getParentFolder()->getListener()->getUUID();
 
-		if (a_uuid == favorites_folder_id && b_uuid == favorites_folder_id)
+		if ((a_uuid == favorites_folder_id && b_uuid == favorites_folder_id) ||
+			(a_uuid == landmarks_folder_id && b_uuid == landmarks_folder_id))
 		{
 			// *TODO: mantipov: probably it is better to add an appropriate method to LLFolderViewItem
 			// or to LLInvFVBridge

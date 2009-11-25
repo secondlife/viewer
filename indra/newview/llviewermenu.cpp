@@ -415,7 +415,7 @@ public:
 
 static LLMenuParcelObserver* gMenuParcelObserver = NULL;
 
-static LLUIListener sUIListener("UI");
+static LLUIListener sUIListener;
 
 LLMenuParcelObserver::LLMenuParcelObserver()
 {
@@ -1879,7 +1879,9 @@ class LLAdvancedDebugAvatarTextures : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 		handle_debug_avatar_textures(NULL);
+#endif
 		return true;
 	}
 };
@@ -1893,7 +1895,9 @@ class LLAdvancedDumpAvatarLocalTextures : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 		handle_dump_avatar_local_textures(NULL);
+#endif
 		return true;
 	}
 };
@@ -2729,13 +2733,24 @@ bool enable_object_edit()
 	// there.  Eventually this needs to be replaced with code that only 
 	// lets you edit objects if you have permission to do so (edit perms,
 	// group edit, god).  See also lltoolbar.cpp.  JC
-	bool enable = true;
+	bool enable = false;
 	if (gAgent.inPrelude())
 	{
-		enable = LLViewerParcelMgr::getInstance()->agentCanBuild()
+		enable = LLViewerParcelMgr::getInstance()->allowAgentBuild()
 			|| LLSelectMgr::getInstance()->getSelection()->isAttachment();
+	} 
+	else if (LLSelectMgr::getInstance()->selectGetModify())
+	{
+		enable = true;
 	}
+
 	return enable;
+}
+
+// mutually exclusive - show either edit option or build in menu
+bool enable_object_build()
+{
+	return !enable_object_edit();
 }
 
 class LLSelfRemoveAllAttachments : public view_listener_t
@@ -3797,7 +3812,7 @@ class LLViewDefaultUISize : public view_listener_t
 	{
 		gSavedSettings.setF32("UIScaleFactor", 1.0f);
 		gSavedSettings.setBOOL("UIAutoScale", FALSE);	
-		gViewerWindow->reshape(gViewerWindow->getWindowDisplayWidth(), gViewerWindow->getWindowDisplayHeight());
+		gViewerWindow->reshape(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
 		return true;
 	}
 };
@@ -3875,8 +3890,7 @@ void god_force_inv_owner_permissive(LLViewerObject* object,
 	InventoryObjectList::const_iterator inv_end = inventory->end();
 	for ( ; inv_it != inv_end; ++inv_it)
 	{
-		if(((*inv_it)->getType() != LLAssetType::AT_CATEGORY)
-		   && ((*inv_it)->getType() != LLAssetType::AT_ROOT_CATEGORY))
+		if(((*inv_it)->getType() != LLAssetType::AT_CATEGORY))
 		{
 			LLInventoryObject* obj = *inv_it;
 			LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem((LLViewerInventoryItem*)obj);
@@ -5186,7 +5200,7 @@ void show_debug_menus()
 		gMenuBarView->setItemEnabled("Develop", qamode);
 
 		// Server ('Admin') menu hidden when not in godmode.
-		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT || gAgent.getAdminOverride());
+		const bool show_server_menu = (gAgent.getGodLevel() > GOD_NOT || (debug && gAgent.getAdminOverride()));
 		gMenuBarView->setItemVisible("Admin", show_server_menu);
 		gMenuBarView->setItemEnabled("Admin", show_server_menu);
 	}
@@ -5664,6 +5678,16 @@ class LLFloaterVisible : public view_listener_t
 	}
 };
 
+class LLShowSidetrayPanel : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string panel_name = userdata.asString();
+		LLSideTray::getInstance()->showPanel(panel_name, LLSD());
+		return true;
+	}
+};
+
 bool callback_show_url(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotification::getSelectedOption(notification, response);
@@ -6082,7 +6106,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		BOOL can_build   = gAgent.isGodlike() || (LLViewerParcelMgr::getInstance()->agentCanBuild());
+		BOOL can_build   = gAgent.isGodlike() || (LLViewerParcelMgr::getInstance()->allowAgentBuild());
 
 		//Add an inventory observer to only allow dropping the newly attached item
 		//once it exists in your inventory.  Look at Jira 2422.
@@ -6420,13 +6444,13 @@ void handle_selected_texture_info(void*)
 
 void handle_test_male(void*)
 {
-	LLAppearanceManager::wearOutfitByName("Male Shape & Outfit");
+	LLAppearanceManager::instance().wearOutfitByName("Male Shape & Outfit");
 	//gGestureList.requestResetFromServer( TRUE );
 }
 
 void handle_test_female(void*)
 {
-	LLAppearanceManager::wearOutfitByName("Female Shape & Outfit");
+	LLAppearanceManager::instance().wearOutfitByName("Female Shape & Outfit");
 	//gGestureList.requestResetFromServer( FALSE );
 }
 
@@ -7860,10 +7884,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckDebugCharacterVis(), "Advanced.CheckDebugCharacterVis");
 	view_listener_t::addMenu(new LLAdvancedDumpAttachments(), "Advanced.DumpAttachments");
 	view_listener_t::addMenu(new LLAdvancedRebakeTextures(), "Advanced.RebakeTextures");
-	#ifndef LL_RELEASE_FOR_DOWNLOAD
 	view_listener_t::addMenu(new LLAdvancedDebugAvatarTextures(), "Advanced.DebugAvatarTextures");
 	view_listener_t::addMenu(new LLAdvancedDumpAvatarLocalTextures(), "Advanced.DumpAvatarLocalTextures");
-	#endif
 	// Advanced > Network
 	view_listener_t::addMenu(new LLAdvancedEnableMessageLog(), "Advanced.EnableMessageLog");
 	view_listener_t::addMenu(new LLAdvancedDisableMessageLog(), "Advanced.DisableMessageLog");
@@ -8022,9 +8044,12 @@ void initialize_menus()
 	visible.add("VisiblePayObject", boost::bind(&enable_pay_object));
 	enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));
 	enable.add("EnableEdit", boost::bind(&enable_object_edit));
+	visible.add("VisibleBuild", boost::bind(&enable_object_build));
+	visible.add("VisibleEdit", boost::bind(&enable_object_edit));
 	visible.add("Object.VisibleEdit", boost::bind(&enable_object_edit));
 
 	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
+	view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");
 	view_listener_t::addMenu(new LLSomethingSelected(), "SomethingSelected");
 	view_listener_t::addMenu(new LLSomethingSelectedNoHUD(), "SomethingSelectedNoHUD");
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");

@@ -56,6 +56,7 @@
 #include "llfloaterabout.h"
 #include "llfloaterhardwaresettings.h"
 #include "llfloatervoicedevicesettings.h"
+#include "llimfloater.h"
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
 #include "llnavigationbar.h"
@@ -164,7 +165,6 @@ BOOL LLVoiceSetKeyDialog::handleKeyHere(KEY key, MASK mask)
 	{
 		mParent->setKey(key);
 	}
-	
 	closeFloater();
 	return result;
 }
@@ -310,7 +310,8 @@ F32 LLFloaterPreference::sAspectRatio = 0.0;
 LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	: LLFloater(key),
 	mGotPersonalInfo(false),
-	mOriginalIMViaEmail(false)
+	mOriginalIMViaEmail(false),
+	mCancelOnClose(true)
 {
 	//Build Floater is now Called from 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
 	
@@ -338,7 +339,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",		boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
 	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
-	mCommitCallbackRegistrar.add("Pref.Logging",				boost::bind(&LLFloaterPreference::onCommitLogging, this));
 	mCommitCallbackRegistrar.add("Pref.UpdateMeterText",		boost::bind(&LLFloaterPreference::updateMeterText, this, _1));	
 	mCommitCallbackRegistrar.add("Pref.HardwareSettings",       boost::bind(&LLFloaterPreference::onOpenHardwareSettings, this));	
 	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",       boost::bind(&LLFloaterPreference::setHardwareDefaults, this));	
@@ -348,6 +348,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.AutoDetectAspect",       boost::bind(&LLFloaterPreference::onCommitAutoDetectAspect, this));	
 	mCommitCallbackRegistrar.add("Pref.onSelectAspectRatio",    boost::bind(&LLFloaterPreference::onKeystrokeAspectRatio, this));	
 	mCommitCallbackRegistrar.add("Pref.QualityPerformance",     boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));	
+	mCommitCallbackRegistrar.add("Pref.applyUIColor",			boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2));
+	mCommitCallbackRegistrar.add("Pref.getUIColor",				boost::bind(&LLFloaterPreference::getUIColor, this ,_1, _2));
 	
 	sSkin = gSavedSettings.getString("SkinCurrent");
 	
@@ -356,6 +358,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 
 BOOL LLFloaterPreference::postBuild()
 {
+	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate, _2));
+
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
@@ -388,6 +392,20 @@ void LLFloaterPreference::draw()
 	
 	LLFloater::draw();
 }
+
+void LLFloaterPreference::saveSettings()
+{
+	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
+	child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
+	child_list_t::const_iterator end = tabcontainer->getChildList()->end();
+	for ( ; iter != end; ++iter)
+	{
+		LLView* view = *iter;
+		LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view);
+		if (panel)
+			panel->saveSettings();
+	}
+}	
 
 void LLFloaterPreference::apply()
 {
@@ -443,6 +461,8 @@ void LLFloaterPreference::apply()
 	
 //	LLWString busy_response = utf8str_to_wstring(getChild<LLUICtrl>("busy_response")->getValue().asString());
 //	LLWStringUtil::replaceTabsWithSpaces(busy_response, 4);
+
+	gSavedSettings.setBOOL("PlainTextChatHistory", childGetValue("plain_text_chat_history").asBoolean());
 	
 	if(mGotPersonalInfo)
 	{ 
@@ -550,6 +570,11 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	
 	LLPanelLogin::setAlwaysRefresh(true);
 	refresh();
+	
+	// Make sure the current state of prefs are saved away when
+	// when the floater is opened.  That will make cancel do its
+	// job
+	saveSettings();
 }
 
 void LLFloaterPreference::onVertexShaderEnable()
@@ -568,7 +593,7 @@ void LLFloaterPreference::onClose(bool app_quitting)
 {
 	gSavedSettings.setS32("LastPrefTab", getChild<LLTabContainer>("pref core")->getCurrentPanelIndex());
 	LLPanelLogin::setAlwaysRefresh(false);
-	cancel(); // will be a no-op if OK or apply was performed just prior.
+	if (mCancelOnClose) cancel();
 }
 
 void LLFloaterPreference::onOpenHardwareSettings()
@@ -591,7 +616,11 @@ void LLFloaterPreference::onBtnOK()
 	if (canClose())
 	{
 		apply();
+		// Here we do not want to cancel on close, so we do this funny thing
+		// that prevents cancel from undoing our changes when we hit OK
+		mCancelOnClose = false;
 		closeFloater(false);
+		mCancelOnClose = true;
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 		LLUIColorTable::instance().saveUserSettings();
 		std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
@@ -619,6 +648,7 @@ void LLFloaterPreference::onBtnApply( )
 		}
 	}
 	apply();
+	saveSettings();
 
 	LLPanelLogin::refreshLocation( false );
 }
@@ -635,7 +665,8 @@ void LLFloaterPreference::onBtnCancel()
 		}
 		refresh();
 	}
-	closeFloater(); // side effect will also cancel any unsaved changes.
+	cancel();
+	closeFloater();
 }
 
 // static 
@@ -1131,27 +1162,6 @@ void LLFloaterPreference::onClickLogPath()
 	gSavedPerAccountSettings.setString("InstantMessageLogFolder",chat_log_top_folder);
 }
 
-void LLFloaterPreference::onCommitLogging()
-{
-	enableHistory();
-}
-
-void LLFloaterPreference::enableHistory()
-{
-	if (childGetValue("log_instant_messages").asBoolean())
-	{
-		childEnable("ChatIMLogs");
-		childEnable("log_path_button");
-		childEnable("show_timestamps_check_im");
-	}
-	else
-	{
-		childDisable("ChatIMLogs");
-		childDisable("log_path_button");
-		childDisable("show_timestamps_check_im");
-	}
-}
-
 void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string& email)
 {
 	mGotPersonalInfo = true;
@@ -1181,6 +1191,8 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	childSetLabelArg("online_visibility", "[DIR_VIS]", mDirectoryVisibility);
 	childEnable("send_im_to_email");
 	childSetValue("send_im_to_email", im_via_email);
+	childEnable("plain_text_chat_history");
+	childSetValue("plain_text_chat_history", gSavedSettings.getBOOL("PlainTextChatHistory"));
 	childEnable("log_instant_messages");
 //	childEnable("log_chat");
 //	childEnable("busy_response");
@@ -1191,7 +1203,12 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	
 //	childSetText("busy_response", gSavedSettings.getString("BusyModeResponse2"));
 	
-	enableHistory();
+	childEnable("log_nearby_chat");
+	childEnable("log_instant_messages");
+	childEnable("show_timestamps_check_im");
+	childEnable("log_path_string");
+	childEnable("log_path_button");
+	
 	std::string display_email(email);
 	childSetText("email_address",display_email);
 
@@ -1332,8 +1349,8 @@ void LLFloaterPreference::initWindowSizeControls(LLPanel* panelp)
 	
 	// Look to see if current window size matches existing window sizes, if so then
 	// just set the selection value...
-	const U32 height = gViewerWindow->getWindowDisplayHeight();
-	const U32 width = gViewerWindow->getWindowDisplayWidth();
+	const U32 height = gViewerWindow->getWindowHeightRaw();
+	const U32 width = gViewerWindow->getWindowWidthRaw();
 	for (S32 i=0; i < ctrl_window_size->getItemCount(); i++)
 	{
 		U32 height_test = 0;
@@ -1356,18 +1373,24 @@ void LLFloaterPreference::initWindowSizeControls(LLPanel* panelp)
 }
 
 
+void LLFloaterPreference::applyUIColor(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLUIColorTable::instance().setColor(param.asString(), LLColor4(ctrl->getValue()));
+}
+
+void LLFloaterPreference::getUIColor(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLColorSwatchCtrl* color_swatch = (LLColorSwatchCtrl*) ctrl;
+	color_swatch->setOriginal(LLUIColorTable::instance().getColor(param.asString()));
+}
+
 
 //----------------------------------------------------------------------------
 static LLRegisterPanelClassWrapper<LLPanelPreference> t_places("panel_preference");
 LLPanelPreference::LLPanelPreference()
 : LLPanel()
 {
-	mCommitCallbackRegistrar.add("Pref.setControlFalse",		boost::bind(&LLPanelPreference::setControlFalse,this, _2));
-}
-
-static void applyUIColor(const std::string& color_name, LLUICtrl* ctrl, const LLSD& param)
-{
-	LLUIColorTable::instance().setColor(color_name, LLColor4(param));
+	mCommitCallbackRegistrar.add("Pref.setControlFalse",	boost::bind(&LLPanelPreference::setControlFalse,this, _2));
 }
 
 //virtual
@@ -1496,60 +1519,16 @@ BOOL LLPanelPreference::postBuild()
 		refresh();
 	}
 	
-
-	if(hasChild("user") && hasChild("agent") && hasChild("im") 
-	&& hasChild("system") && hasChild("script_error") && hasChild("objects") 
-	&& hasChild("owner") && hasChild("background") && hasChild("links"))
-	{
-		LLColorSwatchCtrl* color_swatch = getChild<LLColorSwatchCtrl>("user");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "UserChatColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("UserChatColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("agent");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "AgentChatColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("AgentChatColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("im");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "IMChatColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("IMChatColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("system");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "SystemChatColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("SystemChatColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("script_error");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "ScriptErrorColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("ScriptErrorColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("objects");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "ObjectChatColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("ObjectChatColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("owner");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "llOwnerSayChatColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("llOwnerSayChatColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("background");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "BackgroundChatColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("BackgroundChatColor"));
-
-		color_swatch = getChild<LLColorSwatchCtrl>("links");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "HTMLLinkColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("HTMLLinkColor"));
-	}
-
-	if(hasChild("effect_color_swatch"))
-	{
-		LLColorSwatchCtrl* color_swatch = getChild<LLColorSwatchCtrl>("effect_color_swatch");
-		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "EffectColor", _1, _2));
-		color_swatch->setOriginal(LLUIColorTable::instance().getColor("EffectColor"));
-	}
-
 	apply();
 	return true;
 }
 
 void LLPanelPreference::apply()
+{
+	// no-op
+}
+
+void LLPanelPreference::saveSettings()
 {
 	// Save the value of all controls in the hierarchy
 	mSavedValues.clear();

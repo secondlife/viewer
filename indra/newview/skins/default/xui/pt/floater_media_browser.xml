@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater min_width="477" name="floater_about" title="NAVEGADOR DE MÍDIA" width="570">
+	<floater.string name="home_page_url">
+		http://br.secondlife.com
+	</floater.string>
+	<floater.string name="support_page_url">
+		http://br.secondlife.com/support
+	</floater.string>
 	<layout_stack name="stack1" width="550">
 		<layout_panel name="nav_controls">
 			<button label="Para trás" name="back" width="75"/>

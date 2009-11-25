@@ -66,11 +66,7 @@
          label="Italiano (Italian) - Beta"
          name="Italian"
          value="it" />
-        <combo_box.item
-         enabled="true"
-         label="Magyar (Hungarian) - Beta"
-         name="Hungarian"
-         value="hu" />
+
         <combo_box.item
          enabled="true"
          label="Nederlands (Dutch) - Beta"
@@ -86,36 +82,16 @@
          label="Portugués (Portuguese) - Beta"
          name="Portugese"
          value="pt" />
-        <combo_box.item
-         enabled="true"
-         label="Русский (Russian) - Beta"
-         name="Russian"
-         value="ru" />
-        <combo_box.item
-         enabled="true"
-         label="Türkçe (Turkish) - Beta"
-         name="Turkish"
-         value="tr" />
-        <combo_box.item
-         enabled="true"
-         label="Українська (Ukrainian) - Beta"
-         name="Ukrainian"
-         value="uk" />
-        <combo_box.item
-         enabled="true"
-         label="中文 (简体) (Chinese) - Beta"
-         name="Chinese"
-         value="zh" />
+
+
+
+
         <combo_box.item
          enabled="true"
          label="日本語 (Japanese) - Beta"
          name="(Japanese)"
          value="ja" />
-        <combo_box.item
-         enabled="true"
-         label="한국어 (Korean) - Beta"
-         name="(Korean)"
-         value="ko" />
+
         <combo_box.item
          enabled="true"
          label="Test Language"
@@ -305,7 +281,7 @@
      name="effects_color_textbox"
      top_pad="5"
      width="400">
-        My Effects:
+        My effects:
     </text>
     <color_swatch
      border_color="0.45098 0.517647 0.607843 1"

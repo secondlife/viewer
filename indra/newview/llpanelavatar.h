@@ -38,6 +38,7 @@
 
 class LLComboBox;
 class LLLineEditor;
+class LLToggleableMenu;
 
 enum EOnlineStatus
 {
@@ -46,7 +47,7 @@ enum EOnlineStatus
 };
 
 /**
-* Base class for any Profile View or Me Profile Panel.
+* Base class for any Profile View or My Profile Panel.
 */
 class LLPanelProfileTab
 	: public LLPanel
@@ -147,7 +148,7 @@ protected:
 	virtual void processGroupProperties(const LLAvatarGroups* avatar_groups);
 
 	/**
-	 * Fills common for Avatar profile and Me Profile fields.
+	 * Fills common for Avatar profile and My Profile fields.
 	 */
 	virtual void fillCommonData(const LLAvatarData* avatar_data);
 
@@ -160,11 +161,16 @@ protected:
 	 * Fills Avatar's online status.
 	 */
 	virtual void fillOnlineStatus(const LLAvatarData* avatar_data);
-	
+
 	/**
 	 * Fills account status.
 	 */
 	virtual void fillAccountStatus(const LLAvatarData* avatar_data);
+
+	/**
+	 * Opens "Pay Resident" dialog.
+	 */
+	void pay();
 
 	void onUrlTextboxClicked(const std::string& url);
 	void onHomepageTextboxClicked();
@@ -173,20 +179,24 @@ protected:
 	void onCallButtonClick();
 	void onTeleportButtonClick();
 	void onShareButtonClick();
+	void onOverflowButtonClicked();
 
 private:
 
-	std::string mGroups;
+	typedef std::list<std::string>	group_list_t;
+	group_list_t 			mGroups;
+
+	LLToggleableMenu*		mProfileMenu;
 };
 
 /**
  * Panel for displaying own first and second life related info.
  */
-class LLPanelAvatarMeProfile
+class LLPanelMyProfile
 	: public LLPanelAvatarProfile
 {
 public:
-	LLPanelAvatarMeProfile();
+	LLPanelMyProfile();
 
 	/*virtual*/ BOOL postBuild();
 

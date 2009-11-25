@@ -34,9 +34,11 @@
 #define LL_LLIMVIEW_H
 
 #include "lldarray.h"
+#include "lldockablefloater.h"
 #include "llspeakers.h" //for LLIMSpeakerMgr
 #include "llimpanel.h" //for voice channels
 #include "llmodaldialog.h"
+#include "lldockablefloater.h"
 #include "llinstantmessage.h"
 #include "lluuid.h"
 #include "llmultifloater.h"
@@ -102,6 +104,7 @@ public:
 	typedef boost::function<void(const LLSD&)> session_callback_t;
 	session_signal_t mNewMsgSignal;
 	session_signal_t mNoUnreadMsgsSignal;
+	session_signal_t mSessionInitializedSignal;
 	
 	/** 
 	 * Find an IM Session corresponding to session_id
@@ -116,6 +119,7 @@ public:
 
 	boost::signals2::connection addNewMsgCallback( session_callback_t cb ) { return mNewMsgSignal.connect(cb); }
 	boost::signals2::connection addNoUnreadMsgsCallback( session_callback_t cb ) { return mNoUnreadMsgsSignal.connect(cb); }
+	boost::signals2::connection addSessionInitializedCallback(session_callback_t cb ) {	return mSessionInitializedSignal.connect(cb); }
 
 	/**
 	 * Create new session object in a model
@@ -189,6 +193,7 @@ public:
 	static bool sendStartSession(const LLUUID& temp_session_id, const LLUUID& other_participant_id,
 						  const std::vector<LLUUID>& ids, EInstantMessage dialog);
 	static void sendTypingState(LLUUID session_id, LLUUID other_participant_id, BOOL typing);
+	static void sendSessionInitialized(const LLUUID &session_id);
 	static void sendMessage(const std::string& utf8_text, const LLUUID& im_session_id,
 								const LLUUID& other_participant_id, EInstantMessage dialog);
 
@@ -398,12 +403,13 @@ private:
 	LLSD mPendingAgentListUpdates;
 };
 
-class LLIncomingCallDialog : public LLModalDialog
+class LLIncomingCallDialog : public LLDockableFloater
 {
 public:
 	LLIncomingCallDialog(const LLSD& payload);
 
 	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
 
 	static void onAccept(void* user_data);
 	static void onReject(void* user_data);
@@ -411,6 +417,23 @@ public:
 
 private:
 	void processCallResponse(S32 response);
+	void getAllowedRect(LLRect& rect);
+
+	LLSD mPayload;
+};
+
+class LLOutgoingCallDialog : public LLDockableFloater
+{
+public:
+	LLOutgoingCallDialog(const LLSD& payload);
+
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
+
+	static void onCancel(void* user_data);
+
+private:
+	void getAllowedRect(LLRect& rect);
 
 	LLSD mPayload;
 };

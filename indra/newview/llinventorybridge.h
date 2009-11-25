@@ -33,14 +33,16 @@
 #ifndef LL_LLINVENTORYBRIDGE_H
 #define LL_LLINVENTORYBRIDGE_H
 
-#include "llfloaterproperties.h"
-#include "llwearable.h"
-#include "llviewercontrol.h"
 #include "llcallingcard.h"
-#include "llinventorymodel.h"
+#include "llfloaterproperties.h"
 #include "llfoldervieweventlistener.h"
+#include "llinventorymodel.h"
+#include "llinventoryobserver.h"
+#include "llviewercontrol.h"
+#include "llwearable.h"
 
 class LLInventoryPanel;
+class LLInventoryModel;
 class LLMenuGL;
 
 enum EInventoryIcon
@@ -103,22 +105,6 @@ struct LLAttachmentRezAction
 {
 	LLUUID	mItemID;
 	S32		mAttachPt;
-};
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryPanelObserver
-//
-// Bridge to support knowing when the inventory has changed.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLInventoryPanelObserver : public LLInventoryObserver
-{
-public:
-	LLInventoryPanelObserver(LLInventoryPanel* ip) : mIP(ip) {}
-	virtual ~LLInventoryPanelObserver() {}
-	virtual void changed(U32 mask);
-protected:
-	LLInventoryPanel* mIP;
 };
 
 const std::string safe_inv_type_lookup(LLInventoryType::EType inv_type);
@@ -218,8 +204,6 @@ protected:
 									 const LLUUID& new_parent,
 									 BOOL restamp);
 	void removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*>& batch);
-	void renameLinkedItems(const LLUUID &item_id, const std::string& new_name);
-
 protected:
 	LLHandle<LLPanel> mInventoryPanel;
 	const LLUUID mUUID;	// item id

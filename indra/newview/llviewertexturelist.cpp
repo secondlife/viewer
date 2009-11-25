@@ -325,7 +325,7 @@ void LLViewerTextureList::restoreGL()
 
 LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string& filename,												   
 												   BOOL usemipmaps,
-												   S32 boost_priority,
+												   LLViewerTexture::EBoostLevel boost_priority,
 												   S8 texture_type,
 												   LLGLint internal_format,
 												   LLGLenum primary_format, 
@@ -345,7 +345,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string&
 
 LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& url,
 												   BOOL usemipmaps,
-												   S32 boost_priority,
+												   LLViewerTexture::EBoostLevel boost_priority,
 												   S8 texture_type,
 												   LLGLint internal_format,
 												   LLGLenum primary_format, 
@@ -411,7 +411,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 
 LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,											       
 												   BOOL usemipmaps,
-												   S32 boost_priority,
+												   LLViewerTexture::EBoostLevel boost_priority,
 												   S8 texture_type,
 												   LLGLint internal_format,
 												   LLGLenum primary_format,
@@ -441,7 +441,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 //when this function is called, there is no such texture in the gTextureList with image_id.
 LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,											       
 												   BOOL usemipmaps,
-												   S32 boost_priority,
+												   LLViewerTexture::EBoostLevel boost_priority,
 												   S8 texture_type,
 												   LLGLint internal_format,
 												   LLGLenum primary_format,
@@ -1346,7 +1346,7 @@ LLUIImagePtr LLUIImageList::getUIImageByID(const LLUUID& image_id, S32 priority)
 
 	const BOOL use_mips = FALSE;
 	const LLRect scale_rect = LLRect::null;
-	return loadUIImageByID(image_id, use_mips, scale_rect, priority);
+	return loadUIImageByID(image_id, use_mips, scale_rect, (LLViewerTexture::EBoostLevel)priority);
 }
 
 LLUIImagePtr LLUIImageList::getUIImage(const std::string& image_name, S32 priority)
@@ -1360,21 +1360,27 @@ LLUIImagePtr LLUIImageList::getUIImage(const std::string& image_name, S32 priori
 
 	const BOOL use_mips = FALSE;
 	const LLRect scale_rect = LLRect::null;
-	return loadUIImageByName(image_name, image_name, use_mips, scale_rect, priority);
+	return loadUIImageByName(image_name, image_name, use_mips, scale_rect, (LLViewerTexture::EBoostLevel)priority);
 }
 
 LLUIImagePtr LLUIImageList::loadUIImageByName(const std::string& name, const std::string& filename,
-											  BOOL use_mips, const LLRect& scale_rect, S32 boost_priority )
+											  BOOL use_mips, const LLRect& scale_rect, LLViewerTexture::EBoostLevel boost_priority )
 {
-	if (boost_priority == 0) boost_priority = LLViewerFetchedTexture::BOOST_UI;
+	if (boost_priority == LLViewerTexture::BOOST_NONE)
+	{
+		boost_priority = LLViewerTexture::BOOST_UI;
+	}
 	LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTextureFromFile(filename, MIPMAP_NO, boost_priority);
 	return loadUIImage(imagep, name, use_mips, scale_rect);
 }
 
 LLUIImagePtr LLUIImageList::loadUIImageByID(const LLUUID& id,
-											BOOL use_mips, const LLRect& scale_rect, S32 boost_priority)
+											BOOL use_mips, const LLRect& scale_rect, LLViewerTexture::EBoostLevel boost_priority)
 {
-	if (boost_priority == 0) boost_priority = LLViewerFetchedTexture::BOOST_UI;
+	if (boost_priority == LLViewerTexture::BOOST_NONE)
+	{
+		boost_priority = LLViewerTexture::BOOST_UI;
+	}
 	LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(id, MIPMAP_NO, boost_priority);
 	return loadUIImage(imagep, id.asString(), use_mips, scale_rect);
 }
@@ -1461,14 +1467,14 @@ struct UIImageDeclaration : public LLInitParam::Block<UIImageDeclaration>
 	Mandatory<std::string>	name;
 	Optional<std::string>	file_name;
 	Optional<bool>			preload;
-	Optional<LLRect>		scale_rect;
+	Optional<LLRect>		scale;
 	Optional<bool>			use_mips;
 
 	UIImageDeclaration()
 	:	name("name"),
 		file_name("file_name"),
 		preload("preload", false),
-		scale_rect("scale"),
+		scale("scale"),
 		use_mips("use_mips", false)
 	{}
 };
@@ -1558,7 +1564,7 @@ bool LLUIImageList::initFromFile()
 			{
 				continue;
 			}
-			preloadUIImage(image_it->name, file_name, image_it->use_mips, image_it->scale_rect);
+			preloadUIImage(image_it->name, file_name, image_it->use_mips, image_it->scale);
 		}
 
 		if (cur_pass == PASS_DECODE_NOW && !gSavedSettings.getBOOL("NoPreload"))

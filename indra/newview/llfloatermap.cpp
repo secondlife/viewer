@@ -83,7 +83,6 @@ BOOL LLFloaterMap::postBuild()
 {
 	mMap = getChild<LLNetMap>("Net Map");
 	mMap->setScale(gSavedSettings.getF32("MiniMapScale"));
-	mMap->setRotateMap(gSavedSettings.getBOOL( "MiniMapRotate" ));
 	mMap->setToolTipMsg(getString("ToolTipMsg"));	
 	sendChildToBack(mMap);
 	
@@ -178,7 +177,8 @@ void LLFloaterMap::draw()
 {
 	F32 rotation = 0;
 
-	if( mMap->getRotateMap() )
+	static LLUICachedControl<bool> rotate_map("MiniMapRotate", true);
+	if( rotate_map )
 	{
 		// rotate subsequent draws to agent rotation
 		rotation = atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] );

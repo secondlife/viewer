@@ -53,12 +53,8 @@ public:
 
 	bool isTabVisible(); // Check if parent TabContainer is visible.
 
-	void setPanelAppearanceButtons(LLPanelAppearance* panel);
-
 
 protected:
-	LLButton*				mWearBtn;
-	LLButton*				mEditBtn;
 	LLPanelAppearance*		mParent;
 };
 

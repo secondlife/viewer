@@ -86,7 +86,16 @@
      name="autoplay_enabled"
      top_pad="10"
      width="350" />
-    <text
+    <check_box
+     control_name="ParcelMediaAutoPlayEnable"
+     height="16"
+     label="Automatically Play Parcel Media"
+     layout="topleft"
+     left="30"
+     name="parcel_autoplay_enabled"
+     top_pad="10"
+     width="350" />
+   <text
       type="string"
     length="1"
     follows="left|top"
@@ -100,61 +109,27 @@
         Logs:
     </text>
     <check_box
-   
+	 enabled="false"
+     control_name="LogChat"
+     height="16"
+     label="Save nearby chat logs on my computer"
+     layout="topleft"
+     left="30"
+     name="log_nearby_chat"
+     top_pad="10"
+     width="350">
+    </check_box>
+    <check_box
 	 enabled="false"
      control_name="LogInstantMessages"
      height="16"
-     label="Save logs on my computer"
+     label="Save IM logs on my computer"
      layout="topleft"
      left="30"
      name="log_instant_messages"
      top_pad="10"
      width="350">
-        <check_box.commit_callback
-         function="Pref.Logging" />
     </check_box>
-   <radio_group
-     control_name="IMLogOptions"
-     enabled="false"
-     height="80"
-     layout="topleft"
-     left_delta="50"
-     name="ChatIMLogs"
-     width="350"
-     top_pad="0">
-        <radio_item
-         height="16"
-         label="Chat"
-         layout="topleft"
-         left="0"
-         name="radio1"
-         top="3"
-         width="200" />
-        <radio_item
-         height="16"
-         label="IM"
-         layout="topleft"
-         left_delta="0"
-         name="radio2"
-         top_pad="3"
-         width="200" />
-        <radio_item
-         height="16"
-         label="Both, together"
-         layout="topleft"
-         left_delta="0"
-         name="radio3"
-         top_pad="3"
-         width="200" />
-        <radio_item
-         height="16"
-         label="Both, separate"
-         layout="topleft"
-         left_delta="0"
-         name="radio4"
-         top_pad="3"
-         width="200" />
-    </radio_group>
     <check_box
      control_name="LogTimestamp"
 	 enabled="false"
@@ -208,7 +183,7 @@
     <button
      follows="left|bottom"
      height="20"
-     label="Block List"
+     label="Block list"
      layout="topleft"
      left="30"
      name="block_list"

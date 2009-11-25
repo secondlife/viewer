@@ -34,7 +34,6 @@
 #define LL_LLSTATUSBAR_H
 
 #include "llpanel.h"
-#include <llmenugl.h>
 
 // "Constants" loaded from settings.xml at start time
 extern S32 STATUS_BAR_HEIGHT;
@@ -91,9 +90,10 @@ private:
 	// simple method to setup the part that holds the date
 	void setupDate();
 
-	static void onCommitSearch(LLUICtrl*, void* data);
-	static void onClickSearch(void* data);
+	void onVolumeChanged(const LLSD& newvalue);
+
 	static void onClickStatGraph(void* data);
+	
 
 private:
 	LLTextBox	*mTextHealth;
@@ -103,6 +103,7 @@ private:
 	LLStatGraph *mSGPacketLoss;
 
 	LLButton	*mBtnBuyCurrency;
+	LLButton	*mBtnVolume;
 
 	S32				mBalance;
 	S32				mHealth;

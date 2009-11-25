@@ -158,28 +158,14 @@ void LLPanelProfile::onOpen(const LLSD& key)
 }
 
 //*TODO redo panel toggling
-void LLPanelProfile::togglePanel(LLPanel* panel)
+void LLPanelProfile::togglePanel(LLPanel* panel, const LLSD& key)
 {
 	// TRUE - we need to open/expand "panel"
 	bool expand = getChildList()->front() != panel;  // mTabCtrl->getVisible();
 
 	if (expand)
 	{
-		if (panel->getParent() != this)
-		{
-			addChild(panel);
-		}
-		else
-		{
-			sendChildToFront(panel);
-		}
-
-		panel->setVisible(TRUE);
-
-		LLRect new_rect = getRect();
-		panel->reshape(new_rect.getWidth(), new_rect.getHeight());
-		new_rect.setLeftTopAndSize(0, new_rect.getHeight(), new_rect.getWidth(), new_rect.getHeight());
-		panel->setRect(new_rect);
+		openPanel(panel, key);
 	}
 	else 
 	{
@@ -243,5 +229,6 @@ void LLPanelProfile::notifyParent(const LLSD& info)
 		onOpen(info);
 		return;
 	}
+
 	LLPanel::notifyParent(info);
 }

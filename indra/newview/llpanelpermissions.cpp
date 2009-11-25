@@ -66,6 +66,65 @@
 #include "roles_constants.h"
 #include "llgroupactions.h"
 
+
+U8 string_value_to_click_action(std::string p_value);
+std::string click_action_to_string_value( U8 action);
+
+U8 string_value_to_click_action(std::string p_value)
+{
+	if(p_value == "Touch")
+	{
+		return CLICK_ACTION_TOUCH;
+	}
+	if(p_value == "Sit")
+	{
+		return CLICK_ACTION_SIT;
+	}
+	if(p_value == "Buy")
+	{
+		return CLICK_ACTION_BUY;
+	}
+	if(p_value == "Pay")
+	{
+		return CLICK_ACTION_PAY;
+	}
+	if(p_value == "Open")
+	{
+		return CLICK_ACTION_OPEN;
+	}
+	if(p_value == "Zoom")
+	{
+		return CLICK_ACTION_ZOOM;
+	}
+	return CLICK_ACTION_TOUCH;
+}
+
+std::string click_action_to_string_value( U8 action)
+{
+	switch (action) 
+	{
+		case CLICK_ACTION_TOUCH:
+		default:	
+			return "Touch";
+			break;
+		case CLICK_ACTION_SIT:
+			return "Sit";
+			break;
+		case CLICK_ACTION_BUY:
+			return "Buy";
+			break;
+		case CLICK_ACTION_PAY:
+			return "Pay";
+			break;
+		case CLICK_ACTION_OPEN:
+			return "Open";
+			break;
+		case CLICK_ACTION_ZOOM:
+			return "Zoom";
+			break;
+	}
+}
+
 ///----------------------------------------------------------------------------
 /// Class llpanelpermissions
 ///----------------------------------------------------------------------------
@@ -80,9 +139,9 @@ LLPanelPermissions::LLPanelPermissions() :
 BOOL LLPanelPermissions::postBuild()
 {
 	childSetCommitCallback("Object Name",LLPanelPermissions::onCommitName,this);
-	childSetPrevalidate("Object Name",LLLineEditor::prevalidatePrintableNotPipe);
+	childSetPrevalidate("Object Name",LLLineEditor::prevalidateASCIIPrintableNoPipe);
 	childSetCommitCallback("Object Description",LLPanelPermissions::onCommitDesc,this);
-	childSetPrevalidate("Object Description",LLLineEditor::prevalidatePrintableNotPipe);
+	childSetPrevalidate("Object Description",LLLineEditor::prevalidateASCIIPrintableNoPipe);
 
 	
 	getChild<LLUICtrl>("button set group")->setCommitCallback(boost::bind(&LLPanelPermissions::onClickGroup,this));
@@ -774,7 +833,8 @@ void LLPanelPermissions::refresh()
 		LLComboBox*	ComboClickAction = getChild<LLComboBox>("clickaction");
 		if(ComboClickAction)
 		{
-			ComboClickAction->setCurrentByIndex((S32)click_action);
+			std::string combo_value = click_action_to_string_value(click_action);
+			ComboClickAction->setValue(LLSD(combo_value));
 		}
 	}
 	childSetEnabled("label click action",is_perm_modify && all_volume);
@@ -970,19 +1030,32 @@ void LLPanelPermissions::setAllSaleInfo()
 	if (price < 0)
 		sale_type = LLSaleInfo::FS_NOT;
 
-	LLSaleInfo sale_info(sale_type, price);
-	LLSelectMgr::getInstance()->selectionSetObjectSaleInfo(sale_info);
+	LLSaleInfo old_sale_info;
+	LLSelectMgr::getInstance()->selectGetSaleInfo(old_sale_info);
+
+	LLSaleInfo new_sale_info(sale_type, price);
+	LLSelectMgr::getInstance()->selectionSetObjectSaleInfo(new_sale_info);
 	
-	// If turned off for-sale, make sure click-action buy is turned
-	// off as well
-	if (sale_type == LLSaleInfo::FS_NOT)
+	U8 old_click_action = 0;
+	LLSelectMgr::getInstance()->selectionGetClickAction(&old_click_action);
+
+	if (old_sale_info.isForSale()
+		&& !new_sale_info.isForSale()
+		&& old_click_action == CLICK_ACTION_BUY)
 	{
-		U8 click_action = 0;
-		LLSelectMgr::getInstance()->selectionGetClickAction(&click_action);
-		if (click_action == CLICK_ACTION_BUY)
-		{
-			LLSelectMgr::getInstance()->selectionSetClickAction(CLICK_ACTION_TOUCH);
-		}
+		// If turned off for-sale, make sure click-action buy is turned
+		// off as well
+		LLSelectMgr::getInstance()->
+			selectionSetClickAction(CLICK_ACTION_TOUCH);
+	}
+	else if (new_sale_info.isForSale()
+		&& !old_sale_info.isForSale()
+		&& old_click_action == CLICK_ACTION_TOUCH)
+	{
+		// If just turning on for-sale, preemptively turn on one-click buy
+		// unless user have a different click action set
+		LLSelectMgr::getInstance()->
+			selectionSetClickAction(CLICK_ACTION_BUY);
 	}
 }
 
@@ -1002,8 +1075,9 @@ void LLPanelPermissions::onCommitClickAction(LLUICtrl* ctrl, void*)
 {
 	LLComboBox* box = (LLComboBox*)ctrl;
 	if (!box) return;
-
-	U8 click_action = (U8)box->getCurrentIndex();
+	std::string value = box->getValue().asString();
+	U8 click_action = string_value_to_click_action(value);
+	
 	if (click_action == CLICK_ACTION_BUY)
 	{
 		LLSaleInfo sale_info;
@@ -1015,8 +1089,8 @@ void LLPanelPermissions::onCommitClickAction(LLUICtrl* ctrl, void*)
 			// Set click action back to its old value
 			U8 click_action = 0;
 			LLSelectMgr::getInstance()->selectionGetClickAction(&click_action);
-			box->setCurrentByIndex((S32)click_action);
-
+			std::string item_value = click_action_to_string_value(click_action);
+			box->setValue(LLSD(item_value));
 			return;
 		}
 	}

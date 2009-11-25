@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- Additional attributes:
+  image_pressed
+	image_pressed_selected
+   -->
 <button image_unselected="PushButton_Off"
         image_selected="PushButton_Selected"
         image_disabled_selected="PushButton_Selected_Disabled"
@@ -11,7 +15,6 @@
         image_color="ButtonImageColor"
         image_color_disabled="ButtonImageColor"
         flash_color="ButtonFlashBgColor"
-        font="SansSerifSmall"
         hover_glow_amount="0.15"
         halign="center"
         scale_image="true">

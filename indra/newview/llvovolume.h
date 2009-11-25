@@ -100,6 +100,7 @@ public:
 
 public:
 						LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
+	/*virtual*/ void markDead();		// Override (and call through to parent) to clean up media references
 
 	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
 
@@ -120,7 +121,7 @@ public:
 	const LLMatrix4&	getRelativeXform() const				{ return mRelativeXform; }
 	const LLMatrix3&	getRelativeXformInvTrans() const		{ return mRelativeXformInvTrans; }
 	/*virtual*/	const LLMatrix4	getRenderMatrix() const;
-
+				U32 	getRenderCost() const;
 
 	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
@@ -265,7 +266,10 @@ public:
 	bool hasMedia() const;
 	
 	LLVector3 getApproximateFaceNormal(U8 face_id);
-
+	
+	// Returns 'true' iff the media data for this object is in flight
+	bool isMediaDataBeingFetched() const;
+	
 protected:
 	S32	computeLODDetail(F32	distance, F32 radius);
 	BOOL calcLOD();

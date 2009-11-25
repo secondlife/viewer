@@ -82,8 +82,7 @@ public:
 											allow_new_values;
 		Optional<S32>						max_chars;
 		Optional<commit_callback_t> 		prearrange_callback,
-											text_entry_callback,
-											selection_callback;
+											text_entry_callback;
 
 		Optional<EPreferredPosition, PreferredPositionValues>	list_position;
 		
@@ -200,11 +199,11 @@ public:
 
 	void			setPrearrangeCallback( commit_callback_t cb ) { mPrearrangeCallback = cb; }
 	void			setTextEntryCallback( commit_callback_t cb ) { mTextEntryCallback = cb; }
-	void			setSelectionCallback( commit_callback_t cb ) { mSelectionCallback = cb; }
 
 	void			setButtonVisible(BOOL visible);
 
-	void			onButtonDown();
+	void			onButtonMouseDown();
+	void			onListMouseUp();
 	void			onItemSelected(const LLSD& data);
 	void			onTextCommit(const LLSD& data);
 

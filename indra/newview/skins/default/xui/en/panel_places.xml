@@ -72,7 +72,6 @@ background_visible="true"
      width="313">
         <button
          follows="bottom|left"
-         font="SansSerifSmall"
          height="19"
          label="Teleport"
          layout="topleft"
@@ -82,7 +81,6 @@ background_visible="true"
          width="100" />
         <button
          follows="bottom|left"
-         font="SansSerifSmall"
          height="19"
          label="Map"
          layout="topleft"
@@ -92,7 +90,6 @@ background_visible="true"
          width="70" />
         <button
          follows="bottom|left"
-         font="SansSerifSmall"
          height="19"
          label="Edit"
          layout="topleft"
@@ -102,9 +99,8 @@ background_visible="true"
          width="70" />
         <button
          follows="bottom|right"
-         font="SansSerifSmall"
          height="19"
-         image_disabled="ForwardArrow_Disabled"
+         image_disabled="ForwardArrow_Off"
          image_selected="ForwardArrow_Press"
          image_unselected="ForwardArrow_Off"
          layout="topleft"
@@ -114,7 +110,6 @@ background_visible="true"
          width="18" />
         <button
          follows="bottom|right"
-         font="SansSerifSmall"
          height="19"
          label="Close"
          layout="topleft"
@@ -124,7 +119,6 @@ background_visible="true"
          width="60" />
         <button
          follows="bottom|right"
-         font="SansSerifSmall"
          height="19"
          label="Cancel"
          layout="topleft"
@@ -134,7 +128,6 @@ background_visible="true"
          width="60" />
         <button
          follows="bottom|right"
-         font="SansSerifSmall"
          height="19"
          label="Save"
          layout="topleft"

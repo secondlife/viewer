@@ -39,6 +39,7 @@
 #include "llavataractions.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
+#include "lldateutil.h"
 #include "llfloaterreporter.h"
 #include "llfloaterworldmap.h"
 #include "llinspect.h"
@@ -117,6 +118,9 @@ private:
 	bool onVisibleZoomIn();
 	void onClickMuteVolume();
 	void onVolumeChange(const LLSD& data);
+
+	// Is used to determine if "Add friend" option should be enabled in gear menu
+	bool isNotFriend();
 	
 	// Callback for gCacheName to look up avatar name
 	void nameUpdatedCallback(
@@ -208,6 +212,7 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 		boost::bind(&LLInspectAvatar::onVisibleFreezeEject, this));	
 	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleZoomIn", 
 		boost::bind(&LLInspectAvatar::onVisibleZoomIn, this));
+	mEnableCallbackRegistrar.add("InspectAvatar.Gear.Enable", boost::bind(&LLInspectAvatar::isNotFriend, this));
 
 	// can't make the properties request until the widgets are constructed
 	// as it might return immediately, so do it in postBuild.
@@ -347,7 +352,7 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 {
 	LLStringUtil::format_map_t args;
 	args["[BORN_ON]"] = data->born_on;
-	args["[AGE]"] = data->born_on;
+	args["[AGE]"] = LLDateUtil::ageFromDate(data->born_on, LLDate::now());
 	args["[SL_PROFILE]"] = data->about_text;
 	args["[RW_PROFILE"] = data->fl_about_text;
 	args["[ACCTTYPE]"] = LLAvatarPropertiesProcessor::accountType(data);
@@ -471,6 +476,11 @@ void LLInspectAvatar::onClickViewProfile()
 {
 	LLAvatarActions::showProfile(mAvatarID);
 	closeFloater();
+}
+
+bool LLInspectAvatar::isNotFriend()
+{
+	return !LLAvatarActions::isFriend(mAvatarID);
 }
 
 bool LLInspectAvatar::onVisibleFindOnMap()

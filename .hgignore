@@ -13,6 +13,7 @@ LICENSES
 indra/.distcc
 indra/build-darwin-*
 indra/build-vc[0-9]*
+indra/CMakeFiles
 indra/lib/mono/1.0/*.dll
 indra/lib/mono/indra/*.dll
 indra/lib/mono/indra/*.exe
@@ -31,6 +32,7 @@ indra/newview/mozilla-universal-darwin.tgz
 indra/newview/res-sdl
 indra/newview/vivox-runtime
 indra/server-linux-*
+indra/temp
 indra/test/linden_file.dat
 indra/test_apps/llmediatest/dependencies/i686-win32
 indra/test_apps/terrain_mule/*.dll
@@ -53,3 +55,8 @@ glob:*.cpp.orig
 glob:*.cpp.bak
 glob:*.h.bak
 glob:*.h.orig
+glob:indra/newview/typed_locations.txt
+glob:indra/newview/teleport_history.txt
+glob:indra/newview/search_history.txt
+glob:indra/newview/filters.xml
+glob:indra/newview/avatar_icons_cache.txt

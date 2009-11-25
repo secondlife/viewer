@@ -37,12 +37,13 @@
 #include "llpluginmessageclasses.h"
 
 static const F32 HEARTBEAT_SECONDS = 1.0f;
+static const F32 PLUGIN_IDLE_SECONDS = 1.0f / 100.0f;  // Each call to idle will give the plugin this much time.
 
 LLPluginProcessChild::LLPluginProcessChild()
 {
 	mInstance = NULL;
 	mSocket = LLSocket::create(gAPRPoolp, LLSocket::STREAM_TCP);
-	mSleepTime = 1.0f / 100.0f;	// default: send idle messages at 100Hz
+	mSleepTime = PLUGIN_IDLE_SECONDS;	// default: send idle messages at 100Hz
 	mCPUElapsed = 0.0f;
 }
 
@@ -155,7 +156,7 @@ void LLPluginProcessChild::idle(void)
 				{
 					// Provide some time to the plugin
 					LLPluginMessage message("base", "idle");
-					message.setValueReal("time", mSleepTime);
+					message.setValueReal("time", PLUGIN_IDLE_SECONDS);
 					sendMessageToPlugin(message);
 					
 					mInstance->idle();

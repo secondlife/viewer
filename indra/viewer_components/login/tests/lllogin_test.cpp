@@ -47,6 +47,7 @@ public:
 	bool call(const LLSD& event)
 	{
 		mDebug(STRINGIZE("LoginListener called!: " << event));
+		
 		mLastEvent = event;
 		return false;
 	}
@@ -414,4 +415,42 @@ namespace tut
 
 		ensure_equals("Failed to offline", listener.lastEvent()["state"].asString(), "offline");
 	}
+
+/*
+    template<> template<>
+    void llviewerlogin_object::test<5>()
+    {
+        DEBUG;
+		// Test SRV request timeout.
+		set_test_name("LLLogin SRV timeout testing");
+
+		// Testing normal login procedure.
+		LLEventStream llaresPump("LLAres"); // Dummy LLAres pump.
+
+		// LLAresListener dummyLLAres("dummy_llares");
+		// dummyLLAres.listenTo(llaresPump);
+
+		LLLogin login;
+		LoginListener listener("test_ear");
+		listener.listenTo(login.getEventPump());
+
+		LLSD credentials;
+		credentials["first"] = "these";
+		credentials["last"] = "don't";
+		credentials["passwd"] = "matter";
+		credentials["cfg_srv_timeout"] = 0.0f;
+
+		login.connect("login.bar.com", credentials);
+
+		ensure_equals("SRV State", listener.lastEvent()["change"].asString(), "srvrequest"); 
+
+		// Get the mainloop eventpump, which needs a pinging in order to drive the 
+		// SRV timeout.
+		LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
+		LLSD frame_event;
+		mainloop.post(frame_event);
+
+		ensure_equals("SRV Failure", listener.lastEvent()["change"].asString(), "fail.login"); 
+	}
+*/
 }

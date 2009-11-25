@@ -581,9 +581,10 @@ Multiple faces are currently selected.
 If you continue this action, separate instances of media will be set on multiple faces of the object.
 To place the media on only one face, choose Select Texture and click on the desired face of that object then click Add.
     <usetemplate
-	 name="okcancelignore"
-     notext="Cancel"
-     yestext="OK"/>
+      ignoretext="Media will be set on multiple selected faces"
+      name="okcancelignore"
+      notext="Cancel"
+      yestext="OK"/>
   </notification>
 
   <notification
@@ -721,7 +722,7 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
    icon="alertmodal.tga"
    name="AddClassified"
    type="alertmodal">
-Classified ads appear in the &apos;Classified&apos; section of the Search directory and on [http://www.secondlife.com secondlife.com] for one week.
+Classified ads appear in the &apos;Classified&apos; section of the Search directory and on [http://secondlife.com/community/classifieds secondlife.com] for one week.
 Fill out your ad, then click &apos;Publish...&apos; to add it to the directory.
 You&apos;ll be asked for a price to pay when clicking Publish.
 Paying more makes your ad appear higher in the list, and also appear higher when people search for keywords.
@@ -1431,6 +1432,13 @@ Select objects with scripts.
 Not able to perform &apos;reset&apos;.
 
 Select objects with scripts that you have permission to modify.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CannotOpenScriptObjectNoMod"
+   type="alertmodal">
+    Unable to open script in object without modify permissions.
   </notification>
 
   <notification
@@ -3051,6 +3059,18 @@ Teleport to [PICK]?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="TeleportToClassified"
+   type="alertmodal">
+    Teleport to [CLASSIFIED]?
+    <usetemplate
+     ignoretext="Confirm that I want to teleport to a location in Classifieds"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Teleport"/>
+  </notification>
+
+  <notification
    icon="alert.tga"
    label="Message everyone in your Estate"
    name="MessageEstate"
@@ -3248,7 +3268,7 @@ You are not allowed in that region due to your maturity Rating.
 
 Go to the Knowledge Base for more information about maturity Ratings?
     <url option="0" name="url">
-		https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+		http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
     </url>
     <usetemplate
      name="okcancelignore"
@@ -3305,7 +3325,7 @@ You cannot claim this land due to your maturity Rating.
 
 Go to the Knowledge Base for more information about maturity Ratings?
     <url option="0" name="url">
-		https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+		http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
     </url>
     <usetemplate
      name="okcancelignore"
@@ -3355,7 +3375,7 @@ You cannot buy this land due to your maturity Rating.
 
 Go to the Knowledge Base for more information about maturity Ratings?
     <url option="0" name="url">
-		https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
+		http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
     </url>
     <usetemplate
      name="okcancelignore"
@@ -3752,7 +3772,7 @@ There are no items in this object that you are allowed to copy.
    icon="alertmodal.tga"
    name="WebLaunchAccountHistory"
    type="alertmodal">
-Go to  your [http://secondlife.com/account/ Dashboard] to see your account history?
+Go to your [http://secondlife.com/account/ Dashboard] to see your account history?
     <usetemplate
      ignoretext="Launch my browser to see my account history"
      name="okcancelignore"
@@ -4474,7 +4494,7 @@ You don&apos;t have permission to copy this.
    icon="notifytip.tga"
    name="InventoryAccepted"
    type="notifytip">
-[NAME] accepted your inventory offer.
+[NAME] received your inventory offer.
   </notification>
 
   <notification
@@ -4684,7 +4704,12 @@ The objects on the selected parcel that are NOT owned by you have been returned 
    icon="notify.tga"
    name="ServerObjectMessage"
    type="notify">
+Message from [NAME]:
 [MSG]
+    <usetemplate
+     name="okcancelbuttons"
+     notext="OK"
+     yestext="Inspect"/>
   </notification>
 
   <notification
@@ -4940,17 +4965,18 @@ No valid parcel could be found.
   <notification
    icon="notify.tga"
    name="ObjectGiveItem"
-   type="notify">
-An object named [OBJECTFROMNAME] owned by [FIRST] [LAST] has given you a [OBJECTTYPE] named [OBJECTNAME].
+   type="offer">
+An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you [OBJECTTYPE]:
+[ITEM_SLURL]
     <form name="form">
       <button
        index="0"
        name="Keep"
-       text="OK"/>
+       text="Keep"/>
       <button
        index="1"
        name="Discard"
-       text="Cancel"/>
+       text="Discard"/>
       <button
        index="2"
        name="Mute"
@@ -4961,17 +4987,18 @@ An object named [OBJECTFROMNAME] owned by [FIRST] [LAST] has given you a [OBJECT
   <notification
    icon="notify.tga"
    name="ObjectGiveItemUnknownUser"
-   type="notify">
-An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a [OBJECTTYPE] named [OBJECTNAME].
+   type="offer">
+An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [OBJECTTYPE]:
+[ITEM_SLURL]
     <form name="form">
       <button
        index="0"
        name="Keep"
-       text="OK"/>
+       text="Keep"/>
       <button
        index="1"
        name="Discard"
-       text="Cancel"/>
+       text="Discard"/>
       <button
        index="2"
        name="Mute"
@@ -4983,16 +5010,21 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
    icon="notify.tga"
    name="UserGiveItem"
    type="offer">
-[NAME] has given you a [OBJECTTYPE] named &apos;[OBJECTNAME]&apos;.
+[NAME_SLURL] has given you [OBJECTTYPE]:
+[ITEM_SLURL]
     <form name="form">
       <button
        index="0"
        name="Keep"
-       text="Accept"/>
+       text="Keep"/>
+      <button
+       index="4"
+       name="Show"
+       text="Show"/> 
       <button
        index="1"
        name="Discard"
-       text="No, thanks"/>
+       text="Discard"/>
     </form>
   </notification>
 
@@ -5001,6 +5033,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a 
    name="GodMessage"
    type="notify">
 [NAME]
+
 [MESSAGE]
   </notification>
 
@@ -5273,6 +5306,27 @@ Grant this request?
        index="-1"
        name="Ignore"
        text="Ignore"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="ScriptToast"
+   type="notify">
+    [FIRST] [LAST]&apos;s &apos;[TITLE]&apos; is requesting user input.
+    <form name="form">
+      <button
+       index="0"
+       name="Open"
+       text="Open Dialog"/>
+      <button
+       index="1"
+       name="Ignore"
+       text="Ignore"/>
+      <button
+       index="2"
+       name="Block"
+       text="Block"/>
     </form>
   </notification>
 
@@ -5567,7 +5621,7 @@ We&apos;re sorry.  This area has reached maximum capacity for voice conversation
    icon="notifytip.tga"
    name="VoiceChannelDisconnected"
    type="notifytip">
-You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to spatial voice chat.
+You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -5577,7 +5631,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="VoiceChannelDisconnectedP2P"
    type="notifytip">
-[VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to spatial voice chat.
+[VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -5587,7 +5641,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="P2PCallDeclined"
    type="notifytip">
-[VOICE_CHANNEL_NAME] has declined your call.  You will now be reconnected to spatial voice chat.
+[VOICE_CHANNEL_NAME] has declined your call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -5597,7 +5651,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="P2PCallNoAnswer"
    type="notifytip">
-[VOICE_CHANNEL_NAME] is not available to take your call.  You will now be reconnected to spatial voice chat.
+[VOICE_CHANNEL_NAME] is not available to take your call.  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -5607,7 +5661,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="VoiceChannelJoinFailed"
    type="notifytip">
-Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now be reconnected to spatial voice chat.
+Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now be reconnected to Nearby Voice Chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -5720,6 +5774,15 @@ Are you sure you want to delete your teleport history?
      notext="Cancel"
      yestext="OK"/>
   </notification>
+
+  <notification
+   icon="alert.tga"
+   name="BottomTrayButtonCanNotBeShown"
+   type="alert">
+Selected button can not be shown right now.
+The button will be shown when there is enough space for it.
+  </notification>
+
 
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.

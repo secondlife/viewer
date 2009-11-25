@@ -64,7 +64,6 @@
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Body"
              label_selected="Body"
@@ -75,7 +74,6 @@
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Head"
              label_selected="Head"
@@ -86,7 +84,6 @@
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Eyes"
              label_selected="Eyes"
@@ -97,7 +94,6 @@
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Ears"
              label_selected="Ears"
@@ -108,7 +104,6 @@
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Nose"
              label_selected="Nose"
@@ -119,7 +114,6 @@
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Mouth"
              label_selected="Mouth"
@@ -130,7 +124,6 @@
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Chin"
              label_selected="Chin"
@@ -141,7 +134,6 @@
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Torso"
              label_selected="Torso"
@@ -152,7 +144,6 @@
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Legs"
              label_selected="Legs"
@@ -351,7 +342,6 @@ scratch and wear it.
              width="16" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Skin Color"
              label_selected="Skin Color"
@@ -362,7 +352,6 @@ scratch and wear it.
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Face Detail"
              label_selected="Face Detail"
@@ -373,7 +362,6 @@ scratch and wear it.
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Makeup"
              label_selected="Makeup"
@@ -384,7 +372,6 @@ scratch and wear it.
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Body Detail"
              label_selected="Body Detail"
@@ -606,7 +593,6 @@ scratch and wear it.
              width="16" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Color"
              label_selected="Color"
@@ -617,7 +603,6 @@ scratch and wear it.
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Style"
              label_selected="Style"
@@ -628,7 +613,6 @@ scratch and wear it.
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Eyebrows"
              label_selected="Eyebrows"
@@ -639,7 +623,6 @@ scratch and wear it.
              width="82" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Facial"
              label_selected="Facial"
@@ -3379,6 +3362,16 @@ scratch and wear it.
          layout="topleft"
          name="panel_list" />
     </scroll_container>
+    <button
+     bottom="536"
+     follows="right|bottom"
+     height="20"
+     label="Make Outfit"
+     label_selected="Make Outfit"
+     layout="topleft"
+     name="make_outfit_btn"
+     right="-216"
+     width="100" />
     <button
      bottom="536"
      follows="right|bottom"

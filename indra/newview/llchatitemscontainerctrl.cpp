@@ -120,10 +120,10 @@ std::string LLNearbyChatToastPanel::appendTime()
 
 
 
-void	LLNearbyChatToastPanel::addText		(const std::string& message)
+void	LLNearbyChatToastPanel::addText	(const std::string& message , const LLStyle::Params& input_params)
 {
 	LLChatMsgBox* msg_text = getChild<LLChatMsgBox>("msg_text", false);
-	msg_text->addText(message);
+	msg_text->addText(message , input_params);
 	mMessages.push_back(message);
 }
 
@@ -134,24 +134,79 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 	mText = notification["message"].asString();		// UTF-8 line of text
 	mFromName = notification["from"].asString();	// agent or object name
 	mFromID = notification["from_id"].asUUID();		// agent id or object id
+	
 	int sType = notification["source"].asInteger();
     mSourceType = (EChatSourceType)sType;
+	
+	std::string color_name = notification["text_color"].asString();
+	
+	mTextColor = LLUIColorTable::instance().getColor(color_name);
+	mTextColor.mV[VALPHA] =notification["color_alpha"].asReal();
+	
+	S32 font_size = notification["font_size"].asInteger();
+	switch(font_size)
+	{
+		case 0:
+			mFont = LLFontGL::getFontSansSerifSmall();
+			break;
+		default:
+		case 1:
+			mFont = LLFontGL::getFontSansSerif();
+			break;
+		case 2:
+			mFont = LLFontGL::getFontSansSerifBig();
+			break;
+	}
+	
+	LLStyle::Params style_params;
+	style_params.color(mTextColor);
+//	style_params.font(mFont);
+	std::string font_name = LLFontGL::nameFromFont(mFont);
+	std::string font_style_size = LLFontGL::sizeFromFont(mFont);
+	style_params.font.name(font_name);
+	style_params.font.size(font_style_size);
 
 	std::string str_sender;
-
+	
 	if(gAgentID != mFromID)
 		str_sender = mFromName;
 	else
 		str_sender = LLTrans::getString("You");;
 
-	caption->getChild<LLTextBox>("sender_name", false)->setText(str_sender);
+	caption->getChild<LLTextBox>("sender_name", false)->setText(str_sender , style_params);
 	
-	caption->getChild<LLTextBox>("msg_time", false)->setText(appendTime());
-
-
 	LLChatMsgBox* msg_text = getChild<LLChatMsgBox>("msg_text", false);
-	msg_text->setText(mText);
 
+
+	if(notification["chat_style"].asInteger()== CHAT_STYLE_IRC)
+	{
+		if (mFromName.size() > 0)
+		{
+			style_params.font.style = "ITALIC";
+			
+			msg_text->setText(mFromName, style_params);
+		}
+		mText = mText.substr(3);
+		style_params.font.style = "ITALIC";
+#define INFINITE_REFLOW_BUG 0
+#if INFINITE_REFLOW_BUG
+		// This causes LLTextBase::reflow() to infinite loop until the viewer
+		// runs out of memory, throws a bad_alloc exception from std::vector
+		// in mLineInfoList, and the main loop catches it and continues.
+		// It appears to be caused by addText() adding a line separator in the
+		// middle of a line.  See EXT-2579, EXT-1949
+		msg_text->addText(mText,style_params);
+#else
+		msg_text->appendText(mText, FALSE, style_params);
+#endif
+	}
+	else 
+	{
+		msg_text->setText(mText, style_params);
+	}
+
+
+	
 	LLUICtrl* msg_inspector = caption->getChild<LLUICtrl>("msg_inspector");
 	if(mSourceType != CHAT_SOURCE_AGENT)
 		msg_inspector->setVisible(false);
@@ -171,7 +226,17 @@ void	LLNearbyChatToastPanel::setMessage	(const LLChat& chat_msg)
 	notification["from_id"] = chat_msg.mFromID;
 	notification["time"] = chat_msg.mTime;
 	notification["source"] = (S32)chat_msg.mSourceType;
-
+	notification["chat_type"] = (S32)chat_msg.mChatType;
+	notification["chat_style"] = (S32)chat_msg.mChatStyle;
+	
+	std::string r_color_name="White";
+	F32 r_color_alpha = 1.0f; 
+	LLViewerChat::getChatColor( chat_msg, r_color_name, r_color_alpha);
+	
+	notification["text_color"] = r_color_name;
+	notification["color_alpha"] = r_color_alpha;
+	
+	notification["font_size"] = (S32)LLViewerChat::getChatFontSize() ;
 	init(notification);
 
 }
@@ -201,11 +266,17 @@ void	LLNearbyChatToastPanel::setWidth(S32 width)
 	text_box->reshape(width - msg_left_offset - msg_right_offset,100/*its not magic number, we just need any number*/);
 
 	LLChatMsgBox* msg_text = getChild<LLChatMsgBox>("msg_text", false);
+	
+	LLStyle::Params style_params;
+	style_params.color(mTextColor);
+	style_params.font(mFont);
+	
+	
 	if(mText.length())
-		msg_text->setText(mText);
+		msg_text->setText(mText, style_params);
 	
 	for(size_t i=0;i<mMessages.size();++i)
-		msg_text->addText(mMessages[i]);
+		msg_text->addText(mMessages[i] , style_params);
 
 	setRect(LLRect(getRect().mLeft, getRect().mTop, getRect().mLeft + width	, getRect().mBottom));
 	snapToMessageHeight	();

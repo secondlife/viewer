@@ -143,11 +143,14 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 	BOOL handled = FALSE;
 	S32 column_index = getColumnIndexFromOffset(x);
 	LLScrollListItem* hit_item = hitItem(x, y);
-	if (hit_item)
+	if (hit_item
+		&& column_index == mNameColumnIndex)
 	{
-		if (column_index == mNameColumnIndex)
+		// ...this is the column with the avatar name
+		LLUUID avatar_id = hit_item->getValue().asUUID();
+		if (avatar_id.notNull())
 		{
-			// ...this is the column with the avatar name
+			// ...valid avatar id
 			LLScrollListCell* hit_cell = hit_item->getColumn(column_index);
 			if (hit_cell)
 			{
@@ -160,7 +163,6 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 				// Spawn at right side of cell
 				LLCoordGL pos( sticky_rect.mRight - 16, sticky_rect.mTop );
 				LLPointer<LLUIImage> icon = LLUI::getUIImage("Info_Small");
-				LLUUID avatar_id = hit_item->getValue().asUUID();
 
 				LLToolTip::Params params;
 				params.background_visible( false );
@@ -323,8 +325,8 @@ void LLNameListCtrl::refreshAll(const LLUUID& id, const std::string& first,
 	LLInstanceTracker<LLNameListCtrl>::instance_iter it;
 	for (it = beginInstances(); it != endInstances(); ++it)
 	{
-		LLNameListCtrl* ctrl = *it;
-		ctrl->refresh(id, first, last, is_group);
+		LLNameListCtrl& ctrl = *it;
+		ctrl.refresh(id, first, last, is_group);
 	}
 }
 

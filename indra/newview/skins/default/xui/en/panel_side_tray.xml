@@ -94,7 +94,7 @@
   <sidetray_tab
     name="sidebar_me"
     help_topic="sidebar_me"
-    tab_title="Me"
+    tab_title="My Profile"
     description="Edit your public profile and Picks."
     image="TabIcon_Me_Off"
     image_selected="TabIcon_Me_Selected"
@@ -102,9 +102,9 @@
     background_visible="true"
   >
       <panel
-        class="panel_me_profile_view"
-        name="panel_me_profile"
-        filename="panel_me_profile.xml"
+        class="panel_me"
+        name="panel_me"
+        filename="panel_me.xml"
         label="Me"
       />
   </sidetray_tab>
@@ -112,7 +112,7 @@
   <sidetray_tab
     name="sidebar_appearance"
     help_topic="sidebar_appearance"
-    tab_title="Appearance"
+    tab_title="My Appearance"
     description="Change your appearance and current look."
     image="TabIcon_Appearance_Off"
     image_selected="TabIcon_Appearance_Selected"
@@ -120,9 +120,9 @@
     background_visible="true"
   >
       <panel
-        class="panel_appearance"
-        name="panel_appearance"
-        filename="panel_appearance.xml"
+        class="sidepanel_appearance"
+        name="sidepanel_appearance"
+        filename="sidepanel_appearance.xml"
         label="Edit Appearance"
         font="SansSerifBold"
       />
@@ -131,7 +131,7 @@
   <sidetray_tab
     name="sidebar_inventory"
     help_topic="sidebar_inventory"
-    tab_title="Inventory"
+    tab_title="My Inventory"
     description="Browse your inventory."
     image="TabIcon_Things_Off"
     image_selected="TabIcon_Things_Selected"

@@ -46,7 +46,8 @@ public:
 	{
 		Optional<bool>					visible;
 		Optional<LLFontGL::ShadowType>	drop_shadow;
-		Optional<LLUIColor>				color;
+		Optional<LLUIColor>				color,
+										readonly_color;
 		Optional<const LLFontGL*>		font;
 		Optional<LLUIImage*>			image;
 		Optional<std::string>			link_href;
@@ -56,6 +57,8 @@ public:
 public:
 	const LLColor4& getColor() const { return mColor; }
 	void setColor(const LLColor4 &color) { mColor = color; }
+
+	const LLColor4& getReadOnlyColor() const { return mReadOnlyColor; }
 
 	BOOL isVisible() const;
 	void setVisible(BOOL is_visible);
@@ -81,6 +84,7 @@ public:
 		return 
 			mVisible == rhs.mVisible
 			&& mColor == rhs.mColor
+			&& mReadOnlyColor == rhs.mReadOnlyColor
 			&& mFont == rhs.mFont
 			&& mLink == rhs.mLink
 			&& mImagep == rhs.mImagep
@@ -104,6 +108,7 @@ protected:
 private:
 	BOOL		mVisible;
 	LLUIColor	mColor;
+	LLUIColor   mReadOnlyColor;
 	std::string	mFontName;
 	const LLFontGL*   mFont;		// cached for performance
 	std::string	mLink;

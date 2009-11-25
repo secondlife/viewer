@@ -21,12 +21,16 @@
      name="playing">
         (Playing)
     </floater.string>
+    <!-- It's used to build new name for gesture created by "Copy" menu item -->
+    <floater.string
+     name="copy_name">Copy of [COPY_NAME]</floater.string>
     <scroll_list
      bottom_delta="400"
      draw_heading="true"
      follows="all"
      layout="topleft"
      left="0"
+     multi_select="true"
      top="20"
      name="gesture_list">
         <scroll_list.columns
@@ -57,18 +61,18 @@
              left="0"
              name="bottom_panel"
              width="313">
-               <button
+              <menu_button
                follows="bottom|left"
-               font="SansSerifBigBold"
-               tool_tip="Change sort and view of recent residents list"
                height="18"
                image_disabled="OptionsMenu_Disabled"
                image_selected="OptionsMenu_Press"
                image_unselected="OptionsMenu_Off"
                layout="topleft"
                left="10"
-               name="recent_viewsort_btn"
+               menu_filename="menu_gesture_gear.xml"
+               name="gear_btn"
                top="5"
+               tool_tip="More options"
                width="18" />
               <button
                  follows="bottom|left"
@@ -83,22 +87,35 @@
                  tool_tip="Make new gesture"
                  top_delta="0"
                  width="18" />
-                <button
+              <button
                  follows="bottom|left"
+                 font="SansSerifBigBold"
+                 height="10"
+                 image_hover_selected="Activate_Checkmark"
+                 image_selected="Activate_Checkmark"
+                 image_unselected="Activate_Checkmark"
+                 layout="topleft"
+                 left_pad="5"
+                 name="activate_btn"
+                 tool_tip="Activate/Deactivate selected gesture"
+                 top="10"
+                 width="10" />
+              <button
+                 follows="bottom|right"
                  font="SansSerifBigBold"
                  height="18"
                  image_selected="TrashItem_Press"
                  image_unselected="TrashItem_Off"
                  image_disabled="TrashItem_Disabled"
                  layout="topleft"
-                 left_pad="230"
                  name="del_btn"
+                 right="-5"
                  tool_tip="Delete this gesture"
                  top_delta="0"
                  width="18" />
             </panel>
     <button
-     follows="bottom|right"
+     follows="left|bottom"
      height="23"
      label="Edit"
      layout="topleft"
@@ -107,7 +124,7 @@
      top_pad="5"
      width="83" />
     <button
-     follows="bottom|right"
+     follows="left|bottom"
      height="23"
      label="Play"
      layout="topleft"
@@ -116,7 +133,7 @@
      top_delta="0"
      width="83" />
     <button
-     follows="bottom|right"
+     follows="left|bottom"
      height="23"
      label="Stop"
      layout="topleft"

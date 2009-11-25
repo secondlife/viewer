@@ -47,9 +47,11 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
+     bottom_delta="30"
      follows="top|left"
-     height="15"
+     height="25"
+     width="105"
+     word_wrap="true"
      layout="topleft"
      name="preview_label">
         Preview image as:
@@ -96,7 +98,9 @@
     <text
      type="string"
      length="1"
-     bottom="190"
+     bottom="225"
+     height="45"
+     word_wrap="true"
      follows="top|left"
      layout="topleft"
      left="10"
@@ -114,7 +118,7 @@ Try saving image as 24 bit Targa (.tga).
      layout="topleft"
      left_delta="2"
      name="lossless_check"
-     top_pad="197"
+     top_pad="162"
      width="280" />
     <button
      follows="bottom|right"

@@ -522,7 +522,7 @@ protected:
 	// Composites
 	//--------------------------------------------------------------------
 public:
-	virtual void	invalidateComposite(LLTexLayerSet* layerset, BOOL set_by_user);
+	virtual void	invalidateComposite(LLTexLayerSet* layerset, BOOL upload_result);
 	virtual void	invalidateAll();
 	virtual void	setCompositeUpdatesEnabled(BOOL b);
 
@@ -558,7 +558,7 @@ private:
 
 public:
 	void 			updateMeshTextures();
-	void 			updateSexDependentLayerSets(BOOL set_by_user);
+	void 			updateSexDependentLayerSets(BOOL upload_bake);
 	void 			dirtyMesh(); // Dirty the avatar mesh
 	void 			updateMeshData();
 protected:
@@ -591,7 +591,7 @@ protected:
 public:
 	void 			processAvatarAppearance(LLMessageSystem* mesgsys);
 	void 			hideSkirt();
-	void			startAppearanceAnimation(BOOL set_by_user, BOOL play_sound);
+	void			startAppearanceAnimation();
 	
 	//--------------------------------------------------------------------
 	// Appearance morphing
@@ -600,14 +600,13 @@ public:
 	BOOL			mAppearanceAnimating;
 private:
 	LLFrameTimer	mAppearanceMorphTimer;
-	BOOL			mAppearanceAnimSetByUser;
 	F32				mLastAppearanceBlendTime;
 
 	//--------------------------------------------------------------------
 	// Clothing colors (convenience functions to access visual parameters)
 	//--------------------------------------------------------------------
 public:
-	void			setClothesColor(LLVOAvatarDefines::ETextureIndex te, const LLColor4& new_color, BOOL set_by_user);
+	void			setClothesColor(LLVOAvatarDefines::ETextureIndex te, const LLColor4& new_color, BOOL upload_bake);
 	LLColor4		getClothesColor(LLVOAvatarDefines::ETextureIndex te);
 	static BOOL			teToColorParams(LLVOAvatarDefines::ETextureIndex te, U32 *param_name);
 
@@ -616,7 +615,7 @@ public:
 	//--------------------------------------------------------------------
 public:
 	LLColor4		getGlobalColor(const std::string& color_name ) const;
-	void			onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL set_by_user);
+	void			onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL upload_bake);
 private:
 	LLTexGlobalColor* mTexSkinColor;
 	LLTexGlobalColor* mTexHairColor;
@@ -890,7 +889,7 @@ public:
 	static void			dumpArchetypeXML(void*);
 	static void			dumpBakedStatus();
 	const std::string 	getBakedStatusForPrintout() const;
-	void				dumpAvatarTEs(const std::string& context);
+	void				dumpAvatarTEs(const std::string& context) const;
 
 	static F32 			sUnbakedTime; // Total seconds with >=1 unbaked avatars
 	static F32 			sUnbakedUpdateTime; // Last time stats were updated (to prevent multiple updates per frame) 

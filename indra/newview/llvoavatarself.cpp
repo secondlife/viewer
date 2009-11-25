@@ -487,18 +487,10 @@ BOOL LLVOAvatarSelf::buildMenus()
 		}
 
 		// add in requested order to pie menu, inserting separators as necessary
-		S32 cur_pie_slice = 0;
 		for (std::multimap<S32, S32>::iterator attach_it = attachment_pie_menu_map.begin();
 			 attach_it != attachment_pie_menu_map.end(); ++attach_it)
 		{
-			S32 requested_pie_slice = attach_it->first;
 			S32 attach_index = attach_it->second;
-			while (cur_pie_slice < requested_pie_slice)
-			{
-				gAttachBodyPartPieMenus[group]->addSeparator();
-				gDetachBodyPartPieMenus[group]->addSeparator();
-				cur_pie_slice++;
-			}
 
 			LLViewerJointAttachment* attachment = get_if_there(mAttachmentPoints, attach_index, (LLViewerJointAttachment*)NULL);
 			if (attachment)
@@ -520,7 +512,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 				item_params.on_enable.parameter = attach_index;
 				item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 				gDetachBodyPartPieMenus[group]->addChild(item);
-				cur_pie_slice++;
 			}
 		}
 	}
@@ -633,33 +624,33 @@ LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
 	return LLVOAvatar::getJoint(name);
 }
 
-/*virtual*/ BOOL LLVOAvatarSelf::setVisualParamWeight(LLVisualParam *which_param, F32 weight, BOOL set_by_user )
+/*virtual*/ BOOL LLVOAvatarSelf::setVisualParamWeight(LLVisualParam *which_param, F32 weight, BOOL upload_bake )
 {
 	if (!which_param)
 	{
 		return FALSE;
 	}
 	LLViewerVisualParam *param = (LLViewerVisualParam*) LLCharacter::getVisualParam(which_param->getID());
-	return setParamWeight(param,weight,set_by_user);
+	return setParamWeight(param,weight,upload_bake);
 }
 
-/*virtual*/ BOOL LLVOAvatarSelf::setVisualParamWeight(const char* param_name, F32 weight, BOOL set_by_user )
+/*virtual*/ BOOL LLVOAvatarSelf::setVisualParamWeight(const char* param_name, F32 weight, BOOL upload_bake )
 {
 	if (!param_name)
 	{
 		return FALSE;
 	}
 	LLViewerVisualParam *param = (LLViewerVisualParam*) LLCharacter::getVisualParam(param_name);
-	return setParamWeight(param,weight,set_by_user);
+	return setParamWeight(param,weight,upload_bake);
 }
 
-/*virtual*/ BOOL LLVOAvatarSelf::setVisualParamWeight(S32 index, F32 weight, BOOL set_by_user )
+/*virtual*/ BOOL LLVOAvatarSelf::setVisualParamWeight(S32 index, F32 weight, BOOL upload_bake )
 {
 	LLViewerVisualParam *param = (LLViewerVisualParam*) LLCharacter::getVisualParam(index);
-	return setParamWeight(param,weight,set_by_user);
+	return setParamWeight(param,weight,upload_bake);
 }
 
-BOOL LLVOAvatarSelf::setParamWeight(LLViewerVisualParam *param, F32 weight, BOOL set_by_user )
+BOOL LLVOAvatarSelf::setParamWeight(LLViewerVisualParam *param, F32 weight, BOOL upload_bake )
 {
 	if (!param)
 	{
@@ -675,12 +666,12 @@ BOOL LLVOAvatarSelf::setParamWeight(LLViewerVisualParam *param, F32 weight, BOOL
 			LLWearable *wearable = gAgentWearables.getWearable(type,count);
 			if (wearable)
 			{
-				wearable->setVisualParamWeight(param->getID(), weight, set_by_user);
+				wearable->setVisualParamWeight(param->getID(), weight, upload_bake);
 			}
 		}
 	}
 
-	return LLCharacter::setVisualParamWeight(param,weight,set_by_user);
+	return LLCharacter::setVisualParamWeight(param,weight,upload_bake);
 }
 
 /*virtual*/ 
@@ -691,7 +682,7 @@ void LLVOAvatarSelf::updateVisualParams()
 		LLWearable *wearable = gAgentWearables.getTopWearable((EWearableType)type);
 		if (wearable)
 		{
-			wearable->writeToAvatar(FALSE, FALSE);
+			wearable->writeToAvatar();
 		}
 	}
 
@@ -702,7 +693,7 @@ void LLVOAvatarSelf::updateVisualParams()
 void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
 {
 	// Animate all top-level wearable visual parameters
-	gAgentWearables.animateAllWearableParams(calcMorphAmount(), mAppearanceAnimSetByUser);
+	gAgentWearables.animateAllWearableParams(calcMorphAmount(), FALSE);
 
 	// apply wearable visual params to avatar
 	updateVisualParams();
@@ -737,8 +728,7 @@ void LLVOAvatarSelf::stopMotionFromSource(const LLUUID& source_id)
 	}
 }
 
-// virtual
-void LLVOAvatarSelf::setLocalTextureTE(U8 te, LLViewerTexture* image, BOOL set_by_user, U32 index)
+void LLVOAvatarSelf::setLocalTextureTE(U8 te, LLViewerTexture* image, U32 index)
 {
 	if (te >= TEX_NUM_INDICES)
 	{
@@ -1040,7 +1030,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 	if (attachment->isObjectAttached(viewer_object))
 	{
 		const LLUUID& attachment_id = viewer_object->getItemID();
-		LLAppearanceManager::registerAttachment(attachment_id);
+		LLAppearanceManager::instance().registerAttachment(attachment_id);
 	}
 
 	return attachment;
@@ -1079,7 +1069,7 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 		}
 		else
 		{
-			LLAppearanceManager::unregisterAttachment(attachment_id);
+			LLAppearanceManager::instance().unregisterAttachment(attachment_id);
 		}
 		
 		return TRUE;
@@ -1347,7 +1337,7 @@ bool LLVOAvatarSelf::hasPendingBakedUploads() const
 	return false;
 }
 
-void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL set_by_user )
+void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_result )
 {
 	if( !layerset || !layerset->getUpdatesEnabled() )
 	{
@@ -1358,7 +1348,7 @@ void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL set_by_u
 	layerset->requestUpdate();
 	layerset->invalidateMorphMasks();
 
-	if( set_by_user )
+	if( upload_result )
 	{
 		llassert(isSelf());
 
@@ -1588,7 +1578,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 			llinfos << "LocTex " << name << ": Baked " << getTEImage(baked_equiv)->getID() << llendl;
 #endif
 		}
-		else if (local_tex_obj->getImage() != NULL)
+		else if (local_tex_obj && local_tex_obj->getImage() != NULL)
 		{
 			if (local_tex_obj->getImage()->getID() == IMG_DEFAULT_AVATAR)
 			{
@@ -1945,9 +1935,7 @@ void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
 				if (layer_set)
 				{
 					llinfos << "TAT: rebake - matched entry " << (S32)index << llendl;
-					// Apparently set_by_user == force upload
-					BOOL set_by_user = TRUE;
-					self->invalidateComposite(layer_set, set_by_user);
+					self->invalidateComposite(layer_set, TRUE);
 					found = TRUE;
 					LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_REBAKES);
 				}
@@ -1983,8 +1971,7 @@ void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 				layer_set->cancelUpload();
 			}
 
-			BOOL set_by_user = TRUE;
-			invalidateComposite(layer_set, set_by_user);
+			invalidateComposite(layer_set, TRUE);
 			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_REBAKES);
 		}
 		else
@@ -2047,7 +2034,6 @@ void LLVOAvatarSelf::onCustomizeEnd()
 	if (avatarp)
 	{
 		avatarp->invalidateAll();
-		avatarp->requestLayerSetUploads();
 	}
 }
 
@@ -2084,10 +2070,52 @@ void LLVOAvatarSelf::setInvisible(BOOL newvalue)
 	{
 		setCompositeUpdatesEnabled(TRUE);
 		invalidateAll();
-		requestLayerSetUploads();
 		gAgent.sendAgentSetAppearance();
 	}
 }
+
+// HACK: this will null out the avatar's local texture IDs before the TE message is sent
+//       to ensure local texture IDs are not sent to other clients in the area.
+//       this is a short-term solution. The long term solution will be to not set the texture
+//       IDs in the avatar object, and keep them only in the wearable.
+//       This will involve further refactoring that is too risky for the initial release of 2.0.
+bool LLVOAvatarSelf::sendAppearanceMessage(LLMessageSystem *mesgsys) const
+{
+	LLUUID texture_id[TEX_NUM_INDICES];
+	// pack away current TEs to make sure we don't send them out
+	for (LLVOAvatarDictionary::Textures::const_iterator iter = LLVOAvatarDictionary::getInstance()->getTextures().begin();
+		 iter != LLVOAvatarDictionary::getInstance()->getTextures().end();
+		 ++iter)
+	{
+		const ETextureIndex index = iter->first;
+		const LLVOAvatarDictionary::TextureEntry *texture_dict = iter->second;
+		if (!texture_dict->mIsBakedTexture)
+		{
+			LLTextureEntry* entry = getTE((U8) index);
+			texture_id[index] = entry->getID();
+			entry->setID(IMG_DEFAULT_AVATAR);
+		}
+	}
+
+	bool success = packTEMessage(mesgsys);
+
+	// unpack TEs to make sure we don't re-trigger a bake
+	for (LLVOAvatarDictionary::Textures::const_iterator iter = LLVOAvatarDictionary::getInstance()->getTextures().begin();
+		 iter != LLVOAvatarDictionary::getInstance()->getTextures().end();
+		 ++iter)
+	{
+		const ETextureIndex index = iter->first;
+		const LLVOAvatarDictionary::TextureEntry *texture_dict = iter->second;
+		if (!texture_dict->mIsBakedTexture)
+		{
+			LLTextureEntry* entry = getTE((U8) index);
+			entry->setID(texture_id[index]);
+		}
+	}
+
+	return success;
+}
+
 
 //------------------------------------------------------------------------
 // needsRenderBeam()

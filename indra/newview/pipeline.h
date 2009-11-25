@@ -467,6 +467,11 @@ public:
 	static F32				sMinRenderSize;
 
 	//screen texture
+	U32 					mScreenWidth;
+	U32 					mScreenHeight;
+	U32 					mViewportWidth;
+	U32 					mViewportHeight;
+
 	LLRenderTarget			mScreen;
 	LLRenderTarget			mUIScreen;
 	LLRenderTarget			mDeferredScreen;

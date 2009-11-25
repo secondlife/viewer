@@ -30,7 +30,7 @@
     <avatar_icon
      follows="top|left"
      height="20"
-     image_name="smile.png"
+     default_icon_name="Generic_Person"
      layout="topleft"
      left="5"
      mouse_opaque="true"

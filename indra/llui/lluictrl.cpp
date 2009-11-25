@@ -78,7 +78,16 @@ LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel)
 	mEnabledControlVariable(NULL),
 	mDisabledControlVariable(NULL),
 	mMakeVisibleControlVariable(NULL),
-	mMakeInvisibleControlVariable(NULL)
+	mMakeInvisibleControlVariable(NULL),
+	mCommitSignal(NULL),
+	mValidateSignal(NULL),
+	mMouseEnterSignal(NULL),
+	mMouseLeaveSignal(NULL),
+	mMouseDownSignal(NULL),
+	mMouseUpSignal(NULL),
+	mRightMouseDownSignal(NULL),
+	mRightMouseUpSignal(NULL),
+	mDoubleClickSignal(NULL)
 {
 	mUICtrlHandle.bind(this);
 }
@@ -129,10 +138,14 @@ void LLUICtrl::initFromParams(const Params& p)
 	}
 	
 	if (p.commit_callback.isProvided())
-		initCommitCallback(p.commit_callback, mCommitSignal);
+	{
+		setCommitCallback(initCommitCallback(p.commit_callback));
+	}
 	
 	if (p.validate_callback.isProvided())
-		initEnableCallback(p.validate_callback, mValidateSignal);
+	{
+		setValidateCallback(initEnableCallback(p.validate_callback));
+	}
 	
 	if (p.init_callback.isProvided())
 	{
@@ -151,10 +164,14 @@ void LLUICtrl::initFromParams(const Params& p)
 	}
 
 	if(p.mouseenter_callback.isProvided())
-		initCommitCallback(p.mouseenter_callback, mMouseEnterSignal);
+	{
+		setMouseEnterCallback(initCommitCallback(p.mouseenter_callback));
+	}
 
 	if(p.mouseleave_callback.isProvided())
-		initCommitCallback(p.mouseleave_callback, mMouseLeaveSignal);
+	{
+		setMouseLeaveCallback(initCommitCallback(p.mouseleave_callback));
+	}
 }
 
 
@@ -167,16 +184,40 @@ LLUICtrl::~LLUICtrl()
 		llwarns << "UI Control holding top ctrl deleted: " << getName() << ".  Top view removed." << llendl;
 		gFocusMgr.removeTopCtrlWithoutCallback( this );
 	}
+
+	delete mCommitSignal;
+	delete mValidateSignal;
+	delete mMouseEnterSignal;
+	delete mMouseLeaveSignal;
+	delete mMouseDownSignal;
+	delete mMouseUpSignal;
+	delete mRightMouseDownSignal;
+	delete mRightMouseUpSignal;
+	delete mDoubleClickSignal;
 }
 
-void LLUICtrl::initCommitCallback(const CommitCallbackParam& cb, commit_signal_t& sig)
+void default_commit_handler(LLUICtrl* ctrl, const LLSD& param)
+{}
+
+bool default_enable_handler(LLUICtrl* ctrl, const LLSD& param)
+{
+	return true;
+}
+
+bool default_visible_handler(LLUICtrl* ctrl, const LLSD& param)
+{
+	return true;
+}
+
+
+LLUICtrl::commit_signal_t::slot_type LLUICtrl::initCommitCallback(const CommitCallbackParam& cb)
 {
 	if (cb.function.isProvided())
 	{
 		if (cb.parameter.isProvided())
-			sig.connect(boost::bind(cb.function(), _1, cb.parameter));
+			return boost::bind(cb.function(), _1, cb.parameter);
 		else
-			sig.connect(cb.function());
+			return cb.function();
 	}
 	else
 	{
@@ -185,26 +226,27 @@ void LLUICtrl::initCommitCallback(const CommitCallbackParam& cb, commit_signal_t
 		if (func)
 		{
 			if (cb.parameter.isProvided())
-				sig.connect(boost::bind((*func), _1, cb.parameter));
+				return boost::bind((*func), _1, cb.parameter);
 			else
-				sig.connect(*func);
+				return commit_signal_t::slot_type(*func);
 		}
 		else if (!function_name.empty())
 		{
 			llwarns << "No callback found for: '" << function_name << "' in control: " << getName() << llendl;
 		}			
 	}
+	return default_commit_handler;
 }
 
-void LLUICtrl::initEnableCallback(const EnableCallbackParam& cb, enable_signal_t& sig)
+LLUICtrl::enable_signal_t::slot_type LLUICtrl::initEnableCallback(const EnableCallbackParam& cb)
 {
 	// Set the callback function
 	if (cb.function.isProvided())
 	{
 		if (cb.parameter.isProvided())
-			sig.connect(boost::bind(cb.function(), this, cb.parameter));
+			return boost::bind(cb.function(), this, cb.parameter);
 		else
-			sig.connect(cb.function());
+			return cb.function();
 	}
 	else
 	{
@@ -212,22 +254,23 @@ void LLUICtrl::initEnableCallback(const EnableCallbackParam& cb, enable_signal_t
 		if (func)
 		{
 			if (cb.parameter.isProvided())
-				sig.connect(boost::bind((*func), this, cb.parameter));
+				return boost::bind((*func), this, cb.parameter);
 			else
-				sig.connect(*func);
+				return enable_signal_t::slot_type(*func);
 		}
 	}
+	return default_enable_handler;
 }
 
-void LLUICtrl::initVisibleCallback(const VisibleCallbackParam& cb, visible_signal_t& sig)
+LLUICtrl::visible_signal_t::slot_type LLUICtrl::initVisibleCallback(const VisibleCallbackParam& cb)
 {
 	// Set the callback function
 	if (cb.function.isProvided())
 	{
 		if (cb.parameter.isProvided())
-			sig.connect(boost::bind(cb.function(), this, cb.parameter));
+			return boost::bind(cb.function(), this, cb.parameter);
 		else
-			sig.connect(cb.function());
+			return cb.function();
 	}
 	else
 	{
@@ -235,30 +278,40 @@ void LLUICtrl::initVisibleCallback(const VisibleCallbackParam& cb, visible_signa
 		if (func)
 		{
 			if (cb.parameter.isProvided())
-				sig.connect(boost::bind((*func), this, cb.parameter));
+				return boost::bind((*func), this, cb.parameter);
 			else
-				sig.connect(*func);
+				return visible_signal_t::slot_type(*func);
 		}
 	}
+	return default_visible_handler;
 }
 
 // virtual
 void LLUICtrl::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	mMouseEnterSignal(this, getValue());
+	if (mMouseEnterSignal)
+	{
+		(*mMouseEnterSignal)(this, getValue());
+	}
 }
 
 // virtual
 void LLUICtrl::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	mMouseLeaveSignal(this, getValue());
+	if(mMouseLeaveSignal)
+	{
+		(*mMouseLeaveSignal)(this, getValue());
+	}
 }
 
 //virtual 
 BOOL LLUICtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled  = LLView::handleMouseDown(x,y,mask);
-	mMouseDownSignal(this,x,y,mask);
+	if (mMouseDownSignal)
+	{
+		(*mMouseDownSignal)(this,x,y,mask);
+	}
 	return handled;
 }
 
@@ -266,7 +319,10 @@ BOOL LLUICtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLUICtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	BOOL handled  = LLView::handleMouseUp(x,y,mask);
-	mMouseUpSignal(this,x,y,mask);
+	if (mMouseUpSignal)
+	{
+		(*mMouseUpSignal)(this,x,y,mask);
+	}
 	return handled;
 }
 
@@ -274,7 +330,10 @@ BOOL LLUICtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 BOOL LLUICtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled  = LLView::handleRightMouseDown(x,y,mask);
-	mRightMouseDownSignal(this,x,y,mask);
+	if (mRightMouseDownSignal)
+	{
+		(*mRightMouseDownSignal)(this,x,y,mask);
+	}
 	return handled;
 }
 
@@ -282,14 +341,20 @@ BOOL LLUICtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLUICtrl::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
 	BOOL handled  = LLView::handleRightMouseUp(x,y,mask);
-	mRightMouseUpSignal(this,x,y,mask);
+	if(mRightMouseUpSignal)
+	{
+		(*mRightMouseUpSignal)(this,x,y,mask);
+	}
 	return handled;
 }
 
 BOOL LLUICtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = LLView::handleDoubleClick(x, y, mask);
-	mDoubleClickSignal(this, x, y, mask);
+	if (mDoubleClickSignal)
+	{
+		(*mDoubleClickSignal)(this, x, y, mask);
+	}
 	return handled;
 }
 
@@ -302,7 +367,8 @@ BOOL LLUICtrl::canFocusChildren() const
 
 void LLUICtrl::onCommit()
 {
-	mCommitSignal(this, getValue());
+	if (mCommitSignal)
+	(*mCommitSignal)(this, getValue());
 }
 
 //virtual
@@ -832,7 +898,8 @@ boost::signals2::connection LLUICtrl::setCommitCallback( boost::function<void (L
 }
 boost::signals2::connection LLUICtrl::setValidateBeforeCommit( boost::function<bool (const LLSD& data)> cb )
 {
-	return mValidateSignal.connect(boost::bind(cb, _2));
+	if (!mValidateSignal) mValidateSignal = new enable_signal_t();
+	return mValidateSignal->connect(boost::bind(cb, _2));
 }
 
 // virtual
@@ -850,3 +917,57 @@ BOOL LLUICtrl::getTentative() const
 // virtual
 void LLUICtrl::setColor(const LLColor4& color)							
 { }
+
+boost::signals2::connection LLUICtrl::setCommitCallback( const commit_signal_t::slot_type& cb ) 
+{ 
+	if (!mCommitSignal) mCommitSignal = new commit_signal_t();
+	return mCommitSignal->connect(cb); 
+}
+
+boost::signals2::connection LLUICtrl::setValidateCallback( const enable_signal_t::slot_type& cb ) 
+{ 
+	if (!mValidateSignal) mValidateSignal = new enable_signal_t();
+	return mValidateSignal->connect(cb); 
+}
+
+boost::signals2::connection LLUICtrl::setMouseEnterCallback( const commit_signal_t::slot_type& cb ) 
+{ 
+	if (!mMouseEnterSignal) mMouseEnterSignal = new commit_signal_t();
+	return mMouseEnterSignal->connect(cb); 
+}
+
+boost::signals2::connection LLUICtrl::setMouseLeaveCallback( const commit_signal_t::slot_type& cb ) 
+{ 
+	if (!mMouseLeaveSignal) mMouseLeaveSignal = new commit_signal_t();
+	return mMouseLeaveSignal->connect(cb); 
+}
+
+boost::signals2::connection LLUICtrl::setMouseDownCallback( const mouse_signal_t::slot_type& cb ) 
+{ 
+	if (!mMouseDownSignal) mMouseDownSignal = new mouse_signal_t();
+	return mMouseDownSignal->connect(cb); 
+}
+
+boost::signals2::connection LLUICtrl::setMouseUpCallback( const mouse_signal_t::slot_type& cb ) 
+{ 
+	if (!mMouseUpSignal) mMouseUpSignal = new mouse_signal_t();
+	return mMouseUpSignal->connect(cb); 
+}
+
+boost::signals2::connection LLUICtrl::setRightMouseDownCallback( const mouse_signal_t::slot_type& cb ) 
+{ 
+	if (!mRightMouseDownSignal) mRightMouseDownSignal = new mouse_signal_t();
+	return mRightMouseDownSignal->connect(cb); 
+}
+
+boost::signals2::connection LLUICtrl::setRightMouseUpCallback( const mouse_signal_t::slot_type& cb ) 
+{ 
+	if (!mRightMouseUpSignal) mRightMouseUpSignal = new mouse_signal_t();
+	return mRightMouseUpSignal->connect(cb); 
+}
+
+boost::signals2::connection LLUICtrl::setDoubleClickCallback( const mouse_signal_t::slot_type& cb ) 
+{ 
+	if (!mDoubleClickSignal) mDoubleClickSignal = new mouse_signal_t();
+	return mDoubleClickSignal->connect(cb); 
+}

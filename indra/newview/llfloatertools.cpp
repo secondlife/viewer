@@ -43,6 +43,7 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldraghandle.h"
+#include "llerror.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloatermediasettings.h"
 #include "llfloateropenobject.h"
@@ -86,6 +87,7 @@
 #include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
+#include "llvovolume.h"
 #include "lluictrlfactory.h"
 
 // Globals
@@ -421,10 +423,17 @@ void LLFloaterTools::refresh()
 	LLResMgr::getInstance()->getIntegerString(prim_count_string, LLSelectMgr::getInstance()->getSelection()->getObjectCount());
 	childSetTextArg("prim_count", "[COUNT]", prim_count_string);
 
+	// calculate selection rendering cost
+	std::string prim_cost_string;
+	LLResMgr::getInstance()->getIntegerString(prim_cost_string, calcRenderCost());
+	childSetTextArg("RenderingCost", "[COUNT]", prim_cost_string);
+
+
 	// disable the object and prim counts if nothing selected
 	bool have_selection = ! LLSelectMgr::getInstance()->getSelection()->isEmpty();
 	childSetEnabled("obj_count", have_selection);
 	childSetEnabled("prim_count", have_selection);
+	childSetEnabled("RenderingCost", have_selection);
 
 	// Refresh child tabs
 	mPanelPermissions->refresh();
@@ -555,6 +564,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 
 	mBtnEdit	->setToggleState( edit_visible );
 	mRadioGroupEdit->setVisible( edit_visible );
+	childSetVisible("RenderingCost", edit_visible || focus_visible || move_visible);
 
 	if (mCheckSelectIndividual)
 	{
@@ -963,6 +973,27 @@ void LLFloaterTools::onClickGridOptions()
 	//floaterp->addDependentFloater(LLFloaterBuildOptions::getInstance(), FALSE);
 }
 
+S32 LLFloaterTools::calcRenderCost()
+{
+	S32 cost = 0;
+	for (LLObjectSelection::iterator selection_iter = LLSelectMgr::getInstance()->getSelection()->begin();
+		  selection_iter != LLSelectMgr::getInstance()->getSelection()->end();
+		  ++selection_iter)
+	{
+		LLSelectNode *select_node = *selection_iter;
+		if (select_node)
+		{
+			LLVOVolume *viewer_volume = (LLVOVolume*)select_node->getObject();
+			if (viewer_volume)
+			{
+				cost += viewer_volume->getRenderCost();
+			}
+		}
+	}
+
+	return cost;
+}
+
 // static
 void LLFloaterTools::setEditTool(void* tool_pointer)
 {
@@ -1073,27 +1104,68 @@ void LLFloaterTools::getMediaState()
 		childSetEnabled("edit_media", FALSE);
 		childSetEnabled("media_info", FALSE);
 		media_info->setEnabled(FALSE);
-		media_info->clear();*/	
+		media_info->clear();*/
+		LL_WARNS("LLFloaterTools: media") << "Media not enabled (no capability) in this region!" << LL_ENDL;
 		clearMediaSettings();
 		return;
 	}
 	
 	bool editable = (first_object->permModify() || selectedMediaEditable());
-	
-	// Media settings
-	U8 has_media = (U8)0;
-	struct media_functor : public LLSelectedTEGetFunctor<U8>
+
+	// Check modify permissions and whether any selected objects are in
+	// the process of being fetched.  If they are, then we're not editable
+	if (editable)
 	{
-		U8 get(LLViewerObject* object, S32 face)
+		LLObjectSelection::iterator iter = selected_objects->begin(); 
+		LLObjectSelection::iterator end = selected_objects->end();
+		for ( ; iter != end; ++iter)
 		{
-			return (object->getTE(face)->getMediaTexGen());
+			LLSelectNode* node = *iter;
+			LLVOVolume* object = dynamic_cast<LLVOVolume*>(node->getObject());
+			if (NULL != object)
+			{
+				if (!object->permModify())
+				{
+					LL_INFOS("LLFloaterTools: media")
+						<< "Selection not editable due to lack of modify permissions on object id "
+						<< object->getID() << LL_ENDL;
+					
+					editable = false;
+					break;
+				}
+				// XXX DISABLE this for now, because when the fetch finally 
+				// does come in, the state of this floater doesn't properly
+				// update.  This needs more thought.
+//				if (object->isMediaDataBeingFetched())
+//				{
+//					LL_INFOS("LLFloaterTools: media")
+//						<< "Selection not editable due to media data being fetched for object id "
+//						<< object->getID() << LL_ENDL;
+//						
+//					editable = false;
+//					break;
+//				}
+			}
+		}
+	}
+
+	// Media settings
+	bool bool_has_media = false;
+	struct media_functor : public LLSelectedTEGetFunctor<bool>
+	{
+		bool get(LLViewerObject* object, S32 face)
+		{
+			LLTextureEntry *te = object->getTE(face);
+			if (te)
+			{
+				return te->hasMedia();
+			}
+			return false;
 		}
 	} func;
 	
 	// check if all faces have media(or, all dont have media)
-	LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo = selected_objects->getSelectedTEValue( &func, has_media );
-	bool bool_has_media = (has_media & LLTextureEntry::MF_HAS_MEDIA);
-
+	LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo = selected_objects->getSelectedTEValue( &func, bool_has_media );
 	
 	const LLMediaEntry default_media_data;
 	

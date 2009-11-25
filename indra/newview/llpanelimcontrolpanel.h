@@ -43,7 +43,9 @@ class LLParticipantList;
 class LLPanelChatControlPanel : public LLPanel
 {
 public:
-	LLPanelChatControlPanel() {};
+	LLPanelChatControlPanel() :
+		mSessionId(LLUUID()),
+		mInitialized(false) {};
 	~LLPanelChatControlPanel() {};
 
 	virtual BOOL postBuild();
@@ -56,9 +58,11 @@ public:
 	virtual void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
 
 	virtual void setSessionId(const LLUUID& session_id);
+	const LLUUID& getSessionId() { return mSessionId; }
 
 private:
 	LLUUID mSessionId;
+	bool   mInitialized;
 };
 
 
@@ -100,7 +104,7 @@ public:
 protected:
 	LLUUID mGroupID;
 	LLSpeakerMgr* mSpeakerManager;
-	LLAvatarList* mAvatarList;
+
 	LLParticipantList* mParticipantList;
 
 private:

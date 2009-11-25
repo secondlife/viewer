@@ -67,6 +67,27 @@ static const std::string TRASH_BUTTON_NAME = "trash_btn";
 // helper functions
 static void filter_list(LLInventorySubTreePanel* inventory_list, const std::string& string);
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLLandmarksPanelObserver
+//
+// Bridge to support knowing when the inventory has changed to update
+// landmarks accordions visibility.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLLandmarksPanelObserver : public LLInventoryObserver
+{
+public:
+	LLLandmarksPanelObserver(LLLandmarksPanel* lp) : mLP(lp) {}
+	virtual ~LLLandmarksPanelObserver() {}
+	/*virtual*/ void changed(U32 mask);
+
+private:
+	LLLandmarksPanel* mLP;
+};
+
+void LLLandmarksPanelObserver::changed(U32 mask)
+{
+	mLP->updateFilteredAccordions();
+}
 
 LLLandmarksPanel::LLLandmarksPanel()
 	:	LLPanelPlacesTab()
@@ -80,11 +101,16 @@ LLLandmarksPanel::LLLandmarksPanel()
 	,	mGearLandmarkMenu(NULL)
 	,	mDirtyFilter(false)
 {
+	mInventoryObserver = new LLLandmarksPanelObserver(this);
+	gInventory.addObserver(mInventoryObserver);
+
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_landmarks.xml");
 }
 
 LLLandmarksPanel::~LLLandmarksPanel()
 {
+	if (gInventory.containsObserver(mInventoryObserver))
+		gInventory.removeObserver(mInventoryObserver);
 }
 
 BOOL LLLandmarksPanel::postBuild()
@@ -97,10 +123,10 @@ BOOL LLLandmarksPanel::postBuild()
 
 	U32 sort_order = gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER);
 	mSortByDate = sort_order & LLInventoryFilter::SO_DATE;
-	initFavoritesInventroyPanel();
-	initLandmarksInventroyPanel();
-	initMyInventroyPanel();
-	initLibraryInventroyPanel();
+	initFavoritesInventoryPanel();
+	initLandmarksInventoryPanel();
+	initMyInventoryPanel();
+	initLibraryInventoryPanel();
 	getChild<LLAccordionCtrlTab>("tab_favorites")->setDisplayChildren(true);
 	getChild<LLAccordionCtrlTab>("tab_landmarks")->setDisplayChildren(true);
 
@@ -135,8 +161,14 @@ void LLLandmarksPanel::onSearchEdit(const std::string& string)
 		LLAccordionCtrlTab* tab = *iter;
 		tab->setVisible(true);
 
-		// expand accordion to see matched items in all ones. See EXT-2014.
+		// expand accordion to see matched items in each one. See EXT-2014.
 		tab->changeOpenClose(false);
+
+		// refresh all accordions to display their contents in case of less restrictive filter
+		LLInventorySubTreePanel* inventory_list = dynamic_cast<LLInventorySubTreePanel*>(tab->getAccordionView());
+		if (NULL == inventory_list) continue;
+		LLFolderView* fv = inventory_list->getRootFolder();
+		fv->refresh();
 	}
 }
 
@@ -148,20 +180,13 @@ void LLLandmarksPanel::onShowOnMap()
 		llwarns << "There are no selected list. No actions are performed." << llendl;
 		return;
 	}
-	LLLandmark* landmark = getCurSelectedLandmark();
-	if (!landmark)
-		return;
 
-	LLVector3d landmark_global_pos;
-	if (!landmark->getGlobalPos(landmark_global_pos))
-		return;
-	
-	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
-	if (!landmark_global_pos.isExactlyZero() && worldmap_instance)
-	{
-		worldmap_instance->trackLocation(landmark_global_pos);
-		LLFloaterReg::showInstance("world_map", "center");
-	}
+	// Disable the "Map" button because loading landmark can take some time.
+	// During this time the button is useless. It will be enabled on callback finish
+	// or upon switching to other item.
+	mShowOnMapBtn->setEnabled(FALSE);
+
+	doActionOnCurSelectedLandmark(boost::bind(&LLLandmarksPanel::doShowOnMap, this, _1));
 }
 
 // virtual
@@ -230,6 +255,31 @@ void LLLandmarksPanel::onSelectorButtonClicked()
 	}
 }
 
+void LLLandmarksPanel::updateFilteredAccordions()
+{
+	LLInventoryPanel* inventory_list = NULL;
+	LLAccordionCtrlTab* accordion_tab = NULL;
+	for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
+	{
+		accordion_tab = *iter;
+		inventory_list = dynamic_cast<LLInventorySubTreePanel*> (accordion_tab->getAccordionView());
+		if (NULL == inventory_list) continue;
+		LLFolderView* fv = inventory_list->getRootFolder();
+
+		bool has_descendants = fv->hasFilteredDescendants();
+
+		accordion_tab->setVisible(has_descendants);
+	}
+
+	// we have to arrange accordion tabs for cases when filter string is less restrictive but
+	// all items are still filtered.
+	static LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("landmarks_accordion");
+	accordion->arrange();
+
+	// now filter state is applied to accordion tabs
+	mDirtyFilter = false;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // PROTECTED METHODS
 //////////////////////////////////////////////////////////////////////////
@@ -256,15 +306,18 @@ bool LLLandmarksPanel::isReceivedFolderSelected() const
 
 	return false;
 }
-LLLandmark* LLLandmarksPanel::getCurSelectedLandmark() const
-{
 
+void LLLandmarksPanel::doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb)
+{
 	LLFolderViewItem* cur_item = getCurSelectedItem();
 	if(cur_item && cur_item->getListener()->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{ 
-		return LLLandmarkActions::getLandmark(cur_item->getListener()->getUUID());
+		LLLandmark* landmark = LLLandmarkActions::getLandmark(cur_item->getListener()->getUUID(), cb);
+		if (landmark)
+		{
+			cb(landmark);
+		}
 	}
-	return NULL;
 }
 
 LLFolderViewItem* LLLandmarksPanel::getCurSelectedItem() const 
@@ -294,45 +347,11 @@ void LLLandmarksPanel::processParcelInfo(const LLParcelData& parcel_data)
 	// We have to make request to sever to get parcel_id and snaption_id. 
 	if(isLandmarkSelected())
 	{
-		LLLandmark* landmark  =  getCurSelectedLandmark();
 		LLFolderViewItem* cur_item = getCurSelectedItem();
 		LLUUID id = cur_item->getListener()->getUUID();
-		LLInventoryItem* inv_item =  mCurrentSelectedList->getModel()->getItem(id);
-		if(landmark)
-		{
-			LLPanelPickEdit* panel_pick = LLPanelPickEdit::create();
-			LLVector3d landmark_global_pos;
-			landmark->getGlobalPos(landmark_global_pos);
-
-			// let's toggle pick panel into  panel places
-			LLPanel* panel_places =  LLSideTray::getInstance()->getChild<LLPanel>("panel_places");//-> sidebar_places
-			panel_places->addChild(panel_pick);
-			LLRect paren_rect(panel_places->getRect());
-			panel_pick->reshape(paren_rect.getWidth(),paren_rect.getHeight(), TRUE);
-			panel_pick->setRect(paren_rect);
-			panel_pick->onOpen(LLSD());
-
-			LLPickData data;
-			data.pos_global = landmark_global_pos;
-			data.name = cur_item->getName();
-			data.desc = inv_item->getDescription();
-			data.snapshot_id = parcel_data.snapshot_id;
-			data.parcel_id = parcel_data.parcel_id;
-			panel_pick->setPickData(&data);
-
-			LLSD params;
-			params["parcel_id"] =parcel_data.parcel_id;
-			/* set exit callback to get back onto panel places  
-			 in callback we will make cleaning up( delete pick_panel instance, 
-			 remove landmark panel from observer list
-			*/ 
-			panel_pick->setExitCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
-					panel_pick, panel_places,params));
-			panel_pick->setSaveCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
-				panel_pick, panel_places,params));
-			panel_pick->setCancelCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
-							panel_pick, panel_places,params));
-		}
+		LLInventoryItem* inv_item = mCurrentSelectedList->getModel()->getItem(id);
+		doActionOnCurSelectedLandmark(boost::bind(
+				&LLLandmarksPanel::doProcessParcelInfo, this, _1, cur_item, inv_item, parcel_data));
 	}
 }
 
@@ -357,7 +376,7 @@ void LLLandmarksPanel::setErrorStatus(U32 status, const std::string& reason)
 // PRIVATE METHODS
 //////////////////////////////////////////////////////////////////////////
 
-void LLLandmarksPanel::initFavoritesInventroyPanel()
+void LLLandmarksPanel::initFavoritesInventoryPanel()
 {
 	mFavoritesInventoryPanel = getChild<LLInventorySubTreePanel>("favorites_list");
 
@@ -366,7 +385,7 @@ void LLLandmarksPanel::initFavoritesInventroyPanel()
 	initAccordion("tab_favorites", mFavoritesInventoryPanel);
 }
 
-void LLLandmarksPanel::initLandmarksInventroyPanel()
+void LLLandmarksPanel::initLandmarksInventoryPanel()
 {
 	mLandmarksInventoryPanel = getChild<LLInventorySubTreePanel>("landmarks_list");
 
@@ -380,7 +399,7 @@ void LLLandmarksPanel::initLandmarksInventroyPanel()
 	initAccordion("tab_landmarks", mLandmarksInventoryPanel);
 }
 
-void LLLandmarksPanel::initMyInventroyPanel()
+void LLLandmarksPanel::initMyInventoryPanel()
 {
 	mMyInventoryPanel= getChild<LLInventorySubTreePanel>("my_inventory_list");
 
@@ -389,7 +408,7 @@ void LLLandmarksPanel::initMyInventroyPanel()
 	initAccordion("tab_inventory", mMyInventoryPanel);
 }
 
-void LLLandmarksPanel::initLibraryInventroyPanel()
+void LLLandmarksPanel::initLibraryInventoryPanel()
 {
 	mLibraryInventoryPanel = getChild<LLInventorySubTreePanel>("library_list");
 
@@ -747,42 +766,7 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
 	}
 	else if ("create_pick" == command_name)
 	{
-		LLLandmark* landmark = getCurSelectedLandmark();
-		if(!landmark) return;
-		
-		LLViewerRegion* region = gAgent.getRegion();
-		if (!region) return;
-
-		LLGlobalVec pos_global;
-		LLUUID region_id;
-		landmark->getGlobalPos(pos_global);
-		landmark->getRegionID(region_id);
-		LLVector3 region_pos((F32)fmod(pos_global.mdV[VX], (F64)REGION_WIDTH_METERS),
-						  (F32)fmod(pos_global.mdV[VY], (F64)REGION_WIDTH_METERS),
-						  (F32)pos_global.mdV[VZ]);
-
-		LLSD body;
-		std::string url = region->getCapability("RemoteParcelRequest");
-		if (!url.empty())
-		{
-			body["location"] = ll_sd_from_vector3(region_pos);
-			if (!region_id.isNull())
-			{
-				body["region_id"] = region_id;
-			}
-			if (!pos_global.isExactlyZero())
-			{
-				U64 region_handle = to_region_handle(pos_global);
-				body["region_handle"] = ll_sd_from_U64(region_handle);
-			}
-			LLHTTPClient::post(url, body, new LLRemoteParcelRequestResponder(getObserverHandle()));
-		}
-		else 
-		{
-			llwarns << "Can't create pick for landmark for region" << region_id 
-					<< ". Region: "	<< region->getName() 
-					<< " does not support RemoteParcelRequest" << llendl; 
-		}
+		doActionOnCurSelectedLandmark(boost::bind(&LLLandmarksPanel::doCreatePick, this, _1));
 	}
 }
 
@@ -906,31 +890,97 @@ void LLLandmarksPanel::doIdle(void* landmarks_panel)
 
 }
 
-void LLLandmarksPanel::updateFilteredAccordions()
+void LLLandmarksPanel::doShowOnMap(LLLandmark* landmark)
 {
-	LLInventoryPanel* inventory_list = NULL;
-	LLAccordionCtrlTab* accordion_tab = NULL;
-	for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
+	LLVector3d landmark_global_pos;
+	if (!landmark->getGlobalPos(landmark_global_pos))
+		return;
+
+	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+	if (!landmark_global_pos.isExactlyZero() && worldmap_instance)
 	{
-		accordion_tab = *iter;
-		inventory_list = dynamic_cast<LLInventorySubTreePanel*> (accordion_tab->getAccordionView());
-		if (NULL == inventory_list) continue;
-		LLFolderView* fv = inventory_list->getRootFolder();
-
-		bool has_visible_children = fv->hasVisibleChildren();
-
-		accordion_tab->setVisible(has_visible_children);
+		worldmap_instance->trackLocation(landmark_global_pos);
+		LLFloaterReg::showInstance("world_map", "center");
 	}
 
-	// we have to arrange accordion tabs for cases when filter string is less restrictive but 
-	// all items are still filtered.
-	static LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("landmarks_accordion");
-	accordion->arrange();
-
-	// now filter state is applied to accordion tabs
-	mDirtyFilter = false;
+	mShowOnMapBtn->setEnabled(TRUE);
 }
 
+void LLLandmarksPanel::doProcessParcelInfo(LLLandmark* landmark,
+										   LLFolderViewItem* cur_item,
+										   LLInventoryItem* inv_item,
+										   const LLParcelData& parcel_data)
+{
+	LLPanelPickEdit* panel_pick = LLPanelPickEdit::create();
+	LLVector3d landmark_global_pos;
+	landmark->getGlobalPos(landmark_global_pos);
+
+	// let's toggle pick panel into  panel places
+	LLPanel* panel_places =  LLSideTray::getInstance()->getChild<LLPanel>("panel_places");//-> sidebar_places
+	panel_places->addChild(panel_pick);
+	LLRect paren_rect(panel_places->getRect());
+	panel_pick->reshape(paren_rect.getWidth(),paren_rect.getHeight(), TRUE);
+	panel_pick->setRect(paren_rect);
+	panel_pick->onOpen(LLSD());
+
+	LLPickData data;
+	data.pos_global = landmark_global_pos;
+	data.name = cur_item->getName();
+	data.desc = inv_item->getDescription();
+	data.snapshot_id = parcel_data.snapshot_id;
+	data.parcel_id = parcel_data.parcel_id;
+	panel_pick->setPickData(&data);
+
+	LLSD params;
+	params["parcel_id"] = parcel_data.parcel_id;
+	/* set exit callback to get back onto panel places
+	 in callback we will make cleaning up( delete pick_panel instance,
+	 remove landmark panel from observer list
+	*/
+	panel_pick->setExitCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
+			panel_pick, panel_places,params));
+	panel_pick->setSaveCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
+		panel_pick, panel_places,params));
+	panel_pick->setCancelCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
+					panel_pick, panel_places,params));
+}
+
+void LLLandmarksPanel::doCreatePick(LLLandmark* landmark)
+{
+	LLViewerRegion* region = gAgent.getRegion();
+	if (!region) return;
+
+	LLGlobalVec pos_global;
+	LLUUID region_id;
+	landmark->getGlobalPos(pos_global);
+	landmark->getRegionID(region_id);
+	LLVector3 region_pos((F32)fmod(pos_global.mdV[VX], (F64)REGION_WIDTH_METERS),
+					  (F32)fmod(pos_global.mdV[VY], (F64)REGION_WIDTH_METERS),
+					  (F32)pos_global.mdV[VZ]);
+
+	LLSD body;
+	std::string url = region->getCapability("RemoteParcelRequest");
+	if (!url.empty())
+	{
+		body["location"] = ll_sd_from_vector3(region_pos);
+		if (!region_id.isNull())
+		{
+			body["region_id"] = region_id;
+		}
+		if (!pos_global.isExactlyZero())
+		{
+			U64 region_handle = to_region_handle(pos_global);
+			body["region_handle"] = ll_sd_from_U64(region_handle);
+		}
+		LLHTTPClient::post(url, body, new LLRemoteParcelRequestResponder(getObserverHandle()));
+	}
+	else
+	{
+		llwarns << "Can't create pick for landmark for region" << region_id
+				<< ". Region: "	<< region->getName()
+				<< " does not support RemoteParcelRequest" << llendl;
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////
 // HELPER FUNCTIONS

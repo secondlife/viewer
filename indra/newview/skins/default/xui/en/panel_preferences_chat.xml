@@ -45,14 +45,20 @@
     <color_swatch
      border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
-     control_name="UserChatColor"
      follows="left|top"
      height="47"
      layout="topleft"
      left="30"
      name="user"
      top_pad="10"
-     width="44" />
+     width="44" >
+		<color_swatch.init_callback
+		 function="Pref.getUIColor"
+		 parameter="UserChatColor" />
+		<color_swatch.commit_callback
+		 function="Pref.applyUIColor"
+		 parameter="UserChatColor" />
+	</color_swatch>
     <text
      type="string"
      length="1"
@@ -69,14 +75,20 @@
     <color_swatch
      border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
-     control_name="AgentChatColor"
      follows="left|top"
      height="47"
      layout="topleft"
      left="180"
      name="agent"
      top_pad="-17"
-     width="44" />
+     width="44" >
+		<color_swatch.init_callback
+		 function="Pref.getUIColor"
+		 parameter="AgentChatColor" />
+		<color_swatch.commit_callback
+		 function="Pref.applyUIColor"
+		 parameter="AgentChatColor" />
+	</color_swatch>
     <text
      type="string"
      length="1"
@@ -94,7 +106,6 @@
      border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.6 0.6 1 1"
-     control_name="IMChatColor"
      follows="left|top"
      height="47"
      label_width="60"
@@ -102,8 +113,15 @@
      left="350"
      name="im"
      top_pad="-17"
-     width="44" />
-        <text
+     width="44">
+		<color_swatch.init_callback
+		 function="Pref.getUIColor"
+		 parameter="IMChatColor" />
+		<color_swatch.commit_callback
+		 function="Pref.applyUIColor"
+		 parameter="IMChatColor" />
+	</color_swatch>
+	<text
      type="string"
      length="1"
      follows="left|top"
@@ -120,7 +138,6 @@
      border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.8 1 1 1"
-     control_name="SystemChatColor"
      follows="left|top"
      height="47"
      label_width="44"
@@ -128,7 +145,14 @@
      left="30"
      name="system"
      top_pad="40"
-     width="44" />
+     width="44" >
+		<color_swatch.init_callback
+		 function="Pref.getUIColor"
+		 parameter="SystemChatColor" />
+		<color_swatch.commit_callback
+		 function="Pref.applyUIColor"
+		 parameter="SystemChatColor" />
+	</color_swatch>
     <text
      type="string"
      length="1"
@@ -146,14 +170,20 @@
      border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.82 0.82 0.99 1"
-     control_name="ScriptErrorColor"
      follows="left|top"
      height="47"
      layout="topleft"
      left="180"
      name="script_error"
      top_pad="-17"
-     width="44" />
+     width="44">
+		<color_swatch.init_callback
+		 function="Pref.getUIColor"
+		 parameter="ScriptErrorColor" />
+		<color_swatch.commit_callback
+		 function="Pref.applyUIColor"
+		 parameter="ScriptErrorColor" />
+	</color_swatch>
     <text
      type="string"
      length="1"
@@ -171,14 +201,20 @@
      border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.7 0.9 0.7 1"
-     control_name="ObjectChatColor"
      follows="left|top"
      height="47"
      layout="topleft"
      left="350"
      name="objects"
      top_pad="-17"
-     width="44" />
+     width="44" >
+		<color_swatch.init_callback
+		 function="Pref.getUIColor"
+		 parameter="ObjectChatColor" />
+		<color_swatch.commit_callback
+		 function="Pref.applyUIColor"
+		 parameter="ObjectChatColor" />
+	</color_swatch>
     <text
      type="string"
      length="1"
@@ -196,14 +232,20 @@
      border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.7 0.9 0.7 1"
-     control_name="llOwnerSayChatColor"
      follows="left|top"
      height="47"
      layout="topleft"
      left="30"
      name="owner"
      top_pad="40"
-     width="44" />
+     width="44" >
+		<color_swatch.init_callback
+		 function="Pref.getUIColor"
+		 parameter="llOwnerSayChatColor" />
+		<color_swatch.commit_callback
+		 function="Pref.applyUIColor"
+		 parameter="llOwnerSayChatColor" />
+	</color_swatch>
     <text
      type="string"
      length="1"
@@ -221,14 +263,20 @@
      border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.6 0.6 1 1"
-     control_name="HTMLLinkColor"
      follows="left|top"
      height="47"
      layout="topleft"
      left="180"
      name="links"
      top_pad="-17"
-     width="44" />
+     width="44" >
+		<color_swatch.init_callback
+		 function="Pref.getUIColor"
+		 parameter="HTMLLinkColor" />
+		<color_swatch.commit_callback
+		 function="Pref.applyUIColor"
+		 parameter="HTMLLinkColor" />
+	</color_swatch>
     <text
      type="string"
      length="1"
@@ -259,6 +307,15 @@
      layout="topleft"
      left_delta="0"
      name="send_im_to_email"
+     top_pad="5"
+     width="400" />
+    <check_box
+     enabled="false"
+     height="16"
+     label="Enable plain text chat history"
+     layout="topleft"
+     left_delta="0"
+     name="plain_text_chat_history"
      top_pad="5"
      width="400" />
 </panel>

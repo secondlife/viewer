@@ -34,6 +34,7 @@
 #include "linden_common.h"
 #include "llurlentry.h"
 #include "lluri.h"
+
 #include "llcachename.h"
 #include "lltrans.h"
 #include "lluicolortable.h"
@@ -383,6 +384,38 @@ std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 }
 
+//
+// LLUrlEntryInventory Describes a Second Life inventory Url, e.g.,
+// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/select
+//
+LLUrlEntryInventory::LLUrlEntryInventory()
+{
+	mPattern = boost::regex("secondlife:///app/inventory/[\\da-f-]+/\\w+",
+							boost::regex::perl|boost::regex::icase);
+	mMenuName = "menu_url_inventory.xml";
+}
+
+std::string LLUrlEntryInventory::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	return unescapeUrl(url);
+	// TODO: Figure out if we can somehow access the inventory from here to get the actual item name
+	/*  
+	std::string inventory_id_string = getIDStringFromUrl(url);
+	if (inventory_id_string.empty())
+	{
+		// something went wrong, give raw url
+		return unescapeUrl(url);
+	}
+	LLUUID inventory_id(inventory_id_string);
+	LLInventoryItem* item = gInventory.getItem(inventory_id);
+	if(!item)
+	{
+		return unescapeUrl(url);
+	}
+	return item->getName(); */
+}
+
+
 ///
 /// LLUrlEntryParcel Describes a Second Life parcel Url, e.g.,
 /// secondlife:///app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about
@@ -510,50 +543,6 @@ std::string LLUrlEntryTeleport::getLocation(const std::string &url) const
 {
 	// return the part of the Url after ///app/teleport
 	return ::getStringAfterToken(url, "app/teleport/");
-}
-
-///
-/// LLUrlEntryObjectIM Describes a Second Life object instant msg Url, e.g.,
-/// secondlife:///app/objectim/<sessionid>
-///
-LLUrlEntryObjectIM::LLUrlEntryObjectIM()
-{
-	mPattern = boost::regex("secondlife:///app/objectim/[\\da-f-]+\\??\\S*",
-							boost::regex::perl|boost::regex::icase);
-	mMenuName = "menu_url_objectim.xml";
-	mTooltip = LLTrans::getString("TooltipObjectIMUrl");
-}
-
-std::string LLUrlEntryObjectIM::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
-{
-	LLURI uri(url);
-	LLSD params = uri.queryMap();
-	if (params.has("name"))
-	{
-		// look for a ?name=<obj-name> param in the url
-		// and use that as the label if present.
-		std::string name = params.get("name");
-		LLStringUtil::trim(name);
-		if (name.empty())
-		{
-			name = LLTrans::getString("Unnamed");
-		}
-		return name;
-	}
-
-	return unescapeUrl(url);
-}
-
-std::string LLUrlEntryObjectIM::getLocation(const std::string &url) const
-{
-	LLURI uri(url);
-	LLSD params = uri.queryMap();
-	if (params.has("slurl"))
-	{
-		return params.get("slurl");
-	}
-
-	return "";
 }
 
 //

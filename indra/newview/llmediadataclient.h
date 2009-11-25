@@ -62,6 +62,8 @@ public:
 	virtual F64 getTotalMediaInterest() const = 0;
 	// Return the given cap url
 	virtual std::string getCapabilityUrl(const std::string &name) const = 0;
+	// Return whether the object has been marked dead
+	virtual bool isDead() const = 0;
 
 	// smart pointer
 	typedef LLPointer<LLMediaDataClientObject> ptr_t;
@@ -89,7 +91,10 @@ public:
 	F32 getRetryTimerDelay() const { return mRetryTimerDelay; }
 	
 	// Returns true iff the queue is empty
-	bool isEmpty() const; 
+	bool isEmpty() const;
+	
+	// Returns true iff the given object is in the queue
+	bool isInQueue(const LLMediaDataClientObject::ptr_t &object) const;
 	
 protected:
 	// Destructor
@@ -206,6 +211,9 @@ private:
 		Comparator >
 	{
 	public:
+		// Return whether the given object is in the queue
+		bool find(const LLMediaDataClientObject::ptr_t &obj) const;
+		
 		friend std::ostream& operator<<(std::ostream &s, const PriorityQueue &q);
 	};
     

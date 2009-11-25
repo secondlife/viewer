@@ -64,7 +64,7 @@
 #include "llwindow.h"
 #include "stringize.h"
 #include "llsdutil_math.h"
-#include "lleventdispatcher.h"
+#include "lleventapi.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -302,13 +302,17 @@ static std::string get_viewer_release_notes_url()
 	return LLWeb::escapeURL(url.str());
 }
 
-class LLFloaterAboutListener: public LLDispatchListener
+class LLFloaterAboutListener: public LLEventAPI
 {
 public:
 	LLFloaterAboutListener():
-		LLDispatchListener("LLFloaterAbout", "op")
+		LLEventAPI("LLFloaterAbout",
+                   "LLFloaterAbout listener to retrieve About box info")
 	{
-		add("getInfo", &LLFloaterAboutListener::getInfo, LLSD().insert("reply", LLSD()));
+		add("getInfo",
+            "Request an LLSD::Map containing information used to populate About box",
+            &LLFloaterAboutListener::getInfo,
+            LLSD().insert("reply", LLSD()));
 	}
 
 private:

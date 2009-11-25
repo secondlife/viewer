@@ -36,73 +36,118 @@
 #include "llsingleton.h"
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
+#include "llcallbacklist.h"
 
 class LLWearable;
 struct LLWearableHoldingPattern;
 
 class LLAppearanceManager: public LLSingleton<LLAppearanceManager>
 {
+	friend class LLSingleton<LLAppearanceManager>;
+	
 public:
-	static void updateAppearanceFromCOF();
-	static bool needToSaveCOF();
-	static void changeOutfit(bool proceed, const LLUUID& category, bool append);
-	static void updateCOF(const LLUUID& category, bool append = false);
-	static void updateCOFFromCategory(const LLUUID& category, bool append);
-	static void rebuildCOFFromOutfit(const LLUUID& category);
-	static void wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append);
-	static void wearInventoryCategoryOnAvatar(LLInventoryCategory* category, bool append);
-	static void wearOutfitByName(const std::string& name);
-	static void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
-									LLPointer<LLInventoryCallback> cb);
+	void updateAppearanceFromCOF();
+	bool needToSaveCOF();
+	void updateCOF(const LLUUID& category, bool append = false);
+	void wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append);
+	void wearInventoryCategoryOnAvatar(LLInventoryCategory* category, bool append);
+	void wearOutfitByName(const std::string& name);
+	void changeOutfit(bool proceed, const LLUUID& category, bool append);
 
-	// Add COF link to individual item.
-	static void wearItem(LLInventoryItem* item, bool do_update = true);
+	// Copy all items in a category.
+	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
+							 LLPointer<LLInventoryCallback> cb);
 
-	// Add COF link to ensemble folder.
-	static void wearEnsemble(LLInventoryCategory* item, bool do_update = true);
-	static LLUUID getCOF();
+	// Find the Current Outfit folder.
+	LLUUID getCOF();
 
-	// Remove COF entries
-	static void removeItemLinks(const LLUUID& item_id, bool do_update = true);
+	// Finds the folder link to the currently worn outfit
+	const LLViewerInventoryItem *getCurrentOutfitLink();
+
+	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
 
 	// For debugging - could be moved elsewhere.
-	static void dumpCat(const LLUUID& cat_id, const std::string& msg);
-	static void dumpItemArray(const LLInventoryModel::item_array_t& items, const std::string& msg);
-	static void unregisterAttachment(const LLUUID& item_id);
-	static void registerAttachment(const LLUUID& item_id);
-	static void setAttachmentInvLinkEnable(bool val);
+	void dumpCat(const LLUUID& cat_id, const std::string& msg);
+	void dumpItemArray(const LLInventoryModel::item_array_t& items, const std::string& msg);
+
+	// Attachment link management
+	void unregisterAttachment(const LLUUID& item_id);
+	void registerAttachment(const LLUUID& item_id);
+	void setAttachmentInvLinkEnable(bool val);
+	void linkRegisteredAttachments();
+
+	// utility function for bulk linking.
+	void linkAll(const LLUUID& category,
+				 LLInventoryModel::item_array_t& items,
+				 LLPointer<LLInventoryCallback> cb);
+
+	// Add COF link to individual item.
+	void addCOFItemLink(const LLUUID& item_id, bool do_update = true);
+	void addCOFItemLink(const LLInventoryItem *item, bool do_update = true);
+
+	// Remove COF entries
+	void removeCOFItemLinks(const LLUUID& item_id, bool do_update = true);
+
+	// Add COF link to ensemble folder.
+	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);
+
+protected:
+	LLAppearanceManager();
+	~LLAppearanceManager();
 
 private:
-	static void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type);
-	static void linkAll(const LLUUID& category,
-						LLInventoryModel::item_array_t& items,
-						LLPointer<LLInventoryCallback> cb);
+
+	void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type);
 	
-	static void getDescendentsOfAssetType(const LLUUID& category, 
+	void getDescendentsOfAssetType(const LLUUID& category, 
 										  LLInventoryModel::item_array_t& items,
 										  LLAssetType::EType type,
 										  bool follow_folder_links);
 
-	static void getCOFValidDescendents(const LLUUID& category, 
-									   LLInventoryModel::item_array_t& items);
-									   
-	static void getUserDescendents(const LLUUID& category, 
+	void getUserDescendents(const LLUUID& category, 
 								   LLInventoryModel::item_array_t& wear_items,
 								   LLInventoryModel::item_array_t& obj_items,
 								   LLInventoryModel::item_array_t& gest_items,
 								   bool follow_folder_links);
-	static void onWearableAssetFetch(LLWearable* wearable, void* data);
-	static void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
-	static bool isMandatoryWearableType(EWearableType type);
-	static void checkMandatoryWearableTypes(const LLUUID& category, std::set<EWearableType>& types_found);
-	static void purgeCOFBeforeRebuild(const LLUUID& category);
-	static void purgeCategory(const LLUUID& category, bool keep_outfit_links);
 
-	static std::set<LLUUID> sRegisteredAttachments;
-	static bool sAttachmentInvLinkEnabled;
+	void purgeCategory(const LLUUID& category, bool keep_outfit_links);
 
+	std::set<LLUUID> mRegisteredAttachments;
+	bool mAttachmentInvLinkEnabled;
 };
 
 #define SUPPORT_ENSEMBLES 0
+
+// Shim class and template function to allow arbitrary boost::bind
+// expressions to be run as one-time idle callbacks.
+template <typename T>
+class OnIdleCallback
+{
+public:
+	OnIdleCallback(T callable):
+		mCallable(callable)
+	{
+	}
+	static void onIdle(void *data)
+	{
+		gIdleCallbacks.deleteFunction(onIdle, data);
+		OnIdleCallback<T>* self = reinterpret_cast<OnIdleCallback<T>*>(data);
+		self->call();
+		delete self;
+	}
+	void call()
+	{
+		mCallable();
+	}
+private:
+	T mCallable;
+};
+
+template <typename T>
+void doOnIdle(T callable)
+{
+	OnIdleCallback<T>* cb_functor = new OnIdleCallback<T>(callable);
+	gIdleCallbacks.addFunction(&OnIdleCallback<T>::onIdle,cb_functor);
+}
 
 #endif

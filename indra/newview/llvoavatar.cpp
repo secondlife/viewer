@@ -624,7 +624,6 @@ F32 LLVOAvatar::sGreyUpdateTime = 0.f;
 // Helper functions
 //-----------------------------------------------------------------------------
 static F32 calc_bouncy_animation(F32 x);
-static U32 calc_shame(const LLVOVolume* volume, std::set<LLUUID> &textures);
 
 //-----------------------------------------------------------------------------
 // LLVOAvatar()
@@ -647,7 +646,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mWindFreq(0.f),
 	mRipplePhase( 0.f ),
 	mBelowWater(FALSE),
-	mAppearanceAnimSetByUser(FALSE),
 	mLastAppearanceBlendTime(0.f),
 	mAppearanceAnimating(FALSE),
 	mNameString(),
@@ -2436,7 +2434,7 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
 			{
 				if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
 				{
-					param->stopAnimating(mAppearanceAnimSetByUser);
+					param->stopAnimating(FALSE);
 				}
 			}
 			updateVisualParams();
@@ -2459,7 +2457,7 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
 				{
 					if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
 					{
-						param->animate(morph_amt, mAppearanceAnimSetByUser);
+						param->animate(morph_amt, FALSE);
 					}
 				}
 			}
@@ -5372,11 +5370,11 @@ void LLVOAvatar::updateShadowFaces()
 //-----------------------------------------------------------------------------
 // updateSexDependentLayerSets()
 //-----------------------------------------------------------------------------
-void LLVOAvatar::updateSexDependentLayerSets( BOOL set_by_user )
+void LLVOAvatar::updateSexDependentLayerSets( BOOL upload_bake )
 {
-	invalidateComposite( mBakedTextureDatas[BAKED_HEAD].mTexLayerSet, set_by_user );
-	invalidateComposite( mBakedTextureDatas[BAKED_UPPER].mTexLayerSet, set_by_user );
-	invalidateComposite( mBakedTextureDatas[BAKED_LOWER].mTexLayerSet, set_by_user );
+	invalidateComposite( mBakedTextureDatas[BAKED_HEAD].mTexLayerSet, upload_bake );
+	invalidateComposite( mBakedTextureDatas[BAKED_UPPER].mTexLayerSet, upload_bake );
+	invalidateComposite( mBakedTextureDatas[BAKED_LOWER].mTexLayerSet, upload_bake );
 }
 
 //-----------------------------------------------------------------------------
@@ -5741,7 +5739,7 @@ LLColor4 LLVOAvatar::getGlobalColor( const std::string& color_name ) const
 }
 
 // virtual
-void LLVOAvatar::invalidateComposite( LLTexLayerSet* layerset, BOOL set_by_user )
+void LLVOAvatar::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_result )
 {
 }
 
@@ -5754,18 +5752,18 @@ void LLVOAvatar::setCompositeUpdatesEnabled( BOOL b )
 {
 }
 
-void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL set_by_user )
+void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL upload_bake )
 {
 	if (global_color == mTexSkinColor)
 	{
-		invalidateComposite( mBakedTextureDatas[BAKED_HEAD].mTexLayerSet, set_by_user );
-		invalidateComposite( mBakedTextureDatas[BAKED_UPPER].mTexLayerSet, set_by_user );
-		invalidateComposite( mBakedTextureDatas[BAKED_LOWER].mTexLayerSet, set_by_user );
+		invalidateComposite( mBakedTextureDatas[BAKED_HEAD].mTexLayerSet, upload_bake );
+		invalidateComposite( mBakedTextureDatas[BAKED_UPPER].mTexLayerSet, upload_bake );
+		invalidateComposite( mBakedTextureDatas[BAKED_LOWER].mTexLayerSet, upload_bake );
 	}
 	else if (global_color == mTexHairColor)
 	{
-		invalidateComposite( mBakedTextureDatas[BAKED_HEAD].mTexLayerSet, set_by_user );
-		invalidateComposite( mBakedTextureDatas[BAKED_HAIR].mTexLayerSet, set_by_user );
+		invalidateComposite( mBakedTextureDatas[BAKED_HEAD].mTexLayerSet, upload_bake );
+		invalidateComposite( mBakedTextureDatas[BAKED_HAIR].mTexLayerSet, upload_bake );
 		
 		// ! BACKWARDS COMPATIBILITY !
 		// Fix for dealing with avatars from viewers that don't bake hair.
@@ -5781,7 +5779,7 @@ void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color, BOOL
 	else if (global_color == mTexEyeColor)
 	{
 //		llinfos << "invalidateComposite cause: onGlobalColorChanged( eyecolor )" << llendl; 
-		invalidateComposite( mBakedTextureDatas[BAKED_EYES].mTexLayerSet,  set_by_user );
+		invalidateComposite( mBakedTextureDatas[BAKED_EYES].mTexLayerSet,  upload_bake );
 	}
 	updateMeshTextures();
 }
@@ -6239,14 +6237,14 @@ BOOL LLVOAvatar::teToColorParams( ETextureIndex te, U32 *param_name )
 	return TRUE;
 }
 
-void LLVOAvatar::setClothesColor( ETextureIndex te, const LLColor4& new_color, BOOL set_by_user )
+void LLVOAvatar::setClothesColor( ETextureIndex te, const LLColor4& new_color, BOOL upload_bake )
 {
 	U32 param_name[3];
 	if( teToColorParams( te, param_name ) )
 	{
-		setVisualParamWeight( param_name[0], new_color.mV[VX], set_by_user );
-		setVisualParamWeight( param_name[1], new_color.mV[VY], set_by_user );
-		setVisualParamWeight( param_name[2], new_color.mV[VZ], set_by_user );
+		setVisualParamWeight( param_name[0], new_color.mV[VX], upload_bake );
+		setVisualParamWeight( param_name[1], new_color.mV[VY], upload_bake );
+		setVisualParamWeight( param_name[2], new_color.mV[VZ], upload_bake );
 	}
 }
 
@@ -6269,7 +6267,7 @@ LLColor4 LLVOAvatar::getDummyColor()
 	return DUMMY_COLOR;
 }
 
-void LLVOAvatar::dumpAvatarTEs( const std::string& context )
+void LLVOAvatar::dumpAvatarTEs( const std::string& context ) const
 {	
 	/* const char* te_name[] = {
 			"TEX_HEAD_BODYPAINT   ",
@@ -6592,7 +6590,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		{
 			if (interp_params)
 			{
-				startAppearanceAnimation(FALSE, FALSE);
+				startAppearanceAnimation();
 			}
 			updateVisualParams();
 
@@ -6977,11 +6975,10 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 	}
 }
 
-void LLVOAvatar::startAppearanceAnimation(BOOL set_by_user, BOOL play_sound)
+void LLVOAvatar::startAppearanceAnimation()
 {
 	if(!mAppearanceAnimating)
 	{
-		mAppearanceAnimSetByUser = set_by_user;
 		mAppearanceAnimating = TRUE;
 		mAppearanceMorphTimer.reset();
 		mLastAppearanceBlendTime = 0.f;
@@ -7639,9 +7636,17 @@ void LLVOAvatar::idleUpdateRenderCost()
 		return;
 	}
 
-	U32 shame = 1;
+	U32 shame = 0;
 
-	std::set<LLUUID> textures;
+	for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
+	{
+		const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
+		ETextureIndex tex_index = baked_dict->mTextureIndex;
+		if (isTextureVisible(tex_index))
+		{
+			shame +=20;
+		}
+	}
 
 	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end();
@@ -7662,14 +7667,12 @@ void LLVOAvatar::idleUpdateRenderCost()
 					const LLVOVolume* volume = drawable->getVOVolume();
 					if (volume)
 					{
-						shame += calc_shame(volume, textures);
+						shame += volume->getRenderCost();
 					}
 				}
 			}
 		}
 	}
-
-	shame += textures.size() * 5;
 
 	setDebugText(llformat("%d", shame));
 	F32 green = 1.f-llclamp(((F32) shame-1024.f)/1024.f, 0.f, 1.f);
@@ -7715,110 +7718,6 @@ const std::string LLVOAvatar::getBakedStatusForPrintout() const
 }
 
 
-U32 calc_shame(const LLVOVolume* volume, std::set<LLUUID> &textures)
-{
-	if (!volume)
-	{
-		return 0;
-	}
-
-	U32 shame = 0;
-
-	U32 invisi = 0;
-	U32 shiny = 0;
-	U32 glow = 0;
-	U32 alpha = 0;
-	U32 flexi = 0;
-	U32 animtex = 0;
-	U32 particles = 0;
-	U32 scale = 0;
-	U32 bump = 0;
-	U32 planar = 0;
-	
-	if (volume->isFlexible())
-	{
-		flexi = 1;
-	}
-	if (volume->isParticleSource())
-	{
-		particles = 1;
-	}
-
-	const LLVector3& sc = volume->getScale();
-	scale += (U32) sc.mV[0] + (U32) sc.mV[1] + (U32) sc.mV[2];
-
-	const LLDrawable* drawablep = volume->mDrawable;
-
-	if (volume->isSculpted())
-	{
-		const LLSculptParams *sculpt_params = (LLSculptParams *) volume->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-		LLUUID sculpt_id = sculpt_params->getSculptTexture();
-		textures.insert(sculpt_id);
-	}
-
-	for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
-	{
-		const LLFace* face = drawablep->getFace(i);
-		const LLTextureEntry* te = face->getTextureEntry();
-		const LLViewerTexture* img = face->getTexture();
-
-		textures.insert(img->getID());
-
-		if (face->getPoolType() == LLDrawPool::POOL_ALPHA)
-		{
-			alpha++;
-		}
-		else if (img->getPrimaryFormat() == GL_ALPHA)
-		{
-			invisi = 1;
-		}
-
-		if (te)
-		{
-			if (te->getBumpmap())
-			{
-				bump = 1;
-			}
-			if (te->getShiny())
-			{
-				shiny = 1;
-			}
-			if (te->getGlow() > 0.f)
-			{
-				glow = 1;
-			}
-			if (face->mTextureMatrix != NULL)
-			{
-				animtex++;
-			}
-			if (te->getTexGen())
-			{
-				planar++;
-			}
-		}
-	}
-
-	shame += invisi + shiny + glow + alpha*4 + flexi*8 + animtex*4 + particles*16+bump*4+scale+planar;
-
-	LLViewerObject::const_child_list_t& child_list = volume->getChildren();
-	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-		 iter != child_list.end(); 
-		 ++iter)
-	{
-		const LLViewerObject* child_objectp = *iter;
-		const LLDrawable* child_drawablep = child_objectp->mDrawable;
-		if (child_drawablep)
-		{
-			const LLVOVolume* child_volumep = child_drawablep->getVOVolume();
-			if (child_volumep)
-			{
-				shame += calc_shame(child_volumep, textures);
-			}
-		}
-	}
-
-	return shame;
-}
 
 //virtual
 S32 LLVOAvatar::getTexImageSize() const

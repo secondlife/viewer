@@ -46,7 +46,8 @@ static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_
 
 LLSidepanelInventory::LLSidepanelInventory()
 	:	LLPanel(),
-		mItemPanel(NULL)
+		mItemPanel(NULL),
+		mPanelMainInventory(NULL)
 {
 
 	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
@@ -80,8 +81,8 @@ BOOL LLSidepanelInventory::postBuild()
 		mOverflowBtn = mInventoryPanel->getChild<LLButton>("overflow_btn");
 		mOverflowBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onOverflowButtonClicked, this));
 		
-		LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
-		panel_main_inventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
+		mPanelMainInventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+		mPanelMainInventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
 	}
 
 	// UI elements from item panel
@@ -126,6 +127,10 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 		if (mTaskPanel)
 			mTaskPanel->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
 		showTaskInfoPanel();
+	}
+	if (key.has("select"))
+	{
+		mPanelMainInventory->getPanel()->setSelection(key["select"].asUUID(), TAKE_FOCUS_NO);
 	}
 }
 

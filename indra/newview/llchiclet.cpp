@@ -1,34 +1,34 @@
 /** 
-* @file llchiclet.cpp
-* @brief LLChiclet class implementation
-*
-* $LicenseInfo:firstyear=2002&license=viewergpl$
-* 
-* Copyright (c) 2002-2009, Linden Research, Inc.
-* 
-* Second Life Viewer Source Code
-* The source code in this file ("Source Code") is provided by Linden Lab
-* to you under the terms of the GNU General Public License, version 2.0
-* ("GPL"), unless you have obtained a separate licensing agreement
-* ("Other License"), formally executed by you and Linden Lab.  Terms of
-* the GPL can be found in doc/GPL-license.txt in this distribution, or
-* online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
-* 
-* There are special exceptions to the terms and conditions of the GPL as
-* it is applied to this Source Code. View the full text of the exception
-* in the file doc/FLOSS-exception.txt in this software distribution, or
-* online at
-* http://secondlifegrid.net/programs/open_source/licensing/flossexception
-* 
-* By copying, modifying or distributing this software, you acknowledge
-* that you have read and understood your obligations described above,
-* and agree to abide by those obligations.
-* 
-* ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
-* WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
-* COMPLETENESS OR PERFORMANCE.
-* $/LicenseInfo$
-*/
+ * @file llchiclet.cpp
+ * @brief LLChiclet class implementation
+ *
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
+ * Second Life Viewer Source Code
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+ * 
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * 
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ * 
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
+ * $/LicenseInfo$
+ */
 
 #include "llviewerprecompiledheaders.h" // must be first include
 #include "llchiclet.h"
@@ -43,6 +43,7 @@
 #include "lllocalcliprect.h"
 #include "llmenugl.h"
 #include "lloutputmonitorctrl.h"
+#include "llscriptfloater.h"
 #include "lltextbox.h"
 #include "llvoiceclient.h"
 #include "llvoicecontrolpanel.h"
@@ -54,6 +55,16 @@ static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
 static LLDefaultChildRegistry::Register<LLNotificationChiclet> t2("chiclet_notification");
 static LLDefaultChildRegistry::Register<LLIMP2PChiclet> t3("chiclet_im_p2p");
 static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t4("chiclet_im_group");
+static LLDefaultChildRegistry::Register<LLAdHocChiclet> t5("chiclet_im_adhoc");
+static LLDefaultChildRegistry::Register<LLScriptChiclet> t6("chiclet_script");
+
+static const LLRect CHICLET_RECT(0, 25, 25, 0);
+static const LLRect CHICLET_ICON_RECT(0, 22, 22, 0);
+static const LLRect VOICE_INDICATOR_RECT(25, 25, 45, 0);
+static const S32	OVERLAY_ICON_SHIFT = 2;	// used for shifting of an overlay icon for new massages in a chiclet
+
+// static
+const S32 LLChicletPanel::s_scroll_ratio = 10;
 
 S32 LLNotificationChiclet::mUreadSystemNotifications = 0;
 
@@ -72,30 +83,21 @@ LLNotificationChiclet::Params::Params()
 	button.tab_stop(FALSE);
 	button.label(LLStringUtil::null);
 
-	unread_notifications.name("unread");
-	unread_notifications.font(LLFontGL::getFontSansSerif());
-	unread_notifications.text_color=(LLColor4::white);
-	unread_notifications.font_halign(LLFontGL::HCENTER);
-	unread_notifications.mouse_opaque(FALSE);
 }
 
 LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 : LLChiclet(p)
 , mButton(NULL)
-, mCounterCtrl(NULL)
+, mCounter(0)
 {
 	LLButton::Params button_params = p.button;
-	button_params.rect(p.rect());
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
 	addChild(mButton);
-
- 	LLChicletNotificationCounterCtrl::Params unread_params = p.unread_notifications;
-	mCounterCtrl = LLUICtrlFactory::create<LLChicletNotificationCounterCtrl>(unread_params);
-	addChild(mCounterCtrl);
 
 	// connect counter handlers to the signals
 	connectCounterUpdatersToSignal("notify");
 	connectCounterUpdatersToSignal("groupnotify");
+	connectCounterUpdatersToSignal("offer");
 }
 
 LLNotificationChiclet::~LLNotificationChiclet()
@@ -116,13 +118,15 @@ void LLNotificationChiclet::connectCounterUpdatersToSignal(std::string notificat
 
 void LLNotificationChiclet::setCounter(S32 counter)
 {
-	mCounterCtrl->setCounter(counter);
-}
+	std::string s_count;
+	if(counter != 0)
+	{
+		s_count = llformat("%d", counter);
+	}
 
-void LLNotificationChiclet::setShowCounter(bool show)
-{
-	LLChiclet::setShowCounter(show);
-	mCounterCtrl->setVisible(getShowCounter());
+	mButton->setLabel(s_count);
+
+	mCounter = counter;
 }
 
 boost::signals2::connection LLNotificationChiclet::setClickCallback(
@@ -161,7 +165,7 @@ LLChiclet::~LLChiclet()
 boost::signals2::connection LLChiclet::setLeftButtonClickCallback(
 	const commit_callback_t& cb)
 {
-	return mCommitSignal.connect(cb);
+	return setCommitCallback(cb);
 }
 
 BOOL LLChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -199,7 +203,9 @@ void LLChiclet::setValue(const LLSD& value)
 
 LLIMChiclet::LLIMChiclet(const LLIMChiclet::Params& p)
 : LLChiclet(p)
+, mShowSpeaker(false)
 , mNewMessagesIcon(NULL)
+, mSpeakerCtrl(NULL)
 , mCounterCtrl(NULL)
 {
 	// initialize an overlay icon for new messages
@@ -207,15 +213,51 @@ LLIMChiclet::LLIMChiclet(const LLIMChiclet::Params& p)
 	icon_params.visible = false;
 	icon_params.image = LLUI::getUIImage(p.new_messages_icon_name);
 	mNewMessagesIcon = LLUICtrlFactory::create<LLIconCtrl>(icon_params);
-	// adjust size and position of an icon
-	LLRect chiclet_rect = p.rect;
-	LLRect overlay_icon_rect = LLRect(chiclet_rect.getWidth()/2, chiclet_rect.mTop, chiclet_rect.mRight, chiclet_rect.getHeight()/2); 
-	// shift an icon a little bit to the right and up corner of a chiclet
-	overlay_icon_rect.translate(overlay_icon_rect.getWidth()/5, overlay_icon_rect.getHeight()/5);
-	mNewMessagesIcon->setRect(overlay_icon_rect);
 	addChild(mNewMessagesIcon);
 
+	// adjust size and position of an icon
+	LLRect chiclet_rect = p.rect;
+	LLRect overlay_icon_rect = LLRect(chiclet_rect.getWidth()/2, chiclet_rect.getHeight(), chiclet_rect.getWidth(), chiclet_rect.getHeight()/2); 
+	mNewMessagesIcon->setRect(overlay_icon_rect);
+	
+	// shift an icon a little bit to the right and up corner of a chiclet
+	overlay_icon_rect.translate(OVERLAY_ICON_SHIFT, OVERLAY_ICON_SHIFT);
+
 	setShowCounter(false);
+}
+
+void LLIMChiclet::setShowSpeaker(bool show)
+{
+	bool needs_resize = getShowSpeaker() != show;
+	if(needs_resize)
+	{		
+		mShowSpeaker = show;
+		toggleSpeakerControl();
+		onChicletSizeChanged();		
+	}
+}
+void LLIMChiclet::initSpeakerControl()
+{
+	// virtual
+}
+
+void LLIMChiclet::toggleSpeakerControl()
+{
+	LLRect speaker_rect = mSpeakerCtrl->getRect();
+	S32 required_width = getRect().getWidth();
+
+	if(getShowSpeaker())
+	{
+		required_width = required_width + speaker_rect.getWidth();
+		initSpeakerControl();		
+	}
+	else
+	{
+		required_width = required_width - speaker_rect.getWidth();
+	}
+	
+	reshape(required_width, getRect().getHeight());
+	mSpeakerCtrl->setVisible(getShowSpeaker());
 }
 
 void LLIMChiclet::setShowNewMessagesIcon(bool show)
@@ -300,7 +342,7 @@ LLIMP2PChiclet::Params::Params()
 , show_speaker("show_speaker")
 {
 	// *TODO Vadim: Get rid of hardcoded values.
-	rect(LLRect(0, 25, 25, 0));
+	rect(CHICLET_RECT);
 
 	avatar_icon.name("avatar_icon");
 	avatar_icon.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
@@ -309,11 +351,10 @@ LLIMP2PChiclet::Params::Params()
 	// Changed icon height from 25 to 24 to fix ticket EXT-794.
 	// In some cases(after changing UI scale) 25 pixel height icon was 
 	// drawn incorrectly, i'm not sure why.
-	avatar_icon.rect(LLRect(0, 24, 25, 0));
+	avatar_icon.rect(CHICLET_ICON_RECT);
 	avatar_icon.mouse_opaque(false);
 
 	unread_notifications.name("unread");
-	unread_notifications.rect(LLRect(25, 25, 45, 0));
 	unread_notifications.font(LLFontGL::getFontSansSerif());
 	unread_notifications.font_halign(LLFontGL::HCENTER);
 	unread_notifications.v_pad(5);
@@ -322,7 +363,9 @@ LLIMP2PChiclet::Params::Params()
 	unread_notifications.visible(false);
 
 	speaker.name("speaker");
-	speaker.rect(LLRect(45, 25, 65, 0));
+	speaker.rect(VOICE_INDICATOR_RECT);
+	speaker.auto_update(true);
+	speaker.draw_border(false);
 
 	show_speaker = false;
 }
@@ -330,7 +373,6 @@ LLIMP2PChiclet::Params::Params()
 LLIMP2PChiclet::LLIMP2PChiclet(const Params& p)
 : LLIMChiclet(p)
 , mChicletIconCtrl(NULL)
-, mSpeakerCtrl(NULL)
 , mPopupMenu(NULL)
 {
 	LLChicletAvatarIconCtrl::Params avatar_params = p.avatar_icon;
@@ -358,18 +400,9 @@ void LLIMP2PChiclet::setCounter(S32 counter)
 	setShowNewMessagesIcon(counter);
 }
 
-LLRect LLIMP2PChiclet::getRequiredRect()
+void LLIMP2PChiclet::initSpeakerControl()
 {
-	LLRect rect(0, 0, mChicletIconCtrl->getRect().getWidth(), 0);
-	if(getShowCounter())
-	{
-		rect.mRight += mCounterCtrl->getRequiredRect().getWidth();
-	}
-	if(getShowSpeaker())
-	{
-		rect.mRight += mSpeakerCtrl->getRect().getWidth();
-	}
-	return rect;
+	mSpeakerCtrl->setSpeakerId(getOtherParticipantId());
 }
 
 void LLIMP2PChiclet::setOtherParticipantId(const LLUUID& other_participant_id)
@@ -388,7 +421,6 @@ void LLIMP2PChiclet::updateMenuItems()
 	bool is_friend = LLAvatarActions::isFriend(getOtherParticipantId());
 
 	mPopupMenu->getChild<LLUICtrl>("Add Friend")->setEnabled(!is_friend);
-	mPopupMenu->getChild<LLUICtrl>("Remove Friend")->setEnabled(is_friend);
 }
 
 BOOL LLIMP2PChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
@@ -444,17 +476,9 @@ void LLIMP2PChiclet::onMenuItemClicked(const LLSD& user_data)
 	{
 		LLAvatarActions::requestFriendshipDialog(other_participant_id);
 	}
-}
-
-void LLIMP2PChiclet::setShowSpeaker(bool show)
-{
-	LLIMChiclet::setShowSpeaker(show);
-
-	bool needs_resize = getShowSpeaker() != show;
-	mSpeakerCtrl->setVisible(getShowSpeaker());
-	if(needs_resize)
+	else if("end" == level)
 	{
-		onChicletSizeChanged();
+		LLAvatarActions::endIM(other_participant_id);
 	}
 }
 
@@ -470,7 +494,7 @@ LLAdHocChiclet::Params::Params()
 , avatar_icon_color("avatar_icon_color", LLColor4::green)
 {
 	// *TODO Vadim: Get rid of hardcoded values.
-	rect(LLRect(0, 25, 25, 0));
+	rect(CHICLET_RECT);
 
 	avatar_icon.name("avatar_icon");
 	avatar_icon.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
@@ -479,11 +503,10 @@ LLAdHocChiclet::Params::Params()
 	// Changed icon height from 25 to 24 to fix ticket EXT-794.
 	// In some cases(after changing UI scale) 25 pixel height icon was 
 	// drawn incorrectly, i'm not sure why.
-	avatar_icon.rect(LLRect(0, 24, 25, 0));
+	avatar_icon.rect(CHICLET_ICON_RECT);
 	avatar_icon.mouse_opaque(false);
 
 	unread_notifications.name("unread");
-	unread_notifications.rect(LLRect(25, 25, 45, 0));
 	unread_notifications.font(LLFontGL::getFontSansSerif());
 	unread_notifications.font_halign(LLFontGL::HCENTER);
 	unread_notifications.v_pad(5);
@@ -493,7 +516,9 @@ LLAdHocChiclet::Params::Params()
 
 
 	speaker.name("speaker");
-	speaker.rect(LLRect(45, 25, 65, 0));
+	speaker.rect(VOICE_INDICATOR_RECT);
+	speaker.auto_update(true);
+	speaker.draw_border(false);
 
 	show_speaker = false;
 }
@@ -501,7 +526,6 @@ LLAdHocChiclet::Params::Params()
 LLAdHocChiclet::LLAdHocChiclet(const Params& p)
 : LLIMChiclet(p)
 , mChicletIconCtrl(NULL)
-, mSpeakerCtrl(NULL)
 , mPopupMenu(NULL)
 {
 	LLChicletAvatarIconCtrl::Params avatar_params = p.avatar_icon;
@@ -532,24 +556,40 @@ void LLAdHocChiclet::setSessionId(const LLUUID& session_id)
 	mChicletIconCtrl->setValue(im_session->mOtherParticipantID);
 }
 
+void LLAdHocChiclet::draw()
+{
+	switchToCurrentSpeaker();
+	LLIMChiclet::draw();
+}
+
+void LLAdHocChiclet::initSpeakerControl()
+{
+	switchToCurrentSpeaker();
+}
+
+void LLAdHocChiclet::switchToCurrentSpeaker()
+{
+	LLUUID speaker_id;
+	LLSpeakerMgr::speaker_list_t speaker_list;
+
+	LLIMModel::getInstance()->findIMSession(getSessionId())->mSpeakers->getSpeakerList(&speaker_list, FALSE);
+	for (LLSpeakerMgr::speaker_list_t::iterator i = speaker_list.begin(); i != speaker_list.end(); ++i)
+	{
+		LLPointer<LLSpeaker> s = *i;
+		if (s->mSpeechVolume > 0 || s->mStatus == LLSpeaker::STATUS_SPEAKING)
+		{
+			speaker_id = s->mID;
+			break;
+		}
+	}
+
+	mSpeakerCtrl->setSpeakerId(speaker_id);
+}
+
 void LLAdHocChiclet::setCounter(S32 counter)
 {
 	mCounterCtrl->setCounter(counter);
 	setShowNewMessagesIcon(counter);
-}
-
-LLRect LLAdHocChiclet::getRequiredRect()
-{
-	LLRect rect(0, 0, mChicletIconCtrl->getRect().getWidth(), 0);
-	if(getShowCounter())
-	{
-		rect.mRight += mCounterCtrl->getRequiredRect().getWidth();
-	}
-	if(getShowSpeaker())
-	{
-		rect.mRight += mSpeakerCtrl->getRect().getWidth();
-	}
-	return rect;
 }
 
 BOOL LLAdHocChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
@@ -563,8 +603,11 @@ BOOL LLAdHocChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 LLIMGroupChiclet::Params::Params()
 : group_icon("group_icon")
+, unread_notifications("unread_notifications")
+, speaker("speaker")
+, show_speaker("show_speaker")
 {
-	rect(LLRect(0, 25, 25, 0));
+	rect(CHICLET_RECT);
 
 	group_icon.name("group_icon");
 	
@@ -572,10 +615,9 @@ LLIMGroupChiclet::Params::Params()
 	// Changed icon height from 25 to 24 to fix ticket EXT-794.
 	// In some cases(after changing UI scale) 25 pixel height icon was 
 	// drawn incorrectly, i'm not sure why.
-	group_icon.rect(LLRect(0, 24, 25, 0));
+	group_icon.rect(CHICLET_ICON_RECT);
 
 	unread_notifications.name("unread");
-	unread_notifications.rect(LLRect(25, 25, 45, 0));
 	unread_notifications.font(LLFontGL::getFontSansSerif());
 	unread_notifications.font_halign(LLFontGL::HCENTER);
 	unread_notifications.v_pad(5);
@@ -583,7 +625,9 @@ LLIMGroupChiclet::Params::Params()
 	unread_notifications.visible(false);
 
 	speaker.name("speaker");
-	speaker.rect(LLRect(45, 25, 65, 0));
+	speaker.rect(VOICE_INDICATOR_RECT);
+	speaker.auto_update(true);
+	speaker.draw_border(false);
 
 	show_speaker = false;
 }
@@ -592,7 +636,6 @@ LLIMGroupChiclet::LLIMGroupChiclet(const Params& p)
 : LLIMChiclet(p)
 , LLGroupMgrObserver(LLUUID::null)
 , mChicletIconCtrl(NULL)
-, mSpeakerCtrl(NULL)
 , mPopupMenu(NULL)
 {
 	LLChicletGroupIconCtrl::Params avatar_params = p.group_icon;
@@ -625,18 +668,34 @@ void LLIMGroupChiclet::setCounter(S32 counter)
 	setShowNewMessagesIcon(counter);
 }
 
-LLRect LLIMGroupChiclet::getRequiredRect()
+void LLIMGroupChiclet::draw()
 {
-	LLRect rect(0, 0, mChicletIconCtrl->getRect().getWidth(), 0);
-	if(getShowCounter())
+	switchToCurrentSpeaker();
+	LLIMChiclet::draw();
+}
+
+void LLIMGroupChiclet::initSpeakerControl()
+{
+	switchToCurrentSpeaker();
+}
+
+void LLIMGroupChiclet::switchToCurrentSpeaker()
+{
+	LLUUID speaker_id;
+	LLSpeakerMgr::speaker_list_t speaker_list;
+
+	LLIMModel::getInstance()->findIMSession(getSessionId())->mSpeakers->getSpeakerList(&speaker_list, FALSE);
+	for (LLSpeakerMgr::speaker_list_t::iterator i = speaker_list.begin(); i != speaker_list.end(); ++i)
 	{
-		rect.mRight += mCounterCtrl->getRequiredRect().getWidth();
+		LLPointer<LLSpeaker> s = *i;
+		if (s->mSpeechVolume > 0 || s->mStatus == LLSpeaker::STATUS_SPEAKING)
+		{
+			speaker_id = s->mID;
+			break;
+		}
 	}
-	if(getShowSpeaker())
-	{
-		rect.mRight += mSpeakerCtrl->getRect().getWidth();
-	}
-	return rect;
+
+	mSpeakerCtrl->setSpeakerId(speaker_id);
 }
 
 void LLIMGroupChiclet::setSessionId(const LLUUID& session_id)
@@ -715,25 +774,18 @@ void LLIMGroupChiclet::onMenuItemClicked(const LLSD& user_data)
 
 	if("group chat" == level)
 	{
-		LLGroupActions::startChat(group_id);
+		LLGroupActions::startIM(group_id);
 	}
 	else if("info" == level)
 	{
 		LLGroupActions::show(group_id);
 	}
-}
-
-void LLIMGroupChiclet::setShowSpeaker(bool show)
-{
-	LLIMChiclet::setShowSpeaker(show);
-
-	bool needs_resize = getShowSpeaker() != show;
-	mSpeakerCtrl->setVisible(getShowSpeaker());
-	if(needs_resize)
+	else if("end" == level)
 	{
-		onChicletSizeChanged();
+		LLGroupActions::endIM(group_id);
 	}
 }
+
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -742,8 +794,6 @@ void LLIMGroupChiclet::setShowSpeaker(bool show)
 LLChicletPanel::Params::Params()
 : chiclet_padding("chiclet_padding")
 , scrolling_offset("scrolling_offset")
-, left_scroll_button("left_scroll_button")
-, right_scroll_button("right_scroll_button")
 , min_width("min_width")
 {
 	chiclet_padding = 3;
@@ -752,26 +802,8 @@ LLChicletPanel::Params::Params()
 	if (!min_width.isProvided())
 	{
 		// min_width = 4 chiclets + 3 paddings
-		min_width = 179 + 3*chiclet_padding;
+		min_width = 180 + 3*chiclet_padding;
 	}
-
-	LLRect scroll_button_rect(0, 25, 19, 5);
-
-	left_scroll_button.name("left_scroll");
-	left_scroll_button.label(LLStringUtil::null);
-	left_scroll_button.rect(scroll_button_rect);
-	left_scroll_button.tab_stop(false);
-	left_scroll_button.image_selected(LLUI::getUIImage("bottom_tray_scroll_left.tga"));
-	left_scroll_button.image_unselected(LLUI::getUIImage("bottom_tray_scroll_left.tga"));
-	left_scroll_button.image_hover_selected(LLUI::getUIImage("bottom_tray_scroll_left.tga"));
-
-	right_scroll_button.name("right_scroll");
-	right_scroll_button.label(LLStringUtil::null);
-	right_scroll_button.rect(scroll_button_rect);
-	right_scroll_button.tab_stop(false);
-	right_scroll_button.image_selected(LLUI::getUIImage("bottom_tray_scroll_right.tga"));
-	right_scroll_button.image_unselected(LLUI::getUIImage("bottom_tray_scroll_right.tga"));
-	right_scroll_button.image_hover_selected(LLUI::getUIImage("bottom_tray_scroll_right.tga"));
 };
 
 LLChicletPanel::LLChicletPanel(const Params&p)
@@ -784,24 +816,8 @@ LLChicletPanel::LLChicletPanel(const Params&p)
 , mMinWidth(p.min_width)
 , mShowControls(true)
 {
-	LLButton::Params scroll_button_params = p.left_scroll_button;
-
-	mLeftScrollButton = LLUICtrlFactory::create<LLButton>(scroll_button_params);
-	addChild(mLeftScrollButton);
-	LLTransientFloaterMgr::getInstance()->addControlView(mLeftScrollButton);
-
-	mLeftScrollButton->setClickedCallback(boost::bind(&LLChicletPanel::onLeftScrollClick,this));
-	mLeftScrollButton->setEnabled(false);
-
-	scroll_button_params = p.right_scroll_button;
-	mRightScrollButton = LLUICtrlFactory::create<LLButton>(scroll_button_params);
-	addChild(mRightScrollButton);
-	LLTransientFloaterMgr::getInstance()->addControlView(mRightScrollButton);
-
-	mRightScrollButton->setClickedCallback(boost::bind(&LLChicletPanel::onRightScrollClick,this));
-	mRightScrollButton->setEnabled(false);
-
 	LLPanel::Params panel_params;
+	panel_params.follows.flags(FOLLOWS_LEFT | FOLLOWS_RIGHT);
 	mScrollArea = LLUICtrlFactory::create<LLPanel>(panel_params,this);
 
 	// important for Show/Hide Camera and Move controls menu in bottom tray to work properly
@@ -820,7 +836,16 @@ LLChicletPanel::~LLChicletPanel()
 void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	
 	LLUUID session_id = data["session_id"].asUUID();
+	LLUUID from_id = data["from_id"].asUUID();
+	const std::string from = data["from"].asString();
 	S32 unread = data["num_unread"].asInteger();
+
+	// if new message came
+	if(unread != 0)
+	{
+		//we do not show balloon (indicator of new messages) for system messages and our own messages
+		if (from_id.isNull() || from_id == gAgentID || SYSTEM_FROM == from) return;
+	}
 
 	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
 	if (im_floater && im_floater->getVisible())
@@ -841,7 +866,6 @@ void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	    	llwarns << "Unable to set counter for chiclet " << session_id << llendl;
 	    }
 	}
-
 }
 
 
@@ -851,38 +875,94 @@ BOOL LLChicletPanel::postBuild()
 	LLIMModel::instance().addNewMsgCallback(boost::bind(im_chiclet_callback, this, _1));
 	LLIMModel::instance().addNoUnreadMsgsCallback(boost::bind(im_chiclet_callback, this, _1));
 	LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLChicletPanel::findChiclet<LLChiclet>, this, _1));
+	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLChicletPanel::onCurrentVoiceChannelChanged, this, _1));
+
+	mLeftScrollButton=getChild<LLButton>("chicklet_left_scroll_button");
+	LLTransientFloaterMgr::getInstance()->addControlView(mLeftScrollButton);
+	mLeftScrollButton->setMouseDownCallback(boost::bind(&LLChicletPanel::onLeftScrollClick,this));
+	mLeftScrollButton->setHeldDownCallback(boost::bind(&LLChicletPanel::onLeftScrollHeldDown,this));
+	mLeftScrollButton->setEnabled(false);
+
+	mRightScrollButton=getChild<LLButton>("chicklet_right_scroll_button");
+	LLTransientFloaterMgr::getInstance()->addControlView(mRightScrollButton);
+	mRightScrollButton->setMouseDownCallback(boost::bind(&LLChicletPanel::onRightScrollClick,this));
+	mRightScrollButton->setHeldDownCallback(boost::bind(&LLChicletPanel::onRightScrollHeldDown,this));
+	mRightScrollButton->setEnabled(false);	
 
 	return TRUE;
 }
 
-S32 LLChicletPanel::calcChickletPanleWidth()
+void LLChicletPanel::onCurrentVoiceChannelChanged(const LLUUID& session_id)
 {
-	S32 res = 0;
+	static LLUUID s_previous_active_voice_session_id;
 
-	for (chiclet_list_t::iterator it = mChicletList.begin(); it
-			!= mChicletList.end(); it++)
+	std::list<LLChiclet*> chiclets = LLIMChiclet::sFindChicletsSignal(session_id);
+
+	for(std::list<LLChiclet *>::iterator it = chiclets.begin(); it != chiclets.end(); ++it)
 	{
-		res = (*it)->getRect().getWidth() + getChicletPadding();
+		LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(*it);
+		if(chiclet)
+		{
+			chiclet->setShowSpeaker(true);
+		}
 	}
-	return res;
+
+	if(!s_previous_active_voice_session_id.isNull() && s_previous_active_voice_session_id != session_id)
+	{
+		chiclets = LLIMChiclet::sFindChicletsSignal(s_previous_active_voice_session_id);
+
+		for(std::list<LLChiclet *>::iterator it = chiclets.begin(); it != chiclets.end(); ++it)
+		{
+			LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(*it);
+			if(chiclet)
+			{
+				chiclet->setShowSpeaker(false);
+			}
+		}		
+	}
+
+	s_previous_active_voice_session_id = session_id;
 }
 
 bool LLChicletPanel::addChiclet(LLChiclet* chiclet, S32 index)
 {
 	if(mScrollArea->addChild(chiclet))
 	{
-		// chicklets should be aligned to right edge of scroll panel
-		S32 offset = 0;
+		// chiclets should be aligned to right edge of scroll panel
+		S32 left_shift = 0;
 
 		if (!canScrollLeft())
 		{
-			offset = mScrollArea->getRect().getWidth()
-					- chiclet->getRect().getWidth() - calcChickletPanleWidth();
+			// init left shift for the first chiclet in the list...
+			if (mChicletList.empty())
+			{
+				// ...start from the right border of the scroll area for the first added chiclet 
+				left_shift = mScrollArea->getRect().getWidth();
+			}
+			else
+			{
+				// ... start from the left border of the first chiclet minus padding
+				left_shift = getChiclet(0)->getRect().mLeft - getChicletPadding();
+			}
+
+			// take into account width of the being added chiclet
+			left_shift -= chiclet->getRequiredRect().getWidth();
+
+			// if we overflow the scroll area we do not need to shift chiclets
+			if (left_shift < 0)
+			{
+				left_shift = 0;
+			}
 		}
 
 		mChicletList.insert(mChicletList.begin() + index, chiclet);
 
-		getChiclet(0)->translate(offset, 0);
+		// shift first chiclet to place it in correct position. 
+		// rest ones will be placed in arrange()
+		if (!canScrollLeft())
+		{
+			getChiclet(0)->translate(left_shift - getChiclet(0)->getRect().mLeft, 0);
+		}
 
 		chiclet->setLeftButtonClickCallback(boost::bind(&LLChicletPanel::onChicletClick, this, _1, _2));
 		chiclet->setChicletSizeChangedCallback(boost::bind(&LLChicletPanel::onChicletSizeChanged, this, _1, index));
@@ -898,30 +978,17 @@ bool LLChicletPanel::addChiclet(LLChiclet* chiclet, S32 index)
 
 void LLChicletPanel::onChicletSizeChanged(LLChiclet* ctrl, const LLSD& param)
 {
-	S32 chiclet_width = ctrl->getRect().getWidth();
-	S32 chiclet_new_width = ctrl->getRequiredRect().getWidth();
-
-	if(chiclet_new_width == chiclet_width)
-	{
-		return;
-	}
-
-	LLRect chiclet_rect = ctrl->getRect();
-	chiclet_rect.mRight = chiclet_rect.mLeft + chiclet_new_width;	
-
-	ctrl->setRect(chiclet_rect);
-
-	S32 offset = chiclet_new_width - chiclet_width;
-	S32 index = getChicletIndex(ctrl);
-
-	shiftChiclets(offset, index + 1);
+	arrange();
 	trimChiclets();
 	showScrollButtonsIfNeeded();
 }
 
 void LLChicletPanel::onChicletClick(LLUICtrl*ctrl,const LLSD&param)
 {
-	mCommitSignal(ctrl,param);
+	if (mCommitSignal)
+	{
+		(*mCommitSignal)(ctrl,param);
+	}
 }
 
 void LLChicletPanel::removeChiclet(chiclet_list_t::iterator it)
@@ -1026,23 +1093,24 @@ void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
 
 	static const S32 SCROLL_BUTTON_PAD = 5;
 
+	//Needed once- to avoid error at first call of reshape() before postBuild()
+	if(!mLeftScrollButton||!mRightScrollButton)
+		return;
+	
 	LLRect scroll_button_rect = mLeftScrollButton->getRect();
-	mLeftScrollButton->setRect(LLRect(0,height,scroll_button_rect.getWidth(),
-		height - scroll_button_rect.getHeight()));
-
+	mLeftScrollButton->setRect(LLRect(0,scroll_button_rect.mTop,scroll_button_rect.getWidth(),
+		scroll_button_rect.mBottom));
 	scroll_button_rect = mRightScrollButton->getRect();
-	mRightScrollButton->setRect(LLRect(width - scroll_button_rect.getWidth(),height,
-		width, height - scroll_button_rect.getHeight()));
-
+	mRightScrollButton->setRect(LLRect(width - scroll_button_rect.getWidth(),scroll_button_rect.mTop,
+		width, scroll_button_rect.mBottom));
 	mScrollArea->setRect(LLRect(scroll_button_rect.getWidth() + SCROLL_BUTTON_PAD,
 		height, width - scroll_button_rect.getWidth() - SCROLL_BUTTON_PAD, 0));
-
-	mShowControls = width > mMinWidth;
+	mShowControls = width >= mMinWidth;
 	mScrollArea->setVisible(mShowControls);
 
 	trimChiclets();
-
 	showScrollButtonsIfNeeded();
+
 }
 
 void LLChicletPanel::arrange()
@@ -1206,10 +1274,26 @@ void LLChicletPanel::onRightScrollClick()
 	scrollRight();
 }
 
+void LLChicletPanel::onLeftScrollHeldDown()
+{
+	S32 offset = mScrollingOffset;
+	mScrollingOffset = mScrollingOffset / s_scroll_ratio;
+	scrollLeft();
+	mScrollingOffset = offset;
+}
+
+void LLChicletPanel::onRightScrollHeldDown()
+{
+	S32 offset = mScrollingOffset;
+	mScrollingOffset = mScrollingOffset / s_scroll_ratio;
+	scrollRight();
+	mScrollingOffset = offset;
+}
+
 boost::signals2::connection LLChicletPanel::setChicletClickedCallback(
 	const commit_callback_t& cb)
 {
-	return mCommitSignal.connect(cb);
+	return setCommitCallback(cb);
 }
 
 BOOL LLChicletPanel::handleScrollWheel(S32 x, S32 y, S32 clicks)
@@ -1329,6 +1413,54 @@ void LLChicletGroupIconCtrl::setValue(const LLSD& value )
 //////////////////////////////////////////////////////////////////////////
 
 LLChicletSpeakerCtrl::LLChicletSpeakerCtrl(const Params&p)
- : LLIconCtrl(p)
+ : LLOutputMonitorCtrl(p)
 {
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+LLScriptChiclet::Params::Params()
+ : icon("icon")
+{
+	// *TODO Vadim: Get rid of hardcoded values.
+ 	rect(CHICLET_RECT);
+	icon.rect(CHICLET_ICON_RECT);
+}
+
+LLScriptChiclet::LLScriptChiclet(const Params&p)
+ : LLIMChiclet(p)
+ , mChicletIconCtrl(NULL)
+{
+	LLIconCtrl::Params icon_params = p.icon;
+	mChicletIconCtrl = LLUICtrlFactory::create<LLIconCtrl>(icon_params);
+	// Let "new message" icon be on top, else it will be hidden behind chiclet icon.
+	addChildInBack(mChicletIconCtrl);
+}
+
+void LLScriptChiclet::setSessionId(const LLUUID& session_id)
+{
+	setShowNewMessagesIcon( getSessionId() != session_id );
+
+	LLIMChiclet::setSessionId(session_id);
+	LLUUID notification_id = LLScriptFloaterManager::getInstance()->findNotificationId(session_id);
+	LLNotificationPtr notification = LLNotifications::getInstance()->find(notification_id);
+	if(notification)
+	{
+		setToolTip(notification->getSubstitutions()["TITLE"].asString());
+	}
+}
+
+void LLScriptChiclet::onMouseDown()
+{
+	LLScriptFloaterManager::getInstance()->toggleScriptFloater(getSessionId());
+}
+
+BOOL LLScriptChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	onMouseDown();
+	return LLChiclet::handleMouseDown(x, y, mask);
+}
+
+// EOF

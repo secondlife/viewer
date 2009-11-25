@@ -324,7 +324,7 @@ void LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(const LLVector3d& gl
 	{
 		LLVector3 pos = sim_infop->getLocalPos(global_pos);
 		std::string name = sim_infop->getName() ;
-		cb(name, llround(pos.mV[VX]), llround(pos.mV[VY]));
+		cb(name, llround(pos.mV[VX]), llround(pos.mV[VY]),llround(pos.mV[VZ]));
 	}
 	else
 	{
@@ -368,28 +368,40 @@ void LLLandmarkActions::onRegionResponseNameAndCoords(region_name_and_coords_cal
 	{
 		LLVector3 local_pos = sim_infop->getLocalPos(global_pos);
 		std::string name = sim_infop->getName() ;
-		cb(name, llround(local_pos.mV[VX]), llround(local_pos.mV[VY]));
+		cb(name, llround(local_pos.mV[VX]), llround(local_pos.mV[VY]), llround(local_pos.mV[VZ]));
 	}
 }
 
 bool LLLandmarkActions::getLandmarkGlobalPos(const LLUUID& landmarkInventoryItemID, LLVector3d& posGlobal)
 {
-	LLLandmark* landmark = LLLandmarkActions::getLandmark(landmarkInventoryItemID);
+	LLViewerInventoryItem* item = gInventory.getItem(landmarkInventoryItemID);
+	if (NULL == item)
+		return false;
 
+	const LLUUID& asset_id = item->getAssetUUID();
+
+	LLLandmark* landmark = gLandmarkList.getAsset(asset_id, NULL);
 	if (NULL == landmark)
 		return false;
 
 	return landmark->getGlobalPos(posGlobal);
 }
 
-LLLandmark* LLLandmarkActions::getLandmark(const LLUUID& landmarkInventoryItemID)
+LLLandmark* LLLandmarkActions::getLandmark(const LLUUID& landmarkInventoryItemID, LLLandmarkList::loaded_callback_t cb)
 {
 	LLViewerInventoryItem* item = gInventory.getItem(landmarkInventoryItemID);
 	if (NULL == item)
 		return NULL;
 
 	const LLUUID& asset_id = item->getAssetUUID();
-	return gLandmarkList.getAsset(asset_id, NULL);
+
+	LLLandmark* landmark = gLandmarkList.getAsset(asset_id, cb);
+	if (landmark)
+	{
+		return landmark;
+	}
+
+	return NULL;
 }
 
 void LLLandmarkActions::copySLURLtoClipboard(const LLUUID& landmarkInventoryItemID)

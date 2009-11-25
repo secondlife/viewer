@@ -54,6 +54,13 @@ public:
 
 	typedef boost::function<void(const EState& old_state, const EState& new_state)> state_changed_callback_t;
 
+	// on current channel changed signal
+	typedef boost::function<void(const LLUUID& session_id)> channel_changed_callback_t;
+	typedef boost::signals2::signal<void(const LLUUID& session_id)> channel_changed_signal_t;
+	static channel_changed_signal_t sCurrentVoiceChannelChangedSignal;
+	static boost::signals2::connection setCurrentVoiceChannelChangedCallback(channel_changed_callback_t cb) { return sCurrentVoiceChannelChangedSignal.connect(cb); }
+
+
 	LLVoiceChannel(const LLUUID& session_id, const std::string& session_name);
 	virtual ~LLVoiceChannel();
 
@@ -102,6 +109,7 @@ protected:
 	EState		mState;
 	std::string	mSessionName;
 	LLSD mNotifyArgs;
+	LLSD mCallDialogPayload;
 	BOOL		mIgnoreNextSessionLeave;
 	LLHandle<LLPanel> mLoginNotificationHandle;
 

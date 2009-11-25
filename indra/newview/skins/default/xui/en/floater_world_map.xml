@@ -116,7 +116,6 @@
     </text>
     <button
      follows="top|right"
-     font="SansSerifSmall"
      height="16"
      label="Go Home"
      label_selected="Go Home"
@@ -340,6 +339,8 @@
          label="Landmarks"
          name="item1"
          value="None" />
+		<combo_box.commit_callback
+		function="WMap.Landmark"/>
     </combo_box>
     <icon
      color="0.5 0 0 1"

@@ -344,7 +344,12 @@ LLPipeline::LLPipeline() :
 	mWLSkyPool(NULL),
 	mLightMask(0),
 	mLightMovingMask(0),
-	mLightingDetail(0)
+	mLightingDetail(0),
+	mScreenWidth(0),
+	mScreenHeight(0),
+	mViewportWidth(0),
+	mViewportHeight(0)
+
 {
 	mNoiseMap = 0;
 	mTrueNoiseMap = 0;
@@ -521,6 +526,24 @@ void LLPipeline::resizeScreenTexture()
 
 void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
+	bool screen_size_changed = resX != mScreenWidth || resY != mScreenHeight;
+	bool viewport_size_changed = viewport_width != mViewportWidth || viewport_height != mViewportHeight;
+
+	if (!screen_size_changed
+		&& !viewport_size_changed)
+	{
+		// nothing to do
+		return;
+	}
+
+	// remember these dimensions
+	mScreenWidth = resX;
+	mScreenHeight = resY;
+	mViewportWidth = viewport_width;
+	mViewportHeight = viewport_height;
+
+	llinfos << "RESIZED SCREEN TEXTURE: " << resX << "x" << resY << llendl;
+
 	U32 samples = gSavedSettings.getU32("RenderFSAASamples");
 
 	U32 res_mod = gSavedSettings.getU32("RenderResolutionDivisor");
@@ -530,7 +553,8 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		resY /= res_mod;
 	}
 
-	if (gSavedSettings.getBOOL("RenderUIBuffer"))
+	if (gSavedSettings.getBOOL("RenderUIBuffer") 
+		&& screen_size_changed)
 	{
 		mUIScreen.allocate(resX,resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 	}	
@@ -538,27 +562,44 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	if (LLPipeline::sRenderDeferred)
 	{
 		//allocate deferred rendering color buffers
-		mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
-		mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
-		addDeferredAttachments(mDeferredScreen);
-		mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
-		mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		if (screen_size_changed)
+		{
+			mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+			mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+			addDeferredAttachments(mDeferredScreen);
+		}
+		// always set viewport to desired size, since allocate resets the viewport
+
+		if (screen_size_changed)
+		{
+			mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
+			mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		}
 
 		for (U32 i = 0; i < 3; i++)
 		{
-			mDeferredLight[i].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			if (screen_size_changed)
+			{
+				mDeferredLight[i].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			}
 		}
 
 		for (U32 i = 0; i < 2; i++)
 		{
-			mGIMapPost[i].allocate(resX,resY, GL_RGB, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			if (screen_size_changed)
+			{
+				mGIMapPost[i].allocate(resX,resY, GL_RGB, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			}
 		}
 
 		F32 scale = gSavedSettings.getF32("RenderShadowResolutionScale");
 
 		for (U32 i = 0; i < 4; i++)
 		{
-			mShadow[i].allocate(U32(resX*scale),U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			if (screen_size_changed)
+			{
+				mShadow[i].allocate(U32(resX*scale),U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			}
 		}
 
 
@@ -567,36 +608,49 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 		for (U32 i = 4; i < 6; i++)
 		{
-			mShadow[i].allocate(width, height, 0, TRUE, FALSE);
+			if (screen_size_changed)
+			{
+				mShadow[i].allocate(width, height, 0, TRUE, FALSE);
+			}
 		}
 
 
 
 		width = nhpo2(resX)/2;
 		height = nhpo2(resY)/2;
-		mLuminanceMap.allocate(width,height, GL_RGBA, FALSE, FALSE);
+		if (screen_size_changed)
+		{
+			mLuminanceMap.allocate(width,height, GL_RGBA, FALSE, FALSE);
+		}
 	}
 	else
 	{
-		mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
+		if (screen_size_changed)
+		{
+			mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
+		}
 	}
 	
 
 	if (gGLManager.mHasFramebufferMultisample && samples > 1)
 	{
-		mSampleBuffer.allocate(resX,resY,GL_RGBA,TRUE,TRUE,LLTexUnit::TT_RECT_TEXTURE,FALSE,samples);
-		mScreen.setSampleBuffer(&mSampleBuffer);
-
-		if (LLPipeline::sRenderDeferred)
+		if (screen_size_changed)
 		{
-			addDeferredAttachments(mSampleBuffer);
-			mDeferredScreen.setSampleBuffer(&mSampleBuffer);
+			mSampleBuffer.allocate(resX,resY,GL_RGBA,TRUE,TRUE,LLTexUnit::TT_RECT_TEXTURE,FALSE,samples);
+			if (LLPipeline::sRenderDeferred)
+			{
+				addDeferredAttachments(mSampleBuffer);
+				mDeferredScreen.setSampleBuffer(&mSampleBuffer);
+			}
 		}
+		mSampleBuffer.setViewport(viewport_width, viewport_height);
+		mScreen.setSampleBuffer(&mSampleBuffer);
 
 		stop_glerror();
 	}
 	
-	if (LLPipeline::sRenderDeferred)
+	if (LLPipeline::sRenderDeferred 
+		&& screen_size_changed)
 	{ //share depth buffer between deferred targets
 		mDeferredScreen.shareDepthBuffer(mScreen);
 		for (U32 i = 0; i < 3; i++)
@@ -710,6 +764,9 @@ void LLPipeline::createGLBuffers()
 		}
 
 		allocateScreenBuffer(resX,resY);
+		mScreenWidth = 0;
+		mScreenHeight = 0;
+
 	}
 	
 	if (sRenderDeferred)
@@ -3049,7 +3106,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PICKING))
 	{
 		LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderForSelect");
-		gObjectList.renderObjectsForSelect(camera, gViewerWindow->getVirtualWindowRect());
+		gObjectList.renderObjectsForSelect(camera, gViewerWindow->getWindowRectScaled());
 	}
 	else
 	{
@@ -5530,8 +5587,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	U32 res_mod = gSavedSettings.getU32("RenderResolutionDivisor");
 
 	LLVector2 tc1(0,0);
-	LLVector2 tc2((F32) gViewerWindow->getWorldViewWidth()*2,
-				  (F32) gViewerWindow->getWorldViewHeight()*2);
+	LLVector2 tc2((F32) gViewerWindow->getWorldViewWidthRaw()*2,
+				  (F32) gViewerWindow->getWorldViewHeightRaw()*2);
 
 	if (res_mod > 1)
 	{
@@ -5731,14 +5788,14 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	}
 
-	gGLViewport[0] = gViewerWindow->getWorldViewRect().mLeft;
-	gGLViewport[1] = gViewerWindow->getWorldViewRect().mBottom;
-	gGLViewport[2] = gViewerWindow->getWorldViewRect().getWidth();
-	gGLViewport[3] = gViewerWindow->getWorldViewRect().getHeight();
+	gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
+	gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
+	gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
+	gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
 	glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 
-	tc2.setVec((F32) gViewerWindow->getWorldViewWidth(),
-			(F32) gViewerWindow->getWorldViewHeight());
+	tc2.setVec((F32) gViewerWindow->getWorldViewWidthRaw(),
+			(F32) gViewerWindow->getWorldViewHeightRaw());
 
 	gGL.flush();
 	
@@ -8742,7 +8799,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	glClearStencil(0);
 
 	// get the number of pixels per angle
-	F32 pa = gViewerWindow->getWindowDisplayHeight() / (RAD_TO_DEG * LLViewerCamera::getInstance()->getView());
+	F32 pa = gViewerWindow->getWindowHeightRaw() / (RAD_TO_DEG * LLViewerCamera::getInstance()->getView());
 
 	//get resolution based on angle width and height of impostor (double desired resolution to prevent aliasing)
 	U32 resY = llmin(nhpo2((U32) (fov*pa)), (U32) 512);

@@ -431,9 +431,9 @@ BOOL LLFloaterUIPreview::postBuild()
 
 	// get pointers to buttons and link to callbacks
 	mLanguageSelection = main_panel_tmp->getChild<LLComboBox>("language_select_combo");
-	mLanguageSelection->setSelectionCallback(boost::bind(&LLFloaterUIPreview::onLanguageComboSelect, this, mLanguageSelection));
+	mLanguageSelection->setCommitCallback(boost::bind(&LLFloaterUIPreview::onLanguageComboSelect, this, mLanguageSelection));
 	mLanguageSelection_2 = main_panel_tmp->getChild<LLComboBox>("language_select_combo_2");
-	mLanguageSelection_2->setSelectionCallback(boost::bind(&LLFloaterUIPreview::onLanguageComboSelect, this, mLanguageSelection));
+	mLanguageSelection_2->setCommitCallback(boost::bind(&LLFloaterUIPreview::onLanguageComboSelect, this, mLanguageSelection));
 	LLPanel* editor_panel_tmp = main_panel_tmp->getChild<LLPanel>("editor_panel");
 	mDisplayFloaterBtn = main_panel_tmp->getChild<LLButton>("display_floater");
 	mDisplayFloaterBtn->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickDisplayFloater, this, PRIMARY_FLOATER));
@@ -849,6 +849,7 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		{
 			LLUICtrlFactory::getInstance()->buildFloater(*floaterp, path, NULL);	// just build it
 			(*floaterp)->openFloater((*floaterp)->getKey());
+			(*floaterp)->setCanResize((*floaterp)->isResizable());
 		}
 
 	}

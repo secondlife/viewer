@@ -33,7 +33,7 @@
 #ifndef LL_LLBOTTOMPANEL_H
 #define LL_LLBOTTOMPANEL_H
 
-#include <llmenugl.h>
+#include "llmenugl.h"
 
 #include "llpanel.h"
 #include "llimview.h"
@@ -51,7 +51,9 @@ class LLBottomTray
 	: public LLSingleton<LLBottomTray>
 	, public LLPanel
 	, public LLIMSessionObserver
+	, public LLVoiceClientStatusObserver
 {
+	LOG_CLASS(LLBottomTray);
 	friend class LLSingleton<LLBottomTray>;
 public:
 	~LLBottomTray();
@@ -74,6 +76,10 @@ public:
 	virtual void onFocusLost();
 	virtual void setVisible(BOOL visible);
 
+	// Implements LLVoiceClientStatusObserver::onChange() to enable the speak
+	// button when voice is available
+	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
+
 	void showBottomTrayContextMenu(S32 x, S32 y, MASK mask);
 
 	void showGestureButton(BOOL visible);
@@ -82,18 +88,83 @@ public:
 	void showSnapshotButton(BOOL visible);
 
 private:
-
-	enum EResizeState
+	typedef enum e_resize_status_type
 	{
-		STATE_CHICLET_PANEL = 1,
-		STATE_CHATBAR_INPUT,
-		STATE_BUTTONS
-	};
+		  RS_NORESIZE			= 0x0000
+		, RS_CHICLET_PANEL		= 0x0001
+		, RS_CHATBAR_INPUT		= 0x0002
+		, RS_BUTTON_SNAPSHOT	= 0x0004
+		, RS_BUTTON_CAMERA		= 0x0008
+		, RS_BUTTON_MOVEMENT	= 0x0010
+		, RS_BUTTON_GESTURES	= 0x0020
+		, RS_BUTTON_SPEAK		= 0x0040
 
-	void updateResizeState(S32 width, S32 height);
-	void verifyChildControlsSizes();
+		/**
+		 * Specifies buttons which can be hidden when bottom tray is shrunk.
+		 * They are: Gestures, Movement (Move), Camera (View), Snapshot
+		 */
+		, RS_BUTTONS_CAN_BE_HIDDEN = RS_BUTTON_SNAPSHOT | RS_BUTTON_CAMERA | RS_BUTTON_MOVEMENT | RS_BUTTON_GESTURES
+	}EResizeState;
 
-	EResizeState mResizeState;
+	S32 processWidthDecreased(S32 delta_width);
+	void processWidthIncreased(S32 delta_width);
+	void log(LLView* panel, const std::string& descr);
+	bool processShowButton(EResizeState shown_object_type, S32* available_width);
+	void processHideButton(EResizeState processed_object_type, S32* required_width, S32* buttons_freed_width);
+
+	/**
+	 * Shrinks shown buttons to reduce total taken space.
+	 *
+	 * @param - required_width - width which buttons can use to be shrunk. It is a negative value.
+	 * It is increased on the value processed by buttons.
+	 */
+	void processShrinkButtons(S32* required_width, S32* buttons_freed_width);
+	void processShrinkButton(EResizeState processed_object_type, S32* required_width);
+
+	/**
+	 * Extends shown buttons to increase total taken space.
+	 *
+	 * @param - available_width - width which buttons can use to be extended. It is a positive value.
+	 * It is decreased on the value processed by buttons.
+	 */
+	void processExtendButtons(S32* available_width);
+	void processExtendButton(EResizeState processed_object_type, S32* available_width);
+
+	/**
+	 * Determines if specified by type object can be shown. It should be hidden by shrink before.
+	 *
+	 * Processes buttons a such way to show buttons in constant order:
+	 *   - Gestures, Move, View, Snapshot
+	 */
+	bool canButtonBeShown(EResizeState processed_object_type) const;
+	void initStateProcessedObjectMap();
+
+	/**
+	 * Sets passed visibility to object specified by resize type.
+	 */
+	void setTrayButtonVisible(EResizeState shown_object_type, bool visible);
+
+	/**
+	 * Sets passed visibility to object specified by resize type if it is possible.
+	 *
+	 * If it is impossible to show required button due to there is no enough room in bottom tray
+	 * it will no be shown. Is called via context menu commands.
+	 * In this case Alert Dialog will be shown to notify user about that.
+	 *
+	 * Method also stores resize state to be processed while future bottom tray extending:
+	 *  - if hidden while resizing button should be hidden it will not be shown while extending;
+	 *  - if hidden via context menu button should be shown but there is no enough room for now
+	 *    it will be shown while extending.
+	 */
+	void setTrayButtonVisibleIfPossible(EResizeState shown_object_type, bool visible);
+
+	MASK mResizeState;
+
+	typedef std::map<EResizeState, LLPanel*> state_object_map_t;
+	state_object_map_t mStateProcessedObjectMap;
+
+	typedef std::map<EResizeState, S32> state_object_width_map_t;
+	state_object_width_map_t mObjectDefaultWidthMap;
 
 protected:
 
@@ -110,6 +181,7 @@ protected:
 
 	LLChicletPanel* 	mChicletPanel;
 	LLNotificationChiclet* 	mSysWell;
+	LLPanel*			mSpeakPanel;
 	LLSpeakButton* 		mSpeakBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
 	LLLayoutStack*		mToolbarStack;

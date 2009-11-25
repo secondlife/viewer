@@ -1834,7 +1834,7 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i)
 		}
 		if (layer)
 		{
-			wearable->writeToAvatar(FALSE, FALSE);
+			wearable->writeToAvatar();
 			layer->setLTO(lto);
 			success &= layer->render(x,y,width,height);
 		}

@@ -218,7 +218,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 			LL_DEBUGS("Media") << "new media impl with mime type " << mime_type << ", url " << media_url << LL_ENDL;
 
 			// Delete the old one first so they don't fight over the texture.
-			sMediaImpl->stop();
+			sMediaImpl = NULL;
 
 			sMediaImpl = LLViewerMedia::newMediaImpl(
 				placeholder_texture_id,
@@ -261,8 +261,7 @@ void LLViewerParcelMedia::stop()
 	// We need to remove the media HUD if it is up.
 	LLViewerMediaFocus::getInstance()->clearFocus();
 
-	// This will kill the media instance.
-	sMediaImpl->stop();
+	// This will unload & kill the media instance.
 	sMediaImpl = NULL;
 }
 
@@ -324,10 +323,36 @@ std::string LLViewerParcelMedia::getMimeType()
 {
 	return sMediaImpl.notNull() ? sMediaImpl->getMimeType() : "none/none";
 }
+
+//static 
+std::string LLViewerParcelMedia::getURL()
+{
+	std::string url;
+	if(sMediaImpl.notNull())
+		url = sMediaImpl->getMediaURL();
+	
+	if (url.empty())
+		url = LLViewerParcelMgr::getInstance()->getAgentParcel()->getMediaCurrentURL();
+	
+	if (url.empty())
+		url = LLViewerParcelMgr::getInstance()->getAgentParcel()->getMediaURL();
+	
+	return url;
+}
+
+//static 
+std::string LLViewerParcelMedia::getName()
+{
+	if(sMediaImpl.notNull())
+		return sMediaImpl->getName();
+	return "";
+}
+
 viewer_media_t LLViewerParcelMedia::getParcelMedia()
 {
 	return sMediaImpl;
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
 void LLViewerParcelMedia::processParcelMediaCommandMessage( LLMessageSystem *msg, void ** )

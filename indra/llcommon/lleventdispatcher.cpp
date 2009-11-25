@@ -36,9 +36,11 @@ LLEventDispatcher::~LLEventDispatcher()
 }
 
 /// Register a callable by name
-void LLEventDispatcher::add(const std::string& name, const Callable& callable, const LLSD& required)
+void LLEventDispatcher::add(const std::string& name, const std::string& desc,
+                            const Callable& callable, const LLSD& required)
 {
-    mDispatch[name] = DispatchMap::mapped_type(callable, required);
+    mDispatch.insert(DispatchMap::value_type(name,
+                                             DispatchMap::mapped_type(callable, desc, required)));
 }
 
 void LLEventDispatcher::addFail(const std::string& name, const std::string& classname) const
@@ -98,14 +100,14 @@ bool LLEventDispatcher::attemptCall(const std::string& name, const LLSD& event) 
     }
     // Found the name, so it's plausible to even attempt the call. But first,
     // validate the syntax of the event itself.
-    std::string mismatch(llsd_matches(found->second.second, event));
+    std::string mismatch(llsd_matches(found->second.mRequired, event));
     if (! mismatch.empty())
     {
         LL_ERRS("LLEventDispatcher") << "LLEventDispatcher(" << mDesc << ") calling '" << name
                                      << "': bad request: " << mismatch << LL_ENDL;
     }
     // Event syntax looks good, go for it!
-    (found->second.first)(event);
+    (found->second.mFunc)(event);
     return true;                    // tell caller we were able to call
 }
 
@@ -116,7 +118,21 @@ LLEventDispatcher::Callable LLEventDispatcher::get(const std::string& name) cons
     {
         return Callable();
     }
-    return found->second.first;
+    return found->second.mFunc;
+}
+
+LLSD LLEventDispatcher::getMetadata(const std::string& name) const
+{
+    DispatchMap::const_iterator found = mDispatch.find(name);
+    if (found == mDispatch.end())
+    {
+        return LLSD();
+    }
+    LLSD meta;
+    meta["name"] = name;
+    meta["desc"] = found->second.mDesc;
+    meta["required"] = found->second.mRequired;
+    return meta;
 }
 
 LLDispatchListener::LLDispatchListener(const std::string& pumpname, const std::string& key):

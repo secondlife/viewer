@@ -350,7 +350,7 @@
      border="false"
      follows="top|left"
      height="145"
-     label="DeviceSettings"
+     label="Device Settings"
      layout="topleft"
      left="0"
      name="device_settings_panel"

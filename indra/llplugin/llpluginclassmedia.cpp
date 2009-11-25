@@ -61,14 +61,14 @@ LLPluginClassMedia::~LLPluginClassMedia()
 	reset();
 }
 
-bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::string &plugin_filename)
+bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::string &plugin_filename, bool debug)
 {	
 	LL_DEBUGS("Plugin") << "launcher: " << launcher_filename << LL_ENDL;
 	LL_DEBUGS("Plugin") << "plugin: " << plugin_filename << LL_ENDL;
 	
 	mPlugin = new LLPluginProcessParent(this);
 	mPlugin->setSleepTime(mSleepTime);
-	mPlugin->init(launcher_filename, plugin_filename);
+	mPlugin->init(launcher_filename, plugin_filename, debug);
 
 	return true;
 }
@@ -593,10 +593,10 @@ void LLPluginClassMedia::setPriority(EPriority priority)
 				mSleepTime = 1.0f;
 			break;
 			case PRIORITY_LOW:		
-				mSleepTime = 1.0f / 50.0f;
+				mSleepTime = 1.0f / 25.0f;
 			break;
 			case PRIORITY_NORMAL:	
-				mSleepTime = 1.0f / 100.0f;
+				mSleepTime = 1.0f / 50.0f;
 			break;
 			case PRIORITY_HIGH:		
 				mSleepTime = 1.0f / 100.0f;

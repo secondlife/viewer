@@ -62,6 +62,23 @@ public:
 	/*virtual*/ ~LLSpeakButton();
 	/*virtual*/ void draw();
 
+	// *HACK: Need to put tooltips in a translatable location,
+	// the panel that contains this button.
+	void setSpeakToolTip(const std::string& msg);
+	void setShowToolTip(const std::string& msg);
+
+	/**
+	 * Sets visibility of speak button's label according to passed parameter.
+	 *
+	 * It removes label/selected label if "visible" is false and restores otherwise.
+	 *
+	 * @param visible if true - show label and selected label.
+	 * 
+	 * @see mSpeakBtn
+	 * @see LLBottomTray::processShrinkButtons()
+	 */
+	void setLabelVisible(bool visible);
+
 protected:
 	friend class LLUICtrlFactory;
 	LLSpeakButton(const Params& p);

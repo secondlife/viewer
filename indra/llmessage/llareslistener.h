@@ -14,18 +14,17 @@
 #if ! defined(LL_LLARESLISTENER_H)
 #define LL_LLARESLISTENER_H
 
-#include "lleventdispatcher.h"
+#include "lleventapi.h"
 
 class LLAres;
 class LLSD;
 
 /// Listen on an LLEventPump with specified name for LLAres request events.
-class LLAresListener: public LLDispatchListener
+class LLAresListener: public LLEventAPI
 {
 public:
-    /// Specify the pump name on which to listen, and bind the LLAres instance
-    /// to use (e.g. gAres)
-    LLAresListener(const std::string& pumpname, LLAres* llares);
+    /// Bind the LLAres instance to use (e.g. gAres)
+    LLAresListener(LLAres* llares);
 
 private:
     /// command["op"] == "rewriteURI" 

@@ -37,6 +37,7 @@
 #include "llgroupactions.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
+#include "llnotificationmanager.h"
 
 using namespace LLNotificationsUI;
 
@@ -47,6 +48,9 @@ LLGroupHandler::LLGroupHandler(e_notification_type type, const LLSD& id)
 
 	// Getting a Channel for our notifications
 	mChannel = LLChannelManager::getInstance()->createNotificationChannel();
+	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+	if(channel)
+		channel->setOnRejectToastCallback(boost::bind(&LLGroupHandler::onRejectToast, this, _1));
 }
 
 //--------------------------------------------------------------------------
@@ -57,7 +61,7 @@ LLGroupHandler::~LLGroupHandler()
 //--------------------------------------------------------------------------
 void LLGroupHandler::initChannel()
 {
-	S32 channel_right_bound = gViewerWindow->getWorldViewRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
+	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
 	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
 	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
 }
@@ -118,5 +122,15 @@ void LLGroupHandler::onDeleteToast(LLToast* toast)
 }
 
 //--------------------------------------------------------------------------
+void LLGroupHandler::onRejectToast(LLUUID& id)
+{
+	LLNotificationPtr notification = LLNotifications::instance().find(id);
 
+	if (notification && LLNotificationManager::getInstance()->getHandlerForNotification(notification->getType()) == this)
+	{
+		LLNotifications::instance().cancel(notification);
+	}
+}
+
+//--------------------------------------------------------------------------
 

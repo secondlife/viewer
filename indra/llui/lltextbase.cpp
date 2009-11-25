@@ -60,6 +60,11 @@ LLTextBase::line_info::line_info(S32 index_start, S32 index_end, LLRect rect, S3
 
 bool LLTextBase::compare_segment_end::operator()(const LLTextSegmentPtr& a, const LLTextSegmentPtr& b) const
 {
+	// sort empty spans (e.g. 11-11) after previous non-empty spans (e.g. 5-11)
+	if (a->getEnd() == b->getEnd())
+	{
+		return a->getStart() < b->getStart();
+	}
 	return a->getEnd() < b->getEnd();
 }
 
@@ -286,8 +291,7 @@ bool LLTextBase::truncate()
 
 LLStyle::Params LLTextBase::getDefaultStyle()
 {
-	LLColor4 text_color = ( mReadOnly ? mReadOnlyFgColor.get() : mFgColor.get() );
-	return LLStyle::Params().color(text_color).font(mDefaultFont).drop_shadow(mFontShadow);
+	return LLStyle::Params().color(mFgColor.get()).readonly_color(mReadOnlyFgColor.get()).font(mDefaultFont).drop_shadow(mFontShadow);
 }
 
 void LLTextBase::onValueChange(S32 start, S32 end)
@@ -995,6 +999,12 @@ void LLTextBase::setColor( const LLColor4& c )
 	mFgColor = c;
 }
 
+//virtual 
+void LLTextBase::setReadOnlyColor(const LLColor4 &c)
+{
+	mReadOnlyFgColor = c;
+}
+
 //virtual
 void LLTextBase::setValue(const LLSD& value )
 {
@@ -1446,7 +1456,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	}
 }
 
-void LLTextBase::setText(const LLStringExplicit &utf8str)
+void LLTextBase::setText(const LLStringExplicit &utf8str ,const LLStyle::Params& input_params)
 {
 	// clear out the existing text and segments
 	getViewModel()->setDisplay(LLWStringUtil::null);
@@ -1461,7 +1471,7 @@ void LLTextBase::setText(const LLStringExplicit &utf8str)
 	std::string text(utf8str);
 	LLStringUtil::removeCRLF(text);
 
-	appendText(text, false);
+	appendText(text, false, input_params);
 
 	onValueChange(0, getLength());
 }
@@ -1500,10 +1510,14 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 
 			LLStyle::Params link_params = style_params;
 			link_params.color = match.getColor();
+			link_params.readonly_color =  match.getColor();
 			// apply font name from requested style_params
 			std::string font_name = LLFontGL::nameFromFont(style_params.font());
-			link_params.font.name.setIfNotProvided(font_name);
-			link_params.font.style = "UNDERLINE";
+			std::string font_size = LLFontGL::sizeFromFont(style_params.font());
+			link_params.font.name(font_name);
+			link_params.font.size(font_size);
+			link_params.font.style("UNDERLINE");
+			
 			link_params.link_href = match.getUrl();
 
 			// output the text before the Url
@@ -2051,16 +2065,16 @@ void LLTextBase::updateRects()
 			mContentsRect.unionWith(line_iter->mRect);
 		}
 
-		mContentsRect.mLeft = 0;
+		S32 delta_pos_x = -mContentsRect.mLeft;
 		mContentsRect.mTop += mVPad;
 
 		S32 delta_pos = -mContentsRect.mBottom;
 		// move line segments to fit new document rect
 		for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
 		{
-			it->mRect.translate(0, delta_pos);
+			it->mRect.translate(delta_pos_x, delta_pos);
 		}
-		mContentsRect.translate(0, delta_pos);
+		mContentsRect.translate(delta_pos_x, delta_pos);
 	}
 
 	// update document container dimensions according to text contents
@@ -2232,7 +2246,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 
 	const LLFontGL* font = mStyle->getFont();
 
-	LLColor4 color = mStyle->getColor() % alpha;
+	LLColor4 color = (mEditor.getReadOnly() ? mStyle->getReadOnlyColor() : mStyle->getColor())  % alpha;
 
 	font = mStyle->getFont();
 
@@ -2370,7 +2384,17 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 
 	height = mFontHeight;
 	width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
-	return num_chars >= 1 && text[mStart + num_chars - 1] == '\n';
+	// if last character is a newline, then return true, forcing line break
+	llwchar last_char = text[mStart + first_char + num_chars - 1];
+
+	LLUIImagePtr image = mStyle->getImage();
+	if( image.notNull())
+	{
+		width += image->getWidth();
+		height = llmax(height, image->getHeight());
+	}
+
+	return num_chars >= 1 && last_char == '\n';
 }
 
 S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const

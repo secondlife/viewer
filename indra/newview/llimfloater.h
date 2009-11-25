@@ -33,6 +33,11 @@
 #ifndef LL_IMFLOATER_H
 #define LL_IMFLOATER_H
 
+// This variable is used to show floaters related to chiclets in a Multi Floater Container
+// So, this functionality does not require to have IM Floaters as Dockable & Transient
+// See EXT-2640.
+#define USE_IM_CONTAINER
+
 #include "lltransientdockablefloater.h"
 #include "lllogchat.h"
 #include "lltooldraganddrop.h"
@@ -63,7 +68,6 @@ public:
 	// LLFloater overrides
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
-	// override LLFloater's minimization according to EXT-1216
 
 	// Make IM conversion visible and update the message history
 	static LLIMFloater* show(const LLUUID& session_id);
@@ -92,6 +96,9 @@ public:
 	void processIMTyping(const LLIMInfo* im_info, BOOL typing);
 	void processAgentListUpdates(const LLSD& body);
 	void processSessionUpdate(const LLSD& session_update);
+
+	void updateChatHistoryStyle();
+	static void processChatHistoryStyleUpdate(const LLSD& newvalue);
 
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 							   BOOL drop, EDragAndDropType cargo_type,

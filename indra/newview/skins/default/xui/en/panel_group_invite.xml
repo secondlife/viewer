@@ -33,7 +33,6 @@ invite to your group. Click &apos;Open
 Resident Chooser&apos; to start.
     </text>
     <button
-     font="SansSerifSmall"
      height="20"
      label="Open Resident Chooser"
      layout="topleft"
@@ -53,7 +52,6 @@ Resident Chooser&apos; to start.
      top_pad="4"
      width="200" />
     <button
-     font="SansSerifSmall"
      height="20"
      label="Remove Selected from List"
      layout="topleft"
@@ -82,7 +80,6 @@ Resident Chooser&apos; to start.
      top_delta="16"
      width="196" />
     <button
-     font="SansSerifSmall"
      height="20"
      label="Send Invitations"
      layout="topleft"
@@ -91,7 +88,6 @@ Resident Chooser&apos; to start.
      top="356"
      width="130" />
     <button
-     font="SansSerifSmall"
      height="20"
      label="Cancel"
      layout="topleft"

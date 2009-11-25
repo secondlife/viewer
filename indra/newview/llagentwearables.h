@@ -80,7 +80,7 @@ public:
 	// Note: False for shape, skin, eyes, and hair, unless you have MORE than 1.
 	bool			canWearableBeRemoved(const LLWearable* wearable) const;
 
-	void			animateAllWearableParams(F32 delta, BOOL set_by_user);
+	void			animateAllWearableParams(F32 delta, BOOL upload_bake);
 	
 	//--------------------------------------------------------------------
 	// Accessors
@@ -169,9 +169,11 @@ public:
 								  const LLDynamicArray<S32>& attachments_to_include,
 								  BOOL rename_clothing);
 	
-	// Note:	wearables_to_include should be a list of EWearableType types
-	//			attachments_to_include should be a list of attachment points
 	LLUUID			makeNewOutfitLinks(const std::string& new_folder_name);
+	
+	// Should only be called if we *know* we've never done so before, since users may
+	// not want the Library outfits to stay in their quick outfit selector and can delete them.
+	void			populateMyOutfitsFolder(void);
 
 private:
 	void			makeNewOutfitDone(S32 type, U32 index); 

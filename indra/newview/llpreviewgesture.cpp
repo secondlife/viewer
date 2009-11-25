@@ -355,7 +355,7 @@ LLPreviewGesture::~LLPreviewGesture()
 
 BOOL LLPreviewGesture::postBuild()
 {
-	mVisibleSignal.connect(boost::bind(&LLPreviewGesture::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLPreviewGesture::onVisibilityChange, this, _2));
 	
 	LLLineEditor* edit;
 	LLComboBox* combo;
@@ -493,7 +493,7 @@ BOOL LLPreviewGesture::postBuild()
 	{
 		childSetCommitCallback("desc", LLPreview::onText, this);
 		childSetText("desc", item->getDescription());
-		childSetPrevalidate("desc", &LLLineEditor::prevalidatePrintableNotPipe);
+		childSetPrevalidate("desc", &LLLineEditor::prevalidateASCIIPrintableNoPipe);
 	}
 
 	return LLPreview::postBuild();

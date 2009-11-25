@@ -16,10 +16,14 @@
 #include "llnotifications.h"
 
 LLNotificationsListener::LLNotificationsListener(LLNotifications & notifications) :
-    LLDispatchListener("LLNotifications", "op"),
+    LLEventAPI("LLNotifications",
+               "LLNotifications listener to (e.g.) pop up a notification"),
     mNotifications(notifications)
 {
-    add("requestAdd", &LLNotificationsListener::requestAdd);
+    add("requestAdd",
+        "Add a notification with specified [\"name\"], [\"substitutions\"] and [\"payload\"].\n"
+        "If optional [\"reply\"] specified, arrange to send user response on that LLEventPump.",
+        &LLNotificationsListener::requestAdd);
 }
 
 void LLNotificationsListener::requestAdd(const LLSD& event_data) const

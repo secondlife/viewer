@@ -16,7 +16,7 @@
     </floater.string>
     <floater.string
      name="no_one_near">
-        No-one near
+        No one near
     </floater.string>
     <floater.string
      name="no_results">
@@ -26,6 +26,12 @@
      name="searching">
         Searching...
     </floater.string>
+    <!-- For multiple person selection, use "Select" and "Close" 
+      instead of "OK" and "Cancel" because "Cancel" still keeps the ones 
+      you have already selected.  The code will show the appropriate
+      set of buttons. -->
+    <string name="Select">Select</string>
+    <string name="Close">Close</string>
     <tab_container
      follows="all"
      height="300"
@@ -205,7 +211,7 @@
      height="23"
      label="OK"
      label_selected="OK"
-     name="Select"
+     name="ok_btn"
      top_pad="3"
      left="46"
      width="100" />
@@ -214,7 +220,7 @@
      height="23"
      label="Cancel"
      label_selected="Cancel"
-     name="Cancel"
+     name="cancel_btn"
      width="100"
      left_pad="5" />
 </floater>

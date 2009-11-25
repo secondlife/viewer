@@ -8,16 +8,69 @@
  name="panel_picks"
  top="0"
  width="313">
+ <string
+  name="no_picks"
+  value="No Picks" />
+ <string
+  name="no_classifieds"
+  value="No Classifieds" />
+ <text
+  type="string"
+  follows="all"
+  height="535"
+  layout="topleft"
+  left="6"
+  name="empty_picks_panel_text"
+  top="10"
+  visible="false" 
+  width="313">
+   There are no picks/classifieds here
+ </text>
+ <accordion
+  follows="all"
+  height="465"
+  layout="topleft"
+  left="0"
+  name="accordion"
+  top="0"
+  single_expansion="true"
+  width="313">
+    <accordion_tab
+     can_resize="false"
+     layout="topleft"
+     height="235"
+     min_height="150"
+     name="tab_picks"
+     title="Picks"
+     visible="false">
  <flat_list_view
          color="DkGray2"
          follows="all"
-         height="465"
          layout="topleft"
          left="0"
          name="picks_list"
          opaque="true"
          top="0"
          width="313" />
+    </accordion_tab>
+    <accordion_tab
+     can_resize="false"
+     layout="topleft"
+     height="235"
+     name="tab_classifieds"
+     title="Classifieds"
+     visible="false">
+            <flat_list_view
+             color="DkGray2"
+             follows="all"
+             layout="topleft"
+             left="0"
+             name="classifieds_list"
+             opaque="true"
+             top="0"
+             width="313" />
+    </accordion_tab>
+ </accordion>
    <panel
          background_visible="true"
          bevel_style="none"
@@ -78,7 +131,6 @@
        <button
          enabled="false"
          follows="bottom|left"
-         font="SansSerifSmallBold"
          height="25"
          label="Info"
          layout="topleft"
@@ -90,7 +142,6 @@
         <button
          enabled="false"
          follows="bottom|left"
-         font="SansSerifSmallBold"
          height="25"
          label="Teleport"
          layout="topleft"
@@ -102,7 +153,6 @@
         <button
          enabled="false"
          follows="bottom|left"
-         font="SansSerifSmallBold"
          height="25"
          label="Map"
          layout="topleft"
@@ -114,7 +164,6 @@
         <button
          enabled="false"
          follows="bottom|right"
-         font="SansSerifSmallBold"
          height="25"
          label="▼"
          layout="topleft"

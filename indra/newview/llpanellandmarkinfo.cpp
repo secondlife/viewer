@@ -35,6 +35,7 @@
 #include "llpanellandmarkinfo.h"
 
 #include "llcombobox.h"
+#include "lliconctrl.h"
 #include "lllineeditor.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"
@@ -58,6 +59,11 @@ static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats);
 
 static LLRegisterPanelClassWrapper<LLPanelLandmarkInfo> t_landmark_info("panel_landmark_info");
 
+// Statics for textures filenames
+static std::string icon_pg;
+static std::string icon_m;
+static std::string icon_r;
+
 LLPanelLandmarkInfo::LLPanelLandmarkInfo()
 :	LLPanelPlaceInfo()
 {}
@@ -78,6 +84,10 @@ BOOL LLPanelLandmarkInfo::postBuild()
 	mTitleEditor = getChild<LLLineEditor>("title_editor");
 	mNotesEditor = getChild<LLTextEditor>("notes_editor");
 	mFolderCombo = getChild<LLComboBox>("folder_combo");
+
+	icon_pg = getString("icon_PG");
+	icon_m = getString("icon_M");
+	icon_r = getString("icon_R");
 
 	return TRUE;
 }
@@ -101,9 +111,8 @@ void LLPanelLandmarkInfo::setInfoType(INFO_TYPE type)
 	LLPanel* landmark_info_panel = getChild<LLPanel>("landmark_info_panel");
 
 	bool is_info_type_create_landmark = type == CREATE_LANDMARK;
-	bool is_info_type_landmark = type == LANDMARK;
 
-	landmark_info_panel->setVisible(is_info_type_landmark);
+	landmark_info_panel->setVisible(type == LANDMARK);
 
 	getChild<LLTextBox>("folder_label")->setVisible(is_info_type_create_landmark);
 	mFolderCombo->setVisible(is_info_type_create_landmark);
@@ -135,6 +144,24 @@ void LLPanelLandmarkInfo::setInfoType(INFO_TYPE type)
 void LLPanelLandmarkInfo::processParcelInfo(const LLParcelData& parcel_data)
 {
 	LLPanelPlaceInfo::processParcelInfo(parcel_data);
+
+	// HACK: Flag 0x2 == adult region,
+	// Flag 0x1 == mature region, otherwise assume PG
+	if (parcel_data.flags & 0x2)
+	{
+		mMaturityRatingIcon->setValue(icon_r);
+		mMaturityRatingText->setText(LLViewerRegion::accessToString(SIM_ACCESS_ADULT));
+	}
+	else if (parcel_data.flags & 0x1)
+	{
+		mMaturityRatingIcon->setValue(icon_m);
+		mMaturityRatingText->setText(LLViewerRegion::accessToString(SIM_ACCESS_MATURE));
+	}
+	else
+	{
+		mMaturityRatingIcon->setValue(icon_pg);
+		mMaturityRatingText->setText(LLViewerRegion::accessToString(SIM_ACCESS_PG));
+	}
 
 	S32 region_x;
 	S32 region_y;
@@ -325,6 +352,8 @@ void LLPanelLandmarkInfo::createLandmark(const LLUUID& folder_id)
 	}
 
 	LLStringUtil::replaceChar(desc, '\n', ' ');
+	LLViewerInventoryItem::insertDefaultSortField(name);
+
 	// If no folder chosen use the "Landmarks" folder.
 	LLLandmarkActions::createLandmarkHere(name, desc,
 		folder_id.notNull() ? folder_id : gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK));

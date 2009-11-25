@@ -226,6 +226,9 @@ public:
 	void			setKeystrokeCallback(callback_t callback, void* user_data);
 
 	void			setMaxTextLength(S32 max_text_length);
+	// Manipulate left and right padding for text
+	void getTextPadding(S32 *left, S32 *right);
+	void setTextPadding(S32 left, S32 right);
 
 	// Prevalidation controls which keystrokes can affect the editor
 	void			setPrevalidate( LLLinePrevalidateFunc func );
@@ -235,8 +238,8 @@ public:
 	static BOOL		prevalidateNonNegativeS32(const LLWString &str);
 	static BOOL		prevalidateAlphaNum(const LLWString &str );
 	static BOOL		prevalidateAlphaNumSpace(const LLWString &str );
-	static BOOL		prevalidatePrintableNotPipe(const LLWString &str); 
-	static BOOL		prevalidatePrintableNoSpace(const LLWString &str);
+	static BOOL		prevalidateASCIIPrintableNoPipe(const LLWString &str); 
+	static BOOL		prevalidateASCIIPrintableNoSpace(const LLWString &str);
 	static BOOL		prevalidateASCII(const LLWString &str);
 
 	static BOOL		postvalidateFloat(const std::string &str);

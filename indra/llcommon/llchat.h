@@ -84,6 +84,7 @@ public:
 		mAudible(CHAT_AUDIBLE_FULLY),
 		mMuted(FALSE),
 		mTime(0.0),
+		mTimeStr(),
 		mPosAgent(),
 		mURL(),
 		mChatStyle(CHAT_STYLE_NORMAL)
@@ -97,6 +98,7 @@ public:
 	EChatAudible	mAudible;
 	BOOL			mMuted;		// pass muted chat to maintain list of chatters
 	F64				mTime;		// viewer only, seconds from viewer start
+	std::string		mTimeStr;
 	LLVector3		mPosAgent;
 	std::string		mURL;
 	EChatStyle		mChatStyle;

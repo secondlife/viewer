@@ -433,8 +433,8 @@ void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const st
 	LLWidgetNameRegistry ::instance().defaultRegistrar().add(param_block_type, tag);
 	// associate widget type with factory function
 	LLDefaultWidgetRegistry::instance().defaultRegistrar().add(widget_type, creator_func);
-	LLWidgetTypeRegistry::instance().defaultRegistrar().add(tag, widget_type);
 	//FIXME: comment this in when working on schema generation
+	//LLWidgetTypeRegistry::instance().defaultRegistrar().add(tag, widget_type);
 	//LLDefaultParamBlockRegistry::instance().defaultRegistrar().add(widget_type, &getEmptyParamBlock<T>);
 }
 
@@ -448,4 +448,10 @@ dummy_widget_creator_func_t* LLUICtrlFactory::getDefaultWidgetFunc(const std::ty
 const std::string* LLUICtrlFactory::getWidgetTag(const std::type_info* widget_type)
 {
 	return LLWidgetNameRegistry::instance().getValue(widget_type);
+}
+
+// static
+void LLUICtrlFactory::connect(LLView* parent, LLView* child)
+{
+	parent->addChild(child);
 }

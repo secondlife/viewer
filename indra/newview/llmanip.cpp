@@ -265,8 +265,8 @@ BOOL LLManip::getMousePointOnPlaneGlobal(LLVector3d& point, S32 x, S32 y, LLVect
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		BOOL result = FALSE;
-		F32 mouse_x = ((F32)x / gViewerWindow->getWindowWidth() - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgent.mHUDCurZoom;
-		F32 mouse_y = ((F32)y / gViewerWindow->getWindowHeight() - 0.5f) / gAgent.mHUDCurZoom;
+		F32 mouse_x = ((F32)x / gViewerWindow->getWorldViewWidthScaled() - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgent.mHUDCurZoom;
+		F32 mouse_y = ((F32)y / gViewerWindow->getWorldViewHeightScaled() - 0.5f) / gAgent.mHUDCurZoom;
 
 		LLVector3 origin_agent = gAgent.getPosAgentFromGlobal(origin);
 		LLVector3 mouse_pos = LLVector3(0.f, -mouse_x, mouse_y);
@@ -304,8 +304,8 @@ BOOL LLManip::nearestPointOnLineFromMouse( S32 x, S32 y, const LLVector3& b1, co
 
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
-		F32 mouse_x = (((F32)x / gViewerWindow->getWindowWidth()) - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgent.mHUDCurZoom;
-		F32 mouse_y = (((F32)y / gViewerWindow->getWindowHeight()) - 0.5f) / gAgent.mHUDCurZoom;
+		F32 mouse_x = (((F32)x / gViewerWindow->getWindowWidthScaled()) - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgent.mHUDCurZoom;
+		F32 mouse_y = (((F32)y / gViewerWindow->getWindowHeightScaled()) - 0.5f) / gAgent.mHUDCurZoom;
 		a1 = LLVector3(llmin(b1.mV[VX] - 0.1f, b2.mV[VX] - 0.1f, 0.f), -mouse_x, mouse_y);
 		a2 = a1 + LLVector3(1.f, 0.f, 0.f);
 	}
@@ -429,9 +429,10 @@ void LLManip::renderXYZ(const LLVector3 &vec)
 	const S32 PAD = 10;
 	std::string feedback_string;
 	LLVector3 camera_pos = LLViewerCamera::getInstance()->getOrigin() + LLViewerCamera::getInstance()->getAtAxis();
-	S32 vertical_offset = gViewerWindow->getWindowHeight() / 2 - VERTICAL_OFFSET;
-	S32 window_center_x = gViewerWindow->getWindowWidth() / 2;
-	S32 window_center_y = gViewerWindow->getWindowHeight() / 2;
+	S32 window_center_x = gViewerWindow->getWorldViewRectScaled().getWidth() / 2;
+	S32 window_center_y = gViewerWindow->getWorldViewRectScaled().getHeight() / 2;
+	S32 vertical_offset = window_center_y - VERTICAL_OFFSET;
+
 
 	glPushMatrix();
 	{

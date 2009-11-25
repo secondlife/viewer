@@ -57,6 +57,9 @@ class LLViewerHelp : public LLHelp, public LLSingleton<LLViewerHelp>
 	// return topic derived from viewer UI focus, else default topic
 	std::string getTopicFromFocus();
 
+	// return topic to use before the user logs in
+	std::string preLoginTopic();
+
  private:
 	static void showHelp(); // make sure help UI is visible & raised
 	static void setRawURL(std::string url); // send URL to help UI

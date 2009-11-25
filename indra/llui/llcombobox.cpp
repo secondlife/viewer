@@ -102,14 +102,14 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	mMaxChars(p.max_chars),
 	mPrearrangeCallback(p.prearrange_callback()),
 	mTextEntryCallback(p.text_entry_callback()),
-	mSelectionCallback(p.selection_callback()),
 	mListPosition(p.list_position),
 	mLastSelectedIndex(-1)
 {
 	// Text label button
 
 	LLButton::Params button_params = (mAllowTextEntry ? p.combo_button : p.drop_down_button);
-	button_params.mouse_down_callback.function(boost::bind(&LLComboBox::onButtonDown, this));
+	button_params.mouse_down_callback.function(
+		boost::bind(&LLComboBox::onButtonMouseDown, this));
 	button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM|FOLLOWS_RIGHT);
 	button_params.rect(p.rect);
 
@@ -139,6 +139,10 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 
 	mList = LLUICtrlFactory::create<LLScrollListCtrl>(params);
 	addChild(mList);
+
+	// Mouse-down on button will transfer mouse focus to the list
+	// Grab the mouse-up event and make sure the button state is correct
+	mList->setMouseUpCallback(boost::bind(&LLComboBox::onListMouseUp, this));
 
 	for (LLInitParam::ParamIterator<ItemParams>::const_iterator it = p.items().begin();
 		it != p.items().end();
@@ -644,7 +648,7 @@ void LLComboBox::hideList()
 	}
 }
 
-void LLComboBox::onButtonDown()
+void LLComboBox::onButtonMouseDown()
 {
 	if (!mList->getVisible())
 	{
@@ -670,6 +674,10 @@ void LLComboBox::onButtonDown()
 		if (mButton->hasMouseCapture())
 		{
 			gFocusMgr.setMouseCapture(mList);
+
+			// But keep the "pressed" look, which buttons normally lose when they
+			// lose focus
+			mButton->setForcePressedState(true);
 		}
 	}
 	else
@@ -679,6 +687,12 @@ void LLComboBox::onButtonDown()
 
 }
 
+void LLComboBox::onListMouseUp()
+{
+	// In some cases this is the termination of a mouse click that started on
+	// the button, so clear its pressed state
+	mButton->setForcePressedState(false);
+}
 
 //------------------------------------------------------------------
 // static functions
@@ -706,12 +720,6 @@ void LLComboBox::onItemSelected(const LLSD& data)
 
 	// commit does the reverse, asserting the value in the list
 	onCommit();
-
-	// call the callback if it exists
-	if(mSelectionCallback)
-	{
-		mSelectionCallback(this, data);
-	}
 }
 
 BOOL LLComboBox::handleToolTip(S32 x, S32 y, MASK mask)

@@ -210,8 +210,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	}
 
 #if !USE_VIEWER_AUTH
-	childSetPrevalidate("first_name_edit", LLLineEditor::prevalidatePrintableNoSpace);
-	childSetPrevalidate("last_name_edit", LLLineEditor::prevalidatePrintableNoSpace);
+	childSetPrevalidate("first_name_edit", LLLineEditor::prevalidateASCIIPrintableNoSpace);
+	childSetPrevalidate("last_name_edit", LLLineEditor::prevalidateASCIIPrintableNoSpace);
 
 	childSetCommitCallback("password_edit", mungePassword, this);
 	getChild<LLLineEditor>("password_edit")->setKeystrokeCallback(onPassKey, this);
@@ -310,7 +310,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 void LLPanelLogin::reshapeBrowser()
 {
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
-	LLRect rect = gViewerWindow->getVirtualWindowRect();
+	LLRect rect = gViewerWindow->getWindowRectScaled();
 	LLRect html_rect;
 #if USE_VIEWER_AUTH
 	html_rect.setCenterAndSize( 
@@ -391,6 +391,10 @@ LLPanelLogin::~LLPanelLogin()
 
 	//// We know we're done with the image, so be rid of it.
 	//gTextureList.deleteImage( mLogoImage );
+
+	// Controls having keyboard focus by default
+	// must reset it on destroy. (EXT-2748)
+	gFocusMgr.setDefaultKeyboardFocus(NULL);
 }
 
 // virtual
@@ -682,8 +686,6 @@ void LLPanelLogin::closePanel()
 	if (sInstance)
 	{
 		gViewerWindow->getRootView()->removeChild( LLPanelLogin::sInstance );
-		
-		gFocusMgr.setDefaultKeyboardFocus(NULL);
 
 		delete sInstance;
 		sInstance = NULL;

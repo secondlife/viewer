@@ -118,6 +118,8 @@ public:
 	// LLUICtrl interface
 	/*virtual*/ BOOL		acceptsTextInput() const { return !mReadOnly; }
 	/*virtual*/ void		setColor( const LLColor4& c );
+	virtual     void 		setReadOnlyColor(const LLColor4 &c);
+
 	/*virtual*/ void		setValue(const LLSD& value );
 	/*virtual*/ LLTextViewModel* getViewModel() const;
 
@@ -135,8 +137,9 @@ public:
 
 	// Text accessors
 	// TODO: add optional style parameter
-	virtual void			setText(const LLStringExplicit &utf8str); // uses default style
+	virtual void			setText(const LLStringExplicit &utf8str , const LLStyle::Params& input_params = LLStyle::Params()); // uses default style
 	virtual std::string		getText() const;
+	void					setMaxTextLength(S32 length) { mMaxTextByteLength = length; }
 
 	// wide-char versions
 	void					setWText(const LLWString& text);

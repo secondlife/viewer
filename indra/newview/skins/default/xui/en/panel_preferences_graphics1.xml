@@ -16,81 +16,8 @@
      height="12"
      layout="topleft"
      left="30"
-     name="WindowSizeLabel"
-     top="10"
-     width="300">
-        Window size:
-    </text>
-    <check_box
-     control_name="WindowFullScreen"
-     height="16"
-     label="Use fullscreen"
-     layout="topleft"
-     left_delta="50"
-     name="windowed mode"
-     top_pad="4"
-     width="175">
-    </check_box>
-	<combo_box
-	 visiblity_control="WindowFullScreen"
-	 allow_text_entry="false"
-	 enabled="true"
-	 layout="topleft"
-	 height="18"
-	 left_delta="220"
-	 max_chars="20"
-	 mouse_opaque="true"
-	 name="windowsize combo"
-	 top_delta="-1"
-	 width="150">
-		<combo_box.item
-		 type="string"
-	     length="1"
-	     enabled="true"
-	     name="640x480"
-	     value="640 x 480"
-	     label="640x480"/>
-	    <combo_box.item
-	     type="string"
-	     length="1"
-	     enabled="true"
-	     name="800x600"
-	     value="800 x 600"
-	     label="800x600"/>
-	    <combo_box.item
-	     type="string"
-	     length="1"
-	     enabled="true"
-	     name="720x480"
-	     value="720 x 480"
-	     label="720x480 (NTSC)"/>
-	    <combo_box.item
-	     type="string"
-	     length="1"
-	     enabled="true"
-	     name="768x576"
-	     value="768 x 576"
-	     label="768x576 (PAL)"/>
-	    <combo_box.item
-	     type="string"
-	     length="1"
-	     enabled="true"
-	     name="1024x768"
-	     value="1024 x 768"
-	     label="1024x768"/>
-	    <combo_box.commit_callback
-	     function="Pref.setControlFalse"
-	     parameter="FullScreenAutoDetectAspectRatio" />
- 	</combo_box>
-	<text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="12"
-     layout="topleft"
-     left="30"
      name="UI Size:"
-     top_pad="4"
+     top="10"
      width="300">
         UI size:
     </text>
@@ -101,7 +28,7 @@
      follows="left|top"
      height="15"
      increment="0.025"
-     initial_value="1"
+     initial_valu="1"
      layout="topleft"
      left_delta="52"
      max_val="1.4"
@@ -109,19 +36,7 @@
      name="ui_scale_slider"
      top_pad="2"
      width="180" />
-    <spinner
-     control_name="UIScaleFactor"
-     height="16"
-     increment="0.025"
-     initial_value="1"
-     layout="topleft"
-     left_pad="10"
-     max_val="1.4"
-     min_val="0.75"
-     name="ui_scale_slider"
-     top_delta="0"
-     width="58" />
-     <text
+    <text
      type="string"
      length="1"
      follows="left|top"

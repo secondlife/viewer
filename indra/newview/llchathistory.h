@@ -34,7 +34,7 @@
 #define LLCHATHISTORY_H_
 
 #include "lltexteditor.h"
-#include "llchat.h"
+#include "llviewerchat.h"
 
 //Chat log widget allowing addition of a message as a widget 
 class LLChatHistory : public LLTextEditor
@@ -94,11 +94,9 @@ class LLChatHistory : public LLTextEditor
 		LLView* getSeparator();
 		/**
 		 * Builds a message header.
-		 * @param from owner of a message.
-		 * @param time time of a message.
 		 * @return pointer to LLView header object.
 		 */
-		LLView* getHeader(const LLChat& chat);
+		LLView* getHeader(const LLChat& chat,const LLStyle::Params& style_params);
 
 	public:
 		~LLChatHistory();
@@ -108,10 +106,11 @@ class LLChatHistory : public LLTextEditor
 		 * If last user appended message, concurs with current user,
 		 * separator is added before the message, otherwise header is added.
 		 * @param chat - base chat message.
-		 * @param time time of a message.
-		 * @param message message itself.
+		 * @param use_plain_text_chat_history  - whether to add message as plain text.
+		 * @param input_append_params - font style.
 		 */
-		void appendWidgetMessage(const LLChat& chat, LLStyle::Params& style_params);
+		void appendMessage(const LLChat& chat, const bool use_plain_text_chat_history = false, const LLStyle::Params& input_append_params = LLStyle::Params());
+		/*virtual*/ void clear();
 
 	private:
 		std::string mLastFromName;

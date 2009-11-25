@@ -146,8 +146,9 @@ void LLVisualParamHint::preRender(BOOL clear_depth)
 {
 	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 
-	mLastParamWeight = avatarp->getVisualParamWeight(mVisualParam);
-	avatarp->setVisualParamWeight(mVisualParam, mVisualParamWeight);
+	mLastParamWeight = mVisualParam->getWeight();
+	mVisualParam->setWeight(mVisualParamWeight, FALSE);
+	avatarp->setVisualParamWeight(mVisualParam->getID(), mVisualParamWeight, FALSE);
 	avatarp->setVisualParamWeight("Blink_Left", 0.f);
 	avatarp->setVisualParamWeight("Blink_Right", 0.f);
 	avatarp->updateComposites();
@@ -242,7 +243,8 @@ BOOL LLVisualParamHint::render()
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	}
-	avatarp->setVisualParamWeight(mVisualParam, mLastParamWeight);
+	avatarp->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight);
+	mVisualParam->setWeight(mLastParamWeight, FALSE);
 	gGL.color4f(1,1,1,1);
 	mGLTexturep->setGLTextureCreated(true);
 	return TRUE;
