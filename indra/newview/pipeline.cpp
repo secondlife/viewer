@@ -516,8 +516,6 @@ void LLPipeline::resizeScreenTexture()
 		GLuint resY = gViewerWindow->getWorldViewHeight();
 	
 		allocateScreenBuffer(resX,resY);
-
-		llinfos << "RESIZED SCREEN TEXTURE: " << resX << "x" << resY << llendl;
 	}
 }
 

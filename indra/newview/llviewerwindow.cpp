@@ -4731,7 +4731,6 @@ F32	LLViewerWindow::getWorldViewAspectRatio() const
 	}
 	else
 	{
-		llinfos << "World aspect ratio: " << world_aspect << llendl;
 		return world_aspect;
 	}
 }
