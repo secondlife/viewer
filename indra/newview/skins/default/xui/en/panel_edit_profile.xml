@@ -15,6 +15,10 @@
        [ACCTTYPE]
 [PAYMENTINFO] [AGEVERIFICATION]
    </string>
+   <string 
+    name="RegisterDateFormat">
+	[REG_DATE] ([AGE])
+   </string> 
    <string
     name="AcctTypeResident"
     value="Resident" />

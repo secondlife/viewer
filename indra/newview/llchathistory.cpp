@@ -33,11 +33,9 @@
 #include "llviewerprecompiledheaders.h"
 #include "llchathistory.h"
 #include "llpanel.h"
-#include "lltextbox.h"
 #include "lluictrlfactory.h"
 #include "llscrollcontainer.h"
 #include "llavatariconctrl.h"
-
 #include "llimview.h"
 #include "llcallingcard.h" //for LLAvatarTracker
 #include "llagentdata.h"
@@ -185,11 +183,10 @@ public:
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}
 
-		LLTextBox* userName = getChild<LLTextBox>("user_name");
+		LLTextEditor* userName = getChild<LLTextEditor>("user_name");
 
-		LLUIColor color = style_params.color;
-		userName->setReadOnlyColor(color);
-		userName->setColor(color);
+		userName->setReadOnlyColor(style_params.readonly_color());
+		userName->setColor(style_params.color());
 		
 		if(!chat.mFromName.empty())
 		{
@@ -202,10 +199,8 @@ public:
 			userName->setValue(SL);
 		}
 
+		setTimeField(chat.mTimeStr);
 		
-		LLTextBox* timeBox = getChild<LLTextBox>("time_box");
-		timeBox->setValue(chat.mTimeStr);
-
 		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 
 		if(mSourceType != CHAT_SOURCE_AGENT)
@@ -271,7 +266,28 @@ protected:
 		}
 	}
 
-	
+private:
+	void setTimeField(const std::string& time_value)
+	{
+		LLTextBox* time_box = getChild<LLTextBox>("time_box");
+
+		LLRect rect_before = time_box->getRect();
+		time_box->setValue(time_value);
+
+		// set necessary textbox width to fit all text
+		time_box->reshapeToFitText();
+		LLRect rect_after = time_box->getRect();
+
+		// move rect to the left to correct position...
+		S32 delta_pos_x = rect_before.getWidth() - rect_after.getWidth();
+		S32 delta_pos_y = rect_before.getHeight() - rect_after.getHeight();
+		time_box->translate(delta_pos_x, delta_pos_y);
+
+		//... & change width of the name control
+		LLTextBox* user_name = getChild<LLTextBox>("user_name");
+		const LLRect& user_rect = user_name->getRect();
+		user_name->reshape(user_rect.getWidth() + delta_pos_x, user_rect.getHeight());
+	}
 
 protected:
 	LLHandle<LLView>	mPopupMenuHandleAvatar;

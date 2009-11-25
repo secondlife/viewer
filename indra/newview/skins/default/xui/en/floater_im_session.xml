@@ -18,7 +18,7 @@
  min_height="350">
   <layout_stack
   follows="all"
-  height="350"
+  height="320"
   width="300"
   layout="topleft"
   orientation="horizontal"
@@ -35,7 +35,8 @@
     <layout_panel
        left="0"
        top="0"
-	   width="180"
+       height="200"
+	     width="185"
        user_resize="false">
         <button
           height="20"
@@ -55,10 +56,9 @@
           width="25"
           name="slide_right_btn" />
         <chat_history
-         length="1"
 	 font="SansSerifSmall"
-         follows="left|right|top"
-         height="280"
+         follows="left|right|top|bottom"
+         height="150"
          name="chat_history"
          parse_highlights="true"
          allow_html="true"
@@ -66,12 +66,13 @@
          width="180">
         </chat_history>
         <line_editor
-         follows="left|right|top"
+         bottom="0" 
+         follows="left|right|bottom"
 	 font="SansSerifSmall"
          height="20"
          label="To"
+         layout="bottomleft"
          name="chat_editor"
-         top_pad="1"
          width="180">
         </line_editor>
     </layout_panel>

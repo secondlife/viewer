@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_tear_off="false"
  height="420"
@@ -215,7 +215,6 @@ Go to World menu &gt; About Land or select another parcel to show its details.
             </text>
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Profile..."
              label_selected="Profile..."
@@ -247,7 +246,6 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              width="250" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Set..."
              label_selected="Set..."
@@ -269,7 +267,6 @@ Go to World menu &gt; About Land or select another parcel to show its details.
             <button
              enabled="false"
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Deed..."
              label_selected="Deed..."
@@ -928,7 +925,6 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              bottom="100"
              enabled="false"
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Show"
              label_selected="Show"
@@ -940,7 +936,6 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              bottom="100"
              enabled="false"
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Return..."
              label_selected="Return..."
@@ -977,7 +972,6 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              bottom="120"
              enabled="false"
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Show"
              label_selected="Show"
@@ -989,7 +983,6 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              bottom="120"
              enabled="false"
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Return..."
              label_selected="Return..."
@@ -1026,7 +1019,6 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              bottom="140"
              enabled="false"
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Show"
              label_selected="Show"
@@ -1038,7 +1030,6 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              bottom="140"
              enabled="false"
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Return..."
              label_selected="Return..."
@@ -1108,7 +1099,6 @@ Go to World menu &gt; About Land or select another parcel to show its details.
             </text>
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Refresh List"
              label_selected="Refresh List"
@@ -1120,7 +1110,6 @@ Go to World menu &gt; About Land or select another parcel to show its details.
             <button
              enabled="false"
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Return objects..."
              label_selected="Return objects..."
@@ -1531,7 +1520,6 @@ Only large parcels can be listed in search.
             </text>
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Set"
              label_selected="Set"
@@ -1543,7 +1531,6 @@ Only large parcels can be listed in search.
              width="50" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Clear"
              label_selected="Clear"
@@ -1654,7 +1641,6 @@ Only large parcels can be listed in search.
              text_readonly_color="0.576471 0.662745 0.835294 1" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Set..."
              label_selected="Set..."
@@ -1685,7 +1671,6 @@ Only large parcels can be listed in search.
              width="300" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="16"
              label="Reset..."
              label_selected="Reset..."
@@ -2119,7 +2104,6 @@ Texture:
              width="80" />
             <button
              follows="bottom"
-             font="SansSerifSmall"
              height="16"
              label="Remove"
              label_selected="Remove"
@@ -2155,7 +2139,6 @@ Texture:
              width="195" />
             <button
              follows="bottom"
-             font="SansSerifSmall"
              height="16"
              label="Add..."
              label_selected="Add..."
@@ -2167,7 +2150,6 @@ Texture:
             <button
              enabled="false"
              follows="bottom"
-             font="SansSerifSmall"
              height="16"
              label="Remove"
              label_selected="Remove"

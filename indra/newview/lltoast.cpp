@@ -227,7 +227,7 @@ void LLToast::setVisible(BOOL show)
 		}
 		LLModalDialog::setFrontmost(FALSE);
 	}
-	LLPanel::setVisible(show);
+	LLFloater::setVisible(show);
 	if(mPanel)
 	{
 		if(!mPanel->isDead())

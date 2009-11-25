@@ -64,7 +64,7 @@ public:
 	
 	/*virtual*/ BOOL postBuild();
 
-	/*virtual*/ void togglePanel(LLPanel* panel);
+	/*virtual*/ void togglePanel(LLPanel* panel, const LLSD& key = LLSD());
 
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 						   BOOL drop, EDragAndDropType cargo_type,

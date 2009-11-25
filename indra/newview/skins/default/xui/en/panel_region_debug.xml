@@ -61,7 +61,6 @@
     <button
      enabled="false"
      follows="left|top"
-     font="SansSerifSmall"
      height="20"
      label="Apply"
      layout="topleft"
@@ -109,7 +108,6 @@
     <button
      follows="left|top"
      height="20"
-     font="SansSerifSmall"
      label="Choose"
      layout="topleft"
      left_pad="5"
@@ -156,7 +154,6 @@
     <button
      follows="left|top"
      height="20"
-     font="SansSerifSmall"
      label="Return"
      layout="topleft"
      left="20"
@@ -165,7 +162,6 @@
      width="80" />
     <button
      follows="left|top"
-     font="SansSerifSmall"
      height="20"
      label="Get Top Colliders..."
      layout="topleft"
@@ -176,7 +172,6 @@
      width="150" />
     <button
      follows="left|top"
-     font="SansSerifSmall"
      height="20"
      label="Get Top Scripts..."
      layout="topleft"
@@ -187,7 +182,6 @@
      width="150" />
     <button
      follows="left|top"
-     font="SansSerifSmall"
      height="20"
      label="Restart Region"
      layout="topleft"
@@ -198,7 +192,6 @@
      width="130" />
     <button
      follows="left|top"
-     font="SansSerifSmall"
      height="20"
      label="Delay Restart"
      layout="topleft"

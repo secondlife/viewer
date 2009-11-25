@@ -120,7 +120,6 @@
      width="85" />
     <button
      follows="left|top"
-     font="SansSerifSmall"
      height="20"
      label="More &gt;&gt;"
      layout="topleft"
@@ -131,7 +130,6 @@
      width="80" />
     <button
      follows="left|top"
-     font="SansSerifSmall"
      height="20"
      label="&lt;&lt; Less"
      layout="topleft"

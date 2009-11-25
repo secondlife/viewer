@@ -650,7 +650,7 @@ LLParcel *LLViewerParcelMgr::getAgentParcel() const
 }
 
 // Return whether the agent can build on the land they are on
-bool LLViewerParcelMgr::agentCanBuild() const
+bool LLViewerParcelMgr::allowAgentBuild() const
 {
 	if (mAgentParcel)
 	{
@@ -664,19 +664,47 @@ bool LLViewerParcelMgr::agentCanBuild() const
 	}
 }
 
-BOOL LLViewerParcelMgr::agentCanTakeDamage() const
+bool LLViewerParcelMgr::allowAgentVoice() const
 {
-	return mAgentParcel->getAllowDamage();
+	LLViewerRegion* region = gAgent.getRegion();
+	return region && region->isVoiceEnabled()
+		&& mAgentParcel	&& mAgentParcel->getParcelFlagAllowVoice();
 }
 
-BOOL LLViewerParcelMgr::agentCanFly() const
+bool LLViewerParcelMgr::allowAgentFly() const
 {
-	return TRUE;
+	LLViewerRegion* region = gAgent.getRegion();
+	return region && !region->getBlockFly()
+		&& mAgentParcel && mAgentParcel->getAllowFly();
 }
 
-F32 LLViewerParcelMgr::agentDrawDistance() const
+// Can the agent be pushed around by LLPushObject?
+bool LLViewerParcelMgr::allowAgentPush() const
 {
-	return 512.f;
+	LLViewerRegion* region = gAgent.getRegion();
+	return region && !region->getRestrictPushObject()
+		&& mAgentParcel && !mAgentParcel->getRestrictPushObject();
+}
+
+bool LLViewerParcelMgr::allowAgentScripts() const
+{
+	LLViewerRegion* region = gAgent.getRegion();
+	// *NOTE: This code does not take into account group-owned parcels
+	// and the flag to allow group-owned scripted objects to run.
+	// This mirrors the traditional menu bar parcel icon code, but is not
+	// technically correct.
+	return region
+		&& !(region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS)
+		&& !(region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS)
+		&& mAgentParcel
+		&& mAgentParcel->getAllowOtherScripts();
+}
+
+bool LLViewerParcelMgr::allowAgentDamage() const
+{
+	LLViewerRegion* region = gAgent.getRegion();
+	return region && region->getAllowDamage()
+		&& mAgentParcel && mAgentParcel->getAllowDamage();
 }
 
 BOOL LLViewerParcelMgr::isOwnedAt(const LLVector3d& pos_global) const
