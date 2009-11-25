@@ -684,5 +684,8 @@
     <color
      name="SysWellItemSelected"
      value="0.3 0.3 0.3 1.0" />
+	<color
+     name="ChatToastUserNameColor"
+     value="1.0 0.3 1.0 1.0" />
 
 </colors>
