@@ -36,6 +36,10 @@
 
 #include "llfloater.h"
 
+class LLAvatarList;
+class LLParticipantList;
+class LLSpeakerMgr;
+
 /**
  * The Voice Control Panel is an ambient window summoned by clicking the flyout chevron on the Speak button.
  * It can be torn-off and freely positioned onscreen.
@@ -53,7 +57,13 @@ public:
 	LLCallFloater();
 	~LLCallFloater();
 
+	/*virtual*/ BOOL postBuild();
 
+
+private:
+	LLSpeakerMgr* mSpeakerManager;
+	LLParticipantList* mPaticipants;
+	LLAvatarList* mAvatarList;
 };
 
 
