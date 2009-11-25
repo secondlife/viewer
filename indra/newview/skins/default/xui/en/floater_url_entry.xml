@@ -32,7 +32,6 @@
     <button
      follows="top|left"
      height="20"
-     font="SansSerifSmall"
      label="OK"
      layout="topleft"
      left="10"
@@ -42,7 +41,6 @@
     <button
      follows="top|left"
      height="20"
-     font="SansSerifSmall"
      label="Cancel"
      layout="topleft"
      left_pad="5"
@@ -52,7 +50,6 @@
     <button
      follows="top|right"
      height="20"
-     font="SansSerifSmall"
      label="Clear"
      layout="topleft"
      left_pad="65"

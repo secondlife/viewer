@@ -114,7 +114,7 @@ LLFloaterChatterBox::~LLFloaterChatterBox()
 
 BOOL LLFloaterChatterBox::postBuild()
 {
-	mVisibleSignal.connect(boost::bind(&LLFloaterChatterBox::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLFloaterChatterBox::onVisibilityChange, this, _2));
 	
 	if (gSavedSettings.getBOOL("ContactsTornOff"))
 	{

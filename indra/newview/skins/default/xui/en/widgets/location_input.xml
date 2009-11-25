@@ -11,7 +11,7 @@
                 add_landmark_image_disabled="Favorite_Star_Off"
                 add_landmark_image_hover="Favorite_Star_Over"
                 add_landmark_image_selected="Favorite_Star_Press"
-                add_landmark_hpad="2"
+                icon_hpad="2"
                 allow_text_entry="true"
                 list_position="below"
       	        show_text_as_tentative="false"
@@ -38,6 +38,60 @@
                           scale_image="false"
 			  top="19"
 			  left="-3" />
+  <voice_icon
+    name="voice_icon"
+    width="22"
+    height="18"
+	top="21"
+    image_name="parcel_lght_VoiceNo"
+    />
+  <fly_icon
+    name="fly_icon"
+    width="22"
+    height="18"
+	top="21"
+    image_name="parcel_lght_FlyNo"
+    />
+  <push_icon
+    name="push_icon"
+    width="22"
+    height="18"
+	top="21"
+    image_name="parcel_lght_PushNo"
+    />
+  <build_icon
+    name="build_icon"
+    width="22"
+    height="18"
+	top="21"
+    image_name="parcel_lght_BuildNo"
+    />
+  <scripts_icon
+    name="scripts_icon"
+    width="22"
+    height="18"
+	top="21"
+    image_name="parcel_lght_ScriptsNo"
+    />
+  <!-- NOTE: Placeholder icon, there is no dark grayscale version -->
+  <damage_icon
+    name="damage_icon"
+    width="22"
+    height="18"
+	top="21"
+    image_name="parcel_lght_Damage"
+    />
+  <!-- Default text color is invisible on top of nav bar background -->
+  <damage_text
+    name="damage_text"
+	width="50"
+	height="18"
+	top="16"
+	halign="right"
+	font="SansSerifSmall"
+	text_color="TextFgColor"
+	/>
+
   <combo_button name="Location History"
                           label=""
                           pad_right="0"/>

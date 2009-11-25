@@ -59,7 +59,8 @@ enum InventoryOfferResponse
 	IOR_ACCEPT,
 	IOR_DECLINE,
 	IOR_MUTE,
-	IOR_BUSY
+	IOR_BUSY,
+	IOR_SHOW
 };
 
 BOOL can_afford_transaction(S32 cost);
@@ -197,6 +198,7 @@ void invalid_message_callback(LLMessageSystem*, void*, EMessageException);
 
 void process_initiate_download(LLMessageSystem* msg, void**);
 void start_new_inventory_observer();
+void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& from_name);
 
 struct LLOfferInfo
 {
@@ -218,7 +220,9 @@ struct LLOfferInfo
 	LLHost mHost;
 
 	LLSD asLLSD();
+	void send_auto_receive_response(void);
 	bool inventory_offer_callback(const LLSD& notification, const LLSD& response);
+	bool inventory_task_offer_callback(const LLSD& notification, const LLSD& response);
 
 };
 

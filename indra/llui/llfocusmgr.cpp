@@ -41,6 +41,10 @@ const F32 FOCUS_FADE_TIME = 0.3f;
 // NOTE: the LLFocusableElement implementation has been moved here from lluictrl.cpp.
 
 LLFocusableElement::LLFocusableElement()
+:	mFocusLostCallback(NULL),
+	mFocusReceivedCallback(NULL),
+	mFocusChangedCallback(NULL),
+	mTopLostCallback(NULL)
 {
 }
 
@@ -59,23 +63,27 @@ BOOL LLFocusableElement::handleUnicodeChar(llwchar uni_char, BOOL called_from_pa
 // virtual
 LLFocusableElement::~LLFocusableElement()
 {
+	delete mFocusLostCallback;
+	delete mFocusReceivedCallback;
+	delete mFocusChangedCallback;
+	delete mTopLostCallback;
 }
 
 void LLFocusableElement::onFocusReceived()
 {
-	mFocusReceivedCallback(this);
-	mFocusChangedCallback(this);
+	if (mFocusReceivedCallback) (*mFocusReceivedCallback)(this);
+	if (mFocusChangedCallback) (*mFocusChangedCallback)(this);
 }
 
 void LLFocusableElement::onFocusLost()
 {
-	mFocusLostCallback(this);
-	mFocusChangedCallback(this);
+	if (mFocusLostCallback) (*mFocusLostCallback)(this);
+	if (mFocusChangedCallback) (*mFocusChangedCallback)(this);
 }
 
 void LLFocusableElement::onTopLost()
 {
-	mTopLostCallback(this);
+	if (mTopLostCallback) (*mTopLostCallback)(this);
 }
 
 BOOL LLFocusableElement::hasFocus() const
@@ -86,6 +94,31 @@ BOOL LLFocusableElement::hasFocus() const
 void LLFocusableElement::setFocus(BOOL b)
 {
 }
+
+boost::signals2::connection LLFocusableElement::setFocusLostCallback( const focus_signal_t::slot_type& cb)	
+{ 
+	if (!mFocusLostCallback) mFocusLostCallback = new focus_signal_t();
+	return mFocusLostCallback->connect(cb);
+}
+
+boost::signals2::connection	LLFocusableElement::setFocusReceivedCallback(const focus_signal_t::slot_type& cb)	
+{ 
+	if (!mFocusReceivedCallback) mFocusReceivedCallback = new focus_signal_t();
+	return mFocusReceivedCallback->connect(cb);
+}
+
+boost::signals2::connection	LLFocusableElement::setFocusChangedCallback(const focus_signal_t::slot_type& cb)	
+{
+	if (!mFocusChangedCallback) mFocusChangedCallback = new focus_signal_t();
+	return mFocusChangedCallback->connect(cb);
+}
+
+boost::signals2::connection	LLFocusableElement::setTopLostCallback(const focus_signal_t::slot_type& cb)	
+{ 
+	if (!mTopLostCallback) mTopLostCallback = new focus_signal_t();
+	return mTopLostCallback->connect(cb);
+}
+
 
 
 LLFocusMgr gFocusMgr;

@@ -239,7 +239,7 @@ LLFloaterLand::LLFloaterLand(const LLSD& seed)
 
 BOOL LLFloaterLand::postBuild()
 {	
-	mVisibleSignal.connect(boost::bind(&LLFloaterLand::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLFloaterLand::onVisibilityChange, this, _2));
 	
 	LLTabContainer* tab = getChild<LLTabContainer>("landtab");
 

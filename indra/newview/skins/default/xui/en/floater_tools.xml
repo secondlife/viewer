@@ -701,7 +701,6 @@
     </slider_bar>
     <button
      follows="left|top"
-     font="SansSerifSmall"
      height="19"
      label="Apply"
      label_selected="Apply"
@@ -927,7 +926,6 @@
              width="150" />
             <button
              follows="top|left"
-             font="SansSerifSmall"
              height="20"
              label="Deed"
              label_selected="Deed"
@@ -2606,7 +2604,6 @@ even though the user gets a free copy.
              width="170" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="19"
              label="Apply"
              label_selected="Apply"
@@ -2742,7 +2739,6 @@ even though the user gets a free copy.
         decouple_texture_size="true" />
      <button
 			 follows="left|top"
-			 font="SansSerifSmall"
 			 height="19"
 			 label="Align"
 			 label_selected="Align Media"

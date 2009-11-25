@@ -174,6 +174,19 @@ private:
 };
 
 ///
+/// LLUrlEntryInventory Describes a Second Life inventory Url, e.g.,
+/// secondlife:///app/inventory/0e346d8b-4433-4d66-a6b0-fd37083abc4c/select
+///
+class LLUrlEntryInventory : public LLUrlEntryBase
+{
+public:
+	LLUrlEntryInventory();
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+private:
+};
+
+
+///
 /// LLUrlEntryParcel Describes a Second Life parcel Url, e.g.,
 /// secondlife:///app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about
 ///

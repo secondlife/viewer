@@ -56,9 +56,6 @@ class LLViewerRegion;
 //							  | EAST_MASK 
 //							  | WEST_MASK);
 
-const F32 PARCEL_POST_HEIGHT = 0.666f;
-//const F32 PARCEL_POST_HEIGHT = 20.f;
-
 // Specify the type of land transfer taking place
 //enum ELandTransferType
 //{
@@ -171,10 +168,29 @@ public:
 
 	LLParcel*	getCollisionParcel() const;
 
-	BOOL	agentCanTakeDamage() const;
-	BOOL	agentCanFly() const;
-	F32		agentDrawDistance() const;
-	bool	agentCanBuild() const;
+	// Can this agent build on the parcel he is on?
+	// Used for parcel property icons in nav bar.
+	bool	allowAgentBuild() const;
+	
+	// Can this agent speak on the parcel he is on?
+	// Used for parcel property icons in nav bar.
+	bool	allowAgentVoice() const;
+	
+	// Can this agent start flying on this parcel?
+	// Used for parcel property icons in nav bar.
+	bool	allowAgentFly() const;
+	
+	// Can this agent be pushed by llPushObject() on this parcel?
+	// Used for parcel property icons in nav bar.
+	bool	allowAgentPush() const;
+	
+	// Can scripts written by non-parcel-owners run on the agent's current
+	// parcel?  Used for parcel property icons in nav bar.
+	bool	allowAgentScripts() const;
+	
+	// Can the agent be damaged here?
+	// Used for parcel property icons in nav bar.
+	bool	allowAgentDamage() const;
 
 	F32		getHoverParcelWidth() const		
 				{ return F32(mHoverEastNorth.mdV[VX] - mHoverWestSouth.mdV[VX]); }

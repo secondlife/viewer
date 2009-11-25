@@ -391,6 +391,10 @@ LLPanelLogin::~LLPanelLogin()
 
 	//// We know we're done with the image, so be rid of it.
 	//gTextureList.deleteImage( mLogoImage );
+
+	// Controls having keyboard focus by default
+	// must reset it on destroy. (EXT-2748)
+	gFocusMgr.setDefaultKeyboardFocus(NULL);
 }
 
 // virtual
@@ -682,8 +686,6 @@ void LLPanelLogin::closePanel()
 	if (sInstance)
 	{
 		gViewerWindow->getRootView()->removeChild( LLPanelLogin::sInstance );
-		
-		gFocusMgr.setDefaultKeyboardFocus(NULL);
 
 		delete sInstance;
 		sInstance = NULL;

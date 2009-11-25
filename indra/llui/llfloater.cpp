@@ -2642,10 +2642,14 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	
 	// open callback 
 	if (p.open_callback.isProvided())
-		initCommitCallback(p.open_callback, mOpenSignal);
+	{
+		mOpenSignal.connect(initCommitCallback(p.open_callback));
+	}
 	// close callback 
 	if (p.close_callback.isProvided())
-		initCommitCallback(p.close_callback, mCloseSignal);
+	{
+		mCloseSignal.connect(initCommitCallback(p.close_callback));
+	}
 }
 
 LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");

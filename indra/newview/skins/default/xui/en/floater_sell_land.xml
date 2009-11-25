@@ -205,7 +205,6 @@
      width="130" />
     <button
      height="20"
-     font="SansSerifSmall"
      label="Select"
      layout="topleft"
      left_pad="5"
@@ -267,7 +266,6 @@
     </radio_group>
     <button
      height="20"
-     font="SansSerifSmall"
      label="Show Objects"
      layout="topleft"
      name="show_objects"
@@ -290,7 +288,6 @@
     <button
      follows="bottom|left"
      height="20"
-     font="SansSerifSmall"
      label="Set Land For Sale"
      layout="topleft"
      left_delta="0"
@@ -300,7 +297,6 @@
     <button
      follows="bottom|right"
      height="20"
-     font="SansSerifSmall"
      label="Cancel"
      layout="topleft"
      left_pad="30"
