@@ -1008,8 +1008,6 @@ void MediaPluginQuickTime::receiveMessage(const char *message_string)
 
 				if(event == "down")
 				{
-memset( (void*)this, 0, 30000 );
-
 					mouseDown(x, y);
 				}
 				else if(event == "up")

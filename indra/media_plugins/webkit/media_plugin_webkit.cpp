@@ -750,7 +750,6 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				LLQtWebKit::EMouseEvent mouse_event = LLQtWebKit::ME_MOUSE_MOVE;
 				if(event == "down")
 				{
-memset( (void*)this, 0, 30000 );
 					mouse_event = LLQtWebKit::ME_MOUSE_DOWN;
 				}
 				else if(event == "up")
