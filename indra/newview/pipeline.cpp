@@ -346,10 +346,7 @@ LLPipeline::LLPipeline() :
 	mLightMovingMask(0),
 	mLightingDetail(0),
 	mScreenWidth(0),
-	mScreenHeight(0),
-	mViewportWidth(0),
-	mViewportHeight(0)
-
+	mScreenHeight(0)
 {
 	mNoiseMap = 0;
 	mTrueNoiseMap = 0;
@@ -517,8 +514,8 @@ void LLPipeline::resizeScreenTexture()
 	LLFastTimer ft(FTM_RESIZE_SCREEN_TEXTURE);
 	if (gPipeline.canUseVertexShaders() && assertInitialized())
 	{
-		GLuint resX = gViewerWindow->getWorldViewWidth();
-		GLuint resY = gViewerWindow->getWorldViewHeight();
+		GLuint resX = gViewerWindow->getWorldViewWidthRaw();
+		GLuint resY = gViewerWindow->getWorldViewHeightRaw();
 	
 		allocateScreenBuffer(resX,resY);
 	}
@@ -527,10 +524,8 @@ void LLPipeline::resizeScreenTexture()
 void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
 	bool screen_size_changed = resX != mScreenWidth || resY != mScreenHeight;
-	bool viewport_size_changed = viewport_width != mViewportWidth || viewport_height != mViewportHeight;
-
-	if (!screen_size_changed
-		&& !viewport_size_changed)
+	
+	if (!screen_size_changed)
 	{
 		// nothing to do
 		return;
@@ -539,14 +534,10 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	// remember these dimensions
 	mScreenWidth = resX;
 	mScreenHeight = resY;
-	mViewportWidth = viewport_width;
-	mViewportHeight = viewport_height;
-
-	llinfos << "RESIZED SCREEN TEXTURE: " << resX << "x" << resY << llendl;
-
+	
 	U32 samples = gSavedSettings.getU32("RenderFSAASamples");
-
 	U32 res_mod = gSavedSettings.getU32("RenderResolutionDivisor");
+
 	if (res_mod > 1 && res_mod < resX && res_mod < resY)
 	{
 		resX /= res_mod;
@@ -643,7 +634,6 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 				mDeferredScreen.setSampleBuffer(&mSampleBuffer);
 			}
 		}
-		mSampleBuffer.setViewport(viewport_width, viewport_height);
 		mScreen.setSampleBuffer(&mSampleBuffer);
 
 		stop_glerror();
@@ -750,8 +740,8 @@ void LLPipeline::createGLBuffers()
 
 	stop_glerror();
 
-	GLuint resX = gViewerWindow->getWorldViewWidth();
-	GLuint resY = gViewerWindow->getWorldViewHeight();
+	GLuint resX = gViewerWindow->getWorldViewWidthRaw();
+	GLuint resY = gViewerWindow->getWorldViewHeightRaw();
 	
 	if (LLPipeline::sRenderGlow)
 	{ //screen space glow buffers
