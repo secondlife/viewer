@@ -160,6 +160,8 @@ public:
 	void openSelected();
 	void unSelectAll()	{ mFolders->setSelection(NULL, FALSE, FALSE); }
 	
+	static void onIdle(void* user_data);
+
 private:
 
 	// Given the id and the parent, build all of the folder views.

@@ -156,6 +156,8 @@ BOOL LLInventoryPanel::postBuild()
 		initializeViews();
 	}
 
+	gIdleCallbacks.addFunction(onIdle, (void*)this);
+
 	if (mSortOrderSetting != INHERIT_SORT_ORDER)
 	{
 		setSortOrder(gSavedSettings.getU32(mSortOrderSetting));
@@ -255,13 +257,11 @@ void LLInventoryPanel::modelChanged(U32 mask)
 
 	bool handled = false;
 
-	// inventory just initialized, do complete build
-	if ((mask & LLInventoryObserver::ADD) && mInventory->isInventoryUsable() && gInventory.getChangedIDs().empty() && !mViewsInitialized)
+	if (!mViewsInitialized)
 	{
-		initializeViews();
 		return;
 	}
-
+	
 	if (mask & LLInventoryObserver::LABEL)
 	{
 		handled = true;
@@ -371,6 +371,20 @@ void LLInventoryPanel::modelChanged(U32 mask)
 	}
 }
 
+// static
+void LLInventoryPanel::onIdle(void *userdata)
+{
+	LLInventoryPanel *self = (LLInventoryPanel*)userdata;
+	// inventory just initialized, do complete build
+	if (!self->mViewsInitialized && gInventory.isInventoryUsable())
+	{
+		self->initializeViews();
+	}
+	if (self->mViewsInitialized)
+	{
+		gIdleCallbacks.deleteFunction(onIdle, (void*)self);
+	}
+}
 
 void LLInventoryPanel::initializeViews()
 {
