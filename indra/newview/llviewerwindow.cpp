@@ -833,7 +833,7 @@ BOOL LLViewerWindow::handleDragNDrop( LLWindow *window,  LLCoordGL pos, MASK mas
 		llinfos << "### Object: picked at " << pos.mX << ", " << pos.mY << " - face = " << object_face << " - URL = " << url << llendl;
 
 		LLVOVolume *obj = dynamic_cast<LLVOVolume*>(static_cast<LLViewerObject*>(pick_info.getObject()));
-		gPipeline.setHighlightObject(NULL);
+		
 		if (obj && obj->permModify())
 		{
 			LLTextureEntry *te = obj->getTE(object_face);
@@ -858,19 +858,25 @@ BOOL LLViewerWindow::handleDragNDrop( LLWindow *window,  LLCoordGL pos, MASK mas
 						// just navigate to the URL
 						obj->getMediaImpl(object_face)->navigateTo(url);
 					}
+					LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
+					mDragHoveredObject = NULL;
 				}
 				else {
 					mDragHoveredObject = obj;
-					// Make the object glow
-					gPipeline.setHighlightObject(mDragHoveredObject->mDrawable);
+					// Highlight the dragged object
+					LLSelectMgr::getInstance()->highlightObjectOnly(mDragHoveredObject);
 				}
 				result = TRUE;
 			}
 		}
-		else {
+
+		if (!result && !mDragHoveredObject.isNull())
+		{
+			LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
 			mDragHoveredObject = NULL;
 		}
 	}
+	
 	return result;
 }
   

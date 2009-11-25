@@ -476,6 +476,7 @@ protected:
 	static std::string sMovieBaseName;
 	
 private:
+	// Object temporarily hovered over while dragging
 	LLPointer<LLViewerObject>	mDragHoveredObject;
 };	
 
