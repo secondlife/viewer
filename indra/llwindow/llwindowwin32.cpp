@@ -2355,57 +2355,60 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			};
 			return 0;			
 
-		case WM_DROPFILES:
-			{
-				// HDROP contains what we need
-				HDROP hdrop = (HDROP)w_param;
+		// only useful for droppnig files - could be used for file upload dialog one day
+		//case WM_DROPFILES:
+		//	{
+		//		// HDROP contains what we need
+		//		HDROP hdrop = (HDROP)w_param;
 
-				// get location in window space where drop occured and convert to OpenGL coordinate space
-				POINT pt;
-				DragQueryPoint( hdrop, &pt );
-				LLCoordGL gl_coord;
-				LLCoordWindow cursor_coord_window( pt.x, pt.y );
-				window_imp->convertCoords(cursor_coord_window, &gl_coord);
+		//		// get location in window space where drop occured and convert to OpenGL coordinate space
+		//		POINT pt;
+		//		DragQueryPoint( hdrop, &pt );
+		//		LLCoordGL gl_coord;
+		//		LLCoordWindow cursor_coord_window( pt.x, pt.y );
+		//		window_imp->convertCoords(cursor_coord_window, &gl_coord);
 
-				// get payload (eventually, this needs to more advanced and grab size of payload dynamically
-				static char file_name[ 1024 ];
-				DragQueryFileA( hdrop, 0, file_name, 1024 );
-				void* url = (void*)( file_name );
+		//		// get payload (eventually, this needs to more advanced and grab size of payload dynamically
+		//		static char file_name[ 1024 ];
+		//		DragQueryFileA( hdrop, 0, file_name, 1024 );
+		//		void* url = (void*)( file_name );
 
-				// if it's a .URL or .lnk ("shortcut") file
-				if ( std::string( file_name ).find( ".lnk" ) != std::string::npos ||
-					  std::string( file_name ).find( ".URL" ) != std::string::npos )
-				{
-					// read through file - looks like a 2 line file with second line URL= but who knows..
-					std::ifstream file_handle( file_name );
-					if ( file_handle.is_open() )
-					{
-						std::string line;
-						while ( ! file_handle.eof() )
-						{
-							std::getline( file_handle, line );
-							if ( ! file_handle.eof() )
-							{
-								std::string prefix( "URL=" );
-								if ( line.find( prefix, 0 ) != std::string::npos )
-								{
-									line = line.substr( 4 );  // skip off the URL= bit
-									strcpy( (char*)url, line.c_str() );
-									break;
-								};
-							};
-						};
-						file_handle.close();
-					};
-				};
+		//		// if it's a .URL or .lnk ("shortcut") file
+		//		if ( std::string( file_name ).find( ".lnk" ) != std::string::npos ||
+		//			  std::string( file_name ).find( ".URL" ) != std::string::npos )
+		//		{
+		//			// read through file - looks like a 2 line file with second line URL= but who knows..
+		//			std::ifstream file_handle( file_name );
+		//			if ( file_handle.is_open() )
+		//			{
+		//				std::string line;
+		//				while ( ! file_handle.eof() )
+		//				{
+		//					std::getline( file_handle, line );
+		//					if ( ! file_handle.eof() )
+		//					{
+		//						std::string prefix( "URL=" );
+		//						if ( line.find( prefix, 0 ) != std::string::npos )
+		//						{
+		//							line = line.substr( 4 );  // skip off the URL= bit
+		//							strcpy( (char*)url, line.c_str() );
+		//							break;
+		//						};
+		//					};
+		//				};
+		//				file_handle.close();
+		//			};
+		//		};
 
-				MASK mask = gKeyboard->currentMask(TRUE);
+		//		MASK mask = gKeyboard->currentMask(TRUE);
 
-				if ( window_imp->completeDragNDropRequest( gl_coord, mask, true, (char*)url ) )
-				{
-					return 0;
-				};
-			}
+		//		if ( window_imp->completeDragNDropRequest( gl_coord, mask, true, (char*)url, false ) )
+		//		{
+		//			return 0;
+		//		};
+		//	}
+
+
 			break;
 		}
 
@@ -3578,9 +3581,9 @@ static LLWString find_context(const LLWString & wtext, S32 focus, S32 focus_leng
 
 // final stage of handling drop requests - both from WM_DROPFILES message
 // for files and via IDropTarget interface requests.
-BOOL LLWindowWin32::completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, BOOL drop, const std::string url )
+BOOL LLWindowWin32::completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, BOOL drop, const std::string url, BOOL is_slurl )
 {
-	return mCallbacks->handleDragNDrop( this, gl_coord, mask, drop, url );
+	return mCallbacks->handleDragNDrop( this, gl_coord, mask, drop, url, is_slurl );
 }
 
 // Handle WM_IME_REQUEST message.

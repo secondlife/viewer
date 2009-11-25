@@ -54,6 +54,10 @@ class LLDragDropWin32Target:
 		{
 		};
 
+		virtual ~LLDragDropWin32Target()
+		{
+		};
+
 		////////////////////////////////////////////////////////////////////////////////
 		//
 		ULONG __stdcall AddRef( void )
@@ -105,6 +109,20 @@ class LLDragDropWin32Target:
 			if ( S_OK == pDataObject->QueryGetData( &fmtetc ) )
 			{
 				mAllowDrop = true;
+				mDropUrl = std::string();
+				mIsSlurl = false;
+
+				STGMEDIUM stgmed;
+				if( S_OK == pDataObject->GetData( &fmtetc, &stgmed ) )
+				{
+					PVOID data = GlobalLock( stgmed.hGlobal );
+					mDropUrl = std::string( (char*)data );
+
+					mIsSlurl = ( mDropUrl.find( "slurl.com" ) != std::string::npos );
+
+					GlobalUnlock( stgmed.hGlobal );
+					ReleaseStgMedium( &stgmed );
+				};
 
 				*pdwEffect = DROPEFFECT_COPY;
 
@@ -125,8 +143,6 @@ class LLDragDropWin32Target:
 		{
 			if ( mAllowDrop )
 			{
-				bool allowed_to_drop = false;
-
 				// XXX MAJOR MAJOR HACK!
 				LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(mAppWindowHandle, GWL_USERDATA);
 				if (NULL != window_imp)
@@ -141,13 +157,17 @@ class LLDragDropWin32Target:
 					LLCoordWindow cursor_coord_window( pt2.x, pt2.y );
 					window_imp->convertCoords(cursor_coord_window, &gl_coord);
 					MASK mask = gKeyboard->currentMask(TRUE);
-					allowed_to_drop = window_imp->completeDragNDropRequest( gl_coord, mask, FALSE, std::string( "" ) );
-				}
 
-				if ( allowed_to_drop )
-					*pdwEffect = DROPEFFECT_COPY;
-				else
-					*pdwEffect = DROPEFFECT_NONE;
+					bool allowed_to_drop = window_imp->completeDragNDropRequest( gl_coord, mask, FALSE, std::string( "" ), mIsSlurl );
+					if ( allowed_to_drop )
+						*pdwEffect = DROPEFFECT_COPY;
+					else
+						*pdwEffect = DROPEFFECT_NONE;
+
+					// special case for SLURLs - you can always drop them on the client window and we need a different cursor
+					if ( mIsSlurl )
+						*pdwEffect = DROPEFFECT_LINK;
+				};
 			}
 			else
 			{
@@ -161,6 +181,7 @@ class LLDragDropWin32Target:
 		//
 		HRESULT __stdcall DragLeave( void )
 		{
+			mDropUrl = std::string();
 			return S_OK;
 		};
 
@@ -170,48 +191,30 @@ class LLDragDropWin32Target:
 		{
 			if ( mAllowDrop )
 			{
-				// construct a FORMATETC object
-				FORMATETC fmtetc = { CF_TEXT, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
-
-				// do we have text?
-				if( S_OK == pDataObject->QueryGetData( &fmtetc ) )
+				// window impl stored in Window data (neat!)
+				LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong( mAppWindowHandle, GWL_USERDATA );
+				if ( NULL != window_imp )
 				{
-					STGMEDIUM stgmed;
-					if( S_OK == pDataObject->GetData( &fmtetc, &stgmed ) )
-					{
-						// note: data is in an HGLOBAL - not 'regular' memory
-						PVOID data = GlobalLock( stgmed.hGlobal );
+					LLCoordGL gl_coord( 0, 0 );
 
-						// window impl stored in Window data (neat!)
-						LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong( mAppWindowHandle, GWL_USERDATA );
-						if ( NULL != window_imp )
-						{
-							LLCoordGL gl_coord( 0, 0 );
+					POINT pt_client;
+					pt_client.x = pt.x;
+					pt_client.y = pt.y;
+					ScreenToClient( mAppWindowHandle, &pt_client );
 
-							POINT pt_client;
-							pt_client.x = pt.x;
-							pt_client.y = pt.y;
-							ScreenToClient( mAppWindowHandle, &pt_client );
+					LLCoordWindow cursor_coord_window( pt_client.x, pt_client.y );
+					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					llinfos << "### (Drop) URL is: " << mDropUrl << llendl;
+					llinfos << "###        raw coords are: " << pt.x << " x " << pt.y << llendl;
+					llinfos << "###	    client coords are: " << pt_client.x << " x " << pt_client.y << llendl;
+					llinfos << "###         GL coords are: " << gl_coord.mX << " x " << gl_coord.mY << llendl;
+					llinfos << llendl;
 
-							LLCoordWindow cursor_coord_window( pt_client.x, pt_client.y );
-							window_imp->convertCoords(cursor_coord_window, &gl_coord);
-							llinfos << "### (Drop) URL is: " << data << llendl;
-							llinfos << "###        raw coords are: " << pt.x << " x " << pt.y << llendl;
-							llinfos << "###	    client coords are: " << pt_client.x << " x " << pt_client.y << llendl;
-							llinfos << "###         GL coords are: " << gl_coord.mX << " x " << gl_coord.mY << llendl;
-							llinfos << llendl;
+					// no keyboard modifier option yet but we could one day
+					MASK mask = gKeyboard->currentMask( TRUE );
 
-							// no keyboard modifier option yet but we could one day
-							MASK mask = gKeyboard->currentMask( TRUE );
-
-							// actually do the drop
-							window_imp->completeDragNDropRequest( gl_coord, mask, TRUE, std::string( (char*)data ) );
-						};
-
-						GlobalUnlock( stgmed.hGlobal );
-
-						ReleaseStgMedium( &stgmed );
-					};
+					// actually do the drop
+					window_imp->completeDragNDropRequest( gl_coord, mask, TRUE, mDropUrl, mIsSlurl );
 				};
 
 				*pdwEffect = DROPEFFECT_COPY;
@@ -230,6 +233,8 @@ class LLDragDropWin32Target:
 		LONG mRefCount;
 		HWND mAppWindowHandle;
 		bool mAllowDrop;
+		std::string mDropUrl;
+		bool mIsSlurl;
 		friend class LLWindowWin32;
 };
 

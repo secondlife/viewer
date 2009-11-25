@@ -170,7 +170,7 @@ public:
 	/*virtual*/ BOOL handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
 	/*virtual*/ BOOL handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
 	/*virtual*/ BOOL handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
-	/*virtual*/ BOOL handleDragNDrop(LLWindow *window,  LLCoordGL pos, MASK mask, BOOL drop, std::string data);
+	/*virtual*/ BOOL handleDragNDrop(LLWindow *window,  LLCoordGL pos, MASK mask, BOOL drop, std::string data, BOOL slurl);
 				void handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask);
 	/*virtual*/ void handleMouseLeave(LLWindow *window);
 	/*virtual*/ void handleResize(LLWindow *window,  S32 x,  S32 y);

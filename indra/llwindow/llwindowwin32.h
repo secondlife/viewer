@@ -113,7 +113,7 @@ public:
 	/*virtual*/ void interruptLanguageTextInput();
 	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url);
 
-	BOOL completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, BOOL drop, const std::string url );
+	BOOL completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, BOOL drop, const std::string url, BOOL is_slurl );
 
 	static std::vector<std::string> getDynamicFallbackFontList();
 

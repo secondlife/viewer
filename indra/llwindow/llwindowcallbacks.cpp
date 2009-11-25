@@ -163,7 +163,7 @@ void LLWindowCallbacks::handleDataCopy(LLWindow *window, S32 data_type, void *da
 {
 }
 
-BOOL LLWindowCallbacks::handleDragNDrop(LLWindow *window, LLCoordGL pos, MASK mask, BOOL drop, std::string data )
+BOOL LLWindowCallbacks::handleDragNDrop(LLWindow *window, LLCoordGL pos, MASK mask, BOOL drop, std::string data, BOOL is_slurl )
 {
 	return FALSE;
 }

@@ -80,6 +80,7 @@
 #include "llviewermenu.h"
 #include "lltooltip.h"
 #include "llmediaentry.h"
+#include "llurldispatcher.h"
 
 // newview includes
 #include "llagent.h"
@@ -819,11 +820,18 @@ BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MAS
 	return TRUE;
 }
 
-BOOL LLViewerWindow::handleDragNDrop( LLWindow *window,  LLCoordGL pos, MASK mask, BOOL drop, std::string data )
+BOOL LLViewerWindow::handleDragNDrop( LLWindow *window,  LLCoordGL pos, MASK mask, BOOL drop, std::string data, BOOL slurl )
 {
 	BOOL result = FALSE;
 	if (gSavedSettings.getBOOL("PrimMediaDragNDrop"))
 	{
+		// special case SLURLs
+		if ( slurl )
+		{
+			LLURLDispatcher::dispatch( data, NULL, true );
+			return TRUE;
+		};
+
 		LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/ );
 
 		LLUUID object_id = pick_info.getObjectID();
