@@ -35,4 +35,15 @@
 
 #include "llcallfloater.h"
 
+
+LLCallFloater::LLCallFloater()
+: LLFloater(LLSD())
+{
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_voice_controls.xml", NULL);
+}
+
+LLCallFloater::~LLCallFloater()
+{
+
+}
 //EOF

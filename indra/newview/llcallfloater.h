@@ -49,6 +49,10 @@
  */
 class LLCallFloater : public LLFloater
 {
+public:
+	LLCallFloater();
+	~LLCallFloater();
+
 
 };
 
