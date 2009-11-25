@@ -114,9 +114,8 @@
 		top="2"
 		min_width="22"
 		width="22">
-	  <!-- The stop button here is temporary artwork -->
 	  <button
-		  image_overlay="media_btn_stoploading.png"
+		  image_overlay="Stop_Off"
 		  image_disabled="PushButton_Disabled"
 		  image_disabled_selected="PushButton_Disabled"
 		  image_selected="PushButton_Selected"
@@ -571,9 +570,8 @@ function="MediaCtrl.CommitURL" />
 		layout="topleft"
 		min_width="21"
 		width="21" >
-	  <!-- There is no "Zoom out" icon, so we use this temporarily -->
 	  <button
-		  image_overlay="ForwardArrow_Off"
+		  image_overlay="UnZoom_Off"
 		  image_disabled="PushButton_Disabled"
 		  image_disabled_selected="PushButton_Disabled"
 		  image_selected="PushButton_Selected"
