@@ -2263,22 +2263,17 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Attached">Attached</string>
 <string name="Attached Earlobes">Attached Earlobes</string>
 
-<string name="Back Bangs">Back Bangs</string>
-<string name="Back Bangs Down">Back Bangs Down</string>
-<string name="Back Bangs Up">Back Bangs Up</string>
+
 <string name="Back Fringe">Back Fringe</string>
-<string name="Back Hair">Back Hair</string>
-<string name="Back Hair Down">Back Hair Down</string>
-<string name="Back Hair Up">Back Hair Up</string>
+
 <string name="Baggy">Baggy</string>
 <string name="Bangs">Bangs</string>
-<string name="Bangs Down">Bangs Down</string>
-<string name="Bangs Up">Bangs Up</string>
+
 <string name="Beady Eyes">Beady Eyes</string>
 <string name="Belly Size">Belly Size</string>
 <string name="Big">Big</string>
 <string name="Big Butt">Big Butt</string>
-<string name="Big Eyeball">Big Eyeball</string>
+
 <string name="Big Hair Back">Big Hair: Back</string>
 <string name="Big Hair Front">Big Hair: Front</string>
 <string name="Big Hair Top">Big Hair: Top</string>
@@ -2348,20 +2343,20 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 
 
 <string name="Corner Down">Corner Down</string>
-<string name="Corner Normal">Corner Normal</string>
+
 <string name="Corner Up">Corner Up</string>
 <string name="Creased">Creased</string>
 <string name="Crooked Nose">Crooked Nose</string>
-<string name="Cropped Hair">Cropped Hair</string>
+
 <string name="Cuff Flare">Cuff Flare</string>
 <string name="Dark">Dark</string>
 <string name="Dark Green">Dark Green</string>
 <string name="Darker">Darker</string>
 <string name="Deep">Deep</string>
 <string name="Default Heels">Default Heels</string>
-<string name="Default Toe">Default Toe</string>
+
 <string name="Dense">Dense</string>
-<string name="Dense hair">Dense hair</string>
+
 <string name="Double Chin">Double Chin</string>
 <string name="Downturned">Downturned</string>
 <string name="Duffle Bag">Duffle Bag</string>
@@ -2377,7 +2372,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Eye Pop">Eye Pop</string>
 <string name="Eye Size">Eye Size</string>
 <string name="Eye Spacing">Eye Spacing</string>
-<string name="Eyeball Size">Eyeball Size</string>
+
 <string name="Eyebrow Arc">Eyebrow Arc</string>
 <string name="Eyebrow Density">Eyebrow Density</string>
 
@@ -2388,27 +2383,22 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Eyelash Length">Eyelash Length</string>
 <string name="Eyeliner">Eyeliner</string>
 <string name="Eyeliner Color">Eyeliner Color</string>
-<string name="Eyes Back">Eyes Back</string>
+
 <string name="Eyes Bugged">Eyes Bugged</string>
-<string name="Eyes Forward">Eyes Forward</string>
-<string name="Eyes Long Head">Eyes Long Head</string>
+
+
 <string name="Eyes Shear Left Up">Eyes Shear Left Up</string>
 <string name="Eyes Shear Right Up">Eyes Shear Right Up</string>
-<string name="Eyes Short Head">Eyes Short Head</string>
-<string name="Eyes Spread">Eyes Spread</string>
-<string name="Eyes Sunken">Eyes Sunken</string>
-<string name="Eyes Together">Eyes Together</string>
+
+
+
+
 <string name="Face Shear">Face Shear</string>
 <string name="Facial Definition">Facial Definition</string>
 <string name="Far Set Eyes">Far Set Eyes</string>
-<string name="Fat">Fat</string>
-<string name="Fat Head">Fat Head</string>
+
 <string name="Fat Lips">Fat Lips</string>
-<string name="Fat Lower">Fat Lower</string>
-<string name="Fat Lower Lip">Fat Lower Lip</string>
-<string name="Fat Torso">Fat Torso</string>
-<string name="Fat Upper">Fat Upper</string>
-<string name="Fat Upper Lip">Fat Upper Lip</string>
+
 <string name="Female">Female</string>
 <string name="Fingerless">Fingerless</string>
 <string name="Fingers">Fingers</string>
@@ -2421,12 +2411,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Forehead Angle">Forehead Angle</string>
 <string name="Forehead Heavy">Forehead Heavy</string>
 <string name="Freckles">Freckles</string>
-<string name="Front Bangs Down">Front Bangs Down</string>
-<string name="Front Bangs Up">Front Bangs Up</string>
+
 <string name="Front Fringe">Front Fringe</string>
-<string name="Front Hair">Front Hair</string>
-<string name="Front Hair Down">Front Hair Down</string>
-<string name="Front Hair Up">Front Hair Up</string>
+
 <string name="Full Back">Full Back</string>
 <string name="Full Eyeliner">Full Eyeliner</string>
 <string name="Full Front">Full Front</string>
@@ -2525,7 +2512,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Long Ponytail">Long Ponytail</string>
 <string name="Long Torso">Long Torso</string>
 <string name="Long arms">Long arms</string>
-<string name="Longcuffs">Longcuffs</string>
+
 
 <string name="Loose Pants">Loose Pants</string>
 <string name="Loose Shirt">Loose Shirt</string>
@@ -2585,7 +2572,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="No Blush">No Blush</string>
 <string name="No Eyeliner">No Eyeliner</string>
 <string name="No Eyeshadow">No Eyeshadow</string>
-<string name="No Heels">No Heels</string>
+
 <string name="No Lipgloss">No Lipgloss</string>
 <string name="No Lipstick">No Lipstick</string>
 <string name="No Part">No Part</string>
@@ -2606,7 +2593,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Nostril Division">Nostril Division</string>
 <string name="Nostril Width">Nostril Width</string>
 
-<string name="Old">Old</string>
+
 <string name="Opaque">Opaque</string>
 <string name="Open">Open</string>
 <string name="Open Back">Open Back</string>
@@ -2643,7 +2630,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Platform Width">Platform Width</string>
 <string name="Pointy">Pointy</string>
 <string name="Pointy Heels">Pointy Heels</string>
-<string name="Pointy Toe">Pointy Toe</string>
+
 <string name="Ponytail">Ponytail</string>
 <string name="Poofy Skirt">Poofy Skirt</string>
 <string name="Pop Left Eye">Pop Left Eye</string>
@@ -2652,30 +2639,30 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Puffy Eyelids">Puffy Eyelids</string>
 <string name="Rainbow Color">Rainbow Color</string>
 <string name="Red Hair">Red Hair</string>
-<string name="Red Skin">Red Skin</string>
+
 <string name="Regular">Regular</string>
-<string name="Regular Muscles">Regular Muscles</string>
+
 <string name="Right Part">Right Part</string>
 <string name="Rosy Complexion">Rosy Complexion</string>
 <string name="Round">Round</string>
-<string name="Round Forehead">Round Forehead</string>
+
 <string name="Ruddiness">Ruddiness</string>
 <string name="Ruddy">Ruddy</string>
 <string name="Rumpled Hair">Rumpled Hair</string>
 <string name="Saddle Bags">Saddle Bags</string>
-<string name="Saddlebags">Saddlebags</string>
-<string name="Scrawny">Scrawny</string>
+
+
 <string name="Scrawny Leg">Scrawny Leg</string>
 <string name="Separate">Separate</string>
-<string name="Shading">Shading</string>
-<string name="Shadow hair">Shadow hair</string>
+
+
 <string name="Shallow">Shallow</string>
 <string name="Shear Back">Shear Back</string>
 <string name="Shear Face">Shear Face</string>
 <string name="Shear Front">Shear Front</string>
-<string name="Shear Left">Shear Left</string>
+
 <string name="Shear Left Up">Shear Left Up</string>
-<string name="Shear Right">Shear Right</string>
+
 <string name="Shear Right Up">Shear Right Up</string>
 <string name="Sheared Back">Sheared Back</string>
 <string name="Sheared Front">Sheared Front</string>
@@ -2699,16 +2686,14 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Short Torso">Short Torso</string>
 <string name="Short hips">Short hips</string>
 <string name="Shoulders">Shoulders</string>
-<string name="Side Bangs">Side Bangs</string>
-<string name="Side Bangs Down">Side Bangs Down</string>
-<string name="Side Bangs Up">Side Bangs Up</string>
+
 <string name="Side Fringe">Side Fringe</string>
 <string name="Sideburns">Sideburns</string>
 
 <string name="Sides Hair">Sides Hair</string>
 <string name="Sides Hair Down">Sides Hair Down</string>
 <string name="Sides Hair Up">Sides Hair Up</string>
-<string name="Skinny">Skinny</string>
+
 <string name="Skinny Neck">Skinny Neck</string>
 <string name="Skirt Fit">Skirt Fit</string>
 <string name="Skirt Length">Skirt Length</string>
@@ -2729,7 +2714,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Smooth Hair">Smooth Hair</string>
 <string name="Socks Length">Socks Length</string>
 
-<string name="Some">Some</string>
+
 <string name="Soulpatch">Soulpatch</string>
 
 <string name="Sparse">Sparse</string>
@@ -2737,24 +2722,21 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Square">Square</string>
 <string name="Square Toe">Square Toe</string>
 <string name="Squash Head">Squash Head</string>
-<string name="Squash/Stretch Head">Squash/Stretch Head</string>
+
 <string name="Stretch Head">Stretch Head</string>
 <string name="Sunken">Sunken</string>
 <string name="Sunken Chest">Sunken Chest</string>
 <string name="Sunken Eyes">Sunken Eyes</string>
 <string name="Sweep Back">Sweep Back</string>
 <string name="Sweep Forward">Sweep Forward</string>
-<string name="Swept Back">Swept Back</string>
-<string name="Swept Back Hair">Swept Back Hair</string>
-<string name="Swept Forward">Swept Forward</string>
-<string name="Swept Forward Hair">Swept Forward Hair</string>
+
 <string name="Tall">Tall</string>
 <string name="Taper Back">Taper Back</string>
 <string name="Taper Front">Taper Front</string>
 <string name="Thick Heels">Thick Heels</string>
 <string name="Thick Neck">Thick Neck</string>
 <string name="Thick Toe">Thick Toe</string>
-<string name="Thickness">Thickness</string>
+
 <string name="Thin">Thin</string>
 <string name="Thin Eyebrows">Thin Eyebrows</string>
 <string name="Thin Lips">Thin Lips</string>
@@ -2765,8 +2747,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Tight Shirt">Tight Shirt</string>
 <string name="Tight Skirt">Tight Skirt</string>
 <string name="Tight Sleeves">Tight Sleeves</string>
-<string name="Tilt Left">Tilt Left</string>
-<string name="Tilt Right">Tilt Right</string>
+
 <string name="Toe Shape">Toe Shape</string>
 <string name="Toe Thickness">Toe Thickness</string>
 <string name="Torso Length">Torso Length</string>
