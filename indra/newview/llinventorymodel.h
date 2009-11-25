@@ -252,9 +252,12 @@ public:
 	// multiple trash can bug.
 	const LLUUID findCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder = true, bool find_in_library = false);
 
-	// Call this method when it's time to update everyone on a new
-	// state, by default, the inventory model will not update
-	// observers automatically.
+	// This gets called by the idle loop.  It only updates if new
+	// state is detected.  Call notifyObservers() manually to update
+	// regardless of whether state change has been indicated.
+	void idleNotifyObservers();
+
+	// Call this method to explicitly update everyone on a new state.
 	// The optional argument 'service_name' is used by Agent Inventory Service [DEV-20328]
 	void notifyObservers(const std::string service_name="");
 

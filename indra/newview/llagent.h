@@ -310,7 +310,7 @@ private:
 	// Fly
 	//--------------------------------------------------------------------
 public:
-	BOOL			getFlying() const	{ return mControlFlags & AGENT_CONTROL_FLY; }
+	BOOL			getFlying() const;
 	void			setFlying(BOOL fly);
 	static void		toggleFlying();
 	static bool		enableFlying();

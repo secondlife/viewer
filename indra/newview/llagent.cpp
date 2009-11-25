@@ -734,6 +734,10 @@ BOOL LLAgent::canFly()
 	return parcel->getAllowFly();
 }
 
+BOOL LLAgent::getFlying() const
+{ 
+	return mControlFlags & AGENT_CONTROL_FLY; 
+}
 
 //-----------------------------------------------------------------------------
 // setFlying()
@@ -791,7 +795,7 @@ void LLAgent::setFlying(BOOL fly)
 // static
 void LLAgent::toggleFlying()
 {
-	BOOL fly = !(gAgent.mControlFlags & AGENT_CONTROL_FLY);
+	BOOL fly = !gAgent.getFlying();
 
 	gAgent.setFlying( fly );
 	gAgent.resetView();
@@ -2795,7 +2799,8 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLBottomTray::getInstance()->setVisible(TRUE);
 
-		LLSideTray::getInstance()->setVisible(TRUE);
+		LLSideTray::getInstance()->getButtonsPanel()->setVisible(TRUE);
+		LLSideTray::getInstance()->updateSidetrayVisibility();
 
 		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
 
@@ -2893,7 +2898,8 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLBottomTray::getInstance()->setVisible(FALSE);
 
-		LLSideTray::getInstance()->setVisible(FALSE);
+		LLSideTray::getInstance()->getButtonsPanel()->setVisible(FALSE);
+		LLSideTray::getInstance()->updateSidetrayVisibility();
 
 		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
 

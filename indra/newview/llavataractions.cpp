@@ -297,7 +297,7 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 		//Show own profile
 		if(gAgent.getID() == id)
 		{
-			LLSideTray::getInstance()->showPanel("panel_me_profile", params);
+			LLSideTray::getInstance()->showPanel("panel_me", params);
 		}
 		//Show other user profile
 		else
@@ -324,6 +324,27 @@ void LLAvatarActions::pay(const LLUUID& id)
 	}
 }
 
+//static 
+void LLAvatarActions::share(const LLUUID& id)
+{
+	LLSD key;
+	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+
+
+	LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL,id);
+
+	if (!gIMMgr->hasSession(session_id))
+	{
+		startIM(id);
+	}
+
+	if (gIMMgr->hasSession(session_id))
+	{
+		// we should always get here, but check to verify anyways
+		LLIMModel::getInstance()->addMessage(session_id, SYSTEM_FROM, LLUUID::null, LLTrans::getString("share_alert"), false);
+	}
+}
+
 // static
 void LLAvatarActions::toggleBlock(const LLUUID& id)
 {
@@ -347,9 +368,9 @@ void LLAvatarActions::inviteToGroup(const LLUUID& id)
 	LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(id));
 	if (widget)
 	{
-		widget->removeNoneOption();
 		widget->center();
 		widget->setPowersMask(GP_MEMBER_INVITE);
+		widget->removeNoneOption();
 		widget->setSelectGroupCallback(boost::bind(callback_invite_to_group, _1, id));
 	}
 }

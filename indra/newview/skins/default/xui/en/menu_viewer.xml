@@ -59,7 +59,7 @@
          label="My Inventory"
          layout="topleft"
          name="Inventory"
-         shortcut="control|I">
+         shortcut="control|shift|I">
             <menu_item_check.on_check
              function="Floater.Visible"
              parameter="inventory" />
@@ -67,6 +67,15 @@
              function="Floater.Toggle"
              parameter="inventory" />
         </menu_item_check>
+        <menu_item_call
+         label="Show Sidetray Inventory"
+         name="ShowSidetrayInventory"
+         shortcut="control|I"
+         visible="false">
+            <menu_item_call.on_click
+             function="ShowSidetrayPanel"
+             parameter="sidepanel_inventory" />
+        </menu_item_call>
         <menu_item_call
          label="My Gestures"
          layout="topleft"
@@ -1709,6 +1718,8 @@
              layout="topleft"
              name="Fly"
              shortcut="Home">
+                <menu_item_check.on_check
+                 function="Agent.getFlying" />
                 <menu_item_check.on_click
                  function="Agent.toggleFlying" />
                 <menu_item_check.on_enable

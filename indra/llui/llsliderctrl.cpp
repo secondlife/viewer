@@ -122,7 +122,8 @@ LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
 	slider_p.min_value.setIfNotProvided(p.min_value);
 	slider_p.max_value.setIfNotProvided(p.max_value);
 	slider_p.increment.setIfNotProvided(p.increment);
-
+	slider_p.orientation.setIfNotProvided(p.orientation);
+	
 	slider_p.commit_callback.function(&LLSliderCtrl::onSliderCommit);
 	slider_p.control_name(p.control_name);
 	slider_p.mouse_down_callback( p.mouse_down_callback );
@@ -260,7 +261,7 @@ void LLSliderCtrl::onEditorCommit( LLUICtrl* ctrl, const LLSD& userdata )
 		if( self->mSlider->getMinValue() <= val && val <= self->mSlider->getMaxValue() )
 		{
 			self->setValue( val );  // set the value temporarily so that the callback can retrieve it.
-			if( self->mValidateSignal( self, val ) )
+			if( !self->mValidateSignal || (*(self->mValidateSignal))( self, val ) )
 			{
 				success = TRUE;
 			}
@@ -294,7 +295,7 @@ void LLSliderCtrl::onSliderCommit( LLUICtrl* ctrl, const LLSD& userdata )
 	F32 new_val = self->mSlider->getValueF32();
 
 	self->mValue = new_val;  // set the value temporarily so that the callback can retrieve it.
-	if( self->mValidateSignal( self, new_val ) )
+	if( !self->mValidateSignal || (*(self->mValidateSignal))( self, new_val ) )
 	{
 		success = TRUE;
 	}

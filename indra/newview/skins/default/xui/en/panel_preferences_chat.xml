@@ -309,4 +309,13 @@
      name="send_im_to_email"
      top_pad="5"
      width="400" />
+    <check_box
+     enabled="false"
+     height="16"
+     label="Enable plain text chat history"
+     layout="topleft"
+     left_delta="0"
+     name="plain_text_chat_history"
+     top_pad="5"
+     width="400" />
 </panel>

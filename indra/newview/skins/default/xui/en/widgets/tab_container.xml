@@ -2,7 +2,7 @@
 <tab_container tab_min_width="60"
                tab_max_width="150"
                font_halign="center"
-               font="SansSerif" 
+               font="SansSerifSmall" 
                tab_height="21">
   <first_tab tab_top_image_unselected="TabTop_Left_Off"
                tab_top_image_selected="TabTop_Left_Selected"

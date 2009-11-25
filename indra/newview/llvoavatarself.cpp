@@ -318,11 +318,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 
 				}
 			}
-
-			if (!attachment_found)
-			{
-				gAttachPieMenu->addSeparator();
-			}
 		}
 
 		if (gDetachBodyPartPieMenus[i])
@@ -361,11 +356,6 @@ BOOL LLVOAvatarSelf::buildMenus()
 					attachment_found = TRUE;
 					break;
 				}
-			}
-
-			if (!attachment_found)
-			{
-				gDetachPieMenu->addSeparator();
 			}
 		}
 	}
@@ -1846,6 +1836,13 @@ ETextureIndex LLVOAvatarSelf::getBakedTE( const LLTexLayerSet* layerset ) const
 	}
 	llassert(0);
 	return TEX_HEAD_BAKED;
+}
+
+
+void LLVOAvatarSelf::setNewBakedTexture(LLVOAvatarDefines::EBakedTextureIndex i, const LLUUID &uuid)
+{
+	ETextureIndex index = LLVOAvatarDictionary::bakedToLocalTextureIndex(i);
+	setNewBakedTexture(index, uuid);
 }
 
 

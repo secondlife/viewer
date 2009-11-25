@@ -392,6 +392,7 @@ public:
 	F32				getWorldViewAspectRatio() const;
 	const LLVector2& getDisplayScale() const { return mDisplayScale; }
 	void			calcDisplayScale();
+	static LLRect 	calcScaledRect(const LLRect & rect, const LLVector2& display_scale);
 
 private:
 	bool                    shouldShowToolTipFor(LLMouseHandler *mh);
@@ -476,6 +477,7 @@ protected:
 	static std::string sMovieBaseName;
 	
 private:
+	// Object temporarily hovered over while dragging
 	LLPointer<LLViewerObject>	mDragHoveredObject;
 };	
 

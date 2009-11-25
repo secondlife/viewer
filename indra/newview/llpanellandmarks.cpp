@@ -67,6 +67,27 @@ static const std::string TRASH_BUTTON_NAME = "trash_btn";
 // helper functions
 static void filter_list(LLInventorySubTreePanel* inventory_list, const std::string& string);
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLLandmarksPanelObserver
+//
+// Bridge to support knowing when the inventory has changed to update
+// landmarks accordions visibility.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLLandmarksPanelObserver : public LLInventoryObserver
+{
+public:
+	LLLandmarksPanelObserver(LLLandmarksPanel* lp) : mLP(lp) {}
+	virtual ~LLLandmarksPanelObserver() {}
+	/*virtual*/ void changed(U32 mask);
+
+private:
+	LLLandmarksPanel* mLP;
+};
+
+void LLLandmarksPanelObserver::changed(U32 mask)
+{
+	mLP->updateFilteredAccordions();
+}
 
 LLLandmarksPanel::LLLandmarksPanel()
 	:	LLPanelPlacesTab()
@@ -80,11 +101,16 @@ LLLandmarksPanel::LLLandmarksPanel()
 	,	mGearLandmarkMenu(NULL)
 	,	mDirtyFilter(false)
 {
+	mInventoryObserver = new LLLandmarksPanelObserver(this);
+	gInventory.addObserver(mInventoryObserver);
+
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_landmarks.xml");
 }
 
 LLLandmarksPanel::~LLLandmarksPanel()
 {
+	if (gInventory.containsObserver(mInventoryObserver))
+		gInventory.removeObserver(mInventoryObserver);
 }
 
 BOOL LLLandmarksPanel::postBuild()
@@ -135,8 +161,14 @@ void LLLandmarksPanel::onSearchEdit(const std::string& string)
 		LLAccordionCtrlTab* tab = *iter;
 		tab->setVisible(true);
 
-		// expand accordion to see matched items in all ones. See EXT-2014.
+		// expand accordion to see matched items in each one. See EXT-2014.
 		tab->changeOpenClose(false);
+
+		// refresh all accordions to display their contents in case of less restrictive filter
+		LLInventorySubTreePanel* inventory_list = dynamic_cast<LLInventorySubTreePanel*>(tab->getAccordionView());
+		if (NULL == inventory_list) continue;
+		LLFolderView* fv = inventory_list->getRootFolder();
+		fv->refresh();
 	}
 }
 
@@ -221,6 +253,31 @@ void LLLandmarksPanel::onSelectorButtonClicked()
 
 		LLSideTray::getInstance()->showPanel("panel_places", key);
 	}
+}
+
+void LLLandmarksPanel::updateFilteredAccordions()
+{
+	LLInventoryPanel* inventory_list = NULL;
+	LLAccordionCtrlTab* accordion_tab = NULL;
+	for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
+	{
+		accordion_tab = *iter;
+		inventory_list = dynamic_cast<LLInventorySubTreePanel*> (accordion_tab->getAccordionView());
+		if (NULL == inventory_list) continue;
+		LLFolderView* fv = inventory_list->getRootFolder();
+
+		bool has_descendants = fv->hasFilteredDescendants();
+
+		accordion_tab->setVisible(has_descendants);
+	}
+
+	// we have to arrange accordion tabs for cases when filter string is less restrictive but
+	// all items are still filtered.
+	static LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("landmarks_accordion");
+	accordion->arrange();
+
+	// now filter state is applied to accordion tabs
+	mDirtyFilter = false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -831,31 +888,6 @@ void LLLandmarksPanel::doIdle(void* landmarks_panel)
 		panel->updateFilteredAccordions();
 	}
 
-}
-
-void LLLandmarksPanel::updateFilteredAccordions()
-{
-	LLInventoryPanel* inventory_list = NULL;
-	LLAccordionCtrlTab* accordion_tab = NULL;
-	for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
-	{
-		accordion_tab = *iter;
-		inventory_list = dynamic_cast<LLInventorySubTreePanel*> (accordion_tab->getAccordionView());
-		if (NULL == inventory_list) continue;
-		LLFolderView* fv = inventory_list->getRootFolder();
-
-		bool has_visible_children = fv->hasVisibleChildren();
-
-		accordion_tab->setVisible(has_visible_children);
-	}
-
-	// we have to arrange accordion tabs for cases when filter string is less restrictive but 
-	// all items are still filtered.
-	static LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("landmarks_accordion");
-	accordion->arrange();
-
-	// now filter state is applied to accordion tabs
-	mDirtyFilter = false;
 }
 
 void LLLandmarksPanel::doShowOnMap(LLLandmark* landmark)

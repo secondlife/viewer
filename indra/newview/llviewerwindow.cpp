@@ -841,7 +841,7 @@ BOOL LLViewerWindow::handleDragNDrop( LLWindow *window,  LLCoordGL pos, MASK mas
 		llinfos << "### Object: picked at " << pos.mX << ", " << pos.mY << " - face = " << object_face << " - URL = " << url << llendl;
 
 		LLVOVolume *obj = dynamic_cast<LLVOVolume*>(static_cast<LLViewerObject*>(pick_info.getObject()));
-		gPipeline.setHighlightObject(NULL);
+		
 		if (obj && obj->permModify())
 		{
 			LLTextureEntry *te = obj->getTE(object_face);
@@ -866,19 +866,25 @@ BOOL LLViewerWindow::handleDragNDrop( LLWindow *window,  LLCoordGL pos, MASK mas
 						// just navigate to the URL
 						obj->getMediaImpl(object_face)->navigateTo(url);
 					}
+					LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
+					mDragHoveredObject = NULL;
 				}
 				else {
 					mDragHoveredObject = obj;
-					// Make the object glow
-					gPipeline.setHighlightObject(mDragHoveredObject->mDrawable);
+					// Highlight the dragged object
+					LLSelectMgr::getInstance()->highlightObjectOnly(mDragHoveredObject);
 				}
 				result = TRUE;
 			}
 		}
-		else {
+
+		if (!result && !mDragHoveredObject.isNull())
+		{
+			LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
 			mDragHoveredObject = NULL;
 		}
 	}
+	
 	return result;
 }
   
@@ -1411,6 +1417,7 @@ LLViewerWindow::LLViewerWindow(
 
 	mDebugText = new LLDebugText(this);
 
+	mWorldViewRectScaled = calcScaledRect(mWorldViewRectRaw, mDisplayScale);
 }
 
 void LLViewerWindow::initGLDefaults()
@@ -1637,7 +1644,8 @@ void LLViewerWindow::initWorldUI()
 	LLPanel* side_tray_container = getRootView()->getChild<LLPanel>("side_tray_container");
 	LLSideTray* sidetrayp = LLSideTray::getInstance();
 	sidetrayp->setShape(side_tray_container->getLocalRect());
-	sidetrayp->setFollowsAll();
+	// don't follow right edge to avoid spurious resizes, since we are using a fixed width layout
+	sidetrayp->setFollows(FOLLOWS_LEFT|FOLLOWS_TOP|FOLLOWS_BOTTOM);
 	side_tray_container->addChild(sidetrayp);
 	side_tray_container->setVisible(FALSE);
 	
@@ -2931,19 +2939,17 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 
 	if (mWorldViewRectRaw != new_world_rect)
 	{
-		// sending a signal with a new WorldView rect
-		mOnWorldViewRectUpdated(mWorldViewRectRaw, new_world_rect);
-
+		LLRect old_world_rect = mWorldViewRectRaw;
 		mWorldViewRectRaw = new_world_rect;
 		gResizeScreenTexture = TRUE;
 		LLViewerCamera::getInstance()->setViewHeightInPixels( mWorldViewRectRaw.getHeight() );
 		LLViewerCamera::getInstance()->setAspect( getWorldViewAspectRatio() );
 
-		mWorldViewRectScaled = mWorldViewRectRaw;
-		mWorldViewRectScaled.mLeft = llround((F32)mWorldViewRectScaled.mLeft / mDisplayScale.mV[VX]);
-		mWorldViewRectScaled.mRight = llround((F32)mWorldViewRectScaled.mRight / mDisplayScale.mV[VX]);
-		mWorldViewRectScaled.mBottom = llround((F32)mWorldViewRectScaled.mBottom / mDisplayScale.mV[VY]);
-		mWorldViewRectScaled.mTop = llround((F32)mWorldViewRectScaled.mTop / mDisplayScale.mV[VY]);
+		mWorldViewRectScaled = calcScaledRect(mWorldViewRectRaw, mDisplayScale);
+
+		// sending a signal with a new WorldView rect
+		old_world_rect = calcScaledRect(old_world_rect, mDisplayScale);
+		mOnWorldViewRectUpdated(old_world_rect, mWorldViewRectScaled);
 	}
 }
 
@@ -4816,7 +4822,6 @@ F32	LLViewerWindow::getWorldViewAspectRatio() const
 	}
 	else
 	{
-		llinfos << "World aspect ratio: " << world_aspect << llendl;
 		return world_aspect;
 	}
 }
@@ -4856,6 +4861,18 @@ void LLViewerWindow::calcDisplayScale()
 		// Init default fonts
 		initFonts();
 	}
+}
+
+//static
+LLRect 	LLViewerWindow::calcScaledRect(const LLRect & rect, const LLVector2& display_scale)
+{
+	LLRect res = rect;
+	res.mLeft = llround((F32)res.mLeft / display_scale.mV[VX]);
+	res.mRight = llround((F32)res.mRight / display_scale.mV[VX]);
+	res.mBottom = llround((F32)res.mBottom / display_scale.mV[VY]);
+	res.mTop = llround((F32)res.mTop / display_scale.mV[VY]);
+
+	return res;
 }
 
 S32 LLViewerWindow::getChatConsoleBottomPad()

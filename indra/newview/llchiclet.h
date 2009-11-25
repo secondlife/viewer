@@ -534,6 +534,46 @@ private:
 };
 
 /**
+ * Chiclet for script floaters.
+ */
+class LLScriptChiclet : public LLIMChiclet
+{
+public:
+
+	struct Params : public LLInitParam::Block<Params, LLIMChiclet::Params>
+	{
+		Optional<LLIconCtrl::Params> icon;
+
+		Params();
+	};
+
+	/*virtual*/ void setSessionId(const LLUUID& session_id);
+
+	/*virtual*/ void setCounter(S32 counter){}
+
+	/*virtual*/ S32 getCounter() { return 0; }
+
+	/**
+	 * Toggle script floater
+	 */
+	/*virtual*/ void onMouseDown();
+
+	/**
+	 * Override default handler
+	 */
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+
+protected:
+
+	LLScriptChiclet(const Params&);
+	friend class LLUICtrlFactory;
+
+private:
+
+	LLIconCtrl* mChicletIconCtrl;
+};
+
+/**
  * Implements Group chat chiclet.
  */
 class LLIMGroupChiclet : public LLIMChiclet, public LLGroupMgrObserver

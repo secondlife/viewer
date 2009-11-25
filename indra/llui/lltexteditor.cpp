@@ -750,8 +750,10 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 	{
 		if( mIsSelecting ) 
 		{
-			mScroller->autoScroll(x, y);
-
+			if(mScroller)
+			{	
+				mScroller->autoScroll(x, y);
+			}
 			S32 clamped_x = llclamp(x, mTextRect.mLeft, mTextRect.mRight);
 			S32 clamped_y = llclamp(y, mTextRect.mBottom, mTextRect.mTop);
 			setCursorAtLocalPos( clamped_x, clamped_y, true );
@@ -799,7 +801,10 @@ BOOL LLTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		if( mIsSelecting )
 		{
-			mScroller->autoScroll(x, y);
+			if(mScroller)
+			{
+				mScroller->autoScroll(x, y);
+			}
 			S32 clamped_x = llclamp(x, mTextRect.mLeft, mTextRect.mRight);
 			S32 clamped_y = llclamp(y, mTextRect.mBottom, mTextRect.mTop);
 			setCursorAtLocalPos( clamped_x, clamped_y, true );
@@ -1696,7 +1701,15 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 	*/
 	if (mReadOnly)
 	{
-		handled = mScroller->handleKeyHere( key, mask );
+		if(mScroller)
+		{
+			handled = mScroller->handleKeyHere( key, mask );
+		}
+		else 
+		{
+			handled = handleNavigationKey( key, mask );
+		}
+
 	}
 	else
 	{
@@ -2135,9 +2148,8 @@ void LLTextEditor::drawPreeditMarker()
 void LLTextEditor::drawLineNumbers()
 {
 	LLGLSUIDefault gls_ui;
-
-	LLRect scrolled_view_rect = mScroller->getVisibleContentRect();
-	LLRect content_rect = mScroller->getContentWindowRect();
+	LLRect scrolled_view_rect = getVisibleDocumentRect();
+	LLRect content_rect = getTextRect();	
 	LLLocalClipRect clip(content_rect);
 	S32 first_line = getFirstVisibleLine();
 	S32 num_lines = getLineCount();

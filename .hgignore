@@ -55,3 +55,8 @@ glob:*.cpp.orig
 glob:*.cpp.bak
 glob:*.h.bak
 glob:*.h.orig
+glob:indra/newview/typed_locations.txt
+glob:indra/newview/teleport_history.txt
+glob:indra/newview/search_history.txt
+glob:indra/newview/filters.xml
+glob:indra/newview/avatar_icons_cache.txt
