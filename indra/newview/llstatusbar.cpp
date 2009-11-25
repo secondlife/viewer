@@ -523,6 +523,8 @@ static void onClickVolume(void* data)
 	LLStatusBar *sb = (LLStatusBar*)(data);
 	llassert_always(sb);
 	sb->mPanelVolume->setRect(LLRect(1,1,100,100));
+	sb->mPanelVolume->setShape(LLRect(1,1,100,100));
+	sb->mPanelVolume->setBackgroundColor(LLColor3(1.0, 0.0, 0.0));
 	sb->mPanelVolume->setVisible(TRUE);
 	sb->mPanelVolume->setEnabled(TRUE);
 }
