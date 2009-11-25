@@ -93,27 +93,19 @@
   </text>
   <combo_box 
    allow_text_entry="false" 
-   bottom_delta="-20" 
-   enabled="true" 
+   bottom_delta="-20"
    follows="left|top"
    height="18" 
    left="10" 
-   max_chars="20" 
-   mouse_opaque="true"
+   max_chars="20"
    name="controls" 
    width="120">
     <combo_item 
-	 type="string" 
-	 length="1" 
-	 enabled="true" 
 	 name="Standard" 
 	 value="Standard">
       Standard
     </combo_item>
     <combo_item 
-	 type="string" 
-	 length="1" 
-	 enabled="true" 
 	 name="Mini" 
 	 value="Mini">
       Mini
