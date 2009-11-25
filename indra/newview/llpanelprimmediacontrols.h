@@ -195,6 +195,9 @@ private:
 	S32 mTargetObjectFace;
 	LLUUID mTargetImplID;
 	LLVector3 mTargetObjectNormal;
+	
+	LLUUID mZoomObjectID;
+	S32 mZoomObjectFace;
 };
 
 #endif // LL_PANELPRIMMEDIACONTROLS_H
