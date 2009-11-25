@@ -5,6 +5,6 @@
  name="floater_aaa"
  can_resize="true" 
  width="1024">
- <string name="Nudge Parabuild">2</string>
+ <string name="Nudge Parabuild">3</string>
   <panel filename="main_view.xml" follows="all" width="1024" height="768" top="0"/>
 </floater>
