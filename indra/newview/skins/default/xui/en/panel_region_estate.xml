@@ -3,6 +3,7 @@
  border="false"
  follows="top|left"
  height="320"
+ help_topic="panel_region_estate_tab"
  label="Estate"
  layout="topleft"
  left="0"
