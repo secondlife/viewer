@@ -203,7 +203,6 @@
              width="150" />
             <button
              follows="top|left"
-             font="SansSerifSmall"
              height="20"
              label="Deed"
              label_selected="Deed"
@@ -485,7 +484,6 @@
 		 width="313">
 	    <button
 		     follows="bottom|left"
-		     font="SansSerifSmall"
 		     height="25"
 		     label="Edit"
 		     layout="topleft"
@@ -495,7 +493,6 @@
 		     width="50" />
 	    <button
 		     follows="bottom|left"
-		     font="SansSerifSmall"
 		     height="25"
 		     label="Open"
 		     layout="topleft"
@@ -505,7 +502,6 @@
 		     width="60" />
 	    <button
 		     follows="bottom|left"
-		     font="SansSerifSmall"
 		     height="25"
 		     label="Pay"
 		     layout="topleft"
@@ -515,7 +511,6 @@
 		     width="50" />
 	    <button
 		     follows="bottom|left"
-		     font="SansSerifSmall"
 		     height="25"
 		     label="Buy"
 		     layout="topleft"
@@ -525,7 +520,6 @@
 		     width="60" />
 	    <button
 		     follows="bottom|right"
-		     font="SansSerifSmall"
 		     height="25"
 		     label="Cancel"
 		     layout="topleft"
@@ -535,7 +529,6 @@
 		     width="70" />
 	    <button
 		     follows="bottom|right"
-		     font="SansSerifSmall"
 		     height="25"
 		     label="Save"
 		     layout="topleft"

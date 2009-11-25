@@ -38,7 +38,6 @@
      width="284" />
     <button
      follows="bottom|left"
-     font="SansSerifSmall"
      height="23"
      label="Copy To Inventory"
      label_selected="Copy To Inventory"
@@ -53,7 +52,6 @@
     </button>
     <button
      follows="bottom|left"
-     font="SansSerifSmall"
      height="23"
      label="Copy And Wear"
      label_selected="Copy And Wear"

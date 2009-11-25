@@ -60,6 +60,11 @@ LLTextBase::line_info::line_info(S32 index_start, S32 index_end, LLRect rect, S3
 
 bool LLTextBase::compare_segment_end::operator()(const LLTextSegmentPtr& a, const LLTextSegmentPtr& b) const
 {
+	// sort empty spans (e.g. 11-11) after previous non-empty spans (e.g. 5-11)
+	if (a->getEnd() == b->getEnd())
+	{
+		return a->getStart() < b->getStart();
+	}
 	return a->getEnd() < b->getEnd();
 }
 

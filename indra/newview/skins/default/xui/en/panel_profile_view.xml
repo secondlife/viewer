@@ -25,10 +25,11 @@
      tab_stop="false"
      top="2"
      width="23" />
-    <text
+    <text_editor
+	 read_only = "true"
      follows="top|left|right"
      font="SansSerifHugeBold"
-     height="26"
+     height="29"
      layout="topleft"
      left_pad="10"
      name="user_name"
@@ -52,7 +53,7 @@
      halign="center"
      layout="topleft"
      left="10"
- min_width="333"
+	 min_width="333"
      name="tabs"
      tab_min_width="80"
      tab_height="30"

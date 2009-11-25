@@ -23,7 +23,6 @@
      name="bottom_delta_button" />
     <button
      bottom_delta="30"
-     font="SansSerifSmall"
      height="23"
      label="SansSerifSmall"
      layout="topleft"

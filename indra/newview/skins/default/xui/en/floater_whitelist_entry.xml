@@ -17,9 +17,9 @@
 	     tool_tip="Enter a URL or URL pattern to White List"
 	     width="350" />
 
-  <button follows="top|left" height="20" font="SansSerifSmall" label="OK"
+  <button follows="top|left" height="20" label="OK"
      layout="topleft" left="10" name="ok_btn" bottom_delta="28" width="64" />
   
-  <button follows="top|left" height="20" font="SansSerifSmall" label="Cancel"
+  <button follows="top|left" height="20" label="Cancel"
      layout="topleft" left_pad="5" name="cancel_btn" bottom_delta="0" width="64" />
 </floater>

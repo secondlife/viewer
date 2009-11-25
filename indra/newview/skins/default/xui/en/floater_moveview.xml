@@ -151,8 +151,7 @@
          top="2"
          width="31" />
         <button
-         follows="left|bottom"
-         font="SansSerifSmall" 
+         follows="left|bottom" 
          height="23"
          image_overlay="Move_Run_Off"
          image_selected="PushButton_Selected_Press" 

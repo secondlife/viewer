@@ -92,7 +92,7 @@ void LLPanelAvatarTag::setAvatarId(const LLUUID& avatar_id)
 boost::signals2::connection LLPanelAvatarTag::setLeftButtonClickCallback(
 																  const commit_callback_t& cb)
 {
-	return mCommitSignal.connect(cb);
+	return setCommitCallback(cb);
 }
 
 BOOL LLPanelAvatarTag::handleMouseDown(S32 x, S32 y, MASK mask)

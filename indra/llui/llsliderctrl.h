@@ -46,6 +46,7 @@ class LLSliderCtrl : public LLF32UICtrl
 public:
 	struct Params : public LLInitParam::Block<Params, LLF32UICtrl::Params>
 	{
+		Optional<std::string>   orientation;
 		Optional<S32>			label_width;
 		Optional<S32>			text_width;
 		Optional<bool>			show_text;
@@ -78,7 +79,8 @@ public:
 			value_text("value_text"),
 			slider_label("slider_label"),
 			mouse_down_callback("mouse_down_callback"),
-			mouse_up_callback("mouse_up_callback")
+			mouse_up_callback("mouse_up_callback"),
+			orientation("orientation", std::string ("horizontal"))
 		{}
 	};
 protected:

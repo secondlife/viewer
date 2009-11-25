@@ -52,7 +52,7 @@
 
 const std::string& LLTeleportHistoryItem::getTitle() const
 {
-	return gSavedSettings.getBOOL("ShowCoordinatesOption") ? mFullTitle : mTitle;
+	return gSavedSettings.getBOOL("NavBarShowCoordinates") ? mFullTitle : mTitle;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -177,7 +177,7 @@ void LLTeleportHistory::purgeItems()
 std::string LLTeleportHistory::getCurrentLocationTitle(bool full, const LLVector3& local_pos_override)
 {
 	std::string location_name;
-	LLAgentUI::ELocationFormat fmt = full ? LLAgentUI::LOCATION_FORMAT_WITHOUT_SIM : LLAgentUI::LOCATION_FORMAT_NORMAL;
+	LLAgentUI::ELocationFormat fmt = full ? LLAgentUI::LOCATION_FORMAT_NO_MATURITY : LLAgentUI::LOCATION_FORMAT_NORMAL;
 
 	if (!LLAgentUI::buildLocationString(location_name, fmt, local_pos_override)) location_name = "Unknown";
 	return location_name;
