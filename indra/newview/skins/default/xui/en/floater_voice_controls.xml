@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ height="300"
+ layout="topleft"
+ name="floater_voice_controls"
+ title="Voice Controls"
+ width="282">
+    <panel
+     bevel_style="in"
+     follows="left|right|top"
+     height="73"
+     layout="topleft"
+     left="0"
+     name="control_panel"
+     width="285">
+        <panel
+         height="20"
+         layout="topleft"
+         left="10"
+         name="my_panel"
+         width="262">
+            <avatar_icon
+             enabled="false"
+             follows="left|top"
+             height="20"
+             image_name="icon_avatar_online.tga"
+             layout="topleft"
+             left="0"
+             name="user_icon"
+             top="0"
+             width="20" />
+            <text
+             follows="top|left"
+             font="SansSerifSmallBold"
+             height="16"
+             layout="topleft"
+             left_pad="10"
+             name="user_text"
+             text_color="white"
+             top="4"
+             value="Mya Avatar:"
+             width="80" />
+        </panel>
+        <layout_stack
+         bottom="10"
+         clip="false"
+         follows="left|right|top"
+         height="24"
+         layout="bottomleft"
+         orientation="horizontal"
+         width="262">
+            <layout_panel
+             follows="left"
+             layout="topleft"
+             min_width="24"
+             top="0"
+             user_resize="false"
+             width="24">
+                <icon
+                 height="24"
+                 image_name="Microphone_On"
+                 layout="topleft"
+                 name="Microphone_On"
+                 top="0"
+                 width="24" />
+            </layout_panel>
+            <layout_panel
+             layout="topleft"
+             top="0"
+             user_resize="false"
+             width="258">
+                <slider_bar
+                 follows="left|right|top"
+                 height="24"
+                 increment="0.05"
+                 layout="topleft"
+                 left="0"
+                 name="volume_slider_bar"
+                 tool_tip="Master Volume"
+                 top="0"
+                 value="0.75"
+                 width="258" />
+            </layout_panel>
+        </layout_stack>
+    </panel>
+    <avatar_list
+     follows="all"
+     height="197"
+     layout="topleft"
+     left="0"
+     multi_select="true"
+     name="avatar_list"
+     width="282" />
+</floater>
