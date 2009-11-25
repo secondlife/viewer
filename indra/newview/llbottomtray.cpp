@@ -331,31 +331,31 @@ BOOL LLBottomTray::postBuild()
 void LLBottomTray::log(LLView* panel, const std::string& descr)
 {
 	if (NULL == panel) return;
-	//LLView* layout = panel->getParent();
-	//lldebugs << descr << ": "
-	//	<< "panel: " << panel->getName()
-	//	<< ", rect: " << panel->getRect()
- //
- //
-	//	<< "layout: " << layout->getName()
-	//	<< ", rect: " << layout->getRect()
-	//	<< llendl
-	//	; 
+	LLView* layout = panel->getParent();
+	lldebugs << descr << ": "
+		<< "panel: " << panel->getName()
+		<< ", rect: " << panel->getRect()
+ 
+ 
+		<< "layout: " << layout->getName()
+		<< ", rect: " << layout->getRect()
+		<< llendl
+		; 
 }
 
 void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	static S32 debug_calling_number = 0;
-	//lldebugs << "**************************************** " << ++debug_calling_number << llendl;
+	lldebugs << "**************************************** " << ++debug_calling_number << llendl;
 
 	S32 current_width = getRect().getWidth();
 	S32 delta_width = width - current_width;
-	//lldebugs << "Reshaping: " 
-	//	<< ", width: " << width
-	//	<< ", cur width: " << current_width
-	//	<< ", delta_width: " << delta_width
-	//	<< ", called_from_parent: " << called_from_parent
-	//	<< llendl;
+	lldebugs << "Reshaping: " 
+		<< ", width: " << width
+		<< ", cur width: " << current_width
+		<< ", delta_width: " << delta_width
+		<< ", called_from_parent: " << called_from_parent
+		<< llendl;
 
 	if (mNearbyChatBar)			log(mNearbyChatBar, "before");
 	if (mChicletPanel)			log(mChicletPanel, "before");
@@ -412,7 +412,7 @@ void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 	if (should_be_reshaped)
 	{
-		//lldebugs << "Reshape all children with width: " << width << llendl;
+		lldebugs << "Reshape all children with width: " << width << llendl;
 		LLPanel::reshape(width, height, called_from_parent);
 	}
 
@@ -434,10 +434,10 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 
 		S32 delta_panel = llmin(-delta_width, panel_delta_min);
 
-		//lldebugs << "delta_width: " << delta_width
-		//	<< ", panel_delta_min: " << panel_delta_min
-		//	<< ", delta_panel: " << delta_panel
-		//	<< llendl;
+		lldebugs << "delta_width: " << delta_width
+			<< ", panel_delta_min: " << panel_delta_min
+			<< ", delta_panel: " << delta_panel
+			<< llendl;
 
 		// is chiclet panel width enough to process resizing?
 		delta_width += panel_delta_min;
@@ -447,9 +447,9 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 		mChicletPanel->getParent()->reshape(mChicletPanel->getParent()->getRect().getWidth() - delta_panel, mChicletPanel->getParent()->getRect().getHeight());
 		log(mChicletPanel, "after processing panel decreasing via chiclet panel");
 
-		//lldebugs << "RS_CHICLET_PANEL" 
-		//	<< ", delta_width: " << delta_width
-		//	<< llendl;
+		lldebugs << "RS_CHICLET_PANEL" 
+			<< ", delta_width: " << delta_width
+			<< llendl;
 	}
 
 	const S32 chatbar_panel_width = mNearbyChatBar->getRect().getWidth();
@@ -470,10 +470,10 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 
 		log(mChicletPanel, "after processing panel decreasing via nearby chatbar panel");
 
-		//lldebugs << "RS_CHATBAR_INPUT"
-		//	<< ", delta_panel: " << delta_panel
-		//	<< ", delta_width: " << delta_width
-		//	<< llendl;
+		lldebugs << "RS_CHATBAR_INPUT"
+			<< ", delta_panel: " << delta_panel
+			<< ", delta_width: " << delta_width
+			<< llendl;
 	}
 
 	S32 extra_shrink_width = 0;
@@ -514,7 +514,7 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 			log(mNearbyChatBar, "before applying compensative width");
 			mNearbyChatBar->reshape(mNearbyChatBar->getRect().getWidth() + buttons_freed_width, mNearbyChatBar->getRect().getHeight() );
 			log(mNearbyChatBar, "after applying compensative width");
-			//lldebugs << buttons_freed_width << llendl;
+			lldebugs << buttons_freed_width << llendl;
 		}
 	}
 
@@ -538,11 +538,11 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 	// how many room we have to show hidden buttons
 	S32 total_available_width = delta_width + chatbar_available_shrink_width + available_width_chiclet;
 
-	//lldebugs << "Processing extending, available width:"
-	//	<< ", chatbar - " << chatbar_available_shrink_width
-	//	<< ", chiclets - " << available_width_chiclet
-	//	<< ", total - " << total_available_width
-	//	<< llendl;
+	lldebugs << "Processing extending, available width:"
+		<< ", chatbar - " << chatbar_available_shrink_width
+		<< ", chiclets - " << available_width_chiclet
+		<< ", total - " << total_available_width
+		<< llendl;
 
 	S32 available_width = total_available_width;
 	if (available_width > 0)
@@ -587,7 +587,7 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 		log(mNearbyChatBar, "increase width: before applying compensative width");
 		mNearbyChatBar->reshape(mNearbyChatBar->getRect().getWidth() - chatbar_shrink_width, mNearbyChatBar->getRect().getHeight() );
 		if (mNearbyChatBar)			log(mNearbyChatBar, "after applying compensative width");
-		//lldebugs << chatbar_shrink_width << llendl;
+		lldebugs << chatbar_shrink_width << llendl;
 
 		// 3. use width available via decreasing of chiclet panel
 		required_to_process_width -= chatbar_shrink_width;
@@ -596,7 +596,7 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 		{
 			mChicletPanel->getParent()->reshape(mChicletPanel->getParent()->getRect().getWidth() - required_to_process_width, mChicletPanel->getParent()->getRect().getHeight());
 			log(mChicletPanel, "after applying compensative width for chiclets: ");
-			//lldebugs << required_to_process_width << llendl;
+			lldebugs << required_to_process_width << llendl;
 		}
 
 	}
@@ -611,10 +611,10 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 	{
 		S32 delta_panel_max = chatbar_panel_max_width - chatbar_panel_width_;
 		S32 delta_panel = llmin(delta_width, delta_panel_max);
-		//lldebugs << "Unprocesed delta width: " << delta_width
-		//	<< ", can be applied to chatbar: " << delta_panel_max
-		//	<< ", will be applied: " << delta_panel
-		//	<< llendl;
+		lldebugs << "Unprocesed delta width: " << delta_width
+			<< ", can be applied to chatbar: " << delta_panel_max
+			<< ", will be applied: " << delta_panel
+			<< llendl;
 
 		delta_width -= delta_panel_max;
 		mNearbyChatBar->reshape(chatbar_panel_width_ + delta_panel, mNearbyChatBar->getRect().getHeight());
@@ -624,12 +624,12 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 
 bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* available_width)
 {
-	//lldebugs << "Trying to show object type: " << shown_object_type << llendl;
+	lldebugs << "Trying to show object type: " << shown_object_type << llendl;
 
 	LLPanel* panel = mStateProcessedObjectMap[shown_object_type];
 	if (NULL == panel)
 	{
-		//lldebugs << "There is no object to process for state: " << shown_object_type << llendl;
+		lldebugs << "There is no object to process for state: " << shown_object_type << llendl;
 		return false;
 	}
 	bool can_be_shown = canButtonBeShown(shown_object_type);
@@ -644,9 +644,9 @@ bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* availa
 
 			setTrayButtonVisible(shown_object_type, true);
 
-			//lldebugs << "processed object type: " << shown_object_type
-				//<< ", rest available width: " << *available_width
-				//<< llendl;
+			lldebugs << "processed object type: " << shown_object_type
+				<< ", rest available width: " << *available_width
+				<< llendl;
 			mResizeState &= ~shown_object_type;
 		}
 	}
@@ -655,12 +655,12 @@ bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* availa
 
 void LLBottomTray::processHideButton(EResizeState processed_object_type, S32* required_width, S32* buttons_freed_width)
 {
-	//lldebugs << "Trying to hide object type: " << processed_object_type << llendl;
+	lldebugs << "Trying to hide object type: " << processed_object_type << llendl;
 
 	LLPanel* panel = mStateProcessedObjectMap[processed_object_type];
 	if (NULL == panel)
 	{
-		//lldebugs << "There is no object to process for state: " << processed_object_type << llendl;
+		lldebugs << "There is no object to process for state: " << processed_object_type << llendl;
 		return;
 	}
 
@@ -677,9 +677,9 @@ void LLBottomTray::processHideButton(EResizeState processed_object_type, S32* re
 
 		mResizeState |= processed_object_type;
 
-		//lldebugs << "processing object type: " << processed_object_type
-		//	<< ", buttons_freed_width: " << *buttons_freed_width
-		//	<< llendl;
+		lldebugs << "processing object type: " << processed_object_type
+			<< ", buttons_freed_width: " << *buttons_freed_width
+			<< llendl;
 	}
 }
 
@@ -703,7 +703,7 @@ void LLBottomTray::processShrinkButtons(S32* required_width, S32* buttons_freed_
 		bool success = mToolbarStack->getPanelMinSize(panel_name, &panel_min_width, NULL);
 		if (!success)
 		{
-			//lldebugs << "Panel was not found to get its min width: " << panel_name << llendl;
+			lldebugs << "Panel was not found to get its min width: " << panel_name << llendl;
 		}
 		else
 		{
@@ -723,10 +723,10 @@ void LLBottomTray::processShrinkButtons(S32* required_width, S32* buttons_freed_
 					*buttons_freed_width += *required_width;
 				}
 
-				//lldebugs << "Shrunk panel: " << panel_name
-				//	<< ", shrunk width: " << possible_shrink_width
-				//	<< ", rest width to process: " << *required_width
-				//	<< llendl;
+				lldebugs << "Shrunk panel: " << panel_name
+					<< ", shrunk width: " << possible_shrink_width
+					<< ", rest width to process: " << *required_width
+					<< llendl;
 			}
 		}
 	}
@@ -737,7 +737,7 @@ void LLBottomTray::processShrinkButton(EResizeState processed_object_type, S32* 
 	LLPanel* panel = mStateProcessedObjectMap[processed_object_type];
 	if (NULL == panel)
 	{
-//		lldebugs << "There is no object to process for type: " << processed_object_type << llendl;
+		lldebugs << "There is no object to process for type: " << processed_object_type << llendl;
 		return;
 	}
 
@@ -751,7 +751,7 @@ void LLBottomTray::processShrinkButton(EResizeState processed_object_type, S32* 
 
 		if (!success)
 		{
-			//lldebugs << "Panel was not found to get its min width: " << panel_name << llendl;
+			lldebugs << "Panel was not found to get its min width: " << panel_name << llendl;
 		}
 		// we have some space to free by shrinking the button
 		else if (possible_shrink_width > 0)
@@ -770,10 +770,10 @@ void LLBottomTray::processShrinkButton(EResizeState processed_object_type, S32* 
 			}
 			panel->reshape(panel_width - possible_shrink_width, panel->getRect().getHeight());
 
-			//lldebugs << "Shrunk panel: " << panel_name
-			//	<< ", shrunk width: " << possible_shrink_width
-			//	<< ", rest width to process: " << *required_width
-			//	<< llendl;
+			lldebugs << "Shrunk panel: " << panel_name
+				<< ", shrunk width: " << possible_shrink_width
+				<< ", rest width to process: " << *required_width
+				<< llendl;
 		}
 	}
 }
@@ -807,10 +807,10 @@ void LLBottomTray::processExtendButtons(S32* available_width)
 
 			*available_width -= possible_extend_width;
 
-			//lldebugs << "Extending panel: " << mSpeakPanel->getName()
-			//	<< ", extended width: " << possible_extend_width
-			//	<< ", rest width to process: " << *available_width
-			//	<< llendl;
+			lldebugs << "Extending panel: " << mSpeakPanel->getName()
+				<< ", extended width: " << possible_extend_width
+				<< ", rest width to process: " << *available_width
+				<< llendl;
 		}
 	}
 }
@@ -820,7 +820,7 @@ void LLBottomTray::processExtendButton(EResizeState processed_object_type, S32* 
 	LLPanel* panel = mStateProcessedObjectMap[processed_object_type];
 	if (NULL == panel)
 	{
-		//lldebugs << "There is no object to process for type: " << processed_object_type << llendl;
+		lldebugs << "There is no object to process for type: " << processed_object_type << llendl;
 		return;
 	}
 
@@ -846,10 +846,10 @@ void LLBottomTray::processExtendButton(EResizeState processed_object_type, S32* 
 		}
 		panel->reshape(panel_width + possible_extend_width, panel->getRect().getHeight());
 
-		//lldebugs << "Extending panel: " << panel->getName()
-		//	<< ", extended width: " << possible_extend_width
-		//	<< ", rest width to process: " << *available_width
-		//	<< llendl;
+		lldebugs << "Extending panel: " << panel->getName()
+			<< ", extended width: " << possible_extend_width
+			<< ", rest width to process: " << *available_width
+			<< llendl;
 	}
 }
 
@@ -895,7 +895,7 @@ void LLBottomTray::setTrayButtonVisible(EResizeState shown_object_type, bool vis
 	LLPanel* panel = mStateProcessedObjectMap[shown_object_type];
 	if (NULL == panel)
 	{
-		//lldebugs << "There is no object to show for state: " << shown_object_type << llendl;
+		lldebugs << "There is no object to show for state: " << shown_object_type << llendl;
 		return;
 	}
 
@@ -911,7 +911,7 @@ void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type
 		LLPanel* panel = mStateProcessedObjectMap[shown_object_type];
 		if (NULL == panel)
 		{
-			//lldebugs << "There is no object to process for state: " << shown_object_type << llendl;
+			lldebugs << "There is no object to process for state: " << shown_object_type << llendl;
 			return;
 		}
 
