@@ -3,7 +3,7 @@
 	follows="left|right|top|bottom"
 	name="MediaControls"
 	background_visible="false"
-	height="160"
+	height="192"
 	layout="topleft"
 	mouse_opaque="false"
 	width="800">
@@ -16,44 +16,6 @@
 	  layout="topleft"
 	  mouse_opaque="false"
 	  top="20" />
-  <layout_stack
-	  follows="left|right|bottom"
-	  height="32"
-	  layout="topleft"
-	  animate="false"
-	  left="0"
-	  orientation="horizontal"
-	  top="96">
-	<!-- outer layout_panels center the inner one -->
-	<layout_panel
-		width="0"
-		layout="topleft"
-		user_resize="false" />
-	<panel
-		name="media_progress_indicator"
-		height="22"
-		layout="topleft"
-		visible="false"
-		left="0"
-		top="0"
-		auto_resize="false"
-		user_resize="false"
-		min_width="100"
-		width="200">
-	  <progress_bar
-		  name="media_progress_bar"
-		  color_bar="1 1 1 0.96"
-		  follows="left|right|top"
-		  height="16"
-		  layout="topleft"
-		  left="0"
-		  tool_tip="Media is Loading"/>
-	</panel>
-	<layout_panel
-		width="0"
-		layout="topleft"
-		user_resize="false" />
-  </layout_stack>
   <layout_stack
 	  name="media_controls"
 	  follows="left|right"
@@ -653,6 +615,43 @@ function="MediaCtrl.CommitURL" />
 	<!-- bookend panel -->
 	<layout_panel
 		name="right_bookend"
+		width="0"
+		layout="topleft"
+		user_resize="false" />
+  </layout_stack>
+  <layout_stack
+	  follows="left|right|bottom"
+	  height="32"
+	  layout="topleft"
+	  animate="false"
+	  left="0"
+	  orientation="horizontal"
+	  top="150">
+	<!-- outer layout_panels center the inner one -->
+	<layout_panel
+		width="0"
+		layout="topleft"
+		user_resize="false" />
+	<panel
+		name="media_progress_indicator"
+		height="22"
+		layout="topleft"
+		left="0"
+		top="0"
+		auto_resize="false"
+		user_resize="false"
+		min_width="100"
+		width="200">
+	  <progress_bar
+		  name="media_progress_bar"
+		  color_bar="1 1 1 0.96"
+		  follows="left|right|top"
+		  height="8"
+		  layout="topleft"
+		  left="0"
+		  tool_tip="Media is Loading"/>
+	</panel>
+	<layout_panel
 		width="0"
 		layout="topleft"
 		user_resize="false" />
