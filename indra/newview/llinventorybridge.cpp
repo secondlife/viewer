@@ -2849,7 +2849,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 										BOOL drop)
 {
 	LLInventoryModel* model = getInventoryModel();
-	if(!model) return FALSE;
+	if(!model || !inv_item) return FALSE;
 
 	// cannot drag into library
 	if(!isAgentInventory())
