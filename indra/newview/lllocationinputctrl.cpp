@@ -243,6 +243,8 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	addChild(mAddLandmarkBtn);
 	
 	LLButton::Params for_sale_button = p.for_sale_button;
+	for_sale_button.click_callback.function(
+		boost::bind(&LLLocationInputCtrl::onForSaleButtonClicked, this));
 	mForSaleBtn = LLUICtrlFactory::create<LLButton>( for_sale_button );
 	// *TODO: Make clickable?
 	addChild(mForSaleBtn);
@@ -472,6 +474,11 @@ void LLLocationInputCtrl::draw()
 void LLLocationInputCtrl::onInfoButtonClicked()
 {
 	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "agent"));
+}
+
+void LLLocationInputCtrl::onForSaleButtonClicked()
+{
+	handle_buy_land();
 }
 
 void LLLocationInputCtrl::onAddLandmarkButtonClicked()

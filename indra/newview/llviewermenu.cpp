@@ -5628,12 +5628,7 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "buy land")
 		{
-			if (LLViewerParcelMgr::getInstance()->selectionEmpty())
-			{
-				LLViewerParcelMgr::getInstance()->selectParcelAt(gAgent.getPositionGlobal());
-			}
-			
-			LLViewerParcelMgr::getInstance()->startBuyLand();
+			handle_buy_land();
 		}
 		else if (floater_name == "script errors")
 		{
@@ -5843,7 +5838,15 @@ BOOL enable_buy_land(void*)
 				LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel(), false);
 }
 
-
+void handle_buy_land()
+{
+	LLViewerParcelMgr* vpm = LLViewerParcelMgr::getInstance();
+	if (vpm->selectionEmpty())
+	{
+		vpm->selectParcelAt(gAgent.getPositionGlobal());
+	}
+	vpm->startBuyLand();
+}
 
 class LLObjectAttachToAvatar : public view_listener_t
 {
