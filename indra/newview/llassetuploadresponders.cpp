@@ -256,6 +256,7 @@ void LLAssetUploadResponder::result(const LLSD& content)
 	lldebugs << "LLAssetUploadResponder::result from capabilities" << llendl;
 
 	std::string state = content["state"];
+
 	if (state == "upload")
 	{
 		uploadUpload(content);
@@ -328,6 +329,22 @@ LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(
 	LLAssetType::EType asset_type)
 	: LLAssetUploadResponder(post_data, file_name, asset_type)
 {
+}
+
+// virtual
+void LLNewAgentInventoryResponder::error(U32 statusNum, const std::string& reason)
+{
+	LLAssetUploadResponder::error(statusNum, reason);
+	LLImportColladaAssetCache::getInstance()->assetUploaded(mVFileID, LLUUID(), FALSE);
+}
+
+
+//virtual 
+void LLNewAgentInventoryResponder::uploadFailure(const LLSD& content)
+{
+	LLAssetUploadResponder::uploadFailure(content);
+
+	LLImportColladaAssetCache::getInstance()->assetUploaded(mVFileID, content["new_asset"], FALSE);
 }
 
 //virtual 
