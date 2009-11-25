@@ -68,6 +68,7 @@ public:
 		Optional<S32>						icon_hpad,
 											add_landmark_hpad;
 		Optional<LLButton::Params>			add_landmark_button,
+											for_sale_button,
 											info_button;
 		Optional<LLIconCtrl::Params>		voice_icon,
 											fly_icon,
@@ -139,6 +140,7 @@ private:
 
 	LLMenuGL*				mLocationContextMenu;
 	LLButton*				mAddLandmarkBtn;
+	LLButton*				mForSaleBtn;
 	LLButton*				mInfoBtn;
 	S32						mIconHPad;			// pad between all icons
 	S32						mAddLandmarkHPad;	// pad to left of landmark star
