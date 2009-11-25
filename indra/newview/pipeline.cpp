@@ -523,14 +523,6 @@ void LLPipeline::resizeScreenTexture()
 
 void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
-	bool screen_size_changed = resX != mScreenWidth || resY != mScreenHeight;
-	
-	if (!screen_size_changed)
-	{
-		// nothing to do
-		return;
-	}
-
 	// remember these dimensions
 	mScreenWidth = resX;
 	mScreenHeight = resY;
@@ -544,8 +536,7 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 		resY /= res_mod;
 	}
 
-	if (gSavedSettings.getBOOL("RenderUIBuffer") 
-		&& screen_size_changed)
+	if (gSavedSettings.getBOOL("RenderUIBuffer"))
 	{
 		mUIScreen.allocate(resX,resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 	}	
@@ -553,44 +544,30 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	if (LLPipeline::sRenderDeferred)
 	{
 		//allocate deferred rendering color buffers
-		if (screen_size_changed)
-		{
-			mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
-			mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
-			addDeferredAttachments(mDeferredScreen);
-		}
+		mDeferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
+		addDeferredAttachments(mDeferredScreen);
+	
 		// always set viewport to desired size, since allocate resets the viewport
 
-		if (screen_size_changed)
-		{
-			mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
-			mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
-		}
+		mScreen.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
+		mEdgeMap.allocate(resX, resY, GL_ALPHA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE);
 
 		for (U32 i = 0; i < 3; i++)
 		{
-			if (screen_size_changed)
-			{
-				mDeferredLight[i].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
-			}
+			mDeferredLight[i].allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
 		}
 
 		for (U32 i = 0; i < 2; i++)
 		{
-			if (screen_size_changed)
-			{
-				mGIMapPost[i].allocate(resX,resY, GL_RGB, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
-			}
+			mGIMapPost[i].allocate(resX,resY, GL_RGB, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
 		}
 
 		F32 scale = gSavedSettings.getF32("RenderShadowResolutionScale");
 
 		for (U32 i = 0; i < 4; i++)
 		{
-			if (screen_size_changed)
-			{
-				mShadow[i].allocate(U32(resX*scale),U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
-			}
+			mShadow[i].allocate(U32(resX*scale),U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
 		}
 
 
@@ -599,48 +576,36 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 		for (U32 i = 4; i < 6; i++)
 		{
-			if (screen_size_changed)
-			{
-				mShadow[i].allocate(width, height, 0, TRUE, FALSE);
-			}
+			mShadow[i].allocate(width, height, 0, TRUE, FALSE);
 		}
 
 
 
 		width = nhpo2(resX)/2;
 		height = nhpo2(resY)/2;
-		if (screen_size_changed)
-		{
-			mLuminanceMap.allocate(width,height, GL_RGBA, FALSE, FALSE);
-		}
+		mLuminanceMap.allocate(width,height, GL_RGBA, FALSE, FALSE);
 	}
 	else
 	{
-		if (screen_size_changed)
-		{
-			mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
-		}
+		mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE);		
 	}
 	
 
 	if (gGLManager.mHasFramebufferMultisample && samples > 1)
 	{
-		if (screen_size_changed)
+		mSampleBuffer.allocate(resX,resY,GL_RGBA,TRUE,TRUE,LLTexUnit::TT_RECT_TEXTURE,FALSE,samples);
+		if (LLPipeline::sRenderDeferred)
 		{
-			mSampleBuffer.allocate(resX,resY,GL_RGBA,TRUE,TRUE,LLTexUnit::TT_RECT_TEXTURE,FALSE,samples);
-			if (LLPipeline::sRenderDeferred)
-			{
-				addDeferredAttachments(mSampleBuffer);
-				mDeferredScreen.setSampleBuffer(&mSampleBuffer);
-			}
+			addDeferredAttachments(mSampleBuffer);
+			mDeferredScreen.setSampleBuffer(&mSampleBuffer);
 		}
+
 		mScreen.setSampleBuffer(&mSampleBuffer);
 
 		stop_glerror();
 	}
 	
-	if (LLPipeline::sRenderDeferred 
-		&& screen_size_changed)
+	if (LLPipeline::sRenderDeferred)
 	{ //share depth buffer between deferred targets
 		mDeferredScreen.shareDepthBuffer(mScreen);
 		for (U32 i = 0; i < 3; i++)
