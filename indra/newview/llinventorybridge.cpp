@@ -62,6 +62,7 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llwearablelist.h"
+#include "llpaneloutfitsinventory.h"
 
 using namespace LLOldEvents;
 
@@ -2351,6 +2352,19 @@ void LLFolderBridge::staticFolderOptionsMenu()
 	sSelf->folderOptionsMenu();
 }
 
+bool isInOutfitsSidePanel(LLPanel *panel)
+{
+	LLInventoryPanel *my_panel = dynamic_cast<LLInventoryPanel*>(panel);
+	LLPanelOutfitsInventory *outfit_panel =
+		dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
+	if (!outfit_panel)
+		return false;
+	return outfit_panel->isAccordionPanel(my_panel);
+
+	//LLInventoryPanel *outfit_inv_panel = outfit_panel ? outfit_panel->getActivePanel(): NULL;
+	//return (my_panel && (my_panel == outfit_inv_panel));
+}
+
 void LLFolderBridge::folderOptionsMenu()
 {
 	std::vector<std::string> disabled_items;
@@ -2364,11 +2378,17 @@ void LLFolderBridge::folderOptionsMenu()
 	// BAP change once we're no longer treating regular categories as ensembles.
 	const bool is_ensemble = category && (type == LLFolderType::FT_NONE ||
 										  LLFolderType::lookupIsEnsembleType(type));
+	const bool is_sidepanel = isInOutfitsSidePanel(mInventoryPanel.get());
 
 	// calling card related functionality for folders.
 
+	if (is_sidepanel)
+	{
+		mItems.clear();
+	}
+
 	// Only enable calling-card related options for non-default folders.
-	if (!is_default_folder)
+	if (!is_sidepanel && !is_default_folder)
 	{
 		LLIsType is_callingcard(LLAssetType::AT_CALLINGCARD);
 		if (mCallingCards || checkFolderForContentsOfType(model, is_callingcard))

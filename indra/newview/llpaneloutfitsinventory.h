@@ -78,6 +78,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////
 	// Accordion                                                                    //
 	LLInventoryPanel* 	getActivePanel();
+	bool isAccordionPanel(LLInventoryPanel *panel);
 	
 protected:
 	void 				initAccordionPanels();
