@@ -82,7 +82,13 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mUpdateSlider(true),
 	mClearFaceOnFade(false),
 	mCurrentRate(0.0),
-	mMovieDuration(0.0)
+	mMovieDuration(0.0),
+	mTargetObjectID(LLUUID::null),
+	mTargetObjectFace(0),
+	mTargetImplID(LLUUID::null),
+	mTargetObjectNormal(LLVector3::zero),
+	mZoomObjectID(LLUUID::null),
+	mZoomObjectFace(0)
 {
 	mCommitCallbackRegistrar.add("MediaCtrl.Close",		boost::bind(&LLPanelPrimMediaControls::onClickClose, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Back",		boost::bind(&LLPanelPrimMediaControls::onClickBack, this));
@@ -277,7 +283,7 @@ void LLPanelPrimMediaControls::updateShape()
 
 	bool can_navigate = parcel->getMediaAllowNavigate();
 	bool enabled = false;
-	bool is_zoomed = (mCurrentZoom != ZOOM_NONE);
+	bool is_zoomed = (mCurrentZoom != ZOOM_NONE) && (mTargetObjectID == mZoomObjectID) && (mTargetObjectFace == mZoomObjectFace);
 	// There is no such thing as "has_focus" being different from normal controls set
 	// anymore (as of user feedback from bri 10/09).  So we cheat here and force 'has_focus'
 	// to 'true' (or, actually, we use a setting)
@@ -307,7 +313,7 @@ void LLPanelPrimMediaControls::updateShape()
 		mStopCtrl->setVisible(false);
 		mHomeCtrl->setVisible(has_focus);
 		mZoomCtrl->setVisible(!is_zoomed);
-		mUnzoomCtrl->setVisible(has_focus && is_zoomed);
+		mUnzoomCtrl->setVisible(is_zoomed);
 		mOpenCtrl->setVisible(true);
 		mMediaAddressCtrl->setVisible(has_focus && !mini_controls);
 		mMediaPlaySliderPanel->setVisible(has_focus && !mini_controls);
@@ -982,9 +988,16 @@ void LLPanelPrimMediaControls::updateZoom()
 		}
 	}
 
-	if (zoom_padding > 0.0f)		
+	if (zoom_padding > 0.0f)
+	{
 		LLViewerMediaFocus::setCameraZoom(getTargetObject(), mTargetObjectNormal, zoom_padding);
+	}
+	
+	// Remember the object ID/face we zoomed into, so we can update the zoom icon appropriately
+	mZoomObjectID = mTargetObjectID;
+	mZoomObjectFace = mTargetObjectFace;
 }
+
 void LLPanelPrimMediaControls::onScrollUp(void* user_data)
 {
 	LLPanelPrimMediaControls* this_panel = static_cast<LLPanelPrimMediaControls*> (user_data);
