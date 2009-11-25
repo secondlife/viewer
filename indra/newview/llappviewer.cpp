@@ -3546,7 +3546,7 @@ void LLAppViewer::idle()
 		gEventNotifier.update();
 		
 		gIdleCallbacks.callFunctions();
-		gInventory.notifyObservers();
+		gInventory.idleNotifyObservers();
 	}
 	
 	if (gDisconnected)
