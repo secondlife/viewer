@@ -57,7 +57,6 @@
     </text>
     <button
      follows="top|left"
-     font="SansSerifSmall"
      height="20"
      label="Connect Telehub"
      layout="topleft"
@@ -67,7 +66,6 @@
      width="110" />
     <button
      follows="top|left"
-     font="SansSerifSmall"
      height="20"
      label="Disconnect"
      layout="topleft"
@@ -97,7 +95,6 @@
      width="230" />
     <button
      follows="top|left"
-     font="SansSerifSmall"
      height="20"
      label="Add Spawn"
      layout="topleft"
@@ -107,7 +104,6 @@
      width="110" />
     <button
      follows="top|left"
-     font="SansSerifSmall"
      height="20"
      label="Remove Spawn"
      layout="topleft"

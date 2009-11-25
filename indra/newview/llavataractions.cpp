@@ -297,7 +297,7 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 		//Show own profile
 		if(gAgent.getID() == id)
 		{
-			LLSideTray::getInstance()->showPanel("panel_me_profile", params);
+			LLSideTray::getInstance()->showPanel("panel_me", params);
 		}
 		//Show other user profile
 		else

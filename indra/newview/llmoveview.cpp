@@ -586,7 +586,8 @@ void LLPanelStandStopFlying::setVisible(BOOL visible)
 		updatePosition();
 	}
 
-	LLPanel::setVisible(visible);
+	//change visibility of parent layout_panel to animate in/out
+	if (getParent()) getParent()->setVisible(visible);
 }
 
 BOOL LLPanelStandStopFlying::handleToolTip(S32 x, S32 y, MASK mask)

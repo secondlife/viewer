@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-      background_visible="true"
+	 background_visible="true"
      bevel_style="in"
      bg_alpha_color="black"
      follows="top|left|right"
      height="24"
      label="im_header"
-     layout="topleft"
+	 layout="topleft"
      name="im_header"
      width="300">
-            <avatar_icon
+		<avatar_icon
          follows="left"
          height="18"
          image_name="Generic_Person"
@@ -19,18 +19,20 @@
          name="avatar_icon"
          top="3"
          width="18" />
-    <text
+    <text_editor
+	 v_pad = "0"
+	 read_only = "true"
      follows="left|right"
-      font.style="BOLD"
-         height="12"
-         layout="topleft"
-         left_pad="5"
-     right="-50"
+	 font.style="BOLD"
+	 height="12"
+	 layout="topleft"
+	 left_pad="5"
+     right="-60"
      name="user_name"
      text_color="white"
-         top="8"
-         use_ellipses="true"
-         value="Erica Vader" />
+	 top="8"
+	 use_ellipses="true"
+	 value="Ericag Vader" />
     <text
             font="SansSerifSmall"
          follows="right"
@@ -39,7 +41,7 @@
          layout="topleft"
          left_pad="5"
      name="time_box"
-     right="-10"
+     right="-5"
      top="8"
          value="23:30"
          width="50" />

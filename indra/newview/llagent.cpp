@@ -2799,7 +2799,8 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLBottomTray::getInstance()->setVisible(TRUE);
 
-		LLSideTray::getInstance()->setVisible(TRUE);
+		LLSideTray::getInstance()->getButtonsPanel()->setVisible(TRUE);
+		LLSideTray::getInstance()->updateSidetrayVisibility();
 
 		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
 
@@ -2897,7 +2898,8 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLBottomTray::getInstance()->setVisible(FALSE);
 
-		LLSideTray::getInstance()->setVisible(FALSE);
+		LLSideTray::getInstance()->getButtonsPanel()->setVisible(FALSE);
+		LLSideTray::getInstance()->updateSidetrayVisibility();
 
 		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
 

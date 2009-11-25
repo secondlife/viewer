@@ -41,6 +41,7 @@
 
 #include "llpanelobjectinventory.h"
 
+#include "llmenugl.h"
 #include "roles_constants.h"
 
 #include "llagent.h"

@@ -760,21 +760,25 @@ void LLMenuItemCallGL::initFromParams(const Params& p)
 {
 	if (p.on_visible.isProvided())
 	{
-		initVisibleCallback(p.on_visible, mVisibleSignal);
+		mVisibleSignal.connect(initVisibleCallback(p.on_visible));
 	}
 	if (p.on_enable.isProvided())
 	{
-		initEnableCallback(p.on_enable, mEnableSignal);
+		setEnableCallback(initEnableCallback(p.on_enable));
 		// Set the enabled control variable (for backwards compatability)
 		if (p.on_enable.control_name.isProvided() && !p.on_enable.control_name().empty())
 		{
 			LLControlVariable* control = findControl(p.on_enable.control_name());
 			if (control)
+			{
 				setEnabledControlVariable(control);
+			}
 		}
 	}
 	if (p.on_click.isProvided())
-		initCommitCallback(p.on_click, mCommitSignal);
+	{
+		setCommitCallback(initCommitCallback(p.on_click));
+	}
 		
 	LLUICtrl::initFromParams(p);
 }
@@ -795,7 +799,10 @@ void LLMenuItemCallGL::updateEnabled( void )
 		if (mEnabledControlVariable)
 		{
 			if (!enabled)
-				mEnabledControlVariable->set(false); // callback overrides control variable; this will call setEnabled()
+			{
+				// callback overrides control variable; this will call setEnabled()
+				mEnabledControlVariable->set(false); 
+			}
 		}
 		else
 		{
@@ -854,7 +861,7 @@ void LLMenuItemCheckGL::initFromParams(const Params& p)
 {
 	if (p.on_check.isProvided())
 	{
-		initEnableCallback(p.on_check, mCheckSignal);
+		setCheckCallback(initEnableCallback(p.on_check));
 		// Set the control name (for backwards compatability)
 		if (p.on_check.control_name.isProvided() && !p.on_check.control_name().empty())
 		{

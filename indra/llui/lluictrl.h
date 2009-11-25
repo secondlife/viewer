@@ -162,9 +162,9 @@ protected:
 	LLUICtrl(const Params& p = getDefaultParams(),
              const LLViewModelPtr& viewmodel=LLViewModelPtr(new LLViewModel));
 	
-	void initCommitCallback(const CommitCallbackParam& cb, commit_signal_t& sig);
-	void initEnableCallback(const EnableCallbackParam& cb, enable_signal_t& sig);
-	void initVisibleCallback(const VisibleCallbackParam& cb, visible_signal_t& sig);
+	commit_signal_t::slot_type initCommitCallback(const CommitCallbackParam& cb);
+	enable_signal_t::slot_type initEnableCallback(const EnableCallbackParam& cb);
+	visible_signal_t::slot_type initVisibleCallback(const VisibleCallbackParam& cb);
 
 	// We need this virtual so we can override it with derived versions
 	virtual LLViewModel* getViewModel() const;
@@ -254,18 +254,18 @@ public:
 	// topic then put in help_topic_out
 	bool                    findHelpTopic(std::string& help_topic_out);
 
-	boost::signals2::connection setCommitCallback( const commit_signal_t::slot_type& cb ) { return mCommitSignal.connect(cb); }
-	boost::signals2::connection setValidateCallback( const enable_signal_t::slot_type& cb ) { return mValidateSignal.connect(cb); }
+	boost::signals2::connection setCommitCallback( const commit_signal_t::slot_type& cb );
+	boost::signals2::connection setValidateCallback( const enable_signal_t::slot_type& cb );
 
-	boost::signals2::connection setMouseEnterCallback( const commit_signal_t::slot_type& cb ) { return mMouseEnterSignal.connect(cb); }
-	boost::signals2::connection setMouseLeaveCallback( const commit_signal_t::slot_type& cb ) { return mMouseLeaveSignal.connect(cb); }
+	boost::signals2::connection setMouseEnterCallback( const commit_signal_t::slot_type& cb );
+	boost::signals2::connection setMouseLeaveCallback( const commit_signal_t::slot_type& cb );
 	
-	boost::signals2::connection setMouseDownCallback( const mouse_signal_t::slot_type& cb ) { return mMouseDownSignal.connect(cb); }
-	boost::signals2::connection setMouseUpCallback( const mouse_signal_t::slot_type& cb ) { return mMouseUpSignal.connect(cb); }
-	boost::signals2::connection setRightMouseDownCallback( const mouse_signal_t::slot_type& cb ) { return mRightMouseDownSignal.connect(cb); }
-	boost::signals2::connection setRightMouseUpCallback( const mouse_signal_t::slot_type& cb ) { return mRightMouseUpSignal.connect(cb); }
+	boost::signals2::connection setMouseDownCallback( const mouse_signal_t::slot_type& cb );
+	boost::signals2::connection setMouseUpCallback( const mouse_signal_t::slot_type& cb );
+	boost::signals2::connection setRightMouseDownCallback( const mouse_signal_t::slot_type& cb );
+	boost::signals2::connection setRightMouseUpCallback( const mouse_signal_t::slot_type& cb );
 	
-	boost::signals2::connection setDoubleClickCallback( const mouse_signal_t::slot_type& cb ) { return mDoubleClickSignal.connect(cb); }
+	boost::signals2::connection setDoubleClickCallback( const mouse_signal_t::slot_type& cb );
 
 	// *TODO: Deprecate; for backwards compatability only:
 	boost::signals2::connection setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data);	
@@ -293,18 +293,18 @@ protected:
 
 	static bool controlListener(const LLSD& newvalue, LLHandle<LLUICtrl> handle, std::string type);
 
-	commit_signal_t		mCommitSignal;
-	enable_signal_t		mValidateSignal;
+	commit_signal_t*		mCommitSignal;
+	enable_signal_t*		mValidateSignal;
 
-	commit_signal_t		mMouseEnterSignal;
-	commit_signal_t		mMouseLeaveSignal;
+	commit_signal_t*		mMouseEnterSignal;
+	commit_signal_t*		mMouseLeaveSignal;
 	
-	mouse_signal_t		mMouseDownSignal;
-	mouse_signal_t		mMouseUpSignal;
-	mouse_signal_t		mRightMouseDownSignal;
-	mouse_signal_t		mRightMouseUpSignal;
+	mouse_signal_t*		mMouseDownSignal;
+	mouse_signal_t*		mMouseUpSignal;
+	mouse_signal_t*		mRightMouseDownSignal;
+	mouse_signal_t*		mRightMouseUpSignal;
 
-	mouse_signal_t		mDoubleClickSignal;
+	mouse_signal_t*		mDoubleClickSignal;
 	
     LLViewModelPtr  mViewModel;
 

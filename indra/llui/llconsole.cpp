@@ -392,9 +392,4 @@ void LLConsole::addLine(const LLWString& wline, F32 size, const LLColor4 &color)
 	Paragraph paragraph(wline, color, mTimer.getElapsedTimeF32(), mFont,  (F32)getRect().getWidth() );
 	
 	mParagraphs.push_back ( paragraph );
-	
-#if LL_WINDOWS && LL_LCD_COMPILE
-	// add to LCD screen
-	AddNewDebugConsoleToLCD(wline);
-#endif	
 }

@@ -356,7 +356,7 @@ void LLMediaCtrl::onFocusLost()
 //
 BOOL LLMediaCtrl::postBuild ()
 {
-	mVisibleSignal.connect(boost::bind(&LLMediaCtrl::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChange, this, _2));
 	return TRUE;
 }
 

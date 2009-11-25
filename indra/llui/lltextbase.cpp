@@ -60,6 +60,11 @@ LLTextBase::line_info::line_info(S32 index_start, S32 index_end, LLRect rect, S3
 
 bool LLTextBase::compare_segment_end::operator()(const LLTextSegmentPtr& a, const LLTextSegmentPtr& b) const
 {
+	// sort empty spans (e.g. 11-11) after previous non-empty spans (e.g. 5-11)
+	if (a->getEnd() == b->getEnd())
+	{
+		return a->getStart() < b->getStart();
+	}
 	return a->getEnd() < b->getEnd();
 }
 
@@ -2060,16 +2065,16 @@ void LLTextBase::updateRects()
 			mContentsRect.unionWith(line_iter->mRect);
 		}
 
-		mContentsRect.mLeft = 0;
+		S32 delta_pos_x = -mContentsRect.mLeft;
 		mContentsRect.mTop += mVPad;
 
 		S32 delta_pos = -mContentsRect.mBottom;
 		// move line segments to fit new document rect
 		for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
 		{
-			it->mRect.translate(0, delta_pos);
+			it->mRect.translate(delta_pos_x, delta_pos);
 		}
-		mContentsRect.translate(0, delta_pos);
+		mContentsRect.translate(delta_pos_x, delta_pos);
 	}
 
 	// update document container dimensions according to text contents

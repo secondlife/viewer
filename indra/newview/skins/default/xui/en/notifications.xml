@@ -4506,7 +4506,7 @@ You don&apos;t have permission to copy this.
    icon="notifytip.tga"
    name="InventoryAccepted"
    type="notifytip">
-[NAME] accepted your inventory offer.
+[NAME] received your inventory offer.
   </notification>
 
   <notification
@@ -4978,17 +4978,17 @@ No valid parcel could be found.
    icon="notify.tga"
    name="ObjectGiveItem"
    type="offer">
-An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has offered you [OBJECTTYPE]:
+An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you [OBJECTTYPE]:
 [ITEM_SLURL]
     <form name="form">
       <button
        index="0"
        name="Keep"
-       text="OK"/>
+       text="Keep"/>
       <button
        index="1"
        name="Discard"
-       text="Cancel"/>
+       text="Discard"/>
       <button
        index="2"
        name="Mute"
@@ -5000,17 +5000,17 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has offered you [OBJECTTY
    icon="notify.tga"
    name="ObjectGiveItemUnknownUser"
    type="offer">
-An object named [OBJECTFROMNAME] owned by (an unknown Resident) has offered you [OBJECTTYPE]:
+An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [OBJECTTYPE]:
 [ITEM_SLURL]
     <form name="form">
       <button
        index="0"
        name="Keep"
-       text="OK"/>
+       text="Keep"/>
       <button
        index="1"
        name="Discard"
-       text="Cancel"/>
+       text="Discard"/>
       <button
        index="2"
        name="Mute"
@@ -5022,17 +5022,21 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has offered you 
    icon="notify.tga"
    name="UserGiveItem"
    type="offer">
-[NAME_SLURL] has offered you [OBJECTTYPE]:
+[NAME_SLURL] has given you [OBJECTTYPE]:
 [ITEM_SLURL]
     <form name="form">
       <button
        index="0"
        name="Keep"
-       text="Accept"/>
+       text="Keep"/>
+      <button
+       index="4"
+       name="Show"
+       text="Show"/> 
       <button
        index="1"
        name="Discard"
-       text="No, thanks"/>
+       text="Discard"/>
     </form>
   </notification>
 
