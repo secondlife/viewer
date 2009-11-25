@@ -35,4 +35,35 @@
 
 #include "llcallfloater.h"
 
+#include "llavatarlist.h"
+#include "llparticipantlist.h"
+#include "llspeakers.h"
+
+
+LLCallFloater::LLCallFloater()
+: LLFloater(LLSD())
+, mSpeakerManager(NULL)
+, mPaticipants(NULL)
+, mAvatarList(NULL)
+{
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_voice_controls.xml", NULL);
+}
+
+LLCallFloater::~LLCallFloater()
+{
+	delete mPaticipants;
+	mPaticipants = NULL;
+}
+
+// virtual
+BOOL LLCallFloater::postBuild()
+{
+	LLFloater::postBuild();
+	mAvatarList = getChild<LLAvatarList>("speakers_list");
+
+	mSpeakerManager = LLLocalSpeakerMgr::getInstance();
+	mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList);
+
+	return TRUE;
+}
 //EOF

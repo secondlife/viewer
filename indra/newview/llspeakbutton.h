@@ -36,7 +36,7 @@
 #include "llinitparam.h"
 #include "lluictrl.h"
 
-class LLVoiceControlPanel;
+class LLCallFloater;
 class LLButton;
 class LLOutputMonitorCtrl;
 
@@ -91,7 +91,7 @@ protected:
 private:
 	LLButton*	mSpeakBtn;
 	LLButton*	mShowBtn;
-	LLVoiceControlPanel* mPrivateCallPanel;
+	LLHandle<LLFloater> mPrivateCallPanel;
 	LLOutputMonitorCtrl* mOutputMonitor;
 };
 
