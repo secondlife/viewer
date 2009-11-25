@@ -408,7 +408,7 @@ void LLAgentWearables::saveWearable(const EWearableType type, const U32 index, B
 			return;
 		}
 
-		gAgent.getAvatarObject()->wearableUpdated( type );
+		gAgent.getAvatarObject()->wearableUpdated( type, TRUE );
 
 		if (send_update)
 		{
@@ -698,7 +698,7 @@ U32 LLAgentWearables::pushWearable(const EWearableType type, LLWearable *wearabl
 
 void LLAgentWearables::wearableUpdated(LLWearable *wearable)
 {
-	mAvatarObject->wearableUpdated(wearable->getType());
+	mAvatarObject->wearableUpdated(wearable->getType(), TRUE);
 	wearable->setLabelUpdated();
 
 	// Hack pt 2. If the wearable we just loaded has definition version 24,
@@ -739,7 +739,7 @@ void LLAgentWearables::popWearable(const EWearableType type, U32 index)
 	if (wearable)
 	{
 		mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
-		mAvatarObject->wearableUpdated(wearable->getType());
+		mAvatarObject->wearableUpdated(wearable->getType(), TRUE);
 		wearable->setLabelUpdated();
 	}
 }

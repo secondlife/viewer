@@ -703,7 +703,7 @@ void LLWearable::removeFromAvatar( EWearableType type, BOOL upload_bake )
 	}
 
 	avatar->updateVisualParams();
-	avatar->wearableUpdated(type);
+	avatar->wearableUpdated(type, TRUE);
 
 //	if( upload_bake )
 //	{
