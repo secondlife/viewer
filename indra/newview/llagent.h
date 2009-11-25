@@ -36,14 +36,13 @@
 #include "indra_constants.h"
 #include "llevent.h" 				// LLObservable base class
 #include "llagentaccess.h"
-#include "llagentaccess.h"
 #include "llagentconstants.h"
-#include "llhudeffectpointat.h" 	// ELookAtType
-#include "llhudeffectlookat.h" 		// EPointAtType
-#include "llpointer.h"
+#include "llagentdata.h" 			// gAgentID, gAgentSessionID
 #include "llcharacter.h" 			// LLAnimPauseRequest
 #include "llfollowcam.h" 			// Ventrella
-#include "llagentdata.h" 			// gAgentID, gAgentSessionID
+#include "llhudeffectlookat.h" 		// EPointAtType
+#include "llhudeffectpointat.h" 	// ELookAtType
+#include "llpointer.h"
 #include "lluicolor.h"
 #include "llvoavatardefines.h"
 
@@ -311,7 +310,7 @@ private:
 	// Fly
 	//--------------------------------------------------------------------
 public:
-	BOOL			getFlying() const	{ return mControlFlags & AGENT_CONTROL_FLY; }
+	BOOL			getFlying() const;
 	void			setFlying(BOOL fly);
 	static void		toggleFlying();
 	static bool		enableFlying();

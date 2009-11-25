@@ -46,7 +46,7 @@
          left="0"
          min_height="23"
          width="310"
-         top="0"
+         top="4"
          min_width="192"
          name="chat_bar"
          user_resize="false"
@@ -58,20 +58,20 @@
          height="28"
          layout="topleft"
          min_height="28"
-         width="104"
+         width="100"
          top_delta="0"
-         min_width="104"
+         min_width="54"
          name="speak_panel"
          user_resize="false">
           <talk_button
-           follows="right"
+           follows="left|right"
            height="23"
            speak_button.tab_stop="true"
            show_button.tab_stop="true"
            layout="topleft"
            left="0"
            name="talk"
-           top="3"
+           top="4"
           width="100" />
         </layout_panel>
         <icon
@@ -94,7 +94,7 @@
          min_height="28"
          width="82"
          top_delta="0"
-         min_width="82"
+         min_width="52"
          name="gesture_panel"
          user_resize="false">
          <gesture_combo_box
@@ -104,10 +104,13 @@
           layout="topleft"
           name="Gesture"
           left="0"
-          top="3"
-         use_ellipses="true"
+          top="4"
           width="82"
-          tool_tip="Shows/hides gestures"/>
+          tool_tip="Shows/hides gestures">
+             <gesture_combo_box.drop_down_button
+              pad_right="10" 
+              use_ellipses="true" />
+         </gesture_combo_box>
         </layout_panel>
 		 <icon
          auto_resize="false"
@@ -131,8 +134,11 @@
          name="movement_panel"
          user_resize="false"
          width="80"
-         min_width="80">
+         min_width="49">
             <button
+                 image_selected="PushButton_Selected_Press"
+                 image_pressed="PushButton_Press"
+		 image_pressed_selected="PushButton_Selected_Press"
              follows="left|right"
              height="23"
              use_ellipses="true"
@@ -141,7 +147,7 @@
              layout="topleft"
              name="movement_btn"
              tool_tip="Shows/hides movement controls"
-             top="3"
+             top="4"
              width="80">
                 <button.init_callback
                  function="Button.SetDockableFloaterToggle"
@@ -167,11 +173,14 @@
          height="28"
          layout="topleft"
          min_height="28"
-         min_width="80"
+         min_width="49"
          name="cam_panel"
          user_resize="false"
          width="80">
             <button
+                 image_selected="PushButton_Selected_Press"
+                 image_pressed="PushButton_Press"
+		 image_pressed_selected="PushButton_Selected_Press"
              follows="left|right"
              height="23"
              use_ellipses="true"
@@ -180,7 +189,7 @@
              layout="topleft"
              left="0"
              tool_tip="Shows/hides camera controls"
-             top="3"
+             top="4"
              name="camera_btn"
              width="80">
                 <button.init_callback
@@ -217,7 +226,7 @@
              layout="topleft"
              name="snapshots"
              width="36"
-             top="3"
+             top="4"
              image_overlay="Snapshot_Off"
              tool_tip="Take snapshot">
 				<button.commit_callback
@@ -241,37 +250,47 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
             <chiclet_panel
 	    mouse_opaque="false"
              follows="left|right"
-             height="28"
+             height="23"
              layout="topleft"
              left="0"
              min_width="180"
              name="chiclet_list"
-             top="0"
-             chiclet_padding="3"
+             top="4"
+             chiclet_padding="4"
              scrolling_offset="40"
              width="189">
                 <button
                  auto_resize="true"
                  follows="right"
                  height="23"
-                 image_selected="BottomTray_Scroll_Left"
-                 image_unselected="BottomTray_Scroll_Left"
+                 image_selected="SegmentedBtn_Left_Off"
+                 image_unselected="SegmentedBtn_Left_Off"
+		 image_hover_selected="SegmentedBtn_Left_Over"
+		 image_hover_unselected="SegmentedBtn_Left_Over"
+		 image_pressed="SegmentedBtn_Left_Press"
+		 image_pressed_selected="SegmentedBtn_Left_Press"
+		 image_overlay="Arrow_Small_Left"
                  layout="topleft"
                  name="chicklet_left_scroll_button"
                  tab_stop="false"
-                 top="3"
+                 top="0"
                  visible="false"
                  width="20" />
                 <button
                  auto_resize="true"
                  follows="right"
                  height="23"
-                 image_selected="BottomTray_Scroll_Right"
-                 image_unselected="BottomTray_Scroll_Right"
+                 image_selected="SegmentedBtn_Right_Off"
+                 image_unselected="SegmentedBtn_Right_Off"
+		 image_hover_selected="SegmentedBtn_Right_Over"
+		 image_hover_unselected="SegmentedBtn_Right_Over"
+		 image_pressed="SegmentedBtn_Right_Press"
+		 image_pressed_selected="SegmentedBtn_Right_Press"
+		 image_overlay="Arrow_Small_Right"
                  layout="topleft"
                  name="chicklet_right_scroll_button"
                  tab_stop="false"
-                 top="3"
+                 top="0"
                  visible="false"
                  width="20" />
             </chiclet_panel>
@@ -295,8 +314,8 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          min_height="28"
          top="0"
          name="sys_well_panel"
-         width="34"
-         min_width="34"
+         width="54"
+         min_width="54"
          user_resize="false">
             <chiclet_notification
              follows="right"
@@ -305,22 +324,24 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              left="0"
              name="sys_well"
              top="4"
-             width="34">
+             width="54">
               <button
+                 image_selected="PushButton_Selected_Press"
+                 image_pressed="PushButton_Press"
+		 image_pressed_selected="PushButton_Selected_Press"
               auto_resize="true"
                halign="right"
                height="23"
                follows="right"
                flash_color="EmphasisColor"
+               left="0"
                name="Unread"
                image_overlay="Notices_Unread"
-               width="20"
+               image_overlay_alignment="right" 
+               pad_right="6"
+               pad_left="6"
+               width="54"
                />
-               <unread_notifications
-               width="34"
-               height="20"
-               left="0"
-               top="19" />
 	    </chiclet_notification>
         </layout_panel>
        <icon

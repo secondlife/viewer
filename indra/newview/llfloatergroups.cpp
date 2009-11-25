@@ -327,7 +327,7 @@ void LLPanelGroups::startIM()
 
 	if (group_list && (group_id = group_list->getCurrentID()).notNull())
 	{
-		LLGroupActions::startChat(group_id);
+		LLGroupActions::startIM(group_id);
 	}
 }
 

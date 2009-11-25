@@ -129,7 +129,7 @@ void LLFloaterChat::draw()
 BOOL LLFloaterChat::postBuild()
 {
 	// Hide the chat overlay when our history is visible.
-	mVisibleSignal.connect(boost::bind(&LLFloaterChat::updateConsoleVisibility, this));
+	setVisibleCallback(boost::bind(&LLFloaterChat::updateConsoleVisibility, this));
 	
 	mPanel = (LLPanelActiveSpeakers*)getChild<LLPanel>("active_speakers_panel");
 
@@ -180,16 +180,12 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 	edit->blockUndo();
 }
 
-void log_chat_text(const LLChat& chat)
-{
-	LLLogChat::saveHistory(std::string("chat"), chat.mFromName, chat.mFromID, chat.mText);
-}
 // static
 void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 {	
-	if ( (gSavedPerAccountSettings.getS32("IMLogOptions")!=LOG_IM) && log_to_file) 
+	if (log_to_file && (gSavedPerAccountSettings.getBOOL("LogChat"))) 
 	{
-		log_chat_text(chat);
+		LLLogChat::saveHistory("chat", chat.mFromName, chat.mFromID, chat.mText);
 	}
 	
 	LLColor4 color = get_text_color(chat);
@@ -305,55 +301,27 @@ void LLFloaterChat::onClickToggleShowMute(LLUICtrl* caller, void *data)
 }
 
 // Put a line of chat in all the right places
-void LLFloaterChat::addChat(const LLChat& chat, 
-			  BOOL from_instant_message, 
-			  BOOL local_agent)
+void LLFloaterChat::addChat(const LLChat& chat, BOOL from_instant_message, BOOL local_agent)
 {
-	LLColor4 text_color = get_text_color(chat);
-
-	BOOL invisible_script_debug_chat = ((gSavedSettings.getBOOL("ShowScriptErrors") == FALSE) ||
-			(chat.mChatType == CHAT_TYPE_DEBUG_MSG
-			&& (gSavedSettings.getS32("ShowScriptErrorsLocation") == 1)));
-
-	if (!invisible_script_debug_chat 
-		&& !chat.mMuted 
-		&& gConsole 
-		&& !local_agent)
-	{
-		F32 size = CHAT_MSG_SIZE;
-		if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
-		{
-			text_color = LLUIColorTable::instance().getColor("SystemChatColor");
-		}
-		else if(from_instant_message)
-		{
-			text_color = LLUIColorTable::instance().getColor("IMChatColor");
-			size = INSTANT_MSG_SIZE;
-		}
-		// Disabling the console for 2.0 - SJB
-#if 0
-		// We display anything if it's not an IM. If it's an IM, check pref...
-		if	( !from_instant_message || gSavedSettings.getBOOL("IMInChatConsole") ) 
-		{
-			gConsole->addLine(chat.mText, size, text_color);
-		}
-#endif
-	}
-
-	if(from_instant_message && (gSavedPerAccountSettings.getS32("IMLogOptions")== LOG_BOTH_TOGETHER))
-		log_chat_text(chat);
-	
-	if(from_instant_message && gSavedSettings.getBOOL("IMInChatHistory")) 	 
-		addChatHistory(chat,false);
-
 	triggerAlerts(chat.mText);
 
 	// Add the sender to the list of people with which we've recently interacted.
 	if(chat.mSourceType == CHAT_SOURCE_AGENT && chat.mFromID.notNull())
 		LLRecentPeople::instance().add(chat.mFromID);
-
-	if(!from_instant_message)
-		addChatHistory(chat);
+	
+	bool add_chat = true;
+	bool log_chat = true;
+	if(from_instant_message)
+	{
+		if (!gSavedSettings.getBOOL("IMInChat"))
+			add_chat = false;
+		//log_chat = false;
+}
+	
+	if (add_chat)
+	{
+		addChatHistory(chat, log_chat);
+	}
 }
 
 // Moved from lltextparser.cpp to break llui/llaudio library dependency.

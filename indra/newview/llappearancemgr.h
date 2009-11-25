@@ -36,6 +36,7 @@
 #include "llsingleton.h"
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
+#include "llcallbacklist.h"
 
 class LLWearable;
 struct LLWearableHoldingPattern;
@@ -53,12 +54,6 @@ public:
 	void wearOutfitByName(const std::string& name);
 	void changeOutfit(bool proceed, const LLUUID& category, bool append);
 
-	// Add COF link to individual item.
-	void addItemLink(LLInventoryItem* item, bool do_update = true);
-
-	// Add COF link to ensemble folder.
-	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);
-
 	// Copy all items in a category.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
 							 LLPointer<LLInventoryCallback> cb);
@@ -66,8 +61,8 @@ public:
 	// Find the Current Outfit folder.
 	LLUUID getCOF();
 
-	// Remove COF entries
-	void removeItemLinks(const LLUUID& item_id, bool do_update = true);
+	// Finds the folder link to the currently worn outfit
+	const LLViewerInventoryItem *getCurrentOutfitLink();
 
 	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
 
@@ -81,6 +76,21 @@ public:
 	void setAttachmentInvLinkEnable(bool val);
 	void linkRegisteredAttachments();
 
+	// utility function for bulk linking.
+	void linkAll(const LLUUID& category,
+				 LLInventoryModel::item_array_t& items,
+				 LLPointer<LLInventoryCallback> cb);
+
+	// Add COF link to individual item.
+	void addCOFItemLink(const LLUUID& item_id, bool do_update = true);
+	void addCOFItemLink(const LLInventoryItem *item, bool do_update = true);
+
+	// Remove COF entries
+	void removeCOFItemLinks(const LLUUID& item_id, bool do_update = true);
+
+	// Add COF link to ensemble folder.
+	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);
+
 protected:
 	LLAppearanceManager();
 	~LLAppearanceManager();
@@ -88,9 +98,6 @@ protected:
 private:
 
 	void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type);
-	void linkAll(const LLUUID& category,
-						LLInventoryModel::item_array_t& items,
-						LLPointer<LLInventoryCallback> cb);
 	
 	void getDescendentsOfAssetType(const LLUUID& category, 
 										  LLInventoryModel::item_array_t& items,
@@ -110,5 +117,37 @@ private:
 };
 
 #define SUPPORT_ENSEMBLES 0
+
+// Shim class and template function to allow arbitrary boost::bind
+// expressions to be run as one-time idle callbacks.
+template <typename T>
+class OnIdleCallback
+{
+public:
+	OnIdleCallback(T callable):
+		mCallable(callable)
+	{
+	}
+	static void onIdle(void *data)
+	{
+		gIdleCallbacks.deleteFunction(onIdle, data);
+		OnIdleCallback<T>* self = reinterpret_cast<OnIdleCallback<T>*>(data);
+		self->call();
+		delete self;
+	}
+	void call()
+	{
+		mCallable();
+	}
+private:
+	T mCallable;
+};
+
+template <typename T>
+void doOnIdle(T callable)
+{
+	OnIdleCallback<T>* cb_functor = new OnIdleCallback<T>(callable);
+	gIdleCallbacks.addFunction(&OnIdleCallback<T>::onIdle,cb_functor);
+}
 
 #endif

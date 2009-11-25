@@ -45,14 +45,6 @@ class LLChat;
 class LLPanelActiveSpeakers;
 class LLLogChat;
 
-enum ELogOptions
-{
-	LOG_CHAT = 0,
-	LOG_IM = 1,
-	LOG_BOTH_TOGETHER = 2,
-	LOG_BOTH_SEPARATE = 3
-};
-
 class LLFloaterChat : public LLFloater
 {
 public:

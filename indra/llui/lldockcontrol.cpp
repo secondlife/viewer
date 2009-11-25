@@ -266,6 +266,11 @@ void LLDockControl::off()
 	mEnabled = false;
 }
 
+void LLDockControl::forceRecalculatePosition()
+{
+	mRecalculateDocablePosition = true;
+}
+
 void LLDockControl::drawToungue()
 {
 	if (mEnabled)

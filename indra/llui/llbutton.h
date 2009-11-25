@@ -128,6 +128,8 @@ protected:
 	LLButton(const Params&);
 
 public:
+
+	~LLButton();
 	// For backward compatability only
 	typedef boost::function<void(void*)> button_callback_t;
 
@@ -251,9 +253,9 @@ private:
 	void			resetMouseDownTimer();
 
 private:
-	commit_signal_t 			mMouseDownSignal;
-	commit_signal_t 			mMouseUpSignal;
-	commit_signal_t 			mHeldDownSignal;
+	commit_signal_t* 			mMouseDownSignal;
+	commit_signal_t* 			mMouseUpSignal;
+	commit_signal_t* 			mHeldDownSignal;
 	
 	const LLFontGL*				mGLFont;
 	

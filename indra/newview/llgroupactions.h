@@ -88,7 +88,12 @@ public:
 	/**
 	 * Start group instant messaging session.
 	 */
-	static void startChat(const LLUUID& group_id);
+	static void startIM(const LLUUID& group_id);
+
+	/**
+	 * End group instant messaging session.
+	 */
+	static void endIM(const LLUUID& group_id);
 
 	/// Returns if the current user is a member of the group
 	static bool isInGroup(const LLUUID& group_id);

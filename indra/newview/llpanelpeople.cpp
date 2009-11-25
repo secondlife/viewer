@@ -56,6 +56,8 @@
 #include "llgrouplist.h"
 #include "llinventoryobserver.h"
 #include "llpanelpeoplemenus.h"
+#include "llsidetray.h"
+#include "llsidetraypanelcontainer.h"
 #include "llrecentpeople.h"
 #include "llviewercontrol.h"		// for gSavedSettings
 #include "llviewermenu.h"			// for gMenuHolder
@@ -483,7 +485,7 @@ void LLPanelPeople::onFriendsAccordionExpandedCollapsed(const LLSD& param, LLAva
 
 BOOL LLPanelPeople::postBuild()
 {
-	mVisibleSignal.connect(boost::bind(&LLPanelPeople::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLPanelPeople::onVisibilityChange, this, _2));
 	
 	mFilterEditor = getChild<LLFilterEditor>("filter_input");
 	mFilterEditor->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
@@ -536,8 +538,15 @@ BOOL LLPanelPeople::postBuild()
 	mNearbyList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mNearbyList));
 	mRecentList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mRecentList));
 
+	// Set openning IM as default on return action for avatar lists
+	mOnlineFriendList->setReturnCallback(boost::bind(&LLPanelPeople::onImButtonClicked, this));
+	mAllFriendList->setReturnCallback(boost::bind(&LLPanelPeople::onImButtonClicked, this));
+	mNearbyList->setReturnCallback(boost::bind(&LLPanelPeople::onImButtonClicked, this));
+	mRecentList->setReturnCallback(boost::bind(&LLPanelPeople::onImButtonClicked, this));
+
 	mGroupList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onChatButtonClicked, this));
 	mGroupList->setCommitCallback(boost::bind(&LLPanelPeople::updateButtons, this));
+	mGroupList->setReturnCallback(boost::bind(&LLPanelPeople::onChatButtonClicked, this));
 
 	LLAccordionCtrlTab* accordion_tab = getChild<LLAccordionCtrlTab>("tab_all");
 	accordion_tab->setDropDownStateChangedCallback(
@@ -758,7 +767,7 @@ void LLPanelPeople::updateButtons()
 	buttonSetEnabled("view_profile_btn",	item_selected);
 	buttonSetEnabled("im_btn",				multiple_selected); // allow starting the friends conference for multiple selection
 	buttonSetEnabled("call_btn",			multiple_selected);
-	buttonSetEnabled("share_btn",			item_selected && false); // not implemented yet
+	buttonSetEnabled("share_btn",			item_selected); // not implemented yet
 
 	bool none_group_selected = item_selected && selected_id.isNull();
 	buttonSetEnabled("group_info_btn", !none_group_selected);
@@ -1017,7 +1026,7 @@ void LLPanelPeople::onChatButtonClicked()
 {
 	LLUUID group_id = getCurrentItemID();
 	if (group_id.notNull())
-		LLGroupActions::startChat(group_id);
+		LLGroupActions::startIM(group_id);
 }
 
 void LLPanelPeople::onImButtonClicked()
@@ -1211,7 +1220,7 @@ void LLPanelPeople::onTeleportButtonClicked()
 
 void LLPanelPeople::onShareButtonClicked()
 {
-	// *TODO: not implemented yet
+	LLAvatarActions::share(getCurrentItemID());
 }
 
 void LLPanelPeople::onMoreButtonClicked()
@@ -1261,6 +1270,31 @@ void	LLPanelPeople::onOpen(const LLSD& key)
 		mTabContainer->selectTabByName(tab_name);
 	else
 		reSelectedCurrentTab();
+}
+
+void LLPanelPeople::notifyChildren(const LLSD& info)
+{
+	if (info.has("task-panel-action") && info["task-panel-action"].asString() == "handle-tri-state")
+	{
+		LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(getParent());
+		if (!container)
+		{
+			llwarns << "Cannot find People panel container" << llendl;
+			return;
+		}
+
+		if (container->getCurrentPanelIndex() > 0) 
+		{
+			// if not on the default panel, switch to it
+			container->onOpen(LLSD().insert(LLSideTrayPanelContainer::PARAM_SUB_PANEL_NAME, getName()));
+		}
+		else
+			LLSideTray::getInstance()->collapseSideBar();
+
+		return; // this notification is only supposed to be handled by task panels
+	}
+
+	LLPanel::notifyChildren(info);
 }
 
 void LLPanelPeople::showAccordion(const std::string name, bool show)

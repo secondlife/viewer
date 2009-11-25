@@ -209,6 +209,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	LLVOAvatarDefines::ETextureIndex getBakedTE(const LLTexLayerSet* layerset ) const;
+	void				setNewBakedTexture(LLVOAvatarDefines::EBakedTextureIndex i, const LLUUID &uuid);
 	void				setNewBakedTexture(LLVOAvatarDefines::ETextureIndex i, const LLUUID& uuid);
 	void				setCachedBakedTexture(LLVOAvatarDefines::ETextureIndex i, const LLUUID& uuid);
 	void				forceBakeAllTextures(bool slam_for_debug = false);
@@ -310,6 +311,7 @@ public:
 public:
 	static void		onChangeSelfInvisible(BOOL newvalue);
 	void			setInvisible(BOOL newvalue);
+	bool			sendAppearanceMessage(LLMessageSystem *mesgsys) const;
 
 /**                    Appearance
  **                                                                            **

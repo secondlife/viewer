@@ -122,7 +122,6 @@ public:
 
 	// Call this method to set the selection.
 	void openAllFolders();
-	void openDefaultFolderForType(LLFolderType::EType);
 	void setSelection(const LLUUID& obj_id, BOOL take_keyboard_focus);
 	void setSelectCallback(const LLFolderView::signal_t::slot_type& cb) { if (mFolders) mFolders->setSelectCallback(cb); }
 	void clearSelection();
@@ -161,36 +160,23 @@ public:
 	void openSelected();
 	void unSelectAll()	{ mFolders->setSelection(NULL, FALSE, FALSE); }
 	
-protected:
+	static void onIdle(void* user_data);
+
+private:
+
 	// Given the id and the parent, build all of the folder views.
 	void rebuildViewsFor(const LLUUID& id);
 	virtual void buildNewViews(const LLUUID& id); // made virtual to support derived classes. EXT-719
-	void defaultOpenInventory(); // open the first level of inventory
 protected:
+	void defaultOpenInventory(); // open the first level of inventory
+
 	LLInventoryModel*			mInventory;
 	LLInventoryObserver*		mInventoryObserver;
 	BOOL 						mAllowMultiSelect;
 	std::string					mSortOrderSetting;
 
-//private: // Can not make these private - needed by llinventorysubtreepanel
 	LLFolderView*				mFolders;
-	std::string                 mStartFolderString;
-
-	/**
-	 * Contains UUID of Inventory item from which hierarchy should be built.
-	 * Can be set with the "start_folder" xml property.
-	 * Default is LLUUID::null that means total Inventory hierarchy.
-	 */
-	LLUUID						mStartFolderID;
 	LLScrollContainer*			mScroller;
-	bool						mHasInventoryConnection;
-
-	/**
-	 * Flag specified if default inventory hierarchy should be created in postBuild()
-	 */
-	bool						mBuildDefaultHierarchy;
-
-	LLUUID						mRootInventoryItemUUID;
 
 	/**
 	 * Pointer to LLInventoryFVBridgeBuilder.
@@ -201,6 +187,21 @@ protected:
 	 */
 	const LLInventoryFVBridgeBuilder* mInvFVBridgeBuilder;
 
+	//--------------------------------------------------------------------
+	// Initialization routines for building up the UI ("views")
+	//--------------------------------------------------------------------
+public:
+	BOOL 				getIsViewsInitialized() const { return mViewsInitialized; }
+private:
+	// Builds the UI.  Call this once the inventory is usable.
+	void 				initializeViews();
+	BOOL				mBuildDefaultHierarchy; // default inventory hierarchy should be created in postBuild()
+	BOOL				mViewsInitialized; // Views have been generated
+	
+	// UUID of category from which hierarchy should be built.  Set with the 
+	// "start_folder" xml property.  Default is LLUUID::null that means total Inventory hierarchy. 
+	std::string         mStartFolderString;
+	LLUUID				mStartFolderID;
 };
 
 #endif // LL_LLINVENTORYPANEL_H

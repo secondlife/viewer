@@ -73,9 +73,9 @@ LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_param
 	F32 min_weight = param->getMinWeight();
 	F32 max_weight = param->getMaxWeight();
 
-	mHintMin = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, param,  min_weight);
+	mHintMin = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()),  min_weight);
 	pos_x += PARAM_HINT_WIDTH + 3 * BTN_BORDER;
-	mHintMax = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, param, max_weight );
+	mHintMax = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()), max_weight );
 	
 	mHintMin->setAllowsUpdates( FALSE );
 	mHintMax->setAllowsUpdates( FALSE );
@@ -86,9 +86,8 @@ LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_param
 	childSetEnabled("param slider", mAllowModify);
 	childSetCommitCallback("param slider", LLScrollingPanelParam::onSliderMoved, this);
 
-	// *TODO: Translate
-	std::string min_name = param->getMinDisplayName();
-	std::string max_name = param->getMaxDisplayName();
+	std::string min_name = LLTrans::getString(param->getMinDisplayName());
+	std::string max_name = LLTrans::getString(param->getMaxDisplayName());
 	childSetValue("min param text", min_name);
 	childSetValue("max param text", max_name);
 

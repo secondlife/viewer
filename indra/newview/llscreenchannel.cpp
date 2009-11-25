@@ -46,6 +46,7 @@
 #include "lldockablefloater.h"
 #include "llsyswellwindow.h"
 #include "llimfloater.h"
+#include "llscriptfloater.h"
 
 #include <algorithm>
 
@@ -103,8 +104,8 @@ void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect ne
 
 void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 {
-	S32 channel_top = gViewerWindow->getWorldViewRectRaw().getHeight();
-	S32 channel_bottom = gViewerWindow->getWorldViewRectRaw().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
+	S32 channel_top = gViewerWindow->getWorldViewRectScaled().getHeight();
+	S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
 	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
 	setVisible(TRUE);
 }
@@ -114,7 +115,9 @@ void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 // LLScreenChannel
 //////////////////////
 //--------------------------------------------------------------------------
-LLScreenChannel::LLScreenChannel(LLUUID& id):	LLScreenChannelBase(id)
+LLScreenChannel::LLScreenChannel(LLUUID& id):	
+LLScreenChannelBase(id)
+,mStartUpToastPanel(NULL)
 {	
 }
 
@@ -357,8 +360,6 @@ void LLScreenChannel::redrawToasts()
 	if(mToastList.size() == 0 || isHovering())
 		return;
 
-	hideToastsFromScreen();
-
 	switch(mToastAlignment)
 	{
 	case NA_TOP : 
@@ -381,6 +382,8 @@ void LLScreenChannel::showToastsBottom()
 	S32		bottom = getRect().mBottom - gFloaterView->getRect().mBottom;
 	S32		toast_margin = 0;
 	std::vector<ToastElem>::reverse_iterator it;
+
+	closeOverflowToastPanel();
 
 	for(it = mToastList.rbegin(); it != mToastList.rend(); ++it)
 	{
@@ -407,7 +410,20 @@ void LLScreenChannel::showToastsBottom()
 		if(stop_showing_toasts)
 			break;
 
-		(*it).toast->setVisible(TRUE);	
+		if( !(*it).toast->getVisible() )
+		{
+			if((*it).toast->isFirstLook())
+			{
+				(*it).toast->setVisible(TRUE);
+			}
+			else
+			{
+				// HACK
+				// EXT-2653: it is necessary to prevent overlapping for secondary showed toasts
+				(*it).toast->setVisible(TRUE);
+				gFloaterView->sendChildToBack((*it).toast);
+			}
+		}		
 	}
 
 	if(it != mToastList.rend() && !mOverflowToastHidden)
@@ -416,6 +432,7 @@ void LLScreenChannel::showToastsBottom()
 		for(; it != mToastList.rend(); it++)
 		{
 			(*it).toast->stopTimer();
+			(*it).toast->setVisible(FALSE);
 			mHiddenToastsNum++;
 		}
 		createOverflowToast(bottom, gSavedSettings.getS32("NotificationTipToastLifeTime"));
@@ -533,19 +550,7 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 
 	LLTextBox* text_box = mStartUpToastPanel->getChild<LLTextBox>("toast_text");
 
-	std::string mStartUpFormatString;
-
-	if(notif_num == 1)
-	{
-		mStartUpFormatString = LLTrans::getString("StartUpNotification");
-	}
-	else
-	{
-		mStartUpFormatString = LLTrans::getString("StartUpNotifications");
-	}
-	
-
-	std::string	text = llformat(mStartUpFormatString.c_str(), notif_num);
+	std::string	text = LLTrans::getString("StartUpNotifications");
 
 	toast_rect = mStartUpToastPanel->getRect();
 	mStartUpToastPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
@@ -698,7 +703,8 @@ void LLScreenChannel::updateShowToastsState()
 	}
 
 	// for IM floaters showed in a docked state - prohibit showing of ani toast
-	if(dynamic_cast<LLIMFloater*>(floater))
+	if(dynamic_cast<LLIMFloater*>(floater)
+		|| dynamic_cast<LLScriptFloater*>(floater) )
 	{
 		setShowToasts(!(floater->getVisible() && floater->isDocked()));
 		if (!getShowToasts())
@@ -710,7 +716,7 @@ void LLScreenChannel::updateShowToastsState()
 	// for Message Well floater showed in a docked state - adjust channel's height
 	if(dynamic_cast<LLSysWellWindow*>(floater))
 	{
-		S32 channel_bottom = gViewerWindow->getWorldViewRectRaw().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
+		S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
 		LLRect this_rect = getRect();
 		if(floater->getVisible() && floater->isDocked())
 		{

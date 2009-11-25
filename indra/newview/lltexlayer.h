@@ -99,6 +99,7 @@ public:
 	virtual void			gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height) = 0;
 	BOOL					hasAlphaParams() const { return !mParamAlphaList.empty(); }
 	BOOL					isVisibilityMask() const;
+	virtual BOOL			isInvisibleAlphaMask() = 0;
 
 	LLTexLayerSet*			getLayerSet() {return mTexLayerSet;}
 
@@ -141,6 +142,8 @@ public:
 	/*virtual*/ void		gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height);
 	/*virtual*/ void		setHasMorph(BOOL newval);
 	/*virtual*/ void		deleteCaches();
+	/*virtual*/ BOOL		isInvisibleAlphaMask();
+
 private:
 	U32 	updateWearableCache();
 	LLTexLayer* getLayer(U32 i);
@@ -173,6 +176,7 @@ public:
 	/*virtual*/ void		gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height);
 	BOOL					renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color);
 	void					addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height);
+	/*virtual*/ BOOL		isInvisibleAlphaMask();
 
 	void					setLTO(LLLocalTextureObject *lto) { mLocalTextureObject = lto; }
 	LLLocalTextureObject* 	getLTO() { return mLocalTextureObject; }
@@ -272,6 +276,7 @@ public:
 	BOOL					hasComposite() const { return (mComposite.notNull()); }
 	LLVOAvatarDefines::EBakedTextureIndex getBakedTexIndex() { return mBakedTexIndex; }
 	void					setBakedTexIndex( LLVOAvatarDefines::EBakedTextureIndex index) { mBakedTexIndex = index; }
+	BOOL					isVisible() const { return mIsVisible; }
 
 public:
 	static BOOL		sHasCaches;
@@ -284,6 +289,7 @@ private:
 	LLPointer<LLTexLayerSetBuffer>	mComposite;
 	LLVOAvatarSelf*	const	mAvatar; // Backlink only; don't make this an LLPointer.
 	BOOL					mUpdatesEnabled;
+	BOOL					mIsVisible;
 
 	LLVOAvatarDefines::EBakedTextureIndex mBakedTexIndex;
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <!-- This file contains strings that used to be hardcoded in the source.
      It is only for those strings which do not belong in a floater.
-     For example, the strings used in avatar chat bubbles, and strings 
+     For example, the strings used in avatar chat bubbles, and strings
      that are returned from one component and may appear in many places-->
 <strings>
 
@@ -44,8 +44,8 @@
 
 	<!-- Disconnection -->
 	<string name="AgentLostConnection">This region may be experiencing trouble.  Please check your connection to the Internet.</string>
-	
-	
+
+
 	<!-- Tooltip, lltooltipview.cpp -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
@@ -80,11 +80,11 @@
 	<!-- text for SLURL labels -->
 	<string name="SLurlLabelTeleport">Teleport to</string>
 	<string name="SLurlLabelShowOnMap">Show Map for</string>
-	
+
 	<!-- ButtonToolTips, llfloater.cpp -->
 	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;W)</string>
 	<string name="BUTTON_CLOSE_WIN">Close (Ctrl+W)</string>
-	<string name="BUTTON_RESTORE">Restore</string>			
+	<string name="BUTTON_RESTORE">Restore</string>
 	<string name="BUTTON_MINIMIZE">Minimize</string>
 	<string name="BUTTON_TEAR_OFF">Tear Off</string>
 	<string name="BUTTON_DOCK">Dock</string>
@@ -103,24 +103,24 @@
 
 	<!-- Indicates something is being loaded. Maybe should be merged with RetrievingData -->
 	<string name="LoadingData">Loading...</string>
-	
-	
+
+
 	<!-- namecache -->
 	<!-- Avatar name: text shown for LLUUID::null -->
 	<string name="AvatarNameNobody">(nobody)</string>
-	
+
 	<!-- Avatar name: text shown while fetching name -->
 	<string name="AvatarNameWaiting">(waiting)</string>
 
   <!-- Avatar name: More than one avatar is selected/used here -->
   <string name="AvatarNameMultiple">(multiple)</string>
-  
+
   <!-- Avatar name: text shown as an alternative to AvatarNameFetching, easter egg. -->
 	<string name="AvatarNameHippos">(hippos)</string>
-	
+
 	<!-- Group name: text shown for LLUUID::null -->
 	<string name="GroupNameNone">(none)</string>
-	
+
 	<!-- Asset errors. Used in llassetstorage.cpp, translation from error code to error message. -->
 	<string name="AssetErrorNone">No error</string>
 	<string name="AssetErrorRequestFailed">Asset request: failed</string>
@@ -133,7 +133,7 @@
 	<string name="AssetErrorCircuitGone">Circuit gone</string>
 	<string name="AssetErrorPriceMismatch">Viewer and server do not agree on price</string>
 	<string name="AssetErrorUnknownStatus">Unknown status</string>
-	
+
 	<!-- Asset Type human readable names:  these will replace variable [TYPE] in notification FailedToFindWearable* -->
 	<string name="texture">texture</string>
 	<string name="sound">sound</string>
@@ -159,7 +159,7 @@
 	<string name="simstate">simstate</string>
 	<string name="favorite">favorite</string>
 	<string name="symbolic link">link</string>
-	
+
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>
 	<string name="AvatarAway">Away</string>
@@ -236,17 +236,17 @@
 	<string name="anim_express_worry">Worry</string>
 	<string name="anim_yes_happy">Yes (Happy)</string>
 	<string name="anim_yes_head">Yes</string>
-	
+
 	<!-- world map -->
 	<string name="texture_loading">Loading...</string>
 	<string name="worldmap_offline">Offline</string>
 	<string name="worldmap_results_none_found">None found.</string>
-	
+
 	<!-- animations uploading status codes -->
 	<string name="Ok">OK</string>
 	<string name="Premature end of file">Premature end of file</string>
 	<string name="ST_NO_JOINT">Can't find ROOT or JOINT.</string>
-	
+
 	<!-- Chat -->
 	<string name="whisper">whispers:</string>
 	<string name="shout">shouts:</string>
@@ -274,7 +274,7 @@
 	<string name="SIM_ACCESS_ADULT">Adult</string>
 	<string name="SIM_ACCESS_DOWN">Offline</string>
 	<string name="SIM_ACCESS_MIN">Unknown</string>
-	
+
 	<!-- For use when we do not have land type back from the server -->
 	<string name="land_type_unknown">(unknown)</string>
 
@@ -294,14 +294,14 @@
 	<string name="compressed_image_files">Compressed Images</string>
 	<string name="load_files">Load Files</string>
 	<string name="choose_the_directory">Choose Directory</string>
-	
+
 	<!-- LSL Usage Hover Tips -->
 	<!-- NOTE: For now these are set as translate="false", until DEV-40761 is implemented (to internationalize the rest of tooltips in the same window).
              This has no effect on viewer code, but prevents Linden Lab internal localization tool from scraping these strings.  -->
 	<string name="LSLTipSleepTime" translate="false">
 Sleeps script for [SLEEP_TIME] seconds.
 	</string>
-	
+
 	<string name="LSLTipText_llSin" translate="false">
 float llSin(float theta)
 Returns the sine of theta (theta in radians)
@@ -1732,7 +1732,7 @@ Returns the value for header for request_id
 	</string>
   <string name="LSLTipText_llSetPrimMediaParams" translate="false">
 llSetPrimMediaParams(integer face, list params)
-Sets the media params for a particular face on an object. If media is not already on this object, add it. 
+Sets the media params for a particular face on an object. If media is not already on this object, add it.
 List is a set of name/value pairs in no particular order.  Params not specified are unchanged, or if new media is added then set to the default specified.
 The possible names are below, along with the types of values and what they mean.
   </string>
@@ -1751,7 +1751,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="AvatarSetAway">Away</string>
 	<string name="AvatarSetNotBusy">Not Busy</string>
 	<string name="AvatarSetBusy">Busy</string>
-	
+
 	<!-- Wearable Types -->
 	<string name="shape">Shape</string>
 	<string name="skin">Skin</string>
@@ -1769,7 +1769,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="alpha">Alpha</string>
 	<string name="tattoo">Tattoo</string>
 	<string name="invalid">invalid</string>
-	
+
 	<!-- notify -->
 	<string name="next">Next</string>
 	<string name="ok">OK</string>
@@ -1782,12 +1782,11 @@ Clears (deletes) the media and all params from the given face.
 	<string name="GroupNotifySaveAttachment">Save Attachment</string>
   <string name="TeleportOffer">Teleport offering</string>
   <!-- start-up toast's string-->
-  <string name="StartUpNotification">%d new notification arrived while you were away...</string>
-  <string name="StartUpNotifications">%d new notifications arrived while you were away...</string>
+  <string name="StartUpNotifications">New notifications arrived while you were away.</string>
   <!-- overflow toast's string-->
   <string name="OverflowInfoChannelString">You have %d more notification</string>
-  
-  
+
+
 	<!-- body parts -->
 	<string name="BodyPartsRightArm">Right Arm</string>
 	<string name="BodyPartsHead">Head</string>
@@ -1800,10 +1799,10 @@ Clears (deletes) the media and all params from the given face.
 	<string name="GraphicsQualityLow">Low</string>
 	<string name="GraphicsQualityMid">Mid</string>
 	<string name="GraphicsQualityHigh">High</string>
-	
+
 	<!-- mouselook -->
 	<string name="LeaveMouselook">Press ESC to return to World View</string>
-	
+
 	<!-- inventory -->
 	<string name="InventoryNoMatchingItems">No matching items found in inventory.</string>
 	<string name="InventoryNoTexture">
@@ -1831,7 +1830,7 @@ this texture in your inventory
 	<string name="Wave"          value=" Wave " />
 	<string name="HelloAvatar"   value=" Hello, avatar! " />
 	<string name="ViewAllGestures"  value="  View All &gt;&gt;" />
-				
+
 	<!-- inventory filter -->
     <!-- use value="" because they have preceding spaces -->
 	<string name="Animations"    value=" Animations," />
@@ -1882,21 +1881,21 @@ this texture in your inventory
 	<!-- inventory FVBridge -->
 	<string name="Buy">Buy</string>
 	<string name="BuyforL$">Buy for L$</string>
-	
+
 	<string name="Stone">Stone</string>
 	<string name="Metal">Metal</string>
 	<string name="Glass">Glass</string>
 	<string name="Wood">Wood</string>
 	<string name="Flesh">Flesh</string>
 	<string name="Plastic">Plastic</string>
-	<string name="Rubber">Rubber</string>	
+	<string name="Rubber">Rubber</string>
 	<string name="Light">Light</string>
-	
+
 	<!-- keyboard -->
 	<string name="KBShift">Shift</string>
 	<string name="KBCtrl">Ctrl</string>
 
-	<!-- Avatar Skeleton --> 
+	<!-- Avatar Skeleton -->
 	<string name="Chest">Chest</string>
 	<string name="Skull">Skull</string>
 	<string name="Left Shoulder">Left Shoulder</string>
@@ -1926,7 +1925,7 @@ this texture in your inventory
 	<string name="L Lower Leg">L Lower Leg</string>
 	<string name="Stomach">Stomach</string>
 	<string name="Left Pec">Left Pec</string>
-	<string name="Right Pec">Right Pec</string>	
+	<string name="Right Pec">Right Pec</string>
 
   <!-- Avatar age computation, see LLDateUtil::ageFromDate -->
   <string name="YearsMonthsOld">[AGEYEARS] [AGEMONTHS] old</string>
@@ -1935,7 +1934,7 @@ this texture in your inventory
   <string name="WeeksOld">[AGEWEEKS] old</string>
   <string name="DaysOld">[AGEDAYS] old</string>
   <string name="TodayOld">Joined today</string>
-  
+
   <!-- AgeYearsA = singular,
        AgeYearsB = plural,
        AgeYearsC = plural for non-English languages like Russian
@@ -1968,16 +1967,16 @@ this texture in your inventory
   <string name="NoPaymentInfoOnFile">No Payment Info On File</string>
   <string name="AgeVerified">Age-verified</string>
   <string name="NotAgeVerified">Not Age-verified</string>
-  
-  <!-- HUD Position --> 
-	<string name="Center 2">Center 2</string>	
-	<string name="Top Right">Top Right</string>	
-	<string name="Top">Top</string>	
-	<string name="Top Left">Top Left</string>	
-	<string name="Center">Center</string>	
-	<string name="Bottom Left">Bottom Left</string>	
-	<string name="Bottom">Bottom</string>		
-	<string name="Bottom Right">Bottom Right</string>							
+
+  <!-- HUD Position -->
+	<string name="Center 2">Center 2</string>
+	<string name="Top Right">Top Right</string>
+	<string name="Top">Top</string>
+	<string name="Top Left">Top Left</string>
+	<string name="Center">Center</string>
+	<string name="Bottom Left">Bottom Left</string>
+	<string name="Bottom">Bottom</string>
+	<string name="Bottom Right">Bottom Right</string>
 
 	<!-- compile queue-->
 	<string name="CompileQueueDownloadedCompiling">Downloaded, now compiling</string>
@@ -1999,11 +1998,11 @@ this texture in your inventory
 	<string name="CompileSuccessful">Compile successful!</string>
 	<string name="CompileSuccessfulSaving">Compile successful, saving...</string>
 	<string name="SaveComplete">Save complete.</string>
-	<string name="ObjectOutOfRange">Script (object out of range)</string>    
-	
+	<string name="ObjectOutOfRange">Script (object out of range)</string>
+
 	<!-- god tools -->
 	<string name="GodToolsObjectOwnedBy">Object [OBJECT] owned by [OWNER]</string>
-	
+
 	<!-- groups -->
 	<string name="GroupsNone">none</string>
   <string name="Group" value=" (group)" />
@@ -2014,14 +2013,14 @@ this texture in your inventory
 	<string name="Balance">Balance</string>
 	<string name="Credits">Credits</string>
 	<string name="Debits">Debits</string>
-	<string name="Total">Total</string>	
-	<string name="NoGroupDataFound">No group data found for group </string>	
-		
+	<string name="Total">Total</string>
+	<string name="NoGroupDataFound">No group data found for group </string>
+
 	<!-- floater IM -->
 	<string name="IMParentEstate">parent estate</string>
 	<string name="IMMainland">mainland</string>
 	<string name="IMTeen">teen</string>
-	
+
 	<!-- floater region info -->
 	<!-- The following will replace variable [ALL_ESTATES] in notifications EstateAllowed*, EstateBanned*, EstateManager* -->
 	<string name="RegionInfoError">error</string>
@@ -2037,45 +2036,37 @@ this texture in your inventory
 
 	<!-- script editor -->
 	<string name="CursorPos">Line [LINE], Column [COLUMN]</string>
-	
+
 	<!-- panel dir browser -->
 	<string name="PanelDirCountFound">[COUNT] found</string>
 	<string name="PanelDirTimeStr">[hour12,datetime,slt]:[min,datetime,slt] [ampm,datetime,slt]</string>
 
 	<!-- panel dir events -->
 	<string name="PanelDirEventsDateText">[mthnum,datetime,slt]/[day,datetime,slt]</string>
-	
+
 	<!-- panel contents -->
 	<string name="PanelContentsNewScript">New Script</string>
-	
+
 	<!-- Mute -->
 	<string name="MuteByName">(by name)</string>
 	<string name="MuteAgent">(resident)</string>
 	<string name="MuteObject">(object)</string>
 	<string name="MuteGroup">(group)</string>
-	
+
 	<!-- Region/Estate Covenant -->
 	<string name="RegionNoCovenant">There is no Covenant provided for this Estate.</string>
 	<string name="RegionNoCovenantOtherOwner">There is no Covenant provided for this Estate. The land on this estate is being sold by the Estate owner, not Linden Lab.  Please contact the Estate Owner for sales details.</string>
 	<string name="covenant_last_modified">Last Modified:</string>
 	<string name="none_text"  value=" (none) " />
 	<string name="never_text" value=" (never) " />
-	
+
 	<!--Region Details-->
 	<string name="GroupOwned">Group Owned</string>
 	<string name="Public">Public</string>
-	
+
 	<!-- panel classified -->
 	<string name="ClassifiedClicksTxt">Clicks: [TELEPORT] teleport, [MAP] map, [PROFILE] profile</string>
 	<string name="ClassifiedUpdateAfterPublish">(will update after publish)</string>
-	
-	<!-- group voting dialog -->
-	<string name="GroupVoteYes">Yes</string>
-	<string name="GroupVoteNo">No</string>
-	<string name="GroupVoteNoActiveProposals">There are currently no active proposals</string>
-	<string name="GroupVoteNoArchivedProposals">There are currently no archived proposals</string>
-	<string name="GroupVoteRetrievingArchivedProposals">Retrieving archived proposals</string>
-	<string name="GroupVoteRetrievingActiveProposals">Retrieving active proposals</string>
 
 	<!-- Multi Preview Floater -->
 	<string name="MultiPreviewTitle">Preview</string>
@@ -2090,7 +2081,7 @@ this texture in your inventory
 	<string name="InvOfferGaveYou">gave you</string>
 	<string name="InvOfferYouDecline">You decline</string>
 	<string name="InvOfferFrom">from</string>
-	
+
 	<!-- group money -->
 	<string name="GroupMoneyTotal">Total</string>
 	<string name="GroupMoneyBought">bought</string>
@@ -2102,21 +2093,21 @@ this texture in your inventory
 	<string name="GroupMoneyBalance">Balance</string>
 	<string name="GroupMoneyCredits">Credits</string>
 	<string name="GroupMoneyDebits">Debits</string>
-	
+
 	<!-- viewer object -->
 	<string name="ViewerObjectContents">Contents</string>
-	
+
 	<!-- Viewer menu -->
 	<string name="AcquiredItems">Acquired Items</string>
-	<string name="Cancel">Cancel</string>	
-	<string name="UploadingCosts">Uploading %s costs</string>	
+	<string name="Cancel">Cancel</string>
+	<string name="UploadingCosts">Uploading %s costs</string>
 	<string name="UnknownFileExtension">
 		Unknown file extension .%s
 Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
-	</string>		
-	<string name="AddLandmarkNavBarMenu">Add Landmark...</string>	 
+	</string>
+	<string name="AddLandmarkNavBarMenu">Add Landmark...</string>
 	<string name="EditLandmarkNavBarMenu">Edit Landmark...</string>
-	
+
 	<!-- menu accelerators -->
 	<string name="accel-mac-control">&#8963;</string>
 	<string name="accel-mac-command">&#8984;</string>
@@ -2127,72 +2118,72 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="accel-win-shift">Shift+</string>
 
 	<!-- Previews -->
-	<string name="FileSaved">File Saved</string>	
-	<string name="Receiving">Receiving</string>	
-		
+	<string name="FileSaved">File Saved</string>
+	<string name="Receiving">Receiving</string>
+
 	<!-- status bar , Time -->
-	<string name="AM">AM</string>	
-	<string name="PM">PM</string>	
-	<string name="PST">PST</string>	
-	<string name="PDT">PDT</string>			
+	<string name="AM">AM</string>
+	<string name="PM">PM</string>
+	<string name="PST">PST</string>
+	<string name="PDT">PDT</string>
 
 	<!-- Directions, HUD -->
-	<string name="Forward">Forward</string>	
-	<string name="Left">Left</string>	
-	<string name="Right">Right</string>	
-	<string name="Back">Back</string>			
-	<string name="North">North</string>	
-	<string name="South">South</string>	
-	<string name="West">West</string>	
-	<string name="East">East</string>		
-	<string name="Up">Up</string>	
-	<string name="Down">Down</string>	
+	<string name="Forward">Forward</string>
+	<string name="Left">Left</string>
+	<string name="Right">Right</string>
+	<string name="Back">Back</string>
+	<string name="North">North</string>
+	<string name="South">South</string>
+	<string name="West">West</string>
+	<string name="East">East</string>
+	<string name="Up">Up</string>
+	<string name="Down">Down</string>
 
     <!-- Search Category Strings -->
-	<string name="Any Category">Any Category</string>	
-	<string name="Shopping">Shopping</string>	
-	<string name="Land Rental">Land Rental</string>	
-	<string name="Property Rental">Property Rental</string>	
-	<string name="Special Attraction">Special Attraction</string>	
-	<string name="New Products">New Products</string>	
-	<string name="Employment">Employment</string>	
-	<string name="Wanted">Wanted</string>	
-	<string name="Service">Service</string>	
-	<string name="Personal">Personal</string>	
+	<string name="Any Category">Any Category</string>
+	<string name="Shopping">Shopping</string>
+	<string name="Land Rental">Land Rental</string>
+	<string name="Property Rental">Property Rental</string>
+	<string name="Special Attraction">Special Attraction</string>
+	<string name="New Products">New Products</string>
+	<string name="Employment">Employment</string>
+	<string name="Wanted">Wanted</string>
+	<string name="Service">Service</string>
+	<string name="Personal">Personal</string>
 
 	<!-- PARCEL_CATEGORY_UI_STRING -->
-	<string name="None">None</string>	
-	<string name="Linden Location">Linden Location</string>	
-	<string name="Adult">Adult</string>	
-	<string name="Arts&amp;Culture">Arts &amp; Culture</string>			
-	<string name="Business">Business</string>	
-	<string name="Educational">Educational</string>	
-	<string name="Gaming">Gaming</string>	
-	<string name="Hangout">Hangout</string>		
-	<string name="Newcomer Friendly">Newcomer Friendly</string>	
+	<string name="None">None</string>
+	<string name="Linden Location">Linden Location</string>
+	<string name="Adult">Adult</string>
+	<string name="Arts&amp;Culture">Arts &amp; Culture</string>
+	<string name="Business">Business</string>
+	<string name="Educational">Educational</string>
+	<string name="Gaming">Gaming</string>
+	<string name="Hangout">Hangout</string>
+	<string name="Newcomer Friendly">Newcomer Friendly</string>
 	<string name="Parks&amp;Nature">Parks &amp; Nature</string>
-	<string name="Residential">Residential</string>	
+	<string name="Residential">Residential</string>
 	<!--<string name="Shopping">Shopping</string>	-->
-	<string name="Stage">Stage</string>	
-	<string name="Other">Other</string>	
-	<string name="Any">Any</string>	
-	<string name="You">You</string>							
-						
+	<string name="Stage">Stage</string>
+	<string name="Other">Other</string>
+	<string name="Any">Any</string>
+	<string name="You">You</string>
+
 	<!-- punctuations -->
-	<string name=":">:</string>			
-	<string name=",">,</string>					
-	<string name="...">...</string>					
-	<string name="***">***</string>					
-	<string name="(">(</string>					
+	<string name=":">:</string>
+	<string name=",">,</string>
+	<string name="...">...</string>
+	<string name="***">***</string>
+	<string name="(">(</string>
 	<string name=")">)</string>
-	<string name=".">.</string>		
-	<string name="'">'</string>	
-	<string name="---">---</string>										
+	<string name=".">.</string>
+	<string name="'">'</string>
+	<string name="---">---</string>
 
 	<!-- media -->
 	<string name="Multiple Media">Multiple Media</string>
 	<string name="Play Media">Play/Pause Media</string>
-	
+
 	<!-- OSMessageBox messages -->
 	<string name="MBCmdLineError">
 		An error was found parsing the command line.
@@ -2801,13 +2792,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Wide Lips">Wide Lips</string>
 <string name="Wild">Wild</string>
 <string name="Wrinkles">Wrinkles</string>
-  
+
   <!-- Favorites Bar -->
   <string name="LocationCtrlAddLandmarkTooltip">Add to My Landmarks</string>
   <string name="LocationCtrlEditLandmarkTooltip">Edit My Landmark</string>
   <string name="LocationCtrlInfoBtnTooltip">See more info about the current location</string>
   <string name="LocationCtrlComboBtnTooltip">My location history</string>
-  
+
   <!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
 	  [APP_NAME] Update

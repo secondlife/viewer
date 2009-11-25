@@ -209,7 +209,7 @@ elseif(LINUX)
         libapr-1.so.0
         libaprutil-1.so.0
         libatk-1.0.so
-        libcrypto.so
+        libcrypto.so.0.9.7
         libdb-4.2.so
         libexpat.so
         libgmock_main.so

@@ -149,6 +149,9 @@ public:
 	virtual std::string getCapabilityUrl(const std::string &name) const
 		{ return mObject->getRegion()->getCapability(name); }
 	
+	virtual bool isDead() const
+		{ return mObject->isDead(); }
+	
 private:
 	LLPointer<LLVOVolume> mObject;
 };
@@ -190,6 +193,22 @@ LLVOVolume::~LLVOVolume()
 			}
 		}
 	}
+}
+
+void LLVOVolume::markDead()
+{
+	if (!mDead)
+	{
+		// TODO: tell LLMediaDataClient to remove this object from its queue
+		
+		// Detach all media impls from this object
+		for(U32 i = 0 ; i < mMediaImplList.size() ; i++)
+		{
+			removeMediaImpl(i);
+		}
+	}
+	
+	LLViewerObject::markDead();
 }
 
 
@@ -1758,10 +1777,16 @@ void LLVOVolume::updateObjectMediaData(const LLSD &media_data_array)
 
 void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool merge, bool ignore_agent)
 {
+	if(mDead)
+	{
+		// If the object has been marked dead, don't process media updates.
+		return;
+	}
+	
 	LLTextureEntry *te = getTE(texture_index);
-	//llinfos << "BEFORE: texture_index = " << texture_index
-	//	<< " hasMedia = " << te->hasMedia() << " : " 
-	//	<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << llendl;
+	LL_DEBUGS("MediaOnAPrim") << "BEFORE: texture_index = " << texture_index
+		<< " hasMedia = " << te->hasMedia() << " : " 
+		<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << llendl;
 
 	std::string previous_url;
 	LLMediaEntry* mep = te->getMediaData();
@@ -1801,9 +1826,9 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
 		removeMediaImpl(texture_index);
 	}
 
-	//llinfos << "AFTER: texture_index = " << texture_index
-	//	<< " hasMedia = " << te->hasMedia() << " : " 
-	//	<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << llendl;
+	LL_DEBUGS("MediaOnAPrim") << "AFTER: texture_index = " << texture_index
+		<< " hasMedia = " << te->hasMedia() << " : " 
+		<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << llendl;
 }
 
 void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
@@ -1826,7 +1851,7 @@ void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
         }
         if (! url.empty())
         {
-            LL_INFOS("LLMediaDataClient") << "bouncing back to URL: " << url << LL_ENDL;
+            LL_INFOS("MediaOnAPrim") << "bouncing back to URL: " << url << LL_ENDL;
             impl->navigateTo(url, "", false, true);
         }
     }
@@ -2608,7 +2633,11 @@ const LLMatrix4 LLVOVolume::getRenderMatrix() const
 	return mDrawable->getWorldMatrix();
 }
 
-U32 LLVOVolume::getRenderCost() const
+// Returns a base cost and adds textures to passed in set.
+// total cost is returned value + 5 * size of the resulting set.
+// Cannot include cost of textures, as they may be re-used in linked
+// children, and cost should only be increased for unique textures  -Nyx
+U32 LLVOVolume::getRenderCost(std::set<LLUUID> &textures) const
 {
 	U32 shame = 0;
 
@@ -2641,7 +2670,7 @@ U32 LLVOVolume::getRenderCost() const
 	{
 		const LLSculptParams *sculpt_params = (LLSculptParams *) getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 		LLUUID sculpt_id = sculpt_params->getSculptTexture();
-		shame += 5;
+		textures.insert(sculpt_id);
 	}
 
 	for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
@@ -2650,7 +2679,7 @@ U32 LLVOVolume::getRenderCost() const
 		const LLTextureEntry* te = face->getTextureEntry();
 		const LLViewerTexture* img = face->getTexture();
 
-		shame += 5;
+		textures.insert(img->getID());
 
 		if (face->getPoolType() == LLDrawPool::POOL_ALPHA)
 		{
@@ -2700,7 +2729,7 @@ U32 LLVOVolume::getRenderCost() const
 			const LLVOVolume* child_volumep = child_drawablep->getVOVolume();
 			if (child_volumep)
 			{
-				shame += child_volumep->getRenderCost();
+				shame += child_volumep->getRenderCost(textures);
 			}
 		}
 	}

@@ -8,66 +8,73 @@
  left="0"
  name="panel_im"
  top="0"
- can_dock="true"
+ can_close="true"
+ can_dock="false"
  can_minimize="false"
  visible="true"
- width="320"
+ width="300"
  can_resize="true"
  min_width="300"
  min_height="350">
-  <layout_stack follows="all"
-                height="350"
-                width="300"
-                layout="topleft"
-                orientation="horizontal"
-                name="im_panels"
-                top="20"
-                left="0">
+  <layout_stack
+  follows="all"
+  height="320"
+  width="300"
+  layout="topleft"
+  orientation="horizontal"
+  name="im_panels"
+  top="20"
+  left="0">
     <layout_panel
       name="panel_im_control_panel"
       layout="topleft"
-      top_delta="-3"
-      height="350"
       follows="left"
       label="IM Control Panel"
       auto_resize="false"
       user_resize="false" />
-    <layout_panel height="350"
-                  width=""
-                  left_delta="110"
-                  top="0"
-                  user_resize="false">
-      <button height="20"
-      	      follows="left|top"
-              top="0"
-              image_overlay="TabIcon_Open_Off"
-              layout="topleft"
-              width="25"
-              name="slide_left_btn" />
-      <button height="20"
-      	      follows="left|top"
-              top="0"
-              image_overlay="TabIcon_Close_Off"
-              width="25"
-              name="slide_right_btn" />
-      <chat_history
-       length="1"
-       follows="all"
-       height="275"
-       layout="topleft"
-       name="chat_history"
-       parse_highlights="true"
-       allow_html="true"
-       width="160">
-      </chat_history>
-      <line_editor
-       follows="left|right"
-       height="20"
-       label="To"
-       layout="topleft"
-       name="chat_editor"
-       width="160">
-      </line_editor>
+    <layout_panel
+       left="0"
+       top="0"
+       height="200"
+	     width="185"
+       user_resize="false">
+        <button
+          height="20"
+          follows="left|top"
+          top="0"
+          left="2"
+          image_overlay="TabIcon_Open_Off"
+          layout="topleft"
+          width="25"
+          name="slide_left_btn" />
+         <button
+          height="20"
+          follows="left|top"
+          top="0"
+          left="2"
+          image_overlay="TabIcon_Close_Off"
+          width="25"
+          name="slide_right_btn" />
+        <chat_history
+	 font="SansSerifSmall"
+         follows="left|right|top|bottom"
+         height="150"
+         name="chat_history"
+         parse_highlights="true"
+         allow_html="true"
+        left="1"
+         width="180">
+        </chat_history>
+        <line_editor
+         bottom="0" 
+         follows="left|right|bottom"
+	 font="SansSerifSmall"
+         height="20"
+         label="To"
+         layout="bottomleft"
+         name="chat_editor"
+         width="180">
+        </line_editor>
     </layout_panel>
   </layout_stack>
 </floater>

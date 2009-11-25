@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  border="false"
+ follows="left|top|right|bottom"
  height="238"
  name="panel_im_control_panel"
  width="180">
@@ -8,7 +9,7 @@
     <avatar_list
      color="DkGray2"
      follows="left|top|right|bottom"
-     height="130"
+     height="100"
      ignore_online_status="true"
      layout="topleft"
      left="3"
@@ -22,6 +23,7 @@
 
     <button
      bottom_pad="0"
+     follows="left|right|bottom" 
      height="20"
      label="Group Info"
      left_delta="28"
@@ -32,8 +34,7 @@
      background_visible="true"
      bg_alpha_color="0.2 0.2 0.2 1"
      border="false"
-     bottom="1"
-     follows="left|bottom"
+     follows="left|right|bottom"
      height="70"
      left="0"
      left_pad="0"
@@ -43,6 +44,7 @@
 
         <button
          bottom="10"
+         follows="all" 
          height="20"
          label="Call Group"
          left_delta="28"
@@ -51,6 +53,7 @@
 
         <button
          bottom="40"
+         follows="all" 
          height="20"
          label="Leave Call"
          name="end_call_btn"
@@ -60,6 +63,7 @@
         <button
          enabled="false"
          bottom="10"
+         follows="all" 
          height="20"
          label="Open Voice Controls"
          name="voice_ctrls_btn"

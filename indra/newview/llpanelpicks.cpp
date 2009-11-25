@@ -230,6 +230,8 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 			updateButtons();
 		}
 	}
+	if(!mPicksList->size() && !mClassifiedsList->size())
+		childSetVisible("empty_picks_panel_text", true);
 }
 
 LLPickItem* LLPanelPicks::getSelectedPickItem()

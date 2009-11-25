@@ -247,7 +247,7 @@ bool LLToolMgr::inEdit()
 
 bool LLToolMgr::canEdit()
 {
-	return LLViewerParcelMgr::getInstance()->agentCanBuild();
+	return LLViewerParcelMgr::getInstance()->allowAgentBuild();
 }
 
 void LLToolMgr::toggleBuildMode()

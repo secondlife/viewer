@@ -10,24 +10,24 @@
   <layout_stack border_size="0"
                 follows="all"
                 mouse_opaque="false"
-                height="772"
+                height="768"
                 name="menu_stack"
                 orientation="vertical"
                 top="0">
     <layout_panel auto_resize="false"
-                  min_height="19"
+                  height="84"
                   mouse_opaque="false"
-                  name="status_bar_container"
-                  height="19"
+                  name="nav_and_status_bar_region"
                   width="1024"
-                  visible="false"/>
-    <layout_panel auto_resize="false"
-                  height="65"
-                  mouse_opaque="false"
-                  name="nav_bar_container"
-                  width="1024"
-                  visible="false"/>
-    <panel        auto_resize="true"
+                  visible="false">
+      <panel follows="left|right|bottom"
+             left="0"
+             name="nav_bar_container"
+             right="1024"
+             top="19"
+             height="65"/>
+    </layout_panel>
+    <layout_panel auto_resize="true"
                   follows="all"
                   height="500"
                   layout="topleft"
@@ -124,8 +124,16 @@
                   height="500"
                   name="DebugView"
                   width="1024"/>
-  </panel>
+    </layout_panel>
   </layout_stack>
+  <panel mouse_opaque="false"
+         follows="left|right|top" 
+         name="status_bar_container"
+         height="19"
+         left="0" 
+         top="0" 
+         width="1024"
+         visible="false"/>
   <notify_box_view top="0"
                    follows="all"
                    height="768"

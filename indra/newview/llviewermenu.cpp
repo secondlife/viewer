@@ -2733,13 +2733,24 @@ bool enable_object_edit()
 	// there.  Eventually this needs to be replaced with code that only 
 	// lets you edit objects if you have permission to do so (edit perms,
 	// group edit, god).  See also lltoolbar.cpp.  JC
-	bool enable = true;
+	bool enable = false;
 	if (gAgent.inPrelude())
 	{
-		enable = LLViewerParcelMgr::getInstance()->agentCanBuild()
+		enable = LLViewerParcelMgr::getInstance()->allowAgentBuild()
 			|| LLSelectMgr::getInstance()->getSelection()->isAttachment();
+	} 
+	else if (LLSelectMgr::getInstance()->selectGetModify())
+	{
+		enable = true;
 	}
+
 	return enable;
+}
+
+// mutually exclusive - show either edit option or build in menu
+bool enable_object_build()
+{
+	return !enable_object_edit();
 }
 
 class LLSelfRemoveAllAttachments : public view_listener_t
@@ -5189,7 +5200,7 @@ void show_debug_menus()
 		gMenuBarView->setItemEnabled("Develop", qamode);
 
 		// Server ('Admin') menu hidden when not in godmode.
-		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT || gAgent.getAdminOverride());
+		const bool show_server_menu = (gAgent.getGodLevel() > GOD_NOT || (debug && gAgent.getAdminOverride()));
 		gMenuBarView->setItemVisible("Admin", show_server_menu);
 		gMenuBarView->setItemEnabled("Admin", show_server_menu);
 	}
@@ -5667,6 +5678,16 @@ class LLFloaterVisible : public view_listener_t
 	}
 };
 
+class LLShowSidetrayPanel : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string panel_name = userdata.asString();
+		LLSideTray::getInstance()->showPanel(panel_name, LLSD());
+		return true;
+	}
+};
+
 bool callback_show_url(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotification::getSelectedOption(notification, response);
@@ -6085,7 +6106,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		BOOL can_build   = gAgent.isGodlike() || (LLViewerParcelMgr::getInstance()->agentCanBuild());
+		BOOL can_build   = gAgent.isGodlike() || (LLViewerParcelMgr::getInstance()->allowAgentBuild());
 
 		//Add an inventory observer to only allow dropping the newly attached item
 		//once it exists in your inventory.  Look at Jira 2422.
@@ -8023,9 +8044,12 @@ void initialize_menus()
 	visible.add("VisiblePayObject", boost::bind(&enable_pay_object));
 	enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));
 	enable.add("EnableEdit", boost::bind(&enable_object_edit));
+	visible.add("VisibleBuild", boost::bind(&enable_object_build));
+	visible.add("VisibleEdit", boost::bind(&enable_object_edit));
 	visible.add("Object.VisibleEdit", boost::bind(&enable_object_edit));
 
 	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
+	view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");
 	view_listener_t::addMenu(new LLSomethingSelected(), "SomethingSelected");
 	view_listener_t::addMenu(new LLSomethingSelectedNoHUD(), "SomethingSelectedNoHUD");
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");

@@ -98,14 +98,37 @@ private:
 		, RS_BUTTON_MOVEMENT	= 0x0010
 		, RS_BUTTON_GESTURES	= 0x0020
 		, RS_BUTTON_SPEAK		= 0x0040
-		, RS_RESIZABLE_BUTTONS			= /*RS_BUTTON_SNAPSHOT | */RS_BUTTON_CAMERA | RS_BUTTON_MOVEMENT | RS_BUTTON_GESTURES
+
+		/**
+		 * Specifies buttons which can be hidden when bottom tray is shrunk.
+		 * They are: Gestures, Movement (Move), Camera (View), Snapshot
+		 */
+		, RS_BUTTONS_CAN_BE_HIDDEN = RS_BUTTON_SNAPSHOT | RS_BUTTON_CAMERA | RS_BUTTON_MOVEMENT | RS_BUTTON_GESTURES
 	}EResizeState;
 
 	S32 processWidthDecreased(S32 delta_width);
 	void processWidthIncreased(S32 delta_width);
 	void log(LLView* panel, const std::string& descr);
-	bool processShowButton(EResizeState shown_object_type, S32* available_width, S32* buttons_required_width);
+	bool processShowButton(EResizeState shown_object_type, S32* available_width);
 	void processHideButton(EResizeState processed_object_type, S32* required_width, S32* buttons_freed_width);
+
+	/**
+	 * Shrinks shown buttons to reduce total taken space.
+	 *
+	 * @param - required_width - width which buttons can use to be shrunk. It is a negative value.
+	 * It is increased on the value processed by buttons.
+	 */
+	void processShrinkButtons(S32* required_width, S32* buttons_freed_width);
+	void processShrinkButton(EResizeState processed_object_type, S32* required_width);
+
+	/**
+	 * Extends shown buttons to increase total taken space.
+	 *
+	 * @param - available_width - width which buttons can use to be extended. It is a positive value.
+	 * It is decreased on the value processed by buttons.
+	 */
+	void processExtendButtons(S32* available_width);
+	void processExtendButton(EResizeState processed_object_type, S32* available_width);
 
 	/**
 	 * Determines if specified by type object can be shown. It should be hidden by shrink before.
@@ -140,6 +163,9 @@ private:
 	typedef std::map<EResizeState, LLPanel*> state_object_map_t;
 	state_object_map_t mStateProcessedObjectMap;
 
+	typedef std::map<EResizeState, S32> state_object_width_map_t;
+	state_object_width_map_t mObjectDefaultWidthMap;
+
 protected:
 
 	LLBottomTray(const LLSD& key = LLSD());
@@ -155,6 +181,7 @@ protected:
 
 	LLChicletPanel* 	mChicletPanel;
 	LLNotificationChiclet* 	mSysWell;
+	LLPanel*			mSpeakPanel;
 	LLSpeakButton* 		mSpeakBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
 	LLLayoutStack*		mToolbarStack;

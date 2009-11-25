@@ -109,22 +109,6 @@ struct LLAttachmentRezAction
 	S32		mAttachPt;
 };
 
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryPanelObserver
-//
-// Bridge to support knowing when the inventory has changed.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLInventoryPanelObserver : public LLInventoryObserver
-{
-public:
-	LLInventoryPanelObserver(LLInventoryPanel* ip) : mIP(ip) {}
-	virtual ~LLInventoryPanelObserver() {}
-	virtual void changed(U32 mask);
-protected:
-	LLInventoryPanel* mIP;
-};
-
 const std::string safe_inv_type_lookup(LLInventoryType::EType inv_type);
 void hide_context_entries(LLMenuGL& menu, 
 						const std::vector<std::string> &entries_to_show,
@@ -222,8 +206,6 @@ protected:
 									 const LLUUID& new_parent,
 									 BOOL restamp);
 	void removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*>& batch);
-	void renameLinkedItems(const LLUUID &item_id, const std::string& new_name);
-
 protected:
 	LLHandle<LLPanel> mInventoryPanel;
 	const LLUUID mUUID;	// item id
@@ -308,6 +290,8 @@ public:
 
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL removeItem();
+	bool removeItemResponse(const LLSD& notification, const LLSD& response);
+
 	virtual void pasteFromClipboard();
 	virtual void pasteLinkFromClipboard();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
@@ -528,7 +512,6 @@ public:
 	virtual LLFontGL::StyleFlags getLabelStyle() const;
 	virtual std::string getLabelSuffix() const;
 	virtual void			buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual BOOL			isItemRemovable();
 	virtual BOOL renameItem(const std::string& new_name);
 
 	LLInventoryObject* getObject() const;
@@ -566,7 +549,6 @@ public:
 	virtual void	openItem();
 	virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual std::string getLabelSuffix() const;
-	virtual BOOL	isItemRemovable();
 	virtual BOOL renameItem(const std::string& new_name);
 
 	static void		onWearOnAvatar( void* userdata );	// Access to wearOnAvatar() from menu

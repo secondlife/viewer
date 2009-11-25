@@ -60,6 +60,11 @@ LLTextBase::line_info::line_info(S32 index_start, S32 index_end, LLRect rect, S3
 
 bool LLTextBase::compare_segment_end::operator()(const LLTextSegmentPtr& a, const LLTextSegmentPtr& b) const
 {
+	// sort empty spans (e.g. 11-11) after previous non-empty spans (e.g. 5-11)
+	if (a->getEnd() == b->getEnd())
+	{
+		return a->getStart() < b->getStart();
+	}
 	return a->getEnd() < b->getEnd();
 }
 
@@ -1505,6 +1510,7 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 
 			LLStyle::Params link_params = style_params;
 			link_params.color = match.getColor();
+			link_params.readonly_color =  match.getColor();
 			// apply font name from requested style_params
 			std::string font_name = LLFontGL::nameFromFont(style_params.font());
 			std::string font_size = LLFontGL::sizeFromFont(style_params.font());
@@ -2059,16 +2065,16 @@ void LLTextBase::updateRects()
 			mContentsRect.unionWith(line_iter->mRect);
 		}
 
-		mContentsRect.mLeft = 0;
+		S32 delta_pos_x = -mContentsRect.mLeft;
 		mContentsRect.mTop += mVPad;
 
 		S32 delta_pos = -mContentsRect.mBottom;
 		// move line segments to fit new document rect
 		for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
 		{
-			it->mRect.translate(0, delta_pos);
+			it->mRect.translate(delta_pos_x, delta_pos);
 		}
-		mContentsRect.translate(0, delta_pos);
+		mContentsRect.translate(delta_pos_x, delta_pos);
 	}
 
 	// update document container dimensions according to text contents
@@ -2380,6 +2386,14 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 	width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
 	// if last character is a newline, then return true, forcing line break
 	llwchar last_char = text[mStart + first_char + num_chars - 1];
+
+	LLUIImagePtr image = mStyle->getImage();
+	if( image.notNull())
+	{
+		width += image->getWidth();
+		height = llmax(height, image->getHeight());
+	}
+
 	return num_chars >= 1 && last_char == '\n';
 }
 

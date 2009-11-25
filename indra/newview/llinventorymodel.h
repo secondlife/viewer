@@ -167,8 +167,6 @@ public:
 	// Assumes item_id is itself not a linked item.
 	item_array_t collectLinkedItems(const LLUUID& item_id,
 									const LLUUID& start_folder_id = LLUUID::null);
-	// Updates all linked items pointing to this id.
-	void updateLinkedItems(const LLUUID& object_id);
 
 	// Get the inventoryID that this item points to, else just return item_id
 	const LLUUID& getLinkedItemID(const LLUUID& object_id) const;
@@ -254,9 +252,12 @@ public:
 	// multiple trash can bug.
 	const LLUUID findCategoryUUIDForType(LLFolderType::EType preferred_type, bool create_folder = true, bool find_in_library = false);
 
-	// Call this method when it's time to update everyone on a new
-	// state, by default, the inventory model will not update
-	// observers automatically.
+	// This gets called by the idle loop.  It only updates if new
+	// state is detected.  Call notifyObservers() manually to update
+	// regardless of whether state change has been indicated.
+	void idleNotifyObservers();
+
+	// Call this method to explicitly update everyone on a new state.
 	// The optional argument 'service_name' is used by Agent Inventory Service [DEV-20328]
 	void notifyObservers(const std::string service_name="");
 
@@ -439,6 +440,9 @@ protected:
 	static void processFetchInventoryReply(LLMessageSystem* msg, void**);
 	
 	bool messageUpdateCore(LLMessageSystem* msg, bool do_accounting);
+
+	// Updates all linked items pointing to this id.
+	void addChangedMaskForLinks(const LLUUID& object_id, U32 mask);
 
 protected:
 	cat_array_t* getUnlockedCatArray(const LLUUID& id);

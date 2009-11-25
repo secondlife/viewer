@@ -172,7 +172,8 @@ LLNavigationBar::LLNavigationBar()
 	mBtnHome(NULL),
 	mCmbLocation(NULL),
 	mSearchComboBox(NULL),
-	mPurgeTPHistoryItems(false)
+	mPurgeTPHistoryItems(false),
+	mSaveToLocationHistory(false)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_navigation_bar.xml");
 
@@ -186,7 +187,7 @@ LLNavigationBar::LLNavigationBar()
 LLNavigationBar::~LLNavigationBar()
 {
 	mTeleportFinishConnection.disconnect();
-	LLSearchHistory::getInstance()->save();
+	mTeleportFailedConnection.disconnect();
 }
 
 BOOL LLNavigationBar::postBuild()
@@ -217,10 +218,16 @@ BOOL LLNavigationBar::postBuild()
 
 	mBtnHome->setClickedCallback(boost::bind(&LLNavigationBar::onHomeButtonClicked, this));
 
-	mCmbLocation->setSelectionCallback(boost::bind(&LLNavigationBar::onLocationSelection, this));
+	mCmbLocation->setCommitCallback(boost::bind(&LLNavigationBar::onLocationSelection, this));
 	
 	mSearchComboBox->setCommitCallback(boost::bind(&LLNavigationBar::onSearchCommit, this));
 
+	mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
+		setTeleportFinishedCallback(boost::bind(&LLNavigationBar::onTeleportFinished, this, _1));
+
+	mTeleportFailedConnection = LLViewerParcelMgr::getInstance()->
+		setTeleportFailedCallback(boost::bind(&LLNavigationBar::onTeleportFailed, this));
+	
 	mDefaultNbRect = getRect();
 	mDefaultFpRect = getChild<LLFavoritesBarCtrl>("favorite")->getRect();
 
@@ -230,6 +237,16 @@ BOOL LLNavigationBar::postBuild()
 
 	return TRUE;
 }
+
+void LLNavigationBar::setVisible(BOOL visible)
+{
+	// change visibility of grandparent layout_panel to animate in and out
+	if (getParent() && getParent()->getParent()) 
+	{
+		getParent()->getParent()->setVisible(visible);	
+	}
+}
+
 
 void LLNavigationBar::fillSearchComboBox()
 {
@@ -396,15 +413,19 @@ void LLNavigationBar::onLocationSelection()
 	LLWorldMapMessage::url_callback_t cb = boost::bind(
 			&LLNavigationBar::onRegionNameResponse, this,
 			typed_location, region_name, local_coords, _1, _2, _3, _4);
-	// connect the callback each time, when user enter new location to get real location of agent after teleport
-	mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
-			setTeleportFinishedCallback(boost::bind(&LLNavigationBar::onTeleportFinished, this, _1,typed_location));
+	mSaveToLocationHistory = true;
 	LLWorldMapMessage::getInstance()->sendNamedRegionRequest(region_name, cb, std::string("unused"), false);
 }
 
-void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos, const std::string& typed_location)
+void LLNavigationBar::onTeleportFailed()
 {
-	// Location is valid. Add it to the typed locations history.
+	mSaveToLocationHistory = false;
+}
+
+void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos)
+{
+	if (!mSaveToLocationHistory)
+		return;
 	LLLocationHistory* lh = LLLocationHistory::getInstance();
 
 	//TODO*: do we need convert surl into readable format?
@@ -414,7 +435,7 @@ void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos, con
 	 * At this moment gAgent.getPositionAgent() contains previous coordinates.
 	 * according to EXT-65 agent position is being reseted on each frame.  
 	 */
-		LLAgentUI::buildLocationString(location, LLAgentUI::LOCATION_FORMAT_WITHOUT_SIM,
+		LLAgentUI::buildLocationString(location, LLAgentUI::LOCATION_FORMAT_NO_MATURITY,
 					gAgent.getPosAgentFromGlobal(global_agent_pos));
 	std::string tooltip (LLSLURL::buildSLURLfromPosGlobal(gAgent.getRegion()->getName(), global_agent_pos, false));
 	
@@ -427,8 +448,7 @@ void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos, con
 
 	lh->save();
 	
-	if(mTeleportFinishConnection.connected())
-		mTeleportFinishConnection.disconnect();
+	mSaveToLocationHistory = false;
 	
 }
 

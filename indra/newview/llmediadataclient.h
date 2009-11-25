@@ -62,6 +62,8 @@ public:
 	virtual F64 getTotalMediaInterest() const = 0;
 	// Return the given cap url
 	virtual std::string getCapabilityUrl(const std::string &name) const = 0;
+	// Return whether the object has been marked dead
+	virtual bool isDead() const = 0;
 
 	// smart pointer
 	typedef LLPointer<LLMediaDataClientObject> ptr_t;
@@ -193,30 +195,14 @@ protected:
 	
 private:
 	
-	// Comparator for PriorityQueue
-	class Comparator
-	{
-	public:
-		bool operator() (const request_ptr_t &o1, const request_ptr_t &o2) const;
-	private:
-		static F64 getObjectScore(const LLMediaDataClientObject::ptr_t &obj);
-	};
+	typedef std::list<request_ptr_t> request_queue_t;
 	
-    // PriorityQueue
-	class PriorityQueue : public std::priority_queue<
-		request_ptr_t, 
-		std::vector<request_ptr_t>, 
-		Comparator >
-	{
-	public:
-		// Return whether the given object is in the queue
-		bool find(const LLMediaDataClientObject::ptr_t &obj) const;
-		
-		friend std::ostream& operator<<(std::ostream &s, const PriorityQueue &q);
-	};
+	// Comparator for sorting
+	static bool compareRequests(const request_ptr_t &o1, const request_ptr_t &o2);
+	static F64 getObjectScore(const LLMediaDataClientObject::ptr_t &obj);
     
 	friend std::ostream& operator<<(std::ostream &s, const Request &q);
-    friend std::ostream& operator<<(std::ostream &s, const PriorityQueue &q);
+	friend std::ostream& operator<<(std::ostream &s, const request_queue_t &q);
 
 	class QueueTimer : public LLEventTimer
 	{
@@ -230,6 +216,9 @@ private:
 		LLPointer<LLMediaDataClient> mMDC;
 	};
 
+	// Return whether the given object is in the queue
+	bool find(const LLMediaDataClientObject::ptr_t &obj) const;
+	
 	void startQueueTimer();
 	void stopQueueTimer();
 	void setIsRunning(bool val) { mQueueTimerIsRunning = val; }
@@ -240,7 +229,7 @@ private:
 	
 	bool mQueueTimerIsRunning;
 	
-	PriorityQueue *pRequestQueue;
+	request_queue_t *pRequestQueue;
 };
 
 

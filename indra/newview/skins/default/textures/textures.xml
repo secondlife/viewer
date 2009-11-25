@@ -1,3 +1,33 @@
+<!--
+This file contains metadata about how to load, display, and scale textures for rendering in the UI.
+Images do *NOT* have to appear in this file in order to use them as textures in the UI...simply refer 
+to them by filename (relative to textures directory).
+NOTE: if you want to reuse an image file with different metadata, simply create a new texture entry 
+with the same filename but different name
+
+<texture
+  name="MyTexture" (mandatory)
+    - this is the name you reference the texture by in XUI.  For example, <button image_unselected="MyTexture"/>
+  file_name="images/my_texture.png" (optional)
+    - this is the path to the actual file asset, relative to the current skins "textures" directory.  
+      If not supplied, the filename will be taken from the texture name itself, "MyTexture" in this case.  
+      NOTE: you need to provide an extension on the filename (".png", ".tga", ".jpg") for us to decode the image properly
+  preload="true" (optional, false by default)
+    - If true, we will attempt to load the image before displaying any UI.  
+      If false, we will load in the background after initializing the UI.
+  use_mips="true" (currently unused)
+  scale.left="1"
+  scale.bottom="1"
+  scale.top="15"
+  scale.right="31"
+    - Specifies the segmentation for 9-slice image scaling.  Specifically, the pixel offsets from the LOWER LEFT corner
+      that define the region of the image that is stretched to make the whole image fit in the required space.
+      In this example, if the source image is 32x16 pixels, we have defined a center region that starts one pixel up
+      and to the right from the bottom left corner and extends to 31 pixels right and 15 pixels up from the bottom left 
+      corner.  The end result is that the image will keep a 1 pixel border all around while stretching to fit the required 
+      region.
+-->
+
 <textures version="101">
   <!-- Please add new files alphabetically to prevent merge conflicts. JC -->
   <texture name="Accordion_ArrowClosed_Off" file_name="containers/Accordion_ArrowClosed_Off.png" preload="false" />
@@ -20,8 +50,12 @@
   <texture name="Arrow_Right_Off" file_name="navbar/Arrow_Right_Off.png" preload="true" />
   <texture name="Arrow_Right_Press" file_name="navbar/Arrow_Right_Press.png" preload="true" />
 
-  <texture name="Arrow_Up" file_name="widgets/Arrow_Up.png" preload="true" />
-  <texture name="Arrow_Down" file_name="widgets/Arrow_Down.png" preload="true" />
+  <texture name="Arrow_Left" file_name="widgets/Arrow_Left.png" preload="true" />
+  <texture name="Arrow_Right" file_name="widgets/Arrow_Right.png" preload="true" />
+
+  <texture name="Arrow_Small_Up" file_name="widgets/Arrow_Small_Up.png" preload="true" />
+  <texture name="Arrow_Small_Left" file_name="widgets/Arrow_Small_Left.png" preload="true" />
+  <texture name="Arrow_Small_Right" file_name="widgets/Arrow_Small_Right.png" preload="true" />
 
   <texture name="AudioMute_Off" file_name="icons/AudioMute_Off.png" preload="false" />
   <texture name="AudioMute_Over" file_name="icons/AudioMute_Over.png" preload="false" />
@@ -90,6 +124,7 @@
   <texture name="ComboButton_Press" file_name="widgets/ComboButton_Press.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_Selected" file_name="widgets/ComboButton_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_UpSelected" file_name="widgets/ComboButton_UpSelected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
+  <texture name="ComboButton_Up_On_Selected" file_name="widgets/ComboButton_Up_On_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_Off" file_name="widgets/ComboButton_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="ComboButton_UpOff" file_name="widgets/ComboButton_UpOff.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="Container" file_name="containers/Container.png" preload="false" />
@@ -106,7 +141,6 @@
   <texture name="DropDown_Press" file_name="widgets/DropDown_Press.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Selected" file_name="widgets/DropDown_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Off" file_name="widgets/DropDown_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  <texture name="DropDown_On" file_name="widgets/DropDown_On.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
 
   <texture name="DropTarget" file_name="widgets/DropTarget.png" preload="false" />
 
@@ -132,7 +166,7 @@
   <texture name="Generic_Group" file_name="icons/Generic_Group.png" preload="false" />
   <texture name="Generic_Group_Large" file_name="icons/Generic_Group_Large.png" preload="false" />
   <texture name="Generic_Object_Medium" file_name="icons/Generic_Object_Medium.png" preload="false" />
-  <texture name="Generic_Object_Small" file_name="icons/ Generic_Object_Small.png" preload="false" />
+  <texture name="Generic_Object_Small" file_name="icons/Generic_Object_Small.png" preload="false" />
   <texture name="Generic_Object_Large" file_name="icons/Generic_Object_Large.png" preload="false" />
   <texture name="Generic_Person" file_name="icons/Generic_Person.png" preload="false" />
   <texture name="Generic_Person_Large" file_name="icons/Generic_Person_Large.png" preload="false" />
@@ -230,6 +264,10 @@
 
   <texture name="Microphone_Mute" file_name="icons/Microphone_Mute.png" preload="false" />
   <texture name="Microphone_On" file_name="icons/Microphone_On.png" preload="false" />
+
+  <texture name="MinusItem_Disabled" file_name="icons/MinusItem_Disabled.png" preload="false" />
+  <texture name="MinusItem_Off" file_name="icons/MinusItem_Off.png" preload="false" />
+  <texture name="MinusItem_Press" file_name="icons/MinusItem_Press.png" preload="false" />
 
   <texture name="menu_separator" file_name="navbar/FileMenu_Divider.png" scale.left="4" scale.top="166" scale.right="0" scale.bottom="0" />
 
@@ -406,6 +444,7 @@
   <texture name="Search" file_name="navbar/Search.png" preload="false" />
 
   <texture name="SegmentedBtn_Left_Off" file_name="widgets/SegmentedBtn_Left_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
+  <texture name="SegmentedBtn_Left_Over" file_name="widgets/SegmentedBtn_Left_Over.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Left_Press" file_name="widgets/SegmentedBtn_Left_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Left_Disabled" file_name="widgets/SegmentedBtn_Left_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Left_Selected" file_name="widgets/SegmentedBtn_Left_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
@@ -420,6 +459,7 @@
   <texture name="SegmentedBtn_Middle_Selected_Disabled" file_name="widgets/SegmentedBtn_Middle_Selected_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
 
   <texture name="SegmentedBtn_Right_Off" file_name="widgets/SegmentedBtn_Right_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
+  <texture name="SegmentedBtn_Right_Over" file_name="widgets/SegmentedBtn_Right_Over.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Right_Press" file_name="widgets/SegmentedBtn_Right_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Right_Disabled" file_name="widgets/SegmentedBtn_Right_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Right_Selected" file_name="widgets/SegmentedBtn_Right_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
@@ -450,6 +490,9 @@
   <texture name="Stepper_Up_Off" file_name="widgets/Stepper_Up_Off.png" preload="true" />
   <texture name="Stepper_Up_Press" file_name="widgets/Stepper_Up_Press.png" preload="true" />
 
+  <texture name="Stop_Off" file_name="icons/Stop_Off.png" preload="false" />
+  <texture name="Stop_Over" file_name="icons/Stop_Over.png" preload="false" />
+  <texture name="Stop_Press" file_name="icons/Stop_Press.png" preload="false" />
   <texture name="StopReload_Off" file_name="icons/StopReload_Off.png" preload="false" />
   <texture name="StopReload_Over" file_name="icons/StopReload_Over.png" preload="false" />
   <texture name="StopReload_Press" file_name="icons/StopReload_Press.png" preload="false" />
@@ -567,6 +610,15 @@
   <texture name="Zoom_Off" file_name="icons/Zoom_Off.png" preload="false" />
   <texture name="Zoom_Over" file_name="icons/Zoom_Over.png" preload="false" />
   <texture name="Zoom_Press" file_name="icons/Zoom_Press.png" preload="false" />
+  <texture name="UnZoom_Off" file_name="icons/UnZoom_Off.png" preload="false" />
+  <texture name="UnZoom_Over" file_name="icons/UnZoom_Over.png" preload="false" />
+  <texture name="UnZoom_Press" file_name="icons/UnZoom_Press.png" preload="false" />
+  <texture name="PowerOn_Off" file_name="icons/PowerOn_Off.png" preload="false" />
+  <texture name="PowerOn_Over" file_name="icons/PowerOn_Over.png" preload="false" />
+  <texture name="PowerOn_Press" file_name="icons/PowerOn_Press.png" preload="false" />
+  <texture name="PowerOff_Off" file_name="icons/PowerOff_Off.png" preload="false" />
+  <texture name="PowerOff_Over" file_name="icons/PowerOff_Over.png" preload="false" />
+  <texture name="PowerOff_Press" file_name="icons/PowerOff_Press.png" preload="false" />
 
   <!--WARNING OLD ART *do not use*-->
 

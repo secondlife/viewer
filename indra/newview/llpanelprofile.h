@@ -40,7 +40,7 @@
 class LLTabContainer;
 
 /**
-* Base class for Profile View and Me Profile.
+* Base class for Profile View and My Profile.
 */
 class LLPanelProfile : public LLPanel
 {
@@ -51,7 +51,7 @@ public:
 
 	/*virtual*/ void onOpen(const LLSD& key);
 
-	virtual void togglePanel(LLPanel*);
+	virtual void togglePanel(LLPanel*, const LLSD& key = LLSD());
 
 	virtual void openPanel(LLPanel* panel, const LLSD& params);
 

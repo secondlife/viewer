@@ -89,8 +89,6 @@ BOOL LLNearbyChat::postBuild()
 
 	mChatHistory = getChild<LLChatHistory>("chat_history");
 
-	setCanResize(true);
-
 	if(!LLDockableFloater::postBuild())
 		return false;
 
@@ -98,7 +96,7 @@ BOOL LLNearbyChat::postBuild()
 	{
 		setDockControl(new LLDockControl(
 			LLBottomTray::getInstance()->getNearbyChatBar(), this,
-			getDockTongue(), LLDockControl::LEFT, boost::bind(&LLNearbyChat::getAllowedRect, this, _1)));
+			getDockTongue(), LLDockControl::TOP, boost::bind(&LLNearbyChat::getAllowedRect, this, _1)));
 	}
 
 	return true;
@@ -175,16 +173,16 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 				append_style_params.font.style = "ITALIC";
 				LLChat add_chat=chat;
 				add_chat.mText = chat.mFromName + " ";
-				mChatHistory->appendWidgetMessage(add_chat, append_style_params);
+				mChatHistory->appendMessage(add_chat, false, append_style_params);
 			}
 			
 			message = message.substr(3);
-			append_style_params.font.style = "UNDERLINE";
+			append_style_params.font.style = "ITALIC";
 			mChatHistory->appendText(message, FALSE, append_style_params);
 		}
 		else
 		{
-			mChatHistory->appendWidgetMessage(chat);
+			mChatHistory->appendMessage(chat);
 		}
 	}
 }
@@ -217,13 +215,6 @@ void	LLNearbyChat::onOpen(const LLSD& key )
 	}
 }
 
-void	LLNearbyChat::setDocked			(bool docked, bool pop_on_undock)
-{
-	LLDockableFloater::setDocked(docked, pop_on_undock);
-
-	setCanResize(!docked);
-}
-
 void LLNearbyChat::setRect	(const LLRect &rect)
 {
 	LLDockableFloater::setRect(rect);
@@ -231,14 +222,5 @@ void LLNearbyChat::setRect	(const LLRect &rect)
 
 void LLNearbyChat::getAllowedRect(LLRect& rect)
 {
-	rect = gViewerWindow->getWorldViewRectRaw();
+	rect = gViewerWindow->getWorldViewRectScaled();
 }
-void LLNearbyChat::setMinimized	(BOOL minimize)
-{
-	if(minimize && !isDocked())
-	{
-		setVisible(FALSE);
-	}
-	LLDockableFloater::setMinimized(minimize);
-}
-

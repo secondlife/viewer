@@ -63,6 +63,7 @@ public:
 public:
 	void on();
 	void off();
+	void forceRecalculatePosition();
 	void setDock(LLView* dockWidget);
 	LLView* getDock()
 	{

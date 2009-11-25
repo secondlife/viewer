@@ -3868,7 +3868,7 @@ U32 LLVOAvatar::renderRigid()
 		return 0;
 	}
 
-	if (isTextureVisible(TEX_EYES_BAKED) || mIsDummy)
+	if (isTextureVisible(TEX_EYES_BAKED)  || mIsDummy)
 	{
 		num_indices += mMeshLOD[MESH_ID_EYEBALL_LEFT]->render(mAdjustedPixelArea, TRUE, mIsDummy);
 		num_indices += mMeshLOD[MESH_ID_EYEBALL_RIGHT]->render(mAdjustedPixelArea, TRUE, mIsDummy);
@@ -6267,7 +6267,7 @@ LLColor4 LLVOAvatar::getDummyColor()
 	return DUMMY_COLOR;
 }
 
-void LLVOAvatar::dumpAvatarTEs( const std::string& context )
+void LLVOAvatar::dumpAvatarTEs( const std::string& context ) const
 {	
 	/* const char* te_name[] = {
 			"TEX_HEAD_BODYPAINT   ",
@@ -7636,15 +7636,19 @@ void LLVOAvatar::idleUpdateRenderCost()
 		return;
 	}
 
-	U32 shame = 0;
+	U32 cost = 0;
+	std::set<LLUUID> textures;
 
 	for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 	{
 		const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
 		ETextureIndex tex_index = baked_dict->mTextureIndex;
-		if (isTextureVisible(tex_index))
+		if ((tex_index != TEX_SKIRT_BAKED) || (isWearingWearableType(WT_SKIRT)))
 		{
-			shame +=20;
+			if (isTextureVisible(tex_index))
+			{
+				cost +=20;
+			}
 		}
 	}
 
@@ -7663,20 +7667,22 @@ void LLVOAvatar::idleUpdateRenderCost()
 				const LLDrawable* drawable = attached_object->mDrawable;
 				if (drawable)
 				{
-					shame += 10;
+					cost += 10;
 					const LLVOVolume* volume = drawable->getVOVolume();
 					if (volume)
 					{
-						shame += volume->getRenderCost();
+						cost += volume->getRenderCost(textures);
 					}
 				}
 			}
 		}
 	}
 
-	setDebugText(llformat("%d", shame));
-	F32 green = 1.f-llclamp(((F32) shame-1024.f)/1024.f, 0.f, 1.f);
-	F32 red = llmin((F32) shame/1024.f, 1.f);
+	cost += textures.size() * 5;
+
+	setDebugText(llformat("%d", cost));
+	F32 green = 1.f-llclamp(((F32) cost-1024.f)/1024.f, 0.f, 1.f);
+	F32 red = llmin((F32) cost/1024.f, 1.f);
 	mText->setColor(LLColor4(red,green,0,1));
 }
 

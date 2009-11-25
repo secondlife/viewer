@@ -97,6 +97,10 @@ protected:
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
 	
+	// This function squirrels away the current values of the controls so that
+	// cancel() can restore them.	
+	void saveSettings();
+		
 
 public:
 
@@ -115,7 +119,6 @@ public:
 	void setAllIgnored();
 	void onClickLogPath();	
 	void enableHistory();
-	void onCommitLogging();
 	void setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string& email);
 	void refreshEnabledState();
 	void disableUnavailableSettings();
@@ -146,6 +149,7 @@ private:
 	static std::string sSkin;
 	bool mGotPersonalInfo;
 	bool mOriginalIMViaEmail;
+	bool mCancelOnClose;
 	
 	bool mOriginalHideOnlineStatus;
 	std::string mDirectoryVisibility;
@@ -162,6 +166,10 @@ public:
 	virtual void cancel();
 	void setControlFalse(const LLSD& user_data);
 
+	// This function squirrels away the current values of the controls so that
+	// cancel() can restore them.
+	virtual void saveSettings();
+	
 private:
 	typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
 	control_values_map_t mSavedValues;

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="Outfits" 
+	  bottom="0" 
+	  height="326" 
+	  left="0" 
+	  width="310"
+	  border="true"
+	  follows="left|top|right|bottom">
+    <accordion
+     follows="left|top|right|bottom"
+     height="315"
+     layout="topleft"
+     left="0"
+     name="outfits_accordion"
+     top="2"
+     width="310">
+        <accordion_tab
+         layout="topleft"
+         name="tab_outfits"
+         title="Outfits bar">
+	 <inventory_panel 
+	 	 allow_multi_select="true" 
+		 border="true" 
+		 bottom="0"
+	     follows="left|top|right|bottom" 
+		 height="326" 
+		 left="0" 
+		 mouse_opaque="true"
+	     name="outfitslist_accordionpanel"
+		 width="310"
+		 start_folder="My Outfits"/>
+        </accordion_tab>
+        <accordion_tab
+         layout="topleft"
+         name="tab_cof"
+         title="Current Outfit bar">
+	 <inventory_panel 
+	 	 allow_multi_select="true" 
+		 border="true" 
+		 bottom="0"
+	     follows="left|top|right|bottom" 
+		 height="326" 
+		 left="0" 
+		 mouse_opaque="true"
+	     name="cof_accordionpanel"
+		 width="310"
+		 start_folder="Current Outfit"/>
+        </accordion_tab>
+	</accordion>
+
+	<button bottom="0"
+		 halign="center"
+		 height="16"
+		 label=">"
+		 enabled="false"
+	     mouse_opaque="false"
+		 name="selector"
+		 width="20"
+		 left="0"
+		 visible="false"
+	     follows="right|bottom"
+		 tool_tip="View outfit properties"/>
+    <panel
+     background_visible="true"
+     bevel_style="none"
+     bottom="0"
+     follows="left|right|bottom"
+     height="30"
+     layout="bottomleft"
+     left="0"
+	 visible="true"
+     name="bottom_panel"
+     width="310">
+        <button
+         follows="bottom|left"
+         tool_tip="Show additional options"
+         height="18"
+         image_disabled="OptionsMenu_Disabled"
+         image_selected="OptionsMenu_Press"
+         image_unselected="OptionsMenu_Off"
+         layout="topleft"
+         left="10"
+         name="options_gear_btn"
+         picture_style="true"
+         top="6"
+         width="18" />
+        <button
+         follows="bottom|left"
+         height="18"
+         image_selected="AddItem_Press"
+         image_unselected="AddItem_Off"
+         image_disabled="AddItem_Disabled"
+         layout="topleft"
+         left_pad="5"
+         name="add_btn"
+         picture_style="true"
+         tool_tip="Add new item"
+         width="18" />
+        <dnd_button
+         follows="bottom|right"
+         height="18"
+         image_selected="TrashItem_Press"
+         image_unselected="TrashItem_Off"
+         layout="topleft"
+         right="-5"
+         name="trash_btn"
+         picture_style="true"
+         tool_tip="Remove selected item"
+         top="6"
+         width="18" />
+    </panel>
+</panel>

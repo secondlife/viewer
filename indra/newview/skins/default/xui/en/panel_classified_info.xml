@@ -151,7 +151,6 @@
      name="buttons">
         <button
          follows="bottom|left"
-         font="SansSerifSmall"
          height="19"
          label="Teleport"
          layout="topleft"
@@ -161,7 +160,6 @@
          width="90" />
         <button
          follows="bottom|left"
-         font="SansSerifSmall"
          height="19"
          label="Map"
          layout="topleft"
@@ -171,7 +169,6 @@
          width="90" />
         <button
          follows="bottom|left"
-         font="SansSerifSmall"
          height="19"
          label="Edit"
          layout="topleft"

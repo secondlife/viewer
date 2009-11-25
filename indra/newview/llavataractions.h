@@ -74,6 +74,11 @@ public:
 	static void startIM(const LLUUID& id);
 
 	/**
+	 * End instant messaging session.
+	 */
+	static void endIM(const LLUUID& id);
+
+	/**
 	 * Start an avatar-to-avatar voice call with another user
 	 */
 	static void startCall(const LLUUID& id);
@@ -97,6 +102,11 @@ public:
 	 * Give money to the avatar.
 	 */
 	static void pay(const LLUUID& id);
+
+	/**
+	 * Share items with the avatar.
+	 */
+	static void share(const LLUUID& id);
 
 	/**
 	 * Block/unblock the avatar.

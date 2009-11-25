@@ -509,7 +509,7 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 	}
 }
 
-void LLInventoryModel::updateLinkedItems(const LLUUID& object_id)
+void LLInventoryModel::addChangedMaskForLinks(const LLUUID& object_id, U32 mask)
 {
 	const LLInventoryObject *obj = getObject(object_id);
 	if (!obj || obj->getIsLinkType())
@@ -532,7 +532,7 @@ void LLInventoryModel::updateLinkedItems(const LLUUID& object_id)
 		 cat_iter++)
 	{
 		LLViewerInventoryCategory *linked_cat = (*cat_iter);
-		addChangedMask(LLInventoryObserver::LABEL, linked_cat->getUUID());
+		addChangedMask(mask, linked_cat->getUUID());
 	};
 
 	for (LLInventoryModel::item_array_t::iterator iter = item_array.begin();
@@ -540,9 +540,8 @@ void LLInventoryModel::updateLinkedItems(const LLUUID& object_id)
 		 iter++)
 	{
 		LLViewerInventoryItem *linked_item = (*iter);
-		addChangedMask(LLInventoryObserver::LABEL, linked_item->getUUID());
+		addChangedMask(mask, linked_item->getUUID());
 	};
-	notifyObservers();
 }
 
 const LLUUID& LLInventoryModel::getLinkedItemID(const LLUUID& object_id) const
@@ -1119,9 +1118,16 @@ BOOL LLInventoryModel::containsObserver(LLInventoryObserver* observer) const
 	return mObservers.find(observer) != mObservers.end();
 }
 
-// Call this method when it's time to update everyone on a new state,
-// by default, the inventory model will not update observers
-// automatically.
+void LLInventoryModel::idleNotifyObservers()
+{
+	if (mModifyMask == LLInventoryObserver::NONE && (mChangedItemIDs.size() == 0))
+	{
+		return;
+	}
+	notifyObservers("");
+}
+
+// Call this method when it's time to update everyone on a new state.
 // The optional argument 'service_name' is used by Agent Inventory Service [DEV-20328]
 void LLInventoryModel::notifyObservers(const std::string service_name)
 {
@@ -1133,6 +1139,7 @@ void LLInventoryModel::notifyObservers(const std::string service_name)
 		llwarns << "Call was made to notifyObservers within notifyObservers!" << llendl;
 		return;
 	}
+
 	mIsNotifyObservers = TRUE;
 	for (observer_list_t::iterator iter = mObservers.begin();
 		 iter != mObservers.end(); )
@@ -1180,7 +1187,7 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 	// not sure what else might need to be accounted for this.
 	if (mModifyMask & LLInventoryObserver::LABEL)
 	{
-		updateLinkedItems(referent);
+		addChangedMaskForLinks(referent, LLInventoryObserver::LABEL);
 	}
 }
 
@@ -1199,7 +1206,7 @@ void LLInventoryModel::mock(const LLUUID& root_id)
 		root_id,
 		LLUUID::null,
 		LLAssetType::AT_CATEGORY,
-		LLFolderType::lookupNewCategoryName(LLFolderType::FT_ROOT_CATEGORY),
+		LLFolderType::lookupNewCategoryName(LLFolderType::FT_ROOT_INVENTORY),
 		gAgent.getID());
 	addCategory(cat);
 	gInventory.buildParentChildMap();
@@ -3301,8 +3308,7 @@ void LLInventoryModel::processInventoryDescendents(LLMessageSystem* msg,void**)
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
 	if(agent_id != gAgent.getID())
 	{
-		llwarns << "Got a UpdateInventoryItem for the wrong agent."
-				<< llendl;
+		llwarns << "Got a UpdateInventoryItem for the wrong agent." << llendl;
 		return;
 	}
 	LLUUID parent_id;
@@ -3313,6 +3319,7 @@ void LLInventoryModel::processInventoryDescendents(LLMessageSystem* msg,void**)
 	msg->getS32("AgentData", "Version", version);
 	S32 descendents;
 	msg->getS32("AgentData", "Descendents", descendents);
+
 	S32 i;
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_FolderData);
 	LLPointer<LLViewerInventoryCategory> tcategory = new LLViewerInventoryCategory(owner_id);
@@ -3342,6 +3349,9 @@ void LLInventoryModel::processInventoryDescendents(LLMessageSystem* msg,void**)
 	{
 		cat->setVersion(version);
 		cat->setDescendentCount(descendents);
+		// Get this UUID on the changed list so that whatever's listening for it
+		// will get triggered.
+		gInventory.addChangedMask(LLInventoryObserver::INTERNAL, cat->getUUID());
 	}
 	gInventory.notifyObservers();
 }

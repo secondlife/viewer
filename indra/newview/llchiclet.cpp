@@ -1,34 +1,34 @@
 /** 
-* @file llchiclet.cpp
-* @brief LLChiclet class implementation
-*
-* $LicenseInfo:firstyear=2002&license=viewergpl$
-* 
-* Copyright (c) 2002-2009, Linden Research, Inc.
-* 
-* Second Life Viewer Source Code
-* The source code in this file ("Source Code") is provided by Linden Lab
-* to you under the terms of the GNU General Public License, version 2.0
-* ("GPL"), unless you have obtained a separate licensing agreement
-* ("Other License"), formally executed by you and Linden Lab.  Terms of
-* the GPL can be found in doc/GPL-license.txt in this distribution, or
-* online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
-* 
-* There are special exceptions to the terms and conditions of the GPL as
-* it is applied to this Source Code. View the full text of the exception
-* in the file doc/FLOSS-exception.txt in this software distribution, or
-* online at
-* http://secondlifegrid.net/programs/open_source/licensing/flossexception
-* 
-* By copying, modifying or distributing this software, you acknowledge
-* that you have read and understood your obligations described above,
-* and agree to abide by those obligations.
-* 
-* ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
-* WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
-* COMPLETENESS OR PERFORMANCE.
-* $/LicenseInfo$
-*/
+ * @file llchiclet.cpp
+ * @brief LLChiclet class implementation
+ *
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
+ * Second Life Viewer Source Code
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+ * 
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * 
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ * 
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
+ * $/LicenseInfo$
+ */
 
 #include "llviewerprecompiledheaders.h" // must be first include
 #include "llchiclet.h"
@@ -43,6 +43,7 @@
 #include "lllocalcliprect.h"
 #include "llmenugl.h"
 #include "lloutputmonitorctrl.h"
+#include "llscriptfloater.h"
 #include "lltextbox.h"
 #include "llvoiceclient.h"
 #include "llvoicecontrolpanel.h"
@@ -55,6 +56,7 @@ static LLDefaultChildRegistry::Register<LLNotificationChiclet> t2("chiclet_notif
 static LLDefaultChildRegistry::Register<LLIMP2PChiclet> t3("chiclet_im_p2p");
 static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t4("chiclet_im_group");
 static LLDefaultChildRegistry::Register<LLAdHocChiclet> t5("chiclet_im_adhoc");
+static LLDefaultChildRegistry::Register<LLScriptChiclet> t6("chiclet_script");
 
 static const LLRect CHICLET_RECT(0, 25, 25, 0);
 static const LLRect CHICLET_ICON_RECT(0, 22, 22, 0);
@@ -81,26 +83,16 @@ LLNotificationChiclet::Params::Params()
 	button.tab_stop(FALSE);
 	button.label(LLStringUtil::null);
 
-	unread_notifications.name("unread");
-	unread_notifications.font(LLFontGL::getFontSansSerif());
-	unread_notifications.text_color=(LLColor4::white);
-	unread_notifications.font_halign(LLFontGL::HCENTER);
-	unread_notifications.mouse_opaque(FALSE);
 }
 
 LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 : LLChiclet(p)
 , mButton(NULL)
-, mCounterCtrl(NULL)
+, mCounter(0)
 {
 	LLButton::Params button_params = p.button;
-	button_params.rect(p.rect());
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
 	addChild(mButton);
-
- 	LLChicletNotificationCounterCtrl::Params unread_params = p.unread_notifications;
-	mCounterCtrl = LLUICtrlFactory::create<LLChicletNotificationCounterCtrl>(unread_params);
-	addChild(mCounterCtrl);
 
 	// connect counter handlers to the signals
 	connectCounterUpdatersToSignal("notify");
@@ -126,13 +118,15 @@ void LLNotificationChiclet::connectCounterUpdatersToSignal(std::string notificat
 
 void LLNotificationChiclet::setCounter(S32 counter)
 {
-	mCounterCtrl->setCounter(counter);
-}
+	std::string s_count;
+	if(counter != 0)
+	{
+		s_count = llformat("%d", counter);
+	}
 
-void LLNotificationChiclet::setShowCounter(bool show)
-{
-	LLChiclet::setShowCounter(show);
-	mCounterCtrl->setVisible(getShowCounter());
+	mButton->setLabel(s_count);
+
+	mCounter = counter;
 }
 
 boost::signals2::connection LLNotificationChiclet::setClickCallback(
@@ -171,7 +165,7 @@ LLChiclet::~LLChiclet()
 boost::signals2::connection LLChiclet::setLeftButtonClickCallback(
 	const commit_callback_t& cb)
 {
-	return mCommitSignal.connect(cb);
+	return setCommitCallback(cb);
 }
 
 BOOL LLChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -482,6 +476,10 @@ void LLIMP2PChiclet::onMenuItemClicked(const LLSD& user_data)
 	{
 		LLAvatarActions::requestFriendshipDialog(other_participant_id);
 	}
+	else if("end" == level)
+	{
+		LLAvatarActions::endIM(other_participant_id);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -776,11 +774,15 @@ void LLIMGroupChiclet::onMenuItemClicked(const LLSD& user_data)
 
 	if("group chat" == level)
 	{
-		LLGroupActions::startChat(group_id);
+		LLGroupActions::startIM(group_id);
 	}
 	else if("info" == level)
 	{
 		LLGroupActions::show(group_id);
+	}
+	else if("end" == level)
+	{
+		LLGroupActions::endIM(group_id);
 	}
 }
 
@@ -922,34 +924,45 @@ void LLChicletPanel::onCurrentVoiceChannelChanged(const LLUUID& session_id)
 	s_previous_active_voice_session_id = session_id;
 }
 
-S32 LLChicletPanel::calcChickletPanleWidth()
-{
-	S32 res = 0;
-
-	for (chiclet_list_t::iterator it = mChicletList.begin(); it
-			!= mChicletList.end(); it++)
-	{
-		res = (*it)->getRect().getWidth() + getChicletPadding();
-	}
-	return res;
-}
-
 bool LLChicletPanel::addChiclet(LLChiclet* chiclet, S32 index)
 {
 	if(mScrollArea->addChild(chiclet))
 	{
-		// chicklets should be aligned to right edge of scroll panel
-		S32 offset = 0;
+		// chiclets should be aligned to right edge of scroll panel
+		S32 left_shift = 0;
 
 		if (!canScrollLeft())
 		{
-			offset = mScrollArea->getRect().getWidth()
-					- chiclet->getRect().getWidth() - calcChickletPanleWidth();
+			// init left shift for the first chiclet in the list...
+			if (mChicletList.empty())
+			{
+				// ...start from the right border of the scroll area for the first added chiclet 
+				left_shift = mScrollArea->getRect().getWidth();
+			}
+			else
+			{
+				// ... start from the left border of the first chiclet minus padding
+				left_shift = getChiclet(0)->getRect().mLeft - getChicletPadding();
+			}
+
+			// take into account width of the being added chiclet
+			left_shift -= chiclet->getRequiredRect().getWidth();
+
+			// if we overflow the scroll area we do not need to shift chiclets
+			if (left_shift < 0)
+			{
+				left_shift = 0;
+			}
 		}
 
 		mChicletList.insert(mChicletList.begin() + index, chiclet);
 
-		getChiclet(0)->translate(offset, 0);
+		// shift first chiclet to place it in correct position. 
+		// rest ones will be placed in arrange()
+		if (!canScrollLeft())
+		{
+			getChiclet(0)->translate(left_shift - getChiclet(0)->getRect().mLeft, 0);
+		}
 
 		chiclet->setLeftButtonClickCallback(boost::bind(&LLChicletPanel::onChicletClick, this, _1, _2));
 		chiclet->setChicletSizeChangedCallback(boost::bind(&LLChicletPanel::onChicletSizeChanged, this, _1, index));
@@ -972,7 +985,10 @@ void LLChicletPanel::onChicletSizeChanged(LLChiclet* ctrl, const LLSD& param)
 
 void LLChicletPanel::onChicletClick(LLUICtrl*ctrl,const LLSD&param)
 {
-	mCommitSignal(ctrl,param);
+	if (mCommitSignal)
+	{
+		(*mCommitSignal)(ctrl,param);
+	}
 }
 
 void LLChicletPanel::removeChiclet(chiclet_list_t::iterator it)
@@ -1277,7 +1293,7 @@ void LLChicletPanel::onRightScrollHeldDown()
 boost::signals2::connection LLChicletPanel::setChicletClickedCallback(
 	const commit_callback_t& cb)
 {
-	return mCommitSignal.connect(cb);
+	return setCommitCallback(cb);
 }
 
 BOOL LLChicletPanel::handleScrollWheel(S32 x, S32 y, S32 clicks)
@@ -1400,3 +1416,51 @@ LLChicletSpeakerCtrl::LLChicletSpeakerCtrl(const Params&p)
  : LLOutputMonitorCtrl(p)
 {
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+LLScriptChiclet::Params::Params()
+ : icon("icon")
+{
+	// *TODO Vadim: Get rid of hardcoded values.
+ 	rect(CHICLET_RECT);
+	icon.rect(CHICLET_ICON_RECT);
+}
+
+LLScriptChiclet::LLScriptChiclet(const Params&p)
+ : LLIMChiclet(p)
+ , mChicletIconCtrl(NULL)
+{
+	LLIconCtrl::Params icon_params = p.icon;
+	mChicletIconCtrl = LLUICtrlFactory::create<LLIconCtrl>(icon_params);
+	// Let "new message" icon be on top, else it will be hidden behind chiclet icon.
+	addChildInBack(mChicletIconCtrl);
+}
+
+void LLScriptChiclet::setSessionId(const LLUUID& session_id)
+{
+	setShowNewMessagesIcon( getSessionId() != session_id );
+
+	LLIMChiclet::setSessionId(session_id);
+	LLUUID notification_id = LLScriptFloaterManager::getInstance()->findNotificationId(session_id);
+	LLNotificationPtr notification = LLNotifications::getInstance()->find(notification_id);
+	if(notification)
+	{
+		setToolTip(notification->getSubstitutions()["TITLE"].asString());
+	}
+}
+
+void LLScriptChiclet::onMouseDown()
+{
+	LLScriptFloaterManager::getInstance()->toggleScriptFloater(getSessionId());
+}
+
+BOOL LLScriptChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	onMouseDown();
+	return LLChiclet::handleMouseDown(x, y, mask);
+}
+
+// EOF

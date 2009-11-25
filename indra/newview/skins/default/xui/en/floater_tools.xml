@@ -701,7 +701,6 @@
     </slider_bar>
     <button
      follows="left|top"
-     font="SansSerifSmall"
      height="19"
      label="Apply"
      label_selected="Apply"
@@ -811,11 +810,8 @@
                 Mixed Sale
             </panel.string>
             <text
-             type="string"
-             length="1"
              follows="left|top"
              height="10"
-             layout="topleft"
              left="10"
              name="Name:"
              top="0"
@@ -825,7 +821,6 @@
             <line_editor
              follows="left|top|right"
              height="19"
-             layout="topleft"
              left_pad="0"
              max_length="63"
              name="Object Name"
@@ -833,11 +828,8 @@
              top_delta="0"
              width="170" />
             <text
-             type="string"
-             length="1"
              follows="left|top"
              height="10"
-             layout="topleft"
              left="10"
              name="Description:"
              top_pad="3"
@@ -847,7 +839,6 @@
             <line_editor
              follows="left|top|right"
              height="19"
-             layout="topleft"
              left_pad="0"
              max_length="127"
              name="Object Description"
@@ -935,7 +926,6 @@
              width="150" />
             <button
              follows="top|left"
-             font="SansSerifSmall"
              height="20"
              label="Deed"
              label_selected="Deed"
@@ -976,23 +966,27 @@
                 <combo_box.item
                  label="Touch  (default)"
                  name="Touch/grab(default)"
-                 value="Touch/grab (default)" />
+                 value="Touch" />
                 <combo_box.item
                  label="Sit on object"
                  name="Sitonobject"
-                 value="Sit on object" />
+                 value="Sit" />
                 <combo_box.item
                  label="Buy object"
                  name="Buyobject"
-                 value="Buy object" />
+                 value="Buy" />
                 <combo_box.item
                  label="Pay object"
                  name="Payobject"
-                 value="Pay object" />
+                 value="Pay" />
                 <combo_box.item
                  label="Open"
                  name="Open"
                  value="Open" />
+				 <combo_box.item
+                 label="Zoom"
+                 name="Zoom"
+                 value="Zoom" />
             </combo_box>
             <check_box
              height="16"
@@ -2613,7 +2607,6 @@ even though the user gets a free copy.
              width="170" />
             <button
              follows="left|top"
-             font="SansSerifSmall"
              height="19"
              label="Apply"
              label_selected="Apply"
@@ -2749,7 +2742,6 @@ even though the user gets a free copy.
         decouple_texture_size="true" />
      <button
 			 follows="left|top"
-			 font="SansSerifSmall"
 			 height="19"
 			 label="Align"
 			 label_selected="Align Media"

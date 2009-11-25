@@ -111,7 +111,20 @@ protected:
 	void resetFilters();
 	void setSortBy(const LLSD& userdata);
 	
-	// List Commands Handlers
+private:
+	LLFloaterInventoryFinder* getFinder();
+
+	LLFilterEditor*				mFilterEditor;
+	LLTabContainer*				mFilterTabs;
+	LLHandle<LLFloater>			mFinderHandle;
+	LLInventoryPanel*			mActivePanel;
+	LLSaveFolderState*			mSavedFolderState;
+	std::string					mFilterText;
+
+
+	//////////////////////////////////////////////////////////////////////////////////
+	// List Commands                                                                //
+protected:
 	void initListCommandsHandlers();
 	void updateListCommands();
 	void onGearButtonClick();
@@ -122,22 +135,12 @@ protected:
 	BOOL isActionEnabled(const LLSD& command_name);
 	void onCustomAction(const LLSD& command_name);
 	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
-
-
 private:
-	LLFloaterInventoryFinder* getFinder();
-
-	LLFilterEditor*				mFilterEditor;
-	LLTabContainer*				mFilterTabs;
-	LLHandle<LLFloater>			mFinderHandle;
-	LLInventoryPanel*			mActivePanel;
-	LLSaveFolderState*			mSavedFolderState;
-
 	LLPanel*					mListCommands;
 	LLMenuGL*					mMenuGearDefault;
 	LLMenuGL*					mMenuAdd;
-
-	std::string					mFilterText;
+	// List Commands                                                              //
+	////////////////////////////////////////////////////////////////////////////////
 };
 
 #endif // LL_LLPANELMAININVENTORY_H

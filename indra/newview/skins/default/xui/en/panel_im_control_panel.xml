@@ -38,28 +38,29 @@
      label="Teleport"
      name="teleport_btn"
      width="100" />
-    <button
+   <button
      follows="left|top"
      height="20"
      label="Share"
      name="share_btn"
      width="100" />
-    <button
+     <!--Removing pay button to save space - will update spec - verified by Erica/Steve -->
+ <!--   <button
      follows="left|top"
      height="20"
      label="Pay"
      name="pay_btn"
-     width="100" />
+     width="100" />-->
     <panel
      background_visible="true"
      bg_alpha_color="DkGray2"
      border="false"
-     follows="left|top"
+     top_pad="10"
+     follows="left|bottom"
      height="70"
-     left="0"
-     left_pad="0"
+     left="1"
      name="panel_call_buttons"
-     width="110">
+     width="109">
         <button
          bottom="10"
          height="20"
