@@ -125,23 +125,29 @@ class LLDragDropWin32Target:
 		{
 			if ( mAllowDrop )
 			{
-			// XXX MAJOR MAJOR HACK!
-			LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(mAppWindowHandle, GWL_USERDATA);
-			if (NULL != window_imp)
-			{
-				LLCoordGL gl_coord( 0, 0 );
+				bool allowed_to_drop = false;
 
-				POINT pt2;
-				pt2.x = pt.x;
-				pt2.y = pt.y;
-				ScreenToClient( mAppWindowHandle, &pt2 );
+				// XXX MAJOR MAJOR HACK!
+				LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(mAppWindowHandle, GWL_USERDATA);
+				if (NULL != window_imp)
+				{
+					LLCoordGL gl_coord( 0, 0 );
 
-				LLCoordWindow cursor_coord_window( pt2.x, pt2.y );
-				window_imp->convertCoords(cursor_coord_window, &gl_coord);
-				MASK mask = gKeyboard->currentMask(TRUE);
-				window_imp->completeDragNDropRequest( gl_coord, mask, FALSE, std::string( "" ) );
-			}
-				*pdwEffect = DROPEFFECT_COPY;
+					POINT pt2;
+					pt2.x = pt.x;
+					pt2.y = pt.y;
+					ScreenToClient( mAppWindowHandle, &pt2 );
+
+					LLCoordWindow cursor_coord_window( pt2.x, pt2.y );
+					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					MASK mask = gKeyboard->currentMask(TRUE);
+					allowed_to_drop = window_imp->completeDragNDropRequest( gl_coord, mask, FALSE, std::string( "" ) );
+				}
+
+				if ( allowed_to_drop )
+					*pdwEffect = DROPEFFECT_COPY;
+				else
+					*pdwEffect = DROPEFFECT_NONE;
 			}
 			else
 			{
