@@ -127,13 +127,18 @@ private:
 								const std::vector<LLUUID>& ids,
 								void*);
 
-	void					onFriendsAccordionExpandedCollapsed(const LLSD& param, LLAvatarList* avatar_list);
+	void					onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LLSD& param, LLAvatarList* avatar_list);
 
 	void					showAccordion(const std::string name, bool show);
 
 	void					showFriendsAccordionsIfNeeded();
 
 	void					onFriendListRefreshComplete(LLUICtrl*ctrl, const LLSD& param);
+
+	void					setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool collapsed);
+	void					setAccordionCollapsedByUser(const std::string& name, bool collapsed);
+	bool					isAccordionCollapsedByUser(LLUICtrl* acc_tab);
+	bool					isAccordionCollapsedByUser(const std::string& name);
 
 	LLFilterEditor*			mFilterEditor;
 	LLTabContainer*			mTabContainer;
