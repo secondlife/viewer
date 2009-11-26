@@ -1172,6 +1172,13 @@ Eject [AVATAR_NAME] from your land?
 
   <notification
    icon="alertmodal.tga"
+   name="EjectAvatarFromGroup"
+   type="notify">
+You ejected [AVATAR_NAME] from group [GROUP_NAME]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="AcquireErrorTooManyObjects"
    type="alertmodal">
 ACQUIRE ERROR: Too many objects selected.

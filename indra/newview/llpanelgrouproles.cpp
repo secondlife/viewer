@@ -1101,8 +1101,31 @@ void LLPanelGroupMembersSubTab::handleEjectMembers()
 
 	mMembersList->deleteSelectedItems();
 
+	sendEjectNotifications(mGroupID, selected_members);
+
 	LLGroupMgr::getInstance()->sendGroupMemberEjects(mGroupID,
 									 selected_members);
+}
+
+void LLPanelGroupMembersSubTab::sendEjectNotifications(const LLUUID& group_id, const std::vector<LLUUID>& selected_members)
+{
+	LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(group_id);
+
+	if (group_data)
+	{
+		for (std::vector<LLUUID>::const_iterator i = selected_members.begin(); i != selected_members.end(); ++i)
+		{
+			LLSD args;
+			std::string name;
+			
+			gCacheName->getFullName(*i, name);
+
+			args["AVATAR_NAME"] = name;
+			args["GROUP_NAME"] = group_data->mName;
+			
+			LLNotifications::instance().add(LLNotification::Params("EjectAvatarFromGroup").substitutions(args));
+		}
+	}
 }
 
 void LLPanelGroupMembersSubTab::handleRoleCheck(const LLUUID& role_id,
