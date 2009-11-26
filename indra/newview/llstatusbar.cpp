@@ -527,6 +527,8 @@ static void onClickVolume(void* data)
 	sb->mPanelVolume->setBackgroundColor(LLColor3(1.0, 0.0, 0.0));
 	sb->mPanelVolume->setVisible(TRUE);
 	sb->mPanelVolume->setEnabled(TRUE);
+	gFocusMgr.setTopCtrl(sb->mPanelVolume);
+	// also set focus explicitly to mpanelvolume
 }
 
 // sets the static variables necessary for the date
