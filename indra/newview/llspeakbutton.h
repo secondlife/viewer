@@ -86,8 +86,6 @@ protected:
 	void onMouseDown_SpeakBtn();
 	void onMouseUp_SpeakBtn();
 
-	void onClick_ShowBtn();
-
 private:
 	LLButton*	mSpeakBtn;
 	LLButton*	mShowBtn;
