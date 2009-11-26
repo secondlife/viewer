@@ -68,7 +68,6 @@ public:
 		~WriteResponder() {}
 		void completed(S32 bytes)
 		{
-			llinfos << "vorbis decoder COMPLETED callback with " << bytes << llendl;
 			mDecoder->ioComplete(bytes);
 		}
 		LLPointer<LLVorbisDecodeState> mDecoder;
@@ -203,7 +202,7 @@ BOOL LLVorbisDecodeState::initDecode()
 	vfs_callbacks.close_func = vfs_close;
 	vfs_callbacks.tell_func = vfs_tell;
 
-	llinfos << "Initing decode from vfile: " << mUUID << llendl;
+	//llinfos << "Initing decode from vfile: " << mUUID << llendl;
 
 	mInFilep = new LLVFile(gVFS, mUUID, LLAssetType::AT_SOUND);
 	if (!mInFilep || !mInFilep->getSize())
@@ -356,14 +355,13 @@ BOOL LLVorbisDecodeState::decodeSection()
 	}
 	if (mDone)
 	{
- 		llwarns << mOutFilename << " Already done with vorbis decode, aborting!" << llendl;
+// 		llwarns << "Already done with decode, aborting!" << llendl;
 		return TRUE;
 	}
 	char pcmout[4096];	/*Flawfinder: ignore*/
 
 	BOOL eof = FALSE;
 	long ret=ov_read(&mVF, pcmout, sizeof(pcmout), 0, 2, 1, &mCurrentSection);
-	llinfos << mOutFilename << " vorbis decode returned " << ret << llendl;
 	if (ret == 0)
 	{
 		/* EOF */
@@ -403,10 +401,9 @@ BOOL LLVorbisDecodeState::finishDecode()
 	}
 
 #if !defined(USE_WAV_VFILE)	
-	if (mFileHandle == LLLFSThread::nullHandle()) // haven't started to write to disk yet...
+	if (mFileHandle == LLLFSThread::nullHandle())
 #endif
 	{
-		llwarns << "mFileHandle is still null in vorbis decode for " << getUUID() << llendl;
 		ov_clear(&mVF);
   
 		// write "data" chunk length, in little-endian format
@@ -478,10 +475,7 @@ BOOL LLVorbisDecodeState::finishDecode()
 			mValid = FALSE;
 			return TRUE; // we've finished
 		}
-
 #if !defined(USE_WAV_VFILE)
-		// start the write of the wav file to disk.
-		llwarns << "starting wav write to disk from vorbis decode " << mOutFilename << llendl;
 		mBytesRead = -1;
 		mFileHandle = LLLFSThread::sLocal->write(mOutFilename, &mWAVBuffer[0], 0, mWAVBuffer.size(),
 							 new WriteResponder(this));
@@ -501,7 +495,6 @@ BOOL LLVorbisDecodeState::finishDecode()
 		}
 		else
 		{
-			llwarns << "claiming to not be done in finishDecode" << llendl;
 			return FALSE; // not done
 		}
 	}
@@ -509,11 +502,11 @@ BOOL LLVorbisDecodeState::finishDecode()
 	mDone = TRUE;
 
 #if defined(USE_WAV_VFILE)
-	// write the data into the VFS.
+	// write the data.
 	LLVFile output(gVFS, mUUID, LLAssetType::AT_SOUND_WAV);
 	output.write(&mWAVBuffer[0], mWAVBuffer.size());
 #endif
-	llinfos << "Finished decode for " << getUUID() << llendl;
+	//llinfos << "Finished decode for " << getUUID() << llendl;
 
 	return TRUE;
 }
@@ -560,7 +553,6 @@ void LLAudioDecodeMgr::Impl::processQueue(const F32 num_secs)
 			// Decode in a loop until we're done or have run out of time.
 			while(!(res = mCurrentDecodep->decodeSection()) && (decode_timer.getElapsedTimeF32() < num_secs))
 			{
-		llinfos << "vorbis/audio decode timer has " << decode_timer.getElapsedTimeF32() << "s elapsed, from an alottment of " << num_secs << "s" << llendl;
 				// decodeSection does all of the work above
 			}
 
