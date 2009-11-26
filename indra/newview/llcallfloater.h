@@ -58,6 +58,7 @@ public:
 	~LLCallFloater();
 
 	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
 
 
 private:

@@ -89,6 +89,7 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 			mModeratorList.insert(speakerp->mID);
 		}
 	}
+	mAvatarList->setDirty(true);
 	sort();
 }
 

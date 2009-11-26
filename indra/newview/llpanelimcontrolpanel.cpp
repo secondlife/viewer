@@ -32,6 +32,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llfloaterreg.h"
+
 #include "llpanelimcontrolpanel.h"
 
 #include "llagent.h"
@@ -58,7 +60,7 @@ void LLPanelChatControlPanel::onEndCallButtonClicked()
 
 void LLPanelChatControlPanel::onOpenVoiceControlsClicked()
 {
-	// TODO: implement Voice Control Panel opening
+	LLFloaterReg::showInstance("voice_controls", getSessionId());
 }
 
 void LLPanelChatControlPanel::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
