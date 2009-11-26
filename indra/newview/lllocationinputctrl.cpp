@@ -638,7 +638,7 @@ static S32 layout_widget(LLUICtrl* widget, S32 right)
 void LLLocationInputCtrl::refreshParcelIcons()
 {
 	// Our "cursor" moving right to left
-	S32 x = mAddLandmarkBtn->getRect().mLeft - mIconHPad;
+	S32 x = mAddLandmarkBtn->getRect().mLeft;
 	
 	static LLUICachedControl<bool> show_properties("NavBarShowParcelProperties", false);
 	if (show_properties)
