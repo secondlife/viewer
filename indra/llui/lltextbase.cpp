@@ -641,8 +641,6 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
 	if ( truncate() )
 	{
-		// The user's not getting everything he's hoping for
-		make_ui_sound("UISndBadKeystroke");
 		insert_len = getLength() - old_len;
 	}
 
@@ -1070,6 +1068,8 @@ void LLTextBase::reflow(S32 start_index)
 
 		LLRect old_cursor_rect = getLocalRectFromDocIndex(mCursorPos);
 		bool follow_selection = mTextRect.overlaps(old_cursor_rect); // cursor is visible
+		old_cursor_rect.translate(-mTextRect.mLeft, -mTextRect.mBottom);
+
 		S32 first_line = getFirstVisibleLine();
 
 		// if scroll anchor not on first line, update it to first character of first line
@@ -1206,9 +1206,7 @@ void LLTextBase::reflow(S32 start_index)
 			{
 				// keep cursor in same vertical position on screen when selecting text
 				LLRect new_cursor_rect_doc = getDocRectFromDocIndex(mCursorPos);
-				LLRect old_cursor_rect_scroller = old_cursor_rect;
-				old_cursor_rect.translate(-mTextRect.mLeft, -mTextRect.mBottom);
-				mScroller->scrollToShowRect(new_cursor_rect_doc, old_cursor_rect_scroller);
+				mScroller->scrollToShowRect(new_cursor_rect_doc, old_cursor_rect);
 			}
 			else
 			{
