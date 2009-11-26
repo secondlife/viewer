@@ -1543,9 +1543,6 @@ void LLPanelGroupMembersSubTab::updateMembers()
 	mPendingMemberUpdate = FALSE;
 
 	// Rebuild the members list.
-	mMembersList->deleteAllItems();
-
-	lldebugs << "LLPanelGroupMembersSubTab::updateMembers()" << llendl;
 
 	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap) 
@@ -1562,7 +1559,12 @@ void LLPanelGroupMembersSubTab::updateMembers()
 	{
 		return;
 	}
-		
+
+	//cleanup list only for first iretation
+	if(mMemberProgress == gdatap->mMembers.begin())
+		mMembersList->deleteAllItems();
+
+
 	LLGroupMgrGroupData::member_list_t::iterator end = gdatap->mMembers.end();
 
 	S32 i = 0;
