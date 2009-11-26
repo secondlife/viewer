@@ -554,12 +554,21 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 			break;
 	}
 
-	if ( key == KEY_UP || key == KEY_DOWN )
+	if ( ( key == KEY_UP || key == KEY_DOWN ) && mSelectedItemPairs.size() )
 	{
-		LLRect selcted_rect = getLastSelectedItemRect().stretch(1);
-		LLRect visible_rect = getVisibleContentRect();
-		if ( !visible_rect.contains (selcted_rect) )
-			scrollToShowRect(selcted_rect);
+		LLRect visible_rc = getVisibleContentRect();
+		LLRect selected_rc = getLastSelectedItemRect();
+
+		if ( !visible_rc.contains (selected_rc) )
+		{
+			// But scroll in Items panel coordinates
+			scrollToShowRect(selected_rc);
+		}
+
+		// In case we are in accordion tab notify parent to show selected rectangle
+		LLRect screen_rc;
+		localRectToScreen(selected_rc, &screen_rc);
+		notifyParent(LLSD().insert("scrollToShowRect",screen_rc.getValue()));
 		handled = TRUE;
 	}
 
