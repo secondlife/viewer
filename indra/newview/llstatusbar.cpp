@@ -529,6 +529,7 @@ static void onClickVolume(void* data)
 	sb->mPanelVolume->setBackgroundColor(LLColor3(1.0, 0.0, 0.0));
 	sb->mPanelVolume->setVisible(TRUE);
 	sb->mPanelVolume->setEnabled(TRUE);
+	sb->addChild(sb->mPanelVolume);
 	gFocusMgr.setTopCtrl(sb->mPanelVolume);
 	// also set focus explicitly to mpanelvolume
 }
