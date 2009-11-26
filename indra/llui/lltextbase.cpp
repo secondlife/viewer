@@ -545,7 +545,7 @@ void LLTextBase::drawText()
 
 		LLRect text_rect(line.mRect.mLeft + mTextRect.mLeft - scrolled_view_rect.mLeft,
 						line.mRect.mTop - scrolled_view_rect.mBottom + mTextRect.mBottom,
-						line.mRect.mRight - scrolled_view_rect.mLeft,
+						llmin(mDocumentView->getRect().getWidth(), line.mRect.mRight) - scrolled_view_rect.mLeft,
 						line.mRect.mBottom - scrolled_view_rect.mBottom + mTextRect.mBottom);
 
 		// draw a single line of text
