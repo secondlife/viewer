@@ -58,6 +58,7 @@
 #include "llmoveview.h"
 #include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
 #include "llnearbychatbar.h"
+#include "llnotificationsutil.h"
 #include "llparcel.h"
 #include "llsdutil.h"
 #include "llsidetray.h"
@@ -2304,11 +2305,11 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 		if (user_cancel && !mAutoPilotBehaviorName.empty())
 		{
 			if (mAutoPilotBehaviorName == "Sit")
-				LLNotifications::instance().add("CancelledSit");
+				LLNotificationsUtil::add("CancelledSit");
 			else if (mAutoPilotBehaviorName == "Attach")
-				LLNotifications::instance().add("CancelledAttach");
+				LLNotificationsUtil::add("CancelledAttach");
 			else
-				LLNotifications::instance().add("Cancelled");
+				LLNotificationsUtil::add("Cancelled");
 		}
 	}
 }

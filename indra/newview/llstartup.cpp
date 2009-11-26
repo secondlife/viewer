@@ -66,6 +66,8 @@
 #include "llmemorystream.h"
 #include "llmessageconfig.h"
 #include "llmoveview.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llteleporthistory.h"
 #include "llregionhandle.h"
 #include "llsd.h"
@@ -444,16 +446,16 @@ bool idle_startup()
 
 		if (LLFeatureManager::getInstance()->isSafe())
 		{
-			LLNotifications::instance().add("DisplaySetToSafe");
+			LLNotificationsUtil::add("DisplaySetToSafe");
 		}
 		else if ((gSavedSettings.getS32("LastFeatureVersion") < LLFeatureManager::getInstance()->getVersion()) &&
 				 (gSavedSettings.getS32("LastFeatureVersion") != 0))
 		{
-			LLNotifications::instance().add("DisplaySetToRecommended");
+			LLNotificationsUtil::add("DisplaySetToRecommended");
 		}
 		else if (!gViewerWindow->getInitAlert().empty())
 		{
-			LLNotifications::instance().add(gViewerWindow->getInitAlert());
+			LLNotificationsUtil::add(gViewerWindow->getInitAlert());
 		}
 			
 		gSavedSettings.setS32("LastFeatureVersion", LLFeatureManager::getInstance()->getVersion());
@@ -1156,7 +1158,7 @@ bool idle_startup()
 					LLSD args;
 					args["ERROR_MESSAGE"] = emsg.str();
 					LL_INFOS("LLStartup") << "Notification: " << args << LL_ENDL;
-					LLNotifications::instance().add("ErrorMessage", args, LLSD(), login_alert_done);
+					LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
 				}
 
 				//setup map of datetime strings to codes and slt & local time offset from utc
@@ -1179,7 +1181,7 @@ bool idle_startup()
 				LLSD args;
 				args["ERROR_MESSAGE"] = emsg.str();
 				LL_INFOS("LLStartup") << "Notification: " << args << LL_ENDL;
-				LLNotifications::instance().add("ErrorMessage", args, LLSD(), login_alert_done);
+				LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
 				transition_back_to_login_panel(emsg.str());
 				show_connect_box = true;
 			}
@@ -1899,7 +1901,7 @@ bool idle_startup()
 				{
 					msg = "AvatarMovedLast";
 				}
-				LLNotifications::instance().add(msg);
+				LLNotificationsUtil::add(msg);
 			}
 		}
 
@@ -1984,7 +1986,7 @@ bool idle_startup()
 			// initial outfit, but if the load hasn't started
 			// already then something is wrong so fall back
 			// to generic outfits. JC
-			LLNotifications::instance().add("WelcomeChooseSex", LLSD(), LLSD(),
+			LLNotificationsUtil::add("WelcomeChooseSex", LLSD(), LLSD(),
 				callback_choose_gender);
 			LLStartUp::setStartupState( STATE_CLEANUP );
 			return TRUE;
@@ -1992,7 +1994,7 @@ bool idle_startup()
 		
 		if (wearables_time > MAX_WEARABLES_TIME)
 		{
-			LLNotifications::instance().add("ClothingLoading");
+			LLNotificationsUtil::add("ClothingLoading");
 			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_WEARABLES_TOO_LONG);
 			LLStartUp::setStartupState( STATE_CLEANUP );
 			return TRUE;
@@ -2318,12 +2320,12 @@ bool is_hex_string(U8* str, S32 len)
 
 void show_first_run_dialog()
 {
-	LLNotifications::instance().add("FirstRun", LLSD(), LLSD(), first_run_dialog_callback);
+	LLNotificationsUtil::add("FirstRun", LLSD(), LLSD(), first_run_dialog_callback);
 }
 
 bool first_run_dialog_callback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		LL_DEBUGS("AppInit") << "First run dialog cancelling" << LL_ENDL;
@@ -2346,7 +2348,7 @@ void set_startup_status(const F32 frac, const std::string& string, const std::st
 
 bool login_alert_status(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     // Buttons
     switch( option )
     {
@@ -2380,7 +2382,7 @@ void use_circuit_callback(void**, S32 result)
 		{
 			// Make sure user knows something bad happened. JC
 			LL_WARNS("AppInit") << "Backing up to login screen!" << LL_ENDL;
-			LLNotifications::instance().add("LoginPacketNeverReceived", LLSD(), LLSD(), login_alert_status);
+			LLNotificationsUtil::add("LoginPacketNeverReceived", LLSD(), LLSD(), login_alert_status);
 			reset_login();
 		}
 		else
@@ -2585,7 +2587,7 @@ const S32 OPT_FEMALE = 1;
 
 bool callback_choose_gender(const LLSD& notification, const LLSD& response)
 {	
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch(option)
 	{
 	case OPT_MALE:

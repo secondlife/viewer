@@ -1,10 +1,9 @@
-/** 
- * @file llfloaternotificationsconsole.h
- * @brief Debugging console for unified notifications.
+/**
+ * @file llnotificationsutil.h
  *
- * $LicenseInfo:firstyear=2003&license=viewergpl$
+ * $LicenseInfo:firstyear=2008&license=viewergpl$
  * 
- * Copyright (c) 2003-2009, Linden Research, Inc.
+ * Copyright (c) 2008-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -29,53 +28,41 @@
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
+#ifndef LLNOTIFICATIONSUTIL_H
+#define LLNOTIFICATIONSUTIL_H
 
-#ifndef LL_LLFLOATER_NOTIFICATIONS_CONSOLE_H
-#define LL_LLFLOATER_NOTIFICATIONS_CONSOLE_H
+// The vast majority of clients of the notifications system just want to add 
+// a notification to the screen, so define this lightweight public interface
+// to avoid including the heavyweight llnotifications.h
 
-#include "llfloater.h"
-#include "lllayoutstack.h"
-//#include "llnotificationsutil.h"
+#include "llnotificationptr.h"
 
-class LLNotification;
+#include <boost/function.hpp>
 
-class LLFloaterNotificationConsole : 
-	public LLFloater
+class LLSD;
+
+namespace LLNotificationsUtil
 {
-	friend class LLFloaterReg;
+	LLNotificationPtr add(const std::string& name);
+	
+	LLNotificationPtr add(const std::string& name, 
+						  const LLSD& substitutions);
+	
+	LLNotificationPtr add(const std::string& name, 
+						  const LLSD& substitutions, 
+						  const LLSD& payload);
+	
+	LLNotificationPtr add(const std::string& name, 
+						  const LLSD& substitutions, 
+						  const LLSD& payload, 
+						  const std::string& functor_name);
 
-public:
+	LLNotificationPtr add(const std::string& name, 
+						  const LLSD& substitutions, 
+						  const LLSD& payload, 
+						  boost::function<void (const LLSD&, const LLSD&)> functor);
+	
+	S32 getSelectedOption(const LLSD& notification, const LLSD& response);
+}
 
-	// LLPanel
-	BOOL postBuild();
-
-	void addChannel(const std::string& type, bool open = false);
-	void updateResizeLimits(LLLayoutStack &stack);
-
-	void removeChannel(const std::string& type);
-	void updateResizeLimits();
-
-private:
-	LLFloaterNotificationConsole(const LLSD& key);	
-	void onClickAdd();
-};
-
-
-/*
- * @brief Pop-up debugging view of a generic new notification.
- */
-class LLFloaterNotification : public LLFloater
-{
-public:
-	LLFloaterNotification(LLNotification* note);
-
-	// LLPanel
-	BOOL postBuild();
-	void respond();
-
-private:
-	static void onCommitResponse(LLUICtrl* ctrl, void* data) { ((LLFloaterNotification*)data)->respond(); }
-	LLNotification* mNote;
-};
 #endif
-

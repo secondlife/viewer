@@ -40,8 +40,10 @@
 
 // linden library includes
 #include "llbutton.h"
+#include "llevents.h"
 #include "llhttpclient.h"
 #include "llhttpstatuscodes.h"	// for HTTP_FOUND
+#include "llnotificationsutil.h"
 #include "llradiogroup.h"
 #include "lltextbox.h"
 #include "llui.h"
@@ -207,7 +209,7 @@ void LLFloaterTOS::onCancel( void* userdata )
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
 	llinfos << "User disagrees with TOS." << llendl;
-	LLNotifications::instance().add("MustAgreeToLogIn", LLSD(), LLSD(), login_alert_done);
+	LLNotificationsUtil::add("MustAgreeToLogIn", LLSD(), LLSD(), login_alert_done);
 
 	if(self->mReplyPumpName != "")
 	{

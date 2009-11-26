@@ -47,6 +47,7 @@
 #include "llviewercamera.h"
 #include "llcombobox.h"
 #include "lllineeditor.h"
+#include "llnotificationsutil.h"
 #include "llfloaterdaycycle.h"
 #include "llboost.h"
 #include "llmultisliderctrl.h"
@@ -159,7 +160,7 @@ void LLFloaterWater::initCallbacks(void) {
 bool LLFloaterWater::newPromptCallback(const LLSD& notification, const LLSD& response)
 {
 	std::string text = response["message"].asString();
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if(text == "")
 	{
@@ -191,7 +192,7 @@ bool LLFloaterWater::newPromptCallback(const LLSD& notification, const LLSD& res
 		} 
 		else 
 		{
-			LLNotifications::instance().add("ExistsWaterPresetAlert");
+			LLNotificationsUtil::add("ExistsWaterPresetAlert");
 		}
 	}
 	return false;
@@ -503,7 +504,7 @@ void LLFloaterWater::onNormalMapPicked(LLUICtrl* ctrl)
 
 void LLFloaterWater::onNewPreset()
 {
-	LLNotifications::instance().add("NewWaterPreset", LLSD(),  LLSD(), boost::bind(&LLFloaterWater::newPromptCallback, this, _1, _2));
+	LLNotificationsUtil::add("NewWaterPreset", LLSD(),  LLSD(), boost::bind(&LLFloaterWater::newPromptCallback, this, _1, _2));
 }
 
 void LLFloaterWater::onSavePreset()
@@ -525,16 +526,16 @@ void LLFloaterWater::onSavePreset()
 		comboBox->getSelectedItemLabel());
 	if(sIt != sDefaultPresets.end() && !gSavedSettings.getBOOL("WaterEditPresets")) 
 	{
-		LLNotifications::instance().add("WLNoEditDefault");
+		LLNotificationsUtil::add("WLNoEditDefault");
 		return;
 	}
 
-	LLNotifications::instance().add("WLSavePresetAlert", LLSD(), LLSD(), boost::bind(&LLFloaterWater::saveAlertCallback, this, _1, _2));
+	LLNotificationsUtil::add("WLSavePresetAlert", LLSD(), LLSD(), boost::bind(&LLFloaterWater::saveAlertCallback, this, _1, _2));
 }
 
 bool LLFloaterWater::saveAlertCallback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	// if they choose save, do it.  Otherwise, don't do anything
 	if(option == 0) 
 	{
@@ -561,12 +562,12 @@ void LLFloaterWater::onDeletePreset()
 
 	LLSD args;
 	args["SKY"] = combo_box->getSelectedValue().asString();
-	LLNotifications::instance().add("WLDeletePresetAlert", args, LLSD(), boost::bind(&LLFloaterWater::deleteAlertCallback, this, _1, _2));
+	LLNotificationsUtil::add("WLDeletePresetAlert", args, LLSD(), boost::bind(&LLFloaterWater::deleteAlertCallback, this, _1, _2));
 }
 
 bool LLFloaterWater::deleteAlertCallback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	// if they choose delete, do it.  Otherwise, don't do anything
 	if(option == 0) 
 	{
@@ -587,7 +588,7 @@ bool LLFloaterWater::deleteAlertCallback(const LLSD& notification, const LLSD& r
 		std::set<std::string>::iterator sIt = sDefaultPresets.find(name);
 		if(sIt != sDefaultPresets.end()) 
 		{
-			LLNotifications::instance().add("WaterNoEditDefault");
+			LLNotificationsUtil::add("WaterNoEditDefault");
 			return false;
 		}
 

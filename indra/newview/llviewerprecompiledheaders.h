@@ -233,4 +233,7 @@
 // In skinning-7, llui.h dependencies are changing too often.
 //#include "llui.h"
 
+// llxuixml
+#include "llinitparam.h"
+
 #endif

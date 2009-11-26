@@ -37,6 +37,7 @@
 #include "llchannelmanager.h"
 #include "llchiclet.h"
 #include "llfloaterreg.h"
+#include "llnotifications.h"
 #include "llscreenchannel.h"
 #include "lltoastnotifypanel.h"
 #include "llviewerwindow.h"

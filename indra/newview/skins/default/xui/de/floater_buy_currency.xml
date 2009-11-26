@@ -29,7 +29,7 @@
 		1234
 	</line_editor>
 	<text name="currency_est">
-		für ca. [USD] US$
+		für ca. [LOCALAMOUNT]
 	</text>
 	<text name="getting_data">
 		Daten werden geladen...
@@ -63,6 +63,6 @@ Kaufen Sie mehr.
 	<button label="Kaufen" name="buy_btn" />
 	<button label="Abbrechen" name="cancel_btn" />
 	<text name="buy_currency">
-		[LINDENS] L$ für ca. [USD] US$ kaufen
+		[LINDENS] L$ für ca. [LOCALAMOUNT] kaufen
 	</text>
 </floater>

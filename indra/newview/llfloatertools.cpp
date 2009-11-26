@@ -52,6 +52,7 @@
 #include "llmediaentry.h"
 #include "llmediactrl.h"
 #include "llmenugl.h"
+#include "llnotificationsutil.h"
 #include "llpanelcontents.h"
 #include "llpanelface.h"
 #include "llpanelland.h"
@@ -1283,7 +1284,7 @@ void LLFloaterTools::onClickBtnAddMedia()
 	LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
 	if((tool != LLToolFace::getInstance()) || LLSelectMgr::getInstance()->getSelection()->isMultipleTESelected())
 	{
-		LLNotifications::instance().add("MultipleFacesSelected",LLSD(), LLSD(), multipleFacesSelectedConfirm);
+		LLNotificationsUtil::add("MultipleFacesSelected",LLSD(), LLSD(), multipleFacesSelectedConfirm);
 		
 	}
 	else
@@ -1296,7 +1297,7 @@ void LLFloaterTools::onClickBtnAddMedia()
 // static
 bool LLFloaterTools::multipleFacesSelectedConfirm(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch( option )
 	{
 		case 0:  // "Yes"
@@ -1322,14 +1323,14 @@ void LLFloaterTools::onClickBtnEditMedia()
 // called when a user wants to delete media from a prim or prim face
 void LLFloaterTools::onClickBtnDeleteMedia()
 {
-	LLNotifications::instance().add("DeleteMedia", LLSD(), LLSD(), deleteMediaConfirm);
+	LLNotificationsUtil::add("DeleteMedia", LLSD(), LLSD(), deleteMediaConfirm);
 }
 
 
 // static
 bool LLFloaterTools::deleteMediaConfirm(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch( option )
 	{
 		case 0:  // "Yes"

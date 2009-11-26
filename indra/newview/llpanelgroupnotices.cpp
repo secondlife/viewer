@@ -58,7 +58,7 @@
 #include "roles_constants.h"
 #include "llviewerwindow.h"
 #include "llviewermessage.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 
 static LLRegisterPanelClassWrapper<LLPanelGroupNotices> t_panel_group_notices("panel_group_notices");
 
@@ -372,7 +372,7 @@ void LLPanelGroupNotices::onClickSendMessage(void* data)
 	if (self->mCreateSubject->getText().empty())
 	{
 		// Must supply a subject
-		LLNotifications::instance().add("MustSpecifyGroupNoticeSubject");
+		LLNotificationsUtil::add("MustSpecifyGroupNoticeSubject");
 		return;
 	}
 	send_group_notice(

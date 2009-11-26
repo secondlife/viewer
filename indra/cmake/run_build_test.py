@@ -64,20 +64,20 @@ def main(command, libpath=[], vars={}):
         # might not exist; instead of KeyError, just use an empty string.
         dirs = os.environ.get(var, "").split(os.pathsep)
         # Append the sequence in libpath
-##         print "%s += %r" % (var, libpath)
+        print "%s += %r" % (var, libpath)
         dirs.extend(libpath)
         # Now rebuild the path string. This way we use a minimum of separators
         # -- and we avoid adding a pointless separator when libpath is empty.
         os.environ[var] = os.pathsep.join(dirs)
     # Now handle arbitrary environment variables. The tricky part is ensuring
     # that all the keys and values we try to pass are actually strings.
-##     if vars:
-##         print "Setting:"
-##         for key, value in vars.iteritems():
-##             print "%s=%s" % (key, value)
+    if vars:
+         print "Setting:"
+         for key, value in vars.iteritems():
+             print "%s=%s" % (key, value)
     os.environ.update(dict([(str(key), str(value)) for key, value in vars.iteritems()]))
     # Run the child process.
-##     print "Running: %s" % " ".join(command)
+    print "Running: %s" % " ".join(command)
     return subprocess.call(command)
 
 if __name__ == "__main__":

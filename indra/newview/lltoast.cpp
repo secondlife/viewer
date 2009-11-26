@@ -36,6 +36,7 @@
 
 #include "llbutton.h"
 #include "llfocusmgr.h"
+#include "llnotifications.h"
 #include "llviewercontrol.h"
 
 using namespace LLNotificationsUI;

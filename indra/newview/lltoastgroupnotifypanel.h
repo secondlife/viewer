@@ -38,7 +38,7 @@
 #include "lldarray.h"
 #include "lltimer.h"
 #include "llviewermessage.h"
-#include "llnotifications.h"
+#include "llnotificationptr.h"
 
 class LLButton;
 

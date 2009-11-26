@@ -39,7 +39,7 @@
 
 #include "llpanel.h"
 #include "lluuid.h"
-#include "llnotifications.h"
+//#include "llnotificationsutil.h"
 #include <set>
 
 class LLDragHandle;
@@ -65,20 +65,6 @@ const BOOL CLOSE_NO = FALSE;
 const BOOL ADJUST_VERTICAL_YES = TRUE;
 const BOOL ADJUST_VERTICAL_NO = FALSE;
 
-// associates a given notification instance with a particular floater
-class LLFloaterNotificationContext : 
-	public LLNotificationContext
-{
-public:
-	LLFloaterNotificationContext(LLHandle<LLFloater> floater_handle) :
-		mFloaterHandle(floater_handle)
-	{}
-
-	LLFloater* getFloater() { return mFloaterHandle.get(); }
-private:
-	LLHandle<LLFloater> mFloaterHandle;
-};
-
 class LLFloater : public LLPanel
 {
 friend class LLFloaterView;
@@ -97,7 +83,7 @@ public:
 |*==========================================================================*/
 	};
 	
-	enum EFloaterButtons
+	enum EFloaterButton
 	{
 		BUTTON_CLOSE = 0,
 		BUTTON_RESTORE,
@@ -128,6 +114,22 @@ public:
 								can_dock;
 		Optional<S32>			header_height,
 								legacy_header_height; // HACK see initFromXML()
+
+		// Images for top-right controls
+		Optional<LLUIImage*>	close_image,
+								restore_image,
+								minimize_image,
+								tear_off_image,
+								dock_image,
+								undock_image,
+								help_image;
+		Optional<LLUIImage*>	close_pressed_image,
+								restore_pressed_image,
+								minimize_pressed_image,
+								tear_off_pressed_image,
+								dock_pressed_image,
+								undock_pressed_image,
+								help_pressed_image;
 		
 		Optional<CommitCallbackParam> open_callback,
 									  close_callback;
@@ -158,7 +160,7 @@ public:
 	/*virtual*/ void setIsChrome(BOOL is_chrome);
 	/*virtual*/ void setRect(const LLRect &rect);
 
-	void 			initFloater();
+	void 			initFloater(const Params& p);
 
 	void			openFloater(const LLSD& key = LLSD());
 
@@ -264,10 +266,10 @@ public:
 	// handle refocusing.
 	static void		closeFocusedFloater();
 
-	LLNotification::Params contextualNotification(const std::string& name) 
-	{ 
-	    return LLNotification::Params(name).context(mNotificationContext); 
-	}
+//	LLNotification::Params contextualNotification(const std::string& name) 
+//	{ 
+//	    return LLNotification::Params(name).context(mNotificationContext); 
+//	}
 
 	static void		onClickClose(LLFloater* floater);
 	static void		onClickMinimize(LLFloater* floater);
@@ -309,8 +311,15 @@ private:
 	void			cleanupHandles(); // remove handles to dead floaters
 	void			createMinimizeButton();
 	void			updateButtons();
-	void			buildButtons();
-	BOOL			offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButtons index);
+	void			buildButtons(const Params& p);
+	
+	// Images and tooltips are named in the XML, but we want to look them
+	// up by index.
+	static LLUIImage*	getButtonImage(const Params& p, EFloaterButton e);
+	static LLUIImage*	getButtonPressedImage(const Params& p, EFloaterButton e);
+	static std::string	getButtonTooltip(const Params& p, EFloaterButton e);
+	
+	BOOL			offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButton index);
 	void			addResizeCtrls();
 	void			layoutResizeCtrls();
 	void			enableResizeCtrls(bool enable);
@@ -368,7 +377,7 @@ private:
 	typedef std::set<LLHandle<LLFloater> >::iterator handle_set_iter_t;
 	handle_set_t	mDependents;
 
-	BOOL			mButtonsEnabled[BUTTON_COUNT];
+	bool			mButtonsEnabled[BUTTON_COUNT];
 	LLButton*		mButtons[BUTTON_COUNT];
 	F32				mButtonScale;
 	BOOL			mAutoFocus;
@@ -382,8 +391,6 @@ private:
 
 	static LLMultiFloater* sHostp;
 	static BOOL		sQuitting;
-	static std::string	sButtonActiveImageNames[BUTTON_COUNT];
-	static std::string	sButtonPressedImageNames[BUTTON_COUNT];
 	static std::string	sButtonNames[BUTTON_COUNT];
 	static std::string	sButtonToolTips[BUTTON_COUNT];
 	static std::string  sButtonToolTipsIndex[BUTTON_COUNT];
@@ -401,7 +408,7 @@ private:
 	S32				mPreviousMinimizedBottom;
 	S32				mPreviousMinimizedLeft;
 
-	LLFloaterNotificationContext* mNotificationContext;
+//	LLFloaterNotificationContext* mNotificationContext;
 	LLRootHandle<LLFloater>		mHandle;	
 };
 

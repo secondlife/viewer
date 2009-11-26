@@ -146,12 +146,12 @@ void LLLandmarkList::processGetAssetReply(
 		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status )
 		{
 			LL_WARNS("Landmarks") << "Missing Landmark" << LL_ENDL;
-			//LLNotifications::instance().add("LandmarkMissing");
+			//LLNotificationsUtil::add("LandmarkMissing");
 		}
 		else
 		{
 			LL_WARNS("Landmarks") << "Unable to load Landmark" << LL_ENDL;
-			//LLNotifications::instance().add("UnableToLoadLandmark");
+			//LLNotificationsUtil::add("UnableToLoadLandmark");
 		}
 
 		gLandmarkList.mBadList.insert(uuid);

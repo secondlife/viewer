@@ -39,6 +39,7 @@
 #include "llbutton.h"
 #include "lliconctrl.h"
 #include "llinventoryfunctions.h"
+#include "llnotifications.h"
 #include "llnotify.h"
 #include "llviewertexteditor.h"
 
@@ -205,7 +206,7 @@ void LLToastGroupNotifyPanel::onClickAttachment()
 
 		//if attachment isn't openable - notify about saving
 		if (!isAttachmentOpenable(mInventoryOffer->mType)) {
-			LLNotifications::instance().add("AttachmentSaved");
+			LLNotifications::instance().add("AttachmentSaved", LLSD(), LLSD());
 		}
 
 		mInventoryOffer = NULL;

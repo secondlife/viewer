@@ -1,10 +1,9 @@
-/** 
- * @file llfloaternotificationsconsole.h
- * @brief Debugging console for unified notifications.
+/**
+ * @file llnotificationptr.h
  *
- * $LicenseInfo:firstyear=2003&license=viewergpl$
+ * $LicenseInfo:firstyear=2008&license=viewergpl$
  * 
- * Copyright (c) 2003-2009, Linden Research, Inc.
+ * Copyright (c) 2008-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -29,53 +28,14 @@
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
+#ifndef LLNOTIFICATIONPTR_H
+#define LLNOTIFICATIONPTR_H
 
-#ifndef LL_LLFLOATER_NOTIFICATIONS_CONSOLE_H
-#define LL_LLFLOATER_NOTIFICATIONS_CONSOLE_H
-
-#include "llfloater.h"
-#include "lllayoutstack.h"
-//#include "llnotificationsutil.h"
+// Many classes just store a single LLNotificationPtr
+// and llnotifications.h is very large, so define this ligher header.
+#include <boost/shared_ptr.hpp>
 
 class LLNotification;
+typedef boost::shared_ptr<LLNotification> LLNotificationPtr;
 
-class LLFloaterNotificationConsole : 
-	public LLFloater
-{
-	friend class LLFloaterReg;
-
-public:
-
-	// LLPanel
-	BOOL postBuild();
-
-	void addChannel(const std::string& type, bool open = false);
-	void updateResizeLimits(LLLayoutStack &stack);
-
-	void removeChannel(const std::string& type);
-	void updateResizeLimits();
-
-private:
-	LLFloaterNotificationConsole(const LLSD& key);	
-	void onClickAdd();
-};
-
-
-/*
- * @brief Pop-up debugging view of a generic new notification.
- */
-class LLFloaterNotification : public LLFloater
-{
-public:
-	LLFloaterNotification(LLNotification* note);
-
-	// LLPanel
-	BOOL postBuild();
-	void respond();
-
-private:
-	static void onCommitResponse(LLUICtrl* ctrl, void* data) { ((LLFloaterNotification*)data)->respond(); }
-	LLNotification* mNote;
-};
 #endif
-
