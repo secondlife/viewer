@@ -156,6 +156,7 @@ LLTextBase::Params::Params()
 	read_only("read_only", false),
 	v_pad("v_pad", 0),
 	h_pad("h_pad", 0),
+	clip_partial("clip_partial", true),
 	line_spacing("line_spacing"),
 	max_text_length("max_length", 255),
 	font_shadow("font_shadow"),
@@ -193,6 +194,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mHAlign(p.font_halign),
 	mLineSpacingMult(p.line_spacing.multiple),
 	mLineSpacingPixels(p.line_spacing.pixels),
+	mClipPartial(p.clip_partial),
 	mTrackEnd( p.track_end ),
 	mScrollIndex(-1),
 	mSelectionStart( 0 ),
@@ -504,7 +506,7 @@ void LLTextBase::drawText()
 	}
 
 	LLRect scrolled_view_rect = getVisibleDocumentRect();
-	std::pair<S32, S32> line_range = getVisibleLines();
+	std::pair<S32, S32> line_range = getVisibleLines(mClipPartial);
 	S32 first_line = line_range.first;
 	S32 last_line = line_range.second;
 	if (first_line >= last_line)
@@ -524,6 +526,7 @@ void LLTextBase::drawText()
 
 	for (S32 cur_line = first_line; cur_line < last_line; cur_line++)
 	{
+		S32 next_line = cur_line + 1;
 		line_info& line = mLineInfoList[cur_line];
 
 		if ((line.mRect.mTop - scrolled_view_rect.mBottom) < mTextRect.mBottom) 
@@ -534,15 +537,15 @@ void LLTextBase::drawText()
 		S32 next_start = -1;
 		S32 line_end = text_len;
 
-		if ((cur_line + 1) < getLineCount())
+		if (next_line < getLineCount())
 		{
-			next_start = getLineStart(cur_line + 1);
+			next_start = getLineStart(next_line);
 			line_end = next_start;
 		}
 
 		LLRect text_rect(line.mRect.mLeft + mTextRect.mLeft - scrolled_view_rect.mLeft,
 						line.mRect.mTop - scrolled_view_rect.mBottom + mTextRect.mBottom,
-						mDocumentView->getRect().getWidth() - scrolled_view_rect.mLeft,
+						line.mRect.mRight - scrolled_view_rect.mLeft,
 						line.mRect.mBottom - scrolled_view_rect.mBottom + mTextRect.mBottom);
 
 		// draw a single line of text
@@ -562,6 +565,17 @@ void LLTextBase::drawText()
 			}
 			
 			S32 clipped_end	=	llmin( line_end, cur_segment->getEnd() )  - cur_segment->getStart();
+
+			if (mUseEllipses
+				&& clipped_end == line_end 
+				&& next_line == last_line 
+				&& last_line < (S32)mLineInfoList.size())
+			{
+				// more text to go, but we can't fit it
+				// so attempt to draw one extra character to force ellipses
+				clipped_end++;
+			}
+
 			text_rect.mLeft = (S32)(cur_segment->draw(seg_start - cur_segment->getStart(), clipped_end, selection_left, selection_right, text_rect));
 
 			seg_start = clipped_end + cur_segment->getStart();
