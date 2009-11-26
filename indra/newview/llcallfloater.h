@@ -34,7 +34,7 @@
 #ifndef LL_LLCALLFLOATER_H
 #define LL_LLCALLFLOATER_H
 
-#include "llfloater.h"
+#include "lldockablefloater.h"
 
 class LLAvatarList;
 class LLParticipantList;
@@ -51,10 +51,10 @@ class LLSpeakerMgr;
  * When the Resident is engaged in Group Voice Chat, the Voice Control Panel also provides an 
  * 'End Call' button to allow the Resident to leave that voice channel.
  */
-class LLCallFloater : public LLFloater
+class LLCallFloater : public LLDockableFloater
 {
 public:
-	LLCallFloater();
+	LLCallFloater(const LLSD& key);
 	~LLCallFloater();
 
 	/*virtual*/ BOOL postBuild();

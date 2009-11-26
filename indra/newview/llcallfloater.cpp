@@ -36,17 +36,18 @@
 #include "llcallfloater.h"
 
 #include "llavatarlist.h"
+#include "llbottomtray.h"
 #include "llparticipantlist.h"
 #include "llspeakers.h"
 
 
-LLCallFloater::LLCallFloater()
-: LLFloater(LLSD())
+LLCallFloater::LLCallFloater(const LLSD& key)
+: LLDockableFloater(NULL, key)
 , mSpeakerManager(NULL)
 , mPaticipants(NULL)
 , mAvatarList(NULL)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_voice_controls.xml", NULL);
+
 }
 
 LLCallFloater::~LLCallFloater()
@@ -58,11 +59,17 @@ LLCallFloater::~LLCallFloater()
 // virtual
 BOOL LLCallFloater::postBuild()
 {
-	LLFloater::postBuild();
+	LLDockableFloater::postBuild();
 	mAvatarList = getChild<LLAvatarList>("speakers_list");
 
 	mSpeakerManager = LLLocalSpeakerMgr::getInstance();
 	mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList);
+
+	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_panel");
+
+	setDockControl(new LLDockControl(
+		anchor_panel, this,
+		getDockTongue(), LLDockControl::TOP));
 
 	return TRUE;
 }

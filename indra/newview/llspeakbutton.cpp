@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h" // must be first include
 
 #include "llbutton.h"
+#include "llfloaterreg.h"
 
 #include "llagent.h"
 #include "llbottomtray.h"
@@ -95,8 +96,8 @@ LLSpeakButton::LLSpeakButton(const Params& p)
 	addChild(mShowBtn);
 	LLTransientFloaterMgr::getInstance()->addControlView(mShowBtn);
 
-	mShowBtn->setClickedCallback(boost::bind(&LLSpeakButton::onClick_ShowBtn, this));
-	mShowBtn->setToggleState(FALSE);
+// 	mShowBtn->setClickedCallback(boost::bind(&LLSpeakButton::onClick_ShowBtn, this));
+// 	mShowBtn->setToggleState(FALSE);
 
 	static const S32 MONITOR_RIGHT_PAD = 2;
 
@@ -166,41 +167,5 @@ void LLSpeakButton::onMouseUp_SpeakBtn()
 {
 	bool down = false;
 	gVoiceClient->inputUserControlState(down);
-}
-
-void LLSpeakButton::onClick_ShowBtn()
-{
-	if(!mShowBtn->getToggleState())
-	{
-		if (!mPrivateCallPanel.isDead())
-		{
-			LLFloater* instance = mPrivateCallPanel.get();
-			instance->onClickClose(instance);
-		}
-		mShowBtn->setToggleState(FALSE);
-		return;
-	}
-
-	S32 x = mSpeakBtn->getRect().mLeft;
-	S32 y = 0;
-
-	localPointToScreen(x, y, &x, &y);
-
-	LLCallFloater* instance = new LLCallFloater;
-	mPrivateCallPanel = instance->getHandle();
-
-	// *TODO: mantipov: why we are adding this floater to Root View? It is in FloaterView by default
-	getRootView()->addChild(instance);
-
-	y = LLBottomTray::getInstance()->getRect().getHeight() + instance->getRect().getHeight();
-
-	LLRect rect;
-	rect.setLeftTopAndSize(x, y, instance->getRect().getWidth(), instance->getRect().getHeight());
-	instance->setRect(rect);
-
-	instance->setVisible(TRUE);
-	instance->setFrontmost(TRUE);
-
-	mShowBtn->setToggleState(TRUE);
 }
 
