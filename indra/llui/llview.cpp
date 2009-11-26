@@ -76,6 +76,9 @@ std::vector<LLViewDrawContext*> LLViewDrawContext::sDrawContextStack;
 BOOL LLView::sIsDrawing = FALSE;
 #endif
 
+// Compiler optimization, generate extern template
+template class LLView* LLView::getChild<class LLView>(const std::string& name, BOOL recurse) const;
+
 static LLDefaultChildRegistry::Register<LLView> r("view");
 
 LLView::Params::Params()

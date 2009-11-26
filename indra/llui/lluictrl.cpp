@@ -40,6 +40,10 @@
 
 static LLDefaultChildRegistry::Register<LLUICtrl> r("ui_ctrl");
 
+// Compiler optimization, generate extern template
+template class LLUICtrl* LLView::getChild<class LLUICtrl>(
+	const std::string& name, BOOL recurse) const;
+
 LLUICtrl::Params::Params()
 :	tab_stop("tab_stop", true),
 	chrome("chrome", false),

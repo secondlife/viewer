@@ -659,4 +659,23 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) co
 	return result;
 }
 
+// Compiler optimization - don't generate these specializations inline,
+// require explicit specialization.  See llbutton.cpp for an example.
+extern template class LLButton* LLView::getChild<class LLButton>(
+	const std::string& name, BOOL recurse) const;
+extern template class LLCheckBoxCtrl* LLView::getChild<class LLCheckBoxCtrl>(
+	const std::string& name, BOOL recurse) const;
+extern template class LLLineEditor* LLView::getChild<class LLLineEditor>(
+	const std::string& name, BOOL recurse) const;
+extern template class LLPanel* LLView::getChild<class LLPanel>(
+	const std::string& name, BOOL recurse) const;
+extern template class LLTextBox* LLView::getChild<class LLTextBox>(
+	const std::string& name, BOOL recurse) const;
+extern template class LLTextEditor* LLView::getChild<class LLTextEditor>(
+	const std::string& name, BOOL recurse) const;
+extern template class LLUICtrl* LLView::getChild<class LLUICtrl>(
+	const std::string& name, BOOL recurse) const;
+extern template class LLView* LLView::getChild<class LLView>(
+	const std::string& name, BOOL recurse) const;
+
 #endif //LL_LLVIEW_H
