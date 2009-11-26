@@ -73,11 +73,13 @@
              user_resize="false"
              width="258">
                 <slider_bar
+                 control_name="AudioLevelMic"
                  follows="left|right|top"
                  height="24"
                  increment="0.05"
                  layout="topleft"
                  left="0"
+                 max_val="2"
                  name="volume_slider_bar"
                  tool_tip="Master Volume"
                  top="0"
