@@ -34,31 +34,16 @@
 
 #include "llfloater.h"
 
-class LLListView;
 class LLSD;
 
 class LLFloaterTestListView : public LLFloater
 {
 	friend class LLFloaterReg;
-public:
-	// nothing yet
 
 private:
 	// Construction handled by LLFloaterReg
 	LLFloaterTestListView(const LLSD& seed);
 	~LLFloaterTestListView();
-
-	/*virtual*/ BOOL postBuild();
-
-	// Perform some debug action when the list-view sends change notification
-	void onListViewChanged();
-
-	// Debug function hookups for buttons
-	void onClickTest1();
-	void onClickTest2();
-
-private:
-	LLListView* mListView;
 };
 
 #endif

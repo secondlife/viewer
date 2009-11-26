@@ -40,6 +40,7 @@
 #include "llimview.h"
 #include "llimfloater.h"
 #include "llnotificationmanager.h"
+#include "llnotifications.h"
 
 using namespace LLNotificationsUI;
 

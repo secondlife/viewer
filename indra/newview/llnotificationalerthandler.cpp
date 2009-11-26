@@ -34,6 +34,8 @@
 #include "llviewerprecompiledheaders.h" // must be first include
 
 #include "llnotificationhandler.h"
+
+#include "llnotifications.h"
 #include "lltoastnotifypanel.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"

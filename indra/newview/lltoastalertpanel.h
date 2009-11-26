@@ -40,7 +40,7 @@
 #include "lltoastpanel.h"
 #include "llfloater.h"
 #include "llui.h"
-#include "llnotifications.h"
+#include "llnotificationptr.h"
 #include "llalertdialog.h"
 
 class LLButton;

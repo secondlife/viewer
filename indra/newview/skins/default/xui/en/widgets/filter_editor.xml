@@ -2,7 +2,7 @@
 <filter_editor
   clear_button_visible="true"
   search_button_visible="true"
-  text_pad_left="5"
+  text_pad_left="7"
   select_on_focus="true"
   background_image="TextField_Search_Off"
   background_image_disabled="TextField_Search_Disabled"

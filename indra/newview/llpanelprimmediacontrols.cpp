@@ -510,7 +510,7 @@ void LLPanelPrimMediaControls::updateShape()
 				mMediaProgressBar->setPercent(media_plugin->getProgressPercent());
 				gFocusMgr.setTopCtrl(mMediaProgressPanel);
 			}
-			else
+			else if (mMediaProgressPanel->getVisible())
 			{
 				mMediaProgressPanel->setVisible(false);
 				gFocusMgr.setTopCtrl(NULL);

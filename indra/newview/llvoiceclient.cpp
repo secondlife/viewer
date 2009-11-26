@@ -35,8 +35,11 @@
 
 #include <boost/tokenizer.hpp>
 
+// library includes
+#include "llnotificationsutil.h"
 #include "llsdutil.h"
 
+// project includes
 #include "llvoavatar.h"
 #include "llbufferstream.h"
 #include "llfile.h"
@@ -7051,7 +7054,7 @@ class LLViewerRequiredVoiceVersion : public LLHTTPNode
 				if (!sAlertedUser)
 				{
 					//sAlertedUser = TRUE;
-					LLNotifications::instance().add("VoiceVersionMismatch");
+					LLNotificationsUtil::add("VoiceVersionMismatch");
 					gSavedSettings.setBOOL("EnableVoiceChat", FALSE); // toggles listener
 				}
 			}

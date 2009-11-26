@@ -40,6 +40,7 @@
 #include "llalertdialog.h"
 
 // Linden libs
+#include "llnotificationsutil.h"
 #include "lluictrlfactory.h"
 
 
@@ -56,7 +57,7 @@ LLFloaterHUD::LLFloaterHUD(const LLSD& key)
 	// do not build the floater if there the url is empty
 	if (gSavedSettings.getString("TutorialURL") == "")
 	{
-		LLNotifications::instance().add("TutorialNotFound");
+		LLNotificationsUtil::add("TutorialNotFound");
 		return;
 	}
 	

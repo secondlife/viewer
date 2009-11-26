@@ -767,7 +767,7 @@ void LLPanelPeople::updateButtons()
 	buttonSetEnabled("view_profile_btn",	item_selected);
 	buttonSetEnabled("im_btn",				multiple_selected); // allow starting the friends conference for multiple selection
 	buttonSetEnabled("call_btn",			multiple_selected);
-	buttonSetEnabled("share_btn",			item_selected && false); // not implemented yet
+	buttonSetEnabled("share_btn",			item_selected); // not implemented yet
 
 	bool none_group_selected = item_selected && selected_id.isNull();
 	buttonSetEnabled("group_info_btn", !none_group_selected);
@@ -1220,7 +1220,7 @@ void LLPanelPeople::onTeleportButtonClicked()
 
 void LLPanelPeople::onShareButtonClicked()
 {
-	// *TODO: not implemented yet
+	LLAvatarActions::share(getCurrentItemID());
 }
 
 void LLPanelPeople::onMoreButtonClicked()

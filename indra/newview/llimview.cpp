@@ -70,6 +70,8 @@
 #include "lltoolbar.h"
 #include "llviewermessage.h"
 #include "llviewerwindow.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llnotify.h"
 #include "llnearbychat.h"
 #include "llviewerregion.h"
@@ -120,7 +122,7 @@ void toast_callback(const LLSD& msg){
 	args["FROM_ID"] = msg["from_id"];
 	args["SESSION_ID"] = msg["session_id"];
 
-	LLNotifications::instance().add("IMToast", args, LLSD(), boost::bind(&LLIMFloater::show, msg["session_id"].asUUID()));
+	LLNotificationsUtil::add("IMToast", args, LLSD(), boost::bind(&LLIMFloater::show, msg["session_id"].asUUID()));
 }
 
 void LLIMModel::setActiveSessionID(const LLUUID& session_id)
@@ -1015,7 +1017,7 @@ LLIMMgr::showSessionStartError(
 	LLSD payload;
 	payload["session_id"] = session_id;
 
-	LLNotifications::instance().add(
+	LLNotificationsUtil::add(
 		"ChatterBoxSessionStartError",
 		args,
 		payload,
@@ -1038,7 +1040,7 @@ LLIMMgr::showSessionEventError(
 		LLTrans::getString(event_string);
 	args["RECIPIENT"] = floater->getTitle();
 
-	LLNotifications::instance().add(
+	LLNotificationsUtil::add(
 		"ChatterBoxSessionEventError",
 		args);
 }
@@ -1059,7 +1061,7 @@ LLIMMgr::showSessionForceClose(
 	LLSD payload;
 	payload["session_id"] = session_id;
 
-	LLNotifications::instance().add(
+	LLNotificationsUtil::add(
 		"ForceCloseChatterBoxSession",
 		args,
 		payload,
@@ -1363,7 +1365,7 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 	LLUUID session_id = payload["session_id"].asUUID();
 	EInstantMessage type = (EInstantMessage)payload["type"].asInteger();
 	LLIMMgr::EInvitationType inv_type = (LLIMMgr::EInvitationType)payload["inv_type"].asInteger();
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch(option) 
 	{
 	case 0: // accept
@@ -1876,7 +1878,7 @@ void LLIMMgr::inviteToSession(
 				args["NAME"] = caller_name;
 				args["GROUP"] = session_name;
 
-				LLNotifications::instance().add(notify_box_type, args, payload, &inviteUserResponse);
+				LLNotificationsUtil::add(notify_box_type, args, payload, &inviteUserResponse);
 			}
 		}
 		mPendingInvitations[session_id.asString()] = LLSD();
@@ -1899,7 +1901,7 @@ void LLIMMgr::onInviteNameLookup(LLSD payload, const LLUUID& id, const std::stri
 		LLSD args;
 		args["NAME"] = payload["caller_name"].asString();
 	
-		LLNotifications::instance().add(
+		LLNotificationsUtil::add(
 			payload["notify_box_type"].asString(),
 			args, 
 			payload,

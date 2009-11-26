@@ -12,4 +12,11 @@
         <menu_item_call.on_click
          function="Profile.Pay" />
     </menu_item_call>
+    <menu_item_call
+     label="Share"
+     layout="topleft"
+     name="share">
+        <menu_item_call.on_click
+         function="Profile.Share" />
+    </menu_item_call>
 </toggleable_menu>

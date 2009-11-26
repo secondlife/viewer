@@ -97,6 +97,7 @@
 #include "llmutelist.h"
 #include "llnearbychat.h"
 #include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llnotify.h"
 #include "llpanelgrouplandmoney.h"
 #include "llpanelplaces.h"
@@ -210,7 +211,7 @@ const BOOL SCRIPT_QUESTION_IS_CAUTION[SCRIPT_PERMISSION_EOF] =
 
 bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLMessageSystem* msg = gMessageSystem;
 	const LLSD& payload = notification["payload"];
 
@@ -635,7 +636,7 @@ void send_sound_trigger(const LLUUID& sound_id, F32 gain)
 
 bool join_group_response(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	BOOL delete_context_data = TRUE;
 	bool accept_invite = false;
 
@@ -650,7 +651,7 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 		LLGroupActions::show(group_id);
 		LLSD args;
 		args["MESSAGE"] = message;
-		LLNotifications::instance().add("JoinGroup", args, notification["payload"]);
+		LLNotificationsUtil::add("JoinGroup", args, notification["payload"]);
 		return false;
 	}
 	if(option == 0 && !group_id.isNull())
@@ -669,7 +670,7 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 			LLSD args;
 			args["NAME"] = name;
 			args["INVITE"] = message;
-			LLNotifications::instance().add("JoinedTooManyGroupsMember", args, notification["payload"]);
+			LLNotificationsUtil::add("JoinedTooManyGroupsMember", args, notification["payload"]);
 		}
 	}
 
@@ -686,7 +687,7 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 			// asking about a fee.
 			LLSD next_payload = notification["payload"];
 			next_payload["fee"] = 0;
-			LLNotifications::instance().add("JoinGroupCanAfford",
+			LLNotificationsUtil::add("JoinGroupCanAfford",
 									args,
 									next_payload);
 		}
@@ -912,7 +913,7 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 					LLSD args;
 					args["LANDMARK_NAME"] = item->getName();
 					args["FOLDER_NAME"] = std::string(parent_folder ? parent_folder->getName() : "unknown");
-					LLNotifications::instance().add("LandmarkCreated", args);
+					LLNotificationsUtil::add("LandmarkCreated", args);
 
 					// Created landmark is passed to Places panel to allow its editing.
 					LLPanelPlaces *panel = dynamic_cast<LLPanelPlaces*>(LLSideTray::getInstance()->showPanel("panel_places", LLSD()));
@@ -1108,7 +1109,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 {
 	LLChat chat;
 	std::string log_message;
-	S32 button = LLNotification::getSelectedOption(notification, response);
+	S32 button = LLNotificationsUtil::getSelectedOption(notification, response);
 	
 	LLInventoryObserver* opener = NULL;
 	LLViewerInventoryCategory* catp = NULL;
@@ -1556,7 +1557,7 @@ bool lure_callback(const LLSD& notification, const LLSD& response)
 	}
 	else
 	{
-		option = LLNotification::getSelectedOption(notification, response);
+		option = LLNotificationsUtil::getSelectedOption(notification, response);
 	}
 	
 	LLUUID from_id = notification["payload"]["from_id"].asUUID();
@@ -1587,7 +1588,7 @@ static LLNotificationFunctorRegistration lure_callback_reg("TeleportOffered", lu
 bool goto_url_callback(const LLSD& notification, const LLSD& response)
 {
 	std::string url = notification["payload"]["url"].asString();
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if(1 == option)
 	{
 		LLWeb::loadURL(url);
@@ -1598,7 +1599,7 @@ static LLNotificationFunctorRegistration goto_url_callback_reg("GotoURL", goto_u
 
 bool inspect_remote_object_callback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		LLFloaterReg::showInstance("inspect_remote_object", notification["payload"]);
@@ -1686,7 +1687,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 		// Note: don't put the message in the IM history, even though was sent
 		// via the IM mechanism.
-		LLNotifications::instance().add("SystemMessageTip",args);
+		LLNotificationsUtil::add("SystemMessageTip",args);
 		break;
 
 	case IM_NOTHING_SPECIAL: 
@@ -1758,7 +1759,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// Message to everyone from GOD
 			args["NAME"] = name;
 			args["MESSAGE"] = message;
-			LLNotifications::instance().add("GodMessage", args);
+			LLNotificationsUtil::add("GodMessage", args);
 
 			// Treat like a system message and put in chat history.
 			// Claim to be from a local agent so it doesn't go into
@@ -1837,7 +1838,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// This is a block, modeless dialog.
 			//*TODO: Translate
 			args["MESSAGE"] = message;
-			LLNotifications::instance().add("SystemMessage", args);
+			LLNotificationsUtil::add("SystemMessage", args);
 		}
 		break;
 	case IM_GROUP_NOTICE:
@@ -1970,7 +1971,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 				LLSD args;
 				args["MESSAGE"] = message;
-				LLNotifications::instance().add("JoinGroup", args, payload, join_group_response);
+				LLNotificationsUtil::add("JoinGroup", args, payload, join_group_response);
 			}
 		}
 		break;
@@ -2047,13 +2048,13 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	case IM_INVENTORY_ACCEPTED:
 	{
 		args["NAME"] = name;
-		LLNotifications::instance().add("InventoryAccepted", args);
+		LLNotificationsUtil::add("InventoryAccepted", args);
 		break;
 	}
 	case IM_INVENTORY_DECLINED:
 	{
 		args["NAME"] = name;
-		LLNotifications::instance().add("InventoryDeclined", args);
+		LLNotificationsUtil::add("InventoryDeclined", args);
 		break;
 	}
 	// TODO: _DEPRECATED suffix as part of vote removal - DEV-24856
@@ -2135,7 +2136,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				payload["groupowned"] = "true";
 			}
-			LLNotifications::instance().add("ServerObjectMessage", substitutions, payload);
+			LLNotificationsUtil::add("ServerObjectMessage", substitutions, payload);
 		}
 		break;
 	case IM_FROM_TASK_AS_ALERT:
@@ -2147,7 +2148,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// Construct a viewer alert for this message.
 			args["NAME"] = name;
 			args["MESSAGE"] = message;
-			LLNotifications::instance().add("ObjectMessage", args);
+			LLNotificationsUtil::add("ObjectMessage", args);
 		}
 		break;
 	case IM_BUSY_AUTO_RESPONSE:
@@ -2184,7 +2185,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				payload["from_id"] = from_id;
 				payload["lure_id"] = session_id;
 				payload["godlike"] = FALSE;
-				LLNotifications::instance().add("TeleportOffered", args, payload);
+				LLNotificationsUtil::add("TeleportOffered", args, payload);
 			}
 		}
 		break;
@@ -2221,7 +2222,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			args["URL"] = url;
 			LLSD payload;
 			payload["url"] = url;
-			LLNotifications::instance().add("GotoURL", args, payload );
+			LLNotificationsUtil::add("GotoURL", args, payload );
 		}
 		break;
 
@@ -2248,12 +2249,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				if(message.empty())
 				{
 					//support for frienship offers from clients before July 2008
-				        LLNotifications::instance().add("OfferFriendshipNoMessage", args, payload);
+				        LLNotificationsUtil::add("OfferFriendshipNoMessage", args, payload);
 				}
 				else
 				{
 					args["[MESSAGE]"] = message;
-				        LLNotifications::instance().add("OfferFriendship", args, payload);
+				        LLNotificationsUtil::add("OfferFriendship", args, payload);
 				}
 			}
 		}
@@ -2273,7 +2274,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			args["NAME"] = name;
 			LLSD payload;
 			payload["from_id"] = from_id;
-			LLNotifications::instance().add("FriendshipAccepted", args, payload);
+			LLNotificationsUtil::add("FriendshipAccepted", args, payload);
 		}
 		break;
 
@@ -2314,7 +2315,7 @@ void busy_message (LLMessageSystem* msg, LLUUID from_id)
 
 bool callingcard_offer_callback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLUUID fid;
 	LLUUID from_id;
 	LLMessageSystem* msg = gMessageSystem;
@@ -2393,7 +2394,7 @@ void process_offer_callingcard(LLMessageSystem* msg, void**)
 		}
 		else
 		{
-			LLNotifications::instance().add("OfferCallingCard", args, payload);
+			LLNotificationsUtil::add("OfferCallingCard", args, payload);
 		}
 	}
 	else
@@ -2404,12 +2405,12 @@ void process_offer_callingcard(LLMessageSystem* msg, void**)
 
 void process_accept_callingcard(LLMessageSystem* msg, void**)
 {
-	LLNotifications::instance().add("CallingCardAccepted");
+	LLNotificationsUtil::add("CallingCardAccepted");
 }
 
 void process_decline_callingcard(LLMessageSystem* msg, void**)
 {
-	LLNotifications::instance().add("CallingCardDeclined");
+	LLNotificationsUtil::add("CallingCardDeclined");
 }
 
 
@@ -2744,13 +2745,13 @@ public:
 		{	// Show notification that they can now teleport to landmarks.  Use a random landmark from the inventory
 			S32 random_land = ll_rand( land_items.count() - 1 );
 			args["NAME"] = land_items[random_land]->getName();
-			LLNotifications::instance().add("TeleportToLandmark",args);
+			LLNotificationsUtil::add("TeleportToLandmark",args);
 		}
 		if ( card_items.count() > 0 )
 		{	// Show notification that they can now contact people.  Use a random calling card from the inventory
 			S32 random_card = ll_rand( card_items.count() - 1 );
 			args["NAME"] = card_items[random_card]->getName();
-			LLNotifications::instance().add("TeleportToPerson",args);
+			LLNotificationsUtil::add("TeleportToPerson",args);
 		}
 
 		gInventory.removeObserver(this);
@@ -3127,7 +3128,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
 		LLSD args;
 		args["URL"] = url;
-		LLNotifications::instance().add("ServerVersionChanged", args);
+		LLNotificationsUtil::add("ServerVersionChanged", args);
 	}
 
 	gLastVersionChannel = version_channel;
@@ -4346,7 +4347,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 		// *TODO: Translate
 		LLSD args;
 		args["MESSAGE"] = desc;
-		LLNotifications::instance().add("SystemMessage", args);
+		LLNotificationsUtil::add("SystemMessage", args);
 
 		// Once the 'recent' container gets large enough, chop some
 		// off the beginning.
@@ -4364,7 +4365,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 
 bool handle_special_notification_callback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	
 	if (0 == option)
 	{
@@ -4385,18 +4386,18 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 	llsdBlock["REGIONMATURITY"] = LLViewerRegion::accessToString(regionAccess);
 	
 	// we're going to throw the LLSD in there in case anyone ever wants to use it
-	LLNotifications::instance().add(notificationID+"_Notify", llsdBlock);
+	LLNotificationsUtil::add(notificationID+"_Notify", llsdBlock);
 	
 	if (regionAccess == SIM_ACCESS_MATURE)
 	{
 		if (gAgent.isTeen())
 		{
-			LLNotifications::instance().add(notificationID+"_KB", llsdBlock);
+			LLNotificationsUtil::add(notificationID+"_KB", llsdBlock);
 			return true;
 		}
 		else if (gAgent.prefersPG())
 		{
-			LLNotifications::instance().add(notificationID+"_Change", llsdBlock, llsdBlock, handle_special_notification_callback);
+			LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_special_notification_callback);
 			return true;
 		}
 	}
@@ -4404,12 +4405,12 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 	{
 		if (!gAgent.isAdult())
 		{
-			LLNotifications::instance().add(notificationID+"_KB", llsdBlock);
+			LLNotificationsUtil::add(notificationID+"_KB", llsdBlock);
 			return true;
 		}
 		else if (gAgent.prefersPG() || gAgent.prefersMature())
 		{
-			LLNotifications::instance().add(notificationID+"_Change", llsdBlock, llsdBlock, handle_special_notification_callback);
+			LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_special_notification_callback);
 			return true;
 		}
 	}
@@ -4469,7 +4470,7 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 			}
 		}
 		
-		LLNotifications::instance().add(notificationID, llsdBlock);
+		LLNotificationsUtil::add(notificationID, llsdBlock);
 		return true;
 	}	
 	return false;
@@ -4535,14 +4536,14 @@ void process_alert_core(const std::string& message, BOOL modal)
 		// Allow the server to spawn a named alert so that server alerts can be
 		// translated out of English.
 		std::string alert_name(message.substr(ALERT_PREFIX.length()));
-		LLNotifications::instance().add(alert_name);
+		LLNotificationsUtil::add(alert_name);
 	}
 	else if (message.find(NOTIFY_PREFIX) == 0)
 	{
 		// Allow the server to spawn a named notification so that server notifications can be
 		// translated out of English.
 		std::string notify_name(message.substr(NOTIFY_PREFIX.length()));
-		LLNotifications::instance().add(notify_name);
+		LLNotificationsUtil::add(notify_name);
 	}
 	else if (message[0] == '/')
 	{
@@ -4554,20 +4555,20 @@ void process_alert_core(const std::string& message, BOOL modal)
 			S32 mins = 0;
 			LLStringUtil::convertToS32(text.substr(18), mins);
 			args["MINUTES"] = llformat("%d",mins);
-			LLNotifications::instance().add("RegionRestartMinutes", args);
+			LLNotificationsUtil::add("RegionRestartMinutes", args);
 		}
 		else if (text.substr(0,17) == "RESTART_X_SECONDS")
 		{
 			S32 secs = 0;
 			LLStringUtil::convertToS32(text.substr(18), secs);
 			args["SECONDS"] = llformat("%d",secs);
-			LLNotifications::instance().add("RegionRestartSeconds", args);
+			LLNotificationsUtil::add("RegionRestartSeconds", args);
 		}
 		else
 		{
 			std::string new_msg =LLNotifications::instance().getGlobalString(text);
 			args["MESSAGE"] = new_msg;
-			LLNotifications::instance().add("SystemMessage", args);
+			LLNotificationsUtil::add("SystemMessage", args);
 		}
 	}
 	else if (modal)
@@ -4575,14 +4576,14 @@ void process_alert_core(const std::string& message, BOOL modal)
 		LLSD args;
 		std::string new_msg =LLNotifications::instance().getGlobalString(message);
 		args["ERROR_MESSAGE"] = new_msg;
-		LLNotifications::instance().add("ErrorMessage", args);
+		LLNotificationsUtil::add("ErrorMessage", args);
 	}
 	else
 	{
 		LLSD args;
 		std::string new_msg =LLNotifications::instance().getGlobalString(message);
 		args["MESSAGE"] = new_msg;
-		LLNotifications::instance().add("SystemMessageTip", args);
+		LLNotificationsUtil::add("SystemMessageTip", args);
 	}
 }
 
@@ -4798,7 +4799,7 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 
 bool script_question_cb(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLMessageSystem *msg = gMessageSystem;
 	S32 orig = notification["payload"]["questions"].asInteger();
 	S32 new_questions = orig;
@@ -4862,10 +4863,10 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 	if (response["Details"])
 	{
 		// respawn notification...
-		LLNotifications::instance().add(notification["name"], notification["substitutions"], notification["payload"]);
+		LLNotificationsUtil::add(notification["name"], notification["substitutions"], notification["payload"]);
 
 		// ...with description on top
-		LLNotifications::instance().add("DebitPermissionDetails");
+		LLNotificationsUtil::add("DebitPermissionDetails");
 	}
 	return false;
 }
@@ -4962,12 +4963,12 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		if (gSavedSettings.getBOOL("PermissionsCautionEnabled"))
 		{
 			// display the caution permissions prompt
-			LLNotifications::instance().add(caution ? "ScriptQuestionCaution" : "ScriptQuestion", args, payload);
+			LLNotificationsUtil::add(caution ? "ScriptQuestionCaution" : "ScriptQuestion", args, payload);
 		}
 		else
 		{
 			// fall back to default behavior if cautions are entirely disabled
-			LLNotifications::instance().add("ScriptQuestion", args, payload);
+			LLNotificationsUtil::add("ScriptQuestion", args, payload);
 		}
 
 	}
@@ -5167,7 +5168,7 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 		}
 	}
 
-	LLNotifications::instance().add("CouldNotTeleportReason", args);
+	LLNotificationsUtil::add("CouldNotTeleportReason", args);
 
 	// Let the interested parties know that teleport failed.
 	LLViewerParcelMgr::getInstance()->onTeleportFailed();
@@ -5300,7 +5301,7 @@ void send_group_notice(const LLUUID& group_id,
 bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 {
 	std::string text = response["message"].asString();
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if(0 == option)
 	{
@@ -5347,11 +5348,11 @@ void handle_lure(const std::vector<LLUUID>& ids)
 	}
 	if (gAgent.isGodlike())
 	{
-		LLNotifications::instance().add("OfferTeleportFromGod", edit_args, payload, handle_lure_callback);
+		LLNotificationsUtil::add("OfferTeleportFromGod", edit_args, payload, handle_lure_callback);
 	}
 	else
 	{
-		LLNotifications::instance().add("OfferTeleport", edit_args, payload, handle_lure_callback);
+		LLNotificationsUtil::add("OfferTeleport", edit_args, payload, handle_lure_callback);
 	}
 }
 
@@ -5555,7 +5556,7 @@ std::vector<LLSD> gLoadUrlList;
 
 bool callback_load_url(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if (0 == option)
 	{
@@ -5600,7 +5601,7 @@ void callback_load_url_name(const LLUUID& id, const std::string& first, const st
 			args["OBJECTNAME"] = load_url_info["object_name"].asString();
 			args["NAME"] = owner_name;
 
-			LLNotifications::instance().add("LoadWebPage", args, load_url_info);
+			LLNotificationsUtil::add("LoadWebPage", args, load_url_info);
 		}
 		else
 		{
@@ -5655,7 +5656,7 @@ void callback_download_complete(void** data, S32 result, LLExtStat ext_status)
 	std::string* filepath = (std::string*)data;
 	LLSD args;
 	args["DOWNLOAD_PATH"] = *filepath;
-	LLNotifications::instance().add("FinishedRawDownload", args);
+	LLNotificationsUtil::add("FinishedRawDownload", args);
 	delete filepath;
 }
 

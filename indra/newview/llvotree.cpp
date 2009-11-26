@@ -55,7 +55,7 @@
 #include "noise.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 
 extern LLPipeline gPipeline;
 
@@ -257,7 +257,7 @@ void LLVOTree::initClass()
 		{
 			LLSD args;
 			args["SPECIES"] = err;
-			LLNotifications::instance().add("ErrorUndefinedTrees", args);
+			LLNotificationsUtil::add("ErrorUndefinedTrees", args);
 		}
 };
 

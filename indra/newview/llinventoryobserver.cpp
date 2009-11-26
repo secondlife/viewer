@@ -55,7 +55,7 @@
 #include "lldbstrings.h"
 #include "llviewerstats.h"
 #include "llmutelist.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llcallbacklist.h"
 #include "llpreview.h"
 #include "llviewercontrol.h"
@@ -112,10 +112,20 @@ void LLInventoryFetchObserver::changed(U32 mask)
 			LLViewerInventoryItem* item = gInventory.getItem(*it);
 			if(!item)
 			{
-				// BUG: This can cause done() to get called prematurely below.
-				// This happens with the LLGestureInventoryFetchObserver that
-				// loads gestures at startup. JC
-				it = mIncomplete.erase(it);
+				if (mRetryIfMissing)
+				{
+					// BAP changed to skip these items, so we should keep retrying until they arrive.
+					// Did not make this the default behavior because of uncertainty about impact -
+					// could cause some observers that currently complete to wait forever.
+					++it;
+				}
+				else
+				{
+					// BUG: This can cause done() to get called prematurely below.
+					// This happens with the LLGestureInventoryFetchObserver that
+					// loads gestures at startup. JC
+					it = mIncomplete.erase(it);
+				}
 				continue;
 			}
 			if(item->isComplete())

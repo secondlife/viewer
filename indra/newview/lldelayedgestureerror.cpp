@@ -33,7 +33,9 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "lldelayedgestureerror.h"
+
 #include <list>
+#include "llnotificationsutil.h"
 #include "llnotify.h"
 #include "llcallbacklist.h"
 #include "llinventory.h"
@@ -119,7 +121,7 @@ bool LLDelayedGestureError::doDialog(const LLErrorEntry &ent, bool uuid_ok)
 	}
 	 
 
-	LLNotifications::instance().add(ent.mNotifyName, args);
+	LLNotificationsUtil::add(ent.mNotifyName, args);
 
 	return true;
 }

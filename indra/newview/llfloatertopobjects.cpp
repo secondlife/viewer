@@ -41,6 +41,7 @@
 #include "llbutton.h"
 #include "llfloatergodtools.h"
 #include "llfloaterreg.h"
+#include "llnotificationsutil.h"
 #include "llparcel.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
@@ -359,7 +360,7 @@ void LLFloaterTopObjects::doToObjects(int action, bool all)
 //static
 bool LLFloaterTopObjects::callbackReturnAll(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
 	if(!instance) return false;
 	if (option == 0)
@@ -371,7 +372,7 @@ bool LLFloaterTopObjects::callbackReturnAll(const LLSD& notification, const LLSD
 
 void LLFloaterTopObjects::onReturnAll()
 {	
-	LLNotifications::instance().add("ReturnAllTopObjects", LLSD(), LLSD(), &callbackReturnAll);
+	LLNotificationsUtil::add("ReturnAllTopObjects", LLSD(), LLSD(), &callbackReturnAll);
 }
 
 
@@ -384,7 +385,7 @@ void LLFloaterTopObjects::onReturnSelected()
 //static
 bool LLFloaterTopObjects::callbackDisableAll(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
 	if(!instance) return false;
 	if (option == 0)
@@ -396,7 +397,7 @@ bool LLFloaterTopObjects::callbackDisableAll(const LLSD& notification, const LLS
 
 void LLFloaterTopObjects::onDisableAll()
 {
-	LLNotifications::instance().add("DisableAllTopObjects", LLSD(), LLSD(), callbackDisableAll);
+	LLNotificationsUtil::add("DisableAllTopObjects", LLSD(), LLSD(), callbackDisableAll);
 }
 
 void LLFloaterTopObjects::onDisableSelected()
