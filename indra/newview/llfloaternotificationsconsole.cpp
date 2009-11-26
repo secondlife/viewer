@@ -233,7 +233,7 @@ void LLFloaterNotificationConsole::onClickAdd()
 	std::string message_name = getChild<LLComboBox>("notification_types")->getValue().asString();
 	if (!message_name.empty())
 	{
-		LLNotifications::instance().add(message_name, LLSD());
+		LLNotifications::instance().add(message_name, LLSD(), LLSD());
 	}
 }
 

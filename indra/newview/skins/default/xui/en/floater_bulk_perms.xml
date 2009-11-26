@@ -154,7 +154,7 @@
      image_name="Inv_Texture"
      mouse_opaque="true"
      name="icon_texture"
-     tool_top="Textures"
+     tool_tip="Textures"
      left_pad="2" />
 
     <button

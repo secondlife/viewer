@@ -36,6 +36,7 @@
 #include "llfloaterreg.h"
 #include "llnearbychat.h"
 #include "llnotificationhandler.h"
+#include "llnotifications.h"
 #include "lltoastnotifypanel.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"

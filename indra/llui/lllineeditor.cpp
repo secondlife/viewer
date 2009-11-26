@@ -125,8 +125,8 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mScrollHPos( 0 ),
 	mTextPadLeft(p.text_pad_left),
 	mTextPadRight(p.text_pad_right),
-	mMinHPixels(0),		// computed in updateTextPadding() below
-	mMaxHPixels(0),		// computed in updateTextPadding() below
+	mTextLeftEdge(0),		// computed in updateTextPadding() below
+	mTextRightEdge(0),		// computed in updateTextPadding() below
 	mCommitOnFocusLost( p.commit_on_focus_lost ),
 	mRevertOnEsc( p.revert_on_esc ),
 	mKeystrokeCallback( p.keystroke_callback() ),
@@ -338,9 +338,8 @@ void LLLineEditor::setTextPadding(S32 left, S32 right)
 
 void LLLineEditor::updateTextPadding()
 {
-	static LLUICachedControl<S32> line_editor_hpad ("UILineEditorHPad", 0);
-	mMinHPixels = line_editor_hpad + llclamp(mTextPadLeft, 0, getRect().getWidth());;
-	mMaxHPixels = getRect().getWidth() - mMinHPixels - llclamp(mTextPadRight, 0, getRect().getWidth());
+	mTextLeftEdge = llclamp(mTextPadLeft, 0, getRect().getWidth());
+	mTextRightEdge = getRect().getWidth() - llclamp(mTextPadRight, 0, getRect().getWidth());
 }
 
 
@@ -406,8 +405,8 @@ void LLLineEditor::setCursorAtLocalPos( S32 local_mouse_x )
 		mScrollHPos + 
 		mGLFont->charFromPixelOffset(
 			wtext, mScrollHPos,
-			(F32)(local_mouse_x - mMinHPixels),
-			(F32)(mMaxHPixels - mMinHPixels + 1)); // min-max range is inclusive
+			(F32)(local_mouse_x - mTextLeftEdge),
+			(F32)(mTextRightEdge - mTextLeftEdge + 1)); // min-max range is inclusive
 	setCursor(cursor_pos);
 }
 
@@ -417,11 +416,11 @@ void LLLineEditor::setCursor( S32 pos )
 	mCursorPos = llclamp( pos, 0, mText.length());
 
 	S32 pixels_after_scroll = findPixelNearestPos();
-	if( pixels_after_scroll > mMaxHPixels )
+	if( pixels_after_scroll > mTextRightEdge )
 	{
 		S32 width_chars_to_left = mGLFont->getWidth(mText.getWString().c_str(), 0, mScrollHPos);
-		S32 last_visible_char = mGLFont->maxDrawableChars(mText.getWString().c_str(), llmax(0.f, (F32)(mMaxHPixels - mMinHPixels + width_chars_to_left))); 
-		S32 min_scroll = mGLFont->firstDrawableChar(mText.getWString().c_str(), (F32)(mMaxHPixels - mMinHPixels), mText.length(), getCursor());
+		S32 last_visible_char = mGLFont->maxDrawableChars(mText.getWString().c_str(), llmax(0.f, (F32)(mTextRightEdge - mTextLeftEdge + width_chars_to_left))); 
+		S32 min_scroll = mGLFont->firstDrawableChar(mText.getWString().c_str(), (F32)(mTextRightEdge - mTextLeftEdge), mText.length(), getCursor());
 		if (old_cursor_pos == last_visible_char)
 		{
 			mScrollHPos = llmin(mText.length(), llmax(min_scroll, mScrollHPos + SCROLL_INCREMENT_ADD));
@@ -682,17 +681,17 @@ BOOL LLLineEditor::handleHover(S32 x, S32 y, MASK mask)
 			S32 increment = llround(mScrollTimer.getElapsedTimeF32() / AUTO_SCROLL_TIME);
 			mScrollTimer.reset();
 			mScrollTimer.setTimerExpirySec(AUTO_SCROLL_TIME);
-			if( (x < mMinHPixels) && (mScrollHPos > 0 ) )
+			if( (x < mTextLeftEdge) && (mScrollHPos > 0 ) )
 			{
 				// Scroll to the left
 				mScrollHPos = llclamp(mScrollHPos - increment, 0, mText.length());
 			}
 			else
-			if( (x > mMaxHPixels) && (mCursorPos < (S32)mText.length()) )
+			if( (x > mTextRightEdge) && (mCursorPos < (S32)mText.length()) )
 			{
 				// If scrolling one pixel would make a difference...
 				S32 pixels_after_scrolling_one_char = findPixelNearestPos(1);
-				if( pixels_after_scrolling_one_char >= mMaxHPixels )
+				if( pixels_after_scrolling_one_char >= mTextRightEdge )
 				{
 					// ...scroll to the right
 					mScrollHPos = llclamp(mScrollHPos + increment, 0, mText.length());
@@ -1671,7 +1670,7 @@ void LLLineEditor::draw()
 	}
 
 	S32 rendered_text = 0;
-	F32 rendered_pixels_right = (F32)mMinHPixels;
+	F32 rendered_pixels_right = (F32)mTextLeftEdge;
 	F32 text_bottom = (F32)background.mBottom + (F32)lineeditor_v_pad;
 
 	if( (gFocusMgr.getKeyboardFocus() == this) && hasSelection() )
@@ -1700,17 +1699,17 @@ void LLLineEditor::draw()
 				0,
 				LLFontGL::NO_SHADOW,
 				select_left - mScrollHPos,
-				mMaxHPixels - llround(rendered_pixels_right),
+				mTextRightEdge - llround(rendered_pixels_right),
 				&rendered_pixels_right);
 		}
 		
-		if( (rendered_pixels_right < (F32)mMaxHPixels) && (rendered_text < text_len) )
+		if( (rendered_pixels_right < (F32)mTextRightEdge) && (rendered_text < text_len) )
 		{
 			LLColor4 color = mHighlightColor;
 			color.setAlpha(alpha);
 			// selected middle
 			S32 width = mGLFont->getWidth(mText.getWString().c_str(), mScrollHPos + rendered_text, select_right - mScrollHPos - rendered_text);
-			width = llmin(width, mMaxHPixels - llround(rendered_pixels_right));
+			width = llmin(width, mTextRightEdge - llround(rendered_pixels_right));
 			gl_rect_2d(llround(rendered_pixels_right), cursor_top, llround(rendered_pixels_right)+width, cursor_bottom, color);
 
 			LLColor4 tmp_color( 1.f - text_color.mV[0], 1.f - text_color.mV[1], 1.f - text_color.mV[2], alpha );
@@ -1722,11 +1721,11 @@ void LLLineEditor::draw()
 				0,
 				LLFontGL::NO_SHADOW,
 				select_right - mScrollHPos - rendered_text,
-				mMaxHPixels - llround(rendered_pixels_right),
+				mTextRightEdge - llround(rendered_pixels_right),
 				&rendered_pixels_right);
 		}
 
-		if( (rendered_pixels_right < (F32)mMaxHPixels) && (rendered_text < text_len) )
+		if( (rendered_pixels_right < (F32)mTextRightEdge) && (rendered_text < text_len) )
 		{
 			// unselected, right side
 			mGLFont->render( 
@@ -1737,7 +1736,7 @@ void LLLineEditor::draw()
 				0,
 				LLFontGL::NO_SHADOW,
 				S32_MAX,
-				mMaxHPixels - llround(rendered_pixels_right),
+				mTextRightEdge - llround(rendered_pixels_right),
 				&rendered_pixels_right);
 		}
 	}
@@ -1751,7 +1750,7 @@ void LLLineEditor::draw()
 			0,
 			LLFontGL::NO_SHADOW,
 			S32_MAX,
-			mMaxHPixels - llround(rendered_pixels_right),
+			mTextRightEdge - llround(rendered_pixels_right),
 			&rendered_pixels_right);
 	}
 #if 1 // for when we're ready for image art.
@@ -1809,14 +1808,14 @@ void LLLineEditor::draw()
 		if (0 == mText.length() && mReadOnly)
 		{
 			mGLFont->render(mLabel.getWString(), 0,
-							mMinHPixels, (F32)text_bottom,
+							mTextLeftEdge, (F32)text_bottom,
 							label_color,
 							LLFontGL::LEFT,
 							LLFontGL::BOTTOM,
 							0,
 							LLFontGL::NO_SHADOW,
 							S32_MAX,
-							mMaxHPixels - llround(rendered_pixels_right),
+							mTextRightEdge - llround(rendered_pixels_right),
 							&rendered_pixels_right, FALSE);
 		}
 
@@ -1834,14 +1833,14 @@ void LLLineEditor::draw()
 		if (0 == mText.length())
 		{
 			mGLFont->render(mLabel.getWString(), 0,
-							mMinHPixels, (F32)text_bottom,
+							mTextLeftEdge, (F32)text_bottom,
 							label_color,
 							LLFontGL::LEFT,
 							LLFontGL::BOTTOM,
 							0,
 							LLFontGL::NO_SHADOW,
 							S32_MAX,
-							mMaxHPixels - llround(rendered_pixels_right),
+							mTextRightEdge - llround(rendered_pixels_right),
 							&rendered_pixels_right, FALSE);
 		}
 		// Draw children (border)
@@ -1859,7 +1858,7 @@ void LLLineEditor::draw()
 S32 LLLineEditor::findPixelNearestPos(const S32 cursor_offset) const
 {
 	S32 dpos = getCursor() - mScrollHPos + cursor_offset;
-	S32 result = mGLFont->getWidth(mText.getWString().c_str(), mScrollHPos, dpos) + mMinHPixels;
+	S32 result = mGLFont->getWidth(mText.getWString().c_str(), mScrollHPos, dpos) + mTextLeftEdge;
 	return result;
 }
 

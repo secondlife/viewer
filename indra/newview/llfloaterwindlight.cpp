@@ -41,6 +41,7 @@
 #include "llsliderctrl.h"
 #include "llmultislider.h"
 #include "llmultisliderctrl.h"
+#include "llnotificationsutil.h"
 #include "llspinctrl.h"
 #include "llcheckboxctrl.h"
 #include "lluictrlfactory.h"
@@ -210,7 +211,7 @@ void LLFloaterWindLight::initCallbacks(void) {
 bool LLFloaterWindLight::newPromptCallback(const LLSD& notification, const LLSD& response)
 {
 	std::string text = response["message"].asString();
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if(text == "")
 	{
@@ -260,7 +261,7 @@ bool LLFloaterWindLight::newPromptCallback(const LLSD& notification, const LLSD&
 		} 
 		else 
 		{
-			LLNotifications::instance().add("ExistsSkyPresetAlert");
+			LLNotificationsUtil::add("ExistsSkyPresetAlert");
 		}
 	}
 	return false;
@@ -676,7 +677,7 @@ void LLFloaterWindLight::onStarAlphaMoved(LLUICtrl* ctrl)
 
 void LLFloaterWindLight::onNewPreset()
 {
-	LLNotifications::instance().add("NewSkyPreset", LLSD(), LLSD(), boost::bind(&LLFloaterWindLight::newPromptCallback, this, _1, _2));
+	LLNotificationsUtil::add("NewSkyPreset", LLSD(), LLSD(), boost::bind(&LLFloaterWindLight::newPromptCallback, this, _1, _2));
 }
 
 void LLFloaterWindLight::onSavePreset()
@@ -696,19 +697,19 @@ void LLFloaterWindLight::onSavePreset()
 		comboBox->getSelectedItemLabel());
 	if(sIt != sDefaultPresets.end() && !gSavedSettings.getBOOL("SkyEditPresets")) 
 	{
-		LLNotifications::instance().add("WLNoEditDefault");
+		LLNotificationsUtil::add("WLNoEditDefault");
 		return;
 	}
 
 	LLWLParamManager::instance()->mCurParams.mName = 
 		comboBox->getSelectedItemLabel();
 
-	LLNotifications::instance().add("WLSavePresetAlert", LLSD(), LLSD(), boost::bind(&LLFloaterWindLight::saveAlertCallback, this, _1, _2));
+	LLNotificationsUtil::add("WLSavePresetAlert", LLSD(), LLSD(), boost::bind(&LLFloaterWindLight::saveAlertCallback, this, _1, _2));
 }
 
 bool LLFloaterWindLight::saveAlertCallback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	// if they choose save, do it.  Otherwise, don't do anything
 	if(option == 0) 
 	{
@@ -734,13 +735,13 @@ void LLFloaterWindLight::onDeletePreset()
 
 	LLSD args;
 	args["SKY"] = combo_box->getSelectedValue().asString();
-	LLNotifications::instance().add("WLDeletePresetAlert", args, LLSD(), 
+	LLNotificationsUtil::add("WLDeletePresetAlert", args, LLSD(), 
 									boost::bind(&LLFloaterWindLight::deleteAlertCallback, this, _1, _2));
 }
 
 bool LLFloaterWindLight::deleteAlertCallback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	// if they choose delete, do it.  Otherwise, don't do anything
 	if(option == 0) 
@@ -762,7 +763,7 @@ bool LLFloaterWindLight::deleteAlertCallback(const LLSD& notification, const LLS
 		std::set<std::string>::iterator sIt = sDefaultPresets.find(name);
 		if(sIt != sDefaultPresets.end()) 
 		{
-			LLNotifications::instance().add("WLNoEditDefault");
+			LLNotificationsUtil::add("WLNoEditDefault");
 			return false;
 		}
 

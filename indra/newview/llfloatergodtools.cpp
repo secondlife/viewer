@@ -39,6 +39,7 @@
 #include "llframetimer.h"
 #include "llgl.h"
 #include "llhost.h"
+#include "llnotificationsutil.h"
 #include "llregionflags.h"
 #include "llstring.h"
 #include "message.h"
@@ -847,17 +848,17 @@ void LLPanelGridTools::refresh()
 
 void LLPanelGridTools::onClickKickAll()
 {
-	LLNotifications::instance().add("KickAllUsers", LLSD(), LLSD(), LLPanelGridTools::confirmKick);
+	LLNotificationsUtil::add("KickAllUsers", LLSD(), LLSD(), LLPanelGridTools::confirmKick);
 }
 
 
 bool LLPanelGridTools::confirmKick(const LLSD& notification, const LLSD& response)
 {
-	if (LLNotification::getSelectedOption(notification, response) == 0)
+	if (LLNotificationsUtil::getSelectedOption(notification, response) == 0)
 	{
 		LLSD payload;
 		payload["kick_message"] = response["message"].asString();
-		LLNotifications::instance().add("ConfirmKick", LLSD(), payload, LLPanelGridTools::finishKick);
+		LLNotificationsUtil::add("ConfirmKick", LLSD(), payload, LLPanelGridTools::finishKick);
 	}
 	return false;
 }
@@ -866,7 +867,7 @@ bool LLPanelGridTools::confirmKick(const LLSD& notification, const LLSD& respons
 // static
 bool LLPanelGridTools::finishKick(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 
 	if (option == 0)
@@ -887,13 +888,13 @@ bool LLPanelGridTools::finishKick(const LLSD& notification, const LLSD& response
 
 void LLPanelGridTools::onClickFlushMapVisibilityCaches()
 {
-	LLNotifications::instance().add("FlushMapVisibilityCaches", LLSD(), LLSD(), flushMapVisibilityCachesConfirm);
+	LLNotificationsUtil::add("FlushMapVisibilityCaches", LLSD(), LLSD(), flushMapVisibilityCachesConfirm);
 }
 
 // static
 bool LLPanelGridTools::flushMapVisibilityCachesConfirm(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option != 0) return false;
 
 	// HACK: Send this as an EstateOwnerRequest so it gets routed
@@ -1101,7 +1102,7 @@ void LLPanelObjectTools::onClickDeletePublicOwnedBy()
 		payload["avatar_id"] = mTargetAvatar;
 		payload["flags"] = (S32)mSimWideDeletesFlags;
 
-		LLNotifications::instance().add( "GodDeleteAllScriptedPublicObjectsByUser",
+		LLNotificationsUtil::add( "GodDeleteAllScriptedPublicObjectsByUser",
 								args,
 								payload,
 								callbackSimWideDeletes);
@@ -1121,7 +1122,7 @@ void LLPanelObjectTools::onClickDeleteAllScriptedOwnedBy()
 		payload["avatar_id"] = mTargetAvatar;
 		payload["flags"] = (S32)mSimWideDeletesFlags;
 
-		LLNotifications::instance().add( "GodDeleteAllScriptedObjectsByUser",
+		LLNotificationsUtil::add( "GodDeleteAllScriptedObjectsByUser",
 								args,
 								payload,
 								callbackSimWideDeletes);
@@ -1141,7 +1142,7 @@ void LLPanelObjectTools::onClickDeleteAllOwnedBy()
 		payload["avatar_id"] = mTargetAvatar;
 		payload["flags"] = (S32)mSimWideDeletesFlags;
 
-		LLNotifications::instance().add( "GodDeleteAllObjectsByUser",
+		LLNotificationsUtil::add( "GodDeleteAllObjectsByUser",
 								args,
 								payload,
 								callbackSimWideDeletes);
@@ -1151,7 +1152,7 @@ void LLPanelObjectTools::onClickDeleteAllOwnedBy()
 // static
 bool LLPanelObjectTools::callbackSimWideDeletes( const LLSD& notification, const LLSD& response )
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
 	{
 		if (!notification["payload"]["avatar_id"].asUUID().isNull())
@@ -1334,7 +1335,7 @@ void LLPanelRequestTools::onClickRequest()
 
 void terrain_download_done(void** data, S32 status, LLExtStat ext_status)
 {
-	LLNotifications::instance().add("TerrainDownloaded");
+	LLNotificationsUtil::add("TerrainDownloaded");
 }
 
 

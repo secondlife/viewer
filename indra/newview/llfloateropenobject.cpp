@@ -41,6 +41,7 @@
 
 #include "llcachename.h"
 #include "llbutton.h"
+#include "llnotificationsutil.h"
 #include "lltextbox.h"
 
 #include "llalertdialog.h"
@@ -84,7 +85,7 @@ void LLFloaterOpenObject::onOpen(const LLSD& key)
 	LLObjectSelectionHandle object_selection = LLSelectMgr::getInstance()->getSelection();
 	if (object_selection->getRootObjectCount() != 1)
 	{
-		LLNotifications::instance().add("UnableToViewContentsMoreThanOne");
+		LLNotificationsUtil::add("UnableToViewContentsMoreThanOne");
 		closeFloater();
 		return;
 	}
@@ -141,7 +142,7 @@ void LLFloaterOpenObject::moveToInventory(bool wear)
 {
 	if (mObjectSelection->getRootObjectCount() != 1)
 	{
-		LLNotifications::instance().add("OnlyCopyContentsOfSingleItem");
+		LLNotificationsUtil::add("OnlyCopyContentsOfSingleItem");
 		return;
 	}
 
@@ -182,7 +183,7 @@ void LLFloaterOpenObject::moveToInventory(bool wear)
 		delete data;
 		data = NULL;
 
-		LLNotifications::instance().add("OpenObjectCannotCopy");
+		LLNotificationsUtil::add("OpenObjectCannotCopy");
 	}
 }
 

@@ -298,7 +298,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 	if ((mute.mType == LLMute::AGENT)
 		&& isLinden(mute.mName) && (flags & LLMute::flagTextChat || flags == 0))
 	{
-		LLNotifications::instance().add("MuteLinden");
+		LLNotifications::instance().add("MuteLinden", LLSD(), LLSD());
 		return FALSE;
 	}
 	
@@ -517,7 +517,7 @@ void notify_automute_callback(const LLUUID& agent_id, const std::string& first_n
 	args["FIRST"] = first_name;
 	args["LAST"] = last_name;
     
-	LLNotificationPtr notif_ptr = LLNotifications::instance().add(notif_name, args);
+	LLNotificationPtr notif_ptr = LLNotifications::instance().add(notif_name, args, LLSD());
 	if (notif_ptr)
 	{
 		std::string message = notif_ptr->getMessage();

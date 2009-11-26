@@ -38,6 +38,7 @@
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 #include "llnotificationmanager.h"
+#include "llnotifications.h"
 
 using namespace LLNotificationsUI;
 

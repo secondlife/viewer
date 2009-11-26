@@ -55,7 +55,7 @@
 #include "lldbstrings.h"
 #include "llviewerstats.h"
 #include "llmutelist.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llcallbacklist.h"
 #include "llpreview.h"
 #include "llviewercontrol.h"

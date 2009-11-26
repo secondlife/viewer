@@ -53,6 +53,8 @@
 #include "llbutton.h"
 #include "llinventoryobserver.h"
 #include "llinventorymodel.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llnotify.h"
 #include "llresmgr.h"
 #include "llimview.h"
@@ -640,11 +642,11 @@ void LLAvatarTracker::processChange(LLMessageSystem* msg)
 					}
 					if(LLRelationship::GRANT_MODIFY_OBJECTS & new_rights)
 					{
-						LLNotifications::instance().add("GrantedModifyRights",args);
+						LLNotificationsUtil::add("GrantedModifyRights",args);
 					}
 					else
 					{
-						LLNotifications::instance().add("RevokedModifyRights",args);
+						LLNotificationsUtil::add("RevokedModifyRights",args);
 					}
 				}
 				(mBuddyInfo[agent_id])->setRightsFrom(new_rights);
@@ -714,7 +716,7 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 		if(notify)
 		{
 			// Popup a notify box with online status of this agent
-			LLNotificationPtr notification = LLNotifications::instance().add(online ? "FriendOnline" : "FriendOffline", args);
+			LLNotificationPtr notification = LLNotificationsUtil::add(online ? "FriendOnline" : "FriendOffline", args);
 
 			// If there's an open IM session with this agent, send a notification there too.
 			LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, agent_id);

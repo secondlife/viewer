@@ -40,6 +40,7 @@
 #include "llcombobox.h"
 #include "lldateutil.h"			// ageFromDate()
 #include "llimview.h"
+#include "llnotificationsutil.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
 #include "lltoggleablemenu.h"
@@ -684,7 +685,7 @@ void LLPanelMyProfile::onStatusChanged()
 	{
 		gAgent.clearAFK();
 		gAgent.setBusy();
-		LLNotifications::instance().add("BusyModeSet");
+		LLNotificationsUtil::add("BusyModeSet");
 	}
 }
 

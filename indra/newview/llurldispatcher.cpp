@@ -49,6 +49,7 @@
 #include "llworldmapmessage.h"
 
 // library includes
+#include "llnotificationsutil.h"
 #include "llsd.h"
 
 class LLURLDispatcherImpl
@@ -162,7 +163,7 @@ bool LLURLDispatcherImpl::dispatchApp(const std::string& url,
 	// (but still return true because it is a valid app SLURL)
 	if (! handled)
 	{
-		LLNotifications::instance().add("UnsupportedCommandSLURL");
+		LLNotificationsUtil::add("UnsupportedCommandSLURL");
 	}
 	return true;
 }

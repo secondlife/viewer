@@ -41,6 +41,7 @@
 #include "lleconomy.h"
 #include "llgl.h"
 #include "llrender.h"
+#include "llnotifications.h"
 #include "llpermissions.h"
 #include "llpermissionsflags.h"
 #include "lltrans.h"

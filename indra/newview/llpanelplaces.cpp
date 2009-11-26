@@ -43,7 +43,7 @@
 #include "llcombobox.h"
 #include "llfiltereditor.h"
 #include "llfloaterreg.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "lltabcontainer.h"
 #include "lltexteditor.h"
 #include "lltrans.h"
@@ -417,7 +417,7 @@ void LLPanelPlaces::onTeleportButtonClicked()
 		{
 			LLSD payload;
 			payload["asset_id"] = mItem->getAssetUUID();
-			LLNotifications::instance().add("TeleportFromLandmark", LLSD(), payload);
+			LLNotificationsUtil::add("TeleportFromLandmark", LLSD(), payload);
 		}
 		else if (mPlaceInfoType == AGENT_INFO_TYPE ||
 				 mPlaceInfoType == REMOTE_PLACE_INFO_TYPE ||
@@ -906,5 +906,5 @@ static void onSLURLBuilt(std::string& slurl)
 	LLSD args;
 	args["SLURL"] = slurl;
 
-	LLNotifications::instance().add("CopySLURL", args);
+	LLNotificationsUtil::add("CopySLURL", args);
 }

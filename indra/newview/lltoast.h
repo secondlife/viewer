@@ -37,7 +37,7 @@
 #include "llpanel.h"
 #include "llmodaldialog.h"
 #include "lltimer.h"
-#include "llnotifications.h"
+#include "llnotificationptr.h"
 
 #include "llviewercontrol.h"
 

@@ -29,7 +29,7 @@
 		1234
 	</line_editor>
 	<text name="currency_est">
-		for ca. US$ [USD]
+		for ca. [LOCALAMOUNT]
 	</text>
 	<text name="getting_data">
 		Henter data...
@@ -63,6 +63,6 @@ og prøv igen.
 	<button label="Annullér" name="cancel_btn" />
 	<button label="Køb" name="buy_btn" />
 	<string name="buy_currency">
-		Køb L$ [LINDENS] for ca. US$ [USD]
+		Køb L$ [LINDENS] for ca. [LOCALAMOUNT]
 	</string>
 </floater>

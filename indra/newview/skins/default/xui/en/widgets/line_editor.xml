@@ -8,6 +8,7 @@
              ignore_tab="true"
              cursor_color="TextCursorColor"
              text_color="TextFgColor"
+			 text_pad_left="2"
              text_readonly_color="TextFgReadOnlyColor"
              text_tentative_color="TextFgTentativeColor"
 			 highlight_color="EmphasisColor"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- border="true"
+ border="false"
  can_close="false"
  can_minimize="false"
  height="100"
