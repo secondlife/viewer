@@ -65,8 +65,10 @@ public:
 											add_landmark_image_disabled,
 											add_landmark_image_hover,
 											add_landmark_image_selected;
-		Optional<S32>						icon_hpad;
+		Optional<S32>						icon_hpad,
+											add_landmark_hpad;
 		Optional<LLButton::Params>			add_landmark_button,
+											for_sale_button,
 											info_button;
 		Optional<LLIconCtrl::Params>		voice_icon,
 											fly_icon,
@@ -130,6 +132,7 @@ private:
 	void					onLocationPrearrange(const LLSD& data);
 	void 					onTextEditorRightClicked(S32 x, S32 y, MASK mask);
 	void					onLandmarkLoaded(LLLandmark* lm);
+	void					onForSaleButtonClicked();
 	void					onAddLandmarkButtonClicked();
 	void					onAgentParcelChange();
 	// callbacks
@@ -138,8 +141,10 @@ private:
 
 	LLMenuGL*				mLocationContextMenu;
 	LLButton*				mAddLandmarkBtn;
+	LLButton*				mForSaleBtn;
 	LLButton*				mInfoBtn;
-	S32						mIconHPad;
+	S32						mIconHPad;			// pad between all icons
+	S32						mAddLandmarkHPad;	// pad to left of landmark star
 	
 	enum EParcelIcon
 	{

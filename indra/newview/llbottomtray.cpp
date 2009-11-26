@@ -40,6 +40,7 @@
 #include "llimfloater.h" // for LLIMFloater
 #include "lllayoutstack.h"
 #include "llnearbychatbar.h"
+#include "llnotificationsutil.h"
 #include "llspeakbutton.h"
 #include "llsplitbutton.h"
 #include "llsyswellwindow.h"
@@ -941,7 +942,7 @@ void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type
 	{
 		// mark this button to show it while future bottom tray extending
 		mResizeState |= shown_object_type;
-		LLNotifications::instance().add("BottomTrayButtonCanNotBeShown");
+		LLNotificationsUtil::add("BottomTrayButtonCanNotBeShown");
 	}
 }
 

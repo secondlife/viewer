@@ -29,7 +29,7 @@
 		1234
 	</line_editor>
 	<text name="currency_est" left_delta="80">
-		voor ong. US$ [USD]
+		voor ong. [LOCALAMOUNT]
 	</text>
 	<text name="getting_data">
 		Data ophalen…
@@ -63,6 +63,6 @@ Verhoog de hoeveelheid die gekocht moet worden.
 	<button label="Annuleren" name="cancel_btn"/>
 	<button label="Kopen" name="buy_btn"/>
 	<string name="buy_currency">
-		Koop L$ [LINDENS] voor ong. US$ [USD]
+		Koop L$ [LINDENS] voor ong. [LOCALAMOUNT]
 	</string>
 </floater>

@@ -34,6 +34,7 @@
 
 #include "lleventnotifier.h"
 
+#include "llnotificationsutil.h"
 #include "message.h"
 
 #include "llnotify.h"
@@ -81,7 +82,7 @@ void LLEventNotifier::update()
 				LLSD args;
 				args["NAME"] = np->getEventName();
 				args["DATE"] = np->getEventDateStr();
-				LLNotifications::instance().add("EventNotification", args, LLSD(),
+				LLNotificationsUtil::add("EventNotification", args, LLSD(),
 					boost::bind(&LLEventNotification::handleResponse, np, _1, _2));
 				mEventNotifications.erase(iter++);
 			}
@@ -185,7 +186,7 @@ LLEventNotification::~LLEventNotification()
 
 bool LLEventNotification::handleResponse(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch (option)
 	{
 	case 0:

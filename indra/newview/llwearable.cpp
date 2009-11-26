@@ -36,6 +36,7 @@
 #include "llagentwearables.h"
 #include "llfloatercustomize.h"
 #include "lllocaltextureobject.h"
+#include "llnotificationsutil.h"
 #include "llviewertexturelist.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
@@ -420,18 +421,6 @@ BOOL LLWearable::importFile( LLFILE* file )
 
 	// copy all saved param values to working params
 	revertValues();
-
-	// Hack pt 2. If the wearable we just loaded has definition version 24,
-	// then force a re-save of this wearable after slamming the version number to 22.
-	// This number was incorrectly incremented for internal builds before release, and
-	// this fix will ensure that the affected wearables are re-saved with the right version number.
-	// the versions themselves are compatible. This code can be removed before release.
-	if( mDefinitionVersion == 24 )
-	{
-		mDefinitionVersion = 22;
-		U32 index = gAgentWearables.getWearableIndex(this);
-		gAgentWearables.saveWearable(mType,index,TRUE);
-	}
 
 	return TRUE;
 }
@@ -1134,7 +1123,7 @@ void LLWearable::saveNewAsset() const
 		
 		LLSD args;
 		args["NAME"] = mName;
-		LLNotifications::instance().add("CannotSaveWearableOutOfSpace", args);
+		LLNotificationsUtil::add("CannotSaveWearableOutOfSpace", args);
 		return;
 	}
 
@@ -1182,7 +1171,7 @@ void LLWearable::onSaveNewAssetComplete(const LLUUID& new_asset_id, void* userda
 		llwarns << buffer << " Status: " << status << llendl;
 		LLSD args;
 		args["NAME"] = type_name;
-		LLNotifications::instance().add("CannotSaveToAssetStore", args);
+		LLNotificationsUtil::add("CannotSaveToAssetStore", args);
 	}
 
 	// Delete temp file

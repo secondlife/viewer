@@ -52,6 +52,7 @@
 #include "llmediaentry.h"
 #include "llmediactrl.h"
 #include "llmenugl.h"
+#include "llnotificationsutil.h"
 #include "llpanelcontents.h"
 #include "llpanelface.h"
 #include "llpanelland.h"
@@ -564,7 +565,8 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 
 	mBtnEdit	->setToggleState( edit_visible );
 	mRadioGroupEdit->setVisible( edit_visible );
-	childSetVisible("RenderingCost", edit_visible || focus_visible || move_visible);
+	bool linked_parts = gSavedSettings.getBOOL("EditLinkedParts");
+	childSetVisible("RenderingCost", !linked_parts && (edit_visible || focus_visible || move_visible));
 
 	if (mCheckSelectIndividual)
 	{
@@ -976,6 +978,8 @@ void LLFloaterTools::onClickGridOptions()
 S32 LLFloaterTools::calcRenderCost()
 {
 	S32 cost = 0;
+	std::set<LLUUID> textures;
+
 	for (LLObjectSelection::iterator selection_iter = LLSelectMgr::getInstance()->getSelection()->begin();
 		  selection_iter != LLSelectMgr::getInstance()->getSelection()->end();
 		  ++selection_iter)
@@ -986,10 +990,13 @@ S32 LLFloaterTools::calcRenderCost()
 			LLVOVolume *viewer_volume = (LLVOVolume*)select_node->getObject();
 			if (viewer_volume)
 			{
-				cost += viewer_volume->getRenderCost();
+				cost += viewer_volume->getRenderCost(textures);
+				cost += textures.size() * 5;
+				textures.clear();
 			}
 		}
 	}
+
 
 	return cost;
 }
@@ -1277,7 +1284,7 @@ void LLFloaterTools::onClickBtnAddMedia()
 	LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
 	if((tool != LLToolFace::getInstance()) || LLSelectMgr::getInstance()->getSelection()->isMultipleTESelected())
 	{
-		LLNotifications::instance().add("MultipleFacesSelected",LLSD(), LLSD(), multipleFacesSelectedConfirm);
+		LLNotificationsUtil::add("MultipleFacesSelected",LLSD(), LLSD(), multipleFacesSelectedConfirm);
 		
 	}
 	else
@@ -1290,7 +1297,7 @@ void LLFloaterTools::onClickBtnAddMedia()
 // static
 bool LLFloaterTools::multipleFacesSelectedConfirm(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch( option )
 	{
 		case 0:  // "Yes"
@@ -1316,14 +1323,14 @@ void LLFloaterTools::onClickBtnEditMedia()
 // called when a user wants to delete media from a prim or prim face
 void LLFloaterTools::onClickBtnDeleteMedia()
 {
-	LLNotifications::instance().add("DeleteMedia", LLSD(), LLSD(), deleteMediaConfirm);
+	LLNotificationsUtil::add("DeleteMedia", LLSD(), LLSD(), deleteMediaConfirm);
 }
 
 
 // static
 bool LLFloaterTools::deleteMediaConfirm(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch( option )
 	{
 		case 0:  // "Yes"

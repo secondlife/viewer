@@ -40,6 +40,7 @@
 #include "llcombobox.h"
 #include "lldateutil.h"			// ageFromDate()
 #include "llimview.h"
+#include "llnotificationsutil.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
 #include "lltoggleablemenu.h"
@@ -340,6 +341,7 @@ BOOL LLPanelAvatarProfile::postBuild()
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	registrar.add("Profile.Pay",  boost::bind(&LLPanelAvatarProfile::pay, this));
+	registrar.add("Profile.Share", boost::bind(&LLPanelAvatarProfile::share, this));
 
 	mProfileMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
@@ -535,6 +537,11 @@ void LLPanelAvatarProfile::pay()
 	LLAvatarActions::pay(getAvatarId());
 }
 
+void LLPanelAvatarProfile::share()
+{
+	LLAvatarActions::share(getAvatarId());
+}
+
 void LLPanelAvatarProfile::onUrlTextboxClicked(const std::string& url)
 {
 	LLWeb::loadURL(url);
@@ -678,7 +685,7 @@ void LLPanelMyProfile::onStatusChanged()
 	{
 		gAgent.clearAFK();
 		gAgent.setBusy();
-		LLNotifications::instance().add("BusyModeSet");
+		LLNotificationsUtil::add("BusyModeSet");
 	}
 }
 

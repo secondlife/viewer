@@ -490,6 +490,9 @@ with the same filename but different name
   <texture name="Stepper_Up_Off" file_name="widgets/Stepper_Up_Off.png" preload="true" />
   <texture name="Stepper_Up_Press" file_name="widgets/Stepper_Up_Press.png" preload="true" />
 
+  <texture name="Stop_Off" file_name="icons/Stop_Off.png" preload="false" />
+  <texture name="Stop_Over" file_name="icons/Stop_Over.png" preload="false" />
+  <texture name="Stop_Press" file_name="icons/Stop_Press.png" preload="false" />
   <texture name="StopReload_Off" file_name="icons/StopReload_Off.png" preload="false" />
   <texture name="StopReload_Over" file_name="icons/StopReload_Over.png" preload="false" />
   <texture name="StopReload_Press" file_name="icons/StopReload_Press.png" preload="false" />
@@ -607,6 +610,15 @@ with the same filename but different name
   <texture name="Zoom_Off" file_name="icons/Zoom_Off.png" preload="false" />
   <texture name="Zoom_Over" file_name="icons/Zoom_Over.png" preload="false" />
   <texture name="Zoom_Press" file_name="icons/Zoom_Press.png" preload="false" />
+  <texture name="UnZoom_Off" file_name="icons/UnZoom_Off.png" preload="false" />
+  <texture name="UnZoom_Over" file_name="icons/UnZoom_Over.png" preload="false" />
+  <texture name="UnZoom_Press" file_name="icons/UnZoom_Press.png" preload="false" />
+  <texture name="PowerOn_Off" file_name="icons/PowerOn_Off.png" preload="false" />
+  <texture name="PowerOn_Over" file_name="icons/PowerOn_Over.png" preload="false" />
+  <texture name="PowerOn_Press" file_name="icons/PowerOn_Press.png" preload="false" />
+  <texture name="PowerOff_Off" file_name="icons/PowerOff_Off.png" preload="false" />
+  <texture name="PowerOff_Over" file_name="icons/PowerOff_Over.png" preload="false" />
+  <texture name="PowerOff_Press" file_name="icons/PowerOff_Press.png" preload="false" />
 
   <!--WARNING OLD ART *do not use*-->
 

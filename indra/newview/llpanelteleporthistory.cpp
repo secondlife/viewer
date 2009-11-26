@@ -41,6 +41,7 @@
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llflatlistview.h"
+#include "llnotificationsutil.h"
 #include "lltextbox.h"
 #include "llviewermenu.h"
 #include "llviewerinventory.h"
@@ -748,13 +749,13 @@ void LLTeleportHistoryPanel::onCollapseAllFolders()
 
 void LLTeleportHistoryPanel::onClearTeleportHistory()
 {
-	LLNotifications::instance().add("ConfirmClearTeleportHistory", LLSD(), LLSD(), boost::bind(&LLTeleportHistoryPanel::onClearTeleportHistoryDialog, this, _1, _2));
+	LLNotificationsUtil::add("ConfirmClearTeleportHistory", LLSD(), LLSD(), boost::bind(&LLTeleportHistoryPanel::onClearTeleportHistoryDialog, this, _1, _2));
 }
 
 bool LLTeleportHistoryPanel::onClearTeleportHistoryDialog(const LLSD& notification, const LLSD& response)
 {
 
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if (0 == option)
 	{

@@ -41,6 +41,8 @@
 #include "lldir.h"
 #include "lldispatcher.h"
 #include "llfloaterreg.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llparcel.h"
 #include "lltabcontainer.h"
 #include "message.h"
@@ -310,12 +312,12 @@ BOOL LLPanelClassified::titleIsValid()
 	const std::string& name = mNameEditor->getText();
 	if (name.empty())
 	{
-		LLNotifications::instance().add("BlankClassifiedName");
+		LLNotificationsUtil::add("BlankClassifiedName");
 		return FALSE;
 	}
 	if (!isalnum(name[0]))
 	{
-		LLNotifications::instance().add("ClassifiedMustBeAlphanumeric");
+		LLNotificationsUtil::add("ClassifiedMustBeAlphanumeric");
 		return FALSE;
 	}
 
@@ -334,7 +336,7 @@ void LLPanelClassified::apply()
 
 bool LLPanelClassified::saveCallback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	switch(option)
 	{
@@ -370,7 +372,7 @@ BOOL LLPanelClassified::canClose()
 
 	LLSD args;
 	args["NAME"] = mNameEditor->getText();
-	LLNotifications::instance().add("ClassifiedSave", args, LLSD(), boost::bind(&LLPanelClassified::saveCallback, this, _1, _2));
+	LLNotificationsUtil::add("ClassifiedSave", args, LLSD(), boost::bind(&LLPanelClassified::saveCallback, this, _1, _2));
 	return FALSE;
 }
 
@@ -795,7 +797,7 @@ void LLPanelClassified::onClickUpdate(void* data)
 	if(self->mMatureCombo->getCurrentIndex() == DECLINE_TO_STATE)
 	{
 		// Tell user about it
-		LLNotifications::instance().add("SetClassifiedMature", 
+		LLNotificationsUtil::add("SetClassifiedMature", 
 				LLSD(), 
 				LLSD(), 
 				boost::bind(&LLPanelClassified::confirmMature, self, _1, _2));
@@ -809,7 +811,7 @@ void LLPanelClassified::onClickUpdate(void* data)
 // Callback from a dialog indicating response to mature notification
 bool LLPanelClassified::confirmMature(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	
 	// 0 == Yes
 	// 1 == No
@@ -864,7 +866,7 @@ void LLPanelClassified::callbackGotPriceForListing(S32 option, std::string text,
 		std::string price_text = llformat("%d", MINIMUM_PRICE_FOR_LISTING);
 		args["MIN_PRICE"] = price_text;
 			
-		LLNotifications::instance().add("MinClassifiedPrice", args);
+		LLNotificationsUtil::add("MinClassifiedPrice", args);
 		return;
 	}
 
@@ -874,7 +876,7 @@ void LLPanelClassified::callbackGotPriceForListing(S32 option, std::string text,
 
 	LLSD args;
 	args["AMOUNT"] = llformat("%d", price_for_listing);
-	LLNotifications::instance().add("PublishClassified", args, LLSD(), 
+	LLNotificationsUtil::add("PublishClassified", args, LLSD(), 
 									boost::bind(&LLPanelClassified::confirmPublish, self, _1, _2));
 }
 
@@ -901,7 +903,7 @@ void LLPanelClassified::resetDirty()
 // invoked from callbackConfirmPublish
 bool LLPanelClassified::confirmPublish(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	// Option 0 = publish
 	if (option != 0) return false;
 

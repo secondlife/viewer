@@ -46,6 +46,7 @@
 #include "llbutton.h"
 #include "llfloaterworldmap.h"
 #include "lllineeditor.h"
+#include "llnotificationsutil.h"
 #include "lluiconstants.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"
@@ -401,13 +402,13 @@ void LLPanelPlace::onClickAuction(void* data)
 	LLSD args;
 	args["AUCTION_ID"] = self->mAuctionID;
 
-	LLNotifications::instance().add("GoToAuctionPage", args);
+	LLNotificationsUtil::add("GoToAuctionPage", args);
 }
 /*
 // static
 bool LLPanelPlace::callbackAuctionWebPage(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		std::string url;

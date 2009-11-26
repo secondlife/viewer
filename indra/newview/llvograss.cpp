@@ -38,7 +38,7 @@
 #include "llviewercontrol.h"
 
 #include "llagent.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "lldrawable.h"
 #include "llface.h"
 #include "llsky.h"
@@ -211,7 +211,7 @@ void LLVOGrass::initClass()
 	{
 		LLSD args;
 		args["SPECIES"] = err;
-		LLNotifications::instance().add("ErrorUndefinedGrasses", args);
+		LLNotificationsUtil::add("ErrorUndefinedGrasses", args);
 	}
 
 	for (S32 i = 0; i < GRASS_MAX_BLADES; ++i)

@@ -33,45 +33,9 @@
 
 #include "llfloatertestlistview.h"
 
-// Viewer includes
-#include "lllistview.h"
-
-// Linden library includes
-//#include "lluictrlfactory.h"
-
 LLFloaterTestListView::LLFloaterTestListView(const LLSD& seed)
-:	LLFloater(seed),
-	mListView(NULL)
-{
-	// set up named callback functions for test buttons
-	mCommitCallbackRegistrar.add("TestListView.Test1",
-		boost::bind(&LLFloaterTestListView::onClickTest1, this));
-	mCommitCallbackRegistrar.add("TestListView.Test2",
-		boost::bind(&LLFloaterTestListView::onClickTest2, this));
-}
+:	LLFloater(seed)
+{}
 
 LLFloaterTestListView::~LLFloaterTestListView()
 {}
-
-BOOL LLFloaterTestListView::postBuild()
-{
-	mListView = getChild<LLListView>("test_list_view");
-	// just set a random property
-	mListView->setString("set programmatically");
-	return LLFloater::postBuild();
-}
-
-void LLFloaterTestListView::onListViewChanged()
-{
-	llinfos << "list view changed" << llendl;
-}
-
-void LLFloaterTestListView::onClickTest1()
-{
-	llinfos << "test 1" << llendl;
-}
-
-void LLFloaterTestListView::onClickTest2()
-{
-	llinfos << "test 2" << llendl;
-}

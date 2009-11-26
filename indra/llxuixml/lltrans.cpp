@@ -162,7 +162,7 @@ std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::
 		args["STRING_NAME"] = xml_desc;
 		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;
 
-		//LLNotifications::instance().add("MissingString", args); // *TODO: resurrect
+		//LLNotificationsUtil::add("MissingString", args); // *TODO: resurrect
 		//return xml_desc;
 
 		return "MissingString("+xml_desc+")";
@@ -189,7 +189,7 @@ bool LLTrans::findString(std::string &result, const std::string &xml_desc, const
 		LLSD args;
 		args["STRING_NAME"] = xml_desc;
 		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;
-		//LLNotifications::instance().add("MissingString", args);
+		//LLNotificationsUtil::add("MissingString", args);
 		
 		return false;
 	}

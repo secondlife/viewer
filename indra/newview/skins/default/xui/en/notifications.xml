@@ -3939,6 +3939,18 @@ Would you like to leave Busy Mode before completing this transaction?
 
   <notification
    icon="alertmodal.tga"
+   name="ConfirmDeleteProtectedCategory"
+   type="alertmodal">
+The folder &apos;[FOLDERNAME]&apos; is a system folder. Deleting system folders can cause instability.  Are you sure you want to delete it?
+    <usetemplate
+     ignoretext="Confirm before I delete a system folder"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ConfirmEmptyTrash"
    type="alertmodal">
 Are you sure you want to permanently delete the contents of your Trash?
@@ -5810,13 +5822,6 @@ If you continue to have problems, please visit the [SUPPORT_SITE].
 - Your system memory does not meet the minimum requirements.
   </global>
 
-  <global name="PermYes">
-Yes
-  </global>
-
-  <global name="PermNo">
-No
-  </global>
 <!-- this is alert string from server. the name needs to match entire the server string, and needs to be changed
 	whenever the server string changes -->
    <global name="You can only set your 'Home Location' on your land or at a mainland Infohub.">

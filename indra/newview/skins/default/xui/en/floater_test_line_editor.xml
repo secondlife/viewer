@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- height="400"
+ height="500"
  layout="topleft"
  name="floater_test_line_editor"
  help_topic="floater_test_line_editor"
@@ -61,6 +61,34 @@
    tool_tip="disabled colored line editor"
    width="200">
     Disabled red-text line editor
+  </line_editor>
+  <line_editor
+   height="20"
+   left_delta="0"
+   name="left_pad_editor"
+   text_pad_left="25"
+   top_pad="10"
+   width="200">
+    25 px left text padding
+  </line_editor>
+  <line_editor
+   height="20"
+   left_delta="0"
+   name="left_pad_editor"
+   text_pad_right="75"
+   top_pad="10"
+   width="200">
+    75 px right text padding
+  </line_editor>
+  <line_editor
+   height="20"
+   left_delta="0"
+   name="left_pad_editor"
+   text_pad_left="25"
+   text_pad_right="75"
+   top_pad="10"
+   width="200">
+    25 px left 75 px right text padding
   </line_editor>
   <!-- "search_editor" is a specialized line_editor that shows read-only
        help text until the user clicks in the widget. -->

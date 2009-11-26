@@ -158,8 +158,10 @@ LLLocationInputCtrl::Params::Params()
 	add_landmark_image_disabled("add_landmark_image_disabled"),
 	add_landmark_image_hover("add_landmark_image_hover"),
 	add_landmark_image_selected("add_landmark_image_selected"),
+	add_landmark_hpad("add_landmark_hpad", 0),
 	icon_hpad("icon_hpad", 0),
 	add_landmark_button("add_landmark_button"),
+	for_sale_button("for_sale_button"),
 	info_button("info_button"),
 	voice_icon("voice_icon"),
 	fly_icon("fly_icon"),
@@ -174,9 +176,11 @@ LLLocationInputCtrl::Params::Params()
 LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 :	LLComboBox(p),
 	mIconHPad(p.icon_hpad),
-	mInfoBtn(NULL),
+	mAddLandmarkHPad(p.add_landmark_hpad),
 	mLocationContextMenu(NULL),
 	mAddLandmarkBtn(NULL),
+	mForSaleBtn(NULL),
+	mInfoBtn(NULL),
 	mLandmarkImageOn(NULL),
 	mLandmarkImageOff(NULL)
 {
@@ -237,6 +241,13 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mAddLandmarkBtn = LLUICtrlFactory::create<LLButton>(al_params);
 	enableAddLandmarkButton(true);
 	addChild(mAddLandmarkBtn);
+	
+	LLButton::Params for_sale_button = p.for_sale_button;
+	for_sale_button.click_callback.function(
+		boost::bind(&LLLocationInputCtrl::onForSaleButtonClicked, this));
+	mForSaleBtn = LLUICtrlFactory::create<LLButton>( for_sale_button );
+	// *TODO: Make clickable?
+	addChild(mForSaleBtn);
 
 	// Parcel property icons
 	LLIconCtrl::Params voice_icon = p.voice_icon;
@@ -465,6 +476,11 @@ void LLLocationInputCtrl::onInfoButtonClicked()
 	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "agent"));
 }
 
+void LLLocationInputCtrl::onForSaleButtonClicked()
+{
+	handle_buy_land();
+}
+
 void LLLocationInputCtrl::onAddLandmarkButtonClicked()
 {
 	LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
@@ -605,6 +621,20 @@ void LLLocationInputCtrl::refreshLocation()
 	setText(location_name);
 }
 
+// returns new right edge
+static S32 layout_widget(LLUICtrl* widget, S32 right)
+{
+	if (widget->getVisible())
+	{
+		LLRect rect = widget->getRect();
+		rect.mLeft = right - rect.getWidth();
+		rect.mRight = right;
+		widget->setRect( rect );
+		right -= rect.getWidth();
+	}
+	return right;
+}
+
 void LLLocationInputCtrl::refreshParcelIcons()
 {
 	// Our "cursor" moving right to left
@@ -614,8 +644,7 @@ void LLLocationInputCtrl::refreshParcelIcons()
 	if (show_properties)
 	{
 		LLViewerParcelMgr* vpm = LLViewerParcelMgr::getInstance();
-		// *TODO buy
-		//bool allow_buy      = vpm->canAgentBuyParcel( vpm->getAgentParcel(), false);
+		bool allow_buy      = vpm->canAgentBuyParcel( vpm->getAgentParcel(), false);
 		bool allow_voice	= vpm->allowAgentVoice();
 		bool allow_fly		= vpm->allowAgentFly();
 		bool allow_push		= vpm->allowAgentPush();
@@ -624,6 +653,7 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		bool allow_damage	= vpm->allowAgentDamage();
 		
 		// Most icons are "block this ability"
+		mForSaleBtn->setVisible(allow_buy);
 		mParcelIcon[VOICE_ICON]->setVisible(   !allow_voice );
 		mParcelIcon[FLY_ICON]->setVisible(     !allow_fly );
 		mParcelIcon[PUSH_ICON]->setVisible(    !allow_push );
@@ -632,28 +662,22 @@ void LLLocationInputCtrl::refreshParcelIcons()
 		mParcelIcon[DAMAGE_ICON]->setVisible(  allow_damage );
 		mDamageText->setVisible(allow_damage);
 		
-		// Slide the parcel icons rect from right to left, adjusting rectangles of
-		// visible icons.  Assumes all icon rects are the same.
+		x = layout_widget(mForSaleBtn, x);
+		// Padding goes to left of both landmark star and for sale btn
+		x -= mAddLandmarkHPad;
+		
+		// Slide the parcel icons rect from right to left, adjusting rectangles
 		for (S32 i = 0; i < ICON_COUNT; ++i)
 		{
-			LLIconCtrl* icon = mParcelIcon[i];
-			if (icon->getVisible())
-			{
-				LLRect r = icon->getRect();
-				r.mLeft = x - r.getWidth();
-				r.mRight = x;
-				icon->setRect( r );
-				x -= r.getWidth() + mIconHPad;
-			}
+			x = layout_widget(mParcelIcon[i], x);
+			x -= mIconHPad;
 		}
-		LLRect text_rect = mDamageText->getRect();
-		text_rect.mLeft = x - text_rect.getWidth();
-		text_rect.mRight = x;
-		mDamageText->setRect(text_rect);
-		x -= text_rect.getWidth() + mIconHPad;
+		x = layout_widget(mDamageText, x);
+		x -= mIconHPad;
 	}
 	else
 	{
+		mForSaleBtn->setVisible(false);
 		for (S32 i = 0; i < ICON_COUNT; ++i)
 		{
 			mParcelIcon[i]->setVisible(false);
@@ -664,8 +688,6 @@ void LLLocationInputCtrl::refreshParcelIcons()
 	S32 left_pad, right_pad;
 	mTextEntry->getTextPadding(&left_pad, &right_pad);
 	right_pad = mTextEntry->getRect().mRight - x;
-	llinfos << "JAMESDEBUG text entry rect " << mTextEntry->getRect()
-	<< " x " << x << " left_pad " << left_pad << " right_pad " << right_pad << llendl;
 	mTextEntry->setTextPadding(left_pad, right_pad);
 }
 

@@ -42,6 +42,7 @@
 #include "lliconctrl.h"
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
+#include "llnotificationsutil.h"
 #include "llnotify.h"
 #include "llpanelgrouproles.h"
 #include "llscrolllistctrl.h"
@@ -231,7 +232,7 @@ BOOL LLPanelGroupRoles::attemptTransition()
 		LLSD args;
 		args["NEEDS_APPLY_MESSAGE"] = mesg;
 		args["WANT_APPLY_MESSAGE"] = mWantApplyMesg;
-		LLNotifications::instance().add("PanelGroupApply", args, LLSD(),
+		LLNotificationsUtil::add("PanelGroupApply", args, LLSD(),
 			boost::bind(&LLPanelGroupRoles::handleNotifyCallback, this, _1, _2));
 		mHasModal = TRUE;
 		// We need to reselect the current tab, since it isn't finished.
@@ -275,7 +276,7 @@ void LLPanelGroupRoles::transitionToTab()
 
 bool LLPanelGroupRoles::handleNotifyCallback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	mHasModal = FALSE;
 	switch (option)
 	{
@@ -291,7 +292,7 @@ bool LLPanelGroupRoles::handleNotifyCallback(const LLSD& notification, const LLS
 				mHasModal = TRUE;
 				LLSD args;
 				args["MESSAGE"] = apply_mesg;
-				LLNotifications::instance().add("GenericAlert", args, LLSD(), boost::bind(&LLPanelGroupRoles::onModalClose, this, _1, _2));
+				LLNotificationsUtil::add("GenericAlert", args, LLSD(), boost::bind(&LLPanelGroupRoles::onModalClose, this, _1, _2));
 			}
 			// Skip switching tabs.
 			break;
@@ -1279,7 +1280,7 @@ bool LLPanelGroupMembersSubTab::apply(std::string& mesg)
 			{
 				mHasModal = TRUE;
 				args["ROLE_NAME"] = rd.mRoleName;
-				LLNotifications::instance().add("AddGroupOwnerWarning",
+				LLNotificationsUtil::add("AddGroupOwnerWarning",
 										args,
 										LLSD(),
 										boost::bind(&LLPanelGroupMembersSubTab::addOwnerCB, this, _1, _2));
@@ -1304,7 +1305,7 @@ bool LLPanelGroupMembersSubTab::apply(std::string& mesg)
 
 bool LLPanelGroupMembersSubTab::addOwnerCB(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	mHasModal = FALSE;
 
 	if (0 == option)
@@ -2128,7 +2129,7 @@ void LLPanelGroupRolesSubTab::handleActionCheck(LLUICtrl* ctrl, bool force)
 				{
 					warning = "AssignDangerousAbilityWarning";
 				}
-				LLNotifications::instance().add(warning, args, LLSD(), boost::bind(&LLPanelGroupRolesSubTab::addActionCB, this, _1, _2, check));
+				LLNotificationsUtil::add(warning, args, LLSD(), boost::bind(&LLPanelGroupRolesSubTab::addActionCB, this, _1, _2, check));
 			}
 			else
 			{
@@ -2156,7 +2157,7 @@ bool LLPanelGroupRolesSubTab::addActionCB(const LLSD& notification, const LLSD& 
 
 	mHasModal = FALSE;
 
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		// User clicked "Yes"
@@ -2302,7 +2303,7 @@ void LLPanelGroupRolesSubTab::handleDeleteRole()
 	{
 		LLSD args;
 		args["MESSAGE"] = mRemoveEveryoneTxt;
-		LLNotifications::instance().add("GenericAlert", args);
+		LLNotificationsUtil::add("GenericAlert", args);
 		return;
 	}
 
