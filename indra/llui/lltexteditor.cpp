@@ -2158,7 +2158,7 @@ void LLTextEditor::drawLineNumbers()
 		return;
 	}
 	
-	S32 cursor_line = getLineNumFromDocIndex(mCursorPos);
+	S32 cursor_line = mLineInfoList[getLineNumFromDocIndex(mCursorPos)].mLineNum;
 
 	if (mShowLineNumbers)
 	{

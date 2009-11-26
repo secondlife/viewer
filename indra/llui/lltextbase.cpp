@@ -1180,6 +1180,10 @@ void LLTextBase::reflow(S32 start_index)
 				++seg_iter;
 				seg_offset = 0;
 			}
+			if (force_newline) 
+			{
+				line_count++;
+			}
 		}
 
 		// calculate visible region for diplaying text
