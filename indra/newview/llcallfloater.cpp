@@ -63,7 +63,7 @@ BOOL LLCallFloater::postBuild()
 	mAvatarList = getChild<LLAvatarList>("speakers_list");
 
 	mSpeakerManager = LLLocalSpeakerMgr::getInstance();
-	mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList);
+	mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, false);
 
 	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_panel");
 

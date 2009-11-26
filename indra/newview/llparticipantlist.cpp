@@ -47,7 +47,7 @@
 #if LL_MSVC
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
-LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list):
+LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list,  bool use_context_menu/* = true*/):
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),
 	mSortOrder(E_SORT_BY_NAME)
@@ -68,8 +68,11 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
     // Set onAvatarListDoubleClicked as default on_return action.
 	mAvatarList->setReturnCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
 
-	mParticipantListMenu = new LLParticipantListMenu(*this);
-	mAvatarList->setContextMenu(mParticipantListMenu);
+	if (use_context_menu)
+	{
+		mParticipantListMenu = new LLParticipantListMenu(*this);
+		mAvatarList->setContextMenu(mParticipantListMenu);
+	}
 
 	//Lets fill avatarList with existing speakers
 	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
