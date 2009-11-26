@@ -48,7 +48,7 @@
                height="500"
                layout="topleft"
                mouse_opaque="false"
-               name="main_view"
+               name="non_side_tray_view"
                user_resize="true"
                width="500">
           <view bottom="500"
@@ -108,15 +108,25 @@
                       visible="false"
                       width="333"/>
       </layout_stack>
-      <floater_view follows="all"
+      <panel follows="all"
                     height="500"
                     left="0"
                     mouse_opaque="false"
-                    name="Floater View"
+                    name="floater_view_holder"
                     tab_group="-1"
                     tab_stop="false"
                     top="0"
-                    width="1024"/>
+                    width="1024">
+        <floater_view follows="all"
+                      height="500"
+                      left="0"
+                      mouse_opaque="false"
+                      name="Floater View"
+                      tab_group="-1"
+                      tab_stop="false"
+                      top="0"
+                      width="1024"/>
+      </panel>
       <debug_view follows="all"
                   left="0"
                   top="0"

@@ -379,10 +379,10 @@ void LLTextBase::drawSelectionBackground()
 		
 		// Draw the selection box (we're using a box instead of reversing the colors on the selected text).
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		const LLColor4& color = mReadOnly ? mReadOnlyBgColor.get() : mWriteableBgColor.get();
+		const LLColor4& color = mReadOnly ? mReadOnlyFgColor.get() : mFgColor.get();
 		F32 alpha = hasFocus() ? 0.7f : 0.3f;
 		alpha *= getDrawContext().mAlpha;
-		gGL.color4f( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], alpha );
+		LLColor4 selection_color(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], alpha);
 
 		for (std::vector<LLRect>::iterator rect_it = selection_rects.begin();
 			rect_it != selection_rects.end();
@@ -390,7 +390,7 @@ void LLTextBase::drawSelectionBackground()
 		{
 			LLRect selection_rect = *rect_it;
 			selection_rect.translate(mTextRect.mLeft - content_display_rect.mLeft, mTextRect.mBottom - content_display_rect.mBottom);
-			gl_rect_2d(selection_rect);
+			gl_rect_2d(selection_rect, selection_color);
 		}
 	}
 }
@@ -1080,6 +1080,8 @@ void LLTextBase::reflow(S32 start_index)
 			mScrollIndex = mLineInfoList[first_line].mDocIndexStart;
 		}
 		LLRect first_char_rect = getLocalRectFromDocIndex(mScrollIndex);
+		// subtract off effect of horizontal scrollbar from local position of first char
+		first_char_rect.translate(-mTextRect.mLeft, -mTextRect.mBottom);
 
 		S32 cur_top = 0;
 
@@ -1195,7 +1197,6 @@ void LLTextBase::reflow(S32 start_index)
 		// apply scroll constraints after reflowing text
 		if (!hasMouseCapture() && mScroller)
 		{
-			LLRect visible_content_rect = getVisibleDocumentRect();
 			if (scrolled_to_bottom && mTrackEnd)
 			{
 				// keep bottom of text buffer visible
@@ -1204,18 +1205,16 @@ void LLTextBase::reflow(S32 start_index)
 			else if (hasSelection() && follow_selection)
 			{
 				// keep cursor in same vertical position on screen when selecting text
-				LLRect new_cursor_rect_doc = getLocalRectFromDocIndex(mCursorPos);
-				new_cursor_rect_doc.translate(visible_content_rect.mLeft, visible_content_rect.mBottom);
-				mScroller->scrollToShowRect(new_cursor_rect_doc, old_cursor_rect);
-				//llassert_always(getLocalRectFromDocIndex(mCursorPos).mBottom == old_cursor_rect.mBottom);
+				LLRect new_cursor_rect_doc = getDocRectFromDocIndex(mCursorPos);
+				LLRect old_cursor_rect_scroller = old_cursor_rect;
+				old_cursor_rect.translate(-mTextRect.mLeft, -mTextRect.mBottom);
+				mScroller->scrollToShowRect(new_cursor_rect_doc, old_cursor_rect_scroller);
 			}
 			else
 			{
 				// keep first line of text visible
-				LLRect new_first_char_rect = getLocalRectFromDocIndex(mScrollIndex);
-				new_first_char_rect.translate(visible_content_rect.mLeft, visible_content_rect.mBottom);
+				LLRect new_first_char_rect = getDocRectFromDocIndex(mScrollIndex);
 				mScroller->scrollToShowRect(new_first_char_rect, first_char_rect);
-				//llassert_always(getLocalRectFromDocIndex(mScrollIndex).mBottom == first_char_rect.mBottom);
 			}
 		}
 
@@ -1464,14 +1463,16 @@ void LLTextBase::setText(const LLStringExplicit &utf8str ,const LLStyle::Params&
 	clearSegments();
 //	createDefaultSegment();
 
-	startOfDoc();
 	deselect();
 
 	// append the new text (supports Url linking)
 	std::string text(utf8str);
 	LLStringUtil::removeCRLF(text);
 
+	// appendText modifies mCursorPos...
 	appendText(text, false, input_params);
+	// ...so move cursor to top after appending text
+	startOfDoc();
 
 	onValueChange(0, getLength());
 }
@@ -2065,16 +2066,15 @@ void LLTextBase::updateRects()
 			mContentsRect.unionWith(line_iter->mRect);
 		}
 
-		S32 delta_pos_x = -mContentsRect.mLeft;
 		mContentsRect.mTop += mVPad;
 
 		S32 delta_pos = -mContentsRect.mBottom;
 		// move line segments to fit new document rect
 		for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
 		{
-			it->mRect.translate(delta_pos_x, delta_pos);
+			it->mRect.translate(0, delta_pos);
 		}
-		mContentsRect.translate(delta_pos_x, delta_pos);
+		mContentsRect.translate(0, delta_pos);
 	}
 
 	// update document container dimensions according to text contents
@@ -2281,7 +2281,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 					LLFontGL::LEFT, LLFontGL::TOP, 
 					0, 
 					LLFontGL::NO_SHADOW, 
-					length, rect.mRight, 
+					length, rect.getWidth(), 
 					&right_x, 
 					mEditor.getUseEllipses());
 	}
@@ -2298,7 +2298,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 					LLFontGL::LEFT, LLFontGL::TOP, 
 					0, 
 					mStyle->getShadowType(), 
-					length, rect.mRight, 
+					length, rect.getWidth(), 
 					&right_x, 
 					mEditor.getUseEllipses());
 	}
