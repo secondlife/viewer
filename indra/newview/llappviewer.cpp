@@ -799,13 +799,6 @@ bool LLAppViewer::init()
 	// call all self-registered classes
 	LLInitClassList::instance().fireCallbacks();
 
-	#if LL_LCD_COMPILE
-		// start up an LCD window on a logitech keyboard, if there is one
-		HINSTANCE hInstance = GetModuleHandle(NULL);
-		gLcdScreen = new LLLCD(hInstance);
-		CreateLCDDebugWindows();
-#endif
-
 	LLFolderViewItem::initClass(); // SJB: Needs to happen after initWindow(), not sure why but related to fonts
 		
 	gGLManager.getGLInfo(gDebugInfo);

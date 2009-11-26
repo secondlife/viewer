@@ -7,10 +7,13 @@
   -->
   <speak_button
     follows="left|right" 
+                 image_selected="SegmentedBtn_Left_Selected_Press"
+                 image_unselected="SegmentedBtn_Left_Off"
+		 image_pressed="SegmentedBtn_Left_Selected_Press"
+		 image_pressed_selected="SegmentedBtn_Left_Selected_Press"
     name="left"
     label="Speak"
     label_selected="Speak"
-    font="SansSerifSmall"
     tab_stop="false"
     />
   <show_button
@@ -23,8 +26,11 @@
     bottom="0"
     tab_stop="false"
     is_toggle="true"
-    image_selected="ComboButton_UpSelected"
-    image_unselected="ComboButton_UpOff"
+                 image_selected="SegmentedBtn_Right_Selected_Press"
+                 image_unselected="SegmentedBtn_Right_Off"
+		 image_pressed="SegmentedBtn_Right_Press"
+		 image_pressed_selected="SegmentedBtn_Right_Selected_Press"
+		 image_overlay="Arrow_Small_Up"
     />
   <monitor
     follows="right" 

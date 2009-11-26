@@ -67,6 +67,7 @@ protected:
 	LLMultiSlider(const Params&);
 	friend class LLUICtrlFactory;
 public:
+	virtual ~LLMultiSlider();
 	void			setSliderValue(const std::string& name, F32 value, BOOL from_event = FALSE);
 	F32				getSliderValue(const std::string& name) const;
 
@@ -78,8 +79,8 @@ public:
 	/*virtual*/ void	setValue(const LLSD& value);
 	/*virtual*/ LLSD	getValue() const		{ return mValue; }
 
-	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb ) { return mMouseDownSignal.connect(cb); }
-	boost::signals2::connection setMouseUpCallback(	const commit_signal_t::slot_type& cb )   { return mMouseUpSignal.connect(cb); }
+	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb );
+	boost::signals2::connection setMouseUpCallback(	const commit_signal_t::slot_type& cb );
 
 	bool			findUnusedValue(F32& initVal);
 	const std::string&	addSlider();
@@ -116,8 +117,8 @@ protected:
 	LLUIColor		mDisabledThumbColor;
 	LLUIColor		mTriangleColor;
 	
-	commit_signal_t	mMouseDownSignal;
-	commit_signal_t	mMouseUpSignal;
+	commit_signal_t*	mMouseDownSignal;
+	commit_signal_t*	mMouseUpSignal;
 };
 
 #endif  // LL_MULTI_SLIDER_H

@@ -7722,16 +7722,27 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowCoordinatesOption</key>
+    <key>NavBarShowCoordinates</key>
     <map>
       <key>Comment</key>
-      <string>Show Coordinates in  Location Input Field</string>
+      <string>Show coordinates in navigation bar</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>NavBarShowParcelProperties</key>
+    <map>
+      <key>Comment</key>
+      <string>Show parcel property icons in navigation bar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>ShowCrosshairs</key>
     <map>

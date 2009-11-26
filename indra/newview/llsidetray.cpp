@@ -34,6 +34,7 @@
 
 #include "lltextbox.h"
 
+#include "llagent.h"
 #include "llbottomtray.h"
 #include "llsidetray.h"
 #include "llviewerwindow.h"
@@ -681,7 +682,7 @@ void	LLSideTray::updateSidetrayVisibility()
 	// set visibility of parent container based on collapsed state
 	if (getParent())
 	{
-		getParent()->setVisible(!mCollapsed);
+		getParent()->setVisible(!mCollapsed && !gAgent.cameraMouselook());
 	}
 }
 

@@ -109,7 +109,7 @@ protected:
 	
 public:
 // 	LLPanel(const std::string& name, const LLRect& rect = LLRect(), BOOL bordered = TRUE);
-	/*virtual*/ ~LLPanel() {}
+	/*virtual*/ ~LLPanel();
 
 	// LLView interface
 	/*virtual*/ BOOL 	isPanel() const;
@@ -241,6 +241,8 @@ public:
 	void setXMLFilename(std::string filename) { mXMLFilename = filename; };
 	std::string getXMLFilename() { return mXMLFilename; };
 	
+	boost::signals2::connection setVisibleCallback( const commit_signal_t::slot_type& cb );
+
 protected:
 	// Override to set not found list
 	LLButton*		getDefaultButton() { return mDefaultBtn; }
@@ -249,7 +251,7 @@ protected:
 	EnableCallbackRegistry::ScopedRegistrar mEnableCallbackRegistrar;
 	VisibleCallbackRegistry::ScopedRegistrar mVisibleCallbackRegistrar;
 
-	commit_signal_t mVisibleSignal;		// Called when visibility changes, passes new visibility as LLSD()
+	commit_signal_t* mVisibleSignal;		// Called when visibility changes, passes new visibility as LLSD()
 
 	std::string		mHelpTopic;         // the name of this panel's help topic to display in the Help Viewer
 	

@@ -67,7 +67,10 @@
 #include "llresmgr.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
- 
+
+// Height of the yellow selection highlight posts for land
+const F32 PARCEL_POST_HEIGHT = 0.666f;
+
 BOOL LLAgent::setLookAt(ELookAtType target_type, LLViewerObject *object, LLVector3 position)
 {
 	if(object && object->isAttachment())

@@ -32,19 +32,13 @@
 
 #include "llviewerprecompiledheaders.h" // must be first include
 
+#include "llbutton.h"
+
 #include "llagent.h"
 #include "llbottomtray.h"
-#include "llfloaterreg.h"
-#include "llvoiceclient.h"
-#include "llvoicecontrolpanel.h"
-#include "lltransientfloatermgr.h"
-
-#include "llavatariconctrl.h"
-#include "llbutton.h"
-#include "llpanel.h"
-#include "lltextbox.h"
+#include "llcallfloater.h"
 #include "lloutputmonitorctrl.h"
-#include "llgroupmgr.h"
+#include "lltransientfloatermgr.h"
 
 #include "llspeakbutton.h"
 
@@ -72,7 +66,6 @@ void LLSpeakButton::draw()
 
 LLSpeakButton::LLSpeakButton(const Params& p)
 : LLUICtrl(p)
-, mPrivateCallPanel(NULL)
 , mOutputMonitor(NULL)
 , mSpeakBtn(NULL)
 , mShowBtn(NULL)
@@ -179,9 +172,11 @@ void LLSpeakButton::onClick_ShowBtn()
 {
 	if(!mShowBtn->getToggleState())
 	{
-		mPrivateCallPanel->onClickClose(mPrivateCallPanel);
-		delete mPrivateCallPanel;
-		mPrivateCallPanel = NULL;
+		if (!mPrivateCallPanel.isDead())
+		{
+			LLFloater* instance = mPrivateCallPanel.get();
+			instance->onClickClose(instance);
+		}
 		mShowBtn->setToggleState(FALSE);
 		return;
 	}
@@ -191,25 +186,20 @@ void LLSpeakButton::onClick_ShowBtn()
 
 	localPointToScreen(x, y, &x, &y);
 
-	mPrivateCallPanel = new LLVoiceControlPanel;
-	getRootView()->addChild(mPrivateCallPanel);
+	LLCallFloater* instance = new LLCallFloater;
+	mPrivateCallPanel = instance->getHandle();
 
-	y = LLBottomTray::getInstance()->getRect().getHeight() + mPrivateCallPanel->getRect().getHeight();
+	// *TODO: mantipov: why we are adding this floater to Root View? It is in FloaterView by default
+	getRootView()->addChild(instance);
+
+	y = LLBottomTray::getInstance()->getRect().getHeight() + instance->getRect().getHeight();
 
 	LLRect rect;
-	rect.setLeftTopAndSize(x, y, mPrivateCallPanel->getRect().getWidth(), mPrivateCallPanel->getRect().getHeight());
-	mPrivateCallPanel->setRect(rect);
+	rect.setLeftTopAndSize(x, y, instance->getRect().getWidth(), instance->getRect().getHeight());
+	instance->setRect(rect);
 
-
-	LLAvatarListItem* item = new LLAvatarListItem();
-	item->showLastInteractionTime(false);
-	item->showInfoBtn(true);
-	item->showSpeakingIndicator(true);
-	item->reshape(mPrivateCallPanel->getRect().getWidth(), item->getRect().getHeight(), FALSE);
-
-	mPrivateCallPanel->addItem(item);
-	mPrivateCallPanel->setVisible(TRUE);
-	mPrivateCallPanel->setFrontmost(TRUE);
+	instance->setVisible(TRUE);
+	instance->setFrontmost(TRUE);
 
 	mShowBtn->setToggleState(TRUE);
 }

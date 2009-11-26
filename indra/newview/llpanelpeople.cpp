@@ -479,21 +479,16 @@ void LLPanelPeople::onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LL
 
 	bool expanded = param.asBoolean();
 
+	setAccordionCollapsedByUser(ctrl, !expanded);
 	if(!expanded)
 	{
 		avatar_list->resetSelection();
-
-		setAccordionCollapsedByUser(ctrl, true);
-	}
-	else
-	{
-		setAccordionCollapsedByUser(ctrl, false);
 	}
 }
 
 BOOL LLPanelPeople::postBuild()
 {
-	mVisibleSignal.connect(boost::bind(&LLPanelPeople::onVisibilityChange, this, _2));
+	setVisibleCallback(boost::bind(&LLPanelPeople::onVisibilityChange, this, _2));
 	
 	mFilterEditor = getChild<LLFilterEditor>("filter_input");
 	mFilterEditor->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
@@ -1385,6 +1380,10 @@ bool LLPanelPeople::isAccordionCollapsedByUser(LLUICtrl* acc_tab)
 	}
 
 	LLSD param = acc_tab->getValue();
+	if(!param.has(COLLAPSED_BY_USER))
+	{
+		return false;
+	}
 	return param[COLLAPSED_BY_USER].asBoolean();
 }
 

@@ -147,7 +147,11 @@ LLButton::LLButton(const LLButton::Params& p)
 	mCommitOnReturn(p.commit_on_return),
 	mFadeWhenDisabled(FALSE),
 	mForcePressedState(false),
-	mLastDrawCharsCount(0)
+	mLastDrawCharsCount(0),
+	mMouseDownSignal(NULL),
+	mMouseUpSignal(NULL),
+	mHeldDownSignal(NULL)
+
 {
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
 	static Params default_params(LLUICtrlFactory::getDefaultParams<LLButton>());
@@ -215,13 +219,28 @@ LLButton::LLButton(const LLButton::Params& p)
 	}
 	
 	if (p.click_callback.isProvided())
-		initCommitCallback(p.click_callback, mCommitSignal); // alias -> commit_callback
+	{
+		setCommitCallback(initCommitCallback(p.click_callback)); // alias -> commit_callback
+	}
 	if (p.mouse_down_callback.isProvided())
-		initCommitCallback(p.mouse_down_callback, mMouseDownSignal);
+	{
+		setMouseDownCallback(initCommitCallback(p.mouse_down_callback));
+	}
 	if (p.mouse_up_callback.isProvided())
-		initCommitCallback(p.mouse_up_callback, mMouseUpSignal);
+	{
+		setMouseUpCallback(initCommitCallback(p.mouse_up_callback));
+	}
 	if (p.mouse_held_callback.isProvided())
-		initCommitCallback(p.mouse_held_callback, mHeldDownSignal);
+	{
+		setHeldDownCallback(initCommitCallback(p.mouse_held_callback));
+	}
+}
+
+LLButton::~LLButton()
+{
+	delete mMouseDownSignal;
+	delete mMouseUpSignal;
+	delete mHeldDownSignal;
 }
 
 // HACK: Committing a button is the same as instantly clicking it.
@@ -232,9 +251,9 @@ void LLButton::onCommit()
 	// panel containing it.  Therefore we need to call 	LLUICtrl::onCommit()
 	// LAST, otherwise this becomes deleted memory.
 
-	mMouseDownSignal(this, LLSD());
+	if (mMouseDownSignal) (*mMouseDownSignal)(this, LLSD());
 	
-	mMouseUpSignal(this, LLSD());
+	if (mMouseUpSignal) (*mMouseUpSignal)(this, LLSD());
 
 	if (getSoundFlags() & MOUSE_DOWN)
 	{
@@ -257,19 +276,23 @@ void LLButton::onCommit()
 
 boost::signals2::connection LLButton::setClickedCallback( const commit_signal_t::slot_type& cb )
 {
-	return mCommitSignal.connect(cb);
+	if (!mCommitSignal) mCommitSignal = new commit_signal_t();
+	return mCommitSignal->connect(cb);
 }
 boost::signals2::connection LLButton::setMouseDownCallback( const commit_signal_t::slot_type& cb )
 {
-	return mMouseDownSignal.connect(cb);
+	if (!mMouseDownSignal) mMouseDownSignal = new commit_signal_t();
+	return mMouseDownSignal->connect(cb);
 }
 boost::signals2::connection LLButton::setMouseUpCallback( const commit_signal_t::slot_type& cb )
 {
-	return mMouseUpSignal.connect(cb);
+	if (!mMouseUpSignal) mMouseUpSignal = new commit_signal_t();
+	return mMouseUpSignal->connect(cb);
 }
 boost::signals2::connection LLButton::setHeldDownCallback( const commit_signal_t::slot_type& cb )
 {
-	return mHeldDownSignal.connect(cb);
+	if (!mHeldDownSignal) mHeldDownSignal = new commit_signal_t();
+	return mHeldDownSignal->connect(cb);
 }
 
 
@@ -351,7 +374,7 @@ BOOL LLButton::handleMouseDown(S32 x, S32 y, MASK mask)
 		 */
 		LLUICtrl::handleMouseDown(x, y, mask);
 
-		mMouseDownSignal(this, LLSD());
+		if(mMouseDownSignal) (*mMouseDownSignal)(this, LLSD());
 
 		mMouseDownTimer.start();
 		mMouseDownFrame = (S32) LLFrameTimer::getFrameCount();
@@ -383,7 +406,7 @@ BOOL LLButton::handleMouseUp(S32 x, S32 y, MASK mask)
 		LLUICtrl::handleMouseUp(x, y, mask);
 
 		// Regardless of where mouseup occurs, handle callback
-		mMouseUpSignal(this, LLSD());
+		if(mMouseUpSignal) (*mMouseUpSignal)(this, LLSD());
 
 		resetMouseDownTimer();
 
@@ -493,7 +516,7 @@ BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 			{
 				LLSD param;
 				param["count"] = mMouseHeldDownCount++;
-				mHeldDownSignal(this, param);
+				if (mHeldDownSignal) (*mHeldDownSignal)(this, param);
 			}
 		}
 
