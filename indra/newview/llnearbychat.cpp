@@ -228,13 +228,23 @@ bool	LLNearbyChat::onNearbyChatCheckContextMenuItem(const LLSD& userdata)
 	return false;
 }
 
+void	LLNearbyChat::setVisible(BOOL visible)
+{
+	if(visible)
+	{
+		LLNotificationsUI::LLScreenChannelBase* chat_channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
+		if(chat_channel)
+		{
+			chat_channel->removeToastsFromChannel();
+		}
+	}
+
+	LLDockableFloater::setVisible(visible);
+}
+
 void	LLNearbyChat::onOpen(const LLSD& key )
 {
-	LLNotificationsUI::LLScreenChannelBase* chat_channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
-	if(chat_channel)
-	{
-		chat_channel->removeToastsFromChannel();
-	}
+	LLDockableFloater::onOpen(key);
 }
 
 void LLNearbyChat::setRect	(const LLRect &rect)
