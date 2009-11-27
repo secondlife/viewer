@@ -484,6 +484,8 @@ void LLFlatListView::rearrangeItems()
 void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
 {
 	if (!item_pair) return;
+
+	setFocus(TRUE);
 	
 	bool select_item = !isSelected(item_pair);
 
@@ -653,8 +655,6 @@ bool LLFlatListView::selectItemPair(item_pair_t* item_pair, bool select)
 	{
 		onCommit();
 	}
-
-	setFocus(TRUE);
 
 	// Stretch selected items rect to ensure it won't be clipped
 	mSelectedItemsBorder->setRect(getSelectedItemsRect().stretch(-1));
