@@ -83,7 +83,6 @@
      width="16" />
     <panel
      class="panel_volume_pulldown"
-     filename="panel_volume_pulldown.xml"
      follows="all"
      height="533"
      layout="topleft"

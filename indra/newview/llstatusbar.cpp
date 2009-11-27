@@ -162,7 +162,7 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mBtnVolume = getChild<LLButton>( "volume_btn" );
 	mBtnVolume->setClickedCallback( onClickVolume, this );
 
-	mPanelVolume = getChild<LLPanel>( "volume_pulldown" );
+	mPanelVolume = getChild<LLPanelVolumePulldown>( "volume_pulldown" );
 
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 

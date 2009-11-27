@@ -47,6 +47,7 @@ class LLUICtrl;
 class LLUUID;
 class LLFrameTimer;
 class LLStatGraph;
+class LLPanelVolumePulldown;
 
 class LLStatusBar
 :	public LLPanel
@@ -86,7 +87,7 @@ public:
 	S32 getSquareMetersCommitted() const;
 	S32 getSquareMetersLeft() const;
 
-	LLPanel         *mPanelVolume;	
+	LLPanelVolumePulldown         *mPanelVolume;	
 
 private:
 	// simple method to setup the part that holds the date
