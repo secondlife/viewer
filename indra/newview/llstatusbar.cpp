@@ -530,6 +530,7 @@ static void onClickVolume(void* data)
 	sb->mPanelVolume->setVisible(TRUE);
 	sb->mPanelVolume->setEnabled(TRUE);
 	sb->addChild(sb->mPanelVolume);
+	sb->mPanelVolume->getParent()->sendChildToFront(sb->mPanelVolume);
 	gFocusMgr.setTopCtrl(sb->mPanelVolume);
 	// also set focus explicitly to mpanelvolume
 }
