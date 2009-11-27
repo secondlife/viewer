@@ -516,10 +516,10 @@ static void onClickVolume(void* data)
 	
 	// toggle the master volume pull-down
 
+#if 1
 	//LLFloater* vp =
 	LLFloaterReg::showInstance("volume_pulldown"); //tmp
-
-#if 0
+#else
 	//LLPanelVolumePulldown *foo=
 		//new LLPanelVolumePulldown();
 	//LLPanel* container = getRootView();//->getChild<LLPanel>("nav_bar_container");
