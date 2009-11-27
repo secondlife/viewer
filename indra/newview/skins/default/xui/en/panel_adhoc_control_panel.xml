@@ -48,7 +48,6 @@
          visible="false"
          width="100" />
         <button
-         enabled="false"
          follows="all"
          bottom="10"
          height="20"
