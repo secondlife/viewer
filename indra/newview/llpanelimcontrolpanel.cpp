@@ -60,7 +60,7 @@ void LLPanelChatControlPanel::onEndCallButtonClicked()
 
 void LLPanelChatControlPanel::onOpenVoiceControlsClicked()
 {
-	LLFloaterReg::showInstance("voice_controls", getSessionId());
+	LLFloaterReg::showInstance("voice_controls");
 }
 
 void LLPanelChatControlPanel::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)

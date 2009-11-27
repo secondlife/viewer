@@ -73,25 +73,62 @@ BOOL LLCallFloater::postBuild()
 }
 
 // virtual
-void LLCallFloater::onOpen(const LLSD& key)
+void LLCallFloater::onOpen(const LLSD& /*key*/)
 {
-	// by default let show nearby chat participants
-	mSpeakerManager = LLLocalSpeakerMgr::getInstance();
+	updateSession();
+}
 
-	const LLUUID& session_id = key.asUUID();
+//////////////////////////////////////////////////////////////////////////
+/// PRIVATE SECTION
+//////////////////////////////////////////////////////////////////////////
+void LLCallFloater::updateSession()
+{
+	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
+	if (voice_channel)
+	{
+		lldebugs << "Current voice channel: " << voice_channel->getSessionID() << llendl;
+
+		if (mSpeakerManager && voice_channel->getSessionID() == mSpeakerManager->getSessionID())
+		{
+			lldebugs << "Speaker manager is already set for session: " << voice_channel->getSessionID() << llendl;
+			return;
+		}
+		else
+		{
+			mSpeakerManager = NULL;
+		}
+	}
+
+	const LLUUID& session_id = voice_channel->getSessionID();
+	lldebugs << "Set speaker manager for session: " << session_id << llendl;
+
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
 	if (im_session)
 	{
 		mSpeakerManager = LLIMModel::getInstance()->getSpeakerManager(session_id);
 	}
 
-	delete mPaticipants;
-	mAvatarList->clear();
-	mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, false);
+	if (NULL == mSpeakerManager)
+	{
+		setDefaultSession();
+	}
+
+	refreshPartisipantList();
 }
 
-//////////////////////////////////////////////////////////////////////////
-/// PRIVATE SECTION
-//////////////////////////////////////////////////////////////////////////
+void LLCallFloater::setDefaultSession()
+{
+	// by default let show nearby chat participants
+	mSpeakerManager = LLLocalSpeakerMgr::getInstance();
+	lldebugs << "Set DEFAULT speaker manager" << llendl;
+}
 
+void LLCallFloater::refreshPartisipantList()
+{
+	delete mPaticipants;
+	mAvatarList->clear();
+
+	bool is_local_chat_session = LLLocalSpeakerMgr::getInstance() == mSpeakerManager;
+	mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, is_local_chat_session);
+}
 //EOF

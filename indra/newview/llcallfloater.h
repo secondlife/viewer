@@ -60,6 +60,10 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
+private:
+	void updateSession();
+	void setDefaultSession();
+	void refreshPartisipantList();
 
 private:
 	LLSpeakerMgr* mSpeakerManager;
