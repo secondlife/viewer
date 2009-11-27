@@ -1199,7 +1199,7 @@ BOOL LLOutgoingCallDialog::postBuild()
 	childSetAction("Cancel", onCancel, this);
 
 	// dock the dialog to the sys well, where other sys messages appear
-	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getSysWell(),
+	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getChild<LLPanel>("speak_panel"),
 					 this, getDockTongue(), LLDockControl::TOP,
 					 boost::bind(&LLOutgoingCallDialog::getAllowedRect, this, _1)));
 
@@ -1276,7 +1276,7 @@ void LLIncomingCallDialog::onOpen(const LLSD& key)
 	}
 
 	// dock the dialog to the sys well, where other sys messages appear
-	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getSysWell(),
+	setDockControl(new LLDockControl(LLBottomTray::getInstance()->getChild<LLPanel>("speak_panel"),
 									 this, getDockTongue(), LLDockControl::TOP,
 									 boost::bind(&LLIncomingCallDialog::getAllowedRect, this, _1)));
 }
