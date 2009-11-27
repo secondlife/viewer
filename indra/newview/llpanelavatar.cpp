@@ -50,7 +50,7 @@
 #include "llweb.h"
 #include "llfloaterworldmap.h"
 #include "llfloaterreg.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLDropTarget
@@ -203,7 +203,7 @@ void LLPanelAvatarNotes::onCommitNotes()
 void LLPanelAvatarNotes::rightsConfirmationCallback(const LLSD& notification,
 		const LLSD& response, S32 rights)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
 	{
 		LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(
@@ -228,13 +228,13 @@ void LLPanelAvatarNotes::confirmModifyRights(bool grant, S32 rights)
 
 	if (grant)
 	{
-		LLNotifications::instance().add("GrantModifyRights", args, LLSD(),
+		LLNotificationsUtil::add("GrantModifyRights", args, LLSD(),
 				boost::bind(&LLPanelAvatarNotes::rightsConfirmationCallback, this,
 						_1, _2, rights));
 	}
 	else
 	{
-		LLNotifications::instance().add("RevokeModifyRights", args, LLSD(),
+		LLNotificationsUtil::add("RevokeModifyRights", args, LLSD(),
 				boost::bind(&LLPanelAvatarNotes::rightsConfirmationCallback, this,
 						_1, _2, rights));
 	}
