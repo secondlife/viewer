@@ -293,7 +293,12 @@ void LLNearbyChatToastPanel::draw()
 {
 	if(mIsDirty)
 	{
-		getChild<LLAvatarIconCtrl>("avatar_icon", false)->setValue(mFromID);
+		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon", false);
+		if(icon)
+		{
+			icon->setDrawTooltip(mSourceType == CHAT_SOURCE_AGENT);
+			icon->setValue(mFromID);
+		}
 		mIsDirty = false;
 	}
 	LLToastPanelBase::draw();
