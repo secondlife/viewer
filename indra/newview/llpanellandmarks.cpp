@@ -730,10 +730,6 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	{
 		return canSelectedBeModified(command_name);
 	}
-	else if ( "sort_by_date" == command_name)
-	{
-		return  mSortByDate;
-	}
 	else if("create_pick" == command_name)
 	{
 		std::set<LLUUID> selection;
