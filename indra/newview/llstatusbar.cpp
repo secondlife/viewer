@@ -247,7 +247,6 @@ BOOL LLStatusBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLStatusBar::postBuild()
 {
-
 	gMenuBarView->setRightMouseDownCallback(boost::bind(&show_navbar_context_menu, _1, _2, _3));
 
 	return TRUE;
@@ -517,7 +516,10 @@ static void onClickVolume(void* data)
 	
 	// toggle the master volume pull-down
 
-	//LLFloaterReg::showInstance("volume_pulldown"); //tmp
+	//LLFloater* vp =
+	LLFloaterReg::showInstance("volume_pulldown"); //tmp
+
+#if 0
 	//LLPanelVolumePulldown *foo=
 		//new LLPanelVolumePulldown();
 	//LLPanel* container = getRootView();//->getChild<LLPanel>("nav_bar_container");
@@ -530,9 +532,13 @@ static void onClickVolume(void* data)
 	sb->mPanelVolume->setVisible(TRUE);
 	sb->mPanelVolume->setEnabled(TRUE);
 	sb->addChild(sb->mPanelVolume);
+	gFloaterView->addChild(sb->mPanelVolume);
 	sb->mPanelVolume->getParent()->sendChildToFront(sb->mPanelVolume);
 	gFocusMgr.setTopCtrl(sb->mPanelVolume);
 	// also set focus explicitly to mpanelvolume
+
+	//sb->mPanelVolume->setFrontmost()
+#endif
 }
 
 // sets the static variables necessary for the date
