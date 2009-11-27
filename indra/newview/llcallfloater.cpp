@@ -128,7 +128,7 @@ void LLCallFloater::refreshPartisipantList()
 	delete mPaticipants;
 	mAvatarList->clear();
 
-	bool is_local_chat_session = LLLocalSpeakerMgr::getInstance() == mSpeakerManager;
-	mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, is_local_chat_session);
+	bool do_not_use_context_menu_in_local_chat = LLLocalSpeakerMgr::getInstance() != mSpeakerManager;
+	mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, do_not_use_context_menu_in_local_chat);
 }
 //EOF

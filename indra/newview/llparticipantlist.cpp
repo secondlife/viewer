@@ -74,6 +74,10 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 		mParticipantListMenu = new LLParticipantListMenu(*this);
 		mAvatarList->setContextMenu(mParticipantListMenu);
 	}
+	else
+	{
+		mAvatarList->setContextMenu(NULL);
+	}
 
 	//Lets fill avatarList with existing speakers
 	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
