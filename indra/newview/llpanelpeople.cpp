@@ -763,7 +763,13 @@ void LLPanelPeople::updateButtons()
 
 		LLPanel* cur_panel = mTabContainer->getCurrentPanel();
 		if (cur_panel)
+		{
 			cur_panel->childSetEnabled("add_friend_btn", !is_friend);
+			if (friends_tab_active)
+			{
+				cur_panel->childSetEnabled("del_btn", multiple_selected);
+			}
+		}
 	}
 
 	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
