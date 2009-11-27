@@ -45,6 +45,7 @@ using namespace LLNotificationsUI;
 
 static const std::string SCRIPT_DIALOG				("ScriptDialog");
 static const std::string SCRIPT_DIALOG_GROUP		("ScriptDialogGroup");
+static const std::string SCRIPT_LOAD_URL			("LoadWebPage");
 
 //--------------------------------------------------------------------------
 LLScriptHandler::LLScriptHandler(e_notification_type type, const LLSD& id)
@@ -95,7 +96,7 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 	
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
-		if(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName())
+		if(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName() || SCRIPT_LOAD_URL == notification->getName())
 		{
 			LLScriptFloaterManager::getInstance()->onAddNotification(notification->getID());
 		}
@@ -121,7 +122,7 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 	}
 	else if (notify["sigtype"].asString() == "delete")
 	{
-		if(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName())
+		if(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName() || SCRIPT_LOAD_URL == notification->getName())
 		{
 			LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
 		}
