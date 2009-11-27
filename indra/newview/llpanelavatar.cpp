@@ -50,6 +50,7 @@
 #include "llweb.h"
 #include "llfloaterworldmap.h"
 #include "llfloaterreg.h"
+#include "llnotifications.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLDropTarget
@@ -199,6 +200,46 @@ void LLPanelAvatarNotes::onCommitNotes()
 	LLAvatarPropertiesProcessor::getInstance()-> sendNotes(getAvatarId(),notes);
 }
 
+void LLPanelAvatarNotes::rightsConfirmationCallback(const LLSD& notification,
+		const LLSD& response, S32 rights)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	if (option == 0)
+	{
+		LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(
+				getAvatarId(), rights);
+	}
+	else
+	{
+		childSetValue("objects_check",
+				childGetValue("objects_check").asBoolean() ? FALSE : TRUE);
+	}
+}
+
+void LLPanelAvatarNotes::confirmModifyRights(bool grant, S32 rights)
+{
+	std::string first, last;
+	LLSD args;
+	if (gCacheName->getName(getAvatarId(), first, last))
+	{
+		args["FIRST_NAME"] = first;
+		args["LAST_NAME"] = last;
+	}
+
+	if (grant)
+	{
+		LLNotifications::instance().add("GrantModifyRights", args, LLSD(),
+				boost::bind(&LLPanelAvatarNotes::rightsConfirmationCallback, this,
+						_1, _2, rights));
+	}
+	else
+	{
+		LLNotifications::instance().add("RevokeModifyRights", args, LLSD(),
+				boost::bind(&LLPanelAvatarNotes::rightsConfirmationCallback, this,
+						_1, _2, rights));
+	}
+}
+
 void LLPanelAvatarNotes::onCommitRights()
 {
 	S32 rights = 0;
@@ -210,7 +251,14 @@ void LLPanelAvatarNotes::onCommitRights()
 	if(childGetValue("objects_check").asBoolean())
 		rights |= LLRelationship::GRANT_MODIFY_OBJECTS;
 
-	LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(getAvatarId(),rights);
+	const LLRelationship* buddy_relationship =
+			LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
+	bool allow_modify_objects = childGetValue("objects_check").asBoolean();
+	if (buddy_relationship->isRightGrantedTo(
+			LLRelationship::GRANT_MODIFY_OBJECTS) != allow_modify_objects)
+	{
+		confirmModifyRights(allow_modify_objects, rights);
+	}
 }
 
 void LLPanelAvatarNotes::processProperties(void* data, EAvatarProcessorType type)

@@ -260,6 +260,9 @@ protected:
 	 */
 	void fillRightsData();
 
+	void rightsConfirmationCallback(const LLSD& notification,
+			const LLSD& response, S32 rights);
+	void confirmModifyRights(bool grant, S32 rights);
 	void onCommitRights();
 	void onCommitNotes();
 
