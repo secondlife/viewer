@@ -165,6 +165,11 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	{
 		mVoiceChannel = new LLVoiceChannelGroup(session_id, name);
 	}
+
+	if(mVoiceChannel)
+	{
+		mVoiceChannel->setStateChangedCallback(boost::bind(&LLIMSession::onVoiceChannelStateChanged, this, _1, _2));
+	}
 	mSpeakers = new LLIMSpeakerMgr(mVoiceChannel);
 
 	// All participants will be added to the list of people we've recently interacted with.
@@ -189,6 +194,48 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
 	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
 		LLLogChat::loadHistory(mName, &chatFromLogFile, (void *)this);
+}
+
+void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
+{
+	bool is_p2p_session = dynamic_cast<LLVoiceChannelP2P*>(mVoiceChannel);
+	bool is_incoming_call = false;
+	std::string other_avatar_name;
+
+	if(is_p2p_session)
+	{
+		is_incoming_call = static_cast<LLVoiceChannelP2P*>(mVoiceChannel)->isIncomingCall();
+		gCacheName->getFullName(mOtherParticipantID, other_avatar_name);
+
+		if(is_incoming_call)
+		{
+			switch(new_state)
+			{
+			case LLVoiceChannel::STATE_CALL_STARTED :
+				LLIMModel::getInstance()->addMessage(mSessionID, other_avatar_name, mOtherParticipantID, "Started a voice call");
+				break;
+			case LLVoiceChannel::STATE_CONNECTED :
+				LLIMModel::getInstance()->addMessage(mSessionID, "You", gAgent.getID(), "Joined the voice call");
+				break;
+			}
+		}
+		else // outgoing call
+		{
+			switch(new_state)
+			{
+			case LLVoiceChannel::STATE_CALL_STARTED :
+				LLIMModel::getInstance()->addMessage(mSessionID, "You", gAgent.getID(), "Started a voice call");
+				break;
+			case LLVoiceChannel::STATE_CONNECTED :
+				LLIMModel::getInstance()->addMessage(mSessionID, other_avatar_name, mOtherParticipantID, "Joined the voice call");
+				break;
+			}
+		}
+	}
+	else  // group || ad-hoc calls
+	{
+
+	}
 }
 
 LLIMModel::LLIMSession::~LLIMSession()
