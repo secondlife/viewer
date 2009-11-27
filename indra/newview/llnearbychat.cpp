@@ -130,6 +130,21 @@ void    LLNearbyChat::applySavedVariables()
 	}
 }
 
+std::string appendTime()
+{
+	time_t utc_time;
+	utc_time = time_corrected();
+	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
+		+LLTrans::getString("TimeMin")+"] ";
+
+	LLSD substitution;
+
+	substitution["datetime"] = (S32) utc_time;
+	LLStringUtil::format (timeStr, substitution);
+
+	return timeStr;
+}
+
 void	LLNearbyChat::addMessage(const LLChat& chat)
 {
 	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
@@ -150,11 +165,18 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 			return;
 		}
 	}
+
+	bool use_plain_text_chat_history = gSavedSettings.getBOOL("PlainTextChatHistory");
 	
 	if (!chat.mMuted)
 	{
 		std::string message = chat.mText;
-		std::string prefix = message.substr(0, 4);
+
+
+		LLChat& tmp_chat = const_cast<LLChat&>(chat);
+
+		if(tmp_chat.mTimeStr.empty())
+			tmp_chat.mTimeStr = appendTime();
 		
 		if (chat.mChatStyle == CHAT_STYLE_IRC)
 		{
@@ -173,7 +195,7 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 				append_style_params.font.style = "ITALIC";
 				LLChat add_chat=chat;
 				add_chat.mText = chat.mFromName + " ";
-				mChatHistory->appendMessage(add_chat, false, append_style_params);
+				mChatHistory->appendMessage(add_chat, use_plain_text_chat_history, append_style_params);
 			}
 			
 			message = message.substr(3);
@@ -182,7 +204,7 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 		}
 		else
 		{
-			mChatHistory->appendMessage(chat);
+			mChatHistory->appendMessage(chat,use_plain_text_chat_history);
 		}
 	}
 }
