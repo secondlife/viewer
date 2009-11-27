@@ -153,6 +153,13 @@ void LLAvatarList::draw()
 	}
 }
 
+//virtual
+void LLAvatarList::clear()
+{
+	getIDs().clear();
+	setDirty(true);
+}
+
 void LLAvatarList::setNameFilter(const std::string& filter)
 {
 	if (mNameFilter != filter)

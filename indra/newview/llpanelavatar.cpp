@@ -48,6 +48,8 @@
 #include "llscrollcontainer.h"
 #include "llavatariconctrl.h"
 #include "llweb.h"
+#include "llfloaterworldmap.h"
+#include "llfloaterreg.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLDropTarget
@@ -150,6 +152,8 @@ BOOL LLPanelAvatarNotes::postBuild()
 	childSetCommitCallback("call", boost::bind(&LLPanelAvatarNotes::onCallButtonClick, this), NULL);
 	childSetCommitCallback("teleport", boost::bind(&LLPanelAvatarNotes::onTeleportButtonClick, this), NULL);
 	childSetCommitCallback("share", boost::bind(&LLPanelAvatarNotes::onShareButtonClick, this), NULL);
+	childSetCommitCallback("show_on_map_btn", (boost::bind(
+				&LLPanelAvatarNotes::onMapButtonClick, this)), NULL);
 
 	LLTextEditor* te = getChild<LLTextEditor>("notes_edit");
 	te->setCommitCallback(boost::bind(&LLPanelAvatarNotes::onCommitNotes,this));
@@ -311,6 +315,7 @@ void LLPanelProfileTab::onOpen(const LLSD& key)
 	// Update data even if we are viewing same avatar profile as some data might been changed.
 	setAvatarId(key.asUUID());
 	updateData();
+	updateButtons();
 }
 
 void LLPanelProfileTab::scrollToTop()
@@ -318,6 +323,22 @@ void LLPanelProfileTab::scrollToTop()
 	LLScrollContainer* scrollContainer = findChild<LLScrollContainer>("profile_scroll");
 	if (scrollContainer)
 		scrollContainer->goToTop();
+}
+
+void LLPanelProfileTab::onMapButtonClick()
+{
+	std::string name;
+	gCacheName->getFullName(getAvatarId(), name);
+	gFloaterWorldMap->trackAvatar(getAvatarId(), name);
+	LLFloaterReg::showInstance("world_map");
+}
+
+void LLPanelProfileTab::updateButtons()
+{
+	bool enable_map_btn = LLAvatarTracker::instance().isBuddyOnline(getAvatarId())
+					&& gAgent.isGodlike() || is_agent_mappable(getAvatarId());
+
+	childSetEnabled("show_on_map_btn", enable_map_btn);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -338,6 +359,8 @@ BOOL LLPanelAvatarProfile::postBuild()
 	childSetCommitCallback("teleport",(boost::bind(&LLPanelAvatarProfile::onTeleportButtonClick,this)),NULL);
 	childSetCommitCallback("overflow_btn", boost::bind(&LLPanelAvatarProfile::onOverflowButtonClicked, this), NULL);
 	childSetCommitCallback("share",(boost::bind(&LLPanelAvatarProfile::onShareButtonClick,this)),NULL);
+	childSetCommitCallback("show_on_map_btn", (boost::bind(
+			&LLPanelAvatarProfile::onMapButtonClick, this)), NULL);
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	registrar.add("Profile.Pay",  boost::bind(&LLPanelAvatarProfile::pay, this));

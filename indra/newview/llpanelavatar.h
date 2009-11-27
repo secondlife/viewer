@@ -106,6 +106,10 @@ protected:
 	 */
 	void scrollToTop();
 
+	virtual void onMapButtonClick();
+
+	virtual void updateButtons();
+
 private:
 
 	LLUUID mAvatarId;

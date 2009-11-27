@@ -62,8 +62,6 @@ BOOL LLCallFloater::postBuild()
 	LLDockableFloater::postBuild();
 	mAvatarList = getChild<LLAvatarList>("speakers_list");
 
-	mSpeakerManager = LLLocalSpeakerMgr::getInstance();
-	mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, false);
 
 	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_panel");
 
@@ -73,4 +71,27 @@ BOOL LLCallFloater::postBuild()
 
 	return TRUE;
 }
+
+// virtual
+void LLCallFloater::onOpen(const LLSD& key)
+{
+	// by default let show nearby chat participants
+	mSpeakerManager = LLLocalSpeakerMgr::getInstance();
+
+	const LLUUID& session_id = key.asUUID();
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (im_session)
+	{
+		mSpeakerManager = LLIMModel::getInstance()->getSpeakerManager(session_id);
+	}
+
+	delete mPaticipants;
+	mAvatarList->clear();
+	mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, false);
+}
+
+//////////////////////////////////////////////////////////////////////////
+/// PRIVATE SECTION
+//////////////////////////////////////////////////////////////////////////
+
 //EOF
