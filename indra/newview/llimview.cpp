@@ -216,6 +216,7 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 				break;
 			case LLVoiceChannel::STATE_CONNECTED :
 				LLIMModel::getInstance()->addMessage(mSessionID, "You", gAgent.getID(), "Joined the voice call");
+			default:
 				break;
 			}
 		}
@@ -228,6 +229,7 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 				break;
 			case LLVoiceChannel::STATE_CONNECTED :
 				LLIMModel::getInstance()->addMessage(mSessionID, other_avatar_name, mOtherParticipantID, "Joined the voice call");
+			default:
 				break;
 			}
 		}
