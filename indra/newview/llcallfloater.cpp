@@ -69,13 +69,17 @@ BOOL LLCallFloater::postBuild()
 		anchor_panel, this,
 		getDockTongue(), LLDockControl::TOP));
 
+	// update list for current session
+	updateSession();
+
+	// subscribe to to be notified Voice Channel is changed
+	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::onCurrentChannelChanged, this, _1));
 	return TRUE;
 }
 
 // virtual
 void LLCallFloater::onOpen(const LLSD& /*key*/)
 {
-	updateSession();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -110,17 +114,12 @@ void LLCallFloater::updateSession()
 
 	if (NULL == mSpeakerManager)
 	{
-		setDefaultSession();
+		// by default let show nearby chat participants
+		mSpeakerManager = LLLocalSpeakerMgr::getInstance();
+		lldebugs << "Set DEFAULT speaker manager" << llendl;
 	}
 
 	refreshPartisipantList();
-}
-
-void LLCallFloater::setDefaultSession()
-{
-	// by default let show nearby chat participants
-	mSpeakerManager = LLLocalSpeakerMgr::getInstance();
-	lldebugs << "Set DEFAULT speaker manager" << llendl;
 }
 
 void LLCallFloater::refreshPartisipantList()
@@ -130,5 +129,10 @@ void LLCallFloater::refreshPartisipantList()
 
 	bool do_not_use_context_menu_in_local_chat = LLLocalSpeakerMgr::getInstance() != mSpeakerManager;
 	mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, do_not_use_context_menu_in_local_chat);
+}
+
+void LLCallFloater::onCurrentChannelChanged(const LLUUID& /*session_id*/)
+{
+	updateSession();
 }
 //EOF

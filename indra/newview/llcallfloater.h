@@ -61,9 +61,19 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 private:
+	/**
+	 * Updates mSpeakerManager and list according to current Voice Channel
+	 *
+	 * It compares mSpeakerManager & current Voice Channel session IDs.
+	 * If they are different gets Speaker manager related to current channel and updates channel participant list.
+	 */
 	void updateSession();
-	void setDefaultSession();
+
+	/**
+	 * Refreshes participant list according to current Voice Channel
+	 */
 	void refreshPartisipantList();
+	void onCurrentChannelChanged(const LLUUID& session_id);
 
 private:
 	LLSpeakerMgr* mSpeakerManager;
