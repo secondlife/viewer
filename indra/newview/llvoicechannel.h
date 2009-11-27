@@ -176,6 +176,9 @@ public:
 
 	void setSessionHandle(const std::string& handle, const std::string &inURI);
 
+	// returns TRUE if call is incoming and FALSE otherwise
+	BOOL isIncomingCall() { return mReceivedCall; }
+
 protected:
 	virtual void setState(EState state);
 
