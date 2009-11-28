@@ -292,6 +292,7 @@ set(viewer_SOURCE_FILES
     llnetmap.cpp
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
+    llnotificationhandlerutil.cpp
     llnotificationmanager.cpp
     llnotificationofferhandler.cpp
     llnotificationscripthandler.cpp

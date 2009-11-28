@@ -96,6 +96,11 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 	
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
+		if (LLHandlerUtil::canLogToIM(notification))
+		{
+			LLHandlerUtil::logToIM(notification);
+		}
+
 		if(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName() || SCRIPT_LOAD_URL == notification->getName())
 		{
 			LLScriptFloaterManager::getInstance()->onAddNotification(notification->getID());

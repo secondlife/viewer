@@ -2382,15 +2382,15 @@ Please choose the male or female avatar. You can change your mind later.
   <notification
    icon="alertmodal.tga"
    name="GrantedModifyRights"
-   type="alertmodal">
-[FIRST_NAME] [LAST_NAME] has given you permission to edit their objects.
+   type="notify">
+[NAME] has given you permission to edit their objects.
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="RevokedModifyRights"
-   type="alertmodal">
-Your privilege to modify [FIRST_NAME] [LAST_NAME]&apos;s objects has been revoked
+   type="notify">
+Your privilege to modify [NAME]&apos;s objects has been revoked
   </notification>
 
   <notification
