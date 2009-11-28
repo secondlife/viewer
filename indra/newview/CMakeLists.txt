@@ -1651,48 +1651,50 @@ if (INSTALL)
   include(${CMAKE_CURRENT_SOURCE_DIR}/ViewerInstall.cmake)
 endif (INSTALL)
 
-# To add a viewer unit test, just add the test .cpp file below
-# This creates a separate test project per file listed.
-include(LLAddBuildTest)
-SET(viewer_TEST_SOURCE_FILES
-  llagentaccess.cpp
-  lldateutil.cpp
-  llmediadataclient.cpp
-  llviewerhelputil.cpp
-  lllogininstance.cpp
+if (LL_TESTS)
+  # To add a viewer unit test, just add the test .cpp file below
+  # This creates a separate test project per file listed.
+  include(LLAddBuildTest)
+  SET(viewer_TEST_SOURCE_FILES
+    llagentaccess.cpp
+    lldateutil.cpp
+    llmediadataclient.cpp
+    llviewerhelputil.cpp
+    lllogininstance.cpp
   )
-set_source_files_properties(
-  ${viewer_TEST_SOURCE_FILES}
-  PROPERTIES
-    LL_TEST_ADDITIONAL_SOURCE_FILES llviewerprecompiledheaders.cpp
-  )
-LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
+  set_source_files_properties(
+    ${viewer_TEST_SOURCE_FILES}
+    PROPERTIES
+      LL_TEST_ADDITIONAL_SOURCE_FILES llviewerprecompiledheaders.cpp
+    )
+  LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
 
-#set(TEST_DEBUG on)
-set(test_sources llcapabilitylistener.cpp llviewerprecompiledheaders.cpp)
-set(test_libs 
-  ${LLMESSAGE_LIBRARIES} 
-  ${WINDOWS_LIBRARIES} 
-  ${LLVFS_LIBRARIES}
-  ${LLMATH_LIBRARIES}
-  ${LLCOMMON_LIBRARIES} 
-  ${GOOGLEMOCK_LIBRARIES}
-  )
+  #set(TEST_DEBUG on)
+  set(test_sources llcapabilitylistener.cpp llviewerprecompiledheaders.cpp)
+  set(test_libs 
+    ${LLMESSAGE_LIBRARIES} 
+    ${WINDOWS_LIBRARIES} 
+    ${LLVFS_LIBRARIES}
+    ${LLMATH_LIBRARIES}
+    ${LLCOMMON_LIBRARIES} 
+    ${GOOGLEMOCK_LIBRARIES}
+    )
 
-LL_ADD_INTEGRATION_TEST(llcapabilitylistener 
-  "${test_sources}" 
-  "${test_libs}"
-  ${PYTHON_EXECUTABLE}
-  "${CMAKE_SOURCE_DIR}/llmessage/tests/test_llsdmessage_peer.py"
-  )
+  LL_ADD_INTEGRATION_TEST(llcapabilitylistener 
+    "${test_sources}" 
+    "${test_libs}"
+    ${PYTHON_EXECUTABLE}
+    "${CMAKE_SOURCE_DIR}/llmessage/tests/test_llsdmessage_peer.py"
+    )
 
-#ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
-#ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
-#ADD_VIEWER_BUILD_TEST(llworldmap viewer)
-#ADD_VIEWER_BUILD_TEST(llworldmipmap viewer)
-#ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
-#ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
-#ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)
+  #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
+  #ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
+  #ADD_VIEWER_BUILD_TEST(llworldmap viewer)
+  #ADD_VIEWER_BUILD_TEST(llworldmipmap viewer)
+  #ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
+  #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
+  #ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)
+endif (LL_TESTS)
 
 
 # Don't do these for DARWIN or LINUX here -- they're taken care of by viewer_manifest.py

@@ -218,36 +218,37 @@ target_link_libraries(
   )
 
 # tests
-
-SET(llmessage_TEST_SOURCE_FILES
-  # llhttpclientadapter.cpp
-  llmime.cpp
-  llnamevalue.cpp
-  lltrustedmessageservice.cpp
-  lltemplatemessagedispatcher.cpp
+if (LL_TESTS)
+  SET(llmessage_TEST_SOURCE_FILES
+    # llhttpclientadapter.cpp
+    llmime.cpp
+    llnamevalue.cpp
+    lltrustedmessageservice.cpp
+    lltemplatemessagedispatcher.cpp
       llregionpresenceverifier.cpp
-  )
-LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
+    )
+  LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
 
-#    set(TEST_DEBUG on)
-set(test_libs
-  ${LLMESSAGE_LIBRARIES}
-  ${WINDOWS_LIBRARIES}
-  ${LLVFS_LIBRARIES}
-  ${LLMATH_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
+  #    set(TEST_DEBUG on)
+  set(test_libs
+    ${LLMESSAGE_LIBRARIES}
+    ${WINDOWS_LIBRARIES}
+    ${LLVFS_LIBRARIES}
+    ${LLMATH_LIBRARIES}
+    ${LLCOMMON_LIBRARIES}
       ${GOOGLEMOCK_LIBRARIES}
-  )
+    )
 
-LL_ADD_INTEGRATION_TEST(
-  llsdmessage
-  "llsdmessage.cpp"
-  "${test_libs}"
-  ${PYTHON_EXECUTABLE}
-  "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py"
-  )
+  LL_ADD_INTEGRATION_TEST(
+    llsdmessage
+    "llsdmessage.cpp"
+    "${test_libs}"
+    ${PYTHON_EXECUTABLE}
+    "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py"
+    )
 
-LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}")
+endif (LL_TESTS)
 
