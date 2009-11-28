@@ -100,6 +100,7 @@ set(llmessage_SOURCE_FILES
     patch_code.cpp
     patch_dct.cpp
     patch_idct.cpp
+    sound_ids.cpp
     )
 
 set(llmessage_HEADER_FILES
