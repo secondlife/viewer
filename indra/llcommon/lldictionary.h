@@ -33,23 +33,11 @@
 #define LL_LLDICTIONARY_H
 
 #include <map>
+#include <string>
 
 struct LLDictionaryEntry
 {
-	LLDictionaryEntry(const std::string &name) :
-		mName(name)
-	{
-		mNameCapitalized = mName;
-		LLStringUtil::replaceChar(mNameCapitalized, '-', ' ');
-		LLStringUtil::replaceChar(mNameCapitalized, '_', ' ');
-		for (U32 i=0; i < mNameCapitalized.size(); i++)
-		{
-			if (i == 0 || mNameCapitalized[i-1] == ' ') // don't change ordering of this statement or crash
-			{
-				mNameCapitalized[i] = toupper(mNameCapitalized[i]);
-			}
-		}
-	}
+	LLDictionaryEntry(const std::string &name);
 	virtual ~LLDictionaryEntry() {}
 	const std::string mName;
 	std::string mNameCapitalized;

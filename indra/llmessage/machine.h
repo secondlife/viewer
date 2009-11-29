@@ -33,7 +33,6 @@
 #ifndef LL_MACHINE_H
 #define LL_MACHINE_H
 
-#include "llerror.h"
 #include "net.h"
 #include "llhost.h"
 
@@ -79,31 +78,8 @@ public:
 	void			setMachineIP(U32 ip)						{ mHost.setAddress(ip); }
 	void			setMachineHost(const LLHost &host)	 	    { mHost = host; }
 
-	void 	setMachinePort(S32 port)
-			{ 
-				if (port < 0) 
-				{
-					llinfos << "Can't assign a negative number to LLMachine::mPort" << llendl;
-					mHost.setPort(0);
-				}
-				else 
-				{
-					mHost.setPort(port); 
-				}
-			}
-
-	void	setControlPort( S32 port ) 
-			{
-				if (port < 0) 
-				{
-					llinfos << "Can't assign a negative number to LLMachine::mControlPort" << llendl;
-					mControlPort = 0;
-				}
-				else 
-				{
-					mControlPort = port; 
-				}
-			}
+	void 			setMachinePort(S32 port);
+	void			setControlPort( S32 port );
 
 
 	// member variables

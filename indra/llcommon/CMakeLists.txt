@@ -40,6 +40,7 @@ set(llcommon_SOURCE_FILES
     llcursortypes.cpp
     lldate.cpp
     lldependencies.cpp
+    lldictionary.cpp
     llerror.cpp
     llerrorthread.cpp
     llevent.cpp

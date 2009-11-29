@@ -92,6 +92,7 @@ set(llmessage_SOURCE_FILES
     llxfer_mem.cpp
     llxfer_vfile.cpp
     llxorcipher.cpp
+    machine.cpp
     message.cpp
     message_prehash.cpp
     message_string_table.cpp
