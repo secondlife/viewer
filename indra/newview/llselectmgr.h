@@ -324,7 +324,7 @@ private:
 typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
 
 // Build time optimization, generate this once in .cpp file
-extern template class LLSelectMgr* LLSingleton<class LLSelectMgr>::getInstance();
+//extern template class LLSelectMgr* LLSingleton<class LLSelectMgr>::getInstance();
 
 class LLSelectMgr : public LLEditMenuHandler, public LLSingleton<LLSelectMgr>
 {

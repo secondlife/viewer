@@ -48,7 +48,7 @@ class LLNearbyChatBar;
 class LLIMChiclet;
 
 // Build time optimization, generate this once in .cpp file
-extern template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
+//extern template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
 
 class LLBottomTray 
 	: public LLSingleton<LLBottomTray>

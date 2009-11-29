@@ -72,8 +72,8 @@ const F32	TRIPLE_CLICK_INTERVAL = 0.3f;	// delay between double and triple click
 static LLDefaultChildRegistry::Register<LLLineEditor> r1("line_editor");
 
 // Compiler optimization, generate extern template
-template class LLLineEditor* LLView::getChild<class LLLineEditor>(
-	const std::string& name, BOOL recurse) const;
+//template class LLLineEditor* LLView::getChild<class LLLineEditor>(
+//	const std::string& name, BOOL recurse) const;
 
 //
 // Member functions
