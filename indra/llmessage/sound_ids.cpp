@@ -30,6 +30,8 @@
  */
 #include "linden_common.h"
 
+#include "sound_ids.h"
+
 #include "lluuid.h"
 
 const LLUUID SND_NULL = LLUUID::null;
