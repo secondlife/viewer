@@ -26,6 +26,7 @@ include_directories(
 
 set(llcommon_SOURCE_FILES
     imageids.cpp
+    indra_constants.cpp
     llallocator.cpp
     llallocator_heap_profile.cpp
     llapp.cpp
