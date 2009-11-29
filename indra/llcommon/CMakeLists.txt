@@ -25,6 +25,7 @@ include_directories(
 #     ${LLCOMMON_LIBRARIES})
 
 set(llcommon_SOURCE_FILES
+    imageids.cpp
     llallocator.cpp
     llallocator_heap_profile.cpp
     llapp.cpp
