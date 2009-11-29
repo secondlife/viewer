@@ -105,6 +105,9 @@ glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up)
 	
 }
 
+// Build time optimization, generate this once in .cpp file
+template class LLViewerCamera* LLSingleton<class LLViewerCamera>::getInstance();
+
 LLViewerCamera::LLViewerCamera() : LLCamera()
 {
 	calcProjection(getFar());

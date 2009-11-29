@@ -32,6 +32,9 @@
 #ifndef LLFLOATERTESTLISTVIEW_H
 #define LLFLOATERTESTLISTVIEW_H
 
+int do_foo(int i);
+
+/*
 #include "llfloater.h"
 
 class LLSD;
@@ -45,5 +48,6 @@ private:
 	LLFloaterTestListView(const LLSD& seed);
 	~LLFloaterTestListView();
 };
+*/
 
 #endif

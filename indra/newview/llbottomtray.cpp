@@ -46,6 +46,9 @@
 #include "llsyswellwindow.h"
 #include "llfloatercamera.h"
 
+// Build time optimization, generate this once in .cpp file
+template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
+
 LLBottomTray::LLBottomTray(const LLSD&)
 :	mChicletPanel(NULL),
 	mSysWell(NULL),
