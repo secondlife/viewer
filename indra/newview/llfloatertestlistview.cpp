@@ -31,12 +31,6 @@
 */
 #include "llviewerprecompiledheaders.h"
 
-int do_foo(int i)
-{
-	return i + 1;
-}
-
-/*
 #include "llfloatertestlistview.h"
 
 LLFloaterTestListView::LLFloaterTestListView(const LLSD& seed)
@@ -45,4 +39,3 @@ LLFloaterTestListView::LLFloaterTestListView(const LLSD& seed)
 
 LLFloaterTestListView::~LLFloaterTestListView()
 {}
-*/
