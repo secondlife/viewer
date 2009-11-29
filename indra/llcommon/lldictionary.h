@@ -35,7 +35,7 @@
 #include <map>
 #include <string>
 
-struct LLDictionaryEntry
+struct LL_COMMON_API LLDictionaryEntry
 {
 	LLDictionaryEntry(const std::string &name);
 	virtual ~LLDictionaryEntry() {}
