@@ -634,6 +634,9 @@ void LLIMFloater::processAgentListUpdates(const LLSD& body)
 				else
 					label = LLTrans::getString("IM_to_label") + " " + LLIMModel::instance().getName(mSessionID);
 				mInputEditor->setLabel(label);
+
+				if (moderator_muted_text)
+					LLNotifications::instance().add("TextChatIsMutedByModerator");
 			}
 		}
 	}

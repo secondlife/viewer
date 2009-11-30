@@ -5783,6 +5783,26 @@ Server Error: Media update or get failed.
          yestext="OK"/>
     </notification>
 
+    <notification
+ icon="alertmodal.tga"
+ name="TextChatIsMutedByModerator"
+ type="alertmodal">
+Your text chat has been muted by moderator.
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
+
+    <notification
+ icon="alertmodal.tga"
+ name="VoiceIsMutedByModerator"
+ type="alertmodal">
+Your voice has been muted by moderator.
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
+
   <notification
    icon="alertmodal.tga"
    name="ConfirmClearTeleportHistory"
