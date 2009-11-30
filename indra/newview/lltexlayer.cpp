@@ -689,24 +689,24 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		}
 	}
 
+	LLGLSUIDefault gls_ui;
+	LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE);
+	gGL.setColorMask(true, true);
+
+	// clear buffer area to ensure we don't pick up UI elements
+	{
+		gGL.flush();
+		LLGLDisable no_alpha(GL_ALPHA_TEST);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+		gGL.color4f( 0.f, 0.f, 0.f, 1.f );
+
+		gl_rect_2d_simple( width, height );
+
+		gGL.flush();
+	}
+
 	if (mIsVisible)
 	{
-		LLGLSUIDefault gls_ui;
-		LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE);
-		gGL.setColorMask(true, true);
-	
-		// clear buffer area to ensure we don't pick up UI elements
-		{
-			gGL.flush();
-			LLGLDisable no_alpha(GL_ALPHA_TEST);
-			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-			gGL.color4f( 0.f, 0.f, 0.f, 1.f );
-			
-			gl_rect_2d_simple( width, height );
-			
-			gGL.flush();
-		}
-	
 		// composite color layers
 		for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
 		{
@@ -722,6 +722,21 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		renderAlphaMaskTextures(x, y, width, height, false);
 	
 		stop_glerror();
+	}
+	else
+	{
+		gGL.flush();
+
+		gGL.setSceneBlendType(LLRender::BT_REPLACE);
+		LLGLDisable no_alpha(GL_ALPHA_TEST);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+		gGL.color4f( 0.f, 0.f, 0.f, 0.f );
+
+		gl_rect_2d_simple( width, height );
+		gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
+		gGL.flush();
+
 	}
 
 	return success;
