@@ -46,6 +46,7 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 , mSpeakerManager(NULL)
 , mPaticipants(NULL)
 , mAvatarList(NULL)
+, mVoiceType(VC_LOCAL_CHAT)
 {
 
 }
@@ -110,6 +111,19 @@ void LLCallFloater::updateSession()
 	if (im_session)
 	{
 		mSpeakerManager = LLIMModel::getInstance()->getSpeakerManager(session_id);
+		switch (im_session->mType)
+		{
+		case IM_NOTHING_SPECIAL:
+		case IM_SESSION_P2P_INVITE:
+			mVoiceType = VC_PEER_TO_PEER;
+			break;
+		case IM_SESSION_CONFERENCE_START:
+			mVoiceType = VC_AD_HOC_CHAT;
+			break;
+		default:
+			mVoiceType = VC_GROUP_CHAT;
+			break;
+		}
 	}
 
 	if (NULL == mSpeakerManager)
@@ -117,6 +131,7 @@ void LLCallFloater::updateSession()
 		// by default let show nearby chat participants
 		mSpeakerManager = LLLocalSpeakerMgr::getInstance();
 		lldebugs << "Set DEFAULT speaker manager" << llendl;
+		mVoiceType = VC_LOCAL_CHAT;
 	}
 
 	updateTitle();
@@ -140,16 +155,25 @@ void LLCallFloater::onCurrentChannelChanged(const LLUUID& /*session_id*/)
 void LLCallFloater::updateTitle()
 {
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
-	if (NULL == voice_channel) return;
-
-	std::string title = voice_channel->getSessionName();
-
-	if (LLLocalSpeakerMgr::getInstance() == mSpeakerManager)
+	std::string title;
+	switch (mVoiceType)
 	{
+	case VC_LOCAL_CHAT:
 		title = getString("title_nearby");
+		break;
+	case VC_PEER_TO_PEER:
+		title = voice_channel->getSessionName();
+		break;
+	case VC_AD_HOC_CHAT:
+		title = getString("title_adhoc");
+		break;
+	case VC_GROUP_CHAT:
+		LLStringUtil::format_map_t args;
+		args["[GROUP]"] = voice_channel->getSessionName();
+		title = getString("title_group", args);
+		break;
 	}
 
-	// *TODO: mantipov: update code to use title from xml for other chat types
 	setTitle(title);
 }
 //EOF
