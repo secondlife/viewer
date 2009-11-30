@@ -20,6 +20,10 @@
      name="title_adhoc">
         Conference Call
     </string>
+    <string
+     name="no_one_near">
+        No one near
+    </string>
     <panel
      bevel_style="in"
      follows="left|right|top"

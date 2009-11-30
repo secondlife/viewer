@@ -145,6 +145,11 @@ void LLCallFloater::refreshPartisipantList()
 
 	bool do_not_use_context_menu_in_local_chat = LLLocalSpeakerMgr::getInstance() != mSpeakerManager;
 	mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, do_not_use_context_menu_in_local_chat);
+
+	if (!do_not_use_context_menu_in_local_chat)
+	{
+		mAvatarList->setNoItemsCommentText(getString("no_one_near"));
+	}
 }
 
 void LLCallFloater::onCurrentChannelChanged(const LLUUID& /*session_id*/)
