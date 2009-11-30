@@ -50,6 +50,8 @@
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorypanel.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llpreviewanim.h"
 #include "llpreviewgesture.h"
 #include "llpreviewtexture.h"
@@ -1703,7 +1705,7 @@ void warn_move_inventory(LLViewerObject* object, LLMoveInv* move_inv)
 	{
 		dialog = "MoveInventoryFromObject";
 	}
-	LLNotifications::instance().add(dialog, LLSD(), LLSD(), boost::bind(move_task_inventory_callback, _1, _2, move_inv));
+	LLNotificationsUtil::add(dialog, LLSD(), LLSD(), boost::bind(move_task_inventory_callback, _1, _2, move_inv));
 }
 
 // Move/copy all inventory items from the Contents folder of an in-world
@@ -2760,7 +2762,7 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 {
 	LLFloaterOpenObject::LLCatAndWear* cat_and_wear = (LLFloaterOpenObject::LLCatAndWear* )move_inv->mUserData;
 	LLViewerObject* object = gObjectList.findObject(move_inv->mObjectID);
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if(option == 0 && object)
 	{
@@ -3333,7 +3335,7 @@ void LLLandmarkBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 
 static bool open_landmark_callback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	LLUUID asset_id = notification["payload"]["asset_id"].asUUID();
 	if (option == 0)
@@ -3363,7 +3365,7 @@ void LLLandmarkBridge::openItem()
 		// open_landmark(item);
 		LLSD payload;
 		payload["asset_id"] = item->getAssetUUID();
-		LLNotifications::instance().add("TeleportFromLandmark", LLSD(), payload);
+		LLNotificationsUtil::add("TeleportFromLandmark", LLSD(), payload);
 	}
 */
 }
@@ -3990,7 +3992,7 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 #if !ENABLE_MULTIATTACHMENTS
 	if (attachment && attachment->getNumObjects() > 0)
 	{
-		LLNotifications::instance().add("ReplaceAttachment", LLSD(), payload, confirm_replace_attachment_rez);
+		LLNotificationsUtil::add("ReplaceAttachment", LLSD(), payload, confirm_replace_attachment_rez);
 	}
 	else
 #endif
@@ -4007,11 +4009,11 @@ bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& respon
 	{
 		LLSD args;
 		args["MAX_ATTACHMENTS"] = llformat("%d", MAX_AGENT_ATTACHMENTS);
-		LLNotifications::instance().add("MaxAttachmentsOnOutfit", args);
+		LLNotificationsUtil::add("MaxAttachmentsOnOutfit", args);
 		return false;
 	}
 
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0/*YES*/)
 	{
 		LLViewerInventoryItem* itemp = gInventory.getItem(notification["payload"]["item_id"].asUUID());
@@ -4424,7 +4426,7 @@ void LLWearableBridge::openItem()
 	/*
 	if( isInTrash() )
 	{
-		LLNotifications::instance().add("CannotWearTrash");
+		LLNotificationsUtil::add("CannotWearTrash");
 	}
 	else if(isAgentInventory())
 	{
@@ -4453,7 +4455,7 @@ void LLWearableBridge::openItem()
 		{
 			// *TODO: We should fetch the item details, and then do
 			// the operation above.
-			LLNotifications::instance().add("CannotWearInfoNotComplete");
+			LLNotificationsUtil::add("CannotWearInfoNotComplete");
 		}
 	}
 	*/
@@ -4567,7 +4569,7 @@ void LLWearableBridge::wearOnAvatar()
 	// destroy clothing items.
 	if (!gAgentWearables.areWearablesLoaded())
 	{
-		LLNotifications::instance().add("CanNotChangeAppearanceUntilLoaded");
+		LLNotificationsUtil::add("CanNotChangeAppearanceUntilLoaded");
 		return;
 	}
 
@@ -4598,7 +4600,7 @@ void LLWearableBridge::wearAddOnAvatar()
 	// destroy clothing items.
 	if (!gAgentWearables.areWearablesLoaded())
 	{
-		LLNotifications::instance().add("CanNotChangeAppearanceUntilLoaded");
+		LLNotificationsUtil::add("CanNotChangeAppearanceUntilLoaded");
 		return;
 	}
 
@@ -4899,7 +4901,7 @@ void	LLLandmarkBridgeAction::doIt()
 		// but warns you the first time.
 		LLSD payload;
 		payload["asset_id"] = item->getAssetUUID();
-		LLNotifications::instance().add("TeleportFromLandmark", LLSD(), payload);
+		LLNotificationsUtil::add("TeleportFromLandmark", LLSD(), payload);
 	}
 
 	LLInvFVBridgeAction::doIt();
@@ -4999,7 +5001,7 @@ void LLWearableBridgeAction::wearOnAvatar()
 	// destroy clothing items.
 	if (!gAgentWearables.areWearablesLoaded())
 	{
-		LLNotifications::instance().add("CanNotChangeAppearanceUntilLoaded");
+		LLNotificationsUtil::add("CanNotChangeAppearanceUntilLoaded");
 		return;
 	}
 
@@ -5029,7 +5031,7 @@ void LLWearableBridgeAction::doIt()
 {
 	if(isInTrash())
 	{
-		LLNotifications::instance().add("CannotWearTrash");
+		LLNotificationsUtil::add("CannotWearTrash");
 	}
 	else if(isAgentInventory())
 	{
@@ -5058,7 +5060,7 @@ void LLWearableBridgeAction::doIt()
 		{
 			// *TODO: We should fetch the item details, and then do
 			// the operation above.
-			LLNotifications::instance().add("CannotWearInfoNotComplete");
+			LLNotificationsUtil::add("CannotWearInfoNotComplete");
 		}
 	}
 

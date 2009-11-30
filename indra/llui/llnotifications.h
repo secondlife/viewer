@@ -103,9 +103,7 @@
 #include "llpointer.h"
 #include "llinitparam.h"
 #include "llnotificationslistener.h"
-
-class LLNotification;
-typedef boost::shared_ptr<LLNotification> LLNotificationPtr;
+#include "llnotificationptr.h"
 
 	
 typedef enum e_notification_priority
@@ -841,10 +839,11 @@ public:
 	// Add a simple notification (from XUI)
 	void addFromCallback(const LLSD& name);
 	
-	// we provide a collection of simple add notification functions so that it's reasonable to create notifications in one line
+	// *NOTE: To add simple notifications, #include "llnotificationsutil.h"
+	// and use LLNotificationsUtil::add("MyNote") or add("MyNote", args)
 	LLNotificationPtr add(const std::string& name, 
-						const LLSD& substitutions = LLSD(), 
-						const LLSD& payload = LLSD());
+						const LLSD& substitutions,
+						const LLSD& payload);
 	LLNotificationPtr add(const std::string& name, 
 						const LLSD& substitutions, 
 						const LLSD& payload, 

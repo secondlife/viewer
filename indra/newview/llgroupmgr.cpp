@@ -52,7 +52,7 @@
 #include "llviewerwindow.h"
 #include "llpanelgroup.h"
 #include "llgroupactions.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "lluictrlfactory.h"
 #include <boost/regex.hpp>
 
@@ -1295,7 +1295,7 @@ void LLGroupMgr::processCreateGroupReply(LLMessageSystem* msg, void ** data)
 		// *TODO: Translate
 		LLSD args;
 		args["MESSAGE"] = message;
-		LLNotifications::instance().add("UnableToCreateGroup", args);
+		LLNotificationsUtil::add("UnableToCreateGroup", args);
 	}
 }
 

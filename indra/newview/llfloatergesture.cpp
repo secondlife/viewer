@@ -304,7 +304,7 @@ void LLFloaterGesture::addGesture(const LLUUID& item_id , LLMultiGesture* gestur
 		{
 			font_style = "BOLD";
 		}
-
+		item_name = gesture->mName;
 		element["columns"][0]["column"] = "trigger";
 		element["columns"][0]["value"] = gesture->mTrigger;
 		element["columns"][0]["font"]["name"] = "SANSSERIF";

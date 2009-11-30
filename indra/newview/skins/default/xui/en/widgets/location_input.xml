@@ -11,6 +11,7 @@
                 add_landmark_image_disabled="Favorite_Star_Off"
                 add_landmark_image_hover="Favorite_Star_Over"
                 add_landmark_image_selected="Favorite_Star_Press"
+				add_landmark_hpad="10"
                 icon_hpad="2"
                 allow_text_entry="true"
                 list_position="below"
@@ -38,6 +39,15 @@
                           scale_image="false"
 			  top="19"
 			  left="-3" />
+  <for_sale_button
+    name="for_sale_btn"
+    image_unselected="parcel_lght_ForSale"
+    width="22"
+    height="18"
+    follows="right|top"
+    scale_image="false"
+    top="21"
+    />
   <voice_icon
     name="voice_icon"
     width="22"
@@ -84,7 +94,7 @@
   <!-- Default text color is invisible on top of nav bar background -->
   <damage_text
     name="damage_text"
-	width="50"
+	width="35"
 	height="18"
 	top="16"
 	halign="right"
@@ -98,7 +108,7 @@
   <combo_list bg_writeable_color="MenuDefaultBgColor" page_lines="10"
               scroll_bar_bg_visible="true" />
   <combo_editor name="Combo Text Entry"
-                text_pad_left="20"
+                text_pad_left="22"
                 select_on_focus="false"
                 font="SansSerifSmall"
                 bevel_style="none"

@@ -319,7 +319,6 @@ Avatars:
      bottom_delta="0"
      enabled_control="EnableVoiceChat"
      follows="left"
-     font="SansSerif"
      halign="center"
      height="20"
      label="Middle Mouse Button"

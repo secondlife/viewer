@@ -43,7 +43,7 @@
 #include "llviewermessage.h"
 #include "llviewerwindow.h"
 #include "llappviewer.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llfloaterreg.h"
 #include "llfloater.h"
 #include "llgroupactions.h"
@@ -245,7 +245,7 @@ void LLPanelGroup::onBtnCreate()
 	{
 		LLSD args;
 		args["MESSAGE"] = apply_mesg;
-		LLNotifications::instance().add("GenericAlert", args);
+		LLNotificationsUtil::add("GenericAlert", args);
 	}
 }
 
@@ -441,7 +441,7 @@ bool	LLPanelGroup::apply(LLPanelGroupTab* tab)
 	{
 		LLSD args;
 		args["MESSAGE"] = apply_mesg;
-		LLNotifications::instance().add("GenericAlert", args);
+		LLNotificationsUtil::add("GenericAlert", args);
 	}
 	return false;
 }

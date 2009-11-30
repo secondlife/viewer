@@ -71,7 +71,6 @@
   </text>
   <button
    follows="top|left"
-   font="SansSerif"
    height="20"
    label="Map"
    left="10"
@@ -80,7 +79,6 @@
    width="75" />
   <button
    follows="top|left"
-   font="SansSerif"
    height="20"
    label="Block"
    left_pad="5"
@@ -89,7 +87,6 @@
    width="75" />
   <button
    follows="top|left"
-   font="SansSerif"
    height="20"
    label="Close"
    right="-10"

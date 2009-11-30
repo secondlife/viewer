@@ -13,7 +13,7 @@
  <combo_editor
   name="child1"
   select_on_focus="true"
-  text_pad_left="28" 
+  text_pad_left="30" 
   background_image="TextField_Search_Off"
   background_image_disabled="TextField_Search_Disabled"
   background_image_focused="TextField_Search_Active"/>

@@ -49,6 +49,7 @@
 #include "llavataractions.h"
 #include "llinventorymodel.h"
 #include "llnamelistctrl.h"
+#include "llnotificationsutil.h"
 #include "llnotify.h"
 #include "llresmgr.h"
 #include "llscrolllistctrl.h"
@@ -535,7 +536,7 @@ void LLPanelFriends::onMaximumSelect()
 {
 	LLSD args;
 	args["MAX_SELECT"] = llformat("%d", MAX_FRIEND_SELECT);
-	LLNotifications::instance().add("MaxListSelectMessage", args);
+	LLNotificationsUtil::add("MaxListSelectMessage", args);
 };
 
 // static
@@ -639,14 +640,14 @@ void LLPanelFriends::confirmModifyRights(rights_map_t& ids, EGrantRevoke command
 			}
 			if (command == GRANT)
 			{
-				LLNotifications::instance().add("GrantModifyRights", 
+				LLNotificationsUtil::add("GrantModifyRights", 
 					args, 
 					LLSD(), 
 					boost::bind(&LLPanelFriends::modifyRightsConfirmation, this, _1, _2, rights));
 			}
 			else
 			{
-				LLNotifications::instance().add("RevokeModifyRights", 
+				LLNotificationsUtil::add("RevokeModifyRights", 
 					args, 
 					LLSD(), 
 					boost::bind(&LLPanelFriends::modifyRightsConfirmation, this, _1, _2, rights));
@@ -656,14 +657,14 @@ void LLPanelFriends::confirmModifyRights(rights_map_t& ids, EGrantRevoke command
 		{
 			if (command == GRANT)
 			{
-				LLNotifications::instance().add("GrantModifyRightsMultiple", 
+				LLNotificationsUtil::add("GrantModifyRightsMultiple", 
 					args, 
 					LLSD(), 
 					boost::bind(&LLPanelFriends::modifyRightsConfirmation, this, _1, _2, rights));
 			}
 			else
 			{
-				LLNotifications::instance().add("RevokeModifyRightsMultiple", 
+				LLNotificationsUtil::add("RevokeModifyRightsMultiple", 
 					args, 
 					LLSD(), 
 					boost::bind(&LLPanelFriends::modifyRightsConfirmation, this, _1, _2, rights));
@@ -674,7 +675,7 @@ void LLPanelFriends::confirmModifyRights(rights_map_t& ids, EGrantRevoke command
 
 bool LLPanelFriends::modifyRightsConfirmation(const LLSD& notification, const LLSD& response, rights_map_t* rights)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if(0 == option)
 	{
 		sendRightsGrant(*rights);

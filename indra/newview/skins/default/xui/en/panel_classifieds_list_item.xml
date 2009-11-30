@@ -12,24 +12,24 @@
      follows="all"
      height="85"
      image_name="ListItem_Over"
-     right="-3"
+     right="-2"
      mouse_opaque="false"
      name="hovered_icon"
      top="1"
      scale_image="true"
      visible="false"
-     width="307"/>
+     width="308"/>
     <icon
      follows="all"
      height="85"
      image_name="ListItem_Select"
-     right="-3"
+     right="-2"
      mouse_opaque="false"
      name="selected_icon"
      top="1"
      scale_image="true"
      visible="false"
-     width="307"/>
+     width="308"/>
     <texture_picker
      allow_no_texture="true"
      border_enabled="true"
@@ -47,37 +47,34 @@
      width="90" />
     <text
      follows="top|left|right"
-     font="SansSerifSmallBold"
-     height="16"
+     font="SansSerifSmall"
+     height="15"
      layout="topleft"
      left="110"
      name="name"
      text_color="white"
      top="9"
-     use_ellipses="false"
-     width="197"
+     use_ellipses="true"
+     width="193"
      word_wrap="false" />
     <expandable_text
      follows="top|left|right"
      font="SansSerifSmall"
-     height="40"
+     height="55"
      layout="topleft"
-     left="110"
+     left="103"
      name="description"
-     top_pad="3"
+     top_pad="0"
      width="178"
      word_wrap="true" />
     <button
-     follows="top|right"
-     height="16"
-     image_selected="BuyArrow_Press"
-     image_pressed="BuyArrow_Press"
-     image_unselected="BuyArrow_Press"
+     follows="right"
+     height="20"
+     image_overlay="ForwardArrow_Off"
      layout="topleft"
+     left_pad="5"
+     right="-8"
      name="info_chevron"
-     picture_style="true"
-     right="-7"
-     tab_stop="false"
-     top="27"
-     width="16" />
+     top_delta="15"
+     width="20" />
 </panel>

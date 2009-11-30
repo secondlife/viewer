@@ -7,6 +7,18 @@
  name="avatar_list_item"
  top="0"
  width="320">
+    <!-- 
+    Strings used to localize last interaction time.
+    See last_interaction textbox below.
+    -->
+    <string name="FormatSeconds">[COUNT]s</string>
+    <string name="FormatMinutes">[COUNT]m</string>
+    <string name="FormatHours">[COUNT]h</string>
+    <string name="FormatDays">[COUNT]d</string>
+    <string name="FormatWeeks">[COUNT]w</string>
+    <string name="FormatMonths">[COUNT]mon</string>
+    <string name="FormatYears">[COUNT]y</string>
+ 
     <icon
      follows="top|right|left"
      height="24"

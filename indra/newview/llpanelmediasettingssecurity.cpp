@@ -31,10 +31,13 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llfloaterreg.h"
+
 #include "llpanelmediasettingssecurity.h"
+
+#include "llfloaterreg.h"
 #include "llpanelcontents.h"
 #include "llcheckboxctrl.h"
+#include "llnotificationsutil.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "lluictrlfactory.h"
@@ -316,7 +319,7 @@ void LLPanelMediaSettingsSecurity::addWhiteListItem(const std::string& url)
 	else
 	// display a message indicating you can't do that
 	{
-		LLNotifications::instance().add("WhiteListInvalidatesHomeUrl");
+		LLNotificationsUtil::add("WhiteListInvalidatesHomeUrl");
 	};
 }
 

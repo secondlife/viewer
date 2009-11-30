@@ -1172,6 +1172,13 @@ Eject [AVATAR_NAME] from your land?
 
   <notification
    icon="alertmodal.tga"
+   name="EjectAvatarFromGroup"
+   type="notify">
+You ejected [AVATAR_NAME] from group [GROUP_NAME]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="AcquireErrorTooManyObjects"
    type="alertmodal">
 ACQUIRE ERROR: Too many objects selected.
@@ -2375,15 +2382,15 @@ Please choose the male or female avatar. You can change your mind later.
   <notification
    icon="alertmodal.tga"
    name="GrantedModifyRights"
-   type="alertmodal">
-[FIRST_NAME] [LAST_NAME] has given you permission to edit their objects.
+   type="notify">
+[NAME] has given you permission to edit their objects.
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="RevokedModifyRights"
-   type="alertmodal">
-Your privilege to modify [FIRST_NAME] [LAST_NAME]&apos;s objects has been revoked
+   type="notify">
+Your privilege to modify [NAME]&apos;s objects has been revoked
   </notification>
 
   <notification
@@ -5822,13 +5829,6 @@ If you continue to have problems, please visit the [SUPPORT_SITE].
 - Your system memory does not meet the minimum requirements.
   </global>
 
-  <global name="PermYes">
-Yes
-  </global>
-
-  <global name="PermNo">
-No
-  </global>
 <!-- this is alert string from server. the name needs to match entire the server string, and needs to be changed
 	whenever the server string changes -->
    <global name="You can only set your 'Home Location' on your land or at a mainland Infohub.">

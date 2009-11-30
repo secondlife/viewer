@@ -35,7 +35,7 @@
 
 #include "llwindow.h"
 
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 
 #include "llbutton.h"
 #include "llslurl.h"
@@ -82,5 +82,5 @@ void LLPanelPlacesTab::onRegionResponse(const LLVector3d& landmark_global_pos,
 	LLSD args;
 	args["SLURL"] = sl_url;
 
-	LLNotifications::instance().add("CopySLURL", args);
+	LLNotificationsUtil::add("CopySLURL", args);
 }

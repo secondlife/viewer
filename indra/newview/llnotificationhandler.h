@@ -36,9 +36,10 @@
 
 #include "llwindow.h"
 
-#include "llnotifications.h"
+//#include "llnotificationsutil.h"
 #include "llchannelmanager.h"
 #include "llchat.h"
+#include "llnotificationptr.h"
 
 namespace LLNotificationsUI
 {
@@ -254,6 +255,20 @@ protected:
 
 	// own handlers
 	void onRejectToast(LLUUID& id);
+};
+
+class LLHandlerUtil
+{
+public:
+	/**
+	 * Checks sufficient conditions to log notification message to IM session.
+	 */
+	static bool canLogToIM(const LLNotificationPtr& notification);
+
+	/**
+	 * Writes notification message to IM session.
+	 */
+	static void logToIM(const LLNotificationPtr& notification);
 };
 
 }

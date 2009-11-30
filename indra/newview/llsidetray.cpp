@@ -583,6 +583,17 @@ void LLSideTray::expandSideBar()
 	mActiveTab->onOpen(key);
 
 	reflectCollapseChange();
+
+
+	std::string name = mActiveTab->getName();
+	std::map<std::string,LLButton*>::const_iterator btn_it =
+		mTabButtons.find(name);
+	if (btn_it != mTabButtons.end())
+	{
+		LLButton* btn = btn_it->second;
+		btn->setImageOverlay( mActiveTab->mImageSelected  );
+	}
+
 }
 
 void LLSideTray::highlightFocused()

@@ -27,6 +27,7 @@
    There are no picks/classifieds here
  </text>
  <accordion
+  fit_parent="true" 
   follows="all"
   height="465"
   layout="topleft"

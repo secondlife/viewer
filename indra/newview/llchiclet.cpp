@@ -32,6 +32,7 @@
 
 #include "llviewerprecompiledheaders.h" // must be first include
 #include "llchiclet.h"
+
 #include "llagent.h"
 #include "llavataractions.h"
 #include "llbottomtray.h"
@@ -42,6 +43,8 @@
 #include "llfloaterreg.h"
 #include "lllocalcliprect.h"
 #include "llmenugl.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "lloutputmonitorctrl.h"
 #include "llscriptfloater.h"
 #include "lltextbox.h"

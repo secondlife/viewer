@@ -50,6 +50,7 @@
 #include "llmemorystream.h"
 #include "llmenugl.h"
 #include "llnotecard.h"
+#include "llnotificationsutil.h"
 #include "llnotify.h"
 #include "llpanelplaces.h"
 #include "llpreview.h"
@@ -1181,13 +1182,13 @@ void LLViewerTextEditor::showUnsavedAlertDialog( LLInventoryItem* item )
 	LLSD payload;
 	payload["item_id"] = item->getUUID();
 	payload["notecard_id"] = mNotecardInventoryID;
-	LLNotifications::instance().add( "ConfirmNotecardSave", LLSD(), payload, LLViewerTextEditor::onNotecardDialog);
+	LLNotificationsUtil::add( "ConfirmNotecardSave", LLSD(), payload, LLViewerTextEditor::onNotecardDialog);
 }
 
 // static
 bool LLViewerTextEditor::onNotecardDialog(const LLSD& notification, const LLSD& response )
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if( option == 0 )
 	{
 		LLPreviewNotecard* preview = LLFloaterReg::findTypedInstance<LLPreviewNotecard>("preview_notecard", notification["payload"]["notecard_id"]);;
@@ -1207,13 +1208,13 @@ void LLViewerTextEditor::showCopyToInvDialog( LLInventoryItem* item, llwchar wc 
 	LLUUID item_id = item->getUUID();
 	payload["item_id"] = item_id;
 	payload["item_wc"] = LLSD::Integer(wc);
-	LLNotifications::instance().add( "ConfirmItemCopy", LLSD(), payload,
+	LLNotificationsUtil::add( "ConfirmItemCopy", LLSD(), payload,
 		boost::bind(&LLViewerTextEditor::onCopyToInvDialog, this, _1, _2));
 }
 
 bool LLViewerTextEditor::onCopyToInvDialog(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if( 0 == option )
 	{
 		LLUUID item_id = notification["payload"]["item_id"].asUUID();

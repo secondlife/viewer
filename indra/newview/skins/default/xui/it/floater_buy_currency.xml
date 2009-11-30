@@ -29,7 +29,7 @@
 		1234
 	</line_editor>
 	<text name="currency_est">
-		L$  per circa [USD]US$
+		per circa [LOCALAMOUNT]
 	</text>
 	<text name="getting_data">
 		Dati in ricezione...
@@ -64,6 +64,6 @@ Devi aumentare l&apos;importo da acquistare.
 	<button label="Cancella" name="cancel_btn"/>
 	<button label="Acquista" name="buy_btn"/>
 	<string name="buy_currency">
-		acquistare [LINDENS] L$ per circa [USD] US$
+		acquistare [LINDENS]L$ per circa [LOCALAMOUNT]
 	</string>
 </floater>

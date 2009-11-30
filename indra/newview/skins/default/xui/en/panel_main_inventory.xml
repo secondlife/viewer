@@ -14,7 +14,7 @@
         Things
     </panel.string>
     <filter_editor
-     text_pad_left="12"
+     text_pad_left="14"
      follows="left|top|right"
 	 font="SanSerif"
      height="20"

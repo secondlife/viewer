@@ -29,7 +29,7 @@
 		1234
 	</line_editor>
 	<text name="currency_est" left_delta="72">
-		por aproxim. US$ [USD]
+		por aproxim. [LOCALAMOUNT]
 	</text>
 	<text name="getting_data">
 		Obtendo dados...
@@ -63,6 +63,6 @@ Aumente a quantidade de compra.
 	<button label="Fechar" name="cancel_btn"/>
 	<button label="Adquirir" name="buy_btn"/>
 	<string name="buy_currency">
-		Comprar L$ [LINDENS] por aproximadamente US$ [USD]
+		Comprar L$ [LINDENS] por aproxim. [LOCALAMOUNT]
 	</string>
 </floater>
