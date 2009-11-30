@@ -163,6 +163,7 @@ set(llcommon_HEADER_FILES
     llinstancetracker.h
     llkeythrottle.h
     lllazy.h
+    lllistenerwrapper.h
     lllinkedqueue.h
     llliveappconfig.h
     lllivefile.h
@@ -220,6 +221,7 @@ set(llcommon_HEADER_FILES
     llversionserver.h
     llversionviewer.h
     llworkerthread.h
+    ll_template_cast.h
     metaclass.h
     metaclasst.h
     metaproperty.h
