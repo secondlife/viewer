@@ -347,6 +347,8 @@ public:
 	BOOL 		mIsDummy; // for special views
 	S32			mSpecialRenderMode; // special lighting
 private:
+	bool		shouldAlphaMask();
+
 	BOOL 		mNeedsSkin; // avatar has been animated and verts have not been updated
 	S32	 		mUpdatePeriod;
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
