@@ -111,10 +111,7 @@ public:
 		Alternative<std::string>	string;
 		Alternative<U32>			flags;
 
-        Follows()
-		:   string(""),
-			flags("flags", FOLLOWS_LEFT | FOLLOWS_TOP)
-        {}
+        Follows();
 	};
 
 	struct Params : public LLInitParam::Block<Params>

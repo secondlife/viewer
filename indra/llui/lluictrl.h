@@ -75,14 +75,7 @@ public:
 
 		Optional<std::string>	control_name;
 		
-		CallbackParam()
-		  :	name("name"),
-			function_name("function"),
-			parameter("parameter"),
-			control_name("control") // Shortcut to control -> "control_name" for backwards compatability			
-		{
-			addSynonym(parameter, "userdata");
-		}
+		CallbackParam();
 	};
 
 	struct CommitCallbackParam : public LLInitParam::Block<CommitCallbackParam, CallbackParam >
@@ -105,23 +98,14 @@ public:
 		Alternative<std::string> enabled;
 		Alternative<std::string> disabled;
 		
-		EnableControls()
-		: enabled("enabled_control"),
-		  disabled("disabled_control")
-		{}
+		EnableControls();
 	};	
 	struct ControlVisibility : public LLInitParam::Choice<ControlVisibility>
 	{
 		Alternative<std::string> visible;
 		Alternative<std::string> invisible;
 
-		ControlVisibility()
-		:	visible("visibility_control"),
-			invisible("invisibility_control")
-		{
-			addSynonym(visible, "visiblity_control");
-			addSynonym(invisible, "invisiblity_control");
-		}
+		ControlVisibility();
 	};	
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
