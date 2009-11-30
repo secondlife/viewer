@@ -328,4 +328,10 @@ private:
 	class DefaultTabGroupFirstSorter;
 };
 
+// Build time optimization, generate once in .cpp file
+#ifndef LLUICTRL_CPP
+extern template class LLUICtrl* LLView::getChild<class LLUICtrl>(
+	const std::string& name, BOOL recurse) const;
+#endif
+
 #endif  // LL_LLUICTRL_H

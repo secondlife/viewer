@@ -47,8 +47,10 @@ class LLSpeakButton;
 class LLNearbyChatBar;
 class LLIMChiclet;
 
-// Build time optimization, generate this once in .cpp file
-//extern template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
+// Build time optimization, generate once in .cpp file
+#ifndef LLBOTTOMTRAY_CPP
+extern template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
+#endif
 
 class LLBottomTray 
 	: public LLSingleton<LLBottomTray>

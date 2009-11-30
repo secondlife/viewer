@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 // file include
+#define LLSELECTMGR_CPP
 #include "llselectmgr.h"
 
 // library includes

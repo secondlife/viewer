@@ -386,6 +386,7 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 
 	mFaceList.clear();
 
+	LLViewerCamera* camera = LLViewerCamera::getInstance();
 	for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
 	{
 		LLDrawable* drawablep = *i;
@@ -415,7 +416,7 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 			}
 			
 			count++;
-			facep->mDistance = (facep->mCenterLocal - LLViewerCamera::getInstance()->getOrigin()) * LLViewerCamera::getInstance()->getAtAxis();
+			facep->mDistance = (facep->mCenterLocal - camera->getOrigin()) * camera->getAtAxis();
 			obj->mDepth += facep->mDistance;
 			
 			mFaceList.push_back(facep);

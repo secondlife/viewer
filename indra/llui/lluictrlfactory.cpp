@@ -32,6 +32,7 @@
 
 #include "linden_common.h"
 
+#define LLUICTRLFACTORY_CPP
 #include "lluictrlfactory.h"
 
 #include "llxmlnode.h"

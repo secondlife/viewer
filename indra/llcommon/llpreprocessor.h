@@ -123,12 +123,14 @@
 #pragma warning( 3       : 4265 )	// "class has virtual functions, but destructor is not virtual"
 #pragma warning( 3      :  4266 )	// 'function' : no override available for virtual member function from base 'type'; function is hidden
 #pragma warning (disable : 4180)	// qualifier applied to function type has no meaning; ignored
-// Linker optimization with "extern template" generates this innocuous warning
-#pragma warning( disable : 4231 )	// nonstandard extension used : 'extern' before template explicit instantiation
 #pragma warning( disable : 4284 )	// silly MS warning deep inside their <map> include file
 #pragma warning( disable : 4503 )	// 'decorated name length exceeded, name was truncated'. Does not seem to affect compilation.
 #pragma warning( disable : 4800 )	// 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
 #pragma warning( disable : 4996 )	// warning: deprecated
+
+// Linker optimization with "extern template" generates these warnings
+#pragma warning( disable : 4231 )	// nonstandard extension used : 'extern' before template explicit instantiation
+#pragma warning( disable : 4506 )   // no definition for inline function
 
 // level 4 warnings that we need to disable:
 #pragma warning (disable : 4100) // unreferenced formal parameter
