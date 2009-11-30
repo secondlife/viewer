@@ -63,6 +63,15 @@
 #include "llsdutil.h"
 #include <deque>
 
+LLInventoryObserver::LLInventoryObserver()
+{
+}
+
+// virtual
+LLInventoryObserver::~LLInventoryObserver()
+{
+}
+
 void LLInventoryCompletionObserver::changed(U32 mask)
 {
 	// scan through the incomplete items and move or erase them as
