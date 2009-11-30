@@ -512,21 +512,7 @@ static void onClickScriptDebug(void*)
 //static
 void LLStatusBar::onMouseEnterVolume(LLUICtrl* ctrl)
 {
-#if 1
-	//LLFloater* vp =
-	LLFloaterReg::showInstance("volume_pulldown"); //tmp
-#else
-	#error do this for panel
-#endif
-}
-
-static void onClickVolume(void* data)
-{
-	// toggle the master mute setting
-	BOOL mute_audio = gSavedSettings.getBOOL("MuteAudio");
-	gSavedSettings.setBOOL("MuteAudio", !mute_audio);
-	
-	// toggle the master volume pull-down
+	// show the master volume pull-down
 
 #if 1
 	//LLFloater* vp =
@@ -551,6 +537,13 @@ static void onClickVolume(void* data)
 
 	//sb->mPanelVolume->setFrontmost()
 #endif
+}
+
+static void onClickVolume(void* data)
+{
+	// toggle the master mute setting
+	BOOL mute_audio = gSavedSettings.getBOOL("MuteAudio");
+	gSavedSettings.setBOOL("MuteAudio", !mute_audio);
 }
 
 // sets the static variables necessary for the date
