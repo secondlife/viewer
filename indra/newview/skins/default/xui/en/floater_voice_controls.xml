@@ -27,29 +27,30 @@
     <panel
      bevel_style="in"
      follows="left|right|top"
-     height="73"
+     height="62"
      layout="topleft"
      left="0"
      name="control_panel"
-     width="285">
+     width="282">
         <panel
-         height="20"
+         height="18"
+         follows="top|left|right"
          layout="topleft"
          left="10"
          name="my_panel"
-         width="262">
+         width="263">
             <avatar_icon
              enabled="false"
              follows="left|top"
              height="18"
-             image_name="Generic_Person"
+             default_icon_name="Generic_Person"
              layout="topleft"
              left="0"
              name="user_icon"
              top="0"
              width="18" />
             <text
-             follows="top|left"
+             follows="top|left|right"
              font="SansSerifSmallBold"
              height="16"
              layout="topleft"
@@ -57,8 +58,20 @@
              name="user_text"
              text_color="white"
              top="4"
+             use_ellipses="true" 
              value="Mya Avatar:"
-             width="80" />
+             width="210" />
+            <output_monitor
+             auto_update="true"
+             draw_border="false"
+             follows="right"
+             height="16"
+             layout="topleft"
+             name="speaking_indicator"
+             right="-1"
+             top="2" 
+             visible="true"
+             width="20" />
         </panel>
         <layout_stack
          bottom="10"

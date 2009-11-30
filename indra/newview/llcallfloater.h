@@ -83,6 +83,7 @@ private:
 	void refreshPartisipantList();
 	void onCurrentChannelChanged(const LLUUID& session_id);
 	void updateTitle();
+	void initAgentData();
 
 private:
 	LLSpeakerMgr* mSpeakerManager;

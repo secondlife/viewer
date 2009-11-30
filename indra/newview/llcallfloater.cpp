@@ -35,6 +35,7 @@
 
 #include "llcallfloater.h"
 
+#include "llagentdata.h" // for gAgentID
 #include "llavatarlist.h"
 #include "llbottomtray.h"
 #include "llparticipantlist.h"
@@ -69,6 +70,8 @@ BOOL LLCallFloater::postBuild()
 	setDockControl(new LLDockControl(
 		anchor_panel, this,
 		getDockTongue(), LLDockControl::TOP));
+
+	initAgentData();
 
 	// update list for current session
 	updateSession();
@@ -180,5 +183,17 @@ void LLCallFloater::updateTitle()
 	}
 
 	setTitle(title);
+}
+
+void LLCallFloater::initAgentData()
+{
+	childSetValue("user_icon", gAgentID);
+
+	std::string name;
+	gCacheName->getFullName(gAgentID, name);
+	childSetValue("user_text", name);
+
+	LLOutputMonitorCtrl* speaking_indicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
+	speaking_indicator->setSpeakerId(gAgentID);
 }
 //EOF
