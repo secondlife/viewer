@@ -32,6 +32,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#define LLVIEWERCAMERA_CPP
 #include "llviewercamera.h"
 
 // Viewer includes

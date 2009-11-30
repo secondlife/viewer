@@ -334,5 +334,10 @@ private:
 	LLContextMenu* mContextMenu;
 }; // end class LLTextEditor
 
+// Build time optimization, generate once in .cpp file
+#ifndef LLTEXTEDITOR_CPP
+extern template class LLTextEditor* LLView::getChild<class LLTextEditor>(
+	const std::string& name, BOOL recurse) const;
+#endif
 
 #endif  // LL_TEXTEDITOR_

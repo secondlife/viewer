@@ -53,7 +53,9 @@ const BOOL FOR_SELECTION = TRUE;
 const BOOL NOT_FOR_SELECTION = FALSE;
 
 // Build time optimization, generate this once in .cpp file
-//extern template class LLViewerCamera* LLSingleton<class LLViewerCamera>::getInstance();
+#ifndef LLVIEWERCAMERA_CPP
+extern template class LLViewerCamera* LLSingleton<class LLViewerCamera>::getInstance();
+#endif
 
 class LLViewerCamera : public LLCamera, public LLSingleton<LLViewerCamera>
 {

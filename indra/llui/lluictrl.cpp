@@ -31,9 +31,11 @@
  * $/LicenseInfo$
  */
 
-//#include "llviewerprecompiledheaders.h"
 #include "linden_common.h"
+
+#define LLUICTRL_CPP
 #include "lluictrl.h"
+
 #include "llfocusmgr.h"
 #include "llpanel.h"
 #include "lluictrlfactory.h"
@@ -41,8 +43,8 @@
 static LLDefaultChildRegistry::Register<LLUICtrl> r("ui_ctrl");
 
 // Compiler optimization, generate extern template
-//template class LLUICtrl* LLView::getChild<class LLUICtrl>(
-//	const std::string& name, BOOL recurse) const;
+template class LLUICtrl* LLView::getChild<class LLUICtrl>(
+	const std::string& name, BOOL recurse) const;
 
 LLUICtrl::Params::Params()
 :	tab_stop("tab_stop", true),
