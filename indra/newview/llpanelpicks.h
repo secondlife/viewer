@@ -86,6 +86,9 @@ public:
 	// parent panels failed to work (picks related code was in my profile panel)
 	void setProfilePanel(LLPanelProfile* profile_panel);
 
+protected:
+	/*virtual*/void updateButtons();
+
 private:
 	void onClickDelete();
 	void onClickTeleport();
@@ -125,7 +128,6 @@ private:
 	bool callbackDeleteClassified(const LLSD& notification, const LLSD& response);
 	bool callbackTeleport(const LLSD& notification, const LLSD& response);
 
-	void updateButtons();
 
 	virtual void onDoubleClickPickItem(LLUICtrl* item);
 	virtual void onDoubleClickClassifiedItem(LLUICtrl* item);

@@ -109,6 +109,7 @@ private:
 	void assignButton2Mode(ECameraControlMode mode, const std::string& button_name);
 	
 
+	BOOL mClosed;
 	ECameraControlMode mPrevMode;
 	ECameraControlMode mCurrMode;
 	std::map<ECameraControlMode, LLButton*> mMode2Button;

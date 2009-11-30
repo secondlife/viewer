@@ -32,19 +32,14 @@
 
 #include "llviewerprecompiledheaders.h" // must be first include
 
+#include "llbutton.h"
+#include "llfloaterreg.h"
+
 #include "llagent.h"
 #include "llbottomtray.h"
-#include "llfloaterreg.h"
-#include "llvoiceclient.h"
-#include "llvoicecontrolpanel.h"
-#include "lltransientfloatermgr.h"
-
-#include "llavatariconctrl.h"
-#include "llbutton.h"
-#include "llpanel.h"
-#include "lltextbox.h"
+#include "llcallfloater.h"
 #include "lloutputmonitorctrl.h"
-#include "llgroupmgr.h"
+#include "lltransientfloatermgr.h"
 
 #include "llspeakbutton.h"
 
@@ -72,7 +67,6 @@ void LLSpeakButton::draw()
 
 LLSpeakButton::LLSpeakButton(const Params& p)
 : LLUICtrl(p)
-, mPrivateCallPanel(NULL)
 , mOutputMonitor(NULL)
 , mSpeakBtn(NULL)
 , mShowBtn(NULL)
@@ -102,8 +96,8 @@ LLSpeakButton::LLSpeakButton(const Params& p)
 	addChild(mShowBtn);
 	LLTransientFloaterMgr::getInstance()->addControlView(mShowBtn);
 
-	mShowBtn->setClickedCallback(boost::bind(&LLSpeakButton::onClick_ShowBtn, this));
-	mShowBtn->setToggleState(FALSE);
+// 	mShowBtn->setClickedCallback(boost::bind(&LLSpeakButton::onClick_ShowBtn, this));
+// 	mShowBtn->setToggleState(FALSE);
 
 	static const S32 MONITOR_RIGHT_PAD = 2;
 
@@ -173,44 +167,5 @@ void LLSpeakButton::onMouseUp_SpeakBtn()
 {
 	bool down = false;
 	gVoiceClient->inputUserControlState(down);
-}
-
-void LLSpeakButton::onClick_ShowBtn()
-{
-	if(!mShowBtn->getToggleState())
-	{
-		mPrivateCallPanel->onClickClose(mPrivateCallPanel);
-		delete mPrivateCallPanel;
-		mPrivateCallPanel = NULL;
-		mShowBtn->setToggleState(FALSE);
-		return;
-	}
-
-	S32 x = mSpeakBtn->getRect().mLeft;
-	S32 y = 0;
-
-	localPointToScreen(x, y, &x, &y);
-
-	mPrivateCallPanel = new LLVoiceControlPanel;
-	getRootView()->addChild(mPrivateCallPanel);
-
-	y = LLBottomTray::getInstance()->getRect().getHeight() + mPrivateCallPanel->getRect().getHeight();
-
-	LLRect rect;
-	rect.setLeftTopAndSize(x, y, mPrivateCallPanel->getRect().getWidth(), mPrivateCallPanel->getRect().getHeight());
-	mPrivateCallPanel->setRect(rect);
-
-
-	LLAvatarListItem* item = new LLAvatarListItem();
-	item->showLastInteractionTime(false);
-	item->showInfoBtn(true);
-	item->showSpeakingIndicator(true);
-	item->reshape(mPrivateCallPanel->getRect().getWidth(), item->getRect().getHeight(), FALSE);
-
-	mPrivateCallPanel->addItem(item);
-	mPrivateCallPanel->setVisible(TRUE);
-	mPrivateCallPanel->setFrontmost(TRUE);
-
-	mShowBtn->setToggleState(TRUE);
 }
 

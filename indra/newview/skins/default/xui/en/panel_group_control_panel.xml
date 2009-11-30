@@ -61,7 +61,6 @@
          width="125"/>
 
         <button
-         enabled="false"
          bottom="10"
          follows="all" 
          height="20"

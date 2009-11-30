@@ -52,6 +52,8 @@
 // Used to limit time spent for items list update per frame.
 static const U32 ADD_LIMIT = 50;
 
+static const std::string COLLAPSED_BY_USER = "collapsed_by_user";
+
 class LLTeleportHistoryFlatItem : public LLPanel
 {
 public:
@@ -254,6 +256,10 @@ BOOL LLTeleportHistoryPanel::postBuild()
 				LLAccordionCtrlTab* tab = (LLAccordionCtrlTab*)*iter;
 				tab->setRightMouseDownCallback(boost::bind(&LLTeleportHistoryPanel::onAccordionTabRightClick, this, _1, _2, _3, _4));
 				tab->setDisplayChildren(false);
+				tab->setDropDownStateChangedCallback(boost::bind(&LLTeleportHistoryPanel::onAccordionExpand, this, _1, _2));
+
+				// All accordion tabs are collapsed initially
+				setAccordionCollapsedByUser(tab, true);
 
 				mItemContainers.put(tab);
 
@@ -270,10 +276,18 @@ BOOL LLTeleportHistoryPanel::postBuild()
 
 		// Open first 2 accordion tabs
 		if (mItemContainers.size() > 1)
-			mItemContainers.get(mItemContainers.size() - 1)->setDisplayChildren(true);
+		{
+			LLAccordionCtrlTab* tab = mItemContainers.get(mItemContainers.size() - 1);
+			tab->setDisplayChildren(true);
+			setAccordionCollapsedByUser(tab, false);
+		}
 
 		if (mItemContainers.size() > 2)
-			mItemContainers.get(mItemContainers.size() - 2)->setDisplayChildren(true);
+		{
+			LLAccordionCtrlTab* tab = mItemContainers.get(mItemContainers.size() - 2);
+			tab->setDisplayChildren(true);
+			setAccordionCollapsedByUser(tab, false);
+		}
 	}
 
 	getChild<LLPanel>("bottom_panel")->childSetAction("gear_btn",boost::bind(&LLTeleportHistoryPanel::onGearButtonClicked, this));
@@ -490,6 +504,18 @@ void LLTeleportHistoryPanel::refresh()
 
 			LLAccordionCtrlTab* tab = mItemContainers.get(mItemContainers.size() - 1 - tab_idx);
 			tab->setVisible(true);
+
+			// Expand all accordion tabs when filtering
+			if(!mFilterSubString.empty())
+			{
+				tab->setDisplayChildren(true);
+			}
+			// Restore each tab's expand state when not filtering
+			else
+			{
+				bool collapsed = isAccordionCollapsedByUser(tab);
+				tab->setDisplayChildren(!collapsed);
+			}
 
 			curr_flat_view = getFlatListViewFromTab(tab);
 		}
@@ -775,3 +801,26 @@ void LLTeleportHistoryPanel::onGearButtonClicked()
 	LLMenuGL::showPopup(this, menu, menu_x, menu_y);
 }
 
+void LLTeleportHistoryPanel::setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool collapsed)
+{
+	LLSD param = acc_tab->getValue();
+	param[COLLAPSED_BY_USER] = collapsed;
+	acc_tab->setValue(param);
+}
+
+bool LLTeleportHistoryPanel::isAccordionCollapsedByUser(LLUICtrl* acc_tab)
+{
+	LLSD param = acc_tab->getValue();
+	if(!param.has("acc_collapsed"))
+	{
+		return false;
+	}
+	return param[COLLAPSED_BY_USER].asBoolean();
+}
+
+void LLTeleportHistoryPanel::onAccordionExpand(LLUICtrl* ctrl, const LLSD& param)
+{
+	bool expanded = param.asBoolean();
+	// Save accordion tab state to restore it in refresh()
+	setAccordionCollapsedByUser(ctrl, !expanded);
+}

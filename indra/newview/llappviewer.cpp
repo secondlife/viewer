@@ -907,6 +907,7 @@ static LLFastTimer::DeclareTimer FTM_SLEEP("Sleep");
 static LLFastTimer::DeclareTimer FTM_TEXTURE_CACHE("Texture Cache");
 static LLFastTimer::DeclareTimer FTM_DECODE("Image Decode");
 static LLFastTimer::DeclareTimer FTM_VFS("VFS Thread");
+static LLFastTimer::DeclareTimer FTM_LFS("LFS Thread");
 static LLFastTimer::DeclareTimer FTM_PAUSE_THREADS("Pause Threads");
 static LLFastTimer::DeclareTimer FTM_IDLE("Idle");
 static LLFastTimer::DeclareTimer FTM_PUMP("Pump");
@@ -1122,6 +1123,10 @@ bool LLAppViewer::mainLoop()
 					{
 						LLFastTimer ftm(FTM_VFS);
 	 					io_pending += LLVFSThread::updateClass(1);
+					}
+					{
+						LLFastTimer ftm(FTM_LFS);
+	 					io_pending += LLLFSThread::updateClass(1);
 					}
 
 					if (io_pending > 1000)

@@ -484,6 +484,8 @@ void LLFlatListView::rearrangeItems()
 void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
 {
 	if (!item_pair) return;
+
+	setFocus(TRUE);
 	
 	bool select_item = !isSelected(item_pair);
 
@@ -554,12 +556,21 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 			break;
 	}
 
-	if ( key == KEY_UP || key == KEY_DOWN )
+	if ( ( key == KEY_UP || key == KEY_DOWN ) && mSelectedItemPairs.size() )
 	{
-		LLRect selcted_rect = getLastSelectedItemRect().stretch(1);
-		LLRect visible_rect = getVisibleContentRect();
-		if ( !visible_rect.contains (selcted_rect) )
-			scrollToShowRect(selcted_rect);
+		LLRect visible_rc = getVisibleContentRect();
+		LLRect selected_rc = getLastSelectedItemRect();
+
+		if ( !visible_rc.contains (selected_rc) )
+		{
+			// But scroll in Items panel coordinates
+			scrollToShowRect(selected_rc);
+		}
+
+		// In case we are in accordion tab notify parent to show selected rectangle
+		LLRect screen_rc;
+		localRectToScreen(selected_rc, &screen_rc);
+		notifyParent(LLSD().insert("scrollToShowRect",screen_rc.getValue()));
 		handled = TRUE;
 	}
 
@@ -644,8 +655,6 @@ bool LLFlatListView::selectItemPair(item_pair_t* item_pair, bool select)
 	{
 		onCommit();
 	}
-
-	setFocus(TRUE);
 
 	// Stretch selected items rect to ensure it won't be clipped
 	mSelectedItemsBorder->setRect(getSelectedItemsRect().stretch(-1));

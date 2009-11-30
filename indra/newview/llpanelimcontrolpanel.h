@@ -35,6 +35,7 @@
 
 #include "llpanel.h"
 #include "llvoicechannel.h"
+#include "llcallingcard.h"
 
 class LLSpeakerMgr;
 class LLAvatarList;
@@ -66,7 +67,7 @@ private:
 };
 
 
-class LLPanelIMControlPanel : public LLPanelChatControlPanel
+class LLPanelIMControlPanel : public LLPanelChatControlPanel, LLFriendObserver
 {
 public:
 	LLPanelIMControlPanel();
@@ -75,6 +76,9 @@ public:
 	BOOL postBuild();
 
 	void setSessionId(const LLUUID& session_id);
+
+	// LLFriendObserver trigger
+	virtual void changed(U32 mask);
 
 protected:
 	void nameUpdatedCallback(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);

@@ -529,7 +529,6 @@ void LLIMFloater::onInputEditorFocusReceived( LLFocusableElement* caller, void* 
 		//in disconnected state IM input editor should be disabled
 		self->mInputEditor->setEnabled(!gDisconnected);
 	}
-	self->mChatHistory->setCursorAndScrollToEnd();
 }
 
 // static
