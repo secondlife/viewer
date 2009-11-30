@@ -264,11 +264,14 @@ void LLLandmarksPanel::updateFilteredAccordions()
 		accordion_tab = *iter;
 		inventory_list = dynamic_cast<LLInventorySubTreePanel*> (accordion_tab->getAccordionView());
 		if (NULL == inventory_list) continue;
+		// This doesn't seem to work correctly.  Disabling for now. -Seraph
+		/*
 		LLFolderView* fv = inventory_list->getRootFolder();
-
 		bool has_descendants = fv->hasFilteredDescendants();
 
 		accordion_tab->setVisible(has_descendants);
+		*/
+		accordion_tab->setVisible(TRUE);
 	}
 
 	// we have to arrange accordion tabs for cases when filter string is less restrictive but
@@ -456,6 +459,19 @@ void LLLandmarksPanel::onAccordionExpandedCollapsed(const LLSD& param, LLInvento
 
 		mCurrentSelectedList = NULL;
 		updateVerbs();
+	}
+
+	// Start background fetch, mostly for My Inventory and Library
+	if (expanded)
+	{
+		const LLUUID &cat_id = inventory_list->getStartFolderID();
+		// Just because the category itself has been fetched, doesn't mean its child folders have.
+		/*
+		  if (!gInventory.isCategoryComplete(cat_id))
+		*/
+		{
+			gInventory.startBackgroundFetch(cat_id);
+		}
 	}
 }
 
