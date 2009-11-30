@@ -8,6 +8,18 @@
  save_visibility="true"
  single_instance="true"
  width="282">
+    <string
+     name="title_nearby">
+        NEARBY VOICE
+    </string>
+    <string
+     name="title_group">
+        Group Call with [GROUP]
+    </string>
+    <string
+     name="title_adhoc">
+        Conference Call
+    </string>
     <panel
      bevel_style="in"
      follows="left|right|top"

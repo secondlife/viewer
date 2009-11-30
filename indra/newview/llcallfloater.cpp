@@ -119,6 +119,7 @@ void LLCallFloater::updateSession()
 		lldebugs << "Set DEFAULT speaker manager" << llendl;
 	}
 
+	updateTitle();
 	refreshPartisipantList();
 }
 
@@ -134,5 +135,21 @@ void LLCallFloater::refreshPartisipantList()
 void LLCallFloater::onCurrentChannelChanged(const LLUUID& /*session_id*/)
 {
 	updateSession();
+}
+
+void LLCallFloater::updateTitle()
+{
+	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
+	if (NULL == voice_channel) return;
+
+	std::string title = voice_channel->getSessionName();
+
+	if (LLLocalSpeakerMgr::getInstance() == mSpeakerManager)
+	{
+		title = getString("title_nearby");
+	}
+
+	// *TODO: mantipov: update code to use title from xml for other chat types
+	setTitle(title);
 }
 //EOF
