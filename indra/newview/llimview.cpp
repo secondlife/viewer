@@ -233,6 +233,12 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 				break;
 			}
 		}
+
+		// Update speakers list when connected
+		if (LLVoiceChannel::STATE_CONNECTED == new_state)
+		{
+			mSpeakers->update(true);
+		}
 	}
 	else  // group || ad-hoc calls
 	{
