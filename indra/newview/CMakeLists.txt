@@ -90,6 +90,7 @@ set(viewer_SOURCE_FILES
     llbox.cpp
     llbreadcrumbview.cpp
     llcallbacklist.cpp
+    llcallfloater.cpp
     llcallingcard.cpp
     llcapabilitylistener.cpp
     llcaphttpsender.cpp
@@ -291,6 +292,7 @@ set(viewer_SOURCE_FILES
     llnetmap.cpp
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
+    llnotificationhandlerutil.cpp
     llnotificationmanager.cpp
     llnotificationofferhandler.cpp
     llnotificationscripthandler.cpp
@@ -588,6 +590,7 @@ set(viewer_HEADER_FILES
     llbox.h
     llbreadcrumbview.h
     llcallbacklist.h
+    llcallfloater.h
     llcallingcard.h
     llcapabilitylistener.h
     llcapabilityprovider.h

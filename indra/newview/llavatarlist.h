@@ -70,6 +70,8 @@ public:
 
 	virtual void draw(); // from LLView
 
+	virtual void clear();
+
 	void setNameFilter(const std::string& filter);
 	void setDirty(bool val = true)						{ mDirty = val; }
 	uuid_vector_t& getIDs() 							{ return mIDs; }

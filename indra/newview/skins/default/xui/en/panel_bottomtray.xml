@@ -72,7 +72,13 @@
            left="0"
            name="talk"
            top="4"
-          width="100" />
+          width="100">
+              <show_button>
+                  <show_button.init_callback
+                   function="Button.SetDockableFloaterToggle"
+                   parameter="voice_controls" />
+              </show_button>
+          </talk_button>
         </layout_panel>
         <icon
             auto_resize="false"

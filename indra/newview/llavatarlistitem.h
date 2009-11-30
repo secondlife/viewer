@@ -63,7 +63,7 @@ public:
 	void setOnline(bool online);
 	void setName(const std::string& name);
 	void setAvatarId(const LLUUID& id, bool ignore_status_changes = false);
-	void setLastInteractionTime(const std::string& val);
+	void setLastInteractionTime(U32 secs_since);
 	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly
 	void setShowProfileBtn(bool show);
 	void setShowInfoBtn(bool show);
@@ -93,6 +93,8 @@ private:
 	} EOnlineStatus;
 
 	void onNameCache(const std::string& first_name, const std::string& last_name);
+
+	std::string formatSeconds(U32 secs);
 
 	LLAvatarIconCtrl* mAvatarIcon;
 	LLTextBox* mAvatarName;

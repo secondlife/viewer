@@ -53,6 +53,8 @@ public:
 
 	/*virtual*/ void	onOpen	(const LLSD& key);
 
+	/*virtual*/ void	setVisible(BOOL visible);
+
 	virtual void setRect		(const LLRect &rect);
 
 private:

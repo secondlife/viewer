@@ -77,12 +77,12 @@ std::string LLLogChat::timestamp(bool withdate)
 		          +LLTrans::getString ("TimeMonth")+"]/["
 				  +LLTrans::getString ("TimeDay")+"] ["
 				  +LLTrans::getString ("TimeHour")+"]:["
-				  +LLTrans::getString ("TimeMin")+"] ";
+				  +LLTrans::getString ("TimeMin")+"]";
 	}
 	else
 	{
 		timeStr = "[" + LLTrans::getString("TimeHour") + "]:["
-			      + LLTrans::getString ("TimeMin")+"] "; 
+			      + LLTrans::getString ("TimeMin")+"]";
 	}
 
 	LLStringUtil::format (timeStr, substitution);

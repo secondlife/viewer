@@ -61,6 +61,7 @@ public:
 
 		void sessionInitReplyReceived(const LLUUID& new_session_id);
 		void addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time);
+		void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
 		static void chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata);
 
 		LLUUID mSessionID;
@@ -143,6 +144,11 @@ public:
 	 * It sends new message signal for each added message.
 	 */
 	bool addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& other_participant_id, const std::string& utf8_text, bool log2file = true);
+
+	/**
+	 * Adds message without new message notification.
+	 */
+	void addMessageSilently(LLIMSession& session, const std::string& from, const LLUUID& other_participant_id, const std::string& utf8_text, bool log2file = true);
 
 	/**
 	 * Add a system message to an IM Model

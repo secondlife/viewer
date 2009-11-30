@@ -633,20 +633,21 @@ void LLAvatarTracker::processChange(LLMessageSystem* msg)
 			{
 				if((mBuddyInfo[agent_id]->getRightsGrantedFrom() ^  new_rights) & LLRelationship::GRANT_MODIFY_OBJECTS)
 				{
-					std::string first, last;
+					std::string name;
 					LLSD args;
-					if(gCacheName->getName(agent_id, first, last))
+					if(gCacheName->getFullName(agent_id, name))
 					{
-						args["FIRST_NAME"] = first;
-						args["LAST_NAME"] = last;	
+						args["NAME"] = name;
 					}
+					LLSD payload;
+					payload["from_id"] = agent_id;
 					if(LLRelationship::GRANT_MODIFY_OBJECTS & new_rights)
 					{
-						LLNotificationsUtil::add("GrantedModifyRights",args);
+						LLNotificationsUtil::add("GrantedModifyRights",args, payload);
 					}
 					else
 					{
-						LLNotificationsUtil::add("RevokedModifyRights",args);
+						LLNotificationsUtil::add("RevokedModifyRights",args, payload);
 					}
 				}
 				(mBuddyInfo[agent_id])->setRightsFrom(new_rights);

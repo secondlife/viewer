@@ -73,6 +73,7 @@ LLGestureManager::LLGestureManager()
 	mActive(),
 	mLoadingCount(0)
 {
+	mRetryIfMissing = true;
 	gInventory.addObserver(this);
 }
 
@@ -984,7 +985,9 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 			else
 			{
 				// Watch this item and set gesture name when item exists in inventory
-				self.watchItem(item_id);
+				item_ref_t ids;
+				ids.push_back(item_id);
+				self.fetchItems(ids);
 			}
 			self.mActive[item_id] = gesture;
 
@@ -1177,6 +1180,7 @@ void LLGestureManager::getItemIDs(std::vector<LLUUID>* ids)
 
 void LLGestureManager::done()
 {
+	bool notify = false;
 	for(item_map_t::iterator it = mActive.begin(); it != mActive.end(); ++it)
 	{
 		if(it->second && it->second->mName.empty())
@@ -1185,10 +1189,14 @@ void LLGestureManager::done()
 			if(item)
 			{
 				it->second->mName = item->getName();
+				notify = true;
 			}
 		}
 	}
-	notifyObservers();
+	if(notify)
+	{
+		notifyObservers();
+	}
 }
 
 // static
