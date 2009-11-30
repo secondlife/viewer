@@ -87,8 +87,6 @@ public:
 	S32 getSquareMetersCommitted() const;
 	S32 getSquareMetersLeft() const;
 
-	LLPanelVolumePulldown         *mPanelVolume;	
-
 private:
 	// simple method to setup the part that holds the date
 	void setupDate();

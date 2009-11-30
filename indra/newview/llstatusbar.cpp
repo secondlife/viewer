@@ -126,7 +126,6 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mSGPacketLoss(NULL),
 	mBtnBuyCurrency(NULL),
 	mBtnVolume(NULL),
-	mPanelVolume(NULL),
 	mBalance(0),
 	mHealth(100),
 	mSquareMetersCredit(0),
@@ -162,8 +161,6 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mBtnVolume = getChild<LLButton>( "volume_btn" );
 	mBtnVolume->setClickedCallback( onClickVolume, this );
 	mBtnVolume->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterVolume, this));
-
-	mPanelVolume = getChild<LLPanelVolumePulldown>( "volume_pulldown" );
 
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 
@@ -513,30 +510,7 @@ static void onClickScriptDebug(void*)
 void LLStatusBar::onMouseEnterVolume(LLUICtrl* ctrl)
 {
 	// show the master volume pull-down
-
-#if 1
-	//LLFloater* vp =
-	LLFloaterReg::showInstance("volume_pulldown"); //tmp
-#else
-	//LLPanelVolumePulldown *foo=
-		//new LLPanelVolumePulldown();
-	//LLPanel* container = getRootView();//->getChild<LLPanel>("nav_bar_container");
-	//container->addChild(foo);
-	LLStatusBar *sb = (LLStatusBar*)(data);
-	llassert_always(sb);
-	sb->mPanelVolume->setRect(LLRect(1,1,100,100));
-	sb->mPanelVolume->setShape(LLRect(1,1,100,100));
-	sb->mPanelVolume->setBackgroundColor(LLColor3(1.0, 0.0, 0.0));
-	sb->mPanelVolume->setVisible(TRUE);
-	sb->mPanelVolume->setEnabled(TRUE);
-	sb->addChild(sb->mPanelVolume);
-	gFloaterView->addChild(sb->mPanelVolume);
-	sb->mPanelVolume->getParent()->sendChildToFront(sb->mPanelVolume);
-	gFocusMgr.setTopCtrl(sb->mPanelVolume);
-	// also set focus explicitly to mpanelvolume
-
-	//sb->mPanelVolume->setFrontmost()
-#endif
+	LLFloaterReg::showInstance("volume_pulldown");
 }
 
 static void onClickVolume(void* data)
