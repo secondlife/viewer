@@ -79,6 +79,8 @@
 #include "timing.h"
 #include "llviewermenu.h"
 #include "lltooltip.h"
+#include "llmediaentry.h"
+#include "llurldispatcher.h"
 
 // newview includes
 #include "llagent.h"
@@ -818,6 +820,74 @@ BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MAS
   
   	// Always handled as far as the OS is concerned.
 	return TRUE;
+}
+
+BOOL LLViewerWindow::handleDragNDrop( LLWindow *window,  LLCoordGL pos, MASK mask, BOOL drop, std::string data, BOOL slurl )
+{
+	BOOL result = FALSE;
+	if (gSavedSettings.getBOOL("PrimMediaDragNDrop"))
+	{
+		// special case SLURLs
+		if ( slurl )
+		{
+			LLURLDispatcher::dispatch( data, NULL, true );
+			return TRUE;
+		};
+
+		LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/ );
+
+		LLUUID object_id = pick_info.getObjectID();
+		S32 object_face = pick_info.mObjectFace;
+		std::string url = data;
+
+		llinfos << "### Object: picked at " << pos.mX << ", " << pos.mY << " - face = " << object_face << " - URL = " << url << llendl;
+
+		LLVOVolume *obj = dynamic_cast<LLVOVolume*>(static_cast<LLViewerObject*>(pick_info.getObject()));
+		
+		if (obj && obj->permModify())
+		{
+			LLTextureEntry *te = obj->getTE(object_face);
+			if (te)
+			{
+				if (drop)
+				{
+					if (! te->hasMedia())
+					{
+						// Create new media entry
+						LLSD media_data;
+						// XXX Should we really do Home URL too?
+						media_data[LLMediaEntry::HOME_URL_KEY] = url;
+						media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
+						media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
+						obj->syncMediaData(object_face, media_data, true, true);
+						// XXX This shouldn't be necessary, should it ?!?
+						obj->getMediaImpl(object_face)->navigateReload();
+						obj->sendMediaDataUpdate();
+					}
+					else {
+						// just navigate to the URL
+						obj->getMediaImpl(object_face)->navigateTo(url);
+					}
+					LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
+					mDragHoveredObject = NULL;
+				}
+				else {
+					mDragHoveredObject = obj;
+					// Highlight the dragged object
+					LLSelectMgr::getInstance()->highlightObjectOnly(mDragHoveredObject);
+				}
+				result = TRUE;
+			}
+		}
+
+		if (!result && !mDragHoveredObject.isNull())
+		{
+			LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
+			mDragHoveredObject = NULL;
+		}
+	}
+	
+	return result;
 }
   
 BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
