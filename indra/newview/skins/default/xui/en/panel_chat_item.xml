@@ -6,14 +6,14 @@
   height="180"
   follows="all">
 	<panel
-	width="290"
-	height="24"
-	background_visible="true"
-	background_opaque="false"
-	bg_alpha_color="Black"
-	left="5"
-	name="msg_caption">
-             <avatar_icon
+	 width="290"
+	 height="24"
+	 background_visible="true"
+	 background_opaque="false"
+	 bg_alpha_color="Black"
+	 left="5"
+	 name="msg_caption">
+		<avatar_icon
          follows="left"
          height="18"
          image_name="Generic_Person"
@@ -24,37 +24,52 @@
          top="3"
          width="18" />
     	<text
-                font.style="BOLD"
-                height="12"
-	    layout="topleft"
-	    left_pad="5"
-	    top="7"
-		text_color="white"
-		word_wrap="false"
-		use_ellipses="true"
-        	mouse_opaque="true"
-		name="sender_name"
-        	width="150">
+		 font.style="BOLD"
+		 height="12"
+	     layout="topleft"
+	     left_pad="5"
+	     top="7"
+		 text_color="white"
+		 word_wrap="false"
+		 use_ellipses="true"
+		 mouse_opaque="true"
+		 name="sender_name"
+		 width="150">
 	      Jerry Knight
     	</text>
-   <!-- 	<icon top="22" left="215" width="15" height="15" follows="top|right"
-      		image_name="icn_voice-pvtfocus.tga" visible="false" name="msg_inspector" />-->
-    	<!--<icon top="22" left="215" width="10" height="10" follows="top|right"
-      		image_name="speaking_indicator.tga"	name="msg_icon"/>-->
+<!-- 	<icon 
+		 top="22" 
+		 left="215" 
+		 width="15" 
+		 height="15" 
+		 follows="top|right"
+		 image_name="icn_voice-pvtfocus.tga" 
+		 visible="false" 
+		 name="msg_inspector" />
+-->
+<!--    <icon 
+         top="22" 
+		 left="215" 
+		 width="10" 
+		 height="10" 
+		 follows="top|right"
+		 image_name="speaking_indicator.tga"	
+		 name="msg_icon"/>
+-->
 	 <text
-            font="SansSerifSmall"
-         follows="right|top"
-	 halign="right"
-         height="13"
-         layout="topleft"
-         right="-10"
-	 left="205"
-	 mouse_opaque="true"
+	  font="SansSerifSmall"
+	  follows="right|top"
+	  halign="right"
+	  height="13"
+	  layout="topleft"
+	  right="-10"
+	  left="205"
+	  mouse_opaque="true"
       name="msg_time"
-        top="8"
-         value="23:30"
-         width="50"
-	 word_wrap="true" />
+	  top="8"
+	  value="23:30"
+	  width="50"
+	  word_wrap="true" />
 	</panel>
 	<text_chat
       top="-35"
