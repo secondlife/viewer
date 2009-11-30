@@ -482,8 +482,7 @@ bool LLIMModel::proccessOnlineOfflineNotification(
 }
 
 bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, 
-						   const std::string& utf8_text, bool log2file /* = true */)
-{
+						   const std::string& utf8_text, bool log2file /* = true */) { 
 	LLIMSession* session = findIMSession(session_id);
 
 	if (!session)
@@ -492,7 +491,10 @@ bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 		return false;
 	}
 
-	addMessageSilently(*session, from, from_id, utf8_text, log2file);
+	addToHistory(session_id, from, from_id, utf8_text);
+	if (log2file) logToFile(session_id, from, from_id, utf8_text);
+
+	session->mNumUnread++;
 
 	// notify listeners
 	LLSD arg;
@@ -505,15 +507,6 @@ bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 	mNewMsgSignal(arg);
 
 	return true;
-}
-
-void LLIMModel::addMessageSilently(LLIMSession& session, const std::string& from, const LLUUID& from_id,
-						   const std::string& utf8_text, bool log2file /* = true */)
-{
-	addToHistory(session.mSessionID, from, from_id, utf8_text);
-	if (log2file) logToFile(session.mSessionID, from, from_id, utf8_text);
-
-	session.mNumUnread++;
 }
 
 
