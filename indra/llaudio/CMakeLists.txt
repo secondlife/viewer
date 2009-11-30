@@ -60,11 +60,11 @@ if (FMOD)
          )
 
     if (LINUX)
-      if (${CXX_VERSION} MATCHES "4.[23]")
+      if (${CXX_VERSION_NUMBER} GREATER 419)
         set_source_files_properties(llaudioengine_fmod.cpp
                                     llstreamingaudio_fmod.cpp
                                     COMPILE_FLAGS -Wno-write-strings)
-      endif (${CXX_VERSION} MATCHES "4.[23]")
+      endif (${CXX_VERSION_NUMBER} GREATER 419)
     endif (LINUX)
 endif (FMOD)
 
