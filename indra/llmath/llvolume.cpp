@@ -1692,10 +1692,9 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 
 	mGenerateSingleFace = generate_single_face;
 
-	generate();
-
 	if (mParams.getSculptID().isNull() && params.getSculptType() == LL_SCULPT_TYPE_NONE)
 	{
+		generate();
 		createVolumeFaces();
 	}
 }
