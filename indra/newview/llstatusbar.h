@@ -95,6 +95,7 @@ private:
 
 	void onVolumeChanged(const LLSD& newvalue);
 
+	static void onMouseEnterVolume(LLUICtrl* ctrl);
 	static void onClickStatGraph(void* data);
 
 private:

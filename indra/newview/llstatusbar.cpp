@@ -161,6 +161,7 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 
 	mBtnVolume = getChild<LLButton>( "volume_btn" );
 	mBtnVolume->setClickedCallback( onClickVolume, this );
+	mBtnVolume->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterVolume, this));
 
 	mPanelVolume = getChild<LLPanelVolumePulldown>( "volume_pulldown" );
 
@@ -506,6 +507,17 @@ static void onClickHealth(void* )
 static void onClickScriptDebug(void*)
 {
 	LLFloaterScriptDebug::show(LLUUID::null);
+}
+
+//static
+void LLStatusBar::onMouseEnterVolume(LLUICtrl* ctrl)
+{
+#if 1
+	//LLFloater* vp =
+	LLFloaterReg::showInstance("volume_pulldown"); //tmp
+#else
+	#error do this for panel
+#endif
 }
 
 static void onClickVolume(void* data)
