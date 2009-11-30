@@ -2,6 +2,8 @@
  * @file slplugin.cpp
  * @brief Loader shell for plugins, intended to be launched by the plugin host application, which directly loads a plugin dynamic library.
  *
+ * @cond
+ *
  * $LicenseInfo:firstyear=2008&license=viewergpl$
  *
  * Copyright (c) 2008, Linden Research, Inc.
@@ -27,6 +29,8 @@
  * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
+ *
+ * @endcond
  */
 
 

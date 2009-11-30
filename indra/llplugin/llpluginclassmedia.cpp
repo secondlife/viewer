@@ -2,6 +2,7 @@
  * @file llpluginclassmedia.cpp
  * @brief LLPluginClassMedia handles a plugin which knows about the "media" message class.
  *
+ * @cond
  * $LicenseInfo:firstyear=2008&license=viewergpl$
  *
  * Copyright (c) 2008, Linden Research, Inc.
@@ -27,6 +28,7 @@
  * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
+ * @endcond
  */
 
 #include "linden_common.h"

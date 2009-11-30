@@ -2,6 +2,7 @@
  * @file llpluginmessage.cpp
  * @brief LLPluginMessage encapsulates the serialization/deserialization of messages passed to and from plugins.
  *
+ * @cond
  * $LicenseInfo:firstyear=2008&license=viewergpl$
  *
  * Copyright (c) 2008, Linden Research, Inc.
@@ -27,6 +28,7 @@
  * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
+ * @endcond
  */
 
 #include "linden_common.h"
