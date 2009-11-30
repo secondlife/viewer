@@ -71,29 +71,23 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification)
 		LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
 		if (session == NULL)
 		{
-			session_id = LLIMMgr::instance().addSession(name,
-					IM_NOTHING_SPECIAL, from_id);
-			session = LLIMModel::instance().findIMSession(session_id);
+			LLIMModel::instance().logToFile(session_id, name, from_id,
+					notification->getMessage());
 		}
-
-		if (session == NULL)
+		else
 		{
-			llerrs << "session " << session_id << "does not exist " << llendl;
-			return;
+			// store active session id
+			const LLUUID & active_session_id =
+					LLIMModel::instance().getActiveSessionID();
+
+			// set searched session as active to avoid IM toast popup
+			LLIMModel::instance().setActiveSessionID(session->mSessionID);
+
+			LLIMModel::instance().addMessage(session->mSessionID, name, from_id,
+					notification->getMessage());
+
+			// restore active session id
+			LLIMModel::instance().setActiveSessionID(active_session_id);
 		}
-
-
-		// store active session id
-		const LLUUID & active_session_id =
-				LLIMModel::instance().getActiveSessionID();
-
-		// set created session as active to avoid IM toast popup
-		LLIMModel::instance().setActiveSessionID(session->mSessionID);
-
-		LLIMModel::instance().addMessage(session->mSessionID, name, from_id,
-				notification->getMessage());
-
-		// restore active session id
-		LLIMModel::instance().setActiveSessionID(active_session_id);
 	}
 }

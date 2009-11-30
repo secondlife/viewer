@@ -455,7 +455,13 @@ bool LLIMModel::logToFile(const LLUUID& session_id, const std::string& from, con
 {
 	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
 	{
-		LLLogChat::saveHistory(LLIMModel::getInstance()->getName(session_id), from, from_id, utf8_text);
+		std::string name = LLIMModel::getInstance()->getName(session_id);
+		if (name == LLStringUtil::null)
+		{
+			name = from;
+		}
+
+		LLLogChat::saveHistory(name, from, from_id, utf8_text);
 		return true;
 	}
 	else

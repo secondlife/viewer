@@ -200,17 +200,17 @@ public:
 
 	void testMessages();
 
+	/**
+	 * Save an IM message into a file
+	 */
+	bool logToFile(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text);
+
 private:
 	
 	/**
 	 * Add message to a list of message associated with session specified by session_id
 	 */
 	bool addToHistory(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text); 
-
-	/**
-	 * Save an IM message into a file
-	 */
-	bool logToFile(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text);
 };
 
 class LLIMSessionObserver
