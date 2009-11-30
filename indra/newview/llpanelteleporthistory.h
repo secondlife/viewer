@@ -98,6 +98,10 @@ private:
 	LLFlatListView* getFlatListViewFromTab(LLAccordionCtrlTab *);
 	void onGearButtonClicked();
 
+	void setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool collapsed);
+	bool isAccordionCollapsedByUser(LLUICtrl* acc_tab);
+	void onAccordionExpand(LLUICtrl* ctrl, const LLSD& param);
+
 	LLTeleportHistoryStorage*	mTeleportHistory;
 	LLAccordionCtrl*		mHistoryAccordion;
 

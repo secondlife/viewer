@@ -101,7 +101,6 @@
 #include "llfeaturemanager.h"
 #include "llfirstuse.h"
 #include "llfloaterchat.h"
-#include "llfloatergesture.h"
 #include "llfloaterhud.h"
 #include "llfloaterland.h"
 #include "llfloaterpreference.h"
@@ -298,23 +297,6 @@ namespace
 		}
 	};
 }
-
-class LLGestureInventoryFetchObserver : public LLInventoryFetchObserver
-{
-public:
-	LLGestureInventoryFetchObserver() {}
-	virtual void done()
-	{
-		// we've downloaded all the items, so repaint the dialog
-		LLFloaterGesture* floater = LLFloaterReg::findTypedInstance<LLFloaterGesture>("gestures");
-		if (floater)
-		{
-			floater->refreshAll();
-		}
-		gInventory.removeObserver(this);
-		delete this;
-	}
-};
 
 void update_texture_fetch()
 {
@@ -1825,11 +1807,8 @@ bool idle_startup()
 						item_ids.push_back(item_id);
 					}
 				}
-
-				LLGestureInventoryFetchObserver* fetch = new LLGestureInventoryFetchObserver();
-				fetch->fetchItems(item_ids);
-				// deletes itself when done
-				gInventory.addObserver(fetch);
+				// no need to add gesture to inventory observer, it's already made in constructor 
+				LLGestureManager::instance().fetchItems(item_ids);
 			}
 		}
 		gDisplaySwapBuffers = TRUE;

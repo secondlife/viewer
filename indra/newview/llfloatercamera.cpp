@@ -215,17 +215,38 @@ void LLFloaterCamera::onOpen(const LLSD& key)
 		getDockTongue(), LLDockControl::TOP));
 
 	mZoom->onOpen(key);
+
+	// Returns to previous mode, see EXT-2727(View tool should remember state).
+	// In case floater was just hidden and it isn't reset the mode
+	// just update state to current one. Else go to previous.
+	if ( !mClosed )
+		updateState();
+	else
+		toPrevMode();
+	mClosed = FALSE;
 }
 
 void LLFloaterCamera::onClose(bool app_quitting)
 {
 	//We don't care of camera mode if app is quitting
-	if(!app_quitting)
-		switchMode(CAMERA_CTRL_MODE_ORBIT);
+	if(app_quitting)
+		return;
+	// When mCurrMode is in CAMERA_CTRL_MODE_ORBIT
+	// switchMode won't modify mPrevMode, so force it here.
+	// It is needed to correctly return to previous mode on open, see EXT-2727.
+	if (mCurrMode == CAMERA_CTRL_MODE_ORBIT)
+		mPrevMode = CAMERA_CTRL_MODE_ORBIT;
+
+	// HACK: Should always close as docked to prevent toggleInstance without calling onOpen.
+	if ( !isDocked() )
+		setDocked(true);
+	switchMode(CAMERA_CTRL_MODE_ORBIT);
+	mClosed = TRUE;
 }
 
 LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 :	LLTransientDockableFloater(NULL, true, val),
+	mClosed(FALSE),
 	mCurrMode(CAMERA_CTRL_MODE_ORBIT),
 	mPrevMode(CAMERA_CTRL_MODE_ORBIT)
 {

@@ -37,8 +37,6 @@
 #include "lltoastnotifypanel.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
-#include "llimview.h"
-#include "llimfloater.h"
 #include "llnotificationmanager.h"
 #include "llnotifications.h"
 
@@ -92,27 +90,7 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
-		// add message to IM
-		const std::string
-				name =
-						notification->getSubstitutions().has("NAME") ? notification->getSubstitutions()["NAME"]
-								: notification->getSubstitutions()["[NAME]"];
-
-		// don't create IM session with objects
-		if (notification->getName() != "ObjectGiveItem"
-				&& notification->getName() != "ObjectGiveItemUnknownUser")
-		{
-			LLUUID from_id = notification->getPayload()["from_id"];
-			LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL,
-					from_id);
-			if (!LLIMMgr::instance().hasSession(session_id))
-			{
-				session_id = LLIMMgr::instance().addSession(name,
-						IM_NOTHING_SPECIAL, from_id);
-			}
-			LLIMMgr::instance().addMessage(session_id, LLUUID(), name,
-					notification->getMessage());
-		}
+		LLHandlerUtil::logToIM(notification);
 
 		LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
 

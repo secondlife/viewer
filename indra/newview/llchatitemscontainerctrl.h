@@ -59,9 +59,8 @@ public:
 
 	const LLUUID& getFromID() const { return mFromID;}
 	
-	void	addText		(const std::string& message ,  const LLStyle::Params& input_params = LLStyle::Params());
-	void	setMessage	(const LLChat& msg);
-	void	setWidth		(S32 width);
+	//void	addText		(const std::string& message ,  const LLStyle::Params& input_params = LLStyle::Params());
+	//void	setMessage	(const LLChat& msg);
 	void	snapToMessageHeight	();
 
 	bool	canAddText	();
@@ -78,22 +77,16 @@ public:
 	BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 	virtual void init(LLSD& data);
+	virtual void addMessage(LLSD& data);
 
 	virtual void draw();
-private:
-	
-	std::string appendTime	();
 
+	const LLUUID&	messageID() const { return mFromID;}
 private:
-	std::string		mText;		// UTF-8 line of text
-	std::string		mFromName;	// agent or object name
 	LLUUID			mFromID;	// agent id or object id
 	EChatSourceType	mSourceType;
-	LLColor4        mTextColor;
-	LLFontGL*       mFont;
+	
 
-
-	std::vector<std::string> mMessages;
 
 	bool mIsDirty;
 };
