@@ -34,6 +34,8 @@
 
 #include "llimfloater.h"
 
+#include "llnotificationsutil.h"
+
 #include "llagent.h"
 #include "llappviewer.h"
 #include "llbutton.h"
@@ -636,7 +638,7 @@ void LLIMFloater::processAgentListUpdates(const LLSD& body)
 				mInputEditor->setLabel(label);
 
 				if (moderator_muted_text)
-					LLNotifications::instance().add("TextChatIsMutedByModerator");
+					LLNotificationsUtil::add("TextChatIsMutedByModerator");
 			}
 		}
 	}
