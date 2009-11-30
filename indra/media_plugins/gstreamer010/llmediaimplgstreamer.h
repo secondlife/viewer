@@ -3,6 +3,7 @@
  * @author Tofu Linden
  * @brief implementation that supports media playback via GStreamer.
  *
+ * @cond
  * $LicenseInfo:firstyear=2007&license=viewergpl$
  * 
  * Copyright (c) 2007-2009, Linden Research, Inc.
@@ -29,6 +30,7 @@
  * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
+ * @endcond
  */
 
 // header guard
