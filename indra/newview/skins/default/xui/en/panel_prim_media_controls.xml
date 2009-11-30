@@ -9,6 +9,11 @@
 	width="800">
   <string name="control_background_image_name">Inspector_Background</string>
   <string name="skip_step">0.2</string>
+  <string name="min_width">400</string>
+  <string name="min_height">120</string>
+  <string name="zoom_near_padding">1.0</string>
+  <string name="zoom_medium_padding">1.25</string>
+  <string name="zoom_far_padding">1.5</string>
   <panel
 	  name="media_region"
 	  bottom="125"
@@ -20,7 +25,7 @@
 	  name="media_controls"
 	  follows="left|right"
 	  animate="false"
-	  height="32"
+	  height="26"
 	  layout="topleft"
 	  left="0"
 	  orientation="horizontal"
@@ -235,18 +240,17 @@
 		width="190"
 		min_width="90">
 	  <!--
-		  RE-ENABLE THIS WHEN WE HAVE A HISTORY DROP-DOWN AGAIN
-
-<combo_box
-name="media_address_url"
-allow_text_entry="true"
-height="22"
-layout="topleft"
-max_chars="1024"
-tool_tip = "Media URL"
-<combo_box.commit_callback
-function="MediaCtrl.CommitURL" />
-</combo_box>
+	  RE-ENABLE THIS WHEN WE HAVE A HISTORY DROP-DOWN AGAIN
+	  <combo_box
+		  name="media_address_url"
+		  allow_text_entry="true"
+		  height="22"
+		  layout="topleft"
+		  max_chars="1024"
+		  tool_tip = "Media URL">
+		<combo_box.commit_callback
+			function="MediaCtrl.CommitURL" />
+	  </combo_box>
 	  -->
 	  <line_editor 
 		  name="media_address_url"
@@ -304,17 +308,17 @@ function="MediaCtrl.CommitURL" />
 		user_resize="false"
 		follows="left|right|top|bottom"
 		layout="topleft"
+		height="16"		
 		min_width="100"
 		width="200">
 	  <slider_bar
 		  name="media_play_slider"
 		  follows="left|right|top"
-		  height="22"
+		  height="16"
 		  increment="0.05"
 		  initial_value="0.5"
 		  layout="topleft"
 		  tool_tip="Movie play progress"
-		  top="8"
 		  min_width="100"
 		  width="200">
 		<slider_bar.commit_callback
@@ -619,7 +623,7 @@ function="MediaCtrl.CommitURL" />
   </layout_stack>
   <layout_stack
 	  follows="left|right|bottom"
-	  height="32"
+	  height="20"
 	  layout="topleft"
 	  animate="false"
 	  left="0"
@@ -632,7 +636,7 @@ function="MediaCtrl.CommitURL" />
 		user_resize="false" />
 	<panel
 		name="media_progress_indicator"
-		height="22"
+		height="20"
 		layout="topleft"
 		left="0"
 		top="0"
@@ -644,6 +648,7 @@ function="MediaCtrl.CommitURL" />
 		  name="media_progress_bar"
 		  color_bar="1 1 1 0.96"
 		  follows="left|right|top"
+		  top="5"
 		  height="8"
 		  layout="topleft"
 		  left="0"
