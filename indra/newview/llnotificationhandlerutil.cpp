@@ -52,7 +52,7 @@ bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 }
 
 // static
-void LLHandlerUtil::logToIM(const LLNotificationPtr& notification)
+void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification)
 {
 	// add message to IM
 	const std::string
@@ -82,7 +82,18 @@ void LLHandlerUtil::logToIM(const LLNotificationPtr& notification)
 			return;
 		}
 
-		LLIMModel::instance().addMessageSilently(*session, name, from_id,
+
+		// store active session id
+		const LLUUID & active_session_id =
+				LLIMModel::instance().getActiveSessionID();
+
+		// set created session as active to avoid IM toast popup
+		LLIMModel::instance().setActiveSessionID(session->mSessionID);
+
+		LLIMModel::instance().addMessage(session->mSessionID, name, from_id,
 				notification->getMessage());
+
+		// restore active session id
+		LLIMModel::instance().setActiveSessionID(active_session_id);
 	}
 }

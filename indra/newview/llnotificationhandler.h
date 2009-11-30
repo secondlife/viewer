@@ -268,7 +268,7 @@ public:
 	/**
 	 * Writes notification message to IM session.
 	 */
-	static void logToIM(const LLNotificationPtr& notification);
+	static void logToIMP2P(const LLNotificationPtr& notification);
 };
 
 }
