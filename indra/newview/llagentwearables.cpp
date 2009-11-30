@@ -52,6 +52,7 @@
 #include "llsidetray.h"
 #include "llpaneloutfitsinventory.h"
 #include "llfolderview.h"
+#include "llaccordionctrltab.h"
 
 #include <boost/scoped_ptr.hpp>
 
@@ -1312,9 +1313,17 @@ public:
 		LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
 		LLPanelOutfitsInventory *outfit_panel =
 			dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
-		outfit_panel->getRootFolder()->clearSelection();
-		outfit_panel->getRootFolder()->setSelectionByID(mFolderID, TRUE);
-		outfit_panel->getRootFolder()->setNeedsAutoRename(TRUE);
+		if (outfit_panel)
+		{
+			outfit_panel->getRootFolder()->clearSelection();
+			outfit_panel->getRootFolder()->setSelectionByID(mFolderID, TRUE);
+			outfit_panel->getRootFolder()->setNeedsAutoRename(TRUE);
+		}
+		LLAccordionCtrlTab* tab_outfits = outfit_panel ? outfit_panel->findChild<LLAccordionCtrlTab>("tab_outfits") : 0;
+		if (tab_outfits && !tab_outfits->getDisplayChildren())
+		{
+			tab_outfits->changeOpenClose(tab_outfits->getDisplayChildren());
+		}
 	}
 	
 	virtual void fire(const LLUUID&)
