@@ -132,6 +132,11 @@ class LLParticipantList
 		void onAvatarListDoubleClicked(LLAvatarList* list);
 		void onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param);
 
+		/**
+		 * Adds specified avatar ID to the existing list if it is not Agent's ID
+		 */
+		static void addAvatarIDExceptAgent(std::vector<LLUUID>& existing_list, const LLUUID& avatar_id);
+
 		LLSpeakerMgr*		mSpeakerMgr;
 		LLAvatarList*		mAvatarList;
 
