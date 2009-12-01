@@ -1162,7 +1162,7 @@ LLVoiceClient::LLVoiceClient() :
 	mWriteInProgress(false),
 	
 	mLipSyncEnabled(false),
-	mAPIVersion("Unknown")
+	mAPIVersion("(Not Connected)")
 {	
 	gVoiceClient = this;
 	

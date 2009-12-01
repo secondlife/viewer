@@ -269,10 +269,10 @@ LLSD LLFloaterAbout::getInfo()
 	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
 	bool want_fullname = true;
 	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : LLSD();
-	info["VIVOX_VERSION"] = gVoiceClient ? gVoiceClient->getAPIVersion() : "Unknown";
+	info["VIVOX_VERSION"] = gVoiceClient ? gVoiceClient->getAPIVersion() : "(Not Connected)";
 
 	// TODO: Implement media plugin version query
-	info["QT_WEBKIT_VERSION"] = "4.5.2";
+	info["QT_WEBKIT_VERSION"] = "4.5.2 (version number hard-coded)";
 
 	if (gPacketsIn > 0)
 	{
