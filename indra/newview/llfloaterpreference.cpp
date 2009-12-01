@@ -367,6 +367,10 @@ BOOL LLFloaterPreference::postBuild()
 		tabcontainer->selectFirstTab();
 	S32 show_avatar_nametag_options = gSavedSettings.getS32("AvatarNameTagMode");
 	handleNameTagOptionChanged(LLSD(show_avatar_nametag_options));
+
+	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
+	childSetText("cache_location", cache_location);
+
 	return TRUE;
 }
 
@@ -760,8 +764,9 @@ void LLFloaterPreference::onClickResetCache()
 	{
 		gSavedSettings.setString("NewCacheLocation", "");
 		gSavedSettings.setString("NewCacheLocationTopFolder", "");
-		LLNotificationsUtil::add("CacheWillBeMoved");
 	}
+
+	LLNotificationsUtil::add("CacheWillBeMoved");
 	std::string cache_location = gDirUtilp->getCacheDir(true);
 	gSavedSettings.setString("CacheLocation", cache_location);
 	std::string top_folder(gDirUtilp->getBaseFileName(cache_location));
