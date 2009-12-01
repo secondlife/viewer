@@ -2096,7 +2096,8 @@ void LLTextBase::updateRects()
 	// update document container dimensions according to text contents
 	LLRect doc_rect = mContentsRect;
 	// use old mTextRect constraint document to width of viewable region
-	doc_rect.mRight = doc_rect.mLeft + mTextRect.getWidth();
+	doc_rect.mLeft = 0;
+	doc_rect.mRight = mTextRect.getWidth();
 
 	mDocumentView->setShape(doc_rect);
 
