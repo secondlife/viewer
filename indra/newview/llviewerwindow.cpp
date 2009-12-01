@@ -1011,6 +1011,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 	else
 	{
 		mActive = FALSE;
+				
 		if (gSavedSettings.getBOOL("AllowIdleAFK"))
 		{
 			gAgent.setAFK();
@@ -3242,8 +3243,7 @@ LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot,  BOOL pick_trans
 	}
 	else
 	{
-		llwarns << "List of last picks is empty" << llendl;
-		llwarns << "Using stub pick" << llendl;
+		lldebugs << "List of last picks is empty: Using stub pick" << llendl;
 		mLastPick = LLPickInfo();
 	}
 

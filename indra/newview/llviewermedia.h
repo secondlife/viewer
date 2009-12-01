@@ -99,6 +99,7 @@ class LLViewerMedia
 		static void updateMedia();
 		static bool isMusicPlaying();
 
+		static void initClass();
 		static void cleanupClass();
 
 		static void toggleMusicPlay(void*);
