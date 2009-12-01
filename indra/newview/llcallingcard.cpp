@@ -53,6 +53,8 @@
 #include "llbutton.h"
 #include "llinventoryobserver.h"
 #include "llinventorymodel.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llnotify.h"
 #include "llresmgr.h"
 #include "llimview.h"
@@ -631,20 +633,21 @@ void LLAvatarTracker::processChange(LLMessageSystem* msg)
 			{
 				if((mBuddyInfo[agent_id]->getRightsGrantedFrom() ^  new_rights) & LLRelationship::GRANT_MODIFY_OBJECTS)
 				{
-					std::string first, last;
+					std::string name;
 					LLSD args;
-					if(gCacheName->getName(agent_id, first, last))
+					if(gCacheName->getFullName(agent_id, name))
 					{
-						args["FIRST_NAME"] = first;
-						args["LAST_NAME"] = last;	
+						args["NAME"] = name;
 					}
+					LLSD payload;
+					payload["from_id"] = agent_id;
 					if(LLRelationship::GRANT_MODIFY_OBJECTS & new_rights)
 					{
-						LLNotifications::instance().add("GrantedModifyRights",args);
+						LLNotificationsUtil::add("GrantedModifyRights",args, payload);
 					}
 					else
 					{
-						LLNotifications::instance().add("RevokedModifyRights",args);
+						LLNotificationsUtil::add("RevokedModifyRights",args, payload);
 					}
 				}
 				(mBuddyInfo[agent_id])->setRightsFrom(new_rights);
@@ -714,7 +717,7 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 		if(notify)
 		{
 			// Popup a notify box with online status of this agent
-			LLNotificationPtr notification = LLNotifications::instance().add(online ? "FriendOnline" : "FriendOffline", args);
+			LLNotificationPtr notification = LLNotificationsUtil::add(online ? "FriendOnline" : "FriendOffline", args);
 
 			// If there's an open IM session with this agent, send a notification there too.
 			LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, agent_id);

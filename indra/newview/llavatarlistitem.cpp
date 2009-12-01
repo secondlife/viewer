@@ -198,9 +198,9 @@ void LLAvatarListItem::showLastInteractionTime(bool show)
 	mAvatarName->setRect(name_rect);
 }
 
-void LLAvatarListItem::setLastInteractionTime(const std::string& val)
+void LLAvatarListItem::setLastInteractionTime(U32 secs_since)
 {
-	mLastInteractionTime->setValue(val);
+	mLastInteractionTime->setValue(formatSeconds(secs_since));
 }
 
 void LLAvatarListItem::setShowInfoBtn(bool show)
@@ -325,4 +325,52 @@ void LLAvatarListItem::reshapeAvatarName()
 	S32 width  = getRect().getWidth() - width_delta;
 
 	mAvatarName->reshape(width, height);
+}
+
+// Convert given number of seconds to a string like "23 minutes", "15 hours" or "3 years",
+// taking i18n into account. The format string to use is taken from the panel XML.
+std::string LLAvatarListItem::formatSeconds(U32 secs)
+{
+	static const U32 LL_ALI_MIN		= 60;
+	static const U32 LL_ALI_HOUR	= LL_ALI_MIN	* 60;
+	static const U32 LL_ALI_DAY		= LL_ALI_HOUR	* 24;
+	static const U32 LL_ALI_WEEK	= LL_ALI_DAY	* 7;
+	static const U32 LL_ALI_MONTH	= LL_ALI_DAY	* 30;
+	static const U32 LL_ALI_YEAR	= LL_ALI_DAY	* 365;
+
+	std::string fmt; 
+	U32 count = 0;
+
+	if (secs >= LL_ALI_YEAR)
+	{
+		fmt = "FormatYears"; count = secs / LL_ALI_YEAR;
+	}
+	else if (secs >= LL_ALI_MONTH)
+	{
+		fmt = "FormatMonths"; count = secs / LL_ALI_MONTH;
+	}
+	else if (secs >= LL_ALI_WEEK)
+	{
+		fmt = "FormatWeeks"; count = secs / LL_ALI_WEEK;
+	}
+	else if (secs >= LL_ALI_DAY)
+	{
+		fmt = "FormatDays"; count = secs / LL_ALI_DAY;
+	}
+	else if (secs >= LL_ALI_HOUR)
+	{
+		fmt = "FormatHours"; count = secs / LL_ALI_HOUR;
+	}
+	else if (secs >= LL_ALI_MIN)
+	{
+		fmt = "FormatMinutes"; count = secs / LL_ALI_MIN;
+	}
+	else
+	{
+		fmt = "FormatSeconds"; count = secs;
+	}
+
+	LLStringUtil::format_map_t args;
+	args["[COUNT]"] = llformat("%u", count);
+	return getString(fmt, args);
 }

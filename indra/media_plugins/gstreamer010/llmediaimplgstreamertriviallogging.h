@@ -2,6 +2,7 @@
  * @file llmediaimplgstreamertriviallogging.h
  * @brief minimal logging utilities.
  *
+ * @cond
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
  * Copyright (c) 2009, Linden Research, Inc.
@@ -28,6 +29,7 @@
  * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
+ * @endcond
  */
 
 #ifndef __LLMEDIAIMPLGSTREAMERTRIVIALLOGGING_H__

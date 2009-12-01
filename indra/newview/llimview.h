@@ -61,6 +61,7 @@ public:
 
 		void sessionInitReplyReceived(const LLUUID& new_session_id);
 		void addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time);
+		void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
 		static void chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata);
 
 		LLUUID mSessionID;
@@ -198,6 +199,11 @@ public:
 								const LLUUID& other_participant_id, EInstantMessage dialog);
 
 	void testMessages();
+
+	/**
+	 * Saves an IM message into a file
+	 */
+	bool logToFile(const std::string& session_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text);
 
 private:
 	

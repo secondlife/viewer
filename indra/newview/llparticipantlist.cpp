@@ -47,10 +47,11 @@
 #if LL_MSVC
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
-LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list):
+LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list,  bool use_context_menu/* = true*/):
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),
 	mSortOrder(E_SORT_BY_NAME)
+,	mParticipantListMenu(NULL)
 {
 	mSpeakerAddListener = new SpeakerAddListener(*this);
 	mSpeakerRemoveListener = new SpeakerRemoveListener(*this);
@@ -68,8 +69,15 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
     // Set onAvatarListDoubleClicked as default on_return action.
 	mAvatarList->setReturnCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
 
-	mParticipantListMenu = new LLParticipantListMenu(*this);
-	mAvatarList->setContextMenu(mParticipantListMenu);
+	if (use_context_menu)
+	{
+		mParticipantListMenu = new LLParticipantListMenu(*this);
+		mAvatarList->setContextMenu(mParticipantListMenu);
+	}
+	else
+	{
+		mAvatarList->setContextMenu(NULL);
+	}
 
 	//Lets fill avatarList with existing speakers
 	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
@@ -79,12 +87,13 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
 	{
 		const LLPointer<LLSpeaker>& speakerp = *it;
-		group_members.push_back(speakerp->mID);
+		addAvatarIDExceptAgent(group_members, speakerp->mID);
 		if ( speakerp->mIsModerator )
 		{
 			mModeratorList.insert(speakerp->mID);
 		}
 	}
+	mAvatarList->setDirty(true);
 	sort();
 }
 
@@ -183,7 +192,7 @@ bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, co
 		return true;
 	}
 
-	group_members.push_back(uu_id);
+	addAvatarIDExceptAgent(group_members, uu_id);
 	// Mark AvatarList as dirty one
 	mAvatarList->setDirty();
 	sort();
@@ -248,6 +257,15 @@ void LLParticipantList::sort()
 	default :
 		llwarns << "Unrecognized sort order for " << mAvatarList->getName() << llendl;
 		return;
+	}
+}
+
+// static
+void LLParticipantList::addAvatarIDExceptAgent(std::vector<LLUUID>& existing_list, const LLUUID& avatar_id)
+{
+	if (gAgent.getID() != avatar_id)
+	{
+		existing_list.push_back(avatar_id);
 	}
 }
 

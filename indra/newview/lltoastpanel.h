@@ -35,7 +35,7 @@
 
 #include "llpanel.h"
 #include "lltextbox.h"
-#include "llnotifications.h"
+#include "llnotificationptr.h"
 
 #include <string>
 
@@ -57,7 +57,7 @@ public:
 	virtual ~LLToastPanel() = 0;
 
 	virtual std::string getTitle();
-	virtual const LLUUID& getID() { return mNotification->id();}
+	virtual const LLUUID& getID();
 
 	static const S32 MIN_PANEL_HEIGHT;
 protected:

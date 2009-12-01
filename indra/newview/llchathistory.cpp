@@ -199,7 +199,7 @@ public:
 			userName->setValue(SL);
 		}
 
-		setTimeField(chat.mTimeStr);
+		setTimeField(chat);
 		
 		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 
@@ -267,11 +267,29 @@ protected:
 	}
 
 private:
-	void setTimeField(const std::string& time_value)
+	std::string appendTime(const LLChat& chat)
+	{
+		time_t utc_time;
+		utc_time = time_corrected();
+		std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
+			+LLTrans::getString("TimeMin")+"] ";
+
+		LLSD substitution;
+
+		substitution["datetime"] = (S32) utc_time;
+		LLStringUtil::format (timeStr, substitution);
+
+		return timeStr;
+	}
+
+	void setTimeField(const LLChat& chat)
 	{
 		LLTextBox* time_box = getChild<LLTextBox>("time_box");
 
 		LLRect rect_before = time_box->getRect();
+
+		std::string time_value = appendTime(chat);
+
 		time_box->setValue(time_value);
 
 		// set necessary textbox width to fit all text
@@ -284,7 +302,7 @@ private:
 		time_box->translate(delta_pos_x, delta_pos_y);
 
 		//... & change width of the name control
-		LLTextBox* user_name = getChild<LLTextBox>("user_name");
+		LLView* user_name = getChild<LLView>("user_name");
 		const LLRect& user_rect = user_name->getRect();
 		user_name->reshape(user_rect.getWidth() + delta_pos_x, user_rect.getHeight());
 	}
@@ -386,7 +404,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		p.left_pad = mLeftWidgetPad;
 		p.right_pad = mRightWidgetPad;
 
-		if (mLastFromName == chat.mFromName)
+		LLDate new_message_time = LLDate::now();
+
+		if (mLastFromName == chat.mFromName && 
+			mLastMessageTime.notNull() &&
+			(new_message_time.secondsSinceEpoch() - mLastMessageTime.secondsSinceEpoch()) < 60.0 )
 		{
 			view = getSeparator();
 			p.top_pad = mTopSeparatorPad;
@@ -414,6 +436,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 
 		appendWidget(p, header_text, false);
 		mLastFromName = chat.mFromName;
+		mLastMessageTime = new_message_time;
 	}
 	//Handle IRC styled /me messages.
 	std::string prefix = chat.mText.substr(0, 4);

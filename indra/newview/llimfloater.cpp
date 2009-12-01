@@ -34,6 +34,8 @@
 
 #include "llimfloater.h"
 
+#include "llnotificationsutil.h"
+
 #include "llagent.h"
 #include "llappviewer.h"
 #include "llbutton.h"
@@ -529,7 +531,6 @@ void LLIMFloater::onInputEditorFocusReceived( LLFocusableElement* caller, void* 
 		//in disconnected state IM input editor should be disabled
 		self->mInputEditor->setEnabled(!gDisconnected);
 	}
-	self->mChatHistory->setCursorAndScrollToEnd();
 }
 
 // static
@@ -635,6 +636,9 @@ void LLIMFloater::processAgentListUpdates(const LLSD& body)
 				else
 					label = LLTrans::getString("IM_to_label") + " " + LLIMModel::instance().getName(mSessionID);
 				mInputEditor->setLabel(label);
+
+				if (moderator_muted_text)
+					LLNotificationsUtil::add("TextChatIsMutedByModerator");
 			}
 		}
 	}

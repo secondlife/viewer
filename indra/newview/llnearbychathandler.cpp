@@ -52,8 +52,6 @@ using namespace LLNotificationsUI;
 LLToastPanelBase* createToastPanel()
 {
 	LLNearbyChatToastPanel* item = LLNearbyChatToastPanel::createInstance();
-	static S32 chat_item_width = 304;
-	item->setWidth(chat_item_width);
 	return item;
 }
 
@@ -169,6 +167,29 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 	//look in pool. if there is any message
 	if(mStopProcessing)
 		return;
+
+	/*
+    find last toast and check ID
+	*/
+
+	if(m_active_toasts.size())
+	{
+		LLUUID fromID = notification["from_id"].asUUID();		// agent id or object id
+		LLToast* toast = m_active_toasts[0];
+		LLNearbyChatToastPanel* panel = dynamic_cast<LLNearbyChatToastPanel*>(toast->getPanel());
+
+		if(panel && panel->messageID() == fromID && panel->canAddText())
+		{
+			panel->addMessage(notification);
+			toast->reshapeToPanel();
+			toast->resetTimer();
+	
+			arrangeToasts();
+			return;
+		}
+	}
+	
+
 	
 	if(m_toast_pool.empty())
 	{

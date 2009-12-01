@@ -73,6 +73,8 @@ static const std::string FRIENDS_TAB_NAME	= "friends_panel";
 static const std::string GROUP_TAB_NAME		= "groups_panel";
 static const std::string RECENT_TAB_NAME	= "recent_panel";
 
+static const std::string COLLAPSED_BY_USER  = "collapsed_by_user";
+
 /** Comparator for comparing avatar items by last interaction date */
 class LLAvatarItemRecentComparator : public LLAvatarItemComparator
 {
@@ -467,7 +469,7 @@ LLPanelPeople::~LLPanelPeople()
 
 }
 
-void LLPanelPeople::onFriendsAccordionExpandedCollapsed(const LLSD& param, LLAvatarList* avatar_list)
+void LLPanelPeople::onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LLSD& param, LLAvatarList* avatar_list)
 {
 	if(!avatar_list)
 	{
@@ -477,6 +479,7 @@ void LLPanelPeople::onFriendsAccordionExpandedCollapsed(const LLSD& param, LLAva
 
 	bool expanded = param.asBoolean();
 
+	setAccordionCollapsedByUser(ctrl, !expanded);
 	if(!expanded)
 	{
 		avatar_list->resetSelection();
@@ -550,11 +553,11 @@ BOOL LLPanelPeople::postBuild()
 
 	LLAccordionCtrlTab* accordion_tab = getChild<LLAccordionCtrlTab>("tab_all");
 	accordion_tab->setDropDownStateChangedCallback(
-		boost::bind(&LLPanelPeople::onFriendsAccordionExpandedCollapsed, this, _2, mAllFriendList));
+		boost::bind(&LLPanelPeople::onFriendsAccordionExpandedCollapsed, this, _1, _2, mAllFriendList));
 
 	accordion_tab = getChild<LLAccordionCtrlTab>("tab_online");
 	accordion_tab->setDropDownStateChangedCallback(
-		boost::bind(&LLPanelPeople::onFriendsAccordionExpandedCollapsed, this, _2, mOnlineFriendList));
+		boost::bind(&LLPanelPeople::onFriendsAccordionExpandedCollapsed, this, _1, _2, mOnlineFriendList));
 
 	buttonSetAction("view_profile_btn",	boost::bind(&LLPanelPeople::onViewProfileButtonClicked,	this));
 	buttonSetAction("group_info_btn",	boost::bind(&LLPanelPeople::onGroupInfoButtonClicked,	this));
@@ -760,7 +763,13 @@ void LLPanelPeople::updateButtons()
 
 		LLPanel* cur_panel = mTabContainer->getCurrentPanel();
 		if (cur_panel)
+		{
 			cur_panel->childSetEnabled("add_friend_btn", !is_friend);
+			if (friends_tab_active)
+			{
+				cur_panel->childSetEnabled("del_btn", multiple_selected);
+			}
+		}
 	}
 
 	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
@@ -930,6 +939,9 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 	mAllFriendList->setNameFilter(mFilterSubString);
 	mRecentList->setNameFilter(mFilterSubString);
 	mGroupList->setNameFilter(mFilterSubString);
+
+	setAccordionCollapsedByUser("tab_online", false);
+	setAccordionCollapsedByUser("tab_all", false);
 
 	showFriendsAccordionsIfNeeded();
 }
@@ -1309,8 +1321,12 @@ void LLPanelPeople::showAccordion(const std::string name, bool show)
 	tab->setVisible(show);
 	if(show)
 	{
-		// expand accordion
-		tab->changeOpenClose(false);
+		// don't expand accordion if it was collapsed by user
+		if(!isAccordionCollapsedByUser(tab))
+		{
+			// expand accordion
+			tab->changeOpenClose(false);
+		}
 	}
 }
 
@@ -1342,3 +1358,44 @@ void LLPanelPeople::onFriendListRefreshComplete(LLUICtrl*ctrl, const LLSD& param
 	LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("friends_accordion");
 	accordion->arrange();
 }
+
+void LLPanelPeople::setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool collapsed)
+{
+	if(!acc_tab)
+	{
+		llwarns << "Invalid parameter" << llendl;
+		return;
+	}
+
+	LLSD param = acc_tab->getValue();
+	param[COLLAPSED_BY_USER] = collapsed;
+	acc_tab->setValue(param);
+}
+
+void LLPanelPeople::setAccordionCollapsedByUser(const std::string& name, bool collapsed)
+{
+	setAccordionCollapsedByUser(getChild<LLUICtrl>(name), collapsed);
+}
+
+bool LLPanelPeople::isAccordionCollapsedByUser(LLUICtrl* acc_tab)
+{
+	if(!acc_tab)
+	{
+		llwarns << "Invalid parameter" << llendl;
+		return false;
+	}
+
+	LLSD param = acc_tab->getValue();
+	if(!param.has(COLLAPSED_BY_USER))
+	{
+		return false;
+	}
+	return param[COLLAPSED_BY_USER].asBoolean();
+}
+
+bool LLPanelPeople::isAccordionCollapsedByUser(const std::string& name)
+{
+	return isAccordionCollapsedByUser(getChild<LLUICtrl>(name));
+}
+
+// EOF

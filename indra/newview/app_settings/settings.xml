@@ -9251,17 +9251,6 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
-    <key>UILineEditorHPad</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Line Editor Horizontal Pad</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>2</integer>
-    </map>
     <key>UILineEditorVPad</key>
     <map>
       <key>Comment</key>

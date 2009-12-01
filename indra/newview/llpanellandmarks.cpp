@@ -746,13 +746,14 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	{
 		return canSelectedBeModified(command_name);
 	}
-	else if ( "sort_by_date" == command_name)
-	{
-		return  mSortByDate;
-	}
 	else if("create_pick" == command_name)
 	{
-		return !LLAgentPicksInfo::getInstance()->isPickLimitReached();
+		std::set<LLUUID> selection;
+		if ( mCurrentSelectedList && mCurrentSelectedList->getRootFolder()->getSelectionList(selection) )
+		{
+			return ( 1 == selection.size() && !LLAgentPicksInfo::getInstance()->isPickLimitReached() );
+		}
+		return false;
 	}
 	else
 	{

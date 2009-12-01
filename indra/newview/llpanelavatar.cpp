@@ -40,6 +40,7 @@
 #include "llcombobox.h"
 #include "lldateutil.h"			// ageFromDate()
 #include "llimview.h"
+#include "llnotificationsutil.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
 #include "lltoggleablemenu.h"
@@ -47,6 +48,9 @@
 #include "llscrollcontainer.h"
 #include "llavatariconctrl.h"
 #include "llweb.h"
+#include "llfloaterworldmap.h"
+#include "llfloaterreg.h"
+#include "llnotificationsutil.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLDropTarget
@@ -149,6 +153,8 @@ BOOL LLPanelAvatarNotes::postBuild()
 	childSetCommitCallback("call", boost::bind(&LLPanelAvatarNotes::onCallButtonClick, this), NULL);
 	childSetCommitCallback("teleport", boost::bind(&LLPanelAvatarNotes::onTeleportButtonClick, this), NULL);
 	childSetCommitCallback("share", boost::bind(&LLPanelAvatarNotes::onShareButtonClick, this), NULL);
+	childSetCommitCallback("show_on_map_btn", (boost::bind(
+				&LLPanelAvatarNotes::onMapButtonClick, this)), NULL);
 
 	LLTextEditor* te = getChild<LLTextEditor>("notes_edit");
 	te->setCommitCallback(boost::bind(&LLPanelAvatarNotes::onCommitNotes,this));
@@ -194,6 +200,46 @@ void LLPanelAvatarNotes::onCommitNotes()
 	LLAvatarPropertiesProcessor::getInstance()-> sendNotes(getAvatarId(),notes);
 }
 
+void LLPanelAvatarNotes::rightsConfirmationCallback(const LLSD& notification,
+		const LLSD& response, S32 rights)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0)
+	{
+		LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(
+				getAvatarId(), rights);
+	}
+	else
+	{
+		childSetValue("objects_check",
+				childGetValue("objects_check").asBoolean() ? FALSE : TRUE);
+	}
+}
+
+void LLPanelAvatarNotes::confirmModifyRights(bool grant, S32 rights)
+{
+	std::string first, last;
+	LLSD args;
+	if (gCacheName->getName(getAvatarId(), first, last))
+	{
+		args["FIRST_NAME"] = first;
+		args["LAST_NAME"] = last;
+	}
+
+	if (grant)
+	{
+		LLNotificationsUtil::add("GrantModifyRights", args, LLSD(),
+				boost::bind(&LLPanelAvatarNotes::rightsConfirmationCallback, this,
+						_1, _2, rights));
+	}
+	else
+	{
+		LLNotificationsUtil::add("RevokeModifyRights", args, LLSD(),
+				boost::bind(&LLPanelAvatarNotes::rightsConfirmationCallback, this,
+						_1, _2, rights));
+	}
+}
+
 void LLPanelAvatarNotes::onCommitRights()
 {
 	S32 rights = 0;
@@ -205,7 +251,14 @@ void LLPanelAvatarNotes::onCommitRights()
 	if(childGetValue("objects_check").asBoolean())
 		rights |= LLRelationship::GRANT_MODIFY_OBJECTS;
 
-	LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(getAvatarId(),rights);
+	const LLRelationship* buddy_relationship =
+			LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
+	bool allow_modify_objects = childGetValue("objects_check").asBoolean();
+	if (buddy_relationship->isRightGrantedTo(
+			LLRelationship::GRANT_MODIFY_OBJECTS) != allow_modify_objects)
+	{
+		confirmModifyRights(allow_modify_objects, rights);
+	}
 }
 
 void LLPanelAvatarNotes::processProperties(void* data, EAvatarProcessorType type)
@@ -310,6 +363,7 @@ void LLPanelProfileTab::onOpen(const LLSD& key)
 	// Update data even if we are viewing same avatar profile as some data might been changed.
 	setAvatarId(key.asUUID());
 	updateData();
+	updateButtons();
 }
 
 void LLPanelProfileTab::scrollToTop()
@@ -317,6 +371,22 @@ void LLPanelProfileTab::scrollToTop()
 	LLScrollContainer* scrollContainer = findChild<LLScrollContainer>("profile_scroll");
 	if (scrollContainer)
 		scrollContainer->goToTop();
+}
+
+void LLPanelProfileTab::onMapButtonClick()
+{
+	std::string name;
+	gCacheName->getFullName(getAvatarId(), name);
+	gFloaterWorldMap->trackAvatar(getAvatarId(), name);
+	LLFloaterReg::showInstance("world_map");
+}
+
+void LLPanelProfileTab::updateButtons()
+{
+	bool enable_map_btn = LLAvatarTracker::instance().isBuddyOnline(getAvatarId())
+					&& gAgent.isGodlike() || is_agent_mappable(getAvatarId());
+
+	childSetEnabled("show_on_map_btn", enable_map_btn);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -337,6 +407,8 @@ BOOL LLPanelAvatarProfile::postBuild()
 	childSetCommitCallback("teleport",(boost::bind(&LLPanelAvatarProfile::onTeleportButtonClick,this)),NULL);
 	childSetCommitCallback("overflow_btn", boost::bind(&LLPanelAvatarProfile::onOverflowButtonClicked, this), NULL);
 	childSetCommitCallback("share",(boost::bind(&LLPanelAvatarProfile::onShareButtonClick,this)),NULL);
+	childSetCommitCallback("show_on_map_btn", (boost::bind(
+			&LLPanelAvatarProfile::onMapButtonClick, this)), NULL);
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	registrar.add("Profile.Pay",  boost::bind(&LLPanelAvatarProfile::pay, this));
@@ -684,7 +756,7 @@ void LLPanelMyProfile::onStatusChanged()
 	{
 		gAgent.clearAFK();
 		gAgent.setBusy();
-		LLNotifications::instance().add("BusyModeSet");
+		LLNotificationsUtil::add("BusyModeSet");
 	}
 }
 

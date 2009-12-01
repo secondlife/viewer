@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ height="300"
+ layout="topleft"
+ name="floater_voice_controls"
+ title="Voice Controls"
+ save_visibility="true"
+ single_instance="true"
+ width="282">
+    <string
+     name="title_nearby">
+        NEARBY VOICE
+    </string>
+    <string
+     name="title_group">
+        Group Call with [GROUP]
+    </string>
+    <string
+     name="title_adhoc">
+        Conference Call
+    </string>
+    <string
+     name="no_one_near">
+        No one near
+    </string>
+    <panel
+     bevel_style="in"
+     follows="left|right|top"
+     height="62"
+     layout="topleft"
+     left="0"
+     name="control_panel"
+     width="282">
+        <panel
+         height="18"
+         follows="top|left|right"
+         layout="topleft"
+         left="10"
+         name="my_panel"
+         width="263">
+            <avatar_icon
+             enabled="false"
+             follows="left|top"
+             height="18"
+             default_icon_name="Generic_Person"
+             layout="topleft"
+             left="0"
+             name="user_icon"
+             top="0"
+             width="18" />
+            <text
+             follows="top|left|right"
+             font="SansSerifSmallBold"
+             height="16"
+             layout="topleft"
+             left_pad="10"
+             name="user_text"
+             text_color="white"
+             top="4"
+             use_ellipses="true" 
+             value="Mya Avatar:"
+             width="210" />
+            <output_monitor
+             auto_update="true"
+             draw_border="false"
+             follows="right"
+             height="16"
+             layout="topleft"
+             name="speaking_indicator"
+             right="-1"
+             top="2" 
+             visible="true"
+             width="20" />
+        </panel>
+        <layout_stack
+         bottom="10"
+         clip="false"
+         follows="left|right|top"
+         height="24"
+         layout="bottomleft"
+         orientation="horizontal"
+         width="262">
+            <layout_panel
+             follows="left"
+             layout="topleft"
+             min_width="24"
+             top="0"
+             user_resize="false"
+             width="24">
+                <icon
+                 height="24"
+                 image_name="Microphone_On"
+                 layout="topleft"
+                 name="Microphone_On"
+                 top="0"
+                 width="24" />
+            </layout_panel>
+            <layout_panel
+             layout="topleft"
+             top="0"
+             user_resize="false"
+             width="258">
+                <slider_bar
+                 control_name="AudioLevelMic"
+                 follows="left|right|top"
+                 height="24"
+                 increment="0.05"
+                 layout="topleft"
+                 left="0"
+                 max_val="2"
+                 name="volume_slider_bar"
+                 tool_tip="Master Volume"
+                 top="0"
+                 value="0.75"
+                 width="258" />
+            </layout_panel>
+        </layout_stack>
+    </panel>
+    <avatar_list
+     follows="all"
+     height="197"
+     ignore_online_status="true"
+     layout="topleft"
+     left="0"
+     multi_select="true"
+     name="speakers_list"
+     width="282" />
+</floater>

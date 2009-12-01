@@ -12,6 +12,7 @@
  help_topic="camera_floater"
  save_rect="true"
  save_visibility="true"
+ single_instance="true"
  width="150">
     <floater.string
      name="rotate_tooltip">

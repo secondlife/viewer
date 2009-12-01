@@ -35,7 +35,7 @@
 #include "llwldaycycle.h"
 #include "llsdserialize.h"
 #include "llwlparammanager.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llxmlnode.h"
 
 #include <map>
@@ -85,7 +85,7 @@ void LLWLDayCycle::loadDayCycle(const std::string & fileName)
 				// alert the user
 				LLSD args;
 				args["SKY"] = day_data[i][1].asString();
-				LLNotifications::instance().add("WLMissingSky", args);
+				LLNotificationsUtil::add("WLMissingSky", args);
 				continue;
 			}
 			

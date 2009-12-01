@@ -35,8 +35,11 @@
 
 #include <boost/tokenizer.hpp>
 
+// library includes
+#include "llnotificationsutil.h"
 #include "llsdutil.h"
 
+// project includes
 #include "llvoavatar.h"
 #include "llbufferstream.h"
 #include "llfile.h"
@@ -60,6 +63,7 @@
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
 #include "llfirstuse.h"
+#include "lltrans.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
 #include "llvoavatarself.h"
@@ -1158,11 +1162,12 @@ LLVoiceClient::LLVoiceClient() :
 	mVoiceEnabled(false),
 	mWriteInProgress(false),
 	
-	mLipSyncEnabled(false),
-	mAPIVersion("Unknown")
+	mLipSyncEnabled(false)
 {	
 	gVoiceClient = this;
 	
+	mAPIVersion = LLTrans::getString("NotConnected");
+
 #if LL_DARWIN || LL_LINUX || LL_SOLARIS
 		// HACK: THIS DOES NOT BELONG HERE
 		// When the vivox daemon dies, the next write attempt on our socket generates a SIGPIPE, which kills us.
@@ -7051,7 +7056,7 @@ class LLViewerRequiredVoiceVersion : public LLHTTPNode
 				if (!sAlertedUser)
 				{
 					//sAlertedUser = TRUE;
-					LLNotifications::instance().add("VoiceVersionMismatch");
+					LLNotificationsUtil::add("VoiceVersionMismatch");
 					gSavedSettings.setBOOL("EnableVoiceChat", FALSE); // toggles listener
 				}
 			}

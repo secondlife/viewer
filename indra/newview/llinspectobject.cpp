@@ -36,7 +36,7 @@
 // Viewer
 #include "llinspect.h"
 #include "llmediaentry.h"
-#include "llnotifications.h"	// *TODO: Eliminate, add LLNotificationsUtil wrapper
+#include "llnotificationsutil.h"	// *TODO: Eliminate, add LLNotificationsUtil wrapper
 #include "llselectmgr.h"
 #include "llslurl.h"
 #include "llviewermenu.h"		// handle_object_touch(), handle_buy()
@@ -631,7 +631,7 @@ void LLInspectObject::onClickOpen()
 void LLInspectObject::onClickMoreInfo()
 {
 	// *TODO: Show object info side panel, once that is implemented.
-	LLNotifications::instance().add("ClickUnimplemented");
+	LLNotificationsUtil::add("ClickUnimplemented");
 	closeFloater();
 }
 

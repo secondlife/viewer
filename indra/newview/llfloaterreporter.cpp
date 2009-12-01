@@ -42,6 +42,7 @@
 #include "llfontgl.h"
 #include "llgl.h"			// for renderer
 #include "llinventory.h"
+#include "llnotificationsutil.h"
 #include "llstring.h"
 #include "llsys.h"
 #include "llversionviewer.h"
@@ -123,11 +124,11 @@ void LLFloaterReporter::processRegionInfo(LLMessageSystem* msg)
 
 		if ( email_to_estate_owner )
 		{
-			LLNotifications::instance().add("HelpReportAbuseEmailEO");
+			LLNotificationsUtil::add("HelpReportAbuseEmailEO");
 		}
 		else
 		{
-			LLNotifications::instance().add("HelpReportAbuseEmailLL");
+			LLNotificationsUtil::add("HelpReportAbuseEmailLL");
 		}
 	};
 }
@@ -379,7 +380,7 @@ void LLFloaterReporter::onClickSend(void *userdata)
 					category_value == IP_CONTENT_REMOVAL ||
 					category_value == IP_PERMISSONS_EXPLOIT)
 				{
-					LLNotifications::instance().add("HelpReportAbuseContainsCopyright");
+					LLNotificationsUtil::add("HelpReportAbuseContainsCopyright");
 					self->mCopyrightWarningSeen = TRUE;
 					return;
 				}
@@ -388,7 +389,7 @@ void LLFloaterReporter::onClickSend(void *userdata)
 			{
 				// IP_CONTENT_REMOVAL *always* shows the dialog - 
 				// ergo you can never send that abuse report type.
-				LLNotifications::instance().add("HelpReportAbuseContainsCopyright");
+				LLNotificationsUtil::add("HelpReportAbuseContainsCopyright");
 				return;
 			}
 
@@ -524,39 +525,39 @@ bool LLFloaterReporter::validateReport()
 	U8 category = (U8)category_sd.asInteger();
 	if (category == 0)
 	{
-		LLNotifications::instance().add("HelpReportAbuseSelectCategory");
+		LLNotificationsUtil::add("HelpReportAbuseSelectCategory");
 		return false;
 	}
 
 
 	if ( childGetText("abuser_name_edit").empty() )
 	{
-		LLNotifications::instance().add("HelpReportAbuseAbuserNameEmpty");
+		LLNotificationsUtil::add("HelpReportAbuseAbuserNameEmpty");
 		return false;
 	};
 
 	if ( childGetText("abuse_location_edit").empty() )
 	{
-		LLNotifications::instance().add("HelpReportAbuseAbuserLocationEmpty");
+		LLNotificationsUtil::add("HelpReportAbuseAbuserLocationEmpty");
 		return false;
 	};
 
 	if ( childGetText("abuse_location_edit").empty() )
 	{
-		LLNotifications::instance().add("HelpReportAbuseAbuserLocationEmpty");
+		LLNotificationsUtil::add("HelpReportAbuseAbuserLocationEmpty");
 		return false;
 	};
 
 
 	if ( childGetText("summary_edit").empty() )
 	{
-		LLNotifications::instance().add("HelpReportAbuseSummaryEmpty");
+		LLNotificationsUtil::add("HelpReportAbuseSummaryEmpty");
 		return false;
 	};
 
 	if ( childGetText("details_edit") == mDefaultSummary )
 	{
-		LLNotifications::instance().add("HelpReportAbuseDetailsEmpty");
+		LLNotificationsUtil::add("HelpReportAbuseDetailsEmpty");
 		return false;
 	};
 	return true;
@@ -829,7 +830,7 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 	{
 		LLSD args;
 		args["REASON"] = std::string(LLAssetStorage::getErrorString(result));
-		LLNotifications::instance().add("ErrorUploadingReportScreenshot", args);
+		LLNotificationsUtil::add("ErrorUploadingReportScreenshot", args);
 
 		std::string err_msg("There was a problem uploading a report screenshot");
 		err_msg += " due to the following reason: " + args["REASON"].asString();

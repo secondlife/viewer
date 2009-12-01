@@ -2093,7 +2093,6 @@ Texture:
              width="195" />
             <button
              follows="bottom"
-             font="SansSerifSmall"
              height="16"
              label="Add..."
              label_selected="Add..."

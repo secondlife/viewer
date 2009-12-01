@@ -38,6 +38,7 @@
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 #include "llnotificationmanager.h"
+#include "llnotifications.h"
 
 using namespace LLNotificationsUI;
 
@@ -87,6 +88,8 @@ bool LLGroupHandler::processNotification(const LLSD& notify)
 	
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
+		LLHandlerUtil::logGroupNoticeToIMGroup(notification);
+
 		LLPanel* notify_box = new LLToastGroupNotifyPanel(notification);
 		LLToast::Params p;
 		p.notif_id = notification->getID();

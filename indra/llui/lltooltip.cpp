@@ -228,7 +228,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	{
 		LLButton::Params p_button;
 		p_button.name(std::string("play_media"));
-		p_button.label(""); // provid label but set to empty so name does not overwrite it -angela
+		p_button.label(""); // provide label but set to empty so name does not overwrite it -angela
 		TOOLTIP_PLAYBUTTON_SIZE = 16;
 		LLRect button_rect;
 		button_rect.setOriginAndSize((mPadding +TOOLTIP_ICON_SIZE+ mPadding ), mPadding, TOOLTIP_ICON_SIZE, TOOLTIP_ICON_SIZE);

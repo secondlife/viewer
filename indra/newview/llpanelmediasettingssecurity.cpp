@@ -31,10 +31,13 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llfloaterreg.h"
+
 #include "llpanelmediasettingssecurity.h"
+
+#include "llfloaterreg.h"
 #include "llpanelcontents.h"
 #include "llcheckboxctrl.h"
+#include "llnotificationsutil.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "lluictrlfactory.h"
@@ -210,7 +213,7 @@ void LLPanelMediaSettingsSecurity::preApply()
 //
 void LLPanelMediaSettingsSecurity::getValues( LLSD &fill_me_in )
 {
-    fill_me_in[LLMediaEntry::WHITELIST_ENABLE_KEY] = mEnableWhiteList->getValue();
+    fill_me_in[LLMediaEntry::WHITELIST_ENABLE_KEY] = (LLSD::Boolean)mEnableWhiteList->getValue();
 
     // iterate over white list and extract items
     std::vector< LLScrollListItem* > white_list_items = mWhiteListList->getAllData();
@@ -316,7 +319,7 @@ void LLPanelMediaSettingsSecurity::addWhiteListItem(const std::string& url)
 	else
 	// display a message indicating you can't do that
 	{
-		LLNotifications::instance().add("WhiteListInvalidatesHomeUrl");
+		LLNotificationsUtil::add("WhiteListInvalidatesHomeUrl");
 	};
 }
 

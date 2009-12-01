@@ -54,7 +54,7 @@ public:
 	virtual void changed() = 0;
 };
 
-class LLGestureManager : public LLSingleton<LLGestureManager>, public LLInventoryCompletionObserver
+class LLGestureManager : public LLSingleton<LLGestureManager>, public LLInventoryFetchObserver
 {
 public:
 

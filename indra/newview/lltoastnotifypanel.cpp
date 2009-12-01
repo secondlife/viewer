@@ -33,7 +33,12 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lltoastnotifypanel.h"
+
+// project includes
 #include "llviewercontrol.h"
+
+// library includes
+#include "llnotifications.h"
 #include "lluiconstants.h"
 #include "llrect.h"
 #include "lltrans.h"

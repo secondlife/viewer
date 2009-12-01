@@ -43,7 +43,7 @@
 #include "message.h"
 #include "llviewermediafocus.h"
 #include "llviewerparcelmediaautoplay.h"
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llfirstuse.h"
 #include "llpluginclassmedia.h"
 #include "llviewertexture.h"
@@ -111,7 +111,7 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			// First use warning
 			if(	! mediaUrl.empty() && gWarningSettings.getBOOL("FirstStreamingVideo") )
 			{
-				LLNotifications::instance().add("ParcelCanPlayMedia", LLSD(), LLSD(),
+				LLNotificationsUtil::add("ParcelCanPlayMedia", LLSD(), LLSD(),
 					boost::bind(callback_play_media, _1, _2, parcel));
 				return;
 
@@ -167,7 +167,7 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 				{
 					gWarningSettings.setBOOL("QuickTimeInstalled", FALSE);
 
-					LLNotifications::instance().add("NoQuickTime" );
+					LLNotificationsUtil::add("NoQuickTime" );
 				};
 			}
 		}
@@ -590,7 +590,7 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 
 bool callback_play_media(const LLSD& notification, const LLSD& response, LLParcel* parcel)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0)
 	{
 		gSavedSettings.setBOOL("AudioStreamingVideo", TRUE);

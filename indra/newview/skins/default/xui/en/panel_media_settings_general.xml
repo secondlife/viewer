@@ -93,27 +93,19 @@
   </text>
   <combo_box 
    allow_text_entry="false" 
-   bottom_delta="-20" 
-   enabled="true" 
+   bottom_delta="-20"
    follows="left|top"
    height="18" 
    left="10" 
-   max_chars="20" 
-   mouse_opaque="true"
+   max_chars="20"
    name="controls" 
    width="120">
     <combo_item 
-	 type="string" 
-	 length="1" 
-	 enabled="true" 
 	 name="Standard" 
 	 value="Standard">
       Standard
     </combo_item>
     <combo_item 
-	 type="string" 
-	 length="1" 
-	 enabled="true" 
 	 name="Mini" 
 	 value="Mini">
       Mini
@@ -229,12 +221,23 @@
    width="50" />
    
   <text bottom_delta="0" follows="top|left" height="15" left_delta="60" name="X_label">
-    X
+	X
   </text>
-  <spinner bottom_delta="0"
-	     decimal_digits="0" enabled="true" follows="left|top" height="16"
-	     increment="1" initial_val="256" label="" label_width="0"
-	     left_delta="20" max_val="2048" min_val="0" mouse_opaque="true"
-	     name="height_pixels" width="50" />
+  <spinner 
+	  bottom_delta="0"
+	  decimal_digits="0"
+	  enabled="true"
+	  follows="left|top" 
+	  height="16"
+	  increment="1"
+	  initial_val="256" 
+	  label=""
+	  label_width="0"
+	  left_delta="20" 
+	  max_val="2048" 
+	  min_val="0"
+	  mouse_opaque="true"
+	  name="height_pixels"
+	  width="50" />
  
 </panel>

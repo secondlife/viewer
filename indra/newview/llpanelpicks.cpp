@@ -32,12 +32,15 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llpanelpicks.h"
+
 #include "llagent.h"
 #include "llagentpicksinfo.h"
 #include "llavatarconstants.h"
 #include "llflatlistview.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
+#include "llnotificationsutil.h"
 #include "lltexturectrl.h"
 #include "lltoggleablemenu.h"
 #include "llviewergenericmessage.h"	// send_generic_message
@@ -47,7 +50,6 @@
 
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
-#include "llpanelpicks.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llpanelavatar.h"
 #include "llpanelprofile.h"
@@ -431,7 +433,7 @@ void LLPanelPicks::onClickDelete()
 	{
 		LLSD args; 
 		args["PICK"] = value[PICK_NAME]; 
-		LLNotifications::instance().add("DeleteAvatarPick", args, LLSD(), boost::bind(&LLPanelPicks::callbackDeletePick, this, _1, _2)); 
+		LLNotificationsUtil::add("DeleteAvatarPick", args, LLSD(), boost::bind(&LLPanelPicks::callbackDeletePick, this, _1, _2)); 
 		return;
 	}
 
@@ -440,14 +442,14 @@ void LLPanelPicks::onClickDelete()
 	{
 		LLSD args; 
 		args["NAME"] = value[CLASSIFIED_NAME]; 
-		LLNotifications::instance().add("DeleteClassified", args, LLSD(), boost::bind(&LLPanelPicks::callbackDeleteClassified, this, _1, _2)); 
+		LLNotificationsUtil::add("DeleteClassified", args, LLSD(), boost::bind(&LLPanelPicks::callbackDeleteClassified, this, _1, _2)); 
 		return;
 	}
 }
 
 bool LLPanelPicks::callbackDeletePick(const LLSD& notification, const LLSD& response) 
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLSD pick_value = mPicksList->getSelectedValue();
 
 	if (0 == option)
@@ -461,7 +463,7 @@ bool LLPanelPicks::callbackDeletePick(const LLSD& notification, const LLSD& resp
 
 bool LLPanelPicks::callbackDeleteClassified(const LLSD& notification, const LLSD& response) 
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLSD value = mClassifiedsList->getSelectedValue();
 
 	if (0 == option)
@@ -475,7 +477,7 @@ bool LLPanelPicks::callbackDeleteClassified(const LLSD& notification, const LLSD
 
 bool LLPanelPicks::callbackTeleport( const LLSD& notification, const LLSD& response )
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if (0 == option)
 	{
@@ -540,7 +542,7 @@ void LLPanelPicks::onDoubleClickPickItem(LLUICtrl* item)
 	
 	LLSD args; 
 	args["PICK"] = pick_value[PICK_NAME]; 
-	LLNotifications::instance().add("TeleportToPick", args, LLSD(), boost::bind(&LLPanelPicks::callbackTeleport, this, _1, _2)); 
+	LLNotificationsUtil::add("TeleportToPick", args, LLSD(), boost::bind(&LLPanelPicks::callbackTeleport, this, _1, _2)); 
 }
 
 void LLPanelPicks::onDoubleClickClassifiedItem(LLUICtrl* item)
@@ -550,7 +552,7 @@ void LLPanelPicks::onDoubleClickClassifiedItem(LLUICtrl* item)
 
 	LLSD args; 
 	args["CLASSIFIED"] = value[CLASSIFIED_NAME]; 
-	LLNotifications::instance().add("TeleportToClassified", args, LLSD(), boost::bind(&LLPanelPicks::callbackTeleport, this, _1, _2)); 
+	LLNotificationsUtil::add("TeleportToClassified", args, LLSD(), boost::bind(&LLPanelPicks::callbackTeleport, this, _1, _2)); 
 }
 
 void LLPanelPicks::updateButtons()

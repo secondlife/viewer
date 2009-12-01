@@ -43,7 +43,7 @@ class LLParticipantList
 {
 	LOG_CLASS(LLParticipantList);
 	public:
-		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list);
+		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list, bool use_context_menu = true);
 		~LLParticipantList();
 		void setSpeakingIndicatorsVisible(BOOL visible);
 
@@ -131,6 +131,11 @@ class LLParticipantList
 	private:
 		void onAvatarListDoubleClicked(LLAvatarList* list);
 		void onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param);
+
+		/**
+		 * Adds specified avatar ID to the existing list if it is not Agent's ID
+		 */
+		static void addAvatarIDExceptAgent(std::vector<LLUUID>& existing_list, const LLUUID& avatar_id);
 
 		LLSpeakerMgr*		mSpeakerMgr;
 		LLAvatarList*		mAvatarList;

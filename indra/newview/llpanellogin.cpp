@@ -51,6 +51,7 @@
 #include "llfloaterpreference.h"
 #include "llfocusmgr.h"
 #include "lllineeditor.h"
+#include "llnotificationsutil.h"
 #include "llstartup.h"
 #include "lltextbox.h"
 #include "llui.h"
@@ -225,6 +226,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
 
+	LLURLSimString::setString(gSavedSettings.getString("LoginLocation"));
 	std::string sim_string = LLURLSimString::sInstance.mSimString;
 	if (!sim_string.empty())
 	{
@@ -892,14 +894,29 @@ void LLPanelLogin::onClickConnect(void *)
 		LLComboBox* combo = sInstance->getChild<LLComboBox>("start_location_combo");
 		std::string combo_text = combo->getSimple();
 		
-		if (first.empty() || last.empty())
+		bool has_first_and_last = !(first.empty() || last.empty());
+		bool has_location = false;
+
+		if(combo_text=="<Type region name>" || combo_text =="")
 		{
-			LLNotifications::instance().add("MustHaveAccountToLogIn");
+			// *NOTE: Mani - Location field is not always committed by this point!
+			// This may be duplicate work, but better than not doing the work!
+			LLURLSimString::sInstance.setString("");
 		}
-		else if( (combo_text=="<Type region name>" || combo_text =="")
-				&& LLURLSimString::sInstance.mSimString =="")
+		else 
 		{
-			LLNotifications::instance().add("StartRegionEmpty");
+			// *NOTE: Mani - Location field is not always committed by this point!
+			LLURLSimString::sInstance.setString(combo_text);
+			has_location = true;
+		}
+
+		if(!has_first_and_last)
+		{
+			LLNotificationsUtil::add("MustHaveAccountToLogIn");
+		}
+		else if(!has_location)
+		{
+			LLNotificationsUtil::add("StartRegionEmpty");
 		}
 		else
 		{
@@ -913,7 +930,7 @@ void LLPanelLogin::onClickConnect(void *)
 // static
 bool LLPanelLogin::newAccountAlertCallback(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (0 == option)
 	{
 		llinfos << "Going to account creation URL" << llendl;
@@ -954,7 +971,7 @@ void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
 {
 	if (gKeyboard->getKeyDown(KEY_CAPSLOCK) && sCapslockDidNotification == FALSE)
 	{
-		LLNotifications::instance().add("CapsKeyOn");
+		LLNotificationsUtil::add("CapsKeyOn");
 		sCapslockDidNotification = TRUE;
 	}
 }

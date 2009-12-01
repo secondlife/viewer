@@ -102,6 +102,8 @@ void handle_take_copy();
 void handle_look_at_selection(const LLSD& param);
 void handle_zoom_to_object(LLUUID object_id);
 
+void handle_buy_land();
+
 // Takes avatar UUID, or if no UUID passed, uses last selected object
 void handle_avatar_freeze(const LLSD& avatar_id);
 

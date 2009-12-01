@@ -43,6 +43,7 @@
 #include "lldir.h"
 #include "llfloaterreg.h"
 #include "llmultigesture.h"
+#include "llnotificationsutil.h"
 #include "llvfile.h"
 
 // newview
@@ -254,7 +255,7 @@ BOOL LLPreviewGesture::canClose()
 	else
 	{
 		// Bring up view-modal dialog: Save changes? Yes, No, Cancel
-		LLNotifications::instance().add("SaveChanges", LLSD(), LLSD(),
+		LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(),
 			boost::bind(&LLPreviewGesture::handleSaveChangesDialog, this, _1, _2) );
 		return FALSE;
 	}
@@ -283,7 +284,7 @@ void LLPreviewGesture::onVisibilityChange ( const LLSD& new_visibility )
 
 bool LLPreviewGesture::handleSaveChangesDialog(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotification::getSelectedOption(notification, response);
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	switch(option)
 	{
 	case 0:  // "Yes"
@@ -1054,14 +1055,14 @@ void LLPreviewGesture::saveIfNeeded()
 
 	if (dp.getCurrentSize() > 1000)
 	{
-		LLNotifications::instance().add("GestureSaveFailedTooManySteps");
+		LLNotificationsUtil::add("GestureSaveFailedTooManySteps");
 
 		delete gesture;
 		gesture = NULL;
 	}
 	else if (!ok)
 	{
-		LLNotifications::instance().add("GestureSaveFailedTryAgain");
+		LLNotificationsUtil::add("GestureSaveFailedTryAgain");
 		delete gesture;
 		gesture = NULL;
 	}
@@ -1200,7 +1201,7 @@ void LLPreviewGesture::onSaveComplete(const LLUUID& asset_uuid, void* user_data,
 			}
 			else
 			{
-				LLNotifications::instance().add("GestureSaveFailedObjectNotFound");
+				LLNotificationsUtil::add("GestureSaveFailedObjectNotFound");
 			}
 		}
 
@@ -1216,7 +1217,7 @@ void LLPreviewGesture::onSaveComplete(const LLUUID& asset_uuid, void* user_data,
 		llwarns << "Problem saving gesture: " << status << llendl;
 		LLSD args;
 		args["REASON"] = std::string(LLAssetStorage::getErrorString(status));
-		LLNotifications::instance().add("GestureSaveFailedReason", args);
+		LLNotificationsUtil::add("GestureSaveFailedReason", args);
 	}
 	delete info;
 	info = NULL;

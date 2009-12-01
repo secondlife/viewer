@@ -39,7 +39,7 @@
 #include "lllandmark.h"
 #include "llparcel.h"
 
-#include "llnotifications.h"
+#include "llnotificationsutil.h"
 
 #include "llagent.h"
 #include "llagentui.h"
@@ -267,7 +267,7 @@ void LLLandmarkActions::createLandmarkHere(
 	}
 	if (!canCreateLandmarkHere())
 	{
-		LLNotifications::instance().add("CannotCreateLandmarkNotOwner");
+		LLNotificationsUtil::add("CannotCreateLandmarkNotOwner");
 		return;
 	}
 
@@ -420,5 +420,5 @@ void copy_slurl_to_clipboard_callback(const std::string& slurl)
 	gViewerWindow->mWindow->copyTextToClipboard(utf8str_to_wstring(slurl));
 	LLSD args;
 	args["SLURL"] = slurl;
-	LLNotifications::instance().add("CopySLURL", args);
+	LLNotificationsUtil::add("CopySLURL", args);
 }

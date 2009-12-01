@@ -36,6 +36,7 @@
 #include "llnotificationhandler.h"
 
 #include "llagentdata.h"
+#include "llnotifications.h"
 #include "lltoastimpanel.h"
 #include "llviewerwindow.h"
 

@@ -61,11 +61,8 @@ BOOL LLRenderTarget::sUseFBO = FALSE;
 LLRenderTarget::LLRenderTarget() :
 	mResX(0),
 	mResY(0),
-	mViewportWidth(0),
-	mViewportHeight(0),
 	mTex(0),
 	mFBO(0),
-	mColorFmt(0),
 	mDepth(0),
 	mStencil(0),
 	mUseDepth(FALSE),
@@ -92,15 +89,10 @@ void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, BOO
 	stop_glerror();
 	mResX = resx;
 	mResY = resy;
-	// default viewport to entire texture
-	mViewportWidth = mResX;
-	mViewportHeight = mResY;
 
 	mStencil = stencil;
 	mUsage = usage;
 	mUseDepth = depth;
-	mFBO = 0;
-	mColorFmt = color_fmt;
 
 	release();
 
@@ -320,7 +312,7 @@ void LLRenderTarget::bindTarget()
 		}
 	}
 
-	glViewport(0, 0, mViewportWidth, mViewportHeight);
+	glViewport(0, 0, mResX, mResY);
 	sBoundTarget = this;
 }
 
@@ -523,18 +515,12 @@ BOOL LLRenderTarget::isComplete() const
 	return (!mTex.empty() || mDepth) ? TRUE : FALSE;
 }
 
-void LLRenderTarget::setViewport(U32 width, U32 height)
-{
-	mViewportWidth = llmin(width, mResX);
-	mViewportHeight = llmin(height, mResY);
-}
-
 void LLRenderTarget::getViewport(S32* viewport)
 {
 	viewport[0] = 0;
 	viewport[1] = 0;
-	viewport[2] = mViewportWidth;
-	viewport[3] = mViewportHeight;
+	viewport[2] = mResX;
+	viewport[3] = mResY;
 }
 
 //==================================================
@@ -595,7 +581,7 @@ void LLMultisampleBuffer::bindTarget(LLRenderTarget* ref)
 
 	check_framebuffer_status();
 
-	glViewport(0, 0, mViewportWidth, mViewportHeight);
+	glViewport(0, 0, mResX, mResY);
 
 	sBoundTarget = this;
 }
@@ -610,14 +596,10 @@ void LLMultisampleBuffer::allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth
 	stop_glerror();
 	mResX = resx;
 	mResY = resy;
-	mViewportWidth = mResX;
-	mViewportHeight = mResY;
 
 	mUsage = usage;
 	mUseDepth = depth;
 	mStencil = stencil;
-	mFBO = 0;
-	mColorFmt = color_fmt;
 
 	releaseSampleBuffer();
 
