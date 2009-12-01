@@ -146,15 +146,22 @@
           name="search_combo_editor"/>
         </search_combo_box>
 	</panel>
-
-    <favorites_bar
-     follows="left|right|top"
-     height="15"
-     layout="topleft"
-     left="0"
-     name="favorite"
-     image_drag_indication="Arrow_Down"
-     chevron_button_tool_tip="Show more of My Favorites"
-     bottom="62"
-     width="590" />
+  <favorites_bar
+   follows="left|right|top"
+   height="15"
+   layout="topleft"
+   left="0"
+   name="favorite"
+   image_drag_indication="Arrow_Down"
+   bottom="62"
+   width="590">
+    <chevron_button name=">>"
+                     image_unselected="TabIcon_Close_Off"
+                     image_selected="TabIcon_Close_Off"
+                     tab_stop="false"
+                     follows="left|bottom" 
+                     tool_tip="Show more of My Favorites" 
+                     width="15"
+                     height="15"/>
+  </favorites_bar>
 </panel>
