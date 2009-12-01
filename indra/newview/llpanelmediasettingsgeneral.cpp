@@ -392,19 +392,19 @@ void LLPanelMediaSettingsGeneral::preApply()
 //
 void LLPanelMediaSettingsGeneral::getValues( LLSD &fill_me_in )
 {
-	fill_me_in[LLMediaEntry::AUTO_LOOP_KEY] = mAutoLoop->getValue();
-	fill_me_in[LLMediaEntry::AUTO_PLAY_KEY] = mAutoPlay->getValue();
-	fill_me_in[LLMediaEntry::AUTO_SCALE_KEY] = mAutoScale->getValue();
-	fill_me_in[LLMediaEntry::AUTO_ZOOM_KEY] = mAutoZoom->getValue();
-	fill_me_in[LLMediaEntry::CONTROLS_KEY] = mControls->getCurrentIndex();
+	fill_me_in[LLMediaEntry::AUTO_LOOP_KEY] = (LLSD::Boolean)mAutoLoop->getValue();
+	fill_me_in[LLMediaEntry::AUTO_PLAY_KEY] = (LLSD::Boolean)mAutoPlay->getValue();
+	fill_me_in[LLMediaEntry::AUTO_SCALE_KEY] = (LLSD::Boolean)mAutoScale->getValue();
+	fill_me_in[LLMediaEntry::AUTO_ZOOM_KEY] = (LLSD::Boolean)mAutoZoom->getValue();
+	fill_me_in[LLMediaEntry::CONTROLS_KEY] = (LLSD::Integer)mControls->getCurrentIndex();
 	//Don't fill in current URL: this is only supposed to get changed via navigate
 	// fill_me_in[LLMediaEntry::CURRENT_URL_KEY] = mCurrentURL->getValue();
-	fill_me_in[LLMediaEntry::HEIGHT_PIXELS_KEY] = mHeightPixels->getValue();
+	fill_me_in[LLMediaEntry::HEIGHT_PIXELS_KEY] = (LLSD::Integer)mHeightPixels->getValue();
 	// Don't fill in the home URL if it is the special "Multiple Media" string!
 	if (LLTrans::getString("Multiple Media") != mHomeURL->getValue())
-		fill_me_in[LLMediaEntry::HOME_URL_KEY] = mHomeURL->getValue();
-	fill_me_in[LLMediaEntry::FIRST_CLICK_INTERACT_KEY] = mFirstClick->getValue();
-	fill_me_in[LLMediaEntry::WIDTH_PIXELS_KEY] = mWidthPixels->getValue();
+		fill_me_in[LLMediaEntry::HOME_URL_KEY] = (LLSD::String)mHomeURL->getValue();
+	fill_me_in[LLMediaEntry::FIRST_CLICK_INTERACT_KEY] = (LLSD::Boolean)mFirstClick->getValue();
+	fill_me_in[LLMediaEntry::WIDTH_PIXELS_KEY] = (LLSD::Integer)mWidthPixels->getValue();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
