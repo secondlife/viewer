@@ -595,8 +595,49 @@ void LLAdHocChiclet::setCounter(S32 counter)
 	setShowNewMessagesIcon(counter);
 }
 
+void LLAdHocChiclet::createPopupMenu()
+{
+	if(mPopupMenu)
+	{
+		llwarns << "Menu already exists" << llendl;
+		return;
+	}
+	if(getSessionId().isNull())
+	{
+		return;
+	}
+
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+	registrar.add("IMChicletMenu.Action", boost::bind(&LLAdHocChiclet::onMenuItemClicked, this, _2));
+
+	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>
+		("menu_imchiclet_adhoc.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+}
+
+void LLAdHocChiclet::onMenuItemClicked(const LLSD& user_data)
+{
+	std::string level = user_data.asString();
+	LLUUID group_id = getSessionId();
+
+	if("end" == level)
+	{
+		LLGroupActions::endIM(group_id);
+	}
+}
+
 BOOL LLAdHocChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
+	if(!mPopupMenu)
+	{
+		createPopupMenu();
+	}
+
+	if (mPopupMenu)
+	{
+		mPopupMenu->arrangeAndClear();
+		LLMenuGL::showPopup(this, mPopupMenu, x, y);
+	}
+
 	return TRUE;
 }
 

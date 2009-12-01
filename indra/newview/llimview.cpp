@@ -1348,7 +1348,8 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 			session_id = gIMMgr->addP2PSession(
 				mPayload["session_name"].asString(),
 				mPayload["caller_id"].asUUID(),
-				mPayload["session_handle"].asString());
+				mPayload["session_handle"].asString(),
+				mPayload["session_uri"].asString());
 
 			if (voice)
 			{
