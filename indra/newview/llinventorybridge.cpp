@@ -125,8 +125,8 @@ std::string ICON_NAME[ICON_NAME_COUNT] =
 	"Inv_Animation",
 	"Inv_Gesture",
 
-	"inv_item_linkitem.tga",
-	"inv_item_linkfolder.tga"
+	"Inv_LinkItem",
+	"Inv_LinkFolder"
 };
 
 // +=================================================+
@@ -856,9 +856,6 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			new_listener = new LLFolderBridge(inventory, uuid);
 			break;
 		case LLAssetType::AT_LINK:
-			// Only should happen for broken links.
-			new_listener = new LLLinkItemBridge(inventory, uuid);
-			break;
 		case LLAssetType::AT_LINK_FOLDER:
 			// Only should happen for broken links.
 			new_listener = new LLLinkItemBridge(inventory, uuid);
@@ -5081,7 +5078,7 @@ LLUIImagePtr LLLinkItemBridge::getIcon() const
 {
 	if (LLViewerInventoryItem *item = getItem())
 	{
-		return get_item_icon(item->getActualType(), LLInventoryType::IT_NONE, 0, FALSE);
+		return get_item_icon(item->getActualType(), item->getInventoryType(), 0, FALSE);
 	}
 	return get_item_icon(LLAssetType::AT_LINK, LLInventoryType::IT_NONE, 0, FALSE);
 }

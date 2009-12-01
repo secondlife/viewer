@@ -909,8 +909,20 @@ void link_inventory_item(
 	}
 	
 	LLUUID transaction_id;
-	std::string desc = "Link";
+	std::string desc = "Broken link"; // This should only show if the object can't find its baseobj.
 	LLInventoryType::EType inv_type = LLInventoryType::IT_NONE;
+	if (dynamic_cast<const LLInventoryCategory *>(baseobj))
+	{
+		inv_type = LLInventoryType::IT_CATEGORY;
+	}
+	else
+	{
+		const LLViewerInventoryItem *baseitem = dynamic_cast<const LLViewerInventoryItem *>(baseobj);
+		if (baseitem)
+		{
+			inv_type = baseitem->getInventoryType();
+		}
+	}
 
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_LinkInventoryItem);
