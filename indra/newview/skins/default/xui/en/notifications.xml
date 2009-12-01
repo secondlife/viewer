@@ -4611,6 +4611,13 @@ Please select at least one type of content to search (PG, Mature, or Adult).
 
   <notification
    icon="notify.tga"
+   name="PaymentRecived"
+   type="notify">
+[MESSAGE]
+  </notification>
+  
+  <notification
+   icon="notify.tga"
    name="EventNotification"
    type="notify">
 Event Notification:
@@ -5778,6 +5785,26 @@ Unable to find the help topic for this element.
  type="alertmodal">
 Server Error: Media update or get failed.
 &apos;[ERROR]&apos;
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
+
+    <notification
+ icon="alertmodal.tga"
+ name="TextChatIsMutedByModerator"
+ type="alertmodal">
+Your text chat has been muted by moderator.
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
+
+    <notification
+ icon="alertmodal.tga"
+ name="VoiceIsMutedByModerator"
+ type="alertmodal">
+Your voice has been muted by moderator.
         <usetemplate
          name="okbutton"
          yestext="OK"/>

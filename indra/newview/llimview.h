@@ -146,11 +146,6 @@ public:
 	bool addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& other_participant_id, const std::string& utf8_text, bool log2file = true);
 
 	/**
-	 * Adds message without new message notification.
-	 */
-	void addMessageSilently(LLIMSession& session, const std::string& from, const LLUUID& other_participant_id, const std::string& utf8_text, bool log2file = true);
-
-	/**
 	 * Add a system message to an IM Model
 	 */
 	bool proccessOnlineOfflineNotification(const LLUUID& session_id, const std::string& utf8_text);
@@ -204,6 +199,11 @@ public:
 								const LLUUID& other_participant_id, EInstantMessage dialog);
 
 	void testMessages();
+
+	/**
+	 * Saves an IM message into a file
+	 */
+	bool logToFile(const std::string& session_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text);
 
 private:
 	
