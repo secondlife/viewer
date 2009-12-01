@@ -84,10 +84,12 @@ public:
 								wrap,
 								use_ellipses,
 								allow_html,
-								parse_highlights;
+								parse_highlights,
+								clip_partial;
 								
 		Optional<S32>			v_pad,
 								h_pad;
+
 
 		Optional<LineSpacingParams>
 								line_spacing;
@@ -347,6 +349,7 @@ protected:
 	bool						mTrackEnd;			// if true, keeps scroll position at end of document during resize
 	bool						mReadOnly;
 	bool						mBGVisible;			// render background?
+	bool						mClipPartial;		// false if we show lines that are partially inside bounding rect
 	S32							mMaxTextByteLength;	// Maximum length mText is allowed to be in bytes
 
 	// support widgets

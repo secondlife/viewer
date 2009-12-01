@@ -126,5 +126,10 @@ protected:
 	LLUIColor		mTextDisabledColor;
 };
 
+// Build time optimization, generate once in .cpp file
+#ifndef LLCHECKBOXCTRL_CPP
+extern template class LLCheckBoxCtrl* LLView::getChild<class LLCheckBoxCtrl>(
+	const std::string& name, BOOL recurse) const;
+#endif
 
 #endif  // LL_LLCHECKBOXCTRL_H

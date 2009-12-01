@@ -2347,8 +2347,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	}
 	LLRect::tCoordType screen_width = getSnapRect().getWidth();
 	LLRect::tCoordType screen_height = getSnapRect().getHeight();
-	// convert to local coordinate frame
-	LLRect snap_rect_local = getLocalSnapRect();
+
 
 	// only automatically resize non-minimized, resizable floaters
 	if( floater->isResizable() && !floater->isMinimized() )
@@ -2388,7 +2387,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	}
 
 	// move window fully onscreen
-	if (floater->translateIntoRect( snap_rect_local, allow_partial_outside ))
+	if (floater->translateIntoRect( getLocalRect(), allow_partial_outside ))
 	{
 		floater->clearSnapTarget();
 	}

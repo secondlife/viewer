@@ -1,10 +1,10 @@
 /** 
- * @file material_codes.h
- * @brief Material_codes definitions
+ * @file indra_constants.cpp
+ * @brief some useful short term constants for Indra
  *
- * $LicenseInfo:firstyear=2000&license=viewergpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2000-2009, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -29,32 +29,18 @@
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
+#include "linden_common.h"
 
-#ifndef LL_MATERIAL_CODES_H
-#define LL_MATERIAL_CODES_H
+#include "indra_constants.h"
 
-class LLUUID;
+#include "lluuid.h"
 
-	// material types
-const U8	LL_MCODE_STONE   = 0;
-const U8	LL_MCODE_METAL   = 1;
-const U8	LL_MCODE_GLASS   = 2;
-const U8	LL_MCODE_WOOD    = 3;
-const U8	LL_MCODE_FLESH   = 4;
-const U8	LL_MCODE_PLASTIC = 5;
-const U8	LL_MCODE_RUBBER  = 6;
-const U8	LL_MCODE_LIGHT   = 7;
-const U8    LL_MCODE_END     = 8;
-const U8	LL_MCODE_MASK    = 0x0F;
+// "agent id" for things that should be done to ALL agents
+const LLUUID LL_UUID_ALL_AGENTS("44e87126-e794-4ded-05b3-7c42da3d5cdb");
 
-// *NOTE: Define these in .cpp file to reduce duplicate instances
-extern const LLUUID LL_DEFAULT_STONE_UUID;
-extern const LLUUID LL_DEFAULT_METAL_UUID;
-extern const LLUUID LL_DEFAULT_GLASS_UUID;
-extern const LLUUID LL_DEFAULT_WOOD_UUID;
-extern const LLUUID LL_DEFAULT_FLESH_UUID;
-extern const LLUUID LL_DEFAULT_PLASTIC_UUID;
-extern const LLUUID LL_DEFAULT_RUBBER_UUID;
-extern const LLUUID LL_DEFAULT_LIGHT_UUID;
-
-#endif
+// Governor Linden's agent id.
+const LLUUID ALEXANDRIA_LINDEN_ID("ba2a564a-f0f1-4b82-9c61-b7520bfcd09f");
+const LLUUID GOVERNOR_LINDEN_ID("3d6181b0-6a4b-97ef-18d8-722652995cf1");
+const LLUUID REALESTATE_LINDEN_ID("3d6181b0-6a4b-97ef-18d8-722652995cf1");
+// Maintenance's group id.
+const LLUUID MAINTENANCE_GROUP_ID("dc7b21cd-3c89-fcaa-31c8-25f9ffd224cd");
