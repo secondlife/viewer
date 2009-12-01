@@ -254,10 +254,18 @@ void LLPanelAvatarNotes::onCommitRights()
 	const LLRelationship* buddy_relationship =
 			LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
 	bool allow_modify_objects = childGetValue("objects_check").asBoolean();
+
+	// if modify objects checkbox clicked
 	if (buddy_relationship->isRightGrantedTo(
 			LLRelationship::GRANT_MODIFY_OBJECTS) != allow_modify_objects)
 	{
 		confirmModifyRights(allow_modify_objects, rights);
+	}
+	// only one checkbox can trigger commit, so store the rest of rights
+	else
+	{
+		LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(
+						getAvatarId(), rights);
 	}
 }
 
