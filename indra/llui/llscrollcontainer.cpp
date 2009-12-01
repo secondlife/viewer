@@ -111,8 +111,7 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	LLView::addChild( mBorder );
 
 	mInnerRect.set( 0, getRect().getHeight(), getRect().getWidth(), 0 );
-	if ( mBorder->getVisible() )
-		mInnerRect.stretch( -mBorder->getBorderWidth() );
+	mInnerRect.stretch( -mBorder->getBorderWidth()  );
 
 	LLRect vertical_scroll_rect = mInnerRect;
 	vertical_scroll_rect.mLeft = vertical_scroll_rect.mRight - scrollbar_size;
@@ -190,8 +189,7 @@ void LLScrollContainer::reshape(S32 width, S32 height,
 	LLUICtrl::reshape( width, height, called_from_parent );
 
 	mInnerRect = getLocalRect();
-	if ( mBorder->getVisible() )
-		mInnerRect.stretch( -mBorder->getBorderWidth() );
+	mInnerRect.stretch( -mBorder->getBorderWidth() );
 
 	if (mScrolledView)
 	{
