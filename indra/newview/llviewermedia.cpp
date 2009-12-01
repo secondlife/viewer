@@ -171,7 +171,16 @@ public:
 		else
 		if(status == 404)
 		{
-			// Treat 404s like an html page.
+			// 404 is content not found - sites often have bespoke 404 pages so
+			// treat them like an html page.
+			completeAny(status, "text/html");
+		}
+		else
+		if(status == 406)
+		{
+			// 406 means the server sent something that we didn't indicate was acceptable
+			// Eventually we should send what we accept in the headers but for now,
+			// treat 406s like an html page.
 			completeAny(status, "text/html");
 		}
 		else
