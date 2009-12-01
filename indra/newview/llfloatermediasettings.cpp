@@ -268,8 +268,6 @@ const std::string LLFloaterMediaSettings::getHomeUrl()
 		return std::string( "" );
 }
 
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // virtual 
 void LLFloaterMediaSettings::draw()
@@ -301,3 +299,5 @@ void LLFloaterMediaSettings::draw()
 	enableOkApplyBtns(values_changed);
 	
 	LLFloater::draw();
+}
+
