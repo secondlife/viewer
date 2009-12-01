@@ -62,6 +62,10 @@ public:
 
 	void onSelectionChange(LLInventorySubTreePanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();
+	void setCurrentSelectedList(LLInventorySubTreePanel* inventory_list)
+	{
+		mCurrentSelectedList = inventory_list;
+	}
 
 protected:
 	/**

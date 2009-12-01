@@ -378,6 +378,8 @@ void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_lis
 		root_folder->setupMenuHandle(LLInventoryType::IT_LANDMARK, mGearLandmarkMenu->getHandle());
 	}
 
+	root_folder->setParentLandmarksPanel(this);
+
 	// save initial folder state to avoid incorrect work while switching between Landmarks & Teleport History tabs
 	// See EXT-1609.
 	inventory_list->saveFolderState();
