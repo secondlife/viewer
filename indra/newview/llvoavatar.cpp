@@ -3621,6 +3621,16 @@ void LLVOAvatar::updateVisibility()
 	mVisible = visible;
 }
 
+// private
+bool LLVOAvatar::shouldAlphaMask()
+{
+	const bool should_alpha_mask = mSupportsAlphaLayers && !LLDrawPoolAlpha::sShowDebugAlpha // Don't alpha mask if "Highlight Transparent" checked
+							&& !LLDrawPoolAvatar::sSkipTransparent;
+
+	return should_alpha_mask;
+
+}
+
 //-----------------------------------------------------------------------------
 // renderSkinned()
 //-----------------------------------------------------------------------------
@@ -3754,9 +3764,8 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 
 	if (pass == AVATAR_RENDER_PASS_SINGLE)
 	{
-		const bool should_alpha_mask = mSupportsAlphaLayers && !LLDrawPoolAlpha::sShowDebugAlpha // Don't alpha mask if "Highlight Transparent" checked
-								&& !LLDrawPoolAvatar::sSkipTransparent;
 
+		bool should_alpha_mask = shouldAlphaMask();
 		LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
 		
 		if (should_alpha_mask)
@@ -3825,6 +3834,15 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 		}
 		
+		bool should_alpha_mask = shouldAlphaMask();
+
+		LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
+
+		if (should_alpha_mask)
+		{
+			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
+		}
+
 		if (isTextureVisible(TEX_HEAD_BAKED))
 		{
 			num_indices += mMeshLOD[MESH_ID_EYELASH]->render(mAdjustedPixelArea, first_pass, mIsDummy);
@@ -3868,11 +3886,21 @@ U32 LLVOAvatar::renderRigid()
 		return 0;
 	}
 
+	bool should_alpha_mask = shouldAlphaMask();
+	LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
+
+	if (should_alpha_mask)
+	{
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
+	}
+
 	if (isTextureVisible(TEX_EYES_BAKED)  || mIsDummy)
 	{
 		num_indices += mMeshLOD[MESH_ID_EYEBALL_LEFT]->render(mAdjustedPixelArea, TRUE, mIsDummy);
 		num_indices += mMeshLOD[MESH_ID_EYEBALL_RIGHT]->render(mAdjustedPixelArea, TRUE, mIsDummy);
 	}
+
+	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	
 	return num_indices;
 }
@@ -5943,6 +5971,9 @@ void LLVOAvatar::updateMeshTextures()
 
 	}
 
+	// Turn on alpha masking correctly for yourself and other avatars on 1.23+
+	mSupportsAlphaLayers = isSelf() || is_layer_baked[BAKED_HAIR];
+
 	// Baked textures should be requested from the sim this avatar is on. JC
 	const LLHost target_host = getObjectHost();
 	if (!target_host.isOk())
@@ -5981,7 +6012,7 @@ void LLVOAvatar::updateMeshTextures()
 		}
 		else if (mBakedTextureDatas[i].mTexLayerSet 
 				 && !other_culled 
-				 && (i != BAKED_HAIR || is_layer_baked[i] || isSelf())) // ! BACKWARDS COMPATIBILITY ! workaround for old viewers.
+				 && (i != BAKED_HAIR || mSupportsAlphaLayers)) // ! BACKWARDS COMPATIBILITY ! workaround for old viewers.
 		{
 			mBakedTextureDatas[i].mTexLayerSet->createComposite();
 			mBakedTextureDatas[i].mTexLayerSet->setUpdatesEnabled( TRUE );
@@ -5992,10 +6023,10 @@ void LLVOAvatar::updateMeshTextures()
 			}
 		}
 	}
-	
+
 	// ! BACKWARDS COMPATIBILITY !
 	// Workaround for viewing avatars from old viewers that haven't baked hair textures.
-	if (!is_layer_baked[BAKED_HAIR] || self_customizing)
+	if (!mSupportsAlphaLayers)
 	{
 		const LLColor4 color = mTexHairColor ? mTexHairColor->getColor() : LLColor4(1,1,1,1);
 		LLViewerTexture* hair_img = getImage( TEX_HAIR, 0 );
@@ -6006,8 +6037,6 @@ void LLVOAvatar::updateMeshTextures()
 		}
 	} 
 	
-	// Turn on alpha masking correctly for yourself and other avatars on 1.23+
-	mSupportsAlphaLayers = isSelf() || is_layer_baked[BAKED_HAIR];
 	
 	for (LLVOAvatarDictionary::BakedTextures::const_iterator baked_iter = LLVOAvatarDictionary::getInstance()->getBakedTextures().begin();
 		 baked_iter != LLVOAvatarDictionary::getInstance()->getBakedTextures().end();
@@ -6510,7 +6539,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	}
 
 
-	if( !mFirstTEMessageReceived )
+	if( !is_first_appearance_message )
 	{
 		onFirstTEMessageReceived();
 	}

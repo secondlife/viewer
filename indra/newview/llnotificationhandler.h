@@ -268,7 +268,20 @@ public:
 	/**
 	 * Writes notification message to IM session.
 	 */
-	static void logToIM(const LLNotificationPtr& notification);
+	static void logToIM(const EInstantMessage& session_type,
+			const std::string& session_name, const std::string& from_name,
+			const std::string& message, const LLUUID& session_owner_id,
+			const LLUUID& from_id);
+
+	/**
+	 * Writes notification message to IM  p2p session.
+	 */
+	static void logToIMP2P(const LLNotificationPtr& notification);
+
+	/**
+	 * Writes group notice notification message to IM  group session.
+	 */
+	static void logGroupNoticeToIMGroup(const LLNotificationPtr& notification);
 };
 
 }

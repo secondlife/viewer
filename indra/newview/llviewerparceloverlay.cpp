@@ -808,6 +808,7 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 	S32 drawn = 0;
 	F32* vertexp;
 	U8* colorp;
+	bool render_hidden = LLSelectMgr::sRenderHiddenSelections && LLFloaterReg::instanceVisible("build");
 
 	const F32 PROPERTY_LINE_CLIP_DIST = 256.f;
 
@@ -849,7 +850,7 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 
 		gGL.end();
 		
-		if (LLSelectMgr::sRenderHiddenSelections && LLFloaterReg::instanceVisible("build"))
+		if (render_hidden)
 		{
 			LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
 			

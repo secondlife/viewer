@@ -298,7 +298,8 @@ public:
 	void				updateKeyboardFocus();		
 
 	void			updateWorldViewRect(bool use_full_window=false);
-
+	LLView*			getNonSideTrayView() { return mNonSideTrayView.get(); }
+	LLView*			getFloaterViewHolder() { return mFloaterViewHolder.get(); }
 	BOOL			handleKey(KEY key, MASK mask);
 	void			handleScrollWheel	(S32 clicks);
 
@@ -459,6 +460,8 @@ protected:
 	std::string		mInitAlert;			// Window / GL initialization requires an alert
 
 	LLHandle<LLView> mWorldViewPlaceholder;	// widget that spans the portion of screen dedicated to rendering the 3d world
+	LLHandle<LLView> mNonSideTrayView;		// parent of world view + bottom bar, etc...everything but the side tray
+	LLHandle<LLView> mFloaterViewHolder;	// container for floater_view
 	
 	class LLDebugText* mDebugText; // Internal class for debug text
 	

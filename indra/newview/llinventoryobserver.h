@@ -63,7 +63,8 @@ public:
 		CALLING_CARD = 32,	// online, grant status, cancel, etc change
 		ALL = 0xffffffff
 	};
-	virtual ~LLInventoryObserver() {};
+	LLInventoryObserver();
+	virtual ~LLInventoryObserver();
 	virtual void changed(U32 mask) = 0;
 	std::string mMessageName; // used by Agent Inventory Service only. [DEV-20328]
 };

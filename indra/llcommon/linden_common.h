@@ -64,6 +64,8 @@
 #pragma warning (disable : 4244) // conversion from time_t to S32
 #endif	//	LL_WINDOWS
 
+// *TODO: Eliminate these, most library .cpp files don't need them.
+// Add them to llviewerprecompiledheaders.h if necessary.
 #include <list>
 #include <map>
 #include <vector>

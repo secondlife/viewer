@@ -76,7 +76,6 @@
          visible="false"
          width="100" />
         <button
-         enabled="false"
          bottom="10"
          height="20"
          label="Voice Controls"

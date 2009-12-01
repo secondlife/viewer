@@ -107,10 +107,14 @@ LLInventoryPanel* LLFloaterInventory::getPanel()
 // static
 LLFloaterInventory* LLFloaterInventory::showAgentInventory()
 {
+	// Hack to generate semi-unique key for each inventory floater.
+	static S32 instance_num = 0;
+	instance_num = (instance_num + 1) % S32_MAX;
+
 	LLFloaterInventory* iv = NULL;
 	if (!gAgent.cameraMouselook())
 	{
-		iv = LLFloaterReg::showTypedInstance<LLFloaterInventory>("inventory", LLSD());
+		iv = LLFloaterReg::showTypedInstance<LLFloaterInventory>("inventory", LLSD(instance_num));
 	}
 	return iv;
 }

@@ -1417,10 +1417,12 @@ void LLViewerWindow::initBase()
 
 	// placeholder widget that controls where "world" is rendered
 	mWorldViewPlaceholder = main_view->getChildView("world_view_rect")->getHandle();
+	mNonSideTrayView = main_view->getChildView("non_side_tray_view")->getHandle();
+	mFloaterViewHolder = main_view->getChildView("floater_view_holder")->getHandle();
 
 	// Constrain floaters to inside the menu and status bar regions.
-	gFloaterView = getRootView()->getChild<LLFloaterView>("Floater View");
-	gSnapshotFloaterView = getRootView()->getChild<LLSnapshotFloaterView>("Snapshot Floater View");
+	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
+	gSnapshotFloaterView = main_view->getChild<LLSnapshotFloaterView>("Snapshot Floater View");
 	
 	// Console
 	llassert( !gConsole );

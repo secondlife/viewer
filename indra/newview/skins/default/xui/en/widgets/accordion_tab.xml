@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <accordion_tab
-    font="SansSerifBold"
     header_bg_color="DkGray2"
     header_collapse_img="Accordion_ArrowClosed_Off"
     header_collapse_img_pressed="Accordion_ArrowClosed_Press"

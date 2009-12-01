@@ -65,10 +65,12 @@ public:
 	// Otherwise, return NULL.
 	LLFolderViewEventListener* getCorrectListenerForAction();
 	void setParent(LLSidepanelAppearance *parent);
+
+	LLFolderView* getRootFolder();
+
 protected:
 	void updateParent();
 	bool getIsCorrectType(const LLFolderViewEventListener *listenerp) const;
-	LLFolderView* getRootFolder();
 
 private:
 	LLSidepanelAppearance*      mParent;

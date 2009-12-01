@@ -2767,22 +2767,23 @@ void LLViewerObject::setPixelAreaAndAngle(LLAgent &agent)
 	// I don't think there's a better way to do this without calculating distance per-poly
 	F32 range = sqrt(dx*dx + dy*dy + dz*dz) - min_scale/2;
 
+	LLViewerCamera* camera = LLViewerCamera::getInstance();
 	if (range < 0.001f || isHUDAttachment())		// range == zero
 	{
 		mAppAngle = 180.f;
-		mPixelArea = (F32)LLViewerCamera::getInstance()->getScreenPixelArea();
+		mPixelArea = (F32)camera->getScreenPixelArea();
 	}
 	else
 	{
 		mAppAngle = (F32) atan2( max_scale, range) * RAD_TO_DEG;
 
-		F32 pixels_per_meter = LLViewerCamera::getInstance()->getPixelMeterRatio() / range;
+		F32 pixels_per_meter = camera->getPixelMeterRatio() / range;
 
 		mPixelArea = (pixels_per_meter * max_scale) * (pixels_per_meter * mid_scale);
-		if (mPixelArea > LLViewerCamera::getInstance()->getScreenPixelArea())
+		if (mPixelArea > camera->getScreenPixelArea())
 		{
 			mAppAngle = 180.f;
-			mPixelArea = (F32)LLViewerCamera::getInstance()->getScreenPixelArea();
+			mPixelArea = (F32)camera->getScreenPixelArea();
 		}
 	}
 }

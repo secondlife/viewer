@@ -55,6 +55,18 @@ LLDataPacker::LLDataPacker() : mPassFlags(0), mWriteEnabled(FALSE)
 {
 }
 
+//virtual
+void LLDataPacker::reset()
+{
+	llerrs << "Using unimplemented datapacker reset!" << llendl;
+}
+
+//virtual
+void LLDataPacker::dumpBufferToLog()
+{
+	llerrs << "dumpBufferToLog not implemented for this type!" << llendl;
+}
+
 BOOL LLDataPacker::packFixed(const F32 value, const char *name,
 							 const BOOL is_signed, const U32 int_bits, const U32 frac_bits)
 {

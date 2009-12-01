@@ -34,6 +34,7 @@
 
 #include "linden_common.h"
 
+#define LLPANEL_CPP
 #include "llpanel.h"
 
 #include "llalertdialog.h"
@@ -57,6 +58,10 @@
 #include "lltabcontainer.h"
 
 static LLDefaultChildRegistry::Register<LLPanel> r1("panel", &LLPanel::fromXML);
+
+// Compiler optimization, generate extern template
+template class LLPanel* LLView::getChild<class LLPanel>(
+	const std::string& name, BOOL recurse) const;
 
 LLPanel::LocalizedString::LocalizedString()
 :	name("name"),

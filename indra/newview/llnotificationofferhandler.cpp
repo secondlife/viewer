@@ -90,7 +90,7 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
-		LLHandlerUtil::logToIM(notification);
+		LLHandlerUtil::logToIMP2P(notification);
 
 		LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
 
