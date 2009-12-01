@@ -2,6 +2,7 @@
  * @file llpluginprocesschild.h
  * @brief LLPluginProcessChild handles the child side of the external-process plugin API. 
  *
+ * @cond
  * $LicenseInfo:firstyear=2008&license=viewergpl$
  *
  * Copyright (c) 2008, Linden Research, Inc.
@@ -27,6 +28,7 @@
  * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
+ * @endcond
  */
 
 #ifndef LL_LLPLUGINPROCESSCHILD_H

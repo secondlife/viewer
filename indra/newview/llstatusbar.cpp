@@ -42,6 +42,7 @@
 #include "llfloaterbuycurrency.h"
 #include "llfloaterchat.h"
 #include "llfloaterlagmeter.h"
+#include "llfloatervolumepulldown.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterscriptdebug.h"
 #include "llhudicon.h"
@@ -159,6 +160,7 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 
 	mBtnVolume = getChild<LLButton>( "volume_btn" );
 	mBtnVolume->setClickedCallback( onClickVolume, this );
+	mBtnVolume->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterVolume, this));
 
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 
@@ -203,7 +205,6 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	addChild(mSGPacketLoss);
 
 	childSetActionTextbox("stat_btn", onClickStatGraph);
-
 }
 
 LLStatusBar::~LLStatusBar()
@@ -244,7 +245,6 @@ BOOL LLStatusBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLStatusBar::postBuild()
 {
-
 	gMenuBarView->setRightMouseDownCallback(boost::bind(&show_navbar_context_menu, _1, _2, _3));
 
 	return TRUE;
@@ -504,6 +504,13 @@ static void onClickHealth(void* )
 static void onClickScriptDebug(void*)
 {
 	LLFloaterScriptDebug::show(LLUUID::null);
+}
+
+//static
+void LLStatusBar::onMouseEnterVolume(LLUICtrl* ctrl)
+{
+	// show the master volume pull-down
+	LLFloaterReg::showInstance("volume_pulldown");
 }
 
 static void onClickVolume(void* data)
