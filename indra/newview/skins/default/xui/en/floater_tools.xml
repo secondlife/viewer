@@ -303,7 +303,7 @@
      name="checkbox snap to grid"
      width="134" />
     <combo_box
-     height="19"
+     height="23"
      layout="topleft"
      follows="left|top"
      name="combobox grid mode"
@@ -2338,16 +2338,16 @@ even though the user gets a free copy.
              left="10"
              name="tex gen"
              top_pad="5"
-             width="87">
+             width="85">
                 Mapping
             </text>
             <combo_box
-             height="22"
+             height="23"
              layout="topleft"
              left_delta="0"
              name="combobox texgen"
              top_pad="4"
-             width="60">
+             width="85">
                 <combo_box.item
                  label="Default"
                  name="Default"
@@ -2364,18 +2364,18 @@ even though the user gets a free copy.
              height="10"
              layout="topleft"
              name="label shininess"
-             left_pad="5"
+             left_pad="4"
              top_pad="-36"
-             width="60">
+             width="85">
                 Shininess
             </text>
             <combo_box
-             height="22"
+             height="23"
              layout="topleft"
              left_delta="0"
              name="combobox shininess"
              top_pad="4"
-             width="60">
+             width="85">
                 <combo_box.item
                  label="None"
                  name="None"
@@ -2399,19 +2399,19 @@ even though the user gets a free copy.
              follows="left|top"
              height="10"
              layout="topleft"
-             left_pad="5"
+             left_pad="4"
              name="label bumpiness"
              top_pad="-36"
-             width="87">
+             width="85">
                 Bumpiness
             </text>
             <combo_box
-             height="22"
+             height="23"
              layout="topleft"
              left_delta="0"
              name="combobox bumpiness"
              top_pad="4"
-             width="87">
+             width="85">
                 <combo_box.item
                  label="None"
                  name="None"
@@ -2604,7 +2604,7 @@ even though the user gets a free copy.
              width="170" />
             <button
              follows="left|top"
-             height="19"
+             height="23"
              label="Apply"
              label_selected="Apply"
              layout="topleft"
@@ -2739,7 +2739,7 @@ even though the user gets a free copy.
         decouple_texture_size="true" />
      <button
 			 follows="left|top"
-			 height="19"
+			 height="23"
 			 label="Align"
 			 label_selected="Align Media"
 			 layout="topleft"
