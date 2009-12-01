@@ -717,7 +717,7 @@ void LLStringOps::setupDatetimeInfo (bool daylight)
 	datetimeToCodes["day"]		= "%d";		// 31
 	datetimeToCodes["hour24"]	= "%H";		// 14
 	datetimeToCodes["hour"]		= "%H";		// 14
-	datetimeToCodes["hour12"]	= "%l";		// 02
+	datetimeToCodes["hour12"]	= "%I";		// 02
 	datetimeToCodes["min"]		= "%M";		// 59
 	datetimeToCodes["ampm"]		= "%p";		// AM
 	datetimeToCodes["second"]	= "%S";		// 59

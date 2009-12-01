@@ -8,32 +8,49 @@
  save_visibility="true"
  single_instance="true"
  width="282">
+    <string
+     name="title_nearby">
+        NEARBY VOICE
+    </string>
+    <string
+     name="title_group">
+        Group Call with [GROUP]
+    </string>
+    <string
+     name="title_adhoc">
+        Conference Call
+    </string>
+    <string
+     name="no_one_near">
+        No one near
+    </string>
     <panel
      bevel_style="in"
      follows="left|right|top"
-     height="73"
+     height="62"
      layout="topleft"
      left="0"
      name="control_panel"
-     width="285">
+     width="282">
         <panel
-         height="20"
+         height="18"
+         follows="top|left|right"
          layout="topleft"
          left="10"
          name="my_panel"
-         width="262">
+         width="263">
             <avatar_icon
              enabled="false"
              follows="left|top"
              height="18"
-             image_name="Generic_Person"
+             default_icon_name="Generic_Person"
              layout="topleft"
              left="0"
              name="user_icon"
              top="0"
              width="18" />
             <text
-             follows="top|left"
+             follows="top|left|right"
              font="SansSerifSmallBold"
              height="16"
              layout="topleft"
@@ -41,10 +58,23 @@
              name="user_text"
              text_color="white"
              top="4"
+             use_ellipses="true" 
              value="Mya Avatar:"
-             width="80" />
+             width="210" />
+            <output_monitor
+             auto_update="true"
+             draw_border="false"
+             follows="right"
+             height="16"
+             layout="topleft"
+             name="speaking_indicator"
+             right="-1"
+             top="2" 
+             visible="true"
+             width="20" />
         </panel>
         <layout_stack
+         animate="false"
          bottom="10"
          clip="false"
          follows="left|right|top"
@@ -53,9 +83,11 @@
          orientation="horizontal"
          width="262">
             <layout_panel
+             auto_resize="false" 
              follows="left"
              layout="topleft"
              min_width="24"
+             name="microphone_icon_panel" 
              top="0"
              user_resize="false"
              width="24">
@@ -69,9 +101,11 @@
             </layout_panel>
             <layout_panel
              layout="topleft"
+             min_width="138" 
+             name="volume_slider_panel"
              top="0"
              user_resize="false"
-             width="258">
+             width="138">
                 <slider_bar
                  control_name="AudioLevelMic"
                  follows="left|right|top"
@@ -84,7 +118,25 @@
                  tool_tip="Master Volume"
                  top="0"
                  value="0.75"
-                 width="258" />
+                 width="138" />
+            </layout_panel>
+            <layout_panel
+             auto_resize="false"
+             layout="topleft"
+             min_width="100" 
+             name="leave_btn_panel" 
+             top="0"
+             user_resize="false"
+             visible="false" 
+             width="100">
+                <button
+                 follows="left|right|top"
+                 height="24"
+                 label="Leave Call"
+                 left="0" 
+                 name="leave_call_btn"
+                 top="0" 
+                 width="100" />
             </layout_panel>
         </layout_stack>
     </panel>

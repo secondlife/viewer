@@ -4347,7 +4347,28 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 		// *TODO: Translate
 		LLSD args;
 		args["MESSAGE"] = desc;
-		LLNotificationsUtil::add("SystemMessage", args);
+
+		// this is a marker to retrieve avatar name from server message:
+		// "<avatar name> paid you L$"
+		const std::string marker = "paid you L$";
+
+		// extract avatar name from system message
+		std::string name = desc.substr(0, desc.find(marker, 0));
+		LLStringUtil::trim(name);
+
+		// if name extracted and name cache contains avatar id send loggable notification
+		LLUUID from_id;
+		if(name.size() > 0 && gCacheName->getUUID(name, from_id))
+		{
+			args["NAME"] = name;
+			LLSD payload;
+			payload["from_id"] = from_id;
+			LLNotificationsUtil::add("PaymentRecived", args, payload);
+		}
+		else
+		{
+			LLNotificationsUtil::add("SystemMessage", args);
+		}
 
 		// Once the 'recent' container gets large enough, chop some
 		// off the beginning.

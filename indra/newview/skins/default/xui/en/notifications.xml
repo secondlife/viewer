@@ -2382,15 +2382,15 @@ Please choose the male or female avatar. You can change your mind later.
   <notification
    icon="alertmodal.tga"
    name="GrantedModifyRights"
-   type="alertmodal">
-[FIRST_NAME] [LAST_NAME] has given you permission to edit their objects.
+   type="notify">
+[NAME] has given you permission to edit their objects.
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="RevokedModifyRights"
-   type="alertmodal">
-Your privilege to modify [FIRST_NAME] [LAST_NAME]&apos;s objects has been revoked
+   type="notify">
+Your privilege to modify [NAME]&apos;s objects has been revoked
   </notification>
 
   <notification
@@ -4611,6 +4611,13 @@ Please select at least one type of content to search (PG, Mature, or Adult).
 
   <notification
    icon="notify.tga"
+   name="PaymentRecived"
+   type="notify">
+[MESSAGE]
+  </notification>
+  
+  <notification
+   icon="notify.tga"
    name="EventNotification"
    type="notify">
 Event Notification:
@@ -5778,6 +5785,26 @@ Unable to find the help topic for this element.
  type="alertmodal">
 Server Error: Media update or get failed.
 &apos;[ERROR]&apos;
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
+
+    <notification
+ icon="alertmodal.tga"
+ name="TextChatIsMutedByModerator"
+ type="alertmodal">
+Your text chat has been muted by moderator.
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
+
+    <notification
+ icon="alertmodal.tga"
+ name="VoiceIsMutedByModerator"
+ type="alertmodal">
+Your voice has been muted by moderator.
         <usetemplate
          name="okbutton"
          yestext="OK"/>

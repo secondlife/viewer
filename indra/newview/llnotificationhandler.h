@@ -39,6 +39,7 @@
 //#include "llnotificationsutil.h"
 #include "llchannelmanager.h"
 #include "llchat.h"
+#include "llnotificationptr.h"
 
 namespace LLNotificationsUI
 {
@@ -254,6 +255,33 @@ protected:
 
 	// own handlers
 	void onRejectToast(LLUUID& id);
+};
+
+class LLHandlerUtil
+{
+public:
+	/**
+	 * Checks sufficient conditions to log notification message to IM session.
+	 */
+	static bool canLogToIM(const LLNotificationPtr& notification);
+
+	/**
+	 * Writes notification message to IM session.
+	 */
+	static void logToIM(const EInstantMessage& session_type,
+			const std::string& session_name, const std::string& from_name,
+			const std::string& message, const LLUUID& session_owner_id,
+			const LLUUID& from_id);
+
+	/**
+	 * Writes notification message to IM  p2p session.
+	 */
+	static void logToIMP2P(const LLNotificationPtr& notification);
+
+	/**
+	 * Writes group notice notification message to IM  group session.
+	 */
+	static void logGroupNoticeToIMGroup(const LLNotificationPtr& notification);
 };
 
 }

@@ -83,18 +83,15 @@
 #include "llfirstuse.h"
 #include "llagentui.h"
 
+const static std::string IM_TIME("time");
+const static std::string IM_TEXT("message");
+const static std::string IM_FROM("from");
+const static std::string IM_FROM_ID("from_id");
+
 //
 // Globals
 //
 LLIMMgr* gIMMgr = NULL;
-
-//
-// Statics
-//
-// *FIXME: make these all either UIStrings or Strings
-
-const static std::string IM_SEPARATOR(": ");
-
 
 void toast_callback(const LLSD& msg){
 	// do not show toast in busy mode or it goes from agent
@@ -193,7 +190,13 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	}
 
 	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
-		LLLogChat::loadHistory(mName, &chatFromLogFile, (void *)this);
+	{
+		std::list<LLSD> chat_history;
+
+		//involves parsing of a chat history
+		LLLogChat::loadAllHistory(mName, chat_history);
+		addMessagesFromHistory(chat_history);
+	}
 }
 
 void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
@@ -232,6 +235,12 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			default:
 				break;
 			}
+		}
+
+		// Update speakers list when connected
+		if (LLVoiceChannel::STATE_CONNECTED == new_state)
+		{
+			mSpeakers->update(true);
 		}
 	}
 	else  // group || ad-hoc calls
@@ -294,6 +303,30 @@ void LLIMModel::LLIMSession::addMessage(const std::string& from, const LLUUID& f
 	{
 		mSpeakers->speakerChatted(from_id);
 		mSpeakers->setSpeakerTyping(from_id, FALSE);
+	}
+}
+
+void LLIMModel::LLIMSession::addMessagesFromHistory(const std::list<LLSD>& history)
+{
+	std::list<LLSD>::const_iterator it = history.begin();
+	while (it != history.end())
+	{
+		const LLSD& msg = *it;
+
+		std::string from = msg[IM_FROM];
+		LLUUID from_id = LLUUID::null;
+		if (msg[IM_FROM_ID].isUndefined())
+		{
+			gCacheName->getUUID(from, from_id);
+		}
+
+
+		std::string timestamp = msg[IM_TIME];
+		std::string text = msg[IM_TEXT];
+
+		addMessage(from, from_id, text, timestamp);
+
+		it++;
 	}
 }
 
@@ -445,6 +478,19 @@ bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, 
 	return true;
 }
 
+bool LLIMModel::logToFile(const std::string& session_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
+{
+	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
+	{
+		LLLogChat::saveHistory(session_name, from, from_id, utf8_text);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 bool LLIMModel::logToFile(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
 {
 	if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
@@ -479,7 +525,7 @@ bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 						   const std::string& utf8_text, bool log2file /* = true */) { 
 	LLIMSession* session = findIMSession(session_id);
 
-	if (!session) 
+	if (!session)
 	{
 		llwarns << "session " << session_id << "does not exist " << llendl;
 		return false;
@@ -1329,7 +1375,8 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 			session_id = gIMMgr->addP2PSession(
 				mPayload["session_name"].asString(),
 				mPayload["caller_id"].asUUID(),
-				mPayload["session_handle"].asString());
+				mPayload["session_handle"].asString(),
+				mPayload["session_uri"].asString());
 
 			if (voice)
 			{

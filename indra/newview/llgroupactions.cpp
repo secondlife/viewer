@@ -100,9 +100,9 @@ public:
 		}
 		if (tokens[1].asString() == "inspect")
 		{
-			LLSD key;
-			key["group_id"] = group_id;
-			LLFloaterReg::showInstance("inspect_group", key);
+			if (group_id.isNull())
+				return true;
+			LLGroupActions::show(group_id);
 			return true;
 		}
 		return false;

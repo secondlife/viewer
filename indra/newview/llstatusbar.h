@@ -47,6 +47,7 @@ class LLUICtrl;
 class LLUUID;
 class LLFrameTimer;
 class LLStatGraph;
+class LLPanelVolumePulldown;
 
 class LLStatusBar
 :	public LLPanel
@@ -92,8 +93,8 @@ private:
 
 	void onVolumeChanged(const LLSD& newvalue);
 
+	static void onMouseEnterVolume(LLUICtrl* ctrl);
 	static void onClickStatGraph(void* data);
-	
 
 private:
 	LLTextBox	*mTextHealth;
