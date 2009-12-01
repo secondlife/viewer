@@ -50,6 +50,7 @@
 
 #include "llviewquery.h"
 #include "llxmltree.h"
+#include "llslurl.h"
 //#include "llviewercamera.h"
 #include "llrender.h"
 
@@ -828,9 +829,12 @@ BOOL LLViewerWindow::handleDragNDrop( LLWindow *window,  LLCoordGL pos, MASK mas
 	if (gSavedSettings.getBOOL("PrimMediaDragNDrop"))
 	{
 		// special case SLURLs
-		if ( slurl )
+		if ( drop && slurl )
 		{
 			LLURLDispatcher::dispatch( data, NULL, true );
+			LLURLSimString::setString( LLSLURL::stripProtocol( data ) );
+			LLPanelLogin::refreshLocation( true );
+			LLPanelLogin::updateLocationUI();
 			return TRUE;
 		};
 
