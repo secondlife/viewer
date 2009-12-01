@@ -52,6 +52,7 @@
 #include "llsidetray.h"
 #include "llpaneloutfitsinventory.h"
 #include "llfolderview.h"
+#include "llaccordionctrltab.h"
 
 #include <boost/scoped_ptr.hpp>
 
@@ -411,7 +412,7 @@ void LLAgentWearables::saveWearable(const EWearableType type, const U32 index, B
 			return;
 		}
 
-		gAgent.getAvatarObject()->wearableUpdated( type );
+		gAgent.getAvatarObject()->wearableUpdated( type, TRUE );
 
 		if (send_update)
 		{
@@ -701,7 +702,7 @@ U32 LLAgentWearables::pushWearable(const EWearableType type, LLWearable *wearabl
 
 void LLAgentWearables::wearableUpdated(LLWearable *wearable)
 {
-	mAvatarObject->wearableUpdated(wearable->getType());
+	mAvatarObject->wearableUpdated(wearable->getType(), TRUE);
 	wearable->setLabelUpdated();
 
 	// Hack pt 2. If the wearable we just loaded has definition version 24,
@@ -742,7 +743,7 @@ void LLAgentWearables::popWearable(const EWearableType type, U32 index)
 	if (wearable)
 	{
 		mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
-		mAvatarObject->wearableUpdated(wearable->getType());
+		mAvatarObject->wearableUpdated(wearable->getType(), TRUE);
 		wearable->setLabelUpdated();
 	}
 }
@@ -1312,9 +1313,17 @@ public:
 		LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
 		LLPanelOutfitsInventory *outfit_panel =
 			dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
-		outfit_panel->getRootFolder()->clearSelection();
-		outfit_panel->getRootFolder()->setSelectionByID(mFolderID, TRUE);
-		outfit_panel->getRootFolder()->setNeedsAutoRename(TRUE);
+		if (outfit_panel)
+		{
+			outfit_panel->getRootFolder()->clearSelection();
+			outfit_panel->getRootFolder()->setSelectionByID(mFolderID, TRUE);
+			outfit_panel->getRootFolder()->setNeedsAutoRename(TRUE);
+		}
+		LLAccordionCtrlTab* tab_outfits = outfit_panel ? outfit_panel->findChild<LLAccordionCtrlTab>("tab_outfits") : 0;
+		if (tab_outfits && !tab_outfits->getDisplayChildren())
+		{
+			tab_outfits->changeOpenClose(tab_outfits->getDisplayChildren());
+		}
 	}
 	
 	virtual void fire(const LLUUID&)
