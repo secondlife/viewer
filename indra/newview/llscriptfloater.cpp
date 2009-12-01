@@ -41,6 +41,7 @@
 #include "llscreenchannel.h"
 #include "lltoastnotifypanel.h"
 #include "llviewerwindow.h"
+#include "llimfloater.h"
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -212,6 +213,8 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 	mNotifications.insert(std::make_pair(object_id, nd));
 
 	LLBottomTray::getInstance()->getChicletPanel()->createChiclet<LLScriptChiclet>(object_id);
+
+	toggleScriptFloater(object_id);
 }
 
 void LLScriptFloaterManager::onRemoveNotification(const LLUUID& notification_id)
