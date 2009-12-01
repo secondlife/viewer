@@ -8,7 +8,7 @@
      label="im_header"
 	 layout="topleft"
      name="im_header"
-     width="300">
+     width="310">
 		<avatar_icon
          follows="left"
          height="18"
