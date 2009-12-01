@@ -256,7 +256,7 @@
      follows="top|right"
      height="16"
      initial_value="true"
-     label="Mature"
+     label="Moderate"
      layout="topleft"
      left_pad="4"
      name="event_mature_chk"
