@@ -90,6 +90,8 @@ private:
 	LLParticipantList* mPaticipants;
 	LLAvatarList* mAvatarList;
 	EVoiceControls mVoiceType;
+
+	boost::signals2::connection mChannelChangedConnection;
 };
 
 

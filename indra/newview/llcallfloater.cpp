@@ -54,6 +54,7 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 
 LLCallFloater::~LLCallFloater()
 {
+	mChannelChangedConnection.disconnect();
 	delete mPaticipants;
 	mPaticipants = NULL;
 }
@@ -77,7 +78,7 @@ BOOL LLCallFloater::postBuild()
 	updateSession();
 
 	// subscribe to to be notified Voice Channel is changed
-	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::onCurrentChannelChanged, this, _1));
+	mChannelChangedConnection = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::onCurrentChannelChanged, this, _1));
 	return TRUE;
 }
 
@@ -157,6 +158,8 @@ void LLCallFloater::refreshPartisipantList()
 
 void LLCallFloater::onCurrentChannelChanged(const LLUUID& /*session_id*/)
 {
+	// Forget speaker manager from the previous session to avoid using it after session was destroyed.
+	mSpeakerManager = NULL;
 	updateSession();
 }
 
