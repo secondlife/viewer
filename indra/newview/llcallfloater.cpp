@@ -64,6 +64,7 @@ BOOL LLCallFloater::postBuild()
 {
 	LLDockableFloater::postBuild();
 	mAvatarList = getChild<LLAvatarList>("speakers_list");
+	childSetAction("leave_call_btn", boost::bind(&LLCallFloater::leaveCall, this));
 
 
 	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_panel");
@@ -90,6 +91,14 @@ void LLCallFloater::onOpen(const LLSD& /*key*/)
 //////////////////////////////////////////////////////////////////////////
 /// PRIVATE SECTION
 //////////////////////////////////////////////////////////////////////////
+
+void LLCallFloater::leaveCall()
+{
+	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
+	if (voice_channel && voice_channel->isActive())
+		voice_channel->deactivate();
+}
+
 void LLCallFloater::updateSession()
 {
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
@@ -139,6 +148,11 @@ void LLCallFloater::updateSession()
 	}
 
 	updateTitle();
+	
+	//hide "Leave Call" button for nearby chat
+	bool isLocalChat = mVoiceType == VC_LOCAL_CHAT;
+	childSetVisible("leave_btn_panel", !isLocalChat);
+	
 	refreshPartisipantList();
 }
 
