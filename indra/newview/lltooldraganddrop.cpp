@@ -383,6 +383,7 @@ LLToolDragAndDrop::LLDragAndDropDictionary::LLDragAndDropDictionary()
 	addEntry(DAD_GESTURE, 		new DragAndDropEntry(&dad3dNULL,	&dad3dActivateGesture,		&dad3dGiveInventory,		&dad3dUpdateInventory,			&dad3dNULL));
 	addEntry(DAD_LINK, 			new DragAndDropEntry(&dad3dNULL,	&dad3dNULL,					&dad3dNULL,					&dad3dNULL,						&dad3dNULL));
 	// TODO: animation on self could play it?  edit it?
+	// TODO: gesture on self could play it?  edit it?
 };
 
 LLToolDragAndDrop::LLToolDragAndDrop()
@@ -1826,10 +1827,11 @@ BOOL LLToolDragAndDrop::isInventoryGroupGiveAcceptable(LLInventoryItem* item)
 EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LLInventoryItem* item)
 {
 	// check the basics
-	if(!item || !obj) return ACCEPT_NO;
+	if (!item || !obj) return ACCEPT_NO;
 	// HACK: downcast
 	LLViewerInventoryItem* vitem = (LLViewerInventoryItem*)item;
-	if(!vitem->isComplete()) return ACCEPT_NO;
+	if (!vitem->isComplete()) return ACCEPT_NO;
+	if (vitem->getIsLinkType()) return ACCEPT_NO; // No giving away links
 
 	// deny attempts to drop from an object onto itself. This is to
 	// help make sure that drops that are from an object to an object
@@ -1839,7 +1841,7 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	{
 		return ACCEPT_NO;
 	}
-
+	
 	//BOOL copy = (perm.allowCopyBy(gAgent.getID(),
 	//							  gAgent.getGroupID())
 	//			 && (obj->mPermModify || obj->mFlagAllowInventoryAdd));
@@ -2478,24 +2480,30 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
 	lldebugs << "LLToolDragAndDrop::dad3dUpdateInventoryCategory()" << llendl;
-	if (NULL==obj)
+	if (obj == NULL)
 	{
 		llwarns << "obj is NULL; aborting func with ACCEPT_NO" << llendl;
 		return ACCEPT_NO;
 	}
 
-	if (mSource != SOURCE_AGENT && mSource != SOURCE_LIBRARY)
+	if ((mSource != SOURCE_AGENT) && (mSource != SOURCE_LIBRARY))
 	{
 		return ACCEPT_NO;
 	}
-	if(obj->isAttachment()) return ACCEPT_NO_LOCKED;
-	LLViewerInventoryItem* item;
-	LLViewerInventoryCategory* cat;
-	locateInventory(item, cat);
-	if(!cat) return ACCEPT_NO;
-	EAcceptance rv = ACCEPT_NO;
+	if (obj->isAttachment())
+	{
+		return ACCEPT_NO_LOCKED;
+	}
 
-	// find all the items in the category
+	LLViewerInventoryItem* item = NULL;
+	LLViewerInventoryCategory* cat = NULL;
+	locateInventory(item, cat);
+	if (!cat) 
+	{
+		return ACCEPT_NO;
+	}
+
+	// Find all the items in the category
 	LLDroppableItem droppable(!obj->permYouOwner());
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
@@ -2505,7 +2513,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 					LLInventoryModel::EXCLUDE_TRASH,
 					droppable);
 	cats.put(cat);
- 	if(droppable.countNoCopy() > 0)
+ 	if (droppable.countNoCopy() > 0)
  	{
  		llwarns << "*** Need to confirm this step" << llendl;
  	}
@@ -2519,46 +2527,57 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 		}
 	}
 
+	EAcceptance rv = ACCEPT_NO;
+
 	// Check for accept
-	S32 i;
-	S32 count = cats.count();
-	for(i = 0; i < count; ++i)
+	for (LLInventoryModel::cat_array_t::const_iterator cat_iter = cats.begin();
+		 cat_iter != cats.end();
+		 ++cat_iter)
 	{
-		rv = gInventory.isCategoryComplete(cats.get(i)->getUUID()) ? ACCEPT_YES_MULTI : ACCEPT_NO;
+		const LLViewerInventoryCategory *cat = (*cat_iter);
+		rv = gInventory.isCategoryComplete(cat->getUUID()) ? ACCEPT_YES_MULTI : ACCEPT_NO;
 		if(rv < ACCEPT_YES_SINGLE)
 		{
-			lldebugs << "Category " << cats.get(i)->getUUID()
-					 << "is not complete." << llendl;
+			lldebugs << "Category " << cat->getUUID() << "is not complete." << llendl;
 			break;
 		}
 	}
-	if(ACCEPT_YES_COPY_SINGLE <= rv)
+	if (ACCEPT_YES_COPY_SINGLE <= rv)
 	{
-		count = items.count();
-		for(i = 0; i < count; ++i)
+		for (LLInventoryModel::item_array_t::const_iterator item_iter = items.begin();
+			 item_iter != items.end();
+			 ++item_iter)
 		{
-			rv = willObjectAcceptInventory(root_object, items.get(i));
-			if(rv < ACCEPT_YES_COPY_SINGLE)
+			LLViewerInventoryItem *item = (*item_iter);
+			/*
+			// Pass the base objects, not the links.
+			if (item && item->getIsLinkType())
 			{
-				lldebugs << "Object will not accept "
-						 << items.get(i)->getUUID() << llendl;
+				item = item->getLinkedItem();
+				(*item_iter) = item;
+			}
+			*/
+			rv = willObjectAcceptInventory(root_object, item);
+			if (rv < ACCEPT_YES_COPY_SINGLE)
+			{
+				lldebugs << "Object will not accept " << item->getUUID() << llendl;
 				break;
 			}
 		}
 	}
 
-	// if every item is accepted, go ahead and send it on.
-	if(drop && (ACCEPT_YES_COPY_SINGLE <= rv))
+	// If every item is accepted, send it on
+	if (drop && (ACCEPT_YES_COPY_SINGLE <= rv))
 	{
-		S32 count = items.count();
 		LLInventoryFetchObserver::item_ref_t ids;
-		for(i = 0; i < count; ++i)
+		for (LLInventoryModel::item_array_t::const_iterator item_iter = items.begin();
+			 item_iter != items.end();
+			 ++item_iter)
 		{
-			//dropInventory(root_object, items.get(i), mSource, mSourceID);
-			ids.push_back(items.get(i)->getUUID());
+			const LLViewerInventoryItem *item = (*item_iter);
+			ids.push_back(item->getUUID());
 		}
-		LLCategoryDropObserver* dropper;
-		dropper = new LLCategoryDropObserver(obj->getID(), mSource);
+		LLCategoryDropObserver* dropper = new LLCategoryDropObserver(obj->getID(), mSource);
 		dropper->fetchItems(ids);
 		if(dropper->isEverythingComplete())
 		{

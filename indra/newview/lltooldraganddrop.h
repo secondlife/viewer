@@ -141,10 +141,6 @@ protected:
 
 	enddrag_signal_t	mEndDragSignal;
 
-	// array of pointers to functions that implement the logic to
-	// dragging and dropping into the simulator.
-	static dragOrDrop3dImpl sDragAndDrop3d[DAD_COUNT][DT_COUNT];
-
 protected:
 	// 3d drop functions. these call down into the static functions
 	// named drop<ThingToDrop> if drop is TRUE and permissions allow
