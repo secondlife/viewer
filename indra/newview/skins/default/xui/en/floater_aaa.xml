@@ -5,6 +5,7 @@
  name="floater_aaa"
  can_resize="true" 
  width="500">
+  <string name="bump_parabuild">1</string>
   <text_editor
   enabled="false"
   follows="all"

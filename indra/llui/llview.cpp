@@ -83,6 +83,11 @@ template class LLView* LLView::getChild<class LLView>(
 
 static LLDefaultChildRegistry::Register<LLView> r("view");
 
+LLView::Follows::Follows()
+:   string(""),
+	flags("flags", FOLLOWS_LEFT | FOLLOWS_TOP)
+{}
+
 LLView::Params::Params()
 :	name("name", std::string("unnamed")),
 	enabled("enabled", true),
