@@ -6,6 +6,7 @@
    layout="topleft" 
    left="0"
    width="380"
+   help_topic="panel_landmarks"
    border="true"
    background_visible="true"
    bg_alpha_color="DkGray2"
