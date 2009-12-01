@@ -19,7 +19,7 @@
   <!-- Allowed fields include:
 	[BORN_ON] ("12/3/2008")
 	[SL_PROFILE] (Second Life profile),
-  [RW_PROFILE] (real world profile),
+    [RW_PROFILE] (real world profile),
 	[ACCTTYPE] ("Resident"),
 	[PAYMENTINFO] ("Payment Info on File"),
 	[AGE] ("1 year 2 months")
@@ -32,10 +32,11 @@
      name="Details">
 [SL_PROFILE]
     </string>
-  <string
+<!--  <string
      name="Partner">
     Partner: [PARTNER]
-  </string>
+  </string>   
+-->
   <text
      follows="all"
      font="SansSerifLarge"
@@ -52,21 +53,21 @@
      height="16"
      left="8"
      name="user_subtitle"
-   font="SansSerifSmall"
-   text_color="White"
+     font="SansSerifSmall"
+     text_color="White"
      value="11 Months, 3 days old"
      width="175"
      use_ellipses="true" />
      <text
      follows="all"
-   height="25"
-   left="8"
+     height="35"
+     left="8"
      name="user_details"
      word_wrap="true"
      top_pad="6"
      width="220">This is my second life description and I really think it is great.
     </text>
-    <text
+<!--<text
      follows="all"
      height="13"
      left="8"
@@ -76,7 +77,8 @@
      use_ellipses="true"
      word_wrap="false">
     Erica Linden
-  </text>
+    </text> 
+-->
     <slider
      follows="top|left"
      height="23"
@@ -113,8 +115,9 @@
      name="avatar_icon"
      top="10"
      width="38" />
-  <!-- Overlapping buttons for default actions
-    llinspectavatar.cpp makes visible the most likely default action -->
+<!-- Overlapping buttons for default actions
+    llinspectavatar.cpp makes visible the most likely default action 
+-->
     <button
      follows="bottom|left"
      height="20"
@@ -131,9 +134,8 @@
      top_delta="0"
      name="im_btn"
      width="80"
-     commit_callback.function="InspectAvatar.IM"
-     />
-          <button
+     commit_callback.function="InspectAvatar.IM"/>
+	<button
      follows="top|left"
      height="20"
      label="More"
@@ -153,7 +155,7 @@
      right="-5"
      top_delta="0"
      width="35" />
-         <menu_button
+	<menu_button
      follows="top|left"
      height="20"
      image_overlay="OptionsMenu_Off"

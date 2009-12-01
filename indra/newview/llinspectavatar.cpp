@@ -133,7 +133,7 @@ private:
 	LLUUID				mAvatarID;
 	// Need avatar name information to spawn friend add request
 	std::string			mAvatarName;
-	LLUUID				mPartnerID;
+//	LLUUID				mPartnerID;
 	// an in-flight request for avatar properties from LLAvatarPropertiesProcessor
 	// is represented by this object
 	LLFetchAvatarData*	mPropertiesRequest;
@@ -188,7 +188,7 @@ public:
 LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 :	LLInspect( LLSD() ),	// single_instance, doesn't really need key
 	mAvatarID(),			// set in onOpen()
-	mPartnerID(),
+//	mPartnerID(),
 	mAvatarName(),
 	mPropertiesRequest(NULL)
 {
@@ -257,7 +257,7 @@ void LLInspectAvatar::onOpen(const LLSD& data)
 
 	// Extract appropriate avatar id
 	mAvatarID = data["avatar_id"];
-	mPartnerID = LLUUID::null;
+//	mPartnerID = LLUUID::null;
 
 	BOOL self = mAvatarID == gAgent.getID();
 	
@@ -307,7 +307,7 @@ void LLInspectAvatar::requestUpdate()
 	getChild<LLUICtrl>("user_name")->setValue("");
 	getChild<LLUICtrl>("user_subtitle")->setValue("");
 	getChild<LLUICtrl>("user_details")->setValue("");
-	getChild<LLUICtrl>("user_partner")->setValue("");
+//	getChild<LLUICtrl>("user_partner")->setValue("");
 	
 	// Make a new request for properties
 	delete mPropertiesRequest;
@@ -366,14 +366,14 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 	getChild<LLUICtrl>("user_details")->setValue( LLSD(details) );
 
 	// Look up partner name, if there is one
-	mPartnerID = data->partner_id;
+/*	mPartnerID = data->partner_id;
 	if (mPartnerID.notNull())
 	{
 		gCacheName->get(mPartnerID, FALSE,
 			boost::bind(&LLInspectAvatar::nameUpdatedCallback,
 			this, _1, _2, _3, _4));
 	}
-
+*/
 	// Delete the request object as it has been satisfied
 	delete mPropertiesRequest;
 	mPropertiesRequest = NULL;
@@ -456,7 +456,7 @@ void LLInspectAvatar::nameUpdatedCallback(
 		childSetValue("user_name", LLSD(mAvatarName) );
 	}
 	
-	if (id == mPartnerID)
+/*	if (id == mPartnerID)
 	{
 		LLStringUtil::format_map_t args;
 		args["[PARTNER]"] = first + " " + last;
@@ -464,6 +464,7 @@ void LLInspectAvatar::nameUpdatedCallback(
 		getChild<LLUICtrl>("user_partner")->setValue(partner);
 	}
 	// Otherwise possibly a request for an older inspector, ignore it
+ */
 }
 
 void LLInspectAvatar::onClickAddFriend()
