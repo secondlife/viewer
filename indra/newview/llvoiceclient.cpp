@@ -63,6 +63,7 @@
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
 #include "llfirstuse.h"
+#include "lltrans.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
 #include "llvoavatarself.h"
@@ -1161,11 +1162,12 @@ LLVoiceClient::LLVoiceClient() :
 	mVoiceEnabled(false),
 	mWriteInProgress(false),
 	
-	mLipSyncEnabled(false),
-	mAPIVersion("Unknown")
+	mLipSyncEnabled(false)
 {	
 	gVoiceClient = this;
 	
+	mAPIVersion = LLTrans::getString("NotConnected");
+
 #if LL_DARWIN || LL_LINUX || LL_SOLARIS
 		// HACK: THIS DOES NOT BELONG HERE
 		// When the vivox daemon dies, the next write attempt on our socket generates a SIGPIPE, which kills us.

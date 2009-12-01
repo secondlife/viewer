@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="Teleport History" bottom="0" height="326" left="0" width="380"
+     help_topic="panel_teleport_history"
      border="true" follows="left|top|right|bottom">     
     <accordion
      follows="left|top|right|bottom"

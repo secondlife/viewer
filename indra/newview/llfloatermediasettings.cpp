@@ -41,6 +41,7 @@
 #include "lluictrlfactory.h"
 #include "llbutton.h"
 #include "llselectmgr.h"
+#include "llsdutil.h"
 
 LLFloaterMediaSettings* LLFloaterMediaSettings::sInstance = NULL;
 
@@ -145,15 +146,15 @@ LLFloaterMediaSettings* LLFloaterMediaSettings::getInstance()
 //static 
 void LLFloaterMediaSettings::apply()
 {
-    LLSD settings;
+	LLSD settings;
 	sInstance->mPanelMediaSettingsGeneral->preApply();
-    sInstance->mPanelMediaSettingsGeneral->getValues( settings );
+	sInstance->mPanelMediaSettingsGeneral->getValues( settings );
 	sInstance->mPanelMediaSettingsSecurity->preApply();
 	sInstance->mPanelMediaSettingsSecurity->getValues( settings );
 	sInstance->mPanelMediaSettingsPermissions->preApply();
-    sInstance->mPanelMediaSettingsPermissions->getValues( settings );
+	sInstance->mPanelMediaSettingsPermissions->getValues( settings );
 	LLSelectMgr::getInstance()->selectionSetMedia( LLTextureEntry::MF_HAS_MEDIA );
-    LLSelectMgr::getInstance()->selectionSetMediaData(settings);
+	LLSelectMgr::getInstance()->selectionSetMediaData(settings);
 	sInstance->mPanelMediaSettingsGeneral->postApply();
 	sInstance->mPanelMediaSettingsSecurity->postApply();
 	sInstance->mPanelMediaSettingsPermissions->postApply();
@@ -183,7 +184,12 @@ void LLFloaterMediaSettings::initValues( const LLSD& media_settings, bool editab
 
 	sInstance->mPanelMediaSettingsPermissions->
 		initValues( sInstance->mPanelMediaSettingsPermissions, media_settings, editable );
-
+	
+	// Squirrel away initial values 
+	sInstance->mInitialValues.clear();
+	sInstance->mPanelMediaSettingsGeneral->getValues( sInstance->mInitialValues );
+	sInstance->mPanelMediaSettingsSecurity->getValues( sInstance->mInitialValues );
+	sInstance->mPanelMediaSettingsPermissions->getValues( sInstance->mInitialValues );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -206,7 +212,7 @@ void LLFloaterMediaSettings::clearValues( bool editable)
 {
 	// clean up all panels before updating
 	sInstance->mPanelMediaSettingsGeneral	 ->clearValues(sInstance->mPanelMediaSettingsGeneral,  editable);
-	sInstance->mPanelMediaSettingsSecurity	 ->clearValues(sInstance->mPanelMediaSettingsSecurity,  editable);
+	sInstance->mPanelMediaSettingsSecurity	 ->clearValues(sInstance->mPanelMediaSettingsSecurity,	editable);
 	sInstance->mPanelMediaSettingsPermissions->clearValues(sInstance->mPanelMediaSettingsPermissions,  editable);	
 }
 
@@ -235,7 +241,7 @@ void LLFloaterMediaSettings::onBtnApply( void* userdata )
 // static
 void LLFloaterMediaSettings::onBtnCancel( void* userdata )
 {
- 	sInstance->closeFloater(); 
+	sInstance->closeFloater(); 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -250,7 +256,6 @@ void LLFloaterMediaSettings::onTabChanged(void* user_data, bool from_click)
 //
 void LLFloaterMediaSettings::enableOkApplyBtns( bool enable )
 {
-	setCtrlsEnabled( enable );
 	childSetEnabled( "OK", enable );
 	childSetEnabled( "Apply", enable );
 }
@@ -265,7 +270,6 @@ const std::string LLFloaterMediaSettings::getHomeUrl()
 		return std::string( "" );
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 bool LLFloaterMediaSettings::passesWhiteList( const std::string& test_url )
@@ -278,4 +282,37 @@ bool LLFloaterMediaSettings::passesWhiteList( const std::string& test_url )
 	else
 		// this is all we can do
 		return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// virtual 
+void LLFloaterMediaSettings::draw()
+{
+	// *NOTE: The code below is very inefficient.  Better to do this
+	// only when data change.
+	// Every frame, check to see what the values are.  If they are not
+	// the same as the default media data, enable the OK/Apply buttons
+	LLSD settings;
+	sInstance->mPanelMediaSettingsGeneral->getValues( settings );
+	sInstance->mPanelMediaSettingsSecurity->getValues( settings );
+	sInstance->mPanelMediaSettingsPermissions->getValues( settings );
+
+	bool values_changed = false;
+	
+	LLSD::map_const_iterator iter = settings.beginMap();
+	LLSD::map_const_iterator end = settings.endMap();
+	for ( ; iter != end; ++iter )
+	{
+		const std::string &current_key = iter->first;
+		const LLSD &current_value = iter->second;
+		if ( ! llsd_equals(current_value, mInitialValues[current_key]))
+		{
+			values_changed = true;
+			break;
+		}
+	}
+	
+	enableOkApplyBtns(values_changed);
+	
+	LLFloater::draw();
 }

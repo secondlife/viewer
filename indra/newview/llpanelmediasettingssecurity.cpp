@@ -213,7 +213,7 @@ void LLPanelMediaSettingsSecurity::preApply()
 //
 void LLPanelMediaSettingsSecurity::getValues( LLSD &fill_me_in )
 {
-    fill_me_in[LLMediaEntry::WHITELIST_ENABLE_KEY] = mEnableWhiteList->getValue();
+    fill_me_in[LLMediaEntry::WHITELIST_ENABLE_KEY] = (LLSD::Boolean)mEnableWhiteList->getValue();
 
     // iterate over white list and extract items
     std::vector< LLScrollListItem* > white_list_items = mWhiteListList->getAllData();

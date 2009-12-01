@@ -72,12 +72,13 @@ LLProgressBar::~LLProgressBar()
 void LLProgressBar::draw()
 {
 	static LLTimer timer;
-
-	LLUIImagePtr bar_fg_imagep = LLUI::getUIImage("progressbar_fill.tga");
+	F32 alpha = getDrawContext().mAlpha;
 	
-	mImageBar->draw(getLocalRect(), mColorBackground.get());
+	LLColor4 image_bar_color = mColorBackground.get();
+	image_bar_color.setAlpha(alpha);
+	mImageBar->draw(getLocalRect(), image_bar_color);
 
-	F32 alpha = 0.5f + 0.5f*0.5f*(1.f + (F32)sin(3.f*timer.getElapsedTimeF32()));
+	alpha *= 0.5f + 0.5f*0.5f*(1.f + (F32)sin(3.f*timer.getElapsedTimeF32()));
 	LLColor4 bar_color = mColorBar.get();
 	bar_color.mV[VALPHA] *= alpha; // modulate alpha
 	LLRect progress_rect = getLocalRect();
