@@ -1456,6 +1456,28 @@ void LLChicletGroupIconCtrl::setValue(const LLSD& value )
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+LLChicletInvOfferIconCtrl::LLChicletInvOfferIconCtrl(const Params& p)
+: LLChicletAvatarIconCtrl(p)
+ , mDefaultIcon(p.default_icon)
+{
+}
+
+void LLChicletInvOfferIconCtrl::setValue(const LLSD& value )
+{
+	if(value.asUUID().isNull())
+	{
+		LLIconCtrl::setValue(mDefaultIcon);
+	}
+	else
+	{
+		LLChicletAvatarIconCtrl::setValue(value);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 LLChicletSpeakerCtrl::LLChicletSpeakerCtrl(const Params&p)
  : LLOutputMonitorCtrl(p)
 {
@@ -1502,6 +1524,62 @@ void LLScriptChiclet::onMouseDown()
 }
 
 BOOL LLScriptChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	onMouseDown();
+	return LLChiclet::handleMouseDown(x, y, mask);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+static const std::string INVENTORY_USER_OFFER	("UserGiveItem");
+
+LLInvOfferChiclet::Params::Params()
+{
+	// *TODO Vadim: Get rid of hardcoded values.
+	rect(CHICLET_RECT);
+	icon.rect(CHICLET_ICON_RECT);
+}
+
+LLInvOfferChiclet::LLInvOfferChiclet(const Params&p)
+ : LLIMChiclet(p)
+ , mChicletIconCtrl(NULL)
+{
+	LLChicletInvOfferIconCtrl::Params icon_params = p.icon;
+	mChicletIconCtrl = LLUICtrlFactory::create<LLChicletInvOfferIconCtrl>(icon_params);
+	// Let "new message" icon be on top, else it will be hidden behind chiclet icon.
+	addChildInBack(mChicletIconCtrl);
+}
+
+void LLInvOfferChiclet::setSessionId(const LLUUID& session_id)
+{
+	setShowNewMessagesIcon( getSessionId() != session_id );
+
+	LLIMChiclet::setSessionId(session_id);
+	LLUUID notification_id = LLScriptFloaterManager::getInstance()->findNotificationId(session_id);
+	LLNotificationPtr notification = LLNotifications::getInstance()->find(notification_id);
+	if(notification)
+	{
+		setToolTip(notification->getSubstitutions()["TITLE"].asString());
+	}
+
+	if ( notification && notification->getName() == INVENTORY_USER_OFFER )
+	{
+		mChicletIconCtrl->setValue(notification->getPayload()["from_id"]);
+	}
+	else
+	{
+		mChicletIconCtrl->setValue(LLUUID::null);
+	}
+}
+
+void LLInvOfferChiclet::onMouseDown()
+{
+	LLScriptFloaterManager::instance().toggleScriptFloater(getSessionId());
+}
+
+BOOL LLInvOfferChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	onMouseDown();
 	return LLChiclet::handleMouseDown(x, y, mask);

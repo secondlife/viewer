@@ -212,7 +212,16 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 	LLNotificationData nd = {notification_id};
 	mNotifications.insert(std::make_pair(object_id, nd));
 
-	LLBottomTray::getInstance()->getChicletPanel()->createChiclet<LLScriptChiclet>(object_id);
+	// Create inventory offer chiclet for offer type notifications
+	LLNotificationPtr notification = LLNotifications::getInstance()->find(notification_id);
+	if( notification && notification->getType() == "offer" )
+	{
+		LLBottomTray::instance().getChicletPanel()->createChiclet<LLInvOfferChiclet>(object_id);
+	}
+	else
+	{
+		LLBottomTray::getInstance()->getChicletPanel()->createChiclet<LLScriptChiclet>(object_id);
+	}
 
 	toggleScriptFloater(object_id);
 }
