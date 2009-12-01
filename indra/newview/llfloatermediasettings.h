@@ -57,7 +57,7 @@ public:
 	void enableOkApplyBtns( bool enable );
 	LLPanelMediaSettingsSecurity* getPanelSecurity(){return mPanelMediaSettingsSecurity;};
 	const std::string getHomeUrl();
-	bool passesWhiteList( const std::string& test_url );
+	//bool passesWhiteList( const std::string& test_url );
 
 	bool mIdenticalHasMediaInfo;
 	bool mMultipleMedia;
@@ -72,7 +72,6 @@ protected:
 	LLPanelMediaSettingsGeneral* mPanelMediaSettingsGeneral;
 	LLPanelMediaSettingsSecurity* mPanelMediaSettingsSecurity;
 	LLPanelMediaSettingsPermissions* mPanelMediaSettingsPermissions;
-
 
 	static void onBtnOK(void*);
 	static void onBtnCancel(void*);

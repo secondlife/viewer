@@ -59,6 +59,8 @@
 #include "llfloatermediasettings.h"
 #include "llfloatertools.h"
 #include "lltrans.h"
+#include "lltextbox.h"
+#include "llpanelmediasettingssecurity.h"
 
 const char *CHECKERBOARD_DATA_URL = "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%%22 height=%22100%%22 %3E%3Cdefs%3E%3Cpattern id=%22checker%22 patternUnits=%22userSpaceOnUse%22 x=%220%22 y=%220%22 width=%22128%22 height=%22128%22 viewBox=%220 0 128 128%22 %3E%3Crect x=%220%22 y=%220%22 width=%2264%22 height=%2264%22 fill=%22#ddddff%22 /%3E%3Crect x=%2264%22 y=%2264%22 width=%2264%22 height=%2264%22 fill=%22#ddddff%22 /%3E%3C/pattern%3E%3C/defs%3E%3Crect x=%220%22 y=%220%22 width=%22100%%22 height=%22100%%22 fill=%22url(#checker)%22 /%3E%3C/svg%3E";
 
@@ -98,10 +100,12 @@ BOOL LLPanelMediaSettingsGeneral::postBuild()
 	mHomeURL = getChild< LLLineEditor >( LLMediaEntry::HOME_URL_KEY );
 	mWidthPixels = getChild< LLSpinCtrl >( LLMediaEntry::WIDTH_PIXELS_KEY );
 	mPreviewMedia = getChild<LLMediaCtrl>("preview_media");
+	mFailWhiteListText = getChild<LLTextBox>( "home_fails_whitelist_label" );
 
 	// watch commit action for HOME URL
 	childSetCommitCallback( LLMediaEntry::HOME_URL_KEY, onCommitHomeURL, this);
 	childSetCommitCallback( "current_url_reset_btn",onBtnResetCurrentUrl, this);
+
 	// interrogates controls and updates widgets as required
 	updateMediaPreview();
 
@@ -120,6 +124,11 @@ void LLPanelMediaSettingsGeneral::draw()
 {
 	// housekeeping
 	LLPanel::draw();
+
+	// TODO: we need to call this repeatedly until the floater panels are fully
+	// created but once we have a valid answer, we should stop looking here - the
+	// commit callback will handle it
+	checkHomeUrlPassesWhitelist();
 
 	// enable/disable pixel values image entry based on auto scale checkbox 
 	if ( mAutoScale->getValue().asBoolean() == false )
@@ -250,10 +259,6 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_
 	LLPanelMediaSettingsGeneral *self =(LLPanelMediaSettingsGeneral *)userdata;
 	self->mMediaEditable = editable;
 
-	//llinfos << "---------------" << llendl;
-	//llinfos << ll_pretty_print_sd(media_settings) << llendl;
-	//llinfos << "---------------" << llendl;
-
 	if ( LLPanelMediaSettingsGeneral::isMultiple() )
 	{
 		self->clearValues(self, self->mMediaEditable);
@@ -316,7 +321,7 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_
 			data_set[ i ].ctrl_ptr->setTentative( media_settings[ tentative_key ].asBoolean() );
 		};
 	};
-	
+
 	// interrogates controls and updates widgets as required
 	self->updateMediaPreview();
 }
@@ -355,20 +360,35 @@ void LLPanelMediaSettingsGeneral::onClose(bool app_quitting)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// 
+void LLPanelMediaSettingsGeneral::checkHomeUrlPassesWhitelist()
+{
+	// parent floater has not constructed the security panel yet
+	if ( mParent->getPanelSecurity() == 0 ) 
+		return;
+
+	std::string home_url = getHomeUrl();
+	if ( home_url.empty() || mParent->getPanelSecurity()->urlPassesWhiteList( home_url ) )
+	{
+		// Home URL is empty or passes the white list so hide the warning message
+		mFailWhiteListText->setVisible( false );
+	}
+	else
+	{
+		// Home URL does not pass the white list so show the warning message
+		mFailWhiteListText->setVisible( true );
+	};
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // static
 void LLPanelMediaSettingsGeneral::onCommitHomeURL( LLUICtrl* ctrl, void *userdata )
 {
 	LLPanelMediaSettingsGeneral* self =(LLPanelMediaSettingsGeneral *)userdata;
 
-	// check url user is trying to enter for home URL will pass whitelist 
-	// and decline to accept it if it doesn't.
-	std::string home_url = self->mHomeURL->getValue().asString();
-	if ( ! self->mParent->passesWhiteList( home_url ) )
-	{
-		LLNotificationsUtil::add("WhiteListInvalidatesHomeUrl");		
-		return;
-	};
-	
+	// check home url passes whitelist and display warning if not
+	self->checkHomeUrlPassesWhitelist();
+
 	self->updateMediaPreview();
 }
 
@@ -461,7 +481,7 @@ bool LLPanelMediaSettingsGeneral::navigateHomeSelectedFace(bool only_if_current_
 	selected_objects->getSelectedTEValue( &functor_navigate_media, all_face_media_navigated );
 	
 	// Note: we don't update the 'current URL' field until the media data itself changes
-	
+
 	return all_face_media_navigated;
 }
 
@@ -477,7 +497,6 @@ const std::string LLPanelMediaSettingsGeneral::getHomeUrl()
 void LLPanelMediaSettingsGeneral::updateCurrentUrl()
 {
 	// Get the current URL from the selection
-	
 	const LLMediaEntry default_media_data;
 	std::string value_str = default_media_data.getCurrentURL();
 	struct functor_getter_current_url : public LLSelectedTEGetFunctor< std::string >

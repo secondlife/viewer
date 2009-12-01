@@ -42,6 +42,7 @@ class LLLineEditor;
 class LLSpinCtrl;
 class LLTextureCtrl;
 class LLMediaCtrl;
+class LLTextBox;
 class LLFloaterMediaSettings;
 
 class LLPanelMediaSettingsGeneral : public LLPanel
@@ -87,6 +88,8 @@ private:
 	
 	static bool isMultiple();
 
+	void checkHomeUrlPassesWhitelist();
+
 	LLComboBox* mControls;
 	LLCheckBoxCtrl* mAutoLoop;
 	LLCheckBoxCtrl* mFirstClick;
@@ -98,6 +101,7 @@ private:
 	LLLineEditor* mHomeURL;
 	LLLineEditor* mCurrentURL;
 	LLMediaCtrl* mPreviewMedia;
+	LLTextBox* mFailWhiteListText;
 };
 
 #endif  // LL_LLPANELMEDIAMEDIASETTINGSGENERAL_H
