@@ -518,6 +518,17 @@ protected:
 	friend class LLUICtrlFactory;
 
 	/**
+	 * Creates chiclet popup menu. Will create AdHoc Chat menu 
+	 * based on other participant's id.
+	 */
+	virtual void createPopupMenu();
+
+	/**
+	 * Processes clicks on chiclet popup menu.
+	 */
+	virtual void onMenuItemClicked(const LLSD& user_data);
+
+	/**
 	 * Displays popup menu.
 	 */
 	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
