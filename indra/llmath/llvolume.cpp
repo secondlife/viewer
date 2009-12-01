@@ -2250,7 +2250,6 @@ void LLVolume::copyVolumeFaces(LLVolume* volume)
 	mIsTetrahedron = FALSE;
 }
 
-S32 const LL_SCULPT_MESH_MAX_FACES = 8;
 
 S32	LLVolume::getNumFaces() const
 {

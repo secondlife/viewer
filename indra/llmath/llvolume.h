@@ -192,6 +192,7 @@ const U8 LL_SCULPT_TYPE_MESH      = 5;
 const U8 LL_SCULPT_FLAG_INVERT    = 64;
 const U8 LL_SCULPT_FLAG_MIRROR    = 128;
 
+const S32 LL_SCULPT_MESH_MAX_FACES = 8;
 
 class LLProfileParams
 {
