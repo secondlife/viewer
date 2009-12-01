@@ -53,6 +53,9 @@ with the same filename but different name
   <texture name="Arrow_Left" file_name="widgets/Arrow_Left.png" preload="true" />
   <texture name="Arrow_Right" file_name="widgets/Arrow_Right.png" preload="true" />
 
+  <texture name="Arrow_Up" file_name="widgets/Arrow_Up.png" preload="true" />
+  <texture name="Arrow_Down" file_name="widgets/Arrow_Down.png" preload="true" />
+
   <texture name="Arrow_Small_Up" file_name="widgets/Arrow_Small_Up.png" preload="true" />
   <texture name="Arrow_Small_Left" file_name="widgets/Arrow_Small_Left.png" preload="true" />
   <texture name="Arrow_Small_Right" file_name="widgets/Arrow_Small_Right.png" preload="true" />

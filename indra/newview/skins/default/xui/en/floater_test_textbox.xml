@@ -94,11 +94,7 @@ The 华文细黑 brown fox ヒラキjumped over the lazy dog.
       SansSerif BOLD UNDERLINE
     </text>
     <text
-   type="string"
-   length="1"
    bottom="390"
-   label="N"
-   layout="topleft"
    left="10"
    name="right_aligned_text"
    width="380"
@@ -107,11 +103,7 @@ The 华文细黑 brown fox ヒラキjumped over the lazy dog.
     Right aligned text
   </text>
   <text
- type="string"
- length="1"
  bottom="390"
- label="N"
- layout="topleft"
  left="10"
  name="centered_text"
  width="380"
@@ -120,11 +112,7 @@ The 华文细黑 brown fox ヒラキjumped over the lazy dog.
     Centered text
   </text>
   <text
- type="string"
- length="1"
  height="60"
- label="N"
- layout="topleft"
  left="10"
  name="left_aligned_text"
  width="380"
@@ -133,11 +121,8 @@ The 华文细黑 brown fox ヒラキjumped over the lazy dog.
     Left aligned text
   </text>
   <text
-   type="string"
-   length="1"
    bottom="390"
    label="N"
-   layout="topleft"
    left="10"
    name="floater_map_north"
    right="30"

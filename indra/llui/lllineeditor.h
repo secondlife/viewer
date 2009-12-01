@@ -395,5 +395,10 @@ private:
 
 }; // end class LLLineEditor
 
+// Build time optimization, generate once in .cpp file
+#ifndef LLLINEEDITOR_CPP
+extern template class LLLineEditor* LLView::getChild<class LLLineEditor>(
+	const std::string& name, BOOL recurse) const;
+#endif
 
 #endif  // LL_LINEEDITOR_

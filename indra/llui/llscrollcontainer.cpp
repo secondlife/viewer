@@ -586,8 +586,9 @@ LLRect LLScrollContainer::getVisibleContentRect()
 	return visible_rect;
 }
 
-LLRect LLScrollContainer::getContentWindowRect() const
+LLRect LLScrollContainer::getContentWindowRect()
 {
+	updateScroll();
 	LLRect scroller_view_rect;
 	S32 visible_width = 0;
 	S32 visible_height = 0;
@@ -627,7 +628,7 @@ void LLScrollContainer::scrollToShowRect(const LLRect& rect, const LLRect& const
 								rect_to_constrain.mTop - constraint.mTop);
 
 	// translate from allowable region for lower left corner to upper left corner
-	allowable_scroll_rect.translate(0, content_window_rect.getHeight());
+	allowable_scroll_rect.translate(0, content_window_rect.getHeight() - 1);
 
 	S32 vert_pos = llclamp(mScrollbar[VERTICAL]->getDocPos(), 
 					mScrollbar[VERTICAL]->getDocSize() - allowable_scroll_rect.mTop, // min vertical scroll

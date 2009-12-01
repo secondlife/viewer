@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="556"
+ height="610"
  layout="topleft"
  name="Animation Preview"
  help_topic="animation_preview"
@@ -508,21 +508,21 @@ Maximum animation length is [MAX_LENGTH] seconds.
 We recommend BVH files exported from Poser 4.
     </text>
     <button
-     bottom="546"
-     follows="bottom|right"
-     height="23"
-     label="Cancel"
-     layout="topleft"
-     name="cancel_btn"
-     right="265"
-     width="123" />
-    <button
+    	top="580"
      follows="bottom|left"
      height="23"
      label="Upload (L$[AMOUNT])"
      layout="topleft"
-     left_delta="-129"
+     left="10"
      name="ok_btn"
-     top_delta="0"
-     width="123" />
+     width="128" />
+    <button
+    	top="580"
+     follows="bottom|left"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     name="cancel_btn"
+     left="142"
+     width="128" />
 </floater>

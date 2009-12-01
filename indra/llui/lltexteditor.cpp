@@ -1,6 +1,5 @@
 /** 
  * @file lltexteditor.cpp
- * @brief LLTextEditor base class
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -34,6 +33,7 @@
 
 #include "linden_common.h"
 
+#define LLTEXTEDITOR_CPP
 #include "lltexteditor.h"
 
 #include "llfontfreetype.h" // for LLFontFreetype::FIRST_CHAR
@@ -72,6 +72,10 @@
 // Globals
 //
 static LLDefaultChildRegistry::Register<LLTextEditor> r("simple_text_editor");
+
+// Compiler optimization, generate extern template
+template class LLTextEditor* LLView::getChild<class LLTextEditor>(
+	const std::string& name, BOOL recurse) const;
 
 //
 // Constants
@@ -2158,7 +2162,7 @@ void LLTextEditor::drawLineNumbers()
 		return;
 	}
 	
-	S32 cursor_line = getLineNumFromDocIndex(mCursorPos);
+	S32 cursor_line = mLineInfoList[getLineNumFromDocIndex(mCursorPos)].mLineNum;
 
 	if (mShowLineNumbers)
 	{

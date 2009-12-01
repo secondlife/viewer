@@ -108,6 +108,11 @@ extern LLFastTimer::DeclareTimer FTM_WIDGET_SETUP;
 extern LLFastTimer::DeclareTimer FTM_WIDGET_CONSTRUCTION;
 extern LLFastTimer::DeclareTimer FTM_INIT_FROM_PARAMS;
 
+// Build time optimization, generate this once in .cpp file
+#ifndef LLUICTRLFACTORY_CPP
+extern template class LLUICtrlFactory* LLSingleton<class LLUICtrlFactory>::getInstance();
+#endif
+
 class LLUICtrlFactory : public LLSingleton<LLUICtrlFactory>
 {
 private:
