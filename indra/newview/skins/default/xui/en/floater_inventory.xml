@@ -11,7 +11,7 @@
  help_topic="inventory"
  save_rect="true"
  save_visibility="true"
- single_instance="true"
+ single_instance="false"
  title="INVENTORY"
  width="467">
     <floater.string
