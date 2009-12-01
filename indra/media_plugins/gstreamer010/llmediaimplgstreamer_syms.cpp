@@ -2,6 +2,7 @@
  * @file llmediaimplgstreamer_syms.cpp
  * @brief dynamic GStreamer symbol-grabbing code
  *
+ * @cond
  * $LicenseInfo:firstyear=2007&license=viewergpl$
  * 
  * Copyright (c) 2007-2009, Linden Research, Inc.
@@ -28,6 +29,7 @@
  * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
+ * @endcond
  */
 
 #if LL_GSTREAMER010_ENABLED
