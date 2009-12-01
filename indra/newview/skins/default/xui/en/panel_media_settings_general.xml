@@ -221,12 +221,23 @@
    width="50" />
    
   <text bottom_delta="0" follows="top|left" height="15" left_delta="60" name="X_label">
-    X
+	X
   </text>
-  <spinner bottom_delta="0"
-	     decimal_digits="0" enabled="true" follows="left|top" height="16"
-	     increment="1" initial_val="256" label="" label_width="0"
-	     left_delta="20" max_val="2048" min_val="0" mouse_opaque="true"
-	     name="height_pixels" width="50" />
+  <spinner 
+	  bottom_delta="0"
+	  decimal_digits="0"
+	  enabled="true"
+	  follows="left|top" 
+	  height="16"
+	  increment="1"
+	  initial_val="256" 
+	  label=""
+	  label_width="0"
+	  left_delta="20" 
+	  max_val="2048" 
+	  min_val="0"
+	  mouse_opaque="true"
+	  name="height_pixels"
+	  width="50" />
  
 </panel>
