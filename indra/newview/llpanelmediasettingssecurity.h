@@ -37,6 +37,7 @@
 
 class LLCheckBoxCtrl;
 class LLScrollListCtrl;
+class LLTextBox;
 class LLFloaterMediaSettings;
 
 class LLPanelMediaSettingsSecurity : public LLPanel
@@ -58,18 +59,27 @@ public:
 	
 	static void initValues( void* userdata, const LLSD& media_settings,bool editable );
 	static void clearValues( void* userdata, bool editable);
-	void addWhiteListItem(const std::string& url);
+	void addWhiteListEntry( const std::string& url );
 	void setParent( LLFloaterMediaSettings* parent );
+	bool urlPassesWhiteList( const std::string& test_url );
 	const std::string makeValidUrl( const std::string& src_url );
-	bool passesWhiteList( const std::string& added_url, const std::string& test_url );
 	
 protected:
 	LLFloaterMediaSettings* mParent;
 	
 private:
+	enum ColumnIndex 
+	{
+		ICON_COLUMN = 0,
+		ENTRY_COLUMN = 1,
+	};
+
 	LLCheckBoxCtrl* mEnableWhiteList;
 	LLScrollListCtrl* mWhiteListList;
-	
+	LLTextBox* mHomeUrlFailsWhiteListText;
+
+	void updateWhitelistEnableStatus();
+
 	static void onBtnAdd(void*);
 	static void onBtnDel(void*);
 };

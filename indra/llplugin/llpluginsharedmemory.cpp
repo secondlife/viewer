@@ -2,6 +2,7 @@
  * @file llpluginsharedmemory.cpp
  * @brief LLPluginSharedMemory manages a shared memory segment for use by the LLPlugin API.
  *
+ * @cond
  * $LicenseInfo:firstyear=2008&license=viewergpl$
  *
  * Copyright (c) 2008, Linden Research, Inc.
@@ -27,6 +28,7 @@
  * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
+ * @endcond
  */
 
 #include "linden_common.h"

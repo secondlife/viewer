@@ -54,10 +54,12 @@ public:
 	static void apply();
 	static void initValues( const LLSD& media_settings , bool editable);
 	static void clearValues( bool editable);
-	void enableOkApplyBtns( bool enable );
-	LLPanelMediaSettingsSecurity* getPanelSecurity(){return mPanelMediaSettingsSecurity;};
-	const std::string getHomeUrl();
-	bool passesWhiteList( const std::string& test_url );
+
+	LLPanelMediaSettingsSecurity* getPanelSecurity(){return mPanelMediaSettingsSecurity;};	
+	const std::string getHomeUrl();	
+	//bool passesWhiteList( const std::string& test_url );
+
+	virtual void	draw();
 
 	bool mIdenticalHasMediaInfo;
 	bool mMultipleMedia;
@@ -73,7 +75,6 @@ protected:
 	LLPanelMediaSettingsSecurity* mPanelMediaSettingsSecurity;
 	LLPanelMediaSettingsPermissions* mPanelMediaSettingsPermissions;
 
-
 	static void onBtnOK(void*);
 	static void onBtnCancel(void*);
 	static void onBtnApply(void*);
@@ -83,6 +84,10 @@ protected:
 	static LLFloaterMediaSettings* sInstance;
 
 private:
+
+	void enableOkApplyBtns( bool enable );
+	
+	LLSD mInitialValues;
 	bool mWaitingToClose;
 };
 

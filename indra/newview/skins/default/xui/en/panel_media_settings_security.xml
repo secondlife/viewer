@@ -30,8 +30,28 @@
    name="whitelist" 
    width="315" 
    enabled="true" />
+  <icon
+   bottom_delta="-23"
+   right="-35"
+   width="16"
+   height="16"
+   image_name="parcel_color_EXP"
+   mouse_opaque="true"
+   follows="top|left"
+   name="parcel_color_EXP"
+   />
+  <text
+   visible="true"
+   follows="top|left"
+   height="15"
+   left="30"
+   bottom_delta="0"
+   text_color="0.4 0.4 0.4 1.0" 
+   name="home_url_fails_some_items_in_whitelist">
+    Entries that the home URL fails against are marked:
+  </text>
   <button 
-   bottom_delta="-30" 
+   bottom_delta="-36" 
    follows="top|left" 
    height="20" 
    label="Add"
@@ -54,4 +74,17 @@
      <button.commit_callback
 	     function="Media.whitelistDelete"/>
   </button>
+  <text
+   visible="true"
+   bottom_delta="-75"
+   follows="top|left"
+   height="40"
+   left="30"
+   text_color="0.6 0.0 0.0 1.0"
+   name="home_url_fails_whitelist">
+Warning: the home URL specified in the General tab 
+fails to pass this whitelist. It has been disabled 
+until a valid entry has been added.
+  </text>
+
 </panel>
