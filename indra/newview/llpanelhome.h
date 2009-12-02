@@ -35,6 +35,9 @@
 #define LL_LLPANELHOME_H
 
 #include "llpanel.h"
+#include "llsd.h"
+
+class LLMediaCtrl;
 
 /**
  * Base class for web-based Home side tray
@@ -44,7 +47,12 @@ class LLPanelHome : public LLPanel
 public:
 	LLPanelHome();
 
-	void reshape(S32 width, S32 height, BOOL called_from_parent);
+    /*virtual*/ BOOL postBuild();
+    /*virtual*/ void onOpen(const LLSD& key);
+
+private:
+    LLMediaCtrl *mBrowser;
+	bool         mFirstView;
 };
 
 #endif //LL_LLPANELHOME_H

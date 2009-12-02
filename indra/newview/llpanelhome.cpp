@@ -34,14 +34,36 @@
 #include "llviewerprecompiledheaders.h"
 #include "llpanelhome.h"
 
+#include "llmediactrl.h"
+
 static LLRegisterPanelClassWrapper<LLPanelHome> t_people("panel_sidetray_home");
 
 LLPanelHome::LLPanelHome() :
-	LLPanel()
+	LLPanel(),
+	mBrowser(NULL),
+	mFirstView(true)
 {
 }
 
-void LLPanelHome::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLPanelHome::onOpen(const LLSD& key)
 {
-	return LLPanel::reshape(width, height, called_from_parent);
+	// display the home page the first time we open the panel
+	if (mFirstView && mBrowser)
+	{
+		mBrowser->navigateHome();
+	}
+	mFirstView = false;
 }
+
+BOOL LLPanelHome::postBuild()
+{
+    mBrowser = getChild<LLMediaCtrl>("browser");
+    if (mBrowser)
+	{
+		mBrowser->setTrusted(true);
+		mBrowser->setHomePageUrl("http://www.secondlife.com/");
+	}
+
+    return TRUE;
+}
+
