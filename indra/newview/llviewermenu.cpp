@@ -5360,7 +5360,7 @@ class LLWorldCreateLandmark : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+		LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
 
 		return true;
 	}

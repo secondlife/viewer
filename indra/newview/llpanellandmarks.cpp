@@ -596,11 +596,11 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 		if(landmark)
 		{
 			LLSideTray::getInstance()->showPanel("panel_places", 
-								LLSD().insert("type", "landmark").insert("id",landmark->getUUID()));
+								LLSD().with("type", "landmark").with("id",landmark->getUUID()));
 		}
 		else
 		{
-			LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+			LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
 		}
 	} 
 	else if ("category" == command_name)

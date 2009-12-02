@@ -39,8 +39,8 @@
 
 static const LLDefaultChildRegistry::Register<LLFlatListView> flat_list_view("flat_list_view");
 
-const LLSD SELECTED_EVENT	= LLSD().insert("selected", true);
-const LLSD UNSELECTED_EVENT	= LLSD().insert("selected", false);
+const LLSD SELECTED_EVENT	= LLSD().with("selected", true);
+const LLSD UNSELECTED_EVENT	= LLSD().with("selected", false);
 
 static const std::string COMMENT_TEXTBOX = "comment_text";
 
@@ -530,7 +530,7 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 			if ( !selectNextItemPair(true, reset_selection) && reset_selection)
 			{
 				// If case we are in accordion tab notify parent to go to the previous accordion
-				notifyParent(LLSD().insert("action","select_prev"));
+				notifyParent(LLSD().with("action","select_prev"));
 			}
 			break;
 		}
@@ -539,7 +539,7 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 			if ( !selectNextItemPair(false, reset_selection) && reset_selection)
 			{
 				// If case we are in accordion tab notify parent to go to the next accordion
-				notifyParent(LLSD().insert("action","select_next"));
+				notifyParent(LLSD().with("action","select_next"));
 			}
 			break;
 		}
@@ -570,7 +570,7 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 		// In case we are in accordion tab notify parent to show selected rectangle
 		LLRect screen_rc;
 		localRectToScreen(selected_rc, &screen_rc);
-		notifyParent(LLSD().insert("scrollToShowRect",screen_rc.getValue()));
+		notifyParent(LLSD().with("scrollToShowRect",screen_rc.getValue()));
 		handled = TRUE;
 	}
 

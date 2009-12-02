@@ -82,12 +82,12 @@ void LLFloaterTestInspectors::showAvatarInspector(LLUICtrl*, const LLSD& avatar_
 		id = avatar_id.asUUID();
 	}
 	// spawns off mouse position automatically
-	LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", id));
+	LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", id));
 }
 
 void LLFloaterTestInspectors::showObjectInspector(LLUICtrl*, const LLSD& object_id)
 {
-	LLFloaterReg::showInstance("inspect_object", LLSD().insert("object_id", object_id));
+	LLFloaterReg::showInstance("inspect_object", LLSD().with("object_id", object_id));
 }
 
 void LLFloaterTestInspectors::onClickAvatar2D()

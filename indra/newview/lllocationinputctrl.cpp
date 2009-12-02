@@ -473,7 +473,7 @@ void LLLocationInputCtrl::draw()
 
 void LLLocationInputCtrl::onInfoButtonClicked()
 {
-	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "agent"));
+	LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "agent"));
 }
 
 void LLLocationInputCtrl::onForSaleButtonClicked()
@@ -495,7 +495,7 @@ void LLLocationInputCtrl::onAddLandmarkButtonClicked()
 	}
 	else
 	{
-		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+		LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
 	}
 }
 
@@ -844,12 +844,12 @@ void LLLocationInputCtrl::onLocationContextMenuItemClicked(const LLSD& userdata)
 		
 		if(!landmark)
 		{
-			LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+			LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
 		}
 		else
 		{
 			LLSideTray::getInstance()->showPanel("panel_places", 
-					LLSD().insert("type", "landmark").insert("id",landmark->getUUID()));
+					LLSD().with("type", "landmark").with("id",landmark->getUUID()));
 		}
 	}
 	else if (item == "cut")
