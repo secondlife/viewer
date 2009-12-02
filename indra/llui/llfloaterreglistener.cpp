@@ -28,7 +28,7 @@ LLFloaterRegListener::LLFloaterRegListener():
     add("getBuildMap",
         "Return on [\"reply\"] data about all registered LLFloaterReg floater names",
         &LLFloaterRegListener::getBuildMap,
-        LLSD().insert("reply", LLSD()));
+        LLSD().with("reply", LLSD()));
     LLSD requiredName;
     requiredName["name"] = LLSD();
     add("showInstance",

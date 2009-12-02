@@ -312,7 +312,7 @@ public:
 		add("getInfo",
             "Request an LLSD::Map containing information used to populate About box",
             &LLFloaterAboutListener::getInfo,
-            LLSD().insert("reply", LLSD()));
+            LLSD().with("reply", LLSD()));
 	}
 
 private:

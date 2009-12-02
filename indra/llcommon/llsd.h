@@ -223,8 +223,9 @@ public:
 		
 		bool has(const String&) const;
 		LLSD get(const String&) const;
-		LLSD& insert(const String&, const LLSD&);
+		void insert(const String&, const LLSD&);
 		void erase(const String&);
+		LLSD& with(const String&, const LLSD&);
 		
 		LLSD& operator[](const String&);
 		LLSD& operator[](const char* c)			{ return (*this)[String(c)]; }
@@ -238,9 +239,10 @@ public:
 		
 		LLSD get(Integer) const;
 		void set(Integer, const LLSD&);
-		LLSD& insert(Integer, const LLSD&);
+		void insert(Integer, const LLSD&);
 		void append(const LLSD&);
 		void erase(Integer);
+		LLSD& with(Integer, const LLSD&);
 		
 		const LLSD& operator[](Integer) const;
 		LLSD& operator[](Integer);

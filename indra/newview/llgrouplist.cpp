@@ -329,7 +329,7 @@ void LLGroupListItem::setActive(bool active)
 
 void LLGroupListItem::onInfoBtnClick()
 {
-	LLFloaterReg::showInstance("inspect_group", LLSD().insert("group_id", mGroupID));
+	LLFloaterReg::showInstance("inspect_group", LLSD().with("group_id", mGroupID));
 }
 
 void LLGroupListItem::onProfileBtnClick()
