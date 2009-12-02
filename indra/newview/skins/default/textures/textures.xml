@@ -53,9 +53,6 @@ with the same filename but different name
   <texture name="Arrow_Left" file_name="widgets/Arrow_Left.png" preload="true" />
   <texture name="Arrow_Right" file_name="widgets/Arrow_Right.png" preload="true" />
 
-  <texture name="Arrow_Up" file_name="widgets/Arrow_Up.png" preload="true" />
-  <texture name="Arrow_Down" file_name="widgets/Arrow_Down.png" preload="true" />
-
   <texture name="Arrow_Small_Up" file_name="widgets/Arrow_Small_Up.png" preload="true" />
   <texture name="Arrow_Small_Left" file_name="widgets/Arrow_Small_Left.png" preload="true" />
   <texture name="Arrow_Small_Right" file_name="widgets/Arrow_Small_Right.png" preload="true" />
@@ -143,7 +140,6 @@ with the same filename but different name
   <texture name="DropDown_Over" file_name="widgets/DropDown_Over.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Press" file_name="widgets/DropDown_Press.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Selected" file_name="widgets/DropDown_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  <texture name="DropDown_On" file_name="widgets/DropDown_On.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Off" file_name="widgets/DropDown_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
 
   <texture name="DropTarget" file_name="widgets/DropTarget.png" preload="false" />
@@ -404,9 +400,12 @@ with the same filename but different name
   <texture name="ProgressBar" file_name="widgets/ProgressBar.png" preload="true" scale.left="4" scale.top="10" scale.right="48" scale.bottom="2" />
   <texture name="ProgressTrack" file_name="widgets/ProgressTrack.png" preload="true" scale.left="4" scale.top="13" scale.right="148" scale.bottom="2" />
 
-  <texture name="PushButton_Off" file_name="widgets/PushButton_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
-  <texture name="PushButton_Press" file_name="widgets/PushButton_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
   <texture name="PushButton_Disabled" file_name="widgets/PushButton_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_Off" file_name="widgets/PushButton_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_On" file_name="widgets/PushButton_On.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_On_Selected" file_name="widgets/PushButton_On_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_On_Disabled" file_name="widgets/PushButton_On_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_Press" file_name="widgets/PushButton_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
   <texture name="PushButton_Selected" file_name="widgets/PushButton_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
   <texture name="PushButton_Selected_Press" file_name="widgets/PushButton_Selected_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
   <texture name="PushButton_Selected_Disabled" file_name="widgets/PushButton_Selected_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
@@ -730,6 +729,7 @@ with the same filename but different name
   <texture name="icon_groupnotice.tga" />
   <texture name="icon_groupnoticeinventory.tga" />
   <texture name="icon_place.tga" />
+  <texture name="icon_place_for_sale.tga" />
   <texture name="icon_popular.tga" />
   <texture name="icon_top_pick.tga" />
 
