@@ -515,7 +515,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 	if (obj && obj->getIsLinkType())
 	{
 		items.push_back(std::string("Find Original"));
-		if (LLAssetType::lookupIsLinkType(obj->getType()))
+		if (isLinkedObjectMissing())
 		{
 			disabled_items.push_back(std::string("Find Original"));
 		}
@@ -661,6 +661,20 @@ BOOL LLInvFVBridge::isLinkedObjectInTrash() const
 		if(!model) return FALSE;
 		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 		return model->isObjectDescendentOf(obj->getLinkedUUID(), trash_id);
+	}
+	return FALSE;
+}
+
+BOOL LLInvFVBridge::isLinkedObjectMissing() const
+{
+	const LLInventoryObject *obj = getInventoryObject();
+	if (!obj)
+	{
+		return TRUE;
+	}
+	if (obj->getIsLinkType() && LLAssetType::lookupIsLinkType(obj->getType()))
+	{
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -4077,7 +4091,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				items.push_back(std::string("Detach From Yourself"));
 			}
 			else
-			if( !isInTrash() && !isLinkedObjectInTrash() )
+			if( !isInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing())
 			{
 				items.push_back(std::string("Attach Separator"));
 				items.push_back(std::string("Object Wear"));
@@ -4476,16 +4490,20 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{	// FWIW, it looks like SUPPRESS_OPEN_ITEM is not set anywhere
-		BOOL no_open = ((flags & SUPPRESS_OPEN_ITEM) == SUPPRESS_OPEN_ITEM);
+		BOOL can_open = ((flags & SUPPRESS_OPEN_ITEM) != SUPPRESS_OPEN_ITEM);
 
 		// If we have clothing, don't add "Open" as it's the same action as "Wear"   SL-18976
 		LLViewerInventoryItem* item = getItem();
-		if( !no_open && item )
+		if (can_open && item)
 		{
-			no_open = (item->getType() == LLAssetType::AT_CLOTHING) ||
-					  (item->getType() == LLAssetType::AT_BODYPART);
+			can_open = (item->getType() != LLAssetType::AT_CLOTHING) &&
+				(item->getType() != LLAssetType::AT_BODYPART);
 		}
-		if (!no_open)
+		if (isLinkedObjectMissing())
+		{
+			can_open = FALSE;
+		}
+		if (can_open)
 		{
 			items.push_back(std::string("Open"));
 		}
@@ -4505,7 +4523,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			disabled_items.push_back(std::string("Wearable Edit"));
 		}
 		// Don't allow items to be worn if their baseobj is in the trash.
-		if (isLinkedObjectInTrash())
+		if (isLinkedObjectInTrash() || isLinkedObjectMissing())
 		{
 			disabled_items.push_back(std::string("Wearable Wear"));
 			disabled_items.push_back(std::string("Wearable Add"));
@@ -5089,6 +5107,9 @@ void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
 
+	items.push_back(std::string("Find Original"));
+	disabled_items.push_back(std::string("Find Original"));
+	
 	if(isInTrash())
 	{
 		items.push_back(std::string("Purge Item"));
@@ -5101,6 +5122,7 @@ void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
+		items.push_back(std::string("Properties"));
 		items.push_back(std::string("Delete"));
 		if (!isItemRemovable())
 		{
