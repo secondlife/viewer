@@ -352,9 +352,6 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 
 	LLIMFloater* floater = LLFloaterReg::showTypedInstance<LLIMFloater>("impanel", session_id);
 
-	floater->updateMessages();
-	floater->mInputEditor->setFocus(TRUE);
-
 	if(isChatMultiTab())
 	{
 		// do not add existed floaters to avoid adding torn off instances
@@ -433,6 +430,13 @@ void LLIMFloater::setVisible(BOOL visible)
 	if(channel)
 	{
 		channel->updateShowToastsState();
+	}
+
+	if (visible && mChatHistory && mInputEditor)
+	{
+		//only if floater was construced and initialized from xml
+		updateMessages();
+		mInputEditor->setFocus(TRUE);
 	}
 }
 
