@@ -1593,6 +1593,11 @@ LLTaskInvFVBridge* LLTaskInvFVBridge::createObjectBridge(LLPanelObjectInventory*
 										 object->getUUID(),
 										 object->getName());
 		break;
+	case LLAssetType::AT_MESH:
+		new_bridge = new LLTaskMeshBridge(panel,
+										  object->getUUID(),
+										  object->getName());
+		break;
 	
 		break;
 	default:
