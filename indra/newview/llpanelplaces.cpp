@@ -118,7 +118,6 @@ static LLRegisterPanelClassWrapper<LLPanelPlaces> t_places("panel_places");
 
 LLPanelPlaces::LLPanelPlaces()
 	:	LLPanel(),
-		mFilterSubString(LLStringUtil::null),
 		mActivePanel(NULL),
 		mFilterEditor(NULL),
 		mPlaceProfile(NULL),
@@ -385,16 +384,16 @@ void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
 
 void LLPanelPlaces::onFilterEdit(const std::string& search_string, bool force_filter)
 {
-	if (force_filter || mFilterSubString != search_string)
+	if (force_filter || LLPanelPlacesTab::sFilterSubString != search_string)
 	{
-		mFilterSubString = search_string;
+		std::string string = search_string;
 
 		// Searches are case-insensitive
-		LLStringUtil::toUpper(mFilterSubString);
-		LLStringUtil::trimHead(mFilterSubString);
+		LLStringUtil::toUpper(string);
+		LLStringUtil::trimHead(string);
 
 		if (mActivePanel)
-			mActivePanel->onSearchEdit(mFilterSubString);
+			mActivePanel->onSearchEdit(string);
 	}
 }
 
@@ -404,7 +403,7 @@ void LLPanelPlaces::onTabSelected()
 	if (!mActivePanel)
 		return;
 
-	onFilterEdit(mFilterSubString, true);
+	onFilterEdit(LLPanelPlacesTab::sFilterSubString, true);
 	mActivePanel->updateVerbs();
 }
 
@@ -815,7 +814,7 @@ void LLPanelPlaces::changedInventory(U32 mask)
 
 	// Filter applied to show all items.
 	if (mActivePanel)
-		mActivePanel->onSearchEdit(mFilterSubString);
+		mActivePanel->onSearchEdit(LLPanelPlacesTab::sFilterSubString);
 
 	// we don't need to monitor inventory changes anymore,
 	// so remove the observer

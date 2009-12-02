@@ -148,6 +148,39 @@ protected:
 };
 
 /**
+ * Class for displaying icon in inventory offer chiclet.
+ */
+class LLChicletInvOfferIconCtrl : public LLChicletAvatarIconCtrl
+{
+public:
+
+	struct Params :
+		public LLInitParam::Block<Params, LLChicletAvatarIconCtrl::Params>
+	{
+		Optional<std::string> default_icon;
+
+		Params()
+		 : default_icon("default_icon", "Generic_Object_Small")
+		{
+			avatar_id = LLUUID::null;
+		};
+	};
+
+	/**
+	 * Sets icon, if value is LLUUID::null - default icon will be set.
+	 */
+	virtual void setValue(const LLSD& value );
+
+protected:
+
+	LLChicletInvOfferIconCtrl(const Params& p);
+	friend class LLUICtrlFactory;
+
+private:
+	std::string mDefaultIcon;
+};
+
+/**
  * Class for displaying of speaker's voice indicator 
  */
 class LLChicletSpeakerCtrl : public LLOutputMonitorCtrl
@@ -518,6 +551,17 @@ protected:
 	friend class LLUICtrlFactory;
 
 	/**
+	 * Creates chiclet popup menu. Will create AdHoc Chat menu 
+	 * based on other participant's id.
+	 */
+	virtual void createPopupMenu();
+
+	/**
+	 * Processes clicks on chiclet popup menu.
+	 */
+	virtual void onMenuItemClicked(const LLSD& user_data);
+
+	/**
 	 * Displays popup menu.
 	 */
 	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
@@ -571,6 +615,45 @@ protected:
 private:
 
 	LLIconCtrl* mChicletIconCtrl;
+};
+
+/**
+ * Chiclet for inventory offer script floaters.
+ */
+class LLInvOfferChiclet: public LLIMChiclet
+{
+public:
+
+	struct Params : public LLInitParam::Block<Params, LLIMChiclet::Params>
+	{
+		Optional<LLChicletInvOfferIconCtrl::Params> icon;
+
+		Params();
+	};
+
+	/*virtual*/ void setSessionId(const LLUUID& session_id);
+
+	/*virtual*/ void setCounter(S32 counter){}
+
+	/*virtual*/ S32 getCounter() { return 0; }
+
+	/**
+	 * Toggle script floater
+	 */
+	/*virtual*/ void onMouseDown();
+
+	/**
+	 * Override default handler
+	 */
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+
+
+protected:
+	LLInvOfferChiclet(const Params&);
+	friend class LLUICtrlFactory;
+
+private:
+	LLChicletInvOfferIconCtrl* mChicletIconCtrl;
 };
 
 /**

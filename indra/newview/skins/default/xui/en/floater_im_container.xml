@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <multi_floater
-background_visible="true"
-bg_color="yellow" 
+ can_minimize="false"
  can_resize="true"
  height="390"
  layout="topleft"

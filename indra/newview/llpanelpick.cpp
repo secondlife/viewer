@@ -558,6 +558,11 @@ void LLPanelPickEdit::initTexturePickerMouseEvents()
 	text_icon = getChild<LLIconCtrl>(XML_BTN_ON_TXTR);
 	mSnapshotCtrl->setMouseEnterCallback(boost::bind(&LLPanelPickEdit::onTexturePickerMouseEnter, this, _1));
 	mSnapshotCtrl->setMouseLeaveCallback(boost::bind(&LLPanelPickEdit::onTexturePickerMouseLeave, this, _1));
+	
+	// *WORKAROUND: Needed for EXT-1625: enabling save button each time when picker is opened, even if 
+	// texture wasn't changed (see Steve's comment).
+	mSnapshotCtrl->setMouseDownCallback(boost::bind(&LLPanelPickEdit::enableSaveButton, this, true));
+	
 	text_icon->setVisible(FALSE);
 }
 		
