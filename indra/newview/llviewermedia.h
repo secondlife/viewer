@@ -185,6 +185,7 @@ public:
     void setHomeURL(const std::string& home_url) { mHomeURL = home_url; };
 	std::string getMimeType() { return mMimeType; }
 	void scaleMouse(S32 *mouse_x, S32 *mouse_y);
+	void scaleTextureCoords(const LLVector2& texture_coords, S32 *x, S32 *y);
 
 	void update();
 	void updateImagesMediaStreams();
