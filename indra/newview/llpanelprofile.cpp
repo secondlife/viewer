@@ -68,7 +68,7 @@ public:
 
 		if (verb == "inspect")
 		{
-			LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", avatar_id));
+			LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", avatar_id));
 			return true;
 		}
 

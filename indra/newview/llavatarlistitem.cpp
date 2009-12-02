@@ -260,7 +260,7 @@ void LLAvatarListItem::setAvatarIconVisible(bool visible)
 
 void LLAvatarListItem::onInfoBtnClick()
 {
-	LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", mAvatarId));
+	LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", mAvatarId));
 
 	/* TODO fix positioning of inspector
 	localPointToScreen(mXPos, mYPos, &mXPos, &mYPos);

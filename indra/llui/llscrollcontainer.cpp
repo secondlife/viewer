@@ -111,8 +111,7 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	LLView::addChild( mBorder );
 
 	mInnerRect.set( 0, getRect().getHeight(), getRect().getWidth(), 0 );
-	if ( mBorder->getVisible() )
-		mInnerRect.stretch( -mBorder->getBorderWidth() );
+	mInnerRect.stretch( -mBorder->getBorderWidth()  );
 
 	LLRect vertical_scroll_rect = mInnerRect;
 	vertical_scroll_rect.mLeft = vertical_scroll_rect.mRight - scrollbar_size;
@@ -190,8 +189,7 @@ void LLScrollContainer::reshape(S32 width, S32 height,
 	LLUICtrl::reshape( width, height, called_from_parent );
 
 	mInnerRect = getLocalRect();
-	if ( mBorder->getVisible() )
-		mInnerRect.stretch( -mBorder->getBorderWidth() );
+	mInnerRect.stretch( -mBorder->getBorderWidth() );
 
 	if (mScrolledView)
 	{
@@ -586,8 +584,9 @@ LLRect LLScrollContainer::getVisibleContentRect()
 	return visible_rect;
 }
 
-LLRect LLScrollContainer::getContentWindowRect() const
+LLRect LLScrollContainer::getContentWindowRect()
 {
+	updateScroll();
 	LLRect scroller_view_rect;
 	S32 visible_width = 0;
 	S32 visible_height = 0;
@@ -627,7 +626,7 @@ void LLScrollContainer::scrollToShowRect(const LLRect& rect, const LLRect& const
 								rect_to_constrain.mTop - constraint.mTop);
 
 	// translate from allowable region for lower left corner to upper left corner
-	allowable_scroll_rect.translate(0, content_window_rect.getHeight());
+	allowable_scroll_rect.translate(0, content_window_rect.getHeight() - 1);
 
 	S32 vert_pos = llclamp(mScrollbar[VERTICAL]->getDocPos(), 
 					mScrollbar[VERTICAL]->getDocSize() - allowable_scroll_rect.mTop, // min vertical scroll

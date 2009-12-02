@@ -1,10 +1,10 @@
 /** 
- * @file llimfloatercontainer.h
- * @brief Multifloater containing active IM sessions in separate tab container tabs
+ * @file lldictionary.cpp
+ * @brief Lldictionary class header file
  *
- * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
- * Copyright (c) 2009, Linden Research, Inc.
+ * Copyright (c) 2002-2007, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -12,13 +12,12 @@
  * ("GPL"), unless you have obtained a separate licensing agreement
  * ("Other License"), formally executed by you and Linden Lab.  Terms of
  * the GPL can be found in doc/GPL-license.txt in this distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+ * online at http://secondlife.com/developers/opensource/gplv2
  * 
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at
- * http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at http://secondlife.com/developers/opensource/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -30,32 +29,24 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMFLOATERCONTAINER_H
-#define LL_LLIMFLOATERCONTAINER_H
+#include "linden_common.h"
 
-#include "llfloater.h"
-#include "llmultifloater.h"
+#include "lldictionary.h"
 
-class LLTabContainer;
+#include "llstring.h"
 
-class LLIMFloaterContainer : public LLMultiFloater
+// Define in .cpp file to prevent header include of llstring.h
+LLDictionaryEntry::LLDictionaryEntry(const std::string &name)
+:	mName(name)
 {
-public:
-	LLIMFloaterContainer(const LLSD& seed);
-	virtual ~LLIMFloaterContainer();
-	
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
-
-	/*virtual*/ void addFloater(LLFloater* floaterp, 
-								BOOL select_added_floater, 
-								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
-
-	static LLFloater* getCurrentVoiceFloater();
-	
-protected:
-	
-	LLFloater* mActiveVoiceFloater;
-};
-
-#endif // LL_LLIMFLOATERCONTAINER_H
+	mNameCapitalized = mName;
+	LLStringUtil::replaceChar(mNameCapitalized, '-', ' ');
+	LLStringUtil::replaceChar(mNameCapitalized, '_', ' ');
+	for (U32 i=0; i < mNameCapitalized.size(); i++)
+	{
+		if (i == 0 || mNameCapitalized[i-1] == ' ') // don't change ordering of this statement or crash
+		{
+			mNameCapitalized[i] = toupper(mNameCapitalized[i]);
+		}
+	}
+}

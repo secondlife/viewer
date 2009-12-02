@@ -58,7 +58,6 @@ LLFloaterMediaSettings::LLFloaterMediaSettings(const LLSD& key)
 	mMultipleMedia(false),
 	mMultipleValidMedia(false)
 {
-//	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_media_settings.xml");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -216,7 +215,6 @@ void LLFloaterMediaSettings::clearValues( bool editable)
 	sInstance->mPanelMediaSettingsPermissions->clearValues(sInstance->mPanelMediaSettingsPermissions,  editable);	
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // static
 void LLFloaterMediaSettings::onBtnOK( void* userdata )
@@ -271,20 +269,6 @@ const std::string LLFloaterMediaSettings::getHomeUrl()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-bool LLFloaterMediaSettings::passesWhiteList( const std::string& test_url )
-{
-	// sanity check - don't think this can happen
-	if ( mPanelMediaSettingsSecurity )
-		// version in security dialog code is specialized so we pass in 
-		// empty string for first parameter since it's not used
-		return mPanelMediaSettingsSecurity->passesWhiteList( "", test_url );
-	else
-		// this is all we can do
-		return false;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // virtual 
 void LLFloaterMediaSettings::draw()
 {
@@ -316,3 +300,4 @@ void LLFloaterMediaSettings::draw()
 	
 	LLFloater::draw();
 }
+

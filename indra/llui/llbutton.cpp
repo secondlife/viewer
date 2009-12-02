@@ -32,6 +32,7 @@
 
 #include "linden_common.h"
 
+#define LLBUTTON_CPP
 #include "llbutton.h"
 
 // Linden library includes
@@ -55,6 +56,10 @@
 #include "lldockablefloater.h"
 
 static LLDefaultChildRegistry::Register<LLButton> r("button");
+
+// Compiler optimization, generate extern template
+template class LLButton* LLView::getChild<class LLButton>(
+	const std::string& name, BOOL recurse) const;
 
 // globals loaded from settings.xml
 S32	LLBUTTON_H_PAD	= 0;

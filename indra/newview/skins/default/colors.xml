@@ -270,10 +270,10 @@
      reference="White" />
      <color
      name="FilterBackgroundColor"
-     reference="DkGray" />
+     reference="MouseGray" />
     <color
      name="FilterTextColor"
-     value="1 0.78 0.27 1" />
+     value="0.38 0.69 0.57 1" />
      <color
      name="FloaterButtonImageColor"
      reference="LtGray" />

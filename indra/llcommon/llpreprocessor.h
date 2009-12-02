@@ -128,6 +128,10 @@
 #pragma warning( disable : 4800 )	// 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
 #pragma warning( disable : 4996 )	// warning: deprecated
 
+// Linker optimization with "extern template" generates these warnings
+#pragma warning( disable : 4231 )	// nonstandard extension used : 'extern' before template explicit instantiation
+#pragma warning( disable : 4506 )   // no definition for inline function
+
 // level 4 warnings that we need to disable:
 #pragma warning (disable : 4100) // unreferenced formal parameter
 #pragma warning (disable : 4127) // conditional expression is constant (e.g. while(1) )

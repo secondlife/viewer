@@ -473,7 +473,7 @@ void LLLocationInputCtrl::draw()
 
 void LLLocationInputCtrl::onInfoButtonClicked()
 {
-	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "agent"));
+	LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "agent"));
 }
 
 void LLLocationInputCtrl::onForSaleButtonClicked()
@@ -495,7 +495,7 @@ void LLLocationInputCtrl::onAddLandmarkButtonClicked()
 	}
 	else
 	{
-		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+		LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
 	}
 }
 
@@ -638,7 +638,7 @@ static S32 layout_widget(LLUICtrl* widget, S32 right)
 void LLLocationInputCtrl::refreshParcelIcons()
 {
 	// Our "cursor" moving right to left
-	S32 x = mAddLandmarkBtn->getRect().mLeft - mIconHPad;
+	S32 x = mAddLandmarkBtn->getRect().mLeft;
 	
 	static LLUICachedControl<bool> show_properties("NavBarShowParcelProperties", false);
 	if (show_properties)
@@ -844,12 +844,12 @@ void LLLocationInputCtrl::onLocationContextMenuItemClicked(const LLSD& userdata)
 		
 		if(!landmark)
 		{
-			LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+			LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
 		}
 		else
 		{
 			LLSideTray::getInstance()->showPanel("panel_places", 
-					LLSD().insert("type", "landmark").insert("id",landmark->getUUID()));
+					LLSD().with("type", "landmark").with("id",landmark->getUUID()));
 		}
 	}
 	else if (item == "cut")

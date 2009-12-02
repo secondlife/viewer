@@ -25,6 +25,7 @@ set(llprimitive_SOURCE_FILES
     lltreeparams.cpp
     llvolumemessage.cpp
     llvolumexml.cpp
+    material_codes.cpp
     )
 
 set(llprimitive_HEADER_FILES
