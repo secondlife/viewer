@@ -33,8 +33,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewermessage.h"
 
-#include <deque>
-
 #include "llaudioengine.h" 
 #include "lscript_byteformat.h"
 #include "lleconomy.h"
