@@ -260,109 +260,101 @@ void LLInventoryPanel::modelChanged(U32 mask)
 
 	bool handled = false;
 
-	if (!mViewsInitialized)
-	{
-		return;
-	}
+	if (!mViewsInitialized) return;
 	
-	if (mask & LLInventoryObserver::LABEL)
+	const LLInventoryModel* model = getModel();
+	if (!model) return;
+
+	const LLInventoryModel::changed_items_t& changed_items = model->getChangedIDs();
+	if (changed_items.empty()) return;
+
+	for (LLInventoryModel::changed_items_t::const_iterator items_iter = changed_items.begin();
+		 items_iter != changed_items.end();
+		 ++items_iter)
 	{
-		handled = true;
-		// Label change - empty out the display name for each object in this change set.
-		const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
-		std::set<LLUUID>::const_iterator id_it = changed_items.begin();
-		std::set<LLUUID>::const_iterator id_end = changed_items.end();
-		LLFolderViewItem* view = NULL;
-		LLInvFVBridge* bridge = NULL;
-		for (;id_it != id_end; ++id_it)
+		const LLUUID& item_id = (*items_iter);
+		const LLInventoryObject* model_item = model->getObject(item_id);
+		LLFolderViewItem* view_item = mFolders->getItemByID(item_id);
+
+		//////////////////////////////
+		// LABEL Operation
+		// Empty out the display name for relabel.
+		if (mask & LLInventoryObserver::LABEL)
 		{
-			view = mFolders->getItemByID(*id_it);
-			if(view)
+			handled = true;
+			if (view_item)
 			{
 				// Request refresh on this item (also flags for filtering)
-				bridge = (LLInvFVBridge*)view->getListener();
+				LLInvFVBridge* bridge = (LLInvFVBridge*)view_item->getListener();
 				if(bridge)
 				{	// Clear the display name first, so it gets properly re-built during refresh()
 					bridge->clearDisplayName();
 				}
-				view->refresh();
+				view_item->refresh();
 			}
 		}
-	}
-
-	// We don't really care which of these masks the item is actually flagged with, since the masks
-	// may not be accurate (e.g. in the main inventory panel, I move an item from My Inventory into
-	// Landmarks; this is a STRUCTURE change for that panel but is an ADD change for the Landmarks
-	// panel).  What's relevant is that the item and UI are probably out of sync and thus need to be
-	// resynchronized.
-	if (mask & (LLInventoryObserver::STRUCTURE |
-				LLInventoryObserver::ADD |
-				LLInventoryObserver::REMOVE))
-	{
-		handled = true;
-		LLInventoryModel* model = getModel();
-		if (model)
+	
+		// We don't typically care which of these masks the item is actually flagged with, since the masks
+		// may not be accurate (e.g. in the main inventory panel, I move an item from My Inventory into
+		// Landmarks; this is a STRUCTURE change for that panel but is an ADD change for the Landmarks
+		// panel).  What's relevant is that the item and UI are probably out of sync and thus need to be
+		// resynchronized.
+		if (mask & (LLInventoryObserver::STRUCTURE |
+					LLInventoryObserver::ADD |
+					LLInventoryObserver::REMOVE))
 		{
-			const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
+			handled = true;
 
-			std::set<LLUUID>::const_iterator id_it = changed_items.begin();
-			std::set<LLUUID>::const_iterator id_end = changed_items.end();
-			for (;id_it != id_end; ++id_it)
+			//////////////////////////////
+			// ADD Operation
+			// Item exists in memory but a UI element hasn't been created for it.
+			if (model_item && !view_item)
 			{
-				LLInventoryObject* model_item = model->getObject(*id_it);
-				LLFolderViewItem* view_item = mFolders->getItemByID(*id_it);
-				
- 				//////////////////////////////
-				// ADD Operation
-				// Item exists in memory but a UI element hasn't been created for it.
-				if (model_item && !view_item)
+				// Add the UI element for this item.
+				buildNewViews(item_id);
+				// Select any newly created object that has the auto rename at top of folder root set.
+				if(mFolders->getRoot()->needsAutoRename())
 				{
-					// Add the UI element for this item.
-					buildNewViews(*id_it);
-					// Select any newly created object that has the auto rename at top of folder root set.
-					if(mFolders->getRoot()->needsAutoRename())
-					{
-						setSelection(*id_it, FALSE);
-					}
+					setSelection(item_id, FALSE);
 				}
+			}
 
- 				//////////////////////////////
-				// STRUCTURE Operation
-				// This item already exists in both memory and UI.  It was probably reparented.
-				if (model_item && view_item)
+			//////////////////////////////
+			// STRUCTURE Operation
+			// This item already exists in both memory and UI.  It was probably reparented.
+			if (model_item && view_item)
+			{
+				// Don't process the item if it's hanging from the root, since its
+				// model_item's parent will be NULL.
+				if (view_item->getRoot() != view_item->getParent())
 				{
-					// Don't process the item if it's hanging from the root, since its
-					// model_item's parent will be NULL.
-					if (view_item->getRoot() != view_item->getParent())
+					LLFolderViewFolder* new_parent = (LLFolderViewFolder*)mFolders->getItemByID(model_item->getParentUUID());
+					// Item has been moved.
+					if (view_item->getParentFolder() != new_parent)
 					{
-						LLFolderViewFolder* new_parent = (LLFolderViewFolder*)mFolders->getItemByID(model_item->getParentUUID());
-						// Item has been moved.
-						if (view_item->getParentFolder() != new_parent)
+						if (new_parent != NULL)
 						{
-							if (new_parent != NULL)
-							{
-								// Item is to be moved and we found its new parent in the panel's directory, so move the item's UI.
-								view_item->getParentFolder()->extractItem(view_item);
-								view_item->addToFolder(new_parent, mFolders);
-							}
-							else 
-							{
-								// Item is to be moved outside the panel's directory (e.g. moved to trash for a panel that 
-								// doesn't include trash).  Just remove the item's UI.
-								view_item->destroyView();
-							}
+							// Item is to be moved and we found its new parent in the panel's directory, so move the item's UI.
+							view_item->getParentFolder()->extractItem(view_item);
+							view_item->addToFolder(new_parent, mFolders);
+						}
+						else 
+						{
+							// Item is to be moved outside the panel's directory (e.g. moved to trash for a panel that 
+							// doesn't include trash).  Just remove the item's UI.
+							view_item->destroyView();
 						}
 					}
 				}
-
- 				//////////////////////////////
-				// REMOVE Operation
-				// This item has been removed from memory, but its associated UI element still exists.
-				if (!model_item && view_item)
-				{
-					// Remove the item's UI.
-					view_item->destroyView();
-				}
+			}
+			
+			//////////////////////////////
+			// REMOVE Operation
+			// This item has been removed from memory, but its associated UI element still exists.
+			if (!model_item && view_item)
+			{
+				// Remove the item's UI.
+				view_item->destroyView();
 			}
 		}
 	}
