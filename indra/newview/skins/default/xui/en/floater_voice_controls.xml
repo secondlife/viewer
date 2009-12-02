@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_resize="true"
- height="300"
+ height="270"
  layout="topleft"
+ min_height="146"
+ min_width="190"  
  name="floater_voice_controls"
  title="Voice Controls"
  save_visibility="true"
