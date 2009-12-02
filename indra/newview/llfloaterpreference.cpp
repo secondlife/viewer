@@ -106,6 +106,7 @@
 #include "llviewermedia.h"
 #include "llpluginclassmedia.h"
 #include "llteleporthistorystorage.h"
+#include "llnearbychat.h"
 
 #include <boost/regex.hpp>
 
@@ -361,6 +362,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 BOOL LLFloaterPreference::postBuild()
 {
 	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate, _2));
+	
+	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLNearbyChat::processChatHistoryStyleUpdate, _2));
 
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))

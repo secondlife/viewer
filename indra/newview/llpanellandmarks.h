@@ -46,7 +46,6 @@ class LLAccordionCtrlTab;
 class LLFolderViewItem;
 class LLMenuGL;
 class LLInventoryPanel;
-class LLInventoryObserver;
 class LLInventorySubTreePanel;
 
 class LLLandmarksPanel : public LLPanelPlacesTab, LLRemoteParcelInfoObserver
@@ -63,13 +62,10 @@ public:
 
 	void onSelectionChange(LLInventorySubTreePanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();
-
-	/**
-	 * Updates accordions according to filtered items in lists.
-	 *
-	 * It hides accordion for empty lists
-	 */
-	void updateFilteredAccordions();
+	void setCurrentSelectedList(LLInventorySubTreePanel* inventory_list)
+	{
+		mCurrentSelectedList = inventory_list;
+	}
 
 protected:
 	/**
@@ -111,6 +107,13 @@ private:
 	void onCustomAction(const LLSD& command_name);
 
 	/**
+	 * Updates accordions according to filtered items in lists.
+	 *
+	 * It hides accordion for empty lists
+	 */
+	void updateFilteredAccordions();
+
+	/**
 	 * Determines if selected item can be modified via context/gear menu.
 	 *
 	 * It validates Places Landmarks rules first. And then LLFolderView permissions.
@@ -148,11 +151,9 @@ private:
 	LLMenuGL*					mGearFolderMenu;
 	LLMenuGL*					mMenuAdd;
 	LLInventorySubTreePanel*	mCurrentSelectedList;
-	LLInventoryObserver*		mInventoryObserver;
 
 	LLPanel*					mListCommands;
 	bool 						mSortByDate;
-	bool						mDirtyFilter;
 	
 	typedef	std::vector<LLAccordionCtrlTab*> accordion_tabs_t;
 	accordion_tabs_t			mAccordionTabs;

@@ -60,6 +60,8 @@ public:
 		virtual ~LLIMSession();
 
 		void sessionInitReplyReceived(const LLUUID& new_session_id);
+
+		void addMessagesFromHistory(const std::list<LLSD>& history);
 		void addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time);
 		void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
 		static void chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata);
@@ -277,11 +279,16 @@ public:
 					  const LLUUID& other_participant_id,
 					  const LLDynamicArray<LLUUID>& ids);
 
-	// Creates a P2P session with the requisite handle for responding to voice calls
+	/**
+	 * Creates a P2P session with the requisite handle for responding to voice calls.
+	 * 
+	 * @param caller_uri - sip URI of caller. It should be always be passed into the method to avoid
+	 * incorrect working of LLVoiceChannel instances. See EXT-2985.
+	 */	
 	LLUUID addP2PSession(const std::string& name,
 					  const LLUUID& other_participant_id,
 					  const std::string& voice_session_handle,
-					  const std::string& caller_uri = LLStringUtil::null);
+					  const std::string& caller_uri);
 
 	/**
 	 * Leave the session with session id. Send leave session notification

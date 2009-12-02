@@ -750,6 +750,8 @@ LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID& session_id, const std::string
 		mReceivedCall(FALSE)
 {
 	// make sure URI reflects encoded version of other user's agent id
+	// *NOTE: in case of Avaline call generated SIP URL will be incorrect.
+	// But it will be overridden in LLVoiceChannelP2P::setSessionHandle() called when agent accepts call
 	setURI(LLVoiceClient::getInstance()->sipURIFromID(other_user_id));
 }
 
@@ -867,6 +869,10 @@ void LLVoiceChannelP2P::setSessionHandle(const std::string& handle, const std::s
 	}
 	else
 	{
+		LL_WARNS("Voice") << "incoming SIP URL is not provided. Channel may not work properly." << LL_ENDL;
+		// In case of incoming AvaLine call generated URI will be differ from original one.
+		// This is because Avatar-2-Avatar URI is based on avatar UUID but Avaline is not.
+		// See LLVoiceClient::sessionAddedEvent() -> setUUIDFromStringHash()
 		setURI(LLVoiceClient::getInstance()->sipURIFromID(mOtherUserID));
 	}
 	

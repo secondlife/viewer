@@ -52,4 +52,57 @@
              function="CheckControl"
              parameter="ShowSnapshotButton" />
     </menu_item_check>        
+    <menu_item_separator
+     name="Separator" />
+    <menu_item_call
+     label="Cut"
+     name="NearbyChatBar_Cut">
+        <menu_item_call.on_click
+         function="NearbyChatBar.Action"
+         parameter="cut" />
+        <menu_item_call.on_enable
+         function="NearbyChatBar.EnableMenuItem"
+         parameter="can_cut" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy"
+     name="NearbyChatBar_Copy">
+        <menu_item_call.on_click
+         function="NearbyChatBar.Action"
+         parameter="copy" />
+        <menu_item_call.on_enable
+         function="NearbyChatBar.EnableMenuItem"
+         parameter="can_copy" />
+    </menu_item_call>
+    <menu_item_call
+     label="Paste"
+     name="NearbyChatBar_Paste">
+        <menu_item_call.on_click
+         function="NearbyChatBar.Action"
+         parameter="paste" />
+        <menu_item_call.on_enable
+         function="NearbyChatBar.EnableMenuItem"
+         parameter="can_paste" />
+    </menu_item_call>
+    <menu_item_call
+     label="Delete"
+     name="NearbyChatBar_Delete">
+        <menu_item_call.on_click
+         function="NearbyChatBar.Action"
+         parameter="delete" />
+        <menu_item_call.on_enable
+         function="NearbyChatBar.EnableMenuItem"
+         parameter="can_delete" />
+    </menu_item_call>
+    <menu_item_call
+     label="Select All"
+     name="NearbyChatBar_Select_All">
+        <menu_item_call.on_click
+         function="NearbyChatBar.Action"
+         parameter="select_all" />
+        <menu_item_call.on_enable
+         function="NearbyChatBar.EnableMenuItem"
+         parameter="can_select_all" />
+    </menu_item_call>
+
 </menu>
