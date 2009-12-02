@@ -96,7 +96,9 @@ void LLCallFloater::leaveCall()
 {
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
 	if (voice_channel && voice_channel->isActive())
+	{
 		voice_channel->deactivate();
+	}
 }
 
 void LLCallFloater::updateSession()
@@ -150,8 +152,8 @@ void LLCallFloater::updateSession()
 	updateTitle();
 	
 	//hide "Leave Call" button for nearby chat
-	bool isLocalChat = mVoiceType == VC_LOCAL_CHAT;
-	childSetVisible("leave_btn_panel", !isLocalChat);
+	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
+	childSetVisible("leave_btn_panel", !is_local_chat);
 	
 	refreshPartisipantList();
 }

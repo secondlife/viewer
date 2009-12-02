@@ -101,7 +101,6 @@
             </layout_panel>
             <layout_panel
              layout="topleft"
-             min_width="138" 
              name="volume_slider_panel"
              top="0"
              user_resize="false"
