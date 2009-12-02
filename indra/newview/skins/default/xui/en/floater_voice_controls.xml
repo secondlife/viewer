@@ -23,6 +23,10 @@
         Conference Call
     </string>
     <string
+     name="title_peer_2_peer">
+        Call with [NAME]
+    </string>
+    <string
      name="no_one_near">
         No one near
     </string>
@@ -149,5 +153,14 @@
      left="0"
      multi_select="true"
      name="speakers_list"
+     width="282" />
+    <panel
+     filename="panel_avatar_list_item.xml"
+     follows="left|right|top"
+     height="24"
+     layout="topleft"
+     left="0"
+     name="non_avatar_caller"
+     top="70"
      width="282" />
 </floater>
