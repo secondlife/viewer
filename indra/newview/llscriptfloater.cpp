@@ -62,7 +62,7 @@ LLUUID notification_id_to_object_id(const LLUUID& notification_id)
 //////////////////////////////////////////////////////////////////////////
 
 LLScriptFloater::LLScriptFloater(const LLSD& key)
-: LLTransientDockableFloater(NULL, true, key)
+: LLDockableFloater(NULL, true, key)
 , mScriptForm(NULL)
 , mObjectId(key.asUUID())
 {
@@ -161,14 +161,14 @@ void LLScriptFloater::onClose(bool app_quitting)
 
 void LLScriptFloater::setDocked(bool docked, bool pop_on_undock /* = true */)
 {
-	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
+	LLDockableFloater::setDocked(docked, pop_on_undock);
 
 	hideToastsIfNeeded();
 }
 
 void LLScriptFloater::setVisible(BOOL visible)
 {
-	LLTransientDockableFloater::setVisible(visible);
+	LLDockableFloater::setVisible(visible);
 
 	hideToastsIfNeeded();
 }

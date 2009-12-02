@@ -102,7 +102,7 @@ private:
  * LLScriptFloater will create script form based on notification data and 
  * will auto fit the form.
  */
-class LLScriptFloater : public LLTransientDockableFloater
+class LLScriptFloater : public LLDockableFloater
 {
 public:
 
