@@ -31,21 +31,22 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+#include "llinventorypanel.h"
 
 #include <utility> // for std::pair<>
-
-#include "llinventorypanel.h"
 
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llfloaterinventory.h"
 #include "llfloaterreg.h"
+#include "llimfloater.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
+#include "llsidepanelinventory.h"
+#include "llsidetray.h"
 #include "llscrollcontainer.h"
 #include "llviewerfoldertype.h"
-#include "llimfloater.h"
 #include "llvoavatarself.h"
 
 static LLDefaultChildRegistry::Register<LLInventoryPanel> r("inventory_panel");
@@ -841,12 +842,26 @@ void LLInventoryPanel::dumpSelectionInformation(void* user_data)
 LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel()
 {
 	LLInventoryPanel* res = NULL;
+
+	// If the inventorySP is opened and its main inventory view is active, use that.
+	LLSidepanelInventory *sidepanel_inventory =
+		dynamic_cast<LLSidepanelInventory*>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+	if (sidepanel_inventory)
+	{
+		res = sidepanel_inventory->getActivePanel();
+		if (res)
+		{
+			return res;
+		}
+	}
+
+	// Iterate through the inventory floaters and return whichever is on top.
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
 	S32 z_min = S32_MAX;
 	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
 	{
 		LLFloaterInventory* iv = dynamic_cast<LLFloaterInventory*>(*iter);
-		if (iv)
+		if (iv && iv->getVisible())
 		{
 			S32 z_order = gFloaterView->getZOrder(iv);
 			if (z_order < z_min)

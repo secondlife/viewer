@@ -38,7 +38,6 @@
 #include "llappearancemgr.h"
 #include "llavataractions.h"
 #include "llfloatercustomize.h"
-#include "llfloaterinventory.h"
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
@@ -1052,7 +1051,7 @@ void LLItemBridge::gotoItem(LLFolderView *folder)
 	LLInventoryObject *obj = getInventoryObject();
 	if (obj && obj->getIsLinkType())
 	{
-		LLInventoryPanel* active_panel = LLFloaterInventory::getActiveInventory()->getPanel();
+		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
 		if (active_panel)
 		{
 			active_panel->setSelection(obj->getLinkedUUID(), TAKE_FOCUS_NO);
@@ -2928,9 +2927,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// everything in the active window so that we don't follow
 			// the selection to its new location (which is very
 			// annoying).
-			if (LLFloaterInventory::getActiveInventory())
+			LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+			if (active_panel)
 			{
-				LLInventoryPanel* active_panel = LLFloaterInventory::getActiveInventory()->getPanel();
 				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
 				if (active_panel && (panel != active_panel))
 				{

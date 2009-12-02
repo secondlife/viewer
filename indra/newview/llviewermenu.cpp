@@ -31,13 +31,15 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llviewermenu.h" 
+
+// TODO: Remove unnecessary headers.
 
 // system library includes
 #include <iostream>
 #include <fstream>
 #include <sstream>
+
 
 // linden library includes
 #include "llaudioengine.h"
@@ -141,7 +143,6 @@
 #include "llimagetga.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
-#include "llfloaterinventory.h"
 #include "llkeyboard.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
@@ -6962,16 +6963,15 @@ void handle_grab_texture(void* data)
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
 
-			LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
-
 			// Show the preview panel for textures to let
 			// user know that the image is now in inventory.
-			if(view)
+			LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+			if(active_panel)
 			{
 				LLFocusableElement* focus_ctrl = gFocusMgr.getKeyboardFocus();
 
-				view->getPanel()->setSelection(item_id, TAKE_FOCUS_NO);
-				view->getPanel()->openSelected();
+				active_panel->setSelection(item_id, TAKE_FOCUS_NO);
+				active_panel->openSelected();
 				//LLFloaterInventory::dumpSelectionInformation((void*)view);
 				// restore keyboard focus
 				gFocusMgr.setKeyboardFocus(focus_ctrl);

@@ -31,8 +31,9 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llviewermessage.h"
+
+// TODO: Remove unnecessary headers.
 
 #include <deque>
 
@@ -91,7 +92,6 @@
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
-#include "llfloaterinventory.h"
 #include "llmenugl.h"
 #include "llmoveview.h"
 #include "llmutelist.h"
@@ -933,56 +933,46 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 		//highlight item, if it's not in the trash or lost+found
 		
 		// Don't auto-open the inventory floater
-		LLFloaterInventory* view = NULL;
 		if(gSavedSettings.getBOOL("ShowInInventory") &&
 		   asset_type != LLAssetType::AT_CALLINGCARD &&
 		   item->getInventoryType() != LLInventoryType::IT_ATTACHMENT &&
 		   !from_name.empty())
 		{
-			view = LLFloaterInventory::showAgentInventory();
 			//TODO:this should be moved to the end of method after all the checks,
 			//but first decide what to do with active inventory if any (EK)
 			LLSD key;
 			key["select"] = item->getUUID();
 			LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 		}
-		else
+		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+		if(active_panel)
 		{
-			view = LLFloaterInventory::getActiveInventory();
-		}
-		if(!view)
-		{
-			return;
-		}
+			//Trash Check
+			const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+			if(gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
+			{
+				return;
+			}
+			const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+			//BOOL inventory_has_focus = gFocusMgr.childHasKeyboardFocus(view);
+			BOOL user_is_away = gAwayTimer.getStarted();
 
-		//Trash Check
-		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		if(gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
-		{
-			return;
-		}
-		const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
-		//BOOL inventory_has_focus = gFocusMgr.childHasKeyboardFocus(view);
-		BOOL user_is_away = gAwayTimer.getStarted();
+			// don't select lost and found items if the user is active
+			if (gInventory.isObjectDescendentOf(item->getUUID(), lost_and_found_id)
+				&& !user_is_away)
+			{
+				return;
+			}
 
-		// don't select lost and found items if the user is active
-		if (gInventory.isObjectDescendentOf(item->getUUID(), lost_and_found_id)
-			&& !user_is_away)
-		{
-			return;
-		}
+			//Not sure about this check.  Could make it easy to miss incoming items.
+			//don't dick with highlight while the user is working
+			//if(inventory_has_focus && !user_is_away)
+			//	break;
+			LL_DEBUGS("Messaging") << "Highlighting" << item->getUUID()  << LL_ENDL;
+			//highlight item
 
-		//Not sure about this check.  Could make it easy to miss incoming items.
-		//don't dick with highlight while the user is working
-		//if(inventory_has_focus && !user_is_away)
-		//	break;
-		LL_DEBUGS("Messaging") << "Highlighting" << item->getUUID()  << LL_ENDL;
-		//highlight item
-
-		if (view->getPanel())
-		{
 			LLFocusableElement* focus_ctrl = gFocusMgr.getKeyboardFocus();
-			view->getPanel()->setSelection(item->getUUID(), TAKE_FOCUS_NO);
+			active_panel->setSelection(item->getUUID(), TAKE_FOCUS_NO);
 			gFocusMgr.setKeyboardFocus(focus_ctrl);
 		}
 	}
@@ -4991,7 +4981,7 @@ void container_inventory_arrived(LLViewerObject* object,
 		gAgent.changeCameraToDefault();
 	}
 
-	LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
+	LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
 
 	if (inventory->size() > 2)
 	{
@@ -5029,9 +5019,9 @@ void container_inventory_arrived(LLViewerObject* object,
 			}
 		}
 		gInventory.notifyObservers();
-		if(view)
+		if(active_panel)
 		{
-			view->getPanel()->setSelection(cat_id, TAKE_FOCUS_NO);
+			active_panel->setSelection(cat_id, TAKE_FOCUS_NO);
 		}
 	}
 	else if (inventory->size() == 2)
@@ -5065,9 +5055,9 @@ void container_inventory_arrived(LLViewerObject* object,
 		new_item->updateServer(TRUE);
 		gInventory.updateItem(new_item);
 		gInventory.notifyObservers();
-		if(view)
+		if(active_panel)
 		{
-			view->getPanel()->setSelection(item_id, TAKE_FOCUS_NO);
+			active_panel->setSelection(item_id, TAKE_FOCUS_NO);
 		}
 	}
 

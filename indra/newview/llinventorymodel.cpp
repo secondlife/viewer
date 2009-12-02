@@ -36,10 +36,10 @@
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llinventorypanel.h"
-#include "llfloaterinventory.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
+#include "llinventorypanel.h"
 #include "llnotificationsutil.h"
 #include "llwindow.h"
 #include "llviewercontrol.h"
@@ -3048,10 +3048,10 @@ void LLInventoryModel::processUpdateInventoryFolder(LLMessageSystem* msg,
 	gInventory.notifyObservers();
 
 	// *HACK: Do the 'show' logic for a new item in the inventory.
-	LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
-	if(view)
+	LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+	if (active_panel)
 	{
-		view->getPanel()->setSelection(lastfolder->getUUID(), TAKE_FOCUS_NO);
+		active_panel->setSelection(lastfolder->getUUID(), TAKE_FOCUS_NO);
 	}
 }
 
