@@ -843,18 +843,6 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel()
 {
 	LLInventoryPanel* res = NULL;
 
-	// If the inventorySP is opened and its main inventory view is active, use that.
-	LLSidepanelInventory *sidepanel_inventory =
-		dynamic_cast<LLSidepanelInventory*>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
-	if (sidepanel_inventory)
-	{
-		res = sidepanel_inventory->getActivePanel();
-		if (res)
-		{
-			return res;
-		}
-	}
-
 	// Iterate through the inventory floaters and return whichever is on top.
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
 	S32 z_min = S32_MAX;
@@ -871,5 +859,22 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel()
 			}
 		}
 	}
+
+	// Otherwise, open the inventorySP and use that.
+	if (!res)
+	{
+		LLSD key;
+		LLSidepanelInventory *sidepanel_inventory =
+			dynamic_cast<LLSidepanelInventory *>(LLSideTray::getInstance()->showPanel("sidepanel_inventory", key));
+		if (sidepanel_inventory)
+		{
+			res = sidepanel_inventory->getActivePanel();
+			if (res)
+			{
+				return res;
+			}
+		}
+	}
+
 	return res;
 }
