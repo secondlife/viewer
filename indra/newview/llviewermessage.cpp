@@ -33,68 +33,31 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewermessage.h"
 
-// TODO: Remove unnecessary headers.
-
 #include <deque>
 
 #include "llaudioengine.h" 
-#include "indra_constants.h"
 #include "lscript_byteformat.h"
-#include "mean_collision_data.h"
-#include "llfloaterbump.h"
-#include "llassetstorage.h"
-#include "llcachename.h"
-
-#include "lldbstrings.h"
 #include "lleconomy.h"
-#include "llfilepicker.h"
 #include "llfloaterreg.h"
-#include "llfocusmgr.h"
 #include "llfollowcamparams.h"
-#include "llinstantmessage.h"
-#include "llquantize.h"
-#include "llregionflags.h"
-#include "llregionhandle.h"
 #include "llsdserialize.h"
-#include "llstring.h"
-#include "llteleportflags.h"
-#include "lltracker.h"
 #include "lltransactionflags.h"
-#include "llxfermanager.h"
-#include "message.h"
-#include "sound_ids.h"
-#include "lltimer.h"
-#include "llmd5.h"
 
 #include "llagent.h"
 #include "llcallingcard.h"
-#include "llconsole.h"
-#include "llvieweraudio.h"
-#include "llviewercontrol.h"
-#include "lldrawpool.h"
 #include "llfirstuse.h"
-#include "llfloateranimpreview.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterchat.h"
-#include "llfloaterimagepreview.h"
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterlandholdings.h"
-#include "llurldispatcher.h"
 #include "llfloaterpostcard.h"
 #include "llfloaterpreference.h"
-#include "llfollowcam.h"
-#include "llgroupnotify.h"
-#include "llhudeffect.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
-#include "llmenugl.h"
-#include "llmoveview.h"
-#include "llmutelist.h"
 #include "llnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -111,22 +74,11 @@
 #include "llstatenums.h"
 #include "llstatusbar.h"
 #include "llimview.h"
-#include "lltool.h"
-#include "lltoolbar.h"
-#include "lltoolmgr.h"
 #include "lltrans.h"
-#include "llui.h"			// for make_ui_sound
-#include "lluploaddialog.h"
-#include "llviewercamera.h"
-#include "llviewerchat.h"
 #include "llviewergenericmessage.h"
-#include "llviewerinventory.h"
 #include "llviewermenu.h"
-#include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
-#include "llviewerpartsource.h"
-#include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewertexteditor.h"
 #include "llviewerthrottle.h"
@@ -134,10 +86,8 @@
 #include "llvlmanager.h"
 #include "llvoavatarself.h"
 #include "llvotextbubble.h"
-#include "llweb.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "llappviewer.h"
 #include "llfloaterworldmap.h"
 #include "llviewerdisplay.h"
 #include "llkeythrottle.h"
@@ -146,15 +96,13 @@
 #include "llpanelblockedlist.h"
 #include "llpanelplaceprofile.h"
 
-#include <boost/tokenizer.hpp>
-#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/split.hpp> //
 
 #if LL_WINDOWS // For Windows specific error handler
 #include "llwindebug.h"	// For the invalid message handler
 #endif
 
-//#include "llnearbychathistory.h"
-#include "llnotificationmanager.h"
+#include "llnotificationmanager.h" //
 
 //
 // Constants
