@@ -40,6 +40,7 @@ static LLRegisterPanelClassWrapper<LLPanelHome> t_people("panel_sidetray_home");
 
 LLPanelHome::LLPanelHome() :
 	LLPanel(),
+	LLViewerMediaObserver(),
 	mBrowser(NULL),
 	mFirstView(true)
 {
@@ -48,6 +49,7 @@ LLPanelHome::LLPanelHome() :
 void LLPanelHome::onOpen(const LLSD& key)
 {
 	// display the home page the first time we open the panel
+	// *NOTE: this seems to happen during login. Can we avoid that?
 	if (mFirstView && mBrowser)
 	{
 		mBrowser->navigateHome();
@@ -60,10 +62,51 @@ BOOL LLPanelHome::postBuild()
     mBrowser = getChild<LLMediaCtrl>("browser");
     if (mBrowser)
 	{
+		mBrowser->addObserver(this);
 		mBrowser->setTrusted(true);
 		mBrowser->setHomePageUrl("http://www.secondlife.com/");
+
+		childSetAction("back", onClickBack, this);
+		childSetAction("forward", onClickForward, this);
+		childSetAction("home", onClickHome, this);
 	}
 
     return TRUE;
 }
 
+//static 
+void LLPanelHome::onClickBack(void* user_data)
+{
+	LLPanelHome *self = (LLPanelHome*)user_data;
+	if (self && self->mBrowser)
+	{
+		self->mBrowser->navigateBack();
+	}
+}
+
+//static 
+void LLPanelHome::onClickForward(void* user_data)
+{
+	LLPanelHome *self = (LLPanelHome*)user_data;
+	if (self && self->mBrowser)
+	{
+		self->mBrowser->navigateForward();
+	}
+}
+
+//static 
+void LLPanelHome::onClickHome(void* user_data)
+{
+	LLPanelHome *self = (LLPanelHome*)user_data;
+	if (self && self->mBrowser)
+	{
+		self->mBrowser->navigateHome();
+	}
+}
+
+void LLPanelHome::handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event)
+{
+	// update back/forward button state
+	childSetEnabled("back", mBrowser->canNavigateBack());
+	childSetEnabled("forward", mBrowser->canNavigateForward());
+}

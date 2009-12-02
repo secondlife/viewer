@@ -36,13 +36,16 @@
 
 #include "llpanel.h"
 #include "llsd.h"
+#include "llviewermediaobserver.h"
 
 class LLMediaCtrl;
 
 /**
  * Base class for web-based Home side tray
  */
-class LLPanelHome : public LLPanel
+class LLPanelHome :
+	public LLPanel,
+	public LLViewerMediaObserver
 {
 public:
 	LLPanelHome();
@@ -50,7 +53,14 @@ public:
     /*virtual*/ BOOL postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
 
+	static void onClickBack(void* user_data);
+	static void onClickForward(void* user_data);
+	static void onClickHome(void* user_data);
+
 private:
+	// inherited from LLViewerMediaObserver
+	/*virtual*/ void handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event);
+
     LLMediaCtrl *mBrowser;
 	bool         mFirstView;
 };

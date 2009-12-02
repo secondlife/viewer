@@ -5,29 +5,88 @@
  height="570"
  min_height="350"
  label="home_tab"
+ help_topic="sidetray_home"
  layout="topleft"
  top="0"
  left="0"
  name="home_tab"
  width="333">
-  <panel
+  <layout_stack
    follows="all"
    height="550"
    layout="topleft"
    left="10"
-   help_topic="sidetray_home"
-   name="sidetray_home"
+   name="stack"
    top_pad="10"
    width="313">
-     <web_browser
-      border_visible="false"
-      follows="all"
-      height="550"
-      layout="topleft"
-      left="0"
-      name="browser"
-      start_url="data:text/html,%3Chtml%3E%3Cbody bgcolor=%22#2A2A2A%22 text=%22eeeeee%22%3E %3Ch3%3E %0D%0A%0D%0ALoading... %3C/h3%3E %3C/body%3E%3C/html%3E"
-      top="0"
-      width="313" />
-   </panel>
+    <layout_panel
+     auto_resize="false"
+     height="20"
+     layout="topleft"
+     left="0"
+     name="nav_controls"
+     top="0"
+     user_resize="false"
+     width="313">
+      <button
+       follows="left|top"
+       enabled="false"
+       height="20"
+       label="Back"
+       layout="topleft"
+       tab_stop="false"
+       left="0"
+       name="back"
+       top="0"
+       width="70">
+        <button.commit_callback
+         function="MediaBrowser.Back" />
+      </button>
+      <button
+       follows="left|top"
+       height="20"
+       enabled="false"
+       label="Forward"
+       layout="topleft"
+       tab_stop="false"
+       left_pad="3"
+       name="forward"
+       top_delta="0"
+       width="70">
+        <button.commit_callback
+         function="MediaBrowser.Forward" />
+      </button>
+      <button
+       follows="left|top"
+       height="20"
+       label="Home"
+       layout="topleft"
+       tab_stop="false"
+       left_pad="2"
+       name="home"
+       top_delta="0"
+       width="70">
+        <button.commit_callback
+         function="MediaBrowser.Home" />
+      </button>
+    </layout_panel>
+    <layout_panel
+     height="530"
+     layout="topleft"
+     left_delta="0"
+     name="browser_layout"
+     top_delta="0"
+     width="313">
+      <web_browser
+       border_visible="false"
+       follows="all"
+       height="530"
+       layout="topleft"
+       left="0"
+       name="browser"
+       start_url="data:text/html,%3Chtml%3E%3Cbody bgcolor=%22#2A2A2A%22 text=%22eeeeee%22%3E %3Ch3%3E %0D%0A%0D%0ALoading... %3C/h3%3E %3C/body%3E%3C/html%3E"
+       top="0"
+       width="313" />
+    </layout_panel>
+  </layout_stack>
 </panel>
