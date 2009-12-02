@@ -293,6 +293,30 @@ void LLInventoryPanel::modelChanged(U32 mask)
 				view_item->refresh();
 			}
 		}
+
+		//////////////////////////////
+		// REBUILD Operation
+		// Destroy and regenerate the UI.
+		if (mask & LLInventoryObserver::REBUILD)
+		{
+			handled = true;
+			if (model_item && view_item)
+			{
+				view_item->destroyView();
+			}
+			buildNewViews(item_id);
+		}
+
+		//////////////////////////////
+		// INTERNAL Operation
+		// This could be anything.  For now, just refresh the item.
+		if (mask & LLInventoryObserver::INTERNAL)
+		{
+			if (view_item)
+			{
+				view_item->refresh();
+			}
+		}
 	
 		// We don't typically care which of these masks the item is actually flagged with, since the masks
 		// may not be accurate (e.g. in the main inventory panel, I move an item from My Inventory into
@@ -359,6 +383,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		}
 	}
 
+	/* I don't think we need this code, but not positive -- Seraph
 	if (!handled)
 	{
 		// It's a small change that only requires a refresh.
@@ -366,6 +391,7 @@ void LLInventoryPanel::modelChanged(U32 mask)
 		// since it is expensive on large inventories
 		mFolders->refresh();
 	}
+	*/
 }
 
 // static

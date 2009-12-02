@@ -871,46 +871,48 @@ void LLInventoryModel::moveObject(const LLUUID& object_id, const LLUUID& cat_id)
 // Delete a particular inventory object by ID.
 void LLInventoryModel::deleteObject(const LLUUID& id)
 {
-	// Disabling this; let users manually purge linked objects.
-	// purgeLinkedObjects(id);
 	lldebugs << "LLInventoryModel::deleteObject()" << llendl;
 	LLPointer<LLInventoryObject> obj = getObject(id);
-	if(obj)
+	if (!obj) 
 	{
-		lldebugs << "Deleting inventory object " << id << llendl;
-		mLastItem = NULL;
-		LLUUID parent_id = obj->getParentUUID();
-		mCategoryMap.erase(id);
-		mItemMap.erase(id);
-		//mInventory.erase(id);
-		item_array_t* item_list = getUnlockedItemArray(parent_id);
-		if(item_list)
-		{
-			LLViewerInventoryItem* item = (LLViewerInventoryItem*)((LLInventoryObject*)obj);
-			item_list->removeObj(item);
-		}
-		cat_array_t* cat_list = getUnlockedCatArray(parent_id);
-		if(cat_list)
-		{
-			LLViewerInventoryCategory* cat = (LLViewerInventoryCategory*)((LLInventoryObject*)obj);
-			cat_list->removeObj(cat);
-		}
-		item_list = getUnlockedItemArray(id);
-		if(item_list)
-		{
-			delete item_list;
-			mParentChildItemTree.erase(id);
-		}
-		cat_list = getUnlockedCatArray(id);
-		if(cat_list)
-		{
-			delete cat_list;
-			mParentChildCategoryTree.erase(id);
-		}
-		addChangedMask(LLInventoryObserver::REMOVE, id);
-		obj = NULL; // delete obj
-		gInventory.notifyObservers();
+		llwarns << "Deleting non-existent object [ id: " << id << " ] " << llendl;
+		return;
 	}
+	
+	lldebugs << "Deleting inventory object " << id << llendl;
+	mLastItem = NULL;
+	LLUUID parent_id = obj->getParentUUID();
+	mCategoryMap.erase(id);
+	mItemMap.erase(id);
+	//mInventory.erase(id);
+	item_array_t* item_list = getUnlockedItemArray(parent_id);
+	if(item_list)
+	{
+		LLViewerInventoryItem* item = (LLViewerInventoryItem*)((LLInventoryObject*)obj);
+		item_list->removeObj(item);
+	}
+	cat_array_t* cat_list = getUnlockedCatArray(parent_id);
+	if(cat_list)
+	{
+		LLViewerInventoryCategory* cat = (LLViewerInventoryCategory*)((LLInventoryObject*)obj);
+		cat_list->removeObj(cat);
+	}
+	item_list = getUnlockedItemArray(id);
+	if(item_list)
+	{
+		delete item_list;
+		mParentChildItemTree.erase(id);
+	}
+	cat_list = getUnlockedCatArray(id);
+	if(cat_list)
+	{
+		delete cat_list;
+		mParentChildCategoryTree.erase(id);
+	}
+	addChangedMask(LLInventoryObserver::REMOVE, id);
+	obj = NULL; // delete obj
+	updateLinkedObjectsFromPurge(id);
+	gInventory.notifyObservers();
 }
 
 // Delete a particular inventory item by ID, and remove it from the server.
@@ -926,26 +928,23 @@ void LLInventoryModel::purgeObject(const LLUUID &id)
 	}
 }
 
-void LLInventoryModel::purgeLinkedObjects(const LLUUID &id)
+void LLInventoryModel::updateLinkedObjectsFromPurge(const LLUUID &baseobj_id)
 {
-	LLInventoryObject* objectp = getObject(id);
-	if (!objectp) return;
+	LLInventoryModel::item_array_t item_array = collectLinkedItems(baseobj_id);
 
-	if (objectp->getIsLinkType())
-	{
-		return;
-	}
-
-	LLInventoryModel::item_array_t item_array = collectLinkedItems(id);
-	
-	for (LLInventoryModel::item_array_t::iterator iter = item_array.begin();
+	// REBUILD is expensive, so clear the current change list first else
+	// everything else on the changelist will also get rebuilt.
+	gInventory.notifyObservers();
+	for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
 		 iter != item_array.end();
 		 iter++)
 	{
-		LLViewerInventoryItem *linked_item = (*iter);
-		if (linked_item->getUUID() == id) continue;
-		purgeObject(linked_item->getUUID());
+		const LLViewerInventoryItem *linked_item = (*iter);
+		const LLUUID &item_id = linked_item->getUUID();
+		if (item_id == baseobj_id) continue;
+		addChangedMask(LLInventoryObserver::REBUILD, item_id);
 	}
+	gInventory.notifyObservers();
 }
 
 // This is a method which collects the descendents of the id
