@@ -267,30 +267,13 @@ protected:
 	}
 
 private:
-	std::string appendTime(const LLChat& chat)
-	{
-		time_t utc_time;
-		utc_time = time_corrected();
-		std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
-			+LLTrans::getString("TimeMin")+"] ";
-
-		LLSD substitution;
-
-		substitution["datetime"] = (S32) utc_time;
-		LLStringUtil::format (timeStr, substitution);
-
-		return timeStr;
-	}
-
 	void setTimeField(const LLChat& chat)
 	{
 		LLTextBox* time_box = getChild<LLTextBox>("time_box");
 
 		LLRect rect_before = time_box->getRect();
 
-		std::string time_value = appendTime(chat);
-
-		time_box->setValue(time_value);
+		time_box->setValue(chat.mTimeStr);
 
 		// set necessary textbox width to fit all text
 		time_box->reshapeToFitText();
