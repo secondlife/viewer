@@ -59,6 +59,7 @@
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llhttpsender.h"
+#include "llimfloater.h"
 #include "lllocationhistory.h"
 #include "llimageworker.h"
 #include "llloginflags.h"
@@ -2084,6 +2085,8 @@ bool idle_startup()
 		LLFastTimer::reset();
 
 		LLAgentPicksInfo::getInstance()->requestNumberOfPicks();
+
+		LLIMFloater::initIMFloater();
 
 		return TRUE;
 	}

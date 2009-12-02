@@ -33,11 +33,6 @@
 #ifndef LL_IMFLOATER_H
 #define LL_IMFLOATER_H
 
-// This variable is used to show floaters related to chiclets in a Multi Floater Container
-// So, this functionality does not require to have IM Floaters as Dockable & Transient
-// See EXT-2640.
-#define USE_IM_CONTAINER
-
 #include "lltransientdockablefloater.h"
 #include "lllogchat.h"
 #include "lltooldraganddrop.h"
@@ -104,6 +99,14 @@ public:
 							   BOOL drop, EDragAndDropType cargo_type,
 							   void *cargo_data, EAcceptance *accept,
 							   std::string& tooltip_msg);
+
+	/**
+	 * Returns true if chat is displayed in multi tabbed floater
+	 *         false if chat is displayed in multiple windows
+	 */
+	static bool isChatMultiTab();
+
+	static void initIMFloater();
 
 private:
 	// process focus events to set a currently active session
