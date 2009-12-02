@@ -614,10 +614,6 @@ void LLViewerTextureList::updateImages(F32 max_time)
 			didone = image->doLoadedCallbacks();
 		}
 	}
-	if (!gNoRender && !gGLManager.mIsDisabled)
-	{
-		LLViewerMedia::updateMedia();
-	}
 	updateImagesUpdateStats();
 }
 
