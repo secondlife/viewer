@@ -46,8 +46,10 @@
 #include "llsdutil.h"
 #include "llselectmgr.h"
 #include "llmediaentry.h"
+#include "lltextbox.h"
 #include "llfloaterwhitelistentry.h"
 #include "llfloatermediasettings.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 LLPanelMediaSettingsSecurity::LLPanelMediaSettingsSecurity() :
@@ -55,9 +57,9 @@ LLPanelMediaSettingsSecurity::LLPanelMediaSettingsSecurity() :
 {
 	mCommitCallbackRegistrar.add("Media.whitelistAdd",		boost::bind(&LLPanelMediaSettingsSecurity::onBtnAdd, this));
 	mCommitCallbackRegistrar.add("Media.whitelistDelete",	boost::bind(&LLPanelMediaSettingsSecurity::onBtnDel, this));	
+
 	// build dialog from XML
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_media_settings_security.xml");
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,6 +68,7 @@ BOOL LLPanelMediaSettingsSecurity::postBuild()
 {
 	mEnableWhiteList = getChild< LLCheckBoxCtrl >( LLMediaEntry::WHITELIST_ENABLE_KEY );
 	mWhiteListList = getChild< LLScrollListCtrl >( LLMediaEntry::WHITELIST_KEY );
+	mHomeUrlFailsWhiteListText = getChild<LLTextBox>( "home_url_fails_whitelist" );
 	
 	setDefaultBtn("whitelist_add");
 
@@ -84,30 +87,6 @@ void LLPanelMediaSettingsSecurity::draw()
 {
 	// housekeeping
 	LLPanel::draw();
-
-	// if list is empty, disable DEL button and checkbox to enable use of list
-	if ( mWhiteListList->isEmpty() )
-	{
-		childSetEnabled( "whitelist_del", false );
-		childSetEnabled( LLMediaEntry::WHITELIST_KEY, false );
-		childSetEnabled( LLMediaEntry::WHITELIST_ENABLE_KEY, false );
-	}
-	else
-	{
-		childSetEnabled( "whitelist_del", true );
-		childSetEnabled( LLMediaEntry::WHITELIST_KEY, true );
-		childSetEnabled( LLMediaEntry::WHITELIST_ENABLE_KEY, true );
-	};
-
-	// if nothing is selected, disable DEL button
-	if ( mWhiteListList->getSelectedValue().asString().empty() )
-	{
-		childSetEnabled( "whitelist_del", false );
-	}
-	else
-	{
-		childSetEnabled( "whitelist_del", true );
-	};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -179,9 +158,8 @@ void LLPanelMediaSettingsSecurity::initValues( void* userdata, const LLSD& media
 				LLSD::array_iterator iter = url_list.beginArray();
 				while( iter != url_list.endArray() )
 				{
-					// TODO: is iter guaranteed to be valid here?
-					std::string url = *iter;
-					list->addSimpleElement( url );
+					std::string entry = *iter;
+					self->addWhiteListEntry( entry );
 					++iter;
 				};
 			};
@@ -216,15 +194,18 @@ void LLPanelMediaSettingsSecurity::getValues( LLSD &fill_me_in )
     fill_me_in[LLMediaEntry::WHITELIST_ENABLE_KEY] = (LLSD::Boolean)mEnableWhiteList->getValue();
 
     // iterate over white list and extract items
-    std::vector< LLScrollListItem* > white_list_items = mWhiteListList->getAllData();
-    std::vector< LLScrollListItem* >::iterator iter = white_list_items.begin();
+    std::vector< LLScrollListItem* > whitelist_items = mWhiteListList->getAllData();
+    std::vector< LLScrollListItem* >::iterator iter = whitelist_items.begin();
+
 	// *NOTE: need actually set the key to be an emptyArray(), or the merge
 	// we do with this LLSD will think there's nothing to change.
     fill_me_in[LLMediaEntry::WHITELIST_KEY] = LLSD::emptyArray();
-    while( iter != white_list_items.end() )
+    while( iter != whitelist_items.end() )
     {
-        std::string white_list_url = (*iter)->getValue().asString();
-        fill_me_in[ LLMediaEntry::WHITELIST_KEY ].append( white_list_url );
+		LLScrollListCell* cell = (*iter)->getColumn( ENTRY_COLUMN );
+		std::string whitelist_url = cell->getValue().asString();
+
+        fill_me_in[ LLMediaEntry::WHITELIST_KEY ].append( whitelist_url );
         ++iter;
     };
 }
@@ -260,11 +241,8 @@ const std::string LLPanelMediaSettingsSecurity::makeValidUrl( const std::string&
 
 ///////////////////////////////////////////////////////////////////////////////
 // wrapper for testing a URL against the whitelist. We grab entries from
-// white list list box widget and build a list to test against. Can also
-// optionally pass the URL that you are trying to add to the widget since
-// it won't be added until this call returns.
-bool LLPanelMediaSettingsSecurity::passesWhiteList( const std::string& added_url,
-													const std::string& test_url )
+// white list list box widget and build a list to test against. 
+bool LLPanelMediaSettingsSecurity::urlPassesWhiteList( const std::string& test_url )
 {
 	// the checkUrlAgainstWhitelist(..) function works on a vector
 	// of strings for the white list entries - in this panel, the white list
@@ -273,19 +251,17 @@ bool LLPanelMediaSettingsSecurity::passesWhiteList( const std::string& added_url
 	whitelist_strings.clear();	// may not be required - I forget what the spec says.
 
 	// step through whitelist widget entries and grab them as strings
-    std::vector< LLScrollListItem* > white_list_items = mWhiteListList->getAllData();
-    std::vector< LLScrollListItem* >::iterator iter = white_list_items.begin(); 
-	while( iter != white_list_items.end()  )
+    std::vector< LLScrollListItem* > whitelist_items = mWhiteListList->getAllData();
+    std::vector< LLScrollListItem* >::iterator iter = whitelist_items.begin(); 
+	while( iter != whitelist_items.end()  )
     {
-        const std::string whitelist_url = (*iter)->getValue().asString();
+		LLScrollListCell* cell = (*iter)->getColumn( ENTRY_COLUMN );
+		std::string whitelist_url = cell->getValue().asString();
+
 		whitelist_strings.push_back( whitelist_url );
 
 		++iter;
     };
-
-	// add in the URL that might be added to the whitelist so we can test that too
-	if ( added_url.length() )
-		whitelist_strings.push_back( added_url );
 
 	// possible the URL is just a fragment so we validize it
 	const std::string valid_url = makeValidUrl( test_url );
@@ -296,32 +272,68 @@ bool LLPanelMediaSettingsSecurity::passesWhiteList( const std::string& added_url
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void LLPanelMediaSettingsSecurity::addWhiteListItem(const std::string& url)
+void LLPanelMediaSettingsSecurity::updateWhitelistEnableStatus()
 {
-	// grab home URL from the general panel (via the parent floater)
+	// get the value for home URL and make it a valid URL
+	const std::string valid_url = makeValidUrl( mParent->getHomeUrl() );
+
+	// now check to see if the home url passes the whitelist in its entirity 
+	if ( urlPassesWhiteList( valid_url ) )
+	{
+		mEnableWhiteList->setEnabled( true );
+		mHomeUrlFailsWhiteListText->setVisible( false );
+	}
+	else
+	{
+		mEnableWhiteList->set( false );
+		mEnableWhiteList->setEnabled( false );
+		mHomeUrlFailsWhiteListText->setVisible( true );
+	};
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Add an entry to the whitelist scrollbox and indicate if the current
+// home URL passes this entry or not using an icon
+void LLPanelMediaSettingsSecurity::addWhiteListEntry( const std::string& entry )
+{
+	// grab the home url
 	std::string home_url( "" );
 	if ( mParent )
 		home_url = mParent->getHomeUrl();
 
-	// if the home URL is blank (user hasn't entered it yet) then
-	// don't bother to check if it passes the white list
-	if ( home_url.empty() )
-	{
-		mWhiteListList->addSimpleElement( url );
-		return;
-	};
+	// try to make a valid URL based on what the user entered - missing scheme for example
+	const std::string valid_url = makeValidUrl( home_url );
 
-	// if the URL passes the white list, add it
-	if ( passesWhiteList( url, home_url ) )
+	// check the home url against this single whitelist entry
+	std::vector< std::string > whitelist_entries;
+	whitelist_entries.push_back( entry );
+	bool home_url_passes_entry = LLMediaEntry::checkUrlAgainstWhitelist( valid_url, whitelist_entries );
+
+	// build an icon cell based on whether or not the home url pases it or not
+	LLSD row;
+	if ( home_url_passes_entry || home_url.empty() )
 	{
-		mWhiteListList->addSimpleElement( url );
+		row[ "columns" ][ ICON_COLUMN ][ "type" ] = "icon";
+		row[ "columns" ][ ICON_COLUMN ][ "value" ] = "";
+		row[ "columns" ][ ICON_COLUMN ][ "width" ] = 20;
 	}
 	else
-	// display a message indicating you can't do that
 	{
-		LLNotificationsUtil::add("WhiteListInvalidatesHomeUrl");
+		row[ "columns" ][ ICON_COLUMN ][ "type" ] = "icon";
+		row[ "columns" ][ ICON_COLUMN ][ "value" ] = "parcel_color_EXP";
+		row[ "columns" ][ ICON_COLUMN ][ "width" ] = 20;
 	};
-}
+
+	// always add in the entry itself
+	row[ "columns" ][ ENTRY_COLUMN ][ "type" ] = "text";
+	row[ "columns" ][ ENTRY_COLUMN ][ "value" ] = entry;
+
+	// add to the white list scroll box
+	mWhiteListList->addElement( row );
+
+	// update whitelist enable checkbox based on whether the home url passes the whitelist
+	updateWhitelistEnableStatus();
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // static
@@ -337,6 +349,9 @@ void LLPanelMediaSettingsSecurity::onBtnDel( void* userdata )
 	LLPanelMediaSettingsSecurity *self =(LLPanelMediaSettingsSecurity *)userdata;
 
 	self->mWhiteListList->deleteSelectedItems();
+
+	// contents of whitelist changed so recheck it against home url
+	self->updateWhitelistEnableStatus();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -345,4 +360,3 @@ void LLPanelMediaSettingsSecurity::setParent( LLFloaterMediaSettings* parent )
 {
 	mParent = parent;
 };
-

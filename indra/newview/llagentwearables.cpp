@@ -703,6 +703,7 @@ U32 LLAgentWearables::pushWearable(const EWearableType type, LLWearable *wearabl
 void LLAgentWearables::wearableUpdated(LLWearable *wearable)
 {
 	mAvatarObject->wearableUpdated(wearable->getType(), TRUE);
+	wearable->refreshName();
 	wearable->setLabelUpdated();
 
 	// Hack pt 2. If the wearable we just loaded has definition version 24,
