@@ -174,6 +174,10 @@ protected:
 
 	static void* createNearbyChatBar(void* userdata);
 
+	void updateContextMenu(S32 x, S32 y, MASK mask);
+	void onContextMenuItemClicked(const LLSD& userdata);
+	bool onContextMenuItemEnabled(const LLSD& userdata);
+
 	/**
 	 * Creates IM Chiclet based on session type (IM chat or Group chat)
 	 */
