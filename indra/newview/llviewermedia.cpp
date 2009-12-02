@@ -628,7 +628,7 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
-void LLViewerMedia::updateMedia()
+void LLViewerMedia::updateMedia(void *dummy_arg)
 {
 	impl_list::iterator iter = sViewerMediaImplList.begin();
 	impl_list::iterator end = sViewerMediaImplList.end();
@@ -799,24 +799,18 @@ void LLViewerMedia::updateMedia()
 
 }
 
-// idle callback function...only here to provide a hop to updateMedia()
-static void llviewermedia_updatemedia_thunk(void*)
-{
-	LLViewerMedia::updateMedia();
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
 void LLViewerMedia::initClass()
 {
-	gIdleCallbacks.addFunction(llviewermedia_updatemedia_thunk, NULL);
+	gIdleCallbacks.addFunction(LLViewerMedia::updateMedia, NULL);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
 void LLViewerMedia::cleanupClass()
 {
-	gIdleCallbacks.deleteFunction(llviewermedia_updatemedia_thunk, NULL);
+	gIdleCallbacks.deleteFunction(LLViewerMedia::updateMedia, NULL);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
