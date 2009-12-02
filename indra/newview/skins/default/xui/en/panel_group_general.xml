@@ -156,15 +156,15 @@ Hover your mouse over the options for more help.
          layout="topleft"
          left_delta="0"
          name="group_mature_check"
-         tool_tip="Sets whether your group information is considered mature"
+         tool_tip="Sets whether your group information is considered moderate"
          top_pad="2"
          width="190">
             <combo_box.item
-             label="PG Content"
+             label="General Content"
              name="pg"
              value="Not Mature" />
              <combo_box.item
-             label="Mature Content"
+             label="Moderate Content"
              name="mature"
              value="Mature" />
         </combo_box>

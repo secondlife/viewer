@@ -256,3 +256,21 @@ void LLNearbyChat::getAllowedRect(LLRect& rect)
 {
 	rect = gViewerWindow->getWorldViewRectScaled();
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void LLNearbyChat::onFocusReceived()
+{
+	setBackgroundOpaque(true);
+	LLPanel::onFocusReceived();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void LLNearbyChat::onFocusLost()
+{
+	setBackgroundOpaque(false);
+	LLPanel::onFocusLost();
+}
+

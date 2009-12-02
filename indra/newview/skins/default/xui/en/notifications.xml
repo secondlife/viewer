@@ -3480,7 +3480,7 @@ Publish this classified now for L$[AMOUNT]?
    icon="alertmodal.tga"
    name="SetClassifiedMature"
    type="alertmodal">
-Does this classified contain Mature content?
+Does this classified contain Moderate content?
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -3492,7 +3492,7 @@ Does this classified contain Mature content?
    icon="alertmodal.tga"
    name="SetGroupMature"
    type="alertmodal">
-Does this group contain Mature content?
+Does this group contain Moderate content?
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -4568,7 +4568,7 @@ Some terms in your search query were excluded due to content restrictions as cla
    icon="notifytip.tga"
    name="NoContentToSearch"
    type="notifytip">
-Please select at least one type of content to search (PG, Mature, or Adult).
+Please select at least one type of content to search (General, Moderate, or Adult).
   </notification>
 
   <notification
