@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_resize="true"
- height="300"
+ height="270"
  layout="topleft"
+ min_height="146"
+ min_width="190"  
  name="floater_voice_controls"
  title="Voice Controls"
  save_visibility="true"
@@ -19,6 +21,10 @@
     <string
      name="title_adhoc">
         Conference Call
+    </string>
+    <string
+     name="title_peer_2_peer">
+        Call with [NAME]
     </string>
     <string
      name="no_one_near">
@@ -147,5 +153,14 @@
      left="0"
      multi_select="true"
      name="speakers_list"
+     width="282" />
+    <panel
+     filename="panel_avatar_list_item.xml"
+     follows="left|right|top"
+     height="24"
+     layout="topleft"
+     left="0"
+     name="non_avatar_caller"
+     top="70"
      width="282" />
 </floater>

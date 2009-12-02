@@ -19,10 +19,12 @@ if(WINDOWS)
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-win32")
     set(vivox_files
         SLVoice.exe
-        alut.dll
+	libsndfile-1.dll
+        vivoxplatform.dll
         vivoxsdk.dll
         ortp.dll
-        wrap_oal.dll
+        zlib1.dll
+        vivoxoal.dll
         )
 
     #*******************************
@@ -139,9 +141,10 @@ elseif(DARWIN)
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/universal-darwin")
     set(vivox_files
         SLVoice
-        libalut.dylib
-        libopenal.dylib
+        libsndfile.dylib
+        libvivoxoal.dylib
         libortp.dylib
+        libvivoxplatform.dylib
         libvivoxsdk.dylib
        )
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
@@ -190,9 +193,10 @@ elseif(LINUX)
 
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-linux")
     set(vivox_files
-        libalut.so
-        libopenal.so.1
+        libsndfile.so.1
         libortp.so
+        libvivoxoal.so.1
+        libvivoxplatform.so
         libvivoxsdk.so
         SLVoice
        )

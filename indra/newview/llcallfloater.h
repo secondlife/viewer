@@ -37,6 +37,7 @@
 #include "lldockablefloater.h"
 
 class LLAvatarList;
+class LLNonAvatarCaller;
 class LLParticipantList;
 class LLSpeakerMgr;
 
@@ -91,6 +92,7 @@ private:
 	LLSpeakerMgr* mSpeakerManager;
 	LLParticipantList* mPaticipants;
 	LLAvatarList* mAvatarList;
+	LLNonAvatarCaller* mNonAvatarCaller;
 	EVoiceControls mVoiceType;
 
 	boost::signals2::connection mChannelChangedConnection;

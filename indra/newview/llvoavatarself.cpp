@@ -918,9 +918,9 @@ void LLVOAvatarSelf::updateAttachmentVisibility(U32 camera_mode)
 //-----------------------------------------------------------------------------
 // updatedWearable( EWearableType type )
 // forces an update to any baked textures relevant to type.
-// Should be called only on saving the wearable
+// will force an upload of the resulting bake if the second parameter is TRUE
 //-----------------------------------------------------------------------------
-void LLVOAvatarSelf::wearableUpdated( EWearableType type )
+void LLVOAvatarSelf::wearableUpdated( EWearableType type, BOOL upload_result )
 {
 	for (LLVOAvatarDictionary::BakedTextures::const_iterator baked_iter = LLVOAvatarDictionary::getInstance()->getBakedTextures().begin();
 		 baked_iter != LLVOAvatarDictionary::getInstance()->getBakedTextures().end();
@@ -939,7 +939,7 @@ void LLVOAvatarSelf::wearableUpdated( EWearableType type )
 				{
 					if (mBakedTextureDatas[index].mTexLayerSet)
 					{
-						invalidateComposite(mBakedTextureDatas[index].mTexLayerSet, TRUE);
+						invalidateComposite(mBakedTextureDatas[index].mTexLayerSet, upload_result);
 					}
 					break;
 				}

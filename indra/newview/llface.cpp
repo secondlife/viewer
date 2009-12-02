@@ -1378,7 +1378,8 @@ F32 LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 	LLVector3 center = getPositionAgent();
 	LLVector3 size = (mExtents[1] - mExtents[0]) * 0.5f;
 	
-	LLVector3 lookAt = center - LLViewerCamera::getInstance()->getOrigin();
+	LLViewerCamera* camera = LLViewerCamera::getInstance();
+	LLVector3 lookAt = center - camera->getOrigin();
 	F32 dist = lookAt.normVec() ;
 
 	//get area of circle around node
@@ -1393,7 +1394,7 @@ F32 LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 	}
 	else
 	{
-		cos_angle_to_view_dir = lookAt * LLViewerCamera::getInstance()->getXAxis() ;	
+		cos_angle_to_view_dir = lookAt * camera->getXAxis() ;	
 		mImportanceToCamera = LLFace::calcImportanceToCamera(cos_angle_to_view_dir, dist) ;
 	}
 
@@ -1443,8 +1444,9 @@ F32 LLFace::calcImportanceToCamera(F32 cos_angle_to_view_dir, F32 dist)
 	if(cos_angle_to_view_dir > LLViewerCamera::getInstance()->getCosHalfFov() && 
 		dist < FACE_IMPORTANCE_TO_CAMERA_OVER_DISTANCE[FACE_IMPORTANCE_LEVEL - 1][0]) 
 	{
-		F32 camera_moving_speed = LLViewerCamera::getInstance()->getAverageSpeed() ;
-		F32 camera_angular_speed = LLViewerCamera::getInstance()->getAverageAngularSpeed();
+		LLViewerCamera* camera = LLViewerCamera::getInstance();
+		F32 camera_moving_speed = camera->getAverageSpeed() ;
+		F32 camera_angular_speed = camera->getAverageAngularSpeed();
 
 		if(camera_moving_speed > 10.0f || camera_angular_speed > 1.0f)
 		{

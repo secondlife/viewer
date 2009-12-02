@@ -31,6 +31,8 @@
  */
 
 #include "llviewerprecompiledheaders.h" // must be first include
+
+#define LLBOTTOMTRAY_CPP
 #include "llbottomtray.h"
 
 #include "llagent.h"
@@ -46,6 +48,9 @@
 #include "llsyswellwindow.h"
 #include "llfloatercamera.h"
 #include "lltexteditor.h"
+
+// Build time optimization, generate extern template once in .cpp file
+template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
 
 LLBottomTray::LLBottomTray(const LLSD&)
 :	mChicletPanel(NULL),

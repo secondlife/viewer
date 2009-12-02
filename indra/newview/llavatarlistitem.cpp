@@ -42,7 +42,7 @@
 #include "llavatariconctrl.h"
 #include "llbutton.h"
 
-LLAvatarListItem::LLAvatarListItem()
+LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 :	LLPanel(),
 	mAvatarIcon(NULL),
 	mAvatarName(NULL),
@@ -55,14 +55,12 @@ LLAvatarListItem::LLAvatarListItem()
 	mShowInfoBtn(true),
 	mShowProfileBtn(true)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
-	// Remember avatar icon width including its padding from the name text box,
-	// so that we can hide and show the icon again later.
-
-	mIconWidth = mAvatarName->getRect().mLeft - mAvatarIcon->getRect().mLeft;
-	mInfoBtnWidth = mInfoBtn->getRect().mRight - mSpeakingIndicator->getRect().mRight;
-	mProfileBtnWidth = mProfileBtn->getRect().mRight - mInfoBtn->getRect().mRight;
-	mSpeakingIndicatorWidth = mSpeakingIndicator->getRect().mRight - mAvatarName->getRect().mRight; 
+	if (not_from_ui_factory)
+	{
+		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
+	}
+	// *NOTE: mantipov: do not use any member here. They can be uninitialized here in case instance
+	// is created from the UICtrlFactory
 }
 
 LLAvatarListItem::~LLAvatarListItem()
@@ -86,6 +84,13 @@ BOOL  LLAvatarListItem::postBuild()
 
 	mProfileBtn->setVisible(false);
 	mProfileBtn->setClickedCallback(boost::bind(&LLAvatarListItem::onProfileBtnClick, this));
+
+	// Remember avatar icon width including its padding from the name text box,
+	// so that we can hide and show the icon again later.
+	mIconWidth = mAvatarName->getRect().mLeft - mAvatarIcon->getRect().mLeft;
+	mInfoBtnWidth = mInfoBtn->getRect().mRight - mSpeakingIndicator->getRect().mRight;
+	mProfileBtnWidth = mProfileBtn->getRect().mRight - mInfoBtn->getRect().mRight;
+	mSpeakingIndicatorWidth = mSpeakingIndicator->getRect().mRight - mAvatarName->getRect().mRight; 
 
 /*
 	if(!p.buttons.profile)
@@ -260,7 +265,7 @@ void LLAvatarListItem::setAvatarIconVisible(bool visible)
 
 void LLAvatarListItem::onInfoBtnClick()
 {
-	LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", mAvatarId));
+	LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", mAvatarId));
 
 	/* TODO fix positioning of inspector
 	localPointToScreen(mXPos, mYPos, &mXPos, &mYPos);

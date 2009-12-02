@@ -168,6 +168,7 @@ LLFloaterGesture::~LLFloaterGesture()
 	LLGestureManager::instance().removeObserver(mObserver);
 	delete mObserver;
 	mObserver = NULL;
+	gInventory.removeObserver(this);
 }
 
 // virtual
