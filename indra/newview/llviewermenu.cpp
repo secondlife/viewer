@@ -33,12 +33,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewermenu.h" 
 
-// system library includes
-#include <iostream>
-#include <fstream>
-#include <sstream>
-
-
 // linden library includes
 #include "llfloaterreg.h"
 #include "llcombobox.h"
