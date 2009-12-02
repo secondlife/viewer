@@ -2,6 +2,8 @@
  * @file media_plugin_base.cpp
  * @brief Media plugin base class for LLMedia API plugin system
  *
+ * All plugins should be a subclass of MediaPluginBase. 
+ *
  * @cond
  * $LicenseInfo:firstyear=2008&license=viewergpl$
  *
@@ -37,7 +39,10 @@
 
 // TODO: Make sure that the only symbol exported from this library is LLPluginInitEntryPoint
 ////////////////////////////////////////////////////////////////////////////////
-//
+/// Media plugin constructor.
+///
+/// @param[in] host_send_func Function for sending messages from plugin to plugin loader shell
+/// @param[in] host_user_data Message data for messages from plugin to plugin loader shell
 
 MediaPluginBase::MediaPluginBase(
 	LLPluginInstance::sendMessageFunction host_send_func,
@@ -55,6 +60,12 @@ MediaPluginBase::MediaPluginBase(
 	mStatus = STATUS_NONE;
 }
 
+/**
+ * Converts current media status enum value into string (STATUS_LOADING into "loading", etc.)
+ * 
+ * @return Media status string ("loading", "playing", "paused", etc)
+ *
+ */
 std::string MediaPluginBase::statusString()
 {
 	std::string result;
@@ -75,6 +86,12 @@ std::string MediaPluginBase::statusString()
 	return result;
 }
 	
+/**
+ * Set media status.
+ * 
+ * @param[in] status Media status (STATUS_LOADING, STATUS_PLAYING, STATUS_PAUSED, etc)
+ *
+ */
 void MediaPluginBase::setStatus(EStatus status)
 {
 	if(mStatus != status)
@@ -85,6 +102,13 @@ void MediaPluginBase::setStatus(EStatus status)
 }
 
 
+/**
+ * Receive message from plugin loader shell.
+ * 
+ * @param[in] message_string Message string
+ * @param[in] user_data Message data
+ *
+ */
 void MediaPluginBase::staticReceiveMessage(const char *message_string, void **user_data)
 {
 	MediaPluginBase *self = (MediaPluginBase*)*user_data;
@@ -102,12 +126,27 @@ void MediaPluginBase::staticReceiveMessage(const char *message_string, void **us
 	}
 }
 
+/**
+ * Send message to plugin loader shell.
+ * 
+ * @param[in] message Message data being sent to plugin loader shell
+ *
+ */
 void MediaPluginBase::sendMessage(const LLPluginMessage &message)
 {
 	std::string output = message.generate();
 	mHostSendFunction(output.c_str(), &mHostUserData);
 }
 
+/**
+ * Notifies plugin loader shell that part of display area needs to be redrawn.
+ * 
+ * @param[in] left Left X coordinate of area to redraw (0,0 is at top left corner)
+ * @param[in] top Top Y coordinate of area to redraw (0,0 is at top left corner)
+ * @param[in] right Right X-coordinate of area to redraw (0,0 is at top left corner)
+ * @param[in] bottom Bottom Y-coordinate of area to redraw (0,0 is at top left corner)
+ *
+ */
 void MediaPluginBase::setDirty(int left, int top, int right, int bottom)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "updated");
@@ -120,6 +159,10 @@ void MediaPluginBase::setDirty(int left, int top, int right, int bottom)
 	sendMessage(message);
 }
 
+/**
+ * Sends "media_status" message to plugin loader shell ("loading", "playing", "paused", etc.)
+ * 
+ */
 void MediaPluginBase::sendStatus()
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "media_status");
@@ -143,6 +186,17 @@ extern "C"
 	LLSYMEXPORT int LLPluginInitEntryPoint(LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data, LLPluginInstance::sendMessageFunction *plugin_send_func, void **plugin_user_data);
 }
 
+/**
+ * Plugin initialization and entry point. Establishes communication channel for messages between plugin and plugin loader shell.  TODO:DOC - Please check!
+ * 
+ * @param[in] host_send_func Function for sending messages from plugin to plugin loader shell
+ * @param[in] host_user_data Message data for messages from plugin to plugin loader shell
+ * @param[out] plugin_send_func Function for plugin to receive messages from plugin loader shell
+ * @param[out] plugin_user_data Pointer to plugin instance
+ *
+ * @return int, where 0=success
+ *
+ */
 LLSYMEXPORT int
 LLPluginInitEntryPoint(LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data, LLPluginInstance::sendMessageFunction *plugin_send_func, void **plugin_user_data)
 {
