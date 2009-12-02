@@ -1,20 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Popups" name="popups" title="Popups">
-	<text name="dont_show_label">
-		Vis ikke disse popups:
+	<text name="tell_me_label">
+		Vis mig når:
 	</text>
-	<button label="Aktivér denne popup" name="enable_popup" />
-	<button label="Aktivér alle popups..." name="reset_dialogs_btn"
-	     tool_tip="Viser alle de valgfrie popups og &apos;første gangs&apos; beskeder." />
+	<check_box label="Når jeg bruger eller får L$" name="notify_money_change_checkbox"/>
+	<check_box label="Når mine venner logger af eller på" name="friends_online_notify_checkbox"/>
 	<text name="show_label">
-		Vis disse popups:
+		Vis altid disse beskeder:
 	</text>
-	<button label="Deaktivér alle disse popups..." name="skip_dialogs_btn"
-	     tool_tip="Viser ingen af de valgfrie popups og &apos;første gangs&apos; beskeder." />
-	<text name="text_box2" width="310">
-		Ved tilbud om tekstdokumenter, teksturer og landemærker:
+	<text name="dont_show_label">
+		Vis aldrig disse beskeder:
 	</text>
-	<check_box label="Accepter automatisk" name="accept_new_inventory" />
-	<check_box label="Vis automatisk efter accept" name="show_new_inventory" />
-	<check_box label="Vis nye objekter i beholdning automatisk" name="show_in_inventory" />
 </panel>
