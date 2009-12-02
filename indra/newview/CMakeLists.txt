@@ -316,6 +316,7 @@ set(viewer_SOURCE_FILES
     llpanelgrouplandmoney.cpp
     llpanelgroupnotices.cpp
     llpanelgrouproles.cpp
+    llpanelhome.cpp
     llpanelimcontrolpanel.cpp
     llpanelland.cpp
     llpanellandaudio.cpp
@@ -813,6 +814,7 @@ set(viewer_HEADER_FILES
     llpanelgrouplandmoney.h
     llpanelgroupnotices.h
     llpanelgrouproles.h
+    llpanelhome.h
     llpanelimcontrolpanel.h
     llpanelland.h
     llpanellandaudio.h
