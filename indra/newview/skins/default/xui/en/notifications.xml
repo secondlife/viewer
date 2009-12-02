@@ -586,20 +586,7 @@ To place the media on only one face, choose Select Texture and click on the desi
       notext="Cancel"
       yestext="OK"/>
   </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="WhiteListInvalidatesHomeUrl"
-   type="alertmodal">
-Adding this entry to the whitelist will invalidate the home URL you
-specified for this instance of media. You are not allowed to do this
-so the entry cannot be added to the whitelist.
-    <usetemplate
-     name="okbutton"
-     yestext="Ok"/>
-  </notification>
-
-
+  
   <notification
    icon="alertmodal.tga"
    name="MustBeInParcel"
@@ -5778,6 +5765,26 @@ Unable to find the help topic for this element.
  type="alertmodal">
 Server Error: Media update or get failed.
 &apos;[ERROR]&apos;
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
+
+    <notification
+ icon="alertmodal.tga"
+ name="TextChatIsMutedByModerator"
+ type="alertmodal">
+Your text chat has been muted by moderator.
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
+
+    <notification
+ icon="alertmodal.tga"
+ name="VoiceIsMutedByModerator"
+ type="alertmodal">
+Your voice has been muted by moderator.
         <usetemplate
          name="okbutton"
          yestext="OK"/>

@@ -10,17 +10,27 @@
  name="Media Settings General" 
  help_topic = "media_settings_general"
  width="365">
-	
-  <text 
-   bottom_delta="-17" 
-   follows="top|left" 
-   height="15" 
-   left="10" 
+
+  <text
+   bottom_delta="-25"
+   follows="top|left"
+   height="15"
+   left="10"
    name="home_label">
     Home URL:
   </text>
+  <text
+   visible="false" 
+   bottom_delta="0"
+   follows="top|left"
+   height="15"
+   left_delta="64"
+   text_color="red"
+   name="home_fails_whitelist_label">
+    (This URL does not pass the specified whitelist)
+  </text>
   <line_editor 
-   bottom_delta="-21" 
+   bottom_delta="-24" 
    enabled="true" 
    follows="left|top" 
    font="SansSerif"
@@ -221,12 +231,23 @@
    width="50" />
    
   <text bottom_delta="0" follows="top|left" height="15" left_delta="60" name="X_label">
-    X
+	X
   </text>
-  <spinner bottom_delta="0"
-	     decimal_digits="0" enabled="true" follows="left|top" height="16"
-	     increment="1" initial_val="256" label="" label_width="0"
-	     left_delta="20" max_val="2048" min_val="0" mouse_opaque="true"
-	     name="height_pixels" width="50" />
+  <spinner 
+	  bottom_delta="0"
+	  decimal_digits="0"
+	  enabled="true"
+	  follows="left|top" 
+	  height="16"
+	  increment="1"
+	  initial_val="256" 
+	  label=""
+	  label_width="0"
+	  left_delta="20" 
+	  max_val="2048" 
+	  min_val="0"
+	  mouse_opaque="true"
+	  name="height_pixels"
+	  width="50" />
  
 </panel>

@@ -37,6 +37,7 @@
 #include "lllogininstance.h"
 #include "lluri.h"
 #include "llagent.h"
+#include "llui.h"
 
 LLFloaterSearch::LLFloaterSearch(const LLSD& key) :
 	LLFloater(key),
@@ -138,6 +139,9 @@ void LLFloaterSearch::search(const LLSD &key)
 		maturity = "13";  // PG
 	}
 	url += "&r=" + maturity;
+
+	// add the current localization information
+	url += "&lang=" + LLUI::getLanguage();
 
 	// and load the URL in the web view
 	mBrowser->navigateTo(url);

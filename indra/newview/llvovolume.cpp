@@ -622,6 +622,7 @@ void LLVOVolume::updateTextureVirtualSize()
 
 	const S32 num_faces = mDrawable->getNumFaces();
 	F32 min_vsize=999999999.f, max_vsize=0.f;
+	LLViewerCamera* camera = LLViewerCamera::getInstance();
 	for (S32 i = 0; i < num_faces; i++)
 	{
 		LLFace* face = mDrawable->getFace(i);
@@ -638,7 +639,7 @@ void LLVOVolume::updateTextureVirtualSize()
 
 		if (isHUDAttachment())
 		{
-			F32 area = (F32) LLViewerCamera::getInstance()->getScreenPixelArea();
+			F32 area = (F32) camera->getScreenPixelArea();
 			vsize = area;
 			imagep->setBoostLevel(LLViewerTexture::BOOST_HUD);
  			face->setPixelArea(area); // treat as full screen
@@ -704,9 +705,9 @@ void LLVOVolume::updateTextureVirtualSize()
 			
 				//if the sculpty very close to the view point, load first
 				{				
-					LLVector3 lookAt = getPositionAgent() - LLViewerCamera::getInstance()->getOrigin();
+					LLVector3 lookAt = getPositionAgent() - camera->getOrigin();
 					F32 dist = lookAt.normVec() ;
-					F32 cos_angle_to_view_dir = lookAt * LLViewerCamera::getInstance()->getXAxis() ;				
+					F32 cos_angle_to_view_dir = lookAt * camera->getXAxis() ;				
 					mSculptTexture->setAdditionalDecodePriority(0.8f * LLFace::calcImportanceToCamera(cos_angle_to_view_dir, dist)) ;
 				}
 			}
@@ -741,7 +742,7 @@ void LLVOVolume::updateTextureVirtualSize()
 			F32 rad = getLightRadius();
 			mLightTexture->addTextureStats(gPipeline.calcPixelArea(getPositionAgent(), 
 																	LLVector3(rad,rad,rad),
-																	*LLViewerCamera::getInstance()));
+																	*camera));
 		}	
 	}
 
@@ -1133,6 +1134,20 @@ void LLVOVolume::regenFaces()
 		facep->setTEOffset(i);
 		facep->setTexture(getTEImage(i));
 		facep->setViewerObject(this);
+		
+		// If the face had media on it, this will have broken the link between the LLViewerMediaTexture and the face.
+		// Re-establish the link.
+		if(mMediaImplList.size() > i)
+		{
+			if(mMediaImplList[i])
+			{
+				LLViewerMediaTexture* media_tex = LLViewerTextureManager::findMediaTexture(mMediaImplList[i]->getMediaTextureID()) ;
+				if(media_tex)
+				{
+					media_tex->addMediaToFace(facep) ;
+				}
+			}
+		}
 	}
 	
 	if (!count_changed)

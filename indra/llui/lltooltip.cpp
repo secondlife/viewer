@@ -228,7 +228,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	{
 		LLButton::Params p_button;
 		p_button.name(std::string("play_media"));
-		p_button.label(""); // provid label but set to empty so name does not overwrite it -angela
+		p_button.label(""); // provide label but set to empty so name does not overwrite it -angela
 		TOOLTIP_PLAYBUTTON_SIZE = 16;
 		LLRect button_rect;
 		button_rect.setOriginAndSize((mPadding +TOOLTIP_ICON_SIZE+ mPadding ), mPadding, TOOLTIP_ICON_SIZE, TOOLTIP_ICON_SIZE);
@@ -300,9 +300,8 @@ void LLToolTip::initFromParams(const LLToolTip::Params& p)
 		mTextBox->setText(p.message());
 	}
 
-	LLRect text_contents_rect = mTextBox->getContentsRect();
-	S32 text_width = llmin(p.max_width(), text_contents_rect.getWidth());
-	S32 text_height = text_contents_rect.getHeight();
+	S32 text_width = llmin(p.max_width(), mTextBox->getTextPixelWidth());
+	S32 text_height = mTextBox->getTextPixelHeight();
 	mTextBox->reshape(text_width, text_height);
 
 	// reshape tooltip panel to fit text box

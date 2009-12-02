@@ -302,7 +302,7 @@ private:
 		time_box->translate(delta_pos_x, delta_pos_y);
 
 		//... & change width of the name control
-		LLTextBox* user_name = getChild<LLTextBox>("user_name");
+		LLView* user_name = getChild<LLView>("user_name");
 		const LLRect& user_rect = user_name->getRect();
 		user_name->reshape(user_rect.getWidth() + delta_pos_x, user_rect.getHeight());
 	}

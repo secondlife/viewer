@@ -1362,7 +1362,7 @@ void LLChicletNotificationCounterCtrl::setCounter(S32 counter)
 LLRect LLChicletNotificationCounterCtrl::getRequiredRect()
 {
 	LLRect rc;
-	S32 text_width = getContentsRect().getWidth();
+	S32 text_width = getTextPixelWidth();
 
 	rc.mRight = rc.mLeft + llmax(text_width, mInitialWidth);
 	

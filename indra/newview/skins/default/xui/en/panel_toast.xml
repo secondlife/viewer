@@ -29,6 +29,7 @@
   >
   <!-- Don't remove this wiget! It is needed for Overflow and Start-Up toasts!-->
   <text
+    clip_partial="true" 
    visible="false"
    follows="left|top|right|bottom"
    font="SansSerifBold"
@@ -39,6 +40,7 @@
    word_wrap="true"
    text_color="white"
    top="5" 
+    use_ellipses="true"
    width="260">
     Toast text;
   </text>

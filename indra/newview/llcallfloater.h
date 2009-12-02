@@ -61,6 +61,14 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 private:
+	typedef enum e_voice_controls_type
+	{
+		VC_LOCAL_CHAT,
+		VC_GROUP_CHAT,
+		VC_AD_HOC_CHAT,
+		VC_PEER_TO_PEER
+	}EVoiceControls;
+
 	/**
 	 * Updates mSpeakerManager and list according to current Voice Channel
 	 *
@@ -74,11 +82,14 @@ private:
 	 */
 	void refreshPartisipantList();
 	void onCurrentChannelChanged(const LLUUID& session_id);
+	void updateTitle();
+	void initAgentData();
 
 private:
 	LLSpeakerMgr* mSpeakerManager;
 	LLParticipantList* mPaticipants;
 	LLAvatarList* mAvatarList;
+	EVoiceControls mVoiceType;
 };
 
 
