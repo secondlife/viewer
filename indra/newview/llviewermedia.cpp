@@ -45,6 +45,9 @@
 #include "llviewertexturelist.h"
 #include "llvovolume.h"
 #include "llpluginclassmedia.h"
+#include "llviewerwindow.h"
+#include "llfocusmgr.h"
+#include "llcallbacklist.h"
 
 #include "llevent.h"		// LLSimpleListener
 #include "llnotificationsutil.h"
@@ -625,7 +628,7 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
-void LLViewerMedia::updateMedia()
+void LLViewerMedia::updateMedia(void *dummy_arg)
 {
 	impl_list::iterator iter = sViewerMediaImplList.begin();
 	impl_list::iterator end = sViewerMediaImplList.end();
@@ -747,6 +750,19 @@ void LLViewerMedia::updateMedia()
 			impl_count_total++;
 		}
 		
+		// Overrides if the window is minimized or we lost focus (taking care
+		// not to accidentally "raise" the priority either)
+		if (!gViewerWindow->getActive() /* viewer window minimized? */ 
+			&& new_priority > LLPluginClassMedia::PRIORITY_HIDDEN)
+		{
+			new_priority = LLPluginClassMedia::PRIORITY_HIDDEN;
+		}
+		else if (!gFocusMgr.getAppHasFocus() /* viewer window lost focus? */
+				 && new_priority > LLPluginClassMedia::PRIORITY_LOW)
+		{
+			new_priority = LLPluginClassMedia::PRIORITY_LOW;
+		}
+		
 		pimpl->setPriority(new_priority);
 		
 		if(pimpl->getUsedInUI())
@@ -785,9 +801,16 @@ void LLViewerMedia::updateMedia()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
+void LLViewerMedia::initClass()
+{
+	gIdleCallbacks.addFunction(LLViewerMedia::updateMedia, NULL);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
 void LLViewerMedia::cleanupClass()
 {
-	// This is no longer necessary, since sViewerMediaImplList is no longer smart pointers.
+	gIdleCallbacks.deleteFunction(LLViewerMedia::updateMedia, NULL);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

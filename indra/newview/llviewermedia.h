@@ -96,9 +96,10 @@ class LLViewerMedia
 		static bool textureHasMedia(const LLUUID& texture_id);
 		static void setVolume(F32 volume);
 
-		static void updateMedia();
+		static void updateMedia(void* dummy_arg = NULL);
 		static bool isMusicPlaying();
 
+		static void initClass();
 		static void cleanupClass();
 
 		static void toggleMusicPlay(void*);
