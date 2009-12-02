@@ -1452,6 +1452,7 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		gFloaterView->adjustToFitScreen(self, FALSE);
 		// give focus to new window to keep continuity for the user
 		self->setFocus(TRUE);
+		self->setTornOff(true);
 	}
 	else  //Attach to parent.
 	{
@@ -1463,6 +1464,7 @@ void LLFloater::onClickTearOff(LLFloater* self)
 			// make sure host is visible
 			new_host->openFloater(new_host->getKey());
 		}
+		self->setTornOff(false);
 	}
 }
 

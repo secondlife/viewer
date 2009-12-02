@@ -259,6 +259,8 @@ public:
 	bool            isDocked() const { return mDocked; }
 	virtual void    setDocked(bool docked, bool pop_on_undock = true);
 
+	virtual void    setTornOff(bool torn_off) {}
+
 	// Return a closeable floater, if any, given the current focus.
 	static LLFloater* getClosableFloaterFromFocus(); 
 
