@@ -160,8 +160,12 @@ protected:
 	void adjustCursorDecouple(bool warpingMouse = false);
 	void fixWindowSize(void);
 	void stopDockTileBounce();
-
-
+	static MASK modifiersToMask(SInt16 modifiers);
+	static OSErr dragTrackingHandler(DragTrackingMessage message, WindowRef theWindow,
+									 void * handlerRefCon, DragRef theDrag);
+	static OSErr dragReceiveHandler(WindowRef theWindow, void * handlerRefCon,	DragRef theDrag);
+	OSErr handleDragNDrop(DragRef theDrag, bool drop);
+	
 	//
 	// Platform specific variables
 	//
@@ -198,13 +202,16 @@ protected:
 	NMRec		mBounceRec;
 	LLTimer		mBounceTimer;
 
-	// Imput method management through Text Service Manager.
+	// Input method management through Text Service Manager.
 	TSMDocumentID	mTSMDocument;
 	BOOL		mLanguageTextInputAllowed;
 	ScriptCode	mTSMScriptCode;
 	LangCode	mTSMLangCode;
 	LLPreeditor*	mPreeditor;
 	
+	// Storage for drag data
+	char		mDragData[1024];
+								
 	static BOOL	sUseMultGL;
 
 	friend class LLWindowManager;

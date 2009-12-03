@@ -822,16 +822,16 @@ BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MAS
 	return TRUE;
 }
 
-BOOL LLViewerWindow::handleDragNDrop( LLWindow *window,  LLCoordGL pos, MASK mask, BOOL drop, std::string data, BOOL slurl )
+LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *window, LLCoordGL pos, MASK mask, BOOL drop, std::string data)
 {
-	BOOL result = FALSE;
+	LLWindowCallbacks::DragNDropResult result = LLWindowCallbacks::DND_NONE;
 	if (gSavedSettings.getBOOL("PrimMediaDragNDrop"))
 	{
 		// special case SLURLs
-		if ( slurl )
+		if ( std::string::npos != data.find("slurl.com") )
 		{
 			LLURLDispatcher::dispatch( data, NULL, true );
-			return TRUE;
+			return LLWindowCallbacks::DND_MOVE;
 		};
 
 		LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/ );
@@ -863,24 +863,30 @@ BOOL LLViewerWindow::handleDragNDrop( LLWindow *window,  LLCoordGL pos, MASK mas
 						// XXX This shouldn't be necessary, should it ?!?
 						obj->getMediaImpl(object_face)->navigateReload();
 						obj->sendMediaDataUpdate();
+						
+						result = LLWindowCallbacks::DND_COPY;
 					}
 					else {
 						// just navigate to the URL
 						obj->getMediaImpl(object_face)->navigateTo(url);
+						
+						result = LLWindowCallbacks::DND_LINK;
 					}
 					LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
 					mDragHoveredObject = NULL;
+					
 				}
 				else {
 					mDragHoveredObject = obj;
 					// Highlight the dragged object
 					LLSelectMgr::getInstance()->highlightObjectOnly(mDragHoveredObject);
+					
+					result = (! te->hasMedia()) ? LLWindowCallbacks::DND_COPY : LLWindowCallbacks::DND_LINK;
 				}
-				result = TRUE;
 			}
 		}
 
-		if (!result && !mDragHoveredObject.isNull())
+		if (result == LLWindowCallbacks::DND_NONE && !mDragHoveredObject.isNull())
 		{
 			LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
 			mDragHoveredObject = NULL;
@@ -3312,8 +3318,8 @@ LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot,  BOOL pick_trans
 	}
 	else
 	{
-		llwarns << "List of last picks is empty" << llendl;
-		llwarns << "Using stub pick" << llendl;
+		lldebugs << "List of last picks is empty" << llendl;
+		lldebugs << "Using stub pick" << llendl;
 		mLastPick = LLPickInfo();
 	}
 

@@ -68,10 +68,17 @@ public:
 	virtual void handleWindowBlock(LLWindow *window);							// window is taking over CPU for a while
 	virtual void handleWindowUnblock(LLWindow *window);							// window coming back after taking over CPU for a while
 	virtual void handleDataCopy(LLWindow *window, S32 data_type, void *data);
-	virtual BOOL handleDragNDrop(LLWindow *window, LLCoordGL pos, MASK mask, BOOL drop, std::string data, BOOL is_slurl);
 	virtual BOOL handleTimerEvent(LLWindow *window);
 	virtual BOOL handleDeviceChange(LLWindow *window);
-
+	
+	enum DragNDropResult {
+		DND_NONE = 0,	// No drop allowed
+		DND_MOVE,		// Drop accepted would result in a "move" operation
+		DND_COPY,		// Drop accepted would result in a "copy" operation
+		DND_LINK		// Drop accepted would result in a "link" operation
+	};
+	virtual DragNDropResult handleDragNDrop(LLWindow *window, LLCoordGL pos, MASK mask, BOOL drop, std::string data);
+	
 	virtual void handlePingWatchdog(LLWindow *window, const char * msg);
 	virtual void handlePauseWatchdog(LLWindow *window);
 	virtual void handleResumeWatchdog(LLWindow *window);
