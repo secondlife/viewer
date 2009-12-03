@@ -1374,6 +1374,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ChatWindow</key>
+    <map>
+      <key>Comment</key>
+      <string>Show chat in multiple windows(by default) or in one multi-tabbed window(requires restart)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>CheesyBeacon</key>
     <map>
       <key>Comment</key>
@@ -9249,7 +9260,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>3</integer>
+      <integer>4</integer>
     </map>
     <key>UIMaxComboWidth</key>
     <map>

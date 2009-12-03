@@ -151,4 +151,9 @@ class LLParticipantList
 		LLParticipantListMenu*    mParticipantListMenu;
 
 		EParticipantSortOrder	mSortOrder;
+
+		// boost::connections
+		boost::signals2::connection mAvatarListDoubleClickConnection;
+		boost::signals2::connection mAvatarListRefreshConnection;
+		boost::signals2::connection mAvatarListReturnConnection;
 };

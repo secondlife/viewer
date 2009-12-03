@@ -120,10 +120,6 @@ private:
 	// be available (hence zero)
 	LLVector3d					mPosGlobal;
 
-	// Search string for filtering landmarks and teleport
-	// history locations
-	std::string					mFilterSubString;
-
 	// Information type currently shown in Place Information panel
 	std::string					mPlaceInfoType;
 

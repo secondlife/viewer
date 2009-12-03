@@ -162,16 +162,5 @@
          tab_stop="false"
          top="0"
          width="50" />
-        <button
-         enabled="false"
-         follows="bottom|right"
-         height="25"
-         label="▼"
-         layout="topleft"
-         name="overflow_btn"
-         right="-10"
-         tab_stop="false"
-         top="0"
-         width="30" />
         </panel>
 </panel>
