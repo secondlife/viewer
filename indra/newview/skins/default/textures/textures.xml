@@ -341,8 +341,8 @@ with the same filename but different name
  <texture name="parcel_drk_BuildNo" file_name="icons/parcel_drk_BuildNo.png" preload="false" />
  <texture name="parcel_drk_Damage" file_name="icons/parcel_drk_Damage.png" preload="false" />
  <texture name="parcel_drk_DamageNo" file_name="icons/parcel_drk_DamageNo.png" preload="false" />
-  <texture name="parcel_drk_EVRY" file_name="icons/parcel_drk_EVRY.png" preload="false" />
-  <texture name="parcel_drk_EXP" file_name="icons/parcel_drk_EXP.png" preload="false" />
+ <texture name="parcel_drk_EVRY" file_name="icons/parcel_drk_EVRY.png" preload="false" />
+ <texture name="parcel_drk_EXP" file_name="icons/parcel_drk_EXP.png" preload="false" />
  <texture name="parcel_drk_Fly" file_name="icons/parcel_drk_Fly.png" preload="false" />
  <texture name="parcel_drk_FlyNo" file_name="icons/parcel_drk_FlyNo.png" preload="false" />
  <texture name="parcel_drk_ForSale" file_name="icons/parcel_drk_ForSale.png" preload="false" />
@@ -361,8 +361,8 @@ with the same filename but different name
  <texture name="parcel_lght_BuildNo" file_name="icons/parcel_lght_BuildNo.png" preload="false" />
  <texture name="parcel_lght_Damage" file_name="icons/parcel_lght_Damage.png" preload="false" />
  <texture name="parcel_lght_DamageNo" file_name="icons/parcel_lght_DamageNo.png" preload="false" />
-  <texture name="parcel_lght_EVRY" file_name="icons/parcel_lght_EVRY.png" preload="false" />
-  <texture name="parcel_lght_EXP" file_name="icons/parcel_lght_EXP.png" preload="false" />
+ <texture name="parcel_lght_EVRY" file_name="icons/parcel_lght_EVRY.png" preload="false" />
+ <texture name="parcel_lght_EXP" file_name="icons/parcel_lght_EXP.png" preload="false" />
  <texture name="parcel_lght_Fly" file_name="icons/parcel_lght_Fly.png" preload="false" />
  <texture name="parcel_lght_FlyNo" file_name="icons/parcel_lght_FlyNo.png" preload="false" />
  <texture name="parcel_lght_ForSale" file_name="icons/parcel_lght_ForSale.png" preload="false" />
@@ -485,6 +485,8 @@ with the same filename but different name
   <texture name="Snapshot_Off" file_name="bottomtray/Snapshot_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="Snapshot_Over" file_name="bottomtray/Snapshot_Over.png" preload="false" />
   <texture name="Snapshot_Press" file_name="bottomtray/Snapshot_Press.png" preload="false" />
+
+  <texture name="startup_logo"  file_name="windows/startup_logo.png" preload="true" />
 
   <texture name="Stepper_Down_Disabled" file_name="widgets/Stepper_Down_Disabled.png" preload="true" />
   <texture name="Stepper_Down_Off" file_name="widgets/Stepper_Down_Off.png" preload="true" />
@@ -704,7 +706,6 @@ with the same filename but different name
   <texture name="tab_top_blue.tga"	preload="false" scale.left="8" scale.top="8" scale.right="120" scale.bottom="9" />
   <texture name="tab_top_selected_blue.tga" preload="false" scale.left="8" scale.top="8" scale.right="96" scale.bottom="9" />
 
-  <texture name="startup_logo.j2c" preload="true" />
   <texture name="color_swatch_alpha.tga" preload="true" />
 
   <texture name="button_anim_pause.tga" />
