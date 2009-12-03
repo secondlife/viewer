@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h" // must be first include
 
 #include "llflatlistview.h"
+#include "llfloaterreg.h"
 
 #include "llsyswellwindow.h"
 
@@ -564,6 +565,46 @@ BOOL LLSysWellWindow::RowPanel::handleMouseDown(S32 x, S32 y, MASK mask)
 		mChiclet->onMouseDown();
 
 	return LLPanel::handleMouseDown(x, y, mask);
+}
+
+
+
+/************************************************************************/
+/*         LLNotificationWellWindow implementation                      */
+/************************************************************************/
+
+//////////////////////////////////////////////////////////////////////////
+// PUBLIC METHODS
+LLNotificationWellWindow::LLNotificationWellWindow(const LLSD& key)
+: LLSysWellWindow(key)
+{
+
+}
+
+// static
+LLNotificationWellWindow* LLNotificationWellWindow::getInstance(const LLSD& key /*= LLSD()*/)
+{
+	return LLFloaterReg::getTypedInstance<LLNotificationWellWindow>("notification_well_window", key);
+}
+
+
+
+/************************************************************************/
+/*         LLIMWellWindow  implementation                               */
+/************************************************************************/
+
+//////////////////////////////////////////////////////////////////////////
+// PUBLIC METHODS
+LLIMWellWindow::LLIMWellWindow(const LLSD& key)
+: LLSysWellWindow(key)
+{
+
+}
+
+// static
+LLIMWellWindow* LLIMWellWindow::getInstance(const LLSD& key /*= LLSD()*/)
+{
+	return LLFloaterReg::getTypedInstance<LLIMWellWindow>("im_well_window", key);
 }
 
 // EOF

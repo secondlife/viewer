@@ -319,7 +319,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          layout="topleft"
          min_height="28"
          top="0"
-         name="sys_well_panel"
+         name="notification_well_panel"
          width="54"
          min_width="54"
          user_resize="false">
@@ -328,7 +328,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              height="23"
              layout="topleft"
              left="0"
-             name="sys_well"
+             name="notification_well"
              top="4"
              width="54">
               <button

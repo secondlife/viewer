@@ -149,6 +149,30 @@ private:
 	};
 };
 
+/**
+ * Class intended to manage incoming notifications.
+ * 
+ * It contains a list of notifications that have not been responded to.
+ */
+class LLNotificationWellWindow : public LLSysWellWindow
+{
+public:
+	LLNotificationWellWindow(const LLSD& key);
+	static LLNotificationWellWindow* getInstance(const LLSD& key = LLSD());
+};
+
+/**
+ * Class intended to manage incoming messages in IM chats.
+ * 
+ * It contains a list list of all active IM sessions.
+ */
+class LLIMWellWindow : public LLSysWellWindow
+{
+public:
+	LLIMWellWindow(const LLSD& key);
+	static LLIMWellWindow* getInstance(const LLSD& key = LLSD());
+};
+
 #endif // LL_LLSYSWELLWINDOW_H
 
 

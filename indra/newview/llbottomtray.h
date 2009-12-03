@@ -66,7 +66,7 @@ public:
 	BOOL postBuild();
 
 	LLChicletPanel*		getChicletPanel()	{return mChicletPanel;}
-	LLNotificationChiclet*	getSysWell()	{return mSysWell;}
+	LLNotificationChiclet*	getSysWell()	{return mNotificationWell;}
 	LLNearbyChatBar*		getNearbyChatBar()	{return mNearbyChatBar;}
 
 	void onCommitGesture(LLUICtrl* ctrl);
@@ -189,7 +189,7 @@ protected:
 	LLIMChiclet* createIMChiclet(const LLUUID& session_id);
 
 	LLChicletPanel* 	mChicletPanel;
-	LLNotificationChiclet* 	mSysWell;
+	LLNotificationChiclet* 	mNotificationWell;
 	LLPanel*			mSpeakPanel;
 	LLSpeakButton* 		mSpeakBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
