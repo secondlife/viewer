@@ -709,7 +709,7 @@ void LLPanelPrimMediaControls::draw()
 	LLRect icon_area = mMediaControlsStack->getRect();
 
 	// adjust to ignore space from volume slider
-	icon_area.mTop -= mVolumeSliderCtrl->getRect().getHeight() + 2/*fudge for prettiness*/;
+	icon_area.mTop -= mVolumeSliderCtrl->getRect().getHeight();
 	
 	// adjust to ignore space from left bookend padding
 	icon_area.mLeft += mLeftBookend->getRect().getWidth();
