@@ -702,12 +702,14 @@ public:
         mConnection(new LLBoundListener)
     {
     }
+	
     /// Copy constructor. Copy shared_ptrs to original instance data.
     LLListenerWrapperBase(const LLListenerWrapperBase& that):
         mName(that.mName),
         mConnection(that.mConnection)
     {
     }
+	virtual ~LLListenerWrapperBase() {}
 
     /// Ask LLEventPump::listen() for the listener name
     virtual void accept_name(const std::string& name) const
