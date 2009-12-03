@@ -547,7 +547,7 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 				 cat_iter != categories->end();
 				 ++cat_iter)
 			{
-				const LLInventoryCategory* cat = (*cat_iter);
+				const LLViewerInventoryCategory* cat = (*cat_iter);
 				buildNewViews(cat->getUUID());
 			}
 		}
@@ -558,7 +558,7 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 				 item_iter != items->end();
 				 ++item_iter)
 			{
-				const LLInventoryItem* item = (*item_iter);
+				const LLViewerInventoryItem* item = (*item_iter);
 				buildNewViews(item->getUUID());
 			}
 		}
