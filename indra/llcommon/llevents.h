@@ -257,6 +257,11 @@ namespace LLEventDetail
     /// signature.
     typedef boost::function<LLBoundListener(const LLEventListener&)> ConnectFunc;
 
+    /// overload of visit_and_connect() when we have a string identifier available
+    template <typename LISTENER>
+    LLBoundListener visit_and_connect(const std::string& name,
+                                      const LISTENER& listener,
+                                      const ConnectFunc& connect_func);
     /**
      * Utility template function to use Visitor appropriately
      *
@@ -271,11 +276,6 @@ namespace LLEventDetail
     {
         return visit_and_connect("", listener, connect_func);
     }
-    /// overload of visit_and_connect() when we have a string identifier available
-    template <typename LISTENER>
-    LLBoundListener visit_and_connect(const std::string& name,
-                                      const LISTENER& listener,
-                                      const ConnectFunc& connect_func);
 } // namespace LLEventDetail
 
 /*****************************************************************************
