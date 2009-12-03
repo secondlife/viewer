@@ -133,7 +133,7 @@
      height="15"
      halign="right"
      left_pad="10"
-     right="-210"
+     right="-240"
      name="start_location_text"
      top="20"
      width="130">
@@ -142,7 +142,7 @@
     <combo_box
      allow_text_entry="true"
      control_name="LoginLocation"
-     follows="left|bottom"
+     follows="right|bottom"
      height="23"
      max_chars="128"
      top_pad="0"
