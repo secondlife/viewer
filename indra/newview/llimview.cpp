@@ -1392,13 +1392,13 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 		}
 		else
 		{
-			LLUUID session_id = gIMMgr->addSession(
+			LLUUID new_session_id = gIMMgr->addSession(
 				mPayload["session_name"].asString(),
 				type,
 				session_id);
-			if (session_id != LLUUID::null)
+			if (new_session_id != LLUUID::null)
 			{
-				LLIMFloater::show(session_id);
+				LLIMFloater::show(new_session_id);
 			}
 
 			std::string url = gAgent.getRegion()->getCapability(
@@ -1486,13 +1486,13 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 			}
 			else
 			{
-				LLUUID session_id = gIMMgr->addSession(
+				LLUUID new_session_id = gIMMgr->addSession(
 					payload["session_name"].asString(),
 					type,
 					session_id);
-				if (session_id != LLUUID::null)
+				if (new_session_id != LLUUID::null)
 				{
-					LLIMFloater::show(session_id);
+					LLIMFloater::show(new_session_id);
 				}
 
 				std::string url = gAgent.getRegion()->getCapability(
