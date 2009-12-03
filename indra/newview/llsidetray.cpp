@@ -693,7 +693,7 @@ LLPanel*	LLSideTray::getPanel		(const std::string& panel_name)
 
 LLPanel*	LLSideTray::getActivePanel()
 {
-	if (mActiveTab)
+	if (mActiveTab && !mCollapsed)
 	{
 		return mActiveTab->getPanel();
 	}

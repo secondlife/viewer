@@ -43,12 +43,14 @@ struct ViewerFolderEntry : public LLDictionaryEntry
 {
 	// Constructor for non-ensembles
 	ViewerFolderEntry(const std::string &new_category_name, // default name when creating a new category of this type
-					  const std::string &icon_name 			// name of the folder icon
+					  const std::string &icon_name,			// name of the folder icon
+					  BOOL is_quiet							// folder doesn't need a UI update when changed
 		) 
 		:
 		LLDictionaryEntry(empty_string), // no reverse lookup needed on non-ensembles, so just leave this blank
 		mIconName(icon_name),
-		mNewCategoryName(new_category_name)
+		mNewCategoryName(new_category_name),
+		mIsQuiet(is_quiet)
 	{
 		mAllowedNames.clear();
 	}
@@ -62,7 +64,8 @@ struct ViewerFolderEntry : public LLDictionaryEntry
 		:
 		LLDictionaryEntry(xui_name),
 		mIconName(icon_name),
-		mNewCategoryName(new_category_name)
+		mNewCategoryName(new_category_name),
+		mIsQuiet(FALSE)
 	{
 		const std::string delims (",");
 		LLStringUtilBase<char>::getTokens(allowed_names, mAllowedNames, delims);
@@ -85,6 +88,7 @@ struct ViewerFolderEntry : public LLDictionaryEntry
 	const std::string mNewCategoryName;
 	typedef std::vector<std::string> name_vec_t;
 	name_vec_t mAllowedNames;
+	BOOL mIsQuiet;
 };
 
 class LLViewerFolderDictionary : public LLSingleton<LLViewerFolderDictionary>,
@@ -100,31 +104,31 @@ LLViewerFolderDictionary::LLViewerFolderDictionary()
 {
 	initEnsemblesFromFile();
 
-	//       													    	  NEW CATEGORY NAME         FOLDER ICON NAME
-	//      												  		     |-------------------------|---------------------------|
-	addEntry(LLFolderType::FT_TEXTURE, 				new ViewerFolderEntry("Textures",				"inv_folder_texture.tga"));
-	addEntry(LLFolderType::FT_SOUND, 				new ViewerFolderEntry("Sounds",					"inv_folder_sound.tga"));
-	addEntry(LLFolderType::FT_CALLINGCARD, 			new ViewerFolderEntry("Calling Cards",			"inv_folder_callingcard.tga"));
-	addEntry(LLFolderType::FT_LANDMARK, 			new ViewerFolderEntry("Landmarks",				"inv_folder_landmark.tga"));
-	addEntry(LLFolderType::FT_CLOTHING, 			new ViewerFolderEntry("Clothing",				"inv_folder_clothing.tga"));
-	addEntry(LLFolderType::FT_OBJECT, 				new ViewerFolderEntry("Objects",				"inv_folder_object.tga"));
-	addEntry(LLFolderType::FT_NOTECARD, 			new ViewerFolderEntry("Notecards",				"inv_folder_notecard.tga"));
-	addEntry(LLFolderType::FT_ROOT_INVENTORY, 		new ViewerFolderEntry("My Inventory",			""));
-	addEntry(LLFolderType::FT_LSL_TEXT, 			new ViewerFolderEntry("Scripts",				"inv_folder_script.tga"));
-	addEntry(LLFolderType::FT_BODYPART, 			new ViewerFolderEntry("Body Parts",				"inv_folder_bodypart.tga"));
-	addEntry(LLFolderType::FT_TRASH, 				new ViewerFolderEntry("Trash",					"inv_folder_trash.tga"));
-	addEntry(LLFolderType::FT_SNAPSHOT_CATEGORY, 	new ViewerFolderEntry("Photo Album",			"inv_folder_snapshot.tga"));
-	addEntry(LLFolderType::FT_LOST_AND_FOUND, 		new ViewerFolderEntry("Lost And Found",	   		"inv_folder_lostandfound.tga"));
-	addEntry(LLFolderType::FT_ANIMATION, 			new ViewerFolderEntry("Animations",				"inv_folder_animation.tga"));
-	addEntry(LLFolderType::FT_GESTURE, 				new ViewerFolderEntry("Gestures",				"inv_folder_gesture.tga"));
-	addEntry(LLFolderType::FT_FAVORITE, 			new ViewerFolderEntry("Favorite",				"inv_folder_plain_closed.tga"));
+	//       													    	  NEW CATEGORY NAME         FOLDER ICON NAME                QUIET?
+	//      												  		     |-------------------------|-------------------------------|-----------|
+	addEntry(LLFolderType::FT_TEXTURE, 				new ViewerFolderEntry("Textures",				"inv_folder_texture.tga",		FALSE));
+	addEntry(LLFolderType::FT_SOUND, 				new ViewerFolderEntry("Sounds",					"inv_folder_sound.tga",			FALSE));
+	addEntry(LLFolderType::FT_CALLINGCARD, 			new ViewerFolderEntry("Calling Cards",			"inv_folder_callingcard.tga",	FALSE));
+	addEntry(LLFolderType::FT_LANDMARK, 			new ViewerFolderEntry("Landmarks",				"inv_folder_landmark.tga",		FALSE));
+	addEntry(LLFolderType::FT_CLOTHING, 			new ViewerFolderEntry("Clothing",				"inv_folder_clothing.tga",		FALSE));
+	addEntry(LLFolderType::FT_OBJECT, 				new ViewerFolderEntry("Objects",				"inv_folder_object.tga",		FALSE));
+	addEntry(LLFolderType::FT_NOTECARD, 			new ViewerFolderEntry("Notecards",				"inv_folder_notecard.tga",		FALSE));
+	addEntry(LLFolderType::FT_ROOT_INVENTORY, 		new ViewerFolderEntry("My Inventory",			"",								FALSE));
+	addEntry(LLFolderType::FT_LSL_TEXT, 			new ViewerFolderEntry("Scripts",				"inv_folder_script.tga",		FALSE));
+	addEntry(LLFolderType::FT_BODYPART, 			new ViewerFolderEntry("Body Parts",				"inv_folder_bodypart.tga",		FALSE));
+	addEntry(LLFolderType::FT_TRASH, 				new ViewerFolderEntry("Trash",					"inv_folder_trash.tga",			TRUE));
+	addEntry(LLFolderType::FT_SNAPSHOT_CATEGORY, 	new ViewerFolderEntry("Photo Album",			"inv_folder_snapshot.tga",		FALSE));
+	addEntry(LLFolderType::FT_LOST_AND_FOUND, 		new ViewerFolderEntry("Lost And Found",	   		"inv_folder_lostandfound.tga",	TRUE));
+	addEntry(LLFolderType::FT_ANIMATION, 			new ViewerFolderEntry("Animations",				"inv_folder_animation.tga",		FALSE));
+	addEntry(LLFolderType::FT_GESTURE, 				new ViewerFolderEntry("Gestures",				"inv_folder_gesture.tga",		FALSE));
+	addEntry(LLFolderType::FT_FAVORITE, 			new ViewerFolderEntry("Favorite",				"inv_folder_plain_closed.tga",	FALSE));
 
-	addEntry(LLFolderType::FT_CURRENT_OUTFIT, 		new ViewerFolderEntry("Current Outfit",			"inv_folder_current_outfit.tga"));
-	addEntry(LLFolderType::FT_OUTFIT, 				new ViewerFolderEntry("New Outfit",				"inv_folder_outfit.tga"));
-	addEntry(LLFolderType::FT_MY_OUTFITS, 			new ViewerFolderEntry("My Outfits",				"inv_folder_my_outfits.tga"));
-	addEntry(LLFolderType::FT_INBOX, 				new ViewerFolderEntry("Inbox",					"inv_folder_inbox.tga"));
+	addEntry(LLFolderType::FT_CURRENT_OUTFIT, 		new ViewerFolderEntry("Current Outfit",			"inv_folder_current_outfit.tga",TRUE));
+	addEntry(LLFolderType::FT_OUTFIT, 				new ViewerFolderEntry("New Outfit",				"inv_folder_outfit.tga",		TRUE));
+	addEntry(LLFolderType::FT_MY_OUTFITS, 			new ViewerFolderEntry("My Outfits",				"inv_folder_my_outfits.tga",	TRUE));
+	addEntry(LLFolderType::FT_INBOX, 				new ViewerFolderEntry("Inbox",					"inv_folder_inbox.tga",			FALSE));
 		 
-	addEntry(LLFolderType::FT_NONE, 				new ViewerFolderEntry("New Folder",				"inv_folder_plain_closed.tga"));
+	addEntry(LLFolderType::FT_NONE, 				new ViewerFolderEntry("New Folder",				"inv_folder_plain_closed.tga",	FALSE));
 }
 
 bool LLViewerFolderDictionary::initEnsemblesFromFile()
@@ -218,6 +222,17 @@ const std::string &LLViewerFolderType::lookupIconName(LLFolderType::EType folder
 	}
 	return badLookup();
 }
+
+BOOL LLViewerFolderType::lookupIsQuietType(LLFolderType::EType folder_type)
+{
+	const ViewerFolderEntry *entry = LLViewerFolderDictionary::getInstance()->lookup(folder_type);
+	if (entry)
+	{
+		return entry->mIsQuiet;
+	}
+	return FALSE;
+}
+
 
 const std::string &LLViewerFolderType::lookupNewCategoryName(LLFolderType::EType folder_type)
 {

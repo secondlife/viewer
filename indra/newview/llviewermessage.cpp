@@ -42,7 +42,6 @@
 #include "lltransactionflags.h"
 
 #include "llagent.h"
-#include "llappearancemgr.h"
 #include "llcallingcard.h"
 #include "llfirstuse.h"
 #include "llfloaterbuycurrency.h"
@@ -74,6 +73,7 @@
 #include "llstatusbar.h"
 #include "llimview.h"
 #include "lltrans.h"
+#include "llviewerfoldertype.h"
 #include "llviewergenericmessage.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
@@ -825,11 +825,6 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
  
 void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 {
-	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
-	const LLUUID cof_id = LLAppearanceManager::instance().getCOF();
-	const BOOL user_is_away = gAwayTimer.getStarted();
-	
 	for (std::vector<LLUUID>::const_iterator item_iter = items.begin();
 		 item_iter != items.end();
 		 ++item_iter)
@@ -841,14 +836,28 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 			LL_WARNS("Messaging") << "Unable to show inventory item: " << item_id << LL_ENDL;
 			continue;
 		}
-		if(gInventory.isObjectDescendentOf(item_id, trash_id))
+
+		////////////////////////////////////////////////////////////////////////////////
+		// Don't highlight if it's in certain "quiet" folders which don't need UI 
+		// notification (e.g. trash, cof, lost-and-found).
+		const BOOL user_is_away = gAwayTimer.getStarted();
+		if(!user_is_away)
 		{
-			continue;
+			const LLViewerInventoryCategory *parent = gInventory.getFirstNondefaultParent(item_id);
+			if (parent)
+			{
+				const LLFolderType::EType parent_type = parent->getPreferredType();
+				if (LLViewerFolderType::lookupIsQuietType(parent_type))
+				{
+					continue;
+				}
+			}
 		}
 
-		//if we are throttled, don't display them
+		////////////////////////////////////////////////////////////////////////////////
+		// Special handling for various types.
 		const LLAssetType::EType asset_type = item->getType();
-		if (check_offer_throttle(from_name, false))
+		if (check_offer_throttle(from_name, false)) // If we are throttled, don't display
 		{
 			// If we opened this ourselves, focus it
 			const BOOL take_focus = from_name.empty() ? TAKE_FOCUS_YES : TAKE_FOCUS_NO;
@@ -894,17 +903,6 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
 		if(active_panel)
 		{
-			// Don't select lost and found items if the user is active
-			if (gInventory.isObjectDescendentOf(item_id, lost_and_found_id) &&
-				!user_is_away)
-			{
-				continue;
-			}
-			if (gInventory.isObjectDescendentOf(item_id, cof_id))
-			{
-				continue;
-			}
-
 			LL_DEBUGS("Messaging") << "Highlighting" << item_id  << LL_ENDL;
 			LLFocusableElement* focus_ctrl = gFocusMgr.getKeyboardFocus();
 			active_panel->setSelection(item_id, TAKE_FOCUS_NO);

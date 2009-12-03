@@ -44,11 +44,13 @@ public:
 	static const std::string&   lookupXUIName(EType folder_type); // name used by the UI
 	static LLFolderType::EType 	lookupTypeFromXUIName(const std::string& name);
 
-	static const std::string&   lookupIconName(EType asset_type); // folder icon name
+	static const std::string&   lookupIconName(EType folder_type); // folder icon name
+	static BOOL					lookupIsQuietType(EType folder_type); // folder doesn't require UI update when changes have occured
 	static const std::string&	lookupNewCategoryName(EType folder_type); // default name when creating new category
 	static LLFolderType::EType	lookupTypeFromNewCategoryName(const std::string& name); // default name when creating new category
 
 	static U64					lookupValidFolderTypes(const std::string& item_name); // which folders allow an item of this type?
+
 protected:
 	LLViewerFolderType() {}
 	~LLViewerFolderType() {}
