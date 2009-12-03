@@ -7189,6 +7189,10 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			glClearColor(0,0,0,0);
 			mWaterRef.bindTarget();
+			gGL.setColorMask(true, true);
+			mWaterRef.clear();
+			gGL.setColorMask(true, false);
+
 			mWaterRef.getViewport(gGLViewport);
 			
 			stop_glerror();
@@ -7221,6 +7225,21 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			U32 ref_mask = 0;
 			if (LLDrawPoolWater::sNeedsDistortionUpdate)
 			{
+				//initial sky pass (no user clip plane)
+				{ //mask out everything but the sky
+					U32 tmp = mRenderTypeMask;
+					mRenderTypeMask = tmp & ((1 << LLPipeline::RENDER_TYPE_SKY) |
+										(1 << LLPipeline::RENDER_TYPE_WL_SKY));
+					static LLCullResult result;
+					updateCull(camera, result);
+					stateSort(camera, result);
+					mRenderTypeMask = tmp & ((1 << LLPipeline::RENDER_TYPE_SKY) |
+										(1 << LLPipeline::RENDER_TYPE_CLOUDS) |
+										(1 << LLPipeline::RENDER_TYPE_WL_SKY));
+					renderGeom(camera, TRUE);
+					mRenderTypeMask = tmp;
+				}
+
 				U32 mask = mRenderTypeMask;
 				mRenderTypeMask &=	~((1<<LLPipeline::RENDER_TYPE_WATER) |
 									  (1<<LLPipeline::RENDER_TYPE_GROUND) |
@@ -7248,10 +7267,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					LLGLDisable cull(GL_CULL_FACE);
 					updateCull(camera, ref_result, 1);
 					stateSort(camera, ref_result);
-					gGL.setColorMask(true, true);
-					mWaterRef.clear();
-					gGL.setColorMask(true, false);
-
 				}
 				else
 				{
@@ -7263,22 +7278,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				ref_mask = mRenderTypeMask;
 				mRenderTypeMask = mask;
 			}
-
-			//initial sky pass (no user clip plane)
-			{ //mask out everything but the sky
-				U32 tmp = mRenderTypeMask;
-				mRenderTypeMask = tmp & ((1 << LLPipeline::RENDER_TYPE_SKY) |
-									(1 << LLPipeline::RENDER_TYPE_WL_SKY));
-				static LLCullResult result;
-				updateCull(camera, result);
-				stateSort(camera, result);
-				mRenderTypeMask = tmp & ((1 << LLPipeline::RENDER_TYPE_SKY) |
-									(1 << LLPipeline::RENDER_TYPE_CLOUDS) |
-									(1 << LLPipeline::RENDER_TYPE_WL_SKY));
-				renderGeom(camera, TRUE);
-				mRenderTypeMask = tmp;
-			}
-
 
 			if (LLDrawPoolWater::sNeedsDistortionUpdate)
 			{

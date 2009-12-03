@@ -303,5 +303,9 @@ void LLAvatarIconCtrl::nameUpdatedCallback(
 		{
 			setToolTip(mFirstName + " " + mLastName);
 		}
+		else
+		{
+			setToolTip(std::string(""));
+		}
 	}
 }

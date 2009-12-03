@@ -22,13 +22,15 @@
              bg_readonly_color="ChatHistoryBgColor"
              bg_writeable_color="ChatHistoryBgColor"
              follows="all"
-	    left="1"
+	         left="5"
              top="20"
              layout="topleft"
-	    height="280"
+	         height="275"
              name="chat_history"
              parse_highlights="true"
              text_color="ChatHistoryTextColor"
              text_readonly_color="ChatHistoryTextColor"
-             width="320" />
+             right_widget_pad="5"
+             left_widget_pad="0"
+             width="315" />
 </floater>

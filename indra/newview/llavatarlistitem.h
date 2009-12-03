@@ -51,7 +51,16 @@ public:
 		virtual void show(LLView* spawning_view, const std::vector<LLUUID>& selected_uuids, S32 x, S32 y) = 0;
 	};
 
-	LLAvatarListItem();
+	/**
+	 * Creates an instance of LLAvatarListItem.
+	 *
+	 * It is not registered with LLDefaultChildRegistry. It is built via LLUICtrlFactory::buildPanel
+	 * or via registered LLCallbackMap depend on passed parameter.
+	 * 
+	 * @param not_from_ui_factory if true instance will be build with LLUICtrlFactory::buildPanel 
+	 * otherwise it should be registered via LLCallbackMap before creating.
+	 */
+	LLAvatarListItem(bool not_from_ui_factory = true);
 	virtual ~LLAvatarListItem();
 
 	virtual BOOL postBuild();
@@ -82,7 +91,18 @@ public:
 
 	void setContextMenu(ContextMenu* menu) { mContextMenu = menu; }
 
+	/**
+	 * This method was added to fix EXT-2364 (Items in group/ad-hoc IM participant list (avatar names) should be reshaped when adding/removing the "(Moderator)" label)
+	 * But this is a *HACK. The real reason of it was in incorrect logic while hiding profile/info/speaker buttons
+	 * *TODO: new reshape method should be provided in lieu of this one to be called when visibility if those buttons is changed
+	 */
 	void reshapeAvatarName();
+
+protected:
+	/**
+	 * Contains indicator to show voice activity. 
+	 */
+	LLOutputMonitorCtrl* mSpeakingIndicator;
 
 private:
 
@@ -100,7 +120,6 @@ private:
 	LLTextBox* mAvatarName;
 	LLTextBox* mLastInteractionTime;
 	
-	LLOutputMonitorCtrl* mSpeakingIndicator;
 	LLButton* mInfoBtn;
 	LLButton* mProfileBtn;
 	ContextMenu* mContextMenu;

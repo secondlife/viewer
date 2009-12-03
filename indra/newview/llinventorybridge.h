@@ -260,6 +260,9 @@ public:
 	virtual void clearDisplayName() { mDisplayName.clear(); }
 
 	LLViewerInventoryItem* getItem() const;
+	
+	bool isAddAction(std::string action) const;
+	bool isRemoveAction(std::string action) const;
 
 protected:
 	virtual BOOL isItemPermissive() const;
