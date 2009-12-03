@@ -17,7 +17,7 @@
         <accordion_tab
          layout="topleft"
          name="tab_outfits"
-         title="Outfits bar">
+         title="Outfits">
 	 <inventory_panel 
 	 	 allow_multi_select="true" 
 		 border="true" 
@@ -33,7 +33,7 @@
         <accordion_tab
          layout="topleft"
          name="tab_cof"
-         title="Current Outfit bar">
+         title="Current Outfit">
 	 <inventory_panel 
 	 	 allow_multi_select="true" 
 		 border="true" 
