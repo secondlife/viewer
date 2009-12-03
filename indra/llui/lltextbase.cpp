@@ -2397,12 +2397,20 @@ void LLNormalTextSegment::setToolTip(const std::string& tooltip)
 
 bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 {
-	LLWString text = mEditor.getWText();
-
 	height = mFontHeight;
-	width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
-	// if last character is a newline, then return true, forcing line break
-	llwchar last_char = text[mStart + first_char + num_chars - 1];
+	bool force_newline = false;
+	if (num_chars > 0)
+	{
+		LLWString text = mEditor.getWText();
+		width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
+		// if last character is a newline, then return true, forcing line break
+		llwchar last_char = text[mStart + first_char + num_chars - 1];
+		force_newline = (last_char == '\n');
+	}
+	else
+	{
+		width = 0;
+	}
 
 	LLUIImagePtr image = mStyle->getImage();
 	if( image.notNull())
@@ -2411,7 +2419,7 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 		height = llmax(height, image->getHeight());
 	}
 
-	return num_chars >= 1 && last_char == '\n';
+	return force_newline;
 }
 
 S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const
