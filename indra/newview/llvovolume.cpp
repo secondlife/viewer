@@ -1137,7 +1137,7 @@ void LLVOVolume::regenFaces()
 		
 		// If the face had media on it, this will have broken the link between the LLViewerMediaTexture and the face.
 		// Re-establish the link.
-		if(mMediaImplList.size() > i)
+		if((int)mMediaImplList.size() > i)
 		{
 			if(mMediaImplList[i])
 			{
