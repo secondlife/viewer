@@ -1313,6 +1313,16 @@ BOOL LLItemBridge::isItemPermissive() const
 	return FALSE;
 }
 
+bool LLItemBridge::isAddAction(std::string action) const
+{
+	return ("wear" == action || "attach" == action || "activate" == action);
+}
+
+bool LLItemBridge::isRemoveAction(std::string action) const
+{
+	return ("take_off" == action || "detach" == action || "deactivate" == action);
+}
+
 // +=================================================+
 // |        LLFolderBridge                           |
 // +=================================================+
@@ -3673,7 +3683,7 @@ std::string LLGestureBridge::getLabelSuffix() const
 // virtual
 void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
 {
-	if ("activate" == action)
+	if (isAddAction(action))
 	{
 		LLGestureManager::instance().activateGesture(mUUID);
 
@@ -3685,7 +3695,7 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
 	}
-	else if ("deactivate" == action)
+	else if (isRemoveAction(action))
 	{
 		LLGestureManager::instance().deactivateGesture(mUUID);
 
@@ -3870,7 +3880,7 @@ LLInventoryObject* LLObjectBridge::getObject() const
 // virtual
 void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
 {
-	if ("attach" == action)
+	if (isAddAction(action))
 	{
 		LLUUID object_id = mUUID;
 		LLViewerInventoryItem* item;
@@ -3893,7 +3903,7 @@ void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 		}
 		gFocusMgr.setKeyboardFocus(NULL);
 	}
-	else if ("detach" == action)
+	else if (isRemoveAction(action))
 	{
 		LLInventoryItem* item = gInventory.getItem(mUUID);
 		if(item)
@@ -4386,7 +4396,7 @@ LLUIImagePtr LLWearableBridge::getIcon() const
 // virtual
 void LLWearableBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
 {
-	if ("wear" == action)
+	if (isAddAction(action))
 	{
 		wearOnAvatar();
 	}
@@ -4399,7 +4409,7 @@ void LLWearableBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 		editOnAvatar();
 		return;
 	}
-	else if ("take_off" == action)
+	else if (isRemoveAction(action))
 	{
 		if(gAgentWearables.isWearingItem(mUUID))
 		{

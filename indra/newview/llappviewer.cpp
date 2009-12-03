@@ -899,6 +899,8 @@ bool LLAppViewer::init()
 		loadEventHostModule(gSavedSettings.getS32("QAModeEventHostPort"));
 	}
 	
+	LLViewerMedia::initClass();
+	
 	return true;
 }
 

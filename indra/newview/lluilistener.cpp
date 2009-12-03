@@ -29,7 +29,7 @@ LLUIListener::LLUIListener():
         "Invoke the operation named by [\"function\"], passing [\"parameter\"],\n"
         "as if from a user gesture on a menu -- or a button click.",
         &LLUIListener::call,
-        LLSD().insert("function", LLSD()));
+        LLSD().with("function", LLSD()));
 }
 
 void LLUIListener::call(const LLSD& event) const
