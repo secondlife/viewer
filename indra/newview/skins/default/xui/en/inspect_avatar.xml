@@ -32,11 +32,6 @@
      name="Details">
 [SL_PROFILE]
     </string>
-<!--  <string
-     name="Partner">
-    Partner: [PARTNER]
-  </string>   
--->
   <text
      follows="all"
      font="SansSerifLarge"
@@ -67,18 +62,6 @@
      top_pad="6"
      width="220">This is my second life description and I really think it is great.
     </text>
-<!--<text
-     follows="all"
-     height="13"
-     left="8"
-     name="user_partner"
-     top_pad="3"
-     width="220"
-     use_ellipses="true"
-     word_wrap="false">
-    Erica Linden
-    </text> 
--->
     <slider
      follows="top|left"
      height="23"
