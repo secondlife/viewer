@@ -163,7 +163,8 @@ public:
 	static void onIdle(void* user_data);
 
 	// Find whichever inventory panel is active / on top.
-	static LLInventoryPanel *getActiveInventoryPanel();
+	// "Auto_open" determines if we open an inventory panel if none are open.
+	static LLInventoryPanel *getActiveInventoryPanel(BOOL auto_open = TRUE);
 
 protected:
 	void defaultOpenInventory(); // open the first level of inventory

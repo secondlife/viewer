@@ -128,10 +128,6 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 			mTaskPanel->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
 		showTaskInfoPanel();
 	}
-	if (key.has("select"))
-	{
-		mPanelMainInventory->getPanel()->setSelection(key["select"].asUUID(), TAKE_FOCUS_NO);
-	}
 }
 
 void LLSidepanelInventory::onInfoButtonClicked()
