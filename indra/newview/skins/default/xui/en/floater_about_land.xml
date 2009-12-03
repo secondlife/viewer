@@ -196,14 +196,6 @@
              width="100">
                 Owner:
             </text>
-                <avatar_icon
-     follows="left|top"
-     height="16"
-     default_icon_name="Generic_Person"
-     layout="topleft"
-     left_pad="0"
-     mouse_opaque="true"
-     width="20" />
             <text
              type="string"
              length="1"
@@ -243,13 +235,7 @@
              width="100">
                 Group:
             </text>
-            <icon
-     height="16"
-     image_name="Generic_Group"
-     name="group_icon"
-     mouse_opaque="true"
-             left_pad="0"
-     width="20" />
+   <!--TODO: HOOK UP GROUP ICON-->
             <text
              enabled="false"
              follows="left|top"
@@ -269,7 +255,7 @@
      width="16" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Set"
              layout="topleft"
              left_pad="4"
@@ -278,7 +264,7 @@
              width="50" />
             <check_box
              enabled="false"
-             height="16"
+             height="23"
              label="Allow Deed to Group"
              layout="topleft"
              left="96"
@@ -289,7 +275,7 @@
             <button
              enabled="false"
              follows="left|top"
-             height="16"
+             height="23S"
              label="Deed"
              layout="topleft"
              left_pad="2"
@@ -327,7 +313,7 @@
              left_pad="2"
              name="Not for sale."
              width="186">
-                Not for sale.
+                Not for sale
             </text>
             <text
              type="string"
@@ -338,7 +324,7 @@
              left_delta="0"
              name="For Sale: Price L$[PRICE]."
              width="226">
-                Price: L$[PRICE] (L$[PRICE_PER_SQM]/m²).
+                Price: L$[PRICE] (L$[PRICE_PER_SQM]/m²)
             </text>
             <text
              enabled="false"
@@ -347,17 +333,16 @@
              layout="topleft"
              left_delta="0"
              name="SalePending"
-             top_pad="4"
+             top_pad="6"
              width="324" />
             <button
              follows="left|top"
-             height="16"
+             height="23"
              label="Sell Land"
              layout="topleft"
              left_pad="5"
              right="-10"
              name="Sell Land..."
-             top_delta="0"
              width="145" />
             <text
              type="string"
@@ -367,7 +352,7 @@
              layout="topleft"
              left_delta="-199"
              name="For sale to"
-             top_delta="0"
+             top_delta="6"
              width="186">
                 For sale to: [BUYER]
             </text>
@@ -379,9 +364,9 @@
              layout="topleft"
              left_delta="0"
              name="Sell with landowners objects in parcel."
-             top_pad="4"
+             top_pad="8"
              width="186">
-                Objects included in sale.
+                Objects included in sale
             </text>
             <text
              type="string"
@@ -393,11 +378,11 @@
              name="Selling with no objects in parcel."
              top_delta="0"
              width="186">
-                Objects not included in sale.
+                Objects not included in sale
             </text>
             <button
              follows="left|top"
-             height="20"
+             height="23"
              label="Cancel Land Sale"
              label_selected="Cancel Land Sale"
              layout="topleft"
@@ -480,27 +465,27 @@
             <button
              enabled="false"
              follows="left|top"
-             height="20"
+             height="23"
              label="Buy Land"
              layout="topleft"
-             left="155"
+             left_delta="82"
              name="Buy Land..."
              top="328"
              width="100" />
             <button
              enabled="false"
              follows="left|top"
-             height="20"
+             height="23"
              label="Buy For Group"
              layout="topleft"
-             left="260"
+             right="-10"
              name="Buy For Group..."
              top="352"
              width="180" />
             <button
              enabled="false"
              follows="left|top"
-             height="20"
+             height="23"
              label="Buy Pass"
              layout="topleft"
              left_delta="-105"
@@ -510,26 +495,26 @@
              width="100" />
             <button
              follows="left|top"
-             height="20"
+             height="23"
              label="Abandon Land"
              layout="topleft"
-             left="260"
+             right="-10"
              name="Abandon Land..."
              top="328"
              width="180" />
             <button
              follows="left|top"
-             height="20"
+             height="23"
              label="Reclaim Land"
              layout="topleft"
              left_delta="0"
              name="Reclaim Land..."
-             top_delta="-48"
+             top_delta="-50"
              width="180" />
             <button
              enabled="false"
              follows="left|top"
-             height="20"
+             height="23"
              label="Linden Sale"
              layout="topleft"
              left_delta="0"
@@ -1063,16 +1048,16 @@
              width="104">
                 Object Owners:
             </text>
-            <button
-             follows="left|top"
-             height="20"
-             label="Refresh List"
-             label_selected="Refresh List"
-             layout="topleft"
-             left_delta="104"
-             name="Refresh List"
-             top_delta="0"
-             width="106" />
+             <button
+     follows="top|right"
+     height="20"
+     image_overlay="Refresh_Off"
+     layout="topleft"
+     name="Refresh List"
+     left_pad="5"
+     right="-183"
+     tool_tip="Refresh Object List"
+     width="20" />
             <button
              enabled="false"
              follows="left|top"
@@ -1315,7 +1300,7 @@ Only large parcels can be listed in search.
              width="430" />
             <combo_box
              enabled="false"
-             height="18"
+             height="20"
              layout="topleft"
              left="30"
              name="land category with adult"
@@ -1376,7 +1361,7 @@ Only large parcels can be listed in search.
             </combo_box>
             <combo_box
              enabled="false"
-             height="18"
+             height="20"
              layout="topleft"
              left="30"
              name="land category"
@@ -1437,7 +1422,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="14"
              name="MatureCheck"
-             top="180"
+             top="177"
              tool_tip=" "
              width="107" />
             <text
@@ -1449,6 +1434,7 @@ Only large parcels can be listed in search.
              left="10"
              name="Snapshot:"
              text_color="white"
+             top="220"
              width="200">
                 Snapshot:
             </text>
@@ -1481,6 +1467,7 @@ Only large parcels can be listed in search.
              label_selected="Set"
              layout="topleft"
              name="Set"
+             right="-68"
              tool_tip="Sets the landing point where visitors arrive. Sets to your avatar&apos;s location inside this parcel."
              width="50" />
             <button
@@ -1588,7 +1575,7 @@ Only large parcels can be listed in search.
              width="300" />
             <button
              follows="right|top"
-             height="20"
+             height="22"
              label="Set"
              layout="topleft"
              left_pad="5"
@@ -1660,6 +1647,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="Media texture:"
+             top_pad="10"
              width="364"
              word_wrap="true">
                 Replace Texture:
@@ -1877,13 +1865,13 @@ Select the thumbnail to choose a different texture.
              type="string"
              length="1"
              follows="left|top"
-
              height="16"
              layout="topleft"
-             left="8"
+             left="10"
              name="Limit access to this parcel to:"
-             top="4"
-             width="278">
+             text_color="White"
+             top="10"
+             width="400">
                 Access To This Parcel
             </text>
             <check_box
@@ -1938,7 +1926,7 @@ Select the thumbnail to choose a different texture.
              width="278" />
             <check_box
              enabled="false"
-             height="16"
+             height="22"
              label="Sell passes to:"
              layout="topleft"
              left_delta="0"
@@ -1947,7 +1935,7 @@ Select the thumbnail to choose a different texture.
              top_pad="4"
              width="120" />
             <combo_box
-             height="16"
+             height="20"
              layout="topleft"
              left_pad="22"
              name="pass_combo"
@@ -1965,7 +1953,7 @@ Select the thumbnail to choose a different texture.
             <spinner
              enabled="false"
              follows="left|top"
-             height="16"
+             height="22"
              increment="1"
              initial_value="10"
              label="Price in L$:"
@@ -1975,12 +1963,12 @@ Select the thumbnail to choose a different texture.
              max_val="500"
              min_val="1"
              name="PriceSpin"
-             top="149"
-             width="180" />
+             top_pad="5"
+             width="200" />
             <spinner
              enabled="false"
              follows="left|top"
-             height="16"
+             height="22"
              increment="0.25"
              initial_value="1"
              label="Hours of access:"
@@ -1990,8 +1978,15 @@ Select the thumbnail to choose a different texture.
              max_val="24"
              min_val="0.01"
              name="HoursSpin"
-             top_pad="4"
-             width="180" />
+             top_pad="5"
+             width="200" />
+            <panel
+            name="Allowed_layout_panel"
+            follows="top|left"
+            left="10"
+            height="170"
+             top_pad="8"
+            width="240">
             <text
              type="string"
              length="1"
@@ -1999,43 +1994,48 @@ Select the thumbnail to choose a different texture.
              height="16"
              label="Always Allow"
              layout="topleft"
-             left="20"
+             left="0"
              name="AllowedText"
-             top="204"
-             width="195">
+             top="0"
+             width="230">
                 Allowed Residents
             </text>
             <name_list
              column_padding="0"
              follows="top|bottom"
              heading_height="14"
-             height="80"
+             height="120"
              layout="topleft"
-             left_delta="0"
+             left="0"
              multi_select="true"
              name="AccessList"
              tool_tip="([LISTED] listed, [MAX] max)"
-             top_pad="4"
-             width="195" />
+             width="240" />
             <button
              follows="bottom"
-             height="16"
+             height="23"
              label="Add"
              layout="topleft"
-             left_delta="5"
+             left="0"
              name="add_allowed"
-             top="308"
-             width="80" />
+             width="100" />
             <button
              follows="bottom"
-             height="16"
+             height="23"
              label="Remove"
              label_selected="Remove"
              layout="topleft"
-             left_pad="20"
+             left_pad="10"
              name="remove_allowed"
-             top_delta="0"
-             width="80" />
+             right="-1"
+             width="100" />
+             </panel>
+            <panel
+            name="Banned_layout_panel"
+            follows="top|right"
+            height="170"
+            width="240"
+            left_pad="8">
             <text
              type="string"
              length="1"
@@ -2043,44 +2043,43 @@ Select the thumbnail to choose a different texture.
              height="16"
              label="Ban"
              layout="topleft"
-             left="240"
+             left="0"
              name="BanCheck"
-             top="204"
-             width="195">
+             top="0"
+             width="200">
                 Banned Residents
             </text>
             <name_list
              column_padding="0"
              follows="top|bottom"
              heading_height="14"
-             height="80"
+             height="120"
              layout="topleft"
-             left_delta="0"
+             left="0"
              multi_select="true"
              name="BannedList"
              tool_tip="([LISTED] listed, [MAX] max)"
-             top_pad="4"
-             width="195" />
+             width="240" />
             <button
              follows="bottom"
-             height="16"
+             height="23"
              label="Add"
              layout="topleft"
-             left_delta="5"
+             left="0"
              name="add_banned"
-             top="308"
-             width="80" />
+             width="100" />
             <button
              enabled="false"
              follows="bottom"
-             height="16"
+             height="23"
              label="Remove"
              label_selected="Remove"
              layout="topleft"
-             left_pad="20"
+             left_pad="10"
              name="remove_banned"
-             top_delta="0"
-             width="80" />
+             right="-1"
+             width="100" />
+             </panel>
         </panel>
     </tab_container>
 </floater>
