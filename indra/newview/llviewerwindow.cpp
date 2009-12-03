@@ -50,6 +50,7 @@
 
 #include "llviewquery.h"
 #include "llxmltree.h"
+#include "llslurl.h"
 //#include "llviewercamera.h"
 #include "llrender.h"
 
@@ -79,6 +80,8 @@
 #include "timing.h"
 #include "llviewermenu.h"
 #include "lltooltip.h"
+#include "llmediaentry.h"
+#include "llurldispatcher.h"
 
 // newview includes
 #include "llagent.h"
@@ -818,6 +821,83 @@ BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MAS
   
   	// Always handled as far as the OS is concerned.
 	return TRUE;
+}
+
+LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *window, LLCoordGL pos, MASK mask, BOOL drop, std::string data)
+{
+	LLWindowCallbacks::DragNDropResult result = LLWindowCallbacks::DND_NONE;
+	if (gSavedSettings.getBOOL("PrimMediaDragNDrop"))
+	{
+		// special case SLURLs
+		if ( drop && std::string::npos != data.find("slurl.com") )
+		{
+			LLURLDispatcher::dispatch( data, NULL, true );
+			LLURLSimString::setString( LLSLURL::stripProtocol( data ) );
+			LLPanelLogin::refreshLocation( true );
+			LLPanelLogin::updateLocationUI();
+			return LLWindowCallbacks::DND_MOVE;
+		};
+
+		LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/ );
+
+		LLUUID object_id = pick_info.getObjectID();
+		S32 object_face = pick_info.mObjectFace;
+		std::string url = data;
+
+		llinfos << "### Object: picked at " << pos.mX << ", " << pos.mY << " - face = " << object_face << " - URL = " << url << llendl;
+
+		LLVOVolume *obj = dynamic_cast<LLVOVolume*>(static_cast<LLViewerObject*>(pick_info.getObject()));
+		
+		if (obj && obj->permModify())
+		{
+			LLTextureEntry *te = obj->getTE(object_face);
+			if (te)
+			{
+				if (drop)
+				{
+					if (! te->hasMedia())
+					{
+						// Create new media entry
+						LLSD media_data;
+						// XXX Should we really do Home URL too?
+						media_data[LLMediaEntry::HOME_URL_KEY] = url;
+						media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
+						media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
+						obj->syncMediaData(object_face, media_data, true, true);
+						// XXX This shouldn't be necessary, should it ?!?
+						obj->getMediaImpl(object_face)->navigateReload();
+						obj->sendMediaDataUpdate();
+						
+						result = LLWindowCallbacks::DND_COPY;
+					}
+					else {
+						// just navigate to the URL
+						obj->getMediaImpl(object_face)->navigateTo(url);
+						
+						result = LLWindowCallbacks::DND_LINK;
+					}
+					LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
+					mDragHoveredObject = NULL;
+					
+				}
+				else {
+					mDragHoveredObject = obj;
+					// Highlight the dragged object
+					LLSelectMgr::getInstance()->highlightObjectOnly(mDragHoveredObject);
+					
+					result = (! te->hasMedia()) ? LLWindowCallbacks::DND_COPY : LLWindowCallbacks::DND_LINK;
+				}
+			}
+		}
+
+		if (result == LLWindowCallbacks::DND_NONE && !mDragHoveredObject.isNull())
+		{
+			LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
+			mDragHoveredObject = NULL;
+		}
+	}
+	
+	return result;
 }
   
 BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
