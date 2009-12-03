@@ -42,7 +42,6 @@
 
 #include "llfloaterreg.h"//for LLFloaterReg::getTypedInstance
 #include "llviewerwindow.h"//for screen channel position
-#include "lltrans.h"
 
 //add LLNearbyChatHandler to LLNotificationsUI namespace
 using namespace LLNotificationsUI;
@@ -319,20 +318,6 @@ void LLNearbyChatHandler::initChannel()
 	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
 }
 
-std::string appendTime()
-{
-	time_t utc_time;
-	utc_time = time_corrected();
-	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
-		+LLTrans::getString("TimeMin")+"] ";
-
-	LLSD substitution;
-
-	substitution["datetime"] = (S32) utc_time;
-	LLStringUtil::format (timeStr, substitution);
-
-	return timeStr;
-}
 
 
 void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
@@ -346,9 +331,6 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 		return;//don't process empty messages
 
 	LLChat& tmp_chat = const_cast<LLChat&>(chat_msg);
-
-	if(tmp_chat.mTimeStr.empty())
-		tmp_chat.mTimeStr = appendTime();
 
 	if (tmp_chat.mChatStyle == CHAT_STYLE_IRC)
 	{

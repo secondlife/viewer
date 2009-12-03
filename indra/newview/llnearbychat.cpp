@@ -58,6 +58,7 @@
 #include "llbottomtray.h"
 #include "llnearbychatbar.h"
 #include "llfloaterreg.h"
+#include "lltrans.h"
 
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
@@ -131,6 +132,21 @@ void    LLNearbyChat::applySavedVariables()
 	}
 }
 
+std::string appendTime()
+{
+	time_t utc_time;
+	utc_time = time_corrected();
+	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
+		+LLTrans::getString("TimeMin")+"] ";
+
+	LLSD substitution;
+
+	substitution["datetime"] = (S32) utc_time;
+	LLStringUtil::format (timeStr, substitution);
+
+	return timeStr;
+}
+
 
 void	LLNearbyChat::addMessage(const LLChat& chat,bool archive)
 {
@@ -152,6 +168,11 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive)
 			return;
 		}
 	}
+
+	LLChat& tmp_chat = const_cast<LLChat&>(chat);
+
+	if(tmp_chat.mTimeStr.empty())
+		tmp_chat.mTimeStr = appendTime();
 
 	bool use_plain_text_chat_history = gSavedSettings.getBOOL("PlainTextChatHistory");
 	
