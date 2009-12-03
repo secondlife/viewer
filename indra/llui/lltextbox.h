@@ -79,4 +79,10 @@ protected:
 	callback_t			mClickedCallback;
 };
 
+// Build time optimization, generate once in .cpp file
+#ifndef LLTEXTBOX_CPP
+extern template class LLTextBox* LLView::getChild<class LLTextBox>(
+	const std::string& name, BOOL recurse) const;
+#endif
+
 #endif

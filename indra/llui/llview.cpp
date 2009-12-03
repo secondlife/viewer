@@ -33,6 +33,7 @@
 
 #include "linden_common.h"
 
+#define LLVIEW_CPP
 #include "llview.h"
 
 #include <cassert>
@@ -76,7 +77,16 @@ std::vector<LLViewDrawContext*> LLViewDrawContext::sDrawContextStack;
 BOOL LLView::sIsDrawing = FALSE;
 #endif
 
+// Compiler optimization, generate extern template
+template class LLView* LLView::getChild<class LLView>(
+	const std::string& name, BOOL recurse) const;
+
 static LLDefaultChildRegistry::Register<LLView> r("view");
+
+LLView::Follows::Follows()
+:   string(""),
+	flags("flags", FOLLOWS_LEFT | FOLLOWS_TOP)
+{}
 
 LLView::Params::Params()
 :	name("name", std::string("unnamed")),

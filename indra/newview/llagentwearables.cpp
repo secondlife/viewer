@@ -50,6 +50,10 @@
 #include "llgesturemgr.h"
 #include "llappearancemgr.h"
 #include "lltexlayer.h"
+#include "llsidetray.h"
+#include "llpaneloutfitsinventory.h"
+#include "llfolderview.h"
+#include "llaccordionctrltab.h"
 
 #include <boost/scoped_ptr.hpp>
 
@@ -409,7 +413,7 @@ void LLAgentWearables::saveWearable(const EWearableType type, const U32 index, B
 			return;
 		}
 
-		gAgent.getAvatarObject()->wearableUpdated( type );
+		gAgent.getAvatarObject()->wearableUpdated( type, TRUE );
 
 		if (send_update)
 		{
@@ -699,7 +703,7 @@ U32 LLAgentWearables::pushWearable(const EWearableType type, LLWearable *wearabl
 
 void LLAgentWearables::wearableUpdated(LLWearable *wearable)
 {
-	mAvatarObject->wearableUpdated(wearable->getType());
+	mAvatarObject->wearableUpdated(wearable->getType(), TRUE);
 	wearable->setLabelUpdated();
 
 	// Hack pt 2. If the wearable we just loaded has definition version 24,
@@ -740,7 +744,7 @@ void LLAgentWearables::popWearable(const EWearableType type, U32 index)
 	if (wearable)
 	{
 		mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
-		mAvatarObject->wearableUpdated(wearable->getType());
+		mAvatarObject->wearableUpdated(wearable->getType(), TRUE);
 		wearable->setLabelUpdated();
 	}
 }
@@ -1296,6 +1300,41 @@ void LLAgentWearables::makeNewOutfit(const std::string& new_folder_name,
 	} 
 }
 
+class LLAutoRenameFolder: public LLInventoryCallback
+{
+public:
+	LLAutoRenameFolder(LLUUID& folder_id):
+		mFolderID(folder_id)
+	{
+	}
+
+	virtual ~LLAutoRenameFolder()
+	{
+		LLSD key;
+		LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
+		LLPanelOutfitsInventory *outfit_panel =
+			dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
+		if (outfit_panel)
+		{
+			outfit_panel->getRootFolder()->clearSelection();
+			outfit_panel->getRootFolder()->setSelectionByID(mFolderID, TRUE);
+			outfit_panel->getRootFolder()->setNeedsAutoRename(TRUE);
+		}
+		LLAccordionCtrlTab* tab_outfits = outfit_panel ? outfit_panel->findChild<LLAccordionCtrlTab>("tab_outfits") : 0;
+		if (tab_outfits && !tab_outfits->getDisplayChildren())
+		{
+			tab_outfits->changeOpenClose(tab_outfits->getDisplayChildren());
+		}
+	}
+	
+	virtual void fire(const LLUUID&)
+	{
+	}
+	
+private:
+	LLUUID mFolderID;
+};
+
 LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
 {
 	if (mAvatarObject.isNull())
@@ -1310,17 +1349,9 @@ LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
 		LLFolderType::FT_OUTFIT,
 		new_folder_name);
 
-	LLAppearanceManager::instance().shallowCopyCategory(LLAppearanceManager::instance().getCOF(),folder_id, NULL);
+	LLPointer<LLInventoryCallback> cb = new LLAutoRenameFolder(folder_id);
+	LLAppearanceManager::instance().shallowCopyCategory(LLAppearanceManager::instance().getCOF(),folder_id, cb);
 	
-#if 0  // BAP - fix to go into rename state automatically after outfit is created.
-	LLViewerInventoryCategory *parent_category = gInventory.getCategory(parent_id);
-	if (parent_category)
-	{
-		parent_category->setSelectionByID(folder_id,TRUE);
-		parent_category->setNeedsAutoRename(TRUE);
-	}
-#endif
-
 	return folder_id;
 }
 

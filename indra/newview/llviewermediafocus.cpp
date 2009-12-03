@@ -138,15 +138,6 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 	}
 	else
 	{
-		if(mFocusedImplID.notNull())
-		{
-			if(mMediaControls.get())
-			{
-				// Don't reset camera zoom by default, just tell the controls they're no longer controlling zoom.
-				mMediaControls.get()->resetZoomLevel(false);
-			}
-		}
-
 		if(hasFocus())
 		{
 			gFocusMgr.setKeyboardFocus(NULL);

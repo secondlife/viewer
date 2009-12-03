@@ -35,7 +35,6 @@
 
 #include <typeinfo>
 #include <boost/noncopyable.hpp>
-#include <boost/any.hpp>
 
 /// @brief A global registry of all singletons to prevent duplicate allocations
 /// across shared library boundaries

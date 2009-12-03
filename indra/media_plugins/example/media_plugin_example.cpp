@@ -2,6 +2,7 @@
  * @file media_plugin_example.cpp
  * @brief Example plugin for LLMedia API plugin system
  *
+ * @cond
  * $LicenseInfo:firstyear=2008&license=viewergpl$
  *
  * Copyright (c) 2009, Linden Research, Inc.
@@ -27,6 +28,7 @@
  * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
+ * @endcond
  */
 
 #include "linden_common.h"

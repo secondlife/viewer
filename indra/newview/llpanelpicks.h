@@ -94,8 +94,6 @@ private:
 	void onClickTeleport();
 	void onClickMap();
 
-	void onOverflowMenuItemClicked(const LLSD& param);
-	void onOverflowButtonClicked();
 	void onPlusMenuItemClicked(const LLSD& param);
 
 	void onListCommit(const LLFlatListView* f_list);
@@ -149,7 +147,6 @@ private:
 	LLPanelClassifiedInfo* mPanelClassifiedInfo;
 	LLPanelClassifiedEdit* mPanelClassifiedEdit;
 	LLPanelPickEdit* mPanelPickEdit;
-	LLToggleableMenu* mOverflowMenu;
 	LLToggleableMenu* mPlusMenu;
 
 	LLAccordionCtrlTab* mPicksAccTab;

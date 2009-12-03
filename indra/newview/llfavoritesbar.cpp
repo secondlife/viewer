@@ -355,8 +355,8 @@ struct LLFavoritesSort
 };
 
 LLFavoritesBarCtrl::Params::Params()
-: chevron_button_tool_tip("chevron_button_tool_tip"),
-  image_drag_indication("image_drag_indication")
+: image_drag_indication("image_drag_indication"),
+  chevron_button("chevron_button")
 {
 }
 
@@ -365,7 +365,6 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	mFont(p.font.isProvided() ? p.font() : LLFontGL::getFontSansSerifSmall()),
 	mPopupMenuHandle(),
 	mInventoryItemsPopupMenuHandle(),
-	mChevronButtonToolTip(p.chevron_button_tool_tip),
 	mImageDragIndication(p.image_drag_indication),
 	mShowDragMarker(FALSE),
 	mLandingTab(NULL),
@@ -381,6 +380,12 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 		boost::bind(&LLFavoritesBarCtrl::enableSelected, this, _2));
 	
 	gInventory.addObserver(this);
+
+	//make chevron button                                                                                                                               
+	LLButton::Params chevron_button_params(p.chevron_button);                                         
+	chevron_button_params.click_callback.function(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));     
+	mChevronButton = LLUICtrlFactory::create<LLButton> (chevron_button_params);
+	addChild(mChevronButton); 
 }
 
 LLFavoritesBarCtrl::~LLFavoritesBarCtrl()
@@ -653,10 +658,6 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 	buttonXMLNode->getAttributeS32("left", buttonHGap);
 	
 	S32 count = mItems.count();
-
-	const S32 buttonHPad = LLUI::sSettingGroups["config"]->getS32("ButtonHPad");
-	const S32 chevron_button_width = mFont->getWidth(">>") + buttonHPad * 2;
-
 	S32 buttons_space = bar_width - buttonHGap;
 
 	S32 first_drop_down_item = count;
@@ -670,7 +671,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 		{
 			// There is no space for all buttons.
 			// Calculating the number of buttons, that are fit with chevron button
-			buttons_space -= chevron_button_width + buttonHGap;
+			buttons_space -= mChevronButton->getRect().getWidth() + buttonHGap;
 			while (i >= 0 && buttons_width > buttons_space)
 			{
 				buttons_width -= buttonWidth + buttonHGap;
@@ -718,7 +719,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 			child_list_const_iter_t cur_it = child_it++;
 			LLView* viewp = *cur_it;
 			LLButton* button = dynamic_cast<LLButton*>(viewp);
-			if (button)
+			if (button && (button != mChevronButton))
 			{
 				removeChild(button);
 				delete button;
@@ -732,55 +733,15 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 	if (mFirstDropDownItem != count)
 	{
 		// Chevron button should stay right aligned
-		LLView *chevron_button = findChildView(std::string(">>"), FALSE);
-		if (chevron_button)
-		{
-			LLRect rect;
-			rect.setOriginAndSize(bar_width - chevron_button_width - buttonHGap, 0, chevron_button_width, getRect().getHeight());
-			chevron_button->setRect(rect);
-			chevron_button->setVisible(TRUE);
-			mChevronRect = rect;
-		}
-		else
-		{
-			static LLButton::Params default_button_params(LLUICtrlFactory::getDefaultParams<LLButton>());
-			std::string flat_icon			= "transparent.j2c";
-			std::string hover_icon			= default_button_params.image_unselected.name;
-			std::string hover_icon_selected	= default_button_params.image_selected.name;
-
-			LLButton::Params bparams;
-
-			LLRect rect;
-			rect.setOriginAndSize(bar_width - chevron_button_width - buttonHGap, 0, chevron_button_width, getRect().getHeight());
-
-			bparams.follows.flags (FOLLOWS_LEFT | FOLLOWS_BOTTOM);
-			bparams.image_unselected.name(flat_icon);
-			bparams.image_disabled.name(flat_icon);
-			bparams.image_selected.name(hover_icon_selected);
-			bparams.image_hover_selected.name(hover_icon_selected);
-			bparams.image_disabled_selected.name(hover_icon_selected);
-			bparams.image_hover_unselected.name(hover_icon);
-			bparams.rect (rect);
-			bparams.tab_stop(false);
-			bparams.font(mFont);
-			bparams.name(">>");
-			bparams.label(">>");
-			bparams.tool_tip(mChevronButtonToolTip);
-			bparams.click_callback.function(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));
-
-			addChildInBack(LLUICtrlFactory::create<LLButton> (bparams));
-
-			mChevronRect = rect;
-		}
+		LLRect rect;
+		rect.setOriginAndSize(bar_width - mChevronButton->getRect().getWidth() - buttonHGap, 0, mChevronButton->getRect().getWidth(), mChevronButton->getRect().getHeight());
+		mChevronButton->setRect(rect);
+		mChevronButton->setVisible(TRUE);
 	}
 	else
 	{
 		// Hide chevron button if all items are visible on bar
-		LLView *chevron_button = findChildView(std::string(">>"), FALSE);
-		if (chevron_button)
-		{
-			chevron_button->setVisible(FALSE);
-		}
+		mChevronButton->setVisible(FALSE);
 	}
 }
 
@@ -917,7 +878,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 
 				if (menu->getButtonRect().isEmpty())
 				{
-					menu->setButtonRect(mChevronRect, this);
+					menu->setButtonRect(mChevronButton->getRect(), this);
 				}
 
 				LLMenuGL::showPopup(this, menu, getRect().getWidth() - menu->getRect().getWidth(), 0);
@@ -981,7 +942,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 		menu->buildDrawLabels();
 		menu->updateParent(LLMenuGL::sMenuContainer);
 
-		menu->setButtonRect(mChevronRect, this);
+		menu->setButtonRect(mChevronButton->getRect(), this);
 
 		LLMenuGL::showPopup(this, menu, getRect().getWidth() - max_width, 0);
 		

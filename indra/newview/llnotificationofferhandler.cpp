@@ -39,6 +39,7 @@
 #include "llviewerwindow.h"
 #include "llnotificationmanager.h"
 #include "llnotifications.h"
+#include "llscriptfloater.h"
 
 using namespace LLNotificationsUI;
 
@@ -90,26 +91,44 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
-		LLHandlerUtil::logToIM(notification);
+		LLHandlerUtil::logToIMP2P(notification);
 
-		LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
+		if( notification->getPayload().has("give_inventory_notification")
+			&& !notification->getPayload()["give_inventory_notification"] )
+		{
+			// This is an original inventory offer, so add a script floater
+			LLScriptFloaterManager::instance().onAddNotification(notification->getID());
+		}
+		else
+		{
+			LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
 
-		LLToast::Params p;
-		p.notif_id = notification->getID();
-		p.notification = notification;
-		p.panel = notify_box;
-		p.on_delete_toast = boost::bind(&LLOfferHandler::onDeleteToast, this, _1);
+			LLToast::Params p;
+			p.notif_id = notification->getID();
+			p.notification = notification;
+			p.panel = notify_box;
+			p.on_delete_toast = boost::bind(&LLOfferHandler::onDeleteToast, this, _1);
+			
+			LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+			if(channel)
+				channel->addToast(p);
 
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
-		if(channel)
-			channel->addToast(p);
-
-		// send a signal to the counter manager
-		mNewNotificationSignal();
+			// send a signal to the counter manager
+			mNewNotificationSignal();
+		}
 	}
 	else if (notify["sigtype"].asString() == "delete")
 	{
-		mChannel->killToastByNotificationID(notification->getID());
+		if( notification->getPayload().has("give_inventory_notification")
+			&& !notification->getPayload()["give_inventory_notification"] )
+		{
+			// Remove original inventory offer script floater
+			LLScriptFloaterManager::instance().onRemoveNotification(notification->getID());
+		}
+		else
+		{
+			mChannel->killToastByNotificationID(notification->getID());
+		}
 	}
 
 	return true;

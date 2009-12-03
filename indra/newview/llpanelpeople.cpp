@@ -1298,7 +1298,7 @@ void LLPanelPeople::notifyChildren(const LLSD& info)
 		if (container->getCurrentPanelIndex() > 0) 
 		{
 			// if not on the default panel, switch to it
-			container->onOpen(LLSD().insert(LLSideTrayPanelContainer::PARAM_SUB_PANEL_NAME, getName()));
+			container->onOpen(LLSD().with(LLSideTrayPanelContainer::PARAM_SUB_PANEL_NAME, getName()));
 		}
 		else
 			LLSideTray::getInstance()->collapseSideBar();

@@ -156,6 +156,7 @@ LLTextBase::Params::Params()
 	read_only("read_only", false),
 	v_pad("v_pad", 0),
 	h_pad("h_pad", 0),
+	clip_partial("clip_partial", true),
 	line_spacing("line_spacing"),
 	max_text_length("max_length", 255),
 	font_shadow("font_shadow"),
@@ -193,6 +194,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mHAlign(p.font_halign),
 	mLineSpacingMult(p.line_spacing.multiple),
 	mLineSpacingPixels(p.line_spacing.pixels),
+	mClipPartial(p.clip_partial),
 	mTrackEnd( p.track_end ),
 	mScrollIndex(-1),
 	mSelectionStart( 0 ),
@@ -379,10 +381,10 @@ void LLTextBase::drawSelectionBackground()
 		
 		// Draw the selection box (we're using a box instead of reversing the colors on the selected text).
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		const LLColor4& color = mReadOnly ? mReadOnlyBgColor.get() : mWriteableBgColor.get();
+		const LLColor4& color = mReadOnly ? mReadOnlyFgColor.get() : mFgColor.get();
 		F32 alpha = hasFocus() ? 0.7f : 0.3f;
 		alpha *= getDrawContext().mAlpha;
-		gGL.color4f( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], alpha );
+		LLColor4 selection_color(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], alpha);
 
 		for (std::vector<LLRect>::iterator rect_it = selection_rects.begin();
 			rect_it != selection_rects.end();
@@ -390,7 +392,7 @@ void LLTextBase::drawSelectionBackground()
 		{
 			LLRect selection_rect = *rect_it;
 			selection_rect.translate(mTextRect.mLeft - content_display_rect.mLeft, mTextRect.mBottom - content_display_rect.mBottom);
-			gl_rect_2d(selection_rect);
+			gl_rect_2d(selection_rect, selection_color);
 		}
 	}
 }
@@ -504,7 +506,7 @@ void LLTextBase::drawText()
 	}
 
 	LLRect scrolled_view_rect = getVisibleDocumentRect();
-	std::pair<S32, S32> line_range = getVisibleLines();
+	std::pair<S32, S32> line_range = getVisibleLines(mClipPartial);
 	S32 first_line = line_range.first;
 	S32 last_line = line_range.second;
 	if (first_line >= last_line)
@@ -524,6 +526,7 @@ void LLTextBase::drawText()
 
 	for (S32 cur_line = first_line; cur_line < last_line; cur_line++)
 	{
+		S32 next_line = cur_line + 1;
 		line_info& line = mLineInfoList[cur_line];
 
 		if ((line.mRect.mTop - scrolled_view_rect.mBottom) < mTextRect.mBottom) 
@@ -534,15 +537,15 @@ void LLTextBase::drawText()
 		S32 next_start = -1;
 		S32 line_end = text_len;
 
-		if ((cur_line + 1) < getLineCount())
+		if (next_line < getLineCount())
 		{
-			next_start = getLineStart(cur_line + 1);
+			next_start = getLineStart(next_line);
 			line_end = next_start;
 		}
 
 		LLRect text_rect(line.mRect.mLeft + mTextRect.mLeft - scrolled_view_rect.mLeft,
 						line.mRect.mTop - scrolled_view_rect.mBottom + mTextRect.mBottom,
-						mDocumentView->getRect().getWidth() - scrolled_view_rect.mLeft,
+						llmin(mDocumentView->getRect().getWidth(), line.mRect.mRight) - scrolled_view_rect.mLeft,
 						line.mRect.mBottom - scrolled_view_rect.mBottom + mTextRect.mBottom);
 
 		// draw a single line of text
@@ -562,6 +565,17 @@ void LLTextBase::drawText()
 			}
 			
 			S32 clipped_end	=	llmin( line_end, cur_segment->getEnd() )  - cur_segment->getStart();
+
+			if (mUseEllipses
+				&& clipped_end == line_end 
+				&& next_line == last_line 
+				&& last_line < (S32)mLineInfoList.size())
+			{
+				// more text to go, but we can't fit it
+				// so attempt to draw one extra character to force ellipses
+				clipped_end++;
+			}
+
 			text_rect.mLeft = (S32)(cur_segment->draw(seg_start - cur_segment->getStart(), clipped_end, selection_left, selection_right, text_rect));
 
 			seg_start = clipped_end + cur_segment->getStart();
@@ -641,8 +655,6 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
 	if ( truncate() )
 	{
-		// The user's not getting everything he's hoping for
-		make_ui_sound("UISndBadKeystroke");
 		insert_len = getLength() - old_len;
 	}
 
@@ -1070,6 +1082,8 @@ void LLTextBase::reflow(S32 start_index)
 
 		LLRect old_cursor_rect = getLocalRectFromDocIndex(mCursorPos);
 		bool follow_selection = mTextRect.overlaps(old_cursor_rect); // cursor is visible
+		old_cursor_rect.translate(-mTextRect.mLeft, -mTextRect.mBottom);
+
 		S32 first_line = getFirstVisibleLine();
 
 		// if scroll anchor not on first line, update it to first character of first line
@@ -1080,6 +1094,8 @@ void LLTextBase::reflow(S32 start_index)
 			mScrollIndex = mLineInfoList[first_line].mDocIndexStart;
 		}
 		LLRect first_char_rect = getLocalRectFromDocIndex(mScrollIndex);
+		// subtract off effect of horizontal scrollbar from local position of first char
+		first_char_rect.translate(-mTextRect.mLeft, -mTextRect.mBottom);
 
 		S32 cur_top = 0;
 
@@ -1178,6 +1194,10 @@ void LLTextBase::reflow(S32 start_index)
 				++seg_iter;
 				seg_offset = 0;
 			}
+			if (force_newline) 
+			{
+				line_count++;
+			}
 		}
 
 		// calculate visible region for diplaying text
@@ -1195,7 +1215,6 @@ void LLTextBase::reflow(S32 start_index)
 		// apply scroll constraints after reflowing text
 		if (!hasMouseCapture() && mScroller)
 		{
-			LLRect visible_content_rect = getVisibleDocumentRect();
 			if (scrolled_to_bottom && mTrackEnd)
 			{
 				// keep bottom of text buffer visible
@@ -1204,18 +1223,14 @@ void LLTextBase::reflow(S32 start_index)
 			else if (hasSelection() && follow_selection)
 			{
 				// keep cursor in same vertical position on screen when selecting text
-				LLRect new_cursor_rect_doc = getLocalRectFromDocIndex(mCursorPos);
-				new_cursor_rect_doc.translate(visible_content_rect.mLeft, visible_content_rect.mBottom);
+				LLRect new_cursor_rect_doc = getDocRectFromDocIndex(mCursorPos);
 				mScroller->scrollToShowRect(new_cursor_rect_doc, old_cursor_rect);
-				//llassert_always(getLocalRectFromDocIndex(mCursorPos).mBottom == old_cursor_rect.mBottom);
 			}
 			else
 			{
 				// keep first line of text visible
-				LLRect new_first_char_rect = getLocalRectFromDocIndex(mScrollIndex);
-				new_first_char_rect.translate(visible_content_rect.mLeft, visible_content_rect.mBottom);
+				LLRect new_first_char_rect = getDocRectFromDocIndex(mScrollIndex);
 				mScroller->scrollToShowRect(new_first_char_rect, first_char_rect);
-				//llassert_always(getLocalRectFromDocIndex(mScrollIndex).mBottom == first_char_rect.mBottom);
 			}
 		}
 
@@ -1464,14 +1479,16 @@ void LLTextBase::setText(const LLStringExplicit &utf8str ,const LLStyle::Params&
 	clearSegments();
 //	createDefaultSegment();
 
-	startOfDoc();
 	deselect();
 
 	// append the new text (supports Url linking)
 	std::string text(utf8str);
 	LLStringUtil::removeCRLF(text);
 
+	// appendText modifies mCursorPos...
 	appendText(text, false, input_params);
+	// ...so move cursor to top after appending text
+	startOfDoc();
 
 	onValueChange(0, getLength());
 }
@@ -2065,22 +2082,22 @@ void LLTextBase::updateRects()
 			mContentsRect.unionWith(line_iter->mRect);
 		}
 
-		S32 delta_pos_x = -mContentsRect.mLeft;
 		mContentsRect.mTop += mVPad;
 
 		S32 delta_pos = -mContentsRect.mBottom;
 		// move line segments to fit new document rect
 		for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
 		{
-			it->mRect.translate(delta_pos_x, delta_pos);
+			it->mRect.translate(0, delta_pos);
 		}
-		mContentsRect.translate(delta_pos_x, delta_pos);
+		mContentsRect.translate(0, delta_pos);
 	}
 
 	// update document container dimensions according to text contents
 	LLRect doc_rect = mContentsRect;
 	// use old mTextRect constraint document to width of viewable region
-	doc_rect.mRight = doc_rect.mLeft + mTextRect.getWidth();
+	doc_rect.mLeft = 0;
+	doc_rect.mRight = mTextRect.getWidth();
 
 	mDocumentView->setShape(doc_rect);
 
@@ -2281,7 +2298,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 					LLFontGL::LEFT, LLFontGL::TOP, 
 					0, 
 					LLFontGL::NO_SHADOW, 
-					length, rect.mRight, 
+					length, rect.getWidth(), 
 					&right_x, 
 					mEditor.getUseEllipses());
 	}
@@ -2298,7 +2315,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 					LLFontGL::LEFT, LLFontGL::TOP, 
 					0, 
 					mStyle->getShadowType(), 
-					length, rect.mRight, 
+					length, rect.getWidth(), 
 					&right_x, 
 					mEditor.getUseEllipses());
 	}

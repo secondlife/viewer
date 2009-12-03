@@ -85,6 +85,7 @@ public:
 	S32				mUSDCurrencyEstimatedCost;
 	bool			mLocalCurrencyEstimated;
 	std::string		mLocalCurrencyEstimatedCost;
+	bool			mSupportsInternationalBilling;
 	std::string		mSiteConfirm;
 	
 	bool			mBought;
@@ -137,6 +138,7 @@ LLCurrencyUIManager::Impl::Impl(LLPanel& dialog)
 	mError(false),
 	mUserCurrencyBuy(2000), // note, this is a default, real value set in llfloaterbuycurrency.cpp
 	mUserEnteredCurrencyBuy(false),
+	mSupportsInternationalBilling(false),
 	mBought(false),
 	mTransactionType(TransactionNone), mTransaction(0),
 	mCurrencyChanged(false)
@@ -207,6 +209,7 @@ void LLCurrencyUIManager::Impl::finishCurrencyInfo()
 	if (mLocalCurrencyEstimated)
 	{
 		mLocalCurrencyEstimatedCost = currency["estimatedLocalCost"].asString();
+		mSupportsInternationalBilling = true;
 	}
 
 	S32 newCurrencyBuy = currency["currencyBuy"].asInt();
@@ -463,6 +466,9 @@ void LLCurrencyUIManager::Impl::updateUI()
 
 	mPanel.childSetTextArg("currency_est", "[LOCALAMOUNT]", getLocalEstimate());
 	mPanel.childSetVisible("currency_est", hasEstimate() && mUserCurrencyBuy > 0);
+
+	mPanel.childSetVisible("currency_links", mSupportsInternationalBilling);
+	mPanel.childSetVisible("exchange_rate_note", mSupportsInternationalBilling);
 
 	if (mPanel.childIsEnabled("buy_btn")
 		||mPanel.childIsVisible("currency_est")

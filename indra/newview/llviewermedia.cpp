@@ -171,7 +171,16 @@ public:
 		else
 		if(status == 404)
 		{
-			// Treat 404s like an html page.
+			// 404 is content not found - sites often have bespoke 404 pages so
+			// treat them like an html page.
+			completeAny(status, "text/html");
+		}
+		else
+		if(status == 406)
+		{
+			// 406 means the server sent something that we didn't indicate was acceptable
+			// Eventually we should send what we accept in the headers but for now,
+			// treat 406s like an html page.
 			completeAny(status, "text/html");
 		}
 		else
@@ -1281,16 +1290,36 @@ void LLViewerMediaImpl::mouseMove(S32 x, S32 y, MASK mask)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+//static 
+void LLViewerMediaImpl::scaleTextureCoords(const LLVector2& texture_coords, S32 *x, S32 *y)
+{
+	F32 texture_x = texture_coords.mV[VX];
+	F32 texture_y = texture_coords.mV[VY];
+	
+	// Deal with repeating textures by wrapping the coordinates into the range [0, 1.0)
+	texture_x = fmodf(texture_x, 1.0f);
+	if(texture_x < 0.0f)
+		texture_x = 1.0 + texture_x;
+		
+	texture_y = fmodf(texture_y, 1.0f);
+	if(texture_y < 0.0f)
+		texture_y = 1.0 + texture_y;
+
+	// scale x and y to texel units.
+	*x = llround(texture_x * mMediaSource->getTextureWidth());
+	*y = llround((1.0f - texture_y) * mMediaSource->getTextureHeight());
+
+	// Adjust for the difference between the actual texture height and the amount of the texture in use.
+	*y -= (mMediaSource->getTextureHeight() - mMediaSource->getHeight());
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::mouseDown(const LLVector2& texture_coords, MASK mask, S32 button)
 {
 	if(mMediaSource)
 	{
-		// scale x and y to texel units.
-		S32 x = llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth());
-		S32 y = llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight());
-
-		// Adjust for the difference between the actual texture height and the amount of the texture in use.
-		y -= (mMediaSource->getTextureHeight() - mMediaSource->getHeight());
+		S32 x, y;
+		scaleTextureCoords(texture_coords, &x, &y);
 
 		mouseDown(x, y, mask, button);
 	}
@@ -1300,12 +1329,8 @@ void LLViewerMediaImpl::mouseUp(const LLVector2& texture_coords, MASK mask, S32 
 {
 	if(mMediaSource)
 	{		
-		// scale x and y to texel units.
-		S32 x = llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth());
-		S32 y = llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight());
-
-		// Adjust for the difference between the actual texture height and the amount of the texture in use.
-		y -= (mMediaSource->getTextureHeight() - mMediaSource->getHeight());
+		S32 x, y;
+		scaleTextureCoords(texture_coords, &x, &y);
 
 		mouseUp(x, y, mask, button);
 	}
@@ -1315,12 +1340,8 @@ void LLViewerMediaImpl::mouseMove(const LLVector2& texture_coords, MASK mask)
 {
 	if(mMediaSource)
 	{		
-		// scale x and y to texel units.
-		S32 x = llround(texture_coords.mV[VX] * mMediaSource->getTextureWidth());
-		S32 y = llround((1.0f - texture_coords.mV[VY]) * mMediaSource->getTextureHeight());
-
-		// Adjust for the difference between the actual texture height and the amount of the texture in use.
-		y -= (mMediaSource->getTextureHeight() - mMediaSource->getHeight());
+		S32 x, y;
+		scaleTextureCoords(texture_coords, &x, &y);
 
 		mouseMove(x, y, mask);
 	}

@@ -64,10 +64,10 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	mSpeakerMgr->addListener(mSpeakerModeratorListener, "update_moderator");
 
 	mAvatarList->setNoItemsCommentText(LLTrans::getString("LoadingData"));
-	mAvatarList->setDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
-	mAvatarList->setRefreshCompleteCallback(boost::bind(&LLParticipantList::onAvatarListRefreshed, this, _1, _2));
+	mAvatarListDoubleClickConnection = mAvatarList->setDoubleClickCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
+	mAvatarListRefreshConnection = mAvatarList->setRefreshCompleteCallback(boost::bind(&LLParticipantList::onAvatarListRefreshed, this, _1, _2));
     // Set onAvatarListDoubleClicked as default on_return action.
-	mAvatarList->setReturnCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
+	mAvatarListReturnConnection = mAvatarList->setReturnCallback(boost::bind(&LLParticipantList::onAvatarListDoubleClicked, this, mAvatarList));
 
 	if (use_context_menu)
 	{
@@ -87,7 +87,7 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
 	{
 		const LLPointer<LLSpeaker>& speakerp = *it;
-		group_members.push_back(speakerp->mID);
+		addAvatarIDExceptAgent(group_members, speakerp->mID);
 		if ( speakerp->mIsModerator )
 		{
 			mModeratorList.insert(speakerp->mID);
@@ -99,6 +99,10 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 
 LLParticipantList::~LLParticipantList()
 {
+	mAvatarListDoubleClickConnection.disconnect();
+	mAvatarListRefreshConnection.disconnect();
+	mAvatarListReturnConnection.disconnect();
+
 	delete mParticipantListMenu;
 	mParticipantListMenu = NULL;
 }
@@ -192,7 +196,7 @@ bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, co
 		return true;
 	}
 
-	group_members.push_back(uu_id);
+	addAvatarIDExceptAgent(group_members, uu_id);
 	// Mark AvatarList as dirty one
 	mAvatarList->setDirty();
 	sort();
@@ -257,6 +261,15 @@ void LLParticipantList::sort()
 	default :
 		llwarns << "Unrecognized sort order for " << mAvatarList->getName() << llendl;
 		return;
+	}
+}
+
+// static
+void LLParticipantList::addAvatarIDExceptAgent(std::vector<LLUUID>& existing_list, const LLUUID& avatar_id)
+{
+	if (gAgent.getID() != avatar_id)
+	{
+		existing_list.push_back(avatar_id);
 	}
 }
 

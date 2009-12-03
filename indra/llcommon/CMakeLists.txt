@@ -25,6 +25,8 @@ include_directories(
 #     ${LLCOMMON_LIBRARIES})
 
 set(llcommon_SOURCE_FILES
+    imageids.cpp
+    indra_constants.cpp
     llallocator.cpp
     llallocator_heap_profile.cpp
     llapp.cpp
@@ -39,6 +41,7 @@ set(llcommon_SOURCE_FILES
     llcursortypes.cpp
     lldate.cpp
     lldependencies.cpp
+    lldictionary.cpp
     llerror.cpp
     llerrorthread.cpp
     llevent.cpp
@@ -267,33 +270,34 @@ target_link_libraries(
 
 add_dependencies(llcommon stage_third_party_libs)
 
-include(LLAddBuildTest)
-SET(llcommon_TEST_SOURCE_FILES
-  # unit-testing llcommon is not possible right now as the test-harness *itself* depends upon llcommon, causing a circular dependency.  Add your 'unit' tests as integration tests for now.
-  )
-LL_ADD_PROJECT_UNIT_TESTS(llcommon "${llcommon_TEST_SOURCE_FILES}")
+if (LL_TESTS)
+  include(LLAddBuildTest)
+  SET(llcommon_TEST_SOURCE_FILES
+    # unit-testing llcommon is not possible right now as the test-harness *itself* depends upon llcommon, causing a circular dependency.  Add your 'unit' tests as integration tests for now.
+    )
+  LL_ADD_PROJECT_UNIT_TESTS(llcommon "${llcommon_TEST_SOURCE_FILES}")
 
-#set(TEST_DEBUG on)
-set(test_libs llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES} ${GOOGLEMOCK_LIBRARIES})
-LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(llbase64 "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(lldate "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(lldependencies "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(llerror "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(llframetimer "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(llinstancetracker "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(lllazy "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(llrand "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(llstring "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(lltreeiterators "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(lluri "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(reflection "" "${test_libs}")
-LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
+  #set(TEST_DEBUG on)
+  set(test_libs llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES} ${GOOGLEMOCK_LIBRARIES})
+  LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llbase64 "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lldate "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lldependencies "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llerror "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llframetimer "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llinstancetracker "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lllazy "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llrand "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llstring "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lltreeiterators "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lluri "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(reflection "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
 
-# *TODO - reenable these once tcmalloc libs no longer break the build.
-#ADD_BUILD_TEST(llallocator llcommon)
-#ADD_BUILD_TEST(llallocator_heap_profile llcommon)
-#ADD_BUILD_TEST(llmemtype llcommon)
-
+  # *TODO - reenable these once tcmalloc libs no longer break the build.
+  #ADD_BUILD_TEST(llallocator llcommon)
+  #ADD_BUILD_TEST(llallocator_heap_profile llcommon)
+  #ADD_BUILD_TEST(llmemtype llcommon)
+endif (LL_TESTS)

@@ -71,9 +71,9 @@ const F32 LLViewerPartSim::PART_ADAPT_RATE_MULT_RECIP = 1.0f/PART_ADAPT_RATE_MUL
 
 U32 LLViewerPart::sNextPartID = 1;
 
-F32 calc_desired_size(LLVector3 pos, LLVector2 scale)
+F32 calc_desired_size(LLViewerCamera* camera, LLVector3 pos, LLVector2 scale)
 {
-	F32 desired_size = (pos-LLViewerCamera::getInstance()->getOrigin()).magVec();
+	F32 desired_size = (pos - camera->getOrigin()).magVec();
 	desired_size /= 4;
 	return llclamp(desired_size, scale.magVec()*0.5f, PART_SIM_BOX_SIDE*2);
 }
@@ -273,6 +273,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 
 	LLViewerPartSim::checkParticleCount(mParticles.size());
 
+	LLViewerCamera* camera = LLViewerCamera::getInstance();
 	LLViewerRegion *regionp = getRegion();
 	S32 end = (S32) mParticles.size();
 	for (S32 i = 0 ; i < (S32)mParticles.size();)
@@ -394,7 +395,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 		}
 		else 
 		{
-			F32 desired_size = calc_desired_size(part->mPosAgent, part->mScale);
+			F32 desired_size = calc_desired_size(camera, part->mPosAgent, part->mScale);
 			if (!posInGroup(part->mPosAgent, desired_size))
 			{
 				// Transfer particles between groups
@@ -557,7 +558,8 @@ LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
 	}
 	else
 	{	
-		F32 desired_size = calc_desired_size(part->mPosAgent, part->mScale);
+		LLViewerCamera* camera = LLViewerCamera::getInstance();
+		F32 desired_size = calc_desired_size(camera, part->mPosAgent, part->mScale);
 
 		S32 count = (S32) mViewerPartGroups.size();
 		for (S32 i = 0; i < count; i++)

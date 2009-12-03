@@ -3768,9 +3768,10 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 	gGL.setColorMask(true, false);
 	gPipeline.resetDrawOrders();
 
+	LLViewerCamera* camera = LLViewerCamera::getInstance();
 	for (std::set<LLViewerObject*>::iterator iter = objects.begin(); iter != objects.end(); ++iter)
 	{
-		stateSort((*iter)->mDrawable, *LLViewerCamera::getInstance());
+		stateSort((*iter)->mDrawable, *camera);
 	}
 
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_RENDER_SELECT);
@@ -6248,6 +6249,7 @@ void LLPipeline::renderDeferredLighting()
 	{
 		LLFastTimer ftm(FTM_RENDER_DEFERRED);
 
+		LLViewerCamera* camera = LLViewerCamera::getInstance();
 		{
 			LLGLDepthTest depth(GL_TRUE);
 			mDeferredDepth.copyContents(mDeferredScreen, 0, 0, mDeferredScreen.getWidth(), mDeferredScreen.getHeight(),
@@ -6641,7 +6643,7 @@ void LLPipeline::renderDeferredLighting()
 						continue;
 					}
 
-					if (LLViewerCamera::getInstance()->AABBInFrustumNoFarClip(center, LLVector3(s,s,s)) == 0)
+					if (camera->AABBInFrustumNoFarClip(center, LLVector3(s,s,s)) == 0)
 					{
 						continue;
 					}
@@ -6665,12 +6667,12 @@ void LLPipeline::renderDeferredLighting()
 					v[18] = c[0]+s; v[19] = c[1]+s; v[20] = c[2]-s; // 6 - 0110
 					v[21] = c[0]+s; v[22] = c[1]+s; v[23] = c[2]+s; // 7 - 0111
 
-					if (LLViewerCamera::getInstance()->getOrigin().mV[0] > c[0] + s + 0.2f ||
-						LLViewerCamera::getInstance()->getOrigin().mV[0] < c[0] - s - 0.2f ||
-						LLViewerCamera::getInstance()->getOrigin().mV[1] > c[1] + s + 0.2f ||
-						LLViewerCamera::getInstance()->getOrigin().mV[1] < c[1] - s - 0.2f ||
-						LLViewerCamera::getInstance()->getOrigin().mV[2] > c[2] + s + 0.2f ||
-						LLViewerCamera::getInstance()->getOrigin().mV[2] < c[2] - s - 0.2f)
+					if (camera->getOrigin().mV[0] > c[0] + s + 0.2f ||
+						camera->getOrigin().mV[0] < c[0] - s - 0.2f ||
+						camera->getOrigin().mV[1] > c[1] + s + 0.2f ||
+						camera->getOrigin().mV[1] < c[1] - s - 0.2f ||
+						camera->getOrigin().mV[2] > c[2] + s + 0.2f ||
+						camera->getOrigin().mV[2] < c[2] - s - 0.2f)
 					{ //draw box if camera is outside box
 						if (render_local)
 						{
@@ -6685,7 +6687,7 @@ void LLPipeline::renderDeferredLighting()
 							glTexCoord4f(tc.v[0], tc.v[1], tc.v[2], s*s);
 							glColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
 							glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
-								GL_UNSIGNED_BYTE, get_box_fan_indices(LLViewerCamera::getInstance(), center));
+								GL_UNSIGNED_BYTE, get_box_fan_indices(camera, center));
 							stop_glerror();
 						}
 					}
@@ -6750,7 +6752,7 @@ void LLPipeline::renderDeferredLighting()
 					glTexCoord4f(tc.v[0], tc.v[1], tc.v[2], s*s);
 					glColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
 					glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
-							GL_UNSIGNED_BYTE, get_box_fan_indices(LLViewerCamera::getInstance(), center));
+							GL_UNSIGNED_BYTE, get_box_fan_indices(camera, center));
 				}
 				gDeferredSpotLightProgram.disableTexture(LLViewerShaderMgr::DEFERRED_PROJECTION);
 				unbindDeferredShader(gDeferredSpotLightProgram);
@@ -7187,6 +7189,10 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			glClearColor(0,0,0,0);
 			mWaterRef.bindTarget();
+			gGL.setColorMask(true, true);
+			mWaterRef.clear();
+			gGL.setColorMask(true, false);
+
 			mWaterRef.getViewport(gGLViewport);
 			
 			stop_glerror();
@@ -7219,6 +7225,21 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			U32 ref_mask = 0;
 			if (LLDrawPoolWater::sNeedsDistortionUpdate)
 			{
+				//initial sky pass (no user clip plane)
+				{ //mask out everything but the sky
+					U32 tmp = mRenderTypeMask;
+					mRenderTypeMask = tmp & ((1 << LLPipeline::RENDER_TYPE_SKY) |
+										(1 << LLPipeline::RENDER_TYPE_WL_SKY));
+					static LLCullResult result;
+					updateCull(camera, result);
+					stateSort(camera, result);
+					mRenderTypeMask = tmp & ((1 << LLPipeline::RENDER_TYPE_SKY) |
+										(1 << LLPipeline::RENDER_TYPE_CLOUDS) |
+										(1 << LLPipeline::RENDER_TYPE_WL_SKY));
+					renderGeom(camera, TRUE);
+					mRenderTypeMask = tmp;
+				}
+
 				U32 mask = mRenderTypeMask;
 				mRenderTypeMask &=	~((1<<LLPipeline::RENDER_TYPE_WATER) |
 									  (1<<LLPipeline::RENDER_TYPE_GROUND) |
@@ -7246,10 +7267,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					LLGLDisable cull(GL_CULL_FACE);
 					updateCull(camera, ref_result, 1);
 					stateSort(camera, ref_result);
-					gGL.setColorMask(true, true);
-					mWaterRef.clear();
-					gGL.setColorMask(true, false);
-
 				}
 				else
 				{
@@ -7261,22 +7278,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				ref_mask = mRenderTypeMask;
 				mRenderTypeMask = mask;
 			}
-
-			//initial sky pass (no user clip plane)
-			{ //mask out everything but the sky
-				U32 tmp = mRenderTypeMask;
-				mRenderTypeMask = tmp & ((1 << LLPipeline::RENDER_TYPE_SKY) |
-									(1 << LLPipeline::RENDER_TYPE_WL_SKY));
-				static LLCullResult result;
-				updateCull(camera, result);
-				stateSort(camera, result);
-				mRenderTypeMask = tmp & ((1 << LLPipeline::RENDER_TYPE_SKY) |
-									(1 << LLPipeline::RENDER_TYPE_CLOUDS) |
-									(1 << LLPipeline::RENDER_TYPE_WL_SKY));
-				renderGeom(camera, TRUE);
-				mRenderTypeMask = tmp;
-			}
-
 
 			if (LLDrawPoolWater::sNeedsDistortionUpdate)
 			{
@@ -8684,7 +8685,8 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	sShadowRender = TRUE;
 	sImpostorRender = TRUE;
 
-	markVisible(avatar->mDrawable, *LLViewerCamera::getInstance());
+	LLViewerCamera* viewer_camera = LLViewerCamera::getInstance();
+	markVisible(avatar->mDrawable, *viewer_camera);
 	LLVOAvatar::sUseImpostors = FALSE;
 
 	LLVOAvatar::attachment_map_t::iterator iter;
@@ -8699,7 +8701,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		{
 			if (LLViewerObject* attached_object = (*attachment_iter))
 			{
-				markVisible(attached_object->mDrawable->getSpatialBridge(), *LLViewerCamera::getInstance());
+				markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
 			}
 		}
 	}
@@ -8709,9 +8711,9 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	const LLVector3* ext = avatar->mDrawable->getSpatialExtents();
 	LLVector3 pos(avatar->getRenderPosition()+avatar->getImpostorOffset());
 
-	LLCamera camera = *LLViewerCamera::getInstance();
+	LLCamera camera = *viewer_camera;
 
-	camera.lookAt(LLViewerCamera::getInstance()->getOrigin(), pos, LLViewerCamera::getInstance()->getUpAxis());
+	camera.lookAt(viewer_camera->getOrigin(), pos, viewer_camera->getUpAxis());
 	
 	LLVector2 tdim;
 
@@ -8754,7 +8756,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	glClearStencil(0);
 
 	// get the number of pixels per angle
-	F32 pa = gViewerWindow->getWindowHeightRaw() / (RAD_TO_DEG * LLViewerCamera::getInstance()->getView());
+	F32 pa = gViewerWindow->getWindowHeightRaw() / (RAD_TO_DEG * viewer_camera->getView());
 
 	//get resolution based on angle width and height of impostor (double desired resolution to prevent aliasing)
 	U32 resY = llmin(nhpo2((U32) (fov*pa)), (U32) 512);
