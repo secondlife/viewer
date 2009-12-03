@@ -2746,6 +2746,7 @@ even though the user gets a free copy.
 			 left="10"
 			 name="button align"
 			 top_pad="5"
+			 tool_tip="Align media texture (must load first)"
 			 width="100" />
 		</panel>
 	   </panel>

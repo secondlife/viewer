@@ -42,18 +42,50 @@
 #include "llspeakers.h"
 
 
+class LLNonAvatarCaller : public LLAvatarListItem
+{
+public:
+	LLNonAvatarCaller() : LLAvatarListItem(false)
+	{
+
+	}
+	BOOL postBuild()
+	{
+		BOOL rv = LLAvatarListItem::postBuild();
+
+		if (rv)
+		{
+			setOnline(true);
+			showLastInteractionTime(false);
+			setShowProfileBtn(false);
+			setShowInfoBtn(false);
+		}
+		return rv;
+	}
+
+	void setSpeakerId(const LLUUID& id) { mSpeakingIndicator->setSpeakerId(id); }
+};
+
+
+static void* create_non_avatar_caller(void*)
+{
+	return new LLNonAvatarCaller;
+}
+
 LLCallFloater::LLCallFloater(const LLSD& key)
 : LLDockableFloater(NULL, key)
 , mSpeakerManager(NULL)
 , mPaticipants(NULL)
 , mAvatarList(NULL)
+, mNonAvatarCaller(NULL)
 , mVoiceType(VC_LOCAL_CHAT)
 {
-
+	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
 }
 
 LLCallFloater::~LLCallFloater()
 {
+	mChannelChangedConnection.disconnect();
 	delete mPaticipants;
 	mPaticipants = NULL;
 }
@@ -63,7 +95,9 @@ BOOL LLCallFloater::postBuild()
 {
 	LLDockableFloater::postBuild();
 	mAvatarList = getChild<LLAvatarList>("speakers_list");
+	childSetAction("leave_call_btn", boost::bind(&LLCallFloater::leaveCall, this));
 
+	mNonAvatarCaller = getChild<LLNonAvatarCaller>("non_avatar_caller");
 
 	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_panel");
 
@@ -77,7 +111,7 @@ BOOL LLCallFloater::postBuild()
 	updateSession();
 
 	// subscribe to to be notified Voice Channel is changed
-	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::onCurrentChannelChanged, this, _1));
+	mChannelChangedConnection = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::onCurrentChannelChanged, this, _1));
 	return TRUE;
 }
 
@@ -89,6 +123,16 @@ void LLCallFloater::onOpen(const LLSD& /*key*/)
 //////////////////////////////////////////////////////////////////////////
 /// PRIVATE SECTION
 //////////////////////////////////////////////////////////////////////////
+
+void LLCallFloater::leaveCall()
+{
+	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
+	if (voice_channel && voice_channel->isActive())
+	{
+		voice_channel->deactivate();
+	}
+}
+
 void LLCallFloater::updateSession()
 {
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
@@ -138,25 +182,51 @@ void LLCallFloater::updateSession()
 	}
 
 	updateTitle();
+	
+	//hide "Leave Call" button for nearby chat
+	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
+	childSetVisible("leave_btn_panel", !is_local_chat);
+	
 	refreshPartisipantList();
 }
 
 void LLCallFloater::refreshPartisipantList()
 {
 	delete mPaticipants;
+	mPaticipants = NULL;
 	mAvatarList->clear();
 
-	bool do_not_use_context_menu_in_local_chat = LLLocalSpeakerMgr::getInstance() != mSpeakerManager;
-	mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, do_not_use_context_menu_in_local_chat);
-
-	if (!do_not_use_context_menu_in_local_chat)
+	bool non_avatar_caller = false;
+	if (VC_PEER_TO_PEER == mVoiceType)
 	{
-		mAvatarList->setNoItemsCommentText(getString("no_one_near"));
+		LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSpeakerManager->getSessionID());
+		non_avatar_caller = !session->mOtherParticipantIsAvatar;
+		if (non_avatar_caller)
+		{
+			mNonAvatarCaller->setSpeakerId(session->mOtherParticipantID);
+			mNonAvatarCaller->setName(session->mName);
+		}
+	}
+
+	mNonAvatarCaller->setVisible(non_avatar_caller);
+	mAvatarList->setVisible(!non_avatar_caller);
+
+	if (!non_avatar_caller)
+	{
+		bool do_not_use_context_menu_in_local_chat = LLLocalSpeakerMgr::getInstance() != mSpeakerManager;
+		mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, do_not_use_context_menu_in_local_chat);
+
+		if (!do_not_use_context_menu_in_local_chat)
+		{
+			mAvatarList->setNoItemsCommentText(getString("no_one_near"));
+		}
 	}
 }
 
 void LLCallFloater::onCurrentChannelChanged(const LLUUID& /*session_id*/)
 {
+	// Forget speaker manager from the previous session to avoid using it after session was destroyed.
+	mSpeakerManager = NULL;
 	updateSession();
 }
 
@@ -170,15 +240,21 @@ void LLCallFloater::updateTitle()
 		title = getString("title_nearby");
 		break;
 	case VC_PEER_TO_PEER:
-		title = voice_channel->getSessionName();
+		{
+			LLStringUtil::format_map_t args;
+			args["[NAME]"] = voice_channel->getSessionName();
+			title = getString("title_peer_2_peer", args);
+		}
 		break;
 	case VC_AD_HOC_CHAT:
 		title = getString("title_adhoc");
 		break;
 	case VC_GROUP_CHAT:
-		LLStringUtil::format_map_t args;
-		args["[GROUP]"] = voice_channel->getSessionName();
-		title = getString("title_group", args);
+		{
+			LLStringUtil::format_map_t args;
+			args["[GROUP]"] = voice_channel->getSessionName();
+			title = getString("title_group", args);
+		}
 		break;
 	}
 

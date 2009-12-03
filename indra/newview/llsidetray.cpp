@@ -66,37 +66,6 @@ static const std::string TAB_PANEL_CAPTION_TITLE_BOX = "sidetray_tab_title";
 
 LLSideTray* LLSideTray::sInstance = 0;
 
-class LLSideTrayInfoPanel: public LLPanel
-{
-	
-public:
-	LLSideTrayInfoPanel():LLPanel()
-	{
-		setBorderVisible(true);
-	}
-
-	BOOL handleHover(S32 x, S32 y, MASK mask)
-	{
-		getWindow()->setCursor(UI_CURSOR_HAND);
-		return TRUE;
-	}
-
-	BOOL handleMouseUp(S32 x, S32 y, MASK mask)
-	{
-		std::string name = getName();
-		onCommit();
-		LLSideTray::getInstance()->selectTabByName(name);
-		return LLPanel::handleMouseUp(x,y,mask);
-	}
-	void reshape		(S32 width, S32 height, BOOL called_from_parent )
-	{
-		return LLPanel::reshape(width, height, called_from_parent);
-	}
-
-};
-
-static LLRegisterPanelClassWrapper<LLSideTrayInfoPanel> t_people("panel_sidetray_home_info");
-
 LLSideTray* LLSideTray::getInstance()
 {
 	if (!sInstance)

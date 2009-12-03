@@ -1163,6 +1163,10 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		gInventory.addObserver(opener);
 	}
 
+	// Remove script dialog because there is no need in it no more.
+	LLUUID object_id = notification["payload"]["object_id"].asUUID();
+	LLScriptFloaterManager::instance().removeNotificationByObjectId(object_id);
+
 	delete this;
 	return false;
 }
@@ -1337,7 +1341,11 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	{
 		gInventory.addObserver(opener);
 	}
-	
+
+	// Remove script dialog because there is no need in it no more.
+	LLUUID object_id = notification["payload"]["object_id"].asUUID();
+	LLScriptFloaterManager::instance().removeNotificationByObjectId(object_id);
+
 	delete this;
 	return false;
 }
@@ -1425,7 +1433,18 @@ void inventory_offer_handler(LLOfferInfo* info)
 		}
 	}
 
+	// If mObjectID is null then generate the object_id based on msg to prevent
+	// multiple creation of chiclets for same object.
+	LLUUID object_id = info->mObjectID;
+	if (object_id.isNull())
+		object_id.generate(msg);
+
 	payload["from_id"] = info->mFromID;
+	// Needed by LLScriptFloaterManager to bind original notification with 
+	// faked for toast one.
+	payload["object_id"] = object_id;
+	// Flag indicating that this notification is faked for toast.
+	payload["give_inventory_notification"] = FALSE;
 	args["OBJECTFROMNAME"] = info->mFromName;
 	args["NAME"] = info->mFromName;
 	args["NAME_SLURL"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
@@ -1466,9 +1485,16 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// In viewer 2 we're now auto receiving inventory offers and messaging as such (not sending reject messages).
 		info->send_auto_receive_response();
 	}
-	
+
 	// Pop up inv offer notification and let the user accept (keep), or reject (and silently delete) the inventory.
-	LLNotifications::instance().add(p);
+	 LLNotifications::instance().add(p);
+
+	// Inform user that there is a script floater via toast system
+	{
+		payload["give_inventory_notification"] = TRUE;
+		LLNotificationPtr notification = LLNotifications::instance().add(p.payload(payload)); 
+		LLScriptFloaterManager::getInstance()->setNotificationToastId(object_id, notification->getID());
+	}
 }
 
 bool lure_callback(const LLSD& notification, const LLSD& response)
@@ -4270,7 +4296,28 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 		// *TODO: Translate
 		LLSD args;
 		args["MESSAGE"] = desc;
-		LLNotificationsUtil::add("SystemMessage", args);
+
+		// this is a marker to retrieve avatar name from server message:
+		// "<avatar name> paid you L$"
+		const std::string marker = "paid you L$";
+
+		// extract avatar name from system message
+		std::string name = desc.substr(0, desc.find(marker, 0));
+		LLStringUtil::trim(name);
+
+		// if name extracted and name cache contains avatar id send loggable notification
+		LLUUID from_id;
+		if(name.size() > 0 && gCacheName->getUUID(name, from_id))
+		{
+			args["NAME"] = name;
+			LLSD payload;
+			payload["from_id"] = from_id;
+			LLNotificationsUtil::add("PaymentRecived", args, payload);
+		}
+		else
+		{
+			LLNotificationsUtil::add("SystemMessage", args);
+		}
 
 		// Once the 'recent' container gets large enough, chop some
 		// off the beginning.

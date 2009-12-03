@@ -34,7 +34,7 @@
 
 #include "llpanel.h"
 
-#include "llpanelplaces.h"
+class LLPanelPlaces;
 
 class LLPanelPlacesTab : public LLPanel
 {
@@ -55,6 +55,11 @@ public:
 										const std::string& url,
 										const LLUUID& snapshot_id,
 										bool teleport);
+
+public:
+	// Search string for filtering landmarks and teleport history locations
+	static std::string		sFilterSubString;
+
 protected:
 	LLButton*				mTeleportBtn;
 	LLButton*				mShowOnMapBtn;

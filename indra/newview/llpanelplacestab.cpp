@@ -33,13 +33,16 @@
 
 #include "llpanelplacestab.h"
 
-#include "llwindow.h"
-
+#include "llbutton.h"
 #include "llnotificationsutil.h"
 
-#include "llbutton.h"
+#include "llwindow.h"
+
+#include "llpanelplaces.h"
 #include "llslurl.h"
 #include "llworldmap.h"
+
+std::string LLPanelPlacesTab::sFilterSubString = LLStringUtil::null;
 
 bool LLPanelPlacesTab::isTabVisible()
 {
