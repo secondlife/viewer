@@ -391,7 +391,7 @@ bool LLBottomTray::onContextMenuItemEnabled(const LLSD& userdata)
 	}
 	else if (item == "can_select_all")
 	{
-		return edit_box->canSelectAll();
+		return edit_box->canSelectAll() && (edit_box->getLength()>0);
 	}
 	return true;
 }

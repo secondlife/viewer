@@ -120,28 +120,6 @@ LLFloaterInventory* LLFloaterInventory::showAgentInventory()
 }
 
 // static
-LLFloaterInventory* LLFloaterInventory::getActiveInventory()
-{
-	LLFloaterInventory* res = NULL;
-	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
-	S32 z_min = S32_MAX;
-	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
-	{
-		LLFloaterInventory* iv = dynamic_cast<LLFloaterInventory*>(*iter);
-		if (iv)
-		{
-			S32 z_order = gFloaterView->getZOrder(iv);
-			if (z_order < z_min)
-			{
-				res = iv;
-				z_min = z_order;
-			}
-		}
-	}
-	return res;
-}
-
-// static
 void LLFloaterInventory::cleanup()
 {
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");

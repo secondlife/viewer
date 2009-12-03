@@ -318,6 +318,8 @@ void LLNearbyChatHandler::initChannel()
 	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
 }
 
+
+
 void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 {
 	if(chat_msg.mMuted == TRUE)
@@ -327,6 +329,22 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 
 	if(chat_msg.mText.empty())
 		return;//don't process empty messages
+
+	LLChat& tmp_chat = const_cast<LLChat&>(chat_msg);
+
+	if (tmp_chat.mChatStyle == CHAT_STYLE_IRC)
+	{
+		if(!tmp_chat.mFromName.empty())
+			tmp_chat.mText = tmp_chat.mFromName + " " + tmp_chat.mText.substr(3);
+		else
+			tmp_chat.mText = tmp_chat.mText.substr(3);
+	}
+	
+	{
+		//sometimes its usefull to have no name at all...
+		//if(tmp_chat.mFromName.empty() && tmp_chat.mFromID!= LLUUID::null)
+		//	tmp_chat.mFromName = tmp_chat.mFromID.asString();
+	}
 	
 	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 	nearby_chat->addMessage(chat_msg);

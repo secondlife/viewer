@@ -514,6 +514,8 @@ public:
 	virtual void	notifyParent(const LLSD& info);
 	virtual void	notifyChildren(const LLSD& info);
 
+	virtual void	notify(const LLSD& info) {};
+
 	static const LLViewDrawContext& getDrawContext();
 
 protected:

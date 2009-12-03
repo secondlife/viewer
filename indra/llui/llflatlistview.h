@@ -279,6 +279,12 @@ public:
 
 	bool updateValue(const LLSD& old_value, const LLSD& new_value);
 
+
+	void selectFirstItem	();
+	void selectLastItem		();
+
+	virtual void	notify(const LLSD& info) ;
+
 protected:
 
 	/** Pairs LLpanel representing a single item LLPanel and LLSD associated with it */

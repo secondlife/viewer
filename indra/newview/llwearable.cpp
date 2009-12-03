@@ -1094,6 +1094,16 @@ void LLWearable::setLabelUpdated() const
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, getItemID());
 }
 
+void LLWearable::refreshName()
+{
+	LLUUID item_id = getItemID();
+	LLInventoryItem* item = gInventory.getItem(item_id);
+	if( item )
+	{
+		mName = item->getName();
+	}
+}
+
 struct LLWearableSaveData
 {
 	EWearableType mType;

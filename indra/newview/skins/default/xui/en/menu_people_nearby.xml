@@ -27,7 +27,6 @@
          function="Avatar.IM" />
     </menu_item_call>
     <menu_item_call
-     enabled="false"
      label="Call"
      layout="topleft"
      name="Call">
