@@ -114,15 +114,17 @@ protected:
 };
 
 /** The plugin <b>must</b> define this function to create its instance.
- * It should look something like this: \n
-{  \n
-   MediaPluginFoo *self = new MediaPluginFoo(host_send_func, host_user_data); \n
-   *plugin_send_func = MediaPluginFoo::staticReceiveMessage; \n
-   *plugin_user_data = (void*)self; \n
-   \n
-   return 0; \n
-}  \n
-*/
+ * It should look something like this: 
+ * @code
+ * {  
+ *    MediaPluginFoo *self = new MediaPluginFoo(host_send_func, host_user_data); 
+ *    *plugin_send_func = MediaPluginFoo::staticReceiveMessage; 
+ *    *plugin_user_data = (void*)self; 
+ *    
+ *    return 0; 
+ * }  
+ * @endcode
+ */
 int init_media_plugin(
 	LLPluginInstance::sendMessageFunction host_send_func, 
 	void *host_user_data, 
