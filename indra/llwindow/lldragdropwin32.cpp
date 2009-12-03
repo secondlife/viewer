@@ -158,7 +158,7 @@ class LLDragDropWin32Target:
 					window_imp->convertCoords(cursor_coord_window, &gl_coord);
 					MASK mask = gKeyboard->currentMask(TRUE);
 
-					bool allowed_to_drop = window_imp->completeDragNDropRequest( gl_coord, mask, FALSE, std::string( "" ), mIsSlurl );
+					bool allowed_to_drop = window_imp->completeDragNDropRequest( gl_coord, mask, FALSE, std::string( "" ) );
 					if ( allowed_to_drop )
 						*pdwEffect = DROPEFFECT_COPY;
 					else
@@ -214,7 +214,7 @@ class LLDragDropWin32Target:
 					MASK mask = gKeyboard->currentMask( TRUE );
 
 					// actually do the drop
-					window_imp->completeDragNDropRequest( gl_coord, mask, TRUE, mDropUrl, mIsSlurl );
+					window_imp->completeDragNDropRequest( gl_coord, mask, TRUE, mDropUrl );
 				};
 
 				*pdwEffect = DROPEFFECT_COPY;
