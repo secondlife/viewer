@@ -191,7 +191,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	gViewerWindow->getRootView()->addChildInBack(this);
 
 	// Logo
-	mLogoImage = LLUI::getUIImage("startup_logo.j2c");
+	mLogoImage = LLUI::getUIImage("startup_logo");
 
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_login.xml");
 	
