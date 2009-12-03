@@ -64,6 +64,8 @@
 #include "llweb.h"
 #include "llwindow.h"
 
+#include "llfloatertools.h"  // to enable hide if build tools are up
+
 glh::matrix4f glh_get_current_modelview();
 glh::matrix4f glh_get_current_projection();
 
@@ -273,7 +275,7 @@ void LLPanelPrimMediaControls::updateShape()
 	LLViewerMediaImpl* media_impl = getTargetMediaImpl();
 	LLViewerObject* objectp = getTargetObject();
 	
-	if(!media_impl)
+	if(!media_impl || gFloaterTools->getVisible())
 	{
 		setVisible(FALSE);
 		return;
