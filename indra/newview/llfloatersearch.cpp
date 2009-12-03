@@ -41,6 +41,7 @@
 
 LLFloaterSearch::LLFloaterSearch(const LLSD& key) :
 	LLFloater(key),
+	LLViewerMediaObserver(),
 	mBrowser(NULL)
 {
 	// declare a map that transforms a category name into

@@ -1,37 +1,38 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login">
-	<string name="real_url">
+	<panel.string name="real_url">
 		http://secondlife.com/app/login/
-	</string>
-	<string name="forgot_password_url">
+	</panel.string>
+	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php
-	</string>
-	<text name="first_name_text">
-		Fornavn:
-	</text>
-	<text name="last_name_text">
-		Efternavn:
-	</text>
-	<text name="password_text">
-		Password:
-	</text>
-	<text name="start_location_text">
-		Start lokation:
-	</text>
-	<combo_box name="start_location_combo">
-		<combo_box.item name="MyHome" label="Hjem" />
-		<combo_box.item name="MyLastLocation" label="Min sidste lokation" />
-		<combo_box.item name="Typeregionname" label="&lt;Skriv navn på region&gt;" />
-	</combo_box>
-	<check_box label="Husk password" name="remember_check" />
-	<button label="Log ind" label_selected="Log ind" name="connect_btn" />
-	<text name="create_new_account_text">
-		Opret bruger
-	</text>
-	<text name="forgot_password_text">
-		Glemt navn eller password?
-	</text>
-	<text name="channel_text">
-		[VERSION]
-	</text>
+	</panel.string>
+	<panel name="login_widgets">
+		<text name="first_name_text">
+			Fornavn:
+		</text>
+		<line_editor name="first_name_edit" tool_tip="[SECOND_LIFE] Fornavn"/>
+		<text name="last_name_text">
+			Efternavn:
+		</text>
+		<line_editor name="last_name_edit" tool_tip="[SECOND_LIFE] Efternavn"/>
+		<text name="password_text">
+			Password:
+		</text>
+		<button label="Log Ind" label_selected="Log Ind" name="connect_btn"/>
+		<text name="start_location_text">
+			Start lokation:
+		</text>
+		<combo_box name="start_location_combo">
+			<combo_box.item label="Min sidste lokation" name="MyLastLocation"/>
+			<combo_box.item label="Hjem" name="MyHome"/>
+			<combo_box.item label="&lt;Skriv navn på region&gt;" name="Typeregionname"/>
+		</combo_box>
+		<check_box label="Husk password" name="remember_check"/>
+		<text name="create_new_account_text">
+			Opret bruger
+		</text>
+		<text name="forgot_password_text">
+			Glemt navn eller password?
+		</text>
+	</panel>
 </panel>

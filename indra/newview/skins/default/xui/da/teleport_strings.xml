@@ -1,15 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
 			Der er problemer med at håndtere din teleport. Det kan være nødvendigt at logge ud og ind for at kunne skifte teleportere.
-Hvis du bliver ved med at have problemet kan du checke teknisk support på:
-www.secondlife.com/support
+Hvis du bliver ved med at have problemet kan du checke teknisk support på: [SUPPORT_SITE].
 		</message>
 		<message name="invalid_region_handoff">
 			Problem registreret i forbindelse med skift til ny region. Det kan være nødvendigt at logge ud og ind for at kunne skifte regioner.
-Hvis du bliver ved med at have problemet kan du checke teknisk support på:
-www.secondlife.com/support
+Hvis du bliver ved med at have problemet kan du checke teknisk support på: [SUPPORT_SITE].
 		</message>
 		<message name="blocked_tport">
 			Beklager, teleport er blokeret lige nu. Prøv igen senere.

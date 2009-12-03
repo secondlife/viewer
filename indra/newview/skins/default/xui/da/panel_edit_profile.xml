@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="edit_profile_panel">
    <string name="CaptionTextAcctInfo">
-       [ACCTTYPE] [PAYMENTINFO] [AGEVERIFICATION]
+       [ACCTTYPE]
+[PAYMENTINFO] [AGEVERIFICATION]
    </string>
    <string name="AcctTypeResident"
     value="Beboer" />
