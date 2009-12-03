@@ -459,11 +459,25 @@ void LLEventPump::stopListening(const std::string& name)
 bool LLEventStream::post(const LLSD& event)
 {
     if (! mEnabled)
+    {
         return false;
+    }
+    // NOTE NOTE NOTE: Any new access to member data beyond this point should
+    // cause us to move our LLStandardSignal object to a pimpl class along
+    // with said member data. Then the local shared_ptr will preserve both.
+
+    // DEV-43463: capture a local copy of mSignal. We've turned up a
+    // cross-coroutine scenario (described in the Jira) in which this post()
+    // call could end up destroying 'this', the LLEventPump subclass instance
+    // containing mSignal, during the call through *mSignal. So -- capture a
+    // *stack* instance of the shared_ptr, ensuring that our heap
+    // LLStandardSignal object will live at least until post() returns, even
+    // if 'this' gets destroyed during the call.
+    boost::shared_ptr<LLStandardSignal> signal(mSignal);
     // Let caller know if any one listener handled the event. This is mostly
     // useful when using LLEventStream as a listener for an upstream
     // LLEventPump.
-    return (*mSignal)(event);
+    return (*signal)(event);
 }
 
 /*****************************************************************************
@@ -492,9 +506,16 @@ void LLEventQueue::flush()
     // be processed in the *next* flush() call.
     EventQueue queue(mEventQueue);
     mEventQueue.clear();
+    // NOTE NOTE NOTE: Any new access to member data beyond this point should
+    // cause us to move our LLStandardSignal object to a pimpl class along
+    // with said member data. Then the local shared_ptr will preserve both.
+
+    // DEV-43463: capture a local copy of mSignal. See LLEventStream::post()
+    // for detailed comments.
+    boost::shared_ptr<LLStandardSignal> signal(mSignal);
     for ( ; ! queue.empty(); queue.pop_front())
     {
-        (*mSignal)(queue.front());
+        (*signal)(queue.front());
     }
 }
 
