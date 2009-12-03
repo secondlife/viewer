@@ -286,3 +286,8 @@ LLInventoryPanel *LLSidepanelInventory::getActivePanel()
 	}
 	return NULL;
 }
+
+BOOL LLSidepanelInventory::isMainInventoryPanelActive() const
+{
+	return mInventoryPanel->getVisible();
+}

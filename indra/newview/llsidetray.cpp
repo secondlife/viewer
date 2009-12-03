@@ -159,6 +159,7 @@ public:
 	
 	void			onOpen		(const LLSD& key);
 	
+	LLPanel *getPanel();
 private:
 	std::string mTabTitle;
 	std::string mImage;
@@ -230,9 +231,15 @@ void LLSideTrayTab::reshape		(S32 width, S32 height, BOOL called_from_parent )
 
 void	LLSideTrayTab::onOpen		(const LLSD& key)
 {
-	LLPanel* panel = dynamic_cast<LLPanel*>(mMainPanel);
+	LLPanel *panel = getPanel();
 	if(panel)
 		panel->onOpen(key);
+}
+
+LLPanel*	LLSideTrayTab::getPanel()
+{
+	LLPanel* panel = dynamic_cast<LLPanel*>(mMainPanel);
+	return panel;
 }
 
 LLSideTrayTab*  LLSideTrayTab::createInstance	()
@@ -683,6 +690,23 @@ LLPanel*	LLSideTray::getPanel		(const std::string& panel_name)
 	}
 	return NULL;
 }
+
+LLPanel*	LLSideTray::getActivePanel()
+{
+	if (mActiveTab)
+	{
+		return mActiveTab->getPanel();
+	}
+	return NULL;
+}
+
+bool		LLSideTray::isPanelActive(const std::string& panel_name)
+{
+	LLPanel *panel = getActivePanel();
+	if (!panel) return false;
+	return (panel->getName() == panel_name);
+}
+
 
 // *TODO: Eliminate magic constants.
 static const S32	fake_offset = 132;
