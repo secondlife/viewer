@@ -499,8 +499,9 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 
 		// Set up window event handlers (some window-related events ONLY go to window handlers.)
 		InstallStandardEventHandler(GetWindowEventTarget(mWindow));
-		InstallWindowEventHandler (mWindow, mEventHandlerUPP, GetEventTypeCount (WindowHandlerEventList), WindowHandlerEventList, (void*)this, &mWindowHandlerRef); // add event handler
-
+		InstallWindowEventHandler(mWindow, mEventHandlerUPP, GetEventTypeCount (WindowHandlerEventList), WindowHandlerEventList, (void*)this, &mWindowHandlerRef); // add event handler
+		InstallTrackingHandler( dragTrackingHandler, mWindow, (void*)this );		
+		InstallReceiveHandler( dragReceiveHandler, mWindow, (void*)this );
 	}
 
 	{
@@ -2172,11 +2173,8 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 						}
 						else
 						{
-							MASK mask = 0;
-							if(modifiers & shiftKey) { mask |= MASK_SHIFT; }
-							if(modifiers & (cmdKey | controlKey)) { mask |= MASK_CONTROL; }
-							if(modifiers & optionKey) { mask |= MASK_ALT; }
-
+							MASK mask = LLWindowMacOSX::modifiersToMask(modifiers);
+							
 							llassert( actualType == typeUnicodeText );
 
 							// The result is a UTF16 buffer.  Pass the characters in turn to handleUnicodeChar.
@@ -3375,5 +3373,89 @@ std::vector<std::string> LLWindowMacOSX::getDynamicFallbackFontList()
 {
 	// Fonts previously in getFontListSans() have moved to fonts.xml.
 	return std::vector<std::string>();
+}
+
+// static
+MASK LLWindowMacOSX::modifiersToMask(SInt16 modifiers)
+{
+	MASK mask = 0;
+	if(modifiers & shiftKey) { mask |= MASK_SHIFT; }
+	if(modifiers & (cmdKey | controlKey)) { mask |= MASK_CONTROL; }
+	if(modifiers & optionKey) { mask |= MASK_ALT; }
+	return mask;
+}	
+
+OSErr LLWindowMacOSX::dragTrackingHandler(DragTrackingMessage message, WindowRef theWindow,
+						  void * handlerRefCon, DragRef theDrag)
+{
+	LLWindowMacOSX *self = (LLWindowMacOSX*)handlerRefCon;
+	return self->handleDragNDrop(theDrag, false);
+}
+
+OSErr LLWindowMacOSX::dragReceiveHandler(WindowRef theWindow, void * handlerRefCon,	
+										 DragRef theDrag)
+{	
+	LLWindowMacOSX *self = (LLWindowMacOSX*)handlerRefCon;
+	return self->handleDragNDrop(theDrag, true);
+
+}
+
+OSErr LLWindowMacOSX::handleDragNDrop(DragRef theDrag, bool drop)
+{	
+	OSErr result = noErr;
+	
+	UInt16 num_items = 0;
+	::CountDragItems(theDrag, &num_items);
+	if (1 == num_items)
+	{
+		SInt16 modifiers, mouseDownModifiers, mouseUpModifiers;
+		::GetDragModifiers(theDrag, &modifiers, &mouseDownModifiers, &mouseUpModifiers);
+		MASK mask = LLWindowMacOSX::modifiersToMask(modifiers);
+		
+		Point mouse_point;
+		// This will return the mouse point in global screen coords
+		::GetDragMouse(theDrag, &mouse_point, NULL);
+		LLCoordScreen screen_coords(mouse_point.v, mouse_point.h);
+		LLCoordGL gl_pos;
+		convertCoords(screen_coords, &gl_pos);
+		
+		DragItemRef theItemRef;
+		::GetDragItemReferenceNumber(theDrag, 0, &theItemRef);
+		
+		UInt16 numFlavors = 0;
+		::CountDragItemFlavors(theDrag, theItemRef, &numFlavors);		
+		
+		FlavorType theType = kScrapFlavorTypeUnicode;
+		std::string url;
+		for (UInt16 i=0; i<numFlavors; i++)
+		{
+			::GetFlavorType(theDrag, theItemRef, i, &theType);
+			
+			printf("Drag Flavor: '%lu'", theType);
+			fflush(stdout);
+		}
+		
+		Size size = 1024;
+		::GetFlavorDataSize(theDrag, theItemRef, theType, &size);
+		
+		::GetFlavorData(theDrag, theItemRef, theType, mDragData, &size, 0);
+		url = mDragData;
+				
+		printf("Drag Flavor: '%lu'  - Drag data : %s", theType, url.c_str());
+		fflush(stdout);
+			
+		LLWindowCallbacks::DragNDropResult res = 
+			mCallbacks->handleDragNDrop(this, gl_pos, mask, drop, url);
+		
+		if (LLWindowCallbacks::DND_NONE == res)
+		{
+			result = dragNotAcceptedErr;
+		}
+	}
+	else {
+		result = dragNotAcceptedErr;
+	}
+	
+	return result;
 }
 
