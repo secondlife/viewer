@@ -896,7 +896,7 @@ bool LLLocationInputCtrl::onLocationContextMenuItemEnabled(const LLSD& userdata)
 	}
 	else if (item == "can_select_all")
 	{
-		return mTextEntry->canSelectAll();
+		return mTextEntry->canSelectAll() && (mTextEntry->getLength() > 0);
 	}
 	else if(item == "show_coordinates")
 	{

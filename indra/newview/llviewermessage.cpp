@@ -5519,17 +5519,6 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 		notification = LLNotifications::instance().add(
 			LLNotification::Params("ScriptDialogGroup").substitutions(args).payload(payload).form_elements(form.asLLSD()));
 	}
-
-	// "ScriptDialog" and "ScriptDialogGroup" are handles by LLScriptFloaterManager.
-	// We want to inform user that there is a script floater, lets add "ScriptToast"
-	LLNotification::Params p("ScriptToast");
-	p.substitutions(args).payload(payload).functor.function(boost::bind(
-		LLScriptFloaterManager::onToastButtonClick, _1, _2));
-
-	notification = LLNotifications::instance().add(p);
-
-	LLScriptFloaterManager::getInstance()->setNotificationToastId(
-		object_id, notification->getID());
 }
 
 //---------------------------------------------------------------------------

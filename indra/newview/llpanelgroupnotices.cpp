@@ -304,6 +304,9 @@ BOOL LLPanelGroupNotices::postBuild()
 
 void LLPanelGroupNotices::activate()
 {
+	if(mNoticesList)
+		mNoticesList->deleteAllItems();
+	
 	BOOL can_send = gAgent.hasPowerInGroup(mGroupID,GP_NOTICES_SEND);
 	BOOL can_receive = gAgent.hasPowerInGroup(mGroupID,GP_NOTICES_RECEIVE);
 
