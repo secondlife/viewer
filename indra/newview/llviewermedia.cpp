@@ -674,7 +674,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 		
 		LLPluginClassMedia::EPriority new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 
-		if(pimpl->isForcedUnloaded() || (impl_count_total > (int)max_instances))
+		if(pimpl->isForcedUnloaded() || (impl_count_total >= (int)max_instances))
 		{
 			// Never load muted or failed impls.
 			// Hard limit on the number of instances that will be loaded at one time
