@@ -538,8 +538,13 @@ void start_chat( EKeystate s )
 
 void start_gesture( EKeystate s )
 {
+	LLUICtrl* focus_ctrlp = NULL;
+	if(gFocusMgr.getKeyboardFocus())
+	{
+		focus_ctrlp = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
+	}
 	if (KEYSTATE_UP == s &&
-		!(gFocusMgr.getKeyboardFocus() && dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus())->acceptsTextInput()))
+		!(gFocusMgr.getKeyboardFocus() && focus_ctrlp && focus_ctrlp->acceptsTextInput()))
 	{
  		if (LLNearbyChatBar::getInstance()->getCurrentChat().empty())
  		{
