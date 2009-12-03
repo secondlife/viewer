@@ -21,7 +21,7 @@
    allow_html="true"
    bg_readonly_color="ChatHistoryBgColor"
    bg_writeable_color="ChatHistoryBgColor"
-   border_visible="true" 
+   border_visible="false" 
    follows="all"
    font="SansSerif" 
 	    left="1"
