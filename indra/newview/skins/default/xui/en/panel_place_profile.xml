@@ -602,7 +602,7 @@
                          layout="topleft"
                          left_pad="10"
                          name="region_rating"
-                         value="Explicit"
+                         value="Adult"
                          width="159" />
                         <text
                          follows="left|top"

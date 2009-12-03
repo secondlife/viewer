@@ -7967,7 +7967,7 @@
     <key>ShowPGSearchAll</key>    
     <map>
       <key>Comment</key>
-      <string>Display results of search All that are flagged as PG</string>
+      <string>Display results of search All that are flagged as general</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -7980,7 +7980,7 @@
     <key>ShowMatureSearchAll</key>
     <map>
       <key>Comment</key>
-      <string>Display results of search All that are flagged as mature</string>
+      <string>Display results of search All that are flagged as moderate</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8006,7 +8006,7 @@
     <key>ShowPGGroups</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find groups that are flagged as PG</string>
+      <string>Display results of find groups that are flagged as general</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8019,7 +8019,7 @@
     <key>ShowMatureGroups</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find groups that are flagged as mature</string>
+      <string>Display results of find groups that are flagged as moderate</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8045,7 +8045,7 @@
     <key>ShowPGClassifieds</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find classifieds that are flagged as PG</string>
+      <string>Display results of find classifieds that are flagged as general</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8058,7 +8058,7 @@
     <key>ShowMatureClassifieds</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find classifieds that are flagged as mature</string>
+      <string>Display results of find classifieds that are flagged as moderate</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8084,7 +8084,7 @@
     <key>ShowPGEvents</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find events that are flagged as PG</string>
+      <string>Display results of find events that are flagged as general</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8097,7 +8097,7 @@
     <key>ShowMatureEvents</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find events that are flagged as mature</string>
+      <string>Display results of find events that are flagged as moderate</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8123,7 +8123,7 @@
     <key>ShowPGLand</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find land sales that are flagged as PG</string>
+      <string>Display results of find land sales that are flagged as general</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8136,7 +8136,7 @@
     <key>ShowMatureLand</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find land sales that are flagged as mature</string>
+      <string>Display results of find land sales that are flagged as moderate</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8162,7 +8162,7 @@
     <key>ShowPGSims</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find places or find popular that are in PG sims</string>
+      <string>Display results of find places or find popular that are in general sims</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8175,7 +8175,7 @@
     <key>ShowMatureSims</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find places or find popular that are in mature sims</string>
+      <string>Display results of find places or find popular that are in moderate sims</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>

@@ -171,7 +171,7 @@
     </text>
     <combo_box
      height="20"
-     label="Mature"
+     label="Moderate"
      layout="topleft"
      left_delta="100"
      name="access_combo"

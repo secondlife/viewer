@@ -235,7 +235,7 @@
      control_name="MapShowEvents"
      follows="top|right"
      height="16"
-     label="PG"
+     label="General"
      layout="topleft"
      left_pad="4"
      name="event_chk"

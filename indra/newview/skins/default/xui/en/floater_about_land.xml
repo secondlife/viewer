@@ -1181,7 +1181,7 @@ Only large parcels can be listed in search.
             </panel.string>
             <panel.string
              name="mature_check_adult">
-                Explicit Content
+                Adult Content
             </panel.string>
             <panel.string
              name="mature_check_mature_tooltip">
@@ -1189,7 +1189,7 @@ Only large parcels can be listed in search.
             </panel.string>
             <panel.string
              name="mature_check_adult_tooltip">
-                Your parcel information or content is considered explicit.
+                Your parcel information or content is considered adult.
             </panel.string>
             <panel.string
              name="landing_point_none">
@@ -1478,7 +1478,7 @@ Only large parcels can be listed in search.
             </combo_box>
             <check_box
              height="16"
-             label="Mature Content"
+             label="Moderate Content"
              layout="topleft"
              left="14"
              name="MatureCheck"
