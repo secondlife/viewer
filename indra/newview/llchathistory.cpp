@@ -355,6 +355,7 @@ void LLChatHistory::clear()
 {
 	mLastFromName.clear();
 	LLTextEditor::clear();
+	mLastFromID = LLUUID::null;
 }
 
 void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_chat_history, const LLStyle::Params& input_append_params)
@@ -389,9 +390,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 
 		LLDate new_message_time = LLDate::now();
 
-		if (mLastFromName == chat.mFromName && 
-			mLastMessageTime.notNull() &&
-			(new_message_time.secondsSinceEpoch() - mLastMessageTime.secondsSinceEpoch()) < 60.0 )
+		if (mLastFromName == chat.mFromName 
+			&& mLastFromID == chat.mFromID
+			&& mLastMessageTime.notNull() 
+			&& (new_message_time.secondsSinceEpoch() - mLastMessageTime.secondsSinceEpoch()) < 60.0 
+			)
 		{
 			view = getSeparator();
 			p.top_pad = mTopSeparatorPad;
@@ -419,6 +422,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 
 		appendWidget(p, header_text, false);
 		mLastFromName = chat.mFromName;
+		mLastFromID = chat.mFromID;
 		mLastMessageTime = new_message_time;
 	}
 	//Handle IRC styled /me messages.

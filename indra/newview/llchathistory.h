@@ -114,6 +114,7 @@ class LLChatHistory : public LLTextEditor
 
 	private:
 		std::string mLastFromName;
+		LLUUID mLastFromID;
 		LLDate mLastMessageTime;
 		std::string mMessageHeaderFilename;
 		std::string mMessageSeparatorFilename;
