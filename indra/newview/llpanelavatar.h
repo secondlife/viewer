@@ -192,8 +192,8 @@ protected:
 
 private:
 
-	typedef std::list<std::string>	group_list_t;
-	group_list_t 			mGroups;
+	typedef std::map< std::string,LLUUID>	group_map_t;
+	group_map_t 			mGroups;
 
 	LLToggleableMenu*		mProfileMenu;
 };

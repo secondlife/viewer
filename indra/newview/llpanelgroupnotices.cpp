@@ -510,6 +510,9 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 
 	S32 i=0;
 	S32 count = msg->getNumberOfBlocks("Data");
+
+	mNoticesList->setEnabled(TRUE);
+
 	for (;i<count;++i)
 	{
 		msg->getUUID("Data","NoticeID",id,i);

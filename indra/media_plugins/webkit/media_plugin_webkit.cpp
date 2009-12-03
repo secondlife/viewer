@@ -497,7 +497,16 @@ private:
 		{
 //			std::cerr << "unicode input, code = 0x" << std::hex << (unsigned long)(wstr[i]) << std::dec << std::endl;
 			
-			LLQtWebKit::getInstance()->unicodeInput(mBrowserWindowId, wstr[i], modifiers);
+			if(wstr[i] == 32)
+			{
+				// For some reason, the webkit plugin really wants the space bar to come in through the key-event path, not the unicode path.
+				LLQtWebKit::getInstance()->keyEvent( mBrowserWindowId, LLQtWebKit::KE_KEY_DOWN, 32, modifiers);
+				LLQtWebKit::getInstance()->keyEvent( mBrowserWindowId, LLQtWebKit::KE_KEY_UP, 32, modifiers);
+			}
+			else
+			{
+				LLQtWebKit::getInstance()->unicodeInput(mBrowserWindowId, wstr[i], modifiers);
+			}
 		}
 
 		checkEditState();

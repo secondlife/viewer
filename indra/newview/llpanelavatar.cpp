@@ -254,10 +254,18 @@ void LLPanelAvatarNotes::onCommitRights()
 	const LLRelationship* buddy_relationship =
 			LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
 	bool allow_modify_objects = childGetValue("objects_check").asBoolean();
+
+	// if modify objects checkbox clicked
 	if (buddy_relationship->isRightGrantedTo(
 			LLRelationship::GRANT_MODIFY_OBJECTS) != allow_modify_objects)
 	{
 		confirmModifyRights(allow_modify_objects, rights);
+	}
+	// only one checkbox can trigger commit, so store the rest of rights
+	else
+	{
+		LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(
+						getAvatarId(), rights);
 	}
 }
 
@@ -522,20 +530,19 @@ void LLPanelAvatarProfile::processGroupProperties(const LLAvatarGroups* avatar_g
 	for(; it_end != it; ++it)
 	{
 		LLAvatarGroups::LLGroupData group_data = *it;
-
-		// Check if there is no duplicates for this group
-		if (std::find(mGroups.begin(), mGroups.end(), group_data.group_name) == mGroups.end())
-			mGroups.push_back(group_data.group_name);
+		mGroups[group_data.group_name] = group_data.group_id;
 	}
 
 	// Creating string, containing group list
 	std::string groups = "";
-	for (group_list_t::const_iterator it = mGroups.begin(); it != mGroups.end(); ++it)
+	for (group_map_t::iterator it = mGroups.begin(); it != mGroups.end(); ++it)
 	{
 		if (it != mGroups.begin())
 			groups += ", ";
 
-		groups += *it;
+		
+		std::string group_url="[secondlife:///app/group/" + it->second.asString() + "/about " + it->first + "]";
+		groups += group_url;
 	}
 
 	childSetValue("sl_groups", groups);

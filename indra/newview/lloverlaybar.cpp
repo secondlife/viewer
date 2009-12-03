@@ -349,14 +349,8 @@ void LLOverlayBar::toggleMediaPlay(void*)
 //static
 void LLOverlayBar::toggleMusicPlay(void*)
 {
-	if (!gOverlayBar)
+	if (gAudiop->isInternetStreamPlaying() != 1)
 	{
-		return;
-	}
-	
-	if (gOverlayBar->mMusicState != PLAYING)
-	{
-		gOverlayBar->mMusicState = PLAYING; // desired state
 		if (gAudiop)
 		{
 			LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
@@ -381,7 +375,6 @@ void LLOverlayBar::toggleMusicPlay(void*)
 	//}
 	else
 	{
-		gOverlayBar->mMusicState = STOPPED; // desired state
 		if (gAudiop)
 		{
 			gAudiop->stopInternetStream();

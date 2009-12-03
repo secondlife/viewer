@@ -67,28 +67,6 @@ static const std::string TRASH_BUTTON_NAME = "trash_btn";
 // helper functions
 static void filter_list(LLInventorySubTreePanel* inventory_list, const std::string& string);
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLLandmarksPanelObserver
-//
-// Bridge to support knowing when the inventory has changed to update
-// landmarks accordions visibility.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLLandmarksPanelObserver : public LLInventoryObserver
-{
-public:
-	LLLandmarksPanelObserver(LLLandmarksPanel* lp) : mLP(lp) {}
-	virtual ~LLLandmarksPanelObserver() {}
-	/*virtual*/ void changed(U32 mask);
-
-private:
-	LLLandmarksPanel* mLP;
-};
-
-void LLLandmarksPanelObserver::changed(U32 mask)
-{
-	mLP->updateFilteredAccordions();
-}
-
 LLLandmarksPanel::LLLandmarksPanel()
 	:	LLPanelPlacesTab()
 	,	mFavoritesInventoryPanel(NULL)
@@ -99,18 +77,12 @@ LLLandmarksPanel::LLLandmarksPanel()
 	,	mListCommands(NULL)
 	,	mGearFolderMenu(NULL)
 	,	mGearLandmarkMenu(NULL)
-	,	mDirtyFilter(false)
 {
-	mInventoryObserver = new LLLandmarksPanelObserver(this);
-	gInventory.addObserver(mInventoryObserver);
-
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_landmarks.xml");
 }
 
 LLLandmarksPanel::~LLLandmarksPanel()
 {
-	if (gInventory.containsObserver(mInventoryObserver))
-		gInventory.removeObserver(mInventoryObserver);
 }
 
 BOOL LLLandmarksPanel::postBuild()
@@ -137,39 +109,34 @@ BOOL LLLandmarksPanel::postBuild()
 // virtual
 void LLLandmarksPanel::onSearchEdit(const std::string& string)
 {
-	static std::string prev_string("");
-
-	if (prev_string == string) return;
-
 	// show all folders in Landmarks Accordion for empty filter
-	mLandmarksInventoryPanel->setShowFolderState(string.empty() ?
-		LLInventoryFilter::SHOW_ALL_FOLDERS :
-		LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS
-		);
-
-	filter_list(mFavoritesInventoryPanel, string);
-	filter_list(mLandmarksInventoryPanel, string);
-	filter_list(mMyInventoryPanel, string);
-	filter_list(mLibraryInventoryPanel, string);
-
-	prev_string = string;
-	mDirtyFilter = true;
+	if (mLandmarksInventoryPanel->getFilter())
+	{
+		mLandmarksInventoryPanel->setShowFolderState(string.empty() ?
+			LLInventoryFilter::SHOW_ALL_FOLDERS :
+			LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS
+			);
+	}
 
 	// give FolderView a chance to be refreshed. So, made all accordions visible
 	for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
 	{
 		LLAccordionCtrlTab* tab = *iter;
-		tab->setVisible(true);
+		if (tab && !tab->getVisible())
+			tab->setVisible(TRUE);
 
 		// expand accordion to see matched items in each one. See EXT-2014.
 		tab->changeOpenClose(false);
 
-		// refresh all accordions to display their contents in case of less restrictive filter
 		LLInventorySubTreePanel* inventory_list = dynamic_cast<LLInventorySubTreePanel*>(tab->getAccordionView());
 		if (NULL == inventory_list) continue;
-		LLFolderView* fv = inventory_list->getRootFolder();
-		fv->refresh();
+
+		if (inventory_list->getFilter())
+			filter_list(inventory_list, string);
 	}
+
+	if (sFilterSubString != string)
+		sFilterSubString = string;
 }
 
 // virtual
@@ -253,34 +220,6 @@ void LLLandmarksPanel::onSelectorButtonClicked()
 
 		LLSideTray::getInstance()->showPanel("panel_places", key);
 	}
-}
-
-void LLLandmarksPanel::updateFilteredAccordions()
-{
-	LLInventoryPanel* inventory_list = NULL;
-	LLAccordionCtrlTab* accordion_tab = NULL;
-	for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
-	{
-		accordion_tab = *iter;
-		inventory_list = dynamic_cast<LLInventorySubTreePanel*> (accordion_tab->getAccordionView());
-		if (NULL == inventory_list) continue;
-		// This doesn't seem to work correctly.  Disabling for now. -Seraph
-		/*
-		LLFolderView* fv = inventory_list->getRootFolder();
-		bool has_descendants = fv->hasFilteredDescendants();
-
-		accordion_tab->setVisible(has_descendants);
-		*/
-		accordion_tab->setVisible(TRUE);
-	}
-
-	// we have to arrange accordion tabs for cases when filter string is less restrictive but
-	// all items are still filtered.
-	static LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("landmarks_accordion");
-	accordion->arrange();
-
-	// now filter state is applied to accordion tabs
-	mDirtyFilter = false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -394,7 +333,8 @@ void LLLandmarksPanel::initLandmarksInventoryPanel()
 
 	initLandmarksPanel(mLandmarksInventoryPanel);
 
-	mLandmarksInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
+	if (mLandmarksInventoryPanel->getFilter())
+		mLandmarksInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
 
 	// subscribe to have auto-rename functionality while creating New Folder
 	mLandmarksInventoryPanel->setSelectCallback(boost::bind(&LLInventoryPanel::onSelectionChange, mLandmarksInventoryPanel, _1, _2));
@@ -422,6 +362,9 @@ void LLLandmarksPanel::initLibraryInventoryPanel()
 
 void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_list)
 {
+	if (!inventory_list->getFilter())
+		return;
+
 	inventory_list->setFilterTypes(0x1 << LLInventoryType::IT_LANDMARK);
 	inventory_list->setSelectCallback(boost::bind(&LLLandmarksPanel::onSelectionChange, this, inventory_list, _1, _2));
 
@@ -435,6 +378,8 @@ void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_lis
 		root_folder->setupMenuHandle(LLInventoryType::IT_LANDMARK, mGearLandmarkMenu->getHandle());
 	}
 
+	root_folder->setParentLandmarksPanel(this);
+
 	// save initial folder state to avoid incorrect work while switching between Landmarks & Teleport History tabs
 	// See EXT-1609.
 	inventory_list->saveFolderState();
@@ -443,6 +388,9 @@ void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_lis
 void LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLInventorySubTreePanel* inventory_list)
 {
 	LLAccordionCtrlTab* accordion_tab = getChild<LLAccordionCtrlTab>(accordion_tab_name);
+	if (!accordion_tab)
+		return;
+
 	mAccordionTabs.push_back(accordion_tab);
 	accordion_tab->setDropDownStateChangedCallback(
 		boost::bind(&LLLandmarksPanel::onAccordionExpandedCollapsed, this, _2, inventory_list));
@@ -787,6 +735,46 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
 	}
 }
 
+void LLLandmarksPanel::updateFilteredAccordions()
+{
+	LLInventoryPanel* inventory_list = NULL;
+	LLAccordionCtrlTab* accordion_tab = NULL;
+//	bool needs_arrange = false;
+
+	for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
+	{
+		accordion_tab = *iter;
+		if (accordion_tab && !accordion_tab->getVisible())
+			accordion_tab->setVisible(TRUE);
+
+		inventory_list = dynamic_cast<LLInventorySubTreePanel*> (accordion_tab->getAccordionView());
+		if (NULL == inventory_list) continue;
+
+		// This doesn't seem to work correctly.  Disabling for now. -Seraph
+		/*
+		LLFolderView* fv = inventory_list->getRootFolder();
+
+		// arrange folder view contents to draw its descendants if it has any
+		fv->arrangeFromRoot();
+
+		bool has_descendants = fv->hasFilteredDescendants();
+		if (!has_descendants)
+			needs_arrange = true;
+
+		accordion_tab->setVisible(has_descendants);
+		*/
+		accordion_tab->setVisible(TRUE);
+	}
+
+	// we have to arrange accordion tabs for cases when filter string is less restrictive but
+	// all items are still filtered.
+//	if (needs_arrange)
+//	{
+		static LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("landmarks_accordion");
+		accordion->arrange();
+//	}
+}
+
 /*
 Processes such actions: cut/rename/delete/paste actions
 
@@ -899,12 +887,7 @@ bool LLLandmarksPanel::handleDragAndDropToTrash(BOOL drop, EDragAndDropType carg
 void LLLandmarksPanel::doIdle(void* landmarks_panel)
 {
 	LLLandmarksPanel* panel = (LLLandmarksPanel* ) landmarks_panel;
-
-	if (panel->mDirtyFilter)
-	{
-		panel->updateFilteredAccordions();
-	}
-
+	panel->updateFilteredAccordions();
 }
 
 void LLLandmarksPanel::doShowOnMap(LLLandmark* landmark)

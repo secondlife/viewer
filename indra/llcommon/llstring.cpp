@@ -985,6 +985,15 @@ bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
 		return true;
 	}
 	replacement = datetime.toHTTPDateString(code);
+
+	// *HACK: delete leading zero from hour string in case 'hour12' (code = %I) time format
+	// to show time without leading zero, e.g. 08:16 -> 8:16 (EXT-2738).
+	// We could have used '%l' format instead, but it's not supported by Windows.
+	if(code == "%I" && token == "hour12" && replacement.at(0) == '0')
+	{
+		replacement = replacement.at(1);
+	}
+
 	return !code.empty();
 }
 
