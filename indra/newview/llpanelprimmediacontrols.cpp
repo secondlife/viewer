@@ -54,6 +54,7 @@
 #include "llpanelprimmediacontrols.h"
 #include "llpluginclassmedia.h"
 #include "llprogressbar.h"
+#include "llsliderctrl.h"
 #include "llstring.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
@@ -88,7 +89,8 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mTargetImplID(LLUUID::null),
 	mTargetObjectNormal(LLVector3::zero),
 	mZoomObjectID(LLUUID::null),
-	mZoomObjectFace(0)
+	mZoomObjectFace(0),
+	mVolumeSliderVisible(false)
 {
 	mCommitCallbackRegistrar.add("MediaCtrl.Close",		boost::bind(&LLPanelPrimMediaControls::onClickClose, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Back",		boost::bind(&LLPanelPrimMediaControls::onClickBack, this));
@@ -105,7 +107,9 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mCommitCallbackRegistrar.add("MediaCtrl.JumpProgress",		boost::bind(&LLPanelPrimMediaControls::onCommitSlider, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.CommitVolumeUp",	boost::bind(&LLPanelPrimMediaControls::onCommitVolumeUp, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.CommitVolumeDown",	boost::bind(&LLPanelPrimMediaControls::onCommitVolumeDown, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.Volume",	boost::bind(&LLPanelPrimMediaControls::onCommitVolumeSlider, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.ToggleMute",		boost::bind(&LLPanelPrimMediaControls::onToggleMute, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.ShowVolumeSlider",		boost::bind(&LLPanelPrimMediaControls::showVolumeSlider, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.SkipBack",		boost::bind(&LLPanelPrimMediaControls::onClickSkipBack, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.SkipForward",	boost::bind(&LLPanelPrimMediaControls::onClickSkipForward, this));
 	
@@ -147,12 +151,14 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	mVolumeBtn				= getChild<LLButton>("media_volume_button");
 	mVolumeUpCtrl			= getChild<LLUICtrl>("volume_up");
 	mVolumeDownCtrl			= getChild<LLUICtrl>("volume_down");
+	mVolumeSliderCtrl       = getChild<LLSliderCtrl>("volume_slider");
 	mWhitelistIcon			= getChild<LLIconCtrl>("media_whitelist_flag");
 	mSecureLockIcon			= getChild<LLIconCtrl>("media_secure_lock_flag");
 	mMediaControlsStack		= getChild<LLLayoutStack>("media_controls");
 	mLeftBookend			= getChild<LLUICtrl>("left_bookend");
 	mRightBookend			= getChild<LLUICtrl>("right_bookend");
 	mBackgroundImage		= LLUI::getUIImage(getString("control_background_image_name"));
+	mVolumeSliderBackgroundImage		= LLUI::getUIImage(getString("control_background_image_name"));
 	LLStringUtil::convertToF32(getString("skip_step"), mSkipStep);
 	LLStringUtil::convertToS32(getString("min_width"), mMinWidth);
 	LLStringUtil::convertToS32(getString("min_height"), mMinHeight);
@@ -296,10 +302,12 @@ void LLPanelPrimMediaControls::updateShape()
 		LLMediaEntry *media_data = objectp->getTE(mTargetObjectFace)->getMediaData();
 		if (media_data && NULL != dynamic_cast<LLVOVolume*>(objectp))
 		{
-			// Don't show the media HUD if we do not have permissions
+			// Don't show the media controls if we do not have permissions
 			enabled = dynamic_cast<LLVOVolume*>(objectp)->hasMediaPermission(media_data, LLVOVolume::MEDIA_PERM_CONTROL);
 			mini_controls = (LLMediaEntry::MINI == media_data->getControls());
 		}
+		
+		const bool is_hud = objectp->isHUDAttachment();
 		
 		//
 		// Set the state of the buttons
@@ -323,8 +331,8 @@ void LLPanelPrimMediaControls::updateShape()
 		
 		mWhitelistIcon->setVisible(!mini_controls && (media_data)?media_data->getWhiteListEnable():false);
 		// Disable zoom if HUD
-		mZoomCtrl->setEnabled(!objectp->isHUDAttachment());
-		mUnzoomCtrl->setEnabled(!objectp->isHUDAttachment());
+		mZoomCtrl->setEnabled(!is_hud);
+		mUnzoomCtrl->setEnabled(!is_hud);
 		mSecureLockIcon->setVisible(false);
 		mCurrentURL = media_impl->getCurrentMediaURL();
 		
@@ -355,6 +363,8 @@ void LLPanelPrimMediaControls::updateShape()
 			mVolumeUpCtrl->setVisible(has_focus);
 			mVolumeDownCtrl->setVisible(has_focus);
 			mVolumeCtrl->setEnabled(has_focus);
+			mVolumeSliderCtrl->setEnabled(has_focus && mVolumeSliderVisible);
+			mVolumeSliderCtrl->setVisible(has_focus && mVolumeSliderVisible);
 
 			mWhitelistIcon->setVisible(false);
 			mSecureLockIcon->setVisible(false);
@@ -411,6 +421,7 @@ void LLPanelPrimMediaControls::updateShape()
 				mVolumeUpCtrl->setEnabled(TRUE);
 				mVolumeDownCtrl->setEnabled(TRUE);
 			}
+			mVolumeSliderCtrl->setValue(volume);
 				
 			switch(result)
 			{
@@ -456,9 +467,11 @@ void LLPanelPrimMediaControls::updateShape()
 			mVolumeCtrl->setVisible(FALSE);
 			mVolumeUpCtrl->setVisible(FALSE);
 			mVolumeDownCtrl->setVisible(FALSE);
+			mVolumeSliderCtrl->setVisible(FALSE);
 			mVolumeCtrl->setEnabled(FALSE);
 			mVolumeUpCtrl->setEnabled(FALSE);
 			mVolumeDownCtrl->setEnabled(FALSE);
+			mVolumeSliderCtrl->setEnabled(FALSE);
 			
 			if (mMediaPanelScroll)
 			{
@@ -548,56 +561,58 @@ void LLPanelPrimMediaControls::updateShape()
 		//
 		// Calculate position and shape of the controls
 		//
+		LLVector3 min, max;
+
 		glh::matrix4f mat = glh_get_current_projection()*glh_get_current_modelview();
 		std::vector<LLVector3>::iterator vert_it;
 		std::vector<LLVector3>::iterator vert_end;
 		std::vector<LLVector3> vect_face;
-
+			
 		LLVolume* volume = objectp->getVolume();
-
+			
 		if (volume)
 		{
 			const LLVolumeFace& vf = volume->getVolumeFace(mTargetObjectFace);
-
+				
 			const LLVector3* ext = vf.mExtents;
-
+				
 			LLVector3 center = (ext[0]+ext[1])*0.5f;
 			LLVector3 size = (ext[1]-ext[0])*0.5f;
 			LLVector3 vert[] =
-			{
-				center + size.scaledVec(LLVector3(1,1,1)),
-				center + size.scaledVec(LLVector3(-1,1,1)),
-				center + size.scaledVec(LLVector3(1,-1,1)),
-				center + size.scaledVec(LLVector3(-1,-1,1)),
-				center + size.scaledVec(LLVector3(1,1,-1)),
-				center + size.scaledVec(LLVector3(-1,1,-1)),
-				center + size.scaledVec(LLVector3(1,-1,-1)),
-				center + size.scaledVec(LLVector3(-1,-1,-1)),
-			};
-
+				{
+					center + size.scaledVec(LLVector3(1,1,1)),
+					center + size.scaledVec(LLVector3(-1,1,1)),
+					center + size.scaledVec(LLVector3(1,-1,1)),
+					center + size.scaledVec(LLVector3(-1,-1,1)),
+					center + size.scaledVec(LLVector3(1,1,-1)),
+					center + size.scaledVec(LLVector3(-1,1,-1)),
+					center + size.scaledVec(LLVector3(1,-1,-1)),
+					center + size.scaledVec(LLVector3(-1,-1,-1)),
+				};
+				
 			LLVOVolume* vo = (LLVOVolume*) objectp;
-
+				
 			for (U32 i = 0; i < 8; i++)
 			{
-				vect_face.push_back(vo->volumePositionToAgent(vert[i]));	
+				vect_face.push_back(vo->volumePositionToAgent(vert[i]));
 			}
 		}
 		vert_it = vect_face.begin();
 		vert_end = vect_face.end();
-
-		LLVector3 min = LLVector3(1,1,1);
-		LLVector3 max = LLVector3(-1,-1,-1);
+			
+		min = LLVector3(1,1,1);
+		max = LLVector3(-1,-1,-1);
 		for(; vert_it != vert_end; ++vert_it)
 		{
 			// project silhouette vertices into screen space
 			glh::vec3f screen_vert = glh::vec3f(vert_it->mV); 
 			mat.mult_matrix_vec(screen_vert);
-
+				
 			// add to screenspace bounding box
 			update_min_max(min, max, LLVector3(screen_vert.v));
 		}
-
-        LLCoordGL screen_min;
+			
+		LLCoordGL screen_min;
 		screen_min.mX = llround((F32)gViewerWindow->getWorldViewWidthScaled() * (min.mV[VX] + 1.f) * 0.5f);
 		screen_min.mY = llround((F32)gViewerWindow->getWorldViewHeightScaled() * (min.mV[VY] + 1.f) * 0.5f);
 
@@ -607,17 +622,16 @@ void LLPanelPrimMediaControls::updateShape()
 
 		// grow panel so that screenspace bounding box fits inside "media_region" element of HUD
 		LLRect media_controls_rect;
+		S32 volume_slider_height = mVolumeSliderCtrl->getRect().getHeight() - /*fudge*/ 2;
 		getParent()->screenRectToLocal(LLRect(screen_min.mX, screen_max.mY, screen_max.mX, screen_min.mY), &media_controls_rect);
 		media_controls_rect.mLeft -= mMediaRegion->getRect().mLeft;
-		media_controls_rect.mBottom -= mMediaRegion->getRect().mBottom;
+		media_controls_rect.mBottom -= mMediaRegion->getRect().mBottom - volume_slider_height;
 		media_controls_rect.mTop += getRect().getHeight() - mMediaRegion->getRect().mTop;
 		media_controls_rect.mRight += getRect().getWidth() - mMediaRegion->getRect().mRight;
 		
 		// keep all parts of HUD on-screen
 		media_controls_rect.intersectWith(getParent()->getLocalRect());
-		if (mCurrentZoom != ZOOM_NONE)
-			media_controls_rect.mBottom -= mMediaControlsStack->getRect().getHeight() + mMediaProgressPanel->getRect().getHeight();
-
+		
 		// clamp to minimum size, keeping centered
 		media_controls_rect.setCenterAndSize(media_controls_rect.getCenterX(), media_controls_rect.getCenterY(),
 			llmax(mMinWidth, media_controls_rect.getWidth()), llmax(mMinHeight, media_controls_rect.getHeight()));
@@ -681,6 +695,7 @@ void LLPanelPrimMediaControls::draw()
 				setVisible(FALSE);
 
 				mClearFaceOnFade = false;
+				mVolumeSliderVisible = false;
 				mTargetImplID = LLUUID::null;
 				mTargetObjectID = LLUUID::null;
 				mTargetObjectFace = 0;
@@ -692,15 +707,28 @@ void LLPanelPrimMediaControls::draw()
 	// Assumes layout_stack is a direct child of this panel
 	mMediaControlsStack->updateLayout();
 	LLRect icon_area = mMediaControlsStack->getRect();
+
+	// adjust to ignore space from volume slider
+	icon_area.mTop -= mVolumeSliderCtrl->getRect().getHeight() + 2/*fudge for prettiness*/;
 	
 	// adjust to ignore space from left bookend padding
 	icon_area.mLeft += mLeftBookend->getRect().getWidth();
 	
 	// ignore space from right bookend padding
 	icon_area.mRight -= mRightBookend->getRect().getWidth();
-	
-	// get UI image
+		
+	// draw control background UI image
 	mBackgroundImage->draw( icon_area, UI_VERTEX_COLOR % alpha);
+	
+	// draw volume slider background UI image
+	if (mVolumeSliderCtrl->getVisible())
+	{
+		LLRect volume_slider_rect = mVolumeSliderCtrl->getRect();
+		// For some reason the rect is not in the right place (??)
+		// This translates the bg to under the slider
+		volume_slider_rect.translate(mVolumeSliderCtrl->getParent()->getRect().mLeft, icon_area.getHeight());
+		mVolumeSliderBackgroundImage->draw(volume_slider_rect, UI_VERTEX_COLOR % alpha);
+	}
 	
 	{
 		LLViewDrawContext context(alpha);
@@ -1187,6 +1215,16 @@ void LLPanelPrimMediaControls::onCommitVolumeDown()
 	}
 }		
 
+void LLPanelPrimMediaControls::onCommitVolumeSlider()
+{
+	focusOnTarget();
+
+	LLViewerMediaImpl* media_impl = getTargetMediaImpl();
+	if (media_impl) 
+	{
+		media_impl->setVolume(mVolumeSliderCtrl->getValueF32());
+	}
+}
 
 void LLPanelPrimMediaControls::onToggleMute()
 {
@@ -1208,3 +1246,7 @@ void LLPanelPrimMediaControls::onToggleMute()
 	}
 }
 
+void LLPanelPrimMediaControls::showVolumeSlider()
+{
+	mVolumeSliderVisible = true;
+}
