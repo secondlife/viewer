@@ -273,10 +273,28 @@ void LLNearbyChat::updateChatHistoryStyle()
 		addMessage(*it,false);
 	}
 }
+
 //static 
 void LLNearbyChat::processChatHistoryStyleUpdate(const LLSD& newvalue)
 {
 	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 	if(nearby_chat)
 		nearby_chat->updateChatHistoryStyle();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void LLNearbyChat::onFocusReceived()
+{
+	setBackgroundOpaque(true);
+	LLPanel::onFocusReceived();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void LLNearbyChat::onFocusLost()
+{
+	setBackgroundOpaque(false);
+	LLPanel::onFocusLost();
 }

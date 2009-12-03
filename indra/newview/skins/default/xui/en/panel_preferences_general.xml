@@ -143,15 +143,15 @@
      top_pad="-10"
      width="170">
         <combo_box.item
-         label="PG, Mature and Adult"
+         label="General, Moderate, Adult"
          name="Desired_Adult"
          value="42" />
         <combo_box.item
-         label="PG and Mature"
+         label="General and Moderate"
          name="Desired_Mature"
          value="21" />
         <combo_box.item
-         label="PG"
+         label="General"
          name="Desired_PG"
          value="13" />
     </combo_box>
