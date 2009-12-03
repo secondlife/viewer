@@ -106,7 +106,7 @@
              layout="topleft"
              left_pad="15"
              name="new_btn"
-             tool_tip="Create new pick at current location"
+             tool_tip="Create new pick or classified at current location"
              top="5"
              width="18" />
             <button
