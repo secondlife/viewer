@@ -122,7 +122,6 @@ void LLNearbyChatToastPanel::addMessage(LLSD& notification)
 
 		if(notification["chat_style"].asInteger()== CHAT_STYLE_IRC)
 		{
-			messageText = messageText.substr(3);
 			style_params.font.style = "ITALIC";
 		}
 		else if( chat_type == CHAT_TYPE_SHOUT)
@@ -208,7 +207,6 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 
 		if(notification["chat_style"].asInteger()== CHAT_STYLE_IRC)
 		{
-			messageText = messageText.substr(3);
 			style_params.font.style = "ITALIC";
 		}
 		else if( chat_type == CHAT_TYPE_SHOUT)
