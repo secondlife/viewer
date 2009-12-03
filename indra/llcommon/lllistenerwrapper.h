@@ -24,7 +24,7 @@
  * derivation from LLEventTrackable, and so forth.
  */
 template <typename LISTENER>
-class LL_COMMON_API LLListenerWrapper: public LLListenerWrapperBase
+class LLListenerWrapper: public LLListenerWrapperBase
 {
 public:
     /// Wrap an arbitrary listener object
@@ -89,7 +89,7 @@ struct ll_template_cast_impl<const LLListenerWrapperBase*, const CLASS<T>*> \
  * write llwrap<Wrapper>(boost::bind(...)).
  */
 template <template<typename> class WRAPPER, typename T>
-WRAPPER<T> LL_COMMON_API llwrap(const T& listener)
+WRAPPER<T> llwrap(const T& listener)
 {
     return WRAPPER<T>(listener);
 }
@@ -109,7 +109,7 @@ WRAPPER<T> LL_COMMON_API llwrap(const T& listener)
  * @endcode
  */
 template <class LISTENER>
-class LL_COMMON_API LLCoutListener: public LLListenerWrapper<LISTENER>
+class LLCoutListener: public LLListenerWrapper<LISTENER>
 {
     typedef LLListenerWrapper<LISTENER> super;
 
@@ -151,7 +151,7 @@ LLLISTENER_WRAPPER_SUBCLASS(LLCoutListener);
  * @endcode
  */
 template <class LISTENER>
-class LL_COMMON_API LLLogListener: public LLListenerWrapper<LISTENER>
+class LLLogListener: public LLListenerWrapper<LISTENER>
 {
     typedef LLListenerWrapper<LISTENER> super;
 
