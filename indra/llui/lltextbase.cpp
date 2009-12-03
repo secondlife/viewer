@@ -543,9 +543,17 @@ void LLTextBase::drawText()
 			line_end = next_start;
 		}
 
+		// A patch for EXT-1944 "Implement ellipses in message well" 
+		// introduced a regression where text in SansSerif ending in the
+		// letter "r" is clipped.  This may be due to an off-by-one in
+		// font width information out of FreeType with our fractional font
+		// sizes.  For now, just make an extra pixel of space to resolve
+		// EXT-2971 "Letter R doesn't show when it's the last letter in a
+		// text block".  See James/Richard for details.
+		const S32 FIX_CLIPPING_HACK = 1;
 		LLRect text_rect(line.mRect.mLeft + mTextRect.mLeft - scrolled_view_rect.mLeft,
 						line.mRect.mTop - scrolled_view_rect.mBottom + mTextRect.mBottom,
-						llmin(mDocumentView->getRect().getWidth(), line.mRect.mRight) - scrolled_view_rect.mLeft,
+						llmin(mDocumentView->getRect().getWidth(), line.mRect.mRight) - scrolled_view_rect.mLeft + FIX_CLIPPING_HACK,
 						line.mRect.mBottom - scrolled_view_rect.mBottom + mTextRect.mBottom);
 
 		// draw a single line of text
