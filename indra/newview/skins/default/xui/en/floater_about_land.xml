@@ -7,7 +7,7 @@
  help_topic="floaterland"
  save_rect="true"
  title="ABOUT LAND"
- width="460">
+ width="490">
     <floater.string
      name="Minutes">
         [MINUTES] minutes
@@ -25,25 +25,25 @@
         remaining
     </floater.string>
     <tab_container
-     follows="left|top|right|bottom"
-     height="400"
+     follows="all"
+     height="410"
      layout="topleft"
-     left="1"
+     left="0"
      name="landtab"
      tab_position="top"
-     top="20"
-     width="459">
+     tab_height="25"
+     tab_min_width="67"
+     top="10"
+     width="489">
         <panel
-         border="true"
-         follows="left|top|right|bottom"
-         height="380"
-         label="General"
+         border="false"
+         follows="all"
+         label="GENERAL"
          layout="topleft"
-         left="1"
+         left="0"
          help_topic="land_general_tab"
          name="land_general_panel"
-         top="-31"
-         width="458">
+         top="0">
             <panel.string
              name="new users only">
                 New users only
@@ -74,11 +74,11 @@
             </panel.string>
             <panel.string
              name="profile_text">
-                Profile...
+                Profile
             </panel.string>
             <panel.string
              name="info_text">
-                Info...
+                Info
             </panel.string>
             <panel.string
              name="public_text">
@@ -95,7 +95,6 @@
             <panel.string
              name="no_selection_text">
                 No parcel selected.
-Go to World menu &gt; About Land or select another parcel to show its details.
             </panel.string>
             <text
              type="string"
@@ -103,32 +102,29 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="Name:"
-             top="4"
-             width="92">
+             top="10"
+             width="100">
                 Name:
             </text>
             <line_editor
-             border_style="line"
-             border_thickness="1"
-             follows="left|top|right"
+             follows="left|top"
              height="16"
              layout="topleft"
              left_pad="2"
              max_length="63"
              name="Name"
              top_delta="0"
-             width="350" />
+             width="365" />
             <text
              type="string"
              length="1"
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="Description:"
-             top="24"
              width="100">
                 Description:
             </text>
@@ -136,10 +132,10 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top|right"
              height="52"
              layout="topleft"
-             left_delta="92"
+             left_pad="2"
              name="Description"
              top_delta="0"
-             width="350"
+             width="365"
              word_wrap="true" />
             <text
              type="string"
@@ -147,10 +143,10 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="LandType"
              top="84"
-             width="92">
+             width="100">
                 Type:
             </text>
             <text
@@ -159,7 +155,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="92"
+             left_pad="2"
              name="LandTypeText"
              top_delta="0"
              width="250">
@@ -171,10 +167,9 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="ContentRating"
-             top="104"
-             width="92">
+             width="100">
                 Rating:
             </text>
             <text
@@ -183,7 +178,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="92"
+             left_pad="2"
              name="ContentRatingText"
              top_delta="0"
              width="250">
@@ -195,65 +190,92 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="Owner:"
              top="124"
-             width="92">
+             width="100">
                 Owner:
             </text>
+                <avatar_icon
+     follows="left|top"
+     height="16"
+     default_icon_name="Generic_Person"
+     layout="topleft"
+     left_pad="0"
+     mouse_opaque="true"
+     width="20" />
             <text
              type="string"
              length="1"
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="92"
+             left_pad="5"
              name="OwnerText"
-             top_delta="0"
-             width="250">
+             width="240">
                 Leyla Linden
             </text>
-            <button
+             <button
+     follows="right"
+     height="16"
+     image_pressed="Info_Press"
+     image_unselected="Info_Over"
+     left_pad="3"
+     name="info_btn"
+     top_delta="-2"
+     width="16" />
+          <!--  <button
              follows="left|top"
              height="16"
-             label="Profile..."
-             label_selected="Profile..."
+             label="Profile"
              layout="topleft"
              left_pad="4"
              name="Profile..."
-             top_delta="0"
-             width="90" />
+             width="90" />-->
             <text
              type="string"
              length="1"
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="Group:"
-             top="144"
-             width="92">
+             width="100">
                 Group:
             </text>
+            <icon
+     height="16"
+     image_name="Generic_Group"
+     name="group_icon"
+     mouse_opaque="true"
+             left_pad="0"
+     width="20" />
             <text
              enabled="false"
              follows="left|top"
              height="16"
+             left_pad="5"
              layout="topleft"
-             left_delta="92"
              name="GroupText"
-             top_delta="2"
-             width="250" />
+             width="240" />
+                 <button
+     follows="right"
+     height="16"
+     image_pressed="Info_Press"
+     image_unselected="Info_Over"
+     left_pad="3"
+     name="info_btn"
+     top_delta="-2"
+     width="16" />
             <button
              follows="left|top"
              height="16"
-             label="Set..."
-             label_selected="Set..."
+             label="Set"
              layout="topleft"
              left_pad="4"
+             right="-10"
              name="Set..."
-             top_delta="-2"
-             width="90" />
+             width="50" />
             <check_box
              enabled="false"
              height="16"
@@ -263,15 +285,15 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              name="check deed"
              tool_tip="A group officer can deed this land to the group, so it will be supported by the group&apos;s land allocation."
              top="164"
-             width="116" />
+             width="146" />
             <button
              enabled="false"
              follows="left|top"
              height="16"
-             label="Deed..."
-             label_selected="Deed..."
+             label="Deed"
              layout="topleft"
-             left_pad="138"
+             left_pad="2"
+             right="-10"
              name="Deed..."
              tool_tip="You may only deed land if you are an officer in the selected group."
              top_delta="0"
@@ -284,7 +306,6 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              left="96"
              name="check contrib"
              tool_tip="When the land is deeded to the group, the former owner contributes enough land allocation to support it."
-             top="184"
              width="199" />
             <text
              type="string"
@@ -292,10 +313,9 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="For Sale:"
-             top="204"
-             width="92">
+             width="100">
                 For Sale:
             </text>
             <text
@@ -304,9 +324,8 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="92"
+             left_pad="2"
              name="Not for sale."
-             top_delta="0"
              width="186">
                 Not for sale.
             </text>
@@ -318,7 +337,6 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              layout="topleft"
              left_delta="0"
              name="For Sale: Price L$[PRICE]."
-             top_delta="0"
              width="226">
                 Price: L$[PRICE] (L$[PRICE_PER_SQM]/m²).
             </text>
@@ -330,14 +348,14 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              left_delta="0"
              name="SalePending"
              top_pad="4"
-             width="344" />
+             width="324" />
             <button
              follows="left|top"
-             height="20"
-             label="Sell Land..."
-             label_selected="Sell Land..."
+             height="16"
+             label="Sell Land"
              layout="topleft"
-             left_delta="199"
+             left_pad="5"
+             right="-10"
              name="Sell Land..."
              top_delta="0"
              width="145" />
@@ -383,9 +401,9 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              label="Cancel Land Sale"
              label_selected="Cancel Land Sale"
              layout="topleft"
-             left="295"
+             right="-10"
              name="Cancel Land Sale"
-             top="228"
+             left_pad="5"
              width="145" />
             <text
              type="string"
@@ -393,10 +411,10 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="Claimed:"
              top="268"
-             width="92">
+             width="100">
                 Claimed:
             </text>
             <text
@@ -405,7 +423,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="92"
+             left_pad="2"
              name="DateClaimText"
              top_delta="0"
              width="186">
@@ -417,10 +435,10 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="PriceLabel"
              top="288"
-             width="92">
+             width="100">
                 Area:
             </text>
             <text
@@ -429,7 +447,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="92"
+             left_pad="2"
              name="PriceText"
              top_delta="0"
              width="186">
@@ -441,10 +459,10 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="Traffic:"
              top="308"
-             width="92">
+             width="100">
                 Traffic:
             </text>
             <text
@@ -453,7 +471,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="92"
+             left_pad="2"
              name="DwellText"
              top_delta="0"
              width="186">
@@ -463,8 +481,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              enabled="false"
              follows="left|top"
              height="20"
-             label="Buy Land..."
-             label_selected="Buy Land..."
+             label="Buy Land"
              layout="topleft"
              left="155"
              name="Buy Land..."
@@ -474,8 +491,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              enabled="false"
              follows="left|top"
              height="20"
-             label="Buy For Group..."
-             label_selected="Buy For Group..."
+             label="Buy For Group"
              layout="topleft"
              left="260"
              name="Buy For Group..."
@@ -485,8 +501,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              enabled="false"
              follows="left|top"
              height="20"
-             label="Buy Pass..."
-             label_selected="Buy Pass..."
+             label="Buy Pass"
              layout="topleft"
              left_delta="-105"
              name="Buy Pass..."
@@ -496,8 +511,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
             <button
              follows="left|top"
              height="20"
-             label="Abandon Land..."
-             label_selected="Abandon Land..."
+             label="Abandon Land"
              layout="topleft"
              left="260"
              name="Abandon Land..."
@@ -506,8 +520,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
             <button
              follows="left|top"
              height="20"
-             label="Reclaim Land..."
-             label_selected="Reclaim Land..."
+             label="Reclaim Land"
              layout="topleft"
              left_delta="0"
              name="Reclaim Land..."
@@ -517,8 +530,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              enabled="false"
              follows="left|top"
              height="20"
-             label="Linden Sale..."
-             label_selected="Linden Sale..."
+             label="Linden Sale"
              layout="topleft"
              left_delta="0"
              name="Linden Sale..."
@@ -528,15 +540,13 @@ Go to World menu &gt; About Land or select another parcel to show its details.
         </panel>
         <panel
          border="true"
-         follows="left|top|right|bottom"
-         height="380"
-         label="Covenant"
+         follows="all"
+         label="COVENANT"
          layout="topleft"
-         left_delta="-1"
+         left="0"
+         top="0"
          help_topic="land_covenant_tab"
-         name="land_covenant_panel"
-         top_delta="-47"
-         width="458">
+         name="land_covenant_panel">
             <panel.string
              name="can_resell">
                 Purchased land in this region may be resold.
@@ -557,13 +567,12 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              type="string"
              length="1"
              follows="left|top"
-             font="SansSerif"
-             height="20"
+             height="16"
              layout="topleft"
-             left="5"
+             left="10"
              mouse_opaque="false"
              name="estate_section_lbl"
-             top="0"
+             top="10"
              width="100">
                 Estate:
             </text>
@@ -571,38 +580,24 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              type="string"
              length="1"
              follows="left|top"
-             height="20"
+             height="16"
              layout="topleft"
-             left="10"
-             mouse_opaque="false"
-             name="estate_name_lbl"
-             top="20"
-             width="100">
-                Name:
-            </text>
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             height="20"
-             layout="topleft"
-             left_pad="10"
+             left_pad="0"
              mouse_opaque="false"
              name="estate_name_text"
              top_delta="0"
-             width="150">
+             width="260">
                 mainland
             </text>
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="20"
+             height="16"
              layout="topleft"
              left="10"
              mouse_opaque="false"
              name="estate_owner_lbl"
-             top="40"
              width="100">
                 Owner:
             </text>
@@ -610,55 +605,52 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              type="string"
              length="1"
              follows="left|top"
-             height="20"
+             height="16"
              layout="topleft"
-             left_pad="10"
+             left_pad="0"
              mouse_opaque="false"
              name="estate_owner_text"
-             top_delta="0"
-             width="150">
+             width="300">
                 (none)
             </text>
             <text_editor
              type="string"
              length="1"
              enabled="false"
-             follows="left|top|right|bottom"
-             handle_edit_keys_directly="true" 
-             height="115"
+             follows="all"
+             handle_edit_keys_directly="true"
+             height="200"
              layout="topleft"
-             left_delta="0"
+             left="10"
              max_length="65535"
              name="covenant_editor"
-             top_delta="20"
-             width="330"
+             width="470"
              word_wrap="true">
                 There is no Covenant provided for this Estate.
             </text_editor>
             <text
              type="string"
              length="1"
-             follows="left|top"
-             height="20"
+             follows="right|top"
+             height="16"
+             halign="right"
              layout="topleft"
-             left_delta="0"
+             right="-10"
+             top_pad="0"
              mouse_opaque="false"
              name="covenant_timestamp_text"
-             top_pad="55"
-             width="250">
+             width="460">
                 Last Modified Wed Dec 31 16:00:00 1969
             </text>
             <text
              type="string"
              length="1"
              follows="left|top"
-             font="SansSerif"
-             height="20"
+             height="16"
              layout="topleft"
-             left="5"
+             left="10"
              mouse_opaque="false"
              name="region_section_lbl"
-             top="250"
              width="100">
                 Region:
             </text>
@@ -666,38 +658,23 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              type="string"
              length="1"
              follows="left|top"
-             height="20"
-             layout="topleft"
-             left="10"
-             mouse_opaque="false"
-             name="region_name_lbl"
-             top="270"
-             width="100">
-                Name:
-            </text>
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             height="20"
+             height="16"
              layout="topleft"
              left_pad="10"
              mouse_opaque="false"
              name="region_name_text"
-             top_delta="0"
              width="150">
-                leyla
+                EricaVille
             </text>
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="20"
+             height="16"
              layout="topleft"
              left="10"
              mouse_opaque="false"
              name="region_landtype_lbl"
-             top="290"
              width="100">
                 Type:
             </text>
@@ -705,12 +682,11 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              type="string"
              length="1"
              follows="left|top"
-             height="20"
+             height="16"
              layout="topleft"
              left_pad="10"
              mouse_opaque="false"
              name="region_landtype_text"
-             top_delta="0"
              width="150">
                 Mainland / Homestead
             </text>
@@ -718,12 +694,11 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              type="string"
              length="1"
              follows="left|top"
-             height="20"
+             height="16"
              layout="topleft"
              left="10"
              mouse_opaque="false"
              name="region_maturity_lbl"
-             top="310"
              width="100">
                 Rating:
             </text>
@@ -731,12 +706,11 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              type="string"
              length="1"
              follows="left|top"
-             height="20"
+             height="16"
              layout="topleft"
              left_pad="10"
              mouse_opaque="false"
              name="region_maturity_text"
-             top_delta="0"
              width="150">
                 Adult
             </text>
@@ -744,12 +718,11 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              type="string"
              length="1"
              follows="left|top"
-             height="20"
+             height="16"
              layout="topleft"
              left="10"
              mouse_opaque="false"
              name="resellable_lbl"
-             top="330"
              width="100">
                 Resale:
             </text>
@@ -757,12 +730,11 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              type="string"
              length="1"
              follows="left|top"
-             height="20"
+             height="16"
              layout="topleft"
              left_pad="10"
              mouse_opaque="false"
              name="resellable_clause"
-             top_delta="0"
              width="330">
                 Land in this region may not be resold.
             </text>
@@ -770,12 +742,11 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              type="string"
              length="1"
              follows="left|top"
-             height="20"
+             height="30"
              layout="topleft"
              left="10"
              mouse_opaque="false"
              name="changeable_lbl"
-             top="350"
              width="100">
                 Subdivide:
             </text>
@@ -788,22 +759,20 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              left_pad="10"
              mouse_opaque="false"
              name="changeable_clause"
-             top_delta="0"
+             word_wrap="true"
              width="330">
                 Land in this region may not be joined/subdivided.
             </text>
         </panel>
         <panel
          border="true"
-         follows="left|top|right|bottom"
-         height="380"
-         label="Objects"
+         follows="all"
+         label="OBJECTS"
          layout="topleft"
-         left_delta="0"
+         left="0"
+         top="0"
          help_topic="land_objects_tab"
-         name="land_objects_panel"
-         top_delta="-47"
-         width="458">
+         name="land_objects_panel">
             <panel.string
              name="objects_available_text">
                 [COUNT] out of [MAX] ([AVAILABLE] available)
@@ -818,7 +787,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="parcel_object_bonus"
              top="4"
              visible="false"
@@ -835,7 +804,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              name="Simulator primitive usage:"
              top_pad="4"
              width="364">
-                Simulator primitive usage:
+               Primative usage:
             </text>
             <text
              type="string"
@@ -855,11 +824,11 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="Primitives parcel supports:"
              top="44"
              width="152">
-                Primitives parcel supports:
+                Prims parcel supports:
             </text>
             <text
              type="string"
@@ -879,11 +848,11 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="Primitives on parcel:"
              top="64"
              width="152">
-                Primitives on parcel:
+                Prims on parcel:
             </text>
             <text
              type="string"
@@ -925,7 +894,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              bottom="100"
              enabled="false"
              follows="left|top"
-             height="16"
+             height="20"
              label="Show"
              label_selected="Show"
              layout="topleft"
@@ -936,9 +905,8 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              bottom="100"
              enabled="false"
              follows="left|top"
-             height="16"
-             label="Return..."
-             label_selected="Return..."
+             height="20"
+             label="Return"
              layout="topleft"
              name="ReturnOwner..."
              right="-10"
@@ -972,8 +940,8 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              bottom="120"
              enabled="false"
              follows="left|top"
-             height="16"
              label="Show"
+             height="20"
              label_selected="Show"
              layout="topleft"
              name="ShowGroup"
@@ -983,9 +951,8 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              bottom="120"
              enabled="false"
              follows="left|top"
-             height="16"
-             label="Return..."
-             label_selected="Return..."
+             height="20"
+             label="Return"
              layout="topleft"
              name="ReturnGroup..."
              right="-10"
@@ -1019,7 +986,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              bottom="140"
              enabled="false"
              follows="left|top"
-             height="16"
+             height="20"
              label="Show"
              label_selected="Show"
              layout="topleft"
@@ -1030,9 +997,8 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              bottom="140"
              enabled="false"
              follows="left|top"
-             height="16"
-             label="Return..."
-             label_selected="Return..."
+             height="20"
+             label="Return"
              layout="topleft"
              name="ReturnOther..."
              right="-10"
@@ -1068,7 +1034,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="Autoreturn"
              top="164"
              width="294">
@@ -1091,7 +1057,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="Object Owners:"
              top="184"
              width="104">
@@ -1099,7 +1065,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
             </text>
             <button
              follows="left|top"
-             height="16"
+             height="20"
              label="Refresh List"
              label_selected="Refresh List"
              layout="topleft"
@@ -1110,25 +1076,24 @@ Go to World menu &gt; About Land or select another parcel to show its details.
             <button
              enabled="false"
              follows="left|top"
-             height="16"
-             label="Return objects..."
-             label_selected="Return objects..."
+             height="20"
+             label="Return Objects"
              layout="topleft"
              left_pad="6"
              name="Return objects..."
              top_delta="0"
+             right="-10"
              width="164" />
             <name_list
              column_padding="0"
              draw_heading="true"
-             follows="left|top|right|bottom"
-             height="165"
+             follows="all"
+             height="190"
              layout="topleft"
-             left="4"
+             left="10"
              name="owner list"
              name_column="name"
-             top="210"
-             width="450">
+             width="470">
                 <name_list.columns
                  label="Type"
                  name="type"
@@ -1153,15 +1118,13 @@ Go to World menu &gt; About Land or select another parcel to show its details.
         </panel>
         <panel
          border="true"
-         follows="left|top|right|bottom"
-         height="333"
-         label="Options"
+         follows="all"
+         label="OPTIONS"
          layout="topleft"
-         left_delta="0"
          help_topic="land_options_tab"
          name="land_options_panel"
-         top_delta="31"
-         width="458">
+         left="0"
+         top="0">
             <panel.string
              name="search_enabled_tooltip">
                 Let people see this parcel in search results
@@ -1207,11 +1170,12 @@ Only large parcels can be listed in search.
              type="string"
              length="1"
              follows="left|top"
+             text_color="white"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="allow_label"
-             top="4"
+             top="10"
              width="278">
                 Allow other residents to:
             </text>
@@ -1222,44 +1186,40 @@ Only large parcels can be listed in search.
              left="14"
              name="edit land check"
              tool_tip="If checked, anyone can terraform your land. It is best to leave this unchecked, as you can always edit your own land."
-             top="24"
-             width="268" />
+             top_pad="4"
+             width="147i" />
             <check_box
              height="16"
              label="Fly"
              layout="topleft"
-             left_delta="0"
              name="check fly"
              tool_tip="If checked, Residents can fly on your land. If unchecked, they can only fly into and over your land."
-             top_pad="4"
-             width="268" />
+             left_pad="4"
+             width="150" />
             <text
              type="string"
              length="1"
              follows="left|top"
              height="16"
              layout="topleft"
-             left="178"
+             left="14"
              name="allow_label2"
-             top="24"
-             width="104">
-                Create Objects:
+             width="150">
+                Build:
             </text>
             <check_box
              height="16"
-             label="All Residents"
+             label="Everyone"
              layout="topleft"
-             left_delta="92"
+             left_pad="2"
              name="edit objects check"
-             top_delta="0"
-             width="104" />
+             width="120" />
             <check_box
              height="16"
              label="Group"
              layout="topleft"
-             left_delta="100"
+             left_pad="2"
              name="edit group objects check"
-             top_delta="0"
              width="70" />
             <text
              type="string"
@@ -1267,17 +1227,16 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="178"
+             left="14"
              name="allow_label3"
-             top="44"
-             width="124">
+             width="150">
                 Object Entry:
             </text>
             <check_box
              height="16"
-             label="All Residents"
+             label="Everyone"
              layout="topleft"
-             left_delta="92"
+             left_pad="2"
              name="all object entry check"
              top_delta="0"
              width="120" />
@@ -1285,7 +1244,7 @@ Only large parcels can be listed in search.
              height="16"
              label="Group"
              layout="topleft"
-             left_delta="100"
+             left_pad="2"
              name="group object entry check"
              top_delta="0"
              width="70" />
@@ -1295,17 +1254,16 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="178"
+             left="14"
              name="allow_label4"
-             top="64"
-             width="124">
+             width="150">
                 Run Scripts:
             </text>
             <check_box
              height="16"
-             label="All Residents"
+             label="Everyone"
              layout="topleft"
-             left_delta="92"
+             left_pad="2"
              name="check other scripts"
              top_delta="0"
              width="120" />
@@ -1313,19 +1271,19 @@ Only large parcels can be listed in search.
              height="16"
              label="Group"
              layout="topleft"
-             left_delta="100"
+             left_pad="2"
              name="check group scripts"
              top_delta="0"
              width="70" />
             <text
              type="string"
+             text_color="white"
              length="1"
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="land_options_label"
-             top="84"
              width="278">
                 Land Options:
             </text>
@@ -1336,33 +1294,31 @@ Only large parcels can be listed in search.
              left="14"
              name="check safe"
              tool_tip="If checked, sets the land to Safe, disabling damage combat. If cleared, damage combat is enabled."
-             top="104"
-             width="268" />
+             top_pad="5"
+             width="200" />
             <check_box
              height="16"
              label="No Pushing"
              layout="topleft"
-             left_delta="164"
+             left_pad="5"
              name="PushRestrictCheck"
              tool_tip="Prevents scripts from pushing. Checking this option may be useful for preventing disruptive behavior on your land."
              top_delta="0"
              width="119" />
             <check_box
              height="16"
-             label="Show Place in Search (L$30/week) under"
+             label="Show Place in Search (L$30/week)"
              layout="topleft"
              left="14"
              name="ShowDirectoryCheck"
              tool_tip="Let people see this parcel in search results"
-             top="124"
-             width="268" />
+             width="430" />
             <combo_box
              enabled="false"
              height="18"
              layout="topleft"
-             left_delta="241"
+             left="30"
              name="land category with adult"
-             top_delta="-2"
              visible="false"
              width="130">
                 <combo_box.item
@@ -1422,9 +1378,8 @@ Only large parcels can be listed in search.
              enabled="false"
              height="18"
              layout="topleft"
-             left_delta="0"
+             left="30"
              name="land category"
-             top_delta="0"
              visible="false"
              width="130">
                 <combo_box.item
@@ -1482,8 +1437,8 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="14"
              name="MatureCheck"
+             top="180"
              tool_tip=" "
-             top="144"
              width="107" />
             <text
              type="string"
@@ -1491,74 +1446,73 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="10"
              name="Snapshot:"
-             top="164"
-             width="278">
+             text_color="white"
+             width="200">
                 Snapshot:
             </text>
             <texture_picker
              follows="left|top"
-             height="135"
+             height="150"
              layout="topleft"
-             left_delta="72"
+             left="14"
              name="snapshot_ctrl"
              tool_tip="Click to choose a picture"
-             top_delta="0"
-             width="180" />
+             width="195" />
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="30"
              layout="topleft"
-             left="4"
+             left="220"
+             top="180"
+             text_color="white"
              name="landing_point"
-             top="287"
-             width="278">
+             word_wrap="true"
+             width="200">
                 Landing Point: [LANDING]
             </text>
             <button
-             follows="left|top"
-             height="16"
+             follows="right|top"
+             height="23"
              label="Set"
              label_selected="Set"
              layout="topleft"
-             left_delta="232"
              name="Set"
              tool_tip="Sets the landing point where visitors arrive. Sets to your avatar&apos;s location inside this parcel."
-             top_delta="0"
              width="50" />
             <button
-             follows="left|top"
-             height="16"
+             follows="right|top"
+             height="23"
              label="Clear"
              label_selected="Clear"
              layout="topleft"
              left_pad="5"
              name="Clear"
              tool_tip="Clear the landing point"
-             top_delta="0"
+             right="-10"
              width="50" />
             <text
              type="string"
              length="1"
+             text_color="white"
              follows="left|top"
              height="16"
              layout="topleft"
-             left="4"
+             left="220"
+             top_pad="10"
              name="Teleport Routing: "
-             top="307"
-             width="278">
+             width="200">
                 Teleport Routing:
             </text>
             <combo_box
-             height="18"
+             height="23"
              layout="topleft"
-             left_delta="116"
              name="landing type"
+             top_pad="3"
              tool_tip="Teleport Routing -- select how to handle teleports onto your land"
-             top_delta="0"
              width="120">
                 <combo_box.item
                  enabled="true"
@@ -1579,34 +1533,31 @@ Only large parcels can be listed in search.
         </panel>
         <panel
          border="true"
-         follows="left|top|right|bottom"
-         height="363"
-         label="Media"
+         follows="all"
+         label="MEDIA"
          layout="topleft"
-         left_delta="0"
+         left="0"
+         top="0"
          help_topic="land_media_tab"
-         name="land_media_panel"
-         top_delta="1"
-         width="458">
+         name="land_media_panel">
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="20"
              layout="topleft"
              left="10"
              name="with media:"
-             top="9"
-             width="65">
+             top="10"
+             width="100">
                 Type:
             </text>
             <combo_box
-             height="18"
+             height="20"
              layout="topleft"
-             left_pad="5"
+             left_pad="0"
              name="media type"
              tool_tip="Specify if the URL is a movie, web page, or other media"
-             top_delta="-2"
              width="120" />
             <text
              follows="left|top"
@@ -1614,79 +1565,70 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="10"
              name="mime_type"
-             top_delta="2"
              width="200" />
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="20"
              layout="topleft"
              left="10"
              name="at URL:"
-             top="29"
-             width="65">
+             width="100">
                 Home URL:
             </text>
             <line_editor
-             bottom_delta="0"
              follows="left|top"
-             height="16"
+             height="20"
              layout="topleft"
-             left="80"
+             left_pad="0"
              max_length="255"
              name="media_url"
-             right="-80"
              select_on_focus="true"
-             text_readonly_color="0.576471 0.662745 0.835294 1" />
+             width="300" />
             <button
-             follows="left|top"
-             height="16"
-             label="Set..."
-             label_selected="Set..."
+             follows="right|top"
+             height="20"
+             label="Set"
              layout="topleft"
-             left_pad="8"
+             left_pad="5"
+             right="-10"
              name="set_media_url"
-             top_delta="0"
-             width="60" />
+             width="50" />
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="20"
              layout="topleft"
              left="10"
              name="CurrentURL:"
-             top="49"
-             width="65">
+             width="100">
                 Current URL:
             </text>
+             <button
+     follows="top|right"
+     height="20"
+     image_overlay="Refresh_Off"
+     layout="topleft"
+             name="reset_media_url"
+     left_pad="0"
+     tool_tip="Refresh URL"
+     width="20" />
             <text
              follows="left|top"
              height="16"
              layout="topleft"
-             left_pad="5"
+             left_pad="10"
              name="current_url"
-             top_delta="0"
              width="300" />
-            <button
-             follows="left|top"
-             height="16"
-             label="Reset..."
-             label_selected="Reset..."
-             layout="topleft"
-             left_pad="6"
-             name="reset_media_url"
-             top_delta="0"
-             width="60" />
             <check_box
              height="16"
              label="Hide URL"
              layout="topleft"
-             left="100"
+             left="110"
              name="hide_media_url"
              tool_tip="Checking this option will hide the media url to any non-authorized viewers of this parcel information. Note this is not available for HTML types."
-             top="89"
              width="200" />
             <text
              type="string"
@@ -1696,23 +1638,20 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="Description:"
-             top="49"
              width="364">
                 Description:
             </text>
             <line_editor
-             border_style="line"
-             border_thickness="1"
-             bottom_delta="0"
              follows="left|top"
-             height="16"
+             height="20"
              layout="topleft"
-             left="80"
+             left="110"
              max_length="255"
              name="url_description"
-             right="-80"
              select_on_focus="true"
-             tool_tip="Text displayed next to play/load button" />
+             tool_tip="Text displayed next to play/load button"
+             top_delta="10"
+             width="300" />
             <text
              type="string"
              length="1"
@@ -1721,10 +1660,9 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="Media texture:"
-             top="69"
-             width="364">
-                Replace
-Texture:
+             width="364"
+             word_wrap="true">
+                Replace Texture:
             </text>
             <texture_picker
              allow_no_texture="true"
@@ -1732,46 +1670,44 @@ Texture:
              follows="left|top"
              height="80"
              layout="topleft"
-             left_delta="70"
+             left="110"
              name="media texture"
              tool_tip="Click to choose a picture"
-             top_delta="0"
+             top_delta="10"
              width="64" />
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="80"
              layout="topleft"
-             left_delta="75"
+             left_pad="8"
              name="replace_texture_help"
-             top="85"
-             width="270">
-                Objects using this texture will show the movie or
-        web page after you click the play arrow.
+             width="300"
+             word_wrap="true">
+             Objects using this texture will show the movie or web page after you click the play arrow.
 
-        Select the thumbnail to choose a different texture.
+Select the thumbnail to choose a different texture.
             </text>
             <check_box
              height="16"
              label="Auto scale"
              layout="topleft"
-             left_delta="70"
+             left="110"
              name="media_auto_scale"
+             top_pad="0"
              tool_tip="Checking this option will scale the content for this parcel automatically. It may be slightly slower and lower quality visually but no other texture scaling or alignment will be required."
-             top_delta="0"
              width="200" />
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="20"
              layout="topleft"
-             left="85"
+             left="10"
              name="media_size"
              tool_tip="Size to render Web media, leave 0 for default."
-             top="185"
-             width="85">
+             width="100">
                 Size:
             </text>
             <spinner
@@ -1779,11 +1715,11 @@ Texture:
              enabled="false"
              follows="left|top"
              halign="right"
-             height="16"
+             height="20"
              increment="1"
              initial_value="0"
              layout="topleft"
-             left_delta="65"
+             left_pad="0"
              max_val="1024"
              name="media_size_width"
              tool_tip="Size to render Web media, leave 0 for default."
@@ -1794,7 +1730,7 @@ Texture:
              enabled="false"
              follows="left|top"
              halign="right"
-             height="16"
+             height="20"
              increment="1"
              initial_value="0"
              layout="topleft"
@@ -1811,7 +1747,7 @@ Texture:
              follows="left|top"
              height="16"
              layout="topleft"
-             left_delta="70"
+             left_pad="5"
              name="pixels"
              right="-10">
                 pixels
@@ -1824,15 +1760,15 @@ Texture:
              layout="topleft"
              left="10"
              name="Options:"
-             top="237"
-             width="292">
+             top_pad="8"
+             width="100">
                 Options:
             </text>
             <check_box
              height="16"
              label="Loop"
              layout="topleft"
-             left_delta="70"
+             left_pad="0"
              name="media_loop"
              tool_tip="Play media in a loop.  When the media has finished playing, it will restart from the beginning."
              top_delta="0"
@@ -1840,15 +1776,13 @@ Texture:
         </panel>
         <panel
          border="true"
-         follows="left|top|right|bottom"
-         height="363"
-         label="Audio"
+         follows="all"
+         label="SOUND"
          layout="topleft"
-         left_delta="0"
+         left="0"
+         top="0"
          help_topic="land_audio_tab"
-         name="land_audio_panel"
-         top_delta="1"
-         width="458">
+         name="land_audio_panel">
             <text
              type="string"
              length="1"
@@ -1856,21 +1790,19 @@ Texture:
              height="16"
              layout="topleft"
              left="10"
+             top="10"
              name="MusicURL:"
-             top="225"
              width="364">
                 Music URL:
             </text>
             <line_editor
-             border_style="line"
-             border_thickness="1"
-             bottom_delta="0"
              follows="left|top"
-             height="16"
+             height="20"
              layout="topleft"
-             left="80"
+             left="100"
              max_length="255"
              name="music_url"
+             top_pad="0"
              right="-15"
              select_on_focus="true" />
             <text
@@ -1881,17 +1813,16 @@ Texture:
              layout="topleft"
              left="10"
              name="Sound:"
-             top="265"
-             width="364">
+             top_pad="10"
+             width="100">
                 Sound:
             </text>
             <check_box
              height="16"
              label="Restrict gesture and object sounds to this parcel"
              layout="topleft"
-             left_delta="70"
              name="check sound local"
-             top_delta="0"
+             left_pad="0"
              width="292" />
             <text
              type="string"
@@ -1902,47 +1833,42 @@ Texture:
              left="10"
              mouse_opaque="false"
              name="Voice settings:"
-             top="305"
-             width="364">
+             top_pad="10"
+             width="100">
                 Voice:
             </text>
             <check_box
-             height="54"
+             height="16"
              label="Enable Voice"
              layout="topleft"
-             left="80"
+             left_pad="0"
              name="parcel_enable_voice_channel"
-             top="267"
-             width="463" />
+             width="300" />
             <check_box
              enabled="false"
-             height="54"
+             height="16"
              label="Enable Voice (established by the Estate)"
              layout="topleft"
-             left_delta="0"
+             left="110"
              name="parcel_enable_voice_channel_is_estate_disabled"
-             top_delta="0"
-             width="463" />
+             width="300" />
             <check_box
-             height="54"
+             height="16"
              label="Restrict Voice to this parcel"
              layout="topleft"
-             left="100"
+             left="110"
              name="parcel_enable_voice_channel_parcel"
-             top="287"
-             width="443" />
+             width="300" />
         </panel>
         <panel
          border="true"
-         follows="left|top|right|bottom"
-         height="333"
-         label="Access"
+         follows="all"
+         label="ACCESS"
          layout="topleft"
-         left_delta="0"
+         left="0"
+         top="0"
          help_topic="land_access_tab"
-         name="land_access_panel"
-         top_delta="31"
-         width="458">
+         name="land_access_panel">
             <panel.string
              name="estate_override">
                 One or more of these options is set at the estate level
@@ -1951,8 +1877,8 @@ Texture:
              type="string"
              length="1"
              follows="left|top"
-             font="SansSerif"
-             height="20"
+
+             height="16"
              layout="topleft"
              left="8"
              name="Limit access to this parcel to:"
@@ -2094,8 +2020,7 @@ Texture:
             <button
              follows="bottom"
              height="16"
-             label="Add..."
-             label_selected="Add..."
+             label="Add"
              layout="topleft"
              left_delta="5"
              name="add_allowed"
@@ -2139,8 +2064,7 @@ Texture:
             <button
              follows="bottom"
              height="16"
-             label="Add..."
-             label_selected="Add..."
+             label="Add"
              layout="topleft"
              left_delta="5"
              name="add_banned"
