@@ -59,6 +59,8 @@
 #include "llteleportflags.h"
 #include "lltracker.h"
 #include "lltransactionflags.h"
+#include "llvfile.h"
+#include "llvfs.h"
 #include "llxfermanager.h"
 #include "message.h"
 #include "sound_ids.h"

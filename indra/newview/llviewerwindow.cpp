@@ -32,6 +32,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llviewerwindow.h"
+
 #if LL_WINDOWS
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
@@ -46,7 +48,6 @@
 #include "llpanellogin.h"
 #include "llviewerkeyboard.h"
 #include "llviewermenu.h"
-#include "llviewerwindow.h"
 
 #include "llviewquery.h"
 #include "llxmltree.h"

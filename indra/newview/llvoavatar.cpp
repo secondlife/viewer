@@ -45,6 +45,7 @@
 
 #include "llaudioengine.h"
 #include "noise.h"
+#include "sound_ids.h"
 
 #include "llagent.h" //  Get state values from here
 #include "llagentwearables.h"
