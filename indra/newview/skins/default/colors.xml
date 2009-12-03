@@ -459,7 +459,7 @@
      value="0 0.5 0 1" />
     <color
      name="MenuPopupBgColor"
-	  reference="DkGray_66" />
+	  reference="DkGray2" />
     <color
      name="MultiSliderDisabledThumbColor"
      reference="Unused?" />
