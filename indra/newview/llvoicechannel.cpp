@@ -408,28 +408,6 @@ void LLVoiceChannel::doSetState(const EState& new_state)
 		mStateChangedCallback(old_state, mState);
 }
 
-void LLVoiceChannel::toggleCallWindowIfNeeded(EState state)
-{
-	LLFloaterCall* floater = dynamic_cast<LLFloaterCall*>(LLFloaterReg::getInstance("voice_call", mSessionID));
-	if (!floater)
-		return;
-
-	if (state == STATE_CONNECTED)
-	{
-		floater->init(mSessionID);
-		floater->openFloater(mSessionID);
-	}
-	// By checking that current state is CONNECTED we make sure that the call window
-	// has been shown, hence there's something to hide. This helps when user presses
-	// the "End call" button right after initiating the call.
-	// *TODO: move this check to LLFloaterCall?
-	else if (state == STATE_HUNG_UP && mState == STATE_CONNECTED)
-	{
-		floater->reset();
-		floater->closeFloater();
-	}
-}
-
 //static
 void LLVoiceChannel::initClass()
 {
@@ -630,9 +608,6 @@ void LLVoiceChannelGroup::handleError(EStatusType status)
 
 void LLVoiceChannelGroup::setState(EState state)
 {
-	// HACK: Open/close the call window if needed.
-	toggleCallWindowIfNeeded(state);
-
 	switch(state)
 	{
 	case STATE_RINGING:
@@ -886,9 +861,6 @@ void LLVoiceChannelP2P::setSessionHandle(const std::string& handle, const std::s
 
 void LLVoiceChannelP2P::setState(EState state)
 {
-	// *HACK: Open/close the call window if needed.
-	toggleCallWindowIfNeeded(state);
-	
 	llinfos << "P2P CALL STATE CHANGE: incoming=" << int(mReceivedCall) << " oldstate=" << mState << " newstate=" << state << llendl;
 
 	if (mReceivedCall) // incoming call
