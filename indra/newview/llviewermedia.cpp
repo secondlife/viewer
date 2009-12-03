@@ -330,6 +330,8 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 		media_impl->mMediaLoop = media_entry->getAutoLoop();
 		media_impl->mMediaWidth = media_entry->getWidthPixels();
 		media_impl->mMediaHeight = media_entry->getHeightPixels();
+		media_impl->mMediaAutoPlay = media_entry->getAutoPlay();
+		media_impl->mMediaEntryURL = media_entry->getCurrentURL();
 		if (media_impl->mMediaSource)
 		{
 			media_impl->mMediaSource->setAutoScale(media_impl->mMediaAutoScale);
@@ -337,8 +339,8 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 			media_impl->mMediaSource->setSize(media_entry->getWidthPixels(), media_entry->getHeightPixels());
 		}
 		
-		bool url_changed = (media_entry->getCurrentURL() != previous_url);
-		if(media_entry->getCurrentURL().empty())
+		bool url_changed = (media_impl->mMediaEntryURL != previous_url);
+		if(media_impl->mMediaEntryURL.empty())
 		{
 			if(url_changed)
 			{
@@ -353,7 +355,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 			// The current media URL is not empty.
 			// If (the media was already loaded OR the media was set to autoplay) AND this update didn't come from this agent,
 			// do a navigate.
-			bool auto_play = (media_entry->getAutoPlay() && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING));
+			bool auto_play = (media_impl->mMediaAutoPlay && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING));
 			
 			if((was_loaded || auto_play) && !update_from_self)
 			{
@@ -375,8 +377,10 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 			media_entry->getAutoLoop());
 		
 		media_impl->setHomeURL(media_entry->getHomeURL());
+		media_impl->mMediaAutoPlay = media_entry->getAutoPlay();
+		media_impl->mMediaEntryURL = media_entry->getCurrentURL();
 		
-		if(media_entry->getAutoPlay() && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING))
+		if(media_impl->mMediaAutoPlay && gSavedSettings.getBOOL(AUTO_PLAY_MEDIA_SETTING))
 		{
 			needs_navigate = true;
 		}
@@ -384,21 +388,20 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 	
 	if(media_impl)
 	{
-		std::string url = media_entry->getCurrentURL();
 		if(needs_navigate)
 		{
-			media_impl->navigateTo(url, "", true, true);
-			lldebugs << "navigating to URL " << url << llendl;
+			media_impl->navigateTo(media_impl->mMediaEntryURL, "", true, true);
+			lldebugs << "navigating to URL " << media_impl->mMediaEntryURL << llendl;
 		}
-		else if(!media_impl->mMediaURL.empty() && (media_impl->mMediaURL != url))
+		else if(!media_impl->mMediaURL.empty() && (media_impl->mMediaURL != media_impl->mMediaEntryURL))
 		{
 			// If we already have a non-empty media URL set and we aren't doing a navigate, update the media URL to match the media entry.
-			media_impl->mMediaURL = url;
+			media_impl->mMediaURL = media_impl->mMediaEntryURL;
 
 			// If this causes a navigate at some point (such as after a reload), it should be considered server-driven so it isn't broadcast.
 			media_impl->mNavigateServerRequest = true;
 
-			lldebugs << "updating URL in the media impl to " << url << llendl;
+			lldebugs << "updating URL in the media impl to " << media_impl->mMediaEntryURL << llendl;
 		}
 	}
 	
@@ -853,6 +856,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mProximity(-1),
 	mProximityDistance(0.0f),
 	mMimeTypeProbe(NULL),
+	mMediaAutoPlay(false),
 	mIsUpdated(false)
 { 
 
@@ -1933,6 +1937,33 @@ void LLViewerMediaImpl::resetPreviousMediaState()
 	mPreviousMediaState = MEDIA_NONE;
 	mPreviousMediaTime = 0.0f;
 }
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+void LLViewerMediaImpl::setDisabled(bool disabled)
+{
+	if(mIsDisabled != disabled)
+	{
+		// Only do this on actual state transitions.
+		mIsDisabled = disabled;
+		
+		if(mIsDisabled)
+		{
+			// We just disabled this media.  Clear all state.
+			unload();
+		}
+		else
+		{
+			// We just (re)enabled this media.  Do a navigate if auto-play is in order.
+			if(mMediaAutoPlay && gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING))
+			{
+				navigateTo(mMediaEntryURL, "", true, true);
+			}
+		}
+
+	}
+};
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
