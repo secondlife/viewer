@@ -689,6 +689,17 @@ LLRect LLFlatListView::getSelectedItemsRect()
 	return rc;
 }
 
+void LLFlatListView::selectFirstItem	()
+{
+	selectItemPair(mItemPairs.front(), true);
+}
+
+void LLFlatListView::selectLastItem		()
+{
+	selectItemPair(mItemPairs.back(), true);
+}
+
+
 // virtual
 bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selection)
 {
@@ -696,13 +707,44 @@ bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selecti
 	if ( !mItemPairs.size() )
 		return false;
 
-	item_pair_t* cur_sel_pair = NULL;
+	
 	item_pair_t* to_sel_pair = NULL;
-
+	item_pair_t* cur_sel_pair = NULL;
 	if ( mSelectedItemPairs.size() )
 	{
 		// Take the last selected pair
 		cur_sel_pair = mSelectedItemPairs.back();
+		// Bases on given direction choose next item to select
+		if ( is_up_direction )
+		{
+			// Find current selected item position in mItemPairs list
+			pairs_list_t::reverse_iterator sel_it = std::find(mItemPairs.rbegin(), mItemPairs.rend(), cur_sel_pair);
+
+			for (;++sel_it != mItemPairs.rend();)
+			{
+				// skip invisible items
+				if ( (*sel_it)->first->getVisible() )
+				{
+					to_sel_pair = *sel_it;
+					break;
+				}
+			}
+		}
+		else
+		{
+			// Find current selected item position in mItemPairs list
+			pairs_list_t::iterator sel_it = std::find(mItemPairs.begin(), mItemPairs.end(), cur_sel_pair);
+
+			for (;++sel_it != mItemPairs.end();)
+			{
+				// skip invisible items
+				if ( (*sel_it)->first->getVisible() )
+				{
+					to_sel_pair = *sel_it;
+					break;
+				}
+			}
+		}
 	}
 	else
 	{
@@ -712,37 +754,6 @@ bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selecti
 		to_sel_pair = cur_sel_pair;
 	}
 
-	// Bases on given direction choose next item to select
-	if ( is_up_direction )
-	{
-		// Find current selected item position in mItemPairs list
-		pairs_list_t::reverse_iterator sel_it = std::find(mItemPairs.rbegin(), mItemPairs.rend(), cur_sel_pair);
-
-		for (;++sel_it != mItemPairs.rend();)
-		{
-			// skip invisible items
-			if ( (*sel_it)->first->getVisible() )
-			{
-				to_sel_pair = *sel_it;
-				break;
-			}
-		}
-	}
-	else
-	{
-		// Find current selected item position in mItemPairs list
-		pairs_list_t::iterator sel_it = std::find(mItemPairs.begin(), mItemPairs.end(), cur_sel_pair);
-
-		for (;++sel_it != mItemPairs.end();)
-		{
-			// skip invisible items
-			if ( (*sel_it)->first->getVisible() )
-			{
-				to_sel_pair = *sel_it;
-				break;
-			}
-		}
-	}
 
 	if ( to_sel_pair )
 	{
@@ -918,6 +929,25 @@ void LLFlatListView::onFocusReceived()
 void LLFlatListView::onFocusLost()
 {
 	mSelectedItemsBorder->setVisible(FALSE);
+}
+
+//virtual 
+void LLFlatListView::notify(const LLSD& info)
+{
+	if(info.has("action"))
+	{
+		std::string str_action = info["action"];
+		if(str_action == "select_first")
+		{
+			setFocus(true);
+			selectFirstItem();
+		}
+		else if(str_action == "select_last")
+		{
+			setFocus(true);
+			selectLastItem();
+		}
+	}
 }
 
 //EOF
