@@ -481,6 +481,7 @@ with the same filename but different name
   <texture name="SliderThumb_Off" file_name="widgets/SliderThumb_Off.png" />
   <texture name="SliderThumb_Disabled" file_name="widgets/SliderThumb_Disabled.png" />
   <texture name="SliderThumb_Press" file_name="widgets/SliderThumb_Press.png" />
+  <texture name="SL_Logo" file_name="map_infohub.tga" />
 
   <texture name="Snapshot_Off" file_name="bottomtray/Snapshot_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="Snapshot_Over" file_name="bottomtray/Snapshot_Over.png" preload="false" />
