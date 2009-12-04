@@ -169,7 +169,7 @@ BOOL LLInventoryPanel::postBuild()
 	{
 		setSortOrder(gSavedSettings.getU32(DEFAULT_SORT_ORDER));
 	}
-	mFolders->setSortOrder(mFolders->getFilter()->getSortOrder());
+	mFolders->setSortOrder(getFilter()->getSortOrder());
 
 	return TRUE;
 }
@@ -209,23 +209,23 @@ LLInventoryFilter* LLInventoryPanel::getFilter()
 
 void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType filter_type)
 {
-	mFolders->getFilter()->setFilterTypes(types, filter_type);
+	getFilter()->setFilterTypes(types, filter_type);
 }	
 
 void LLInventoryPanel::setFilterPermMask(PermissionMask filter_perm_mask)
 {
-	mFolders->getFilter()->setFilterPermissions(filter_perm_mask);
+	getFilter()->setFilterPermissions(filter_perm_mask);
 }
 
 void LLInventoryPanel::setFilterSubString(const std::string& string)
 {
-	mFolders->getFilter()->setFilterSubString(string);
+	getFilter()->setFilterSubString(string);
 }
 
 void LLInventoryPanel::setSortOrder(U32 order)
 {
-	mFolders->getFilter()->setSortOrder(order);
-	if (mFolders->getFilter()->isModified())
+	getFilter()->setSortOrder(order);
+	if (getFilter()->isModified())
 	{
 		mFolders->setSortOrder(order);
 		// try to keep selection onscreen, even if it wasn't to start with
@@ -235,22 +235,22 @@ void LLInventoryPanel::setSortOrder(U32 order)
 
 void LLInventoryPanel::setSinceLogoff(BOOL sl)
 {
-	mFolders->getFilter()->setDateRangeLastLogoff(sl);
+	getFilter()->setDateRangeLastLogoff(sl);
 }
 
 void LLInventoryPanel::setHoursAgo(U32 hours)
 {
-	mFolders->getFilter()->setHoursAgo(hours);
+	getFilter()->setHoursAgo(hours);
 }
 
 void LLInventoryPanel::setShowFolderState(LLInventoryFilter::EFolderShow show)
 {
-	mFolders->getFilter()->setShowFolderState(show);
+	getFilter()->setShowFolderState(show);
 }
 
 LLInventoryFilter::EFolderShow LLInventoryPanel::getShowFolderState()
 {
-	return mFolders->getFilter()->getShowFolderState();
+	return getFilter()->getShowFolderState();
 }
 
 void LLInventoryPanel::modelChanged(U32 mask)
@@ -845,7 +845,7 @@ bool LLInventoryPanel::attachObject(const LLSD& userdata)
 
 BOOL LLInventoryPanel::getSinceLogoff()
 {
-	return mFolders->getFilter()->isSinceLogoff();
+	return getFilter()->isSinceLogoff();
 }
 
 // DEBUG ONLY

@@ -232,6 +232,13 @@ void LLInventoryFilter::setFilterTypes(U64 types, EFilterType filter_type)
 	mFilterOps.mFilterType = filter_type;
 }
 
+void LLInventoryFilter::setFilterUUID(const LLUUID& object_id)
+{
+	mFilterOps.mFilterUUID = object_id;
+	mFilterOps.mFilterType = FILTERTYPE_UUID;
+	setModified(FILTER_RESTART);
+}
+
 void LLInventoryFilter::setFilterSubString(const std::string& string)
 {
 	if (mFilterSubString != string)

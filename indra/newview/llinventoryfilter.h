@@ -86,6 +86,8 @@ public:
 	U32 				getFilterTypes() const;
 	BOOL 				isFilterWith(LLInventoryType::EType t) const;
 
+	void 				setFilterUUID(const LLUUID &object_id);
+
 	void 				setFilterSubString(const std::string& string);
 	const std::string& 	getFilterSubString(BOOL trim = FALSE) const;
 	BOOL 				hasFilterString() const;
