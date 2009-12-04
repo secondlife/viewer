@@ -32,10 +32,10 @@
      function="Edit.EnablePaste" />
   </menu_item_call>
   <menu_item_call
- label="Delete"
- layout="topleft"
- name="Delete"
- shortcut="Del">
+   label="Delete"
+   layout="topleft"
+   name="Delete"
+   shortcut="Del">
     <menu_item_call.on_click
      function="Edit.Delete" />
     <menu_item_call.on_enable
