@@ -207,9 +207,9 @@ LLInventoryFilter* LLInventoryPanel::getFilter()
 	return NULL;
 }
 
-void LLInventoryPanel::setFilterTypes(U64 filter_types, BOOL filter_for_categories)
+void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType filter_type)
 {
-	mFolders->getFilter()->setFilterTypes(filter_types, filter_for_categories);
+	mFolders->getFilter()->setFilterTypes(types, filter_type);
 }	
 
 void LLInventoryPanel::setFilterPermMask(PermissionMask filter_perm_mask)

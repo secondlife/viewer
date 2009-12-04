@@ -71,9 +71,6 @@ class LLUICtrl;
 // that only work folders or only work on items, but I'll worry about
 // that later when it's determined to be too slow.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
 class LLFolderViewFunctor
 {
 public:
