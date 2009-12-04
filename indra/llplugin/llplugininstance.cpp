@@ -43,14 +43,14 @@ LLPluginInstanceMessageListener::~LLPluginInstanceMessageListener()
 }
 
 /** 
- * Name of plugin init function. TODO:DOC need to describe how it's used?
+ * TODO:DOC describe how it's used
  */
 const char *LLPluginInstance::PLUGIN_INIT_FUNCTION_NAME = "LLPluginInitEntryPoint";
 
 /** 
  * Constructor.
  *
- * @param[in] owner Plugin instance. TODO:DOC is this a good description?
+ * @param[in] owner Plugin instance. TODO:DOC is this a good description of what "owner" is?
  */
 LLPluginInstance::LLPluginInstance(LLPluginInstanceMessageListener *owner) :
 	mDSOHandle(NULL),
@@ -154,6 +154,11 @@ void LLPluginInstance::staticReceiveMessage(const char *message_string, void **u
 	self->receiveMessage(message_string);
 }
 
+/**
+ * Plugin receives message from plugin loader shell.
+ *
+ * @param[in] message_string Message
+ */
 void LLPluginInstance::receiveMessage(const char *message_string)
 {
 	if(mOwner)

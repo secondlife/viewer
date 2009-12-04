@@ -1,6 +1,5 @@
 /** 
  * @file llplugininstance.h
- * @brief LLPluginInstance handles loading the dynamic library of a plugin and setting up its entry points for message passing.
  *
  * @cond
  * $LicenseInfo:firstyear=2008&license=viewergpl$
@@ -39,13 +38,20 @@
 
 #include "apr_dso.h"
 
+/**
+ * @brief LLPluginInstanceMessageListener receives messages sent from the plugin loader shell to the plugin.
+ */
 class LLPluginInstanceMessageListener
 {
 public:
 	virtual ~LLPluginInstanceMessageListener();
+   /** Plugin receives message from plugin loader shell. */
 	virtual void receivePluginMessage(const std::string &message) = 0;
 };
 
+/**
+ * @brief LLPluginInstance handles loading the dynamic library of a plugin and setting up its entry points for message passing.
+ */
 class LLPluginInstance
 {
 	LOG_CLASS(LLPluginInstance);
