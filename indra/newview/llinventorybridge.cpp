@@ -3768,8 +3768,14 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		getClipboardEntries(true, items, disabled_items, flags);
 
 		items.push_back(std::string("Gesture Separator"));
-		items.push_back(std::string("Activate"));
-		items.push_back(std::string("Deactivate"));
+		if (LLGestureManager::instance().isGestureActive(getUUID()))
+		{
+			items.push_back(std::string("Deactivate"));
+		}
+		else
+		{
+			items.push_back(std::string("Activate"));
+		}
 	}
 	hide_context_entries(menu, items, disabled_items);
 }
