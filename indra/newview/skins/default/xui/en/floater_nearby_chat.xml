@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
+ border_visible = "false"
+ border_drop_shadow_visible = "false"
+ drop_shadow_visible = "false"
+ border = "false"
+ bg_opaque_image="Inspector_Background"
+ bg_alpha_image="Toast_Background"	 
+ bg_alpha_color="0 0 0 0"
  legacy_header_height="18"
  can_minimize="false"
  can_tear_off="false"
@@ -22,13 +29,15 @@
              bg_readonly_color="ChatHistoryBgColor"
              bg_writeable_color="ChatHistoryBgColor"
              follows="all"
-	    left="1"
+	         left="5"
              top="20"
              layout="topleft"
-	    height="280"
+	         height="275"
              name="chat_history"
              parse_highlights="true"
              text_color="ChatHistoryTextColor"
              text_readonly_color="ChatHistoryTextColor"
-             width="320" />
+             right_widget_pad="5"
+             left_widget_pad="0"
+             width="315" />
 </floater>

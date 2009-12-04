@@ -162,11 +162,9 @@ public:
 	
 	static void onIdle(void* user_data);
 
-private:
+	// Find whichever inventory panel is active / on top.
+	static LLInventoryPanel *getActiveInventoryPanel();
 
-	// Given the id and the parent, build all of the folder views.
-	void rebuildViewsFor(const LLUUID& id);
-	virtual void buildNewViews(const LLUUID& id); // made virtual to support derived classes. EXT-719
 protected:
 	void defaultOpenInventory(); // open the first level of inventory
 
@@ -193,12 +191,14 @@ protected:
 public:
 	BOOL 				getIsViewsInitialized() const { return mViewsInitialized; }
 	const LLUUID&		getStartFolderID() const { return mStartFolderID; }
-private:
+protected:
 	// Builds the UI.  Call this once the inventory is usable.
 	void 				initializeViews();
+	void rebuildViewsFor(const LLUUID& id); // Given the id and the parent, build all of the folder views.
+	virtual void buildNewViews(const LLUUID& id);
+private:
 	BOOL				mBuildDefaultHierarchy; // default inventory hierarchy should be created in postBuild()
 	BOOL				mViewsInitialized; // Views have been generated
-	
 	// UUID of category from which hierarchy should be built.  Set with the 
 	// "start_folder" xml property.  Default is LLUUID::null that means total Inventory hierarchy. 
 	std::string         mStartFolderString;

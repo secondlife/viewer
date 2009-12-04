@@ -54,9 +54,11 @@
 #include "llstylemap.h"
 
 #include "lldraghandle.h"
-#include "lltrans.h"
+
 #include "llbottomtray.h"
 #include "llnearbychatbar.h"
+#include "llfloaterreg.h"
+#include "lltrans.h"
 
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
@@ -145,7 +147,8 @@ std::string appendTime()
 	return timeStr;
 }
 
-void	LLNearbyChat::addMessage(const LLChat& chat)
+
+void	LLNearbyChat::addMessage(const LLChat& chat,bool archive)
 {
 	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 	{
@@ -166,18 +169,15 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 		}
 	}
 
+	LLChat& tmp_chat = const_cast<LLChat&>(chat);
+
+	if(tmp_chat.mTimeStr.empty())
+		tmp_chat.mTimeStr = appendTime();
+
 	bool use_plain_text_chat_history = gSavedSettings.getBOOL("PlainTextChatHistory");
 	
 	if (!chat.mMuted)
 	{
-		std::string message = chat.mText;
-
-
-		LLChat& tmp_chat = const_cast<LLChat&>(chat);
-
-		if(tmp_chat.mTimeStr.empty())
-			tmp_chat.mTimeStr = appendTime();
-		
 		if (chat.mChatStyle == CHAT_STYLE_IRC)
 		{
 			LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
@@ -190,22 +190,21 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 			append_style_params.readonly_color(txt_color);
 			append_style_params.font.name(font_name);
 			append_style_params.font.size(font_size);
-			if (chat.mFromName.size() > 0)
-			{
-				append_style_params.font.style = "ITALIC";
-				LLChat add_chat=chat;
-				add_chat.mText = chat.mFromName + " ";
-				mChatHistory->appendMessage(add_chat, use_plain_text_chat_history, append_style_params);
-			}
-			
-			message = message.substr(3);
 			append_style_params.font.style = "ITALIC";
-			mChatHistory->appendText(message, FALSE, append_style_params);
+
+			mChatHistory->appendMessage(chat, use_plain_text_chat_history, append_style_params);
 		}
 		else
 		{
 			mChatHistory->appendMessage(chat,use_plain_text_chat_history);
 		}
+	}
+
+	if(archive)
+	{
+		mMessageArchive.push_back(chat);
+		if(mMessageArchive.size()>200)
+			mMessageArchive.erase(mMessageArchive.begin());
 	}
 }
 
@@ -255,4 +254,38 @@ void LLNearbyChat::setRect	(const LLRect &rect)
 void LLNearbyChat::getAllowedRect(LLRect& rect)
 {
 	rect = gViewerWindow->getWorldViewRectScaled();
+}
+
+void LLNearbyChat::updateChatHistoryStyle()
+{
+	mChatHistory->clear();
+	for(std::vector<LLChat>::iterator it = mMessageArchive.begin();it!=mMessageArchive.end();++it)
+	{
+		addMessage(*it,false);
+	}
+}
+
+//static 
+void LLNearbyChat::processChatHistoryStyleUpdate(const LLSD& newvalue)
+{
+	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	if(nearby_chat)
+		nearby_chat->updateChatHistoryStyle();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void LLNearbyChat::onFocusReceived()
+{
+	setBackgroundOpaque(true);
+	LLPanel::onFocusReceived();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void LLNearbyChat::onFocusLost()
+{
+	setBackgroundOpaque(false);
+	LLPanel::onFocusLost();
 }

@@ -1,19 +1,19 @@
 <!--
 This file contains metadata about how to load, display, and scale textures for rendering in the UI.
-Images do *NOT* have to appear in this file in order to use them as textures in the UI...simply refer 
+Images do *NOT* have to appear in this file in order to use them as textures in the UI...simply refer
 to them by filename (relative to textures directory).
-NOTE: if you want to reuse an image file with different metadata, simply create a new texture entry 
+NOTE: if you want to reuse an image file with different metadata, simply create a new texture entry
 with the same filename but different name
 
 <texture
   name="MyTexture" (mandatory)
     - this is the name you reference the texture by in XUI.  For example, <button image_unselected="MyTexture"/>
   file_name="images/my_texture.png" (optional)
-    - this is the path to the actual file asset, relative to the current skins "textures" directory.  
-      If not supplied, the filename will be taken from the texture name itself, "MyTexture" in this case.  
+    - this is the path to the actual file asset, relative to the current skins "textures" directory.
+      If not supplied, the filename will be taken from the texture name itself, "MyTexture" in this case.
       NOTE: you need to provide an extension on the filename (".png", ".tga", ".jpg") for us to decode the image properly
   preload="true" (optional, false by default)
-    - If true, we will attempt to load the image before displaying any UI.  
+    - If true, we will attempt to load the image before displaying any UI.
       If false, we will load in the background after initializing the UI.
   use_mips="true" (currently unused)
   scale.left="1"
@@ -23,8 +23,8 @@ with the same filename but different name
     - Specifies the segmentation for 9-slice image scaling.  Specifically, the pixel offsets from the LOWER LEFT corner
       that define the region of the image that is stretched to make the whole image fit in the required space.
       In this example, if the source image is 32x16 pixels, we have defined a center region that starts one pixel up
-      and to the right from the bottom left corner and extends to 31 pixels right and 15 pixels up from the bottom left 
-      corner.  The end result is that the image will keep a 1 pixel border all around while stretching to fit the required 
+      and to the right from the bottom left corner and extends to 31 pixels right and 15 pixels up from the bottom left
+      corner.  The end result is that the image will keep a 1 pixel border all around while stretching to fit the required
       region.
 -->
 
@@ -52,9 +52,6 @@ with the same filename but different name
 
   <texture name="Arrow_Left" file_name="widgets/Arrow_Left.png" preload="true" />
   <texture name="Arrow_Right" file_name="widgets/Arrow_Right.png" preload="true" />
-
-  <texture name="Arrow_Up" file_name="widgets/Arrow_Up.png" preload="true" />
-  <texture name="Arrow_Down" file_name="widgets/Arrow_Down.png" preload="true" />
 
   <texture name="Arrow_Small_Up" file_name="widgets/Arrow_Small_Up.png" preload="true" />
   <texture name="Arrow_Small_Left" file_name="widgets/Arrow_Small_Left.png" preload="true" />
@@ -143,7 +140,6 @@ with the same filename but different name
   <texture name="DropDown_Over" file_name="widgets/DropDown_Over.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Press" file_name="widgets/DropDown_Press.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Selected" file_name="widgets/DropDown_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  <texture name="DropDown_On" file_name="widgets/DropDown_On.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Off" file_name="widgets/DropDown_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
 
   <texture name="DropTarget" file_name="widgets/DropTarget.png" preload="false" />
@@ -234,6 +230,8 @@ with the same filename but different name
   <texture name="Inv_Gesture" file_name="icons/Inv_Gesture.png" preload="false" />
   <texture name="Inv_Gloves" file_name="icons/Inv_Gloves.png" preload="false" />
   <texture name="Inv_Hair" file_name="icons/Inv_Hair.png" preload="false" />
+  <texture name="Inv_LinkItem" file_name="icons/Inv_LinkItem.png" preload="false" />
+  <texture name="Inv_LinkFolder" file_name="icons/Inv_LinkFolder.png" preload="false" />
   <texture name="Inv_Jacket" file_name="icons/Inv_Jacket.png" preload="false" />
   <texture name="Inv_LookFolderOpen" file_name="icons/Inv_LookFolderOpen.png" preload="false" />
   <texture name="Inv_LookFolderClosed" file_name="icons/Inv_LookFolderClosed.png" preload="false" />
@@ -345,8 +343,8 @@ with the same filename but different name
  <texture name="parcel_drk_BuildNo" file_name="icons/parcel_drk_BuildNo.png" preload="false" />
  <texture name="parcel_drk_Damage" file_name="icons/parcel_drk_Damage.png" preload="false" />
  <texture name="parcel_drk_DamageNo" file_name="icons/parcel_drk_DamageNo.png" preload="false" />
-  <texture name="parcel_drk_EVRY" file_name="icons/parcel_drk_EVRY.png" preload="false" />
-  <texture name="parcel_drk_EXP" file_name="icons/parcel_drk_EXP.png" preload="false" />
+ <texture name="parcel_drk_EVRY" file_name="icons/parcel_drk_EVRY.png" preload="false" />
+ <texture name="parcel_drk_EXP" file_name="icons/parcel_drk_EXP.png" preload="false" />
  <texture name="parcel_drk_Fly" file_name="icons/parcel_drk_Fly.png" preload="false" />
  <texture name="parcel_drk_FlyNo" file_name="icons/parcel_drk_FlyNo.png" preload="false" />
  <texture name="parcel_drk_ForSale" file_name="icons/parcel_drk_ForSale.png" preload="false" />
@@ -365,8 +363,8 @@ with the same filename but different name
  <texture name="parcel_lght_BuildNo" file_name="icons/parcel_lght_BuildNo.png" preload="false" />
  <texture name="parcel_lght_Damage" file_name="icons/parcel_lght_Damage.png" preload="false" />
  <texture name="parcel_lght_DamageNo" file_name="icons/parcel_lght_DamageNo.png" preload="false" />
-  <texture name="parcel_lght_EVRY" file_name="icons/parcel_lght_EVRY.png" preload="false" />
-  <texture name="parcel_lght_EXP" file_name="icons/parcel_lght_EXP.png" preload="false" />
+ <texture name="parcel_lght_EVRY" file_name="icons/parcel_lght_EVRY.png" preload="false" />
+ <texture name="parcel_lght_EXP" file_name="icons/parcel_lght_EXP.png" preload="false" />
  <texture name="parcel_lght_Fly" file_name="icons/parcel_lght_Fly.png" preload="false" />
  <texture name="parcel_lght_FlyNo" file_name="icons/parcel_lght_FlyNo.png" preload="false" />
  <texture name="parcel_lght_ForSale" file_name="icons/parcel_lght_ForSale.png" preload="false" />
@@ -404,9 +402,12 @@ with the same filename but different name
   <texture name="ProgressBar" file_name="widgets/ProgressBar.png" preload="true" scale.left="4" scale.top="10" scale.right="48" scale.bottom="2" />
   <texture name="ProgressTrack" file_name="widgets/ProgressTrack.png" preload="true" scale.left="4" scale.top="13" scale.right="148" scale.bottom="2" />
 
-  <texture name="PushButton_Off" file_name="widgets/PushButton_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
-  <texture name="PushButton_Press" file_name="widgets/PushButton_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
   <texture name="PushButton_Disabled" file_name="widgets/PushButton_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_Off" file_name="widgets/PushButton_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_On" file_name="widgets/PushButton_On.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_On_Selected" file_name="widgets/PushButton_On_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_On_Disabled" file_name="widgets/PushButton_On_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+  <texture name="PushButton_Press" file_name="widgets/PushButton_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
   <texture name="PushButton_Selected" file_name="widgets/PushButton_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
   <texture name="PushButton_Selected_Press" file_name="widgets/PushButton_Selected_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
   <texture name="PushButton_Selected_Disabled" file_name="widgets/PushButton_Selected_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
@@ -486,6 +487,8 @@ with the same filename but different name
   <texture name="Snapshot_Off" file_name="bottomtray/Snapshot_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="Snapshot_Over" file_name="bottomtray/Snapshot_Over.png" preload="false" />
   <texture name="Snapshot_Press" file_name="bottomtray/Snapshot_Press.png" preload="false" />
+
+  <texture name="startup_logo"  file_name="windows/startup_logo.png" preload="true" />
 
   <texture name="Stepper_Down_Disabled" file_name="widgets/Stepper_Down_Disabled.png" preload="true" />
   <texture name="Stepper_Down_Off" file_name="widgets/Stepper_Down_Off.png" preload="true" />
@@ -705,7 +708,6 @@ with the same filename but different name
   <texture name="tab_top_blue.tga"	preload="false" scale.left="8" scale.top="8" scale.right="120" scale.bottom="9" />
   <texture name="tab_top_selected_blue.tga" preload="false" scale.left="8" scale.top="8" scale.right="96" scale.bottom="9" />
 
-  <texture name="startup_logo.j2c" preload="true" />
   <texture name="color_swatch_alpha.tga" preload="true" />
 
   <texture name="button_anim_pause.tga" />

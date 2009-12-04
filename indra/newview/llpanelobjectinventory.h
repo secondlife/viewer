@@ -74,6 +74,9 @@ public:
 	virtual void deleteAllChildren();
 	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg);
 	
+	/*virtual*/ void onFocusLost();
+	/*virtual*/ void onFocusReceived();
+	
 	static void idle(void* user_data);
 
 protected:

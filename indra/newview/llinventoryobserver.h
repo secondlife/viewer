@@ -56,11 +56,12 @@ public:
 	{
 		NONE = 0,
 		LABEL = 1,			// name changed
-		INTERNAL = 2,		// internal change, eg, asset uuid different
+		INTERNAL = 2,		// internal change (e.g. asset uuid different)
 		ADD = 4,			// something added
 		REMOVE = 8,			// something deleted
-		STRUCTURE = 16,		// structural change, eg, item or folder moved
-		CALLING_CARD = 32,	// online, grant status, cancel, etc change
+		STRUCTURE = 16,		// structural change (eg item or folder moved)
+		CALLING_CARD = 32,	// (eg online, grant status, cancel)
+		REBUILD = 64, 		// item UI changed (eg item type different)
 		ALL = 0xffffffff
 	};
 	LLInventoryObserver();

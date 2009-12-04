@@ -309,7 +309,7 @@
          name="Indecency__Mature_content_in_PG_region"
          value="60" />
         <combo_box.item
-         label="Indecency &gt; Inappropriate content or conduct in a Mature region"
+         label="Indecency &gt; Inappropriate content or conduct in a Moderate region"
          name="Indecency__Inappropriate_content_in_Mature_region"
          value="69" />
         <combo_box.item

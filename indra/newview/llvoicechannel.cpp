@@ -408,28 +408,6 @@ void LLVoiceChannel::doSetState(const EState& new_state)
 		mStateChangedCallback(old_state, mState);
 }
 
-void LLVoiceChannel::toggleCallWindowIfNeeded(EState state)
-{
-	LLFloaterCall* floater = dynamic_cast<LLFloaterCall*>(LLFloaterReg::getInstance("voice_call", mSessionID));
-	if (!floater)
-		return;
-
-	if (state == STATE_CONNECTED)
-	{
-		floater->init(mSessionID);
-		floater->openFloater(mSessionID);
-	}
-	// By checking that current state is CONNECTED we make sure that the call window
-	// has been shown, hence there's something to hide. This helps when user presses
-	// the "End call" button right after initiating the call.
-	// *TODO: move this check to LLFloaterCall?
-	else if (state == STATE_HUNG_UP && mState == STATE_CONNECTED)
-	{
-		floater->reset();
-		floater->closeFloater();
-	}
-}
-
 //static
 void LLVoiceChannel::initClass()
 {
@@ -630,9 +608,6 @@ void LLVoiceChannelGroup::handleError(EStatusType status)
 
 void LLVoiceChannelGroup::setState(EState state)
 {
-	// HACK: Open/close the call window if needed.
-	toggleCallWindowIfNeeded(state);
-
 	switch(state)
 	{
 	case STATE_RINGING:
@@ -750,6 +725,8 @@ LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID& session_id, const std::string
 		mReceivedCall(FALSE)
 {
 	// make sure URI reflects encoded version of other user's agent id
+	// *NOTE: in case of Avaline call generated SIP URL will be incorrect.
+	// But it will be overridden in LLVoiceChannelP2P::setSessionHandle() called when agent accepts call
 	setURI(LLVoiceClient::getInstance()->sipURIFromID(other_user_id));
 }
 
@@ -867,6 +844,10 @@ void LLVoiceChannelP2P::setSessionHandle(const std::string& handle, const std::s
 	}
 	else
 	{
+		LL_WARNS("Voice") << "incoming SIP URL is not provided. Channel may not work properly." << LL_ENDL;
+		// In case of incoming AvaLine call generated URI will be differ from original one.
+		// This is because Avatar-2-Avatar URI is based on avatar UUID but Avaline is not.
+		// See LLVoiceClient::sessionAddedEvent() -> setUUIDFromStringHash()
 		setURI(LLVoiceClient::getInstance()->sipURIFromID(mOtherUserID));
 	}
 	
@@ -880,9 +861,6 @@ void LLVoiceChannelP2P::setSessionHandle(const std::string& handle, const std::s
 
 void LLVoiceChannelP2P::setState(EState state)
 {
-	// *HACK: Open/close the call window if needed.
-	toggleCallWindowIfNeeded(state);
-	
 	llinfos << "P2P CALL STATE CHANGE: incoming=" << int(mReceivedCall) << " oldstate=" << mState << " newstate=" << state << llendl;
 
 	if (mReceivedCall) // incoming call

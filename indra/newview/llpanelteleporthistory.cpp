@@ -220,7 +220,6 @@ void LLTeleportHistoryPanel::ContextMenu::onCopyToClipboard()
 
 LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 	:	LLPanelPlacesTab(),
-		mFilterSubString(LLStringUtil::null),
 		mDirty(true),
 		mCurrentItem(0),
 		mTeleportHistory(NULL),
@@ -317,9 +316,9 @@ void LLTeleportHistoryPanel::draw()
 // virtual
 void LLTeleportHistoryPanel::onSearchEdit(const std::string& string)
 {
-	if (mFilterSubString != string)
+	if (sFilterSubString != string)
 	{
-		mFilterSubString = string;
+		sFilterSubString = string;
 		showTeleportHistory();
 	}
 }
@@ -482,8 +481,8 @@ void LLTeleportHistoryPanel::refresh()
 		std::string landmark_title = items[mCurrentItem].mTitle;
 		LLStringUtil::toUpper(landmark_title);
 
-		std::string::size_type match_offset = mFilterSubString.size() ? landmark_title.find(mFilterSubString) : std::string::npos;
-		bool passed = mFilterSubString.size() == 0 || match_offset != std::string::npos;
+		std::string::size_type match_offset = sFilterSubString.size() ? landmark_title.find(sFilterSubString) : std::string::npos;
+		bool passed = sFilterSubString.size() == 0 || match_offset != std::string::npos;
 
 		if (!passed)
 		{

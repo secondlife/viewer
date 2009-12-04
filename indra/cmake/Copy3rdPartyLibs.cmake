@@ -35,7 +35,6 @@ if(WINDOWS)
     set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug")
     set(debug_files
         openjpegd.dll
-        libtcmalloc_minimal-debug.dll
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
@@ -46,11 +45,15 @@ if(WINDOWS)
     set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release")
     set(release_files
         openjpeg.dll
-        libtcmalloc_minimal.dll
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
         )
+
+    if(USE_GOOGLE_PERFTOOLS)
+      set(debug_files ${debug_files} libtcmalloc_minimal-debug.dll)
+      set(release_files ${release_files} libtcmalloc_minimal.dll)
+    endif(USE_GOOGLE_PERFTOOLS)
 
     if (FMOD_SDK_DIR)
         set(fmod_files fmod.dll)

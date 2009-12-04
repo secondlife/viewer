@@ -37,6 +37,7 @@
 #include "lldockablefloater.h"
 
 class LLAvatarList;
+class LLNonAvatarCaller;
 class LLParticipantList;
 class LLSpeakerMgr;
 
@@ -48,8 +49,8 @@ class LLSpeakerMgr;
  * the Resident's own microphone input volume, the audible volume of each of the other participants,
  * the Resident's own Voice Morphing settings (if she has subscribed to enable the feature), and Voice Recording.
  *
- * When the Resident is engaged in Group Voice Chat, the Voice Control Panel also provides an 
- * 'End Call' button to allow the Resident to leave that voice channel.
+ * When the Resident is engaged in any chat except Nearby Chat, the Voice Control Panel also provides an 
+ * 'Leave Call' button to allow the Resident to leave that voice channel.
  */
 class LLCallFloater : public LLDockableFloater
 {
@@ -68,6 +69,8 @@ private:
 		VC_AD_HOC_CHAT,
 		VC_PEER_TO_PEER
 	}EVoiceControls;
+
+	void leaveCall();
 
 	/**
 	 * Updates mSpeakerManager and list according to current Voice Channel
@@ -89,7 +92,10 @@ private:
 	LLSpeakerMgr* mSpeakerManager;
 	LLParticipantList* mPaticipants;
 	LLAvatarList* mAvatarList;
+	LLNonAvatarCaller* mNonAvatarCaller;
 	EVoiceControls mVoiceType;
+
+	boost::signals2::connection mChannelChangedConnection;
 };
 
 

@@ -243,38 +243,54 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	addChild(mAddLandmarkBtn);
 	
 	LLButton::Params for_sale_button = p.for_sale_button;
+	for_sale_button.tool_tip = LLTrans::getString("LocationCtrlForSaleTooltip");
 	for_sale_button.click_callback.function(
 		boost::bind(&LLLocationInputCtrl::onForSaleButtonClicked, this));
 	mForSaleBtn = LLUICtrlFactory::create<LLButton>( for_sale_button );
-	// *TODO: Make clickable?
 	addChild(mForSaleBtn);
 
 	// Parcel property icons
+	// Must be mouse-opaque so cursor stays as an arrow when hovering to
+	// see tooltip.
 	LLIconCtrl::Params voice_icon = p.voice_icon;
+	voice_icon.tool_tip = LLTrans::getString("LocationCtrlVoiceTooltip");
+	voice_icon.mouse_opaque = true;
 	mParcelIcon[VOICE_ICON] = LLUICtrlFactory::create<LLIconCtrl>(voice_icon);
 	addChild(mParcelIcon[VOICE_ICON]);
 
 	LLIconCtrl::Params fly_icon = p.fly_icon;
+	fly_icon.tool_tip = LLTrans::getString("LocationCtrlFlyTooltip");
+	fly_icon.mouse_opaque = true;
 	mParcelIcon[FLY_ICON] = LLUICtrlFactory::create<LLIconCtrl>(fly_icon);
 	addChild(mParcelIcon[FLY_ICON]);
 
 	LLIconCtrl::Params push_icon = p.push_icon;
+	push_icon.tool_tip = LLTrans::getString("LocationCtrlPushTooltip");
+	push_icon.mouse_opaque = true;
 	mParcelIcon[PUSH_ICON] = LLUICtrlFactory::create<LLIconCtrl>(push_icon);
 	addChild(mParcelIcon[PUSH_ICON]);
 
 	LLIconCtrl::Params build_icon = p.build_icon;
+	build_icon.tool_tip = LLTrans::getString("LocationCtrlBuildTooltip");
+	build_icon.mouse_opaque = true;
 	mParcelIcon[BUILD_ICON] = LLUICtrlFactory::create<LLIconCtrl>(build_icon);
 	addChild(mParcelIcon[BUILD_ICON]);
 
 	LLIconCtrl::Params scripts_icon = p.scripts_icon;
+	scripts_icon.tool_tip = LLTrans::getString("LocationCtrlScriptsTooltip");
+	scripts_icon.mouse_opaque = true;
 	mParcelIcon[SCRIPTS_ICON] = LLUICtrlFactory::create<LLIconCtrl>(scripts_icon);
 	addChild(mParcelIcon[SCRIPTS_ICON]);
 
 	LLIconCtrl::Params damage_icon = p.damage_icon;
+	damage_icon.tool_tip = LLTrans::getString("LocationCtrlDamageTooltip");
+	damage_icon.mouse_opaque = true;
 	mParcelIcon[DAMAGE_ICON] = LLUICtrlFactory::create<LLIconCtrl>(damage_icon);
 	addChild(mParcelIcon[DAMAGE_ICON]);
 	
 	LLTextBox::Params damage_text = p.damage_text;
+	damage_text.tool_tip = LLTrans::getString("LocationCtrlDamageTooltip");
+	damage_text.mouse_opaque = true;
 	mDamageText = LLUICtrlFactory::create<LLTextBox>(damage_text);
 	addChild(mDamageText);
 	
@@ -896,7 +912,7 @@ bool LLLocationInputCtrl::onLocationContextMenuItemEnabled(const LLSD& userdata)
 	}
 	else if (item == "can_select_all")
 	{
-		return mTextEntry->canSelectAll();
+		return mTextEntry->canSelectAll() && (mTextEntry->getLength() > 0);
 	}
 	else if(item == "show_coordinates")
 	{

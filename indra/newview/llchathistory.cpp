@@ -43,6 +43,7 @@
 #include "lltrans.h"
 #include "llfloaterreg.h"
 #include "llmutelist.h"
+#include "llstylemap.h"
 
 #include "llsidetray.h"//for blocked objects panel
 
@@ -267,30 +268,13 @@ protected:
 	}
 
 private:
-	std::string appendTime(const LLChat& chat)
-	{
-		time_t utc_time;
-		utc_time = time_corrected();
-		std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
-			+LLTrans::getString("TimeMin")+"] ";
-
-		LLSD substitution;
-
-		substitution["datetime"] = (S32) utc_time;
-		LLStringUtil::format (timeStr, substitution);
-
-		return timeStr;
-	}
-
 	void setTimeField(const LLChat& chat)
 	{
 		LLTextBox* time_box = getChild<LLTextBox>("time_box");
 
 		LLRect rect_before = time_box->getRect();
 
-		std::string time_value = appendTime(chat);
-
-		time_box->setValue(time_value);
+		time_box->setValue(chat.mTimeStr);
 
 		// set necessary textbox width to fit all text
 		time_box->reshapeToFitText();
@@ -372,6 +356,7 @@ void LLChatHistory::clear()
 {
 	mLastFromName.clear();
 	LLTextEditor::clear();
+	mLastFromID = LLUUID::null;
 }
 
 void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_chat_history, const LLStyle::Params& input_append_params)
@@ -388,13 +373,25 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 	style_params.font.size(font_size);	
 	style_params.font.style(input_append_params.font.style);
 	
-	std::string header_text = "[" + chat.mTimeStr + "] ";
-	if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
-		header_text += chat.mFromName + ": ";
-	
 	if (use_plain_text_chat_history)
 	{
-		appendText(header_text, getText().size() != 0, style_params);
+		appendText("[" + chat.mTimeStr + "] ", getText().size() != 0, style_params);
+
+		if (utf8str_trim(chat.mFromName).size() != 0)
+		{
+			// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
+			if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() )
+			{
+				LLStyle::Params link_params(style_params);
+				link_params.fillFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
+				// Convert the name to a hotlink and add to message.
+				appendText(chat.mFromName + ": ", false, link_params);
+			}
+			else
+			{
+				appendText(chat.mFromName + ": ", false, style_params);
+			}
+		}
 	}
 	else
 	{
@@ -406,9 +403,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 
 		LLDate new_message_time = LLDate::now();
 
-		if (mLastFromName == chat.mFromName && 
-			mLastMessageTime.notNull() &&
-			(new_message_time.secondsSinceEpoch() - mLastMessageTime.secondsSinceEpoch()) < 60.0 )
+		if (mLastFromName == chat.mFromName 
+			&& mLastFromID == chat.mFromID
+			&& mLastMessageTime.notNull() 
+			&& (new_message_time.secondsSinceEpoch() - mLastMessageTime.secondsSinceEpoch()) < 60.0 
+			)
 		{
 			view = getSeparator();
 			p.top_pad = mTopSeparatorPad;
@@ -434,8 +433,13 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		view->reshape(target_rect.getWidth(), view->getRect().getHeight());
 		view->setOrigin(target_rect.mLeft, view->getRect().mBottom);
 
+		std::string header_text = "[" + chat.mTimeStr + "] ";
+		if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
+			header_text += chat.mFromName + ": ";
+
 		appendWidget(p, header_text, false);
 		mLastFromName = chat.mFromName;
+		mLastFromID = chat.mFromID;
 		mLastMessageTime = new_message_time;
 	}
 	//Handle IRC styled /me messages.

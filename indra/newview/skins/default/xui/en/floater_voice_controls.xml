@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_resize="true"
- height="300"
+ height="270"
  layout="topleft"
+ min_height="146"
+ min_width="190"  
  name="floater_voice_controls"
  title="Voice Controls"
  save_visibility="true"
@@ -19,6 +21,10 @@
     <string
      name="title_adhoc">
         Conference Call
+    </string>
+    <string
+     name="title_peer_2_peer">
+        Call with [NAME]
     </string>
     <string
      name="no_one_near">
@@ -74,6 +80,7 @@
              width="20" />
         </panel>
         <layout_stack
+         animate="false"
          bottom="10"
          clip="false"
          follows="left|right|top"
@@ -82,9 +89,11 @@
          orientation="horizontal"
          width="262">
             <layout_panel
+             auto_resize="false" 
              follows="left"
              layout="topleft"
              min_width="24"
+             name="microphone_icon_panel" 
              top="0"
              user_resize="false"
              width="24">
@@ -98,9 +107,10 @@
             </layout_panel>
             <layout_panel
              layout="topleft"
+             name="volume_slider_panel"
              top="0"
              user_resize="false"
-             width="258">
+             width="138">
                 <slider_bar
                  control_name="AudioLevelMic"
                  follows="left|right|top"
@@ -113,7 +123,25 @@
                  tool_tip="Master Volume"
                  top="0"
                  value="0.75"
-                 width="258" />
+                 width="138" />
+            </layout_panel>
+            <layout_panel
+             auto_resize="false"
+             layout="topleft"
+             min_width="100" 
+             name="leave_btn_panel" 
+             top="0"
+             user_resize="false"
+             visible="false" 
+             width="100">
+                <button
+                 follows="left|right|top"
+                 height="24"
+                 label="Leave Call"
+                 left="0" 
+                 name="leave_call_btn"
+                 top="0" 
+                 width="100" />
             </layout_panel>
         </layout_stack>
     </panel>
@@ -125,5 +153,14 @@
      left="0"
      multi_select="true"
      name="speakers_list"
+     width="282" />
+    <panel
+     filename="panel_avatar_list_item.xml"
+     follows="left|right|top"
+     height="24"
+     layout="topleft"
+     left="0"
+     name="non_avatar_caller"
+     top="70"
      width="282" />
 </floater>

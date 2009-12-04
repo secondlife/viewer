@@ -20,6 +20,8 @@
                 follows="left|top"
                 allow_new_values="true"
                 >
+  <!-- *NOTE: Tooltips are in strings.xml so they can be localized.
+  See LocationCtrlAddLandmarkTooltip etc. -->
   <info_button name="Place Information"
                           width="16"
                           height="16"
@@ -50,38 +52,44 @@
     top="21"
     />
   <voice_icon
+    enabled="true" 
     name="voice_icon"
     width="22"
     height="18"
-	top="21"
+    top="21"
+    follows="right|top"
     image_name="parcel_lght_VoiceNo"
     />
   <fly_icon
     name="fly_icon"
     width="22"
     height="18"
-	top="21"
+    top="21"
+    follows="right|top"
     image_name="parcel_lght_FlyNo"
     />
   <push_icon
     name="push_icon"
     width="22"
     height="18"
-	top="21"
+    top="21"
+    follows="right|top"
     image_name="parcel_lght_PushNo"
     />
   <build_icon
     name="build_icon"
     width="22"
     height="18"
-	top="21"
+    top="21"
+    follows="right|top"
     image_name="parcel_lght_BuildNo"
     />
   <scripts_icon
     name="scripts_icon"
     width="22"
     height="18"
-	top="21"
+    top="21"
+    follows="right|top"
     image_name="parcel_lght_ScriptsNo"
     />
   <!-- NOTE: Placeholder icon, there is no dark grayscale version -->
@@ -89,7 +97,8 @@
     name="damage_icon"
     width="22"
     height="18"
-	top="21"
+    top="21"
+    follows="right|top"
     image_name="parcel_lght_Damage"
     />
   <!-- Default text color is invisible on top of nav bar background -->
@@ -98,6 +107,7 @@
 	width="35"
 	height="18"
 	top="16"
+    follows="right|top"
 	halign="right"
 	font="SansSerifSmall"
 	text_color="TextFgColor"

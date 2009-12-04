@@ -33,6 +33,7 @@
 #ifndef LL_LLFAVORITESBARCTRL_H
 #define LL_LLFAVORITESBARCTRL_H
 
+#include "llbutton.h"
 #include "lluictrl.h"
 
 #include "llinventoryobserver.h"
@@ -43,8 +44,8 @@ class LLFavoritesBarCtrl : public LLUICtrl, public LLInventoryObserver
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Optional<std::string> chevron_button_tool_tip;
 		Optional<LLUIImage*> image_drag_indication;
+		Optional<LLButton::Params> chevron_button;
 		Params();
 	};
 
@@ -105,9 +106,7 @@ protected:
 	item_names_array_t mItemNamesCache;
 
 	LLUUID mSelectedItemID;
-	LLRect mChevronRect;
 
-	std::string mChevronButtonToolTip;
 	LLUIImage* mImageDragIndication;
 
 private:
@@ -150,6 +149,7 @@ private:
 	BOOL mShowDragMarker;
 	LLUICtrl* mLandingTab;
 	LLUICtrl* mLastTab;
+	LLButton* mChevronButton;
 
 	LLUUID mDragItemId;
 	BOOL mStartDrag;

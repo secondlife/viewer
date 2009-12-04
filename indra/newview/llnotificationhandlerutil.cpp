@@ -43,13 +43,14 @@ using namespace LLNotificationsUI;
 const static std::string GRANTED_MODIFY_RIGHTS("GrantedModifyRights"),
 		REVOKED_MODIFY_RIGHTS("RevokedModifyRights"), OBJECT_GIVE_ITEM(
 				"ObjectGiveItem"), OBJECT_GIVE_ITEM_UNKNOWN_USER(
-				"ObjectGiveItemUnknownUser");
+				"ObjectGiveItemUnknownUser"), PAYMENT_RECIVED("PaymentRecived");
 
 // static
 bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 {
 	return GRANTED_MODIFY_RIGHTS == notification->getName()
-			|| REVOKED_MODIFY_RIGHTS == notification->getName();
+			|| REVOKED_MODIFY_RIGHTS == notification->getName()
+			|| PAYMENT_RECIVED == notification->getName();
 }
 
 // static
