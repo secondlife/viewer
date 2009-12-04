@@ -1695,8 +1695,8 @@ void LLPanelObjectInventory::updateInventory()
 	}
 
 	mFolders->requestArrange();
-	//LLEditMenuHandler::gEditMenuHandler = mFolders;
 	mInventoryNeedsUpdate = FALSE;
+	LLEditMenuHandler::gEditMenuHandler = mFolders;
 }
 
 // *FIX: This is currently a very expensive operation, because we have
