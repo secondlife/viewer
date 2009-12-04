@@ -22,9 +22,12 @@
                 >
   <!-- *NOTE: Tooltips are in strings.xml so they can be localized.
   See LocationCtrlAddLandmarkTooltip etc. -->
-  <info_button name="Place Information"
-                          width="16"
-                          height="16"
+  <info_button
+    name="Place Information"
+    width="16"
+    height="16"
+    left="4" 
+    top="20" 
                           follows="left|top"
                           hover_glow_amount="0.15"
                           image_unselected="Info_Off"
