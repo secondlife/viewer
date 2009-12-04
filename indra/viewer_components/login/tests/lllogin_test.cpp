@@ -29,6 +29,20 @@
 #include "llevents.h"
 #include "stringize.h"
 
+#if LL_WINDOWS
+#define skipwin(arg) skip(arg)
+#define skipmac(arg)
+#define skiplinux(arg)
+#elif LL_DARWIN
+#define skipwin(arg)
+#define skipmac(arg) skip(arg)
+#define skiplinux(arg)
+#elif LL_LINUX
+#define skipwin(arg)
+#define skipmac(arg)
+#define skiplinux(arg) skip(arg)
+#endif
+
 /*****************************************************************************
 *   Helper classes
 *****************************************************************************/
@@ -231,10 +245,10 @@ namespace tut
 		ensure_equals("Online state", listener.lastEvent()["state"].asString(), "online");
 	}
 
-	/*
     template<> template<>
     void llviewerlogin_object::test<2>()
     {
+        skipwin("Re-enable when Boost updated for Windows");
         DEBUG;
 		// Tests a successful login in with delayed responses. 
 		// Also includes 'failure' that cause the login module
@@ -327,6 +341,7 @@ namespace tut
     template<> template<>
     void llviewerlogin_object::test<3>()
     {
+        skipwin("Re-enable when Boost updated for Windows");
         DEBUG;
 		// Test completed response, that fails to login.
 		set_test_name("LLLogin valid response, failure (eg. bad credentials)");
@@ -374,6 +389,7 @@ namespace tut
     template<> template<>
     void llviewerlogin_object::test<4>()
     {
+        skipwin("Re-enable when Boost updated for Windows");
         DEBUG;
 		// Test incomplete response, that end the attempt.
 		set_test_name("LLLogin valid response, failure (eg. bad credentials)");
@@ -417,10 +433,10 @@ namespace tut
 		ensure_equals("Failed to offline", listener.lastEvent()["state"].asString(), "offline");
 	}
 
- *FIX:Mani Disabled unit boost::coro is patched 
 	template<> template<>
     void llviewerlogin_object::test<5>()
     {
+        skipwin("Re-enable when Boost updated for Windows");
         DEBUG;
 		// Test SRV request timeout.
 		set_test_name("LLLogin SRV timeout testing");
@@ -453,5 +469,4 @@ namespace tut
 
 		ensure_equals("SRV Failure", listener.lastEvent()["change"].asString(), "fail.login"); 
 	}
-*/
 }
