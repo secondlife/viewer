@@ -978,6 +978,7 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		LLInventoryFilter *filter = mActivePanel->getFilter();
 		filter->setFilterSubString(item_name);
 		mFilterEditor->setText(item_name);
+		mFilterEditor->setFocus(TRUE);
 		filter->setFilterUUID(item_id);
 		filter->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 	}
