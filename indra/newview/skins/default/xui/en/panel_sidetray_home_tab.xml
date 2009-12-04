@@ -28,44 +28,43 @@
      top="0"
      user_resize="false"
      width="313">
-      <button
-       follows="left|top"
+          <button
        enabled="false"
-       height="20"
-       label="Back"
-       layout="topleft"
+	     follows="left|top"
+	     height="18"
+	     image_overlay="Arrow_Left_Off"
+	     layout="topleft"
        tab_stop="false"
        left="0"
        name="back"
-       top="0"
-       width="70">
+	     tool_tip="Back"
+	     width="25" >
         <button.commit_callback
          function="MediaBrowser.Back" />
       </button>
-      <button
-       follows="left|top"
-       height="20"
+             <button
+	     follows="left|top"
+	     height="18"
        enabled="false"
-       label="Forward"
-       layout="topleft"
-       tab_stop="false"
-       left_pad="3"
+	     image_overlay="Arrow_Right_Off"
+	     layout="topleft"
+	     left_pad="3"
        name="forward"
-       top_delta="0"
-       width="70">
+	     tool_tip="Forward"
+	     width="25">
         <button.commit_callback
          function="MediaBrowser.Forward" />
-      </button>
-      <button
-       follows="left|top"
-       height="20"
-       label="Home"
-       layout="topleft"
+         </button>
+
+	    <button
+	     follows="left|top"
+	     height="18"
+	     image_overlay="Home_Press"
+	     layout="topleft"
+	     left_pad="20"
        tab_stop="false"
-       left_pad="2"
        name="home"
-       top_delta="0"
-       width="70">
+	     width="25">
         <button.commit_callback
          function="MediaBrowser.Home" />
       </button>
