@@ -96,9 +96,10 @@ class LLViewerMedia
 		static bool textureHasMedia(const LLUUID& texture_id);
 		static void setVolume(F32 volume);
 
-		static void updateMedia();
+		static void updateMedia(void* dummy_arg = NULL);
 		static bool isMusicPlaying();
 
+		static void initClass();
 		static void cleanupClass();
 
 		static void toggleMusicPlay(void*);
@@ -201,7 +202,7 @@ public:
 	bool isMediaFailed() const { return mMediaSourceFailed; };
 	void resetPreviousMediaState();
 	
-	void setDisabled(bool disabled) { mIsDisabled = disabled; };
+	void setDisabled(bool disabled);
 	bool isMediaDisabled() const { return mIsDisabled; };
 
 	// returns true if this instance should not be loaded (disabled, muted object, crashed, etc.)
@@ -345,6 +346,8 @@ public:
 	S32 mProximity;
 	F64 mProximityDistance;
 	LLMimeDiscoveryResponder *mMimeTypeProbe;
+	bool mMediaAutoPlay;
+	std::string mMediaEntryURL;
 	
 private:
 	BOOL mIsUpdated ;

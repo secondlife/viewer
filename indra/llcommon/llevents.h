@@ -44,6 +44,7 @@
 #include "llsd.h"
 #include "llsingleton.h"
 #include "lldependencies.h"
+#include "ll_template_cast.h"
 
 /*==========================================================================*|
 // override this to allow binding free functions with more parameters
@@ -256,6 +257,11 @@ namespace LLEventDetail
     /// signature.
     typedef boost::function<LLBoundListener(const LLEventListener&)> ConnectFunc;
 
+    /// overload of visit_and_connect() when we have a string identifier available
+    template <typename LISTENER>
+    LLBoundListener visit_and_connect(const std::string& name,
+                                      const LISTENER& listener,
+                                      const ConnectFunc& connect_func);
     /**
      * Utility template function to use Visitor appropriately
      *
@@ -266,7 +272,10 @@ namespace LLEventDetail
      */
     template <typename LISTENER>
     LLBoundListener visit_and_connect(const LISTENER& listener,
-                                      const ConnectFunc& connect_func);
+                                      const ConnectFunc& connect_func)
+    {
+        return visit_and_connect("", listener, connect_func);
+    }
 } // namespace LLEventDetail
 
 /*****************************************************************************
@@ -468,7 +477,8 @@ public:
         // This is why listen() is a template. Conversion from boost::bind()
         // to LLEventListener performs type erasure, so it's important to look
         // at the boost::bind object itself before that happens.
-        return LLEventDetail::visit_and_connect(listener,
+        return LLEventDetail::visit_and_connect(name,
+                                                listener,
                                                 boost::bind(&LLEventPump::listen_impl,
                                                             this,
                                                             name,
@@ -522,7 +532,7 @@ private:
 
 protected:
     /// implement the dispatching
-    boost::scoped_ptr<LLStandardSignal> mSignal;
+    boost::shared_ptr<LLStandardSignal> mSignal;
 
     /// valve open?
     bool mEnabled;
@@ -662,6 +672,62 @@ public:
 
 private:
     LLSD mReqid;
+};
+
+/**
+ * Base class for LLListenerWrapper. See visit_and_connect() and llwrap(). We
+ * provide virtual @c accept_xxx() methods, customization points allowing a
+ * subclass access to certain data visible at LLEventPump::listen() time.
+ * Example subclass usage:
+ *
+ * @code
+ * myEventPump.listen("somename",
+ *                    llwrap<MyListenerWrapper>(boost::bind(&MyClass::method, instance, _1)));
+ * @endcode
+ *
+ * Because of the anticipated usage (note the anonymous temporary
+ * MyListenerWrapper instance in the example above), the @c accept_xxx()
+ * methods must be @c const.
+ */
+class LL_COMMON_API LLListenerWrapperBase
+{
+public:
+    /// New instance. The accept_xxx() machinery makes it important to use
+    /// shared_ptrs for our data. Many copies of this object are made before
+    /// the instance that actually ends up in the signal, yet accept_xxx()
+    /// will later be called on the @em original instance. All copies of the
+    /// same original instance must share the same data.
+    LLListenerWrapperBase():
+        mName(new std::string),
+        mConnection(new LLBoundListener)
+    {
+    }
+	
+    /// Copy constructor. Copy shared_ptrs to original instance data.
+    LLListenerWrapperBase(const LLListenerWrapperBase& that):
+        mName(that.mName),
+        mConnection(that.mConnection)
+    {
+    }
+	virtual ~LLListenerWrapperBase() {}
+
+    /// Ask LLEventPump::listen() for the listener name
+    virtual void accept_name(const std::string& name) const
+    {
+        *mName = name;
+    }
+
+    /// Ask LLEventPump::listen() for the new connection
+    virtual void accept_connection(const LLBoundListener& connection) const
+    {
+        *mConnection = connection;
+    }
+
+protected:
+    /// Listener name.
+    boost::shared_ptr<std::string> mName;
+    /// Connection.
+    boost::shared_ptr<LLBoundListener> mConnection;
 };
 
 /*****************************************************************************
@@ -898,7 +964,8 @@ namespace LLEventDetail
      * LLStandardSignal, returning LLBoundListener.
      */
     template <typename LISTENER>
-    LLBoundListener visit_and_connect(const LISTENER& raw_listener,
+    LLBoundListener visit_and_connect(const std::string& name,
+                                      const LISTENER& raw_listener,
                                       const ConnectFunc& connect_func)
     {
         // Capture the listener
@@ -913,14 +980,20 @@ namespace LLEventDetail
         // which type details have been erased. unwrap() comes from
         // Boost.Signals, in case we were passed a boost::ref().
         visit_each(visitor, LLEventDetail::unwrap(raw_listener));
-        // Make the connection using passed function. At present, wrapping
-        // this functionality into this function is a bit silly: we don't
-        // really need a visit_and_connect() function any more, just a visit()
-        // function. The definition of this function dates from when, after
-        // visit_each(), after establishing the connection, we had to
-        // postprocess the new connection with the visitor object. That's no
-        // longer necessary.
-        return connect_func(listener);
+        // Make the connection using passed function.
+        LLBoundListener connection(connect_func(listener));
+        // If the LISTENER is an LLListenerWrapperBase subclass, pass it the
+        // desired information. It's important that we pass the raw_listener
+        // so the compiler can make decisions based on its original type.
+        const LLListenerWrapperBase* lwb =
+            ll_template_cast<const LLListenerWrapperBase*>(&raw_listener);
+        if (lwb)
+        {
+            lwb->accept_name(name);
+            lwb->accept_connection(connection);
+        }
+        // In any case, show new connection to caller.
+        return connection;
     }
 } // namespace LLEventDetail
 
