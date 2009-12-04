@@ -4499,14 +4499,14 @@ You don&apos;t have permission to copy this.
   <notification
    icon="notifytip.tga"
    name="InventoryAccepted"
-   type="notifytip">
+   type="offer">
 [NAME] received your inventory offer.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="InventoryDeclined"
-   type="notifytip">
+   type="offer">
 [NAME] declined your inventory offer.
   </notification>
 
