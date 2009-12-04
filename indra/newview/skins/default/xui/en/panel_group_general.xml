@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
-     height="378"
+     height="395"
  label="General"
  class="panel_group_general"
  layout="topleft"
- left="0"
- top="0"
  name="general_tab"
- width="310">
+ width="323">
     <panel.string
      name="help_text">
         The General tab contains general information about this group, a list of members, general Group Preferences and member options.
@@ -32,7 +30,7 @@ Hover your mouse over the options for more help.
      max_length="511"
      name="charter"
      top="5"
-     width="305"
+     right="-1"
      word_wrap="true">
      Group Charter
     </text_editor>
@@ -41,12 +39,12 @@ Hover your mouse over the options for more help.
      draw_heading="true"
      follows="left|top"
      heading_height="20"
-     height="130"
+     height="156"
      layout="topleft"
      left="0"
+     right="-1"
      name="visible_members"
-     top_pad="2"
-     width="310">
+     top_pad="2">
         <name_list.columns
          label="Member"
          name="name"
@@ -71,15 +69,15 @@ Hover your mouse over the options for more help.
          follows="left|top"
          height="20"
          layout="topleft"
-         left_delta="0"
+         left="5"
+     right="-5"
          name="active_title"
          tool_tip="Sets the title that appears in your avatar&apos;s name tag when this group is active."
-         top_pad="2"
-         width="300" />
+         top_pad="2" />
         <check_box
          height="16"
          font="SansSerifSmall"
-         label="Receive notices"
+         label="Receive group notices"
          layout="topleft"
          left="5"
          name="receive_notices"
@@ -101,12 +99,12 @@ Hover your mouse over the options for more help.
          border="true"
          bg_alpha_color="FloaterUnfocusBorderColor"
          follows="left|top"
-         height="90"
+         height="88"
          layout="topleft"
-         left="5"
+         left="2"
+         right="-1"
          name="preferences_container"
-         top_pad="5"
-         width="300">
+         top_pad="2">
         <check_box
          follows="right|top"
          height="16"
@@ -132,32 +130,23 @@ Hover your mouse over the options for more help.
          halign="left"
          height="16"
          increment="1"
-         label_width="20"
+         label_width="15"
          label="L$"
          layout="topleft"
          right="-10"
          max_val="99999"
-         left_pad="2"
+         left_pad="0"
          name="spin_enrollment_fee"
          tool_tip="New members must pay this fee to join the group when Enrollment Fee is checked."
          width="100" />
-        <check_box
-         height="16"
-         initial_value="true"
-         label="Show in search"
-         layout="topleft"
-         left="10"
-         name="show_in_group_list"
-         tool_tip="Let people see this group in search results"
-         top_pad="4"
-         width="300" />
-        <combo_box
+         <combo_box
+         follows="left|top"
          height="20"
          layout="topleft"
-         left_delta="0"
+         left="10"
          name="group_mature_check"
          tool_tip="Sets whether your group information is considered moderate"
-         top_pad="2"
+         top_pad="0"
          width="190">
             <combo_box.item
              label="General Content"
@@ -168,5 +157,16 @@ Hover your mouse over the options for more help.
              name="mature"
              value="Mature" />
         </combo_box>
+        <check_box
+         follows="left|top"
+         height="16"
+         initial_value="true"
+         label="Show in search"
+         layout="topleft"
+         left="10"
+         name="show_in_group_list"
+         tool_tip="Let people see this group in search results"
+         top_pad="4"
+         width="300" />
     </panel>
 </panel>
