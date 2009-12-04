@@ -653,7 +653,7 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 		return;
 
 	// Get data needed for filter display
-	U32 filter_types = mFilter->getFilterTypes();
+	U32 filter_types = mFilter->getFilterObjectTypes();
 	std::string filter_string = mFilter->getFilterSubString();
 	LLInventoryFilter::EFolderShow show_folders = mFilter->getShowFolderState();
 	U32 hours = mFilter->getHoursAgo();
@@ -973,9 +973,13 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		{
 			return;
 		}
-
 		const LLUUID& item_id = current_item->getListener()->getUUID();
-		mActivePanel->getFilter()->setFilterUUID(item_id);
+		const std::string &item_name = current_item->getListener()->getName();
+		LLInventoryFilter *filter = mActivePanel->getFilter();
+		filter->setFilterSubString(item_name);
+		mFilterEditor->setText(item_name);
+		filter->setFilterUUID(item_id);
+		filter->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 	}
 }
 

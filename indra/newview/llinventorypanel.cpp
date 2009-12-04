@@ -209,8 +209,11 @@ LLInventoryFilter* LLInventoryPanel::getFilter()
 
 void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType filter_type)
 {
-	getFilter()->setFilterTypes(types, filter_type);
-}	
+	if (filter_type == LLInventoryFilter::FILTERTYPE_OBJECT)
+		getFilter()->setFilterObjectTypes(types);
+	if (filter_type == LLInventoryFilter::FILTERTYPE_CATEGORY)
+		getFilter()->setFilterCategoryTypes(types);
+}
 
 void LLInventoryPanel::setFilterPermMask(PermissionMask filter_perm_mask)
 {

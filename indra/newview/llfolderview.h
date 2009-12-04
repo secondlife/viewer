@@ -116,7 +116,7 @@ public:
 	// filter is never null
 	LLInventoryFilter* getFilter();
 	const std::string getFilterSubString(BOOL trim = FALSE);
-	U32 getFilterTypes() const;
+	U32 getFilterObjectTypes() const;
 	PermissionMask getFilterPermissions() const;
 	// JAMESDEBUG use getFilter()->getShowFolderState();
 	//LLInventoryFilter::EFolderShow getShowFolderState();

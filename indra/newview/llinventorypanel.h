@@ -126,8 +126,8 @@ public:
 	void setSelectCallback(const LLFolderView::signal_t::slot_type& cb) { if (mFolders) mFolders->setSelectCallback(cb); }
 	void clearSelection();
 	LLInventoryFilter* getFilter();
-	void setFilterTypes(U64 filter, LLInventoryFilter::EFilterType = LLInventoryFilter::FILTERTYPE_ITEM);
-	U32 getFilterTypes() const { return mFolders->getFilterTypes(); }
+	void setFilterTypes(U64 filter, LLInventoryFilter::EFilterType = LLInventoryFilter::FILTERTYPE_OBJECT);
+	U32 getFilterObjectTypes() const { return mFolders->getFilterObjectTypes(); }
 	void setFilterPermMask(PermissionMask filter_perm_mask);
 	U32 getFilterPermMask() const { return mFolders->getFilterPermissions(); }
 	void setFilterSubString(const std::string& string);

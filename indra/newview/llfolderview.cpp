@@ -2217,9 +2217,9 @@ void LLFolderView::setFilterPermMask( PermissionMask filter_perm_mask )
 	mFilter->setFilterPermissions(filter_perm_mask);
 }
 
-U32 LLFolderView::getFilterTypes() const
+U32 LLFolderView::getFilterObjectTypes() const
 {
-	return mFilter->getFilterTypes();
+	return mFilter->getFilterObjectTypes();
 }
 
 PermissionMask LLFolderView::getFilterPermissions() const

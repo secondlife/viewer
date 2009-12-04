@@ -58,10 +58,10 @@ public:
 
 	enum EFilterType
 	{
-		FILTERTYPE_NONE,
-		FILTERTYPE_ITEM,		// normal default search-by-item-type
-		FILTERTYPE_CATEGORY,	// search by folder type
-		FILTERTYPE_UUID			// find the object with UUID and any links to it
+		FILTERTYPE_NONE = 0,
+		FILTERTYPE_OBJECT = 1,		// normal default search-by-object-type
+		FILTERTYPE_CATEGORY = 2,	// search by folder type
+		FILTERTYPE_UUID	= 4			// find the object with UUID and any links to it
 	};
 
 	// REFACTOR: Change this to an enum.
@@ -82,10 +82,10 @@ public:
 	// +-------------------------------------------------------------------+
 	// + Parameters
 	// +-------------------------------------------------------------------+
-	void 				setFilterTypes(U64 types, EFilterType filter_type = FILTERTYPE_ITEM);
-	U32 				getFilterTypes() const;
-	BOOL 				isFilterWith(LLInventoryType::EType t) const;
-
+	void 				setFilterObjectTypes(U64 types);
+	U32 				getFilterObjectTypes() const;
+	BOOL 				isFilterObjectTypesWith(LLInventoryType::EType t) const;
+	void 				setFilterCategoryTypes(U64 types);
 	void 				setFilterUUID(const LLUUID &object_id);
 
 	void 				setFilterSubString(const std::string& string);
@@ -153,9 +153,10 @@ private:
 	struct FilterOps
 	{
 		FilterOps();
-		EFilterType 	mFilterType;
+		U32 			mFilterTypes;
 
-		U64				mFilterObjectTypes; // For _ITEM or _CATEGORY
+		U64				mFilterObjectTypes; // For _ITEM
+		U64				mFilterCategoryTypes; // For _ITEM
 		LLUUID      	mFilterUUID; // for UUID
 
 		time_t			mMinDate;
