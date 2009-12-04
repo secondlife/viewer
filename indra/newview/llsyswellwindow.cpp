@@ -46,6 +46,8 @@
 #include "llnotificationmanager.h"
 
 
+static std::string NOTIFICATION_WELL_ANCHOR_NAME = "notification_well_panel";
+
 //---------------------------------------------------------------------------------
 LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLDockableFloater(NULL, key),
 													mChannel(NULL),
@@ -251,7 +253,7 @@ void LLSysWellWindow::setVisible(BOOL visible)
 		if (NULL == getDockControl() && getDockTongue().notNull())
 		{
 			setDockControl(new LLDockControl(
-				LLBottomTray::getInstance()->getSysWell(), this,
+				LLBottomTray::getInstance()->getChild<LLView>(NOTIFICATION_WELL_ANCHOR_NAME), this,
 				getDockTongue(), LLDockControl::TOP, boost::bind(&LLSysWellWindow::getAllowedRect, this, _1)));
 		}
 

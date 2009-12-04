@@ -320,8 +320,8 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          min_height="28"
          top="0"
          name="notification_well_panel"
-         width="54"
-         min_width="54"
+         width="34"
+         min_width="34"
          user_resize="false">
             <chiclet_notification
              follows="right"
@@ -330,23 +330,23 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              left="0"
              name="notification_well"
              top="4"
-             width="54">
+             width="34">
               <button
                  image_selected="PushButton_Selected_Press"
                  image_pressed="PushButton_Press"
 		 image_pressed_selected="PushButton_Selected_Press"
               auto_resize="true"
-               halign="right"
+               halign="center"
                height="23"
                follows="right"
                flash_color="EmphasisColor"
                left="0"
                name="Unread"
                image_overlay="Notices_Unread"
-               image_overlay_alignment="right" 
-               pad_right="6"
-               pad_left="6"
-               width="54" >
+               image_overlay_alignment="center" 
+               pad_right="0"
+               pad_left="0"
+               width="34" >
                   <button.init_callback
                    function="Button.SetDockableFloaterToggle"
                    parameter="notification_well_window" />
