@@ -319,6 +319,47 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          layout="topleft"
          min_height="28"
          top="0"
+         name="im_well_panel"
+         width="34"
+         min_width="34"
+         user_resize="false">
+            <chiclet_im_well
+             follows="right"
+             height="23"
+             layout="topleft"
+             left="0"
+             name="im_well"
+             top="4"
+             width="34">
+                <button
+                 auto_resize="true"
+                 flash_color="EmphasisColor"
+                 follows="right"
+                 halign="center"
+                 height="23"
+                 image_overlay="Notices_Unread"
+                 image_overlay_alignment="center" 
+                 image_pressed="PushButton_Press"
+                 image_pressed_selected="PushButton_Selected_Press"
+                 image_selected="PushButton_Selected_Press"
+                 left="0"
+                 name="Unread IM messages"
+                 pad_left="0"
+                 pad_right="0"
+                 width="34" >
+                    <button.init_callback
+                     function="Button.SetDockableFloaterToggle"
+                     parameter="im_well_window" />
+                </button>
+            </chiclet_im_well>
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         top="0"
          name="notification_well_panel"
          width="34"
          min_width="34"
@@ -353,7 +394,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
               </button>
 	    </chiclet_notification>
         </layout_panel>
-       <icon
+        <icon
          auto_resize="false"
          color="0 0 0 0"
          follows="left|right"
