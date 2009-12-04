@@ -416,6 +416,7 @@
          left="10"
          label="Edit Profile"
          name="edit_profile_btn"
+         tool_tip="Edit your personal information"
          width="130" />
         <button
          follows="bottom|right"
@@ -423,6 +424,7 @@
          label="Edit Appearance"
          left_pad="10"
          name="edit_appearance_btn"
+         tool_tip="Create/edit your appearance: physical data, clothes and etc."
          right="-10"
          width="130" />
  </panel>

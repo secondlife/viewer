@@ -72,6 +72,9 @@ public:
 		LLUUID mOtherParticipantID;
 		std::vector<LLUUID> mInitialTargetIDs;
 
+		// connection to voice channel state change signal
+		boost::signals2::connection mVoiceChannelStateChangeConnection;
+
 		//does NOT include system messages
 		S32 mNumUnread;
 

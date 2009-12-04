@@ -287,7 +287,7 @@
          mouse_opaque="false"
          name="add_friend"
          top="5"
-         width="76" />
+         width="77" />
         <button
          follows="bottom|left"
          height="19"
@@ -296,7 +296,7 @@
          name="im"
          top="5"
          left_pad="5"
-         width="31" />
+         width="33" />
         <button
          follows="bottom|left"
          height="19"
@@ -315,7 +315,7 @@
          name="show_on_map_btn"
          top="5"
          left_pad="5"
-         width="42" />
+         width="44" />
         <button
          follows="bottom|left"
          height="19"
@@ -324,7 +324,7 @@
          name="teleport"
          left_pad="5"
          top="5"
-         width="64" />
+         width="67" />
         <button
          follows="bottom|right"
          height="19"

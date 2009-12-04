@@ -17,6 +17,7 @@
  save_visibility="true"
  single_instance="true"
  width="320">
+  <string name="nudge_parabuild">Nudge 1</string>
   <chat_history
    allow_html="true"
    bg_readonly_color="ChatHistoryBgColor"
