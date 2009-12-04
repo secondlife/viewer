@@ -543,9 +543,17 @@ void LLTextBase::drawText()
 			line_end = next_start;
 		}
 
+		// A patch for EXT-1944 "Implement ellipses in message well" 
+		// introduced a regression where text in SansSerif ending in the
+		// letter "r" is clipped.  This may be due to an off-by-one in
+		// font width information out of FreeType with our fractional font
+		// sizes.  For now, just make an extra pixel of space to resolve
+		// EXT-2971 "Letter R doesn't show when it's the last letter in a
+		// text block".  See James/Richard for details.
+		const S32 FIX_CLIPPING_HACK = 1;
 		LLRect text_rect(line.mRect.mLeft + mTextRect.mLeft - scrolled_view_rect.mLeft,
 						line.mRect.mTop - scrolled_view_rect.mBottom + mTextRect.mBottom,
-						llmin(mDocumentView->getRect().getWidth(), line.mRect.mRight) - scrolled_view_rect.mLeft,
+						llmin(mDocumentView->getRect().getWidth(), line.mRect.mRight) - scrolled_view_rect.mLeft + FIX_CLIPPING_HACK,
 						line.mRect.mBottom - scrolled_view_rect.mBottom + mTextRect.mBottom);
 
 		// draw a single line of text
@@ -2397,12 +2405,20 @@ void LLNormalTextSegment::setToolTip(const std::string& tooltip)
 
 bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 {
-	LLWString text = mEditor.getWText();
-
 	height = mFontHeight;
-	width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
-	// if last character is a newline, then return true, forcing line break
-	llwchar last_char = text[mStart + first_char + num_chars - 1];
+	bool force_newline = false;
+	if (num_chars > 0)
+	{
+		LLWString text = mEditor.getWText();
+		width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
+		// if last character is a newline, then return true, forcing line break
+		llwchar last_char = text[mStart + first_char + num_chars - 1];
+		force_newline = (last_char == '\n');
+	}
+	else
+	{
+		width = 0;
+	}
 
 	LLUIImagePtr image = mStyle->getImage();
 	if( image.notNull())
@@ -2411,7 +2427,7 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 		height = llmax(height, image->getHeight());
 	}
 
-	return num_chars >= 1 && last_char == '\n';
+	return force_newline;
 }
 
 S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const

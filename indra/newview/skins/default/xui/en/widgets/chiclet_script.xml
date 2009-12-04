@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <chiclet_script
- name="script_chiclet">
+ name="script_chiclet"
+ font="SansSerif">
  <icon
   name="chiclet_icon"
   follows="all"

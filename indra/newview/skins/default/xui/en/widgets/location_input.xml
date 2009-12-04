@@ -20,6 +20,8 @@
                 follows="left|top"
                 allow_new_values="true"
                 >
+  <!-- *NOTE: Tooltips are in strings.xml so they can be localized.
+  See LocationCtrlAddLandmarkTooltip etc. -->
   <info_button name="Place Information"
                           width="16"
                           height="16"
@@ -50,6 +52,7 @@
     top="21"
     />
   <voice_icon
+    enabled="true" 
     name="voice_icon"
     width="22"
     height="18"

@@ -2533,6 +2533,7 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 			else
 			{
 				p.rect.left = p.rect.left + parent_rect.getWidth()/2 - p.rect.width/2;
+				p.rect.right.setProvided(false); // recalculate the right
 			}
 		}
 		else
@@ -2553,6 +2554,7 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 			else
 			{
 				p.rect.bottom = p.rect.bottom + parent_rect.getHeight()/2 - p.rect.height/2;
+				p.rect.top.setProvided(false); // recalculate the top
 			}
 		}
 		else
