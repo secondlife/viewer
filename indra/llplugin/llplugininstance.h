@@ -60,19 +60,27 @@ public:
 	// Sends a message to the plugin.
 	void sendMessage(const std::string &message);
 	
+   // TODO:DOC is this comment obsolete? can't find "send_count" anywhere in indra tree.
 	// send_count is the maximum number of message to process from the send queue.  If negative, it will drain the queue completely.
 	// The receive queue is always drained completely.
 	// Returns the total number of messages processed from both queues.
 	void idle(void);
 	
-	// this is the signature of the "send a message" function.  
-	// message_string is a null-terminated C string
-	// user_data is the opaque reference that the callee supplied during setup.
+	/** The signature of the function for sending a message from plugin to plugin loader shell.
+    *
+	 * @param[in] message_string Null-terminated C string 
+    * @param[in] user_data The opaque reference that the callee supplied during setup.
+    */
 	typedef void (*sendMessageFunction) (const char *message_string, void **user_data);
 
-	// signature of the plugin init function
+	/** The signature of the plugin init function. TODO:DOC check direction (pluging loader shell to plugin?)
+    *
+    * @param[in] host_user_data Data from plugin loader shell.
+    * @param[in] plugin_send_function Function for sending from the plugin loader shell to plugin.
+    */
 	typedef int (*pluginInitFunction) (sendMessageFunction host_send_func, void *host_user_data, sendMessageFunction *plugin_send_func, void **plugin_user_data);
 	
+   /** Name of plugin init function */
 	static const char *PLUGIN_INIT_FUNCTION_NAME;
 	
 private:
