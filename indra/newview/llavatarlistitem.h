@@ -37,6 +37,7 @@
 #include "lloutputmonitorctrl.h"
 #include "llbutton.h"
 #include "lltextbox.h"
+#include "llstyle.h"
 
 #include "llcallingcard.h" // for LLFriendObserver
 
@@ -71,6 +72,7 @@ public:
 
 	void setOnline(bool online);
 	void setName(const std::string& name);
+	void setHighlight(const std::string& highlight); // XXX ugly name
 	void setAvatarId(const LLUUID& id, bool ignore_status_changes = false);
 	void setLastInteractionTime(U32 secs_since);
 	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly
@@ -112,6 +114,7 @@ private:
 		E_UNKNOWN,
 	} EOnlineStatus;
 
+	void setNameInternal(const std::string& name, const std::string& highlight);
 	void onNameCache(const std::string& first_name, const std::string& last_name);
 
 	std::string formatSeconds(U32 secs);
@@ -119,12 +122,14 @@ private:
 	LLAvatarIconCtrl* mAvatarIcon;
 	LLTextBox* mAvatarName;
 	LLTextBox* mLastInteractionTime;
+	LLStyle::Params mAvatarNameStyle;
 	
 	LLButton* mInfoBtn;
 	LLButton* mProfileBtn;
 	ContextMenu* mContextMenu;
 
 	LLUUID mAvatarId;
+	std::string mHighlihtSubstring; // substring to highlight
 	EOnlineStatus mOnlineStatus;
 	//Flag indicating that info/profile button shouldn't be shown at all.
 	//Speaker indicator and avatar name coords are translated accordingly
