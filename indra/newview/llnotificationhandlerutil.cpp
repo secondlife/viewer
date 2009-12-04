@@ -43,7 +43,10 @@ using namespace LLNotificationsUI;
 const static std::string GRANTED_MODIFY_RIGHTS("GrantedModifyRights"),
 		REVOKED_MODIFY_RIGHTS("RevokedModifyRights"), OBJECT_GIVE_ITEM(
 				"ObjectGiveItem"), OBJECT_GIVE_ITEM_UNKNOWN_USER(
-				"ObjectGiveItemUnknownUser"), PAYMENT_RECIVED("PaymentRecived");
+				"ObjectGiveItemUnknownUser"), PAYMENT_RECIVED("PaymentRecived"),
+						ADD_FRIEND_WITH_MESSAGE("AddFriendWithMessage"),
+						USER_GIVE_ITEM("UserGiveItem"), OFFER_FRIENDSHIP("OfferFriendship"),
+						FRIENDSHIP_ACCEPTED("FriendshipAccepted");
 
 // static
 bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
@@ -51,6 +54,14 @@ bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 	return GRANTED_MODIFY_RIGHTS == notification->getName()
 			|| REVOKED_MODIFY_RIGHTS == notification->getName()
 			|| PAYMENT_RECIVED == notification->getName();
+}
+
+// static
+bool LLHandlerUtil::canSpawnIMSession(const LLNotificationPtr& notification)
+{
+	return ADD_FRIEND_WITH_MESSAGE == notification->getName()
+			|| OFFER_FRIENDSHIP == notification->getName()
+			|| FRIENDSHIP_ACCEPTED == notification->getName();
 }
 
 // static

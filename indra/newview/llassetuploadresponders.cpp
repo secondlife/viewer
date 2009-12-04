@@ -42,7 +42,6 @@
 #include "llnotify.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
-#include "llfloaterinventory.h"
 #include "llpermissionsflags.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewscript.h"
@@ -287,19 +286,18 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 
 		// Show the preview panel for textures and sounds to let
 		// user know that the image (or snapshot) arrived intact.
-		LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
-		if(view)
+		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+		if (active_panel)
 		{
-			LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
-
-			view->getPanel()->setSelection(content["new_inventory_item"].asUUID(), TAKE_FOCUS_NO);
+			active_panel->setSelection(content["new_inventory_item"].asUUID(), TAKE_FOCUS_NO);
 			if((LLAssetType::AT_TEXTURE == asset_type || LLAssetType::AT_SOUND == asset_type)
 				&& LLFilePicker::instance().getFileCount() <= FILE_COUNT_DISPLAY_THRESHOLD)
 			{
-				view->getPanel()->openSelected();
+				active_panel->openSelected();
 			}
 			//LLFloaterInventory::dumpSelectionInformation((void*)view);
 			// restore keyboard focus
+			LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
 			gFocusMgr.setKeyboardFocus(focus);
 		}
 	}

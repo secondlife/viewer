@@ -43,6 +43,7 @@
 #include "lltrans.h"
 #include "llfloaterreg.h"
 #include "llmutelist.h"
+#include "llstylemap.h"
 
 #include "llsidetray.h"//for blocked objects panel
 
@@ -210,6 +211,10 @@ public:
 		{
 			icon->setValue(chat.mFromID);
 		}
+		else if (userName->getValue().asString()==LLTrans::getString("SECOND_LIFE"))
+		{
+			icon->setValue(LLSD("SL_Logo"));
+		}
 
 	} 
 
@@ -372,13 +377,25 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 	style_params.font.size(font_size);	
 	style_params.font.style(input_append_params.font.style);
 	
-	std::string header_text = "[" + chat.mTimeStr + "] ";
-	if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
-		header_text += chat.mFromName + ": ";
-	
 	if (use_plain_text_chat_history)
 	{
-		appendText(header_text, getText().size() != 0, style_params);
+		appendText("[" + chat.mTimeStr + "] ", getText().size() != 0, style_params);
+
+		if (utf8str_trim(chat.mFromName).size() != 0)
+		{
+			// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
+			if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() )
+			{
+				LLStyle::Params link_params(style_params);
+				link_params.fillFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
+				// Convert the name to a hotlink and add to message.
+				appendText(chat.mFromName + ": ", false, link_params);
+			}
+			else
+			{
+				appendText(chat.mFromName + ": ", false, style_params);
+			}
+		}
 	}
 	else
 	{
@@ -419,6 +436,10 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		target_rect.mRight -= mRightWidgetPad;
 		view->reshape(target_rect.getWidth(), view->getRect().getHeight());
 		view->setOrigin(target_rect.mLeft, view->getRect().mBottom);
+
+		std::string header_text = "[" + chat.mTimeStr + "] ";
+		if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
+			header_text += chat.mFromName + ": ";
 
 		appendWidget(p, header_text, false);
 		mLastFromName = chat.mFromName;

@@ -736,7 +736,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			else
 			{
-				llwarns << "Region not found for host: " << mHost << llendl;
+				// This will happen if not logged in or if a region deoes not have HTTP Texture enabled
+				//llwarns << "Region not found for host: " << mHost << llendl;
 			}
 		}
 		if (!mUrl.empty())
@@ -943,11 +944,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		{
 			llerrs << "Decode entered with invalid mFormattedImage. ID = " << mID << llendl;
 		}
+		if (mLoadedDiscard < 0)
+		{
+			llerrs << "Decode entered with invalid mLoadedDiscard. ID = " << mID << llendl;
+		}
 		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 		mRawImage = NULL;
 		mAuxImage = NULL;
 		llassert_always(mFormattedImage.notNull());
-		llassert_always(mLoadedDiscard >= 0);
 		S32 discard = mHaveAllData ? 0 : mLoadedDiscard;
 		U32 image_priority = LLWorkerThread::PRIORITY_NORMAL | mWorkPriority;
 		mDecoded  = FALSE;

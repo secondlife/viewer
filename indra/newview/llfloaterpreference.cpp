@@ -60,6 +60,7 @@
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
 #include "llnavigationbar.h"
+#include "llnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llpanellogin.h"
@@ -106,7 +107,6 @@
 #include "llviewermedia.h"
 #include "llpluginclassmedia.h"
 #include "llteleporthistorystorage.h"
-#include "llnearbychat.h"
 
 #include <boost/regex.hpp>
 
@@ -362,7 +362,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 BOOL LLFloaterPreference::postBuild()
 {
 	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate, _2));
-	
+
 	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLNearbyChat::processChatHistoryStyleUpdate, _2));
 
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
@@ -370,6 +370,10 @@ BOOL LLFloaterPreference::postBuild()
 		tabcontainer->selectFirstTab();
 	S32 show_avatar_nametag_options = gSavedSettings.getS32("AvatarNameTagMode");
 	handleNameTagOptionChanged(LLSD(show_avatar_nametag_options));
+
+	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
+	childSetText("cache_location", cache_location);
+
 	return TRUE;
 }
 

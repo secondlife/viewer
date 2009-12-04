@@ -746,7 +746,7 @@ private:
  * Implements notification chiclet. Used to display total amount of unread messages 
  * across all IM sessions, total amount of system notifications.
  */
-class LLNotificationChiclet : public LLChiclet
+class LLSysWellChiclet : public LLChiclet
 {
 public:
 
@@ -768,7 +768,7 @@ public:
 
 	boost::signals2::connection setClickCallback(const commit_callback_t& cb);
 
-	/*virtual*/ ~LLNotificationChiclet();
+	/*virtual*/ ~LLSysWellChiclet();
 
 	// methods for updating a number of unread System notifications
 	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications); }
@@ -779,14 +779,22 @@ protected:
 	// connect counter updaters to the corresponding signals
 	void connectCounterUpdatersToSignal(std::string notification_type);
 
-	LLNotificationChiclet(const Params& p);
+	LLSysWellChiclet(const Params& p);
 	friend class LLUICtrlFactory;
 
-	static S32 mUreadSystemNotifications;
+	S32 mUreadSystemNotifications;
 
 protected:
 	LLButton* mButton;
 	S32 mCounter;
+};
+
+class LLNotificationChiclet : public LLSysWellChiclet
+{
+	friend class LLUICtrlFactory;
+protected:
+	LLNotificationChiclet(const Params& p);
+
 };
 
 /**

@@ -47,7 +47,7 @@ class LLFlatListView;
 class LLChiclet;
 class LLIMChiclet;
 
-class LLSysWellWindow : public LLDockableFloater, LLIMSessionObserver
+class LLSysWellWindow : public LLDockableFloater
 {
 public:
     LLSysWellWindow(const LLSD& key);
@@ -59,31 +59,23 @@ public:
 	bool isWindowEmpty();
 
 	// Operating with items
-	void addItem(LLSysWellItem::Params p);
     void clear( void );
 	void removeItemByID(const LLUUID& id);
 
 	// Operating with outfit
 	virtual void setVisible(BOOL visible);
 	void adjustWindowPosition();
-	void toggleWindow();
-	/*virtual*/ BOOL	canClose() { return FALSE; }
 	/*virtual*/ void	setDocked(bool docked, bool pop_on_undock = true);
 	// override LLFloater's minimization according to EXT-1216
 	/*virtual*/ void	setMinimized(BOOL minimize);
 
-	// Handlers
-	void onItemClick(LLSysWellItem* item);
-	void onItemClose(LLSysWellItem* item);
-	void onStoreToast(LLPanel* info_panel, LLUUID id);
-	void onChicletClick();
 	void onStartUpToastClick(S32 x, S32 y, MASK mask);
 
 	// size constants for the window and for its elements
 	static const S32 MAX_WINDOW_HEIGHT		= 200;
 	static const S32 MIN_WINDOW_WIDTH		= 318;
 
-private:
+protected:
 
 	typedef enum{
 		IT_NOTIFICATION,
@@ -92,25 +84,17 @@ private:
 
 	// gets a rect that bounds possible positions for the SysWellWindow on a screen (EXT-1111)
 	void getAllowedRect(LLRect& rect);
-	// connect counter and list updaters to the corresponding signals
-	void connectListUpdaterToSignal(std::string notification_type);
+
+
 	// init Window's channel
-	void initChannel();
+	virtual void initChannel();
 	void handleItemAdded(EItemType added_item_type);
 	void handleItemRemoved(EItemType removed_item_type);
 	bool anotherTypeExists(EItemType item_type) ;
 
 
 
-	class RowPanel;
 	void reshapeWindow();
-	LLChiclet * findIMChiclet(const LLUUID& sessionId);
-	void addIMRow(const LLUUID& sessionId, S32 chicletCounter, const std::string& name, const LLUUID& otherParticipantId);
-	void delIMRow(const LLUUID& sessionId);
-	// LLIMSessionObserver observe triggers
-	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
-	virtual void sessionRemoved(const LLUUID& session_id);
-	void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
 	// pointer to a corresponding channel's instance
 	LLNotificationsUI::LLScreenChannel*	mChannel;
@@ -126,7 +110,67 @@ private:
 	typedef std::map<EItemType, S32> typed_items_count_t;
 	typed_items_count_t mTypedItemsCount;
 
+};
+
+/**
+ * Class intended to manage incoming notifications.
+ * 
+ * It contains a list of notifications that have not been responded to.
+ */
+class LLNotificationWellWindow : public LLSysWellWindow, public LLInitClass<LLNotificationWellWindow>
+{
+public:
+	LLNotificationWellWindow(const LLSD& key);
+	static LLNotificationWellWindow* getInstance(const LLSD& key = LLSD());
+
+	static void initClass() { getInstance(); }
+
+	/*virtual*/ void setVisible(BOOL visible);
+
+	// Operating with items
+	void addItem(LLSysWellItem::Params p);
+
 private:
+	// init Window's channel
+	void initChannel();
+	void clearScreenChannels();
+
+	void onStoreToast(LLPanel* info_panel, LLUUID id);
+
+	// connect counter and list updaters to the corresponding signals
+	void connectListUpdaterToSignal(std::string notification_type);
+
+	// Handlers
+	void onItemClick(LLSysWellItem* item);
+	void onItemClose(LLSysWellItem* item);
+
+};
+
+/**
+ * Class intended to manage incoming messages in IM chats.
+ * 
+ * It contains a list list of all active IM sessions.
+ */
+class LLIMWellWindow : public LLSysWellWindow, LLIMSessionObserver, LLInitClass<LLIMWellWindow>
+{
+public:
+	LLIMWellWindow(const LLSD& key);
+	~LLIMWellWindow();
+
+	static LLIMWellWindow* getInstance(const LLSD& key = LLSD());
+	static void initClass() { getInstance(); }
+
+	// LLIMSessionObserver observe triggers
+	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
+	/*virtual*/ void sessionRemoved(const LLUUID& session_id);
+	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
+
+private:
+	LLChiclet * findIMChiclet(const LLUUID& sessionId);
+	void addIMRow(const LLUUID& sessionId, S32 chicletCounter, const std::string& name, const LLUUID& otherParticipantId);
+	void delIMRow(const LLUUID& sessionId);
+
+
 	/**
 	 * Scrolling row panel.
 	 */

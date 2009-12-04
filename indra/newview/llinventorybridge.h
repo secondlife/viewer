@@ -191,6 +191,7 @@ protected:
 	
 	BOOL isInTrash() const;
 	BOOL isLinkedObjectInTrash() const; // Is this obj or its baseobj in the trash?
+	BOOL isLinkedObjectMissing() const; // Is this a linked obj whose baseobj is not in inventory?
 
 	BOOL isAgentInventory() const; // false if lost or in the inventory library
 	BOOL isCOFFolder() const; // true if COF or descendent of.
@@ -259,6 +260,9 @@ public:
 	virtual void clearDisplayName() { mDisplayName.clear(); }
 
 	LLViewerInventoryItem* getItem() const;
+	
+	bool isAddAction(std::string action) const;
+	bool isRemoveAction(std::string action) const;
 
 protected:
 	virtual BOOL isItemPermissive() const;

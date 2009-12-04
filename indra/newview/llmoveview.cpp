@@ -603,7 +603,7 @@ BOOL LLPanelStandStopFlying::handleToolTip(S32 x, S32 y, MASK mask)
 		LLToolTipMgr::instance().show(mStopFlyingButton->getToolTip());
 	}
 
-	return TRUE;
+	return LLPanel::handleToolTip(x, y, mask);
 }
 
 void LLPanelStandStopFlying::reparent(LLFloaterMove* move_view)

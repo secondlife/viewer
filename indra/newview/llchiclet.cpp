@@ -55,6 +55,7 @@
 #include "lltransientfloatermgr.h"
 
 static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
+static LLDefaultChildRegistry::Register<LLSysWellChiclet> t2_0("chiclet_im_well");
 static LLDefaultChildRegistry::Register<LLNotificationChiclet> t2("chiclet_notification");
 static LLDefaultChildRegistry::Register<LLIMP2PChiclet> t3("chiclet_im_p2p");
 static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t4("chiclet_im_group");
@@ -69,7 +70,6 @@ static const S32	OVERLAY_ICON_SHIFT = 2;	// used for shifting of an overlay icon
 // static
 const S32 LLChicletPanel::s_scroll_ratio = 10;
 
-S32 LLNotificationChiclet::mUreadSystemNotifications = 0;
 
 boost::signals2::signal<LLChiclet* (const LLUUID&),
 		LLIMChiclet::CollectChicletCombiner<std::list<LLChiclet*> > >
@@ -78,7 +78,7 @@ boost::signals2::signal<LLChiclet* (const LLUUID&),
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-LLNotificationChiclet::Params::Params()
+LLSysWellChiclet::Params::Params()
 : button("button")
 , unread_notifications("unread_notifications")
 {
@@ -88,27 +88,23 @@ LLNotificationChiclet::Params::Params()
 
 }
 
-LLNotificationChiclet::LLNotificationChiclet(const Params& p)
+LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 : LLChiclet(p)
 , mButton(NULL)
 , mCounter(0)
+, mUreadSystemNotifications(0)
 {
 	LLButton::Params button_params = p.button;
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
 	addChild(mButton);
-
-	// connect counter handlers to the signals
-	connectCounterUpdatersToSignal("notify");
-	connectCounterUpdatersToSignal("groupnotify");
-	connectCounterUpdatersToSignal("offer");
 }
 
-LLNotificationChiclet::~LLNotificationChiclet()
+LLSysWellChiclet::~LLSysWellChiclet()
 {
 
 }
 
-void LLNotificationChiclet::connectCounterUpdatersToSignal(std::string notification_type)
+void LLSysWellChiclet::connectCounterUpdatersToSignal(std::string notification_type)
 {
 	LLNotificationsUI::LLNotificationManager* manager = LLNotificationsUI::LLNotificationManager::getInstance();
 	LLNotificationsUI::LLEventHandler* n_handler = manager->getHandlerForNotification(notification_type);
@@ -119,7 +115,7 @@ void LLNotificationChiclet::connectCounterUpdatersToSignal(std::string notificat
 	}
 }
 
-void LLNotificationChiclet::setCounter(S32 counter)
+void LLSysWellChiclet::setCounter(S32 counter)
 {
 	std::string s_count;
 	if(counter != 0)
@@ -132,15 +128,25 @@ void LLNotificationChiclet::setCounter(S32 counter)
 	mCounter = counter;
 }
 
-boost::signals2::connection LLNotificationChiclet::setClickCallback(
+boost::signals2::connection LLSysWellChiclet::setClickCallback(
 	const commit_callback_t& cb)
 {
 	return mButton->setClickedCallback(cb);
 }
 
-void LLNotificationChiclet::setToggleState(BOOL toggled) {
+void LLSysWellChiclet::setToggleState(BOOL toggled) {
 	mButton->setToggleState(toggled);
 }
+
+LLNotificationChiclet::LLNotificationChiclet(const Params& p)
+: LLSysWellChiclet(p)
+{
+	// connect counter handlers to the signals
+	connectCounterUpdatersToSignal("notify");
+	connectCounterUpdatersToSignal("groupnotify");
+	connectCounterUpdatersToSignal("offer");
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

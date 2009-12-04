@@ -277,3 +277,16 @@ LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 	LLInventoryItem *item = gInventory.getItem(item_id);
 	return item;
 }
+
+LLInventoryPanel *LLSidepanelInventory::getActivePanel()
+{
+	if (!getVisible())
+	{
+		return NULL;
+	}
+	if (mInventoryPanel->getVisible())
+	{
+		return mPanelMainInventory->getActivePanel();
+	}
+	return NULL;
+}

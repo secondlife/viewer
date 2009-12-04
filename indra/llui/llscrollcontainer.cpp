@@ -111,7 +111,7 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	LLView::addChild( mBorder );
 
 	mInnerRect.set( 0, getRect().getHeight(), getRect().getWidth(), 0 );
-	mInnerRect.stretch( -mBorder->getBorderWidth()  );
+	mInnerRect.stretch( -getBorderWidth()  );
 
 	LLRect vertical_scroll_rect = mInnerRect;
 	vertical_scroll_rect.mLeft = vertical_scroll_rect.mRight - scrollbar_size;
@@ -189,7 +189,7 @@ void LLScrollContainer::reshape(S32 width, S32 height,
 	LLUICtrl::reshape( width, height, called_from_parent );
 
 	mInnerRect = getLocalRect();
-	mInnerRect.stretch( -mBorder->getBorderWidth() );
+	mInnerRect.stretch( -getBorderWidth() );
 
 	if (mScrolledView)
 	{
@@ -351,9 +351,9 @@ void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height
 	S32 doc_width = doc_rect.getWidth();
 	S32 doc_height = doc_rect.getHeight();
 
-	S32 border_width = (mBorder->getVisible() ? 2 * mBorder->getBorderWidth() : 0);
-	*visible_width = getRect().getWidth() - border_width;
-	*visible_height = getRect().getHeight() - border_width;
+	S32 border_width = getBorderWidth();
+	*visible_width = getRect().getWidth() - 2 * border_width;
+	*visible_height = getRect().getHeight() - 2 * border_width;
 	
 	*show_v_scrollbar = FALSE;
 	*show_h_scrollbar = FALSE;
@@ -499,7 +499,7 @@ void LLScrollContainer::updateScroll()
 	BOOL show_h_scrollbar = FALSE;
 	calcVisibleSize( &visible_width, &visible_height, &show_h_scrollbar, &show_v_scrollbar );
 
-	S32 border_width = mBorder->getBorderWidth();
+	S32 border_width = getBorderWidth();
 	if( show_v_scrollbar )
 	{
 		if( doc_rect.mTop < getRect().getHeight() - border_width )
@@ -573,6 +573,9 @@ void LLScrollContainer::updateScroll()
 void LLScrollContainer::setBorderVisible(BOOL b)
 {
 	mBorder->setVisible( b );
+	// Recompute inner rect, as border visibility changes it
+	mInnerRect = getLocalRect();
+	mInnerRect.stretch( -getBorderWidth() );
 }
 
 LLRect LLScrollContainer::getVisibleContentRect()
@@ -593,7 +596,7 @@ LLRect LLScrollContainer::getContentWindowRect()
 	BOOL show_h_scrollbar = FALSE;
 	BOOL show_v_scrollbar = FALSE;
 	calcVisibleSize( &visible_width, &visible_height, &show_h_scrollbar, &show_v_scrollbar );
-	S32 border_width = mBorder->getVisible() ? mBorder->getBorderWidth() : 0;
+	S32 border_width = getBorderWidth();
 	scroller_view_rect.setOriginAndSize(border_width, 
 										show_h_scrollbar ? mScrollbar[HORIZONTAL]->getRect().mTop : border_width, 
 										visible_width, 
@@ -626,7 +629,7 @@ void LLScrollContainer::scrollToShowRect(const LLRect& rect, const LLRect& const
 								rect_to_constrain.mTop - constraint.mTop);
 
 	// translate from allowable region for lower left corner to upper left corner
-	allowable_scroll_rect.translate(0, content_window_rect.getHeight() - 1);
+	allowable_scroll_rect.translate(0, content_window_rect.getHeight());
 
 	S32 vert_pos = llclamp(mScrollbar[VERTICAL]->getDocPos(), 
 					mScrollbar[VERTICAL]->getDocSize() - allowable_scroll_rect.mTop, // min vertical scroll
@@ -674,7 +677,7 @@ void LLScrollContainer::goToBottom()
 
 S32 LLScrollContainer::getBorderWidth() const
 {
-	if (mBorder)
+	if (mBorder->getVisible())
 	{
 		return mBorder->getBorderWidth();
 	}
