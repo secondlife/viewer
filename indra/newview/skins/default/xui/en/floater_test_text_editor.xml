@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="600"
+ layout="topleft"
+ name="floater_test_text_editor"
+ width="800">
+  <text_editor
+   height="50"
+   follows="top|left|bottom"
+   layout="topleft"
+   left="10"
+   name="test_text_editor"
+   tool_tip="text editor"
+   top="25"
+   width="200">
+    Text Editor
+  </text_editor>
+</floater>

@@ -50,16 +50,16 @@ LLInspect::~LLInspect()
 void LLInspect::draw()
 {
 	static LLCachedControl<F32> FADE_TIME(*LLUI::sSettingGroups["config"], "InspectorFadeTime", 1.f);
+	static LLCachedControl<F32> STAY_TIME(*LLUI::sSettingGroups["config"], "InspectorShowTime", 1.f);
 	if (mOpenTimer.getStarted())
 	{
-		F32 alpha = clamp_rescale(mOpenTimer.getElapsedTimeF32(), 0.f, FADE_TIME, 0.f, 1.f);
-		LLViewDrawContext context(alpha);
 		LLFloater::draw();
-		if (alpha == 1.f)
+		if (mOpenTimer.getElapsedTimeF32() > STAY_TIME)
 		{
 			mOpenTimer.stop();
+			mCloseTimer.start();
 		}
-		
+
 	}
 	else if (mCloseTimer.getStarted())
 	{
@@ -94,4 +94,17 @@ void LLInspect::onFocusLost()
 	// Start closing when we lose focus
 	mCloseTimer.start();
 	mOpenTimer.stop();
+}
+
+// virtual
+BOOL LLInspect::handleHover(S32 x, S32 y, MASK mask)
+{
+	mOpenTimer.pause();
+	return LLView::handleHover(x, y, mask);
+}
+
+// virtual
+void LLInspect::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	mOpenTimer.unpause();
 }

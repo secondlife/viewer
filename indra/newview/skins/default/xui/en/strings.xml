@@ -270,8 +270,8 @@
 	<string name="NotConnected">Not Connected</string>
 
 	<!-- Sim Access labels -->
-	<string name="SIM_ACCESS_PG">PG</string>
-	<string name="SIM_ACCESS_MATURE">Mature</string>
+	<string name="SIM_ACCESS_PG">General</string>
+	<string name="SIM_ACCESS_MATURE">Moderate</string>
 	<string name="SIM_ACCESS_ADULT">Adult</string>
 	<string name="SIM_ACCESS_DOWN">Offline</string>
 	<string name="SIM_ACCESS_MIN">Unknown</string>
@@ -2777,11 +2777,19 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 <string name="Wild">Wild</string>
 <string name="Wrinkles">Wrinkles</string>
 
-  <!-- Favorites Bar -->
+  <!-- Navigation bar location input control.
+       Strings are here because widget xml is not localizable -->
   <string name="LocationCtrlAddLandmarkTooltip">Add to My Landmarks</string>
   <string name="LocationCtrlEditLandmarkTooltip">Edit My Landmark</string>
   <string name="LocationCtrlInfoBtnTooltip">See more info about the current location</string>
   <string name="LocationCtrlComboBtnTooltip">My location history</string>
+  <string name="LocationCtrlForSaleTooltip">Buy this land</string>
+  <string name="LocationCtrlVoiceTooltip">Voice not available here</string>
+  <string name="LocationCtrlFlyTooltip">Flying not allowed</string>
+  <string name="LocationCtrlPushTooltip">No pushing</string>
+  <string name="LocationCtrlBuildTooltip">Building/dropping objects not allowed</string>
+  <string name="LocationCtrlScriptsTooltip">Scripts not allowed</string>
+  <string name="LocationCtrlDamageTooltip">Health</string>
 
   <!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
