@@ -3834,15 +3834,6 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 		}
 		
-		bool should_alpha_mask = shouldAlphaMask();
-
-		LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
-
-		if (should_alpha_mask)
-		{
-			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
-		}
-
 		if (isTextureVisible(TEX_HEAD_BAKED))
 		{
 			num_indices += mMeshLOD[MESH_ID_EYELASH]->render(mAdjustedPixelArea, first_pass, mIsDummy);
