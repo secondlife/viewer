@@ -40,6 +40,7 @@
 #include "llnotificationmanager.h"
 #include "llnotifications.h"
 #include "llscriptfloater.h"
+#include "llimview.h"
 
 using namespace LLNotificationsUI;
 
@@ -101,6 +102,26 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 		}
 		else
 		{
+			if (LLHandlerUtil::canSpawnIMSession(notification))
+			{
+				const std::string name = notification->getSubstitutions().has(
+						"NAME") ? notification->getSubstitutions()["NAME"]
+						: notification->getSubstitutions()["[NAME]"];
+
+				LLUUID from_id = notification->getPayload()["from_id"];
+
+				LLUUID session_id = LLIMMgr::computeSessionID(
+						IM_NOTHING_SPECIAL, from_id);
+
+				LLIMModel::LLIMSession* session =
+						LLIMModel::instance().findIMSession(session_id);
+				if (session == NULL)
+				{
+					LLIMMgr::instance().addSession(name, IM_NOTHING_SPECIAL,
+							from_id);
+				}
+			}
+
 			LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
 
 			LLToast::Params p;

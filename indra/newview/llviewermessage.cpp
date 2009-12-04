@@ -2074,13 +2074,17 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	case IM_INVENTORY_ACCEPTED:
 	{
 		args["NAME"] = name;
-		LLNotificationsUtil::add("InventoryAccepted", args);
+		LLSD payload;
+		payload["from_id"] = from_id;
+		LLNotificationsUtil::add("InventoryAccepted", args, payload);
 		break;
 	}
 	case IM_INVENTORY_DECLINED:
 	{
 		args["NAME"] = name;
-		LLNotificationsUtil::add("InventoryDeclined", args);
+		LLSD payload;
+		payload["from_id"] = from_id;
+		LLNotificationsUtil::add("InventoryDeclined", args, payload);
 		break;
 	}
 	// TODO: _DEPRECATED suffix as part of vote removal - DEV-24856
