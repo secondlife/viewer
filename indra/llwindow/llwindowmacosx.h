@@ -209,9 +209,6 @@ protected:
 	LangCode	mTSMLangCode;
 	LLPreeditor*	mPreeditor;
 	
-	// Storage for drag data
-	char		mDragData[1024];
-								
 	static BOOL	sUseMultGL;
 
 	friend class LLWindowManager;

@@ -3386,74 +3386,117 @@ MASK LLWindowMacOSX::modifiersToMask(SInt16 modifiers)
 }	
 
 OSErr LLWindowMacOSX::dragTrackingHandler(DragTrackingMessage message, WindowRef theWindow,
-						  void * handlerRefCon, DragRef theDrag)
+						  void * handlerRefCon, DragRef drag)
 {
+	OSErr result = noErr;
 	LLWindowMacOSX *self = (LLWindowMacOSX*)handlerRefCon;
-	return self->handleDragNDrop(theDrag, false);
+
+	lldebugs << "drag tracking handler, message = " << message << llendl;
+	
+	switch(message)
+	{
+		case kDragTrackingInWindow:
+			result = self->handleDragNDrop(drag, false);
+		break;
+		
+		case kDragTrackingEnterHandler:
+		case kDragTrackingLeaveHandler:
+			// TODO: We probably want to do something clever for these (at least for the LeaveHandler).
+		break;
+		
+		default:
+		break;
+	}
+	
+	return result;
 }
 
 OSErr LLWindowMacOSX::dragReceiveHandler(WindowRef theWindow, void * handlerRefCon,	
-										 DragRef theDrag)
+										 DragRef drag)
 {	
 	LLWindowMacOSX *self = (LLWindowMacOSX*)handlerRefCon;
-	return self->handleDragNDrop(theDrag, true);
+	return self->handleDragNDrop(drag, true);
 
 }
 
-OSErr LLWindowMacOSX::handleDragNDrop(DragRef theDrag, bool drop)
+OSErr LLWindowMacOSX::handleDragNDrop(DragRef drag, bool drop)
 {	
-	OSErr result = noErr;
+	OSErr result = dragNotAcceptedErr;	// overall function result
+	OSErr err = noErr;	// for local error handling
 	
-	UInt16 num_items = 0;
-	::CountDragItems(theDrag, &num_items);
-	if (1 == num_items)
+	// Get the mouse position and modifiers of this drag.
+	SInt16 modifiers, mouseDownModifiers, mouseUpModifiers;
+	::GetDragModifiers(drag, &modifiers, &mouseDownModifiers, &mouseUpModifiers);
+	MASK mask = LLWindowMacOSX::modifiersToMask(modifiers);
+	
+	Point mouse_point;
+	// This will return the mouse point in global screen coords
+	::GetDragMouse(drag, &mouse_point, NULL);
+	LLCoordScreen screen_coords(mouse_point.h, mouse_point.v);
+	LLCoordGL gl_pos;
+	convertCoords(screen_coords, &gl_pos);
+	
+	// Look at the pasteboard and try to extract an URL from it
+	PasteboardRef   pasteboard;
+	if(GetDragPasteboard(drag, &pasteboard) == noErr)
 	{
-		SInt16 modifiers, mouseDownModifiers, mouseUpModifiers;
-		::GetDragModifiers(theDrag, &modifiers, &mouseDownModifiers, &mouseUpModifiers);
-		MASK mask = LLWindowMacOSX::modifiersToMask(modifiers);
+		ItemCount num_items = 0;
+		// Treat an error here as an item count of 0
+		(void)PasteboardGetItemCount(pasteboard, &num_items);
 		
-		Point mouse_point;
-		// This will return the mouse point in global screen coords
-		::GetDragMouse(theDrag, &mouse_point, NULL);
-		LLCoordScreen screen_coords(mouse_point.v, mouse_point.h);
-		LLCoordGL gl_pos;
-		convertCoords(screen_coords, &gl_pos);
-		
-		DragItemRef theItemRef;
-		::GetDragItemReferenceNumber(theDrag, 0, &theItemRef);
-		
-		UInt16 numFlavors = 0;
-		::CountDragItemFlavors(theDrag, theItemRef, &numFlavors);		
-		
-		FlavorType theType = kScrapFlavorTypeUnicode;
-		std::string url;
-		for (UInt16 i=0; i<numFlavors; i++)
+		// Only deal with single-item drags.
+		if(num_items == 1)
 		{
-			::GetFlavorType(theDrag, theItemRef, i, &theType);
+			PasteboardItemID item_id = NULL;
+			CFArrayRef flavors = NULL;
+			CFDataRef data = NULL;
 			
-			printf("Drag Flavor: '%lu'", theType);
-			fflush(stdout);
-		}
-		
-		Size size = 1024;
-		::GetFlavorDataSize(theDrag, theItemRef, theType, &size);
-		
-		::GetFlavorData(theDrag, theItemRef, theType, mDragData, &size, 0);
-		url = mDragData;
+			err = PasteboardGetItemIdentifier(pasteboard, 1, &item_id); // Yes, this really is 1-based.
+			
+			// Try to extract an URL from the pasteboard
+			if(err == noErr)
+			{
+				err = PasteboardCopyItemFlavors( pasteboard, item_id, &flavors);
+			}
+			
+			if(err == noErr)
+			{
+				if(CFArrayContainsValue(flavors, CFRangeMake(0, CFArrayGetCount(flavors)), kUTTypeURL))
+				{
+					// This is an URL.
+					err = PasteboardCopyItemFlavorData(pasteboard, item_id, kUTTypeURL, &data);
+				}
+				else if(CFArrayContainsValue(flavors, CFRangeMake(0, CFArrayGetCount(flavors)), kUTTypeUTF8PlainText))
+				{
+					// This is a string that might be an URL.
+					err = PasteboardCopyItemFlavorData(pasteboard, item_id, kUTTypeUTF8PlainText, &data);
+				}
 				
-		printf("Drag Flavor: '%lu'  - Drag data : %s", theType, url.c_str());
-		fflush(stdout);
+			}
 			
-		LLWindowCallbacks::DragNDropResult res = 
-			mCallbacks->handleDragNDrop(this, gl_pos, mask, drop, url);
-		
-		if (LLWindowCallbacks::DND_NONE == res)
-		{
-			result = dragNotAcceptedErr;
+			if(flavors != NULL)
+			{
+				CFRelease(flavors);
+			}
+
+			if(data != NULL)
+			{
+				std::string url;
+				url.assign((char*)CFDataGetBytePtr(data), CFDataGetLength(data));
+				CFRelease(data);
+				
+				if(!url.empty())
+				{
+					LLWindowCallbacks::DragNDropResult res = 
+						mCallbacks->handleDragNDrop(this, gl_pos, mask, drop, url);
+					
+					if (LLWindowCallbacks::DND_NONE != res)
+					{
+						result = noErr;
+					}
+				}
+			}
 		}
-	}
-	else {
-		result = dragNotAcceptedErr;
 	}
 	
 	return result;
