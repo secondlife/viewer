@@ -1696,6 +1696,7 @@ void LLPanelObjectInventory::updateInventory()
 
 	mFolders->requestArrange();
 	mInventoryNeedsUpdate = FALSE;
+	LLEditMenuHandler::gEditMenuHandler = mFolders;
 }
 
 // *FIX: This is currently a very expensive operation, because we have
@@ -1939,4 +1940,23 @@ void LLPanelObjectInventory::idle(void* user_data)
 	{
 		self->updateInventory();
 	}
+}
+
+void LLPanelObjectInventory::onFocusLost()
+{
+	// inventory no longer handles cut/copy/paste/delete
+	if (LLEditMenuHandler::gEditMenuHandler == mFolders)
+	{
+		LLEditMenuHandler::gEditMenuHandler = NULL;
+	}
+	
+	LLPanel::onFocusLost();
+}
+
+void LLPanelObjectInventory::onFocusReceived()
+{
+	// inventory now handles cut/copy/paste/delete
+	LLEditMenuHandler::gEditMenuHandler = mFolders;
+	
+	LLPanel::onFocusReceived();
 }

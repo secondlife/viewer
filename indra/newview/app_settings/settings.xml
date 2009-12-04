@@ -3717,7 +3717,18 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.15</real>
+      <real>0.5</real>
+    </map> 
+	<key>InspectorShowTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Stay timing for inspectors</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>3.0</real>
     </map> 
     <key>InstallLanguage</key>
     <map>
