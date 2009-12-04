@@ -3581,9 +3581,9 @@ static LLWString find_context(const LLWString & wtext, S32 focus, S32 focus_leng
 
 // final stage of handling drop requests - both from WM_DROPFILES message
 // for files and via IDropTarget interface requests.
-BOOL LLWindowWin32::completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, BOOL drop, const std::string url )
+LLWindowCallbacks::DragNDropResult LLWindowWin32::completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, LLWindowCallbacks::DragNDropAction action, const std::string url )
 {
-	return mCallbacks->handleDragNDrop( this, gl_coord, mask, drop, url );
+	return mCallbacks->handleDragNDrop( this, gl_coord, mask, action, url );
 }
 
 // Handle WM_IME_REQUEST message.

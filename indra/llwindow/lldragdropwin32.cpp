@@ -117,15 +117,45 @@ class LLDragDropWin32Target:
 				{
 					PVOID data = GlobalLock( stgmed.hGlobal );
 					mDropUrl = std::string( (char*)data );
+					// XXX MAJOR MAJOR HACK!
+					LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(mAppWindowHandle, GWL_USERDATA);
+					if (NULL != window_imp)
+					{
+						LLCoordGL gl_coord( 0, 0 );
 
-					mIsSlurl = ( mDropUrl.find( "slurl.com" ) != std::string::npos );
+						POINT pt2;
+						pt2.x = pt.x;
+						pt2.y = pt.y;
+						ScreenToClient( mAppWindowHandle, &pt2 );
+
+						LLCoordWindow cursor_coord_window( pt2.x, pt2.y );
+						window_imp->convertCoords(cursor_coord_window, &gl_coord);
+						MASK mask = gKeyboard->currentMask(TRUE);
+
+						LLWindowCallbacks::DragNDropResult result = window_imp->completeDragNDropRequest( gl_coord, mask, 
+							LLWindowCallbacks::DNDA_START_TRACKING, mDropUrl );
+
+						switch (result)
+						{
+						case LLWindowCallbacks::DND_COPY:
+							*pdwEffect = DROPEFFECT_COPY;
+							break;
+						case LLWindowCallbacks::DND_LINK:
+							*pdwEffect = DROPEFFECT_LINK;
+							break;
+						case LLWindowCallbacks::DND_MOVE:
+							*pdwEffect = DROPEFFECT_MOVE;
+							break;
+						case LLWindowCallbacks::DND_NONE:
+						default:
+							*pdwEffect = DROPEFFECT_NONE;
+							break;
+						}
+					};
 
 					GlobalUnlock( stgmed.hGlobal );
 					ReleaseStgMedium( &stgmed );
 				};
-
-				*pdwEffect = DROPEFFECT_COPY;
-
 				SetFocus( mAppWindowHandle );
 			}
 			else
@@ -158,15 +188,25 @@ class LLDragDropWin32Target:
 					window_imp->convertCoords(cursor_coord_window, &gl_coord);
 					MASK mask = gKeyboard->currentMask(TRUE);
 
-					bool allowed_to_drop = window_imp->completeDragNDropRequest( gl_coord, mask, FALSE, std::string( "" ) );
-					if ( allowed_to_drop )
+					LLWindowCallbacks::DragNDropResult result = window_imp->completeDragNDropRequest( gl_coord, mask, 
+						LLWindowCallbacks::DNDA_TRACK, std::string( "" ) );
+					
+					switch (result)
+					{
+					case LLWindowCallbacks::DND_COPY:
 						*pdwEffect = DROPEFFECT_COPY;
-					else
-						*pdwEffect = DROPEFFECT_NONE;
-
-					// special case for SLURLs - you can always drop them on the client window and we need a different cursor
-					if ( mIsSlurl )
+						break;
+					case LLWindowCallbacks::DND_LINK:
 						*pdwEffect = DROPEFFECT_LINK;
+						break;
+					case LLWindowCallbacks::DND_MOVE:
+						*pdwEffect = DROPEFFECT_MOVE;
+						break;
+					case LLWindowCallbacks::DND_NONE:
+					default:
+						*pdwEffect = DROPEFFECT_NONE;
+						break;
+					}
 				};
 			}
 			else
@@ -181,7 +221,14 @@ class LLDragDropWin32Target:
 		//
 		HRESULT __stdcall DragLeave( void )
 		{
-			mDropUrl = std::string();
+			// XXX MAJOR MAJOR HACK!
+			LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(mAppWindowHandle, GWL_USERDATA);
+			if (NULL != window_imp)
+			{
+				LLCoordGL gl_coord( 0, 0 );
+				MASK mask = gKeyboard->currentMask(TRUE);
+				window_imp->completeDragNDropRequest( gl_coord, mask, LLWindowCallbacks::DNDA_STOP_TRACKING, mDropUrl );
+			};
 			return S_OK;
 		};
 
@@ -214,10 +261,26 @@ class LLDragDropWin32Target:
 					MASK mask = gKeyboard->currentMask( TRUE );
 
 					// actually do the drop
-					window_imp->completeDragNDropRequest( gl_coord, mask, TRUE, mDropUrl );
-				};
+					LLWindowCallbacks::DragNDropResult result = window_imp->completeDragNDropRequest( gl_coord, mask, 
+						LLWindowCallbacks::DNDA_DROPPED, mDropUrl );
 
-				*pdwEffect = DROPEFFECT_COPY;
+					switch (result)
+					{
+					case LLWindowCallbacks::DND_COPY:
+						*pdwEffect = DROPEFFECT_COPY;
+						break;
+					case LLWindowCallbacks::DND_LINK:
+						*pdwEffect = DROPEFFECT_LINK;
+						break;
+					case LLWindowCallbacks::DND_MOVE:
+						*pdwEffect = DROPEFFECT_MOVE;
+						break;
+					case LLWindowCallbacks::DND_NONE:
+					default:
+						*pdwEffect = DROPEFFECT_NONE;
+						break;
+					}
+				};
 			}
 			else
 			{
