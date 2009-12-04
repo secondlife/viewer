@@ -70,6 +70,13 @@ public:
 	virtual void handleDataCopy(LLWindow *window, S32 data_type, void *data);
 	virtual BOOL handleTimerEvent(LLWindow *window);
 	virtual BOOL handleDeviceChange(LLWindow *window);
+
+	enum DragNDropAction {
+		DNDA_START_TRACKING = 0,// Start tracking an incoming drag
+		DNDA_TRACK,				// User is dragging an incoming drag around the window
+		DNDA_STOP_TRACKING,		// User is no longer dragging an incoming drag around the window (may have either cancelled or dropped on the window)
+		DNDA_DROPPED			// User dropped an incoming drag on the window (this is the "commit" event)
+	};
 	
 	enum DragNDropResult {
 		DND_NONE = 0,	// No drop allowed
@@ -77,7 +84,7 @@ public:
 		DND_COPY,		// Drop accepted would result in a "copy" operation
 		DND_LINK		// Drop accepted would result in a "link" operation
 	};
-	virtual DragNDropResult handleDragNDrop(LLWindow *window, LLCoordGL pos, MASK mask, BOOL drop, std::string data);
+	virtual DragNDropResult handleDragNDrop(LLWindow *window, LLCoordGL pos, MASK mask, DragNDropAction action, std::string data);
 	
 	virtual void handlePingWatchdog(LLWindow *window, const char * msg);
 	virtual void handlePauseWatchdog(LLWindow *window);

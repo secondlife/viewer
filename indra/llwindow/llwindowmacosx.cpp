@@ -3396,12 +3396,15 @@ OSErr LLWindowMacOSX::dragTrackingHandler(DragTrackingMessage message, WindowRef
 	switch(message)
 	{
 		case kDragTrackingInWindow:
-			result = self->handleDragNDrop(drag, false);
+			result = self->handleDragNDrop(drag, LLWindowCallbacks::DNDA_TRACK);
 		break;
 		
 		case kDragTrackingEnterHandler:
+			result = self->handleDragNDrop(drag, LLWindowCallbacks::DNDA_START_TRACKING);
+		break;
+		
 		case kDragTrackingLeaveHandler:
-			// TODO: We probably want to do something clever for these (at least for the LeaveHandler).
+			result = self->handleDragNDrop(drag, LLWindowCallbacks::DNDA_STOP_TRACKING);
 		break;
 		
 		default:
@@ -3415,11 +3418,11 @@ OSErr LLWindowMacOSX::dragReceiveHandler(WindowRef theWindow, void * handlerRefC
 										 DragRef drag)
 {	
 	LLWindowMacOSX *self = (LLWindowMacOSX*)handlerRefCon;
-	return self->handleDragNDrop(drag, true);
+	return self->handleDragNDrop(drag, LLWindowCallbacks::DNDA_DROPPED);
 
 }
 
-OSErr LLWindowMacOSX::handleDragNDrop(DragRef drag, bool drop)
+OSErr LLWindowMacOSX::handleDragNDrop(DragRef drag, LLWindowCallbacks::DragNDropAction action)
 {	
 	OSErr result = dragNotAcceptedErr;	// overall function result
 	OSErr err = noErr;	// for local error handling
@@ -3488,7 +3491,7 @@ OSErr LLWindowMacOSX::handleDragNDrop(DragRef drag, bool drop)
 				if(!url.empty())
 				{
 					LLWindowCallbacks::DragNDropResult res = 
-						mCallbacks->handleDragNDrop(this, gl_pos, mask, drop, url);
+						mCallbacks->handleDragNDrop(this, gl_pos, mask, action, url);
 					
 					if (LLWindowCallbacks::DND_NONE != res)
 					{
