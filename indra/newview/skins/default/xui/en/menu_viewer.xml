@@ -3415,7 +3415,7 @@
          name="Parcel"
          tear_off="true">
             <menu_item_call
-             label="Owner To Me"
+             label="Force Owner To Me"
              layout="topleft"
              name="Owner To Me">
                 <menu_item_call.on_click
