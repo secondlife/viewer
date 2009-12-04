@@ -70,10 +70,6 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	mChicletPanel = getChild<LLChicletPanel>("chiclet_list");
 	mNotificationWell = getChild<LLNotificationChiclet>("notification_well");
 
-	// init mNotificationWell
-	// set handler for a Click operation
-	mNotificationWell->setClickCallback(boost::bind(&LLNotificationWellWindow::onChicletClick, LLNotificationWellWindow::getInstance()));
-
 	mChicletPanel->setChicletClickedCallback(boost::bind(&LLBottomTray::onChicletClick,this,_1));
 
 	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraPresets, _2));

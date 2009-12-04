@@ -346,8 +346,11 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
                image_overlay_alignment="right" 
                pad_right="6"
                pad_left="6"
-               width="54"
-               />
+               width="54" >
+                  <button.init_callback
+                   function="Button.SetDockableFloaterToggle"
+                   parameter="notification_well_window" />
+              </button>
 	    </chiclet_notification>
         </layout_panel>
        <icon

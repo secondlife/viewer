@@ -66,8 +66,6 @@ public:
 	// Operating with outfit
 	virtual void setVisible(BOOL visible);
 	void adjustWindowPosition();
-	void toggleWindow();
-	/*virtual*/ BOOL	canClose() { return FALSE; }
 	/*virtual*/ void	setDocked(bool docked, bool pop_on_undock = true);
 	// override LLFloater's minimization according to EXT-1216
 	/*virtual*/ void	setMinimized(BOOL minimize);
@@ -76,7 +74,7 @@ public:
 	void onItemClick(LLSysWellItem* item);
 	void onItemClose(LLSysWellItem* item);
 	void onStoreToast(LLPanel* info_panel, LLUUID id);
-	void onChicletClick();
+	void clearScreenChannels();
 	void onStartUpToastClick(S32 x, S32 y, MASK mask);
 
 	// size constants for the window and for its elements
@@ -154,11 +152,14 @@ private:
  * 
  * It contains a list of notifications that have not been responded to.
  */
-class LLNotificationWellWindow : public LLSysWellWindow
+class LLNotificationWellWindow : public LLSysWellWindow, public LLInitClass<LLNotificationWellWindow>
 {
 public:
 	LLNotificationWellWindow(const LLSD& key);
 	static LLNotificationWellWindow* getInstance(const LLSD& key = LLSD());
+
+	static void initClass() { getInstance(); }
+
 };
 
 /**

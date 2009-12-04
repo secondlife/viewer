@@ -90,12 +90,6 @@ BOOL LLSysWellWindow::postBuild()
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::setMinimized(BOOL minimize)
 {
-	// we don't show empty Message Well window
-	if (!minimize && isWindowEmpty())
-	{
-		return;
-	}
-
 	LLDockableFloater::setMinimized(minimize);
 }
 
@@ -117,11 +111,12 @@ void LLSysWellWindow::connectListUpdaterToSignal(std::string notification_type)
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::onStartUpToastClick(S32 x, S32 y, MASK mask)
 {
-	onChicletClick();
+	// just set floater visible. Screen channels will be cleared.
+	setVisible(TRUE);
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellWindow::onChicletClick()
+void LLSysWellWindow::clearScreenChannels()
 {
 	// 1 - remove StartUp toast and channel if present
 	if(!LLNotificationsUI::LLScreenChannel::getStartUpToastShown())
@@ -129,8 +124,11 @@ void LLSysWellWindow::onChicletClick()
 		LLNotificationsUI::LLChannelManager::getInstance()->onStartUpToastClose();
 	}
 
-	// 2 - toggle instance of SysWell's chiclet-window
-	toggleWindow();
+	// 2 - remove toasts in Notification channel
+	if(mChannel)
+	{
+		mChannel->removeAndStoreAllStorableToasts();
+	}
 }
 
 //---------------------------------------------------------------------------------
@@ -243,56 +241,26 @@ void LLSysWellWindow::getAllowedRect(LLRect& rect)
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellWindow::toggleWindow()
-{
-	if (getDockControl() == NULL)
-	{
-		setDockControl(new LLDockControl(
-				LLBottomTray::getInstance()->getSysWell(), this,
-				getDockTongue(), LLDockControl::TOP, boost::bind(&LLSysWellWindow::getAllowedRect, this, _1)));
-	}
 
-	if(!getVisible() || isMinimized())
-	{
-		if(mChannel)
-		{
-			mChannel->removeAndStoreAllStorableToasts();
-		}
-		if(isWindowEmpty())
-		{
-			return;
-		}
-
-		setVisible(TRUE);
-	}
-	else if (isDocked())
-	{
-		setVisible(FALSE);
-	}
-	else if(!isDocked())
-	{
-		// bring to front undocked floater
-		setVisible(TRUE);
-	}
-}
 
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::setVisible(BOOL visible)
 {
-	if(visible)
+	if (visible)
 	{
-		if (LLBottomTray::instanceExists())
+		if (NULL == getDockControl() && getDockTongue().notNull())
 		{
-			LLBottomTray::getInstance()->getSysWell()->setToggleState(TRUE);
+			setDockControl(new LLDockControl(
+				LLBottomTray::getInstance()->getSysWell(), this,
+				getDockTongue(), LLDockControl::TOP, boost::bind(&LLSysWellWindow::getAllowedRect, this, _1)));
 		}
+
+		// when Notification channel is cleared, storable toasts will be added into the list.
+		clearScreenChannels();
 	}
-	else
-	{
-		if (LLBottomTray::instanceExists())
-		{
-			LLBottomTray::getInstance()->getSysWell()->setToggleState(FALSE);
-		}
-	}
+
+	// do not show empty window
+	if (NULL == mMessageList || isWindowEmpty()) visible = FALSE;
 
 	LLDockableFloater::setVisible(visible);
 
