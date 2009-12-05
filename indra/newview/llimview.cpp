@@ -165,7 +165,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
 	if(mVoiceChannel)
 	{
-		mVoiceChannel->setStateChangedCallback(boost::bind(&LLIMSession::onVoiceChannelStateChanged, this, _1, _2));
+		mVoiceChannelStateChangeConnection = mVoiceChannel->setStateChangedCallback(boost::bind(&LLIMSession::onVoiceChannelStateChanged, this, _1, _2));
 	}
 	mSpeakers = new LLIMSpeakerMgr(mVoiceChannel);
 
@@ -270,9 +270,11 @@ LLIMModel::LLIMSession::~LLIMSession()
 		}
 	}
 
+	mVoiceChannelStateChangeConnection.disconnect();
+
 	// HAVE to do this here -- if it happens in the LLVoiceChannel destructor it will call the wrong version (since the object's partially deconstructed at that point).
 	mVoiceChannel->deactivate();
-	
+
 	delete mVoiceChannel;
 	mVoiceChannel = NULL;
 }
@@ -1392,13 +1394,13 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 		}
 		else
 		{
-			LLUUID session_id = gIMMgr->addSession(
+			LLUUID new_session_id = gIMMgr->addSession(
 				mPayload["session_name"].asString(),
 				type,
 				session_id);
-			if (session_id != LLUUID::null)
+			if (new_session_id != LLUUID::null)
 			{
-				LLIMFloater::show(session_id);
+				LLIMFloater::show(new_session_id);
 			}
 
 			std::string url = gAgent.getRegion()->getCapability(
@@ -1486,13 +1488,13 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 			}
 			else
 			{
-				LLUUID session_id = gIMMgr->addSession(
+				LLUUID new_session_id = gIMMgr->addSession(
 					payload["session_name"].asString(),
 					type,
 					session_id);
-				if (session_id != LLUUID::null)
+				if (new_session_id != LLUUID::null)
 				{
-					LLIMFloater::show(session_id);
+					LLIMFloater::show(new_session_id);
 				}
 
 				std::string url = gAgent.getRegion()->getCapability(

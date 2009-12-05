@@ -104,6 +104,9 @@ private:
 
 };
 
+/**
+ * @brief Listens for plugin messages.
+ */
 class LLPluginMessageListener
 {
 public:
@@ -112,6 +115,11 @@ public:
 	
 };
 
+/**
+ * @brief Dispatcher for plugin messages.
+ *
+ * Manages the set of plugin message listeners and distributes messages to plugin message listeners.
+ */
 class LLPluginMessageDispatcher
 {
 public:
@@ -122,7 +130,9 @@ public:
 protected:
 	void dispatchPluginMessage(const LLPluginMessage &message);
 
+   /** A set of message listeners. */
 	typedef std::set<LLPluginMessageListener*> listener_set_t;
+   /** The set of message listeners. */
 	listener_set_t mListeners;
 };
 

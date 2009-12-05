@@ -48,13 +48,13 @@
      left="20"
      name="first_name_text"
      top="20"
-     width="135">
+     width="150">
         Name:
     </text>
     <line_editor
      follows="left|bottom"
      handle_edit_keys_directly="true"
-     height="23"
+     height="22"
      label="First"
      left_delta="0"
      max_length="31"
@@ -66,7 +66,7 @@
     <line_editor
      follows="left|bottom"
      handle_edit_keys_directly="true"
-     height="23"
+     height="22"
      label="Last"
      left_pad="8"
      max_length="31"
@@ -75,20 +75,74 @@
      tool_tip="[SECOND_LIFE] Last Name"
      top_delta="0"
      width="135" />
-    <text
+      <combo_box
+     allow_text_entry="true"
+     font="SansSerifSmall"
+     follows="left|bottom"
+     height="23"
+     layout="topleft"
+     top="60"
+     name="server_combo"
+     width="135"
+     visible="false" />
+     <text
      follows="left|bottom"
      font="SansSerifSmall"
      height="15"
      left_pad="8"
+     name="password_text"
+     top="20"
+     width="150">
+        Password:
+    </text>
+    <line_editor
+     follows="left|bottom"
+     handle_edit_keys_directly="true"
+     height="22"
+     left="304"
+     max_length="16"
+     name="password_edit"
+     select_on_focus="true"
+     top_pad="1"
+     width="135" />
+    <check_box
+     control_name="RememberPassword"
+     follows="left|bottom"
+     font="SansSerifSmall"
+     height="16"
+     label="Remember"
+     left_pad="20"
+     top="20"
+     name="remember_check"
+     width="150" />
+     <button
+     follows="left|bottom"
+     height="23"
+     image_unselected="PushButton_On"
+     image_selected="PushButton_On_Selected"
+     label="Log In"
+     label_color="White"
+     layout="topleft"
+     left="462"
+     name="connect_btn"
+     top="35"
+     width="90" />
+     <text
+     follows="right|bottom"
+     font="SansSerifSmall"
+     height="15"
+     halign="right"
+     left_pad="10"
+     right="-240"
      name="start_location_text"
      top="20"
-     width="135">
+     width="130">
         Starting location:
     </text>
     <combo_box
      allow_text_entry="true"
      control_name="LoginLocation"
-     follows="left|bottom"
+     follows="right|bottom"
      height="23"
      max_chars="128"
      top_pad="0"
@@ -107,58 +161,6 @@
          name="Typeregionname"
          value="" />
     </combo_box>
-      <combo_box
-     allow_text_entry="true"
-     font="SansSerifSmall"
-     follows="left|bottom"
-     height="23"
-     layout="topleft"
-     top="60"
-     name="server_combo"
-     width="135"
-     visible="false" />
-     <text
-     follows="left|bottom"
-     font="SansSerifSmall"
-     height="15"
-     left_pad="3"
-     name="password_text"
-     top="20"
-     width="135">
-        Password:
-    </text>
-    <line_editor
-     follows="left|bottom"
-     handle_edit_keys_directly="true"
-     height="23"
-     left_delta="0"
-     max_length="16"
-     name="password_edit"
-     select_on_focus="true"
-     top_pad="0"
-     width="135" />
-    <check_box
-     control_name="RememberPassword"
-     follows="left|bottom"
-     font="SansSerifSmall"
-     height="16"
-     label="Remember"
-     left_pad="5"
-     name="remember_check"
-     top_delta="5"
-     width="90" />
-     <button
-     follows="left|bottom"
-     height="23"
-     image_unselected="PushButton_On"
-     image_selected="PushButton_On_Selected"
-     label="Log In"
-     label_color="White"
-     layout="topleft"
-     left_pad="20"
-     name="connect_btn"
-     top="35"
-     width="90" />
     <text
      follows="right|bottom"
      font="SansSerifSmall"

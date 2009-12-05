@@ -100,7 +100,8 @@ public:
 	 * get the panel (don't show it or do anything else with it)
 	 */
     LLPanel*	getPanel		(const std::string& panel_name);
-
+    LLPanel*	getActivePanel	();
+    bool		isPanelActive	(const std::string& panel_name);
 	/*
      * collapse SideBar, hiding visible tab and moving tab buttons
      * to the right corner of the screen

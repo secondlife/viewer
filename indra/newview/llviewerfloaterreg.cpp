@@ -226,7 +226,12 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("test_inspectors", "floater_test_inspectors.xml",
 		&LLFloaterReg::build<LLFloaterTestInspectors>);
 	//LLFloaterReg::add("test_list_view", "floater_test_list_view.xml",&LLFloaterReg::build<LLFloaterTestListView>);
-	LLFloaterReg::add("test_widgets", "floater_test_widgets.xml", &LLFloaterReg::build<LLFloater>);
+	LLFloaterReg::add("test_textbox", "floater_test_textbox.xml",
+		&LLFloaterReg::build<LLFloater>);
+	LLFloaterReg::add("test_text_editor", "floater_test_text_editor.xml",
+		&LLFloaterReg::build<LLFloater>);
+	LLFloaterReg::add("test_widgets", "floater_test_widgets.xml",
+		&LLFloaterReg::build<LLFloater>);
 	LLFloaterReg::add("top_objects", "floater_top_objects.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTopObjects>);
 	
 	LLFloaterReg::add("reporter", "floater_report_abuse.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterReporter>);
@@ -250,7 +255,6 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("upload_sound", "floater_sound_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundPreview>, "upload");
 	
 	LLFloaterReg::add("volume_pulldown", "floater_volume_pulldown.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterVolumePulldown>);
-	LLFloaterReg::add("voice_call", "floater_call.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCall>);
 	LLFloaterReg::add("voice_controls", "floater_voice_controls.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLCallFloater>);
 	
 	LLFloaterReg::add("whitelist_entry", "floater_whitelist_entry.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWhiteListEntry>);	

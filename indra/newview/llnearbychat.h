@@ -51,6 +51,10 @@ public:
 	void	onNearbyChatContextMenuItemClicked(const LLSD& userdata);
 	bool	onNearbyChatCheckContextMenuItem(const LLSD& userdata);
 
+	// focus overrides
+	/*virtual*/ void	onFocusLost();
+	/*virtual*/ void	onFocusReceived();
+	
 	/*virtual*/ void	onOpen	(const LLSD& key);
 
 	/*virtual*/ void	setVisible(BOOL visible);

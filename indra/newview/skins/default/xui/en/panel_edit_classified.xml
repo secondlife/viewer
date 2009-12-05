@@ -189,12 +189,12 @@
          <combo_item 
           name="mature_ci" 
           value="Mature">
-           Mature Content
+           Moderate Content
          </combo_item>
          <combo_item 
           name="pg_ci" 
           value="PG">
-           PG Content
+           General Content
          </combo_item>
         </combo_box>
         <spinner

@@ -21,6 +21,21 @@ Third line of multiple lines
 Fourth line of multiple lines
 Fifth line of multiple lines
     </text>
+  <text
+    clip_partial="true"
+    top_pad="10"
+    left="10"
+    width="267"
+    height="28"
+    layout="topleft"
+    follows="right|left"
+    text_color="white"
+    use_ellipses="true"
+    word_wrap="true"
+    mouse_opaque="false"
+    name="title" >
+    This text has word_wrap set true, use_ellipses set true, and clip_partial set true, so it should wrap around, spilling over to the last line, then clip the last partial line and show ellipses to indicate there is more text
+  </text>
 
   <text
    font="SansSerif"
@@ -28,7 +43,7 @@ Fifth line of multiple lines
    height="10"
    layout="topleft"
    left_delta="0"
-   top_pad="40"
+   top_pad="10"
    width="300">
     SansSerif BOLD
   </text>
