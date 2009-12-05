@@ -1435,3 +1435,93 @@ void LLViewerInventoryItem::onCallingCardNameLookup(const LLUUID& id, const std:
 	gInventory.notifyObservers();
 }
 
+class LLRegenerateLinkCollector : public LLInventoryCollectFunctor
+{
+public:
+	LLRegenerateLinkCollector(const LLViewerInventoryItem *target_item) : mTargetItem(target_item) {}
+	virtual ~LLRegenerateLinkCollector() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item)
+	{
+		if (item)
+		{
+			if ((item->getName() == mTargetItem->getName()) &&
+				(item->getInventoryType() == mTargetItem->getInventoryType()) &&
+				(!item->getIsLinkType()))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+protected:
+	const LLViewerInventoryItem* mTargetItem;
+};
+
+LLUUID find_possible_item_for_regeneration(const LLViewerInventoryItem *target_item)
+{
+	LLViewerInventoryCategory::cat_array_t cats;
+	LLViewerInventoryItem::item_array_t items;
+	/*
+	LLAssetIDMatches asset_id_matches(target_item->getAssetUUID());
+	gInventory.collectDescendentsIf(LLUUID::null,
+									cats,
+									items,
+									LLInventoryModel::EXCLUDE_TRASH,
+									asset_id_matches);
+	for (LLViewerInventoryItem::item_array_t::const_iterator item_iter = items.begin();
+		 item_iter != items.end();
+		 item_iter++)
+	{
+	    const LLViewerInventoryItem *item = (*item_iter);
+		if (!item->getIsBrokenLink())
+		{
+			return item->getAssetUUID();
+		}
+	}
+	*/
+
+	items.clear();
+	cats.clear();
+
+	LLRegenerateLinkCollector candidate_matches(target_item);
+	gInventory.collectDescendentsIf(LLUUID::null,
+									cats,
+									items,
+									LLInventoryModel::EXCLUDE_TRASH,
+									candidate_matches);
+	for (LLViewerInventoryItem::item_array_t::const_iterator item_iter = items.begin();
+		 item_iter != items.end();
+		 ++item_iter)
+	{
+	    const LLViewerInventoryItem *item = (*item_iter);
+		if (true) return item->getUUID();
+	}
+	return LLUUID::null;
+}
+
+BOOL LLViewerInventoryItem::regenerateLink()
+{
+	const LLUUID target_item_id = find_possible_item_for_regeneration(this);
+	if (target_item_id.isNull())
+		return FALSE;
+	LLViewerInventoryCategory::cat_array_t cats;
+	LLViewerInventoryItem::item_array_t items;
+	LLAssetIDMatches asset_id_matches(getAssetUUID());
+	gInventory.collectDescendentsIf(LLUUID::null,
+									cats,
+									items,
+									LLInventoryModel::EXCLUDE_TRASH,
+									asset_id_matches);
+	for (LLViewerInventoryItem::item_array_t::iterator item_iter = items.begin();
+		 item_iter != items.end();
+		 item_iter++)
+	{
+	    LLViewerInventoryItem *item = (*item_iter);
+		item->setAssetUUID(target_item_id);
+		item->updateServer(FALSE);
+		gInventory.addChangedMask(LLInventoryObserver::REBUILD, item->getUUID());
+	}
+	gInventory.notifyObservers();
+	return TRUE;
+}

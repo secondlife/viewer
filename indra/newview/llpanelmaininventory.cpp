@@ -966,6 +966,27 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 			preview_texture->openToSave();
 		}
 	}
+	if (command_name == "regenerate_link")
+	{
+		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		if (!current_item)
+		{
+			return;
+		}
+		const LLUUID& item_id = current_item->getListener()->getUUID();
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		item->regenerateLink();
+	}
+	if (command_name == "find_original")
+	{
+		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		if (!current_item)
+		{
+			return;
+		}
+		current_item->getListener()->performAction(getActivePanel()->getRootFolder(), getActivePanel()->getModel(), "goto");
+	}
+
 	if (command_name == "find_links")
 	{
 		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
@@ -1017,18 +1038,45 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 		}
 		return FALSE;
 	}
+	if (command_name == "find_original")
+	{
+		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		if (!current_item) return FALSE;
+		const LLUUID& item_id = current_item->getListener()->getUUID();
+		const LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		if (item && item->getIsLinkType() && !item->getIsBrokenLink())
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+
 	if (command_name == "find_links")
 	{
 		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
 		if (!current_item) return FALSE;
 		const LLUUID& item_id = current_item->getListener()->getUUID();
-		LLInventoryObject *obj = gInventory.getObject(item_id);
+		const LLInventoryObject *obj = gInventory.getObject(item_id);
 		if (obj && !obj->getIsLinkType() && LLAssetType::lookupCanLink(obj->getType()))
 		{
 			return TRUE;
 		}
 		return FALSE;
 	}
+
+	if (command_name == "regenerate_link")
+	{
+		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		if (!current_item) return FALSE;
+		const LLUUID& item_id = current_item->getListener()->getUUID();
+		const LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		if (item && item->getIsBrokenLink())
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+
 	return TRUE;
 }
 

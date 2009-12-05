@@ -161,7 +161,10 @@ public:
 
 	// callback
 	void onCallingCardNameLookup(const LLUUID& id, const std::string& first_name, const std::string& last_name);
-	
+
+	// If this is a broken link, try to fix it and any other identical link.
+	BOOL regenerateLink();
+
 public:
 	BOOL mIsComplete;
 	LLTransactionID mTransactionID;
