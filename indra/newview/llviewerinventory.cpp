@@ -509,11 +509,13 @@ bool LLViewerInventoryCategory::fetchDescendents()
 		// This comes from LLInventoryFilter from llfolderview.h
 		U32 sort_order = gSavedSettings.getU32("InventorySortOrder") & 0x1;
 
-		// *NOTE
-		// Temporary workaround for bug EXT-2879, see ticket for details.
-		// Commented gAgent.getRegion()->getCapability in order to use the old system.
-		std::string url;//= gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
-   
+		// *NOTE: For bug EXT-2879, originally commented out
+		// gAgent.getRegion()->getCapability in order to use the old
+		// message-based system.  This has been uncommented now that
+		// AIS folks are aware of the issue and have a fix in process.
+		// see ticket for details.
+
+		std::string url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
 		if (!url.empty()) //Capability found.  Build up LLSD and use it.
 		{
 			LLInventoryModel::startBackgroundFetch(mUUID);			

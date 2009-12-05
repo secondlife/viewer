@@ -11,11 +11,11 @@
  width="333">
  <panel.string
   name="type_mature">
-    Mature
+    Moderate
  </panel.string>
  <panel.string
   name="type_pg">
-    PG Content
+    General Content
  </panel.string>
     <button
      follows="top|right"

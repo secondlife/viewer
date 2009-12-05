@@ -393,21 +393,21 @@
   </panel>
 
     <panel
- follows="right|top|bottom"
-  height="270"
-  top_pad="0"
-  width="238">
-      <icon
-     color="0.5 0 0 1"
-     follows="top|right"
-     height="16"
-     image_name="map_track_16.tga"
-     layout="topleft"
-     left="5"
-     top="11"
-     mouse_opaque="true"
-     name="friends_icon"
-     width="16" />
+     follows="right|top|bottom"
+	 height="270"
+	 top_pad="0"
+	 width="238">
+	 <icon
+      color="0.5 0 0 1"
+      follows="top|right"
+      height="16"
+      image_name="map_track_16.tga"
+      layout="topleft"
+      left="5"
+      top="11"
+      mouse_opaque="true"
+      name="friends_icon"
+      width="16" />
     <combo_box
      allow_text_entry="true"
      follows="top|right"

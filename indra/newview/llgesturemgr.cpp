@@ -57,6 +57,7 @@
 #include "llvoavatarself.h"
 #include "llviewerstats.h"
 #include "llnearbychatbar.h"
+#include "llappearancemgr.h"
 
 // Longest time, in seconds, to wait for all animations to stop playing
 const F32 MAX_WAIT_ANIM_SECS = 30.f;
@@ -302,6 +303,8 @@ void LLGestureManager::deactivateGesture(const LLUUID& item_id)
 	msg->addU32("GestureFlags", 0x0);
 
 	gAgent.sendReliableMessage();
+
+	LLAppearanceManager::instance().removeCOFItemLinks(base_item_id, false);
 
 	notifyObservers();
 }

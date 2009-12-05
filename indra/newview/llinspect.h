@@ -46,6 +46,9 @@ public:
 	/// Inspectors have a custom fade-in/fade-out animation
 	/*virtual*/ void draw();
 	
+	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
+	
 	/// Start open animation
 	/*virtual*/ void onOpen(const LLSD& avatar_id);
 	

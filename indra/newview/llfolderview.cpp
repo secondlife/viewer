@@ -1803,15 +1803,6 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	return handled;
 }
 
-BOOL LLFolderView::handleScrollWheel(S32 x, S32 y, S32 clicks)
-{
-	if (mScrollContainer)
-	{
-		return mScrollContainer->handleScrollWheel(x, y, clicks);
-	}
-	return FALSE;
-}
-
 void LLFolderView::deleteAllChildren()
 {
 	if(mRenamer == gFocusMgr.getTopCtrl())
