@@ -50,6 +50,7 @@
 #include "llfloaterbuycurrency.h"
 #include "llfloaterreg.h"
 #include "llinventorybridge.h"
+#include "llinventoryfilter.h"
 #include "llinventoryfunctions.h"
 #include "llpreviewanim.h"
 #include "llpreviewgesture.h"

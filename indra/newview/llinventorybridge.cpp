@@ -512,37 +512,44 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 										std::vector<std::string> &disabled_items, U32 flags)
 {
 	const LLInventoryObject *obj = getInventoryObject();
-	if (obj && obj->getIsLinkType())
+	if (obj)
 	{
-		items.push_back(std::string("Find Original"));
-		if (isLinkedObjectMissing())
+		if (obj->getIsLinkType())
 		{
-			disabled_items.push_back(std::string("Find Original"));
-		}
-	}
-	else
-	{
-		items.push_back(std::string("Rename"));
-		if (!isItemRenameable() || (flags & FIRST_SELECTED_ITEM) == 0)
-		{
-			disabled_items.push_back(std::string("Rename"));
-		}
-		
-		if (show_asset_id)
-		{
-			items.push_back(std::string("Copy Asset UUID"));
-			if ( (! ( isItemPermissive() || gAgent.isGodlike() ) )
-				 || (flags & FIRST_SELECTED_ITEM) == 0)
+			items.push_back(std::string("Find Original"));
+			if (isLinkedObjectMissing())
 			{
-				disabled_items.push_back(std::string("Copy Asset UUID"));
+				disabled_items.push_back(std::string("Find Original"));
 			}
 		}
-		items.push_back(std::string("Copy Separator"));
-		
-		items.push_back(std::string("Copy"));
-		if (!isItemCopyable())
+		else
 		{
-			disabled_items.push_back(std::string("Copy"));
+			if (LLAssetType::lookupCanLink(obj->getType()))
+			{
+				items.push_back(std::string("Find Links"));
+			}
+			items.push_back(std::string("Rename"));
+			if (!isItemRenameable() || (flags & FIRST_SELECTED_ITEM) == 0)
+			{
+				disabled_items.push_back(std::string("Rename"));
+			}
+			
+			if (show_asset_id)
+			{
+				items.push_back(std::string("Copy Asset UUID"));
+				if ( (! ( isItemPermissive() || gAgent.isGodlike() ) )
+					 || (flags & FIRST_SELECTED_ITEM) == 0)
+				{
+					disabled_items.push_back(std::string("Copy Asset UUID"));
+				}
+			}
+			items.push_back(std::string("Copy Separator"));
+			
+			items.push_back(std::string("Copy"));
+			if (!isItemCopyable())
+			{
+				disabled_items.push_back(std::string("Copy"));
+			}
 		}
 	}
 
@@ -931,6 +938,7 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 	{
 		gotoItem(folder);
 	}
+
 	if ("open" == action)
 	{
 		openItem();
@@ -3768,8 +3776,14 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		getClipboardEntries(true, items, disabled_items, flags);
 
 		items.push_back(std::string("Gesture Separator"));
-		items.push_back(std::string("Activate"));
-		items.push_back(std::string("Deactivate"));
+		if (LLGestureManager::instance().isGestureActive(getUUID()))
+		{
+			items.push_back(std::string("Deactivate"));
+		}
+		else
+		{
+			items.push_back(std::string("Activate"));
+		}
 	}
 	hide_context_entries(menu, items, disabled_items);
 }

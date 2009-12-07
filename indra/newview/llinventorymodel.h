@@ -108,9 +108,11 @@ public:
 	// Accessors
 	//
 
-	// This is a convenience function to check if one object has a
-	// parent chain up to the category specified by UUID.
+	// Check if one object has a parent chain up to the category specified by UUID.
 	BOOL isObjectDescendentOf(const LLUUID& obj_id, const LLUUID& cat_id) const;
+
+	// Get whatever special folder this object is a child of, if any.
+	const LLViewerInventoryCategory *getFirstNondefaultParent(const LLUUID& obj_id) const;
 
 	// Get the object by id. Returns NULL if not found.
 	// * WARNING: use the pointer returned for read operations - do
