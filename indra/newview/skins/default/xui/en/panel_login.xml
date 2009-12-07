@@ -75,16 +75,6 @@
      tool_tip="[SECOND_LIFE] Last Name"
      top_delta="0"
      width="135" />
-      <combo_box
-     allow_text_entry="true"
-     font="SansSerifSmall"
-     follows="left|bottom"
-     height="23"
-     layout="topleft"
-     top="60"
-     name="server_combo"
-     width="135"
-     visible="false" />
      <text
      follows="left|bottom"
      font="SansSerifSmall"
@@ -161,6 +151,16 @@
          name="Typeregionname"
          value="" />
     </combo_box>
+    <combo_box
+     allow_text_entry="true"
+     font="SansSerifSmall"
+     follows="right|bottom"
+     height="23"
+     layout="topleft"
+     top_pad="2"
+     name="server_combo"
+     width="135"
+     visible="false" />
     <text
      follows="right|bottom"
      font="SansSerifSmall"
