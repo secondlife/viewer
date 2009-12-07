@@ -47,6 +47,7 @@
 
 
 static std::string NOTIFICATION_WELL_ANCHOR_NAME = "notification_well_panel";
+static std::string IM_WELL_ANCHOR_NAME = "im_well_panel";
 
 //---------------------------------------------------------------------------------
 LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLDockableFloater(NULL, key),
@@ -156,7 +157,7 @@ void LLSysWellWindow::setVisible(BOOL visible)
 		if (NULL == getDockControl() && getDockTongue().notNull())
 		{
 			setDockControl(new LLDockControl(
-				LLBottomTray::getInstance()->getChild<LLView>(NOTIFICATION_WELL_ANCHOR_NAME), this,
+				LLBottomTray::getInstance()->getChild<LLView>(getAnchorViewName()), this,
 				getDockTongue(), LLDockControl::TOP, boost::bind(&LLSysWellWindow::getAllowedRect, this, _1)));
 		}
 	}
@@ -373,6 +374,15 @@ LLNotificationWellWindow* LLNotificationWellWindow::getInstance(const LLSD& key 
 	return LLFloaterReg::getTypedInstance<LLNotificationWellWindow>("notification_well_window", key);
 }
 
+// virtual
+BOOL LLNotificationWellWindow::postBuild()
+{
+	BOOL rv = LLSysWellWindow::postBuild();
+	setTitle(getString("title_notification_well_window"));
+	return rv;
+}
+
+// virtual
 void LLNotificationWellWindow::setVisible(BOOL visible)
 {
 	if (visible)
@@ -499,6 +509,13 @@ LLIMWellWindow::~LLIMWellWindow()
 LLIMWellWindow* LLIMWellWindow::getInstance(const LLSD& key /*= LLSD()*/)
 {
 	return LLFloaterReg::getTypedInstance<LLIMWellWindow>("im_well_window", key);
+}
+
+BOOL LLIMWellWindow::postBuild()
+{
+	BOOL rv = LLSysWellWindow::postBuild();
+	setTitle(getString("title_im_well_window"));
+	return rv;
 }
 
 //virtual

@@ -21,6 +21,15 @@
  save_visibility="true"
  single_instance="true"
 >
+    <string
+     name="title_im_well_window">
+        IM SESSIONS
+    </string>
+    <string
+     name="title_notification_well_window">
+        NOTIFICATIONS
+    </string>
+     
     <flat_list_view
 	    color="FloaterDefaultBackgroundColor"
 	    follows="all"
