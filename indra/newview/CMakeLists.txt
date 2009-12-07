@@ -462,6 +462,7 @@ set(viewer_SOURCE_FILES
     llviewergesture.cpp    
     llviewerhelp.cpp
     llviewerhelputil.cpp
+    llviewerhome.cpp
     llviewerinventory.cpp
     llviewerjoint.cpp
     llviewerjointattachment.cpp
@@ -964,6 +965,7 @@ set(viewer_HEADER_FILES
     llviewergenericmessage.h
     llviewergesture.h    
     llviewerhelp.h
+    llviewerhome.h
     llviewerinventory.h
     llviewerjoint.h
     llviewerjointattachment.h
