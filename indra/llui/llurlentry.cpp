@@ -401,7 +401,7 @@ LLUrlEntryInventory::LLUrlEntryInventory()
 std::string LLUrlEntryInventory::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
 	std::string label = getStringAfterToken(url, "name=");
-	return label.empty() ? url : label;
+	return LLURI::unescape(label.empty() ? url : label);
 }
 
 ///
