@@ -45,7 +45,6 @@
 #include "llnotificationsutil.h"
 #include "llstring.h"
 #include "llsys.h"
-#include "llversionviewer.h"
 #include "message.h"
 #include "v3math.h"
 
@@ -76,7 +75,7 @@
 #include "llfloateravatarpicker.h"
 #include "lldir.h"
 #include "llselectmgr.h"
-#include "llviewerbuild.h"
+#include "llviewerversion.h"
 #include "lluictrlfactory.h"
 #include "llviewernetwork.h"
 
@@ -609,10 +608,7 @@ LLSD LLFloaterReporter::gatherReport()
 
 	std::ostringstream details;
 
-	details << "V" << LL_VERSION_MAJOR << "."								// client version moved to body of email for abuse reports
-		<< LL_VERSION_MINOR << "."
-		<< LL_VERSION_PATCH << "."
-		<< LL_VIEWER_BUILD << std::endl << std::endl;
+	details << "V" << llGetViewerVersion() << std::endl << std::endl;		// client version moved to body of email for abuse reports
 
 	std::string object_name = childGetText("object_name");
 	if (!object_name.empty() && !mOwnerName.empty())
@@ -629,10 +625,8 @@ LLSD LLFloaterReporter::gatherReport()
 
 	std::string version_string;
 	version_string = llformat(
-			"%d.%d.%d %s %s %s %s",
-			LL_VERSION_MAJOR,
-			LL_VERSION_MINOR,
-			LL_VERSION_PATCH,
+			"%s %s %s %s %s",
+			llGetViewerShortVersion().c_str(),
 			platform,
 			gSysCPU.getFamily().c_str(),
 			gGLManager.mGLRenderer.c_str(),

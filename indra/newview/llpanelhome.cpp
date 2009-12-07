@@ -35,6 +35,7 @@
 #include "llpanelhome.h"
 
 #include "llmediactrl.h"
+#include "llviewerhome.h"
 
 static LLRegisterPanelClassWrapper<LLPanelHome> t_people("panel_sidetray_home");
 
@@ -62,9 +63,12 @@ BOOL LLPanelHome::postBuild()
     mBrowser = getChild<LLMediaCtrl>("browser");
     if (mBrowser)
 	{
+		// read the URL to display from settings.xml
+		std::string url = LLViewerHome::getHomeURL();
+
 		mBrowser->addObserver(this);
 		mBrowser->setTrusted(true);
-		mBrowser->setHomePageUrl("http://www.secondlife.com/");
+		mBrowser->setHomePageUrl(url);
 
 		childSetAction("back", onClickBack, this);
 		childSetAction("forward", onClickForward, this);

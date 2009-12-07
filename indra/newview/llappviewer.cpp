@@ -36,6 +36,7 @@
 
 // Viewer includes
 #include "llversionviewer.h"
+#include "llviewerversion.h"
 #include "llfeaturemanager.h"
 #include "lluictrlfactory.h"
 #include "lltexteditor.h"
@@ -647,12 +648,9 @@ bool LLAppViewer::init()
     writeSystemInfo();
 
 	// Build a string representing the current version number.
-    gCurrentVersion = llformat("%s %d.%d.%d.%d", 
-        gSavedSettings.getString("VersionChannelName").c_str(), 
-        LL_VERSION_MAJOR, 
-        LL_VERSION_MINOR, 
-        LL_VERSION_PATCH, 
-        LL_VERSION_BUILD );
+    gCurrentVersion = llformat("%s %s", 
+							   gSavedSettings.getString("VersionChannelName").c_str(),
+							   llGetViewerVersion().c_str());
 
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -2521,8 +2519,7 @@ void LLAppViewer::writeSystemInfo()
 	
 	// Dump some debugging info
 	LL_INFOS("SystemInfo") << LLTrans::getString("APP_NAME")
-			<< " version " << LL_VERSION_MAJOR << "." << LL_VERSION_MINOR << "." << LL_VERSION_PATCH
-			<< LL_ENDL;
+			<< " version " << llGetViewerShortVersion() << LL_ENDL;
 
 	// Dump the local time and time zone
 	time_t now;
