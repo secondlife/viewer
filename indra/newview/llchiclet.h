@@ -789,6 +789,31 @@ protected:
 	S32 mCounter;
 };
 
+/**
+ * Class represented a chiclet for IM Well Icon.
+ *
+ * It displays a count of unread messages from other participants in all IM sessions.
+ */
+class LLIMWellChiclet : public LLSysWellChiclet
+{
+	friend class LLUICtrlFactory;
+protected:
+	LLIMWellChiclet(const Params& p);
+
+	/**
+	 * Handles changes in a session (message was added, messages were read, etc.)
+	 *
+	 * It get total count of unread messages from a LLIMMgr in all opened sessions and display it.
+	 *
+	 * @param[in] session_data contains session related data, is not used now
+	 *		["session_id"] - id of an appropriate session
+	 *		["participant_unread"] - count of unread messages from "real" participants.
+	 *
+	 * @see LLIMMgr::getNumberOfUnreadParticipantMessages()
+	 */
+	void messageCountChanged(const LLSD& session_data);
+};
+
 class LLNotificationChiclet : public LLSysWellChiclet
 {
 	friend class LLUICtrlFactory;

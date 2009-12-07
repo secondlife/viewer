@@ -148,6 +148,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 :	mSessionID(session_id),
 	mName(name),
 	mType(type),
+	mParticipantUnreadMessageCount(0),
 	mNumUnread(0),
 	mOtherParticipantID(other_participant_id),
 	mInitialTargetIDs(ids),
@@ -496,10 +497,12 @@ void LLIMModel::getMessages(const LLUUID& session_id, std::list<LLSD>& messages,
 	}
 
 	session->mNumUnread = 0;
+	session->mParticipantUnreadMessageCount = 0;
 	
 	LLSD arg;
 	arg["session_id"] = session_id;
 	arg["num_unread"] = 0;
+	arg["participant_unread"] = session->mParticipantUnreadMessageCount;
 	mNoUnreadMsgsSignal(arg);
 }
 
@@ -576,10 +579,18 @@ bool LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
 
 	session->mNumUnread++;
 
+	//update count of unread messages from real participant
+	if (!(from_id.isNull() || from_id == gAgentID || SYSTEM_FROM == from))
+	{
+		++(session->mParticipantUnreadMessageCount);
+	}
+
+
 	// notify listeners
 	LLSD arg;
 	arg["session_id"] = session_id;
 	arg["num_unread"] = session->mNumUnread;
+	arg["participant_unread"] = session->mParticipantUnreadMessageCount;
 	arg["message"] = utf8_text;
 	arg["from"] = from;
 	arg["from_id"] = from_id;
@@ -1890,6 +1901,19 @@ S32 LLIMMgr::getNumberOfUnreadIM()
 	for(it = LLIMModel::getInstance()->mId2SessionMap.begin(); it != LLIMModel::getInstance()->mId2SessionMap.end(); ++it)
 	{
 		num += (*it).second->mNumUnread;
+	}
+
+	return num;
+}
+
+S32 LLIMMgr::getNumberOfUnreadParticipantMessages()
+{
+	std::map<LLUUID, LLIMModel::LLIMSession*>::iterator it;
+
+	S32 num = 0;
+	for(it = LLIMModel::getInstance()->mId2SessionMap.begin(); it != LLIMModel::getInstance()->mId2SessionMap.end(); ++it)
+	{
+		num += (*it).second->mParticipantUnreadMessageCount;
 	}
 
 	return num;

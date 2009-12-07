@@ -86,7 +86,10 @@ public:
 		// connection to voice channel state change signal
 		boost::signals2::connection mVoiceChannelStateChangeConnection;
 
-		//does NOT include system messages
+		//does NOT include system messages and agent's messages
+		S32 mParticipantUnreadMessageCount;
+
+		// does include all incoming messages
 		S32 mNumUnread;
 
 		std::list<LLSD> mMsgs;
@@ -330,8 +333,13 @@ public:
 	// IM received that you haven't seen yet
 	BOOL getIMReceived() const;
 
-	// Calc number of unread IMs
+	// Calc number of all unread IMs
 	S32 getNumberOfUnreadIM();
+
+	/**
+	 * Calculates number of unread IMs from real participants in all stored sessions
+	 */
+	S32 getNumberOfUnreadParticipantMessages();
 
 	// This method is used to go through all active sessions and
 	// disable all of them. This method is usally called when you are

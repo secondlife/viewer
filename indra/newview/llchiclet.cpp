@@ -55,7 +55,7 @@
 #include "lltransientfloatermgr.h"
 
 static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
-static LLDefaultChildRegistry::Register<LLSysWellChiclet> t2_0("chiclet_im_well");
+static LLDefaultChildRegistry::Register<LLIMWellChiclet> t2_0("chiclet_im_well");
 static LLDefaultChildRegistry::Register<LLNotificationChiclet> t2("chiclet_notification");
 static LLDefaultChildRegistry::Register<LLIMP2PChiclet> t3("chiclet_im_p2p");
 static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t4("chiclet_im_group");
@@ -138,6 +138,26 @@ void LLSysWellChiclet::setToggleState(BOOL toggled) {
 	mButton->setToggleState(toggled);
 }
 
+
+/************************************************************************/
+/*               LLIMWellChiclet implementation                         */
+/************************************************************************/
+LLIMWellChiclet::LLIMWellChiclet(const Params& p)
+: LLSysWellChiclet(p)
+{
+	LLIMModel::instance().addNewMsgCallback(boost::bind(&LLIMWellChiclet::messageCountChanged, this, _1));
+	LLIMModel::instance().addNoUnreadMsgsCallback(boost::bind(&LLIMWellChiclet::messageCountChanged, this, _1));
+}
+
+void LLIMWellChiclet::messageCountChanged(const LLSD& session_data)
+{
+	S32 total_unread = LLIMMgr::instance().getNumberOfUnreadParticipantMessages();
+	setCounter(total_unread);
+}
+
+/************************************************************************/
+/*               LLNotificationChiclet implementation                   */
+/************************************************************************/
 LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 : LLSysWellChiclet(p)
 {
@@ -886,16 +906,7 @@ LLChicletPanel::~LLChicletPanel()
 void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	
 	LLUUID session_id = data["session_id"].asUUID();
-	LLUUID from_id = data["from_id"].asUUID();
-	const std::string from = data["from"].asString();
-	S32 unread = data["num_unread"].asInteger();
-
-	// if new message came
-	if(unread != 0)
-	{
-		//we do not show balloon (indicator of new messages) for system messages and our own messages
-		if (from_id.isNull() || from_id == gAgentID || SYSTEM_FROM == from) return;
-	}
+	S32 unread = data["participant_unread"].asInteger();
 
 	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
 	if (im_floater && im_floater->getVisible())
