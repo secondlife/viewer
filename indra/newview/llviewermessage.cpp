@@ -40,6 +40,8 @@
 #include "llfollowcamparams.h"
 #include "llsdserialize.h"
 #include "lltransactionflags.h"
+#include "llvfile.h"
+#include "llvfs.h"
 
 #include "llagent.h"
 #include "llcallingcard.h"

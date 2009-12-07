@@ -38,7 +38,6 @@
 #include "llagentlistener.h"
 #include "llagentwearables.h"
 #include "llagentui.h"
-
 #include "llanimationstates.h"
 #include "llbottomtray.h"
 #include "llcallingcard.h"
@@ -65,6 +64,7 @@
 #include "llsky.h"
 #include "llsmoothstep.h"
 #include "llstatusbar.h"
+#include "llteleportflags.h"
 #include "lltool.h"
 #include "lltoolmgr.h"
 #include "lltrans.h"

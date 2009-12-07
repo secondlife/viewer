@@ -21,12 +21,13 @@
 // external library headers
 #include <boost/scoped_ptr.hpp>
 #include <boost/range.hpp>          // boost::begin(), boost::end()
+#include <xmlrpc-epi/xmlrpc.h>
+#include "curl/curl.h"
+
 // other Linden headers
 #include "llerror.h"
 #include "stringize.h"
 #include "llxmlrpctransaction.h"
-
-#include <xmlrpc-epi/xmlrpc.h>
 
 #if LL_WINDOWS
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally

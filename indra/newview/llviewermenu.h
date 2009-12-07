@@ -36,6 +36,7 @@
 #include "llmenugl.h"
 #include "llsafehandle.h"
 
+class LLMessageSystem;
 class LLSD;
 class LLUICtrl;
 class LLView;

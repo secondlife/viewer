@@ -43,8 +43,10 @@
 #include "llhttpclient.h"
 #include "llhttpstatuscodes.h"
 #include "llimage.h"
+#include "llimagej2c.h"
 #include "llimageworker.h"
 #include "llworkerthread.h"
+#include "message.h"
 
 #include "llagent.h"
 #include "lltexturecache.h"

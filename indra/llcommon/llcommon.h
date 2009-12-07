@@ -33,7 +33,6 @@
 #define LL_COMMON_H
 
 // *TODO: remove these?
-#include "llapr.h"
 #include "lltimer.h"
 #include "llfile.h"
 

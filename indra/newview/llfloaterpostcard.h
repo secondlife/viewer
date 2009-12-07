@@ -70,7 +70,7 @@ public:
 
 	void sendPostcard();
 
-protected:
+private:
 	
 	LLPointer<LLImageJPEG> mJPEGImage;
 	LLPointer<LLViewerTexture> mViewerImage;
@@ -78,7 +78,7 @@ protected:
 	LLAssetID mAssetID;
 	LLVector2 mImageScale;
 	LLVector3d mPosTakenGlobal;
-	boolean mHasFirstMsgFocus;
+	bool mHasFirstMsgFocus;
 };
 
 
