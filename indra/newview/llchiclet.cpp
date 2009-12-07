@@ -92,7 +92,6 @@ LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 : LLChiclet(p)
 , mButton(NULL)
 , mCounter(0)
-, mUreadSystemNotifications(0)
 {
 	LLButton::Params button_params = p.button;
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
@@ -102,17 +101,6 @@ LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 LLSysWellChiclet::~LLSysWellChiclet()
 {
 
-}
-
-void LLSysWellChiclet::connectCounterUpdatersToSignal(std::string notification_type)
-{
-	LLNotificationsUI::LLNotificationManager* manager = LLNotificationsUI::LLNotificationManager::getInstance();
-	LLNotificationsUI::LLEventHandler* n_handler = manager->getHandlerForNotification(notification_type);
-	if(n_handler)
-	{
-		n_handler->setNewNotificationCallback(boost::bind(&LLNotificationChiclet::incUreadSystemNotifications, this));
-		n_handler->setDelNotification(boost::bind(&LLNotificationChiclet::decUreadSystemNotifications, this));
-	}
 }
 
 void LLSysWellChiclet::setCounter(S32 counter)
@@ -160,6 +148,7 @@ void LLIMWellChiclet::messageCountChanged(const LLSD& session_data)
 /************************************************************************/
 LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 : LLSysWellChiclet(p)
+, mUreadSystemNotifications(0)
 {
 	// connect counter handlers to the signals
 	connectCounterUpdatersToSignal("notify");
@@ -167,6 +156,16 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 	connectCounterUpdatersToSignal("offer");
 }
 
+void LLNotificationChiclet::connectCounterUpdatersToSignal(const std::string& notification_type)
+{
+	LLNotificationsUI::LLNotificationManager* manager = LLNotificationsUI::LLNotificationManager::getInstance();
+	LLNotificationsUI::LLEventHandler* n_handler = manager->getHandlerForNotification(notification_type);
+	if(n_handler)
+	{
+		n_handler->setNewNotificationCallback(boost::bind(&LLNotificationChiclet::incUreadSystemNotifications, this));
+		n_handler->setDelNotification(boost::bind(&LLNotificationChiclet::decUreadSystemNotifications, this));
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

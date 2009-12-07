@@ -770,19 +770,12 @@ public:
 
 	/*virtual*/ ~LLSysWellChiclet();
 
-	// methods for updating a number of unread System notifications
-	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications); }
-	void decUreadSystemNotifications() { setCounter(--mUreadSystemNotifications); }
 	void setToggleState(BOOL toggled);
 
 protected:
-	// connect counter updaters to the corresponding signals
-	void connectCounterUpdatersToSignal(std::string notification_type);
 
 	LLSysWellChiclet(const Params& p);
 	friend class LLUICtrlFactory;
-
-	S32 mUreadSystemNotifications;
 
 protected:
 	LLButton* mButton;
@@ -820,6 +813,14 @@ class LLNotificationChiclet : public LLSysWellChiclet
 protected:
 	LLNotificationChiclet(const Params& p);
 
+	// connect counter updaters to the corresponding signals
+	void connectCounterUpdatersToSignal(const std::string& notification_type);
+
+	// methods for updating a number of unread System notifications
+	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications); }
+	void decUreadSystemNotifications() { setCounter(--mUreadSystemNotifications); }
+
+	S32 mUreadSystemNotifications;
 };
 
 /**
