@@ -47,8 +47,6 @@ class LLFlatListView;
 class LLChiclet;
 class LLIMChiclet;
 
-extern std::string NOTIFICATION_WELL_ANCHOR_NAME;
-extern std::string IM_WELL_ANCHOR_NAME;
 
 
 class LLSysWellWindow : public LLDockableFloater
@@ -101,6 +99,8 @@ protected:
 	void handleItemRemoved(EItemType removed_item_type);
 	bool anotherTypeExists(EItemType item_type) ;
 
+	const std::string NOTIFICATION_WELL_ANCHOR_NAME;
+	const std::string IM_WELL_ANCHOR_NAME;
 	virtual const std::string& getAnchorViewName() = 0;
 
 	void reshapeWindow();

@@ -45,10 +45,6 @@
 #include "lltoastpanel.h"
 #include "llnotificationmanager.h"
 
-
-static std::string NOTIFICATION_WELL_ANCHOR_NAME = "notification_well_panel";
-static std::string IM_WELL_ANCHOR_NAME = "im_well_panel";
-
 //---------------------------------------------------------------------------------
 LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLDockableFloater(NULL, key),
 													mChannel(NULL),
