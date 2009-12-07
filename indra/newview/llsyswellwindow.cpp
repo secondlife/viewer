@@ -49,7 +49,10 @@
 LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLDockableFloater(NULL, key),
 													mChannel(NULL),
 													mMessageList(NULL),
-													mSeparator(NULL)
+													mSeparator(NULL),
+													NOTIFICATION_WELL_ANCHOR_NAME("notification_well_panel"),
+													IM_WELL_ANCHOR_NAME("im_well_panel")
+
 {
 	mTypedItemsCount[IT_NOTIFICATION] = 0;
 	mTypedItemsCount[IT_INSTANT_MESSAGE] = 0;
