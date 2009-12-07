@@ -73,6 +73,11 @@ public:
 	// override LLFloater's minimization according to EXT-1216
 	/*virtual*/ void	setMinimized(BOOL minimize);
 
+	/** 
+	 * Hides window when user clicks away from it (EXT-3084)
+	 */
+	/*virtual*/ void onFocusLost();
+
 	void onStartUpToastClick(S32 x, S32 y, MASK mask);
 
 	// size constants for the window and for its elements

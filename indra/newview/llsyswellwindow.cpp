@@ -175,6 +175,12 @@ void LLSysWellWindow::setVisible(BOOL visible)
 }
 
 //---------------------------------------------------------------------------------
+void LLSysWellWindow::onFocusLost()
+{
+	setVisible(false);
+}
+
+//---------------------------------------------------------------------------------
 void LLSysWellWindow::setDocked(bool docked, bool pop_on_undock)
 {
 	LLDockableFloater::setDocked(docked, pop_on_undock);
