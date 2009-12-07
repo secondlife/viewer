@@ -265,6 +265,8 @@ private:
 	// create the StartUp Toast
 	void	createStartUpToast(S32 notif_num, F32 timer);
 
+	static F32 getHeightRatio();
+
 	// Channel's flags
 	static bool	mWasStartUpToastShown;
 

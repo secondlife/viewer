@@ -125,6 +125,8 @@ LLScreenChannelBase(id)
 void LLScreenChannel::init(S32 channel_left, S32 channel_right)
 {
 	LLScreenChannelBase::init(channel_left, channel_right);
+	LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
+	updatePositionAndSize(world_rect, world_rect);
 }
 
 //--------------------------------------------------------------------------
@@ -136,7 +138,23 @@ LLScreenChannel::~LLScreenChannel()
 //--------------------------------------------------------------------------
 void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
 {
-	LLScreenChannelBase::updatePositionAndSize(old_world_rect, new_world_rect);
+	S32 right_delta = old_world_rect.mRight - new_world_rect.mRight;
+	LLRect this_rect = getRect();
+
+	this_rect.mTop = new_world_rect.getHeight() * getHeightRatio();
+	switch(mChannelAlignment)
+	{
+	case CA_LEFT :
+		break;
+	case CA_CENTRE :
+		this_rect.setCenterAndSize(new_world_rect.getWidth() / 2, new_world_rect.getHeight() / 2, this_rect.getWidth(), this_rect.getHeight());
+		break;
+	case CA_RIGHT :
+		this_rect.mLeft -= right_delta;
+		this_rect.mRight -= right_delta;
+	}
+	setRect(this_rect);
+	redrawToasts();
 }
 
 //--------------------------------------------------------------------------
@@ -169,6 +187,7 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
 	if(show_toast)
 	{
 		mToastList.push_back(new_toast_elem);
+		updateShowToastsState();
 		redrawToasts();
 	}	
 	else // store_toast
@@ -356,6 +375,12 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 	}
 }
 
+void LLScreenChannel::onVisibleChanged(LLUICtrl* ctrl, const LLSD& param)
+{
+	updateShowToastsState();
+	redrawToasts();
+}
+
 //--------------------------------------------------------------------------
 void LLScreenChannel::redrawToasts()
 {
@@ -405,9 +430,16 @@ void LLScreenChannel::showToastsBottom()
 		{
 			if( it != mToastList.rend()-1)
 			{
-				stop_showing_toasts = ((*it).toast->getRect().mTop + gSavedSettings.getS32("OverflowToastHeight") + gSavedSettings.getS32("ToastGap")) > getRect().mTop;
+				S32 toast_top = (*it).toast->getRect().mTop + gSavedSettings.getS32("ToastGap");
+				stop_showing_toasts = toast_top > getRect().mTop;
 			}
 		} 
+
+		// at least one toast should be visible
+		if(it == mToastList.rbegin())
+		{
+			stop_showing_toasts = false;
+		}
 
 		if(stop_showing_toasts)
 			break;
@@ -564,6 +596,21 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 	addChild(mStartUpToastPanel);
 	
 	mStartUpToastPanel->setVisible(TRUE);
+}
+
+// static --------------------------------------------------------------------------
+F32 LLScreenChannel::getHeightRatio()
+{
+	F32 ratio = gSavedSettings.getF32("NotificationChannelHeightRatio");
+	if(0.0f > ratio)
+	{
+		ratio = 0.0f;
+	}
+	else if(1.0f < ratio)
+	{
+		ratio = 1.0f;
+	}
+	return ratio;
 }
 
 //--------------------------------------------------------------------------
@@ -735,27 +782,16 @@ void LLScreenChannel::updateShowToastsState()
 		return;
 	}
 
-	// for IM floaters showed in a docked state - prohibit showing of ani toast
-	if(dynamic_cast<LLIMFloater*>(floater)
-		|| dynamic_cast<LLScriptFloater*>(floater) )
-	{
-		setShowToasts(!(floater->getVisible() && floater->isDocked()));
-		if (!getShowToasts())
-		{
-			removeAndStoreAllStorableToasts();
-		}
-	}
-
 	// *TODO: mantipov: what we have to do with derived classes: LLNotificationWellWindow & LLIMWelWindow?
 	// See EXT-3081 for details
 	// for Message Well floater showed in a docked state - adjust channel's height
-	if(dynamic_cast<LLSysWellWindow*>(floater))
+	if(dynamic_cast<LLSysWellWindow*>(floater) || dynamic_cast<LLIMFloater*>(floater))
 	{
 		S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
 		LLRect this_rect = getRect();
 		if(floater->getVisible() && floater->isDocked())
 		{
-			channel_bottom += (floater->getRect().getHeight() + gSavedSettings.getS32("ToastGap"));
+			channel_bottom = floater->getRect().mTop + gSavedSettings.getS32("ToastGap");
 		}
 
 		if(channel_bottom != this_rect.mBottom)

@@ -439,6 +439,7 @@ void LLIMFloater::setVisible(BOOL visible)
 	if(channel)
 	{
 		channel->updateShowToastsState();
+		channel->redrawToasts();
 	}
 
 	if (visible && mChatHistory && mInputEditor)

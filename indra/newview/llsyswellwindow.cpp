@@ -170,6 +170,7 @@ void LLSysWellWindow::setVisible(BOOL visible)
 	if(mChannel)
 	{
 		mChannel->updateShowToastsState();
+		mChannel->redrawToasts();
 	}
 }
 
