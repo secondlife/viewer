@@ -162,6 +162,8 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
 	if(mControlHovering)
 	{
 		new_toast_elem.toast->setOnToastHoverCallback(boost::bind(&LLScreenChannel::onToastHover, this, _1, _2));
+		new_toast_elem.toast->setMouseEnterCallback(boost::bind(&LLScreenChannel::stopFadingToasts, this));
+		new_toast_elem.toast->setMouseLeaveCallback(boost::bind(&LLScreenChannel::startFadingToasts, this));
 	}
 	
 	if(show_toast)
@@ -583,6 +585,37 @@ void LLScreenChannel::closeStartUpToast()
 	{
 		mStartUpToastPanel->setVisible(FALSE);
 		mStartUpToastPanel = NULL;
+	}
+}
+
+void LLNotificationsUI::LLScreenChannel::stopFadingToasts()
+{
+	if (!mToastList.size()) return;
+
+	if (!mHoveredToast) return;
+
+	std::vector<ToastElem>::iterator it = mToastList.begin();
+	while (it != mToastList.end())
+	{
+		ToastElem& elem = *it;
+		elem.toast->stopFading();
+		++it;
+	}
+}
+
+void LLNotificationsUI::LLScreenChannel::startFadingToasts()
+{
+	if (!mToastList.size()) return;
+
+	//because onMouseLeave is processed after onMouseEnter
+	if (mHoveredToast) return;
+
+	std::vector<ToastElem>::iterator it = mToastList.begin();
+	while (it != mToastList.end())
+	{
+		ToastElem& elem = *it;
+		elem.toast->startFading();
+		++it;
 	}
 }
 

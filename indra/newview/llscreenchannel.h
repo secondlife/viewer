@@ -184,6 +184,13 @@ public:
 	// close the StartUp Toast
 	void		closeStartUpToast();
 
+
+	/** Stop fading all toasts */
+	virtual void stopFadingToasts();
+
+	/** Start fading all toasts */
+	virtual void startFadingToasts();
+
 	// get StartUp Toast's state
 	static bool	getStartUpToastShown() { return mWasStartUpToastShown; }
 	// tell all channels that the StartUp toast was shown and allow them showing of toasts
