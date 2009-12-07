@@ -2309,6 +2309,12 @@ class LLObjectEnableReportAbuse : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		bool new_value = LLSelectMgr::getInstance()->getSelection()->getObjectCount() != 0;
+/*		// all the faces needs to be selected
+		if(LLSelectMgr::getInstance()->getSelection()->contains(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject(),SELECT_ALL_TES ))
+		{
+			new_value = true;
+		}
+ */
 		return new_value;
 	}
 };
@@ -2697,6 +2703,7 @@ BOOL enable_has_attachments(void*)
 bool enable_object_mute()
 {
 	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+	
 	bool new_value = (object != NULL);
 	if (new_value)
 	{
@@ -2709,6 +2716,19 @@ bool enable_object_mute()
 			BOOL is_self = avatar->isSelf();
 			new_value = !is_linden && !is_self;
 		}
+		else
+		{
+			if( LLSelectMgr::getInstance()->getSelection()->contains(object,SELECT_ALL_TES ))
+			{
+				new_value = true;
+			}		
+			else 
+			{
+				new_value = false;
+			}
+
+		}
+
 	}
 	return new_value;
 }

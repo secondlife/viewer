@@ -141,6 +141,15 @@ void LLSearchEditor::clear()
 	}
 }
 
+//virtual
+void LLSearchEditor::setFocus( BOOL b )
+{
+	if (mSearchEditor)
+	{
+		mSearchEditor->setFocus(b);
+	}
+}
+
 void LLSearchEditor::onClearButtonClick(const LLSD& data)
 {
 	setText(LLStringUtil::null);

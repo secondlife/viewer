@@ -34,32 +34,9 @@
 #ifndef LL_LLINVENTORYFUNCTIONS_H
 #define LL_LLINVENTORYFUNCTIONS_H
 
-#include "llassetstorage.h"
-#include "lldarray.h"
-#include "llfloater.h"
-#include "llinventory.h"
-#include "llinventoryfilter.h"
+#include "llinventorytype.h"
 #include "llfolderview.h"
-#include "llinventorymodel.h"
-#include "lluictrlfactory.h"
-#include <set>
-
-
-class LLFolderViewItem;
-class LLInventoryFilter;
-class LLInventoryModel;
-class LLInventoryPanel;
-class LLInvFVBridge;
-class LLInventoryFVBridgeBuilder;
-class LLMenuBarGL;
-class LLCheckBoxCtrl;
-class LLSpinCtrl;
-class LLScrollContainer;
-class LLTextBox;
-class LLIconCtrl;
-class LLSaveFolderState;
-class LLFilterEditor;
-class LLTabContainer;
+#include "llfolderviewitem.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //

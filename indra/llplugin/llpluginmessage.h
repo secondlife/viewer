@@ -1,6 +1,5 @@
 /** 
  * @file llpluginmessage.h
- * @brief LLPluginMessage encapsulates the serialization/deserialization of messages passed to and from plugins.
  *
  * @cond
  * $LicenseInfo:firstyear=2008&license=viewergpl$
@@ -36,7 +35,9 @@
 
 #include "llsd.h"
 
-
+/**
+ * @brief LLPluginMessage encapsulates the serialization/deserialization of messages passed to and from plugins.
+ */
 class LLPluginMessage
 {
 	LOG_CLASS(LLPluginMessage);
@@ -105,12 +106,13 @@ private:
 };
 
 /**
- * @brief Listens for plugin messages.
+ * @brief Listener for plugin messages.
  */
 class LLPluginMessageListener
 {
 public:
 	virtual ~LLPluginMessageListener();
+   /** Plugin receives message from plugin loader shell. */
 	virtual void receivePluginMessage(const LLPluginMessage &message) = 0;
 	
 };
