@@ -966,16 +966,19 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 			preview_texture->openToSave();
 		}
 	}
+	// This doesn't currently work, since the viewer can't change an assetID an item.
 	if (command_name == "regenerate_link")
 	{
-		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		LLInventoryPanel *active_panel = getActivePanel();
+		LLFolderViewItem* current_item = active_panel->getRootFolder()->getCurSelectedItem();
 		if (!current_item)
 		{
 			return;
 		}
-		const LLUUID& item_id = current_item->getListener()->getUUID();
+		const LLUUID item_id = current_item->getListener()->getUUID();
 		LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		item->regenerateLink();
+		active_panel->setSelection(item_id, TAKE_FOCUS_NO);
 	}
 	if (command_name == "find_original")
 	{
@@ -1063,7 +1066,7 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 		}
 		return FALSE;
 	}
-
+	// This doesn't currently work, since the viewer can't change an assetID an item.
 	if (command_name == "regenerate_link")
 	{
 		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();

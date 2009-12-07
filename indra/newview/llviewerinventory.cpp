@@ -1464,30 +1464,9 @@ LLUUID find_possible_item_for_regeneration(const LLViewerInventoryItem *target_i
 {
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
-	/*
-	LLAssetIDMatches asset_id_matches(target_item->getAssetUUID());
-	gInventory.collectDescendentsIf(LLUUID::null,
-									cats,
-									items,
-									LLInventoryModel::EXCLUDE_TRASH,
-									asset_id_matches);
-	for (LLViewerInventoryItem::item_array_t::const_iterator item_iter = items.begin();
-		 item_iter != items.end();
-		 item_iter++)
-	{
-	    const LLViewerInventoryItem *item = (*item_iter);
-		if (!item->getIsBrokenLink())
-		{
-			return item->getAssetUUID();
-		}
-	}
-	*/
-
-	items.clear();
-	cats.clear();
 
 	LLRegenerateLinkCollector candidate_matches(target_item);
-	gInventory.collectDescendentsIf(LLUUID::null,
+	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
 									cats,
 									items,
 									LLInventoryModel::EXCLUDE_TRASH,
@@ -1502,6 +1481,8 @@ LLUUID find_possible_item_for_regeneration(const LLViewerInventoryItem *target_i
 	return LLUUID::null;
 }
 
+// This currently dosen't work, because the sim does not allow us 
+// to change an item's assetID.
 BOOL LLViewerInventoryItem::regenerateLink()
 {
 	const LLUUID target_item_id = find_possible_item_for_regeneration(this);
@@ -1510,7 +1491,7 @@ BOOL LLViewerInventoryItem::regenerateLink()
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
 	LLAssetIDMatches asset_id_matches(getAssetUUID());
-	gInventory.collectDescendentsIf(LLUUID::null,
+	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
 									cats,
 									items,
 									LLInventoryModel::EXCLUDE_TRASH,

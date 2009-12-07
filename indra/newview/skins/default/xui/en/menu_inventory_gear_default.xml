@@ -111,15 +111,4 @@
 			 function="Inventory.GearDefault.Enable"
 			 parameter="find_links" />
         </menu_item_call>
-    <menu_item_call 
-         label="Regenerate Link"
-         layout="topleft"
-         name="Regenerate Link">
-            <on_click
-             function="Inventory.GearDefault.Custom.Action"
-             parameter="regenerate_link" />
-            <on_enable
-			 function="Inventory.GearDefault.Enable"
-			 parameter="regenerate_link" />
-        </menu_item_call>
 </menu>
