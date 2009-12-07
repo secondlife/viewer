@@ -15,4 +15,5 @@
 	track_bottom="true"
 	name="chat_history"
 	type="string"
-	word_wrap="true" />
+	word_wrap="true"
+  font="SansSerif"/>

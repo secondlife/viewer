@@ -494,10 +494,14 @@ void LLFloaterBuyLandUI::updateCovenantInfo()
 	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 	if(!region) return;
 
+	U8 sim_access = region->getSimAccess();
+	std::string rating = LLViewerRegion::accessToString(sim_access);
+	
 	LLTextBox* region_name = getChild<LLTextBox>("region_name_text");
 	if (region_name)
 	{
-		region_name->setText(region->getName());
+		std::string region_name_txt = region->getName() + " ("+rating +")";
+		region_name->setText(region_name_txt);
 	}
 
 	LLTextBox* region_type = getChild<LLTextBox>("region_type_text");
