@@ -220,6 +220,7 @@ BOOL LLPanelMyProfileEdit::postBuild()
 	initTexturePickerMouseEvents();
 
 	childSetTextArg("partner_edit_link", "[URL]", getString("partner_edit_link_url"));
+	childSetTextArg("my_account_link", "[URL]", getString("my_account_link_url"));
 
 	return LLPanelAvatarProfile::postBuild();
 }
