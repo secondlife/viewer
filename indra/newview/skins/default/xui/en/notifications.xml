@@ -5128,6 +5128,13 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
        text="Decline"/>
     </form>
   </notification>
+  
+  <notification
+   icon="notify.tga"
+   name="FriendshipOffered"
+   type="offer">
+	You have offered friendship to [TO_NAME]
+  </notification>
 
   <notification
    icon="notify.tga"
