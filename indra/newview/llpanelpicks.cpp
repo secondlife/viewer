@@ -161,6 +161,9 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 			std::string name, second_name;
 			gCacheName->getName(getAvatarId(),name,second_name);
 			childSetTextArg("pick_title", "[NAME]",name);
+			
+			// Save selection, to be able to edit same item after saving changes. See EXT-3023.
+			LLUUID selected_id = mPicksList->getSelectedValue()[PICK_ID];
 
 			mPicksList->clear();
 
@@ -185,6 +188,10 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 				pick_value.insert(PICK_CREATOR_ID, getAvatarId());
 
 				mPicksList->addItem(picture, pick_value);
+
+				// Restore selection by item id. 
+				if ( pick_id == selected_id )
+					mPicksList->selectItemByValue(pick_value);
 
 				picture->setDoubleClickCallback(boost::bind(&LLPanelPicks::onDoubleClickPickItem, this, _1));
 				picture->setRightMouseUpCallback(boost::bind(&LLPanelPicks::onRightMouseUpItem, this, _1, _2, _3, _4));
