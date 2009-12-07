@@ -1480,14 +1480,15 @@ void inventory_offer_handler(LLOfferInfo* info)
 	}
 
 	// Pop up inv offer notification and let the user accept (keep), or reject (and silently delete) the inventory.
-	 LLNotifications::instance().add(p);
+	LLNotifications::instance().add(p);
 
+	// TODO(EM): Recheck this after we will know how script notifications should look like.
 	// Inform user that there is a script floater via toast system
-	{
-		payload["give_inventory_notification"] = TRUE;
-		LLNotificationPtr notification = LLNotifications::instance().add(p.payload(payload)); 
-		LLScriptFloaterManager::getInstance()->setNotificationToastId(object_id, notification->getID());
-	}
+	// {
+	// 	payload["give_inventory_notification"] = TRUE;
+	// 	LLNotificationPtr notification = LLNotifications::instance().add(p.payload(payload)); 
+	// 	LLScriptFloaterManager::getInstance()->setNotificationToastId(object_id, notification->getID());
+	// }
 }
 
 bool lure_callback(const LLSD& notification, const LLSD& response)
