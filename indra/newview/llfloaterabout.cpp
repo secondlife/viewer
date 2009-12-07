@@ -46,7 +46,7 @@
 #include "llviewerstats.h"
 #include "llviewerregion.h"
 #include "llversionviewer.h"
-#include "llviewerbuild.h"
+#include "llviewerversion.h"
 #include "llweb.h"
 
 // Linden library includes

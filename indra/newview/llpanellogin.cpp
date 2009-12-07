@@ -57,7 +57,7 @@
 #include "llui.h"
 #include "lluiconstants.h"
 #include "llurlsimstring.h"
-#include "llviewerbuild.h"
+#include "llviewerversion.h"
 #include "llviewerhelp.h"
 #include "llviewertexturelist.h"
 #include "llviewermenu.h"			// for handle_preferences()

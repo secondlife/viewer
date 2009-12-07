@@ -45,7 +45,6 @@
 #include "llnotificationsutil.h"
 #include "llstring.h"
 #include "llsys.h"
-#include "llviewerbuild.h"
 #include "message.h"
 #include "v3math.h"
 
@@ -76,7 +75,7 @@
 #include "llfloateravatarpicker.h"
 #include "lldir.h"
 #include "llselectmgr.h"
-#include "llviewerbuild.h"
+#include "llviewerversion.h"
 #include "lluictrlfactory.h"
 #include "llviewernetwork.h"
 

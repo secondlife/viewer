@@ -36,7 +36,7 @@
 #include "../test/lltut.h"
 
 #include "../llviewerhelputil.h"
-#include "../llviewerbuild.h"
+#include "../llviewerversion.h"
 #include "llcontrol.h"
 #include "llsys.h"
 

@@ -34,7 +34,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llversionviewer.h"
-#include "llviewerbuild.h"
+#include "llviewerversion.h"
 
 //#include "llfloaterhelpbrowser.h"
 //#include "llfloaterreg.h"

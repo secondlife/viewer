@@ -38,7 +38,7 @@
 #include "llui.h"
 #include "lluri.h"
 #include "llsd.h"
-#include "llviewerbuild.h"
+#include "llviewerversion.h"
 #include "llviewercontrol.h"
 
 //static

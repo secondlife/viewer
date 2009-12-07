@@ -451,7 +451,6 @@ set(viewer_SOURCE_FILES
     llviewerassetstorage.cpp
     llviewerassettype.cpp
     llvieweraudio.cpp
-    llviewerbuild.cpp
     llviewercamera.cpp
     llviewerchat.cpp
     llviewercontrol.cpp
@@ -497,6 +496,7 @@ set(viewer_SOURCE_FILES
     llviewertextureanim.cpp
     llviewertexturelist.cpp
     llviewerthrottle.cpp
+    llviewerversion.cpp
     llviewervisualparam.cpp
     llviewerwindow.cpp
     llviewerwindowlistener.cpp
@@ -955,7 +955,6 @@ set(viewer_HEADER_FILES
     llviewerassetstorage.h
     llviewerassettype.h
     llvieweraudio.h
-    llviewerbuild.h
     llviewercamera.h
     llviewerchat.h
     llviewercontrol.h
@@ -998,6 +997,7 @@ set(viewer_HEADER_FILES
     llviewertextureanim.h
     llviewertexturelist.h
     llviewerthrottle.h
+    llviewerversion.h
     llviewervisualparam.h
     llviewerwindow.h
     llviewerwindowlistener.h
