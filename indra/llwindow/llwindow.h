@@ -70,6 +70,8 @@ public:
 	virtual BOOL getMinimized() = 0;
 	virtual BOOL getMaximized() = 0;
 	virtual BOOL maximize() = 0;
+	virtual void minimize() = 0;
+	virtual void restore() = 0;
 	BOOL getFullscreen()	{ return mFullscreen; };
 	virtual BOOL getPosition(LLCoordScreen *position) = 0;
 	virtual BOOL getSize(LLCoordScreen *size) = 0;
