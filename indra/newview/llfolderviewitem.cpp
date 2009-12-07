@@ -735,15 +735,6 @@ BOOL LLFolderViewItem::handleDoubleClick( S32 x, S32 y, MASK mask )
 	return TRUE;
 }
 
-BOOL LLFolderViewItem::handleScrollWheel(S32 x, S32 y, S32 clicks)
-{
-	if (getParent())
-	{
-		return getParent()->handleScrollWheel(x, y, clicks);
-	}
-	return FALSE;
-}
-
 BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 {
 	if (LLView::childrenHandleMouseUp(x, y, mask))
