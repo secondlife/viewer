@@ -34,6 +34,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llversionviewer.h"
+#include "llviewerbuild.h"
 
 //#include "llfloaterhelpbrowser.h"
 //#include "llfloaterreg.h"
@@ -86,14 +87,7 @@ std::string LLViewerHelpUtil::buildHelpURL( const std::string &topic,
 	
 	substitution["CHANNEL"] = helpURLEncode(savedSettings.getString("VersionChannelName"));
 
-	// *TODO: We should put this version pattern in a central place; this and near
-	// equivalents are replicated in other code - what's a good location?
-	std::ostringstream version;
-	version << LL_VERSION_MAJOR << "."
-	<< LL_VERSION_MINOR << "."
-	<< LL_VERSION_PATCH << "."
-	<< LL_VERSION_BUILD;
-	substitution["VERSION"] = helpURLEncode(version.str());
+	substitution["VERSION"] = helpURLEncode(llGetViewerVersion());
 	substitution["VERSION_MAJOR"] = buildHelpVersion(LL_VERSION_MAJOR);
 	substitution["VERSION_MINOR"] = buildHelpVersion(LL_VERSION_MINOR);
 	substitution["VERSION_PATCH"] = buildHelpVersion(LL_VERSION_PATCH);

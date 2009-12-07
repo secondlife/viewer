@@ -36,6 +36,7 @@
 #include "../test/lltut.h"
 
 #include "../llviewerhelputil.h"
+#include "../llviewerbuild.h"
 #include "llcontrol.h"
 #include "llsys.h"
 
@@ -73,6 +74,12 @@ void LLControlGroup::setString(const std::string& name, const std::string& val)
 std::string LLControlGroup::getString(const std::string& name)
 {
 	return test_stringvec[name];
+}
+
+const std::string &llGetViewerVersion()
+{
+	static std::string version = "2.0.0.200099";
+	return version;
 }
 
 //----------------------------------------------------------------------------

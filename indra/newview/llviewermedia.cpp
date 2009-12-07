@@ -41,7 +41,7 @@
 #include "llviewertexture.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparcelmgr.h"
-#include "llversionviewer.h"
+#include "llviewerbuild.h"
 #include "llviewertexturelist.h"
 #include "llvovolume.h"
 #include "llpluginclassmedia.h"
@@ -446,7 +446,7 @@ std::string LLViewerMedia::getCurrentUserAgent()
 	// http://www.mozilla.org/build/revised-user-agent-strings.html
 	std::ostringstream codec;
 	codec << "SecondLife/";
-	codec << LL_VERSION_MAJOR << "." << LL_VERSION_MINOR << "." << LL_VERSION_PATCH << "." << LL_VERSION_BUILD;
+	codec << llGetViewerVersion();
 	codec << " (" << channel << "; " << skin_name << " skin)";
 	llinfos << codec.str() << llendl;
 	

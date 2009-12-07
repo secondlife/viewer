@@ -248,11 +248,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	getChild<LLPanel>("login_widgets")->setDefaultBtn("connect_btn");
 
 	std::string channel = gSavedSettings.getString("VersionChannelName");
-	std::string version = llformat("%d.%d.%d (%d)",
-		LL_VERSION_MAJOR,
-		LL_VERSION_MINOR,
-		LL_VERSION_PATCH,
-		LL_VIEWER_BUILD );
+	std::string version = llformat("%s (%s)", llGetViewerShortVersion().c_str(),
+								   llGetViewerBuildVersion().c_str());
 	LLTextBox* channel_text = getChild<LLTextBox>("channel_text");
 	channel_text->setTextArg("[CHANNEL]", channel); // though not displayed
 	channel_text->setTextArg("[VERSION]", version);
@@ -741,8 +738,8 @@ void LLPanelLogin::loadLoginPage()
 	}
 
 	// Channel and Version
-	std::string version = llformat("%d.%d.%d (%d)",
-						LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VIEWER_BUILD);
+	std::string version = llformat("%s (%s)", llGetViewerShortVersion().c_str(),
+								   llGetViewerBuildVersion().c_str());
 
 	char* curl_channel = curl_escape(gSavedSettings.getString("VersionChannelName").c_str(), 0);
 	char* curl_version = curl_escape(version.c_str(), 0);

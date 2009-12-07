@@ -38,7 +38,7 @@
 #include "llui.h"
 #include "lluri.h"
 #include "llsd.h"
-#include "llversionviewer.h"
+#include "llviewerbuild.h"
 #include "llviewercontrol.h"
 
 //static
@@ -47,16 +47,8 @@ std::string LLViewerHome::getHomeURL()
 	// Return the URL to display in the Home side tray. We read
 	// this value from settings.xml and support various substitutions
 
-	// *TODO: We should put this version pattern in a central place; this and near
-	// equivalents are replicated in other code - what's a good location?
-	std::ostringstream version;
-	version << LL_VERSION_MAJOR << "."
-	<< LL_VERSION_MINOR << "."
-	<< LL_VERSION_PATCH << "."
-	<< LL_VERSION_BUILD;
-
 	LLSD substitution;
-	substitution["VERSION"] = version.str();
+	substitution["VERSION"] = llGetViewerVersion();
 	substitution["CHANNEL"] = LLURI::escape(gSavedSettings.getString("VersionChannelName"));
 	substitution["LANGUAGE"] = LLUI::getLanguage();
 	substitution["AUTH_KEY"] = LLURI::escape(getAuthKey());
