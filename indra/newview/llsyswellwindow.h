@@ -47,8 +47,6 @@ class LLFlatListView;
 class LLChiclet;
 class LLIMChiclet;
 
-extern std::string NOTIFICATION_WELL_ANCHOR_NAME;
-extern std::string IM_WELL_ANCHOR_NAME;
 
 
 class LLSysWellWindow : public LLDockableFloater
@@ -73,6 +71,11 @@ public:
 	// override LLFloater's minimization according to EXT-1216
 	/*virtual*/ void	setMinimized(BOOL minimize);
 
+	/** 
+	 * Hides window when user clicks away from it (EXT-3084)
+	 */
+	/*virtual*/ void onFocusLost();
+
 	void onStartUpToastClick(S32 x, S32 y, MASK mask);
 
 	// size constants for the window and for its elements
@@ -96,6 +99,8 @@ protected:
 	void handleItemRemoved(EItemType removed_item_type);
 	bool anotherTypeExists(EItemType item_type) ;
 
+	const std::string NOTIFICATION_WELL_ANCHOR_NAME;
+	const std::string IM_WELL_ANCHOR_NAME;
 	virtual const std::string& getAnchorViewName() = 0;
 
 	void reshapeWindow();
