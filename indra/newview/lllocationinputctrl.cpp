@@ -810,13 +810,8 @@ void LLLocationInputCtrl::updateWidgetlayout()
 {
 	const LLRect&	rect			= getLocalRect();
 	const LLRect&	hist_btn_rect	= mButton->getRect();
-	LLRect			info_btn_rect	= mInfoBtn->getRect();
 
-	// info button
-	info_btn_rect.setOriginAndSize(
-		2, (rect.getHeight() - info_btn_rect.getHeight()) / 2,
-		info_btn_rect.getWidth(), info_btn_rect.getHeight());
-	mInfoBtn->setRect(info_btn_rect);
+	// Info button is set in the XUI XML location_input.xml
 
 	// "Add Landmark" button
 	LLRect al_btn_rect = mAddLandmarkBtn->getRect();
@@ -912,7 +907,7 @@ bool LLLocationInputCtrl::onLocationContextMenuItemEnabled(const LLSD& userdata)
 	}
 	else if (item == "can_select_all")
 	{
-		return mTextEntry->canSelectAll();
+		return mTextEntry->canSelectAll() && (mTextEntry->getLength() > 0);
 	}
 	else if(item == "show_coordinates")
 	{

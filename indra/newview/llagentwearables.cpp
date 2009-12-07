@@ -37,7 +37,6 @@
 
 #include "llcallbacklist.h"
 #include "llfloatercustomize.h"
-#include "llfloaterinventory.h"
 #include "llinventorybridge.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
@@ -704,6 +703,7 @@ U32 LLAgentWearables::pushWearable(const EWearableType type, LLWearable *wearabl
 void LLAgentWearables::wearableUpdated(LLWearable *wearable)
 {
 	mAvatarObject->wearableUpdated(wearable->getType(), TRUE);
+	wearable->refreshName();
 	wearable->setLabelUpdated();
 
 	// Hack pt 2. If the wearable we just loaded has definition version 24,
@@ -1361,10 +1361,10 @@ void LLAgentWearables::makeNewOutfitDone(S32 type, U32 index)
 	// Open the inventory and select the first item we added.
 	if (first_item_id.notNull())
 	{
-		LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
-		if (view)
+		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+		if (active_panel)
 		{
-			view->getPanel()->setSelection(first_item_id, TAKE_FOCUS_NO);
+			active_panel->setSelection(first_item_id, TAKE_FOCUS_NO);
 		}
 	}
 }

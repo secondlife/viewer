@@ -31,70 +31,31 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llviewermessage.h"
 
-#include <deque>
-
 #include "llaudioengine.h" 
-#include "indra_constants.h"
 #include "lscript_byteformat.h"
-#include "mean_collision_data.h"
-#include "llfloaterbump.h"
-#include "llassetstorage.h"
-#include "llcachename.h"
-
-#include "lldbstrings.h"
 #include "lleconomy.h"
-#include "llfilepicker.h"
 #include "llfloaterreg.h"
-#include "llfocusmgr.h"
 #include "llfollowcamparams.h"
-#include "llinstantmessage.h"
-#include "llquantize.h"
-#include "llregionflags.h"
-#include "llregionhandle.h"
 #include "llsdserialize.h"
-#include "llstring.h"
-#include "llteleportflags.h"
-#include "lltracker.h"
 #include "lltransactionflags.h"
-#include "llxfermanager.h"
-#include "message.h"
-#include "sound_ids.h"
-#include "lltimer.h"
-#include "llmd5.h"
 
 #include "llagent.h"
 #include "llcallingcard.h"
-#include "llconsole.h"
-#include "llvieweraudio.h"
-#include "llviewercontrol.h"
-#include "lldrawpool.h"
 #include "llfirstuse.h"
-#include "llfloateranimpreview.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterchat.h"
-#include "llfloaterimagepreview.h"
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterlandholdings.h"
-#include "llurldispatcher.h"
 #include "llfloaterpostcard.h"
 #include "llfloaterpreference.h"
-#include "llfollowcam.h"
-#include "llgroupnotify.h"
-#include "llhudeffect.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
-#include "llfloaterinventory.h"
-#include "llmenugl.h"
-#include "llmoveview.h"
-#include "llmutelist.h"
 #include "llnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -111,22 +72,11 @@
 #include "llstatenums.h"
 #include "llstatusbar.h"
 #include "llimview.h"
-#include "lltool.h"
-#include "lltoolbar.h"
-#include "lltoolmgr.h"
 #include "lltrans.h"
-#include "llui.h"			// for make_ui_sound
-#include "lluploaddialog.h"
-#include "llviewercamera.h"
-#include "llviewerchat.h"
 #include "llviewergenericmessage.h"
-#include "llviewerinventory.h"
 #include "llviewermenu.h"
-#include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
-#include "llviewerpartsource.h"
-#include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewertexteditor.h"
 #include "llviewerthrottle.h"
@@ -134,10 +84,8 @@
 #include "llvlmanager.h"
 #include "llvoavatarself.h"
 #include "llvotextbubble.h"
-#include "llweb.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "llappviewer.h"
 #include "llfloaterworldmap.h"
 #include "llviewerdisplay.h"
 #include "llkeythrottle.h"
@@ -146,15 +94,13 @@
 #include "llpanelblockedlist.h"
 #include "llpanelplaceprofile.h"
 
-#include <boost/tokenizer.hpp>
-#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/split.hpp> //
 
 #if LL_WINDOWS // For Windows specific error handler
 #include "llwindebug.h"	// For the invalid message handler
 #endif
 
-//#include "llnearbychathistory.h"
-#include "llnotificationmanager.h"
+#include "llnotificationmanager.h" //
 
 //
 // Constants
@@ -933,56 +879,46 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 		//highlight item, if it's not in the trash or lost+found
 		
 		// Don't auto-open the inventory floater
-		LLFloaterInventory* view = NULL;
 		if(gSavedSettings.getBOOL("ShowInInventory") &&
 		   asset_type != LLAssetType::AT_CALLINGCARD &&
 		   item->getInventoryType() != LLInventoryType::IT_ATTACHMENT &&
 		   !from_name.empty())
 		{
-			view = LLFloaterInventory::showAgentInventory();
 			//TODO:this should be moved to the end of method after all the checks,
 			//but first decide what to do with active inventory if any (EK)
 			LLSD key;
 			key["select"] = item->getUUID();
 			LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 		}
-		else
+		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+		if(active_panel)
 		{
-			view = LLFloaterInventory::getActiveInventory();
-		}
-		if(!view)
-		{
-			return;
-		}
+			//Trash Check
+			const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+			if(gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
+			{
+				return;
+			}
+			const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+			//BOOL inventory_has_focus = gFocusMgr.childHasKeyboardFocus(view);
+			BOOL user_is_away = gAwayTimer.getStarted();
 
-		//Trash Check
-		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		if(gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
-		{
-			return;
-		}
-		const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
-		//BOOL inventory_has_focus = gFocusMgr.childHasKeyboardFocus(view);
-		BOOL user_is_away = gAwayTimer.getStarted();
+			// don't select lost and found items if the user is active
+			if (gInventory.isObjectDescendentOf(item->getUUID(), lost_and_found_id)
+				&& !user_is_away)
+			{
+				return;
+			}
 
-		// don't select lost and found items if the user is active
-		if (gInventory.isObjectDescendentOf(item->getUUID(), lost_and_found_id)
-			&& !user_is_away)
-		{
-			return;
-		}
+			//Not sure about this check.  Could make it easy to miss incoming items.
+			//don't dick with highlight while the user is working
+			//if(inventory_has_focus && !user_is_away)
+			//	break;
+			LL_DEBUGS("Messaging") << "Highlighting" << item->getUUID()  << LL_ENDL;
+			//highlight item
 
-		//Not sure about this check.  Could make it easy to miss incoming items.
-		//don't dick with highlight while the user is working
-		//if(inventory_has_focus && !user_is_away)
-		//	break;
-		LL_DEBUGS("Messaging") << "Highlighting" << item->getUUID()  << LL_ENDL;
-		//highlight item
-
-		if (view->getPanel())
-		{
 			LLFocusableElement* focus_ctrl = gFocusMgr.getKeyboardFocus();
-			view->getPanel()->setSelection(item->getUUID(), TAKE_FOCUS_NO);
+			active_panel->setSelection(item->getUUID(), TAKE_FOCUS_NO);
 			gFocusMgr.setKeyboardFocus(focus_ctrl);
 		}
 	}
@@ -5038,7 +4974,7 @@ void container_inventory_arrived(LLViewerObject* object,
 		gAgent.changeCameraToDefault();
 	}
 
-	LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
+	LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
 
 	if (inventory->size() > 2)
 	{
@@ -5076,9 +5012,9 @@ void container_inventory_arrived(LLViewerObject* object,
 			}
 		}
 		gInventory.notifyObservers();
-		if(view)
+		if(active_panel)
 		{
-			view->getPanel()->setSelection(cat_id, TAKE_FOCUS_NO);
+			active_panel->setSelection(cat_id, TAKE_FOCUS_NO);
 		}
 	}
 	else if (inventory->size() == 2)
@@ -5112,9 +5048,9 @@ void container_inventory_arrived(LLViewerObject* object,
 		new_item->updateServer(TRUE);
 		gInventory.updateItem(new_item);
 		gInventory.notifyObservers();
-		if(view)
+		if(active_panel)
 		{
-			view->getPanel()->setSelection(item_id, TAKE_FOCUS_NO);
+			active_panel->setSelection(item_id, TAKE_FOCUS_NO);
 		}
 	}
 
@@ -5583,17 +5519,6 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 		notification = LLNotifications::instance().add(
 			LLNotification::Params("ScriptDialogGroup").substitutions(args).payload(payload).form_elements(form.asLLSD()));
 	}
-
-	// "ScriptDialog" and "ScriptDialogGroup" are handles by LLScriptFloaterManager.
-	// We want to inform user that there is a script floater, lets add "ScriptToast"
-	LLNotification::Params p("ScriptToast");
-	p.substitutions(args).payload(payload).functor.function(boost::bind(
-		LLScriptFloaterManager::onToastButtonClick, _1, _2));
-
-	notification = LLNotifications::instance().add(p);
-
-	LLScriptFloaterManager::getInstance()->setNotificationToastId(
-		object_id, notification->getID());
 }
 
 //---------------------------------------------------------------------------

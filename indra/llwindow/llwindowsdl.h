@@ -62,6 +62,8 @@ public:
 	/*virtual*/ BOOL getMinimized();
 	/*virtual*/ BOOL getMaximized();
 	/*virtual*/ BOOL maximize();
+	/*virtual*/ void minimize();
+	/*virtual*/ void restore();
 	/*virtual*/ BOOL getFullscreen();
 	/*virtual*/ BOOL getPosition(LLCoordScreen *position);
 	/*virtual*/ BOOL getSize(LLCoordScreen *size);
@@ -164,9 +166,6 @@ protected:
 
 	// Go back to last fullscreen display resolution.
 	BOOL	setFullscreenResolution();
-
-	void	minimize();
-	void	restore();
 
 	BOOL	shouldPostQuit() { return mPostQuit; }
 

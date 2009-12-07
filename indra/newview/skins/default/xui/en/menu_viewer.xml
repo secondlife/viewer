@@ -3268,6 +3268,17 @@
         </menu>
         <menu_item_separator
          layout="topleft" />
+        <menu_item_check
+         label="HTTP Textures"
+         layout="topleft"
+         name="HTTP Textures">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="ImagePipelineUseHTTP" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="ImagePipelineUseHTTP" />
+        </menu_item_check>
         <menu_item_call
          label="Compress Images"
          layout="topleft"
@@ -3404,7 +3415,7 @@
          name="Parcel"
          tear_off="true">
             <menu_item_call
-             label="Owner To Me"
+             label="Force Owner To Me"
              layout="topleft"
              name="Owner To Me">
                 <menu_item_call.on_click

@@ -55,11 +55,6 @@ public:
 
 	BOOL postBuild();
 
-	// Return the active inventory view if there is one. Active is
-	// defined as the inventory that is the closest to the front, and
-	// is visible.
-	static LLFloaterInventory* getActiveInventory();
-
 	// This method makes sure that an inventory view exists, is
 	// visible, and has focus. The view chosen is returned.
 	static LLFloaterInventory* showAgentInventory();

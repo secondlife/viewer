@@ -82,6 +82,8 @@ public:
 	// These are used a lot...
 	typedef LLDynamicArray<LLPointer<LLViewerInventoryCategory> > cat_array_t;
 	typedef LLDynamicArray<LLPointer<LLViewerInventoryItem> > item_array_t;
+	typedef std::set<LLUUID> changed_items_t;
+	
 	// construction & destruction
 	LLInventoryModel();
 	~LLInventoryModel();
@@ -214,9 +216,9 @@ public:
 	void deleteObject(const LLUUID& id);
 	
 	// delete a particular inventory object by ID, and delete it from
-	// the server.  Also purges linked items via purgeLinkedObjects.
+	// the server.  Also updates linked items.
 	void purgeObject(const LLUUID& id);
-	void purgeLinkedObjects(const LLUUID& id);
+	void updateLinkedObjectsFromPurge(const LLUUID& baseobj_id);
 
 	// This is a method which collects the descendants of the id
 	// provided. If the category is not found, no action is
@@ -269,7 +271,7 @@ public:
 	// that the next notify will include that notification.
 	void addChangedMask(U32 mask, const LLUUID& referent);
 
-	const std::set<LLUUID>& getChangedIDs() { return mChangedItemIDs; }
+	const changed_items_t& getChangedIDs() const { return mChangedItemIDs; }
 
 	// This method to prepares a set of mock inventory which provides
 	// minimal functionality before the actual arrival of inventory.
@@ -451,7 +453,6 @@ protected:
 private:
 	// Variables used to track what has changed since the last notify.
 	U32 mModifyMask;
-	typedef std::set<LLUUID> changed_items_t;
 	changed_items_t mChangedItemIDs;
 
 	std::map<LLUUID, bool> mCategoryLock;

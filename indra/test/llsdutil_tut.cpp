@@ -207,7 +207,7 @@ namespace tut
         map.insert("Date",      LLSD::Date());
         map.insert("URI",       LLSD::URI());
         map.insert("Binary",    LLSD::Binary());
-        map.insert("Map",       LLSD().insert("foo", LLSD()));
+        map.insert("Map",       LLSD().with("foo", LLSD()));
         // Only an empty array can be constructed on the fly
         LLSD array;
         array.append(LLSD());

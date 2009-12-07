@@ -195,10 +195,10 @@ void LLFloaterOpenObject::callbackMoveInventory(S32 result, void* data)
 	if (result == 0)
 	{
 		LLFloaterInventory::showAgentInventory();
-		LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
-		if (view)
+		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+		if (active_panel)
 		{
-			view->getPanel()->setSelection(cat->mCatID, TAKE_FOCUS_NO);
+			active_panel->setSelection(cat->mCatID, TAKE_FOCUS_NO);
 		}
 	}
 

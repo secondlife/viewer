@@ -101,7 +101,6 @@ protected:
 	 * Use this method if you want mStateChangedCallback to be executed while state is changed
 	 */
 	void doSetState(const EState& state);
-	void toggleCallWindowIfNeeded(EState state);
 	void setURI(std::string uri);
 
 	std::string	mURI;

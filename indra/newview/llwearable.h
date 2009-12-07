@@ -133,6 +133,10 @@ public:
 	// Something happened that requires the wearable's label to be updated (e.g. worn/unworn).
 	void				setLabelUpdated() const;
 
+	// the wearable was worn. make sure the name of the wearable object matches the LLViewerInventoryItem,
+	// not the wearable asset itself.
+	void				refreshName();
+
 private:
 	typedef std::map<S32, LLLocalTextureObject*> te_map_t;
 	typedef std::map<S32, LLVisualParam *>    visual_param_index_map_t;

@@ -21,6 +21,7 @@
 #define testable public
 #include "llevents.h"
 #undef testable
+#include "lllistenerwrapper.h"
 // STL headers
 // std headers
 #include <iostream>
@@ -639,6 +640,33 @@ namespace tut
         heaptest.post(2);
     }
 
+    template<> template<>
+    void events_object::test<15>()
+    {
+        // This test ensures that using an LLListenerWrapper subclass doesn't
+        // block Boost.Signals2 from recognizing a bound LLEventTrackable
+        // subclass.
+        set_test_name("listen(llwrap<LLLogListener>(boost::bind(...TempTrackableListener ref...)))");
+        bool live = false;
+        LLEventPump& heaptest(pumps.obtain("heaptest"));
+        LLBoundListener connection;
+        {
+            TempTrackableListener tempListener("temp", live);
+            ensure("TempTrackableListener constructed", live);
+            connection = heaptest.listen(tempListener.getName(),
+                                         llwrap<LLLogListener>(
+                                         boost::bind(&TempTrackableListener::call,
+                                                     boost::ref(tempListener), _1)));
+            heaptest.post(1);
+            check_listener("received", tempListener, 1);
+        } // presumably this will make tempListener go away?
+        // verify that
+        ensure("TempTrackableListener destroyed", ! live);
+        ensure("implicit disconnect", ! connection.connected());
+        // now just make sure we don't blow up trying to access a freed object!
+        heaptest.post(2);
+    }
+
     class TempSharedListener: public TempListener,
                               public boost::enable_shared_from_this<TempSharedListener>
     {
@@ -649,7 +677,7 @@ namespace tut
     };
 
     template<> template<>
-    void events_object::test<15>()
+    void events_object::test<16>()
     {
         set_test_name("listen(boost::bind(...TempSharedListener ref...))");
 #if 0
