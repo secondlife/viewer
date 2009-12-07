@@ -968,14 +968,16 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 	}
 	if (command_name == "regenerate_link")
 	{
-		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		LLInventoryPanel *active_panel = getActivePanel();
+		LLFolderViewItem* current_item = active_panel->getRootFolder()->getCurSelectedItem();
 		if (!current_item)
 		{
 			return;
 		}
-		const LLUUID& item_id = current_item->getListener()->getUUID();
+		const LLUUID item_id = current_item->getListener()->getUUID();
 		LLViewerInventoryItem *item = gInventory.getItem(item_id);
 		item->regenerateLink();
+		active_panel->setSelection(item_id, TAKE_FOCUS_NO);
 	}
 	if (command_name == "find_original")
 	{
