@@ -64,6 +64,9 @@ public:
 	// Finds the folder link to the currently worn outfit
 	const LLViewerInventoryItem *getCurrentOutfitLink();
 
+	// Update the displayed outfit name in UI.
+	void updatePanelOutfitName(const std::string& name);
+
 	void updateAgentWearables(LLWearableHoldingPattern* holder, bool append);
 
 	// For debugging - could be moved elsewhere.
