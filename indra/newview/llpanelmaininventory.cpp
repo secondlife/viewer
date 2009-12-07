@@ -966,6 +966,7 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 			preview_texture->openToSave();
 		}
 	}
+	// This doesn't currently work, since the viewer can't change an assetID an item.
 	if (command_name == "regenerate_link")
 	{
 		LLInventoryPanel *active_panel = getActivePanel();
@@ -1065,7 +1066,7 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 		}
 		return FALSE;
 	}
-
+	// This doesn't currently work, since the viewer can't change an assetID an item.
 	if (command_name == "regenerate_link")
 	{
 		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
