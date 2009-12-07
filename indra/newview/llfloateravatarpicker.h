@@ -40,6 +40,9 @@
 class LLFloaterAvatarPicker : public LLFloater
 {
 public:
+	typedef boost::signals2::signal<bool(const std::vector<LLUUID>&), boost_boolean_combiner> validate_signal_t;
+	typedef validate_signal_t::slot_type validate_callback_t;
+
 	// Call this to select an avatar.
 	// The callback function will be called with an avatar name and UUID.
 	typedef void(*callback_t)(const std::vector<std::string>&, const std::vector<LLUUID>&, void*);
@@ -53,6 +56,8 @@ public:
 	
 	virtual	BOOL postBuild();
 
+	void setOkBtnEnableCb(validate_callback_t cb);
+
 	static void processAvatarPickerReply(class LLMessageSystem* msg, void**);
 
 private:
@@ -65,7 +70,8 @@ private:
 	static void onBtnClose(void* userdata);
 	static void onList(class LLUICtrl* ctrl, void* userdata);
 		   void onTabChanged();
-	
+		   bool isSelectBtnEnabled();
+
 	void populateNearMe();
 	void populateFriend();
 	BOOL visibleItemsSelected() const; // Returns true if any items in the current tab are selected.
@@ -83,6 +89,7 @@ private:
 
 	void (*mCallback)(const std::vector<std::string>& name, const std::vector<LLUUID>& id, void* userdata);
 	void* mCallbackUserdata;
+	validate_signal_t mOkButtonValidateSignal;
 };
 
 #endif

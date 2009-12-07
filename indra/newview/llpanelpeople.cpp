@@ -1003,10 +1003,28 @@ void LLPanelPeople::onAddFriendButtonClicked()
 	}
 }
 
+bool LLPanelPeople::isItemsFreeOfFriends(const std::vector<LLUUID>& uuids)
+{
+	const LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
+	for ( std::vector<LLUUID>::const_iterator
+			  id = uuids.begin(),
+			  id_end = uuids.end();
+		  id != id_end; ++id )
+	{
+		if (av_tracker.isBuddy (*id))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 void LLPanelPeople::onAddFriendWizButtonClicked()
 {
 	// Show add friend wizard.
 	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(onAvatarPicked, NULL, FALSE, TRUE);
+	// Need to disable 'ok' button when friend occurs in selection
+	if (picker)	picker->setOkBtnEnableCb(boost::bind(&LLPanelPeople::isItemsFreeOfFriends, this, _1));
 	LLFloater* root_floater = gFloaterView->getParentFloater(this);
 	if (root_floater)
 	{
