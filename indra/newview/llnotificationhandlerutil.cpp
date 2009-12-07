@@ -46,14 +46,16 @@ const static std::string GRANTED_MODIFY_RIGHTS("GrantedModifyRights"),
 				"ObjectGiveItemUnknownUser"), PAYMENT_RECIVED("PaymentRecived"),
 						ADD_FRIEND_WITH_MESSAGE("AddFriendWithMessage"),
 						USER_GIVE_ITEM("UserGiveItem"), OFFER_FRIENDSHIP("OfferFriendship"),
-						FRIENDSHIP_ACCEPTED("FriendshipAccepted");
+						FRIENDSHIP_ACCEPTED("FriendshipAccepted"),
+						FRIENDSHIP_OFFERED("FriendshipOffered");
 
 // static
 bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 {
 	return GRANTED_MODIFY_RIGHTS == notification->getName()
 			|| REVOKED_MODIFY_RIGHTS == notification->getName()
-			|| PAYMENT_RECIVED == notification->getName();
+			|| PAYMENT_RECIVED == notification->getName()
+			|| FRIENDSHIP_OFFERED == notification->getName();
 }
 
 // static
@@ -103,13 +105,16 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification)
 					notification->getSubstitutions().has("NAME") ? notification->getSubstitutions()["NAME"]
 							: notification->getSubstitutions()["[NAME]"];
 
+	const std::string session_name = notification->getPayload().has(
+			"SESSION_NAME") ? notification->getPayload()["SESSION_NAME"].asString() : name;
+
 	// don't create IM p2p session with objects, it's necessary condition to log
 	if (notification->getName() != OBJECT_GIVE_ITEM && notification->getName()
 			!= OBJECT_GIVE_ITEM_UNKNOWN_USER)
 	{
 		LLUUID from_id = notification->getPayload()["from_id"];
 
-		logToIM(IM_NOTHING_SPECIAL, name, name, notification->getMessage(),
+		logToIM(IM_NOTHING_SPECIAL, session_name, name, notification->getMessage(),
 				from_id, from_id);
 	}
 }

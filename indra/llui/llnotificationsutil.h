@@ -63,6 +63,8 @@ namespace LLNotificationsUtil
 						  boost::function<void (const LLSD&, const LLSD&)> functor);
 	
 	S32 getSelectedOption(const LLSD& notification, const LLSD& response);
+
+	void cancel(LLNotificationPtr pNotif);
 }
 
 #endif
