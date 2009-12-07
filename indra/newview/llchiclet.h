@@ -39,6 +39,7 @@
 #include "lltextbox.h"
 #include "lloutputmonitorctrl.h"
 #include "llgroupmgr.h"
+#include "llimview.h"
 
 class LLVoiceControlPanel;
 class LLMenuGL;
@@ -787,9 +788,15 @@ protected:
  *
  * It displays a count of unread messages from other participants in all IM sessions.
  */
-class LLIMWellChiclet : public LLSysWellChiclet
+class LLIMWellChiclet : public LLSysWellChiclet, LLIMSessionObserver
 {
 	friend class LLUICtrlFactory;
+public:
+	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) {}
+	virtual void sessionRemoved(const LLUUID& session_id) { messageCountChanged(LLSD()); }
+	virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) {}
+
+	~LLIMWellChiclet();
 protected:
 	LLIMWellChiclet(const Params& p);
 

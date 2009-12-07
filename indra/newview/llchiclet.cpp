@@ -135,6 +135,13 @@ LLIMWellChiclet::LLIMWellChiclet(const Params& p)
 {
 	LLIMModel::instance().addNewMsgCallback(boost::bind(&LLIMWellChiclet::messageCountChanged, this, _1));
 	LLIMModel::instance().addNoUnreadMsgsCallback(boost::bind(&LLIMWellChiclet::messageCountChanged, this, _1));
+
+	LLIMMgr::getInstance()->addSessionObserver(this);
+}
+
+LLIMWellChiclet::~LLIMWellChiclet()
+{
+	LLIMMgr::getInstance()->removeSessionObserver(this);
 }
 
 void LLIMWellChiclet::messageCountChanged(const LLSD& session_data)
