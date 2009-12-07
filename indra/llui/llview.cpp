@@ -2848,18 +2848,21 @@ LLView::default_widget_map_t& LLView::getDefaultWidgetMap() const
 	return *mDefaultWidgets;
 }
 
-void	LLView::notifyParent(const LLSD& info)
+S32	LLView::notifyParent(const LLSD& info)
 {
 	LLView* parent = getParent();
 	if(parent)
-		parent->notifyParent(info);
+		return parent->notifyParent(info);
+	return 0;
 }
-void	LLView::notifyChildren(const LLSD& info)
+bool	LLView::notifyChildren(const LLSD& info)
 {
+	bool ret = false;
 	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 	{
-		(*child_it)->notifyChildren(info);
+		ret |= (*child_it)->notifyChildren(info);
 	}
+	return ret;
 }
 
 // convenient accessor for draw context

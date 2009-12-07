@@ -51,7 +51,7 @@ public:
 
 	/*virtual*/ BOOL 	postBuild();
 	/*virtual*/ void	onOpen(const LLSD& key);
-	/*virtual*/ void	notifyChildren(const LLSD& info);
+	/*virtual*/ bool	notifyChildren(const LLSD& info);
 
 	// internals
 	class Updater;

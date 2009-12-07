@@ -932,7 +932,7 @@ void LLFlatListView::onFocusLost()
 }
 
 //virtual 
-void LLFlatListView::notify(const LLSD& info)
+S32 LLFlatListView::notify(const LLSD& info)
 {
 	if(info.has("action"))
 	{
@@ -941,13 +941,16 @@ void LLFlatListView::notify(const LLSD& info)
 		{
 			setFocus(true);
 			selectFirstItem();
+			return 1;
 		}
 		else if(str_action == "select_last")
 		{
 			setFocus(true);
 			selectLastItem();
+			return 1;
 		}
 	}
+	return 0;
 }
 
 //EOF
