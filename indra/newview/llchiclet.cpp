@@ -401,6 +401,10 @@ LLIMP2PChiclet::LLIMP2PChiclet(const Params& p)
 
 	sendChildToFront(mNewMessagesIcon);
 	setShowSpeaker(p.show_speaker);
+
+	//since mShowSpeaker initialized with false 
+	//setShowSpeaker(false) will not hide mSpeakerCtrl
+	mSpeakerCtrl->setVisible(getShowSpeaker());
 }
 
 void LLIMP2PChiclet::setCounter(S32 counter)
