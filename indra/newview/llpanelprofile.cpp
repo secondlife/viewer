@@ -220,15 +220,15 @@ void LLPanelProfile::openPanel(LLPanel* panel, const LLSD& params)
 	panel->setRect(new_rect);
 }
 
-void LLPanelProfile::notifyParent(const LLSD& info)
+S32 LLPanelProfile::notifyParent(const LLSD& info)
 {
 	std::string action = info["action"];
 	// lets update Picks list after Pick was saved
 	if("save_new_pick" == action)
 	{
 		onOpen(info);
-		return;
+		return 1;
 	}
 
-	LLPanel::notifyParent(info);
+	return LLPanel::notifyParent(info);
 }

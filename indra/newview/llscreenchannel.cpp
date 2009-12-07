@@ -162,6 +162,8 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
 	if(mControlHovering)
 	{
 		new_toast_elem.toast->setOnToastHoverCallback(boost::bind(&LLScreenChannel::onToastHover, this, _1, _2));
+		new_toast_elem.toast->setMouseEnterCallback(boost::bind(&LLScreenChannel::stopFadingToasts, this));
+		new_toast_elem.toast->setMouseLeaveCallback(boost::bind(&LLScreenChannel::startFadingToasts, this));
 	}
 	
 	if(show_toast)
@@ -586,6 +588,37 @@ void LLScreenChannel::closeStartUpToast()
 	}
 }
 
+void LLNotificationsUI::LLScreenChannel::stopFadingToasts()
+{
+	if (!mToastList.size()) return;
+
+	if (!mHoveredToast) return;
+
+	std::vector<ToastElem>::iterator it = mToastList.begin();
+	while (it != mToastList.end())
+	{
+		ToastElem& elem = *it;
+		elem.toast->stopFading();
+		++it;
+	}
+}
+
+void LLNotificationsUI::LLScreenChannel::startFadingToasts()
+{
+	if (!mToastList.size()) return;
+
+	//because onMouseLeave is processed after onMouseEnter
+	if (mHoveredToast) return;
+
+	std::vector<ToastElem>::iterator it = mToastList.begin();
+	while (it != mToastList.end())
+	{
+		ToastElem& elem = *it;
+		elem.toast->startFading();
+		++it;
+	}
+}
+
 //--------------------------------------------------------------------------
 void LLScreenChannel::hideToastsFromScreen()
 {
@@ -713,6 +746,8 @@ void LLScreenChannel::updateShowToastsState()
 		}
 	}
 
+	// *TODO: mantipov: what we have to do with derived classes: LLNotificationWellWindow & LLIMWelWindow?
+	// See EXT-3081 for details
 	// for Message Well floater showed in a docked state - adjust channel's height
 	if(dynamic_cast<LLSysWellWindow*>(floater))
 	{

@@ -74,7 +74,6 @@ std::string	LLFloater::sButtonNames[BUTTON_COUNT] =
 	"llfloater_minimize_btn",	//BUTTON_MINIMIZE
 	"llfloater_tear_off_btn",	//BUTTON_TEAR_OFF
 	"llfloater_dock_btn",		//BUTTON_DOCK
-	"llfloater_undock_btn",		//BUTTON_UNDOCK
 	"llfloater_help_btn"		//BUTTON_HELP
 };
 
@@ -91,7 +90,6 @@ std::string LLFloater::sButtonToolTipsIndex[BUTTON_COUNT]=
 	"BUTTON_MINIMIZE",		//"Minimize",	//BUTTON_MINIMIZE
 	"BUTTON_TEAR_OFF",		//"Tear Off",	//BUTTON_TEAR_OFF
 	"BUTTON_DOCK",
-	"BUTTON_UNDOCK",
 	"BUTTON_HELP"
 };
 
@@ -102,7 +100,6 @@ LLFloater::click_callback LLFloater::sButtonCallbacks[BUTTON_COUNT] =
 	LLFloater::onClickMinimize, //BUTTON_MINIMIZE
 	LLFloater::onClickTearOff,	//BUTTON_TEAR_OFF
 	LLFloater::onClickDock,		//BUTTON_DOCK
-	LLFloater::onClickDock,		//BUTTON_UNDOCK
 	LLFloater::onClickHelp		//BUTTON_HELP
 };
 
@@ -179,14 +176,12 @@ LLFloater::Params::Params()
 	minimize_image("minimize_image"),
 	tear_off_image("tear_off_image"),
 	dock_image("dock_image"),
-	undock_image("undock_image"),
 	help_image("help_image"),
 	close_pressed_image("close_pressed_image"),
 	restore_pressed_image("restore_pressed_image"),
 	minimize_pressed_image("minimize_pressed_image"),
 	tear_off_pressed_image("tear_off_pressed_image"),
 	dock_pressed_image("dock_pressed_image"),
-	undock_pressed_image("undock_pressed_image"),
 	help_pressed_image("help_pressed_image"),
 	open_callback("open_callback"),
 	close_callback("close_callback")
@@ -1395,12 +1390,10 @@ void LLFloater::setCanDock(bool b)
 		if(mCanDock)
 		{
 			mButtonsEnabled[BUTTON_DOCK] = !mDocked;
-			mButtonsEnabled[BUTTON_UNDOCK] = mDocked;
 		}
 		else
 		{
 			mButtonsEnabled[BUTTON_DOCK] = FALSE;
-			mButtonsEnabled[BUTTON_UNDOCK] = FALSE;
 		}
 	}
 	updateButtons();
@@ -1412,7 +1405,6 @@ void LLFloater::setDocked(bool docked, bool pop_on_undock)
 	{
 		mDocked = docked;
 		mButtonsEnabled[BUTTON_DOCK] = !mDocked;
-		mButtonsEnabled[BUTTON_UNDOCK] = mDocked;
 		updateButtons();
 
 		storeDockStateControl();
@@ -1864,8 +1856,6 @@ LLUIImage* LLFloater::getButtonImage(const Params& p, EFloaterButton e)
 			return p.tear_off_image;
 		case BUTTON_DOCK:
 			return p.dock_image;
-		case BUTTON_UNDOCK:
-			return p.undock_image;
 		case BUTTON_HELP:
 			return p.help_image;
 	}
@@ -1887,8 +1877,6 @@ LLUIImage* LLFloater::getButtonPressedImage(const Params& p, EFloaterButton e)
 			return p.tear_off_pressed_image;
 		case BUTTON_DOCK:
 			return p.dock_pressed_image;
-		case BUTTON_UNDOCK:
-			return p.undock_pressed_image;
 		case BUTTON_HELP:
 			return p.help_pressed_image;
 	}

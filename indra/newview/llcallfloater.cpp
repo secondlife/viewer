@@ -127,7 +127,7 @@ void LLCallFloater::onOpen(const LLSD& /*key*/)
 void LLCallFloater::leaveCall()
 {
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
-	if (voice_channel && voice_channel->isActive())
+	if (voice_channel)
 	{
 		voice_channel->deactivate();
 	}
