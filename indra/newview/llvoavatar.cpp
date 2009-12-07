@@ -3834,15 +3834,6 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 		}
 		
-		bool should_alpha_mask = shouldAlphaMask();
-
-		LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
-
-		if (should_alpha_mask)
-		{
-			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
-		}
-
 		if (isTextureVisible(TEX_HEAD_BAKED))
 		{
 			num_indices += mMeshLOD[MESH_ID_EYELASH]->render(mAdjustedPixelArea, first_pass, mIsDummy);
@@ -6011,8 +6002,7 @@ void LLVOAvatar::updateMeshTextures()
 			}
 		}
 		else if (mBakedTextureDatas[i].mTexLayerSet 
-				 && !other_culled 
-				 && (i != BAKED_HAIR || mSupportsAlphaLayers)) // ! BACKWARDS COMPATIBILITY ! workaround for old viewers.
+				 && !other_culled) 
 		{
 			mBakedTextureDatas[i].mTexLayerSet->createComposite();
 			mBakedTextureDatas[i].mTexLayerSet->setUpdatesEnabled( TRUE );
@@ -6024,9 +6014,10 @@ void LLVOAvatar::updateMeshTextures()
 		}
 	}
 
-	// ! BACKWARDS COMPATIBILITY !
-	// Workaround for viewing avatars from old viewers that haven't baked hair textures.
-	if (!mSupportsAlphaLayers)
+	// set texture and color of hair manually if we are not using a baked image.
+	// This can happen while loading hair for yourself, or for clients that did not
+	// bake a hair texture. Still needed for yourself after 1.22 is depricated.
+	if (!is_layer_baked[BAKED_HAIR] || self_customizing)
 	{
 		const LLColor4 color = mTexHairColor ? mTexHairColor->getColor() : LLColor4(1,1,1,1);
 		LLViewerTexture* hair_img = getImage( TEX_HAIR, 0 );

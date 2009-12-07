@@ -71,9 +71,6 @@ class LLUICtrl;
 // that only work folders or only work on items, but I'll worry about
 // that later when it's determined to be too slow.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
 class LLFolderViewFunctor
 {
 public:
@@ -119,7 +116,7 @@ public:
 	// filter is never null
 	LLInventoryFilter* getFilter();
 	const std::string getFilterSubString(BOOL trim = FALSE);
-	U32 getFilterTypes() const;
+	U32 getFilterObjectTypes() const;
 	PermissionMask getFilterPermissions() const;
 	// JAMESDEBUG use getFilter()->getShowFolderState();
 	//LLInventoryFilter::EFolderShow getShowFolderState();

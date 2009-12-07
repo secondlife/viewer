@@ -154,7 +154,6 @@ public:
 	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
 	virtual void openItem() {}
 	virtual void closeItem() {}
-	virtual void gotoItem(LLFolderView *folder) {} // for links
 	virtual void previewItem() {openItem();}
 	virtual void showProperties();
 	virtual BOOL isItemRenameable() const { return TRUE; }
@@ -241,7 +240,6 @@ public:
 	virtual void restoreItem();
 	virtual void restoreToWorld();
 	virtual void gotoItem(LLFolderView *folder);
-
 	virtual LLUIImagePtr getIcon() const;
 	virtual const std::string& getDisplayName() const;
 	virtual std::string getLabelSuffix() const;
