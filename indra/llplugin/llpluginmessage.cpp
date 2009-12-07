@@ -387,12 +387,18 @@ int LLPluginMessage::parse(const std::string &message)
 }
 
 
+/**
+ * Destructor
+ */
 LLPluginMessageListener::~LLPluginMessageListener()
 {
 	// TODO: should listeners have a way to ensure they're removed from dispatcher lists when deleted?
 }
 
 
+/**
+ * Destructor
+ */
 LLPluginMessageDispatcher::~LLPluginMessageDispatcher()
 {
 	
