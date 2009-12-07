@@ -41,6 +41,7 @@
 #include "llnotifications.h"
 #include "llscriptfloater.h"
 #include "llimview.h"
+#include "llnotificationsutil.h"
 
 using namespace LLNotificationsUI;
 
@@ -122,20 +123,28 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 				}
 			}
 
-			LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
+			if (notification->getPayload().has("SUPPRES_TOST")
+						&& notification->getPayload()["SUPPRES_TOST"])
+			{
+				LLNotificationsUtil::cancel(notification);
+			}
+			else
+			{
+				LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
 
-			LLToast::Params p;
-			p.notif_id = notification->getID();
-			p.notification = notification;
-			p.panel = notify_box;
-			p.on_delete_toast = boost::bind(&LLOfferHandler::onDeleteToast, this, _1);
-			
-			LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
-			if(channel)
-				channel->addToast(p);
+				LLToast::Params p;
+				p.notif_id = notification->getID();
+				p.notification = notification;
+				p.panel = notify_box;
+				p.on_delete_toast = boost::bind(&LLOfferHandler::onDeleteToast, this, _1);
 
-			// send a signal to the counter manager
-			mNewNotificationSignal();
+				LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+				if(channel)
+					channel->addToast(p);
+
+				// send a signal to the counter manager
+				mNewNotificationSignal();
+			}
 		}
 	}
 	else if (notify["sigtype"].asString() == "delete")

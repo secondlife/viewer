@@ -9,7 +9,7 @@
  bg_opaque_image="Inspector_Background" 
  can_close="false"
  can_minimize="false"
- height="148"
+ height="158"
  layout="topleft"
  name="inspect_group"
  single_instance="true"
@@ -49,6 +49,7 @@
    height="45"
    left="8"
    name="group_details"
+   use_ellipses="true"
    top_pad="6"
    width="220"
    word_wrap="true">
@@ -60,7 +61,7 @@ Fear the moose!  Fear it!  And the mongoose too!
    height="13"
    left="8"
    name="group_cost"
-   top_pad="3"
+   top_pad="13"
    width="220">
 L$123 to join
   </text>
@@ -78,7 +79,7 @@ L$123 to join
    height="23"
    label="Join"
    left="8"
-   top="266"
+   top="286"
    name="join_btn"
    width="103"
    commit_callback.function="InspectGroup.Join"/>
@@ -87,7 +88,7 @@ L$123 to join
    height="23"
    label="Leave"
    left="8"
-   top="266"
+   top="286"
    name="leave_btn"
    width="103"
    commit_callback.function="InspectGroup.Leave"/>
@@ -96,7 +97,7 @@ L$123 to join
      height="23"
      label="View Profile"
      name="view_profile_btn"
-     top="266"
+     top="286"
      left="117"
      width="103"
      commit_callback.function="InspectGroup.ViewProfile" />

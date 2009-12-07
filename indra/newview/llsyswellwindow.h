@@ -47,6 +47,8 @@ class LLFlatListView;
 class LLChiclet;
 class LLIMChiclet;
 
+
+
 class LLSysWellWindow : public LLDockableFloater
 {
 public:
@@ -68,6 +70,11 @@ public:
 	/*virtual*/ void	setDocked(bool docked, bool pop_on_undock = true);
 	// override LLFloater's minimization according to EXT-1216
 	/*virtual*/ void	setMinimized(BOOL minimize);
+
+	/** 
+	 * Hides window when user clicks away from it (EXT-3084)
+	 */
+	/*virtual*/ void onFocusLost();
 
 	void onStartUpToastClick(S32 x, S32 y, MASK mask);
 
@@ -92,7 +99,9 @@ protected:
 	void handleItemRemoved(EItemType removed_item_type);
 	bool anotherTypeExists(EItemType item_type) ;
 
-
+	const std::string NOTIFICATION_WELL_ANCHOR_NAME;
+	const std::string IM_WELL_ANCHOR_NAME;
+	virtual const std::string& getAnchorViewName() = 0;
 
 	void reshapeWindow();
 
@@ -125,15 +134,20 @@ public:
 
 	static void initClass() { getInstance(); }
 
+	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void setVisible(BOOL visible);
 
 	// Operating with items
 	void addItem(LLSysWellItem::Params p);
 
+protected:
+	/*virtual*/ const std::string& getAnchorViewName() { return NOTIFICATION_WELL_ANCHOR_NAME; }
+
 private:
 	// init Window's channel
 	void initChannel();
 	void clearScreenChannels();
+
 
 	void onStoreToast(LLPanel* info_panel, LLUUID id);
 
@@ -160,10 +174,15 @@ public:
 	static LLIMWellWindow* getInstance(const LLSD& key = LLSD());
 	static void initClass() { getInstance(); }
 
+	/*virtual*/ BOOL postBuild();
+
 	// LLIMSessionObserver observe triggers
 	/*virtual*/ void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
 	/*virtual*/ void sessionRemoved(const LLUUID& session_id);
 	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
+
+protected:
+	/*virtual*/ const std::string& getAnchorViewName() { return IM_WELL_ANCHOR_NAME; }
 
 private:
 	LLChiclet * findIMChiclet(const LLUUID& sessionId);

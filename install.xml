@@ -214,9 +214,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>4f05166629caa4c132a7448eefb8d592</string>
+            <string>6746ae9fd9aff98b15f7b9f0f40334ab</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-windows-20090917.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-windows-20091204.tar.bz2</uri>
           </map>
         </map>
       </map>

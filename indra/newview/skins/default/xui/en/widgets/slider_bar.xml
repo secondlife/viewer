@@ -8,4 +8,5 @@
             track_image_horizontal="SliderTrack_Horiz"
             track_image_vertical="SliderTrack_Vert"
             track_highlight_horizontal_image="SliderTrack_Horiz"
-            track_highlight_vertical_image="SliderTrack_Vert" />
+            track_highlight_vertical_image="SliderTrack_Vert"
+         font="SansSerif"  />

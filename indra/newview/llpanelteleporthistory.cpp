@@ -319,11 +319,8 @@ void LLTeleportHistoryPanel::draw()
 // virtual
 void LLTeleportHistoryPanel::onSearchEdit(const std::string& string)
 {
-	if (sFilterSubString != string)
-	{
-		sFilterSubString = string;
-		showTeleportHistory();
-	}
+	sFilterSubString = string;
+	showTeleportHistory();
 }
 
 // virtual

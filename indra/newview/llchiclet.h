@@ -39,6 +39,7 @@
 #include "lltextbox.h"
 #include "lloutputmonitorctrl.h"
 #include "llgroupmgr.h"
+#include "llimview.h"
 
 class LLVoiceControlPanel;
 class LLMenuGL;
@@ -770,23 +771,47 @@ public:
 
 	/*virtual*/ ~LLSysWellChiclet();
 
-	// methods for updating a number of unread System notifications
-	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications); }
-	void decUreadSystemNotifications() { setCounter(--mUreadSystemNotifications); }
 	void setToggleState(BOOL toggled);
 
 protected:
-	// connect counter updaters to the corresponding signals
-	void connectCounterUpdatersToSignal(std::string notification_type);
 
 	LLSysWellChiclet(const Params& p);
 	friend class LLUICtrlFactory;
 
-	S32 mUreadSystemNotifications;
-
 protected:
 	LLButton* mButton;
 	S32 mCounter;
+};
+
+/**
+ * Class represented a chiclet for IM Well Icon.
+ *
+ * It displays a count of unread messages from other participants in all IM sessions.
+ */
+class LLIMWellChiclet : public LLSysWellChiclet, LLIMSessionObserver
+{
+	friend class LLUICtrlFactory;
+public:
+	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) {}
+	virtual void sessionRemoved(const LLUUID& session_id) { messageCountChanged(LLSD()); }
+	virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) {}
+
+	~LLIMWellChiclet();
+protected:
+	LLIMWellChiclet(const Params& p);
+
+	/**
+	 * Handles changes in a session (message was added, messages were read, etc.)
+	 *
+	 * It get total count of unread messages from a LLIMMgr in all opened sessions and display it.
+	 *
+	 * @param[in] session_data contains session related data, is not used now
+	 *		["session_id"] - id of an appropriate session
+	 *		["participant_unread"] - count of unread messages from "real" participants.
+	 *
+	 * @see LLIMMgr::getNumberOfUnreadParticipantMessages()
+	 */
+	void messageCountChanged(const LLSD& session_data);
 };
 
 class LLNotificationChiclet : public LLSysWellChiclet
@@ -795,6 +820,14 @@ class LLNotificationChiclet : public LLSysWellChiclet
 protected:
 	LLNotificationChiclet(const Params& p);
 
+	// connect counter updaters to the corresponding signals
+	void connectCounterUpdatersToSignal(const std::string& notification_type);
+
+	// methods for updating a number of unread System notifications
+	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications); }
+	void decUreadSystemNotifications() { setCounter(--mUreadSystemNotifications); }
+
+	S32 mUreadSystemNotifications;
 };
 
 /**
