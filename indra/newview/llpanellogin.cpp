@@ -71,7 +71,6 @@
 #include "llmediactrl.h"
 #include "llrootview.h"
 
-
 #include "llfloatertos.h"
 #include "lltrans.h"
 #include "llglheaders.h"
@@ -260,6 +259,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLTextBox* create_new_account_text = getChild<LLTextBox>("create_new_account_text");
 	create_new_account_text->setClickedCallback(onClickNewAccount, NULL);
+
+	LLTextBox* need_help_text = getChild<LLTextBox>("login_help");
+	need_help_text->setClickedCallback(onClickHelp, NULL);
 #endif    
 	
 	// get the web browser control
@@ -960,6 +962,16 @@ void LLPanelLogin::onClickForgotPassword(void*)
 	if (sInstance )
 	{
 		LLWeb::loadURLExternal(sInstance->getString( "forgot_password_url" ));
+	}
+}
+
+//static
+void LLPanelLogin::onClickHelp(void*)
+{
+	if (sInstance)
+	{
+		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
+		vhelp->showTopic(vhelp->getTopicFromFocus());
 	}
 }
 
