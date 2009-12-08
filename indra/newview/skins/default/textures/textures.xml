@@ -332,49 +332,49 @@ with the same filename but different name
   <texture name="Overhead_M" file_name="world/Overhead_M.png" preload="false" />
   <texture name="Overhead_S" file_name="world/Overhead_S.png" preload="false" />
 
-  <texture name="parcel_color_EVRY" file_name="icons/parcel_color_EVRY.png" preload="false" />
-  <texture name="parcel_color_EXP" file_name="icons/parcel_color_EXP.png" preload="false" />
-  <texture name="parcel_color_M" file_name="icons/parcel_color_M.png" preload="false" />
+  <texture name="Parcel_Evry_Color" file_name="icons/Parcel_Evry_Color.png" preload="false" />
+  <texture name="Parcel_Exp_Color" file_name="icons/Parcel_Exp_Color.png" preload="false" />
+  <texture name="Parcel_M_Color" file_name="icons/Parcel_M_Color.png" preload="false" />
 
-  <texture name="parcel_drk_Build" file_name="icons/parcel_drk_Build.png" preload="false" />
- <texture name="parcel_drk_BuildNo" file_name="icons/parcel_drk_BuildNo.png" preload="false" />
- <texture name="parcel_drk_Damage" file_name="icons/parcel_drk_Damage.png" preload="false" />
- <texture name="parcel_drk_DamageNo" file_name="icons/parcel_drk_DamageNo.png" preload="false" />
- <texture name="parcel_drk_EVRY" file_name="icons/parcel_drk_EVRY.png" preload="false" />
- <texture name="parcel_drk_EXP" file_name="icons/parcel_drk_EXP.png" preload="false" />
- <texture name="parcel_drk_Fly" file_name="icons/parcel_drk_Fly.png" preload="false" />
- <texture name="parcel_drk_FlyNo" file_name="icons/parcel_drk_FlyNo.png" preload="false" />
- <texture name="parcel_drk_ForSale" file_name="icons/parcel_drk_ForSale.png" preload="false" />
- <texture name="parcel_drk_ForSaleNo" file_name="icons/parcel_drk_ForSaleNo.png" preload="false" />
- <texture name="parcel_drk_M" file_name="icons/parcel_drk_M.png" preload="false" />
- <texture name="parcel_drk_PG" file_name="icons/parcel_drk_PG.png" preload="false" />
- <texture name="parcel_drk_Push" file_name="icons/parcel_drk_Push.png" preload="false" />
- <texture name="parcel_drk_PushNo" file_name="icons/parcel_drk_PushNo.png" preload="false" />
- <texture name="parcel_drk_R" file_name="icons/parcel_drk_R.png" preload="false" />
- <texture name="parcel_drk_Scripts" file_name="icons/parcel_drk_Scripts.png" preload="false" />
- <texture name="parcel_drk_ScriptsNo" file_name="icons/parcel_drk_ScriptsNo.png" preload="false" />
- <texture name="parcel_drk_Voice" file_name="icons/parcel_drk_Voice.png" preload="false" />
- <texture name="parcel_drk_VoiceNo" file_name="icons/parcel_drk_VoiceNo.png" preload="false" />
+ <texture name="Parcel_Build_Dark" file_name="icons/Parcel_Build_Dark.png" preload="false" />
+ <texture name="Parcel_BuildNo_Dark" file_name="icons/Parcel_BuildNo_Dark.png" preload="false" />
+ <texture name="Parcel_Damage_Dark" file_name="icons/Parcel_Damage_Dark.png" preload="false" />
+ <texture name="Parcel_DamageNo_Dark" file_name="icons/Parcel_DamageNo_Dark.png" preload="false" />
+ <texture name="Parcel_Evry_Dark" file_name="icons/Parcel_Evry_Dark.png" preload="false" />
+ <texture name="Parcel_Exp_Dark" file_name="icons/Parcel_Exp_Dark.png" preload="false" />
+ <texture name="Parcel_Fly_Dark" file_name="icons/Parcel_Fly_Dark.png" preload="false" />
+ <texture name="Parcel_FlyNo_Dark" file_name="icons/Parcel_FlyNo_Dark.png" preload="false" />
+ <texture name="Parcel_ForSale_Dark" file_name="icons/Parcel_ForSale_Dark.png" preload="false" />
+ <texture name="Parcel_ForSaleNo_Dark" file_name="icons/Parcel_ForSaleNo_Dark.png" preload="false" />
+ <texture name="Parcel_M_Dark" file_name="icons/Parcel_M_Dark.png" preload="false" />
+ <texture name="Parcel_PG_Dark" file_name="icons/Parcel_PG_Dark.png" preload="false" />
+ <texture name="Parcel_Push_Dark" file_name="icons/Parcel_Push_Dark.png" preload="false" />
+ <texture name="Parcel_PushNo_Dark" file_name="icons/Parcel_PushNo_Dark.png" preload="false" />
+ <texture name="Parcel_R_Dark" file_name="icons/Parcel_R_Dark.png" preload="false" />
+ <texture name="Parcel_Scripts_Dark" file_name="icons/Parcel_Scripts_Dark.png" preload="false" />
+ <texture name="Parcel_ScriptsNo_Dark" file_name="icons/Parcel_ScriptsNo_Dark.png" preload="false" />
+ <texture name="Parcel_Voice_Dark" file_name="icons/Parcel_Voice_Dark.png" preload="false" />
+ <texture name="Parcel_VoiceNo_Dark" file_name="icons/Parcel_VoiceNo_Dark.png" preload="false" />
 
- <texture name="parcel_lght_Build" file_name="icons/parcel_lght_Build.png" preload="false" />
- <texture name="parcel_lght_BuildNo" file_name="icons/parcel_lght_BuildNo.png" preload="false" />
- <texture name="parcel_lght_Damage" file_name="icons/parcel_lght_Damage.png" preload="false" />
- <texture name="parcel_lght_DamageNo" file_name="icons/parcel_lght_DamageNo.png" preload="false" />
- <texture name="parcel_lght_EVRY" file_name="icons/parcel_lght_EVRY.png" preload="false" />
- <texture name="parcel_lght_EXP" file_name="icons/parcel_lght_EXP.png" preload="false" />
- <texture name="parcel_lght_Fly" file_name="icons/parcel_lght_Fly.png" preload="false" />
- <texture name="parcel_lght_FlyNo" file_name="icons/parcel_lght_FlyNo.png" preload="false" />
- <texture name="parcel_lght_ForSale" file_name="icons/parcel_lght_ForSale.png" preload="false" />
- <texture name="parcel_lght_ForSaleNo" file_name="icons/parcel_lght_ForSaleNo.png" preload="false" />
- <texture name="parcel_lght_M" file_name="icons/parcel_lght_M.png" preload="false" />
- <texture name="parcel_lght_PG" file_name="icons/parcel_lght_PG.png" preload="false" />
- <texture name="parcel_lght_Push" file_name="icons/parcel_lght_Push.png" preload="false" />
- <texture name="parcel_lght_PushNo" file_name="icons/parcel_lght_PushNo.png" preload="false" />
- <texture name="parcel_lght_R" file_name="icons/parcel_lght_R.png" preload="false" />
- <texture name="parcel_lght_Scripts" file_name="icons/parcel_lght_Scripts.png" preload="false" />
- <texture name="parcel_lght_ScriptsNo" file_name="icons/parcel_lght_ScriptsNo.png" preload="false" />
- <texture name="parcel_lght_Voice" file_name="icons/parcel_lght_Voice.png" preload="false" />
- <texture name="parcel_lght_VoiceNo" file_name="icons/parcel_lght_VoiceNo.png" preload="false" />
+ <texture name="Parcel_Build_Light" file_name="icons/Parcel_Build_Light.png" preload="false" />
+ <texture name="Parcel_BuildNo_Light" file_name="icons/Parcel_BuildNo_Light.png" preload="false" />
+ <texture name="Parcel_Damage_Light" file_name="icons/Parcel_Damage_Light.png" preload="false" />
+ <texture name="Parcel_DamageNo_Light" file_name="icons/Parcel_DamageNo_Light.png" preload="false" />
+ <texture name="Parcel_Evry_Light" file_name="icons/Parcel_Evry_Light.png" preload="false" />
+ <texture name="Parcel_Exp_Light" file_name="icons/Parcel_Exp_Light.png" preload="false" />
+ <texture name="Parcel_Fly_Light" file_name="icons/Parcel_Fly_Light.png" preload="false" />
+ <texture name="Parcel_FlyNo_Light" file_name="icons/Parcel_FlyNo_Light.png" preload="false" />
+ <texture name="Parcel_ForSale_Light" file_name="icons/Parcel_ForSale_Light.png" preload="false" />
+ <texture name="Parcel_ForSaleNo_Light" file_name="icons/Parcel_ForSaleNo_Light.png" preload="false" />
+ <texture name="Parcel_M_Light" file_name="icons/Parcel_M_Light.png" preload="false" />
+ <texture name="Parcel_PG_Light" file_name="icons/Parcel_PG_Light.png" preload="false" />
+ <texture name="Parcel_Push_Light" file_name="icons/Parcel_Push_Light.png" preload="false" />
+ <texture name="Parcel_PushNo_Light" file_name="icons/Parcel_PushNo_Light.png" preload="false" />
+ <texture name="Parcel_R_Light" file_name="icons/Parcel_R_Light.png" preload="false" />
+ <texture name="Parcel_Scripts_Light" file_name="icons/Parcel_Scripts_Light.png" preload="false" />
+ <texture name="Parcel_ScriptsNo_Light" file_name="icons/Parcel_ScriptsNo_Light.png" preload="false" />
+ <texture name="Parcel_Voice_Light" file_name="icons/Parcel_Voice_Light.png" preload="false" />
+ <texture name="Parcel_VoiceNo_Light" file_name="icons/Parcel_VoiceNo_Light.png" preload="false" />
 
   <texture name="Pause_Off" file_name="icons/Pause_Off.png" preload="false" />
   <texture name="Pause_Over" file_name="icons/Pause_Over.png" preload="false" />

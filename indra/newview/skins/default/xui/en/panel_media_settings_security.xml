@@ -35,10 +35,10 @@
    right="-35"
    width="16"
    height="16"
-   image_name="parcel_color_EXP"
+   image_name="Parcel_Exp_Color"
    mouse_opaque="true"
    follows="top|left"
-   name="parcel_color_EXP"
+   name="Parcel_Exp_Color"
    />
   <text
    visible="true"

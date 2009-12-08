@@ -9,12 +9,22 @@
   <text_editor
    height="50"
    follows="top|left|bottom"
-   layout="topleft"
    left="10"
    name="test_text_editor"
    tool_tip="text editor"
    top="25"
    width="200">
     Text Editor
+  </text_editor>
+  <text_editor
+   height="50"
+   follows="top|left|bottom"
+   font="SansSerif" 
+   left="10"
+   name="test_text_editor"
+   tool_tip="text editor"
+   top_pad="10"
+   width="200">
+    This contains long text and should scroll horizontally to the right
   </text_editor>
 </floater>

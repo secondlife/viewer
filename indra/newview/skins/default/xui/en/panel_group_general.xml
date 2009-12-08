@@ -145,7 +145,7 @@ Hover your mouse over the options for more help.
          layout="topleft"
          left="10"
          name="group_mature_check"
-         tool_tip="Sets whether your group information is considered moderate"
+         tool_tip="Sets whether your group contains information rated as Moderate"
          top_pad="0"
          width="190">
             <combo_box.item

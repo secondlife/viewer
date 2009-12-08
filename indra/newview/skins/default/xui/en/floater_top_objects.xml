@@ -8,7 +8,7 @@
  min_width="450"
  name="top_objects"
  help_topic="top_objects"
- title="LOADING..."
+ title="Top Objects"
  width="550">
     <floater.string
      name="top_scripts_title">
@@ -46,24 +46,24 @@
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerif"
      height="20"
      layout="topleft"
      left="10"
      name="title_text"
-     top="30"
+     top="20"
+     text_color="EmphasisColor"
      width="400">
         Loading...
     </text>
     <scroll_list
      draw_heading="true"
-     follows="left|top|bottom|right"
-     height="150"
+     follows="all"
+     height="170"
      layout="topleft"
      left_delta="0"
      multi_select="true"
      name="objects_list"
-     top_delta="20"
+     top_delta="17"
      width="530">
         <scroll_list.columns
          label="Score"
@@ -109,16 +109,16 @@
      follows="left|bottom|right"
      height="20"
      layout="topleft"
-     left_delta="70"
+     left_pad="3"
      name="id_editor"
      top_delta="-3"
-     width="350" />
+     width="325" />
     <button
      follows="bottom|right"
-     height="20"
+     height="23"
      label="Show Beacon"
      layout="topleft"
-     left_pad="10"
+     left_pad="5"
      name="show_beacon_btn"
      top_delta="0"
      width="100">
@@ -132,25 +132,25 @@
      height="20"
      layout="topleft"
      left="10"
+     top_pad="5"
      name="obj_name_text"
-     top="237"
      width="100">
-        Object Name:
+        Object name:
     </text>
     <line_editor
      follows="left|bottom|right"
      height="20"
      layout="topleft"
-     left_delta="70"
+     left_pad="3"
      name="object_name_editor"
      top_delta="-3"
-     width="350" />
+     width="325" />
     <button
      follows="bottom|right"
-     height="20"
+     height="23"
      label="Filter"
      layout="topleft"
-     left_pad="10"
+     left_pad="5"
      name="filter_object_btn"
      top_delta="0"
      width="100">
@@ -164,25 +164,25 @@
      height="20"
      layout="topleft"
      left="10"
+     top_pad="5"
      name="owner_name_text"
-     top="264"
      width="100">
-        Owner Name:
+        Owner:
     </text>
     <line_editor
      follows="left|bottom|right"
      height="20"
      layout="topleft"
-     left_delta="70"
+     left_pad="3"
      name="owner_name_editor"
      top_delta="-3"
-     width="350" />
+     width="325" />
     <button
      follows="bottom|right"
-     height="20"
+     height="23"
      label="Filter"
      layout="topleft"
-     left_pad="10"
+     left_pad="5"
      name="filter_owner_btn"
      top_delta="0"
      width="100">
@@ -190,20 +190,32 @@
           function="TopObjects.GetByOwnerName" />
     </button>
     <button
+     follows="top|left"
+     height="22"
+     image_overlay="Refresh_Off"
+     layout="topleft"
+     name="refresh_btn"
+     right="-8"
+     top_pad="5"
+     width="23">
+      <button.commit_callback
+          function="TopObjects.Refresh" />
+    </button>
+    <button
      follows="bottom|left"
-     height="20"
+     height="23"
      label="Return Selected"
      layout="topleft"
-     left="10"
+     left="112"
+     top_delta="0"
      name="return_selected_btn"
-     top="295"
      width="130">
       <button.commit_callback
           function="TopObjects.ReturnSelected" />
     </button>
     <button
      follows="bottom|left"
-     height="20"
+     height="23"
      label="Return All"
      layout="topleft"
      left_pad="10"
@@ -215,19 +227,19 @@
     </button>
     <button
      follows="bottom|left"
-     height="20"
+     height="23"
      label="Disable Selected"
      layout="topleft"
-     left="10"
+
+     left="112"
      name="disable_selected_btn"
-     top="320"
      width="130">
       <button.commit_callback
           function="TopObjects.DisableSelected" />
     </button>
     <button
      follows="bottom|left"
-     height="20"
+     height="23"
      label="Disable All"
      layout="topleft"
      left_pad="10"
@@ -236,17 +248,5 @@
      width="130">
       <button.commit_callback
           function="TopObjects.DisableAll" />
-    </button>
-    <button
-     bottom="315"
-     follows="bottom|right"
-     height="20"
-     label="Refresh"
-     layout="topleft"
-     name="refresh_btn"
-     right="-10"
-     width="100">
-      <button.commit_callback
-          function="TopObjects.Refresh" />
     </button>
 </floater>

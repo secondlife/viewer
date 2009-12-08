@@ -19,6 +19,7 @@
                   mouse_opaque="false"
                   name="nav_bar_container"
                   width="1024"
+                  user_resize="false" 
                   visible="false">
     </layout_panel>
     <layout_panel auto_resize="true"
@@ -43,7 +44,7 @@
                layout="topleft"
                mouse_opaque="false"
                name="non_side_tray_view"
-               user_resize="true"
+               user_resize="false"
                width="500">
           <view bottom="500"
                 follows="all"
