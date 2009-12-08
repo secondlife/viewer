@@ -324,6 +324,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          min_width="34"
          user_resize="false">
             <chiclet_im_well
+             flash_period="0.3" 
              follows="right"
              height="23"
              layout="topleft"
@@ -374,6 +375,7 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
          min_width="34"
          user_resize="false">
             <chiclet_notification
+             flash_period="0.25"
              follows="right"
              height="23"
              layout="topleft"

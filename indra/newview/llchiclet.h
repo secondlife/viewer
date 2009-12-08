@@ -745,7 +745,7 @@ private:
 
 /**
  * Implements notification chiclet. Used to display total amount of unread messages 
- * across all IM sessions, total amount of system notifications.
+ * across all IM sessions, total amount of system notifications. See EXT-3147 for details
  */
 class LLSysWellChiclet : public LLChiclet
 {
@@ -764,6 +764,16 @@ public:
 		 * Otherwise 9+ will be shown (for default value).
 		 */
 		Optional<S32> max_displayed_count;
+
+		/**
+		 * How many time chiclet should flash before set "Lit" state. Default value is 3.
+		 */
+		Optional<S32> flash_to_lit_count;
+
+		/**
+		 * Period of flashing while setting "Lit" state, in seconds. Default value is 0.5.
+		 */
+		Optional<F32> flash_period;
 
 		Params();
 	};
@@ -786,10 +796,26 @@ protected:
 	LLSysWellChiclet(const Params& p);
 	friend class LLUICtrlFactory;
 
+	/**
+	 * Change Well 'Lit' state from 'Lit' to 'Unlit' and vice-versa.
+	 *
+	 * There is an assumption that it will be called 2*N times to do not change its start state.
+	 * @see FlashToLitTimer
+	 */
+	void changeLitState();
+
 protected:
+	class FlashToLitTimer;
 	LLButton* mButton;
 	S32 mCounter;
 	S32 mMaxDisplayedCount;
+
+	/**
+	 * How many times Well will blink.
+	 */
+	S32 mFlashToLitCount;
+	FlashToLitTimer* mFlashToLitTimer;
+
 };
 
 /**

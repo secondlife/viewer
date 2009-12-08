@@ -78,10 +78,50 @@ boost::signals2::signal<LLChiclet* (const LLUUID&),
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+/**
+ * Updates the Well's 'Lit' state to flash it when "new messages" are come.
+ *
+ * It gets callback which will be called 2*N times with passed period. See EXT-3147
+ */
+class LLSysWellChiclet::FlashToLitTimer : public LLEventTimer
+{
+public:
+	typedef boost::function<void()> callback_t;
+	LLSysWellChiclet::FlashToLitTimer(S32 count, F32 period, callback_t cb)
+		: LLEventTimer(period)
+		, mCallback(cb)
+		, mFlashCount(2 * count)
+		, mCurrentFlashCount(0)
+	{
+		mEventTimer.stop();
+	}
+
+	BOOL tick()
+	{
+		mCallback();
+
+		if (++mCurrentFlashCount == mFlashCount) mEventTimer.stop();
+		return FALSE;
+	}
+
+	void flash()
+	{
+		mCurrentFlashCount = 0;
+		mEventTimer.start();
+	}
+
+private:
+	callback_t		mCallback;
+	S32 mFlashCount;
+	S32 mCurrentFlashCount;
+};
+
 LLSysWellChiclet::Params::Params()
 : button("button")
 , unread_notifications("unread_notifications")
 , max_displayed_count("max_displayed_count", 9)
+, flash_to_lit_count("flash_to_lit_count", 3)
+, flash_period("flash_period", 0.5F)
 {
 	button.name("button");
 	button.tab_stop(FALSE);
@@ -93,15 +133,18 @@ LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 , mButton(NULL)
 , mCounter(0)
 , mMaxDisplayedCount(p.max_displayed_count)
+, mFlashToLitTimer(NULL)
 {
 	LLButton::Params button_params = p.button;
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
 	addChild(mButton);
+
+	mFlashToLitTimer = new FlashToLitTimer(p.flash_to_lit_count, p.flash_period, boost::bind(&LLSysWellChiclet::changeLitState, this));
 }
 
 LLSysWellChiclet::~LLSysWellChiclet()
 {
-
+	delete mFlashToLitTimer;
 }
 
 void LLSysWellChiclet::setCounter(S32 counter)
@@ -119,8 +162,6 @@ void LLSysWellChiclet::setCounter(S32 counter)
 
 	mButton->setLabel(s_count);
 
-	mCounter = counter;
-
 	/*
 	Emulate 4 states of button by background images, see detains in EXT-3147
 	xml attribute           Description
@@ -130,6 +171,12 @@ void LLSysWellChiclet::setCounter(S32 counter)
 	image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well is open
 	*/
 	mButton->setForcePressedState(counter > 0);
+
+	if (mCounter == 0 && counter > 0)
+	{
+		mFlashToLitTimer->flash();
+	}
+	mCounter = counter;
 }
 
 boost::signals2::connection LLSysWellChiclet::setClickCallback(
@@ -142,6 +189,14 @@ void LLSysWellChiclet::setToggleState(BOOL toggled) {
 	mButton->setToggleState(toggled);
 }
 
+void LLSysWellChiclet::changeLitState()
+{
+	static bool set_lit = false;
+
+	mButton->setForcePressedState(set_lit);
+
+	set_lit ^= true;
+}
 
 /************************************************************************/
 /*               LLIMWellChiclet implementation                         */
