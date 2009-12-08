@@ -410,6 +410,7 @@ set(viewer_SOURCE_FILES
     lltexturestats.cpp
     lltexturestatsuploader.cpp
     lltextureview.cpp
+    lltextutil.cpp
     lltoast.cpp
     lltoastalertpanel.cpp
     lltoastgroupnotifypanel.cpp
@@ -447,12 +448,13 @@ set(viewer_SOURCE_FILES
     llurlsimstring.cpp
     llurlwhitelist.cpp
     llvectorperfoptions.cpp
+    llversioninfo.cpp
     llviewchildren.cpp
     llviewerassetstorage.cpp
     llviewerassettype.cpp
     llvieweraudio.cpp
     llviewercamera.cpp
-	llviewerchat.cpp
+    llviewerchat.cpp
     llviewercontrol.cpp
     llviewercontrollistener.cpp
     llviewerdisplay.cpp
@@ -462,6 +464,7 @@ set(viewer_SOURCE_FILES
     llviewergesture.cpp    
     llviewerhelp.cpp
     llviewerhelputil.cpp
+    llviewerhome.cpp
     llviewerinventory.cpp
     llviewerjoint.cpp
     llviewerjointattachment.cpp
@@ -911,6 +914,7 @@ set(viewer_HEADER_FILES
     lltexturestats.h
     lltexturestatsuploader.h
     lltextureview.h
+    lltextutil.h
     lltoast.h
     lltoastalertpanel.h
     lltoastgroupnotifypanel.h
@@ -949,13 +953,13 @@ set(viewer_HEADER_FILES
     llurlsimstring.h
     llurlwhitelist.h
     llvectorperfoptions.h
+    llversioninfo.h
     llviewchildren.h
     llviewerassetstorage.h
     llviewerassettype.h
     llvieweraudio.h
-    llviewerbuild.h
     llviewercamera.h
-	llviewerchat.h
+    llviewerchat.h
     llviewercontrol.h
     llviewercontrollistener.h
     llviewerdisplay.h
@@ -964,6 +968,7 @@ set(viewer_HEADER_FILES
     llviewergenericmessage.h
     llviewergesture.h    
     llviewerhelp.h
+    llviewerhome.h
     llviewerinventory.h
     llviewerjoint.h
     llviewerjointattachment.h
@@ -1518,7 +1523,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${BOOST_REGEX_LIBRARY}
     ${DBUSGLIB_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    ${FMODWRAPPER_LIBRARY}
+    ${FMODWRAPPER_LIBRARY} # must come after LLAudio
     ${OPENGL_LIBRARIES}
     ${SDL_LIBRARY}
     ${SMARTHEAP_LIBRARY}

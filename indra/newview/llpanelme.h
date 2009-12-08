@@ -54,7 +54,7 @@ public:
 	LLPanelMe();
 
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void notifyChildren(const LLSD& info);
+	/*virtual*/ bool notifyChildren(const LLSD& info);
 
 	/*virtual*/ BOOL postBuild();
 

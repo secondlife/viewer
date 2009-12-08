@@ -487,6 +487,13 @@ void LLAvatarActions::requestFriendship(const LLUUID& target_id, const std::stri
 					 IM_ONLINE,
 					 IM_FRIENDSHIP_OFFERED,
 					 calling_card_folder_id);
+
+	LLSD args;
+	args["TO_NAME"] = target_name;
+	LLSD payload;
+	payload["SESSION_NAME"] = target_name;
+	payload["SUPPRES_TOST"] = true;
+	LLNotificationsUtil::add("FriendshipOffered", args, payload);
 }
 
 //static

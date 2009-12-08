@@ -54,25 +54,24 @@ template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
 
 LLBottomTray::LLBottomTray(const LLSD&)
 :	mChicletPanel(NULL),
-	mSysWell(NULL),
 	mSpeakPanel(NULL),
 	mSpeakBtn(NULL),
 	mNearbyChatBar(NULL),
 	mToolbarStack(NULL)
 ,	mMovementButton(NULL)
 ,	mResizeState(RS_NORESIZE)
-// Add more members
+,	mBottomTrayContextMenu(NULL)
+,	mMovementPanel(NULL)
+,	mCamPanel(NULL)
+,	mSnapshotPanel(NULL)
+,	mGesturePanel(NULL)
+,	mCamButton(NULL)
 {
 	mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 
 	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_bottomtray.xml");
 
 	mChicletPanel = getChild<LLChicletPanel>("chiclet_list");
-	mSysWell = getChild<LLNotificationChiclet>("sys_well");
-
-	// init mSysWell
-	// set handler for a Click operation
-	mSysWell->setClickCallback(boost::bind(&LLSysWellWindow::onChicletClick, LLFloaterReg::getTypedInstance<LLSysWellWindow>("syswell_window")));
 
 	mChicletPanel->setChicletClickedCallback(boost::bind(&LLBottomTray::onChicletClick,this,_1));
 

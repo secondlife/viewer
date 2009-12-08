@@ -1,10 +1,11 @@
-/**
- * @file lltoastimpanel.h
- * @brief Panel for IM toasts.
+/** 
+ * @file llviewerhome.h
+ * @brief Model (non-View) component for the web-based Home side panel
+ * @author Martin Reddy
  *
- * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2001-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,47 +31,19 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLTOASTIMPANEL_H_
-#define LLTOASTIMPANEL_H_
+#ifndef LL_LLVIEWERHOME_H
+#define LL_LLVIEWERHOME_H
 
+#include <string>
 
-#include "lltoastpanel.h"
-#include "lltextbox.h"
-#include "llbutton.h"
-#include "llavatariconctrl.h"
-
-
-class LLToastIMPanel: public LLToastPanel 
+class LLViewerHome
 {
 public:
-	struct Params
-	{
-		LLNotificationPtr	notification;
-		LLUUID				avatar_id;
-		LLUUID				session_id;
-		std::string			from;
-		std::string			time;
-		std::string			message;
+	/// return the URL to use for the web-based Home side panel
+	static std::string getHomeURL();
 
-		Params() {}
-	};
-
-	LLToastIMPanel(LLToastIMPanel::Params &p);
-	virtual ~LLToastIMPanel();
-
-private:
-	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
-
-	void onClickToastIM();
-
-	LLNotificationPtr	mNotification;
-	LLUUID				mSessionID;
-	LLAvatarIconCtrl*	mAvatar;
-	LLTextBox*			mUserName;
-	LLTextBox*			mTime;
-	LLTextBox*			mMessage;
+	/// return the authentication key for the Home web site
+	static std::string getAuthKey();
 };
 
-#endif // LLTOASTIMPANEL_H_
-
-
+#endif
