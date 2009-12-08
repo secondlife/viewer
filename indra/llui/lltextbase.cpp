@@ -194,7 +194,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mHAlign(p.font_halign),
 	mLineSpacingMult(p.line_spacing.multiple),
 	mLineSpacingPixels(p.line_spacing.pixels),
-	mClipPartial(p.clip_partial),
+	mClipPartial(p.clip_partial && !p.allow_scroll),
 	mTrackEnd( p.track_end ),
 	mScrollIndex(-1),
 	mSelectionStart( 0 ),
@@ -528,11 +528,6 @@ void LLTextBase::drawText()
 	{
 		S32 next_line = cur_line + 1;
 		line_info& line = mLineInfoList[cur_line];
-
-		if ((line.mRect.mTop - scrolled_view_rect.mBottom) < mTextRect.mBottom) 
-		{
-			break;
-		}
 
 		S32 next_start = -1;
 		S32 line_end = text_len;
@@ -1078,6 +1073,10 @@ void LLTextBase::reflow(S32 start_index)
 	{
 		mReflowNeeded = FALSE;
 
+		// shrink document to minimum size (visible portion of text widget)
+		// to force inlined widgets with follows set to shrink
+		mDocumentView->setShape(mTextRect);
+
 		bool scrolled_to_bottom = mScroller ? mScroller->isAtBottom() : false;
 
 		LLRect old_cursor_rect = getLocalRectFromDocIndex(mCursorPos);
@@ -1340,13 +1339,11 @@ std::pair<S32, S32>	LLTextBase::getVisibleLines(bool fully_visible)
 
 	if (fully_visible)
 	{
-		// binary search for line that starts before top of visible buffer and starts before end of visible buffer
 		first_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mTop, compare_top());
 		last_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mBottom, compare_bottom());
 	}
 	else
 	{
-		// binary search for line that starts before top of visible buffer and starts before end of visible buffer
 		first_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mTop, compare_bottom());
 		last_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mBottom, compare_top());
 	}
