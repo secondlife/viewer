@@ -37,7 +37,6 @@
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llviewercontrol.h"
-#include "llversionviewer.h"
 #include "llappviewer.h"
 #include "lllogininstance.h"
 

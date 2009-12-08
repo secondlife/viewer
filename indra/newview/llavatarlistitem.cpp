@@ -40,6 +40,7 @@
 #include "llagent.h"
 #include "lloutputmonitorctrl.h"
 #include "llavatariconctrl.h"
+#include "lltextutil.h"
 #include "llbutton.h"
 
 LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
@@ -155,13 +156,8 @@ void LLAvatarListItem::setOnline(bool online)
 	mOnlineStatus = (EOnlineStatus) online;
 
 	// Change avatar name font style depending on the new online status.
-	LLStyle::Params style_params;
-	style_params.color = online ? LLColor4::white : LLColor4::grey;
-
-	// Rebuild the text to change its style.
-	std::string text = mAvatarName->getText();
-	mAvatarName->setText(LLStringUtil::null);
-	mAvatarName->appendText(text, false, style_params);
+	mAvatarNameStyle.color = online ? LLColor4::white : LLColor4::grey;
+	setNameInternal(mAvatarName->getText(), mHighlihtSubstring);
 
 	// Make the icon fade if the avatar goes offline.
 	mAvatarIcon->setColor(online ? LLColor4::white : LLColor4::smoke);
@@ -169,8 +165,12 @@ void LLAvatarListItem::setOnline(bool online)
 
 void LLAvatarListItem::setName(const std::string& name)
 {
-	mAvatarName->setValue(name);
-	mAvatarName->setToolTip(name);
+	setNameInternal(name, mHighlihtSubstring);
+}
+
+void LLAvatarListItem::setHighlight(const std::string& highlight)
+{
+	setNameInternal(mAvatarName->getText(), mHighlihtSubstring = highlight);
 }
 
 void LLAvatarListItem::setAvatarId(const LLUUID& id, bool ignore_status_changes)
@@ -310,11 +310,18 @@ const std::string LLAvatarListItem::getAvatarName() const
 	return mAvatarName->getValue();
 }
 
+//== PRIVATE SECITON ==========================================================
+
+void LLAvatarListItem::setNameInternal(const std::string& name, const std::string& highlight)
+{
+	LLTextUtil::textboxSetHighlightedVal(mAvatarName, mAvatarNameStyle, name, highlight);
+	mAvatarName->setToolTip(name);
+}
+
 void LLAvatarListItem::onNameCache(const std::string& first_name, const std::string& last_name)
 {
 	std::string name = first_name + " " + last_name;
-	mAvatarName->setValue(name);
-	mAvatarName->setToolTip(name);
+	setName(name);
 }
 
 void LLAvatarListItem::reshapeAvatarName()

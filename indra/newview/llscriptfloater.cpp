@@ -207,11 +207,22 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 		return;
 	}
 
+	// Need to indicate of "new message" for object chiclets according to requirements
+	// specified in the Message Bar design specification. See EXT-3142.
+	bool set_new_message = false;
+
 	// If an Object spawns more-than-one floater, only the newest one is shown. 
 	// The previous is automatically closed.
 	script_notification_map_t::iterator it = mNotifications.find(object_id);
 	if(it != mNotifications.end())
 	{
+		LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>("script_floater", it->second.notification_id);
+		if(floater)
+		{
+			// Generate chiclet with a "new message" indicator if a docked window was opened. See EXT-3142.
+			set_new_message = floater->isShown();
+		}
+
 		onRemoveNotification(it->second.notification_id);
 	}
 
@@ -229,7 +240,7 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 		LLBottomTray::getInstance()->getChicletPanel()->createChiclet<LLScriptChiclet>(object_id);
 	}
 
-	toggleScriptFloater(object_id);
+	toggleScriptFloater(object_id, set_new_message);
 }
 
 void LLScriptFloaterManager::onRemoveNotification(const LLUUID& notification_id)
@@ -278,13 +289,13 @@ void LLScriptFloaterManager::removeNotificationByObjectId(const LLUUID& object_i
 	}
 }
 
-void LLScriptFloaterManager::toggleScriptFloater(const LLUUID& object_id)
+void LLScriptFloaterManager::toggleScriptFloater(const LLUUID& object_id, bool set_new_message)
 {
 	// hide "new message" icon from chiclet
 	LLIMChiclet* chiclet = LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(object_id);
 	if(chiclet)
 	{
-		chiclet->setShowNewMessagesIcon(false);
+		chiclet->setShowNewMessagesIcon(set_new_message);
 	}
 
 	// kill toast

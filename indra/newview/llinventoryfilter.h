@@ -61,7 +61,8 @@ public:
 		FILTERTYPE_NONE = 0,
 		FILTERTYPE_OBJECT = 1,		// normal default search-by-object-type
 		FILTERTYPE_CATEGORY = 2,	// search by folder type
-		FILTERTYPE_UUID	= 4			// find the object with UUID and any links to it
+		FILTERTYPE_UUID	= 4,		// find the object with UUID and any links to it
+		FILTERTYPE_DATE = 8			// search by date range
 	};
 
 	// REFACTOR: Change this to an enum.

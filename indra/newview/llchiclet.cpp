@@ -55,6 +55,7 @@
 #include "lltransientfloatermgr.h"
 
 static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
+static LLDefaultChildRegistry::Register<LLIMWellChiclet> t2_0("chiclet_im_well");
 static LLDefaultChildRegistry::Register<LLNotificationChiclet> t2("chiclet_notification");
 static LLDefaultChildRegistry::Register<LLIMP2PChiclet> t3("chiclet_im_p2p");
 static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t4("chiclet_im_group");
@@ -69,7 +70,6 @@ static const S32	OVERLAY_ICON_SHIFT = 2;	// used for shifting of an overlay icon
 // static
 const S32 LLChicletPanel::s_scroll_ratio = 10;
 
-S32 LLNotificationChiclet::mUreadSystemNotifications = 0;
 
 boost::signals2::signal<LLChiclet* (const LLUUID&),
 		LLIMChiclet::CollectChicletCombiner<std::list<LLChiclet*> > >
@@ -78,7 +78,7 @@ boost::signals2::signal<LLChiclet* (const LLUUID&),
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-LLNotificationChiclet::Params::Params()
+LLSysWellChiclet::Params::Params()
 : button("button")
 , unread_notifications("unread_notifications")
 {
@@ -88,7 +88,7 @@ LLNotificationChiclet::Params::Params()
 
 }
 
-LLNotificationChiclet::LLNotificationChiclet(const Params& p)
+LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 : LLChiclet(p)
 , mButton(NULL)
 , mCounter(0)
@@ -96,30 +96,14 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 	LLButton::Params button_params = p.button;
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
 	addChild(mButton);
-
-	// connect counter handlers to the signals
-	connectCounterUpdatersToSignal("notify");
-	connectCounterUpdatersToSignal("groupnotify");
-	connectCounterUpdatersToSignal("offer");
 }
 
-LLNotificationChiclet::~LLNotificationChiclet()
+LLSysWellChiclet::~LLSysWellChiclet()
 {
 
 }
 
-void LLNotificationChiclet::connectCounterUpdatersToSignal(std::string notification_type)
-{
-	LLNotificationsUI::LLNotificationManager* manager = LLNotificationsUI::LLNotificationManager::getInstance();
-	LLNotificationsUI::LLEventHandler* n_handler = manager->getHandlerForNotification(notification_type);
-	if(n_handler)
-	{
-		n_handler->setNewNotificationCallback(boost::bind(&LLNotificationChiclet::incUreadSystemNotifications, this));
-		n_handler->setDelNotification(boost::bind(&LLNotificationChiclet::decUreadSystemNotifications, this));
-	}
-}
-
-void LLNotificationChiclet::setCounter(S32 counter)
+void LLSysWellChiclet::setCounter(S32 counter)
 {
 	std::string s_count;
 	if(counter != 0)
@@ -132,14 +116,62 @@ void LLNotificationChiclet::setCounter(S32 counter)
 	mCounter = counter;
 }
 
-boost::signals2::connection LLNotificationChiclet::setClickCallback(
+boost::signals2::connection LLSysWellChiclet::setClickCallback(
 	const commit_callback_t& cb)
 {
 	return mButton->setClickedCallback(cb);
 }
 
-void LLNotificationChiclet::setToggleState(BOOL toggled) {
+void LLSysWellChiclet::setToggleState(BOOL toggled) {
 	mButton->setToggleState(toggled);
+}
+
+
+/************************************************************************/
+/*               LLIMWellChiclet implementation                         */
+/************************************************************************/
+LLIMWellChiclet::LLIMWellChiclet(const Params& p)
+: LLSysWellChiclet(p)
+{
+	LLIMModel::instance().addNewMsgCallback(boost::bind(&LLIMWellChiclet::messageCountChanged, this, _1));
+	LLIMModel::instance().addNoUnreadMsgsCallback(boost::bind(&LLIMWellChiclet::messageCountChanged, this, _1));
+
+	LLIMMgr::getInstance()->addSessionObserver(this);
+}
+
+LLIMWellChiclet::~LLIMWellChiclet()
+{
+	LLIMMgr::getInstance()->removeSessionObserver(this);
+}
+
+void LLIMWellChiclet::messageCountChanged(const LLSD& session_data)
+{
+	S32 total_unread = LLIMMgr::instance().getNumberOfUnreadParticipantMessages();
+	setCounter(total_unread);
+}
+
+/************************************************************************/
+/*               LLNotificationChiclet implementation                   */
+/************************************************************************/
+LLNotificationChiclet::LLNotificationChiclet(const Params& p)
+: LLSysWellChiclet(p)
+, mUreadSystemNotifications(0)
+{
+	// connect counter handlers to the signals
+	connectCounterUpdatersToSignal("notify");
+	connectCounterUpdatersToSignal("groupnotify");
+	connectCounterUpdatersToSignal("offer");
+}
+
+void LLNotificationChiclet::connectCounterUpdatersToSignal(const std::string& notification_type)
+{
+	LLNotificationsUI::LLNotificationManager* manager = LLNotificationsUI::LLNotificationManager::getInstance();
+	LLNotificationsUI::LLEventHandler* n_handler = manager->getHandlerForNotification(notification_type);
+	if(n_handler)
+	{
+		n_handler->setNewNotificationCallback(boost::bind(&LLNotificationChiclet::incUreadSystemNotifications, this));
+		n_handler->setDelNotification(boost::bind(&LLNotificationChiclet::decUreadSystemNotifications, this));
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -395,6 +427,10 @@ LLIMP2PChiclet::LLIMP2PChiclet(const Params& p)
 
 	sendChildToFront(mNewMessagesIcon);
 	setShowSpeaker(p.show_speaker);
+
+	//since mShowSpeaker initialized with false 
+	//setShowSpeaker(false) will not hide mSpeakerCtrl
+	mSpeakerCtrl->setVisible(getShowSpeaker());
 }
 
 void LLIMP2PChiclet::setCounter(S32 counter)
@@ -880,16 +916,7 @@ LLChicletPanel::~LLChicletPanel()
 void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	
 	LLUUID session_id = data["session_id"].asUUID();
-	LLUUID from_id = data["from_id"].asUUID();
-	const std::string from = data["from"].asString();
-	S32 unread = data["num_unread"].asInteger();
-
-	// if new message came
-	if(unread != 0)
-	{
-		//we do not show balloon (indicator of new messages) for system messages and our own messages
-		if (from_id.isNull() || from_id == gAgentID || SYSTEM_FROM == from) return;
-	}
+	S32 unread = data["participant_unread"].asInteger();
 
 	LLIMFloater* im_floater = LLIMFloater::findInstance(session_id);
 	if (im_floater && im_floater->getVisible())

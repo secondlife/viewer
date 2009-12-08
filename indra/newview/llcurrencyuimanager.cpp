@@ -36,7 +36,7 @@
 #include "lltextbox.h"
 #include "lllineeditor.h"
 #include "llviewercontrol.h"
-#include "llversionviewer.h"
+#include "llversioninfo.h"
 
 #include "llcurrencyuimanager.h"
 
@@ -170,10 +170,10 @@ void LLCurrencyUIManager::Impl::updateCurrencyInfo()
 		gAgent.getSecureSessionID().asString());
 	keywordArgs.appendInt("currencyBuy", mUserCurrencyBuy);
 	keywordArgs.appendString("viewerChannel", gSavedSettings.getString("VersionChannelName"));
-	keywordArgs.appendInt("viewerMajorVersion", LL_VERSION_MAJOR);
-	keywordArgs.appendInt("viewerMinorVersion", LL_VERSION_MINOR);
-	keywordArgs.appendInt("viewerPatchVersion", LL_VERSION_PATCH);
-	keywordArgs.appendInt("viewerBuildVersion", LL_VERSION_BUILD);
+	keywordArgs.appendInt("viewerMajorVersion", LLVersionInfo::getMajor());
+	keywordArgs.appendInt("viewerMinorVersion", LLVersionInfo::getMinor());
+	keywordArgs.appendInt("viewerPatchVersion", LLVersionInfo::getPatch());
+	keywordArgs.appendInt("viewerBuildVersion", LLVersionInfo::getBuild());
 	
 	LLXMLRPCValue params = LLXMLRPCValue::createArray();
 	params.append(keywordArgs);
@@ -244,10 +244,10 @@ void LLCurrencyUIManager::Impl::startCurrencyBuy(const std::string& password)
 		keywordArgs.appendString("password", password);
 	}
 	keywordArgs.appendString("viewerChannel", gSavedSettings.getString("VersionChannelName"));
-	keywordArgs.appendInt("viewerMajorVersion", LL_VERSION_MAJOR);
-	keywordArgs.appendInt("viewerMinorVersion", LL_VERSION_MINOR);
-	keywordArgs.appendInt("viewerPatchVersion", LL_VERSION_PATCH);
-	keywordArgs.appendInt("viewerBuildVersion", LL_VERSION_BUILD);
+	keywordArgs.appendInt("viewerMajorVersion", LLVersionInfo::getMajor());
+	keywordArgs.appendInt("viewerMinorVersion", LLVersionInfo::getMinor());
+	keywordArgs.appendInt("viewerPatchVersion", LLVersionInfo::getPatch());
+	keywordArgs.appendInt("viewerBuildVersion", LLVersionInfo::getBuild());
 
 	LLXMLRPCValue params = LLXMLRPCValue::createArray();
 	params.append(keywordArgs);

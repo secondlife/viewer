@@ -1003,10 +1003,28 @@ void LLPanelPeople::onAddFriendButtonClicked()
 	}
 }
 
+bool LLPanelPeople::isItemsFreeOfFriends(const std::vector<LLUUID>& uuids)
+{
+	const LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
+	for ( std::vector<LLUUID>::const_iterator
+			  id = uuids.begin(),
+			  id_end = uuids.end();
+		  id != id_end; ++id )
+	{
+		if (av_tracker.isBuddy (*id))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 void LLPanelPeople::onAddFriendWizButtonClicked()
 {
 	// Show add friend wizard.
 	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(onAvatarPicked, NULL, FALSE, TRUE);
+	// Need to disable 'ok' button when friend occurs in selection
+	if (picker)	picker->setOkBtnEnableCb(boost::bind(&LLPanelPeople::isItemsFreeOfFriends, this, _1));
 	LLFloater* root_floater = gFloaterView->getParentFloater(this);
 	if (root_floater)
 	{
@@ -1284,7 +1302,7 @@ void	LLPanelPeople::onOpen(const LLSD& key)
 		reSelectedCurrentTab();
 }
 
-void LLPanelPeople::notifyChildren(const LLSD& info)
+bool LLPanelPeople::notifyChildren(const LLSD& info)
 {
 	if (info.has("task-panel-action") && info["task-panel-action"].asString() == "handle-tri-state")
 	{
@@ -1292,7 +1310,7 @@ void LLPanelPeople::notifyChildren(const LLSD& info)
 		if (!container)
 		{
 			llwarns << "Cannot find People panel container" << llendl;
-			return;
+			return true;
 		}
 
 		if (container->getCurrentPanelIndex() > 0) 
@@ -1303,10 +1321,10 @@ void LLPanelPeople::notifyChildren(const LLSD& info)
 		else
 			LLSideTray::getInstance()->collapseSideBar();
 
-		return; // this notification is only supposed to be handled by task panels
+		return true; // this notification is only supposed to be handled by task panels
 	}
 
-	LLPanel::notifyChildren(info);
+	return LLPanel::notifyChildren(info);
 }
 
 void LLPanelPeople::showAccordion(const std::string name, bool show)

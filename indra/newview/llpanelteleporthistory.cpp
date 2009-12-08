@@ -38,6 +38,8 @@
 #include "llsidetray.h"
 #include "llworldmap.h"
 #include "llteleporthistorystorage.h"
+#include "lltextutil.h"
+
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llflatlistview.h"
@@ -57,7 +59,7 @@ static const std::string COLLAPSED_BY_USER = "collapsed_by_user";
 class LLTeleportHistoryFlatItem : public LLPanel
 {
 public:
-	LLTeleportHistoryFlatItem(S32 index, LLTeleportHistoryPanel::ContextMenu *context_menu, const std::string &region_name);
+	LLTeleportHistoryFlatItem(S32 index, LLTeleportHistoryPanel::ContextMenu *context_menu, const std::string &region_name, const std::string &hl);
 	virtual ~LLTeleportHistoryFlatItem() {};
 
 	virtual BOOL postBuild();
@@ -82,13 +84,15 @@ private:
 
 	S32 mIndex;
 	std::string mRegionName;
+	std::string mHighlight;
 };
 
-LLTeleportHistoryFlatItem::LLTeleportHistoryFlatItem(S32 index, LLTeleportHistoryPanel::ContextMenu *context_menu, const std::string &region_name)
+LLTeleportHistoryFlatItem::LLTeleportHistoryFlatItem(S32 index, LLTeleportHistoryPanel::ContextMenu *context_menu, const std::string &region_name, const std::string &hl)
 :	LLPanel(),
 	mIndex(index),
 	mContextMenu(context_menu),
-	mRegionName(region_name)
+	mRegionName(region_name),
+	mHighlight(hl)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_teleport_history_item.xml");
 }
@@ -96,8 +100,7 @@ LLTeleportHistoryFlatItem::LLTeleportHistoryFlatItem(S32 index, LLTeleportHistor
 //virtual
 BOOL LLTeleportHistoryFlatItem::postBuild()
 {
-	LLTextBox *region = getChild<LLTextBox>("region");
-	region->setValue(mRegionName);
+	LLTextUtil::textboxSetHighlightedVal(getChild<LLTextBox>("region"), LLStyle::Params(), mRegionName, mHighlight);
 
 	mProfileBtn = getChild<LLButton>("profile_btn");
         
@@ -316,11 +319,8 @@ void LLTeleportHistoryPanel::draw()
 // virtual
 void LLTeleportHistoryPanel::onSearchEdit(const std::string& string)
 {
-	if (sFilterSubString != string)
-	{
-		sFilterSubString = string;
-		showTeleportHistory();
-	}
+	sFilterSubString = string;
+	showTeleportHistory();
 }
 
 // virtual
@@ -521,7 +521,7 @@ void LLTeleportHistoryPanel::refresh()
 
 		if (curr_flat_view)
 		{
-			LLTeleportHistoryFlatItem* item = new LLTeleportHistoryFlatItem(mCurrentItem, &mContextMenu, items[mCurrentItem].mTitle);
+			LLTeleportHistoryFlatItem* item = new LLTeleportHistoryFlatItem(mCurrentItem, &mContextMenu, items[mCurrentItem].mTitle, mFilterSubString);
 			curr_flat_view->addItem(item);
 
 			if (mLastSelectedItemIndex == mCurrentItem)
@@ -568,7 +568,8 @@ void LLTeleportHistoryPanel::replaceItem(S32 removed_index)
 	const LLTeleportHistoryStorage::slurl_list_t& history_items = mTeleportHistory->getItems();
 	LLTeleportHistoryFlatItem* item = new LLTeleportHistoryFlatItem(history_items.size(), // index will be decremented inside loop below
 									&mContextMenu,
-									history_items[history_items.size() - 1].mTitle); // Most recent item, it was
+									history_items[history_items.size() - 1].mTitle, // Most recent item, it was
+									mFilterSubString);
 															 // added instead of removed
 	fv->addItem(item, LLUUID::null, ADD_TOP);
 

@@ -95,26 +95,14 @@ BOOL LLInventoryFilter::check(const LLFolderViewItem* item)
 		return TRUE;
 	}
 
-	const U16 HOURS_TO_SECONDS = 3600;
-	time_t earliest = time_corrected() - mFilterOps.mHoursAgo * HOURS_TO_SECONDS;
-	if (mFilterOps.mMinDate > time_min() && mFilterOps.mMinDate < earliest)
-	{
-		earliest = mFilterOps.mMinDate;
-	}
-	else if (!mFilterOps.mHoursAgo)
-	{
-		earliest = 0;
-	}
-
 	const LLFolderViewEventListener* listener = item->getListener();
 	mSubStringMatchOffset = mFilterSubString.size() ? item->getSearchableLabel().find(mFilterSubString) : std::string::npos;
 
 	const BOOL passed_filtertype = checkAgainstFilterType(item);
 	const BOOL passed = passed_filtertype &&
 		(mFilterSubString.size() == 0 || mSubStringMatchOffset != std::string::npos) &&
-		((listener->getPermissionMask() & mFilterOps.mPermissions) == mFilterOps.mPermissions) &&
-		(listener->getCreationDate() >= earliest && listener->getCreationDate() <= mFilterOps.mMaxDate);
-	
+		((listener->getPermissionMask() & mFilterOps.mPermissions) == mFilterOps.mPermissions);
+
 	return passed;
 }
 
@@ -131,6 +119,8 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item)
 
 	const U32 filterTypes = mFilterOps.mFilterTypes;
 
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_OBJECT
 	// Pass if this item's type is of the correct filter type
 	if (filterTypes & FILTERTYPE_OBJECT)
 	{
@@ -143,7 +133,12 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item)
 		if ((1LL << object_type & mFilterOps.mFilterObjectTypes) == U64(0))
 			return FALSE;
 	}
+	//
+	////////////////////////////////////////////////////////////////////////////////
 	
+	
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_CATEGORY
 	// Pass if this item is a category of the filter type, or
 	// if its parent is a category of the filter type.
 	if (filterTypes & FILTERTYPE_CATEGORY)
@@ -159,13 +154,43 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item)
 		if ((1LL << cat->getPreferredType() & mFilterOps.mFilterCategoryTypes) == U64(0))
 			return FALSE;
 	}
+	//
+	////////////////////////////////////////////////////////////////////////////////
 
+
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_UUID
 	// Pass if this item is the target UUID or if it links to the target UUID
 	if (filterTypes & FILTERTYPE_UUID)
 	{
 		if (object->getLinkedUUID() != mFilterOps.mFilterUUID)
 			return FALSE;
 	}
+	//
+	////////////////////////////////////////////////////////////////////////////////
+
+
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_DATE
+	// Pass if this item is within the date range.
+	if (filterTypes & FILTERTYPE_DATE)
+	{
+		const U16 HOURS_TO_SECONDS = 3600;
+		time_t earliest = time_corrected() - mFilterOps.mHoursAgo * HOURS_TO_SECONDS;
+		if (mFilterOps.mMinDate > time_min() && mFilterOps.mMinDate < earliest)
+		{
+			earliest = mFilterOps.mMinDate;
+		}
+		else if (!mFilterOps.mHoursAgo)
+		{
+			earliest = 0;
+		}
+		if (listener->getCreationDate() < earliest ||
+			listener->getCreationDate() > mFilterOps.mMaxDate)
+			return FALSE;
+	}
+	//
+	////////////////////////////////////////////////////////////////////////////////
 
 	return TRUE;
 }
@@ -359,6 +384,7 @@ void LLInventoryFilter::setDateRange(time_t min_date, time_t max_date)
 		mFilterOps.mMaxDate = llmax(mFilterOps.mMinDate, max_date);
 		setModified();
 	}
+	mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
 }
 
 void LLInventoryFilter::setDateRangeLastLogoff(BOOL sl)
@@ -373,12 +399,14 @@ void LLInventoryFilter::setDateRangeLastLogoff(BOOL sl)
 		setDateRange(0, time_max());
 		setModified();
 	}
+	mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
 }
 
 BOOL LLInventoryFilter::isSinceLogoff() const
 {
 	return (mFilterOps.mMinDate == (time_t)mLastLogoff) &&
-		(mFilterOps.mMaxDate == time_max());
+		(mFilterOps.mMaxDate == time_max()) &&
+		(mFilterOps.mFilterTypes & FILTERTYPE_DATE);
 }
 
 void LLInventoryFilter::clearModified()
@@ -410,7 +438,9 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 			setModified(FILTER_RESTART);
 		}
 	}
+	mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
 }
+
 void LLInventoryFilter::setShowFolderState(EFolderShow state)
 {
 	if (mFilterOps.mShowFolderState != state)
