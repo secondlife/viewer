@@ -81,7 +81,6 @@ public:
 		SType mSessionType;
 		LLUUID mOtherParticipantID;
 		std::vector<LLUUID> mInitialTargetIDs;
-		LLCallDialogManager* mCallDialogManager;
 
 		// connection to voice channel state change signal
 		boost::signals2::connection mVoiceChannelStateChangeConnection;
@@ -493,7 +492,16 @@ public:
 
 	static void onCancel(void* user_data);
 
+	// check timer state
+	/*virtual*/ void draw();
+
 private:
+	// lifetime timer for NO_ANSWER notification
+	LLTimer	mLifetimeTimer;
+	// lifetime duration for NO_ANSWER notification
+	static const S32 LIFETIME = 5;
+	bool lifetimeHasExpired();
+	void onLifetimeExpired();
 };
 
 // Globals
