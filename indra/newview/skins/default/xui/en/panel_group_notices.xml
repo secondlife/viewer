@@ -10,11 +10,9 @@
  width="310">
     <panel.string
      name="help_text">
-        Notices let you send a message and
-an optionally attached item. Notices only go to
-group members in Roles with the ability to
-receive Notices. You can turn off Notices on
-the General tab.
+        Notices let you send a message and an optionally attached item.
+Notices only go to group members in Roles with the ability to receive Notices.
+You can turn off Notices on the General tab.
     </panel.string>
     <panel.string
      name="no_notices_text">
@@ -31,7 +29,7 @@ the General tab.
      name="lbl2"
      top="5"
      width="300">
-     Notices are kept for 14 days
+     Notices are kept for 14 days.
 Maximum 200 per group daily
     </text>
     <scroll_list
@@ -192,7 +190,7 @@ Maximum 200 per group daily
          top_pad="15"
          word_wrap="true"
          width="150">
-            Drag here to attach something -- >
+            Drag and drop item here to attach it:
         </text>
         <icon
          height="72"
@@ -228,7 +226,7 @@ Maximum 200 per group daily
          left="10"
          layout="topleft"
          name="drop_target"
-         tool_tip="Drag an inventory item onto the message box to send it with the notice. You must have permission to copy and transfer the object to send it with the notice."
+         tool_tip="Drag an inventory item onto this target box to send it with this notice. You must have permission to copy and transfer the item in order to attach it."
          width="280" />
    </panel>
     <panel
