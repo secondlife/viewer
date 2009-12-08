@@ -266,6 +266,11 @@ public:
 	static bool canLogToIM(const LLNotificationPtr& notification);
 
 	/**
+	 * Checks sufficient conditions to spawn IM session.
+	 */
+	static bool canSpawnIMSession(const LLNotificationPtr& notification);
+
+	/**
 	 * Writes notification message to IM session.
 	 */
 	static void logToIM(const EInstantMessage& session_type,

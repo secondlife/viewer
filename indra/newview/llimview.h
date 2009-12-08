@@ -48,6 +48,7 @@ class LLFloaterChatterBox;
 class LLUUID;
 class LLFloaterIMPanel;
 class LLFriendObserver;
+class LLCallDialogManager;	
 
 class LLIMModel :  public LLSingleton<LLIMModel>
 {
@@ -55,12 +56,20 @@ public:
 
 	struct LLIMSession
 	{
+		typedef enum e_session_type
+		{   // for now we have 4 predefined types for a session
+			P2P_SESSION,
+			GROUP_SESSION,
+			ADHOC_SESSION,
+			AVALINE_SESSION,
+		} SType;
+
 		LLIMSession(const LLUUID& session_id, const std::string& name, 
 			const EInstantMessage& type, const LLUUID& other_participant_id, const std::vector<LLUUID>& ids);
 		virtual ~LLIMSession();
 
 		void sessionInitReplyReceived(const LLUUID& new_session_id);
-
+		void setSessionType(); //define what type of session was opened
 		void addMessagesFromHistory(const std::list<LLSD>& history);
 		void addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time);
 		void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
@@ -69,13 +78,18 @@ public:
 		LLUUID mSessionID;
 		std::string mName;
 		EInstantMessage mType;
+		SType mSessionType;
 		LLUUID mOtherParticipantID;
 		std::vector<LLUUID> mInitialTargetIDs;
+		LLCallDialogManager* mCallDialogManager;
 
 		// connection to voice channel state change signal
 		boost::signals2::connection mVoiceChannelStateChangeConnection;
 
-		//does NOT include system messages
+		//does NOT include system messages and agent's messages
+		S32 mParticipantUnreadMessageCount;
+
+		// does include all incoming messages
 		S32 mNumUnread;
 
 		std::list<LLSD> mMsgs;
@@ -319,8 +333,13 @@ public:
 	// IM received that you haven't seen yet
 	BOOL getIMReceived() const;
 
-	// Calc number of unread IMs
+	// Calc number of all unread IMs
 	S32 getNumberOfUnreadIM();
+
+	/**
+	 * Calculates number of unread IMs from real participants in all stored sessions
+	 */
+	S32 getNumberOfUnreadParticipantMessages();
 
 	// This method is used to go through all active sessions and
 	// disable all of them. This method is usally called when you are
@@ -419,7 +438,36 @@ private:
 	LLSD mPendingAgentListUpdates;
 };
 
-class LLIncomingCallDialog : public LLDockableFloater
+class LLCallDialogManager : public LLInitClass<LLCallDialogManager>
+{
+public:
+	LLCallDialogManager();
+	~LLCallDialogManager();
+
+	static void initClass();
+	static void onVoiceChannelChanged(const LLUUID &session_id);
+	static void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
+
+protected:
+	static std::string sPreviousSessionlName;
+	static std::string sCurrentSessionlName;
+	static LLIMModel::LLIMSession* sSession;
+};
+
+class LLCallDialog : public LLDockableFloater
+{
+public:
+	LLCallDialog(const LLSD& payload);
+	~LLCallDialog() {}
+
+	virtual void onOpen(const LLSD& key);
+
+protected:
+	virtual void getAllowedRect(LLRect& rect);
+	LLSD mPayload;
+};
+
+class LLIncomingCallDialog : public LLCallDialog
 {
 public:
 	LLIncomingCallDialog(const LLSD& payload);
@@ -433,12 +481,9 @@ public:
 
 private:
 	void processCallResponse(S32 response);
-	void getAllowedRect(LLRect& rect);
-
-	LLSD mPayload;
 };
 
-class LLOutgoingCallDialog : public LLDockableFloater
+class LLOutgoingCallDialog : public LLCallDialog
 {
 public:
 	LLOutgoingCallDialog(const LLSD& payload);
@@ -449,9 +494,6 @@ public:
 	static void onCancel(void* user_data);
 
 private:
-	void getAllowedRect(LLRect& rect);
-
-	LLSD mPayload;
 };
 
 // Globals

@@ -45,8 +45,7 @@
          name="Second Life Help"
          shortcut="F1">
             <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="help f1" />
+             function="ShowHelp" />
         </menu_item_call>
         <menu_item_separator />
         <menu_item_call

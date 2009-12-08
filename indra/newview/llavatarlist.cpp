@@ -262,9 +262,18 @@ void LLAvatarList::refresh()
 	bool dirty = add_limit_exceeded || (have_filter && !have_names);
 	setDirty(dirty);
 
-	// Refreshed all items, lets send refresh_complete signal.
+	// Refreshed all items.
 	if(!dirty)
 	{
+		// Highlight items matching the filter.
+		std::vector<LLPanel*> items;
+		getItems(items);
+		for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
+		{
+			static_cast<LLAvatarListItem*>(*it)->setHighlight(mNameFilter);
+		}
+
+		// Send refresh_complete signal.
 		std::vector<LLSD> cur_values;
 		getValues(cur_values);
 		mRefreshCompleteSignal(this, LLSD((S32)cur_values.size()));

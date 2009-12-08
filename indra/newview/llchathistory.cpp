@@ -211,6 +211,10 @@ public:
 		{
 			icon->setValue(chat.mFromID);
 		}
+		else if (userName->getValue().asString()==LLTrans::getString("SECOND_LIFE"))
+		{
+			icon->setValue(LLSD("SL_Logo"));
+		}
 
 	} 
 

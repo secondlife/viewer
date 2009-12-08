@@ -53,10 +53,6 @@ public:
     /*virtual*/ BOOL postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
 
-	static void onClickBack(void* user_data);
-	static void onClickForward(void* user_data);
-	static void onClickHome(void* user_data);
-
 private:
 	// inherited from LLViewerMediaObserver
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event);

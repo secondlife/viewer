@@ -40,8 +40,7 @@ const S32 LLToastIMPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 6;
 //--------------------------------------------------------------------------
 LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notification),
 															mAvatar(NULL), mUserName(NULL),
-															mTime(NULL), mMessage(NULL),
-															mReplyBtn(NULL)
+															mTime(NULL), mMessage(NULL)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_instant_message.xml");
 
@@ -50,7 +49,6 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	mUserName = getChild<LLTextBox>("user_name");
 	mTime = getChild<LLTextBox>("time_box");
 	mMessage = getChild<LLTextBox>("message");
-	mReplyBtn = getChild<LLButton>("reply");	
 
 	LLStyle::Params style_params;
 	style_params.font.name(LLFontGL::nameFromFont(style_params.font));
@@ -76,18 +74,10 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	mSessionID = p.session_id;
 	mNotification = p.notification;
 
-	// if message comes from the system - there shouldn't be a reply btn
 	if(p.from == SYSTEM_FROM)
 	{
 		mAvatar->setVisible(FALSE);
 		sys_msg_icon->setVisible(TRUE);
-
-		mReplyBtn->setVisible(FALSE);
-		S32 btn_height = mReplyBtn->getRect().getHeight();
-		LLRect msg_rect = mMessage->getRect();
-		mMessage->reshape(msg_rect.getWidth(), msg_rect.getHeight() + btn_height);
-		msg_rect.setLeftTopAndSize(msg_rect.mLeft, msg_rect.mTop, msg_rect.getWidth(), msg_rect.getHeight() + btn_height);
-		mMessage->setRect(msg_rect);
 	}
 	else
 	{
@@ -95,7 +85,7 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 		sys_msg_icon->setVisible(FALSE);
 
 		mAvatar->setValue(p.avatar_id);
-		mReplyBtn->setClickedCallback(boost::bind(&LLToastIMPanel::onClickReplyBtn, this));
+		setMouseDownCallback(boost::bind(&LLToastIMPanel::onClickToastIM, this));
 	}
 
 	S32 maxLinesCount;
@@ -113,7 +103,7 @@ LLToastIMPanel::~LLToastIMPanel()
 }
 
 //--------------------------------------------------------------------------
-void LLToastIMPanel::onClickReplyBtn()
+void LLToastIMPanel::onClickToastIM()
 {
 	mNotification->respond(mNotification->getResponseTemplate());
 }

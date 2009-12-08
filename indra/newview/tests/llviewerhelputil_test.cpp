@@ -36,6 +36,7 @@
 #include "../test/lltut.h"
 
 #include "../llviewerhelputil.h"
+#include "../llversioninfo.h"
 #include "llcontrol.h"
 #include "llsys.h"
 
@@ -73,6 +74,16 @@ void LLControlGroup::setString(const std::string& name, const std::string& val)
 std::string LLControlGroup::getString(const std::string& name)
 {
 	return test_stringvec[name];
+}
+
+S32 LLVersionInfo::getMajor() { return 2; }
+S32 LLVersionInfo::getMinor() { return 0; }
+S32 LLVersionInfo::getPatch() { return 0; }
+S32 LLVersionInfo::getBuild() { return 200099; }
+const std::string &LLVersionInfo::getVersion()
+{
+	static std::string version = "2.0.0.200099";
+	return version;
 }
 
 //----------------------------------------------------------------------------

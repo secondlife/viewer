@@ -96,6 +96,7 @@ private:
 //	static bool newAccountAlertCallback(const LLSD& notification, const LLSD& response);
 	static void onClickVersion(void*);
 	static void onClickForgotPassword(void*);
+	static void onClickHelp(void*);
 	static void onPassKey(LLLineEditor* caller, void* user_data);
 	static void onSelectServer(LLUICtrl*, void*);
 	static void onServerComboLostFocus(LLFocusableElement*);

@@ -103,6 +103,11 @@ public:
     LLPanel*	getActivePanel	();
     bool		isPanelActive	(const std::string& panel_name);
 	/*
+	 * get currently active tab
+	 */
+    const LLSideTrayTab*	getActiveTab() const { return mActiveTab; }
+
+	/*
      * collapse SideBar, hiding visible tab and moving tab buttons
      * to the right corner of the screen
      */
