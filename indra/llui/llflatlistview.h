@@ -283,7 +283,7 @@ public:
 	void selectFirstItem	();
 	void selectLastItem		();
 
-	virtual void	notify(const LLSD& info) ;
+	virtual S32	notify(const LLSD& info) ;
 
 protected:
 

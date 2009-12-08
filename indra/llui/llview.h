@@ -511,10 +511,15 @@ public:
 	virtual void	handleReshape(const LLRect& rect, bool by_user);
 	virtual void	dirtyRect();
 
-	virtual void	notifyParent(const LLSD& info);
-	virtual void	notifyChildren(const LLSD& info);
+	//send custom notification to LLView parent
+	virtual S32	notifyParent(const LLSD& info);
 
-	virtual void	notify(const LLSD& info) {};
+	//send custom notification to all view childrend
+	// return true if _any_ children return true. otherwise false.
+	virtual bool	notifyChildren(const LLSD& info);
+
+	//send custom notification to current view
+	virtual S32	notify(const LLSD& info) { return 0;};
 
 	static const LLViewDrawContext& getDrawContext();
 

@@ -16,13 +16,11 @@
  minimize_image="Icon_Minimize_Foreground"
  tear_off_image="tearoffbox.tga"
  dock_image="Icon_Dock_Foreground"
- undock_image="Icon_Undock_Foreground"
  help_image="Icon_Help_Foreground"
  close_pressed_image="Icon_Close_Press"
  restore_pressed_image="Icon_Restore_Press"
  minimize_pressed_image="Icon_Minimize_Press"
  tear_off_pressed_image="tearoff_pressed.tga"
  dock_pressed_image="Icon_Dock_Press"
- undock_pressed_image="Icon_Undock_Press"
  help_pressed_image="Icon_Help_Press"
   />

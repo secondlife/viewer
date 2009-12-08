@@ -89,3 +89,8 @@ S32 LLNotificationsUtil::getSelectedOption(const LLSD& notification, const LLSD&
 {
 	return LLNotification::getSelectedOption(notification, response);
 }
+
+void LLNotificationsUtil::cancel(LLNotificationPtr pNotif)
+{
+	LLNotifications::instance().cancel(pNotif);
+}

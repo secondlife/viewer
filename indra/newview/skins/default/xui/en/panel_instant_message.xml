@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  background_visible="true"
- height="175"
+ height="152"
  label="im_panel"
  layout="topleft"
  left="0"
@@ -83,13 +83,4 @@
      width="285"
      word_wrap="true"
      max_length="350" />
-    <button
-     follows="bottom"
-     height="23"
-     label="Reply"
-     layout="topleft"
-     left="100"
-     name="reply"
-     top="144"
-     width="100" />
 </panel>

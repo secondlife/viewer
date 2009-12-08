@@ -88,6 +88,15 @@ public:
 	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
 	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 
+	//Fading
+
+	/** Stop fading timer */
+	virtual void stopFading();
+
+	/** Start fading timer */
+	virtual void startFading();
+
+
 	// Operating with toasts
 	// insert a panel to a toast
 	void insertPanel(LLPanel* panel);

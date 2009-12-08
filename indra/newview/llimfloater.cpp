@@ -237,7 +237,6 @@ BOOL LLIMFloater::postBuild()
 
 	mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + session_name);
 
-	LLStringUtil::toUpper(session_name);
 	setTitle(session_name);
 
 	childSetCommitCallback("chat_editor", onSendMsg, this);
