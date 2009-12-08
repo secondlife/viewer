@@ -69,48 +69,11 @@ BOOL LLPanelHome::postBuild()
 		mBrowser->addObserver(this);
 		mBrowser->setTrusted(true);
 		mBrowser->setHomePageUrl(url);
-
-		childSetAction("back", onClickBack, this);
-		childSetAction("forward", onClickForward, this);
-		childSetAction("home", onClickHome, this);
 	}
 
     return TRUE;
 }
 
-//static 
-void LLPanelHome::onClickBack(void* user_data)
-{
-	LLPanelHome *self = (LLPanelHome*)user_data;
-	if (self && self->mBrowser)
-	{
-		self->mBrowser->navigateBack();
-	}
-}
-
-//static 
-void LLPanelHome::onClickForward(void* user_data)
-{
-	LLPanelHome *self = (LLPanelHome*)user_data;
-	if (self && self->mBrowser)
-	{
-		self->mBrowser->navigateForward();
-	}
-}
-
-//static 
-void LLPanelHome::onClickHome(void* user_data)
-{
-	LLPanelHome *self = (LLPanelHome*)user_data;
-	if (self && self->mBrowser)
-	{
-		self->mBrowser->navigateHome();
-	}
-}
-
 void LLPanelHome::handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event)
 {
-	// update back/forward button state
-	childSetEnabled("back", mBrowser->canNavigateBack());
-	childSetEnabled("forward", mBrowser->canNavigateForward());
 }
