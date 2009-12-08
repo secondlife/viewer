@@ -62,6 +62,7 @@ const F32 LLFolderViewItem::FOLDER_OPEN_TIME_CONSTANT = 0.03f;
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
 
+
 //static
 LLFontGL* LLFolderViewItem::getLabelFontForStyle(U8 style)
 {
@@ -387,7 +388,9 @@ BOOL LLFolderViewItem::addToFolder(LLFolderViewFolder* folder, LLFolderView* roo
 // makes sure that this view and it's children are the right size.
 S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
 {
-	mIndentation = getParentFolder() && getParentFolder()->getParentFolder() 
+	mIndentation = (getParentFolder() 
+					&& getParentFolder()->getParentFolder() 
+					&& getParentFolder()->getParentFolder()->getParentFolder())
 		? mParentFolder->getIndentation() + LEFT_INDENTATION 
 		: 0;
 	if (mLabelWidthDirty)
@@ -2144,12 +2147,6 @@ BOOL LLFolderViewFolder::handleHover(S32 x, S32 y, MASK mask)
 		handled = LLFolderViewItem::handleHover(x, y, mask);
 	}
 
-	//if(x < LEFT_INDENTATION + mIndentation && x > mIndentation - LEFT_PAD && y > getRect().getHeight() - )
-	//{
-	//	gViewerWindow->setCursor(UI_CURSOR_ARROW);
-	//	mExpanderHighlighted = TRUE;
-	//	handled = TRUE;
-	//}
 	return handled;
 }
 
@@ -2162,7 +2159,7 @@ BOOL LLFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
 	}
 	if( !handled )
 	{
-		if(x < LEFT_INDENTATION + mIndentation && x > mIndentation - LEFT_PAD)
+		if(mIndentation < x && x < mIndentation + ARROW_SIZE + TEXT_PAD)
 		{
 			toggleOpen();
 			handled = TRUE;
@@ -2196,7 +2193,7 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 	}
 	if( !handled )
 	{
-		if(x < LEFT_INDENTATION + mIndentation && x > mIndentation - LEFT_PAD)
+		if(mIndentation < x && x < mIndentation + ARROW_SIZE + TEXT_PAD)
 		{
 			// don't select when user double-clicks plus sign
 			// so as not to contradict single-click behavior
