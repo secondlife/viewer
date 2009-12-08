@@ -380,7 +380,6 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		mPostData["description"],
 		content,
 		expected_upload_cost);
-			LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
 
 	// continue uploading for bulk uploads
 
