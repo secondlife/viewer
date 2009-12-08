@@ -446,7 +446,9 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars
 		// for the last character we want to measure the greater of its width and xadvance values
 		// so keep track of the difference between these values for the each character we measure
 		// so we can fix things up at the end
-		width_padding = llmax(0.f, (F32)fgi->mWidth - advance);
+		width_padding = llmax(	0.f,											// always use positive padding amount
+								width_padding - advance,						// previous padding left over after advance of current character
+								(F32)(fgi->mWidth + fgi->mXBearing) - advance);	// difference between width of this character and advance to next character
 
 		cur_x += advance;
 		llwchar next_char = wchars[i+1];

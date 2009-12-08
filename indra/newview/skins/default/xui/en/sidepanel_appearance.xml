@@ -1,111 +1,177 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-	  background_visible="true"
-	  follows="all"
-	  height="400"
-	  label="Appearance"
-	  layout="topleft"
-	  min_height="350"
-	  min_width="240"
-	  name="appearance panel"
-	  width="333">
-	 <string
-      name="No Outfit"
-	  value="No Outfit" />
-     <panel
-		 left="5" width="320" height="55"
-		 background_visible="true"
-		 background_opaque="false"
-		 bg_alpha_color="0.2 0.2 0.2 1.0"
-		 name="panel_currentlook"
-		 follows="left|top|right">
-  	    <button
-  	     	 follows="left|right|top"
-  	     	 font="SansSerif"
-  	     	 top="28" right="-10" width="60" height="20"
-  	     	 layout="topleft"
-  		 	 label="Edit"
-  	     	 name="editappearance_btn"/>
-        <button
-	     follows="left|right|top"
-		 top="28" left="5" width="25" height="22"
-	     image_overlay="Inv_LookFolderOpen"
-	     layout="topleft"
-		 name="openoutfit_btn"
-	     picture_style="true" />
-		<text
-			 top="10" width="150" left="5" height="15" follows="left|right|top"
-			 layout="topleft"
-        	 font="SansSerif" text_color="LtGray" word_wrap="true"
-        	 mouse_opaque="false" name="currentlook_title">
-					Current Outfit:
-    	</text>
-  		<text
-			 top="32" width="150" left="32" height="15" follows="left|right|top"
-			 layout="topleft"
-      		 font="SansSerifBold" text_color="white" word_wrap="true"
-      		 mouse_opaque="false" name="currentlook_name" >
-					MyOutfit
-  		</text>
-	</panel>
-
+background_visible="true"
+ follows="all"
+ height="570"
+  label="My Appearance"
+  layout="topleft"
+ min_height="350"
+  name="appearance panel"
+ width="333">
+ <string
+name="No Outfit"
+value="No Outfit" />
+<panel
+ left="0"
+ top="0"
+ follows="top|left"
+layout="topleft"
+ width="333"
+ height="45"
+ background_visible="true"
+ background_opaque="false"
+ bg_alpha_color="MouseGray"
+ name="panel_currentlook"
+ >
+<button
+   follows="left|top"
+        top="0"  width="1" height="1"
+        layout="topleft"
+	left="0"
+        name="editappearance_btn" />
+   <button
+   follows="left|top"
+        top="0"  width="1" height="1"
+        layout="topleft"
+	left="3"
+ name="openoutfit_btn" />
+<icon
+ follows="top|left"
+ height="30"
+ image_name="TabIcon_Appearance_Off"
+ name="outfit_icon"
+ mouse_opaque="false"
+ visible="true"
+ left="5"
+ top="0"
+ width="30" />
+<text
+ width="292"
+ height="22"
+follows="top|left"
+ layout="topleft"
+ left_pad="5"
+font="SansSerifLarge"
+font.style="BOLD"
+word_wrap="false"
+use_ellipses="true"
+mouse_opaque="false"
+ text_color="white"
+ name="currentlook_name">
+MyOutfit With a really Long Name like MOOSE
+    </text>
+  <text
+width="290"
+left="40"
+height="1"
+follows="top|left"
+ layout="topleft"
+ top_pad="-2"
+mouse_opaque="false"
+ name="currentlook_title" >
+(now wearing)
+  </text>
+</panel>
     <filter_editor
-  	     follows="left|top|right"
-  	     font="SansSerif"
-  	     label="Filter"
-  	     layout="topleft"
-  	     left="15" 
-		 width="313"
-		 height="20"
-  	     name="Filter" />
+     follows="top|left"
+     height="23"
+     layout="topleft"
+     left="15"
+     label="Filter"
+     max_length="300"
+     name="Filter"
+     top_pad="7"
+     width="303" />
     <panel
-   	     class="panel_outfits_inventory"
-   	     filename="panel_outfits_inventory.xml"
- 	     name="panel_outfits_inventory"
-  	     follows="all"
-  	     height="271"
-  	     halign="center"
-  	     layout="topleft"
-  	     left="10"
-  	     top_pad="19"
-  	     width="313" />
+     follows="top|left"
+     halign="center"
+     height="500"
+     layout="topleft"
+    class="panel_outfits_inventory"
+      filename="panel_outfits_inventory.xml"
+      name="panel_outfits_inventory"
+     min_height="300"
+      left="0"
+      top_pad="3"
+	width="333"
+       />
+   <panel
+     background_visible="true"
+     follows="top|left"
+     height="19"
+     layout="topleft"
+     left="0"
+     visible="true"
+     name="bottom_panel"
+     width="333">
+        <button
+         follows="bottom|left"
+         tool_tip="Show additional options"
+         height="18"
+         image_disabled="OptionsMenu_Disabled"
+         image_selected="OptionsMenu_Press"
+         image_unselected="OptionsMenu_Off"
+         layout="topleft"
+         left="10"
+         name="options_gear_btn"
+         top="6"
+         width="18" />
+        <button
+         follows="bottom|left"
+         height="18"
+         image_selected="AddItem_Press"
+         image_unselected="AddItem_Off"
+         image_disabled="AddItem_Disabled"
+         layout="topleft"
+         left_pad="5"
+         name="add_btn"
+         tool_tip="Add new item"
+         width="18" />
+        <dnd_button
+         follows="bottom|left"
+         height="18"
+         image_selected="TrashItem_Press"
+         image_unselected="TrashItem_Off"
+         layout="topleft"
+         right="-5"
+         name="trash_btn"
+         tool_tip="Remove selected item"
+         top="6"
+         width="18" />
     <button
-  	     follows="bottom|left"
-  	     height="25"
-  	     label="Wear"
-  	     layout="topleft"
-  	     left="10"
-  	     name="wear_btn"
-     	 top_pad="0"
-       	 width="80" />
-    <button
-    	 follows="bottom|left"
-  	     height="25"
-  	     label="New Outfit"
-  	     layout="topleft"
-  	     left_pad="0"
-  	     name="newlook_btn"
-  	     top_delta="0"
-   	     width="90" />
-
-	<panel
-       	 class="panel_look_info"
-       	 filename="panel_look_info.xml"
-       	 follows="all"
-       	 layout="topleft"
-       	 left="0"
-       	 name="panel_look_info"
-       	 top="-200"
-       	 visible="false" />
-
-	<panel
-	   	 class="panel_edit_wearable"
-	   	 filename="panel_edit_wearable.xml"
-	   	 follows="all"
-	   	 layout="topleft"
-	   	 left="0"
-	   	 name="panel_edit_wearable"
-	   	 top="-200"
-	   	 visible="false"
-	   	 width="333" />
+     follows="top|left"
+       height="23"
+       label="Wear"
+       layout="topleft"
+       name="wear_btn"
+       right="-5"
+       top_pad="0"
+        width="90" />
+    </panel>
+ <!--   <button
+     follows="bottom|left"
+       height="23"
+       label="New outfit"
+       layout="topleft"
+       left_pad="5"
+       right="-10"
+       name="newlook_btn"
+        width="100" />-->
+<panel
+        class="panel_look_info"
+        filename="panel_look_info.xml"
+        follows="all"
+        layout="topleft"
+        left="0"
+        name="panel_look_info"
+        visible="false" />
+<panel
+    class="panel_edit_wearable"
+    filename="panel_edit_wearable.xml"
+    follows="all"
+    layout="topleft"
+    left="0"
+    name="panel_edit_wearable"
+    visible="false"
+    width="333" />
 </panel>
