@@ -1003,8 +1003,6 @@ static void filter_list(LLInventorySubTreePanel* inventory_list, const std::stri
 		inventory_list->restoreFolderState();
 	}
 
-	gInventory.startBackgroundFetch();
-
 	if (inventory_list->getFilterSubString().empty() && string.empty())
 	{
 		// current filter and new filter empty, do nothing
