@@ -327,7 +327,7 @@ void LLLandmarksPanel::initFavoritesInventoryPanel()
 	mFavoritesInventoryPanel = getChild<LLInventorySubTreePanel>("favorites_list");
 
 	initLandmarksPanel(mFavoritesInventoryPanel);
-
+	mFavoritesInventoryPanel->getFilter()->setEmptyLookupMessage("FavoritesNoMatchingItems");
 	initAccordion("tab_favorites", mFavoritesInventoryPanel);
 }
 

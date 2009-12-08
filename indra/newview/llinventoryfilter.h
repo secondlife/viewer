@@ -74,13 +74,6 @@ public:
 	virtual ~LLInventoryFilter();
 
 	// +-------------------------------------------------------------------+
-	// + Execution And Results
-	// +-------------------------------------------------------------------+
-	BOOL 				check(const LLFolderViewItem* item);
-	BOOL 				checkAgainstFilterType(const LLFolderViewItem* item);
-	std::string::size_type getStringMatchOffset() const;
-
-	// +-------------------------------------------------------------------+
 	// + Parameters
 	// +-------------------------------------------------------------------+
 	void 				setFilterObjectTypes(U64 types);
@@ -104,11 +97,24 @@ public:
 	void 				setHoursAgo(U32 hours);
 	U32 				getHoursAgo() const;
 
+	// +-------------------------------------------------------------------+
+	// + Execution And Results
+	// +-------------------------------------------------------------------+
+	BOOL 				check(const LLFolderViewItem* item);
+	BOOL 				checkAgainstFilterType(const LLFolderViewItem* item);
+	std::string::size_type getStringMatchOffset() const;
+
+	// +-------------------------------------------------------------------+
+	// + Presentation
+	// +-------------------------------------------------------------------+
 	void 				setShowFolderState( EFolderShow state);
 	EFolderShow 		getShowFolderState() const;
 
 	void 				setSortOrder(U32 order);
 	U32 				getSortOrder() const;
+
+	void 				setEmptyLookupMessage(const std::string& message);
+	const std::string&	getEmptyLookupMessage() const;
 
 	// +-------------------------------------------------------------------+
 	// + Status
@@ -188,6 +194,7 @@ private:
 	BOOL 					mModified;
 	BOOL 					mNeedTextRebuild;
 	std::string 			mFilterText;
+	std::string 			mEmptyLookupMessage;
 };
 
 #endif

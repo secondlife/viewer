@@ -63,7 +63,8 @@ LLInventoryFilter::FilterOps::FilterOps() :
 LLInventoryFilter::LLInventoryFilter(const std::string& name)
 :	mName(name),
 	mModified(FALSE),
-	mNeedTextRebuild(TRUE)
+	mNeedTextRebuild(TRUE),
+	mEmptyLookupMessage("InventoryNoMatchingItems")
 {
 	mOrder = SO_FOLDERS_BY_NAME; // This gets overridden by a pref immediately
 
@@ -860,4 +861,15 @@ S32 LLInventoryFilter::getMinRequiredGeneration() const
 S32 LLInventoryFilter::getMustPassGeneration() const 
 { 
 	return mMustPassGeneration; 
+}
+
+void LLInventoryFilter::setEmptyLookupMessage(const std::string& message)
+{
+	mEmptyLookupMessage = message;
+}
+
+const std::string& LLInventoryFilter::getEmptyLookupMessage() const
+{
+	return mEmptyLookupMessage;
+
 }
