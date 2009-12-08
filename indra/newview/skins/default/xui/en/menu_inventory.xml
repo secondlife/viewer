@@ -340,6 +340,33 @@
          parameter="open" />
     </menu_item_call>
     <menu_item_call
+     label="Replace Current Outfit"
+     layout="topleft"
+     name="Replace Outfit">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="replaceoutfit" />
+    </menu_item_call>
+    <menu_item_call
+     label="Add To Current Outfit"
+     layout="topleft"
+     name="Add To Outfit">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="addtooutfit" />
+    </menu_item_call>
+    <menu_item_call
+     label="Remove From Current Outfit"
+     layout="topleft"
+     name="Remove From Outfit">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="removefromoutfit" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft"
+     name="Outfit Separator" />
+    <menu_item_call
      label="Purge Item"
      layout="topleft"
      name="Purge Item">
@@ -433,30 +460,6 @@
     </menu_item_call>
     <menu_item_separator
      layout="topleft" />
-    <menu_item_call
-     label="Remove From Outfit"
-     layout="topleft"
-     name="Remove From Outfit">
-        <menu_item_call.on_click
-         function="Inventory.DoToSelected"
-         parameter="removefromoutfit" />
-    </menu_item_call>
-    <menu_item_call
-     label="Add To Outfit"
-     layout="topleft"
-     name="Add To Outfit">
-        <menu_item_call.on_click
-         function="Inventory.DoToSelected"
-         parameter="addtooutfit" />
-    </menu_item_call>
-    <menu_item_call
-     label="Replace Outfit"
-     layout="topleft"
-     name="Replace Outfit">
-        <menu_item_call.on_click
-         function="Inventory.DoToSelected"
-         parameter="replaceoutfit" />
-    </menu_item_call>
     <menu_item_separator
      layout="topleft" />
     <menu_item_call
