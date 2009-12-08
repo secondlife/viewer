@@ -415,6 +415,7 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 	if(channel)
 	{
 		channel->updateShowToastsState();
+		channel->redrawToasts();
 	}
 }
 

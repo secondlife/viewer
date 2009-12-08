@@ -265,6 +265,9 @@ private:
 	// create the StartUp Toast
 	void	createStartUpToast(S32 notif_num, F32 timer);
 
+	/**
+	 * Notification channel and World View ratio(0.0 - always show 1 notification, 1.0 - max ratio).
+	 */
 	static F32 getHeightRatio();
 
 	// Channel's flags

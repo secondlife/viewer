@@ -189,6 +189,7 @@ void LLSysWellWindow::setDocked(bool docked, bool pop_on_undock)
 	if(mChannel)
 	{
 		mChannel->updateShowToastsState();
+		mChannel->redrawToasts();
 	}
 }
 

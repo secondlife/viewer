@@ -375,12 +375,6 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 	}
 }
 
-void LLScreenChannel::onVisibleChanged(LLUICtrl* ctrl, const LLSD& param)
-{
-	updateShowToastsState();
-	redrawToasts();
-}
-
 //--------------------------------------------------------------------------
 void LLScreenChannel::redrawToasts()
 {
@@ -446,17 +440,11 @@ void LLScreenChannel::showToastsBottom()
 
 		if( !(*it).toast->getVisible() )
 		{
-			if((*it).toast->isFirstLook())
-			{
-				(*it).toast->setVisible(TRUE);
-			}
-			else
-			{
-				// HACK
-				// EXT-2653: it is necessary to prevent overlapping for secondary showed toasts
-				(*it).toast->setVisible(TRUE);
-				gFloaterView->sendChildToBack((*it).toast);
-			}
+			// HACK
+			// EXT-2653: it is necessary to prevent overlapping for secondary showed toasts
+			(*it).toast->setVisible(TRUE);
+			// Show toast behind floaters. (EXT-3089)
+			gFloaterView->sendChildToBack((*it).toast);
 		}		
 	}
 
@@ -774,7 +762,7 @@ void LLScreenChannel::onToastHover(LLToast* toast, bool mouse_enter)
 //--------------------------------------------------------------------------
 void LLScreenChannel::updateShowToastsState()
 {
-	LLFloater* floater = LLDockableFloater::getInstanceHandle().get();
+	LLDockableFloater* floater = dynamic_cast<LLDockableFloater*>(LLDockableFloater::getInstanceHandle().get());
 
 	if(!floater)
 	{
@@ -791,7 +779,8 @@ void LLScreenChannel::updateShowToastsState()
 		LLRect this_rect = getRect();
 		if(floater->getVisible() && floater->isDocked())
 		{
-			channel_bottom = floater->getRect().mTop + gSavedSettings.getS32("ToastGap");
+			channel_bottom += floater->getRect().getHeight();
+			channel_bottom += floater->getDockControl()->getTongueHeight();
 		}
 
 		if(channel_bottom != this_rect.mBottom)

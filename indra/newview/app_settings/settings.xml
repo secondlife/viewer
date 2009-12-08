@@ -5033,7 +5033,7 @@
     <key>NotificationChannelHeightRatio</key>
     <map>
       <key>Comment</key>
-      <string>TODO</string>
+      <string>Notification channel and World View ratio(0.0 - always show 1 notification, 1.0 - max ratio).</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
