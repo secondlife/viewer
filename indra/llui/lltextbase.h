@@ -136,7 +136,6 @@ public:
 	// TODO: move into LLTextSegment?
 	void					createUrlContextMenu(S32 x, S32 y, const std::string &url); // create a popup context menu for the given Url
 
-
 	// Text accessors
 	// TODO: add optional style parameter
 	virtual void			setText(const LLStringExplicit &utf8str , const LLStyle::Params& input_params = LLStyle::Params()); // uses default style
@@ -148,6 +147,8 @@ public:
 	LLWString       		getWText() const;
 
 	void					appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params = LLStyle::Params());
+	// force reflow of text
+	void					needsReflow() { mReflowNeeded = TRUE; }
 
 	S32						getLength() const { return getWText().length(); }
 	S32						getLineCount() const { return mLineInfoList.size(); }
@@ -161,7 +162,6 @@ public:
 
 	S32						getVPad() { return mVPad; }
 	S32						getHPad() { return mHPad; }
-
 
 	S32						getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const;
 	LLRect					getLocalRectFromDocIndex(S32 pos) const;
@@ -179,6 +179,7 @@ public:
 	void					endOfDoc();
 	void					changePage( S32 delta );
 	void					changeLine( S32 delta );
+
 
 	const LLFontGL*			getDefaultFont() const					{ return mDefaultFont; }
 
@@ -303,7 +304,6 @@ protected:
 
 	// misc
 	void							updateRects();
-	void							needsReflow() { mReflowNeeded = TRUE; }
 	void							needsScroll() { mScrollNeeded = TRUE; }
 	void							replaceUrlLabel(const std::string &url, const std::string &label);
 
@@ -426,6 +426,7 @@ class LLNormalTextSegment : public LLTextSegment
 public:
 	LLNormalTextSegment( const LLStyleSP& style, S32 start, S32 end, LLTextBase& editor );
 	LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
+	~LLNormalTextSegment();
 
 	/*virtual*/ bool				getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	/*virtual*/ S32					getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
@@ -457,6 +458,7 @@ protected:
 	S32					mFontHeight;
 	LLKeywordToken* 	mToken;
 	std::string     	mTooltip;
+	boost::signals2::connection mImageLoadedConnection;
 };
 
 class LLIndexSegment : public LLTextSegment

@@ -2207,6 +2207,12 @@ LLNormalTextSegment::LLNormalTextSegment( const LLStyleSP& style, S32 start, S32
 	mEditor(editor)
 {
 	mFontHeight = llceil(mStyle->getFont()->getLineHeight());
+
+	LLUIImagePtr image = mStyle->getImage();
+	if (image.notNull())
+	{
+		mImageLoadedConnection = image->addLoadedCallback(boost::bind(&LLTextBase::needsReflow, &mEditor));
+	}
 }
 
 LLNormalTextSegment::LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible) 
@@ -2218,6 +2224,12 @@ LLNormalTextSegment::LLNormalTextSegment( const LLColor4& color, S32 start, S32 
 
 	mFontHeight = llceil(mStyle->getFont()->getLineHeight());
 }
+
+LLNormalTextSegment::~LLNormalTextSegment()
+{
+	mImageLoadedConnection.disconnect();
+}
+
 
 F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
 {
