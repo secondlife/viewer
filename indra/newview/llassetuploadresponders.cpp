@@ -92,7 +92,7 @@ static void on_new_single_inventory_upload_complete(
 
 		LLSD args;
 		args["AMOUNT"] = llformat("%d", upload_price);
-		LLNotifications::instance().add("UploadPayment", args);
+		LLNotificationsUtil::add("UploadPayment", args);
 	}
 
 	// Actually add the upload to viewer inventory
@@ -157,12 +157,12 @@ static void on_new_single_inventory_upload_complete(
 
 		// Show the preview panel for textures and sounds to let
 		// user know that the image (or snapshot) arrived intact.
-		LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
-		if ( view )
+		LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel();
+		if ( panel )
 		{
 			LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
 
-			view->getPanel()->setSelection(
+			panel->setSelection(
 				server_response["new_inventory_item"].asUUID(),
 				TAKE_FOCUS_NO);
 
@@ -172,7 +172,7 @@ static void on_new_single_inventory_upload_complete(
 				(LLFilePicker::instance().getFileCount() <=
 				 FILE_COUNT_DISPLAY_THRESHOLD) )
 			{
-				view->getPanel()->openSelected();
+				panel->openSelected();
 			}
 
 			// restore keyboard focus
@@ -775,7 +775,7 @@ public:
 		args["REASON"] = reason;
 
 
-		LLNotifications::instance().add("CannotUploadReason", args);
+		LLNotificationsUtil::add("CannotUploadReason", args);
 		LLUploadDialog::modalUploadFinished();
 	}
 
@@ -917,7 +917,7 @@ public:
 		S32 option;
 		std::string confirmation_url;
 
-		option = LLNotification::getSelectedOption(
+		option = LLNotificationsUtil::getSelectedOption(
 			notification,
 			response);
 
@@ -1141,7 +1141,7 @@ void LLNewAgentInventoryVariablePriceResponder::showConfirmationDialog(
 		// when using plain ol' 'this', that this object
 		// would be deleted before the callback is triggered
 		// and cause sadness.
-		LLNotifications::instance().add(
+		LLNotificationsUtil::add(
 			"UploadCostConfirmation",
 			substitutions,
 			payload,
