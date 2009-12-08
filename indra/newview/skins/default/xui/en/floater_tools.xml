@@ -1990,6 +1990,9 @@ even though the user gets a free copy.
                  label="Cylinder"
                  name="Cylinder"
                  value="Cylinder" />
+                <combo_box.item
+                 label="Mesh"
+                 value="Mesh" />
             </combo_box>
         </panel>
 

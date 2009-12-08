@@ -459,3 +459,4 @@ void LLUICtrlFactory::connect(LLView* parent, LLView* child)
 {
 	parent->addChild(child);
 }
+

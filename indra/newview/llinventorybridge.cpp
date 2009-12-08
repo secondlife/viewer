@@ -126,6 +126,8 @@ std::string ICON_NAME[ICON_NAME_COUNT] =
 
 	"Inv_LinkItem",
 	"Inv_LinkFolder"
+	
+	"inv_item_mesh.tga"
 };
 
 // +=================================================+
@@ -880,6 +882,14 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			// Only should happen for broken links.
 			new_listener = new LLLinkItemBridge(inventory, uuid);
 			break;
+	        case LLAssetType::AT_MESH:
+			if(!(inv_type == LLInventoryType::IT_MESH))
+			{
+				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << safe_inv_type_lookup(inv_type) << " on uuid " << uuid << llendl;
+			}
+			new_listener = new LLMeshBridge(inventory, uuid);
+			break;
+
 		default:
 			llinfos << "Unhandled asset type (llassetstorage.h): "
 					<< (S32)asset_type << llendl;
@@ -2205,6 +2215,9 @@ LLUIImagePtr LLFolderBridge::getIcon(LLFolderType::EType preferred_type)
 {
 	// we only have one folder image now
 	return LLUI::getUIImage("Inv_FolderClosed");
+		/*case LLAssetType::AT_MESH:
+			control = "inv_folder_mesh.tga";
+			break;*/
 }
 
 BOOL LLFolderBridge::renameItem(const std::string& new_name)
@@ -2630,6 +2643,7 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_ANIMATION:
 		case DAD_GESTURE:
 		case DAD_LINK:
+		case DAD_MESH:
 			accept = dragItemIntoFolder((LLInventoryItem*)cargo_data,
 										drop);
 			break;
@@ -3574,6 +3588,7 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_BODYPART:
 		case DAD_ANIMATION:
 		case DAD_GESTURE:
+		case DAD_MESH:
 			{
 				LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
 				const LLPermissions& perm = inv_item->getPermissions();
@@ -4822,6 +4837,65 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 	delete on_remove_struct;
 }
 
+
+// +=================================================+
+// |        LLMeshBridge                             |
+// +=================================================+
+
+LLUIImagePtr LLMeshBridge::getIcon() const
+{
+	return get_item_icon(LLAssetType::AT_MESH, LLInventoryType::IT_MESH, 0, FALSE);
+}
+
+void LLMeshBridge::openItem()
+{
+	LLViewerInventoryItem* item = getItem();
+	
+	if (item)
+	{
+		// open mesh
+	}
+}
+
+void LLMeshBridge::previewItem()
+{
+	LLViewerInventoryItem* item = getItem();
+	if(item)
+	{
+		// preview mesh
+	}
+}
+
+
+void LLMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+	lldebugs << "LLMeshBridge::buildContextMenu()" << llendl;
+	std::vector<std::string> items;
+	std::vector<std::string> disabled_items;
+
+	if(isInTrash())
+	{
+		items.push_back(std::string("Purge Item"));
+		if (!isItemRemovable())
+		{
+			disabled_items.push_back(std::string("Purge Item"));
+		}
+
+		items.push_back(std::string("Restore Item"));
+	}
+	else
+	{
+		items.push_back(std::string("Properties"));
+
+		getClipboardEntries(true, items, disabled_items, flags);
+	}
+
+
+	hide_context_entries(menu, items, disabled_items);
+}
+
+
+
 LLInvFVBridgeAction* LLInvFVBridgeAction::createAction(LLAssetType::EType asset_type,
 													   const LLUUID& uuid,LLInventoryModel* model)
 {
@@ -4870,6 +4944,12 @@ LLInvFVBridgeAction* LLInvFVBridgeAction::createAction(LLAssetType::EType asset_
 
 		break;
 
+	case LLAssetType::AT_MESH:
+		action = new LLMeshBridgeAction(uuid,model);
+		break;
+
+
+		
 	default:
 		break;
 	}
@@ -5104,6 +5184,18 @@ void LLWearableBridgeAction::doIt()
 		}
 	}
 
+	LLInvFVBridgeAction::doIt();
+}
+
+//virtual
+void	LLMeshBridgeAction::doIt() 
+{
+	LLViewerInventoryItem* item = getItem();
+	if(item)
+	{
+		// do it
+	}
+	
 	LLInvFVBridgeAction::doIt();
 }
 

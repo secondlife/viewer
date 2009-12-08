@@ -678,7 +678,7 @@ BOOL LLViewerTexture::createGLTexture(S32 discard_level, const LLImageRaw* image
 	llassert_always(mGLTexturep.notNull()) ;	
 
 	BOOL ret = mGLTexturep->createGLTexture(discard_level, imageraw, usename, to_create, category) ;
-	
+
 	if(ret)
 	{
 		mFullWidth = mGLTexturep->getCurrentWidth() ;

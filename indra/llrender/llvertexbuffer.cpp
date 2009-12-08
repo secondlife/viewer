@@ -566,7 +566,7 @@ void LLVertexBuffer::destroyGLBuffer()
 	}
 	
 	mGLBuffer = 0;
-	unbind();
+	//unbind();
 }
 
 void LLVertexBuffer::destroyGLIndices()
@@ -593,7 +593,7 @@ void LLVertexBuffer::destroyGLIndices()
 	}
 
 	mGLIndices = 0;
-	unbind();
+	//unbind();
 }
 
 void LLVertexBuffer::updateNumVerts(S32 nverts)

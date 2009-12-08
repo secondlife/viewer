@@ -314,8 +314,10 @@ private:
 
 inline LLFace* LLDrawable::getFace(const S32 i) const
 {
-	llassert((U32)i < mFaces.size());
-	llassert(mFaces[i]);
+	if ((U32) i >= mFaces.size())
+	{
+		return NULL;
+	}
 	return mFaces[i];
 }
 

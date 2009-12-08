@@ -93,6 +93,8 @@ public:
 		FFLOAD_XML = 6,
 		FFLOAD_SLOBJECT = 7,
 		FFLOAD_RAW = 8,
+		FFLOAD_MODEL = 9,
+		FFLOAD_COLLADA = 10,
 	};
 
 	enum ESaveFilter
@@ -197,5 +199,7 @@ public:
 	LLFilePicker();
 	~LLFilePicker();
 };
+
+const std::string upload_pick(void* data);
 
 #endif

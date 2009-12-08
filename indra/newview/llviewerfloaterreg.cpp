@@ -74,6 +74,7 @@
 #include "llimpanel.h"
 #include "llfloaterinspect.h"
 #include "llfloaterinventory.h"
+#include "llfloaterimportcollada.h"
 #include "llfloaterjoystick.h"
 #include "llfloaterlagmeter.h"
 #include "llfloaterland.h"
@@ -128,6 +129,8 @@
 #include "llpreviewtexture.h"
 #include "llsyswellwindow.h"
 #include "llscriptfloater.h"
+#include "llfloatermodelpreview.h"
+
 // *NOTE: Please add files in alphabetical order to keep merges easy.
 
 
@@ -175,6 +178,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("hud", "floater_hud.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterHUD>);
 
 	LLFloaterReg::add("impanel", "floater_im_session.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIMFloater>);
+	LLFloaterReg::add("import_collada", "floater_import_collada.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterImportCollada>);
 	LLFloaterReg::add("im_container", "floater_im_container.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIMFloaterContainer>);
 	LLFloaterReg::add("incoming_call", "floater_incoming_call.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIncomingCallDialog>);
 	LLFloaterReg::add("inventory", "floater_inventory.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterInventory>);
@@ -253,7 +257,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("upload_anim", "floater_animation_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAnimPreview>, "upload");
 	LLFloaterReg::add("upload_image", "floater_image_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterImagePreview>, "upload");
 	LLFloaterReg::add("upload_sound", "floater_sound_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundPreview>, "upload");
-	
+	LLFloaterReg::add("upload_model", "floater_model_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterModelPreview>, "upload");
 	LLFloaterReg::add("volume_pulldown", "floater_volume_pulldown.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterVolumePulldown>);
 	LLFloaterReg::add("voice_controls", "floater_voice_controls.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLCallFloater>);
 	

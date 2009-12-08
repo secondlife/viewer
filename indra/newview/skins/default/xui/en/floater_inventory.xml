@@ -41,4 +41,25 @@
 	 name="Inventory Panel"
 	 top="15"
 	 width="467" />
+              <menu_item_call
+                 label="Model (L$[COST])..."
+                 layout="topleft"
+                 name="Upload Model">
+                <menu_item_call.on_click
+                 function="File.UploadModel"
+                 parameter="" />
+                <menu_item_call.on_enable
+                 function="File.EnableUpload" />
+              </menu_item_call>
+              <menu_item_call
+                 label="Scene..."
+                 layout="topleft"
+                 name="Upload Scene">
+                <menu_item_call.on_click
+                 function="File.UploadScene"
+                 parameter="" />
+                <menu_item_call.on_enable
+                 function="File.EnableUpload" />
+              </menu_item_call>
+                <menu_item_call
 </floater>

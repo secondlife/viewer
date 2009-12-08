@@ -304,9 +304,15 @@ class WindowsManifest(ViewerManifest):
 
         # For using FMOD for sound... DJS
         self.path("fmod.dll")
+       
+        # For automatic level of detail generation in mesh importer
+        self.path("glod.dll")
+
+        # For reading collada files
+        self.path("libcollada14dom21.dll")
 
         self.enable_no_crt_manifest_check()
-        
+
         # Media plugins - QuickTime
         if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_quicktime.dll")

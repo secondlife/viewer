@@ -137,7 +137,7 @@ void main()
 		}
 		
 		//float diff = clamp((proj_range-proj_focus)/proj_range, 0.0, 1.0);
-		vec4 amb_plcol = texture2DLod(projectionMap, proj_tc.xy, proj_ambient_lod);
+		vec4 amb_plcol = texture2DLod(projectionMap, proj_tc.xy, proj_lod);
 							
 		amb_da += (da*da*0.5+0.5)*proj_ambiance;
 				

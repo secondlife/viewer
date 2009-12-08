@@ -7441,7 +7441,19 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>SafeMode</key>
+  <key>MeshThreadCount</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of threads to use for loading meshes.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>8</integer>
+  </map>
+
+  <key>SafeMode</key>
     <map>
       <key>Comment</key>
       <string>Reset preferences, run in safe mode.</string>

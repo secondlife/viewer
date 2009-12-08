@@ -769,3 +769,72 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+=============
+GLOD license
+=============
+The GLOD Open-Source License   Version 1.0                June 16, 2004
+
+Copyright (C) 2003-04 Jonathan Cohen, Nat Duca, Chris Niski, Johns 
+Hopkins University and David Luebke, Brenden Schubert, University of 
+Virginia. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, is permitted provided that the following conditions are
+met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer and
+   request.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer and
+   request in the documentation and/or other materials provided with
+   the distribution.
+
+3. The name "GLOD" must not be used to endorse or promote products
+   derived from this software without prior written permission.
+
+4. Redistributions of any modified version of this source, whether in
+   source or binary form , must include a form of the following
+   acknowledgment: "This product is derived from the GLOD library,
+   which is available from http://www.cs.jhu.edu/~graphics/GLOD."
+
+5. Redistributions of any modified version of this source in binary
+   form must provide, free of charge, access to the modified version
+   of the code.
+
+6. This license shall be governed by and construed and enforced in
+   accordance with the laws of the State of Maryland, without
+   reference to its conflicts of law provisions. The exclusive
+   jurisdiction and venue for all legal actions relating to this
+   license shall be in courts of competent subject matter jurisdiction
+   located in the State of Maryland.
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, GLOD IS PROVIDED
+UNDER THIS LICENSE ON AN AS IS BASIS, WITHOUT WARRANTY OF ANY KIND,
+EITHER EXPRESSED OR IMPLIED, INCLUDING, WITHOUT LIMITATION, WARRANTIES
+THAT GLOD IS FREE OF DEFECTS, MERCHANTABLE, FIT FOR A PARTICULAR
+PURPOSE OR NON-INFRINGING. ALL WARRANTIES ARE DISCLAIMED AND THE
+ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE CODE IS WITH
+YOU. SHOULD ANY CODE PROVE DEFECTIVE IN ANY RESPECT, YOU (NOT THE
+COPYRIGHT HOLDER OR ANY OTHER CONTRIBUTOR) ASSUME THE COST OF ANY
+NECESSARY SERVICING, REPAIR OR CORRECTION. THIS DISCLAIMER OF WARRANTY
+CONSTITUTES AN ESSENTIAL PART OF THIS LICENSE. NO USE OF ANY CODE IS
+AUTHORIZED HEREUNDER EXCEPT UNDER THIS DISCLAIMER.
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL
+THE COPYRIGHT HOLDER OR ANY OTHER CONTRIBUTOR BE LIABLE FOR ANY
+SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES FOR LOSS OF
+PROFITS, REVENUE, OR FOR LOSS OF INFORMATION OR ANY OTHER LOSS.
+
+YOU EXPRESSLY AGREE TO FOREVER INDEMNIFY, DEFEND AND HOLD HARMLESS THE
+COPYRIGHT HOLDERS AND CONTRIBUTORS OF GLOD AGAINST ALL CLAIMS,
+DEMANDS, SUITS OR OTHER ACTIONS ARISING DIRECTLY OR INDIRECTLY FROM
+YOUR ACCEPTANCE AND USE OF GLOD.
+
+Although NOT REQUIRED, we would appreciate it if active users of GLOD
+put a link on their web site to the GLOD web site when possible.
+
+

@@ -75,7 +75,7 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 	// Run the user supplied function
 	threadp->run();
 
-	llinfos << "LLThread::staticRun() Exiting: " << threadp->mName << llendl;
+	//llinfos << "LLThread::staticRun() Exiting: " << threadp->mName << llendl;
 	
 	// We're done with the run function, this thread is done executing now.
 	threadp->mStatus = STOPPED;
