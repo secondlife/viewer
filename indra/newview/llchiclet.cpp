@@ -87,7 +87,7 @@ class LLSysWellChiclet::FlashToLitTimer : public LLEventTimer
 {
 public:
 	typedef boost::function<void()> callback_t;
-	LLSysWellChiclet::FlashToLitTimer(S32 count, F32 period, callback_t cb)
+	FlashToLitTimer(S32 count, F32 period, callback_t cb)
 		: LLEventTimer(period)
 		, mCallback(cb)
 		, mFlashCount(2 * count)
