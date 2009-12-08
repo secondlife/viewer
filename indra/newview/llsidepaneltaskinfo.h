@@ -91,6 +91,8 @@ protected:
 
 	void setAllSaleInfo();
 
+	void disableAll();
+
 private:
 	LLNameBox*		mLabelGroupName;		// group name
 
@@ -107,6 +109,10 @@ private:
 	LLButton*					mPayBtn;
 	LLButton*					mBuyBtn;
 
+protected:
+	LLViewerObject*				getObject();
+private:
+	LLViewerObject*				mObject;
 	LLObjectSelectionHandle mObjectSelection;
 	static LLSidepanelTaskInfo* sActivePanel;
 };
