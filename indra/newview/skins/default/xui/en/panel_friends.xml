@@ -8,7 +8,7 @@
  width="100">
     <panel.string
      name="Multiple">
-        Multiple friends...
+        Multiple friends
     </panel.string>
     <scroll_list
      bottom="337"
@@ -84,7 +84,7 @@
     <button
      follows="top|right"
      height="22"
-     label="Teleport..."
+     label="Teleport"
      layout="topleft"
      left_delta="0"
      name="offer_teleport_btn"
@@ -94,7 +94,7 @@
     <button
      follows="top|right"
      height="22"
-     label="Pay..."
+     label="Pay"
      layout="topleft"
      left_delta="0"
      name="pay_btn"
@@ -104,7 +104,7 @@
     <button
      follows="top|right"
      height="22"
-     label="Remove..."
+     label="Remove"
      layout="topleft"
      left_delta="0"
      name="remove_btn"
@@ -114,7 +114,7 @@
     <button
      follows="top|right"
      height="22"
-     label="Add..."
+     label="Add"
      layout="topleft"
      left_delta="0"
      name="add_btn"

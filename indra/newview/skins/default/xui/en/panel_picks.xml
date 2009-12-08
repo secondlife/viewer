@@ -106,7 +106,7 @@
              layout="topleft"
              left_pad="15"
              name="new_btn"
-             tool_tip="Create new pick or classified at current location"
+             tool_tip="Create a new pick or classified at the current location"
              top="5"
              width="18" />
             <button
@@ -138,7 +138,7 @@
          left="5"
          name="info_btn"
          tab_stop="false"
-         tool_tip="Show pic information"
+         tool_tip="Show pick information"
          top="0"
          width="55" />
         <button
@@ -162,7 +162,7 @@
          left_pad="5"
          name="show_on_map_btn"
          tab_stop="false"
-         tool_tip="Show corresponding area on the world map"
+         tool_tip="Show the corresponding area on the World Map"
          top="0"
          width="50" />
         </panel>
