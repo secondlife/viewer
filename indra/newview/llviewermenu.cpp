@@ -5521,11 +5521,6 @@ class LLShowFloater : public view_listener_t
 		{
 			LLFloaterScriptDebug::show(LLUUID::null);
 		}
-		else if (floater_name == "help f1")
-		{
-			LLViewerHelp* vhelp = LLViewerHelp::getInstance();
-			vhelp->showTopic(vhelp->getTopicFromFocus());
-		}
 		else if (floater_name == "complaint reporter")
 		{
 			// Prevent menu from appearing in screen shot.
@@ -5559,6 +5554,26 @@ class LLFloaterVisible : public view_listener_t
 			new_value = LLFloaterReg::instanceVisible(floater_name);
 		}
 		return new_value;
+	}
+};
+
+class LLShowHelp : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string help_topic = userdata.asString();
+
+		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
+		if (help_topic.empty())
+		{
+			vhelp->showTopic(vhelp->getTopicFromFocus());
+		}
+		else
+		{
+			vhelp->showTopic(help_topic);
+		}
+
+		return true;
 	}
 };
 
@@ -7925,6 +7940,7 @@ void initialize_menus()
 
 	// Generic actions
 	view_listener_t::addMenu(new LLShowFloater(), "ShowFloater");
+	view_listener_t::addMenu(new LLShowHelp(), "ShowHelp");
 	view_listener_t::addMenu(new LLPromptShowURL(), "PromptShowURL");
 	view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
 	view_listener_t::addMenu(new LLToggleControl(), "ToggleControl");
