@@ -32,23 +32,14 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
-#include "llversionviewer.h"
-#include "llviewerversion.h"
-
-//#include "llfloaterhelpbrowser.h"
-//#include "llfloaterreg.h"
-//#include "llfocusmgr.h"
-//#include "llviewercontrol.h"
-//#include "llappviewer.h"
-
-#include "llstring.h"
-#include "lluri.h"
-#include "llsys.h"
+#include "llviewerhelputil.h"
 
 #include "llcontrol.h"
-
-#include "llviewerhelputil.h"
+#include "llstring.h"
+#include "llsys.h"
+#include "lluri.h"
+#include "llversionviewer.h"
+#include "llviewerversion.h"
 
 
 //////////////////////////////////////////////
