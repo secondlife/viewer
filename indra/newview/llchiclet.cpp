@@ -81,17 +81,18 @@ boost::signals2::signal<LLChiclet* (const LLUUID&),
 LLSysWellChiclet::Params::Params()
 : button("button")
 , unread_notifications("unread_notifications")
+, max_displayed_count("max_displayed_count", 9)
 {
 	button.name("button");
 	button.tab_stop(FALSE);
 	button.label(LLStringUtil::null);
-
 }
 
 LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 : LLChiclet(p)
 , mButton(NULL)
 , mCounter(0)
+, mMaxDisplayedCount(p.max_displayed_count)
 {
 	LLButton::Params button_params = p.button;
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
@@ -108,7 +109,12 @@ void LLSysWellChiclet::setCounter(S32 counter)
 	std::string s_count;
 	if(counter != 0)
 	{
-		s_count = llformat("%d", counter);
+		static std::string more_messages_exist("+");
+		std::string more_messages(counter > mMaxDisplayedCount ? more_messages_exist : "");
+		s_count = llformat("%d%s"
+			, llmin(counter, mMaxDisplayedCount)
+			, more_messages.c_str()
+			);
 	}
 
 	mButton->setLabel(s_count);

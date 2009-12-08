@@ -757,6 +757,14 @@ public:
 
 		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
 
+		/**
+		 * Contains maximum displayed count of unread messages. Default value is 9.
+		 *
+		 * If count is less than "max_unread_count" will be displayed as is.
+		 * Otherwise 9+ will be shown (for default value).
+		 */
+		Optional<S32> max_displayed_count;
+
 		Params();
 	};
 
@@ -781,6 +789,7 @@ protected:
 protected:
 	LLButton* mButton;
 	S32 mCounter;
+	S32 mMaxDisplayedCount;
 };
 
 /**

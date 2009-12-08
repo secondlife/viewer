@@ -343,6 +343,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
                  image_pressed_selected="PushButton_Selected_Press"
                  image_selected="PushButton_Selected_Press"
                  left="0"
+                 max_displayed_count="99"
                  name="Unread IM messages"
                  pad_left="0"
                  pad_right="0"
@@ -369,6 +370,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              height="23"
              layout="topleft"
              left="0"
+             max_displayed_count="99"
              name="notification_well"
              top="4"
              width="34">
