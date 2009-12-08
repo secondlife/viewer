@@ -57,7 +57,7 @@
 #include "llui.h"
 #include "lluiconstants.h"
 #include "llurlsimstring.h"
-#include "llviewerbuild.h"
+#include "llviewerversion.h"
 #include "llviewerhelp.h"
 #include "llviewertexturelist.h"
 #include "llviewermenu.h"			// for handle_preferences()
@@ -70,7 +70,6 @@
 #include "llweb.h"
 #include "llmediactrl.h"
 #include "llrootview.h"
-
 
 #include "llfloatertos.h"
 #include "lltrans.h"
@@ -248,11 +247,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	getChild<LLPanel>("login_widgets")->setDefaultBtn("connect_btn");
 
 	std::string channel = gSavedSettings.getString("VersionChannelName");
-	std::string version = llformat("%d.%d.%d (%d)",
-		LL_VERSION_MAJOR,
-		LL_VERSION_MINOR,
-		LL_VERSION_PATCH,
-		LL_VIEWER_BUILD );
+	std::string version = llformat("%s (%s)", llGetViewerShortVersion().c_str(),
+								   llGetViewerBuildVersion().c_str());
 	LLTextBox* channel_text = getChild<LLTextBox>("channel_text");
 	channel_text->setTextArg("[CHANNEL]", channel); // though not displayed
 	channel_text->setTextArg("[VERSION]", version);
@@ -263,6 +259,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLTextBox* create_new_account_text = getChild<LLTextBox>("create_new_account_text");
 	create_new_account_text->setClickedCallback(onClickNewAccount, NULL);
+
+	LLTextBox* need_help_text = getChild<LLTextBox>("login_help");
+	need_help_text->setClickedCallback(onClickHelp, NULL);
 #endif    
 	
 	// get the web browser control
@@ -741,8 +740,8 @@ void LLPanelLogin::loadLoginPage()
 	}
 
 	// Channel and Version
-	std::string version = llformat("%d.%d.%d (%d)",
-						LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VIEWER_BUILD);
+	std::string version = llformat("%s (%s)", llGetViewerShortVersion().c_str(),
+								   llGetViewerBuildVersion().c_str());
 
 	char* curl_channel = curl_escape(gSavedSettings.getString("VersionChannelName").c_str(), 0);
 	char* curl_version = curl_escape(version.c_str(), 0);
@@ -963,6 +962,16 @@ void LLPanelLogin::onClickForgotPassword(void*)
 	if (sInstance )
 	{
 		LLWeb::loadURLExternal(sInstance->getString( "forgot_password_url" ));
+	}
+}
+
+//static
+void LLPanelLogin::onClickHelp(void*)
+{
+	if (sInstance)
+	{
+		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
+		vhelp->showTopic(vhelp->getTopicFromFocus());
 	}
 }
 

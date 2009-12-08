@@ -126,8 +126,8 @@ public:
 	void setSelectCallback(const LLFolderView::signal_t::slot_type& cb) { if (mFolders) mFolders->setSelectCallback(cb); }
 	void clearSelection();
 	LLInventoryFilter* getFilter();
-	void setFilterTypes(U64 filter, BOOL filter_for_categories = FALSE); // if filter_for_categories is true, operate on folder preferred asset type
-	U32 getFilterTypes() const { return mFolders->getFilterTypes(); }
+	void setFilterTypes(U64 filter, LLInventoryFilter::EFilterType = LLInventoryFilter::FILTERTYPE_OBJECT);
+	U32 getFilterObjectTypes() const { return mFolders->getFilterObjectTypes(); }
 	void setFilterPermMask(PermissionMask filter_perm_mask);
 	U32 getFilterPermMask() const { return mFolders->getFilterPermissions(); }
 	void setFilterSubString(const std::string& string);
@@ -163,7 +163,8 @@ public:
 	static void onIdle(void* user_data);
 
 	// Find whichever inventory panel is active / on top.
-	static LLInventoryPanel *getActiveInventoryPanel();
+	// "Auto_open" determines if we open an inventory panel if none are open.
+	static LLInventoryPanel *getActiveInventoryPanel(BOOL auto_open = TRUE);
 
 protected:
 	void defaultOpenInventory(); // open the first level of inventory

@@ -189,8 +189,7 @@ void LLLoginInstance::constructAuthParams(const LLSD& credentials)
 
 bool LLLoginInstance::handleLoginEvent(const LLSD& event)
 {
-	std::cout << "LoginListener called!: \n";
-	std::cout << event << "\n";
+	LL_DEBUGS("Login") << "LoginListener called!: \n" << event << LL_ENDL;
 
 	if(!(event.has("state") && event.has("change") && event.has("progress")))
 	{

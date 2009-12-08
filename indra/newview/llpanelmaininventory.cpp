@@ -653,7 +653,7 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 		return;
 
 	// Get data needed for filter display
-	U32 filter_types = mFilter->getFilterTypes();
+	U32 filter_types = mFilter->getFilterObjectTypes();
 	std::string filter_string = mFilter->getFilterSubString();
 	LLInventoryFilter::EFolderShow show_folders = mFilter->getShowFolderState();
 	U32 hours = mFilter->getHoursAgo();
@@ -966,6 +966,46 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 			preview_texture->openToSave();
 		}
 	}
+	// This doesn't currently work, since the viewer can't change an assetID an item.
+	if (command_name == "regenerate_link")
+	{
+		LLInventoryPanel *active_panel = getActivePanel();
+		LLFolderViewItem* current_item = active_panel->getRootFolder()->getCurSelectedItem();
+		if (!current_item)
+		{
+			return;
+		}
+		const LLUUID item_id = current_item->getListener()->getUUID();
+		LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		item->regenerateLink();
+		active_panel->setSelection(item_id, TAKE_FOCUS_NO);
+	}
+	if (command_name == "find_original")
+	{
+		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		if (!current_item)
+		{
+			return;
+		}
+		current_item->getListener()->performAction(getActivePanel()->getRootFolder(), getActivePanel()->getModel(), "goto");
+	}
+
+	if (command_name == "find_links")
+	{
+		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		if (!current_item)
+		{
+			return;
+		}
+		const LLUUID& item_id = current_item->getListener()->getUUID();
+		const std::string &item_name = current_item->getListener()->getName();
+		LLInventoryFilter *filter = mActivePanel->getFilter();
+		filter->setFilterSubString(item_name);
+		mFilterEditor->setText(item_name);
+		mFilterEditor->setFocus(TRUE);
+		filter->setFilterUUID(item_id);
+		filter->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+	}
 }
 
 BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
@@ -1001,6 +1041,45 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 		}
 		return FALSE;
 	}
+	if (command_name == "find_original")
+	{
+		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		if (!current_item) return FALSE;
+		const LLUUID& item_id = current_item->getListener()->getUUID();
+		const LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		if (item && item->getIsLinkType() && !item->getIsBrokenLink())
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	if (command_name == "find_links")
+	{
+		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		if (!current_item) return FALSE;
+		const LLUUID& item_id = current_item->getListener()->getUUID();
+		const LLInventoryObject *obj = gInventory.getObject(item_id);
+		if (obj && !obj->getIsLinkType() && LLAssetType::lookupCanLink(obj->getType()))
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+	// This doesn't currently work, since the viewer can't change an assetID an item.
+	if (command_name == "regenerate_link")
+	{
+		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		if (!current_item) return FALSE;
+		const LLUUID& item_id = current_item->getListener()->getUUID();
+		const LLViewerInventoryItem *item = gInventory.getItem(item_id);
+		if (item && item->getIsBrokenLink())
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+
 	return TRUE;
 }
 

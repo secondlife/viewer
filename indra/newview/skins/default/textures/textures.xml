@@ -194,8 +194,8 @@ with the same filename but different name
   <texture name="Icon_Gear_Foreground" file_name="windows/Icon_Gear_Foreground.png" preload="false" />
   <texture name="Icon_Gear_Press" file_name="windows/Icon_Gear_Press.png" preload="false" />
 
-  <texture name="Icon_Help_Foreground" file_name="windows/Icon_Help_Foreground.png" preload="false" />
-  <texture name="Icon_Help_Press" file_name="windows/Icon_Help_Press.png" preload="false" />
+  <texture name="Icon_Help_Foreground" file_name="windows/Icon_Help_Foreground.png" preload="true" />
+  <texture name="Icon_Help_Press" file_name="windows/Icon_Help_Press.png" preload="true" />
   <texture name="Icon_Info" file_name="windows/Icon_Info.png" preload="false" />
 
   <texture name="Icon_Minimize_Foreground" file_name="windows/Icon_Minimize_Foreground.png" preload="true" />

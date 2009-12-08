@@ -1441,7 +1441,7 @@ static void fixOrigin(void)
 	::GetPortBounds(port, &portrect);
 	if((portrect.left != 0) || (portrect.top != 0))
 	{
-		// Mozilla sometimes changes our port origin.  Fuckers.
+		// Mozilla sometimes changes our port origin.
 		::SetOrigin(0,0);
 	}
 }

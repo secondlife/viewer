@@ -141,7 +141,7 @@ void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_wo
 	S32 right_delta = old_world_rect.mRight - new_world_rect.mRight;
 	LLRect this_rect = getRect();
 
-	this_rect.mTop = new_world_rect.getHeight() * getHeightRatio();
+	this_rect.mTop = (S32) (new_world_rect.getHeight() * getHeightRatio());
 	switch(mChannelAlignment)
 	{
 	case CA_LEFT :

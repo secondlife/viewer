@@ -73,6 +73,7 @@
 #include "llstatusbar.h"
 #include "llimview.h"
 #include "lltrans.h"
+#include "llviewerfoldertype.h"
 #include "lluri.h"
 #include "llviewergenericmessage.h"
 #include "llviewermenu.h"
@@ -825,41 +826,50 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
  
 void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 {
-	std::vector<LLUUID>::const_iterator it = items.begin();
-	std::vector<LLUUID>::const_iterator end = items.end();
-	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
-	BOOL user_is_away = gAwayTimer.getStarted();
-	LLInventoryItem* item;
-	for(; it != end; ++it)
+	for (std::vector<LLUUID>::const_iterator item_iter = items.begin();
+		 item_iter != items.end();
+		 ++item_iter)
 	{
-		const LLUUID& id = *it;
-		item = gInventory.getItem(id);
+		const LLUUID& item_id = (*item_iter);
+		LLInventoryItem* item = gInventory.getItem(item_id);
 		if(!item)
 		{
-			LL_WARNS("Messaging") << "Unable to show inventory item: " << id << LL_ENDL;
+			LL_WARNS("Messaging") << "Unable to show inventory item: " << item_id << LL_ENDL;
 			continue;
 		}
-		// don't select trash or lost and found items if the user is active
-		if(gInventory.isObjectDescendentOf(id, trash_id) || 
-				(gInventory.isObjectDescendentOf(item->getUUID(), lost_and_found_id)
-				&& !user_is_away) )
-		{
-			continue;
-		}
-		LLAssetType::EType asset_type = item->getType();
 
-		//if we are throttled, don't display them
-		if (check_offer_throttle(from_name, false))
+		////////////////////////////////////////////////////////////////////////////////
+		// Don't highlight if it's in certain "quiet" folders which don't need UI 
+		// notification (e.g. trash, cof, lost-and-found).
+		const BOOL user_is_away = gAwayTimer.getStarted();
+		if(!user_is_away)
+		{
+			const LLViewerInventoryCategory *parent = gInventory.getFirstNondefaultParent(item_id);
+			if (parent)
+			{
+				const LLFolderType::EType parent_type = parent->getPreferredType();
+				if (LLViewerFolderType::lookupIsQuietType(parent_type))
+				{
+					continue;
+				}
+			}
+		}
+
+		////////////////////////////////////////////////////////////////////////////////
+		// Special handling for various types.
+		const LLAssetType::EType asset_type = item->getType();
+		if (check_offer_throttle(from_name, false)) // If we are throttled, don't display
 		{
 			LL_DEBUGS("Messaging") << "Highlighting inventory item: " << item->getUUID()  << LL_ENDL;
 			// If we opened this ourselves, focus it
-			BOOL take_focus = from_name.empty() ? TAKE_FOCUS_YES : TAKE_FOCUS_NO;
+			const BOOL take_focus = from_name.empty() ? TAKE_FOCUS_YES : TAKE_FOCUS_NO;
 			switch(asset_type)
 			{
 			  case LLAssetType::AT_NOTECARD:
-				LLFloaterReg::showInstance("preview_notecard", LLSD(id), take_focus);
-				break;
+			  {
+				  LLFloaterReg::showInstance("preview_notecard", LLSD(item_id), take_focus);
+				  break;
+			  }
 			  case LLAssetType::AT_LANDMARK:
 			  	{
 					LLInventoryCategory* parent_folder = gInventory.getCategory(item->getParentUUID());
@@ -878,28 +888,37 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 						LLNotificationsUtil::add("LandmarkCreated", args);
 						// Created landmark is passed to Places panel to allow its editing. In fact panel should be already displayed.
 						//TODO*:: dserduk(7/12/09) remove LLPanelPlaces dependency from here
-						LLPanelPlaces *panel = dynamic_cast<LLPanelPlaces*>(LLSideTray::getInstance()->showPanel("panel_places", LLSD()));
-						if (panel)
+						LLPanelPlaces *places_panel = dynamic_cast<LLPanelPlaces*>(LLSideTray::getInstance()->showPanel("panel_places", LLSD()));
+						if (places_panel)
 						{
-							panel->setItem(item);
+							places_panel->setItem(item);
 						}
 					}
 				}
 				break;
 			  case LLAssetType::AT_TEXTURE:
-				LLFloaterReg::showInstance("preview_texture", LLSD(id), take_focus);
-				break;
+			  {
+				  LLFloaterReg::showInstance("preview_texture", LLSD(item_id), take_focus);
+				  break;
+			  }
 			  default:
-				if(gSavedSettings.getBOOL("ShowInInventory") &&
-					   asset_type != LLAssetType::AT_CALLINGCARD &&
-					   item->getInventoryType() != LLInventoryType::IT_ATTACHMENT &&
-					   !from_name.empty())
-					{
-						LLSideTray::getInstance()->showPanel("sidepanel_inventory",
-								LLSD().with("select", item->getUUID()));
-					}
 				break;
 			}
+		}
+		
+		////////////////////////////////////////////////////////////////////////////////
+		// Highlight item if it's not in the trash, lost+found, or COF
+		const BOOL auto_open = gSavedSettings.getBOOL("ShowInInventory") &&
+			(asset_type != LLAssetType::AT_CALLINGCARD) &&
+			(item->getInventoryType() != LLInventoryType::IT_ATTACHMENT) &&
+			!from_name.empty();
+		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
+		if(active_panel)
+		{
+			LL_DEBUGS("Messaging") << "Highlighting" << item_id  << LL_ENDL;
+			LLFocusableElement* focus_ctrl = gFocusMgr.getKeyboardFocus();
+			active_panel->setSelection(item_id, TAKE_FOCUS_NO);
+			gFocusMgr.setKeyboardFocus(focus_ctrl);
 		}
 	}
 }

@@ -453,7 +453,7 @@ set(viewer_SOURCE_FILES
     llviewerassettype.cpp
     llvieweraudio.cpp
     llviewercamera.cpp
-	llviewerchat.cpp
+    llviewerchat.cpp
     llviewercontrol.cpp
     llviewercontrollistener.cpp
     llviewerdisplay.cpp
@@ -463,6 +463,7 @@ set(viewer_SOURCE_FILES
     llviewergesture.cpp    
     llviewerhelp.cpp
     llviewerhelputil.cpp
+    llviewerhome.cpp
     llviewerinventory.cpp
     llviewerjoint.cpp
     llviewerjointattachment.cpp
@@ -496,6 +497,7 @@ set(viewer_SOURCE_FILES
     llviewertextureanim.cpp
     llviewertexturelist.cpp
     llviewerthrottle.cpp
+    llviewerversion.cpp
     llviewervisualparam.cpp
     llviewerwindow.cpp
     llviewerwindowlistener.cpp
@@ -955,9 +957,8 @@ set(viewer_HEADER_FILES
     llviewerassetstorage.h
     llviewerassettype.h
     llvieweraudio.h
-    llviewerbuild.h
     llviewercamera.h
-	llviewerchat.h
+    llviewerchat.h
     llviewercontrol.h
     llviewercontrollistener.h
     llviewerdisplay.h
@@ -966,6 +967,7 @@ set(viewer_HEADER_FILES
     llviewergenericmessage.h
     llviewergesture.h    
     llviewerhelp.h
+    llviewerhome.h
     llviewerinventory.h
     llviewerjoint.h
     llviewerjointattachment.h
@@ -997,6 +999,7 @@ set(viewer_HEADER_FILES
     llviewertextureanim.h
     llviewertexturelist.h
     llviewerthrottle.h
+    llviewerversion.h
     llviewervisualparam.h
     llviewerwindow.h
     llviewerwindowlistener.h
