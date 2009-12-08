@@ -1,6 +1,6 @@
 /** 
- * @file llviewerhome.cpp
- * @brief Model (non-View) component for the web-based Home side panel
+ * @file llversioninfo.cpp
+ * @brief Routines to access the viewer version and build information
  * @author Martin Reddy
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
@@ -32,42 +32,78 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llviewerhome.h"
-
-#include "lllogininstance.h"
-#include "llui.h"
-#include "lluri.h"
-#include "llsd.h"
 #include "llversioninfo.h"
-#include "llviewercontrol.h"
-#include "llviewernetwork.h"
+
+#include "llversionviewer.h"
+
+//
+// Set the version numbers in indra/llcommon/llversionviewer.h
+//
 
 //static
-std::string LLViewerHome::getHomeURL()
-{	
-	// Return the URL to display in the Home side tray. We read
-	// this value from settings.xml and support various substitutions
-
-	LLSD substitution;
-	substitution["VERSION"] = LLVersionInfo::getVersion();
-	substitution["CHANNEL"] = LLURI::escape(gSavedSettings.getString("VersionChannelName"));
-	substitution["LANGUAGE"] = LLUI::getLanguage();
-	substitution["AUTH_KEY"] = LLURI::escape(getAuthKey());
-	substitution["GRID"] = LLViewerLogin::getInstance()->getGridLabel();
-
-	std::string homeURL = gSavedSettings.getString("HomeSidePanelURL");
-	LLStringUtil::format(homeURL, substitution);
-		
-	return homeURL;	
-}
-
-//static
-std::string LLViewerHome::getAuthKey()
+S32 LLVersionInfo::getMajor()
 {
-	// return the value of the (optional) auth token returned by login.cgi
-	// this lets the server provide an authentication token that we can
-	// blindly pass to the Home web page for it to perform authentication.
-	static const std::string authKeyName("home_sidetray_token");
-	return LLLoginInstance::getInstance()->getResponse(authKeyName);
+	return LL_VERSION_MAJOR;
 }
 
+//static
+S32 LLVersionInfo::getMinor()
+{
+	return LL_VERSION_MINOR;
+}
+
+//static
+S32 LLVersionInfo::getPatch()
+{
+	return LL_VERSION_PATCH;
+}
+
+//static
+S32 LLVersionInfo::getBuild()
+{
+	return LL_VERSION_BUILD;
+}
+
+//static
+const std::string &LLVersionInfo::getVersion()
+{
+	static std::string version("");
+
+	if (version.empty())
+	{
+		// cache the version string
+		std::ostringstream stream;
+		stream << LL_VERSION_MAJOR << "."
+		       << LL_VERSION_MINOR << "."
+		       << LL_VERSION_PATCH << "."
+		       << LL_VERSION_BUILD;
+		version = stream.str();
+	}
+
+	return version;
+}
+
+//static
+const std::string &LLVersionInfo::getShortVersion()
+{
+	static std::string version("");
+
+	if (version.empty())
+	{
+		// cache the version string
+		std::ostringstream stream;
+		stream << LL_VERSION_MAJOR << "."
+		       << LL_VERSION_MINOR << "."
+		       << LL_VERSION_PATCH;
+		version = stream.str();
+	}
+
+	return version;
+}
+
+//static
+const std::string &LLVersionInfo::getChannel()
+{
+	static std::string name(LL_CHANNEL);
+	return name;
+}

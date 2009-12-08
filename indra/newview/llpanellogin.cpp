@@ -39,7 +39,6 @@
 #include "llfontgl.h"
 #include "llmd5.h"
 #include "llsecondlifeurls.h"
-#include "llversionviewer.h"
 #include "v4color.h"
 
 #include "llbutton.h"
@@ -57,7 +56,7 @@
 #include "llui.h"
 #include "lluiconstants.h"
 #include "llurlsimstring.h"
-#include "llviewerversion.h"
+#include "llversioninfo.h"
 #include "llviewerhelp.h"
 #include "llviewertexturelist.h"
 #include "llviewermenu.h"			// for handle_preferences()
@@ -247,8 +246,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	getChild<LLPanel>("login_widgets")->setDefaultBtn("connect_btn");
 
 	std::string channel = gSavedSettings.getString("VersionChannelName");
-	std::string version = llformat("%s (%s)", llGetViewerShortVersion().c_str(),
-								   llGetViewerBuildVersion().c_str());
+	std::string version = llformat("%s (%d)",
+								   LLVersionInfo::getShortVersion().c_str(),
+								   LLVersionInfo::getBuild());
 	LLTextBox* channel_text = getChild<LLTextBox>("channel_text");
 	channel_text->setTextArg("[CHANNEL]", channel); // though not displayed
 	channel_text->setTextArg("[VERSION]", version);
@@ -740,8 +740,9 @@ void LLPanelLogin::loadLoginPage()
 	}
 
 	// Channel and Version
-	std::string version = llformat("%s (%s)", llGetViewerShortVersion().c_str(),
-								   llGetViewerBuildVersion().c_str());
+	std::string version = llformat("%s (%d)",
+								   LLVersionInfo::getShortVersion().c_str(),
+								   LLVersionInfo::getBuild());
 
 	char* curl_channel = curl_escape(gSavedSettings.getString("VersionChannelName").c_str(), 0);
 	char* curl_version = curl_escape(version.c_str(), 0);

@@ -45,8 +45,7 @@
 #include "llviewercontrol.h"
 #include "llviewerstats.h"
 #include "llviewerregion.h"
-#include "llversionviewer.h"
-#include "llviewerversion.h"
+#include "llversioninfo.h"
 #include "llweb.h"
 
 // Linden library includes
@@ -212,12 +211,12 @@ LLSD LLFloaterAbout::getInfo()
 	// LLFloaterAbout.
 	LLSD info;
 	LLSD version;
-	version.append(LL_VERSION_MAJOR);
-	version.append(LL_VERSION_MINOR);
-	version.append(LL_VERSION_PATCH);
-	version.append(LL_VERSION_BUILD);
+	version.append(LLVersionInfo::getMajor());
+	version.append(LLVersionInfo::getMinor());
+	version.append(LLVersionInfo::getPatch());
+	version.append(LLVersionInfo::getBuild());
 	info["VIEWER_VERSION"] = version;
-	info["VIEWER_VERSION_STR"] = llGetViewerVersion();
+	info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
 	info["BUILD_DATE"] = __DATE__;
 	info["BUILD_TIME"] = __TIME__;
 	info["CHANNEL"] = gSavedSettings.getString("VersionChannelName");
@@ -285,7 +284,7 @@ static std::string get_viewer_release_notes_url()
 {
 	LLSD query;
 	query["channel"] = gSavedSettings.getString("VersionChannelName");
-	query["version"] = llGetViewerVersion();
+	query["version"] = LLVersionInfo::getVersion();
 
 	std::ostringstream url;
 	url << LLTrans::getString("RELEASE_NOTES_BASE_URL") << LLURI::mapToQueryString(query);
