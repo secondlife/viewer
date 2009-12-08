@@ -8,31 +8,31 @@
  min_height="350"
  min_width="240"
  width="280">
-    <text 
-     follows="top|left|right"
-     font="SansSerifHugeBold"
-     height="20"
-     layout="topleft"
-     left="10" 
-     name="title_text"
-     text_color="white"
-     top="0" 
-     width="250">
-        Blocked List
-     </text>
-     <button 
-     follows="top|right"
+        <button
+     follows="top|left"
      height="25"
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back"
-     right="-9"
-     tab_stop="false" 
+     left="10"
+     tab_stop="false"
      top="0"
      width="25"/>
+    <text
+     follows="top|left|right"
+     font="SansSerifLargeBold"
+     height="20"
+     layout="topleft"
+     left_pad="10"
+     name="title_text"
+     text_color="white"
+     top="5"
+     width="250">
+        Blocked List
+     </text>
     <scroll_list
-     follows="left|top|right|bottom"
-     height="200"
+     follows="all"
+     height="190"
      layout="topleft"
      left="5"
      name="blocked"
@@ -41,9 +41,8 @@
      width="270" />
     <button
      follows="left|bottom"
-     height="20"
-     label="Block Resident..."
-     label_selected="Block Resident..."
+     height="23"
+     label="Block person"
      layout="topleft"
      left_delta="0"
      name="Block resident..."
@@ -55,9 +54,8 @@
     </button>
     <button
      follows="left|bottom"
-     height="20"
-     label="Block object by name..."
-     label_selected="Block object by name..."
+     height="23"
+     label="Block object by name"
      layout="topleft"
      left_delta="0"
      name="Block object by name..."
@@ -70,9 +68,8 @@
     <button
      enabled="false"
      follows="left|bottom"
-     height="20"
+     height="23"
      label="Unblock"
-     label_selected="Unblock"
      layout="topleft"
      left_delta="0"
      name="Unblock"
