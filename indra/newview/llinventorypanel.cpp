@@ -903,6 +903,7 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 	if (!auto_open) return NULL;
 	
 	// D. Open the inventory side panel and use that.
+	LLSideTray *side_tray = LLSideTray::getInstance();
 	LLSidepanelInventory *sidepanel_inventory =
 		dynamic_cast<LLSidepanelInventory *>(side_tray->getPanel("sidepanel_inventory"));
 

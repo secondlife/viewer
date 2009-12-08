@@ -829,8 +829,6 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 	for (std::vector<LLUUID>::const_iterator item_iter = items.begin();
 		 item_iter != items.end();
 		 ++item_iter)
-	const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
-	BOOL user_is_away = gAwayTimer.getStarted();
 	{
 		const LLUUID& item_id = (*item_iter);
 		LLInventoryItem* item = gInventory.getItem(item_id);
@@ -839,6 +837,7 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 			LL_WARNS("Messaging") << "Unable to show inventory item: " << item_id << LL_ENDL;
 			continue;
 		}
+
 		////////////////////////////////////////////////////////////////////////////////
 		// Don't highlight if it's in certain "quiet" folders which don't need UI 
 		// notification (e.g. trash, cof, lost-and-found).
