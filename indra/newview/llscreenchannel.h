@@ -279,7 +279,6 @@ private:
 
 	std::vector<ToastElem>		mToastList;
 	std::vector<ToastElem>		mStoredToastList;
-	std::map<LLToast*, bool>	mToastEventStack;
 };
 
 }

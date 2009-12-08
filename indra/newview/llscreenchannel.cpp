@@ -243,6 +243,7 @@ void LLScreenChannel::deleteToast(LLToast* toast)
 	if(mHoveredToast == toast)
 	{
 		mHoveredToast  = NULL;
+		startFadingToasts();
 	}
 
 	// close the toast
@@ -720,39 +721,28 @@ void LLScreenChannel::removeToastsBySessionID(LLUUID id)
 //--------------------------------------------------------------------------
 void LLScreenChannel::onToastHover(LLToast* toast, bool mouse_enter)
 {
-	// because of LLViewerWindow::updateUI() that ALWAYS calls onMouseEnter BEFORE onMouseLeave
-	// we must check this to prevent incorrect setting for hovering in a channel
-	std::map<LLToast*, bool>::iterator it_first, it_second;
-	S32 stack_size = mToastEventStack.size();
-	if(mouse_enter)
+	// because of LLViewerWindow::updateUI() that NOT ALWAYS calls onMouseEnter BEFORE onMouseLeave
+	// we must check hovering directly to prevent incorrect setting for hovering in a channel
+	S32 x,y;
+	if (mouse_enter)
 	{
-		mHoveredToast = toast;
-	}
-	else
-	{
-		mHoveredToast = NULL;
-	}
-
-	switch(stack_size)
-	{
-	case 0:
-		mToastEventStack.insert(std::pair<LLToast*, bool>(toast, mouse_enter));
-		break;
-	case 1:
-		it_first = mToastEventStack.begin();
-		if((*it_first).second && !mouse_enter && ((*it_first).first != toast) )
+		toast->screenPointToLocal(gViewerWindow->getCurrentMouseX(),
+				gViewerWindow->getCurrentMouseY(), &x, &y);
+		bool hover = toast->pointInView(x, y) == TRUE;
+		if (hover)
 		{
-			mToastEventStack.clear();
 			mHoveredToast = toast;
 		}
-		else
+	}
+	else if (mHoveredToast != NULL)
+	{
+		mHoveredToast->screenPointToLocal(gViewerWindow->getCurrentMouseX(),
+				gViewerWindow->getCurrentMouseY(), &x, &y);
+		bool hover = mHoveredToast->pointInView(x, y) == TRUE;
+		if (!hover)
 		{
-			mToastEventStack.clear();
-			mToastEventStack.insert(std::pair<LLToast*, bool>(toast, mouse_enter));
+			mHoveredToast = NULL;
 		}
-		break;
-	default:
-		LL_ERRS ("LLScreenChannel::onToastHover: stack size error " ) << stack_size << llendl;
 	}
 
 	if(!isHovering())
