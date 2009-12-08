@@ -59,10 +59,13 @@ LLS * By copying, modifying or distributing this software, you acknowledge
 #define STORE_SALT_SIZE 16 
 #define BUFFER_READ_SIZE 256
 std::string cert_string_from_asn1_string(ASN1_STRING* value);
+std::string cert_string_from_octet_string(ASN1_OCTET_STRING* value);
+
 LLSD _basic_constraints_ext(X509* cert);
 LLSD _key_usage_ext(X509* cert);
 LLSD _ext_key_usage_ext(X509* cert);
-
+LLSD _subject_key_identifier_ext(X509 *cert);
+LLSD _authority_key_identifier_ext(X509* cert);
 
 LLBasicCertificate::LLBasicCertificate(const std::string& pem_cert) 
 {
@@ -175,6 +178,8 @@ LLSD& LLBasicCertificate::_initLLSD()
 	mLLSDInfo[CERT_BASIC_CONSTRAINTS] = _basic_constraints_ext(mCert);
 	mLLSDInfo[CERT_KEY_USAGE] = _key_usage_ext(mCert);
 	mLLSDInfo[CERT_EXTENDED_KEY_USAGE] = _ext_key_usage_ext(mCert);
+	mLLSDInfo[CERT_SUBJECT_KEY_IDENTFIER] = _subject_key_identifier_ext(mCert);
+	mLLSDInfo[CERT_AUTHORITY_KEY_IDENTIFIER] = _authority_key_identifier_ext(mCert);
 	return mLLSDInfo; 
 }
 
@@ -269,6 +274,43 @@ LLSD _ext_key_usage_ext(X509* cert)
 	return result;
 }
 
+// retrieve the subject key identifier of the cert
+LLSD _subject_key_identifier_ext(X509 *cert)
+{
+	LLSD result;
+	ASN1_OCTET_STRING *skeyid = (ASN1_OCTET_STRING *)X509_get_ext_d2i(cert, NID_subject_key_identifier, NULL, NULL);
+	if(skeyid)
+	{
+		result = cert_string_from_octet_string(skeyid);
+	}
+	return result;
+}
+
+// retrieve the authority key identifier of the cert
+LLSD _authority_key_identifier_ext(X509* cert)
+{
+	LLSD result;
+	AUTHORITY_KEYID *akeyid = (AUTHORITY_KEYID *)X509_get_ext_d2i(cert, NID_authority_key_identifier, NULL, NULL);
+	if(akeyid)
+	{
+		result = LLSD::emptyMap();
+		if(akeyid->keyid)
+		{
+			result[CERT_AUTHORITY_KEY_IDENTIFIER_ID] = cert_string_from_octet_string(akeyid->keyid);
+		}
+		if(akeyid->serial)
+		{
+			result[CERT_AUTHORITY_KEY_IDENTIFIER_SERIAL] = cert_string_from_asn1_integer(akeyid->serial);
+		}	
+	}
+	
+	// we ignore the issuer name in the authority key identifier, we check the issue name via
+	// the the issuer name entry in the cert.
+	
+
+	return result;
+}
+
 // retrieve an openssl x509 object,
 // which must be freed by X509_free
 X509* LLBasicCertificate::getOpenSSLX509() const
@@ -335,6 +377,25 @@ std::string cert_string_from_asn1_integer(ASN1_INTEGER* value)
 		BN_free(bn);
 	}
 	return result;
+}
+
+// Generate a string from an OCTET string.
+// we retrieve as a 
+
+std::string cert_string_from_octet_string(ASN1_OCTET_STRING* value)
+{
+	
+	std::stringstream result;
+	result << std::hex << std::setprecision(2);
+	for (unsigned int i=0; i < value->length; i++)
+	{
+		if (i != 0) 
+		{
+			result << ":";
+		}
+		result  << std::setfill('0') << std::setw(2) << (int)value->data[i];
+	}
+	return result.str();
 }
 
 // Generate a string from an ASN1 integer.  ASN1 Integers are
@@ -983,6 +1044,18 @@ void LLBasicCertificateChain::validate(int validation_policy,
 			
 		cert_search_params = LLSD::emptyMap();
 		cert_search_params[CERT_SUBJECT_NAME_STRING] = cert_llsd[CERT_ISSUER_NAME_STRING];
+		if (cert_llsd.has(CERT_AUTHORITY_KEY_IDENTIFIER))
+		{
+			LLSD cert_aki = cert_llsd[CERT_AUTHORITY_KEY_IDENTIFIER];
+			if(cert_aki.has(CERT_AUTHORITY_KEY_IDENTIFIER_ID))
+			{
+				cert_search_params[CERT_SUBJECT_KEY_IDENTFIER] = cert_aki[CERT_AUTHORITY_KEY_IDENTIFIER_ID];
+			}
+			if(cert_aki.has(CERT_AUTHORITY_KEY_IDENTIFIER_SERIAL))
+			{
+				cert_search_params[CERT_SERIAL_NUMBER] = cert_aki[CERT_AUTHORITY_KEY_IDENTIFIER_SERIAL];
+			}
+		}
 		found_store_cert = ca_store->find(cert_search_params);
 		
 		if(found_store_cert != ca_store->end())

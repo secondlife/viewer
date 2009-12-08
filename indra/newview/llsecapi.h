@@ -78,6 +78,12 @@
 #define CERT_EXTENDED_KEY_USAGE "extendedKeyUsage"
 #define CERT_EKU_SERVER_AUTH SN_server_auth
 
+#define CERT_SUBJECT_KEY_IDENTFIER "subjectKeyIdentifier"
+#define CERT_AUTHORITY_KEY_IDENTIFIER "authorityKeyIdentifier"
+#define CERT_AUTHORITY_KEY_IDENTIFIER_ID "authorityKeyIdentifierId"
+#define CERT_AUTHORITY_KEY_IDENTIFIER_NAME "authorityKeyIdentifierName"
+#define CERT_AUTHORITY_KEY_IDENTIFIER_SERIAL "authorityKeyIdentifierSerial"
+
 // validate the current time lies within 
 // the validation period of the cert
 #define VALIDATION_POLICY_TIME 1
