@@ -49,6 +49,8 @@ public:
 	/*virtual*/ BOOL getMinimized() {return FALSE;};
 	/*virtual*/ BOOL getMaximized() {return FALSE;};
 	/*virtual*/ BOOL maximize() {return FALSE;};
+	/*virtual*/ void minimize() {};
+	/*virtual*/ void restore() {};
 	/*virtual*/ BOOL getFullscreen() {return FALSE;};
 	/*virtual*/ BOOL getPosition(LLCoordScreen *position) {return FALSE;};
 	/*virtual*/ BOOL getSize(LLCoordScreen *size) {return FALSE;};

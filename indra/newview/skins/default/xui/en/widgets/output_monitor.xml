@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <output_monitor
-  image_mute="parcel_lght_VoiceNo"
+  image_mute="Parcel_VoiceNo_Light"
   image_off="VoicePTT_Off"
   image_on="VoicePTT_On"
   image_level_1="VoicePTT_Lvl1"

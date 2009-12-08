@@ -194,7 +194,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mHAlign(p.font_halign),
 	mLineSpacingMult(p.line_spacing.multiple),
 	mLineSpacingPixels(p.line_spacing.pixels),
-	mClipPartial(p.clip_partial),
+	mClipPartial(p.clip_partial && !p.allow_scroll),
 	mTrackEnd( p.track_end ),
 	mScrollIndex(-1),
 	mSelectionStart( 0 ),
@@ -529,11 +529,6 @@ void LLTextBase::drawText()
 		S32 next_line = cur_line + 1;
 		line_info& line = mLineInfoList[cur_line];
 
-		if ((line.mRect.mTop - scrolled_view_rect.mBottom) < mTextRect.mBottom) 
-		{
-			break;
-		}
-
 		S32 next_start = -1;
 		S32 line_end = text_len;
 
@@ -543,17 +538,9 @@ void LLTextBase::drawText()
 			line_end = next_start;
 		}
 
-		// A patch for EXT-1944 "Implement ellipses in message well" 
-		// introduced a regression where text in SansSerif ending in the
-		// letter "r" is clipped.  This may be due to an off-by-one in
-		// font width information out of FreeType with our fractional font
-		// sizes.  For now, just make an extra pixel of space to resolve
-		// EXT-2971 "Letter R doesn't show when it's the last letter in a
-		// text block".  See James/Richard for details.
-		const S32 FIX_CLIPPING_HACK = 1;
 		LLRect text_rect(line.mRect.mLeft + mTextRect.mLeft - scrolled_view_rect.mLeft,
 						line.mRect.mTop - scrolled_view_rect.mBottom + mTextRect.mBottom,
-						llmin(mDocumentView->getRect().getWidth(), line.mRect.mRight) - scrolled_view_rect.mLeft + FIX_CLIPPING_HACK,
+						llmin(mDocumentView->getRect().getWidth(), line.mRect.mRight) - scrolled_view_rect.mLeft,
 						line.mRect.mBottom - scrolled_view_rect.mBottom + mTextRect.mBottom);
 
 		// draw a single line of text
@@ -1086,6 +1073,10 @@ void LLTextBase::reflow(S32 start_index)
 	{
 		mReflowNeeded = FALSE;
 
+		// shrink document to minimum size (visible portion of text widget)
+		// to force inlined widgets with follows set to shrink
+		mDocumentView->setShape(mTextRect);
+
 		bool scrolled_to_bottom = mScroller ? mScroller->isAtBottom() : false;
 
 		LLRect old_cursor_rect = getLocalRectFromDocIndex(mCursorPos);
@@ -1348,13 +1339,11 @@ std::pair<S32, S32>	LLTextBase::getVisibleLines(bool fully_visible)
 
 	if (fully_visible)
 	{
-		// binary search for line that starts before top of visible buffer and starts before end of visible buffer
 		first_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mTop, compare_top());
 		last_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mBottom, compare_bottom());
 	}
 	else
 	{
-		// binary search for line that starts before top of visible buffer and starts before end of visible buffer
 		first_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mTop, compare_bottom());
 		last_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mBottom, compare_top());
 	}
@@ -2105,7 +2094,7 @@ void LLTextBase::updateRects()
 	LLRect doc_rect = mContentsRect;
 	// use old mTextRect constraint document to width of viewable region
 	doc_rect.mLeft = 0;
-	doc_rect.mRight = mTextRect.getWidth();
+	doc_rect.mRight = llmax(mTextRect.getWidth(), mContentsRect.mRight);
 
 	mDocumentView->setShape(doc_rect);
 
@@ -2125,7 +2114,7 @@ void LLTextBase::updateRects()
 	}
 
 	// update document container again, using new mTextRect
-	doc_rect.mRight = doc_rect.mLeft + mTextRect.getWidth();
+	doc_rect.mRight = llmax(mTextRect.getWidth(), mContentsRect.mRight);
 	mDocumentView->setShape(doc_rect);
 }
 

@@ -22,6 +22,7 @@
      label="Click here to chat."
      layout="topleft"
      left_delta="7"
+     text_pad_right="25"
      left="0"
      max_length="512"
      name="chat_box"
@@ -37,7 +38,7 @@
      left_pad="-24"
      mouse_opaque="true"
      name="chat_zone_indicator"
-     top="1"
+     top="6"
      visible="true"
      width="20" />
     <button
