@@ -1422,6 +1422,8 @@ void LLOutgoingCallDialog::onOpen(const LLSD& key)
 	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 	icon->setValue(callee_id);
 
+	// stop timer by default
+	mLifetimeTimer.stop();
 	if(mPayload.has("start_timer"))
 	{
 		mLifetimeTimer.reset();
