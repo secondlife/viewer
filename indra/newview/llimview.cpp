@@ -1082,7 +1082,7 @@ public:
 			if ( 404 == statusNum )
 			{
 				std::string error_string;
-				error_string = "does not exist";
+				error_string = "session_does_not_exist_error";
 				gIMMgr->showSessionStartError(error_string, mSessionID);
 			}
 		}
