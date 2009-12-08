@@ -106,6 +106,8 @@ BOOL LLSidepanelTaskInfo::postBuild()
 
 	mLabelGroupName = getChild<LLNameBox>("Group Name Proxy");
 
+	childSetCommitCallback("checkbox for sale",onClickForSale,this);
+
 	return TRUE;
 }
 
@@ -474,7 +476,7 @@ void LLSidepanelTaskInfo::refresh()
 
 	U32 base_mask_on 			= 0;
 	U32 base_mask_off		 	= 0;
-	//U32 owner_mask_off		= 0;
+	U32 owner_mask_off			= 0;
 	U32 owner_mask_on 			= 0;
 	U32 group_mask_on 			= 0;
 	U32 group_mask_off 			= 0;
@@ -486,11 +488,10 @@ void LLSidepanelTaskInfo::refresh()
 	BOOL valid_base_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_BASE,
 																			&base_mask_on,
 																			&base_mask_off);
-	/*
-	BOOL valid_owner_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_OWNER,
-																			&owner_mask_on,
-																			&owner_mask_off);
-	*/
+	//BOOL valid_owner_perms =//
+	LLSelectMgr::getInstance()->selectGetPerm(PERM_OWNER,
+											  &owner_mask_on,
+											  &owner_mask_off);
 	BOOL valid_group_perms 		= LLSelectMgr::getInstance()->selectGetPerm(PERM_GROUP,
 																			&group_mask_on,
 																			&group_mask_off);
@@ -506,50 +507,41 @@ void LLSidepanelTaskInfo::refresh()
 	
 	if (gSavedSettings.getBOOL("DebugPermissions") )
 	{
-		std::string perm_string;
 		if (valid_base_perms)
 		{
-			perm_string = "B: " + mask_to_string(base_mask_on);
-			childSetText("B:",						perm_string);
-			childSetVisible("B:",					TRUE);
+			childSetText("B:",								"B: " + mask_to_string(base_mask_on));
+			childSetVisible("B:",							TRUE);
 			
-			perm_string = "O: " + mask_to_string(owner_mask_on);
-			childSetText("O:",						perm_string);
-			childSetVisible("O:",					TRUE);
+			childSetText("O:",								"O: " + mask_to_string(owner_mask_on));
+			childSetVisible("O:",							TRUE);
 			
-			perm_string = "G: " + mask_to_string(group_mask_on);
-			childSetText("G:",						perm_string);
-			childSetVisible("G:",					TRUE);
+			childSetText("G:",								"G: " + mask_to_string(group_mask_on));
+			childSetVisible("G:",							TRUE);
 			
-			perm_string = "E: " + mask_to_string(everyone_mask_on);
-			childSetText("E:",						perm_string);
-			childSetVisible("E:",					TRUE);
+			childSetText("E:",								"E: " + mask_to_string(everyone_mask_on));
+			childSetVisible("E:",							TRUE);
 			
-			perm_string = "N: " + mask_to_string(next_owner_mask_on);
-			childSetText("N:",						perm_string);
-			childSetVisible("N:",					TRUE);
+			childSetText("N:",								"N: " + mask_to_string(next_owner_mask_on));
+			childSetVisible("N:",							TRUE);
 		}
+
 		U32 flag_mask = 0x0;
-		if (objectp->permMove())
-			flag_mask |= PERM_MOVE;
-		if (objectp->permModify())
-			flag_mask |= PERM_MODIFY;
-		if (objectp->permCopy())
-			flag_mask |= PERM_COPY;
-		if (objectp->permTransfer())
-			flag_mask |= PERM_TRANSFER;
-		perm_string = "F:" + mask_to_string(flag_mask);
-		childSetText("F:",							perm_string);
-		childSetVisible("F:",						TRUE);
+		if (objectp->permMove()) 		flag_mask |= PERM_MOVE;
+		if (objectp->permModify()) 		flag_mask |= PERM_MODIFY;
+		if (objectp->permCopy()) 		flag_mask |= PERM_COPY;
+		if (objectp->permTransfer()) 	flag_mask |= PERM_TRANSFER;
+
+		childSetText("F:",									"F:" + mask_to_string(flag_mask));
+		childSetVisible("F:",								TRUE);
 	}
 	else
 	{
-		childSetVisible("B:",						FALSE);
-		childSetVisible("O:",						FALSE);
-		childSetVisible("G:",						FALSE);
-		childSetVisible("E:",						FALSE);
-		childSetVisible("N:",						FALSE);
-		childSetVisible("F:",						FALSE);
+		childSetVisible("B:",								FALSE);
+		childSetVisible("O:",								FALSE);
+		childSetVisible("G:",								FALSE);
+		childSetVisible("E:",								FALSE);
+		childSetVisible("N:",								FALSE);
+		childSetVisible("F:",								FALSE);
 	}
 
 	BOOL has_change_perm_ability = FALSE;
@@ -745,8 +737,14 @@ void LLSidepanelTaskInfo::refresh()
 	// HACK: There are some old objects in world that are set for sale,
 	// but are no-transfer.  We need to let users turn for-sale off, but only
 	// if for-sale is set.
-	const BOOL cannot_actually_sell = !can_transfer || (!can_copy && sale_type == LLSaleInfo::FS_COPY);
-	childSetEnabled("checkbox for sale", 			(num_for_sale && has_change_sale_ability && cannot_actually_sell));
+	bool cannot_actually_sell = !can_transfer || (!can_copy && sale_type == LLSaleInfo::FS_COPY);
+	if (cannot_actually_sell)
+	{
+		if (num_for_sale && has_change_sale_ability)
+		{
+			childSetEnabled("checkbox for sale", true);
+		}
+	}
 	
 	// Check search status of objects
 	const BOOL all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
@@ -971,6 +969,21 @@ void LLSidepanelTaskInfo::setAllSaleInfo()
 			LLSelectMgr::getInstance()->selectionSetClickAction(CLICK_ACTION_TOUCH);
 		}
 	}
+}
+
+// static
+void LLSidepanelTaskInfo::onClickForSale(LLUICtrl* ctrl, void* data)
+{
+	LLSidepanelTaskInfo* self = (LLSidepanelTaskInfo*)data;
+	self->updateUIFromSaleInfo();
+}
+
+void LLSidepanelTaskInfo::updateUIFromSaleInfo()
+{
+	/* 
+	   TODO: Update sale button enable/disable state and default 
+	   sale button settings when this sale button is enabled/disabled.
+	*/
 }
 
 struct LLSelectionPayable : public LLSelectedObjectFunctor

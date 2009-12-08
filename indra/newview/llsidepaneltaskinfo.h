@@ -91,6 +91,9 @@ protected:
 
 	void setAllSaleInfo();
 
+	static void onClickForSale(LLUICtrl* ctrl, void *data);
+	void updateUIFromSaleInfo();
+
 	void disableAll();
 
 private:
