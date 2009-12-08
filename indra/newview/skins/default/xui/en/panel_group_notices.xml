@@ -91,6 +91,7 @@ Maximum 200 per group daily
      layout="topleft"
      name="refresh_notices"
      right="-5"
+     tool_tip="Refresh list of notices"
      top_delta="0"
      width="23" />
     <panel
