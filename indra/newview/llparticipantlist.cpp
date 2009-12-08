@@ -278,6 +278,16 @@ void LLParticipantList::addAvatarIDExceptAgent(std::vector<LLUUID>& existing_lis
 //
 bool LLParticipantList::SpeakerAddListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
+	/**
+	 * We need to filter speaking objects. These objects shouldn't appear in the list
+	 * @c LLFloaterChat::addChat() in llviewermessage.cpp to get detailed call hierarchy
+	 */
+	const LLUUID& speaker_id = event->getValue().asUUID();
+	LLPointer<LLSpeaker> speaker = mParent.mSpeakerMgr->findSpeaker(speaker_id);
+	if(speaker.isNull() || speaker->mType == LLSpeaker::SPEAKER_OBJECT)
+	{
+		return false;
+	}
 	return mParent.onAddItemEvent(event, userdata);
 }
 
