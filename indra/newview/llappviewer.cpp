@@ -78,6 +78,8 @@
 #include "lllocationhistory.h"
 #include "llfasttimerview.h"
 #include "llvoicechannel.h"
+#include "llsidetray.h"
+
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -2858,6 +2860,8 @@ void LLAppViewer::requestQuit()
 		gFloaterView->closeAllChildren(true);
 	}
 
+	LLSideTray::getInstance()->notifyChildren(LLSD().with("request","quit"));
+
 	send_stats();
 
 	gLogoutTimer.reset();
@@ -3762,6 +3766,13 @@ void LLAppViewer::idleShutdown()
 	{
 		return;
 	}
+
+	if (LLSideTray::getInstance()->notifyChildren(LLSD().with("request","wait_quit")))
+	{
+		return;
+	}
+
+
 	
 	// ProductEngine: Try moving this code to where we shut down sTextureCache in cleanup()
 	// *TODO: ugly
