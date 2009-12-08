@@ -2244,7 +2244,7 @@ F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selec
 			// Center the image vertically
 			S32 image_bottom = draw_rect.getCenterY() - (style_image_height/2);
 			image->draw(draw_rect.mLeft, image_bottom, 
-				style_image_width, style_image_height);
+				style_image_width, style_image_height, color);
 		}
 
 		return drawClippedSegment( getStart() + start, getStart() + end, selection_start, selection_end, draw_rect);
