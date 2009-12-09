@@ -4,6 +4,7 @@
   search_button_visible="true"
   text_pad_left="7"
   select_on_focus="true"
+  text_tentative_color="TextFgTentativeColor"
   background_image="TextField_Search_Off"
   background_image_disabled="TextField_Search_Disabled"
   background_image_focused="TextField_Search_Active">

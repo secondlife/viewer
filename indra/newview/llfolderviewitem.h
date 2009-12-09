@@ -110,7 +110,7 @@ public:
 
 	// layout constants
 	static const S32 LEFT_PAD = 5;
-	static const S32 LEFT_INDENTATION = 8;
+	static const S32 LEFT_INDENTATION = 2;
 	static const S32 ICON_PAD = 2;
 	static const S32 ICON_WIDTH = 16;
 	static const S32 TEXT_PAD = 1;
@@ -319,7 +319,6 @@ public:
 	virtual BOOL handleHover( S32 x, S32 y, MASK mask );
 	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask );
 	virtual BOOL handleDoubleClick( S32 x, S32 y, MASK mask );
-	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 
 	//	virtual void handleDropped();
 	virtual void draw();

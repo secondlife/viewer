@@ -1847,8 +1847,8 @@ LLControlGroup& LLUI::getControlControlGroup (const std::string& controlname)
 // spawn_x and spawn_y are top left corner of view in screen GL coordinates
 void LLUI::positionViewNearMouse(LLView* view, S32 spawn_x, S32 spawn_y)
 {
-	const S32 CURSOR_HEIGHT = 18;		// Approximate "normal" cursor size
-	const S32 CURSOR_WIDTH = 9;
+	const S32 CURSOR_HEIGHT = 16;		// Approximate "normal" cursor size
+	const S32 CURSOR_WIDTH = 8;
 
 	LLView* parent = view->getParent();
 
@@ -1866,7 +1866,7 @@ void LLUI::positionViewNearMouse(LLView* view, S32 spawn_x, S32 spawn_y)
 	LLRect virtual_window_rect = parent->getLocalRect();
 
 	LLRect mouse_rect;
-	const S32 MOUSE_CURSOR_PADDING = 5;
+	const S32 MOUSE_CURSOR_PADDING = 1;
 	mouse_rect.setLeftTopAndSize(mouse_x - MOUSE_CURSOR_PADDING, 
 								mouse_y + MOUSE_CURSOR_PADDING, 
 								CURSOR_WIDTH + MOUSE_CURSOR_PADDING * 2, 
