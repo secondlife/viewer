@@ -75,16 +75,6 @@
      tool_tip="[SECOND_LIFE] Last Name"
      top_delta="0"
      width="135" />
-      <combo_box
-     allow_text_entry="true"
-     font="SansSerifSmall"
-     follows="left|bottom"
-     height="23"
-     layout="topleft"
-     top="60"
-     name="server_combo"
-     width="135"
-     visible="false" />
      <text
      follows="left|bottom"
      font="SansSerifSmall"
@@ -161,14 +151,24 @@
          name="Typeregionname"
          value="" />
     </combo_box>
+    <combo_box
+     allow_text_entry="true"
+     font="SansSerifSmall"
+     follows="right|bottom"
+     height="23"
+     layout="topleft"
+     top_pad="2"
+     name="server_combo"
+     width="135"
+     visible="false" />
     <text
      follows="right|bottom"
      font="SansSerifSmall"
      text_color="EmphasisColor"
      halign="right"
      height="16"
-     top="17"
-     left_pad="10"
+     top="12"
+     left_pad="5"
      right="-10"
      name="create_new_account_text"
      width="180">
@@ -184,6 +184,17 @@
      top_pad="2"
      width="180">
         Forgot your name or password?
+    </text>
+    <text
+     follows="right|bottom"
+     font="SansSerifSmall"
+     text_color="EmphasisColor"
+     halign="right"
+     height="16"
+     name="login_help"
+     top_pad="2"
+     width="180">
+        Need help logging in?
     </text>
     <text
      follows="right|bottom"

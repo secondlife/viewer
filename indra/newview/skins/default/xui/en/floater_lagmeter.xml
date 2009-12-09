@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="150"
+ height="170"
  layout="topleft"
  name="floater_lagmeter"
  help_topic="floater_lagmeter"
@@ -328,7 +328,7 @@
      left="10"
      name="minimize"
 	 tool_tip="Toggle floater size"
-     top_delta="4"
+     top_delta="24"
      width="40">
         <button.commit_callback
          function="LagMeter.ClickShrink" />

@@ -1033,6 +1033,7 @@ void LLWindowMacOSX::hide()
 	HideWindow(mWindow);
 }
 
+//virtual
 void LLWindowMacOSX::minimize()
 {
 	setMouseClipping(FALSE);
@@ -1040,6 +1041,7 @@ void LLWindowMacOSX::minimize()
 	CollapseWindow(mWindow, true);
 }
 
+//virtual
 void LLWindowMacOSX::restore()
 {
 	show();
@@ -1441,7 +1443,7 @@ static void fixOrigin(void)
 	::GetPortBounds(port, &portrect);
 	if((portrect.left != 0) || (portrect.top != 0))
 	{
-		// Mozilla sometimes changes our port origin.  Fuckers.
+		// Mozilla sometimes changes our port origin.
 		::SetOrigin(0,0);
 	}
 }

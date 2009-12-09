@@ -169,7 +169,7 @@ BOOL LLInventoryPanel::postBuild()
 	{
 		setSortOrder(gSavedSettings.getU32(DEFAULT_SORT_ORDER));
 	}
-	mFolders->setSortOrder(mFolders->getFilter()->getSortOrder());
+	mFolders->setSortOrder(getFilter()->getSortOrder());
 
 	return TRUE;
 }
@@ -207,25 +207,28 @@ LLInventoryFilter* LLInventoryPanel::getFilter()
 	return NULL;
 }
 
-void LLInventoryPanel::setFilterTypes(U64 filter_types, BOOL filter_for_categories)
+void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType filter_type)
 {
-	mFolders->getFilter()->setFilterTypes(filter_types, filter_for_categories);
-}	
+	if (filter_type == LLInventoryFilter::FILTERTYPE_OBJECT)
+		getFilter()->setFilterObjectTypes(types);
+	if (filter_type == LLInventoryFilter::FILTERTYPE_CATEGORY)
+		getFilter()->setFilterCategoryTypes(types);
+}
 
 void LLInventoryPanel::setFilterPermMask(PermissionMask filter_perm_mask)
 {
-	mFolders->getFilter()->setFilterPermissions(filter_perm_mask);
+	getFilter()->setFilterPermissions(filter_perm_mask);
 }
 
 void LLInventoryPanel::setFilterSubString(const std::string& string)
 {
-	mFolders->getFilter()->setFilterSubString(string);
+	getFilter()->setFilterSubString(string);
 }
 
 void LLInventoryPanel::setSortOrder(U32 order)
 {
-	mFolders->getFilter()->setSortOrder(order);
-	if (mFolders->getFilter()->isModified())
+	getFilter()->setSortOrder(order);
+	if (getFilter()->isModified())
 	{
 		mFolders->setSortOrder(order);
 		// try to keep selection onscreen, even if it wasn't to start with
@@ -235,22 +238,22 @@ void LLInventoryPanel::setSortOrder(U32 order)
 
 void LLInventoryPanel::setSinceLogoff(BOOL sl)
 {
-	mFolders->getFilter()->setDateRangeLastLogoff(sl);
+	getFilter()->setDateRangeLastLogoff(sl);
 }
 
 void LLInventoryPanel::setHoursAgo(U32 hours)
 {
-	mFolders->getFilter()->setHoursAgo(hours);
+	getFilter()->setHoursAgo(hours);
 }
 
 void LLInventoryPanel::setShowFolderState(LLInventoryFilter::EFolderShow show)
 {
-	mFolders->getFilter()->setShowFolderState(show);
+	getFilter()->setShowFolderState(show);
 }
 
 LLInventoryFilter::EFolderShow LLInventoryPanel::getShowFolderState()
 {
-	return mFolders->getFilter()->getShowFolderState();
+	return getFilter()->getShowFolderState();
 }
 
 void LLInventoryPanel::modelChanged(U32 mask)
@@ -845,7 +848,7 @@ bool LLInventoryPanel::attachObject(const LLSD& userdata)
 
 BOOL LLInventoryPanel::getSinceLogoff()
 {
-	return mFolders->getFilter()->isSinceLogoff();
+	return getFilter()->isSinceLogoff();
 }
 
 // DEBUG ONLY
@@ -856,14 +859,31 @@ void LLInventoryPanel::dumpSelectionInformation(void* user_data)
 	iv->mFolders->dumpSelectionInformation();
 }
 
-// static
-LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel()
+BOOL is_inventorysp_active()
 {
-	LLInventoryPanel* res = NULL;
+	if (!LLSideTray::getInstance()->isPanelActive("sidepanel_inventory")) return FALSE;
+	LLSidepanelInventory *inventorySP = dynamic_cast<LLSidepanelInventory *>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+	if (!inventorySP) return FALSE; 
+	return inventorySP->isMainInventoryPanelActive();
+}
 
-	// Iterate through the inventory floaters and return whichever is on top.
+// static
+LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
+{
+	// A. If the inventory side panel is open, use that preferably.
+	if (is_inventorysp_active())
+	{
+		LLSidepanelInventory *inventorySP = dynamic_cast<LLSidepanelInventory *>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+		if (inventorySP)
+		{
+			return inventorySP->getActivePanel();
+		}
+	}
+	
+	// B. Iterate through the inventory floaters and return whichever is on top.
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
 	S32 z_min = S32_MAX;
+	LLInventoryPanel* res = NULL;
 	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
 	{
 		LLFloaterInventory* iv = dynamic_cast<LLFloaterInventory*>(*iter);
@@ -877,22 +897,22 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel()
 			}
 		}
 	}
+	if (res) return res;
+		
+	// C. If no panels are open and we don't want to force open a panel, then just abort out.
+	if (!auto_open) return NULL;
+	
+	// D. Open the inventory side panel and use that.
+	LLSideTray *side_tray = LLSideTray::getInstance();
+	LLSidepanelInventory *sidepanel_inventory =
+		dynamic_cast<LLSidepanelInventory *>(side_tray->getPanel("sidepanel_inventory"));
 
-	// Otherwise, open the inventorySP and use that.
-	if (!res)
+	// Use the inventory side panel only if it is already active.
+	// Activating it may unexpectedly switch off the currently active tab in some cases.
+	if (sidepanel_inventory && (LLPanel*)side_tray->getActiveTab() == (LLPanel*)sidepanel_inventory)
 	{
-		LLSD key;
-		LLSidepanelInventory *sidepanel_inventory =
-			dynamic_cast<LLSidepanelInventory *>(LLSideTray::getInstance()->showPanel("sidepanel_inventory", key));
-		if (sidepanel_inventory)
-		{
-			res = sidepanel_inventory->getActivePanel();
-			if (res)
-			{
-				return res;
-			}
-		}
+		return sidepanel_inventory->getActivePanel();
 	}
 
-	return res;
+	return NULL;
 }

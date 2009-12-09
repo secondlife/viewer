@@ -1044,7 +1044,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>10</integer>
+      <integer>4</integer>
     </map>
     <key>ButtonHeight</key>
     <map>
@@ -1055,7 +1055,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>20</integer>
+      <integer>23</integer>
     </map>
     <key>ButtonHeightSmall</key>
     <map>
@@ -1066,7 +1066,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>16</integer>
+      <integer>23</integer>
     </map>
     <key>ButtonVPad</key>
     <map>
@@ -3586,6 +3586,17 @@
       <string>String</string>
       <key>Value</key>
       <string>http://viewer-help.secondlife.com/[LANGUAGE]/[CHANNEL]/[VERSION]/[TOPIC]</string>
+    </map>
+    <key>HomeSidePanelURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for the web page to display in the Home side panel</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://www.secondlife.com/</string>
     </map>
     <key>HighResSnapshot</key>
     <map>

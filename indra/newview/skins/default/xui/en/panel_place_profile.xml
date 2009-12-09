@@ -95,49 +95,49 @@
     <!-- Texture names for parcel permissions icons -->
     <string
      name="icon_PG"
-     value="parcel_drk_PG" />
+     value="Parcel_PG_Dark" />
     <string
      name="icon_M"
-     value="parcel_drk_M" />
+     value="Parcel_M_Dark" />
     <string
      name="icon_R"
-     value="parcel_drk_R" />
+     value="Parcel_R_Dark" />
     <string
      name="icon_Voice"
-     value="parcel_drk_Voice" />
+     value="Parcel_Voice_Dark" />
     <string
      name="icon_VoiceNo"
-     value="parcel_drk_VoiceNo" />
+     value="Parcel_VoiceNo_Dark" />
     <string
      name="icon_Fly"
-     value="parcel_drk_Fly" />
+     value="Parcel_Fly_Dark" />
     <string
      name="icon_FlyNo"
-     value="parcel_drk_FlyNo" />
+     value="Parcel_FlyNo_Dark" />
     <string
      name="icon_Push"
-     value="parcel_drk_Push" />
+     value="Parcel_Push_Dark" />
     <string
      name="icon_PushNo"
-     value="parcel_drk_PushNo" />
+     value="Parcel_PushNo_Dark" />
     <string
      name="icon_Build"
-     value="parcel_drk_Build" />
+     value="Parcel_Build_Dark" />
     <string
      name="icon_BuildNo"
-     value="parcel_drk_BuildNo" />
+     value="Parcel_BuildNo_Dark" />
     <string
      name="icon_Scripts"
-     value="parcel_drk_Scripts" />
+     value="Parcel_Scripts_Dark" />
     <string
      name="icon_ScriptsNo"
-     value="parcel_drk_ScriptsNo" />
+     value="Parcel_ScriptsNo_Dark" />
     <string
      name="icon_Damage"
-     value="parcel_drk_Damage" />
+     value="Parcel_Damage_Dark" />
     <string
      name="icon_DamageNo"
-     value="parcel_drk_DamageNo" />
+     value="Parcel_DamageNo_Dark" />
     <button
      follows="top|right"
      height="23"
@@ -335,7 +335,7 @@
                         <icon
                          follows="top|left"
                          height="16"
-                         image_name="parcel_drk_PG"
+                         image_name="Parcel_PG_Dark"
                          layout="topleft"
                          left="10"
                          name="rating_icon"
@@ -361,7 +361,7 @@
                         <icon
                          follows="top|left"
                          height="18"
-                         image_name="parcel_drk_Voice"
+                         image_name="Parcel_Voice_Dark"
                          layout="topleft"
                          left="10"
                          name="voice_icon"
@@ -388,7 +388,7 @@
                         <icon
                          follows="top|left"
                          height="18"
-                         image_name="parcel_drk_Fly"
+                         image_name="Parcel_Fly_Dark"
                          layout="topleft"
                          left="10"
                          name="fly_icon"
@@ -414,7 +414,7 @@
                         <icon
                          follows="top|left"
                          height="18"
-                         image_name="parcel_drk_Push"
+                         image_name="Parcel_Push_Dark"
                          layout="topleft"
                          left="10"
                          name="push_icon"
@@ -440,7 +440,7 @@
                         <icon
                          follows="top|left"
                          height="18"
-                         image_name="parcel_drk_Build"
+                         image_name="Parcel_Build_Dark"
                          layout="topleft"
                          left="10"
                          name="build_icon"
@@ -466,7 +466,7 @@
                         <icon
                          follows="top|left"
                          height="18"
-                         image_name="parcel_drk_Scripts"
+                         image_name="Parcel_Scripts_Dark"
                          layout="topleft"
                          left="10"
                          name="scripts_icon"
@@ -492,7 +492,7 @@
                         <icon
                          follows="top|left"
                          height="18"
-                         image_name="parcel_drk_Damage"
+                         image_name="Parcel_Damage_Dark"
                          layout="topleft"
                          left="10"
                          name="damage_icon"
@@ -591,7 +591,7 @@
                         <icon
                          follows="top|left"
                          height="16"
-                         image_name="parcel_drk_PG"
+                         image_name="Parcel_PG_Dark"
                          layout="topleft"
                          left_pad="0"
                          name="region_rating_icon"

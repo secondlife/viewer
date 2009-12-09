@@ -87,6 +87,7 @@ public:
 	void refresh();
 
 	static void	onBtnPlay(void*);
+	static void	onBtnPause(void*);	
 	static void	onBtnStop(void*);
 	static void onSliderMove(LLUICtrl*, void*);
 	static void onCommitBaseAnim(LLUICtrl*, void*);
@@ -119,6 +120,7 @@ protected:
 	S32					mLastMouseX;
 	S32					mLastMouseY;
 	LLButton*			mPlayButton;
+	LLButton*			mPauseButton;	
 	LLButton*			mStopButton;
 	LLRect				mPreviewRect;
 	LLRectf				mPreviewImageRect;

@@ -51,6 +51,10 @@
        http://www.secondlife.com/account/partners.php?lang=en
    </string>
    <string
+    name="my_account_link_url">
+       http://secondlife.com/my
+   </string>
+   <string
     name="no_partner_text"
     value="None" />
  <scroll_container
@@ -256,7 +260,7 @@
          layout="topleft"
          left="10"
          name="my_account_link"
-	 value="Go to My Dashboard"
+         value="[[URL] Go to My Dashboard]"
          width="285" />
         <text
          follows="left|top|right"

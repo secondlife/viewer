@@ -79,6 +79,8 @@ class LLViewerMedia
 	
 		typedef std::vector<LLViewerMediaImpl*> impl_list;
 
+		typedef std::map<LLUUID, LLViewerMediaImpl*> impl_id_map;
+
 		// Special case early init for just web browser component
 		// so we can show login screen.  See .cpp file for details. JC
 
@@ -287,6 +289,8 @@ public:
 	LLPluginClassMedia::EPriority getPriority() { return mPriority; };
 
 	void setLowPrioritySizeLimit(int size);
+
+	void setTextureID(LLUUID id = LLUUID::null);
 	
 	typedef enum 
 	{
@@ -348,6 +352,7 @@ public:
 	LLMimeDiscoveryResponder *mMimeTypeProbe;
 	bool mMediaAutoPlay;
 	std::string mMediaEntryURL;
+	bool mInNearbyMediaList;	// used by LLFloaterNearbyMedia::refreshList() for performance reasons
 	
 private:
 	BOOL mIsUpdated ;

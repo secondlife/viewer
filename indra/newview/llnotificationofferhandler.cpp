@@ -40,6 +40,8 @@
 #include "llnotificationmanager.h"
 #include "llnotifications.h"
 #include "llscriptfloater.h"
+#include "llimview.h"
+#include "llnotificationsutil.h"
 
 using namespace LLNotificationsUI;
 
@@ -101,20 +103,48 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 		}
 		else
 		{
-			LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
+			if (LLHandlerUtil::canSpawnIMSession(notification))
+			{
+				const std::string name = notification->getSubstitutions().has(
+						"NAME") ? notification->getSubstitutions()["NAME"]
+						: notification->getSubstitutions()["[NAME]"];
 
-			LLToast::Params p;
-			p.notif_id = notification->getID();
-			p.notification = notification;
-			p.panel = notify_box;
-			p.on_delete_toast = boost::bind(&LLOfferHandler::onDeleteToast, this, _1);
-			
-			LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
-			if(channel)
-				channel->addToast(p);
+				LLUUID from_id = notification->getPayload()["from_id"];
 
-			// send a signal to the counter manager
-			mNewNotificationSignal();
+				LLUUID session_id = LLIMMgr::computeSessionID(
+						IM_NOTHING_SPECIAL, from_id);
+
+				LLIMModel::LLIMSession* session =
+						LLIMModel::instance().findIMSession(session_id);
+				if (session == NULL)
+				{
+					LLIMMgr::instance().addSession(name, IM_NOTHING_SPECIAL,
+							from_id);
+				}
+			}
+
+			if (notification->getPayload().has("SUPPRES_TOST")
+						&& notification->getPayload()["SUPPRES_TOST"])
+			{
+				LLNotificationsUtil::cancel(notification);
+			}
+			else
+			{
+				LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
+
+				LLToast::Params p;
+				p.notif_id = notification->getID();
+				p.notification = notification;
+				p.panel = notify_box;
+				p.on_delete_toast = boost::bind(&LLOfferHandler::onDeleteToast, this, _1);
+
+				LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+				if(channel)
+					channel->addToast(p);
+
+				// send a signal to the counter manager
+				mNewNotificationSignal();
+			}
 		}
 	}
 	else if (notify["sigtype"].asString() == "delete")

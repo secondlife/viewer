@@ -70,7 +70,7 @@ public:
 	 * Toggles script floater.
 	 * Removes "new message" icon from chiclet and removes notification toast.
 	 */
-	void toggleScriptFloater(const LLUUID& object_id);
+	void toggleScriptFloater(const LLUUID& object_id, bool set_new_message = false);
 
 	LLUUID findObjectId(const LLUUID& notification_id);
 

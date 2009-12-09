@@ -77,7 +77,7 @@
 #include "llsecondlifeurls.h"
 #include "llstring.h"
 #include "lluserrelations.h"
-#include "llversionviewer.h"
+#include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llvfs.h"
 #include "llxorcipher.h"	// saved password, MAC address
@@ -193,6 +193,7 @@
 
 #include "lllogin.h"
 #include "llevents.h"
+#include "llstartuplistener.h"
 
 #if LL_WINDOWS
 #include "llwindebug.h"
@@ -241,7 +242,8 @@ static std::string gFirstSimSeedCap;
 static LLVector3 gAgentStartLookAt(1.0f, 0.f, 0.f);
 static std::string gAgentStartLocation = "safe";
 
-static LLEventStream sStartupStateWatcher("StartupState");
+boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
+boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
 
 //
 // local function declaration
@@ -542,9 +544,9 @@ bool idle_startup()
 			if(!start_messaging_system(
 				   message_template_path,
 				   port,
-				   LL_VERSION_MAJOR,
-				   LL_VERSION_MINOR,
-				   LL_VERSION_PATCH,
+				   LLVersionInfo::getMajor(),
+				   LLVersionInfo::getMinor(),
+				   LLVersionInfo::getPatch(),
 				   FALSE,
 				   std::string(),
 				   responder,
@@ -2725,10 +2727,15 @@ void LLStartUp::setStartupState( EStartupState state )
 		getStartupStateString() << " to " <<  
 		startupStateToString(state) << LL_ENDL;
 	gStartupState = state;
+	postStartupState();
+}
+
+void LLStartUp::postStartupState()
+{
 	LLSD stateInfo;
 	stateInfo["str"] = getStartupStateString();
-	stateInfo["enum"] = state;
-	sStartupStateWatcher.post(stateInfo);
+	stateInfo["enum"] = gStartupState;
+	sStateWatcher->post(stateInfo);
 }
 
 

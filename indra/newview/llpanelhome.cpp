@@ -35,6 +35,7 @@
 #include "llpanelhome.h"
 
 #include "llmediactrl.h"
+#include "llviewerhome.h"
 
 static LLRegisterPanelClassWrapper<LLPanelHome> t_people("panel_sidetray_home");
 
@@ -62,51 +63,17 @@ BOOL LLPanelHome::postBuild()
     mBrowser = getChild<LLMediaCtrl>("browser");
     if (mBrowser)
 	{
+		// read the URL to display from settings.xml
+		std::string url = LLViewerHome::getHomeURL();
+
 		mBrowser->addObserver(this);
 		mBrowser->setTrusted(true);
-		mBrowser->setHomePageUrl("http://www.secondlife.com/");
-
-		childSetAction("back", onClickBack, this);
-		childSetAction("forward", onClickForward, this);
-		childSetAction("home", onClickHome, this);
+		mBrowser->setHomePageUrl(url);
 	}
 
     return TRUE;
 }
 
-//static 
-void LLPanelHome::onClickBack(void* user_data)
-{
-	LLPanelHome *self = (LLPanelHome*)user_data;
-	if (self && self->mBrowser)
-	{
-		self->mBrowser->navigateBack();
-	}
-}
-
-//static 
-void LLPanelHome::onClickForward(void* user_data)
-{
-	LLPanelHome *self = (LLPanelHome*)user_data;
-	if (self && self->mBrowser)
-	{
-		self->mBrowser->navigateForward();
-	}
-}
-
-//static 
-void LLPanelHome::onClickHome(void* user_data)
-{
-	LLPanelHome *self = (LLPanelHome*)user_data;
-	if (self && self->mBrowser)
-	{
-		self->mBrowser->navigateHome();
-	}
-}
-
 void LLPanelHome::handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event)
 {
-	// update back/forward button state
-	childSetEnabled("back", mBrowser->canNavigateBack());
-	childSetEnabled("forward", mBrowser->canNavigateForward());
 }

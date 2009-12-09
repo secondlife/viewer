@@ -353,7 +353,7 @@ void LLPanelOutfitsInventory::initAccordionPanels()
 	mAccordionPanels.resize(2);
 	
 	LLInventoryPanel *myoutfits_panel = getChild<LLInventoryPanel>("outfitslist_accordionpanel");
-	myoutfits_panel->setFilterTypes(1LL << LLFolderType::FT_OUTFIT, TRUE);
+	myoutfits_panel->setFilterTypes(1LL << LLFolderType::FT_OUTFIT, LLInventoryFilter::FILTERTYPE_CATEGORY);
 	myoutfits_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 	mAccordionPanels[0] = myoutfits_panel;
 	mActivePanel = myoutfits_panel;

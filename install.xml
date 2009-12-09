@@ -214,9 +214,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>4f05166629caa4c132a7448eefb8d592</string>
+            <string>6746ae9fd9aff98b15f7b9f0f40334ab</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-windows-20090917.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-windows-20091204.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1367,23 +1367,23 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>dd66471b31d369bb7bcbcc1a833d9070</string>
+            <string>90a08e3a1dffa2ea45c1227c4d4d01f7</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.0.0006.7653-darwin-20091126.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.0.0006.7714-darwin-20091208.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>e56745bc71fc22fc90f80cb359db7022</string>
+            <string>390fe4ed062cfb05bbc534772837ce5e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.0.0006.7653-linux-20091126.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.0.0006.7714-linux-20091208.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>3081bcc821cdc016aa4127cb026e4311</string>
+            <string>0232fb487bd31ea756604d139b2a2e34</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.0.0006.7653-windows-20091126.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.0.0006.7714-windows-20091208.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1447,9 +1447,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>1804b54034ef7f82832506a44acb06b8</string>
+            <string>26fe88213c213dc6153690ab142c25ca</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-linux-20090603.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3dfsg-linux-20091208.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
