@@ -172,6 +172,11 @@ public:
 			completeAny(status, "text/html");
 		}
 		else
+		if(status == 403)
+		{
+			completeAny(status, "text/html");
+		}
+		else
 		if(status == 404)
 		{
 			// 404 is content not found - sites often have bespoke 404 pages so
@@ -240,6 +245,7 @@ public:
 		bool mInitialized;
 };
 static LLViewerMedia::impl_list sViewerMediaImplList;
+static LLViewerMedia::impl_id_map sViewerMediaTextureIDMap;
 static LLTimer sMediaCreateTimer;
 static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
 static F32 sGlobalVolume = 1.0f;
@@ -297,7 +303,7 @@ viewer_media_t LLViewerMedia::newMediaImpl(
 	else
 	{
 		media_impl->unload();
-		media_impl->mTextureId = texture_id;
+		media_impl->setTextureID(texture_id);
 		media_impl->mMediaWidth = media_width;
 		media_impl->mMediaHeight = media_height;
 		media_impl->mMediaAutoScale = media_auto_scale;
@@ -412,18 +418,16 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 // static
 LLViewerMediaImpl* LLViewerMedia::getMediaImplFromTextureID(const LLUUID& texture_id)
 {
-	impl_list::iterator iter = sViewerMediaImplList.begin();
-	impl_list::iterator end = sViewerMediaImplList.end();
-
-	for(; iter != end; iter++)
+	LLViewerMediaImpl* result = NULL;
+	
+	// Look up the texture ID in the texture id->impl map.
+	impl_id_map::iterator iter = sViewerMediaTextureIDMap.find(texture_id);
+	if(iter != sViewerMediaTextureIDMap.end())
 	{
-		LLViewerMediaImpl* media_impl = *iter;
-		if(media_impl->getMediaTextureID() == texture_id)
-		{
-			return media_impl;
-		}
+		result = iter->second;
 	}
-	return NULL;
+
+	return result;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -827,7 +831,6 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 :	
 	mMediaSource( NULL ),
 	mMovieImageHasMips(false),
-	mTextureId(texture_id),
 	mMediaWidth(media_width),
 	mMediaHeight(media_height),
 	mMediaAutoScale(media_auto_scale),
@@ -857,6 +860,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mProximityDistance(0.0f),
 	mMimeTypeProbe(NULL),
 	mMediaAutoPlay(false),
+	mInNearbyMediaList(false),
 	mIsUpdated(false)
 { 
 
@@ -868,6 +872,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	}
 	
 	add_media_impl(this);
+
+	setTextureID(texture_id);
 	
 	// connect this media_impl to the media texture, creating it if it doesn't exist.0
 	// This is necessary because we need to be able to use getMaxVirtualSize() even if the media plugin is not loaded.
@@ -891,6 +897,7 @@ LLViewerMediaImpl::~LLViewerMediaImpl()
 	
 	LLViewerMediaTexture::removeMediaImplFromTexture(mTextureId) ;
 
+	setTextureID();
 	remove_media_impl(this);
 }
 
@@ -2421,6 +2428,26 @@ LLVOVolume *LLViewerMediaImpl::getSomeObject()
 	
 	return result;
 }
+
+void LLViewerMediaImpl::setTextureID(LLUUID id)
+{
+	if(id != mTextureId)
+	{
+		if(mTextureId.notNull())
+		{
+			// Remove this item's entry from the map
+			sViewerMediaTextureIDMap.erase(mTextureId);
+		}
+		
+		if(id.notNull())
+		{
+			sViewerMediaTextureIDMap.insert(LLViewerMedia::impl_id_map::value_type(id, this));
+		}
+		
+		mTextureId = id;
+	}
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //static
