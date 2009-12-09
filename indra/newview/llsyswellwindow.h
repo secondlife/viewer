@@ -46,7 +46,7 @@
 class LLFlatListView;
 class LLChiclet;
 class LLIMChiclet;
-
+class LLScriptChiclet;
 
 
 class LLSysWellWindow : public LLDockableFloater
@@ -181,11 +181,16 @@ public:
 	/*virtual*/ void sessionRemoved(const LLUUID& session_id);
 	/*virtual*/ void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
+	void addObjectRow(const LLUUID& object_id, bool new_message = false);
+	void removeObjectRow(const LLUUID& object_id);
+
 protected:
 	/*virtual*/ const std::string& getAnchorViewName() { return IM_WELL_ANCHOR_NAME; }
 
 private:
 	LLChiclet * findIMChiclet(const LLUUID& sessionId);
+	LLChiclet* findObjectChiclet(const LLUUID& object_id);
+
 	void addIMRow(const LLUUID& sessionId, S32 chicletCounter, const std::string& name, const LLUUID& otherParticipantId);
 	void delIMRow(const LLUUID& sessionId);
 
@@ -209,6 +214,37 @@ private:
 	private:
 		LLButton*	mCloseBtn;
 		const LLSysWellWindow* mParent;
+	};
+
+	class ObjectRowPanel: public LLPanel
+	{
+		typedef enum e_object_type
+		{
+			OBJ_UNKNOWN,
+
+			OBJ_SCRIPT,
+			OBJ_GIVE_INVENTORY,
+			OBJ_LOAD_URL
+		}EObjectType;
+
+	public:
+		ObjectRowPanel(const LLUUID& object_id, bool new_message = false);
+		virtual ~ObjectRowPanel();
+		/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
+		/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
+		/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	private:
+		void onClosePanel();
+		static EObjectType getObjectType(const LLNotificationPtr& notification);
+		void initChiclet(const LLUUID& object_id, bool new_message = false);
+		std::string getObjectName(const LLUUID& object_id);
+
+		typedef std::map<std::string, EObjectType> object_type_map;
+		static object_type_map initObjectTypeMap();
+	public:
+		LLIMChiclet* mChiclet;
+	private:
+		LLButton*	mCloseBtn;
 	};
 };
 

@@ -389,7 +389,7 @@ public:
 	 * Made public so that it can be triggered from outside
 	 * (more specifically, from the Active IM window).
 	 */
-	void onMouseDown();
+	virtual void onMouseDown();
 
 protected:
 
@@ -594,7 +594,7 @@ public:
 
 	/*virtual*/ void setSessionId(const LLUUID& session_id);
 
-	/*virtual*/ void setCounter(S32 counter){}
+	/*virtual*/ void setCounter(S32 counter);
 
 	/*virtual*/ S32 getCounter() { return 0; }
 
@@ -634,7 +634,7 @@ public:
 
 	/*virtual*/ void setSessionId(const LLUUID& session_id);
 
-	/*virtual*/ void setCounter(S32 counter){}
+	/*virtual*/ void setCounter(S32 counter);
 
 	/*virtual*/ S32 getCounter() { return 0; }
 

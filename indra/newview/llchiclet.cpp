@@ -61,6 +61,7 @@ static LLDefaultChildRegistry::Register<LLIMP2PChiclet> t3("chiclet_im_p2p");
 static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t4("chiclet_im_group");
 static LLDefaultChildRegistry::Register<LLAdHocChiclet> t5("chiclet_im_adhoc");
 static LLDefaultChildRegistry::Register<LLScriptChiclet> t6("chiclet_script");
+static LLDefaultChildRegistry::Register<LLInvOfferChiclet> t7("chiclet_offer");
 
 static const LLRect CHICLET_RECT(0, 25, 25, 0);
 static const LLRect CHICLET_ICON_RECT(0, 22, 22, 0);
@@ -1010,12 +1011,34 @@ void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	}
 }
 
+void object_chiclet_callback(const LLSD& data)
+{
+	LLUUID object_id = data["object_id"];
+	bool new_message = data["new_message"];
+
+	std::list<LLChiclet*> chiclets = LLIMChiclet::sFindChicletsSignal(object_id);
+	std::list<LLChiclet *>::iterator iter;
+	for (iter = chiclets.begin(); iter != chiclets.end(); iter++)
+	{
+		LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(*iter);
+		if (chiclet != NULL)
+		{
+			if(data.has("unread"))
+			{
+				chiclet->setCounter(data["unread"]);
+			}
+			chiclet->setShowNewMessagesIcon(new_message);
+		}
+	}
+}
 
 BOOL LLChicletPanel::postBuild()
 {
 	LLPanel::postBuild();
 	LLIMModel::instance().addNewMsgCallback(boost::bind(im_chiclet_callback, this, _1));
 	LLIMModel::instance().addNoUnreadMsgsCallback(boost::bind(im_chiclet_callback, this, _1));
+	LLScriptFloaterManager::getInstance()->addNewObjectCallback(boost::bind(object_chiclet_callback, _1));
+	LLScriptFloaterManager::getInstance()->addToggleObjectFloaterCallback(boost::bind(object_chiclet_callback, _1));
 	LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLChicletPanel::findChiclet<LLChiclet>, this, _1));
 	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLChicletPanel::onCurrentVoiceChannelChanged, this, _1));
 
@@ -1616,6 +1639,11 @@ void LLScriptChiclet::setSessionId(const LLUUID& session_id)
 	}
 }
 
+void LLScriptChiclet::setCounter(S32 counter)
+{
+	setShowNewMessagesIcon( counter > 0 );
+}
+
 void LLScriptChiclet::onMouseDown()
 {
 	LLScriptFloaterManager::getInstance()->toggleScriptFloater(getSessionId());
@@ -1670,6 +1698,11 @@ void LLInvOfferChiclet::setSessionId(const LLUUID& session_id)
 	{
 		mChicletIconCtrl->setValue(LLUUID::null);
 	}
+}
+
+void LLInvOfferChiclet::setCounter(S32 counter)
+{
+	setShowNewMessagesIcon( counter > 0 );
 }
 
 void LLInvOfferChiclet::onMouseDown()
