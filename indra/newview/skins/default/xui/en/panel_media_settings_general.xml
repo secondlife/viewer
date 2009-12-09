@@ -71,7 +71,7 @@
    name="current_url_label">
     Current URL:
   </text>
-  <line_editor 
+  <text 
    bottom_delta="-20" 
    enabled="false" 
    follows="left|top" 
