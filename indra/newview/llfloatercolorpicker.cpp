@@ -241,6 +241,16 @@ BOOL LLFloaterColorPicker::postBuild()
     return TRUE;
 }
 
+/*virtual*/ 
+void LLFloaterColorPicker::onClose(bool app_settings)
+{
+	if (mSwatch)
+	{
+		mSwatch->onFloaterClose();
+	}
+	stopUsingPipette();
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 void LLFloaterColorPicker::initUI ( F32 rValIn, F32 gValIn, F32 bValIn )

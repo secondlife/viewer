@@ -2280,7 +2280,7 @@ bool LLFolderBridge::removeItemResponse(const LLSD& notification, const LLSD& re
 			 iter != descendent_items.end();
 			 ++iter)
 		{
-			const LLInventoryItem* item = (*iter);
+			const LLViewerInventoryItem* item = (*iter);
 			const LLUUID& item_id = item->getUUID();
 			if (item->getType() == LLAssetType::AT_GESTURE
 				&& LLGestureManager::instance().isGestureActive(item_id))
