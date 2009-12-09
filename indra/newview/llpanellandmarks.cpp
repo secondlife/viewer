@@ -66,6 +66,30 @@ static const std::string TRASH_BUTTON_NAME = "trash_btn";
 
 // helper functions
 static void filter_list(LLInventorySubTreePanel* inventory_list, const std::string& string);
+static void save_folder_state_if_no_filter(LLInventorySubTreePanel* inventory_list);
+
+/**
+ * Bridge to support knowing when the inventory has changed to update folder (open/close) state 
+ * for landmarks panels.
+ *
+ * Due to Inventory data are loaded in background we need to save folder state each time 
+ * next level is loaded. See EXT-3094.
+ */
+class LLLandmarksPanelObserver : public LLInventoryObserver
+{
+public:
+	LLLandmarksPanelObserver(LLLandmarksPanel* lp) : mLP(lp) {}
+	virtual ~LLLandmarksPanelObserver() {}
+	/*virtual*/ void changed(U32 mask);
+
+private:
+	LLLandmarksPanel* mLP;
+};
+
+void LLLandmarksPanelObserver::changed(U32 mask)
+{
+	mLP->saveFolderStateIfNoFilter();
+}
 
 LLLandmarksPanel::LLLandmarksPanel()
 	:	LLPanelPlacesTab()
@@ -78,11 +102,18 @@ LLLandmarksPanel::LLLandmarksPanel()
 	,	mGearFolderMenu(NULL)
 	,	mGearLandmarkMenu(NULL)
 {
+	mInventoryObserver = new LLLandmarksPanelObserver(this);
+	gInventory.addObserver(mInventoryObserver);
+
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_landmarks.xml");
 }
 
 LLLandmarksPanel::~LLLandmarksPanel()
 {
+	if (gInventory.containsObserver(mInventoryObserver))
+	{
+		gInventory.removeObserver(mInventoryObserver);
+	}
 }
 
 BOOL LLLandmarksPanel::postBuild()
@@ -224,6 +255,14 @@ void LLLandmarksPanel::onSelectorButtonClicked()
 
 		LLSideTray::getInstance()->showPanel("panel_places", key);
 	}
+}
+
+void LLLandmarksPanel::saveFolderStateIfNoFilter()
+{
+	save_folder_state_if_no_filter(mFavoritesInventoryPanel);
+	save_folder_state_if_no_filter(mLandmarksInventoryPanel);
+	save_folder_state_if_no_filter(mMyInventoryPanel);
+	save_folder_state_if_no_filter(mLibraryInventoryPanel);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1019,5 +1058,14 @@ static void filter_list(LLInventorySubTreePanel* inventory_list, const std::stri
 
 	// set new filter string
 	inventory_list->setFilterSubString(string);
+}
+
+static void save_folder_state_if_no_filter(LLInventorySubTreePanel* inventory_list)
+{
+	// save current folder open state if no filter currently applied
+	if (inventory_list->getRootFolder() && inventory_list->getRootFolder()->getFilterSubString().empty())
+	{
+		inventory_list->saveFolderState();
+	}
 }
 // EOF
