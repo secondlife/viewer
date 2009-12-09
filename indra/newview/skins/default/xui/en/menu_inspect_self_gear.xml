@@ -13,7 +13,7 @@
      function="Self.StandUp"
      parameter="" />
     <menu_item_call.on_visible
-     function="Self.VisibleStandUp" />
+     function="Self.EnableStandUp" />
   </menu_item_call>
   <menu_item_call
    label="My Appearance"

@@ -343,7 +343,7 @@
   <button
    control_name="ShowDeviceSettings"
    follows="left|top"
-   height="19"
+   height="23"
    is_toggle="true"
    label="Input/Output devices"
    layout="topleft"
@@ -391,7 +391,7 @@
         Input
     </text>
     <combo_box
-     height="19"
+     height="23"
      control_name="VoiceInputAudioDevice"
      layout="topleft"
      left="165"
@@ -505,7 +505,7 @@
     </text>
     <combo_box
      control_name="VoiceOutputAudioDevice"
-     height="19"
+     height="23"
      layout="topleft"
      left="165"
      max_chars="128"

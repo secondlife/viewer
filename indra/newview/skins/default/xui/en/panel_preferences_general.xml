@@ -24,7 +24,7 @@
     <combo_box
      control_name="Language"
      follows="left|bottom"
-     height="18"
+     height="23"
      layout="topleft"
      left_delta="50"
      max_chars="135"
@@ -136,7 +136,7 @@
     <combo_box
      control_name="PreferredMaturity"
      follows="left|bottom"
-     height="18"
+     height="23"
      layout="topleft"
      left_delta="-10"
      name="maturity_desired_combobox"
@@ -170,7 +170,7 @@
     <combo_box
      control_name="LoginLocation"
      follows="left|bottom"
-     height="18"
+     height="23"
      layout="topleft"
      left_delta="50"
      name="start_location_combo"
