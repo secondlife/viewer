@@ -45,6 +45,7 @@
 #include "llagentwearables.h"
 #include "llagentpilot.h"
 #include "llcompilequeue.h"
+#include "llconsole.h"
 #include "lldebugview.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
@@ -487,7 +488,7 @@ class LLAdvancedToggleConsole : public view_listener_t
 		}
 		else if ("debug" == console_type)
 		{
-			toggle_visibility( (void*)((LLView*)gDebugView->mDebugConsolep) );
+			toggle_visibility( (void*)static_cast<LLUICtrl*>(gDebugView->mDebugConsolep));
 		}
 		else if (gTextureSizeView && "texture size" == console_type)
 		{

@@ -38,7 +38,7 @@
 #include "llui.h"
 #include "lluri.h"
 #include "llsd.h"
-#include "llviewerversion.h"
+#include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
 
@@ -49,7 +49,7 @@ std::string LLViewerHome::getHomeURL()
 	// this value from settings.xml and support various substitutions
 
 	LLSD substitution;
-	substitution["VERSION"] = llGetViewerVersion();
+	substitution["VERSION"] = LLVersionInfo::getVersion();
 	substitution["CHANNEL"] = LLURI::escape(gSavedSettings.getString("VersionChannelName"));
 	substitution["LANGUAGE"] = LLUI::getLanguage();
 	substitution["AUTH_KEY"] = LLURI::escape(getAuthKey());

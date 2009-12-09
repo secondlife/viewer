@@ -37,11 +37,11 @@
 #include "llviewermediafocus.h"
 #include "llmimetypes.h"
 #include "llmediaentry.h"
+#include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llviewertexture.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparcelmgr.h"
-#include "llviewerversion.h"
 #include "llviewertexturelist.h"
 #include "llvovolume.h"
 #include "llpluginclassmedia.h"
@@ -446,7 +446,7 @@ std::string LLViewerMedia::getCurrentUserAgent()
 	// http://www.mozilla.org/build/revised-user-agent-strings.html
 	std::ostringstream codec;
 	codec << "SecondLife/";
-	codec << llGetViewerVersion();
+	codec << LLVersionInfo::getVersion();
 	codec << " (" << channel << "; " << skin_name << " skin)";
 	llinfos << codec.str() << llendl;
 	
