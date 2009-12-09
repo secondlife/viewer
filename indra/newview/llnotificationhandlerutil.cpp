@@ -37,6 +37,8 @@
 #include "llnotifications.h"
 #include "llimview.h"
 #include "llagent.h"
+#include "llfloaterreg.h"
+#include "llnearbychat.h"
 
 using namespace LLNotificationsUI;
 
@@ -47,7 +49,8 @@ const static std::string GRANTED_MODIFY_RIGHTS("GrantedModifyRights"),
 						ADD_FRIEND_WITH_MESSAGE("AddFriendWithMessage"),
 						USER_GIVE_ITEM("UserGiveItem"), OFFER_FRIENDSHIP("OfferFriendship"),
 						FRIENDSHIP_ACCEPTED("FriendshipAccepted"),
-						FRIENDSHIP_OFFERED("FriendshipOffered");
+						FRIENDSHIP_OFFERED("FriendshipOffered"),
+						FRIEND_ONLINE("FriendOnline"), FRIEND_OFFLINE("FriendOffline");
 
 // static
 bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
@@ -56,6 +59,14 @@ bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 			|| REVOKED_MODIFY_RIGHTS == notification->getName()
 			|| PAYMENT_RECIVED == notification->getName()
 			|| FRIENDSHIP_OFFERED == notification->getName();
+}
+
+// static
+bool LLHandlerUtil::canLogToNearbyChat(const LLNotificationPtr& notification)
+{
+	return notification->getType() == "notifytip"
+			&&  FRIEND_ONLINE != notification->getName()
+			&& FRIEND_OFFLINE != notification->getName();
 }
 
 // static
@@ -142,5 +153,17 @@ void LLHandlerUtil::logGroupNoticeToIMGroup(
 
 	logToIM(IM_SESSION_GROUP_START, group_name, sender_name, payload["message"],
 			payload["group_id"], sender_id);
+}
+
+// static
+void LLHandlerUtil::logToNearbyChat(const LLNotificationPtr& notification, EChatSourceType type)
+{
+	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	if(nearby_chat)
+	{
+		LLChat chat_msg(notification->getMessage());
+		chat_msg.mSourceType = type;
+		nearby_chat->addMessage(chat_msg);
+	}
 }
 
