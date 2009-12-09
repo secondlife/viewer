@@ -85,7 +85,8 @@ public:
 		{
 			std::vector<LLUUID> items_to_open;
 			items_to_open.push_back(inventory_id);
-			open_inventory_offer(items_to_open, "");
+			//inventory_handler is just a stub, because we don't know from who this offer
+			open_inventory_offer(items_to_open, "inventory_handler");
 			return true;
 		}
 		

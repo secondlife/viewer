@@ -125,7 +125,10 @@ void LLLandmarksPanel::onSearchEdit(const std::string& string)
 		tab->setVisible(TRUE);
 
 		// expand accordion to see matched items in each one. See EXT-2014.
-		tab->changeOpenClose(false);
+		if (string != "")
+		{
+			tab->changeOpenClose(false);
+		}
 
 		LLInventorySubTreePanel* inventory_list = dynamic_cast<LLInventorySubTreePanel*>(tab->getAccordionView());
 		if (NULL == inventory_list) continue;
@@ -999,8 +1002,6 @@ static void filter_list(LLInventorySubTreePanel* inventory_list, const std::stri
 		// re-open folders that were initially open
 		inventory_list->restoreFolderState();
 	}
-
-	gInventory.startBackgroundFetch();
 
 	if (inventory_list->getFilterSubString().empty() && string.empty())
 	{

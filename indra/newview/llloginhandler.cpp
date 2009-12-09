@@ -40,9 +40,12 @@
 #include "llurlsimstring.h"
 #include "llviewercontrol.h"		// gSavedSettings
 #include "llviewernetwork.h"		// EGridInfo
+#include "llviewerwindow.h"			// getWindow()
 
 // library includes
 #include "llmd5.h"
+#include "llweb.h"
+#include "llwindow.h"
 
 
 // Must have instance to auto-register with LLCommandDispatcher
@@ -172,6 +175,32 @@ bool LLLoginHandler::handle(const LLSD& tokens,
 		// We're using reg-in-client, so show the XUI login widgets
 		LLPanelLogin::showLoginWidgets();
 		return true;
+	}
+
+	if (tokens.size() == 1
+		&& tokens[0].asString() == "reg")
+	{
+		LLWindow* window = gViewerWindow->getWindow();
+		window->incBusyCount();
+		window->setCursor(UI_CURSOR_ARROW);
+
+		// Do this first, as it may be slow and we want to keep something
+		// on the user's screen as long as possible
+		LLWeb::loadURLExternal( "http://join.eniac15.lindenlab.com/" );
+
+		window->decBusyCount();
+		window->setCursor(UI_CURSOR_ARROW);
+
+		// Then hide the window
+		window->minimize();
+		return true;
+	}
+
+	// Make sure window is visible
+	LLWindow* window = gViewerWindow->getWindow();
+	if (window->getMinimized())
+	{
+		window->restore();
 	}
 
 	parse(query_map);

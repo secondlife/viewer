@@ -45,6 +45,7 @@
 #include "llagentwearables.h"
 #include "llagentpilot.h"
 #include "llcompilequeue.h"
+#include "llconsole.h"
 #include "lldebugview.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
@@ -487,7 +488,7 @@ class LLAdvancedToggleConsole : public view_listener_t
 		}
 		else if ("debug" == console_type)
 		{
-			toggle_visibility( (void*)((LLView*)gDebugView->mDebugConsolep) );
+			toggle_visibility( (void*)static_cast<LLUICtrl*>(gDebugView->mDebugConsolep));
 		}
 		else if (gTextureSizeView && "texture size" == console_type)
 		{
@@ -2309,6 +2310,12 @@ class LLObjectEnableReportAbuse : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		bool new_value = LLSelectMgr::getInstance()->getSelection()->getObjectCount() != 0;
+/*		// all the faces needs to be selected
+		if(LLSelectMgr::getInstance()->getSelection()->contains(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject(),SELECT_ALL_TES ))
+		{
+			new_value = true;
+		}
+ */
 		return new_value;
 	}
 };
@@ -2697,6 +2704,7 @@ BOOL enable_has_attachments(void*)
 bool enable_object_mute()
 {
 	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+	
 	bool new_value = (object != NULL);
 	if (new_value)
 	{
@@ -2709,6 +2717,19 @@ bool enable_object_mute()
 			BOOL is_self = avatar->isSelf();
 			new_value = !is_linden && !is_self;
 		}
+		else
+		{
+			if( LLSelectMgr::getInstance()->getSelection()->contains(object,SELECT_ALL_TES ))
+			{
+				new_value = true;
+			}		
+			else 
+			{
+				new_value = false;
+			}
+
+		}
+
 	}
 	return new_value;
 }
@@ -5521,11 +5542,6 @@ class LLShowFloater : public view_listener_t
 		{
 			LLFloaterScriptDebug::show(LLUUID::null);
 		}
-		else if (floater_name == "help f1")
-		{
-			LLViewerHelp* vhelp = LLViewerHelp::getInstance();
-			vhelp->showTopic(vhelp->getTopicFromFocus());
-		}
 		else if (floater_name == "complaint reporter")
 		{
 			// Prevent menu from appearing in screen shot.
@@ -5559,6 +5575,26 @@ class LLFloaterVisible : public view_listener_t
 			new_value = LLFloaterReg::instanceVisible(floater_name);
 		}
 		return new_value;
+	}
+};
+
+class LLShowHelp : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string help_topic = userdata.asString();
+
+		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
+		if (help_topic.empty())
+		{
+			vhelp->showTopic(vhelp->getTopicFromFocus());
+		}
+		else
+		{
+			vhelp->showTopic(help_topic);
+		}
+
+		return true;
 	}
 };
 
@@ -7925,6 +7961,7 @@ void initialize_menus()
 
 	// Generic actions
 	view_listener_t::addMenu(new LLShowFloater(), "ShowFloater");
+	view_listener_t::addMenu(new LLShowHelp(), "ShowHelp");
 	view_listener_t::addMenu(new LLPromptShowURL(), "PromptShowURL");
 	view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
 	view_listener_t::addMenu(new LLToggleControl(), "ToggleControl");

@@ -1060,8 +1060,7 @@
          name="Second Life Help"
          shortcut="F1">
             <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="help f1" />
+             function="ShowHelp" />
         </menu_item_call>
         <menu_item_call
          label="Tutorial"
@@ -1080,6 +1079,14 @@
                 <menu_item_call.on_click
                  function="ShowFloater"
                  parameter="complaint reporter" />
+            </menu_item_call>
+        <menu_item_call
+             label="Report Bug"
+             layout="topleft"
+             name="Report Bug">
+                <menu_item_call.on_click
+                 function="ShowHelp"
+                 parameter="report_bug" />
             </menu_item_call>
         <menu_item_separator
              layout="topleft" />
@@ -3415,7 +3422,7 @@
          name="Parcel"
          tear_off="true">
             <menu_item_call
-             label="Owner To Me"
+             label="Force Owner To Me"
              layout="topleft"
              name="Owner To Me">
                 <menu_item_call.on_click

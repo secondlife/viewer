@@ -77,7 +77,7 @@
 #include "llsecondlifeurls.h"
 #include "llstring.h"
 #include "lluserrelations.h"
-#include "llversionviewer.h"
+#include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llvfs.h"
 #include "llxorcipher.h"	// saved password, MAC address
@@ -542,9 +542,9 @@ bool idle_startup()
 			if(!start_messaging_system(
 				   message_template_path,
 				   port,
-				   LL_VERSION_MAJOR,
-				   LL_VERSION_MINOR,
-				   LL_VERSION_PATCH,
+				   LLVersionInfo::getMajor(),
+				   LLVersionInfo::getMinor(),
+				   LLVersionInfo::getPatch(),
 				   FALSE,
 				   std::string(),
 				   responder,

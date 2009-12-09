@@ -167,8 +167,8 @@
      text_color="EmphasisColor"
      halign="right"
      height="16"
-     top="17"
-     left_pad="10"
+     top="12"
+     left_pad="5"
      right="-10"
      name="create_new_account_text"
      width="180">
@@ -184,6 +184,17 @@
      top_pad="2"
      width="180">
         Forgot your name or password?
+    </text>
+    <text
+     follows="right|bottom"
+     font="SansSerifSmall"
+     text_color="EmphasisColor"
+     halign="right"
+     height="16"
+     name="login_help"
+     top_pad="2"
+     width="180">
+        Need help logging in?
     </text>
     <text
      follows="right|bottom"

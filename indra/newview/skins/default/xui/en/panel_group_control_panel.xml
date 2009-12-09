@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  border="false"
- follows="left|top|right|bottom"
+ follows="all"
  height="238"
  name="panel_im_control_panel"
  width="180">
-
     <avatar_list
      color="DkGray2"
-     follows="left|top|right|bottom"
+     follows="all"
      height="100"
      ignore_online_status="true"
      layout="topleft"
@@ -19,20 +18,18 @@
      show_profile_btn="false"
      show_speaking_indicator="false"
      top="10"
-     width="180"/>
-
+     width="180" />
     <button
      bottom_pad="0"
-     follows="left|right|bottom" 
-     height="20"
-     label="Group Info"
+     follows="left|right|bottom"
+     height="23"
+     label="Group Profile"
      left_delta="28"
      name="group_info_btn"
-     width="125"/>
-
+     width="125" />
     <panel
      background_visible="true"
-     bg_alpha_color="0.2 0.2 0.2 1"
+     bg_alpha_color="DkGray2"
      border="false"
      follows="left|right|bottom"
      height="70"
@@ -41,34 +38,29 @@
      name="panel_call_buttons"
      top_pad="0"
      width="180">
-
         <button
          bottom="10"
-         follows="all" 
-         height="20"
+         follows="all"
+         height="23"
          label="Call Group"
          left_delta="28"
          name="call_btn"
-         width="125"/>
-
+         width="125" />
         <button
          bottom="40"
-         follows="all" 
-         height="20"
+         follows="all"
+         height="23"
          label="Leave Call"
          name="end_call_btn"
          visible="false"
-         width="125"/>
-
+         width="125" />
         <button
          bottom="10"
-         follows="all" 
-         height="20"
+         follows="all"
+         height="23"
          label="Open Voice Controls"
          name="voice_ctrls_btn"
          visible="false"
-         width="125"/>
-
+         width="125" />
     </panel>
-
 </panel>

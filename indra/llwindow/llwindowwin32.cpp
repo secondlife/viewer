@@ -643,6 +643,7 @@ void LLWindowWin32::hide()
 	ShowWindow(mWindowHandle, SW_HIDE);
 }
 
+//virtual
 void LLWindowWin32::minimize()
 {
 	setMouseClipping(FALSE);
@@ -650,7 +651,7 @@ void LLWindowWin32::minimize()
 	ShowWindow(mWindowHandle, SW_MINIMIZE);
 }
 
-
+//virtual
 void LLWindowWin32::restore()
 {
 	ShowWindow(mWindowHandle, SW_RESTORE);

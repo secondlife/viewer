@@ -140,9 +140,14 @@ BOOL LLFloaterAvatarPicker::postBuild()
 	return TRUE;
 }
 
+void LLFloaterAvatarPicker::setOkBtnEnableCb(validate_callback_t cb)
+{
+	mOkButtonValidateSignal.connect(cb);
+}
+
 void LLFloaterAvatarPicker::onTabChanged()
 {
-	childSetEnabled("ok_btn", visibleItemsSelected());
+	childSetEnabled("ok_btn", isSelectBtnEnabled());
 }
 
 // Destroys the object
@@ -174,6 +179,10 @@ static void getSelectedAvatarData(const LLScrollListCtrl* from, std::vector<std:
 void LLFloaterAvatarPicker::onBtnSelect(void* userdata)
 {
 	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)userdata;
+
+	// If select btn not enabled then do not callback
+	if (!self || !self->isSelectBtnEnabled())
+		return;
 
 	if(self->mCallback)
 	{
@@ -244,7 +253,7 @@ void LLFloaterAvatarPicker::onList(LLUICtrl* ctrl, void* userdata)
 	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)userdata;
 	if (self)
 	{
-		self->childSetEnabled("ok_btn", self->visibleItemsSelected());
+		self->childSetEnabled("ok_btn", self->isSelectBtnEnabled());
 	}
 }
 
@@ -476,4 +485,44 @@ BOOL LLFloaterAvatarPicker::handleKeyHere(KEY key, MASK mask)
 	}
 
 	return LLFloater::handleKeyHere(key, mask);
+}
+
+bool LLFloaterAvatarPicker::isSelectBtnEnabled()
+{
+	bool ret_val = visibleItemsSelected();
+
+	if ( ret_val && mOkButtonValidateSignal.num_slots() )
+	{
+		std::string acvtive_panel_name;
+		LLScrollListCtrl* list =  NULL;
+		LLPanel* active_panel = childGetVisibleTab("ResidentChooserTabs");
+
+		if(active_panel)
+		{
+			acvtive_panel_name = active_panel->getName();
+		}
+
+		if(acvtive_panel_name == "SearchPanel")
+		{
+			list = getChild<LLScrollListCtrl>("SearchResults");
+		}
+		else if(acvtive_panel_name == "NearMePanel")
+		{
+			list = getChild<LLScrollListCtrl>("NearMe");
+		}
+		else if (acvtive_panel_name == "FriendsPanel")
+		{
+			list = getChild<LLScrollListCtrl>("Friends");
+		}
+
+		if(list)
+		{
+			std::vector<LLUUID> avatar_ids;
+			std::vector<std::string> avatar_names;
+			getSelectedAvatarData(list, avatar_names, avatar_ids);
+			return mOkButtonValidateSignal(avatar_ids);
+		}
+	}
+
+	return ret_val;
 }

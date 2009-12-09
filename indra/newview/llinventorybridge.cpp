@@ -714,20 +714,20 @@ BOOL LLInvFVBridge::isItemPermissive() const
 // static
 void LLInvFVBridge::changeItemParent(LLInventoryModel* model,
 									 LLViewerInventoryItem* item,
-									 const LLUUID& new_parent,
+									 const LLUUID& new_parent_id,
 									 BOOL restamp)
 {
-	if(item->getParentUUID() != new_parent)
+	if(item->getParentUUID() != new_parent_id)
 	{
 		LLInventoryModel::update_list_t update;
 		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
 		update.push_back(old_folder);
-		LLInventoryModel::LLCategoryUpdate new_folder(new_parent, 1);
+		LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
 		update.push_back(new_folder);
 		gInventory.accountForUpdate(update);
 
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-		new_item->setParent(new_parent);
+		new_item->setParent(new_parent_id);
 		new_item->updateParentOnServer(restamp);
 		model->updateItem(new_item);
 		model->notifyObservers();
@@ -737,24 +737,27 @@ void LLInvFVBridge::changeItemParent(LLInventoryModel* model,
 // static
 void LLInvFVBridge::changeCategoryParent(LLInventoryModel* model,
 										 LLViewerInventoryCategory* cat,
-										 const LLUUID& new_parent,
+										 const LLUUID& new_parent_id,
 										 BOOL restamp)
 {
-	if(cat->getParentUUID() != new_parent)
+	// Can't move a folder into a child of itself.
+	if (model->isObjectDescendentOf(new_parent_id, cat->getUUID()))
 	{
-		LLInventoryModel::update_list_t update;
-		LLInventoryModel::LLCategoryUpdate old_folder(cat->getParentUUID(), -1);
-		update.push_back(old_folder);
-		LLInventoryModel::LLCategoryUpdate new_folder(new_parent, 1);
-		update.push_back(new_folder);
-		gInventory.accountForUpdate(update);
-
-		LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
-		new_cat->setParent(new_parent);
-		new_cat->updateParentOnServer(restamp);
-		model->updateCategory(new_cat);
-		model->notifyObservers();
+		return;
 	}
+
+	LLInventoryModel::update_list_t update;
+	LLInventoryModel::LLCategoryUpdate old_folder(cat->getParentUUID(), -1);
+	update.push_back(old_folder);
+	LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
+	update.push_back(new_folder);
+	model->accountForUpdate(update);
+	
+	LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
+	new_cat->setParent(new_parent_id);
+	new_cat->updateParentOnServer(restamp);
+	model->updateCategory(new_cat);
+	model->notifyObservers();
 }
 
 
@@ -2243,11 +2246,6 @@ BOOL LLFolderBridge::removeItem()
 
 	LLNotification::Params params("ConfirmDeleteProtectedCategory");
 	params.payload(payload).substitutions(args).functor.function(boost::bind(&LLFolderBridge::removeItemResponse, this, _1, _2));
-	//params.functor.function(boost::bind(&LLFolderBridge::removeItemResponse, this, _1, _2));
-	/*
-	LLNotification::Params params("ChangeLindenEstate");
-	params.functor.function(boost::bind(&LLPanelEstateInfo::callbackChangeLindenEstate, this, _1, _2));
-	*/
 	if (LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
 	{
 		LLNotifications::instance().add(params);
@@ -2278,14 +2276,16 @@ bool LLFolderBridge::removeItemResponse(const LLSD& notification, const LLSD& re
 		LLInventoryModel::item_array_t	descendent_items;
 		gInventory.collectDescendents( mUUID, descendent_categories, descendent_items, FALSE );
 		
-		S32 i;
-		for (i = 0; i < descendent_items.count(); i++)
+		for (LLInventoryModel::item_array_t::const_iterator iter = descendent_items.begin();
+			 iter != descendent_items.end();
+			 ++iter)
 		{
-			LLInventoryItem* item = descendent_items[i];
+			const LLInventoryItem* item = (*iter);
+			const LLUUID& item_id = item->getUUID();
 			if (item->getType() == LLAssetType::AT_GESTURE
-				&& LLGestureManager::instance().isGestureActive(item->getUUID()))
+				&& LLGestureManager::instance().isGestureActive(item_id))
 			{
-				LLGestureManager::instance().deactivateGesture(item->getUUID());
+				LLGestureManager::instance().deactivateGesture(item_id);
 			}
 		}
 		
@@ -2306,14 +2306,16 @@ void LLFolderBridge::pasteFromClipboard()
 	LLInventoryModel* model = getInventoryModel();
 	if(model && isClipboardPasteable())
 	{
-		LLInventoryItem* item = NULL;
+		const LLUUID parent_id(mUUID);
+
 		LLDynamicArray<LLUUID> objects;
 		LLInventoryClipboard::instance().retrieve(objects);
-		S32 count = objects.count();
-		const LLUUID parent_id(mUUID);
-		for(S32 i = 0; i < count; i++)
+		for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin();
+			 iter != objects.end();
+			 ++iter)
 		{
-			item = model->getItem(objects.get(i));
+			const LLUUID& item_id = (*iter);
+			LLInventoryItem *item = model->getItem(item_id);
 			if (item)
 			{
 				if(LLInventoryClipboard::instance().isCutMode())
@@ -2342,13 +2344,15 @@ void LLFolderBridge::pasteLinkFromClipboard()
 	const LLInventoryModel* model = getInventoryModel();
 	if(model)
 	{
+		const LLUUID parent_id(mUUID);
+
 		LLDynamicArray<LLUUID> objects;
 		LLInventoryClipboard::instance().retrieve(objects);
-		S32 count = objects.count();
-		LLUUID parent_id(mUUID);
-		for(S32 i = 0; i < count; i++)
+		for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin();
+			 iter != objects.end();
+			 ++iter)
 		{
-			const LLUUID &object_id = objects.get(i);
+			const LLUUID &object_id = (*iter);
 #if SUPPORT_ENSEMBLES
 			if (LLInventoryCategory *cat = model->getCategory(object_id))
 			{
