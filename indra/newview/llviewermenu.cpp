@@ -2698,20 +2698,24 @@ BOOL enable_has_attachments(void*)
 bool enable_object_mute()
 {
 	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-	bool new_value = (object != NULL);
-	if (new_value)
+	if (!object) return false;
+
+	LLVOAvatar* avatar = find_avatar_from_object(object); 
+	if (avatar)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object(object); 
-		if (avatar)
-		{
-			// It's an avatar
-			LLNameValue *lastname = avatar->getNVPair("LastName");
-			BOOL is_linden = lastname && !LLStringUtil::compareStrings(lastname->getString(), "Linden");
-			BOOL is_self = avatar->isSelf();
-			new_value = !is_linden && !is_self;
-		}
+		// It's an avatar
+		LLNameValue *lastname = avatar->getNVPair("LastName");
+		bool is_linden =
+			lastname && !LLStringUtil::compareStrings(lastname->getString(), "Linden");
+		bool is_self = avatar->isSelf();
+		return !is_linden && !is_self;
 	}
-	return new_value;
+	else
+	{
+		// Just a regular object
+		return LLSelectMgr::getInstance()->getSelection()->
+			contains( object, SELECT_ALL_TES );
+	}
 }
 
 class LLObjectMute : public view_listener_t

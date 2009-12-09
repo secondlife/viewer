@@ -1697,7 +1697,7 @@ void LLPanelObjectInventory::updateInventory()
 
 	mFolders->requestArrange();
 	mInventoryNeedsUpdate = FALSE;
-	LLEditMenuHandler::gEditMenuHandler = mFolders;
+	// Edit menu handler is set in onFocusReceived
 }
 
 // *FIX: This is currently a very expensive operation, because we have
