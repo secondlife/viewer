@@ -85,7 +85,6 @@ protected:
 	void		onBtnCancel();
 	void		onBtnApply();
 
-//	void		onClickClearCache();
 	void		onClickBrowserClearCache();
 
 	// if the custom settings box is clicked
@@ -141,7 +140,7 @@ public:
 	
 	static void initWindowSizeControls(LLPanel* panelp);
 	
-	static void buildLists(void* data);
+	void buildPopupLists();
 	static void refreshSkin(void* data);
 	static void cleanupBadSetting();
 	static F32 sAspectRatio;	
@@ -153,7 +152,6 @@ private:
 	
 	bool mOriginalHideOnlineStatus;
 	std::string mDirectoryVisibility;
-
 };
 
 class LLPanelPreference : public LLPanel
