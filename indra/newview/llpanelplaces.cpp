@@ -854,6 +854,7 @@ void LLPanelPlaces::updateVerbs()
 	mCancelBtn->setVisible(isLandmarkEditModeOn);
 	mCloseBtn->setVisible(is_create_landmark_visible && !isLandmarkEditModeOn);
 
+	mShowOnMapBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn);
 	mOverflowBtn->setEnabled(is_place_info_visible && !is_create_landmark_visible);
 
 	if (is_place_info_visible)
