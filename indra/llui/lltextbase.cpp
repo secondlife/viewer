@@ -2207,6 +2207,12 @@ LLNormalTextSegment::LLNormalTextSegment( const LLStyleSP& style, S32 start, S32
 	mEditor(editor)
 {
 	mFontHeight = llceil(mStyle->getFont()->getLineHeight());
+
+	LLUIImagePtr image = mStyle->getImage();
+	if (image.notNull())
+	{
+		mImageLoadedConnection = image->addLoadedCallback(boost::bind(&LLTextBase::needsReflow, &mEditor));
+	}
 }
 
 LLNormalTextSegment::LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible) 
@@ -2218,6 +2224,12 @@ LLNormalTextSegment::LLNormalTextSegment( const LLColor4& color, S32 start, S32 
 
 	mFontHeight = llceil(mStyle->getFont()->getLineHeight());
 }
+
+LLNormalTextSegment::~LLNormalTextSegment()
+{
+	mImageLoadedConnection.disconnect();
+}
+
 
 F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
 {
@@ -2232,7 +2244,7 @@ F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selec
 			// Center the image vertically
 			S32 image_bottom = draw_rect.getCenterY() - (style_image_height/2);
 			image->draw(draw_rect.mLeft, image_bottom, 
-				style_image_width, style_image_height);
+				style_image_width, style_image_height, color);
 		}
 
 		return drawClippedSegment( getStart() + start, getStart() + end, selection_start, selection_end, draw_rect);
