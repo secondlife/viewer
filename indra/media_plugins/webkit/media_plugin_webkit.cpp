@@ -76,6 +76,8 @@ public:
 
 private:
 
+	std::string mProfileDir;
+
 	enum
 	{
 		INIT_STATE_UNINITIALIZED,		// Browser instance hasn't been set up yet
@@ -187,7 +189,6 @@ private:
 #else
 		std::string component_dir = application_dir;
 #endif
-		std::string profileDir = application_dir + "/" + "browser_profile";		// cross platform?
 
 		// window handle - needed on Windows and must be app window.
 #if LL_WINDOWS
@@ -199,7 +200,7 @@ private:
 #endif
 
 		// main browser initialization
-		bool result = LLQtWebKit::getInstance()->init( application_dir, component_dir, profileDir, native_window_handle );
+		bool result = LLQtWebKit::getInstance()->init( application_dir, component_dir, mProfileDir, native_window_handle );
 		if ( result )
 		{
 			// create single browser window
@@ -587,6 +588,9 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 		{
 			if(message_name == "init")
 			{
+				std::string user_data_path = message_in.getValue("user_data_path"); // n.b. always has trailing platform-specific dir-delimiter
+				mProfileDir = user_data_path + "browser_profile";
+
 				LLPluginMessage message("base", "init_response");
 				LLSD versions = LLSD::emptyMap();
 				versions[LLPLUGIN_MESSAGE_CLASS_BASE] = LLPLUGIN_MESSAGE_CLASS_BASE_VERSION;

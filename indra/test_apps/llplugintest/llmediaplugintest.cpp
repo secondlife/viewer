@@ -1529,7 +1529,17 @@ void LLMediaPluginTest::addMediaPanel( std::string url )
 #elif LL_WINDOWS
 	std::string launcher_name( "SLPlugin.exe" );
 #endif
-	media_source->init( launcher_name, plugin_name );
+
+	// for this test app, use the cwd as the user data path (ugh).
+        char cwd[ FILENAME_MAX ];
+	if (NULL == getcwd( cwd, FILENAME_MAX - 1 ))
+	{
+		std::cerr << "Couldn't get cwd - probably too long - failing to init." << llendl;
+		return;
+	}
+	std::string user_data_path = std::string( cwd ) + "/";
+
+	media_source->init( launcher_name, plugin_name, false, user_data_path );
 	media_source->setDisableTimeout(mDisableTimeout);
 
 	// make a new panel and save parameters

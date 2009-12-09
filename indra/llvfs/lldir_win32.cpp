@@ -212,14 +212,6 @@ void LLDir_Win32::initAppDirs(const std::string &app_name,
 		}
 	}
 	
-	res = LLFile::mkdir(getExpandedFilename(LL_PATH_MOZILLA_PROFILE,""));
-	if (res == -1)
-	{
-		if (errno != EEXIST)
-		{
-			llwarns << "Couldn't create LL_PATH_MOZILLA_PROFILE dir " << getExpandedFilename(LL_PATH_MOZILLA_PROFILE,"") << llendl;
-		}
-	}
 	res = LLFile::mkdir(getExpandedFilename(LL_PATH_USER_SKIN,""));
 	if (res == -1)
 	{
