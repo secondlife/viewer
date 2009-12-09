@@ -63,7 +63,8 @@ LLInventoryFilter::FilterOps::FilterOps() :
 LLInventoryFilter::LLInventoryFilter(const std::string& name)
 :	mName(name),
 	mModified(FALSE),
-	mNeedTextRebuild(TRUE)
+	mNeedTextRebuild(TRUE),
+	mEmptyLookupMessage("InventoryNoMatchingItems")
 {
 	mOrder = SO_FOLDERS_BY_NAME; // This gets overridden by a pref immediately
 
@@ -115,8 +116,6 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item)
 	const LLUUID object_id = listener->getUUID();
 	const LLInventoryObject *object = gInventory.getObject(object_id);
 
-	if (!object) return FALSE;
-
 	const U32 filterTypes = mFilterOps.mFilterTypes;
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -127,11 +126,13 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item)
 		// If it has no type, pass it, unless it's a link.
 		if (object_type == LLInventoryType::IT_NONE)
 		{
-			if (object->getIsLinkType())
+			if (object && object->getIsLinkType())
 				return FALSE;
 		}
-		if ((1LL << object_type & mFilterOps.mFilterObjectTypes) == U64(0))
+		else if ((1LL << object_type & mFilterOps.mFilterObjectTypes) == U64(0))
+		{
 			return FALSE;
+		}
 	}
 	//
 	////////////////////////////////////////////////////////////////////////////////
@@ -143,6 +144,10 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item)
 	// if its parent is a category of the filter type.
 	if (filterTypes & FILTERTYPE_CATEGORY)
 	{
+		// Can only filter categories for items in your inventory 
+		// (e.g. versus in-world object contents).
+		if (!object) return FALSE;
+
 		LLUUID cat_id = object_id;
 		if (listener->getInventoryType() != LLInventoryType::IT_CATEGORY)
 		{
@@ -163,6 +168,8 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item)
 	// Pass if this item is the target UUID or if it links to the target UUID
 	if (filterTypes & FILTERTYPE_UUID)
 	{
+		if (!object) return FALSE;
+
 		if (object->getLinkedUUID() != mFilterOps.mFilterUUID)
 			return FALSE;
 	}
@@ -854,4 +861,15 @@ S32 LLInventoryFilter::getMinRequiredGeneration() const
 S32 LLInventoryFilter::getMustPassGeneration() const 
 { 
 	return mMustPassGeneration; 
+}
+
+void LLInventoryFilter::setEmptyLookupMessage(const std::string& message)
+{
+	mEmptyLookupMessage = message;
+}
+
+const std::string& LLInventoryFilter::getEmptyLookupMessage() const
+{
+	return mEmptyLookupMessage;
+
 }

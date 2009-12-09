@@ -357,6 +357,16 @@ void LLFolderView::openFolder(const std::string& foldername)
 	}
 }
 
+void LLFolderView::openTopLevelFolders()
+{
+	for (folders_t::iterator iter = mFolders.begin();
+		 iter != mFolders.end();)
+	{
+		folders_t::iterator fit = iter++;
+		(*fit)->setOpen(TRUE);
+	}
+}
+
 void LLFolderView::setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse)
 {
 	// call base class to do proper recursion
@@ -890,7 +900,7 @@ void LLFolderView::draw()
 		}
 		else
 		{
-			mStatusText = LLTrans::getString("InventoryNoMatchingItems");
+			mStatusText = LLTrans::getString(getFilter()->getEmptyLookupMessage());
 			font->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 	}

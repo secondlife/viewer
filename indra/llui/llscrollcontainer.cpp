@@ -235,18 +235,37 @@ BOOL LLScrollContainer::handleKeyHere(KEY key, MASK mask)
 
 BOOL LLScrollContainer::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
-	if(LLUICtrl::handleScrollWheel(x,y,clicks))
+	// Give event to my child views - they may have scroll bars
+	// (Bad UI design, but technically possible.)
+	if (LLUICtrl::handleScrollWheel(x,y,clicks))
 		return TRUE;
-	for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
-	{
-		// Note: tries vertical and then horizontal
 
+	// When the vertical scrollbar is visible, scroll wheel
+	// only affects vertical scrolling.  It's confusing to have
+	// scroll wheel perform both vertical and horizontal in a
+	// single container.
+	LLScrollbar* vertical = mScrollbar[VERTICAL];
+	if (vertical->getVisible()
+		&& vertical->getEnabled())
+	{
 		// Pretend the mouse is over the scrollbar
-		if( mScrollbar[i]->handleScrollWheel( 0, 0, clicks ) )
+		if (vertical->handleScrollWheel( 0, 0, clicks ) )
 		{
 			updateScroll();
-			return TRUE;
 		}
+		// Always eat the event
+		return TRUE;
+	}
+
+	LLScrollbar* horizontal = mScrollbar[HORIZONTAL];
+	// Test enablement and visibility for consistency with
+	// LLView::childrenHandleScrollWheel().
+	if (horizontal->getVisible()
+		&& horizontal->getEnabled()
+		&& horizontal->handleScrollWheel( 0, 0, clicks ) )
+	{
+		updateScroll();
+		return TRUE;
 	}
 	return FALSE;
 }

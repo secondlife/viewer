@@ -4,30 +4,31 @@
  border="false"
  can_close="false"
  can_minimize="false"
- height="100"
+ height="90"
  layout="topleft"
  name="modal container"
  width="240">
+    <text
+     type="string"
+     halign="center"
+     length="1"
+     follows="left|top"
+     height="30"
+     layout="topleft"
+     left="10"
+     name="Save item as:"
+     top="25"
+     word_wrap="true"
+     width="220">
+        Press a key to set your
+Speak button toggle
+    </text>
     <button
-     height="20"
+     height="23"
      label="Cancel"
      label_selected="Cancel"
      layout="topleft"
-     left="138"
+     right="-10"
      name="Cancel"
-     top="70"
-     width="82" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     font="SansSerif"
-     height="16"
-     layout="topleft"
-     left="20"
-     name="Save item as:"
-     top="10"
-     width="200">
-        Press a key to select
-    </text>
+     width="100" />
 </floater>

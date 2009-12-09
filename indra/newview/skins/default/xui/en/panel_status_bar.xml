@@ -72,8 +72,8 @@
     <button
      follows="right|bottom"
      height="16"
-     image_selected="parcel_drk_VoiceNo"
-     image_unselected="parcel_drk_Voice"
+     image_selected="Parcel_VoiceNo_Dark"
+     image_unselected="Parcel_Voice_Dark"
      is_toggle="true"
      left_pad="18"
      top="1"

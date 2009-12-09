@@ -30,13 +30,16 @@
      layout="topleft"
      left_delta="-4"
      name="inventory filter tabs"
+     tab_min_width="70"
+     tab_height="30"
      tab_position="top"
-     top_pad="4"
+     top_pad="10"
+     halign="center"
      width="305">
         <inventory_panel
          follows="left|top|right|bottom"
          height="295"
-         label="All Items"
+         label="ALL ITEMS"
          layout="topleft"
          left="1"
          name="All Items"
@@ -45,7 +48,7 @@
         <inventory_panel
          follows="left|top|right|bottom"
          height="295"
-         label="Recent Items"
+         label="RECENT ITEMS"
          layout="topleft"
          left_delta="0"
          name="Recent Items"

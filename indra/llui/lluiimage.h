@@ -39,6 +39,7 @@
 #include "llrefcount.h"
 #include "llrect.h"
 #include <boost/function.hpp>
+#include <boost/signals2.hpp>
 #include "llinitparam.h"
 #include "lltexture.h"
 
@@ -47,6 +48,8 @@ extern const LLColor4 UI_VERTEX_COLOR;
 class LLUIImage : public LLRefCount
 {
 public:
+	typedef boost::signals2::signal<void (void)> image_loaded_signal_t;
+
 	LLUIImage(const std::string& name, LLPointer<LLTexture> image);
 	virtual ~LLUIImage();
 
@@ -77,7 +80,13 @@ public:
 	S32 getTextureWidth() const;
 	S32 getTextureHeight() const;
 
+	boost::signals2::connection addLoadedCallback( const image_loaded_signal_t::slot_type& cb );
+
+	void onImageLoaded();
+
 protected:
+	image_loaded_signal_t* mImageLoaded;
+
 	std::string			mName;
 	LLRectf				mScaleRegion;
 	LLRectf				mClipRegion;
