@@ -78,6 +78,22 @@ LLScreenChannelBase::~LLScreenChannelBase()
 {
 	mWorldViewRectConnection.disconnect();
 }
+
+bool  LLScreenChannelBase::isHovering()
+{
+	bool res = mHoveredToast != NULL;
+	if (!res)
+	{
+		return res;
+	}
+
+	S32 x, y;
+	mHoveredToast->screenPointToLocal(gViewerWindow->getCurrentMouseX(),
+			gViewerWindow->getCurrentMouseY(), &x, &y);
+	res = mHoveredToast->pointInView(x, y) == TRUE;
+	return res;
+}
+
 void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
 {
 	S32 top_delta = old_world_rect.mTop - new_world_rect.mTop;
@@ -644,7 +660,7 @@ void LLNotificationsUI::LLScreenChannel::startFadingToasts()
 	if (!mToastList.size()) return;
 
 	//because onMouseLeave is processed after onMouseEnter
-	if (mHoveredToast) return;
+	if (isHovering()) return;
 
 	std::vector<ToastElem>::iterator it = mToastList.begin();
 	while (it != mToastList.end())
