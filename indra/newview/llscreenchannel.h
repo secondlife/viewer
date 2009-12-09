@@ -95,7 +95,7 @@ public:
 	virtual void setControlHovering(bool control) { mControlHovering = control; }
 	
 
-	bool isHovering() { return mHoveredToast != NULL; }
+	bool isHovering();
 
 	void setCanStoreToasts(bool store) { mCanStoreToasts = store; }
 
