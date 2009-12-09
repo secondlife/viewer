@@ -41,6 +41,7 @@
 
 // project include
 #include "llagent.h"
+#include "llappviewer.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
