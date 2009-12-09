@@ -172,6 +172,11 @@ public:
 			completeAny(status, "text/html");
 		}
 		else
+		if(status == 403)
+		{
+			completeAny(status, "text/html");
+		}
+		else
 		if(status == 404)
 		{
 			// 404 is content not found - sites often have bespoke 404 pages so
