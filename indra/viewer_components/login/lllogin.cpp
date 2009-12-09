@@ -133,9 +133,16 @@ void LLLogin::Impl::connect(const std::string& uri, const LLSD& credentials)
 
 void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credentials)
 {
-    LL_INFOS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName(self)
-                        << " with uri '" << uri << "', credentials " << credentials << LL_ENDL;
-    // Arriving in SRVRequest state
+	LLSD printable_credentials = credentials;
+	if(printable_credentials.has("params") 
+		&& printable_credentials["params"].has("passwd")) 
+	{
+		printable_credentials["params"]["passwd"] = "*******";
+	}
+    LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName(self)
+                        << " with uri '" << uri << "', credentials " << printable_credentials << LL_ENDL;
+
+	// Arriving in SRVRequest state
     LLEventStream replyPump("reply", true);
     // Should be an array of one or more uri strings.
     LLSD rewrittenURIs;
@@ -144,7 +151,7 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
         sendProgressEvent("offline", "srvrequest");
 
         // Request SRV record.
-        LL_INFOS("LLLogin") << "Requesting SRV record from " << uri << LL_ENDL;
+        LL_DEBUGS("LLLogin") << "Requesting SRV record from " << uri << LL_ENDL;
 
         // *NOTE:Mani - Completely arbitrary default timeout value for SRV request.
 		F32 seconds_to_timeout = 5.0f;
@@ -193,6 +200,11 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
             LLSD progress_data;
             progress_data["attempt"] = attempts;
             progress_data["request"] = request;
+			if(progress_data["request"].has("params")
+				&& progress_data["request"]["params"].has("passwd"))
+			{
+				progress_data["request"]["params"]["passwd"] = "*******";
+			}
             sendProgressEvent("offline", "authenticating", progress_data);
 
             // We expect zero or more "Downloading" status events, followed by

@@ -203,9 +203,12 @@ LLSD postAndWait(SELF& self, const LLSD& event, const LLEventPumpOrPumpName& req
         // request event.
         LLSD modevent(event);
         LLEventDetail::storeToLLSDPath(modevent, replyPumpNamePath, replyPump.getPump().getName());
-        LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
+		LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
                                  << " posting to " << requestPump.getPump().getName()
-                                 << ": " << modevent << LL_ENDL;
+								 << LL_ENDL;
+
+		// *NOTE:Mani - Removed because modevent could contain user's hashed passwd.
+		//                         << ": " << modevent << LL_ENDL;
         requestPump.getPump().post(modevent);
     }
     LL_DEBUGS("lleventcoro") << "postAndWait(): coroutine " << listenerName
