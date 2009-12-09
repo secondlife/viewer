@@ -786,7 +786,7 @@ void LLLandmarksPanel::updateFilteredAccordions()
 {
 	LLInventoryPanel* inventory_list = NULL;
 	LLAccordionCtrlTab* accordion_tab = NULL;
-//	bool needs_arrange = false;
+	bool needs_arrange = false;
 
 	for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
 	{
@@ -798,7 +798,7 @@ void LLLandmarksPanel::updateFilteredAccordions()
 		if (NULL == inventory_list) continue;
 
 		// This doesn't seem to work correctly.  Disabling for now. -Seraph
-		/*
+		// Enabled to show/hide accordions with/without landmarks. See EXT-2346. (Seth PE)
 		LLFolderView* fv = inventory_list->getRootFolder();
 
 		// arrange folder view contents to draw its descendants if it has any
@@ -809,17 +809,17 @@ void LLLandmarksPanel::updateFilteredAccordions()
 			needs_arrange = true;
 
 		accordion_tab->setVisible(has_descendants);
-		*/
-		accordion_tab->setVisible(TRUE);
+
+		//accordion_tab->setVisible(TRUE);
 	}
 
 	// we have to arrange accordion tabs for cases when filter string is less restrictive but
 	// all items are still filtered.
-//	if (needs_arrange)
-//	{
+	if (needs_arrange)
+	{
 		static LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("landmarks_accordion");
 		accordion->arrange();
-//	}
+	}
 }
 
 /*
