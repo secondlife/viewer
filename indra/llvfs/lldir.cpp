@@ -394,7 +394,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		prefix += "local_assets";
 		break;
 
-	case LL_PATH_MOZILLA_PROFILE:
+	case LL_PATH_BROWSER_PROFILE:
 		prefix = getOSUserAppDir();
 		prefix += mDirDelimiter;
 		prefix += "browser_profile";
