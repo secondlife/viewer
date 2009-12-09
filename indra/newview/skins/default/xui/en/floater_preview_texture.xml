@@ -61,6 +61,15 @@
      name="Discard"
      top_delta="0"
      width="100" />
+	 <button
+     follows="left|bottom"
+     height="22"
+     label="Save As"
+     layout="topleft"
+     left_pad="5"
+     name="save_tex_btn"
+     top_delta="0"
+     width="100" />
      <text
      type="string"
      length="1"

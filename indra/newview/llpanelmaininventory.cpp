@@ -863,7 +863,6 @@ void LLPanelMainInventory::initListCommandsHandlers()
 	mEnableCallbackRegistrar.add("Inventory.GearDefault.Enable", boost::bind(&LLPanelMainInventory::isActionEnabled, this, _2));
 	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mMenuAdd = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_inventory_add.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	
 }
 
 void LLPanelMainInventory::updateListCommands()
@@ -907,6 +906,22 @@ void LLPanelMainInventory::onClipboardAction(const LLSD& userdata)
 {
 	std::string command_name = userdata.asString();
 	getActivePanel()->getRootFolder()->doToSelected(getActivePanel()->getModel(),command_name);
+}
+
+void LLPanelMainInventory::saveTexture(const LLSD& userdata)
+{
+	LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+	if (!current_item)
+	{
+		return;
+	}
+	
+	const LLUUID& item_id = current_item->getListener()->getUUID();
+	LLPreviewTexture* preview_texture = LLFloaterReg::showTypedInstance<LLPreviewTexture>("preview_texture", LLSD(item_id), TAKE_FOCUS_YES);
+	if (preview_texture)
+	{
+		preview_texture->openToSave();
+	}
 }
 
 void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
@@ -953,18 +968,7 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 	}
 	if (command_name == "save_texture")
 	{
-		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
-		if (!current_item)
-		{
-			return;
-		}
-
-		const LLUUID& item_id = current_item->getListener()->getUUID();
-		LLPreviewTexture* preview_texture = LLFloaterReg::showTypedInstance<LLPreviewTexture>("preview_texture", LLSD(item_id), TAKE_FOCUS_YES);
-		if (preview_texture)
-		{
-			preview_texture->openToSave();
-		}
+		saveTexture(userdata);
 	}
 	// This doesn't currently work, since the viewer can't change an assetID an item.
 	if (command_name == "regenerate_link")
@@ -1008,6 +1012,17 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 	}
 }
 
+bool LLPanelMainInventory::isSaveTextureEnabled(const LLSD& userdata)
+{
+	LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+	if (current_item) 
+	{
+		LLInventoryType::EType curr_type = current_item->getListener()->getInventoryType();
+		return (curr_type == LLInventoryType::IT_TEXTURE || curr_type == LLInventoryType::IT_SNAPSHOT);
+	}
+	return false;
+}
+
 BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 {
 	const std::string command_name = userdata.asString();
@@ -1035,12 +1050,7 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 	}
 	if (command_name == "save_texture")
 	{
-		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
-		if (current_item)
-		{
-			return (current_item->getListener()->getInventoryType() == LLInventoryType::IT_TEXTURE);
-		}
-		return FALSE;
+		return isSaveTextureEnabled(userdata);
 	}
 	if (command_name == "find_original")
 	{
