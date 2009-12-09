@@ -142,6 +142,10 @@ BOOL LLFloaterChat::postBuild()
 
 void LLFloaterChat::updateConsoleVisibility()
 {
+	if(gDisconnected)
+	{
+		return;
+	}
 	// determine whether we should show console due to not being visible
 	gConsole->setVisible( !isInVisibleChain()								// are we not in part of UI being drawn?
 							|| isMinimized()								// are we minimized?
