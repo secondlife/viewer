@@ -193,6 +193,7 @@
 
 #include "lllogin.h"
 #include "llevents.h"
+#include "llstartuplistener.h"
 
 #if LL_WINDOWS
 #include "llwindebug.h"
@@ -241,7 +242,8 @@ static std::string gFirstSimSeedCap;
 static LLVector3 gAgentStartLookAt(1.0f, 0.f, 0.f);
 static std::string gAgentStartLocation = "safe";
 
-static LLEventStream sStartupStateWatcher("StartupState");
+boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
+boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
 
 //
 // local function declaration
@@ -2725,10 +2727,15 @@ void LLStartUp::setStartupState( EStartupState state )
 		getStartupStateString() << " to " <<  
 		startupStateToString(state) << LL_ENDL;
 	gStartupState = state;
+	postStartupState();
+}
+
+void LLStartUp::postStartupState()
+{
 	LLSD stateInfo;
 	stateInfo["str"] = getStartupStateString();
-	stateInfo["enum"] = state;
-	sStartupStateWatcher.post(stateInfo);
+	stateInfo["enum"] = gStartupState;
+	sStateWatcher->post(stateInfo);
 }
 
 

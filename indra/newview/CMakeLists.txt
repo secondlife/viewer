@@ -389,6 +389,7 @@ set(viewer_SOURCE_FILES
     llsplitbutton.cpp
     llsprite.cpp
     llstartup.cpp
+    llstartuplistener.cpp
     llstatusbar.cpp
     llstylemap.cpp
     llsurface.cpp
@@ -891,6 +892,7 @@ set(viewer_HEADER_FILES
     llsplitbutton.h
     llsprite.h
     llstartup.h
+    llstartuplistener.h
     llstatusbar.h
     llstylemap.h
     llsurface.h
