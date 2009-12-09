@@ -121,7 +121,7 @@ LLViewerFolderDictionary::LLViewerFolderDictionary()
 	addEntry(LLFolderType::FT_LOST_AND_FOUND, 		new ViewerFolderEntry("Lost And Found",	   		"inv_folder_lostandfound.tga",	TRUE));
 	addEntry(LLFolderType::FT_ANIMATION, 			new ViewerFolderEntry("Animations",				"inv_folder_animation.tga",		FALSE));
 	addEntry(LLFolderType::FT_GESTURE, 				new ViewerFolderEntry("Gestures",				"inv_folder_gesture.tga",		FALSE));
-	addEntry(LLFolderType::FT_FAVORITE, 			new ViewerFolderEntry("Favorite",				"inv_folder_plain_closed.tga",	FALSE));
+	addEntry(LLFolderType::FT_FAVORITE, 			new ViewerFolderEntry("Favorites",				"inv_folder_plain_closed.tga",	FALSE));
 
 	addEntry(LLFolderType::FT_CURRENT_OUTFIT, 		new ViewerFolderEntry("Current Outfit",			"inv_folder_current_outfit.tga",TRUE));
 	addEntry(LLFolderType::FT_OUTFIT, 				new ViewerFolderEntry("New Outfit",				"inv_folder_outfit.tga",		TRUE));
