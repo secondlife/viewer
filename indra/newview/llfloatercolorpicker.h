@@ -56,6 +56,7 @@ class LLFloaterColorPicker
 
 		// overrides
 		virtual BOOL postBuild ();
+		virtual void onClose(bool app_settings);
 		virtual void draw ();
 		virtual BOOL handleMouseDown ( S32 x, S32 y, MASK mask );
 		virtual BOOL handleMouseUp ( S32 x, S32 y, MASK mask );
@@ -69,6 +70,7 @@ class LLFloaterColorPicker
 		void destroyUI ();
 		void cancelSelection ();
 		LLColorSwatchCtrl* getSwatch () { return mSwatch; };
+		void setSwatch( LLColorSwatchCtrl* swatch) { mSwatch = swatch; }
 
 		// mutator / accessor for original RGB value
 		void setOrigRgb ( F32 origRIn, F32 origGIn, F32 origBIn );
