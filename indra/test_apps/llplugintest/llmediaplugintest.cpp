@@ -1531,6 +1531,9 @@ void LLMediaPluginTest::addMediaPanel( std::string url )
 #endif
 
 	// for this test app, use the cwd as the user data path (ugh).
+#if LL_WINDOWS
+	std::string user_data_path = ".\\";
+#else
         char cwd[ FILENAME_MAX ];
 	if (NULL == getcwd( cwd, FILENAME_MAX - 1 ))
 	{
@@ -1538,6 +1541,7 @@ void LLMediaPluginTest::addMediaPanel( std::string url )
 		return;
 	}
 	std::string user_data_path = std::string( cwd ) + "/";
+#endif
 
 	media_source->init( launcher_name, plugin_name, false, user_data_path );
 	media_source->setDisableTimeout(mDisableTimeout);
