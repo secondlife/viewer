@@ -525,7 +525,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
 We recommend BVH files exported from Poser 4.
     </text>
     <button
-	 top="580"
+    	top="580"
      follows="bottom|left"
      height="23"
      label="Upload (L$[AMOUNT])"
@@ -534,7 +534,7 @@ We recommend BVH files exported from Poser 4.
      name="ok_btn"
      width="128" />
     <button
-	 top="580"
+    	top="580"
      follows="bottom|left"
      height="23"
      label="Cancel"

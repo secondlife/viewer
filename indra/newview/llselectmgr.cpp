@@ -5753,19 +5753,8 @@ void LLSelectMgr::redo()
 //-----------------------------------------------------------------------------
 BOOL LLSelectMgr::canDoDelete() const
 {
-	bool can_delete = false;
-	LLViewerObject* obj = const_cast<LLSelectMgr*>(this)->mSelectedObjects->getFirstDeleteableObject() ;  // HACK: casting away constness - MG
 	// Note: Can only delete root objects (see getFirstDeleteableObject() for more info)
-	if (obj!= NULL)
-	{
-		// all the faces needs to be selected
-		if(const_cast<LLSelectMgr*>(this)->mSelectedObjects->contains(obj,SELECT_ALL_TES ))
-		{
-			can_delete = true;
-		}
-	}
-	
-	return can_delete;
+	return const_cast<LLSelectMgr*>(this)->mSelectedObjects->getFirstDeleteableObject() != NULL; // HACK: casting away constness - MG
 }
 
 //-----------------------------------------------------------------------------
