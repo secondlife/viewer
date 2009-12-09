@@ -357,6 +357,16 @@ void LLFolderView::openFolder(const std::string& foldername)
 	}
 }
 
+void LLFolderView::openTopLevelFolders()
+{
+	for (folders_t::iterator iter = mFolders.begin();
+		 iter != mFolders.end();)
+	{
+		folders_t::iterator fit = iter++;
+		(*fit)->setOpen(TRUE);
+	}
+}
+
 void LLFolderView::setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse)
 {
 	// call base class to do proper recursion

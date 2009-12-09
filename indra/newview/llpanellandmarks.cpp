@@ -389,10 +389,6 @@ void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_lis
 	}
 
 	root_folder->setParentLandmarksPanel(this);
-
-	// save initial folder state to avoid incorrect work while switching between Landmarks & Teleport History tabs
-	// See EXT-1609.
-	inventory_list->saveFolderState();
 }
 
 void LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLInventorySubTreePanel* inventory_list)
@@ -995,12 +991,13 @@ void LLLandmarksPanel::doCreatePick(LLLandmark* landmark)
 //////////////////////////////////////////////////////////////////////////
 static void filter_list(LLInventorySubTreePanel* inventory_list, const std::string& string)
 {
+	// Open the immediate children of the root folder, since those
+	// are invisible in the UI and thus must always be open.
+	inventory_list->getRootFolder()->openTopLevelFolders();
+
 	if (string == "")
 	{
 		inventory_list->setFilterSubString(LLStringUtil::null);
-
-		// re-open folders that were initially open
-		inventory_list->restoreFolderState();
 	}
 
 	if (inventory_list->getFilterSubString().empty() && string.empty())
@@ -1009,13 +1006,8 @@ static void filter_list(LLInventorySubTreePanel* inventory_list, const std::stri
 		return;
 	}
 
-	// save current folder open state if no filter currently applied
-	if (inventory_list->getRootFolder()->getFilterSubString().empty())
-	{
-		inventory_list->saveFolderState();
-	}
-
-	// set new filter string
+	// Set new filter string
 	inventory_list->setFilterSubString(string);
+
 }
 // EOF
