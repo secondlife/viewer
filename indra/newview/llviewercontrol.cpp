@@ -67,7 +67,6 @@
 #include "lloverlaybar.h"
 #include "llkeyboard.h"
 #include "llerrorcontrol.h"
-#include "llversionviewer.h"
 #include "llappviewer.h"
 #include "llvosurfacepatch.h"
 #include "llvowlsky.h"

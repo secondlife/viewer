@@ -39,18 +39,20 @@
 #include "lluiimage.h"
 #include "llui.h"
 
-LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image) :
-						mName(name),
-						mImage(image),
-						mScaleRegion(0.f, 1.f, 1.f, 0.f),
-						mClipRegion(0.f, 1.f, 1.f, 0.f),
-						mUniformScaling(TRUE),
-						mNoClip(TRUE)
+LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
+:	mName(name),
+	mImage(image),
+	mScaleRegion(0.f, 1.f, 1.f, 0.f),
+	mClipRegion(0.f, 1.f, 1.f, 0.f),
+	mUniformScaling(TRUE),
+	mNoClip(TRUE),
+	mImageLoaded(NULL)
 {
 }
 
 LLUIImage::~LLUIImage()
 {
+	delete mImageLoaded;
 }
 
 void LLUIImage::setClipRegion(const LLRectf& region) 
@@ -138,6 +140,25 @@ S32 LLUIImage::getTextureHeight() const
 	return mImage->getHeight(0);
 }
 
+boost::signals2::connection LLUIImage::addLoadedCallback( const image_loaded_signal_t::slot_type& cb ) 
+{
+	if (!mImageLoaded) 
+	{
+		mImageLoaded = new image_loaded_signal_t();
+	}
+	return mImageLoaded->connect(cb);
+}
+
+
+void LLUIImage::onImageLoaded()
+{
+	if (mImageLoaded)
+	{
+		(*mImageLoaded)();
+	}
+}
+
+
 namespace LLInitParam
 {
 	LLUIImage* TypedParam<LLUIImage*>::getValueFromBlock() const
@@ -170,3 +191,4 @@ namespace LLInitParam
 			return (a == b);
 	}
 }
+

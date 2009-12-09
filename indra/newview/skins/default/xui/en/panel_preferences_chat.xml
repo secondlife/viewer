@@ -332,7 +332,7 @@
      control_name="ChatWindow"
      name="chat_window"
      top_pad="10"
-     tool_tip="Show chat in multiple windows(by default) or in one multi-tabbed window (requires restart)"
+     tool_tip="Show your Instant Messages in separate windows, or in one window with many tabs (Requires restart)"
      width="331">
      <radio_item
       height="16"

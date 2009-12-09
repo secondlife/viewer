@@ -448,6 +448,7 @@ set(viewer_SOURCE_FILES
     llurlsimstring.cpp
     llurlwhitelist.cpp
     llvectorperfoptions.cpp
+    llversioninfo.cpp
     llviewchildren.cpp
     llviewerassetstorage.cpp
     llviewerassettype.cpp
@@ -497,7 +498,6 @@ set(viewer_SOURCE_FILES
     llviewertextureanim.cpp
     llviewertexturelist.cpp
     llviewerthrottle.cpp
-    llviewerversion.cpp
     llviewervisualparam.cpp
     llviewerwindow.cpp
     llviewerwindowlistener.cpp
@@ -953,6 +953,7 @@ set(viewer_HEADER_FILES
     llurlsimstring.h
     llurlwhitelist.h
     llvectorperfoptions.h
+    llversioninfo.h
     llviewchildren.h
     llviewerassetstorage.h
     llviewerassettype.h
@@ -999,7 +1000,6 @@ set(viewer_HEADER_FILES
     llviewertextureanim.h
     llviewertexturelist.h
     llviewerthrottle.h
-    llviewerversion.h
     llviewervisualparam.h
     llviewerwindow.h
     llviewerwindowlistener.h
@@ -1523,7 +1523,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${BOOST_REGEX_LIBRARY}
     ${DBUSGLIB_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    ${FMODWRAPPER_LIBRARY}
+    ${FMODWRAPPER_LIBRARY} # must come after LLAudio
     ${OPENGL_LIBRARIES}
     ${SDL_LIBRARY}
     ${SMARTHEAP_LIBRARY}

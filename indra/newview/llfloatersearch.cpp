@@ -144,6 +144,10 @@ void LLFloaterSearch::search(const LLSD &key)
 	// add the current localization information
 	url += "&lang=" + LLUI::getLanguage();
 
+	// add the user's god status
+	std::string godlike = gAgent.isGodlike() ? "1" : "0";
+	url += "&g=" + godlike;
+
 	// and load the URL in the web view
 	mBrowser->navigateTo(url);
 }
