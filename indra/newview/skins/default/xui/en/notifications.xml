@@ -5803,22 +5803,11 @@ Your voice has been muted by moderator.
          name="okbutton"
          yestext="OK"/>
     </notification>
-    
- <notification
-   icon="alertmodal.tga"
-   name="ConfirmClearTeleportHistory"
-   type="alertmodal">
-Are you sure you want to delete your teleport history?
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Cancel"
-     yestext="OK"/>
-    </notification>
-
- <notification
-   icon="alertmodal.tga"
-   name="UploadCostConfirmation"
-   type="alertmodal">
+  
+   <notification
+    icon="alertmodal.tga"
+    name="UploadCostConfirmation"
+    type="alertmodal">
 This upload will cost L$[PRICE], do you wish to continue with the upload?
     <usetemplate
      name="okcancelbuttons"

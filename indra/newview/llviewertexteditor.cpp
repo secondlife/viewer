@@ -534,7 +534,7 @@ LLUIImagePtr LLEmbeddedItems::getItemImage(llwchar ext_char) const
 			case LLAssetType::AT_BODYPART:		img_name = "Inv_Skin";		break;
 			case LLAssetType::AT_ANIMATION:		img_name = "Inv_Animation";	break;
 			case LLAssetType::AT_GESTURE:		img_name = "Inv_Gesture";	break;
-			case LLAssetType::AT_MESH:            img_name = "inv_item_mesh.tga";	 break;
+			case LLAssetType::AT_MESH:          img_name = "Inv_Mesh";	    break;
 			default: llassert(0);
 		}
 

@@ -125,9 +125,9 @@ std::string ICON_NAME[ICON_NAME_COUNT] =
 	"Inv_Gesture",
 
 	"Inv_LinkItem",
-	"Inv_LinkFolder"
+	"Inv_LinkFolder",
 	
-	"inv_item_mesh.tga"
+	"Inv_Mesh"
 };
 
 // +=================================================+
