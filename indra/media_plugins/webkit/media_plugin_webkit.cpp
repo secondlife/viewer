@@ -577,7 +577,7 @@ MediaPluginWebKit::~MediaPluginWebKit()
 
 void MediaPluginWebKit::receiveMessage(const char *message_string)
 {
-	std::cerr << "MediaPluginWebKit::receiveMessage: received message: \"" << message_string << "\"" << std::endl;
+//	std::cerr << "MediaPluginWebKit::receiveMessage: received message: \"" << message_string << "\"" << std::endl;
 	LLPluginMessage message_in;
 	
 	if(message_in.parse(message_string) >= 0)
