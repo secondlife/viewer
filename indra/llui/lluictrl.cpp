@@ -232,11 +232,6 @@ bool default_enable_handler(LLUICtrl* ctrl, const LLSD& param)
 	return true;
 }
 
-bool default_visible_handler(LLUICtrl* ctrl, const LLSD& param)
-{
-	return true;
-}
-
 
 LLUICtrl::commit_signal_t::slot_type LLUICtrl::initCommitCallback(const CommitCallbackParam& cb)
 {
@@ -288,30 +283,6 @@ LLUICtrl::enable_signal_t::slot_type LLUICtrl::initEnableCallback(const EnableCa
 		}
 	}
 	return default_enable_handler;
-}
-
-LLUICtrl::visible_signal_t::slot_type LLUICtrl::initVisibleCallback(const VisibleCallbackParam& cb)
-{
-	// Set the callback function
-	if (cb.function.isProvided())
-	{
-		if (cb.parameter.isProvided())
-			return boost::bind(cb.function(), this, cb.parameter);
-		else
-			return cb.function();
-	}
-	else
-	{
-		visible_callback_t* func = (VisibleCallbackRegistry::getValue(cb.function_name));
-		if (func)
-		{
-			if (cb.parameter.isProvided())
-				return boost::bind((*func), this, cb.parameter);
-			else
-				return visible_signal_t::slot_type(*func);
-		}
-	}
-	return default_visible_handler;
 }
 
 // virtual

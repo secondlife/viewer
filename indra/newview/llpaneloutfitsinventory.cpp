@@ -136,6 +136,24 @@ void LLPanelOutfitsInventory::onWear()
 	}
 }
 
+void LLPanelOutfitsInventory::onAdd()
+{
+	LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
+	if (listenerp)
+	{
+		listenerp->performAction(NULL, NULL,"addtooutfit");
+	}
+}
+
+void LLPanelOutfitsInventory::onRemove()
+{
+	LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
+	if (listenerp)
+	{
+		listenerp->performAction(NULL, NULL,"removefromoutfit");
+	}
+}
+
 void LLPanelOutfitsInventory::onEdit()
 {
 }
@@ -224,8 +242,10 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 			,	_7 // EAcceptance* accept
 			));
 
-	mCommitCallbackRegistrar.add("panel_outfits_inventory_gear_default.Custom.Action", boost::bind(&LLPanelOutfitsInventory::onCustomAction, this, _2));
-	mEnableCallbackRegistrar.add("panel_outfits_inventory_gear_default.Enable", boost::bind(&LLPanelOutfitsInventory::isActionEnabled, this, _2));
+	mCommitCallbackRegistrar.add("panel_outfits_inventory_gear_default.Custom.Action",
+								 boost::bind(&LLPanelOutfitsInventory::onCustomAction, this, _2));
+	mEnableCallbackRegistrar.add("panel_outfits_inventory_gear_default.Enable",
+								 boost::bind(&LLPanelOutfitsInventory::isActionEnabled, this, _2));
 	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("panel_outfits_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 }
 
@@ -290,6 +310,22 @@ void LLPanelOutfitsInventory::onCustomAction(const LLSD& userdata)
 	{
 		onWear();
 	}
+	if (command_name == "add")
+	{
+		onAdd();
+	}
+	if (command_name == "remove")
+	{
+		onRemove();
+	}
+	if (command_name == "rename")
+	{
+		onClipboardAction("rename");
+	}
+	if (command_name == "remove_link")
+	{
+		onClipboardAction("delete");
+	}
 	if (command_name == "delete")
 	{
 		onClipboardAction("delete");
@@ -320,8 +356,33 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 		}
 		return FALSE;
 	}
+	if (command_name == "remove_link")
+	{
+		BOOL can_delete = FALSE;
+		LLFolderView *folder = getActivePanel()->getRootFolder();
+		if (folder)
+		{
+			can_delete = TRUE;
+			std::set<LLUUID> selection_set;
+			folder->getSelectionList(selection_set);
+			for (std::set<LLUUID>::iterator iter = selection_set.begin();
+				 iter != selection_set.end();
+				 ++iter)
+			{
+				const LLUUID &item_id = (*iter);
+				LLViewerInventoryItem *item = gInventory.getItem(item_id);
+				if (!item || !item->getIsLinkType())
+					return FALSE;
+			}
+			return can_delete;
+		}
+		return FALSE;
+	}
 	if (command_name == "edit" || 
-		command_name == "wear")
+		command_name == "wear" ||
+		command_name == "add" ||
+		command_name == "remove"
+		)
 	{
 		return (getCorrectListenerForAction() != NULL);
 	}

@@ -1,46 +1,48 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="Outfits"
- follows="all"
-border="false">
+       height="510"
+   width="333"
+      follows="top|left"
+             left="0"
+	     top_pad="0">
     <accordion
      single_expansion="true"
-      follows="top|left|bottom"
-      height="460"
-      layout="topleft"
-     left="0"
+     height="510"
+             layout="topleft"
+             left="0"
+      follows="top|left"
      name="outfits_accordion"
-     top="0"
-     width="333">
+	     top_pad="0"
+             width="333">
      <accordion_tab
-         layout="topleft"
+            expanded="false"
+            layout="topleft"
          name="tab_cof"
          title="Current Outfit">
 	 <inventory_panel
-	 	 allow_multi_select="true"
-		 border="false"
-		 bottom="0"
-	         follows="all"
-		 height="416"
-		 left="0"
+	    allow_multi_select="true"
+	    border="false"
+            height="460"
+	     left="0"
+             top="0"
 		 mouse_opaque="true"
 	         name="cof_accordionpanel"
-		 width="333"
 		 start_folder="Current Outfit" />
         </accordion_tab>
         <accordion_tab
-         layout="topleft"
+            expanded="true"
+            layout="topleft"
          name="tab_outfits"
          title="My Outfits">
 	 <inventory_panel
 	 	 allow_multi_select="true"
 		 border="false"
-		 bottom="0"
 	     follows="all"
-		 height="415"
 		 left="0"
+             top="0"
+            height="460"
 		 mouse_opaque="true"
 	     name="outfitslist_accordionpanel"
-		 width="333"
 		 start_folder="My Outfits" />
         </accordion_tab>
 	</accordion>

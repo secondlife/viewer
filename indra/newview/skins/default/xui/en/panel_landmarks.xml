@@ -32,7 +32,7 @@
              left="0"
              mouse_opaque="true"
              name="favorites_list"
-             start_folder="Favorite"
+             start_folder="Favorites"
              width="380"/>
         </accordion_tab>
         <accordion_tab

@@ -41,47 +41,47 @@
 			<button
 				 enabled="true"
 				 follows="bottom|left"
-				 height="25"
-				 label="Info"
+				 height="23"
+				 label="Profile"
 				 layout="topleft"
 				 left="0"
 				 name="info_btn"
 				 top="0"
-				 width="60" />
+				 width="100" />
 			<button
 				 enabled="false"
 				 follows="bottom|left"
-				 height="25"
+				 height="23"
 				 label="Wear"
 				 layout="topleft"
 				 left="130"
 				 name="wear_btn"
 				 top="0"
-				 width="60" />
+				 width="100" />
 			<button
 				 enabled="false"
 				 follows="bottom|left"
-				 height="25"
+				 height="23"
 				 label="Play"
 				 layout="topleft"
 				 name="play_btn"
 				 left="130"
 				 top="0"
-				 width="50" />
+				 width="80" />
 			<button
 				 enabled="false"
 				 follows="bottom|left"
-				 height="25"
+				 height="23"
 				 label="Teleport"
 				 layout="topleft"
 				 left="130"
 				 name="teleport_btn"
 				 top="0"
-				 width="77" />
+				 width="100" />
 		</panel>
 	</panel>
 
-	<panel
+<panel
 		 follows="all"
 		 layout="topleft"
 		 left="0"
@@ -95,7 +95,7 @@
 		 width="330">
 	</panel>
 
-	<panel
+<panel
 		 follows="all"
 		 layout="topleft"
 		 left="0"
@@ -108,5 +108,4 @@
 		 visible="false"
 		 width="330">
 	</panel>
-
 </panel>

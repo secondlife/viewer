@@ -55,6 +55,8 @@ public:
 	
 	void onSearchEdit(const std::string& string);
 	void onWear();
+	void onAdd();
+	void onRemove();
 	void onEdit();
 	void onNew();
 
