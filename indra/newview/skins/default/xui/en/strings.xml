@@ -1770,7 +1770,8 @@ Clears (deletes) the media and all params from the given face.
 	<string name="tattoo">Tattoo</string>
 	<string name="invalid">invalid</string>
 
-	<!-- notify -->
+	<!-- LLGroupNotify -->
+	<!-- used in the construction of a Group Notice blue dialog box, buttons, tooltip etc. Seems to be no longer utilized by code in Viewer 2.0 -->
 	<string name="next">Next</string>
 	<string name="ok">OK</string>
 	<string name="GroupNotifyGroupNotice">Group Notice</string>
@@ -1780,6 +1781,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="GroupNotifyViewPastNotices">View past notices or opt-out of receiving these messages here.</string>
 	<string name="GroupNotifyOpenAttachment">Open Attachment</string>
 	<string name="GroupNotifySaveAttachment">Save Attachment</string>
+
   <string name="TeleportOffer">Teleport offering</string>
   <!-- start-up toast's string-->
   <string name="StartUpNotifications">New notifications arrived while you were away.</string>

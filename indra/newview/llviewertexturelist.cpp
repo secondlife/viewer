@@ -1454,6 +1454,8 @@ void LLUIImageList::onUIImageLoaded( BOOL success, LLViewerFetchedTexture *src_v
 						llclamp((F32)scale_rect.mRight / (F32)imagep->getWidth(), 0.f, 1.f),
 						llclamp((F32)scale_rect.mBottom / (F32)imagep->getHeight(), 0.f, 1.f)));
 			}
+
+			imagep->onImageLoaded();
 		}
 	}
 }
