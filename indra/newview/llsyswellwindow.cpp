@@ -780,7 +780,7 @@ void LLIMWellWindow::addObjectRow(const LLUUID& object_id, bool new_message/* = 
 		ObjectRowPanel* item = new ObjectRowPanel(object_id, new_message);
 		if (mMessageList->insertItemAfter(mSeparator, item, object_id))
 		{
-			handleItemAdded(IT_OBJECT);
+			handleItemAdded(IT_INSTANT_MESSAGE);
 		}
 		else
 		{
@@ -795,7 +795,7 @@ void LLIMWellWindow::removeObjectRow(const LLUUID& object_id)
 {
 	if (mMessageList->removeItemByValue(object_id))
 	{
-		handleItemRemoved(IT_OBJECT);
+		handleItemRemoved(IT_INSTANT_MESSAGE);
 	}
 	else
 	{
