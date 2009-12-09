@@ -200,7 +200,7 @@ BOOL LLPanelPrimMediaControls::postBuild()
 		mScrollDownCtrl->setHeldDownCallback(onScrollDownHeld, this);
 		mScrollDownCtrl->setMouseUpCallback(onScrollStop, this);
 	}
-	
+		
 	mMediaAddress->setFocusReceivedCallback(boost::bind(&LLPanelPrimMediaControls::onInputURL, _1, this ));
 	mInactiveTimeout = gSavedSettings.getF32("MediaControlTimeout");
 	mControlFadeTime = gSavedSettings.getF32("MediaControlFadeTime");
@@ -215,11 +215,15 @@ void LLPanelPrimMediaControls::setMediaFace(LLPointer<LLViewerObject> objectp, S
 {
 	if (media_impl.notNull() && objectp.notNull())
 	{
+		LLUUID prev_id = mTargetImplID;
 		mTargetImplID = media_impl->getMediaTextureID();
 		mTargetObjectID = objectp->getID();
 		mTargetObjectFace = face;
 		mTargetObjectNormal = pick_normal;
 		mClearFaceOnFade = false;
+		
+		if (prev_id != mTargetImplID)
+			mVolumeSliderCtrl->setValue(media_impl->getVolume());
 	}
 	else
 	{
@@ -407,14 +411,12 @@ void LLPanelPrimMediaControls::updateShape()
 			{
 				mVolumeUpCtrl->setEnabled(TRUE);
 				mVolumeDownCtrl->setEnabled(FALSE);
-				media_impl->setVolume(0.0);
 				mMuteBtn->setToggleState(true);
 			}
 			else if (volume >= 1.0)
 			{
 				mVolumeUpCtrl->setEnabled(FALSE);
 				mVolumeDownCtrl->setEnabled(TRUE);
-				media_impl->setVolume(1.0);
 				mMuteBtn->setToggleState(false);
 			}
 			else
@@ -423,7 +425,6 @@ void LLPanelPrimMediaControls::updateShape()
 				mVolumeUpCtrl->setEnabled(TRUE);
 				mVolumeDownCtrl->setEnabled(TRUE);
 			}
-			mVolumeSliderCtrl->setValue(volume);
 			
 			switch(result)
 			{
