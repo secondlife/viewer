@@ -16,40 +16,44 @@
     <filter_editor
      text_pad_left="14"
      follows="left|top|right"
-	 font="SanSerif"
-     height="20"
+	 height="23"
      label="Filter"
      layout="topleft"
      left="15"
+     max_length="300"
      name="inventory search editor"
-     top="34"
-     width="300" />
+     top="26"
+     width="303" />
     <tab_container
-     follows="left|top|right|bottom"
+     follows="all"
+     halign="center"
      height="300"
      layout="topleft"
      left_delta="-4"
      name="inventory filter tabs"
      tab_position="top"
+     tab_height="30"
+     tab_min_width="100"
      top_pad="4"
      width="305">
         <inventory_panel
-         follows="left|top|right|bottom"
+	border="false"
+         follows="all"
          height="295"
-         label="All Items"
+         label="MY INVENTORY"
          layout="topleft"
-         left="1"
+         left="0"
          name="All Items"
          top="16"
          width="290" />
         <inventory_panel
-         follows="left|top|right|bottom"
+	border="false"
+         follows="all"
          height="295"
-         label="Recent Items"
+         label="RECENT"
          layout="topleft"
          left_delta="0"
          name="Recent Items"
-         top_delta="0"
          width="290" />
     </tab_container>
 
@@ -103,15 +107,15 @@
          width="18" />
     </panel>
 
-    <menu_bar
+<menu_bar
      bg_visible="false"
      follows="left|top|right"
-     height="18"
+     height="20"
      layout="topleft"
-     left_delta="0"
+     left="10"
      mouse_opaque="false"
      name="Inventory Menu"
-     top="15"
+     top="0"
 	 visible="true"
      width="290">
         <menu
