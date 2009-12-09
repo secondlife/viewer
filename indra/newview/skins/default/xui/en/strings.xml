@@ -2215,7 +2215,7 @@ If this message persists, restart your computer.
 		[APP_NAME] appears to have frozen or crashed on the previous run.
 Would you like to send a crash report?
 	</string>
-	<string name="MBAlert">Alert</string>
+	<string name="MBAlert">Notification</string>
 	<string name="MBNoDirectX">
 		[APP_NAME] is unable to detect DirectX 9.0b or greater.
 [APP_NAME] uses DirectX to detect hardware and/or outdated drivers that can cause stability problems, poor performance and crashes.  While you can run [APP_NAME] without it, we highly recommend running with DirectX 9.0b.
