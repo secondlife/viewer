@@ -348,8 +348,8 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                  height="23"
                  image_overlay="Notices_Unread"
                  image_overlay_alignment="center" 
-                 image_pressed="PushButton_Press"
-                 image_pressed_selected="PushButton_Selected_Press"
+                 image_pressed="WellButton_Lit"
+                 image_pressed_selected="WellButton_Lit_Selected"
                  image_selected="PushButton_Selected_Press"
                  left="0"
                  max_displayed_count="99"
@@ -386,8 +386,8 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
              width="34">
               <button
                  image_selected="PushButton_Selected_Press"
-                 image_pressed="PushButton_Press"
-		 image_pressed_selected="PushButton_Selected_Press"
+                 image_pressed="WellButton_Lit"
+                 image_pressed_selected="WellButton_Lit_Selected"
               auto_resize="true"
                halign="center"
                height="23"
