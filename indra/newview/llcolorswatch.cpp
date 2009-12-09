@@ -306,6 +306,18 @@ void LLColorSwatchCtrl::onColorChanged ( void* data, EColorPickOp pick_op )
 	}
 }
 
+void LLColorSwatchCtrl::onFloaterClose()
+{
+	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
+
+	if (pickerp)
+	{
+		pickerp->setSwatch(NULL);
+	}
+
+	mPickerHandle.markDead();
+}
+
 void LLColorSwatchCtrl::setValid(BOOL valid )
 {
 	mValid = valid;
@@ -323,7 +335,7 @@ void LLColorSwatchCtrl::showPicker(BOOL take_focus)
 	if (!pickerp)
 	{
 		pickerp = new LLFloaterColorPicker(this, mCanApplyImmediately);
-		gFloaterView->getParentFloater(this)->addDependentFloater(pickerp);
+		//gFloaterView->getParentFloater(this)->addDependentFloater(pickerp);
 		mPickerHandle = pickerp->getHandle();
 	}
 
