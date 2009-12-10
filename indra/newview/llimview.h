@@ -81,7 +81,6 @@ public:
 		SType mSessionType;
 		LLUUID mOtherParticipantID;
 		std::vector<LLUUID> mInitialTargetIDs;
-		LLCallDialogManager* mCallDialogManager;
 
 		// connection to voice channel state change signal
 		boost::signals2::connection mVoiceChannelStateChangeConnection;
@@ -142,6 +141,7 @@ public:
 
 	/**
 	 * Create new session object in a model
+	 * @param name session name should not be empty, will return false if empty
 	 */
 	bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, 
 		const std::vector<LLUUID>& ids = std::vector<LLUUID>());
@@ -297,6 +297,7 @@ public:
 	/**
 	 * Creates a P2P session with the requisite handle for responding to voice calls.
 	 * 
+	 * @param name session name, cannot be null
 	 * @param caller_uri - sip URI of caller. It should be always be passed into the method to avoid
 	 * incorrect working of LLVoiceChannel instances. See EXT-2985.
 	 */	
@@ -494,7 +495,16 @@ public:
 
 	static void onCancel(void* user_data);
 
+	// check timer state
+	/*virtual*/ void draw();
+
 private:
+	// lifetime timer for NO_ANSWER notification
+	LLTimer	mLifetimeTimer;
+	// lifetime duration for NO_ANSWER notification
+	static const S32 LIFETIME = 5;
+	bool lifetimeHasExpired();
+	void onLifetimeExpired();
 };
 
 // Globals

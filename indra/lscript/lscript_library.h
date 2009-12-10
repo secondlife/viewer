@@ -70,7 +70,7 @@ public:
 	std::vector<LLScriptLibraryFunction>	mFunctions;
 };
 
-extern LLScriptLibrary gScriptLibrary;
+
 
 class LLScriptLibData
 {
@@ -427,5 +427,7 @@ public:
 	}
 
 };
+
+extern LLScriptLibrary gScriptLibrary;
 
 #endif

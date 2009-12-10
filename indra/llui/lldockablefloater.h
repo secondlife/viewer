@@ -83,6 +83,8 @@ public:
 	virtual void onDockHidden();
 	virtual void onDockShown();
 
+	LLDockControl* getDockControl();
+
 private:
 	/**
 	 * Provides unique of dockable floater.
@@ -92,7 +94,6 @@ private:
 
 protected:
 	void setDockControl(LLDockControl* dockControl);
-	LLDockControl* getDockControl();
 	const LLUIImagePtr& getDockTongue();
 
 private:

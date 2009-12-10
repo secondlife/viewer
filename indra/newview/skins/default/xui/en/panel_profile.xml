@@ -286,6 +286,7 @@
          left="0"
          mouse_opaque="false"
          name="add_friend"
+         tool_tip="Offer friendship to the resident"
          top="5"
          width="77" />
         <button
@@ -294,6 +295,7 @@
          label="IM"
          layout="topleft"
          name="im"
+         tool_tip="Open instant message session"
          top="5"
          left_pad="5"
          width="33" />
@@ -303,6 +305,7 @@
          label="Call"
          layout="topleft"
          name="call"
+         tool_tip="Call this resident"
          left_pad="5"
          top="5"
          width="40" />
@@ -313,6 +316,7 @@
          label="Map"
          layout="topleft"
          name="show_on_map_btn"
+         tool_tip="Show the resident on the map"
          top="5"
          left_pad="5"
          width="44" />
@@ -322,6 +326,7 @@
          label="Teleport"
          layout="topleft"
          name="teleport"
+         tool_tip="Offer teleport"
          left_pad="5"
          top="5"
          width="67" />
@@ -331,6 +336,7 @@
          label="▼"
          layout="topleft"
          name="overflow_btn"
+         tool_tip="Pay money to or share inventory with the resident"
          right="-1"
          top="5"
          width="21" />
