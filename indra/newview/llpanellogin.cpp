@@ -671,12 +671,8 @@ void LLPanelLogin::refreshLocation( bool force_visible )
 	sInstance->childSetVisible("start_location_combo", show_start);
 	sInstance->childSetVisible("start_location_text", show_start);
 
-#if LL_RELEASE_FOR_DOWNLOAD
 	BOOL show_server = gSavedSettings.getBOOL("ForceShowGrid");
 	sInstance->childSetVisible("server_combo", show_server);
-#else
-	sInstance->childSetVisible("server_combo", TRUE);
-#endif
 
 #endif
 }
