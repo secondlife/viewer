@@ -67,8 +67,6 @@
 
 using namespace LLOldEvents;
 
-bool isInOutfitsSidePanel(LLPanel *panel);
-
 // Helpers
 // bug in busy count inc/dec right now, logic is complex... do we really need it?
 void inc_busy_count()
@@ -571,11 +569,11 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 
 	if (obj && obj->getIsLinkType())
 	{
-		items.push_back(std::string("Remove"));
+		items.push_back(std::string("Remove Link"));
 	}
 
 	items.push_back(std::string("Delete"));
-	const bool is_sidepanel = isInOutfitsSidePanel(mInventoryPanel.get());
+	const bool is_sidepanel = isInOutfitsSidePanel();
 	if ((obj && obj->getIsLinkType() && is_sidepanel) || !isItemRemovable())
 	{
 		disabled_items.push_back(std::string("Delete"));
@@ -920,6 +918,16 @@ void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 		model->purgeObject(uuid);
 		model->notifyObservers();
 	}
+}
+
+bool LLInvFVBridge::isInOutfitsSidePanel() const
+{
+	LLInventoryPanel *my_panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
+	LLPanelOutfitsInventory *outfit_panel =
+		dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
+	if (!outfit_panel)
+		return false;
+	return outfit_panel->isAccordionPanel(my_panel);
 }
 
 // +=================================================+
@@ -2395,21 +2403,10 @@ void LLFolderBridge::staticFolderOptionsMenu()
 	sSelf->folderOptionsMenu();
 }
 
-bool isInOutfitsSidePanel(LLPanel *panel)
-{
-	LLInventoryPanel *my_panel = dynamic_cast<LLInventoryPanel*>(panel);
-	LLPanelOutfitsInventory *outfit_panel =
-		dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
-	if (!outfit_panel)
-		return false;
-	return outfit_panel->isAccordionPanel(my_panel);
-
-	//LLInventoryPanel *outfit_inv_panel = outfit_panel ? outfit_panel->getActivePanel(): NULL;
-	//return (my_panel && (my_panel == outfit_inv_panel));
-}
-
 void LLFolderBridge::folderOptionsMenu()
 {
+	const bool is_sidepanel = isInOutfitsSidePanel();
+
 	std::vector<std::string> disabled_items;
 
 	LLInventoryModel* model = getInventoryModel();
@@ -2421,13 +2418,11 @@ void LLFolderBridge::folderOptionsMenu()
 	// BAP change once we're no longer treating regular categories as ensembles.
 	const bool is_ensemble = category && (type == LLFolderType::FT_NONE ||
 										  LLFolderType::lookupIsEnsembleType(type));
-	const bool is_sidepanel = isInOutfitsSidePanel(mInventoryPanel.get());
 
 	// calling card related functionality for folders.
 
 	if (is_sidepanel)
 	{
-		mItems.clear();
 		mItems.push_back("Rename");
 		mItems.push_back("Delete");
 	}
