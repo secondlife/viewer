@@ -56,7 +56,6 @@ class LLFloaterColorPicker
 
 		// overrides
 		virtual BOOL postBuild ();
-		virtual void onClose(bool app_settings);
 		virtual void draw ();
 		virtual BOOL handleMouseDown ( S32 x, S32 y, MASK mask );
 		virtual BOOL handleMouseUp ( S32 x, S32 y, MASK mask );
