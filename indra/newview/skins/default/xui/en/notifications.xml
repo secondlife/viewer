@@ -100,11 +100,11 @@
    functor="GenericAcknowledge"
    icon="alertmodal.tga"
    name="MissingAlert"
-   label="Unknown Alert Message"
+   label="Unknown Notification Message"
    type="alertmodal">
-Your version of [APP_NAME] does not know how to display the alert it just received.  Please verify that you have the latest Viewer installed.
+Your version of [APP_NAME] does not know how to display the notification it just received.  Please verify that you have the latest Viewer installed.
 
-Error details: The alert called &apos;[_NAME]&apos; was not found in notifications.xml.
+Error details: The notification called &apos;[_NAME]&apos; was not found in notifications.xml.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -1688,7 +1688,7 @@ This location can play streaming media.
 Streaming media requires a fast Internet connection.
 
 Play streaming media when available?
-(You can change this option later under Preferences &gt; Audio &amp; Video.)
+(You can change this option later under Preferences &gt; Privacy.)
     <usetemplate
      name="okcancelbuttons"
      notext="Disable"
@@ -4719,10 +4719,6 @@ The objects on the selected parcel that are NOT owned by you have been returned 
    type="notify">
 Message from [NAME]:
 [MSG]
-    <usetemplate
-     name="okcancelbuttons"
-     notext="OK"
-     yestext="Inspect"/>
   </notification>
 
   <notification

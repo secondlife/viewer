@@ -315,7 +315,7 @@ public:
 	{
 		Optional<std::string> new_messages_icon_name;
 
-		Params() : new_messages_icon_name("new_messages_icon_name", "icn_voice-localchat.tga")
+		Params() : new_messages_icon_name("new_messages_icon_name", "Unread_IM")
 		{}
 	};
 

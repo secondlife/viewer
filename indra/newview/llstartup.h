@@ -33,7 +33,11 @@
 #ifndef LL_LLSTARTUP_H
 #define LL_LLSTARTUP_H
 
+#include <boost/scoped_ptr.hpp>
+
 class LLViewerTexture ;
+class LLEventPump;
+class LLStartupListener;
 
 // functions
 bool idle_startup();
@@ -113,9 +117,13 @@ public:
 		// *HACK: On startup, if we were passed a secondlife://app/do/foo
 		// command URL, store it for later processing.
 
+	static void postStartupState();
+
 private:
 	static std::string startupStateToString(EStartupState state);
 	static EStartupState gStartupState; // Do not set directly, use LLStartup::setStartupState
+	static boost::scoped_ptr<LLEventPump> sStateWatcher;
+	static boost::scoped_ptr<LLStartupListener> sListener;
 };
 
 

@@ -708,7 +708,7 @@
 	</panel>	
         <button
      follows="left|bottom"
-     height="20"
+     height="23"
      label="Apply"
      label_selected="Apply"
      layout="topleft"
@@ -721,7 +721,7 @@
     </button>
     <button
      follows="left|bottom"
-     height="20"
+     height="23"
      label="Reset"
      layout="topleft"
      left_pad="3"
@@ -734,7 +734,7 @@
     <button
      control_name="ShowAdvancedGraphicsSettings"
      follows="right|bottom"
-     height="20"
+     height="23"
      is_toggle="true"
      label="Advanced"
      layout="topleft"
@@ -744,7 +744,7 @@
      width="115" />
     <button
      follows="right|bottom"
-     height="20"
+     height="23"
      label="Hardware"
      label_selected="Hardware"
      layout="topleft"

@@ -126,13 +126,11 @@ protected:
  * 
  * It contains a list of notifications that have not been responded to.
  */
-class LLNotificationWellWindow : public LLSysWellWindow, public LLInitClass<LLNotificationWellWindow>
+class LLNotificationWellWindow : public LLSysWellWindow
 {
 public:
 	LLNotificationWellWindow(const LLSD& key);
 	static LLNotificationWellWindow* getInstance(const LLSD& key = LLSD());
-
-	static void initClass() { getInstance(); }
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void setVisible(BOOL visible);
