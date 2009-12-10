@@ -1478,21 +1478,24 @@ BOOL LLToolPie::pickRightMouseDownCallback()
 			// Object is an avatar, so check for mute by id.
 			LLVOAvatar* avatar = (LLVOAvatar*)object;
 			std::string name = avatar->getFullname();
+			std::string mute_msg;
 			if (LLMuteList::getInstance()->isMuted(avatar->getID(), avatar->getFullname()))
 			{
-				gMenuHolder->childSetText("Avatar Mute", std::string("Unmute")); // *TODO:Translate
+				mute_msg = LLTrans::getString("UnmuteAvatar");
 			}
 			else
 			{
-				gMenuHolder->childSetText("Avatar Mute", std::string("Mute")); // *TODO:Translate
+				mute_msg = LLTrans::getString("MuteAvatar");
 			}
 
 			if (is_other_attachment)
 			{
+				gMenuAttachmentOther->getChild<LLUICtrl>("Avatar Mute")->setValue(mute_msg);
 				gMenuAttachmentOther->show(x, y);
 			}
 			else
 			{
+				gMenuAvatarOther->getChild<LLUICtrl>("Avatar Mute")->setValue(mute_msg);
 				gMenuAvatarOther->show(x, y);
 			}
 		}
@@ -1509,15 +1512,17 @@ BOOL LLToolPie::pickRightMouseDownCallback()
 			{
 				name = node->mName;
 			}
+			std::string mute_msg;
 			if (LLMuteList::getInstance()->isMuted(object->getID(), name))
 			{
-				gMenuHolder->childSetText("Object Mute", std::string("Unmute")); // *TODO:Translate
+				mute_msg = LLTrans::getString("UnmuteObject");
 			}
 			else
 			{
-				gMenuHolder->childSetText("Object Mute", std::string("Mute")); // *TODO:Translate
+				mute_msg = LLTrans::getString("MuteObject");
 			}
 			
+			gMenuHolder->childSetText("Object Mute", mute_msg);
 			gMenuObject->show(x, y);
 
 			showVisualContextMenuEffect();
