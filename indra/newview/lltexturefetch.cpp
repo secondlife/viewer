@@ -1630,6 +1630,16 @@ S32 LLTextureFetch::update(U32 max_time_ms)
 	{
 		sendRequestListToSimulators();
 	}
+
+	if (!mThreaded)
+	{
+		// Update Curl on same thread as mCurlGetRequest was constructed
+		S32 processed = mCurlGetRequest->process();
+		if (processed > 0)
+		{
+			lldebugs << "processed: " << processed << " messages." << llendl;
+		}
+	}
 	
 	return res;
 }
