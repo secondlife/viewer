@@ -452,7 +452,7 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
 	if ( KEY_F1 == key )
 	{
 		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
-		vhelp->showTopic(vhelp->getTopicFromFocus());
+		vhelp->showTopic(vhelp->f1HelpTopic());
 		return TRUE;
 	}
 
@@ -972,7 +972,7 @@ void LLPanelLogin::onClickHelp(void*)
 	if (sInstance)
 	{
 		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
-		vhelp->showTopic(vhelp->getTopicFromFocus());
+		vhelp->showTopic(vhelp->preLoginTopic());
 	}
 }
 
