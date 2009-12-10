@@ -55,15 +55,17 @@ public:
 	// Does this object have media?
 	virtual bool hasMedia() const = 0;
 	// Update the object's media data to the given array
-	virtual void updateObjectMediaData(LLSD const &media_data_array) = 0;
-	// Return the distance from the object to the avatar
-	virtual F64 getDistanceFromAvatar() const = 0;
+	virtual void updateObjectMediaData(LLSD const &media_data_array, const std::string &version_string) = 0;
 	// Return the total "interest" of the media (on-screen area)
-	virtual F64 getTotalMediaInterest() const = 0;
+	virtual F64 getMediaInterest() const = 0;
 	// Return the given cap url
 	virtual std::string getCapabilityUrl(const std::string &name) const = 0;
 	// Return whether the object has been marked dead
 	virtual bool isDead() const = 0;
+	// Returns a media version number for the object
+	virtual U32 getMediaVersion() const = 0;
+	// Returns whether we've seen this object yet or not
+	virtual bool isNew() const = 0;
 
 	// smart pointer
 	typedef LLPointer<LLMediaDataClientObject> ptr_t;
@@ -79,11 +81,15 @@ public:
     const static F32 QUEUE_TIMER_DELAY;// = 1.0; // seconds(s)
 	const static F32 UNAVAILABLE_RETRY_TIMER_DELAY;// = 5.0; // secs
 	const static U32 MAX_RETRIES;// = 4;
+	const static U32 MAX_SORTED_QUEUE_SIZE;// = 60;
+	const static U32 MAX_ROUND_ROBIN_QUEUE_SIZE;// = 25;
 
 	// Constructor
 	LLMediaDataClient(F32 queue_timer_delay = QUEUE_TIMER_DELAY,
 					  F32 retry_timer_delay = UNAVAILABLE_RETRY_TIMER_DELAY,
-		              U32 max_retries = MAX_RETRIES);
+		              U32 max_retries = MAX_RETRIES,
+					  U32 max_sorted_queue_size = MAX_SORTED_QUEUE_SIZE,
+					  U32 max_round_robin_queue_size = MAX_ROUND_ROBIN_QUEUE_SIZE);
 	
 	// Make the request
 	void request(const LLMediaDataClientObject::ptr_t &object, const LLSD &payload);
@@ -94,7 +100,13 @@ public:
 	bool isEmpty() const;
 	
 	// Returns true iff the given object is in the queue
-	bool isInQueue(const LLMediaDataClientObject::ptr_t &object) const;
+	bool isInQueue(const LLMediaDataClientObject::ptr_t &object);
+	
+	// Remove the given object from the queue. Returns true iff the given object is removed.
+	bool removeFromQueue(const LLMediaDataClientObject::ptr_t &object);
+	
+	// Called only by the Queue timer and tests (potentially)
+	bool processQueueTimer();
 	
 protected:
 	// Destructor
@@ -107,11 +119,12 @@ protected:
         enum Type {
             GET,
             UPDATE,
-            NAVIGATE
+            NAVIGATE,
+			ANY
         };
         
-		Request(const std::string &cap_name, const LLSD& sd_payload, LLMediaDataClientObject *obj, LLMediaDataClient *mdc);
-		const std::string &getCapName() const { return mCapName; }
+		Request(const char *cap_name, const LLSD& sd_payload, LLMediaDataClientObject *obj, LLMediaDataClient *mdc);
+		const char *getCapName() const { return mCapName; }
 		const LLSD &getPayload() const { return mPayload; }
 		LLMediaDataClientObject *getObject() const { return mObject; }
 
@@ -132,6 +145,12 @@ protected:
 		F32 getRetryTimerDelay() const;
 		U32 getMaxNumRetries() const;
 		
+		bool isNew() const { return mObject.notNull() ? mObject->isNew() : false; }
+		void markSent(bool flag);
+		bool isMarkedSent() const { return mMarkedSent; }
+		void updateScore();
+		F64 getScore() const { return mScore; }
+		
 	public:
 		friend std::ostream& operator<<(std::ostream &s, const Request &q);
 		
@@ -139,14 +158,16 @@ protected:
         virtual ~Request(); // use unref();
         
 	private:
-		std::string mCapName;
+		const char *mCapName;
 		LLSD mPayload;
 		LLMediaDataClientObject::ptr_t mObject;
 		// Simple tracking
-		const U32 mNum;
+		U32 mNum;
 		static U32 sNum;
         U32 mRetryCount;
-		
+		F64 mScore;
+		bool mMarkedSent;
+
 		// Back pointer to the MDC...not a ref!
 		LLMediaDataClient *mMDC;
 	};
@@ -184,18 +205,23 @@ protected:
 	};
 	
 protected:
-	
-	void enqueue(const Request*);
-	
+
 	// Subclasses must override this factory method to return a new responder
 	virtual Responder *createResponder(const request_ptr_t &request) const = 0;
 	
 	// Subclasses must override to return a cap name
 	virtual const char *getCapabilityName() const = 0;
 	
-private:
+	virtual void sortQueue();
+	virtual void serviceQueue();
 	
+private:
 	typedef std::list<request_ptr_t> request_queue_t;
+		
+	void enqueue(const Request*);
+	
+	// Return whether the given object is/was in the queue
+	static LLMediaDataClient::request_ptr_t findOrRemove(request_queue_t &queue, const LLMediaDataClientObject::ptr_t &obj, bool remove, Request::Type type);
 	
 	// Comparator for sorting
 	static bool compareRequests(const request_ptr_t &o1, const request_ptr_t &o2);
@@ -215,31 +241,37 @@ private:
 		// back-pointer
 		LLPointer<LLMediaDataClient> mMDC;
 	};
-
-	// Return whether the given object is in the queue
-	bool find(const LLMediaDataClientObject::ptr_t &obj) const;
 	
 	void startQueueTimer();
 	void stopQueueTimer();
 	void setIsRunning(bool val) { mQueueTimerIsRunning = val; }
-
+	
+	void swapCurrentQueue();
+	request_queue_t *getCurrentQueue();
+	
 	const F32 mQueueTimerDelay;
 	const F32 mRetryTimerDelay;
 	const U32 mMaxNumRetries;
+	const U32 mMaxSortedQueueSize;
+	const U32 mMaxRoundRobinQueueSize;
 	
 	bool mQueueTimerIsRunning;
 	
-	request_queue_t *pRequestQueue;
+	request_queue_t mSortedQueue;
+	request_queue_t mRoundRobinQueue;
+	bool mCurrentQueueIsTheSortedQueue;
 };
 
 
-// MediaDataResponder specific for the ObjectMedia cap
+// MediaDataClient specific for the ObjectMedia cap
 class LLObjectMediaDataClient : public LLMediaDataClient
 {
 public:
     LLObjectMediaDataClient(F32 queue_timer_delay = QUEUE_TIMER_DELAY,
 							F32 retry_timer_delay = UNAVAILABLE_RETRY_TIMER_DELAY,
-							U32 max_retries = MAX_RETRIES)
+							U32 max_retries = MAX_RETRIES,
+							U32 max_sorted_queue_size = MAX_SORTED_QUEUE_SIZE,
+							U32 max_round_robin_queue_size = MAX_ROUND_ROBIN_QUEUE_SIZE)
 		: LLMediaDataClient(queue_timer_delay, retry_timer_delay, max_retries)
 		{}
     ~LLObjectMediaDataClient() {}
@@ -264,7 +296,7 @@ protected:
 };
 
 
-// MediaDataResponder specific for the ObjectMediaNavigate cap
+// MediaDataClient specific for the ObjectMediaNavigate cap
 class LLObjectMediaNavigateClient : public LLMediaDataClient
 {
 public:
@@ -273,7 +305,9 @@ public:
 	
     LLObjectMediaNavigateClient(F32 queue_timer_delay = QUEUE_TIMER_DELAY,
 								F32 retry_timer_delay = UNAVAILABLE_RETRY_TIMER_DELAY,
-								U32 max_retries = MAX_RETRIES)
+								U32 max_retries = MAX_RETRIES,
+								U32 max_sorted_queue_size = MAX_SORTED_QUEUE_SIZE,
+								U32 max_round_robin_queue_size = MAX_ROUND_ROBIN_QUEUE_SIZE)
 		: LLMediaDataClient(queue_timer_delay, retry_timer_delay, max_retries)
 		{}
     ~LLObjectMediaNavigateClient() {}
