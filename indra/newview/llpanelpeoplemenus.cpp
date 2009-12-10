@@ -100,7 +100,7 @@ LLContextMenu* NearbyMenu::createMenu()
 		registrar.add("Avatar.Call",			boost::bind(&LLAvatarActions::startCall,				id));
 		registrar.add("Avatar.OfferTeleport",	boost::bind(&NearbyMenu::offerTeleport,					this));
 		registrar.add("Avatar.ShowOnMap",		boost::bind(&LLAvatarActions::startIM,					id));	// *TODO: unimplemented
-		registrar.add("Avatar.Share",			boost::bind(&LLAvatarActions::startIM,					id));	// *TODO: unimplemented
+		registrar.add("Avatar.Share",			boost::bind(&LLAvatarActions::share,					id));
 		registrar.add("Avatar.Pay",				boost::bind(&LLAvatarActions::pay,						id));
 		registrar.add("Avatar.BlockUnblock",	boost::bind(&LLAvatarActions::toggleBlock,				id));
 
