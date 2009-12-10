@@ -109,19 +109,30 @@ BOOL LLSidepanelItemInfo::postBuild()
 {
 	LLSidepanelInventorySubpanel::postBuild();
 
-	// build the UI
-	// item name & description
 	childSetPrevalidate("LabelItemName",&LLLineEditor::prevalidateASCIIPrintableNoPipe);
-	//getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitName,this));
+	getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitName,this));
 	childSetPrevalidate("LabelItemDesc",&LLLineEditor::prevalidateASCIIPrintableNoPipe);
-	//getChild<LLUICtrl>("LabelItemDesc")->setCommitCallback(boost::bind(&LLSidepanelItemInfo:: onCommitDescription, this));
-
+	getChild<LLUICtrl>("LabelItemDesc")->setCommitCallback(boost::bind(&LLSidepanelItemInfo:: onCommitDescription, this));
 	// Creator information
 	getChild<LLUICtrl>("BtnCreator")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onClickCreator,this));
-
 	// owner information
 	getChild<LLUICtrl>("BtnOwner")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onClickOwner,this));
-
+	// acquired date
+	// owner permissions
+	// Permissions debug text
+	// group permissions
+	getChild<LLUICtrl>("CheckShareWithGroup")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
+	// everyone permissions
+	getChild<LLUICtrl>("CheckEveryoneCopy")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
+	// next owner permissions
+	getChild<LLUICtrl>("CheckNextOwnerModify")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
+	getChild<LLUICtrl>("CheckNextOwnerCopy")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
+	getChild<LLUICtrl>("CheckNextOwnerTransfer")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
+	// Mark for sale or not, and sale info
+	getChild<LLUICtrl>("CheckPurchase")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this));
+	getChild<LLUICtrl>("RadioSaleType")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleType, this));
+	// "Price" label for edit
+	getChild<LLUICtrl>("Edit Cost")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this));
 	refresh();
 	return TRUE;
 }

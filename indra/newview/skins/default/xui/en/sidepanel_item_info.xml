@@ -480,31 +480,4 @@
 			Price: L$
 	    </text-->
 	</panel>
-    <panel
-		 height="25"
-		 layout="bottomright"
-		 help_topic="button_tab"
-		 name="button_panel"
-		 left="5"
-		 bottom="5"
-		 width="313">
-	    <button
-		     follows="bottom|right"
-		     height="25"
-		     label="Cancel"
-		     layout="topleft"
-		     name="cancel_btn"
-		     right="-1"
-		     top="0"
-		     width="70" />
-	    <button
-		     follows="bottom|right"
-		     height="25"
-		     label="Save"
-		     layout="topleft"
-		     name="save_btn"
-		     left_pad="-135"
-		     top="0"
-		     width="60" />
-	</panel>
 </panel>
