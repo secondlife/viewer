@@ -88,6 +88,9 @@ const static std::string IM_TEXT("message");
 const static std::string IM_FROM("from");
 const static std::string IM_FROM_ID("from_id");
 
+const static std::string NO_SESSION("(IM Session Doesn't Exist)");
+const static std::string ADHOC_NAME_SUFFIX(" Conference");
+
 std::string LLCallDialogManager::sPreviousSessionlName = "";
 std::string LLCallDialogManager::sCurrentSessionlName = "";
 LLIMModel::LLIMSession* LLCallDialogManager::sSession = NULL;
@@ -451,10 +454,16 @@ void LLIMModel::testMessages()
 	addMessage(bot2_session_id, from, bot2_id, "Test Message: OMGWTFBBQ.");
 }
 
-
+//session name should not be empty
 bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, 
 						   const LLUUID& other_participant_id, const std::vector<LLUUID>& ids)
 {
+	if (name.empty())
+	{
+		llwarns << "Attempt to create a new session with empty name; id = " << session_id << llendl;
+		return false;
+	}
+
 	if (findIMSession(session_id))
 	{
 		llwarns << "IM Session " << session_id << " already exists" << llendl;
@@ -611,7 +620,7 @@ const std::string& LLIMModel::getName(const LLUUID& session_id) const
 	if (!session) 
 	{
 		llwarns << "session " << session_id << "does not exist " << llendl;
-		return LLStringUtil::null;
+		return NO_SESSION;
 	}
 
 	return session->mName;
@@ -1558,6 +1567,8 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 		return;
 
 	LLUUID session_id = mPayload["session_id"].asUUID();
+	LLUUID caller_id = mPayload["caller_id"].asUUID();
+	std::string session_name = mPayload["session_name"].asString();
 	EInstantMessage type = (EInstantMessage)mPayload["type"].asInteger();
 	LLIMMgr::EInvitationType inv_type = (LLIMMgr::EInvitationType)mPayload["inv_type"].asInteger();
 	bool voice = true;
@@ -1574,8 +1585,8 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 		{
 			// create a normal IM session
 			session_id = gIMMgr->addP2PSession(
-				mPayload["session_name"].asString(),
-				mPayload["caller_id"].asUUID(),
+				session_name,
+				caller_id,
 				mPayload["session_handle"].asString(),
 				mPayload["session_uri"].asString());
 
@@ -1593,10 +1604,38 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 		}
 		else
 		{
-			LLUUID new_session_id = gIMMgr->addSession(
-				mPayload["session_name"].asString(),
-				type,
-				session_id);
+			//session name should not be empty, but it can contain spaces so we don't trim
+			std::string correct_session_name = session_name;
+			if (session_name.empty())
+			{
+				llwarns << "Received an empty session name from a server" << llendl;
+				
+				switch(type){
+				case IM_SESSION_CONFERENCE_START:
+				case IM_SESSION_GROUP_START:
+				case IM_SESSION_INVITE:		
+					if (gAgent.isInGroup(session_id))
+					{
+						LLGroupData data;
+						if (!gAgent.getGroupData(session_id, data)) break;
+						correct_session_name = data.mName;
+					}
+					else
+					{
+						if (gCacheName->getFullName(caller_id, correct_session_name))
+						{
+							correct_session_name.append(ADHOC_NAME_SUFFIX); 
+						}
+					}
+					llinfos << "Corrected session name is " << correct_session_name << llendl; 
+					break;
+				default: 
+					llwarning("Received an empty session name from a server and failed to generate a new proper session name", 0);
+					break;
+				}
+			}
+			
+			LLUUID new_session_id = gIMMgr->addSession(correct_session_name, type, session_id);
 			if (new_session_id != LLUUID::null)
 			{
 				LLIMFloater::show(new_session_id);
@@ -2020,6 +2059,12 @@ LLUUID LLIMMgr::addSession(
 {
 	if (0 == ids.getLength())
 	{
+		return LLUUID::null;
+	}
+
+	if (name.empty())
+	{
+		llwarning("Session name cannot be null!", 0);
 		return LLUUID::null;
 	}
 
