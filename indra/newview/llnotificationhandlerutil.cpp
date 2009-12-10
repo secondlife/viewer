@@ -50,7 +50,8 @@ const static std::string GRANTED_MODIFY_RIGHTS("GrantedModifyRights"),
 						USER_GIVE_ITEM("UserGiveItem"), OFFER_FRIENDSHIP("OfferFriendship"),
 						FRIENDSHIP_ACCEPTED("FriendshipAccepted"),
 						FRIENDSHIP_OFFERED("FriendshipOffered"),
-						FRIEND_ONLINE("FriendOnline"), FRIEND_OFFLINE("FriendOffline");
+						FRIEND_ONLINE("FriendOnline"), FRIEND_OFFLINE("FriendOffline"),
+						SERVER_OBJECT_MESSAGE("ServerObjectMessage");
 
 // static
 bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
@@ -58,7 +59,8 @@ bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 	return GRANTED_MODIFY_RIGHTS == notification->getName()
 			|| REVOKED_MODIFY_RIGHTS == notification->getName()
 			|| PAYMENT_RECIVED == notification->getName()
-			|| FRIENDSHIP_OFFERED == notification->getName();
+			|| FRIENDSHIP_OFFERED == notification->getName()
+			|| SERVER_OBJECT_MESSAGE == notification->getName();
 }
 
 // static
