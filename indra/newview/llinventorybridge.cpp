@@ -2405,8 +2405,6 @@ void LLFolderBridge::staticFolderOptionsMenu()
 
 void LLFolderBridge::folderOptionsMenu()
 {
-	const bool is_sidepanel = isInOutfitsSidePanel();
-
 	std::vector<std::string> disabled_items;
 
 	LLInventoryModel* model = getInventoryModel();
@@ -2421,6 +2419,7 @@ void LLFolderBridge::folderOptionsMenu()
 
 	// calling card related functionality for folders.
 
+	const bool is_sidepanel = isInOutfitsSidePanel();
 	if (is_sidepanel)
 	{
 		mItems.push_back("Rename");
@@ -2492,14 +2491,13 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	mDisabledItems.clear();
 
 	lldebugs << "LLFolderBridge::buildContextMenu()" << llendl;
+
 //	std::vector<std::string> disabled_items;
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return;
 	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	const LLUUID lost_and_found_id = model->findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
 
-	mItems.clear(); //adding code to clear out member Items (which means Items should not have other data here at this point)
-	mDisabledItems.clear(); //adding code to clear out disabled members from previous
 	if (lost_and_found_id == mUUID)
 	  {
 		// This is the lost+found folder.
@@ -2528,7 +2526,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		LLViewerInventoryCategory *cat =  getCategory();
 		// BAP removed protected check to re-enable standard ops in untyped folders.
 		// Not sure what the right thing is to do here.
-		if (!isCOFFolder() && cat /*&&
+		if (!isCOFFolder() && cat && cat->getPreferredType()!=LLFolderType::FT_OUTFIT /*&&
 			LLAssetType::lookupIsProtectedCategoryType(cat->getPreferredType())*/)
 		{
 			// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
@@ -3780,10 +3778,15 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
-		items.push_back(std::string("Open"));
-		items.push_back(std::string("Properties"));
+		bool is_sidepanel = isInOutfitsSidePanel();
 
-		getClipboardEntries(true, items, disabled_items, flags);
+		if (!is_sidepanel)
+		{
+			items.push_back(std::string("Open"));
+			items.push_back(std::string("Properties"));
+
+			getClipboardEntries(true, items, disabled_items, flags);
+		}
 
 		items.push_back(std::string("Gesture Separator"));
 		if (LLGestureManager::instance().isGestureActive(getUUID()))
@@ -4105,13 +4108,21 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
-		items.push_back(std::string("Properties"));
+		bool is_sidepanel = isInOutfitsSidePanel();
 
-		LLInventoryItem *item = getItem();
-		getClipboardEntries(true, items, disabled_items, flags);
+		if (!is_sidepanel)
+		{
+			items.push_back(std::string("Properties"));
+		}
+
+		if (!is_sidepanel)
+		{
+			getClipboardEntries(true, items, disabled_items, flags);
+		}
 
 		LLObjectBridge::sContextMenuItemID = mUUID;
 
+		LLInventoryItem *item = getItem();
 		if(item)
 		{
 			LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
@@ -4537,14 +4548,23 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			can_open = FALSE;
 		}
-		if (can_open)
+
+		bool is_sidepanel = isInOutfitsSidePanel();
+		
+		if (can_open && !is_sidepanel)
 		{
 			items.push_back(std::string("Open"));
 		}
 
-		items.push_back(std::string("Properties"));
+		if (!is_sidepanel)
+		{
+			items.push_back(std::string("Properties"));
+		}
 
-		getClipboardEntries(true, items, disabled_items, flags);
+		if (!is_sidepanel)
+		{
+			getClipboardEntries(true, items, disabled_items, flags);
+		}
 
 		items.push_back(std::string("Wearable Separator"));
 
