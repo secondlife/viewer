@@ -5575,17 +5575,8 @@ class LLShowHelp : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string help_topic = userdata.asString();
-
 		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
-		if (help_topic.empty())
-		{
-			vhelp->showTopic(vhelp->getTopicFromFocus());
-		}
-		else
-		{
-			vhelp->showTopic(help_topic);
-		}
-
+		vhelp->showTopic(help_topic);
 		return true;
 	}
 };

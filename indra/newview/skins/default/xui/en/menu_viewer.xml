@@ -1064,7 +1064,8 @@
          name="Second Life Help"
          shortcut="F1">
             <menu_item_call.on_click
-             function="ShowHelp" />
+             function="ShowHelp"
+             parameter="f1_help" />
         </menu_item_call>
         <menu_item_call
          label="Tutorial"
