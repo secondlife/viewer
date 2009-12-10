@@ -1537,7 +1537,7 @@ void LLMediaPluginTest::addMediaPanel( std::string url )
         char cwd[ FILENAME_MAX ];
 	if (NULL == getcwd( cwd, FILENAME_MAX - 1 ))
 	{
-		std::cerr << "Couldn't get cwd - probably too long - failing to init." << llendl;
+		std::cerr << "Couldn't get cwd - probably too long - failing to init." << std::endl;
 		return;
 	}
 	std::string user_data_path = std::string( cwd ) + "/";
@@ -1774,7 +1774,7 @@ void LLMediaPluginTest::replaceMediaPanel( mediaPanel* panel, std::string url )
         char cwd[ FILENAME_MAX ];
 	if (NULL == getcwd( cwd, FILENAME_MAX - 1 ))
 	{
-		std::cerr << "Couldn't get cwd - probably too long - failing to init." << llendl;
+		std::cerr << "Couldn't get cwd - probably too long - failing to init." << std::endl;
 		return;
 	}
 	std::string user_data_path = std::string( cwd ) + "/";
