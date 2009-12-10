@@ -76,29 +76,12 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 	  mAspectRatio(0.f),
 	  mPreviewToSave(FALSE)
 {
-	const LLInventoryItem *item = getItem();
+	const LLViewerInventoryItem *item = static_cast<const LLViewerInventoryItem*>(getItem());
 	if(item)
 	{
 		mShowKeepDiscard = item->getPermissions().getCreator() != gAgent.getID();
 		mImageID = item->getAssetUUID();
-		const LLPermissions& perm = item->getPermissions();
-		U32 mask = PERM_NONE;
-		if(perm.getOwner() == gAgent.getID())
-		{
-			mask = perm.getMaskBase();
-		}
-		else if(gAgent.isInGroup(perm.getGroup()))
-		{
-			mask = perm.getMaskGroup();
-		}
-		else
-		{
-			mask = perm.getMaskEveryone();
-		}
-		if((mask & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
-		{
-			mIsCopyable = TRUE;
-		}
+		mIsCopyable = item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
 	}
 	else // not an item, assume it's an asset id
 	{
@@ -586,6 +569,7 @@ void LLPreviewTexture::loadAsset()
 	mImage->forceToSaveRawImage(0) ;
 	mAssetStatus = PREVIEW_ASSET_LOADING;
 	updateDimensions();
+	childSetVisible("save_tex_btn", canSaveAs());
 }
 
 LLPreview::EAssetStatus LLPreviewTexture::getAssetStatus()

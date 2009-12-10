@@ -377,6 +377,7 @@ public:
 protected:
 	LLTextureBridge(LLInventoryPanel* inventory, const LLUUID& uuid, LLInventoryType::EType type) :
 		LLItemBridge(inventory, uuid), mInvType(type) {}
+	bool canSaveTexture(void);
 	LLInventoryType::EType mInvType;
 };
 

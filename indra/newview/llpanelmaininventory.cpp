@@ -1018,28 +1018,10 @@ bool LLPanelMainInventory::isSaveTextureEnabled(const LLSD& userdata)
 	LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
 	if (current_item) 
 	{
-		bool can_save = false;
-		LLInventoryItem *item = gInventory.getItem(current_item->getListener()->getUUID());
-		if(item)
+		LLViewerInventoryItem *inv_item = current_item->getInventoryItem();
+		if(inv_item)
 		{
-			const LLPermissions& perm = item->getPermissions();
-			U32 mask = PERM_NONE;
-			if(perm.getOwner() == gAgent.getID())
-			{
-				mask = perm.getMaskBase();
-			}
-			else if(gAgent.isInGroup(perm.getGroup()))
-			{
-				mask = perm.getMaskGroup();
-			}
-			else
-			{
-				mask = perm.getMaskEveryone();
-			}
-			if((mask & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
-			{
-				can_save = true;
-			}
+			bool can_save = inv_item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
 			LLInventoryType::EType curr_type = current_item->getListener()->getInventoryType();
 			return can_save && (curr_type == LLInventoryType::IT_TEXTURE || curr_type == LLInventoryType::IT_SNAPSHOT);
 		}
