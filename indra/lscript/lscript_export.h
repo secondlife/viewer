@@ -35,6 +35,6 @@
 
 #include "lscript_library.h"
 
-extern LLScriptLibrary gScriptLibrary;
+
 
 #endif
