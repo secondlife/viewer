@@ -1047,8 +1047,8 @@ void LLSidepanelTaskInfo::updateVerbs()
 	mBuyBtn->setVisible(!getIsEditing());
 
 	mOpenBtn->setEnabled(enable_object_open());
-	const LLViewerObject *obj = getFirstSelectedObject();
-	mEditBtn->setEnabled(obj && obj->permModify());
+	//const LLViewerObject *obj = getFirstSelectedObject();
+	//mEditBtn->setEnabled(obj && obj->permModify());
 }
 
 void LLSidepanelTaskInfo::onOpenButtonClicked()

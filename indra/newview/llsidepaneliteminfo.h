@@ -62,7 +62,6 @@ public:
 protected:
 	/*virtual*/ void refresh();
 	/*virtual*/ void save();
-	/*virtual*/ void updateVerbs();
 
 	LLInventoryItem* findItem() const;
 	LLViewerObject*  findObject() const;
