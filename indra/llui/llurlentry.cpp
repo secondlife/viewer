@@ -197,6 +197,31 @@ std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string)
 }
 
 //
+// LLUrlEntryHTTPNoProtocol Describes generic Urls like www.google.com
+//
+LLUrlEntryHTTPNoProtocol::LLUrlEntryHTTPNoProtocol()
+{
+	mPattern = boost::regex("(\\bwww\\.\\S+\\.\\S+|\\S+.com\\S*|\\S+.net\\S*|\\S+.edu\\S*|\\S+.org\\S*)",
+							boost::regex::perl|boost::regex::icase);
+	mMenuName = "menu_url_http.xml";
+	mTooltip = LLTrans::getString("TooltipHttpUrl");
+}
+
+std::string LLUrlEntryHTTPNoProtocol::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	return unescapeUrl(url);
+}
+
+std::string LLUrlEntryHTTPNoProtocol::getUrl(const std::string &string)
+{
+	if (string.find("://") == std::string::npos)
+	{
+		return "http://" + escapeUrl(string);
+	}
+	return escapeUrl(string);
+}
+
+//
 // LLUrlEntrySLURL Describes generic http: and https: Urls
 //
 LLUrlEntrySLURL::LLUrlEntrySLURL()
