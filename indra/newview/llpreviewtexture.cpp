@@ -145,6 +145,9 @@ BOOL LLPreviewTexture::postBuild()
 		childSetVisible("Discard", false);
 	}
 	
+	childSetAction("save_tex_btn", LLPreviewTexture::onSaveAsBtn, this);
+	childSetVisible("save_tex_btn", canSaveAs());
+	
 	if (!mCopyToInv) 
 	{
 		const LLInventoryItem* item = getItem();
@@ -162,6 +165,13 @@ BOOL LLPreviewTexture::postBuild()
 	combo->setCurrentByIndex(0);
 	
 	return LLPreview::postBuild();
+}
+
+// static
+void LLPreviewTexture::onSaveAsBtn(void* data)
+{
+	LLPreviewTexture* self = (LLPreviewTexture*)data;
+	self->saveAs();
 }
 
 void LLPreviewTexture::draw()

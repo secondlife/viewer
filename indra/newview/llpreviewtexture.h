@@ -58,7 +58,6 @@ public:
 	virtual void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	virtual void 		onFocusReceived();
 	
-	static void			saveToFile(void* userdata);
 	static void			onFileLoadedForSave( 
 							BOOL success,
 							LLViewerFetchedTexture *src_vi,
@@ -68,6 +67,8 @@ public:
 							BOOL final,
 							void* userdata );
 	void 				openToSave();
+	
+	static void			onSaveAsBtn(void* data);
 protected:
 	void				init();
 	/* virtual */ BOOL	postBuild();
