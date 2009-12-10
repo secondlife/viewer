@@ -54,6 +54,7 @@
 #include "llscrolllistcell.h"
 #include "llslider.h"
 #include "lscript_rt_interface.h"
+#include "lscript_library.h"
 #include "lscript_export.h"
 #include "lltextbox.h"
 #include "lltooldraganddrop.h"

@@ -5038,7 +5038,18 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>35</integer>
+      <integer>5</integer>
+    </map>
+    <key>NotificationChannelHeightRatio</key>
+    <map>
+      <key>Comment</key>
+      <string>Notification channel and World View ratio(0.0 - always show 1 notification, 1.0 - max ratio).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
     </map>
     <key>OverflowToastHeight</key>
     <map>

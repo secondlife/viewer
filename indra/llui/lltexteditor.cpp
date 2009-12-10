@@ -1887,8 +1887,9 @@ void LLTextEditor::doDelete()
 			removeChar();
 		}
 
-		onKeyStroke();
 	}
+
+	onKeyStroke();
 
 	needsReflow();
 }
