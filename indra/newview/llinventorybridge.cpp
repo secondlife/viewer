@@ -67,6 +67,8 @@
 
 using namespace LLOldEvents;
 
+bool isInOutfitsSidePanel(LLPanel *panel);
+
 // Helpers
 // bug in busy count inc/dec right now, logic is complex... do we really need it?
 void inc_busy_count()
@@ -566,8 +568,15 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 	}
 	items.push_back(std::string("Paste Separator"));
 
+
+	if (obj && obj->getIsLinkType())
+	{
+		items.push_back(std::string("Remove"));
+	}
+
 	items.push_back(std::string("Delete"));
-	if (!isItemRemovable())
+	const bool is_sidepanel = isInOutfitsSidePanel(mInventoryPanel.get());
+	if ((obj && obj->getIsLinkType() && is_sidepanel) || !isItemRemovable())
 	{
 		disabled_items.push_back(std::string("Delete"));
 	}
