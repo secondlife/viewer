@@ -192,6 +192,7 @@ protected:
 public:
 	BOOL 				getIsViewsInitialized() const { return mViewsInitialized; }
 	const LLUUID&		getStartFolderID() const { return mStartFolderID; }
+	const std::string&  getStartFolderString() { return mStartFolderString; }
 protected:
 	// Builds the UI.  Call this once the inventory is usable.
 	void 				initializeViews();

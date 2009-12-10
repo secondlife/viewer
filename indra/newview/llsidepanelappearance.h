@@ -40,6 +40,7 @@
 
 class LLFilterEditor;
 class LLCurrentlyWornFetchObserver;
+class LLWatchForOutfitRenameObserver;
 class LLPanelEditWearable;
 class LLWearable;
 class LLPanelOutfitsInventory;
@@ -53,7 +54,7 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
-	void refreshCurrentOutfitName(const std::string name = "");
+	void refreshCurrentOutfitName(const std::string& name = "");
 
 	static void editWearable(LLWearable *wearable, void *data);
 
@@ -90,6 +91,9 @@ private:
 
 	// Used to make sure the user's inventory is in memory.
 	LLCurrentlyWornFetchObserver* mFetchWorn;
+
+	// Used to update title when currently worn outfit gets renamed.
+	LLWatchForOutfitRenameObserver* mOutfitRenameWatcher;
 
 	// Search string for filtering landmarks and teleport
 	// history locations

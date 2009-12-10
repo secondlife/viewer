@@ -84,6 +84,9 @@ protected:
 	static void onCommitIncludeInSearch(LLUICtrl* ctrl, void*);
 
 protected:
+	void disableAll();
+	
+private:
 	LLNameBox*		mLabelGroupName;		// group name
 
 	LLUUID			mCreatorID;

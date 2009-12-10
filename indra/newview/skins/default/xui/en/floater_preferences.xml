@@ -86,7 +86,7 @@
         <panel
 		 class="panel_preference"
          filename="panel_preferences_alerts.xml"
-         label="Alerts"
+         label="Notifications"
          layout="topleft"
          help_topic="preferences_msgs_tab"
          name="msgs" />

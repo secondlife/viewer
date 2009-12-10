@@ -13,7 +13,7 @@
     <menu_item_call.on_click
      function="InspectObject.Touch"/>
     <menu_item_call.on_visible
-     function="Object.VisibleTouch" />
+     function="Object.EnableTouch" />
   </menu_item_call>
   <menu_item_call
   label="Sit"
@@ -31,7 +31,7 @@
     <menu_item_call.on_click
      function="InspectObject.Pay"/>
     <menu_item_call.on_visible
-     function="VisiblePayObject" />
+     function="EnablePayObject" />
   </menu_item_call>
   <menu_item_call
    label="Buy"
@@ -59,7 +59,7 @@
     <menu_item_call.on_click
      function="InspectObject.TakeFreeCopy"/>
     <menu_item_call.on_visible
-      function="Tools.VisibleTakeCopy"/>
+      function="Tools.EnableTakeCopy"/>
   </menu_item_call>
   <menu_item_call
    label="Open"
@@ -68,7 +68,7 @@
     <menu_item_call.on_click
      function="InspectObject.Open"/>
     <menu_item_call.on_visible
-     function="Object.VisibleOpen" />
+     function="Object.EnableOpen" />
   </menu_item_call>
   <menu_item_call
    label="Edit"
@@ -77,7 +77,7 @@
         <menu_item_call.on_click
          function="Object.Edit" />
         <menu_item_call.on_enable
-         function="Object.VisibleEdit"/>
+         function="EnableEdit"/>
   </menu_item_call>  
   <menu_item_call
    label="Wear"
@@ -86,7 +86,7 @@
     <menu_item_call.on_click
      function="Object.AttachToAvatar" />
     <menu_item_call.on_visible
-     function="Object.VisibleWear" />
+     function="Object.EnableWear" />
   </menu_item_call>  
   <menu_item_call
    label="Report"
@@ -102,7 +102,7 @@
     <menu_item_call.on_click
      function="Object.Mute" />
     <menu_item_call.on_visible
-     function="Object.VisibleMute" />
+     function="Object.EnableMute" />
   </menu_item_call>
   <menu_item_call
     label="Zoom In"
@@ -118,7 +118,7 @@
       <menu_item_call.on_click
        function="Object.Delete" />
       <menu_item_call.on_visible
-       function="Object.VisibleDelete" />
+       function="Object.EnableDelete" />
   </menu_item_call>
   <menu_item_call
    label="More Info"

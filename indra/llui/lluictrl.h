@@ -63,9 +63,6 @@ public:
 	typedef boost::function<bool (LLUICtrl* ctrl, const LLSD& param)> enable_callback_t;
 	typedef boost::signals2::signal<bool (LLUICtrl* ctrl, const LLSD& param), boost_boolean_combiner> enable_signal_t;
 	
-	typedef boost::function<bool (LLUICtrl* ctrl, const LLSD& param)> visible_callback_t;
-	typedef boost::signals2::signal<bool (LLUICtrl* ctrl, const LLSD& param), boost_boolean_combiner> visible_signal_t;
-	
 	struct CallbackParam : public LLInitParam::Block<CallbackParam>
 	{
 		Ignored					name;
@@ -83,16 +80,12 @@ public:
 		Optional<commit_callback_t> function;
 	};
 
+	// also used for visible callbacks
 	struct EnableCallbackParam : public LLInitParam::Block<EnableCallbackParam, CallbackParam >
 	{
 		Optional<enable_callback_t> function;
 	};
-	
-	struct VisibleCallbackParam : public LLInitParam::Block<VisibleCallbackParam, CallbackParam >
-	{
-		Optional<visible_callback_t> function;
-	};
-	
+		
 	struct EnableControls : public LLInitParam::Choice<EnableControls>
 	{
 		Alternative<std::string> enabled;
@@ -148,7 +141,6 @@ protected:
 	
 	commit_signal_t::slot_type initCommitCallback(const CommitCallbackParam& cb);
 	enable_signal_t::slot_type initEnableCallback(const EnableCallbackParam& cb);
-	visible_signal_t::slot_type initVisibleCallback(const VisibleCallbackParam& cb);
 
 	// We need this virtual so we can override it with derived versions
 	virtual LLViewModel* getViewModel() const;
@@ -269,10 +261,9 @@ public:
 	{};	
 
 	class CommitCallbackRegistry : public CallbackRegistry<commit_callback_t, CommitCallbackRegistry>{};
+	// the enable callback registry is also used for visiblity callbacks
 	class EnableCallbackRegistry : public CallbackRegistry<enable_callback_t, EnableCallbackRegistry>{};
-	class VisibleCallbackRegistry : public CallbackRegistry<visible_callback_t, VisibleCallbackRegistry>{};
-
-	
+		
 protected:
 
 	static bool controlListener(const LLSD& newvalue, LLHandle<LLUICtrl> handle, std::string type);

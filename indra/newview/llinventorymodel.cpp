@@ -192,6 +192,8 @@ void LLInventoryModel::cleanupInventory()
 BOOL LLInventoryModel::isObjectDescendentOf(const LLUUID& obj_id,
 											const LLUUID& cat_id) const
 {
+	if (obj_id == cat_id) return TRUE;
+
 	const LLInventoryObject* obj = getObject(obj_id);
 	while(obj)
 	{

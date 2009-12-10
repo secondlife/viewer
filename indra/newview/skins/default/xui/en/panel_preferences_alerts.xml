@@ -50,7 +50,7 @@
      name="show_label"
      top_pad="14"
      width="450">
-        Always show these alerts:
+        Always show these notifications:
     </text>
     <scroll_list
      follows="top|left"
@@ -63,7 +63,7 @@
 	 <button
 	 enabled_control="FirstSelectedDisabledPopups"
      follows="top|left"
-     height="20"
+     height="23"
      image_disabled="PushButton_Disabled"
      image_disabled_selected="PushButton_Disabled"
      image_overlay="Arrow_Up"
@@ -81,7 +81,7 @@
     <button
 	 enabled_control="FirstSelectedEnabledPopups"
 	 follows="top|left"
-     height="20"
+     height="23"
      image_disabled="PushButton_Disabled"
      image_disabled_selected="PushButton_Disabled"
      image_overlay="Arrow_Down"
@@ -107,7 +107,7 @@
      name="dont_show_label"
      top_pad="10"
      width="450">
-        Never show these alerts:
+        Never show these notifications:
     </text>
     <scroll_list
      follows="top|left"
