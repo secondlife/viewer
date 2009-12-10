@@ -135,6 +135,17 @@ public:
 };
 
 ///
+/// LLUrlEntryHTTPNoProtocol Describes generic Urls like www.google.com
+///
+class LLUrlEntryHTTPNoProtocol : public LLUrlEntryBase
+{
+public:
+	LLUrlEntryHTTPNoProtocol();
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getUrl(const std::string &string);
+};
+
+///
 /// LLUrlEntrySLURL Describes http://slurl.com/... Urls
 ///
 class LLUrlEntrySLURL : public LLUrlEntryBase
