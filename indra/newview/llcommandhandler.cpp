@@ -34,6 +34,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llcommandhandler.h"
+#include "llnotificationsutil.h"
 
 // system includes
 #include <boost/tokenizer.hpp>
@@ -93,6 +94,8 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 										LLMediaCtrl* web,
 										bool trusted_browser)
 {
+	static bool slurl_blocked = false;
+	static bool slurl_throttled = false;
 	static F64 last_throttle_time = 0.0;
 	F64 cur_time = 0.0;
 	std::map<std::string, LLCommandHandlerInfo>::iterator it = mMap.find(cmd);
@@ -110,6 +113,11 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 			// block request from external browser, but report as
 			// "handled" because it was well formatted.
 			LL_WARNS_ONCE("SLURL") << "Blocked SLURL command from untrusted browser" << LL_ENDL;
+			if (! slurl_blocked)
+			{
+				LLNotificationsUtil::add("BlockedSLURL");
+				slurl_blocked = true;
+			}
 			return true;
 
 		case LLCommandHandler::UNTRUSTED_THROTTLE:
@@ -119,6 +127,11 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 				// block request from external browser if it happened
 				// within THROTTLE_PERIOD secs of the last command
 				LL_WARNS_ONCE("SLURL") << "Throttled SLURL command from untrusted browser" << LL_ENDL;
+				if (! slurl_throttled)
+				{
+					LLNotificationsUtil::add("ThrottledSLURL");
+					slurl_throttled = true;
+				}
 				return true;
 			}
 			last_throttle_time = cur_time;
