@@ -451,6 +451,14 @@
     <menu_item_separator
      layout="topleft" />
     <menu_item_call
+     label="Remove"
+     layout="topleft"
+     name="Remove">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="delete" />
+    </menu_item_call>
+    <menu_item_call
      label="Delete"
      layout="topleft"
      name="Delete">
