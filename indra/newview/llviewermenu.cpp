@@ -59,6 +59,7 @@
 #include "llfloaterland.h"
 #include "llfloaterpay.h"
 #include "llfloaterreporter.h"
+#include "llfloatersearch.h"
 #include "llfloaterscriptdebug.h"
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
@@ -3408,6 +3409,13 @@ void set_god_level(U8 god_level)
 
 	// changing god-level can affect which menus we see
 	show_debug_menus();
+
+	// changing god-level can invalidate search results
+	LLFloaterSearch *search = dynamic_cast<LLFloaterSearch*>(LLFloaterReg::getInstance("search"));
+	if (search)
+	{
+		search->godLevelChanged(god_level);
+	}
 }
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
