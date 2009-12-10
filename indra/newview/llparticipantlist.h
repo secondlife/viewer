@@ -130,8 +130,10 @@ class LLParticipantList
 			void toggleMuteVoice(const LLSD& userdata);
 		
 			// Voice moderation support
+			bool isMuted(const LLUUID& avatar_id);
 			void moderateVoice(const LLSD& userdata);
-			void moderateVoiceOtherParticipants(const LLSD& userdata);
+			void moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute);
+			void moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute);
 		};
 
 	private:
