@@ -90,8 +90,20 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 		case IM_SESSION_CONFERENCE_START:
 			mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelAdHocControl, this);
 			break;
-		default:
+		case IM_SESSION_GROUP_START:
 			mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelGroupControl, this);
+			break;
+		case IM_SESSION_INVITE:		
+			if (gAgent.isInGroup(mSessionID))
+			{
+				mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelGroupControl, this);
+			}
+			else
+			{
+				mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelAdHocControl, this);
+			}
+			break;
+		default: break;
 		}
 	}
 }
