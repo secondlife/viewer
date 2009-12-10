@@ -130,9 +130,48 @@ class LLParticipantList
 			void toggleMuteVoice(const LLSD& userdata);
 		
 			// Voice moderation support
+			/**
+			 * Check whether specified by argument avatar is muted for group chat or not.
+			 */
 			bool isMuted(const LLUUID& avatar_id);
+
+			/**
+			 * Processes Voice moderation menu items.
+			 *
+			 * It calls either moderateVoiceParticipant() or moderateVoiceParticipant() depend on
+			 * passed parameter.
+			 *
+			 * @param userdata can be "selected" or "others".
+			 *
+			 * @see moderateVoiceParticipant()
+			 * @see moderateVoiceOtherParticipants()
+			 */
 			void moderateVoice(const LLSD& userdata);
+
+			/**
+			 * Mutes/Unmutes avatar for current group voice chat.
+			 *
+			 * It only marks avatar as muted for session and does not use local Agent's Block list.
+			 * It does not mute Agent itself.
+			 *
+			 * @param[in] avatar_id UUID of avatar to be processed
+			 * @param[in] unmute if true - specified avatar will be muted, otherwise - unmuted.
+			 *
+			 * @see moderateVoiceOtherParticipants()
+			 */
 			void moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute);
+
+			/**
+			 * Mutes/Unmutes all avatars except specified for current group voice chat.
+			 *
+			 * It only marks avatars as muted for session and does not use local Agent's Block list.
+			 * It based call moderateVoiceParticipant() for each avatar should be muted/unmuted.
+			 *
+			 * @param[in] excluded_avatar_id UUID of avatar NOT to be processed
+			 * @param[in] unmute if true - avatars will be muted, otherwise - unmuted.
+			 *
+			 * @see moderateVoiceParticipant()
+			 */
 			void moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute);
 		};
 

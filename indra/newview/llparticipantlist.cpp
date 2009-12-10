@@ -47,6 +47,44 @@
 #if LL_MSVC
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
+
+class ModerationResponder : public LLHTTPClient::Responder
+{
+public:
+	ModerationResponder(const LLUUID& session_id)
+	{
+		mSessionID = session_id;
+	}
+
+	virtual void error(U32 status, const std::string& reason)
+	{
+		llwarns << status << ": " << reason << llendl;
+
+		if ( gIMMgr )
+		{
+			//403 == you're not a mod
+			//should be disabled if you're not a moderator
+			if ( 403 == status )
+			{
+				gIMMgr->showSessionEventError(
+					"mute",
+					"not_a_mod_error",
+					mSessionID);
+			}
+			else
+			{
+				gIMMgr->showSessionEventError(
+					"mute",
+					"generic_request_error",
+					mSessionID);
+			}
+		}
+	}
+
+private:
+	LLUUID mSessionID;
+};
+
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list,  bool use_context_menu/* = true*/):
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),
@@ -369,47 +407,10 @@ void LLParticipantList::LLParticipantListMenu::toggleAllowTextChat(const LLSD& u
 	//current value represents ability to type, so invert
 	data["params"]["mute_info"]["text"] = !mParent.mSpeakerMgr->findSpeaker(speaker_id)->mModeratorMutedText;
 
-	class MuteTextResponder : public LLHTTPClient::Responder
-	{
-	public:
-		MuteTextResponder(const LLUUID& session_id)
-		{
-			mSessionID = session_id;
-		}
-
-		virtual void error(U32 status, const std::string& reason)
-		{
-			llwarns << status << ": " << reason << llendl;
-
-			if ( gIMMgr )
-			{
-				//403 == you're not a mod
-				//should be disabled if you're not a moderator
-				if ( 403 == status )
-				{
-					gIMMgr->showSessionEventError(
-						"mute",
-						"not_a_mod_error",
-						mSessionID);
-				}
-				else
-				{
-					gIMMgr->showSessionEventError(
-						"mute",
-						"generic_request_error",
-						mSessionID);
-				}
-			}
-		}
-
-	private:
-		LLUUID mSessionID;
-	};
-
 	LLHTTPClient::post(
 		url,
 		data,
-		new MuteTextResponder(mParent.mSpeakerMgr->getSessionID()));
+		new ModerationResponder(mParent.mSpeakerMgr->getSessionID()));
 }
 
 void LLParticipantList::LLParticipantListMenu::toggleMute(const LLSD& userdata, U32 flags)
@@ -488,47 +489,10 @@ void LLParticipantList::LLParticipantListMenu::moderateVoiceParticipant(const LL
 	data["params"]["mute_info"] = LLSD::emptyMap();
 	data["params"]["mute_info"]["voice"] = !unmute;
 
-	class MuteVoiceResponder : public LLHTTPClient::Responder
-	{
-	public:
-		MuteVoiceResponder(const LLUUID& session_id)
-		{
-			mSessionID = session_id;
-		}
-
-		virtual void error(U32 status, const std::string& reason)
-		{
-			llwarns << status << ": " << reason << llendl;
-
-			if ( gIMMgr )
-			{
-				//403 == you're not a mod
-				//should be disabled if you're not a moderator
-				if ( 403 == status )
-				{
-					gIMMgr->showSessionEventError(
-						"mute",
-						"not_a_mod_error",
-						mSessionID);
-				}
-				else
-				{
-					gIMMgr->showSessionEventError(
-						"mute",
-						"generic_request_error",
-						mSessionID);
-				}
-			}
-		}
-
-	private:
-		LLUUID mSessionID;
-	};
-
 	LLHTTPClient::post(
 		url,
 		data,
-		new MuteVoiceResponder(mParent.mSpeakerMgr->getSessionID()));
+		new ModerationResponder(mParent.mSpeakerMgr->getSessionID()));
 }
 
 void LLParticipantList::LLParticipantListMenu::moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute)
@@ -583,3 +547,5 @@ bool LLParticipantList::LLParticipantListMenu::checkContextMenuItem(const LLSD& 
 		}
 	return false;
 }
+
+//EOF
