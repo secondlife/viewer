@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llpanelmaininventory.h"
 
+#include "llagent.h"
 #include "lldndbutton.h"
 #include "llfilepicker.h"
 #include "llfloaterinventory.h"
@@ -1017,8 +1018,31 @@ bool LLPanelMainInventory::isSaveTextureEnabled(const LLSD& userdata)
 	LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
 	if (current_item) 
 	{
-		LLInventoryType::EType curr_type = current_item->getListener()->getInventoryType();
-		return (curr_type == LLInventoryType::IT_TEXTURE || curr_type == LLInventoryType::IT_SNAPSHOT);
+		bool can_save = false;
+		LLInventoryItem *item = gInventory.getItem(current_item->getListener()->getUUID());
+		if(item)
+		{
+			const LLPermissions& perm = item->getPermissions();
+			U32 mask = PERM_NONE;
+			if(perm.getOwner() == gAgent.getID())
+			{
+				mask = perm.getMaskBase();
+			}
+			else if(gAgent.isInGroup(perm.getGroup()))
+			{
+				mask = perm.getMaskGroup();
+			}
+			else
+			{
+				mask = perm.getMaskEveryone();
+			}
+			if((mask & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
+			{
+				can_save = true;
+			}
+			LLInventoryType::EType curr_type = current_item->getListener()->getInventoryType();
+			return can_save && (curr_type == LLInventoryType::IT_TEXTURE || curr_type == LLInventoryType::IT_SNAPSHOT);
+		}
 	}
 	return false;
 }

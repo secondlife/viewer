@@ -61,7 +61,7 @@
      name="Discard"
      top_delta="0"
      width="100" />
-	 <button
+    <button
      follows="left|bottom"
      height="22"
      label="Save As"
@@ -70,7 +70,7 @@
      name="save_tex_btn"
      top_delta="0"
      width="100" />
-     <text
+    <text
      type="string"
      length="1"
      follows="left|bottom"

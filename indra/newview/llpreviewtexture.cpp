@@ -146,6 +146,7 @@ BOOL LLPreviewTexture::postBuild()
 	}
 	
 	childSetAction("save_tex_btn", LLPreviewTexture::onSaveAsBtn, this);
+	childSetVisible("save_tex_btn", canSaveAs());
 	
 	if (!mCopyToInv) 
 	{
