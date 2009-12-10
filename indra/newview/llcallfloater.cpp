@@ -263,13 +263,18 @@ void LLCallFloater::updateTitle()
 
 void LLCallFloater::initAgentData()
 {
-	childSetValue("user_icon", gAgentID);
+	LLPanel* my_panel = getChild<LLPanel> ("my_panel");
 
-	std::string name;
-	gCacheName->getFullName(gAgentID, name);
-	childSetValue("user_text", name);
+	if ( my_panel )
+	{
+		my_panel->childSetValue("user_icon", gAgentID);
 
-	LLOutputMonitorCtrl* speaking_indicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
-	speaking_indicator->setSpeakerId(gAgentID);
+		std::string name;
+		gCacheName->getFullName(gAgentID, name);
+		my_panel->childSetValue("user_text", name);
+
+		LLOutputMonitorCtrl* speaking_indicator = my_panel->getChild<LLOutputMonitorCtrl>("speaking_indicator");
+		speaking_indicator->setSpeakerId(gAgentID);
+	}
 }
 //EOF
