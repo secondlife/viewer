@@ -195,7 +195,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		cur_y += mFontFreetype->getDescenderHeight();
 		break;
 	case VCENTER:
-		cur_y -= ((mFontFreetype->getAscenderHeight() - mFontFreetype->getDescenderHeight())/2.f);
+		cur_y -= (mFontFreetype->getAscenderHeight() - mFontFreetype->getDescenderHeight()) / 2.f;
 		break;
 	case BASELINE:
 		// Baseline, do nothing.
@@ -221,7 +221,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	cur_render_y = cur_y;
 	cur_render_x = cur_x;
 
-	F32 start_x = cur_x;
+	F32 start_x = llround(cur_x);
 
 	const LLFontBitmapCache* font_bitmap_cache = mFontFreetype->getFontBitmapCache();
 
@@ -301,8 +301,8 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		// Must do this to cur_x, not just to cur_render_x, otherwise you
 		// will squish sub-pixel kerned characters too close together.
 		// For example, "CCCCC" looks bad.
-		cur_x = (F32)llfloor(cur_x + 0.5f);
-		//cur_y = (F32)llfloor(cur_y + 0.5f);
+		cur_x = (F32)llround(cur_x);
+		//cur_y = (F32)llround(cur_y);
 
 		cur_render_x = cur_x;
 		cur_render_y = cur_y;
@@ -461,7 +461,7 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars
 			cur_x += mFontFreetype->getXKerning(wch, next_char);
 		}
 		// Round after kerning.
-		cur_x = (F32)llfloor(cur_x + 0.5f);
+		cur_x = (F32)llround(cur_x);
 	}
 
 	// add in extra pixels for last character's width past its xadvance
@@ -548,7 +548,7 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 		}
 
 		// Round after kerning.
-		cur_x = (F32)llfloor(cur_x + 0.5f);
+		cur_x = llround(cur_x);
 		drawn_x = cur_x;
 	}
 
@@ -660,7 +660,7 @@ S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 t
 		}
 
 		// Round after kerning.
-		cur_x = (F32)llfloor(cur_x + 0.5f);
+		cur_x = llround(cur_x);
 	}
 
 	return llmin(max_chars, pos - begin_offset);
