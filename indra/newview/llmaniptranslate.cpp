@@ -967,7 +967,7 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 	LLVector2 mousePos((F32)x - half_width, (F32)y - half_height);
 	LLVector2 mouse_delta;
 
-	struct {
+	struct ClosestToCamera {
 		bool operator()(const ManipulatorHandle& a, const ManipulatorHandle& b) const
 		{
 			return a.mEndPosition.mV[VZ] < b.mEndPosition.mV[VZ];
