@@ -151,6 +151,16 @@ public:
 	LLScreenChannel(LLUUID& id);
 	virtual ~LLScreenChannel();
 
+	class Matcher
+	{
+	public:
+		Matcher(){}
+		virtual ~Matcher() {}
+		virtual bool matches(const LLNotificationPtr) const = 0;
+	};
+
+	std::list<LLToast*> findToasts(const Matcher& matcher);
+
 	// Channel's outfit-functions
 	// update channel's size and position in the World View
 	void		updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect);
@@ -162,6 +172,7 @@ public:
 	void		addToast(const LLToast::Params& p);
 	// kill or modify a toast by its ID
 	void		killToastByNotificationID(LLUUID id);
+	void		killMatchedToasts(const Matcher& matcher);
 	void		modifyToastByNotificationID(LLUUID id, LLPanel* panel);
 	// hide all toasts from screen, but not remove them from a channel
 	void		hideToastsFromScreen();

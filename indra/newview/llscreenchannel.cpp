@@ -151,6 +151,33 @@ LLScreenChannel::~LLScreenChannel()
 	
 }
 
+std::list<LLToast*> LLScreenChannel::findToasts(const Matcher& matcher)
+{
+	std::list<LLToast*> res;
+
+	// collect stored toasts
+	for (std::vector<ToastElem>::iterator it = mStoredToastList.begin(); it
+			!= mStoredToastList.end(); it++)
+	{
+		if (matcher.matches(it->toast->getNotification()))
+		{
+			res.push_back(it->toast);
+		}
+	}
+
+	// collect displayed toasts
+	for (std::vector<ToastElem>::iterator it = mToastList.begin(); it
+			!= mToastList.end(); it++)
+	{
+		if (matcher.matches(it->toast->getNotification()))
+		{
+			res.push_back(it->toast);
+		}
+	}
+
+	return res;
+}
+
 //--------------------------------------------------------------------------
 void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
 {
@@ -372,6 +399,16 @@ void LLScreenChannel::killToastByNotificationID(LLUUID id)
 		// send signal to a listener to let him perform some action on toast rejecting
 		mRejectToastSignal(toast->getNotificationID());
 		deleteToast(toast);
+	}
+}
+
+void LLScreenChannel::killMatchedToasts(const Matcher& matcher)
+{
+	std::list<LLToast*> to_delete = findToasts(matcher);
+	for (std::list<LLToast*>::iterator it = to_delete.begin(); it
+			!= to_delete.end(); it++)
+	{
+		killToastByNotificationID((*it)-> getNotificationID());
 	}
 }
 
