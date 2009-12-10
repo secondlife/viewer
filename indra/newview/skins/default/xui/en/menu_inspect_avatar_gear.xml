@@ -48,7 +48,17 @@
    label="Block"
    name="block">
     <menu_item_call.on_click
-     function="InspectAvatar.Block"/>
+     function="InspectAvatar.ToggleMute"/>
+    <menu_item_call.on_visible
+     function="InspectAvatar.EnableMute" />
+  </menu_item_call>
+  <menu_item_call
+   label="Unblock"
+   name="unblock">
+    <menu_item_call.on_click
+     function="InspectAvatar.ToggleMute"/>
+    <menu_item_call.on_visible
+     function="InspectAvatar.EnableUnmute" />
   </menu_item_call>
   <menu_item_call
    label="Report"
