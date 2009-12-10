@@ -158,7 +158,8 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	mSessionInitialized(false),
 	mCallBackEnabled(true),
 	mTextIMPossible(true),
-	mOtherParticipantIsAvatar(true)
+	mOtherParticipantIsAvatar(true),
+	mStartCallOnInitialize(false)
 {
 	if (IM_NOTHING_SPECIAL == type || IM_SESSION_P2P_INVITE == type)
 	{
@@ -412,6 +413,12 @@ void LLIMModel::processSessionInitializedReply(const LLUUID& old_session_id, con
 		if (im_floater)
 		{
 			im_floater->sessionInitReplyReceived(new_session_id);
+		}
+
+		// auto-start the call on session initialization?
+		if (session->mStartCallOnInitialize)
+		{
+			gIMMgr->startCall(new_session_id);
 		}
 	}
 
@@ -993,18 +1000,6 @@ bool LLIMModel::sendStartSession(
 	}
 
 	return false;
-}
-
-// static
-void LLIMModel::sendSessionInitialized(const LLUUID &session_id)
-{
-	LLIMSession* session = getInstance()->findIMSession(session_id);
-	if (session)
-	{
-		LLSD arg;
-		arg["session_id"] = session_id;
-		getInstance()->mSessionInitializedSignal(arg);
-	}
 }
 
 //
@@ -1927,6 +1922,15 @@ void LLIMMgr::clearNewIMNotification()
 BOOL LLIMMgr::getIMReceived() const
 {
 	return mIMReceived;
+}
+
+void LLIMMgr::autoStartCallOnStartup(const LLUUID& session_id)
+{
+	LLIMModel::LLIMSession *session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (session)
+	{
+		session->mStartCallOnInitialize = true;
+	}	
 }
 
 LLUUID LLIMMgr::addP2PSession(const std::string& name,
