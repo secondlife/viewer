@@ -119,8 +119,8 @@ left="0"
        image_disabled="AddItem_Disabled"
        layout="topleft"
        left_pad="5"
-       name="add_btn"
-       tool_tip="Add new item"
+   name="newlook_btn"
+       tool_tip="Add new outfit"
        width="18" />
       <dnd_button
        follows="bottom|left"
@@ -150,7 +150,6 @@ left="0"
    layout="topleft"
    left_pad="5"
    right="-10"
-   name="newlook_btn"
    width="100" />-->
    <panel
    class="panel_look_info"
