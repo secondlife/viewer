@@ -51,14 +51,17 @@ class LLViewerHelp : public LLHelp, public LLSingleton<LLViewerHelp>
 	/// display the specified help topic in the help viewer
 	/*virtual*/ void showTopic(const std::string &topic);
 
-	/// return default (fallback) topic name suitable for showTopic()
-	/*virtual*/ std::string defaultTopic();
-
 	// return topic derived from viewer UI focus, else default topic
 	std::string getTopicFromFocus();
 
+	/// return default (fallback) topic name suitable for showTopic()
+	/*virtual*/ std::string defaultTopic();
+
 	// return topic to use before the user logs in
-	std::string preLoginTopic();
+	/*virtual*/ std::string preLoginTopic();
+
+	// return topic to use for the top-level help, invoked by F1
+	/*virtual*/ std::string f1HelpTopic();
 
  private:
 	static void showHelp(); // make sure help UI is visible & raised

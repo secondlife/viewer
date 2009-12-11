@@ -42,7 +42,8 @@
 LLFloaterSearch::LLFloaterSearch(const LLSD& key) :
 	LLFloater(key),
 	LLViewerMediaObserver(),
-	mBrowser(NULL)
+	mBrowser(NULL),
+	mSearchGodLevel(0)
 {
 	// declare a map that transforms a category name into
 	// the URL suffix that is used to search that category
@@ -86,10 +87,19 @@ void LLFloaterSearch::handleMediaEvent(LLPluginClassMedia *self, EMediaEvent eve
 	case MEDIA_EVENT_NAVIGATE_COMPLETE:
 		childSetText("status_text", getString("done_text"));
 		break;
-		
+
 	default:
 		break;
 	}
+}
+
+void LLFloaterSearch::godLevelChanged(U8 godlevel)
+{
+	// search results can change based upon god level - if the user
+	// changes god level, then give them a warning (we don't refresh
+	// the search as this might undo any page navigation or
+	// AJAX-driven changes since the last search).
+	childSetVisible("refresh_search", (godlevel != mSearchGodLevel));
 }
 
 void LLFloaterSearch::search(const LLSD &key)
@@ -98,6 +108,10 @@ void LLFloaterSearch::search(const LLSD &key)
 	{
 		return;
 	}
+
+	// reset the god level warning as we're sending the latest state
+	childHide("refresh_search");
+	mSearchGodLevel = gAgent.getGodLevel();
 
 	// get the URL for the search page
 	std::string url = getString("search_url");

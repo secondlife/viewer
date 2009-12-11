@@ -40,6 +40,7 @@
 // viewer project includes
 #include "llcommandhandler.h"
 #include "llpanelplace.h"
+#include "llsidetray.h"
 
 // linden library includes
 #include "lluuid.h"
@@ -70,7 +71,10 @@ public:
 		{
 			if (parcel_id.notNull())
 			{
-				LLFloaterReg::showInstance("parcel_info", LLSD(parcel_id));
+				LLSD key;
+				key["type"] = "remote_place";
+				key["id"] = parcel_id;
+				LLSideTray::getInstance()->showPanel("panel_places", key);
 				return true;
 			}
 		}

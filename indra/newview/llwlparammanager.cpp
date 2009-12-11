@@ -109,7 +109,7 @@ LLWLParamManager::~LLWLParamManager()
 void LLWLParamManager::loadPresets(const std::string& file_name)
 {
 	std::string path_name(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/skies", ""));
-	LL_INFOS2("AppInit", "Shaders") << "Loading Default WindLight settings from " << path_name << LL_ENDL;
+	LL_DEBUGS2("AppInit", "Shaders") << "Loading Default WindLight settings from " << path_name << LL_ENDL;
 			
 	bool found = true;			
 	while(found) 
@@ -135,7 +135,7 @@ void LLWLParamManager::loadPresets(const std::string& file_name)
 	// And repeat for user presets, note the user presets will modify any system presets already loaded
 
 	std::string path_name2(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/skies", ""));
-	LL_INFOS2("AppInit", "Shaders") << "Loading User WindLight settings from " << path_name2 << LL_ENDL;
+	LL_DEBUGS2("AppInit", "Shaders") << "Loading User WindLight settings from " << path_name2 << LL_ENDL;
 			
 	found = true;			
 	while(found) 
@@ -196,7 +196,7 @@ void LLWLParamManager::loadPreset(const std::string & name,bool propagate)
 	escaped_filename += ".xml";
 
 	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/skies", escaped_filename));
-	//llinfos << "Loading WindLight sky setting from " << pathName << llendl;
+	LL_DEBUGS2("AppInit", "Shaders") << "Loading WindLight sky setting from " << pathName << LL_ENDL;
 
 	llifstream presetsXML;
 	presetsXML.open(pathName.c_str());
@@ -205,7 +205,7 @@ void LLWLParamManager::loadPreset(const std::string & name,bool propagate)
 	if(!presetsXML)
 	{
 		pathName=gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/skies", escaped_filename);
-		llinfos << "Loading User WindLight sky setting from " << pathName << llendl;
+		LL_DEBUGS2("AppInit", "Shaders") << "Loading User WindLight sky setting from " << pathName << LL_ENDL;
 		presetsXML.clear();
         presetsXML.open(pathName.c_str());
 	}

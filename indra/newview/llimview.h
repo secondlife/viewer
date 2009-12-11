@@ -81,7 +81,6 @@ public:
 		SType mSessionType;
 		LLUUID mOtherParticipantID;
 		std::vector<LLUUID> mInitialTargetIDs;
-		LLCallDialogManager* mCallDialogManager;
 
 		// connection to voice channel state change signal
 		boost::signals2::connection mVoiceChannelStateChangeConnection;
@@ -105,6 +104,7 @@ public:
 
 		bool mTextIMPossible;
 		bool mOtherParticipantIsAvatar;
+		bool mStartCallOnInitialize;
 	};
 	
 
@@ -124,7 +124,6 @@ public:
 	typedef boost::function<void(const LLSD&)> session_callback_t;
 	session_signal_t mNewMsgSignal;
 	session_signal_t mNoUnreadMsgsSignal;
-	session_signal_t mSessionInitializedSignal;
 	
 	/** 
 	 * Find an IM Session corresponding to session_id
@@ -139,10 +138,10 @@ public:
 
 	boost::signals2::connection addNewMsgCallback( session_callback_t cb ) { return mNewMsgSignal.connect(cb); }
 	boost::signals2::connection addNoUnreadMsgsCallback( session_callback_t cb ) { return mNoUnreadMsgsSignal.connect(cb); }
-	boost::signals2::connection addSessionInitializedCallback(session_callback_t cb ) {	return mSessionInitializedSignal.connect(cb); }
 
 	/**
 	 * Create new session object in a model
+	 * @param name session name should not be empty, will return false if empty
 	 */
 	bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, 
 		const std::vector<LLUUID>& ids = std::vector<LLUUID>());
@@ -213,7 +212,6 @@ public:
 	static bool sendStartSession(const LLUUID& temp_session_id, const LLUUID& other_participant_id,
 						  const std::vector<LLUUID>& ids, EInstantMessage dialog);
 	static void sendTypingState(LLUUID session_id, LLUUID other_participant_id, BOOL typing);
-	static void sendSessionInitialized(const LLUUID &session_id);
 	static void sendMessage(const std::string& utf8_text, const LLUUID& im_session_id,
 								const LLUUID& other_participant_id, EInstantMessage dialog);
 
@@ -299,6 +297,7 @@ public:
 	/**
 	 * Creates a P2P session with the requisite handle for responding to voice calls.
 	 * 
+	 * @param name session name, cannot be null
 	 * @param caller_uri - sip URI of caller. It should be always be passed into the method to avoid
 	 * incorrect working of LLVoiceChannel instances. See EXT-2985.
 	 */	
@@ -329,6 +328,9 @@ public:
 
 	void notifyNewIM();
 	void clearNewIMNotification();
+
+	// automatically start a call once the session has initialized
+	void autoStartCallOnStartup(const LLUUID& session_id);
 
 	// IM received that you haven't seen yet
 	BOOL getIMReceived() const;
@@ -493,7 +495,16 @@ public:
 
 	static void onCancel(void* user_data);
 
+	// check timer state
+	/*virtual*/ void draw();
+
 private:
+	// lifetime timer for NO_ANSWER notification
+	LLTimer	mLifetimeTimer;
+	// lifetime duration for NO_ANSWER notification
+	static const S32 LIFETIME = 5;
+	bool lifetimeHasExpired();
+	void onLifetimeExpired();
 };
 
 // Globals

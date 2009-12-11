@@ -9,10 +9,6 @@
  name="Estate"
  top="320"
  width="480">
-    <panel.string
-     name="email_unsupported">
-        Feature unsupported
-    </panel.string>
     <text
      type="string"
      length="1"
@@ -81,7 +77,7 @@ regions in the estate.
     <view_border
      bevel_style="in"
      follows="top|left"
-     height="310"
+     height="270"
      layout="topleft"
      left_delta="-4"
      top_pad="5"
@@ -141,12 +137,12 @@ regions in the estate.
      name="Only Allow"
      top="250"
      width="278">
-        Restrict Access To:
+        Restrict Access to Accounts Verified by:
     </text>
     <check_box
      follows="top|left"
      height="16"
-     label="Residents with payment info on file"
+     label="Payment Information on File"
      layout="topleft"
      left_delta="0"
      name="limit_payment"
@@ -156,7 +152,7 @@ regions in the estate.
     <check_box
      follows="top|left"
      height="16"
-     label="Age-verified adults"
+     label="Age Verification"
      layout="topleft"
      left_delta="0"
      name="limit_age_verified"
@@ -179,26 +175,6 @@ regions in the estate.
      name="allow_direct_teleport"
      top_pad="4"
      width="80" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="20"
-     layout="topleft"
-     left="15"
-     name="abuse_email_text"
-     top_pad="10"
-     width="180">
-        Abuse email address:
-    </text>
-    <line_editor
-     follows="top|left"
-     height="23"
-     layout="topleft"
-     left="15"
-     name="abuse_email_address"
-     top_pad="-5"
-     width="230" />
     <button
      enabled="false"
      follows="left|top"

@@ -400,31 +400,6 @@
      name="voice_input_device"
      top_pad="-2"
      width="200" />
-   <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left="165"
-     name="My volume label"
-     top_pad="5"
-     width="200">
-        My volume:
-    </text>
-      <slider_bar
-        control_name="AudioLevelMic"
-     follows="left|top"
-     height="17"
-     increment="0.05"
-     initial_value="1.0"
-     layout="topleft"
-     left="160"
-     max_val="2"
-     name="mic_volume_slider"
-     tool_tip="Change the volume using this slider"
-     top_pad="-2"
-     width="220" />
     <text
      type="string"
      text_color="EmphasisColor"
@@ -434,7 +409,7 @@
      layout="topleft"
      left_pad="5"
      name="wait_text"
-     top_delta="0"
+     top_delta="5"
      width="110">
         Please wait
     </text>
@@ -443,7 +418,7 @@
      layout="topleft"
      left_delta="0"
      name="bar0"
-     top_delta="0"
+     top_delta="-5"
      width="20" />
     <locate
      height="20"
@@ -479,7 +454,7 @@
              left="80"
              name="speaker_icon"
              mouse_opaque="false"
-             top_pad="-8"
+             top_pad="4"
              visible="true"
              width="22" />
     <text
