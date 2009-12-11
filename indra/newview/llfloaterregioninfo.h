@@ -330,9 +330,6 @@ public:
 	const std::string getOwnerName() const;
 	void setOwnerName(const std::string& name);
 
-	const std::string getAbuseEmailAddress() const;
-	void setAbuseEmailAddress(const std::string& address);
-
 	// If visible from mainland, allowed agent and allowed groups
 	// are ignored, so must disable UI.
 	void setAccessAllowedEnabled(bool enable_agent, bool enable_group, bool enable_ban);

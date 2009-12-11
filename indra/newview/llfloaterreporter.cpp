@@ -121,14 +121,7 @@ void LLFloaterReporter::processRegionInfo(LLMessageSystem* msg)
 		BOOL email_to_estate_owner = ( region_flags & REGION_FLAGS_ABUSE_EMAIL_TO_ESTATE_OWNER );
 		f->mEmailToEstateOwner = email_to_estate_owner;
 
-		if ( email_to_estate_owner )
-		{
-			LLNotificationsUtil::add("HelpReportAbuseEmailEO");
-		}
-		else
-		{
-			LLNotificationsUtil::add("HelpReportAbuseEmailLL");
-		}
+		LLNotificationsUtil::add("HelpReportAbuseEmailLL");
 	};
 }
 // virtual

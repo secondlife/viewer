@@ -3799,21 +3799,6 @@ All reported abuses are investigated and resolved. You can view the resolution b
 
   <notification
    icon="alertmodal.tga"
-   name="HelpReportAbuseEmailEO"
-   type="alertmodal">
-IMPORTANT: This report will go to the owner of the region you are currently in and not to Linden Lab.
-
-As a service to residents and visitors, the owner of the region you are in has elected to receive and resolve all reports originating in this region. Linden Lab will not investigate reports you file from this location.
-
-The region owner will resolve reports based on the local rules of this region as outlined in the estate Covenant.
-(View covenants by going to the World menu and selecting About Land.)
-
-The resolution of this report applies only to this Region. Residents&apos; access to other areas of [SECOND_LIFE] will not be affected by the outcome of this report. Only Linden Lab can restrict access to the entirety of [SECOND_LIFE].
-  <unique/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="HelpReportAbuseSelectCategory"
    type="alertmodal">
 Please select a category for this abuse report.
