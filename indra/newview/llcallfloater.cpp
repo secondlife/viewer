@@ -35,6 +35,7 @@
 
 #include "llcallfloater.h"
 
+#include "llagent.h"
 #include "llagentdata.h" // for gAgentID
 #include "llavatarlist.h"
 #include "llbottomtray.h"
@@ -165,9 +166,19 @@ void LLCallFloater::updateSession()
 			mVoiceType = VC_PEER_TO_PEER;
 			break;
 		case IM_SESSION_CONFERENCE_START:
-			mVoiceType = VC_AD_HOC_CHAT;
+		case IM_SESSION_GROUP_START:
+		case IM_SESSION_INVITE:
+			if (gAgent.isInGroup(session_id))
+			{
+				mVoiceType = VC_GROUP_CHAT;
+			}
+			else
+			{
+				mVoiceType = VC_AD_HOC_CHAT;				
+			}
 			break;
 		default:
+			llwarning("Failed to determine voice call IM type", 0);
 			mVoiceType = VC_GROUP_CHAT;
 			break;
 		}

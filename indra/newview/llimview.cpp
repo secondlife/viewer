@@ -1484,26 +1484,34 @@ BOOL LLIncomingCallDialog::postBuild()
 {
 	LLDockableFloater::postBuild();
 
+	LLUUID session_id = mPayload["session_id"].asUUID();
 	LLSD caller_id = mPayload["caller_id"];
-	EInstantMessage type = (EInstantMessage)mPayload["type"].asInteger();
-
-	std::string call_type = getString("VoiceInviteP2P");
 	std::string caller_name = mPayload["caller_name"].asString();
+	
+	std::string call_type;
+	if (gAgent.isInGroup(session_id))
+	{
+		LLStringUtil::format_map_t args;
+		LLGroupData data;
+		if (gAgent.getGroupData(session_id, data))
+		{
+			args["[GROUP]"] = data.mName;
+			call_type = getString(mPayload["notify_box_type"], args);
+		}
+	}
+	else
+	{
+		call_type = getString(mPayload["notify_box_type"]);
+	}
+		
 	if (caller_name == "anonymous")
 	{
 		caller_name = getString("anonymous");
 	}
 	
 	setTitle(caller_name + " " + call_type);
-	
-	// If it is not a P2P invite, then it's an AdHoc invite
-	if ( type != IM_SESSION_P2P_INVITE )
-	{
-		call_type = getString("VoiceInviteAdHoc");
-	}
 
 	// check to see if this is an Avaline call
-	LLUUID session_id = mPayload["session_id"].asUUID();
 	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
 	childSetVisible("Start IM", is_avatar); // no IM for avaline
 
