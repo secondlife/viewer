@@ -491,10 +491,12 @@ void LLParticipantList::LLParticipantListMenu::toggleMuteVoice(const LLSD& userd
 bool LLParticipantList::LLParticipantListMenu::isGroupModerator()
 {
 	// Agent is in Group Call
-	bool is_in_group = gAgent.isInGroup(mParent.mSpeakerMgr->getSessionID());
-	// Agent is Moderator
-	bool is_moderator = mParent.mSpeakerMgr->findSpeaker(gAgentID)->mIsModerator;
-	return is_in_group && is_moderator;
+	if(gAgent.isInGroup(mParent.mSpeakerMgr->getSessionID()))
+	{
+		// Agent is Moderator
+		return mParent.mSpeakerMgr->findSpeaker(gAgentID)->mIsModerator;
+	}
+	return false;
 }
 
 bool LLParticipantList::LLParticipantListMenu::isMuted(const LLUUID& avatar_id)
