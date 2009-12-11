@@ -52,9 +52,15 @@ class LLParticipantList
 		} EParticipantSortOrder;
 
 		/**
-		  * Set and sort Avatarlist by given order
-		  */
+		 * Set and sort Avatarlist by given order
+		 */
 		void setSortOrder(EParticipantSortOrder order = E_SORT_BY_NAME);
+
+		/**
+		 * Refreshes participants to display ones not in voice as disabled.
+		 * TODO: mantipov: probably should be moved into derived class for LLFloaterCall
+		 */
+		void refreshVoiceState();
 
 	protected:
 		/**

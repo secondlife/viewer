@@ -35,6 +35,7 @@
 #define LL_LLCALLFLOATER_H
 
 #include "lldockablefloater.h"
+#include "llvoiceclient.h"
 
 class LLAvatarList;
 class LLNonAvatarCaller;
@@ -52,7 +53,7 @@ class LLSpeakerMgr;
  * When the Resident is engaged in any chat except Nearby Chat, the Voice Control Panel also provides an 
  * 'Leave Call' button to allow the Resident to leave that voice channel.
  */
-class LLCallFloater : public LLDockableFloater
+class LLCallFloater : public LLDockableFloater, LLVoiceClientParticipantObserver
 {
 public:
 	LLCallFloater(const LLSD& key);
@@ -60,6 +61,14 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void draw();
+
+	/**
+	 * Is called by LLVoiceClient::notifyParticipantObservers when voice participant list is changed.
+	 *
+	 * Refreshes list to display participants not in voice as disabled.
+	 */
+	/*virtual*/ void onChange();
 
 private:
 	typedef enum e_voice_controls_type

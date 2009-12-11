@@ -82,6 +82,7 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 , mVoiceType(VC_LOCAL_CHAT)
 {
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
+	LLVoiceClient::getInstance()->addObserver(this);
 }
 
 LLCallFloater::~LLCallFloater()
@@ -89,6 +90,13 @@ LLCallFloater::~LLCallFloater()
 	mChannelChangedConnection.disconnect();
 	delete mPaticipants;
 	mPaticipants = NULL;
+
+	// Don't use LLVoiceClient::getInstance() here 
+	// singleton MAY have already been destroyed.
+	if(gVoiceClient)
+	{
+		gVoiceClient->removeObserver(this);
+	}
 }
 
 // virtual
@@ -120,6 +128,26 @@ BOOL LLCallFloater::postBuild()
 void LLCallFloater::onOpen(const LLSD& /*key*/)
 {
 }
+
+// virtual
+void LLCallFloater::draw()
+{
+	// we have to refresh participants to display ones not in voice as disabled.
+	// It should be done only when she joins or leaves voice chat.
+	// But seems that LLVoiceClientParticipantObserver is not enough to satisfy this requirement.
+	// *TODO: mantipov: remove from draw()
+	onChange();
+	LLDockableFloater::draw();
+}
+
+// virtual
+void LLCallFloater::onChange()
+{
+	if (NULL == mPaticipants) return;
+
+	mPaticipants->refreshVoiceState();
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 /// PRIVATE SECTION
@@ -231,6 +259,7 @@ void LLCallFloater::refreshPartisipantList()
 		{
 			mAvatarList->setNoItemsCommentText(getString("no_one_near"));
 		}
+		mPaticipants->refreshVoiceState();	
 	}
 }
 

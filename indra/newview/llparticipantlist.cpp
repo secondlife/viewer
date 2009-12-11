@@ -224,6 +224,27 @@ void LLParticipantList::setSortOrder(EParticipantSortOrder order)
 	}
 }
 
+void LLParticipantList::refreshVoiceState()
+{
+	LLSpeakerMgr::speaker_list_t speakers;
+	mSpeakerMgr->getSpeakerList(&speakers, TRUE);
+
+	for (LLSpeakerMgr::speaker_list_t::iterator iter = speakers.begin();
+		iter != speakers.end(); ++iter)
+	{
+		LLSpeaker* speakerp = (*iter).get();
+		const LLUUID& speaker_id = speakerp->mID;
+		LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*> (mAvatarList->getItemByValue(speaker_id));
+		if ( item )
+		{
+			// if voice is disabled for this speaker show non voice speakers as disabled
+			bool is_in_voice = speakerp->mStatus > LLSpeaker::STATUS_VOICE_ACTIVE
+				&& speakerp->mStatus != LLSpeaker::STATUS_MUTED;
+			item->setOnline(!is_in_voice);
+		}
+	}
+}
+
 bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
