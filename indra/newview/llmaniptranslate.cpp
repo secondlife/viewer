@@ -101,6 +101,16 @@ const U32 ARROW_TO_AXIS[4] =
 	VZ
 };
 
+// Sort manipulator handles by their screen-space projection
+struct ClosestToCamera
+{
+	bool operator()(const LLManipTranslate::ManipulatorHandle& a,
+					const LLManipTranslate::ManipulatorHandle& b) const
+	{
+		return a.mEndPosition.mV[VZ] < b.mEndPosition.mV[VZ];
+	}
+};
+
 LLManipTranslate::LLManipTranslate( LLToolComposite* composite )
 :	LLManip( std::string("Move"), composite ),
 	mLastHoverMouseX(-1),
@@ -967,16 +977,10 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 	LLVector2 mousePos((F32)x - half_width, (F32)y - half_height);
 	LLVector2 mouse_delta;
 
-	struct ClosestToCamera {
-		bool operator()(const ManipulatorHandle& a, const ManipulatorHandle& b) const
-		{
-			return a.mEndPosition.mV[VZ] < b.mEndPosition.mV[VZ];
-		}
-	} closest_to_camera;
 	// Keep order consistent with insertion via stable_sort
 	std::stable_sort( projected_manipulators.begin(),
 		projected_manipulators.end(),
-		closest_to_camera );
+		ClosestToCamera() );
 
 	std::vector<ManipulatorHandle>::iterator it = projected_manipulators.begin();
 	for ( ; it != projected_manipulators.end(); ++it)
