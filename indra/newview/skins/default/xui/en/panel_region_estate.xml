@@ -77,7 +77,7 @@ regions in the estate.
     <view_border
      bevel_style="in"
      follows="top|left"
-     height="275"
+     height="270"
      layout="topleft"
      left_delta="-4"
      top_pad="5"

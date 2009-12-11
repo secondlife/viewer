@@ -3539,6 +3539,8 @@ Type a short announcement which will be sent to everyone in this region.
    type="alertmodal">
 The maturity rating for this region has been updated.
 It may take some time for the change to be reflected on the map.
+
+To enter Adult regions, residents must be Account Verified, either by age-verification or payment-verification.
   </notification>
 
   <notification
