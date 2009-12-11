@@ -1649,6 +1649,7 @@ void LLFloater::draw()
 	}
 	else
 	{
+		//FIXME: get rid of this hack
 		// draw children
 		LLView* focused_child = dynamic_cast<LLView*>(gFocusMgr.getKeyboardFocus());
 		BOOL focused_child_visible = FALSE;
