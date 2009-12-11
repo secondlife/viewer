@@ -37,6 +37,7 @@
 #include "llagent.h"
 #include "llagentpicksinfo.h"
 #include "llavatarconstants.h"
+#include "llcommandhandler.h"
 #include "llflatlistview.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
@@ -55,6 +56,8 @@
 #include "llpanelprofile.h"
 #include "llpanelpick.h"
 #include "llpanelclassified.h"
+#include "llpanelprofileview.h"
+#include "llsidetray.h"
 
 static const std::string XML_BTN_NEW = "new_btn";
 static const std::string XML_BTN_DELETE = "trash_btn";
@@ -71,6 +74,83 @@ static const std::string CLASSIFIED_NAME("classified_name");
 
 
 static LLRegisterPanelClassWrapper<LLPanelPicks> t_panel_picks("panel_picks");
+
+class LLClassifiedHandler :
+	public LLCommandHandler,
+	public LLAvatarPropertiesObserver
+{
+public:
+	// throttle calls from untrusted browsers
+	LLClassifiedHandler() :	LLCommandHandler("classified", UNTRUSTED_THROTTLE) {}
+
+	std::set<LLUUID> mClassifiedIds;
+
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		if (params.size() < 2)
+		{
+			return false;
+		}
+
+		// get the ID for the classified
+		LLUUID classified_id;
+		if (!classified_id.set(params[0], FALSE))
+		{
+			return false;
+		}
+
+		// show the classified in the side tray.
+		// need to ask the server for more info first though...
+		const std::string verb = params[1].asString();
+		if (verb == "about")
+		{
+			mClassifiedIds.insert(classified_id);
+			LLAvatarPropertiesProcessor::getInstance()->addObserver(LLUUID(), this);
+			LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(classified_id);
+			return true;
+		}
+
+		return false;
+	}
+
+	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type)
+	{
+		if (APT_CLASSIFIED_INFO != type)
+		{
+			return;
+		}
+
+		// is this the classified that we asked for?
+		LLAvatarClassifiedInfo* c_info = static_cast<LLAvatarClassifiedInfo*>(data);
+		if (!c_info || mClassifiedIds.find(c_info->classified_id) == mClassifiedIds.end())
+		{
+			return;
+		}
+
+		// open the people profile page for the classified's owner
+		LLSD params;
+		params["id"] = c_info->creator_id;
+		params["classified"] = c_info->classified_id;
+		params["open_tab_name"] = "panel_profile";
+		LLPanelProfileView *profile = dynamic_cast<LLPanelProfileView*>(LLSideTray::getInstance()->showPanel("panel_profile_view", params));
+
+		// then open the classified panel on this user's profile panel
+		if (profile)
+		{
+			LLPanelPicks* panel_picks = profile->getChild<LLPanelPicks>("panel_picks");
+			if (panel_picks)
+			{
+				panel_picks->openClassifiedInfo(c_info);
+			}
+		}
+
+		// remove our observer now that we're done
+		mClassifiedIds.erase(c_info->classified_id);
+		LLAvatarPropertiesProcessor::getInstance()->removeObserver(LLUUID(), this);
+	}
+
+};
+LLClassifiedHandler gClassifiedHandler;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -620,6 +700,25 @@ void LLPanelPicks::openClassifiedInfo()
  	params["snapshot_id"] = c_item->getSnapshotId();
  	params["name"] = c_item->getClassifiedName();
  	params["desc"] = c_item->getDescription();
+
+	getProfilePanel()->openPanel(mPanelClassifiedInfo, params);
+}
+
+void LLPanelPicks::openClassifiedInfo(LLAvatarClassifiedInfo *c_info)
+{
+	if (! c_info)
+	{
+		return;
+	}
+
+	createClassifiedInfoPanel();
+
+	LLSD params;
+	params["classified_id"] = c_info->classified_id;
+	params["avatar_id"] = c_info->creator_id;
+	params["snapshot_id"] = c_info->snapshot_id;
+	params["name"] = c_info->name;
+	params["desc"] = c_info->description;
 
 	getProfilePanel()->openPanel(mPanelClassifiedInfo, params);
 }
