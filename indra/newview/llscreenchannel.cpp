@@ -813,8 +813,6 @@ void LLScreenChannel::updateShowToastsState()
 		return;
 	}
 
-	// *TODO: mantipov: what we have to do with derived classes: LLNotificationWellWindow & LLIMWelWindow?
-	// See EXT-3081 for details
 	// for Message Well floater showed in a docked state - adjust channel's height
 	if(dynamic_cast<LLSysWellWindow*>(floater) || dynamic_cast<LLIMFloater*>(floater))
 	{
