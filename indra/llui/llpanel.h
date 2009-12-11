@@ -275,4 +275,10 @@ private:
 
 }; // end class LLPanel
 
+// Build time optimization, generate once in .cpp file
+#ifndef LLPANEL_CPP
+extern template class LLPanel* LLView::getChild<class LLPanel>(
+	const std::string& name, BOOL recurse) const;
+#endif
+
 #endif

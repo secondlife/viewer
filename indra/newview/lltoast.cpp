@@ -244,15 +244,15 @@ void LLToast::onMouseEnter(S32 x, S32 y, MASK mask)
 	mOnToastHoverSignal(this, MOUSE_ENTER);
 
 	setBackgroundOpaque(TRUE);
-	if(mCanFade)
-	{
-		mTimer.stop();
-	}
+
+	//toasts fading is management by Screen Channel
 	
 	sendChildToFront(mHideBtn);
 	if(mHideBtn && mHideBtn->getEnabled())
 		mHideBtn->setVisible(TRUE);
 	mOnMouseEnterSignal(this);
+
+	LLModalDialog::onMouseEnter(x, y, mask);
 }
 
 //--------------------------------------------------------------------------
@@ -260,10 +260,8 @@ void LLToast::onMouseLeave(S32 x, S32 y, MASK mask)
 {	
 	mOnToastHoverSignal(this, MOUSE_LEAVE);
 
-	if(mCanFade)
-	{
-		mTimer.start();
-	}
+	//toasts fading is management by Screen Channel
+
 	if(mHideBtn && mHideBtn->getEnabled())
 	{
 		if( mHideBtnPressed )
@@ -272,6 +270,25 @@ void LLToast::onMouseLeave(S32 x, S32 y, MASK mask)
 			return;
 		}
 		mHideBtn->setVisible(FALSE);		
+	}
+
+	LLModalDialog::onMouseLeave(x, y, mask);
+}
+
+
+void LLNotificationsUI::LLToast::stopFading()
+{
+	if(mCanFade)
+	{
+		stopTimer();
+	}
+}
+
+void LLNotificationsUI::LLToast::startFading()
+{
+	if(mCanFade)
+	{
+		resetTimer();
 	}
 }
 

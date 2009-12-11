@@ -208,7 +208,12 @@ BOOL LLFloaterAnimPreview::postBuild()
 
 	mPlayButton = getChild<LLButton>( "play_btn");
 	mPlayButton->setClickedCallback(onBtnPlay, this);
+	mPlayButton->setVisible(true);
 
+	mPauseButton = getChild<LLButton>( "pause_btn");
+	mPauseButton->setClickedCallback(onBtnPause, this);
+	mPauseButton->setVisible(false);
+	
 	mStopButton = getChild<LLButton>( "stop_btn");
 	mStopButton->setClickedCallback(onBtnStop, this);
 
@@ -560,24 +565,60 @@ void LLFloaterAnimPreview::onBtnPlay(void* user_data)
 	if (previewp->mMotionID.notNull() && previewp->mAnimPreview)
 	{
 		LLVOAvatar* avatarp = previewp->mAnimPreview->getDummyAvatar();
-
+		
 		if(!avatarp->isMotionActive(previewp->mMotionID))
 		{
 			previewp->resetMotion();
 			previewp->mPauseRequest = NULL;
+			previewp->mPauseButton->setVisible(TRUE);
+			previewp->mPauseButton->setEnabled(TRUE);
+			previewp->mPlayButton->setVisible(FALSE);
+			previewp->mPlayButton->setEnabled(FALSE);
 		}
-		else
+		else if (avatarp->areAnimationsPaused())
 		{
-			if (avatarp->areAnimationsPaused())
-			{
-				previewp->mPauseRequest = NULL;
-			}
-			else
+			
+			previewp->mPauseRequest = NULL;
+			previewp->mPauseButton->setVisible(TRUE);
+			previewp->mPauseButton->setEnabled(TRUE);
+			previewp->mPlayButton->setVisible(FALSE);
+			previewp->mPlayButton->setEnabled(FALSE);
+		}
+
+	}
+
+	
+
+}
+
+//-----------------------------------------------------------------------------
+// onBtnPause()
+//-----------------------------------------------------------------------------
+void LLFloaterAnimPreview::onBtnPause(void* user_data)
+{
+	LLFloaterAnimPreview* previewp = (LLFloaterAnimPreview*)user_data;
+	if (!previewp->getEnabled())
+		return;
+	
+	if (previewp->mMotionID.notNull() && previewp->mAnimPreview)
+	{
+		LLVOAvatar* avatarp = previewp->mAnimPreview->getDummyAvatar();
+
+		if(avatarp->isMotionActive(previewp->mMotionID))
+		{
+			if (!avatarp->areAnimationsPaused())
 			{
 				previewp->mPauseRequest = avatarp->requestPause();
+				
+				previewp->mPlayButton->setVisible(TRUE);
+				previewp->mPlayButton->setEnabled(TRUE);
+				previewp->mPauseButton->setVisible(FALSE);
+				previewp->mPauseButton->setEnabled(FALSE);
 			}
 		}
 	}
+
+
 }
 
 //-----------------------------------------------------------------------------
@@ -595,6 +636,10 @@ void LLFloaterAnimPreview::onBtnStop(void* user_data)
 		previewp->resetMotion();
 		previewp->mPauseRequest = avatarp->requestPause();
 	}
+	previewp->mPlayButton->setVisible(TRUE);
+	previewp->mPlayButton->setEnabled(TRUE);
+	previewp->mPauseButton->setVisible(FALSE);
+	previewp->mPauseButton->setEnabled(FALSE);
 }
 
 //-----------------------------------------------------------------------------
@@ -912,43 +957,38 @@ void LLFloaterAnimPreview::refresh()
 	{
 		childShow("bad_animation_text");
 		mPlayButton->setEnabled(FALSE);
+		mPlayButton->setVisible(TRUE);
+		mPauseButton->setVisible(FALSE);
 		mStopButton->setEnabled(FALSE);
 		childDisable("ok_btn");
 	}
 	else
 	{
 		childHide("bad_animation_text");
-		mPlayButton->setEnabled(TRUE);
 		LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
 		if (avatarp->isMotionActive(mMotionID))
 		{
 			mStopButton->setEnabled(TRUE);
 			LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
-			if (avatarp->areAnimationsPaused())
-			{
-
-				mPlayButton->setImages(std::string("button_anim_play.tga"),
-									   std::string("button_anim_play_selected.tga"));
-
-			}
-			else
+			if (!avatarp->areAnimationsPaused())
 			{
 				if (motionp)
 				{
 					F32 fraction_complete = motionp->getLastUpdateTime() / motionp->getDuration();
 					childSetValue("playback_slider", fraction_complete);
 				}
-				mPlayButton->setImages(std::string("button_anim_pause.tga"),
-									   std::string("button_anim_pause_selected.tga"));
-
+			
+				mPlayButton->setVisible(FALSE);
+				mPauseButton->setVisible(TRUE);
+				
 			}
+		
 		}
 		else
 		{
 			mPauseRequest = avatarp->requestPause();
-			mPlayButton->setImages(std::string("button_anim_play.tga"),
-								   std::string("button_anim_play_selected.tga"));
-
+			//mPlayButton->setVisible(TRUE);
+			//mPlayButton->setEnabled(TRUE);			
 			mStopButton->setEnabled(TRUE); // stop also resets, leave enabled.
 		}
 		childEnable("ok_btn");

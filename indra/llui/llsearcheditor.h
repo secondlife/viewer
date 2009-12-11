@@ -83,6 +83,7 @@ public:
 	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 	virtual void	setLabel( const LLStringExplicit &new_label );
 	virtual void	clear();
+	virtual void	setFocus( BOOL b );
 
 	void			setKeystrokeCallback( commit_callback_t cb ) { mKeystrokeCallback = cb; }
 

@@ -40,6 +40,7 @@ class LLCoordWindow;
 class LLIconCtrl;
 class LLLayoutStack;
 class LLProgressBar;
+class LLSliderCtrl;
 class LLViewerMediaImpl;
 
 class LLPanelPrimMediaControls : public LLPanel
@@ -106,7 +107,9 @@ private:
 	
 	void onCommitVolumeUp();
 	void onCommitVolumeDown();
+	void onCommitVolumeSlider();
 	void onToggleMute();
+	void showVolumeSlider();
 	
 	static void onScrollUp(void* user_data);
 	static void onScrollUpHeld(void* user_data);
@@ -150,15 +153,17 @@ private:
 	LLUICtrl *mMediaPlaySliderPanel;
 	LLUICtrl *mMediaPlaySliderCtrl;
 	LLUICtrl *mVolumeCtrl;
-	LLButton *mVolumeBtn;
+	LLButton *mMuteBtn;
 	LLUICtrl *mVolumeUpCtrl;
 	LLUICtrl *mVolumeDownCtrl;
+	LLSliderCtrl *mVolumeSliderCtrl;
 	LLIconCtrl *mWhitelistIcon;
 	LLIconCtrl *mSecureLockIcon;
 	LLLayoutStack *mMediaControlsStack;
 	LLUICtrl *mLeftBookend;
 	LLUICtrl *mRightBookend;
 	LLUIImage* mBackgroundImage;
+	LLUIImage* mVolumeSliderBackgroundImage;
 	F32 mSkipStep;
 	S32 mMinWidth;
 	S32 mMinHeight;
@@ -198,6 +203,8 @@ private:
 	
 	LLUUID mZoomObjectID;
 	S32 mZoomObjectFace;
+	
+	bool mVolumeSliderVisible;
 };
 
 #endif // LL_PANELPRIMMEDIACONTROLS_H

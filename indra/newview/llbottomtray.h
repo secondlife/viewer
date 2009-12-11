@@ -47,6 +47,11 @@ class LLSpeakButton;
 class LLNearbyChatBar;
 class LLIMChiclet;
 
+// Build time optimization, generate once in .cpp file
+#ifndef LLBOTTOMTRAY_CPP
+extern template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
+#endif
+
 class LLBottomTray 
 	: public LLSingleton<LLBottomTray>
 	, public LLPanel
@@ -61,7 +66,6 @@ public:
 	BOOL postBuild();
 
 	LLChicletPanel*		getChicletPanel()	{return mChicletPanel;}
-	LLNotificationChiclet*	getSysWell()	{return mSysWell;}
 	LLNearbyChatBar*		getNearbyChatBar()	{return mNearbyChatBar;}
 
 	void onCommitGesture(LLUICtrl* ctrl);
@@ -174,13 +178,16 @@ protected:
 
 	static void* createNearbyChatBar(void* userdata);
 
+	void updateContextMenu(S32 x, S32 y, MASK mask);
+	void onContextMenuItemClicked(const LLSD& userdata);
+	bool onContextMenuItemEnabled(const LLSD& userdata);
+
 	/**
 	 * Creates IM Chiclet based on session type (IM chat or Group chat)
 	 */
 	LLIMChiclet* createIMChiclet(const LLUUID& session_id);
 
 	LLChicletPanel* 	mChicletPanel;
-	LLNotificationChiclet* 	mSysWell;
 	LLPanel*			mSpeakPanel;
 	LLSpeakButton* 		mSpeakBtn;
 	LLNearbyChatBar*	mNearbyChatBar;

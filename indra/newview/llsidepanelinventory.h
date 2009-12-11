@@ -36,6 +36,7 @@
 
 class LLFolderViewItem;
 class LLInventoryItem;
+class LLInventoryPanel;
 class LLPanelMainInventory;
 class LLSidepanelItemInfo;
 class LLSidepanelTaskInfo;
@@ -48,6 +49,9 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
+
+	LLInventoryPanel* getActivePanel(); // Returns an active inventory panel, if any.
+	BOOL isMainInventoryPanelActive() const;
 
 protected:
 	// Tracks highlighted (selected) item in inventory panel.

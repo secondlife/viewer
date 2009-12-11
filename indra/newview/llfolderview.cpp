@@ -1803,15 +1803,6 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	return handled;
 }
 
-BOOL LLFolderView::handleScrollWheel(S32 x, S32 y, S32 clicks)
-{
-	if (mScrollContainer)
-	{
-		return mScrollContainer->handleScrollWheel(x, y, clicks);
-	}
-	return FALSE;
-}
-
 void LLFolderView::deleteAllChildren()
 {
 	if(mRenamer == gFocusMgr.getTopCtrl())
@@ -2217,9 +2208,9 @@ void LLFolderView::setFilterPermMask( PermissionMask filter_perm_mask )
 	mFilter->setFilterPermissions(filter_perm_mask);
 }
 
-U32 LLFolderView::getFilterTypes() const
+U32 LLFolderView::getFilterObjectTypes() const
 {
-	return mFilter->getFilterTypes();
+	return mFilter->getFilterObjectTypes();
 }
 
 PermissionMask LLFolderView::getFilterPermissions() const

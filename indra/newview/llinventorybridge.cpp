@@ -38,7 +38,6 @@
 #include "llappearancemgr.h"
 #include "llavataractions.h"
 #include "llfloatercustomize.h"
-#include "llfloaterinventory.h"
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
@@ -125,8 +124,8 @@ std::string ICON_NAME[ICON_NAME_COUNT] =
 	"Inv_Animation",
 	"Inv_Gesture",
 
-	"inv_item_linkitem.tga",
-	"inv_item_linkfolder.tga"
+	"Inv_LinkItem",
+	"Inv_LinkFolder"
 };
 
 // +=================================================+
@@ -513,37 +512,44 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 										std::vector<std::string> &disabled_items, U32 flags)
 {
 	const LLInventoryObject *obj = getInventoryObject();
-	if (obj && obj->getIsLinkType())
+	if (obj)
 	{
-		items.push_back(std::string("Find Original"));
-		if (LLAssetType::lookupIsLinkType(obj->getType()))
+		if (obj->getIsLinkType())
 		{
-			disabled_items.push_back(std::string("Find Original"));
-		}
-	}
-	else
-	{
-		items.push_back(std::string("Rename"));
-		if (!isItemRenameable() || (flags & FIRST_SELECTED_ITEM) == 0)
-		{
-			disabled_items.push_back(std::string("Rename"));
-		}
-		
-		if (show_asset_id)
-		{
-			items.push_back(std::string("Copy Asset UUID"));
-			if ( (! ( isItemPermissive() || gAgent.isGodlike() ) )
-				 || (flags & FIRST_SELECTED_ITEM) == 0)
+			items.push_back(std::string("Find Original"));
+			if (isLinkedObjectMissing())
 			{
-				disabled_items.push_back(std::string("Copy Asset UUID"));
+				disabled_items.push_back(std::string("Find Original"));
 			}
 		}
-		items.push_back(std::string("Copy Separator"));
-		
-		items.push_back(std::string("Copy"));
-		if (!isItemCopyable())
+		else
 		{
-			disabled_items.push_back(std::string("Copy"));
+			if (LLAssetType::lookupCanLink(obj->getType()))
+			{
+				items.push_back(std::string("Find Links"));
+			}
+			items.push_back(std::string("Rename"));
+			if (!isItemRenameable() || (flags & FIRST_SELECTED_ITEM) == 0)
+			{
+				disabled_items.push_back(std::string("Rename"));
+			}
+			
+			if (show_asset_id)
+			{
+				items.push_back(std::string("Copy Asset UUID"));
+				if ( (! ( isItemPermissive() || gAgent.isGodlike() ) )
+					 || (flags & FIRST_SELECTED_ITEM) == 0)
+				{
+					disabled_items.push_back(std::string("Copy Asset UUID"));
+				}
+			}
+			items.push_back(std::string("Copy Separator"));
+			
+			items.push_back(std::string("Copy"));
+			if (!isItemCopyable())
+			{
+				disabled_items.push_back(std::string("Copy"));
+			}
 		}
 	}
 
@@ -662,6 +668,20 @@ BOOL LLInvFVBridge::isLinkedObjectInTrash() const
 		if(!model) return FALSE;
 		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 		return model->isObjectDescendentOf(obj->getLinkedUUID(), trash_id);
+	}
+	return FALSE;
+}
+
+BOOL LLInvFVBridge::isLinkedObjectMissing() const
+{
+	const LLInventoryObject *obj = getInventoryObject();
+	if (!obj)
+	{
+		return TRUE;
+	}
+	if (obj->getIsLinkType() && LLAssetType::lookupIsLinkType(obj->getType()))
+	{
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -856,9 +876,6 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			new_listener = new LLFolderBridge(inventory, uuid);
 			break;
 		case LLAssetType::AT_LINK:
-			// Only should happen for broken links.
-			new_listener = new LLLinkItemBridge(inventory, uuid);
-			break;
 		case LLAssetType::AT_LINK_FOLDER:
 			// Only should happen for broken links.
 			new_listener = new LLLinkItemBridge(inventory, uuid);
@@ -921,6 +938,7 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 	{
 		gotoItem(folder);
 	}
+
 	if ("open" == action)
 	{
 		openItem();
@@ -1055,7 +1073,7 @@ void LLItemBridge::gotoItem(LLFolderView *folder)
 	LLInventoryObject *obj = getInventoryObject();
 	if (obj && obj->getIsLinkType())
 	{
-		LLInventoryPanel* active_panel = LLFloaterInventory::getActiveInventory()->getPanel();
+		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
 		if (active_panel)
 		{
 			active_panel->setSelection(obj->getLinkedUUID(), TAKE_FOCUS_NO);
@@ -1311,6 +1329,16 @@ BOOL LLItemBridge::isItemPermissive() const
 		}
 	}
 	return FALSE;
+}
+
+bool LLItemBridge::isAddAction(std::string action) const
+{
+	return ("wear" == action || "attach" == action || "activate" == action);
+}
+
+bool LLItemBridge::isRemoveAction(std::string action) const
+{
+	return ("take_off" == action || "detach" == action || "deactivate" == action);
 }
 
 // +=================================================+
@@ -2387,6 +2415,8 @@ void LLFolderBridge::folderOptionsMenu()
 	if (is_sidepanel)
 	{
 		mItems.clear();
+		mItems.push_back("Rename");
+		mItems.push_back("Delete");
 	}
 
 	// Only enable calling-card related options for non-default folders.
@@ -2929,9 +2959,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// everything in the active window so that we don't follow
 			// the selection to its new location (which is very
 			// annoying).
-			if (LLFloaterInventory::getActiveInventory())
+			LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+			if (active_panel)
 			{
-				LLInventoryPanel* active_panel = LLFloaterInventory::getActiveInventory()->getPanel();
 				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
 				if (active_panel && (panel != active_panel))
 				{
@@ -3671,7 +3701,7 @@ std::string LLGestureBridge::getLabelSuffix() const
 // virtual
 void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
 {
-	if ("activate" == action)
+	if (isAddAction(action))
 	{
 		LLGestureManager::instance().activateGesture(mUUID);
 
@@ -3683,7 +3713,7 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
 	}
-	else if ("deactivate" == action)
+	else if (isRemoveAction(action))
 	{
 		LLGestureManager::instance().deactivateGesture(mUUID);
 
@@ -3746,8 +3776,14 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		getClipboardEntries(true, items, disabled_items, flags);
 
 		items.push_back(std::string("Gesture Separator"));
-		items.push_back(std::string("Activate"));
-		items.push_back(std::string("Deactivate"));
+		if (LLGestureManager::instance().isGestureActive(getUUID()))
+		{
+			items.push_back(std::string("Deactivate"));
+		}
+		else
+		{
+			items.push_back(std::string("Activate"));
+		}
 	}
 	hide_context_entries(menu, items, disabled_items);
 }
@@ -3868,7 +3904,7 @@ LLInventoryObject* LLObjectBridge::getObject() const
 // virtual
 void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
 {
-	if ("attach" == action)
+	if (isAddAction(action))
 	{
 		LLUUID object_id = mUUID;
 		LLViewerInventoryItem* item;
@@ -3891,7 +3927,7 @@ void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 		}
 		gFocusMgr.setKeyboardFocus(NULL);
 	}
-	else if ("detach" == action)
+	else if (isRemoveAction(action))
 	{
 		LLInventoryItem* item = gInventory.getItem(mUUID);
 		if(item)
@@ -4079,7 +4115,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				items.push_back(std::string("Detach From Yourself"));
 			}
 			else
-			if( !isInTrash() && !isLinkedObjectInTrash() )
+			if( !isInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing())
 			{
 				items.push_back(std::string("Attach Separator"));
 				items.push_back(std::string("Object Wear"));
@@ -4384,7 +4420,7 @@ LLUIImagePtr LLWearableBridge::getIcon() const
 // virtual
 void LLWearableBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
 {
-	if ("wear" == action)
+	if (isAddAction(action))
 	{
 		wearOnAvatar();
 	}
@@ -4397,7 +4433,7 @@ void LLWearableBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 		editOnAvatar();
 		return;
 	}
-	else if ("take_off" == action)
+	else if (isRemoveAction(action))
 	{
 		if(gAgentWearables.isWearingItem(mUUID))
 		{
@@ -4478,16 +4514,20 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{	// FWIW, it looks like SUPPRESS_OPEN_ITEM is not set anywhere
-		BOOL no_open = ((flags & SUPPRESS_OPEN_ITEM) == SUPPRESS_OPEN_ITEM);
+		BOOL can_open = ((flags & SUPPRESS_OPEN_ITEM) != SUPPRESS_OPEN_ITEM);
 
 		// If we have clothing, don't add "Open" as it's the same action as "Wear"   SL-18976
 		LLViewerInventoryItem* item = getItem();
-		if( !no_open && item )
+		if (can_open && item)
 		{
-			no_open = (item->getType() == LLAssetType::AT_CLOTHING) ||
-					  (item->getType() == LLAssetType::AT_BODYPART);
+			can_open = (item->getType() != LLAssetType::AT_CLOTHING) &&
+				(item->getType() != LLAssetType::AT_BODYPART);
 		}
-		if (!no_open)
+		if (isLinkedObjectMissing())
+		{
+			can_open = FALSE;
+		}
+		if (can_open)
 		{
 			items.push_back(std::string("Open"));
 		}
@@ -4507,7 +4547,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			disabled_items.push_back(std::string("Wearable Edit"));
 		}
 		// Don't allow items to be worn if their baseobj is in the trash.
-		if (isLinkedObjectInTrash())
+		if (isLinkedObjectInTrash() || isLinkedObjectMissing())
 		{
 			disabled_items.push_back(std::string("Wearable Wear"));
 			disabled_items.push_back(std::string("Wearable Add"));
@@ -5079,7 +5119,7 @@ LLUIImagePtr LLLinkItemBridge::getIcon() const
 {
 	if (LLViewerInventoryItem *item = getItem())
 	{
-		return get_item_icon(item->getActualType(), LLInventoryType::IT_NONE, 0, FALSE);
+		return get_item_icon(item->getActualType(), item->getInventoryType(), 0, FALSE);
 	}
 	return get_item_icon(LLAssetType::AT_LINK, LLInventoryType::IT_NONE, 0, FALSE);
 }
@@ -5091,6 +5131,9 @@ void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	std::vector<std::string> items;
 	std::vector<std::string> disabled_items;
 
+	items.push_back(std::string("Find Original"));
+	disabled_items.push_back(std::string("Find Original"));
+	
 	if(isInTrash())
 	{
 		items.push_back(std::string("Purge Item"));
@@ -5103,6 +5146,7 @@ void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
+		items.push_back(std::string("Properties"));
 		items.push_back(std::string("Delete"));
 		if (!isItemRemovable())
 		{

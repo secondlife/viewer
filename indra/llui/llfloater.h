@@ -90,7 +90,6 @@ public:
 		BUTTON_MINIMIZE,
 		BUTTON_TEAR_OFF,
 		BUTTON_DOCK,
-		BUTTON_UNDOCK,
 		BUTTON_HELP,
 		BUTTON_COUNT
 	};
@@ -121,14 +120,12 @@ public:
 								minimize_image,
 								tear_off_image,
 								dock_image,
-								undock_image,
 								help_image;
 		Optional<LLUIImage*>	close_pressed_image,
 								restore_pressed_image,
 								minimize_pressed_image,
 								tear_off_pressed_image,
 								dock_pressed_image,
-								undock_pressed_image,
 								help_pressed_image;
 		
 		Optional<CommitCallbackParam> open_callback,
@@ -258,6 +255,8 @@ public:
 
 	bool            isDocked() const { return mDocked; }
 	virtual void    setDocked(bool docked, bool pop_on_undock = true);
+
+	virtual void    setTornOff(bool torn_off) {}
 
 	// Return a closeable floater, if any, given the current focus.
 	static LLFloater* getClosableFloaterFromFocus(); 

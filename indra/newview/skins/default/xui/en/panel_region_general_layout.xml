@@ -171,7 +171,7 @@
     </text>
     <combo_box
      height="20"
-     label="Mature"
+     label="Moderate"
      layout="topleft"
      left_delta="100"
      name="access_combo"
@@ -182,11 +182,11 @@
          name="Adult"
          value="42" />
         <combo_box.item
-         label="Mature"
+         label="Moderate"
          name="Mature"
          value="21" />
         <combo_box.item
-         label="PG"
+         label="General"
          name="PG"
          value="13" />
     </combo_box> 

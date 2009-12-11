@@ -45,8 +45,7 @@
 #include "llviewercontrol.h"
 #include "llviewerstats.h"
 #include "llviewerregion.h"
-#include "llversionviewer.h"
-#include "llviewerbuild.h"
+#include "llversioninfo.h"
 #include "llweb.h"
 
 // Linden library includes
@@ -212,15 +211,12 @@ LLSD LLFloaterAbout::getInfo()
 	// LLFloaterAbout.
 	LLSD info;
 	LLSD version;
-	version.append(LL_VERSION_MAJOR);
-	version.append(LL_VERSION_MINOR);
-	version.append(LL_VERSION_PATCH);
-	version.append(LL_VERSION_BUILD);
+	version.append(LLVersionInfo::getMajor());
+	version.append(LLVersionInfo::getMinor());
+	version.append(LLVersionInfo::getPatch());
+	version.append(LLVersionInfo::getBuild());
 	info["VIEWER_VERSION"] = version;
-	info["VIEWER_VERSION_STR"] = STRINGIZE(version[0].asInteger() << '.' <<
-										   version[1].asInteger() << '.' <<
-										   version[2].asInteger() << '.' <<
-										   version[3].asInteger());
+	info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
 	info["BUILD_DATE"] = __DATE__;
 	info["BUILD_TIME"] = __TIME__;
 	info["CHANNEL"] = gSavedSettings.getString("VersionChannelName");
@@ -269,10 +265,10 @@ LLSD LLFloaterAbout::getInfo()
 	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
 	bool want_fullname = true;
 	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : LLSD();
-	info["VIVOX_VERSION"] = gVoiceClient ? gVoiceClient->getAPIVersion() : "Unknown";
+	info["VIVOX_VERSION"] = gVoiceClient ? gVoiceClient->getAPIVersion() : LLTrans::getString("NotConnected");
 
 	// TODO: Implement media plugin version query
-	info["QT_WEBKIT_VERSION"] = "4.5.2";
+	info["QT_WEBKIT_VERSION"] = "4.5.2 (version number hard-coded)";
 
 	if (gPacketsIn > 0)
 	{
@@ -286,15 +282,9 @@ LLSD LLFloaterAbout::getInfo()
 
 static std::string get_viewer_release_notes_url()
 {
-	std::ostringstream version;
-	version << LL_VERSION_MAJOR << "."
-		<< LL_VERSION_MINOR << "."
-		<< LL_VERSION_PATCH << "."
-		<< LL_VERSION_BUILD;
-
 	LLSD query;
 	query["channel"] = gSavedSettings.getString("VersionChannelName");
-	query["version"] = version.str();
+	query["version"] = LLVersionInfo::getVersion();
 
 	std::ostringstream url;
 	url << LLTrans::getString("RELEASE_NOTES_BASE_URL") << LLURI::mapToQueryString(query);
@@ -312,7 +302,7 @@ public:
 		add("getInfo",
             "Request an LLSD::Map containing information used to populate About box",
             &LLFloaterAboutListener::getInfo,
-            LLSD().insert("reply", LLSD()));
+            LLSD().with("reply", LLSD()));
 	}
 
 private:

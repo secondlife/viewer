@@ -27,6 +27,8 @@
       <menu_item_check.on_check
         control="NavBarShowParcelProperties" />
     </menu_item_check>
+    <menu_item_separator
+     name="Separator" />
     <!-- Label of 'Landmark' item is changing in runtime, 
     see  AddLandmarkNavBarMenu/EditLandmarkNavBarMenu in strings.xml -->
     <menu_item_call

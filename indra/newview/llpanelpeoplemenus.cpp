@@ -97,7 +97,7 @@ LLContextMenu* NearbyMenu::createMenu()
 		registrar.add("Avatar.Profile",			boost::bind(&LLAvatarActions::showProfile,				id));
 		registrar.add("Avatar.AddFriend",		boost::bind(&LLAvatarActions::requestFriendshipDialog,	id));
 		registrar.add("Avatar.IM",				boost::bind(&LLAvatarActions::startIM,					id));
-		registrar.add("Avatar.Call",			boost::bind(&LLAvatarActions::startIM,					id));	// *TODO: unimplemented
+		registrar.add("Avatar.Call",			boost::bind(&LLAvatarActions::startCall,				id));
 		registrar.add("Avatar.OfferTeleport",	boost::bind(&NearbyMenu::offerTeleport,					this));
 		registrar.add("Avatar.ShowOnMap",		boost::bind(&LLAvatarActions::startIM,					id));	// *TODO: unimplemented
 		registrar.add("Avatar.Share",			boost::bind(&LLAvatarActions::startIM,					id));	// *TODO: unimplemented
@@ -117,7 +117,7 @@ LLContextMenu* NearbyMenu::createMenu()
 
 		// registrar.add("Avatar.AddFriend",	boost::bind(&LLAvatarActions::requestFriendshipDialog,	mUUIDs)); // *TODO: unimplemented
 		registrar.add("Avatar.IM",			boost::bind(&LLAvatarActions::startConference,			mUUIDs));
-		// registrar.add("Avatar.Call",		boost::bind(&LLAvatarActions::startConference,			mUUIDs)); // *TODO: unimplemented
+		registrar.add("Avatar.Call",		boost::bind(&LLAvatarActions::startAdhocCall,			mUUIDs));
 		// registrar.add("Avatar.Share",		boost::bind(&LLAvatarActions::startIM,					mUUIDs)); // *TODO: unimplemented
 		// registrar.add("Avatar.Pay",		boost::bind(&LLAvatarActions::pay,						mUUIDs)); // *TODO: unimplemented
 		enable_registrar.add("Avatar.EnableItem",	boost::bind(&NearbyMenu::enableContextMenuItem,	this, _2));

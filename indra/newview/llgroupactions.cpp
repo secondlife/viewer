@@ -100,9 +100,9 @@ public:
 		}
 		if (tokens[1].asString() == "inspect")
 		{
-			LLSD key;
-			key["group_id"] = group_id;
-			LLFloaterReg::showInstance("inspect_group", key);
+			if (group_id.isNull())
+				return true;
+			LLGroupActions::show(group_id);
 			return true;
 		}
 		return false;
@@ -113,7 +113,7 @@ LLGroupHandler gGroupHandler;
 // static
 void LLGroupActions::search()
 {
-	LLFloaterReg::showInstance("search", LLSD().insert("category", "groups"));
+	LLFloaterReg::showInstance("search", LLSD().with("category", "groups"));
 }
 
 // static

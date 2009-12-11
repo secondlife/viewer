@@ -386,17 +386,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>AutoPlayMedia</key>
-    <map>
-      <key>Comment</key>
-      <string>Allow media objects to automatically play or navigate?</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>AutoSnapshot</key>
     <map>
       <key>Comment</key>
@@ -1055,7 +1044,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>10</integer>
+      <integer>4</integer>
     </map>
     <key>ButtonHeight</key>
     <map>
@@ -1066,7 +1055,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>20</integer>
+      <integer>23</integer>
     </map>
     <key>ButtonHeightSmall</key>
     <map>
@@ -1077,7 +1066,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>16</integer>
+      <integer>23</integer>
     </map>
     <key>ButtonVPad</key>
     <map>
@@ -1384,6 +1373,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>ChatWindow</key>
+    <map>
+      <key>Comment</key>
+      <string>Show chat in multiple windows(by default) or in one multi-tabbed window(requires restart)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>CheesyBeacon</key>
     <map>
@@ -3587,6 +3587,17 @@
       <key>Value</key>
       <string>http://viewer-help.secondlife.com/[LANGUAGE]/[CHANNEL]/[VERSION]/[TOPIC]</string>
     </map>
+    <key>HomeSidePanelURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for the web page to display in the Home side panel</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://www.secondlife.com/</string>
+    </map>
     <key>HighResSnapshot</key>
     <map>
       <key>Comment</key>
@@ -3706,7 +3717,18 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.15</real>
+      <real>0.5</real>
+    </map> 
+	<key>InspectorShowTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Stay timing for inspectors</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>3.0</real>
     </map> 
     <key>InstallLanguage</key>
     <map>
@@ -5482,6 +5504,28 @@
       <string>F32</string>
       <key>Value</key>
       <real>5.0</real>
+    </map>
+	<key>PrimMediaMaxSortedQueueSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of objects the viewer will load media for initially</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>100000</integer>
+    </map>
+	<key>PrimMediaMaxRoundRobinQueueSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of objects the viewer will continuously update media for</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>100000</integer>
     </map>
     <key>ProbeHardwareOnStartup</key>
     <map>
@@ -7967,7 +8011,7 @@
     <key>ShowPGSearchAll</key>    
     <map>
       <key>Comment</key>
-      <string>Display results of search All that are flagged as PG</string>
+      <string>Display results of search All that are flagged as general</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -7980,7 +8024,7 @@
     <key>ShowMatureSearchAll</key>
     <map>
       <key>Comment</key>
-      <string>Display results of search All that are flagged as mature</string>
+      <string>Display results of search All that are flagged as moderate</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8006,7 +8050,7 @@
     <key>ShowPGGroups</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find groups that are flagged as PG</string>
+      <string>Display results of find groups that are flagged as general</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8019,7 +8063,7 @@
     <key>ShowMatureGroups</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find groups that are flagged as mature</string>
+      <string>Display results of find groups that are flagged as moderate</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8045,7 +8089,7 @@
     <key>ShowPGClassifieds</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find classifieds that are flagged as PG</string>
+      <string>Display results of find classifieds that are flagged as general</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8058,7 +8102,7 @@
     <key>ShowMatureClassifieds</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find classifieds that are flagged as mature</string>
+      <string>Display results of find classifieds that are flagged as moderate</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8084,7 +8128,7 @@
     <key>ShowPGEvents</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find events that are flagged as PG</string>
+      <string>Display results of find events that are flagged as general</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8097,7 +8141,7 @@
     <key>ShowMatureEvents</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find events that are flagged as mature</string>
+      <string>Display results of find events that are flagged as moderate</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8123,7 +8167,7 @@
     <key>ShowPGLand</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find land sales that are flagged as PG</string>
+      <string>Display results of find land sales that are flagged as general</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8136,7 +8180,7 @@
     <key>ShowMatureLand</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find land sales that are flagged as mature</string>
+      <string>Display results of find land sales that are flagged as moderate</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8162,7 +8206,7 @@
     <key>ShowPGSims</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find places or find popular that are in PG sims</string>
+      <string>Display results of find places or find popular that are in general sims</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -8175,7 +8219,7 @@
     <key>ShowMatureSims</key>
     <map>
       <key>Comment</key>
-      <string>Display results of find places or find popular that are in mature sims</string>
+      <string>Display results of find places or find popular that are in moderate sims</string>
       <key>Persist</key>
       <integer>1</integer>
 	  <key>HideFromEditor</key>
@@ -9260,7 +9304,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>3</integer>
+      <integer>4</integer>
     </map>
     <key>UIMaxComboWidth</key>
     <map>
@@ -9722,7 +9766,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>8</integer>
+      <integer>11</integer>
     </map>
     <key>UISpinctrlBtnWidth</key>
     <map>

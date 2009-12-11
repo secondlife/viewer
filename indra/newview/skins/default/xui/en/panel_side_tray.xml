@@ -23,6 +23,7 @@
     background_visible="true"
   >
       <panel
+        class="panel_sidetray_home"
         name="panel_home"
         filename="panel_sidetray_home_tab.xml"
         label="home"

@@ -34,7 +34,7 @@ LLAresListener::LLAresListener(LLAres* llares):
         "On failure, returns an array containing only the original URI, so\n"
         "failure case can be processed like success case.",
         &LLAresListener::rewriteURI,
-        LLSD().insert("uri", LLSD()).insert("reply", LLSD()));
+        LLSD().with("uri", LLSD()).with("reply", LLSD()));
 }
 
 /// This UriRewriteResponder subclass packages returned URIs as an LLSD

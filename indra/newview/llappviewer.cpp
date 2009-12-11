@@ -35,7 +35,7 @@
 #include "llappviewer.h"
 
 // Viewer includes
-#include "llversionviewer.h"
+#include "llversioninfo.h"
 #include "llfeaturemanager.h"
 #include "lluictrlfactory.h"
 #include "lltexteditor.h"
@@ -647,12 +647,9 @@ bool LLAppViewer::init()
     writeSystemInfo();
 
 	// Build a string representing the current version number.
-    gCurrentVersion = llformat("%s %d.%d.%d.%d", 
-        gSavedSettings.getString("VersionChannelName").c_str(), 
-        LL_VERSION_MAJOR, 
-        LL_VERSION_MINOR, 
-        LL_VERSION_PATCH, 
-        LL_VERSION_BUILD );
+    gCurrentVersion = llformat("%s %s", 
+							   gSavedSettings.getString("VersionChannelName").c_str(),
+							   LLVersionInfo::getVersion().c_str());
 
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -747,7 +744,15 @@ bool LLAppViewer::init()
 	LLViewerJointMesh::updateVectorize();
 
 	// load MIME type -> media impl mappings
-	LLMIMETypes::parseMIMETypes( std::string("mime_types.xml") ); 
+	std::string mime_types_name;
+#if LL_DARWIN
+	mime_types_name = "mime_types_mac.xml";
+#elif LL_LINUX
+	mime_types_name = "mime_types_linux.xml";
+#else
+	mime_types_name = "mime_types.xml";
+#endif
+	LLMIMETypes::parseMIMETypes( mime_types_name ); 
 
 	// Copy settings to globals. *TODO: Remove or move to appropriage class initializers
 	settings_to_globals();
@@ -898,6 +903,8 @@ bool LLAppViewer::init()
 	{
 		loadEventHostModule(gSavedSettings.getS32("QAModeEventHostPort"));
 	}
+	
+	LLViewerMedia::initClass();
 	
 	return true;
 }
@@ -1666,7 +1673,7 @@ bool LLAppViewer::initThreads()
 	// Image decoding
 	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
 	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), sImageDecodeThread, enable_threads && true);
+	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), sImageDecodeThread, enable_threads && false);
 	LLImage::initClass();
 
 	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
@@ -1871,7 +1878,7 @@ bool LLAppViewer::initConfiguration()
 	gSavedSettings.setString("ClientSettingsFile", 
         gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Global")));
 
-	gSavedSettings.setString("VersionChannelName", LL_CHANNEL);
+	gSavedSettings.setString("VersionChannelName", LLVersionInfo::getChannel());
 
 #ifndef	LL_RELEASE_FOR_DOWNLOAD
 	// provide developer build only overrides for these control variables that are not
@@ -2482,10 +2489,10 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["SLLog"] = LLError::logFileName();
 
 	gDebugInfo["ClientInfo"]["Name"] = gSavedSettings.getString("VersionChannelName");
-	gDebugInfo["ClientInfo"]["MajorVersion"] = LL_VERSION_MAJOR;
-	gDebugInfo["ClientInfo"]["MinorVersion"] = LL_VERSION_MINOR;
-	gDebugInfo["ClientInfo"]["PatchVersion"] = LL_VERSION_PATCH;
-	gDebugInfo["ClientInfo"]["BuildVersion"] = LL_VERSION_BUILD;
+	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::getMajor();
+	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::getMinor();
+	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::getPatch();
+	gDebugInfo["ClientInfo"]["BuildVersion"] = LLVersionInfo::getBuild();
 
 	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
 
@@ -2519,8 +2526,7 @@ void LLAppViewer::writeSystemInfo()
 	
 	// Dump some debugging info
 	LL_INFOS("SystemInfo") << LLTrans::getString("APP_NAME")
-			<< " version " << LL_VERSION_MAJOR << "." << LL_VERSION_MINOR << "." << LL_VERSION_PATCH
-			<< LL_ENDL;
+			<< " version " << LLVersionInfo::getShortVersion() << LL_ENDL;
 
 	// Dump the local time and time zone
 	time_t now;
@@ -2574,10 +2580,10 @@ void LLAppViewer::handleViewerCrash()
 	//to check against no matter what
 	gDebugInfo["ClientInfo"]["Name"] = gSavedSettings.getString("VersionChannelName");
 
-	gDebugInfo["ClientInfo"]["MajorVersion"] = LL_VERSION_MAJOR;
-	gDebugInfo["ClientInfo"]["MinorVersion"] = LL_VERSION_MINOR;
-	gDebugInfo["ClientInfo"]["PatchVersion"] = LL_VERSION_PATCH;
-	gDebugInfo["ClientInfo"]["BuildVersion"] = LL_VERSION_BUILD;
+	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::getMajor();
+	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::getMinor();
+	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::getPatch();
+	gDebugInfo["ClientInfo"]["BuildVersion"] = LLVersionInfo::getBuild();
 
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if ( parcel && parcel->getMusicURL()[0])
@@ -4151,10 +4157,10 @@ void LLAppViewer::handleLoginComplete()
 	// Store some data to DebugInfo in case of a freeze.
 	gDebugInfo["ClientInfo"]["Name"] = gSavedSettings.getString("VersionChannelName");
 
-	gDebugInfo["ClientInfo"]["MajorVersion"] = LL_VERSION_MAJOR;
-	gDebugInfo["ClientInfo"]["MinorVersion"] = LL_VERSION_MINOR;
-	gDebugInfo["ClientInfo"]["PatchVersion"] = LL_VERSION_PATCH;
-	gDebugInfo["ClientInfo"]["BuildVersion"] = LL_VERSION_BUILD;
+	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::getMajor();
+	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::getMinor();
+	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::getPatch();
+	gDebugInfo["ClientInfo"]["BuildVersion"] = LLVersionInfo::getBuild();
 
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if ( parcel && parcel->getMusicURL()[0])

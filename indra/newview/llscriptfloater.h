@@ -43,6 +43,9 @@ class LLToastNotifyPanel;
  */
 class LLScriptFloaterManager : public LLSingleton<LLScriptFloaterManager>
 {
+	// *TODO
+	// LLScriptFloaterManager and LLScriptFloater will need some refactoring after we 
+	// know how script notifications should look like.
 public:
 
 	/**
@@ -67,7 +70,9 @@ public:
 	 * Toggles script floater.
 	 * Removes "new message" icon from chiclet and removes notification toast.
 	 */
-	void toggleScriptFloater(const LLUUID& object_id);
+	void toggleScriptFloater(const LLUUID& object_id, bool set_new_message = false);
+
+	LLUUID findObjectId(const LLUUID& notification_id);
 
 	LLUUID findNotificationId(const LLUUID& object_id);
 
@@ -102,7 +107,7 @@ private:
  * LLScriptFloater will create script form based on notification data and 
  * will auto fit the form.
  */
-class LLScriptFloater : public LLTransientDockableFloater
+class LLScriptFloater : public LLDockableFloater
 {
 public:
 
@@ -124,6 +129,8 @@ public:
 	static LLScriptFloater* show(const LLUUID& object_id);
 
 	const LLUUID& getObjectId() { return mObjectId; }
+
+	void setObjectId(const LLUUID& id) { mObjectId = id; }
 
 	/**
 	 * Close notification if script floater is closed.
@@ -153,8 +160,6 @@ protected:
 	 * Hide all notification toasts.
 	 */
 	static void hideToastsIfNeeded();
-
-	void setObjectId(const LLUUID& id) { mObjectId = id; }
 
 private:
 	LLToastNotifyPanel* mScriptForm;

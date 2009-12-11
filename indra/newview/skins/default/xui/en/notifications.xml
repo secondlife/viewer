@@ -579,7 +579,7 @@ Scripts must be allowed to run for weapons to work.
    type="alertmodal">
 Multiple faces are currently selected.
 If you continue this action, separate instances of media will be set on multiple faces of the object.
-To place the media on only one face, choose Select Texture and click on the desired face of that object then click Add.
+To place the media on only one face, choose Select Face and click on the desired face of that object then click Add.
     <usetemplate
       ignoretext="Media will be set on multiple selected faces"
       name="okcancelignore"
@@ -3480,7 +3480,7 @@ Publish this classified now for L$[AMOUNT]?
    icon="alertmodal.tga"
    name="SetClassifiedMature"
    type="alertmodal">
-Does this classified contain Mature content?
+Does this classified contain Moderate content?
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -3492,7 +3492,7 @@ Does this classified contain Mature content?
    icon="alertmodal.tga"
    name="SetGroupMature"
    type="alertmodal">
-Does this group contain Mature content?
+Does this group contain Moderate content?
     <usetemplate
      canceltext="Cancel"
      name="yesnocancelbuttons"
@@ -4499,14 +4499,14 @@ You don&apos;t have permission to copy this.
   <notification
    icon="notifytip.tga"
    name="InventoryAccepted"
-   type="notifytip">
+   type="offer">
 [NAME] received your inventory offer.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="InventoryDeclined"
-   type="notifytip">
+   type="offer">
 [NAME] declined your inventory offer.
   </notification>
 
@@ -4568,7 +4568,7 @@ Some terms in your search query were excluded due to content restrictions as cla
    icon="notifytip.tga"
    name="NoContentToSearch"
    type="notifytip">
-Please select at least one type of content to search (PG, Mature, or Adult).
+Please select at least one type of content to search (General, Moderate, or Adult).
   </notification>
 
   <notification
@@ -4596,6 +4596,13 @@ Please select at least one type of content to search (PG, Mature, or Adult).
 [MESSAGE]
   </notification>
 
+  <notification
+   icon="notify.tga"
+   name="PaymentRecived"
+   type="notify">
+[MESSAGE]
+  </notification>
+  
   <notification
    icon="notify.tga"
    name="EventNotification"
@@ -5120,6 +5127,13 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
        name="Decline"
        text="Decline"/>
     </form>
+  </notification>
+  
+  <notification
+   icon="notify.tga"
+   name="FriendshipOffered"
+   type="offer">
+	You have offered friendship to [TO_NAME]
   </notification>
 
   <notification
@@ -5765,6 +5779,26 @@ Unable to find the help topic for this element.
  type="alertmodal">
 Server Error: Media update or get failed.
 &apos;[ERROR]&apos;
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
+
+    <notification
+ icon="alertmodal.tga"
+ name="TextChatIsMutedByModerator"
+ type="alertmodal">
+Your text chat has been muted by moderator.
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
+
+    <notification
+ icon="alertmodal.tga"
+ name="VoiceIsMutedByModerator"
+ type="alertmodal">
+Your voice has been muted by moderator.
         <usetemplate
          name="okbutton"
          yestext="OK"/>

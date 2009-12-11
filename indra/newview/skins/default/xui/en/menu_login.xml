@@ -45,8 +45,7 @@
          name="Second Life Help"
          shortcut="F1">
             <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="help f1" />
+             function="ShowHelp" />
         </menu_item_call>
         <menu_item_separator />
         <menu_item_call
@@ -185,21 +184,42 @@
         <menu_item_call.on_click
          function="Advanced.ShowSideTray" />
       </menu_item_call>
+      <menu
+       label="UI Tests"
+       name="UI Tests"
+       tear_off="true">
         <menu_item_call
-         label="Widget Test"
-         name="Widget Test"
+         label="Textbox"
+         name="Textbox"
+         shortcut="control|1">
+          <menu_item_call.on_click
+           function="ShowFloater"
+           parameter="test_textbox" />
+        </menu_item_call>
+        <menu_item_call
+         label="Text Editor"
+         name="Text Editor"
+         shortcut="control|2">
+          <menu_item_call.on_click
+           function="ShowFloater"
+           parameter="test_text_editor" />
+        </menu_item_call>
+        <menu_item_call
+         label="Widgets"
+         name="Widgets"
          shortcut="control|shift|T">
-            <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="test_widgets" />
+          <menu_item_call.on_click
+           function="ShowFloater"
+           parameter="test_widgets" />
         </menu_item_call>
         <menu_item_call
-         label="Inspectors Test"
-         name="Inspectors Test">
-            <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="test_inspectors" />
+         label="Inspectors"
+         name="Inspectors">
+          <menu_item_call.on_click
+           function="ShowFloater"
+           parameter="test_inspectors" />
         </menu_item_call>
+      </menu>
       <menu_item_check
          label="Reg In Client Test (restart)"
          name="Reg In Client Test (restart)">

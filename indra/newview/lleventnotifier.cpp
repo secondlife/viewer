@@ -197,7 +197,7 @@ bool LLEventNotification::handleResponse(const LLSD& notification, const LLSD& r
 			break;
 		}
 	case 1:
-		LLFloaterReg::showInstance("search", LLSD().insert("category", "events").insert("id", S32(getEventID())));
+		LLFloaterReg::showInstance("search", LLSD().with("category", "events").with("id", S32(getEventID())));
 		break;
 	case 2:
 		break;

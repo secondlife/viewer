@@ -24,6 +24,7 @@ set(SCRIPTS_PREFIX ../scripts)
 set(SERVER_PREFIX)
 set(VIEWER_PREFIX)
 set(INTEGRATION_TESTS_PREFIX)
+set(LL_TESTS ON CACHE BOOL "Build and run unit and integration tests (disable for build timing runs to reduce variation")
 
 set(LIBS_CLOSED_DIR ${CMAKE_SOURCE_DIR}/${LIBS_CLOSED_PREFIX})
 set(LIBS_OPEN_DIR ${CMAKE_SOURCE_DIR}/${LIBS_OPEN_PREFIX})
@@ -114,5 +115,8 @@ Please set one of these values to OFF in your CMake cache file.
 For more information, please see JIRA DEV-14943 - Cmake Linux cannot build both VIEWER and SERVER in one build environment
   ")
 endif (LINUX AND SERVER AND VIEWER)
+
+
+set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header directives where supported.")
 
 source_group("CMake Rules" FILES CMakeLists.txt)

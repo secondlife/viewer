@@ -84,10 +84,12 @@ public:
 								wrap,
 								use_ellipses,
 								allow_html,
-								parse_highlights;
+								parse_highlights,
+								clip_partial;
 								
 		Optional<S32>			v_pad,
 								h_pad;
+
 
 		Optional<LineSpacingParams>
 								line_spacing;
@@ -134,7 +136,6 @@ public:
 	// TODO: move into LLTextSegment?
 	void					createUrlContextMenu(S32 x, S32 y, const std::string &url); // create a popup context menu for the given Url
 
-
 	// Text accessors
 	// TODO: add optional style parameter
 	virtual void			setText(const LLStringExplicit &utf8str , const LLStyle::Params& input_params = LLStyle::Params()); // uses default style
@@ -146,6 +147,8 @@ public:
 	LLWString       		getWText() const;
 
 	void					appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params = LLStyle::Params());
+	// force reflow of text
+	void					needsReflow() { mReflowNeeded = TRUE; }
 
 	S32						getLength() const { return getWText().length(); }
 	S32						getLineCount() const { return mLineInfoList.size(); }
@@ -159,7 +162,6 @@ public:
 
 	S32						getVPad() { return mVPad; }
 	S32						getHPad() { return mHPad; }
-
 
 	S32						getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const;
 	LLRect					getLocalRectFromDocIndex(S32 pos) const;
@@ -177,6 +179,7 @@ public:
 	void					endOfDoc();
 	void					changePage( S32 delta );
 	void					changeLine( S32 delta );
+
 
 	const LLFontGL*			getDefaultFont() const					{ return mDefaultFont; }
 
@@ -301,7 +304,6 @@ protected:
 
 	// misc
 	void							updateRects();
-	void							needsReflow() { mReflowNeeded = TRUE; }
 	void							needsScroll() { mScrollNeeded = TRUE; }
 	void							replaceUrlLabel(const std::string &url, const std::string &label);
 
@@ -347,6 +349,7 @@ protected:
 	bool						mTrackEnd;			// if true, keeps scroll position at end of document during resize
 	bool						mReadOnly;
 	bool						mBGVisible;			// render background?
+	bool						mClipPartial;		// false if we show lines that are partially inside bounding rect
 	S32							mMaxTextByteLength;	// Maximum length mText is allowed to be in bytes
 
 	// support widgets
@@ -423,6 +426,7 @@ class LLNormalTextSegment : public LLTextSegment
 public:
 	LLNormalTextSegment( const LLStyleSP& style, S32 start, S32 end, LLTextBase& editor );
 	LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, BOOL is_visible = TRUE);
+	~LLNormalTextSegment();
 
 	/*virtual*/ bool				getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	/*virtual*/ S32					getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
@@ -454,6 +458,7 @@ protected:
 	S32					mFontHeight;
 	LLKeywordToken* 	mToken;
 	std::string     	mTooltip;
+	boost::signals2::connection mImageLoadedConnection;
 };
 
 class LLIndexSegment : public LLTextSegment

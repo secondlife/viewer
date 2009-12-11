@@ -31,70 +31,31 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llviewermessage.h"
 
-#include <deque>
-
 #include "llaudioengine.h" 
-#include "indra_constants.h"
 #include "lscript_byteformat.h"
-#include "mean_collision_data.h"
-#include "llfloaterbump.h"
-#include "llassetstorage.h"
-#include "llcachename.h"
-
-#include "lldbstrings.h"
 #include "lleconomy.h"
-#include "llfilepicker.h"
 #include "llfloaterreg.h"
-#include "llfocusmgr.h"
 #include "llfollowcamparams.h"
-#include "llinstantmessage.h"
-#include "llquantize.h"
-#include "llregionflags.h"
-#include "llregionhandle.h"
 #include "llsdserialize.h"
-#include "llstring.h"
-#include "llteleportflags.h"
-#include "lltracker.h"
 #include "lltransactionflags.h"
-#include "llxfermanager.h"
-#include "message.h"
-#include "sound_ids.h"
-#include "lltimer.h"
-#include "llmd5.h"
 
 #include "llagent.h"
 #include "llcallingcard.h"
-#include "llconsole.h"
-#include "llvieweraudio.h"
-#include "llviewercontrol.h"
-#include "lldrawpool.h"
 #include "llfirstuse.h"
-#include "llfloateranimpreview.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterchat.h"
-#include "llfloaterimagepreview.h"
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterlandholdings.h"
-#include "llurldispatcher.h"
 #include "llfloaterpostcard.h"
 #include "llfloaterpreference.h"
-#include "llfollowcam.h"
-#include "llgroupnotify.h"
-#include "llhudeffect.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
-#include "llfloaterinventory.h"
-#include "llmenugl.h"
-#include "llmoveview.h"
-#include "llmutelist.h"
 #include "llnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -111,22 +72,13 @@
 #include "llstatenums.h"
 #include "llstatusbar.h"
 #include "llimview.h"
-#include "lltool.h"
-#include "lltoolbar.h"
-#include "lltoolmgr.h"
 #include "lltrans.h"
-#include "llui.h"			// for make_ui_sound
-#include "lluploaddialog.h"
-#include "llviewercamera.h"
-#include "llviewerchat.h"
+#include "llviewerfoldertype.h"
+#include "lluri.h"
 #include "llviewergenericmessage.h"
-#include "llviewerinventory.h"
 #include "llviewermenu.h"
-#include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
-#include "llviewerpartsource.h"
-#include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewertexteditor.h"
 #include "llviewerthrottle.h"
@@ -134,10 +86,8 @@
 #include "llvlmanager.h"
 #include "llvoavatarself.h"
 #include "llvotextbubble.h"
-#include "llweb.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "llappviewer.h"
 #include "llfloaterworldmap.h"
 #include "llviewerdisplay.h"
 #include "llkeythrottle.h"
@@ -146,15 +96,13 @@
 #include "llpanelblockedlist.h"
 #include "llpanelplaceprofile.h"
 
-#include <boost/tokenizer.hpp>
-#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/split.hpp> //
 
 #if LL_WINDOWS // For Windows specific error handler
 #include "llwindebug.h"	// For the invalid message handler
 #endif
 
-//#include "llnearbychathistory.h"
-#include "llnotificationmanager.h"
+#include "llnotificationmanager.h" //
 
 //
 // Constants
@@ -878,111 +826,98 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
  
 void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 {
-	std::vector<LLUUID>::const_iterator it = items.begin();
-	std::vector<LLUUID>::const_iterator end = items.end();
-	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	LLInventoryItem* item;
-	for(; it != end; ++it)
+	for (std::vector<LLUUID>::const_iterator item_iter = items.begin();
+		 item_iter != items.end();
+		 ++item_iter)
 	{
-		const LLUUID& id = *it;
-		item = gInventory.getItem(id);
+		const LLUUID& item_id = (*item_iter);
+		LLInventoryItem* item = gInventory.getItem(item_id);
 		if(!item)
 		{
-			LL_WARNS("Messaging") << "Unable to show inventory item: " << id << LL_ENDL;
+			LL_WARNS("Messaging") << "Unable to show inventory item: " << item_id << LL_ENDL;
 			continue;
 		}
-		if(gInventory.isObjectDescendentOf(id, trash_id))
-		{
-			continue;
-		}
-		LLAssetType::EType asset_type = item->getType();
 
-		//if we are throttled, don't display them
-		if (check_offer_throttle(from_name, false))
+		////////////////////////////////////////////////////////////////////////////////
+		// Don't highlight if it's in certain "quiet" folders which don't need UI 
+		// notification (e.g. trash, cof, lost-and-found).
+		const BOOL user_is_away = gAwayTimer.getStarted();
+		if(!user_is_away)
 		{
+			const LLViewerInventoryCategory *parent = gInventory.getFirstNondefaultParent(item_id);
+			if (parent)
+			{
+				const LLFolderType::EType parent_type = parent->getPreferredType();
+				if (LLViewerFolderType::lookupIsQuietType(parent_type))
+				{
+					continue;
+				}
+			}
+		}
+
+		////////////////////////////////////////////////////////////////////////////////
+		// Special handling for various types.
+		const LLAssetType::EType asset_type = item->getType();
+		if (check_offer_throttle(from_name, false)) // If we are throttled, don't display
+		{
+			LL_DEBUGS("Messaging") << "Highlighting inventory item: " << item->getUUID()  << LL_ENDL;
 			// If we opened this ourselves, focus it
-			BOOL take_focus = from_name.empty() ? TAKE_FOCUS_YES : TAKE_FOCUS_NO;
+			const BOOL take_focus = from_name.empty() ? TAKE_FOCUS_YES : TAKE_FOCUS_NO;
 			switch(asset_type)
 			{
 			  case LLAssetType::AT_NOTECARD:
-				LLFloaterReg::showInstance("preview_notecard", LLSD(id), take_focus);
-				break;
+			  {
+				  LLFloaterReg::showInstance("preview_notecard", LLSD(item_id), take_focus);
+				  break;
+			  }
 			  case LLAssetType::AT_LANDMARK:
 			  	{
 					LLInventoryCategory* parent_folder = gInventory.getCategory(item->getParentUUID());
-					LLSD args;
-					args["LANDMARK_NAME"] = item->getName();
-					args["FOLDER_NAME"] = std::string(parent_folder ? parent_folder->getName() : "unknown");
-					LLNotificationsUtil::add("LandmarkCreated", args);
-
-					// Created landmark is passed to Places panel to allow its editing.
-					LLPanelPlaces *panel = dynamic_cast<LLPanelPlaces*>(LLSideTray::getInstance()->showPanel("panel_places", LLSD()));
-					if (panel)
+					if ("inventory_handler" == from_name)
 					{
-						panel->setItem(item);
+						//we have to filter inventory_handler messages to avoid notification displaying
+						LLSideTray::getInstance()->showPanel("panel_places", 
+								LLSD().with("type", "landmark").with("id", item->getUUID()));
 					}
-			  	}
+					else if(from_name.empty())
+					{
+						// we receive a message from LLOpenTaskOffer, it mean that new landmark has been added.
+						LLSD args;
+						args["LANDMARK_NAME"] = item->getName();
+						args["FOLDER_NAME"] = std::string(parent_folder ? parent_folder->getName() : "unknown");
+						LLNotificationsUtil::add("LandmarkCreated", args);
+						// Created landmark is passed to Places panel to allow its editing. In fact panel should be already displayed.
+						//TODO*:: dserduk(7/12/09) remove LLPanelPlaces dependency from here
+						LLPanelPlaces *places_panel = dynamic_cast<LLPanelPlaces*>(LLSideTray::getInstance()->showPanel("panel_places", LLSD()));
+						if (places_panel)
+						{
+							places_panel->setItem(item);
+						}
+					}
+				}
 				break;
 			  case LLAssetType::AT_TEXTURE:
-				LLFloaterReg::showInstance("preview_texture", LLSD(id), take_focus);
-				break;
+			  {
+				  LLFloaterReg::showInstance("preview_texture", LLSD(item_id), take_focus);
+				  break;
+			  }
 			  default:
 				break;
 			}
 		}
-		//highlight item, if it's not in the trash or lost+found
 		
-		// Don't auto-open the inventory floater
-		LLFloaterInventory* view = NULL;
-		if(gSavedSettings.getBOOL("ShowInInventory") &&
-		   asset_type != LLAssetType::AT_CALLINGCARD &&
-		   item->getInventoryType() != LLInventoryType::IT_ATTACHMENT &&
-		   !from_name.empty())
+		////////////////////////////////////////////////////////////////////////////////
+		// Highlight item if it's not in the trash, lost+found, or COF
+		const BOOL auto_open = gSavedSettings.getBOOL("ShowInInventory") &&
+			(asset_type != LLAssetType::AT_CALLINGCARD) &&
+			(item->getInventoryType() != LLInventoryType::IT_ATTACHMENT) &&
+			!from_name.empty();
+		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
+		if(active_panel)
 		{
-			view = LLFloaterInventory::showAgentInventory();
-			//TODO:this should be moved to the end of method after all the checks,
-			//but first decide what to do with active inventory if any (EK)
-			LLSD key;
-			key["select"] = item->getUUID();
-			LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
-		}
-		else
-		{
-			view = LLFloaterInventory::getActiveInventory();
-		}
-		if(!view)
-		{
-			return;
-		}
-
-		//Trash Check
-		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		if(gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
-		{
-			return;
-		}
-		const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
-		//BOOL inventory_has_focus = gFocusMgr.childHasKeyboardFocus(view);
-		BOOL user_is_away = gAwayTimer.getStarted();
-
-		// don't select lost and found items if the user is active
-		if (gInventory.isObjectDescendentOf(item->getUUID(), lost_and_found_id)
-			&& !user_is_away)
-		{
-			return;
-		}
-
-		//Not sure about this check.  Could make it easy to miss incoming items.
-		//don't dick with highlight while the user is working
-		//if(inventory_has_focus && !user_is_away)
-		//	break;
-		LL_DEBUGS("Messaging") << "Highlighting" << item->getUUID()  << LL_ENDL;
-		//highlight item
-
-		if (view->getPanel())
-		{
+			LL_DEBUGS("Messaging") << "Highlighting" << item_id  << LL_ENDL;
 			LLFocusableElement* focus_ctrl = gFocusMgr.getKeyboardFocus();
-			view->getPanel()->setSelection(item->getUUID(), TAKE_FOCUS_NO);
+			active_panel->setSelection(item_id, TAKE_FOCUS_NO);
 			gFocusMgr.setKeyboardFocus(focus_ctrl);
 		}
 	}
@@ -1240,6 +1175,10 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		gInventory.addObserver(opener);
 	}
 
+	// Remove script dialog because there is no need in it no more.
+	LLUUID object_id = notification["payload"]["object_id"].asUUID();
+	LLScriptFloaterManager::instance().removeNotificationByObjectId(object_id);
+
 	delete this;
 	return false;
 }
@@ -1414,7 +1353,11 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	{
 		gInventory.addObserver(opener);
 	}
-	
+
+	// Remove script dialog because there is no need in it no more.
+	LLUUID object_id = notification["payload"]["object_id"].asUUID();
+	LLScriptFloaterManager::instance().removeNotificationByObjectId(object_id);
+
 	delete this;
 	return false;
 }
@@ -1502,11 +1445,22 @@ void inventory_offer_handler(LLOfferInfo* info)
 		}
 	}
 
+	// If mObjectID is null then generate the object_id based on msg to prevent
+	// multiple creation of chiclets for same object.
+	LLUUID object_id = info->mObjectID;
+	if (object_id.isNull())
+		object_id.generate(msg);
+
 	payload["from_id"] = info->mFromID;
+	// Needed by LLScriptFloaterManager to bind original notification with 
+	// faked for toast one.
+	payload["object_id"] = object_id;
+	// Flag indicating that this notification is faked for toast.
+	payload["give_inventory_notification"] = FALSE;
 	args["OBJECTFROMNAME"] = info->mFromName;
 	args["NAME"] = info->mFromName;
 	args["NAME_SLURL"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
-	std::string verb = "select?name=" + msg;
+	std::string verb = "select?name=" + LLURI::escape(msg);
 	args["ITEM_SLURL"] = LLSLURL::buildCommand("inventory", info->mObjectID, verb.c_str());
 
 	LLNotification::Params p("ObjectGiveItem");
@@ -1543,9 +1497,17 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// In viewer 2 we're now auto receiving inventory offers and messaging as such (not sending reject messages).
 		info->send_auto_receive_response();
 	}
-	
+
 	// Pop up inv offer notification and let the user accept (keep), or reject (and silently delete) the inventory.
 	LLNotifications::instance().add(p);
+
+	// TODO(EM): Recheck this after we will know how script notifications should look like.
+	// Inform user that there is a script floater via toast system
+	// {
+	// 	payload["give_inventory_notification"] = TRUE;
+	// 	LLNotificationPtr notification = LLNotifications::instance().add(p.payload(payload)); 
+	// 	LLScriptFloaterManager::getInstance()->setNotificationToastId(object_id, notification->getID());
+	// }
 }
 
 bool lure_callback(const LLSD& notification, const LLSD& response)
@@ -2048,13 +2010,17 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	case IM_INVENTORY_ACCEPTED:
 	{
 		args["NAME"] = name;
-		LLNotificationsUtil::add("InventoryAccepted", args);
+		LLSD payload;
+		payload["from_id"] = from_id;
+		LLNotificationsUtil::add("InventoryAccepted", args, payload);
 		break;
 	}
 	case IM_INVENTORY_DECLINED:
 	{
 		args["NAME"] = name;
-		LLNotificationsUtil::add("InventoryDeclined", args);
+		LLSD payload;
+		payload["from_id"] = from_id;
+		LLNotificationsUtil::add("InventoryDeclined", args, payload);
 		break;
 	}
 	// TODO: _DEPRECATED suffix as part of vote removal - DEV-24856
@@ -4347,7 +4313,28 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 		// *TODO: Translate
 		LLSD args;
 		args["MESSAGE"] = desc;
-		LLNotificationsUtil::add("SystemMessage", args);
+
+		// this is a marker to retrieve avatar name from server message:
+		// "<avatar name> paid you L$"
+		const std::string marker = "paid you L$";
+
+		// extract avatar name from system message
+		std::string name = desc.substr(0, desc.find(marker, 0));
+		LLStringUtil::trim(name);
+
+		// if name extracted and name cache contains avatar id send loggable notification
+		LLUUID from_id;
+		if(name.size() > 0 && gCacheName->getUUID(name, from_id))
+		{
+			args["NAME"] = name;
+			LLSD payload;
+			payload["from_id"] = from_id;
+			LLNotificationsUtil::add("PaymentRecived", args, payload);
+		}
+		else
+		{
+			LLNotificationsUtil::add("SystemMessage", args);
+		}
 
 		// Once the 'recent' container gets large enough, chop some
 		// off the beginning.
@@ -4991,7 +4978,7 @@ void container_inventory_arrived(LLViewerObject* object,
 		gAgent.changeCameraToDefault();
 	}
 
-	LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
+	LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
 
 	if (inventory->size() > 2)
 	{
@@ -5029,9 +5016,9 @@ void container_inventory_arrived(LLViewerObject* object,
 			}
 		}
 		gInventory.notifyObservers();
-		if(view)
+		if(active_panel)
 		{
-			view->getPanel()->setSelection(cat_id, TAKE_FOCUS_NO);
+			active_panel->setSelection(cat_id, TAKE_FOCUS_NO);
 		}
 	}
 	else if (inventory->size() == 2)
@@ -5065,9 +5052,9 @@ void container_inventory_arrived(LLViewerObject* object,
 		new_item->updateServer(TRUE);
 		gInventory.updateItem(new_item);
 		gInventory.notifyObservers();
-		if(view)
+		if(active_panel)
 		{
-			view->getPanel()->setSelection(item_id, TAKE_FOCUS_NO);
+			active_panel->setSelection(item_id, TAKE_FOCUS_NO);
 		}
 	}
 
@@ -5536,17 +5523,6 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 		notification = LLNotifications::instance().add(
 			LLNotification::Params("ScriptDialogGroup").substitutions(args).payload(payload).form_elements(form.asLLSD()));
 	}
-
-	// "ScriptDialog" and "ScriptDialogGroup" are handles by LLScriptFloaterManager.
-	// We want to inform user that there is a script floater, lets add "ScriptToast"
-	LLNotification::Params p("ScriptToast");
-	p.substitutions(args).payload(payload).functor.function(boost::bind(
-		LLScriptFloaterManager::onToastButtonClick, _1, _2));
-
-	notification = LLNotifications::instance().add(p);
-
-	LLScriptFloaterManager::getInstance()->setNotificationToastId(
-		object_id, notification->getID());
 }
 
 //---------------------------------------------------------------------------

@@ -61,7 +61,7 @@ public:
 private:
 	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
 
-	void onClickReplyBtn();
+	void onClickToastIM();
 
 	LLNotificationPtr	mNotification;
 	LLUUID				mSessionID;
@@ -69,7 +69,6 @@ private:
 	LLTextBox*			mUserName;
 	LLTextBox*			mTime;
 	LLTextBox*			mMessage;
-	LLButton*			mReplyBtn;
 };
 
 #endif // LLTOASTIMPANEL_H_

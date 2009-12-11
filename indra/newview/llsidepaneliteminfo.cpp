@@ -159,6 +159,7 @@ void LLSidepanelItemInfo::refresh()
 			setIsEditing(FALSE);
 			return;
 		}
+		mEditBtn->setEnabled(FALSE);
 	}
 
 	if (!getIsEditing())
@@ -868,7 +869,11 @@ void LLSidepanelItemInfo::updateVerbs()
 		const LLPermissions& perm = item->getPermissions();
 		BOOL is_modifiable = gAgent.allowOperation(PERM_MODIFY, perm,
 												   GP_OBJECT_MANIPULATE);
-		mEditBtn->setEnabled(is_modifiable);
+		
+		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+		bool item_in_trash = item->getUUID() == trash_id || gInventory.isObjectDescendentOf(item->getUUID(), trash_id);
+		mEditBtn->setEnabled(is_modifiable && !item_in_trash);
+		
 	}
 }
 

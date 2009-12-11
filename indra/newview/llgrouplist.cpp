@@ -44,6 +44,7 @@
 #include "llagent.h"
 #include "llgroupactions.h"
 #include "llfloaterreg.h"
+#include "lltextutil.h"
 #include "llviewercontrol.h"	// for gSavedSettings
 
 static LLDefaultChildRegistry::Register<LLGroupList> r("group_list");
@@ -133,17 +134,17 @@ void LLGroupList::refresh()
 		const LLGroupData& group_data = gAgent.mGroups.get(i);
 		if (have_filter && !findInsensitive(group_data.mName, mNameFilter))
 			continue;
-		addNewItem(id, group_data.mName, group_data.mInsigniaID, highlight_id == id, ADD_BOTTOM);
+		addNewItem(id, group_data.mName, group_data.mInsigniaID, ADD_BOTTOM);
 	}
 
 	// Sort the list.
 	sort();
 
-	// add "none" to list at top
+	// Add "none" to list at top if filter not set (what's the point of filtering "none"?).
+	if (!have_filter)
 	{
 		std::string loc_none = LLTrans::getString("GroupsNone");
-		if (have_filter || findInsensitive(loc_none, mNameFilter))
-			addNewItem(LLUUID::null, loc_none, LLUUID::null, highlight_id.isNull(), ADD_TOP);
+		addNewItem(LLUUID::null, loc_none, LLUUID::null, ADD_TOP);
 	}
 
 	selectItemByUUID(highlight_id);
@@ -171,12 +172,12 @@ void LLGroupList::toggleIcons()
 // PRIVATE Section
 //////////////////////////////////////////////////////////////////////////
 
-void LLGroupList::addNewItem(const LLUUID& id, const std::string& name, const LLUUID& icon_id, BOOL is_bold, EAddPosition pos)
+void LLGroupList::addNewItem(const LLUUID& id, const std::string& name, const LLUUID& icon_id, EAddPosition pos)
 {
 	LLGroupListItem* item = new LLGroupListItem();
 
-	item->setName(name);
 	item->setGroupID(id);
+	item->setName(name, mNameFilter);
 	item->setGroupIconID(icon_id);
 //	item->setContextMenu(mContextMenu);
 
@@ -267,10 +268,10 @@ void LLGroupListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 	LLPanel::onMouseLeave(x, y, mask);
 }
 
-void LLGroupListItem::setName(const std::string& name)
+void LLGroupListItem::setName(const std::string& name, const std::string& highlight)
 {
 	mGroupName = name;
-	mGroupNameBox->setValue(name);
+	LLTextUtil::textboxSetHighlightedVal(mGroupNameBox, mGroupNameStyle, name, highlight);
 	mGroupNameBox->setToolTip(name);
 }
 
@@ -308,6 +309,8 @@ void LLGroupListItem::setGroupIconVisible(bool visible)
 //////////////////////////////////////////////////////////////////////////
 void LLGroupListItem::setActive(bool active)
 {
+	// *BUG: setName() overrides the style params.
+
 	// Active group should be bold.
 	LLFontDescriptor new_desc(mGroupNameBox->getDefaultFont()->getFontDesc());
 
@@ -316,20 +319,17 @@ void LLGroupListItem::setActive(bool active)
 	// is predefined as bold (SansSerifSmallBold, for example)
 	new_desc.setStyle(active ? LLFontGL::BOLD : LLFontGL::NORMAL);
 	LLFontGL* new_font = LLFontGL::getFont(new_desc);
-	LLStyle::Params style_params;
-	style_params.font = new_font;
+	mGroupNameStyle.font = new_font;
 
 	// *NOTE: You cannot set the style on a text box anymore, you must
 	// rebuild the text.  This will cause problems if the text contains
 	// hyperlinks, as their styles will be wrong.
-	std::string text = mGroupNameBox->getText();
-	mGroupNameBox->setText(LLStringUtil::null);
-	mGroupNameBox->appendText(text, false, style_params);
+	mGroupNameBox->setText(mGroupName, mGroupNameStyle);
 }
 
 void LLGroupListItem::onInfoBtnClick()
 {
-	LLFloaterReg::showInstance("inspect_group", LLSD().insert("group_id", mGroupID));
+	LLFloaterReg::showInstance("inspect_group", LLSD().with("group_id", mGroupID));
 }
 
 void LLGroupListItem::onProfileBtnClick()

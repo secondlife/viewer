@@ -59,6 +59,7 @@
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llhttpsender.h"
+#include "llimfloater.h"
 #include "lllocationhistory.h"
 #include "llimageworker.h"
 #include "llloginflags.h"
@@ -76,7 +77,7 @@
 #include "llsecondlifeurls.h"
 #include "llstring.h"
 #include "lluserrelations.h"
-#include "llversionviewer.h"
+#include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llvfs.h"
 #include "llxorcipher.h"	// saved password, MAC address
@@ -192,6 +193,7 @@
 
 #include "lllogin.h"
 #include "llevents.h"
+#include "llstartuplistener.h"
 
 #if LL_WINDOWS
 #include "llwindebug.h"
@@ -240,7 +242,8 @@ static std::string gFirstSimSeedCap;
 static LLVector3 gAgentStartLookAt(1.0f, 0.f, 0.f);
 static std::string gAgentStartLocation = "safe";
 
-static LLEventStream sStartupStateWatcher("StartupState");
+boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
+boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
 
 //
 // local function declaration
@@ -482,7 +485,7 @@ bool idle_startup()
 		{
 			std::string diagnostic = "Could not start address resolution system";
 			LL_WARNS("AppInit") << diagnostic << LL_ENDL;
-			LLAppViewer::instance()->earlyExit("LoginFailedNoNetwork", LLSD().insert("DIAGNOSTIC", diagnostic));
+			LLAppViewer::instance()->earlyExit("LoginFailedNoNetwork", LLSD().with("DIAGNOSTIC", diagnostic));
 		}
 		
 		//
@@ -541,9 +544,9 @@ bool idle_startup()
 			if(!start_messaging_system(
 				   message_template_path,
 				   port,
-				   LL_VERSION_MAJOR,
-				   LL_VERSION_MINOR,
-				   LL_VERSION_PATCH,
+				   LLVersionInfo::getMajor(),
+				   LLVersionInfo::getMinor(),
+				   LLVersionInfo::getPatch(),
 				   FALSE,
 				   std::string(),
 				   responder,
@@ -553,7 +556,7 @@ bool idle_startup()
 			{
 				std::string diagnostic = llformat(" Error: %d", gMessageSystem->getErrorCode());
 				LL_WARNS("AppInit") << diagnostic << LL_ENDL;
-				LLAppViewer::instance()->earlyExit("LoginFailedNoNetwork", LLSD().insert("DIAGNOSTIC", diagnostic));
+				LLAppViewer::instance()->earlyExit("LoginFailedNoNetwork", LLSD().with("DIAGNOSTIC", diagnostic));
 			}
 
 			#if LL_WINDOWS
@@ -576,7 +579,7 @@ bool idle_startup()
 		}
 		else
 		{
-			LLAppViewer::instance()->earlyExit("MessageTemplateNotFound", LLSD().insert("PATH", message_template_path));
+			LLAppViewer::instance()->earlyExit("MessageTemplateNotFound", LLSD().with("PATH", message_template_path));
 		}
 
 		if(gMessageSystem && gMessageSystem->isOK())
@@ -2085,6 +2088,8 @@ bool idle_startup()
 
 		LLAgentPicksInfo::getInstance()->requestNumberOfPicks();
 
+		LLIMFloater::initIMFloater();
+
 		return TRUE;
 	}
 
@@ -2722,10 +2727,15 @@ void LLStartUp::setStartupState( EStartupState state )
 		getStartupStateString() << " to " <<  
 		startupStateToString(state) << LL_ENDL;
 	gStartupState = state;
+	postStartupState();
+}
+
+void LLStartUp::postStartupState()
+{
 	LLSD stateInfo;
 	stateInfo["str"] = getStartupStateString();
-	stateInfo["enum"] = state;
-	sStartupStateWatcher.post(stateInfo);
+	stateInfo["enum"] = gStartupState;
+	sStateWatcher->post(stateInfo);
 }
 
 

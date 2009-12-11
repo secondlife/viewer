@@ -47,15 +47,23 @@ public:
 	~LLNearbyChat();
 
 	BOOL	postBuild			();
-	void	addMessage			(const LLChat& message);	
+	void	addMessage			(const LLChat& message,bool archive = true);	
 	void	onNearbyChatContextMenuItemClicked(const LLSD& userdata);
 	bool	onNearbyChatCheckContextMenuItem(const LLSD& userdata);
 
+	// focus overrides
+	/*virtual*/ void	onFocusLost();
+	/*virtual*/ void	onFocusReceived();
+	
 	/*virtual*/ void	onOpen	(const LLSD& key);
 
 	/*virtual*/ void	setVisible(BOOL visible);
 
 	virtual void setRect		(const LLRect &rect);
+
+	virtual void updateChatHistoryStyle();
+
+	static void processChatHistoryStyleUpdate(const LLSD& newvalue);
 
 private:
 	virtual void    applySavedVariables();
@@ -68,6 +76,8 @@ private:
 private:
 	LLHandle<LLView>	mPopupMenuHandle;
 	LLChatHistory*		mChatHistory;
+
+	std::vector<LLChat> mMessageArchive;
 };
 
 #endif

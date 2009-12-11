@@ -41,6 +41,7 @@
 #include "llscreenchannel.h"
 #include "lltoastnotifypanel.h"
 #include "llviewerwindow.h"
+#include "llimfloater.h"
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -61,15 +62,15 @@ LLUUID notification_id_to_object_id(const LLUUID& notification_id)
 //////////////////////////////////////////////////////////////////////////
 
 LLScriptFloater::LLScriptFloater(const LLSD& key)
-: LLTransientDockableFloater(NULL, true, key)
+: LLDockableFloater(NULL, true, key)
 , mScriptForm(NULL)
-, mObjectId(key.asUUID())
 {
 }
 
 bool LLScriptFloater::toggle(const LLUUID& object_id)
 {
-	LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>("script_floater", object_id);
+	LLUUID notification_id = LLScriptFloaterManager::getInstance()->findNotificationId(object_id);
+	LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>("script_floater", notification_id);
 
 	// show existing floater
 	if(floater)
@@ -96,7 +97,10 @@ bool LLScriptFloater::toggle(const LLUUID& object_id)
 
 LLScriptFloater* LLScriptFloater::show(const LLUUID& object_id)
 {
-	LLScriptFloater* floater = LLFloaterReg::showTypedInstance<LLScriptFloater>("script_floater", object_id);
+	LLUUID notification_id = LLScriptFloaterManager::getInstance()->findNotificationId(object_id);
+	
+	LLScriptFloater* floater = LLFloaterReg::showTypedInstance<LLScriptFloater>("script_floater", notification_id);
+	floater->setObjectId(object_id);
 	floater->createForm(object_id);
 
 	if (floater->getDockControl() == NULL)
@@ -155,19 +159,22 @@ void LLScriptFloater::createForm(const LLUUID& object_id)
 
 void LLScriptFloater::onClose(bool app_quitting)
 {
-	LLScriptFloaterManager::getInstance()->removeNotificationByObjectId(getObjectId());
+	if(getObjectId().notNull())
+	{
+		LLScriptFloaterManager::getInstance()->removeNotificationByObjectId(getObjectId());
+	}
 }
 
 void LLScriptFloater::setDocked(bool docked, bool pop_on_undock /* = true */)
 {
-	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
+	LLDockableFloater::setDocked(docked, pop_on_undock);
 
 	hideToastsIfNeeded();
 }
 
 void LLScriptFloater::setVisible(BOOL visible)
 {
-	LLTransientDockableFloater::setVisible(visible);
+	LLDockableFloater::setVisible(visible);
 
 	hideToastsIfNeeded();
 }
@@ -200,23 +207,45 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 		return;
 	}
 
+	// Need to indicate of "new message" for object chiclets according to requirements
+	// specified in the Message Bar design specification. See EXT-3142.
+	bool set_new_message = false;
+
 	// If an Object spawns more-than-one floater, only the newest one is shown. 
 	// The previous is automatically closed.
 	script_notification_map_t::iterator it = mNotifications.find(object_id);
 	if(it != mNotifications.end())
 	{
-		onRemoveNotification(notification_id);
+		LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>("script_floater", it->second.notification_id);
+		if(floater)
+		{
+			// Generate chiclet with a "new message" indicator if a docked window was opened. See EXT-3142.
+			set_new_message = floater->isShown();
+		}
+
+		onRemoveNotification(it->second.notification_id);
 	}
 
 	LLNotificationData nd = {notification_id};
 	mNotifications.insert(std::make_pair(object_id, nd));
 
-	LLBottomTray::getInstance()->getChicletPanel()->createChiclet<LLScriptChiclet>(object_id);
+	// Create inventory offer chiclet for offer type notifications
+	LLNotificationPtr notification = LLNotifications::getInstance()->find(notification_id);
+	if( notification && notification->getType() == "offer" )
+	{
+		LLBottomTray::instance().getChicletPanel()->createChiclet<LLInvOfferChiclet>(object_id);
+	}
+	else
+	{
+		LLBottomTray::getInstance()->getChicletPanel()->createChiclet<LLScriptChiclet>(object_id);
+	}
+
+	toggleScriptFloater(object_id, set_new_message);
 }
 
 void LLScriptFloaterManager::onRemoveNotification(const LLUUID& notification_id)
 {
-	LLUUID object_id = notification_id_to_object_id(notification_id);
+	LLUUID object_id = findObjectId(notification_id);
 	if(object_id.isNull())
 	{
 		llwarns << "Invalid notification, no object id" << llendl;
@@ -229,22 +258,24 @@ void LLScriptFloaterManager::onRemoveNotification(const LLUUID& notification_id)
 	LLUUID channel_id(gSavedSettings.getString("NotificationChannelUUID"));
 	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>
 		(LLChannelManager::getInstance()->findChannelByID(channel_id));
-	if(channel)
+	LLUUID n_toast_id = findNotificationToastId(object_id);
+	if(channel && n_toast_id.notNull())
 	{
-		channel->killToastByNotificationID(findNotificationToastId(object_id));
+		channel->killToastByNotificationID(n_toast_id);
 	}
-
-	mNotifications.erase(object_id);
 
 	// remove related chiclet
 	LLBottomTray::getInstance()->getChicletPanel()->removeChiclet(object_id);
 
 	// close floater
-	LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>("script_floater", object_id);
+	LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>("script_floater", notification_id);
 	if(floater)
 	{
+		floater->setObjectId(LLUUID::null);
 		floater->closeFloater();
 	}
+
+	mNotifications.erase(object_id);
 }
 
 void LLScriptFloaterManager::removeNotificationByObjectId(const LLUUID& object_id)
@@ -258,13 +289,13 @@ void LLScriptFloaterManager::removeNotificationByObjectId(const LLUUID& object_i
 	}
 }
 
-void LLScriptFloaterManager::toggleScriptFloater(const LLUUID& object_id)
+void LLScriptFloaterManager::toggleScriptFloater(const LLUUID& object_id, bool set_new_message)
 {
 	// hide "new message" icon from chiclet
 	LLIMChiclet* chiclet = LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(object_id);
 	if(chiclet)
 	{
-		chiclet->setShowNewMessagesIcon(false);
+		chiclet->setShowNewMessagesIcon(set_new_message);
 	}
 
 	// kill toast
@@ -287,6 +318,22 @@ void LLScriptFloaterManager::setNotificationToastId(const LLUUID& object_id, con
 	{
 		it->second.toast_notification_id = notification_id;
 	}
+}
+
+LLUUID LLScriptFloaterManager::findObjectId(const LLUUID& notification_id)
+{
+	if(notification_id.notNull())
+	{
+		script_notification_map_t::const_iterator it = mNotifications.begin();
+		for(; mNotifications.end() != it; ++it)
+		{
+			if(notification_id == it->second.notification_id)
+			{
+				return it->first;
+			}
+		}
+	}
+	return LLUUID::null;
 }
 
 LLUUID LLScriptFloaterManager::findNotificationId(const LLUUID& object_id)

@@ -126,8 +126,8 @@ public:
 	void setSelectCallback(const LLFolderView::signal_t::slot_type& cb) { if (mFolders) mFolders->setSelectCallback(cb); }
 	void clearSelection();
 	LLInventoryFilter* getFilter();
-	void setFilterTypes(U64 filter, BOOL filter_for_categories = FALSE); // if filter_for_categories is true, operate on folder preferred asset type
-	U32 getFilterTypes() const { return mFolders->getFilterTypes(); }
+	void setFilterTypes(U64 filter, LLInventoryFilter::EFilterType = LLInventoryFilter::FILTERTYPE_OBJECT);
+	U32 getFilterObjectTypes() const { return mFolders->getFilterObjectTypes(); }
 	void setFilterPermMask(PermissionMask filter_perm_mask);
 	U32 getFilterPermMask() const { return mFolders->getFilterPermissions(); }
 	void setFilterSubString(const std::string& string);
@@ -162,11 +162,10 @@ public:
 	
 	static void onIdle(void* user_data);
 
-private:
+	// Find whichever inventory panel is active / on top.
+	// "Auto_open" determines if we open an inventory panel if none are open.
+	static LLInventoryPanel *getActiveInventoryPanel(BOOL auto_open = TRUE);
 
-	// Given the id and the parent, build all of the folder views.
-	void rebuildViewsFor(const LLUUID& id);
-	virtual void buildNewViews(const LLUUID& id); // made virtual to support derived classes. EXT-719
 protected:
 	void defaultOpenInventory(); // open the first level of inventory
 
@@ -192,12 +191,15 @@ protected:
 	//--------------------------------------------------------------------
 public:
 	BOOL 				getIsViewsInitialized() const { return mViewsInitialized; }
-private:
+	const LLUUID&		getStartFolderID() const { return mStartFolderID; }
+protected:
 	// Builds the UI.  Call this once the inventory is usable.
 	void 				initializeViews();
+	void rebuildViewsFor(const LLUUID& id); // Given the id and the parent, build all of the folder views.
+	virtual void buildNewViews(const LLUUID& id);
+private:
 	BOOL				mBuildDefaultHierarchy; // default inventory hierarchy should be created in postBuild()
 	BOOL				mViewsInitialized; // Views have been generated
-	
 	// UUID of category from which hierarchy should be built.  Set with the 
 	// "start_folder" xml property.  Default is LLUUID::null that means total Inventory hierarchy. 
 	std::string         mStartFolderString;

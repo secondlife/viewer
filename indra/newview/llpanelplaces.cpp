@@ -118,7 +118,6 @@ static LLRegisterPanelClassWrapper<LLPanelPlaces> t_places("panel_places");
 
 LLPanelPlaces::LLPanelPlaces()
 	:	LLPanel(),
-		mFilterSubString(LLStringUtil::null),
 		mActivePanel(NULL),
 		mFilterEditor(NULL),
 		mPlaceProfile(NULL),
@@ -262,6 +261,10 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 		}
 
 		mLandmarkInfo->displayParcelInfo(LLUUID(), mPosGlobal);
+
+		// Disable Save button because there is no item to save yet.
+		// The button will be enabled in onLandmarkLoaded callback.
+		mSaveBtn->setEnabled(FALSE);
 	}
 	else if (mPlaceInfoType == LANDMARK_INFO_TYPE)
 	{
@@ -381,20 +384,24 @@ void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
 	landmark->getRegionID(region_id);
 	landmark->getGlobalPos(mPosGlobal);
 	mLandmarkInfo->displayParcelInfo(region_id, mPosGlobal);
+
+	mSaveBtn->setEnabled(TRUE);
 }
 
 void LLPanelPlaces::onFilterEdit(const std::string& search_string, bool force_filter)
 {
-	if (force_filter || mFilterSubString != search_string)
+	if (!mActivePanel)
+		return;
+
+	if (force_filter || mActivePanel->getFilterSubString() != search_string)
 	{
-		mFilterSubString = search_string;
+		std::string string = search_string;
 
 		// Searches are case-insensitive
-		LLStringUtil::toUpper(mFilterSubString);
-		LLStringUtil::trimHead(mFilterSubString);
+		LLStringUtil::toUpper(string);
+		LLStringUtil::trimHead(string);
 
-		if (mActivePanel)
-			mActivePanel->onSearchEdit(mFilterSubString);
+		mActivePanel->onSearchEdit(string);
 	}
 }
 
@@ -404,7 +411,7 @@ void LLPanelPlaces::onTabSelected()
 	if (!mActivePanel)
 		return;
 
-	onFilterEdit(mFilterSubString, true);
+	onFilterEdit(mActivePanel->getFilterSubString(), true);
 	mActivePanel->updateVerbs();
 }
 
@@ -815,7 +822,7 @@ void LLPanelPlaces::changedInventory(U32 mask)
 
 	// Filter applied to show all items.
 	if (mActivePanel)
-		mActivePanel->onSearchEdit(mFilterSubString);
+		mActivePanel->onSearchEdit(mActivePanel->getFilterSubString());
 
 	// we don't need to monitor inventory changes anymore,
 	// so remove the observer

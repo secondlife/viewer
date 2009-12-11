@@ -37,9 +37,11 @@
 #include "lllogininstance.h"
 #include "lluri.h"
 #include "llagent.h"
+#include "llui.h"
 
 LLFloaterSearch::LLFloaterSearch(const LLSD& key) :
 	LLFloater(key),
+	LLViewerMediaObserver(),
 	mBrowser(NULL)
 {
 	// declare a map that transforms a category name into
@@ -138,6 +140,13 @@ void LLFloaterSearch::search(const LLSD &key)
 		maturity = "13";  // PG
 	}
 	url += "&r=" + maturity;
+
+	// add the current localization information
+	url += "&lang=" + LLUI::getLanguage();
+
+	// add the user's god status
+	std::string godlike = gAgent.isGodlike() ? "1" : "0";
+	url += "&g=" + godlike;
 
 	// and load the URL in the web view
 	mBrowser->navigateTo(url);

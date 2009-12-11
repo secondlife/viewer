@@ -61,7 +61,6 @@ static const std::string XML_BTN_DELETE = "trash_btn";
 static const std::string XML_BTN_INFO = "info_btn";
 static const std::string XML_BTN_TELEPORT = "teleport_btn";
 static const std::string XML_BTN_SHOW_ON_MAP = "show_on_map_btn";
-static const std::string XML_BTN_OVERFLOW = "overflow_btn";
 
 static const std::string PICK_ID("pick_id");
 static const std::string PICK_CREATOR_ID("pick_creator_id");
@@ -113,7 +112,6 @@ LLPanelPicks::LLPanelPicks()
 	mClassifiedsList(NULL),
 	mPanelPickInfo(NULL),
 	mPanelPickEdit(NULL),
-	mOverflowMenu(NULL),
 	mPlusMenu(NULL),
 	mPicksAccTab(NULL),
 	mClassifiedsAccTab(NULL),
@@ -163,6 +161,9 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 			std::string name, second_name;
 			gCacheName->getName(getAvatarId(),name,second_name);
 			childSetTextArg("pick_title", "[NAME]",name);
+			
+			// Save selection, to be able to edit same item after saving changes. See EXT-3023.
+			LLUUID selected_id = mPicksList->getSelectedValue()[PICK_ID];
 
 			mPicksList->clear();
 
@@ -187,6 +188,10 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 				pick_value.insert(PICK_CREATOR_ID, getAvatarId());
 
 				mPicksList->addItem(picture, pick_value);
+
+				// Restore selection by item id. 
+				if ( pick_id == selected_id )
+					mPicksList->selectItemByValue(pick_value);
 
 				picture->setDoubleClickCallback(boost::bind(&LLPanelPicks::onDoubleClickPickItem, this, _1));
 				picture->setRightMouseUpCallback(boost::bind(&LLPanelPicks::onRightMouseUpItem, this, _1, _2, _3, _4));
@@ -273,7 +278,6 @@ BOOL LLPanelPicks::postBuild()
 	childSetAction(XML_BTN_TELEPORT, boost::bind(&LLPanelPicks::onClickTeleport, this));
 	childSetAction(XML_BTN_SHOW_ON_MAP, boost::bind(&LLPanelPicks::onClickMap, this));
 	childSetAction(XML_BTN_INFO, boost::bind(&LLPanelPicks::onClickInfo, this));
-	childSetAction(XML_BTN_OVERFLOW, boost::bind(&LLPanelPicks::onOverflowButtonClicked, this));
 
 	mPicksAccTab = getChild<LLAccordionCtrlTab>("tab_picks");
 	mPicksAccTab->setDropDownStateChangedCallback(boost::bind(&LLPanelPicks::onAccordionStateChanged, this, mPicksAccTab));
@@ -291,33 +295,11 @@ BOOL LLPanelPicks::postBuild()
 	registar.add("Pick.Delete", boost::bind(&LLPanelPicks::onClickDelete, this));
 	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_picks.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
-	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar overflow_registar;
-	overflow_registar.add("PicksList.Overflow", boost::bind(&LLPanelPicks::onOverflowMenuItemClicked, this, _2));
-	mOverflowMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_picks_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar plus_registar;
 	plus_registar.add("Picks.Plus.Action", boost::bind(&LLPanelPicks::onPlusMenuItemClicked, this, _2));
 	mPlusMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_picks_plus.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	
 	return TRUE;
-}
-
-void LLPanelPicks::onOverflowMenuItemClicked(const LLSD& param)
-{
-	std::string value = param.asString();
-
-	if("info" == value)
-	{
-		onClickInfo();
-	}
-	else if("teleport" == value)
-	{
-		onClickTeleport();
-	}
-	else if("map" == value)
-	{
-		onClickMap();
-	}
 }
 
 void LLPanelPicks::onPlusMenuItemClicked(const LLSD& param)
@@ -346,23 +328,6 @@ void LLPanelPicks::onAccordionStateChanged(const LLAccordionCtrlTab* acc_tab)
 	}
 
 	updateButtons();
-}
-
-void LLPanelPicks::onOverflowButtonClicked()
-{
-	if (!mOverflowMenu->toggleVisibility())
-		return;
-
-	LLView* btn = getChild<LLView>(XML_BTN_OVERFLOW);
-
-	if (mOverflowMenu->getButtonRect().isEmpty())
-	{
-		mOverflowMenu->setButtonRect(btn);
-	}
-	mOverflowMenu->updateParent(LLMenuGL::sMenuContainer);
-
-	LLRect rect = btn->getRect();
-	LLMenuGL::showPopup(this, mOverflowMenu, rect.mRight, rect.mTop);
 }
 
 void LLPanelPicks::onOpen(const LLSD& key)
@@ -568,7 +533,6 @@ void LLPanelPicks::updateButtons()
 	childSetEnabled(XML_BTN_INFO, has_selected);
 	childSetEnabled(XML_BTN_TELEPORT, has_selected);
 	childSetEnabled(XML_BTN_SHOW_ON_MAP, has_selected);
-	childSetEnabled(XML_BTN_OVERFLOW, has_selected);
 }
 
 void LLPanelPicks::setProfilePanel(LLPanelProfile* profile_panel)

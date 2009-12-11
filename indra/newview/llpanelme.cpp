@@ -71,7 +71,7 @@ void LLPanelMe::onOpen(const LLSD& key)
 	LLPanelProfile::onOpen(key);
 }
 
-void LLPanelMe::notifyChildren(const LLSD& info)
+bool LLPanelMe::notifyChildren(const LLSD& info)
 {
 	if (info.has("task-panel-action") && info["task-panel-action"].asString() == "handle-tri-state")
 	{
@@ -104,10 +104,10 @@ void LLPanelMe::notifyChildren(const LLSD& info)
 		if (on_default_view)
 			LLSideTray::getInstance()->collapseSideBar();
 
-		return; // this notification is only supposed to be handled by task panels 
+		return true; // this notification is only supposed to be handled by task panels 
 	}
 
-	LLPanel::notifyChildren(info);
+	return LLPanel::notifyChildren(info);
 }
 
 void LLPanelMe::buildEditPanel()
@@ -220,6 +220,7 @@ BOOL LLPanelMyProfileEdit::postBuild()
 	initTexturePickerMouseEvents();
 
 	childSetTextArg("partner_edit_link", "[URL]", getString("partner_edit_link_url"));
+	childSetTextArg("my_account_link", "[URL]", getString("my_account_link_url"));
 
 	return LLPanelAvatarProfile::postBuild();
 }

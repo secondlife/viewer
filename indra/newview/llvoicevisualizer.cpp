@@ -369,8 +369,9 @@ void LLVoiceVisualizer::render()
 		//-------------------------------------------------------------
 		// create coordinates of the geometry for the dot
 		//-------------------------------------------------------------
-		LLVector3 l	= LLViewerCamera::getInstance()->getLeftAxis() * DOT_SIZE;
-		LLVector3 u	= LLViewerCamera::getInstance()->getUpAxis()   * DOT_SIZE;
+		LLViewerCamera* camera = LLViewerCamera::getInstance();
+		LLVector3 l	= camera->getLeftAxis() * DOT_SIZE;
+		LLVector3 u	= camera->getUpAxis()   * DOT_SIZE;
 
 		LLVector3 bottomLeft	= mSoundSymbol.mPosition + l - u;
 		LLVector3 bottomRight	= mSoundSymbol.mPosition - l - u;
@@ -496,8 +497,8 @@ void LLVoiceVisualizer::render()
 				F32 width	= i * WAVE_WIDTH_SCALE  * mSoundSymbol.mWaveExpansion[i];
 				F32 height	= i * WAVE_HEIGHT_SCALE * mSoundSymbol.mWaveExpansion[i];
 
-				LLVector3 l	= LLViewerCamera::getInstance()->getLeftAxis() * width;
-				LLVector3 u	= LLViewerCamera::getInstance()->getUpAxis()   * height;
+				LLVector3 l	= camera->getLeftAxis() * width;
+				LLVector3 u	= camera->getUpAxis()   * height;
 
 				LLVector3 bottomLeft	= mSoundSymbol.mPosition + l - u;
 				LLVector3 bottomRight	= mSoundSymbol.mPosition - l - u;

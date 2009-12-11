@@ -3,7 +3,7 @@
 	follows="left|right|top|bottom"
 	name="MediaControls"
 	background_visible="false"
-	height="192"
+	height="200"
 	layout="topleft"
 	mouse_opaque="false"
 	width="800">
@@ -16,20 +16,20 @@
   <string name="zoom_far_padding">1.5</string>
   <panel
 	  name="media_region"
-	  bottom="125"
+	  height="100"
 	  follows="left|right|top|bottom"
 	  layout="topleft"
 	  mouse_opaque="false"
-	  top="20" />
+	  top="0" />
   <layout_stack
 	  name="media_controls"
 	  follows="left|right"
 	  animate="false"
-	  height="26"
+	  height="75"
 	  layout="topleft"
 	  left="0"
 	  orientation="horizontal"
-	  top="128">
+	  top="100">
 	<!-- outer layout_panels center the inner one -->
 	<layout_panel
 		name="left_bookend"
@@ -239,19 +239,6 @@
 		layout="topleft"
 		width="190"
 		min_width="90">
-	  <!--
-	  RE-ENABLE THIS WHEN WE HAVE A HISTORY DROP-DOWN AGAIN
-	  <combo_box
-		  name="media_address_url"
-		  allow_text_entry="true"
-		  height="22"
-		  layout="topleft"
-		  max_chars="1024"
-		  tool_tip = "Media URL">
-		<combo_box.commit_callback
-			function="MediaCtrl.CommitURL" />
-	  </combo_box>
-	  -->
 	  <line_editor 
 		  name="media_address_url"
 		  follows="left|right" 
@@ -314,8 +301,9 @@
 	  <slider_bar
 		  name="media_play_slider"
 		  follows="left|right|top"
-		  height="16"
-		  increment="0.05"
+		  height="20"
+		  bottom="88"
+		  increment="0.01"
 		  initial_value="0.5"
 		  layout="topleft"
 		  tool_tip="Movie play progress"
@@ -379,7 +367,8 @@
 		auto_resize="false"
 		user_resize="false"
 		layout="topleft"
-		height="22"
+		top="-50"
+		height="72"
 		min_width="22"
 		width="22">
 	  <!-- Note: this is not quite right either...the mute button is not the -->
@@ -391,144 +380,36 @@
 		  image_selected="AudioMute_Off"
 		  image_unselected="Audio_Off"
 		  hover_glow_amount="0.15"
-		  name="media_volume_button"
+		  name="media_mute_button"
 		  height="22"
 		  is_toggle="true"
 		  layout="topleft"
 		  scale_image="false" 
 		  tool_tip="Mute This Media"
-		  top_delta="18"
+		  top="118"
 		  min_width="22"
 		  width="22" >
 		<button.commit_callback
 			function="MediaCtrl.ToggleMute" />
+		<button.mouseenter_callback
+			function="MediaCtrl.ShowVolumeSlider" />
 	  </button>
+	  <slider
+		  orientation="vertical"
+		  left="0"
+		  top="-2"
+		  height="50"
+		  layout="topleft"
+		  increment="0.01"
+		  initial_value="0.5"
+		  name="volume_slider"
+		  tool_tip="Media Volume"
+		  show_text="false"
+		  volume="true">
+		<slider.commit_callback
+			function="MediaCtrl.Volume"/>
+	  </slider>
 	</layout_panel>
-	<!-- We do not have a design yet for "volume", so this is a temporary -->
-	<!-- solution.  See DEV-42827. -->
-	<layout_panel
-		name="volume_up"
-		auto_resize="false"
-		user_resize="false"
-		layout="topleft"
-		min_width="14"
-		height="14"
-		width="14">
-	  <button
-		  image_overlay="media_btn_scrollup.png"
-		  image_disabled="PushButton_Disabled"
-		  image_disabled_selected="PushButton_Disabled"
-		  image_selected="PushButton_Selected"
-		  image_unselected="PushButton_Off"
-		  hover_glow_amount="0.15"
-		  top="-5"
-		  height="14"
-		  layout="topleft"
-		  tool_tip="Volume up"
-		  scale_image="true"
-		  min_width="14"
-		  width="14" >
-		<button.commit_callback
-			function="MediaCtrl.CommitVolumeUp" />
-	  </button>
-	</layout_panel>
-	<layout_panel
-		name="volume_down"
-		auto_resize="false"
-		user_resize="false"
-		layout="topleft"
-		min_width="14"
-		height="14"
-		width="14">
-	  <button
-		  image_overlay="media_btn_scrolldown.png"
-		  image_disabled="PushButton_Disabled"
-		  image_disabled_selected="PushButton_Disabled"
-		  image_selected="PushButton_Selected"
-		  image_unselected="PushButton_Off"
-		  hover_glow_amount="0.15"
-		  layout="topleft"
-		  tool_tip="Volume down"
-		  scale_image="true"
-		  top="-5"
-		  height="14"
-		  min_width="14"
-		  width="14">
-		<button.commit_callback
-			function="MediaCtrl.CommitVolumeDown" />
-	  </button>
-	</layout_panel>
-	<!-- Scroll pad -->
-	<!-- This was removed from the design, but is still here because it is --> 
-	<!-- complex, and recreating it would be hard.  In case the design -->
-	<!-- changes, here it lies: --> 
-	<!--
-	<layout_panel
-		name="media_panel_scroll"
-		auto_resize="false"
-		user_resize="false"
-		height="32"
-		follows="left|right|top|bottom"
-		layout="topleft"
-		min_width="32"
-		width="32">
-	  <icon
-		  height="32"
-		  image_name="media_panel_scrollbg.png"
-		  layout="topleft"
-		  top="0"
-		  min_width="32"
-		  width="32" />
-	  <button
-		  name="scrollup"
-		  height="8"
-		  image_selected="media_btn_scrollup.png"
-		  image_unselected="media_btn_scrollup.png"
-		  layout="topleft"
-		  tool_tip="Scroll up"
-		  scale_image="false"
-		  left="12"
-		  top_delta="4"
-		  min_width="8"
-		  width="8" />
-	  <button
-		  name="scrollleft"
-		  height="8"
-		  image_selected="media_btn_scrollleft.png"
-		  image_unselected="media_btn_scrollleft.png"
-		  layout="topleft"
-		  left="3"
-		  tool_tip="Scroll left"
-		  scale_image="false"
-		  top="12"
-		  min_width="8"
-		  width="8" />
-	  <button
-		  name="scrollright"
-		  height="8"
-		  image_selected="media_btn_scrollright.png"
-		  image_unselected="media_btn_scrollright.png"
-		  layout="topleft"
-		  left_pad="9"
-		  tool_tip="Scroll right"
-		  scale_image="false"
-		  top_delta="0"
-		  min_width="8"
-		  width="8" />
-	  <button
-		  name="scrolldown"
-		  height="8"
-		  image_selected="media_btn_scrolldown.png"
-		  image_unselected="media_btn_scrolldown.png"
-		  layout="topleft"
-		  left="12"
-		  tool_tip="Scroll down"
-		  scale_image="false"
-		  top="20"
-		  min_width="8"
-		  width="8" />
-	</layout_panel>
-	-->
 	<panel
 		height="28"
 		layout="topleft"
@@ -628,7 +509,7 @@
 	  animate="false"
 	  left="0"
 	  orientation="horizontal"
-	  top="150">
+	  top="170">
 	<!-- outer layout_panels center the inner one -->
 	<layout_panel
 		width="0"

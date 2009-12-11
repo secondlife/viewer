@@ -76,7 +76,9 @@
          function="Inventory.GearDefault.Custom.Action"
          parameter="empty_lostnfound" />
     </menu_item_call>
-        <menu_item_call
+    <menu_item_separator
+     layout="topleft" />
+    <menu_item_call 
          label="Save Texture As"
          layout="topleft"
          name="Save Texture As">
@@ -86,5 +88,27 @@
             <on_enable
 			 function="Inventory.GearDefault.Enable"
 			 parameter="save_texture" />
+        </menu_item_call>
+    <menu_item_call 
+         label="Find Original"
+         layout="topleft"
+         name="Find Original">
+            <on_click
+             function="Inventory.GearDefault.Custom.Action"
+             parameter="find_original" />
+            <on_enable
+			 function="Inventory.GearDefault.Enable"
+			 parameter="find_original" />
+        </menu_item_call>
+    <menu_item_call 
+         label="Find All Links"
+         layout="topleft"
+         name="Find All Links">
+            <on_click
+             function="Inventory.GearDefault.Custom.Action"
+             parameter="find_links" />
+            <on_enable
+			 function="Inventory.GearDefault.Enable"
+			 parameter="find_links" />
         </menu_item_call>
 </menu>

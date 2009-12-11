@@ -56,6 +56,7 @@
 #include "llfloaterchatterbox.h"
 #include "llfloaterfriends.h"
 #include "llfloatersnapshot.h"
+#include "llinventorypanel.h"
 #include "lltoolmgr.h"
 #include "llui.h"
 #include "llviewermenu.h"
@@ -157,12 +158,11 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	LLButton* inventory_btn = getChild<LLButton>("inventory_btn");
 	if (!inventory_btn) return FALSE;
 
-	LLFloaterInventory* active_inventory = LLFloaterInventory::getActiveInventory();
-
 	LLRect button_screen_rect;
 	inventory_btn->localRectToScreen(inventory_btn->getRect(),&button_screen_rect);
-
-	if(active_inventory && active_inventory->getVisible())
+	
+	const LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+	if(active_panel)
 	{
 		mInventoryAutoOpen = FALSE;
 	}
@@ -170,8 +170,8 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	{
 		if (mInventoryAutoOpen)
 		{
-			if (!(active_inventory && active_inventory->getVisible()) && 
-			mInventoryAutoOpenTimer.getElapsedTimeF32() > sInventoryAutoOpenTime)
+			if (!active_panel && 
+				mInventoryAutoOpenTimer.getElapsedTimeF32() > sInventoryAutoOpenTime)
 			{
 				LLFloaterInventory::showAgentInventory();
 			}

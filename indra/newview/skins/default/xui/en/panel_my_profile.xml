@@ -27,7 +27,7 @@
     <string
      name="no_partner_text"
      value="None" />
-    <string 
+    <string
 	 name="RegisterDateFormat">
 	 [REG_DATE] ([AGE])
 	</string>
@@ -156,8 +156,8 @@
                 Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
             </expandable_text>
         </panel>
-	
-	
+
+
 	<!-- <panel
        name="lifes_images_panel"
          follows="left|top|right"
@@ -207,10 +207,10 @@
            top="25"
            width="18" />
       </panel> -->
-	
-	
-	
-	
+
+
+
+
         <text
          type="string"
          follows="left|top"
@@ -254,7 +254,7 @@
          layout="topleft"
          left="10"
          name="register_date"
-         value="05/31/1976"
+         value="05/31/2376"
          width="280"
          word_wrap="true" />
         <text
@@ -351,11 +351,11 @@
      name="profile_buttons_panel"
      top_pad="2"
      bottom="10"
-     height="19"
+     height="23"
      width="303">
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Add Friend"
          layout="topleft"
          left="0"
@@ -365,7 +365,7 @@
          width="75" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="IM"
          layout="topleft"
          name="im"
@@ -374,7 +374,7 @@
          width="45" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Call"
          layout="topleft"
          name="call"
@@ -384,7 +384,7 @@
         <button
          enabled="false"
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Map"
          layout="topleft"
          name="show_on_map_btn"
@@ -393,7 +393,7 @@
          width="45" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Teleport"
          layout="topleft"
          name="teleport"
@@ -408,21 +408,23 @@
      top_pad="-17"
      name="profile_me_buttons_panel"
      visible="false"
-     height="19"
+     height="23"
      width="303">
         <button
          follows="bottom|right"
-         height="19"
+         height="23"
          left="10"
          label="Edit Profile"
          name="edit_profile_btn"
+         tool_tip="Edit your personal information"
          width="130" />
         <button
          follows="bottom|right"
-         height="19"
+         height="23"
          label="Edit Appearance"
          left_pad="10"
          name="edit_appearance_btn"
+         tool_tip="Create/edit your appearance: physical data, clothes and etc."
          right="-10"
          width="130" />
  </panel>

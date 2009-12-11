@@ -107,34 +107,16 @@ LLInventoryPanel* LLFloaterInventory::getPanel()
 // static
 LLFloaterInventory* LLFloaterInventory::showAgentInventory()
 {
+	// Hack to generate semi-unique key for each inventory floater.
+	static S32 instance_num = 0;
+	instance_num = (instance_num + 1) % S32_MAX;
+
 	LLFloaterInventory* iv = NULL;
 	if (!gAgent.cameraMouselook())
 	{
-		iv = LLFloaterReg::showTypedInstance<LLFloaterInventory>("inventory", LLSD());
+		iv = LLFloaterReg::showTypedInstance<LLFloaterInventory>("inventory", LLSD(instance_num));
 	}
 	return iv;
-}
-
-// static
-LLFloaterInventory* LLFloaterInventory::getActiveInventory()
-{
-	LLFloaterInventory* res = NULL;
-	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
-	S32 z_min = S32_MAX;
-	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
-	{
-		LLFloaterInventory* iv = dynamic_cast<LLFloaterInventory*>(*iter);
-		if (iv)
-		{
-			S32 z_order = gFloaterView->getZOrder(iv);
-			if (z_order < z_min)
-			{
-				res = iv;
-				z_min = z_order;
-			}
-		}
-	}
-	return res;
 }
 
 // static

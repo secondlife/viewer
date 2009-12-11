@@ -36,7 +36,6 @@
 
 #include "llagent.h"
 #include "llviewerassetstorage.h"
-#include "llviewerbuild.h"
 #include "llvfile.h"
 #include "llvfs.h"
 

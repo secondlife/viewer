@@ -36,7 +36,7 @@
 #include "lltextbox.h"
 #include "lllineeditor.h"
 #include "llviewercontrol.h"
-#include "llversionviewer.h"
+#include "llversioninfo.h"
 
 #include "llcurrencyuimanager.h"
 
@@ -85,6 +85,7 @@ public:
 	S32				mUSDCurrencyEstimatedCost;
 	bool			mLocalCurrencyEstimated;
 	std::string		mLocalCurrencyEstimatedCost;
+	bool			mSupportsInternationalBilling;
 	std::string		mSiteConfirm;
 	
 	bool			mBought;
@@ -137,6 +138,7 @@ LLCurrencyUIManager::Impl::Impl(LLPanel& dialog)
 	mError(false),
 	mUserCurrencyBuy(2000), // note, this is a default, real value set in llfloaterbuycurrency.cpp
 	mUserEnteredCurrencyBuy(false),
+	mSupportsInternationalBilling(false),
 	mBought(false),
 	mTransactionType(TransactionNone), mTransaction(0),
 	mCurrencyChanged(false)
@@ -168,10 +170,10 @@ void LLCurrencyUIManager::Impl::updateCurrencyInfo()
 		gAgent.getSecureSessionID().asString());
 	keywordArgs.appendInt("currencyBuy", mUserCurrencyBuy);
 	keywordArgs.appendString("viewerChannel", gSavedSettings.getString("VersionChannelName"));
-	keywordArgs.appendInt("viewerMajorVersion", LL_VERSION_MAJOR);
-	keywordArgs.appendInt("viewerMinorVersion", LL_VERSION_MINOR);
-	keywordArgs.appendInt("viewerPatchVersion", LL_VERSION_PATCH);
-	keywordArgs.appendInt("viewerBuildVersion", LL_VERSION_BUILD);
+	keywordArgs.appendInt("viewerMajorVersion", LLVersionInfo::getMajor());
+	keywordArgs.appendInt("viewerMinorVersion", LLVersionInfo::getMinor());
+	keywordArgs.appendInt("viewerPatchVersion", LLVersionInfo::getPatch());
+	keywordArgs.appendInt("viewerBuildVersion", LLVersionInfo::getBuild());
 	
 	LLXMLRPCValue params = LLXMLRPCValue::createArray();
 	params.append(keywordArgs);
@@ -207,6 +209,7 @@ void LLCurrencyUIManager::Impl::finishCurrencyInfo()
 	if (mLocalCurrencyEstimated)
 	{
 		mLocalCurrencyEstimatedCost = currency["estimatedLocalCost"].asString();
+		mSupportsInternationalBilling = true;
 	}
 
 	S32 newCurrencyBuy = currency["currencyBuy"].asInt();
@@ -241,10 +244,10 @@ void LLCurrencyUIManager::Impl::startCurrencyBuy(const std::string& password)
 		keywordArgs.appendString("password", password);
 	}
 	keywordArgs.appendString("viewerChannel", gSavedSettings.getString("VersionChannelName"));
-	keywordArgs.appendInt("viewerMajorVersion", LL_VERSION_MAJOR);
-	keywordArgs.appendInt("viewerMinorVersion", LL_VERSION_MINOR);
-	keywordArgs.appendInt("viewerPatchVersion", LL_VERSION_PATCH);
-	keywordArgs.appendInt("viewerBuildVersion", LL_VERSION_BUILD);
+	keywordArgs.appendInt("viewerMajorVersion", LLVersionInfo::getMajor());
+	keywordArgs.appendInt("viewerMinorVersion", LLVersionInfo::getMinor());
+	keywordArgs.appendInt("viewerPatchVersion", LLVersionInfo::getPatch());
+	keywordArgs.appendInt("viewerBuildVersion", LLVersionInfo::getBuild());
 
 	LLXMLRPCValue params = LLXMLRPCValue::createArray();
 	params.append(keywordArgs);
@@ -463,6 +466,9 @@ void LLCurrencyUIManager::Impl::updateUI()
 
 	mPanel.childSetTextArg("currency_est", "[LOCALAMOUNT]", getLocalEstimate());
 	mPanel.childSetVisible("currency_est", hasEstimate() && mUserCurrencyBuy > 0);
+
+	mPanel.childSetVisible("currency_links", mSupportsInternationalBilling);
+	mPanel.childSetVisible("exchange_rate_note", mSupportsInternationalBilling);
 
 	if (mPanel.childIsEnabled("buy_btn")
 		||mPanel.childIsVisible("currency_est")

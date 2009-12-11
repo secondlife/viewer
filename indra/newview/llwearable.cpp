@@ -704,7 +704,7 @@ void LLWearable::removeFromAvatar( EWearableType type, BOOL upload_bake )
 	}
 
 	avatar->updateVisualParams();
-	avatar->wearableUpdated(type);
+	avatar->wearableUpdated(type, TRUE);
 
 //	if( upload_bake )
 //	{
@@ -1092,6 +1092,16 @@ void LLWearable::destroyTextures()
 void LLWearable::setLabelUpdated() const
 { 
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, getItemID());
+}
+
+void LLWearable::refreshName()
+{
+	LLUUID item_id = getItemID();
+	LLInventoryItem* item = gInventory.getItem(item_id);
+	if( item )
+	{
+		mName = item->getName();
+	}
 }
 
 struct LLWearableSaveData

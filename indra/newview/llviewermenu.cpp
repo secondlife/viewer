@@ -31,188 +31,76 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llviewermenu.h" 
 
-// system library includes
-#include <iostream>
-#include <fstream>
-#include <sstream>
-
 // linden library includes
-#include "llaudioengine.h"
 #include "llfloaterreg.h"
-#include "indra_constants.h"
-#include "llassetstorage.h"
-#include "llchat.h"
 #include "llcombobox.h"
-#include "llfeaturemanager.h"
-#include "llfocusmgr.h"
-#include "llfontgl.h"
-#include "llinstantmessage.h"
 #include "llinventorypanel.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-#include "llpermissionsflags.h"
-#include "llrect.h"
-#include "llsecondlifeurls.h"
-#include "lltransactiontypes.h"
-#include "llui.h"
-#include "llview.h"
-#include "llxfermanager.h"
-#include "message.h"
-#include "raytrace.h"
-#include "llsdserialize.h"
-#include "lltimer.h"
-#include "llvfile.h"
-#include "llvolumemgr.h"
 
 // newview includes
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
-#include "llbox.h"
-#include "llcallingcard.h"
-#include "llclipboard.h"
 #include "llcompilequeue.h"
 #include "llconsole.h"
-#include "llviewercontrol.h"
 #include "lldebugview.h"
-#include "lldir.h"
-#include "lldrawable.h"
-#include "lldrawpoolalpha.h"
-#include "lldrawpooltree.h"
-#include "llface.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
-#include "llfloater.h"
-#include "llfloaterabout.h"
-#include "llfloaterbuycurrency.h"
-#include "llfloateractivespeakers.h"
-#include "llfloateranimpreview.h"
-#include "llfloateravatartextures.h"
-#include "llfloaterbuildoptions.h"
-#include "llfloaterbump.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
 #include "llfloaterbuycurrency.h"
-#include "llfloaterbuyland.h"
 #include "llfloaterchat.h"
 #include "llfloatercustomize.h"
-#include "llfloaterdaycycle.h"
 #include "llfloaterchatterbox.h"
-#include "llfloaterfonttest.h"
 #include "llfloatergodtools.h"
-#include "llfloatergroupinvite.h"
-#include "llfloatergroups.h"
-#include "llfloaterhud.h"
-#include "llfloaterinspect.h"
-#include "llfloaterlagmeter.h"
 #include "llfloaterland.h"
-#include "llfloaterlandholdings.h"
-#include "llfloatermap.h"
-#include "llfloateropenobject.h"
 #include "llfloaterpay.h"
-#include "llfloaterperms.h"
-#include "llfloaterpostprocess.h"
-#include "llfloaterpreference.h"
-#include "llfloaterreg.h"
-#include "llfloaterregioninfo.h"
 #include "llfloaterreporter.h"
 #include "llfloaterscriptdebug.h"
-#include "llfloatersettingsdebug.h"
-#include "llfloaterenvsettings.h"
 #include "llfloatertools.h"
-#include "llfloaterwater.h"
-#include "llfloaterwindlight.h"
 #include "llfloaterworldmap.h"
-#include "llfloatermemleak.h"
-#include "llfasttimerview.h"
 #include "llavataractions.h"
 #include "lllandmarkactions.h"
-#include "llmemoryview.h"
 #include "llgroupmgr.h"
 #include "lltooltip.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llimage.h"
-#include "llimagebmp.h"
-#include "llimagej2c.h"
-#include "llimagetga.h"
 #include "llinventorybridge.h"
-#include "llinventorymodel.h"
-#include "llfloaterinventory.h"
-#include "llkeyboard.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
 #include "llmenucommands.h"
-#include "llmenugl.h"
-#include "llmimetypes.h"
 #include "llmoveview.h"
-#include "llmutelist.h"
-#include "llnotify.h"
-#include "llpanelobject.h"
 #include "llparcel.h"
-#include "llprimitive.h"
-#include "llresmgr.h"
 #include "llrootview.h"
 #include "llselectmgr.h"
 #include "llsidetray.h"
-#include "llsky.h"
 #include "llstatusbar.h"
-#include "llstatview.h"
-#include "llstring.h"
-#include "llsurfacepatch.h"
-#include "llimview.h"
 #include "lltextureview.h"
-#include "lltool.h"
 #include "lltoolbar.h"
 #include "lltoolcomp.h"
-#include "lltoolfocus.h"
-#include "lltoolgrab.h"
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
 #include "lltoolselectland.h"
-#include "lltrans.h"
-#include "lluictrlfactory.h"
-#include "lluploaddialog.h"
-#include "lluserauth.h"
-#include "lluuid.h"
-#include "llviewercamera.h"
 #include "llviewergenericmessage.h"
 #include "llviewerhelp.h"
-#include "llviewertexturelist.h"	// gTextureList
-#include "llviewerinventory.h"
 #include "llviewermenufile.h"	// init_menu_file()
 #include "llviewermessage.h"
 #include "llviewernetwork.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
-#include "llviewerparceloverlay.h"
-#include "llviewerregion.h"
 #include "llviewerstats.h"
-#include "llviewerwindow.h"
-#include "llvoavatar.h"
 #include "llvoavatarself.h"
-#include "llvolume.h"
-#include "llweb.h"
-#include "llworld.h"
 #include "llworldmap.h"
-#include "object_flags.h"
 #include "pipeline.h"
-#include "llappviewer.h"
-#include "roles_constants.h"
 #include "llviewerjoystick.h"
 #include "llwlanimator.h"
 #include "llwlparammanager.h"
-#include "llwaterparammanager.h"
-#include "llfloaternotificationsconsole.h"
 #include "llfloatercamera.h"
 #include "lluilistener.h"
-
-#include "lltexlayer.h"
 #include "llappearancemgr.h"
-#include "llimfloater.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -600,7 +488,7 @@ class LLAdvancedToggleConsole : public view_listener_t
 		}
 		else if ("debug" == console_type)
 		{
-			toggle_visibility( (void*)((LLView*)gDebugView->mDebugConsolep) );
+			toggle_visibility( (void*)static_cast<LLUICtrl*>(gDebugView->mDebugConsolep));
 		}
 		else if (gTextureSizeView && "texture size" == console_type)
 		{
@@ -5360,7 +5248,7 @@ class LLWorldCreateLandmark : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+		LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
 
 		return true;
 	}
@@ -5634,11 +5522,6 @@ class LLShowFloater : public view_listener_t
 		{
 			LLFloaterScriptDebug::show(LLUUID::null);
 		}
-		else if (floater_name == "help f1")
-		{
-			LLViewerHelp* vhelp = LLViewerHelp::getInstance();
-			vhelp->showTopic(vhelp->getTopicFromFocus());
-		}
 		else if (floater_name == "complaint reporter")
 		{
 			// Prevent menu from appearing in screen shot.
@@ -5672,6 +5555,26 @@ class LLFloaterVisible : public view_listener_t
 			new_value = LLFloaterReg::instanceVisible(floater_name);
 		}
 		return new_value;
+	}
+};
+
+class LLShowHelp : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string help_topic = userdata.asString();
+
+		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
+		if (help_topic.empty())
+		{
+			vhelp->showTopic(vhelp->getTopicFromFocus());
+		}
+		else
+		{
+			vhelp->showTopic(help_topic);
+		}
+
+		return true;
 	}
 };
 
@@ -6221,6 +6124,7 @@ BOOL object_selected_and_point_valid()
 	return (selection->getRootObjectCount() == 1) && 
 		(selection->getFirstRootObject()->getPCode() == LL_PCODE_VOLUME) && 
 		selection->getFirstRootObject()->permYouOwner() &&
+		selection->getFirstRootObject()->flagObjectMove() &&
 		!((LLViewerObject*)selection->getFirstRootObject()->getRoot())->isAvatar() && 
 		(selection->getFirstRootObject()->getNVPair("AssetContainer") == NULL);
 }
@@ -6962,16 +6866,15 @@ void handle_grab_texture(void* data)
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
 
-			LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
-
 			// Show the preview panel for textures to let
 			// user know that the image is now in inventory.
-			if(view)
+			LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+			if(active_panel)
 			{
 				LLFocusableElement* focus_ctrl = gFocusMgr.getKeyboardFocus();
 
-				view->getPanel()->setSelection(item_id, TAKE_FOCUS_NO);
-				view->getPanel()->openSelected();
+				active_panel->setSelection(item_id, TAKE_FOCUS_NO);
+				active_panel->openSelected();
 				//LLFloaterInventory::dumpSelectionInformation((void*)view);
 				// restore keyboard focus
 				gFocusMgr.setKeyboardFocus(focus_ctrl);
@@ -8038,6 +7941,7 @@ void initialize_menus()
 
 	// Generic actions
 	view_listener_t::addMenu(new LLShowFloater(), "ShowFloater");
+	view_listener_t::addMenu(new LLShowHelp(), "ShowHelp");
 	view_listener_t::addMenu(new LLPromptShowURL(), "PromptShowURL");
 	view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
 	view_listener_t::addMenu(new LLToggleControl(), "ToggleControl");

@@ -128,10 +128,6 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 			mTaskPanel->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
 		showTaskInfoPanel();
 	}
-	if (key.has("select"))
-	{
-		mPanelMainInventory->getPanel()->setSelection(key["select"].asUUID(), TAKE_FOCUS_NO);
-	}
 }
 
 void LLSidepanelInventory::onInfoButtonClicked()
@@ -276,4 +272,22 @@ LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 	const LLUUID &item_id = current_item->getListener()->getUUID();
 	LLInventoryItem *item = gInventory.getItem(item_id);
 	return item;
+}
+
+LLInventoryPanel *LLSidepanelInventory::getActivePanel()
+{
+	if (!getVisible())
+	{
+		return NULL;
+	}
+	if (mInventoryPanel->getVisible())
+	{
+		return mPanelMainInventory->getActivePanel();
+	}
+	return NULL;
+}
+
+BOOL LLSidepanelInventory::isMainInventoryPanelActive() const
+{
+	return mInventoryPanel->getVisible();
 }

@@ -1440,7 +1440,7 @@ void LLManipTranslate::renderSnapGuides()
 				LLVector3 help_text_pos = selection_center_start + (snap_offset_meters_up * 3.f * mSnapOffsetAxis);
 				const LLFontGL* big_fontp = LLFontGL::getFontSansSerif();
 
-				std::string help_text = "Move mouse cursor over ruler to snap";
+				std::string help_text = "Move mouse cursor over ruler";
 				LLColor4 help_text_color = LLColor4::white;
 				help_text_color.mV[VALPHA] = clamp_rescale(mHelpTextTimer.getElapsedTimeF32(), sHelpTextVisibleTime, sHelpTextVisibleTime + sHelpTextFadeTime, line_alpha, 0.f);
 				hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);

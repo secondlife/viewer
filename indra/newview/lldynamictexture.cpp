@@ -141,11 +141,12 @@ void LLViewerDynamicTexture::preRender(BOOL clear_depth)
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	}
 	// Set up camera
-	mCamera.setOrigin(*LLViewerCamera::getInstance());
-	mCamera.setAxes(*LLViewerCamera::getInstance());
-	mCamera.setAspect(LLViewerCamera::getInstance()->getAspect());
-	mCamera.setView(LLViewerCamera::getInstance()->getView());
-	mCamera.setNear(LLViewerCamera::getInstance()->getNear());
+	LLViewerCamera* camera = LLViewerCamera::getInstance();
+	mCamera.setOrigin(*camera);
+	mCamera.setAxes(*camera);
+	mCamera.setAspect(camera->getAspect());
+	mCamera.setView(camera->getView());
+	mCamera.setNear(camera->getNear());
 
 	glViewport(mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight);
 	if (clear_depth)
@@ -174,11 +175,12 @@ void LLViewerDynamicTexture::postRender(BOOL success)
 	gViewerWindow->setup2DViewport();
 
 	// restore camera
-	LLViewerCamera::getInstance()->setOrigin(mCamera);
-	LLViewerCamera::getInstance()->setAxes(mCamera);
-	LLViewerCamera::getInstance()->setAspect(mCamera.getAspect());
-	LLViewerCamera::getInstance()->setView(mCamera.getView());
-	LLViewerCamera::getInstance()->setNear(mCamera.getNear());
+	LLViewerCamera* camera = LLViewerCamera::getInstance();
+	camera->setOrigin(mCamera);
+	camera->setAxes(mCamera);
+	camera->setAspect(mCamera.getAspect());
+	camera->setView(mCamera.getView());
+	camera->setNear(mCamera.getNear());
 }
 
 //-----------------------------------------------------------------------------

@@ -39,6 +39,7 @@
 #include "lltextbox.h"
 #include "lloutputmonitorctrl.h"
 #include "llgroupmgr.h"
+#include "llimview.h"
 
 class LLVoiceControlPanel;
 class LLMenuGL;
@@ -144,6 +145,39 @@ protected:
 	LLChicletGroupIconCtrl(const Params& p);
 	friend class LLUICtrlFactory;
 
+	std::string mDefaultIcon;
+};
+
+/**
+ * Class for displaying icon in inventory offer chiclet.
+ */
+class LLChicletInvOfferIconCtrl : public LLChicletAvatarIconCtrl
+{
+public:
+
+	struct Params :
+		public LLInitParam::Block<Params, LLChicletAvatarIconCtrl::Params>
+	{
+		Optional<std::string> default_icon;
+
+		Params()
+		 : default_icon("default_icon", "Generic_Object_Small")
+		{
+			avatar_id = LLUUID::null;
+		};
+	};
+
+	/**
+	 * Sets icon, if value is LLUUID::null - default icon will be set.
+	 */
+	virtual void setValue(const LLSD& value );
+
+protected:
+
+	LLChicletInvOfferIconCtrl(const Params& p);
+	friend class LLUICtrlFactory;
+
+private:
 	std::string mDefaultIcon;
 };
 
@@ -518,6 +552,17 @@ protected:
 	friend class LLUICtrlFactory;
 
 	/**
+	 * Creates chiclet popup menu. Will create AdHoc Chat menu 
+	 * based on other participant's id.
+	 */
+	virtual void createPopupMenu();
+
+	/**
+	 * Processes clicks on chiclet popup menu.
+	 */
+	virtual void onMenuItemClicked(const LLSD& user_data);
+
+	/**
 	 * Displays popup menu.
 	 */
 	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
@@ -571,6 +616,45 @@ protected:
 private:
 
 	LLIconCtrl* mChicletIconCtrl;
+};
+
+/**
+ * Chiclet for inventory offer script floaters.
+ */
+class LLInvOfferChiclet: public LLIMChiclet
+{
+public:
+
+	struct Params : public LLInitParam::Block<Params, LLIMChiclet::Params>
+	{
+		Optional<LLChicletInvOfferIconCtrl::Params> icon;
+
+		Params();
+	};
+
+	/*virtual*/ void setSessionId(const LLUUID& session_id);
+
+	/*virtual*/ void setCounter(S32 counter){}
+
+	/*virtual*/ S32 getCounter() { return 0; }
+
+	/**
+	 * Toggle script floater
+	 */
+	/*virtual*/ void onMouseDown();
+
+	/**
+	 * Override default handler
+	 */
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+
+
+protected:
+	LLInvOfferChiclet(const Params&);
+	friend class LLUICtrlFactory;
+
+private:
+	LLChicletInvOfferIconCtrl* mChicletIconCtrl;
 };
 
 /**
@@ -663,7 +747,7 @@ private:
  * Implements notification chiclet. Used to display total amount of unread messages 
  * across all IM sessions, total amount of system notifications.
  */
-class LLNotificationChiclet : public LLChiclet
+class LLSysWellChiclet : public LLChiclet
 {
 public:
 
@@ -685,25 +769,65 @@ public:
 
 	boost::signals2::connection setClickCallback(const commit_callback_t& cb);
 
-	/*virtual*/ ~LLNotificationChiclet();
+	/*virtual*/ ~LLSysWellChiclet();
 
-	// methods for updating a number of unread System notifications
-	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications); }
-	void decUreadSystemNotifications() { setCounter(--mUreadSystemNotifications); }
 	void setToggleState(BOOL toggled);
 
 protected:
-	// connect counter updaters to the corresponding signals
-	void connectCounterUpdatersToSignal(std::string notification_type);
 
-	LLNotificationChiclet(const Params& p);
+	LLSysWellChiclet(const Params& p);
 	friend class LLUICtrlFactory;
-
-	static S32 mUreadSystemNotifications;
 
 protected:
 	LLButton* mButton;
 	S32 mCounter;
+};
+
+/**
+ * Class represented a chiclet for IM Well Icon.
+ *
+ * It displays a count of unread messages from other participants in all IM sessions.
+ */
+class LLIMWellChiclet : public LLSysWellChiclet, LLIMSessionObserver
+{
+	friend class LLUICtrlFactory;
+public:
+	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) {}
+	virtual void sessionRemoved(const LLUUID& session_id) { messageCountChanged(LLSD()); }
+	virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) {}
+
+	~LLIMWellChiclet();
+protected:
+	LLIMWellChiclet(const Params& p);
+
+	/**
+	 * Handles changes in a session (message was added, messages were read, etc.)
+	 *
+	 * It get total count of unread messages from a LLIMMgr in all opened sessions and display it.
+	 *
+	 * @param[in] session_data contains session related data, is not used now
+	 *		["session_id"] - id of an appropriate session
+	 *		["participant_unread"] - count of unread messages from "real" participants.
+	 *
+	 * @see LLIMMgr::getNumberOfUnreadParticipantMessages()
+	 */
+	void messageCountChanged(const LLSD& session_data);
+};
+
+class LLNotificationChiclet : public LLSysWellChiclet
+{
+	friend class LLUICtrlFactory;
+protected:
+	LLNotificationChiclet(const Params& p);
+
+	// connect counter updaters to the corresponding signals
+	void connectCounterUpdatersToSignal(const std::string& notification_type);
+
+	// methods for updating a number of unread System notifications
+	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications); }
+	void decUreadSystemNotifications() { setCounter(--mUreadSystemNotifications); }
+
+	S32 mUreadSystemNotifications;
 };
 
 /**

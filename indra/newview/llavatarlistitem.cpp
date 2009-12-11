@@ -40,9 +40,10 @@
 #include "llagent.h"
 #include "lloutputmonitorctrl.h"
 #include "llavatariconctrl.h"
+#include "lltextutil.h"
 #include "llbutton.h"
 
-LLAvatarListItem::LLAvatarListItem()
+LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 :	LLPanel(),
 	mAvatarIcon(NULL),
 	mAvatarName(NULL),
@@ -55,14 +56,12 @@ LLAvatarListItem::LLAvatarListItem()
 	mShowInfoBtn(true),
 	mShowProfileBtn(true)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
-	// Remember avatar icon width including its padding from the name text box,
-	// so that we can hide and show the icon again later.
-
-	mIconWidth = mAvatarName->getRect().mLeft - mAvatarIcon->getRect().mLeft;
-	mInfoBtnWidth = mInfoBtn->getRect().mRight - mSpeakingIndicator->getRect().mRight;
-	mProfileBtnWidth = mProfileBtn->getRect().mRight - mInfoBtn->getRect().mRight;
-	mSpeakingIndicatorWidth = mSpeakingIndicator->getRect().mRight - mAvatarName->getRect().mRight; 
+	if (not_from_ui_factory)
+	{
+		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
+	}
+	// *NOTE: mantipov: do not use any member here. They can be uninitialized here in case instance
+	// is created from the UICtrlFactory
 }
 
 LLAvatarListItem::~LLAvatarListItem()
@@ -86,6 +85,13 @@ BOOL  LLAvatarListItem::postBuild()
 
 	mProfileBtn->setVisible(false);
 	mProfileBtn->setClickedCallback(boost::bind(&LLAvatarListItem::onProfileBtnClick, this));
+
+	// Remember avatar icon width including its padding from the name text box,
+	// so that we can hide and show the icon again later.
+	mIconWidth = mAvatarName->getRect().mLeft - mAvatarIcon->getRect().mLeft;
+	mInfoBtnWidth = mInfoBtn->getRect().mRight - mSpeakingIndicator->getRect().mRight;
+	mProfileBtnWidth = mProfileBtn->getRect().mRight - mInfoBtn->getRect().mRight;
+	mSpeakingIndicatorWidth = mSpeakingIndicator->getRect().mRight - mAvatarName->getRect().mRight; 
 
 /*
 	if(!p.buttons.profile)
@@ -150,13 +156,8 @@ void LLAvatarListItem::setOnline(bool online)
 	mOnlineStatus = (EOnlineStatus) online;
 
 	// Change avatar name font style depending on the new online status.
-	LLStyle::Params style_params;
-	style_params.color = online ? LLColor4::white : LLColor4::grey;
-
-	// Rebuild the text to change its style.
-	std::string text = mAvatarName->getText();
-	mAvatarName->setText(LLStringUtil::null);
-	mAvatarName->appendText(text, false, style_params);
+	mAvatarNameStyle.color = online ? LLColor4::white : LLColor4::grey;
+	setNameInternal(mAvatarName->getText(), mHighlihtSubstring);
 
 	// Make the icon fade if the avatar goes offline.
 	mAvatarIcon->setColor(online ? LLColor4::white : LLColor4::smoke);
@@ -164,8 +165,12 @@ void LLAvatarListItem::setOnline(bool online)
 
 void LLAvatarListItem::setName(const std::string& name)
 {
-	mAvatarName->setValue(name);
-	mAvatarName->setToolTip(name);
+	setNameInternal(name, mHighlihtSubstring);
+}
+
+void LLAvatarListItem::setHighlight(const std::string& highlight)
+{
+	setNameInternal(mAvatarName->getText(), mHighlihtSubstring = highlight);
 }
 
 void LLAvatarListItem::setAvatarId(const LLUUID& id, bool ignore_status_changes)
@@ -260,7 +265,7 @@ void LLAvatarListItem::setAvatarIconVisible(bool visible)
 
 void LLAvatarListItem::onInfoBtnClick()
 {
-	LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", mAvatarId));
+	LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", mAvatarId));
 
 	/* TODO fix positioning of inspector
 	localPointToScreen(mXPos, mYPos, &mXPos, &mYPos);
@@ -305,11 +310,18 @@ const std::string LLAvatarListItem::getAvatarName() const
 	return mAvatarName->getValue();
 }
 
+//== PRIVATE SECITON ==========================================================
+
+void LLAvatarListItem::setNameInternal(const std::string& name, const std::string& highlight)
+{
+	LLTextUtil::textboxSetHighlightedVal(mAvatarName, mAvatarNameStyle, name, highlight);
+	mAvatarName->setToolTip(name);
+}
+
 void LLAvatarListItem::onNameCache(const std::string& first_name, const std::string& last_name)
 {
 	std::string name = first_name + " " + last_name;
-	mAvatarName->setValue(name);
-	mAvatarName->setToolTip(name);
+	setName(name);
 }
 
 void LLAvatarListItem::reshapeAvatarName()

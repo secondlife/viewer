@@ -154,7 +154,6 @@ public:
 	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
 	virtual void openItem() {}
 	virtual void closeItem() {}
-	virtual void gotoItem(LLFolderView *folder) {} // for links
 	virtual void previewItem() {openItem();}
 	virtual void showProperties();
 	virtual BOOL isItemRenameable() const { return TRUE; }
@@ -191,6 +190,7 @@ protected:
 	
 	BOOL isInTrash() const;
 	BOOL isLinkedObjectInTrash() const; // Is this obj or its baseobj in the trash?
+	BOOL isLinkedObjectMissing() const; // Is this a linked obj whose baseobj is not in inventory?
 
 	BOOL isAgentInventory() const; // false if lost or in the inventory library
 	BOOL isCOFFolder() const; // true if COF or descendent of.
@@ -240,7 +240,6 @@ public:
 	virtual void restoreItem();
 	virtual void restoreToWorld();
 	virtual void gotoItem(LLFolderView *folder);
-
 	virtual LLUIImagePtr getIcon() const;
 	virtual const std::string& getDisplayName() const;
 	virtual std::string getLabelSuffix() const;
@@ -259,6 +258,9 @@ public:
 	virtual void clearDisplayName() { mDisplayName.clear(); }
 
 	LLViewerInventoryItem* getItem() const;
+	
+	bool isAddAction(std::string action) const;
+	bool isRemoveAction(std::string action) const;
 
 protected:
 	virtual BOOL isItemPermissive() const;

@@ -36,53 +36,111 @@
 #include "llnotificationhandler.h"
 #include "llnotifications.h"
 #include "llimview.h"
+#include "llagent.h"
 
 using namespace LLNotificationsUI;
 
 const static std::string GRANTED_MODIFY_RIGHTS("GrantedModifyRights"),
 		REVOKED_MODIFY_RIGHTS("RevokedModifyRights"), OBJECT_GIVE_ITEM(
 				"ObjectGiveItem"), OBJECT_GIVE_ITEM_UNKNOWN_USER(
-				"ObjectGiveItemUnknownUser");
+				"ObjectGiveItemUnknownUser"), PAYMENT_RECIVED("PaymentRecived"),
+						ADD_FRIEND_WITH_MESSAGE("AddFriendWithMessage"),
+						USER_GIVE_ITEM("UserGiveItem"), OFFER_FRIENDSHIP("OfferFriendship"),
+						FRIENDSHIP_ACCEPTED("FriendshipAccepted"),
+						FRIENDSHIP_OFFERED("FriendshipOffered");
 
 // static
 bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 {
 	return GRANTED_MODIFY_RIGHTS == notification->getName()
-			|| REVOKED_MODIFY_RIGHTS == notification->getName();
+			|| REVOKED_MODIFY_RIGHTS == notification->getName()
+			|| PAYMENT_RECIVED == notification->getName()
+			|| FRIENDSHIP_OFFERED == notification->getName();
 }
 
 // static
-void LLHandlerUtil::logToIM(const LLNotificationPtr& notification)
+bool LLHandlerUtil::canSpawnIMSession(const LLNotificationPtr& notification)
 {
-	// add message to IM
+	return ADD_FRIEND_WITH_MESSAGE == notification->getName()
+			|| OFFER_FRIENDSHIP == notification->getName()
+			|| FRIENDSHIP_ACCEPTED == notification->getName();
+}
+
+// static
+void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
+		const std::string& session_name, const std::string& from_name,
+		const std::string& message, const LLUUID& session_owner_id,
+		const LLUUID& from_id)
+{
+	LLUUID session_id = LLIMMgr::computeSessionID(session_type,
+			session_owner_id);
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
+			session_id);
+	if (session == NULL)
+	{
+		LLIMModel::instance().logToFile(session_name, from_name, from_id, message);
+	}
+	else
+	{
+		// store active session id
+		const LLUUID & active_session_id =
+				LLIMModel::instance().getActiveSessionID();
+
+		// set searched session as active to avoid IM toast popup
+		LLIMModel::instance().setActiveSessionID(session_id);
+
+		LLIMModel::instance().addMessage(session_id, from_name, from_id,
+				message);
+
+		// restore active session id
+		LLIMModel::instance().setActiveSessionID(active_session_id);
+	}
+}
+
+// static
+void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification)
+{
 	const std::string
 			name =
 					notification->getSubstitutions().has("NAME") ? notification->getSubstitutions()["NAME"]
 							: notification->getSubstitutions()["[NAME]"];
 
-	// don't create IM session with objects, it's necessary condition to log
+	const std::string session_name = notification->getPayload().has(
+			"SESSION_NAME") ? notification->getPayload()["SESSION_NAME"].asString() : name;
+
+	// don't create IM p2p session with objects, it's necessary condition to log
 	if (notification->getName() != OBJECT_GIVE_ITEM && notification->getName()
 			!= OBJECT_GIVE_ITEM_UNKNOWN_USER)
 	{
 		LLUUID from_id = notification->getPayload()["from_id"];
-		LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL,
-				from_id);
 
-		LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
-		if (session == NULL)
-		{
-			session_id = LLIMMgr::instance().addSession(name,
-					IM_NOTHING_SPECIAL, from_id);
-			session = LLIMModel::instance().findIMSession(session_id);
-		}
-
-		if (session == NULL)
-		{
-			llerrs << "session " << session_id << "does not exist " << llendl;
-			return;
-		}
-
-		LLIMModel::instance().addMessageSilently(*session, name, from_id,
-				notification->getMessage());
+		logToIM(IM_NOTHING_SPECIAL, session_name, name, notification->getMessage(),
+				from_id, from_id);
 	}
 }
+
+// static
+void LLHandlerUtil::logGroupNoticeToIMGroup(
+		const LLNotificationPtr& notification)
+{
+
+	const LLSD& payload = notification->getPayload();
+	LLGroupData groupData;
+	if (!gAgent.getGroupData(payload["group_id"].asUUID(), groupData))
+	{
+		llwarns
+						<< "Group notice for unkown group: "
+								<< payload["group_id"].asUUID() << llendl;
+	}
+
+	const std::string group_name = groupData.mName;
+	const std::string sender_name = payload["sender_name"].asString();
+
+	// we can't retrieve sender id from group notice system message, so try to lookup it from cache
+	LLUUID sender_id;
+	gCacheName->getUUID(sender_name, sender_id);
+
+	logToIM(IM_SESSION_GROUP_START, group_name, sender_name, payload["message"],
+			payload["group_id"], sender_id);
+}
+

@@ -66,37 +66,6 @@ static const std::string TAB_PANEL_CAPTION_TITLE_BOX = "sidetray_tab_title";
 
 LLSideTray* LLSideTray::sInstance = 0;
 
-class LLSideTrayInfoPanel: public LLPanel
-{
-	
-public:
-	LLSideTrayInfoPanel():LLPanel()
-	{
-		setBorderVisible(true);
-	}
-
-	BOOL handleHover(S32 x, S32 y, MASK mask)
-	{
-		getWindow()->setCursor(UI_CURSOR_HAND);
-		return TRUE;
-	}
-
-	BOOL handleMouseUp(S32 x, S32 y, MASK mask)
-	{
-		std::string name = getName();
-		onCommit();
-		LLSideTray::getInstance()->selectTabByName(name);
-		return LLPanel::handleMouseUp(x,y,mask);
-	}
-	void reshape		(S32 width, S32 height, BOOL called_from_parent )
-	{
-		return LLPanel::reshape(width, height, called_from_parent);
-	}
-
-};
-
-static LLRegisterPanelClassWrapper<LLSideTrayInfoPanel> t_people("panel_sidetray_home_info");
-
 LLSideTray* LLSideTray::getInstance()
 {
 	if (!sInstance)
@@ -159,6 +128,7 @@ public:
 	
 	void			onOpen		(const LLSD& key);
 	
+	LLPanel *getPanel();
 private:
 	std::string mTabTitle;
 	std::string mImage;
@@ -230,9 +200,15 @@ void LLSideTrayTab::reshape		(S32 width, S32 height, BOOL called_from_parent )
 
 void	LLSideTrayTab::onOpen		(const LLSD& key)
 {
-	LLPanel* panel = dynamic_cast<LLPanel*>(mMainPanel);
+	LLPanel *panel = getPanel();
 	if(panel)
 		panel->onOpen(key);
+}
+
+LLPanel*	LLSideTrayTab::getPanel()
+{
+	LLPanel* panel = dynamic_cast<LLPanel*>(mMainPanel);
+	return panel;
 }
 
 LLSideTrayTab*  LLSideTrayTab::createInstance	()
@@ -683,6 +659,23 @@ LLPanel*	LLSideTray::getPanel		(const std::string& panel_name)
 	}
 	return NULL;
 }
+
+LLPanel*	LLSideTray::getActivePanel()
+{
+	if (mActiveTab && !mCollapsed)
+	{
+		return mActiveTab->getPanel();
+	}
+	return NULL;
+}
+
+bool		LLSideTray::isPanelActive(const std::string& panel_name)
+{
+	LLPanel *panel = getActivePanel();
+	if (!panel) return false;
+	return (panel->getName() == panel_name);
+}
+
 
 // *TODO: Eliminate magic constants.
 static const S32	fake_offset = 132;

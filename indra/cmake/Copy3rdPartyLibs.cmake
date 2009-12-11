@@ -19,10 +19,12 @@ if(WINDOWS)
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-win32")
     set(vivox_files
         SLVoice.exe
-        alut.dll
+	libsndfile-1.dll
+        vivoxplatform.dll
         vivoxsdk.dll
         ortp.dll
-        wrap_oal.dll
+        zlib1.dll
+        vivoxoal.dll
         )
 
     #*******************************
@@ -33,7 +35,6 @@ if(WINDOWS)
     set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug")
     set(debug_files
         openjpegd.dll
-        libtcmalloc_minimal-debug.dll
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
@@ -44,11 +45,15 @@ if(WINDOWS)
     set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release")
     set(release_files
         openjpeg.dll
-        libtcmalloc_minimal.dll
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
         )
+
+    if(USE_GOOGLE_PERFTOOLS)
+      set(debug_files ${debug_files} libtcmalloc_minimal-debug.dll)
+      set(release_files ${release_files} libtcmalloc_minimal.dll)
+    endif(USE_GOOGLE_PERFTOOLS)
 
     if (FMOD_SDK_DIR)
         set(fmod_files fmod.dll)
@@ -139,9 +144,10 @@ elseif(DARWIN)
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/universal-darwin")
     set(vivox_files
         SLVoice
-        libalut.dylib
-        libopenal.dylib
+        libsndfile.dylib
+        libvivoxoal.dylib
         libortp.dylib
+        libvivoxplatform.dylib
         libvivoxsdk.dylib
        )
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
@@ -190,9 +196,10 @@ elseif(LINUX)
 
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-linux")
     set(vivox_files
-        libalut.so
-        libopenal.so.1
+        libsndfile.so.1
         libortp.so
+        libvivoxoal.so.1
+        libvivoxplatform.so
         libvivoxsdk.so
         SLVoice
        )
@@ -224,7 +231,6 @@ elseif(LINUX)
         libstacktrace.so
         libtcmalloc.so
         libuuid.so.1
-        libz.so
         libssl.so.0.9.7
        )
 

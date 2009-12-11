@@ -79,6 +79,8 @@ class LLViewerMedia
 	
 		typedef std::vector<LLViewerMediaImpl*> impl_list;
 
+		typedef std::map<LLUUID, LLViewerMediaImpl*> impl_id_map;
+
 		// Special case early init for just web browser component
 		// so we can show login screen.  See .cpp file for details. JC
 
@@ -96,9 +98,10 @@ class LLViewerMedia
 		static bool textureHasMedia(const LLUUID& texture_id);
 		static void setVolume(F32 volume);
 
-		static void updateMedia();
+		static void updateMedia(void* dummy_arg = NULL);
 		static bool isMusicPlaying();
 
+		static void initClass();
 		static void cleanupClass();
 
 		static void toggleMusicPlay(void*);
@@ -185,6 +188,7 @@ public:
     void setHomeURL(const std::string& home_url) { mHomeURL = home_url; };
 	std::string getMimeType() { return mMimeType; }
 	void scaleMouse(S32 *mouse_x, S32 *mouse_y);
+	void scaleTextureCoords(const LLVector2& texture_coords, S32 *x, S32 *y);
 
 	void update();
 	void updateImagesMediaStreams();
@@ -200,7 +204,7 @@ public:
 	bool isMediaFailed() const { return mMediaSourceFailed; };
 	void resetPreviousMediaState();
 	
-	void setDisabled(bool disabled) { mIsDisabled = disabled; };
+	void setDisabled(bool disabled);
 	bool isMediaDisabled() const { return mIsDisabled; };
 
 	// returns true if this instance should not be loaded (disabled, muted object, crashed, etc.)
@@ -285,6 +289,8 @@ public:
 	LLPluginClassMedia::EPriority getPriority() { return mPriority; };
 
 	void setLowPrioritySizeLimit(int size);
+
+	void setTextureID(LLUUID id = LLUUID::null);
 	
 	typedef enum 
 	{
@@ -344,6 +350,9 @@ public:
 	S32 mProximity;
 	F64 mProximityDistance;
 	LLMimeDiscoveryResponder *mMimeTypeProbe;
+	bool mMediaAutoPlay;
+	std::string mMediaEntryURL;
+	bool mInNearbyMediaList;	// used by LLFloaterNearbyMedia::refreshList() for performance reasons
 	
 private:
 	BOOL mIsUpdated ;

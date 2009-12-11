@@ -107,15 +107,15 @@
      top="48"
      width="130">
         <combo_box.item
-         label="- Select Mature -"
+         label="- Select one -"
          name="select_mature"
          value="Select" />
         <combo_box.item
-         label="Mature Content"
+         label="Moderate Content"
          name="mature"
          value="Mature" />
         <combo_box.item
-         label="PG Content"
+         label="General Content"
          name="pg"
          value="PG" />
     </combo_box>

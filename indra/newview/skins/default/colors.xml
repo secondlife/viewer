@@ -270,10 +270,10 @@
      reference="White" />
      <color
      name="FilterBackgroundColor"
-     reference="DkGray" />
+     reference="MouseGray" />
     <color
      name="FilterTextColor"
-     value="1 0.78 0.27 1" />
+     value="0.38 0.69 0.57 1" />
      <color
      name="FloaterButtonImageColor"
      reference="LtGray" />
@@ -459,7 +459,7 @@
      value="0 0.5 0 1" />
     <color
      name="MenuPopupBgColor"
-	  reference="DkGray_66" />
+	  reference="DkGray2" />
     <color
      name="MultiSliderDisabledThumbColor"
      reference="Unused?" />
@@ -648,7 +648,7 @@
      reference="LtGray" />
     <color
      name="TextFgTentativeColor"
-	 value="0 0 0 .33" />
+     value="0.4 0.4 0.4 1" />
     <color
      name="TimeTextColor"
      reference="LtGray" />
@@ -686,6 +686,6 @@
      value="0.3 0.3 0.3 1.0" />
 	<color
      name="ChatToastAgentNameColor"
-     value="1.0 0.3 1.0 1.0" />
+     reference="EmphasisColor" />
 
 </colors>

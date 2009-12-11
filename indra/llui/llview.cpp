@@ -33,6 +33,7 @@
 
 #include "linden_common.h"
 
+#define LLVIEW_CPP
 #include "llview.h"
 
 #include <cassert>
@@ -76,7 +77,16 @@ std::vector<LLViewDrawContext*> LLViewDrawContext::sDrawContextStack;
 BOOL LLView::sIsDrawing = FALSE;
 #endif
 
+// Compiler optimization, generate extern template
+template class LLView* LLView::getChild<class LLView>(
+	const std::string& name, BOOL recurse) const;
+
 static LLDefaultChildRegistry::Register<LLView> r("view");
+
+LLView::Follows::Follows()
+:   string(""),
+	flags("flags", FOLLOWS_LEFT | FOLLOWS_TOP)
+{}
 
 LLView::Params::Params()
 :	name("name", std::string("unnamed")),
@@ -2523,6 +2533,7 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 			else
 			{
 				p.rect.left = p.rect.left + parent_rect.getWidth()/2 - p.rect.width/2;
+				p.rect.right.setProvided(false); // recalculate the right
 			}
 		}
 		else
@@ -2543,6 +2554,7 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 			else
 			{
 				p.rect.bottom = p.rect.bottom + parent_rect.getHeight()/2 - p.rect.height/2;
+				p.rect.top.setProvided(false); // recalculate the top
 			}
 		}
 		else
@@ -2838,18 +2850,21 @@ LLView::default_widget_map_t& LLView::getDefaultWidgetMap() const
 	return *mDefaultWidgets;
 }
 
-void	LLView::notifyParent(const LLSD& info)
+S32	LLView::notifyParent(const LLSD& info)
 {
 	LLView* parent = getParent();
 	if(parent)
-		parent->notifyParent(info);
+		return parent->notifyParent(info);
+	return 0;
 }
-void	LLView::notifyChildren(const LLSD& info)
+bool	LLView::notifyChildren(const LLSD& info)
 {
+	bool ret = false;
 	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 	{
-		(*child_it)->notifyChildren(info);
+		ret |= (*child_it)->notifyChildren(info);
 	}
+	return ret;
 }
 
 // convenient accessor for draw context

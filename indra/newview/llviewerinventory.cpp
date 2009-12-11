@@ -85,7 +85,8 @@ public:
 		{
 			std::vector<LLUUID> items_to_open;
 			items_to_open.push_back(inventory_id);
-			open_inventory_offer(items_to_open, "");
+			//inventory_handler is just a stub, because we don't know from who this offer
+			open_inventory_offer(items_to_open, "inventory_handler");
 			return true;
 		}
 		
@@ -509,8 +510,13 @@ bool LLViewerInventoryCategory::fetchDescendents()
 		// This comes from LLInventoryFilter from llfolderview.h
 		U32 sort_order = gSavedSettings.getU32("InventorySortOrder") & 0x1;
 
+		// *NOTE: For bug EXT-2879, originally commented out
+		// gAgent.getRegion()->getCapability in order to use the old
+		// message-based system.  This has been uncommented now that
+		// AIS folks are aware of the issue and have a fix in process.
+		// see ticket for details.
+
 		std::string url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
-   
 		if (!url.empty()) //Capability found.  Build up LLSD and use it.
 		{
 			LLInventoryModel::startBackgroundFetch(mUUID);			
@@ -909,8 +915,20 @@ void link_inventory_item(
 	}
 	
 	LLUUID transaction_id;
-	std::string desc = "Link";
+	std::string desc = "Broken link"; // This should only show if the object can't find its baseobj.
 	LLInventoryType::EType inv_type = LLInventoryType::IT_NONE;
+	if (dynamic_cast<const LLInventoryCategory *>(baseobj))
+	{
+		inv_type = LLInventoryType::IT_CATEGORY;
+	}
+	else
+	{
+		const LLViewerInventoryItem *baseitem = dynamic_cast<const LLViewerInventoryItem *>(baseobj);
+		if (baseitem)
+		{
+			inv_type = baseitem->getInventoryType();
+		}
+	}
 
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_LinkInventoryItem);
@@ -1420,3 +1438,74 @@ void LLViewerInventoryItem::onCallingCardNameLookup(const LLUUID& id, const std:
 	gInventory.notifyObservers();
 }
 
+class LLRegenerateLinkCollector : public LLInventoryCollectFunctor
+{
+public:
+	LLRegenerateLinkCollector(const LLViewerInventoryItem *target_item) : mTargetItem(target_item) {}
+	virtual ~LLRegenerateLinkCollector() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item)
+	{
+		if (item)
+		{
+			if ((item->getName() == mTargetItem->getName()) &&
+				(item->getInventoryType() == mTargetItem->getInventoryType()) &&
+				(!item->getIsLinkType()))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+protected:
+	const LLViewerInventoryItem* mTargetItem;
+};
+
+LLUUID find_possible_item_for_regeneration(const LLViewerInventoryItem *target_item)
+{
+	LLViewerInventoryCategory::cat_array_t cats;
+	LLViewerInventoryItem::item_array_t items;
+
+	LLRegenerateLinkCollector candidate_matches(target_item);
+	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
+									cats,
+									items,
+									LLInventoryModel::EXCLUDE_TRASH,
+									candidate_matches);
+	for (LLViewerInventoryItem::item_array_t::const_iterator item_iter = items.begin();
+		 item_iter != items.end();
+		 ++item_iter)
+	{
+	    const LLViewerInventoryItem *item = (*item_iter);
+		if (true) return item->getUUID();
+	}
+	return LLUUID::null;
+}
+
+// This currently dosen't work, because the sim does not allow us 
+// to change an item's assetID.
+BOOL LLViewerInventoryItem::regenerateLink()
+{
+	const LLUUID target_item_id = find_possible_item_for_regeneration(this);
+	if (target_item_id.isNull())
+		return FALSE;
+	LLViewerInventoryCategory::cat_array_t cats;
+	LLViewerInventoryItem::item_array_t items;
+	LLAssetIDMatches asset_id_matches(getAssetUUID());
+	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
+									cats,
+									items,
+									LLInventoryModel::EXCLUDE_TRASH,
+									asset_id_matches);
+	for (LLViewerInventoryItem::item_array_t::iterator item_iter = items.begin();
+		 item_iter != items.end();
+		 item_iter++)
+	{
+	    LLViewerInventoryItem *item = (*item_iter);
+		item->setAssetUUID(target_item_id);
+		item->updateServer(FALSE);
+		gInventory.addChangedMask(LLInventoryObserver::REBUILD, item->getUUID());
+	}
+	gInventory.notifyObservers();
+	return TRUE;
+}
