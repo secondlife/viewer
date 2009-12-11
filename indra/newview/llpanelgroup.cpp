@@ -90,6 +90,7 @@ LLPanelGroup::LLPanelGroup()
 :	LLPanel(),
 	LLGroupMgrObserver( LLUUID() ),
 	mAllowEdit( TRUE )
+	,mShowingNotifyDialog(false)
 {
 	// Set up the factory callbacks.
 	// Roles sub tabs
@@ -536,5 +537,71 @@ void LLPanelGroup::showNotice(const std::string& subject,
 		return;
 	panel->showNotice(subject,message,has_inventory,inventory_name,inventory_offer);
 
+}
+
+bool	LLPanelGroup::canClose()
+{
+	if(getVisible() == false)
+		return true;
+
+	bool need_save = false;
+	std::string mesg;
+	for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
+		if(need_save|=(*it)->needsApply(mesg))
+			break;
+	if(!need_save)
+		return false;
+	// If no message was provided, give a generic one.
+	if (mesg.empty())
+	{
+		mesg = mDefaultNeedsApplyMesg;
+	}
+	// Create a notify box, telling the user about the unapplied tab.
+	LLSD args;
+	args["NEEDS_APPLY_MESSAGE"] = mesg;
+	args["WANT_APPLY_MESSAGE"] = mWantApplyMesg;
+
+	LLNotificationsUtil::add("SaveChanges", args, LLSD(), boost::bind(&LLPanelGroup::handleNotifyCallback,this, _1, _2));
+
+	mShowingNotifyDialog = true;
+
+	return false;
+}
+
+bool	LLPanelGroup::notifyChildren(const LLSD& info)
+{
+	if(info.has("request") && mID.isNull() )
+	{
+		std::string str_action = info["request"];
+
+		if (str_action == "quit" )
+		{
+			canClose();
+			return true;
+		}
+		if(str_action == "wait_quit")
+			return mShowingNotifyDialog;
+	}
+	return false;
+}
+bool LLPanelGroup::handleNotifyCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	mShowingNotifyDialog = false;
+	switch (option)
+	{
+	case 0: // "Apply Changes"
+		apply();
+		break;
+	case 1: // "Ignore Changes"
+		break;
+	case 2: // "Cancel"
+	default:
+		// Do nothing.  The user is canceling the action.
+		// If we were quitting, we didn't really mean it.
+		LLAppViewer::instance()->abortQuit();
+		break;
+	}
+	return false;
 }
 

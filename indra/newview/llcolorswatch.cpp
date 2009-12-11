@@ -306,13 +306,16 @@ void LLColorSwatchCtrl::onColorChanged ( void* data, EColorPickOp pick_op )
 	}
 }
 
-void LLColorSwatchCtrl::onFloaterClose()
+// This is called when the main floatercustomize panel is closed.
+// Since this class has pointers up to its parents, we need to cleanup
+// this class first in order to avoid a crash.
+void LLColorSwatchCtrl::onParentFloaterClosed()
 {
 	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
-
 	if (pickerp)
 	{
 		pickerp->setSwatch(NULL);
+		pickerp->closeFloater();
 	}
 
 	mPickerHandle.markDead();

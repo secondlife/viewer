@@ -88,6 +88,11 @@ public:
 	*/
 	static void onToastButtonClick(const LLSD&notification, const LLSD&response);
 
+	typedef boost::signals2::signal<void(const LLSD&)> object_signal_t;
+
+	boost::signals2::connection addNewObjectCallback(const object_signal_t::slot_type& cb) { return mNewObjectSignal.connect(cb); }
+	boost::signals2::connection addToggleObjectFloaterCallback(const object_signal_t::slot_type& cb) { return mToggleFloaterSignal.connect(cb); }
+
 private:
 
 	struct LLNotificationData
@@ -100,6 +105,9 @@ private:
 	typedef std::map<LLUUID, LLNotificationData> script_notification_map_t;
 
 	script_notification_map_t mNotifications;
+
+	object_signal_t mNewObjectSignal;
+	object_signal_t mToggleFloaterSignal;
 };
 
 /**

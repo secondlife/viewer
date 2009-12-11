@@ -15,7 +15,7 @@
     </panel.string>
     <button
      follows="left|bottom"
-     height="20"
+     height="23"
      label="Clear History"
      layout="topleft"
      left="30"
@@ -160,7 +160,7 @@
     <button
 	 enabled="false"
      follows="right|bottom"
-     height="20"
+     height="23"
      label="Browse"
      label_selected="Browse"
      layout="topleft"
@@ -173,7 +173,7 @@
     </button>
     <button
      follows="left|bottom"
-     height="20"
+     height="23"
      label="Block list"
      layout="topleft"
      left="30"

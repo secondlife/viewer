@@ -158,6 +158,9 @@ public:
 	bool getIsBrokenLink() const; // true if the baseitem this points to doesn't exist in memory.
 	LLViewerInventoryItem *getLinkedItem() const;
 	LLViewerInventoryCategory *getLinkedCategory() const;
+	
+	// Checks the items permissions (for owner, group, or everyone) and returns true if all mask bits are set.
+	bool checkPermissionsSet(PermissionMask mask) const;
 
 	// callback
 	void onCallingCardNameLookup(const LLUUID& id, const std::string& first_name, const std::string& last_name);

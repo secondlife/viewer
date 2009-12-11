@@ -891,7 +891,13 @@ void LLFlatListView::setNoItemsCommentVisible(bool visible) const
 			// We have to update child rect here because of issues with rect after reshaping while creating LLTextbox
 			// It is possible to have invalid LLRect if Flat List is in LLAccordionTab
 			LLRect comment_rect = getLocalRect();
-			comment_rect.stretch(-getBorderWidth());
+
+			// To see comment correctly (EXT - 3244) in mNoItemsCommentTextbox we must get border width
+			// of LLFlatListView (@see getBorderWidth()) and stretch mNoItemsCommentTextbox to this width
+			// But getBorderWidth() returns 0 if LLFlatListView not visible. So we have to get border width
+			// from 'scroll_border'
+			LLViewBorder* scroll_border = getChild<LLViewBorder>("scroll border");
+			comment_rect.stretch(-scroll_border->getBorderWidth());
 			mNoItemsCommentTextbox->setRect(comment_rect);
 		}
 		mNoItemsCommentTextbox->setVisible(visible);

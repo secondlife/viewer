@@ -66,6 +66,30 @@ static const std::string TRASH_BUTTON_NAME = "trash_btn";
 
 // helper functions
 static void filter_list(LLInventorySubTreePanel* inventory_list, const std::string& string);
+static void save_folder_state_if_no_filter(LLInventorySubTreePanel* inventory_list);
+
+/**
+ * Bridge to support knowing when the inventory has changed to update folder (open/close) state 
+ * for landmarks panels.
+ *
+ * Due to Inventory data are loaded in background we need to save folder state each time 
+ * next level is loaded. See EXT-3094.
+ */
+class LLLandmarksPanelObserver : public LLInventoryObserver
+{
+public:
+	LLLandmarksPanelObserver(LLLandmarksPanel* lp) : mLP(lp) {}
+	virtual ~LLLandmarksPanelObserver() {}
+	/*virtual*/ void changed(U32 mask);
+
+private:
+	LLLandmarksPanel* mLP;
+};
+
+void LLLandmarksPanelObserver::changed(U32 mask)
+{
+	mLP->saveFolderStateIfNoFilter();
+}
 
 LLLandmarksPanel::LLLandmarksPanel()
 	:	LLPanelPlacesTab()
@@ -78,11 +102,18 @@ LLLandmarksPanel::LLLandmarksPanel()
 	,	mGearFolderMenu(NULL)
 	,	mGearLandmarkMenu(NULL)
 {
+	mInventoryObserver = new LLLandmarksPanelObserver(this);
+	gInventory.addObserver(mInventoryObserver);
+
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_landmarks.xml");
 }
 
 LLLandmarksPanel::~LLLandmarksPanel()
 {
+	if (gInventory.containsObserver(mInventoryObserver))
+	{
+		gInventory.removeObserver(mInventoryObserver);
+	}
 }
 
 BOOL LLLandmarksPanel::postBuild()
@@ -224,6 +255,14 @@ void LLLandmarksPanel::onSelectorButtonClicked()
 
 		LLSideTray::getInstance()->showPanel("panel_places", key);
 	}
+}
+
+void LLLandmarksPanel::saveFolderStateIfNoFilter()
+{
+	save_folder_state_if_no_filter(mFavoritesInventoryPanel);
+	save_folder_state_if_no_filter(mLandmarksInventoryPanel);
+	save_folder_state_if_no_filter(mMyInventoryPanel);
+	save_folder_state_if_no_filter(mLibraryInventoryPanel);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -745,7 +784,7 @@ void LLLandmarksPanel::updateFilteredAccordions()
 {
 	LLInventoryPanel* inventory_list = NULL;
 	LLAccordionCtrlTab* accordion_tab = NULL;
-//	bool needs_arrange = false;
+	bool needs_arrange = false;
 
 	for (accordion_tabs_t::const_iterator iter = mAccordionTabs.begin(); iter != mAccordionTabs.end(); ++iter)
 	{
@@ -757,7 +796,7 @@ void LLLandmarksPanel::updateFilteredAccordions()
 		if (NULL == inventory_list) continue;
 
 		// This doesn't seem to work correctly.  Disabling for now. -Seraph
-		/*
+		// Enabled to show/hide accordions with/without landmarks. See EXT-2346. (Seth PE)
 		LLFolderView* fv = inventory_list->getRootFolder();
 
 		// arrange folder view contents to draw its descendants if it has any
@@ -768,17 +807,17 @@ void LLLandmarksPanel::updateFilteredAccordions()
 			needs_arrange = true;
 
 		accordion_tab->setVisible(has_descendants);
-		*/
-		accordion_tab->setVisible(TRUE);
+
+		//accordion_tab->setVisible(TRUE);
 	}
 
 	// we have to arrange accordion tabs for cases when filter string is less restrictive but
 	// all items are still filtered.
-//	if (needs_arrange)
-//	{
+	if (needs_arrange)
+	{
 		static LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("landmarks_accordion");
 		accordion->arrange();
-//	}
+	}
 }
 
 /*
@@ -1020,5 +1059,14 @@ static void filter_list(LLInventorySubTreePanel* inventory_list, const std::stri
 	// Set new filter string
 	inventory_list->setFilterSubString(string);
 
+}
+
+static void save_folder_state_if_no_filter(LLInventorySubTreePanel* inventory_list)
+{
+	// save current folder open state if no filter currently applied
+	if (inventory_list->getRootFolder() && inventory_list->getRootFolder()->getFilterSubString().empty())
+	{
+		// inventory_list->saveFolderState(); // *TODO: commented out to fix build
+	}
 }
 // EOF

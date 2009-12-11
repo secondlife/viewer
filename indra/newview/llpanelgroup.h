@@ -89,7 +89,10 @@ public:
 						   const std::string& inventory_name,
 						   LLOfferInfo* inventory_offer);
 
-	
+
+	bool	notifyChildren		(const LLSD& info);
+	bool	handleNotifyCallback(const LLSD&, const LLSD&);
+
 protected:
 	virtual void update(LLGroupChange gc);
 
@@ -107,6 +110,9 @@ protected:
 
 protected:
 	bool	apply(LLPanelGroupTab* tab);
+	bool	canClose();
+
+	bool	mShowingNotifyDialog;
 
 	LLTimer mRefreshTimer;
 

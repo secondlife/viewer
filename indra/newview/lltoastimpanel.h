@@ -57,11 +57,9 @@ public:
 
 	LLToastIMPanel(LLToastIMPanel::Params &p);
 	virtual ~LLToastIMPanel();
-
+	/*virtual*/ BOOL 	handleMouseDown(S32 x, S32 y, MASK mask);
 private:
 	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
-
-	void onClickToastIM();
 
 	LLNotificationPtr	mNotification;
 	LLUUID				mSessionID;

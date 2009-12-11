@@ -40,6 +40,7 @@
 #include "llnotificationptr.h"
 
 #include "llviewercontrol.h"
+#include "lltexteditor.h"
 
 #define MOUSE_LEAVE false
 #define MOUSE_ENTER true
@@ -155,6 +156,8 @@ public:
 
 private:
 
+	void handleTipToastClick(S32 x, S32 y, MASK mask);
+
 	// check timer
 	bool	lifetimeHasExpired();
 	// on timer finished function
@@ -169,8 +172,9 @@ private:
 	F32			mToastLifetime; // in seconds
 	F32			mToastFadingTime; // in seconds
 
-	LLPanel*	mPanel;
-	LLButton*	mHideBtn;
+	LLPanel*		mPanel;
+	LLButton*		mHideBtn;
+	LLTextEditor*	mTextEditor;
 
 	LLColor4	mBgColor;
 	bool		mCanFade;
@@ -178,6 +182,7 @@ private:
 	bool		mHideBtnEnabled;
 	bool		mHideBtnPressed;
 	bool		mIsHidden;  // this flag is TRUE when a toast has faded or was hidden with (x) button (EXT-1849)
+	bool		mIsTip;
 };
 
 }
