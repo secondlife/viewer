@@ -971,6 +971,8 @@ protected:
 public:
 	virtual BOOL createVolumeFacesFromFile(const std::string& file_name);
 	virtual BOOL createVolumeFacesFromStream(std::istream& is);
+	virtual BOOL unpackVolumeFaces(std::istream& is, S32 size);
+
 	virtual void makeTetrahedron();
 	virtual BOOL isTetrahedron();
 

@@ -70,6 +70,7 @@
 #include "llsdutil.h"
 #include "llmediaentry.h"
 #include "llmediadataclient.h"
+#include "llmeshrepository.h"
 #include "llagent.h"
 
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
@@ -861,6 +862,16 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 {
 	LLVolumeParams volume_params = params;
 
+	if (isSculpted())
+	{
+		// if it's a mesh
+		if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
+		{ //meshes might not have all LODs, get the force detail to best existing LOD
+			LLUUID mesh_id = params.getSculptID();
+			mLOD = gMeshRepo.getActualMeshLOD(mesh_id, mLOD);
+		}
+	}
+
 	// Check if we need to change implementations
 	bool is_flexible = (volume_params.getPathParams().getCurveType() == LL_PCODE_PATH_FLEXIBLE);
 	if (is_flexible)
@@ -888,6 +899,8 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 		}
 	}
 	
+	
+
 	if ((LLPrimitive::setVolume(volume_params, mLOD, (mVolumeImpl && mVolumeImpl->isVolumeUnique()))) || mSculptChanged)
 	{
 		mFaceMappingChanged = TRUE;
@@ -906,7 +919,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 				{ 
 					//load request not yet issued, request pipeline load this mesh
 					LLUUID asset_id = volume_params.getSculptID();
-					gPipeline.loadMesh(this, asset_id, LLVolumeLODGroup::getVolumeDetailFromScale(getVolume()->getDetail()));
+					gMeshRepo.loadMesh(this, asset_id, LLVolumeLODGroup::getVolumeDetailFromScale(getVolume()->getDetail()));
 				}
 			}
 			else // otherwise is sculptie
