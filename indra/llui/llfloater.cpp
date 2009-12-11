@@ -2703,6 +2703,18 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 			output_node, output_params, &default_params);
 	}
 
+	// Default floater position to top-left corner of screen
+	// However, some legacy floaters have explicit top or bottom
+	// coordinates set, so respect their wishes.
+	if (!params.rect.top.isProvided() && !params.rect.bottom.isProvided())
+	{
+		params.rect.top.set(0);
+	}
+	if (!params.rect.left.isProvided() && !params.rect.right.isProvided())
+	{
+		params.rect.left.set(0);
+	}
+
 	setupParams(params, parent);
  	initFromParams(params);
 	
