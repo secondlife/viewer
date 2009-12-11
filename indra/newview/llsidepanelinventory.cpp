@@ -235,8 +235,10 @@ void LLSidepanelInventory::updateVerbs()
 	if (!item)
 		return;
 
-	mInfoBtn->setEnabled(TRUE);
-	mShareBtn->setEnabled(TRUE);
+	bool is_single_selection = getSelectedCount() == 1;
+
+	mInfoBtn->setEnabled(is_single_selection);
+	mShareBtn->setEnabled(is_single_selection);
 
 	switch(item->getInventoryType())
 	{
@@ -272,6 +274,14 @@ LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 	const LLUUID &item_id = current_item->getListener()->getUUID();
 	LLInventoryItem *item = gInventory.getItem(item_id);
 	return item;
+}
+
+U32 LLSidepanelInventory::getSelectedCount()
+{
+	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+	std::set<LLUUID> selection_list;
+	panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList(selection_list);
+	return selection_list.size();
 }
 
 LLInventoryPanel *LLSidepanelInventory::getActivePanel()
