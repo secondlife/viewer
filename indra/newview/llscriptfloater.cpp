@@ -66,6 +66,7 @@ LLScriptFloater::LLScriptFloater(const LLSD& key)
 : LLDockableFloater(NULL, true, key)
 , mScriptForm(NULL)
 {
+	setMouseDownCallback(boost::bind(&LLScriptFloater::onMouseDown, this));
 }
 
 bool LLScriptFloater::toggle(const LLUUID& object_id)
@@ -180,6 +181,23 @@ void LLScriptFloater::setVisible(BOOL visible)
 	hideToastsIfNeeded();
 }
 
+void LLScriptFloater::onMouseDown()
+{
+	if(getObjectId().notNull())
+	{
+		// Remove new message icon
+		LLIMChiclet* chiclet = LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(getObjectId());
+		if (chiclet == NULL)
+		{
+			llerror("Dock chiclet for LLScriptFloater doesn't exist", 0);
+		}
+		else
+		{
+			chiclet->setShowNewMessagesIcon(false);
+		}
+	}
+}
+
 void LLScriptFloater::hideToastsIfNeeded()
 {
 	using namespace LLNotificationsUI;
@@ -217,11 +235,18 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 	script_notification_map_t::iterator it = mNotifications.find(object_id);
 	if(it != mNotifications.end())
 	{
+		LLIMChiclet* chiclet = LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(object_id);
+		if(chiclet)
+		{
+			// Pass the new_message icon state further.
+			set_new_message = chiclet->getShowNewMessagesIcon();
+		}
+
 		LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>("script_floater", it->second.notification_id);
 		if(floater)
 		{
-			// Generate chiclet with a "new message" indicator if a docked window was opened. See EXT-3142.
-			set_new_message = floater->isShown();
+			// Generate chiclet with a "new message" indicator if a docked window was opened but not in focus. See EXT-3142.
+			set_new_message |= !floater->hasFocus();
 		}
 
 		onRemoveNotification(it->second.notification_id);
