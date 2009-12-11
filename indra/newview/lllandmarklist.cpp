@@ -39,7 +39,6 @@
 
 #include "llappviewer.h"
 #include "llagent.h"
-#include "llnotify.h"
 #include "llvfile.h"
 #include "llviewerstats.h"
 

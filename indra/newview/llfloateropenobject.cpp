@@ -44,7 +44,6 @@
 #include "llnotificationsutil.h"
 #include "lltextbox.h"
 
-#include "llalertdialog.h"
 #include "llinventorybridge.h"
 #include "llfloaterinventory.h"
 #include "llinventorymodel.h"
