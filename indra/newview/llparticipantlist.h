@@ -64,6 +64,7 @@ class LLParticipantList
 		bool onRemoveItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 		bool onClearListEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 		bool onModeratorUpdateEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+		bool onSpeakerMuteEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 
 		/**
 		 * Sorts the Avatarlist by stored order
@@ -109,6 +110,14 @@ class LLParticipantList
 			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 		};
 		
+		class SpeakerMuteListener : public BaseSpeakerListner
+		{
+		public:
+			SpeakerMuteListener(LLParticipantList& parent) : BaseSpeakerListner(parent) {}
+
+			/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
+		};
+
 		/**
 		 * Menu used in the participant list.
 		 */
@@ -181,8 +190,18 @@ class LLParticipantList
 
 		/**
 		 * Adds specified avatar ID to the existing list if it is not Agent's ID
+		 *
+		 * @param[in, out] existing_list - vector with avatars' UUIDs already in the list
+		 * @param[in] avatar_id - Avatar UUID to be added into the list
 		 */
-		static void addAvatarIDExceptAgent(std::vector<LLUUID>& existing_list, const LLUUID& avatar_id);
+		void addAvatarIDExceptAgent(std::vector<LLUUID>& existing_list, const LLUUID& avatar_id);
+
+		/**
+		 * Adjusts passed participant to work properly.
+		 *
+		 * Adds SpeakerMuteListener to process moderation actions.
+		 */
+		void adjustParticipant(const LLUUID& speaker_id);
 
 		LLSpeakerMgr*		mSpeakerMgr;
 		LLAvatarList*		mAvatarList;
@@ -194,6 +213,7 @@ class LLParticipantList
 		LLPointer<SpeakerRemoveListener>			mSpeakerRemoveListener;
 		LLPointer<SpeakerClearListener>				mSpeakerClearListener;
 		LLPointer<SpeakerModeratorUpdateListener>	mSpeakerModeratorListener;
+		LLPointer<SpeakerMuteListener>				mSpeakerMuteListener;
 
 		LLParticipantListMenu*    mParticipantListMenu;
 
