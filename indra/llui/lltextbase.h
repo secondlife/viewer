@@ -156,8 +156,8 @@ public:
 	void					addDocumentChild(LLView* view);
 	void					removeDocumentChild(LLView* view);
 	const LLView*			getDocumentView() const { return mDocumentView; }
-	LLRect					getTextRect() { return mTextRect; }
-	LLRect					getContentsRect();
+	LLRect					getVisibleTextRect() { return mVisibleTextRect; }
+	LLRect					getTextBoundingRect();
 	LLRect					getVisibleDocumentRect() const;
 
 	S32						getVPad() { return mVPad; }
@@ -311,8 +311,8 @@ protected:
 	// text segmentation and flow
 	segment_set_t       		mSegments;
 	line_list_t					mLineInfoList;
-	LLRect						mTextRect;			// The rect in which text is drawn.  Excludes borders.
-	LLRect						mContentsRect;
+	LLRect						mVisibleTextRect;			// The rect in which text is drawn.  Excludes borders.
+	LLRect						mTextBoundingRect;
 
 	// colors
 	LLUIColor					mCursorColor;

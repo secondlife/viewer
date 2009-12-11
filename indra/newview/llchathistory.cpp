@@ -332,12 +332,12 @@ LLChatHistory::~LLChatHistory()
 {
 	static LLUICachedControl<S32> texteditor_border ("UITextEditorBorder", 0);
 
-	LLRect old_text_rect = mTextRect;
-	mTextRect = mScroller->getContentWindowRect();
-	mTextRect.stretch(-texteditor_border);
-	mTextRect.mLeft += mLeftTextPad;
-	mTextRect.mRight -= mRightTextPad;
-	if (mTextRect != old_text_rect)
+	LLRect old_text_rect = mVisibleTextRect;
+	mVisibleTextRect = mScroller->getContentWindowRect();
+	mVisibleTextRect.stretch(-texteditor_border);
+	mVisibleTextRect.mLeft += mLeftTextPad;
+	mVisibleTextRect.mRight -= mRightTextPad;
+	if (mVisibleTextRect != old_text_rect)
 	{
 		needsReflow();
 	}
