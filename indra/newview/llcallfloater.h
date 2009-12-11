@@ -39,9 +39,9 @@
 
 class LLAvatarList;
 class LLNonAvatarCaller;
+class LLOutputMonitorCtrl;
 class LLParticipantList;
 class LLSpeakerMgr;
-
 /**
  * The Voice Control Panel is an ambient window summoned by clicking the flyout chevron on the Speak button.
  * It can be torn-off and freely positioned onscreen.
@@ -103,6 +103,8 @@ private:
 	LLAvatarList* mAvatarList;
 	LLNonAvatarCaller* mNonAvatarCaller;
 	EVoiceControls mVoiceType;
+	LLOutputMonitorCtrl* mSpeakingIndicator;
+	bool mIsModeratorMuted;
 
 	boost::signals2::connection mChannelChangedConnection;
 };

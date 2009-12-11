@@ -33,6 +33,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llnotificationsutil.h"
+
 #include "llcallfloater.h"
 
 #include "llagent.h"
@@ -80,6 +82,8 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 , mAvatarList(NULL)
 , mNonAvatarCaller(NULL)
 , mVoiceType(VC_LOCAL_CHAT)
+, mSpeakingIndicator(NULL)
+, mIsModeratorMutedVoice(false)
 {
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
 	LLVoiceClient::getInstance()->addObserver(this);
@@ -137,6 +141,14 @@ void LLCallFloater::draw()
 	// But seems that LLVoiceClientParticipantObserver is not enough to satisfy this requirement.
 	// *TODO: mantipov: remove from draw()
 	onChange();
+
+	bool is_moderator_muted = gVoiceClient->getIsModeratorMuted(gAgentID);
+
+	if (mIsModeratorMutedVoice != is_moderator_muted)
+	{
+		setModeratorMutedVoice(is_moderator_muted);
+	}
+
 	LLDockableFloater::draw();
 }
 
@@ -313,8 +325,19 @@ void LLCallFloater::initAgentData()
 		gCacheName->getFullName(gAgentID, name);
 		my_panel->childSetValue("user_text", name);
 
-		LLOutputMonitorCtrl* speaking_indicator = my_panel->getChild<LLOutputMonitorCtrl>("speaking_indicator");
-		speaking_indicator->setSpeakerId(gAgentID);
+		mSpeakingIndicator = my_panel->getChild<LLOutputMonitorCtrl>("speaking_indicator");
+		mSpeakingIndicator->setSpeakerId(gAgentID);
 	}
+}
+
+void LLCallFloater::setModeratorMutedVoice(bool moderator_muted)
+{
+	mIsModeratorMutedVoice = moderator_muted;
+
+	if (moderator_muted)
+	{
+		LLNotificationsUtil::add("VoiceIsMutedByModerator");
+	}
+	mSpeakingIndicator->setIsMuted(moderator_muted);
 }
 //EOF
