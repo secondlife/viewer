@@ -401,8 +401,13 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 	enable_registrar.add("ParticipantList.CheckItem",  boost::bind(&LLParticipantList::LLParticipantListMenu::checkContextMenuItem,	this, _2));
 
 	// create the context menu from the XUI
-	return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
+	LLContextMenu* main_menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		"menu_participant_list.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+
+	main_menu->setItemVisible("Moderator Options", isGroupModerator());
+	main_menu->arrangeAndClear();
+
+	return main_menu;
 }
 
 void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const std::vector<LLUUID>& uuids, S32 x, S32 y)
@@ -481,6 +486,15 @@ void LLParticipantList::LLParticipantListMenu::toggleMuteText(const LLSD& userda
 void LLParticipantList::LLParticipantListMenu::toggleMuteVoice(const LLSD& userdata)
 {
 	toggleMute(userdata, LLMute::flagVoiceChat);
+}
+
+bool LLParticipantList::LLParticipantListMenu::isGroupModerator()
+{
+	// Agent is in Group Call
+	bool is_in_group = gAgent.isInGroup(mParent.mSpeakerMgr->getSessionID());
+	// Agent is Moderator
+	bool is_moderator = mParent.mSpeakerMgr->findSpeaker(gAgentID)->mIsModerator;
+	return is_in_group && is_moderator;
 }
 
 bool LLParticipantList::LLParticipantListMenu::isMuted(const LLUUID& avatar_id)
@@ -565,8 +579,7 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 	else
 		if (item == "can_allow_text_chat" || "can_moderate_voice" == item)
 		{
-			LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(mParent.mSpeakerMgr->getSessionID());
-			return im_session->mType == IM_SESSION_GROUP_START && mParent.mSpeakerMgr->findSpeaker(gAgentID)->mIsModerator;
+			return isGroupModerator();
 		}
 	return true;
 }

@@ -138,6 +138,11 @@ class LLParticipantList
 			void toggleMuteText(const LLSD& userdata);
 			void toggleMuteVoice(const LLSD& userdata);
 		
+			/**
+			 * Return true if Agent is group moderator(and moderator of group call).
+			 */
+			bool isGroupModerator();
+
 			// Voice moderation support
 			/**
 			 * Check whether specified by argument avatar is muted for group chat or not.
