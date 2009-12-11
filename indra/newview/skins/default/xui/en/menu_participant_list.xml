@@ -49,7 +49,7 @@
          function="Avatar.Pay" />
     </menu_item_call>
     <menu_item_check
-     label="Block/Unblock"
+     label="BlockVoice/Unblock"
      layout="topleft"
      name="Block/Unblock">
         <menu_item_check.on_click
@@ -64,7 +64,7 @@
         <menu_item_separator
          layout="topleft" />
     <menu_item_check
-     label="Mute Text"
+     label="Block Text"
      layout="topleft"
      name="MuteText">
         <on_check
