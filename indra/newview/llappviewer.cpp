@@ -391,7 +391,6 @@ bool handleCrashSubmitBehaviorChanged(const LLSD& newvalue)
 static void settings_to_globals()
 {
 	LLBUTTON_H_PAD		= gSavedSettings.getS32("ButtonHPad");
-	LLBUTTON_V_PAD		= gSavedSettings.getS32("ButtonVPad");
 	BTN_HEIGHT_SMALL	= gSavedSettings.getS32("ButtonHeightSmall");
 	BTN_HEIGHT			= gSavedSettings.getS32("ButtonHeight");
 

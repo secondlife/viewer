@@ -63,7 +63,6 @@ template class LLButton* LLView::getChild<class LLButton>(
 
 // globals loaded from settings.xml
 S32	LLBUTTON_H_PAD	= 0;
-S32	LLBUTTON_V_PAD	= 0;
 S32 BTN_HEIGHT_SMALL= 0;
 S32 BTN_HEIGHT		= 0;
 
@@ -93,6 +92,7 @@ LLButton::Params::Params()
 	flash_color("flash_color"),
 	pad_right("pad_right", LLUI::sSettingGroups["config"]->getS32("ButtonHPad")),
 	pad_left("pad_left", LLUI::sSettingGroups["config"]->getS32("ButtonHPad")),
+	pad_bottom("pad_bottom"),
 	click_callback("click_callback"),
 	mouse_down_callback("mouse_down_callback"),
 	mouse_up_callback("mouse_up_callback"),
@@ -148,6 +148,7 @@ LLButton::LLButton(const LLButton::Params& p)
 	mHAlign(p.font_halign),
 	mLeftHPad(p.pad_left),
 	mRightHPad(p.pad_right),
+	mBottomVPad(p.pad_bottom),
 	mHoverGlowStrength(p.hover_glow_amount),
 	mCommitOnReturn(p.commit_on_return),
 	mFadeWhenDisabled(FALSE),
@@ -839,7 +840,9 @@ void LLButton::draw()
 		// LLFontGL::render expects S32 max_chars variable but process in a separate way -1 value.
 		// Due to U32_MAX is equal to S32 -1 value I have rest this value for non-ellipses mode.
 		// Not sure if it is really needed. Probably S32_MAX should be always passed as max_chars.
-		mLastDrawCharsCount = mGLFont->render(label, 0, (F32)x, (F32)(LLBUTTON_V_PAD + y_offset),
+		mLastDrawCharsCount = mGLFont->render(label, 0,
+			(F32)x,
+			(F32)(mBottomVPad + y_offset),
 			label_color % alpha,
 			mHAlign, LLFontGL::BOTTOM,
 			LLFontGL::NORMAL,
