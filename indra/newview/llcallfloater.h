@@ -97,6 +97,7 @@ private:
 	void updateTitle();
 	void initAgentData();
 	void setModeratorMutedVoice(bool moderator_muted);
+	void updateModeratorState();
 
 private:
 	LLSpeakerMgr* mSpeakerManager;
@@ -104,6 +105,7 @@ private:
 	LLAvatarList* mAvatarList;
 	LLNonAvatarCaller* mNonAvatarCaller;
 	EVoiceControls mVoiceType;
+	LLPanel* mAgentPanel;
 	LLOutputMonitorCtrl* mSpeakingIndicator;
 	bool mIsModeratorMutedVoice;
 

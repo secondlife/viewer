@@ -34,6 +34,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llnotificationsutil.h"
+#include "lltrans.h"
 
 #include "llcallfloater.h"
 
@@ -82,6 +83,7 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 , mAvatarList(NULL)
 , mNonAvatarCaller(NULL)
 , mVoiceType(VC_LOCAL_CHAT)
+, mAgentPanel(NULL)
 , mSpeakingIndicator(NULL)
 , mIsModeratorMutedVoice(false)
 {
@@ -239,6 +241,7 @@ void LLCallFloater::updateSession()
 	childSetVisible("leave_btn_panel", !is_local_chat);
 	
 	refreshPartisipantList();
+	updateModeratorState();
 }
 
 void LLCallFloater::refreshPartisipantList()
@@ -315,17 +318,17 @@ void LLCallFloater::updateTitle()
 
 void LLCallFloater::initAgentData()
 {
-	LLPanel* my_panel = getChild<LLPanel> ("my_panel");
+	mAgentPanel = getChild<LLPanel> ("my_panel");
 
-	if ( my_panel )
+	if ( mAgentPanel )
 	{
-		my_panel->childSetValue("user_icon", gAgentID);
+		mAgentPanel->childSetValue("user_icon", gAgentID);
 
 		std::string name;
 		gCacheName->getFullName(gAgentID, name);
-		my_panel->childSetValue("user_text", name);
+		mAgentPanel->childSetValue("user_text", name);
 
-		mSpeakingIndicator = my_panel->getChild<LLOutputMonitorCtrl>("speaking_indicator");
+		mSpeakingIndicator = mAgentPanel->getChild<LLOutputMonitorCtrl>("speaking_indicator");
 		mSpeakingIndicator->setSpeakerId(gAgentID);
 	}
 }
@@ -339,5 +342,22 @@ void LLCallFloater::setModeratorMutedVoice(bool moderator_muted)
 		LLNotificationsUtil::add("VoiceIsMutedByModerator");
 	}
 	mSpeakingIndicator->setIsMuted(moderator_muted);
+}
+
+void LLCallFloater::updateModeratorState()
+{
+	std::string name;
+	gCacheName->getFullName(gAgentID, name);
+
+	if(gAgent.isInGroup(mSpeakerManager->getSessionID()))
+	{
+		// Agent is Moderator
+		if (mSpeakerManager->findSpeaker(gAgentID)->mIsModerator)
+		{
+			const std::string moderator_indicator(LLTrans::getString("IM_moderator_label")); 
+			name += " " + moderator_indicator;
+		}
+	}
+	mAgentPanel->childSetValue("user_text", name);
 }
 //EOF
