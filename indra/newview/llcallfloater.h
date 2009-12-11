@@ -96,6 +96,7 @@ private:
 	void onCurrentChannelChanged(const LLUUID& session_id);
 	void updateTitle();
 	void initAgentData();
+	void setModeratorMutedVoice(bool moderator_muted);
 
 private:
 	LLSpeakerMgr* mSpeakerManager;
@@ -104,7 +105,7 @@ private:
 	LLNonAvatarCaller* mNonAvatarCaller;
 	EVoiceControls mVoiceType;
 	LLOutputMonitorCtrl* mSpeakingIndicator;
-	bool mIsModeratorMuted;
+	bool mIsModeratorMutedVoice;
 
 	boost::signals2::connection mChannelChangedConnection;
 };
