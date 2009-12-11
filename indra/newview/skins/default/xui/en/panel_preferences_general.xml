@@ -92,11 +92,7 @@
          name="(Japanese)"
          value="ja" />
 
-        <combo_box.item
-         enabled="true"
-         label="Test Language"
-         name="TestLanguage"
-         value="test" />
+
     </combo_box>
     <text
      type="string"
