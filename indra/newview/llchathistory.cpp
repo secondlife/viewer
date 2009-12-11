@@ -49,6 +49,8 @@
 
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
+const static std::string NEW_LINE(rawstr_to_utf8("\n"));
+
 class LLChatHistoryHeader: public LLPanel
 {
 public:
@@ -454,10 +456,21 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 
 		if (chat.mFromName.size() > 0)
 			appendText(chat.mFromName + " ", TRUE, style_params);
-		appendText(chat.mText.substr(4), FALSE, style_params);
+		// Ensure that message ends with NewLine, to avoid losing of new lines
+		// while copy/paste from text chat. See EXT-3263.
+		appendText(chat.mText.substr(4) + NEW_LINE, FALSE, style_params);
 	}
 	else
-		appendText(chat.mText, FALSE, style_params);
+	{
+		std::string message(chat.mText);
+		if ( message.size() > 0 && !LLStringOps::isSpace(message[message.size() - 1]) )
+		{
+			// Ensure that message ends with NewLine, to avoid losing of new lines
+			// while copy/paste from text chat. See EXT-3263.
+			message += NEW_LINE;
+		}
+		appendText(message, FALSE, style_params);
+	}
 	blockUndo();
 }
 
