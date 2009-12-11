@@ -42,6 +42,7 @@
 #include "llavatarlist.h"
 #include "llspeakers.h"
 #include "llviewermenu.h"
+#include "llvoiceclient.h"
 
 //LLParticipantList retrieves add, clear and remove events and updates view accordingly 
 #if LL_MSVC
@@ -416,6 +417,14 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 	registrar.add("ParticipantList.ToggleAllowTextChat", boost::bind(&LLParticipantList::LLParticipantListMenu::toggleAllowTextChat, this, _2));
 	registrar.add("ParticipantList.ToggleMuteText", boost::bind(&LLParticipantList::LLParticipantListMenu::toggleMuteText, this, _2));
 
+	registrar.add("Avatar.Profile",	boost::bind(&LLAvatarActions::showProfile, mUUIDs.front()));
+	registrar.add("Avatar.IM", boost::bind(&LLAvatarActions::startIM, mUUIDs.front()));
+	registrar.add("Avatar.AddFriend", boost::bind(&LLAvatarActions::requestFriendshipDialog, mUUIDs.front()));
+	registrar.add("Avatar.BlockUnblock", boost::bind(&LLParticipantList::LLParticipantListMenu::toggleMuteVoice, this, _2));
+	registrar.add("Avatar.Share", boost::bind(&LLAvatarActions::share, mUUIDs.front()));
+	registrar.add("Avatar.Pay",	boost::bind(&LLAvatarActions::pay, mUUIDs.front()));
+	registrar.add("Avatar.Call", boost::bind(&LLAvatarActions::startCall, mUUIDs.front()));
+
 	registrar.add("ParticipantList.ModerateVoice", boost::bind(&LLParticipantList::LLParticipantListMenu::moderateVoice, this, _2));
 
 	enable_registrar.add("ParticipantList.EnableItem", boost::bind(&LLParticipantList::LLParticipantListMenu::enableContextMenuItem,	this, _2));
@@ -604,6 +613,33 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 		{
 			return isGroupModerator();
 		}
+	else if (item == std::string("can_add"))
+		{
+			// We can add friends if:
+			// - there are selected people
+			// - and there are no friends among selection yet.
+
+			bool result = (mUUIDs.size() > 0);
+
+			std::vector<LLUUID>::const_iterator
+				id = mUUIDs.begin(),
+				uuids_end = mUUIDs.end();
+
+			for (;id != uuids_end; ++id)
+			{
+				if ( LLAvatarActions::isFriend(*id) )
+				{
+					result = false;
+					break;
+				}
+			}
+			return result;
+		}
+	else if (item == "can_call")
+	{
+		return LLVoiceClient::voiceEnabled();
+	}
+
 	return true;
 }
 
@@ -611,18 +647,25 @@ bool LLParticipantList::LLParticipantListMenu::checkContextMenuItem(const LLSD& 
 {
 	std::string item = userdata.asString();
 	const LLUUID& id = mUUIDs.front();
-	if (item == "is_muted")
-		return LLMuteList::getInstance()->isMuted(id, LLMute::flagTextChat); 
-	else
-		if (item == "is_allowed_text_chat")
-		{
-			LLPointer<LLSpeaker> selected_speakerp = mParent.mSpeakerMgr->findSpeaker(id);
 
-			if (selected_speakerp.notNull())
-			{
-				return !selected_speakerp->mModeratorMutedText;
-			}
+	if (item == "is_muted")
+	{
+		return LLMuteList::getInstance()->isMuted(id, LLMute::flagTextChat);
+	}
+	else if (item == "is_allowed_text_chat")
+	{
+		LLPointer<LLSpeaker> selected_speakerp = mParent.mSpeakerMgr->findSpeaker(id);
+
+		if (selected_speakerp.notNull())
+		{
+			return !selected_speakerp->mModeratorMutedText;
 		}
+	}
+	else if(item == "is_blocked")
+	{
+		return LLMuteList::getInstance()->isMuted(id, LLMute::flagVoiceChat);
+	}
+
 	return false;
 }
 
