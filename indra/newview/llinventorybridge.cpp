@@ -506,12 +506,57 @@ void hide_context_entries(LLMenuGL& menu,
 	}
 }
 
+bool isWornLink(LLUUID link_id)
+{
+	LLViewerInventoryItem *link = gInventory.getItem(link_id);
+	if (!link)
+		return false;
+	LLViewerInventoryItem *item = link->getLinkedItem();
+	if (!item)
+		return false;
+	
+	switch(item->getType())
+	{
+	case LLAssetType::AT_OBJECT:
+	{
+		LLVOAvatarSelf* my_avatar = gAgent.getAvatarObject();
+		if(my_avatar && my_avatar->isWearingAttachment(item->getUUID()))
+			return true;
+	}
+	break;
+
+	case LLAssetType::AT_BODYPART:
+	case LLAssetType::AT_CLOTHING:
+		if(gAgentWearables.isWearingItem(item->getUUID()))
+			return true;
+		break;
+
+	case LLAssetType::AT_GESTURE:
+		if (LLGestureManager::instance().isGestureActive(item->getUUID()))
+			return true;
+		break;
+	}
+	return false;
+}
+
 // Helper for commonly-used entries
 void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 										std::vector<std::string> &items,
 										std::vector<std::string> &disabled_items, U32 flags)
 {
 	const LLInventoryObject *obj = getInventoryObject();
+
+	bool is_sidepanel = isInOutfitsSidePanel();
+	if (is_sidepanel)
+	{
+		// Sidepanel includes restricted menu.
+		if (obj && obj->getIsLinkType() && !isWornLink(mUUID))
+		{
+			items.push_back(std::string("Remove Link"));
+		}
+		return;
+	}
+
 	if (obj)
 	{
 		if (obj->getIsLinkType())
@@ -567,14 +612,13 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 	items.push_back(std::string("Paste Separator"));
 
 
-	if (obj && obj->getIsLinkType())
+	if (obj && obj->getIsLinkType() && !isWornLink(mUUID))
 	{
 		items.push_back(std::string("Remove Link"));
 	}
 
 	items.push_back(std::string("Delete"));
-	const bool is_sidepanel = isInOutfitsSidePanel();
-	if ((obj && obj->getIsLinkType() && is_sidepanel) || !isItemRemovable())
+	if (!isItemRemovable())
 	{
 		disabled_items.push_back(std::string("Delete"));
 	}
@@ -3784,9 +3828,9 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			items.push_back(std::string("Open"));
 			items.push_back(std::string("Properties"));
-
-			getClipboardEntries(true, items, disabled_items, flags);
 		}
+
+		getClipboardEntries(true, items, disabled_items, flags);
 
 		items.push_back(std::string("Gesture Separator"));
 		if (LLGestureManager::instance().isGestureActive(getUUID()))
@@ -4115,10 +4159,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			items.push_back(std::string("Properties"));
 		}
 
-		if (!is_sidepanel)
-		{
-			getClipboardEntries(true, items, disabled_items, flags);
-		}
+		getClipboardEntries(true, items, disabled_items, flags);
 
 		LLObjectBridge::sContextMenuItemID = mUUID;
 
@@ -4561,15 +4602,10 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			items.push_back(std::string("Properties"));
 		}
 
-		if (!is_sidepanel)
-		{
-			getClipboardEntries(true, items, disabled_items, flags);
-		}
+		getClipboardEntries(true, items, disabled_items, flags);
 
 		items.push_back(std::string("Wearable Separator"));
 
-		items.push_back(std::string("Wearable Wear"));
-		items.push_back(std::string("Wearable Add"));
 		items.push_back(std::string("Wearable Edit"));
 
 		if ((flags & FIRST_SELECTED_ITEM) == 0)
@@ -4599,6 +4635,8 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 					}
 					else
 					{
+						items.push_back(std::string("Wearable Wear"));
+						items.push_back(std::string("Wearable Add"));
 						disabled_items.push_back(std::string("Take Off"));
 					}
 					break;
