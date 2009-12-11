@@ -991,7 +991,7 @@ S32 LLFloaterTools::calcRenderCost()
 			if (viewer_volume)
 			{
 				cost += viewer_volume->getRenderCost(textures);
-				cost += textures.size() * 5;
+				cost += textures.size() * LLVOVolume::ARC_TEXTURE_COST;
 				textures.clear();
 			}
 		}

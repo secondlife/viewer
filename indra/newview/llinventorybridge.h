@@ -182,6 +182,9 @@ public:
 	// LLInvFVBridge functionality
 	virtual void clearDisplayName() {}
 
+	// Allow context menus to be customized for side panel.
+	bool isInOutfitsSidePanel() const;
+
 protected:
 	LLInvFVBridge(LLInventoryPanel* inventory, const LLUUID& uuid);
 
