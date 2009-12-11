@@ -235,7 +235,8 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	if (use_ellipses)
 	{
 		// check for too long of a string
-		if (getWidthF32(wstr.c_str(), begin_offset, max_chars) * sScaleX > scaled_max_pixels)
+		S32 string_width = llround(getWidthF32(wstr.c_str(), begin_offset, max_chars) * sScaleX);
+		if (string_width > scaled_max_pixels)
 		{
 			// use four dots for ellipsis width to generate padding
 			const LLWString dots(utf8str_to_wstring(std::string("....")));
@@ -490,6 +491,7 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 
 	// avoid S32 overflow when max_pixels == S32_MAX by staying in floating point
 	F32 scaled_max_pixels =	ceil(max_pixels * sScaleX);
+	F32 width_padding = 0.f;
 
 	S32 i;
 	for (i=0; (i < max_chars); i++)
@@ -533,9 +535,17 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 			}
 		}
 
-		cur_x += mFontFreetype->getXAdvance(wch);
+		LLFontGlyphInfo* fgi = mFontFreetype->getGlyphInfo(wch);
+
+		// account for glyphs that run beyond the starting point for the next glyphs
+		width_padding = llmax(	0.f,													// always use positive padding amount
+								width_padding - fgi->mXAdvance,							// previous padding left over after advance of current character
+								(F32)(fgi->mWidth + fgi->mXBearing) - fgi->mXAdvance);	// difference between width of this character and advance to next character
+
+		cur_x += fgi->mXAdvance;
 		
-		if (scaled_max_pixels < cur_x)
+		// clip if current character runs past scaled_max_pixels (using width_padding)
+		if (scaled_max_pixels < cur_x + width_padding)
 		{
 			clip = TRUE;
 			break;
