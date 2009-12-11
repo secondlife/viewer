@@ -175,9 +175,7 @@ protected:
 	// This function appends the character string representation of
 	// the current accelerator key and mask to the provided string.
 	void appendAcceleratorString( std::string& st ) const;
-	
-	void initMenuEnableCallback(const EnableCallbackParam& cb, enable_signal_t& sig);
-	
+		
 protected:
 	KEY mAcceleratorKey;
 	MASK mAcceleratorMask;
@@ -249,7 +247,7 @@ public:
 	{
 		Optional<EnableCallbackParam > on_enable;
 		Optional<CommitCallbackParam > on_click;
-		Optional<VisibleCallbackParam > on_visible;
+		Optional<EnableCallbackParam > on_visible;
 		Params()
 			: on_enable("on_enable"),
 			  on_click("on_click"),
@@ -284,15 +282,10 @@ public:
 	{
 		return mEnableSignal.connect(cb);
 	}
-	
-	boost::signals2::connection setVisibleCallback( const visible_signal_t::slot_type& cb )
-	{
-		return mVisibleSignal.connect(cb);
-	}
-	
+		
 private:
 	enable_signal_t mEnableSignal;
-	visible_signal_t mVisibleSignal;
+	enable_signal_t mVisibleSignal;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

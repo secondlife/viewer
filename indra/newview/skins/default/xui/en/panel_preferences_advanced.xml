@@ -70,7 +70,7 @@
     </text>
     <combo_box
      allow_text_entry="true"
-     height="20"
+     height="23"
      follows="left|top"
      layout="topleft"
      left_pad="0"
@@ -306,7 +306,7 @@ Avatars:
     <button
      follows="top|left"
      enabled_control="EnableVoiceChat"
-     height="20"
+     height="23"
      label="Set Key"
      left_delta="0"
      name="set_voice_hotkey_button"
@@ -320,7 +320,7 @@ Avatars:
      enabled_control="EnableVoiceChat"
      follows="left"
      halign="center"
-     height="20"
+     height="23"
      label="Middle Mouse Button"
      left_delta="120"
      mouse_opaque="true"

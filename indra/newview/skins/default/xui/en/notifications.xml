@@ -100,11 +100,11 @@
    functor="GenericAcknowledge"
    icon="alertmodal.tga"
    name="MissingAlert"
-   label="Unknown Alert Message"
+   label="Unknown Notification Message"
    type="alertmodal">
-Your version of [APP_NAME] does not know how to display the alert it just received.  Please verify that you have the latest Viewer installed.
+Your version of [APP_NAME] does not know how to display the notification it just received.  Please verify that you have the latest Viewer installed.
 
-Error details: The alert called &apos;[_NAME]&apos; was not found in notifications.xml.
+Error details: The notification called &apos;[_NAME]&apos; was not found in notifications.xml.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -1688,7 +1688,7 @@ This location can play streaming media.
 Streaming media requires a fast Internet connection.
 
 Play streaming media when available?
-(You can change this option later under Preferences &gt; Audio &amp; Video.)
+(You can change this option later under Preferences &gt; Privacy.)
     <usetemplate
      name="okcancelbuttons"
      notext="Disable"
@@ -3539,6 +3539,8 @@ Type a short announcement which will be sent to everyone in this region.
    type="alertmodal">
 The maturity rating for this region has been updated.
 It may take some time for the change to be reflected on the map.
+
+To enter Adult regions, residents must be Account Verified, either by age-verification or payment-verification.
   </notification>
 
   <notification
@@ -3795,21 +3797,6 @@ Use this tool to report violations of the [http://secondlife.com/corporate/tos.p
 
 All reported abuses are investigated and resolved. You can view the resolution by reading the [http://secondlife.com/support/incidentreport.php Incident Report].
    <unique/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="HelpReportAbuseEmailEO"
-   type="alertmodal">
-IMPORTANT: This report will go to the owner of the region you are currently in and not to Linden Lab.
-
-As a service to residents and visitors, the owner of the region you are in has elected to receive and resolve all reports originating in this region. Linden Lab will not investigate reports you file from this location.
-
-The region owner will resolve reports based on the local rules of this region as outlined in the estate Covenant.
-(View covenants by going to the World menu and selecting About Land.)
-
-The resolution of this report applies only to this Region. Residents&apos; access to other areas of [SECOND_LIFE] will not be affected by the outcome of this report. Only Linden Lab can restrict access to the entirety of [SECOND_LIFE].
-  <unique/>
   </notification>
 
   <notification
@@ -4719,10 +4706,6 @@ The objects on the selected parcel that are NOT owned by you have been returned 
    type="notify">
 Message from [NAME]:
 [MSG]
-    <usetemplate
-     name="okcancelbuttons"
-     notext="OK"
-     yestext="Inspect"/>
   </notification>
 
   <notification
@@ -5752,6 +5735,23 @@ You just entered a region using a different server version, which may affect per
    priority="high"
    type="notifytip">
 The SLurl you clicked on is not supported.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="BlockedSLURL"
+   priority="high"
+   type="notifytip">
+A SLurl was received from an untrusted browser and has been blocked for your security.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="ThrottledSLURL"
+   priority="high"
+   type="notifytip">
+Multiple SLurls were received from an untrusted browser within a short period.
+They will be blocked for a few seconds for your security. 
   </notification>
 
   <notification name="IMToast" type="notifytoast">

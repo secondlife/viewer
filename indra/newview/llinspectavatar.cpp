@@ -42,10 +42,12 @@
 #include "lldateutil.h"
 #include "llfloaterreporter.h"
 #include "llfloaterworldmap.h"
+#include "llimview.h"
 #include "llinspect.h"
 #include "llmutelist.h"
 #include "llpanelblockedlist.h"
 #include "llstartup.h"
+#include "llspeakers.h"
 #include "llviewermenu.h"
 #include "llvoiceclient.h"
 #include "llviewerobjectlist.h"
@@ -99,6 +101,12 @@ private:
 	// Set the volume slider to this user's current client-side volume setting,
 	// hiding/disabling if the user is not nearby.
 	void updateVolumeSlider();
+
+	// Shows/hides moderator panel depending on voice state 
+	void updateModeratorPanel();
+
+	// Moderator ability to enable/disable voice chat for avatar
+	void toggleSelectedVoice(bool enabled);
 	
 	// Button callbacks
 	void onClickAddFriend();
@@ -205,10 +213,12 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 	mCommitCallbackRegistrar.add("InspectAvatar.Report",	boost::bind(&LLInspectAvatar::onClickReport, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.FindOnMap",	boost::bind(&LLInspectAvatar::onClickFindOnMap, this));	
 	mCommitCallbackRegistrar.add("InspectAvatar.ZoomIn", boost::bind(&LLInspectAvatar::onClickZoomIn, this));
-	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleFindOnMap",	boost::bind(&LLInspectAvatar::onVisibleFindOnMap, this));	
-	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleFreezeEject",	
+	mCommitCallbackRegistrar.add("InspectAvatar.DisableVoice", boost::bind(&LLInspectAvatar::toggleSelectedVoice, this, false));
+	mCommitCallbackRegistrar.add("InspectAvatar.EnableVoice", boost::bind(&LLInspectAvatar::toggleSelectedVoice, this, true));
+	mEnableCallbackRegistrar.add("InspectAvatar.VisibleFindOnMap",	boost::bind(&LLInspectAvatar::onVisibleFindOnMap, this));	
+	mEnableCallbackRegistrar.add("InspectAvatar.VisibleFreezeEject",	
 		boost::bind(&LLInspectAvatar::onVisibleFreezeEject, this));	
-	mVisibleCallbackRegistrar.add("InspectAvatar.VisibleZoomIn", 
+	mEnableCallbackRegistrar.add("InspectAvatar.VisibleZoomIn", 
 		boost::bind(&LLInspectAvatar::onVisibleZoomIn, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.Gear.Enable", boost::bind(&LLInspectAvatar::isNotFriend, this));
 
@@ -277,6 +287,8 @@ void LLInspectAvatar::onOpen(const LLSD& data)
 	requestUpdate();
 
 	updateVolumeSlider();
+
+	updateModeratorPanel();
 }
 
 // virtual
@@ -364,6 +376,119 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 	// Delete the request object as it has been satisfied
 	delete mPropertiesRequest;
 	mPropertiesRequest = NULL;
+}
+
+void LLInspectAvatar::updateModeratorPanel()
+{
+	bool enable_moderator_panel = false;
+
+    if (LLVoiceChannel::getCurrentVoiceChannel())
+    {
+		LLUUID session_id = LLVoiceChannel::getCurrentVoiceChannel()->getSessionID();
+
+		if (session_id != LLUUID::null)
+		{
+			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
+
+			if (speaker_mgr)
+			{
+				LLPointer<LLSpeaker> self_speakerp = speaker_mgr->findSpeaker(gAgent.getID());
+				LLPointer<LLSpeaker> selected_speakerp = speaker_mgr->findSpeaker(mAvatarID);
+				
+				if(speaker_mgr->isVoiceActive() && selected_speakerp && 
+					((self_speakerp && self_speakerp->mIsModerator) || gAgent.isGodlike()))
+				{
+					getChild<LLUICtrl>("enable_voice")->setVisible(selected_speakerp->mModeratorMutedVoice);
+					getChild<LLUICtrl>("disable_voice")->setVisible(!selected_speakerp->mModeratorMutedVoice);
+
+					enable_moderator_panel = true;
+				}
+			}
+		}
+	}
+
+	if (enable_moderator_panel)
+	{
+		if (!getChild<LLUICtrl>("moderator_panel")->getVisible())
+		{
+			getChild<LLUICtrl>("moderator_panel")->setVisible(true);
+			// stretch the floater so it can accommodate the moderator panel
+			reshape(getRect().getWidth(), getRect().getHeight() + getChild<LLUICtrl>("moderator_panel")->getRect().getHeight());
+		}
+	}
+	else if (getChild<LLUICtrl>("moderator_panel")->getVisible())
+	{
+		getChild<LLUICtrl>("moderator_panel")->setVisible(false);
+		// shrink the inspector floater back to original size
+		reshape(getRect().getWidth(), getRect().getHeight() - getChild<LLUICtrl>("moderator_panel")->getRect().getHeight());					
+	}
+}
+
+void LLInspectAvatar::toggleSelectedVoice(bool enabled)
+{
+	LLUUID session_id = LLVoiceChannel::getCurrentVoiceChannel()->getSessionID();
+	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
+
+	if (speaker_mgr)
+	{
+		if (!gAgent.getRegion())
+			return;
+
+		std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+		LLSD data;
+		data["method"] = "mute update";
+		data["session-id"] = session_id;
+		data["params"] = LLSD::emptyMap();
+		data["params"]["agent_id"] = mAvatarID;
+		data["params"]["mute_info"] = LLSD::emptyMap();
+		// ctrl value represents ability to type, so invert
+		data["params"]["mute_info"]["voice"] = !enabled;
+
+		class MuteVoiceResponder : public LLHTTPClient::Responder
+		{
+		public:
+			MuteVoiceResponder(const LLUUID& session_id)
+			{
+				mSessionID = session_id;
+			}
+
+			virtual void error(U32 status, const std::string& reason)
+			{
+				llwarns << status << ": " << reason << llendl;
+
+				if ( gIMMgr )
+				{
+					//403 == you're not a mod
+					//should be disabled if you're not a moderator
+					if ( 403 == status )
+					{
+						gIMMgr->showSessionEventError(
+							"mute",
+							"not_a_moderator",
+							mSessionID);
+					}
+					else
+					{
+						gIMMgr->showSessionEventError(
+							"mute",
+							"generic",
+							mSessionID);
+					}
+				}
+			}
+
+		private:
+			LLUUID mSessionID;
+		};
+
+		LLHTTPClient::post(
+			url,
+			data,
+			new MuteVoiceResponder(speaker_mgr->getSessionID()));
+	}
+
+	closeFloater();
+
 }
 
 void LLInspectAvatar::updateVolumeSlider()

@@ -4,39 +4,39 @@
 	     description="These Abilities include powers to add and remove group Members, and allow new Members to join without an invitation."
 	     name="Membership">
 		<action description="Invite People to this Group"
-		     longdescription="Invite People to this Group using the &apos;Invite New Person...&apos; button in the Members &amp; Roles tab &gt; Members sub-tab."
+		     longdescription="Invite People to this Group using the &apos;Invite&apos; button in the Roles section &gt; Members tab."
 		     name="member invite" value="1" />
 		<action description="Eject Members from this Group"
-		     longdescription="Eject Members from this Group using the &apos;Eject From Group&apos; button in the Members &amp; Roles tab &gt; Members sub-tab. An Owner can eject anyone except another Owner. If you&apos;re not an Owner, a Member can be ejected from a group if, and only if, they&apos;re only in the Everyone Role, and NO other Roles. To remove Members from Roles, you need to have the &apos;Remove Members from Roles&apos; Ability."
+		     longdescription="Eject Members from this Group using the &apos;Eject&apos; button in the Roles section &gt; Members tab. An Owner can eject anyone except another Owner. If you&apos;re not an Owner, a Member can be ejected from a group if, and only if, they&apos;re only in the Everyone Role, and NO other Roles. To remove Members from Roles, you need to have the &apos;Remove Members from Roles&apos; Ability."
 		     name="member eject" value="2" />
 		<action
-		     description="Toggle &apos;Open Enrollment&apos; and change &apos;Signup Fee&apos;"
-		     longdescription="Toggle &apos;Open Enrollment&apos; to let new Members join without an invitation, and change &apos;Signup Fee&apos; in the Group Preferences section of the General tab."
+		     description="Toggle &apos;Open Enrollment&apos; and change &apos;Enrollment fee&apos;"
+		     longdescription="Toggle &apos;Open Enrollment&apos; to let new Members join without an invitation, and change the &apos;Enrollment fee&apos; in the General section."
 		     name="member options" value="3" />
 	</action_set>
 	<action_set
 	     description="These Abilities include powers to add, remove, and change group Roles, add and remove Members in Roles, and assign Abilities to Roles."
 	     name="Roles">
 		<action description="Create new Roles"
-		     longdescription="Create new Roles in the Members &amp; Roles tab &gt; Roles sub-tab."
+		     longdescription="Create new Roles in the Roles section &gt; Roles tab."
 		     name="role create" value="4" />
 		<action description="Delete Roles"
-		     longdescription="Delete Roles in the Members &amp; Roles tab &gt; Roles sub-tab."
+		     longdescription="Delete Roles in the Roles section &gt; Roles tab."
 		     name="role delete" value="5" />
-		<action description="Change Role names, titles, descriptions, and whether Role members are publicly visible"
-		     longdescription="Change Role names, titles, descriptions, and whether Role members are publicly visible. This is done at the bottom of the the Members &amp; Roles tab &gt; Roles sub-tab after selecting a Role."
+		<action description="Change Role names, titles, descriptions, and whether Role members are publicly revealed"
+		     longdescription="Change Role names, titles, descriptions, and whether Role members are publicly revealed. This is done at the bottom of the the Roles section &gt; Roles tab after selecting a Role."
 		     name="role properties" value="6" />
 		<action description="Assign Members to Assigner&apos;s Roles"
-		     longdescription="Assign Members to Roles in the Assigned Roles section of the Members &amp; Roles tab &gt; Members sub-tab. A Member with this Ability can only add Members to a Role the assigner is already in."
+		     longdescription="Assign Members to Roles in the list of Assigned Roles (Roles section &gt; Members tab). A Member with this Ability can only add Members to a Role that the assigner is already in."
 		     name="role assign member limited" value="7" />
 		<action description="Assign Members to Any Role"
-		     longdescription="Assign Members to Any Role in the Assigned Roles section of the Members &amp; Roles tab &gt; Members sub-tab. *WARNING* Any Member in a Role with this Ability can assign themselves--and any other non-Owner Member--to Roles that have more powers than they currently have, potentially elevating themselves to near-Owner power. Be sure you know what you&apos;re doing before assigning this Ability."
+		     longdescription="Assign Members to Any Role in the list of Assigned Roles (Roles section &gt; Members tab). *WARNING* Any Member in a Role with this Ability can assign themselves--and any other non-Owner Member--to Roles that have more powers than they currently have, potentially elevating themselves to near-Owner power. Be sure you know what you&apos;re doing before assigning this Ability."
 		     name="role assign member" value="8" />
 		<action description="Remove Members from Roles"
-		     longdescription="Remove Members from Roles in the Assigned Roles section of the Members &amp; Roles tab &gt; Members sub-tab. Owners can&apos;t be removed."
+		     longdescription="Remove Members from Roles in the list of Assigned Roles (Roles section &gt; Members tab). Owners can&apos;t be removed."
 		     name="role remove member" value="9" />
 		<action description="Assign and Remove Abilities in Roles"
-		     longdescription="Assign and Remove Abilities in Roles in the Allowed Abilities section of the Members &amp; Roles tab &gt; Roles sub-tab. *WARNING* Any Member in a Role with this Ability can assign themselves--and any other non-Owner Member--all Abilities, potentially elevating themselves to near-Owner power. Be sure you know what you&apos;re doing before assigning this Ability."
+		     longdescription="Assign and Remove Abilities for each Role in the list of Allowed Abilities (Roles section &gt; Roles tab). *WARNING* Any Member in a Role with this Ability can assign themselves--and any other non-Owner Member--all Abilities, potentially elevating themselves to near-Owner power. Be sure you know what you&apos;re doing before assigning this Ability."
 		     name="role change actions" value="10" />
 	</action_set>
 	<action_set
@@ -44,11 +44,11 @@
 	     name="Group Identity">
 		<action
 		     description="Change Charter, Insignia, and &apos;Show in search&apos;"
-		     longdescription="Change Charter, Insignia, and &apos;Show in search&apos;. This is done in the General tab."
+		     longdescription="Change Charter, Insignia, and &apos;Show in search&apos;. This is done in the General section."
 		     name="group change identity" value="11" />
 	</action_set>
 	<action_set
-	     description="These Abilities include powers to deed, modify, and sell land in this group&apos;s land holdings. To get to the About Land window, right-click the ground and select &apos;About Land...&apos;, or click the parcel info in the menu bar."
+	     description="These Abilities include powers to deed, modify, and sell land in this group&apos;s land holdings. To get to the About Land window, right-click the ground and select &apos;About Land&apos;, or click the &apos;i&apos; icon in the Navigation Bar."
 	     name="Parcel Management">
 		<action description="Deed land and buy land for group"
 		     longdescription="Deed land and buy land for group. This is done in About Land &gt; General tab."
@@ -60,18 +60,18 @@
 		     longdescription="Set land for sale info. *WARNING* Any Member in a Role with this Ability can sell group-owned land in About Land &gt; General tab as they wish! Be sure you know what you&apos;re doing before assigning this Ability."
 		     name="land set sale info" value="14" />
 		<action description="Subdivide and join parcels"
-		     longdescription="Subdivide and join parcels. This is done by right-clicking the ground, &apos;Edit Terrain&apos;, and dragging your mouse on the land to make a selection. To subdivide, select what you want to split and click &apos;Subdivide...&apos;. To join, select two or more contiguous parcels and click &apos;Join...&apos;. "
+		     longdescription="Subdivide and join parcels. This is done by right-clicking the ground, &apos;Edit Terrain&apos;, and dragging your mouse on the land to make a selection. To subdivide, select what you want to split and click &apos;Subdivide&apos;. To join, select two or more contiguous parcels and click &apos;Join&apos;. "
 		     name="land divide join" value="15" />
 	</action_set>
 	<action_set
 	     description="These Abilities include powers to change the parcel name and publish settings, Find directory visibility, and landing point &amp; TP routing options."
 	     name="Parcel Identity">
-		<action description="Toggle &apos;Show in Find Places&apos; and set category"
-		     longdescription="Toggle &apos;Show in Find Places&apos; and setting a parcel&apos;s category in About Land &gt; Options tab."
+		<action description="Toggle &apos;Show Place in Search&apos; and set category"
+		     longdescription="Toggle &apos;Show Place in Search&apos; and setting a parcel&apos;s category in About Land &gt; Options tab."
 		     name="land find places" value="17" />
 		<action
-		     description="Change parcel name, description, and &apos;Show in search&apos; settings"
-		     longdescription="Change parcel name, description, and &apos;Show in search&apos; settings. This is done in About Land &gt; Options tab."
+		     description="Change parcel name, description, and &apos;Show Place in Search&apos; settings"
+		     longdescription="Change parcel name, description, and &apos;Show Place in Search&apos; settings. This is done in About Land &gt; Options tab."
 		     name="land change identity" value="18" />
 		<action description="Set landing point and set teleport routing"
 		     longdescription="On a group-owned parcel, Members in a Role with this Ability can set a landing point to specify where incoming teleports arrive, and also set teleport routing for further control. This is done in About Land &gt; Options tab."
@@ -87,7 +87,7 @@
 		     longdescription="Toggle &apos;Edit Terrain&apos;. *WARNING* About Land &gt; Options tab &gt; Edit Terrain allows anyone to terraform your land&apos;s shape, and place and move Linden plants. Be sure you know what you&apos;re doing before assigning this Ability. Editing terrain is toggled in About Land &gt; Options tab."
 		     name="land edit" value="21" />
 		<action description="Toggle various About Land &gt; Options settings"
-		     longdescription="Toggle &apos;Safe (no damage)&apos;, &apos;Fly&apos;, and allow other Residents to: &apos;Create Objects&apos;, &apos;Edit Terrain&apos;, &apos;Create Landmarks&apos;, and &apos;Run Scripts&apos; on group-owned land in About Land &gt; Options tab."
+		     longdescription="Toggle &apos;Safe (no damage)&apos;, &apos;Fly&apos;, and allow other Residents to: &apos;Edit Terrain&apos;, &apos;Build&apos;, &apos;Create Landmarks&apos;, and &apos;Run Scripts&apos; on group-owned land in About Land &gt; Options tab."
 		     name="land options" value="22" />
 	</action_set>
 	<action_set
@@ -106,7 +106,7 @@
 		     longdescription="Members in a Role with this Ability can landmark a group-owned parcel, even if it&apos;s turned off in About Land &gt; Options tab."
 		     name="land allow landmark" value="26" />
 		<action description="Allow &apos;Set Home to Here&apos; on group land"
-		     longdescription="Members in a Role with this Ability can use World menu &gt; Set Home to Here on a parcel deeded to this group."
+		     longdescription="Members in a Role with this Ability can use World menu &gt; Landmarks &gt; Set Home to Here on a parcel deeded to this group."
 		     name="land allow set home" value="28" />
 	</action_set>
 	<action_set
@@ -116,13 +116,13 @@
 		     longdescription="Manage parcel Access lists in About Land &gt; Access tab."
 		     name="land manage allowed" value="29" />
 		<action description="Manage parcel Ban lists"
-		     longdescription="Manage parcel Ban lists in About Land &gt; Ban tab."
+		     longdescription="Manage parcel Ban lists in About Land &gt; Access tab."
 		     name="land manage banned" value="30" />
-		<action description="Change parcel &apos;Sell passes...&apos; settings"
-		     longdescription="Change parcel &apos;Sell passes...&apos; settings in About Land &gt; Access tab."
+		<action description="Change parcel &apos;Sell passes to&apos; settings"
+		     longdescription="Change parcel &apos;Sell passes to&apos; settings in About Land &gt; Access tab."
 		     name="land manage passes" value="31" />
 		<action description="Eject and freeze Residents on parcels"
-		     longdescription="Members in a Role with this Ability can handle an unwelcome Resident on a group-owned parcel by right-clicking them, More &gt;, and selecting &apos;Eject...&apos; or &apos;Freeze...&apos;."
+		     longdescription="Members in a Role with this Ability can handle an unwelcome Resident on a group-owned parcel by right-clicking them, then selecting &apos;Eject&apos; or &apos;Freeze&apos;."
 		     name="land admin" value="32" />
 	</action_set>
 	<action_set
@@ -138,20 +138,20 @@
 		     longdescription="Return objects on group-owned parcels that are non-group in About Land &gt; Objects tab."
 		     name="land return non group" value="34" />
 		<action description="Landscaping using Linden plants"
-		     longdescription="Landscaping ability to place and move Linden trees, plants, and grasses. These items can be found in your inventory&apos;s Library &gt; Objects folder or they can be created via the Build button."
+		     longdescription="Landscaping ability to place and move Linden trees, plants, and grasses. These items can be found in your inventory&apos;s Library &gt; Objects folder, or they can be created via the Build menu."
 		     name="land gardening" value="35" />
 	</action_set>
 	<action_set
-	     description="These Abilities include powers to deed, modify, and sell group-owned objects. These changes are done in the Edit Tools &gt; General Tab. Right-click an object and Edit to see its settings. "
+	     description="These Abilities include powers to deed, modify, and sell group-owned objects. These changes are done in the Build Tools &gt; General tab. Right-click an object and Edit to see its settings. "
 	     name="Object Management">
 		<action description="Deed objects to group"
-		     longdescription="Deed objects to group in the Edit Tools &gt; General Tab."
+		     longdescription="Deed objects to group in the Build Tools &gt; General tab."
 		     name="object deed" value="36" />
 		<action description="Manipulate (move, copy, modify) group-owned objects"
-		     longdescription="Manipulate (move, copy, modify) group-owned objects in the Edit Tools &gt; General Tab."
+		     longdescription="Manipulate (move, copy, modify) group-owned objects in the Build Tools &gt; General tab."
 		     name="object manipulate" value="38" />
 		<action description="Set group-owned objects for sale"
-		     longdescription="Set group-owned objects for sale in the Edit Tools &gt; General tab."
+		     longdescription="Set group-owned objects for sale in the Build Tools &gt; General tab."
 		     name="object set sale" value="39" />
 	</action_set>
 	<action_set
@@ -165,10 +165,10 @@
 	     description="These Abilities include powers to allow Members to send, receive, and view group Notices."
 	     name="Notices">
 		<action description="Send Notices"
-		     longdescription="Members in a Role with this Ability can send Notices in Group Information &gt; Notices tab."
+		     longdescription="Members in a Role with this Ability can send Notices via the Group &gt; Notices section."
 		     name="notices send" value="42" />
 		<action description="Receive Notices and view past Notices"
-		     longdescription="Members in a Role with this Ability can receive Notices and view past Notices in Group Information &gt; Notices tab."
+		     longdescription="Members in a Role with this Ability can receive Notices and view past Notices in Group &gt; Notices section."
 		     name="notices receive" value="43" />
 	</action_set>
 	<action_set

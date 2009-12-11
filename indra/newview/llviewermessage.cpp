@@ -2096,8 +2096,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LLSD payload;
 			payload["object_id"] = session_id;
 			payload["owner_id"] = from_id;
+			payload["from_id"] = from_id;
 			payload["slurl"] = location;
 			payload["name"] = name;
+			std::string session_name;
+			gCacheName->getFullName(from_id, session_name);
+			payload["SESSION_NAME"] = session_name;
 			if (from_group)
 			{
 				payload["groupowned"] = "true";

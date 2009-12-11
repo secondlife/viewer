@@ -38,7 +38,7 @@
 #define MAX_PATH MAXPATHLEN
 #endif
 
-// these numbers *may* get serialized, so we need to be explicit
+// these numbers *may* get serialized (really??), so we need to be explicit
 typedef enum ELLPath
 {
 	LL_PATH_NONE = 0,
@@ -54,10 +54,8 @@ typedef enum ELLPath
 	LL_PATH_TOP_SKIN = 10,
 	LL_PATH_CHAT_LOGS = 11,
 	LL_PATH_PER_ACCOUNT_CHAT_LOGS = 12,
-	LL_PATH_MOZILLA_PROFILE = 13,
 	LL_PATH_USER_SKIN = 14,
 	LL_PATH_LOCAL_ASSETS = 15,
-//	LL_PATH_HTML = 16,
 	LL_PATH_EXECUTABLE = 16,
 	LL_PATH_DEFAULT_SKIN = 17,
 	LL_PATH_FONTS = 18,
