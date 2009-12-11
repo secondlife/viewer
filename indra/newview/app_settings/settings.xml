@@ -5514,7 +5514,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>120</integer>
+      <integer>100000</integer>
     </map>
 	<key>PrimMediaMaxRoundRobinQueueSize</key>
     <map>
@@ -5525,7 +5525,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>15</integer>
+      <integer>100000</integer>
     </map>
     <key>ProbeHardwareOnStartup</key>
     <map>

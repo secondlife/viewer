@@ -110,6 +110,7 @@ const char *DATA = _DATA(VALID_OBJECT_ID,"1.0","true");
 "================================================================================\n" << LL_ENDL;
 
 LLSD *gPostRecords = NULL;
+F64   gMinimumInterestLevel = (F64)0.0;
 
 // stubs:
 void LLHTTPClient::post(
@@ -179,7 +180,10 @@ public:
 		
 	virtual F64 getMediaInterest() const
 		{ return (LLSD::Real)mRep["interest"]; }
-
+	
+	virtual bool isInterestingEnough() const
+		{ return getMediaInterest() > gMinimumInterestLevel; }
+	
 	virtual std::string getCapabilityUrl(const std::string &name) const 
 		{ return mRep["cap_urls"][name]; }
 
@@ -225,10 +229,11 @@ namespace tut
     {
 		mediadataclient() {
 			gPostRecords = &mLLSD;
+			gMinimumInterestLevel = (F64)0.0;
 			
- 			LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
- 			LLError::setClassLevel("LLMediaDataClient", LLError::LEVEL_DEBUG);
-			LLError::setTagLevel("MediaOnAPrim", LLError::LEVEL_DEBUG);
+// 			LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+// 			LLError::setClassLevel("LLMediaDataClient", LLError::LEVEL_DEBUG);
+//			LLError::setTagLevel("MediaOnAPrim", LLError::LEVEL_DEBUG);
 		}
 		LLSD mLLSD;
     };
@@ -630,52 +635,52 @@ namespace tut
 			mdc->fetchMedia(o3);
 			mdc->fetchMedia(o4);
 			
-			int test_num = 0;
+			int tick_num = 0;
 			
-			ensure(STR(test_num) + ". is in queue 1", mdc->isInQueue(o1));
-			ensure(STR(test_num) + ". is in queue 2", mdc->isInQueue(o2));
-			ensure(STR(test_num) + ". is in queue 3", mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". is in queue 4", mdc->isInQueue(o4));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 0);
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 0);
 			
 			::pump_timers();
-			++test_num;
+			++tick_num;
 			
 			// The first tick should remove the first one 
-			ensure(STR(test_num) + ". is not in queue 1", !mdc->isInQueue(o1));
-			ensure(STR(test_num) + ". is in queue 2", mdc->isInQueue(o2));
-			ensure(STR(test_num) + ". is in queue 3", mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". is in queue 4", mdc->isInQueue(o4));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 1);
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 1);
 			
 			// Now, pretend that object 4 moved relative to the avatar such
 			// that it is now closest
 			object4->setMediaInterest(50.0);
 			
 			::pump_timers();
-			++test_num;
+			++tick_num;
 			
 			// The second tick should still pick off item 2, but then re-sort
 			// have picked off object 4
-			ensure(STR(test_num) + ". is in queue 2", mdc->isInQueue(o2));
-			ensure(STR(test_num) + ". is in queue 3", mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". is not in queue 4", !mdc->isInQueue(o4));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 2);
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 2);
 
 			::pump_timers();
-			++test_num;
+			++tick_num;
 			
 			// The third tick should pick off object 2
-			ensure(STR(test_num) + ". is not in queue 2", !mdc->isInQueue(o2));
-			ensure(STR(test_num) + ". is in queue 3", mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 3);
+			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 3);
 
 			// The fourth tick should pick off object 3
 			::pump_timers();
-			++test_num;
+			++tick_num;
 
-			ensure(STR(test_num) + ". is not in queue 3", !mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 4);
+			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 4);
 
 			ensure("queue empty", mdc->isEmpty());
 		}
@@ -710,76 +715,220 @@ namespace tut
 			mdc->fetchMedia(o3);
 			mdc->fetchMedia(o4);
 			
-			int test_num = 0;
+			int tick_num = 0;
 			
 			// 0
-			ensure(STR(test_num) + ". is in queue 1", mdc->isInQueue(o1));
-			ensure(STR(test_num) + ". is in queue 2", mdc->isInQueue(o2));
-			ensure(STR(test_num) + ". is in queue 3", mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". is in queue 4", mdc->isInQueue(o4));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 0);
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 0);
 			
 			::pump_timers();
-			++test_num;
+			++tick_num;
 			
 			// 1 The first tick should remove object 2
-			ensure(STR(test_num) + ". is not in queue 2", !mdc->isInQueue(o2));
-			ensure(STR(test_num) + ". is in queue 1", mdc->isInQueue(o1));
-			ensure(STR(test_num) + ". is in queue 3", mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". is in queue 4", mdc->isInQueue(o4));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 1);
-			ensure(STR(test_num) + ". post object id", (*gPostRecords)[0]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_2));
+			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 1);
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[0]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_2));
 			
 			::pump_timers();
-			++test_num;
+			++tick_num;
 			
 			// 2 The second tick should send object 4, but it will still be
 			// "in the queue"
-			ensure(STR(test_num) + ". is not in queue 2", !mdc->isInQueue(o2));
-			ensure(STR(test_num) + ". is in queue 1", mdc->isInQueue(o1));
-			ensure(STR(test_num) + ". is in queue 3", mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". is in queue 4", mdc->isInQueue(o4));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 2);
-			ensure(STR(test_num) + ". post object id", (*gPostRecords)[1]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_4));
+			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 2);
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[1]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_4));
 			
 			::pump_timers();
-			++test_num;
+			++tick_num;
 			
 			// 3 The third tick should remove object 1
-			ensure(STR(test_num) + ". is not in queue 2", !mdc->isInQueue(o2));
-			ensure(STR(test_num) + ". is not in queue 1", !mdc->isInQueue(o1));
-			ensure(STR(test_num) + ". is in queue 3", mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". is in queue 4", mdc->isInQueue(o4));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 3);
-			ensure(STR(test_num) + ". post object id", (*gPostRecords)[2]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_1));
+			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 3);
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[2]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_1));
 			
 			::pump_timers();
-			++test_num;
+			++tick_num;
 			
 			// 4 The fourth tick should send object 3, but it will still be
 			// "in the queue"
-			ensure(STR(test_num) + ". is not in queue 2", !mdc->isInQueue(o2));
-			ensure(STR(test_num) + ". is not in queue 1", !mdc->isInQueue(o1));
-			ensure(STR(test_num) + ". is in queue 3", mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". is in queue 4", mdc->isInQueue(o4));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 4);
-			ensure(STR(test_num) + ". post object id", (*gPostRecords)[3]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_3));
+			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 4);
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[3]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_3));
 			
 			::pump_timers();
-			++test_num;
+			++tick_num;
 						
 			// 5 The fifth tick should now identify objects 3 and 4 as no longer
 			// needing "updating", and remove them from the queue
-			ensure(STR(test_num) + ". is not in queue 2", !mdc->isInQueue(o2));
-			ensure(STR(test_num) + ". is not in queue 1", !mdc->isInQueue(o1));
-			ensure(STR(test_num) + ". is not in queue 3", !mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". is not in queue 4", !mdc->isInQueue(o4));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 4);
+			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 4);
 			
 			::pump_timers();
 			
 			// Whew....better be empty
 			ensure("queue empty", mdc->isEmpty());
+		}
+		ensure("refcount of o1", o1->getNumRefs(), 1);
+		ensure("refcount of o2", o2->getNumRefs(), 1);
+		ensure("refcount of o3", o3->getNumRefs(), 1);
+		ensure("refcount of o4", o4->getNumRefs(), 1);		
+	}
+	
+	
+	template<> template<>
+	void mediadataclient_object_t::test<11>()
+	{
+		//
+		// Test LLMediaDataClient's destructor
+		//
+		LOG_TEST(11);
+		
+		LLMediaDataClientObject::ptr_t o = new LLMediaDataClientObjectTest(DATA);
+		int num_refs_start = o->getNumRefs();
+		{
+			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);
+			mdc->fetchMedia(o);
+			// must tick enough times to clear refcount of mdc
+			::pump_timers();
+		}		
+		// Make sure everyone's destroyed properly
+		ensure("REF COUNT", o->getNumRefs(), num_refs_start);
+	}
+	
+	template<> template<>
+    void mediadataclient_object_t::test<12>()
+    {
+		//
+		// Test the "not interesting enough" call
+		//
+		LOG_TEST(12);
+		
+		LLMediaDataClientObjectTest *object1 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_1,"1.0","true"));
+		LLMediaDataClientObject::ptr_t o1 = object1;
+		LLMediaDataClientObject::ptr_t o2 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_2,"2.0","true"));
+		LLMediaDataClientObject::ptr_t o3 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_3,"3.0","true"));
+		LLMediaDataClientObject::ptr_t o4 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_4,"4.0","true"));
+		{
+			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);
+			
+			// queue up all 4 objects.  The first two are "interesting enough".
+			// Firing the timer 4 times should therefore leave them.
+			// Note that they should be sorted 4,3,2,1
+			// Then, we'll make one "interesting enough", fire the timer a few 
+			// times, and make sure only it gets pulled off the queue
+			gMinimumInterestLevel = 2.5;
+			mdc->fetchMedia(o1);
+			mdc->fetchMedia(o2);
+			mdc->fetchMedia(o3);
+			mdc->fetchMedia(o4);
+			
+			int tick_num = 0;
+			
+			// 0
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 0);
+			
+			::pump_timers();
+			++tick_num;
+			
+			// 1 The first tick should remove object 4
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 1);
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[0]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_4));
+			
+			::pump_timers();
+			++tick_num;
+			
+			// 2 The second tick should send object 3
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 2);
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[1]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_3));
+			
+			::pump_timers();
+			++tick_num;
+			
+			// 3 The third tick should not pull off anything
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 2);
+
+			::pump_timers();
+			++tick_num;
+			
+			// 4 The fourth tick (for good measure) should not pull off anything
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 2);
+			
+			// Okay, now futz with object 1's interest, such that it is now 
+			// "interesting enough"
+			object1->setMediaInterest((F64)5.0);
+			
+			// This should sort so that the queue is now [1 2] 
+			::pump_timers();
+			++tick_num;
+			
+			// 5 The fifth tick should now identify objects 3 and 4 as no longer
+			// needing "updating", and remove them from the queue
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 3);
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[2]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_1));
+			
+			::pump_timers();
+			++tick_num;
+			
+			// 6 The sixth tick should not pull off anything
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 3);
+			
+			::pump_timers();
+			++tick_num;
+		
+			// Whew....better NOT be empty ... o2 should still be there
+			ensure("queue not empty", !mdc->isEmpty());
+			
+			// But, we need to clear the queue, or else we won't destroy MDC...
+			// this is a strange interplay between the queue timer and the MDC
+			ensure("o2 couldn't be removed from queue", mdc->removeFromQueue(o2));
+			// tick
+			::pump_timers();
 		}
 		ensure("refcount of o1", o1->getNumRefs(), 1);
 		ensure("refcount of o2", o2->getNumRefs(), 1);

@@ -5,7 +5,7 @@
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
  * Copyright (c) 2001-2009, Linden Research, Inc.
- * =
+ * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
  * to you under the terms of the GNU General Public License, version 2.0
@@ -61,8 +61,8 @@
 const F32 LLMediaDataClient::QUEUE_TIMER_DELAY = 1.0; // seconds(s)
 const F32 LLMediaDataClient::UNAVAILABLE_RETRY_TIMER_DELAY = 5.0; // secs
 const U32 LLMediaDataClient::MAX_RETRIES = 4;
-const U32 LLMediaDataClient::MAX_SORTED_QUEUE_SIZE = 60;
-const U32 LLMediaDataClient::MAX_ROUND_ROBIN_QUEUE_SIZE = 25;
+const U32 LLMediaDataClient::MAX_SORTED_QUEUE_SIZE = 10000;
+const U32 LLMediaDataClient::MAX_ROUND_ROBIN_QUEUE_SIZE = 10000;
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -273,22 +273,6 @@ bool LLMediaDataClient::compareRequests(const request_ptr_t &o1, const request_p
 	return ( o1->getScore() > o2->getScore() );
 }
 
-void LLMediaDataClient::swapCurrentQueue()
-{
-	// Swap
-	mCurrentQueueIsTheSortedQueue = !mCurrentQueueIsTheSortedQueue;
-	// If its empty, swap back
-	if (getCurrentQueue()->empty()) 
-	{
-		mCurrentQueueIsTheSortedQueue = !mCurrentQueueIsTheSortedQueue;
-	}
-}
-
-LLMediaDataClient::request_queue_t *LLMediaDataClient::getCurrentQueue()
-{
-	return (mCurrentQueueIsTheSortedQueue) ? &mSortedQueue : &mRoundRobinQueue;
-}
-
 void LLMediaDataClient::serviceQueue()
 {	
 	request_queue_t *queue_p = getCurrentQueue();
@@ -306,60 +290,64 @@ void LLMediaDataClient::serviceQueue()
 		request_ptr_t request = queue_p->front();
 		llassert(!request.isNull());
 		const LLMediaDataClientObject *object = (request.isNull()) ? NULL : request->getObject();
-		bool performed_request = false;
-		bool error = false;
 		llassert(NULL != object);
 		
-		if(request->isMarkedSent())
+		// Check for conditions that would make us just pop and rapidly loop through
+		// the queue.
+		if(request.isNull() ||
+		   request->isMarkedSent() ||
+		   NULL == object ||
+		   object->isDead() ||
+		   !object->hasMedia())
 		{
-			// This object has been sent and not re-requested.  Skip it.
-			LL_INFOS("LLMediaDataClient") << "Skipping " << *request << ": object is marked sent!" << LL_ENDL;
-			queue_p->pop_front();
-			continue;	// jump back to the start of the quick retry loop
-		}
-		
-		if(object->isDead())
-		{
-			// This object has been marked dead.  Pop it and move on to the next item in the queue immediately.
-			LL_INFOS("LLMediaDataClient") << "Skipping " << *request << ": object is dead!" << LL_ENDL;
-			queue_p->pop_front();
-			continue;	// jump back to the start of the quick retry loop
-		}
-		
-		if (NULL != object && object->hasMedia())
-		{
-			std::string url = request->getCapability();
-			if (!url.empty())
-			{
-				const LLSD &sd_payload = request->getPayload();
-				LL_INFOS("LLMediaDataClient") << "Sending request for " << *request << LL_ENDL;
-				
-				// Call the subclass for creating the responder
-				LLHTTPClient::post(url, sd_payload, createResponder(request));
-				performed_request = true;
-			}
-			else {
-				LL_INFOS("LLMediaDataClient") << "NOT Sending request for " << *request << ": empty cap url!" << LL_ENDL;
-			}
-		}
-		else {
 			if (request.isNull()) 
 			{
-				LL_WARNS("LLMediaDataClient") << "Not Sending request: NULL request!" << LL_ENDL;
+				LL_INFOS("LLMediaDataClient") << "Skipping NULL request" << LL_ENDL;
 			}
-			else if (NULL == object) 
-			{
-				LL_WARNS("LLMediaDataClient") << "Not Sending request for " << *request << " NULL object!" << LL_ENDL;
+			else {
+				LL_INFOS("LLMediaDataClient") << "Skipping : " << *request << " " 
+				<< ((request->isMarkedSent()) ? " request is marked sent" :
+					((NULL == object) ? " object is NULL " :
+					 ((object->isDead()) ? "object is dead" : 
+					  ((!object->hasMedia()) ? "object has no media!" : "BADNESS!")))) << LL_ENDL;
 			}
-			else if (!object->hasMedia())
-			{
-				LL_WARNS("LLMediaDataClient") << "Not Sending request for " << *request << " hasMedia() is false!" << LL_ENDL;
-			}
-			error = true;
+			queue_p->pop_front();
+			continue;	// jump back to the start of the quick retry loop
 		}
-		bool exceeded_retries = request->getRetryCount() > mMaxNumRetries;
-		if (performed_request || exceeded_retries || error) // Try N times before giving up 
+		
+		// Next, ask if this is "interesting enough" to fetch.  If not, just stop
+		// and wait for the next timer go-round.  Only do this for the sorted 
+		// queue.
+		if (mCurrentQueueIsTheSortedQueue && !object->isInterestingEnough())
 		{
+			LL_DEBUGS("LLMediaDataClient") << "Not fetching " << *request << ": not interesting enough" << LL_ENDL;
+			break;
+		}
+		
+		// Finally, try to send the HTTP message to the cap url
+		std::string url = request->getCapability();
+		bool maybe_retry = false;
+		if (!url.empty())
+		{
+			const LLSD &sd_payload = request->getPayload();
+			LL_INFOS("LLMediaDataClient") << "Sending request for " << *request << LL_ENDL;
+			
+			// Call the subclass for creating the responder
+			LLHTTPClient::post(url, sd_payload, createResponder(request));
+		}
+		else {
+			LL_INFOS("LLMediaDataClient") << "NOT Sending request for " << *request << ": empty cap url!" << LL_ENDL;
+			maybe_retry = true;
+		}
+
+		bool exceeded_retries = request->getRetryCount() > mMaxNumRetries;
+		if (maybe_retry && ! exceeded_retries) // Try N times before giving up 
+		{
+			// We got an empty cap, but in that case we will retry again next
+			// timer fire.
+			request->incRetryCount();
+		}
+		else {
 			if (exceeded_retries)
 			{
 				LL_WARNS("LLMediaDataClient") << "Could not send request " << *request << " for " 
@@ -374,17 +362,29 @@ void LLMediaDataClient::serviceQueue()
 				request->markSent(true);
 				mRoundRobinQueue.push_back(request);				
 			}
-			if (error) continue;
-		}
-		else {
-			request->incRetryCount();
 		}
 		
- 		// end of quick retry loop -- any cases where we want to loop will use 'continue' to jump back to the start.
+ 		// end of quick loop -- any cases where we want to loop will use 'continue' to jump back to the start.
  		break;
 	}
 	
 	swapCurrentQueue();
+}
+
+void LLMediaDataClient::swapCurrentQueue()
+{
+	// Swap
+	mCurrentQueueIsTheSortedQueue = !mCurrentQueueIsTheSortedQueue;
+	// If its empty, swap back
+	if (getCurrentQueue()->empty()) 
+	{
+		mCurrentQueueIsTheSortedQueue = !mCurrentQueueIsTheSortedQueue;
+	}
+}
+
+LLMediaDataClient::request_queue_t *LLMediaDataClient::getCurrentQueue()
+{
+	return (mCurrentQueueIsTheSortedQueue) ? &mSortedQueue : &mRoundRobinQueue;
 }
 
 // dump the queue

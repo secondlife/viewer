@@ -136,6 +136,11 @@ public:
 			F64 tmp = mObject->getTotalMediaInterest();  
 			return (tmp < 0.0) ? mObject->getPixelArea() : tmp; 
 		}
+	virtual bool isInterestingEnough() const
+		{
+			// TODO: use performance manager to control this
+			return true;
+		}
 
 	virtual std::string getCapabilityUrl(const std::string &name) const
 		{ return mObject->getRegion()->getCapability(name); }

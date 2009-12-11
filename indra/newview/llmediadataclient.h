@@ -64,6 +64,8 @@ public:
 	virtual bool isDead() const = 0;
 	// Returns a media version number for the object
 	virtual U32 getMediaVersion() const = 0;
+	// Returns whether the object is "interesting enough" to fetch
+	virtual bool isInterestingEnough() const = 0;
 	// Returns whether we've seen this object yet or not
 	virtual bool isNew() const = 0;
 
@@ -81,8 +83,8 @@ public:
     const static F32 QUEUE_TIMER_DELAY;// = 1.0; // seconds(s)
 	const static F32 UNAVAILABLE_RETRY_TIMER_DELAY;// = 5.0; // secs
 	const static U32 MAX_RETRIES;// = 4;
-	const static U32 MAX_SORTED_QUEUE_SIZE;// = 60;
-	const static U32 MAX_ROUND_ROBIN_QUEUE_SIZE;// = 25;
+	const static U32 MAX_SORTED_QUEUE_SIZE;// = 10000;
+	const static U32 MAX_ROUND_ROBIN_QUEUE_SIZE;// = 10000;
 
 	// Constructor
 	LLMediaDataClient(F32 queue_timer_delay = QUEUE_TIMER_DELAY,
@@ -274,7 +276,7 @@ public:
 							U32 max_round_robin_queue_size = MAX_ROUND_ROBIN_QUEUE_SIZE)
 		: LLMediaDataClient(queue_timer_delay, retry_timer_delay, max_retries)
 		{}
-    ~LLObjectMediaDataClient() {}
+    virtual ~LLObjectMediaDataClient() {}
     
 	void fetchMedia(LLMediaDataClientObject *object); 
     void updateMedia(LLMediaDataClientObject *object);
@@ -310,7 +312,7 @@ public:
 								U32 max_round_robin_queue_size = MAX_ROUND_ROBIN_QUEUE_SIZE)
 		: LLMediaDataClient(queue_timer_delay, retry_timer_delay, max_retries)
 		{}
-    ~LLObjectMediaNavigateClient() {}
+    virtual ~LLObjectMediaNavigateClient() {}
     
     void navigate(LLMediaDataClientObject *object, U8 texture_index, const std::string &url);
     
