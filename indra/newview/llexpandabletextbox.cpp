@@ -51,8 +51,16 @@ public:
 	/*virtual*/ bool	getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const 
 	{
 		// more label always spans width of text box
-		width = mEditor.getTextRect().getWidth() - mEditor.getHPad(); 
-		height = llceil(mStyle->getFont()->getLineHeight());
+		if (num_chars == 0)
+		{
+			width = 0; 
+			height = 0;
+		}
+		else
+		{
+			width = mEditor.getDocumentView()->getRect().getWidth() - mEditor.getHPad(); 
+			height = llceil(mStyle->getFont()->getLineHeight());
+		}
 		return true;
 	}
 	/*virtual*/ S32		getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const 
@@ -104,7 +112,8 @@ private:
 
 LLExpandableTextBox::LLTextBoxEx::Params::Params()
 :	more_label("more_label")
-{}
+{
+}
 
 LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
 :	LLTextBox(p),
@@ -117,15 +126,12 @@ LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
 
 void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
+	hideExpandText();
 	LLTextBox::reshape(width, height, called_from_parent);
 
 	if (getTextPixelHeight() > getRect().getHeight())
 	{
 		showExpandText();
-	}
-	else
-	{
-		hideExpandText();
 	}
 }
 
@@ -317,7 +323,8 @@ void LLExpandableTextBox::expandTextBox()
 	mTextBox->hideExpandText();
 
 	S32 text_delta = mTextBox->getVerticalTextDelta();
-	text_delta += mTextBox->getVPad() * 2 + mScroll->getBorderWidth() * 2;
+	text_delta += mTextBox->getVPad() * 2;
+	text_delta += mScroll->getBorderWidth() * 2;
 	// no need to expand
 	if(text_delta <= 0)
 	{

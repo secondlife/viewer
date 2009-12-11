@@ -561,14 +561,14 @@ void LLTextBase::drawText()
 			
 			S32 clipped_end	=	llmin( line_end, cur_segment->getEnd() )  - cur_segment->getStart();
 
-			if (mUseEllipses
-				&& clipped_end == line_end 
-				&& next_line == last_line 
-				&& last_line < (S32)mLineInfoList.size())
+			if (mUseEllipses								// using ellipses
+				&& clipped_end == line_end					// last segment on line
+				&& next_line == last_line					// this is the last visible line
+				&& last_line < (S32)mLineInfoList.size())	// and there is more text to display
 			{
-				// more text to go, but we can't fit it
-				// so attempt to draw one extra character to force ellipses
-				clipped_end++;
+				// more lines of text to go, but we can't fit them
+				// so shrink text rect to force ellipses
+				text_rect.mRight -= 2;
 			}
 
 			text_rect.mLeft = (S32)(cur_segment->draw(seg_start - cur_segment->getStart(), clipped_end, selection_left, selection_right, text_rect));
@@ -1071,7 +1071,7 @@ void LLTextBase::reflow(S32 start_index)
 
 	while(mReflowNeeded)
 	{
-		mReflowNeeded = FALSE;
+		mReflowNeeded = false;
 
 		// shrink document to minimum size (visible portion of text widget)
 		// to force inlined widgets with follows set to shrink
@@ -1101,8 +1101,8 @@ void LLTextBase::reflow(S32 start_index)
 		segment_set_t::iterator seg_iter = mSegments.begin();
 		S32 seg_offset = 0;
 		S32 line_start_index = 0;
-		const S32 text_width = mTextRect.getWidth() - mHPad;  // reserve room for margin
-		S32 remaining_pixels = text_width;
+		const S32 text_available_width = mTextRect.getWidth() - mHPad;  // reserve room for margin
+		S32 remaining_pixels = text_available_width;
 		LLWString text(getWText());
 		S32 line_count = 0;
 
@@ -1142,10 +1142,11 @@ void LLTextBase::reflow(S32 start_index)
 
 			S32 last_segment_char_on_line = segment->getStart() + seg_offset;
 
-			S32 text_left = getLeftOffset(text_width - remaining_pixels);
+			S32 text_actual_width = text_available_width - remaining_pixels;
+			S32 text_left = getLeftOffset(text_actual_width);
 			LLRect line_rect(text_left, 
 							cur_top, 
-							text_left + (text_width - remaining_pixels), 
+							text_left + text_actual_width, 
 							cur_top - line_height);
 
 			// if we didn't finish the current segment...
@@ -1160,7 +1161,7 @@ void LLTextBase::reflow(S32 start_index)
 
 				line_start_index = segment->getStart() + seg_offset;
 				cur_top -= llround((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
-				remaining_pixels = text_width;
+				remaining_pixels = text_available_width;
 				line_height = 0;
 			}
 			// ...just consumed last segment..
@@ -1188,7 +1189,7 @@ void LLTextBase::reflow(S32 start_index)
 					line_start_index = segment->getStart() + seg_offset;
 					cur_top -= llround((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
 					line_height = 0;
-					remaining_pixels = text_width;
+					remaining_pixels = text_available_width;
 				}
 				++seg_iter;
 				seg_offset = 0;
@@ -2096,7 +2097,13 @@ void LLTextBase::updateRects()
 	LLRect doc_rect = mContentsRect;
 	// use old mTextRect constraint document to width of viewable region
 	doc_rect.mLeft = 0;
-	doc_rect.mRight = llmax(mTextRect.getWidth(), mContentsRect.mRight);
+
+	// allow horizontal scrolling?
+	// if so, use entire width of text contents (sans scrollbars)
+	// otherwise, stop at width of mTextRect
+	doc_rect.mRight = mScroller 
+		? llmax(mScroller->getRect().mRight - mScroller->getBorderWidth(), mContentsRect.mRight)
+		: mTextRect.getWidth();
 
 	mDocumentView->setShape(doc_rect);
 
@@ -2115,8 +2122,10 @@ void LLTextBase::updateRects()
 		needsReflow();
 	}
 
-	// update document container again, using new mTextRect
-	doc_rect.mRight = llmax(mTextRect.getWidth(), mContentsRect.mRight);
+	// update document container again, using new mTextRect (that has scrollbars enabled as needed)
+	doc_rect.mRight = mScroller 
+		? llmax(mTextRect.getWidth(), mContentsRect.mRight)
+		: mTextRect.getWidth();
 	mDocumentView->setShape(doc_rect);
 }
 
@@ -2413,10 +2422,18 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 	if (num_chars > 0)
 	{
 		LLWString text = mEditor.getWText();
-		width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
 		// if last character is a newline, then return true, forcing line break
 		llwchar last_char = text[mStart + first_char + num_chars - 1];
-		force_newline = (last_char == '\n');
+		if (last_char == '\n')
+		{
+			force_newline = true;
+			// don't count newline in font width
+			width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars - 1);
+		}
+		else
+		{
+			width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
+		}
 	}
 	else
 	{
