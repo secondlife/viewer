@@ -61,6 +61,408 @@
 const F32 LLMediaDataClient::QUEUE_TIMER_DELAY = 1.0; // seconds(s)
 const F32 LLMediaDataClient::UNAVAILABLE_RETRY_TIMER_DELAY = 5.0; // secs
 const U32 LLMediaDataClient::MAX_RETRIES = 4;
+const U32 LLMediaDataClient::MAX_SORTED_QUEUE_SIZE = 10000;
+const U32 LLMediaDataClient::MAX_ROUND_ROBIN_QUEUE_SIZE = 10000;
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// LLMediaDataClient
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+LLMediaDataClient::LLMediaDataClient(F32 queue_timer_delay,
+									 F32 retry_timer_delay,
+									 U32 max_retries,
+									 U32 max_sorted_queue_size,
+									 U32 max_round_robin_queue_size)
+	: mQueueTimerDelay(queue_timer_delay),
+	  mRetryTimerDelay(retry_timer_delay),
+	  mMaxNumRetries(max_retries),
+	  mMaxSortedQueueSize(max_sorted_queue_size),
+	  mMaxRoundRobinQueueSize(max_round_robin_queue_size),
+	  mQueueTimerIsRunning(false),
+	  mCurrentQueueIsTheSortedQueue(true)
+{
+}
+
+LLMediaDataClient::~LLMediaDataClient()
+{
+	stopQueueTimer();
+
+	// This should clear the queue, and hopefully call all the destructors.
+	LL_DEBUGS("LLMediaDataClient") << "~LLMediaDataClient destructor: queue: " << 
+		(isEmpty() ? "<empty> " : "<not empty> ") << LL_ENDL;
+	
+	mSortedQueue.clear();
+	mRoundRobinQueue.clear();
+}
+
+bool LLMediaDataClient::isEmpty() const
+{
+	return mSortedQueue.empty() && mRoundRobinQueue.empty();
+}
+
+bool LLMediaDataClient::isInQueue(const LLMediaDataClientObject::ptr_t &object)
+{
+	return (LLMediaDataClient::findOrRemove(mSortedQueue, object, false/*remove*/, LLMediaDataClient::Request::ANY).notNull()
+		|| (LLMediaDataClient::findOrRemove(mRoundRobinQueue, object, false/*remove*/, LLMediaDataClient::Request::ANY).notNull()));
+}
+
+bool LLMediaDataClient::removeFromQueue(const LLMediaDataClientObject::ptr_t &object)
+{
+	bool removedFromSortedQueue = LLMediaDataClient::findOrRemove(mSortedQueue, object, true/*remove*/, LLMediaDataClient::Request::ANY).notNull();
+	bool removedFromRoundRobinQueue = LLMediaDataClient::findOrRemove(mRoundRobinQueue, object, true/*remove*/, LLMediaDataClient::Request::ANY).notNull();
+	return removedFromSortedQueue || removedFromRoundRobinQueue;
+}
+
+//static
+LLMediaDataClient::request_ptr_t LLMediaDataClient::findOrRemove(request_queue_t &queue, const LLMediaDataClientObject::ptr_t &obj, bool remove, LLMediaDataClient::Request::Type type)
+{
+	request_ptr_t result;
+	request_queue_t::iterator iter = queue.begin();
+	request_queue_t::iterator end = queue.end();
+	while (iter != end)
+	{
+		if (obj->getID() == (*iter)->getObject()->getID() && (type == LLMediaDataClient::Request::ANY || type == (*iter)->getType()))
+		{
+			result = *iter;
+			if (remove) queue.erase(iter);
+			break;
+		}
+		iter++;
+	}
+	return result;
+}
+
+void LLMediaDataClient::request(const LLMediaDataClientObject::ptr_t &object, const LLSD &payload)
+{
+	if (object.isNull() || ! object->hasMedia()) return; 
+	
+	// Push the object on the queue
+	enqueue(new Request(getCapabilityName(), payload, object, this));
+}
+
+void LLMediaDataClient::enqueue(const Request *request)
+{
+	if (request->isNew())
+	{		
+		// Add to sorted queue
+		if (LLMediaDataClient::findOrRemove(mSortedQueue, request->getObject(), true/*remove*/, request->getType()).notNull())
+		{
+			LL_DEBUGS("LLMediaDataClient") << "REMOVING OLD request for " << *request << " ALREADY THERE!" << LL_ENDL;
+		}
+		
+		LL_DEBUGS("LLMediaDataClient") << "Queuing SORTED request for " << *request << LL_ENDL;
+		
+		// Sadly, we have to const-cast because items put into the queue are not const
+		mSortedQueue.push_back(const_cast<LLMediaDataClient::Request*>(request));
+		
+		LL_DEBUGS("LLMediaDataClient") << "SORTED queue:" << mSortedQueue << LL_ENDL;
+	}
+	else {
+		if (mRoundRobinQueue.size() > mMaxRoundRobinQueueSize) 
+		{
+			LL_INFOS_ONCE("LLMediaDataClient") << "RR QUEUE MAXED OUT!!!" << LL_ENDL;
+			LL_DEBUGS("LLMediaDataClient") << "Not queuing " << *request << LL_ENDL;
+			return;
+		}
+				
+		// ROUND ROBIN: if it is there, and it is a GET request, leave it.  If not, put at front!		
+		request_ptr_t existing_request;
+		if (request->getType() == Request::GET)
+		{
+			existing_request = LLMediaDataClient::findOrRemove(mRoundRobinQueue, request->getObject(), false/*remove*/, request->getType());
+		}
+		if (existing_request.isNull())
+		{
+			LL_DEBUGS("LLMediaDataClient") << "Queuing RR request for " << *request << LL_ENDL;
+			// Push the request on the pending queue
+			// Sadly, we have to const-cast because items put into the queue are not const
+			mRoundRobinQueue.push_front(const_cast<LLMediaDataClient::Request*>(request));
+			
+			LL_DEBUGS("LLMediaDataClient") << "RR queue:" << mRoundRobinQueue << LL_ENDL;			
+		}
+		else
+		{
+			LL_DEBUGS("LLMediaDataClient") << "ALREADY THERE: NOT Queuing request for " << *request << LL_ENDL;
+						
+			existing_request->markSent(false);
+		}
+	}	
+	// Start the timer if not already running
+	startQueueTimer();
+}
+
+void LLMediaDataClient::startQueueTimer() 
+{
+	if (! mQueueTimerIsRunning)
+	{
+		LL_DEBUGS("LLMediaDataClient") << "starting queue timer (delay=" << mQueueTimerDelay << " seconds)" << LL_ENDL;
+		// LLEventTimer automagically takes care of the lifetime of this object
+		new QueueTimer(mQueueTimerDelay, this);
+	}
+	else { 
+		LL_DEBUGS("LLMediaDataClient") << "not starting queue timer (it's already running, right???)" << LL_ENDL;
+	}
+}
+
+void LLMediaDataClient::stopQueueTimer()
+{
+	mQueueTimerIsRunning = false;
+}
+
+bool LLMediaDataClient::processQueueTimer()
+{
+	sortQueue();
+	
+	if(!isEmpty())
+	{
+		LL_INFOS("LLMediaDataClient") << "QueueTimer::tick() started, SORTED queue size is:	  " << mSortedQueue.size() 
+			<< ", RR queue size is:	  " << mRoundRobinQueue.size() << LL_ENDL;
+		LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() started, SORTED queue is:	  " << mSortedQueue << LL_ENDL;
+		LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() started, RR queue is:	  " << mRoundRobinQueue << LL_ENDL;
+	}
+	
+	serviceQueue();
+	
+	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() finished, SORTED queue size is:	  " << mSortedQueue.size() 
+		<< ", RR queue size is:	  " << mRoundRobinQueue.size() << LL_ENDL;
+	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() finished, SORTED queue is:	  " << mSortedQueue << LL_ENDL;
+	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() finished, RR queue is:	  " << mRoundRobinQueue << LL_ENDL;
+	
+	return isEmpty();
+}
+
+void LLMediaDataClient::sortQueue()
+{
+	if(!mSortedQueue.empty())
+	{
+		// Score all items first
+		request_queue_t::iterator iter = mSortedQueue.begin();
+		request_queue_t::iterator end = mSortedQueue.end();
+		while (iter != end)
+		{
+			(*iter)->updateScore();
+			iter++;
+		}
+		
+		// Re-sort the list...
+		// NOTE: should this be a stable_sort?  If so we need to change to using a vector.
+		mSortedQueue.sort(LLMediaDataClient::compareRequests);
+		
+		// ...then cull items over the max
+		U32 size = mSortedQueue.size();
+		if (size > mMaxSortedQueueSize) 
+		{
+			U32 num_to_cull = (size - mMaxSortedQueueSize);
+			LL_INFOS("LLMediaDataClient") << "sorted queue MAXED OUT!  Culling " 
+				<< num_to_cull << " items" << LL_ENDL;
+			while (num_to_cull-- > 0)
+			{
+				mSortedQueue.pop_back();
+			}
+		}
+	}
+}
+
+// static
+bool LLMediaDataClient::compareRequests(const request_ptr_t &o1, const request_ptr_t &o2)
+{
+	if (o2.isNull()) return true;
+	if (o1.isNull()) return false;
+	return ( o1->getScore() > o2->getScore() );
+}
+
+void LLMediaDataClient::serviceQueue()
+{	
+	request_queue_t *queue_p = getCurrentQueue();
+	
+	// quick retry loop for cases where we shouldn't wait for the next timer tick
+	while(true)
+	{
+		if (queue_p->empty())
+		{
+			LL_DEBUGS("LLMediaDataClient") << "queue empty: " << (*queue_p) << LL_ENDL;
+			break;
+		}
+		
+		// Peel one off of the items from the queue, and execute request
+		request_ptr_t request = queue_p->front();
+		llassert(!request.isNull());
+		const LLMediaDataClientObject *object = (request.isNull()) ? NULL : request->getObject();
+		llassert(NULL != object);
+		
+		// Check for conditions that would make us just pop and rapidly loop through
+		// the queue.
+		if(request.isNull() ||
+		   request->isMarkedSent() ||
+		   NULL == object ||
+		   object->isDead() ||
+		   !object->hasMedia())
+		{
+			if (request.isNull()) 
+			{
+				LL_INFOS("LLMediaDataClient") << "Skipping NULL request" << LL_ENDL;
+			}
+			else {
+				LL_INFOS("LLMediaDataClient") << "Skipping : " << *request << " " 
+				<< ((request->isMarkedSent()) ? " request is marked sent" :
+					((NULL == object) ? " object is NULL " :
+					 ((object->isDead()) ? "object is dead" : 
+					  ((!object->hasMedia()) ? "object has no media!" : "BADNESS!")))) << LL_ENDL;
+			}
+			queue_p->pop_front();
+			continue;	// jump back to the start of the quick retry loop
+		}
+		
+		// Next, ask if this is "interesting enough" to fetch.  If not, just stop
+		// and wait for the next timer go-round.  Only do this for the sorted 
+		// queue.
+		if (mCurrentQueueIsTheSortedQueue && !object->isInterestingEnough())
+		{
+			LL_DEBUGS("LLMediaDataClient") << "Not fetching " << *request << ": not interesting enough" << LL_ENDL;
+			break;
+		}
+		
+		// Finally, try to send the HTTP message to the cap url
+		std::string url = request->getCapability();
+		bool maybe_retry = false;
+		if (!url.empty())
+		{
+			const LLSD &sd_payload = request->getPayload();
+			LL_INFOS("LLMediaDataClient") << "Sending request for " << *request << LL_ENDL;
+			
+			// Call the subclass for creating the responder
+			LLHTTPClient::post(url, sd_payload, createResponder(request));
+		}
+		else {
+			LL_INFOS("LLMediaDataClient") << "NOT Sending request for " << *request << ": empty cap url!" << LL_ENDL;
+			maybe_retry = true;
+		}
+
+		bool exceeded_retries = request->getRetryCount() > mMaxNumRetries;
+		if (maybe_retry && ! exceeded_retries) // Try N times before giving up 
+		{
+			// We got an empty cap, but in that case we will retry again next
+			// timer fire.
+			request->incRetryCount();
+		}
+		else {
+			if (exceeded_retries)
+			{
+				LL_WARNS("LLMediaDataClient") << "Could not send request " << *request << " for " 
+					<< mMaxNumRetries << " tries...popping object id " << object->getID() << LL_ENDL; 
+				// XXX Should we bring up a warning dialog??
+			}
+			
+			queue_p->pop_front();
+			
+			if (! mCurrentQueueIsTheSortedQueue) {
+				// Round robin
+				request->markSent(true);
+				mRoundRobinQueue.push_back(request);				
+			}
+		}
+		
+ 		// end of quick loop -- any cases where we want to loop will use 'continue' to jump back to the start.
+ 		break;
+	}
+	
+	swapCurrentQueue();
+}
+
+void LLMediaDataClient::swapCurrentQueue()
+{
+	// Swap
+	mCurrentQueueIsTheSortedQueue = !mCurrentQueueIsTheSortedQueue;
+	// If its empty, swap back
+	if (getCurrentQueue()->empty()) 
+	{
+		mCurrentQueueIsTheSortedQueue = !mCurrentQueueIsTheSortedQueue;
+	}
+}
+
+LLMediaDataClient::request_queue_t *LLMediaDataClient::getCurrentQueue()
+{
+	return (mCurrentQueueIsTheSortedQueue) ? &mSortedQueue : &mRoundRobinQueue;
+}
+
+// dump the queue
+std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::request_queue_t &q)
+{
+	int i = 0;
+	LLMediaDataClient::request_queue_t::const_iterator iter = q.begin();
+	LLMediaDataClient::request_queue_t::const_iterator end = q.end();
+	while (iter != end)
+	{
+		s << "\t" << i << "]: " << (*iter)->getObject()->getID().asString();
+		iter++;
+		i++;
+	}
+	return s;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// LLMediaDataClient::QueueTimer
+// Queue of LLMediaDataClientObject smart pointers to request media for.
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+LLMediaDataClient::QueueTimer::QueueTimer(F32 time, LLMediaDataClient *mdc)
+: LLEventTimer(time), mMDC(mdc)
+{
+	mMDC->setIsRunning(true);
+}
+
+LLMediaDataClient::QueueTimer::~QueueTimer()
+{
+	LL_DEBUGS("LLMediaDataClient") << "~QueueTimer" << LL_ENDL;
+	mMDC->setIsRunning(false);
+	mMDC = NULL;
+}
+
+// virtual
+BOOL LLMediaDataClient::QueueTimer::tick()
+{
+	if (mMDC.isNull()) return TRUE;
+	return mMDC->processQueueTimer();
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// LLMediaDataClient::Responder::RetryTimer
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+LLMediaDataClient::Responder::RetryTimer::RetryTimer(F32 time, Responder *mdr)
+: LLEventTimer(time), mResponder(mdr)
+{
+}
+
+// virtual 
+LLMediaDataClient::Responder::RetryTimer::~RetryTimer() 
+{
+	LL_DEBUGS("LLMediaDataClient") << "~RetryTimer" << *(mResponder->getRequest()) << LL_ENDL;
+	
+	// XXX This is weird: Instead of doing the work in tick()  (which re-schedules
+	// a timer, which might be risky), do it here, in the destructor.  Yes, it is very odd.
+	// Instead of retrying, we just put the request back onto the queue
+	LL_INFOS("LLMediaDataClient") << "RetryTimer fired for: " << *(mResponder->getRequest()) << " retrying" << LL_ENDL;
+	mResponder->getRequest()->reEnqueue();
+	
+	// Release the ref to the responder.
+	mResponder = NULL;
+}
+
+// virtual
+BOOL LLMediaDataClient::Responder::RetryTimer::tick()
+{
+	// Don't fire again
+	return TRUE;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -69,16 +471,18 @@ const U32 LLMediaDataClient::MAX_RETRIES = 4;
 //////////////////////////////////////////////////////////////////////////////////////
 /*static*/U32 LLMediaDataClient::Request::sNum = 0;
 
-LLMediaDataClient::Request::Request(const std::string &cap_name, 
+LLMediaDataClient::Request::Request(const char *cap_name, 
 									const LLSD& sd_payload,
 									LLMediaDataClientObject *obj, 
 									LLMediaDataClient *mdc)
-	: mCapName(cap_name), 
-	  mPayload(sd_payload), 
-	  mObject(obj),
-	  mNum(++sNum), 
-	  mRetryCount(0),
-	  mMDC(mdc)
+: mCapName(cap_name), 
+  mPayload(sd_payload), 
+  mObject(obj),
+  mNum(++sNum), 
+  mRetryCount(0),
+  mMDC(mdc),
+  mMarkedSent(false),
+  mScore((F64)0.0)
 {
 }
 
@@ -89,7 +493,7 @@ LLMediaDataClient::Request::~Request()
 	mObject = NULL;
 }
 
-													  
+
 std::string LLMediaDataClient::Request::getCapability() const
 {
 	return getObject()->getCapabilityUrl(getCapName());
@@ -99,11 +503,11 @@ std::string LLMediaDataClient::Request::getCapability() const
 // discover it.
 LLMediaDataClient::Request::Type LLMediaDataClient::Request::getType() const
 {
-	if (mCapName == "ObjectMediaNavigate")
+	if (0 == strcmp(mCapName, "ObjectMediaNavigate"))
 	{
 		return NAVIGATE;
 	}
-	else if (mCapName == "ObjectMedia")
+	else if (0 == strcmp(mCapName, "ObjectMedia"))
 	{
 		const std::string &verb = mPayload["verb"];
 		if (verb == "GET")
@@ -133,10 +537,13 @@ const char *LLMediaDataClient::Request::getTypeAsString() const
 		case NAVIGATE:
 			return "NAVIGATE";
 			break;
+		case ANY:
+			return "ANY";
+			break;
 	}
 	return "";
 }
-	
+
 
 void LLMediaDataClient::Request::reEnqueue() const
 {
@@ -147,7 +554,7 @@ void LLMediaDataClient::Request::reEnqueue() const
 F32 LLMediaDataClient::Request::getRetryTimerDelay() const
 {
 	return (mMDC == NULL) ? LLMediaDataClient::UNAVAILABLE_RETRY_TIMER_DELAY :
-		mMDC->mRetryTimerDelay; 
+	mMDC->mRetryTimerDelay; 
 }
 
 U32 LLMediaDataClient::Request::getMaxNumRetries() const
@@ -155,52 +562,38 @@ U32 LLMediaDataClient::Request::getMaxNumRetries() const
 	return (mMDC == NULL) ? LLMediaDataClient::MAX_RETRIES : mMDC->mMaxNumRetries;
 }
 
+void LLMediaDataClient::Request::markSent(bool flag)
+{
+	 if (mMarkedSent != flag)
+	 {
+		 mMarkedSent = flag;
+		 if (!mMarkedSent)
+		 {
+			 mNum = ++sNum;
+		 }
+	 }
+}
+		   
+void LLMediaDataClient::Request::updateScore()
+{				
+	F64 tmp = mObject->getMediaInterest();
+	if (tmp != mScore)
+	{
+		LL_DEBUGS("LLMediaDataClient") << "Score for " << mObject->getID() << " changed from " << mScore << " to " << tmp << LL_ENDL; 
+		mScore = tmp;
+	}
+}
+		   
 std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::Request &r)
 {
-	s << "<request>" 
-	  << "<num>" << r.getNum() << "</num>"
-	  << "<type>" << r.getTypeAsString() << "</type>"
-	  << "<object_id>" << r.getObject()->getID() << "</object_id>"
-	  << "<num_retries>" << r.getRetryCount() << "</num_retries>"
-	  << "</request> ";
+	s << "request: num=" << r.getNum() 
+	<< " type=" << r.getTypeAsString() 
+	<< " ID=" << r.getObject()->getID() 
+	<< " #retries=" << r.getRetryCount();
 	return s;
 }
 
-
-//////////////////////////////////////////////////////////////////////////////////////
-//
-// LLMediaDataClient::Responder::RetryTimer
-//
-//////////////////////////////////////////////////////////////////////////////////////
-
-LLMediaDataClient::Responder::RetryTimer::RetryTimer(F32 time, Responder *mdr)
-	: LLEventTimer(time), mResponder(mdr)
-{
-}
-
-// virtual 
-LLMediaDataClient::Responder::RetryTimer::~RetryTimer() 
-{
-	LL_DEBUGS("LLMediaDataClient") << "~RetryTimer" << *(mResponder->getRequest()) << LL_ENDL;
-
-	// XXX This is weird: Instead of doing the work in tick()  (which re-schedules
-	// a timer, which might be risky), do it here, in the destructor.  Yes, it is very odd.
-	// Instead of retrying, we just put the request back onto the queue
-	LL_INFOS("LLMediaDataClient") << "RetryTimer fired for: " << *(mResponder->getRequest()) << "retrying" << LL_ENDL;
-	mResponder->getRequest()->reEnqueue();
-
-	// Release the ref to the responder.
-	mResponder = NULL;
-}
-
-// virtual
-BOOL LLMediaDataClient::Responder::RetryTimer::tick()
-{
-	// Don't fire again
-	return TRUE;
-}
-
-
+			
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // LLMediaDataClient::Responder
@@ -208,7 +601,7 @@ BOOL LLMediaDataClient::Responder::RetryTimer::tick()
 //////////////////////////////////////////////////////////////////////////////////////
 
 LLMediaDataClient::Responder::Responder(const request_ptr_t &request)
-	: mRequest(request)
+: mRequest(request)
 {
 }
 
@@ -224,20 +617,20 @@ void LLMediaDataClient::Responder::error(U32 status, const std::string& reason)
 	if (status == HTTP_SERVICE_UNAVAILABLE)
 	{
 		F32 retry_timeout = mRequest->getRetryTimerDelay();
-
+		
 		mRequest->incRetryCount();
 		
 		if (mRequest->getRetryCount() < mRequest->getMaxNumRetries()) 
 		{
-			LL_INFOS("LLMediaDataClient") << *mRequest << "got SERVICE_UNAVAILABLE...retrying in " << retry_timeout << " seconds" << LL_ENDL;
-
+			LL_INFOS("LLMediaDataClient") << *mRequest << " got SERVICE_UNAVAILABLE...retrying in " << retry_timeout << " seconds" << LL_ENDL;
+			
 			// Start timer (instances are automagically tracked by
 			// InstanceTracker<> and LLEventTimer)
 			new RetryTimer(F32(retry_timeout/*secs*/), this);
 		}
 		else {
-			LL_INFOS("LLMediaDataClient") << *mRequest << "got SERVICE_UNAVAILABLE...retry count " << 
-				mRequest->getRetryCount() << " exceeds " << mRequest->getMaxNumRetries() << ", not retrying" << LL_ENDL;
+			LL_INFOS("LLMediaDataClient") << *mRequest << " got SERVICE_UNAVAILABLE...retry count " << 
+			mRequest->getRetryCount() << " exceeds " << mRequest->getMaxNumRetries() << ", not retrying" << LL_ENDL;
 		}
 	}
 	else {
@@ -246,288 +639,10 @@ void LLMediaDataClient::Responder::error(U32 status, const std::string& reason)
 	}
 }
 
-
 /*virtual*/
 void LLMediaDataClient::Responder::result(const LLSD& content)
 {
-	LL_INFOS("LLMediaDataClient") << *mRequest << "result : " << ll_print_sd(content) << LL_ENDL;
-}
-
-
-//////////////////////////////////////////////////////////////////////////////////////
-//
-// LLMediaDataClient::Comparator
-//
-//////////////////////////////////////////////////////////////////////////////////////
-
-// static
-bool LLMediaDataClient::compareRequests(const request_ptr_t &o1, const request_ptr_t &o2)
-{
-	if (o2.isNull()) return true;
-	if (o1.isNull()) return false;
-
-	// The score is intended to be a measure of how close an object is or
-	// how much screen real estate (interest) it takes up
-	// Further away = lower score.
-	// Lesser interest = lower score
-	// For instance, here are some cases:
-	// 1: Two items with no impl, closest one wins
-	// 2: Two items with an impl: interest should rule, but distance is
-	// still taken into account (i.e. something really close might take
-	// precedence over a large item far away)
-	// 3: One item with an impl, another without: item with impl wins 
-	//	  (XXX is that what we want?)		 
-	// Calculate the scores for each.  
-	F64 o1_score = getObjectScore(o1->getObject());
-	F64 o2_score = getObjectScore(o2->getObject());
-	return ( o1_score > o2_score );
-}
-
-// static
-F64 LLMediaDataClient::getObjectScore(const LLMediaDataClientObject::ptr_t &obj)
-{
-	// *TODO: make this less expensive?
-	F64 dist = obj->getDistanceFromAvatar() + 0.1;	 // avoids div by 0
-	// square the distance so that they are in the same "unit magnitude" as
-	// the interest (which is an area) 
-	dist *= dist;
-	F64 interest = obj->getTotalMediaInterest() + 1.0;
-		
-	return interest/dist;	   
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-//
-// LLMediaDataClient::PriorityQueue
-// Queue of LLMediaDataClientObject smart pointers to request media for.
-//
-//////////////////////////////////////////////////////////////////////////////////////
-
-// dump the queue
-std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::request_queue_t &q)
-{
-	int i = 0;
-	LLMediaDataClient::request_queue_t::const_iterator iter = q.begin();
-	LLMediaDataClient::request_queue_t::const_iterator end = q.end();
-	while (iter != end)
-	{
-		s << "\t" << i << "]: " << (*iter)->getObject()->getID().asString();
-		iter++;
-		i++;
-	}
-	return s;
-}
-
-// find the given object in the queue.
-bool LLMediaDataClient::find(const LLMediaDataClientObject::ptr_t &obj) const
-{
-	request_queue_t::const_iterator iter = pRequestQueue->begin();
-	request_queue_t::const_iterator end = pRequestQueue->end();
-	while (iter != end)
-	{
-		if (obj->getID() == (*iter)->getObject()->getID())
-		{
-			return true;
-		}
-		iter++;
-	}
-	return false;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-//
-// LLMediaDataClient::QueueTimer
-// Queue of LLMediaDataClientObject smart pointers to request media for.
-//
-//////////////////////////////////////////////////////////////////////////////////////
-
-LLMediaDataClient::QueueTimer::QueueTimer(F32 time, LLMediaDataClient *mdc)
-	: LLEventTimer(time), mMDC(mdc)
-{
-	mMDC->setIsRunning(true);
-}
-
-LLMediaDataClient::QueueTimer::~QueueTimer()
-{
-	LL_DEBUGS("LLMediaDataClient") << "~QueueTimer" << LL_ENDL;
-	mMDC->setIsRunning(false);
-	mMDC = NULL;
-}
-
-// virtual
-BOOL LLMediaDataClient::QueueTimer::tick()
-{
-	if (NULL == mMDC->pRequestQueue)
-	{
-		// Shutting down?  stop.
-		LL_DEBUGS("LLMediaDataClient") << "queue gone" << LL_ENDL;
-		return TRUE;
-	}
-	
-	request_queue_t &queue = *(mMDC->pRequestQueue);
-
-	if(!queue.empty())
-	{
-		LL_INFOS("LLMediaDataClient") << "QueueTimer::tick() started, queue is:	  " << queue << LL_ENDL;
-
-		// Re-sort the list every time...
-		// XXX Is this really what we want?
-		queue.sort(LLMediaDataClient::compareRequests);
-	}
-	
-	// quick retry loop for cases where we shouldn't wait for the next timer tick
-	while(true)
-	{
-		if (queue.empty())
-		{
-			LL_DEBUGS("LLMediaDataClient") << "queue empty: " << queue << LL_ENDL;
-			return TRUE;
-		}
-	
-		// Peel one off of the items from the queue, and execute request
-		request_ptr_t request = queue.front();
-		llassert(!request.isNull());
-		const LLMediaDataClientObject *object = (request.isNull()) ? NULL : request->getObject();
-		bool performed_request = false;
-		bool error = false;
-		llassert(NULL != object);
-
-		if(object->isDead())
-		{
-			// This object has been marked dead.  Pop it and move on to the next item in the queue immediately.
-			LL_INFOS("LLMediaDataClient") << "Skipping " << *request << ": object is dead!" << LL_ENDL;
-			queue.pop_front();
-			continue;	// jump back to the start of the quick retry loop
-		}
-
-		if (NULL != object && object->hasMedia())
-		{
-			std::string url = request->getCapability();
-			if (!url.empty())
-			{
-				const LLSD &sd_payload = request->getPayload();
-				LL_INFOS("LLMediaDataClient") << "Sending request for " << *request << LL_ENDL;
-
-				// Call the subclass for creating the responder
-				LLHTTPClient::post(url, sd_payload, mMDC->createResponder(request));
-				performed_request = true;
-			}
-			else {
-				LL_INFOS("LLMediaDataClient") << "NOT Sending request for " << *request << ": empty cap url!" << LL_ENDL;
-			}
-		}
-		else {
-			if (request.isNull()) 
-			{
-				LL_WARNS("LLMediaDataClient") << "Not Sending request: NULL request!" << LL_ENDL;
-			}
-			else if (NULL == object) 
-			{
-				LL_WARNS("LLMediaDataClient") << "Not Sending request for " << *request << " NULL object!" << LL_ENDL;
-			}
-			else if (!object->hasMedia())
-			{
-				LL_WARNS("LLMediaDataClient") << "Not Sending request for " << *request << " hasMedia() is false!" << LL_ENDL;
-			}
-			error = true;
-		}
-		bool exceeded_retries = request->getRetryCount() > mMDC->mMaxNumRetries;
-		if (performed_request || exceeded_retries || error) // Try N times before giving up 
-		{
-			if (exceeded_retries)
-			{
-				LL_WARNS("LLMediaDataClient") << "Could not send request " << *request << " for " 
-											  << mMDC->mMaxNumRetries << " tries...popping object id " << object->getID() << LL_ENDL; 
-				// XXX Should we bring up a warning dialog??
-			}
-			queue.pop_front();
-		}
-		else {
-			request->incRetryCount();
-		}
-		
- 		// end of quick retry loop -- any cases where we want to loop will use 'continue' to jump back to the start.
- 		break;
-	}  
-
-	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() finished, queue is now: " << (*(mMDC->pRequestQueue)) << LL_ENDL;
-
-	return queue.empty();
-}
-	
-void LLMediaDataClient::startQueueTimer() 
-{
-	if (! mQueueTimerIsRunning)
-	{
-		LL_INFOS("LLMediaDataClient") << "starting queue timer (delay=" << mQueueTimerDelay << " seconds)" << LL_ENDL;
-		// LLEventTimer automagically takes care of the lifetime of this object
-		new QueueTimer(mQueueTimerDelay, this);
-	}
-	else { 
-		LL_DEBUGS("LLMediaDataClient") << "not starting queue timer (it's already running, right???)" << LL_ENDL;
-	}
-}
-	
-void LLMediaDataClient::stopQueueTimer()
-{
-	mQueueTimerIsRunning = false;
-}
-	
-void LLMediaDataClient::request(const LLMediaDataClientObject::ptr_t &object, const LLSD &payload)
-{
-	if (object.isNull() || ! object->hasMedia()) return; 
-
-	// Push the object on the priority queue
-	enqueue(new Request(getCapabilityName(), payload, object, this));
-}
-
-void LLMediaDataClient::enqueue(const Request *request)
-{
-	LL_INFOS("LLMediaDataClient") << "Queuing request for " << *request << LL_ENDL;
-	// Push the request on the priority queue
-	// Sadly, we have to const-cast because items put into the queue are not const
-	pRequestQueue->push_back(const_cast<LLMediaDataClient::Request*>(request));
-	LL_DEBUGS("LLMediaDataClient") << "Queue:" << (*pRequestQueue) << LL_ENDL;
-	// Start the timer if not already running
-	startQueueTimer();
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-//
-// LLMediaDataClient
-//
-//////////////////////////////////////////////////////////////////////////////////////
-
-LLMediaDataClient::LLMediaDataClient(F32 queue_timer_delay,
-									 F32 retry_timer_delay,
-									 U32 max_retries)
-	: mQueueTimerDelay(queue_timer_delay),
-	  mRetryTimerDelay(retry_timer_delay),
-	  mMaxNumRetries(max_retries),
-	  mQueueTimerIsRunning(false)
-{
-	pRequestQueue = new request_queue_t();
-}
-
-LLMediaDataClient::~LLMediaDataClient()
-{
-	stopQueueTimer();
-
-	// This should clear the queue, and hopefully call all the destructors.
-	LL_DEBUGS("LLMediaDataClient") << "~LLMediaDataClient destructor: queue: " << 
-		(pRequestQueue->empty() ? "<empty> " : "<not empty> ") << (*pRequestQueue) << LL_ENDL;
-	delete pRequestQueue;
-	pRequestQueue = NULL;
-}
-
-bool LLMediaDataClient::isEmpty() const
-{
-	return (NULL == pRequestQueue) ? true : pRequestQueue->empty();
-}
-
-bool LLMediaDataClient::isInQueue(const LLMediaDataClientObject::ptr_t &object) const
-{
-	return (NULL == pRequestQueue) ? false : find(object);
+	LL_DEBUGS("LLMediaDataClient") << *mRequest << " result : " << ll_print_sd(content) << LL_ENDL;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -569,7 +684,7 @@ void LLObjectMediaDataClient::updateMedia(LLMediaDataClientObject *object)
 	}
 	sd_payload[LLTextureEntry::OBJECT_MEDIA_DATA_KEY] = object_media_data;
 		
-	LL_INFOS("LLMediaDataClient") << "update media data: " << object->getID() << " " << ll_print_sd(sd_payload) << LL_ENDL;
+	LL_DEBUGS("LLMediaDataClient") << "update media data: " << object->getID() << " " << ll_print_sd(sd_payload) << LL_ENDL;
 	
 	request(object, sd_payload);
 }
@@ -581,7 +696,7 @@ void LLObjectMediaDataClient::Responder::result(const LLSD& content)
 	llassert(type == LLMediaDataClient::Request::GET || type == LLMediaDataClient::Request::UPDATE)
 	if (type == LLMediaDataClient::Request::GET)
 	{
-		LL_INFOS("LLMediaDataClient") << *(getRequest()) << "GET returned: " << ll_print_sd(content) << LL_ENDL;
+		LL_DEBUGS("LLMediaDataClient") << *(getRequest()) << " GET returned: " << ll_print_sd(content) << LL_ENDL;
 		
 		// Look for an error
 		if (content.has("error"))
@@ -598,12 +713,13 @@ void LLObjectMediaDataClient::Responder::result(const LLSD& content)
 			if (object_id != getRequest()->getObject()->getID()) 
 			{
 				// NOT good, wrong object id!!
-				LL_WARNS("LLMediaDataClient") << *(getRequest()) << "DROPPING response with wrong object id (" << object_id << ")" << LL_ENDL;
+				LL_WARNS("LLMediaDataClient") << *(getRequest()) << " DROPPING response with wrong object id (" << object_id << ")" << LL_ENDL;
 				return;
 			}
 			
 			// Otherwise, update with object media data
-			getRequest()->getObject()->updateObjectMediaData(content[LLTextureEntry::OBJECT_MEDIA_DATA_KEY]);
+			getRequest()->getObject()->updateObjectMediaData(content[LLTextureEntry::OBJECT_MEDIA_DATA_KEY],
+															 content[LLTextureEntry::MEDIA_VERSION_KEY]);
 		}
 	}
 	else if (type == LLMediaDataClient::Request::UPDATE)

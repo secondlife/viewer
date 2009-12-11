@@ -5505,6 +5505,28 @@
       <key>Value</key>
       <real>5.0</real>
     </map>
+	<key>PrimMediaMaxSortedQueueSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of objects the viewer will load media for initially</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>100000</integer>
+    </map>
+	<key>PrimMediaMaxRoundRobinQueueSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of objects the viewer will continuously update media for</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>100000</integer>
+    </map>
     <key>ProbeHardwareOnStartup</key>
     <map>
       <key>Comment</key>
