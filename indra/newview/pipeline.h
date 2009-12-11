@@ -58,6 +58,8 @@ class LLCubeMap;
 class LLCullResult;
 class LLVOAvatar;
 class LLGLSLShader;
+class LLCurlRequest;
+class LLMeshResponder;
 
 typedef enum e_avatar_skinning_method
 {
@@ -277,10 +279,6 @@ public:
 	LLCullResult::drawinfo_list_t::iterator endRenderMap(U32 type);
 	LLCullResult::sg_list_t::iterator beginAlphaGroups();
 	LLCullResult::sg_list_t::iterator endAlphaGroups();
-	
-
-	//mesh management functions
-	void loadMesh(LLVOVolume* volume, LLUUID mesh_id, S32 detail = 0);
 	
 	void addTrianglesDrawn(S32 count);
 	BOOL hasRenderType(const U32 type) const				{ return (type && (mRenderTypeMask & (1<<type))) ? TRUE : FALSE; }
@@ -683,32 +681,8 @@ protected:
 	typedef std::map<LLUUID, std::set<LLUUID> > mesh_load_map;
 	mesh_load_map mLoadingMeshes[4];
 	
-	LLMutex*					mMeshMutex;
-
-	class LLMeshThread : public LLThread
-	{
-	public:
-		LLPointer<LLVolume> mVolume;
-		LLVolume* mTargetVolume;
-		LLUUID mMeshID;
-		F32 mDetail;
-		S32 mDetailIndex;
-		LLMeshThread(LLUUID mesh_id, LLVolume* target, S32 detail = -1);
-		~LLMeshThread();
-		void run();
-	};
-	
-	static void getMeshAssetCallback(LLVFS *vfs,
-										  const LLUUID& asset_uuid,
-										  LLAssetType::EType type,
-										  void* user_data, S32 status, LLExtStat ext_status);
-
-	std::list<LLMeshThread*> mLoadedMeshes;
-	std::list<LLMeshThread*> mPendingMeshes;
-	U32 mMeshThreadCount;
-
-	void meshLoaded(LLMeshThread* mesh_thread);
-	void notifyLoadedMeshes();
+	typedef std::list<LLMeshResponder*> mesh_response_list;
+	mesh_response_list			mMeshResponseList;
 
 	LLPointer<LLViewerFetchedTexture>	mFaceSelectImagep;
 	LLPointer<LLViewerTexture>	mBloomImagep;
