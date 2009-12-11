@@ -1526,12 +1526,12 @@ void LLViewerWindow::initWorldUI()
 	
 	if (!gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
 	{
-		toggle_show_navigation_panel(LLSD(0));
+		navbar->showNavigationPanel(FALSE);
 	}
 
 	if (!gSavedSettings.getBOOL("ShowNavbarFavoritesPanel"))
 	{
-		toggle_show_favorites_panel(LLSD(0));
+		navbar->showFavoritesPanel(FALSE);
 	}
 
 	if (!gSavedSettings.getBOOL("ShowCameraButton"))
