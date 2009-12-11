@@ -59,7 +59,6 @@
 #include "llnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-#include "llnotify.h"
 #include "llpanelgrouplandmoney.h"
 #include "llpanelplaces.h"
 #include "llrecentpeople.h"
@@ -973,16 +972,8 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 		const LLUUID& blocked_id;
 	};
 
-	using namespace LLNotificationsUI;
-	LLChannelManager* channel_manager = LLChannelManager::getInstance();
-	LLScreenChannel
-			* screen_channel =
-					dynamic_cast<LLScreenChannel*> (channel_manager->findChannelByID(
-							LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
-	if (screen_channel != NULL)
-	{
-		screen_channel->killMatchedToasts(OfferMatcher(blocked_id));
-	}
+	LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(LLUUID(
+			gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(blocked_id));
 }
 
 LLOfferInfo::LLOfferInfo(const LLSD& sd)
@@ -4847,24 +4838,25 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 		LLMuteList::getInstance()->add(LLMute(item_id, notification["payload"]["object_name"].asString(), LLMute::OBJECT));
 
 		// purge the message queue of any previously queued requests from the same source. DEV-4879
-		class OfferMatcher : public LLNotifyBoxView::Matcher
+		class OfferMatcher : public LLNotificationsUI::LLScreenChannel::Matcher
 		{
 		public:
 			OfferMatcher(const LLUUID& to_block) : blocked_id(to_block) {}
-			BOOL matches(const LLNotificationPtr notification) const
+			bool matches(const LLNotificationPtr notification) const
 			{
 				if (notification->getName() == "ScriptQuestionCaution"
 					|| notification->getName() == "ScriptQuestion")
 				{
 					return (notification->getPayload()["item_id"].asUUID() == blocked_id);
 				}
-				return FALSE;
+				return false;
 			}
 		private:
 			const LLUUID& blocked_id;
 		};
-		// should do this via the channel
-		gNotifyBoxView->purgeMessagesMatching(OfferMatcher(item_id));
+
+		LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(LLUUID(
+				gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(item_id));
 	}
 
 	if (response["Details"])

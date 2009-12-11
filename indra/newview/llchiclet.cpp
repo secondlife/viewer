@@ -53,6 +53,7 @@
 #include "llgroupmgr.h"
 #include "llnotificationmanager.h"
 #include "lltransientfloatermgr.h"
+#include "llsyswellwindow.h"
 
 static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
 static LLDefaultChildRegistry::Register<LLIMWellChiclet> t2_0("chiclet_im_well");
@@ -233,6 +234,10 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 	connectCounterUpdatersToSignal("notify");
 	connectCounterUpdatersToSignal("groupnotify");
 	connectCounterUpdatersToSignal("offer");
+
+	// ensure that notification well window exists, to synchronously
+	// handle toast add/delete events.
+	LLNotificationWellWindow::getInstance();
 }
 
 void LLNotificationChiclet::connectCounterUpdatersToSignal(const std::string& notification_type)

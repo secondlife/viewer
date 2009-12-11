@@ -43,7 +43,6 @@
 #include "llviewercontrol.h"
 #include "llconsole.h"
 #include "llinventorymodel.h"
-#include "llnotify.h"
 #include "llgesturemgr.h"
 
 #include "llinventorybridge.h"
@@ -1377,6 +1376,25 @@ LLViewerInventoryCategory *LLViewerInventoryItem::getLinkedCategory() const
 		return linked_category;
 	}
 	return NULL;
+}
+
+bool LLViewerInventoryItem::checkPermissionsSet(PermissionMask mask) const
+{
+	const LLPermissions& perm = getPermissions();
+	PermissionMask curr_mask = PERM_NONE;
+	if(perm.getOwner() == gAgent.getID())
+	{
+		curr_mask = perm.getMaskBase();
+	}
+	else if(gAgent.isInGroup(perm.getGroup()))
+	{
+		curr_mask = perm.getMaskGroup();
+	}
+	else
+	{
+		curr_mask = perm.getMaskEveryone();
+	}
+	return ((curr_mask & mask) == mask);
 }
 
 //----------

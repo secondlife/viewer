@@ -2900,6 +2900,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="message_session_event">
     Unable to send your message to the chat session with [RECIPIENT].
   </string>
+  <string name="mute">
+    Error while moderating.
+  </string>
   <string name="removed_from_group">
     You have been removed from the group.
   </string>

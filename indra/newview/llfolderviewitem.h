@@ -45,6 +45,7 @@ class LLFolderViewListenerFunctor;
 class LLInventoryFilter;
 class LLMenuGL;
 class LLUIImage;
+class LLViewerInventoryItem;
 
 // These are grouping of inventory types.
 // Order matters when sorting system folders to the top.
@@ -281,6 +282,9 @@ public:
 
 	const LLFolderViewEventListener* getListener( void ) const { return mListener; }
 	LLFolderViewEventListener* getListener( void ) { return mListener; }
+	
+	// Gets the inventory item if it exists (null otherwise)
+	LLViewerInventoryItem * getInventoryItem(void);
 
 	// just rename the object.
 	void rename(const std::string& new_name);
