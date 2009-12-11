@@ -630,7 +630,22 @@ bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLView
 
 static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
 {
-	return (i1->getProximityDistance() < i2->getProximityDistance());
+	if(i1->getProximityDistance() < i2->getProximityDistance())
+	{
+		return true;
+	}
+	else if(i1->getProximityDistance() > i2->getProximityDistance())
+	{
+		return false;
+	}
+	else
+	{
+		// Both objects have the same distance.  This most likely means they're two faces of the same object.
+		// They may also be faces on different objects with exactly the same distance (like HUD objects).
+		// We don't actually care what the sort order is for this case, as long as it's stable and doesn't change when you enable/disable media.
+		// Comparing the impl pointers gives a completely arbitrary ordering, but it will be stable.
+		return (i1 < i2);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
