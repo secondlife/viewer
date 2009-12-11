@@ -62,9 +62,6 @@
 #include "llimfloater.h"
 #include "lltrans.h"
 
-// callback connection to auto-call when the IM floater initializes
-boost::signals2::connection gAdhocAutoCall;
-
 // static
 void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::string& name)
 {
@@ -250,8 +247,8 @@ void LLAvatarActions::startAdhocCall(const std::vector<LLUUID>& ids)
 	// always open IM window when connecting to voice
 	LLIMFloater::show(session_id);
 
-	// start the call once the floater has fully initialized
-	gAdhocAutoCall = LLIMModel::getInstance()->addSessionInitializedCallback(callbackAutoStartCall);
+	// start the call once the session has fully initialized
+	gIMMgr->autoStartCallOnStartup(session_id);
 
 	make_ui_sound("UISndStartIM");
 }
@@ -464,17 +461,6 @@ bool LLAvatarActions::callbackAddFriend(const LLSD& notification, const LLSD& re
 		    message);
 	}
     return false;
-}
-
-// static
-void LLAvatarActions::callbackAutoStartCall(const LLSD& data)
-{
-	// start the adhoc voice call now the IM panel has initialized
-	LLUUID session_id = data["session_id"].asUUID();
-	gIMMgr->startCall(session_id);
-
-	// and deschedule this callback as its work is done now
-	gAdhocAutoCall.disconnect();
 }
 
 // static

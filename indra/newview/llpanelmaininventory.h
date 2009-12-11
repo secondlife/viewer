@@ -110,6 +110,8 @@ protected:
 	void doCreate(const LLSD& userdata);
 	void resetFilters();
 	void setSortBy(const LLSD& userdata);
+	void saveTexture(const LLSD& userdata);
+	bool isSaveTextureEnabled(const LLSD& userdata);
 	
 private:
 	LLFloaterInventoryFinder* getFinder();

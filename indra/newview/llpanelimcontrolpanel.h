@@ -45,8 +45,7 @@ class LLPanelChatControlPanel : public LLPanel
 {
 public:
 	LLPanelChatControlPanel() :
-		mSessionId(LLUUID()),
-		mInitialized(false) {};
+		mSessionId(LLUUID()) {};
 	~LLPanelChatControlPanel();
 
 	virtual BOOL postBuild();
@@ -63,7 +62,6 @@ public:
 
 private:
 	LLUUID mSessionId;
-	bool   mInitialized;
 
 	// connection to voice channel state change signal
 	boost::signals2::connection mVoiceChannelStateChangeConnection;

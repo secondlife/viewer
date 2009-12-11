@@ -278,12 +278,20 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	}
 	else if (mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
 	{
-		mPosGlobal = LLVector3d(key["x"].asReal(),
-								key["y"].asReal(),
-								key["z"].asReal());
+		if (key.has("id"))
+		{
+			LLUUID parcel_id = key["id"].asUUID();
+			mPlaceProfile->setParcelID(parcel_id);
+		}
+		else
+		{
+			mPosGlobal = LLVector3d(key["x"].asReal(),
+									key["y"].asReal(),
+									key["z"].asReal());
+			mPlaceProfile->displayParcelInfo(LLUUID(), mPosGlobal);
+		}
 
 		mPlaceProfile->setInfoType(LLPanelPlaceInfo::PLACE);
-		mPlaceProfile->displayParcelInfo(LLUUID(), mPosGlobal);
 	}
 	else if (mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE)
 	{

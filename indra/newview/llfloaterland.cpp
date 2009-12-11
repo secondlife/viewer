@@ -2299,7 +2299,7 @@ void LLPanelLandAccess::refresh()
 		mListBanned->deleteAllItems();
 	
 	LLParcel *parcel = mParcel->getParcel();
-	
+		
 	// Display options
 	if (parcel)
 	{
@@ -2395,22 +2395,40 @@ void LLPanelLandAccess::refresh()
 				mListBanned->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
 			}
 		}
+		
+		LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
+		if(region)
+		{
+			std::string region_access = "(";
+			region_access += region->getSimAccessString();
+			region_access += ")";
+			childSetLabelArg( "public_access", "[MATURITY]", region_access );
+		}
+		else
+		{
+			childSetLabelArg( "public_access", "[MATURITY]", std::string() );
+		}
+
 
 		if(parcel->getRegionDenyAnonymousOverride())
 		{
 			childSetValue("limit_payment", TRUE);
+			childSetLabelArg( "limit_payment", "[ESTATE_PAYMENT_LIMIT]", getString("access_estate_defined") );
 		}
 		else
 		{
 			childSetValue("limit_payment", (parcel->getParcelFlag(PF_DENY_ANONYMOUS)));
+			childSetLabelArg( "limit_payment", "[ESTATE_PAYMENT_LIMIT]", std::string() );
 		}
 		if(parcel->getRegionDenyAgeUnverifiedOverride())
 		{
 			childSetValue("limit_age_verified", TRUE);
+			childSetLabelArg( "limit_age_verified", "[ESTATE_AGE_LIMIT]", getString("access_estate_defined") );
 		}
 		else
 		{
 			childSetValue("limit_age_verified", (parcel->getParcelFlag(PF_DENY_AGEUNVERIFIED)));
+			childSetLabelArg( "limit_age_verified", "[ESTATE_AGE_LIMIT]", std::string() );
 		}
 		
 		BOOL use_pass = parcel->getParcelFlag(PF_USE_PASS_LIST);

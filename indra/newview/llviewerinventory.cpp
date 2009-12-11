@@ -1378,6 +1378,25 @@ LLViewerInventoryCategory *LLViewerInventoryItem::getLinkedCategory() const
 	return NULL;
 }
 
+bool LLViewerInventoryItem::checkPermissionsSet(PermissionMask mask) const
+{
+	const LLPermissions& perm = getPermissions();
+	PermissionMask curr_mask = PERM_NONE;
+	if(perm.getOwner() == gAgent.getID())
+	{
+		curr_mask = perm.getMaskBase();
+	}
+	else if(gAgent.isInGroup(perm.getGroup()))
+	{
+		curr_mask = perm.getMaskGroup();
+	}
+	else
+	{
+		curr_mask = perm.getMaskEveryone();
+	}
+	return ((curr_mask & mask) == mask);
+}
+
 //----------
 
 void LLViewerInventoryItem::onCallingCardNameLookup(const LLUUID& id, const std::string& first_name, const std::string& last_name)
