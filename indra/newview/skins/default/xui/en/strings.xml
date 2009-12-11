@@ -460,7 +460,7 @@ Returns the rotation of detected object number (returns &lt;0,0,0,1&gt; if numbe
 	</string>
 	<string name="LSLTipText_llDetectedGroup" translate="false">
 integer llDetectedGroup(integer number)
-Returns TRUE if detected object is part of same group as owner
+Returns an integer that is a boolean representing if the detected object or avatar is in the same group that the prim containing the script is set to
 	</string>
 	<string name="LSLTipText_llDetectedLinkNumber" translate="false">
 integer llDetectedLinkNumber(integer number)
@@ -812,7 +812,7 @@ Preloads a sound on viewers within range
 	</string>
 	<string name="LSLTipText_llRotLookAt" translate="false">
 llRotLookAt(rotation target, float strength, float damping)
-Causes object name to point its forward axis towards target
+Causes object to point its forward axis towards target
 	</string>
 	<string name="LSLTipText_llStringLength" translate="false">
 integer llStringLength(string str)
@@ -1471,7 +1471,7 @@ Returns the requested permission mask for the root object the task is attached t
 	</string>
 	<string name="LSLTipText_llSetObjectPermMask" translate="false">
 llSetObjectPermMask(integer mask, integer value)
-Sets the given permission mask to the new value on the root object the task is attached to
+Sets the given permission mask to the new value on the root object the task is attached to (requires God Mode)
 	</string>
 	<string name="LSLTipText_llGetInventoryPermMask" translate="false">
 integer llGetInventoryPermMask(string item, integer mask)
@@ -1479,7 +1479,7 @@ Returns the requested permission mask for the inventory item
 	</string>
 	<string name="LSLTipText_llSetInventoryPermMask" translate="false">
 llSetInventoryPermMask(string item, integer mask, integer value)
-Sets the given permission mask to the new value on the inventory item
+Sets the given permission mask to the new value on the inventory item (requires God Mode)
 	</string>
 	<string name="LSLTipText_llGetInventoryCreator" translate="false">
 key llGetInventoryCreator(string item)
