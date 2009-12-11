@@ -586,6 +586,7 @@ BOOL LLPanelPeople::postBuild()
 	registrar.add("People.Groups.ViewSort.Action",  boost::bind(&LLPanelPeople::onGroupsViewSortMenuItemClicked,  this, _2));
 	registrar.add("People.Recent.ViewSort.Action",  boost::bind(&LLPanelPeople::onRecentViewSortMenuItemClicked,  this, _2));
 
+	enable_registrar.add("People.Group.Minus.Enable",	boost::bind(&LLPanelPeople::isRealGroup,	this));
 	enable_registrar.add("People.Friends.ViewSort.CheckItem",	boost::bind(&LLPanelPeople::onFriendsViewSortMenuItemCheck,	this, _2));
 	enable_registrar.add("People.Recent.ViewSort.CheckItem",	boost::bind(&LLPanelPeople::onRecentViewSortMenuItemCheck,	this, _2));
 	enable_registrar.add("People.Nearby.ViewSort.CheckItem",	boost::bind(&LLPanelPeople::onNearbyViewSortMenuItemCheck,	this, _2));
@@ -919,6 +920,11 @@ void LLPanelPeople::onVisibilityChange(const LLSD& new_visibility)
 void LLPanelPeople::reSelectedCurrentTab()
 {
 	mTabContainer->selectTab(mTabContainer->getCurrentPanelIndex());
+}
+
+bool LLPanelPeople::isRealGroup()
+{
+	return getCurrentItemID() != LLUUID::null;
 }
 
 void LLPanelPeople::onFilterEdit(const std::string& search_string)
