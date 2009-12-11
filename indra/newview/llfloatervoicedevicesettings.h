@@ -56,7 +56,6 @@ protected:
 	static void onCommitInputDevice(LLUICtrl* ctrl, void* user_data);
 	static void onCommitOutputDevice(LLUICtrl* ctrl, void* user_data);
 
-	F32 mMicVolume;
 	std::string mInputDevice;
 	std::string mOutputDevice;
 	class LLComboBox		*mCtrlInputDevices;
