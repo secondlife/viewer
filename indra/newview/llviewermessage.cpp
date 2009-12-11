@@ -1480,6 +1480,8 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// Note: sets inventory_task_offer_callback as the callback
 		p.substitutions(args).payload(payload).functor.function(boost::bind(&LLOfferInfo::inventory_task_offer_callback, info, _1, _2));
 		p.name = name_found ? "ObjectGiveItem" : "ObjectGiveItemUnknownUser";
+		// Pop up inv offer chiclet and let the user accept (keep), or reject (and silently delete) the inventory.
+		LLNotifications::instance().add(p);
 	}
 	else // Agent -> Agent Inventory Offer
 	{
@@ -1503,18 +1505,14 @@ void inventory_offer_handler(LLOfferInfo* info)
 		
 		// In viewer 2 we're now auto receiving inventory offers and messaging as such (not sending reject messages).
 		info->send_auto_receive_response();
+
+		// Inform user that there is a script floater via toast system
+		{
+			payload["give_inventory_notification"] = TRUE;
+			LLNotificationPtr notification = LLNotifications::instance().add(p.payload(payload)); 
+			LLScriptFloaterManager::getInstance()->setNotificationToastId(object_id, notification->getID());
+		}
 	}
-
-	// Pop up inv offer notification and let the user accept (keep), or reject (and silently delete) the inventory.
-	LLNotifications::instance().add(p);
-
-	// TODO(EM): Recheck this after we will know how script notifications should look like.
-	// Inform user that there is a script floater via toast system
-	// {
-	// 	payload["give_inventory_notification"] = TRUE;
-	// 	LLNotificationPtr notification = LLNotifications::instance().add(p.payload(payload)); 
-	// 	LLScriptFloaterManager::getInstance()->setNotificationToastId(object_id, notification->getID());
-	// }
 }
 
 bool lure_callback(const LLSD& notification, const LLSD& response)
