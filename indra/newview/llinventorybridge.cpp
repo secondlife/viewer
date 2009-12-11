@@ -2506,8 +2506,8 @@ void LLFolderBridge::folderOptionsMenu()
 			mItems.push_back(std::string("Wear As Ensemble"));
 		}
 		mItems.push_back(std::string("Remove From Outfit"));
-		if (is_sidepanel)
-			mItems.push_back(std::string("Outfit Separator"));
+
+		mItems.push_back(std::string("Outfit Separator"));
 	}
 	hide_context_entries(*mMenu, mItems, disabled_items);
 

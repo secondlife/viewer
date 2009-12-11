@@ -339,6 +339,9 @@
          function="Inventory.DoToSelected"
          parameter="open" />
     </menu_item_call>
+    <menu_item_separator
+     layout="topleft"
+     name="Folder Wearables Separator" />
     <menu_item_call
      label="Replace Current Outfit"
      layout="topleft"
@@ -359,13 +362,13 @@
      label="Remove From Current Outfit"
      layout="topleft"
      name="Remove From Outfit">
+    <menu_item_separator
+     layout="topleft"
+     name="Outfit Separator" />
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
          parameter="removefromoutfit" />
     </menu_item_call>
-    <menu_item_separator
-     layout="topleft"
-     name="Outfit Separator" />
     <menu_item_call
      label="Purge Item"
      layout="topleft"
@@ -423,7 +426,8 @@
          parameter="copy_uuid" />
     </menu_item_call>
     <menu_item_separator
-     layout="topleft" />
+     layout="topleft" 
+     name="Copy Separator" />
     <menu_item_call
      label="Copy"
      layout="topleft"
@@ -449,7 +453,8 @@
          parameter="paste_link" />
     </menu_item_call>
     <menu_item_separator
-     layout="topleft" />
+     layout="topleft" 
+     name="Paste Separator" />
     <menu_item_call
      label="Remove Link"
      layout="topleft"
@@ -500,7 +505,8 @@
          parameter="about" />
     </menu_item_call>
     <menu_item_separator
-     layout="topleft" />
+     layout="topleft" 
+     name="Animation Separator" />
     <menu_item_call
      label="Play in World"
      layout="topleft"
@@ -518,7 +524,8 @@
          parameter="playlocal" />
     </menu_item_call>
     <menu_item_separator
-     layout="topleft" />
+     layout="topleft" 
+     name="Send Instant Message Separator" />
     <menu_item_call
      label="Send Instant Message"
      layout="topleft"
@@ -544,7 +551,8 @@
          parameter="selected" />
     </menu_item_call>
     <menu_item_separator
-     layout="topleft" />
+     layout="topleft" 
+     name="Gesture Separator" />
     <menu_item_call
      label="Activate"
      layout="topleft"
@@ -562,7 +570,8 @@
          parameter="deactivate" />
     </menu_item_call>
     <menu_item_separator
-     layout="topleft" />
+     layout="topleft" 
+     name="Texture Separator" />
     <menu_item_call
      label="Save As"
      layout="topleft"
@@ -572,7 +581,8 @@
          parameter="save_as" />
     </menu_item_call>
     <menu_item_separator
-     layout="topleft" />
+     layout="topleft" 
+     name="Attach Separator"/>
     <menu_item_call
      label="Detach From Yourself"
      layout="topleft"
@@ -608,6 +618,9 @@
      label="Attach To HUD"
      layout="topleft"
      name="Attach To HUD" />
+    <menu_item_separator
+     layout="topleft" 
+     name="Wearable Separator"/>
     <menu_item_call
      label="Edit"
      layout="topleft"
