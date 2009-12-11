@@ -72,7 +72,6 @@
 #include "llviewerwindow.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-#include "llnotify.h"
 #include "llnearbychat.h"
 #include "llviewerregion.h"
 #include "llvoicechannel.h"

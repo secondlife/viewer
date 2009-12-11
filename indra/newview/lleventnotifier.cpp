@@ -37,7 +37,6 @@
 #include "llnotificationsutil.h"
 #include "message.h"
 
-#include "llnotify.h"
 #include "lleventinfo.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
