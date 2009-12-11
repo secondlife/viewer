@@ -535,6 +535,8 @@ bool isWornLink(LLUUID link_id)
 		if (LLGestureManager::instance().isGestureActive(item->getUUID()))
 			return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
