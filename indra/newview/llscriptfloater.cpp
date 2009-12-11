@@ -39,6 +39,7 @@
 #include "llfloaterreg.h"
 #include "llnotifications.h"
 #include "llscreenchannel.h"
+#include "llsyswellwindow.h"
 #include "lltoastnotifypanel.h"
 #include "llviewerwindow.h"
 #include "llimfloater.h"
@@ -240,6 +241,14 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
 		LLBottomTray::getInstance()->getChicletPanel()->createChiclet<LLScriptChiclet>(object_id);
 	}
 
+	LLIMWellWindow::getInstance()->addObjectRow(object_id, set_new_message);
+
+	LLSD data;
+	data["object_id"] = object_id;
+	data["new_message"] = set_new_message;
+	data["unread"] = 1; // each object has got only one floater
+	mNewObjectSignal(data);
+
 	toggleScriptFloater(object_id, set_new_message);
 }
 
@@ -267,6 +276,8 @@ void LLScriptFloaterManager::onRemoveNotification(const LLUUID& notification_id)
 	// remove related chiclet
 	LLBottomTray::getInstance()->getChicletPanel()->removeChiclet(object_id);
 
+	LLIMWellWindow::getInstance()->removeObjectRow(object_id);
+
 	// close floater
 	LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>("script_floater", notification_id);
 	if(floater)
@@ -291,13 +302,6 @@ void LLScriptFloaterManager::removeNotificationByObjectId(const LLUUID& object_i
 
 void LLScriptFloaterManager::toggleScriptFloater(const LLUUID& object_id, bool set_new_message)
 {
-	// hide "new message" icon from chiclet
-	LLIMChiclet* chiclet = LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(object_id);
-	if(chiclet)
-	{
-		chiclet->setShowNewMessagesIcon(set_new_message);
-	}
-
 	// kill toast
 	using namespace LLNotificationsUI;
 	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(LLChannelManager::getInstance()->findChannelByID(
@@ -306,6 +310,11 @@ void LLScriptFloaterManager::toggleScriptFloater(const LLUUID& object_id, bool s
 	{
 		channel->killToastByNotificationID(findNotificationToastId(object_id));
 	}
+
+	LLSD data;
+	data["object_id"] = object_id;
+	data["new_message"] = set_new_message;
+	mToggleFloaterSignal(data);
 
 	// toggle floater
 	LLScriptFloater::toggle(object_id);

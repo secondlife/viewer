@@ -55,8 +55,20 @@
              layout="topleft"
              left_delta="0"
              name="status_text"
-             top_pad="5"
+             top_pad="7"
              width="150" />
+            <text
+             visible="false"
+             follows="bottom|right"
+             height="16"
+             left_delta="0"
+             name="refresh_search"
+             left_pad="0"
+             right="-10"
+             halign="right"
+             width="450">
+               Redo search to reflect current God level
+            </text>
         </layout_panel>
     </layout_stack>
 </floater>

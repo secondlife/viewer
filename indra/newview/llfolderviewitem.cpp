@@ -40,6 +40,7 @@
 #include "llinventoryfilter.h"
 #include "llpanel.h"
 #include "llviewercontrol.h"	// gSavedSettings
+#include "llviewerinventory.h"
 #include "llviewerwindow.h"		// Argh, only for setCursor()
 
 // linden library includes
@@ -601,6 +602,11 @@ void LLFolderViewItem::rename(const std::string& new_name)
 const std::string& LLFolderViewItem::getSearchableLabel() const
 {
 	return mSearchableLabel;
+}
+
+LLViewerInventoryItem * LLFolderViewItem::getInventoryItem(void)
+{
+	return gInventory.getItem(getListener()->getUUID());
 }
 
 std::string LLFolderViewItem::getName( void ) const

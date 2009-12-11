@@ -67,6 +67,11 @@ public:
 		mCurrentSelectedList = inventory_list;
 	}
 
+	/**
+	 * Saves folder state for all Inventory Panels if there are no applied filter.
+	 */
+	void saveFolderStateIfNoFilter();
+
 protected:
 	/**
 	 * @return true - if current selected panel is not null and selected item is a landmark
@@ -151,6 +156,7 @@ private:
 	LLMenuGL*					mGearFolderMenu;
 	LLMenuGL*					mMenuAdd;
 	LLInventorySubTreePanel*	mCurrentSelectedList;
+	LLInventoryObserver*		mInventoryObserver;
 
 	LLPanel*					mListCommands;
 	bool 						mSortByDate;

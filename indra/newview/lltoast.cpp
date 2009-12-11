@@ -67,7 +67,8 @@ LLToast::LLToast(const LLToast::Params& p)
 	mHideBtn(NULL),
 	mNotification(p.notification),
 	mIsHidden(false),
-	mHideBtnPressed(false)
+	mHideBtnPressed(false),
+	mIsTip(p.is_tip)
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "panel_toast.xml", NULL);
 
@@ -98,7 +99,27 @@ BOOL LLToast::postBuild()
 		mTimer.stop();
 	}
 
+	if (mIsTip)
+	{
+		mTextEditor = mPanel->getChild<LLTextEditor>("text_editor_box");
+
+		if (mTextEditor)
+		{
+			mTextEditor->setMouseUpCallback(boost::bind(&LLToast::hide,this));
+			mPanel->setMouseUpCallback(boost::bind(&LLToast::handleTipToastClick, this, _2, _3, _4));
+		}
+	}
+
 	return TRUE;
+}
+
+//--------------------------------------------------------------------------
+void LLToast::handleTipToastClick(S32 x, S32 y, MASK mask)
+{
+	if (!mTextEditor->getRect().pointInRect(x, y))
+	{
+		hide();
+	}
 }
 
 //--------------------------------------------------------------------------

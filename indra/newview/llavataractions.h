@@ -139,7 +139,6 @@ private:
 	static bool handleRemove(const LLSD& notification, const LLSD& response);
 	static bool handlePay(const LLSD& notification, const LLSD& response, LLUUID avatar_id);
 	static void callback_invite_to_group(LLUUID group_id, LLUUID id);
-	static void callbackAutoStartCall(const LLSD& data);
 
 	// Just request friendship, no dialog.
 	static void requestFriendship(const LLUUID& target_id, const std::string& target_name, const std::string& message);

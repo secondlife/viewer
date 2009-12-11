@@ -58,6 +58,9 @@ LLUrlRegistry::LLUrlRegistry()
 	//so it should be registered in the end of list
 	registerUrl(new LLUrlEntrySL());
 	registerUrl(new LLUrlEntrySLLabel());
+	// most common pattern is a URL without any protocol,
+	// e.g., "secondlife.com"
+	registerUrl(new LLUrlEntryHTTPNoProtocol());	
 }
 
 LLUrlRegistry::~LLUrlRegistry()
@@ -118,10 +121,23 @@ static bool matchRegex(const char *text, boost::regex regex, U32 &start, U32 &en
 	return true;
 }
 
+static bool stringHasUrl(const std::string &text)
+{
+	// fast heuristic test for a URL in a string. This is used
+	// to avoid lots of costly regex calls, BUT it needs to be
+	// kept in sync with the LLUrlEntry regexes we support.
+	return (text.find("://") != std::string::npos ||
+			text.find("www.") != std::string::npos ||
+			text.find(".com") != std::string::npos ||
+			text.find(".net") != std::string::npos ||
+			text.find(".edu") != std::string::npos ||
+			text.find(".org") != std::string::npos);
+}
+
 bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb)
 {
 	// avoid costly regexes if there is clearly no URL in the text
-	if (text.find("://") == std::string::npos)
+	if (! stringHasUrl(text))
 	{
 		return false;
 	}

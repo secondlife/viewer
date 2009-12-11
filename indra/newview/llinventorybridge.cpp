@@ -3196,6 +3196,22 @@ void LLTextureBridge::openItem()
 	}
 }
 
+bool LLTextureBridge::canSaveTexture(void)
+{
+	const LLInventoryModel* model = getInventoryModel();
+	if(!model) 
+	{
+		return false;
+	}
+	
+	const LLViewerInventoryItem *item = model->getItem(mUUID);
+	if (item)
+	{
+		return item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
+	}
+	return false;
+}
+
 void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	lldebugs << "LLTextureBridge::buildContextMenu()" << llendl;
@@ -3220,6 +3236,10 @@ void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		items.push_back(std::string("Texture Separator"));
 		items.push_back(std::string("Save As"));
+		if (!canSaveTexture())
+		{
+			disabled_items.push_back(std::string("Save As"));
+		}
 	}
 	hide_context_entries(menu, items, disabled_items);	
 }
