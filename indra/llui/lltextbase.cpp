@@ -1075,7 +1075,7 @@ void LLTextBase::reflow(S32 start_index)
 
 		// shrink document to minimum size (visible portion of text widget)
 		// to force inlined widgets with follows set to shrink
-		mDocumentView->setShape(mVisibleTextRect);
+		mDocumentView->reshape(mVisibleTextRect.getWidth(), mDocumentView->getRect().getHeight());
 
 		bool scrolled_to_bottom = mScroller ? mScroller->isAtBottom() : false;
 
