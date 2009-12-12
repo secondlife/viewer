@@ -2099,10 +2099,10 @@ void LLTextBase::updateRects()
 	doc_rect.mLeft = 0;
 
 	// allow horizontal scrolling?
-	// if so, use entire width of text contents (sans scrollbars)
+	// if so, use entire width of text contents
 	// otherwise, stop at width of mVisibleTextRect
 	doc_rect.mRight = mScroller 
-		? llmax(mScroller->getRect().mRight - mScroller->getBorderWidth(), mTextBoundingRect.mRight)
+		? llmax(mVisibleTextRect.getWidth(), mTextBoundingRect.mRight)
 		: mVisibleTextRect.getWidth();
 
 	mDocumentView->setShape(doc_rect);
