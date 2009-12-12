@@ -7651,6 +7651,9 @@ void LLVOAvatar::getImpostorValues(LLVector3* extents, LLVector3& angle, F32& di
 
 void LLVOAvatar::idleUpdateRenderCost()
 {
+	static const U32 ARC_BODY_PART_COST = 20;
+	static const U32 ARC_LIMIT = 2048;
+
 	if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHAME))
 	{
 		return;
@@ -7667,7 +7670,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 		{
 			if (isTextureVisible(tex_index))
 			{
-				cost +=20;
+				cost +=ARC_BODY_PART_COST;
 			}
 		}
 	}
@@ -7687,7 +7690,6 @@ void LLVOAvatar::idleUpdateRenderCost()
 				const LLDrawable* drawable = attached_object->mDrawable;
 				if (drawable)
 				{
-					cost += 10;
 					const LLVOVolume* volume = drawable->getVOVolume();
 					if (volume)
 					{
@@ -7698,11 +7700,11 @@ void LLVOAvatar::idleUpdateRenderCost()
 		}
 	}
 
-	cost += textures.size() * 5;
+	cost += textures.size() * LLVOVolume::ARC_TEXTURE_COST;
 
 	setDebugText(llformat("%d", cost));
-	F32 green = 1.f-llclamp(((F32) cost-1024.f)/1024.f, 0.f, 1.f);
-	F32 red = llmin((F32) cost/1024.f, 1.f);
+	F32 green = 1.f-llclamp(((F32) cost-(F32)ARC_LIMIT)/(F32)ARC_LIMIT, 0.f, 1.f);
+	F32 red = llmin((F32) cost/(F32)ARC_LIMIT, 1.f);
 	mText->setColor(LLColor4(red,green,0,1));
 }
 

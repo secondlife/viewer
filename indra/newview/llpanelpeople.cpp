@@ -775,7 +775,7 @@ void LLPanelPeople::updateButtons()
 	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
 	buttonSetEnabled("view_profile_btn",	item_selected);
 	buttonSetEnabled("im_btn",				multiple_selected); // allow starting the friends conference for multiple selection
-	buttonSetEnabled("call_btn",			multiple_selected);
+	buttonSetEnabled("call_btn",			multiple_selected && LLVoiceClient::voiceEnabled());
 	buttonSetEnabled("share_btn",			item_selected); // not implemented yet
 
 	bool none_group_selected = item_selected && selected_id.isNull();

@@ -36,10 +36,11 @@
 #include "llpanel.h"
 #include "llpointer.h"			// LLPointer<>
 #include "llmediactrl.h"	// LLMediaCtrlObserver
+#include <boost/scoped_ptr.hpp>
 
 class LLLineEditor;
 class LLUIImage;
-
+class LLPanelLoginListener;
 
 class LLPanelLogin:	
 	public LLPanel,
@@ -90,6 +91,7 @@ public:
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
 private:
+	friend class LLPanelLoginListener;
 	void reshapeBrowser();
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
@@ -103,6 +105,7 @@ private:
 	
 private:
 	LLPointer<LLUIImage> mLogoImage;
+	boost::scoped_ptr<LLPanelLoginListener> mListener;
 
 	void			(*mCallback)(S32 option, void *userdata);
 	void*			mCallbackData;

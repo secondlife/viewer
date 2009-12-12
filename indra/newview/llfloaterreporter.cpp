@@ -95,7 +95,6 @@ const U32 INCLUDE_SCREENSHOT  = 0x01 << 0;
 LLFloaterReporter::LLFloaterReporter(const LLSD& key)
 :	LLFloater(key),
 	mReportType(COMPLAINT_REPORT),
-	mEmailToEstateOwner(FALSE),
 	mObjectID(),
 	mScreenID(),
 	mAbuserID(),
@@ -117,18 +116,7 @@ void LLFloaterReporter::processRegionInfo(LLMessageSystem* msg)
 	
 	if ( LLFloaterReg::instanceVisible("reporter") )
 	{
-		LLFloaterReporter *f = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
-		BOOL email_to_estate_owner = ( region_flags & REGION_FLAGS_ABUSE_EMAIL_TO_ESTATE_OWNER );
-		f->mEmailToEstateOwner = email_to_estate_owner;
-
-		if ( email_to_estate_owner )
-		{
-			LLNotificationsUtil::add("HelpReportAbuseEmailEO");
-		}
-		else
-		{
-			LLNotificationsUtil::add("HelpReportAbuseEmailLL");
-		}
+		LLNotificationsUtil::add("HelpReportAbuseEmailLL");
 	};
 }
 // virtual
@@ -218,17 +206,7 @@ LLFloaterReporter::~LLFloaterReporter()
 // virtual
 void LLFloaterReporter::draw()
 {
-	// this is set by a static callback sometime after the dialog is created.
-	// Only disable screenshot for abuse reports to estate owners
-	if ( mEmailToEstateOwner )
-	{
-		childSetValue("screen_check", FALSE );
-		childSetEnabled("screen_check", FALSE );
-	}
-	else
-	{
-		childSetEnabled("screen_check", TRUE );
-	}
+	childSetEnabled("screen_check", TRUE );
 
 	LLFloater::draw();
 }
@@ -637,11 +615,7 @@ LLSD LLFloaterReporter::gatherReport()
 	LLUUID screenshot_id = LLUUID::null;
 	if (childGetValue("screen_check"))
 	{
-
-		if ( mEmailToEstateOwner == FALSE )
-		{
-			screenshot_id = childGetValue("screenshot");
-		}
+		screenshot_id = childGetValue("screenshot");
 	};
 
 	LLSD report = LLSD::emptyMap();

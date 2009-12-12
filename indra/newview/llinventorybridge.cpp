@@ -535,6 +535,8 @@ bool isWornLink(LLUUID link_id)
 		if (LLGestureManager::instance().isGestureActive(item->getUUID()))
 			return true;
 		break;
+	default:
+		break;
 	}
 	return false;
 }
@@ -1469,13 +1471,14 @@ BOOL LLFolderBridge::isItemRemovable()
 	{
 		return FALSE;
 	}
+
 	// Allow protected types to be removed, but issue a warning.
-	/*
-	if(LLFolderType::lookupIsProtectedType(category->getPreferredType()))
+	// Restrict to god mode so users don't inadvertently mess up their inventory.
+	if(LLFolderType::lookupIsProtectedType(category->getPreferredType()) &&
+	   !gAgent.isGodlike())
 	{
 		return FALSE;
 	}
-	*/
 
 	LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
 	LLFolderViewFolder* folderp = dynamic_cast<LLFolderViewFolder*>(panel ? panel->getRootFolder()->getItemByID(mUUID) : NULL);
@@ -3196,6 +3199,22 @@ void LLTextureBridge::openItem()
 	}
 }
 
+bool LLTextureBridge::canSaveTexture(void)
+{
+	const LLInventoryModel* model = getInventoryModel();
+	if(!model) 
+	{
+		return false;
+	}
+	
+	const LLViewerInventoryItem *item = model->getItem(mUUID);
+	if (item)
+	{
+		return item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
+	}
+	return false;
+}
+
 void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	lldebugs << "LLTextureBridge::buildContextMenu()" << llendl;
@@ -3220,6 +3239,10 @@ void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		items.push_back(std::string("Texture Separator"));
 		items.push_back(std::string("Save As"));
+		if (!canSaveTexture())
+		{
+			disabled_items.push_back(std::string("Save As"));
+		}
 	}
 	hide_context_entries(menu, items, disabled_items);	
 }

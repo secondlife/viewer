@@ -157,7 +157,7 @@ LLInventoryItem* LLTaskInvFVBridge::findItem() const
 	LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
 	if(object)
 	{
-		return (LLInventoryItem*)(object->getInventoryObject(mUUID));
+		return dynamic_cast<LLInventoryItem*>(object->getInventoryObject(mUUID));
 	}
 	return NULL;
 }
@@ -712,6 +712,7 @@ public:
 	virtual LLUIImagePtr getIcon() const;
 	virtual const std::string& getDisplayName() const { return getName(); }
 	virtual BOOL isItemRenameable() const;
+	// virtual BOOL isItemCopyable() const { return FALSE; }
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL isItemRemovable();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
@@ -1697,7 +1698,7 @@ void LLPanelObjectInventory::updateInventory()
 
 	mFolders->requestArrange();
 	mInventoryNeedsUpdate = FALSE;
-	LLEditMenuHandler::gEditMenuHandler = mFolders;
+	// Edit menu handler is set in onFocusReceived
 }
 
 // *FIX: This is currently a very expensive operation, because we have

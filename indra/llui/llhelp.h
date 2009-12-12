@@ -42,6 +42,8 @@ class LLHelp
 	virtual std::string defaultTopic() = 0;
 	// return topic to use before the user logs in
 	virtual std::string preLoginTopic() = 0;
+	// return topic to use for the top-level help, invoked by F1
+	virtual std::string f1HelpTopic() = 0;
 };
 
 #endif // headerguard

@@ -49,24 +49,38 @@
 
 void LLViewerHelp::showTopic(const std::string &topic)
 {
-	showHelp();
-	
 	// allow overriding the help server with a local help file
 	if( gSavedSettings.getBOOL("HelpUseLocal") )
 	{
+		showHelp();
 		LLFloaterHelpBrowser* helpbrowser = dynamic_cast<LLFloaterHelpBrowser*>(LLFloaterReg::getInstance("help_browser"));
 		helpbrowser->navigateToLocalPage( "help-offline" , "index.html" );
 		return;
 	}
 
-	// use a special login topic before the user logs in
+	// if the help topic is empty, use the default topic
 	std::string help_topic = topic;
-	if (! LLLoginInstance::getInstance()->authSuccess())
+	if (help_topic.empty())
 	{
-		help_topic = preLoginTopic();
+		help_topic = defaultTopic();
+	}
+
+	// f1 help topic means: if user not logged in yet, show the
+	// pre-login topic, otherwise show help for the focused item
+	if (help_topic == f1HelpTopic())
+	{
+		if (! LLLoginInstance::getInstance()->authSuccess())
+		{
+			help_topic = preLoginTopic();
+		}
+		else
+		{
+			help_topic = getTopicFromFocus();
+		}
 	}
 
 	// work out the URL for this topic and display it 
+	showHelp();
 	const LLOSInfo& osinfo = LLAppViewer::instance()->getOSInfo();
 	std::string helpURL = LLViewerHelpUtil::buildHelpURL( help_topic, gSavedSettings, osinfo );
 	setRawURL( helpURL );
@@ -82,6 +96,12 @@ std::string LLViewerHelp::preLoginTopic()
 {
 	// *hack: to be done properly
 	return "pre_login_help";
+}
+
+std::string LLViewerHelp::f1HelpTopic()
+{
+	// *hack: to be done properly
+	return "f1_help";
 }
 
 //////////////////////////////

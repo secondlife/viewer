@@ -127,7 +127,6 @@ LLTeleportHistoryMenuItem::LLTeleportHistoryMenuItem(const Params& p)
 	if (p.item_type == TYPE_BACKWARD)
 	{
 		setFont( p.back_item_font );
-		setLabel(std::string("   ") + std::string(p.label));
 	}
 	else if (p.item_type == TYPE_CURRENT)
 	{
@@ -136,7 +135,6 @@ LLTeleportHistoryMenuItem::LLTeleportHistoryMenuItem(const Params& p)
 	else
 	{
 		setFont( p.forward_item_font );
-		setLabel(std::string("   ") + std::string(p.label));
 	}
 
 	LLIconCtrl::Params icon_params;

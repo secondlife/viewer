@@ -89,4 +89,51 @@
          function="ParticipantList.EnableItem"
          parameter="can_allow_text_chat" />
     </menu_item_check>
+    <menu_item_separator
+     layout="topleft"
+     name="moderate_voice_separator" />
+    <menu_item_call
+     label="Mute this participant"
+     layout="topleft"
+     name="ModerateVoiceMuteSelected">
+        <on_click
+         function="ParticipantList.ModerateVoice"
+         parameter="selected" />
+        <on_enable
+         function="ParticipantList.EnableItem"
+         parameter="can_moderate_voice" />
+    </menu_item_call>
+    <menu_item_call
+     label="Mute everyone else"
+     layout="topleft"
+     name="ModerateVoiceMuteOthers">
+        <on_click
+         function="ParticipantList.ModerateVoice"
+         parameter="others" />
+        <on_enable
+         function="ParticipantList.EnableItem"
+         parameter="can_moderate_voice" />
+    </menu_item_call>
+    <menu_item_call
+     label="Unmute this participant"
+     layout="topleft"
+     name="ModerateVoiceUnMuteSelected">
+        <on_click
+         function="ParticipantList.ModerateVoice"
+         parameter="selected" />
+        <on_enable
+         function="ParticipantList.EnableItem"
+         parameter="can_moderate_voice" />
+    </menu_item_call>
+    <menu_item_call
+     label="Unmute everyone else"
+     layout="topleft"
+     name="ModerateVoiceUnMuteOthers">
+        <on_click
+         function="ParticipantList.ModerateVoice"
+         parameter="others" />
+        <on_enable
+         function="ParticipantList.EnableItem"
+         parameter="can_moderate_voice" />
+    </menu_item_call>
 </context_menu>
