@@ -506,12 +506,59 @@ void hide_context_entries(LLMenuGL& menu,
 	}
 }
 
+bool isWornLink(LLUUID link_id)
+{
+	LLViewerInventoryItem *link = gInventory.getItem(link_id);
+	if (!link)
+		return false;
+	LLViewerInventoryItem *item = link->getLinkedItem();
+	if (!item)
+		return false;
+	
+	switch(item->getType())
+	{
+	case LLAssetType::AT_OBJECT:
+	{
+		LLVOAvatarSelf* my_avatar = gAgent.getAvatarObject();
+		if(my_avatar && my_avatar->isWearingAttachment(item->getUUID()))
+			return true;
+	}
+	break;
+
+	case LLAssetType::AT_BODYPART:
+	case LLAssetType::AT_CLOTHING:
+		if(gAgentWearables.isWearingItem(item->getUUID()))
+			return true;
+		break;
+
+	case LLAssetType::AT_GESTURE:
+		if (LLGestureManager::instance().isGestureActive(item->getUUID()))
+			return true;
+		break;
+	default:
+		break;
+	}
+	return false;
+}
+
 // Helper for commonly-used entries
 void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 										std::vector<std::string> &items,
 										std::vector<std::string> &disabled_items, U32 flags)
 {
 	const LLInventoryObject *obj = getInventoryObject();
+
+	bool is_sidepanel = isInOutfitsSidePanel();
+	if (is_sidepanel)
+	{
+		// Sidepanel includes restricted menu.
+		if (obj && obj->getIsLinkType() && !isWornLink(mUUID))
+		{
+			items.push_back(std::string("Remove Link"));
+		}
+		return;
+	}
+
 	if (obj)
 	{
 		if (obj->getIsLinkType())
@@ -565,6 +612,12 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		disabled_items.push_back(std::string("Paste As Link"));
 	}
 	items.push_back(std::string("Paste Separator"));
+
+
+	if (obj && obj->getIsLinkType() && !isWornLink(mUUID))
+	{
+		items.push_back(std::string("Remove Link"));
+	}
 
 	items.push_back(std::string("Delete"));
 	if (!isItemRemovable())
@@ -911,6 +964,16 @@ void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 		model->purgeObject(uuid);
 		model->notifyObservers();
 	}
+}
+
+bool LLInvFVBridge::isInOutfitsSidePanel() const
+{
+	LLInventoryPanel *my_panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
+	LLPanelOutfitsInventory *outfit_panel =
+		dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
+	if (!outfit_panel)
+		return false;
+	return outfit_panel->isAccordionPanel(my_panel);
 }
 
 // +=================================================+
@@ -2386,19 +2449,6 @@ void LLFolderBridge::staticFolderOptionsMenu()
 	sSelf->folderOptionsMenu();
 }
 
-bool isInOutfitsSidePanel(LLPanel *panel)
-{
-	LLInventoryPanel *my_panel = dynamic_cast<LLInventoryPanel*>(panel);
-	LLPanelOutfitsInventory *outfit_panel =
-		dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
-	if (!outfit_panel)
-		return false;
-	return outfit_panel->isAccordionPanel(my_panel);
-
-	//LLInventoryPanel *outfit_inv_panel = outfit_panel ? outfit_panel->getActivePanel(): NULL;
-	//return (my_panel && (my_panel == outfit_inv_panel));
-}
-
 void LLFolderBridge::folderOptionsMenu()
 {
 	std::vector<std::string> disabled_items;
@@ -2412,13 +2462,12 @@ void LLFolderBridge::folderOptionsMenu()
 	// BAP change once we're no longer treating regular categories as ensembles.
 	const bool is_ensemble = category && (type == LLFolderType::FT_NONE ||
 										  LLFolderType::lookupIsEnsembleType(type));
-	const bool is_sidepanel = isInOutfitsSidePanel(mInventoryPanel.get());
 
 	// calling card related functionality for folders.
 
+	const bool is_sidepanel = isInOutfitsSidePanel();
 	if (is_sidepanel)
 	{
-		mItems.clear();
 		mItems.push_back("Rename");
 		mItems.push_back("Delete");
 	}
@@ -2488,14 +2537,13 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	mDisabledItems.clear();
 
 	lldebugs << "LLFolderBridge::buildContextMenu()" << llendl;
+
 //	std::vector<std::string> disabled_items;
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return;
 	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	const LLUUID lost_and_found_id = model->findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
 
-	mItems.clear(); //adding code to clear out member Items (which means Items should not have other data here at this point)
-	mDisabledItems.clear(); //adding code to clear out disabled members from previous
 	if (lost_and_found_id == mUUID)
 	  {
 		// This is the lost+found folder.
@@ -2524,7 +2572,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		LLViewerInventoryCategory *cat =  getCategory();
 		// BAP removed protected check to re-enable standard ops in untyped folders.
 		// Not sure what the right thing is to do here.
-		if (!isCOFFolder() && cat /*&&
+		if (!isCOFFolder() && cat && cat->getPreferredType()!=LLFolderType::FT_OUTFIT /*&&
 			LLAssetType::lookupIsProtectedCategoryType(cat->getPreferredType())*/)
 		{
 			// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
@@ -3150,6 +3198,22 @@ void LLTextureBridge::openItem()
 	}
 }
 
+bool LLTextureBridge::canSaveTexture(void)
+{
+	const LLInventoryModel* model = getInventoryModel();
+	if(!model) 
+	{
+		return false;
+	}
+	
+	const LLViewerInventoryItem *item = model->getItem(mUUID);
+	if (item)
+	{
+		return item->checkPermissionsSet(PERM_ITEM_UNRESTRICTED);
+	}
+	return false;
+}
+
 void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
 	lldebugs << "LLTextureBridge::buildContextMenu()" << llendl;
@@ -3174,6 +3238,10 @@ void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		items.push_back(std::string("Texture Separator"));
 		items.push_back(std::string("Save As"));
+		if (!canSaveTexture())
+		{
+			disabled_items.push_back(std::string("Save As"));
+		}
 	}
 	hide_context_entries(menu, items, disabled_items);	
 }
@@ -3776,8 +3844,13 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
-		items.push_back(std::string("Open"));
-		items.push_back(std::string("Properties"));
+		bool is_sidepanel = isInOutfitsSidePanel();
+
+		if (!is_sidepanel)
+		{
+			items.push_back(std::string("Open"));
+			items.push_back(std::string("Properties"));
+		}
 
 		getClipboardEntries(true, items, disabled_items, flags);
 
@@ -4101,13 +4174,18 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
-		items.push_back(std::string("Properties"));
+		bool is_sidepanel = isInOutfitsSidePanel();
 
-		LLInventoryItem *item = getItem();
+		if (!is_sidepanel)
+		{
+			items.push_back(std::string("Properties"));
+		}
+
 		getClipboardEntries(true, items, disabled_items, flags);
 
 		LLObjectBridge::sContextMenuItemID = mUUID;
 
+		LLInventoryItem *item = getItem();
 		if(item)
 		{
 			LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
@@ -4533,19 +4611,23 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			can_open = FALSE;
 		}
-		if (can_open)
+
+		bool is_sidepanel = isInOutfitsSidePanel();
+		
+		if (can_open && !is_sidepanel)
 		{
 			items.push_back(std::string("Open"));
 		}
 
-		items.push_back(std::string("Properties"));
+		if (!is_sidepanel)
+		{
+			items.push_back(std::string("Properties"));
+		}
 
 		getClipboardEntries(true, items, disabled_items, flags);
 
 		items.push_back(std::string("Wearable Separator"));
 
-		items.push_back(std::string("Wearable Wear"));
-		items.push_back(std::string("Wearable Add"));
 		items.push_back(std::string("Wearable Edit"));
 
 		if ((flags & FIRST_SELECTED_ITEM) == 0)
@@ -4575,6 +4657,8 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 					}
 					else
 					{
+						items.push_back(std::string("Wearable Wear"));
+						items.push_back(std::string("Wearable Add"));
 						disabled_items.push_back(std::string("Take Off"));
 					}
 					break;
@@ -4744,7 +4828,8 @@ void LLWearableBridge::onEditOnAvatar(void* user_data)
 
 void LLWearableBridge::editOnAvatar()
 {
-	const LLWearable* wearable = gAgentWearables.getWearableFromItemID(mUUID);
+	LLUUID linked_id = gInventory.getLinkedItemID(mUUID);
+	const LLWearable* wearable = gAgentWearables.getWearableFromItemID(linked_id);
 	if( wearable )
 	{
 		// Set the tab to the right wearable.

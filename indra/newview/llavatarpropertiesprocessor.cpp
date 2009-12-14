@@ -440,11 +440,17 @@ void LLAvatarPropertiesProcessor::notifyObservers(const LLUUID& id,void* data, E
 	// Copy the map (because observers may delete themselves when updated?)
 	LLAvatarPropertiesProcessor::observer_multimap_t observers = mObservers;
 
-	observer_multimap_t::iterator oi = observers.lower_bound(id);
-	observer_multimap_t::iterator end = observers.upper_bound(id);
+	observer_multimap_t::iterator oi = observers.begin();
+	observer_multimap_t::iterator end = observers.end();
 	for (; oi != end; ++oi)
 	{
-		oi->second->processProperties(data,type);
+		// only notify observers for the same agent, or if the observer
+		// didn't know the agent ID and passed a NULL id.
+		const LLUUID &agent_id = oi->first;
+		if (agent_id == id || agent_id.isNull())
+		{
+			oi->second->processProperties(data,type);
+		}
 	}
 }
 

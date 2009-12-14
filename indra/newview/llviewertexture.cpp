@@ -2879,7 +2879,8 @@ BOOL LLViewerMediaTexture::findFaces()
 		}
 
 		S32 face_id = -1 ;
-		while((face_id = obj->getFaceIndexWithMediaImpl(mMediaImplp, face_id)) > -1)
+		S32 num_faces = obj->mDrawable->getNumFaces() ;
+		while((face_id = obj->getFaceIndexWithMediaImpl(mMediaImplp, face_id)) > -1 && face_id < num_faces)
 		{
 			LLFace* facep = obj->mDrawable->getFace(face_id) ;
 			if(facep)

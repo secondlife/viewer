@@ -399,31 +399,6 @@
      name="voice_input_device"
      top_pad="0"
      width="200" />
-   <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left="165"
-     name="My volume label"
-     top_pad="10"
-     width="200">
-        My volume:
-    </text>
-      <slider_bar
-        control_name="AudioLevelMic"
-     follows="left|top"
-     height="17"
-     increment="0.05"
-     initial_value="1.0"
-     layout="topleft"
-     left="160"
-     max_val="2"
-     name="mic_volume_slider"
-     tool_tip="Change the volume using this slider"
-     top_pad="0"
-     width="220" />
     <text
      type="string"
      text_color="EmphasisColor"
@@ -433,7 +408,7 @@
      layout="topleft"
      left_pad="5"
      name="wait_text"
-     top_delta="0"
+     top_delta="5"
      width="110">
         Please wait
     </text>
@@ -442,7 +417,7 @@
      layout="topleft"
      left_delta="0"
      name="bar0"
-     top_delta="5"
+     top_delta="-5"
      width="20" />
     <locate
      height="20"
@@ -472,23 +447,13 @@
      name="bar4"
      top_delta="0"
      width="20" />
-  <!--  <text
-     type="string"
-     height="37"
-     left="30"
-     name="voice_intro_text1"
-     top_pad="-4"
-     width="410"
-     word_wrap="true">
-        Adjust the slider to control how loud you sound to other people. To test your volume, simply speak into your microphone
-    </text>-->
           <icon
              height="18"
              image_name="Parcel_Voice_Light"
              left="80"
              name="speaker_icon"
              mouse_opaque="false"
-             top_pad="-8"
+             top_pad="4"
              visible="true"
              width="22" />
     <text

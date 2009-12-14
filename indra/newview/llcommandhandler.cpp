@@ -35,11 +35,14 @@
 
 #include "llcommandhandler.h"
 #include "llnotificationsutil.h"
+#include "llcommanddispatcherlistener.h"
 
 // system includes
 #include <boost/tokenizer.hpp>
 
 #define THROTTLE_PERIOD    15    // required secs between throttled commands
+
+static LLCommandDispatcherListener sCommandDispatcherListener;
 
 //---------------------------------------------------------------------------
 // Underlying registry for command handlers, not directly accessible.

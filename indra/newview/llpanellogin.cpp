@@ -73,6 +73,11 @@
 #include "llfloatertos.h"
 #include "lltrans.h"
 #include "llglheaders.h"
+#include "llpanelloginlistener.h"
+
+#if LL_WINDOWS
+#pragma warning(disable: 4355)      // 'this' used in initializer list
+#endif  // LL_WINDOWS
 
 #define USE_VIEWER_AUTH 0
 
@@ -166,7 +171,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mLogoImage(),
 	mCallback(callback),
 	mCallbackData(cb_data),
-	mHtmlAvailable( TRUE )
+	mHtmlAvailable( TRUE ),
+	mListener(new LLPanelLoginListener(this))
 {
 	setFocusRoot(TRUE);
 
@@ -452,7 +458,7 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
 	if ( KEY_F1 == key )
 	{
 		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
-		vhelp->showTopic(vhelp->getTopicFromFocus());
+		vhelp->showTopic(vhelp->f1HelpTopic());
 		return TRUE;
 	}
 
@@ -972,7 +978,7 @@ void LLPanelLogin::onClickHelp(void*)
 	if (sInstance)
 	{
 		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
-		vhelp->showTopic(vhelp->getTopicFromFocus());
+		vhelp->showTopic(vhelp->preLoginTopic());
 	}
 }
 

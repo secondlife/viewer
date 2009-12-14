@@ -94,7 +94,7 @@ BOOL LLPanelMediaSettingsGeneral::postBuild()
 	mAutoScale = getChild< LLCheckBoxCtrl >( LLMediaEntry::AUTO_SCALE_KEY );
 	mAutoZoom = getChild< LLCheckBoxCtrl >( LLMediaEntry::AUTO_ZOOM_KEY );
 	mControls = getChild< LLComboBox >( LLMediaEntry::CONTROLS_KEY );
-	mCurrentURL = getChild< LLLineEditor >( LLMediaEntry::CURRENT_URL_KEY );
+	mCurrentURL = getChild< LLTextBox >( LLMediaEntry::CURRENT_URL_KEY );
 	mFirstClick = getChild< LLCheckBoxCtrl >( LLMediaEntry::FIRST_CLICK_INTERACT_KEY );
 	mHeightPixels = getChild< LLSpinCtrl >( LLMediaEntry::HEIGHT_PIXELS_KEY );
 	mHomeURL = getChild< LLLineEditor >( LLMediaEntry::HOME_URL_KEY );
@@ -284,7 +284,7 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_
 		{ LLMediaEntry::AUTO_SCALE_KEY,				self->mAutoScale,		"LLCheckBoxCtrl" },
 		{ LLMediaEntry::AUTO_ZOOM_KEY,				self->mAutoZoom,		"LLCheckBoxCtrl" },
 		{ LLMediaEntry::CONTROLS_KEY,				self->mControls,		"LLComboBox" },
-		{ LLMediaEntry::CURRENT_URL_KEY,			self->mCurrentURL,		"LLLineEditor" },
+		{ LLMediaEntry::CURRENT_URL_KEY,			self->mCurrentURL,		"LLTextBox" },
 		{ LLMediaEntry::HEIGHT_PIXELS_KEY,			self->mHeightPixels,	"LLSpinCtrl" },
 		{ LLMediaEntry::HOME_URL_KEY,				self->mHomeURL,			"LLLineEditor" },
 		{ LLMediaEntry::FIRST_CLICK_INTERACT_KEY,	self->mFirstClick,		"LLCheckBoxCtrl" },
@@ -518,4 +518,9 @@ void LLPanelMediaSettingsGeneral::updateCurrentUrl()
 	bool identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func_current_url, value_str );
 	mCurrentURL->setText(value_str);
 	mCurrentURL->setTentative(identical);
+
+	if ( LLPanelMediaSettingsGeneral::isMultiple() )
+	{
+		mCurrentURL->setText(LLTrans::getString("Multiple Media"));
+	}
 }	

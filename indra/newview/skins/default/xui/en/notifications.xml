@@ -579,7 +579,7 @@ Scripts must be allowed to run for weapons to work.
    type="alertmodal">
 Multiple faces are currently selected.
 If you continue this action, separate instances of media will be set on multiple faces of the object.
-To place the media on only one face, choose Select Texture and click on the desired face of that object then click Add.
+To place the media on only one face, choose Select Face and click on the desired face of that object then click Add.
     <usetemplate
       ignoretext="Media will be set on multiple selected faces"
       name="okcancelignore"
@@ -3539,6 +3539,8 @@ Type a short announcement which will be sent to everyone in this region.
    type="alertmodal">
 The maturity rating for this region has been updated.
 It may take some time for the change to be reflected on the map.
+
+To enter Adult regions, residents must be Account Verified, either by age-verification or payment-verification.
   </notification>
 
   <notification
@@ -3795,21 +3797,6 @@ Use this tool to report violations of the [http://secondlife.com/corporate/tos.p
 
 All reported abuses are investigated and resolved. You can view the resolution by reading the [http://secondlife.com/support/incidentreport.php Incident Report].
    <unique/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="HelpReportAbuseEmailEO"
-   type="alertmodal">
-IMPORTANT: This report will go to the owner of the region you are currently in and not to Linden Lab.
-
-As a service to residents and visitors, the owner of the region you are in has elected to receive and resolve all reports originating in this region. Linden Lab will not investigate reports you file from this location.
-
-The region owner will resolve reports based on the local rules of this region as outlined in the estate Covenant.
-(View covenants by going to the World menu and selecting About Land.)
-
-The resolution of this report applies only to this Region. Residents&apos; access to other areas of [SECOND_LIFE] will not be affected by the outcome of this report. Only Linden Lab can restrict access to the entirety of [SECOND_LIFE].
-  <unique/>
   </notification>
 
   <notification

@@ -1,6 +1,5 @@
 /** 
  * @file llpluginsharedmemory.h
- * @brief LLPluginSharedMemory manages a shared memory segment for use by the LLPlugin API.
  *
  * @cond
  * $LicenseInfo:firstyear=2008&license=viewergpl$
@@ -36,6 +35,10 @@
 
 class LLPluginSharedMemoryPlatformImpl;
 
+/**
+ * @brief LLPluginSharedMemory manages a shared memory segment for use by the LLPlugin API.
+ *
+ */
 class LLPluginSharedMemory
 {
 	LOG_CLASS(LLPluginSharedMemory);
@@ -46,16 +49,62 @@ public:
 	// Parent will use create/destroy, child will use attach/detach.
 	// Message transactions will ensure child attaches after parent creates and detaches before parent destroys.
 	
-	// create() implicitly creates a name for the segment which is guaranteed to be unique on the host at the current time.
+   /** 
+    * Creates a shared memory segment, with a name which is guaranteed to be unique on the host at the current time. Used by parent.
+    * Message transactions will (? TODO:DOC - should? must?) ensure child attaches after parent creates and detaches before parent destroys.
+    *
+    * @param[in] size Shared memory size in TODO:DOC units = bytes?.
+    *
+    * @return False for failure, true for success.
+    */
 	bool create(size_t size);
+   /** 
+    * Destroys a shared memory segment. Used by parent.
+    * Message transactions will (? TODO:DOC - should? must?) ensure child attaches after parent creates and detaches before parent destroys.
+    *
+    * @return True. TODO:DOC - always returns true. Is this the intended behavior?
+    */
 	bool destroy(void);
 	
+   /** 
+    * Creates and attaches a name to a shared memory segment. TODO:DOC what's the difference between attach() and create()?
+    *
+    * @param[in] name Name to attach to memory segment
+    * @param[in] size Size of memory segment TODO:DOC in bytes?
+    *
+    * @return False on failure, true otherwise.
+    */
 	bool attach(const std::string &name, size_t size);
+   /** 
+    * Detaches shared memory segment.
+    *
+    * @return False on failure, true otherwise.
+    */
 	bool detach(void);
 
+   /** 
+    * Checks if shared memory is mapped to a non-null address.
+    *
+    * @return True if memory address is non-null, false otherwise.
+    */
 	bool isMapped(void) const { return (mMappedAddress != NULL); };
+   /** 
+    * Get pointer to shared memory.
+    *
+    * @return Pointer to shared memory.
+    */
 	void *getMappedAddress(void) const { return mMappedAddress; };
+   /** 
+    * Get size of shared memory.
+    *
+    * @return Size of shared memory in bytes. TODO:DOC are bytes the correct unit?
+    */
 	size_t getSize(void) const { return mSize; };
+   /** 
+    * Get name of shared memory.
+    *
+    * @return Name of shared memory.
+    */
 	std::string getName() const { return mName; };
 	
 private:

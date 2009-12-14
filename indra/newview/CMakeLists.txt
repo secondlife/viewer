@@ -104,6 +104,7 @@ set(viewer_SOURCE_FILES
     llclassifiedstatsresponder.cpp
     llcloud.cpp
     llcolorswatch.cpp
+    llcommanddispatcherlistener.cpp
     llcommandhandler.cpp
     llcommandlineparser.cpp
     llcompilequeue.cpp
@@ -324,6 +325,7 @@ set(viewer_SOURCE_FILES
     llpanellandmarks.cpp
     llpanellandmedia.cpp
     llpanellogin.cpp
+    llpanelloginlistener.cpp
     llpanellookinfo.cpp
     llpanelmaininventory.cpp
     llpanelmediasettingsgeneral.cpp
@@ -444,6 +446,7 @@ set(viewer_SOURCE_FILES
     lluploaddialog.cpp
     llurl.cpp
     llurldispatcher.cpp
+    llurldispatcherlistener.cpp
     llurlhistory.cpp
     llurllineeditorctrl.cpp
     llurlsimstring.cpp
@@ -611,6 +614,7 @@ set(viewer_HEADER_FILES
     llclassifiedstatsresponder.h
     llcloud.h
     llcolorswatch.h
+    llcommanddispatcherlistener.h
     llcommandhandler.h
     llcommandlineparser.h
     llcompilequeue.h
@@ -826,6 +830,7 @@ set(viewer_HEADER_FILES
     llpanellandmarks.h
     llpanellandmedia.h
     llpanellogin.h
+    llpanelloginlistener.h
     llpanellookinfo.h
     llpanelmaininventory.h
     llpanelmediasettingsgeneral.h
@@ -950,6 +955,7 @@ set(viewer_HEADER_FILES
     lluploaddialog.h
     llurl.h
     llurldispatcher.h
+    llurldispatcherlistener.h
     llurlhistory.h
     llurllineeditorctrl.h
     llurlsimstring.h

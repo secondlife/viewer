@@ -125,7 +125,7 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 		void tuningCaptureStartSendMessage(int duration);
 		void tuningCaptureStopSendMessage();
 		
-		void tuningSetMicVolume(float volume);
+		void tuningSetMicVolume(float volume=0.5f);
 		void tuningSetSpeakerVolume(float volume);
 		float tuningGetEnergy(void);
 				

@@ -88,8 +88,6 @@
 #include "lltrans.h"
 #include "llagentui.h"
 
-#define ELAR_ENABLED 0 // Enable when server support is implemented
-
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
 
@@ -1995,11 +1993,6 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 	childSetEnabled("remove_banned_avatar_btn",		god || owner || manager);
 	childSetEnabled("message_estate_btn",			god || owner || manager);
 	childSetEnabled("kick_user_from_estate_btn",	god || owner || manager);
-#if ELAR_ENABLED
-	childSetEnabled("abuse_email_address", 			god || owner || manager);
-#else
-	childSetEnabled("abuse_email_address", 			false);
-#endif
 
 	// estate managers can't add estate managers
 	childSetEnabled("add_estate_manager_btn",		god || owner);
@@ -2065,8 +2058,6 @@ BOOL LLPanelEstateInfo::postBuild()
 	initCtrl("limit_payment");
 	initCtrl("limit_age_verified");
 	initCtrl("voice_chat_check");
-	getChild<LLUICtrl>("abuse_email_address")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeAnything, this));
-	getChild<LLLineEditor>("abuse_email_address")->setKeystrokeCallback(onChangeText, this);
 
 	// set up the use global time checkbox
 	getChild<LLUICtrl>("use_global_time_check")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onChangeUseGlobalTime, this));
@@ -2276,8 +2267,6 @@ bool LLPanelEstateInfo::commitEstateInfoCaps()
 	}
 	body["sun_hour"] = sun_hour;
 
-	body["owner_abuse_email"] = childGetValue("abuse_email_address").asString();
-
 	// we use a responder so that we can re-get the data after committing to the database
 	LLHTTPClient::post(url, body, new LLEstateChangeInfoResponder(this));
     return true;
@@ -2434,16 +2423,6 @@ const std::string LLPanelEstateInfo::getOwnerName() const
 void LLPanelEstateInfo::setOwnerName(const std::string& name)
 {
 	childSetValue("estate_owner", LLSD(name));
-}
-
-const std::string LLPanelEstateInfo::getAbuseEmailAddress() const
-{
-	return childGetValue("abuse_email_address").asString();
-}
-
-void LLPanelEstateInfo::setAbuseEmailAddress(const std::string& address)
-{
-	childSetValue("abuse_email_address", LLSD(address));
 }
 
 void LLPanelEstateInfo::setAccessAllowedEnabled(bool enable_agent,
@@ -2954,18 +2933,6 @@ bool LLDispatchEstateUpdateInfo::operator()(
 	std::string estate_name = strings[0].c_str(); // preserve c_str() call!
 	panel->setEstateName(estate_name);
 	
-#if ELAR_ENABLED
-	if (strings.size() > 9)
-	{
-		std::string abuse_email = strings[9].c_str(); // preserve c_str() call!
-		panel->setAbuseEmailAddress(abuse_email);
-	}
-	else
-#endif
-	{
-		panel->setAbuseEmailAddress(panel->getString("email_unsupported"));
-	}
-
 	LLViewerRegion* regionp = gAgent.getRegion();
 
 	LLUUID owner_id(strings[1]);
