@@ -153,7 +153,7 @@ private:
 	LLUICtrl *mMediaPlaySliderPanel;
 	LLUICtrl *mMediaPlaySliderCtrl;
 	LLUICtrl *mVolumeCtrl;
-	LLButton *mVolumeBtn;
+	LLButton *mMuteBtn;
 	LLUICtrl *mVolumeUpCtrl;
 	LLUICtrl *mVolumeDownCtrl;
 	LLSliderCtrl *mVolumeSliderCtrl;

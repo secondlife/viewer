@@ -367,6 +367,7 @@ void LLLandmarksPanel::initFavoritesInventoryPanel()
 
 	initLandmarksPanel(mFavoritesInventoryPanel);
 	mFavoritesInventoryPanel->getFilter()->setEmptyLookupMessage("FavoritesNoMatchingItems");
+
 	initAccordion("tab_favorites", mFavoritesInventoryPanel);
 }
 
@@ -428,6 +429,7 @@ void LLLandmarksPanel::initLandmarksPanel(LLInventorySubTreePanel* inventory_lis
 	}
 
 	root_folder->setParentLandmarksPanel(this);
+	inventory_list->saveFolderState();
 }
 
 void LLLandmarksPanel::initAccordion(const std::string& accordion_tab_name, LLInventorySubTreePanel* inventory_list)
@@ -1030,19 +1032,28 @@ void LLLandmarksPanel::doCreatePick(LLLandmark* landmark)
 //////////////////////////////////////////////////////////////////////////
 static void filter_list(LLInventorySubTreePanel* inventory_list, const std::string& string)
 {
-	// Open the immediate children of the root folder, since those
-	// are invisible in the UI and thus must always be open.
-	inventory_list->getRootFolder()->openTopLevelFolders();
-
+	// When search is cleared, restore the old folder state.
 	if (string == "")
 	{
 		inventory_list->setFilterSubString(LLStringUtil::null);
+		// Re-open folders that were open before
+		inventory_list->restoreFolderState();
 	}
+
+	// Open the immediate children of the root folder, since those
+	// are invisible in the UI and thus must always be open.
+	inventory_list->getRootFolder()->openTopLevelFolders();
 
 	if (inventory_list->getFilterSubString().empty() && string.empty())
 	{
 		// current filter and new filter empty, do nothing
 		return;
+	}
+
+	// save current folder open state if no filter currently applied
+	if (inventory_list->getRootFolder()->getFilterSubString().empty())
+	{
+		inventory_list->saveFolderState();
 	}
 
 	// Set new filter string

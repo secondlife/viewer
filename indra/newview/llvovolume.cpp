@@ -92,7 +92,7 @@ static LLFastTimer::DeclareTimer FTM_GEN_VOLUME("Generate Volumes");
 class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
 {
 public:
-	LLMediaDataClientObjectImpl(LLVOVolume *obj) : mObject(obj) {}
+	LLMediaDataClientObjectImpl(LLVOVolume *obj, bool isNew) : mObject(obj), mNew(isNew) {}
 	LLMediaDataClientObjectImpl() { mObject = NULL; }
 	
 	virtual U8 getMediaDataCount() const 
@@ -128,14 +128,19 @@ public:
 	virtual bool hasMedia() const
 		{ return mObject->hasMedia(); }
 	
-	virtual void updateObjectMediaData(LLSD const &data) 
-		{ mObject->updateObjectMediaData(data); }
-
-	virtual F64 getDistanceFromAvatar() const
-		{ return mObject->getRenderPosition().length(); }
+	virtual void updateObjectMediaData(LLSD const &data, const std::string &version_string) 
+		{ mObject->updateObjectMediaData(data, version_string); }
 	
-	virtual F64 getTotalMediaInterest() const 
-		{ return mObject->getTotalMediaInterest(); }
+	virtual F64 getMediaInterest() const 
+		{ 
+			F64 tmp = mObject->getTotalMediaInterest();  
+			return (tmp < 0.0) ? mObject->getPixelArea() : tmp; 
+		}
+	virtual bool isInterestingEnough() const
+		{
+			// TODO: use performance manager to control this
+			return true;
+		}
 
 	virtual std::string getCapabilityUrl(const std::string &name) const
 		{ return mObject->getRegion()->getCapability(name); }
@@ -143,8 +148,15 @@ public:
 	virtual bool isDead() const
 		{ return mObject->isDead(); }
 	
+	virtual U32 getMediaVersion() const
+		{ return LLTextureEntry::getVersionFromMediaVersionString(mObject->getMediaURL()); }
+	
+	virtual bool isNew() const
+		{ return mNew; }
+
 private:
 	LLPointer<LLVOVolume> mObject;
+	bool mNew;
 };
 
 
@@ -165,6 +177,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	mSpotLightPriority = 0.f;
 
 	mMediaImplList.resize(getNumTEs());
+	mLastFetchedMediaVersion = -1;
 }
 
 LLVOVolume::~LLVOVolume()
@@ -190,7 +203,9 @@ void LLVOVolume::markDead()
 {
 	if (!mDead)
 	{
-		// TODO: tell LLMediaDataClient to remove this object from its queue
+		LLMediaDataClientObject::ptr_t obj = new LLMediaDataClientObjectImpl(const_cast<LLVOVolume*>(this), false);
+		sObjectMediaClient->removeFromQueue(obj);
+		sObjectMediaNavigateClient->removeFromQueue(obj);
 		
 		// Detach all media impls from this object
 		for(U32 i = 0 ; i < mMediaImplList.size() ; i++)
@@ -210,8 +225,12 @@ void LLVOVolume::initClass()
 	const F32 queue_timer_delay = gSavedSettings.getF32("PrimMediaRequestQueueDelay");
 	const F32 retry_timer_delay = gSavedSettings.getF32("PrimMediaRetryTimerDelay");
 	const U32 max_retries = gSavedSettings.getU32("PrimMediaMaxRetries");
-    sObjectMediaClient = new LLObjectMediaDataClient(queue_timer_delay, retry_timer_delay, max_retries);
-    sObjectMediaNavigateClient = new LLObjectMediaNavigateClient(queue_timer_delay, retry_timer_delay, max_retries);
+	const U32 max_sorted_queue_size = gSavedSettings.getU32("PrimMediaMaxSortedQueueSize");
+	const U32 max_round_robin_queue_size = gSavedSettings.getU32("PrimMediaMaxRoundRobinQueueSize");
+    sObjectMediaClient = new LLObjectMediaDataClient(queue_timer_delay, retry_timer_delay, max_retries, 
+													 max_sorted_queue_size, max_round_robin_queue_size);
+    sObjectMediaNavigateClient = new LLObjectMediaNavigateClient(queue_timer_delay, retry_timer_delay, 
+																 max_retries, max_sorted_queue_size, max_round_robin_queue_size);
 }
 
 // static
@@ -406,7 +425,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 			// If the media changed at all, request new media data
 			LL_DEBUGS("MediaOnAPrim") << "Media update: " << getID() << ": retval=" << retval << " Media URL: " <<
                 ((mMedia) ?  mMedia->mMediaURL : std::string("")) << LL_ENDL;
-			requestMediaDataUpdate();
+			requestMediaDataUpdate(retval & MEDIA_FLAGS_CHANGED);
 		}
         else {
             LL_INFOS("MediaOnAPrim") << "Ignoring media update for: " << getID() << " Media URL: " <<
@@ -1698,16 +1717,16 @@ LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
 	return result;
 }
 
-void LLVOVolume::requestMediaDataUpdate()
+void LLVOVolume::requestMediaDataUpdate(bool isNew)
 {
-    sObjectMediaClient->fetchMedia(new LLMediaDataClientObjectImpl(this));
+    sObjectMediaClient->fetchMedia(new LLMediaDataClientObjectImpl(this, isNew));
 }
 
 bool LLVOVolume::isMediaDataBeingFetched() const
 {
 	// I know what I'm doing by const_casting this away: this is just 
 	// a wrapper class that is only going to do a lookup.
-	return sObjectMediaClient->isInQueue(new LLMediaDataClientObjectImpl(const_cast<LLVOVolume*>(this)));
+	return sObjectMediaClient->isInQueue(new LLMediaDataClientObjectImpl(const_cast<LLVOVolume*>(this), false));
 }
 
 void LLVOVolume::cleanUpMediaImpls()
@@ -1725,18 +1744,25 @@ void LLVOVolume::cleanUpMediaImpls()
 	}
 }
 
-void LLVOVolume::updateObjectMediaData(const LLSD &media_data_array)
+void LLVOVolume::updateObjectMediaData(const LLSD &media_data_array, const std::string &media_version)
 {
 	// media_data_array is an array of media entry maps
+	// media_version is the version string in the response.
+	U32 fetched_version = LLTextureEntry::getVersionFromMediaVersionString(media_version);
 
-	//llinfos << "updating:" << this->getID() << " " << ll_pretty_print_sd(media_data_array) << llendl;
-
-	LLSD::array_const_iterator iter = media_data_array.beginArray();
-	LLSD::array_const_iterator end = media_data_array.endArray();
-	U8 texture_index = 0;
-	for (; iter != end; ++iter, ++texture_index)
+	// Only update it if it is newer!
+	if ( (S32)fetched_version > mLastFetchedMediaVersion)
 	{
-		syncMediaData(texture_index, *iter, false/*merge*/, false/*ignore_agent*/);
+		mLastFetchedMediaVersion = fetched_version;
+		//llinfos << "updating:" << this->getID() << " " << ll_pretty_print_sd(media_data_array) << llendl;
+		
+		LLSD::array_const_iterator iter = media_data_array.beginArray();
+		LLSD::array_const_iterator end = media_data_array.endArray();
+		U8 texture_index = 0;
+		for (; iter != end; ++iter, ++texture_index)
+		{
+			syncMediaData(texture_index, *iter, false/*merge*/, false/*ignore_agent*/);
+		}
 	}
 }
 
@@ -1904,7 +1930,7 @@ void LLVOVolume::mediaNavigated(LLViewerMediaImpl *impl, LLPluginClassMedia* plu
 		
 		llinfos << "broadcasting navigate with URI " << new_location << llendl;
 
-		sObjectMediaNavigateClient->navigate(new LLMediaDataClientObjectImpl(this), face_index, new_location);
+		sObjectMediaNavigateClient->navigate(new LLMediaDataClientObjectImpl(this, false), face_index, new_location);
 	}
 }
 
@@ -1968,7 +1994,7 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 
 void LLVOVolume::sendMediaDataUpdate()
 {
-    sObjectMediaClient->updateMedia(new LLMediaDataClientObjectImpl(this));
+    sObjectMediaClient->updateMedia(new LLMediaDataClientObjectImpl(this, false));
 }
 
 void LLVOVolume::removeMediaImpl(S32 texture_index)
@@ -2063,7 +2089,7 @@ viewer_media_t LLVOVolume::getMediaImpl(U8 face_id) const
 
 F64 LLVOVolume::getTotalMediaInterest() const
 {
-	F64 interest = (F64)0.0;
+	F64 interest = (F64)-1.0;  // means not interested;
     int i = 0;
 	const int end = getNumTEs();
 	for ( ; i < end; ++i)
@@ -2071,6 +2097,7 @@ F64 LLVOVolume::getTotalMediaInterest() const
 		const viewer_media_t &impl = getMediaImpl(i);
 		if (!impl.isNull())
 		{
+			if (interest == (F64)-1.0) interest = (F64)0.0;
 			interest += impl->getInterest();
 		}
 	}
@@ -2587,7 +2614,22 @@ const LLMatrix4 LLVOVolume::getRenderMatrix() const
 // children, and cost should only be increased for unique textures  -Nyx
 U32 LLVOVolume::getRenderCost(std::set<LLUUID> &textures) const
 {
-	U32 shame = 0;
+	// base cost of each prim should be 10 points
+	static const U32 ARC_PRIM_COST = 10;
+	// per-prim costs
+	static const U32 ARC_INVISI_COST = 1;
+	static const U32 ARC_SHINY_COST = 1;
+	static const U32 ARC_GLOW_COST = 1;
+	static const U32 ARC_FLEXI_COST = 8;
+	static const U32 ARC_PARTICLE_COST = 16;
+	static const U32 ARC_BUMP_COST = 4;
+
+	// per-face costs
+	static const U32 ARC_PLANAR_COST = 1;
+	static const U32 ARC_ANIM_TEX_COST = 4;
+	static const U32 ARC_ALPHA_COST = 4;
+
+	U32 shame = ARC_PRIM_COST;
 
 	U32 invisi = 0;
 	U32 shiny = 0;
@@ -2663,7 +2705,17 @@ U32 LLVOVolume::getRenderCost(std::set<LLUUID> &textures) const
 		}
 	}
 
-	shame += invisi + shiny + glow + alpha*4 + flexi*8 + animtex*4 + particles*16+bump*4+scale+planar;
+
+	shame += invisi * ARC_INVISI_COST;
+	shame += shiny * ARC_SHINY_COST;
+	shame += glow * ARC_GLOW_COST;
+	shame += alpha * ARC_ALPHA_COST;
+	shame += flexi * ARC_FLEXI_COST;
+	shame += animtex * ARC_ANIM_TEX_COST;
+	shame += particles * ARC_PARTICLE_COST;
+	shame += bump * ARC_BUMP_COST;
+	shame += planar * ARC_PLANAR_COST;
+	shame += scale;
 
 	LLViewerObject::const_child_list_t& child_list = getChildren();
 	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();

@@ -2669,16 +2669,15 @@ even though the user gets a free copy.
              top_pad="5"
              name="media_tex"
              width="260">
-              Media URL
+              Media
 			</text>
-			<line_editor
+			<text
 			 follows="left|top|right"
 			 height="18"
 			 layout="topleft"
 			 left="10"
 			 read_only="true"
 			 name="media_info"
-			 select_on_focus="true"
 			 width="180" />
 			<button
 			 follows="top|left"

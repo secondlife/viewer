@@ -75,15 +75,13 @@
 <string>baz</string>										\
 </array>"
 
-#define _DATA_URLS(ID,DIST,INT,URL1,URL2) "					\
+#define _DATA_URLS(ID,INTEREST,NEW,URL1,URL2) "					\
 <llsd>											\
   <map>											\
     <key>uuid</key>								\
     <string>" ID "</string>						\
-    <key>distance</key>											\
-    <real>" DIST "</real>										\
     <key>interest</key>											\
-    <real>" INT "</real>											\
+    <real>" INTEREST "</real>											\
     <key>cap_urls</key>											\
     <map>														\
       <key>ObjectMedia</key>									\
@@ -93,21 +91,26 @@
     </map>														\
     <key>media_data</key>                                       \
 	" MEDIA_DATA "												\
+    <key>is_dead</key>											\
+	<boolean>false</boolean>									\
+	<key>is_new</key>											\
+	<boolean>" NEW "</boolean>									\
   </map>														\
 </llsd>"
 
-#define _DATA(ID,DIST,INT) _DATA_URLS(ID,DIST,INT,FAKE_OBJECT_MEDIA_CAP_URL,FAKE_OBJECT_MEDIA_NAVIGATE_CAP_URL)
+#define _DATA(ID,INTEREST,NEW) _DATA_URLS(ID,INTEREST,NEW,FAKE_OBJECT_MEDIA_CAP_URL,FAKE_OBJECT_MEDIA_NAVIGATE_CAP_URL)
 
-const char *DATA = _DATA(VALID_OBJECT_ID,"1.0","1.0");
+const char *DATA = _DATA(VALID_OBJECT_ID,"1.0","true");
 	
 #define STR(I) boost::lexical_cast<std::string>(I)
 
 #define LOG_TEST(N) LL_DEBUGS("LLMediaDataClient") << "\n" <<			\
 "================================================================================\n" << \
-"===================================== TEST " #N " ===================================\n" << \
+"==================================== TEST " #N " ===================================\n" << \
 "================================================================================\n" << LL_ENDL;
 
 LLSD *gPostRecords = NULL;
+F64   gMinimumInterestLevel = (F64)0.0;
 
 // stubs:
 void LLHTTPClient::post(
@@ -125,21 +128,20 @@ void LLHTTPClient::post(
 	gPostRecords->append(record);
 	
 	// Magic URL that triggers a 503:
+	LLSD result;
+	result[LLTextureEntry::OBJECT_ID_KEY] = body[LLTextureEntry::OBJECT_ID_KEY];
 	if ( url == FAKE_OBJECT_MEDIA_CAP_URL_503 )
 	{
 		responder->error(HTTP_SERVICE_UNAVAILABLE, "fake reason");
+		return;
 	}
 	else if (url == FAKE_OBJECT_MEDIA_NAVIGATE_CAP_URL_ERROR) 
 	{
-		LLSD result;
 		LLSD error;
 		error["code"] = LLObjectMediaNavigateClient::ERROR_PERMISSION_DENIED_CODE;
 		result["error"] = error;
-		responder->result(result);
-	}
-	else {
-		responder->result(LLSD());
-	}
+	}	
+	responder->result(result);
 }
 
 const F32 HTTP_REQUEST_EXPIRY_SECS = 60.0f;
@@ -152,13 +154,12 @@ public:
 			std::istringstream d(data);
 			LLSDSerialize::fromXML(mRep, d);
 			mNumBounceBacks = 0;
-			mDead = false;
             
            // std::cout << ll_pretty_print_sd(mRep) << std::endl;
            // std::cout << "ID: " << getID() << std::endl;
 		}
 	LLMediaDataClientObjectTest(const LLSD &rep) 
-		: mRep(rep), mNumBounceBacks(0), mDead(false) {}
+		: mRep(rep), mNumBounceBacks(0) {}
 	~LLMediaDataClientObjectTest()
 		{ LL_DEBUGS("LLMediaDataClient") << "~LLMediaDataClientObjectTest" << LL_ENDL; }
 	
@@ -169,43 +170,47 @@ public:
 	virtual LLUUID getID() const 
 		{ return mRep["uuid"]; }
 	virtual void mediaNavigateBounceBack(U8 index)
-		{
-			mNumBounceBacks++;
-		}
+		{ mNumBounceBacks++; }	
 	
 	virtual bool hasMedia() const
 		{ return mRep.has("media_data"); }
 	
-	virtual void updateObjectMediaData(LLSD const &media_data_array)
-		{ mRep["media_data"] = media_data_array; }
-	
-	virtual F64 getDistanceFromAvatar() const
-		{ return (LLSD::Real)mRep["distance"]; }
-	
-	virtual F64 getTotalMediaInterest() const
+	virtual void updateObjectMediaData(LLSD const &media_data_array, const std::string &media_version)
+		{ mRep["media_data"] = media_data_array; mRep["media_version"] = media_version; }
+		
+	virtual F64 getMediaInterest() const
 		{ return (LLSD::Real)mRep["interest"]; }
-
+	
+	virtual bool isInterestingEnough() const
+		{ return getMediaInterest() > gMinimumInterestLevel; }
+	
 	virtual std::string getCapabilityUrl(const std::string &name) const 
 		{ return mRep["cap_urls"][name]; }
 
 	virtual bool isDead() const
-		{ return mDead; }
-
-	void setDistanceFromAvatar(F64 val)
-		{ mRep["distance"] = val; }
+		{ return mRep["is_dead"]; }
 	
-	void setTotalMediaInterest(F64 val)
+	virtual U32 getMediaVersion() const
+		{ return (LLSD::Integer)mRep["media_version"]; }
+	
+	virtual bool isNew() const
+		{ return mRep["is_new"]; }
+	
+	void setMediaInterest(F64 val)
 		{ mRep["interest"] = val; }
 
 	int getNumBounceBacks() const
 		{ return mNumBounceBacks; }
 	
 	void markDead()
-		{ mDead = true; }
+		{ mRep["is_dead"] = true; }
+	
+	void markOld()
+		{ mRep["is_new"] = false; }
+	
 private:
 	LLSD mRep;
 	int mNumBounceBacks;
-	bool mDead;
 };
 
 // This special timer delay should ensure that the timer will fire on the very
@@ -224,10 +229,11 @@ namespace tut
     {
 		mediadataclient() {
 			gPostRecords = &mLLSD;
+			gMinimumInterestLevel = (F64)0.0;
 			
- 			//LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
- 			//LLError::setClassLevel("LLMediaDataClient", LLError::LEVEL_DEBUG);
-			//LLError::setTagLevel("MediaOnAPrim", LLError::LEVEL_DEBUG);
+// 			LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+// 			LLError::setClassLevel("LLMediaDataClient", LLError::LEVEL_DEBUG);
+//			LLError::setTagLevel("MediaOnAPrim", LLError::LEVEL_DEBUG);
 		}
 		LLSD mLLSD;
     };
@@ -378,11 +384,11 @@ namespace tut
 		LOG_TEST(4);
 
 		LLMediaDataClientObject::ptr_t o1 = new LLMediaDataClientObjectTest(
-			_DATA(VALID_OBJECT_ID_1,"3.0","1.0"));
+			_DATA(VALID_OBJECT_ID_1,"1.0","true"));
 		LLMediaDataClientObject::ptr_t o2 = new LLMediaDataClientObjectTest(
-			_DATA(VALID_OBJECT_ID_2,"1.0","1.0"));
+			_DATA(VALID_OBJECT_ID_2,"3.0","true"));
 		LLMediaDataClientObject::ptr_t o3 = new LLMediaDataClientObjectTest(
-			_DATA(VALID_OBJECT_ID_3,"2.0","1.0"));
+			_DATA(VALID_OBJECT_ID_3,"2.0","true"));
 		{
 			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);  
 			const char *ORDERED_OBJECT_IDS[] = { VALID_OBJECT_ID_2, VALID_OBJECT_ID_3, VALID_OBJECT_ID_1 };
@@ -428,8 +434,7 @@ namespace tut
 		
 		LLMediaDataClientObject::ptr_t o = new LLMediaDataClientObjectTest(
 			_DATA_URLS(VALID_OBJECT_ID,
-					   "1.0",
-					   "1.0",
+					   "1.0","true",
 					   FAKE_OBJECT_MEDIA_CAP_URL_503,
 					   FAKE_OBJECT_MEDIA_NAVIGATE_CAP_URL));
 		int num_refs_start = o->getNumRefs();
@@ -484,8 +489,7 @@ namespace tut
 
 		LLMediaDataClientObject::ptr_t o = new LLMediaDataClientObjectTest(
 			_DATA_URLS(VALID_OBJECT_ID,
-					   "1.0",
-					   "1.0",
+					   "1.0","true",
 					   FAKE_OBJECT_MEDIA_CAP_URL,
 					   FAKE_OBJECT_MEDIA_NAVIGATE_CAP_URL_ERROR));
 		{		
@@ -517,9 +521,9 @@ namespace tut
 		LOG_TEST(7);
 		
 		LLMediaDataClientObject::ptr_t o1 = new LLMediaDataClientObjectTest(
-			_DATA(VALID_OBJECT_ID_1,"3.0","1.0"));
+			_DATA(VALID_OBJECT_ID_1,"3.0","true"));
 		LLMediaDataClientObject::ptr_t o2 = new LLMediaDataClientObjectTest(
-			_DATA(VALID_OBJECT_ID_2,"1.0","1.0"));
+			_DATA(VALID_OBJECT_ID_2,"1.0","true"));
 		int num_refs_start = o1->getNumRefs();
 		{
 			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);
@@ -551,10 +555,10 @@ namespace tut
 		// Test queue handling of objects that are marked dead.
 		LOG_TEST(8);
 		
-		LLMediaDataClientObject::ptr_t o1 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_1,"1.0","1.0"));
-		LLMediaDataClientObject::ptr_t o2 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_2,"2.0","1.0"));
-		LLMediaDataClientObject::ptr_t o3 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_3,"3.0","1.0"));
-		LLMediaDataClientObject::ptr_t o4 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_4,"4.0","1.0"));
+		LLMediaDataClientObject::ptr_t o1 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_1,"4.0","true"));
+		LLMediaDataClientObject::ptr_t o2 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_2,"3.0","true"));
+		LLMediaDataClientObject::ptr_t o3 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_3,"2.0","true"));
+		LLMediaDataClientObject::ptr_t o4 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_4,"1.0","true"));
 		{
 			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);
 			
@@ -616,10 +620,11 @@ namespace tut
 		//
 		LOG_TEST(9);
 		
-		LLMediaDataClientObject::ptr_t o1 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_1,"10.0","1.0"));
-		LLMediaDataClientObject::ptr_t o2 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_2,"20.0","1.0"));
-		LLMediaDataClientObject::ptr_t o3 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_3,"30.0","1.0"));
-		LLMediaDataClientObject::ptr_t o4 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_4,"40.0","1.0"));
+		LLMediaDataClientObject::ptr_t o1 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_1,"40.0","true"));
+		LLMediaDataClientObject::ptr_t o2 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_2,"30.0","true"));
+		LLMediaDataClientObject::ptr_t o3 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_3,"20.0","true"));
+		LLMediaDataClientObjectTest *object4 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_4,"10.0","true"));
+		LLMediaDataClientObject::ptr_t o4 = object4;
 		{
 			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);
 			
@@ -630,53 +635,52 @@ namespace tut
 			mdc->fetchMedia(o3);
 			mdc->fetchMedia(o4);
 			
-			int test_num = 0;
+			int tick_num = 0;
 			
-			ensure(STR(test_num) + ". is in queue 1", mdc->isInQueue(o1));
-			ensure(STR(test_num) + ". is in queue 2", mdc->isInQueue(o2));
-			ensure(STR(test_num) + ". is in queue 3", mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". is in queue 4", mdc->isInQueue(o4));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 0);
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 0);
 			
 			::pump_timers();
-			++test_num;
+			++tick_num;
 			
 			// The first tick should remove the first one 
-			ensure(STR(test_num) + ". is not in queue 1", !mdc->isInQueue(o1));
-			ensure(STR(test_num) + ". is in queue 2", mdc->isInQueue(o2));
-			ensure(STR(test_num) + ". is in queue 3", mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". is in queue 4", mdc->isInQueue(o4));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 1);
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 1);
 			
 			// Now, pretend that object 4 moved relative to the avatar such
 			// that it is now closest
-			static_cast<LLMediaDataClientObjectTest*>(
-				static_cast<LLMediaDataClientObject*>(o4))->setDistanceFromAvatar(5.0);
+			object4->setMediaInterest(50.0);
 			
 			::pump_timers();
-			++test_num;
+			++tick_num;
 			
 			// The second tick should still pick off item 2, but then re-sort
 			// have picked off object 4
-			ensure(STR(test_num) + ". is in queue 2", mdc->isInQueue(o2));
-			ensure(STR(test_num) + ". is in queue 3", mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". is not in queue 4", !mdc->isInQueue(o4));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 2);
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 2);
 
 			::pump_timers();
-			++test_num;
+			++tick_num;
 			
 			// The third tick should pick off object 2
-			ensure(STR(test_num) + ". is not in queue 2", !mdc->isInQueue(o2));
-			ensure(STR(test_num) + ". is in queue 3", mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 3);
+			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 3);
 
 			// The fourth tick should pick off object 3
 			::pump_timers();
-			++test_num;
+			++tick_num;
 
-			ensure(STR(test_num) + ". is not in queue 3", !mdc->isInQueue(o3));
-			ensure(STR(test_num) + ". post records", gPostRecords->size(), 4);
+			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 4);
 
 			ensure("queue empty", mdc->isEmpty());
 		}
@@ -686,4 +690,249 @@ namespace tut
 		ensure("refcount of o4", o4->getNumRefs(), 1);
     }
 	
+	
+	template<> template<>
+    void mediadataclient_object_t::test<10>()
+    {
+		//
+		// Test using the "round-robin" queue
+		//
+		LOG_TEST(10);
+		
+		LLMediaDataClientObject::ptr_t o1 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_1,"1.0","true"));
+		LLMediaDataClientObject::ptr_t o2 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_2,"2.0","true"));
+		LLMediaDataClientObject::ptr_t o3 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_3,"3.0","false"));
+		LLMediaDataClientObject::ptr_t o4 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_4,"4.0","false"));
+		{
+			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);
+			
+			// queue up all 4 objects.  The first two should be in the sorted
+			// queue [2 1], the second in the round-robin queue.  The queues
+			// are serviced interleaved, so we should expect:
+			// 2, 4, 1, 3
+			mdc->fetchMedia(o1);
+			mdc->fetchMedia(o2);
+			mdc->fetchMedia(o3);
+			mdc->fetchMedia(o4);
+			
+			int tick_num = 0;
+			
+			// 0
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 0);
+			
+			::pump_timers();
+			++tick_num;
+			
+			// 1 The first tick should remove object 2
+			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 1);
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[0]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_2));
+			
+			::pump_timers();
+			++tick_num;
+			
+			// 2 The second tick should send object 4, but it will still be
+			// "in the queue"
+			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 2);
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[1]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_4));
+			
+			::pump_timers();
+			++tick_num;
+			
+			// 3 The third tick should remove object 1
+			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 3);
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[2]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_1));
+			
+			::pump_timers();
+			++tick_num;
+			
+			// 4 The fourth tick should send object 3, but it will still be
+			// "in the queue"
+			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 4);
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[3]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_3));
+			
+			::pump_timers();
+			++tick_num;
+						
+			// 5 The fifth tick should now identify objects 3 and 4 as no longer
+			// needing "updating", and remove them from the queue
+			ensure(STR(tick_num) + ". is not in queue 2", !mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 4);
+			
+			::pump_timers();
+			
+			// Whew....better be empty
+			ensure("queue empty", mdc->isEmpty());
+		}
+		ensure("refcount of o1", o1->getNumRefs(), 1);
+		ensure("refcount of o2", o2->getNumRefs(), 1);
+		ensure("refcount of o3", o3->getNumRefs(), 1);
+		ensure("refcount of o4", o4->getNumRefs(), 1);		
+	}
+	
+	
+	template<> template<>
+	void mediadataclient_object_t::test<11>()
+	{
+		//
+		// Test LLMediaDataClient's destructor
+		//
+		LOG_TEST(11);
+		
+		LLMediaDataClientObject::ptr_t o = new LLMediaDataClientObjectTest(DATA);
+		int num_refs_start = o->getNumRefs();
+		{
+			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);
+			mdc->fetchMedia(o);
+			// must tick enough times to clear refcount of mdc
+			::pump_timers();
+		}		
+		// Make sure everyone's destroyed properly
+		ensure("REF COUNT", o->getNumRefs(), num_refs_start);
+	}
+	
+	template<> template<>
+    void mediadataclient_object_t::test<12>()
+    {
+		//
+		// Test the "not interesting enough" call
+		//
+		LOG_TEST(12);
+		
+		LLMediaDataClientObjectTest *object1 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_1,"1.0","true"));
+		LLMediaDataClientObject::ptr_t o1 = object1;
+		LLMediaDataClientObject::ptr_t o2 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_2,"2.0","true"));
+		LLMediaDataClientObject::ptr_t o3 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_3,"3.0","true"));
+		LLMediaDataClientObject::ptr_t o4 = new LLMediaDataClientObjectTest(_DATA(VALID_OBJECT_ID_4,"4.0","true"));
+		{
+			LLPointer<LLObjectMediaDataClient> mdc = new LLObjectMediaDataClient(NO_PERIOD,NO_PERIOD);
+			
+			// queue up all 4 objects.  The first two are "interesting enough".
+			// Firing the timer 4 times should therefore leave them.
+			// Note that they should be sorted 4,3,2,1
+			// Then, we'll make one "interesting enough", fire the timer a few 
+			// times, and make sure only it gets pulled off the queue
+			gMinimumInterestLevel = 2.5;
+			mdc->fetchMedia(o1);
+			mdc->fetchMedia(o2);
+			mdc->fetchMedia(o3);
+			mdc->fetchMedia(o4);
+			
+			int tick_num = 0;
+			
+			// 0
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is in queue 4", mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 0);
+			
+			::pump_timers();
+			++tick_num;
+			
+			// 1 The first tick should remove object 4
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is in queue 3", mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 1);
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[0]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_4));
+			
+			::pump_timers();
+			++tick_num;
+			
+			// 2 The second tick should send object 3
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 2);
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[1]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_3));
+			
+			::pump_timers();
+			++tick_num;
+			
+			// 3 The third tick should not pull off anything
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 2);
+
+			::pump_timers();
+			++tick_num;
+			
+			// 4 The fourth tick (for good measure) should not pull off anything
+			ensure(STR(tick_num) + ". is in queue 1", mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 2);
+			
+			// Okay, now futz with object 1's interest, such that it is now 
+			// "interesting enough"
+			object1->setMediaInterest((F64)5.0);
+			
+			// This should sort so that the queue is now [1 2] 
+			::pump_timers();
+			++tick_num;
+			
+			// 5 The fifth tick should now identify objects 3 and 4 as no longer
+			// needing "updating", and remove them from the queue
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 3);
+			ensure(STR(tick_num) + ". post object id", (*gPostRecords)[2]["body"][LLTextureEntry::OBJECT_ID_KEY].asUUID(), LLUUID(VALID_OBJECT_ID_1));
+			
+			::pump_timers();
+			++tick_num;
+			
+			// 6 The sixth tick should not pull off anything
+			ensure(STR(tick_num) + ". is not in queue 1", !mdc->isInQueue(o1));
+			ensure(STR(tick_num) + ". is in queue 2", mdc->isInQueue(o2));
+			ensure(STR(tick_num) + ". is not in queue 3", !mdc->isInQueue(o3));
+			ensure(STR(tick_num) + ". is not in queue 4", !mdc->isInQueue(o4));
+			ensure(STR(tick_num) + ". post records", gPostRecords->size(), 3);
+			
+			::pump_timers();
+			++tick_num;
+		
+			// Whew....better NOT be empty ... o2 should still be there
+			ensure("queue not empty", !mdc->isEmpty());
+			
+			// But, we need to clear the queue, or else we won't destroy MDC...
+			// this is a strange interplay between the queue timer and the MDC
+			ensure("o2 couldn't be removed from queue", mdc->removeFromQueue(o2));
+			// tick
+			::pump_timers();
+		}
+		ensure("refcount of o1", o1->getNumRefs(), 1);
+		ensure("refcount of o2", o2->getNumRefs(), 1);
+		ensure("refcount of o3", o3->getNumRefs(), 1);
+		ensure("refcount of o4", o4->getNumRefs(), 1);		
+	}
 }
