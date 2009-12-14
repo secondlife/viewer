@@ -40,6 +40,12 @@
 #include "llfloaterreg.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloatersnapshot.h"
+#include "llimage.h"
+#include "llimagebmp.h"
+#include "llimagepng.h"
+#include "llimagej2c.h"
+#include "llimagejpeg.h"
+#include "llimagetga.h"
 #include "llinventorymodel.h"	// gInventory
 #include "llresourcedata.h"
 #include "llfloaterperms.h"
@@ -47,6 +53,8 @@
 #include "llviewercontrol.h"	// gSavedSettings
 #include "llviewertexturelist.h"
 #include "lluictrlfactory.h"
+#include "llvfile.h"
+#include "llvfs.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"	// gMenuHolder
 #include "llviewerregion.h"
@@ -67,6 +75,7 @@
 #include "lltransactiontypes.h"
 #include "lluuid.h"
 #include "llvorbisencode.h"
+#include "message.h"
 
 // system libraries
 #include <boost/tokenizer.hpp>
