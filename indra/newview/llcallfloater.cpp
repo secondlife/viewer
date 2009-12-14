@@ -280,6 +280,10 @@ void LLCallFloater::refreshPartisipantList()
 
 void LLCallFloater::onCurrentChannelChanged(const LLUUID& /*session_id*/)
 {
+	if(LLVoiceChannel::STATE_NO_CHANNEL_INFO == LLVoiceChannel::getCurrentVoiceChannel()->getState())
+	{
+		return;
+	}
 	// Forget speaker manager from the previous session to avoid using it after session was destroyed.
 	mSpeakerManager = NULL;
 	updateSession();
