@@ -776,12 +776,35 @@ void LLPanelPeople::updateButtons()
 	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
 	buttonSetEnabled("view_profile_btn",	item_selected);
 	buttonSetEnabled("im_btn",				multiple_selected); // allow starting the friends conference for multiple selection
-	buttonSetEnabled("call_btn",			multiple_selected && LLVoiceClient::voiceEnabled());
+	buttonSetEnabled("call_btn",			multiple_selected && canCall());
 	buttonSetEnabled("share_btn",			item_selected); // not implemented yet
 
 	bool none_group_selected = item_selected && selected_id.isNull();
 	buttonSetEnabled("group_info_btn", !none_group_selected);
 	buttonSetEnabled("chat_btn", !none_group_selected);
+}
+
+bool LLPanelPeople::canCall()
+{
+	std::vector<LLUUID> selected_uuids;
+	getCurrentItemIDs(selected_uuids);
+
+	bool result = false;
+
+	std::vector<LLUUID>::const_iterator
+		id = selected_uuids.begin(),
+		uuids_end = selected_uuids.end();
+
+	for (;id != uuids_end; ++id)
+	{
+		if (LLAvatarActions::canCall(*id))
+		{
+			result = true;
+			break;
+		}
+	}
+
+	return result;
 }
 
 std::string LLPanelPeople::getActiveTabName() const

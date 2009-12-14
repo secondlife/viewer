@@ -73,6 +73,7 @@ private:
 
 	bool					isFriendOnline(const LLUUID& id);
 	bool					isItemsFreeOfFriends(const std::vector<LLUUID>& uuids);
+	bool 					canCall();
 
 	void					updateButtons();
 	std::string				getActiveTabName() const;
