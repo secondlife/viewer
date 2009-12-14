@@ -184,15 +184,16 @@ void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_wo
 	S32 right_delta = old_world_rect.mRight - new_world_rect.mRight;
 	LLRect this_rect = getRect();
 
-	this_rect.mTop = (S32) (new_world_rect.getHeight() * getHeightRatio());
 	switch(mChannelAlignment)
 	{
 	case CA_LEFT :
+		this_rect.mTop = (S32) (new_world_rect.getHeight() * getHeightRatio());
 		break;
 	case CA_CENTRE :
-		this_rect.setCenterAndSize(new_world_rect.getWidth() / 2, new_world_rect.getHeight() / 2, this_rect.getWidth(), this_rect.getHeight());
-		break;
+		LLScreenChannelBase::updatePositionAndSize(old_world_rect, new_world_rect);
+		return;
 	case CA_RIGHT :
+		this_rect.mTop = (S32) (new_world_rect.getHeight() * getHeightRatio());
 		this_rect.mLeft -= right_delta;
 		this_rect.mRight -= right_delta;
 	}
