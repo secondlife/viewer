@@ -2043,12 +2043,11 @@ LLUUID LLIMMgr::addP2PSession(const std::string& name,
 LLUUID LLIMMgr::addSession(
 	const std::string& name,
 	EInstantMessage dialog,
-	const LLUUID& other_participant_id,
-	bool voice = false)
+	const LLUUID& other_participant_id)
 {
 	LLDynamicArray<LLUUID> ids;
 	ids.put(other_participant_id);
-	return addSession(name, dialog, other_participant_id, ids, voice = false);
+	return addSession(name, dialog, other_participant_id, ids);
 }
 
 // Adds a session using the given session_id.  If the session already exists 
@@ -2057,8 +2056,7 @@ LLUUID LLIMMgr::addSession(
 	const std::string& name,
 	EInstantMessage dialog,
 	const LLUUID& other_participant_id,
-	const LLDynamicArray<LLUUID>& ids,
-	bool voice = false)
+	const LLDynamicArray<LLUUID>& ids)
 {
 	if (0 == ids.getLength())
 	{
