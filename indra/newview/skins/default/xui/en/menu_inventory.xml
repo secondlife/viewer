@@ -362,13 +362,13 @@
      label="Remove From Current Outfit"
      layout="topleft"
      name="Remove From Outfit">
-    <menu_item_separator
-     layout="topleft"
-     name="Outfit Separator" />
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
          parameter="removefromoutfit" />
     </menu_item_call>
+    <menu_item_separator
+     layout="topleft"
+     name="Outfit Separator" />
     <menu_item_call
      label="Purge Item"
      layout="topleft"
