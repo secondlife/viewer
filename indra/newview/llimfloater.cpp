@@ -947,3 +947,20 @@ void LLIMFloater::initIMFloater()
 	// init chat window type before user changed it in preferences
 	isChatMultiTab();
 }
+
+//static
+void LLIMFloater::sRemoveTypingIndicator(const LLSD& data)
+{
+	LLUUID session_id = data["session_id"];
+	if (session_id.isNull()) return;
+
+	LLUUID from_id = data["from_id"];
+	if (gAgentID == from_id || LLUUID::null == from_id) return;
+
+	LLIMFloater* floater = LLIMFloater::findInstance(session_id);
+	if (!floater) return;
+
+	if (IM_NOTHING_SPECIAL != floater->mDialog) return;
+
+	floater->removeTypingIndicator();
+}

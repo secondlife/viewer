@@ -1793,6 +1793,8 @@ LLIMMgr::LLIMMgr() :
 {
 	mPendingInvitations = LLSD::emptyMap();
 	mPendingAgentListUpdates = LLSD::emptyMap();
+
+	LLIMModel::getInstance()->addNewMsgCallback(boost::bind(&LLIMFloater::sRemoveTypingIndicator, _1));
 }
 
 // Add a message to a session. 
