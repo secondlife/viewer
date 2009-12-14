@@ -280,7 +280,11 @@ void LLCallFloater::refreshPartisipantList()
 
 void LLCallFloater::onCurrentChannelChanged(const LLUUID& /*session_id*/)
 {
-	if(LLVoiceChannel::STATE_NO_CHANNEL_INFO == LLVoiceChannel::getCurrentVoiceChannel()->getState())
+	// Don't update participant list if no channel info is available.
+	// Fix for ticket EXT-3427
+	// @see LLParticipantList::~LLParticipantList()
+	if(LLVoiceChannel::getCurrentVoiceChannel() && 
+		LLVoiceChannel::STATE_NO_CHANNEL_INFO == LLVoiceChannel::getCurrentVoiceChannel()->getState())
 	{
 		return;
 	}

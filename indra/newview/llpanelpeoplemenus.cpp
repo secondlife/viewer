@@ -81,6 +81,14 @@ void ContextMenu::show(LLView* spawning_view, const std::vector<LLUUID>& uuids, 
 	LLMenuGL::showPopup(spawning_view, mMenu, x, y);
 }
 
+void ContextMenu::hide()
+{
+	if(mMenu)
+	{
+		mMenu->hide();
+	}
+}
+
 //== NearbyMenu ===============================================================
 
 LLContextMenu* NearbyMenu::createMenu()
