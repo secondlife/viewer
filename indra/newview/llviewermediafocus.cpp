@@ -144,9 +144,19 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 		}
 		
 		mFocusedImplID = LLUUID::null;
-		mFocusedObjectID = LLUUID::null;
-		mFocusedObjectFace = 0;
+		if (objectp.notNull())
+		{
+			// Still record the focused object...it may mean we need to load media data.
+			// This will aid us in determining this object is "important enough"
+			mFocusedObjectID = objectp->getID();
+			mFocusedObjectFace = face;
+		}
+		else {
+			mFocusedObjectID = LLUUID::null;
+			mFocusedObjectFace = 0;
+		}
 	}
+	
 }
 
 void LLViewerMediaFocus::clearFocus()
@@ -336,7 +346,7 @@ BOOL LLViewerMediaFocus::handleScrollWheel(S32 x, S32 y, S32 clicks)
 
 void LLViewerMediaFocus::update()
 {
-	if(mFocusedImplID.notNull() || mFocusedObjectID.notNull())
+	if(mFocusedImplID.notNull())
 	{
 		// We have a focused impl/face.
 		if(!getFocus())

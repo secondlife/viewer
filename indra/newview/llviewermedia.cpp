@@ -558,6 +558,20 @@ bool LLViewerMedia::getInWorldMediaDisabled()
 	return sInWorldMediaDisabled;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::isInterestingEnough(const LLUUID &object_id, const F64 &object_interest)
+{
+	if (LLViewerMediaFocus::getInstance()->getFocusedObjectID() == object_id)
+	{
+		return true;
+	}
+	else {
+		// XXX HACK
+		return object_interest > 1023;// INTEREST_THRESHHOLD;
+	}
+}
+
 LLViewerMedia::impl_list &LLViewerMedia::getPriorityList()
 {
 	return sViewerMediaImplList;
