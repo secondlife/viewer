@@ -1243,8 +1243,6 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 		return false;
 	}
 
-
-
 	// Does this face have media?
 	const LLTextureEntry* tep = objectp->getTE(pick.mObjectFace);
 	if(!tep)
@@ -1257,11 +1255,11 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 	
 	viewer_media_t media_impl = mep ? LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID()) : NULL;
 
-	if (gSavedSettings.getBOOL("MediaOnAPrimUI")
-		&& media_impl.notNull())
+	if (gSavedSettings.getBOOL("MediaOnAPrimUI"))
 	{
-		if (!LLViewerMediaFocus::getInstance()->isFocusedOnFace(pick.getObject(), pick.mObjectFace) )
+		if (!LLViewerMediaFocus::getInstance()->isFocusedOnFace(pick.getObject(), pick.mObjectFace) || media_impl.isNull())
 		{
+			// It's okay to give this a null impl
 			LLViewerMediaFocus::getInstance()->setFocusFace(pick.getObject(), pick.mObjectFace, media_impl, pick.mNormal);
 		}
 		else
