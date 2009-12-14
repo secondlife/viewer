@@ -489,15 +489,6 @@
 		 bottom="5"
 		 width="313">
 	    <button
-		     follows="bottom|left"
-		     height="25"
-		     label="Edit"
-		     layout="topleft"
-		     left="0"
-		     name="edit_btn"
-		     top="0"
-		     width="50" />
-	    <button
 		     follows="bottom|right"
 		     height="25"
 		     label="Cancel"

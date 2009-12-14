@@ -380,7 +380,7 @@
 		  image_selected="AudioMute_Off"
 		  image_unselected="Audio_Off"
 		  hover_glow_amount="0.15"
-		  name="media_volume_button"
+		  name="media_mute_button"
 		  height="22"
 		  is_toggle="true"
 		  layout="topleft"

@@ -99,7 +99,7 @@ private:
 	LLSpinCtrl* mWidthPixels;
 	LLSpinCtrl* mHeightPixels;
 	LLLineEditor* mHomeURL;
-	LLLineEditor* mCurrentURL;
+	LLTextBox* mCurrentURL;
 	LLMediaCtrl* mPreviewMedia;
 	LLTextBox* mFailWhiteListText;
 };

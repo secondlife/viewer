@@ -70,7 +70,6 @@ protected:
 	void 						onEditButtonClicked();
 	void 						onSaveButtonClicked();
 	void 						onCancelButtonClicked();
-	LLButton*					mEditBtn;
 	LLButton*					mSaveBtn;
 	LLButton*					mCancelBtn;
 

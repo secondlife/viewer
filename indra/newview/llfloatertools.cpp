@@ -991,7 +991,7 @@ S32 LLFloaterTools::calcRenderCost()
 			if (viewer_volume)
 			{
 				cost += viewer_volume->getRenderCost(textures);
-				cost += textures.size() * 5;
+				cost += textures.size() * LLVOVolume::ARC_TEXTURE_COST;
 				textures.clear();
 			}
 		}
@@ -1080,7 +1080,7 @@ void LLFloaterTools::getMediaState()
 {
 	LLObjectSelectionHandle selected_objects =LLSelectMgr::getInstance()->getSelection();
 	LLViewerObject* first_object = selected_objects->getFirstObject();
-	LLLineEditor* media_info = getChild<LLLineEditor>("media_info");
+	LLTextBox* media_info = getChild<LLTextBox>("media_info");
 	
 	if( !(first_object 
 		  && first_object->getPCode() == LL_PCODE_VOLUME
@@ -1088,12 +1088,6 @@ void LLFloaterTools::getMediaState()
 	      ))
 	{
 		childSetEnabled("Add_Media",  FALSE);
-/*		childSetEnabled("media_tex", FALSE);
-		childSetEnabled("add_media", FALSE);
-		childSetEnabled("delete_media", FALSE);
-		childSetEnabled("edit_media", FALSE);
-		childSetEnabled("media_info", FALSE);
-		media_info->setEnabled(FALSE);*/
 		media_info->clear();
 		clearMediaSettings();
 		return;
@@ -1105,13 +1099,6 @@ void LLFloaterTools::getMediaState()
 	if(!has_media_capability)
 	{
 		childSetEnabled("Add_Media",  FALSE);
-	/*	childSetEnabled("media_tex", FALSE);
-		childSetEnabled("add_media", FALSE);
-		childSetEnabled("delete_media", FALSE);
-		childSetEnabled("edit_media", FALSE);
-		childSetEnabled("media_info", FALSE);
-		media_info->setEnabled(FALSE);
-		media_info->clear();*/
 		LL_WARNS("LLFloaterTools: media") << "Media not enabled (no capability) in this region!" << LL_ENDL;
 		clearMediaSettings();
 		return;
@@ -1233,7 +1220,6 @@ void LLFloaterTools::getMediaState()
 		childSetEnabled( "edit_media", bool_has_media & editable );
 		childSetEnabled( "delete_media", bool_has_media & editable );
 		childSetEnabled( "add_media", ( ! bool_has_media ) & editable );
-		media_info->setEnabled(false);
 			// TODO: display a list of all media on the face - use 'identical' flag
 	}
 	else // not all face has media but at least one does.
@@ -1260,8 +1246,6 @@ void LLFloaterTools::getMediaState()
 			}
 		}
 		
-		media_info->setEnabled(false);
-		media_info->setTentative(true);
 		childSetEnabled("media_tex",  TRUE);
 		childSetEnabled( "edit_media", TRUE);
 		childSetEnabled( "delete_media", TRUE);
@@ -1392,7 +1376,7 @@ void LLFloaterTools::updateMediaTitle()
 		if ( ! media_title.empty() )
 		{
 			// update the UI widget
-			LLLineEditor* media_title_field = getChild<LLLineEditor>("media_info");
+			LLTextBox* media_title_field = getChild<LLTextBox>("media_info");
 			if ( media_title_field )
 			{
 				media_title_field->setText( media_title );
