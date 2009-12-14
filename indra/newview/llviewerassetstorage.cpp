@@ -39,7 +39,6 @@
 #include "message.h"
 
 #include "llagent.h"
-#include "llviewerbuild.h"
 
 LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
 										   LLVFS *vfs, const LLHost &upstream_host)
