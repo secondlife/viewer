@@ -2873,6 +2873,14 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="muted_message">
     You have blocked this resident. Sending a message will automatically unblock them.
   </string>
+  <!--Some times string name is getting from the body of server response.
+  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post. 
+  In case of the EXT-3115 issue 'generic' is passed into the gIMMgr::showSessionStartError as a string name.
+  Also there are some other places where "generic" is used.
+  So, let add string with name="generic" with the same value as "generic_request_error" -->
+  <string name="generic">
+    Error making request, please try again later.
+  </string>
   <string name="generic_request_error">
     Error making request, please try again later.
   </string>
