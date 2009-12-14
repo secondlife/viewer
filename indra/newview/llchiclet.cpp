@@ -112,6 +112,11 @@ public:
 		mEventTimer.start();
 	}
 
+	void stopFlashing()
+	{
+		mEventTimer.stop();
+	}
+
 private:
 	callback_t		mCallback;
 	S32 mFlashCount;
@@ -174,10 +179,18 @@ void LLSysWellChiclet::setCounter(S32 counter)
 	*/
 	mButton->setForcePressedState(counter > 0);
 
-	if (mCounter == 0 && counter > 0)
+	// we have to flash to 'Lit' state each time new unread message is comming.
+	if (counter > mCounter)
 	{
 		mFlashToLitTimer->flash();
 	}
+	else if (counter == 0)
+	{
+		// if notification is resolved while well is flashing it can leave in the 'Lit' state
+		// when flashing finishes itself. Let break flashing here.
+		mFlashToLitTimer->stopFlashing();
+	}
+
 	mCounter = counter;
 }
 
