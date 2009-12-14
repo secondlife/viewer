@@ -495,7 +495,6 @@ void LLFloaterMove::onOpen(const LLSD& key)
 //virtual
 void LLFloaterMove::setDocked(bool docked, bool pop_on_undock/* = true*/)
 {
-	LLDockableFloater::setDocked(docked, pop_on_undock);
 	LLTransientDockableFloater::setDocked(docked, pop_on_undock);
 }
 
