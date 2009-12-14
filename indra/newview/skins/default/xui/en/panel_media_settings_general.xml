@@ -93,35 +93,6 @@
    <button.commit_callback
 	     function="Media.ResetCurrentUrl"/>
   </button>
-  <text 
-   bottom_delta="-5" 
-   follows="top|left" 
-   height="15"
-   left="10" 
-   name="controls_label">
-    Controls:
-  </text>
-  <combo_box 
-   allow_text_entry="false" 
-   bottom_delta="-20"
-   follows="left|top"
-   height="18" 
-   left="10" 
-   max_chars="20"
-   name="controls" 
-   width="120">
-    <combo_item 
-	 name="Standard" 
-	 value="Standard">
-      Standard
-    </combo_item>
-    <combo_item 
-	 name="Mini" 
-	 value="Mini">
-      Mini
-    </combo_item>
-  </combo_box>
-
   <check_box 
    bottom_delta="-25" 
    enabled="true" 
@@ -135,7 +106,6 @@
    name="auto_loop" 
    radio_style="false" 
    width="150" />
-
   <check_box 
    bottom_delta="-25" 
    visible="false" 
