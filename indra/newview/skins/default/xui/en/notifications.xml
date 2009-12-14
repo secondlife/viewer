@@ -579,7 +579,7 @@ Scripts must be allowed to run for weapons to work.
    type="alertmodal">
 Multiple faces are currently selected.
 If you continue this action, separate instances of media will be set on multiple faces of the object.
-To place the media on only one face, choose Select Texture and click on the desired face of that object then click Add.
+To place the media on only one face, choose Select Face and click on the desired face of that object then click Add.
     <usetemplate
       ignoretext="Media will be set on multiple selected faces"
       name="okcancelignore"

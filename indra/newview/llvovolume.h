@@ -238,7 +238,7 @@ public:
     
     // Update this object's media data with the given media data array
     // (typically this is only called upon a response from a server request)
-	void updateObjectMediaData(const LLSD &media_data_array);
+	void updateObjectMediaData(const LLSD &media_data_array, const std::string &media_version);
     
     // Bounce back media at the given index to its current URL (or home URL, if current URL is empty)
 	void mediaNavigateBounceBack(U8 texture_index);
@@ -270,13 +270,16 @@ public:
 	// Returns 'true' iff the media data for this object is in flight
 	bool isMediaDataBeingFetched() const;
 	
+	// Returns the "last fetched" media version, or -1 if not fetched yet
+	S32 getLastFetchedMediaVersion() const { return mLastFetchedMediaVersion; }
+	
 protected:
 	S32	computeLODDetail(F32	distance, F32 radius);
 	BOOL calcLOD();
 	LLFace* addFace(S32 face_index);
 	void updateTEData();
 
-	void requestMediaDataUpdate();
+	void requestMediaDataUpdate(bool isNew);
 	void cleanUpMediaImpls();
 	void addMediaImpl(LLViewerMediaImpl* media_impl, S32 texture_index) ;
 	void removeMediaImpl(S32 texture_index) ;
@@ -300,6 +303,7 @@ private:
 	LLPointer<LLViewerFetchedTexture> mSculptTexture;
 	LLPointer<LLViewerFetchedTexture> mLightTexture;
 	media_list_t mMediaImplList;
+	S32			mLastFetchedMediaVersion; // as fetched from the server, starts as -1
 	
 	// statics
 public:
@@ -309,6 +313,8 @@ public:
 		
 	static LLPointer<LLObjectMediaDataClient> sObjectMediaClient;
 	static LLPointer<LLObjectMediaNavigateClient> sObjectMediaNavigateClient;
+
+	static const U32 ARC_TEXTURE_COST = 5;
 
 protected:
 	static S32 sNumLODChanges;
