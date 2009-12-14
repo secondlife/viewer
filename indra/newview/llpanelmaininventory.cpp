@@ -530,10 +530,22 @@ BOOL LLPanelMainInventory::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	return handled;
 }
 
-void LLPanelMainInventory::changed(U32 mask)
+// virtual
+void LLPanelMainInventory::changed(U32)
 {
+	// empty, but must have this defined for abstract base class.
 }
 
+
+// virtual
+void LLPanelMainInventory::draw()
+{
+	if (mActivePanel && mFilterEditor)
+	{
+		mFilterEditor->setText(mActivePanel->getFilterSubString());
+	}	
+	LLPanel::draw();
+}
 
 void LLPanelMainInventory::setFilterTextFromFilter() 
 { 
