@@ -59,7 +59,8 @@
 
 BOOL LLInventoryModel::sBackgroundFetchActive = FALSE;
 BOOL LLInventoryModel::sAllFoldersFetched = FALSE;
-BOOL LLInventoryModel::sFullFetchStarted = FALSE;
+BOOL LLInventoryModel::sMyInventoryFetchStarted = FALSE;
+BOOL LLInventoryModel::sLibraryFetchStarted = FALSE;
 S32  LLInventoryModel::sNumFetchRetries = 0;
 F32  LLInventoryModel::sMinTimeBetweenFetches = 0.3f;
 F32  LLInventoryModel::sMaxTimeBetweenFetches = 10.f;
@@ -1342,11 +1343,11 @@ bool LLInventoryModel::isBulkFetchProcessingComplete()
 			&& sBulkFetchCount<=0)  ?  TRUE : FALSE ) ;
 }
 
-class fetchDescendentsResponder: public LLHTTPClient::Responder
+class LLInventoryModelFetchDescendentsResponder: public LLHTTPClient::Responder
 {
 	public:
-		fetchDescendentsResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};
-		//fetchDescendentsResponder() {};
+		LLInventoryModelFetchDescendentsResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};
+		//LLInventoryModelFetchDescendentsResponder() {};
 		void result(const LLSD& content);
 		void error(U32 status, const std::string& reason);
 	public:
@@ -1356,7 +1357,7 @@ class fetchDescendentsResponder: public LLHTTPClient::Responder
 };
 
 //If we get back a normal response, handle it here
-void  fetchDescendentsResponder::result(const LLSD& content)
+void  LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
 {
 	if (content.has("folders"))	
 	{
@@ -1423,7 +1424,8 @@ void  fetchDescendentsResponder::result(const LLSD& content)
 				LLSD category = *category_it;
 				tcategory->fromLLSD(category); 
 							
-				if (LLInventoryModel::sFullFetchStarted)
+				if (LLInventoryModel::sMyInventoryFetchStarted ||
+					LLInventoryModel::sLibraryFetchStarted)
 				{
 					sFetchQueue.push_back(tcategory->getUUID());
 				}
@@ -1475,20 +1477,16 @@ void  fetchDescendentsResponder::result(const LLSD& content)
 	if (LLInventoryModel::isBulkFetchProcessingComplete())
 	{
 		llinfos << "Inventory fetch completed" << llendl;
-		if (LLInventoryModel::sFullFetchStarted)
-		{
-			LLInventoryModel::sAllFoldersFetched = TRUE;
-		}
-		LLInventoryModel::stopBackgroundFetch();
+		LLInventoryModel::setAllFoldersFetched();
 	}
 	
 	gInventory.notifyObservers("fetchDescendents");
 }
 
 //If we get back an error (not found, etc...), handle it here
-void fetchDescendentsResponder::error(U32 status, const std::string& reason)
+void LLInventoryModelFetchDescendentsResponder::error(U32 status, const std::string& reason)
 {
-	llinfos << "fetchDescendentsResponder::error "
+	llinfos << "LLInventoryModelFetchDescendentsResponder::error "
 		<< status << ": " << reason << llendl;
 						
 	LLInventoryModel::incrBulkFetch(-1);
@@ -1508,11 +1506,7 @@ void fetchDescendentsResponder::error(U32 status, const std::string& reason)
 	{
 		if (LLInventoryModel::isBulkFetchProcessingComplete())
 		{
-			if (LLInventoryModel::sFullFetchStarted)
-			{
-				LLInventoryModel::sAllFoldersFetched = TRUE;
-			}
-			LLInventoryModel::stopBackgroundFetch();
+			LLInventoryModel::setAllFoldersFetched();
 		}
 	}
 	gInventory.notifyObservers("fetchDescendents");
@@ -1580,7 +1574,8 @@ void LLInventoryModel::bulkFetch(std::string url)
 					    body["folders"].append(folder_sd);
 				    folder_count++;
 			    }
-			    if (sFullFetchStarted)
+			    if (sMyInventoryFetchStarted ||
+					sLibraryFetchStarted)
 			    {	//Already have this folder but append child folders to list.
 				    // add all children to queue
 				    parent_cat_map_t::iterator cat_it = gInventory.mParentChildCategoryTree.find(cat->getUUID());
@@ -1605,22 +1600,18 @@ void LLInventoryModel::bulkFetch(std::string url)
 			sBulkFetchCount++;
 			if (body["folders"].size())
 			{
-				LLHTTPClient::post(url, body, new fetchDescendentsResponder(body),300.0);
+				LLHTTPClient::post(url, body, new LLInventoryModelFetchDescendentsResponder(body),300.0);
 			}
 			if (body_lib["folders"].size())
 			{
 				std::string url_lib = gAgent.getRegion()->getCapability("FetchLibDescendents");
-				LLHTTPClient::post(url_lib, body_lib, new fetchDescendentsResponder(body_lib),300.0);
+				LLHTTPClient::post(url_lib, body_lib, new LLInventoryModelFetchDescendentsResponder(body_lib),300.0);
 			}
 			sFetchTimer.reset();
 		}
 	else if (isBulkFetchProcessingComplete())
 	{
-		if (sFullFetchStarted)
-		{
-			sAllFoldersFetched = TRUE;
-		}
-		stopBackgroundFetch();
+		setAllFoldersFetched();
 	}	
 }
 
@@ -1636,7 +1627,6 @@ BOOL LLInventoryModel::backgroundFetchActive()
 	return sBackgroundFetchActive;
 }
 
-//static 
 void LLInventoryModel::startBackgroundFetch(const LLUUID& cat_id)
 {
 	if (!sAllFoldersFetched)
@@ -1644,9 +1634,16 @@ void LLInventoryModel::startBackgroundFetch(const LLUUID& cat_id)
 		sBackgroundFetchActive = TRUE;
 		if (cat_id.isNull())
 		{
-			if (!sFullFetchStarted)
+			if (!sMyInventoryFetchStarted)
 			{
-				sFullFetchStarted = TRUE;
+				sMyInventoryFetchStarted = TRUE;
+				sFetchQueue.push_back(gInventory.getLibraryRootFolderID());
+				sFetchQueue.push_back(gInventory.getRootFolderID());
+				gIdleCallbacks.addFunction(&LLInventoryModel::backgroundFetch, NULL);
+			}
+			if (!sLibraryFetchStarted)
+			{
+				sLibraryFetchStarted = TRUE;
 				sFetchQueue.push_back(gInventory.getLibraryRootFolderID());
 				sFetchQueue.push_back(gInventory.getRootFolderID());
 				gIdleCallbacks.addFunction(&LLInventoryModel::backgroundFetch, NULL);
@@ -1659,6 +1656,14 @@ void LLInventoryModel::startBackgroundFetch(const LLUUID& cat_id)
 			{
 				sFetchQueue.push_front(cat_id);
 				gIdleCallbacks.addFunction(&LLInventoryModel::backgroundFetch, NULL);
+			}
+			if (cat_id == gInventory.getLibraryRootFolderID())
+			{
+				sLibraryFetchStarted = TRUE;
+			}
+			if (cat_id == gInventory.getRootFolderID())
+			{
+				sMyInventoryFetchStarted = TRUE;
 			}
 		}
 	}
@@ -1681,8 +1686,18 @@ void LLInventoryModel::stopBackgroundFetch()
 		gIdleCallbacks.deleteFunction(&LLInventoryModel::backgroundFetch, NULL);
 		sBulkFetchCount=0;
 		sMinTimeBetweenFetches=0.0f;
-//		sFullFetchStarted=FALSE;
 	}
+}
+
+// static
+void LLInventoryModel::setAllFoldersFetched()
+{
+	if (sMyInventoryFetchStarted &&
+		sLibraryFetchStarted)
+	{
+		sAllFoldersFetched = TRUE;
+	}
+	stopBackgroundFetch();
 }
 
 //static 
@@ -1703,11 +1718,8 @@ void LLInventoryModel::backgroundFetch(void*)
 		if (sFetchQueue.empty())
 		{
 			llinfos << "Inventory fetch completed" << llendl;
-			if (sFullFetchStarted)
-			{
-				sAllFoldersFetched = TRUE;
-			}
-			stopBackgroundFetch();
+
+			setAllFoldersFetched();
 			return;
 		}
 

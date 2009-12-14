@@ -72,11 +72,14 @@ LLFloaterOpenObject::~LLFloaterOpenObject()
 {
 //	sInstance = NULL;
 }
+
 // virtual
 BOOL LLFloaterOpenObject::postBuild()
 {
 	childSetTextArg("object_name", "[DESC]", std::string("Object") ); // *Note: probably do not want to translate this
 	mPanelInventoryObject = getChild<LLPanelObjectInventory>("object_contents");
+	
+	refresh();
 	return TRUE;
 }
 
@@ -95,29 +98,57 @@ void LLFloaterOpenObject::onOpen(const LLSD& key)
 		return;
 	}
 	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
+	refresh();
 }
+
 void LLFloaterOpenObject::refresh()
 {
 	mPanelInventoryObject->refresh();
 
-	std::string name;
-	BOOL enabled;
+	std::string name = "";
+	
+	// Enable the copy || copy & wear buttons only if we have something we can copy or copy & wear (respectively).
+	bool copy_enabled = false;
+	bool wear_enabled = false;
 
 	LLSelectNode* node = mObjectSelection->getFirstRootNode();
-	if (node)
+	if (node) 
 	{
 		name = node->mName;
-		enabled = TRUE;
-	}
-	else
-	{
-		name = "";
-		enabled = FALSE;
+		copy_enabled = true;
+		
+		LLViewerObject* object = node->getObject();
+		if (object)
+		{
+			// this folder is coming from an object, as there is only one folder in an object, the root,
+			// we need to collect the entire contents and handle them as a group
+			InventoryObjectList inventory_objects;
+			object->getInventoryContents(inventory_objects);
+			
+			if (!inventory_objects.empty())
+			{
+				for (InventoryObjectList::iterator it = inventory_objects.begin(); 
+					 it != inventory_objects.end(); 
+					 ++it)
+				{
+					LLInventoryItem* item = static_cast<LLInventoryItem*> ((LLInventoryObject*)(*it));
+					LLInventoryType::EType type = item->getInventoryType();
+					if (type == LLInventoryType::IT_OBJECT 
+						|| type == LLInventoryType::IT_ATTACHMENT 
+						|| type == LLInventoryType::IT_WEARABLE
+						|| type == LLInventoryType::IT_GESTURE)
+					{
+						wear_enabled = true;
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	childSetTextArg("object_name", "[DESC]", name);
-	childSetEnabled("copy_to_inventory_button", enabled);
-	childSetEnabled("copy_and_wear_button", enabled);
+	childSetEnabled("copy_to_inventory_button", copy_enabled);
+	childSetEnabled("copy_and_wear_button", wear_enabled);
 
 }
 

@@ -167,6 +167,9 @@ void LLPanelMediaSettingsSecurity::initValues( void* userdata, const LLSD& media
 			data_set[ i ].ctrl_ptr->setTentative( media_settings[ tentative_key ].asBoolean() );
 		};
 	};
+
+	// initial update - hides/shows status messages etc.
+	self->updateWhitelistEnableStatus();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

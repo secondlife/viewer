@@ -745,7 +745,15 @@ bool LLAppViewer::init()
 	LLViewerJointMesh::updateVectorize();
 
 	// load MIME type -> media impl mappings
-	LLMIMETypes::parseMIMETypes( std::string("mime_types.xml") ); 
+	std::string mime_types_name;
+#if LL_DARWIN
+	mime_types_name = "mime_types_mac.xml";
+#elif LL_LINUX
+	mime_types_name = "mime_types_linux.xml";
+#else
+	mime_types_name = "mime_types.xml";
+#endif
+	LLMIMETypes::parseMIMETypes( mime_types_name ); 
 
 	// Copy settings to globals. *TODO: Remove or move to appropriage class initializers
 	settings_to_globals();
