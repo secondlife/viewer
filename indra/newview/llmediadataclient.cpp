@@ -402,7 +402,7 @@ std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::request_queue
 	LLMediaDataClient::request_queue_t::const_iterator end = q.end();
 	while (iter != end)
 	{
-		s << "\t" << i << "]: " << (*iter)->getObject()->getID().asString();
+		s << "\t" << i << "]: " << (*iter)->getObject()->getID().asString() << "(" << (*iter)->getObject()->getMediaInterest() << ")";
 		iter++;
 		i++;
 	}
