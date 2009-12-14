@@ -54,7 +54,6 @@ public:
 	/*virtual*/ BOOL postBuild();
 	
 	void onSearchEdit(const std::string& string);
-	void onWear();
 	void onAdd();
 	void onRemove();
 	void onEdit();
@@ -71,29 +70,30 @@ public:
 	LLFolderView* getRootFolder();
 
 protected:
-	void updateParent();
+	void updateVerbs();
 	bool getIsCorrectType(const LLFolderViewEventListener *listenerp) const;
 
 private:
 	LLSidepanelAppearance*      mParent;
 	LLSaveFolderState*			mSavedFolderState;
 
+
 public:
 	//////////////////////////////////////////////////////////////////////////////////
-	// Accordion                                                                    //
+	// tab panels
 	LLInventoryPanel* 	getActivePanel();
-	bool isAccordionPanel(LLInventoryPanel *panel);
+	bool isTabPanel(LLInventoryPanel *panel);
 	
 protected:
-	void 				initAccordionPanels();
-	void 				onAccordionSelectionChange(LLInventoryPanel* accordion_panel, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
+	void 				initTabPanels();
+	void 				onTabSelectionChange(LLInventoryPanel* tab_panel, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	
 private:
 	LLInventoryPanel* 	mActivePanel;
-	typedef std::vector<LLInventoryPanel *> accordionpanels_vec_t;
-	accordionpanels_vec_t 		mAccordionPanels;
+	typedef std::vector<LLInventoryPanel *> tabpanels_vec_t;
+	tabpanels_vec_t 		mTabPanels;
 
-	// Accordion                                                                  //
+	// tab panels                                                               //
 	////////////////////////////////////////////////////////////////////////////////
 	
 
@@ -103,6 +103,7 @@ protected:
 	void initListCommandsHandlers();
 	void updateListCommands();
 	void onGearButtonClick();
+	void onWearButtonClick();
 	void onAddButtonClick();
 	void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
 	void onTrashButtonClick();

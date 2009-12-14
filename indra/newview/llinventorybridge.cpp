@@ -973,7 +973,7 @@ bool LLInvFVBridge::isInOutfitsSidePanel() const
 		dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
 	if (!outfit_panel)
 		return false;
-	return outfit_panel->isAccordionPanel(my_panel);
+	return outfit_panel->isTabPanel(my_panel);
 }
 
 // +=================================================+
