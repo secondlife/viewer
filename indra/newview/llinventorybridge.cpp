@@ -1471,13 +1471,14 @@ BOOL LLFolderBridge::isItemRemovable()
 	{
 		return FALSE;
 	}
+
 	// Allow protected types to be removed, but issue a warning.
-	/*
-	if(LLFolderType::lookupIsProtectedType(category->getPreferredType()))
+	// Restrict to god mode so users don't inadvertently mess up their inventory.
+	if(LLFolderType::lookupIsProtectedType(category->getPreferredType()) &&
+	   !gAgent.isGodlike())
 	{
 		return FALSE;
 	}
-	*/
 
 	LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
 	LLFolderViewFolder* folderp = dynamic_cast<LLFolderViewFolder*>(panel ? panel->getRootFolder()->getItemByID(mUUID) : NULL);
@@ -2508,8 +2509,8 @@ void LLFolderBridge::folderOptionsMenu()
 			mItems.push_back(std::string("Wear As Ensemble"));
 		}
 		mItems.push_back(std::string("Remove From Outfit"));
-		if (is_sidepanel)
-			mItems.push_back(std::string("Outfit Separator"));
+
+		mItems.push_back(std::string("Outfit Separator"));
 	}
 	hide_context_entries(*mMenu, mItems, disabled_items);
 
