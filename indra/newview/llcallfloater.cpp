@@ -351,11 +351,17 @@ void LLCallFloater::updateModeratorState()
 
 	if(gAgent.isInGroup(mSpeakerManager->getSessionID()))
 	{
-		// Agent is Moderator
-		if (mSpeakerManager->findSpeaker(gAgentID)->mIsModerator)
+		// This method can be called when LLVoiceChannel.mState == STATE_NO_CHANNEL_INFO
+		// in this case there are no any speakers yet.
+		if (mSpeakerManager->findSpeaker(gAgentID))
 		{
-			const std::string moderator_indicator(LLTrans::getString("IM_moderator_label")); 
-			name += " " + moderator_indicator;
+			// Agent is Moderator
+			if (mSpeakerManager->findSpeaker(gAgentID)->mIsModerator)
+
+			{
+				const std::string moderator_indicator(LLTrans::getString("IM_moderator_label")); 
+				name += " " + moderator_indicator;
+			}
 		}
 	}
 	mAgentPanel->childSetValue("user_text", name);
