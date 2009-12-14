@@ -300,7 +300,6 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	mItem = NULL;
 	isLandmarkEditModeOn = false;
 	togglePlaceInfoPanel(TRUE);
-	updateVerbs();
 
 	if (mPlaceInfoType == AGENT_INFO_TYPE)
 	{
@@ -370,6 +369,8 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 		mPlaceProfile->setInfoType(LLPanelPlaceInfo::TELEPORT_HISTORY);
 		mPlaceProfile->displayParcelInfo(LLUUID(), mPosGlobal);
 	}
+
+	updateVerbs();
 
 	LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
 	if (!parcel_mgr)
@@ -905,6 +906,7 @@ void LLPanelPlaces::changedInventory(U32 mask)
 void LLPanelPlaces::changedGlobalPos(const LLVector3d &global_pos)
 {
 	mPosGlobal = global_pos;
+	updateVerbs();
 }
 
 void LLPanelPlaces::updateVerbs()
@@ -923,6 +925,7 @@ void LLPanelPlaces::updateVerbs()
 
 	bool is_agent_place_info_visible = mPlaceInfoType == AGENT_INFO_TYPE;
 	bool is_create_landmark_visible = mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE;
+	bool have_3d_pos = ! mPosGlobal.isExactlyZero();
 
 	mTeleportBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
 	mShowOnMapBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
@@ -932,7 +935,7 @@ void LLPanelPlaces::updateVerbs()
 	mCancelBtn->setVisible(isLandmarkEditModeOn);
 	mCloseBtn->setVisible(is_create_landmark_visible && !isLandmarkEditModeOn);
 
-	mShowOnMapBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn);
+	mShowOnMapBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn && have_3d_pos);
 	mOverflowBtn->setEnabled(is_place_info_visible && !is_create_landmark_visible);
 
 	if (is_place_info_visible)
@@ -941,12 +944,12 @@ void LLPanelPlaces::updateVerbs()
 		{
 			// We don't need to teleport to the current location
 			// so check if the location is not within the current parcel.
-			mTeleportBtn->setEnabled(!mPosGlobal.isExactlyZero() &&
+			mTeleportBtn->setEnabled(have_3d_pos &&
 									 !LLViewerParcelMgr::getInstance()->inAgentParcel(mPosGlobal));
 		}
 		else if (mPlaceInfoType == LANDMARK_INFO_TYPE || mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
 		{
-			mTeleportBtn->setEnabled(TRUE);
+			mTeleportBtn->setEnabled(have_3d_pos);
 		}
 	}
 	else
