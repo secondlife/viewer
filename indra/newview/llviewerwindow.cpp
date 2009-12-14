@@ -3150,7 +3150,8 @@ void LLViewerWindow::pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback
 		pick_transparent = TRUE;
 	}
 
-	schedulePick(LLPickInfo(LLCoordGL(x, y_from_bot), mask, pick_transparent, TRUE, callback));
+	LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, TRUE, callback);
+	schedulePick(pick_info);
 }
 
 void LLViewerWindow::schedulePick(LLPickInfo& pick_info)
