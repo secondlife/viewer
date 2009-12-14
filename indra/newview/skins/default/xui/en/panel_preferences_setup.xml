@@ -10,7 +10,7 @@
  top="1"
  width="517">
     <button
-     height="20"
+     height="23"
      label="Other Devices"
      layout="topleft"
      left="30"
@@ -138,7 +138,7 @@
      enabled_control="BrowserProxyEnabled"
 	 decimal_digits="0"
      follows="left|top"
-     height="16"
+     height="23"
      increment="1"
      initial_value="80"
      label="Port number:"
@@ -208,7 +208,7 @@
      width="205" />
     <button
      follows="left|top"
-     height="22"
+     height="23"
      label="Browse"
      label_selected="Browse"
      layout="topleft"
@@ -221,7 +221,7 @@
     </button>
    <button
      follows="left|top"
-     height="22"
+     height="23"
      label="Reset"
      label_selected="Set"
      layout="topleft"
@@ -314,7 +314,7 @@
      width="200" />
     <button
      follows="left|top"
-     height="22"
+     height="23"
      enabled="false"
      label="Browse"
      label_selected="Browse"

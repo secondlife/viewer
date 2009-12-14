@@ -23,7 +23,7 @@ Hover your mouse over the options for more help.
     </panel.string>
     <text_editor
      type="string"
-     follows="left|top"
+     follows="left|top|right"
      left="5"
      height="60"
      layout="topleft"
@@ -37,7 +37,7 @@ Hover your mouse over the options for more help.
     <name_list
      column_padding="0"
      draw_heading="true"
-     follows="left|top"
+     follows="left|top|right"
      heading_height="20"
      height="156"
      layout="topleft"
@@ -55,10 +55,10 @@ Hover your mouse over the options for more help.
          relative_width="0.4" />
       </name_list>
          <text
-         follows="left|top"
+         follows="left|top|right"
          type="string"
          height="12"
-         layout="topleft"
+         layout="left|top|right"
          left="5"
          name="active_title_label"
          top_pad="5"
@@ -66,7 +66,7 @@ Hover your mouse over the options for more help.
             My Title
         </text>
         <combo_box
-         follows="left|top"
+         follows="left|top|right"
          height="20"
          layout="topleft"
          left="5"
@@ -98,7 +98,7 @@ Hover your mouse over the options for more help.
          bevel_style="in"
          border="true"
          bg_alpha_color="FloaterUnfocusBorderColor"
-         follows="left|top"
+         follows="left|top|right"
          height="88"
          layout="topleft"
          left="2"
@@ -106,7 +106,7 @@ Hover your mouse over the options for more help.
          name="preferences_container"
          top_pad="2">
         <check_box
-         follows="right|top"
+         follows="right|top|left"
          height="16"
          label="Open enrollment"
          layout="topleft"
@@ -126,26 +126,26 @@ Hover your mouse over the options for more help.
          width="300" />
         <spinner
          decimal_digits="0"
-         follows="left|top"
+         follows="left|top|right"
          halign="left"
          height="16"
          increment="1"
          label_width="15"
          label="L$"
          layout="topleft"
-         right="-10"
+         right="-30"
          max_val="99999"
          left_pad="0"
          name="spin_enrollment_fee"
          tool_tip="New members must pay this fee to join the group when Enrollment Fee is checked."
-         width="100" />
+         width="80" />
          <combo_box
-         follows="left|top"
+         follows="left|top|right"
          height="20"
          layout="topleft"
          left="10"
          name="group_mature_check"
-         tool_tip="Sets whether your group information is considered moderate"
+         tool_tip="Sets whether your group contains information rated as Moderate"
          top_pad="0"
          width="190">
             <combo_box.item
@@ -158,7 +158,7 @@ Hover your mouse over the options for more help.
              value="Mature" />
         </combo_box>
         <check_box
-         follows="left|top"
+         follows="left|top|right"
          height="16"
          initial_value="true"
          label="Show in search"

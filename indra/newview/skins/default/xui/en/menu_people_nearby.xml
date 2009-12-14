@@ -34,7 +34,6 @@
          function="Avatar.Call" />
     </menu_item_call>
     <menu_item_call
-     enabled="false"
      label="Share"
      layout="topleft"
      name="Share">

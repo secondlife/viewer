@@ -74,15 +74,6 @@
 // system libraries
 #include <boost/tokenizer.hpp>
 
-class LLFileEnableSaveAs : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = gFloaterView->getFrontmost() && gFloaterView->getFrontmost()->canSaveAs();
-		return new_value;
-	}
-};
-
 class LLFileEnableUpload : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -426,19 +417,6 @@ class LLFileCloseAllWindows : public view_listener_t
 		bool app_quitting = false;
 		gFloaterView->closeAllChildren(app_quitting);
 
-		return true;
-	}
-};
-
-class LLFileSaveTexture : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloater* top = gFloaterView->getFrontmost();
-		if (top)
-		{
-			top->saveAs();
-		}
 		return true;
 	}
 };
@@ -1288,10 +1266,10 @@ void init_menu_file()
 	view_listener_t::addCommit(new LLFileCloseAllWindows(), "File.CloseAllWindows");
 	view_listener_t::addEnable(new LLFileEnableCloseWindow(), "File.EnableCloseWindow");
 	view_listener_t::addEnable(new LLFileEnableCloseAllWindows(), "File.EnableCloseAllWindows");
-	view_listener_t::addCommit(new LLFileSaveTexture(), "File.SaveTexture");
 	view_listener_t::addCommit(new LLFileTakeSnapshotToDisk(), "File.TakeSnapshotToDisk");
 	view_listener_t::addCommit(new LLFileQuit(), "File.Quit");
 
 	view_listener_t::addEnable(new LLFileEnableUpload(), "File.EnableUpload");
-	view_listener_t::addEnable(new LLFileEnableSaveAs(), "File.EnableSaveAs");
+	
+	// "File.SaveTexture" moved to llpanelmaininventory so that it can be properly handled.
 }

@@ -1044,7 +1044,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>10</integer>
+      <integer>4</integer>
     </map>
     <key>ButtonHeight</key>
     <map>
@@ -1055,7 +1055,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>20</integer>
+      <integer>23</integer>
     </map>
     <key>ButtonHeightSmall</key>
     <map>
@@ -1066,7 +1066,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>16</integer>
+      <integer>23</integer>
     </map>
     <key>ButtonVPad</key>
     <map>
@@ -4974,7 +4974,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>StartUpToastLifeTime</key>
     <key>NearbyToastFadingTime</key>
     <map>
       <key>Comment</key>
@@ -5039,7 +5038,18 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>35</integer>
+      <integer>5</integer>
+    </map>
+    <key>NotificationChannelHeightRatio</key>
+    <map>
+      <key>Comment</key>
+      <string>Notification channel and World View ratio(0.0 - always show 1 notification, 1.0 - max ratio).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
     </map>
     <key>OverflowToastHeight</key>
     <map>
@@ -5504,6 +5514,28 @@
       <string>F32</string>
       <key>Value</key>
       <real>5.0</real>
+    </map>
+	<key>PrimMediaMaxSortedQueueSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of objects the viewer will load media for initially</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>100000</integer>
+    </map>
+	<key>PrimMediaMaxRoundRobinQueueSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of objects the viewer will continuously update media for</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>100000</integer>
     </map>
     <key>ProbeHardwareOnStartup</key>
     <map>
@@ -9922,6 +9954,28 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>UseCircuitCodeMaxRetries</key>
+    <map>
+      <key>Comment</key>
+      <string>Max timeout count for the initial UseCircuitCode message</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>3</real>
+    </map>
+    <key>UseCircuitCodeTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Timeout duration in seconds for the initial UseCircuitCode message</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>5.0</real>
     </map>
     <key>UseDebugLogin</key>
     <map>

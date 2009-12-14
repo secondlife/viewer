@@ -2525,7 +2525,8 @@ boost::signals2::connection LLViewerParcelMgr::setTeleportFailedCallback(parcel_
  */
 void LLViewerParcelMgr::onTeleportFinished(bool local, const LLVector3d& new_pos)
 {
-	if (local)
+	// Treat only teleports within the same parcel as local (EXT-3139).
+	if (local && LLViewerParcelMgr::getInstance()->inAgentParcel(new_pos))
 	{
 		// Local teleport. We already have the agent parcel data.
 		// Emit the signal immediately.
@@ -2533,7 +2534,7 @@ void LLViewerParcelMgr::onTeleportFinished(bool local, const LLVector3d& new_pos
 	}
 	else
 	{
-		// Non-local teleport.
+		// Non-local teleport (inter-region or between different parcels of the same region).
 		// The agent parcel data has not been updated yet.
 		// Let's wait for the update and then emit the signal.
 		mTeleportInProgress = TRUE;

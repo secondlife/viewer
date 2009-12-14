@@ -519,7 +519,7 @@ bool LLViewerInventoryCategory::fetchDescendents()
 		std::string url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
 		if (!url.empty()) //Capability found.  Build up LLSD and use it.
 		{
-			LLInventoryModel::startBackgroundFetch(mUUID);			
+			gInventory.startBackgroundFetch(mUUID);			
 		}
 		else
 		{	//Deprecated, but if we don't have a capability, use the old system.
@@ -1095,72 +1095,22 @@ void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, co
 					  LLInventoryType::IT_GESTURE,
 					  PERM_ALL);
 	}
-	else if ("shirt" == type_name)
+	else
 	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
-		LLFolderBridge::createWearable(parent_id, WT_SHIRT);
+		// Use for all clothing and body parts.  Adding new wearable types requires updating LLWearableDictionary.
+		EWearableType wearable_type = LLWearableDictionary::typeNameToType(type_name);
+		if (wearable_type >= WT_SHAPE && wearable_type < WT_COUNT)
+		{
+			LLAssetType::EType asset_type = LLWearableDictionary::getAssetType(wearable_type);
+			LLFolderType::EType folder_type = LLFolderType::assetTypeToFolderType(asset_type);
+			const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(folder_type);
+			LLFolderBridge::createWearable(parent_id, wearable_type);
+		}
+		else
+		{
+			llwarns << "Can't create unrecognized type " << type_name << llendl;
+		}
 	}
-	else if ("pants" == type_name)
-	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
-		LLFolderBridge::createWearable(parent_id, WT_PANTS);
-	}
-	else if ("shoes" == type_name)
-	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
-		LLFolderBridge::createWearable(parent_id, WT_SHOES);
-	}
-	else if ("socks" == type_name)
-	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
-		LLFolderBridge::createWearable(parent_id, WT_SOCKS);
-	}
-	else if ("jacket" == type_name)
-	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
-		LLFolderBridge::createWearable(parent_id, WT_JACKET);
-	}
-	else if ("skirt" == type_name)
-	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
-		LLFolderBridge::createWearable(parent_id, WT_SKIRT);
-	}
-	else if ("gloves" == type_name)
-	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
-		LLFolderBridge::createWearable(parent_id, WT_GLOVES);
-	}
-	else if ("undershirt" == type_name)
-	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
-		LLFolderBridge::createWearable(parent_id, WT_UNDERSHIRT);
-	}
-	else if ("underpants" == type_name)
-	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
-		LLFolderBridge::createWearable(parent_id, WT_UNDERPANTS);
-	}
-	else if ("shape" == type_name)
-	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_BODYPART);
-		LLFolderBridge::createWearable(parent_id, WT_SHAPE);
-	}
-	else if ("skin" == type_name)
-	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_BODYPART);
-		LLFolderBridge::createWearable(parent_id, WT_SKIN);
-	}
-	else if ("hair" == type_name)
-	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_BODYPART);
-		LLFolderBridge::createWearable(parent_id, WT_HAIR);
-	}
-	else if ("eyes" == type_name)
-	{
-		const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_BODYPART);
-		LLFolderBridge::createWearable(parent_id, WT_EYES);
-	}
-	
 	folder->setNeedsAutoRename(TRUE);	
 }
 
@@ -1427,6 +1377,25 @@ LLViewerInventoryCategory *LLViewerInventoryItem::getLinkedCategory() const
 		return linked_category;
 	}
 	return NULL;
+}
+
+bool LLViewerInventoryItem::checkPermissionsSet(PermissionMask mask) const
+{
+	const LLPermissions& perm = getPermissions();
+	PermissionMask curr_mask = PERM_NONE;
+	if(perm.getOwner() == gAgent.getID())
+	{
+		curr_mask = perm.getMaskBase();
+	}
+	else if(gAgent.isInGroup(perm.getGroup()))
+	{
+		curr_mask = perm.getMaskGroup();
+	}
+	else
+	{
+		curr_mask = perm.getMaskEveryone();
+	}
+	return ((curr_mask & mask) == mask);
 }
 
 //----------

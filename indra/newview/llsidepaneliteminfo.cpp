@@ -109,19 +109,30 @@ BOOL LLSidepanelItemInfo::postBuild()
 {
 	LLSidepanelInventorySubpanel::postBuild();
 
-	// build the UI
-	// item name & description
 	childSetPrevalidate("LabelItemName",&LLLineEditor::prevalidateASCIIPrintableNoPipe);
-	//getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitName,this));
+	getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitName,this));
 	childSetPrevalidate("LabelItemDesc",&LLLineEditor::prevalidateASCIIPrintableNoPipe);
-	//getChild<LLUICtrl>("LabelItemDesc")->setCommitCallback(boost::bind(&LLSidepanelItemInfo:: onCommitDescription, this));
-
+	getChild<LLUICtrl>("LabelItemDesc")->setCommitCallback(boost::bind(&LLSidepanelItemInfo:: onCommitDescription, this));
 	// Creator information
 	getChild<LLUICtrl>("BtnCreator")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onClickCreator,this));
-
 	// owner information
 	getChild<LLUICtrl>("BtnOwner")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onClickOwner,this));
-
+	// acquired date
+	// owner permissions
+	// Permissions debug text
+	// group permissions
+	getChild<LLUICtrl>("CheckShareWithGroup")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
+	// everyone permissions
+	getChild<LLUICtrl>("CheckEveryoneCopy")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
+	// next owner permissions
+	getChild<LLUICtrl>("CheckNextOwnerModify")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
+	getChild<LLUICtrl>("CheckNextOwnerCopy")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
+	getChild<LLUICtrl>("CheckNextOwnerTransfer")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
+	// Mark for sale or not, and sale info
+	getChild<LLUICtrl>("CheckPurchase")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this));
+	getChild<LLUICtrl>("RadioSaleType")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleType, this));
+	// "Price" label for edit
+	getChild<LLUICtrl>("Edit Cost")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this));
 	refresh();
 	return TRUE;
 }
@@ -159,7 +170,6 @@ void LLSidepanelItemInfo::refresh()
 			setIsEditing(FALSE);
 			return;
 		}
-		mEditBtn->setEnabled(FALSE);
 	}
 
 	if (!getIsEditing())
@@ -250,6 +260,18 @@ void LLSidepanelItemInfo::refreshFromItem(LLInventoryItem* item)
 	BOOL is_modifiable = gAgent.allowOperation(PERM_MODIFY, perm,
 											   GP_OBJECT_MANIPULATE)
 		&& is_obj_modify && is_complete;
+
+	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+	bool item_in_trash = item->getUUID() == trash_id || gInventory.isObjectDescendentOf(item->getUUID(), trash_id);
+
+	if (is_modifiable && !item_in_trash)
+	{
+		setIsEditing(TRUE);
+	}
+	else
+	{
+		setIsEditing(FALSE);
+	}
 
 	childSetEnabled("LabelItemNameTitle",TRUE);
 	childSetEnabled("LabelItemName",is_modifiable && !is_calling_card); // for now, don't allow rename of calling cards
@@ -856,25 +878,6 @@ LLInventoryItem* LLSidepanelItemInfo::findItem() const
 		}
 	}
 	return item;
-}
-
-// virtual
-void LLSidepanelItemInfo::updateVerbs()
-{
-	LLSidepanelInventorySubpanel::updateVerbs();
-
-	const LLViewerInventoryItem* item = (LLViewerInventoryItem*)findItem();
-	if (item)
-	{
-		const LLPermissions& perm = item->getPermissions();
-		BOOL is_modifiable = gAgent.allowOperation(PERM_MODIFY, perm,
-												   GP_OBJECT_MANIPULATE);
-		
-		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		bool item_in_trash = item->getUUID() == trash_id || gInventory.isObjectDescendentOf(item->getUUID(), trash_id);
-		mEditBtn->setEnabled(is_modifiable && !item_in_trash);
-		
-	}
 }
 
 // virtual

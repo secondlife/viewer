@@ -839,11 +839,13 @@ void LLWindowSDL::hide()
     // *FIX: What to do with SDL?
 }
 
+//virtual
 void LLWindowSDL::minimize()
 {
     // *FIX: What to do with SDL?
 }
 
+//virtual
 void LLWindowSDL::restore()
 {
     // *FIX: What to do with SDL?

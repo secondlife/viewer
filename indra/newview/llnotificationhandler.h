@@ -266,6 +266,11 @@ public:
 	static bool canLogToIM(const LLNotificationPtr& notification);
 
 	/**
+	 * Checks sufficient conditions to log notification message to nearby chat session.
+	 */
+	static bool canLogToNearbyChat(const LLNotificationPtr& notification);
+
+	/**
 	 * Checks sufficient conditions to spawn IM session.
 	 */
 	static bool canSpawnIMSession(const LLNotificationPtr& notification);
@@ -287,6 +292,11 @@ public:
 	 * Writes group notice notification message to IM  group session.
 	 */
 	static void logGroupNoticeToIMGroup(const LLNotificationPtr& notification);
+
+	/**
+	 * Writes notification message to nearby chat.
+	 */
+	static void logToNearbyChat(const LLNotificationPtr& notification, EChatSourceType type);
 };
 
 }

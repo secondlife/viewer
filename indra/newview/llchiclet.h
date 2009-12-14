@@ -315,7 +315,7 @@ public:
 	{
 		Optional<std::string> new_messages_icon_name;
 
-		Params() : new_messages_icon_name("new_messages_icon_name", "icn_voice-localchat.tga")
+		Params() : new_messages_icon_name("new_messages_icon_name", "Unread_IM")
 		{}
 	};
 
@@ -389,7 +389,7 @@ public:
 	 * Made public so that it can be triggered from outside
 	 * (more specifically, from the Active IM window).
 	 */
-	void onMouseDown();
+	virtual void onMouseDown();
 
 protected:
 
@@ -594,7 +594,7 @@ public:
 
 	/*virtual*/ void setSessionId(const LLUUID& session_id);
 
-	/*virtual*/ void setCounter(S32 counter){}
+	/*virtual*/ void setCounter(S32 counter);
 
 	/*virtual*/ S32 getCounter() { return 0; }
 
@@ -634,7 +634,7 @@ public:
 
 	/*virtual*/ void setSessionId(const LLUUID& session_id);
 
-	/*virtual*/ void setCounter(S32 counter){}
+	/*virtual*/ void setCounter(S32 counter);
 
 	/*virtual*/ S32 getCounter() { return 0; }
 
@@ -745,7 +745,7 @@ private:
 
 /**
  * Implements notification chiclet. Used to display total amount of unread messages 
- * across all IM sessions, total amount of system notifications.
+ * across all IM sessions, total amount of system notifications. See EXT-3147 for details
  */
 class LLSysWellChiclet : public LLChiclet
 {
@@ -756,6 +756,24 @@ public:
 		Optional<LLButton::Params> button;
 
 		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
+
+		/**
+		 * Contains maximum displayed count of unread messages. Default value is 9.
+		 *
+		 * If count is less than "max_unread_count" will be displayed as is.
+		 * Otherwise 9+ will be shown (for default value).
+		 */
+		Optional<S32> max_displayed_count;
+
+		/**
+		 * How many time chiclet should flash before set "Lit" state. Default value is 3.
+		 */
+		Optional<S32> flash_to_lit_count;
+
+		/**
+		 * Period of flashing while setting "Lit" state, in seconds. Default value is 0.5.
+		 */
+		Optional<F32> flash_period;
 
 		Params();
 	};
@@ -778,9 +796,26 @@ protected:
 	LLSysWellChiclet(const Params& p);
 	friend class LLUICtrlFactory;
 
+	/**
+	 * Change Well 'Lit' state from 'Lit' to 'Unlit' and vice-versa.
+	 *
+	 * There is an assumption that it will be called 2*N times to do not change its start state.
+	 * @see FlashToLitTimer
+	 */
+	void changeLitState();
+
 protected:
+	class FlashToLitTimer;
 	LLButton* mButton;
 	S32 mCounter;
+	S32 mMaxDisplayedCount;
+
+	/**
+	 * How many times Well will blink.
+	 */
+	S32 mFlashToLitCount;
+	FlashToLitTimer* mFlashToLitTimer;
+
 };
 
 /**

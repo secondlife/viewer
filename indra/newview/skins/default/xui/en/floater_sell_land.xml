@@ -182,7 +182,7 @@
      width="130">
         <combo_box.item
          enabled="false"
-         label="-- select one --"
+         label="- Select one -"
          name="--selectone--"
          value="select" />
         <combo_box.item

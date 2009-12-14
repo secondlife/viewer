@@ -82,9 +82,24 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLMenuItemCallGL::Params>
 	{
-		Mandatory<EType> item_type;
-
-		Params() {}
+		Mandatory<EType>		item_type;
+		Optional<const LLFontGL*> back_item_font,
+								current_item_font,
+								forward_item_font;
+		Optional<std::string>	back_item_image,
+								forward_item_image;
+		Optional<S32>			image_hpad,
+								image_vpad;
+		Params()
+		:	item_type(),
+			back_item_font("back_item_font"),
+			current_item_font("current_item_font"),
+			forward_item_font("forward_item_font"),
+			back_item_image("back_item_image"),
+			forward_item_image("forward_item_image"),
+			image_hpad("image_hpad"),
+			image_vpad("image_vpad")
+		{}
 	};
 
 	/*virtual*/ void	draw();
@@ -97,33 +112,36 @@ private:
 
 	static const S32			ICON_WIDTH			= 16;
 	static const S32			ICON_HEIGHT			= 16;
-	static const std::string	ICON_IMG_BACKWARD;
-	static const std::string	ICON_IMG_FORWARD;
 
 	LLIconCtrl*		mArrowIcon;
 };
 
-const std::string LLTeleportHistoryMenuItem::ICON_IMG_BACKWARD("teleport_history_backward.tga");
-const std::string LLTeleportHistoryMenuItem::ICON_IMG_FORWARD("teleport_history_forward.tga");
+static LLDefaultChildRegistry::Register<LLTeleportHistoryMenuItem> r("teleport_history_menu_item");
+
 
 LLTeleportHistoryMenuItem::LLTeleportHistoryMenuItem(const Params& p)
 :	LLMenuItemCallGL(p),
 	mArrowIcon(NULL)
 {
 	// Set appearance depending on the item type.
-	if (p.item_type  == TYPE_CURRENT)
+	if (p.item_type == TYPE_BACKWARD)
 	{
-		setFont(LLFontGL::getFontSansSerifBold());
+		setFont( p.back_item_font );
+	}
+	else if (p.item_type == TYPE_CURRENT)
+	{
+		setFont( p.current_item_font );
 	}
 	else
 	{
-		setFont(LLFontGL::getFontSansSerif());
-		setLabel(std::string("   ") + std::string(p.label));
+		setFont( p.forward_item_font );
 	}
 
 	LLIconCtrl::Params icon_params;
 	icon_params.name("icon");
-	icon_params.rect(LLRect(0, ICON_HEIGHT, ICON_WIDTH, 0));
+	LLRect rect(0, ICON_HEIGHT, ICON_WIDTH, 0);
+	rect.translate( p.image_hpad, p.image_vpad );
+	icon_params.rect( rect );
 	icon_params.mouse_opaque(false);
 	icon_params.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
 	icon_params.visible(false);
@@ -132,9 +150,9 @@ LLTeleportHistoryMenuItem::LLTeleportHistoryMenuItem(const Params& p)
 
 	// no image for the current item
 	if (p.item_type == TYPE_BACKWARD)
-		mArrowIcon->setValue(ICON_IMG_BACKWARD);
+		mArrowIcon->setValue( p.back_item_image() );
 	else if (p.item_type == TYPE_FORWARD)
-		mArrowIcon->setValue(ICON_IMG_FORWARD);
+		mArrowIcon->setValue( p.forward_item_image() );
 
 	addChild(mArrowIcon);
 }

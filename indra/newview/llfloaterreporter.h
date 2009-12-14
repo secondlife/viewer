@@ -124,7 +124,6 @@ private:
 
 private:
 	EReportType		mReportType;
-	BOOL			mEmailToEstateOwner;
 	LLUUID 			mObjectID;
 	LLUUID			mScreenID;
 	LLUUID			mAbuserID;

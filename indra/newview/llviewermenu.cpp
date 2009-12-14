@@ -45,6 +45,7 @@
 #include "llagentwearables.h"
 #include "llagentpilot.h"
 #include "llcompilequeue.h"
+#include "llconsole.h"
 #include "lldebugview.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
@@ -58,6 +59,7 @@
 #include "llfloaterland.h"
 #include "llfloaterpay.h"
 #include "llfloaterreporter.h"
+#include "llfloatersearch.h"
 #include "llfloaterscriptdebug.h"
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
@@ -487,7 +489,7 @@ class LLAdvancedToggleConsole : public view_listener_t
 		}
 		else if ("debug" == console_type)
 		{
-			toggle_visibility( (void*)((LLView*)gDebugView->mDebugConsolep) );
+			toggle_visibility( (void*)static_cast<LLUICtrl*>(gDebugView->mDebugConsolep));
 		}
 		else if (gTextureSizeView && "texture size" == console_type)
 		{
@@ -2697,20 +2699,24 @@ BOOL enable_has_attachments(void*)
 bool enable_object_mute()
 {
 	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-	bool new_value = (object != NULL);
-	if (new_value)
+	if (!object) return false;
+
+	LLVOAvatar* avatar = find_avatar_from_object(object); 
+	if (avatar)
 	{
-		LLVOAvatar* avatar = find_avatar_from_object(object); 
-		if (avatar)
-		{
-			// It's an avatar
-			LLNameValue *lastname = avatar->getNVPair("LastName");
-			BOOL is_linden = lastname && !LLStringUtil::compareStrings(lastname->getString(), "Linden");
-			BOOL is_self = avatar->isSelf();
-			new_value = !is_linden && !is_self;
-		}
+		// It's an avatar
+		LLNameValue *lastname = avatar->getNVPair("LastName");
+		bool is_linden =
+			lastname && !LLStringUtil::compareStrings(lastname->getString(), "Linden");
+		bool is_self = avatar->isSelf();
+		return !is_linden && !is_self;
 	}
-	return new_value;
+	else
+	{
+		// Just a regular object
+		return LLSelectMgr::getInstance()->getSelection()->
+			contains( object, SELECT_ALL_TES );
+	}
 }
 
 class LLObjectMute : public view_listener_t
@@ -3403,6 +3409,13 @@ void set_god_level(U8 god_level)
 
 	// changing god-level can affect which menus we see
 	show_debug_menus();
+
+	// changing god-level can invalidate search results
+	LLFloaterSearch *search = dynamic_cast<LLFloaterSearch*>(LLFloaterReg::getInstance("search"));
+	if (search)
+	{
+		search->godLevelChanged(god_level);
+	}
 }
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
@@ -5562,17 +5575,8 @@ class LLShowHelp : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string help_topic = userdata.asString();
-
 		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
-		if (help_topic.empty())
-		{
-			vhelp->showTopic(vhelp->getTopicFromFocus());
-		}
-		else
-		{
-			vhelp->showTopic(help_topic);
-		}
-
+		vhelp->showTopic(help_topic);
 		return true;
 	}
 };
@@ -7557,12 +7561,11 @@ void initialize_menus()
 	
 	LLUICtrl::EnableCallbackRegistry::Registrar& enable = LLUICtrl::EnableCallbackRegistry::currentRegistrar();
 	LLUICtrl::CommitCallbackRegistry::Registrar& commit = LLUICtrl::CommitCallbackRegistry::currentRegistrar();
-	LLUICtrl::VisibleCallbackRegistry::Registrar& visible = LLUICtrl::VisibleCallbackRegistry::currentRegistrar();
 	
 	// Generic enable and visible
 	// Don't prepend MenuName.Foo because these can be used in any menu.
 	enable.add("IsGodCustomerService", boost::bind(&is_god_customer_service));
-	visible.add("IsGodCustomerService", boost::bind(&is_god_customer_service));
+	enable.add("IsGodCustomerService", boost::bind(&is_god_customer_service));
 
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
@@ -7669,7 +7672,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToolsEnableLink(), "Tools.EnableLink");
 	view_listener_t::addMenu(new LLToolsEnableUnlink(), "Tools.EnableUnlink");
 	view_listener_t::addMenu(new LLToolsEnableBuyOrTake(), "Tools.EnableBuyOrTake");
-	visible.add("Tools.VisibleTakeCopy", boost::bind(&enable_object_take_copy));
 	enable.add("Tools.EnableTakeCopy", boost::bind(&enable_object_take_copy));
 	view_listener_t::addMenu(new LLToolsEnableSaveToInventory(), "Tools.EnableSaveToInventory");
 	view_listener_t::addMenu(new LLToolsEnableSaveToObjectInventory(), "Tools.EnableSaveToObjectInventory");
@@ -7845,7 +7847,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLSelfStandUp(), "Self.StandUp");
 	view_listener_t::addMenu(new LLSelfRemoveAllAttachments(), "Self.RemoveAllAttachments");
 
-	visible.add("Self.VisibleStandUp", boost::bind(&enable_standup_self));
 	enable.add("Self.EnableStandUp", boost::bind(&enable_standup_self));
 	view_listener_t::addMenu(new LLSelfEnableRemoveAllAttachments(), "Self.EnableRemoveAllAttachments");
 
@@ -7868,58 +7869,41 @@ void initialize_menus()
 	
 	view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
 	enable.add("Avatar.EnableFreezeEject", boost::bind(&enable_freeze_eject, _2));
-	visible.add("Avatar.EnableFreezeEject", boost::bind(&enable_freeze_eject, _2));
+	enable.add("Avatar.EnableFreezeEject", boost::bind(&enable_freeze_eject, _2));
 
 	// Object pie menu
 	view_listener_t::addMenu(new LLObjectBuild(), "Object.Build");
 	commit.add("Object.Touch", boost::bind(&handle_object_touch));
 	commit.add("Object.SitOrStand", boost::bind(&handle_object_sit_or_stand));
-	visible.add("Object.EnableSit", boost::bind(&enable_sit_object));
+	enable.add("Object.EnableSit", boost::bind(&enable_sit_object));
 	commit.add("Object.Delete", boost::bind(&handle_object_delete));
 	view_listener_t::addMenu(new LLObjectAttachToAvatar(), "Object.AttachToAvatar");
 	view_listener_t::addMenu(new LLObjectReturn(), "Object.Return");
 	view_listener_t::addMenu(new LLObjectReportAbuse(), "Object.ReportAbuse");
 	view_listener_t::addMenu(new LLObjectMute(), "Object.Mute");
 
-	visible.add("Object.VisibleTake", boost::bind(&visible_take_object));
-	visible.add("Object.VisibleBuy", boost::bind(&visible_buy_object));
+	enable.add("Object.VisibleTake", boost::bind(&visible_take_object));
+	enable.add("Object.VisibleBuy", boost::bind(&visible_buy_object));
 
 	commit.add("Object.Buy", boost::bind(&handle_buy));
 	commit.add("Object.Edit", boost::bind(&handle_object_edit));
 	commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
 	commit.add("Object.Open", boost::bind(&handle_object_open));
-	
 	commit.add("Object.Take", boost::bind(&handle_take));
-
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
-	visible.add("Object.VisibleOpen", boost::bind(&enable_object_open));
-
 	enable.add("Object.EnableTouch", boost::bind(&enable_object_touch));
-	visible.add("Object.VisibleTouch", boost::bind(&enable_object_touch));
-
 	view_listener_t::addMenu(new LLObjectEnableTouch(), "Object.EnableTouch");
 	view_listener_t::addMenu(new LLObjectEnableSitOrStand(), "Object.EnableSitOrStand");
-	
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));
-	visible.add("Object.VisibleDelete", boost::bind(&enable_object_delete));
-
 	enable.add("Object.EnableWear", boost::bind(&object_selected_and_point_valid));
-	visible.add("Object.VisibleWear", boost::bind(&object_selected_and_point_valid));
 
 	view_listener_t::addMenu(new LLObjectEnableReturn(), "Object.EnableReturn");
 	view_listener_t::addMenu(new LLObjectEnableReportAbuse(), "Object.EnableReportAbuse");
 
 	enable.add("Avatar.EnableMute", boost::bind(&enable_object_mute));
 	enable.add("Object.EnableMute", boost::bind(&enable_object_mute));
-	visible.add("Object.VisibleMute", boost::bind(&enable_object_mute));
 
 	enable.add("Object.EnableBuy", boost::bind(&enable_buy_object));
-
-	/*view_listener_t::addMenu(new LLObjectVisibleTouch(), "Object.VisibleTouch");
-	view_listener_t::addMenu(new LLObjectVisibleCustomTouch(), "Object.VisibleCustomTouch");
-	view_listener_t::addMenu(new LLObjectVisibleStandUp(), "Object.VisibleStandUp");
-	view_listener_t::addMenu(new LLObjectVisibleSitHere(), "Object.VisibleSitHere");
-	view_listener_t::addMenu(new LLObjectVisibleCustomSit(), "Object.VisibleCustomSit");*/
 
 	// Attachment pie menu
 	enable.add("Attachment.Label", boost::bind(&onEnableAttachmentLabel, _1, _2));
@@ -7949,12 +7933,9 @@ void initialize_menus()
 	commit.add("PayObject", boost::bind(&handle_give_money_dialog));
 
 	enable.add("EnablePayObject", boost::bind(&enable_pay_object));
-	visible.add("VisiblePayObject", boost::bind(&enable_pay_object));
 	enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));
 	enable.add("EnableEdit", boost::bind(&enable_object_edit));
-	visible.add("VisibleBuild", boost::bind(&enable_object_build));
-	visible.add("VisibleEdit", boost::bind(&enable_object_edit));
-	visible.add("Object.VisibleEdit", boost::bind(&enable_object_edit));
+	enable.add("VisibleBuild", boost::bind(&enable_object_build));
 
 	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
 	view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");

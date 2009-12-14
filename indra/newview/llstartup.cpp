@@ -193,6 +193,7 @@
 
 #include "lllogin.h"
 #include "llevents.h"
+#include "llstartuplistener.h"
 
 #if LL_WINDOWS
 #include "llwindebug.h"
@@ -241,7 +242,8 @@ static std::string gFirstSimSeedCap;
 static LLVector3 gAgentStartLookAt(1.0f, 0.f, 0.f);
 static std::string gAgentStartLocation = "safe";
 
-static LLEventStream sStartupStateWatcher("StartupState");
+boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
+boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
 
 //
 // local function declaration
@@ -367,8 +369,6 @@ bool idle_startup()
 	LLMemType mt1(LLMemType::MTYPE_STARTUP);
 	
 	const F32 PRECACHING_DELAY = gSavedSettings.getF32("PrecachingDelay");
-	const F32 TIMEOUT_SECONDS = 5.f;
-	const S32 MAX_TIMEOUT_COUNT = 3;
 	static LLTimer timeout;
 	static S32 timeout_count = 0;
 
@@ -1436,9 +1436,9 @@ bool idle_startup()
 		msg->addUUIDFast(_PREHASH_ID, gAgent.getID());
 		msg->sendReliable(
 			gFirstSim,
-			MAX_TIMEOUT_COUNT,
+			gSavedSettings.getS32("UseCircuitCodeMaxRetries"),
 			FALSE,
-			TIMEOUT_SECONDS,
+			gSavedSettings.getF32("UseCircuitCodeTimeout"),
 			use_circuit_callback,
 			NULL);
 
@@ -2695,12 +2695,15 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 #define RTNENUM(E) case E: return #E
 	switch(state){
 		RTNENUM( STATE_FIRST );
+		RTNENUM( STATE_BROWSER_INIT );
 		RTNENUM( STATE_LOGIN_SHOW );
 		RTNENUM( STATE_LOGIN_WAIT );
 		RTNENUM( STATE_LOGIN_CLEANUP );
 		RTNENUM( STATE_LOGIN_AUTH_INIT );
 		RTNENUM( STATE_LOGIN_PROCESS_RESPONSE );
 		RTNENUM( STATE_WORLD_INIT );
+		RTNENUM( STATE_MULTIMEDIA_INIT );
+		RTNENUM( STATE_FONT_INIT );
 		RTNENUM( STATE_SEED_GRANTED_WAIT );
 		RTNENUM( STATE_SEED_CAP_GRANTED );
 		RTNENUM( STATE_WORLD_WAIT );
@@ -2725,15 +2728,23 @@ void LLStartUp::setStartupState( EStartupState state )
 		getStartupStateString() << " to " <<  
 		startupStateToString(state) << LL_ENDL;
 	gStartupState = state;
+	postStartupState();
+}
+
+void LLStartUp::postStartupState()
+{
 	LLSD stateInfo;
 	stateInfo["str"] = getStartupStateString();
-	stateInfo["enum"] = state;
-	sStartupStateWatcher.post(stateInfo);
+	stateInfo["enum"] = gStartupState;
+	sStateWatcher->post(stateInfo);
 }
 
 
 void reset_login()
 {
+	gAgent.cleanup();
+	LLWorld::getInstance()->destroyClass();
+
 	LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 
 	if ( gViewerWindow )

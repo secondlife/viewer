@@ -47,10 +47,13 @@
 #include "llurlsimstring.h"
 #include "llweb.h"
 #include "llworldmapmessage.h"
+#include "llurldispatcherlistener.h"
 
 // library includes
 #include "llnotificationsutil.h"
 #include "llsd.h"
+
+static LLURLDispatcherListener sURLDispatcherListener;
 
 class LLURLDispatcherImpl
 {

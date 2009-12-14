@@ -773,6 +773,9 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 		{
 			LLInventoryObject* cargo = locateInventory(item, cat);
 
+			// fix for EXT-3191
+			if (NULL == cargo) return;
+
 			EAcceptance item_acceptance = ACCEPT_NO;
 			handled = handled && root_view->handleDragAndDrop(x, y, mask, FALSE,
 												mCargoTypes[mCurItemIndex],

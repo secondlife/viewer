@@ -251,7 +251,7 @@ bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFlo
 		{
 			floater->setAllIgnored();
 			LLFirstUse::disableFirstUse();
-			LLFloaterPreference::buildLists(floater);
+			floater->buildPopupLists();
 		}
 	}
 	return false;
@@ -266,7 +266,7 @@ bool callback_reset_dialogs(const LLSD& notification, const LLSD& response, LLFl
 		{
 			floater->resetAllIgnored();
 			LLFirstUse::resetFirstUse();
-			LLFloaterPreference::buildLists(floater);
+			floater->buildPopupLists();
 		}
 	}
 	return false;
@@ -391,6 +391,7 @@ LLFloaterPreference::~LLFloaterPreference()
 		ctrl_window_size->setCurrentByIndex(i);
 	}
 }
+
 void LLFloaterPreference::draw()
 {
 	BOOL has_first_selected = (getChildRef<LLScrollListCtrl>("disabled_popups").getFirstSelected()!=NULL);
@@ -548,17 +549,17 @@ void LLFloaterPreference::cancel()
 void LLFloaterPreference::onOpen(const LLSD& key)
 {
 	gAgent.sendAgentUserInfoRequest();
+
 	/////////////////////////// From LLPanelGeneral //////////////////////////
 	// if we have no agent, we can't let them choose anything
 	// if we have an agent, then we only let them choose if they have a choice
-	bool canChoose = gAgent.getID().notNull() &&
-	(gAgent.isMature() || gAgent.isGodlike());
+	bool can_choose_maturity =
+		gAgent.getID().notNull() &&	(gAgent.isMature() || gAgent.isGodlike());
 	
 	LLComboBox* maturity_combo = getChild<LLComboBox>("maturity_desired_combobox");
 	
-	if (canChoose)
-	{
-		
+	if (can_choose_maturity)
+	{		
 		// if they're not adult or a god, they shouldn't see the adult selection, so delete it
 		if (!gAgent.isAdult() && !gAgent.isGodlike())
 		{
@@ -568,8 +569,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 			maturity_combo->remove(0);
 		}
 		childSetVisible("maturity_desired_combobox", true);
-		childSetVisible("maturity_desired_textbox", false);
-		
+		childSetVisible("maturity_desired_textbox", false);		
 	}
 	else
 	{
@@ -577,6 +577,10 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 		childSetVisible("maturity_desired_combobox", false);
 	}
 	
+	// Enabled/disabled popups, might have been changed by user actions
+	// while preferences floater was closed.
+	buildPopupLists();
+
 	LLPanelLogin::setAlwaysRefresh(true);
 	refresh();
 	
@@ -717,14 +721,6 @@ void LLFloaterPreference::updateMeterText(LLUICtrl* ctrl)
 	m1->setVisible(two_digits);
 	m2->setVisible(!two_digits);
 }
-/*
-void LLFloaterPreference::onClickClearCache()
-{
-	// flag client cache for clearing next time the client runs
-	gSavedSettings.setBOOL("PurgeCacheOnNextStartup", TRUE);
-	LLNotificationsUtil::add("CacheWillClear");
-}
-*/
 
 void LLFloaterPreference::onClickBrowserClearCache()
 {
@@ -794,12 +790,13 @@ void LLFloaterPreference::refreshSkin(void* data)
 	self->getChild<LLRadioGroup>("skin_selection", true)->setValue(sSkin);
 }
 
-// static
-void LLFloaterPreference::buildLists(void* data)
+
+void LLFloaterPreference::buildPopupLists()
 {
-	LLPanel*self = (LLPanel*)data;
-	LLScrollListCtrl& disabled_popups = self->getChildRef<LLScrollListCtrl>("disabled_popups");
-	LLScrollListCtrl& enabled_popups = self->getChildRef<LLScrollListCtrl>("enabled_popups");
+	LLScrollListCtrl& disabled_popups =
+		getChildRef<LLScrollListCtrl>("disabled_popups");
+	LLScrollListCtrl& enabled_popups =
+		getChildRef<LLScrollListCtrl>("enabled_popups");
 	
 	disabled_popups.deleteAllItems();
 	enabled_popups.deleteAllItems();
@@ -861,8 +858,7 @@ void LLFloaterPreference::buildLists(void* data)
 }
 
 void LLFloaterPreference::refreshEnabledState()
-{
-	
+{	
 	LLCheckBoxCtrl* ctrl_reflections = getChild<LLCheckBoxCtrl>("Reflections");
 	LLRadioGroup* radio_reflection_detail = getChild<LLRadioGroup>("ReflectionDetailRadio");
 	
@@ -1111,7 +1107,7 @@ void LLFloaterPreference::onClickEnablePopup()
 		LLUI::sSettingGroups["ignores"]->setBOOL(notification_name, TRUE);
 	}
 	
-	buildLists(this);
+	buildPopupLists();
 }
 
 void LLFloaterPreference::onClickDisablePopup()
@@ -1128,8 +1124,9 @@ void LLFloaterPreference::onClickDisablePopup()
 		LLUI::sSettingGroups["ignores"]->setBOOL(notification_name, FALSE);
 	}
 	
-	buildLists(this);
+	buildPopupLists();
 }
+
 void LLFloaterPreference::resetAllIgnored()
 {
 	for (LLNotifications::TemplateMap::const_iterator iter = LLNotifications::instance().templatesBegin();
@@ -1428,17 +1425,11 @@ BOOL LLPanelPreference::postBuild()
 		}
 
 	}
-	////////////////////////Panel Popups/////////////////
-	if(hasChild("disabled_popups") && hasChild("enabled_popups"))
-	{
-		LLFloaterPreference::buildLists(this);
-	}
-	//////
+
 	if(hasChild("online_visibility") && hasChild("send_im_to_email"))
 	{
 		childSetText("email_address",getString("log_in_to_change") );
-//		childSetText("busy_response", getString("log_in_to_change"));
-		
+//		childSetText("busy_response", getString("log_in_to_change"));		
 	}
 
 
@@ -1573,8 +1564,7 @@ void LLPanelPreference::saveSettings()
 		{
 			view_stack.push_back(*iter);
 		}
-	}
-	
+	}	
 }
 
 void LLPanelPreference::cancel()
@@ -1607,4 +1597,3 @@ void LLPanelPreference::setControlFalse(const LLSD& user_data)
 	if (control)
 		control->set(LLSD(FALSE));
 }
-

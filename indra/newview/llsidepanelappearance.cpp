@@ -67,6 +67,26 @@ private:
 	LLSidepanelAppearance *mPanel;
 };
 
+class LLWatchForOutfitRenameObserver : public LLInventoryObserver
+{
+public:
+	LLWatchForOutfitRenameObserver(LLSidepanelAppearance *panel) :
+		mPanel(panel)
+	{}
+	virtual void changed(U32 mask);
+	
+private:
+	LLSidepanelAppearance *mPanel;
+};
+
+void LLWatchForOutfitRenameObserver::changed(U32 mask)
+{
+	if (mask & LABEL)
+	{
+		mPanel->refreshCurrentOutfitName();
+	}
+}
+	
 LLSidepanelAppearance::LLSidepanelAppearance() :
 	LLPanel(),
 	mFilterSubString(LLStringUtil::null),
@@ -76,6 +96,8 @@ LLSidepanelAppearance::LLSidepanelAppearance() :
 {
 	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_appearance.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 	mFetchWorn = new LLCurrentlyWornFetchObserver(this);
+	
+	mOutfitRenameWatcher = new LLWatchForOutfitRenameObserver(this);
 }
 
 LLSidepanelAppearance::~LLSidepanelAppearance()
@@ -134,6 +156,8 @@ BOOL LLSidepanelAppearance::postBuild()
 	mCurrentLookName = getChild<LLTextBox>("currentlook_name");
 	
 	mCurrOutfitPanel = getChild<LLPanel>("panel_currentlook");
+
+	gInventory.addObserver(mOutfitRenameWatcher);
 
 	return TRUE;
 }
@@ -299,7 +323,7 @@ void LLSidepanelAppearance::updateVerbs()
 	}
 }
 
-void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string name)
+void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 {
 	if (name == "")
 	{

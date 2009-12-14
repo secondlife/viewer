@@ -903,13 +903,10 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 	if (!auto_open) return NULL;
 	
 	// D. Open the inventory side panel and use that.
-	LLSideTray *side_tray = LLSideTray::getInstance();
+    LLSD key;
 	LLSidepanelInventory *sidepanel_inventory =
-		dynamic_cast<LLSidepanelInventory *>(side_tray->getPanel("sidepanel_inventory"));
-
-	// Use the inventory side panel only if it is already active.
-	// Activating it may unexpectedly switch off the currently active tab in some cases.
-	if (sidepanel_inventory && (LLPanel*)side_tray->getActiveTab() == (LLPanel*)sidepanel_inventory)
+		dynamic_cast<LLSidepanelInventory *>(LLSideTray::getInstance()->showPanel("sidepanel_inventory", key));
+	if (sidepanel_inventory)
 	{
 		return sidepanel_inventory->getActivePanel();
 	}

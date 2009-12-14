@@ -61,6 +61,7 @@ static LLDefaultChildRegistry::Register<LLIMP2PChiclet> t3("chiclet_im_p2p");
 static LLDefaultChildRegistry::Register<LLIMGroupChiclet> t4("chiclet_im_group");
 static LLDefaultChildRegistry::Register<LLAdHocChiclet> t5("chiclet_im_adhoc");
 static LLDefaultChildRegistry::Register<LLScriptChiclet> t6("chiclet_script");
+static LLDefaultChildRegistry::Register<LLInvOfferChiclet> t7("chiclet_offer");
 
 static const LLRect CHICLET_RECT(0, 25, 25, 0);
 static const LLRect CHICLET_ICON_RECT(0, 22, 22, 0);
@@ -78,29 +79,73 @@ boost::signals2::signal<LLChiclet* (const LLUUID&),
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+/**
+ * Updates the Well's 'Lit' state to flash it when "new messages" are come.
+ *
+ * It gets callback which will be called 2*N times with passed period. See EXT-3147
+ */
+class LLSysWellChiclet::FlashToLitTimer : public LLEventTimer
+{
+public:
+	typedef boost::function<void()> callback_t;
+	FlashToLitTimer(S32 count, F32 period, callback_t cb)
+		: LLEventTimer(period)
+		, mCallback(cb)
+		, mFlashCount(2 * count)
+		, mCurrentFlashCount(0)
+	{
+		mEventTimer.stop();
+	}
+
+	BOOL tick()
+	{
+		mCallback();
+
+		if (++mCurrentFlashCount == mFlashCount) mEventTimer.stop();
+		return FALSE;
+	}
+
+	void flash()
+	{
+		mCurrentFlashCount = 0;
+		mEventTimer.start();
+	}
+
+private:
+	callback_t		mCallback;
+	S32 mFlashCount;
+	S32 mCurrentFlashCount;
+};
+
 LLSysWellChiclet::Params::Params()
 : button("button")
 , unread_notifications("unread_notifications")
+, max_displayed_count("max_displayed_count", 9)
+, flash_to_lit_count("flash_to_lit_count", 3)
+, flash_period("flash_period", 0.5F)
 {
 	button.name("button");
 	button.tab_stop(FALSE);
 	button.label(LLStringUtil::null);
-
 }
 
 LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 : LLChiclet(p)
 , mButton(NULL)
 , mCounter(0)
+, mMaxDisplayedCount(p.max_displayed_count)
+, mFlashToLitTimer(NULL)
 {
 	LLButton::Params button_params = p.button;
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
 	addChild(mButton);
+
+	mFlashToLitTimer = new FlashToLitTimer(p.flash_to_lit_count, p.flash_period, boost::bind(&LLSysWellChiclet::changeLitState, this));
 }
 
 LLSysWellChiclet::~LLSysWellChiclet()
 {
-
+	delete mFlashToLitTimer;
 }
 
 void LLSysWellChiclet::setCounter(S32 counter)
@@ -108,11 +153,30 @@ void LLSysWellChiclet::setCounter(S32 counter)
 	std::string s_count;
 	if(counter != 0)
 	{
-		s_count = llformat("%d", counter);
+		static std::string more_messages_exist("+");
+		std::string more_messages(counter > mMaxDisplayedCount ? more_messages_exist : "");
+		s_count = llformat("%d%s"
+			, llmin(counter, mMaxDisplayedCount)
+			, more_messages.c_str()
+			);
 	}
 
 	mButton->setLabel(s_count);
 
+	/*
+	Emulate 4 states of button by background images, see detains in EXT-3147
+	xml attribute           Description
+	image_unselected        "Unlit" - there are no new messages
+	image_selected          "Unlit" + "Selected" - there are no new messages and the Well is open
+	image_pressed           "Lit" - there are new messages
+	image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well is open
+	*/
+	mButton->setForcePressedState(counter > 0);
+
+	if (mCounter == 0 && counter > 0)
+	{
+		mFlashToLitTimer->flash();
+	}
 	mCounter = counter;
 }
 
@@ -126,6 +190,14 @@ void LLSysWellChiclet::setToggleState(BOOL toggled) {
 	mButton->setToggleState(toggled);
 }
 
+void LLSysWellChiclet::changeLitState()
+{
+	static bool set_lit = false;
+
+	mButton->setForcePressedState(set_lit);
+
+	set_lit ^= true;
+}
 
 /************************************************************************/
 /*               LLIMWellChiclet implementation                         */
@@ -939,12 +1011,34 @@ void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	}
 }
 
+void object_chiclet_callback(const LLSD& data)
+{
+	LLUUID object_id = data["object_id"];
+	bool new_message = data["new_message"];
+
+	std::list<LLChiclet*> chiclets = LLIMChiclet::sFindChicletsSignal(object_id);
+	std::list<LLChiclet *>::iterator iter;
+	for (iter = chiclets.begin(); iter != chiclets.end(); iter++)
+	{
+		LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(*iter);
+		if (chiclet != NULL)
+		{
+			if(data.has("unread"))
+			{
+				chiclet->setCounter(data["unread"]);
+			}
+			chiclet->setShowNewMessagesIcon(new_message);
+		}
+	}
+}
 
 BOOL LLChicletPanel::postBuild()
 {
 	LLPanel::postBuild();
 	LLIMModel::instance().addNewMsgCallback(boost::bind(im_chiclet_callback, this, _1));
 	LLIMModel::instance().addNoUnreadMsgsCallback(boost::bind(im_chiclet_callback, this, _1));
+	LLScriptFloaterManager::getInstance()->addNewObjectCallback(boost::bind(object_chiclet_callback, _1));
+	LLScriptFloaterManager::getInstance()->addToggleObjectFloaterCallback(boost::bind(object_chiclet_callback, _1));
 	LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLChicletPanel::findChiclet<LLChiclet>, this, _1));
 	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLChicletPanel::onCurrentVoiceChannelChanged, this, _1));
 
@@ -1545,6 +1639,11 @@ void LLScriptChiclet::setSessionId(const LLUUID& session_id)
 	}
 }
 
+void LLScriptChiclet::setCounter(S32 counter)
+{
+	setShowNewMessagesIcon( counter > 0 );
+}
+
 void LLScriptChiclet::onMouseDown()
 {
 	LLScriptFloaterManager::getInstance()->toggleScriptFloater(getSessionId());
@@ -1599,6 +1698,11 @@ void LLInvOfferChiclet::setSessionId(const LLUUID& session_id)
 	{
 		mChicletIconCtrl->setValue(LLUUID::null);
 	}
+}
+
+void LLInvOfferChiclet::setCounter(S32 counter)
+{
+	setShowNewMessagesIcon( counter > 0 );
 }
 
 void LLInvOfferChiclet::onMouseDown()

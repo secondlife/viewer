@@ -40,6 +40,7 @@
 #include "llinventoryfilter.h"
 #include "llpanel.h"
 #include "llviewercontrol.h"	// gSavedSettings
+#include "llviewerinventory.h"
 #include "llviewerwindow.h"		// Argh, only for setCursor()
 
 // linden library includes
@@ -61,6 +62,7 @@ const F32 LLFolderViewItem::FOLDER_CLOSE_TIME_CONSTANT = 0.02f;
 const F32 LLFolderViewItem::FOLDER_OPEN_TIME_CONSTANT = 0.03f;
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
+
 
 //static
 LLFontGL* LLFolderViewItem::getLabelFontForStyle(U8 style)
@@ -120,7 +122,7 @@ LLFolderViewItem::LLFolderViewItem(LLFolderViewItem::Params p)
 	mHasVisibleChildren(FALSE),
 	mIndentation(0),
 	mNumDescendantsSelected(0),
-	mFiltered(FALSE),
+	mPassedFilter(FALSE),
 	mLastFilterGeneration(-1),
 	mStringMatchOffset(std::string::npos),
 	mControlLabelRotation(0.f),
@@ -222,17 +224,17 @@ BOOL LLFolderViewItem::potentiallyVisible()
 
 BOOL LLFolderViewItem::getFiltered() 
 { 
-	return mFiltered && mLastFilterGeneration >= getRoot()->getFilter()->getMinRequiredGeneration(); 
+	return mPassedFilter && mLastFilterGeneration >= getRoot()->getFilter()->getMinRequiredGeneration(); 
 }
 
 BOOL LLFolderViewItem::getFiltered(S32 filter_generation) 
 {
-	return mFiltered && mLastFilterGeneration >= filter_generation;
+	return mPassedFilter && mLastFilterGeneration >= filter_generation;
 }
 
 void LLFolderViewItem::setFiltered(BOOL filtered, S32 filter_generation)
 {
-	mFiltered = filtered;
+	mPassedFilter = filtered;
 	mLastFilterGeneration = filter_generation;
 }
 
@@ -387,7 +389,9 @@ BOOL LLFolderViewItem::addToFolder(LLFolderViewFolder* folder, LLFolderView* roo
 // makes sure that this view and it's children are the right size.
 S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
 {
-	mIndentation = getParentFolder() && getParentFolder()->getParentFolder() 
+	mIndentation = (getParentFolder() 
+					&& getParentFolder()->getParentFolder() 
+					&& getParentFolder()->getParentFolder()->getParentFolder())
 		? mParentFolder->getIndentation() + LEFT_INDENTATION 
 		: 0;
 	if (mLabelWidthDirty)
@@ -420,19 +424,20 @@ S32 LLFolderViewItem::getItemHeight()
 
 void LLFolderViewItem::filter( LLInventoryFilter& filter)
 {
-	BOOL filtered = mListener && filter.check(this);
+	const BOOL previous_passed_filter = mPassedFilter;
+	const BOOL passed_filter = mListener && filter.check(this);
 
-	// if our visibility will change as a result of this filter, then
+	// If our visibility will change as a result of this filter, then
 	// we need to be rearranged in our parent folder
-	if (getVisible() != filtered)
+	if (mParentFolder)
 	{
-		if (mParentFolder)
-		{
+		if (getVisible() != passed_filter)
 			mParentFolder->requestArrange();
-		}
+		if (passed_filter != previous_passed_filter)
+			mParentFolder->requestArrange();
 	}
 
-	setFiltered(filtered, filter.getCurrentGeneration());
+	setFiltered(passed_filter, filter.getCurrentGeneration());
 	mStringMatchOffset = filter.getStringMatchOffset();
 	filter.decrementFilterCount();
 
@@ -600,6 +605,11 @@ const std::string& LLFolderViewItem::getSearchableLabel() const
 	return mSearchableLabel;
 }
 
+LLViewerInventoryItem * LLFolderViewItem::getInventoryItem(void)
+{
+	return gInventory.getItem(getListener()->getUUID());
+}
+
 std::string LLFolderViewItem::getName( void ) const
 {
 	if(mListener)
@@ -733,15 +743,6 @@ BOOL LLFolderViewItem::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
 	preview();
 	return TRUE;
-}
-
-BOOL LLFolderViewItem::handleScrollWheel(S32 x, S32 y, S32 clicks)
-{
-	if (getParent())
-	{
-		return getParent()->handleScrollWheel(x, y, clicks);
-	}
-	return FALSE;
 }
 
 BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
@@ -1243,7 +1244,7 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 	if (getLastFilterGeneration() < filter_generation)
 	{
 		if (getLastFilterGeneration() >= must_pass_generation &&		// folder has been compared to a valid precursor filter
-			!mFiltered)													// and did not pass the filter
+			!mPassedFilter)													// and did not pass the filter
 		{
 			// go ahead and flag this folder as done
 			mLastFilterGeneration = filter_generation;			
@@ -1381,7 +1382,7 @@ void LLFolderViewFolder::setFiltered(BOOL filtered, S32 filter_generation)
 {
 	// if this folder is now filtered, but wasn't before
 	// (it just passed)
-	if (filtered && !mFiltered)
+	if (filtered && !mPassedFilter)
 	{
 		// reset current height, because last time we drew it
 		// it might have had more visible items than now
@@ -2153,12 +2154,6 @@ BOOL LLFolderViewFolder::handleHover(S32 x, S32 y, MASK mask)
 		handled = LLFolderViewItem::handleHover(x, y, mask);
 	}
 
-	//if(x < LEFT_INDENTATION + mIndentation && x > mIndentation - LEFT_PAD && y > getRect().getHeight() - )
-	//{
-	//	gViewerWindow->setCursor(UI_CURSOR_ARROW);
-	//	mExpanderHighlighted = TRUE;
-	//	handled = TRUE;
-	//}
 	return handled;
 }
 
@@ -2171,7 +2166,7 @@ BOOL LLFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
 	}
 	if( !handled )
 	{
-		if(x < LEFT_INDENTATION + mIndentation && x > mIndentation - LEFT_PAD)
+		if(mIndentation < x && x < mIndentation + ARROW_SIZE + TEXT_PAD)
 		{
 			toggleOpen();
 			handled = TRUE;
@@ -2205,7 +2200,7 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 	}
 	if( !handled )
 	{
-		if(x < LEFT_INDENTATION + mIndentation && x > mIndentation - LEFT_PAD)
+		if(mIndentation < x && x < mIndentation + ARROW_SIZE + TEXT_PAD)
 		{
 			// don't select when user double-clicks plus sign
 			// so as not to contradict single-click behavior

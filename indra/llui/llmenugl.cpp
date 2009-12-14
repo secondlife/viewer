@@ -761,7 +761,7 @@ void LLMenuItemCallGL::initFromParams(const Params& p)
 {
 	if (p.on_visible.isProvided())
 	{
-		mVisibleSignal.connect(initVisibleCallback(p.on_visible));
+		mVisibleSignal.connect(initEnableCallback(p.on_visible));
 	}
 	if (p.on_enable.isProvided())
 	{

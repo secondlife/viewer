@@ -62,7 +62,7 @@
      left="4"
      layout="topleft"
      name="Show My Location"
-     tool_tip="Center map on your avatar&apos;s location"
+     tool_tip="Center map on my avatar&apos;s location"
      top="6"
      width="24" >
 		<button.commit_callback
@@ -235,7 +235,7 @@
      left="136"
      top="6"
      name="Go Home"
-     tool_tip="Teleport home"
+     tool_tip="Teleport to my home location"
      width="24" >
 		<button.commit_callback
 		function="WMap.GoHome" />

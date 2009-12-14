@@ -78,6 +78,8 @@
 #include "lllocationhistory.h"
 #include "llfasttimerview.h"
 #include "llvoicechannel.h"
+#include "llsidetray.h"
+
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -744,7 +746,15 @@ bool LLAppViewer::init()
 	LLViewerJointMesh::updateVectorize();
 
 	// load MIME type -> media impl mappings
-	LLMIMETypes::parseMIMETypes( std::string("mime_types.xml") ); 
+	std::string mime_types_name;
+#if LL_DARWIN
+	mime_types_name = "mime_types_mac.xml";
+#elif LL_LINUX
+	mime_types_name = "mime_types_linux.xml";
+#else
+	mime_types_name = "mime_types.xml";
+#endif
+	LLMIMETypes::parseMIMETypes( mime_types_name ); 
 
 	// Copy settings to globals. *TODO: Remove or move to appropriage class initializers
 	settings_to_globals();
@@ -2854,6 +2864,8 @@ void LLAppViewer::requestQuit()
 		gFloaterView->closeAllChildren(true);
 	}
 
+	LLSideTray::getInstance()->notifyChildren(LLSD().with("request","quit"));
+
 	send_stats();
 
 	gLogoutTimer.reset();
@@ -3758,6 +3770,13 @@ void LLAppViewer::idleShutdown()
 	{
 		return;
 	}
+
+	if (LLSideTray::getInstance()->notifyChildren(LLSD().with("request","wait_quit")))
+	{
+		return;
+	}
+
+
 	
 	// ProductEngine: Try moving this code to where we shut down sTextureCache in cleanup()
 	// *TODO: ugly

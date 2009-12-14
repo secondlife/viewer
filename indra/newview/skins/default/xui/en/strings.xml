@@ -460,7 +460,7 @@ Returns the rotation of detected object number (returns &lt;0,0,0,1&gt; if numbe
 	</string>
 	<string name="LSLTipText_llDetectedGroup" translate="false">
 integer llDetectedGroup(integer number)
-Returns TRUE if detected object is part of same group as owner
+Returns an integer that is a boolean representing if the detected object or avatar is in the same group that the prim containing the script is set to
 	</string>
 	<string name="LSLTipText_llDetectedLinkNumber" translate="false">
 integer llDetectedLinkNumber(integer number)
@@ -812,7 +812,7 @@ Preloads a sound on viewers within range
 	</string>
 	<string name="LSLTipText_llRotLookAt" translate="false">
 llRotLookAt(rotation target, float strength, float damping)
-Causes object name to point its forward axis towards target
+Causes object to point its forward axis towards target
 	</string>
 	<string name="LSLTipText_llStringLength" translate="false">
 integer llStringLength(string str)
@@ -1471,7 +1471,7 @@ Returns the requested permission mask for the root object the task is attached t
 	</string>
 	<string name="LSLTipText_llSetObjectPermMask" translate="false">
 llSetObjectPermMask(integer mask, integer value)
-Sets the given permission mask to the new value on the root object the task is attached to
+Sets the given permission mask to the new value on the root object the task is attached to (requires God Mode)
 	</string>
 	<string name="LSLTipText_llGetInventoryPermMask" translate="false">
 integer llGetInventoryPermMask(string item, integer mask)
@@ -1479,7 +1479,7 @@ Returns the requested permission mask for the inventory item
 	</string>
 	<string name="LSLTipText_llSetInventoryPermMask" translate="false">
 llSetInventoryPermMask(string item, integer mask, integer value)
-Sets the given permission mask to the new value on the inventory item
+Sets the given permission mask to the new value on the inventory item (requires God Mode)
 	</string>
 	<string name="LSLTipText_llGetInventoryCreator" translate="false">
 key llGetInventoryCreator(string item)
@@ -1770,7 +1770,8 @@ Clears (deletes) the media and all params from the given face.
 	<string name="tattoo">Tattoo</string>
 	<string name="invalid">invalid</string>
 
-	<!-- notify -->
+	<!-- LLGroupNotify -->
+	<!-- used in the construction of a Group Notice blue dialog box, buttons, tooltip etc. Seems to be no longer utilized by code in Viewer 2.0 -->
 	<string name="next">Next</string>
 	<string name="ok">OK</string>
 	<string name="GroupNotifyGroupNotice">Group Notice</string>
@@ -1780,6 +1781,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="GroupNotifyViewPastNotices">View past notices or opt-out of receiving these messages here.</string>
 	<string name="GroupNotifyOpenAttachment">Open Attachment</string>
 	<string name="GroupNotifySaveAttachment">Save Attachment</string>
+
   <string name="TeleportOffer">Teleport offering</string>
   <!-- start-up toast's string-->
   <string name="StartUpNotifications">New notifications arrived while you were away.</string>
@@ -1805,6 +1807,7 @@ Clears (deletes) the media and all params from the given face.
 
 	<!-- inventory -->
 	<string name="InventoryNoMatchingItems">No matching items found in inventory.</string>
+  <string name="FavoritesNoMatchingItems">Drag and drop a landmark here to add to your favorites.</string>
 	<string name="InventoryNoTexture">
 		You do not have a copy of
 this texture in your inventory
@@ -2214,7 +2217,7 @@ If this message persists, restart your computer.
 		[APP_NAME] appears to have frozen or crashed on the previous run.
 Would you like to send a crash report?
 	</string>
-	<string name="MBAlert">Alert</string>
+	<string name="MBAlert">Notification</string>
 	<string name="MBNoDirectX">
 		[APP_NAME] is unable to detect DirectX 9.0b or greater.
 [APP_NAME] uses DirectX to detect hardware and/or outdated drivers that can cause stability problems, poor performance and crashes.  While you can run [APP_NAME] without it, we highly recommend running with DirectX 9.0b.
@@ -2854,6 +2857,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="inventory_item_offered-im">
     Inventory item offered
   </string>
+  <string name="share_alert">
+    Drag items from inventory here
+  </string>
+
 
   <string name="only_user_message">
     You are the only user in this session.

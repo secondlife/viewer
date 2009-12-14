@@ -4,7 +4,6 @@
  height="240"
  layout="topleft"
  name="Water Floater"
- help_topic="water_floater"
  save_rect="true"
  title="ADVANCED WATER EDITOR"
  width="700">
@@ -116,7 +115,7 @@
              layout="topleft"
              left="10"
              name="WaterFogDensText"
-             top="74"
+             top="84"
              width="200">
                 Fog Density Exponent
             </text>
@@ -130,7 +129,7 @@
              left="24"
              max_val="10"
              name="WaterFogDensity"
-             top="110"
+             top="124"
              width="200" />
             <text
              type="string"
@@ -141,7 +140,7 @@
              layout="topleft"
              left_delta="-14"
              name="WaterUnderWaterFogModText"
-             top_delta="4"
+             top="124"
              width="200">
                 Underwater Fog Modifier
             </text>
@@ -155,7 +154,7 @@
              left="24"
              max_val="2"
              name="WaterUnderWaterFogMod"
-             top="150"
+             top="164"
              width="200" />
             <text
              type="string"
@@ -180,7 +179,7 @@
              layout="topleft"
              max_val="10"
              name="WaterNormalScaleX"
-             top_pad="20"
+             top_pad="24"
              width="200" />
             <slider
              control_name="WaterNormalScaleY"
@@ -192,7 +191,7 @@
              layout="topleft"
              max_val="10"
              name="WaterNormalScaleY"
-             top_pad="0"
+             top_pad="4"
              width="200" />
             <slider
              control_name="WaterNormalScaleZ"
@@ -204,7 +203,7 @@
              layout="topleft"
              max_val="10"
              name="WaterNormalScaleZ"
-             top_pad="0"
+             top_pad="4"
              width="200" />
             <text
              type="string"
@@ -214,7 +213,7 @@
              height="16"
              layout="topleft"
              name="HDText"
-             top_pad="-10"
+             top="84"
              width="200">
                 Fresnel Scale
             </text>
@@ -227,7 +226,7 @@
              initial_value="0.7"
              layout="topleft"
              name="WaterFresnelScale"
-             top_pad="20"
+             top="124"
              width="200" />
             <text
              type="string"
@@ -237,7 +236,7 @@
              height="16"
              layout="topleft"
              name="FresnelOffsetText"
-             top_pad="-10"
+             top="124"
              width="200">
                 Fresnel Offset
             </text>
@@ -250,7 +249,7 @@
              initial_value="0.7"
              layout="topleft"
              name="WaterFresnelOffset"
-             top_pad="20"
+             top="164"
              width="200" />
             <text
              type="string"
@@ -275,7 +274,7 @@
              layout="topleft"
              left="494"
              name="WaterScaleAbove"
-             top="40"
+             top="44"
              width="200" />
             <text
              type="string"
@@ -286,7 +285,7 @@
              layout="topleft"
              left_delta="-14"
              name="WaterScaleBelowText"
-             top_delta="-3"
+             top="44"
              width="200">
                 Refract Scale Below
             </text>
@@ -300,7 +299,7 @@
              layout="topleft"
              left="494"
              name="WaterScaleBelow"
-             top="73"
+             top="84"
              width="200" />
             <text
              type="string"
@@ -311,7 +310,7 @@
              layout="topleft"
              left_delta="-14"
              name="MaxAltText"
-             top_delta="-2"
+             top="84"
              width="200">
                 Blur Multiplier
             </text>
@@ -325,7 +324,7 @@
              left="494"
              max_val="0.16"
              name="WaterBlurMult"
-             top="107"
+             top="124"
              width="200" />
         </panel>
         <panel

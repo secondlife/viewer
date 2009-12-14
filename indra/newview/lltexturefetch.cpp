@@ -311,10 +311,10 @@ public:
 		{
 			bool success = false;
 			bool partial = false;
-			if (200 <= status &&  status < 300)
+			if (HTTP_OK <= status &&  status < HTTP_MULTIPLE_CHOICES)
 			{
 				success = true;
-				if (203 == status) // partial information (i.e. last block)
+				if (HTTP_PARTIAL_CONTENT == status) // partial information (i.e. last block)
 				{
 					partial = true;
 				}
@@ -1629,6 +1629,16 @@ S32 LLTextureFetch::update(U32 max_time_ms)
 	if (!mDebugPause)
 	{
 		sendRequestListToSimulators();
+	}
+
+	if (!mThreaded)
+	{
+		// Update Curl on same thread as mCurlGetRequest was constructed
+		S32 processed = mCurlGetRequest->process();
+		if (processed > 0)
+		{
+			lldebugs << "processed: " << processed << " messages." << llendl;
+		}
 	}
 	
 	return res;
