@@ -88,7 +88,6 @@ public:
 public:
 	LLPickInfo();
 	LLPickInfo(const LLCoordGL& mouse_pos, 
-		const LLRect& screen_region,
 		MASK keyboard_mask, 
 		BOOL pick_transparent, 
 		BOOL pick_surface_info,
@@ -120,7 +119,6 @@ public:
 	LLVector3		mNormal;
 	LLVector3		mBinormal;
 	BOOL			mPickTransparent;
-	LLRect			mScreenRegion;
 	void		    getSurfaceInfo();
 
 private:
@@ -345,7 +343,6 @@ public:
 	void			performPick();
 	void			returnEmptyPicks();
 
-
 	void			pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback)(const LLPickInfo& pick_info), BOOL pick_transparent = FALSE);
 	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent);
 	LLHUDIcon* cursorIntersectIcon(S32 mouse_x, S32 mouse_y, F32 depth,
@@ -397,7 +394,7 @@ public:
 private:
 	bool                    shouldShowToolTipFor(LLMouseHandler *mh);
 	static bool onAlert(const LLSD& notify);
-	
+
 	void			switchToolByMask(MASK mask);
 	void			destroyWindow();
 	void			drawMouselookInstructions();
