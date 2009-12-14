@@ -314,6 +314,8 @@ public:
 	static LLPointer<LLObjectMediaDataClient> sObjectMediaClient;
 	static LLPointer<LLObjectMediaNavigateClient> sObjectMediaNavigateClient;
 
+	static const U32 ARC_TEXTURE_COST = 5;
+
 protected:
 	static S32 sNumLODChanges;
 	

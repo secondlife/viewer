@@ -324,6 +324,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          min_width="34"
          user_resize="false">
             <chiclet_im_well
+             flash_period="0.3" 
              follows="right"
              height="23"
              layout="topleft"
@@ -331,6 +332,14 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              name="im_well"
              top="4"
              width="34">
+             <!--
+Emulate 4 states of button by background images, see detains in EXT-3147. The same should be for notification_well button
+xml attribute           Description
+image_unselected        "Unlit" - there are no new messages
+image_selected          "Unlit" + "Selected" - there are no new messages and the Well is open
+image_pressed           "Lit" - there are new messages
+image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well is open
+             -->
                 <button
                  auto_resize="true"
                  flash_color="EmphasisColor"
@@ -339,10 +348,11 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
                  height="23"
                  image_overlay="Notices_Unread"
                  image_overlay_alignment="center" 
-                 image_pressed="PushButton_Press"
-                 image_pressed_selected="PushButton_Selected_Press"
+                 image_pressed="WellButton_Lit"
+                 image_pressed_selected="WellButton_Lit_Selected"
                  image_selected="PushButton_Selected_Press"
                  left="0"
+                 max_displayed_count="99"
                  name="Unread IM messages"
                  pad_left="0"
                  pad_right="0"
@@ -365,17 +375,19 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          min_width="34"
          user_resize="false">
             <chiclet_notification
+             flash_period="0.25"
              follows="right"
              height="23"
              layout="topleft"
              left="0"
+             max_displayed_count="99"
              name="notification_well"
              top="4"
              width="34">
               <button
                  image_selected="PushButton_Selected_Press"
-                 image_pressed="PushButton_Press"
-		 image_pressed_selected="PushButton_Selected_Press"
+                 image_pressed="WellButton_Lit"
+                 image_pressed_selected="WellButton_Lit_Selected"
               auto_resize="true"
                halign="center"
                height="23"

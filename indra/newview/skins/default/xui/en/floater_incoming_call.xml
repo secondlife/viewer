@@ -36,21 +36,25 @@
      top="35"
      width="36" />
     <text
+     clip_partial="true"
      font="SansSerifLarge"
-     height="20"
+     height="37"
      layout="topleft"
      left="77"
      name="caller name"
-     top="27"
+     top="20"
+     use_ellipses="true"
      width="315"
      word_wrap="true" />
     <text
+     clip_partial="true"
      font="SansSerif"
-     height="50"
+     height="30"
      layout="topleft"
      left="77"
      name="question"
-     top="52"
+     top_pad="5"
+     use_ellipses="true"
      width="315"
      word_wrap="true">
      Do you want to leave [CURRENT_CHAT] and join this voice chat?

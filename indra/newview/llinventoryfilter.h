@@ -61,7 +61,8 @@ public:
 		FILTERTYPE_NONE = 0,
 		FILTERTYPE_OBJECT = 1,		// normal default search-by-object-type
 		FILTERTYPE_CATEGORY = 2,	// search by folder type
-		FILTERTYPE_UUID	= 4			// find the object with UUID and any links to it
+		FILTERTYPE_UUID	= 4,		// find the object with UUID and any links to it
+		FILTERTYPE_DATE = 8			// search by date range
 	};
 
 	// REFACTOR: Change this to an enum.
@@ -71,13 +72,6 @@ public:
 
 	LLInventoryFilter(const std::string& name);
 	virtual ~LLInventoryFilter();
-
-	// +-------------------------------------------------------------------+
-	// + Execution And Results
-	// +-------------------------------------------------------------------+
-	BOOL 				check(const LLFolderViewItem* item);
-	BOOL 				checkAgainstFilterType(const LLFolderViewItem* item);
-	std::string::size_type getStringMatchOffset() const;
 
 	// +-------------------------------------------------------------------+
 	// + Parameters
@@ -103,11 +97,24 @@ public:
 	void 				setHoursAgo(U32 hours);
 	U32 				getHoursAgo() const;
 
+	// +-------------------------------------------------------------------+
+	// + Execution And Results
+	// +-------------------------------------------------------------------+
+	BOOL 				check(const LLFolderViewItem* item);
+	BOOL 				checkAgainstFilterType(const LLFolderViewItem* item);
+	std::string::size_type getStringMatchOffset() const;
+
+	// +-------------------------------------------------------------------+
+	// + Presentation
+	// +-------------------------------------------------------------------+
 	void 				setShowFolderState( EFolderShow state);
 	EFolderShow 		getShowFolderState() const;
 
 	void 				setSortOrder(U32 order);
 	U32 				getSortOrder() const;
+
+	void 				setEmptyLookupMessage(const std::string& message);
+	const std::string&	getEmptyLookupMessage() const;
 
 	// +-------------------------------------------------------------------+
 	// + Status
@@ -187,6 +194,7 @@ private:
 	BOOL 					mModified;
 	BOOL 					mNeedTextRebuild;
 	std::string 			mFilterText;
+	std::string 			mEmptyLookupMessage;
 };
 
 #endif

@@ -249,7 +249,6 @@ protected:
 	LLCallbackMap::map_t mFactoryMap;
 	CommitCallbackRegistry::ScopedRegistrar mCommitCallbackRegistrar;
 	EnableCallbackRegistry::ScopedRegistrar mEnableCallbackRegistrar;
-	VisibleCallbackRegistry::ScopedRegistrar mVisibleCallbackRegistrar;
 
 	commit_signal_t* mVisibleSignal;		// Called when visibility changes, passes new visibility as LLSD()
 

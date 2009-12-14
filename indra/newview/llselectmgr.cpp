@@ -104,6 +104,7 @@ const F32 SILHOUETTE_UPDATE_THRESHOLD_SQUARED = 0.02f;
 const S32 MAX_ACTION_QUEUE_SIZE = 20;
 const S32 MAX_SILS_PER_FRAME = 50;
 const S32 MAX_OBJECTS_PER_PACKET = 254;
+const S32 TE_SELECT_MASK_ALL = 0xFFFFFFFF;
 
 //
 // Globals
@@ -5110,7 +5111,7 @@ LLSelectNode::~LLSelectNode()
 
 void LLSelectNode::selectAllTEs(BOOL b)
 {
-	mTESelectMask = b ? 0xFFFFFFFF : 0x0;
+	mTESelectMask = b ? TE_SELECT_MASK_ALL : 0x0;
 	mLastTESelected = 0;
 }
 
@@ -5753,8 +5754,22 @@ void LLSelectMgr::redo()
 //-----------------------------------------------------------------------------
 BOOL LLSelectMgr::canDoDelete() const
 {
+	bool can_delete = false;
+	// This function is "logically const" - it does not change state in
+	// a way visible outside the selection manager.
+	LLSelectMgr* self = const_cast<LLSelectMgr*>(this);
+	LLViewerObject* obj = self->mSelectedObjects->getFirstDeleteableObject();
 	// Note: Can only delete root objects (see getFirstDeleteableObject() for more info)
-	return const_cast<LLSelectMgr*>(this)->mSelectedObjects->getFirstDeleteableObject() != NULL; // HACK: casting away constness - MG
+	if (obj!= NULL)
+	{
+		// all the faces needs to be selected
+		if(self->mSelectedObjects->contains(obj,SELECT_ALL_TES ))
+		{
+			can_delete = true;
+		}
+	}
+	
+	return can_delete;
 }
 
 //-----------------------------------------------------------------------------
@@ -6189,8 +6204,14 @@ BOOL LLObjectSelection::contains(LLViewerObject* object, S32 te)
 			LLSelectNode* nodep = *iter;
 			if (nodep->getObject() == object)
 			{
+				// Optimization
+				if (nodep->getTESelectMask() == TE_SELECT_MASK_ALL)
+				{
+					return TRUE;
+				}
+
 				BOOL all_selected = TRUE;
-				for (S32 i = 0; i < SELECT_MAX_TES; i++)
+				for (S32 i = 0; i < object->getNumTEs(); i++)
 				{
 					all_selected = all_selected && nodep->isTESelected(i);
 				}

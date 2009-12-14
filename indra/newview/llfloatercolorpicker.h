@@ -69,6 +69,7 @@ class LLFloaterColorPicker
 		void destroyUI ();
 		void cancelSelection ();
 		LLColorSwatchCtrl* getSwatch () { return mSwatch; };
+		void setSwatch( LLColorSwatchCtrl* swatch) { mSwatch = swatch; }
 
 		// mutator / accessor for original RGB value
 		void setOrigRgb ( F32 origRIn, F32 origGIn, F32 origBIn );

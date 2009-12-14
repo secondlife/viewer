@@ -54,6 +54,7 @@
 #include "llavatarpropertiesprocessor.h"
 #include "llfloaterworldmap.h"
 #include "llinventorybridge.h"
+#include "llinventoryobserver.h"
 #include "llinventorymodel.h"
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
@@ -62,6 +63,7 @@
 #include "llpanelpick.h"
 #include "llpanelplaceprofile.h"
 #include "llpanelteleporthistory.h"
+#include "llremoteparcelrequest.h"
 #include "llteleporthistorystorage.h"
 #include "lltoggleablemenu.h"
 #include "llviewerinventory.h"
@@ -85,8 +87,10 @@ static void onSLURLBuilt(std::string& slurl);
 class LLPlacesParcelObserver : public LLParcelObserver
 {
 public:
-	LLPlacesParcelObserver(LLPanelPlaces* places_panel)
-	: mPlaces(places_panel) {}
+	LLPlacesParcelObserver(LLPanelPlaces* places_panel) :
+		LLParcelObserver(),
+		mPlaces(places_panel)
+	{}
 
 	/*virtual*/ void changed()
 	{
@@ -101,8 +105,10 @@ private:
 class LLPlacesInventoryObserver : public LLInventoryObserver
 {
 public:
-	LLPlacesInventoryObserver(LLPanelPlaces* places_panel)
-	: mPlaces(places_panel) {}
+	LLPlacesInventoryObserver(LLPanelPlaces* places_panel) :
+		LLInventoryObserver(),
+		mPlaces(places_panel)
+	{}
 
 	/*virtual*/ void changed(U32 mask)
 	{
@@ -113,6 +119,59 @@ public:
 private:
 	LLPanelPlaces*		mPlaces;
 };
+
+class LLPlacesRemoteParcelInfoObserver : public LLRemoteParcelInfoObserver
+{
+public:
+	LLPlacesRemoteParcelInfoObserver(LLPanelPlaces* places_panel) :
+		LLRemoteParcelInfoObserver(),
+		mPlaces(places_panel)
+	{}
+
+	~LLPlacesRemoteParcelInfoObserver()
+	{
+		// remove any in-flight observers
+		std::set<LLUUID>::iterator it;
+		for (it = mParcelIDs.begin(); it != mParcelIDs.end(); ++it)
+		{
+			const LLUUID &id = *it;
+			LLRemoteParcelInfoProcessor::getInstance()->removeObserver(id, this);
+		}
+		mParcelIDs.clear();
+	}
+
+	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data)
+	{
+		if (mPlaces)
+		{
+			mPlaces->changedGlobalPos(LLVector3d(parcel_data.global_x,
+												 parcel_data.global_y,
+												 parcel_data.global_z));
+		}
+
+		mParcelIDs.erase(parcel_data.parcel_id);
+		LLRemoteParcelInfoProcessor::getInstance()->removeObserver(parcel_data.parcel_id, this);
+	}
+	/*virtual*/ void setParcelID(const LLUUID& parcel_id)
+	{
+		if (!parcel_id.isNull())
+		{
+			mParcelIDs.insert(parcel_id);
+			LLRemoteParcelInfoProcessor::getInstance()->addObserver(parcel_id, this);
+			LLRemoteParcelInfoProcessor::getInstance()->sendParcelInfoRequest(parcel_id);
+		}
+	}
+	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason)
+	{
+		llerrs << "Can't complete remote parcel request. Http Status: "
+			   << status << ". Reason : " << reason << llendl;
+	}
+
+private:
+	std::set<LLUUID>	mParcelIDs;
+	LLPanelPlaces*		mPlaces;
+};
+
 
 static LLRegisterPanelClassWrapper<LLPanelPlaces> t_places("panel_places");
 
@@ -131,6 +190,7 @@ LLPanelPlaces::LLPanelPlaces()
 {
 	mParcelObserver = new LLPlacesParcelObserver(this);
 	mInventoryObserver = new LLPlacesInventoryObserver(this);
+	mRemoteParcelObserver = new LLPlacesRemoteParcelInfoObserver(this);
 
 	gInventory.addObserver(mInventoryObserver);
 
@@ -149,6 +209,7 @@ LLPanelPlaces::~LLPanelPlaces()
 
 	delete mInventoryObserver;
 	delete mParcelObserver;
+	delete mRemoteParcelObserver;
 }
 
 BOOL LLPanelPlaces::postBuild()
@@ -239,7 +300,6 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	mItem = NULL;
 	isLandmarkEditModeOn = false;
 	togglePlaceInfoPanel(TRUE);
-	updateVerbs();
 
 	if (mPlaceInfoType == AGENT_INFO_TYPE)
 	{
@@ -278,12 +338,24 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	}
 	else if (mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
 	{
-		mPosGlobal = LLVector3d(key["x"].asReal(),
-								key["y"].asReal(),
-								key["z"].asReal());
+		if (key.has("id"))
+		{
+			LLUUID parcel_id = key["id"].asUUID();
+			mPlaceProfile->setParcelID(parcel_id);
+
+			// query the server to get the global 3D position of this
+			// parcel - we need this for teleport/mapping functions.
+			mRemoteParcelObserver->setParcelID(parcel_id);
+		}
+		else
+		{
+			mPosGlobal = LLVector3d(key["x"].asReal(),
+									key["y"].asReal(),
+									key["z"].asReal());
+			mPlaceProfile->displayParcelInfo(LLUUID(), mPosGlobal);
+		}
 
 		mPlaceProfile->setInfoType(LLPanelPlaceInfo::PLACE);
-		mPlaceProfile->displayParcelInfo(LLUUID(), mPosGlobal);
 	}
 	else if (mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE)
 	{
@@ -297,6 +369,8 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 		mPlaceProfile->setInfoType(LLPanelPlaceInfo::TELEPORT_HISTORY);
 		mPlaceProfile->displayParcelInfo(LLUUID(), mPosGlobal);
 	}
+
+	updateVerbs();
 
 	LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
 	if (!parcel_mgr)
@@ -829,6 +903,12 @@ void LLPanelPlaces::changedInventory(U32 mask)
 	gInventory.removeObserver(mInventoryObserver);
 }
 
+void LLPanelPlaces::changedGlobalPos(const LLVector3d &global_pos)
+{
+	mPosGlobal = global_pos;
+	updateVerbs();
+}
+
 void LLPanelPlaces::updateVerbs()
 {
 	bool is_place_info_visible;
@@ -845,6 +925,7 @@ void LLPanelPlaces::updateVerbs()
 
 	bool is_agent_place_info_visible = mPlaceInfoType == AGENT_INFO_TYPE;
 	bool is_create_landmark_visible = mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE;
+	bool have_3d_pos = ! mPosGlobal.isExactlyZero();
 
 	mTeleportBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
 	mShowOnMapBtn->setVisible(!is_create_landmark_visible && !isLandmarkEditModeOn);
@@ -854,6 +935,7 @@ void LLPanelPlaces::updateVerbs()
 	mCancelBtn->setVisible(isLandmarkEditModeOn);
 	mCloseBtn->setVisible(is_create_landmark_visible && !isLandmarkEditModeOn);
 
+	mShowOnMapBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn && have_3d_pos);
 	mOverflowBtn->setEnabled(is_place_info_visible && !is_create_landmark_visible);
 
 	if (is_place_info_visible)
@@ -862,12 +944,12 @@ void LLPanelPlaces::updateVerbs()
 		{
 			// We don't need to teleport to the current location
 			// so check if the location is not within the current parcel.
-			mTeleportBtn->setEnabled(!mPosGlobal.isExactlyZero() &&
+			mTeleportBtn->setEnabled(have_3d_pos &&
 									 !LLViewerParcelMgr::getInstance()->inAgentParcel(mPosGlobal));
 		}
 		else if (mPlaceInfoType == LANDMARK_INFO_TYPE || mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
 		{
-			mTeleportBtn->setEnabled(TRUE);
+			mTeleportBtn->setEnabled(have_3d_pos);
 		}
 	}
 	else

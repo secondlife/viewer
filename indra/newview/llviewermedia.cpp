@@ -558,6 +558,20 @@ bool LLViewerMedia::getInWorldMediaDisabled()
 	return sInWorldMediaDisabled;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::isInterestingEnough(const LLUUID &object_id, const F64 &object_interest)
+{
+	if (LLViewerMediaFocus::getInstance()->getFocusedObjectID() == object_id)
+	{
+		return true;
+	}
+	else {
+		// XXX HACK
+		return object_interest > 1023;// INTEREST_THRESHHOLD;
+	}
+}
+
 LLViewerMedia::impl_list &LLViewerMedia::getPriorityList()
 {
 	return sViewerMediaImplList;
@@ -1010,11 +1024,10 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 	}
 	else
 	{
-		std::string plugins_path = gDirUtilp->getLLPluginDir();
-		plugins_path += gDirUtilp->getDirDelimiter();
-		
 		std::string launcher_name = gDirUtilp->getLLPluginLauncher();
 		std::string plugin_name = gDirUtilp->getLLPluginFilename(plugin_basename);
+		std::string user_data_path = gDirUtilp->getOSUserAppDir();
+		user_data_path += gDirUtilp->getDirDelimiter();
 
 		// See if the plugin executable exists
 		llstat s;
@@ -1030,7 +1043,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		{
 			LLPluginClassMedia* media_source = new LLPluginClassMedia(owner);
 			media_source->setSize(default_width, default_height);
-			if (media_source->init(launcher_name, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))
+			if (media_source->init(launcher_name, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins"), user_data_path))
 			{
 				return media_source;
 			}

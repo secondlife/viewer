@@ -58,11 +58,18 @@
 // - Any request that gets a 503 still goes through the retry logic
 //
 
+//
+// Forward decls
+//
 const F32 LLMediaDataClient::QUEUE_TIMER_DELAY = 1.0; // seconds(s)
 const F32 LLMediaDataClient::UNAVAILABLE_RETRY_TIMER_DELAY = 5.0; // secs
 const U32 LLMediaDataClient::MAX_RETRIES = 4;
 const U32 LLMediaDataClient::MAX_SORTED_QUEUE_SIZE = 10000;
 const U32 LLMediaDataClient::MAX_ROUND_ROBIN_QUEUE_SIZE = 10000;
+
+// << operators
+std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::request_queue_t &q);
+std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::Request &q);
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -395,7 +402,7 @@ std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::request_queue
 	LLMediaDataClient::request_queue_t::const_iterator end = q.end();
 	while (iter != end)
 	{
-		s << "\t" << i << "]: " << (*iter)->getObject()->getID().asString();
+		s << "\t" << i << "]: " << (*iter)->getObject()->getID().asString() << "(" << (*iter)->getObject()->getMediaInterest() << ")";
 		iter++;
 		i++;
 	}

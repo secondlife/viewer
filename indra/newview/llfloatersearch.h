@@ -66,14 +66,20 @@ public:
 	///    "events", "groups", "wiki", "destinations", "classifieds"
 	void search(const LLSD &key);
 
+	/// changing godmode can affect the search results that are
+	/// returned by the search website - use this method to tell the
+	/// search floater that the user has changed god level.
+	void godLevelChanged(U8 godlevel);
+
 private:
 	/*virtual*/ BOOL postBuild();
 
 	// inherited from LLViewerMediaObserver
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event);
-	
+
 	LLMediaCtrl *mBrowser;
 	LLSD        mCategoryPaths;
+	U8          mSearchGodLevel;
 };
 
 #endif  // LL_LLFLOATERSEARCH_H

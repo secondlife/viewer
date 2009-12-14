@@ -76,6 +76,9 @@ public:
 	// gets a rect that bounds possible positions for a dockable control (EXT-1111)
 	void getAllowedRect(LLRect& rect);
 
+	S32 getTongueWidth() { return mDockTongue->getWidth(); }
+	S32 getTongueHeight() { return mDockTongue->getHeight(); }
+
 private:
 	virtual void moveDockable();
 private:

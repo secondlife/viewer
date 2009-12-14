@@ -7,7 +7,6 @@
  height="460"
  layout="topleft"
  name="Preferences"
- help_topic="preferences"
  single_instance="true"
  title="PREFERENCES"
  width="620">
@@ -86,7 +85,7 @@
         <panel
 		 class="panel_preference"
          filename="panel_preferences_alerts.xml"
-         label="Alerts"
+         label="Notifications"
          layout="topleft"
          help_topic="preferences_msgs_tab"
          name="msgs" />
