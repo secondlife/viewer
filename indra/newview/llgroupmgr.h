@@ -45,6 +45,7 @@ class LLGroupMgrObserver
 {
 public:
 	LLGroupMgrObserver(const LLUUID& id) : mID(id){};
+	LLGroupMgrObserver() : mID(LLUUID::null){};
 	virtual ~LLGroupMgrObserver(){};
 	virtual void changed(LLGroupChange gc) = 0;
 	const LLUUID& getID() { return mID; }

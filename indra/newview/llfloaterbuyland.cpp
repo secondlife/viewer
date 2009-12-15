@@ -49,7 +49,6 @@
 #include "lliconctrl.h"
 #include "lllineeditor.h"
 #include "llnotificationsutil.h"
-#include "llnotify.h"
 #include "llparcel.h"
 #include "llslurl.h"
 #include "llstatusbar.h"

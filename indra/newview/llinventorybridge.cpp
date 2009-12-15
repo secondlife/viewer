@@ -3014,7 +3014,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// everything in the active window so that we don't follow
 			// the selection to its new location (which is very
 			// annoying).
-			LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+			LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
 			if (active_panel)
 			{
 				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());

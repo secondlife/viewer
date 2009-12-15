@@ -26,7 +26,6 @@ include_directories(
     )
 
 set(llui_SOURCE_FILES
-    llalertdialog.cpp
     llbutton.cpp
     llcheckboxctrl.cpp
     llclipboard.cpp
@@ -112,7 +111,6 @@ set(llui_SOURCE_FILES
 set(llui_HEADER_FILES
     CMakeLists.txt
 
-    llalertdialog.h
     llbutton.h
     llcallbackmap.h
     llcheckboxctrl.h

@@ -37,7 +37,6 @@
 #define LLPANEL_CPP
 #include "llpanel.h"
 
-#include "llalertdialog.h"
 #include "llfocusmgr.h"
 #include "llfontgl.h"
 #include "llrect.h"

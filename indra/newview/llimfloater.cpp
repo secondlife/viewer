@@ -469,7 +469,7 @@ bool LLIMFloater::toggle(const LLUUID& session_id)
 	if(!isChatMultiTab())
 	{
 		LLIMFloater* floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
-		if (floater && floater->getVisible() && floater->isDocked())
+		if (floater && floater->getVisible())
 		{
 			// clicking on chiclet to close floater just hides it to maintain existing
 			// scroll/text entry state
@@ -946,4 +946,21 @@ void LLIMFloater::initIMFloater()
 	// This is called on viewer start up
 	// init chat window type before user changed it in preferences
 	isChatMultiTab();
+}
+
+//static
+void LLIMFloater::sRemoveTypingIndicator(const LLSD& data)
+{
+	LLUUID session_id = data["session_id"];
+	if (session_id.isNull()) return;
+
+	LLUUID from_id = data["from_id"];
+	if (gAgentID == from_id || LLUUID::null == from_id) return;
+
+	LLIMFloater* floater = LLIMFloater::findInstance(session_id);
+	if (!floater) return;
+
+	if (IM_NOTHING_SPECIAL != floater->mDialog) return;
+
+	floater->removeTypingIndicator();
 }
