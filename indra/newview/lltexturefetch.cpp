@@ -887,6 +887,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 				else
 				{
+					// mFormattedImage gauranteed to not be NULL since cur_size != 0
+					mLoadedDiscard = mFormattedImage->getDiscardLevel();
 					mState = DECODE_IMAGE;
 					return false; // use what we have
 				}
