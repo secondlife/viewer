@@ -455,7 +455,10 @@ void LLAppearanceManager::purgeCategory(const LLUUID& category, bool keep_outfit
 		LLViewerInventoryItem *item = items.get(i);
 		if (keep_outfit_links && (item->getActualType() == LLAssetType::AT_LINK_FOLDER))
 			continue;
-		gInventory.purgeObject(item->getUUID());
+		if (item->getIsLinkType())
+		{
+			gInventory.purgeObject(item->getUUID());
+		}
 	}
 }
 
@@ -947,7 +950,10 @@ void LLAppearanceManager::addCOFItemLink(const LLInventoryItem *item, bool do_up
 		else if (areMatchingWearables(vitem,inv_item))
 		{
 			gAgentWearables.removeWearable(inv_item->getWearableType(),true,0);
-			gInventory.purgeObject(inv_item->getUUID());
+			if (inv_item->getIsLinkType())
+			{
+				gInventory.purgeObject(inv_item->getUUID());
+			}
 		}
 	}
 	if (linked_already)
@@ -996,10 +1002,9 @@ void LLAppearanceManager::removeCOFItemLinks(const LLUUID& item_id, bool do_upda
 	for (S32 i=0; i<item_array.count(); i++)
 	{
 		const LLInventoryItem* item = item_array.get(i).get();
-		if (item->getLinkedUUID() == item_id)
+		if (item->getIsLinkType() && item->getLinkedUUID() == item_id)
 		{
-			const LLUUID& item_id = item_array.get(i)->getUUID();
-			gInventory.purgeObject(item_id);
+			gInventory.purgeObject(item->getUUID());
 		}
 	}
 	if (do_update)
