@@ -78,6 +78,8 @@
 #include "lllocationhistory.h"
 #include "llfasttimerview.h"
 #include "llvoicechannel.h"
+#include "llsidetray.h"
+
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -389,7 +391,6 @@ bool handleCrashSubmitBehaviorChanged(const LLSD& newvalue)
 static void settings_to_globals()
 {
 	LLBUTTON_H_PAD		= gSavedSettings.getS32("ButtonHPad");
-	LLBUTTON_V_PAD		= gSavedSettings.getS32("ButtonVPad");
 	BTN_HEIGHT_SMALL	= gSavedSettings.getS32("ButtonHeightSmall");
 	BTN_HEIGHT			= gSavedSettings.getS32("ButtonHeight");
 
@@ -2862,6 +2863,8 @@ void LLAppViewer::requestQuit()
 		gFloaterView->closeAllChildren(true);
 	}
 
+	LLSideTray::getInstance()->notifyChildren(LLSD().with("request","quit"));
+
 	send_stats();
 
 	gLogoutTimer.reset();
@@ -3766,6 +3769,13 @@ void LLAppViewer::idleShutdown()
 	{
 		return;
 	}
+
+	if (LLSideTray::getInstance()->notifyChildren(LLSD().with("request","wait_quit")))
+	{
+		return;
+	}
+
+
 	
 	// ProductEngine: Try moving this code to where we shut down sTextureCache in cleanup()
 	// *TODO: ugly

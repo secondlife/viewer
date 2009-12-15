@@ -72,6 +72,8 @@ class LLInventoryCollectFunctor;
 class LLInventoryModel
 {
 public:
+	friend class LLInventoryModelFetchDescendentsResponder;
+
 	enum EHasChildren
 	{
 		CHILDREN_NO,
@@ -282,9 +284,6 @@ public:
 	// Make sure we have the descendents in the structure.  Returns true
 	// if a fetch was performed.
 	bool fetchDescendentsOf(const LLUUID& folder_id);
-	
-	// Add categories to a list to be fetched in bulk.
-	static void bulkFetch(std::string url);
 
 	// call this method to request the inventory.
 	//void requestFromServer(const LLUUID& agent_id);
@@ -369,15 +368,7 @@ public:
 	// Utility Functions
 	void removeItem(const LLUUID& item_id);
 	
-	// start and stop background breadth-first fetching of inventory contents
-	// this gets triggered when performing a filter-search
-	static void startBackgroundFetch(const LLUUID& cat_id = LLUUID::null); // start fetch process
     static void findLostItems();
-	static BOOL backgroundFetchActive();
-	static bool isEverythingFetched();
-	static void backgroundFetch(void*); // background fetch idle function
-	static void incrBulkFetch(S16 fetching) {  sBulkFetchCount+=fetching; if (sBulkFetchCount<0) sBulkFetchCount=0; }
-
 
 	// Data about the agent's root folder and root library folder
 	// are stored here, rather than in LLAgent where it used to be, because
@@ -477,14 +468,11 @@ private:
 	LLUUID mLibraryRootFolderID;
 	LLUUID mLibraryOwnerID;
 
-	// completing the fetch once per session should be sufficient
-	static BOOL sBackgroundFetchActive;
 	static BOOL sTimelyFetchPending;
 	static S32  sNumFetchRetries;
 	static LLFrameTimer sFetchTimer;
 	static F32 sMinTimeBetweenFetches;
 	static F32 sMaxTimeBetweenFetches;
-	static S16 sBulkFetchCount;
 
 	// Expected inventory cache version
 	const static S32 sCurrentInvCacheVersion;
@@ -510,11 +498,33 @@ private:
 public:
 	// *NOTE: DEBUG functionality
 	void dumpInventory() const;
-	static bool isBulkFetchProcessingComplete();
-	static void stopBackgroundFetch(); // stop fetch process
 
-	static BOOL sFullFetchStarted;
+	////////////////////////////////////////////////////////////////////////////////
+	// Bulk / Background Fetch
+
+public:
+	// Start and stop background breadth-first fetching of inventory contents.
+	// This gets triggered when performing a filter-search
+	void startBackgroundFetch(const LLUUID& cat_id = LLUUID::null);
+	static BOOL backgroundFetchActive();
+	static bool isEverythingFetched();
+	static void backgroundFetch(void*); // background fetch idle function
+	static void incrBulkFetch(S16 fetching) {  sBulkFetchCount+=fetching; if (sBulkFetchCount<0) sBulkFetchCount=0; }
+	static void stopBackgroundFetch(); // stop fetch process
+	static bool isBulkFetchProcessingComplete();
+
+	// Add categories to a list to be fetched in bulk.
+	static void bulkFetch(std::string url);
+
+private:
+ 	static BOOL sMyInventoryFetchStarted;
+	static BOOL sLibraryFetchStarted;
 	static BOOL sAllFoldersFetched; 
+	static void setAllFoldersFetched();
+
+	// completing the fetch once per session should be sufficient
+	static BOOL sBackgroundFetchActive;
+	static S16 sBulkFetchCount;
 };
 
 // a special inventory model for the agent

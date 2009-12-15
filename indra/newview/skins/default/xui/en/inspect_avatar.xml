@@ -33,7 +33,7 @@
 [SL_PROFILE]
     </string>
   <text
-     follows="all"
+     follows="top|left"
      font="SansSerifLarge"
      height="16"
      left="8"
@@ -44,7 +44,7 @@
      value="Grumpity ProductEngine"
      width="175" />
     <text
-     follows="all"
+     follows="top|left"
      height="16"
      left="8"
      name="user_subtitle"
@@ -76,7 +76,7 @@
      value="0.5"
      width="195" />
     <button
-     follows="all"
+     follows="top|left"
      height="16"
      image_disabled="Audio_Off"
      image_disabled_selected="AudioMute_Off"
@@ -89,7 +89,7 @@
      name="mute_btn"
      width="16" />
     <avatar_icon
-     follows="all"
+     follows="top|left"
      height="38"
      right="-10"
      bevel_style="in"
@@ -102,7 +102,7 @@
     llinspectavatar.cpp makes visible the most likely default action 
 -->
     <button
-     follows="bottom|left"
+     follows="top|left"
      height="20"
      label="Add Friend"
      left="8"
@@ -110,7 +110,7 @@
      name="add_friend_btn"
      width="90" />
     <button
-     follows="bottom|left"
+     follows="top|left"
      height="20"
      label="IM"
      left_delta="0"
@@ -129,7 +129,8 @@
      tab_stop="false"
      width="80" />
       <!--  gear buttons here -->
-     <menu_button
+  <menu_button
+     follows="top|left"
      height="20"
      layout="topleft"
      image_overlay="OptionsMenu_Off"
@@ -147,4 +148,33 @@
      right="-5"
      top_delta="0"
      width="35" />
+  <panel 
+    follows="top|left" 
+    top="148" 
+    left="0" 
+    height="60" 
+    width="228" 
+    visible="false"
+    background_visible="true"
+    name="moderator_panel"
+    background_opaque="true" 
+    bg_opaque_color="MouseGray">
+    <button
+      name="disable_voice"
+      label="Disable Voice"
+      top="20"
+      width="95"
+      height="20"
+      left="10"
+      commit_callback.function="InspectAvatar.DisableVoice"/>
+    <button
+      name="enable_voice"
+      label="Enable Voice"
+      top="20"
+      width="95"
+      height="20"
+      left="10"
+      visible="false" 
+      commit_callback.function="InspectAvatar.EnableVoice"/>
+  </panel>
 </floater>

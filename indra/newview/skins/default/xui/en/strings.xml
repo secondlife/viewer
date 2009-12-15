@@ -812,7 +812,7 @@ Preloads a sound on viewers within range
 	</string>
 	<string name="LSLTipText_llRotLookAt" translate="false">
 llRotLookAt(rotation target, float strength, float damping)
-Causes object name to point its forward axis towards target
+Causes object to point its forward axis towards target
 	</string>
 	<string name="LSLTipText_llStringLength" translate="false">
 integer llStringLength(string str)
@@ -1471,7 +1471,7 @@ Returns the requested permission mask for the root object the task is attached t
 	</string>
 	<string name="LSLTipText_llSetObjectPermMask" translate="false">
 llSetObjectPermMask(integer mask, integer value)
-Sets the given permission mask to the new value on the root object the task is attached to
+Sets the given permission mask to the new value on the root object the task is attached to (requires God Mode)
 	</string>
 	<string name="LSLTipText_llGetInventoryPermMask" translate="false">
 integer llGetInventoryPermMask(string item, integer mask)
@@ -1479,7 +1479,7 @@ Returns the requested permission mask for the inventory item
 	</string>
 	<string name="LSLTipText_llSetInventoryPermMask" translate="false">
 llSetInventoryPermMask(string item, integer mask, integer value)
-Sets the given permission mask to the new value on the inventory item
+Sets the given permission mask to the new value on the inventory item (requires God Mode)
 	</string>
 	<string name="LSLTipText_llGetInventoryCreator" translate="false">
 key llGetInventoryCreator(string item)
@@ -1807,6 +1807,7 @@ Clears (deletes) the media and all params from the given face.
 
 	<!-- inventory -->
 	<string name="InventoryNoMatchingItems">No matching items found in inventory.</string>
+  <string name="FavoritesNoMatchingItems">Drag and drop a landmark here to add to your favorites.</string>
 	<string name="InventoryNoTexture">
 		You do not have a copy of
 this texture in your inventory
@@ -2111,6 +2112,10 @@ this texture in your inventory
 		Unknown file extension .%s
 Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
+  <string name="MuteObject">Block</string>
+  <string name="MuteAvatar">Block</string>
+  <string name="UnmuteObject">Unblock</string>
+  <string name="UnmuteAvatar">Unblock</string>
 	<string name="AddLandmarkNavBarMenu">Add to My Landmarks...</string>
 	<string name="EditLandmarkNavBarMenu">Edit my Landmark...</string>
 
@@ -2215,7 +2220,7 @@ If this message persists, restart your computer.
 		[APP_NAME] appears to have frozen or crashed on the previous run.
 Would you like to send a crash report?
 	</string>
-	<string name="MBAlert">Alert</string>
+	<string name="MBAlert">Notification</string>
 	<string name="MBNoDirectX">
 		[APP_NAME] is unable to detect DirectX 9.0b or greater.
 [APP_NAME] uses DirectX to detect hardware and/or outdated drivers that can cause stability problems, poor performance and crashes.  While you can run [APP_NAME] without it, we highly recommend running with DirectX 9.0b.
@@ -2855,6 +2860,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="inventory_item_offered-im">
     Inventory item offered
   </string>
+  <string name="share_alert">
+    Drag items from inventory here
+  </string>
+
 
   <string name="only_user_message">
     You are the only user in this session.

@@ -18,5 +18,6 @@
 	font="SansSerifSmall"
         hover_glow_amount="0.15"
         halign="center"
+        pad_bottom="2" 
         scale_image="true">
 </button>

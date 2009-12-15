@@ -101,6 +101,16 @@ const U32 ARROW_TO_AXIS[4] =
 	VZ
 };
 
+// Sort manipulator handles by their screen-space projection
+struct ClosestToCamera
+{
+	bool operator()(const LLManipTranslate::ManipulatorHandle& a,
+					const LLManipTranslate::ManipulatorHandle& b) const
+	{
+		return a.mEndPosition.mV[VZ] < b.mEndPosition.mV[VZ];
+	}
+};
+
 LLManipTranslate::LLManipTranslate( LLToolComposite* composite )
 :	LLManip( std::string("Move"), composite ),
 	mLastHoverMouseX(-1),
@@ -273,7 +283,6 @@ void LLManipTranslate::restoreGL()
 
 LLManipTranslate::~LLManipTranslate()
 {
-	for_each(mProjectedManipulators.begin(), mProjectedManipulators.end(), DeletePointer());
 }
 
 
@@ -888,8 +897,9 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 		planar_manip_xy_visible = TRUE;
 	}
 
-	for_each(mProjectedManipulators.begin(), mProjectedManipulators.end(), DeletePointer());
-	mProjectedManipulators.clear();
+	// Project up to 9 manipulators to screen space 2*X, 2*Y, 2*Z, 3*planes
+	std::vector<ManipulatorHandle> projected_manipulators;
+	projected_manipulators.reserve(9);
 	
 	for (S32 i = 0; i < num_arrow_manips; i+= 2)
 	{
@@ -899,12 +909,12 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 		LLVector4 projected_end = mManipulatorVertices[i + 1] * transform;
 		projected_end = projected_end * (1.f / projected_end.mV[VW]);
 
-		ManipulatorHandle* projManipulator = 
-			new ManipulatorHandle(LLVector3(projected_start.mV[VX], projected_start.mV[VY], projected_start.mV[VZ]), 
+		ManipulatorHandle projected_manip(
+				LLVector3(projected_start.mV[VX], projected_start.mV[VY], projected_start.mV[VZ]), 
 				LLVector3(projected_end.mV[VX], projected_end.mV[VY], projected_end.mV[VZ]), 
 				MANIPULATOR_IDS[i / 2],
 				10.f); // 10 pixel hotspot for arrows
-		mProjectedManipulators.insert(projManipulator);
+		projected_manipulators.push_back(projected_manip);
 	}
 
 	if (planar_manip_yz_visible)
@@ -916,12 +926,12 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 		LLVector4 projected_end = mManipulatorVertices[i + 1] * transform;
 		projected_end = projected_end * (1.f / projected_end.mV[VW]);
 
-		ManipulatorHandle* projManipulator = 
-			new ManipulatorHandle(LLVector3(projected_start.mV[VX], projected_start.mV[VY], projected_start.mV[VZ]), 
+		ManipulatorHandle projected_manip(
+				LLVector3(projected_start.mV[VX], projected_start.mV[VY], projected_start.mV[VZ]), 
 				LLVector3(projected_end.mV[VX], projected_end.mV[VY], projected_end.mV[VZ]), 
 				MANIPULATOR_IDS[i / 2],
 				20.f); // 20 pixels for planar manipulators
-		mProjectedManipulators.insert(projManipulator);
+		projected_manipulators.push_back(projected_manip);
 	}
 
 	if (planar_manip_xz_visible)
@@ -933,12 +943,12 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 		LLVector4 projected_end = mManipulatorVertices[i + 1] * transform;
 		projected_end = projected_end * (1.f / projected_end.mV[VW]);
 
-		ManipulatorHandle* projManipulator = 
-			new ManipulatorHandle(LLVector3(projected_start.mV[VX], projected_start.mV[VY], projected_start.mV[VZ]), 
+		ManipulatorHandle projected_manip(
+				LLVector3(projected_start.mV[VX], projected_start.mV[VY], projected_start.mV[VZ]), 
 				LLVector3(projected_end.mV[VX], projected_end.mV[VY], projected_end.mV[VZ]), 
 				MANIPULATOR_IDS[i / 2],
 				20.f); // 20 pixels for planar manipulators
-		mProjectedManipulators.insert(projManipulator);
+		projected_manipulators.push_back(projected_manip);
 	}
 
 	if (planar_manip_xy_visible)
@@ -950,12 +960,12 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 		LLVector4 projected_end = mManipulatorVertices[i + 1] * transform;
 		projected_end = projected_end * (1.f / projected_end.mV[VW]);
 
-		ManipulatorHandle* projManipulator = 
-			new ManipulatorHandle(LLVector3(projected_start.mV[VX], projected_start.mV[VY], projected_start.mV[VZ]), 
+		ManipulatorHandle projected_manip(
+				LLVector3(projected_start.mV[VX], projected_start.mV[VY], projected_start.mV[VZ]), 
 				LLVector3(projected_end.mV[VX], projected_end.mV[VY], projected_end.mV[VZ]), 
 				MANIPULATOR_IDS[i / 2],
 				20.f); // 20 pixels for planar manipulators
-		mProjectedManipulators.insert(projManipulator);
+		projected_manipulators.push_back(projected_manip);
 	}
 
 	LLVector2 manip_start_2d;
@@ -967,13 +977,18 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 	LLVector2 mousePos((F32)x - half_width, (F32)y - half_height);
 	LLVector2 mouse_delta;
 
-	for (minpulator_list_t::iterator iter = mProjectedManipulators.begin();
-		 iter != mProjectedManipulators.end(); ++iter)
+	// Keep order consistent with insertion via stable_sort
+	std::stable_sort( projected_manipulators.begin(),
+		projected_manipulators.end(),
+		ClosestToCamera() );
+
+	std::vector<ManipulatorHandle>::iterator it = projected_manipulators.begin();
+	for ( ; it != projected_manipulators.end(); ++it)
 	{
-		ManipulatorHandle* manipulator = *iter;
+		ManipulatorHandle& manipulator = *it;
 		{
-			manip_start_2d.setVec(manipulator->mStartPosition.mV[VX] * half_width, manipulator->mStartPosition.mV[VY] * half_height);
-			manip_end_2d.setVec(manipulator->mEndPosition.mV[VX] * half_width, manipulator->mEndPosition.mV[VY] * half_height);
+			manip_start_2d.setVec(manipulator.mStartPosition.mV[VX] * half_width, manipulator.mStartPosition.mV[VY] * half_height);
+			manip_end_2d.setVec(manipulator.mEndPosition.mV[VX] * half_width, manipulator.mEndPosition.mV[VY] * half_height);
 			manip_dir = manip_end_2d - manip_start_2d;
 
 			mouse_delta = mousePos - manip_start_2d;
@@ -985,9 +1000,9 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 
 			if (mouse_pos_manip > 0.f &&
 				mouse_pos_manip < manip_length &&
-				mouse_dist_manip_squared < manipulator->mHotSpotRadius * manipulator->mHotSpotRadius)
+				mouse_dist_manip_squared < manipulator.mHotSpotRadius * manipulator.mHotSpotRadius)
 			{
-				mHighlightedPart = manipulator->mManipID;
+				mHighlightedPart = manipulator.mManipID;
 				break;
 			}
 		}

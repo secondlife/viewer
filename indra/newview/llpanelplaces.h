@@ -47,6 +47,7 @@ class LLPanelPlacesTab;
 class LLParcelSelection;
 class LLPlacesInventoryObserver;
 class LLPlacesParcelObserver;
+class LLRemoteParcelInfoObserver;
 class LLTabContainer;
 class LLToggleableMenu;
 
@@ -65,6 +66,8 @@ public:
 	void changedParcelSelection();
 	// Called on agent inventory change to find out when inventory gets usable.
 	void changedInventory(U32 mask);
+	// Called when we receive the global 3D position of a parcel.
+	void changedGlobalPos(const LLVector3d &global_pos);
 
 	void setItem(LLInventoryItem* item);
 
@@ -112,6 +115,7 @@ private:
 
 	LLPlacesInventoryObserver*	mInventoryObserver;
 	LLPlacesParcelObserver*		mParcelObserver;
+	LLRemoteParcelInfoObserver* mRemoteParcelObserver;
 
 	// Pointer to a landmark item or to a linked landmark
 	LLPointer<LLInventoryItem>	mItem;

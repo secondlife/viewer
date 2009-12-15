@@ -72,7 +72,8 @@ public:
 									   void* cargo_data,
 									   EAcceptance* accept,
 									   std::string& tooltip_msg);
-	/*virtual*/ void changed(U32 mask);
+	/*virtual*/ void changed(U32);
+	/*virtual*/ void draw();
 
 	LLInventoryPanel* getPanel() { return mActivePanel; }
 	LLInventoryPanel* getActivePanel() { return mActivePanel; }
@@ -110,6 +111,8 @@ protected:
 	void doCreate(const LLSD& userdata);
 	void resetFilters();
 	void setSortBy(const LLSD& userdata);
+	void saveTexture(const LLSD& userdata);
+	bool isSaveTextureEnabled(const LLSD& userdata);
 	
 private:
 	LLFloaterInventoryFinder* getFinder();

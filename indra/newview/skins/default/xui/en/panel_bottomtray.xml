@@ -114,7 +114,7 @@
           width="82"
           tool_tip="Shows/hides gestures">
              <gesture_combo_box.drop_down_button
-              pad_right="10" 
+              pad_right="10"
               use_ellipses="true" />
          </gesture_combo_box>
         </layout_panel>
@@ -126,7 +126,7 @@
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
-         min_width="4" 
+         min_width="4"
          name="DUMMY"
          top="0"
          width="4"/>
@@ -168,7 +168,7 @@
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
-         min_width="4" 
+         min_width="4"
          name="DUMMY"
          top="0"
          width="4"/>
@@ -211,7 +211,7 @@
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
-         min_width="4" 
+         min_width="4"
          name="DUMMY"
          top="0"
          width="4"/>
@@ -243,7 +243,7 @@
         <layout_panel
          mouse_opaque="false"
          follows="left|right"
-         height="28"
+         height="29"
          layout="topleft"
          top="0"
          name="chiclet_list_panel"
@@ -251,24 +251,24 @@
          min_width="180"
          user_resize="false"
          auto_resize="true">
-<!--*NOTE: min_width of the chiclet_panel (chiclet_list) must be the same 
+<!--*NOTE: min_width of the chiclet_panel (chiclet_list) must be the same
 as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. EXT-991-->
             <chiclet_panel
 	    mouse_opaque="false"
              follows="left|right"
              height="23"
              layout="topleft"
-             left="0"
+             left="1"
              min_width="180"
              name="chiclet_list"
-             top="4"
+             top="6"
              chiclet_padding="4"
              scrolling_offset="40"
              width="189">
                 <button
                  auto_resize="true"
                  follows="right"
-                 height="23"
+                 height="29"
                  image_selected="SegmentedBtn_Left_Off"
                  image_unselected="SegmentedBtn_Left_Off"
 		 image_hover_selected="SegmentedBtn_Left_Over"
@@ -278,14 +278,16 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
 		 image_overlay="Arrow_Small_Left"
                  layout="topleft"
                  name="chicklet_left_scroll_button"
+        scale_image="true"
                  tab_stop="false"
-                 top="0"
+                 top="-2"
+                 right_pad="2"
                  visible="false"
-                 width="20" />
+                 width="7" />
                 <button
                  auto_resize="true"
                  follows="right"
-                 height="23"
+                 height="29"
                  image_selected="SegmentedBtn_Right_Off"
                  image_unselected="SegmentedBtn_Right_Off"
 		 image_hover_selected="SegmentedBtn_Right_Over"
@@ -295,10 +297,11 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
 		 image_overlay="Arrow_Small_Right"
                  layout="topleft"
                  name="chicklet_right_scroll_button"
+        scale_image="true"
                  tab_stop="false"
-                 top="0"
+                 top="-2"
                  visible="false"
-                 width="20" />
+                 width="7" />
             </chiclet_panel>
         </layout_panel>
         <icon
@@ -309,7 +312,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          image_name="spacer24.tga"
          layout="topleft"
          left="0"
-         min_width="4" 
+         min_width="4"
          top="0"
          width="5"/>
         <layout_panel
@@ -320,33 +323,44 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          min_height="28"
          top="0"
          name="im_well_panel"
-         width="34"
-         min_width="34"
+         width="35"
+         min_width="35"
          user_resize="false">
             <chiclet_im_well
+             flash_period="0.3"
              follows="right"
              height="23"
              layout="topleft"
              left="0"
              name="im_well"
              top="4"
-             width="34">
+             width="35">
+             <!--
+Emulate 4 states of button by background images, see detains in EXT-3147. The same should be for notification_well button
+xml attribute           Description
+image_unselected        "Unlit" - there are no new messages
+image_selected          "Unlit" + "Selected" - there are no new messages and the Well is open
+image_pressed           "Lit" - there are new messages
+image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well is open
+             -->
                 <button
                  auto_resize="true"
-                 flash_color="EmphasisColor"
+                 flash_color="Yellow"
                  follows="right"
                  halign="center"
                  height="23"
-                 image_overlay="Notices_Unread"
-                 image_overlay_alignment="center" 
-                 image_pressed="PushButton_Press"
-                 image_pressed_selected="PushButton_Selected_Press"
-                 image_selected="PushButton_Selected_Press"
+                 image_overlay="Unread_IM"
+                 image_overlay_alignment="center"
+                 image_pressed="WellButton_Lit_Selected"
+                 image_pressed_selected="WellButton_Lit"
+                 image_selected="WellButton_Lit"
+                 label_color="Black"
                  left="0"
+                 max_displayed_count="99"
                  name="Unread IM messages"
                  pad_left="0"
                  pad_right="0"
-                 width="34" >
+                 width="35" >
                     <button.init_callback
                      function="Button.SetDockableFloaterToggle"
                      parameter="im_well_window" />
@@ -360,34 +374,38 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          layout="topleft"
          min_height="28"
          top="0"
+         left_pad="4"
          name="notification_well_panel"
-         width="34"
-         min_width="34"
+         width="35"
+         min_width="35"
          user_resize="false">
             <chiclet_notification
+             flash_period="0.25"
              follows="right"
              height="23"
              layout="topleft"
              left="0"
+             max_displayed_count="99"
              name="notification_well"
              top="4"
-             width="34">
+             width="35">
               <button
-                 image_selected="PushButton_Selected_Press"
-                 image_pressed="PushButton_Press"
-		 image_pressed_selected="PushButton_Selected_Press"
+                 bottom_pad="3"
+                 image_selected="WellButton_Lit"
+                 image_pressed="WellButton_Lit_Selected"
+                 image_pressed_selected="WellButton_Lit "
               auto_resize="true"
                halign="center"
                height="23"
                follows="right"
-               flash_color="EmphasisColor"
-               left="0"
+               flash_color="Yellow"
+                label_color="Black"
+               left="5"
                name="Unread"
                image_overlay="Notices_Unread"
-               image_overlay_alignment="center" 
-               pad_right="0"
-               pad_left="0"
-               width="34" >
+               image_overlay_alignment="center"
+               pad_right="5"
+               width="35" >
                   <button.init_callback
                    function="Button.SetDockableFloaterToggle"
                    parameter="notification_well_window" />
@@ -401,7 +419,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          height="10"
          image_name="spacer24.tga"
          layout="topleft"
-         min_width="4" 
+         min_width="4"
          right="-1"
          top="0"
          width="4"/>

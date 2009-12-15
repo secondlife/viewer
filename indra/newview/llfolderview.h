@@ -127,6 +127,7 @@ public:
 	// Close all folders in the view
 	void closeAllFolders();
 	void openFolder(const std::string& foldername);
+	void openTopLevelFolders();
 
 	virtual void toggleOpen() {};
 	virtual void setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse);

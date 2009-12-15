@@ -79,8 +79,10 @@ LLPluginProcessParent::~LLPluginProcessParent()
 		// and remove it from our map
 		mSharedMemoryRegions.erase(iter);
 	}
-
-	mProcess.kill();
+	
+	// orphaning the process means it won't be killed when the LLProcessLauncher is destructed.
+	// This is what we want -- it should exit cleanly once it notices the sockets have been closed.
+	mProcess.orphan();
 	killSockets();
 }
 
@@ -99,12 +101,13 @@ void LLPluginProcessParent::errorState(void)
 		setState(STATE_ERROR);
 }
 
-void LLPluginProcessParent::init(const std::string &launcher_filename, const std::string &plugin_filename, bool debug)
+void LLPluginProcessParent::init(const std::string &launcher_filename, const std::string &plugin_filename, bool debug, const std::string &user_data_path)
 {	
 	mProcess.setExecutable(launcher_filename);
 	mPluginFile = plugin_filename;
 	mCPUUsage = 0.0f;
 	mDebug = debug;
+	mUserDataPath = user_data_path;
 	
 	setState(STATE_INITIALIZED);
 }
@@ -362,6 +365,7 @@ void LLPluginProcessParent::idle(void)
 				{
 					LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_INTERNAL, "load_plugin");
 					message.setValue("file", mPluginFile);
+					message.setValue("user_data_path", mUserDataPath);
 					sendMessage(message);
 				}
 
@@ -412,7 +416,8 @@ void LLPluginProcessParent::idle(void)
 			break;
 			
 			case STATE_CLEANUP:
-				mProcess.kill();
+				// Don't do a kill here anymore -- closing the sockets is the new 'kill'.
+				mProcess.orphan();
 				killSockets();
 				setState(STATE_DONE);
 			break;

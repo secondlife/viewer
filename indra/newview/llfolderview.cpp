@@ -357,6 +357,16 @@ void LLFolderView::openFolder(const std::string& foldername)
 	}
 }
 
+void LLFolderView::openTopLevelFolders()
+{
+	for (folders_t::iterator iter = mFolders.begin();
+		 iter != mFolders.end();)
+	{
+		folders_t::iterator fit = iter++;
+		(*fit)->setOpen(TRUE);
+	}
+}
+
 void LLFolderView::setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse)
 {
 	// call base class to do proper recursion
@@ -401,7 +411,12 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 			folderp->setVisible(show_folder_state == LLInventoryFilter::SHOW_ALL_FOLDERS || // always show folders?
 									(folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation))); // passed filter or has descendants that passed filter
 		}
-		if (folderp->getVisible())
+
+		// Need to call arrange regardless of visibility, since children's visibility
+		// might need to be changed too (e.g. even though a folder is invisible, its
+		// children also need to be set invisible for state-tracking purposes, e.g.
+		// llfolderviewitem::filter).
+		// if (folderp->getVisible())
 		{
 			S32 child_height = 0;
 			S32 child_width = 0;
@@ -469,13 +484,13 @@ void LLFolderView::filter( LLInventoryFilter& filter )
 
 	if (getCompletedFilterGeneration() < filter.getCurrentGeneration())
 	{
-		mFiltered = FALSE;
+		mPassedFilter = FALSE;
 		mMinWidth = 0;
 		LLFolderViewFolder::filter(filter);
 	}
 	else
 	{
-		mFiltered = TRUE;
+		mPassedFilter = TRUE;
 	}
 }
 
@@ -890,7 +905,7 @@ void LLFolderView::draw()
 		}
 		else
 		{
-			mStatusText = LLTrans::getString("InventoryNoMatchingItems");
+			mStatusText = LLTrans::getString(getFilter()->getEmptyLookupMessage());
 			font->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 	}

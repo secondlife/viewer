@@ -117,6 +117,7 @@ class LLParticipantList
 		public:
 			LLParticipantListMenu(LLParticipantList& parent):mParent(parent){};
 			/*virtual*/ LLContextMenu* createMenu();
+			/*virtual*/ void show(LLView* spawning_view, const std::vector<LLUUID>& uuids, S32 x, S32 y);
 		protected:
 			LLParticipantList& mParent;
 		private:
@@ -124,8 +125,13 @@ class LLParticipantList
 			bool checkContextMenuItem(const LLSD& userdata);
 
 			void toggleAllowTextChat(const LLSD& userdata);
+			void toggleMute(const LLSD& userdata, U32 flags);
 			void toggleMuteText(const LLSD& userdata);
+			void toggleMuteVoice(const LLSD& userdata);
 		
+			// Voice moderation support
+			void moderateVoice(const LLSD& userdata);
+			void moderateVoiceOtherParticipants(const LLSD& userdata);
 		};
 
 	private:

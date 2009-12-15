@@ -76,19 +76,19 @@ public:
 	void setArgs(const class LLSD& sd);
 	void setArg(const std::string& key, const std::string& replacement);
 
-	const std::string& getString() const { return mResult; }
-	operator std::string() const { return mResult; }
+	const std::string& getString() const { return getUpdatedResult(); }
+	operator std::string() const { return getUpdatedResult(); }
 
-	const LLWString& getWString() const { return mWResult; }
-	operator LLWString() const { return mWResult; }
+	const LLWString& getWString() const { return getUpdatedWResult(); }
+	operator LLWString() const { return getUpdatedWResult(); }
 
-	bool empty() const { return mWResult.empty(); }
-	S32 length() const { return mWResult.size(); }
+	bool empty() const { return getUpdatedResult().empty(); }
+	S32 length() const { return getUpdatedWResult().size(); }
 
 	void clear();
 	void clearArgs() { mArgs.clear(); }
 	
-	// These utuilty functions are included for text editing.
+	// These utility functions are included for text editing.
 	// They do not affect mOrig and do not perform argument substitution
 	void truncate(S32 maxchars);
 	void erase(S32 charidx, S32 len);
@@ -96,12 +96,24 @@ public:
 	void replace(S32 charidx, llwchar wc);
 	
 private:
-	void format();	
+	// something changed, requiring reformatting of strings
+	void dirty();
+
+	std::string& getUpdatedResult() const { if (mNeedsResult) { updateResult(); } return mResult; }
+	LLWString& getUpdatedWResult() const{ if (mNeedsWResult) { updateWResult(); } return mWResult; }
+
+	// do actual work of updating strings (non-inlined)
+	void updateResult() const;
+	void updateWResult() const;
 	
 	std::string mOrig;
-	std::string mResult;
-	LLWString mWResult; // for displaying
+	mutable std::string mResult;
+	mutable LLWString mWResult; // for displaying
 	LLStringUtil::format_map_t mArgs;
+
+	// controls lazy evaluation
+	mutable bool	mNeedsResult;
+	mutable bool	mNeedsWResult;
 };
 
 #endif // LL_LLUISTRING_H

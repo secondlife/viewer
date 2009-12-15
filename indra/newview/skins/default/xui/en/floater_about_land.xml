@@ -4,7 +4,6 @@
  height="420"
  layout="topleft"
  name="floaterland"
- help_topic="floaterland"
  save_rect="true"
  title="ABOUT LAND"
  width="490">
@@ -1562,7 +1561,7 @@ Only large parcels can be listed in search.
              left="10"
              name="at URL:"
              width="100">
-                Home URL:
+                Home Page:
             </text>
             <line_editor
              follows="left|top"
@@ -1591,7 +1590,7 @@ Only large parcels can be listed in search.
              left="10"
              name="CurrentURL:"
              width="100">
-                Current URL:
+                Current Page:
             </text>
              <button
      follows="top|right"
@@ -1857,6 +1856,10 @@ Select the thumbnail to choose a different texture.
          top="0"
          help_topic="land_access_tab"
          name="land_access_panel">
+			<panel.string
+			 name="access_estate_defined">
+				(Defined by the Estate)
+			</panel.string>
             <panel.string
              name="estate_override">
                 One or more of these options is set at the estate level
@@ -1877,7 +1880,7 @@ Select the thumbnail to choose a different texture.
             <check_box
              follows="top|left"
              height="16"
-             label="Allow Public Access"
+             label="Allow Public Access [MATURITY]"
              layout="topleft"
              left_delta="0"
              name="public_access"
@@ -1893,12 +1896,12 @@ Select the thumbnail to choose a different texture.
              name="Only Allow"
              top="49"
              width="278">
-                Block Access By:
+                Restrict Access to Residents verified by:
             </text>
             <check_box
              follows="top|left"
              height="16"
-             label="Residents who have not given payment info to Linden Lab"
+             label="Payment Information on File [ESTATE_PAYMENT_LIMIT]"
              layout="topleft"
              left_delta="0"
              name="limit_payment"
@@ -1908,7 +1911,7 @@ Select the thumbnail to choose a different texture.
             <check_box
              follows="top|left"
              height="16"
-             label="Residents who are not age verified adults"
+             label="Age Verification [ESTATE_AGE_LIMIT]"
              layout="topleft"
              left_delta="0"
              name="limit_age_verified"

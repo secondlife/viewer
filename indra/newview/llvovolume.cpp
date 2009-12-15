@@ -68,6 +68,7 @@
 #include "llmediaentry.h"
 #include "llmediadataclient.h"
 #include "llagent.h"
+#include "llviewermediafocus.h"
 
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
@@ -138,8 +139,7 @@ public:
 		}
 	virtual bool isInterestingEnough() const
 		{
-			// TODO: use performance manager to control this
-			return true;
+			return LLViewerMedia::isInterestingEnough(mObject, getMediaInterest());
 		}
 
 	virtual std::string getCapabilityUrl(const std::string &name) const
@@ -2089,6 +2089,9 @@ viewer_media_t LLVOVolume::getMediaImpl(U8 face_id) const
 
 F64 LLVOVolume::getTotalMediaInterest() const
 {
+	if (LLViewerMediaFocus::getInstance()->getFocusedObjectID() == getID())
+		return F64_MAX;
+	
 	F64 interest = (F64)-1.0;  // means not interested;
     int i = 0;
 	const int end = getNumTEs();
@@ -2614,7 +2617,22 @@ const LLMatrix4 LLVOVolume::getRenderMatrix() const
 // children, and cost should only be increased for unique textures  -Nyx
 U32 LLVOVolume::getRenderCost(std::set<LLUUID> &textures) const
 {
-	U32 shame = 0;
+	// base cost of each prim should be 10 points
+	static const U32 ARC_PRIM_COST = 10;
+	// per-prim costs
+	static const U32 ARC_INVISI_COST = 1;
+	static const U32 ARC_SHINY_COST = 1;
+	static const U32 ARC_GLOW_COST = 1;
+	static const U32 ARC_FLEXI_COST = 8;
+	static const U32 ARC_PARTICLE_COST = 16;
+	static const U32 ARC_BUMP_COST = 4;
+
+	// per-face costs
+	static const U32 ARC_PLANAR_COST = 1;
+	static const U32 ARC_ANIM_TEX_COST = 4;
+	static const U32 ARC_ALPHA_COST = 4;
+
+	U32 shame = ARC_PRIM_COST;
 
 	U32 invisi = 0;
 	U32 shiny = 0;
@@ -2690,7 +2708,17 @@ U32 LLVOVolume::getRenderCost(std::set<LLUUID> &textures) const
 		}
 	}
 
-	shame += invisi + shiny + glow + alpha*4 + flexi*8 + animtex*4 + particles*16+bump*4+scale+planar;
+
+	shame += invisi * ARC_INVISI_COST;
+	shame += shiny * ARC_SHINY_COST;
+	shame += glow * ARC_GLOW_COST;
+	shame += alpha * ARC_ALPHA_COST;
+	shame += flexi * ARC_FLEXI_COST;
+	shame += animtex * ARC_ANIM_TEX_COST;
+	shame += particles * ARC_PARTICLE_COST;
+	shame += bump * ARC_BUMP_COST;
+	shame += planar * ARC_PLANAR_COST;
+	shame += scale;
 
 	LLViewerObject::const_child_list_t& child_list = getChildren();
 	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();

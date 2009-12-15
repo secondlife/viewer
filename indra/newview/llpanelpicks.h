@@ -86,6 +86,9 @@ public:
 	// parent panels failed to work (picks related code was in my profile panel)
 	void setProfilePanel(LLPanelProfile* profile_panel);
 
+	// display the info panel for the given classified
+	void openClassifiedInfo(LLAvatarClassifiedInfo *c_info);
+
 protected:
 	/*virtual*/void updateButtons();
 
