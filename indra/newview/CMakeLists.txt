@@ -1454,6 +1454,7 @@ if (WINDOWS)
       ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qmngd4.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qsvgd4.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qtiffd4.dll
+      SLPlugin
       windows-crash-logger
       windows-updater
       )
@@ -1473,6 +1474,7 @@ if (WINDOWS)
 	--touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/copy_touched.bat
       DEPENDS 
 	${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+	stage_third_party_libs
 	${COPY_INPUT_DEPENDECIES}
       COMMENT "Performing viewer_manifest copy"
       )
