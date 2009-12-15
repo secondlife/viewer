@@ -209,6 +209,7 @@ void LLScriptFloater::hideToastsIfNeeded()
 	if(channel)
 	{
 		channel->updateShowToastsState();
+		channel->redrawToasts();
 	}
 }
 
