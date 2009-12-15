@@ -338,6 +338,13 @@ add_custom_command(TARGET llmediaplugintest POST_BUILD
   DEPENDS ${BUILT_SLPLUGIN}
 )
 
+get_target_property(BUILT_LLCOMMON llcommon LOCATION)
+add_custom_command(TARGET llmediaplugintest POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_LLCOMMON}  ${PLUGINS_DESTINATION_DIR}
+  DEPENDS ${BUILT_LLCOMMON}
+)
+
+
 if (DARWIN OR WINDOWS)
   get_target_property(BUILT_WEBKIT_PLUGIN media_plugin_webkit LOCATION)
   add_custom_command(TARGET llmediaplugintest POST_BUILD

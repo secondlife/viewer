@@ -561,11 +561,22 @@ bool LLViewerMedia::getInWorldMediaDisabled()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
-bool LLViewerMedia::isInterestingEnough(const LLUUID &object_id, const F64 &object_interest)
+bool LLViewerMedia::isInterestingEnough(const LLVOVolume *object, const F64 &object_interest)
 {
 	bool result = false;
 	
-	if (LLViewerMediaFocus::getInstance()->getFocusedObjectID() == object_id)
+	if (NULL == object)
+	{
+		result = false;
+	}
+	// Focused?  Then it is interesting!
+	else if (LLViewerMediaFocus::getInstance()->getFocusedObjectID() == object->getID())
+	{
+		result = true;
+	}
+	// Selected?  Then it is interesting!
+	// XXX Sadly, 'contains()' doesn't take a const :(
+	else if (LLSelectMgr::getInstance()->getSelection()->contains(const_cast<LLVOVolume*>(object)))
 	{
 		result = true;
 	}
