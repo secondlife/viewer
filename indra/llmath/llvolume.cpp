@@ -1952,8 +1952,12 @@ BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 	}
 
 	is.seekg(header[nm[lod]]["offset"].asInteger(), std::ios_base::cur);
-	
 
+	return unpackVolumeFaces(is, header[nm[lod]]["size"].asInteger());
+}
+
+BOOL LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
+{
 	U8* result = NULL;
 	U32 cur_size = 0;
 
@@ -1964,7 +1968,6 @@ BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 		
 		const U32 CHUNK = 65536;
 
-		S32 size = header[nm[lod]]["size"].asInteger();
 		U8 *in = new U8[size];
 		is.read((char*) in, size); 
 
@@ -2168,7 +2171,7 @@ void LLVolume::makeTetrahedron()
 
 	LLVolumeFace face;
 
-	F32 x = 0.5f;
+	F32 x = 0.25f;
 	LLVector3 p[] = 
 	{ //unit tetrahedron corners
 		LLVector3(x,x,x),
