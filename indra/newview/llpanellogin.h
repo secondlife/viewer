@@ -71,6 +71,7 @@ public:
 
 	static void addServer(const std::string& server, S32 domain_name);
 	static void refreshLocation( bool force_visible );
+	static void updateLocationUI();
 
 	static void getFields(std::string *firstname, std::string *lastname,
 						  std::string *password);
@@ -102,7 +103,7 @@ private:
 	static void onPassKey(LLLineEditor* caller, void* user_data);
 	static void onSelectServer(LLUICtrl*, void*);
 	static void onServerComboLostFocus(LLFocusableElement*);
-	
+
 private:
 	LLPointer<LLUIImage> mLogoImage;
 	boost::scoped_ptr<LLPanelLoginListener> mListener;
