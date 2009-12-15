@@ -51,6 +51,7 @@ struct 	LLEntryAndEdCore;
 class LLMenuBarGL;
 class LLFloaterScriptSearch;
 class LLKeywordToken;
+class LLVFS;
 class LLViewerInventoryItem;
 
 // Inner, implementation class.  LLPreviewScript and LLLiveLSLEditor each own one of these.

@@ -34,14 +34,18 @@
 #define LL_LLAPP_H
 
 #include <map>
-#include "llapr.h"
 #include "llrun.h"
 #include "llsd.h"
 #include "lloptioninterface.h"
 
 // Forward declarations
+template <typename Type> class LLAtomic32;
+typedef LLAtomic32<U32> LLAtomicU32;
 class LLErrorThread;
 class LLLiveFile;
+#if LL_LINUX
+typedef struct siginfo siginfo_t;
+#endif
 
 typedef void (*LLAppErrorHandler)();
 typedef void (*LLAppChildCallback)(int pid, bool exited, int status);
@@ -202,8 +206,6 @@ public:
 #if !LL_WINDOWS
 	static U32  getSigChildCount();
 	static void incSigChildCount();
-#else
-#define getpid GetCurrentProcessId
 #endif
 	static int getPid();
 

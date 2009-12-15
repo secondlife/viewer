@@ -37,7 +37,6 @@
 #include "llviewertexture.h"
 #include "llpolymesh.h"
 #include "v4color.h"
-#include "llapr.h"
 
 class LLDrawable;
 class LLFace;
