@@ -246,6 +246,24 @@ void LLSysWellWindow::handleItemAdded(EItemType added_item_type)
 		// refresh list to recalculate mSeparator position
 		mMessageList->reshape(mMessageList->getRect().getWidth(), mMessageList->getRect().getHeight());
 	}
+
+	//fix for EXT-3254
+	//set limits for min_height. 
+	S32 parent_list_delta_height = getRect().getHeight() - mMessageList->getRect().getHeight();
+
+	std::vector<LLPanel*> items;
+	mMessageList->getItems(items);
+
+	if(items.size()>1)//first item is separator
+	{
+		S32 min_height;
+		S32 min_width;
+		getResizeLimits(&min_width,&min_height);
+
+		min_height = items[1]->getRect().getHeight() + 2 * mMessageList->getBorderWidth() + parent_list_delta_height;
+
+		setResizeLimits(min_width,min_height);
+	}
 }
 
 void LLSysWellWindow::handleItemRemoved(EItemType removed_item_type)
