@@ -752,6 +752,13 @@ void LLIMWellWindow::addIMRow(const LLUUID& sessionId, S32 chicletCounter,
 //---------------------------------------------------------------------------------
 void LLIMWellWindow::delIMRow(const LLUUID& sessionId)
 {
+	//fix for EXT-3252
+	//without this line LLIMWellWindow receive onFocusLost
+	//and hide itself. It was becaue somehow LLIMChicklet was in focus group for
+	//LLIMWellWindow...
+	//But I didn't find why this happen..
+	gFocusMgr.clearLastFocusForGroup(this);
+
 	if (mMessageList->removeItemByValue(sessionId))
 	{
 		handleItemRemoved(IT_INSTANT_MESSAGE);
@@ -770,6 +777,10 @@ void LLIMWellWindow::delIMRow(const LLUUID& sessionId)
 	if(isWindowEmpty())
 	{
 		setVisible(FALSE);
+	}
+	else
+	{
+		setFocus(true);
 	}
 }
 
