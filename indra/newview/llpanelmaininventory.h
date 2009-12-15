@@ -72,7 +72,8 @@ public:
 									   void* cargo_data,
 									   EAcceptance* accept,
 									   std::string& tooltip_msg);
-	/*virtual*/ void changed(U32 mask);
+	/*virtual*/ void changed(U32);
+	/*virtual*/ void draw();
 
 	LLInventoryPanel* getPanel() { return mActivePanel; }
 	LLInventoryPanel* getActivePanel() { return mActivePanel; }

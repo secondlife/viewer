@@ -3,6 +3,7 @@
  border="true"
  follows="top|left"
  height="320"
+ help_topic="panel_region_texture_tab"
  label="Ground Textures"
  layout="topleft"
  left="0"

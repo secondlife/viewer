@@ -85,72 +85,21 @@ left="0"
    class="panel_outfits_inventory"
    filename="panel_outfits_inventory.xml"
    name="panel_outfits_inventory"
-   height="510"
+   height="550"
    min_height="510"
    width="333"
    top_pad="0"
-   follows="top|left"
+   follows="all"
    />
-   <panel
-   visible="true"
-   name="bottom_panel"
-   height="50"
-   left="0"
-   top_pad="3"
-   follows="bottom|left"
-   width="333">
-      <button
-       follows="bottom|left"
-       tool_tip="Show additional options"
-       height="18"
-       image_disabled="OptionsMenu_Disabled"
-       image_selected="OptionsMenu_Press"
-       image_unselected="OptionsMenu_Off"
-       layout="topleft"
-       left="10"
-       name="options_gear_btn"
-       top="6"
-       width="18" />
-      <button
-       follows="bottom|left"
-       height="18"
-       image_selected="AddItem_Press"
-       image_unselected="AddItem_Off"
-       image_disabled="AddItem_Disabled"
-       layout="topleft"
-       left_pad="5"
-   name="newlook_btn"
-       tool_tip="Add new outfit"
-       width="18" />
-      <dnd_button
-       follows="bottom|left"
-       height="18"
-       image_selected="TrashItem_Press"
-       image_unselected="TrashItem_Off"
-       layout="topleft"
-       right="-5"
-       name="trash_btn"
-       tool_tip="Remove selected item"
-       top="6"
-       width="18" />
-      <button
-       follows="bottom|left"
-      height="23"
-      label="Wear"
-      layout="topleft"
-      name="wear_btn"
-      right="-5"
-      top_pad="0"
-      width="90" />
-   </panel>
-   <!--   <button
-   follows="bottom|left"
-   height="23"
-   label="New outfit"
-   layout="topleft"
-   left_pad="5"
-   right="-10"
-   width="100" />-->
+  <!--   <button
+	  follows="bottom|left"
+		height="23"
+		label="New outfit"
+		layout="topleft"
+		left_pad="5"
+		right="-10"
+		name="newlook_btn"
+		 width="100" />-->
    <panel
    class="panel_look_info"
    filename="panel_look_info.xml"
@@ -168,3 +117,4 @@ left="0"
    name="panel_edit_wearable"
    visible="false" />
 </panel>
+
