@@ -5520,47 +5520,27 @@ void handle_viewer_disable_message_log(void*)
 	gMessageSystem->stopLogging();
 }
 
-class LLShowFloater : public view_listener_t
+void handle_customize_avatar()
 {
-	bool handleEvent(const LLSD& userdata)
+	if (gAgentWearables.areWearablesLoaded())
 	{
-		std::string floater_name = userdata.asString();
-		if (floater_name == "appearance")
-		{
-			if (gAgentWearables.areWearablesLoaded())
-			{
-				gAgent.changeCameraToCustomizeAvatar();
-			}
-		}
-		else if (floater_name == "toolbar")
-		{
-			LLToolBar::toggle(NULL);
-		}
-		else if (floater_name == "buy land")
-		{
-			handle_buy_land();
-		}
-		else if (floater_name == "script errors")
-		{
-			LLFloaterScriptDebug::show(LLUUID::null);
-		}
-		else if (floater_name == "complaint reporter")
-		{
-			// Prevent menu from appearing in screen shot.
-			gMenuHolder->hideMenus();
-			LLFloaterReporter::showFromMenu(COMPLAINT_REPORT);
-		}
-		else if (floater_name == "buy currency")
-		{
-			LLFloaterBuyCurrency::buyCurrency();
-		}
-		else
-		{
-			LLFloaterReg::toggleInstance(floater_name);
-		}
-		return true;
+		gAgent.changeCameraToCustomizeAvatar();
 	}
-};
+}
+
+void handle_report_abuse()
+{
+	// Prevent menu from appearing in screen shot.
+	gMenuHolder->hideMenus();
+	LLFloaterReporter::showFromMenu(COMPLAINT_REPORT);
+}
+
+void handle_buy_currency()
+{
+	LLFloaterBuyCurrency::buyCurrency();
+}
+
+
 
 class LLFloaterVisible : public view_listener_t
 {
@@ -5568,11 +5548,6 @@ class LLFloaterVisible : public view_listener_t
 	{
 		std::string floater_name = userdata.asString();
 		bool new_value = false;
-		if (floater_name == "toolbar")
-		{
-			new_value = LLToolBar::visible(NULL);
-		}
-		else
 		{
 			new_value = LLFloaterReg::instanceVisible(floater_name);
 		}
@@ -7607,6 +7582,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditEnableDuplicate(), "Edit.EnableDuplicate");
 	view_listener_t::addMenu(new LLEditEnableTakeOff(), "Edit.EnableTakeOff");
 	view_listener_t::addMenu(new LLEditEnableCustomizeAvatar(), "Edit.EnableCustomizeAvatar");
+	commit.add("CustomizeAvatar", boost::bind(&handle_customize_avatar));
 
 	// View menu
 	view_listener_t::addMenu(new LLViewMouselook(), "View.Mouselook");
@@ -7931,9 +7907,11 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLLandEdit(), "Land.Edit");
 
 	view_listener_t::addMenu(new LLLandEnableBuyPass(), "Land.EnableBuyPass");
+	commit.add("Land.Buy", boost::bind(&handle_buy_land));
 
 	// Generic actions
-	view_listener_t::addMenu(new LLShowFloater(), "ShowFloater");
+	commit.add("ReportAbuse", boost::bind(&handle_report_abuse));
+	commit.add("BuyCurrency", boost::bind(&handle_buy_currency));
 	view_listener_t::addMenu(new LLShowHelp(), "ShowHelp");
 	view_listener_t::addMenu(new LLPromptShowURL(), "PromptShowURL");
 	view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");

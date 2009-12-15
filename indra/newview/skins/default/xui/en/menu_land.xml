@@ -28,8 +28,7 @@
      label="Buy This Land"
      name="Land Buy">
         <menu_item_call.on_click
-         function="ShowFloater"
-         parameter="buy land" />
+         function="Land.Buy" />
         <menu_item_call.on_enable
          function="World.EnableBuyLand" />
     </menu_item_call>

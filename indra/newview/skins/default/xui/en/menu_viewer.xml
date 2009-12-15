@@ -32,8 +32,7 @@
          layout="topleft"
          name="Buy and Sell L$">
             <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="buy currency" />
+             function="BuyCurrency" />
         </menu_item_call>
         <menu_item_separator
          layout="topleft" />
@@ -50,8 +49,7 @@
          layout="topleft"
          name="Appearance">
             <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="appearance" />
+             function="CustomizeAvatar" />
             <menu_item_call.on_enable
              function="Edit.EnableCustomizeAvatar" />
         </menu_item_call>
@@ -82,7 +80,7 @@
          name="Gestures"
          shortcut="control|G">
             <menu_item_call.on_click
-             function="ShowFloater"
+             function="Floater.Toggle"
              parameter="gestures" />
         </menu_item_call>
         <menu
@@ -285,8 +283,7 @@
              layout="topleft"
              name="Buy Land">
                 <menu_item_call.on_click
-                 function="ShowFloater"
-                 parameter="buy land" />
+                 function="Land.Buy" />
                 <menu_item_call.on_enable
                  function="World.EnableBuyLand" />
             </menu_item_call>
@@ -295,7 +292,7 @@
              layout="topleft"
              name="My Land">
                 <menu_item_call.on_click
-                 function="ShowFloater"
+                 function="Floater.Show"
                  parameter="land_holdings" />
         </menu_item_call>
         <menu
@@ -868,14 +865,6 @@
 				 function="ToggleControl"
 				 parameter="DebugPermissions" />
 			</menu_item_check>
-            <!--menu_item_call
-             label="Show Script Warning/Error Window"
-             layout="topleft"
-             name="Show Script Warning/Error Window">
-                <menu_item_call.on_click
-                 function="ShowFloater"
-                 parameter="script errors" />
-            </menu_item_call-->
             <menu_item_separator
              layout="topleft" />
             <menu
@@ -1082,8 +1071,7 @@
              layout="topleft"
              name="Report Abuse">
                 <menu_item_call.on_click
-                 function="ShowFloater"
-                 parameter="complaint reporter" />
+                 function="ReportAbuse" />
             </menu_item_call>
         <menu_item_call
              label="Report Bug"
@@ -3640,17 +3628,6 @@
                  parameter="all" />
             </menu_item_call>
         </menu>
-        <menu_item_check
-         label="Show Toolbar"
-         layout="topleft"
-         name="Show Toolbar">
-            <menu_item_check.on_check
-             function="FloaterVisible"
-             parameter="toolbar" />
-            <menu_item_check.on_click
-             function="ShowFloater"
-             parameter="toolbar" />
-        </menu_item_check>
         <menu
          create_jump_keys="true"
          label="Help"
