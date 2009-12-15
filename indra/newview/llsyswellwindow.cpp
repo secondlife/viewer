@@ -82,6 +82,7 @@ BOOL LLSysWellWindow::postBuild()
 	mMessageList->addItem(mSeparator);
 
 	// click on SysWell Window should clear "new message" state (and 'Lit' status). EXT-3147.
+	// mouse up callback is not called in this case.
 	setMouseDownCallback(boost::bind(&LLSysWellWindow::releaseNewMessagesState, this));
 
 	return LLDockableFloater::postBuild();
