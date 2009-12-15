@@ -40,67 +40,73 @@ sys.path.append(os.path.join(viewer_dir, '../lib/python/indra/util'))
 from llmanifest import LLManifest, main, proper_windows_path, path_ancestors
 
 class ViewerManifest(LLManifest):
+    def is_packaging_viewer(self):
+        # This is overridden by the WindowsManifest sub-class,
+        # which has different behavior if it is not packaging the viewer.
+        return True
+    
     def construct(self):
         super(ViewerManifest, self).construct()
         self.exclude("*.svn*")
         self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
         self.path(src="../../etc/message.xml", dst="app_settings/message.xml")
 
-        if self.prefix(src="app_settings"):
-            self.exclude("logcontrol.xml")
-            self.exclude("logcontrol-dev.xml")
-            self.path("*.pem")
-            self.path("*.ini")
-            self.path("*.xml")
-            self.path("*.db2")
+        if self.is_packaging_viewer():
+            if self.prefix(src="app_settings"):
+                self.exclude("logcontrol.xml")
+                self.exclude("logcontrol-dev.xml")
+                self.path("*.pem")
+                self.path("*.ini")
+                self.path("*.xml")
+                self.path("*.db2")
 
-            # include the entire shaders directory recursively
-            self.path("shaders")
-            # ... and the entire windlight directory
-            self.path("windlight")
-            self.end_prefix("app_settings")
+                # include the entire shaders directory recursively
+                self.path("shaders")
+                # ... and the entire windlight directory
+                self.path("windlight")
+                self.end_prefix("app_settings")
 
-        if self.prefix(src="character"):
-            self.path("*.llm")
-            self.path("*.xml")
-            self.path("*.tga")
-            self.end_prefix("character")
+            if self.prefix(src="character"):
+                self.path("*.llm")
+                self.path("*.xml")
+                self.path("*.tga")
+                self.end_prefix("character")
 
-        # Include our fonts
-        if self.prefix(src="fonts"):
-            self.path("*.ttf")
-            self.path("*.txt")
-            self.end_prefix("fonts")
+            # Include our fonts
+            if self.prefix(src="fonts"):
+                self.path("*.ttf")
+                self.path("*.txt")
+                self.end_prefix("fonts")
 
-        # skins
-        if self.prefix(src="skins"):
-                self.path("paths.xml")
-                # include the entire textures directory recursively
-                if self.prefix(src="*/textures"):
-                        self.path("*/*.tga")
-                        self.path("*/*.j2c")
-                        self.path("*/*.jpg")
-                        self.path("*/*.png")
-                        self.path("*.tga")
-                        self.path("*.j2c")
-                        self.path("*.jpg")
-                        self.path("*.png")
-                        self.path("textures.xml")
-                        self.end_prefix("*/textures")
-                self.path("*/xui/*/*.xml")
-                self.path("*/xui/*/widgets/*.xml")
-                self.path("*/*.xml")
-                
-                # Local HTML files (e.g. loading screen)
-                if self.prefix(src="*/html"):
-                        self.path("*.png")
-                        self.path("*/*/*.html")
-                        self.path("*/*/*.gif")
-                        self.end_prefix("*/html")
-                self.end_prefix("skins")
-        
-        # Files in the newview/ directory
-        self.path("gpu_table.txt")
+            # skins
+            if self.prefix(src="skins"):
+                    self.path("paths.xml")
+                    # include the entire textures directory recursively
+                    if self.prefix(src="*/textures"):
+                            self.path("*/*.tga")
+                            self.path("*/*.j2c")
+                            self.path("*/*.jpg")
+                            self.path("*/*.png")
+                            self.path("*.tga")
+                            self.path("*.j2c")
+                            self.path("*.jpg")
+                            self.path("*.png")
+                            self.path("textures.xml")
+                            self.end_prefix("*/textures")
+                    self.path("*/xui/*/*.xml")
+                    self.path("*/xui/*/widgets/*.xml")
+                    self.path("*/*.xml")
+
+                    # Local HTML files (e.g. loading screen)
+                    if self.prefix(src="*/html"):
+                            self.path("*.png")
+                            self.path("*/*/*.html")
+                            self.path("*/*/*.gif")
+                            self.end_prefix("*/html")
+                    self.end_prefix("skins")
+
+            # Files in the newview/ directory
+            self.path("gpu_table.txt")
 
     def login_channel(self):
         """Channel reported for login and upgrade purposes ONLY;
@@ -163,6 +169,12 @@ class WindowsManifest(ViewerManifest):
         else:
             return ''.join(self.channel().split()) + '.exe'
 
+    def is_packaging_viewer(self):
+        # Some commands, files will only be included
+        # if we are packaging the viewer on windows.
+        # This manifest is also used to copy
+        # files during the build.
+        return 'package' in self.args['actions']
 
     def test_msvcrt_and_copy_action(self, src, dst):
         # This is used to test a dll manifest.
@@ -211,22 +223,25 @@ class WindowsManifest(ViewerManifest):
             print "Doesn't exist:", src
         
     def enable_crt_manifest_check(self):
-        WindowsManifest.copy_action = WindowsManifest.test_msvcrt_and_copy_action
+        if self.is_packaging_viewer():
+           WindowsManifest.copy_action = WindowsManifest.test_msvcrt_and_copy_action
 
     def enable_no_crt_manifest_check(self):
-        WindowsManifest.copy_action = WindowsManifest.test_for_no_msvcrt_manifest_and_copy_action
+        if self.is_packaging_viewer():
+            WindowsManifest.copy_action = WindowsManifest.test_for_no_msvcrt_manifest_and_copy_action
 
     def disable_manifest_check(self):
-        del WindowsManifest.copy_action
+        if self.is_packaging_viewer():
+            del WindowsManifest.copy_action
 
     def construct(self):
         super(WindowsManifest, self).construct()
 
         self.enable_crt_manifest_check()
 
-        # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
-        self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
-
+        if self.is_packaging_viewer():
+            # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
+            self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
         # Plugin host application
         self.path(os.path.join(os.pardir,
@@ -316,26 +331,47 @@ class WindowsManifest(ViewerManifest):
         if self.prefix(src='../media_plugins/webkit/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_webkit.dll")
             self.end_prefix()
-            
-        if self.prefix(src="../../libraries/i686-win32/lib/release", dst="llplugin"):
-            self.path("libeay32.dll")
-            self.path("qtcore4.dll")
-            self.path("qtgui4.dll")
-            self.path("qtnetwork4.dll")
-            self.path("qtopengl4.dll")
-            self.path("qtwebkit4.dll")
-            self.path("ssleay32.dll")
-            self.end_prefix()
 
-        # For WebKit/Qt plugin runtimes (image format plugins)
-        if self.prefix(src="../../libraries/i686-win32/lib/release/imageformats", dst="llplugin/imageformats"):
-            self.path("qgif4.dll")
-            self.path("qico4.dll")
-            self.path("qjpeg4.dll")
-            self.path("qmng4.dll")
-            self.path("qsvg4.dll")
-            self.path("qtiff4.dll")
-            self.end_prefix()
+        if self.args['configuration'].lower() == 'debug':
+            if self.prefix(src="../../libraries/i686-win32/lib/debug", dst="llplugin"):
+                self.path("libeay32.dll")
+                self.path("qtcored4.dll")
+                self.path("qtguid4.dll")
+                self.path("qtnetworkd4.dll")
+                self.path("qtopengld4.dll")
+                self.path("qtwebkitd4.dll")
+                self.path("ssleay32.dll")
+                self.end_prefix()
+
+            # For WebKit/Qt plugin runtimes (image format plugins)
+            if self.prefix(src="../../libraries/i686-win32/lib/debug/imageformats", dst="llplugin/imageformats"):
+                self.path("qgif4d.dll")
+                self.path("qico4d.dll")
+                self.path("qjpeg4d.dll")
+                self.path("qmng4d.dll")
+                self.path("qsvg4d.dll")
+                self.path("qtiff4d.dll")
+                self.end_prefix()
+        else:
+            if self.prefix(src="../../libraries/i686-win32/lib/release", dst="llplugin"):
+                self.path("libeay32.dll")
+                self.path("qtcore4.dll")
+                self.path("qtgui4.dll")
+                self.path("qtnetwork4.dll")
+                self.path("qtopengl4.dll")
+                self.path("qtwebkit4.dll")
+                self.path("ssleay32.dll")
+                self.end_prefix()
+
+            # For WebKit/Qt plugin runtimes (image format plugins)
+            if self.prefix(src="../../libraries/i686-win32/lib/release/imageformats", dst="llplugin/imageformats"):
+                self.path("qgif4.dll")
+                self.path("qico4.dll")
+                self.path("qjpeg4.dll")
+                self.path("qmng4.dll")
+                self.path("qsvg4.dll")
+                self.path("qtiff4.dll")
+                self.end_prefix()
 
         self.disable_manifest_check()
 
@@ -345,6 +381,9 @@ class WindowsManifest(ViewerManifest):
                   dst="win_crash_logger.exe")
         self.path(src='../win_updater/%s/windows-updater.exe' % self.args['configuration'],
                   dst="updater.exe")
+
+        if not self.is_packaging_viewer():
+            self.package_file = "copied_deps"    
 
     def nsi_file_commands(self, install=True):
         def wpath(path):
