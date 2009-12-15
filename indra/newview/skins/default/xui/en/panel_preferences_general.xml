@@ -217,6 +217,7 @@
          layout="topleft"
          left="0"
          name="radio"
+         value="0"
          top_pad="0"
          width="98" />
         <radio_item
@@ -225,6 +226,7 @@
          layout="topleft"
          left_pad="12"
          name="radio2"
+         value="1"
          top_delta="0"
          width="98" />
         <radio_item
@@ -233,6 +235,7 @@
          layout="topleft"
          left_pad="12"
          name="radio3"
+         value="2" 
          top_delta="0"
          width="98" />
     </radio_group>

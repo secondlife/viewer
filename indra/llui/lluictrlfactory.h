@@ -180,34 +180,55 @@ public:
 	void popFactoryFunctions();
 
 	template<typename T>
-	static T* create(typename T::Params& params, LLView* parent = NULL)
+	static T* createWidget(typename T::Params& params, LLView* parent = NULL)
 	{
-		//#pragma message("Generating LLUICtrlFactory::create")
-		params.fillFrom(ParamDefaults<typename T::Params, 0>::instance().get());
-		//S32 foo = "test";
+		// Apply layout transformations, usually munging rect
+		T::setupParams(params, parent);
+
+		T* widget = NULL;
 
 		if (!params.validateBlock())
 		{
 			llwarns << getInstance()->getCurFileName() << ": Invalid parameter block for " << typeid(T).name() << llendl;
+			//return NULL;
 		}
-		T* widget = new T(params);
-		widget->initFromParams(params);
+
+		{
+			LLFastTimer timer(FTM_WIDGET_CONSTRUCTION);
+			widget = new T(params);	
+		}
+		{
+			LLFastTimer timer(FTM_INIT_FROM_PARAMS);
+			widget->initFromParams(params);
+		}
+
 		if (parent)
 		{
-			connect(parent, widget);
+			S32 tab_group = params.tab_group.isProvided() ? params.tab_group() : parent->getLastTabGroup();
+			setCtrlParent(widget, parent, tab_group);
 		}
 		return widget;
 	}
 
-	// fix for gcc template instantiation annoyance
-	static void connect(LLView* parent, LLView* child);
-	
+	template<typename T>
+	static T* create(typename T::Params& params, LLView* parent = NULL)
+	{
+		params.fillFrom(ParamDefaults<typename T::Params, 0>::instance().get());
+
+		T* widget = createWidget<T>(params, parent);
+		if (widget)
+		{
+			widget->postBuild();
+		}
+
+		return widget;
+	}
+
 	LLView* createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename, const widget_registry_t&, LLXMLNodePtr output_node );
 
 	template<typename T>
 	static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry, LLXMLNodePtr output_node = NULL)
 	{
-		//#pragma message("Generating LLUICtrlFactory::createFromFile")
 		T* widget = NULL;
 
 		std::string skinned_filename = findSkinnedFilename(filename);
@@ -272,7 +293,6 @@ fail:
 	{
 		LLFastTimer timer(FTM_WIDGET_SETUP);
 
-		//#pragma message("Generating LLUICtrlFactory::defaultBuilder")
 		typename T::Params params(getDefaultParams<T>());
 
 		LLXUIParser::instance().readXUI(node, params, LLUICtrlFactory::getInstance()->getCurFileName());
@@ -289,37 +309,16 @@ fail:
 				output_node, output_params, &default_params);
 		}
 
-		// Apply layout transformations, usually munging rect
-		T::setupParams(params, parent);
+		params.from_xui = true;
 
-		if (!params.validateBlock())
-		{
-			llwarns << getInstance()->getCurFileName() << ": Invalid parameter block for " << typeid(T).name() << llendl;
-		}
-		T* widget;
-		{
-			LLFastTimer timer(FTM_WIDGET_CONSTRUCTION);
-			widget = new T(params);	
-		}
-		{
-			LLFastTimer timer(FTM_INIT_FROM_PARAMS);
-			widget->initFromParams(params);
-		}
+		T* widget = createWidget<T>(params, parent);
 
-		if (parent)
-		{
-			S32 tab_group = params.tab_group.isProvided() ? params.tab_group() : -1;
-			setCtrlParent(widget, parent, tab_group);
-		}
-		
-		typedef typename T::child_registry_t registry_t;
+		createChildren(widget, node, typename T::child_registry_t::instance(), output_node);
 
-		createChildren(widget, node, registry_t::instance(), output_node);
-
-		if (!widget->postBuild())
+		if (widget && !widget->postBuild())
 		{
 			delete widget;
-			return NULL;
+			widget = NULL;
 		}
 
 		return widget;
