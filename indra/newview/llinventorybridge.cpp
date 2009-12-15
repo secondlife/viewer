@@ -2930,6 +2930,10 @@ void updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& srcIt
 
 	items.erase(findItemByUUID(items, srcItem->getUUID()));
 	items.insert(findItemByUUID(items, destItem->getUUID()), srcItem);
+
+	// Refresh the folder view.
+	gInventory.addChangedMask(LLInventoryObserver::SORT, srcItem->getParentUUID());
+	gInventory.notifyObservers();
 }
 
 BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
@@ -2998,8 +3002,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		}
 
 		const LLUUID& favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-		const LLUUID& landmarks_id = model->findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
-		const BOOL folder_allows_reorder = ((mUUID == landmarks_id) || (mUUID == favorites_id));
+		const BOOL folder_allows_reorder = (mUUID == favorites_id);
 	   
 		// we can move item inside a folder only if this folder is Favorites. See EXT-719
 		accept = is_movable && ((mUUID != inv_item->getParentUUID()) || folder_allows_reorder);
@@ -3014,7 +3017,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// everything in the active window so that we don't follow
 			// the selection to its new location (which is very
 			// annoying).
-			LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+			LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
 			if (active_panel)
 			{
 				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
