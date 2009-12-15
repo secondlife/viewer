@@ -469,7 +469,7 @@ bool LLIMFloater::toggle(const LLUUID& session_id)
 	if(!isChatMultiTab())
 	{
 		LLIMFloater* floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
-		if (floater && floater->getVisible() && floater->isDocked())
+		if (floater && floater->getVisible())
 		{
 			// clicking on chiclet to close floater just hides it to maintain existing
 			// scroll/text entry state
