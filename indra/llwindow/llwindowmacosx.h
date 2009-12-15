@@ -34,6 +34,7 @@
 #define LL_LLWINDOWMACOSX_H
 
 #include "llwindow.h"
+#include "llwindowcallbacks.h"
 
 #include "lltimer.h"
 
@@ -159,8 +160,12 @@ protected:
 	void adjustCursorDecouple(bool warpingMouse = false);
 	void fixWindowSize(void);
 	void stopDockTileBounce();
-
-
+	static MASK modifiersToMask(SInt16 modifiers);
+	static OSErr dragTrackingHandler(DragTrackingMessage message, WindowRef theWindow,
+									 void * handlerRefCon, DragRef theDrag);
+	static OSErr dragReceiveHandler(WindowRef theWindow, void * handlerRefCon,	DragRef theDrag);
+	OSErr handleDragNDrop(DragRef theDrag, LLWindowCallbacks::DragNDropAction action);
+	
 	//
 	// Platform specific variables
 	//
@@ -197,7 +202,7 @@ protected:
 	NMRec		mBounceRec;
 	LLTimer		mBounceTimer;
 
-	// Imput method management through Text Service Manager.
+	// Input method management through Text Service Manager.
 	TSMDocumentID	mTSMDocument;
 	BOOL		mLanguageTextInputAllowed;
 	ScriptCode	mTSMScriptCode;
