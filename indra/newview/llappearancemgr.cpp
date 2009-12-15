@@ -871,10 +871,48 @@ bool areMatchingWearables(const LLViewerInventoryItem *a, const LLViewerInventor
 			(a->getWearableType() == b->getWearableType()));
 }
 
+class LLDeferredCOFLinkObserver: public LLInventoryObserver
+{
+public:
+	LLDeferredCOFLinkObserver(const LLUUID& item_id, bool do_update):
+		mItemID(item_id),
+		mDoUpdate(do_update)
+	{
+	}
+
+	~LLDeferredCOFLinkObserver()
+	{
+	}
+	
+	/* virtual */ void changed(U32 mask)
+	{
+		const LLInventoryItem *item = gInventory.getItem(mItemID);
+		if (item)
+		{
+			gInventory.removeObserver(this);
+			LLAppearanceManager::instance().addCOFItemLink(item,mDoUpdate);
+			delete this;
+		}
+	}
+
+private:
+	const LLUUID mItemID;
+	bool mDoUpdate;
+};
+
+
 void LLAppearanceManager::addCOFItemLink(const LLUUID &item_id, bool do_update )
 {
 	const LLInventoryItem *item = gInventory.getItem(item_id);
-	addCOFItemLink(item, do_update);
+	if (!item)
+	{
+		LLDeferredCOFLinkObserver *observer = new LLDeferredCOFLinkObserver(item_id, do_update);
+		gInventory.addObserver(observer);
+	}
+	else
+	{
+		addCOFItemLink(item, do_update);
+	}
 }
 
 void LLAppearanceManager::addCOFItemLink(const LLInventoryItem *item, bool do_update )
