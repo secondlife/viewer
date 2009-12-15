@@ -829,7 +829,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	// Re-calculate this every time.
 	sLowestLoadableImplInterest	= 0.0f;
 
-	if(lowest_interest_loadable)
+	// Only do this calculation if we've hit the impl count limit -- up until that point we always need to load media data.
+	if(lowest_interest_loadable && (impl_count_total >= (int)max_instances))
 	{
 		// Get the interest value of this impl's object for use by isInterestingEnough
 		LLVOVolume *object = lowest_interest_loadable->getSomeObject();
