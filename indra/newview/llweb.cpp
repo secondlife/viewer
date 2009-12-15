@@ -38,12 +38,19 @@
 // Library includes
 #include "llwindow.h"	// spawnWebBrowser()
 
-#include "llviewerwindow.h"
-#include "llviewercontrol.h"
+#include "llalertdialog.h"
+#include "llappviewer.h"
 #include "llfloatermediabrowser.h"
 #include "llfloaterreg.h"
-#include "llalertdialog.h"
+#include "lllogininstance.h"
+#include "llsd.h"
 #include "lltoastalertpanel.h"
+#include "llui.h"
+#include "lluri.h"
+#include "llversioninfo.h"
+#include "llviewercontrol.h"
+#include "llviewernetwork.h"
+#include "llviewerwindow.h"
 
 class URLLoader : public LLAlertURLLoader
 {
@@ -123,4 +130,25 @@ std::string LLWeb::escapeURL(const std::string& url)
 		}
 	}
 	return escaped_url;
+}
+
+//static
+std::string LLWeb::expandURLSubstitutions(const std::string &url,
+										  const LLSD &default_subs)
+{
+	LLSD substitution = default_subs;
+	substitution["VERSION"] = LLVersionInfo::getVersion();
+	substitution["VERSION_MAJOR"] = LLVersionInfo::getMajor();
+	substitution["VERSION_MINOR"] = LLVersionInfo::getMinor();
+	substitution["VERSION_PATCH"] = LLVersionInfo::getPatch();
+	substitution["VERSION_BUILD"] = LLVersionInfo::getBuild();
+	substitution["CHANNEL"] = LLVersionInfo::getChannel();
+	substitution["LANGUAGE"] = LLUI::getLanguage();
+	substitution["GRID"] = LLViewerLogin::getInstance()->getGridLabel();
+	substitution["OS"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
+
+	std::string expanded_url = url;
+	LLStringUtil::format(expanded_url, substitution);
+
+	return LLWeb::escapeURL(expanded_url);
 }

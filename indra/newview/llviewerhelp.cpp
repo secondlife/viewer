@@ -81,8 +81,7 @@ void LLViewerHelp::showTopic(const std::string &topic)
 
 	// work out the URL for this topic and display it 
 	showHelp();
-	const LLOSInfo& osinfo = LLAppViewer::instance()->getOSInfo();
-	std::string helpURL = LLViewerHelpUtil::buildHelpURL( help_topic, gSavedSettings, osinfo );
+	std::string helpURL = LLViewerHelpUtil::buildHelpURL( help_topic );
 	setRawURL( helpURL );
 }
 
