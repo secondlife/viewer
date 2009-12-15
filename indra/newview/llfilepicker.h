@@ -64,11 +64,6 @@ extern "C" {
 #if LL_GTK
 # include "gtk/gtk.h"
 #endif // LL_GTK
-
-// also mostly for Linux, for some X11-specific filepicker usability tweaks
-#if LL_X11
-#include "SDL/SDL_syswm.h"
-#endif
 }
 
 class LLFilePicker

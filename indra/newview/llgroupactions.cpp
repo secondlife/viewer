@@ -35,6 +35,8 @@
 
 #include "llgroupactions.h"
 
+#include "message.h"
+
 #include "llagent.h"
 #include "llcommandhandler.h"
 #include "llfloaterreg.h"

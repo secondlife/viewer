@@ -21,7 +21,7 @@
      word_wrap="true"
      width="220">
         Press a key to set your
-Speak button toggle
+Speak button trigger.
     </text>
     <button
      height="23"

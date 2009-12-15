@@ -67,7 +67,7 @@
 	 value="0 0 1 1" />
 	<color
 	 name="Yellow"
-	 value="1 1 0 1" />
+	 value="0.114 0.65 0.1" />
 	<color
 	 name="Unused?"
 	 value="1 0.5 0 1" />
@@ -513,7 +513,7 @@
      reference="White" />
     <color
      name="ObjectChatColor"
-     reference="0.7 0.8 0.9 1" />
+     reference="EmphasisColor" />
     <color
      name="OverdrivenColor"
      value="1 0 0 1" />

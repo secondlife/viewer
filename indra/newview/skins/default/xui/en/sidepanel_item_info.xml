@@ -39,26 +39,38 @@
 	     top="4"
 	     width="18" />
     <button
-	     follows="top|right"
-	     height="25"
-	     image_overlay="BackArrow_Off"
-	     layout="topleft"
-	     name="back_btn"
-	     picture_style="true"
-	     right="-5"
-	     tab_stop="false"
-	     top="0"
-	     width="25" />
+     follows="top|right"
+     height="23"
+     image_overlay="BackArrow_Off"
+     layout="topleft"
+     left="10"
+     name="back_btn"
+     tab_stop="false"
+     top="0"
+     width="23" />
+    <text
+     follows="top|left|right"
+     font="SansSerifHugeBold"
+     height="26"
+     layout="topleft"
+     left_pad="10"
+     name="title"
+     text_color="white"
+     top="0"
+     use_ellipses="true"
+     value="Item Properties"
+     width="275" />
 	<panel
          follows="all"
          height="500"
          label=""
          layout="topleft"
-         left="5"
+         left="10"
          help_topic=""
          top="30"
-		 border="1"
-         width="313">
+         width="313"
+   background_visible="true"
+   bg_alpha_color="DkGray2">
 	    <text	 	 	 
 		     type="string"
 		     length="1"
@@ -98,7 +110,7 @@
 		     border_style="line"
     		 border_thickness="1"
 	    	 follows="left|top|right"
-	    	 height="16"
+	    	 height="23"
 		     layout="topleft"
     		 left_delta="78"
 		     max_length="127"
@@ -109,7 +121,7 @@
 		     type="string"
 		     length="1"
 		     follows="left|top"
-		     height="16"
+		     height="23"
 		     layout="topleft"
 		     left="10"
 		     name="LabelCreatorTitle"
@@ -121,7 +133,7 @@
 		     type="string"
 		     length="1"
 		     follows="left|top"
-		     height="16"
+		     height="23"
 		     layout="topleft"
 		     left_delta="78"
 		     name="LabelCreatorName"
@@ -131,7 +143,7 @@
 	     </text>
 	     <button
 			 follows="top|right"
-			 height="16"
+			 height="23"
 			 label="Profile..."
 			 layout="topleft"
 			 left_delta="144"
@@ -142,7 +154,7 @@
 			 type="string"
 			 length="1"
 			 follows="left|top"
-			 height="16"
+			 height="23"
 			 layout="topleft"
 			 left="10"
 			 name="LabelOwnerTitle"
@@ -154,7 +166,7 @@
 			 type="string"
 			 length="1"
 			 follows="left|top"
-			 height="16"
+			 height="23"
 			 layout="topleft"
 			 left_delta="78"
 			 name="LabelOwnerName"
@@ -164,7 +176,7 @@
 	     </text>
 	     <button
 			 follows="top|right"
-			 height="16"
+			 height="23"
 			 label="Profile..."
 			 layout="topleft"
 			 left_delta="144"
@@ -175,7 +187,7 @@
 			 type="string"
 			 length="1"
 			 follows="left|top"
-			 height="16"
+			 height="23"
 			 layout="topleft"
 			 left="10"
 			 name="LabelAcquiredTitle"
@@ -187,7 +199,7 @@
 			 type="string"
 			 length="1"
 			 follows="left|top"
-			 height="16"
+			 height="23"
 			 layout="topleft"
 			 left_delta="78"
 			 name="LabelAcquiredDate"
@@ -199,7 +211,7 @@
 			 type="string"
 			 length="1"
 			 follows="left|top"
-			 height="10"
+			 height="23"
 			 layout="topleft"
 			 left="10"
 			 name="OwnerLabel"
@@ -208,7 +220,7 @@
 			You:
 	    </text>
 	    <check_box
-			 height="16"
+			 height="23"
 			 label="Edit"
 			 layout="topleft"
 			 left_pad="5"
@@ -216,7 +228,7 @@
 			 top_delta="0"
 			 width="78" />
 	    <check_box
-			 height="16"
+			 height="23"
 			 label="Copy"
 			 layout="topleft"
 			 left_delta="0"
@@ -224,7 +236,7 @@
 			 top_pad="5"
 			 width="88" />
 	    <check_box
-			 height="16"
+			 height="23"
 			 label="Resell"
 			 layout="topleft"
 			 left_delta="0"
@@ -479,32 +491,5 @@
 			 width="78">
 			Price: L$
 	    </text-->
-	</panel>
-    <panel
-		 height="25"
-		 layout="bottomright"
-		 help_topic="button_tab"
-		 name="button_panel"
-		 left="5"
-		 bottom="5"
-		 width="313">
-	    <button
-		     follows="bottom|right"
-		     height="25"
-		     label="Cancel"
-		     layout="topleft"
-		     name="cancel_btn"
-		     right="-1"
-		     top="0"
-		     width="70" />
-	    <button
-		     follows="bottom|right"
-		     height="25"
-		     label="Save"
-		     layout="topleft"
-		     name="save_btn"
-		     left_pad="-135"
-		     top="0"
-		     width="60" />
 	</panel>
 </panel>

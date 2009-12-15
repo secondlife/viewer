@@ -84,11 +84,14 @@
 #include "llsecondlifeurls.h"
 
 // Linden library includes
+#include "llimagej2c.h"
 #include "llmemory.h"
 #include "llprimitive.h"
 #include "llurlaction.h"
+#include "llvfile.h"
 #include "llvfsthread.h"
 #include "llvolumemgr.h"
+#include "llxfermanager.h"
 
 #include "llnotificationmanager.h"
 #include "llnotifications.h"
@@ -389,7 +392,6 @@ bool handleCrashSubmitBehaviorChanged(const LLSD& newvalue)
 static void settings_to_globals()
 {
 	LLBUTTON_H_PAD		= gSavedSettings.getS32("ButtonHPad");
-	LLBUTTON_V_PAD		= gSavedSettings.getS32("ButtonVPad");
 	BTN_HEIGHT_SMALL	= gSavedSettings.getS32("ButtonHeightSmall");
 	BTN_HEIGHT			= gSavedSettings.getS32("ButtonHeight");
 

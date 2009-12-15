@@ -518,7 +518,7 @@ bool LLViewerInventoryCategory::fetchDescendents()
 		std::string url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
 		if (!url.empty()) //Capability found.  Build up LLSD and use it.
 		{
-			LLInventoryModel::startBackgroundFetch(mUUID);			
+			gInventory.startBackgroundFetch(mUUID);			
 		}
 		else
 		{	//Deprecated, but if we don't have a capability, use the old system.

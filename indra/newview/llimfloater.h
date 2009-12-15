@@ -33,9 +33,10 @@
 #ifndef LL_IMFLOATER_H
 #define LL_IMFLOATER_H
 
-#include "lltransientdockablefloater.h"
+#include "llinstantmessage.h"
 #include "lllogchat.h"
 #include "lltooldraganddrop.h"
+#include "lltransientdockablefloater.h"
 
 class LLLineEditor;
 class LLPanelChatControlPanel;
