@@ -2171,7 +2171,7 @@ void LLVolume::makeTetrahedron()
 
 	LLVolumeFace face;
 
-	F32 x = 0.5f;
+	F32 x = 0.25f;
 	LLVector3 p[] = 
 	{ //unit tetrahedron corners
 		LLVector3(x,x,x),

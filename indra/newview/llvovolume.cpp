@@ -862,13 +862,21 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 {
 	LLVolumeParams volume_params = params;
 
+	S32 lod = mLOD;
+
 	if (isSculpted())
 	{
 		// if it's a mesh
 		if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 		{ //meshes might not have all LODs, get the force detail to best existing LOD
 			LLUUID mesh_id = params.getSculptID();
-			mLOD = gMeshRepo.getActualMeshLOD(mesh_id, mLOD);
+
+			//profile and path params don't matter for meshes
+			volume_params = LLVolumeParams();
+			volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
+			volume_params.setSculptID(mesh_id, LL_SCULPT_TYPE_MESH);
+
+			lod = gMeshRepo.getActualMeshLOD(mesh_id, lod);
 		}
 	}
 
@@ -901,13 +909,13 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 	
 	
 
-	if ((LLPrimitive::setVolume(volume_params, mLOD, (mVolumeImpl && mVolumeImpl->isVolumeUnique()))) || mSculptChanged)
+	if ((LLPrimitive::setVolume(volume_params, lod, (mVolumeImpl && mVolumeImpl->isVolumeUnique()))) || mSculptChanged)
 	{
 		mFaceMappingChanged = TRUE;
 		
 		if (mVolumeImpl)
 		{
-			mVolumeImpl->onSetVolume(volume_params, detail);
+			mVolumeImpl->onSetVolume(volume_params, mLOD);
 		}
 		
 		if (isSculpted())
@@ -919,7 +927,11 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool 
 				{ 
 					//load request not yet issued, request pipeline load this mesh
 					LLUUID asset_id = volume_params.getSculptID();
-					gMeshRepo.loadMesh(this, asset_id, LLVolumeLODGroup::getVolumeDetailFromScale(getVolume()->getDetail()));
+					S32 available_lod = gMeshRepo.loadMesh(this, asset_id, lod);
+					if (available_lod != lod)
+					{
+						LLPrimitive::setVolume(volume_params, available_lod);
+					}
 				}
 			}
 			else // otherwise is sculptie
