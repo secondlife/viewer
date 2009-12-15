@@ -588,6 +588,9 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	// when the floater is opened.  That will make cancel do its
 	// job
 	saveSettings();
+
+	// This is a "fresh" floater, closing floater shoud cancel any changes
+	mCancelOnClose = true;
 }
 
 void LLFloaterPreference::onVertexShaderEnable()
@@ -633,7 +636,11 @@ void LLFloaterPreference::onBtnOK()
 		// that prevents cancel from undoing our changes when we hit OK
 		mCancelOnClose = false;
 		closeFloater(false);
-		mCancelOnClose = true;
+
+		// closeFloater() will be called when viewer is quitting, leaving mCancelOnClose = true;
+		// will cancel all changes we saved here, don't let this happen.
+		// Fix for EXT-3465
+
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 		LLUIColorTable::instance().saveUserSettings();
 		std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);

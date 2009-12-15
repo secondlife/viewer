@@ -39,7 +39,6 @@
 #include "llfeaturemanager.h"
 #include "lluictrlfactory.h"
 #include "lltexteditor.h"
-#include "llalertdialog.h"
 #include "llerrorcontrol.h"
 #include "llviewertexturelist.h"
 #include "llgroupmgr.h"
@@ -112,7 +111,6 @@
 #include "apr_dso.h"
 #include <boost/lexical_cast.hpp>
 
-#include "llnotify.h"
 #include "llviewerkeyboard.h"
 #include "lllfsthread.h"
 #include "llworkerthread.h"

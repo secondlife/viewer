@@ -65,7 +65,6 @@
 #include "llkeyframewalkmotion.h"
 #include "llmutelist.h"
 #include "llmoveview.h"
-#include "llnotify.h"
 #include "llquantize.h"
 #include "llregionhandle.h"
 #include "llresmgr.h"
