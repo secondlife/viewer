@@ -51,6 +51,7 @@
 LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLDockableFloater(NULL, key),
 													mChannel(NULL),
 													mMessageList(NULL),
+													mSysWellChiclet(NULL),
 													mSeparator(NULL),
 													NOTIFICATION_WELL_ANCHOR_NAME("notification_well_panel"),
 													IM_WELL_ANCHOR_NAME("im_well_panel")
@@ -79,6 +80,9 @@ BOOL LLSysWellWindow::postBuild()
 	mSeparator->setVisible(FALSE);
 
 	mMessageList->addItem(mSeparator);
+
+	// click on SysWell Window should clear "new message" state (and 'Lit' status). EXT-3147.
+	setMouseDownCallback(boost::bind(&LLSysWellWindow::releaseNewMessagesState, this));
 
 	return LLDockableFloater::postBuild();
 }
@@ -174,6 +178,11 @@ void LLSysWellWindow::setVisible(BOOL visible)
 		mChannel->updateShowToastsState();
 		mChannel->redrawToasts();
 	}
+
+	if (visible)
+	{
+		releaseNewMessagesState();
+	}
 }
 
 //---------------------------------------------------------------------------------
@@ -224,6 +233,14 @@ void LLSysWellWindow::reshapeWindow()
 	if(mChannel && getVisible() && isDocked())
 	{
 		mChannel->updateShowToastsState();
+	}
+}
+
+void LLSysWellWindow::releaseNewMessagesState()
+{
+	if (NULL != mSysWellChiclet)
+	{
+		mSysWellChiclet->setNewMessagesState(false);
 	}
 }
 

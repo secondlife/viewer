@@ -239,6 +239,8 @@ LLIMWellChiclet::LLIMWellChiclet(const Params& p)
 	LLIMModel::instance().addNoUnreadMsgsCallback(boost::bind(&LLIMWellChiclet::messageCountChanged, this, _1));
 
 	LLIMMgr::getInstance()->addSessionObserver(this);
+
+	LLIMWellWindow::getInstance()->setSysWellChiclet(this);
 }
 
 LLIMWellChiclet::~LLIMWellChiclet()
@@ -266,7 +268,7 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 
 	// ensure that notification well window exists, to synchronously
 	// handle toast add/delete events.
-	LLNotificationWellWindow::getInstance();
+	LLNotificationWellWindow::getInstance()->setSysWellChiclet(this);
 }
 
 void LLNotificationChiclet::connectCounterUpdatersToSignal(const std::string& notification_type)

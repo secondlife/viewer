@@ -791,6 +791,8 @@ public:
 
 	void setToggleState(BOOL toggled);
 
+	void setNewMessagesState(bool new_messages);
+
 protected:
 
 	LLSysWellChiclet(const Params& p);
@@ -803,8 +805,6 @@ protected:
 	 * @see FlashToLitTimer
 	 */
 	void changeLitState();
-
-	void setNewMessagesState(bool new_messages);
 
 protected:
 	class FlashToLitTimer;
