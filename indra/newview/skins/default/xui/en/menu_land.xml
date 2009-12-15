@@ -6,7 +6,7 @@
      label="About Land"
      name="Place Information...">
         <menu_item_call.on_click
-         function="ShowFloater"
+         function="Floater.Show"
          parameter="about_land" />
     </menu_item_call>
  <!--   <menu_item_call
