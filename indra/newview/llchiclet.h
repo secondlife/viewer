@@ -804,6 +804,8 @@ protected:
 	 */
 	void changeLitState();
 
+	void setNewMessagesState(bool new_messages);
+
 protected:
 	class FlashToLitTimer;
 	LLButton* mButton;

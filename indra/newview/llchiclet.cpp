@@ -169,15 +169,7 @@ void LLSysWellChiclet::setCounter(S32 counter)
 
 	mButton->setLabel(s_count);
 
-	/*
-	Emulate 4 states of button by background images, see detains in EXT-3147
-	xml attribute           Description
-	image_unselected        "Unlit" - there are no new messages
-	image_selected          "Unlit" + "Selected" - there are no new messages and the Well is open
-	image_pressed           "Lit" - there are new messages
-	image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well is open
-	*/
-	mButton->setForcePressedState(counter > 0);
+	setNewMessagesState(counter > 0);
 
 	// we have to flash to 'Lit' state each time new unread message is comming.
 	if (counter > mCounter)
@@ -208,9 +200,22 @@ void LLSysWellChiclet::changeLitState()
 {
 	static bool set_lit = false;
 
-	mButton->setForcePressedState(set_lit);
+	setNewMessagesState(set_lit);
 
 	set_lit ^= true;
+}
+
+void LLSysWellChiclet::setNewMessagesState(bool new_messages)
+{
+	/*
+	Emulate 4 states of button by background images, see detains in EXT-3147
+	xml attribute           Description
+	image_unselected        "Unlit" - there are no new messages
+	image_selected          "Unlit" + "Selected" - there are no new messages and the Well is open
+	image_pressed           "Lit" - there are new messages
+	image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well is open
+	*/
+	mButton->setForcePressedState(new_messages);
 }
 
 /************************************************************************/
