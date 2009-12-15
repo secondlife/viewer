@@ -139,7 +139,7 @@ public:
 		}
 	virtual bool isInterestingEnough() const
 		{
-			return LLViewerMedia::isInterestingEnough(mObject->getID(), getMediaInterest());
+			return LLViewerMedia::isInterestingEnough(mObject, getMediaInterest());
 		}
 
 	virtual std::string getCapabilityUrl(const std::string &name) const
