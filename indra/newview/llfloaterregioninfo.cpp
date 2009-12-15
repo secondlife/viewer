@@ -42,6 +42,8 @@
 #include "llglheaders.h"
 #include "llregionflags.h"
 #include "llstl.h"
+#include "llvfile.h"
+#include "llxfermanager.h"
 #include "indra_constants.h"
 #include "message.h"
 
@@ -53,7 +55,6 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llfilepicker.h"
-#include "llfloaterdaycycle.h"
 #include "llfloatergodtools.h"	// for send_sim_wide_deletes()
 #include "llfloatertopobjects.h" // added to fix SL-32336
 #include "llfloatergroups.h"

@@ -37,7 +37,6 @@
 // Header Files
 //-----------------------------------------------------------------------------
 #include "lljoint.h"
-#include "llapr.h"
 
 class LLFace;
 class LLViewerJointMesh;

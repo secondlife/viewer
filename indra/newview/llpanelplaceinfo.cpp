@@ -39,6 +39,8 @@
 #include "llsecondlifeurls.h"
 
 #include "llsdutil_math.h"
+#include "llregionhandle.h"
+#include "message.h"
 
 #include "lliconctrl.h"
 #include "lltextbox.h"
