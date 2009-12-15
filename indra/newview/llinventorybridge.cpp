@@ -2496,7 +2496,10 @@ void LLFolderBridge::folderOptionsMenu()
 		checkFolderForContentsOfType(model, is_object) ||
 		checkFolderForContentsOfType(model, is_gesture) )
 	{
-		mItems.push_back(std::string("Folder Wearables Separator"));
+		if (!is_sidepanel)
+		{
+			mItems.push_back(std::string("Folder Wearables Separator"));
+		}
 
 		// Only enable add/replace outfit for non-default folders.
 		if (!is_default_folder)
