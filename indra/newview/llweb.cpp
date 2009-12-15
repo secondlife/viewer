@@ -38,7 +38,6 @@
 // Library includes
 #include "llwindow.h"	// spawnWebBrowser()
 
-#include "llalertdialog.h"
 #include "llappviewer.h"
 #include "llfloatermediabrowser.h"
 #include "llfloaterreg.h"
