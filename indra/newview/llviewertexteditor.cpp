@@ -51,7 +51,6 @@
 #include "llmenugl.h"
 #include "llnotecard.h"
 #include "llnotificationsutil.h"
-#include "llnotify.h"
 #include "llpanelplaces.h"
 #include "llpreview.h"
 #include "llpreviewnotecard.h"

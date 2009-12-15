@@ -160,9 +160,12 @@ void LLFloaterMove::setEnabled(BOOL enabled)
 // virtual
 void LLFloaterMove::setVisible(BOOL visible)
 {
-	// Ignore excessive calls of this method (from LLTransientFloaterMgr?).
+	// Do nothing with Stand/Stop Flying panel in excessive calls of this method (from LLTransientFloaterMgr?).
 	if (getVisible() == visible)
+	{
+		LLTransientDockableFloater::setVisible(visible);
 		return;
+	}
 
 	if (visible)
 	{

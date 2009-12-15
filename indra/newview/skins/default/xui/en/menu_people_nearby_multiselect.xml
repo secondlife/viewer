@@ -27,6 +27,9 @@
      name="Call">
         <on_click
          function="Avatar.Call" />
+        <on_enable
+         function="Avatar.EnableItem"
+         parameter="can_call" />
     </menu_item_call>
     <menu_item_call
      enabled="false"
