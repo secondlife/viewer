@@ -17,7 +17,7 @@
    height="15"
    left="10"
    name="home_label">
-    Home URL:
+    Home Page:
   </text>
   <text
    visible="false" 
@@ -27,7 +27,7 @@
    left_delta="64"
    text_color="red"
    name="home_fails_whitelist_label">
-    (This URL does not pass the specified whitelist)
+    (This page does not pass the specified whitelist)
   </text>
   <line_editor 
    bottom_delta="-24" 
@@ -37,7 +37,7 @@
    height="20" 
    left="10" 
    name="home_url"
-   tool_tip="The home URL for this media source"
+   tool_tip="The home page for this media source"
    width="340"> 
     <!--  <line_editor.commit_callback
 	     function="Media.CommitHomeURL"/> -->
@@ -69,7 +69,7 @@
    height="15" 
    left="10" 
    name="current_url_label">
-    Current URL:
+    Current Page:
   </text>
   <text 
    bottom_delta="-20" 
@@ -79,7 +79,7 @@
    height="20" 
    left="10" 
    name="current_url"
-   tool_tip="The current URL for this media source"
+   tool_tip="The current page for this media source"
    value="" 
    width="340" />
   <button 

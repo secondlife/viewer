@@ -9,7 +9,7 @@
 	width="800">
   <string name="control_background_image_name">Inspector_Background</string>
   <string name="skip_step">0.2</string>
-  <string name="min_width">400</string>
+  <string name="min_width">300</string>
   <string name="min_height">120</string>
   <string name="zoom_near_padding">1.0</string>
   <string name="zoom_medium_padding">1.25</string>
@@ -190,7 +190,7 @@
 		layout="topleft"
 		top="14"
 		min_width="22"
-		width="22">
+		width="24">
 	  <button
 		  image_overlay="Play_Off"
 		  image_disabled="PushButton_Disabled"
@@ -200,6 +200,8 @@
 		  hover_glow_amount="0.15"
 		  layout="topleft"
 		  tool_tip = "Play media"
+		  left_delta="2"
+		  top="4"
 		  height="22"
 		  min_width="22"
 		  width="22">
@@ -214,7 +216,7 @@
 		layout="topleft"
 		top="18"
 		min_width="22"
-		width="22">
+		width="24">
 	  <button
 		  image_overlay="Pause_Off"
 		  image_disabled="PushButton_Disabled"
@@ -224,6 +226,9 @@
 		  hover_glow_amount="0.15"
 		  layout="topleft"
 		  height="22"
+		  width="22"
+		  left_delta="-1"
+		  top="4"
 		  tool_tip = "Pause media">
 		<button.commit_callback
 			function="MediaCtrl.Pause" />
