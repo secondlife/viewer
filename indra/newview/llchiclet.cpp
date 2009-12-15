@@ -89,6 +89,14 @@ class LLSysWellChiclet::FlashToLitTimer : public LLEventTimer
 {
 public:
 	typedef boost::function<void()> callback_t;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param count - how many times callback should be called (twice to not change original state)
+	 * @param period - how frequently callback should be called
+	 * @param cb - callback to be called each tick
+	 */
 	FlashToLitTimer(S32 count, F32 period, callback_t cb)
 		: LLEventTimer(period)
 		, mCallback(cb)
@@ -119,6 +127,10 @@ public:
 
 private:
 	callback_t		mCallback;
+
+	/**
+	 * How many times Well will blink.
+	 */
 	S32 mFlashCount;
 	S32 mCurrentFlashCount;
 };
@@ -140,6 +152,7 @@ LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 , mButton(NULL)
 , mCounter(0)
 , mMaxDisplayedCount(p.max_displayed_count)
+, mIsNewMessagesState(false)
 , mFlashToLitTimer(NULL)
 {
 	LLButton::Params button_params = p.button;
@@ -198,11 +211,7 @@ void LLSysWellChiclet::setToggleState(BOOL toggled) {
 
 void LLSysWellChiclet::changeLitState()
 {
-	static bool set_lit = false;
-
-	setNewMessagesState(set_lit);
-
-	set_lit ^= true;
+	setNewMessagesState(!mIsNewMessagesState);
 }
 
 void LLSysWellChiclet::setNewMessagesState(bool new_messages)
@@ -216,6 +225,8 @@ void LLSysWellChiclet::setNewMessagesState(bool new_messages)
 	image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well is open
 	*/
 	mButton->setForcePressedState(new_messages);
+
+	mIsNewMessagesState = new_messages;
 }
 
 /************************************************************************/
