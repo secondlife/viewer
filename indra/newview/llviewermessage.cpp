@@ -65,7 +65,6 @@
 #include "llnearbychat.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-#include "llnotify.h"
 #include "llpanelgrouplandmoney.h"
 #include "llpanelplaces.h"
 #include "llrecentpeople.h"
@@ -932,15 +931,20 @@ void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& f
 void inventory_offer_mute_callback(const LLUUID& blocked_id,
 								   const std::string& first_name,
 								   const std::string& last_name,
-								   BOOL is_group)
+								   BOOL is_group, LLOfferInfo* offer = NULL)
 {
 	std::string from_name;
 	LLMute::EType type;
-
 	if (is_group)
 	{
 		type = LLMute::GROUP;
 		from_name = first_name;
+	}
+	else if(offer && offer->mFromObject)
+	{
+		//we have to block object by name because blocked_id is an id of owner
+		type = LLMute::BY_NAME;
+		from_name = offer->mFromName;
 	}
 	else
 	{
@@ -948,18 +952,19 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 		from_name = first_name + " " + last_name;
 	}
 
-	LLMute mute(blocked_id, from_name, type);
+	// id should be null for BY_NAME mute, see  LLMuteList::add for details  
+	LLMute mute(type == LLMute::BY_NAME ? LLUUID::null : blocked_id, from_name, type);
 	if (LLMuteList::getInstance()->add(mute))
 	{
 		LLPanelBlockedList::showPanelAndSelect(blocked_id);
 	}
 
 	// purge the message queue of any previously queued inventory offers from the same source.
-	class OfferMatcher : public LLNotifyBoxView::Matcher
+	class OfferMatcher : public LLNotificationsUI::LLScreenChannel::Matcher
 	{
 	public:
 		OfferMatcher(const LLUUID& to_block) : blocked_id(to_block) {}
-		BOOL matches(const LLNotificationPtr notification) const
+		bool matches(const LLNotificationPtr notification) const
 		{
 			if(notification->getName() == "ObjectGiveItem" 
 				|| notification->getName() == "ObjectGiveItemUnknownUser"
@@ -972,7 +977,9 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 	private:
 		const LLUUID& blocked_id;
 	};
-	gNotifyBoxView->purgeMessagesMatching(OfferMatcher(blocked_id));
+
+	LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(LLUUID(
+			gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(blocked_id));
 }
 
 LLOfferInfo::LLOfferInfo(const LLSD& sd)
@@ -1068,7 +1075,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	// * we can't build two messages at once.
 	if (2 == button)
 	{
-		gCacheName->get(mFromID, mFromGroup, &inventory_offer_mute_callback);
+		gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4,this));
 	}
 
 	std::string from_string; // Used in the pop-up.
@@ -1202,7 +1209,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	// * we can't build two messages at once.
 	if (2 == button)
 	{
-		gCacheName->get(mFromID, mFromGroup, &inventory_offer_mute_callback);
+		gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,_4,this));
 	}
 	
 	LLMessageSystem* msg = gMessageSystem;
@@ -1479,6 +1486,8 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// Note: sets inventory_task_offer_callback as the callback
 		p.substitutions(args).payload(payload).functor.function(boost::bind(&LLOfferInfo::inventory_task_offer_callback, info, _1, _2));
 		p.name = name_found ? "ObjectGiveItem" : "ObjectGiveItemUnknownUser";
+		// Pop up inv offer chiclet and let the user accept (keep), or reject (and silently delete) the inventory.
+		LLNotifications::instance().add(p);
 	}
 	else // Agent -> Agent Inventory Offer
 	{
@@ -1502,18 +1511,14 @@ void inventory_offer_handler(LLOfferInfo* info)
 		
 		// In viewer 2 we're now auto receiving inventory offers and messaging as such (not sending reject messages).
 		info->send_auto_receive_response();
+
+		// Inform user that there is a script floater via toast system
+		{
+			payload["give_inventory_notification"] = TRUE;
+			LLNotificationPtr notification = LLNotifications::instance().add(p.payload(payload)); 
+			LLScriptFloaterManager::getInstance()->setNotificationToastId(object_id, notification->getID());
+		}
 	}
-
-	// Pop up inv offer notification and let the user accept (keep), or reject (and silently delete) the inventory.
-	LLNotifications::instance().add(p);
-
-	// TODO(EM): Recheck this after we will know how script notifications should look like.
-	// Inform user that there is a script floater via toast system
-	// {
-	// 	payload["give_inventory_notification"] = TRUE;
-	// 	LLNotificationPtr notification = LLNotifications::instance().add(p.payload(payload)); 
-	// 	LLScriptFloaterManager::getInstance()->setNotificationToastId(object_id, notification->getID());
-	// }
 }
 
 bool lure_callback(const LLSD& notification, const LLSD& response)
@@ -4837,24 +4842,25 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 		LLMuteList::getInstance()->add(LLMute(item_id, notification["payload"]["object_name"].asString(), LLMute::OBJECT));
 
 		// purge the message queue of any previously queued requests from the same source. DEV-4879
-		class OfferMatcher : public LLNotifyBoxView::Matcher
+		class OfferMatcher : public LLNotificationsUI::LLScreenChannel::Matcher
 		{
 		public:
 			OfferMatcher(const LLUUID& to_block) : blocked_id(to_block) {}
-			BOOL matches(const LLNotificationPtr notification) const
+			bool matches(const LLNotificationPtr notification) const
 			{
 				if (notification->getName() == "ScriptQuestionCaution"
 					|| notification->getName() == "ScriptQuestion")
 				{
 					return (notification->getPayload()["item_id"].asUUID() == blocked_id);
 				}
-				return FALSE;
+				return false;
 			}
 		private:
 			const LLUUID& blocked_id;
 		};
-		// should do this via the channel
-		gNotifyBoxView->purgeMessagesMatching(OfferMatcher(item_id));
+
+		LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(LLUUID(
+				gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(item_id));
 	}
 
 	if (response["Details"])
@@ -5298,6 +5304,7 @@ void send_group_notice(const LLUUID& group_id,
 bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 {
 	std::string text = response["message"].asString();
+	text.append("\r\n").append(LLAgentUI::buildSLURL());
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if(0 == option)

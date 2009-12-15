@@ -48,7 +48,6 @@
 #include "message.h"
 
 #include "llagent.h"
-#include "llalertdialog.h"
 #include "llappviewer.h"
 #include "llfloateravatarpicker.h"
 #include "llbutton.h" 
@@ -63,7 +62,6 @@
 #include "llfloaterwindlight.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
-#include "llalertdialog.h"
 #include "llnamelistctrl.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"

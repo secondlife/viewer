@@ -52,7 +52,7 @@
 #include "llviewernetwork.h"
 #include "llviewerwindow.h"
 
-class URLLoader : public LLAlertURLLoader
+class URLLoader : public LLToastAlertPanel::URLLoader
 {
 	virtual void load(const std::string& url , bool force_open_externally)
 	{
@@ -72,7 +72,6 @@ static URLLoader sAlertURLLoader;
 // static
 void LLWeb::initClass()
 {
-	LLAlertDialog::setURLLoader(&sAlertURLLoader);
 	LLToastAlertPanel::setURLLoader(&sAlertURLLoader);
 }
 

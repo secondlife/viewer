@@ -110,6 +110,9 @@ public:
 
 	static void initIMFloater();
 
+	//used as a callback on receiving new IM message
+	static void sRemoveTypingIndicator(const LLSD& data);
+
 private:
 	// process focus events to set a currently active session
 	/* virtual */ void onFocusLost();

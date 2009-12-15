@@ -233,8 +233,10 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 
 	if (!parcel_data.name.empty())
 	{
+		mParcelTitle = parcel_data.name;
+
 		mParcelName->setText(llformat("%s (%d, %d, %d)",
-							 parcel_data.name.c_str(), region_x, region_y, region_z));
+							 mParcelTitle.c_str(), region_x, region_y, region_z));
 	}
 	else
 	{
@@ -284,15 +286,12 @@ void LLPanelPlaceInfo::handleVisibilityChange(BOOL new_visibility)
 
 void LLPanelPlaceInfo::createPick(const LLVector3d& pos_global, LLPanelPickEdit* pick_panel)
 {
-	std::string name = mParcelName->getText();
-	if (name.empty())
-	{
-		name = mRegionName->getText();
-	}
+	std::string region_name = mRegionName->getText();
 
 	LLPickData data;
 	data.pos_global = pos_global;
-	data.name = name;
+	data.name = mParcelTitle.empty() ? region_name : mParcelTitle;
+	data.sim_name = region_name;
 	data.desc = mDescEditor->getText();
 	data.snapshot_id = mSnapshotCtrl->getImageAssetID();
 	data.parcel_id = mParcelID;
