@@ -85,7 +85,7 @@ protected:
 
 private:
 
-	void enableOkApplyBtns( bool enable );
+	bool haveValuesChanged() const;
 	
 	LLSD mInitialValues;
 	bool mWaitingToClose;
