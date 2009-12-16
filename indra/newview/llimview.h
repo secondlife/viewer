@@ -65,7 +65,7 @@ public:
 		} SType;
 
 		LLIMSession(const LLUUID& session_id, const std::string& name, 
-			const EInstantMessage& type, const LLUUID& other_participant_id, const std::vector<LLUUID>& ids);
+			const EInstantMessage& type, const LLUUID& other_participant_id, const std::vector<LLUUID>& ids, bool voice);
 		virtual ~LLIMSession();
 
 		void sessionInitReplyReceived(const LLUUID& new_session_id);
@@ -104,6 +104,9 @@ public:
 		bool mTextIMPossible;
 		bool mOtherParticipantIsAvatar;
 		bool mStartCallOnInitialize;
+
+		//if IM session is created for a voice call
+		bool mStartedAsIMCall;
 	};
 	
 
@@ -143,7 +146,10 @@ public:
 	 * @param name session name should not be empty, will return false if empty
 	 */
 	bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, 
-		const std::vector<LLUUID>& ids = std::vector<LLUUID>());
+		const std::vector<LLUUID>& ids, bool voice = false);
+
+	bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type,
+		const LLUUID& other_participant_id, bool voice = false);
 
 	/**
 	 * Remove all session data associated with a session specified by session_id
@@ -161,6 +167,12 @@ public:
 	 * It sends new message signal for each added message.
 	 */
 	bool addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& other_participant_id, const std::string& utf8_text, bool log2file = true);
+
+	/**
+	 * Similar to addMessage(...) above but won't send a signal about a new message added
+	 */
+	LLIMModel::LLIMSession* addMessageSilently(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, 
+		const std::string& utf8_text, bool log2file = true);
 
 	/**
 	 * Add a system message to an IM Model
@@ -284,14 +296,14 @@ public:
 	// session.
 	LLUUID addSession(const std::string& name,
 					  EInstantMessage dialog,
-					  const LLUUID& other_participant_id);
+					  const LLUUID& other_participant_id, bool voice = false);
 
 	// Adds a session using a specific group of starting agents
 	// the dialog type is assumed correct. Returns the uuid of the session.
 	LLUUID addSession(const std::string& name,
 					  EInstantMessage dialog,
 					  const LLUUID& other_participant_id,
-					  const LLDynamicArray<LLUUID>& ids);
+					  const LLDynamicArray<LLUUID>& ids, bool voice = false);
 
 	/**
 	 * Creates a P2P session with the requisite handle for responding to voice calls.
@@ -390,6 +402,8 @@ public:
 	 * @return false if voice channel doesn't exist
 	 **/
 	bool endCall(const LLUUID& session_id);
+
+	bool isVoiceCall(const LLUUID& session_id);
 
 private:
 

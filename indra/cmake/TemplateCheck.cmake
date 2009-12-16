@@ -5,7 +5,7 @@ include(Python)
 macro (check_message_template _target)
   add_custom_command(
       TARGET ${_target}
-      PRE_LINK
+      POST_BUILD
       COMMAND ${PYTHON_EXECUTABLE}
       ARGS ${SCRIPTS_DIR}/template_verifier.py
            --mode=development --cache_master
