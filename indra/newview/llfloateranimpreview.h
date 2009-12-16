@@ -33,6 +33,7 @@
 #ifndef LL_LLFLOATERANIMPREVIEW_H
 #define LL_LLFLOATERANIMPREVIEW_H
 
+#include "llassettype.h"
 #include "llfloaternamedesc.h"
 #include "lldynamictexture.h"
 #include "llcharacter.h"

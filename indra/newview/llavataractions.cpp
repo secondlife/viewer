@@ -61,6 +61,7 @@
 #include "llviewerregion.h"
 #include "llimfloater.h"
 #include "lltrans.h"
+#include "llcallingcard.h"
 
 // static
 void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::string& name)
@@ -263,6 +264,24 @@ bool LLAvatarActions::isCalling(const LLUUID &id)
 
 	LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL, id);
 	return (LLIMModel::getInstance()->findIMSession(session_id) != NULL);
+}
+
+//static
+bool LLAvatarActions::canCall(const LLUUID &id)
+{
+	if(isFriend(id))
+	{
+		return LLAvatarTracker::instance().isBuddyOnline(id) && LLVoiceClient::voiceEnabled();
+	}
+	else
+	{
+		// don't need to check online/offline status because "usual resident" (resident that is not a friend)
+		// can be only ONLINE. There is no way to see "usual resident" in OFFLINE status. If we see "usual
+		// resident" it automatically means that the resident is ONLINE. So to make a call to the "usual resident"
+		// we need to check only that "our" voice is enabled.
+		return LLVoiceClient::voiceEnabled();
+	}
+
 }
 
 // static

@@ -32,6 +32,9 @@
      name="Call">
         <menu_item_call.on_click
          function="Avatar.Call" />
+        <menu_item_call.on_enable
+         function="Avatar.EnableItem"
+         parameter="can_call" />
     </menu_item_call>
     <menu_item_call
      label="Share"

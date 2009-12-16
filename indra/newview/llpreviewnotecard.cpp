@@ -44,7 +44,6 @@
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
 #include "llnotificationsutil.h"
-#include "llnotify.h"
 #include "llresmgr.h"
 #include "roles_constants.h"
 #include "llscrollbar.h"

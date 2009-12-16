@@ -33,10 +33,12 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llwldaycycle.h"
-#include "llsdserialize.h"
-#include "llwlparammanager.h"
+
 #include "llnotificationsutil.h"
+#include "llsdserialize.h"
 #include "llxmlnode.h"
+
+#include "llwlparammanager.h"
 
 #include <map>
 

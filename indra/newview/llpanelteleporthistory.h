@@ -109,7 +109,6 @@ private:
 	S32				mLastSelectedItemIndex;
 	bool				mDirty;
 	S32				mCurrentItem;
-	std::string				mFilterSubString;
 
 	typedef LLDynamicArray<LLAccordionCtrlTab*> item_containers_t;
 	item_containers_t mItemContainers;

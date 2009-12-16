@@ -47,7 +47,6 @@
 #include "llquaternion.h"
 #include "v3dmath.h"
 #include "v3math.h"
-#include "llapr.h"
 #include "llbvhconsts.h"
 
 class LLKeyframeDataCache;

@@ -38,6 +38,7 @@
 #include "llviewercontrol.h"
 
 // library includes
+#include "lldbstrings.h"
 #include "llnotifications.h"
 #include "lluiconstants.h"
 #include "llrect.h"

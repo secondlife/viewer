@@ -68,6 +68,7 @@
 #include "llmediaentry.h"
 #include "llmediadataclient.h"
 #include "llagent.h"
+#include "llviewermediafocus.h"
 
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
@@ -138,8 +139,7 @@ public:
 		}
 	virtual bool isInterestingEnough() const
 		{
-			// TODO: use performance manager to control this
-			return true;
+			return LLViewerMedia::isInterestingEnough(mObject, getMediaInterest());
 		}
 
 	virtual std::string getCapabilityUrl(const std::string &name) const
@@ -2089,6 +2089,9 @@ viewer_media_t LLVOVolume::getMediaImpl(U8 face_id) const
 
 F64 LLVOVolume::getTotalMediaInterest() const
 {
+	if (LLViewerMediaFocus::getInstance()->getFocusedObjectID() == getID())
+		return F64_MAX;
+	
 	F64 interest = (F64)-1.0;  // means not interested;
     int i = 0;
 	const int end = getNumTEs();

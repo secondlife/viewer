@@ -460,7 +460,7 @@ Returns the rotation of detected object number (returns &lt;0,0,0,1&gt; if numbe
 	</string>
 	<string name="LSLTipText_llDetectedGroup" translate="false">
 integer llDetectedGroup(integer number)
-Returns an integer that is a boolean representing if the detected object or avatar is in the same group that the prim containing the script is set to
+Returns TRUE if detected object is part of same group as owner
 	</string>
 	<string name="LSLTipText_llDetectedLinkNumber" translate="false">
 integer llDetectedLinkNumber(integer number)
@@ -2112,6 +2112,10 @@ this texture in your inventory
 		Unknown file extension .%s
 Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>
+  <string name="MuteObject">Block</string>
+  <string name="MuteAvatar">Block</string>
+  <string name="UnmuteObject">Unblock</string>
+  <string name="UnmuteAvatar">Unblock</string>
 	<string name="AddLandmarkNavBarMenu">Add to My Landmarks...</string>
 	<string name="EditLandmarkNavBarMenu">Edit my Landmark...</string>
 
@@ -2873,6 +2877,14 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="muted_message">
     You have blocked this resident. Sending a message will automatically unblock them.
   </string>
+  <!--Some times string name is getting from the body of server response.
+  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post. 
+  In case of the EXT-3115 issue 'generic' is passed into the gIMMgr::showSessionStartError as a string name.
+  Also there are some other places where "generic" is used.
+  So, let add string with name="generic" with the same value as "generic_request_error" -->
+  <string name="generic">
+    Error making request, please try again later.
+  </string>
   <string name="generic_request_error">
     Error making request, please try again later.
   </string>
@@ -2899,6 +2911,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   </string>
   <string name="message_session_event">
     Unable to send your message to the chat session with [RECIPIENT].
+  </string>
+  <string name="mute">
+    Error while moderating.
   </string>
   <string name="removed_from_group">
     You have been removed from the group.

@@ -26,6 +26,10 @@
      name="VoiceInviteAdHoc">
         has joined a Voice Chat call with a conference chat.
     </floater.string>
+    <floater.string
+     name="VoiceInviteGroup">
+        has joined a Voice Chat call with the group [GROUP].
+    </floater.string>
     <avatar_icon
      enabled="false"
      follows="left|top"
