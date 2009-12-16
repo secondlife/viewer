@@ -1455,6 +1455,8 @@ if (WINDOWS)
       ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qsvgd4.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qtiffd4.dll
       SLPlugin
+      media_plugin_quicktime
+      media_plugin_webkit
       windows-crash-logger
       windows-updater
       )
