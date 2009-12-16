@@ -397,16 +397,6 @@ void LLInventoryPanel::modelChanged(U32 mask)
 			}
 		}
 	}
-
-	/* I don't think we need this code, but not positive -- Seraph
-	if (!handled)
-	{
-		// It's a small change that only requires a refresh.
-		// *TODO: figure out a more efficient way to do the refresh
-		// since it is expensive on large inventories
-		mFolders->refresh();
-	}
-	*/
 }
 
 // static

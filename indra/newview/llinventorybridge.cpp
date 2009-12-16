@@ -2902,6 +2902,9 @@ void saveItemsOrder(LLInventoryModel::item_array_t& items)
 		item->updateServer(FALSE);
 
 		gInventory.updateItem(item);
+
+		// Tell the parent folder to refresh its sort order.
+		gInventory.addChangedMask(LLInventoryObserver::SORT, item->getParentUUID());
 	}
 
 	gInventory.notifyObservers();
@@ -2930,10 +2933,6 @@ void updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& srcIt
 
 	items.erase(findItemByUUID(items, srcItem->getUUID()));
 	items.insert(findItemByUUID(items, destItem->getUUID()), srcItem);
-
-	// Refresh the folder view.
-	gInventory.addChangedMask(LLInventoryObserver::SORT, srcItem->getParentUUID());
-	gInventory.notifyObservers();
 }
 
 BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
