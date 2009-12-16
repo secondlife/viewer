@@ -172,7 +172,7 @@ void LLSidepanelItemInfo::refresh()
 		}
 	}
 
-	if (!getIsEditing())
+	if (!getIsEditing() || !item)
 	{
 		const std::string no_item_names[]={
 			"LabelItemName",
@@ -260,18 +260,6 @@ void LLSidepanelItemInfo::refreshFromItem(LLInventoryItem* item)
 	BOOL is_modifiable = gAgent.allowOperation(PERM_MODIFY, perm,
 											   GP_OBJECT_MANIPULATE)
 		&& is_obj_modify && is_complete;
-
-	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	bool item_in_trash = item->getUUID() == trash_id || gInventory.isObjectDescendentOf(item->getUUID(), trash_id);
-
-	if (is_modifiable && !item_in_trash)
-	{
-		setIsEditing(TRUE);
-	}
-	else
-	{
-		setIsEditing(FALSE);
-	}
 
 	childSetEnabled("LabelItemNameTitle",TRUE);
 	childSetEnabled("LabelItemName",is_modifiable && !is_calling_card); // for now, don't allow rename of calling cards

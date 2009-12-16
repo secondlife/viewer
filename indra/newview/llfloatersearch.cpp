@@ -131,8 +131,13 @@ void LLFloaterSearch::search(const LLSD &key)
 	subs["QUERY"] = LLURI::escape(search_text);
 
 	// add the permissions token that login.cgi gave us
+	// We use "search_token", and fallback to "auth_token" if not present.
 	LLSD search_token = LLLoginInstance::getInstance()->getResponse("search_token");
-	subs["AUTH_KEY"] = search_token.asString();
+	if (search_token.asString().empty())
+	{
+		search_token = LLLoginInstance::getInstance()->getResponse("auth_token");
+	}
+	subs["AUTH_TOKEN"] = search_token.asString();
 
 	// add the user's preferred maturity (can be changed via prefs)
 	std::string maturity;

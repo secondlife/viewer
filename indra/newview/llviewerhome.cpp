@@ -48,7 +48,7 @@ std::string LLViewerHome::getHomeURL()
 	// this value from settings.xml and support various substitutions
 
 	LLSD substitution;
-	substitution["AUTH_KEY"] = LLURI::escape(getAuthKey());
+	substitution["AUTH_TOKEN"] = LLURI::escape(getAuthKey());
 
 	// get the home URL and expand all of the substitutions
 	// (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
@@ -62,7 +62,13 @@ std::string LLViewerHome::getAuthKey()
 	// return the value of the (optional) auth token returned by login.cgi
 	// this lets the server provide an authentication token that we can
 	// blindly pass to the Home web page for it to perform authentication.
-	static const std::string authKeyName("home_sidetray_token");
-	return LLLoginInstance::getInstance()->getResponse(authKeyName);
+	// We use "home_sidetray_token", and fallback to "auth_token" if not
+	// present.
+	LLSD auth_token = LLLoginInstance::getInstance()->getResponse("home_sidetray_token");
+	if (auth_token.asString().empty())
+	{
+		auth_token = LLLoginInstance::getInstance()->getResponse("auth_token");
+	}
+	return auth_token.asString();
 }
 
