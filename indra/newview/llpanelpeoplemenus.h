@@ -54,6 +54,8 @@ public:
 	 */
 	/*virtual*/ void show(LLView* spawning_view, const std::vector<LLUUID>& uuids, S32 x, S32 y);
 
+	virtual void hide();
+
 protected:
 
 	virtual LLContextMenu* createMenu() = 0;

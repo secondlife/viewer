@@ -16,7 +16,7 @@
         <menu_item_call.on_click
          function="Avatar.AddFriend" />
         <menu_item_call.on_enable
-         function="Avatar.EnableItem"
+         function="ParticipantList.EnableItem"
          parameter="can_add" />
     </menu_item_call>
     <menu_item_call
@@ -30,11 +30,14 @@
      label="Call"
      layout="topleft"
      name="Call">
-        <menu_item_call.on_click
+         <menu_item_call.on_click
          function="Avatar.Call" />
+        <menu_item_call.on_enable
+         function="ParticipantList.EnableItem"
+         parameter="can_call" />
     </menu_item_call>
     <menu_item_call
-     enabled="false"
+     enabled="true"
      label="Share"
      layout="topleft"
      name="Share">
@@ -49,22 +52,22 @@
          function="Avatar.Pay" />
     </menu_item_call>
     <menu_item_check
-     label="Block/Unblock"
+     label="Block Voice"
      layout="topleft"
      name="Block/Unblock">
         <menu_item_check.on_click
          function="Avatar.BlockUnblock" />
         <menu_item_check.on_check
-         function="Avatar.CheckItem"
+         function="ParticipantList.CheckItem"
          parameter="is_blocked" />
         <menu_item_check.on_enable
-         function="Avatar.EnableItem"
+         function="ParticipantList.EnableItem"
          parameter="can_block" />
     </menu_item_check>
         <menu_item_separator
          layout="topleft" />
     <menu_item_check
-     label="Mute Text"
+     label="Block Text"
      layout="topleft"
      name="MuteText">
         <on_check
@@ -76,6 +79,10 @@
          function="ParticipantList.EnableItem"
          parameter="can_mute_text" />
     </menu_item_check>
+    <context_menu
+     label="Moderator Options &gt;"
+     layout="topleft"
+     name="Moderator Options" >
     <menu_item_check
      label="Allow text chat"
      layout="topleft"
@@ -136,4 +143,5 @@
          function="ParticipantList.EnableItem"
          parameter="can_moderate_voice" />
     </menu_item_call>
+    </context_menu>
 </context_menu>

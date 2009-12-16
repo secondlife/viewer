@@ -40,11 +40,14 @@
 // linden library includes
 #include "llassetstorage.h"
 #include "llfontgl.h"
-#include "llgl.h"			// for renderer
+#include "llimagej2c.h"
 #include "llinventory.h"
 #include "llnotificationsutil.h"
 #include "llstring.h"
 #include "llsys.h"
+#include "llvfile.h"
+#include "llvfs.h"
+#include "mean_collision_data.h"
 #include "message.h"
 #include "v3math.h"
 

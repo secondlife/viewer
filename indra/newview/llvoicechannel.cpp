@@ -122,6 +122,7 @@ LLVoiceChannel::LLVoiceChannel(const LLUUID& session_id, const std::string& sess
 	mSessionID(session_id), 
 	mState(STATE_NO_CHANNEL_INFO), 
 	mSessionName(session_name),
+	mCallDirection(OUTGOING_CALL),
 	mIgnoreNextSessionLeave(FALSE)
 {
 	mNotifyArgs["VOICE_CHANNEL_NAME"] = mSessionName;
@@ -405,7 +406,7 @@ void LLVoiceChannel::doSetState(const EState& new_state)
 	EState old_state = mState;
 	mState = new_state;
 	if (!mStateChangedCallback.empty())
-		mStateChangedCallback(old_state, mState);
+		mStateChangedCallback(old_state, mState, mCallDirection);
 }
 
 //static

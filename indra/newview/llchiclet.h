@@ -791,6 +791,8 @@ public:
 
 	void setToggleState(BOOL toggled);
 
+	void setNewMessagesState(bool new_messages);
+
 protected:
 
 	LLSysWellChiclet(const Params& p);
@@ -809,11 +811,8 @@ protected:
 	LLButton* mButton;
 	S32 mCounter;
 	S32 mMaxDisplayedCount;
+	bool mIsNewMessagesState;
 
-	/**
-	 * How many times Well will blink.
-	 */
-	S32 mFlashToLitCount;
 	FlashToLitTimer* mFlashToLitTimer;
 
 };

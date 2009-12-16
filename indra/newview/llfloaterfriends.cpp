@@ -50,7 +50,6 @@
 #include "llinventorymodel.h"
 #include "llnamelistctrl.h"
 #include "llnotificationsutil.h"
-#include "llnotify.h"
 #include "llresmgr.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"

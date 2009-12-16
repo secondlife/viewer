@@ -113,23 +113,15 @@ static void setUUIDFromStringHash(LLUUID &uuid, const std::string &str)
 static int scale_mic_volume(float volume)
 {
 	// incoming volume has the range [0.0 ... 2.0], with 1.0 as the default.
-	// Map it as follows: 0.0 -> 40, 1.0 -> 44, 2.0 -> 75
-
-	volume -= 1.0f;		// offset volume to the range [-1.0 ... 1.0], with 0 at the default.
-	int scaled_volume = 44;	// offset scaled_volume by its default level
-	if(volume < 0.0f)
-		scaled_volume += ((int)(volume * 4.0f));	// (44 - 40)
-	else
-		scaled_volume += ((int)(volume * 31.0f));	// (75 - 44)
-	
-	return scaled_volume;
+	// Map it to Vivox levels as follows: 0.0 -> 30, 1.0 -> 50, 2.0 -> 70
+	return 30 + (int)(volume * 20.0f);
 }
 
 static int scale_speaker_volume(float volume)
 {
 	// incoming volume has the range [0.0 ... 1.0], with 0.5 as the default.
-	// Map it as follows: 0.0 -> 0, 0.5 -> 50, 1.0 -> 100
-	return (int)(volume * 100.0f);
+	// Map it to Vivox levels as follows: 0.0 -> 30, 0.5 -> 50, 1.0 -> 70
+	return 30 + (int)(volume * 40.0f);
 }
 
 class LLViewerVoiceAccountProvisionResponder :
@@ -4271,7 +4263,6 @@ void LLVoiceClient::mediaStreamUpdatedEvent(
 				{
 					// Send the voice chat invite to the GUI layer
 					// *TODO: Question: Should we correlate with the mute list here?
-					session->mIncoming = true;
 					session->mIMSessionID = LLIMMgr::computeSessionID(IM_SESSION_P2P_INVITE, session->mCallerID);
 					session->mVoiceInvitePending = true;
 					if(session->mName.empty())
@@ -6344,20 +6335,6 @@ LLVoiceClient::sessionState *LLVoiceClient::findSession(const LLUUID &participan
 	}
 	
 	return result;
-}
-
-bool LLVoiceClient::isSessionIncoming(const LLUUID &session_id)
-{
-	for(sessionIterator iter = sessionsBegin(); iter != sessionsEnd(); iter++)
-	{
-		sessionState *session = *iter;
-		if(session->mIMSessionID == session_id)
-		{
-			return session->mIncoming;
-			break;
-		}
-	}
-	return false;
 }
 
 LLVoiceClient::sessionState *LLVoiceClient::addSession(const std::string &uri, const std::string &handle)

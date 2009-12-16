@@ -62,6 +62,7 @@ public:
 		STRUCTURE = 16,		// structural change (eg item or folder moved)
 		CALLING_CARD = 32,	// (eg online, grant status, cancel)
 		REBUILD = 64, 		// item UI changed (eg item type different)
+		SORT = 128, 		// folder needs to be resorted.
 		ALL = 0xffffffff
 	};
 	LLInventoryObserver();

@@ -30,11 +30,14 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+
+#include "lltexlayerparams.h"
+
 #include "llagent.h"
+#include "llimagetga.h"
 #include "lltexlayer.h"
 #include "llvoavatarself.h"
 #include "llwearable.h"
-#include "lltexlayerparams.h"
 #include "llui.h"
 
 //-----------------------------------------------------------------------------

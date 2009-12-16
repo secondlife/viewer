@@ -626,7 +626,11 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			}
 			else if(message_name == "cleanup")
 			{
-				// TODO: clean up here
+				// DTOR most likely won't be called but the recent change to the way this process
+				// is (not) killed means we see this message and can do what we need to here.
+				// Note: this cleanup is ultimately what writes cookies to the disk
+				LLQtWebKit::getInstance()->remObserver( mBrowserWindowId, this );
+				LLQtWebKit::getInstance()->reset();
 			}
 			else if(message_name == "shm_added")
 			{
@@ -634,7 +638,6 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				info.mAddress = message_in.getValuePointer("address");
 				info.mSize = (size_t)message_in.getValueS32("size");
 				std::string name = message_in.getValue("name");
-				
 				
 //				std::cerr << "MediaPluginWebKit::receiveMessage: shared memory added, name: " << name 
 //					<< ", size: " << info.mSize 
