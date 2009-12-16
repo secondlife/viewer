@@ -101,7 +101,7 @@
     <filter_editor
      follows="left|top|right"
      height="23"
-     label="Filter textures"
+     label="Filter Textures"
      layout="topleft"
      left="175"
      name="inventory search editor"

@@ -9,7 +9,7 @@
  bg_opaque_image="Inspector_Background"
  can_close="false"
  can_minimize="false"
- height="148"
+ height="150"
  layout="topleft"
  name="inspect_object"
  single_instance="true"
@@ -71,13 +71,15 @@ owner secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
    width="196">
 L$300,000
   </text>
-   <text
+  <text
+   clip_partial="true" 
    follows="all"
    font="SansSerifSmall"
-   height="36"
+   height="37"
    left="8"
    name="object_description"
    top_pad="0"
+   use_ellipses="true" 
    width="220"
    word_wrap="true">
 This is a really long description for an object being as how it is at least 80 characters in length and maybe more like 120 at this point. Who knows, really?
@@ -90,7 +92,7 @@ This is a really long description for an object being as how it is at least 80 c
    height="13"
    left_delta="0"
    name="object_media_url"
-   top_pad="0"
+   top_pad="-1"
    width="291"
    max_length = "50"
    use_ellipses="true">
@@ -102,7 +104,7 @@ This is a really long description for an object being as how it is at least 80 c
    label="Buy"
    left="8"
    name="buy_btn"
-   top="119"
+   top="121"
    width="80" />
   <button
    follows="top|left"

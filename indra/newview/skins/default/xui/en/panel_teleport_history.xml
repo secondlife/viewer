@@ -151,7 +151,7 @@
         <button
          follows="bottom|left"
          font="SansSerifBigBold"
-         tool_tip=""
+         tool_tip="Show additional optioins"
          height="18"
          image_disabled="OptionsMenu_Disabled"
          image_selected="OptionsMenu_Press"

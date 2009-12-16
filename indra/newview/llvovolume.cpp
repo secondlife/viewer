@@ -68,6 +68,7 @@
 #include "llmediaentry.h"
 #include "llmediadataclient.h"
 #include "llagent.h"
+#include "llviewermediafocus.h"
 
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
@@ -138,8 +139,7 @@ public:
 		}
 	virtual bool isInterestingEnough() const
 		{
-			// TODO: use performance manager to control this
-			return true;
+			return LLViewerMedia::isInterestingEnough(mObject, getMediaInterest());
 		}
 
 	virtual std::string getCapabilityUrl(const std::string &name) const
@@ -204,8 +204,8 @@ void LLVOVolume::markDead()
 	if (!mDead)
 	{
 		LLMediaDataClientObject::ptr_t obj = new LLMediaDataClientObjectImpl(const_cast<LLVOVolume*>(this), false);
-		sObjectMediaClient->removeFromQueue(obj);
-		sObjectMediaNavigateClient->removeFromQueue(obj);
+		if (sObjectMediaClient) sObjectMediaClient->removeFromQueue(obj);
+		if (sObjectMediaNavigateClient) sObjectMediaNavigateClient->removeFromQueue(obj);
 		
 		// Detach all media impls from this object
 		for(U32 i = 0 ; i < mMediaImplList.size() ; i++)
@@ -222,15 +222,18 @@ void LLVOVolume::markDead()
 void LLVOVolume::initClass()
 {
 	// gSavedSettings better be around
-	const F32 queue_timer_delay = gSavedSettings.getF32("PrimMediaRequestQueueDelay");
-	const F32 retry_timer_delay = gSavedSettings.getF32("PrimMediaRetryTimerDelay");
-	const U32 max_retries = gSavedSettings.getU32("PrimMediaMaxRetries");
-	const U32 max_sorted_queue_size = gSavedSettings.getU32("PrimMediaMaxSortedQueueSize");
-	const U32 max_round_robin_queue_size = gSavedSettings.getU32("PrimMediaMaxRoundRobinQueueSize");
-    sObjectMediaClient = new LLObjectMediaDataClient(queue_timer_delay, retry_timer_delay, max_retries, 
-													 max_sorted_queue_size, max_round_robin_queue_size);
-    sObjectMediaNavigateClient = new LLObjectMediaNavigateClient(queue_timer_delay, retry_timer_delay, 
-																 max_retries, max_sorted_queue_size, max_round_robin_queue_size);
+	if (gSavedSettings.getBOOL("PrimMediaMasterEnabled"))
+	{
+		const F32 queue_timer_delay = gSavedSettings.getF32("PrimMediaRequestQueueDelay");
+		const F32 retry_timer_delay = gSavedSettings.getF32("PrimMediaRetryTimerDelay");
+		const U32 max_retries = gSavedSettings.getU32("PrimMediaMaxRetries");
+		const U32 max_sorted_queue_size = gSavedSettings.getU32("PrimMediaMaxSortedQueueSize");
+		const U32 max_round_robin_queue_size = gSavedSettings.getU32("PrimMediaMaxRoundRobinQueueSize");
+		sObjectMediaClient = new LLObjectMediaDataClient(queue_timer_delay, retry_timer_delay, max_retries, 
+														 max_sorted_queue_size, max_round_robin_queue_size);
+		sObjectMediaNavigateClient = new LLObjectMediaNavigateClient(queue_timer_delay, retry_timer_delay, 
+																	 max_retries, max_sorted_queue_size, max_round_robin_queue_size);
+	}
 }
 
 // static
@@ -1719,14 +1722,15 @@ LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
 
 void LLVOVolume::requestMediaDataUpdate(bool isNew)
 {
-    sObjectMediaClient->fetchMedia(new LLMediaDataClientObjectImpl(this, isNew));
+    if (sObjectMediaClient)
+		sObjectMediaClient->fetchMedia(new LLMediaDataClientObjectImpl(this, isNew));
 }
 
 bool LLVOVolume::isMediaDataBeingFetched() const
 {
 	// I know what I'm doing by const_casting this away: this is just 
 	// a wrapper class that is only going to do a lookup.
-	return sObjectMediaClient->isInQueue(new LLMediaDataClientObjectImpl(const_cast<LLVOVolume*>(this), false));
+	return (sObjectMediaClient) ? sObjectMediaClient->isInQueue(new LLMediaDataClientObjectImpl(const_cast<LLVOVolume*>(this), false)) : false;
 }
 
 void LLVOVolume::cleanUpMediaImpls()
@@ -1925,7 +1929,7 @@ void LLVOVolume::mediaNavigated(LLViewerMediaImpl *impl, LLPluginClassMedia* plu
 		// "bounce back" to the current URL from the media entry
 		mediaNavigateBounceBack(face_index);
 	}
-	else
+	else if (sObjectMediaNavigateClient)
 	{
 		
 		llinfos << "broadcasting navigate with URI " << new_location << llendl;
@@ -1994,7 +1998,8 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 
 void LLVOVolume::sendMediaDataUpdate()
 {
-    sObjectMediaClient->updateMedia(new LLMediaDataClientObjectImpl(this, false));
+    if (sObjectMediaClient)
+		sObjectMediaClient->updateMedia(new LLMediaDataClientObjectImpl(this, false));
 }
 
 void LLVOVolume::removeMediaImpl(S32 texture_index)
@@ -2089,6 +2094,9 @@ viewer_media_t LLVOVolume::getMediaImpl(U8 face_id) const
 
 F64 LLVOVolume::getTotalMediaInterest() const
 {
+	if (LLViewerMediaFocus::getInstance()->getFocusedObjectID() == getID())
+		return F64_MAX;
+	
 	F64 interest = (F64)-1.0;  // means not interested;
     int i = 0;
 	const int end = getNumTEs();

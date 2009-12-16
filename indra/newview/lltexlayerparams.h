@@ -34,7 +34,11 @@
 
 #include "llviewervisualparam.h"
 
+class LLImageRaw;
+class LLImageTGA;
 class LLTexLayer;
+class LLTexLayerInterface;
+class LLViewerTexture;
 class LLVOAvatar;
 class LLWearable;
 

@@ -171,7 +171,7 @@
              enabled="false"
              follows="left|top"
              height="20"
-             label="Send Current URL to Parcel"
+             label="Send Current Page to Parcel"
              layout="topleft"
              left="0"
              name="assign"

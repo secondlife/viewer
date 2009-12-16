@@ -1068,17 +1068,6 @@
       <key>Value</key>
       <integer>23</integer>
     </map>
-    <key>ButtonVPad</key>
-    <map>
-      <key>Comment</key>
-      <string>Default vertical spacing between buttons (pixels)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>CacheLocation</key>
     <map>
       <key>Comment</key>
@@ -3596,7 +3585,18 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://www.secondlife.com/</string>
+      <string>http://lecs.viewer-sidebar.secondlife.com.s3.amazonaws.com/sidebar.html</string>
+    </map>
+    <key>SearchURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for Search website, displayed in the Find floater</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://int.searchwww-phx0.damballah.lindenlab.com/viewer/[CATEGORY]?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]</string>
     </map>
     <key>HighResSnapshot</key>
     <map>
@@ -5470,6 +5470,17 @@
       <string>U32</string>
       <key>Value</key>
 	  <integer>13</integer>
+    </map>
+	<key>PrimMediaMasterEnabled</key>
+	<map>
+	  <key>Comment</key>
+      <string>Whether or not Media on a Prim is enabled.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
 	<key>PrimMediaControlsUseHoverControlSet</key>
 	<map>
@@ -7538,45 +7549,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>SearchURLDefault</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to load for empty searches</string>
-      <key>Persist</key>
-      <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://search.secondlife.com/client_search.php?</string>
-    </map>
-    <key>SearchURLQuery</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to use for searches</string>
-      <key>Persist</key>
-      <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://search.secondlife.com/client_search.php?q=[QUERY]&amp;s=[COLLECTION]&amp;</string>
-    </map>
-    <key>SearchURLSuffix2</key>
-    <map>
-      <key>Comment</key>
-      <string>Parameters added to end of search queries</string>
-      <key>Persist</key>
-      <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>lang=[LANG]&amp;mat=[MATURITY]&amp;t=[TEEN]&amp;region=[REGION]&amp;x=[X]&amp;y=[Y]&amp;z=[Z]&amp;session=[SESSION]</string>
     </map>
     <key>SelectMovableOnly</key>
     <map>

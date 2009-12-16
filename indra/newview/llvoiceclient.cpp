@@ -4271,7 +4271,6 @@ void LLVoiceClient::mediaStreamUpdatedEvent(
 				{
 					// Send the voice chat invite to the GUI layer
 					// *TODO: Question: Should we correlate with the mute list here?
-					session->mIncoming = true;
 					session->mIMSessionID = LLIMMgr::computeSessionID(IM_SESSION_P2P_INVITE, session->mCallerID);
 					session->mVoiceInvitePending = true;
 					if(session->mName.empty())
@@ -6344,20 +6343,6 @@ LLVoiceClient::sessionState *LLVoiceClient::findSession(const LLUUID &participan
 	}
 	
 	return result;
-}
-
-bool LLVoiceClient::isSessionIncoming(const LLUUID &session_id)
-{
-	for(sessionIterator iter = sessionsBegin(); iter != sessionsEnd(); iter++)
-	{
-		sessionState *session = *iter;
-		if(session->mIMSessionID == session_id)
-		{
-			return session->mIncoming;
-			break;
-		}
-	}
-	return false;
 }
 
 LLVoiceClient::sessionState *LLVoiceClient::addSession(const std::string &uri, const std::string &handle)

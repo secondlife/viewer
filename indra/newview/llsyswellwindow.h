@@ -47,6 +47,7 @@ class LLFlatListView;
 class LLChiclet;
 class LLIMChiclet;
 class LLScriptChiclet;
+class LLSysWellChiclet;
 
 
 class LLSysWellWindow : public LLDockableFloater
@@ -78,6 +79,8 @@ public:
 
 	void onStartUpToastClick(S32 x, S32 y, MASK mask);
 
+	void setSysWellChiclet(LLSysWellChiclet* chiclet) { mSysWellChiclet = chiclet; }
+
 	// size constants for the window and for its elements
 	static const S32 MAX_WINDOW_HEIGHT		= 200;
 	static const S32 MIN_WINDOW_WIDTH		= 318;
@@ -104,10 +107,16 @@ protected:
 	virtual const std::string& getAnchorViewName() = 0;
 
 	void reshapeWindow();
+	void releaseNewMessagesState();
 
 	// pointer to a corresponding channel's instance
 	LLNotificationsUI::LLScreenChannel*	mChannel;
 	LLFlatListView*	mMessageList;
+
+	/**
+	 * Reference to an appropriate Well chiclet to release "new message" state. EXT-3147
+	 */
+	LLSysWellChiclet* mSysWellChiclet;
 
 	/**
 	 *	Special panel which is used as separator of Notifications & IM Rows.

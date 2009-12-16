@@ -52,7 +52,6 @@
 #include "llagent.h"
 #include "lldelayedgestureerror.h"
 #include "llinventorymodel.h"
-#include "llnotify.h"
 #include "llviewermessage.h"
 #include "llvoavatarself.h"
 #include "llviewerstats.h"

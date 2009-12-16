@@ -101,13 +101,25 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	mBuyBtn = getChild<LLButton>("buy_btn");
 	mBuyBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onBuyButtonClicked, this));
 
-	childSetPrevalidate("Object Name",LLLineEditor::prevalidateASCIIPrintableNoPipe);
-	childSetPrevalidate("Object Description",LLLineEditor::prevalidateASCIIPrintableNoPipe);
-
 	mLabelGroupName = getChild<LLNameBox>("Group Name Proxy");
 
-	childSetCommitCallback("checkbox for sale",onClickForSale,this);
-
+	childSetCommitCallback("Object Name",						LLSidepanelTaskInfo::onCommitName,this);
+	childSetPrevalidate("Object Name",							LLLineEditor::prevalidateASCIIPrintableNoPipe);
+	childSetCommitCallback("Object Description",				LLSidepanelTaskInfo::onCommitDesc,this);
+	childSetPrevalidate("Object Description",					LLLineEditor::prevalidateASCIIPrintableNoPipe);
+	getChild<LLUICtrl>("button set group")->setCommitCallback(boost::bind(&LLSidepanelTaskInfo::onClickGroup,this));
+	childSetCommitCallback("checkbox share with group",			&LLSidepanelTaskInfo::onCommitGroupShare,this);
+	childSetAction("button deed",								&LLSidepanelTaskInfo::onClickDeedToGroup,this);
+	childSetCommitCallback("checkbox allow everyone move",		&LLSidepanelTaskInfo::onCommitEveryoneMove,this);
+	childSetCommitCallback("checkbox allow everyone copy",		&LLSidepanelTaskInfo::onCommitEveryoneCopy,this);
+	childSetCommitCallback("checkbox for sale",					&LLSidepanelTaskInfo::onCommitSaleInfo,this);
+	childSetCommitCallback("sale type",							&LLSidepanelTaskInfo::onCommitSaleType,this);
+	childSetCommitCallback("Edit Cost", 						&LLSidepanelTaskInfo::onCommitSaleInfo, this);
+	childSetCommitCallback("checkbox next owner can modify",	&LLSidepanelTaskInfo::onCommitNextOwnerModify,this);
+	childSetCommitCallback("checkbox next owner can copy",		&LLSidepanelTaskInfo::onCommitNextOwnerCopy,this);
+	childSetCommitCallback("checkbox next owner can transfer",	&LLSidepanelTaskInfo::onCommitNextOwnerTransfer,this);
+	childSetCommitCallback("clickaction",						&LLSidepanelTaskInfo::onCommitClickAction,this);
+	childSetCommitCallback("search_check",						&LLSidepanelTaskInfo::onCommitIncludeInSearch,this);
 	return TRUE;
 }
 
@@ -860,7 +872,7 @@ static bool callback_deed_to_group(const LLSD& notification, const LLSD& respons
 	return FALSE;
 }
 
-void LLSidepanelTaskInfo::onClickDeedToGroup()
+void LLSidepanelTaskInfo::onClickDeedToGroup(void *data)
 {
 	LLNotificationsUtil::add("DeedObjectToGroup", LLSD(), LLSD(), callback_deed_to_group);
 }
@@ -869,121 +881,149 @@ void LLSidepanelTaskInfo::onClickDeedToGroup()
 /// Permissions checkboxes
 ///----------------------------------------------------------------------------
 
-void LLSidepanelTaskInfo::onCommitPerm(LLCheckBoxCtrl *ctrl, U8 field, U32 perm)
+// static
+void LLSidepanelTaskInfo::onCommitPerm(LLUICtrl *ctrl, void *data, U8 field, U32 perm)
 {
-	const LLViewerObject* object = mObjectSelection->getFirstRootObject();
-	if (!object) return;
+	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject();
+	if(!object) return;
 
-	BOOL new_state = ctrl->get();
+	// Checkbox will have toggled itself
+	// LLSidepanelTaskInfo* self = (LLSidepanelTaskInfo*)data;
+	LLCheckBoxCtrl *check = (LLCheckBoxCtrl *)ctrl;
+	BOOL new_state = check->get();
+	
 	LLSelectMgr::getInstance()->selectionSetObjectPermissions(field, new_state, perm);
 }
 
-void LLSidepanelTaskInfo::onCommitGroupShare()
+// static
+void LLSidepanelTaskInfo::onCommitGroupShare(LLUICtrl *ctrl, void *data)
 {
-	LLCheckBoxCtrl *ctrl = getChild<LLCheckBoxCtrl>("checkbox share with group");
-	onCommitPerm(ctrl, PERM_GROUP, PERM_MODIFY | PERM_MOVE | PERM_COPY);
+	onCommitPerm(ctrl, data, PERM_GROUP, PERM_MODIFY | PERM_MOVE | PERM_COPY);
 }
 
-void LLSidepanelTaskInfo::onCommitEveryoneMove()
+// static
+void LLSidepanelTaskInfo::onCommitEveryoneMove(LLUICtrl *ctrl, void *data)
 {
-	LLCheckBoxCtrl *ctrl = getChild<LLCheckBoxCtrl>("checkbox allow everyone move");
-	onCommitPerm(ctrl, PERM_EVERYONE, PERM_MOVE);
+	onCommitPerm(ctrl, data, PERM_EVERYONE, PERM_MOVE);
 }
 
 
-void LLSidepanelTaskInfo::onCommitEveryoneCopy()
+// static
+void LLSidepanelTaskInfo::onCommitEveryoneCopy(LLUICtrl *ctrl, void *data)
 {
-	LLCheckBoxCtrl *ctrl = getChild<LLCheckBoxCtrl>("checkbox allow everyone copy");
-	onCommitPerm(ctrl, PERM_EVERYONE, PERM_COPY);
+	onCommitPerm(ctrl, data, PERM_EVERYONE, PERM_COPY);
 }
 
-void LLSidepanelTaskInfo::onCommitNextOwnerModify()
+// static
+void LLSidepanelTaskInfo::onCommitNextOwnerModify(LLUICtrl* ctrl, void* data)
 {
-	LLCheckBoxCtrl *ctrl = getChild<LLCheckBoxCtrl>("checkbox next owner can modify");
-	onCommitPerm(ctrl, PERM_NEXT_OWNER, PERM_MODIFY);
+	//llinfos << "LLSidepanelTaskInfo::onCommitNextOwnerModify" << llendl;
+	onCommitPerm(ctrl, data, PERM_NEXT_OWNER, PERM_MODIFY);
 }
 
-void LLSidepanelTaskInfo::onCommitNextOwnerCopy()
+// static
+void LLSidepanelTaskInfo::onCommitNextOwnerCopy(LLUICtrl* ctrl, void* data)
 {
-	LLCheckBoxCtrl *ctrl = getChild<LLCheckBoxCtrl>("checkbox next owner can copy");
-	onCommitPerm(ctrl, PERM_NEXT_OWNER, PERM_COPY);
+	//llinfos << "LLSidepanelTaskInfo::onCommitNextOwnerCopy" << llendl;
+	onCommitPerm(ctrl, data, PERM_NEXT_OWNER, PERM_COPY);
 }
 
-void LLSidepanelTaskInfo::onCommitNextOwnerTransfer()
+// static
+void LLSidepanelTaskInfo::onCommitNextOwnerTransfer(LLUICtrl* ctrl, void* data)
 {
-	LLCheckBoxCtrl *ctrl = getChild<LLCheckBoxCtrl>("checkbox next owner can transfer");
-	onCommitPerm(ctrl, PERM_NEXT_OWNER, PERM_TRANSFER);
+	//llinfos << "LLSidepanelTaskInfo::onCommitNextOwnerTransfer" << llendl;
+	onCommitPerm(ctrl, data, PERM_NEXT_OWNER, PERM_TRANSFER);
 }
 
-void LLSidepanelTaskInfo::onCommitName()
+// static
+void LLSidepanelTaskInfo::onCommitName(LLUICtrl*, void* data)
 {
-	LLLineEditor* tb = getChild<LLLineEditor>("Object Name");
-	LLSelectMgr::getInstance()->selectionSetObjectName(tb->getText());
+	//llinfos << "LLSidepanelTaskInfo::onCommitName()" << llendl;
+	LLSidepanelTaskInfo* self = (LLSidepanelTaskInfo*)data;
+	LLLineEditor*	tb = self->getChild<LLLineEditor>("Object Name");
+	if(tb)
+	{
+		LLSelectMgr::getInstance()->selectionSetObjectName(tb->getText());
+//		LLSelectMgr::getInstance()->selectionSetObjectName(self->mLabelObjectName->getText());
+	}
 }
 
-void LLSidepanelTaskInfo::onCommitDesc()
+
+// static
+void LLSidepanelTaskInfo::onCommitDesc(LLUICtrl*, void* data)
 {
-	LLLineEditor* le = getChild<LLLineEditor>("Object Description");
-	LLSelectMgr::getInstance()->selectionSetObjectDescription(le->getText());
+	//llinfos << "LLSidepanelTaskInfo::onCommitDesc()" << llendl;
+	LLSidepanelTaskInfo* self = (LLSidepanelTaskInfo*)data;
+	LLLineEditor*	le = self->getChild<LLLineEditor>("Object Description");
+	if(le)
+	{
+		LLSelectMgr::getInstance()->selectionSetObjectDescription(le->getText());
+	}
 }
 
-void LLSidepanelTaskInfo::onCommitSaleInfo()
+// static
+void LLSidepanelTaskInfo::onCommitSaleInfo(LLUICtrl*, void* data)
 {
-	setAllSaleInfo();
+	LLSidepanelTaskInfo* self = (LLSidepanelTaskInfo*)data;
+	self->setAllSaleInfo();
 }
 
-void LLSidepanelTaskInfo::onCommitSaleType()
+// static
+void LLSidepanelTaskInfo::onCommitSaleType(LLUICtrl*, void* data)
 {
-	setAllSaleInfo();
+	LLSidepanelTaskInfo* self = (LLSidepanelTaskInfo*)data;
+	self->setAllSaleInfo();
 }
+
 
 void LLSidepanelTaskInfo::setAllSaleInfo()
 {
-	llinfos << "LLSidepanelTaskInfo::setAllSaleInfo()" << llendl;
-
 	LLSaleInfo::EForSale sale_type = LLSaleInfo::FS_NOT;
+
 	LLCheckBoxCtrl *checkPurchase = getChild<LLCheckBoxCtrl>("checkbox for sale");
+	
 	// Set the sale type if the object(s) are for sale.
-	if (checkPurchase && checkPurchase->get())
+	if(checkPurchase && checkPurchase->get())
 	{
 		sale_type = static_cast<LLSaleInfo::EForSale>(getChild<LLComboBox>("sale type")->getValue().asInteger());
 	}
 
 	S32 price = -1;
-	const LLSpinCtrl *edit_price = getChild<LLSpinCtrl>("Edit Cost");
+	
+	LLSpinCtrl *edit_price = getChild<LLSpinCtrl>("Edit Cost");
 	price = (edit_price->getTentative()) ? DEFAULT_PRICE : edit_price->getValue().asInteger();
+
 	// If somehow an invalid price, turn the sale off.
 	if (price < 0)
 		sale_type = LLSaleInfo::FS_NOT;
-	LLSaleInfo sale_info(sale_type, price);
-	LLSelectMgr::getInstance()->selectionSetObjectSaleInfo(sale_info);
 
-	// If turned off for-sale, make sure click-action buy is turned
-	// off as well
-	if (sale_type == LLSaleInfo::FS_NOT)
+	LLSaleInfo old_sale_info;
+	LLSelectMgr::getInstance()->selectGetSaleInfo(old_sale_info);
+
+	LLSaleInfo new_sale_info(sale_type, price);
+	LLSelectMgr::getInstance()->selectionSetObjectSaleInfo(new_sale_info);
+	
+	U8 old_click_action = 0;
+	LLSelectMgr::getInstance()->selectionGetClickAction(&old_click_action);
+
+	if (old_sale_info.isForSale()
+		&& !new_sale_info.isForSale()
+		&& old_click_action == CLICK_ACTION_BUY)
 	{
-		U8 click_action = 0;
-		LLSelectMgr::getInstance()->selectionGetClickAction(&click_action);
-		if (click_action == CLICK_ACTION_BUY)
-		{
-			LLSelectMgr::getInstance()->selectionSetClickAction(CLICK_ACTION_TOUCH);
-		}
+		// If turned off for-sale, make sure click-action buy is turned
+		// off as well
+		LLSelectMgr::getInstance()->
+			selectionSetClickAction(CLICK_ACTION_TOUCH);
 	}
-}
-
-// static
-void LLSidepanelTaskInfo::onClickForSale(LLUICtrl* ctrl, void* data)
-{
-	LLSidepanelTaskInfo* self = (LLSidepanelTaskInfo*)data;
-	self->updateUIFromSaleInfo();
-}
-
-void LLSidepanelTaskInfo::updateUIFromSaleInfo()
-{
-	/* 
-	   TODO: Update sale button enable/disable state and default 
-	   sale button settings when this sale button is enabled/disabled.
-	*/
+	else if (new_sale_info.isForSale()
+		&& !old_sale_info.isForSale()
+		&& old_click_action == CLICK_ACTION_TOUCH)
+	{
+		// If just turning on for-sale, preemptively turn on one-click buy
+		// unless user have a different click action set
+		LLSelectMgr::getInstance()->
+			selectionSetClickAction(CLICK_ACTION_BUY);
+	}
 }
 
 struct LLSelectionPayable : public LLSelectedObjectFunctor
@@ -997,8 +1037,35 @@ struct LLSelectionPayable : public LLSelectedObjectFunctor
 	}
 };
 
+static U8 string_value_to_click_action(std::string p_value)
+{
+	if (p_value == "Touch")
+		return CLICK_ACTION_TOUCH;
+	if (p_value == "Sit")
+		return CLICK_ACTION_SIT;
+	if (p_value == "Buy")
+		return CLICK_ACTION_BUY;
+	if (p_value == "Pay")
+		return CLICK_ACTION_PAY;
+	if (p_value == "Open")
+		return CLICK_ACTION_OPEN;
+	if (p_value == "Zoom")
+		return CLICK_ACTION_ZOOM;
+	return CLICK_ACTION_TOUCH;
+}
+
 // static
-void LLSidepanelTaskInfo::onCommitClickAction(U8 click_action)
+void LLSidepanelTaskInfo::onCommitClickAction(LLUICtrl* ctrl, void*)
+{
+	LLComboBox* box = (LLComboBox*)ctrl;
+	if (!box) return;
+	std::string value = box->getValue().asString();
+	U8 click_action = string_value_to_click_action(value);
+	doClickAction(click_action);
+}
+
+// static
+void LLSidepanelTaskInfo::doClickAction(U8 click_action)
 {
 	if (click_action == CLICK_ACTION_BUY)
 	{
@@ -1020,7 +1087,7 @@ void LLSidepanelTaskInfo::onCommitClickAction(U8 click_action)
 	{
 		// Verify object has script with money() handler
 		LLSelectionPayable payable;
-		const BOOL can_pay = mObjectSelection->applyToObjects(&payable);
+		bool can_pay = LLSelectMgr::getInstance()->getSelection()->applyToObjects(&payable);
 		if (!can_pay)
 		{
 			// Warn, but do it anyway.
@@ -1031,10 +1098,11 @@ void LLSidepanelTaskInfo::onCommitClickAction(U8 click_action)
 }
 
 // static
-void LLSidepanelTaskInfo::onCommitIncludeInSearch()
+void LLSidepanelTaskInfo::onCommitIncludeInSearch(LLUICtrl* ctrl, void* data)
 {
-	LLCheckBoxCtrl *ctrl = getChild<LLCheckBoxCtrl>("search_check");
-	LLSelectMgr::getInstance()->selectionSetIncludeInSearch(ctrl->get());
+	LLCheckBoxCtrl* box = (LLCheckBoxCtrl*)ctrl;
+	llassert(box);
+	LLSelectMgr::getInstance()->selectionSetIncludeInSearch(box->get());
 }
 
 // virtual
@@ -1042,13 +1110,15 @@ void LLSidepanelTaskInfo::updateVerbs()
 {
 	LLSidepanelInventorySubpanel::updateVerbs();
 
+	/*
 	mOpenBtn->setVisible(!getIsEditing());
 	mPayBtn->setVisible(!getIsEditing());
 	mBuyBtn->setVisible(!getIsEditing());
-
-	mOpenBtn->setEnabled(enable_object_open());
 	//const LLViewerObject *obj = getFirstSelectedObject();
 	//mEditBtn->setEnabled(obj && obj->permModify());
+	*/
+
+	mOpenBtn->setEnabled(enable_object_open());
 }
 
 void LLSidepanelTaskInfo::onOpenButtonClicked()
@@ -1061,28 +1131,28 @@ void LLSidepanelTaskInfo::onOpenButtonClicked()
 
 void LLSidepanelTaskInfo::onPayButtonClicked()
 {
-	onCommitClickAction(CLICK_ACTION_PAY);
+	doClickAction(CLICK_ACTION_PAY);
 }
 
 void LLSidepanelTaskInfo::onBuyButtonClicked()
 {
-	onCommitClickAction(CLICK_ACTION_BUY);
+	doClickAction(CLICK_ACTION_BUY);
 }
 
 // virtual
 void LLSidepanelTaskInfo::save()
 {
-	onCommitGroupShare();
-	onCommitEveryoneMove();
-	onCommitEveryoneCopy();
-	onCommitNextOwnerModify();
-	onCommitNextOwnerCopy();
-	onCommitNextOwnerTransfer();
-	onCommitName();
-	onCommitDesc();
-	onCommitSaleInfo();
-	onCommitSaleType();
-	onCommitIncludeInSearch();
+	onCommitGroupShare(getChild<LLCheckBoxCtrl>("checkbox share with group"), this);
+	onCommitEveryoneMove(getChild<LLCheckBoxCtrl>("checkbox allow everyone move"), this);
+	onCommitEveryoneCopy(getChild<LLCheckBoxCtrl>("checkbox allow everyone copy"), this);
+	onCommitNextOwnerModify(getChild<LLCheckBoxCtrl>("checkbox next owner can modify"), this);
+	onCommitNextOwnerCopy(getChild<LLCheckBoxCtrl>("checkbox next owner can copy"), this);
+	onCommitNextOwnerTransfer(getChild<LLCheckBoxCtrl>("checkbox next owner can transfer"), this);
+	onCommitName(getChild<LLLineEditor>("Object Name"), this);
+	onCommitDesc(getChild<LLLineEditor>("Object Description"), this);
+	onCommitSaleInfo(NULL, this);
+	onCommitSaleType(NULL, this);
+	onCommitIncludeInSearch(getChild<LLCheckBoxCtrl>("search_check"), this);
 }
 
 void LLSidepanelTaskInfo::setObjectSelection(LLObjectSelectionHandle selection)
