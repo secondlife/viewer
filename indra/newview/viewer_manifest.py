@@ -324,7 +324,7 @@ class WindowsManifest(ViewerManifest):
             self.path("qtnetwork4.dll")
             self.path("qtopengl4.dll")
             self.path("qtwebkit4.dll")
-            self.path("qtxmlpatternsd4.dll")
+            self.path("qtxmlpatterns4.dll")
             self.path("ssleay32.dll")
             self.end_prefix()
 
