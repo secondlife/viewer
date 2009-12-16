@@ -370,6 +370,19 @@ Add this Ability to &apos;[ROLE_NAME]&apos;?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="AttachmentDrop"
+   type="alertmodal">
+    You are about to drop your attachment.
+    Are you sure you want to continue?
+    <usetemplate
+     ignoretext="Confirm before dropping attachments"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+
+  <notification
     icon="alertmodal.tga"
     name="ClickUnimplemented"
     type="alertmodal">

@@ -5851,47 +5851,68 @@ void confirm_replace_attachment(S32 option, void* user_data)
 	}
 }
 
+bool callback_attachment_drop(const LLSD& notification, const LLSD& response)
+{
+	// Called when the user clicked on an object attached to them
+	// and selected "Drop".
+	LLUUID object_id = notification["payload"]["object_id"].asUUID();
+	LLViewerObject *object = gObjectList.findObject(object_id);
+	
+	if (!object)
+	{
+		llwarns << "handle_drop_attachment() - no object to drop" << llendl;
+		return true;
+	}
+
+	LLViewerObject *parent = (LLViewerObject*)object->getParent();
+	while (parent)
+	{
+		if(parent->isAvatar())
+		{
+			break;
+		}
+		object = parent;
+		parent = (LLViewerObject*)parent->getParent();
+	}
+
+	if (!object)
+	{
+		llwarns << "handle_detach() - no object to detach" << llendl;
+		return true;
+	}
+
+	if (object->isAvatar())
+	{
+		llwarns << "Trying to detach avatar from avatar." << llendl;
+		return true;
+	}
+	
+	// reselect the object
+	LLSelectMgr::getInstance()->selectObjectAndFamily(object);
+
+	LLSelectMgr::getInstance()->sendDropAttachment();
+
+	return true;
+}
+
 class LLAttachmentDrop : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		// Called when the user clicked on an object attached to them
-		// and selected "Drop".
+		LLSD payload;
 		LLViewerObject *object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-		if (!object)
+
+		if (object) 
 		{
-			llwarns << "handle_drop_attachment() - no object to drop" << llendl;
+			payload["object_id"] = object->getID();
+		}
+		else
+		{
+			llwarns << "Drop object not found" << llendl;
 			return true;
 		}
 
-		LLViewerObject *parent = (LLViewerObject*)object->getParent();
-		while (parent)
-		{
-			if(parent->isAvatar())
-			{
-				break;
-			}
-			object = parent;
-			parent = (LLViewerObject*)parent->getParent();
-		}
-
-		if (!object)
-		{
-			llwarns << "handle_detach() - no object to detach" << llendl;
-			return true;
-		}
-
-		if (object->isAvatar())
-		{
-			llwarns << "Trying to detach avatar from avatar." << llendl;
-			return true;
-		}
-
-		// The sendDropAttachment() method works on the list of selected
-		// objects.  Thus we need to clear the list, make sure it only
-		// contains the object the user clicked, send the message,
-		// then clear the list.
-		LLSelectMgr::getInstance()->sendDropAttachment();
+		LLNotificationsUtil::add("AttachmentDrop", LLSD(), payload, &callback_attachment_drop);
 		return true;
 	}
 };
