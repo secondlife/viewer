@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- Explicit left edge to avoid overlapping build tools -->
 <floater
  legacy_header_height="18"
  height="250"
  layout="topleft"
+ left="300" 
  name="telehub"
  help_topic="telehub"
  title="TELEHUB"

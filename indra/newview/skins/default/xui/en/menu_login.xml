@@ -16,7 +16,7 @@
          name="Preferences..."
          shortcut="control|P">
             <menu_item_call.on_click
-             function="ShowFloater"
+             function="Floater.Toggle"
              parameter="preferences" />
         </menu_item_call>
         <menu_item_separator />
@@ -53,7 +53,7 @@
          label="About [APP_NAME]"
          name="About Second Life">
             <menu_item_call.on_click
-             function="ShowFloater"
+             function="Floater.Show"
              parameter="sl_about" />
         </menu_item_call>
     </menu>
@@ -175,16 +175,18 @@
          name="UI Preview Tool"
          shortcut="control|T">
             <menu_item_call.on_click
-             function="ShowFloater"
+             function="Floater.Toggle"
              parameter="ui_preview" />
         </menu_item_call>
       <menu_item_separator />
+      <!-- Broken
       <menu_item_call
          label="Show Side Tray"
          name="Show Side Tray">
         <menu_item_call.on_click
          function="Advanced.ShowSideTray" />
       </menu_item_call>
+      -->
       <menu
        label="UI Tests"
        name="UI Tests"
@@ -194,7 +196,7 @@
          name="Textbox"
          shortcut="control|1">
           <menu_item_call.on_click
-           function="ShowFloater"
+           function="Floater.Show"
            parameter="test_textbox" />
         </menu_item_call>
         <menu_item_call
@@ -202,7 +204,7 @@
          name="Text Editor"
          shortcut="control|2">
           <menu_item_call.on_click
-           function="ShowFloater"
+           function="Floater.Show"
            parameter="test_text_editor" />
         </menu_item_call>
         <menu_item_call
@@ -210,14 +212,14 @@
          name="Widgets"
          shortcut="control|shift|T">
           <menu_item_call.on_click
-           function="ShowFloater"
+           function="Floater.Show"
            parameter="test_widgets" />
         </menu_item_call>
         <menu_item_call
          label="Inspectors"
          name="Inspectors">
           <menu_item_call.on_click
-           function="ShowFloater"
+           function="Floater.Show"
            parameter="test_inspectors" />
         </menu_item_call>
       </menu>
@@ -235,14 +237,14 @@
          label="Show TOS"
          name="TOS">
             <menu_item_call.on_click
-             function="ShowFloater"
+             function="Floater.Show"
              parameter="message_tos" />
         </menu_item_call>
         <menu_item_call
          label="Show Critical Message"
          name="Critical">
             <menu_item_call.on_click
-             function="ShowFloater"
+             function="Floater.Show"
              parameter="message_critical" />
         </menu_item_call>
         <menu_item_call

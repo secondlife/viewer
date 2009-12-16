@@ -293,48 +293,49 @@
      tool_tip="Click to open Color Picker"
      top_pad="5"
      width="32" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="15"
-     layout="topleft"
-     left="30"
-     name="title_afk_text"
-     text_color="white"
-     top_pad="-5"
-     width="190">
-        Away timeout:
-    </text>
-    <spinner
-     control_name="AFKTimeout"
-     decimal_digits="0"
-     follows="left|top"
-     halign="right"
-     height="15"
-     increment="1"
-     initial_value="300"
-     label=""
-     label_width="0"
-     layout="topleft"
-     left_delta="50"
-     max_val="600"
-     min_val="30"
-     name="afk_timeout_spinner"
-     top_pad="5"
-     width="50" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     halign="left"
-     height="15"
-     layout="topleft"
-     left_pad="2"
-     name="seconds_textbox"
-     width="70">
-       seconds
-    </text>
+  <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="15"
+      layout="topleft"
+      left="30"
+      name="title_afk_text"
+      text_color="white"
+      top_pad="-5"
+      width="190">
+    Away timeout:
+  </text>
+  <combo_box
+            top_pad="-20" 
+            height="20"
+            layout="topleft"
+            control_name="AFKTimeout"
+            left="140"
+            label="Away Timeout:" 
+            name="afk"
+            width="130">
+    <combo_box.item
+     label="2 minutes"
+     name="item0"
+     value="120" />
+    <combo_box.item
+     label="5 minutes"
+     name="item1"
+     value="300" />
+    <combo_box.item
+     label="10 minutes"
+     name="item2"
+     value="600" />
+    <combo_box.item
+     label="30 minutes"
+     name="item3"
+     value="1800" />
+    <combo_box.item
+     label="never"
+     name="item4"
+     value="0" />
+  </combo_box>
     <text
      type="string"
      length="1"

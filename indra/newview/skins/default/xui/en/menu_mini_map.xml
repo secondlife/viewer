@@ -51,7 +51,7 @@
      label="World Map"
      name="World Map">
         <menu_item_call.on_click
-         function="ShowFloater"
+         function="Floater.Show"
          parameter="world_map" />
     </menu_item_call>
 </menu>
