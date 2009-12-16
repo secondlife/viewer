@@ -181,11 +181,11 @@ public:
 	 * It based call moderateVoiceParticipant() for each avatar should be muted/unmuted.
 	 *
 	 * @param[in] excluded_avatar_id UUID of avatar NOT to be processed
-	 * @param[in] unmute if true - avatars will be muted, otherwise - unmuted.
+	 * @param[in] unmute_everyone_else if false - avatars will be muted, otherwise - unmuted.
 	 *
 	 * @see moderateVoiceParticipant()
 	 */
-	void moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute);
+	void moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute_everyone_else);
 
 	void processSessionUpdate(const LLSD& session_update);
 

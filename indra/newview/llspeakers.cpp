@@ -657,12 +657,12 @@ void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmu
 		new ModerationResponder(getSessionID()));
 }
 
-void LLIMSpeakerMgr::moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute)
+void LLIMSpeakerMgr::moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute_everyone_else)
 {
 	// TODO: mantipov: add more intellectual processing of several following requests
 
 	mReverseVoiceModeratedAvatarID = excluded_avatar_id;
-	moderateVoiceSession(getSessionID(), !unmute);
+	moderateVoiceSession(getSessionID(), !unmute_everyone_else);
 /*
 	LLSpeakerMgr::speaker_list_t speakers;
 	getSpeakerList(&speakers, FALSE);
@@ -675,7 +675,7 @@ void LLIMSpeakerMgr::moderateVoiceOtherParticipants(const LLUUID& excluded_avata
 
 		if (excluded_avatar_id == speaker_id) continue;
 
-		moderateVoiceParticipant(speaker_id, unmute);
+		moderateVoiceParticipant(speaker_id, unmute_everyone_else);
 	}
 */
 }
