@@ -186,8 +186,15 @@ public:
 	 * @see moderateVoiceParticipant()
 	 */
 	void moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute);
+
+	void processSessionUpdate(const LLSD& session_update);
+
 protected:
 	virtual void updateSpeakerList();
+
+	void moderateVoiceSession(const LLUUID& session_id, bool disallow_voice);
+
+	LLUUID mReverseVoiceModeratedAvatarID;
 };
 
 class LLActiveSpeakerMgr : public LLSpeakerMgr, public LLSingleton<LLActiveSpeakerMgr>

@@ -659,6 +659,11 @@ void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmu
 
 void LLIMSpeakerMgr::moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute)
 {
+	// TODO: mantipov: add more intellectual processing of several following requests
+
+	mReverseVoiceModeratedAvatarID = excluded_avatar_id;
+	moderateVoiceSession(getSessionID(), !unmute);
+/*
 	LLSpeakerMgr::speaker_list_t speakers;
 	getSpeakerList(&speakers, FALSE);
 
@@ -672,6 +677,38 @@ void LLIMSpeakerMgr::moderateVoiceOtherParticipants(const LLUUID& excluded_avata
 
 		moderateVoiceParticipant(speaker_id, unmute);
 	}
+*/
+}
+
+void LLIMSpeakerMgr::processSessionUpdate(const LLSD& session_update)
+{
+	if (mReverseVoiceModeratedAvatarID.isNull()) return;
+
+	if (session_update.has("moderated_mode") &&
+		session_update["moderated_mode"].has("voice"))
+	{
+		BOOL voice_moderated = session_update["moderated_mode"]["voice"];
+
+		moderateVoiceParticipant(mReverseVoiceModeratedAvatarID, voice_moderated);
+
+		mReverseVoiceModeratedAvatarID = LLUUID::null;
+	}
+}
+
+void LLIMSpeakerMgr::moderateVoiceSession(const LLUUID& session_id, bool disallow_voice)
+{
+	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+	LLSD data;
+	data["method"] = "session update";
+	data["session-id"] = session_id;
+	data["params"] = LLSD::emptyMap();
+
+	data["params"]["update_info"] = LLSD::emptyMap();
+
+	data["params"]["update_info"]["moderated_mode"] = LLSD::emptyMap();
+	data["params"]["update_info"]["moderated_mode"]["voice"] = disallow_voice;
+
+	LLHTTPClient::post(url, data, new ModerationResponder(session_id));
 }
 
 

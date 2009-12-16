@@ -2733,6 +2733,11 @@ public:
 		{
 			im_floater->processSessionUpdate(input["body"]["info"]);
 		}
+		LLIMSpeakerMgr* im_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
+		if (im_mgr)
+		{
+			im_mgr->processSessionUpdate(input["body"]["info"]);
+		}
 	}
 };
 
