@@ -45,6 +45,7 @@
 #include "llnotificationsutil.h"
 #include "lltexturectrl.h"
 #include "lltoggleablemenu.h"
+#include "lltrans.h"
 #include "llviewergenericmessage.h"	// send_generic_message
 #include "llmenugl.h"
 #include "llviewermenu.h"
@@ -198,7 +199,9 @@ LLPanelPicks::LLPanelPicks()
 	mClassifiedsAccTab(NULL),
 	mPanelClassifiedInfo(NULL),
 	mPanelClassifiedEdit(NULL),
-	mClickThroughDisp(NULL)
+	mClickThroughDisp(NULL),
+	mNoClassifieds(false),
+	mNoPicks(false)
 {
 	mClickThroughDisp = new LLClassifiedClickThrough();
 	gGenericDispatcher.addHandler("classifiedclickthrough", mClickThroughDisp);
@@ -224,6 +227,11 @@ void LLPanelPicks::updateData()
 	// Send Picks request only when we need to, not on every onOpen(during tab switch).
 	if(isDirty())
 	{
+		mNoPicks = false;
+		mNoClassifieds = false;
+
+		childSetValue("picks_panel_text", LLTrans::getString("PicksClassifiedsLoadingText"));
+
 		mPicksList->clear();
 		LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(getAvatarId());
 
@@ -284,6 +292,8 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 			resetDirty();
 			updateButtons();
 		}
+		
+		mNoPicks = !mPicksList->size();
 	}
 	else if(APT_CLASSIFIEDS == type)
 	{
@@ -317,9 +327,14 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 			resetDirty();
 			updateButtons();
 		}
+		
+		mNoClassifieds = !mClassifiedsList->size();
 	}
-	if(!mPicksList->size() && !mClassifiedsList->size())
-		childSetVisible("empty_picks_panel_text", true);
+
+	if (mNoPicks && mNoClassifieds)
+	{
+		childSetValue("picks_panel_text", LLTrans::getString("NoPicksClassifiedsText"));
+	}
 }
 
 LLPickItem* LLPanelPicks::getSelectedPickItem()
