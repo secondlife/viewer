@@ -17,6 +17,13 @@ REQUIREMENTS
   the ALSA audio system may be used on systems installed from around
   2007 onwards (again this is likely already installed on your system).
 
+TESTING YOUR SETTINGS
+-=-=-=-=-=-=-=-=-=-=-
+
+* The Second Life region 'Voice Echo Canyon' is a great place for testing
+your hardware settings and quality - it will 'echo' your voice back to you
+when you speak.
+
 KNOWN PROBLEMS
 -=-=-=-=-=-=-=
 
