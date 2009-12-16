@@ -205,7 +205,6 @@ private:
 		{
 			// create single browser window
 			mBrowserWindowId = LLQtWebKit::getInstance()->createBrowserWindow( mWidth, mHeight );
-
 #if LL_WINDOWS
 			// Enable plugins
 			LLQtWebKit::getInstance()->enablePlugins(true);
@@ -216,7 +215,9 @@ private:
 			// Disable plugins
 			LLQtWebKit::getInstance()->enablePlugins(false);
 #endif
-            
+			// Enable cookies
+			LLQtWebKit::getInstance()->enableCookies( true );
+
 			// tell LLQtWebKit about the size of the browser window
 			LLQtWebKit::getInstance()->setSize( mBrowserWindowId, mWidth, mHeight );
 
