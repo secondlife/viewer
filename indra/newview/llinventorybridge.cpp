@@ -190,12 +190,7 @@ BOOL LLInvFVBridge::isItemRemovable()
 	{
 		return TRUE;
 	}
-	if (gAgentWearables.isWearingItem(mUUID))
-	{
-		return FALSE;
-	}
-	const LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if (avatar && avatar->isWearingAttachment(mUUID))
+	if (get_is_item_worn(mUUID))
 	{
 		return FALSE;
 	}
@@ -1659,23 +1654,10 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 					for( i = 0; i < descendent_items.count(); i++ )
 					{
 						LLInventoryItem* item = descendent_items[i];
-						if( (item->getType() == LLAssetType::AT_CLOTHING) ||
-							(item->getType() == LLAssetType::AT_BODYPART) )
+						if (get_is_item_worn(item->getUUID()))
 						{
-							if( gAgentWearables.isWearingItem( item->getUUID() ) )
-							{
-								is_movable = FALSE;  // It's generally movable, but not into the trash!
-								break;
-							}
-						}
-						else
-						if( item->getType() == LLAssetType::AT_OBJECT )
-						{
-							if( avatar->isWearingAttachment( item->getUUID() ) )
-							{
-								is_movable = FALSE;  // It's generally movable, but not into the trash!
-								break;
-							}
+							is_movable = FALSE;
+							break; // It's generally movable, but not into the trash!
 						}
 					}
 				}
@@ -2955,19 +2937,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 		if(is_movable && move_is_into_trash)
 		{
-			switch(inv_item->getType())
-			{
-			case LLAssetType::AT_CLOTHING:
-			case LLAssetType::AT_BODYPART:
-				is_movable = !gAgentWearables.isWearingItem(inv_item->getUUID());
-				break;
-
-			case LLAssetType::AT_OBJECT:
-				is_movable = !avatar->isWearingAttachment(inv_item->getUUID());
-				break;
-			default:
-				break;
-			}
+			is_movable = inv_item->getIsLinkType() || !get_is_item_worn(inv_item->getUUID());
 		}
 
 		if ( is_movable )

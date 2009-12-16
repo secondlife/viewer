@@ -109,7 +109,7 @@ LLUIImagePtr get_item_icon(LLAssetType::EType asset_type,
 						   U32 attachment_point, 
 						   BOOL item_is_multi );
 
-// Is it worn, attached, etc...
+// Is this item or its baseitem is worn, attached, etc...
 BOOL get_is_item_worn(const LLUUID& id);
 
 #endif // LL_LLINVENTORYFUNCTIONS_H
