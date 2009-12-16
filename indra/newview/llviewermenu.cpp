@@ -2630,7 +2630,7 @@ bool enable_object_edit()
 		enable = LLViewerParcelMgr::getInstance()->allowAgentBuild()
 			|| LLSelectMgr::getInstance()->getSelection()->isAttachment();
 	} 
-	else if (LLSelectMgr::getInstance()->selectGetModify())
+	else if (LLSelectMgr::getInstance()->selectGetAllValidAndObjectsFound())
 	{
 		enable = true;
 	}
