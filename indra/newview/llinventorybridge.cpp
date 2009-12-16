@@ -5099,8 +5099,9 @@ void	LLAnimationBridgeAction::doIt()
 //virtual
 void	LLObjectBridgeAction::doIt()
 {
+	/*
 	LLFloaterReg::showInstance("properties", mUUID);
-
+	*/
 	LLInvFVBridgeAction::doIt();
 }
 
