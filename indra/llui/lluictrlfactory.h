@@ -201,7 +201,7 @@ public:
 
 		if (parent)
 		{
-			S32 tab_group = params.tab_group.isProvided() ? params.tab_group() : parent->getLastTabGroup();
+			S32 tab_group = params.tab_group.isProvided() ? params.tab_group() : S32_MAX;
 			setCtrlParent(widget, parent, tab_group);
 		}
 		return widget;
@@ -311,7 +311,8 @@ fail:
 
 		T* widget = createWidget<T>(params, parent);
 
-		createChildren(widget, node, typename T::child_registry_t::instance(), output_node);
+		typedef typename T::child_registry_t registry_t;
+		createChildren(widget, node, registry_t::instance(), output_node);
 
 		if (widget && !widget->postBuild())
 		{

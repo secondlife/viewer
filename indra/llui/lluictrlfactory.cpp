@@ -396,6 +396,7 @@ BOOL LLUICtrlFactory::getAttributeColor(LLXMLNodePtr node, const std::string& na
 //static
 void LLUICtrlFactory::setCtrlParent(LLView* view, LLView* parent, S32 tab_group)
 {
+	if (tab_group == S32_MAX) tab_group = parent->getLastTabGroup();
 	parent->addChild(view, tab_group);
 }
 
