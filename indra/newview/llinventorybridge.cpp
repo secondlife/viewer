@@ -606,10 +606,13 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		disabled_items.push_back(std::string("Paste"));
 	}
 
-	items.push_back(std::string("Paste As Link"));
-	if (!isClipboardPasteableAsLink() || (flags & FIRST_SELECTED_ITEM) == 0)
+	if (gAgent.isGodlike())
 	{
-		disabled_items.push_back(std::string("Paste As Link"));
+		items.push_back(std::string("Paste As Link"));
+		if (!isClipboardPasteableAsLink() || (flags & FIRST_SELECTED_ITEM) == 0)
+		{
+			disabled_items.push_back(std::string("Paste As Link"));
+		}
 	}
 	items.push_back(std::string("Paste Separator"));
 
@@ -1351,17 +1354,27 @@ BOOL LLItemBridge::isItemCopyable() const
 			return FALSE;
 		}
 
-		// All items can be copied, not all can be pasted.
-		// The only time an item can't be copied is if it's a link
-		// return (item->getPermissions().allowCopyBy(gAgent.getID()));
+		// You can never copy a link.
 		if (item->getIsLinkType())
 		{
 			return FALSE;
 		}
-		return TRUE;
+
+		if (gAgent.isGodlike())
+		{
+			// All items can be copied in god mode since you can
+			// at least paste-as-link the item, though you 
+			// still may not be able paste the item.
+			return TRUE;
+		}
+		else
+		{
+			return (item->getPermissions().allowCopyBy(gAgent.getID()));
+		}
 	}
 	return FALSE;
 }
+
 BOOL LLItemBridge::copyToClipboard() const
 {
 	if(isItemCopyable())
