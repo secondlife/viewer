@@ -1782,5 +1782,3 @@ if (LL_TESTS)
 endif (LL_TESTS)
 
 
-    qtxmlpatternsd4.dll
-    qtxmlpatterns4.dll    
