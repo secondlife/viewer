@@ -633,6 +633,20 @@ class LLAdvancedCheckHUDInfo : public view_listener_t
 	}
 };
 
+
+//////////////
+// FLYING   //
+//////////////
+
+class LLAdvancedAgentFlyingInfo : public view_listener_t
+{
+	bool handleEvent(const LLSD&)
+	{
+		return gAgent.getFlying();
+	}
+};
+
+
 ///////////////////////
 // CLEAR GROUP CACHE //
 ///////////////////////
@@ -7703,6 +7717,9 @@ void initialize_menus()
 	// Advanced Other Settings	
 	view_listener_t::addMenu(new LLAdvancedClearGroupCache(), "Advanced.ClearGroupCache");
 
+	// Advanced > Shortcuts
+	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
+	
 	// Advanced > Render > Types
 	view_listener_t::addMenu(new LLAdvancedToggleRenderType(), "Advanced.ToggleRenderType");
 	view_listener_t::addMenu(new LLAdvancedCheckRenderType(), "Advanced.CheckRenderType");
