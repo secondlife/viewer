@@ -9,7 +9,7 @@
 	width="800">
   <string name="control_background_image_name">Inspector_Background</string>
   <string name="skip_step">0.2</string>
-  <string name="min_width">300</string>
+  <string name="min_width">400</string>
   <string name="min_height">120</string>
   <string name="zoom_near_padding">1.0</string>
   <string name="zoom_medium_padding">1.25</string>
