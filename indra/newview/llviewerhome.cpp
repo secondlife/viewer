@@ -35,12 +35,11 @@
 #include "llviewerhome.h"
 
 #include "lllogininstance.h"
+#include "llsd.h"
 #include "llui.h"
 #include "lluri.h"
-#include "llsd.h"
-#include "llversioninfo.h"
 #include "llviewercontrol.h"
-#include "llviewernetwork.h"
+#include "llweb.h"
 
 //static
 std::string LLViewerHome::getHomeURL()
@@ -49,16 +48,12 @@ std::string LLViewerHome::getHomeURL()
 	// this value from settings.xml and support various substitutions
 
 	LLSD substitution;
-	substitution["VERSION"] = LLVersionInfo::getVersion();
-	substitution["CHANNEL"] = LLURI::escape(gSavedSettings.getString("VersionChannelName"));
-	substitution["LANGUAGE"] = LLUI::getLanguage();
 	substitution["AUTH_KEY"] = LLURI::escape(getAuthKey());
-	substitution["GRID"] = LLViewerLogin::getInstance()->getGridLabel();
 
+	// get the home URL and expand all of the substitutions
+	// (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
 	std::string homeURL = gSavedSettings.getString("HomeSidePanelURL");
-	LLStringUtil::format(homeURL, substitution);
-		
-	return homeURL;	
+	return LLWeb::expandURLSubstitutions(homeURL, substitution);
 }
 
 //static

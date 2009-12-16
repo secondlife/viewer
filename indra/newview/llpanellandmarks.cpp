@@ -37,6 +37,7 @@
 #include "llfloaterreg.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
+#include "llregionhandle.h"
 
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"

@@ -43,7 +43,6 @@
 #include "llcachename.h"
 
 #include "llagent.h"			// for agent id
-#include "llalertdialog.h"
 #include "llcheckboxctrl.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"	// for gInventory

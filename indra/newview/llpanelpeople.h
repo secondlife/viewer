@@ -73,6 +73,7 @@ private:
 
 	bool					isFriendOnline(const LLUUID& id);
 	bool					isItemsFreeOfFriends(const std::vector<LLUUID>& uuids);
+	bool 					canCall();
 
 	void					updateButtons();
 	std::string				getActiveTabName() const;
@@ -118,6 +119,8 @@ private:
 	void					onGroupsViewSortMenuItemClicked(const LLSD& userdata);
 	void					onRecentViewSortMenuItemClicked(const LLSD& userdata);
 
+	//returns false only if group is "none"
+	bool					isRealGroup();
 	bool					onFriendsViewSortMenuItemCheck(const LLSD& userdata);
 	bool					onRecentViewSortMenuItemCheck(const LLSD& userdata);
 	bool					onNearbyViewSortMenuItemCheck(const LLSD& userdata);

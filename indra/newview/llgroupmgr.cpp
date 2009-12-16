@@ -758,7 +758,8 @@ void LLGroupMgr::clearGroupData(const LLUUID& group_id)
 
 void LLGroupMgr::addObserver(LLGroupMgrObserver* observer) 
 { 
-	mObservers.insert(std::pair<LLUUID, LLGroupMgrObserver*>(observer->getID(), observer));
+	if( observer->getID() != LLUUID::null )
+		mObservers.insert(std::pair<LLUUID, LLGroupMgrObserver*>(observer->getID(), observer));
 }
 
 void LLGroupMgr::removeObserver(LLGroupMgrObserver* observer)

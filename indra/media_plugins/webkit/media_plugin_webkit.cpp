@@ -211,7 +211,7 @@ private:
 			LLQtWebKit::getInstance()->enablePlugins(true);
 #elif LL_DARWIN
 			// Disable plugins
-			LLQtWebKit::getInstance()->enablePlugins(false);
+			LLQtWebKit::getInstance()->enablePlugins(true);
 #elif LL_LINUX
 			// Disable plugins
 			LLQtWebKit::getInstance()->enablePlugins(false);

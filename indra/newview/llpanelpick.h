@@ -72,6 +72,11 @@ public:
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
 
 	/**
+	 * Sends remote parcel info request to resolve parcel name from its ID.
+	 */
+	void sendParcelInfoRequest();
+
+	/**
 	 * Sets "Back" button click callback
 	 */
 	virtual void setExitCallback(const commit_callback_t& cb);
@@ -81,9 +86,9 @@ public:
 	 */
 	virtual void setEditPickCallback(const commit_callback_t& cb);
 
-	//This stuff we got from LLRemoteParcelObserver, in the last two we intentionally do nothing
+	//This stuff we got from LLRemoteParcelObserver, in the last one we intentionally do nothing
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
-	/*virtual*/ void setParcelID(const LLUUID& parcel_id) {};
+	/*virtual*/ void setParcelID(const LLUUID& parcel_id) { mParcelId = parcel_id; }
 	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason) {};
 
 protected:
@@ -154,8 +159,7 @@ protected:
 	LLVector3d mPosGlobal;
 	LLUUID mParcelId;
 	LLUUID mPickId;
-	std::string mSimName;
-	std::string mLocation;
+	LLUUID mRequestedId;
 };
 
 /**
