@@ -5823,17 +5823,6 @@
       <key>Value</key>
       <integer>35</integer>
     </map>
-    <key>RenderAvatarInvisible</key>
-    <map>
-      <key>Comment</key>
-      <string>Set your avatar as Invisible</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>RenderAvatarVP</key>
     <map>
       <key>Comment</key>
@@ -7820,6 +7809,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ShowDebugAppearanceEditor</key>
+    <map>
+      <key>Comment</key>
+      <string>Show debugging appearance editor</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ShowEmptyFoldersWhenSearching</key>
     <map>
       <key>Comment</key>
@@ -7918,7 +7918,18 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>   
-    </map>    
+    </map>
+    <key>ShowObjectRenderingCost</key>                
+    <map>
+      <key>Comment</key>
+      <string>Show the object rendering cost  in  build tools</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>   
+    </map>        
     <key>ShowNavbarFavoritesPanel</key>    
     <map>
       <key>Comment</key>

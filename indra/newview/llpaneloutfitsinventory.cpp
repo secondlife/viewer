@@ -56,7 +56,10 @@
 #include "llmenugl.h"
 #include "llviewermenu.h"
 
+#include "llviewercontrol.h"
+
 static LLRegisterPanelClassWrapper<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
+bool LLPanelOutfitsInventory::sShowDebugEditor = false;
 
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mActivePanel(NULL),
@@ -74,7 +77,7 @@ LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
 // virtual
 BOOL LLPanelOutfitsInventory::postBuild()
 {
-	
+	sShowDebugEditor = gSavedSettings.getBOOL("ShowDebugAppearanceEditor");
 	initTabPanels();
 	initListCommandsHandlers();
 	return TRUE;
@@ -86,6 +89,8 @@ void LLPanelOutfitsInventory::updateVerbs()
 	{
 		mParent->updateVerbs();
 	}
+
+	childSetVisible("look_edit_btn",sShowDebugEditor);
 }
 
 void LLPanelOutfitsInventory::setParent(LLSidepanelAppearance* parent)
@@ -177,7 +182,6 @@ void LLPanelOutfitsInventory::onSelectionChange(const std::deque<LLFolderViewIte
 
 void LLPanelOutfitsInventory::onSelectorButtonClicked()
 {
-	/*
 	  LLFolderViewItem* cur_item = getRootFolder()->getCurSelectedItem();
 
 	  LLFolderViewEventListener* listenerp = cur_item->getListener();
@@ -189,7 +193,6 @@ void LLPanelOutfitsInventory::onSelectorButtonClicked()
 
 	  LLSideTray::getInstance()->showPanel("sidepanel_appearance", key);
 	  } 
-	*/
 }
 
 LLFolderViewEventListener *LLPanelOutfitsInventory::getCorrectListenerForAction()
@@ -235,7 +238,9 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
 	mListCommands->childSetAction("add_btn", boost::bind(&LLPanelOutfitsInventory::onAddButtonClick, this));
 	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
-	
+
+	childSetAction("look_edit_btn", boost::bind(&LLPanelOutfitsInventory::onSelectorButtonClicked, this));
+
 	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>("trash_btn");
 	trash_btn->setDragAndDropHandler(boost::bind(&LLPanelOutfitsInventory::handleDragAndDropToTrash, this
 				   ,       _4 // BOOL drop
