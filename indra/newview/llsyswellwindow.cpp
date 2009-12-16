@@ -709,15 +709,15 @@ BOOL LLIMWellWindow::postBuild()
 void LLIMWellWindow::sessionAdded(const LLUUID& session_id,
 								   const std::string& name, const LLUUID& other_participant_id)
 {
-	if (mMessageList->getItemByValue(session_id) == NULL)
-	{
-		S32 chicletCounter = LLIMModel::getInstance()->getNumUnread(session_id);
-		if (chicletCounter > -1)
-		{
-			addIMRow(session_id, chicletCounter, name, other_participant_id);	
-			reshapeWindow();
-		}
-	}
+	if (!mMessageList->getItemByValue(session_id)) return;
+	
+	// For im sessions started as voice call chiclet gets created on the first incoming message
+	if (gIMMgr->isVoiceCall(session_id)) return;
+
+	if (!gIMMgr->hasSession(session_id)) return;
+
+	addIMRow(session_id, 0, name, other_participant_id);	
+	reshapeWindow();
 }
 
 //virtual
