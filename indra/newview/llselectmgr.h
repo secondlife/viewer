@@ -535,6 +535,7 @@ public:
 	// Returns TRUE if the viewer has information on all selected objects
 	BOOL selectGetAllRootsValid();
 	BOOL selectGetAllValid();
+	BOOL selectGetAllValidAndObjectsFound();
 
 	// returns TRUE if you can modify all selected objects. 
 	BOOL selectGetRootsModify();

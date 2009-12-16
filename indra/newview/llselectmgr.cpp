@@ -2277,6 +2277,26 @@ BOOL LLSelectMgr::selectGetAllValid()
 	return TRUE;
 }
 
+//-----------------------------------------------------------------------------
+// selectGetAllValidAndObjectsFound() - return TRUE if selections are
+// valid and objects are found.
+//
+// For EXT-3114 - same as selectGetModify() without the modify check.
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetAllValidAndObjectsFound()
+{
+	for (LLObjectSelection::iterator iter = getSelection()->begin();
+		 iter != getSelection()->end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !object || !node->mValid )
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
 
 //-----------------------------------------------------------------------------
 // selectGetModify() - return TRUE if current agent can modify all
