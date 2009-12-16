@@ -47,16 +47,6 @@
         name="cof_accordionpanel"
         start_folder="Current Outfit" />
    </tab_container>
-   <button
-     follows="bottom|left" 
-     height="18" 
-     label="edit look"
-     layout="topleft"
-     left="10"
-     name="look_edit_btn"
-     top_pad="10"
-     visible="false"
-     width="90" />
 	<panel
 	  background_visible="true"
 	  follows="bottom|left"
@@ -110,5 +100,14 @@
 		right="-5"
 		top_pad="0"
 		width="90" />
+      <button
+       follows="bottom|left" 
+       height="23" 
+       label="edit look"
+       layout="topleft"
+       left_pad="-200"
+       name="look_edit_btn"
+       visible="false"
+       width="90" />
 	 </panel>
 </panel>

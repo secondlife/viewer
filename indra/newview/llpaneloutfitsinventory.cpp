@@ -90,7 +90,10 @@ void LLPanelOutfitsInventory::updateVerbs()
 		mParent->updateVerbs();
 	}
 
-	childSetVisible("look_edit_btn",sShowDebugEditor);
+	if (mListCommands)
+	{
+		mListCommands->childSetVisible("look_edit_btn",sShowDebugEditor);
+	}
 }
 
 void LLPanelOutfitsInventory::setParent(LLSidepanelAppearance* parent)
@@ -239,7 +242,7 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 	mListCommands->childSetAction("add_btn", boost::bind(&LLPanelOutfitsInventory::onAddButtonClick, this));
 	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
 
-	childSetAction("look_edit_btn", boost::bind(&LLPanelOutfitsInventory::onSelectorButtonClicked, this));
+	mListCommands->childSetAction("look_edit_btn", boost::bind(&LLPanelOutfitsInventory::onSelectorButtonClicked, this));
 
 	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>("trash_btn");
 	trash_btn->setDragAndDropHandler(boost::bind(&LLPanelOutfitsInventory::handleDragAndDropToTrash, this
