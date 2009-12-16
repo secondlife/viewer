@@ -506,41 +506,6 @@ void hide_context_entries(LLMenuGL& menu,
 	}
 }
 
-bool isWornLink(LLUUID link_id)
-{
-	LLViewerInventoryItem *link = gInventory.getItem(link_id);
-	if (!link)
-		return false;
-	LLViewerInventoryItem *item = link->getLinkedItem();
-	if (!item)
-		return false;
-	
-	switch(item->getType())
-	{
-	case LLAssetType::AT_OBJECT:
-	{
-		LLVOAvatarSelf* my_avatar = gAgent.getAvatarObject();
-		if(my_avatar && my_avatar->isWearingAttachment(item->getUUID()))
-			return true;
-	}
-	break;
-
-	case LLAssetType::AT_BODYPART:
-	case LLAssetType::AT_CLOTHING:
-		if(gAgentWearables.isWearingItem(item->getUUID()))
-			return true;
-		break;
-
-	case LLAssetType::AT_GESTURE:
-		if (LLGestureManager::instance().isGestureActive(item->getUUID()))
-			return true;
-		break;
-	default:
-		break;
-	}
-	return false;
-}
-
 // Helper for commonly-used entries
 void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 										std::vector<std::string> &items,
@@ -552,7 +517,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 	if (is_sidepanel)
 	{
 		// Sidepanel includes restricted menu.
-		if (obj && obj->getIsLinkType() && !isWornLink(mUUID))
+		if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
 		{
 			items.push_back(std::string("Remove Link"));
 		}
@@ -617,7 +582,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 	items.push_back(std::string("Paste Separator"));
 
 
-	if (obj && obj->getIsLinkType() && !isWornLink(mUUID))
+	if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
 	{
 		items.push_back(std::string("Remove Link"));
 	}
