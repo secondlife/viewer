@@ -111,7 +111,8 @@ namespace LLInitParam
 		{
 		}
 
-		LLUIImage* getValueFromBlock() const;
+		void setValueFromBlock() const;
+		void setBlockFromValue();
 	};
 
 	// Need custom comparison function for our test app, which only loads

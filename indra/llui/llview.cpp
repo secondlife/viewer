@@ -2494,14 +2494,14 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 	const S32 VPAD = 4;
 	const S32 MIN_WIDGET_HEIGHT = 10;
 	
-	p.from_xui(true);
-
 	// *NOTE:  This will confuse export of floater/panel coordinates unless
 	// the default is also "topleft".  JC
 	if (p.layout().empty() && parent)
 	{
 		p.layout = parent->getLayout();
 	}
+
+	p.from_xui = true;
 
 	if (parent)
 	{
@@ -2518,7 +2518,7 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 		}
 
 		// convert negative or centered coordinates to parent relative values
-		// Note: some of this logic matches the logic in TypedParam<LLRect>::getValueFromBlock()
+		// Note: some of this logic matches the logic in TypedParam<LLRect>::setValueFromBlock()
 
 		if (p.center_horiz)
 		{

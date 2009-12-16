@@ -26,18 +26,20 @@
      top="2"
      width="23" />
     <text_editor
-	 read_only = "true"
-     follows="top|left|right"
-     font="SansSerifHugeBold"
-     height="29"
-     layout="topleft"
-     left_pad="10"
-     name="user_name"
-     text_color="white"
-     top="0"
-     value="(Loading...)"
-     use_ellipses="true"
-     width="275" />
+      allow_scroll="false" 
+      bg_visible="false" 
+      read_only = "true"
+      follows="top|left|right"
+      font="SansSerifHugeBold"
+      height="29"
+      layout="topleft"
+      left_pad="10"
+      name="user_name"
+      text_color="white"
+      top="0"
+      value="(Loading...)"
+      use_ellipses="true"
+      width="275" />
     <text
      follows="top|left"
      height="13"

@@ -16,13 +16,14 @@
 	 control_name="ChatFontSize"
      name="chat_font_size"
      top="10"
-     width="331">
+     width="440">
         <radio_item
          height="16"
          label="Small"
          layout="topleft"
          left="0"
          name="radio"
+         value="0" 
          top="10"
          width="125" />
         <radio_item
@@ -31,6 +32,7 @@
          layout="topleft"
          left_delta="145"
          name="radio2"
+         value="1"         
          top_delta="0"
          width="125" />
         <radio_item
@@ -39,6 +41,7 @@
          layout="topleft"
          left_delta="170"
          name="radio3"
+         value="2" 
          top_delta="0"
          width="125" />
     </radio_group>
@@ -340,6 +343,7 @@
       layout="topleft"
       left="0"
       name="radio"
+      value="0"
       top="0"
       width="150" />
      <radio_item
@@ -348,6 +352,7 @@
       layout="topleft"
       left_delta="145"
       name="radio2"
+      value="1"
       top_delta="0"
       width="150" />
     </radio_group>

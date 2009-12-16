@@ -167,6 +167,7 @@
                  left="1"
                  name="radio"
                  top="1"
+                 value="0"
                  width="82" />
                 <radio_item
                  height="16"
@@ -174,6 +175,7 @@
                  layout="topleft"
                  left_delta="0"
                  name="radio2"
+                 value="1"
                  top_delta="16"
                  width="82" />
             </radio_group>

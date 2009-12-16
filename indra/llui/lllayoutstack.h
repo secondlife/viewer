@@ -45,9 +45,8 @@ public:
 	{
 		Optional<std::string>	orientation;
 		Optional<S32>			border_size;
-		Optional<bool>			animate;
-		Optional<bool>			clip;
-		// mMinWidth and mMinHeight are calculated, not set in XML
+		Optional<bool>			animate,
+								clip;
 
 		Params();
 	};
