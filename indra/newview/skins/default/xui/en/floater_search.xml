@@ -13,10 +13,6 @@
  title="FIND"
  width="670">
     <floater.string
-     name="search_url">
-        http://int.searchwww-phx0.damballah.lindenlab.com/viewer
-    </floater.string>
-    <floater.string
      name="loading_text">
         Loading...
     </floater.string>
