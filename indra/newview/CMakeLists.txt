@@ -1436,6 +1436,7 @@ if (WINDOWS)
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtnetwork4.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtopengl4.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtwebkit4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/qtxmlpatterns4.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/ssleay32.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/imageformats/qgif4.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/imageformats/qico4.dll
@@ -1449,6 +1450,7 @@ if (WINDOWS)
       ${ARCH_PREBUILT_DIRS_DEBUG}/qtnetworkd4.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/qtopengld4.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/qtwebkitd4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/qtxmlpatternsd4.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/ssleay32.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qgifd4.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qicod4.dll
