@@ -396,7 +396,7 @@ void LLPanelProfileTab::updateButtons()
 					&& gAgent.isGodlike() || is_agent_mappable(getAvatarId());
 
 	childSetEnabled("show_on_map_btn", enable_map_btn);
-	childSetEnabled("call", LLVoiceClient::voiceEnabled());
+	childSetEnabled("call", LLAvatarActions::canCall(getAvatarId()));
 }
 
 //////////////////////////////////////////////////////////////////////////

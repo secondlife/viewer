@@ -505,7 +505,7 @@ void LLTeleportHistoryPanel::refresh()
 			tab->setVisible(true);
 
 			// Expand all accordion tabs when filtering
-			if(!mFilterSubString.empty())
+			if(!sFilterSubString.empty())
 			{
 				tab->setDisplayChildren(true);
 			}
@@ -521,7 +521,7 @@ void LLTeleportHistoryPanel::refresh()
 
 		if (curr_flat_view)
 		{
-			LLTeleportHistoryFlatItem* item = new LLTeleportHistoryFlatItem(mCurrentItem, &mContextMenu, items[mCurrentItem].mTitle, mFilterSubString);
+			LLTeleportHistoryFlatItem* item = new LLTeleportHistoryFlatItem(mCurrentItem, &mContextMenu, items[mCurrentItem].mTitle, sFilterSubString);
 			curr_flat_view->addItem(item);
 
 			if (mLastSelectedItemIndex == mCurrentItem)
@@ -569,7 +569,7 @@ void LLTeleportHistoryPanel::replaceItem(S32 removed_index)
 	LLTeleportHistoryFlatItem* item = new LLTeleportHistoryFlatItem(history_items.size(), // index will be decremented inside loop below
 									&mContextMenu,
 									history_items[history_items.size() - 1].mTitle, // Most recent item, it was
-									mFilterSubString);
+									sFilterSubString);
 															 // added instead of removed
 	fv->addItem(item, LLUUID::null, ADD_TOP);
 

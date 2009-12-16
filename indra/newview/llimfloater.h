@@ -33,9 +33,10 @@
 #ifndef LL_IMFLOATER_H
 #define LL_IMFLOATER_H
 
-#include "lltransientdockablefloater.h"
+#include "llinstantmessage.h"
 #include "lllogchat.h"
 #include "lltooldraganddrop.h"
+#include "lltransientdockablefloater.h"
 
 class LLLineEditor;
 class LLPanelChatControlPanel;
@@ -108,6 +109,9 @@ public:
 	static bool isChatMultiTab();
 
 	static void initIMFloater();
+
+	//used as a callback on receiving new IM message
+	static void sRemoveTypingIndicator(const LLSD& data);
 
 private:
 	// process focus events to set a currently active session

@@ -36,6 +36,7 @@
 #include "llmenugl.h"
 #include "llsafehandle.h"
 
+class LLMessageSystem;
 class LLSD;
 class LLUICtrl;
 class LLView;
@@ -160,21 +161,13 @@ extern LLMenuGL*		gPopupMenuView;
 extern LLViewerMenuHolderGL*	gMenuHolder;
 extern LLMenuBarGL*		gLoginMenuBarView;
 
-// Pie menus
-extern LLContextMenu		*gPieSelf;
-extern LLContextMenu		*gPieAvatar;
-extern LLContextMenu		*gPieObject;
-extern LLContextMenu		*gPieAttachment;
-
-extern LLContextMenu		*gPieLand;
-extern LLContextMenu		*gPieRate;
-
-// Pie menus
-extern LLContextMenu	*gPieSelfSimple;
-extern LLContextMenu	*gPieAvatarSimple;
-extern LLContextMenu	*gPieObjectSimple;
-extern LLContextMenu	*gPieAttachmentSimple;
-extern LLContextMenu	*gPieLandSimple;
+// Context menus in 3D scene
+extern LLContextMenu		*gMenuAvatarSelf;
+extern LLContextMenu		*gMenuAvatarOther;
+extern LLContextMenu		*gMenuObject;
+extern LLContextMenu		*gMenuAttachmentSelf;
+extern LLContextMenu		*gMenuAttachmentOther;
+extern LLContextMenu		*gMenuLand;
 
 // Needed to build menus when attachment site list available
 extern LLMenuGL* gAttachSubMenu;

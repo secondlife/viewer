@@ -55,7 +55,6 @@
 #include "llinventorymodel.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-#include "llnotify.h"
 #include "llresmgr.h"
 #include "llimview.h"
 #include "llviewercontrol.h"

@@ -40,6 +40,7 @@
 
 #include "llworkerthread.h"
 
+class LLImageFormatted;
 class LLTextureCacheWorker;
 
 class LLTextureCache : public LLWorkerThread

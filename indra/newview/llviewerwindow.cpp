@@ -32,6 +32,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llviewerwindow.h"
+
 #if LL_WINDOWS
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
@@ -46,7 +48,6 @@
 #include "llpanellogin.h"
 #include "llviewerkeyboard.h"
 #include "llviewermenu.h"
-#include "llviewerwindow.h"
 
 #include "llviewquery.h"
 #include "llxmltree.h"
@@ -82,7 +83,6 @@
 
 // newview includes
 #include "llagent.h"
-#include "llalertdialog.h"
 #include "llbox.h"
 #include "llconsole.h"
 #include "llviewercontrol.h"
@@ -129,7 +129,6 @@
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
-#include "llnotify.h"
 #include "lloverlaybar.h"
 #include "llpreviewtexture.h"
 #include "llprogressview.h"
@@ -259,19 +258,21 @@ public:
 	virtual void recordMessage(LLError::ELevel level,
 								const std::string& message)
 	{
-		// only log warnings to chat console
-		if (level == LLError::LEVEL_WARN)
-		{
-			LLFloaterChat* chat_floater = LLFloaterReg::findTypedInstance<LLFloaterChat>("chat");
-			if (chat_floater && gSavedSettings.getBOOL("WarningsAsChat"))
-			{
-				LLChat chat;
-				chat.mText = message;
-				chat.mSourceType = CHAT_SOURCE_SYSTEM;
+		//FIXME: this is NOT thread safe, and will do bad things when a warning is issued from a non-UI thread
 
-				chat_floater->addChat(chat, FALSE, FALSE);
-			}
-		}
+		// only log warnings to chat console
+		//if (level == LLError::LEVEL_WARN)
+		//{
+			//LLFloaterChat* chat_floater = LLFloaterReg::findTypedInstance<LLFloaterChat>("chat");
+			//if (chat_floater && gSavedSettings.getBOOL("WarningsAsChat"))
+			//{
+			//	LLChat chat;
+			//	chat.mText = message;
+			//	chat.mSourceType = CHAT_SOURCE_SYSTEM;
+
+			//	chat_floater->addChat(chat, FALSE, FALSE);
+			//}
+		//}
 	}
 };
 
@@ -1450,7 +1451,6 @@ void LLViewerWindow::initBase()
 
 	gDebugView = getRootView()->getChild<LLDebugView>("DebugView");
 	gDebugView->init();
-	gNotifyBoxView = getRootView()->getChild<LLNotifyBoxView>("notify_container");
 	gToolTipView = getRootView()->getChild<LLToolTipView>("tooltip view");
 
 	// Add the progress bar view (startup view), which overrides everything
@@ -1529,12 +1529,12 @@ void LLViewerWindow::initWorldUI()
 	
 	if (!gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
 	{
-		toggle_show_navigation_panel(LLSD(0));
+		navbar->showNavigationPanel(FALSE);
 	}
 
 	if (!gSavedSettings.getBOOL("ShowNavbarFavoritesPanel"))
 	{
-		toggle_show_favorites_panel(LLSD(0));
+		navbar->showFavoritesPanel(FALSE);
 	}
 
 	if (!gSavedSettings.getBOOL("ShowCameraButton"))
@@ -1628,8 +1628,6 @@ void LLViewerWindow::shutdownViews()
 	gMorphView = NULL;
 
 	gHUDView = NULL;
-
-	gNotifyBoxView = NULL;
 }
 
 void LLViewerWindow::shutdownGL()
@@ -1997,9 +1995,6 @@ void LLViewerWindow::draw()
 #if LL_DEBUG
 	LLView::sIsDrawing = FALSE;
 #endif
-	
-	// UI post-draw Updates
-	gNotifyBoxView->updateNotifyBoxView();	
 }
 
 // Takes a single keydown event, usually when UI is visible
@@ -2595,7 +2590,6 @@ void LLViewerWindow::updateUI()
 				else if (dynamic_cast<LLUICtrl*>(viewp) 
 						&& viewp != gMenuHolder
 						&& viewp != gFloaterView
-						&& viewp != gNotifyBoxView
 						&& viewp != gConsole) 
 				{
 					if (dynamic_cast<LLFloater*>(viewp))
@@ -3140,7 +3134,6 @@ void LLViewerWindow::pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback
 		return;
 	}
 	
-	// push back pick info object
 	BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
 	if (in_build_mode || LLDrawPoolAlpha::sShowDebugAlpha)
 	{
@@ -3149,27 +3142,8 @@ void LLViewerWindow::pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback
 		pick_transparent = TRUE;
 	}
 
-	// center initial pick frame buffer region under mouse cursor
-	// since that area is guaranteed to be onscreen and hence a valid
-	// part of the framebuffer
-	if (mPicks.empty())
-	{
-		mPickScreenRegion.setCenterAndSize(x, y_from_bot, PICK_DIAMETER, PICK_DIAMETER);
-
-		if (mPickScreenRegion.mLeft < mWorldViewRectScaled.mLeft) mPickScreenRegion.translate(mWorldViewRectScaled.mLeft - mPickScreenRegion.mLeft, 0);
-		if (mPickScreenRegion.mBottom < mWorldViewRectScaled.mBottom) mPickScreenRegion.translate(0, mWorldViewRectScaled.mBottom - mPickScreenRegion.mBottom);
-		if (mPickScreenRegion.mRight > mWorldViewRectScaled.mRight ) mPickScreenRegion.translate(mWorldViewRectScaled.mRight - mPickScreenRegion.mRight, 0);
-		if (mPickScreenRegion.mTop > mWorldViewRectScaled.mTop ) mPickScreenRegion.translate(0, mWorldViewRectScaled.mTop - mPickScreenRegion.mTop);
-	}
-
-	// set frame buffer region for picking results
-	// stack multiple picks left to right
-	LLRect screen_region = mPickScreenRegion;
-	screen_region.translate(mPicks.size() * PICK_DIAMETER, 0);
-
-	LLPickInfo pick(LLCoordGL(x, y_from_bot), screen_region, mask, pick_transparent, TRUE, callback);
-
-	schedulePick(pick);
+	LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, TRUE, callback);
+	schedulePick(pick_info);
 }
 
 void LLViewerWindow::schedulePick(LLPickInfo& pick_info)
@@ -3184,10 +3158,11 @@ void LLViewerWindow::schedulePick(LLPickInfo& pick_info)
 	
 		return;
 	}
-	llassert_always(pick_info.mScreenRegion.notEmpty());
 	mPicks.push_back(pick_info);
 	
 	// delay further event processing until we receive results of pick
+	// only do this for async picks so that handleMouseUp won't be called
+	// until the pick triggered in handleMouseDown has been processed, for example
 	mWindow->delayInputProcessing();
 }
 
@@ -3235,19 +3210,17 @@ LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot,  BOOL pick_trans
 		return LLPickInfo();
 	}
 
-	pickAsync(x, y_from_bot, gKeyboard->currentMask(TRUE), NULL, pick_transparent);
-	// assume that pickAsync put the results in the back of the mPicks list
-	if(mPicks.size() != 0)
+	BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
+	if (in_build_mode || LLDrawPoolAlpha::sShowDebugAlpha)
 	{
-		mLastPick = mPicks.back();
-		mLastPick.fetchResults();
-		mPicks.pop_back();
+		// build mode allows interaction with all transparent objects
+		// "Show Debug Alpha" means no object actually transparent
+		pick_transparent = TRUE;
 	}
-	else
-	{
-		lldebugs << "List of last picks is empty: Using stub pick" << llendl;
-		mLastPick = LLPickInfo();
-	}
+
+	// shortcut queueing in mPicks and just update mLastPick in place
+	mLastPick = LLPickInfo(LLCoordGL(x, y_from_bot), gKeyboard->currentMask(TRUE), pick_transparent, TRUE, NULL);
+	mLastPick.fetchResults();
 
 	return mLastPick;
 }
@@ -4895,13 +4868,11 @@ LLPickInfo::LLPickInfo()
 }
 
 LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos, 
-					   const LLRect& screen_region,
 						MASK keyboard_mask, 
 						BOOL pick_transparent,
 						BOOL pick_uv_coords,
 						void (*pick_callback)(const LLPickInfo& pick_info))
 	: mMousePt(mouse_pos),
-	  mScreenRegion(screen_region),
 	  mKeyMask(keyboard_mask),
 	  mPickCallback(pick_callback),
 	  mPickType(PICK_INVALID),

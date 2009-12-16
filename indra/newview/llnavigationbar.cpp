@@ -34,10 +34,12 @@
 
 #include "llnavigationbar.h"
 
-#include <llfloaterreg.h>
-#include <llfocusmgr.h>
-#include <lliconctrl.h>
-#include <llmenugl.h>
+#include "llregionhandle.h"
+
+#include "llfloaterreg.h"
+#include "llfocusmgr.h"
+#include "lliconctrl.h"
+#include "llmenugl.h"
 
 #include "llagent.h"
 #include "llviewerregion.h"

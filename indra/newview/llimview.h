@@ -69,10 +69,9 @@ public:
 		virtual ~LLIMSession();
 
 		void sessionInitReplyReceived(const LLUUID& new_session_id);
-		void setSessionType(); //define what type of session was opened
 		void addMessagesFromHistory(const std::list<LLSD>& history);
 		void addMessage(const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& time);
-		void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
+		void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction);
 		static void chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata);
 
 		LLUUID mSessionID;
@@ -384,7 +383,7 @@ public:
 	 * Start call in a session
 	 * @return false if voice channel doesn't exist
 	 **/
-	bool startCall(const LLUUID& session_id);
+	bool startCall(const LLUUID& session_id, LLVoiceChannel::EDirection direction = LLVoiceChannel::OUTGOING_CALL);
 
 	/**
 	 * End call in a session
@@ -448,7 +447,7 @@ public:
 
 	static void initClass();
 	static void onVoiceChannelChanged(const LLUUID &session_id);
-	static void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
+	static void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction);
 
 protected:
 	static std::string sPreviousSessionlName;
