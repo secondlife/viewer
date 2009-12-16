@@ -399,6 +399,8 @@
 			function="MediaCtrl.ToggleMute" />
 		<button.mouseenter_callback
 			function="MediaCtrl.ShowVolumeSlider" />
+		<button.mouseleave_callback
+			function="MediaCtrl.HideVolumeSlider" />
 	  </button>
 	  <slider
 		  orientation="vertical"
@@ -414,6 +416,10 @@
 		  volume="true">
 		<slider.commit_callback
 			function="MediaCtrl.Volume"/>
+		<slider.mouseenter_callback
+			function="MediaCtrl.ShowVolumeSlider" />
+		<slider.mouseleave_callback
+			function="MediaCtrl.HideVolumeSlider" />
 	  </slider>
 	</layout_panel>
 	<panel
