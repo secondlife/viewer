@@ -333,7 +333,8 @@ class WindowsManifest(ViewerManifest):
             self.end_prefix()
 
         if self.args['configuration'].lower() == 'debug':
-            if self.prefix(src="../../libraries/i686-win32/lib/debug", dst="llplugin"):
+            if self.prefix(src=os.path.join(os.pardir, os.pardir, 'libraries', 'i686-win32', 'lib', 'debug'),
+                           dst="llplugin"):
                 self.path("libeay32.dll")
                 self.path("qtcored4.dll")
                 self.path("qtguid4.dll")
@@ -341,19 +342,21 @@ class WindowsManifest(ViewerManifest):
                 self.path("qtopengld4.dll")
                 self.path("qtwebkitd4.dll")
                 self.path("ssleay32.dll")
-                self.end_prefix()
 
-            # For WebKit/Qt plugin runtimes (image format plugins)
-            if self.prefix(src="../../libraries/i686-win32/lib/debug/imageformats", dst="llplugin/imageformats"):
-                self.path("qgif4d.dll")
-                self.path("qico4d.dll")
-                self.path("qjpeg4d.dll")
-                self.path("qmng4d.dll")
-                self.path("qsvg4d.dll")
-                self.path("qtiff4d.dll")
+                # For WebKit/Qt plugin runtimes (image format plugins)
+                if self.prefix(src="imageformats", dst="llplugin/imageformats"):                
+                    self.path("qgifd4.dll")
+                    self.path("qicod4.dll")
+                    self.path("qjpegd4.dll")
+                    self.path("qmngd4.dll")
+                    self.path("qsvgd4.dll")
+                    self.path("qtiffd4.dll")
+                    self.end_prefix()
+
                 self.end_prefix()
         else:
-            if self.prefix(src="../../libraries/i686-win32/lib/release", dst="llplugin"):
+            if self.prefix(src=os.path.join(os.pardir, os.pardir, 'libraries', 'i686-win32', 'lib', 'release'),
+                           dst="llplugin"):
                 self.path("libeay32.dll")
                 self.path("qtcore4.dll")
                 self.path("qtgui4.dll")
@@ -361,16 +364,17 @@ class WindowsManifest(ViewerManifest):
                 self.path("qtopengl4.dll")
                 self.path("qtwebkit4.dll")
                 self.path("ssleay32.dll")
-                self.end_prefix()
 
-            # For WebKit/Qt plugin runtimes (image format plugins)
-            if self.prefix(src="../../libraries/i686-win32/lib/release/imageformats", dst="llplugin/imageformats"):
-                self.path("qgif4.dll")
-                self.path("qico4.dll")
-                self.path("qjpeg4.dll")
-                self.path("qmng4.dll")
-                self.path("qsvg4.dll")
-                self.path("qtiff4.dll")
+                # For WebKit/Qt plugin runtimes (image format plugins)
+                if self.prefix(src="imageformats", dst="llplugin/imageformats"):
+                    self.path("qgif4.dll")
+                    self.path("qico4.dll")
+                    self.path("qjpeg4.dll")
+                    self.path("qmng4.dll")
+                    self.path("qsvg4.dll")
+                    self.path("qtiff4.dll")
+                    self.end_prefix()
+
                 self.end_prefix()
 
         self.disable_manifest_check()
