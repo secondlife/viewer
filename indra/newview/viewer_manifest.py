@@ -341,10 +341,11 @@ class WindowsManifest(ViewerManifest):
                 self.path("qtnetworkd4.dll")
                 self.path("qtopengld4.dll")
                 self.path("qtwebkitd4.dll")
+                self.path("qtxmlpatternsd4.dll")
                 self.path("ssleay32.dll")
 
                 # For WebKit/Qt plugin runtimes (image format plugins)
-                if self.prefix(src="imageformats", dst="llplugin/imageformats"):                
+                if self.prefix(src="imageformats", dst="llplugin/imageformats"):
                     self.path("qgifd4.dll")
                     self.path("qicod4.dll")
                     self.path("qjpegd4.dll")
