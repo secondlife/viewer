@@ -249,7 +249,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	childSetAction("connect_btn", onClickConnect, this);
 
-	getChild<LLPanel>("login_widgets")->setDefaultBtn("connect_btn");
+	getChild<LLPanel>("login")->setDefaultBtn("connect_btn");
 
 	std::string channel = gSavedSettings.getString("VersionChannelName");
 	std::string version = llformat("%s (%d)",
