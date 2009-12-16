@@ -113,9 +113,6 @@ BOOL LLSidepanelAppearance::postBuild()
 	mEditAppearanceBtn = getChild<LLButton>("editappearance_btn");
 	mEditAppearanceBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onEditAppearanceButtonClicked, this));
 
-	mWearBtn = getChild<LLButton>("wear_btn");
-	mWearBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onWearButtonClicked, this));
-
 	mEditBtn = getChild<LLButton>("edit_btn");
 	mEditBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onEditButtonClicked, this));
 
@@ -199,14 +196,6 @@ void LLSidepanelAppearance::onFilterEdit(const std::string& search_string)
 	}
 }
 
-void LLSidepanelAppearance::onWearButtonClicked()
-{
-	if (!mLookInfo->getVisible())
-	{
-		mPanelOutfitsInventory->onWear();
-	}
-}
-
 void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 {
 	const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getCurrentOutfitLink();
@@ -284,7 +273,6 @@ void LLSidepanelAppearance::toggleLookInfoPanel(BOOL visible)
 	mLookInfo->setVisible(visible);
 	mPanelOutfitsInventory->setVisible(!visible);
 	mFilterEditor->setVisible(!visible);
-	mWearBtn->setVisible(!visible);
 	mEditBtn->setVisible(!visible);
 	mNewOutfitBtn->setVisible(!visible);
 	mCurrOutfitPanel->setVisible(!visible);
@@ -314,12 +302,10 @@ void LLSidepanelAppearance::updateVerbs()
 	{
 		const bool is_correct_type = (mPanelOutfitsInventory->getCorrectListenerForAction() != NULL);
 		mEditBtn->setEnabled(is_correct_type);
-		mWearBtn->setEnabled(is_correct_type);
 	}
 	else
 	{
 		mEditBtn->setEnabled(FALSE);
-		mWearBtn->setEnabled(FALSE);
 	}
 }
 

@@ -973,7 +973,7 @@ bool LLInvFVBridge::isInOutfitsSidePanel() const
 		dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
 	if (!outfit_panel)
 		return false;
-	return outfit_panel->isAccordionPanel(my_panel);
+	return outfit_panel->isTabPanel(my_panel);
 }
 
 // +=================================================+
@@ -2496,7 +2496,10 @@ void LLFolderBridge::folderOptionsMenu()
 		checkFolderForContentsOfType(model, is_object) ||
 		checkFolderForContentsOfType(model, is_gesture) )
 	{
-		mItems.push_back(std::string("Folder Wearables Separator"));
+		if (!is_sidepanel)
+		{
+			mItems.push_back(std::string("Folder Wearables Separator"));
+		}
 
 		// Only enable add/replace outfit for non-default folders.
 		if (!is_default_folder)
@@ -2902,6 +2905,9 @@ void saveItemsOrder(LLInventoryModel::item_array_t& items)
 		item->updateServer(FALSE);
 
 		gInventory.updateItem(item);
+
+		// Tell the parent folder to refresh its sort order.
+		gInventory.addChangedMask(LLInventoryObserver::SORT, item->getParentUUID());
 	}
 
 	gInventory.notifyObservers();
@@ -2998,8 +3004,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		}
 
 		const LLUUID& favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-		const LLUUID& landmarks_id = model->findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
-		const BOOL folder_allows_reorder = ((mUUID == landmarks_id) || (mUUID == favorites_id));
+		const BOOL folder_allows_reorder = (mUUID == favorites_id);
 	   
 		// we can move item inside a folder only if this folder is Favorites. See EXT-719
 		accept = is_movable && ((mUUID != inv_item->getParentUUID()) || folder_allows_reorder);

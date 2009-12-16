@@ -95,7 +95,9 @@ void LLSidepanelInventorySubpanel::setIsEditing(BOOL edit)
 
 BOOL LLSidepanelInventorySubpanel::getIsEditing() const
 {
-	return mIsEditing;
+
+	return TRUE; // Default everything to edit mode since we're not using an edit button anymore.
+	// return mIsEditing;
 }
 
 void LLSidepanelInventorySubpanel::reset()

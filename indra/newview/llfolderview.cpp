@@ -1939,6 +1939,26 @@ LLFolderViewItem* LLFolderView::getItemByID(const LLUUID& id)
 	return NULL;
 }
 
+LLFolderViewFolder* LLFolderView::getFolderByID(const LLUUID& id)
+{
+	if (id.isNull())
+	{
+		return this;
+	}
+
+	for (folders_t::iterator iter = mFolders.begin();
+		 iter != mFolders.end();
+		 ++iter)
+	{
+		LLFolderViewFolder *folder = (*iter);
+		if (folder->getListener()->getUUID() == id)
+		{
+			return folder;
+		}
+	}
+	return NULL;
+}
+
 bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 {
 	std::string action = userdata.asString();
