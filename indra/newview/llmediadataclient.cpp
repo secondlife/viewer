@@ -224,7 +224,7 @@ bool LLMediaDataClient::processQueueTimer()
 	
 	if(!isEmpty())
 	{
-		LL_INFOS("LLMediaDataClient") << "QueueTimer::tick() started, SORTED queue size is:	  " << mSortedQueue.size() 
+		LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() started, SORTED queue size is:	  " << mSortedQueue.size() 
 			<< ", RR queue size is:	  " << mRoundRobinQueue.size() << LL_ENDL;
 		LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() started, SORTED queue is:	  " << mSortedQueue << LL_ENDL;
 		LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() started, RR queue is:	  " << mRoundRobinQueue << LL_ENDL;
@@ -262,7 +262,7 @@ void LLMediaDataClient::sortQueue()
 		if (size > mMaxSortedQueueSize) 
 		{
 			U32 num_to_cull = (size - mMaxSortedQueueSize);
-			LL_INFOS("LLMediaDataClient") << "sorted queue MAXED OUT!  Culling " 
+			LL_INFOS_ONCE("LLMediaDataClient") << "sorted queue MAXED OUT!  Culling " 
 				<< num_to_cull << " items" << LL_ENDL;
 			while (num_to_cull-- > 0)
 			{
@@ -309,7 +309,7 @@ void LLMediaDataClient::serviceQueue()
 		{
 			if (request.isNull()) 
 			{
-				LL_INFOS("LLMediaDataClient") << "Skipping NULL request" << LL_ENDL;
+				LL_WARNS("LLMediaDataClient") << "Skipping NULL request" << LL_ENDL;
 			}
 			else {
 				LL_INFOS("LLMediaDataClient") << "Skipping : " << *request << " " 
@@ -636,8 +636,8 @@ void LLMediaDataClient::Responder::error(U32 status, const std::string& reason)
 			new RetryTimer(F32(retry_timeout/*secs*/), this);
 		}
 		else {
-			LL_INFOS("LLMediaDataClient") << *mRequest << " got SERVICE_UNAVAILABLE...retry count " << 
-			mRequest->getRetryCount() << " exceeds " << mRequest->getMaxNumRetries() << ", not retrying" << LL_ENDL;
+			LL_INFOS("LLMediaDataClient") << *mRequest << " got SERVICE_UNAVAILABLE...retry count " 
+				<< mRequest->getRetryCount() << " exceeds " << mRequest->getMaxNumRetries() << ", not retrying" << LL_ENDL;
 		}
 	}
 	else {

@@ -51,6 +51,7 @@
 #include "llkeyboard.h"
 #include "lltoolmgr.h"
 #include "llvovolume.h"
+#include "llhelp.h"
 
 //
 // LLViewerMediaFocus
@@ -302,7 +303,7 @@ BOOL LLViewerMediaFocus::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 	{
 		media_impl->handleKeyHere(key, mask);
 
-		if (key == KEY_ESCAPE)
+		if (KEY_ESCAPE == key)
 		{
 			// Reset camera zoom in this case.
 			if(mFocusedImplID.notNull())
@@ -314,6 +315,15 @@ BOOL LLViewerMediaFocus::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 			}
 			
 			clearFocus();
+		}
+		
+		if ( KEY_F1 == key && LLUI::sHelpImpl && mMediaControls.get())
+		{
+			std::string help_topic;
+			if (mMediaControls.get()->findHelpTopic(help_topic))
+			{
+				LLUI::sHelpImpl->showTopic(help_topic);
+			}
 		}
 	}
 	
