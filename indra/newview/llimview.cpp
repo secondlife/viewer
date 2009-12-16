@@ -237,24 +237,25 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
 void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction)
 {
-	// *TODO: remove hardcoded string!!!!!!!!!!!
-
 	bool is_p2p_session = dynamic_cast<LLVoiceChannelP2P*>(mVoiceChannel);
 	std::string other_avatar_name;
 
 	if(is_p2p_session)
 	{
 		gCacheName->getFullName(mOtherParticipantID, other_avatar_name);
+		std::string you = LLTrans::getString("You");
+		std::string started_call = LLTrans::getString("started_call");
+		std::string joined_call = LLTrans::getString("joined_call");
 
 		if(direction == LLVoiceChannel::INCOMING_CALL)
 		{
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, other_avatar_name, mOtherParticipantID, "Started a voice call");
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, other_avatar_name, mOtherParticipantID, started_call);
 				break;
 			case LLVoiceChannel::STATE_CONNECTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, "You", gAgent.getID(), "Joined the voice call");
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, you, gAgent.getID(), joined_call);
 			default:
 				break;
 			}
@@ -264,10 +265,10 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, "You", gAgent.getID(), "Started a voice call");
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, you, gAgent.getID(), started_call);
 				break;
 			case LLVoiceChannel::STATE_CONNECTED :
-				LLIMModel::getInstance()->addMessageSilently(mSessionID, other_avatar_name, mOtherParticipantID, "Joined the voice call");
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, other_avatar_name, mOtherParticipantID, joined_call);
 			default:
 				break;
 			}

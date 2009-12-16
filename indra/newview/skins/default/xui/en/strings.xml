@@ -2846,6 +2846,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_to_label">To</string>
 	<string name="IM_moderator_label">(Moderator)</string>
 
+	<!-- voice calls -->
+	<string name="started_call">Started a voice call</string>
+	<string name="joined_call">Joined the voice call</string>
+
   <string name="ringing-im">
     Joining Voice Chat...
   </string>
