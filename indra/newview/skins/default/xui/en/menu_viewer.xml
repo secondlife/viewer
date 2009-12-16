@@ -1098,17 +1098,6 @@
      name="Advanced"
      tear_off="true"
      visible="false">
-        <menu_item_check
-         label="Set Away After 30 Minutes"
-         layout="topleft"
-         name="Go Away/AFK When Idle">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="AllowIdleAFK" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="AllowIdleAFK" />
-        </menu_item_check>
         <menu_item_call
          label="Stop Animating Me"
          layout="topleft"
