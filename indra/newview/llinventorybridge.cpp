@@ -1159,7 +1159,7 @@ LLFontGL::StyleFlags LLItemBridge::getLabelStyle() const
 {
 	U8 font = LLFontGL::NORMAL;
 
-	if( gAgentWearables.isWearingItem( mUUID ) )
+	if (get_is_item_worn(mUUID))
 	{
 		// llinfos << "BOLD" << llendl;
 		font |= LLFontGL::BOLD;
@@ -1302,14 +1302,8 @@ BOOL LLItemBridge::isItemCopyable() const
 	LLViewerInventoryItem* item = getItem();
 	if (item)
 	{
-		// can't copy worn objects. DEV-15183
-		LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-		if( !avatarp )
-		{
-			return FALSE;
-		}
-
-		if(avatarp->isWearingAttachment(mUUID))
+		// Can't copy worn objects. DEV-15183
+		if(get_is_item_worn(mUUID))
 		{
 			return FALSE;
 		}
@@ -4004,8 +3998,7 @@ LLFontGL::StyleFlags LLObjectBridge::getLabelStyle() const
 {
 	U8 font = LLFontGL::NORMAL;
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if( avatar && avatar->isWearingAttachment( mUUID ) )
+	if(get_is_item_worn( mUUID ) )
 	{
 		font |= LLFontGL::BOLD;
 	}
@@ -4021,9 +4014,9 @@ LLFontGL::StyleFlags LLObjectBridge::getLabelStyle() const
 
 std::string LLObjectBridge::getLabelSuffix() const
 {
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if( avatar && avatar->isWearingAttachment( mUUID ) )
+	if (get_is_item_worn(mUUID))
 	{
+		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 		std::string attachment_point_name = avatar->getAttachedPointName(mUUID);
 
 		// e.g. "(worn on ...)" / "(attached to ...)"
@@ -4148,12 +4141,11 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				return;
 			}
 
-			if( avatarp->isWearingAttachment( mUUID ) )
+			if( get_is_item_worn( mUUID ) )
 			{
 				items.push_back(std::string("Detach From Yourself"));
 			}
-			else
-			if( !isInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing())
+			else if (!isInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing())
 			{
 				items.push_back(std::string("Attach Separator"));
 				items.push_back(std::string("Object Wear"));
@@ -4379,7 +4371,7 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 				if (gAgent.isTeen() && item->isWearableType() &&
 					(item->getWearableType() == WT_UNDERPANTS || item->getWearableType() == WT_UNDERSHIRT))
 					continue;
-				if( gAgentWearables.isWearingItem (item->getLinkedUUID()) )
+				if (get_is_item_worn(item->getUUID()))
 				{
 					LLWearableList::instance().getAsset(item->getAssetUUID(),
 														item->getName(),
@@ -4430,7 +4422,7 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 
 BOOL LLWearableBridge::renameItem(const std::string& new_name)
 {
-	if( gAgentWearables.isWearingItem( mUUID ) )
+	if (get_is_item_worn(mUUID))
 	{
 		gAgentWearables.setWearableName( mUUID, new_name );
 	}
@@ -4439,7 +4431,7 @@ BOOL LLWearableBridge::renameItem(const std::string& new_name)
 
 std::string LLWearableBridge::getLabelSuffix() const
 {
-	if( gAgentWearables.isWearingItem( mUUID ) )
+	if (get_is_item_worn(mUUID))
 	{
 		// e.g. "(worn)" 
 		return LLItemBridge::getLabelSuffix() + LLTrans::getString("worn");
@@ -4473,7 +4465,7 @@ void LLWearableBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 	}
 	else if (isRemoveAction(action))
 	{
-		if(gAgentWearables.isWearingItem(mUUID))
+		if (get_is_item_worn(mUUID))
 		{
 			LLViewerInventoryItem* item = getItem();
 			if (item)
@@ -4504,7 +4496,7 @@ void LLWearableBridge::openItem()
 	}
 	else if(isAgentInventory())
 	{
-		if( !gAgentWearables.isWearingItem( mUUID ) )
+		if( !get_is_item_worn( mUUID ) )
 		{
 			wearOnAvatar();
 		}
@@ -4604,7 +4596,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				case LLAssetType::AT_CLOTHING:
 					items.push_back(std::string("Take Off"));
 				case LLAssetType::AT_BODYPART:
-					if (gAgentWearables.isWearingItem(item->getUUID()))
+					if (get_is_item_worn(item->getUUID()))
 					{
 						disabled_items.push_back(std::string("Wearable Wear"));
 						disabled_items.push_back(std::string("Wearable Add"));
@@ -4635,7 +4627,7 @@ BOOL LLWearableBridge::canWearOnAvatar(void* user_data)
 		LLViewerInventoryItem* item = (LLViewerInventoryItem*)self->getItem();
 		if(!item || !item->isComplete()) return FALSE;
 	}
-	return (!gAgentWearables.isWearingItem(self->mUUID));
+	return (!get_is_item_worn(self->mUUID));
 }
 
 // Called from menus
@@ -4767,7 +4759,7 @@ BOOL LLWearableBridge::canEditOnAvatar(void* user_data)
 	LLWearableBridge* self = (LLWearableBridge*)user_data;
 	if(!self) return FALSE;
 
-	return (gAgentWearables.isWearingItem(self->mUUID));
+	return (get_is_item_worn(self->mUUID));
 }
 
 // static
@@ -4804,7 +4796,7 @@ BOOL LLWearableBridge::canRemoveFromAvatar(void* user_data)
 	LLWearableBridge* self = (LLWearableBridge*)user_data;
 	if( self && (LLAssetType::AT_BODYPART != self->mAssetType) )
 	{
-		return gAgentWearables.isWearingItem( self->mUUID );
+		return get_is_item_worn( self->mUUID );
 	}
 	return FALSE;
 }
@@ -4814,7 +4806,7 @@ void LLWearableBridge::onRemoveFromAvatar(void* user_data)
 {
 	LLWearableBridge* self = (LLWearableBridge*)user_data;
 	if(!self) return;
-	if(gAgentWearables.isWearingItem(self->mUUID))
+	if(get_is_item_worn(self->mUUID))
 	{
 		LLViewerInventoryItem* item = self->getItem();
 		if (item)
@@ -4837,7 +4829,7 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 	const LLUUID &item_id = gInventory.getLinkedItemID(on_remove_struct->mUUID);
 	if(wearable)
 	{
-		if( gAgentWearables.isWearingItem( item_id ) )
+		if( get_is_item_worn( item_id ) )
 		{
 			EWearableType type = wearable->getType();
 
@@ -5121,7 +5113,7 @@ void LLWearableBridgeAction::doIt()
 	}
 	else if(isAgentInventory())
 	{
-		if(!gAgentWearables.isWearingItem(mUUID))
+		if(!get_is_item_worn(mUUID))
 		{
 			wearOnAvatar();
 		}
