@@ -5,6 +5,7 @@
 	background_visible="false"
 	height="200"
 	layout="topleft"
+	help_topic="prim_media_controls"
 	mouse_opaque="false"
 	width="800">
   <string name="control_background_image_name">Inspector_Background</string>
