@@ -211,11 +211,9 @@ void LLAvatarActions::startCall(const LLUUID& id)
 
 	std::string name;
 	gCacheName->getFullName(id, name);
-	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id);
+	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id, true);
 	if (session_id != LLUUID::null)
 	{
-		// always open IM window when connecting to voice
-		LLIMFloater::show(session_id);
 		gIMMgr->startCall(session_id);
 	}
 	make_ui_sound("UISndStartIM");
@@ -239,14 +237,11 @@ void LLAvatarActions::startAdhocCall(const std::vector<LLUUID>& ids)
 	// create the new ad hoc voice session
 	const std::string title = LLTrans::getString("conference-title");
 	LLUUID session_id = gIMMgr->addSession(title, IM_SESSION_CONFERENCE_START,
-										   ids[0], id_array);
+										   ids[0], id_array, true);
 	if (session_id == LLUUID::null)
 	{
 		return;
 	}
-
-	// always open IM window when connecting to voice
-	LLIMFloater::show(session_id);
 
 	// start the call once the session has fully initialized
 	gIMMgr->autoStartCallOnStartup(session_id);

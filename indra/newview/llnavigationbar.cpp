@@ -261,9 +261,14 @@ BOOL LLNavigationBar::postBuild()
 void LLNavigationBar::setVisible(BOOL visible)
 {
 	// change visibility of grandparent layout_panel to animate in and out
-	if (getParent() && getParent()->getParent()) 
+	if (getParent()) 
 	{
-		getParent()->getParent()->setVisible(visible);	
+		//to avoid some mysterious bugs like EXT-3352, at least try to log an incorrect parent to ping  about a problem. 
+		if(getParent()->getName() != "nav_bar_container")
+		{
+			LL_WARNS("LLNavigationBar")<<"NavigationBar has an unknown name of the parent: "<<getParent()->getName()<< LL_ENDL;
+		}
+		getParent()->setVisible(visible);	
 	}
 }
 

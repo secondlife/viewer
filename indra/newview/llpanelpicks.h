@@ -157,6 +157,11 @@ private:
 	LLAccordionCtrlTab* mClassifiedsAccTab;
 
 	LLClassifiedClickThrough* mClickThroughDisp;
+	
+	//true if picks list is empty after processing picks
+	bool mNoPicks;
+	//true if classifieds list is empty after processing classifieds
+	bool mNoClassifieds;
 };
 
 class LLPickItem : public LLPanel, public LLAvatarPropertiesObserver
