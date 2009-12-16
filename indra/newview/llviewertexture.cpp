@@ -614,13 +614,13 @@ void LLViewerTexture::setKnownDrawSize(S32 width, S32 height)
 //virtual
 void LLViewerTexture::addFace(LLFace* facep) 
 {
-	mFaceList.push_back(facep) ;
+	mFaceList.insert(facep) ;
 }
 
 //virtual
 void LLViewerTexture::removeFace(LLFace* facep) 
 {
-	mFaceList.remove(facep) ;
+	mFaceList.erase(facep);
 }
 
 //virtual
@@ -1519,7 +1519,7 @@ void LLViewerFetchedTexture::updateVirtualSize()
 	}
 	if(mFaceList.size() > 0) 
 	{				
-		for(std::list<LLFace*>::iterator iter = mFaceList.begin(); iter != mFaceList.end(); ++iter)
+		for(ll_face_list_t::iterator iter = mFaceList.begin(); iter != mFaceList.end(); ++iter)
 		{
 			LLFace* facep = *iter ;
 			if(facep->getDrawable()->isRecentlyVisible())
@@ -2391,7 +2391,7 @@ BOOL LLViewerFetchedTexture::insertToAtlas()
 	LLFace* facep;
 
 	//if the atlas slot pointers for some faces are null, process them later.
-	ll_face_list_t waiting_list ;
+	std::vector<LLFace*> waiting_list ;
 
 	for(ll_face_list_t::iterator iter = mFaceList.begin(); iter != mFaceList.end(); ++iter)
 	{
@@ -2475,7 +2475,7 @@ BOOL LLViewerFetchedTexture::insertToAtlas()
 	}
 
 	//process the waiting_list
-	for(ll_face_list_t::iterator iter = waiting_list.begin(); iter != waiting_list.end(); ++iter)
+	for(std::vector<LLFace*>::iterator iter = waiting_list.begin(); iter != waiting_list.end(); ++iter)
 	{
 		facep = (LLFace*)*iter ;	
 		groupp = facep->getDrawable()->getSpatialGroup() ;
@@ -3153,7 +3153,7 @@ F32 LLViewerMediaTexture::getMaxVirtualSize()
 	{
 		if(mFaceList.size() > 0) 
 		{				
-			for(std::list<LLFace*>::iterator iter = mFaceList.begin(); iter != mFaceList.end(); ++iter)
+			for(ll_face_list_t::iterator iter = mFaceList.begin(); iter != mFaceList.end(); ++iter)
 			{
 				LLFace* facep = *iter ;
 				if(facep->getDrawable()->isRecentlyVisible())

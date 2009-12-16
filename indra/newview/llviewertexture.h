@@ -139,7 +139,7 @@ public:
 	static S32 getIndexFromCategory(S32 category) ;
 	static S32 getCategoryFromIndex(S32 index) ;
 
-	typedef std::list<LLFace*> ll_face_list_t ;
+	typedef std::set<LLFace*> ll_face_list_t ;
 
 protected:
 	virtual ~LLViewerTexture();
