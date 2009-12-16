@@ -866,8 +866,12 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 	mNumDeadObjects++;
 }
 
+static LLFastTimer::DeclareTimer FTM_REMOVE_DRAWABLE("Remove Drawable");
+
 void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 {
+	LLFastTimer t(FTM_REMOVE_DRAWABLE);
+
 	if (!drawablep)
 	{
 		return;
