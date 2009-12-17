@@ -240,7 +240,7 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 
 	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelOutfitsInventory::onGearButtonClick, this));
 	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
-	mListCommands->childSetAction("add_btn", boost::bind(&LLPanelOutfitsInventory::onAddButtonClick, this));
+	mListCommands->childSetAction("make_outfit_btn", boost::bind(&LLPanelOutfitsInventory::onAddButtonClick, this));
 	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
 
 	mListCommands->childSetAction("look_edit_btn", boost::bind(&LLPanelOutfitsInventory::onSelectorButtonClicked, this));
@@ -477,6 +477,9 @@ void LLPanelOutfitsInventory::onTabChange()
 		return;
 	}
 	mActivePanel->setFilterSubString(mFilterSubString);
+
+	bool is_my_outfits = (mActivePanel->getName() == "outfitslist_accordionpanel");
+	mListCommands->childSetEnabled("make_outfit_btn", is_my_outfits);
 }
 
 LLInventoryPanel* LLPanelOutfitsInventory::getActivePanel()
