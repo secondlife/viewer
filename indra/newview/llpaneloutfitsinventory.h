@@ -120,6 +120,9 @@ private:
 	LLMenuGL*					mMenuAdd;
 	// List Commands                                                              //
 	////////////////////////////////////////////////////////////////////////////////
+	///
+public:
+	static bool sShowDebugEditor;
 };
 
 #endif //LL_LLPANELOUTFITSINVENTORY_H
