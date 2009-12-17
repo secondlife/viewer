@@ -827,9 +827,9 @@ BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MAS
 LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *window, LLCoordGL pos, MASK mask, LLWindowCallbacks::DragNDropAction action, std::string data)
 {
 	LLWindowCallbacks::DragNDropResult result = LLWindowCallbacks::DND_NONE;
+
 	if (gSavedSettings.getBOOL("PrimMediaDragNDrop"))
 	{
-		
 		switch(action)
 		{
 			// Much of the handling for these two cases is the same.
@@ -854,11 +854,11 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 				S32 object_face = pick_info.mObjectFace;
 				std::string url = data;
 
-				llinfos << "### Object: picked at " << pos.mX << ", " << pos.mY << " - face = " << object_face << " - URL = " << url << llendl;
+				lldebugs << "Object: picked at " << pos.mX << ", " << pos.mY << " - face = " << object_face << " - URL = " << url << llendl;
 
 				LLVOVolume *obj = dynamic_cast<LLVOVolume*>(static_cast<LLViewerObject*>(pick_info.getObject()));
 				
-				if (obj && obj->permModify())
+				if (obj && obj->permModify() && !obj->getRegion()->getCapability("ObjectMedia").empty())
 				{
 					LLTextureEntry *te = obj->getTE(object_face);
 					if (te)
@@ -881,10 +881,14 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 								result = LLWindowCallbacks::DND_COPY;
 							}
 							else {
-								// just navigate to the URL
-								obj->getMediaImpl(object_face)->navigateTo(url);
+								// Check the whitelist
+								if (te->getMediaData()->checkCandidateUrl(url))
+								{
+									// just navigate to the URL
+									obj->getMediaImpl(object_face)->navigateTo(url);
 								
-								result = LLWindowCallbacks::DND_LINK;
+									result = LLWindowCallbacks::DND_LINK;
+								}
 							}
 							LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
 							mDragHoveredObject = NULL;
