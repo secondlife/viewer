@@ -2716,6 +2716,7 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 		params.rect.left.set(0);
 	}
 
+	params.from_xui = true;
 	setupParams(params, parent);
  	initFromParams(params);
 	
