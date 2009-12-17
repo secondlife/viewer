@@ -160,36 +160,25 @@ public:
 		std::string media_type = content["content-type"].asString();
 		std::string::size_type idx1 = media_type.find_first_of(";");
 		std::string mime_type = media_type.substr(0, idx1);
-		completeAny(status, mime_type);
-	}
 
-	virtual void error( U32 status, const std::string& reason )
-	{
-		if(status == 401)
+		lldebugs << "status is " << status << ", media type \"" << media_type << "\"" << llendl;
+		
+		// 2xx status codes indicate success.
+		// Most 4xx status codes are successful enough for our purposes.
+		// 499 is the error code for host not found, timeout, etc.
+		if(	((status >= 200) && (status < 300))	||
+			((status >= 400) && (status < 499))	)
 		{
-			// This is the "you need to authenticate" status.  
-			// Treat this like an html page.
-			completeAny(status, "text/html");
-		}
-		else
-		if(status == 403)
-		{
-			completeAny(status, "text/html");
-		}
-		else
-		if(status == 404)
-		{
-			// 404 is content not found - sites often have bespoke 404 pages so
-			// treat them like an html page.
-			completeAny(status, "text/html");
-		}
-		else
-		if(status == 406)
-		{
-			// 406 means the server sent something that we didn't indicate was acceptable
-			// Eventually we should send what we accept in the headers but for now,
-			// treat 406s like an html page.
-			completeAny(status, "text/html");
+			// The probe was successful.
+			
+			if(mime_type.empty())
+			{
+				// Some sites don't return any content-type header at all.
+				// Treat an empty mime type as text/html.
+				mime_type = "text/html";
+			}
+			
+			completeAny(status, mime_type);
 		}
 		else
 		{
@@ -200,6 +189,7 @@ public:
 				mMediaImpl->mMediaSourceFailed = true;
 			}
 		}
+
 	}
 
 	void completeAny(U32 status, const std::string& mime_type)
