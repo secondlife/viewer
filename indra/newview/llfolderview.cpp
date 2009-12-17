@@ -330,6 +330,7 @@ BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
 	else
 	{
 		mFolders.insert(mFolders.begin(), folder);
+		folder->setShowLoadStatus(true);
 	}
 	folder->setOrigin(0, 0);
 	folder->reshape(getRect().getWidth(), 0);
