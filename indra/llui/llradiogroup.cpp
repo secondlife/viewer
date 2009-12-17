@@ -112,6 +112,7 @@ void LLRadioGroup::initFromParams(const Params& p)
 		++it)
 	{
 		LLRadioGroup::ItemParams item_params(*it);
+
 		item_params.font.setIfNotProvided(mFont); // apply radio group font by default
 		item_params.commit_callback.function = boost::bind(&LLRadioGroup::onClickButton, this, _1);
 		item_params.from_xui = p.from_xui;
@@ -332,7 +333,7 @@ void LLRadioGroup::setValue( const LLSD& value )
 		 iter != mRadioButtons.end(); ++iter)
 	{
 		LLRadioCtrl* radio = *iter;
-		if (llsd_equals(radio->getPayload(), value))
+		if (radio->getPayload().asString() == value.asString())
 		{
 			setSelectedIndex(idx);
 			idx = -1;
@@ -384,7 +385,7 @@ BOOL	LLRadioGroup::setSelectedByValue(const LLSD& value, BOOL selected)
 	for (button_list_t::const_iterator iter = mRadioButtons.begin();
 		 iter != mRadioButtons.end(); ++iter)
 	{
-		if(llsd_equals((*iter)->getPayload(), value))
+		if((*iter)->getPayload().asString() == value.asString())
 		{
 			setSelectedIndex(idx);
 			return TRUE;
@@ -406,7 +407,7 @@ BOOL	LLRadioGroup::isSelected(const LLSD& value) const
 	for (button_list_t::const_iterator iter = mRadioButtons.begin();
 		 iter != mRadioButtons.end(); ++iter)
 	{
-		if(llsd_equals((*iter)->getPayload(), value))
+		if((*iter)->getPayload().asString() == value.asString())
 		{
 			if (idx == mSelectedIndex) 
 			{
