@@ -1947,6 +1947,7 @@ namespace LLInitParam
 		if (res_fontp)
 		{
 			mData.mValue = res_fontp;
+			return;
 		}
 
 		U8 fontstyle = 0;
