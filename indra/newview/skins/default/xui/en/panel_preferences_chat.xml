@@ -46,7 +46,6 @@
          width="125" />
     </radio_group>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      follows="left|top"
      height="47"
@@ -76,7 +75,6 @@
         Me
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      follows="left|top"
      height="47"
@@ -106,7 +104,6 @@
         Others
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.6 0.6 1 1"
      follows="left|top"
@@ -138,7 +135,6 @@
         IM
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.8 1 1 1"
      follows="left|top"
@@ -170,7 +166,6 @@
         System
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.82 0.82 0.99 1"
      follows="left|top"
@@ -201,7 +196,6 @@
         Errors
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.7 0.9 0.7 1"
      follows="left|top"
@@ -232,7 +226,6 @@
         Objects
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.7 0.9 0.7 1"
      follows="left|top"
@@ -263,7 +256,6 @@
         Owner
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.6 0.6 1 1"
      follows="left|top"

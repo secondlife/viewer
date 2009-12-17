@@ -1018,7 +1018,6 @@ scratch and wear it.
              top_pad="41"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -1224,7 +1223,6 @@ scratch and wear it.
              top_pad="41"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -1534,7 +1532,6 @@ scratch and wear it.
              top="65"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -1740,7 +1737,6 @@ scratch and wear it.
              top="65"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -1958,7 +1954,6 @@ scratch and wear it.
              top_delta="80"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -2164,7 +2159,6 @@ scratch and wear it.
              top="65"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -2370,7 +2364,6 @@ scratch and wear it.
              top="65"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -2576,7 +2569,6 @@ scratch and wear it.
              top="65"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"
@@ -2782,7 +2774,6 @@ scratch and wear it.
              top="65"
              width="64" />
             <color_swatch
-             border_color="0.45098 0.517647 0.607843 1"
              can_apply_immediately="true"
              follows="left|top"
              height="80"

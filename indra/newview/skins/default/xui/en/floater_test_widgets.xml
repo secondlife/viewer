@@ -355,7 +355,6 @@ line to actually fit
       <!-- "color_swatch" displays a color and spawns a color picker when
            clicked. -->
       <color_swatch
-       border_color="1 0 0 1"
        can_apply_immediately="true"
        color="0.3 0.6 0.9 1"
        follows="left|top"
@@ -368,7 +367,6 @@ line to actually fit
        top="10"
        width="80" />
       <color_swatch
-       border_color="0.45098 0.517647 0.607843 1"
        can_apply_immediately="true"
        color="1 0 1 1"
        follows="left|top"

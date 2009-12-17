@@ -98,7 +98,6 @@
         Water Color
     </text>
     <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
      can_apply_immediately="true"
      color="0.5 0.5 0.5 1"
      follows="left|top"
