@@ -517,7 +517,7 @@
                          width="60" />
                         <button
                          follows="bottom|right"
-                         height="19"
+                         height="23"
                          label="About Land"
                          layout="topleft"
                          name="about_land_btn"
@@ -644,7 +644,7 @@
                         </text>
                         <button
                          follows="bottom|right"
-                         height="19"
+                         height="23"
                          label="Region/Estate"
                          layout="topleft"
                          name="region_info_btn"
