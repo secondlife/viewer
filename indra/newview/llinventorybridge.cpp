@@ -2946,6 +2946,27 @@ LLInventoryModel::item_array_t::iterator findItemByUUID(LLInventoryModel::item_a
 	return result;
 }
 
+// See also LLInventorySort where landmarks in the Favorites folder are sorted.
+class LLViewerInventoryItemSort
+{
+public:
+	bool operator()(const LLPointer<LLViewerInventoryItem>& a, const LLPointer<LLViewerInventoryItem>& b)
+	{
+		return a->getSortField() < b->getSortField();
+	}
+};
+
+/**
+ * Sorts passed items by LLViewerInventoryItem sort field.
+ *
+ * @param[in, out] items - array of items, not sorted.
+ */
+void rearrange_item_order_by_sort_field(LLInventoryModel::item_array_t& items)
+{
+	static LLViewerInventoryItemSort sort_functor;
+	std::sort(items.begin(), items.end(), sort_functor);
+}
+
 void updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& srcItemId, const LLUUID& destItemId)
 {
 	LLViewerInventoryItem* srcItem = gInventory.getItem(srcItemId);
@@ -3048,6 +3069,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				{
 					LLUUID srcItemId = inv_item->getUUID();
 					LLUUID destItemId = itemp->getListener()->getUUID();
+
+					// ensure items are sorted properly before changing order. EXT-3498
+					rearrange_item_order_by_sort_field(items);
 
 					// update order
 					updateItemsOrder(items, srcItemId, destItemId);

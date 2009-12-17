@@ -75,6 +75,10 @@ public:
 	virtual void sessionRemoved(const LLUUID& session_id);
 	void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
+	void onNewIM(const LLSD& data);
+
+	S32 getTotalUnreadIMCount();
+
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent);
 
 	virtual void onFocusLost();
@@ -90,6 +94,11 @@ public:
 	void showMoveButton(BOOL visible);
 	void showCameraButton(BOOL visible);
 	void showSnapshotButton(BOOL visible);
+	
+	/**
+	 * Creates IM Chiclet based on session type (IM chat or Group chat)
+	 */
+	LLIMChiclet* createIMChiclet(const LLUUID& session_id);
 
 private:
 	typedef enum e_resize_status_type
@@ -181,11 +190,6 @@ protected:
 	void updateContextMenu(S32 x, S32 y, MASK mask);
 	void onContextMenuItemClicked(const LLSD& userdata);
 	bool onContextMenuItemEnabled(const LLSD& userdata);
-
-	/**
-	 * Creates IM Chiclet based on session type (IM chat or Group chat)
-	 */
-	LLIMChiclet* createIMChiclet(const LLUUID& session_id);
 
 	LLChicletPanel* 	mChicletPanel;
 	LLPanel*			mSpeakPanel;

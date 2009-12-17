@@ -163,6 +163,7 @@ protected:
 	BOOL                        mIsLoading;
 	LLTimer                     mTimeSinceRequestStart;
 	bool						mDontShowInHierarchy;
+	bool						mShowLoadStatus;
 
 	// helper function to change the selection from the root.
 	void changeSelectionFromRoot(LLFolderViewItem* selection, BOOL selected);
@@ -254,6 +255,8 @@ public:
 	BOOL getIsCurSelection() { return mIsCurSelection; }
 
 	BOOL hasVisibleChildren() { return mHasVisibleChildren; }
+	
+	void setShowLoadStatus(bool status) { mShowLoadStatus = status; }
 
 	// Call through to the viewed object and return true if it can be
 	// removed. Returns true if it's removed.

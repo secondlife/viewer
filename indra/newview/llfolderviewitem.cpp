@@ -136,7 +136,8 @@ LLFolderViewItem::LLFolderViewItem(LLFolderViewItem::Params p)
 	mListener(p.listener),
 	mArrowImage(p.folder_arrow_image),
 	mBoxImage(p.selection_image),
-	mDontShowInHierarchy(false)
+	mDontShowInHierarchy(false),
+	mShowLoadStatus(false)
 {
 	refresh();
 }
@@ -968,10 +969,11 @@ void LLFolderViewItem::draw()
 		}
 
 
-		if ( mIsLoading 
-			&& mTimeSinceRequestStart.getElapsedTimeF32() >= gSavedSettings.getF32("FolderLoadingMessageWaitTime") )
+		if ( (mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= gSavedSettings.getF32("FolderLoadingMessageWaitTime"))
+			|| (LLInventoryModel::backgroundFetchActive() && mShowLoadStatus) )
 		{
-			font->renderUTF8(LLTrans::getString("LoadingData"), 0, text_left, y, sSearchStatusColor,
+			std::string load_string = LLTrans::getString("LoadingData") + " ";
+			font->renderUTF8(load_string, 0, text_left, y, sSearchStatusColor,
 					  LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, &right_x, FALSE);
 			text_left = right_x;
 		}

@@ -92,8 +92,8 @@ This is a really long description for an object being as how it is at least 80 c
    height="13"
    left_delta="0"
    name="object_media_url"
-   top_pad="-1"
-   width="291"
+   bottom_pad="2"
+   width="200"
    max_length = "50"
    use_ellipses="true">
    http://www.superdupertest.com

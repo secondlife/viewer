@@ -145,18 +145,21 @@ LLFloaterMediaSettings* LLFloaterMediaSettings::getInstance()
 //static 
 void LLFloaterMediaSettings::apply()
 {
-	LLSD settings;
-	sInstance->mPanelMediaSettingsGeneral->preApply();
-	sInstance->mPanelMediaSettingsGeneral->getValues( settings );
-	sInstance->mPanelMediaSettingsSecurity->preApply();
-	sInstance->mPanelMediaSettingsSecurity->getValues( settings );
-	sInstance->mPanelMediaSettingsPermissions->preApply();
-	sInstance->mPanelMediaSettingsPermissions->getValues( settings );
-	LLSelectMgr::getInstance()->selectionSetMedia( LLTextureEntry::MF_HAS_MEDIA );
-	LLSelectMgr::getInstance()->selectionSetMediaData(settings);
-	sInstance->mPanelMediaSettingsGeneral->postApply();
-	sInstance->mPanelMediaSettingsSecurity->postApply();
-	sInstance->mPanelMediaSettingsPermissions->postApply();
+	if (sInstance->haveValuesChanged())
+	{
+		LLSD settings;
+		sInstance->mPanelMediaSettingsGeneral->preApply();
+		sInstance->mPanelMediaSettingsGeneral->getValues( settings );
+		sInstance->mPanelMediaSettingsSecurity->preApply();
+		sInstance->mPanelMediaSettingsSecurity->getValues( settings );
+		sInstance->mPanelMediaSettingsPermissions->preApply();
+		sInstance->mPanelMediaSettingsPermissions->getValues( settings );
+		LLSelectMgr::getInstance()->selectionSetMedia( LLTextureEntry::MF_HAS_MEDIA );
+		LLSelectMgr::getInstance()->selectionSetMediaData(settings);
+		sInstance->mPanelMediaSettingsGeneral->postApply();
+		sInstance->mPanelMediaSettingsSecurity->postApply();
+		sInstance->mPanelMediaSettingsPermissions->postApply();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -249,15 +252,6 @@ void LLFloaterMediaSettings::onTabChanged(void* user_data, bool from_click)
 	LLTabContainer* self = (LLTabContainer*)user_data;
 	gSavedSettings.setS32("LastMediaSettingsTab", self->getCurrentPanelIndex());
 }
-
-////////////////////////////////////////////////////////////////////////////////
-//
-void LLFloaterMediaSettings::enableOkApplyBtns( bool enable )
-{
-	childSetEnabled( "OK", enable );
-	childSetEnabled( "Apply", enable );
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 const std::string LLFloaterMediaSettings::getHomeUrl()
@@ -272,17 +266,25 @@ const std::string LLFloaterMediaSettings::getHomeUrl()
 // virtual 
 void LLFloaterMediaSettings::draw()
 {
+	// Set the enabled state of the "Apply" button if values changed
+	childSetEnabled( "Apply", haveValuesChanged() );
+	
+	LLFloater::draw();
+}
+
+
+//private
+bool LLFloaterMediaSettings::haveValuesChanged() const
+{
+	bool values_changed = false;
 	// *NOTE: The code below is very inefficient.  Better to do this
 	// only when data change.
 	// Every frame, check to see what the values are.  If they are not
-	// the same as the default media data, enable the OK/Apply buttons
+	// the same as the initial media data, enable the OK/Apply buttons
 	LLSD settings;
 	sInstance->mPanelMediaSettingsGeneral->getValues( settings );
 	sInstance->mPanelMediaSettingsSecurity->getValues( settings );
-	sInstance->mPanelMediaSettingsPermissions->getValues( settings );
-
-	bool values_changed = false;
-	
+	sInstance->mPanelMediaSettingsPermissions->getValues( settings );	
 	LLSD::map_const_iterator iter = settings.beginMap();
 	LLSD::map_const_iterator end = settings.endMap();
 	for ( ; iter != end; ++iter )
@@ -295,9 +297,6 @@ void LLFloaterMediaSettings::draw()
 			break;
 		}
 	}
-	
-	enableOkApplyBtns(values_changed);
-	
-	LLFloater::draw();
+	return values_changed;
 }
 
