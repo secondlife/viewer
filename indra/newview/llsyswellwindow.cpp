@@ -709,8 +709,8 @@ BOOL LLIMWellWindow::postBuild()
 void LLIMWellWindow::sessionAdded(const LLUUID& session_id,
 								   const std::string& name, const LLUUID& other_participant_id)
 {
-	if (!mMessageList->getItemByValue(session_id)) return;
-	
+	if (mMessageList->getItemByValue(session_id)) return;
+
 	// For im sessions started as voice call chiclet gets created on the first incoming message
 	if (gIMMgr->isVoiceCall(session_id)) return;
 
