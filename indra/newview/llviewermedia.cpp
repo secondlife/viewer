@@ -929,6 +929,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mMimeTypeProbe(NULL),
 	mMediaAutoPlay(false),
 	mInNearbyMediaList(false),
+	mClearCache(false),
 	mIsUpdated(false)
 { 
 
@@ -1138,6 +1139,12 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		media_source->setAutoScale(mMediaAutoScale);
 		media_source->setBrowserUserAgent(LLViewerMedia::getCurrentUserAgent());
 		media_source->focus(mHasFocus);
+		
+		if(mClearCache)
+		{
+			mClearCache = false;
+			media_source->clear_cache();
+		}
 		
 		mMediaSource = media_source;
 
@@ -1349,6 +1356,19 @@ std::string LLViewerMediaImpl::getCurrentMediaURL()
 	}
 	
 	return mMediaURL;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::clearCache()
+{
+	if(mMediaSource)
+	{
+		mMediaSource->clear_cache();
+	}
+	else
+	{
+		mClearCache = true;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
