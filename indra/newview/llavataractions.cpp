@@ -264,11 +264,8 @@ bool LLAvatarActions::isCalling(const LLUUID &id)
 //static
 bool LLAvatarActions::canCall(const LLUUID &id)
 {
-	if(isFriend(id))
-	{
-		return LLAvatarTracker::instance().isBuddyOnline(id) && LLVoiceClient::voiceEnabled();
-	}
-	else
+	// For now we do not need to check whether passed UUID is ID of agent's friend.
+	// Use common check of Voice Client state.
 	{
 		// don't need to check online/offline status because "usual resident" (resident that is not a friend)
 		// can be only ONLINE. There is no way to see "usual resident" in OFFLINE status. If we see "usual
