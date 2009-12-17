@@ -1634,11 +1634,15 @@ bool idle_startup()
 					gSavedSettings.setString("TutorialURL", tutorial_url.asString());
 				}
 				
-				LLSD use_tutorial = (*it)["use_tutorial"];
-				if(use_tutorial.asString() == "true")
-				{
-					show_hud = true;
-				}
+				// For Viewer 2.0 we are not using the web-based tutorial
+				// If we reverse that decision, put this code back and use
+				// login.cgi to send a different URL with content that matches
+				// the Viewer 2.0 UI.
+				//LLSD use_tutorial = (*it)["use_tutorial"];
+				//if(use_tutorial.asString() == "true")
+				//{
+				//	show_hud = true;
+				//}
 			}
 		}
 		// Either we want to show tutorial because this is the first login
