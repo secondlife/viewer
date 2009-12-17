@@ -339,6 +339,7 @@ protected:
 	static void createNewEyes(void* user_data);
 
 	BOOL checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& typeToCheck);
+	BOOL areAnyContentsWorn(LLInventoryModel* model) const;
 
 	void modifyOutfit(BOOL append);
 	void determineFolderType();

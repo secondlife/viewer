@@ -2466,7 +2466,10 @@ void LLFolderBridge::folderOptionsMenu()
 			mItems.push_back(std::string("Wear As Ensemble"));
 		}
 		mItems.push_back(std::string("Remove From Outfit"));
-
+		if (!areAnyContentsWorn(model))
+		{
+			disabled_items.push_back(std::string("Remove From Outfit"));
+		}
 		mItems.push_back(std::string("Outfit Separator"));
 	}
 	hide_context_entries(*mMenu, mItems, disabled_items);
@@ -2486,6 +2489,35 @@ BOOL LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInv
 								LLInventoryModel::EXCLUDE_TRASH,
 								is_type);
 	return ((item_array.count() > 0) ? TRUE : FALSE );
+}
+
+class LLFindWorn : public LLInventoryCollectFunctor
+{
+public:
+	LLFindWorn() {}
+	virtual ~LLFindWorn() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item)
+	{
+		if (item && get_is_item_worn(item->getUUID()))
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+};
+
+BOOL LLFolderBridge::areAnyContentsWorn(LLInventoryModel* model) const
+{
+	LLInventoryModel::cat_array_t cat_array;
+	LLInventoryModel::item_array_t item_array;
+	LLFindWorn is_worn;
+	model->collectDescendentsIf(mUUID,
+								cat_array,
+								item_array,
+								LLInventoryModel::EXCLUDE_TRASH,
+								is_worn);
+	return (item_array.size() > 0);
 }
 
 // Flags unused
@@ -4387,18 +4419,21 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 			for(i = 0; i  < obj_count; ++i)
 			{
 				LLViewerInventoryItem *obj_item = obj_item_array.get(i);
-				gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
-				gMessageSystem->nextBlockFast(_PREHASH_ObjectData );
-				gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-				gMessageSystem->addUUIDFast(_PREHASH_ItemID, obj_item->getLinkedUUID() );
-
-				gMessageSystem->sendReliable( gAgent.getRegion()->getHost() );
-
-				// this object might have been selected, so let the selection manager know it's gone now
-				LLViewerObject *found_obj = gObjectList.findObject( obj_item->getLinkedUUID());
-				if (found_obj)
+				if (get_is_item_worn(obj_item->getUUID()))
 				{
-					LLSelectMgr::getInstance()->remove(found_obj);
+					gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
+					gMessageSystem->nextBlockFast(_PREHASH_ObjectData );
+					gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
+					gMessageSystem->addUUIDFast(_PREHASH_ItemID, obj_item->getLinkedUUID() );
+					
+					gMessageSystem->sendReliable( gAgent.getRegion()->getHost() );
+					
+					// this object might have been selected, so let the selection manager know it's gone now
+					LLViewerObject *found_obj = gObjectList.findObject( obj_item->getLinkedUUID());
+					if (found_obj)
+					{
+						LLSelectMgr::getInstance()->remove(found_obj);
+					}
 				}
 			}
 		}
@@ -4408,7 +4443,7 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 			for(i = 0; i  < gest_count; ++i)
 			{
 				LLViewerInventoryItem *gest_item = gest_item_array.get(i);
-				if ( LLGestureManager::instance().isGestureActive( gest_item->getLinkedUUID()) )
+				if (get_is_item_worn(gest_item->getUUID()))
 				{
 					LLGestureManager::instance().deactivateGesture( gest_item->getLinkedUUID() );
 					gInventory.updateItem( gest_item );
