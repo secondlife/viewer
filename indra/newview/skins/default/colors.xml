@@ -378,7 +378,7 @@
      reference="White_25" />
     <color
      name="InventorySearchStatusColor"
-     reference="Black" />
+     reference="EmphasisColor" />
     <color
      name="LabelDisabledColor"
 	 reference="White_25" />
