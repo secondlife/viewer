@@ -182,6 +182,9 @@ public:
 	template<typename T>
 	static T* createWidget(typename T::Params& params, LLView* parent = NULL)
 	{
+		// Apply layout transformations, usually munging rect
+		T::setupParams(params, parent);
+
 		T* widget = NULL;
 
 		if (!params.validateBlock())
@@ -306,8 +309,7 @@ fail:
 				output_node, output_params, &default_params);
 		}
 
-		// Apply layout transformations, usually munging rect
-		T::setupParams(params, parent);
+		params.from_xui = true;
 
 		T* widget = createWidget<T>(params, parent);
 
