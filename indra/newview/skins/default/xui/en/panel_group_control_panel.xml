@@ -24,9 +24,10 @@
      follows="left|right|bottom"
      height="23"
      label="Group Profile"
-     left_delta="28"
+     left_delta="10"
      name="group_info_btn"
-     width="125" />
+     use_ellipses="true" 
+     width="160" />
     <panel
      background_visible="true"
      bg_alpha_color="DkGray2"
@@ -43,24 +44,27 @@
          follows="all"
          height="23"
          label="Call Group"
-         left_delta="28"
+         left_delta="10"
          name="call_btn"
-         width="125" />
+         use_ellipses="true" 
+         width="160" />
         <button
          bottom="40"
          follows="all"
          height="23"
          label="Leave Call"
          name="end_call_btn"
+         use_ellipses="true" 
          visible="false"
-         width="125" />
+          />
         <button
          bottom="10"
          follows="all"
          height="23"
          label="Open Voice Controls"
          name="voice_ctrls_btn"
+         use_ellipses="true" 
          visible="false"
-         width="125" />
+          />
     </panel>
 </panel>

@@ -32,6 +32,8 @@
 
 #include "llviewerprecompiledheaders.h" // must be first include
 
+#include "llagent.h"
+
 #include "llflatlistview.h"
 #include "llfloaterreg.h"
 #include "llnotifications.h"
@@ -709,8 +711,8 @@ BOOL LLIMWellWindow::postBuild()
 void LLIMWellWindow::sessionAdded(const LLUUID& session_id,
 								   const std::string& name, const LLUUID& other_participant_id)
 {
-	if (!mMessageList->getItemByValue(session_id)) return;
-	
+	if (mMessageList->getItemByValue(session_id)) return;
+
 	// For im sessions started as voice call chiclet gets created on the first incoming message
 	if (gIMMgr->isVoiceCall(session_id)) return;
 
@@ -856,5 +858,37 @@ void LLIMWellWindow::removeObjectRow(const LLUUID& object_id)
 		setVisible(FALSE);
 	}
 }
+
+
+void LLIMWellWindow::addIMRow(const LLUUID& session_id)
+{
+	if (hasIMRow(session_id)) return;
+
+	LLIMModel* im_model = LLIMModel::getInstance();
+	addIMRow(session_id, 0, im_model->getName(session_id), im_model->getOtherParticipantID(session_id));
+	reshapeWindow();
+}
+
+bool LLIMWellWindow::hasIMRow(const LLUUID& session_id)
+{
+	return mMessageList->getItemByValue(session_id);
+}
+
+void LLIMWellWindow::onNewIM(const LLSD& data)
+{
+	LLUUID from_id = data["from_id"];
+	if (from_id.isNull() || gAgentID == from_id) return;
+
+	LLUUID session_id = data["session_id"];
+	if (session_id.isNull()) return;
+
+	if (!gIMMgr->isVoiceCall(session_id)) return;
+
+	if (hasIMRow(session_id)) return;
+
+	//first real message, time to create chiclet
+	addIMRow(session_id);
+}
+
 
 // EOF

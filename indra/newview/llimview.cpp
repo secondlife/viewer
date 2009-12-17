@@ -93,7 +93,8 @@ const static std::string ADHOC_NAME_SUFFIX(" Conference");
 std::string LLCallDialogManager::sPreviousSessionlName = "";
 std::string LLCallDialogManager::sCurrentSessionlName = "";
 LLIMModel::LLIMSession* LLCallDialogManager::sSession = NULL;
-
+LLVoiceChannel::EState LLCallDialogManager::sOldState = LLVoiceChannel::STATE_READY;
+const LLUUID LLOutgoingCallDialog::OCD_KEY = LLUUID("7CF78E11-0CFE-498D-ADB9-1417BF03DDB4");
 //
 // Globals
 //
@@ -1273,19 +1274,32 @@ void LLCallDialogManager::onVoiceChannelChanged(const LLUUID &session_id)
 	}
 	sSession = session;
 	sSession->mVoiceChannel->setStateChangedCallback(LLCallDialogManager::onVoiceChannelStateChanged);
-	sPreviousSessionlName = sCurrentSessionlName;
-	sCurrentSessionlName = session->mName;
+	if(sCurrentSessionlName != session->mName)
+	{
+		sPreviousSessionlName = sCurrentSessionlName;
+		sCurrentSessionlName = session->mName;
+	}
 }
 
 void LLCallDialogManager::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction)
 {
 	LLSD mCallDialogPayload;
-	LLOutgoingCallDialog* ocd;
+	LLOutgoingCallDialog* ocd = NULL;
+
+	if(sOldState == new_state)
+	{
+		return;
+	}
+
+	sOldState = new_state;
 
 	mCallDialogPayload["session_id"] = sSession->mSessionID;
 	mCallDialogPayload["session_name"] = sSession->mName;
 	mCallDialogPayload["other_user_id"] = sSession->mOtherParticipantID;
 	mCallDialogPayload["old_channel_name"] = sPreviousSessionlName;
+	mCallDialogPayload["state"] = new_state;
+	mCallDialogPayload["disconnected_channel_name"] = sSession->mName;
+	mCallDialogPayload["session_type"] = sSession->mSessionType;
 
 	switch(new_state)
 	{			
@@ -1295,46 +1309,10 @@ void LLCallDialogManager::onVoiceChannelStateChanged(const LLVoiceChannel::EStat
 		{
 			return;
 		}
-
-		ocd = dynamic_cast<LLOutgoingCallDialog*>(LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE));
-		if (ocd)
-		{
-			ocd->getChild<LLTextBox>("calling")->setVisible(true);
-			ocd->getChild<LLTextBox>("leaving")->setVisible(true);
-			ocd->getChild<LLTextBox>("connecting")->setVisible(false);
-			ocd->getChild<LLTextBox>("noanswer")->setVisible(false);
-			ocd->getChild<LLButton>("Cancel")->setVisible(true);
-		}
-		return;
-
-	case LLVoiceChannel::STATE_RINGING :
-		ocd = dynamic_cast<LLOutgoingCallDialog*>(LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE));
-		if (ocd)
-		{
-			ocd->getChild<LLTextBox>("calling")->setVisible(false);
-			ocd->getChild<LLTextBox>("leaving")->setVisible(true);
-			ocd->getChild<LLTextBox>("connecting")->setVisible(true);
-			ocd->getChild<LLTextBox>("noanswer")->setVisible(false);
-			ocd->getChild<LLButton>("Cancel")->setVisible(true);
-		}
-		return;
-
-	case LLVoiceChannel::STATE_ERROR :
-		mCallDialogPayload["start_timer"] = true;
-		ocd = dynamic_cast<LLOutgoingCallDialog*>(LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE));
-		if (ocd)
-		{
-			ocd->getChild<LLTextBox>("calling")->setVisible(false);
-			ocd->getChild<LLTextBox>("leaving")->setVisible(false);
-			ocd->getChild<LLTextBox>("connecting")->setVisible(false);
-			ocd->getChild<LLTextBox>("noanswer")->setVisible(true);
-			ocd->getChild<LLButton>("Cancel")->setVisible(false);
-		}
-		return;
+		break;
 
 	case LLVoiceChannel::STATE_CONNECTED :
-	case LLVoiceChannel::STATE_HUNG_UP :
-		ocd = dynamic_cast<LLOutgoingCallDialog*>(LLFloaterReg::showInstance("outgoing_call", mCallDialogPayload, TRUE));
+		ocd = LLFloaterReg::findTypedInstance<LLOutgoingCallDialog>("outgoing_call", LLOutgoingCallDialog::OCD_KEY);
 		if (ocd)
 		{
 			ocd->closeFloater();
@@ -1345,6 +1323,11 @@ void LLCallDialogManager::onVoiceChannelStateChanged(const LLVoiceChannel::EStat
 		break;
 	}
 
+	ocd = LLFloaterReg::getTypedInstance<LLOutgoingCallDialog>("outgoing_call", LLOutgoingCallDialog::OCD_KEY);
+	if(ocd)
+	{
+		ocd->show(mCallDialogPayload);
+	}	
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1374,12 +1357,13 @@ void LLCallDialog::onOpen(const LLSD& key)
 LLOutgoingCallDialog::LLOutgoingCallDialog(const LLSD& payload) :
 LLCallDialog(payload)
 {
-	LLOutgoingCallDialog* instance = LLFloaterReg::findTypedInstance<LLOutgoingCallDialog>("outgoing_call", payload);
+	LLOutgoingCallDialog* instance = LLFloaterReg::findTypedInstance<LLOutgoingCallDialog>("outgoing_call", LLOutgoingCallDialog::OCD_KEY);
 	if(instance && instance->getVisible())
 	{
 		instance->onCancel(instance);
 	}	
 }
+
 void LLOutgoingCallDialog::draw()
 {
 	if (lifetimeHasExpired())
@@ -1408,10 +1392,14 @@ void LLOutgoingCallDialog::onLifetimeExpired()
 	closeFloater();
 }
 
-void LLOutgoingCallDialog::onOpen(const LLSD& key)
+void LLOutgoingCallDialog::show(const LLSD& key)
 {
-	LLCallDialog::onOpen(key);
+	mPayload = key;
 
+	// hide all text at first
+	hideAllText();
+
+	// customize text strings
 	// tell the user which voice channel they are leaving
 	if (!mPayload["old_channel_name"].asString().empty())
 	{
@@ -1420,6 +1408,12 @@ void LLOutgoingCallDialog::onOpen(const LLSD& key)
 	else
 	{
 		childSetTextArg("leaving", "[CURRENT_CHAT]", getString("localchat"));
+	}
+
+	if (!mPayload["disconnected_channel_name"].asString().empty())
+	{
+		childSetTextArg("nearby", "[VOICE_CHANNEL_NAME]", mPayload["disconnected_channel_name"].asString());
+		childSetTextArg("nearby_P2P", "[VOICE_CHANNEL_NAME]", mPayload["disconnected_channel_name"].asString());
 	}
 
 	std::string callee_name = mPayload["session_name"].asString();
@@ -1438,12 +1432,48 @@ void LLOutgoingCallDialog::onOpen(const LLSD& key)
 
 	// stop timer by default
 	mLifetimeTimer.stop();
-	if(mPayload.has("start_timer"))
+
+	// show only necessary strings and controls
+	switch(mPayload["state"].asInteger())
 	{
-		mLifetimeTimer.reset();
+	case LLVoiceChannel::STATE_CALL_STARTED :
+		getChild<LLTextBox>("calling")->setVisible(true);
+		getChild<LLTextBox>("leaving")->setVisible(true);
+		break;
+	case LLVoiceChannel::STATE_RINGING :
+		getChild<LLTextBox>("leaving")->setVisible(true);
+		getChild<LLTextBox>("connecting")->setVisible(true);
+		break;
+	case LLVoiceChannel::STATE_ERROR :
+		getChild<LLTextBox>("noanswer")->setVisible(true);
+		getChild<LLButton>("Cancel")->setVisible(false);
+		mLifetimeTimer.start();
+		break;
+	case LLVoiceChannel::STATE_HUNG_UP :
+		if (mPayload["session_type"].asInteger() == LLIMModel::LLIMSession::P2P_SESSION)
+		{
+			getChild<LLTextBox>("nearby_P2P")->setVisible(true);
+		} 
+		else
+		{
+			getChild<LLTextBox>("nearby")->setVisible(true);
+		}
+		getChild<LLButton>("Cancel")->setVisible(false);
+		mLifetimeTimer.start();
 	}
+
+	openFloater(LLOutgoingCallDialog::OCD_KEY);
 }
 
+void LLOutgoingCallDialog::hideAllText()
+{
+	getChild<LLTextBox>("calling")->setVisible(false);
+	getChild<LLTextBox>("leaving")->setVisible(false);
+	getChild<LLTextBox>("connecting")->setVisible(false);
+	getChild<LLTextBox>("nearby_P2P")->setVisible(false);
+	getChild<LLTextBox>("nearby")->setVisible(false);
+	getChild<LLTextBox>("noanswer")->setVisible(false);
+}
 
 //static
 void LLOutgoingCallDialog::onCancel(void* user_data)
@@ -2732,6 +2762,11 @@ public:
 		if ( im_floater )
 		{
 			im_floater->processSessionUpdate(input["body"]["info"]);
+		}
+		LLIMSpeakerMgr* im_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
+		if (im_mgr)
+		{
+			im_mgr->processSessionUpdate(input["body"]["info"]);
 		}
 	}
 };

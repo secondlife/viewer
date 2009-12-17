@@ -49,43 +49,6 @@
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
 
-class ModerationResponder : public LLHTTPClient::Responder
-{
-public:
-	ModerationResponder(const LLUUID& session_id)
-	{
-		mSessionID = session_id;
-	}
-
-	virtual void error(U32 status, const std::string& reason)
-	{
-		llwarns << status << ": " << reason << llendl;
-
-		if ( gIMMgr )
-		{
-			//403 == you're not a mod
-			//should be disabled if you're not a moderator
-			if ( 403 == status )
-			{
-				gIMMgr->showSessionEventError(
-					"mute",
-					"not_a_mod_error",
-					mSessionID);
-			}
-			else
-			{
-				gIMMgr->showSessionEventError(
-					"mute",
-					"generic_request_error",
-					mSessionID);
-			}
-		}
-	}
-
-private:
-	LLUUID mSessionID;
-};
-
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list,  bool use_context_menu/* = true*/):
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),
@@ -471,22 +434,13 @@ void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const
 
 void LLParticipantList::LLParticipantListMenu::toggleAllowTextChat(const LLSD& userdata)
 {
-	const LLUUID speaker_id = mUUIDs.front();
 
-	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
-	LLSD data;
-	data["method"] = "mute update";
-	data["session-id"] = mParent.mSpeakerMgr->getSessionID();
-	data["params"] = LLSD::emptyMap();
-	data["params"]["agent_id"] = speaker_id;
-	data["params"]["mute_info"] = LLSD::emptyMap();
-	//current value represents ability to type, so invert
-	data["params"]["mute_info"]["text"] = !mParent.mSpeakerMgr->findSpeaker(speaker_id)->mModeratorMutedText;
-
-	LLHTTPClient::post(
-		url,
-		data,
-		new ModerationResponder(mParent.mSpeakerMgr->getSessionID()));
+	LLIMSpeakerMgr* mgr = dynamic_cast<LLIMSpeakerMgr*>(mParent.mSpeakerMgr);
+	if (mgr)
+	{
+		const LLUUID speaker_id = mUUIDs.front();
+		mgr->toggleAllowTextChat(speaker_id);
+	}
 }
 
 void LLParticipantList::LLParticipantListMenu::toggleMute(const LLSD& userdata, U32 flags)
@@ -565,47 +519,19 @@ void LLParticipantList::LLParticipantListMenu::moderateVoice(const LLSD& userdat
 
 void LLParticipantList::LLParticipantListMenu::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute)
 {
-	if (gAgentID == avatar_id) return; // do not process myself
-
-	LLPointer<LLSpeaker> speakerp = mParent.mSpeakerMgr->findSpeaker(avatar_id);
-	if (!speakerp) return;
-
-	// *NOTE: mantipov: probably this condition will be incorrect when avatar will be blocked for
-	// text chat via moderation (LLSpeaker::mModeratorMutedText == TRUE)
-	bool is_in_voice = speakerp->mStatus <= LLSpeaker::STATUS_VOICE_ACTIVE || speakerp->mStatus == LLSpeaker::STATUS_MUTED;
-
-	// do not send voice moderation changes for avatars not in voice channel
-	if (!is_in_voice) return;
-
-	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
-	LLSD data;
-	data["method"] = "mute update";
-	data["session-id"] = mParent.mSpeakerMgr->getSessionID();
-	data["params"] = LLSD::emptyMap();
-	data["params"]["agent_id"] = avatar_id;
-	data["params"]["mute_info"] = LLSD::emptyMap();
-	data["params"]["mute_info"]["voice"] = !unmute;
-
-	LLHTTPClient::post(
-		url,
-		data,
-		new ModerationResponder(mParent.mSpeakerMgr->getSessionID()));
+	LLIMSpeakerMgr* mgr = dynamic_cast<LLIMSpeakerMgr*>(mParent.mSpeakerMgr);
+	if (mgr)
+	{
+		mgr->moderateVoiceParticipant(avatar_id, unmute);
+	}
 }
 
 void LLParticipantList::LLParticipantListMenu::moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute)
 {
-	LLSpeakerMgr::speaker_list_t speakers;
-	mParent.mSpeakerMgr->getSpeakerList(&speakers, FALSE);
-
-	for (LLSpeakerMgr::speaker_list_t::iterator iter = speakers.begin();
-		iter != speakers.end(); ++iter)
+	LLIMSpeakerMgr* mgr = dynamic_cast<LLIMSpeakerMgr*>(mParent.mSpeakerMgr);
+	if (mgr)
 	{
-		LLSpeaker* speakerp = (*iter).get();
-		LLUUID speaker_id = speakerp->mID;
-
-		if (excluded_avatar_id == speaker_id) continue;
-
-		moderateVoiceParticipant(speaker_id, unmute);
+		mgr->moderateVoiceOtherParticipants(excluded_avatar_id, unmute);
 	}
 }
 

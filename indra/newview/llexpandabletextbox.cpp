@@ -322,6 +322,13 @@ void LLExpandableTextBox::expandTextBox()
 	// hide "more" link, and show full text contents
 	mTextBox->hideExpandText();
 
+	// *HACK dz
+	// hideExpandText brakes text styles (replaces hyper-links with plain text), see ticket EXT-3290
+	// Set text again to make text box re-apply styles.
+	// *TODO Find proper solution to fix this issue.
+	// Maybe add removeSegment to LLTextBase
+	mTextBox->setTextBase(mText);
+
 	S32 text_delta = mTextBox->getVerticalTextDelta();
 	text_delta += mTextBox->getVPad() * 2;
 	text_delta += mScroll->getBorderWidth() * 2;

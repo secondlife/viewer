@@ -215,6 +215,10 @@ void LLBottomTray::onNewIM(const LLSD& data)
 	}
 }
 
+S32 LLBottomTray::getTotalUnreadIMCount()
+{
+	return getChicletPanel()->getTotalUnreadIMCount();
+}
 
 // virtual
 void LLBottomTray::onChange(EStatusType status, const std::string &channelURI, bool proximal)
