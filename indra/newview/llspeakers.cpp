@@ -659,25 +659,27 @@ void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmu
 
 void LLIMSpeakerMgr::moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute_everyone_else)
 {
-	// TODO: mantipov: add more intellectual processing of several following requests
+	// *TODO: mantipov: add more intellectual processing of several following requests if it is needed.
+	/*
+		Such situation should be tested:
+		 "Moderator sends the same second request before first response is come"
+		Moderator sends "mute everyone else" for A and then for B
+			two requests to disallow voice chat are sent
+			UUID of B is stored.
+		Then first response (to disallow voice chat) is come
+			request to allow voice for stored avatar (B)
+		Then second response (to disallow voice chat) is come
+			have nothing to do, the latest selected speaker is already enabled
+
+			What can happen?
+		If request to allow voice for stored avatar (B) is processed on server BEFORE 
+		second request to disallow voice chat all speakers will be disabled on voice.
+		But I'm not sure such situation is possible. 
+		See EXT-3431.
+	*/
 
 	mReverseVoiceModeratedAvatarID = excluded_avatar_id;
 	moderateVoiceSession(getSessionID(), !unmute_everyone_else);
-/*
-	LLSpeakerMgr::speaker_list_t speakers;
-	getSpeakerList(&speakers, FALSE);
-
-	for (LLSpeakerMgr::speaker_list_t::iterator iter = speakers.begin();
-		iter != speakers.end(); ++iter)
-	{
-		LLSpeaker* speakerp = (*iter).get();
-		LLUUID speaker_id = speakerp->mID;
-
-		if (excluded_avatar_id == speaker_id) continue;
-
-		moderateVoiceParticipant(speaker_id, unmute_everyone_else);
-	}
-*/
 }
 
 void LLIMSpeakerMgr::processSessionUpdate(const LLSD& session_update)
