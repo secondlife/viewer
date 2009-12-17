@@ -63,7 +63,9 @@ public:
 	void setParent( LLFloaterMediaSettings* parent );
 	bool urlPassesWhiteList( const std::string& test_url );
 	const std::string makeValidUrl( const std::string& src_url );
-	
+
+	void updateWhitelistEnableStatus();	
+
 protected:
 	LLFloaterMediaSettings* mParent;
 	
@@ -77,8 +79,6 @@ private:
 	LLCheckBoxCtrl* mEnableWhiteList;
 	LLScrollListCtrl* mWhiteListList;
 	LLTextBox* mHomeUrlFailsWhiteListText;
-
-	void updateWhitelistEnableStatus();
 
 	static void onBtnAdd(void*);
 	static void onBtnDel(void*);
