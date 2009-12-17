@@ -1672,9 +1672,7 @@ Only large parcels can be listed in search.
              name="replace_texture_help"
              width="300"
              word_wrap="true">
-             Objects using this texture will show the movie or web page after you click the play arrow.
-
-Select the thumbnail to choose a different texture.
+             Objects using this texture will show the movie or web page after you click the play arrow.  Select the thumbnail to choose a different texture.
             </text>
             <check_box
              height="16"
