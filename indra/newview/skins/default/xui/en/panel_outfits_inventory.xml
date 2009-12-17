@@ -100,5 +100,14 @@
 		right="-5"
 		top_pad="0"
 		width="90" />
+      <button
+       follows="bottom|left" 
+       height="23" 
+       label="edit look"
+       layout="topleft"
+       left_pad="-200"
+       name="look_edit_btn"
+       visible="false"
+       width="90" />
 	 </panel>
 </panel>

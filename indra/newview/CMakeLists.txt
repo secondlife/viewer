@@ -1780,6 +1780,7 @@ if (WINDOWS)
     qtnetworkd4.dll
     qtopengld4.dll
     qtwebkitd4.dll
+    qtxmlpatternsd4.dll
     ssleay32.dll
     )
   copy_if_different(
@@ -1799,6 +1800,7 @@ if (WINDOWS)
     qtnetwork4.dll
     qtopengl4.dll
     qtwebkit4.dll
+    qtxmlpatterns4.dll    
     ssleay32.dll
     )
   copy_if_different(

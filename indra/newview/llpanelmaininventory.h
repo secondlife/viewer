@@ -123,6 +123,7 @@ private:
 	LLInventoryPanel*			mActivePanel;
 	LLSaveFolderState*			mSavedFolderState;
 	std::string					mFilterText;
+	std::string					mFilterSubString;
 
 
 	//////////////////////////////////////////////////////////////////////////////////
