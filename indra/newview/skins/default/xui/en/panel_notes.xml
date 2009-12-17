@@ -114,7 +114,7 @@
          width="313">
        <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Add"
          layout="topleft"
          left="0"
@@ -125,7 +125,7 @@
          width="55" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="IM"
          layout="topleft"
          name="im"
@@ -135,7 +135,7 @@
          width="40" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Call"
          layout="topleft"
          name="call"
@@ -146,7 +146,7 @@
         <button
          enabled="false"
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Map"
          layout="topleft"
          name="show_on_map_btn"
@@ -156,7 +156,7 @@
          width="50" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Teleport"
          layout="topleft"
          name="teleport"
