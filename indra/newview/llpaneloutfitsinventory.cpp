@@ -96,6 +96,7 @@ void LLPanelOutfitsInventory::setParent(LLSidepanelAppearance* parent)
 // virtual
 void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 {
+	mFilterSubString = string;
 	if (string == "")
 	{
 		mActivePanel->setFilterSubString(LLStringUtil::null);
@@ -433,6 +434,9 @@ void LLPanelOutfitsInventory::initTabPanels()
 		LLInventoryPanel *panel = (*iter);
 		panel->setSelectCallback(boost::bind(&LLPanelOutfitsInventory::onTabSelectionChange, this, panel, _1, _2));
 	}
+
+	mAppearanceTabs = getChild<LLTabContainer>("appearance_tabs");
+	mAppearanceTabs->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::onTabChange, this));
 }
 
 void LLPanelOutfitsInventory::onTabSelectionChange(LLInventoryPanel* tab_panel, const std::deque<LLFolderViewItem*> &items, BOOL user_action)
@@ -455,6 +459,16 @@ void LLPanelOutfitsInventory::onTabSelectionChange(LLInventoryPanel* tab_panel, 
 		}
 	}
 	onSelectionChange(items, user_action);
+}
+
+void LLPanelOutfitsInventory::onTabChange()
+{
+	mActivePanel = (LLInventoryPanel*)childGetVisibleTab("appearance_tabs");
+	if (!mActivePanel)
+	{
+		return;
+	}
+	mActivePanel->setFilterSubString(mFilterSubString);
 }
 
 LLInventoryPanel* LLPanelOutfitsInventory::getActivePanel()
