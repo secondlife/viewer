@@ -74,8 +74,8 @@ public:
 	void setLandingTab(LLUICtrl* tab) { mLandingTab = tab; }
 
 protected:
-	void updateButtons(U32 bar_width);
-	void createButtons(const LLInventoryModel::item_array_t &items, const LLXMLNodePtr &root, S32 buttonWidth, S32 buttonHGap);
+	void updateButtons();
+	LLButton* createButton(const LLPointer<LLViewerInventoryItem> item, LLXMLNodePtr &root, S32 x_offset );
 	LLXMLNodePtr getButtonXMLNode();
 	BOOL collectFavoriteItems(LLInventoryModel::item_array_t &items);
 
@@ -101,9 +101,7 @@ protected:
 	LLUUID mFavoriteFolderId;
 	const LLFontGL *mFont;
 	S32 mFirstDropDownItem;
-
-	typedef LLDynamicArray<std::string> item_names_array_t;
-	item_names_array_t mItemNamesCache;
+	bool mUpdateDropDownItems;
 
 	LLUUID mSelectedItemID;
 
