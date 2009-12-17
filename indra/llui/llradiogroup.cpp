@@ -116,10 +116,6 @@ void LLRadioGroup::initFromParams(const Params& p)
 		item_params.commit_callback.function = boost::bind(&LLRadioGroup::onClickButton, this, _1);
 		item_params.from_xui = p.from_xui;
 
-		// *HACK: Because we are explicitly building our own children,
-		// need to fix-up layout for topleft
-		LLRadioCtrl::setupParams(item_params, this);
-
 		LLRadioCtrl* item = LLUICtrlFactory::create<LLRadioCtrl>(item_params, this);
 		mRadioButtons.push_back(item);
 	}
