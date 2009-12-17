@@ -2074,6 +2074,10 @@ this texture in your inventory
 	<!-- panel classified -->
 	<string name="ClassifiedClicksTxt">Clicks: [TELEPORT] teleport, [MAP] map, [PROFILE] profile</string>
 	<string name="ClassifiedUpdateAfterPublish">(will update after publish)</string>
+  
+  <!-- panel picks -->
+  <string name="NoPicksClassifiedsText">There are no picks/classifieds here</string>
+  <string name="PicksClassifiedsLoadingText">Loading...</string>
 
 	<!-- Multi Preview Floater -->
 	<string name="MultiPreviewTitle">Preview</string>
@@ -2841,6 +2845,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_default_text_label">Click here to instant message.</string>
 	<string name="IM_to_label">To</string>
 	<string name="IM_moderator_label">(Moderator)</string>
+
+	<!-- voice calls -->
+	<string name="started_call">Started a voice call</string>
+	<string name="joined_call">Joined the voice call</string>
 
   <string name="ringing-im">
     Joining Voice Chat...

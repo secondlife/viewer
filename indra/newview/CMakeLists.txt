@@ -1353,7 +1353,6 @@ add_executable(${VIEWER_BINARY_NAME}
     MACOSX_BUNDLE
     ${viewer_SOURCE_FILES}
     )
-check_message_template(${VIEWER_BINARY_NAME})
 
 if (LLKDU_LIBRARY)
   add_dependencies(${VIEWER_BINARY_NAME} ${LLKDU_LIBRARY})
@@ -1390,45 +1389,84 @@ if (WINDOWS)
             )
     endif(USE_PRECOMPILED_HEADERS)
 
-    # sets the 'working directory' for debugging from visual studio.
-    if (NOT UNATTENDED)
-        add_custom_command(
-            TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-            COMMAND ${CMAKE_SOURCE_DIR}/tools/vstool/vstool.exe
-            ARGS
-              --solution 
-              ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.sln
-              --workingdir
-              ${VIEWER_BINARY_NAME}
-              "${CMAKE_CURRENT_SOURCE_DIR}"
-            COMMENT "Setting the ${VIEWER_BINARY_NAME} working directory for debugging."
-            )
-    endif (NOT UNATTENDED)
-
-    add_custom_command(
-        TARGET ${VIEWER_BINARY_NAME} PRE_BUILD
-        COMMAND ${CMAKE_COMMAND}
-        ARGS
-          -E
-          copy_if_different
-          ${CMAKE_CURRENT_SOURCE_DIR}/../../scripts/messages/message_template.msg
-          ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/app_settings/message_template.msg
-        COMMENT "Copying message_template.msg to the runtime folder."
-        )
-
-    add_custom_command(
-      TARGET ${VIEWER_BINARY_NAME} PRE_BUILD
-      COMMAND ${CMAKE_COMMAND}
-      ARGS
-        -E
-        copy_if_different
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../etc/message.xml
-        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/app_settings/message.xml
-      COMMENT "Copying message.xml to the runtime folder."
+    # If adding a file to viewer_manifest.py in the WindowsManifest.construct() method, be sure to add the dependency
+    # here.
+    # *NOTE:Mani - This is a crappy hack to have important dependecies for the viewer_manifest copy action
+    # be met. I'm looking forward to a source-code split-up project next year that will address this kind of thing.
+    # In the meantime, if you have any ideas on how to easily maintain one list, either here or in viewer_manifest.py
+    # and have the build deps get tracked *please* tell me about it.
+    set(COPY_INPUT_DEPENDECIES
+      # The following commented dependencies are determined at variably at build time. Can't do this here.
+      #llkdu.dll => llkdu.dll
+      #${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libtcmalloc_minimal.dll => None ... Skipping libtcmalloc_minimal.dll
+      ${CMAKE_SOURCE_DIR}/../etc/message.xml
+      ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
+      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/llcommon.dll
+      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libapr-1.dll
+      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libaprutil-1.dll
+      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libapriconv-1.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/openjpeg.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/openjpeg.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/openjpegd.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/msvcr80.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/msvcp80.dll
+      ${SHARED_LIB_STAGING_DIR}/Release/Microsoft.VC80.CRT.manifest
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcr80.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcp80.dll
+      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/Microsoft.VC80.CRT.manifest
+      ${SHARED_LIB_STAGING_DIR}/Debug/msvcr80d.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/msvcp80d.dll
+      ${SHARED_LIB_STAGING_DIR}/Debug/Microsoft.VC80.DebugCRT.manifest
+      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/SLVoice.exe
+      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxsdk.dll
+      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ortp.dll
+      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libsndfile-1.dll
+      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/zlib1.dll
+      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxplatform.dll
+      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxoal.dll
+      ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
+      ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
+      ${CMAKE_CURRENT_SOURCE_DIR}/dbghelp.dll
+      ${CMAKE_CURRENT_SOURCE_DIR}/fmod.dll
+      ${CMAKE_BINARY_DIR}/media_plugins/quicktime/${CMAKE_CFG_INTDIR}/media_plugin_quicktime.dll
+      ${CMAKE_BINARY_DIR}/media_plugins/quicktime/${CMAKE_CFG_INTDIR}/media_plugin_webkit.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/libeay32.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/qtcore4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/qtgui4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/qtnetwork4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/qtopengl4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/qtwebkit4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/qtxmlpatterns4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/ssleay32.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/imageformats/qgif4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/imageformats/qico4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/imageformats/qjpeg4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/imageformats/qmng4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/imageformats/qsvg4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/imageformats/qtiff4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/libeay32.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/qtcored4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/qtguid4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/qtnetworkd4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/qtopengld4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/qtwebkitd4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/qtxmlpatternsd4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/ssleay32.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qgifd4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qicod4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qjpegd4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qmngd4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qsvgd4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qtiffd4.dll
+      SLPlugin
+      media_plugin_quicktime
+      media_plugin_webkit
+      windows-crash-logger
+      windows-updater
       )
-       
+
     add_custom_command(
-      TARGET ${VIEWER_BINARY_NAME} POST_BUILD
+      OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
       COMMAND ${PYTHON_EXECUTABLE}
       ARGS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
@@ -1439,11 +1477,17 @@ if (WINDOWS)
         --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
         --grid=${GRID}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
-      DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+	--touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/copy_touched.bat
+      DEPENDS 
+	${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+	stage_third_party_libs
+	${COPY_INPUT_DEPENDECIES}
       COMMENT "Performing viewer_manifest copy"
       )
+    
+    add_custom_target(copy_w_viewer_manifest ALL DEPENDS ${CMAKE_CFG_INTDIR}/copy_touched.bat) 
 
-    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon)
+    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon copy_w_viewer_manifest)
     
     if(LLKDU_LIBRARY)
       # kdu may not exist!
@@ -1462,6 +1506,21 @@ if (WINDOWS)
       windows-crash-logger
       )
 
+    # sets the 'working directory' for debugging from visual studio.
+    if (NOT UNATTENDED)
+        add_custom_command(
+            TARGET ${VIEWER_BINARY_NAME} POST_BUILD
+            COMMAND ${CMAKE_SOURCE_DIR}/tools/vstool/vstool.exe
+            ARGS
+              --solution 
+              ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.sln
+              --workingdir
+              ${VIEWER_BINARY_NAME}
+              "${CMAKE_CURRENT_SOURCE_DIR}"
+            COMMENT "Setting the ${VIEWER_BINARY_NAME} working directory for debugging."
+            )
+    endif (NOT UNATTENDED)
+
     if (PACKAGE)
       add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2
@@ -1476,7 +1535,7 @@ if (WINDOWS)
           ${EVENT_HOST_SCRIPTS}
           ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
         )
-
+    
       add_custom_command(
         OUTPUT ${CMAKE_CFG_INTDIR}/touched.bat
         COMMAND ${PYTHON_EXECUTABLE}
@@ -1498,6 +1557,8 @@ if (WINDOWS)
         # temporarily disable packaging of event_host until hg subrepos get
         # sorted out on the parabuild cluster...
         #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
+
+      check_message_template(package)
 
     endif (PACKAGE)
 endif (WINDOWS)
@@ -1580,6 +1641,7 @@ if (LINUX)
     add_custom_target(package ALL DEPENDS ${product}.tar.bz2)
     add_dependencies(package linux-crash-logger-strip-target)
     add_dependencies(package linux-updater-strip-target)
+    check_message_template(package)
   endif (NOT INSTALL)
 endif (LINUX)
 
@@ -1618,6 +1680,7 @@ if (DARWIN)
 
   if (PACKAGE)
       add_custom_target(package ALL DEPENDS ${VIEWER_BINARY_NAME}) 
+      check_message_template(package)
       add_dependencies(package mac-updater mac-crash-logger)
 
       add_custom_command(
@@ -1720,122 +1783,4 @@ if (LL_TESTS)
   #ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)
 endif (LL_TESTS)
 
-
-# Don't do these for DARWIN or LINUX here -- they're taken care of by viewer_manifest.py
-if (WINDOWS)
-  add_custom_command(
-      TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-      COMMAND ${CMAKE_COMMAND}
-      ARGS
-        -E
-        make_directory
-        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llplugin
-      COMMENT "Creating llplugin dir."
-      )
-
-  get_target_property(BUILT_SLPLUGIN SLPlugin LOCATION)
-  add_custom_command(
-      TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-      COMMAND ${CMAKE_COMMAND}
-      ARGS
-        -E
-        copy_if_different
-        ${BUILT_SLPLUGIN}
-        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-      COMMENT "Copying SLPlugin executable to the runtime folder."
-      )
-
-  get_target_property(BUILT_WEBKIT_PLUGIN media_plugin_webkit LOCATION)
-    add_custom_command(
-        TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND}
-        ARGS
-          -E
-          copy_if_different
-          ${BUILT_WEBKIT_PLUGIN}
-          ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llplugin
-        COMMENT "Copying WebKit Plugin to the runtime folder."
-        )
-
-  get_target_property(BUILT_QUICKTIME_PLUGIN media_plugin_quicktime LOCATION)
-    add_custom_command(
-        TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND}
-        ARGS
-          -E
-          copy_if_different
-          ${BUILT_QUICKTIME_PLUGIN}
-          ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llplugin
-        COMMENT "Copying Quicktime Plugin to the runtime folder."
-        )
-
-  #*******************************
-  # Copy media plugin support dlls
-  # Debug config runtime files required for the plugins
-  set(plugins_debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug")
-  set(plugins_debug_files
-    libeay32.dll
-    qtcored4.dll
-    qtguid4.dll
-    qtnetworkd4.dll
-    qtopengld4.dll
-    qtwebkitd4.dll
-    qtxmlpatternsd4.dll
-    ssleay32.dll
-    )
-  copy_if_different(
-    ${plugins_debug_src_dir}
-    "${CMAKE_CURRENT_BINARY_DIR}/Debug/llplugin"
-    out_targets
-    ${plugins_debug_files}
-    )
-  set(media_plugin_targets ${media_plugin_targets} ${out_targets})
-  
-  # Release & ReleaseDebInfo config runtime files required for the plugins
-  set(plugins_release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release")
-  set(plugins_release_files
-    libeay32.dll
-    qtcore4.dll
-    qtgui4.dll
-    qtnetwork4.dll
-    qtopengl4.dll
-    qtwebkit4.dll
-    qtxmlpatterns4.dll    
-    ssleay32.dll
-    )
-  copy_if_different(
-    ${plugins_release_src_dir}
-    "${CMAKE_CURRENT_BINARY_DIR}/Release/llplugin"
-    out_targets
-    ${plugins_release_files}
-    )
-  set(media_plugin_targets ${media_plugin_targets} ${out_targets})
-
-  copy_if_different(
-    ${plugins_release_src_dir}
-    "${CMAKE_CURRENT_BINARY_DIR}/RelWithDebInfo/llplugin"
-    out_targets
-    ${plugins_release_files}
-    )
-  set(media_plugin_targets ${media_plugin_targets} ${out_targets})
-  
-  add_custom_target(copy_media_plugin_libs ALL
-    DEPENDS 
-    ${media_plugin_targets}
-    )
-
-  add_custom_command(
-    TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND}
-    ARGS
-      -E
-      copy_directory
-      ${CMAKE_BINARY_DIR}/test_apps/llplugintest/${CMAKE_CFG_INTDIR}/imageformats
-      ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llplugin/imageformats
-    COMMENT "Copying llpluging imageformat libs."
-    )
-
-  add_dependencies(${VIEWER_BINARY_NAME} llmediaplugintest copy_media_plugin_libs)
-
-endif (WINDOWS)
 
