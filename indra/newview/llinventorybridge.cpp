@@ -1439,10 +1439,7 @@ BOOL LLFolderBridge::isItemRemovable()
 		return FALSE;
 	}
 
-	// Allow protected types to be removed, but issue a warning.
-	// Restrict to god mode so users don't inadvertently mess up their inventory.
-	if(LLFolderType::lookupIsProtectedType(category->getPreferredType()) &&
-	   !gAgent.isGodlike())
+	if(LLFolderType::lookupIsProtectedType(category->getPreferredType()))
 	{
 		return FALSE;
 	}
@@ -2141,6 +2138,12 @@ void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 		restoreItem();
 		return;
 	}
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	else if ("delete_system_folder" == action)
+	{
+		removeSystemFolder();
+	}
+#endif
 }
 
 void LLFolderBridge::openItem()
@@ -2264,13 +2267,27 @@ BOOL LLFolderBridge::removeItem()
 
 	LLNotification::Params params("ConfirmDeleteProtectedCategory");
 	params.payload(payload).substitutions(args).functor.function(boost::bind(&LLFolderBridge::removeItemResponse, this, _1, _2));
-	if (LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
+	LLNotifications::instance().forceResponse(params, 0);
+	return TRUE;
+}
+
+
+BOOL LLFolderBridge::removeSystemFolder()
+{
+	const LLViewerInventoryCategory *cat = getCategory();
+	if (!LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
+	{
+		return FALSE;
+	}
+
+	LLSD payload;
+	LLSD args;
+	args["FOLDERNAME"] = cat->getName();
+
+	LLNotification::Params params("ConfirmDeleteProtectedCategory");
+	params.payload(payload).substitutions(args).functor.function(boost::bind(&LLFolderBridge::removeItemResponse, this, _1, _2));
 	{
 		LLNotifications::instance().add(params);
-	}
-	else
-	{
-		LLNotifications::instance().forceResponse(params, 0);
 	}
 	return TRUE;
 }
@@ -2438,6 +2455,13 @@ void LLFolderBridge::folderOptionsMenu()
 			mItems.push_back(std::string("IM All Contacts In Folder"));
 		}
 	}
+
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	if (LLFolderType::lookupIsProtectedType(type))
+	{
+		mItems.push_back(std::string("Delete System Folder"));
+	}
+#endif
 
 	// wearables related functionality for folders.
 	//is_wearable
@@ -2642,6 +2666,13 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		mItems.push_back(std::string("--no options--"));
 		mDisabledItems.push_back(std::string("--no options--"));
 	}
+
+	// Preemptively disable system folder removal if more than one item selected.
+	if ((flags & FIRST_SELECTED_ITEM) == 0)
+	{
+		mDisabledItems.push_back(std::string("Delete System Folder"));
+	}
+	
 	hide_context_entries(menu, mItems, mDisabledItems);
 }
 

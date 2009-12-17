@@ -292,7 +292,9 @@ public:
 	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type);
 
 	virtual BOOL renameItem(const std::string& new_name);
+
 	virtual BOOL removeItem();
+	BOOL removeSystemFolder();
 	bool removeItemResponse(const LLSD& notification, const LLSD& response);
 
 	virtual void pasteFromClipboard();
