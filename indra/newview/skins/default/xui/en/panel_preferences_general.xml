@@ -87,7 +87,7 @@
          value="ja" />
     </combo_box>
     <text
- font="SanSerifSmall"
+ font="SansSerifSmall"
      type="string"
      length="1"
      follows="left|top"
@@ -328,7 +328,6 @@
      control_name="BusyModeResponse2"
       text_readonly_color="LabelDisabledColor"
       bg_writeable_color="LtGray"
-      border_color="DefaultHighlightLight"
       use_ellipses="false"
       bg_visible="false"
       border_visible="false"
