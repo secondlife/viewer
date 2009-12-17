@@ -66,7 +66,6 @@
 #include "llimview.h"                  // for LLIMModel to get other avatar id in chat
 #include "llkeyboard.h"
 #include "lllineeditor.h"
-#include "llnotify.h"
 #include "llpanelimcontrolpanel.h"
 #include "llrecentpeople.h"
 #include "llresmgr.h"

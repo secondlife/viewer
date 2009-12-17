@@ -41,7 +41,6 @@
 #include "llviewerinventory.h"
 #include "llviewerstats.h"
 #include "llnotificationsutil.h"
-#include "llnotify.h"
 #include "llinventorymodel.h"
 #include "lltrans.h"
 

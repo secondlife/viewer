@@ -249,6 +249,7 @@ static LLViewerMedia::impl_id_map sViewerMediaTextureIDMap;
 static LLTimer sMediaCreateTimer;
 static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
 static F32 sGlobalVolume = 1.0f;
+static F64 sLowestLoadableImplInterest = 0.0f;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 static void add_media_impl(LLViewerMediaImpl* media)
@@ -560,16 +561,33 @@ bool LLViewerMedia::getInWorldMediaDisabled()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
-bool LLViewerMedia::isInterestingEnough(const LLUUID &object_id, const F64 &object_interest)
+bool LLViewerMedia::isInterestingEnough(const LLVOVolume *object, const F64 &object_interest)
 {
-	if (LLViewerMediaFocus::getInstance()->getFocusedObjectID() == object_id)
+	bool result = false;
+	
+	if (NULL == object)
 	{
-		return true;
+		result = false;
 	}
-	else {
-		// XXX HACK
-		return object_interest > 1023;// INTEREST_THRESHHOLD;
+	// Focused?  Then it is interesting!
+	else if (LLViewerMediaFocus::getInstance()->getFocusedObjectID() == object->getID())
+	{
+		result = true;
 	}
+	// Selected?  Then it is interesting!
+	// XXX Sadly, 'contains()' doesn't take a const :(
+	else if (LLSelectMgr::getInstance()->getSelection()->contains(const_cast<LLVOVolume*>(object)))
+	{
+		result = true;
+	}
+	else 
+	{
+		llinfos << "object interest = " << object_interest << ", lowest loadable = " << sLowestLoadableImplInterest << llendl;
+		if(object_interest > sLowestLoadableImplInterest)
+			result = true;
+	}
+	
+	return result;
 }
 
 LLViewerMedia::impl_list &LLViewerMedia::getPriorityList()
@@ -697,6 +715,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	// Setting max_cpu to 0.0 disables CPU usage checking.
 	bool check_cpu_usage = (max_cpu != 0.0f);
 	
+	LLViewerMediaImpl* lowest_interest_loadable = NULL;
+	
 	// Notes on tweakable params:
 	// max_instances must be set high enough to allow the various instances used in the UI (for the help browser, search, etc.) to be loaded.
 	// If max_normal + max_low is less than max_instances, things will tend to get unloaded instead of being set to slideshow.
@@ -783,6 +803,9 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 		
 		if(!pimpl->getUsedInUI() && (new_priority != LLPluginClassMedia::PRIORITY_UNLOADED))
 		{
+			// This is a loadable inworld impl -- the last one in the list in this class defines the lowest loadable interest.
+			lowest_interest_loadable = pimpl;
+			
 			impl_count_total++;
 		}
 		
@@ -812,6 +835,22 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 		}
 
 		total_cpu += pimpl->getCPUUsage();
+	}
+
+	// Re-calculate this every time.
+	sLowestLoadableImplInterest	= 0.0f;
+
+	// Only do this calculation if we've hit the impl count limit -- up until that point we always need to load media data.
+	if(lowest_interest_loadable && (impl_count_total >= (int)max_instances))
+	{
+		// Get the interest value of this impl's object for use by isInterestingEnough
+		LLVOVolume *object = lowest_interest_loadable->getSomeObject();
+		if(object)
+		{
+			// NOTE: Don't use getMediaInterest() here.  We want the pixel area, not the total media interest,
+			// 		so that we match up with the calculation done in LLMediaDataClient.
+			sLowestLoadableImplInterest = object->getPixelArea();
+		}
 	}
 	
 	if(gSavedSettings.getBOOL("MediaPerformanceManagerDebug"))

@@ -51,6 +51,7 @@
 LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLDockableFloater(NULL, key),
 													mChannel(NULL),
 													mMessageList(NULL),
+													mSysWellChiclet(NULL),
 													mSeparator(NULL),
 													NOTIFICATION_WELL_ANCHOR_NAME("notification_well_panel"),
 													IM_WELL_ANCHOR_NAME("im_well_panel")
@@ -79,6 +80,10 @@ BOOL LLSysWellWindow::postBuild()
 	mSeparator->setVisible(FALSE);
 
 	mMessageList->addItem(mSeparator);
+
+	// click on SysWell Window should clear "new message" state (and 'Lit' status). EXT-3147.
+	// mouse up callback is not called in this case.
+	setMouseDownCallback(boost::bind(&LLSysWellWindow::releaseNewMessagesState, this));
 
 	return LLDockableFloater::postBuild();
 }
@@ -174,6 +179,11 @@ void LLSysWellWindow::setVisible(BOOL visible)
 		mChannel->updateShowToastsState();
 		mChannel->redrawToasts();
 	}
+
+	if (visible)
+	{
+		releaseNewMessagesState();
+	}
 }
 
 //---------------------------------------------------------------------------------
@@ -227,6 +237,14 @@ void LLSysWellWindow::reshapeWindow()
 	}
 }
 
+void LLSysWellWindow::releaseNewMessagesState()
+{
+	if (NULL != mSysWellChiclet)
+	{
+		mSysWellChiclet->setNewMessagesState(false);
+	}
+}
+
 //---------------------------------------------------------------------------------
 bool LLSysWellWindow::isWindowEmpty()
 {
@@ -245,6 +263,24 @@ void LLSysWellWindow::handleItemAdded(EItemType added_item_type)
 
 		// refresh list to recalculate mSeparator position
 		mMessageList->reshape(mMessageList->getRect().getWidth(), mMessageList->getRect().getHeight());
+	}
+
+	//fix for EXT-3254
+	//set limits for min_height. 
+	S32 parent_list_delta_height = getRect().getHeight() - mMessageList->getRect().getHeight();
+
+	std::vector<LLPanel*> items;
+	mMessageList->getItems(items);
+
+	if(items.size()>1)//first item is separator
+	{
+		S32 min_height;
+		S32 min_width;
+		getResizeLimits(&min_width,&min_height);
+
+		min_height = items[1]->getRect().getHeight() + 2 * mMessageList->getBorderWidth() + parent_list_delta_height;
+
+		setResizeLimits(min_width,min_height);
 	}
 }
 
@@ -673,15 +709,15 @@ BOOL LLIMWellWindow::postBuild()
 void LLIMWellWindow::sessionAdded(const LLUUID& session_id,
 								   const std::string& name, const LLUUID& other_participant_id)
 {
-	if (mMessageList->getItemByValue(session_id) == NULL)
-	{
-		S32 chicletCounter = LLIMModel::getInstance()->getNumUnread(session_id);
-		if (chicletCounter > -1)
-		{
-			addIMRow(session_id, chicletCounter, name, other_participant_id);	
-			reshapeWindow();
-		}
-	}
+	if (!mMessageList->getItemByValue(session_id)) return;
+	
+	// For im sessions started as voice call chiclet gets created on the first incoming message
+	if (gIMMgr->isVoiceCall(session_id)) return;
+
+	if (!gIMMgr->hasSession(session_id)) return;
+
+	addIMRow(session_id, 0, name, other_participant_id);	
+	reshapeWindow();
 }
 
 //virtual
@@ -752,6 +788,13 @@ void LLIMWellWindow::addIMRow(const LLUUID& sessionId, S32 chicletCounter,
 //---------------------------------------------------------------------------------
 void LLIMWellWindow::delIMRow(const LLUUID& sessionId)
 {
+	//fix for EXT-3252
+	//without this line LLIMWellWindow receive onFocusLost
+	//and hide itself. It was becaue somehow LLIMChicklet was in focus group for
+	//LLIMWellWindow...
+	//But I didn't find why this happen..
+	gFocusMgr.clearLastFocusForGroup(this);
+
 	if (mMessageList->removeItemByValue(sessionId))
 	{
 		handleItemRemoved(IT_INSTANT_MESSAGE);
@@ -770,6 +813,10 @@ void LLIMWellWindow::delIMRow(const LLUUID& sessionId)
 	if(isWindowEmpty())
 	{
 		setVisible(FALSE);
+	}
+	else
+	{
+		setFocus(true);
 	}
 }
 

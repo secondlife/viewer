@@ -75,12 +75,12 @@ LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
 BOOL LLPanelOutfitsInventory::postBuild()
 {
 	
-	initAccordionPanels();
+	initTabPanels();
 	initListCommandsHandlers();
 	return TRUE;
 }
 
-void LLPanelOutfitsInventory::updateParent()
+void LLPanelOutfitsInventory::updateVerbs()
 {
 	if (mParent)
 	{
@@ -127,7 +127,7 @@ void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 	mActivePanel->setFilterSubString(string);
 }
 
-void LLPanelOutfitsInventory::onWear()
+void LLPanelOutfitsInventory::onWearButtonClick()
 {
 	LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
 	if (listenerp)
@@ -167,7 +167,7 @@ void LLPanelOutfitsInventory::onNew()
 void LLPanelOutfitsInventory::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
 {
 	updateListCommands();
-	updateParent();
+	updateVerbs();
 	if (getRootFolder()->needsAutoRename() && items.size())
 	{
 		getRootFolder()->startRenamingSelectedItem();
@@ -234,13 +234,14 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelOutfitsInventory::onGearButtonClick, this));
 	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
 	mListCommands->childSetAction("add_btn", boost::bind(&LLPanelOutfitsInventory::onAddButtonClick, this));
-
+	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
+	
 	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>("trash_btn");
 	trash_btn->setDragAndDropHandler(boost::bind(&LLPanelOutfitsInventory::handleDragAndDropToTrash, this
-			,	_4 // BOOL drop
-			,	_5 // EDragAndDropType cargo_type
-			,	_7 // EAcceptance* accept
-			));
+				   ,       _4 // BOOL drop
+				   ,       _5 // EDragAndDropType cargo_type
+				   ,       _7 // EAcceptance* accept
+				   ));
 
 	mCommitCallbackRegistrar.add("panel_outfits_inventory_gear_default.Custom.Action",
 								 boost::bind(&LLPanelOutfitsInventory::onCustomAction, this, _2));
@@ -252,8 +253,10 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 void LLPanelOutfitsInventory::updateListCommands()
 {
 	bool trash_enabled = isActionEnabled("delete");
+	bool wear_enabled = isActionEnabled("wear");
 
 	mListCommands->childSetEnabled("trash_btn", trash_enabled);
+	mListCommands->childSetEnabled("wear_btn", wear_enabled);
 }
 
 void LLPanelOutfitsInventory::onGearButtonClick()
@@ -308,7 +311,7 @@ void LLPanelOutfitsInventory::onCustomAction(const LLSD& userdata)
 	}
 	if (command_name == "wear")
 	{
-		onWear();
+		onWearButtonClick();
 	}
 	if (command_name == "add")
 	{
@@ -407,41 +410,41 @@ bool LLPanelOutfitsInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropTy
 ////////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////////
-// Accordion                                                                    //
+// Tab panels                                                                    //
 
-void LLPanelOutfitsInventory::initAccordionPanels()
+void LLPanelOutfitsInventory::initTabPanels()
 {
-	mAccordionPanels.resize(2);
+	mTabPanels.resize(2);
 	
 	LLInventoryPanel *myoutfits_panel = getChild<LLInventoryPanel>("outfitslist_accordionpanel");
 	myoutfits_panel->setFilterTypes(1LL << LLFolderType::FT_OUTFIT, LLInventoryFilter::FILTERTYPE_CATEGORY);
 	myoutfits_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mAccordionPanels[0] = myoutfits_panel;
+	mTabPanels[0] = myoutfits_panel;
 	mActivePanel = myoutfits_panel;
 
 	LLInventoryPanel *cof_panel = getChild<LLInventoryPanel>("cof_accordionpanel");
 	cof_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mAccordionPanels[1] = cof_panel;
+	mTabPanels[1] = cof_panel;
 
-	for (accordionpanels_vec_t::iterator iter = mAccordionPanels.begin();
-		 iter != mAccordionPanels.end();
+	for (tabpanels_vec_t::iterator iter = mTabPanels.begin();
+		 iter != mTabPanels.end();
 		 ++iter)
 	{
 		LLInventoryPanel *panel = (*iter);
-		panel->setSelectCallback(boost::bind(&LLPanelOutfitsInventory::onAccordionSelectionChange, this, panel, _1, _2));
+		panel->setSelectCallback(boost::bind(&LLPanelOutfitsInventory::onTabSelectionChange, this, panel, _1, _2));
 	}
 }
 
-void LLPanelOutfitsInventory::onAccordionSelectionChange(LLInventoryPanel* accordion_panel, const std::deque<LLFolderViewItem*> &items, BOOL user_action)
+void LLPanelOutfitsInventory::onTabSelectionChange(LLInventoryPanel* tab_panel, const std::deque<LLFolderViewItem*> &items, BOOL user_action)
 {
 	if (user_action && items.size() > 0)
 	{
-		for (accordionpanels_vec_t::iterator iter = mAccordionPanels.begin();
-			 iter != mAccordionPanels.end();
+		for (tabpanels_vec_t::iterator iter = mTabPanels.begin();
+			 iter != mTabPanels.end();
 			 ++iter)
 		{
 			LLInventoryPanel *panel = (*iter);
-			if (panel == accordion_panel)
+			if (panel == tab_panel)
 			{
 				mActivePanel = panel;
 			}
@@ -459,10 +462,10 @@ LLInventoryPanel* LLPanelOutfitsInventory::getActivePanel()
 	return mActivePanel;
 }
 
-bool LLPanelOutfitsInventory::isAccordionPanel(LLInventoryPanel *panel)
+bool LLPanelOutfitsInventory::isTabPanel(LLInventoryPanel *panel)
 {
-	for(accordionpanels_vec_t::iterator it = mAccordionPanels.begin();
-		it != mAccordionPanels.end();
+	for(tabpanels_vec_t::iterator it = mTabPanels.begin();
+		it != mTabPanels.end();
 		++it)
 	{
 		if (*it == panel)

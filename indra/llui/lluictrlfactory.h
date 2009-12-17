@@ -182,6 +182,9 @@ public:
 	template<typename T>
 	static T* createWidget(typename T::Params& params, LLView* parent = NULL)
 	{
+		// Apply layout transformations, usually munging rect
+		T::setupParams(params, parent);
+
 		T* widget = NULL;
 
 		if (!params.validateBlock())
@@ -196,7 +199,7 @@ public:
 		}
 		{
 			LLFastTimer timer(FTM_INIT_FROM_PARAMS);
-		widget->initFromParams(params);
+			widget->initFromParams(params);
 		}
 
 		if (parent)
@@ -220,7 +223,7 @@ public:
 
 		return widget;
 	}
-	
+
 	LLView* createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename, const widget_registry_t&, LLXMLNodePtr output_node );
 
 	template<typename T>
@@ -306,8 +309,7 @@ fail:
 				output_node, output_params, &default_params);
 		}
 
-		// Apply layout transformations, usually munging rect
-		T::setupParams(params, parent);
+		params.from_xui = true;
 
 		if (!params.validateBlock())
 		{
@@ -328,7 +330,7 @@ fail:
 			S32 tab_group = params.tab_group.isProvided() ? params.tab_group() : -1;
 			setCtrlParent(widget, parent, tab_group);
 		}
-		
+
 		typedef typename T::child_registry_t registry_t;
 
 		createChildren(widget, node, registry_t::instance(), output_node);

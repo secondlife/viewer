@@ -50,6 +50,7 @@
 #include "llmousehandler.h"
 #include "llcursortypes.h"
 #include "llhandle.h"
+#include "llimage.h"
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>

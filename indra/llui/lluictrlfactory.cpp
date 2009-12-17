@@ -105,12 +105,9 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_CREATE_CHILDREN("Create XUI Children");
-
 //static 
 void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t& registry, LLXMLNodePtr output_node)
 {
-	LLFastTimer ft(FTM_CREATE_CHILDREN);
 	if (node.isNull()) return;
 
 	for (LLXMLNodePtr child_node = node->getFirstChild(); child_node.notNull(); child_node = child_node->getNextSibling())

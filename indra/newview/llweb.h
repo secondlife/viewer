@@ -57,8 +57,11 @@ public:
 	/// Load the given url in the operating system's web browser
 	static void loadURLExternal(const std::string& url);
 
-	// Returns escaped url (eg, " " to "%20") - used by all loadURL methods
+	/// Returns escaped url (eg, " " to "%20") - used by all loadURL methods
 	static std::string escapeURL(const std::string& url);
+	/// Expands various strings like [LANG], [VERSION], etc. in a URL
+	static std::string expandURLSubstitutions(const std::string &url,
+											  const LLSD &default_subs);
 };
 
 #endif

@@ -43,8 +43,10 @@
 #include "llhttpclient.h"
 #include "llhttpstatuscodes.h"
 #include "llimage.h"
+#include "llimagej2c.h"
 #include "llimageworker.h"
 #include "llworkerthread.h"
+#include "message.h"
 
 #include "llagent.h"
 #include "lltexturecache.h"
@@ -885,6 +887,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 				else
 				{
+					// mFormattedImage gauranteed to not be NULL since cur_size != 0
+					mLoadedDiscard = mFormattedImage->getDiscardLevel();
 					mState = DECODE_IMAGE;
 					return false; // use what we have
 				}
