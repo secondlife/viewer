@@ -241,7 +241,7 @@ void LLCallFloater::updateSession()
 	
 	//hide "Leave Call" button for nearby chat
 	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
-	childSetVisible("leave_btn_panel", !is_local_chat);
+	childSetVisible("leave_call_btn", !is_local_chat);
 	
 	refreshPartisipantList();
 	updateModeratorState();
