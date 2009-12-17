@@ -400,6 +400,7 @@ void LLPanelMainInventory::onClearSearch()
 		mActivePanel->getRootFolder()->applyFunctorRecursively(opener);
 		mActivePanel->getRootFolder()->scrollToShowSelection();
 	}
+	mFilterSubString = "";
 }
 
 void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
@@ -417,6 +418,7 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 
 	std::string uppercase_search_string = search_string;
 	LLStringUtil::toUpper(uppercase_search_string);
+	mFilterSubString = uppercase_search_string;
 	if (mActivePanel->getFilterSubString().empty() && uppercase_search_string.empty())
 	{
 			// current filter and new filter empty, do nothing
@@ -431,7 +433,7 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 	}
 
 	// set new filter string
-	mActivePanel->setFilterSubString(uppercase_search_string);
+	mActivePanel->setFilterSubString(mFilterSubString);
 }
 
 
@@ -484,6 +486,7 @@ void LLPanelMainInventory::onFilterSelected()
 	{
 		return;
 	}
+	setFilterSubString(mFilterSubString);
 	LLInventoryFilter* filter = mActivePanel->getFilter();
 	LLFloaterInventoryFinder *finder = getFinder();
 	if (finder)
@@ -542,7 +545,7 @@ void LLPanelMainInventory::draw()
 {
 	if (mActivePanel && mFilterEditor)
 	{
-		mFilterEditor->setText(mActivePanel->getFilterSubString());
+		mFilterEditor->setText(mFilterSubString);
 	}	
 	LLPanel::draw();
 }
@@ -1016,9 +1019,11 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		}
 		const LLUUID& item_id = current_item->getListener()->getUUID();
 		const std::string &item_name = current_item->getListener()->getName();
+		mFilterSubString = item_name;
 		LLInventoryFilter *filter = mActivePanel->getFilter();
 		filter->setFilterSubString(item_name);
 		mFilterEditor->setText(item_name);
+
 		mFilterEditor->setFocus(TRUE);
 		filter->setFilterUUID(item_id);
 		filter->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
