@@ -17,7 +17,7 @@
    font="SansSerifSmall"
    height="16" 
    initial_value="false"
-   label="Only Allow Access to Specified URLs (by prefix)" 
+   label="Only Allow Access to Specified URL patterns" 
    left="10" 
    mouse_opaque="true"
    name="whitelist_enable" 

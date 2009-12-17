@@ -573,7 +573,7 @@ bool LLViewerMedia::isInterestingEnough(const LLVOVolume *object, const F64 &obj
 	else 
 	{
 		lldebugs << "object interest = " << object_interest << ", lowest loadable = " << sLowestLoadableImplInterest << llendl;
-		if(object_interest > sLowestLoadableImplInterest)
+		if(object_interest >= sLowestLoadableImplInterest)
 			result = true;
 	}
 	
