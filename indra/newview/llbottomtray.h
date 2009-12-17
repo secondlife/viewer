@@ -92,6 +92,11 @@ public:
 	void showMoveButton(BOOL visible);
 	void showCameraButton(BOOL visible);
 	void showSnapshotButton(BOOL visible);
+	
+	/**
+	 * Creates IM Chiclet based on session type (IM chat or Group chat)
+	 */
+	LLIMChiclet* createIMChiclet(const LLUUID& session_id);
 
 private:
 	typedef enum e_resize_status_type
@@ -183,11 +188,6 @@ protected:
 	void updateContextMenu(S32 x, S32 y, MASK mask);
 	void onContextMenuItemClicked(const LLSD& userdata);
 	bool onContextMenuItemEnabled(const LLSD& userdata);
-
-	/**
-	 * Creates IM Chiclet based on session type (IM chat or Group chat)
-	 */
-	LLIMChiclet* createIMChiclet(const LLUUID& session_id);
 
 	LLChicletPanel* 	mChicletPanel;
 	LLPanel*			mSpeakPanel;
