@@ -570,25 +570,12 @@ void LLFloaterAnimPreview::onBtnPlay(void* user_data)
 		{
 			previewp->resetMotion();
 			previewp->mPauseRequest = NULL;
-			previewp->mPauseButton->setVisible(TRUE);
-			previewp->mPauseButton->setEnabled(TRUE);
-			previewp->mPlayButton->setVisible(FALSE);
-			previewp->mPlayButton->setEnabled(FALSE);
 		}
 		else if (avatarp->areAnimationsPaused())
-		{
-			
+		{			
 			previewp->mPauseRequest = NULL;
-			previewp->mPauseButton->setVisible(TRUE);
-			previewp->mPauseButton->setEnabled(TRUE);
-			previewp->mPlayButton->setVisible(FALSE);
-			previewp->mPlayButton->setEnabled(FALSE);
 		}
-
 	}
-
-	
-
 }
 
 //-----------------------------------------------------------------------------
@@ -609,16 +596,9 @@ void LLFloaterAnimPreview::onBtnPause(void* user_data)
 			if (!avatarp->areAnimationsPaused())
 			{
 				previewp->mPauseRequest = avatarp->requestPause();
-				
-				previewp->mPlayButton->setVisible(TRUE);
-				previewp->mPlayButton->setEnabled(TRUE);
-				previewp->mPauseButton->setVisible(FALSE);
-				previewp->mPauseButton->setEnabled(FALSE);
 			}
 		}
 	}
-
-
 }
 
 //-----------------------------------------------------------------------------
@@ -636,10 +616,6 @@ void LLFloaterAnimPreview::onBtnStop(void* user_data)
 		previewp->resetMotion();
 		previewp->mPauseRequest = avatarp->requestPause();
 	}
-	previewp->mPlayButton->setVisible(TRUE);
-	previewp->mPlayButton->setEnabled(TRUE);
-	previewp->mPauseButton->setVisible(FALSE);
-	previewp->mPauseButton->setEnabled(FALSE);
 }
 
 //-----------------------------------------------------------------------------
@@ -953,18 +929,22 @@ bool LLFloaterAnimPreview::validateLoopOut(const LLSD& data)
 //-----------------------------------------------------------------------------
 void LLFloaterAnimPreview::refresh()
 {
+	// Are we showing the play button (default) or the pause button?
+	bool show_play = true;
 	if (!mAnimPreview)
 	{
 		childShow("bad_animation_text");
+		// play button visible but disabled
 		mPlayButton->setEnabled(FALSE);
-		mPlayButton->setVisible(TRUE);
-		mPauseButton->setVisible(FALSE);
 		mStopButton->setEnabled(FALSE);
 		childDisable("ok_btn");
 	}
 	else
 	{
 		childHide("bad_animation_text");
+		// re-enabled in case previous animation was bad
+		mPlayButton->setEnabled(TRUE);
+		mStopButton->setEnabled(TRUE);
 		LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
 		if (avatarp->isMotionActive(mMotionID))
 		{
@@ -972,28 +952,25 @@ void LLFloaterAnimPreview::refresh()
 			LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
 			if (!avatarp->areAnimationsPaused())
 			{
+				// animation is playing
 				if (motionp)
 				{
 					F32 fraction_complete = motionp->getLastUpdateTime() / motionp->getDuration();
 					childSetValue("playback_slider", fraction_complete);
 				}
-			
-				mPlayButton->setVisible(FALSE);
-				mPauseButton->setVisible(TRUE);
-				
+				show_play = false;
 			}
-		
 		}
 		else
 		{
+			// Motion just finished playing
 			mPauseRequest = avatarp->requestPause();
-			//mPlayButton->setVisible(TRUE);
-			//mPlayButton->setEnabled(TRUE);			
-			mStopButton->setEnabled(TRUE); // stop also resets, leave enabled.
 		}
 		childEnable("ok_btn");
 		mAnimPreview->requestUpdate();
 	}
+	mPlayButton->setVisible(show_play);
+	mPauseButton->setVisible(!show_play);
 }
 
 //-----------------------------------------------------------------------------
