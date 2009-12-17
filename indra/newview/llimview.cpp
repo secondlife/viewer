@@ -1274,8 +1274,11 @@ void LLCallDialogManager::onVoiceChannelChanged(const LLUUID &session_id)
 	}
 	sSession = session;
 	sSession->mVoiceChannel->setStateChangedCallback(LLCallDialogManager::onVoiceChannelStateChanged);
-	sPreviousSessionlName = sCurrentSessionlName;
-	sCurrentSessionlName = session->mName;
+	if(sCurrentSessionlName != session->mName)
+	{
+		sPreviousSessionlName = sCurrentSessionlName;
+		sCurrentSessionlName = session->mName;
+	}
 }
 
 void LLCallDialogManager::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction)
