@@ -34,6 +34,7 @@
 #ifndef LL_LLPLUGINPROCESSPARENT_H
 #define LL_LLPLUGINPROCESSPARENT_H
 
+#include "llapr.h"
 #include "llprocesslauncher.h"
 #include "llpluginmessage.h"
 #include "llpluginmessagepipe.h"

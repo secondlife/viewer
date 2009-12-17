@@ -39,7 +39,6 @@
 #include "lllineeditor.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-#include "llnotify.h"
 #include "llparcel.h"
 #include "llselectmgr.h"
 #include "lltexturectrl.h"

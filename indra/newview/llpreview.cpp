@@ -150,6 +150,13 @@ void LLPreview::onCommit()
 		
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 		new_item->setDescription(childGetText("desc"));
+
+		std::string new_name = childGetText("name");
+		if ( (new_item->getName() != new_name) && !new_name.empty())
+		{
+			new_item->rename(childGetText("name"));
+		}
+
 		if(mObjectUUID.notNull())
 		{
 			// must be in an object

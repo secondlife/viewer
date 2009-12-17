@@ -1,61 +1,104 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel name="Outfits"
-       height="510"
-   width="333"
-      follows="top|left"
-             left="0"
-	     top_pad="0">
-    <accordion
-     single_expansion="true"
-     height="510"
-             layout="topleft"
-             left="0"
-      follows="top|left"
-     name="outfits_accordion"
-	     top_pad="0"
-             width="333">
-     <accordion_tab
-            expanded="false"
-            layout="topleft"
-         name="tab_cof"
-         title="Current Outfit">
-	 <inventory_panel
+
+ <panel name="Outfits"
+ background_visible="true"
+  follows="all"
+ height="550"
+ label="Things"
+ layout="topleft"
+ min_height="350"
+ min_width="240"
+ width="330"
+ border="false">
+   <tab_container
+     follows="all"
+     height="500"
+     layout="topleft"
+     left="10"
+     name="appearance_tabs"
+     tab_min_width="100"
+     tab_height="30"
+     tab_position="top"
+     halign="center"
+     width="313">
+      <inventory_panel
+        label="MY OUTFITS"
+        help_topic="my_outfits_tab"
 	    allow_multi_select="true"
+	    follows="all"
 	    border="false"
-            height="460"
-	     left="0"
-             top="0"
-		 mouse_opaque="true"
-	         name="cof_accordionpanel"
-		 start_folder="Current Outfit" />
-        </accordion_tab>
-        <accordion_tab
-            expanded="true"
-            layout="topleft"
-         name="tab_outfits"
-         title="My Outfits">
-	 <inventory_panel
-	 	 allow_multi_select="true"
-		 border="false"
-	     follows="all"
-		 left="0"
-             top="0"
-            height="460"
-		 mouse_opaque="true"
-	     name="outfitslist_accordionpanel"
-		 start_folder="My Outfits" />
-        </accordion_tab>
-	</accordion>
-	<!--<button bottom="0"
-		 halign="center"
-		 height="23"
-		 label=">"
-		 enabled="false"
-	     mouse_opaque="false"
-		 name="selector"
-		 width="20"
-		 left="0"
-		 visible="false"
-	     follows="right|bottom"
-		 tool_tip="View outfit properties" />-->
+	    left="0"
+        top="0"
+        height="500"
+        width="290"
+ 		mouse_opaque="true"
+ 	    name="outfitslist_accordionpanel"
+ 		start_folder="My Outfits" /> 
+         <inventory_panel
+        label="WEARING"
+        help_topic="now_wearing_tab"
+        allow_multi_select="true"
+        border="false"
+        height="500"
+        width="290"
+        left="0"
+        top="0"
+        mouse_opaque="true"
+        name="cof_accordionpanel"
+        start_folder="Current Outfit" />
+   </tab_container>
+	<panel
+	  background_visible="true"
+	  follows="bottom|left"
+	  height="50"
+	  layout="topleft"
+	  left="0"
+	  visible="true"
+	  name="bottom_panel"
+	  top_pad="10"
+	  width="313">
+		 <button
+		  follows="bottom|left"
+		  tool_tip="Show additional options"
+		  height="18"
+		  image_disabled="OptionsMenu_Disabled"
+		  image_selected="OptionsMenu_Press"
+		  image_unselected="OptionsMenu_Off"
+		  layout="topleft"
+		  left="10"
+		  name="options_gear_btn"
+		  top="6"
+		  width="18" />
+		 <button
+		  follows="bottom|left"
+		  height="18"
+		  image_selected="AddItem_Press"
+		  image_unselected="AddItem_Off"
+		  image_disabled="AddItem_Disabled"
+		  layout="topleft"
+		  left_pad="5"
+		  name="add_btn"
+		  tool_tip="Add new item"
+		  width="18" />
+		 <dnd_button
+		  follows="bottom|left"
+		  height="18"
+		  image_selected="TrashItem_Press"
+		  image_unselected="TrashItem_Off"
+		  layout="topleft"
+		  right="-5"
+		  name="trash_btn"
+		  tool_tip="Remove selected item"
+		  top="6"
+		  width="18" />
+	 <button
+	  follows="top|left"
+		height="23"
+		label="Wear"
+		layout="topleft"
+		name="wear_btn"
+		right="-5"
+		top_pad="0"
+		width="90" />
+	 </panel>
 </panel>

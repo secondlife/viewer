@@ -6,7 +6,7 @@
      label="About Land"
      name="Place Information...">
         <menu_item_call.on_click
-         function="ShowFloater"
+         function="Floater.Show"
          parameter="about_land" />
     </menu_item_call>
  <!--   <menu_item_call
@@ -28,8 +28,7 @@
      label="Buy This Land"
      name="Land Buy">
         <menu_item_call.on_click
-         function="ShowFloater"
-         parameter="buy land" />
+         function="Land.Buy" />
         <menu_item_call.on_enable
          function="World.EnableBuyLand" />
     </menu_item_call>

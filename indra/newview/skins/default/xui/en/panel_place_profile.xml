@@ -526,7 +526,7 @@
                          top="138"
                          width="90">
                             <click_callback
-                             function="ShowFloater"
+                             function="Floater.Show"
                              parameter="about_land" />
                         </button>
                     </panel>
@@ -652,7 +652,7 @@
                          tab_stop="false"
                          width="105">
                             <click_callback
-                             function="ShowFloater"
+                             function="Floater.Show"
                              parameter="region_info" />
                         </button>
                     </panel>

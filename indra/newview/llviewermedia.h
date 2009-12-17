@@ -112,7 +112,7 @@ class LLViewerMedia
 		static void setInWorldMediaDisabled(bool disabled);
 		static bool getInWorldMediaDisabled();
 				
-		static bool isInterestingEnough(const LLUUID& object_id, const F64 &object_interest);
+		static bool isInterestingEnough(const LLVOVolume* object, const F64 &object_interest);
 	
 		// Returns the priority-sorted list of all media impls.
 		static impl_list &getPriorityList();

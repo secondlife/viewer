@@ -45,7 +45,6 @@
 #include "message.h"
 
 #include "llagent.h"
-#include "llalertdialog.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
@@ -69,7 +68,6 @@
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "llfloateravatarpicker.h"
-#include "llnotify.h"
 #include "llxfermanager.h"
 #include "llvlcomposition.h"
 #include "llsurface.h"

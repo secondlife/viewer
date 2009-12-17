@@ -34,12 +34,11 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewerhelputil.h"
 
-#include "llcontrol.h"
+#include "llsd.h"
 #include "llstring.h"
-#include "llsys.h"
 #include "lluri.h"
-#include "llversioninfo.h"
-
+#include "llweb.h"
+#include "llviewercontrol.h"
 
 //////////////////////////////////////////////
 // Build a help URL from a topic and formatter
@@ -59,40 +58,14 @@ std::string LLViewerHelpUtil::helpURLEncode( const std::string &component )
 	return escaped;
 }
 
-static std::string buildHelpVersion( const U32 ver_int )
-{
-	std::ostringstream ver_str;
-	ver_str << ver_int;
-	return ver_str.str(); // not encoded - numbers are rfc3986-safe
-}
-
 //static
-std::string LLViewerHelpUtil::buildHelpURL( const std::string &topic,
-					    LLControlGroup &savedSettings,
-					    const LLOSInfo &osinfo )
+std::string LLViewerHelpUtil::buildHelpURL( const std::string &topic)
 {
-	std::string helpURL = savedSettings.getString("HelpURLFormat");
 	LLSD substitution;
 	substitution["TOPIC"] = helpURLEncode(topic);
 	
-	substitution["CHANNEL"] = helpURLEncode(savedSettings.getString("VersionChannelName"));
-
-	substitution["VERSION"] = helpURLEncode(LLVersionInfo::getVersion());
-	substitution["VERSION_MAJOR"] = buildHelpVersion(LLVersionInfo::getMajor());
-	substitution["VERSION_MINOR"] = buildHelpVersion(LLVersionInfo::getMinor());
-	substitution["VERSION_PATCH"] = buildHelpVersion(LLVersionInfo::getPatch());
-	substitution["VERSION_BUILD"] = buildHelpVersion(LLVersionInfo::getBuild());
-	
-	substitution["OS"] = helpURLEncode(osinfo.getOSStringSimple());
-
-	std::string language = savedSettings.getString("Language");
-	if( language.empty() || language == "default" )
-	{
-		language = savedSettings.getString("SystemLanguage");
-	}
-	substitution["LANGUAGE"] = helpURLEncode(language);
-		
-	LLStringUtil::format(helpURL, substitution);
-
-	return helpURL;
+	// get the help URL and expand all of the substitutions
+	// (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
+	std::string helpURL = gSavedSettings.getString("HelpURLFormat");
+	return LLWeb::expandURLSubstitutions(helpURL, substitution);
 }

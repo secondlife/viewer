@@ -59,7 +59,6 @@
 #include "llinventorymodel.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
-#include "llnotify.h"
 #include "llradiogroup.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
@@ -495,6 +494,10 @@ BOOL LLPreviewGesture::postBuild()
 		childSetCommitCallback("desc", LLPreview::onText, this);
 		childSetText("desc", item->getDescription());
 		childSetPrevalidate("desc", &LLLineEditor::prevalidateASCIIPrintableNoPipe);
+		
+		childSetCommitCallback("name", LLPreview::onText, this);
+		childSetText("name", item->getName());
+		childSetPrevalidate("name", &LLLineEditor::prevalidateASCIIPrintableNoPipe);
 	}
 
 	return LLPreview::postBuild();

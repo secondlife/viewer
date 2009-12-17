@@ -36,7 +36,6 @@
 
 #include <list>
 #include "llnotificationsutil.h"
-#include "llnotify.h"
 #include "llcallbacklist.h"
 #include "llinventory.h"
 #include "llviewerinventory.h"

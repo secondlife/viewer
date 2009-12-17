@@ -42,18 +42,18 @@
 #include "llglheaders.h"
 #include "llregionflags.h"
 #include "llstl.h"
+#include "llvfile.h"
+#include "llxfermanager.h"
 #include "indra_constants.h"
 #include "message.h"
 
 #include "llagent.h"
-#include "llalertdialog.h"
 #include "llappviewer.h"
 #include "llfloateravatarpicker.h"
 #include "llbutton.h" 
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llfilepicker.h"
-#include "llfloaterdaycycle.h"
 #include "llfloatergodtools.h"	// for send_sim_wide_deletes()
 #include "llfloatertopobjects.h" // added to fix SL-32336
 #include "llfloatergroups.h"
@@ -62,7 +62,6 @@
 #include "llfloaterwindlight.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
-#include "llalertdialog.h"
 #include "llnamelistctrl.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"

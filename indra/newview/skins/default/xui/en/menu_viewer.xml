@@ -32,8 +32,7 @@
          layout="topleft"
          name="Buy and Sell L$">
             <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="buy currency" />
+             function="BuyCurrency" />
         </menu_item_call>
         <menu_item_separator
          layout="topleft" />
@@ -50,8 +49,7 @@
          layout="topleft"
          name="Appearance">
             <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="appearance" />
+             function="CustomizeAvatar" />
             <menu_item_call.on_enable
              function="Edit.EnableCustomizeAvatar" />
         </menu_item_call>
@@ -82,7 +80,7 @@
          name="Gestures"
          shortcut="control|G">
             <menu_item_call.on_click
-             function="ShowFloater"
+             function="Floater.Toggle"
              parameter="gestures" />
         </menu_item_call>
         <menu
@@ -240,30 +238,55 @@
      layout="topleft"
      name="World"
      tear_off="true">
+            <menu_item_check
+         label="Mini-Map"
+         layout="topleft"
+         name="Mini-Map"
+         shortcut="control|shift|M">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="mini_map" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="mini_map" />
+        </menu_item_check>
          <menu_item_check
-         label="Move"
+         label="World Map"
          layout="topleft"
-         name="Movement Controls">
+         name="World Map"
+         shortcut="control|M"
+         use_mac_ctrl="true">
             <menu_item_check.on_check
              function="Floater.Visible"
-             parameter="moveview" />
+             parameter="world_map" />
             <menu_item_check.on_click
              function="Floater.Toggle"
-             parameter="moveview" />
+             parameter="world_map" />
         </menu_item_check>
-        <menu_item_check
-         label="View"
+        <menu_item_call
+         label="Snapshot"
          layout="topleft"
-         name="Camera Controls">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="camera" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="camera" />
-        </menu_item_check>
-        <menu_item_separator
-         layout="topleft" />
+         name="Take Snapshot"
+         shortcut="control|shift|S">
+            <menu_item_call.on_click
+             function="Floater.Show"
+             parameter="snapshot" />
+        </menu_item_call>
+      <menu_item_call
+             label="Landmark This Place"
+             layout="topleft"
+             name="Create Landmark Here">
+                <menu_item_call.on_click
+                 function="World.CreateLandmark" />
+                <menu_item_call.on_enable
+                 function="World.EnableCreateLandmark" />
+            </menu_item_call>
+      <menu
+           create_jump_keys="true"
+           label="About This Place"
+           layout="topleft"
+           name="Land"
+           tear_off="true">
         <menu_item_call
          label="About Land"
          layout="topleft"
@@ -280,13 +303,15 @@
              function="Floater.Show"
              parameter="region_info" />
         </menu_item_call>
+        </menu>
+        <menu_item_separator
+         layout="topleft" />
         <menu_item_call
              label="Buy Land"
              layout="topleft"
              name="Buy Land">
                 <menu_item_call.on_click
-                 function="ShowFloater"
-                 parameter="buy land" />
+                 function="Land.Buy" />
                 <menu_item_call.on_enable
                  function="World.EnableBuyLand" />
             </menu_item_call>
@@ -295,7 +320,7 @@
              layout="topleft"
              name="My Land">
                 <menu_item_call.on_click
-                 function="ShowFloater"
+                 function="Floater.Show"
                  parameter="land_holdings" />
         </menu_item_call>
         <menu
@@ -304,6 +329,28 @@
            layout="topleft"
            name="Land"
            tear_off="true">
+         <menu_item_check
+         label="Move Controls"
+         layout="topleft"
+         name="Movement Controls">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="moveview" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="moveview" />
+        </menu_item_check>
+        <menu_item_check
+         label="View Controls"
+         layout="topleft"
+         name="Camera Controls">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="camera" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="camera" />
+        </menu_item_check>
           <menu_item_check
              label="Ban Lines"
              layout="topleft"
@@ -350,20 +397,16 @@
         </menu>
         <menu_item_separator
          layout="topleft" />
-        <menu
-         label="Landmarks"
-         layout="topleft"
-         name="Landmarks"
-         tear_off="true">
-            <menu_item_call
-             label="Create Landmark Here"
-             layout="topleft"
-             name="Create Landmark Here">
-                <menu_item_call.on_click
-                 function="World.CreateLandmark" />
-                <menu_item_call.on_enable
-                 function="World.EnableCreateLandmark" />
-            </menu_item_call>
+	    <menu_item_call
+	     label="Teleport Home"
+	     layout="topleft"
+	     name="Teleport Home"
+	     shortcut="control|shift|H">
+		<menu_item_call.on_click
+		 function="World.TeleportHome" />
+		<menu_item_call.on_enable
+		 function="World.EnableTeleportHome" />
+	    </menu_item_call>
             <menu_item_call
              label="Set Home to Here"
              layout="topleft"
@@ -373,42 +416,6 @@
                 <menu_item_call.on_enable
                  function="World.EnableSetHomeLocation" />
             </menu_item_call>
-        </menu>
-	    <menu_item_call
-	     label="Home"
-	     layout="topleft"
-	     name="Teleport Home"
-	     shortcut="control|shift|H">
-		<menu_item_call.on_click
-		 function="World.TeleportHome" />
-		<menu_item_call.on_enable
-		 function="World.EnableTeleportHome" />
-	    </menu_item_call>
-      <menu_item_check
-         label="Mini-Map"
-         layout="topleft"
-         name="Mini-Map"
-         shortcut="control|shift|M">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="mini_map" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="mini_map" />
-        </menu_item_check>
-         <menu_item_check
-         label="World Map"
-         layout="topleft"
-         name="World Map"
-         shortcut="control|M"
-         use_mac_ctrl="true">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="world_map" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="world_map" />
-        </menu_item_check>
     <!--    <menu_item_check
          label="Show Navigation Bar"
          layout="topleft"
@@ -433,17 +440,6 @@
         </menu_item_check>
         <menu_item_separator
          layout="topleft" />-->
-        <menu_item_separator
-         layout="topleft" />
-        <menu_item_call
-         label="Snapshot"
-         layout="topleft"
-         name="Take Snapshot"
-         shortcut="control|shift|S">
-            <menu_item_call.on_click
-             function="Floater.Show"
-             parameter="snapshot" />
-        </menu_item_call>
         <menu_item_separator
          layout="topleft" />
     <menu
@@ -487,7 +483,7 @@
                  parameter="midnight" />
             </menu_item_call>
             <menu_item_call
-             label="Use the Estate Time"
+             label="Estate Time"
              layout="topleft"
              name="Revert to Region Default">
                 <menu_item_call.on_click
@@ -868,14 +864,6 @@
 				 function="ToggleControl"
 				 parameter="DebugPermissions" />
 			</menu_item_check>
-            <!--menu_item_call
-             label="Show Script Warning/Error Window"
-             layout="topleft"
-             name="Show Script Warning/Error Window">
-                <menu_item_call.on_click
-                 function="ShowFloater"
-                 parameter="script errors" />
-            </menu_item_call-->
             <menu_item_separator
              layout="topleft" />
             <menu
@@ -1067,14 +1055,14 @@
              function="ShowHelp"
              parameter="f1_help" />
         </menu_item_call>
-        <menu_item_call
+  <!--      <menu_item_call
          label="Tutorial"
          layout="topleft"
          name="Tutorial">
             <menu_item_call.on_click
              function="Floater.Show"
              parameter="hud" />
-        </menu_item_call>
+        </menu_item_call>-->
         <menu_item_separator
              layout="topleft" />
         <menu_item_call
@@ -1082,8 +1070,7 @@
              layout="topleft"
              name="Report Abuse">
                 <menu_item_call.on_click
-                 function="ShowFloater"
-                 parameter="complaint reporter" />
+                 function="ReportAbuse" />
             </menu_item_call>
         <menu_item_call
              label="Report Bug"
@@ -1110,17 +1097,6 @@
      name="Advanced"
      tear_off="true"
      visible="false">
-        <menu_item_check
-         label="Set Away After 30 Minutes"
-         layout="topleft"
-         name="Go Away/AFK When Idle">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="AllowIdleAFK" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="AllowIdleAFK" />
-        </menu_item_check>
         <menu_item_call
          label="Stop Animating Me"
          layout="topleft"
@@ -2537,7 +2513,7 @@
                  function="CheckControl"
                  parameter="TextureDisable" />
                 <menu_item_check.on_click
-                 function="ToggleControl" 
+                 function="ToggleControl"
                  parameter="TextureDisable" />
             </menu_item_check>
             <menu_item_check
@@ -3640,17 +3616,6 @@
                  parameter="all" />
             </menu_item_call>
         </menu>
-        <menu_item_check
-         label="Show Toolbar"
-         layout="topleft"
-         name="Show Toolbar">
-            <menu_item_check.on_check
-             function="FloaterVisible"
-             parameter="toolbar" />
-            <menu_item_check.on_click
-             function="ShowFloater"
-             parameter="toolbar" />
-        </menu_item_check>
         <menu
          create_jump_keys="true"
          label="Help"

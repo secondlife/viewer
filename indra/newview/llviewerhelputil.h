@@ -41,9 +41,7 @@ class LLViewerHelpUtil
 {
  public:
 	static std::string helpURLEncode( const std::string &component );
-	static std::string buildHelpURL( const std::string &topic,
-					 LLControlGroup &savedSettings,
-					 const LLOSInfo &osinfo);
+	static std::string buildHelpURL( const std::string &topic );
 };
 
 #endif // header guard

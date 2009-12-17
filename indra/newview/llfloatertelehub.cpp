@@ -84,17 +84,6 @@ void LLFloaterTelehub::onOpen(const LLSD& key)
 	LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 	LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolCompTranslate::getInstance() );
 
-	// Find tools floater, glue to bottom
-	if (gFloaterTools)
-	{
-		LLRect tools_rect = gFloaterTools->getRect();
-		S32 our_width = getRect().getWidth();
-		S32 our_height = getRect().getHeight();
-		LLRect our_rect;
-		our_rect.setLeftTopAndSize(tools_rect.mLeft, tools_rect.mBottom, our_width, our_height);
-		setRect(our_rect);
-	}
-
 	sendTelehubInfoRequest();
 	
 	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();

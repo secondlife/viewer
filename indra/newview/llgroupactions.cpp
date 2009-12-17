@@ -35,6 +35,8 @@
 
 #include "llgroupactions.h"
 
+#include "message.h"
+
 #include "llagent.h"
 #include "llcommandhandler.h"
 #include "llfloaterreg.h"
@@ -197,12 +199,12 @@ void LLGroupActions::activate(const LLUUID& group_id)
 	gAgent.sendReliableMessage();
 }
 
-bool	isGroupUIVisible()
+static bool isGroupUIVisible()
 {
 	LLPanel* panel = LLSideTray::getInstance()->findChild<LLPanel>("panel_group_info_sidetray");
 	if(!panel)
 		return false;
-	return panel->getVisible();
+	return panel->isInVisibleChain();
 }
 
 // static

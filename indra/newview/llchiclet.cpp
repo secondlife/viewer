@@ -53,6 +53,7 @@
 #include "llgroupmgr.h"
 #include "llnotificationmanager.h"
 #include "lltransientfloatermgr.h"
+#include "llsyswellwindow.h"
 
 static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
 static LLDefaultChildRegistry::Register<LLIMWellChiclet> t2_0("chiclet_im_well");
@@ -88,6 +89,14 @@ class LLSysWellChiclet::FlashToLitTimer : public LLEventTimer
 {
 public:
 	typedef boost::function<void()> callback_t;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param count - how many times callback should be called (twice to not change original state)
+	 * @param period - how frequently callback should be called
+	 * @param cb - callback to be called each tick
+	 */
 	FlashToLitTimer(S32 count, F32 period, callback_t cb)
 		: LLEventTimer(period)
 		, mCallback(cb)
@@ -111,8 +120,17 @@ public:
 		mEventTimer.start();
 	}
 
+	void stopFlashing()
+	{
+		mEventTimer.stop();
+	}
+
 private:
 	callback_t		mCallback;
+
+	/**
+	 * How many times Well will blink.
+	 */
 	S32 mFlashCount;
 	S32 mCurrentFlashCount;
 };
@@ -134,6 +152,7 @@ LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 , mButton(NULL)
 , mCounter(0)
 , mMaxDisplayedCount(p.max_displayed_count)
+, mIsNewMessagesState(false)
 , mFlashToLitTimer(NULL)
 {
 	LLButton::Params button_params = p.button;
@@ -163,20 +182,20 @@ void LLSysWellChiclet::setCounter(S32 counter)
 
 	mButton->setLabel(s_count);
 
-	/*
-	Emulate 4 states of button by background images, see detains in EXT-3147
-	xml attribute           Description
-	image_unselected        "Unlit" - there are no new messages
-	image_selected          "Unlit" + "Selected" - there are no new messages and the Well is open
-	image_pressed           "Lit" - there are new messages
-	image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well is open
-	*/
-	mButton->setForcePressedState(counter > 0);
+	setNewMessagesState(counter > 0);
 
-	if (mCounter == 0 && counter > 0)
+	// we have to flash to 'Lit' state each time new unread message is comming.
+	if (counter > mCounter)
 	{
 		mFlashToLitTimer->flash();
 	}
+	else if (counter == 0)
+	{
+		// if notification is resolved while well is flashing it can leave in the 'Lit' state
+		// when flashing finishes itself. Let break flashing here.
+		mFlashToLitTimer->stopFlashing();
+	}
+
 	mCounter = counter;
 }
 
@@ -192,11 +211,22 @@ void LLSysWellChiclet::setToggleState(BOOL toggled) {
 
 void LLSysWellChiclet::changeLitState()
 {
-	static bool set_lit = false;
+	setNewMessagesState(!mIsNewMessagesState);
+}
 
-	mButton->setForcePressedState(set_lit);
+void LLSysWellChiclet::setNewMessagesState(bool new_messages)
+{
+	/*
+	Emulate 4 states of button by background images, see detains in EXT-3147
+	xml attribute           Description
+	image_unselected        "Unlit" - there are no new messages
+	image_selected          "Unlit" + "Selected" - there are no new messages and the Well is open
+	image_pressed           "Lit" - there are new messages
+	image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well is open
+	*/
+	mButton->setForcePressedState(new_messages);
 
-	set_lit ^= true;
+	mIsNewMessagesState = new_messages;
 }
 
 /************************************************************************/
@@ -209,6 +239,8 @@ LLIMWellChiclet::LLIMWellChiclet(const Params& p)
 	LLIMModel::instance().addNoUnreadMsgsCallback(boost::bind(&LLIMWellChiclet::messageCountChanged, this, _1));
 
 	LLIMMgr::getInstance()->addSessionObserver(this);
+
+	LLIMWellWindow::getInstance()->setSysWellChiclet(this);
 }
 
 LLIMWellChiclet::~LLIMWellChiclet()
@@ -233,6 +265,10 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 	connectCounterUpdatersToSignal("notify");
 	connectCounterUpdatersToSignal("groupnotify");
 	connectCounterUpdatersToSignal("offer");
+
+	// ensure that notification well window exists, to synchronously
+	// handle toast add/delete events.
+	LLNotificationWellWindow::getInstance()->setSysWellChiclet(this);
 }
 
 void LLNotificationChiclet::connectCounterUpdatersToSignal(const std::string& notification_type)

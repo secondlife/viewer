@@ -39,6 +39,28 @@
      name="Title">
         Gesture: [NAME]
     </floater.string>
+  <text
+   type="string"
+   length="1"
+   follows="top|left"
+   font="SansSerifSmall"
+   height="10"
+   layout="topleft"
+   left="10"
+   name="name_text"
+   top="20"
+   font.style="BOLD"
+   width="100">
+    Name:
+  </text>
+  <line_editor
+   follows="left|top"
+   height="20"
+   layout="topleft"
+   left_delta="84"
+   name="name"
+   top_delta="-4"
+   width="180" />
     <text
      type="string"
      length="1"
@@ -48,7 +70,7 @@
      layout="topleft"
      left="10"
      name="desc_label"
-     top="25"
+     top_pad="10"
      font.style="BOLD"
      width="100">
         Description:

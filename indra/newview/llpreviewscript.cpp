@@ -61,7 +61,6 @@
 #include "llvfile.h"
 
 #include "llagent.h"
-#include "llnotify.h"
 #include "llmenugl.h"
 #include "roles_constants.h"
 #include "llselectmgr.h"

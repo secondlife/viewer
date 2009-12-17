@@ -32,6 +32,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llviewerwindow.h"
+
 #if LL_WINDOWS
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
@@ -46,7 +48,6 @@
 #include "llpanellogin.h"
 #include "llviewerkeyboard.h"
 #include "llviewermenu.h"
-#include "llviewerwindow.h"
 
 #include "llviewquery.h"
 #include "llxmltree.h"
@@ -82,7 +83,6 @@
 
 // newview includes
 #include "llagent.h"
-#include "llalertdialog.h"
 #include "llbox.h"
 #include "llconsole.h"
 #include "llviewercontrol.h"
@@ -129,7 +129,6 @@
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
-#include "llnotify.h"
 #include "lloverlaybar.h"
 #include "llpreviewtexture.h"
 #include "llprogressview.h"
@@ -1014,7 +1013,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 	{
 		mActive = FALSE;
 				
-		if (gSavedSettings.getBOOL("AllowIdleAFK"))
+		if (gSavedSettings.getS32("AFKTimeout"))
 		{
 			gAgent.setAFK();
 		}
@@ -1452,7 +1451,6 @@ void LLViewerWindow::initBase()
 
 	gDebugView = getRootView()->getChild<LLDebugView>("DebugView");
 	gDebugView->init();
-	gNotifyBoxView = getRootView()->getChild<LLNotifyBoxView>("notify_container");
 	gToolTipView = getRootView()->getChild<LLToolTipView>("tooltip view");
 
 	// Add the progress bar view (startup view), which overrides everything
@@ -1531,12 +1529,12 @@ void LLViewerWindow::initWorldUI()
 	
 	if (!gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
 	{
-		toggle_show_navigation_panel(LLSD(0));
+		navbar->showNavigationPanel(FALSE);
 	}
 
 	if (!gSavedSettings.getBOOL("ShowNavbarFavoritesPanel"))
 	{
-		toggle_show_favorites_panel(LLSD(0));
+		navbar->showFavoritesPanel(FALSE);
 	}
 
 	if (!gSavedSettings.getBOOL("ShowCameraButton"))
@@ -1630,8 +1628,6 @@ void LLViewerWindow::shutdownViews()
 	gMorphView = NULL;
 
 	gHUDView = NULL;
-
-	gNotifyBoxView = NULL;
 }
 
 void LLViewerWindow::shutdownGL()
@@ -1999,9 +1995,6 @@ void LLViewerWindow::draw()
 #if LL_DEBUG
 	LLView::sIsDrawing = FALSE;
 #endif
-	
-	// UI post-draw Updates
-	gNotifyBoxView->updateNotifyBoxView();	
 }
 
 // Takes a single keydown event, usually when UI is visible
@@ -2597,7 +2590,6 @@ void LLViewerWindow::updateUI()
 				else if (dynamic_cast<LLUICtrl*>(viewp) 
 						&& viewp != gMenuHolder
 						&& viewp != gFloaterView
-						&& viewp != gNotifyBoxView
 						&& viewp != gConsole) 
 				{
 					if (dynamic_cast<LLFloater*>(viewp))

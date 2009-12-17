@@ -34,7 +34,6 @@
 #ifndef LL_LLIOHTTPSERVER_H
 #define LL_LLIOHTTPSERVER_H
 
-#include "llapr.h"
 #include "llchainio.h"
 #include "llhttpnode.h"
 
