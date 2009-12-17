@@ -198,7 +198,9 @@ LLFolderViewItem* LLFolderViewItem::getPreviousOpenNode(BOOL include_children)
 	}
 
 	LLFolderViewItem* itemp = mParentFolder->getPreviousFromChild( this, include_children );
-	while(itemp && !itemp->getVisible())
+
+	// Skip over items that are invisible or are hidden from the UI.
+	while(itemp && (!itemp->getVisible() || itemp->getDontShowInHierarchy()))
 	{
 		LLFolderViewItem* next_itemp = itemp->mParentFolder->getPreviousFromChild( itemp, include_children );
 		if (itemp == next_itemp) 

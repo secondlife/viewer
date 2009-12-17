@@ -748,6 +748,12 @@ void LLFolderView::sanitizeSelection()
 				}
 			}
 		}
+
+		// Don't allow invisible items (such as root folders) to be selected.
+		if (item->getDontShowInHierarchy())
+		{
+			items_to_remove.push_back(item);
+		}
 	}
 
 	std::vector<LLFolderViewItem*>::iterator item_it;
