@@ -456,3 +456,4 @@ const std::string* LLUICtrlFactory::getWidgetTag(const std::type_info* widget_ty
 {
 	return LLWidgetNameRegistry::instance().getValue(widget_type);
 }
+
