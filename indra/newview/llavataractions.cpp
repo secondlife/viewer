@@ -61,6 +61,7 @@
 #include "llviewerregion.h"
 #include "llimfloater.h"
 #include "lltrans.h"
+#include "llcallingcard.h"
 
 // static
 void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::string& name)
@@ -210,11 +211,9 @@ void LLAvatarActions::startCall(const LLUUID& id)
 
 	std::string name;
 	gCacheName->getFullName(id, name);
-	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id);
+	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id, true);
 	if (session_id != LLUUID::null)
 	{
-		// always open IM window when connecting to voice
-		LLIMFloater::show(session_id);
 		gIMMgr->startCall(session_id);
 	}
 	make_ui_sound("UISndStartIM");
@@ -238,14 +237,11 @@ void LLAvatarActions::startAdhocCall(const std::vector<LLUUID>& ids)
 	// create the new ad hoc voice session
 	const std::string title = LLTrans::getString("conference-title");
 	LLUUID session_id = gIMMgr->addSession(title, IM_SESSION_CONFERENCE_START,
-										   ids[0], id_array);
+										   ids[0], id_array, true);
 	if (session_id == LLUUID::null)
 	{
 		return;
 	}
-
-	// always open IM window when connecting to voice
-	LLIMFloater::show(session_id);
 
 	// start the call once the session has fully initialized
 	gIMMgr->autoStartCallOnStartup(session_id);
@@ -263,6 +259,24 @@ bool LLAvatarActions::isCalling(const LLUUID &id)
 
 	LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL, id);
 	return (LLIMModel::getInstance()->findIMSession(session_id) != NULL);
+}
+
+//static
+bool LLAvatarActions::canCall(const LLUUID &id)
+{
+	if(isFriend(id))
+	{
+		return LLAvatarTracker::instance().isBuddyOnline(id) && LLVoiceClient::voiceEnabled();
+	}
+	else
+	{
+		// don't need to check online/offline status because "usual resident" (resident that is not a friend)
+		// can be only ONLINE. There is no way to see "usual resident" in OFFLINE status. If we see "usual
+		// resident" it automatically means that the resident is ONLINE. So to make a call to the "usual resident"
+		// we need to check only that "our" voice is enabled.
+		return LLVoiceClient::voiceEnabled();
+	}
+
 }
 
 // static

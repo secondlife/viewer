@@ -62,7 +62,6 @@
 #include "llviewermenu.h"			// for handle_preferences()
 #include "llviewernetwork.h"
 #include "llviewerwindow.h"			// to link into child list
-#include "llnotify.h"
 #include "llurlsimstring.h"
 #include "lluictrlfactory.h"
 #include "llhttpclient.h"

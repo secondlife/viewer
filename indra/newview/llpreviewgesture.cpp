@@ -59,7 +59,6 @@
 #include "llinventorymodel.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
-#include "llnotify.h"
 #include "llradiogroup.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"

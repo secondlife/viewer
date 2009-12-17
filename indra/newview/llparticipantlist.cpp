@@ -42,11 +42,50 @@
 #include "llavatarlist.h"
 #include "llspeakers.h"
 #include "llviewermenu.h"
+#include "llvoiceclient.h"
 
 //LLParticipantList retrieves add, clear and remove events and updates view accordingly 
 #if LL_MSVC
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
+
+class ModerationResponder : public LLHTTPClient::Responder
+{
+public:
+	ModerationResponder(const LLUUID& session_id)
+	{
+		mSessionID = session_id;
+	}
+
+	virtual void error(U32 status, const std::string& reason)
+	{
+		llwarns << status << ": " << reason << llendl;
+
+		if ( gIMMgr )
+		{
+			//403 == you're not a mod
+			//should be disabled if you're not a moderator
+			if ( 403 == status )
+			{
+				gIMMgr->showSessionEventError(
+					"mute",
+					"not_a_mod_error",
+					mSessionID);
+			}
+			else
+			{
+				gIMMgr->showSessionEventError(
+					"mute",
+					"generic_request_error",
+					mSessionID);
+			}
+		}
+	}
+
+private:
+	LLUUID mSessionID;
+};
+
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list,  bool use_context_menu/* = true*/):
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),
@@ -57,6 +96,7 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	mSpeakerRemoveListener = new SpeakerRemoveListener(*this);
 	mSpeakerClearListener = new SpeakerClearListener(*this);
 	mSpeakerModeratorListener = new SpeakerModeratorUpdateListener(*this);
+	mSpeakerMuteListener = new SpeakerMuteListener(*this);
 
 	mSpeakerMgr->addListener(mSpeakerAddListener, "add");
 	mSpeakerMgr->addListener(mSpeakerRemoveListener, "remove");
@@ -87,6 +127,7 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 	for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
 	{
 		const LLPointer<LLSpeaker>& speakerp = *it;
+
 		addAvatarIDExceptAgent(group_members, speakerp->mID);
 		if ( speakerp->mIsModerator )
 		{
@@ -102,6 +143,14 @@ LLParticipantList::~LLParticipantList()
 	mAvatarListDoubleClickConnection.disconnect();
 	mAvatarListRefreshConnection.disconnect();
 	mAvatarListReturnConnection.disconnect();
+
+	// It is possible Participant List will be re-created from LLCallFloater::onCurrentChannelChanged()
+	// See ticket EXT-3427
+	// hide menu before deleting it to stop enable and check handlers from triggering.
+	if(mParticipantListMenu)
+	{
+		mParticipantListMenu->hide();
+	}
 
 	delete mParticipantListMenu;
 	mParticipantListMenu = NULL;
@@ -184,6 +233,27 @@ void LLParticipantList::setSortOrder(EParticipantSortOrder order)
 	}
 }
 
+void LLParticipantList::refreshVoiceState()
+{
+	LLSpeakerMgr::speaker_list_t speakers;
+	mSpeakerMgr->getSpeakerList(&speakers, TRUE);
+
+	for (LLSpeakerMgr::speaker_list_t::iterator iter = speakers.begin();
+		iter != speakers.end(); ++iter)
+	{
+		LLSpeaker* speakerp = (*iter).get();
+		const LLUUID& speaker_id = speakerp->mID;
+		LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*> (mAvatarList->getItemByValue(speaker_id));
+		if ( item )
+		{
+			// if voice is disabled for this speaker show non voice speakers as disabled
+			bool is_in_voice = speakerp->mStatus > LLSpeaker::STATUS_VOICE_ACTIVE
+				&& speakerp->mStatus != LLSpeaker::STATUS_MUTED;
+			item->setOnline(!is_in_voice);
+		}
+	}
+}
+
 bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
 	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
@@ -248,6 +318,24 @@ bool LLParticipantList::onModeratorUpdateEvent(LLPointer<LLOldEvents::LLEvent> e
 	return true;
 }
 
+bool LLParticipantList::onSpeakerMuteEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+{
+	LLPointer<LLSpeaker> speakerp = (LLSpeaker*)event->getSource();
+	if (speakerp.isNull()) return false;
+
+	// update UI on confirmation of moderator mutes
+	if (event->getValue().asString() == "voice")
+	{
+		LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(mAvatarList->getItemByValue(speakerp->mID));
+		if (item)
+		{
+			LLOutputMonitorCtrl* indicator = item->getChild<LLOutputMonitorCtrl>("speaking_indicator");
+			indicator->setIsMuted(speakerp->mModeratorMutedVoice);
+		}
+	}
+	return true;
+}
+
 void LLParticipantList::sort()
 {
 	if ( !mAvatarList )
@@ -264,13 +352,21 @@ void LLParticipantList::sort()
 	}
 }
 
-// static
 void LLParticipantList::addAvatarIDExceptAgent(std::vector<LLUUID>& existing_list, const LLUUID& avatar_id)
 {
-	if (gAgent.getID() != avatar_id)
-	{
-		existing_list.push_back(avatar_id);
-	}
+	if (gAgent.getID() == avatar_id) return;
+
+	existing_list.push_back(avatar_id);
+	adjustParticipant(avatar_id);
+}
+
+void LLParticipantList::adjustParticipant(const LLUUID& speaker_id)
+{
+	LLPointer<LLSpeaker> speakerp = mSpeakerMgr->findSpeaker(speaker_id);
+	if (speakerp.isNull()) return;
+
+	// add listener to process moderation changes
+	speakerp->addListener(mSpeakerMuteListener);
 }
 
 //
@@ -315,6 +411,11 @@ bool LLParticipantList::SpeakerModeratorUpdateListener::handleEvent(LLPointer<LL
 		return mParent.onModeratorUpdateEvent(event, userdata);
 }
 
+bool LLParticipantList::SpeakerMuteListener::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+{
+	return mParent.onSpeakerMuteEvent(event, userdata);
+}
+
 LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 {
 	// set up the callbacks for all of the avatar menu items
@@ -324,14 +425,27 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 	registrar.add("ParticipantList.ToggleAllowTextChat", boost::bind(&LLParticipantList::LLParticipantListMenu::toggleAllowTextChat, this, _2));
 	registrar.add("ParticipantList.ToggleMuteText", boost::bind(&LLParticipantList::LLParticipantListMenu::toggleMuteText, this, _2));
 
+	registrar.add("Avatar.Profile",	boost::bind(&LLAvatarActions::showProfile, mUUIDs.front()));
+	registrar.add("Avatar.IM", boost::bind(&LLAvatarActions::startIM, mUUIDs.front()));
+	registrar.add("Avatar.AddFriend", boost::bind(&LLAvatarActions::requestFriendshipDialog, mUUIDs.front()));
+	registrar.add("Avatar.BlockUnblock", boost::bind(&LLParticipantList::LLParticipantListMenu::toggleMuteVoice, this, _2));
+	registrar.add("Avatar.Share", boost::bind(&LLAvatarActions::share, mUUIDs.front()));
+	registrar.add("Avatar.Pay",	boost::bind(&LLAvatarActions::pay, mUUIDs.front()));
+	registrar.add("Avatar.Call", boost::bind(&LLAvatarActions::startCall, mUUIDs.front()));
+
 	registrar.add("ParticipantList.ModerateVoice", boost::bind(&LLParticipantList::LLParticipantListMenu::moderateVoice, this, _2));
 
 	enable_registrar.add("ParticipantList.EnableItem", boost::bind(&LLParticipantList::LLParticipantListMenu::enableContextMenuItem,	this, _2));
 	enable_registrar.add("ParticipantList.CheckItem",  boost::bind(&LLParticipantList::LLParticipantListMenu::checkContextMenuItem,	this, _2));
 
 	// create the context menu from the XUI
-	return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
+	LLContextMenu* main_menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		"menu_participant_list.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+
+	main_menu->setItemVisible("Moderator Options", isGroupModerator());
+	main_menu->arrangeAndClear();
+
+	return main_menu;
 }
 
 void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const std::vector<LLUUID>& uuids, S32 x, S32 y)
@@ -341,7 +455,7 @@ void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const
 	if (uuids.size() == 0) return;
 
 	const LLUUID speaker_id = mUUIDs.front();
-	BOOL is_muted = LLMuteList::getInstance()->isMuted(speaker_id, LLMute::flagVoiceChat);
+	BOOL is_muted = isMuted(speaker_id);
 
 	if (is_muted)
 	{
@@ -353,7 +467,6 @@ void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const
 		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceUnMuteSelected", false);
 		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceUnMuteOthers", false);
 	}
-
 }
 
 void LLParticipantList::LLParticipantListMenu::toggleAllowTextChat(const LLSD& userdata)
@@ -370,47 +483,10 @@ void LLParticipantList::LLParticipantListMenu::toggleAllowTextChat(const LLSD& u
 	//current value represents ability to type, so invert
 	data["params"]["mute_info"]["text"] = !mParent.mSpeakerMgr->findSpeaker(speaker_id)->mModeratorMutedText;
 
-	class MuteTextResponder : public LLHTTPClient::Responder
-	{
-	public:
-		MuteTextResponder(const LLUUID& session_id)
-		{
-			mSessionID = session_id;
-		}
-
-		virtual void error(U32 status, const std::string& reason)
-		{
-			llwarns << status << ": " << reason << llendl;
-
-			if ( gIMMgr )
-			{
-				//403 == you're not a mod
-				//should be disabled if you're not a moderator
-				if ( 403 == status )
-				{
-					gIMMgr->showSessionEventError(
-						"mute",
-						"not_a_moderator",
-						mSessionID);
-				}
-				else
-				{
-					gIMMgr->showSessionEventError(
-						"mute",
-						"generic",
-						mSessionID);
-				}
-			}
-		}
-
-	private:
-		LLUUID mSessionID;
-	};
-
 	LLHTTPClient::post(
 		url,
 		data,
-		new MuteTextResponder(mParent.mSpeakerMgr->getSessionID()));
+		new ModerationResponder(mParent.mSpeakerMgr->getSessionID()));
 }
 
 void LLParticipantList::LLParticipantListMenu::toggleMute(const LLSD& userdata, U32 flags)
@@ -450,36 +526,87 @@ void LLParticipantList::LLParticipantListMenu::toggleMuteVoice(const LLSD& userd
 	toggleMute(userdata, LLMute::flagVoiceChat);
 }
 
+bool LLParticipantList::LLParticipantListMenu::isGroupModerator()
+{
+	// Agent is in Group Call
+	if(gAgent.isInGroup(mParent.mSpeakerMgr->getSessionID()))
+	{
+		// Agent is Moderator
+		return mParent.mSpeakerMgr->findSpeaker(gAgentID)->mIsModerator;
+	}
+	return false;
+}
+
+bool LLParticipantList::LLParticipantListMenu::isMuted(const LLUUID& avatar_id)
+{
+	LLPointer<LLSpeaker> selected_speakerp = mParent.mSpeakerMgr->findSpeaker(avatar_id);
+	if (!selected_speakerp) return true;
+
+	return selected_speakerp->mStatus == LLSpeaker::STATUS_MUTED;
+}
+
 void LLParticipantList::LLParticipantListMenu::moderateVoice(const LLSD& userdata)
 {
+	if (!gAgent.getRegion()) return;
 
+	bool moderate_selected = userdata.asString() == "selected";
+	const LLUUID& selected_avatar_id = mUUIDs.front();
+	bool is_muted = isMuted(selected_avatar_id);
+
+	if (moderate_selected)
+	{
+		moderateVoiceParticipant(selected_avatar_id, is_muted);
+	}
+	else
+	{
+		moderateVoiceOtherParticipants(selected_avatar_id, is_muted);
+	}
 }
-void LLParticipantList::LLParticipantListMenu::moderateVoiceOtherParticipants(const LLSD& userdata)
+
+void LLParticipantList::LLParticipantListMenu::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute)
+{
+	if (gAgentID == avatar_id) return; // do not process myself
+
+	LLPointer<LLSpeaker> speakerp = mParent.mSpeakerMgr->findSpeaker(avatar_id);
+	if (!speakerp) return;
+
+	// *NOTE: mantipov: probably this condition will be incorrect when avatar will be blocked for
+	// text chat via moderation (LLSpeaker::mModeratorMutedText == TRUE)
+	bool is_in_voice = speakerp->mStatus <= LLSpeaker::STATUS_VOICE_ACTIVE || speakerp->mStatus == LLSpeaker::STATUS_MUTED;
+
+	// do not send voice moderation changes for avatars not in voice channel
+	if (!is_in_voice) return;
+
+	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+	LLSD data;
+	data["method"] = "mute update";
+	data["session-id"] = mParent.mSpeakerMgr->getSessionID();
+	data["params"] = LLSD::emptyMap();
+	data["params"]["agent_id"] = avatar_id;
+	data["params"]["mute_info"] = LLSD::emptyMap();
+	data["params"]["mute_info"]["voice"] = !unmute;
+
+	LLHTTPClient::post(
+		url,
+		data,
+		new ModerationResponder(mParent.mSpeakerMgr->getSessionID()));
+}
+
+void LLParticipantList::LLParticipantListMenu::moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute)
 {
 	LLSpeakerMgr::speaker_list_t speakers;
-	mParent.mSpeakerMgr->getSpeakerList(&speakers, true);
+	mParent.mSpeakerMgr->getSpeakerList(&speakers, FALSE);
 
-	const LLUUID& excluded_avatar_id = mUUIDs.front();
-	bool should_mute = userdata.asString() == "mute";
 	for (LLSpeakerMgr::speaker_list_t::iterator iter = speakers.begin();
 		iter != speakers.end(); ++iter)
 	{
 		LLSpeaker* speakerp = (*iter).get();
 		LLUUID speaker_id = speakerp->mID;
+
 		if (excluded_avatar_id == speaker_id) continue;
 
-		LLMute mute(speaker_id, speakerp->mDisplayName, speakerp->mType == LLSpeaker::SPEAKER_AGENT ? LLMute::AGENT : LLMute::OBJECT);
-
-		if (should_mute)
-		{
-			LLMuteList::getInstance()->add(mute, LLMute::flagVoiceChat);
-		}
-		else
-		{
-			LLMuteList::getInstance()->remove(mute, LLMute::flagVoiceChat);
-		}
+		moderateVoiceParticipant(speaker_id, unmute);
 	}
-
 }
 
 bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD& userdata)
@@ -492,9 +619,35 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 	else
 		if (item == "can_allow_text_chat" || "can_moderate_voice" == item)
 		{
-			LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(mParent.mSpeakerMgr->getSessionID());
-			return im_session->mType == IM_SESSION_GROUP_START && mParent.mSpeakerMgr->findSpeaker(gAgentID)->mIsModerator;
+			return isGroupModerator();
 		}
+	else if (item == std::string("can_add"))
+		{
+			// We can add friends if:
+			// - there are selected people
+			// - and there are no friends among selection yet.
+
+			bool result = (mUUIDs.size() > 0);
+
+			std::vector<LLUUID>::const_iterator
+				id = mUUIDs.begin(),
+				uuids_end = mUUIDs.end();
+
+			for (;id != uuids_end; ++id)
+			{
+				if ( LLAvatarActions::isFriend(*id) )
+				{
+					result = false;
+					break;
+				}
+			}
+			return result;
+		}
+	else if (item == "can_call")
+	{
+		return LLVoiceClient::voiceEnabled();
+	}
+
 	return true;
 }
 
@@ -502,17 +655,26 @@ bool LLParticipantList::LLParticipantListMenu::checkContextMenuItem(const LLSD& 
 {
 	std::string item = userdata.asString();
 	const LLUUID& id = mUUIDs.front();
-	if (item == "is_muted")
-		return LLMuteList::getInstance()->isMuted(id, LLMute::flagTextChat); 
-	else
-		if (item == "is_allowed_text_chat")
-		{
-			LLPointer<LLSpeaker> selected_speakerp = mParent.mSpeakerMgr->findSpeaker(id);
 
-			if (selected_speakerp.notNull())
-			{
-				return !selected_speakerp->mModeratorMutedText;
-			}
+	if (item == "is_muted")
+	{
+		return LLMuteList::getInstance()->isMuted(id, LLMute::flagTextChat);
+	}
+	else if (item == "is_allowed_text_chat")
+	{
+		LLPointer<LLSpeaker> selected_speakerp = mParent.mSpeakerMgr->findSpeaker(id);
+
+		if (selected_speakerp.notNull())
+		{
+			return !selected_speakerp->mModeratorMutedText;
 		}
+	}
+	else if(item == "is_blocked")
+	{
+		return LLMuteList::getInstance()->isMuted(id, LLMute::flagVoiceChat);
+	}
+
 	return false;
 }
+
+//EOF

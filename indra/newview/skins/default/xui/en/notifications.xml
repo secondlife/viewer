@@ -5027,13 +5027,13 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you [O
        name="Keep"
        text="Keep"/>
       <button
-       index="4"
-       name="Show"
-       text="Show"/> 
-      <button
        index="1"
        name="Discard"
        text="Discard"/>
+      <button
+       index="2"
+       name="Mute"
+       text="Block"/>
     </form>
   </notification>
 

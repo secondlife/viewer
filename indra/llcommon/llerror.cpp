@@ -45,9 +45,6 @@
 # include <syslog.h>
 # include <unistd.h>
 #endif // !LL_WINDOWS
-#if LL_WINDOWS
-# include <windows.h>
-#endif // LL_WINDOWS
 #include <vector>
 
 #include "llapp.h"

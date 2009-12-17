@@ -33,8 +33,12 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llnotificationsutil.h"
+#include "lltrans.h"
+
 #include "llcallfloater.h"
 
+#include "llagent.h"
 #include "llagentdata.h" // for gAgentID
 #include "llavatarlist.h"
 #include "llbottomtray.h"
@@ -79,8 +83,12 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 , mAvatarList(NULL)
 , mNonAvatarCaller(NULL)
 , mVoiceType(VC_LOCAL_CHAT)
+, mAgentPanel(NULL)
+, mSpeakingIndicator(NULL)
+, mIsModeratorMutedVoice(false)
 {
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
+	LLVoiceClient::getInstance()->addObserver(this);
 }
 
 LLCallFloater::~LLCallFloater()
@@ -88,6 +96,13 @@ LLCallFloater::~LLCallFloater()
 	mChannelChangedConnection.disconnect();
 	delete mPaticipants;
 	mPaticipants = NULL;
+
+	// Don't use LLVoiceClient::getInstance() here 
+	// singleton MAY have already been destroyed.
+	if(gVoiceClient)
+	{
+		gVoiceClient->removeObserver(this);
+	}
 }
 
 // virtual
@@ -119,6 +134,34 @@ BOOL LLCallFloater::postBuild()
 void LLCallFloater::onOpen(const LLSD& /*key*/)
 {
 }
+
+// virtual
+void LLCallFloater::draw()
+{
+	// we have to refresh participants to display ones not in voice as disabled.
+	// It should be done only when she joins or leaves voice chat.
+	// But seems that LLVoiceClientParticipantObserver is not enough to satisfy this requirement.
+	// *TODO: mantipov: remove from draw()
+	onChange();
+
+	bool is_moderator_muted = gVoiceClient->getIsModeratorMuted(gAgentID);
+
+	if (mIsModeratorMutedVoice != is_moderator_muted)
+	{
+		setModeratorMutedVoice(is_moderator_muted);
+	}
+
+	LLDockableFloater::draw();
+}
+
+// virtual
+void LLCallFloater::onChange()
+{
+	if (NULL == mPaticipants) return;
+
+	mPaticipants->refreshVoiceState();
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 /// PRIVATE SECTION
@@ -165,9 +208,19 @@ void LLCallFloater::updateSession()
 			mVoiceType = VC_PEER_TO_PEER;
 			break;
 		case IM_SESSION_CONFERENCE_START:
-			mVoiceType = VC_AD_HOC_CHAT;
+		case IM_SESSION_GROUP_START:
+		case IM_SESSION_INVITE:
+			if (gAgent.isInGroup(session_id))
+			{
+				mVoiceType = VC_GROUP_CHAT;
+			}
+			else
+			{
+				mVoiceType = VC_AD_HOC_CHAT;				
+			}
 			break;
 		default:
+			llwarning("Failed to determine voice call IM type", 0);
 			mVoiceType = VC_GROUP_CHAT;
 			break;
 		}
@@ -188,6 +241,7 @@ void LLCallFloater::updateSession()
 	childSetVisible("leave_btn_panel", !is_local_chat);
 	
 	refreshPartisipantList();
+	updateModeratorState();
 }
 
 void LLCallFloater::refreshPartisipantList()
@@ -220,11 +274,20 @@ void LLCallFloater::refreshPartisipantList()
 		{
 			mAvatarList->setNoItemsCommentText(getString("no_one_near"));
 		}
+		mPaticipants->refreshVoiceState();	
 	}
 }
 
 void LLCallFloater::onCurrentChannelChanged(const LLUUID& /*session_id*/)
 {
+	// Don't update participant list if no channel info is available.
+	// Fix for ticket EXT-3427
+	// @see LLParticipantList::~LLParticipantList()
+	if(LLVoiceChannel::getCurrentVoiceChannel() && 
+		LLVoiceChannel::STATE_NO_CHANNEL_INFO == LLVoiceChannel::getCurrentVoiceChannel()->getState())
+	{
+		return;
+	}
 	// Forget speaker manager from the previous session to avoid using it after session was destroyed.
 	mSpeakerManager = NULL;
 	updateSession();
@@ -263,13 +326,52 @@ void LLCallFloater::updateTitle()
 
 void LLCallFloater::initAgentData()
 {
-	childSetValue("user_icon", gAgentID);
+	mAgentPanel = getChild<LLPanel> ("my_panel");
 
+	if ( mAgentPanel )
+	{
+		mAgentPanel->childSetValue("user_icon", gAgentID);
+
+		std::string name;
+		gCacheName->getFullName(gAgentID, name);
+		mAgentPanel->childSetValue("user_text", name);
+
+		mSpeakingIndicator = mAgentPanel->getChild<LLOutputMonitorCtrl>("speaking_indicator");
+		mSpeakingIndicator->setSpeakerId(gAgentID);
+	}
+}
+
+void LLCallFloater::setModeratorMutedVoice(bool moderator_muted)
+{
+	mIsModeratorMutedVoice = moderator_muted;
+
+	if (moderator_muted)
+	{
+		LLNotificationsUtil::add("VoiceIsMutedByModerator");
+	}
+	mSpeakingIndicator->setIsMuted(moderator_muted);
+}
+
+void LLCallFloater::updateModeratorState()
+{
 	std::string name;
 	gCacheName->getFullName(gAgentID, name);
-	childSetValue("user_text", name);
 
-	LLOutputMonitorCtrl* speaking_indicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
-	speaking_indicator->setSpeakerId(gAgentID);
+	if(gAgent.isInGroup(mSpeakerManager->getSessionID()))
+	{
+		// This method can be called when LLVoiceChannel.mState == STATE_NO_CHANNEL_INFO
+		// in this case there are no any speakers yet.
+		if (mSpeakerManager->findSpeaker(gAgentID))
+		{
+			// Agent is Moderator
+			if (mSpeakerManager->findSpeaker(gAgentID)->mIsModerator)
+
+			{
+				const std::string moderator_indicator(LLTrans::getString("IM_moderator_label")); 
+				name += " " + moderator_indicator;
+			}
+		}
+	}
+	mAgentPanel->childSetValue("user_text", name);
 }
 //EOF

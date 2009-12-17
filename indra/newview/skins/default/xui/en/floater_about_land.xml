@@ -1561,7 +1561,7 @@ Only large parcels can be listed in search.
              left="10"
              name="at URL:"
              width="100">
-                Home URL:
+                Home Page:
             </text>
             <line_editor
              follows="left|top"
@@ -1590,7 +1590,7 @@ Only large parcels can be listed in search.
              left="10"
              name="CurrentURL:"
              width="100">
-                Current URL:
+                Current Page:
             </text>
              <button
      follows="top|right"

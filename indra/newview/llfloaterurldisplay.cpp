@@ -33,12 +33,13 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llregionhandle.h"
+#include "v3dmath.h"
+
 #include "llfloaterurldisplay.h"
 
 #include "llpanelplace.h"
 #include "lluictrlfactory.h"
-
-#include "v3dmath.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // LLFloaterURLDisplay

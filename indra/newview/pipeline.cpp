@@ -7268,13 +7268,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					updateCull(camera, ref_result, 1);
 					stateSort(camera, ref_result);
 				}
-				else
-				{
-					gGL.setColorMask(true, true);
-					mWaterRef.clear();
-					gGL.setColorMask(true, false);
-				}
-
+				
 				ref_mask = mRenderTypeMask;
 				mRenderTypeMask = mask;
 			}

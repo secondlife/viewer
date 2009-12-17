@@ -91,12 +91,19 @@ LLPanelPickInfo::LLPanelPickInfo()
  , mAvatarId(LLUUID::null)
  , mSnapshotCtrl(NULL)
  , mPickId(LLUUID::null)
+ , mParcelId(LLUUID::null)
+ , mRequestedId(LLUUID::null)
 {
 }
 
 LLPanelPickInfo::~LLPanelPickInfo()
 {
 	LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(), this);
+
+	if (mParcelId.notNull())
+	{
+		LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelId, this);
+	}
 }
 
 void LLPanelPickInfo::onOpen(const LLSD& key)
@@ -156,17 +163,30 @@ void LLPanelPickInfo::processProperties(void* data, EAvatarProcessorType type)
 		return;
 	}
 
+	mParcelId = pick_info->parcel_id;
 	setSnapshotId(pick_info->snapshot_id);
 	setPickName(pick_info->name);
 	setPickDesc(pick_info->desc);
 	setPosGlobal(pick_info->pos_global);
-	setPickLocation(createLocationText(pick_info->user_name, pick_info->original_name, 
-		pick_info->sim_name, pick_info->pos_global));
+
+	// Send remote parcel info request to get parcel name and sim (region) name.
+	sendParcelInfoRequest();
 
 	// *NOTE dzaporozhan
 	// We want to keep listening to APT_PICK_INFO because user may 
 	// edit the Pick and we have to update Pick info panel.
 	// revomeObserver is called from onClickBack
+}
+
+void LLPanelPickInfo::sendParcelInfoRequest()
+{
+	if (mParcelId != mRequestedId)
+	{
+		LLRemoteParcelInfoProcessor::getInstance()->addObserver(mParcelId, this);
+		LLRemoteParcelInfoProcessor::getInstance()->sendParcelInfoRequest(mParcelId);
+
+		mRequestedId = mParcelId;
+	}
 }
 
 void LLPanelPickInfo::setExitCallback(const commit_callback_t& cb)
@@ -176,21 +196,16 @@ void LLPanelPickInfo::setExitCallback(const commit_callback_t& cb)
 
 void LLPanelPickInfo::processParcelInfo(const LLParcelData& parcel_data)
 {
-	// HACK: Flag 0x2 == adult region,
-	// Flag 0x1 == mature region, otherwise assume PG
-	std::string rating_icon = "icon_event.tga";
-	if (parcel_data.flags & 0x2)
-	{
-		rating_icon = "icon_event_adult.tga";
-	}
-	else if (parcel_data.flags & 0x1)
-	{
-		rating_icon = "icon_event_mature.tga";
-	}
+	setPickLocation(createLocationText(LLStringUtil::null, parcel_data.name,
+		parcel_data.sim_name, getPosGlobal()));
 
-	childSetValue("maturity", rating_icon);
+	// We have received parcel info for the requested ID so clear it now.
+	mRequestedId.setNull();
 
-	//*NOTE we don't removeObserver(...) ourselves cause LLRemoveParcelProcessor does it for us
+	if (mParcelId.notNull())
+	{
+		LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelId, this);
+	}
 }
 
 void LLPanelPickInfo::setEditPickCallback(const commit_callback_t& cb)
@@ -222,7 +237,8 @@ void LLPanelPickInfo::resetData()
 	setPickId(LLUUID::null);
 	setSnapshotId(LLUUID::null);
 	mPosGlobal.clearVec();
-	childSetValue("maturity", LLStringUtil::null);
+	mParcelId.setNull();
+	mRequestedId.setNull();
 }
 
 // static
@@ -273,9 +289,6 @@ void LLPanelPickInfo::setPickDesc(const std::string& desc)
 void LLPanelPickInfo::setPickLocation(const std::string& location)
 {
 	childSetValue(XML_LOCATION, location);
-
-	//preserving non-wrapped text for info/edit modes switching
-	mLocation = location;
 }
 
 void LLPanelPickInfo::onClickMap()
@@ -340,7 +353,7 @@ void LLPanelPickEdit::onOpen(const LLSD& key)
 		setPosGlobal(gAgent.getPositionGlobal());
 
 		LLUUID parcel_id = LLUUID::null, snapshot_id = LLUUID::null;
-		std::string pick_name, pick_desc;
+		std::string pick_name, pick_desc, region_name;
 
 		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 		if(parcel)
@@ -351,21 +364,17 @@ void LLPanelPickEdit::onOpen(const LLSD& key)
 			snapshot_id = parcel->getSnapshotID();
 		}
 
-		if(pick_name.empty())
+		LLViewerRegion* region = gAgent.getRegion();
+		if(region)
 		{
-			LLViewerRegion* region = gAgent.getRegion();
-			if(region)
-			{
-				pick_name = region->getName();
-			}
+			region_name = region->getName();
 		}
 
 		setParcelID(parcel_id);
-		childSetValue("pick_name", pick_name);
+		childSetValue("pick_name", pick_name.empty() ? region_name : pick_name);
 		childSetValue("pick_desc", pick_desc);
 		setSnapshotId(snapshot_id);
-		setPickLocation(createLocationText(LLStringUtil::null, SET_LOCATION_NOTICE, 
-			pick_name, getPosGlobal()));
+		setPickLocation(createLocationText(SET_LOCATION_NOTICE, pick_name, region_name, getPosGlobal()));
 
 		enableSaveButton(true);
 	}
@@ -394,8 +403,9 @@ void LLPanelPickEdit::setPickData(const LLPickData* pick_data)
 	childSetValue("pick_name", pick_data->name);
 	childSetValue("pick_desc", pick_data->desc);
 	setSnapshotId(pick_data->snapshot_id);
-	setPickLocation(createLocationText(pick_data->user_name, pick_data->original_name, /*pick_data->sim_name,*/ 
-		pick_data->name, pick_data->pos_global));
+	setPosGlobal(pick_data->pos_global);
+	setPickLocation(createLocationText(LLStringUtil::null, pick_data->name,
+			pick_data->sim_name, pick_data->pos_global));
 }
 
 BOOL LLPanelPickEdit::postBuild()
@@ -519,14 +529,22 @@ void LLPanelPickEdit::onClickSetLocation()
 	// Save location for later use.
 	setPosGlobal(gAgent.getPositionGlobal());
 
+	std::string parcel_name, region_name;
+
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (parcel)
 	{
 		mParcelId = parcel->getID();
-		mSimName = parcel->getName();
+		parcel_name = parcel->getName();
 	}
-	setPickLocation(createLocationText(
-		LLStringUtil::null, SET_LOCATION_NOTICE, mSimName, getPosGlobal()));
+
+	LLViewerRegion* region = gAgent.getRegion();
+	if(region)
+	{
+		region_name = region->getName();
+	}
+
+	setPickLocation(createLocationText(SET_LOCATION_NOTICE, parcel_name, region_name, getPosGlobal()));
 
 	mLocationChanged = true;
 	enableSaveButton(TRUE);
