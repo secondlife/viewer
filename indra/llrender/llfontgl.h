@@ -144,6 +144,7 @@ public:
 
 	// Takes a string with potentially several flags, i.e. "NORMAL|BOLD|ITALIC"
 	static U8 getStyleFromString(const std::string &style);
+	static std::string getStringFromStyle(U8 style);
 
 	static std::string nameFromFont(const LLFontGL* fontp);
 	static std::string sizeFromFont(const LLFontGL* fontp);

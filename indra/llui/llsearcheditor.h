@@ -50,15 +50,17 @@ class LLSearchEditor : public LLUICtrl
 public:
 	struct Params : public LLInitParam::Block<Params, LLLineEditor::Params>
 	{
-		Optional<LLButton::Params> search_button, clear_button;
-		Optional<bool> search_button_visible, clear_button_visible;
+		Optional<LLButton::Params>	search_button, 
+									clear_button;
+		Optional<bool>				search_button_visible, 
+									clear_button_visible;
 		Optional<commit_callback_t> keystroke_callback;
 
 		Params()
-		: search_button("search_button")
-		, search_button_visible("search_button_visible")
-		, clear_button("clear_button")
-		, clear_button_visible("clear_button_visible")
+		:	search_button("search_button"),
+			search_button_visible("search_button_visible"),
+			clear_button("clear_button"), 
+			clear_button_visible("clear_button_visible")
 		{
 			name = "search_editor";
 		}
