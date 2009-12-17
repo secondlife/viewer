@@ -77,6 +77,8 @@ public:
 
 	void onNewIM(const LLSD& data);
 
+	S32 getTotalUnreadIMCount();
+
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent);
 
 	virtual void onFocusLost();
