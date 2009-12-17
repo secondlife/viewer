@@ -56,7 +56,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<bool>						has_border;
-		Multiple<ItemParams, AtLeast<1> >	items;
+		Multiple<ItemParams, LLInitParam::AtLeast<1> >	items;
 		Params();
 	};
 

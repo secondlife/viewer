@@ -2501,8 +2501,6 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 		p.layout = parent->getLayout();
 	}
 
-	p.from_xui = true;
-
 	if (parent)
 	{
 		LLRect parent_rect = parent->getLocalRect();
@@ -2518,7 +2516,7 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 		}
 
 		// convert negative or centered coordinates to parent relative values
-		// Note: some of this logic matches the logic in TypedParam<LLRect>::setValueFromBlock()
+		// Note: some of this logic matches the logic in TypedParam<LLRect>::getValueFromBlock()
 
 		if (p.center_horiz)
 		{
