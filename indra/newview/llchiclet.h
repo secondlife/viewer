@@ -52,7 +52,7 @@ class LLChicletNotificationCounterCtrl : public LLTextBox
 {
 public:
 
-	static const S32 MAX_DISPLAYED_COUNT = 99;
+	static const S32 MAX_DISPLAYED_COUNT;
 
 	struct Params :	public LLInitParam::Block<Params, LLTextBox::Params>
 	{

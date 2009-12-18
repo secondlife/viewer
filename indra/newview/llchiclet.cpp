@@ -72,6 +72,7 @@ static const S32	OVERLAY_ICON_SHIFT = 2;	// used for shifting of an overlay icon
 
 // static
 const S32 LLChicletPanel::s_scroll_ratio = 10;
+const S32 LLChicletNotificationCounterCtrl::MAX_DISPLAYED_COUNT = 99;
 
 
 boost::signals2::signal<LLChiclet* (const LLUUID&),
