@@ -530,7 +530,8 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 			if ( !selectNextItemPair(true, reset_selection) && reset_selection)
 			{
 				// If case we are in accordion tab notify parent to go to the previous accordion
-				notifyParent(LLSD().with("action","select_prev"));
+				if(notifyParent(LLSD().with("action","select_prev")) > 0 )//message was processed
+					resetSelection();
 			}
 			break;
 		}
@@ -539,7 +540,8 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 			if ( !selectNextItemPair(false, reset_selection) && reset_selection)
 			{
 				// If case we are in accordion tab notify parent to go to the next accordion
-				notifyParent(LLSD().with("action","select_next"));
+				if( notifyParent(LLSD().with("action","select_next")) > 0 ) //message was processed
+					resetSelection();
 			}
 			break;
 		}
