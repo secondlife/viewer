@@ -35,7 +35,6 @@
 #include "llfloaterauction.h"
 #include "llfloaterregioninfo.h"
 
-#include "lldir.h"
 #include "llgl.h"
 #include "llimagej2c.h"
 #include "llimagetga.h"
@@ -43,12 +42,12 @@
 #include "llvfile.h"
 #include "llvfs.h"
 #include "llwindow.h"
+#include "message.h"
 
 #include "llagent.h"
 #include "llcombobox.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-#include "llnotify.h"
 #include "llsavedsettingsglue.h"
 #include "llviewertexturelist.h"
 #include "llviewerparcelmgr.h"

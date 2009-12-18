@@ -34,8 +34,11 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llviewernetwork.h"
-#include "llviewercontrol.h"
+
 #include "llevents.h"
+#include "net.h"
+
+#include "llviewercontrol.h"
 #include "lllogin.h"
 
 struct LLGridData

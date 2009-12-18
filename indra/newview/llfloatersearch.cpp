@@ -38,6 +38,8 @@
 #include "lluri.h"
 #include "llagent.h"
 #include "llui.h"
+#include "llviewercontrol.h"
+#include "llweb.h"
 
 LLFloaterSearch::LLFloaterSearch(const LLSD& key) :
 	LLFloater(key),
@@ -65,7 +67,6 @@ BOOL LLFloaterSearch::postBuild()
 	{
 		mBrowser->addObserver(this);
 		mBrowser->setTrusted(true);
-		mBrowser->setHomePageUrl(getString("search_url"));
 	}
 
 	return TRUE;
@@ -113,33 +114,32 @@ void LLFloaterSearch::search(const LLSD &key)
 	childHide("refresh_search");
 	mSearchGodLevel = gAgent.getGodLevel();
 
-	// get the URL for the search page
-	std::string url = getString("search_url");
-	if (! LLStringUtil::endsWith(url, "/"))
-	{
-		url += "/";
-	}
-
 	// work out the subdir to use based on the requested category
+	LLSD subs;
 	std::string category = key.has("category") ? key["category"].asString() : "";
 	if (mCategoryPaths.has(category))
 	{
-		url += mCategoryPaths[category].asString();
+		subs["CATEGORY"] = mCategoryPaths[category].asString();
 	}
 	else
 	{
-		url += mCategoryPaths["all"].asString();
+		subs["CATEGORY"] = mCategoryPaths["all"].asString();
 	}
 
-	// append the search query string
+	// add the search query string
 	std::string search_text = key.has("id") ? key["id"].asString() : "";
-	url += std::string("?q=") + LLURI::escape(search_text);
+	subs["QUERY"] = LLURI::escape(search_text);
 
-	// append the permissions token that login.cgi gave us
+	// add the permissions token that login.cgi gave us
+	// We use "search_token", and fallback to "auth_token" if not present.
 	LLSD search_token = LLLoginInstance::getInstance()->getResponse("search_token");
-	url += "&p=" + search_token.asString();
+	if (search_token.asString().empty())
+	{
+		search_token = LLLoginInstance::getInstance()->getResponse("auth_token");
+	}
+	subs["AUTH_TOKEN"] = search_token.asString();
 
-	// also append the user's preferred maturity (can be changed via prefs)
+	// add the user's preferred maturity (can be changed via prefs)
 	std::string maturity;
 	if (gAgent.prefersAdult())
 	{
@@ -153,14 +153,15 @@ void LLFloaterSearch::search(const LLSD &key)
 	{
 		maturity = "13";  // PG
 	}
-	url += "&r=" + maturity;
-
-	// add the current localization information
-	url += "&lang=" + LLUI::getLanguage();
+	subs["MATURITY"] = maturity;
 
 	// add the user's god status
-	std::string godlike = gAgent.isGodlike() ? "1" : "0";
-	url += "&g=" + godlike;
+	subs["GODLIKE"] = gAgent.isGodlike() ? "1" : "0";
+
+	// get the search URL and expand all of the substitutions
+	// (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
+	std::string url = gSavedSettings.getString("SearchURL");
+	url = LLWeb::expandURLSubstitutions(url, subs);
 
 	// and load the URL in the web view
 	mBrowser->navigateTo(url);

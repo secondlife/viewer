@@ -139,6 +139,7 @@ public:
 	// set whether this toast considered as hidden or not
 	void setIsHidden( bool is_toast_hidden ) { mIsHidden = is_toast_hidden; }
 
+	const LLNotificationPtr& getNotification() { return mNotification;}
 
 	// Registers signals/callbacks for events
 	toast_signal_t mOnFadeSignal;

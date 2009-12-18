@@ -38,6 +38,7 @@
 #include "llpanel.h"
 #include "llpointer.h"
 #include "llstyle.h"
+#include "llgroupmgr.h"
 
 /**
  * Auto-updating list of agent groups.
@@ -80,9 +81,11 @@ class LLIconCtrl;
 class LLTextBox;
 
 class LLGroupListItem : public LLPanel
+	, public LLGroupMgrObserver
 {
 public:
 	LLGroupListItem();
+	~LLGroupListItem();
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void setValue(const LLSD& value);
 	void onMouseEnter(S32 x, S32 y, MASK mask);
@@ -96,6 +99,7 @@ public:
 	void setGroupIconID(const LLUUID& group_icon_id);
 	void setGroupIconVisible(bool visible);
 
+	virtual void changed(LLGroupChange gc);
 private:
 	void setActive(bool active);
 	void onInfoBtnClick();

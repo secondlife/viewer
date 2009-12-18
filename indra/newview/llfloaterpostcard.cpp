@@ -56,9 +56,8 @@
 #include "llstatusbar.h"
 #include "llviewerregion.h"
 #include "lleconomy.h"
+#include "message.h"
 
-#include "llgl.h"
-#include "llglheaders.h"
 #include "llimagejpeg.h"
 #include "llimagej2c.h"
 #include "llvfile.h"

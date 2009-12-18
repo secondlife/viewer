@@ -49,11 +49,13 @@
 
 class LLFace;
 class LLImageGL ;
+class LLImageRaw;
 class LLViewerObject;
 class LLViewerTexture;
 class LLViewerFetchedTexture ;
 class LLViewerMediaTexture ;
 class LLTexturePipelineTester ;
+
 
 typedef	void	(*loaded_callback_func)( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 
@@ -68,14 +70,7 @@ public:
 	LLLoadedCallbackEntry(loaded_callback_func cb,
 						  S32 discard_level,
 						  BOOL need_imageraw, // Needs image raw for the callback
-						  void* userdata ) 
-		: mCallback(cb),
-		  mLastUsedDiscard(MAX_DISCARD_LEVEL+1),
-		  mDesiredDiscard(discard_level),
-		  mNeedsImageRaw(need_imageraw),
-		  mUserData(userdata)
-	{
-	}
+						  void* userdata );
 
 	loaded_callback_func	mCallback;
 	S32						mLastUsedDiscard;

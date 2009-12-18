@@ -43,8 +43,10 @@
 #include "llhttpclient.h"
 #include "llhttpstatuscodes.h"
 #include "llimage.h"
+#include "llimagej2c.h"
 #include "llimageworker.h"
 #include "llworkerthread.h"
+#include "message.h"
 
 #include "llagent.h"
 #include "lltexturecache.h"
@@ -446,6 +448,7 @@ LLTextureFetchWorker::~LLTextureFetchWorker()
 	mFormattedImage = NULL;
 	clearPackets();
 	unlockWorkMutex();
+	mFetcher->removeFromHTTPQueue(mID);
 }
 
 void LLTextureFetchWorker::clearPackets()
@@ -819,6 +822,13 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			if (mFormattedImage.notNull())
 			{
 				cur_size = mFormattedImage->getDataSize(); // amount of data we already have
+				if (mFormattedImage->getDiscardLevel() == 0)
+				{
+					// We already have all the data, just decode it
+					mLoadedDiscard = mFormattedImage->getDiscardLevel();
+					mState = DECODE_IMAGE;
+					return false;
+				}
 			}
 			mRequestedSize = mDesiredSize;
 			mRequestedDiscard = mDesiredDiscard;
@@ -869,24 +879,16 @@ bool LLTextureFetchWorker::doWork(S32 param)
  				llinfos << "HTTP GET failed for: " << mUrl
 						<< " Status: " << mGetStatus << " Reason: '" << mGetReason << "'"
 						<< " Attempt:" << mHTTPFailCount+1 << "/" << max_attempts << llendl;
-				if (cur_size == 0)
+				++mHTTPFailCount;
+				if (mHTTPFailCount >= max_attempts)
 				{
-					++mHTTPFailCount;
-					if (mHTTPFailCount >= max_attempts)
-					{
-						resetFormattedData();
-						return true; // failed
-					}
-					else
-					{
-						mState = SEND_HTTP_REQ;
-						return false; // retry
-					}
+					resetFormattedData();
+					return true; // failed
 				}
 				else
 				{
-					mState = DECODE_IMAGE;
-					return false; // use what we have
+					mState = SEND_HTTP_REQ;
+					return false; // retry
 				}
 			}
 			

@@ -3,15 +3,15 @@
  legacy_header_height="18"
  auto_tile="true"
  can_resize="true"
- follows="left|bottom"
- height="331"
+ follows="left|top"
+ height="313"
  layout="topleft"
  min_height="120"
- min_width="300"
+ min_width="320"
  name="preview_texture"
  help_topic="preview_texture"
- width="300">
-    <floater.string
+ width="320">
+   <floater.string
      name="Title">
         Texture: [NAME]
     </floater.string>
@@ -43,72 +43,38 @@
      max_length="127"
      name="desc"
      width="190" />
-    <button
-     follows="left|bottom"
-     height="22"
-     label="OK"
-     layout="topleft"
-     left="80"
-     name="Keep"
-     top="302"
-     width="100" />
-    <button
-     follows="left|bottom"
-     height="22"
-     label="Cancel"
-     layout="topleft"
-     left_pad="5"
-     name="Discard"
-     top_delta="0"
-     width="100" />
-    <button
-     follows="left|bottom"
-     height="22"
-     label="Save As"
-     layout="topleft"
-     left_pad="5"
-     name="save_tex_btn"
-     top_delta="0"
-     width="100" />
     <text
      type="string"
+     halign="right"
      length="1"
-     follows="left|bottom"
+     follows="right|bottom"
      height="16"
      layout="topleft"
-     left="13"
+     left="110"
      name="dimensions"
-     top="309"
-     width="303">
+     top="255"
+     width="200">
         [WIDTH]px x [HEIGHT]px
     </text>
     <text
      type="string"
-     length="1"
-     bg_visible="false"
-     border_drop_shadow_visible="false"
-     border_visible="false"
-     top="309"
-     drop_shadow_visible="true"
-     enabled="true"
-     follows="right|bottom"
-     font="SansSerifSmall"
-     h_pad="0"
      halign="right"
-     height="14"
-     left="54"
-     mouse_opaque="true"
-     name="aspect_ratio"
-     v_pad="0"
-     width="110">
-    	Preview Aspect Ratio
+     length="1"
+     follows="right|bottom"
+     height="16"
+     layout="topleft"
+     left_delta="-110"
+     name="dimensions"
+     top_pad="5"
+     width="200">
+        Preview aspect ratio
     </text>
     <combo_box
      allow_text_entry="true" 
-     top="306" 
+     top_delta="-3" 
      follows="right|bottom" 
-     height="20"
-     left="176"
+     height="23"
+     left_pad="10"
      max_chars="20"
      mouse_opaque="true"
      enabled="true"
@@ -140,4 +106,31 @@
 		2:1
 	</combo_item>
 	</combo_box>
+    <button
+     follows="right|bottom"
+     height="22"
+     label="OK"
+     layout="topleft"
+     left="6"
+     name="keep"
+     top_pad="5"
+     width="100" />
+    <button
+     follows="right|bottom"
+     height="22"
+     label="Cancel"
+     layout="topleft"
+     left_pad="5"
+     name="discard"
+     top_delta="0"
+     width="100" />
+    <button
+     follows="right|bottom"
+     height="22"
+     label="Save As"
+     layout="topleft"
+     left_pad="5"
+     name="save_tex_btn"
+     top_delta="0"
+     width="100" />
 </floater>

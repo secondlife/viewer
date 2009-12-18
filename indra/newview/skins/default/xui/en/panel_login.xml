@@ -33,21 +33,31 @@ name="login_html"
 start_url=""
 top="0"
 height="600"
-     width="996" />
-<panel
+     width="980" />
+<layout_stack
 follows="left|bottom|right"
 name="login_widgets"
 layout="topleft"
+orientation="horizontal"
 top="519"
 width="996"
-     height="80">
+height="80">
+<layout_panel
+auto_resize="false"
+follows="left|bottom"
+name="login"
+layout="topleft"
+width="695"
+min_width="695"
+user_resize="false"
+height="80">
 <text
 follows="left|bottom"
 font="SansSerifSmall"
 height="16"
-left="20"
 name="first_name_text"
 top="20"
+left="20"
 width="150">
 First name:
 </text>
@@ -145,7 +155,7 @@ name="Typeregionname"   value="" />
 <combo_box
 allow_text_entry="true"
 font="SansSerifSmall"
-   follows="left|bottom"
+   follows="left|right|bottom"
    height="23"
 layout="topleft"
 top_pad="2"
@@ -164,14 +174,20 @@ width="135"
   name="connect_btn"
   top="35"
   width="90" />
- <text
+</layout_panel>
+<layout_panel
+follows="right|bottom"
+name="links"
+width="200"
+min_width="200"
+user_resize="false"
+height="80">
+   <text
 follows="right|bottom"
 font="SansSerifSmall"
-text_color="EmphasisColor"
 halign="right"
 height="16"
 top="12"
-left_pad="5"
 right="-10"
 name="create_new_account_text"
   width="180">
@@ -183,7 +199,9 @@ font="SansSerifSmall"
 text_color="EmphasisColor"
 halign="right"
 height="16"
-name="forgot_password_text"    top_pad="12"
+name="forgot_password_text"
+top_pad="12"
+right="-10"
   width="180">
        Forgot your name or password?
 </text>
@@ -195,6 +213,7 @@ halign="right"
 height="16"
 name="login_help"
 top_pad="2"
+right="-10"
     width="180">
        Need help logging in?   </text>
 <!--  <text
@@ -208,5 +227,6 @@ top_pad="2"
     word_wrap="true">
        [VERSION]
    </text>-->
-</panel>
+   </layout_panel>
+</layout_stack>
 </panel>

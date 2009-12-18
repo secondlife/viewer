@@ -93,7 +93,7 @@
 
 // Globals
 LLFloaterTools *gFloaterTools = NULL;
-
+bool LLFloaterTools::sShowObjectCost = true;
 
 const std::string PANEL_NAMES[LLFloaterTools::PANEL_COUNT] =
 {
@@ -286,6 +286,8 @@ BOOL	LLFloaterTools::postBuild()
 	mStatusText["grab"] = getString("status_grab");
 	mStatusText["place"] = getString("status_place");
 	mStatusText["selectland"] = getString("status_selectland");
+
+	sShowObjectCost = gSavedSettings.getBOOL("ShowObjectRenderingCost");
 	
 	return TRUE;
 }
@@ -425,16 +427,19 @@ void LLFloaterTools::refresh()
 	childSetTextArg("prim_count", "[COUNT]", prim_count_string);
 
 	// calculate selection rendering cost
-	std::string prim_cost_string;
-	LLResMgr::getInstance()->getIntegerString(prim_cost_string, calcRenderCost());
-	childSetTextArg("RenderingCost", "[COUNT]", prim_cost_string);
+	if (sShowObjectCost)
+	{
+		std::string prim_cost_string;
+		LLResMgr::getInstance()->getIntegerString(prim_cost_string, calcRenderCost());
+		childSetTextArg("RenderingCost", "[COUNT]", prim_cost_string);
+	}
 
 
 	// disable the object and prim counts if nothing selected
 	bool have_selection = ! LLSelectMgr::getInstance()->getSelection()->isEmpty();
 	childSetEnabled("obj_count", have_selection);
 	childSetEnabled("prim_count", have_selection);
-	childSetEnabled("RenderingCost", have_selection);
+	childSetEnabled("RenderingCost", have_selection && sShowObjectCost);
 
 	// Refresh child tabs
 	mPanelPermissions->refresh();
@@ -566,7 +571,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	mBtnEdit	->setToggleState( edit_visible );
 	mRadioGroupEdit->setVisible( edit_visible );
 	bool linked_parts = gSavedSettings.getBOOL("EditLinkedParts");
-	childSetVisible("RenderingCost", !linked_parts && (edit_visible || focus_visible || move_visible));
+	childSetVisible("RenderingCost", !linked_parts && (edit_visible || focus_visible || move_visible) && sShowObjectCost);
 
 	if (mCheckSelectIndividual)
 	{

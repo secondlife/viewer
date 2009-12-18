@@ -52,7 +52,13 @@ public:
 		STATE_CONNECTED
 	} EState;
 
-	typedef boost::signals2::signal<void(const EState& old_state, const EState& new_state)> state_changed_signal_t;
+	typedef enum e_voice_channel_direction
+	{
+		INCOMING_CALL,
+		OUTGOING_CALL
+	} EDirection;
+
+	typedef boost::signals2::signal<void(const EState& old_state, const EState& new_state, const EDirection& direction)> state_changed_signal_t;
 
 	// on current channel changed signal
 	typedef boost::function<void(const LLUUID& session_id)> channel_changed_callback_t;
@@ -87,6 +93,9 @@ public:
 	void updateSessionID(const LLUUID& new_session_id);
 	const LLSD& getNotifyArgs() { return mNotifyArgs; }
 
+	void setCallDirection(EDirection direction) {mCallDirection = direction;}
+	EDirection getCallDirection() {return mCallDirection;}
+
 	static LLVoiceChannel* getChannelByID(const LLUUID& session_id);
 	static LLVoiceChannel* getChannelByURI(std::string uri);
 	static LLVoiceChannel* getCurrentVoiceChannel() { return sCurrentVoiceChannel; }
@@ -102,6 +111,9 @@ protected:
 	 */
 	void doSetState(const EState& state);
 	void setURI(std::string uri);
+
+	// there can be two directions ICOMING and OUTGOING
+	EDirection mCallDirection;
 
 	std::string	mURI;
 	std::string	mCredentials;
@@ -174,9 +186,6 @@ public:
 	/*virtual*/ void getChannelInfo();
 
 	void setSessionHandle(const std::string& handle, const std::string &inURI);
-
-	// returns TRUE if call is incoming and FALSE otherwise
-	BOOL isIncomingCall() { return mReceivedCall; }
 
 protected:
 	virtual void setState(EState state);

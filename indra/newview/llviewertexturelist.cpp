@@ -588,7 +588,7 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	F32 total_max_time = max_time;
 	max_time -= updateImagesFetchTextures(max_time);
 	
-	max_time = llmax(max_time, total_max_time*.25f); // at least 25% of max_time
+	max_time = llmax(max_time, total_max_time*.50f); // at least 50% of max_time
 	max_time -= updateImagesCreateTextures(max_time);
 	
 	if (!mDirtyTextureList.empty())

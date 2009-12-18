@@ -98,8 +98,15 @@ void LLDockableFloater::toggleInstance(const LLSD& sdname)
 	else if (instance != NULL)
 	{
 		instance->setMinimized(FALSE);
-		instance->setVisible(TRUE);
-		gFloaterView->bringToFront(instance);
+		if (instance->getVisible())
+		{
+			instance->setVisible(FALSE);
+		}
+		else
+		{
+			instance->setVisible(TRUE);
+			gFloaterView->bringToFront(instance);
+		}
 	}
 }
 

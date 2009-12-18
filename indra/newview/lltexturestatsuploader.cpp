@@ -34,6 +34,8 @@
 
 #include "lltexturestatsuploader.h"
 
+#include "llhttpclient.h"
+
 LLTextureStatsUploader::LLTextureStatsUploader()
 {
 }

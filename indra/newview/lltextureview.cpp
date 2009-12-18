@@ -494,7 +494,7 @@ void LLGLTexMemBar::draw()
 #endif
 	//----------------------------------------------------------------------------
 
-	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d IW:%d RAW:%d HTP:%d",
+	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d IW:%d RAW:%d HTP:%d CRE:%d",
 					gTextureList.getNumImages(),
 					LLAppViewer::getTextureFetch()->getNumRequests(), LLAppViewer::getTextureFetch()->getNumDeletes(),
 					LLAppViewer::getTextureFetch()->mPacketCount, LLAppViewer::getTextureFetch()->mBadPacketCount, 
@@ -502,7 +502,8 @@ void LLGLTexMemBar::draw()
 					LLLFSThread::sLocal->getPending(),
 					LLAppViewer::getImageDecodeThread()->getPending(), 
 					LLImageRaw::sRawImageCount,
-					LLAppViewer::getTextureFetch()->getNumHTTPRequests());
+					LLAppViewer::getTextureFetch()->getNumHTTPRequests(),
+					gTextureList.mCreateTextureList.size());
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, h_offset + line_height*2,
 									 text_color, LLFontGL::LEFT, LLFontGL::TOP);

@@ -55,10 +55,13 @@ Minimum requirements:
           is required.  If you are running a 64-bit Linux distribution then
           you will need its 32-bit compatibility environment installed, but
           this configuration is not currently supported.
+    * PulseAudio or ALSA Linux system sound software.  A recent PulseAudio
+      is the recommended configuration; see README-linux-voice.txt for more
+      information.
     * Video/Graphics Card:
           o nVidia GeForce 2, GeForce 4mx, or better (recommend one of the
             following: 6700, 6800, 7600, 7800, 7900, 8400, 8500, 8600,
-            8800, Go 7400, Go 7600, Go 7800, Go 7900)
+            8800, Go 7400, Go 7600, Go 7800, Go 7900, +)
           o OR ATI Radeon 8500, 9250, or better
           (nVidia cards are recommended for the Linux client)
 

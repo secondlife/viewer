@@ -31,8 +31,14 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llagent.h"
+
 #include "lltexlayer.h"
+
+#include "llagent.h"
+#include "llimagej2c.h"
+#include "llimagetga.h"
+#include "llvfile.h"
+#include "llvfs.h"
 #include "llviewerstats.h"
 #include "llviewerregion.h"
 #include "llvoavatar.h"

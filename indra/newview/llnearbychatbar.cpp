@@ -32,6 +32,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "message.h"
+
 #include "llfloaterreg.h"
 #include "lltrans.h"
 

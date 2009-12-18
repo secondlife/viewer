@@ -225,6 +225,11 @@ mGroupID(LLUUID::null)
 	}
 }
 
+LLGroupListItem::~LLGroupListItem()
+{
+	LLGroupMgr::getInstance()->removeObserver(this);
+}
+
 //virtual
 BOOL  LLGroupListItem::postBuild()
 {
@@ -277,8 +282,13 @@ void LLGroupListItem::setName(const std::string& name, const std::string& highli
 
 void LLGroupListItem::setGroupID(const LLUUID& group_id)
 {
+	LLGroupMgr::getInstance()->removeObserver(this);
+	
+	mID = group_id;
 	mGroupID = group_id;
 	setActive(group_id == gAgent.getGroupID());
+
+	LLGroupMgr::getInstance()->addObserver(this);
 }
 
 void LLGroupListItem::setGroupIconID(const LLUUID& group_icon_id)
@@ -335,6 +345,13 @@ void LLGroupListItem::onInfoBtnClick()
 void LLGroupListItem::onProfileBtnClick()
 {
 	LLGroupActions::show(mGroupID);
+}
+
+void LLGroupListItem::changed(LLGroupChange gc)
+{
+	LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(mID);
+	if(group_data)
+		setGroupIconID(group_data->mInsigniaID);
 }
 
 //EOF

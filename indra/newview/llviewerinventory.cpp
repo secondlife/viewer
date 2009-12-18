@@ -43,7 +43,6 @@
 #include "llviewercontrol.h"
 #include "llconsole.h"
 #include "llinventorymodel.h"
-#include "llnotify.h"
 #include "llgesturemgr.h"
 
 #include "llinventorybridge.h"

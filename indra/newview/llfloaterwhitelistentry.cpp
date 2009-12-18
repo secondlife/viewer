@@ -82,6 +82,7 @@ void LLFloaterWhiteListEntry::onBtnOK( void* userdata )
 		std::string white_list_item = self->mWhiteListEdit->getText();
 
 		panel->addWhiteListEntry( white_list_item );
+		panel->updateWhitelistEnableStatus();
 	};
 	
 	self->closeFloater();	

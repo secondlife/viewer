@@ -294,7 +294,9 @@ public:
 	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type);
 
 	virtual BOOL renameItem(const std::string& new_name);
+
 	virtual BOOL removeItem();
+	BOOL removeSystemFolder();
 	bool removeItemResponse(const LLSD& notification, const LLSD& response);
 
 	virtual void pasteFromClipboard();
@@ -341,6 +343,7 @@ protected:
 	static void createNewEyes(void* user_data);
 
 	BOOL checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& typeToCheck);
+	BOOL areAnyContentsWorn(LLInventoryModel* model) const;
 
 	void modifyOutfit(BOOL append);
 	void determineFolderType();

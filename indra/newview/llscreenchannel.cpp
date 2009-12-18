@@ -151,21 +151,49 @@ LLScreenChannel::~LLScreenChannel()
 	
 }
 
+std::list<LLToast*> LLScreenChannel::findToasts(const Matcher& matcher)
+{
+	std::list<LLToast*> res;
+
+	// collect stored toasts
+	for (std::vector<ToastElem>::iterator it = mStoredToastList.begin(); it
+			!= mStoredToastList.end(); it++)
+	{
+		if (matcher.matches(it->toast->getNotification()))
+		{
+			res.push_back(it->toast);
+		}
+	}
+
+	// collect displayed toasts
+	for (std::vector<ToastElem>::iterator it = mToastList.begin(); it
+			!= mToastList.end(); it++)
+	{
+		if (matcher.matches(it->toast->getNotification()))
+		{
+			res.push_back(it->toast);
+		}
+	}
+
+	return res;
+}
+
 //--------------------------------------------------------------------------
 void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
 {
 	S32 right_delta = old_world_rect.mRight - new_world_rect.mRight;
 	LLRect this_rect = getRect();
 
-	this_rect.mTop = (S32) (new_world_rect.getHeight() * getHeightRatio());
 	switch(mChannelAlignment)
 	{
 	case CA_LEFT :
+		this_rect.mTop = (S32) (new_world_rect.getHeight() * getHeightRatio());
 		break;
 	case CA_CENTRE :
-		this_rect.setCenterAndSize(new_world_rect.getWidth() / 2, new_world_rect.getHeight() / 2, this_rect.getWidth(), this_rect.getHeight());
-		break;
+		LLScreenChannelBase::updatePositionAndSize(old_world_rect, new_world_rect);
+		return;
 	case CA_RIGHT :
+		this_rect.mTop = (S32) (new_world_rect.getHeight() * getHeightRatio());
 		this_rect.mLeft -= right_delta;
 		this_rect.mRight -= right_delta;
 	}
@@ -372,6 +400,16 @@ void LLScreenChannel::killToastByNotificationID(LLUUID id)
 		// send signal to a listener to let him perform some action on toast rejecting
 		mRejectToastSignal(toast->getNotificationID());
 		deleteToast(toast);
+	}
+}
+
+void LLScreenChannel::killMatchedToasts(const Matcher& matcher)
+{
+	std::list<LLToast*> to_delete = findToasts(matcher);
+	for (std::list<LLToast*>::iterator it = to_delete.begin(); it
+			!= to_delete.end(); it++)
+	{
+		killToastByNotificationID((*it)-> getNotificationID());
 	}
 }
 
@@ -776,17 +814,19 @@ void LLScreenChannel::updateShowToastsState()
 		return;
 	}
 
-	// *TODO: mantipov: what we have to do with derived classes: LLNotificationWellWindow & LLIMWelWindow?
-	// See EXT-3081 for details
 	// for Message Well floater showed in a docked state - adjust channel's height
-	if(dynamic_cast<LLSysWellWindow*>(floater) || dynamic_cast<LLIMFloater*>(floater))
+	if(dynamic_cast<LLSysWellWindow*>(floater) || dynamic_cast<LLIMFloater*>(floater)
+		|| dynamic_cast<LLScriptFloater*>(floater))
 	{
 		S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
 		LLRect this_rect = getRect();
 		if(floater->getVisible() && floater->isDocked())
 		{
 			channel_bottom += floater->getRect().getHeight();
-			channel_bottom += floater->getDockControl()->getTongueHeight();
+			if(floater->getDockControl())
+			{
+				channel_bottom += floater->getDockControl()->getTongueHeight();
+			}
 		}
 
 		if(channel_bottom != this_rect.mBottom)

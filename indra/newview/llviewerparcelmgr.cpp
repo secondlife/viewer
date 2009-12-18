@@ -54,7 +54,6 @@
 #include "llfloatergroups.h"
 #include "llfloatersellland.h"
 #include "llfloatertools.h"
-#include "llnotify.h"
 #include "llparcelselection.h"
 #include "llresmgr.h"
 #include "llsdutil.h"

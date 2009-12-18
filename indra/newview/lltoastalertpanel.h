@@ -30,10 +30,6 @@
  * $/LicenseInfo$
  */
 
-// *NOTE: this module is a copy-paste of llui/llalertdialog.h
-// Can we re-implement this as a subclass of LLAlertDialog and
-// avoid all this code duplication? It already caused EXT-2232.
-
 #ifndef LL_TOASTALERTPANEL_H
 #define LL_TOASTALERTPANEL_H
 
@@ -41,11 +37,9 @@
 #include "llfloater.h"
 #include "llui.h"
 #include "llnotificationptr.h"
-#include "llalertdialog.h"
 
 class LLButton;
 class LLCheckBoxCtrl;
-class LLAlertDialogTemplate;
 class LLLineEditor;
 
 /**
@@ -62,7 +56,16 @@ class LLToastAlertPanel
 public:
 	typedef bool (*display_callback_t)(S32 modal);
 
-	static void setURLLoader(LLAlertURLLoader* loader)
+	class URLLoader
+	{
+	public:
+		virtual void load(const std::string& url, bool force_open_externally = 0) = 0;
+		virtual ~URLLoader()
+		{
+		}
+	};
+
+	static void setURLLoader(URLLoader* loader)
 	{
 		sURLLoader = loader;
 	}
@@ -95,7 +98,7 @@ private:
 	BOOL hasTitleBar() const;
 
 private:
-	static LLAlertURLLoader* sURLLoader;
+	static URLLoader* sURLLoader;
 	static LLControlGroup* sSettings;
 
 	struct ButtonData

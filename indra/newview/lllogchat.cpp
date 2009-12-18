@@ -39,6 +39,8 @@
 #include "lltrans.h"
 #include "llviewercontrol.h"
 
+#include "llinstantmessage.h"
+
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/regex.hpp>

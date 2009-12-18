@@ -38,6 +38,7 @@
 #include "llhttpclient.h"
 #include "llpanel.h"
 
+class LLMessageSystem;
 class LLRemoteParcelInfoObserver;
 
 class LLRemoteParcelRequestResponder : public LLHTTPClient::Responder

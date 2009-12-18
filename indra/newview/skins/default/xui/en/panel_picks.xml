@@ -20,12 +20,9 @@
   height="535"
   layout="topleft"
   left="6"
-  name="empty_picks_panel_text"
+  name="picks_panel_text"
   top="10"
-  visible="false" 
-  width="313">
-   There are no picks/classifieds here
- </text>
+  width="313"/>
  <accordion
   fit_parent="true" 
   follows="all"

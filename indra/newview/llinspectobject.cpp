@@ -416,18 +416,6 @@ void LLInspectObject::updateDescription(LLSelectNode* nodep)
 
 	LLTextBox* textbox = getChild<LLTextBox>("object_description");
 	textbox->setValue(desc);
-
-	// Truncate description text to fit in widget
-	// *HACK: OMG, use lower-left corner to truncate text
-	// Don't round the position, we want the left of the character
-	S32 corner_index = textbox->getDocIndexFromLocalCoord( 0, 0, FALSE);
-	LLWString desc_wide = textbox->getWText();
-	// index == length if position is past last character
-	if (corner_index < (S32)desc_wide.length())
-	{
-		desc_wide = desc_wide.substr(0, corner_index);
-		textbox->setWText(desc_wide);
-	}
 }
 
 void LLInspectObject::updateMediaCurrentURL()

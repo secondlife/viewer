@@ -49,7 +49,6 @@
 // PLEASE please use these "constants" when building your own buttons.
 // They are loaded from settings.xml at run time.
 extern S32	LLBUTTON_H_PAD;
-extern S32	LLBUTTON_V_PAD;
 extern S32	BTN_HEIGHT_SMALL;
 extern S32	BTN_HEIGHT;
 
@@ -105,6 +104,7 @@ public:
 		// layout
 		Optional<S32>			pad_right;
 		Optional<S32>			pad_left;
+		Optional<S32>			pad_bottom; // under text label
 		
 		// callbacks
 		Optional<CommitCallbackParam>	click_callback, // alias -> commit_callback
@@ -310,6 +310,7 @@ private:
 	LLFontGL::HAlign			mHAlign;
 	S32							mLeftHPad;
 	S32							mRightHPad;
+	S32							mBottomVPad;	// under text label
 
 	F32							mHoverGlowStrength;
 	F32							mCurGlowStrength;

@@ -51,6 +51,7 @@
 #include "llkeyboard.h"
 #include "lltoolmgr.h"
 #include "llvovolume.h"
+#include "llhelp.h"
 
 //
 // LLViewerMediaFocus
@@ -144,9 +145,19 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 		}
 		
 		mFocusedImplID = LLUUID::null;
-		mFocusedObjectID = LLUUID::null;
-		mFocusedObjectFace = 0;
+		if (objectp.notNull())
+		{
+			// Still record the focused object...it may mean we need to load media data.
+			// This will aid us in determining this object is "important enough"
+			mFocusedObjectID = objectp->getID();
+			mFocusedObjectFace = face;
+		}
+		else {
+			mFocusedObjectID = LLUUID::null;
+			mFocusedObjectFace = 0;
+		}
 	}
+	
 }
 
 void LLViewerMediaFocus::clearFocus()
@@ -292,7 +303,7 @@ BOOL LLViewerMediaFocus::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 	{
 		media_impl->handleKeyHere(key, mask);
 
-		if (key == KEY_ESCAPE)
+		if (KEY_ESCAPE == key)
 		{
 			// Reset camera zoom in this case.
 			if(mFocusedImplID.notNull())
@@ -304,6 +315,15 @@ BOOL LLViewerMediaFocus::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 			}
 			
 			clearFocus();
+		}
+		
+		if ( KEY_F1 == key && LLUI::sHelpImpl && mMediaControls.get())
+		{
+			std::string help_topic;
+			if (mMediaControls.get()->findHelpTopic(help_topic))
+			{
+				LLUI::sHelpImpl->showTopic(help_topic);
+			}
 		}
 	}
 	
@@ -336,7 +356,7 @@ BOOL LLViewerMediaFocus::handleScrollWheel(S32 x, S32 y, S32 clicks)
 
 void LLViewerMediaFocus::update()
 {
-	if(mFocusedImplID.notNull() || mFocusedObjectID.notNull())
+	if(mFocusedImplID.notNull())
 	{
 		// We have a focused impl/face.
 		if(!getFocus())

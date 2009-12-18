@@ -50,6 +50,7 @@
 #include "tests/networkio.h"
 #include "tests/commtest.h"
 #include "tests/wrapllerrs.h"
+#include "message.h"
 #include "stringize.h"
 
 #if defined(LL_WINDOWS)

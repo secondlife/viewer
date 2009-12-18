@@ -40,6 +40,7 @@
 #include "llcombobox.h"
 #include "llfocusmgr.h"
 #include "lliconctrl.h"
+#include "llsliderctrl.h"
 #include "llviewercontrol.h"
 #include "llvoiceclient.h"
 #include "llvoicechannel.h"
@@ -60,6 +61,9 @@ LLPanelVoiceDeviceSettings::LLPanelVoiceDeviceSettings()
 	mOutputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 	mDevicesUpdated = FALSE;
 
+	// grab "live" mic volume level
+	mMicVolume = gSavedSettings.getF32("AudioLevelMic");
+
 	// ask for new device enumeration
 	// now do this in onOpen() instead...
 	//gVoiceClient->refreshDeviceLists();
@@ -71,6 +75,10 @@ LLPanelVoiceDeviceSettings::~LLPanelVoiceDeviceSettings()
 
 BOOL LLPanelVoiceDeviceSettings::postBuild()
 {
+	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
+	// set mic volume tuning slider based on last mic volume setting
+	volume_slider->setValue(mMicVolume);
+
 	childSetCommitCallback("voice_input_device", onCommitInputDevice, this);
 	childSetCommitCallback("voice_output_device", onCommitOutputDevice, this);
 	
@@ -149,6 +157,15 @@ void LLPanelVoiceDeviceSettings::apply()
 		gSavedSettings.setString("VoiceOutputAudioDevice", s);
 		mOutputDevice = s;
 	}
+
+	// assume we are being destroyed by closing our embedding window
+	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
+	if(volume_slider)
+	{
+		F32 slider_value = (F32)volume_slider->getValue().asReal();
+		gSavedSettings.setF32("AudioLevelMic", slider_value);
+		mMicVolume = slider_value;
+	}
 }
 
 void LLPanelVoiceDeviceSettings::cancel()
@@ -161,12 +178,22 @@ void LLPanelVoiceDeviceSettings::cancel()
 
 	if(mCtrlOutputDevices)
 		mCtrlOutputDevices->setSimple(mOutputDevice);
+
+	gSavedSettings.setF32("AudioLevelMic", mMicVolume);
+	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
+	if(volume_slider)
+	{
+		volume_slider->setValue(mMicVolume);
+	}
 }
 
 void LLPanelVoiceDeviceSettings::refresh()
 {
-	// update the live input level display
-	gVoiceClient->tuningSetMicVolume();
+	//grab current volume
+	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
+	// set mic volume tuning slider based on last mic volume setting
+	F32 current_volume = (F32)volume_slider->getValue().asReal();
+	gVoiceClient->tuningSetMicVolume(current_volume);
 
 	// Fill in popup menus
 	mCtrlInputDevices = getChild<LLComboBox>("voice_input_device");
@@ -236,6 +263,7 @@ void LLPanelVoiceDeviceSettings::initialize()
 {
 	mInputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
 	mOutputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
+	mMicVolume = gSavedSettings.getF32("AudioLevelMic");
 	mDevicesUpdated = FALSE;
 
 	// ask for new device enumeration

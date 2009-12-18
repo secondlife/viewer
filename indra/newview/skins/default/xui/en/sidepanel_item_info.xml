@@ -510,4 +510,22 @@ top_pad="10"
 			Price: L$
 	    </text-->
 	</panel>
+    <panel
+		 height="25"
+		 layout="bottomright"
+		 help_topic="button_tab"
+		 name="button_panel"
+		 left="5"
+		 bottom="5"
+		 width="313">
+	    <button
+		     follows="bottom|right"
+		     height="25"
+		     label="Cancel"
+		     layout="topleft"
+		     name="cancel_btn"
+		     right="-1"
+		     left_pad="10"
+		     width="100" />
+	</panel>
 </panel>

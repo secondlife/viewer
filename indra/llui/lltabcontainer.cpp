@@ -906,7 +906,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	
 	if (placeholder)
 	{
-		btn_rect.translate(0, -LLBUTTON_V_PAD-2);
+		btn_rect.translate(0, -3); // *TODO: make configurable
 		LLTextBox::Params params;
 		params.name(trimmed_label);
 		params.rect(btn_rect);

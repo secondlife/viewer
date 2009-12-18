@@ -51,16 +51,13 @@
 #include "llsdserialize.h"
 
 #include "v4math.h"
-#include "llviewerdisplay.h"
 #include "llviewercontrol.h"
-#include "llviewerwindow.h"
 #include "lldrawpoolwater.h"
 #include "llagent.h"
 #include "llviewerregion.h"
 
 #include "llwlparammanager.h"
 #include "llwaterparamset.h"
-#include "llpostprocess.h"
 #include "llfloaterwater.h"
 
 #include "curl/curl.h"

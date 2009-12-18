@@ -40,7 +40,6 @@
 
 // viewer includes
 #include "llagent.h"	// for gAgent.inPrelude()
-#include "llnotify.h"
 #include "llviewercontrol.h"
 #include "llui.h"
 #include "llappviewer.h"

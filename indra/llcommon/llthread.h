@@ -34,6 +34,7 @@
 #define LL_LLTHREAD_H
 
 #include "llapp.h"
+#include "llapr.h"
 #include "apr_thread_cond.h"
 
 class LLThread;

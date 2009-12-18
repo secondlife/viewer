@@ -49,6 +49,7 @@
 #include "lllogchat.h"
 #include "llpanelimcontrolpanel.h"
 #include "llscreenchannel.h"
+#include "llsyswellwindow.h"
 #include "lltrans.h"
 #include "llchathistory.h"
 #include "llviewerwindow.h"
@@ -339,6 +340,29 @@ void LLIMFloater::onSlide()
 //static
 LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 {
+	if (!gIMMgr->hasSession(session_id)) return NULL;
+
+	// we should make sure all related chiclets are in place when the session is a voice call
+	// chiclets come firts, then comes IM window
+	if (gIMMgr->isVoiceCall(session_id))
+	{
+		LLIMModel* im_model = LLIMModel::getInstance();
+		LLBottomTray* b_tray = LLBottomTray::getInstance();
+		
+		//*TODO hide that into Bottom tray
+		if (!b_tray->getChicletPanel()->findChiclet<LLChiclet>(session_id))
+		{
+			LLIMChiclet* chiclet = b_tray->createIMChiclet(session_id);
+			if(chiclet)
+			{
+				chiclet->setIMSessionName(im_model->getName(session_id));
+				chiclet->setOtherParticipantId(im_model->getOtherParticipantID(session_id));
+			}
+		}
+
+		LLIMWellWindow::getInstance()->addIMRow(session_id);
+	}
+		
 	bool not_existed = true;
 
 	if(isChatMultiTab())
@@ -469,7 +493,7 @@ bool LLIMFloater::toggle(const LLUUID& session_id)
 	if(!isChatMultiTab())
 	{
 		LLIMFloater* floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
-		if (floater && floater->getVisible() && floater->isDocked())
+		if (floater && floater->getVisible())
 		{
 			// clicking on chiclet to close floater just hides it to maintain existing
 			// scroll/text entry state
@@ -946,4 +970,21 @@ void LLIMFloater::initIMFloater()
 	// This is called on viewer start up
 	// init chat window type before user changed it in preferences
 	isChatMultiTab();
+}
+
+//static
+void LLIMFloater::sRemoveTypingIndicator(const LLSD& data)
+{
+	LLUUID session_id = data["session_id"];
+	if (session_id.isNull()) return;
+
+	LLUUID from_id = data["from_id"];
+	if (gAgentID == from_id || LLUUID::null == from_id) return;
+
+	LLIMFloater* floater = LLIMFloater::findInstance(session_id);
+	if (!floater) return;
+
+	if (IM_NOTHING_SPECIAL != floater->mDialog) return;
+
+	floater->removeTypingIndicator();
 }

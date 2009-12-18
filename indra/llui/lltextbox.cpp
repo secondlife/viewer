@@ -134,12 +134,12 @@ void LLTextBox::setClickedCallback( boost::function<void (void*)> cb, void* user
 
 S32 LLTextBox::getTextPixelWidth()
 {
-	return getContentsRect().getWidth();
+	return getTextBoundingRect().getWidth();
 }
 
 S32 LLTextBox::getTextPixelHeight()
 {
-	return getContentsRect().getHeight();
+	return getTextBoundingRect().getHeight();
 }
 
 

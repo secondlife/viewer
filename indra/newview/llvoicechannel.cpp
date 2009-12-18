@@ -122,6 +122,7 @@ LLVoiceChannel::LLVoiceChannel(const LLUUID& session_id, const std::string& sess
 	mSessionID(session_id), 
 	mState(STATE_NO_CHANNEL_INFO), 
 	mSessionName(session_name),
+	mCallDirection(OUTGOING_CALL),
 	mIgnoreNextSessionLeave(FALSE)
 {
 	mNotifyArgs["VOICE_CHANNEL_NAME"] = mSessionName;
@@ -228,7 +229,6 @@ void LLVoiceChannel::handleStatusChange(EStatusType type)
 		{
 			// if forceably removed from channel
 			// update the UI and revert to default channel
-			LLNotificationsUtil::add("VoiceChannelDisconnected", mNotifyArgs);
 			deactivate();
 		}
 		mIgnoreNextSessionLeave = FALSE;
@@ -405,7 +405,7 @@ void LLVoiceChannel::doSetState(const EState& new_state)
 	EState old_state = mState;
 	mState = new_state;
 	if (!mStateChangedCallback.empty())
-		mStateChangedCallback(old_state, mState);
+		mStateChangedCallback(old_state, mState, mCallDirection);
 }
 
 //static
@@ -740,6 +740,7 @@ void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
 	case STATUS_LEFT_CHANNEL:
 		if (callStarted() && !mIgnoreNextSessionLeave && !sSuspended)
 		{
+			// *TODO: use it to show DECLINE voice notification
 			if (mState == STATE_RINGING)
 			{
 				// other user declined call
@@ -747,8 +748,7 @@ void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
 			}
 			else
 			{
-				// other user hung up
-				LLNotificationsUtil::add("VoiceChannelDisconnectedP2P", mNotifyArgs);
+				// other user hung up				
 			}
 			deactivate();
 		}

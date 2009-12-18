@@ -69,7 +69,29 @@ Calling [CALLEE_NAME]
      word_wrap="true">
 No Answer.  Please try again later.
     </text>
-    <text
+  <text
+   font="SansSerifLarge"
+   height="40"
+   layout="topleft"
+   left="77"
+   name="nearby"
+   top="27"
+   width="315"
+   word_wrap="true">
+    You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to Nearby Voice Chat.
+  </text>
+  <text
+   font="SansSerifLarge"
+   height="40"
+   layout="topleft"
+   left="77"
+   name="nearby_P2P"
+   top="27"
+   width="315"
+   word_wrap="true">
+    [VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to Nearby Voice Chat.
+  </text>
+  <text
      font="SansSerif"
      height="50"
      layout="topleft"
@@ -80,7 +102,7 @@ No Answer.  Please try again later.
      word_wrap="true">
 Leaving [CURRENT_CHAT].
     </text>
-    <button
+  <button
      height="24"
      label="Cancel"
      label_selected="Cancel"

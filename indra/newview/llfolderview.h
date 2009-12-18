@@ -248,6 +248,7 @@ public:
 	void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
 	void removeItemID(const LLUUID& id);
 	LLFolderViewItem* getItemByID(const LLUUID& id);
+	LLFolderViewFolder* getFolderByID(const LLUUID& id);
 	
 	bool doToSelected(LLInventoryModel* model, const LLSD& userdata);
 	

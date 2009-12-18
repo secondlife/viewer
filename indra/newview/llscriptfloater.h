@@ -169,6 +169,11 @@ protected:
 	 */
 	static void hideToastsIfNeeded();
 
+	/**
+	 * Removes chiclets new messages icon
+	 */
+	void onMouseDown();
+
 private:
 	LLToastNotifyPanel* mScriptForm;
 	LLUUID mObjectId;

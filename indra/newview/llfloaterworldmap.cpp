@@ -74,8 +74,8 @@
 #include "llmapimagetype.h"
 #include "llweb.h"
 #include "llslider.h"
+#include "message.h"
 
-#include "llglheaders.h"
 #include "llwindow.h"			// copyTextToClipboard()
 
 //---------------------------------------------------------------------------

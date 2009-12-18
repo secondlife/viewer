@@ -109,6 +109,11 @@ public:
 	 */
 	void muteAllChannels(bool mute);
 
+	/**
+	 * Kills matched toasts from specified  toast screen channel.
+	 */
+	void killToastsFromChannel(const LLUUID& channel_id, const LLScreenChannel::Matcher& matcher);
+
 private:
 
 	LLScreenChannel* createChannel(LLChannelManager::Params& p);

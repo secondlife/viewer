@@ -41,6 +41,7 @@
 #include "llfloaterurldisplay.h"
 #include "llfloaterworldmap.h"
 #include "llpanellogin.h"
+#include "llregionhandle.h"
 #include "llsidetray.h"
 #include "llslurl.h"
 #include "llstartup.h"			// gStartupState

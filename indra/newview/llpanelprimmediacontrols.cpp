@@ -57,6 +57,7 @@
 #include "llsliderctrl.h"
 #include "llstring.h"
 #include "llviewercontrol.h"
+#include "llviewerdisplay.h"
 #include "llviewerparcelmgr.h"
 #include "llviewermedia.h"
 #include "llviewermediafocus.h"
@@ -66,8 +67,11 @@
 
 #include "llfloatertools.h"  // to enable hide if build tools are up
 
+// Functions pulled from pipeline.cpp
 glh::matrix4f glh_get_current_modelview();
 glh::matrix4f glh_get_current_projection();
+// Functions pulled from llviewerdisplay.cpp
+bool get_hud_matrices(glh::matrix4f &proj, glh::matrix4f &model);
 
 // Warning: make sure these two match!
 const LLPanelPrimMediaControls::EZoomLevel LLPanelPrimMediaControls::kZoomLevels[] = { ZOOM_NONE, ZOOM_MEDIUM };
@@ -92,7 +96,7 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mTargetObjectNormal(LLVector3::zero),
 	mZoomObjectID(LLUUID::null),
 	mZoomObjectFace(0),
-	mVolumeSliderVisible(false)
+	mVolumeSliderVisible(0)
 {
 	mCommitCallbackRegistrar.add("MediaCtrl.Close",		boost::bind(&LLPanelPrimMediaControls::onClickClose, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Back",		boost::bind(&LLPanelPrimMediaControls::onClickBack, this));
@@ -112,6 +116,7 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mCommitCallbackRegistrar.add("MediaCtrl.Volume",	boost::bind(&LLPanelPrimMediaControls::onCommitVolumeSlider, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.ToggleMute",		boost::bind(&LLPanelPrimMediaControls::onToggleMute, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.ShowVolumeSlider",		boost::bind(&LLPanelPrimMediaControls::showVolumeSlider, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.HideVolumeSlider",		boost::bind(&LLPanelPrimMediaControls::hideVolumeSlider, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.SkipBack",		boost::bind(&LLPanelPrimMediaControls::onClickSkipBack, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.SkipForward",	boost::bind(&LLPanelPrimMediaControls::onClickSkipForward, this));
 	
@@ -368,8 +373,8 @@ void LLPanelPrimMediaControls::updateShape()
 			mVolumeUpCtrl->setVisible(has_focus);
 			mVolumeDownCtrl->setVisible(has_focus);
 			mVolumeCtrl->setEnabled(has_focus);
-			mVolumeSliderCtrl->setEnabled(has_focus && mVolumeSliderVisible);
-			mVolumeSliderCtrl->setVisible(has_focus && mVolumeSliderVisible);
+			mVolumeSliderCtrl->setEnabled(has_focus && mVolumeSliderVisible > 0);
+			mVolumeSliderCtrl->setVisible(has_focus && mVolumeSliderVisible > 0);
 			
 			mWhitelistIcon->setVisible(false);
 			mSecureLockIcon->setVisible(false);
@@ -564,9 +569,6 @@ void LLPanelPrimMediaControls::updateShape()
 		//
 		// Calculate position and shape of the controls
 		//
-		LLVector3 min, max;
-
-		glh::matrix4f mat = glh_get_current_projection()*glh_get_current_modelview();
 		std::vector<LLVector3>::iterator vert_it;
 		std::vector<LLVector3>::iterator vert_end;
 		std::vector<LLVector3> vect_face;
@@ -603,8 +605,18 @@ void LLPanelPrimMediaControls::updateShape()
 		vert_it = vect_face.begin();
 		vert_end = vect_face.end();
 		
-		min = LLVector3(1,1,1);
-		max = LLVector3(-1,-1,-1);
+		glh::matrix4f mat;
+		if (!is_hud) 
+		{
+			mat = glh_get_current_projection() * glh_get_current_modelview();
+		}
+		else {
+			glh::matrix4f proj, modelview;
+			if (get_hud_matrices(proj, modelview))
+				mat = proj * modelview;
+		}
+		LLVector3 min = LLVector3(1,1,1);
+		LLVector3 max = LLVector3(-1,-1,-1);
 		for(; vert_it != vert_end; ++vert_it)
 		{
 			// project silhouette vertices into screen space
@@ -633,10 +645,15 @@ void LLPanelPrimMediaControls::updateShape()
 		media_controls_rect.mRight += getRect().getWidth() - mMediaRegion->getRect().mRight;
 		
 		// keep all parts of HUD on-screen
-		media_controls_rect.intersectWith(getParent()->getLocalRect());
+		LLRect window_rect = getParent()->getLocalRect();
+		media_controls_rect.intersectWith(window_rect);
 		
-		// clamp to minimum size, keeping centered
-		media_controls_rect.setCenterAndSize(media_controls_rect.getCenterX(), media_controls_rect.getCenterY(),
+		// clamp to minimum size, keeping rect inside window
+		S32 centerX = media_controls_rect.getCenterX();
+		S32 centerY = media_controls_rect.getCenterY();
+		window_rect.stretch(-mMinWidth/2, -mMinHeight/2);
+		window_rect.clampPointToRect(centerX, centerY);
+		media_controls_rect.setCenterAndSize(centerX, centerY,
 											 llmax(mMinWidth, media_controls_rect.getWidth()), llmax(mMinHeight, media_controls_rect.getHeight()));
 		
 		setShape(media_controls_rect, true);
@@ -698,7 +715,7 @@ void LLPanelPrimMediaControls::draw()
 				setVisible(FALSE);
 
 				mClearFaceOnFade = false;
-				mVolumeSliderVisible = false;
+				mVolumeSliderVisible = 0;
 				mTargetImplID = LLUUID::null;
 				mTargetObjectID = LLUUID::null;
 				mTargetObjectFace = 0;
@@ -1251,5 +1268,11 @@ void LLPanelPrimMediaControls::onToggleMute()
 
 void LLPanelPrimMediaControls::showVolumeSlider()
 {
-	mVolumeSliderVisible = true;
+	mVolumeSliderVisible++;
+}
+
+
+void LLPanelPrimMediaControls::hideVolumeSlider()
+{
+	mVolumeSliderVisible--;
 }

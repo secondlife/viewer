@@ -35,6 +35,7 @@
 #include "llpanelplaceprofile.h"
 
 #include "llparcel.h"
+#include "message.h"
 
 #include "lliconctrl.h"
 #include "lllineeditor.h"

@@ -44,7 +44,6 @@
 #include "llnamelistctrl.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-#include "llnotify.h"
 #include "llpanelgrouproles.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"

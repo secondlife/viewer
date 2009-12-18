@@ -36,6 +36,7 @@
 
 class LLUUID;
 class LLDispatcher;
+class LLMessageSystem;
 
 
 void send_generic_message(const std::string& method,

@@ -44,7 +44,6 @@
 #include "llnotificationsutil.h"
 #include "lltextbox.h"
 
-#include "llalertdialog.h"
 #include "llinventorybridge.h"
 #include "llfloaterinventory.h"
 #include "llinventorymodel.h"
@@ -225,7 +224,6 @@ void LLFloaterOpenObject::callbackMoveInventory(S32 result, void* data)
 
 	if (result == 0)
 	{
-		LLFloaterInventory::showAgentInventory();
 		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
 		if (active_panel)
 		{

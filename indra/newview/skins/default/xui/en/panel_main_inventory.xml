@@ -17,7 +17,7 @@
      text_pad_left="14"
      follows="left|top|right"
 	height="23"
-     label="Filter"
+     label="Filter Inventory"
      layout="topleft"
      left="15"
 max_length="300"

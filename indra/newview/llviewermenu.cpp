@@ -56,6 +56,7 @@
 #include "llfloatercustomize.h"
 #include "llfloaterchatterbox.h"
 #include "llfloatergodtools.h"
+#include "llfloaterinventory.h"
 #include "llfloaterland.h"
 #include "llfloaterpay.h"
 #include "llfloaterreporter.h"
@@ -134,11 +135,12 @@ LLMenuGL		*gPopupMenuView = NULL;
 LLMenuBarGL		*gLoginMenuBarView = NULL;
 
 // Pie menus
-LLContextMenu	*gPieSelf	= NULL;
-LLContextMenu	*gPieAvatar = NULL;
-LLContextMenu	*gPieObject = NULL;
-LLContextMenu	*gPieAttachment = NULL;
-LLContextMenu	*gPieLand	= NULL;
+LLContextMenu	*gMenuAvatarSelf	= NULL;
+LLContextMenu	*gMenuAvatarOther = NULL;
+LLContextMenu	*gMenuObject = NULL;
+LLContextMenu	*gMenuAttachmentSelf = NULL;
+LLContextMenu	*gMenuAttachmentOther = NULL;
+LLContextMenu	*gMenuLand	= NULL;
 
 const std::string SAVE_INTO_INVENTORY("Save Object Back to My Inventory");
 const std::string SAVE_INTO_TASK_INVENTORY("Save Object Back to Object Contents");
@@ -146,7 +148,6 @@ const std::string SAVE_INTO_TASK_INVENTORY("Save Object Back to Object Contents"
 LLMenuGL* gAttachSubMenu = NULL;
 LLMenuGL* gDetachSubMenu = NULL;
 LLMenuGL* gTakeOffClothes = NULL;
-LLContextMenu* gPieRate = NULL;
 LLContextMenu* gAttachScreenPieMenu = NULL;
 LLContextMenu* gAttachPieMenu = NULL;
 LLContextMenu* gAttachBodyPartPieMenus[8];
@@ -375,25 +376,31 @@ void init_menus()
 	gMenuHolder->addChild( gPopupMenuView );
 
 	///
-	/// Pie menus
+	/// Context menus
 	///
-	gPieSelf = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_self.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	const widget_registry_t& registry =
+		LLViewerMenuHolderGL::child_registry_t::instance();
+	gMenuAvatarSelf = LLUICtrlFactory::createFromFile<LLContextMenu>(
+		"menu_avatar_self.xml", gMenuHolder, registry);
+	gMenuAvatarOther = LLUICtrlFactory::createFromFile<LLContextMenu>(
+		"menu_avatar_other.xml", gMenuHolder, registry);
 
-	// TomY TODO: what shall we do about these?
 	gDetachScreenPieMenu = gMenuHolder->getChild<LLContextMenu>("Object Detach HUD", true);
 	gDetachPieMenu = gMenuHolder->getChild<LLContextMenu>("Object Detach", true);
 
-	gPieAvatar = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_avatar.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-
-	gPieObject = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_object.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	gMenuObject = LLUICtrlFactory::createFromFile<LLContextMenu>(
+		"menu_object.xml", gMenuHolder, registry);
 
 	gAttachScreenPieMenu = gMenuHolder->getChild<LLContextMenu>("Object Attach HUD");
 	gAttachPieMenu = gMenuHolder->getChild<LLContextMenu>("Object Attach");
-	gPieRate = gMenuHolder->getChild<LLContextMenu>("Rate Menu");
 
-	gPieAttachment = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_attachment.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	gMenuAttachmentSelf = LLUICtrlFactory::createFromFile<LLContextMenu>(
+		"menu_attachment_self.xml", gMenuHolder, registry);
+	gMenuAttachmentOther = LLUICtrlFactory::createFromFile<LLContextMenu>(
+		"menu_attachment_other.xml", gMenuHolder, registry);
 
-	gPieLand = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_land.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	gMenuLand = LLUICtrlFactory::createFromFile<LLContextMenu>(
+		"menu_land.xml", gMenuHolder, registry);
 
 	///
 	/// set up the colors
@@ -402,12 +409,13 @@ void init_menus()
 
 	LLColor4 context_menu_color = LLUIColorTable::instance().getColor("MenuPopupBgColor");
 	
-	gPieSelf->setBackgroundColor( context_menu_color );
-	gPieAvatar->setBackgroundColor( context_menu_color );
-	gPieObject->setBackgroundColor( context_menu_color );
-	gPieAttachment->setBackgroundColor( context_menu_color );
+	gMenuAvatarSelf->setBackgroundColor( context_menu_color );
+	gMenuAvatarOther->setBackgroundColor( context_menu_color );
+	gMenuObject->setBackgroundColor( context_menu_color );
+	gMenuAttachmentSelf->setBackgroundColor( context_menu_color );
+	gMenuAttachmentOther->setBackgroundColor( context_menu_color );
 
-	gPieLand->setBackgroundColor( context_menu_color );
+	gMenuLand->setBackgroundColor( context_menu_color );
 
 	color = LLUIColorTable::instance().getColor( "MenuPopupBgColor" );
 	gPopupMenuView->setBackgroundColor( color );
@@ -625,6 +633,20 @@ class LLAdvancedCheckHUDInfo : public view_listener_t
 		return new_value;
 	}
 };
+
+
+//////////////
+// FLYING   //
+//////////////
+
+class LLAdvancedAgentFlyingInfo : public view_listener_t
+{
+	bool handleEvent(const LLSD&)
+	{
+		return gAgent.getFlying();
+	}
+};
+
 
 ///////////////////////
 // CLEAR GROUP CACHE //
@@ -2263,20 +2285,23 @@ void cleanup_menus()
 	delete gMenuParcelObserver;
 	gMenuParcelObserver = NULL;
 
-	delete gPieSelf;
-	gPieSelf = NULL;
+	delete gMenuAvatarSelf;
+	gMenuAvatarSelf = NULL;
 
-	delete gPieAvatar;
-	gPieAvatar = NULL;
+	delete gMenuAvatarOther;
+	gMenuAvatarOther = NULL;
 
-	delete gPieObject;
-	gPieObject = NULL;
+	delete gMenuObject;
+	gMenuObject = NULL;
 
-	delete gPieAttachment;
-	gPieAttachment = NULL;
+	delete gMenuAttachmentSelf;
+	gMenuAttachmentSelf = NULL;
 
-	delete gPieLand;
-	gPieLand = NULL;
+	delete gMenuAttachmentOther;
+	gMenuAttachmentSelf = NULL;
+
+	delete gMenuLand;
+	gMenuLand = NULL;
 
 	delete gMenuBarView;
 	gMenuBarView = NULL;
@@ -2519,8 +2544,6 @@ void handle_object_edit()
 
 void handle_object_inspect()
 {
-	// Disable sidepanel inspector
-	/*
 	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 	LLViewerObject* selected_objectp = selection->getFirstRootObject();
 	if (selected_objectp)
@@ -2529,9 +2552,11 @@ void handle_object_inspect()
 		key["task"] = "task";
 		LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
 	}
-	*/
 
+	/*
+	// Old floater properties
 	LLFloaterReg::showInstance("inspect", LLSD());
+	*/
 }
 
 //---------------------------------------------------------------------------
@@ -2630,7 +2655,7 @@ bool enable_object_edit()
 		enable = LLViewerParcelMgr::getInstance()->allowAgentBuild()
 			|| LLSelectMgr::getInstance()->getSelection()->isAttachment();
 	} 
-	else if (LLSelectMgr::getInstance()->selectGetModify())
+	else if (LLSelectMgr::getInstance()->selectGetAllValidAndObjectsFound())
 	{
 		enable = true;
 	}
@@ -4911,7 +4936,7 @@ class LLEditDelete : public view_listener_t
 
 		// When deleting an object we may not actually be done
 		// Keep selection so we know what to delete when confirmation is needed about the delete
-		gPieObject->hide();
+		gMenuObject->hide();
 		return true;
 	}
 };
@@ -4944,7 +4969,7 @@ void handle_object_delete()
 
 		// When deleting an object we may not actually be done
 		// Keep selection so we know what to delete when confirmation is needed about the delete
-		gPieObject->hide();
+		gMenuObject->hide();
 		return;
 }
 
@@ -5586,7 +5611,15 @@ class LLShowSidetrayPanel : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string panel_name = userdata.asString();
-		LLSideTray::getInstance()->showPanel(panel_name, LLSD());
+		// Open up either the sidepanel or new floater.
+		if (LLSideTray::getInstance()->isPanelActive(panel_name))
+		{
+			LLFloaterInventory::showAgentInventory();
+		}
+		else
+		{
+			LLSideTray::getInstance()->showPanel(panel_name, LLSD());
+		}
 		return true;
 	}
 };
@@ -6006,7 +6039,7 @@ public:
 protected:
 	virtual void done()
 	{
-		gPieAttachment->buildDrawLabels();
+		gMenuAttachmentSelf->buildDrawLabels();
 		gInventory.removeObserver(this);
 		delete this;
 	}
@@ -7693,6 +7726,9 @@ void initialize_menus()
 	// Advanced Other Settings	
 	view_listener_t::addMenu(new LLAdvancedClearGroupCache(), "Advanced.ClearGroupCache");
 
+	// Advanced > Shortcuts
+	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
+	
 	// Advanced > Render > Types
 	view_listener_t::addMenu(new LLAdvancedToggleRenderType(), "Advanced.ToggleRenderType");
 	view_listener_t::addMenu(new LLAdvancedCheckRenderType(), "Advanced.CheckRenderType");

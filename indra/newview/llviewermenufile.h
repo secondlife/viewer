@@ -34,6 +34,7 @@
 #define LLVIEWERMENUFILE_H
 
 #include "llfoldertype.h"
+#include "llassetstorage.h"
 #include "llinventorytype.h"
 
 class LLTransactionID;

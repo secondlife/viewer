@@ -51,9 +51,11 @@
 #include "llnamebox.h"
 #include "lltrans.h"
 #include "llfloatermediasettings.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 LLPanelMediaSettingsPermissions::LLPanelMediaSettingsPermissions() :
+	mControls( NULL ),
     mPermsOwnerInteract( 0 ),
     mPermsOwnerControl( 0 ),
 	mPermsGroupName( 0 ),
@@ -71,6 +73,7 @@ LLPanelMediaSettingsPermissions::LLPanelMediaSettingsPermissions() :
 BOOL LLPanelMediaSettingsPermissions::postBuild()
 {
     // connect member vars with UI widgets
+	mControls = getChild< LLComboBox >( LLMediaEntry::CONTROLS_KEY );
     mPermsOwnerInteract = getChild< LLCheckBoxCtrl >( LLPanelContents::PERMS_OWNER_INTERACT_KEY );
     mPermsOwnerControl = getChild< LLCheckBoxCtrl >( LLPanelContents::PERMS_OWNER_CONTROL_KEY );
     mPermsGroupInteract = getChild< LLCheckBoxCtrl >( LLPanelContents::PERMS_GROUP_INTERACT_KEY );
@@ -123,19 +126,22 @@ void LLPanelMediaSettingsPermissions::draw()
 void LLPanelMediaSettingsPermissions::clearValues( void* userdata, bool editable)
 {	
 	LLPanelMediaSettingsPermissions *self =(LLPanelMediaSettingsPermissions *)userdata;
+
+	self->mControls->clear();
 	self->mPermsOwnerInteract->clear();
 	self->mPermsOwnerControl->clear();
-	self->mPermsGroupInteract ->clear();
+	self->mPermsGroupInteract->clear();
 	self->mPermsGroupControl->clear();
-	self->mPermsWorldInteract ->clear();
-	self->mPermsWorldControl ->clear();
+	self->mPermsWorldInteract->clear();
+	self->mPermsWorldControl->clear();
 	
+	self->mControls->setEnabled(editable);
 	self->mPermsOwnerInteract->setEnabled(editable);
-	self->mPermsOwnerControl ->setEnabled(editable);
+	self->mPermsOwnerControl->setEnabled(editable);
 	self->mPermsGroupInteract->setEnabled(editable);
-	self->mPermsGroupControl ->setEnabled(editable);
+	self->mPermsGroupControl->setEnabled(editable);
 	self->mPermsWorldInteract->setEnabled(editable);
-	self->mPermsWorldControl ->setEnabled(editable);
+	self->mPermsWorldControl->setEnabled(editable);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -175,6 +181,7 @@ void LLPanelMediaSettingsPermissions::initValues( void* userdata, const LLSD& me
 
     } data_set [] = 
     { 
+		{ LLMediaEntry::CONTROLS_KEY,					self->mControls,			"LLComboBox" },
         { LLPanelContents::PERMS_OWNER_INTERACT_KEY,    self->mPermsOwnerInteract,  "LLCheckBoxCtrl" },
         { LLPanelContents::PERMS_OWNER_CONTROL_KEY,     self->mPermsOwnerControl,   "LLCheckBoxCtrl" },
         { LLPanelContents::PERMS_GROUP_INTERACT_KEY,    self->mPermsGroupInteract,  "LLCheckBoxCtrl" },
@@ -194,27 +201,27 @@ void LLPanelMediaSettingsPermissions::initValues( void* userdata, const LLSD& me
         {
             if ( data_set[ i ].ctrl_type == "LLCheckBoxCtrl" )
             {
-				// the sense of the checkboxes changed and it made sense
-				// to just reverse their sense back again here and avoid 
-				// changing server code.
+				// Most recent change to the "sense" of these checkboxes
+				// means the value in the checkbox matches that on the server
                 static_cast< LLCheckBoxCtrl* >( data_set[ i ].ctrl_ptr )->
-                    setValue( ! media_settings[ base_key ].asBoolean() );
+                    setValue( media_settings[ base_key ].asBoolean() );
             }
             else
             if ( data_set[ i ].ctrl_type == "LLComboBox" )
                 static_cast< LLComboBox* >( data_set[ i ].ctrl_ptr )->
                     setCurrentByIndex( media_settings[ base_key ].asInteger() );
+
 			data_set[ i ].ctrl_ptr->setEnabled(editable);
             data_set[ i ].ctrl_ptr->setTentative( media_settings[ tentative_key ].asBoolean() );
         };
     };
+
 	self->childSetEnabled("media_perms_label_owner", editable );
 	self->childSetText("media_perms_label_owner",  LLTrans::getString("Media Perms Owner") );
 	self->childSetEnabled("media_perms_label_group", editable );
 	self->childSetText("media_perms_label_group",  LLTrans::getString("Media Perms Group") );
 	self->childSetEnabled("media_perms_label_anyone", editable );
 	self->childSetText("media_perms_label_anyone", LLTrans::getString("Media Perms Anyone") );
-	
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -228,6 +235,9 @@ void LLPanelMediaSettingsPermissions::preApply()
 //
 void LLPanelMediaSettingsPermissions::getValues( LLSD &fill_me_in )
 {
+	// moved over from the 'General settings' tab
+	fill_me_in[LLMediaEntry::CONTROLS_KEY] = (LLSD::Integer)mControls->getCurrentIndex();
+
     // *NOTE: For some reason, gcc does not like these symbol references in the 
     // expressions below (inside the static_casts).  I have NO idea why :(.
     // For some reason, assigning them to const temp vars here fixes the link
@@ -237,13 +247,13 @@ void LLPanelMediaSettingsPermissions::getValues( LLSD &fill_me_in )
     const U8 group = LLMediaEntry::PERM_GROUP;
     const U8 anyone = LLMediaEntry::PERM_ANYONE;
     const LLSD::Integer control = static_cast<LLSD::Integer>(
-        (mPermsOwnerControl->getValue() ? none : owner ) |
-        (mPermsGroupControl->getValue() ? none : group ) |
-        (mPermsWorldControl->getValue() ? none : anyone ));
+		(mPermsOwnerControl->getValue() ? owner : none ) |
+		(mPermsGroupControl->getValue() ? group: none  ) |
+		(mPermsWorldControl->getValue() ? anyone : none ));
     const LLSD::Integer interact = static_cast<LLSD::Integer>(
-        (mPermsOwnerInteract->getValue() ? none : owner ) |
-        (mPermsGroupInteract->getValue() ? none : group ) |
-        (mPermsWorldInteract->getValue() ? none : anyone ));
+		(mPermsOwnerInteract->getValue() ? owner: none  ) |
+		(mPermsGroupInteract->getValue() ? group : none ) |
+		(mPermsWorldInteract->getValue() ? anyone : none ));
     fill_me_in[LLMediaEntry::PERMS_CONTROL_KEY] = control;
     fill_me_in[LLMediaEntry::PERMS_INTERACT_KEY] = interact;
 }
@@ -255,3 +265,5 @@ void LLPanelMediaSettingsPermissions::postApply()
 {
     // no-op
 }
+
+

@@ -48,7 +48,6 @@
 #include "message.h"
 
 #include "llagent.h"
-#include "llalertdialog.h"
 #include "llavataractions.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"

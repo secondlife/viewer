@@ -33,11 +33,11 @@
  
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloaterbump.h"
-
-#include "llscrolllistctrl.h"
-
 #include "llsd.h"
+#include "mean_collision_data.h"
+
+#include "llfloaterbump.h"
+#include "llscrolllistctrl.h"
 #include "lluictrlfactory.h"
 #include "llviewermessage.h"
 

@@ -38,6 +38,7 @@
 #include "llinventory.h"
 #include "lllandmark.h"
 #include "llparcel.h"
+#include "llregionhandle.h"
 
 #include "llnotificationsutil.h"
 

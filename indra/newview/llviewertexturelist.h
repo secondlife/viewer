@@ -53,6 +53,7 @@ const BOOL GL_TEXTURE_NO = FALSE;
 const BOOL IMMEDIATE_YES = TRUE;
 const BOOL IMMEDIATE_NO = FALSE;
 
+class LLImageJ2C;
 class LLMessageSystem;
 class LLTextureView;
 

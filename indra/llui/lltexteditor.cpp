@@ -758,8 +758,8 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 			{	
 				mScroller->autoScroll(x, y);
 			}
-			S32 clamped_x = llclamp(x, mTextRect.mLeft, mTextRect.mRight);
-			S32 clamped_y = llclamp(y, mTextRect.mBottom, mTextRect.mTop);
+			S32 clamped_x = llclamp(x, mVisibleTextRect.mLeft, mVisibleTextRect.mRight);
+			S32 clamped_y = llclamp(y, mVisibleTextRect.mBottom, mVisibleTextRect.mTop);
 			setCursorAtLocalPos( clamped_x, clamped_y, true );
 			mSelectionEnd = mCursorPos;
 		}
@@ -809,8 +809,8 @@ BOOL LLTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 			{
 				mScroller->autoScroll(x, y);
 			}
-			S32 clamped_x = llclamp(x, mTextRect.mLeft, mTextRect.mRight);
-			S32 clamped_y = llclamp(y, mTextRect.mBottom, mTextRect.mTop);
+			S32 clamped_x = llclamp(x, mVisibleTextRect.mLeft, mVisibleTextRect.mRight);
+			S32 clamped_y = llclamp(y, mVisibleTextRect.mBottom, mVisibleTextRect.mTop);
 			setCursorAtLocalPos( clamped_x, clamped_y, true );
 			endSelection();
 		}
@@ -2075,8 +2075,8 @@ void LLTextEditor::drawPreeditMarker()
 	const S32 line_height = llround( mDefaultFont->getLineHeight() );
 
 	S32 line_start = getLineStart(cur_line);
-	S32 line_y = mTextRect.mTop - line_height;
-	while((mTextRect.mBottom <= line_y) && (num_lines > cur_line))
+	S32 line_y = mVisibleTextRect.mTop - line_height;
+	while((mVisibleTextRect.mBottom <= line_y) && (num_lines > cur_line))
 	{
 		S32 next_start = -1;
 		S32 line_end = text_len;
@@ -2108,12 +2108,12 @@ void LLTextEditor::drawPreeditMarker()
 					continue;
 				}
 
-				S32 preedit_left = mTextRect.mLeft;
+				S32 preedit_left = mVisibleTextRect.mLeft;
 				if (left > line_start)
 				{
 					preedit_left += mDefaultFont->getWidth(text, line_start, left - line_start);
 				}
-				S32 preedit_right = mTextRect.mLeft;
+				S32 preedit_right = mVisibleTextRect.mLeft;
 				if (right < line_end)
 				{
 					preedit_right += mDefaultFont->getWidth(text, line_start, right - line_start);
@@ -2154,7 +2154,7 @@ void LLTextEditor::drawLineNumbers()
 {
 	LLGLSUIDefault gls_ui;
 	LLRect scrolled_view_rect = getVisibleDocumentRect();
-	LLRect content_rect = getTextRect();	
+	LLRect content_rect = getVisibleTextRect();	
 	LLLocalClipRect clip(content_rect);
 	S32 first_line = getFirstVisibleLine();
 	S32 num_lines = getLineCount();
@@ -2180,12 +2180,12 @@ void LLTextEditor::drawLineNumbers()
 		{
 			line_info& line = mLineInfoList[cur_line];
 
-			if ((line.mRect.mTop - scrolled_view_rect.mBottom) < mTextRect.mBottom) 
+			if ((line.mRect.mTop - scrolled_view_rect.mBottom) < mVisibleTextRect.mBottom) 
 			{
 				break;
 			}
 
-			S32 line_bottom = line.mRect.mBottom - scrolled_view_rect.mBottom + mTextRect.mBottom;
+			S32 line_bottom = line.mRect.mBottom - scrolled_view_rect.mBottom + mVisibleTextRect.mBottom;
 			// draw the line numbers
 			if(line.mLineNum != last_line_num && line.mRect.mTop <= scrolled_view_rect.mTop) 
 			{
@@ -2216,8 +2216,8 @@ void LLTextEditor::draw()
 {
 	{
 		// pad clipping rectangle so that cursor can draw at full width
-		// when at left edge of mTextRect
-		LLRect clip_rect(mTextRect);
+		// when at left edge of mVisibleTextRect
+		LLRect clip_rect(mVisibleTextRect);
 		clip_rect.stretch(1);
 		LLLocalClipRect clip(clip_rect);
 		drawPreeditMarker();
@@ -2781,7 +2781,7 @@ BOOL LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 	if (control)
 	{
 		LLRect control_rect_screen;
-		localRectToScreen(mTextRect, &control_rect_screen);
+		localRectToScreen(mVisibleTextRect, &control_rect_screen);
 		LLUI::screenRectToGL(control_rect_screen, control);
 	}
 
@@ -2832,8 +2832,8 @@ BOOL LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 
 	if (coord)
 	{
-		const S32 query_x = mTextRect.mLeft + mDefaultFont->getWidth(text, current_line_start, query - current_line_start);
-		const S32 query_y = mTextRect.mTop - (current_line - first_visible_line) * line_height - line_height / 2;
+		const S32 query_x = mVisibleTextRect.mLeft + mDefaultFont->getWidth(text, current_line_start, query - current_line_start);
+		const S32 query_y = mVisibleTextRect.mTop - (current_line - first_visible_line) * line_height - line_height / 2;
 		S32 query_screen_x, query_screen_y;
 		localPointToScreen(query_x, query_y, &query_screen_x, &query_screen_y);
 		LLUI::screenPointToGL(query_screen_x, query_screen_y, &coord->mX, &coord->mY);
@@ -2841,13 +2841,13 @@ BOOL LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 
 	if (bounds)
 	{
-		S32 preedit_left = mTextRect.mLeft;
+		S32 preedit_left = mVisibleTextRect.mLeft;
 		if (preedit_left_position > current_line_start)
 		{
 			preedit_left += mDefaultFont->getWidth(text, current_line_start, preedit_left_position - current_line_start);
 		}
 
-		S32 preedit_right = mTextRect.mLeft;
+		S32 preedit_right = mVisibleTextRect.mLeft;
 		if (preedit_right_position < current_line_end)
 		{
 			preedit_right += mDefaultFont->getWidth(text, current_line_start, preedit_right_position - current_line_start);
@@ -2857,7 +2857,7 @@ BOOL LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 			preedit_right += mDefaultFont->getWidth(text, current_line_start, current_line_end - current_line_start);
 		}
 
-		const S32 preedit_top = mTextRect.mTop - (current_line - first_visible_line) * line_height;
+		const S32 preedit_top = mVisibleTextRect.mTop - (current_line - first_visible_line) * line_height;
 		const S32 preedit_bottom = preedit_top - line_height;
 
 		const LLRect preedit_rect_local(preedit_left, preedit_top, preedit_right, preedit_bottom);

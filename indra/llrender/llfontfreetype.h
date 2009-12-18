@@ -58,9 +58,8 @@ private:
 	~LLFontManager();
 };
 
-class LLFontGlyphInfo
+struct LLFontGlyphInfo
 {
-public:
 	LLFontGlyphInfo(U32 index);
 
 	U32 mGlyphIndex;

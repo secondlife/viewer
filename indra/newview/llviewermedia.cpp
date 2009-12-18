@@ -160,36 +160,25 @@ public:
 		std::string media_type = content["content-type"].asString();
 		std::string::size_type idx1 = media_type.find_first_of(";");
 		std::string mime_type = media_type.substr(0, idx1);
-		completeAny(status, mime_type);
-	}
 
-	virtual void error( U32 status, const std::string& reason )
-	{
-		if(status == 401)
+		lldebugs << "status is " << status << ", media type \"" << media_type << "\"" << llendl;
+		
+		// 2xx status codes indicate success.
+		// Most 4xx status codes are successful enough for our purposes.
+		// 499 is the error code for host not found, timeout, etc.
+		if(	((status >= 200) && (status < 300))	||
+			((status >= 400) && (status < 499))	)
 		{
-			// This is the "you need to authenticate" status.  
-			// Treat this like an html page.
-			completeAny(status, "text/html");
-		}
-		else
-		if(status == 403)
-		{
-			completeAny(status, "text/html");
-		}
-		else
-		if(status == 404)
-		{
-			// 404 is content not found - sites often have bespoke 404 pages so
-			// treat them like an html page.
-			completeAny(status, "text/html");
-		}
-		else
-		if(status == 406)
-		{
-			// 406 means the server sent something that we didn't indicate was acceptable
-			// Eventually we should send what we accept in the headers but for now,
-			// treat 406s like an html page.
-			completeAny(status, "text/html");
+			// The probe was successful.
+			
+			if(mime_type.empty())
+			{
+				// Some sites don't return any content-type header at all.
+				// Treat an empty mime type as text/html.
+				mime_type = "text/html";
+			}
+			
+			completeAny(status, mime_type);
 		}
 		else
 		{
@@ -200,6 +189,7 @@ public:
 				mMediaImpl->mMediaSourceFailed = true;
 			}
 		}
+
 	}
 
 	void completeAny(U32 status, const std::string& mime_type)
@@ -249,6 +239,7 @@ static LLViewerMedia::impl_id_map sViewerMediaTextureIDMap;
 static LLTimer sMediaCreateTimer;
 static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
 static F32 sGlobalVolume = 1.0f;
+static F64 sLowestLoadableImplInterest = 0.0f;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 static void add_media_impl(LLViewerMediaImpl* media)
@@ -558,6 +549,37 @@ bool LLViewerMedia::getInWorldMediaDisabled()
 	return sInWorldMediaDisabled;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+// static
+bool LLViewerMedia::isInterestingEnough(const LLVOVolume *object, const F64 &object_interest)
+{
+	bool result = false;
+	
+	if (NULL == object)
+	{
+		result = false;
+	}
+	// Focused?  Then it is interesting!
+	else if (LLViewerMediaFocus::getInstance()->getFocusedObjectID() == object->getID())
+	{
+		result = true;
+	}
+	// Selected?  Then it is interesting!
+	// XXX Sadly, 'contains()' doesn't take a const :(
+	else if (LLSelectMgr::getInstance()->getSelection()->contains(const_cast<LLVOVolume*>(object)))
+	{
+		result = true;
+	}
+	else 
+	{
+		lldebugs << "object interest = " << object_interest << ", lowest loadable = " << sLowestLoadableImplInterest << llendl;
+		if(object_interest >= sLowestLoadableImplInterest)
+			result = true;
+	}
+	
+	return result;
+}
+
 LLViewerMedia::impl_list &LLViewerMedia::getPriorityList()
 {
 	return sViewerMediaImplList;
@@ -683,6 +705,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	// Setting max_cpu to 0.0 disables CPU usage checking.
 	bool check_cpu_usage = (max_cpu != 0.0f);
 	
+	LLViewerMediaImpl* lowest_interest_loadable = NULL;
+	
 	// Notes on tweakable params:
 	// max_instances must be set high enough to allow the various instances used in the UI (for the help browser, search, etc.) to be loaded.
 	// If max_normal + max_low is less than max_instances, things will tend to get unloaded instead of being set to slideshow.
@@ -769,6 +793,9 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 		
 		if(!pimpl->getUsedInUI() && (new_priority != LLPluginClassMedia::PRIORITY_UNLOADED))
 		{
+			// This is a loadable inworld impl -- the last one in the list in this class defines the lowest loadable interest.
+			lowest_interest_loadable = pimpl;
+			
 			impl_count_total++;
 		}
 		
@@ -798,6 +825,22 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 		}
 
 		total_cpu += pimpl->getCPUUsage();
+	}
+
+	// Re-calculate this every time.
+	sLowestLoadableImplInterest	= 0.0f;
+
+	// Only do this calculation if we've hit the impl count limit -- up until that point we always need to load media data.
+	if(lowest_interest_loadable && (impl_count_total >= (int)max_instances))
+	{
+		// Get the interest value of this impl's object for use by isInterestingEnough
+		LLVOVolume *object = lowest_interest_loadable->getSomeObject();
+		if(object)
+		{
+			// NOTE: Don't use getMediaInterest() here.  We want the pixel area, not the total media interest,
+			// 		so that we match up with the calculation done in LLMediaDataClient.
+			sLowestLoadableImplInterest = object->getPixelArea();
+		}
 	}
 	
 	if(gSavedSettings.getBOOL("MediaPerformanceManagerDebug"))
@@ -876,6 +919,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mMimeTypeProbe(NULL),
 	mMediaAutoPlay(false),
 	mInNearbyMediaList(false),
+	mClearCache(false),
 	mIsUpdated(false)
 { 
 
@@ -1085,6 +1129,12 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		media_source->setAutoScale(mMediaAutoScale);
 		media_source->setBrowserUserAgent(LLViewerMedia::getCurrentUserAgent());
 		media_source->focus(mHasFocus);
+		
+		if(mClearCache)
+		{
+			mClearCache = false;
+			media_source->clear_cache();
+		}
 		
 		mMediaSource = media_source;
 
@@ -1296,6 +1346,19 @@ std::string LLViewerMediaImpl::getCurrentMediaURL()
 	}
 	
 	return mMediaURL;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::clearCache()
+{
+	if(mMediaSource)
+	{
+		mMediaSource->clear_cache();
+	}
+	else
+	{
+		mClearCache = true;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1580,7 +1643,12 @@ void LLViewerMediaImpl::navigateInternal()
 
 		if(scheme.empty() || "http" == scheme || "https" == scheme)
 		{
-			LLHTTPClient::getHeaderOnly( mMediaURL, new LLMimeDiscoveryResponder(this), 10.0f);
+			// If we don't set an Accept header, LLHTTPClient will add one like this:
+			//    Accept: application/llsd+xml
+			// which is really not what we want.
+			LLSD headers = LLSD::emptyMap();
+			headers["Accept"] = "*/*";
+			LLHTTPClient::getHeaderOnly( mMediaURL, new LLMimeDiscoveryResponder(this), headers, 10.0f);
 		}
 		else if("data" == scheme || "file" == scheme || "about" == scheme)
 		{

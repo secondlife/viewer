@@ -228,3 +228,14 @@ void LLChannelManager::muteAllChannels(bool mute)
 	}
 }
 
+void LLChannelManager::killToastsFromChannel(const LLUUID& channel_id, const LLScreenChannel::Matcher& matcher)
+{
+	LLScreenChannel
+			* screen_channel =
+					dynamic_cast<LLScreenChannel*> (findChannelByID(channel_id));
+	if (screen_channel != NULL)
+	{
+		screen_channel->killMatchedToasts(matcher);
+	}
+}
+

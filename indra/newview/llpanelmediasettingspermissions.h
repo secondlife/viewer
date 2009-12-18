@@ -65,6 +65,7 @@ public:
 	static void clearValues( void* userdata,  bool editable);
 	
 private:
+	LLComboBox* mControls;
 	LLCheckBoxCtrl* mPermsOwnerInteract;
 	LLCheckBoxCtrl* mPermsOwnerControl;
 	LLNameBox* mPermsGroupName;

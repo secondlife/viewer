@@ -30,10 +30,6 @@
  * $/LicenseInfo$
  */
 
-// *NOTE: this module is a copy-paste of llui/llalertdialog.h
-// Can we re-implement this as a subclass of LLAlertDialog and
-// avoid all this code duplication? It already caused EXT-2232.
-
 #include "llviewerprecompiledheaders.h" // must be first include
 
 #include "linden_common.h"
@@ -60,7 +56,7 @@ const F32 DEFAULT_BUTTON_DELAY = 0.5f;
 const S32 MSG_PAD = 8;
 
 /*static*/ LLControlGroup* LLToastAlertPanel::sSettings = NULL;
-/*static*/ LLAlertURLLoader* LLToastAlertPanel::sURLLoader;
+/*static*/ LLToastAlertPanel::URLLoader* LLToastAlertPanel::sURLLoader;
 
 //-----------------------------------------------------------------------------
 // Private methods

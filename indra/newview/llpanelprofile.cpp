@@ -144,6 +144,7 @@ BOOL LLPanelProfile::postBuild()
 
 void LLPanelProfile::onOpen(const LLSD& key)
 {
+	// open the desired panel
 	if (key.has("open_tab_name"))
 	{
 		getTabContainer()[PANEL_PICKS]->onClosePanel();
@@ -154,6 +155,33 @@ void LLPanelProfile::onOpen(const LLSD& key)
 	else
 	{
 		getTabCtrl()->getCurrentPanel()->onOpen(getAvatarId());
+	}
+
+	// support commands to open further pieces of UI
+	if (key.has("show_tab_panel"))
+	{
+		std::string panel = key["show_tab_panel"].asString();
+		if (panel == "create_classified")
+		{
+			LLPanelPicks* picks = dynamic_cast<LLPanelPicks *>(getTabContainer()[PANEL_PICKS]);
+			if (picks)
+			{
+				picks->createNewClassified();
+			}
+		}
+		else if (panel == "classified_details")
+		{
+			LLUUID classified_id = key["classified_id"].asUUID();
+			LLUUID avatar_id     = key["classified_avatar_id"].asUUID();
+			LLUUID snapshot_id   = key["classified_snapshot_id"].asUUID();
+			std::string name     = key["classified_name"].asString();
+			std::string desc     = key["classified_desc"].asString();
+			LLPanelPicks* picks = dynamic_cast<LLPanelPicks *>(getTabContainer()[PANEL_PICKS]);
+			if (picks)
+			{
+				picks->openClassifiedInfo(classified_id, avatar_id, snapshot_id, name, desc);
+			}
+		}
 	}
 }
 

@@ -41,7 +41,6 @@
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llnotificationsutil.h"
-#include "llnotify.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
 #include "llwearable.h"

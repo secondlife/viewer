@@ -112,6 +112,7 @@ void LLDragHandleTop::setTitle(const std::string& title)
 		params.font(font);
 		params.follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
 		params.font_shadow(LLFontGL::DROP_SHADOW_SOFT);
+		params.use_ellipses = true;
 		mTitleBox = LLUICtrlFactory::create<LLTextBox> (params);
 		addChild( mTitleBox );
 	}

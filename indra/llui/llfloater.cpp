@@ -1649,6 +1649,7 @@ void LLFloater::draw()
 	}
 	else
 	{
+		//FIXME: get rid of this hack
 		// draw children
 		LLView* focused_child = dynamic_cast<LLView*>(gFocusMgr.getKeyboardFocus());
 		BOOL focused_child_visible = FALSE;
@@ -2701,6 +2702,18 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 		output_node->setName(node->getName()->mString);
 		LLXUIParser::instance().writeXUI(
 			output_node, output_params, &default_params);
+	}
+
+	// Default floater position to top-left corner of screen
+	// However, some legacy floaters have explicit top or bottom
+	// coordinates set, so respect their wishes.
+	if (!params.rect.top.isProvided() && !params.rect.bottom.isProvided())
+	{
+		params.rect.top.set(0);
+	}
+	if (!params.rect.left.isProvided() && !params.rect.right.isProvided())
+	{
+		params.rect.left.set(0);
 	}
 
 	setupParams(params, parent);

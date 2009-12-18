@@ -38,6 +38,14 @@
 #if LL_LINUX || LL_SOLARIS
 #include <sys/param.h>  // Need PATH_MAX in APR headers...
 #endif
+#if LL_WINDOWS
+	// Limit Windows API to small and manageable set.
+	// If you get undefined symbols, find the appropriate
+	// Windows header file and include that in your .cpp file.
+	#define WIN32_LEAN_AND_MEAN
+	#include <winsock2.h>
+	#include <windows.h>
+#endif
 
 #include <boost/noncopyable.hpp>
 

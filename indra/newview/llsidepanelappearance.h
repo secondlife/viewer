@@ -67,7 +67,6 @@ private:
 
 	void onOpenOutfitButtonClicked();
 	void onEditAppearanceButtonClicked();
-	void onWearButtonClicked();
 	void onEditButtonClicked();
 	void onNewOutfitButtonClicked();
 	void onBackButtonClicked();
@@ -82,7 +81,6 @@ private:
 
 	LLButton*					mOpenOutfitBtn;
 	LLButton*					mEditAppearanceBtn;
-	LLButton*					mWearBtn;
 	LLButton*					mEditBtn;
 	LLButton*					mNewOutfitBtn;
 	LLPanel*					mCurrOutfitPanel;

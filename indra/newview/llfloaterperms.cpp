@@ -32,7 +32,6 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llalertdialog.h"
 #include "llcheckboxctrl.h"
 #include "llfloaterperms.h"
 #include "llviewercontrol.h"

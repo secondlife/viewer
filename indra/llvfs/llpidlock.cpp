@@ -41,6 +41,15 @@
 #include "llframetimer.h"
 
 #if LL_WINDOWS   //For windows platform.
+
+#include <windows.h>
+
+namespace {
+	inline DWORD getpid() {
+		return GetCurrentProcessId();
+	}
+}
+
 bool isProcessAlive(U32 pid)
 {
 	return (bool) GetProcessVersion((DWORD)pid);

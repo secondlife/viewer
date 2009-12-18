@@ -354,8 +354,7 @@ LLButton* LLSideTray::createButton	(const std::string& name,const std::string& i
 	button->setLabel(name);
 	button->setClickedCallback(callback);
 
-	if(tooltip!="Home")
-		button->setToolTip(tooltip);
+	button->setToolTip(tooltip);
 	
 	if(image.length())
 	{

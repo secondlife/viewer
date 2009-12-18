@@ -72,6 +72,8 @@ LLToast::LLToast(const LLToast::Params& p)
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "panel_toast.xml", NULL);
 
+	setCanDrag(FALSE);
+
 	if(mPanel)
 	{
 		insertPanel(mPanel);

@@ -325,6 +325,7 @@ extern BOOL		gUseWireframe;
 // VFS globals - gVFS is for general use
 // gStaticVFS is read-only and is shipped w/ the viewer
 // it has pre-cache data like the UI .TGAs
+class LLVFS;
 extern LLVFS	*gStaticVFS;
 
 extern LLMemoryInfo gSysMemory;

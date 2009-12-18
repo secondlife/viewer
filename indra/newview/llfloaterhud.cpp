@@ -37,7 +37,6 @@
 // Viewer libs
 #include "llviewercontrol.h"
 #include "llmediactrl.h"
-#include "llalertdialog.h"
 
 // Linden libs
 #include "llnotificationsutil.h"

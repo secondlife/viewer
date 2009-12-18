@@ -39,6 +39,7 @@
 //#include "llnotificationsutil.h"
 #include "llchannelmanager.h"
 #include "llchat.h"
+#include "llinstantmessage.h"
 #include "llnotificationptr.h"
 
 namespace LLNotificationsUI

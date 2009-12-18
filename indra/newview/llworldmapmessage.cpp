@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llworldmapmessage.h"
+#include "message.h"
 
 #include "llworldmap.h"
 #include "llagent.h"

@@ -125,7 +125,7 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 		void tuningCaptureStartSendMessage(int duration);
 		void tuningCaptureStopSendMessage();
 		
-		void tuningSetMicVolume(float volume=0.5f);
+		void tuningSetMicVolume(float volume);
 		void tuningSetSpeakerVolume(float volume);
 		float tuningGetEnergy(void);
 				
@@ -527,8 +527,6 @@ static	void updatePosition(void);
 		// Currently this will be false only for PSTN P2P calls.
 		// NOTE: this will return true if the session can't be found. 
 		bool isSessionTextIMPossible(const LLUUID &session_id);
-
-		bool isSessionIncoming(const LLUUID &session_id);
 		
 	private:
 

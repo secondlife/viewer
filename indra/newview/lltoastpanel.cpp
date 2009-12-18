@@ -80,7 +80,7 @@ void LLToastPanel::snapToMessageHeight(LLTextBase* message, S32 maxLineCount)
 
 		//Knowing the height is set to max allowed, getTextPixelHeight returns needed text height
 		//Perhaps we need to pass maxLineCount as parameter to getTextPixelHeight to avoid previous reshape.
-		S32 requiredTextHeight = message->getContentsRect().getHeight();
+		S32 requiredTextHeight = message->getTextBoundingRect().getHeight();
 		S32 newTextHeight = llmin(requiredTextHeight, maxTextHeight);
 
 		//Calculate last delta height deducting previous heightDelta 

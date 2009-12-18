@@ -330,6 +330,7 @@ BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
 	else
 	{
 		mFolders.insert(mFolders.begin(), folder);
+		folder->setShowLoadStatus(true);
 	}
 	folder->setOrigin(0, 0);
 	folder->reshape(getRect().getWidth(), 0);
@@ -747,6 +748,12 @@ void LLFolderView::sanitizeSelection()
 					break;
 				}
 			}
+		}
+
+		// Don't allow invisible items (such as root folders) to be selected.
+		if (item->getDontShowInHierarchy())
+		{
+			items_to_remove.push_back(item);
 		}
 	}
 
@@ -1936,6 +1943,26 @@ LLFolderViewItem* LLFolderView::getItemByID(const LLUUID& id)
 		return map_it->second;
 	}
 
+	return NULL;
+}
+
+LLFolderViewFolder* LLFolderView::getFolderByID(const LLUUID& id)
+{
+	if (id.isNull())
+	{
+		return this;
+	}
+
+	for (folders_t::iterator iter = mFolders.begin();
+		 iter != mFolders.end();
+		 ++iter)
+	{
+		LLFolderViewFolder *folder = (*iter);
+		if (folder->getListener()->getUUID() == id)
+		{
+			return folder;
+		}
+	}
 	return NULL;
 }
 

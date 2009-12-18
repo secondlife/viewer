@@ -67,7 +67,6 @@ const char *CHECKERBOARD_DATA_URL = "data:image/svg+xml,%3Csvg xmlns=%22http://w
 ////////////////////////////////////////////////////////////////////////////////
 //
 LLPanelMediaSettingsGeneral::LLPanelMediaSettingsGeneral() :
-	mControls( NULL ),
 	mAutoLoop( NULL ),
 	mFirstClick( NULL ),
 	mAutoZoom( NULL ),
@@ -93,7 +92,6 @@ BOOL LLPanelMediaSettingsGeneral::postBuild()
 	mAutoPlay = getChild< LLCheckBoxCtrl >( LLMediaEntry::AUTO_PLAY_KEY );
 	mAutoScale = getChild< LLCheckBoxCtrl >( LLMediaEntry::AUTO_SCALE_KEY );
 	mAutoZoom = getChild< LLCheckBoxCtrl >( LLMediaEntry::AUTO_ZOOM_KEY );
-	mControls = getChild< LLComboBox >( LLMediaEntry::CONTROLS_KEY );
 	mCurrentURL = getChild< LLTextBox >( LLMediaEntry::CURRENT_URL_KEY );
 	mFirstClick = getChild< LLCheckBoxCtrl >( LLMediaEntry::FIRST_CLICK_INTERACT_KEY );
 	mHeightPixels = getChild< LLSpinCtrl >( LLMediaEntry::HEIGHT_PIXELS_KEY );
@@ -211,7 +209,6 @@ void LLPanelMediaSettingsGeneral::clearValues( void* userdata, bool editable)
 	self->mAutoPlay->clear();
 	self->mAutoScale->clear();
 	self->mAutoZoom ->clear();
-	self->mControls->clear();
 	self->mCurrentURL->clear();
 	self->mFirstClick->clear();
 	self->mHeightPixels->clear();
@@ -221,7 +218,6 @@ void LLPanelMediaSettingsGeneral::clearValues( void* userdata, bool editable)
 	self->mAutoPlay ->setEnabled(editable);
 	self->mAutoScale ->setEnabled(editable);
 	self->mAutoZoom  ->setEnabled(editable);
-	self->mControls ->setEnabled(editable);
 	self->mCurrentURL ->setEnabled(editable);
 	self->mFirstClick ->setEnabled(editable);
 	self->mHeightPixels ->setEnabled(editable);
@@ -283,7 +279,6 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& media_
 		{ LLMediaEntry::AUTO_PLAY_KEY,				self->mAutoPlay,		"LLCheckBoxCtrl" },
 		{ LLMediaEntry::AUTO_SCALE_KEY,				self->mAutoScale,		"LLCheckBoxCtrl" },
 		{ LLMediaEntry::AUTO_ZOOM_KEY,				self->mAutoZoom,		"LLCheckBoxCtrl" },
-		{ LLMediaEntry::CONTROLS_KEY,				self->mControls,		"LLComboBox" },
 		{ LLMediaEntry::CURRENT_URL_KEY,			self->mCurrentURL,		"LLTextBox" },
 		{ LLMediaEntry::HEIGHT_PIXELS_KEY,			self->mHeightPixels,	"LLSpinCtrl" },
 		{ LLMediaEntry::HOME_URL_KEY,				self->mHomeURL,			"LLLineEditor" },
@@ -416,7 +411,6 @@ void LLPanelMediaSettingsGeneral::getValues( LLSD &fill_me_in )
 	fill_me_in[LLMediaEntry::AUTO_PLAY_KEY] = (LLSD::Boolean)mAutoPlay->getValue();
 	fill_me_in[LLMediaEntry::AUTO_SCALE_KEY] = (LLSD::Boolean)mAutoScale->getValue();
 	fill_me_in[LLMediaEntry::AUTO_ZOOM_KEY] = (LLSD::Boolean)mAutoZoom->getValue();
-	fill_me_in[LLMediaEntry::CONTROLS_KEY] = (LLSD::Integer)mControls->getCurrentIndex();
 	//Don't fill in current URL: this is only supposed to get changed via navigate
 	// fill_me_in[LLMediaEntry::CURRENT_URL_KEY] = mCurrentURL->getValue();
 	fill_me_in[LLMediaEntry::HEIGHT_PIXELS_KEY] = (LLSD::Integer)mHeightPixels->getValue();

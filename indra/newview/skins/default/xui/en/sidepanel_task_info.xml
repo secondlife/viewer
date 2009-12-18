@@ -487,7 +487,7 @@
 		     height="25"
 		     label="Open"
 		     layout="topleft"
-		     left_pad="5"
+		     left="5"
 		     name="open_btn"
 		     top="0"
 		     width="60" />
@@ -507,24 +507,6 @@
 		     layout="topleft"
 		     left_pad="5"
 		     name="buy_btn"
-		     top="0"
-		     width="60" />
-	    <button
-		     follows="bottom|right"
-		     height="25"
-		     label="Cancel"
-		     layout="topleft"
-		     name="cancel_btn"
-		     right="-1"
-		     top="0"
-		     width="70" />
-	    <button
-		     follows="bottom|right"
-		     height="25"
-		     label="Save"
-		     layout="topleft"
-		     name="save_btn"
-		     left_pad="-135"
 		     top="0"
 		     width="60" />
 	</panel>

@@ -72,28 +72,30 @@ protected:
 	static void onClickRelease(void*);
 		   void onClickGroup();
 		   void cbGroupID(LLUUID group_id);
+	static void onClickDeedToGroup(void*);
 
-	void onClickDeedToGroup();
-	void onCommitPerm(LLCheckBoxCtrl* ctrl, U8 field, U32 perm);
-	void onCommitGroupShare();
-	void onCommitEveryoneMove();
-	void onCommitEveryoneCopy();
-	void onCommitNextOwnerModify();
-	void onCommitNextOwnerCopy();
-	void onCommitNextOwnerTransfer();
-	void onCommitName();
-	void onCommitDesc();
-	void onCommitSaleInfo();
-	void onCommitSaleType();
+	static void onCommitPerm(LLUICtrl *ctrl, void *data, U8 field, U32 perm);
 
-	void onCommitClickAction(U8 click_action);
-	void onCommitIncludeInSearch();
+	static void onCommitGroupShare(LLUICtrl *ctrl, void *data);
 
+	static void onCommitEveryoneMove(LLUICtrl *ctrl, void *data);
+	static void onCommitEveryoneCopy(LLUICtrl *ctrl, void *data);
+
+	static void onCommitNextOwnerModify(LLUICtrl* ctrl, void* data);
+	static void onCommitNextOwnerCopy(LLUICtrl* ctrl, void* data);
+	static void onCommitNextOwnerTransfer(LLUICtrl* ctrl, void* data);
+	
+	static void onCommitName(LLUICtrl* ctrl, void* data);
+	static void onCommitDesc(LLUICtrl* ctrl, void* data);
+
+	static void onCommitSaleInfo(LLUICtrl* ctrl, void* data);
+	static void onCommitSaleType(LLUICtrl* ctrl, void* data);	
 	void setAllSaleInfo();
 
-	static void onClickForSale(LLUICtrl* ctrl, void *data);
-	void updateUIFromSaleInfo();
+	static void	onCommitClickAction(LLUICtrl* ctrl, void* data);
+	static void onCommitIncludeInSearch(LLUICtrl* ctrl, void*);
 
+	static void	doClickAction(U8 click_action);
 	void disableAll();
 
 private:

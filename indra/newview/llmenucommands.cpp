@@ -49,7 +49,6 @@
 #include "llfloaterchat.h"
 #include "llfloaterworldmap.h"
 #include "lllineeditor.h"
-#include "llnotify.h"
 #include "llstatusbar.h"
 #include "llimview.h"
 #include "lltextbox.h"

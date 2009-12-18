@@ -36,54 +36,59 @@
 #include "../test/lltut.h"
 
 #include "../llviewerhelputil.h"
-#include "../llversioninfo.h"
+#include "../llweb.h"
 #include "llcontrol.h"
-#include "llsys.h"
 
 #include <iostream>
 
-//----------------------------------------------------------------------------
-// Implementation of enough of LLControlGroup to support the tests:
+// values for all of the supported substitutions parameters
+static std::string gHelpURL;
+static std::string gVersion;
+static std::string gChannel;
+static std::string gLanguage;
+static std::string gGrid;
+static std::string gOS;
 
-static std::map<std::string,std::string> test_stringvec;
+//----------------------------------------------------------------------------
+// Mock objects for the dependencies of the code we're testing
 
 LLControlGroup::LLControlGroup(const std::string& name)
-	: LLInstanceTracker<LLControlGroup, std::string>(name)
-{
-}
-
-LLControlGroup::~LLControlGroup()
-{
-}
-
-// Implementation of just the LLControlGroup methods we requre
+	: LLInstanceTracker<LLControlGroup, std::string>(name) {}
+LLControlGroup::~LLControlGroup() {}
 BOOL LLControlGroup::declareString(const std::string& name,
 				   const std::string& initial_val,
 				   const std::string& comment,
-				   BOOL persist)
-{
-	test_stringvec[name] = initial_val;
-	return true;
-}
-
-void LLControlGroup::setString(const std::string& name, const std::string& val)
-{
-	test_stringvec[name] = val;
-}
-
+				   BOOL persist) {return TRUE;}
+void LLControlGroup::setString(const std::string& name, const std::string& val){}
 std::string LLControlGroup::getString(const std::string& name)
 {
-	return test_stringvec[name];
+	if (name == "HelpURLFormat")
+		return gHelpURL;
+	return "";
+}
+LLControlGroup gSavedSettings("test");
+
+static void substitute_string(std::string &input, const std::string &search, const std::string &replace)
+{
+	size_t pos = input.find(search);
+	while (pos != std::string::npos)
+	{
+		input = input.replace(pos, search.size(), replace);
+		pos = input.find(search);
+	}
 }
 
-S32 LLVersionInfo::getMajor() { return 2; }
-S32 LLVersionInfo::getMinor() { return 0; }
-S32 LLVersionInfo::getPatch() { return 0; }
-S32 LLVersionInfo::getBuild() { return 200099; }
-const std::string &LLVersionInfo::getVersion()
+std::string LLWeb::expandURLSubstitutions(const std::string &url,
+										  const LLSD &default_subs)
 {
-	static std::string version = "2.0.0.200099";
-	return version;
+	std::string new_url = url;
+	substitute_string(new_url, "[TOPIC]", default_subs["TOPIC"].asString());
+	substitute_string(new_url, "[VERSION]", gVersion);
+	substitute_string(new_url, "[CHANNEL]", gChannel);
+	substitute_string(new_url, "[LANGUAGE]", gLanguage);
+	substitute_string(new_url, "[GRID]", gGrid);
+	substitute_string(new_url, "[OS]", gOS);
+	return new_url;
 }
 
 //----------------------------------------------------------------------------
@@ -101,41 +106,52 @@ namespace tut
 	template<> template<>
 	void viewerhelputil_object_t::test<1>()
 	{
-		LLOSInfo osinfo;
-		LLControlGroup cgr("test");
-		cgr.declareString("HelpURLFormat", "fooformat", "declared_for_test", FALSE);
-		cgr.declareString("VersionChannelName", "foochannelname", "declared_for_test", FALSE);
-		cgr.declareString("Language", "foolanguage", "declared_for_test", FALSE);
 		std::string topic("test_topic");
-
 		std::string subresult;
 
-		cgr.setString("HelpURLFormat", "fooformat");
-		subresult = LLViewerHelpUtil::buildHelpURL(topic, cgr, osinfo);
+		gHelpURL = "fooformat";
+		subresult = LLViewerHelpUtil::buildHelpURL(topic);
 		ensure_equals("no substitution tags", subresult, "fooformat");
 
-		cgr.setString("HelpURLFormat", "");
-		subresult = LLViewerHelpUtil::buildHelpURL(topic, cgr, osinfo);
+		gHelpURL = "";
+		subresult = LLViewerHelpUtil::buildHelpURL(topic);
 		ensure_equals("blank substitution format", subresult, "");
 
-		cgr.setString("HelpURLFormat", "[LANGUAGE]");
-		cgr.setString("Language", "");
-		subresult = LLViewerHelpUtil::buildHelpURL(topic, cgr, osinfo);
+		gHelpURL = "[TOPIC]";
+		subresult = LLViewerHelpUtil::buildHelpURL(topic);
+		ensure_equals("topic name", subresult, "test_topic");
+
+		gHelpURL = "[LANGUAGE]";
+		gLanguage = "";
+		subresult = LLViewerHelpUtil::buildHelpURL(topic);
 		ensure_equals("simple substitution with blank", subresult, "");
 
-		cgr.setString("HelpURLFormat", "[LANGUAGE]");
-		cgr.setString("Language", "Esperanto");
-		subresult = LLViewerHelpUtil::buildHelpURL(topic, cgr, osinfo);
+		gHelpURL = "[LANGUAGE]";
+		gLanguage = "Esperanto";
+		subresult = LLViewerHelpUtil::buildHelpURL(topic);
 		ensure_equals("simple substitution", subresult, "Esperanto");
 
-		cgr.setString("HelpURLFormat", "[XXX]");
-		subresult = LLViewerHelpUtil::buildHelpURL(topic, cgr, osinfo);
+		gHelpURL = "http://secondlife.com/[LANGUAGE]";
+		gLanguage = "Gaelic";
+		subresult = LLViewerHelpUtil::buildHelpURL(topic);
+		ensure_equals("simple substitution with url", subresult, "http://secondlife.com/Gaelic");
+
+		gHelpURL = "[XXX]";
+		subresult = LLViewerHelpUtil::buildHelpURL(topic);
 		ensure_equals("unknown substitution", subresult, "[XXX]");
 
-		cgr.setString("HelpURLFormat", "[LANGUAGE]/[LANGUAGE]");
-		cgr.setString("Language", "Esperanto");
-		subresult = LLViewerHelpUtil::buildHelpURL(topic, cgr, osinfo);
+		gHelpURL = "[LANGUAGE]/[LANGUAGE]";
+		gLanguage = "Esperanto";
+		subresult = LLViewerHelpUtil::buildHelpURL(topic);
 		ensure_equals("multiple substitution", subresult, "Esperanto/Esperanto");
+
+		gHelpURL = "http://[CHANNEL]/[VERSION]/[LANGUAGE]/[OS]/[GRID]/[XXX]";
+		gChannel = "Second Life Test";
+		gVersion = "2.0";
+		gLanguage = "gaelic";
+		gOS = "AmigaOS 2.1";
+		gGrid = "mysim";
+		subresult = LLViewerHelpUtil::buildHelpURL(topic);
+		ensure_equals("complex substitution", subresult, "http://Second Life Test/2.0/gaelic/AmigaOS 2.1/mysim/[XXX]");
 	}
-    
 }

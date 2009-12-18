@@ -62,7 +62,6 @@
 #include "llviewermenu.h"			// for handle_preferences()
 #include "llviewernetwork.h"
 #include "llviewerwindow.h"			// to link into child list
-#include "llnotify.h"
 #include "llurlsimstring.h"
 #include "lluictrlfactory.h"
 #include "llhttpclient.h"
@@ -273,6 +272,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	// get the web browser control
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
 	web_browser->addObserver(this);
+	
+	// Clear the browser's cache to avoid any potential for the cache messing up the login screen.
+	web_browser->clearCache();
 
 	// Need to handle login secondlife:///app/ URLs
 	web_browser->setTrusted( true );
