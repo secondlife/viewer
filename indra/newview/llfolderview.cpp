@@ -330,6 +330,7 @@ BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
 	else
 	{
 		mFolders.insert(mFolders.begin(), folder);
+		folder->setShowLoadStatus(true);
 	}
 	folder->setOrigin(0, 0);
 	folder->reshape(getRect().getWidth(), 0);
@@ -747,6 +748,12 @@ void LLFolderView::sanitizeSelection()
 					break;
 				}
 			}
+		}
+
+		// Don't allow invisible items (such as root folders) to be selected.
+		if (item->getDontShowInHierarchy())
+		{
+			items_to_remove.push_back(item);
 		}
 	}
 

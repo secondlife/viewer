@@ -323,7 +323,7 @@ void LLPanelMediaSettingsSecurity::addWhiteListEntry( const std::string& entry )
 	else
 	{
 		row[ "columns" ][ ICON_COLUMN ][ "type" ] = "icon";
-		row[ "columns" ][ ICON_COLUMN ][ "value" ] = "parcel_color_EXP";
+		row[ "columns" ][ ICON_COLUMN ][ "value" ] = "Parcel_Exp_Color";
 		row[ "columns" ][ ICON_COLUMN ][ "width" ] = 20;
 	};
 
@@ -333,9 +333,6 @@ void LLPanelMediaSettingsSecurity::addWhiteListEntry( const std::string& entry )
 
 	// add to the white list scroll box
 	mWhiteListList->addElement( row );
-
-	// update whitelist enable checkbox based on whether the home url passes the whitelist
-	updateWhitelistEnableStatus();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
