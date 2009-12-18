@@ -972,15 +972,13 @@ void LLFolderViewItem::draw()
 		font->renderUTF8( mLabel, 0, text_left, y, color,
 				   LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
 			S32_MAX, getRect().getWidth() - (S32) text_left, &right_x, TRUE);
-		text_left = right_x;
 
 		if ( (mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= gSavedSettings.getF32("FolderLoadingMessageWaitTime"))
 			|| (LLInventoryModel::backgroundFetchActive() && mShowLoadStatus) )
 		{
 			std::string load_string = " ( " + LLTrans::getString("LoadingData") + " ) ";
-			font->renderUTF8(load_string, 0, text_left, y, sSearchStatusColor,
+			font->renderUTF8(load_string, 0, right_x, y, sSearchStatusColor,
 					  LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, &right_x, FALSE);
-			text_left = right_x;
 		}
 
 		if (!mLabelSuffix.empty())
