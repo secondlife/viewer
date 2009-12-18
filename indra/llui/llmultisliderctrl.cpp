@@ -65,7 +65,8 @@ LLMultiSliderCtrl::Params::Params()
 	text_color("text_color"),
 	text_disabled_color("text_disabled_color"),
 	mouse_down_callback("mouse_down_callback"),
-	mouse_up_callback("mouse_up_callback")
+	mouse_up_callback("mouse_up_callback"),
+	sliders("slider")
 {
 	mouse_opaque = true;
 }
@@ -161,6 +162,7 @@ LLMultiSliderCtrl::LLMultiSliderCtrl(const LLMultiSliderCtrl::Params& p)
 	S32 slider_left = label_width ? label_width + multi_sliderctrl_spacing : 0;
 	LLRect slider_rect( slider_left, top, slider_right, bottom );
 	LLMultiSlider::Params params;
+	params.sliders = p.sliders;
 	params.rect(slider_rect);
 	params.commit_callback.function( LLMultiSliderCtrl::onSliderCommit );
 	params.mouse_down_callback( p.mouse_down_callback );

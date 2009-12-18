@@ -50,6 +50,12 @@ const F32 FLOAT_THRESHOLD = 0.00001f;
 
 S32 LLMultiSlider::mNameCounter = 0;
 
+LLMultiSlider::SliderParams::SliderParams()
+:	name("name"),
+	value("value", 0.f)
+{
+}
+
 LLMultiSlider::Params::Params()
 :	max_sliders("max_sliders", 1),
 	allow_overlap("allow_overlap", false),
@@ -63,7 +69,8 @@ LLMultiSlider::Params::Params()
 	triangle_color("triangle_color"),
 	mouse_down_callback("mouse_down_callback"),
 	mouse_up_callback("mouse_up_callback"),
-	thumb_width("thumb_width")
+	thumb_width("thumb_width"),
+	sliders("slider")
 {
 	name = "multi_slider_bar";
 	mouse_opaque(true);
@@ -98,6 +105,20 @@ LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
 	if (p.mouse_up_callback.isProvided())
 	{
 		setMouseUpCallback(initCommitCallback(p.mouse_up_callback));
+	}
+
+	for (LLInitParam::ParamIterator<SliderParams>::const_iterator it = p.sliders().begin();
+		it != p.sliders().end();
+		++it)
+	{
+		if (it->name.isProvided())
+		{
+			addSlider(it->value, it->name);
+		}
+		else
+		{
+			addSlider(it->value);
+		}
 	}
 }
 
@@ -228,6 +249,30 @@ const std::string& LLMultiSlider::addSlider(F32 val)
 	setSliderValue(mCurSlider, initVal, TRUE);
 
 	return mCurSlider;
+}
+
+void LLMultiSlider::addSlider(F32 val, const std::string& name)
+{
+	F32 initVal = val;
+
+	if(mValue.size() >= mMaxNumSliders) {
+		return;
+	}
+
+	bool foundOne = findUnusedValue(initVal);
+	if(!foundOne) {
+		return;
+	}
+
+	// add a new thumb rect
+	mThumbRects[name] = LLRect( 0, getRect().getHeight(), mThumbWidth, 0 );
+
+	// add the value and set the current slider to this one
+	mValue.insert(name, initVal);
+	mCurSlider = name;
+
+	// move the slider
+	setSliderValue(mCurSlider, initVal, TRUE);
 }
 
 bool LLMultiSlider::findUnusedValue(F32& initVal)
@@ -572,7 +617,6 @@ void LLMultiSlider::draw()
 
 	LLF32UICtrl::draw();
 }
-
 boost::signals2::connection LLMultiSlider::setMouseDownCallback( const commit_signal_t::slot_type& cb ) 
 { 
 	if (!mMouseDownSignal) mMouseDownSignal = new commit_signal_t();
