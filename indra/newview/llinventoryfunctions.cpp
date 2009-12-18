@@ -338,3 +338,33 @@ LLUIImagePtr get_item_icon(LLAssetType::EType asset_type,
 	const std::string& icon_name = get_item_icon_name(asset_type, inventory_type, attachment_point, item_is_multi );
 	return LLUI::getUIImage(icon_name);
 }
+
+BOOL get_is_item_worn(const LLUUID& id)
+{
+	const LLViewerInventoryItem* item = gInventory.getItem(id);
+	if (!item)
+		return FALSE;
+	
+	switch(item->getType())
+	{
+		case LLAssetType::AT_OBJECT:
+		{
+			const LLVOAvatarSelf* my_avatar = gAgent.getAvatarObject();
+			if(my_avatar && my_avatar->isWearingAttachment(item->getLinkedUUID()))
+				return TRUE;
+			break;
+		}
+		case LLAssetType::AT_BODYPART:
+		case LLAssetType::AT_CLOTHING:
+			if(gAgentWearables.isWearingItem(item->getLinkedUUID()))
+				return TRUE;
+			break;
+		case LLAssetType::AT_GESTURE:
+			if (LLGestureManager::instance().isGestureActive(item->getLinkedUUID()))
+				return TRUE;
+			break;
+		default:
+			break;
+	}
+	return FALSE;
+}

@@ -311,14 +311,15 @@ namespace tut
 		data["error"] = "dummy response";
 		data["transfer_rate"] = 0;
 		data["responses"]["login"] = "indeterminate";
-		data["next_url"] = "login.indeterminate.com";			
-		data["next_method"] = "test_login_method"; 			
+		data["responses"]["next_url"] = "login.indeterminate.com";			
+		data["responses"]["next_method"] = "test_login_method"; 			
 		dummyXMLRPC.setResponse(data);
 		dummyXMLRPC.sendReply();
 
 		ensure_equals("Fail back to authenticate 2", listener.lastEvent()["change"].asString(), "authenticating"); 
 		ensure_equals("Attempt 3", listener.lastEvent()["data"]["attempt"].asInteger(), 3); 
 		ensure_equals("URI 3", listener.lastEvent()["data"]["request"]["uri"].asString(), "login.indeterminate.com"); 
+		ensure_equals("Method 3", listener.lastEvent()["data"]["request"]["method"].asString(), "test_login_method"); 
 
 		// Finally let the auth succeed.
 		data.clear();

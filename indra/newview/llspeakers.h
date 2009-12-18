@@ -158,8 +158,43 @@ public:
 	
 	void updateSpeakers(const LLSD& update);
 	void setSpeakers(const LLSD& speakers);
+
+	void toggleAllowTextChat(const LLUUID& speaker_id);
+
+	/**
+	 * Mutes/Unmutes avatar for current group voice chat.
+	 *
+	 * It only marks avatar as muted for session and does not use local Agent's Block list.
+	 * It does not mute Agent itself.
+	 *
+	 * @param[in] avatar_id UUID of avatar to be processed
+	 * @param[in] unmute if false - specified avatar will be muted, otherwise - unmuted.
+	 *
+	 * @see moderateVoiceOtherParticipants()
+	 */
+	void moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute);
+
+	/**
+	 * Mutes/Unmutes all avatars except specified for current group voice chat.
+	 *
+	 * It only marks avatars as muted for session and does not use local Agent's Block list.
+	 * It based call moderateVoiceParticipant() for each avatar should be muted/unmuted.
+	 *
+	 * @param[in] excluded_avatar_id UUID of avatar NOT to be processed
+	 * @param[in] unmute_everyone_else if false - avatars will be muted, otherwise - unmuted.
+	 *
+	 * @see moderateVoiceParticipant()
+	 */
+	void moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute_everyone_else);
+
+	void processSessionUpdate(const LLSD& session_update);
+
 protected:
 	virtual void updateSpeakerList();
+
+	void moderateVoiceSession(const LLUUID& session_id, bool disallow_voice);
+
+	LLUUID mReverseVoiceModeratedAvatarID;
 };
 
 class LLActiveSpeakerMgr : public LLSpeakerMgr, public LLSingleton<LLActiveSpeakerMgr>

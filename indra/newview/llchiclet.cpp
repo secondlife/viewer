@@ -250,8 +250,7 @@ LLIMWellChiclet::~LLIMWellChiclet()
 
 void LLIMWellChiclet::messageCountChanged(const LLSD& session_data)
 {
-	S32 total_unread = LLIMMgr::instance().getNumberOfUnreadParticipantMessages();
-	setCounter(total_unread);
+	setCounter(LLBottomTray::getInstance()->getTotalUnreadIMCount());
 }
 
 /************************************************************************/
@@ -1527,6 +1526,21 @@ bool LLChicletPanel::isAnyIMFloaterDoked()
 	}
 
 	return res;
+}
+
+S32 LLChicletPanel::getTotalUnreadIMCount()
+{
+	S32 count = 0;
+	chiclet_list_t::const_iterator it = mChicletList.begin();
+	for( ; mChicletList.end() != it; ++it)
+	{
+		LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(*it);
+		if(chiclet)
+		{
+			count += chiclet->getCounter();
+		}
+	}
+	return count;
 }
 
 //////////////////////////////////////////////////////////////////////////

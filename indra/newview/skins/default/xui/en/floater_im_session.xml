@@ -30,14 +30,15 @@
       layout="topleft"
       follows="left"
       label="IM Control Panel"
+      min_width="115" 
       auto_resize="false"
-      user_resize="false" />
+      user_resize="true" />
     <layout_panel
        left="0"
        top="0"
        height="200"
 	     width="245"
-       user_resize="false">
+       user_resize="true">
         <button
           height="20"
           follows="left|top"

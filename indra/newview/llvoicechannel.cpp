@@ -229,7 +229,6 @@ void LLVoiceChannel::handleStatusChange(EStatusType type)
 		{
 			// if forceably removed from channel
 			// update the UI and revert to default channel
-			LLNotificationsUtil::add("VoiceChannelDisconnected", mNotifyArgs);
 			deactivate();
 		}
 		mIgnoreNextSessionLeave = FALSE;
@@ -741,6 +740,7 @@ void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
 	case STATUS_LEFT_CHANNEL:
 		if (callStarted() && !mIgnoreNextSessionLeave && !sSuspended)
 		{
+			// *TODO: use it to show DECLINE voice notification
 			if (mState == STATE_RINGING)
 			{
 				// other user declined call
@@ -748,8 +748,7 @@ void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
 			}
 			else
 			{
-				// other user hung up
-				LLNotificationsUtil::add("VoiceChannelDisconnectedP2P", mNotifyArgs);
+				// other user hung up				
 			}
 			deactivate();
 		}

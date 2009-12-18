@@ -31,12 +31,14 @@
         No one near
     </string>
     <panel
-     bevel_style="in"
+     bevel_style="out"
+     border="true"
      follows="left|right|top"
      height="62"
      layout="topleft"
      left="0"
      name="control_panel"
+     top="0"
      width="282">
         <panel
          height="18"
@@ -79,51 +81,14 @@
              visible="true"
              width="20" />
         </panel>
-        <layout_stack
-         animate="false"
-         bottom="10"
-         clip="false"
+        <button
          follows="left|right|top"
          height="24"
-         layout="bottomleft"
-         orientation="horizontal"
-         width="262">
-            <layout_panel
-             auto_resize="false" 
-             follows="left"
-             layout="topleft"
-             min_width="24"
-             name="microphone_icon_panel" 
-             top="0"
-             user_resize="false"
-             width="24">
-                <icon
-                 height="24"
-                 image_name="Microphone_On"
-                 layout="topleft"
-                 name="Microphone_On"
-                 top="0"
-                 width="24" />
-            </layout_panel>
-            <layout_panel
-             auto_resize="false"
-             layout="topleft"
-             min_width="100" 
-             name="leave_btn_panel" 
-             top="0"
-             user_resize="false"
-             visible="false" 
-             width="100">
-                <button
-                 follows="left|right|top"
-                 height="24"
-                 label="Leave Call"
-                 left="0" 
-                 name="leave_call_btn"
-                 top="0" 
-                 width="100" />
-            </layout_panel>
-        </layout_stack>
+         label="Leave Call"
+         left="91" 
+         name="leave_call_btn"
+         top_pad="6" 
+         width="100" />
     </panel>
     <avatar_list
      follows="all"
@@ -142,5 +107,13 @@
      left="0"
      name="non_avatar_caller"
      top="70"
+     width="282" />
+    <view_border
+     bevel_style="out"
+     follows="left|top|right|bottom"
+     height="206"
+     layout="topleft"
+     left="0"
+     top="63"
      width="282" />
 </floater>

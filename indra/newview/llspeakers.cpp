@@ -36,6 +36,7 @@
 
 #include "llagent.h"
 #include "llappviewer.h"
+#include "llimview.h"
 #include "llmutelist.h"
 #include "llsdutil.h"
 #include "lluicolortable.h"
@@ -573,6 +574,143 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 			}
 		}
 	}
+}
+
+class ModerationResponder : public LLHTTPClient::Responder
+{
+public:
+	ModerationResponder(const LLUUID& session_id)
+	{
+		mSessionID = session_id;
+	}
+
+	virtual void error(U32 status, const std::string& reason)
+	{
+		llwarns << status << ": " << reason << llendl;
+
+		if ( gIMMgr )
+		{
+			//403 == you're not a mod
+			//should be disabled if you're not a moderator
+			if ( 403 == status )
+			{
+				gIMMgr->showSessionEventError(
+					"mute",
+					"not_a_mod_error",
+					mSessionID);
+			}
+			else
+			{
+				gIMMgr->showSessionEventError(
+					"mute",
+					"generic_request_error",
+					mSessionID);
+			}
+		}
+	}
+
+private:
+	LLUUID mSessionID;
+};
+
+void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
+{
+	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+	LLSD data;
+	data["method"] = "mute update";
+	data["session-id"] = getSessionID();
+	data["params"] = LLSD::emptyMap();
+	data["params"]["agent_id"] = speaker_id;
+	data["params"]["mute_info"] = LLSD::emptyMap();
+	//current value represents ability to type, so invert
+	data["params"]["mute_info"]["text"] = !findSpeaker(speaker_id)->mModeratorMutedText;
+
+	LLHTTPClient::post(url, data, new ModerationResponder(getSessionID()));
+}
+
+void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute)
+{
+	if (gAgentID == avatar_id) return; // do not process myself
+
+	LLPointer<LLSpeaker> speakerp = findSpeaker(avatar_id);
+	if (!speakerp) return;
+
+	// *NOTE: mantipov: probably this condition will be incorrect when avatar will be blocked for
+	// text chat via moderation (LLSpeaker::mModeratorMutedText == TRUE)
+	bool is_in_voice = speakerp->mStatus <= LLSpeaker::STATUS_VOICE_ACTIVE || speakerp->mStatus == LLSpeaker::STATUS_MUTED;
+
+	// do not send voice moderation changes for avatars not in voice channel
+	if (!is_in_voice) return;
+
+	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+	LLSD data;
+	data["method"] = "mute update";
+	data["session-id"] = getSessionID();
+	data["params"] = LLSD::emptyMap();
+	data["params"]["agent_id"] = avatar_id;
+	data["params"]["mute_info"] = LLSD::emptyMap();
+	data["params"]["mute_info"]["voice"] = !unmute;
+
+	LLHTTPClient::post(
+		url,
+		data,
+		new ModerationResponder(getSessionID()));
+}
+
+void LLIMSpeakerMgr::moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute_everyone_else)
+{
+	// *TODO: mantipov: add more intellectual processing of several following requests if it is needed.
+	/*
+		Such situation should be tested:
+		 "Moderator sends the same second request before first response is come"
+		Moderator sends "mute everyone else" for A and then for B
+			two requests to disallow voice chat are sent
+			UUID of B is stored.
+		Then first response (to disallow voice chat) is come
+			request to allow voice for stored avatar (B)
+		Then second response (to disallow voice chat) is come
+			have nothing to do, the latest selected speaker is already enabled
+
+			What can happen?
+		If request to allow voice for stored avatar (B) is processed on server BEFORE 
+		second request to disallow voice chat all speakers will be disabled on voice.
+		But I'm not sure such situation is possible. 
+		See EXT-3431.
+	*/
+
+	mReverseVoiceModeratedAvatarID = excluded_avatar_id;
+	moderateVoiceSession(getSessionID(), !unmute_everyone_else);
+}
+
+void LLIMSpeakerMgr::processSessionUpdate(const LLSD& session_update)
+{
+	if (mReverseVoiceModeratedAvatarID.isNull()) return;
+
+	if (session_update.has("moderated_mode") &&
+		session_update["moderated_mode"].has("voice"))
+	{
+		BOOL voice_moderated = session_update["moderated_mode"]["voice"];
+
+		moderateVoiceParticipant(mReverseVoiceModeratedAvatarID, voice_moderated);
+
+		mReverseVoiceModeratedAvatarID = LLUUID::null;
+	}
+}
+
+void LLIMSpeakerMgr::moderateVoiceSession(const LLUUID& session_id, bool disallow_voice)
+{
+	std::string url = gAgent.getRegion()->getCapability("ChatSessionRequest");
+	LLSD data;
+	data["method"] = "session update";
+	data["session-id"] = session_id;
+	data["params"] = LLSD::emptyMap();
+
+	data["params"]["update_info"] = LLSD::emptyMap();
+
+	data["params"]["update_info"]["moderated_mode"] = LLSD::emptyMap();
+	data["params"]["update_info"]["moderated_mode"]["voice"] = disallow_voice;
+
+	LLHTTPClient::post(url, data, new ModerationResponder(session_id));
 }
 
 
