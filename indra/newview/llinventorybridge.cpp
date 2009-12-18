@@ -190,12 +190,7 @@ BOOL LLInvFVBridge::isItemRemovable()
 	{
 		return TRUE;
 	}
-	if (gAgentWearables.isWearingItem(mUUID))
-	{
-		return FALSE;
-	}
-	const LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if (avatar && avatar->isWearingAttachment(mUUID))
+	if (get_is_item_worn(mUUID))
 	{
 		return FALSE;
 	}
@@ -506,41 +501,6 @@ void hide_context_entries(LLMenuGL& menu,
 	}
 }
 
-bool isWornLink(LLUUID link_id)
-{
-	LLViewerInventoryItem *link = gInventory.getItem(link_id);
-	if (!link)
-		return false;
-	LLViewerInventoryItem *item = link->getLinkedItem();
-	if (!item)
-		return false;
-	
-	switch(item->getType())
-	{
-	case LLAssetType::AT_OBJECT:
-	{
-		LLVOAvatarSelf* my_avatar = gAgent.getAvatarObject();
-		if(my_avatar && my_avatar->isWearingAttachment(item->getUUID()))
-			return true;
-	}
-	break;
-
-	case LLAssetType::AT_BODYPART:
-	case LLAssetType::AT_CLOTHING:
-		if(gAgentWearables.isWearingItem(item->getUUID()))
-			return true;
-		break;
-
-	case LLAssetType::AT_GESTURE:
-		if (LLGestureManager::instance().isGestureActive(item->getUUID()))
-			return true;
-		break;
-	default:
-		break;
-	}
-	return false;
-}
-
 // Helper for commonly-used entries
 void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 										std::vector<std::string> &items,
@@ -552,7 +512,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 	if (is_sidepanel)
 	{
 		// Sidepanel includes restricted menu.
-		if (obj && obj->getIsLinkType() && !isWornLink(mUUID))
+		if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
 		{
 			items.push_back(std::string("Remove Link"));
 		}
@@ -606,15 +566,18 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		disabled_items.push_back(std::string("Paste"));
 	}
 
-	items.push_back(std::string("Paste As Link"));
-	if (!isClipboardPasteableAsLink() || (flags & FIRST_SELECTED_ITEM) == 0)
+	if (gAgent.isGodlike())
 	{
-		disabled_items.push_back(std::string("Paste As Link"));
+		items.push_back(std::string("Paste As Link"));
+		if (!isClipboardPasteableAsLink() || (flags & FIRST_SELECTED_ITEM) == 0)
+		{
+			disabled_items.push_back(std::string("Paste As Link"));
+		}
 	}
 	items.push_back(std::string("Paste Separator"));
 
 
-	if (obj && obj->getIsLinkType() && !isWornLink(mUUID))
+	if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
 	{
 		items.push_back(std::string("Remove Link"));
 	}
@@ -1196,7 +1159,7 @@ LLFontGL::StyleFlags LLItemBridge::getLabelStyle() const
 {
 	U8 font = LLFontGL::NORMAL;
 
-	if( gAgentWearables.isWearingItem( mUUID ) )
+	if (get_is_item_worn(mUUID))
 	{
 		// llinfos << "BOLD" << llendl;
 		font |= LLFontGL::BOLD;
@@ -1339,29 +1302,33 @@ BOOL LLItemBridge::isItemCopyable() const
 	LLViewerInventoryItem* item = getItem();
 	if (item)
 	{
-		// can't copy worn objects. DEV-15183
-		LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-		if( !avatarp )
+		// Can't copy worn objects. DEV-15183
+		if(get_is_item_worn(mUUID))
 		{
 			return FALSE;
 		}
 
-		if(avatarp->isWearingAttachment(mUUID))
-		{
-			return FALSE;
-		}
-
-		// All items can be copied, not all can be pasted.
-		// The only time an item can't be copied is if it's a link
-		// return (item->getPermissions().allowCopyBy(gAgent.getID()));
+		// You can never copy a link.
 		if (item->getIsLinkType())
 		{
 			return FALSE;
 		}
-		return TRUE;
+
+		if (gAgent.isGodlike())
+		{
+			// All items can be copied in god mode since you can
+			// at least paste-as-link the item, though you 
+			// still may not be able paste the item.
+			return TRUE;
+		}
+		else
+		{
+			return (item->getPermissions().allowCopyBy(gAgent.getID()));
+		}
 	}
 	return FALSE;
 }
+
 BOOL LLItemBridge::copyToClipboard() const
 {
 	if(isItemCopyable())
@@ -1472,10 +1439,7 @@ BOOL LLFolderBridge::isItemRemovable()
 		return FALSE;
 	}
 
-	// Allow protected types to be removed, but issue a warning.
-	// Restrict to god mode so users don't inadvertently mess up their inventory.
-	if(LLFolderType::lookupIsProtectedType(category->getPreferredType()) &&
-	   !gAgent.isGodlike())
+	if(LLFolderType::lookupIsProtectedType(category->getPreferredType()))
 	{
 		return FALSE;
 	}
@@ -1681,23 +1645,10 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 					for( i = 0; i < descendent_items.count(); i++ )
 					{
 						LLInventoryItem* item = descendent_items[i];
-						if( (item->getType() == LLAssetType::AT_CLOTHING) ||
-							(item->getType() == LLAssetType::AT_BODYPART) )
+						if (get_is_item_worn(item->getUUID()))
 						{
-							if( gAgentWearables.isWearingItem( item->getUUID() ) )
-							{
-								is_movable = FALSE;  // It's generally movable, but not into the trash!
-								break;
-							}
-						}
-						else
-						if( item->getType() == LLAssetType::AT_OBJECT )
-						{
-							if( avatar->isWearingAttachment( item->getUUID() ) )
-							{
-								is_movable = FALSE;  // It's generally movable, but not into the trash!
-								break;
-							}
+							is_movable = FALSE;
+							break; // It's generally movable, but not into the trash!
 						}
 					}
 				}
@@ -2187,6 +2138,12 @@ void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 		restoreItem();
 		return;
 	}
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	else if ("delete_system_folder" == action)
+	{
+		removeSystemFolder();
+	}
+#endif
 }
 
 void LLFolderBridge::openItem()
@@ -2310,13 +2267,27 @@ BOOL LLFolderBridge::removeItem()
 
 	LLNotification::Params params("ConfirmDeleteProtectedCategory");
 	params.payload(payload).substitutions(args).functor.function(boost::bind(&LLFolderBridge::removeItemResponse, this, _1, _2));
-	if (LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
+	LLNotifications::instance().forceResponse(params, 0);
+	return TRUE;
+}
+
+
+BOOL LLFolderBridge::removeSystemFolder()
+{
+	const LLViewerInventoryCategory *cat = getCategory();
+	if (!LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
+	{
+		return FALSE;
+	}
+
+	LLSD payload;
+	LLSD args;
+	args["FOLDERNAME"] = cat->getName();
+
+	LLNotification::Params params("ConfirmDeleteProtectedCategory");
+	params.payload(payload).substitutions(args).functor.function(boost::bind(&LLFolderBridge::removeItemResponse, this, _1, _2));
 	{
 		LLNotifications::instance().add(params);
-	}
-	else
-	{
-		LLNotifications::instance().forceResponse(params, 0);
 	}
 	return TRUE;
 }
@@ -2485,6 +2456,13 @@ void LLFolderBridge::folderOptionsMenu()
 		}
 	}
 
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	if (LLFolderType::lookupIsProtectedType(type))
+	{
+		mItems.push_back(std::string("Delete System Folder"));
+	}
+#endif
+
 	// wearables related functionality for folders.
 	//is_wearable
 	LLFindWearables is_wearable;
@@ -2512,7 +2490,10 @@ void LLFolderBridge::folderOptionsMenu()
 			mItems.push_back(std::string("Wear As Ensemble"));
 		}
 		mItems.push_back(std::string("Remove From Outfit"));
-
+		if (!areAnyContentsWorn(model))
+		{
+			disabled_items.push_back(std::string("Remove From Outfit"));
+		}
 		mItems.push_back(std::string("Outfit Separator"));
 	}
 	hide_context_entries(*mMenu, mItems, disabled_items);
@@ -2532,6 +2513,35 @@ BOOL LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInv
 								LLInventoryModel::EXCLUDE_TRASH,
 								is_type);
 	return ((item_array.count() > 0) ? TRUE : FALSE );
+}
+
+class LLFindWorn : public LLInventoryCollectFunctor
+{
+public:
+	LLFindWorn() {}
+	virtual ~LLFindWorn() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item)
+	{
+		if (item && get_is_item_worn(item->getUUID()))
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+};
+
+BOOL LLFolderBridge::areAnyContentsWorn(LLInventoryModel* model) const
+{
+	LLInventoryModel::cat_array_t cat_array;
+	LLInventoryModel::item_array_t item_array;
+	LLFindWorn is_worn;
+	model->collectDescendentsIf(mUUID,
+								cat_array,
+								item_array,
+								LLInventoryModel::EXCLUDE_TRASH,
+								is_worn);
+	return (item_array.size() > 0);
 }
 
 // Flags unused
@@ -2656,6 +2666,13 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		mItems.push_back(std::string("--no options--"));
 		mDisabledItems.push_back(std::string("--no options--"));
 	}
+
+	// Preemptively disable system folder removal if more than one item selected.
+	if ((flags & FIRST_SELECTED_ITEM) == 0)
+	{
+		mDisabledItems.push_back(std::string("Delete System Folder"));
+	}
+	
 	hide_context_entries(menu, mItems, mDisabledItems);
 }
 
@@ -2998,19 +3015,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 		if(is_movable && move_is_into_trash)
 		{
-			switch(inv_item->getType())
-			{
-			case LLAssetType::AT_CLOTHING:
-			case LLAssetType::AT_BODYPART:
-				is_movable = !gAgentWearables.isWearingItem(inv_item->getUUID());
-				break;
-
-			case LLAssetType::AT_OBJECT:
-				is_movable = !avatar->isWearingAttachment(inv_item->getUUID());
-				break;
-			default:
-				break;
-			}
+			is_movable = inv_item->getIsLinkType() || !get_is_item_worn(inv_item->getUUID());
 		}
 
 		if ( is_movable )
@@ -4080,8 +4085,7 @@ LLFontGL::StyleFlags LLObjectBridge::getLabelStyle() const
 {
 	U8 font = LLFontGL::NORMAL;
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if( avatar && avatar->isWearingAttachment( mUUID ) )
+	if(get_is_item_worn( mUUID ) )
 	{
 		font |= LLFontGL::BOLD;
 	}
@@ -4097,9 +4101,9 @@ LLFontGL::StyleFlags LLObjectBridge::getLabelStyle() const
 
 std::string LLObjectBridge::getLabelSuffix() const
 {
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if( avatar && avatar->isWearingAttachment( mUUID ) )
+	if (get_is_item_worn(mUUID))
 	{
+		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 		std::string attachment_point_name = avatar->getAttachedPointName(mUUID);
 
 		// e.g. "(worn on ...)" / "(attached to ...)"
@@ -4224,12 +4228,11 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				return;
 			}
 
-			if( avatarp->isWearingAttachment( mUUID ) )
+			if( get_is_item_worn( mUUID ) )
 			{
 				items.push_back(std::string("Detach From Yourself"));
 			}
-			else
-			if( !isInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing())
+			else if (!isInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing())
 			{
 				items.push_back(std::string("Attach Separator"));
 				items.push_back(std::string("Object Wear"));
@@ -4455,7 +4458,7 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 				if (gAgent.isTeen() && item->isWearableType() &&
 					(item->getWearableType() == WT_UNDERPANTS || item->getWearableType() == WT_UNDERSHIRT))
 					continue;
-				if( gAgentWearables.isWearingItem (item->getLinkedUUID()) )
+				if (get_is_item_worn(item->getUUID()))
 				{
 					LLWearableList::instance().getAsset(item->getAssetUUID(),
 														item->getName(),
@@ -4471,18 +4474,21 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 			for(i = 0; i  < obj_count; ++i)
 			{
 				LLViewerInventoryItem *obj_item = obj_item_array.get(i);
-				gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
-				gMessageSystem->nextBlockFast(_PREHASH_ObjectData );
-				gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-				gMessageSystem->addUUIDFast(_PREHASH_ItemID, obj_item->getLinkedUUID() );
-
-				gMessageSystem->sendReliable( gAgent.getRegion()->getHost() );
-
-				// this object might have been selected, so let the selection manager know it's gone now
-				LLViewerObject *found_obj = gObjectList.findObject( obj_item->getLinkedUUID());
-				if (found_obj)
+				if (get_is_item_worn(obj_item->getUUID()))
 				{
-					LLSelectMgr::getInstance()->remove(found_obj);
+					gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
+					gMessageSystem->nextBlockFast(_PREHASH_ObjectData );
+					gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
+					gMessageSystem->addUUIDFast(_PREHASH_ItemID, obj_item->getLinkedUUID() );
+					
+					gMessageSystem->sendReliable( gAgent.getRegion()->getHost() );
+					
+					// this object might have been selected, so let the selection manager know it's gone now
+					LLViewerObject *found_obj = gObjectList.findObject( obj_item->getLinkedUUID());
+					if (found_obj)
+					{
+						LLSelectMgr::getInstance()->remove(found_obj);
+					}
 				}
 			}
 		}
@@ -4492,7 +4498,7 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 			for(i = 0; i  < gest_count; ++i)
 			{
 				LLViewerInventoryItem *gest_item = gest_item_array.get(i);
-				if ( LLGestureManager::instance().isGestureActive( gest_item->getLinkedUUID()) )
+				if (get_is_item_worn(gest_item->getUUID()))
 				{
 					LLGestureManager::instance().deactivateGesture( gest_item->getLinkedUUID() );
 					gInventory.updateItem( gest_item );
@@ -4506,7 +4512,7 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 
 BOOL LLWearableBridge::renameItem(const std::string& new_name)
 {
-	if( gAgentWearables.isWearingItem( mUUID ) )
+	if (get_is_item_worn(mUUID))
 	{
 		gAgentWearables.setWearableName( mUUID, new_name );
 	}
@@ -4515,7 +4521,7 @@ BOOL LLWearableBridge::renameItem(const std::string& new_name)
 
 std::string LLWearableBridge::getLabelSuffix() const
 {
-	if( gAgentWearables.isWearingItem( mUUID ) )
+	if (get_is_item_worn(mUUID))
 	{
 		// e.g. "(worn)" 
 		return LLItemBridge::getLabelSuffix() + LLTrans::getString("worn");
@@ -4549,7 +4555,7 @@ void LLWearableBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 	}
 	else if (isRemoveAction(action))
 	{
-		if(gAgentWearables.isWearingItem(mUUID))
+		if (get_is_item_worn(mUUID))
 		{
 			LLViewerInventoryItem* item = getItem();
 			if (item)
@@ -4580,7 +4586,7 @@ void LLWearableBridge::openItem()
 	}
 	else if(isAgentInventory())
 	{
-		if( !gAgentWearables.isWearingItem( mUUID ) )
+		if( !get_is_item_worn( mUUID ) )
 		{
 			wearOnAvatar();
 		}
@@ -4680,7 +4686,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				case LLAssetType::AT_CLOTHING:
 					items.push_back(std::string("Take Off"));
 				case LLAssetType::AT_BODYPART:
-					if (gAgentWearables.isWearingItem(item->getUUID()))
+					if (get_is_item_worn(item->getUUID()))
 					{
 						disabled_items.push_back(std::string("Wearable Wear"));
 						disabled_items.push_back(std::string("Wearable Add"));
@@ -4711,7 +4717,7 @@ BOOL LLWearableBridge::canWearOnAvatar(void* user_data)
 		LLViewerInventoryItem* item = (LLViewerInventoryItem*)self->getItem();
 		if(!item || !item->isComplete()) return FALSE;
 	}
-	return (!gAgentWearables.isWearingItem(self->mUUID));
+	return (!get_is_item_worn(self->mUUID));
 }
 
 // Called from menus
@@ -4843,7 +4849,7 @@ BOOL LLWearableBridge::canEditOnAvatar(void* user_data)
 	LLWearableBridge* self = (LLWearableBridge*)user_data;
 	if(!self) return FALSE;
 
-	return (gAgentWearables.isWearingItem(self->mUUID));
+	return (get_is_item_worn(self->mUUID));
 }
 
 // static
@@ -4880,7 +4886,7 @@ BOOL LLWearableBridge::canRemoveFromAvatar(void* user_data)
 	LLWearableBridge* self = (LLWearableBridge*)user_data;
 	if( self && (LLAssetType::AT_BODYPART != self->mAssetType) )
 	{
-		return gAgentWearables.isWearingItem( self->mUUID );
+		return get_is_item_worn( self->mUUID );
 	}
 	return FALSE;
 }
@@ -4890,7 +4896,7 @@ void LLWearableBridge::onRemoveFromAvatar(void* user_data)
 {
 	LLWearableBridge* self = (LLWearableBridge*)user_data;
 	if(!self) return;
-	if(gAgentWearables.isWearingItem(self->mUUID))
+	if(get_is_item_worn(self->mUUID))
 	{
 		LLViewerInventoryItem* item = self->getItem();
 		if (item)
@@ -4913,7 +4919,7 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 	const LLUUID &item_id = gInventory.getLinkedItemID(on_remove_struct->mUUID);
 	if(wearable)
 	{
-		if( gAgentWearables.isWearingItem( item_id ) )
+		if( get_is_item_worn( item_id ) )
 		{
 			EWearableType type = wearable->getType();
 
@@ -5123,8 +5129,9 @@ void	LLAnimationBridgeAction::doIt()
 //virtual
 void	LLObjectBridgeAction::doIt()
 {
+	/*
 	LLFloaterReg::showInstance("properties", mUUID);
-
+	*/
 	LLInvFVBridgeAction::doIt();
 }
 
@@ -5196,7 +5203,7 @@ void LLWearableBridgeAction::doIt()
 	}
 	else if(isAgentInventory())
 	{
-		if(!gAgentWearables.isWearingItem(mUUID))
+		if(!get_is_item_worn(mUUID))
 		{
 			wearOnAvatar();
 		}

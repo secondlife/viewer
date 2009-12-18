@@ -110,6 +110,7 @@ private:
 	void onCommitVolumeSlider();
 	void onToggleMute();
 	void showVolumeSlider();
+	void hideVolumeSlider();
 	
 	static void onScrollUp(void* user_data);
 	static void onScrollUpHeld(void* user_data);
@@ -204,7 +205,7 @@ private:
 	LLUUID mZoomObjectID;
 	S32 mZoomObjectFace;
 	
-	bool mVolumeSliderVisible;
+	S32 mVolumeSliderVisible;
 };
 
 #endif // LL_PANELPRIMMEDIACONTROLS_H
