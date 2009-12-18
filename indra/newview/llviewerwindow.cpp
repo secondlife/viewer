@@ -875,7 +875,8 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 								media_data[LLMediaEntry::AUTO_PLAY_KEY] = true;
 								obj->syncMediaData(object_face, media_data, true, true);
 								// XXX This shouldn't be necessary, should it ?!?
-								obj->getMediaImpl(object_face)->navigateReload();
+								if (obj->getMediaImpl(object_face))
+									obj->getMediaImpl(object_face)->navigateReload();
 								obj->sendMediaDataUpdate();
 								
 								result = LLWindowCallbacks::DND_COPY;
@@ -885,8 +886,20 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 								if (te->getMediaData()->checkCandidateUrl(url))
 								{
 									// just navigate to the URL
-									obj->getMediaImpl(object_face)->navigateTo(url);
-								
+									if (obj->getMediaImpl(object_face))
+									{
+										obj->getMediaImpl(object_face)->navigateTo(url);
+									}
+									else {
+										// This is very strange.  Navigation should
+										// happen via the Impl, but we don't have one.
+										// This sends it to the server, which /should/
+										// trigger us getting it.  Hopefully.
+										LLSD media_data;
+										media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
+										obj->syncMediaData(object_face, media_data, true, true);
+										obj->sendMediaDataUpdate();
+									}
 									result = LLWindowCallbacks::DND_LINK;
 								}
 							}
