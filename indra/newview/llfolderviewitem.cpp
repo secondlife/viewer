@@ -983,10 +983,6 @@ void LLFolderViewItem::draw()
 			text_left = right_x;
 		}
 
-		font->renderUTF8( "BLAH BLAH ", 0, right_x, y, sSuffixColor,
-						  LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-						  S32_MAX, S32_MAX, &right_x, FALSE );
-		
 		if (!mLabelSuffix.empty())
 		{
 			font->renderUTF8( mLabelSuffix, 0, right_x, y, sSuffixColor,
