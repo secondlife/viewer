@@ -467,6 +467,7 @@ protected:
 	static std::string sPreviousSessionlName;
 	static std::string sCurrentSessionlName;
 	static LLIMModel::LLIMSession* sSession;
+	static LLVoiceChannel::EState sOldState;
 };
 
 class LLCallDialog : public LLDockableFloater
@@ -504,14 +505,18 @@ public:
 	LLOutgoingCallDialog(const LLSD& payload);
 
 	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+	void show(const LLSD& key);
 
 	static void onCancel(void* user_data);
+	static const LLUUID OCD_KEY;
 
 	// check timer state
 	/*virtual*/ void draw();
 
 private:
+
+	// hide all text boxes
+	void hideAllText();
 	// lifetime timer for NO_ANSWER notification
 	LLTimer	mLifetimeTimer;
 	// lifetime duration for NO_ANSWER notification

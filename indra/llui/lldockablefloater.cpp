@@ -38,8 +38,6 @@
 //static
 LLHandle<LLFloater> LLDockableFloater::sInstanceHandle;
 
-static const std::string VOICE_FLOATER("floater_voice_controls"), IM_FLOATER("panel_im");
-
 //static
 void LLDockableFloater::init(LLDockableFloater* thiz)
 {
@@ -116,11 +114,9 @@ void LLDockableFloater::resetInstance()
 {
 	if (mUniqueDocking && sInstanceHandle.get() != this)
 	{
-		if (sInstanceHandle.get() != NULL && sInstanceHandle.get()->isDocked()
-				&& (getName() != VOICE_FLOATER || sInstanceHandle.get()->getName() != IM_FLOATER)
-					&& (getName() !=  IM_FLOATER || sInstanceHandle.get()->getName() != VOICE_FLOATER))
+		if (sInstanceHandle.get() != NULL && sInstanceHandle.get()->isDocked())
 		{
-				sInstanceHandle.get()->setVisible(FALSE);
+			sInstanceHandle.get()->setVisible(FALSE);
 		}
 		sInstanceHandle = getHandle();
 	}

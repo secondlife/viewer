@@ -963,6 +963,8 @@ public:
 
 	S32 getMinWidth() const { return mMinWidth; }
 
+	S32 getTotalUnreadIMCount();
+
 protected:
 	LLChicletPanel(const Params&p);
 	friend class LLUICtrlFactory;

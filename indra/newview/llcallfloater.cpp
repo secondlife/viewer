@@ -44,6 +44,7 @@
 #include "llbottomtray.h"
 #include "llparticipantlist.h"
 #include "llspeakers.h"
+#include "lltransientfloatermgr.h"
 
 
 class LLNonAvatarCaller : public LLAvatarListItem
@@ -77,7 +78,7 @@ static void* create_non_avatar_caller(void*)
 }
 
 LLCallFloater::LLCallFloater(const LLSD& key)
-: LLDockableFloater(NULL, key)
+: LLDockableFloater(NULL, false, key)
 , mSpeakerManager(NULL)
 , mPaticipants(NULL)
 , mAvatarList(NULL)
@@ -89,6 +90,7 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 {
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
 	LLVoiceClient::getInstance()->addObserver(this);
+	LLTransientFloaterMgr::getInstance()->addControlView(this);
 }
 
 LLCallFloater::~LLCallFloater()
@@ -103,6 +105,7 @@ LLCallFloater::~LLCallFloater()
 	{
 		gVoiceClient->removeObserver(this);
 	}
+	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
 
 // virtual
@@ -238,7 +241,7 @@ void LLCallFloater::updateSession()
 	
 	//hide "Leave Call" button for nearby chat
 	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
-	childSetVisible("leave_btn_panel", !is_local_chat);
+	childSetVisible("leave_call_btn", !is_local_chat);
 	
 	refreshPartisipantList();
 	updateModeratorState();

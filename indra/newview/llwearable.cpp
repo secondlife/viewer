@@ -356,7 +356,7 @@ BOOL LLWearable::importFile( LLFILE* file )
 
 	if( num_parameters != mVisualParamIndexMap.size() )
 	{
-		llwarns << "Wearable parameter mismatch. Reading in " << num_parameters << " from file, but created " << mVisualParamIndexMap.size() << " from avatar parameters. " << llendl;
+		llwarns << "Wearable parameter mismatch. Reading in " << num_parameters << " from file, but created " << mVisualParamIndexMap.size() << " from avatar parameters. type: " <<  mType << llendl;
 	}
 
 	// parameters

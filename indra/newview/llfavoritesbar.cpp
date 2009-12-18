@@ -370,6 +370,7 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	mLandingTab(NULL),
 	mLastTab(NULL),
 	mTabsHighlightEnabled(TRUE)
+  , mUpdateDropDownItems(true)
 {
 	// Register callback for menus with current registrar (will be parent panel's registrar)
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Favorites.DoToSelected",
@@ -589,16 +590,15 @@ void LLFavoritesBarCtrl::changed(U32 mask)
 	}	
 	else
 	{
-		updateButtons(getRect().getWidth());
+		updateButtons();
 	}
 }
 
 //virtual
 void LLFavoritesBarCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	updateButtons(width);
-
 	LLUICtrl::reshape(width, height, called_from_parent);
+	updateButtons();
 }
 
 void LLFavoritesBarCtrl::draw()
@@ -637,7 +637,7 @@ LLXMLNodePtr LLFavoritesBarCtrl::getButtonXMLNode()
 	return buttonXMLNode;
 }
 
-void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
+void LLFavoritesBarCtrl::updateButtons()
 {
 	mItems.clear();
 
@@ -652,139 +652,142 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 		return;
 	}
 
-	S32 buttonWidth = 120; //default value
-	buttonXMLNode->getAttributeS32("width", buttonWidth);
-	S32 buttonHGap = 2; // default value
-	buttonXMLNode->getAttributeS32("left", buttonHGap);
-	
-	S32 count = mItems.count();
-	S32 buttons_space = bar_width - buttonHGap;
-
-	S32 first_drop_down_item = count;
-
-	// Calculating, how much buttons can fit in the bar
-	S32 buttons_width = 0;
-	for (S32 i = 0; i < count; ++i)
+	const child_list_t* childs = getChildList();
+	child_list_const_iter_t child_it = childs->begin();
+	int first_changed_item_index = 0;
+	int rightest_point = getRect().mRight - mChevronButton->getRect().getWidth();
+	//lets find first changed button
+	while (child_it != childs->end())
 	{
-		buttons_width += buttonWidth + buttonHGap;
-		if (buttons_width > buttons_space)
+		LLFavoriteLandmarkButton* button = dynamic_cast<LLFavoriteLandmarkButton*> (*child_it);
+		if (button)
 		{
-			// There is no space for all buttons.
-			// Calculating the number of buttons, that are fit with chevron button
-			buttons_space -= mChevronButton->getRect().getWidth() + buttonHGap;
-			while (i >= 0 && buttons_width > buttons_space)
-			{
-				buttons_width -= buttonWidth + buttonHGap;
-				i--;
-			}
-			first_drop_down_item = i + 1; // First item behind visible items
-			
-			break;
-		}
-	}
-
-	bool recreate_buttons = true;
-
-	// If inventory items are not changed up to mFirstDropDownItem, no need to recreate them
-	if (mFirstDropDownItem == first_drop_down_item && (mItemNamesCache.size() == count || mItemNamesCache.size() == mFirstDropDownItem))
-	{
-		S32 i;
-		for (i = 0; i < mFirstDropDownItem; ++i)
-		{
-			if (mItemNamesCache.get(i) != mItems.get(i)->getName())
+			// an child's order  and mItems  should be same   
+			if (button->getLandmarkId() != mItems[first_changed_item_index]->getUUID() // sort order has been changed
+					|| button->getLabelSelected() != mItems[first_changed_item_index]->getDisplayName() // favorite's name has been changed
+					|| button->getRect().mRight < rightest_point) // favbar's width has been changed
 			{
 				break;
 			}
+			first_changed_item_index++;
 		}
-		if (i == mFirstDropDownItem)
-		{
-			recreate_buttons = false;
-		}
+		child_it++;
 	}
+	// now first_changed_item_index should contains a number of button that need to change
 
-	if (recreate_buttons)
+	if (first_changed_item_index < mItems.count())
 	{
-		mFirstDropDownItem = first_drop_down_item;
-
-		mItemNamesCache.clear();
-		for (S32 i = 0; i < mFirstDropDownItem; i++)
-		{
-			mItemNamesCache.put(mItems.get(i)->getName());
-		}
-
+		mUpdateDropDownItems = true;
 		// Rebuild the buttons only
 		// child_list_t is a linked list, so safe to erase from the middle if we pre-incrament the iterator
-		for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); )
+
+		while (child_it != childs->end())
 		{
+			//lets remove other landmarks button and rebuild it
 			child_list_const_iter_t cur_it = child_it++;
-			LLView* viewp = *cur_it;
-			LLButton* button = dynamic_cast<LLButton*>(viewp);
-			if (button && (button != mChevronButton))
+			LLFavoriteLandmarkButton* button =
+					dynamic_cast<LLFavoriteLandmarkButton*> (*cur_it);
+			if (button)
 			{
 				removeChild(button);
 				delete button;
 			}
 		}
+		// we have to remove ChevronButton to make sure that the last item will be LandmarkButton to get the right aligning
+		if (mChevronButton->getParent() == this)
+		{
+			removeChild(mChevronButton);
+		}
+		int last_right_edge = 0;
+		if (getChildList()->size() > 0)
+		{
+			last_right_edge = getChildList()->back()->getRect().mRight;
+		}
+		//last_right_edge is saving coordinates
+		LLButton* last_new_button = NULL;
+		int j = first_changed_item_index;
+		for (; j < mItems.count(); j++)
+		{
+			last_new_button = createButton(mItems[j], buttonXMLNode, last_right_edge);
+			if (!last_new_button)
+			{
+				break;
+			}
+			sendChildToBack(last_new_button);
+			last_right_edge = last_new_button->getRect().mRight;
 
-		createButtons(mItems, buttonXMLNode, buttonWidth, buttonHGap);
-	}
+			mLastTab = last_new_button;
+		}
+		mFirstDropDownItem = j;
+		// Chevron button
+		if (mFirstDropDownItem < mItems.count())
+		{
+			S32 buttonHGap = 2; // default value
+			buttonXMLNode->getAttributeS32("left", buttonHGap);
+			LLRect rect;
+			// Chevron button should stay right aligned
+			rect.setOriginAndSize(getRect().mRight - mChevronButton->getRect().getWidth() - buttonHGap, 0,
+					mChevronButton->getRect().getWidth(),
+					mChevronButton->getRect().getHeight());
 
-	// Chevron button
-	if (mFirstDropDownItem != count)
-	{
-		// Chevron button should stay right aligned
-		LLRect rect;
-		rect.setOriginAndSize(bar_width - mChevronButton->getRect().getWidth() - buttonHGap, 0, mChevronButton->getRect().getWidth(), mChevronButton->getRect().getHeight());
-		mChevronButton->setRect(rect);
-		mChevronButton->setVisible(TRUE);
+			addChild(mChevronButton);
+			mChevronButton->setRect(rect);
+			mChevronButton->setVisible(TRUE);
+		}
 	}
 	else
 	{
-		// Hide chevron button if all items are visible on bar
-		mChevronButton->setVisible(FALSE);
+		mUpdateDropDownItems = false;
 	}
 }
 
-
-void LLFavoritesBarCtrl::createButtons(const LLInventoryModel::item_array_t &items, const LLXMLNodePtr &buttonXMLNode, S32 buttonWidth, S32 buttonHGap)
+LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem> item, LLXMLNodePtr &buttonXMLNode, S32 x_offset)
 {
-	S32 curr_x = buttonHGap;
-	// Adding buttons
+	S32 def_button_width = 120;
+	buttonXMLNode->getAttributeS32("width", def_button_width);
+	S32 button_x_delta = 2; // default value
+	buttonXMLNode->getAttributeS32("left", button_x_delta);
+	S32 curr_x = x_offset;
 
+	/**
+	 * WORKAROUND:
+	 * there are some problem with displaying of fonts in buttons. 
+	 * Empty space (or ...) is displaying instead of last symbols, even though the width of the button is enough.
+	 * Problem will gone, if we  stretch out the button. For that reason I have to put additional  10 pixels. 
+	 */
+	int requred_width = mFont->getWidth(item->getDisplayName()) + 10; 
+	int width = requred_width > def_button_width? def_button_width : requred_width;
 	LLFavoriteLandmarkButton* fav_btn = NULL;
-	mLandingTab = mLastTab = NULL;
 
-	for(S32 i = mFirstDropDownItem -1, j = 0; i >= 0; i--)
+	// do we have a place for next button + double buttonHGap + mChevronButton ? 
+	if(curr_x + width + 2*button_x_delta +  mChevronButton->getRect().getWidth() > getRect().mRight )
 	{
-		LLViewerInventoryItem* item = items.get(j++);
-
-		fav_btn = LLUICtrlFactory::defaultBuilder<LLFavoriteLandmarkButton>(buttonXMLNode, this, NULL);
-		if (NULL == fav_btn)
-		{
-			llwarns << "Unable to create button for landmark: " << item->getName() << llendl;
-			continue;
-		}
-
-		fav_btn->setLandmarkID(item->getUUID());
-		
-		// change only left and save bottom
-		fav_btn->setOrigin(curr_x, fav_btn->getRect().mBottom);
-		fav_btn->setFont(mFont);
-		fav_btn->setName(item->getName());
-		fav_btn->setLabel(item->getName());
-		fav_btn->setToolTip(item->getName());
-		fav_btn->setCommitCallback(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
-		fav_btn->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID(), _1, _2, _3,_4 ));
-
-		fav_btn->LLUICtrl::setMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseDown, this, item->getUUID(), _1, _2, _3, _4));
-		fav_btn->LLUICtrl::setMouseUpCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseUp, this, item->getUUID(), _1, _2, _3, _4));
-
-		sendChildToBack(fav_btn);
-
-		curr_x += buttonWidth + buttonHGap;
+		return NULL;
 	}
+	fav_btn = LLUICtrlFactory::defaultBuilder<LLFavoriteLandmarkButton>(buttonXMLNode, this, NULL);
+	if (NULL == fav_btn)
+	{
+		llwarns << "Unable to create LLFavoriteLandmarkButton widget: " << item->getName() << llendl;
+		return NULL;
+	}
+	
+	LLRect butt_rect (fav_btn->getRect());
+	fav_btn->setLandmarkID(item->getUUID());
+	butt_rect.setOriginAndSize(curr_x + button_x_delta, fav_btn->getRect().mBottom, width, fav_btn->getRect().getHeight());
+	
+	fav_btn->setRect(butt_rect);
+	// change only left and save bottom
+	fav_btn->setFont(mFont);
+	fav_btn->setName(item->getName());
+	fav_btn->setLabel(item->getName());
+	fav_btn->setToolTip(item->getName());
+	fav_btn->setCommitCallback(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
+	fav_btn->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID(), _1, _2, _3,_4 ));
 
-	mLastTab = fav_btn;
+	fav_btn->LLUICtrl::setMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseDown, this, item->getUUID(), _1, _2, _3, _4));
+	fav_btn->LLUICtrl::setMouseUpCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseUp, this, item->getUUID(), _1, _2, _3, _4));
+
+	return fav_btn;
 }
 
 
@@ -844,99 +847,61 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 
 	LLToggleableMenu* menu = (LLToggleableMenu*)mPopupMenuHandle.get();
 
-	if(menu)
+	if (menu)
 	{
 		if (!menu->toggleVisibility())
 			return;
 
-		mItems.clear();
-
-		if (!collectFavoriteItems(mItems))
-		{
-			return;
-		}
-
-		S32 count = mItems.count();
-
-		// Check it there are changed items, since last call
-		if (mItemNamesCache.size() == count)
-		{
-			S32 i;
-			for (i = mFirstDropDownItem; i < count; i++)
-			{
-				if (mItemNamesCache.get(i) != mItems.get(i)->getName())
-				{
-					break;
-				}
-			}
-
-			// Check passed, just show the menu
-			if (i == count)
-			{
-				menu->buildDrawLabels();
-				menu->updateParent(LLMenuGL::sMenuContainer);
-
-				if (menu->getButtonRect().isEmpty())
-				{
-					menu->setButtonRect(mChevronButton->getRect(), this);
-				}
-
-				LLMenuGL::showPopup(this, menu, getRect().getWidth() - menu->getRect().getWidth(), 0);
-				return;
-			}
-		}
-
-		// Add menu items to cache, if there is only names of buttons
-		if (mItemNamesCache.size() == mFirstDropDownItem)
-		{
-			for (S32 i = mFirstDropDownItem; i < count; i++)
-			{
-				mItemNamesCache.put(mItems.get(i)->getName());
-			}
-		}
-
-		menu->empty();
-
 		U32 max_width = llmin(DROP_DOWN_MENU_WIDTH, getRect().getWidth());
-		U32 widest_item = 0;
-
-		for(S32 i = mFirstDropDownItem; i < count; i++)
+		if (mUpdateDropDownItems)
 		{
-			LLViewerInventoryItem* item = mItems.get(i);
-			const std::string& item_name = item->getName();
+			menu->empty();
 
-			LLFavoriteLandmarkMenuItem::Params item_params;
-			item_params.name(item_name);
-			item_params.label(item_name);
-			
-			item_params.on_click.function(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
-			LLFavoriteLandmarkMenuItem *menu_item = LLUICtrlFactory::create<LLFavoriteLandmarkMenuItem>(item_params);
-			menu_item->initFavoritesBarPointer(this);
-			menu_item->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this,item->getUUID(),_1,_2,_3,_4));
-			menu_item->LLUICtrl::setMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseDown, this, item->getUUID(), _1, _2, _3, _4));
-			menu_item->LLUICtrl::setMouseUpCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseUp, this, item->getUUID(), _1, _2, _3, _4));
-			menu_item->setLandmarkID(item->getUUID());
+			U32 widest_item = 0;
 
-			// Check whether item name wider than menu
-			if (menu_item->getNominalWidth() > max_width)
+			for (S32 i = mFirstDropDownItem; i < mItems.count(); i++)
 			{
-				S32 chars_total = item_name.length();
-				S32 chars_fitted = 1;
-				menu_item->setLabel(LLStringExplicit(""));
-				S32 label_space = max_width - menu_item->getFont()->getWidth("...") -
-					menu_item->getNominalWidth(); // This returns width of menu item with empty label (pad pixels)
+				LLViewerInventoryItem* item = mItems.get(i);
+				const std::string& item_name = item->getName();
 
-				while (chars_fitted < chars_total && menu_item->getFont()->getWidth(item_name, 0, chars_fitted) < label_space)
+				LLFavoriteLandmarkMenuItem::Params item_params;
+				item_params.name(item_name);
+				item_params.label(item_name);
+
+				item_params.on_click.function(boost::bind(
+						&LLFavoritesBarCtrl::onButtonClick, this,
+						item->getUUID()));
+				LLFavoriteLandmarkMenuItem *menu_item = LLUICtrlFactory::create<LLFavoriteLandmarkMenuItem>(item_params);
+				menu_item->initFavoritesBarPointer(this);
+				menu_item->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID(), _1, _2, _3, _4));
+				menu_item->LLUICtrl::setMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseDown, this, item->getUUID(), _1, _2, _3, _4));
+				menu_item->LLUICtrl::setMouseUpCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseUp, this, item->getUUID(), _1, _2, _3, _4));
+				menu_item->setLandmarkID(item->getUUID());
+
+				// Check whether item name wider than menu
+				if (menu_item->getNominalWidth() > max_width)
 				{
-					chars_fitted++;
+					S32 chars_total = item_name.length();
+					S32 chars_fitted = 1;
+					menu_item->setLabel(LLStringExplicit(""));
+					S32 label_space = max_width - menu_item->getFont()->getWidth("...") - 
+							menu_item->getNominalWidth();// This returns width of menu item with empty label (pad pixels) 
+
+					while (chars_fitted < chars_total
+							&& menu_item->getFont()->getWidth(item_name, 0, chars_fitted) < label_space)
+					{
+						chars_fitted++;
+					}
+					chars_fitted--; // Rolling back one char, that doesn't fit
+
+					menu_item->setLabel(item_name.substr(0, chars_fitted)
+							+ "...");
 				}
-				chars_fitted--; // Rolling back one char, that doesn't fit
+				widest_item = llmax(widest_item, menu_item->getNominalWidth());
 
-				menu_item->setLabel(item_name.substr(0, chars_fitted) + "...");
+				menu->addChild(menu_item);
 			}
-			widest_item = llmax(widest_item, menu_item->getNominalWidth());
-
-			menu->addChild(menu_item);
+			mUpdateDropDownItems = false;
 		}
 
 		menu->buildDrawLabels();
@@ -945,7 +910,6 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 		menu->setButtonRect(mChevronButton->getRect(), this);
 
 		LLMenuGL::showPopup(this, menu, getRect().getWidth() - max_width, 0);
-		
 	}
 }
 
