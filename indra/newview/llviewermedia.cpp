@@ -160,36 +160,25 @@ public:
 		std::string media_type = content["content-type"].asString();
 		std::string::size_type idx1 = media_type.find_first_of(";");
 		std::string mime_type = media_type.substr(0, idx1);
-		completeAny(status, mime_type);
-	}
 
-	virtual void error( U32 status, const std::string& reason )
-	{
-		if(status == 401)
+		lldebugs << "status is " << status << ", media type \"" << media_type << "\"" << llendl;
+		
+		// 2xx status codes indicate success.
+		// Most 4xx status codes are successful enough for our purposes.
+		// 499 is the error code for host not found, timeout, etc.
+		if(	((status >= 200) && (status < 300))	||
+			((status >= 400) && (status < 499))	)
 		{
-			// This is the "you need to authenticate" status.  
-			// Treat this like an html page.
-			completeAny(status, "text/html");
-		}
-		else
-		if(status == 403)
-		{
-			completeAny(status, "text/html");
-		}
-		else
-		if(status == 404)
-		{
-			// 404 is content not found - sites often have bespoke 404 pages so
-			// treat them like an html page.
-			completeAny(status, "text/html");
-		}
-		else
-		if(status == 406)
-		{
-			// 406 means the server sent something that we didn't indicate was acceptable
-			// Eventually we should send what we accept in the headers but for now,
-			// treat 406s like an html page.
-			completeAny(status, "text/html");
+			// The probe was successful.
+			
+			if(mime_type.empty())
+			{
+				// Some sites don't return any content-type header at all.
+				// Treat an empty mime type as text/html.
+				mime_type = "text/html";
+			}
+			
+			completeAny(status, mime_type);
 		}
 		else
 		{
@@ -200,6 +189,7 @@ public:
 				mMediaImpl->mMediaSourceFailed = true;
 			}
 		}
+
 	}
 
 	void completeAny(U32 status, const std::string& mime_type)
@@ -582,8 +572,8 @@ bool LLViewerMedia::isInterestingEnough(const LLVOVolume *object, const F64 &obj
 	}
 	else 
 	{
-		llinfos << "object interest = " << object_interest << ", lowest loadable = " << sLowestLoadableImplInterest << llendl;
-		if(object_interest > sLowestLoadableImplInterest)
+		lldebugs << "object interest = " << object_interest << ", lowest loadable = " << sLowestLoadableImplInterest << llendl;
+		if(object_interest >= sLowestLoadableImplInterest)
 			result = true;
 	}
 	
@@ -929,6 +919,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mMimeTypeProbe(NULL),
 	mMediaAutoPlay(false),
 	mInNearbyMediaList(false),
+	mClearCache(false),
 	mIsUpdated(false)
 { 
 
@@ -1138,6 +1129,12 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		media_source->setAutoScale(mMediaAutoScale);
 		media_source->setBrowserUserAgent(LLViewerMedia::getCurrentUserAgent());
 		media_source->focus(mHasFocus);
+		
+		if(mClearCache)
+		{
+			mClearCache = false;
+			media_source->clear_cache();
+		}
 		
 		mMediaSource = media_source;
 
@@ -1349,6 +1346,19 @@ std::string LLViewerMediaImpl::getCurrentMediaURL()
 	}
 	
 	return mMediaURL;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::clearCache()
+{
+	if(mMediaSource)
+	{
+		mMediaSource->clear_cache();
+	}
+	else
+	{
+		mClearCache = true;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1633,7 +1643,12 @@ void LLViewerMediaImpl::navigateInternal()
 
 		if(scheme.empty() || "http" == scheme || "https" == scheme)
 		{
-			LLHTTPClient::getHeaderOnly( mMediaURL, new LLMimeDiscoveryResponder(this), 10.0f);
+			// If we don't set an Accept header, LLHTTPClient will add one like this:
+			//    Accept: application/llsd+xml
+			// which is really not what we want.
+			LLSD headers = LLSD::emptyMap();
+			headers["Accept"] = "*/*";
+			LLHTTPClient::getHeaderOnly( mMediaURL, new LLMimeDiscoveryResponder(this), headers, 10.0f);
 		}
 		else if("data" == scheme || "file" == scheme || "about" == scheme)
 		{

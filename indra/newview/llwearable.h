@@ -127,6 +127,7 @@ public:
 	void 				setClothesColor( S32 te, const LLColor4& new_color, BOOL upload_bake );
 
 	void				revertValues();
+	void				saveValues();
 
 	BOOL				isOnTop() const;
 
@@ -143,7 +144,6 @@ private:
 
 	void 				createLayers(S32 te);
 	void 				createVisualParams();
-	void				saveValues();
 	void				syncImages(te_map_t &src, te_map_t &dst);
 	void				destroyTextures();			
 

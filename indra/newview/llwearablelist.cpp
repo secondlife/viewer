@@ -249,8 +249,12 @@ LLWearable* LLWearableList::createNewWearable( EWearableType type )
 	wearable->setParamsToDefaults();
 	wearable->setTexturesToDefaults();
 
+	//mark all values (params & images) as saved
+	wearable->saveValues();
+
 	// Send to the dataserver
 	wearable->saveNewAsset();
+
 
 	return wearable;
 }

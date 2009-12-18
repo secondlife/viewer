@@ -117,6 +117,9 @@ public:
 		// set/clear URL to visit when a 404 page is reached
 		void set404RedirectUrl( std::string redirect_url );
 		void clr404RedirectUrl();
+		
+		// Clear the browser cache when the instance gets loaded
+		void clearCache();
 
 		// accessor/mutator for flag that indicates if frequent updates to texture happen
 		bool getFrequentUpdates() { return mFrequentUpdates; };
@@ -192,6 +195,7 @@ public:
 		bool mDecoupleTextureSize;
 		S32 mTextureWidth;
 		S32 mTextureHeight;
+		bool mClearCache;
 };
 
 #endif // LL_LLMediaCtrl_H
