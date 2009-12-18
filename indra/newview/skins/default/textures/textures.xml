@@ -50,8 +50,10 @@ with the same filename but different name
   <texture name="Arrow_Right_Off" file_name="navbar/Arrow_Right_Off.png" preload="true" />
   <texture name="Arrow_Right_Press" file_name="navbar/Arrow_Right_Press.png" preload="true" />
 
+<!--
   <texture name="Arrow_Left" file_name="widgets/Arrow_Left.png" preload="true" />
   <texture name="Arrow_Right" file_name="widgets/Arrow_Right.png" preload="true" />
+-->
 
   <texture name="Arrow_Small_Up" file_name="widgets/Arrow_Small_Up.png" preload="true" />
   <texture name="Arrow_Small_Left" file_name="widgets/Arrow_Small_Left.png" preload="true" />

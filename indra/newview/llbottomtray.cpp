@@ -67,6 +67,10 @@ LLBottomTray::LLBottomTray(const LLSD&)
 ,	mGesturePanel(NULL)
 ,	mCamButton(NULL)
 {
+	// Firstly add ourself to IMSession observers, so we catch session events
+	// before chiclets do that.
+	LLIMMgr::getInstance()->addSessionObserver(this);
+
 	mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 
 	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_bottomtray.xml");
@@ -76,7 +80,6 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	mChicletPanel->setChicletClickedCallback(boost::bind(&LLBottomTray::onChicletClick,this,_1));
 
 	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraPresets, _2));
-	LLIMMgr::getInstance()->addSessionObserver(this);
 
 	//managing chiclets for voice calls
 	LLIMModel::getInstance()->addNewMsgCallback(boost::bind(&LLBottomTray::onNewIM, this, _1));

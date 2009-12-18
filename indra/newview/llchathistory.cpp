@@ -202,6 +202,8 @@ public:
 			userName->setValue(SL);
 		}
 
+		mMinUserNameWidth = style_params.font.getValueFromBlock()->getWidth(userName->getWText().c_str()) + PADDING;
+
 		setTimeField(chat);
 		
 		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
@@ -218,7 +220,37 @@ public:
 			icon->setValue(LLSD("SL_Logo"));
 		}
 
-	} 
+	}
+
+	/*virtual*/ void draw()
+	{
+		LLTextEditor* user_name = getChild<LLTextEditor>("user_name");
+		LLTextBox* time_box = getChild<LLTextBox>("time_box");
+
+		LLRect user_name_rect = user_name->getRect();
+		S32 user_name_width = user_name_rect.getWidth();
+		S32 time_box_width = time_box->getRect().getWidth();
+
+		if (time_box->getVisible() && user_name_width <= mMinUserNameWidth)
+		{
+			time_box->setVisible(FALSE);
+
+			user_name_rect.mRight += time_box_width;
+			user_name->reshape(user_name_rect.getWidth(), user_name_rect.getHeight());
+			user_name->setRect(user_name_rect);
+		}
+
+		if (!time_box->getVisible() && user_name_width > mMinUserNameWidth + time_box_width)
+		{
+			user_name_rect.mRight -= time_box_width;
+			user_name->reshape(user_name_rect.getWidth(), user_name_rect.getHeight());
+			user_name->setRect(user_name_rect);
+
+			time_box->setVisible(TRUE);
+		}
+
+		LLPanel::draw();
+	}
 
 	void nameUpdatedCallback(const LLUUID& id,const std::string& first,const std::string& last,BOOL is_group)
 	{
@@ -228,6 +260,8 @@ public:
 		mLastName = last;
 	}
 protected:
+	static const S32 PADDING = 20;
+
 	void showContextMenu(S32 x,S32 y)
 	{
 		if(mSourceType == CHAT_SOURCE_SYSTEM)
@@ -307,6 +341,7 @@ protected:
 	std::string			mLastName;
 	std::string			mFrom;
 
+	S32					mMinUserNameWidth;
 };
 
 
