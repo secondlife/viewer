@@ -437,6 +437,7 @@ S32 LLQueuedThread::processNextRequest()
 	if (req)
 	{
 		// process request
+		U32 start_priority = req->getPriority();
 		bool complete = req->processRequest();
 
 		if (complete)
@@ -457,9 +458,8 @@ S32 LLQueuedThread::processNextRequest()
 			lockData();
 			req->setStatus(STATUS_QUEUED);
 			mRequestQueue.insert(req);
-			U32 priority = req->getPriority();
 			unlockData();
-			if (priority < PRIORITY_NORMAL)
+			if (mThreaded && start_priority <= PRIORITY_LOW)
 			{
 				ms_sleep(1); // sleep the thread a little
 			}

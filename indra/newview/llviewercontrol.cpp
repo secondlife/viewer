@@ -72,6 +72,8 @@
 #include "llrender.h"
 #include "llbottomtray.h"
 #include "llnavigationbar.h"
+#include "llfloatertools.h"
+#include "llpaneloutfitsinventory.h"
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
@@ -116,12 +118,6 @@ static bool handleTerrainDetailChanged(const LLSD& newvalue)
 static bool handleSetShaderChanged(const LLSD& newvalue)
 {
 	LLViewerShaderMgr::instance()->setShaders();
-	return true;
-}
-
-static bool handleSetSelfInvisible( const LLSD& newvalue)
-{
-	LLVOAvatarSelf::onChangeSelfInvisible( newvalue.asBoolean() );
 	return true;
 }
 
@@ -525,6 +521,18 @@ bool toggle_show_favorites_panel(const LLSD& newvalue)
 	return true;
 }
 
+bool toggle_show_appearance_editor(const LLSD& newvalue)
+{
+	LLPanelOutfitsInventory::sShowDebugEditor = newvalue.asBoolean();
+	return true;
+}
+
+bool toggle_show_object_render_cost(const LLSD& newvalue)
+{
+	LLFloaterTools::sShowObjectCost = newvalue.asBoolean();
+	return true;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void settings_setup_listeners()
@@ -545,7 +553,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("WindLightUseAtmosShaders")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderGammaFull")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderAvatarMaxVisible")->getSignal()->connect(boost::bind(&handleAvatarMaxVisibleChanged, _2));
-	gSavedSettings.getControl("RenderAvatarInvisible")->getSignal()->connect(boost::bind(&handleSetSelfInvisible, _2));
 	gSavedSettings.getControl("RenderVolumeLODFactor")->getSignal()->connect(boost::bind(&handleVolumeLODChanged, _2));
 	gSavedSettings.getControl("RenderAvatarLODFactor")->getSignal()->connect(boost::bind(&handleAvatarLODChanged, _2));
 	gSavedSettings.getControl("RenderTerrainLODFactor")->getSignal()->connect(boost::bind(&handleTerrainLODChanged, _2));
@@ -668,6 +675,8 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("ShowSnapshotButton")->getSignal()->connect(boost::bind(&toggle_show_snapshot_button, _2));
 	gSavedSettings.getControl("ShowNavbarNavigationPanel")->getSignal()->connect(boost::bind(&toggle_show_navigation_panel, _2));
 	gSavedSettings.getControl("ShowNavbarFavoritesPanel")->getSignal()->connect(boost::bind(&toggle_show_favorites_panel, _2));
+	gSavedSettings.getControl("ShowDebugAppearanceEditor")->getSignal()->connect(boost::bind(&toggle_show_appearance_editor, _2));
+	gSavedSettings.getControl("ShowObjectRenderingCost")->getSignal()->connect(boost::bind(&toggle_show_object_render_cost, _2));
 }
 
 #if TEST_CACHED_CONTROL
