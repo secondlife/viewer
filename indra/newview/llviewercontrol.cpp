@@ -516,33 +516,14 @@ bool toggle_show_snapshot_button(const LLSD& newvalue)
 
 bool toggle_show_navigation_panel(const LLSD& newvalue)
 {
-	LLRect floater_view_rect = gFloaterView->getRect();
-	LLRect notify_view_rect = gNotifyBoxView->getRect();
 	LLNavigationBar* navbar = LLNavigationBar::getInstance();
-	
-	//if newvalue contains 0 => navbar should turn invisible, so floater_view_rect should get higher, 
-	//and to do this pm=1, else if navbar becomes visible pm=-1 so floater_view_rect gets lower.
-	int pm=newvalue.asBoolean()?-1:1;
-	floater_view_rect.mTop += pm*(navbar->getDefNavBarHeight()-navbar->getDefFavBarHeight());
-	notify_view_rect.mTop += pm*(navbar->getDefNavBarHeight()-navbar->getDefFavBarHeight());
-	gFloaterView->setRect(floater_view_rect);
-	floater_view_rect = gFloaterView->getRect();
 	navbar->showNavigationPanel(newvalue.asBoolean());
 	return true;
 }
 
 bool toggle_show_favorites_panel(const LLSD& newvalue)
 {
-	LLRect floater_view_rect = gFloaterView->getRect();
-	LLRect notify_view_rect = gNotifyBoxView->getRect();
 	LLNavigationBar* navbar = LLNavigationBar::getInstance();
-	
-	//if newvalue contains 0 => favbar should turn invisible, so floater_view_rect should get higher, 
-	//and to do this pm=1, else if favbar becomes visible pm=-1 so floater_view_rect gets lower.
-	int pm=newvalue.asBoolean()?-1:1;
-	floater_view_rect.mTop += pm*navbar->getDefFavBarHeight();
-	notify_view_rect.mTop += pm*navbar->getDefFavBarHeight();
-	gFloaterView->setRect(floater_view_rect);
 	navbar->showFavoritesPanel(newvalue.asBoolean());
 	return true;
 }

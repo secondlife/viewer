@@ -628,12 +628,9 @@ void LLFloaterPreference::onBtnOK()
 
 	if (canClose())
 	{
+		saveSettings();
 		apply();
-		// Here we do not want to cancel on close, so we do this funny thing
-		// that prevents cancel from undoing our changes when we hit OK
-		mCancelOnClose = false;
 		closeFloater(false);
-		mCancelOnClose = true;
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 		LLUIColorTable::instance().saveUserSettings();
 		std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
