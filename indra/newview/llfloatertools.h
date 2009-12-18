@@ -195,6 +195,9 @@ private:
 
 protected:
 	LLSD				mMediaSettings;
+
+public:
+	static bool		sShowObjectCost;
 	
 };
 

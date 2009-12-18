@@ -56,6 +56,7 @@
 #include "llfloatercustomize.h"
 #include "llfloaterchatterbox.h"
 #include "llfloatergodtools.h"
+#include "llfloaterinventory.h"
 #include "llfloaterland.h"
 #include "llfloaterpay.h"
 #include "llfloaterreporter.h"
@@ -632,6 +633,20 @@ class LLAdvancedCheckHUDInfo : public view_listener_t
 		return new_value;
 	}
 };
+
+
+//////////////
+// FLYING   //
+//////////////
+
+class LLAdvancedAgentFlyingInfo : public view_listener_t
+{
+	bool handleEvent(const LLSD&)
+	{
+		return gAgent.getFlying();
+	}
+};
+
 
 ///////////////////////
 // CLEAR GROUP CACHE //
@@ -2640,7 +2655,7 @@ bool enable_object_edit()
 		enable = LLViewerParcelMgr::getInstance()->allowAgentBuild()
 			|| LLSelectMgr::getInstance()->getSelection()->isAttachment();
 	} 
-	else if (LLSelectMgr::getInstance()->selectGetModify())
+	else if (LLSelectMgr::getInstance()->selectGetAllValidAndObjectsFound())
 	{
 		enable = true;
 	}
@@ -5571,7 +5586,15 @@ class LLShowSidetrayPanel : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string panel_name = userdata.asString();
-		LLSideTray::getInstance()->showPanel(panel_name, LLSD());
+		// Open up either the sidepanel or new floater.
+		if (LLSideTray::getInstance()->isPanelActive(panel_name))
+		{
+			LLFloaterInventory::showAgentInventory();
+		}
+		else
+		{
+			LLSideTray::getInstance()->showPanel(panel_name, LLSD());
+		}
 		return true;
 	}
 };
@@ -7700,6 +7723,9 @@ void initialize_menus()
 	// Advanced Other Settings	
 	view_listener_t::addMenu(new LLAdvancedClearGroupCache(), "Advanced.ClearGroupCache");
 
+	// Advanced > Shortcuts
+	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
+	
 	// Advanced > Render > Types
 	view_listener_t::addMenu(new LLAdvancedToggleRenderType(), "Advanced.ToggleRenderType");
 	view_listener_t::addMenu(new LLAdvancedCheckRenderType(), "Advanced.CheckRenderType");

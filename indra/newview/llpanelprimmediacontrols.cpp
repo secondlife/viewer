@@ -96,7 +96,7 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mTargetObjectNormal(LLVector3::zero),
 	mZoomObjectID(LLUUID::null),
 	mZoomObjectFace(0),
-	mVolumeSliderVisible(false)
+	mVolumeSliderVisible(0)
 {
 	mCommitCallbackRegistrar.add("MediaCtrl.Close",		boost::bind(&LLPanelPrimMediaControls::onClickClose, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.Back",		boost::bind(&LLPanelPrimMediaControls::onClickBack, this));
@@ -116,6 +116,7 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mCommitCallbackRegistrar.add("MediaCtrl.Volume",	boost::bind(&LLPanelPrimMediaControls::onCommitVolumeSlider, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.ToggleMute",		boost::bind(&LLPanelPrimMediaControls::onToggleMute, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.ShowVolumeSlider",		boost::bind(&LLPanelPrimMediaControls::showVolumeSlider, this));
+	mCommitCallbackRegistrar.add("MediaCtrl.HideVolumeSlider",		boost::bind(&LLPanelPrimMediaControls::hideVolumeSlider, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.SkipBack",		boost::bind(&LLPanelPrimMediaControls::onClickSkipBack, this));
 	mCommitCallbackRegistrar.add("MediaCtrl.SkipForward",	boost::bind(&LLPanelPrimMediaControls::onClickSkipForward, this));
 	
@@ -372,8 +373,8 @@ void LLPanelPrimMediaControls::updateShape()
 			mVolumeUpCtrl->setVisible(has_focus);
 			mVolumeDownCtrl->setVisible(has_focus);
 			mVolumeCtrl->setEnabled(has_focus);
-			mVolumeSliderCtrl->setEnabled(has_focus && mVolumeSliderVisible);
-			mVolumeSliderCtrl->setVisible(has_focus && mVolumeSliderVisible);
+			mVolumeSliderCtrl->setEnabled(has_focus && mVolumeSliderVisible > 0);
+			mVolumeSliderCtrl->setVisible(has_focus && mVolumeSliderVisible > 0);
 			
 			mWhitelistIcon->setVisible(false);
 			mSecureLockIcon->setVisible(false);
@@ -714,7 +715,7 @@ void LLPanelPrimMediaControls::draw()
 				setVisible(FALSE);
 
 				mClearFaceOnFade = false;
-				mVolumeSliderVisible = false;
+				mVolumeSliderVisible = 0;
 				mTargetImplID = LLUUID::null;
 				mTargetObjectID = LLUUID::null;
 				mTargetObjectFace = 0;
@@ -1267,5 +1268,11 @@ void LLPanelPrimMediaControls::onToggleMute()
 
 void LLPanelPrimMediaControls::showVolumeSlider()
 {
-	mVolumeSliderVisible = true;
+	mVolumeSliderVisible++;
+}
+
+
+void LLPanelPrimMediaControls::hideVolumeSlider()
+{
+	mVolumeSliderVisible--;
 }

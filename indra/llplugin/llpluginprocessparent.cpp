@@ -62,6 +62,7 @@ LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner *owner)
 	// initialize timer - heartbeat test (mHeartbeat.hasExpired()) 
 	// can sometimes return true immediately otherwise and plugins 
 	// fail immediately because it looks like 
+//	mHeartbeat.initClass();
 	mHeartbeat.setTimerExpirySec(PLUGIN_LOCKED_UP_SECONDS);
 }
 

@@ -194,6 +194,7 @@ void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)
 		childSetEnabled("pay_btn", FALSE);
 
         getChild<LLTextBox>("avatar_name")->setValue(im_session->mName);
+        getChild<LLTextBox>("avatar_name")->setToolTip(im_session->mName);
 	}
 	else
 	{
@@ -217,6 +218,7 @@ void LLPanelIMControlPanel::nameUpdatedCallback(const LLUUID& id, const std::str
 		avatar_name.append(" ");
 		avatar_name.append(last);
 		getChild<LLTextBox>("avatar_name")->setValue(avatar_name);
+		getChild<LLTextBox>("avatar_name")->setToolTip(avatar_name);
 	}
 }
 

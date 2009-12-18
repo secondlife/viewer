@@ -107,6 +107,7 @@ left="0"
    layout="topleft"
    left="0"
    name="panel_look_info"
+   top="35"
    visible="false" />
    <panel
    class="panel_edit_wearable"
@@ -115,6 +116,7 @@ left="0"
    layout="topleft"
    left="0"
    name="panel_edit_wearable"
+   top="35"
    visible="false" />
 </panel>
 
