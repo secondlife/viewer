@@ -45,6 +45,7 @@
 #include "llmutelist.h"
 #include "llstylemap.h"
 #include "lllayoutstack.h"
+#include "llagent.h"
 
 #include "llsidetray.h"//for blocked objects panel
 
