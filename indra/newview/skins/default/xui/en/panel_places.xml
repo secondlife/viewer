@@ -97,6 +97,7 @@ background_visible="true"
          layout="topleft"
          left_pad="5"
          name="edit_btn"
+         tool_tip="Edit landmark information"
          top="0"
          width="70" />
         <button
@@ -107,6 +108,7 @@ background_visible="true"
          image_unselected="ForwardArrow_Off"
          layout="topleft"
          name="overflow_btn"
+         tool_tip="Show additional options"
          right="-10"
          top="0"
          width="18" />
