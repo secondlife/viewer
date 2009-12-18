@@ -3905,7 +3905,7 @@ BOOL LLContextMenu::appendContextSubMenu(LLContextMenu *menu)
 	
 	item = LLUICtrlFactory::create<LLContextMenuBranch>(p);
 	LLMenuGL::sMenuContainer->addChild(item->getBranch());
-	item->setFont( LLFontGL::getFontSansSerifSmall() );
+	item->setFont( LLFontGL::getFontSansSerif() );
 
 	return append( item );
 }

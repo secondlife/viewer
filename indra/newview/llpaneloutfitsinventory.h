@@ -44,6 +44,7 @@ class LLSaveFolderState;
 class LLButton;
 class LLMenuGL;
 class LLSidepanelAppearance;
+class LLTabContainer;
 
 class LLPanelOutfitsInventory : public LLPanel
 {
@@ -76,7 +77,8 @@ protected:
 private:
 	LLSidepanelAppearance*      mParent;
 	LLSaveFolderState*			mSavedFolderState;
-
+	LLTabContainer*				mAppearanceTabs;
+	std::string 				mFilterSubString;
 
 public:
 	//////////////////////////////////////////////////////////////////////////////////
@@ -87,6 +89,7 @@ public:
 protected:
 	void 				initTabPanels();
 	void 				onTabSelectionChange(LLInventoryPanel* tab_panel, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
+	void 				onTabChange();
 	
 private:
 	LLInventoryPanel* 	mActivePanel;
@@ -117,6 +120,9 @@ private:
 	LLMenuGL*					mMenuAdd;
 	// List Commands                                                              //
 	////////////////////////////////////////////////////////////////////////////////
+	///
+public:
+	static bool sShowDebugEditor;
 };
 
 #endif //LL_LLPANELOUTFITSINVENTORY_H

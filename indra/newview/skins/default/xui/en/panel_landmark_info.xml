@@ -60,6 +60,7 @@
      layout="topleft"
      left="10"
      name="back_btn"
+     tool_tip="Back"
      tab_stop="false"
      top="0"
      width="23" />

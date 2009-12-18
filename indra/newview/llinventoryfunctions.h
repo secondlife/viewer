@@ -41,7 +41,9 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
 // This is a collection of miscellaneous functions and classes
-// that don't fit cleanly into any other class header.
+// that don't fit cleanly into any other class header.  Eventually,
+// we should figure out where to put these functions so that we can
+// get rid of this generic file.
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -98,14 +100,17 @@ public:
 };
 
 const std::string& get_item_icon_name(LLAssetType::EType asset_type,
-							 LLInventoryType::EType inventory_type,
-							 U32 attachment_point, 
-							 BOOL item_is_multi );
+									  LLInventoryType::EType inventory_type,
+									  U32 attachment_point, 
+									  BOOL item_is_multi );
 
 LLUIImagePtr get_item_icon(LLAssetType::EType asset_type,
-							 LLInventoryType::EType inventory_type,
-							 U32 attachment_point, 
-							 BOOL item_is_multi );
+						   LLInventoryType::EType inventory_type,
+						   U32 attachment_point, 
+						   BOOL item_is_multi );
+
+// Is this item or its baseitem is worn, attached, etc...
+BOOL get_is_item_worn(const LLUUID& id);
 
 #endif // LL_LLINVENTORYFUNCTIONS_H
 

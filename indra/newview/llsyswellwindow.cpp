@@ -350,6 +350,8 @@ LLIMWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID& 
 	}
 
 	// Initialize chiclet.
+	mChiclet->setChicletSizeChangedCallback(boost::bind(&LLIMWellWindow::RowPanel::onChicletSizeChanged, this, mChiclet, _2));
+	mChiclet->enableCounterControl(true);
 	mChiclet->setCounter(chicletCounter);
 	mChiclet->setSessionId(sessionId);
 	mChiclet->setIMSessionName(name);
@@ -361,6 +363,16 @@ LLIMWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID& 
 
 	mCloseBtn = getChild<LLButton>("hide_btn");
 	mCloseBtn->setCommitCallback(boost::bind(&LLIMWellWindow::RowPanel::onClosePanel, this));
+}
+
+//---------------------------------------------------------------------------------
+void LLIMWellWindow::RowPanel::onChicletSizeChanged(LLChiclet* ctrl, const LLSD& param)
+{
+	LLTextBox* text = getChild<LLTextBox>("contact_name");
+	S32 new_text_left = mChiclet->getRect().mRight + CHICLET_HPAD;
+	LLRect text_rect = text->getRect(); 
+	text_rect.mLeft = new_text_left;
+	text->setRect(text_rect);
 }
 
 //---------------------------------------------------------------------------------
@@ -607,6 +619,23 @@ void LLNotificationWellWindow::addItem(LLSysWellItem::Params p)
 			<< llendl;
 
 		new_item->die();
+	}
+}
+
+void LLNotificationWellWindow::closeAll()
+{
+	// Need to clear notification channel, to add storable toasts into the list.
+	clearScreenChannels();
+	std::vector<LLPanel*> items;
+	mMessageList->getItems(items);
+	for (std::vector<LLPanel*>::iterator
+			 iter = items.begin(),
+			 iter_end = items.end();
+		 iter != iter_end; ++iter)
+	{
+		LLSysWellItem* sys_well_item = dynamic_cast<LLSysWellItem*>(*iter);
+		if (sys_well_item)
+			onItemClose(sys_well_item);
 	}
 }
 

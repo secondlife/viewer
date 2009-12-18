@@ -639,6 +639,20 @@ class LLAdvancedCheckHUDInfo : public view_listener_t
 	}
 };
 
+
+//////////////
+// FLYING   //
+//////////////
+
+class LLAdvancedAgentFlyingInfo : public view_listener_t
+{
+	bool handleEvent(const LLSD&)
+	{
+		return gAgent.getFlying();
+	}
+};
+
+
 ///////////////////////
 // CLEAR GROUP CACHE //
 ///////////////////////
@@ -2646,7 +2660,7 @@ bool enable_object_edit()
 		enable = LLViewerParcelMgr::getInstance()->allowAgentBuild()
 			|| LLSelectMgr::getInstance()->getSelection()->isAttachment();
 	} 
-	else if (LLSelectMgr::getInstance()->selectGetModify())
+	else if (LLSelectMgr::getInstance()->selectGetAllValidAndObjectsFound())
 	{
 		enable = true;
 	}
@@ -7709,6 +7723,9 @@ void initialize_menus()
 	// Advanced Other Settings	
 	view_listener_t::addMenu(new LLAdvancedClearGroupCache(), "Advanced.ClearGroupCache");
 
+	// Advanced > Shortcuts
+	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
+	
 	// Advanced > Render > Types
 	view_listener_t::addMenu(new LLAdvancedToggleRenderType(), "Advanced.ToggleRenderType");
 	view_listener_t::addMenu(new LLAdvancedCheckRenderType(), "Advanced.CheckRenderType");

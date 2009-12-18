@@ -147,6 +147,9 @@ public:
 	// Operating with items
 	void addItem(LLSysWellItem::Params p);
 
+	// Closes all notifications and removes them from the Notification Well
+	void closeAll();
+
 protected:
 	/*virtual*/ const std::string& getAnchorViewName() { return NOTIFICATION_WELL_ANCHOR_NAME; }
 
@@ -220,6 +223,8 @@ private:
 		void onMouseLeave(S32 x, S32 y, MASK mask);
 		BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	private:
+		static const S32 CHICLET_HPAD = 10;
+		void onChicletSizeChanged(LLChiclet* ctrl, const LLSD& param);
 		void onClosePanel();
 	public:
 		LLIMChiclet* mChiclet;

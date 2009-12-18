@@ -2676,6 +2676,7 @@ even though the user gets a free copy.
 			 height="18"
 			 layout="topleft"
 			 left="10"
+       use_ellipsis="true" 
 			 read_only="true"
 			 name="media_info"
 			 width="180" />
