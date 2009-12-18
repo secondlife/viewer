@@ -147,6 +147,9 @@ public:
 	// Operating with items
 	void addItem(LLSysWellItem::Params p);
 
+	// Closes all notifications and removes them from the Notification Well
+	void closeAll();
+
 protected:
 	/*virtual*/ const std::string& getAnchorViewName() { return NOTIFICATION_WELL_ANCHOR_NAME; }
 
