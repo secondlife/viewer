@@ -2021,43 +2021,6 @@ void LLVOAvatarSelf::onCustomizeEnd()
 	}
 }
 
-// static
-void LLVOAvatarSelf::onChangeSelfInvisible(BOOL newvalue)
-{
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-	if (avatarp)
-	{
-		if (newvalue)
-		{
-			// we have just requested to set the avatar's baked textures to invisible
-			avatarp->setInvisible(TRUE);
-		}
-		else
-		{
-			avatarp->setInvisible(FALSE);
-		}
-	}
-}
-
-void LLVOAvatarSelf::setInvisible(BOOL newvalue)
-{
-	if (newvalue)
-	{
-		setCompositeUpdatesEnabled(FALSE);
-		for (U32 i = 0; i < mBakedTextureDatas.size(); i++ )
-		{
-			setNewBakedTexture(mBakedTextureDatas[i].mTextureIndex, IMG_INVISIBLE);
-		}
-		gAgent.sendAgentSetAppearance();
-	}
-	else
-	{
-		setCompositeUpdatesEnabled(TRUE);
-		invalidateAll();
-		gAgent.sendAgentSetAppearance();
-	}
-}
-
 // HACK: this will null out the avatar's local texture IDs before the TE message is sent
 //       to ensure local texture IDs are not sent to other clients in the area.
 //       this is a short-term solution. The long term solution will be to not set the texture

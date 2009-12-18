@@ -471,6 +471,14 @@
          function="Inventory.DoToSelected"
          parameter="delete" />
     </menu_item_call>
+    <menu_item_call
+     label="Delete System Folder"
+     layout="topleft"
+     name="Delete System Folder">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="delete_system_folder" />
+    </menu_item_call>
     <menu_item_separator
      layout="topleft" />
     <menu_item_separator

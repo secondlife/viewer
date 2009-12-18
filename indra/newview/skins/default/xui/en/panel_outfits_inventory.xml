@@ -69,18 +69,7 @@
 		  name="options_gear_btn"
 		  top="6"
 		  width="18" />
-		 <button
-		  follows="bottom|left"
-		  height="18"
-		  image_selected="AddItem_Press"
-		  image_unselected="AddItem_Off"
-		  image_disabled="AddItem_Disabled"
-		  layout="topleft"
-		  left_pad="5"
-		  name="add_btn"
-		  tool_tip="Add new item"
-		  width="18" />
-		 <dnd_button
+         <dnd_button
 		  follows="bottom|left"
 		  height="18"
 		  image_selected="TrashItem_Press"
@@ -92,13 +81,34 @@
 		  top="6"
 		  width="18" />
 	 <button
-	  follows="top|left"
-		height="23"
-		label="Wear"
+	  follows="bottom|left"
+		height="23" 
+		label="Edit Look" 
 		layout="topleft"
-		name="wear_btn"
-		right="-5"
-		top_pad="0"
+        left="10"
+		name="look_edit_btn"
+        top="26"
+        visible="false" 
 		width="90" />
+     <button
+      follows="bottom|left"
+      height="23" 
+      label="Make Outfit" 
+      layout="topleft"
+      name="make_outfit_btn"
+      tool_tip="Save appearance as an outfit"
+       top="26"
+      right="-110"
+      width="90" />
+     <button
+      follows="bottom|right" 
+      height="23" 
+      label="Wear"
+      layout="topleft"
+      name="wear_btn"
+      right="-10"
+       top="26"
+      tool_tip="Wear selected outfit"
+      width="90" />
 	 </panel>
 </panel>
