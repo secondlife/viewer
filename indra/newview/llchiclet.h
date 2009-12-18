@@ -861,6 +861,16 @@ protected:
 	LLIMWellChiclet(const Params& p);
 
 	/**
+	 * Processes clicks on chiclet popup menu.
+	 */
+	virtual void onMenuItemClicked(const LLSD& user_data);
+
+	/**
+	 * Enables chiclet menu items.
+	 */
+	bool enableMenuItem(const LLSD& user_data);
+
+	/**
 	 * Creates menu.
 	 */
 	/*virtual*/ void createMenu();

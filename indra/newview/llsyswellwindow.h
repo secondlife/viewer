@@ -199,6 +199,8 @@ public:
 	void addIMRow(const LLUUID& session_id);
 	bool hasIMRow(const LLUUID& session_id);
 
+	void closeAll();
+
 protected:
 	/*virtual*/ const std::string& getAnchorViewName() { return IM_WELL_ANCHOR_NAME; }
 
@@ -208,7 +210,8 @@ private:
 
 	void addIMRow(const LLUUID& sessionId, S32 chicletCounter, const std::string& name, const LLUUID& otherParticipantId);
 	void delIMRow(const LLUUID& sessionId);
-
+	bool confirmCloseAll(const LLSD& notification, const LLSD& response);
+	void closeAllImpl();
 
 	/**
 	 * Scrolling row panel.

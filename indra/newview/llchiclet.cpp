@@ -267,9 +267,45 @@ LLIMWellChiclet::~LLIMWellChiclet()
 	LLIMMgr::getInstance()->removeSessionObserver(this);
 }
 
+void LLIMWellChiclet::onMenuItemClicked(const LLSD& user_data)
+{
+	std::string action = user_data.asString();
+	if("close all" == action)
+	{
+		LLIMWellWindow::getInstance()->closeAll();
+	}
+}
+
+bool LLIMWellChiclet::enableMenuItem(const LLSD& user_data)
+{
+	std::string item = user_data.asString();
+	if (item == "can close all")
+	{
+		return !LLIMWellWindow::getInstance()->isWindowEmpty();
+	}
+	return true;
+}
+
 void LLIMWellChiclet::createMenu()
 {
-	// TODO: implement context menu for IM well
+	if(mContextMenu)
+	{
+		llwarns << "Menu already exists" << llendl;
+		return;
+	}
+
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+	registrar.add("IMWellChicletMenu.Action",
+		boost::bind(&LLIMWellChiclet::onMenuItemClicked, this, _2));
+
+	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+	enable_registrar.add("IMWellChicletMenu.EnableItem",
+		boost::bind(&LLIMWellChiclet::enableMenuItem, this, _2));
+
+	mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>
+		("menu_im_well_button.xml",
+		 LLMenuGL::sMenuContainer,
+		 LLViewerMenuHolderGL::child_registry_t::instance());
 }
 
 void LLIMWellChiclet::messageCountChanged(const LLSD& session_data)

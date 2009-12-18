@@ -48,6 +48,8 @@
 #include "llchiclet.h"
 #include "lltoastpanel.h"
 #include "llnotificationmanager.h"
+#include "llnotificationsutil.h"
+#include "llspeakers.h"
 
 //---------------------------------------------------------------------------------
 LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLDockableFloater(NULL, key),
@@ -919,5 +921,81 @@ void LLIMWellWindow::onNewIM(const LLSD& data)
 	addIMRow(session_id);
 }
 
+
+void LLIMWellWindow::closeAll()
+{
+	// Generate an ignorable alert dialog if there is an active voice IM sesion
+	bool need_confirmation = false;
+	const LLIMModel& im_model = LLIMModel::instance();
+	std::vector<LLSD> values;
+	mMessageList->getValues(values);
+	for (std::vector<LLSD>::iterator
+			 iter = values.begin(),
+			 iter_end = values.end();
+		 iter != iter_end; ++iter)
+	{
+		LLIMSpeakerMgr* speaker_mgr =  im_model.getSpeakerManager(*iter);
+		if (speaker_mgr && speaker_mgr->isVoiceActive())
+		{
+			need_confirmation = true;
+			break;
+		}
+	}
+	if ( need_confirmation )
+	{
+		//Bring up a confirmation dialog
+		LLNotificationsUtil::add
+			("ConfirmCloseAll", LLSD(), LLSD(),
+			 boost::bind(&LLIMWellWindow::confirmCloseAll, this, _1, _2));
+	}
+	else
+	{
+		closeAllImpl();
+	}
+}
+
+void LLIMWellWindow::closeAllImpl()
+{
+	std::vector<LLSD> values;
+	mMessageList->getValues(values);
+
+	for (std::vector<LLSD>::iterator
+			 iter = values.begin(),
+			 iter_end = values.end();
+		 iter != iter_end; ++iter)
+	{
+		LLPanel* panel = mMessageList->getItemByValue(*iter);
+
+		RowPanel* im_panel = dynamic_cast <RowPanel*> (panel);
+		if (im_panel)
+		{
+			gIMMgr->leaveSession(*iter);
+			continue;
+		}
+
+		ObjectRowPanel* obj_panel = dynamic_cast <ObjectRowPanel*> (panel);
+		if (obj_panel)
+		{
+			LLScriptFloaterManager::instance()
+				.removeNotificationByObjectId(*iter);
+		}
+	}
+}
+
+bool LLIMWellWindow::confirmCloseAll(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	switch(option)
+	{
+	case 0:
+		{
+			closeAllImpl();
+			return  true;
+		}
+	default:
+		break;
+	}
+	return false;
+}
 
 // EOF
