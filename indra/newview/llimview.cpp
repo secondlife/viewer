@@ -238,15 +238,17 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
 void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction)
 {
-	bool is_p2p_session = dynamic_cast<LLVoiceChannelP2P*>(mVoiceChannel);
-	std::string other_avatar_name;
+	std::string you = LLTrans::getString("You");
+	std::string started_call = LLTrans::getString("started_call");
+	std::string joined_call = LLTrans::getString("joined_call");
+	std::string other_avatar_name = "";
 
-	if(is_p2p_session)
+	switch(mSessionType)
 	{
+	case AVALINE_SESSION:
+		// *TODO: test avaline calls (EXT-2211)
+	case P2P_SESSION:
 		gCacheName->getFullName(mOtherParticipantID, other_avatar_name);
-		std::string you = LLTrans::getString("You");
-		std::string started_call = LLTrans::getString("started_call");
-		std::string joined_call = LLTrans::getString("joined_call");
 
 		if(direction == LLVoiceChannel::INCOMING_CALL)
 		{
@@ -280,10 +282,45 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 		{
 			mSpeakers->update(true);
 		}
-	}
-	else  // group || ad-hoc calls
-	{
 
+		break;
+
+	case GROUP_SESSION:
+	case ADHOC_SESSION:
+		// *TODO: determine call starter's name "other_avatar_name" (EXT-2211)
+		//        decide how to show notifications for a group/adhoc chat already opened
+		//		  for now there is no notification from voice channel for this case
+		if(direction == LLVoiceChannel::INCOMING_CALL)
+		{
+			switch(new_state)
+			{
+			case LLVoiceChannel::STATE_CALL_STARTED :
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, other_avatar_name, mOtherParticipantID, started_call);
+				break;
+			case LLVoiceChannel::STATE_CONNECTED :
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, you, gAgent.getID(), joined_call);
+			default:
+				break;
+			}
+		}
+		else // outgoing call
+		{
+			switch(new_state)
+			{
+			case LLVoiceChannel::STATE_CALL_STARTED :
+				LLIMModel::getInstance()->addMessageSilently(mSessionID, you, gAgent.getID(), started_call);
+				break;
+			default:
+				break;
+			}
+		}
+
+		// Update speakers list when connected
+		if (LLVoiceChannel::STATE_CONNECTED == new_state)
+		{
+			mSpeakers->update(true);
+		}
+		break;
 	}
 }
 
