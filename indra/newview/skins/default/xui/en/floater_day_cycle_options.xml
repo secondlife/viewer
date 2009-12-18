@@ -65,11 +65,9 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL12am"
              follows="left|top|right"
-             height="6"
+             height="16"
              layout="topleft"
              left="8"
              name="WL12am"
@@ -80,11 +78,9 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL3am"
              follows="left|top|right"
-             height="6"
+             height="16"
              layout="topleft"
              left_pad="10"
              name="WL3am"
@@ -95,11 +91,9 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL6am"
              follows="left|top|right"
-             height="6"
+             height="16"
              layout="topleft"
              left_pad="10"
              name="WL6am"
@@ -110,11 +104,9 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL9am"
              follows="left|top|right"
-             height="6"
+             height="16"
              layout="topleft"
              left_pad="10"
              name="WL9amHash"
@@ -125,11 +117,9 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL12pm"
              follows="left|top|right"
-             height="6"
+             height="16"
              layout="topleft"
              left_pad="10"
              name="WL12pmHash"
@@ -140,11 +130,9 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL3pm"
              follows="left|top|right"
-             height="6"
+             height="16"
              layout="topleft"
              left_pad="10"
              name="WL3pm"
@@ -155,11 +143,9 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL6pm"
              follows="left|top|right"
-             height="6"
+             height="16"
              layout="topleft"
              left_pad="10"
              name="WL6pm"
@@ -170,11 +156,9 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL9pm"
              follows="left|top|right"
-             height="6"
+             height="16"
              layout="topleft"
              left_pad="10"
              name="WL9pm"
@@ -185,11 +169,9 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL12am2"
              follows="left|top|right"
-             height="6"
+             height="16"
              layout="topleft"
              left_pad="10"
              name="WL12am2"
@@ -200,9 +182,7 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL12amHash"
              follows="left|top|right"
              font="SansSerif"
              height="14"
@@ -210,135 +190,119 @@
              left="20"
              name="WL12amHash"
              top="54"
-             width="4">
+             width="6">
                 |
             </text>
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL3amHash"
              follows="left|top|right"
              font="SansSerif"
              height="11"
              layout="topleft"
-             left_pad="61"
+             left_pad="59"
              name="WL3amHash"
              top_delta="3"
-             width="4">
+             width="6">
                 I
             </text>
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL6amHash"
              follows="left|top|right"
              font="SansSerif"
              height="14"
              layout="topleft"
-             left_pad="61"
+             left_pad="59"
              name="WL6amHash"
              top_delta="-3"
-             width="4">
+             width="6">
                 |
             </text>
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL9amHash"
              follows="left|top|right"
              font="SansSerif"
              height="11"
              layout="topleft"
-             left_pad="61"
+             left_pad="59"
              name="WL9amHash2"
              top_delta="3"
-             width="4">
+             width="6">
                 I
             </text>
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL12pmHash"
              follows="left|top|right"
              font="SansSerif"
              height="14"
              layout="topleft"
-             left_pad="61"
+             left_pad="59"
              name="WL12pmHash2"
              top_delta="-3"
-             width="4">
+             width="6">
                 |
             </text>
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL3pmHash"
              follows="left|top|right"
              font="SansSerif"
              height="11"
              layout="topleft"
-             left_pad="61"
+             left_pad="59"
              name="WL3pmHash"
              top_delta="3"
-             width="4">
+             width="6">
                 I
             </text>
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL6pmHash"
              follows="left|top|right"
              font="SansSerif"
              height="14"
              layout="topleft"
-             left_pad="61"
+             left_pad="59"
              name="WL6pmHash"
              top_delta="-3"
-             width="4">
+             width="6">
                 |
             </text>
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL9pmHash"
              follows="left|top|right"
              font="SansSerif"
              height="11"
              layout="topleft"
-             left_pad="61"
+             left_pad="59"
              name="WL9pmHash"
              top_delta="3"
-             width="4">
+             width="6">
                 I
             </text>
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WL12amHash2"
              follows="left|top|right"
              font="SansSerif"
              height="14"
              layout="topleft"
-             left_pad="61"
+             left_pad="59"
              name="WL12amHash2"
              top_delta="-3"
-             width="4">
+             width="6">
                 |
             </text>
             <button
@@ -346,9 +310,9 @@
              label="Add Key"
              label_selected="Add Key"
              layout="topleft"
-             left="550"
+             left="555"
              name="WLAddKey"
-             top="20"
+             top="30"
              width="80" />
             <button
              height="20"
@@ -362,9 +326,7 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="DayCycleText"
              follows="left|top|right"
              font="SansSerif"
              height="16"
@@ -378,9 +340,7 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="DayCycleText"
              follows="left|top|right"
              font="SansSerif"
              height="16"
@@ -424,9 +384,7 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="WLCurKeyTimeText"
              follows="left|top|right"
              font="SansSerif"
              height="16"
@@ -456,9 +414,7 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="DayCycleText"
              follows="left|top|right"
              font="SansSerif"
              height="16"
@@ -481,9 +437,7 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="DayCycleText"
              follows="left|top|right"
              font="SansSerif"
              height="16"
@@ -542,9 +496,7 @@
             <text
              type="string"
              length="1"
-             bg_visible="true"
              border_visible="true"
-             control_name="DayCycleText"
              follows="left|top|right"
              font="SansSerif"
              height="16"
@@ -560,7 +512,7 @@
              label="Play"
              label_selected="Play"
              layout="topleft"
-             left_delta="0"
+             left_delta="60"
              name="WLAnimSky"
              top_pad="5"
              width="50" />
@@ -581,7 +533,7 @@
              left_pad="5"
              name="WLUseLindenTime"
              top_delta="0"
-             width="140" />
+             width="150" />
             <button
              height="20"
              label="Save Test Day"

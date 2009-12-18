@@ -17,7 +17,7 @@
    font="SansSerifSmall"
    height="16" 
    initial_value="false"
-   label="Only Allow Access to Specified URLs (by prefix)" 
+   label="Only Allow Access to Specified URL patterns" 
    left="10" 
    mouse_opaque="true"
    name="whitelist_enable" 
@@ -81,10 +81,9 @@
    height="40"
    left="30"
    text_color="0.6 0.0 0.0 1.0"
+   word_wrap="true" 
    name="home_url_fails_whitelist">
-Warning: the home page specified in the General tab 
-fails to pass this whitelist. It has been disabled 
-until a valid entry has been added.
+Warning: the home page specified in the General tab fails to pass this whitelist. It has been disabled until a valid entry has been added.
   </text>
 
 </panel>
