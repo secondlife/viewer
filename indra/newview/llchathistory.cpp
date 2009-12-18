@@ -44,6 +44,7 @@
 #include "llfloaterreg.h"
 #include "llmutelist.h"
 #include "llstylemap.h"
+#include "lllayoutstack.h"
 
 #include "llsidetray.h"//for blocked objects panel
 
@@ -311,24 +312,72 @@ protected:
 
 
 LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
-: LLTextEditor(p),
-mMessageHeaderFilename(p.message_header),
-mMessageSeparatorFilename(p.message_separator),
-mLeftTextPad(p.left_text_pad),
-mRightTextPad(p.right_text_pad),
-mLeftWidgetPad(p.left_widget_pad),
-mRightWidgetPad(p.right_widget_pad),
-mTopSeparatorPad(p.top_separator_pad),
-mBottomSeparatorPad(p.bottom_separator_pad),
-mTopHeaderPad(p.top_header_pad),
-mBottomHeaderPad(p.bottom_header_pad)
+:	LLUICtrl(p),
+	mMessageHeaderFilename(p.message_header),
+	mMessageSeparatorFilename(p.message_separator),
+	mLeftTextPad(p.left_text_pad),
+	mRightTextPad(p.right_text_pad),
+	mLeftWidgetPad(p.left_widget_pad),
+	mRightWidgetPad(p.right_widget_pad),
+	mTopSeparatorPad(p.top_separator_pad),
+	mBottomSeparatorPad(p.bottom_separator_pad),
+	mTopHeaderPad(p.top_header_pad),
+	mBottomHeaderPad(p.bottom_header_pad)
 {
+	LLTextEditor::Params editor_params(p);
+	editor_params.rect = getLocalRect();
+	editor_params.follows.flags = FOLLOWS_ALL;
+	editor_params.enabled = false; // read only
+	mEditor = LLUICtrlFactory::create<LLTextEditor>(editor_params, this);
 }
 
 LLChatHistory::~LLChatHistory()
 {
 	this->clear();
 }
+
+void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
+{
+	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
+
+	LLRect stack_rect = getLocalRect();
+	stack_rect.mRight -= scrollbar_size;
+	LLLayoutStack::Params layout_p;
+	layout_p.rect = stack_rect;
+	layout_p.follows.flags = FOLLOWS_ALL;
+	layout_p.orientation = "vertical";
+	layout_p.mouse_opaque = false;
+	
+	LLLayoutStack* stackp = LLUICtrlFactory::create<LLLayoutStack>(layout_p, this);
+	
+	const S32 NEW_TEXT_NOTICE_HEIGHT = 20;
+	
+	LLPanel::Params panel_p;
+	panel_p.name = "spacer";
+	panel_p.background_visible = false;
+	panel_p.has_border = false;
+	panel_p.mouse_opaque = false;
+	stackp->addPanel(LLUICtrlFactory::create<LLPanel>(panel_p), 0, 30, true, false, LLLayoutStack::ANIMATE);
+
+	panel_p.name = "new_text_notice_holder";
+	LLRect new_text_notice_rect = getLocalRect();
+	new_text_notice_rect.mTop = new_text_notice_rect.mBottom + NEW_TEXT_NOTICE_HEIGHT;
+	panel_p.rect = new_text_notice_rect;
+	panel_p.background_opaque = true;
+	panel_p.background_visible = true;
+	panel_p.visible = false;
+	mMoreChatPanel = LLUICtrlFactory::create<LLPanel>(panel_p);
+	
+	LLTextBox::Params text_p(p.more_chat_text);
+	text_p.rect = mMoreChatPanel->getLocalRect();
+	text_p.follows.flags = FOLLOWS_ALL;
+	text_p.name = "more_chat_text";
+	mMoreChatText = LLUICtrlFactory::create<LLTextBox>(text_p, mMoreChatPanel);
+	mMoreChatText->setClickedCallback(boost::bind(&LLChatHistory::onClickMoreText, this));
+
+	stackp->addPanel(mMoreChatPanel, 0, 0, false, false, LLLayoutStack::ANIMATE);
+}
+
 
 /*void LLChatHistory::updateTextRect()
 {
@@ -358,15 +407,49 @@ LLView* LLChatHistory::getHeader(const LLChat& chat,const LLStyle::Params& style
 	return header;
 }
 
+void LLChatHistory::onClickMoreText()
+{
+	mEditor->endOfDoc();
+}
+
 void LLChatHistory::clear()
 {
 	mLastFromName.clear();
-	LLTextEditor::clear();
+	mEditor->clear();
 	mLastFromID = LLUUID::null;
 }
 
 void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_chat_history, const LLStyle::Params& input_append_params)
 {
+	if (!mEditor->scrolledToEnd() && chat.mFromID != gAgent.getID())
+	{
+		mUnreadChatSources.insert(chat.mFromName);
+		mMoreChatPanel->setVisible(TRUE);
+		std::string chatters;
+		for (unread_chat_source_t::iterator it = mUnreadChatSources.begin();
+			it != mUnreadChatSources.end();)
+		{
+			chatters += *it;
+			if (++it != mUnreadChatSources.end())
+			{
+				chatters += ",";
+			}
+		}
+		LLStringUtil::format_map_t args;
+		args["SOURCES"] = chatters;
+
+		if (mUnreadChatSources.size() == 1)
+		{
+			mMoreChatText->setValue(LLTrans::getString("unread_chat_single", args));
+		}
+		else
+		{
+			mMoreChatText->setValue(LLTrans::getString("unread_chat_multiple", args));
+		}
+		S32 height = mMoreChatText->getTextPixelHeight() + 5;
+		mMoreChatPanel->reshape(mMoreChatPanel->getRect().getWidth(), height);
+	}
+
 	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
 	LLViewerChat::getChatColor(chat,txt_color);
 	LLFontGL* fontp = LLViewerChat::getChatFont();	
@@ -381,7 +464,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 	
 	if (use_plain_text_chat_history)
 	{
-		appendText("[" + chat.mTimeStr + "] ", getText().size() != 0, style_params);
+		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, style_params);
 
 		if (utf8str_trim(chat.mFromName).size() != 0)
 		{
@@ -391,11 +474,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 				LLStyle::Params link_params(style_params);
 				link_params.fillFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 				// Convert the name to a hotlink and add to message.
-				appendText(chat.mFromName + ": ", false, link_params);
+				mEditor->appendText(chat.mFromName + ": ", false, link_params);
 			}
 			else
 			{
-				appendText(chat.mFromName + ": ", false, style_params);
+				mEditor->appendText(chat.mFromName + ": ", false, style_params);
 			}
 		}
 	}
@@ -422,7 +505,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		else
 		{
 			view = getHeader(chat, style_params);
-			if (getText().size() == 0)
+			if (mEditor->getText().size() == 0)
 				p.top_pad = 0;
 			else
 				p.top_pad = mTopHeaderPad;
@@ -432,9 +515,9 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		p.view = view;
 
 		//Prepare the rect for the view
-		LLRect target_rect = getDocumentView()->getRect();
+		LLRect target_rect = mEditor->getDocumentView()->getRect();
 		// squeeze down the widget by subtracting padding off left and right
-		target_rect.mLeft += mLeftWidgetPad + mHPad;
+		target_rect.mLeft += mLeftWidgetPad + mEditor->getHPad();
 		target_rect.mRight -= mRightWidgetPad;
 		view->reshape(target_rect.getWidth(), view->getRect().getHeight());
 		view->setOrigin(target_rect.mLeft, view->getRect().mBottom);
@@ -443,7 +526,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
 			header_text += chat.mFromName + ": ";
 
-		appendWidget(p, header_text, false);
+		mEditor->appendWidget(p, header_text, false);
 		mLastFromName = chat.mFromName;
 		mLastFromID = chat.mFromID;
 		mLastMessageTime = new_message_time;
@@ -455,10 +538,10 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 		style_params.font.style = "ITALIC";
 
 		if (chat.mFromName.size() > 0)
-			appendText(chat.mFromName + " ", TRUE, style_params);
+			mEditor->appendText(chat.mFromName + " ", TRUE, style_params);
 		// Ensure that message ends with NewLine, to avoid losing of new lines
 		// while copy/paste from text chat. See EXT-3263.
-		appendText(chat.mText.substr(4) + NEW_LINE, FALSE, style_params);
+		mEditor->appendText(chat.mText.substr(4) + NEW_LINE, FALSE, style_params);
 	}
 	else
 	{
@@ -469,8 +552,19 @@ void LLChatHistory::appendMessage(const LLChat& chat, const bool use_plain_text_
 			// while copy/paste from text chat. See EXT-3263.
 			message += NEW_LINE;
 		}
-		appendText(message, FALSE, style_params);
+		mEditor->appendText(message, FALSE, style_params);
 	}
-	blockUndo();
+	mEditor->blockUndo();
+}
+
+void LLChatHistory::draw()
+{
+	if (mEditor->scrolledToEnd())
+	{
+		mUnreadChatSources.clear();
+		mMoreChatPanel->setVisible(FALSE);
+	}
+
+	LLUICtrl::draw();
 }
 

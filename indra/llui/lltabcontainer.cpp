@@ -266,8 +266,6 @@ bool LLTabContainer::addChild(LLView* view, S32 tab_group)
 
 	if (panelp)
 	{
-		panelp->setSaveToXML(TRUE);
-
 		addTabPanel(TabPanelParams().panel(panelp).label(panelp->getLabel()).is_placeholder(dynamic_cast<LLPlaceHolderPanel*>(view) != NULL));
 		return true;
 	}
@@ -1019,12 +1017,10 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	{
 		if (textbox)
 		{
-			textbox->setSaveToXML(false);
 			addChild( textbox, 0 );
 		}
 		if (btn)
 		{
-			btn->setSaveToXML(false);
 			addChild( btn, 0 );
 		}
 	}
@@ -1747,24 +1743,20 @@ void LLTabContainer::initButtons()
 		}
 	}
 
-	mPrevArrowBtn->setSaveToXML(false);
 	mPrevArrowBtn->setTabStop(FALSE);
 	addChild(mPrevArrowBtn);
 
-	mNextArrowBtn->setSaveToXML(false);
 	mNextArrowBtn->setTabStop(FALSE);
 	addChild(mNextArrowBtn);
 
 	if (mJumpPrevArrowBtn)
 	{
-		mJumpPrevArrowBtn->setSaveToXML(false);
 		mJumpPrevArrowBtn->setTabStop(FALSE);
 		addChild(mJumpPrevArrowBtn);
 	}
 
 	if (mJumpNextArrowBtn)
 	{
-		mJumpNextArrowBtn->setSaveToXML(false);
 		mJumpNextArrowBtn->setTabStop(FALSE);
 		addChild(mJumpNextArrowBtn);
 	}

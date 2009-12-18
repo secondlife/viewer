@@ -962,7 +962,10 @@ void LLTextBase::draw()
 	reflow();
 
 	// then update scroll position, as cursor may have moved
-	updateScrollFromCursor();
+	if (!mReadOnly)
+	{
+		updateScrollFromCursor();
+	}
 
 	LLRect doc_rect;
 	if (mScroller)
@@ -1932,11 +1935,19 @@ void LLTextBase::endOfLine()
 void LLTextBase::startOfDoc()
 {
 	setCursorPos(0);
+	if (mScroller)
+	{
+		mScroller->goToTop();
+	}
 }
 
 void LLTextBase::endOfDoc()
 {
 	setCursorPos(getLength());
+	if (mScroller)
+	{
+		mScroller->goToBottom();
+	}
 }
 
 void LLTextBase::changePage( S32 delta )
@@ -1999,6 +2010,16 @@ void LLTextBase::changeLine( S32 delta )
 
 	S32 new_cursor_pos = getDocIndexFromLocalCoord(mDesiredXPixel, mLineInfoList[new_line].mRect.mBottom + mVisibleTextRect.mBottom - visible_region.mBottom, TRUE);
 	setCursorPos(new_cursor_pos, true);
+}
+
+bool LLTextBase::scrolledToStart()
+{
+	return mScroller->isAtTop();
+}
+
+bool LLTextBase::scrolledToEnd()
+{
+	return mScroller->isAtBottom();
 }
 
 

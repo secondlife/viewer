@@ -247,7 +247,7 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 	}
 
 	p.from_xui = true;
-	setupParams(p, parent);
+	applyXUILayout(p, parent);
 	LLLayoutStack* layout_stackp = LLUICtrlFactory::create<LLLayoutStack>(p);
 
 	if (parent && layout_stackp)

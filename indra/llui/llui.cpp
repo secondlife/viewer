@@ -1915,6 +1915,7 @@ namespace LLInitParam
 		green = color.mV[VGREEN];
 		blue = color.mV[VBLUE];
 		alpha = color.mV[VALPHA];
+		control.set("", false);
 	}
 
 	void TypeValues<LLUIColor>::declareValues()
