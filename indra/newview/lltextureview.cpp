@@ -412,7 +412,7 @@ void LLGLTexMemBar::draw()
 	F32 cache_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getUsage()) ;
 	F32 cache_max_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getMaxUsage()) ;
 	S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
-	S32 h_offset = (S32)((texture_bar_height + 2.5f) * mTextureView->mNumTextureBars + 2.5f);
+	S32 v_offset = (S32)((texture_bar_height + 2.5f) * mTextureView->mNumTextureBars + 2.5f);
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
 	LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);
@@ -428,14 +428,14 @@ void LLGLTexMemBar::draw()
 					cache_usage, cache_max_usage);
 	//, cache_entries, cache_max_entries
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, h_offset + line_height*3,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*3,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	//----------------------------------------------------------------------------
 #if 0
 	S32 bar_left = 400;
 	S32 bar_width = 200;
-	S32 top = line_height*3 - 2 + h_offset;
+	S32 top = line_height*3 - 2 + v_offset;
 	S32 bottom = top - 6;
 	S32 left = bar_left;
 	S32 right = left + bar_width;
@@ -494,18 +494,18 @@ void LLGLTexMemBar::draw()
 #endif
 	//----------------------------------------------------------------------------
 
-	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d IW:%d RAW:%d HTP:%d CRE:%d",
+	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d",
 					gTextureList.getNumImages(),
 					LLAppViewer::getTextureFetch()->getNumRequests(), LLAppViewer::getTextureFetch()->getNumDeletes(),
 					LLAppViewer::getTextureFetch()->mPacketCount, LLAppViewer::getTextureFetch()->mBadPacketCount, 
 					LLAppViewer::getTextureCache()->getNumReads(), LLAppViewer::getTextureCache()->getNumWrites(),
 					LLLFSThread::sLocal->getPending(),
-					LLAppViewer::getImageDecodeThread()->getPending(), 
 					LLImageRaw::sRawImageCount,
 					LLAppViewer::getTextureFetch()->getNumHTTPRequests(),
+					LLAppViewer::getImageDecodeThread()->getPending(), 
 					gTextureList.mCreateTextureList.size());
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, h_offset + line_height*2,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*2,
 									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 
@@ -515,40 +515,40 @@ void LLGLTexMemBar::draw()
 	color = bandwidth > max_bandwidth ? LLColor4::red : bandwidth > max_bandwidth*.75f ? LLColor4::yellow : text_color;
 	color[VALPHA] = text_color[VALPHA];
 	text = llformat("BW:%.0f/%.0f",bandwidth, max_bandwidth);
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left, line_height*2,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left, v_offset + line_height*2,
 											 color, LLFontGL::LEFT, LLFontGL::TOP);
 	
 	S32 dx1 = 0;
 	if (LLAppViewer::getTextureFetch()->mDebugPause)
 	{
-		LLFontGL::getFontMonospace()->renderUTF8(std::string("!"), 0, title_x1, h_offset + line_height,
+		LLFontGL::getFontMonospace()->renderUTF8(std::string("!"), 0, title_x1, v_offset + line_height,
 										 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 		dx1 += 8;
 	}
 	if (mTextureView->mFreezeView)
 	{
-		LLFontGL::getFontMonospace()->renderUTF8(std::string("*"), 0, title_x1, h_offset + line_height,
+		LLFontGL::getFontMonospace()->renderUTF8(std::string("*"), 0, title_x1, v_offset + line_height,
 										 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 		dx1 += 8;
 	}
 	if (mTextureView->mOrderFetch)
 	{
-		LLFontGL::getFontMonospace()->renderUTF8(title_string1b, 0, title_x1+dx1, h_offset + line_height,
+		LLFontGL::getFontMonospace()->renderUTF8(title_string1b, 0, title_x1+dx1, v_offset + line_height,
 										 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 	}
 	else
 	{	
-		LLFontGL::getFontMonospace()->renderUTF8(title_string1a, 0, title_x1+dx1, h_offset + line_height,
+		LLFontGL::getFontMonospace()->renderUTF8(title_string1a, 0, title_x1+dx1, v_offset + line_height,
 										 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 	}
 	
-	LLFontGL::getFontMonospace()->renderUTF8(title_string2, 0, title_x2, h_offset + line_height,
+	LLFontGL::getFontMonospace()->renderUTF8(title_string2, 0, title_x2, v_offset + line_height,
 									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	LLFontGL::getFontMonospace()->renderUTF8(title_string3, 0, title_x3, h_offset + line_height,
+	LLFontGL::getFontMonospace()->renderUTF8(title_string3, 0, title_x3, v_offset + line_height,
 									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	LLFontGL::getFontMonospace()->renderUTF8(title_string4, 0, title_x4, h_offset + line_height,
+	LLFontGL::getFontMonospace()->renderUTF8(title_string4, 0, title_x4, v_offset + line_height,
 									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 }
 
