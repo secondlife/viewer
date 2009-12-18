@@ -108,11 +108,10 @@ gst_slvideo_show_frame (GstBaseSink * bsink, GstBuffer * buf)
 	
 	slvideo = GST_SLVIDEO(bsink);
 	
-#if 0
-	fprintf(stderr, "\n\ntransferring a frame of %dx%d <- %p (%d)\n\n",
-		slvideo->width, slvideo->height, GST_BUFFER_DATA(buf),
-		slvideo->format);
-#endif
+	DEBUGMSG("\n\ntransferring a frame of %dx%d <- %p (%d)\n\n",
+		 slvideo->width, slvideo->height, GST_BUFFER_DATA(buf),
+		 slvideo->format);
+
 	if (GST_BUFFER_DATA(buf))
 	{
 		// copy frame and frame info into neutral territory
@@ -528,7 +527,7 @@ void gst_slvideo_init_class (void)
 				  "http://www.secondlife.com/");
 #undef PACKAGE
 	ll_gst_plugin_register_static (&gst_plugin_desc);
-	DEBUGMSG(stderr, "\n\n\nCLASS INIT\n\n\n");
+	DEBUGMSG("\n\n\nCLASS INIT\n\n\n");
 }
 
 #endif // LL_GSTREAMER010_ENABLED
