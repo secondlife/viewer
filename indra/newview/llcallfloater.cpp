@@ -270,10 +270,9 @@ void LLCallFloater::refreshPartisipantList()
 
 	if (!non_avatar_caller)
 	{
-		bool do_not_use_context_menu_in_local_chat = LLLocalSpeakerMgr::getInstance() != mSpeakerManager;
-		mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList, do_not_use_context_menu_in_local_chat);
+		mPaticipants = new LLParticipantList(mSpeakerManager, mAvatarList);
 
-		if (!do_not_use_context_menu_in_local_chat)
+		if (LLLocalSpeakerMgr::getInstance() == mSpeakerManager)
 		{
 			mAvatarList->setNoItemsCommentText(getString("no_one_near"));
 		}

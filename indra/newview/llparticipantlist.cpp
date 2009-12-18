@@ -115,13 +115,16 @@ LLParticipantList::~LLParticipantList()
 	// It is possible Participant List will be re-created from LLCallFloater::onCurrentChannelChanged()
 	// See ticket EXT-3427
 	// hide menu before deleting it to stop enable and check handlers from triggering.
-	if(mParticipantListMenu)
+	if(mParticipantListMenu && !LLApp::isExiting())
 	{
 		mParticipantListMenu->hide();
 	}
 
-	delete mParticipantListMenu;
-	mParticipantListMenu = NULL;
+	if (mParticipantListMenu)
+	{
+		delete mParticipantListMenu;
+		mParticipantListMenu = NULL;
+	}
 }
 
 void LLParticipantList::setSpeakingIndicatorsVisible(BOOL visible)
