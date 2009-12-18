@@ -166,7 +166,7 @@ protected:
 	
 	apr_pool_t			*mAPRPoolp;
 	BOOL				mIsLocalPool;
-	S32					mLockCount;
+	
 #if MUTEX_DEBUG
 	std::map<U32, BOOL> mIsLocked;
 #endif
