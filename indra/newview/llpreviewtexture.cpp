@@ -422,8 +422,8 @@ void LLPreviewTexture::updateDimensions()
 	if (mShowKeepDiscard || mCopyToInv) {  //mCopyToInvBtn
 
 		// add space for buttons
-		view_height += 	BTN_HEIGHT + CLIENT_RECT_VPAD;
-		button_height = BTN_HEIGHT + PREVIEW_PAD;
+		view_height += 	(BTN_HEIGHT + CLIENT_RECT_VPAD) * 3;
+		button_height = (BTN_HEIGHT + PREVIEW_PAD) * 3;
 	}
 
 	view_width = llmax(view_width, getMinWidth());
