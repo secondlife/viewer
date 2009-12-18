@@ -1279,6 +1279,28 @@ void LLCallDialogManager::onVoiceChannelChanged(const LLUUID &session_id)
 		sPreviousSessionlName = sCurrentSessionlName;
 		sCurrentSessionlName = session->mName;
 	}
+
+	if (LLVoiceChannel::getCurrentVoiceChannel()->getState() == LLVoiceChannel::STATE_CALL_STARTED &&
+		LLVoiceChannel::getCurrentVoiceChannel()->getCallDirection() == LLVoiceChannel::OUTGOING_CALL)
+	{
+		
+		//*TODO get rid of duplicated code
+		LLSD mCallDialogPayload;
+		mCallDialogPayload["session_id"] = sSession->mSessionID;
+		mCallDialogPayload["session_name"] = sSession->mName;
+		mCallDialogPayload["other_user_id"] = sSession->mOtherParticipantID;
+		mCallDialogPayload["old_channel_name"] = sPreviousSessionlName;
+		mCallDialogPayload["state"] = LLVoiceChannel::STATE_CALL_STARTED;
+		mCallDialogPayload["disconnected_channel_name"] = sSession->mName;
+		mCallDialogPayload["session_type"] = sSession->mSessionType;
+
+		LLOutgoingCallDialog* ocd = LLFloaterReg::getTypedInstance<LLOutgoingCallDialog>("outgoing_call", LLOutgoingCallDialog::OCD_KEY);
+		if(ocd)
+		{
+			ocd->show(mCallDialogPayload);
+		}	
+	}
+
 }
 
 void LLCallDialogManager::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction)
