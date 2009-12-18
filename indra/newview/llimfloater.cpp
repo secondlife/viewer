@@ -123,9 +123,13 @@ void LLIMFloater::onFocusReceived()
 void LLIMFloater::onClose(bool app_quitting)
 {
 	setTyping(false);
-	// SJB: We want the close button to hide the session window, not end it
-	// *NOTE: Yhis is functional, but not ideal - it's still closing the floater; we really want to change the behavior of the X button instead.
-	//gIMMgr->leaveSession(mSessionID);
+
+	// The source of much argument and design thrashing
+	// Should the window hide or the session close when the X is clicked?
+	//
+	// Last change:
+	// EXT-3516 X Button should end IM session, _ button should hide
+	gIMMgr->leaveSession(mSessionID);
 }
 
 /* static */

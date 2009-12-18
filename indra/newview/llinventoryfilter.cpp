@@ -218,6 +218,7 @@ std::string::size_type LLInventoryFilter::getStringMatchOffset() const
 BOOL LLInventoryFilter::isNotDefault() const
 {
 	return mFilterOps.mFilterObjectTypes != mDefaultFilterOps.mFilterObjectTypes 
+		|| mFilterOps.mFilterTypes != FILTERTYPE_OBJECT
 		|| mFilterSubString.size() 
 		|| mFilterOps.mPermissions != mDefaultFilterOps.mPermissions
 		|| mFilterOps.mMinDate != mDefaultFilterOps.mMinDate 
@@ -227,7 +228,8 @@ BOOL LLInventoryFilter::isNotDefault() const
 
 BOOL LLInventoryFilter::isActive() const
 {
-	return mFilterOps.mFilterObjectTypes != 0xffffffffffffffffULL 
+	return mFilterOps.mFilterObjectTypes != 0xffffffffffffffffULL
+		|| mFilterOps.mFilterTypes != FILTERTYPE_OBJECT
 		|| mFilterSubString.size() 
 		|| mFilterOps.mPermissions != PERM_NONE 
 		|| mFilterOps.mMinDate != time_min()

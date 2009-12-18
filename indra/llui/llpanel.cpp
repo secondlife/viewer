@@ -541,6 +541,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 				output_node, output_params, &default_params);
 		}
 		
+		params.from_xui = true;
 		setupParams(params, parent);
 		{
 			LLFastTimer timer(FTM_PANEL_CONSTRUCTION);

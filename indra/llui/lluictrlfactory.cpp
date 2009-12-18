@@ -105,9 +105,12 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_CREATE_CHILDREN("Create XUI Children");
+
 //static 
 void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t& registry, LLXMLNodePtr output_node)
 {
+	LLFastTimer ft(FTM_CREATE_CHILDREN);
 	if (node.isNull()) return;
 
 	for (LLXMLNodePtr child_node = node->getFirstChild(); child_node.notNull(); child_node = child_node->getNextSibling())
@@ -393,7 +396,7 @@ BOOL LLUICtrlFactory::getAttributeColor(LLXMLNodePtr node, const std::string& na
 //static
 void LLUICtrlFactory::setCtrlParent(LLView* view, LLView* parent, S32 tab_group)
 {
-	if (tab_group < 0) tab_group = parent->getLastTabGroup();
+	if (tab_group == S32_MAX) tab_group = parent->getLastTabGroup();
 	parent->addChild(view, tab_group);
 }
 
@@ -454,8 +457,3 @@ const std::string* LLUICtrlFactory::getWidgetTag(const std::type_info* widget_ty
 	return LLWidgetNameRegistry::instance().getValue(widget_type);
 }
 
-// static
-void LLUICtrlFactory::connect(LLView* parent, LLView* child)
-{
-	parent->addChild(child);
-}

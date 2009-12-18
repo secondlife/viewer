@@ -162,8 +162,8 @@ private:
 		FilterOps();
 		U32 			mFilterTypes;
 
-		U64				mFilterObjectTypes; // For _ITEM
-		U64				mFilterCategoryTypes; // For _ITEM
+		U64				mFilterObjectTypes; // For _OBJECT
+		U64				mFilterCategoryTypes; // For _CATEGORY
 		LLUUID      	mFilterUUID; // for UUID
 
 		time_t			mMinDate;

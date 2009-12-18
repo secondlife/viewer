@@ -30,26 +30,29 @@
      top_pad="10"
      width="320"
      word_wrap="true" />
-    <combo_box
-     follows="top|left"
-     height="20"
-     layout="topleft"
-     left_delta="0"
-     name="boolean_combo"
-     top_pad="10"
-     visible="false"
-     width="100">
-        <combo_box.item
-         label="TRUE"
-         name="TRUE"
-         value="true" />
-        <combo_box.item
-         label="FALSE"
-         name="FALSE"
-         value="" />
-         <combo_box.commit_callback
-           function="CommitSettings" />
-    </combo_box>
+  <radio_group
+   follows="top|left"
+   height="30"
+   layout="topleft"
+   left_delta="0"
+   name="boolean_combo"
+   top_pad="10"
+   visible="false"
+   tab_stop="true" 
+   width="100">
+    <radio_item
+      top_pad="5" 
+     label="TRUE"
+     name="TRUE"
+     value="true" />
+    <radio_item
+      top_pad="5" 
+     label="FALSE"
+     name="FALSE"
+     value="" />
+    <commit_callback
+      function="CommitSettings" />
+  </radio_group>
     <line_editor
      height="20"
      layout="topleft"

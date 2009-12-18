@@ -1896,16 +1896,25 @@ namespace LLInitParam
 		control("")
 	{}
 
-	LLUIColor TypedParam<LLUIColor>::getValueFromBlock() const
+	void TypedParam<LLUIColor>::setValueFromBlock() const
 	{
 		if (control.isProvided())
 		{
-			return LLUIColorTable::instance().getColor(control);
+			mData.mValue = LLUIColorTable::instance().getColor(control);
 		}
 		else
 		{
-			return LLColor4(red, green, blue, alpha);
+			mData.mValue = LLColor4(red, green, blue, alpha);
 		}
+	}
+	
+	void TypedParam<LLUIColor>::setBlockFromValue()
+	{
+		LLColor4 color = mData.mValue.get();
+		red = color.mV[VRED];
+		green = color.mV[VGREEN];
+		blue = color.mV[VBLUE];
+		alpha = color.mV[VALPHA];
 	}
 
 	void TypeValues<LLUIColor>::declareValues()
@@ -1932,28 +1941,33 @@ namespace LLInitParam
 		addSynonym(name, "");
 	}
 
-	const LLFontGL* TypedParam<const LLFontGL*>::getValueFromBlock() const
+	void TypedParam<const LLFontGL*>::setValueFromBlock() const
 	{
-		if (name.isProvided())
+		const LLFontGL* res_fontp = LLFontGL::getFontByName(name);
+		if (res_fontp)
 		{
-			const LLFontGL* res_fontp = LLFontGL::getFontByName(name);
-			if (res_fontp)
-			{
-				return res_fontp;
-			}
-
-			U8 fontstyle = 0;
-			fontstyle = LLFontGL::getStyleFromString(style());
-			LLFontDescriptor desc(name(), size(), fontstyle);
-			const LLFontGL* fontp = LLFontGL::getFont(desc);
-			if (fontp)
-			{
-				return fontp;
-			}
+			mData.mValue = res_fontp;
+			return;
 		}
-		
-		// default to current value
-		return mData.mValue;
+
+		U8 fontstyle = 0;
+		fontstyle = LLFontGL::getStyleFromString(style());
+		LLFontDescriptor desc(name(), size(), fontstyle);
+		const LLFontGL* fontp = LLFontGL::getFont(desc);
+		if (fontp)
+		{
+			mData.mValue = fontp;
+		}		
+	}
+	
+	void TypedParam<const LLFontGL*>::setBlockFromValue()
+	{
+		if (mData.mValue)
+		{
+			name = LLFontGL::nameFromFont(mData.mValue);
+			size = LLFontGL::sizeFromFont(mData.mValue);
+			style = LLFontGL::getStringFromStyle(mData.mValue->getFontDesc().getStyle());
+		}
 	}
 
 	TypedParam<LLRect>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLRect& value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
@@ -1966,7 +1980,7 @@ namespace LLInitParam
 		height("height")
 	{}
 
-	LLRect TypedParam<LLRect>::getValueFromBlock() const
+	void TypedParam<LLRect>::setValueFromBlock() const
 	{
 		LLRect rect;
 
@@ -2027,7 +2041,17 @@ namespace LLInitParam
 			rect.mBottom = bottom;
 			rect.mTop = top;
 		}
-		return rect;
+		mData.mValue = rect;
+	}
+	
+	void TypedParam<LLRect>::setBlockFromValue()
+	{
+		left = mData.mValue.mLeft;
+		right = mData.mValue.mRight;
+		bottom = mData.mValue.mBottom;
+		top = mData.mValue.mTop;
+		width.setProvided(false);
+		height.setProvided(false);
 	}
 
 	TypedParam<LLCoordGL>::TypedParam(BlockDescriptor& descriptor, const char* name, LLCoordGL value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
@@ -2037,9 +2061,15 @@ namespace LLInitParam
 	{
 	}
 
-	LLCoordGL TypedParam<LLCoordGL>::getValueFromBlock() const
+	void TypedParam<LLCoordGL>::setValueFromBlock() const
 	{
-		return LLCoordGL(x, y);
+		mData.mValue.set(x, y);
+	}
+	
+	void TypedParam<LLCoordGL>::setBlockFromValue()
+	{
+		x = mData.mValue.mX;
+		y = mData.mValue.mY;
 	}
 
 

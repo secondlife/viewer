@@ -345,7 +345,7 @@ class WindowsManifest(ViewerManifest):
                 self.path("ssleay32.dll")
 
                 # For WebKit/Qt plugin runtimes (image format plugins)
-                if self.prefix(src="imageformats", dst="llplugin/imageformats"):
+                if self.prefix(src="imageformats", dst="imageformats"):
                     self.path("qgifd4.dll")
                     self.path("qicod4.dll")
                     self.path("qjpegd4.dll")
@@ -368,7 +368,7 @@ class WindowsManifest(ViewerManifest):
                 self.path("ssleay32.dll")
 
                 # For WebKit/Qt plugin runtimes (image format plugins)
-                if self.prefix(src="imageformats", dst="llplugin/imageformats"):
+                if self.prefix(src="imageformats", dst="imageformats"):
                     self.path("qgif4.dll")
                     self.path("qico4.dll")
                     self.path("qjpeg4.dll")

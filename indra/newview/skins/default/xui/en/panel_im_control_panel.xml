@@ -21,32 +21,32 @@
      value="Unknown"
      width="100" />
     <button
-     follows="left|top"
+     follows="left|top|right"
      height="20"
      label="Profile"
      name="view_profile_btn"
      width="100" />
     <button
-     follows="left|top"
+     follows="left|top|right"
      height="20"
      label="Add Friend"
      name="add_friend_btn"
      width="100" />
     <button
-     follows="left|top"
+     follows="left|top|right"
      height="20"
      label="Teleport"
      name="teleport_btn"
      width="100" />
    <button
-     follows="left|top"
+     follows="left|top|right"
      height="20"
      label="Share"
      name="share_btn"
      width="100" />
      <!--Removing pay button to save space - will update spec - verified by Erica/Steve -->
  <!--   <button
-     follows="left|top"
+     follows="left|top|right"
      height="20"
      label="Pay"
      name="pay_btn"
@@ -56,13 +56,14 @@
      bg_alpha_color="DkGray2"
      border="false"
      top_pad="10"
-     follows="left|bottom"
+     follows="left|bottom|right"
      height="70"
      left="1"
      name="panel_call_buttons"
      width="109">
         <button
          bottom="10"
+         follows="left|top|right"
          height="20"
          label="Call"
          left_delta="5"
@@ -70,6 +71,7 @@
          width="100" />
         <button
          bottom="35"
+         follows="left|top|right"
          height="20"
          label="Leave Call"
          name="end_call_btn"
@@ -77,6 +79,7 @@
          width="100" />
         <button
          bottom="10"
+         follows="left|top|right"
          height="20"
          label="Voice Controls"
          name="voice_ctrls_btn"

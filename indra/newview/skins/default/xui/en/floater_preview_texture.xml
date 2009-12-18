@@ -4,13 +4,13 @@
  auto_tile="true"
  can_resize="true"
  follows="left|top"
- height="313"
+ height="350"
  layout="topleft"
- min_height="120"
- min_width="320"
+ min_height="200"
+ min_width="370"
  name="preview_texture"
  help_topic="preview_texture"
- width="320">
+ width="370">
    <floater.string
      name="Title">
         Texture: [NAME]

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_resize="true"
+ can_minimize="true"
+ can_close="false"
  height="270"
  layout="topleft"
  min_height="146"
- min_width="190"  
+ min_width="190"
  name="floater_voice_controls"
  title="Voice Controls"
  save_visibility="true"
@@ -66,7 +68,7 @@
              name="user_text"
              text_color="white"
              top="4"
-             use_ellipses="true" 
+             use_ellipses="true"
              value="Mya Avatar:"
              width="210" />
             <output_monitor
@@ -77,7 +79,7 @@
              layout="topleft"
              name="speaking_indicator"
              right="-1"
-             top="2" 
+             top="2"
              visible="true"
              width="20" />
         </panel>

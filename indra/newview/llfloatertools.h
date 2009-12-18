@@ -46,7 +46,6 @@ class LLPanelVolume;
 class LLPanelContents;
 class LLPanelFace;
 class LLPanelLandInfo;
-class LLRadioCtrl;
 class LLRadioGroup;
 class LLSlider;
 class LLTabContainer;

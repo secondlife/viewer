@@ -148,7 +148,6 @@ private:
 	static std::string sSkin;
 	bool mGotPersonalInfo;
 	bool mOriginalIMViaEmail;
-	bool mCancelOnClose;
 	
 	bool mOriginalHideOnlineStatus;
 	std::string mDirectoryVisibility;

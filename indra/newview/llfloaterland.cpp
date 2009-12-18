@@ -1526,7 +1526,7 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 
 		object_count_str = llformat("%d", object_count);
 		item_params.columns.add().value(object_count_str).font(FONT).column("count");
-		item_params.columns.add().value(formatted_time((time_t)most_recent_time)).font(FONT).column("mostrecent");
+		item_params.columns.add().value(LLDate((time_t)most_recent_time)).font(FONT).column("mostrecent").type("date");
 
 		self->mOwnerList->addRow(item_params);
 

@@ -54,25 +54,6 @@
         <menu_item_call.on_enable
          function="Attachment.EnableDrop" />
     </menu_item_call>
-    <!--menu_item_call
-     label="My Profile"
-     layout="topleft"
-     name="Profile...">
-        <menu_item_call.on_click
-         function="ShowAgentProfile"
-         parameter="agent" />
-    </menu_item_call>
-    <menu_item_call
-     label="My Appearance"
-     layout="topleft"
-     name="Appearance...">
-        <menu_item_call.on_click
-         function="ShowFloater"
-         parameter="appearance" />
-        <menu_item_call.on_enable
-         function="Edit.EnableCustomizeAvatar" />
-
-    </menu_item_call-->
     <menu_item_separator
       layout="topleft" />
     
@@ -88,11 +69,9 @@
     </menu_item_call>
      <menu_item_call
      label="My Appearance"
-     layout="topleft"
      name="Appearance...">
         <menu_item_call.on_click
-         function="ShowFloater"
-         parameter="appearance" />
+         function="CustomizeAvatar" />
         <menu_item_call.on_enable
          function="Edit.EnableCustomizeAvatar" />
     </menu_item_call>

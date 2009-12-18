@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!--
+label_pad_bottom - vertical padding under tab button labels
+label_pad_left - padding to the left of tab button labels
+-->
 <tab_container tab_min_width="60"
                tab_max_width="150"
-               font_halign="center"
+               halign="center"
                font="SansSerifSmall" 
-               tab_height="21">
+               tab_height="21"
+               label_pad_bottom="2"
+               label_pad_left="4">
   <first_tab tab_top_image_unselected="TabTop_Left_Off"
                tab_top_image_selected="TabTop_Left_Selected"
                tab_bottom_image_unselected="Toolbar_Left_Off"
