@@ -202,7 +202,7 @@ public:
 			userName->setValue(SL);
 		}
 
-		mMinUserNameWidth = style_params.font.getValueFromBlock()->getWidth(userName->getWText().c_str()) + PADDING;
+		mMinUserNameWidth = style_params.font()->getWidth(userName->getWText().c_str()) + PADDING;
 
 		setTimeField(chat);
 		
