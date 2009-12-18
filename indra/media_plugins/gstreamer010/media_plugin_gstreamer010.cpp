@@ -195,6 +195,7 @@ MediaPluginGStreamer010::processGSTEvents(GstBus     *bus,
 	}
 	else
 	{
+		// TODO: grok 'duration' message type
 		DEBUGMSG("Got GST message type: %s",
 			 LLGST_MESSAGE_TYPE_NAME (message));
 	}
@@ -841,9 +842,12 @@ MediaPluginGStreamer010::sizeChanged()
 {
 	// the shared writing space has possibly changed size/location/whatever
 
-	// Check to see whether the movie's natural size has updated
-	if (mNaturalWidth != mPreviousNaturalWidth ||
-	    mNaturalHeight != mPreviousNaturalHeight)
+	// Check to see whether the movie's NATURAL size has been set yet
+	if ((mNaturalWidth != mPreviousNaturalWidth ||
+	     mNaturalHeight != mPreviousNaturalHeight)
+	    &&
+	    (1 == mPreviousNaturalWidth &&
+	     1 == mPreviousNaturalHeight))
 	{
 		mPreviousNaturalWidth = mNaturalWidth;
 		mPreviousNaturalHeight = mNaturalHeight;

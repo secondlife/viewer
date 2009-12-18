@@ -53,7 +53,7 @@ extern "C" {
   }while(0)
 #define NULLMSG(...) do{}while(0)
 
-#define DEBUGMSG NULLMSG
+#define DEBUGMSG STDERRMSG
 #define INFOMSG  STDERRMSG
 #define WARNMSG  STDERRMSG
 /////////////////////////////////////////////////////////////////////////
