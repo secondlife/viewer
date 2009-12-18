@@ -188,6 +188,7 @@ public:
 	std::string getCurrentMediaURL();
 	std::string getHomeURL() { return mHomeURL; }
     void setHomeURL(const std::string& home_url) { mHomeURL = home_url; };
+	void clearCache();
 	std::string getMimeType() { return mMimeType; }
 	void scaleMouse(S32 *mouse_x, S32 *mouse_y);
 	void scaleTextureCoords(const LLVector2& texture_coords, S32 *x, S32 *y);
@@ -355,6 +356,7 @@ public:
 	bool mMediaAutoPlay;
 	std::string mMediaEntryURL;
 	bool mInNearbyMediaList;	// used by LLFloaterNearbyMedia::refreshList() for performance reasons
+	bool mClearCache;
 	
 private:
 	BOOL mIsUpdated ;

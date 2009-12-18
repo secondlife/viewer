@@ -39,12 +39,6 @@
 
 #include "llapr.h"
 
-// If we don't receive a heartbeat in this many seconds, we declare the plugin locked up.
-static const F32 PLUGIN_LOCKED_UP_SECONDS = 15.0f;
-
-// Somewhat longer timeout for initial launch.
-static const F32 PLUGIN_LAUNCH_SECONDS = 20.0f;
-
 //virtual 
 LLPluginProcessParentOwner::~LLPluginProcessParentOwner()
 {
@@ -59,11 +53,11 @@ LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner *owner)
 	mDisableTimeout = false;
 	mDebug = false;
 
-	// initialize timer - heartbeat test (mHeartbeat.hasExpired()) 
-	// can sometimes return true immediately otherwise and plugins 
-	// fail immediately because it looks like 
-//	mHeartbeat.initClass();
-	mHeartbeat.setTimerExpirySec(PLUGIN_LOCKED_UP_SECONDS);
+	mPluginLaunchTimeout = 60.0f;
+	mPluginLockupTimeout = 15.0f;
+	
+	// Don't start the timer here -- start it when we actually launch the plugin process.
+	mHeartbeat.stop();
 }
 
 LLPluginProcessParent::~LLPluginProcessParent()
@@ -326,7 +320,7 @@ void LLPluginProcessParent::idle(void)
 					
 					// This will allow us to time out if the process never starts.
 					mHeartbeat.start();
-					mHeartbeat.setTimerExpirySec(PLUGIN_LAUNCH_SECONDS);
+					mHeartbeat.setTimerExpirySec(mPluginLaunchTimeout);
 					setState(STATE_LAUNCHED);
 				}
 			}
@@ -560,7 +554,7 @@ void LLPluginProcessParent::receiveMessage(const LLPluginMessage &message)
 		else if(message_name == "heartbeat")
 		{
 			// this resets our timer.
-			mHeartbeat.setTimerExpirySec(PLUGIN_LOCKED_UP_SECONDS);
+			mHeartbeat.setTimerExpirySec(mPluginLockupTimeout);
 
 			mCPUUsage = message.getValueReal("cpu_usage");
 
@@ -715,7 +709,7 @@ bool LLPluginProcessParent::pluginLockedUpOrQuit()
 
 bool LLPluginProcessParent::pluginLockedUp()
 {
-	// If the timer has expired, the plugin has locked up.
-	return mHeartbeat.hasExpired();
+	// If the timer is running and has expired, the plugin has locked up.
+	return (mHeartbeat.getStarted() && mHeartbeat.hasExpired());
 }
 
