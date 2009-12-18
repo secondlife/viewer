@@ -223,6 +223,8 @@ private:
 		void onMouseLeave(S32 x, S32 y, MASK mask);
 		BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	private:
+		static const S32 CHICLET_HPAD = 10;
+		void onChicletSizeChanged(LLChiclet* ctrl, const LLSD& param);
 		void onClosePanel();
 	public:
 		LLIMChiclet* mChiclet;
