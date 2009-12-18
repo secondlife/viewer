@@ -70,6 +70,8 @@ public:
 	 */
 	/*virtual*/ void onChange();
 
+	static void sOnCurrentChannelChanged(const LLUUID& session_id);
+
 private:
 	typedef enum e_voice_controls_type
 	{
@@ -93,7 +95,9 @@ private:
 	 * Refreshes participant list according to current Voice Channel
 	 */
 	void refreshPartisipantList();
-	void onCurrentChannelChanged(const LLUUID& session_id);
+
+
+	
 	void updateTitle();
 	void initAgentData();
 	void setModeratorMutedVoice(bool moderator_muted);
@@ -108,8 +112,6 @@ private:
 	LLPanel* mAgentPanel;
 	LLOutputMonitorCtrl* mSpeakingIndicator;
 	bool mIsModeratorMutedVoice;
-
-	boost::signals2::connection mChannelChangedConnection;
 };
 
 
