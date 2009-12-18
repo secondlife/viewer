@@ -686,6 +686,21 @@ void LLPanelLogin::refreshLocation( bool force_visible )
 }
 
 // static
+void LLPanelLogin::updateLocationUI()
+{
+	std::string sim_string = LLURLSimString::sInstance.mSimString;
+	if (!sim_string.empty())
+	{
+		// Replace "<Type region name>" with this region name
+		LLComboBox* combo = sInstance->getChild<LLComboBox>("start_location_combo");
+		combo->remove(2);
+		combo->add( sim_string );
+		combo->setTextEntry(sim_string);
+		combo->setCurrentByIndex( 2 );
+	}
+}
+
+// static
 void LLPanelLogin::closePanel()
 {
 	if (sInstance)
