@@ -313,8 +313,7 @@ F32 LLFloaterPreference::sAspectRatio = 0.0;
 LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	: LLFloater(key),
 	mGotPersonalInfo(false),
-	mOriginalIMViaEmail(false),
-	mCancelOnClose(true)
+	mOriginalIMViaEmail(false)
 {
 	//Build Floater is now Called from 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
 	
@@ -588,9 +587,6 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	// when the floater is opened.  That will make cancel do its
 	// job
 	saveSettings();
-
-	// This is a "fresh" floater, closing floater shoud cancel any changes
-	mCancelOnClose = true;
 }
 
 void LLFloaterPreference::onVertexShaderEnable()
@@ -609,7 +605,7 @@ void LLFloaterPreference::onClose(bool app_quitting)
 {
 	gSavedSettings.setS32("LastPrefTab", getChild<LLTabContainer>("pref core")->getCurrentPanelIndex());
 	LLPanelLogin::setAlwaysRefresh(false);
-	if (mCancelOnClose) cancel();
+	cancel();
 }
 
 void LLFloaterPreference::onOpenHardwareSettings()
@@ -631,15 +627,9 @@ void LLFloaterPreference::onBtnOK()
 
 	if (canClose())
 	{
+		saveSettings();
 		apply();
-		// Here we do not want to cancel on close, so we do this funny thing
-		// that prevents cancel from undoing our changes when we hit OK
-		mCancelOnClose = false;
 		closeFloater(false);
-
-		// closeFloater() will be called when viewer is quitting, leaving mCancelOnClose = true;
-		// will cancel all changes we saved here, don't let this happen.
-		// Fix for EXT-3465
 
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 		LLUIColorTable::instance().saveUserSettings();
