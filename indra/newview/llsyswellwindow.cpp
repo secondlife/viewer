@@ -610,6 +610,23 @@ void LLNotificationWellWindow::addItem(LLSysWellItem::Params p)
 	}
 }
 
+void LLNotificationWellWindow::closeAll()
+{
+	// Need to clear notification channel, to add storable toasts into the list.
+	clearScreenChannels();
+	std::vector<LLPanel*> items;
+	mMessageList->getItems(items);
+	for (std::vector<LLPanel*>::iterator
+			 iter = items.begin(),
+			 iter_end = items.end();
+		 iter != iter_end; ++iter)
+	{
+		LLSysWellItem* sys_well_item = dynamic_cast<LLSysWellItem*>(*iter);
+		if (sys_well_item)
+			onItemClose(sys_well_item);
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 // PRIVATE METHODS
 void LLNotificationWellWindow::initChannel() 

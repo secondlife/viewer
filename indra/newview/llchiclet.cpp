@@ -154,6 +154,7 @@ LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 , mMaxDisplayedCount(p.max_displayed_count)
 , mIsNewMessagesState(false)
 , mFlashToLitTimer(NULL)
+, mContextMenu(NULL)
 {
 	LLButton::Params button_params = p.button;
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
@@ -229,6 +230,21 @@ void LLSysWellChiclet::setNewMessagesState(bool new_messages)
 	mIsNewMessagesState = new_messages;
 }
 
+// virtual
+BOOL LLSysWellChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	if(!mContextMenu)
+	{
+		createMenu();
+	}
+	if (mContextMenu)
+	{
+		mContextMenu->show(x, y);
+		LLMenuGL::showPopup(this, mContextMenu, x, y);
+	}
+	return TRUE;
+}
+
 /************************************************************************/
 /*               LLIMWellChiclet implementation                         */
 /************************************************************************/
@@ -246,6 +262,11 @@ LLIMWellChiclet::LLIMWellChiclet(const Params& p)
 LLIMWellChiclet::~LLIMWellChiclet()
 {
 	LLIMMgr::getInstance()->removeSessionObserver(this);
+}
+
+void LLIMWellChiclet::createMenu()
+{
+	// TODO: implement context menu for IM well
 }
 
 void LLIMWellChiclet::messageCountChanged(const LLSD& session_data)
@@ -279,6 +300,47 @@ void LLNotificationChiclet::connectCounterUpdatersToSignal(const std::string& no
 		n_handler->setNewNotificationCallback(boost::bind(&LLNotificationChiclet::incUreadSystemNotifications, this));
 		n_handler->setDelNotification(boost::bind(&LLNotificationChiclet::decUreadSystemNotifications, this));
 	}
+}
+
+void LLNotificationChiclet::onMenuItemClicked(const LLSD& user_data)
+{
+	std::string action = user_data.asString();
+	if("close all" == action)
+	{
+		LLNotificationWellWindow::getInstance()->closeAll();
+	}
+}
+
+bool LLNotificationChiclet::enableMenuItem(const LLSD& user_data)
+{
+	std::string item = user_data.asString();
+	if (item == "can close all")
+	{
+		return mUreadSystemNotifications != 0;
+	}
+	return true;
+}
+
+void LLNotificationChiclet::createMenu()
+{
+	if(mContextMenu)
+	{
+		llwarns << "Menu already exists" << llendl;
+		return;
+	}
+
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+	registrar.add("NotificationWellChicletMenu.Action",
+		boost::bind(&LLNotificationChiclet::onMenuItemClicked, this, _2));
+
+	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+	enable_registrar.add("NotificationWellChicletMenu.EnableItem",
+		boost::bind(&LLNotificationChiclet::enableMenuItem, this, _2));
+
+	mContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>
+		("menu_notification_well_button.xml",
+		 LLMenuGL::sMenuContainer,
+		 LLViewerMenuHolderGL::child_registry_t::instance());
 }
 
 //////////////////////////////////////////////////////////////////////////

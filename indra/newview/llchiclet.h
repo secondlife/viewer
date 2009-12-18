@@ -806,6 +806,13 @@ protected:
 	 */
 	void changeLitState();
 
+	/**
+	 * Displays menu.
+	 */
+	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
+	virtual void createMenu() = 0;
+
 protected:
 	class FlashToLitTimer;
 	LLButton* mButton;
@@ -814,7 +821,7 @@ protected:
 	bool mIsNewMessagesState;
 
 	FlashToLitTimer* mFlashToLitTimer;
-
+	LLContextMenu* mContextMenu;
 };
 
 /**
@@ -835,6 +842,11 @@ protected:
 	LLIMWellChiclet(const Params& p);
 
 	/**
+	 * Creates menu.
+	 */
+	/*virtual*/ void createMenu();
+
+	/**
 	 * Handles changes in a session (message was added, messages were read, etc.)
 	 *
 	 * It get total count of unread messages from a LLIMMgr in all opened sessions and display it.
@@ -853,6 +865,21 @@ class LLNotificationChiclet : public LLSysWellChiclet
 	friend class LLUICtrlFactory;
 protected:
 	LLNotificationChiclet(const Params& p);
+
+	/**
+	 * Processes clicks on chiclet menu.
+	 */
+	void onMenuItemClicked(const LLSD& user_data);
+
+	/**
+	 * Enables chiclet menu items.
+	 */
+	bool enableMenuItem(const LLSD& user_data);
+
+	/**
+	 * Creates menu.
+	 */
+	/*virtual*/ void createMenu();
 
 	// connect counter updaters to the corresponding signals
 	void connectCounterUpdatersToSignal(const std::string& notification_type);
