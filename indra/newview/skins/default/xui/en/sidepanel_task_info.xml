@@ -6,7 +6,7 @@
 	 name="object properties"
 	 help_topic="object_properties"
 	 save_rect="true"
-	 title="Object Properties"
+	 title="Object Profile"
 	 width="333">
 	 <panel.string
 	  name="text deed continued">
@@ -57,127 +57,173 @@
                 Mixed Sale
             </panel.string>
     <button
-	     follows="top|right"
-	     height="25"
-	     image_overlay="BackArrow_Off"
-	     layout="topleft"
-	     name="back_btn"
-	     picture_style="true"
-	     right="-5"
-	     tab_stop="false"
-	     top="0"
-	     width="25" />
+     follows="top|right"
+     height="23"
+     image_overlay="BackArrow_Off"
+     layout="topleft"
+     left="10"
+     name="back_btn"
+     tab_stop="false"
+     top="0"
+     width="23" />
+        <text
+     follows="top|left|right"
+     font="SansSerifHuge"
+     height="26"
+     layout="topleft"
+     left_pad="10"
+     name="title"
+     text_color="LtGray"
+     top="0"
+     use_ellipses="true"
+     value="Object Profile"
+     width="275" />
+	    <text
+     follows="top|left"
+     height="13"
+     layout="topleft"
+     left="45"
+     name="where"
+     text_color="LtGray_50"
+     value="(In World)"
+     width="150" />
 	<panel
          follows="all"
-         height="500"
+         height="490"
          label=""
          layout="topleft"
-         left="5"
+         left="10"
          help_topic=""
-         top="30"
-		 border="1"
-         width="313">
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             height="10"
-             layout="topleft"
-             left="10"
+         top="45"
+         width="313"
+   background_visible="true"
+   bg_alpha_color="DkGray2">
+	    	    <text
+		     type="string"
+		     length="1"
+		     follows="left|top"
+		     height="10"
+		     layout="topleft"
+		     left="5"
              name="Name:"
-             top_pad="5"
-             width="90">
-                Name:
-            </text>
-            <line_editor
-             follows="left|top|right"
-             height="19"
-             layout="topleft"
-             left_pad="0"
-             max_length="63"
+		     top="10"
+		     width="78">
+	        Name:
+	    </text>
+	    <line_editor
+		     border_style="line"
+		     border_thickness="1"
+	    	 follows="left|top|right"
+		     height="20"
+		     layout="topleft"
+	    	 left_delta="78"
+		     max_length="63"
              name="Object Name"
-             select_on_focus="true"
-             top_delta="0"
-             width="170" />
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             height="10"
-             layout="topleft"
-             left="10"
+	    	 top_delta="0"
+		     width="225" />
+	    <text
+	    type="string"
+	    length="1"
+	    follows="left|top"
+	    height="10"
+	    layout="topleft"
+	    left="5"
              name="Description:"
-             top_pad="3"
-             width="90">
-                Description:
-            </text>
+	    top_pad="10"
+	    width="78">
+	        Description:
+	    </text>
             <line_editor
+	     border_style="line"
+    	     border_thickness="1"
              follows="left|top|right"
-             height="19"
+             height="23"
              layout="topleft"
-             left_pad="0"
-             max_length="127"
              name="Object Description"
              select_on_focus="true"
-             top_delta="0"
-             width="170" />
-            <text
-             type="string"
-             left="10"
-             length="1"
-             follows="left|top"
-             height="19"
-             layout="topleft"
-             name="Creator:"
-             width="90">
-                Creator:
-            </text>
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             left_pad="0"
-             height="19"
-             layout="topleft"
+    		 left_delta="78"
+		     max_length="127"
+	    	 top_delta="-5"
+	    	 width="225"/>
+	    <text
+		     type="string"
+		     length="1"
+		     follows="left|top"
+		     height="23"
+		     layout="topleft"
+    		 left="5"
+		 name="CreatorNameLabel"
+		  top_pad="10"
+		     width="78">
+	        Creator:
+    	</text>
+	    	<avatar_icon
+     follows="top|left"
+     height="20"
+     default_icon_name="Generic_Person"
+     layout="topleft"
+     left_pad="0"
+      top_delta="-6"
+     mouse_opaque="true"
+     width="20" />
+	    <text
+		     type="string"
+     follows="left|right"
+     font="SansSerifSmall"
+     height="15"
+     layout="topleft"
+     left_pad="5"
              name="Creator Name"
-             width="175">
-                Esbee Linden
-            </text>
-            <text
-             type="string"
-             length="1"
-             left="10"
-             follows="left|top"
-             height="19"
-             layout="topleft"
-             name="Owner:"
-             width="90">
-                Owner:
-            </text>
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             height="19"
-             layout="topleft"
-             name="Owner Name"
-             left_pad="0"
-             width="175">
-                Erica Linden
-            </text>
-           <text
-             type="string"
-             length="1"
-             follows="left|top"
-             layout="topleft"
-             left="10"
-             height="18"
-             name="Group:"
-             top_pad="4"
-             width="75">
-                Group:
-            </text>
-            <button
+		     top_delta="6"
+		     width="140">
+	        Erica Linden
+	     </text>
+	    <text
+			 type="string"
+			 length="1"
+			 follows="left|top"
+			 height="23"
+			layout="topleft"
+			left="5"
+			name="Owner:"
+			top_pad="10"
+			 width="78">
+			    Owner:
+	     </text>
+	     <avatar_icon
+     follows="top|left"
+     height="20"
+     default_icon_name="Generic_Person"
+     layout="topleft"
+     left_pad="0"
+	    top_delta="-6"
+	    mouse_opaque="true"
+     width="20" />
+	     <text
+			    type="string"
+			    follows="left|right"
+			    font="SansSerifSmall"
+			    height="15"
+			    layout="topleft"
+			    left_pad="5"
+			    name="Owner Name"
+			    top_delta="6"
+			    width="140">
+			    Erica Linden
+	     </text>
+	    	    <text
+			 type="string"
+			 length="1"
+			 follows="left|top"
+			 height="23"
+			 layout="topleft"
+			 left="5"
+			name="Group_label"
+			top_pad="10"
+			width="78">
+			    Group:
+	     </text>
+      		<button
 			 follows="top|left"
 			 height="10"
 			 image_disabled="Activate_Checkmark"
@@ -203,43 +249,34 @@
              width="150" />
             <button
              follows="top|left"
-             height="20"
+             height="23"
              label="Deed"
              label_selected="Deed"
              layout="topleft"
              name="button deed"
              top_pad="0"
-             left="100"
+             left="81"
              tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."
-             width="80" />
-            <check_box
-             height="19"
-             follows="left|top"
-             label="Share"
-             layout="topleft"
-             name="checkbox share with group"
-             tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."
-             left_pad="3"
              width="100" />
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="9"
              layout="topleft"
-             top_pad="15"
-             left="10"
+             top_pad="5"
+             left="5"
              name="label click action"
-             width="90">
+             width="280">
                 Click to:
             </text>
             <combo_box
              follows="left|top"
-             height="20"
+             height="23"
              layout="topleft"
              name="clickaction"
              width="168"
-             left_pad="0">
+             left="81">
                 <combo_box.item
                  label="Touch  (default)"
                  name="Touch/grab(default)"
@@ -261,26 +298,131 @@
                  name="Open"
                  value="Open" />
             </combo_box>
-            <check_box
-             height="16"
-             top_pad="15"
-             label="For Sale:"
-             layout="topleft"
-             name="checkbox for sale"
+	 <panel
+         border="false"
+         follows="left|top"
+         layout="topleft"
+         mouse_opaque="false"
+         background_visible="true"
+         bg_alpha_color="DkGray"
+         name="perms_inv"
+         left="0"
+         top_pad="15"
+         height="135"
+         width="313">
+	  <text
+             type="string"
+             length="1"
              left="10"
-             width="90" />
-<!-- NEW SALE TYPE COMBO BOX -->
-      <combo_box
-            left_pad="0"
-            layout="topleft"
-            follows="left|top"
-            allow_text_entry="false"
-            height="20"
-            intial_value="2"
-            max_chars="20"
-            mouse_opaque="true"
+             top_pad="15"
+             text_color="EmphasisColor"
+	     height="15"
+             follows="left|top|right"
+             layout="topleft"
+             name="perm_modify"
+             width="200">
+                You can modify this object
+            </text>
+	  	    <text
+			 type="string"
+			 length="1"
+			 follows="left|top"
+			 height="16"
+			 layout="topleft"
+			 left="10"
+               name="Anyone can:"
+			 top_pad="8"
+			 width="100">
+			Anyone:
+	    </text>
+	    <check_box
+			 height="18"
+			 label="Copy"
+			 layout="topleft"
+			 left_pad="0"
+             name="checkbox allow everyone copy"
+			 top_delta="-2"
+			 width="90" />
+	    <check_box
+             height="18"
+             label="Move"
+             layout="topleft"
+             name="checkbox allow everyone move"
+			 left_pad="0"
+             width="150" />
+	       	<text
+			 type="string"
+			 length="1"
+			 follows="left|top"
+			 height="16"
+			 layout="topleft"
+			 left="10"
+			 name="GroupLabel"
+			 top_pad="8"
+			 width="100">
+			Group:
+    	</text>
+			    <check_box
+			 height="18"
+			 label="Share"
+			 layout="topleft"
+			 left_pad="90"
+			 top_delta="-2"
+             name="checkbox share with group"
+			 tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."
+			 width="150" />
+	    	    <text
+			 type="string"
+			 length="1"
+			 follows="left|top"
+			 height="16"
+			 layout="topleft"
+			 left="10"
+			 name="NextOwnerLabel"
+			 top_pad="8"
+			 width="200"
+			 word_wrap="true">
+			Next owner:
+	    </text>
+	    <check_box
+			 height="18"
+			 label="Modify"
+			 layout="topleft"
+			 left="20"
+			 top_pad="0"
+             name="checkbox next owner can modify"
+			 width="90" />
+	    <check_box
+			 height="18"
+			 label="Copy"
+			 layout="topleft"
+			 left_pad="0"
+             name="checkbox next owner can copy"
+			 width="90" />
+	    <check_box
+			 height="18"
+			 label="Transfer"
+			 layout="topleft"
+			 left_pad="0"
+             name="checkbox next owner can transfer"
+			 tool_tip="Next owner can give away or resell this object"
+			 width="106" />
+	    </panel>
+	    <check_box
+			 height="23"
+			 label="For Sale"
+			 layout="topleft"
+			 left="20"
+             name="checkbox for sale"
+			 top_pad="10"
+			 width="100" />
+		<combo_box
+			 height="23"
+			 left_pad="0"
+			 layout="topleft"
+			 follows="left|top"
             name="sale type"
-            width="158">
+			 width="170">
         <combo_box.item
            name="Copy"
            label="Copy"
@@ -293,14 +435,13 @@
            name="Original"
            label="Original"
            value="1" />
-      </combo_box>
-<!-- NEW PRICE SPINNER -->
-      <spinner
+	    </combo_box>
+		<spinner
         follows="left|top"
         decimal_digits="0"
         increment="1"
-        top_pad="8"
-        left="100"
+        top_pad="10"
+        left="120"
         control_name="Edit Cost"
         name="Edit Cost"
         label="Price: L$"
@@ -310,106 +451,25 @@
         height="20"
         max_val="999999999" />
       <check_box
-	   height="15"
+	   height="20"
 	   width="110"
-	   top_pad="3"
+	   top_pad="6"
 	   label="Show in search"
        layout="topleft"
-	   left="100"
+	   left="120"
        name="search_check"
        tool_tip="Let people see this object in search results" />
-		<panel
-         border="false"
-         follows="left|top"
-         layout="topleft"
-         mouse_opaque="false"
-         background_visible="true"
-         bg_alpha_color="DkGray"
-         name="perms_build"
-         left="0"
-         top="241"
-         height="120"
-         width="278">
-            <text
-             type="string"
-             length="1"
-             left="10"
-             top_pad="9"
-             text_color="EmphasisColor"
-             height="16"
-             follows="left|top|right"
-             layout="topleft"
-             name="perm_modify"
-             width="250">
-                You can modify this object
-            </text>
-            <text
-               type="string"
-               follows="left|top"
-               name="Anyone can:"
-               width="250"
-               left="10">
-                 Anyone:
-            </text>
-            <check_box
-             height="19"
-             label="Move"
-             layout="topleft"
-             name="checkbox allow everyone move"
-             left="15"
-             width="85" />
-            <check_box
-             height="19"
-             label="Copy"
-             layout="topleft"
-             left_pad="0"
-             name="checkbox allow everyone copy"
-             width="90" />
-            <text
-               type="string"
-               follows="left|top"
-               height="19"
-               name="Next owner can:"
-               width="250"
-               left="10">
-                  Next owner:
-            </text>
-            <check_box
-             follows="left|top|right"
-             label="Modify"
-             layout="topleft"
-             left="15"
-             name="checkbox next owner can modify"
-             width="85" />
-            <check_box
-             follows="left|top|right"
-             height="19"
-             label="Copy"
-             layout="topleft"
-             left_pad="0"
-             name="checkbox next owner can copy"
-             width="90" />
-            <check_box
-             follows="left|top|right"
-             height="19"
-             label="Transfer"
-             layout="topleft"
-             name="checkbox next owner can transfer"
-             left_pad="0"
-             top_delta="0"
-             tool_tip="Next owner can give away or resell this object"
-             width="90" />
             <text
              type="string"
              text_color="EmphasisColor"
              length="1"
-             top_pad="5"
+             top_pad="15"
              follows="left|top"
              layout="topleft"
              left="10"
              name="B:"
              height="10"
-             width="45">
+             width="50">
                 B:
             </text>
             <text
@@ -421,7 +481,7 @@
              left_pad="0"
              name="O:"
              height="10"
-             width="44">
+             width="50">
                 O:
             </text>
             <text
@@ -433,7 +493,7 @@
              left_pad="0"
              name="G:"
              height="10"
-             width="43">
+             width="50">
                 G:
             </text>
             <text
@@ -445,7 +505,7 @@
              layout="topleft"
              name="E:"
              height="10"
-             width="43">
+             width="50">
                 E:
             </text>
             <text
@@ -457,7 +517,7 @@
              left_pad="0"
              name="N:"
              height="10"
-             width="48">
+             width="50">
                 N:
             </text>
             <text
@@ -473,7 +533,6 @@
                 F:
             </text>
 		</panel>
- </panel>
     <panel
 		 height="25"
 		 layout="bottomright"
@@ -484,30 +543,30 @@
 		 width="313">
         <button
 		     follows="bottom|left"
-		     height="25"
+		     height="23"
 		     label="Open"
 		     layout="topleft"
 		     left="5"
 		     name="open_btn"
 		     top="0"
-		     width="60" />
+		     width="100" />
 	    <button
 		     follows="bottom|left"
-		     height="25"
+		     height="23"
 		     label="Pay"
 		     layout="topleft"
 		     left_pad="5"
 		     name="pay_btn"
 		     top="0"
-		     width="50" />
+		     width="100" />
 	    <button
 		     follows="bottom|left"
-		     height="25"
+		     height="23"
 		     label="Buy"
 		     layout="topleft"
 		     left_pad="5"
 		     name="buy_btn"
 		     top="0"
-		     width="60" />
+		     width="100" />
 	</panel>
 </panel>
