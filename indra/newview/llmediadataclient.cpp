@@ -164,7 +164,7 @@ void LLMediaDataClient::enqueue(const Request *request)
 		// Sadly, we have to const-cast because items put into the queue are not const
 		mSortedQueue.push_back(const_cast<LLMediaDataClient::Request*>(request));
 		
-		LL_DEBUGS("LLMediaDataClient") << "SORTED queue:" << mSortedQueue << LL_ENDL;
+		LL_DEBUGS("LLMediaDataClientQueue") << "SORTED queue:" << mSortedQueue << LL_ENDL;
 	}
 	else {
 		if (mRoundRobinQueue.size() > mMaxRoundRobinQueueSize) 
@@ -187,7 +187,7 @@ void LLMediaDataClient::enqueue(const Request *request)
 			// Sadly, we have to const-cast because items put into the queue are not const
 			mRoundRobinQueue.push_front(const_cast<LLMediaDataClient::Request*>(request));
 			
-			LL_DEBUGS("LLMediaDataClient") << "RR queue:" << mRoundRobinQueue << LL_ENDL;			
+			LL_DEBUGS("LLMediaDataClientQueue") << "RR queue:" << mRoundRobinQueue << LL_ENDL;			
 		}
 		else
 		{
@@ -226,16 +226,16 @@ bool LLMediaDataClient::processQueueTimer()
 	{
 		LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() started, SORTED queue size is:	  " << mSortedQueue.size() 
 			<< ", RR queue size is:	  " << mRoundRobinQueue.size() << LL_ENDL;
-		LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() started, SORTED queue is:	  " << mSortedQueue << LL_ENDL;
-		LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() started, RR queue is:	  " << mRoundRobinQueue << LL_ENDL;
+		LL_DEBUGS("LLMediaDataClientQueue") << "QueueTimer::tick() started, SORTED queue is:	  " << mSortedQueue << LL_ENDL;
+		LL_DEBUGS("LLMediaDataClientQueue") << "QueueTimer::tick() started, RR queue is:	  " << mRoundRobinQueue << LL_ENDL;
 	}
 	
 	serviceQueue();
 	
 	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() finished, SORTED queue size is:	  " << mSortedQueue.size() 
 		<< ", RR queue size is:	  " << mRoundRobinQueue.size() << LL_ENDL;
-	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() finished, SORTED queue is:	  " << mSortedQueue << LL_ENDL;
-	LL_DEBUGS("LLMediaDataClient") << "QueueTimer::tick() finished, RR queue is:	  " << mRoundRobinQueue << LL_ENDL;
+	LL_DEBUGS("LLMediaDataClientQueue") << "QueueTimer::tick() finished, SORTED queue is:	  " << mSortedQueue << LL_ENDL;
+	LL_DEBUGS("LLMediaDataClientQueue") << "QueueTimer::tick() finished, RR queue is:	  " << mRoundRobinQueue << LL_ENDL;
 	
 	return isEmpty();
 }
@@ -649,7 +649,7 @@ void LLMediaDataClient::Responder::error(U32 status, const std::string& reason)
 /*virtual*/
 void LLMediaDataClient::Responder::result(const LLSD& content)
 {
-	LL_DEBUGS("LLMediaDataClient") << *mRequest << " result : " << ll_print_sd(content) << LL_ENDL;
+	LL_DEBUGS("LLMediaDataClientResponse") << *mRequest << " result : " << ll_print_sd(content) << LL_ENDL;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -703,7 +703,7 @@ void LLObjectMediaDataClient::Responder::result(const LLSD& content)
 	llassert(type == LLMediaDataClient::Request::GET || type == LLMediaDataClient::Request::UPDATE)
 	if (type == LLMediaDataClient::Request::GET)
 	{
-		LL_DEBUGS("LLMediaDataClient") << *(getRequest()) << " GET returned: " << ll_print_sd(content) << LL_ENDL;
+		LL_DEBUGS("LLMediaDataClientResponse") << *(getRequest()) << " GET returned: " << ll_print_sd(content) << LL_ENDL;
 		
 		// Look for an error
 		if (content.has("error"))

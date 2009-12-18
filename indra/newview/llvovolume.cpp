@@ -134,9 +134,21 @@ public:
 	
 	virtual F64 getMediaInterest() const 
 		{ 
-			F64 tmp = mObject->getTotalMediaInterest();  
-			return (tmp < 0.0) ? mObject->getPixelArea() : tmp; 
+			F64 interest = mObject->getTotalMediaInterest();
+			if (interest < (F64)0.0)
+			{
+				// media interest not valid yet, try pixel area
+				interest = mObject->getPixelArea();
+				// HACK: force recalculation of pixel area if interest is the "magic default" of 1024.
+				if (interest == 1024.f)
+				{
+					const_cast<LLVOVolume*>(static_cast<LLVOVolume*>(mObject))->setPixelAreaAndAngle(gAgent);
+					interest = mObject->getPixelArea();
+				}
+			}
+			return interest; 
 		}
+	
 	virtual bool isInterestingEnough() const
 		{
 			return LLViewerMedia::isInterestingEnough(mObject, getMediaInterest());
