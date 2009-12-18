@@ -631,12 +631,9 @@ void LLFloaterPreference::onBtnOK()
 
 	if (canClose())
 	{
+		saveSettings();
 		apply();
-		// Here we do not want to cancel on close, so we do this funny thing
-		// that prevents cancel from undoing our changes when we hit OK
-		mCancelOnClose = false;
 		closeFloater(false);
-
 		// closeFloater() will be called when viewer is quitting, leaving mCancelOnClose = true;
 		// will cancel all changes we saved here, don't let this happen.
 		// Fix for EXT-3465
