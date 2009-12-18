@@ -115,13 +115,16 @@ private:
 
 	int mDepth;
 
-	// media natural size
+	// media NATURAL size
 	int mNaturalWidth;
 	int mNaturalHeight;
-	int mNaturalRowbytes;
-	// previous media natural size so we can detect changes
-	int mPreviousNaturalWidth;
-	int mPreviousNaturalHeight;
+	// media current size
+	int mCurrentWidth;
+	int mCurrentHeight;
+	int mCurrentRowbytes;
+	  // previous media size so we can detect changes
+	  int mPreviousWidth;
+	  int mPreviousHeight;
 	// desired render size from host
 	int mWidth;
 	int mHeight;
@@ -149,7 +152,7 @@ MediaPluginGStreamer010::MediaPluginGStreamer010(
 	void *host_user_data ) :
 	MediaPluginBase(host_send_func, host_user_data),
 	mBusWatchID ( 0 ),
-	mNaturalRowbytes ( 4 ),
+	mCurrentRowbytes ( 4 ),
 	mTextureFormatPrimary ( GL_RGBA ),
 	mTextureFormatType ( GL_UNSIGNED_INT_8_8_8_8_REV ),
 	mSeekWanted(false),
@@ -430,8 +433,8 @@ MediaPluginGStreamer010::update(int milliseconds)
 		{
 			DEBUGMSG("NEW FRAME READY");
 
-			if (mVideoSink->retained_frame_width != mNaturalWidth ||
-			    mVideoSink->retained_frame_height != mNaturalHeight)
+			if (mVideoSink->retained_frame_width != mCurrentWidth ||
+			    mVideoSink->retained_frame_height != mCurrentHeight)
 				// *TODO: also check for change in format
 			{
 				// just resize container, don't consume frame
@@ -458,39 +461,39 @@ MediaPluginGStreamer010::update(int milliseconds)
 
 				GST_OBJECT_UNLOCK(mVideoSink);
 
-				mNaturalRowbytes = neww * newd;
+				mCurrentRowbytes = neww * newd;
 				DEBUGMSG("video container resized to %dx%d",
 					 neww, newh);
 
 				mDepth = newd;
-				mNaturalWidth = neww;
-				mNaturalHeight = newh;
+				mCurrentWidth = neww;
+				mCurrentHeight = newh;
 				sizeChanged();
 				return true;
 			}
 
 			if (mPixels &&
-			    mNaturalHeight <= mHeight &&
-			    mNaturalWidth <= mWidth &&
+			    mCurrentHeight <= mHeight &&
+			    mCurrentWidth <= mWidth &&
 			    !mTextureSegmentName.empty())
 			{
 				
 				// we're gonna totally consume this frame - reset 'ready' flag
 				mVideoSink->retained_frame_ready = FALSE;				
 				int destination_rowbytes = mWidth * mDepth;
-				for (int row=0; row<mNaturalHeight; ++row)
+				for (int row=0; row<mCurrentHeight; ++row)
 				{
 					memcpy(&mPixels
 					        [destination_rowbytes * row],
 					       &mVideoSink->retained_frame_data
-					        [mNaturalRowbytes * row],
-					       mNaturalRowbytes);
+					        [mCurrentRowbytes * row],
+					       mCurrentRowbytes);
 				}
 
 				GST_OBJECT_UNLOCK(mVideoSink);
 				DEBUGMSG("NEW FRAME REALLY TRULY CONSUMED, TELLING HOST");
 
-				setDirty(0,0,mNaturalWidth,mNaturalHeight);
+				setDirty(0,0,mCurrentWidth,mCurrentHeight);
 			}
 			else
 			{
@@ -843,14 +846,20 @@ MediaPluginGStreamer010::sizeChanged()
 	// the shared writing space has possibly changed size/location/whatever
 
 	// Check to see whether the movie's NATURAL size has been set yet
-	if ((mNaturalWidth != mPreviousNaturalWidth ||
-	     mNaturalHeight != mPreviousNaturalHeight)
-	    &&
-	    (1 == mPreviousNaturalWidth &&
-	     1 == mPreviousNaturalHeight))
+	if (1 == mNaturalWidth &&
+	    1 == mNaturalHeight)
 	{
-		mPreviousNaturalWidth = mNaturalWidth;
-		mPreviousNaturalHeight = mNaturalHeight;
+		mNaturalWidth = mCurrentWidth;
+		mNaturalHeight = mCurrentHeight;
+		DEBUGMSG("Media NATURAL size better detected as %dx%d",
+			 mNaturalWidth, mNaturalHeight);
+	}
+
+	if (mCurrentWidth != mPreviousWidth ||
+	    mCurrentHeight != mPreviousHeight) // if the size has changed then the shm has changed and the app needs telling
+	{
+		mPreviousWidth = mCurrentWidth;
+		mPreviousHeight = mCurrentHeight;
 
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "size_change_request");
 		message.setValue("name", mTextureSegmentName);
@@ -945,10 +954,12 @@ void MediaPluginGStreamer010::receiveMessage(const char *message_string)
 				// lame to have to decide this now, it depends on the movie.  Oh well.
 				mDepth = 4;
 
+				mCurrentWidth = 1;
+				mCurrentHeight = 1;
+				mPreviousWidth = 1;
+				mPreviousHeight = 1;
 				mNaturalWidth = 1;
 				mNaturalHeight = 1;
-				mPreviousNaturalWidth = 1;
-				mPreviousNaturalHeight = 1;
 				mWidth = 1;
 				mHeight = 1;
 				mTextureWidth = 1;
