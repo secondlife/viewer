@@ -662,12 +662,16 @@ void LLFavoritesBarCtrl::updateButtons()
 		LLFavoriteLandmarkButton* button = dynamic_cast<LLFavoriteLandmarkButton*> (*child_it);
 		if (button)
 		{
-			// an child's order  and mItems  should be same   
-			if (button->getLandmarkId() != mItems[first_changed_item_index]->getUUID() // sort order has been changed
-					|| button->getLabelSelected() != mItems[first_changed_item_index]->getDisplayName() // favorite's name has been changed
-					|| button->getRect().mRight < rightest_point) // favbar's width has been changed
+			const LLViewerInventoryItem *item = mItems[first_changed_item_index].get();
+			if (item)
 			{
-				break;
+				// an child's order  and mItems  should be same   
+				if (button->getLandmarkId() != item->getUUID() // sort order has been changed
+					|| button->getLabelSelected() != item->getDisplayName() // favorite's name has been changed
+					|| button->getRect().mRight < rightest_point) // favbar's width has been changed
+				{
+					break;
+				}
 			}
 			first_changed_item_index++;
 		}
