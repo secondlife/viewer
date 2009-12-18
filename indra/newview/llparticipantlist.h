@@ -229,6 +229,12 @@ class LLParticipantList
 		LLParticipantListMenu*    mParticipantListMenu;
 
 		EParticipantSortOrder	mSortOrder;
+		/*
+		 * This field manages an adding  a new avatar_id in the mAvatarList
+		 * If true, then agent_id wont  be added into mAvatarList
+		 * Also by default this field is controlling a sort procedure, @c sort() 
+		 */
+		bool mExcludeAgent;
 
 		// boost::connections
 		boost::signals2::connection mAvatarListDoubleClickConnection;
