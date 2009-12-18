@@ -275,12 +275,12 @@
      left="0"
      name="profile_buttons_panel"
      top_pad="2"
-     bottom="10"
+     bottom="0"
      height="19"
      width="303">
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Add Friend"
          layout="topleft"
          left="0"
@@ -291,7 +291,7 @@
          width="77" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="IM"
          layout="topleft"
          name="im"
@@ -301,7 +301,7 @@
          width="33" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Call"
          layout="topleft"
          name="call"
@@ -312,7 +312,7 @@
         <button
          enabled="false"
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Map"
          layout="topleft"
          name="show_on_map_btn"
@@ -322,7 +322,7 @@
          width="44" />
         <button
          follows="bottom|left"
-         height="19"
+         height="23"
          label="Teleport"
          layout="topleft"
          name="teleport"
@@ -332,7 +332,7 @@
          width="67" />
         <button
          follows="bottom|right"
-         height="19"
+         height="23"
          label="▼"
          layout="topleft"
          name="overflow_btn"
@@ -352,14 +352,14 @@
      width="303">
         <button
          follows="bottom|right"
-         height="19"
+         height="23"
          left="10"
          label="Edit Profile"
          name="edit_profile_btn"
          width="130" />
         <button
          follows="bottom|right"
-         height="19"
+         height="23"
          label="Edit Appearance"
          left_pad="10"
          name="edit_appearance_btn"
