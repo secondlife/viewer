@@ -4328,7 +4328,6 @@ Hmm. Gesture [NAME] is missing from the database.
    name="UnableToLoadGesture"
    type="notifytip">
 Unable to load gesture [NAME].
-Please try again.
   </notification>
 
   <notification
