@@ -222,13 +222,15 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
                 // Still Downloading -- send progress update.
                 sendProgressEvent("offline", "downloading");
             }
+				 
+			LL_DEBUGS("LLLogin") << "Auth Response: " << mAuthResponse << LL_ENDL;
             status = mAuthResponse["status"].asString();
 
             // Okay, we've received our final status event for this
             // request. Unless we got a redirect response, break the retry
             // loop for the current rewrittenURIs entry.
-            if (! (status == "Complete" &&
-                   mAuthResponse["responses"]["login"].asString() == "indeterminate"))
+            if (!(status == "Complete" &&
+                  mAuthResponse["responses"]["login"].asString() == "indeterminate"))
             {
                 break;
             }
@@ -237,8 +239,8 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD credential
             // to some other URI ("indeterminate" -- why not "redirect"?).
             // The response should contain another uri to try, with its
             // own auth method.
-            request["uri"] = mAuthResponse["next_url"];
-            request["method"] = mAuthResponse["next_method"];
+            request["uri"] = mAuthResponse["responses"]["next_url"].asString();
+            request["method"] = mAuthResponse["responses"]["next_method"].asString();
         } // loop back to try the redirected URI
 
         // Here we're done with redirects for the current rewrittenURIs
