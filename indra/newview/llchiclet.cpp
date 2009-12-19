@@ -140,7 +140,7 @@ private:
 LLSysWellChiclet::Params::Params()
 : button("button")
 , unread_notifications("unread_notifications")
-, max_displayed_count("max_displayed_count", 9)
+, max_displayed_count("max_displayed_count", 99)
 , flash_to_lit_count("flash_to_lit_count", 3)
 , flash_period("flash_period", 0.5F)
 {

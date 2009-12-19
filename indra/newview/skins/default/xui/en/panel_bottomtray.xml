@@ -327,6 +327,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          min_width="35"
          user_resize="false">
             <chiclet_im_well
+             max_displayed_count="99"
              flash_period="0.3"
              follows="right"
              height="23"
@@ -356,7 +357,6 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                  image_selected="PushButton_Selected_Press"
                  label_color="Black"
                  left="0"
-                 max_displayed_count="99"
                  name="Unread IM messages"
                  pad_left="0"
                  pad_right="0"
