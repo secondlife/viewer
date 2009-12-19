@@ -354,6 +354,14 @@ class WindowsManifest(ViewerManifest):
                     self.path("qtiffd4.dll")
                     self.end_prefix()
 
+                # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
+                if self.prefix(src="codecs", dst="codecs"):
+                    self.path("qcncodecsd4.dll")
+                    self.path("qjpcodecsd4.dll")
+                    self.path("qkrcodecsd4.dll")
+                    self.path("qtwcodecsd4.dll")
+                    self.end_prefix()
+
                 self.end_prefix()
         else:
             if self.prefix(src=os.path.join(os.pardir, os.pardir, 'libraries', 'i686-win32', 'lib', 'release'),
@@ -375,6 +383,14 @@ class WindowsManifest(ViewerManifest):
                     self.path("qmng4.dll")
                     self.path("qsvg4.dll")
                     self.path("qtiff4.dll")
+                    self.end_prefix()
+
+                # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
+                if self.prefix(src="codecs", dst="codecs"):
+                    self.path("qcncodecs4.dll")
+                    self.path("qjpcodecs4.dll")
+                    self.path("qkrcodecs4.dll")
+                    self.path("qtwcodecs4.dll")
                     self.end_prefix()
 
                 self.end_prefix()

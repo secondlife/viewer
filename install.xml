@@ -962,9 +962,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>3846354e2e20a98c0401317eb114ff5e</string>
+            <string>4dd305f2ce38b2e55a2014ad3a2de34d</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-windows-qt4.6-20091215.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-windows-qt4.6-20091218.tar.bz2</uri>
           </map>
         </map>
       </map>

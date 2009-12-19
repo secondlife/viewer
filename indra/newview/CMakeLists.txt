@@ -1444,6 +1444,10 @@ if (WINDOWS)
       ${ARCH_PREBUILT_DIRS_RELEASE}/imageformats/qmng4.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/imageformats/qsvg4.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/imageformats/qtiff4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/codecs/qcncodecs4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/codecs/qjpcodecs4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/codecs/qkrcodecs4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/codecs/qtwcodecs4.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/libeay32.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/qtcored4.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/qtguid4.dll
@@ -1458,6 +1462,10 @@ if (WINDOWS)
       ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qmngd4.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qsvgd4.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qtiffd4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/codecs/qcncodecsd4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/codecs/qjpcodecsd4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/codecs/qkrcodecsd4.dll
+      ${ARCH_PREBUILT_DIRS_RELEASE}/codecs/qtwcodecsd4.dll
       SLPlugin
       media_plugin_quicktime
       media_plugin_webkit
