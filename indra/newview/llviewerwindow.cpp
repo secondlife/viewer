@@ -839,12 +839,15 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 				bool drop = (LLWindowCallbacks::DNDA_DROPPED == action);
 					
 				// special case SLURLs
-				if ( drop && std::string::npos != data.find("slurl.com") )
+				if (std::string::npos != data.find("slurl.com") )
 				{
-					LLURLDispatcher::dispatch( data, NULL, true );
-					LLURLSimString::setString( LLSLURL::stripProtocol( data ) );
-					LLPanelLogin::refreshLocation( true );
-					LLPanelLogin::updateLocationUI();
+					if (drop)
+					{
+						LLURLDispatcher::dispatch( data, NULL, true );
+						LLURLSimString::setString( LLSLURL::stripProtocol( data ) );
+						LLPanelLogin::refreshLocation( true );
+						LLPanelLogin::updateLocationUI();
+					}
 					return LLWindowCallbacks::DND_MOVE;
 				};
 
@@ -908,10 +911,13 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 							
 						}
 						else {
-							mDragHoveredObject = obj;
-							// Highlight the dragged object
-							LLSelectMgr::getInstance()->highlightObjectOnly(mDragHoveredObject);
-							
+							if ( obj != mDragHoveredObject)
+							{
+								// Highlight the dragged object
+								LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
+								mDragHoveredObject = obj;
+								LLSelectMgr::getInstance()->highlightObjectOnly(mDragHoveredObject);
+							}
 							result = (! te->hasMedia()) ? LLWindowCallbacks::DND_COPY : LLWindowCallbacks::DND_LINK;
 						}
 					}

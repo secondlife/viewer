@@ -688,6 +688,8 @@ void LLPanelLogin::refreshLocation( bool force_visible )
 // static
 void LLPanelLogin::updateLocationUI()
 {
+	if (!sInstance) return;
+	
 	std::string sim_string = LLURLSimString::sInstance.mSimString;
 	if (!sim_string.empty())
 	{
